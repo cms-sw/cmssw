@@ -29,7 +29,6 @@ is the DataBlock.
 #include <vector>
 
 namespace edm {
-  class BranchIDListHelper;
   class BranchMapper;
   class DelayedReader;
   class EventID;
@@ -48,7 +47,6 @@ namespace edm {
     static int const invalidStoreNumber = EventAuxiliary::invalidStoreNumber;
     EventPrincipal(
         boost::shared_ptr<ProductRegistry const> reg,
-        boost::shared_ptr<BranchIDListHelper const> branchIDListHelper,
         ProcessConfiguration const& pc,
         HistoryAppender* historyAppender = 0);
     ~EventPrincipal() {}
@@ -174,8 +172,6 @@ namespace edm {
     mutable std::vector<std::string> moduleLabelsRunning_;
 
     boost::shared_ptr<EventSelectionIDVector> eventSelectionIDs_;
-
-    boost::shared_ptr<BranchIDListHelper const> branchIDListHelper_;
 
     boost::shared_ptr<BranchListIndexes> branchListIndexes_;
 

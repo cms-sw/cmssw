@@ -34,11 +34,7 @@
 #include "RecoVertex/KalmanVertexFit/interface/KalmanVertexSmoother.h"
 //#include "DataFormats/Math/interface/deltaR.h"
 
-
-#include "RecoVertex/ConfigurableVertexReco/interface/ConfigurableVertexReconstructor.h"
-
 //#define VTXDEBUG
-using namespace reco;
 
 class TrackVertexArbitration{
     public:
@@ -46,10 +42,10 @@ class TrackVertexArbitration{
 
 
 	reco::VertexCollection trackVertexArbitrator(
-          edm::Handle<BeamSpot> &beamSpot, 
+          edm::Handle<reco::BeamSpot> &beamSpot, 
 	  const reco::Vertex &pv,
 	  edm::ESHandle<TransientTrackBuilder> &trackBuilder,
-	  const edm::RefVector< TrackCollection > & selectedTracks,
+	  const edm::RefVector< reco::TrackCollection > & selectedTracks,
 	  reco::VertexCollection & secondaryVertices
 	);
 	

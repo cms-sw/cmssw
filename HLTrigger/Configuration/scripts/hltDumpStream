@@ -237,41 +237,37 @@ def getEndPath(output):
 
 
 def dumpStream(stream):
-  unassigned = [ ]
-  missing    = [ ]
+  assigned = set()
+  allpaths = set()
 
   print 'stream', stream
   out = 'hltOutput%s' % stream
   end = getEndPath(out)
   if end:
     output = eval('process.hltOutput%s' % stream)
-    unassigned = [ path for path in output.SelectEvents.SelectEvents ]
+    allpaths = set( path for path in output.SelectEvents.SelectEvents )
 
-  pds = process.streams.__dict__[stream]
-  pds.sort()
+  pds = sorted( process.streams.__dict__[stream] )
   for pd in pds:
     print '    dataset', pd
     if pd in process.datasets.__dict__:
-      paths = [ path for path in process.datasets.__dict__[pd] ]
-      paths.sort()
+      paths = sorted( path for path in process.datasets.__dict__[pd] )
+      assigned.update( paths )
       for path in paths:
         print dumpPath(path, out, end)
-        # look for unassigned paths - not that a path can only appear in a single dataset per stream
-        if path in unassigned:
-          unassigned.remove( path )
-        else:
-          missing.append( path )
     else:
       print '        *** not found ***'
+
+  unassigned = allpaths - assigned
   if unassigned:
-    unassigned.sort()
     print '    *** unassigned paths ***'
-    for path in unassigned:
+    for path in sorted(unassigned):
       print dumpPath(path, out, end)
+
+  missing    = assigned - allpaths
   if missing:
-    missing.sort()
     print '    *** missing paths in the output module ***'
-    for path in missing:
+    for path in sorted(missing):
       print dumpPath(path, out, end)
 
 

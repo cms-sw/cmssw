@@ -12,13 +12,13 @@ static const int OTHER_BINS=100;
 static const int TIME_BINS=75;
 static const int PULSE_BINS=10;
 
-HcalQLPlotHistoMgr::HcalQLPlotHistoMgr(TFileDirectory& parent,
+HcalQLPlotHistoMgr::HcalQLPlotHistoMgr(TDirectory* parent,
 				       const edm::ParameterSet& histoParams) {
-  pedHistDir=new TFileDirectory(parent.mkdir("PEDESTAL"));
-  ledHistDir=new TFileDirectory(parent.mkdir("LED"));
-  laserHistDir=new TFileDirectory(parent.mkdir("LASER"));
-  beamHistDir=new TFileDirectory(parent.mkdir("BEAM"));
-  otherHistDir=new TFileDirectory(parent.mkdir("OTHER"));
+  pedHistDir=parent->mkdir("PEDESTAL");
+  ledHistDir=parent->mkdir("LED");
+  laserHistDir=parent->mkdir("LASER");
+  beamHistDir=parent->mkdir("BEAM");
+  otherHistDir=parent->mkdir("OTHER");
   histoParams_ = histoParams;
 }
 
@@ -101,15 +101,14 @@ TH1* HcalQLPlotHistoMgr::GetAHistogram(const HcalCalibDetId& id,
 TH1* HcalQLPlotHistoMgr::GetAHistogramImpl(const char *name,
 					   HistType ht, EventType et)
 {
-  TFileDirectory* td;
-  std::string fqn(name);
+  TDirectory* td;
 
   switch (et) {
-  case(PEDESTAL): td=pedHistDir; fqn="PEDESTAL-"+fqn; break;
-  case(LED): td=ledHistDir; fqn="LASER-"+fqn; break;
-  case(LASER): td=laserHistDir; fqn="LASER-"+fqn; break;
-  case(BEAM): td=beamHistDir; fqn="BEAM-"+fqn; break;
-  case(UNKNOWN): td=otherHistDir; fqn="OTHER-"+fqn; break;
+  case(PEDESTAL): td=pedHistDir; break;
+  case(LED): td=ledHistDir; break;
+  case(LASER): td=laserHistDir; break;
+  case(BEAM): td=beamHistDir; break;
+  case(UNKNOWN): td=otherHistDir; break;
   default: td=0; break;
   }
 
@@ -120,15 +119,14 @@ TH1* HcalQLPlotHistoMgr::GetAHistogramImpl(const char *name,
 
   TH1* retval=0;
 
-  std::map<std::string,TH1*>::iterator q=hists_.find(fqn);
-  if (q!=hists_.end()) retval=q->second;
-
+  retval=(TH1*)td->Get(name);
   int bins=0; double lo=0, hi=0;
 
   // If the histogram doesn't exist and we are authorized,
   // create it!
   //
   if (retval==0) {
+    td->cd();
     switch (ht) {
     case(ENERGY): {
       switch (et) {
@@ -215,24 +213,23 @@ TH1* HcalQLPlotHistoMgr::GetAHistogramImpl(const char *name,
    
     if (bins>0){
       if (ht==PULSE){
-        retval=td->make<TProfile>(name,name,bins,lo,hi);
+        retval=new TProfile(name,name,bins,lo,hi);
         retval->GetXaxis()->SetTitle("TimeSlice(25ns)");
         retval->GetYaxis()->SetTitle("fC");
       }   
       else if (ht==TIME){
-        retval=td->make<TH1F>(name,name,bins,lo,hi);
+        retval=new TH1F(name,name,bins,lo,hi);
         retval->GetXaxis()->SetTitle("Timing(ns)");
       }
       else if (ht==ENERGY){
-        retval=td->make<TH1F>(name,name,bins,lo,hi);
+        retval=new TH1F(name,name,bins,lo,hi);
         retval->GetXaxis()->SetTitle("Energy(GeV)");
       }
       else if (ht==ADC){
-        retval=td->make<TH1F>(name,name,bins,lo,hi);
+        retval=new TH1F(name,name,bins,lo,hi);
         retval->GetXaxis()->SetTitle("ADC Counts");
       }
     } 
-    if (retval!=0) hists_.insert(std::pair<std::string,TH1*>(fqn,retval));
   }
 
   return retval;

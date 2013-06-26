@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Nov 25 10:54:28 EST 2008
-// $Id: FWSimpleRepresentationChecker.cc,v 1.5 2010/06/02 22:37:41 chrjones Exp $
+// $Id: FWSimpleRepresentationChecker.cc,v 1.6 2010/06/02 22:55:42 chrjones Exp $
 //
 
 // system include files
@@ -72,7 +72,7 @@ FWSimpleRepresentationChecker::~FWSimpleRepresentationChecker()
 //
 // const member functions
 //
-static bool inheritsFrom(const ROOT::Reflex::Type& iChild,
+static bool inheritsFrom(const Reflex::Type& iChild,
                          const std::string& iParentTypeName,
                          unsigned int& distance) {
    if(iChild.TypeInfo().name() == iParentTypeName) {
@@ -82,7 +82,7 @@ static bool inheritsFrom(const ROOT::Reflex::Type& iChild,
       return false;
    }
    ++distance;
-   for(ROOT::Reflex::Base_Iterator it = iChild.Base_Begin(),
+   for(Reflex::Base_Iterator it = iChild.Base_Begin(),
                                    itEnd = iChild.Base_End();
        it != itEnd;
        ++it) {
@@ -116,8 +116,8 @@ FWSimpleRepresentationChecker::infoFor(const std::string& iTypeName) const
       // or the contained type may be unknown to ROOT
       return FWRepresentationInfo();
    }
-   ROOT::Reflex::Type modelType =
-      ROOT::Reflex::Type::ByTypeInfo( *(modelClass->GetTypeInfo()));
+   Reflex::Type modelType =
+      Reflex::Type::ByTypeInfo( *(modelClass->GetTypeInfo()));
    //see if the modelType inherits from our type
 
    if(inheritsFrom(modelType,m_typeidName,distance) ) {

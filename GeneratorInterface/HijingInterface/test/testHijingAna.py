@@ -6,23 +6,23 @@ process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
 process.load("Configuration.StandardSequences.Services_cff")
 process.load("GeneratorInterface.HydjetInterface.hydjetDefault_cfi")
 
-process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(10)
+process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(10000)
                                        )
 
 process.source = cms.Source("EmptySource")
 
 process.generator = cms.EDFilter("HijingGeneratorFilter",
-                                     rotateEventPlane = cms.bool(True),
-                                     frame = cms.string('CMS'),
-                                     targ = cms.string('A'),
+                                     frame = cms.string('CMS     '),
+                                     targ = cms.string('P       '),
                                      izp = cms.int32(82),
                                      bMin = cms.double(0),
-                                     izt = cms.int32(82),
-                                     proj = cms.string('A'),
-                                     comEnergy = cms.double(4000.0),
-                                     iat = cms.int32(208),
-                                     bMax = cms.double(30),
-                                     iap = cms.int32(208)
+                                     izt = cms.int32(1),
+                                     proj = cms.string('A       '),
+                                     comEnergy = cms.double(5020.0),
+                                     iat = cms.int32(1),
+                                     bMax = cms.double(15),
+                                     iap = cms.int32(208),
+                                     rotateEventPlane = cms.bool(True)
                                  )
 
 

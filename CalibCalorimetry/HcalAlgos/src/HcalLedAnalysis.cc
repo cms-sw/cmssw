@@ -12,10 +12,6 @@ using namespace std;
 HcalLedAnalysis::HcalLedAnalysis(const edm::ParameterSet& ps)
 {
   // init
-
-  m_coder = 0;
-  m_ped   = 0;
-  m_shape = 0;
   evt=0;
   sample=0;
   m_file=0;
@@ -64,79 +60,77 @@ HcalLedAnalysis::HcalLedAnalysis(const edm::ParameterSet& ps)
   hfHists.LEDMEAN= new TH1F("HF All LED Means","HF All LED Means",100,0,9);
   hfHists.CHI2= new TH1F("HF Chi2 by ndf for Landau fit","HF Chi2/ndf Landau",200,0.,50.);
 
-
   //XML file header
   m_outputFileXML.open(m_outputFileX.c_str());
-
-  m_outputFileXML << "<?xml version='1.0' encoding='UTF-8'?>" << endl;
-
-  m_outputFileXML << "<ROOT>" << endl;
-
-  m_outputFileXML << "  <HEADER>" << endl;
-
-  m_outputFileXML << "    <TYPE>" << endl;
-
-  m_outputFileXML << "      <EXTENSION_TABLE_NAME>HCAL_LED_TIMING</EXTENSION_TABLE_NAME>" << endl;
-
-  m_outputFileXML << "      <NAME>HCAL LED Timing</NAME>" << endl;
-
-  m_outputFileXML << "    </TYPE>" << endl;
-
-  m_outputFileXML << "    <RUN>" << endl;
-
-  m_outputFileXML << "      <RUN_TYPE>hcal-led-timing-test</RUN_TYPE>" << endl;
-
+  sprintf(output, "<?xml version='1.0' encoding='UTF-8'?>");
+  m_outputFileXML << output << endl;
+  sprintf(output, "<ROOT>");
+  m_outputFileXML << output << endl << endl;
+  sprintf(output, "  <HEADER>");
+  m_outputFileXML << output << endl;
+  sprintf(output, "    <TYPE>");
+  m_outputFileXML << output << endl;
+  sprintf(output, "      <EXTENSION_TABLE_NAME>HCAL_LED_TIMING</EXTENSION_TABLE_NAME>");
+  m_outputFileXML << output << endl;
+  sprintf(output, "      <NAME>HCAL LED Timing</NAME>");
+  m_outputFileXML << output << endl;
+  sprintf(output, "    </TYPE>");
+  m_outputFileXML << output << endl;
+  sprintf(output, "    <RUN>");
+  m_outputFileXML << output << endl;
+  sprintf(output, "      <RUN_TYPE>hcal-led-timing-test</RUN_TYPE>");
+  m_outputFileXML << output << endl;
   sprintf(output, "      <RUN_NUMBER>%06i</RUN_NUMBER>", runNum);
   m_outputFileXML << output << endl;
-
-  m_outputFileXML << "      <RUN_BEGIN_TIMESTAMP>2007-07-09 00:00:00.0</RUN_BEGIN_TIMESTAMP>" << endl;
-
-  m_outputFileXML << "      <COMMENT_DESCRIPTION></COMMENT_DESCRIPTION>" << endl;
-
-  m_outputFileXML << "    </RUN>" << endl;
-
-  m_outputFileXML << "  </HEADER>" << endl;
-
-  m_outputFileXML << "<!-- Tags secton -->" << endl;
-
-  m_outputFileXML <<  "  <ELEMENTS>" << endl;
-
-  m_outputFileXML <<  "    <DATA_SET id='-1'/>" << endl;
-
-  m_outputFileXML << "      <IOV id='1'>" << endl;
-
-  m_outputFileXML << "        <INTERVAL_OF_VALIDITY_BEGIN>2147483647</INTERVAL_OF_VALIDITY_BEGIN>" << endl;
-
-  m_outputFileXML <<  "        <INTERVAL_OF_VALIDITY_END>0</INTERVAL_OF_VALIDITY_END>" << endl;
-
-  m_outputFileXML << "      </IOV>" << endl;
-
-  m_outputFileXML << "      <TAG id='2' mode='auto'>" << endl;
-
+  sprintf(output, "      <RUN_BEGIN_TIMESTAMP>2007-07-09 00:00:00.0</RUN_BEGIN_TIMESTAMP>");
+  m_outputFileXML << output << endl;
+  sprintf(output, "      <COMMENT_DESCRIPTION></COMMENT_DESCRIPTION>");
+  m_outputFileXML << output << endl;
+  sprintf(output, "    </RUN>");
+  m_outputFileXML << output << endl;
+  sprintf(output, "  </HEADER>");
+  m_outputFileXML << output << endl;
+  sprintf(output, "<!-- Tags secton -->");
+  m_outputFileXML << output << endl;
+  sprintf(output, "  <ELEMENTS>");
+  m_outputFileXML << output << endl;
+  sprintf(output, "    <DATA_SET id='-1'/>");
+  m_outputFileXML << output << endl;
+  sprintf(output, "      <IOV id='1'>");
+  m_outputFileXML << output << endl;
+  sprintf(output, "        <INTERVAL_OF_VALIDITY_BEGIN>2147483647</INTERVAL_OF_VALIDITY_BEGIN>");
+  m_outputFileXML << output << endl;
+  sprintf(output, "        <INTERVAL_OF_VALIDITY_END>0</INTERVAL_OF_VALIDITY_END>");
+  m_outputFileXML << output << endl;
+  sprintf(output, "      </IOV>");
+  m_outputFileXML << output << endl;
+  sprintf(output, "      <TAG id='2' mode='auto'>");
+  m_outputFileXML << output << endl;
   sprintf(output, "        <TAG_NAME>laser_led_%06i<TAG_NAME>", runNum);
   m_outputFileXML << output << endl;
+  sprintf(output, "        <DETECTOR_NAME>HCAL</DETECTOR_NAME>");
+  m_outputFileXML << output << endl;
+  sprintf(output, "        <COMMENT_DESCRIPTION></COMMENT_DESCRIPTION>");
+  m_outputFileXML << output << endl;
+  sprintf(output, "      </TAG>");
+  m_outputFileXML << output << endl;
+  sprintf(output, "  </ELEMENTS>");
+  m_outputFileXML << output << endl;
+  sprintf(output, "  <MAPS>");
+  m_outputFileXML << output << endl;
+  sprintf(output, "      <TAG idref ='2'>");
+  m_outputFileXML << output << endl;
+  sprintf(output, "        <IOV idref='1'>");
+  m_outputFileXML << output << endl;
+  sprintf(output, "          <DATA_SET idref='-1' />");
+  m_outputFileXML << output << endl;
+  sprintf(output, "        </IOV>");
+  m_outputFileXML << output << endl;
+  sprintf(output, "      </TAG>");
+  m_outputFileXML << output << endl;
+  sprintf(output, "  </MAPS>");
+  m_outputFileXML << output << endl;
 
-  m_outputFileXML << "        <DETECTOR_NAME>HCAL</DETECTOR_NAME>" << endl;
-
-  m_outputFileXML << "        <COMMENT_DESCRIPTION></COMMENT_DESCRIPTION>" << endl;
-
-  m_outputFileXML << "      </TAG>" << endl;
-
-  m_outputFileXML << "  </ELEMENTS>" << endl;
-
-  m_outputFileXML << "  <MAPS>" << endl;
-
-  m_outputFileXML << "      <TAG idref ='2'>" << endl;
-
-  m_outputFileXML << "        <IOV idref='1'>" << endl;
-
-  m_outputFileXML << "          <DATA_SET idref='-1' />" << endl;
-
-  m_outputFileXML << "        </IOV>" << endl;
-
-  m_outputFileXML << "      </TAG>" << endl;
-
-  m_outputFileXML <<   "  </MAPS>" << endl;
 
 }
 
@@ -278,10 +272,14 @@ void HcalLedAnalysis::GetLedConst(map<HcalDetId, map<int,LEDBUNCH> > &toolT){
     if (m_outputFileText!=""){
       if(m_fitflag==0) {
 	m_outFile<<detid<<"   "<<time1<<" "<<dtime1<<std::endl;
-        m_outputFileXML << "  <DATA_SET>" << endl;
-        m_outputFileXML << "    <VERSION>version:1</VERSION>" << endl;
-        m_outputFileXML << "    <CHANNEL>" << endl;
-        m_outputFileXML << "      <EXTENSION_TABLE_NAME>HCAL_CHANNELS</EXTENSION_TABLE_NAME>" << endl;
+        sprintf(output, "  <DATA_SET>");
+        m_outputFileXML << output << endl;
+        sprintf(output, "    <VERSION>version:1</VERSION>");
+        m_outputFileXML << output << endl;
+        sprintf(output, "    <CHANNEL>");
+        m_outputFileXML << output << endl;
+        sprintf(output, "      <EXTENSION_TABLE_NAME>HCAL_CHANNELS</EXTENSION_TABLE_NAME>");
+        m_outputFileXML << output << endl;
         sprintf(output, "      <ETA>%2i</ETA>", detid.ietaAbs() );
         m_outputFileXML << output << endl;
         sprintf(output, "      <PHI>%2i</PHI>", detid.iphi() );
@@ -290,33 +288,43 @@ void HcalLedAnalysis::GetLedConst(map<HcalDetId, map<int,LEDBUNCH> > &toolT){
         m_outputFileXML << output << endl;
         sprintf(output, "      <Z>%2i</Z>", detid.zside() );
         m_outputFileXML << output << endl;
-
-        if(detid.subdet() == 1)  m_outputFileXML << "      <DETECTOR_NAME>HB</DETECTOR_NAME>" << endl;
-        if(detid.subdet() == 2)  m_outputFileXML << "      <DETECTOR_NAME>HE</DETECTOR_NAME>" << endl;
-        if(detid.subdet() == 3)  m_outputFileXML << "      <DETECTOR_NAME>HO</DETECTOR_NAME>" << endl;
-        if(detid.subdet() == 4)  m_outputFileXML << "      <DETECTOR_NAME>HF</DETECTOR_NAME>" << endl;
+        if(detid.subdet() == 1) sprintf(output, "      <DETECTOR_NAME>HB</DETECTOR_NAME>");
+        if(detid.subdet() == 2) sprintf(output, "      <DETECTOR_NAME>HE</DETECTOR_NAME>");
+        if(detid.subdet() == 3) sprintf(output, "      <DETECTOR_NAME>HO</DETECTOR_NAME>");
+        if(detid.subdet() == 4) sprintf(output, "      <DETECTOR_NAME>HF</DETECTOR_NAME>");
+        m_outputFileXML << output << endl;
         sprintf(output, "      <HCAL_CHANNEL_ID>%10i</HCAL_CHANNEL_ID>", detid.rawId() );
         m_outputFileXML << output << endl;
-        m_outputFileXML << "    </CHANNEL>" << endl;
-        m_outputFileXML << "    <DATA>" << endl;
+        sprintf(output, "    </CHANNEL>");
+        m_outputFileXML << output << endl;
+        sprintf(output, "    <DATA>");
+        m_outputFileXML << output << endl;
         sprintf(output, "      <MEAN_TIME>%7f</MEAN_TIME>", time1);
         m_outputFileXML << output << endl;
-        m_outputFileXML << "      <OFFSET_TIME> 0</OFFSET_TIME>" << endl;
+        sprintf(output, "      <OFFSET_TIME> 0</OFFSET_TIME>");
+        m_outputFileXML << output << endl;
         sprintf(output, "      <ERROR_STAT>%7f</ERROR_STAT>", dtime1);
         m_outputFileXML << output << endl;
         sprintf(output, "      <ANALYSIS_FLAG>%2i</ANALYSIS_FLAG>", m_fitflag+1);
         m_outputFileXML << output << endl;
-        m_outputFileXML << "      <STATUS_WORD>  0</STATUS_WORD>" << endl;
-        m_outputFileXML << "    </DATA>" << endl;
-        m_outputFileXML << "  </DATA_SET>" << endl;
+        sprintf(output, "      <STATUS_WORD>  0</STATUS_WORD>");
+        m_outputFileXML << output << endl;
+        sprintf(output, "    </DATA>");
+        m_outputFileXML << output << endl;
+        sprintf(output, "  </DATA_SET>");
+        m_outputFileXML << output << endl;
 
 	}
       else if(m_fitflag==1){
 	m_outFile<<detid<<"   "<<time2<<" "<<dtime2<<std::endl;
-        m_outputFileXML << "  <DATA_SET>" << endl;
-        m_outputFileXML << "    <VERSION>version:1</VERSION>" << endl;
-        m_outputFileXML << "    <CHANNEL>" << endl;
-        m_outputFileXML << "      <EXTENSION_TABLE_NAME>HCAL_CHANNELS</EXTENSION_TABLE_NAME>" << endl;
+        sprintf(output, "  <DATA_SET>");
+        m_outputFileXML << output << endl;
+        sprintf(output, "    <VERSION>version:1</VERSION>");
+        m_outputFileXML << output << endl;
+        sprintf(output, "    <CHANNEL>");
+        m_outputFileXML << output << endl;
+        sprintf(output, "      <EXTENSION_TABLE_NAME>HCAL_CHANNELS</EXTENSION_TABLE_NAME>");
+        m_outputFileXML << output << endl;
         sprintf(output, "      <ETA>%2i</ETA>", detid.ietaAbs() );
         m_outputFileXML << output << endl;
         sprintf(output, "      <PHI>%2i</PHI>", detid.iphi() );
@@ -325,32 +333,43 @@ void HcalLedAnalysis::GetLedConst(map<HcalDetId, map<int,LEDBUNCH> > &toolT){
         m_outputFileXML << output << endl;
         sprintf(output, "      <Z>%2i</Z>", detid.zside() );
         m_outputFileXML << output << endl;
-        if(detid.subdet() == 1)  m_outputFileXML << "      <DETECTOR_NAME>HB</DETECTOR_NAME>"<< endl;
-        if(detid.subdet() == 2)  m_outputFileXML << "      <DETECTOR_NAME>HE</DETECTOR_NAME>"<< endl;
-        if(detid.subdet() == 3)  m_outputFileXML << "      <DETECTOR_NAME>HO</DETECTOR_NAME>"<< endl;
-        if(detid.subdet() == 4)  m_outputFileXML << "      <DETECTOR_NAME>HF</DETECTOR_NAME>"<< endl;
+        if(detid.subdet() == 1) sprintf(output, "      <DETECTOR_NAME>HB</DETECTOR_NAME>");
+        if(detid.subdet() == 2) sprintf(output, "      <DETECTOR_NAME>HE</DETECTOR_NAME>");
+        if(detid.subdet() == 3) sprintf(output, "      <DETECTOR_NAME>HO</DETECTOR_NAME>");
+        if(detid.subdet() == 4) sprintf(output, "      <DETECTOR_NAME>HF</DETECTOR_NAME>");
+        m_outputFileXML << output << endl;
         sprintf(output, "      <HCAL_CHANNEL_ID>%10i</HCAL_CHANNEL_ID>", detid.rawId() );
         m_outputFileXML << output << endl;
-        m_outputFileXML << "    </CHANNEL>" << endl;
-        m_outputFileXML << "    <DATA>" << endl;
+        sprintf(output, "    </CHANNEL>");
+        m_outputFileXML << output << endl;
+        sprintf(output, "    <DATA>");
+        m_outputFileXML << output << endl;
         sprintf(output, "      <MEAN_TIME>%7f</MEAN_TIME>", time2);
         m_outputFileXML << output << endl;
-        m_outputFileXML << "      <OFFSET_TIME> 0</OFFSET_TIME>" << endl;
+        sprintf(output, "      <OFFSET_TIME> 0</OFFSET_TIME>");
+        m_outputFileXML << output << endl;
         sprintf(output, "      <ERROR_STAT>%7f</ERROR_STAT>", dtime2);
         m_outputFileXML << output << endl;
         sprintf(output, "      <ANALYSIS_FLAG>%2i</ANALYSIS_FLAG>", m_fitflag+1);
         m_outputFileXML << output << endl;
-        m_outputFileXML << "      <STATUS_WORD>  0</STATUS_WORD>" << endl;
-        m_outputFileXML << "    </DATA>" << endl;
-        m_outputFileXML << "  </DATA_SET>" << endl;
+        sprintf(output, "      <STATUS_WORD>  0</STATUS_WORD>");
+        m_outputFileXML << output << endl;
+        sprintf(output, "    </DATA>");
+        m_outputFileXML << output << endl;
+        sprintf(output, "  </DATA_SET>");
+        m_outputFileXML << output << endl;
         }
 
       else if(m_fitflag==2){
 	m_outFile<<detid<<"   "<<time3<<" "<<dtime3<<std::endl;
-        m_outputFileXML << "  <DATA_SET>" << endl;
-        m_outputFileXML << "    <VERSION>version:1</VERSION>" << endl;
-        m_outputFileXML << "    <CHANNEL>" << endl;
-        m_outputFileXML << "      <EXTENSION_TABLE_NAME>HCAL_CHANNELS</EXTENSION_TABLE_NAME>" << endl;
+        sprintf(output, "  <DATA_SET>");
+        m_outputFileXML << output << endl;
+        sprintf(output, "    <VERSION>version:1</VERSION>");
+        m_outputFileXML << output << endl;
+        sprintf(output, "    <CHANNEL>");
+        m_outputFileXML << output << endl;
+        sprintf(output, "      <EXTENSION_TABLE_NAME>HCAL_CHANNELS</EXTENSION_TABLE_NAME>");
+        m_outputFileXML << output << endl;
         sprintf(output, "      <ETA>%2i</ETA>", detid.ietaAbs() );
         m_outputFileXML << output << endl;
         sprintf(output, "      <PHI>%2i</PHI>", detid.iphi() );
@@ -359,31 +378,42 @@ void HcalLedAnalysis::GetLedConst(map<HcalDetId, map<int,LEDBUNCH> > &toolT){
         m_outputFileXML << output << endl;
         sprintf(output, "      <Z>%2i</Z>", detid.zside() );
         m_outputFileXML << output << endl;
-	if(detid.subdet() == 1) m_outputFileXML << "      <DETECTOR_NAME>HB</DETECTOR_NAME>" << endl;
-        if(detid.subdet() == 2) m_outputFileXML << "      <DETECTOR_NAME>HE</DETECTOR_NAME>" << endl;
-        if(detid.subdet() == 3) m_outputFileXML << "      <DETECTOR_NAME>HO</DETECTOR_NAME>" << endl;
-        if(detid.subdet() == 4) m_outputFileXML << "      <DETECTOR_NAME>HF</DETECTOR_NAME>" << endl;
+	if(detid.subdet() == 1) sprintf(output, "      <DETECTOR_NAME>HB</DETECTOR_NAME>");
+        if(detid.subdet() == 2) sprintf(output, "      <DETECTOR_NAME>HE</DETECTOR_NAME>");
+        if(detid.subdet() == 3) sprintf(output, "      <DETECTOR_NAME>HO</DETECTOR_NAME>");
+        if(detid.subdet() == 4) sprintf(output, "      <DETECTOR_NAME>HF</DETECTOR_NAME>");
+        m_outputFileXML << output << endl;
 	sprintf(output, "      <HCAL_CHANNEL_ID>%10i</HCAL_CHANNEL_ID>", detid.rawId() );
         m_outputFileXML << output << endl;
-        m_outputFileXML << "    </CHANNEL>" << endl;
-        m_outputFileXML << "    <DATA>" << endl;
+        sprintf(output, "    </CHANNEL>");
+        m_outputFileXML << output << endl;
+        sprintf(output, "    <DATA>");
+        m_outputFileXML << output << endl;
         sprintf(output, "      <MEAN_TIME>%7f</MEAN_TIME>", time3);
         m_outputFileXML << output << endl;
-        m_outputFileXML << "      <OFFSET_TIME> 0</OFFSET_TIME>" << endl;
+        sprintf(output, "      <OFFSET_TIME> 0</OFFSET_TIME>");
+        m_outputFileXML << output << endl;
         sprintf(output, "      <ERROR_STAT>%7f</ERROR_STAT>", dtime3);
         m_outputFileXML << output << endl;
 	sprintf(output, "      <ANALYSIS_FLAG>%2i</ANALYSIS_FLAG>", m_fitflag+1);
 	m_outputFileXML << output << endl;
-  	m_outputFileXML << "      <STATUS_WORD>  0</STATUS_WORD>" << endl;
-        m_outputFileXML << "    </DATA>" << endl;
-        m_outputFileXML << "  </DATA_SET>" << endl;
+  	sprintf(output, "      <STATUS_WORD>  0</STATUS_WORD>");
+  	m_outputFileXML << output << endl;
+        sprintf(output, "    </DATA>");
+        m_outputFileXML << output << endl;
+        sprintf(output, "  </DATA_SET>");
+        m_outputFileXML << output << endl;
         }
       else if(m_fitflag==3){
 	m_outFile<<detid<<"   "<<time4<<" "<<dtime4<<std::endl;
-        m_outputFileXML << "  <DATA_SET>" << endl;
-        m_outputFileXML <<"    <VERSION>version:1</VERSION>" << endl;
-        m_outputFileXML << "    <CHANNEL>" << endl;
-        m_outputFileXML << "      <EXTENSION_TABLE_NAME>HCAL_CHANNELS</EXTENSION_TABLE_NAME>" << endl;
+        sprintf(output, "  <DATA_SET>");
+        m_outputFileXML << output << endl;
+        sprintf(output, "    <VERSION>version:1</VERSION>");
+        m_outputFileXML << output << endl;
+        sprintf(output, "    <CHANNEL>");
+        m_outputFileXML << output << endl;
+        sprintf(output, "      <EXTENSION_TABLE_NAME>HCAL_CHANNELS</EXTENSION_TABLE_NAME>");
+        m_outputFileXML << output << endl;
         sprintf(output, "      <ETA>%2i</ETA>", detid.ietaAbs() );
         m_outputFileXML << output << endl;
         sprintf(output, "      <PHI>%2i</PHI>", detid.iphi() );
@@ -392,24 +422,31 @@ void HcalLedAnalysis::GetLedConst(map<HcalDetId, map<int,LEDBUNCH> > &toolT){
         m_outputFileXML << output << endl;
         sprintf(output, "      <Z>%2i</Z>", detid.zside() );
         m_outputFileXML << output << endl;
-        if(detid.subdet() == 1) m_outputFileXML <<"      <DETECTOR_NAME>HB</DETECTOR_NAME>" << endl;
-        if(detid.subdet() == 2) m_outputFileXML <<"      <DETECTOR_NAME>HE</DETECTOR_NAME>" << endl;
-        if(detid.subdet() == 3) m_outputFileXML <<"      <DETECTOR_NAME>HO</DETECTOR_NAME>" << endl;
-        if(detid.subdet() == 4) m_outputFileXML <<"      <DETECTOR_NAME>HF</DETECTOR_NAME>" << endl;
+        if(detid.subdet() == 1) sprintf(output, "      <DETECTOR_NAME>HB</DETECTOR_NAME>");
+        if(detid.subdet() == 2) sprintf(output, "      <DETECTOR_NAME>HE</DETECTOR_NAME>");
+        if(detid.subdet() == 3) sprintf(output, "      <DETECTOR_NAME>HO</DETECTOR_NAME>");
+        if(detid.subdet() == 4) sprintf(output, "      <DETECTOR_NAME>HF</DETECTOR_NAME>");
+        m_outputFileXML << output << endl;
         sprintf(output, "      <HCAL_CHANNEL_ID>%10i</HCAL_CHANNEL_ID>", detid.rawId() );
         m_outputFileXML << output << endl;
-        m_outputFileXML << "    </CHANNEL>" << endl;
-        m_outputFileXML << "    <DATA>" << endl;
+        sprintf(output, "    </CHANNEL>");
+        m_outputFileXML << output << endl;
+        sprintf(output, "    <DATA>");
+        m_outputFileXML << output << endl;
         sprintf(output, "      <MEAN_TIME>%7f</MEAN_TIME>", time4);
         m_outputFileXML << output << endl;
-        m_outputFileXML << "      <OFFSET_TIME> 0</OFFSET_TIME>" << endl;
+        sprintf(output, "      <OFFSET_TIME> 0</OFFSET_TIME>");
+        m_outputFileXML << output << endl;
         sprintf(output, "      <ERROR_STAT>%7f</ERROR_STAT>", dtime4);
         m_outputFileXML << output << endl;
         sprintf(output, "      <ANALYSIS_FLAG>%2i</ANALYSIS_FLAG>", m_fitflag+1);
         m_outputFileXML << output << endl;
-        m_outputFileXML << "      <STATUS_WORD>  0</STATUS_WORD>" << endl;
-        m_outputFileXML << "    </DATA>" << endl;
-        m_outputFileXML << "  </DATA_SET>" << endl;
+        sprintf(output, "      <STATUS_WORD>  0</STATUS_WORD>");
+        m_outputFileXML << output << endl;
+        sprintf(output, "    </DATA>");
+        m_outputFileXML << output << endl;
+        sprintf(output, "  </DATA_SET>");
+        m_outputFileXML << output << endl;
         }
 
       else if(m_fitflag==4){

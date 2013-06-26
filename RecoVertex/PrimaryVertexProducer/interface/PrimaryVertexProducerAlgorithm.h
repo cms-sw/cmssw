@@ -8,7 +8,7 @@
 // 
 /**\class PrimaryVertexProducerAlgorithm PrimaryVertexProducerAlgorithm.cc RecoVertex/PrimaryVertexProducerAlgorithm/src/PrimaryVertexProducerAlgorithm.cc
 
- Description: allow redoing the primary vertex reconstruction from a list of tracks, considered obsolete
+ Description: finds primary vertices, compatible with the beam line
 
  Implementation:
      <Notes on implementation>
@@ -16,41 +16,18 @@
 //
 // Original Author:  Pascal Vanlaer
 //         Created:  Tue Feb 28 11:06:34 CET 2006
-// $Id: PrimaryVertexProducerAlgorithm.h,v 1.16 2011/09/14 13:36:59 werdmann Exp $
+// $Id: PrimaryVertexProducerAlgorithm.h,v 1.15 2010/08/18 13:20:24 werdmann Exp $
 //
 //
-
-
-// system include files
-#include <memory>
 
 // user include files
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
-
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Utilities/interface/InputTag.h"
-
 #include "RecoVertex/VertexPrimitives/interface/VertexReconstructor.h"
-#include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 #include "RecoVertex/PrimaryVertexProducer/interface/TrackFilterForPVFindingBase.h"
 #include "RecoVertex/PrimaryVertexProducer/interface/TrackClusterizerInZ.h"
-#include "RecoVertex/PrimaryVertexProducer/interface/DAClusterizerInZ_vect.h"
-
-#include "RecoVertex/PrimaryVertexProducer/interface/TrackFilterForPVFinding.h"
-#include "RecoVertex/PrimaryVertexProducer/interface/HITrackFilterForPVFinding.h"
-#include "RecoVertex/PrimaryVertexProducer/interface/GapClusterizerInZ.h"
-#include "RecoVertex/PrimaryVertexProducer/interface/DAClusterizerInZ.h"
-#include "RecoVertex/KalmanVertexFit/interface/KalmanVertexFitter.h"
-#include "RecoVertex/AdaptiveVertexFit/interface/AdaptiveVertexFitter.h"
-//#include "RecoVertex/VertexTools/interface/VertexDistanceXY.h"
-#include "RecoVertex/VertexPrimitives/interface/VertexException.h"
-#include <algorithm>
-#include "RecoVertex/PrimaryVertexProducer/interface/VertexHigherPtSquared.h"
+#include "RecoVertex/TrimmedKalmanVertexFinder/interface/KalmanTrimmedVertexFinder.h"
 #include "RecoVertex/VertexTools/interface/VertexCompatibleWithBeam.h"
+#include "DataFormats/BeamSpot/interface/BeamSpot.h"
 
 //
 // class declaration
@@ -62,44 +39,38 @@ public:
   explicit PrimaryVertexProducerAlgorithm(const edm::ParameterSet&);
   ~PrimaryVertexProducerAlgorithm();
   
-  // obsolete method
+
+  /** Find primary vertices
+   */
+// obsolete method
   virtual std::vector<TransientVertex> 
   vertices(const std::vector<reco::TransientTrack> & tracks) const;
 
   virtual std::vector<TransientVertex> 
   vertices(const std::vector<reco::TransientTrack> & tracks, 
-	   const reco::BeamSpot & beamSpot,
-	   const std::string& label=""
-	   ) const;
+	   const reco::BeamSpot & beamSpot) const;
+
   /** Clone method
    */ 
   virtual PrimaryVertexProducerAlgorithm * clone() const {
     return new PrimaryVertexProducerAlgorithm(*this);
   }
   
-
-  // access to config
-  edm::ParameterSet config() const { return theConfig; }
-  edm::InputTag trackLabel;
-  edm::InputTag beamSpotLabel;
 private:
   // ----------member data ---------------------------
+  // vtx finding algorithm components
+  edm::ParameterSet theConfig;
   TrackFilterForPVFindingBase* theTrackFilter; 
   TrackClusterizerInZ* theTrackClusterizer;
+  KalmanTrimmedVertexFinder theFinder;
+  VertexCompatibleWithBeam theVertexSelector;
 
-  // vtx fitting algorithms
-  struct algo {
-    VertexFitter<5> * fitter;
-    VertexCompatibleWithBeam * vertexSelector;
-    std::string  label;
-    bool useBeamConstraint;
-    double minNdof;
-  };
-
-  std::vector< algo > algorithms;
-
-  edm::ParameterSet theConfig;
   bool fVerbose;
+  bool fUseBeamConstraint;
+  double fMinNdof;
+  VertexFitter<5> *theFitter;
+  bool fapply_finder;
+  bool fFailsafe;
 
 };
 #endif

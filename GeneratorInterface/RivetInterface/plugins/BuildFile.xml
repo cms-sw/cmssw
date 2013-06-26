@@ -5,6 +5,7 @@
 <use   name="DataFormats/Common"/>
 <use   name="rivet"/>
 <use   name="gsl"/>
+<use   name="DQMServices/Core"/>
 <library   file="*.cc" name="GeneratorInterfaceRivetInterface_plugins">
   <flags   EDM_PLUGIN="1"/>
 </library>

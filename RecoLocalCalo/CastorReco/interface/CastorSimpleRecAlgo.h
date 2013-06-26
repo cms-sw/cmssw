@@ -29,6 +29,16 @@ public:
 
   CastorRecHit reconstruct(const CastorDataFrame& digi, const CastorCoder& coder, const CastorCalibrations& calibs) const;
 
+  // sets rechit saturation status bit on if ADC count is >= maxADCvalue
+  void checkADCSaturation(CastorRecHit& rechit, const CastorDataFrame& digi, const int& maxADCvalue) const;
+
+  //++++ Saturation Correction +++++
+  // recover pulse shape if ADC count is >= masADCvalue
+  void recoverADCSaturation(CastorRecHit& rechit, const CastorCoder& coder, const CastorCalibrations& calibs,
+			    const CastorDataFrame& digi, const int& maxADCvalue, const double& satCorrConst) const;
+  
+  
+
   void resetTimeSamples(int f,int t){
     firstSample_=f;
     samplesToAdd_=t;

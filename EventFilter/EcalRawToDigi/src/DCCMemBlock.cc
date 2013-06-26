@@ -38,7 +38,7 @@ void DCCMemBlock::updateCollectors(){
 
 
 
-int DCCMemBlock::unpack(uint64_t ** data, unsigned int * dwToEnd, unsigned int expectedTowerID){
+int DCCMemBlock::unpack(const uint64_t ** data, unsigned int * dwToEnd, unsigned int expectedTowerID){
   
   error_   = false;  
   datap_   = data;
@@ -191,7 +191,7 @@ void DCCMemBlock::unpackMemTowerData(){
 
     for(unsigned int expXtalId = 1; expXtalId <= 5; expXtalId++){
 	 
-      uint16_t * xData_= reinterpret_cast<uint16_t *>(data_);
+      const uint16_t * xData_= reinterpret_cast<const uint16_t *>(data_);
  
       // Get xtal data ids
       unsigned int stripId = (*xData_) & TOWER_STRIPID_MASK;

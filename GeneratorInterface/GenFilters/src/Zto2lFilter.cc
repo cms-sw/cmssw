@@ -13,7 +13,7 @@
 //
 // Original Author:  Aruna Nayak
 //         Created:  Thu Aug 23 11:37:45 CEST 2007
-// $Id: Zto2lFilter.cc,v 1.5 2009/12/15 10:29:32 fabiocos Exp $
+// $Id: Zto2lFilter.cc,v 1.6 2010/09/07 11:45:06 fabstoec Exp $
 //
 //
 
@@ -89,7 +89,7 @@ Zto2lFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    if(Lepton.size() == 2){
      if((Lepton[0]+Lepton[1]).M() > minInvariantMass_ )accept = true;
    }
-   delete evt;
+   //delete evt;
    return accept;
 }
 

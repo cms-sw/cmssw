@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:41 EST 2008
-// $Id: FWTableView.cc,v 1.30 2010/12/02 20:03:09 amraktad Exp $
+// $Id: FWTableView.cc,v 1.36 2013/04/09 05:00:07 amraktad Exp $
 //
 
 // system include files
@@ -19,6 +19,7 @@
 #include <sstream>
 #include <stdexcept>
 
+#include "TMath.h"
 #include "TClass.h"
 #include "TSystem.h"
 #include "TGComboBox.h"
@@ -439,12 +440,81 @@ FWTableView::setFrom(const FWConfiguration& iFrom)
 }
 
 void
-FWTableView::saveImageTo(const std::string& iName) const
+FWTableView::saveImageTo(const std::string& /*iName*/) const
 {
-//    bool succeeded = m_viewer->GetGLViewer()->SavePicture(iName.c_str());
-//    if(!succeeded) {
-//       throw std::runtime_error("Unable to save picture");
-//    }
+   TString format; 
+   TString data;
+   FWTextTableCellRenderer* textRenderer;
+
+   // calculate widths
+   int ndheader = TMath::Ceil(TMath::Log10(m_tableManager->numberOfRows()));
+  
+   std::vector<size_t> widths(m_tableManager->numberOfColumns());
+
+   for (int c = 0; c < m_tableManager->numberOfColumns(); ++c )
+      widths[c] = m_tableManager->m_tableFormats->at(c).name.size();
+   
+   for (int c = 0; c < m_tableManager->numberOfColumns(); ++c )
+   {
+      for (int r = 0; r < m_tableManager->numberOfRows(); r++ )
+      {
+         textRenderer = (FWTextTableCellRenderer*) m_tableManager->cellRenderer(r, c); // setup cell renderer
+         size_t ss = textRenderer->data().size();
+         if (widths[c] < ss) widths[c] = ss;
+      }
+   }
+
+   int rlen = 0;
+   for (size_t c = 0; c < (size_t)m_tableManager->numberOfColumns(); ++c )
+      rlen += widths[c]; 
+   rlen += (m_tableManager->numberOfColumns() -1 )*3 ;
+   rlen++;
+
+
+   // header
+   printf("\n"); 
+   TString headerFormat;
+   headerFormat.Form("%%%ds",ndheader +3);
+   data.Form(headerFormat, "  ");
+   printf("%s", data.Data());
+
+   int lastCol = m_tableManager->numberOfColumns() -1;
+
+   for (int c = 0; c < m_tableManager->numberOfColumns(); ++c )
+   {
+      format.Form("%%%ds", (int)widths[c]);
+      data.Form(format, m_tableManager->m_tableFormats->at(c).name.c_str());
+
+      if (c == lastCol) 
+         printf("%s", data.Data());
+      else
+         printf("%s | ", data.Data());
+   }
+   printf("\n"); 
+
+   std::string splitter(rlen, '-');
+   std::cout << splitter << std::endl;
+
+   // body
+   headerFormat.Form("[%%%dd] ",ndheader );
+   for (int r = 0; r < m_tableManager->numberOfRows(); r++ )
+   {
+      for (int c = 0; c < m_tableManager->numberOfColumns(); ++c )
+	{
+	 if (!c) {
+            data.Form(headerFormat, m_tableManager->unsortedRowNumber(r));
+            printf("%s", data.Data());
+	 }
+         format.Form("%%%ds", (int)widths[c]);
+         textRenderer = (FWTextTableCellRenderer*) m_tableManager->cellRenderer(r, c); // setup cell renderer
+         data.Form(format, textRenderer->data().c_str());
+         if (c == lastCol) 
+            printf("%s", data.Data());
+         else
+            printf("%s | ", data.Data());
+      }
+      printf("\n");
+   }
 }
 
 void
@@ -544,7 +614,7 @@ FWTableView::selectCollection(Int_t i_coll)
 //      m_column_expr_field->setValidator(m_validator);
      if (m_validator != 0) {
 // 	  std::cout << "setting validator to " << item->modelType()->GetName() << std::endl;
-	  m_validator->setType(ROOT::Reflex::Type::ByTypeInfo(*(item->modelType()->GetTypeInfo())));
+	  m_validator->setType(Reflex::Type::ByTypeInfo(*(item->modelType()->GetTypeInfo())));
      } else {
 // 	  std::cout << "can't set null validator\n";
      }
@@ -656,7 +726,7 @@ void FWTableView::modifyColumn ()
 //      m_manager->tableFormats(*item->modelType())
      FWTableViewManager::TableEntry e = { expr, name, prec };
      m_tableManager->m_tableFormats->at(m_currentColumn) = e;
-     // change needs to be propagated to all tables, because all
+     // Change needs to be propagated to all tables, because all
      // tables displaying objects of this type are affected
      // MT -- this is NOT true!!! FIX
      m_tableWidget->forceLayout();

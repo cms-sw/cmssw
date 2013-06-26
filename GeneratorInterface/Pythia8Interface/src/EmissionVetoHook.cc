@@ -8,7 +8,7 @@ void EmissionVetoHook::fatalEmissionVeto(string message) {
 
 // Use VetoMIStep to analyse the incoming LHEF event and
 // extract the veto scale
-bool EmissionVetoHook::doVetoMPIStep(int, const Pythia8::Event &e) {
+bool EmissionVetoHook::doVetoMIStep(int, const Pythia8::Event &e) {
   int first=-1, myid;
   last = -1;
   for(int ip = 2; ip < e.size(); ip++) {
@@ -25,7 +25,7 @@ bool EmissionVetoHook::doVetoMPIStep(int, const Pythia8::Event &e) {
   }
   if(Verbosity)
     cout << "last before powheg emission = " << last << " , id = "
-         << e[last].id() << " emission size = " << e.size() - 1 - last << endl;
+         << e[last].id() << endl;
 
   // Some events may not have radiation from POWHEG
   switch (e.size() - 1 - last) {
@@ -52,13 +52,13 @@ bool EmissionVetoHook::doVetoMPIStep(int, const Pythia8::Event &e) {
       fatalEmissionVeto(string("Error: jet is not quark/gluon"));
     }
     // Veto scale is given by jet pT
-    pTpowheg = e[last+1].pT();
-    pTveto = e[last+1].pT();
+    pTveto = pTpowheg = e[last+1].pT();
+    noRad  = false;
     noRad  = false;
     break;
   }
 
-  if(Verbosity) cout << "veto pT = " << pTveto << " QFac = " << infoPtr->QFac() << endl;
+  if(Verbosity) cout << "veto pT = " << pTveto << endl;
 
   // Initialise other variables
   pTshower = -1.;
@@ -69,12 +69,7 @@ bool EmissionVetoHook::doVetoMPIStep(int, const Pythia8::Event &e) {
 
 // For subsequent ISR/FSR emissions, find the pT of the shower
 // emission and veto as necessary
-bool EmissionVetoHook::doVetoISREmission(int, const Pythia8::Event &e, int iSys) {
-  // Must be radiation from the hard system
-  if (iSys != 0) return false;
-
-  if(last < 0) fatalEmissionVeto(string("Variable last is not filled"));
-
+bool EmissionVetoHook::doVetoISREmission(int, const Pythia8::Event &e) {
   // ISR - next shower emission is given status 43
   int i;
   for (i = e.size() - 1; i > last; i--)
@@ -97,10 +92,7 @@ bool EmissionVetoHook::doVetoISREmission(int, const Pythia8::Event &e, int iSys)
   return false;
 }
 
-bool EmissionVetoHook::doVetoFSREmission(int, const Pythia8::Event &e, int iSys, bool) {
-  // Must be radiation from the hard system
-  if (iSys != 0) return false;
-
+bool EmissionVetoHook::doVetoFSREmission(int, const Pythia8::Event &e) {
   // FSR - shower emission will have status 51 and not be t/tbar
   int i;
   for (i = e.size() - 1; i > last; i--)

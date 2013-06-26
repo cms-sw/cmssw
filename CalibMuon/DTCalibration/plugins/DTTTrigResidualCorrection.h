@@ -5,7 +5,7 @@
  *  Concrete implementation of a DTTTrigBaseCorrection.
  *  Computes residual correction for tTrig
  *
- *  $Revision: 1.5 $
+ *  $Revision: 1.4 $
  *  \author A. Vilela Pereira
  */
 
@@ -23,8 +23,6 @@ class DTResidualFitter;
 
 class TH1F;
 class TFile;
-
-namespace dtCalibration {
 
 class DTTTrigResidualCorrection: public DTTTrigBaseCorrection {
 public:
@@ -54,6 +52,4 @@ private:
   const DTMtime *mTimeMap_;
   DTResidualFitter* fitter_;
 };
-
-} // namespace
 #endif

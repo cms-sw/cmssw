@@ -143,6 +143,7 @@ while true; do
         exit 1
       fi
       SELECTION="complex"
+      SIZE=-1
       EVENTS="$2"
       shift 2
       ;;
@@ -204,7 +205,7 @@ fi
 
 # create all dumps
 log "Extracting full menu dump"
-hltGetConfiguration "$MENU" --full --offline $DATA $INPUT --unprescale --process "TEST$(date -u +'%Y%m%d%H%M%S')" $EXTRA > hlt.py
+hltGetConfiguration "$MENU" --full --offline $DATA $INPUT --unprescale --process "TEST$(date -u +'%Y%m%d%H%M%S')" --max-events $SIZE $EXTRA > hlt.py
 
 # if missing, add a simplified HLTriggerFinalPath
 if ! grep -q HLTriggerFinalPath hlt.py; then
@@ -225,16 +226,11 @@ fi
 if [ "$SELECTION" == "complex" ]; then
   cat >> hlt.py << @EOF
 # event selection customised by hltIntegrationTests
-if 'maxEvents' in process.__dict__:
-    delattr(process, 'maxEvents')
 process.source.eventsToProcess = cms.untracked.VEventRange( '$(echo $EVENTS | sed -e"s/,/','/g")' )
 @EOF
-else
+elif (( $SKIP > 0 )); then
   cat >> hlt.py << @EOF
 # event selection customised by hltIntegrationTests
-if 'maxEvents' in process.__dict__:
-    delattr(process, 'maxEvents')
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32( $SIZE) )
 process.source.skipEvents = cms.untracked.uint32( $SKIP )
 @EOF
 fi

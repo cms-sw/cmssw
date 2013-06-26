@@ -50,6 +50,18 @@ class ScoutingAnalyzerBase : public edm::EDAnalyzer
        const std::string & titleX ="", const std::string & titleY ="Events",
        Option_t * option = "E1 P"  ) ;
 
+    MonitorElement * bookH1BinArray
+     ( const std::string & name, const std::string & title,
+       int nchX, float *xbinsize,
+       const std::string & titleX ="", const std::string & titleY ="Events",
+       Option_t * option = "E1 P" ) ;
+
+    MonitorElement * bookH1withSumw2BinArray
+     ( const std::string & name, const std::string & title,
+       int nchX, float *xbinsize,
+       const std::string & titleX ="", const std::string & titleY ="Events",
+       Option_t * option = "E1 P"  ) ;
+
     MonitorElement * bookH2
      ( const std::string & name, const std::string & title,
        int nchX, double lowX, double highX,

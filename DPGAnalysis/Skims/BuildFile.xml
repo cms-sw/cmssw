@@ -34,4 +34,5 @@
 <use   name="RecoEcal/EgammaCoreTools"/>
 <use   name="DataFormats/EgammaReco"/>
 <use   name="PhysicsTools/SelectorUtils"/>
+<use   name="DataFormats/Luminosity"/>
 <flags   EDM_PLUGIN="1"/>

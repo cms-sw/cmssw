@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 ecalEndcapRecoSummary = cms.EDAnalyzer("EERecoSummary",
-    prefixME = cms.untracked.string('Ecal'),    
+    prefixME = cms.untracked.string('EcalEndcap'),    
     superClusterCollection_EE = cms.InputTag("correctedMulti5x5SuperClustersWithPreshower"),
     basicClusterCollection_EE = cms.InputTag("multi5x5SuperClusters","multi5x5EndcapBasicClusters"),
     recHitCollection_EE       = cms.InputTag("ecalRecHit","EcalRecHitsEE"),

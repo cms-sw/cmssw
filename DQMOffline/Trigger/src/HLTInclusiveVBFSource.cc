@@ -1,5 +1,9 @@
 /*
+  HLTInclusiveVBFSource
+  Phat Srimanobhas
+  To monitor VBF DataParking
 */
+
 #include "DQMOffline/Trigger/interface/HLTInclusiveVBFSource.h"
 
 #include "FWCore/Common/interface/TriggerNames.h"
@@ -60,7 +64,6 @@ HLTInclusiveVBFSource::HLTInclusiveVBFSource(const edm::ParameterSet& iConfig):
   //l1path_              = iConfig.getUntrackedParameter<std::vector<std::string> >("l1paths"); 
   
   debug_               = iConfig.getUntrackedParameter< bool >("debug", false);
-  //verbosePath_         = iConfig.getUntrackedParameter< bool >("verbosePath", false);
   
   caloJetsTag_         = iConfig.getParameter<edm::InputTag>("CaloJetCollectionLabel");
   caloMETTag_          = iConfig.getParameter<edm::InputTag>("CaloMETCollectionLabel"); 
@@ -149,15 +152,17 @@ HLTInclusiveVBFSource::analyze(const edm::Event& iEvent, const edm::EventSetup& 
   //****************************************************
   //
   edm::Handle<edm::View<reco::PFMET> > metSrc;
-  iEvent.getByLabel(pfMetTag_ , metSrc);
-  const edm::View<reco::PFMET> & mets = *metSrc;
+  bool ValidPFMET_ = iEvent.getByLabel(pfMetTag_ , metSrc);
+  if(!ValidPFMET_) return;
   
   edm::Handle<edm::View<reco::PFJet> > jetSrc;
-  iEvent.getByLabel(pfJetsTag_ , jetSrc);
-  const edm::View<reco::PFJet> & jets = *jetSrc;
-
+  bool ValidPFJet_ = iEvent.getByLabel(pfJetsTag_ , jetSrc);
+  if(!ValidPFJet_) return;
+  
   if(!metSrc.isValid()) return;
   if(!jetSrc.isValid()) return;
+  const edm::View<reco::PFMET> & mets = *metSrc;
+  const edm::View<reco::PFJet> & jets = *jetSrc;
   if(jets.size()<=0)    return;
   if(mets.size()<=0)    return;
 
@@ -289,13 +294,9 @@ HLTInclusiveVBFSource::analyze(const edm::Event& iEvent, const edm::EventSetup& 
   //****************************************************
   // Trigger efficiency: Loop for all VBF paths
   //****************************************************
-  //
-  
-  //
   //const unsigned int numberOfPaths(hltConfig_.size()); 
   const trigger::TriggerObjectCollection & toc(triggerObj_->getObjects()); 
   for(PathInfoCollection::iterator v = hltPathsAll_.begin(); v!= hltPathsAll_.end(); ++v ){
-    //if(v->getprescaleUsed()!=1) continue;
     checkHLT = false;
     checkHLTIndex = false;
     
@@ -356,6 +357,10 @@ HLTInclusiveVBFSource::analyze(const edm::Event& iEvent, const edm::EventSetup& 
       if(debug_) cout<<"DEBUG-6: Match"<<endl;
       hlt_deltaetajet  = hlt_etajet1 - hlt_etajet2;
       hlt_deltaphijet  = reco::deltaPhi(hlt_phijet1,hlt_phijet2);
+      if(checkdR_crossOrder){
+	hlt_deltaetajet = (-1)*hlt_deltaetajet;
+	hlt_deltaphijet = reco::deltaPhi(hlt_phijet2,hlt_phijet1);
+      }
       hlt_invmassjet   = sqrt((hlt_ejet1  + hlt_ejet2)  * (hlt_ejet1  + hlt_ejet2)  - 
 			      (hlt_pxjet1 + hlt_pxjet2) * (hlt_pxjet1 + hlt_pxjet2) - 
 			      (hlt_pyjet1 + hlt_pyjet2) * (hlt_pyjet1 + hlt_pyjet2) - 
@@ -385,8 +390,7 @@ HLTInclusiveVBFSource::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     else{
       if(debug_) cout<<"DEBUG-8: Not match"<<endl;
       v->getMEhisto_NumberOfMatches()->Fill(0);
-    } 
-    //break;//We need only the first unprescale paths
+    }
   }
   
   
@@ -394,7 +398,6 @@ HLTInclusiveVBFSource::analyze(const edm::Event& iEvent, const edm::EventSetup& 
   // 
   //****************************************************
   for(PathInfoCollection::iterator v = hltPathsAll_.begin(); v!= hltPathsAll_.end(); ++v ){
-    //if(v->getprescaleUsed()!=1) continue;
     if(isHLTPathAccepted(v->getPath())==false) continue;
     if(debug_) cout<<"DEBUG-9: Loop for rate approximation: "<<v->getPath()<<endl;
     check_mjj650_Pt35_DEta3p5 = false;
@@ -472,7 +475,6 @@ HLTInclusiveVBFSource::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     if(check_mjj700_Pt40_DEta3p5==true) v->getMEhisto_NumberOfEvents()->Fill(5);
     if(check_mjj750_Pt40_DEta3p5==true) v->getMEhisto_NumberOfEvents()->Fill(6);
     if(check_mjj800_Pt40_DEta3p5==true) v->getMEhisto_NumberOfEvents()->Fill(7);
-    //break;//We need only the first unprescale paths
   }
 }
 

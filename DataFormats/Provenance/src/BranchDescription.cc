@@ -49,7 +49,6 @@ namespace edm {
     friendlyClassName_(),
     productInstanceName_(),
     branchAliases_(),
-    aliasForBranchID_(),
     transient_() {
     // do not call init here! It will result in an exception throw.
   }
@@ -81,29 +80,6 @@ namespace edm {
     transient_.moduleName_ = moduleName;
     transient_.parameterSetID_ = parameterSetID;
     typeID() = theTypeID;
-    init();
-  }
-
-  BranchDescription::BranchDescription(
-                        BranchDescription const& aliasForBranch,
-                        std::string const& moduleLabelAlias,
-                        std::string const& productInstanceAlias) :
-      branchType_(aliasForBranch.branchType()),
-      moduleLabel_(moduleLabelAlias),
-      processName_(aliasForBranch.processName()),
-      branchID_(),
-      fullClassName_(aliasForBranch.className()),
-      friendlyClassName_(aliasForBranch.friendlyClassName()),
-      productInstanceName_(productInstanceAlias),
-      branchAliases_(aliasForBranch.branchAliases()),
-      aliasForBranchID_(aliasForBranch.branchID()),
-      transient_() {
-    dropped() = false;
-    transient_.produced_ = aliasForBranch.produced(),
-    onDemand() = aliasForBranch.onDemand();
-    transient_.moduleName_ = aliasForBranch.moduleName();
-    transient_.parameterSetID_ = aliasForBranch.parameterSetID();
-    typeID() = aliasForBranch.typeID();
     init();
   }
 

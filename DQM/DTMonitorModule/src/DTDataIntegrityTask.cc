@@ -1,8 +1,8 @@
 /*
  * \file DTDataIntegrityTask.cc
  * 
- * $Date: 2011/10/19 10:05:54 $
- * $Revision: 1.75 $
+ * $Date: 2012/09/05 14:44:33 $
+ * $Revision: 1.80 $
  * \author M. Zanetti (INFN Padova), S. Bolognesi (INFN Torino), G. Cerminara (INFN Torino)
  *
  */
@@ -554,6 +554,13 @@ void DTDataIntegrityTask::processROS25(DTROS25Data & data, int ddu, int ros) {
   // Summary of all ROB errors
   MonitorElement* ROSError = 0;
   if(mode <= 2) ROSError = rosHistos["ROSError"][code.getROSID()];
+
+  if ( (mode<=2) && (!ROSError) ) {
+    LogError("DTRawToDigi|DTDQM|DTMonitorModule|DTDataIntegrityTask") <<
+	"Trying to access non existing ME at ROSID " << code.getROSID() <<
+	std::endl;
+    return;
+  }
 
   // L1A ids to be checked against FED one
   rosL1AIdsPerFED[ddu].insert(data.getROSHeader().TTCEventCounter());

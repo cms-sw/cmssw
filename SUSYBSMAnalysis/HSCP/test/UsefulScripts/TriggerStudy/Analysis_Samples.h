@@ -114,24 +114,27 @@ class stSignal{
 
 
 void GetSignalDefinition(std::vector<stSignal>& signals){
-  signals.push_back(stSignal("Gluino", "Gluino500", "Gluino500"    , "#tilde{g} 500"                 , 500,  1, 1,  65.800000) ); //NLO
-  //signals.push_back(stSignal("Gluino", "Gluino500N", "Gluino500N"    , "#tilde{g} 500 CS"                 , 500,  1, 1,  65.800000) ); //NLO
-  signals.push_back(stSignal("Gluino", "Gluino800", "Gluino800"    , "#tilde{g} 800"                 , 800,  1, 1,   0.693000) ); //NLO
-  //signals.push_back(stSignal("Gluino", "Gluino800N", "Gluino800N"    , "#tilde{g} 800 CS"                 , 800,  1, 1,   0.693000) ); //NLO
+  signals.push_back(stSignal("Gluino", "Gluino300", "Gluino300"    , "#tilde{g} 300"                 , 300,  1, 1,  65.800000) ); //NLO
+  signals.push_back(stSignal("Gluino", "Gluino300S", "Gluino300S"    , "#tilde{g} 300S"                 , 300,  1, 1,  65.800000) ); //NLO
+  signals.push_back(stSignal("Gluino", "Gluino600", "Gluino600"    , "#tilde{g} 600"                 , 600,  1, 1,   0.693000) ); //NLO
+  signals.push_back(stSignal("Gluino", "Gluino600S", "Gluino600S"    , "#tilde{g} 600S"                 , 600,  1, 1,   0.693000) ); //NLO
   signals.push_back(stSignal("Gluino", "Gluino1100", "Gluino1100"  , "#tilde{g} 1100"                ,1100,  1, 1,   0.0038600) ); //NLO 
-  //signals.push_back(stSignal("Gluino", "Gluino1100N", "Gluino1100N"  , "#tilde{g} 1100 CS"                ,1100,  1, 1,   0.0038600) ); //NLO 
+  signals.push_back(stSignal("Gluino", "Gluino1100S", "Gluino1100S"  , "#tilde{g} 1100S"                ,1100,  1, 1,   0.0038600) ); //NLO 
 
-  signals.push_back(stSignal("Stau"  , "GMStau156", "stau_M-156"    , "GMSB #tilde{#tau}_{1} 156"     , 156,  1, 1,   1.3398) ); //NLO
-  signals.push_back(stSignal("Stau"  , "GMStau308", "stau_M-308"    , "GMSB #tilde{#tau}_{1} 308"     , 308,  1, 1,   0.0118093) ); //NLO
-  signals.push_back(stSignal("Stau"  , "GMStau432", "stau_M-432"    , "GMSB #tilde{#tau}_{1} 432"     , 432,  1, 1,  0.00098447 ) ); //NLO
-  /*
+  signals.push_back(stSignal("Stau"  , "GMStau100", "stau_M-100"    , "GMSB #tilde{#tau}_{1} 100"     , 100,  1, 1,   1.3398) ); //NLO
+  signals.push_back(stSignal("Stau"  , "GMStau100S", "stau_M-100S"    , "GMSB #tilde{#tau}_{1} 100S"     , 100,  1, 1,   1.3398) ); //NLO
+  signals.push_back(stSignal("Stau"  , "GMStau200", "stau_M-200"    , "GMSB #tilde{#tau}_{1} 200"     , 200,  1, 1,   0.0118093) ); //NLO
+  signals.push_back(stSignal("Stau"  , "GMStau200S", "stau_M-200S"    , "GMSB #tilde{#tau}_{1} 200S"     , 200,  1, 1,   0.0118093) ); //NLO
+  signals.push_back(stSignal("Stau"  , "GMStau308", "stau_M-308"    , "GMSB #tilde{#tau}_{1} 308"     , 308,  1, 1,  0.00098447 ) ); //NLO
+  signals.push_back(stSignal("Stau"  , "GMStau308S", "stau_M-308S"    , "GMSB #tilde{#tau}_{1} 308S"     , 308,  1, 1,  0.00098447 ) ); //NLO
+
   signals.push_back(stSignal("Stau"  , "PPStau100", "PPStau100", "Pair #tilde{#tau}_{1} 100"     , 100,  1, 1,   0.0382) ); //NLO
   signals.push_back(stSignal("Stau"  , "PPStau100S", "PPStau100S", "Pair #tilde{#tau}_{1} 100S"     , 100,  1, 1,   0.0382) ); //NLO
   signals.push_back(stSignal("Stau"  , "PPStau200", "PPStau200", "Pair #tilde{#tau}_{1} 200"     , 200,  1, 1,   0.00247) ); //NLO
   signals.push_back(stSignal("Stau"  , "PPStau200S", "PPStau200S", "Pair #tilde{#tau}_{1} 200S"     , 200,  1, 1,   0.00247) ); //NLO
   signals.push_back(stSignal("Stau"  , "PPStau308", "PPStau308", "Pair #tilde{#tau}_{1} 308"     , 308,  0, 1,  0.000353) ); //NLO  
   signals.push_back(stSignal("Stau"  , "PPStau308S", "PPStau308S", "Pair #tilde{#tau}_{1} 308S"     , 308,  0, 1,  0.000353) ); //NLO  
-  */
+
 
 }
 
@@ -183,7 +186,7 @@ void GetMCDefinition(std::vector<stMC>& MC){
 void GetInputFiles(std::vector<std::string>& inputFiles, std::string SampleName, int period=0){
 //  std::string BaseDirectory = "/storage/data/cms/users/quertenmont/HSCP/CMSSW_4_2_3/11_08_03/";
 //   std::string BaseDirectory = "dcache:/pnfs/cms/WAX/11/store/user/jchen/11_09_13_HSCP2011EDM/";
-  std::string BaseDirectory = "dcache:/pnfs/cms/WAX/11/store/user/farrell3/NewDTError26Dec2011/";
+  std::string BaseDirectory = "/uscmst1b_scratch/lpc1/lpcphys/jchen/HSCPEDM_11_01_11/";
    if(SampleName=="Data"){
      inputFiles.push_back(BaseDirectory + "Data_RunA_160404_163869.root");
      inputFiles.push_back(BaseDirectory + "Data_RunA_165001_166033.root");

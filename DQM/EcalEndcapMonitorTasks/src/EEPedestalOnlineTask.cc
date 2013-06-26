@@ -1,8 +1,8 @@
 /*
  * \file EEPedestalOnlineTask.cc
  *
- * $Date: 2012/03/29 13:49:36 $
- * $Revision: 1.34.2.1 $
+ * $Date: 2012/04/27 13:46:16 $
+ * $Revision: 1.37 $
  * \author G. Della Ricca
  *
 */
@@ -169,6 +169,19 @@ void EEPedestalOnlineTask::analyze(const edm::Event& e, const edm::EventSetup& c
       float xiy = iy - 0.5;
 
       EEDataFrame dataframe = (*digiItr);
+
+      int iMax(-1);
+      int maxADC(0);
+      for(int i(0); i < 10; i++){
+        if(dataframe.sample(i).gainId() != 1) break;
+        int adc(dataframe.sample(i).adc());
+        if(adc > maxADC){
+          maxADC = adc;
+          iMax = i;
+        }
+      }
+
+      if(iMax != 5) continue;
 
       for (int i = 0; i < 3; i++) {
 

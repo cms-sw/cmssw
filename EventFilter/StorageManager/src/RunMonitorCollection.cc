@@ -1,4 +1,4 @@
-// $Id: RunMonitorCollection.cc,v 1.16 2011/04/19 11:10:34 mommsen Exp $
+// $Id: RunMonitorCollection.cc,v 1.17 2011/11/08 10:48:41 mommsen Exp $
 /// @file: RunMonitorCollection.cc
 
 #include <string>
@@ -99,6 +99,7 @@ namespace stor {
   
   void RunMonitorCollection::addUnwantedEvent(const I2OChain& ioc)
   {
+    if ( ! alarmParams_.careAboutUnwantedEvents_ ) return;
     if ( ioc.faulty() || !ioc.complete() ) return;
     
     unwantedEventIDsReceived_.addSample(ioc.eventNumber());

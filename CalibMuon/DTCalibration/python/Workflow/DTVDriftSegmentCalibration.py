@@ -24,16 +24,7 @@ class DTVDriftSegmentCalibration:
         self.process = loadCmsProcess(self.pset_template)
         self.process.GlobalTag.globaltag = self.config.globaltag
         self.process.dtVDriftSegmentCalibration.rootFileName = self.outputfile
-        # Update Event Setup
-	if hasattr(self.config,'inputDBTag') and self.config.inputDBTag:
-	    tag = self.config.inputDBTag
-	    record = self.config.inputDBRcd
-	    connect = self.config.connectStrDBTag
-	    moduleName = 'customDB%s' % record 
-	    addPoolDBESSource(process = self.process,
-			      moduleName = moduleName,record = record,tag = tag,
-			      connect = connect)
-
+        # Add tTrig and vDrift DB's, if requested
         if hasattr(self.config,'inputTTrigDB') and self.config.inputTTrigDB:
             label = ''
             if hasattr(self.config,'runOnCosmics') and self.config.runOnCosmics: label = 'cosmics'
@@ -46,12 +37,15 @@ class DTVDriftSegmentCalibration:
                               moduleName = 'vDriftDB',record = 'DTMtimeRcd',tag = 'vDrift',
                               connect = 'sqlite_file:%s' % os.path.basename(self.config.inputVDriftDB))
 
-        if hasattr(self.config,'inputT0DB') and self.config.inputT0DB:
-            addPoolDBESSource(process = self.process,
-                              moduleName = 't0DB',record = 'DTT0Rcd',tag = 't0',
-                              connect = 'sqlite_file:%s' % os.path.basename(self.config.inputT0DB))
+	if hasattr(self.config,'inputDBTag') and self.config.inputDBTag:
+	    tag = self.config.inputDBTag
+	    record = self.config.inputDBRcd
+	    connect = self.config.connectStrDBTag
+	    moduleName = 'customDB%s' % record 
+	    addPoolDBESSource(process = self.process,
+			      moduleName = moduleName,record = record,tag = tag,
+			      connect = connect)
 
-        # Update sequences
         # Prepend paths with unpacker if running on RAW
         if hasattr(self.config,'runOnRAW') and self.config.runOnRAW:
             if hasattr(self.config,'runOnMC') and self.config.runOnMC:
@@ -76,9 +70,6 @@ class DTVDriftSegmentCalibration:
 
         if hasattr(self.config,'inputVDriftDB') and self.config.inputVDriftDB:
             addCrabInputFile(crab_cfg_parser,self.config.inputVDriftDB)
-
-        if hasattr(self.config,'inputT0DB') and self.config.inputT0DB:
-            addCrabInputFile(crab_cfg_parser,self.config.inputT0DB)
 
         self.crab_cfg = crab_cfg_parser
 

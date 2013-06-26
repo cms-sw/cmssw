@@ -52,7 +52,7 @@ EcalTrigPrimFunctionalAlgo::EcalTrigPrimFunctionalAlgo(const edm::EventSetup & s
   tcpFormat_(tcpFormat), barrelOnly_(barrelOnly), debug_(debug), famos_(famos)
 
 {
- if (famos_) maxNrSamples_=2;  //get from input??
+ if (famos_) maxNrSamples_=1;  //get from input??
  else maxNrSamples_=10;
  this->init(setup);
 }

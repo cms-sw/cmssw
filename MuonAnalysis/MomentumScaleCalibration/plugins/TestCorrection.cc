@@ -16,7 +16,7 @@
 //
 // Original Author:  Marco De Mattia
 //         Created:  Thu Sep 11 12:16:00 CEST 2008
-// $Id: TestCorrection.h,v 1.9 2010/10/22 17:48:08 wmtan Exp $
+// $Id: TestCorrection.cc,v 1.13 2012/05/07 10:03:31 emiglior Exp $
 //
 //
 
@@ -41,7 +41,7 @@
 #include "DataFormats/Candidate/interface/LeafCandidate.h"
 
 // For the momentum scale correction
-#include "MuonAnalysis/MomentumScaleCalibration/interface/MuScleFitBase.h"
+#include "MuScleFitBase.h"
 #include "MuonAnalysis/MomentumScaleCalibration/interface/MomentumScaleCorrector.h"
 #include "MuonAnalysis/MomentumScaleCalibration/interface/ResolutionFunction.h"
 #include "MuonAnalysis/MomentumScaleCalibration/interface/BackgroundFunction.h"

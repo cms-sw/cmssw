@@ -1,0 +1,253 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE aida SYSTEM "http://aida.freehep.org/schemas/3.3/aida.dtd">
+<aida version="3.3"> 
+<implementation version="1.0" package="HepData"/>
+<dataPointSet name="d01-x01-y01" dimension="2" path="/REF/FSQ12020" title="Profile_Nch_7TeV">
+<dataPoint>
+<measurement value=" 0.75 " errorPlus=" 0.25 " errorMinus=" 0.25 "/>
+ <measurement value=" 0.0803 " errorPlus=" 0.00289165 " errorMinus=" 0.00289165 "/>
+</dataPoint>
+<dataPoint>
+<measurement value=" 1.25 " errorPlus=" 0.25 " errorMinus=" 0.25 "/>
+ <measurement value=" 0.2924 " errorPlus=" 0.0105279 " errorMinus=" 0.0105279 "/>
+</dataPoint>
+<dataPoint>
+<measurement value=" 1.75 " errorPlus=" 0.25 " errorMinus=" 0.25 "/>
+ <measurement value=" 0.49719 " errorPlus=" 0.0179018 " errorMinus=" 0.0179018 "/>
+</dataPoint>
+<dataPoint>
+<measurement value=" 2.25 " errorPlus=" 0.25 " errorMinus=" 0.25 "/>
+ <measurement value=" 0.65149 " errorPlus=" 0.0234598 " errorMinus=" 0.0234598 "/>
+</dataPoint>
+<dataPoint>
+<measurement value=" 2.75 " errorPlus=" 0.25 " errorMinus=" 0.25 "/>
+ <measurement value=" 0.75656 " errorPlus=" 0.0272492 " errorMinus=" 0.0272492 "/>
+</dataPoint>
+<dataPoint>
+<measurement value=" 3.25 " errorPlus=" 0.25 " errorMinus=" 0.25 "/>
+ <measurement value=" 0.82403 " errorPlus=" 0.0296902 " errorMinus=" 0.0296902 "/>
+</dataPoint>
+<dataPoint>
+<measurement value=" 3.75 " errorPlus=" 0.25 " errorMinus=" 0.25 "/>
+ <measurement value=" 0.86755 " errorPlus=" 0.0312791 " errorMinus=" 0.0312791 "/>
+</dataPoint>
+<dataPoint>
+<measurement value=" 4.5 " errorPlus=" 0.5 " errorMinus=" 0.5 "/>
+ <measurement value=" 0.89795 " errorPlus=" 0.0323791 " errorMinus=" 0.0323791 "/>
+</dataPoint>
+<dataPoint>
+<measurement value=" 5.5 " errorPlus=" 0.5 " errorMinus=" 0.5 "/>
+ <measurement value=" 0.92826 " errorPlus=" 0.0335618 " errorMinus=" 0.0335618 "/>
+</dataPoint>
+<dataPoint>
+<measurement value=" 7 " errorPlus=" 1 " errorMinus=" 1 "/>
+ <measurement value=" 0.93762 " errorPlus=" 0.0339789 " errorMinus=" 0.0339789 "/>
+</dataPoint>
+<dataPoint>
+<measurement value=" 9 " errorPlus=" 1 " errorMinus=" 1 "/>
+ <measurement value=" 0.96922 " errorPlus=" 0.0357509 " errorMinus=" 0.0357509 "/>
+</dataPoint>
+<dataPoint>
+<measurement value=" 11 " errorPlus=" 1 " errorMinus=" 1 "/>
+ <measurement value=" 0.96732 " errorPlus=" 0.0371884 " errorMinus=" 0.0371884 "/>
+</dataPoint>
+<dataPoint>
+<measurement value=" 13 " errorPlus=" 1 " errorMinus=" 1 "/>
+ <measurement value=" 0.97448 " errorPlus=" 0.0403968 " errorMinus=" 0.0403968 "/>
+</dataPoint>
+<dataPoint>
+<measurement value=" 15 " errorPlus=" 1 " errorMinus=" 1 "/>
+ <measurement value=" 1.02293 " errorPlus=" 0.0475935 " errorMinus=" 0.0475935 "/>
+</dataPoint>
+<dataPoint>
+<measurement value=" 18 " errorPlus=" 2 " errorMinus=" 2 "/>
+ <measurement value=" 1.01991 " errorPlus=" 0.0487307 " errorMinus=" 0.0487307 "/>
+</dataPoint>
+<dataPoint>
+<measurement value=" 22 " errorPlus=" 2 " errorMinus=" 2 "/>
+ <measurement value=" 0.94215 " errorPlus=" 0.0648131 " errorMinus=" 0.0648131 "/>
+</dataPoint>
+<dataPoint>
+<measurement value=" 26 " errorPlus=" 2 " errorMinus=" 2 "/>
+ <measurement value=" 1.04984 " errorPlus=" 0.0957451 " errorMinus=" 0.0957451 "/>
+</dataPoint>
+</dataPointSet>
+<dataPointSet name="d02-x01-y01" dimension="2" path="/REF/FSQ12020" title="Profile_Sum_7TeV">
+<dataPoint>
+<measurement value=" 0.75 " errorPlus=" 0.25 " errorMinus=" 0.25 "/>
+ <measurement value=" 0.05081 " errorPlus=" 0.0018804 " errorMinus=" 0.0018804 "/>
+</dataPoint>
+<dataPoint>
+<measurement value=" 1.25 " errorPlus=" 0.25 " errorMinus=" 0.25 "/>
+ <measurement value=" 0.22261 " errorPlus=" 0.00823776 " errorMinus=" 0.00823776 "/>
+</dataPoint>
+<dataPoint>
+<measurement value=" 1.75 " errorPlus=" 0.25 " errorMinus=" 0.25 "/>
+ <measurement value=" 0.42765 " errorPlus=" 0.0158258 " errorMinus=" 0.0158258 "/>
+</dataPoint>
+<dataPoint>
+<measurement value=" 2.25 " errorPlus=" 0.25 " errorMinus=" 0.25 "/>
+ <measurement value=" 0.60529 " errorPlus=" 0.0224022 " errorMinus=" 0.0224022 "/>
+</dataPoint>
+<dataPoint>
+<measurement value=" 2.75 " errorPlus=" 0.25 " errorMinus=" 0.25 "/>
+ <measurement value=" 0.73942 " errorPlus=" 0.027373 " errorMinus=" 0.027373 "/>
+</dataPoint>
+<dataPoint>
+<measurement value=" 3.25 " errorPlus=" 0.25 " errorMinus=" 0.25 "/>
+ <measurement value=" 0.83444 " errorPlus=" 0.0309042 " errorMinus=" 0.0309042 "/>
+</dataPoint>
+<dataPoint>
+<measurement value=" 3.75 " errorPlus=" 0.25 " errorMinus=" 0.25 "/>
+ <measurement value=" 0.89559 " errorPlus=" 0.0331959 " errorMinus=" 0.0331959 "/>
+</dataPoint>
+<dataPoint>
+<measurement value=" 4.5 " errorPlus=" 0.5 " errorMinus=" 0.5 "/>
+ <measurement value=" 0.94886 " errorPlus=" 0.0351779 " errorMinus=" 0.0351779 "/>
+</dataPoint>
+<dataPoint>
+<measurement value=" 5.5 " errorPlus=" 0.5 " errorMinus=" 0.5 "/>
+ <measurement value=" 0.99926 " errorPlus=" 0.0371725 " errorMinus=" 0.0371725 "/>
+</dataPoint>
+<dataPoint>
+<measurement value=" 7 " errorPlus=" 1 " errorMinus=" 1 "/>
+ <measurement value=" 1.03373 " errorPlus=" 0.0385773 " errorMinus=" 0.0385773 "/>
+</dataPoint>
+<dataPoint>
+<measurement value=" 9 " errorPlus=" 1 " errorMinus=" 1 "/>
+ <measurement value=" 1.09706 " errorPlus=" 0.0419957 " errorMinus=" 0.0419957 "/>
+</dataPoint>
+<dataPoint>
+<measurement value=" 11 " errorPlus=" 1 " errorMinus=" 1 "/>
+ <measurement value=" 1.11942 " errorPlus=" 0.0454773 " errorMinus=" 0.0454773 "/>
+</dataPoint>
+<dataPoint>
+<measurement value=" 13 " errorPlus=" 1 " errorMinus=" 1 "/>
+ <measurement value=" 1.12603 " errorPlus=" 0.0503545 " errorMinus=" 0.0503545 "/>
+</dataPoint>
+<dataPoint>
+<measurement value=" 15 " errorPlus=" 1 " errorMinus=" 1 "/>
+ <measurement value=" 1.22822 " errorPlus=" 0.0657664 " errorMinus=" 0.0657664 "/>
+</dataPoint>
+<dataPoint>
+<measurement value=" 18 " errorPlus=" 2 " errorMinus=" 2 "/>
+ <measurement value=" 1.23344 " errorPlus=" 0.0685424 " errorMinus=" 0.0685424 "/>
+</dataPoint>
+<dataPoint>
+<measurement value=" 22 " errorPlus=" 2 " errorMinus=" 2 "/>
+ <measurement value=" 1.285 " errorPlus=" 0.121159 " errorMinus=" 0.121159 "/>
+</dataPoint>
+<dataPoint>
+<measurement value=" 26 " errorPlus=" 2 " errorMinus=" 2 "/>
+ <measurement value=" 1.32878 " errorPlus=" 0.142369 " errorMinus=" 0.142369 "/>
+</dataPoint>
+</dataPointSet> 
+<dataPointSet name="d03-x01-y01" dimension="2" path="/REF/FSQ12020" title="Prof_Nch_09TeV">
+<dataPoint>
+<measurement value=" 0.75 " errorPlus=" 0.25 " errorMinus=" 0.25 "/>
+ <measurement value=" 0.0775 " errorPlus=" 0.00232715 " errorMinus=" 0.00232715 "/>
+</dataPoint>
+<dataPoint>
+<measurement value=" 1.25 " errorPlus=" 0.25 " errorMinus=" 0.25 "/>
+ <measurement value=" 0.2254 " errorPlus=" 0.00676496 " errorMinus=" 0.00676496 "/>
+</dataPoint>
+<dataPoint>
+<measurement value=" 1.75 " errorPlus=" 0.25 " errorMinus=" 0.25 "/>
+ <measurement value=" 0.3257 " errorPlus=" 0.00978378 " errorMinus=" 0.00978378 "/>
+</dataPoint>
+<dataPoint>
+<measurement value=" 2.25 " errorPlus=" 0.25 " errorMinus=" 0.25 "/>
+ <measurement value=" 0.3796 " errorPlus=" 0.0114235 " errorMinus=" 0.0114235 "/>
+</dataPoint>
+<dataPoint>
+<measurement value=" 2.75 " errorPlus=" 0.25 " errorMinus=" 0.25 "/>
+ <measurement value=" 0.4139 " errorPlus=" 0.0124957 " errorMinus=" 0.0124957 "/>
+</dataPoint>
+<dataPoint>
+<measurement value=" 3.25 " errorPlus=" 0.25 " errorMinus=" 0.25 "/>
+ <measurement value=" 0.4337 " errorPlus=" 0.0132127 " errorMinus=" 0.0132127 "/>
+</dataPoint>
+<dataPoint>
+<measurement value=" 3.75 " errorPlus=" 0.25 " errorMinus=" 0.25 "/>
+ <measurement value=" 0.4308 " errorPlus=" 0.0133387 " errorMinus=" 0.0133387 "/>
+</dataPoint>
+<dataPoint>
+<measurement value=" 4.5 " errorPlus=" 0.5 " errorMinus=" 0.5 "/>
+ <measurement value=" 0.4354 " errorPlus=" 0.0136035 " errorMinus=" 0.0136035 "/>
+</dataPoint>
+<dataPoint>
+<measurement value=" 5.5 " errorPlus=" 0.5 " errorMinus=" 0.5 "/>
+ <measurement value=" 0.4525 " errorPlus=" 0.0152735 " errorMinus=" 0.0152735 "/>
+</dataPoint>
+<dataPoint>
+<measurement value=" 7 " errorPlus=" 1 " errorMinus=" 1 "/>
+ <measurement value=" 0.4683 " errorPlus=" 0.0174202 " errorMinus=" 0.0174202 "/>
+</dataPoint>
+<dataPoint>
+<measurement value=" 9 " errorPlus=" 1 " errorMinus=" 1 "/>
+ <measurement value=" 0.4572 " errorPlus=" 0.0277297 " errorMinus=" 0.0277297 "/>
+</dataPoint>
+<dataPoint>
+<measurement value=" 11 " errorPlus=" 1 " errorMinus=" 1 "/>
+ <measurement value=" 0.4565 " errorPlus=" 0.0406748 " errorMinus=" 0.0406748 "/>
+</dataPoint>
+<dataPoint>
+<measurement value=" 13 " errorPlus=" 1 " errorMinus=" 1 "/>
+ <measurement value=" 0.4275 " errorPlus=" 0.0734287 " errorMinus=" 0.0734287 "/>
+</dataPoint>
+</dataPointSet> 
+<dataPointSet name="d04-x01-y01" dimension="2" path="/REF/FSQ12020" title="Prof_Sum_09TeV">
+<dataPoint>
+<measurement value=" 0.75 " errorPlus=" 0.25 " errorMinus=" 0.25 "/>
+ <measurement value=" 0.0471 " errorPlus=" 0.00132259 " errorMinus=" 0.00132259 "/>
+</dataPoint>
+<dataPoint>
+<measurement value=" 1.25 " errorPlus=" 0.25 " errorMinus=" 0.25 "/>
+ <measurement value=" 0.1656 " errorPlus=" 0.00464111 " errorMinus=" 0.00464111 "/>
+</dataPoint>
+<dataPoint>
+<measurement value=" 1.75 " errorPlus=" 0.25 " errorMinus=" 0.25 "/>
+ <measurement value=" 0.2648 " errorPlus=" 0.00742518 " errorMinus=" 0.00742518 "/>
+</dataPoint>
+<dataPoint>
+<measurement value=" 2.25 " errorPlus=" 0.25 " errorMinus=" 0.25 "/>
+ <measurement value=" 0.3289 " errorPlus=" 0.00924388 " errorMinus=" 0.00924388 "/>
+</dataPoint>
+<dataPoint>
+<measurement value=" 2.75 " errorPlus=" 0.25 " errorMinus=" 0.25 "/>
+ <measurement value=" 0.3737 " errorPlus=" 0.0105706 " errorMinus=" 0.0105706 "/>
+</dataPoint>
+<dataPoint>
+<measurement value=" 3.25 " errorPlus=" 0.25 " errorMinus=" 0.25 "/>
+ <measurement value=" 0.4004 " errorPlus=" 0.0114652 " errorMinus=" 0.0114652 "/>
+</dataPoint>
+<dataPoint>
+<measurement value=" 3.75 " errorPlus=" 0.25 " errorMinus=" 0.25 "/>
+ <measurement value=" 0.4117 " errorPlus=" 0.0120767 " errorMinus=" 0.0120767 "/>
+</dataPoint>
+<dataPoint>
+<measurement value=" 4.5 " errorPlus=" 0.5 " errorMinus=" 0.5 "/>
+ <measurement value=" 0.4217 " errorPlus=" 0.0124992 " errorMinus=" 0.0124992 "/>
+</dataPoint>
+<dataPoint>
+<measurement value=" 5.5 " errorPlus=" 0.5 " errorMinus=" 0.5 "/>
+ <measurement value=" 0.4494 " errorPlus=" 0.0150192 " errorMinus=" 0.0150192 "/>
+</dataPoint>
+<dataPoint>
+<measurement value=" 7 " errorPlus=" 1 " errorMinus=" 1 "/>
+ <measurement value=" 0.4737 " errorPlus=" 0.0180212 " errorMinus=" 0.0180212 "/>
+</dataPoint>
+<dataPoint>
+<measurement value=" 9 " errorPlus=" 1 " errorMinus=" 1 "/>
+ <measurement value=" 0.4568 " errorPlus=" 0.0314211 " errorMinus=" 0.0314211 "/>
+</dataPoint>
+<dataPoint>
+<measurement value=" 11 " errorPlus=" 1 " errorMinus=" 1 "/>
+ <measurement value=" 0.4854 " errorPlus=" 0.0498871 " errorMinus=" 0.0498871 "/>
+</dataPoint>
+<dataPoint>
+<measurement value=" 13 " errorPlus=" 1 " errorMinus=" 1 "/>
+ <measurement value=" 0.4385 " errorPlus=" 0.0905364 " errorMinus=" 0.0905364 "/>
+</dataPoint>
+</dataPointSet>
+</aida>

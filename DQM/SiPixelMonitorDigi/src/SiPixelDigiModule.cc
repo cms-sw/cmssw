@@ -64,10 +64,11 @@ void SiPixelDigiModule::book(const edm::ParameterSet& iConfig, int type, bool tw
   DQMStore* theDMBE = edm::Service<DQMStore>().operator->();
 
   int nbinx=ncols_/2, nbiny=nrows_/2;
-  std::string twodtitle    = "Number of Digis (1bin=four pixels)"; 
-  std::string pxtitle      = "Number of Digis (1bin=two columns)";
-  std::string pytitle      = "Number of Digis (1bin=two rows)";
-  std::string twodroctitle = "ROC Occupancy (1bin=one ROC)";
+  std::string twodtitle           = "Number of Digis (1bin=four pixels)"; 
+  std::string pxtitle             = "Number of Digis (1bin=two columns)";
+  std::string pytitle             = "Number of Digis (1bin=two rows)";
+  std::string twodroctitle        = "ROC Occupancy (1bin=one ROC)";
+  std::string twodzeroOccroctitle = "Zero Occupancy ROC Map (1bin=one ROC) for ";
   if(hiRes){
     nbinx = ncols_;
     nbiny = nrows_;
@@ -170,6 +171,9 @@ void SiPixelDigiModule::book(const edm::ParameterSet& iConfig, int type, bool tw
 	mePixRocsLay_ = theDMBE->book2D("rocmap_"+hid,twodroctitle,32,0.,32.,yROCbins[DBlayer-1],1.5,1.5+float(yROCbins[DBlayer-1]/2));
 	mePixRocsLay_->setAxisTitle("ROCs per Module",1);
 	mePixRocsLay_->setAxisTitle("ROCs per 1/2 Ladder",2);
+	meZeroOccRocsLay_ = theDMBE->book2D("zeroOccROC_map",twodzeroOccroctitle+hid,32,0.,32.,yROCbins[DBlayer-1],1.5,1.5+float(yROCbins[DBlayer-1]/2));
+	meZeroOccRocsLay_->setAxisTitle("ROCs per Module",1);
+	meZeroOccRocsLay_->setAxisTitle("ROCs per 1/2 Ladder",2);
       }
       if(!twoD && !additInfo){
 	// projections of 2D hit map
@@ -257,6 +261,9 @@ void SiPixelDigiModule::book(const edm::ParameterSet& iConfig, int type, bool tw
       mePixRocsDisk_  = theDMBE->book2D("rocmap_"+hid,twodroctitle,26,0.,26.,24,1.,13.);
       mePixRocsDisk_ ->setAxisTitle("ROCs per Module (2 Panels)",1);
       mePixRocsDisk_ ->setAxisTitle("Blade Number",2);
+      meZeroOccRocsDisk_  = theDMBE->book2D("zeroOccROC_map",twodzeroOccroctitle+hid,26,0.,26.,24,1.,13.);
+      meZeroOccRocsDisk_ ->setAxisTitle("Zero-Occupancy ROCs per Module (2 Panels)",1);
+      meZeroOccRocsDisk_ ->setAxisTitle("Blade Number",2);
     }
   }
   if(type==6 && endcap){

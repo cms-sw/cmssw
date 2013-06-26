@@ -44,17 +44,6 @@ class ODTTCciConfig : public IODConfig {
   inline unsigned int getSize() const { return m_size; }
   void setParameters(std::map<std::string,std::string> my_keys_map);
 
-  inline void printout(){
-
-    std::cout<<"TTCci  getId="<< 			     getId()<< std::endl; 			     
-    std::cout<<"TTCci  getTTCciConfigurationFile="<<   getTTCciConfigurationFile()<< std::endl;   
-    std::cout<<"TTCci  getConfigurationScript="<<      getConfigurationScript()<< std::endl;      
-    std::cout<<"TTCci  getConfigurationScriptParams="<<getConfigurationScriptParams()<< std::endl;
-    std::cout<<"TTCci  getTrgMode="<< 		     getTrgMode()<< std::endl; 		     
-    std::cout<<"TTCci  getTrgSleep="<<                 getTrgSleep()<< std::endl;                  
- 
-  }
-
   
  private:
   void prepareWrite()  throw(std::runtime_error);

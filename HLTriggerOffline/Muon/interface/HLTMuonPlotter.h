@@ -6,8 +6,8 @@
  *  Documentation available on the CMS TWiki:
  *  https://twiki.cern.ch/twiki/bin/view/CMS/MuonHLTOfflinePerformance
  *
- *  $Date: 2011/04/29 21:41:56 $
- *  $Revision: 1.12 $
+ *  $Date: 2011/09/07 16:31:47 $
+ *  $Revision: 1.1 $
  *  \author  J. Klukas, M. Vander Donckt, J. Alcaraz
  */
 
@@ -33,8 +33,6 @@
 #include "DataFormats/HLTReco/interface/TriggerEvent.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
-
-#include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
 
 #include "CommonTools/Utils/interface/StringCutObjectSelector.h"
 
@@ -126,8 +124,6 @@ class HLTMuonPlotter {
 
   StringCutObjectSelector<reco::GenParticle> * genMuonSelector_;
   StringCutObjectSelector<reco::Muon       > * recMuonSelector_;
-
-  HLTConfigProvider hltConfig_;
 
   L1MuonMatcherAlgo l1Matcher_;
 

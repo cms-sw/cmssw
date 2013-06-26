@@ -37,13 +37,6 @@ class ODTTCFConfig : public IODConfig {
   inline void setReg30( int x ) { m_reg_30 = x; } 
   inline int getReg30( ) { return m_reg_30; } 
 
-  inline void printout(){
-    std::cout<<"TTCF getId()="<< 			getId()<<std::endl; 			
-    std::cout<<"TTCF getTTCFConfigurationFile()="<< getTTCFConfigurationFile()<<std::endl;
-    std::cout<<"TTCF getRxBC0Delay( )="<< 		getRxBC0Delay( ) 		<<std::endl;
-    std::cout<<"TTCF getReg30( )="<<                getReg30( )                <<std::endl;
-  }
-
   void setParameters(std::map<std::string,std::string> my_keys_map);
   
  private:

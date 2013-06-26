@@ -7,8 +7,8 @@
 /*
  * \file HcalBaseDQMonitor.cc
  *
- * $Date: 2010/07/20 02:58:25 $
- * $Revision: 1.5 $
+ * $Date: 2010/11/24 18:55:12 $
+ * $Revision: 1.6 $
  * \author J Temple
  *
  * Base class for all Hcal DQM analyzers
@@ -83,9 +83,16 @@ void HcalBaseDQMonitor::endJob(void)
 void HcalBaseDQMonitor::beginRun(const edm::Run& run, const edm::EventSetup& c)
 {
   if (debug_>0) std::cout <<"HcalBaseDQMonitor::beginRun():  task =  '"<<subdir_<<"'"<<std::endl;
-  if (mergeRuns_ && tevt_>0) return;
-  this->setup();
-  this->reset();
+  if (! mergeRuns_)
+    {
+      this->setup();
+      this->reset();
+    }
+  else if (tevt_ == 0)
+    {
+      this->setup();
+      this->reset();
+    }
 } // beginRun(const edm::Run& run, const edm::EventSetup& c)
 
 void HcalBaseDQMonitor::endRun(const edm::Run& run, const edm::EventSetup& c)

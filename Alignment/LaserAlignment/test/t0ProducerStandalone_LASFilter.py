@@ -56,7 +56,7 @@ process.out = cms.OutputModule( "PoolOutputModule",
     'drop *', 
     'keep *_laserAlignmentT0Producer_*_*'
   ),
-  fileName = cms.untracked.string( '/tmp/wittmer/TkAlLAS_Run140124_LASFilter_test.root' )
+  fileName = cms.untracked.string( '/tmp/aperiean/TkAlLAS_Run140124_LASFilter_test.root' )
 )
 
 process.load('Alignment.LaserAlignment.LaserAlignmentEventFilter_cfi')

@@ -48,8 +48,7 @@ JetAnalyzerKt6PF = cms.EDAnalyzer("PFJetTesterUnCorr",
     reverseEnergyFractionThreshold = cms.double(0.5)
 )
                                     
-# kt6 Calo jets
-                                    
+# kt6 Calo jets                                
 JetAnalyzerKt6Calo = cms.EDAnalyzer("CaloJetTesterUnCorr",
     src = cms.InputTag("kt6CaloJets"),                                   
     srcGen = cms.InputTag("kt6GenJets"),
@@ -65,11 +64,10 @@ JetAnalyzerKt6Calo = cms.EDAnalyzer("CaloJetTesterUnCorr",
 )
 
 # AntiKt5 jets
-                                    
 JetAnalyzerAk5Calo = cms.EDAnalyzer("CaloJetTester",
     src = cms.InputTag("ak5CaloJets"),                                 
     srcGen = cms.InputTag("ak5GenJets"),
-    JetCorrectionService = cms.string('ak5CaloL2L3'),
+    JetCorrectionService = cms.string('newAk5CaloL2L3'),
 #    TurnOnEverything = cms.untracked.string('yes'),
 #    TurnOnEverything = cms.untracked.string('no'),
 #    outputFile = cms.untracked.string('histo.root'),
@@ -85,7 +83,7 @@ JetAnalyzerAk5Calo = cms.EDAnalyzer("CaloJetTester",
 JetAnalyzerAk7Calo = cms.EDAnalyzer("CaloJetTester",
     src = cms.InputTag("ak7CaloJets"),
     srcGen = cms.InputTag("ak7GenJets"),
-    JetCorrectionService = cms.string('ak7CaloL2L3'),
+    JetCorrectionService = cms.string('newAk7CaloL2L3'),
 #    TurnOnEverything = cms.untracked.string('yes'),
 #    TurnOnEverything = cms.untracked.string('no'),
 #    outputFile = cms.untracked.string('histo.root'),
@@ -101,7 +99,7 @@ JetAnalyzerAk7Calo = cms.EDAnalyzer("CaloJetTester",
 JetAnalyzerAk5PF = cms.EDAnalyzer("PFJetTester",
     src = cms.InputTag("ak5PFJets"),
     srcGen = cms.InputTag("ak5GenJets"),
-    JetCorrectionService = cms.string('ak5PFL1FastL2L3'),
+    JetCorrectionService = cms.string('newAk5PFL1FastL2L3'),
 #    TurnOnEverything = cms.untracked.string('yes'),
 #    TurnOnEverything = cms.untracked.string('no'),
 #    outputFile = cms.untracked.string('histo.root'),                                    
@@ -130,7 +128,7 @@ JetAnalyzerAk5PF = cms.EDAnalyzer("PFJetTester",
 JetAnalyzerAk5JPT = cms.EDAnalyzer("JPTJetTester",
     src = cms.InputTag("JetPlusTrackZSPCorJetAntiKt5"),
     srcGen = cms.InputTag("ak5GenJets"),
-    JetCorrectionService = cms.string('ak5JPTL2L3'),
+    JetCorrectionService = cms.string('newAk5JPTL1FastL2L3'),
 #    TurnOnEverything = cms.untracked.string('yes'),
 #    TurnOnEverything = cms.untracked.string('no'),
 #    outputFile = cms.untracked.string('histo.root'),

@@ -75,7 +75,7 @@ process.Out = cms.OutputModule("PoolOutputModule",
          "keep triggerTriggerEvent_hltTriggerSummaryAOD_*_*",
 	 "keep PileupSummaryInfos_addPileupInfo_*_*"
     ),
-    fileName = cms.untracked.string('/uscmst1b_scratch/lpc1/3DayLifetime/farrell/NewDTError/XXX_OUTPUT_XXX.root'),
+    fileName = cms.untracked.string('XXX_OUTPUT_XXX.root'),
 )
 
 process.endPath = cms.EndPath(process.Out)

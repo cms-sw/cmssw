@@ -7,7 +7,7 @@
 #LOCAL_TMP_DIR=/uscms_data/d1/wdd/CMSSW_1_8_0_pre2/tmp/slc4_ia32_gcc345
 #LOCAL_TEST_DIR=/uscms_data/d1/wdd/CMSSW_1_8_0_pre2/src/FWCore/Framework/test
 
-exe=${LOCAL_TMP_DIR}/src/FWCore/Framework/test/TestFWCoreFrameworkStatemachine/TestFWCoreFrameworkStatemachine
+exe=${LOCALRT}/test/${SCRAM_ARCH}/TestFWCoreFrameworkStatemachine
 input=${LOCAL_TEST_DIR}/unit_test_outputs/statemachine_
 output=statemachine_output_
 reference_output=${LOCAL_TEST_DIR}/unit_test_outputs/statemachine_output_

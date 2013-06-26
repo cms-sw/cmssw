@@ -37,3 +37,7 @@
 </bin>
 <bin   file="cmscond_authentication_manager.cpp" name="cmscond_authentication_manager">
 </bin>
+<bin   file="cmscond_safe_duplicate.cpp" name="cmscond_safe_duplicate">
+</bin>
+<bin   file="cmscond_safe_import.cpp" name="cmscond_safe_import">
+</bin>

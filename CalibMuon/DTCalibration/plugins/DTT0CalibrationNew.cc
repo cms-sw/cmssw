@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2012/02/17 16:39:06 $
- *  $Revision: 1.5.2.1 $
+ *  $Date: 2010/02/16 10:03:23 $
+ *  $Revision: 1.5 $
  *  \author S. Bolognesi - INFN Torino
  *  06/08/2008 Mofified by Antonio.Vilela.Pereira@cern.ch
  */
@@ -561,7 +561,7 @@ void DTT0CalibrationNew::endJob() {
     if ( channelId == 0 ) continue;
     DTWireId wireId(channelId);
     DTChamberId chamberId(wireId.chamberId());
-    //sumT0ByChamber[chamberId] = sumT0ByChamber[chamberId] + tzero->t0mean;
+    sumT0ByChamber[chamberId] = sumT0ByChamber[chamberId] + tzero->t0mean;
 // @@@ better DTT0 usage
     float t0mean_f;
     float t0rms_f;
@@ -590,14 +590,14 @@ void DTT0CalibrationNew::endJob() {
     if ( channelId == 0 ) continue;
     DTWireId wireId( channelId );
     DTChamberId chamberId(wireId.chamberId());
-    //double t0mean = (tzero->t0mean) - (sumT0ByChamber[chamberId]/countT0ByChamber[chamberId]);
-    //double t0rms = tzero->t0rms;
+    double t0mean = (tzero->t0mean) - (sumT0ByChamber[chamberId]/countT0ByChamber[chamberId]);
+    double t0rms = tzero->t0rms;
 // @@@ better DTT0 usage
     float t0mean_f;
     float t0rms_f;
     t0s->get(wireId,t0mean_f,t0rms_f,DTTimeUnits::counts);
-    double t0mean = t0mean_f - (sumT0ByChamber[chamberId]/countT0ByChamber[chamberId]);
-    double t0rms = t0rms_f;
+    t0mean = t0mean_f - (sumT0ByChamber[chamberId]/countT0ByChamber[chamberId]);
+    t0rms = t0rms_f;
 // @@@ NEW DTT0 END
     t0sWRTChamber->set(wireId,
 		       t0mean,

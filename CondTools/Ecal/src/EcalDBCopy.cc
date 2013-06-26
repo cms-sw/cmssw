@@ -65,9 +65,6 @@
 #include "CondFormats/EcalObjects/interface/EcalTimeOffsetConstant.h"
 #include "CondFormats/DataRecord/interface/EcalTimeOffsetConstantRcd.h"
 
-#include "CondFormats/EcalObjects/interface/EcalSampleMask.h"
-#include "CondFormats/DataRecord/interface/EcalSampleMaskRcd.h"
-
 #include <vector>
 
 EcalDBCopy::EcalDBCopy(const edm::ParameterSet& iConfig) :
@@ -172,8 +169,6 @@ bool EcalDBCopy::shouldCopy(const edm::EventSetup& evtSetup, std::string contain
     cacheID = evtSetup.get<ESAlignmentRcd>().cacheIdentifier();
   } else if (container == "EcalTimeOffsetConstant") {
     cacheID = evtSetup.get<EcalTimeOffsetConstantRcd>().cacheIdentifier();
-  } else if (container == "EcalSampleMask") {
-    cacheID = evtSetup.get<EcalSampleMaskRcd>().cacheIdentifier();
   }
 
   else {
@@ -404,14 +399,7 @@ else if (container == "EcalIntercalibConstantsMC") {
     std::cout << "TimeOffset pointer is: "<< obj<< std::endl;
     dbOutput->createNewIOV<const EcalTimeOffsetConstant>( new EcalTimeOffsetConstant(*obj),dbOutput->beginOfTime(), dbOutput->endOfTime(),recordName);
 
- } else if (container == "EcalSampleMask") {
-   edm::ESHandle<EcalSampleMask> handle;
-   evtSetup.get<EcalSampleMaskRcd>().get(handle);
-   const EcalSampleMask* obj = handle.product();
-   std::cout << "sample mask pointer is: "<< obj<< std::endl;
-   dbOutput->createNewIOV<const EcalSampleMask>( new EcalSampleMask(*obj),dbOutput->beginOfTime(), dbOutput->endOfTime(),recordName);
-
- } else {
+  } else {
     throw cms::Exception("Unknown container");
   }
 

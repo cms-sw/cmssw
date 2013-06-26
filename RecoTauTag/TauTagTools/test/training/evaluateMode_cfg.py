@@ -180,16 +180,12 @@ process.TauTagMVAComputerRecord.appendToDataLabel = cms.string("hpstanc")
 ##         Plot the output of the "best" Taus                                ###
 ################################################################################
 
-# Determine how we define the numerator for our taus when making PU plots
-# It doesn't really matter for evaluating the mode.
-pileup_cut = 'pt > 15 & jetRef().pt > 20'
-
 process.cleanTauPlots = cms.EDAnalyzer(
     "RecoTauPlotDiscriminator",
     src = cms.InputTag("selectedDecayModeTaus"),
     plotPU = cms.bool(True),
-    pileupPlotCut = cms.string(pileup_cut),
     pileupInfo = cms.InputTag("addPileupInfo"),
+    pileupTauPtCut = cms.double(15),
     pileupVertices = cms.InputTag("recoTauPileUpVertices"),
     discriminators = cms.VInputTag(
         cms.InputTag("hpsTancTausDiscriminationByTancRaw")

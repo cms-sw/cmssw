@@ -2,7 +2,6 @@
 <use   name="DataFormats/CaloTowers"/>
 <use   name="DataFormats/Common"/>
 <use   name="DataFormats/CSCRecHit"/>
-<use   name="DataFormats/Math"/>
 <use   name="FWCore/ParameterSet"/>
 <use   name="rootphysics"/>
 <use   name="MagneticField/Records"/>
@@ -12,13 +11,10 @@
 <use   name="Geometry/CaloTopology"/>
 <use   name="Geometry/CSCGeometry"/>
 <use   name="RecoEcal/EgammaCoreTools"/>
-<use   name="DataFormats/Candidate"/>
 <use   name="DataFormats/ParticleFlowCandidate"/>
 <use   name="DataFormats/L1GlobalMuonTrigger"/>
 <use   name="DataFormats/MuonReco"/>
-<use   name="DataFormats/ParticleFlowReco"/>
-<use   name="DataFormats/VertexReco"/>	
-<use   name="CondFormats/EgammaObjects"/>
+<use   name="DataFormats/ParticleFlowReco"/>	
 <use   name="CondFormats/JetMETObjects"/>
 <use   name="RecoMuon/TrackingTools"/>
 <use   name="RecoParticleFlow/PFClusterTools"/>

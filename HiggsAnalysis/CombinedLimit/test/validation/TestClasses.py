@@ -15,6 +15,8 @@ class Test:
         return "%s/%s.json" % (dir,self._name)
     def numCPUs(self):
         return 1
+    def forceSingleCPU(self):
+        pass
     def createScriptBase(self,dir):
         """Creates script file, writes preamble, then calls createScript to fill it"""
         print "  creating script", self.scriptName(dir)
@@ -108,6 +110,9 @@ class SingleDatacardTest(Test):
         self._mass     = mass
     def numCPUs(self):
         return numCPUs_(self._method, self._options)
+    def forceSingleCPU(self):
+        if "Hybrid" in self._method: 
+            self._options = re.sub(r"--fork\s+(\d+)", "--fork 0", self._options)
     def createScript(self,dir,file):
         datacard_full = os.environ['CMSSW_BASE']+"/src/HiggsAnalysis/CombinedLimit/data/benchmarks/%s" % self._datacard
         if os.access(datacard_full, os.R_OK) == False: 
@@ -141,6 +146,9 @@ class MultiDatacardTest(Test):
         self._options  = options
     def numCPUs(self):
         return numCPUs_(self._method, self._options)
+    def forceSingleCPU(self):
+        if "Hybrid" in self._method: 
+            self._options = re.sub(r"--fork\s+(\d+)", "--fork 0", self._options)
     def createScript(self,dir,file):
         for dc, mass in self._datacards:
             datacard_full = os.environ['CMSSW_BASE']+"/src/HiggsAnalysis/CombinedLimit/data/benchmarks/%s" % dc 

@@ -298,9 +298,9 @@ void drawReso(bool do1DRecHit, bool do2DRecHit, bool do2DSLPhiRecHit, bool do4DR
   if(do4DRecHit) {
     plot4DResiduals(h4DHit);
     plot4DResidualsRZ(h4DHit);
-    plot4DResiduals(h4DHit_W0);
-    plot4DResiduals(h4DHit_W1);
-    plot4DResiduals(h4DHit_W2);
+    // plot4DResiduals(h4DHit_W0);
+    // plot4DResiduals(h4DHit_W1);
+    // plot4DResiduals(h4DHit_W2);
   }
 
   // resovseta:
@@ -400,9 +400,9 @@ void drawReso(bool do1DRecHit, bool do2DRecHit, bool do2DSLPhiRecHit, bool do4DR
   if(do4DRecHit) {
     plot4DResVsEta(h4DHit);
     plot4DResVsEtaRZ(h4DHit);
-    plot4DResVsEta(h4DHit_W0);
-    plot4DResVsEta(h4DHit_W1);
-    plot4DResVsEta(h4DHit_W2);
+    // plot4DResVsEta(h4DHit_W0);
+    // plot4DResVsEta(h4DHit_W1);
+    // plot4DResVsEta(h4DHit_W2);
   }
 
   // resovsphi:
@@ -501,9 +501,9 @@ void drawReso(bool do1DRecHit, bool do2DRecHit, bool do2DSLPhiRecHit, bool do4DR
   if(do4DRecHit) {
     plot4DResVsPhi(h4DHit);
     plot4DResVsPhiRZ(h4DHit);
-    plot4DResVsPhi(h4DHit_W0);
-    plot4DResVsPhi(h4DHit_W1);
-    plot4DResVsPhi(h4DHit_W2);
+    // plot4DResVsPhi(h4DHit_W0);
+    // plot4DResVsPhi(h4DHit_W1);
+    // plot4DResVsPhi(h4DHit_W2);
   }
 
 

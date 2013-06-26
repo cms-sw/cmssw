@@ -16,7 +16,6 @@ class HFEMClusterProducer : public edm::EDProducer {
 public:
   explicit HFEMClusterProducer(edm::ParameterSet const& conf);
   virtual void produce(edm::Event& e, edm::EventSetup const& iSetup);
-  virtual void beginRun(edm::Run&, edm::EventSetup const&){ algo_.resetForRun(); }
 private:
   edm::InputTag hfreco_;
   HFClusterAlgo algo_;

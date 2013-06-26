@@ -11,8 +11,8 @@
 /*
  * \file HcalRecHitClient.cc
  * 
- * $Date: 2011/04/12 18:25:42 $
- * $Revision: 1.52 $
+ * $Date: 2011/07/04 23:22:27 $
+ * $Revision: 1.53 $
  * \author J. Temple
  * \brief Dead Cell Client class
  */
@@ -501,4 +501,5 @@ void HcalRecHitClient::updateChannelStatus(std::map<HcalDetId, unsigned int>& my
 
 } //void HcalRecHitClient::updateChannelStatus
 
-
+HcalRecHitClient::~HcalRecHitClient()
+{}

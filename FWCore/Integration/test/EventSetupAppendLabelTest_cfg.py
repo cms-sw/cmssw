@@ -17,6 +17,14 @@ process.WhatsItESProducer = cms.ESProducer("WhatsItESProducer",
     doodadLabel = cms.string('Two')
 )
 
+# This one is here only to test that we are allowed to
+# add the special appendToDataLabel parameter without
+# putting it in the fillDescriptions function of the ESProducer.
+process.WhatsItESProducer1 = cms.ESProducer("WhatsItESProducer",
+    doodadLabel = cms.string('Two'),
+    appendToDataLabel = cms.string('foo')
+)
+
 process.DoodadESSource = cms.ESSource("DoodadESSource",
     appendToDataLabel = cms.string('Two')
 )

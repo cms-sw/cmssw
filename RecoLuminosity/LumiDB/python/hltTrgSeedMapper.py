@@ -31,18 +31,30 @@ def findUniqueSeed(hltPath,ExprStr):
         return None
     if ExprStr.find('(')!=-1 : #we don't parse expression with ()
         return None
-    sep=re.compile('\sAND\s|\sOR\s')
+    sep=re.compile('(\sAND\s|\sOR\s)',re.IGNORECASE)
     result=re.split(sep,ExprStr)
-    if len(result)>2:
-        return None
+    if len(result)>3:
+        return ('',None)
+    cleanresult=[]
+    exptype=''
+    notsep=re.compile('NOT\s',re.IGNORECASE)
+    andsep=re.compile('\sAND\s',re.IGNORECASE)
+    orsep=re.compile('\sOR\s',re.IGNORECASE)
+
     for r in result:
-        if r.find('NOT ')!=-1 : #we don't know what to do with NOT
-            return None
-    #the result we return the first one
-    return '"'+string.strip(result[0]).replace('\"','')+'"'
+        if notsep.match(r) : #we don't know what to do with NOT
+            return ('',None)
+        if orsep.match(r):
+            exptype='OR'
+            continue
+        if andsep.match(r):
+            exptype='AND'
+            continue
+        cleanresult.append('"'+string.strip(r).replace('\"','')+'"')
+    return (exptype,cleanresult)
 
 if __name__=='__main__':
     print findUniqueSeed("HLT_ForwardBSC","36 OR 37")
     print findUniqueSeed("HLT_HcalNZS_8E29","L1_SingleEG1 OR L1_SingleEG2 OR L1_SingleEG5 OR L1_SingleEG8 OR L1_SingleEG10")
-    print findUniqueSeed("HLT_ZeroBiasPixel_SingleTrack","L1_ZeroBias")
+    print findUniqueSeed("HLT_ZeroBiasPixel_SingleTrack","L1_ZeroBias AND me")
     

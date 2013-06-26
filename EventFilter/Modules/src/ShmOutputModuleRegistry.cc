@@ -46,7 +46,46 @@ namespace evf{
   void ShmOutputModuleRegistry::clear()
   {
      clm_.clear();
+     shmOutputsWithDatasets_.clear();
+     listOfDatasets_.clear();
   }
 
+  void ShmOutputModuleRegistry::updateDatasetInfo()
+  {
+    shmOutputsWithDatasets_.clear();
+    listOfDatasets_.clear();
+    std::vector<edm::FUShmOutputModule *> outputs = getShmOutputModules();
+    for (unsigned int i=0;i<outputs.size();i++) {
+      edm::FUShmOutputModule * output = outputs[i];
+      if (output->getStreamId().size()) {
+	std::vector<std::string> datasets  = output->getDatasetNames();
+	listOfDatasets_.insert(listOfDatasets_.end(),datasets.begin(),datasets.end());
+	if (datasets.size())
+	  shmOutputsWithDatasets_.push_back(output);
+      }
+    }
+  }
+  std::string ShmOutputModuleRegistry::getDatasetCSV()
+  {
+    std::string datasetNameString;
+    for (unsigned int i=0;i<listOfDatasets_.size();i++) {
+      if (i)
+        datasetNameString+=",";
+      datasetNameString+=listOfDatasets_[i];
+    }
+    return datasetNameString;
+  }
+
+  void ShmOutputModuleRegistry::insertStreamAndDatasetInfo(edm::ParameterSet & streams, edm::ParameterSet & datasets)
+  {
+    idct it= clm_.begin();
+    while(it!=clm_.end()){
+      edm::FUShmOutputModule * sho = dynamic_cast<edm::FUShmOutputModule *> ((*it).second);
+      if (sho!=NULL) {
+        sho->insertStreamAndDatasetInfo(streams,datasets);
+      }
+      it++;
+    }
+  }
 
 } //end namespace evf

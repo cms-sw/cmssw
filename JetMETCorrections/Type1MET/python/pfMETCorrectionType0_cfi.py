@@ -40,9 +40,9 @@ pfMETcorrType0 = cms.EDProducer("Type0PFMETcorrInputProducer",
     correction = cms.PSet(
         formula = cms.string("-([0] + [1]*x)*(1.0 + TMath::Erf(-[2]*TMath::Power(x, [3])))"),
         par0 = cms.double(0.),
-        par1 = cms.double(-0.710135),
-        par2 = cms.double(0.0870503),
-        par3 = cms.double(0.621243)          
+        par1 = cms.double(-0.703151),
+        par2 = cms.double(0.0303531),
+        par3 = cms.double(0.909209)          
     ),
     minDz = cms.double(0.2) # [cm], minimum distance required between pile-up vertices and "hard scatter" vertex
 )   

@@ -6,8 +6,6 @@
 #include "DataFormats/Candidate/interface/CompositeCandidate.h"
 #include "FWCore/Framework/interface/Event.h"
 
-#include "SimDataFormats/GeneratorProducts/interface/GenFilterInfo.h"
-
 // replacementMode =
 //	0 - remove Myons from existing HepMCProduct and implant taus (+decay products)
 //	1 - build new HepMCProduct only with taus (+decay products)
@@ -18,7 +16,7 @@ MCParticleReplacer::MCParticleReplacer(const edm::ParameterSet& pset):
   replacer_(ParticleReplacerFactory::create(pset.getParameter<std::string>("algorithm"), pset)) {
 
   produces<edm::HepMCProduct>();
-  produces<GenFilterInfo>("minVisPtFilter");
+  produces<double>("weight");
 }
 
 MCParticleReplacer::~MCParticleReplacer()
@@ -91,9 +89,9 @@ MCParticleReplacer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     bare_product->addHepMCData(evt.release()); // transfer ownership of the HepMC:GenEvent to bare_product
 
     iEvent.put(bare_product);
-
-    std::auto_ptr<GenFilterInfo> info(new GenFilterInfo(replacer_->tried, replacer_->passed));
-    iEvent.put(info, std::string("minVisPtFilter"));
+    
+    std::auto_ptr<double> bare_weight(new double(replacer_->eventWeight));
+    iEvent.put(bare_weight, std::string("weight"));
   }
   
 }

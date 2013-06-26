@@ -27,13 +27,34 @@ options.register ('runNumber',
 options.parseArguments()
 
 process.MessageLogger = cms.Service("MessageLogger",
+    destinations = cms.untracked.vstring('cout','cerr','PCLBadComponents','QTBadModules'), #Reader, cout
+    categories = cms.untracked.vstring('SiStripQualityStatistics',
+                                       'BadModuleList',
+                                       'TkMapParameters',
+                                       'TkMapToBeSaved',
+                                       'PSUMapToBeSaved'), #Reader, cout
     debugModules = cms.untracked.vstring('siStripDigis', 
                                          'siStripClusters', 
                                          'siStripZeroSuppression', 
                                          'SiStripClusterizer',
                                          'siStripOfflineAnalyser'),
-    cout = cms.untracked.PSet(threshold = cms.untracked.string('ERROR')),
-    destinations = cms.untracked.vstring('cout')
+    cerr = cms.untracked.PSet(threshold = cms.untracked.string('ERROR')
+                              ),
+    cout = cms.untracked.PSet(threshold = cms.untracked.string('INFO'),
+                                default = cms.untracked.PSet(limit=cms.untracked.int32(0)),
+                                TkMapParameters = cms.untracked.PSet(limit=cms.untracked.int32(100000)),
+                                TkMapToBeSaved = cms.untracked.PSet(limit=cms.untracked.int32(100000)),
+                                PSUMapToBeSaved = cms.untracked.PSet(limit=cms.untracked.int32(100000))
+                              ),
+    PCLBadComponents = cms.untracked.PSet(threshold = cms.untracked.string('INFO'),
+                                default = cms.untracked.PSet(limit=cms.untracked.int32(0)),
+                                SiStripQualityStatistics = cms.untracked.PSet(limit=cms.untracked.int32(100000))
+                                ),
+    QTBadModules = cms.untracked.PSet(threshold = cms.untracked.string('INFO'),
+                                default = cms.untracked.PSet(limit=cms.untracked.int32(0)),
+                                BadModuleList = cms.untracked.PSet(limit=cms.untracked.int32(100000))
+                                )
+                                    
 )
 
 
@@ -72,18 +93,20 @@ process.siStripOfflineAnalyser = cms.EDAnalyzer("SiStripOfflineDQM",
           loadFedCabling    = cms.untracked.bool(True),
           trackerdatPath    = cms.untracked.string('CommonTools/TrackerMap/data/'),
           trackermaptxtPath = cms.untracked.string('CommonTools/TrackerMap/data/'),
-          mapMin            = cms.untracked.double(0.)
+          mapMin            = cms.untracked.double(0.),
+          meanToMaxFact     = cms.untracked.double(2.5)
        ),
        TkMapOptions             = cms.untracked.VPSet(
-    cms.PSet(mapName=cms.untracked.string('QTestAlarm')),
+    cms.PSet(mapName=cms.untracked.string('QTestAlarm'),fedMap=cms.untracked.bool(True),useSSQuality=cms.untracked.bool(True),ssqLabel=cms.untracked.string("")),
     cms.PSet(mapName=cms.untracked.string('FractionOfBadChannels'),mapMax=cms.untracked.double(-1.),logScale=cms.untracked.bool(True)),
     cms.PSet(mapName=cms.untracked.string('NumberOfCluster')),
     cms.PSet(mapName=cms.untracked.string('NumberOfDigi')),
     cms.PSet(mapName=cms.untracked.string('NumberOfOfffTrackCluster')),
+    cms.PSet(mapName=cms.untracked.string('NumberOfOfffTrackCluster'),mapSuffix=cms.untracked.string("_autoscale"),mapMax=cms.untracked.double(-1.)),
     cms.PSet(mapName=cms.untracked.string('NumberOfOnTrackCluster')),
     cms.PSet(mapName=cms.untracked.string('StoNCorrOnTrack')),
     cms.PSet(mapName=cms.untracked.string('NApvShots'),mapMax=cms.untracked.double(-1.),logScale=cms.untracked.bool(True)),
-#    cms.PSet(mapName=cms.untracked.string('NApvShots'),mapMax=cms.untracked.double(-1.),psuMap=cms.untracked.bool(True),loadLVCabling=cms.untracked.bool(True)),
+#    cms.PSet(mapName=cms.untracked.string('NApvShots'),mapMax=cms.untracked.double(-1.),logScale=cms.untracked.bool(True),psuMap=cms.untracked.bool(True),loadLVCabling=cms.untracked.bool(True)),
     cms.PSet(mapName=cms.untracked.string('MedianChargeApvShots'),mapMax=cms.untracked.double(-1.))
     )
 )
@@ -92,5 +115,23 @@ process.siStripOfflineAnalyser = cms.EDAnalyzer("SiStripOfflineDQM",
 process.TkDetMap = cms.Service("TkDetMap")
 process.SiStripDetInfoFileReader = cms.Service("SiStripDetInfoFileReader")
 
+# Configuration of the SiStripQuality object for the map of bad channels
 
-process.p1 = cms.Path(process.siStripOfflineAnalyser)
+#process.siStripQualityESProducer.appendToDataLabel = cms.string("test")
+process.siStripQualityESProducer.ListOfRecordToMerge=cms.VPSet(
+#        cms.PSet( record = cms.string("SiStripDetVOffRcd"),    tag    = cms.string("") ),
+#        cms.PSet( record = cms.string("SiStripDetCablingRcd"), tag    = cms.string("") ),
+#        cms.PSet( record = cms.string("RunInfoRcd"),           tag    = cms.string("") ),
+#        cms.PSet( record = cms.string("SiStripBadChannelRcd"), tag    = cms.string("") ),
+        cms.PSet( record = cms.string("SiStripBadFiberRcd"),   tag    = cms.string("") )
+#        cms.PSet( record = cms.string("SiStripBadModuleRcd"),  tag    = cms.string("") )
+        )
+
+process.ssqualitystat = cms.EDAnalyzer("SiStripQualityStatistics",
+                                       dataLabel = cms.untracked.string(""),
+                                       TkMapFileName = cms.untracked.string("PCLBadComponents.png"),  #available filetypes: .pdf .png .jpg .svg
+                                       SaveTkHistoMap = cms.untracked.bool(False)
+                              )
+
+
+process.p1 = cms.Path(process.siStripOfflineAnalyser + process.ssqualitystat)

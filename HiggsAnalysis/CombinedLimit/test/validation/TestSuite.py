@@ -28,6 +28,7 @@ class TestSuite:
             if options.select  and not re.search(options.select,  test.name()): continue
             if options.exclude and     re.search(options.exclude, test.name()): continue
             if test.name() in dups: raise RuntimeError, "Duplicate test %s" % test.name()
+            if options.nofork: test.forceSingleCPU()
             self._tests.append(test)
             dups.append(test.name())
     def listJobs(self):

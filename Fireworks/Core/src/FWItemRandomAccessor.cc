@@ -10,7 +10,7 @@
 //
 // Original Author:  Giulio Eulisse
 //         Created:  Thu Feb 18 15:19:44 EDT 2008
-// $Id: FWItemRandomAccessor.cc,v 1.2 2010/06/18 10:17:15 yana Exp $
+// $Id: FWItemRandomAccessor.cc,v 1.3 2010/07/23 16:02:54 eulisse Exp $
 //
 
 // system include files
@@ -54,7 +54,7 @@ FWItemRandomAccessorBase::~FWItemRandomAccessorBase()
 // member functions
 //
 void
-FWItemRandomAccessorBase::setData(const ROOT::Reflex::Object& product)
+FWItemRandomAccessorBase::setData(const Reflex::Object& product)
 {
    if (product.Address() == 0)
    {
@@ -62,9 +62,8 @@ FWItemRandomAccessorBase::setData(const ROOT::Reflex::Object& product)
       return;
    }
    
-   using ROOT::Reflex::Object;
    if(product.TypeOf().IsTypedef())
-      m_data = Object(product.TypeOf().ToType(),product.Address()).Address();
+      m_data = Reflex::Object(product.TypeOf().ToType(),product.Address()).Address();
    else
       m_data = product.Address();
    assert(0!=m_data);

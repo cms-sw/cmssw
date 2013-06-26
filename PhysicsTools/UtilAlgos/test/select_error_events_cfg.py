@@ -9,7 +9,7 @@ process.load("FWCore.MessageLogger.MessageLogger_cfi")
 process.options   = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) )
 
 process.source = cms.Source("PoolSource",
-                            fileNames = cms.untracked.vstring('/store/relval/CMSSW_3_6_0/RelValTTbar/GEN-SIM-RECO/START36_V4-v1/0013/306F945C-9A49-DF11-85F8-0018F3D0965A.root'),
+                            fileNames = cms.untracked.vstring('/store/relval/CMSSW_5_3_6-START53_V14/RelValZTT/GEN-SIM-RECO/v2/00000/4E4AD1B8-FC29-E211-B998-001A928116B4.root'),
                             inputCommands = cms.untracked.vstring("keep *", "drop *_MEtoEDMConverter_*_*") # drop the DQM histograms
                             )
 ## Maximal Number of Events

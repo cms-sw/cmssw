@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Jan 23 10:37:22 EST 2008
-// $Id: FWModelExpressionSelector.cc,v 1.10 2010/06/18 10:17:16 yana Exp $
+// $Id: FWModelExpressionSelector.cc,v 1.11 2011/11/18 02:57:08 amraktad Exp $
 //
 
 // system include files
@@ -71,7 +71,7 @@
 // const member functions
 //
 void
-FWModelExpressionSelector::select(FWEventItem* iItem, const std::string& iExpression) const
+FWModelExpressionSelector::select(FWEventItem* iItem, const std::string& iExpression, Color_t iColor) const
 {
    using namespace fireworks::expression;
 
@@ -103,6 +103,12 @@ FWModelExpressionSelector::select(FWEventItem* iItem, const std::string& iExpres
 
       if((*selectorPtr)(o)) {
          iItem->select(index);
+
+	 if (iColor > 0) {
+            FWDisplayProperties props = iItem->modelInfo(index).displayProperties();
+            props.setColor(iColor);
+	    iItem->setDisplayProperties(index, props);
+	 }
       }
    }
 }

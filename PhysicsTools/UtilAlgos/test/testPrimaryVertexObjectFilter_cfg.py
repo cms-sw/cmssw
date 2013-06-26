@@ -4,7 +4,7 @@ process = cms.Process("Test")
 
 process.source = cms.Source("PoolSource",
   fileNames = cms.untracked.vstring(
-    "/store/relval/CMSSW_5_0_0_pre6/RelValZTT/GEN-SIM-RECO/START50_V5-v1/0202/A0D83694-4917-E111-85E1-0026189438F2.root"
+    "/store/relval/CMSSW_5_3_6-START53_V14/RelValZTT/GEN-SIM-RECO/v2/00000/4E4AD1B8-FC29-E211-B998-001A928116B4.root"
   )
 )
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(100) )
@@ -18,7 +18,7 @@ process.MessageLogger = cms.Service("MessageLogger")
 ## in PhysicsTools/UtilAlgos/plugins/PrimaryVertexFilter.cc. You can find the EDfilterWrapper class in
 ## PhysicsTools/UtilAlgos/interface/EDFilterObjectWrapper.h. The class that has been exploited here is
 ## the PVObjectSelector class of the PhysicsTools/SelectorUtils package.You cna find the input parameters
-## there. 
+## there.
 process.primaryVertexObjectFilter = cms.EDFilter("PrimaryVertexObjectFilter",
   src   = cms.InputTag("offlinePrimaryVertices"),
   filterParams = cms.PSet(

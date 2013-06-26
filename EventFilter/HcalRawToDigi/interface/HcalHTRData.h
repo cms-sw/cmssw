@@ -10,8 +10,8 @@
  *  Since this class requires external specification of the length of the data, it is implemented
  *  as an interpreter, rather than a cast-able header class.
  *
- *  $Date: 2009/11/05 21:51:15 $
- *  $Revision: 1.16 $
+ *  $Date: 2011/11/02 03:47:49 $
+ *  $Revision: 1.17 $
  *  \author J. Mans - UMD
  */
 
@@ -44,6 +44,11 @@ class HcalHTRData {
       Requires a minimum length, matching wordcount and length, not an
       empty event */
   bool check() const;
+
+  bool isEmptyEvent() const;
+  bool isOverflowWarning() const;
+  bool isBusy() const;
+
   
   /** \brief Obtain the starting and ending pointers for external
      unpacking of the data

@@ -28,6 +28,7 @@ HLTDoubletDZ<T1,T2>::HLTDoubletDZ(const edm::ParameterSet& iConfig) : HLTFilter(
   minDR_ (iConfig.template getParameter<double>("MinDR")),
   maxDZ_ (iConfig.template getParameter<double>("MaxDZ")),
   min_N_    (iConfig.template getParameter<int>("MinN")),
+  checkSC_  (iConfig.template getParameter<bool>("checkSC")),
   label_    (iConfig.getParameter<std::string>("@module_label")),
   coll1_(),
   coll2_()
@@ -54,6 +55,7 @@ HLTDoubletDZ<T1,T2>::fillDescriptions(edm::ConfigurationDescriptions& descriptio
   desc.add<int>("triggerType2",0);
   desc.add<double>("MinDR",-1.0);
   desc.add<double>("MaxDZ",0.2);
+  desc.add<bool>("checkSC",false);
   desc.add<int>("MinN",1);
   descriptions.add(std::string("hlt")+std::string(typeid(HLTDoubletDZ<T1,T2>).name()),desc);
 }
@@ -103,7 +105,7 @@ HLTDoubletDZ<T1,T2>::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup
            LogVerbatim("HLTDoubletDZ") << " XXX " << label_ << " 1b " << tagNew.encode() << std::endl;
 	 }
        }
-       filterproduct.addCollectionTag(originTag1_);
+       filterproduct.addCollectionTag(originTag2_);
        LogVerbatim("HLTDoubletDZ") << " XXX " << label_ << " 2a " << originTag2_.encode() << std::endl;
        tagOld=InputTag();
        for (size_type i2=0; i2!=n2; ++i2) {
@@ -131,7 +133,12 @@ HLTDoubletDZ<T1,T2>::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup
        if (same_) {I=i1+1;}
        for (unsigned int i2=I; i2!=n2; i2++) {
 	 r2=coll2_[i2];
-	 const reco::Candidate& candidate2(*r2);
+	 if (checkSC_) {
+	   if (r1->superCluster().isNonnull() && r2->superCluster().isNonnull()) {
+	     if (r1->superCluster() == r2->superCluster()) continue;
+	   }
+	 }
+ 	 const reco::Candidate& candidate2(*r2);
 	 if ( reco::deltaR(candidate1, candidate2) < minDR_ ) continue;
 	 if ( std::abs(candidate1.vz()-candidate2.vz()) > maxDZ_ ) continue;
 	 n++;

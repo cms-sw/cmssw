@@ -4,8 +4,8 @@
 /*
  * \file DQMDcsInfo.h
  *
- * $Date: 2010/03/28 15:27:36 $
- * $Revision: 1.1 $
+ * $Date: 2010/03/29 18:34:06 $
+ * $Revision: 1.2 $
  * \author A.Meyer - DESY
  *
 */
@@ -15,6 +15,7 @@
 #include <FWCore/Framework/interface/Run.h>
 #include <FWCore/Framework/interface/MakerMacros.h>
 #include <FWCore/ParameterSet/interface/ParameterSet.h>
+#include <FWCore/ParameterSet/interface/Registry.h>
 #include <FWCore/ServiceRegistry/interface/Service.h>
 
 #include <DQMServices/Core/interface/DQMStore.h>

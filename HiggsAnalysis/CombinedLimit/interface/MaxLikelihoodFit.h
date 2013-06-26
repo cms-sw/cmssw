@@ -35,9 +35,10 @@ protected:
   static float       rebinFactor_;
   static std::string signalPdfNames_, backgroundPdfNames_;
   static bool        saveNormalizations_;
+  static bool        reuseParams_;
   int currentToy_, nToys;
   int fitStatus_, numbadnll_;
-  double mu_, nll_nll0_;
+  double mu_, nll_nll0_, nll_bonly_,nll_sb_;
   std::auto_ptr<TFile> fitOut;
   double* globalObservables_;
   double* nuisanceParameters_;

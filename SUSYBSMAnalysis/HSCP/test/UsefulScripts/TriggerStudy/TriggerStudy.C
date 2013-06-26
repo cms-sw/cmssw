@@ -159,20 +159,14 @@ void TriggerStudy()
    for(unsigned int i=0;i<JetMetSD_triggers.size();i++)All_triggers.push_back(JetMetSD_triggers[i]);
    for(unsigned int i=0;i<All_triggers.size();i++)All_mask[All_triggers[i]] = true;
    ///////////////////////////////////////////////////////
-
    FILE* pFile = fopen("Results.txt","w");
 
    stPlot** plots = new stPlot*[signals.size()];  
    for(unsigned int i=0;i<signals.size();i++){
       plots[i] = new stPlot(signals[i].Name);
-      //     if(signals[i].Name!="GMStau100" && signals[i].Name!="GMStau200" && signals[i].Name!="GMStau308")continue;
-        TriggerStudy_Core(signals[i].Name, pFile, plots[i]);
+//      if(signals[i].Name!="GMStau100" && signals[i].Name!="GMStau200" && signals[i].Name!="GMStau308")continue;
+      TriggerStudy_Core(signals[i].Name, pFile, plots[i]);
    }
-
-   fflush(pFile);
-   fclose(pFile);
-
-
 
    int Id;                              vector<stPlot*> objs;        vector<string> leg;
 
@@ -245,37 +239,8 @@ void TriggerStudy()
    layout(objs, leg, "summary_Mixed");
 */
 
-
-//final systmatic calculation
-   FILE* pFile1 = fopen("Results.txt","r");
-
-   vector<float> vec_eff_met;
-   vector<float> vec_eff_metm;
-   vector<float> vec_eff_mu;
-   vector<float> vec_eff_tot;
-   vector<float> vec_eff_totm;
-
-   for(unsigned int i=0;i<signals.size();i++){
-      char str[80];
-      float eff_met, eff_mu,eff_tot;
-      float meff_met, meff_mu,meff_tot;
-      fscanf(pFile1,  "%15s --> MET = %f%% (modified %f%%) Mu = %f%% (modified %f%%) JetMET||Mu = %f%% (%f%%)\n",str, &eff_met, &meff_met, &eff_mu, &meff_mu, &eff_tot, &meff_tot);
-      vec_eff_met.push_back(eff_met);
-      vec_eff_metm.push_back(meff_met);
-      vec_eff_mu.push_back(eff_mu);
-      vec_eff_tot.push_back(eff_tot);
-      vec_eff_totm.push_back(meff_tot);
-   }
-   fclose(pFile1);
-
-   FILE* pFile2 = fopen("Results_Systematic.txt","w");
-   for(unsigned int i=0;i<signals.size();i=i+2){
-      fprintf(pFile2,  "%15s --> Sys_MET_tof = %5.2f%% Sys_MET_jes = %5.2f%% Sys_Mu = %5.2f%% Sys_tot_tof = %5.2f%% Sys_tot_jes = %5.2f%% \n",signals[i].Name.c_str(), fabs(vec_eff_met[i+1]-vec_eff_met[i])/vec_eff_met[i]*100,fabs(vec_eff_metm[i]-vec_eff_met[i])/vec_eff_met[i]*100,fabs(vec_eff_mu[i+1]-vec_eff_mu[i])/vec_eff_mu[i]*100, fabs(vec_eff_tot[i+1]-vec_eff_tot[i])/vec_eff_tot[i]*100,fabs(vec_eff_totm[i]-vec_eff_tot[i])/vec_eff_tot[i]*100);
-      fprintf(stdout, "%15s --> Sys_MET_tof = %5.2f%% Sys_MET_jes = %5.2f%% Sys_Mu = %5.2f%% Sys_tot_tof = %5.2f%% Sys_tot_jes = %5.2f%% \n",signals[i].Name.c_str(),fabs(vec_eff_met[i+1]-vec_eff_met[i])/vec_eff_met[i]*100, fabs(vec_eff_metm[i]-vec_eff_met[i])/vec_eff_met[i]*100,fabs(vec_eff_mu[i+1]-vec_eff_mu[i])/vec_eff_mu[i]*100, fabs(vec_eff_tot[i+1]-vec_eff_tot[i])/vec_eff_tot[i]*100,fabs(vec_eff_totm[i]-vec_eff_tot[i])/vec_eff_tot[i]*100);
-   }
-   fclose(pFile2);
-
-
+   fflush(pFile);
+   fclose(pFile);
 
 }
 
@@ -362,9 +327,9 @@ void TriggerStudy_Core(string SignalName, FILE* pFile, stPlot* plot)
                    if(e<MaxPrint)printf("HLT_PFMHT150_v1\n");
                    Accept = tr.accept(tr.triggerIndex("HLT_PFMHT150_v1"));
                 }
-               //Accept2 = Accept;
-               if(simhitshifted) Accept2 = IncreasedTreshold(trEv, InputTag("hltPFMHT150Filter","","HLTSIMHITSHIFTER"),160 , 100, 1, false);
-               else Accept2 = IncreasedTreshold(trEv, InputTag("hltPFMHT150Filter","","HLT"),160 , 100, 1, false);
+               Accept2 = Accept;
+               //Accept2 = IncreasedTreshold(trEv, InputTag("hltPFMHT150Filter","","HLT"),160 , 2.4, 1, false);
+
             }
            else if(All_triggers[i]=="HLT_Mu40_eta2p1_v1"){
 

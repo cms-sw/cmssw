@@ -8,37 +8,36 @@
 
 using namespace cms;
 
-DDDCmsTrackerContruction::DDDCmsTrackerContruction( void )
-{}
+DDDCmsTrackerContruction::DDDCmsTrackerContruction(){
 
-const GeometricDet*
-DDDCmsTrackerContruction::construct( const DDCompactView* cpv, unsigned int layerNumberPXB, unsigned int totalBlade )
-{
+}
+
+const GeometricDet* DDDCmsTrackerContruction::construct(const DDCompactView* cpv){
   attribute = "TkDDDStructure"; // could come from .orcarc
-  std::string value = "any";
+  std::string value     = "any";
   DDSpecificsFilter filter;
-  DDValue ddv( attribute, value, 0 );
-  filter.setCriteria( ddv, DDSpecificsFilter::not_equals );
+  DDValue ddv(attribute,value,0);
+  filter.setCriteria(ddv,DDSpecificsFilter::not_equals);
   
-  DDFilteredView fv( *cpv ); 
-  fv.addFilter( filter );
-  if( theCmsTrackerStringToEnum.type( ExtractStringFromDDD::getString(attribute,&fv)) != GeometricDet::Tracker )
-  {
+  DDFilteredView fv(*cpv); 
+  fv.addFilter(filter);
+  if (theCmsTrackerStringToEnum.type(ExtractStringFromDDD::getString(attribute,&fv)) != GeometricDet::Tracker){
     fv.firstChild();
-    if( theCmsTrackerStringToEnum.type( ExtractStringFromDDD::getString(attribute,&fv)) != GeometricDet::Tracker )
-    {  
-      throw cms::Exception( "Configuration" ) << " The first child of the DDFilteredView is not what is expected \n"
-					      << ExtractStringFromDDD::getString( attribute, &fv ) << "\n";
+    if (theCmsTrackerStringToEnum.type(ExtractStringFromDDD::getString(attribute,&fv)) != GeometricDet::Tracker){
+      
+      throw cms::Exception("Configuration") <<" The first child of the DDFilteredView is not what is expected \n"
+					    <<ExtractStringFromDDD::getString(attribute,&fv)<<"\n";
     }
   }
   
-  GeometricDet* tracker = new GeometricDet( &fv, GeometricDet::Tracker );
-  CmsTrackerBuilder theCmsTrackerBuilder( totalBlade );
-  theCmsTrackerBuilder.build( fv, tracker, attribute );
+  GeometricDet* tracker  = new GeometricDet(&fv,GeometricDet::Tracker);
+  CmsTrackerBuilder theCmsTrackerBuilder;
+  theCmsTrackerBuilder.build(fv,tracker,attribute);
+
   
-  CmsTrackerDetIdBuilder theCmsTrackerDetIdBuilder( layerNumberPXB );
+  CmsTrackerDetIdBuilder theCmsTrackerDetIdBuilder;
   
-  tracker = theCmsTrackerDetIdBuilder.buildId( tracker );
+  tracker = theCmsTrackerDetIdBuilder.buildId(tracker);
   fv.parent();
   //
   // set the Tracker

@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 trackerSeedValidator = cms.EDAnalyzer("TrackerSeedValidator",
-    associators = cms.vstring('TrackAssociatorByHits'),
+    associators = cms.vstring('quickTrackAssociatorByHits'),
     useFabsEta = cms.bool(False),
     minpT = cms.double(-1),
     beamSpot = cms.InputTag("offlineBeamSpot"),

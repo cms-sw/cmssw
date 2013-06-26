@@ -106,7 +106,8 @@ bool Halting::discardDqmEvent(MemRef_t* bufRef) const {
 	SharedResourcesPtr_t res = outermost_context().getSharedResources();
 	bool returnValue = false;
 	try {
-		returnValue = res->resourceStructure_->discardDqmEventWhileHalting(bufRef);
+		returnValue = res->resourceStructure_->discardDqmEvent(bufRef);
+		//returnValue = res->resourceStructure_->discardDqmEventWhileHalting(bufRef);
 	} catch (evf::Exception& e) {
 		moveToFailedState(e);
 	}

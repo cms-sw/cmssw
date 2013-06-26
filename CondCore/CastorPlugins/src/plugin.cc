@@ -12,6 +12,7 @@
 #include "CondFormats/CastorObjects/interface/CastorChannelQuality.h"
 #include "CondFormats/CastorObjects/interface/CastorQIEData.h"
 #include "CondFormats/CastorObjects/interface/CastorRecoParams.h"
+#include "CondFormats/CastorObjects/interface/CastorSaturationCorrs.h"
 
 #include "CondFormats/DataRecord/interface/CastorPedestalsRcd.h"
 #include "CondFormats/DataRecord/interface/CastorPedestalWidthsRcd.h"
@@ -21,6 +22,7 @@
 #include "CondFormats/DataRecord/interface/CastorChannelQualityRcd.h"
 #include "CondFormats/DataRecord/interface/CastorQIEDataRcd.h"
 #include "CondFormats/DataRecord/interface/CastorRecoParamsRcd.h"
+#include "CondFormats/DataRecord/interface/CastorSaturationCorrsRcd.h"
 
 
 
@@ -32,3 +34,4 @@ REGISTER_PLUGIN(CastorElectronicsMapRcd,CastorElectronicsMap);
 REGISTER_PLUGIN(CastorChannelQualityRcd,CastorChannelQuality);
 REGISTER_PLUGIN(CastorQIEDataRcd,CastorQIEData);
 REGISTER_PLUGIN(CastorRecoParamsRcd,CastorRecoParams);
+REGISTER_PLUGIN(CastorSaturationCorrsRcd,CastorSaturationCorrs);

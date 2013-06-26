@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Feb 29 13:39:51 PST 2008
-// $Id: FWModelFilter.h,v 1.7 2009/04/27 16:53:29 dmytro Exp $
+// $Id: FWModelFilter.h,v 1.8 2010/09/01 18:48:59 amraktad Exp $
 //
 
 // system include files
@@ -61,7 +61,7 @@ private:
    std::string m_expression;
    std::string m_className;
    reco::parser::SelectorPtr m_selector;
-   ROOT::Reflex::Type m_type;
+   Reflex::Type m_type;
 };
 
 

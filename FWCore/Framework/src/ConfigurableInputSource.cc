@@ -191,15 +191,18 @@ namespace edm {
     }
     EventID oldEventID = eventID_;
     LuminosityBlockNumber_t oldLumi = eventID_.luminosityBlock();
+    size_t index = fileIndex();
     if (!eventSet_) {
       lumiSet_ = false;
       setRunAndEventInfo();
       eventSet_ = true;
+      nextEvent();
     }
     if (eventID_.run() == RunNumber_t()) {
       eventCached_ = false;
       return IsStop;
     }
+    bool newFile = (fileIndex() > index);
     if (oldEventID.run() != eventID_.run()) {
       //  New Run
       // If the user did not explicitly set the luminosity block number,
@@ -208,14 +211,14 @@ namespace edm {
 	eventID_.setLuminosityBlockNumber(origEventID_.luminosityBlock());
       }
       newRun_ = newLumi_ = true;
-      return IsRun;
+      return newFile ? IsFile : IsRun;
     }
       // Same Run
     if (oldLumi != eventID_.luminosityBlock()) {
       // New Lumi
       newLumi_ = true;
       if (processingMode() != Runs) {
-        return IsLumi;
+        return newFile ? IsFile : IsLumi;
       }
     }
     reallyReadEvent();

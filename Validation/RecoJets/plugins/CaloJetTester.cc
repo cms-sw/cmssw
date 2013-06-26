@@ -1,7 +1,7 @@
 // Producer for validation histograms for CaloJet objects
 // F. Ratnikov, Sept. 7, 2006
 // Modified by J F Novak July 10, 2008
-// $Id: CaloJetTester.cc,v 1.38 2012/02/15 21:41:52 kovitang Exp $
+// $Id: CaloJetTester.cc,v 1.43 2013/04/10 12:01:45 eron Exp $
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -48,6 +48,8 @@ namespace {
   bool is_F (const reco::Jet& fJet) {return fabs (fJet.eta()) >= 3.;}
 }
 
+
+
 CaloJetTester::CaloJetTester(const edm::ParameterSet& iConfig)
   : mInputCollection (iConfig.getParameter<edm::InputTag>( "src" )),
     mInputGenCollection (iConfig.getParameter<edm::InputTag>( "srcGen" )),
@@ -56,13 +58,17 @@ CaloJetTester::CaloJetTester(const edm::ParameterSet& iConfig)
     mGenEnergyFractionThreshold (iConfig.getParameter<double>("genEnergyFractionThreshold")),
     mReverseEnergyFractionThreshold (iConfig.getParameter<double>("reverseEnergyFractionThreshold")),
     mRThreshold (iConfig.getParameter<double>("RThreshold")),
-    JetCorrectionService  (iConfig.getParameter<std::string>  ("JetCorrectionService"  )),
-    mTurnOnEverything (iConfig.getUntrackedParameter<std::string>("TurnOnEverything",""))
-    
+    //    JetCorrectionService  (iConfig.getParameter<std::string>  ("JetCorrectionService"  )),
+    mTurnOnEverything (iConfig.getUntrackedParameter<std::string>("TurnOnEverything","")){
 
 
-{
-    numberofevents
+  // Protection against missing corrections
+  doJetCorrection=false;
+  if (iConfig.tbl().find("JetCorrectionService")!=iConfig.tbl().end()){
+    doJetCorrection=true;
+    JetCorrectionService =iConfig.getParameter<std::string>("JetCorrectionService");
+  } 
+  numberofevents
     = mEta = mEtaFineBin = mPhi = mPhiFineBin = mE = mE_80 
     = mP = mP_80  = mPt = mPt_80 
     = mMass = mMass_80  = mConstituents = mConstituents_80
@@ -82,7 +88,7 @@ CaloJetTester::CaloJetTester(const edm::ParameterSet& iConfig)
     = mHadTiming = mEmTiming 
     = mNJetsEtaC = mNJetsEtaF = mNJets1 = mNJets2
     = mNJetsEtaF_30
-      = mDeltaEta = mDeltaPhi
+    = mDeltaEta = mDeltaPhi
     = mEScale_pt10 = mEScaleFineBin
      
     = mpTScaleB_d = mpTScaleE_d = mpTScaleF_d
@@ -96,28 +102,30 @@ CaloJetTester::CaloJetTester(const edm::ParameterSet& iConfig)
     = mpTScale1DB_1500_3500 = mpTScale1DE_1500_3500 = mpTScale1DF_1500_3500
       
     = mPthat_80 = mPthat_3000
-
-      //Corr Jet
-      = mCorrJetPt =mCorrJetPt_80 =mCorrJetEta =mCorrJetPhi =mpTRatio =mpTResponse 
-      = mpTRatioB_d = mpTRatioE_d = mpTRatioF_d
-      = mpTRatio_30_200_d = mpTRatio_200_600_d = mpTRatio_600_1500_d = mpTRatio_1500_3500_d
-      = mpTResponseB_d = mpTResponseE_d = mpTResponseF_d
-      = mpTResponse_30_200_d = mpTResponse_200_600_d = mpTResponse_600_1500_d = mpTResponse_1500_3500_d
-      = mpTResponse_30_d =mjetArea
+      
+    //Corr Jet
+    = mCorrJetPt =mCorrJetPt_80 =mCorrJetEta =mCorrJetPhi =mpTRatio =mpTResponse 
+    = mpTRatioB_d = mpTRatioE_d = mpTRatioF_d
+    = mpTRatio_30_200_d = mpTRatio_200_600_d = mpTRatio_600_1500_d = mpTRatio_1500_3500_d
+    = mpTResponseB_d = mpTResponseE_d = mpTResponseF_d
+    = mpTResponse_30_200_d = mpTResponse_200_600_d = mpTResponse_600_1500_d = mpTResponse_1500_3500_d
+    = mpTResponse_30_d =mjetArea
      
-      = nvtx_0_30 = nvtx_0_60 = mpTResponse_nvtx_0_5 = mpTResponse_nvtx_5_10 =mpTResponse_nvtx_10_15 = mpTResponse_nvtx_15_20 = mpTResponse_nvtx_20_30 = mpTResponse_nvtx_30_inf  
-      = mpTScale_a_nvtx_0_5 = mpTScale_b_nvtx_0_5 = mpTScale_c_nvtx_0_5 
-      = mpTScale_a_nvtx_5_10 = mpTScale_b_nvtx_5_10 = mpTScale_c_nvtx_5_10
-      = mpTScale_a_nvtx_10_15 = mpTScale_b_nvtx_10_15 = mpTScale_c_nvtx_10_15
-      = mpTScale_a_nvtx_15_20 = mpTScale_b_nvtx_15_20 = mpTScale_c_nvtx_15_20
-      = mpTScale_a_nvtx_20_30 = mpTScale_b_nvtx_20_30 = mpTScale_c_nvtx_20_30
-      = mpTScale_a_nvtx_30_inf = mpTScale_b_nvtx_30_inf = mpTScale_c_nvtx_30_inf
-      = mpTScale_nvtx_0_5 
-      = mpTScale_nvtx_5_10 = mpTScale_nvtx_10_15 = mpTScale_nvtx_15_20 = mpTScale_nvtx_20_30 
-      = mpTScale_nvtx_30_inf
-      = mpTScale_a = mpTScale_b = mpTScale_c = mpTScale_pT
-	=0;
-  
+    = nvtx_0_30 = nvtx_0_60 = mpTResponse_nvtx_0_5 = mpTResponse_nvtx_5_10 =mpTResponse_nvtx_10_15 = mpTResponse_nvtx_15_20 = mpTResponse_nvtx_20_30 = mpTResponse_nvtx_30_inf  
+    = mpTScale_a_nvtx_0_5 = mpTScale_b_nvtx_0_5 = mpTScale_c_nvtx_0_5 
+    = mpTScale_a_nvtx_5_10 = mpTScale_b_nvtx_5_10 = mpTScale_c_nvtx_5_10
+    = mpTScale_a_nvtx_10_15 = mpTScale_b_nvtx_10_15 = mpTScale_c_nvtx_10_15
+    = mpTScale_a_nvtx_15_20 = mpTScale_b_nvtx_15_20 = mpTScale_c_nvtx_15_20
+    = mpTScale_a_nvtx_20_30 = mpTScale_b_nvtx_20_30 = mpTScale_c_nvtx_20_30
+    = mpTScale_a_nvtx_30_inf = mpTScale_b_nvtx_30_inf = mpTScale_c_nvtx_30_inf
+    = mpTScale_nvtx_0_5 
+    = mpTScale_nvtx_5_10 = mpTScale_nvtx_10_15 = mpTScale_nvtx_15_20 = mpTScale_nvtx_20_30 
+    = mpTScale_nvtx_30_inf
+    = mpTScale_a = mpTScale_b = mpTScale_c = mpTScale_pT
+    =0;
+    
+
+
   DQMStore* dbe = &*edm::Service<DQMStore>();
   if (dbe) {
     dbe->setCurrentFolder("JetMET/RecoJetsV/CaloJetTask_" + mInputCollection.label());
@@ -263,7 +271,7 @@ CaloJetTester::CaloJetTester(const edm::ParameterSet& iConfig)
     int log10PtBins = 26; 
     double etaRange[91] = {-6.0,-5.8,-5.6,-5.4,-5.2,-5.0,-4.8,-4.6,-4.4,-4.2,-4.0,-3.8,-3.6,-3.4,-3.2,-3.0,-2.9,-2.8,-2.7,-2.6,-2.5,-2.4,-2.3,-2.2,-2.1,-2.0,-1.9,-1.8,-1.7,-1.6,-1.5,-1.4,-1.3,-1.2,-1.1,-1.0,-0.9,-0.8,-0.7,-0.6,-0.5,-0.4,-0.3,-0.2,-0.1,0.0,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1.0,1.1,1.2,1.3,1.4,1.5,1.6,1.7,1.8,1.9,2.0,2.1,2.2,2.3,2.4,2.5,2.6,2.7,2.8,2.9,3.0,3.2,3.4,3.6,3.8,4.0,4.2,4.4,4.6,4.8,5.0,5.2,5.4,5.6,5.8,6.0};
 
-    int log10PtFineBins = 50;
+    //int log10PtFineBins = 50;
 
     //
     if (mTurnOnEverything.compare("yes")==0) {
@@ -276,66 +284,66 @@ CaloJetTester::CaloJetTester(const edm::ParameterSet& iConfig)
 				   log10PtBins, log10PtMin, log10PtMax, 0, 2, " ");
     mpTScaleF_d = dbe->bookProfile("pTScaleF_d", "pTScale_d_3.0<|eta|<6.0",
 				   log10PtBins, log10PtMin, log10PtMax, 0, 2, " ");
-
+    
     mpTScalePhiB_d = dbe->bookProfile("pTScalePhiB_d", "pTScalePhi_d_0<|eta|<1.5",
-				   70, -3.5, 3.5, 0, 2, " ");
+				      70, -3.5, 3.5, 0, 2, " ");
     mpTScalePhiE_d = dbe->bookProfile("pTScalePhiE_d", "pTScalePhi_d_1.5<|eta|<3.0",
-				   70, -3.5, 3.5, 0, 2, " ");
+				      70, -3.5, 3.5, 0, 2, " ");
     mpTScalePhiF_d = dbe->bookProfile("pTScalePhiF_d", "pTScalePhi_d_3.0<|eta|<6.0",
-				   70, -3.5, 3.5, 0, 2, " ");
+				      70, -3.5, 3.5, 0, 2, " ");
 
 
     mpTScale_30_200_d    = dbe->bookProfile("pTScale_30_200_d", "pTScale_d_30<pT<200",
-					  90,etaRange, 0., 2., " ");
+					    90,etaRange, 0., 2., " ");
     mpTScale_200_600_d   = dbe->bookProfile("pTScale_200_600_d", "pTScale_d_200<pT<600",
-					  90,etaRange, 0., 2., " ");
+					    90,etaRange, 0., 2., " ");
     mpTScale_600_1500_d   = dbe->bookProfile("pTScale_600_1500_d", "pTScale_d_600<pT<1500",
-					  90,etaRange, 0., 2., " ");
+					     90,etaRange, 0., 2., " ");
     mpTScale_1500_3500_d = dbe->bookProfile("pTScale_1500_3500_d", "pTScale_d_1500<pt<3500",
-                                          90,etaRange, 0., 2., " ");
+					    90,etaRange, 0., 2., " ");
     
     mpTScale1DB_30_200 = dbe->book1D("pTScale1DB_30_200", "pTScale_distribution_for_0<|eta|<1.5_30_200",
-				   100, 0, 2);
+				     100, 0, 2);
     mpTScale1DE_30_200 = dbe->book1D("pTScale1DE_30_200", "pTScale_distribution_for_1.5<|eta|<3.0_30_200",
-				   50, 0, 2);
+				     50, 0, 2);
     mpTScale1DF_30_200 = dbe->book1D("pTScale1DF_30_200", "pTScale_distribution_for_3.0<|eta|<6.0_30_200",
-				   50, 0, 2);
+				     50, 0, 2);
 
     mpTScale1DB_200_600 = dbe->book1D("pTScale1DB_200_600", "pTScale_distribution_for_0<|eta|<1.5_200_600",
-				   100, 0, 2);
+				      100, 0, 2);
     mpTScale1DE_200_600 = dbe->book1D("pTScale1DE_200_600", "pTScale_distribution_for_1.5<|eta|<3.0_200_600",
-				   50, 0, 2);
+				      50, 0, 2);
     mpTScale1DF_200_600 = dbe->book1D("pTScale1DF_200_600", "pTScale_distribution_for_3.0<|eta|<6.0_200_600",
-				   50, 0, 2);
+				      50, 0, 2);
 
     mpTScale1DB_600_1500 = dbe->book1D("pTScale1DB_600_1500", "pTScale_distribution_for_0<|eta|<1.5_600_1500",
-				   100, 0, 2);
+				       100, 0, 2);
     mpTScale1DE_600_1500 = dbe->book1D("pTScale1DE_600_1500", "pTScale_distribution_for_1.5<|eta|<3.0_600_1500",
-				   50, 0, 2);
+				       50, 0, 2);
     mpTScale1DF_600_1500 = dbe->book1D("pTScale1DF_600_1500", "pTScale_distribution_for_3.0<|eta|<6.0_600_1500",
-				   50, 0, 2);
+				       50, 0, 2);
 
     mpTScale1DB_1500_3500 = dbe->book1D("pTScale1DB_1500_3500", "pTScale_distribution_for_0<|eta|<1.5_1500_3500",
-				   100, 0, 2);
+					100, 0, 2);
     mpTScale1DE_1500_3500 = dbe->book1D("pTScale1DE_1500_3500", "pTScale_distribution_for_1.5<|eta|<3.0_1500_3500",
-				   50, 0, 2);
+					50, 0, 2);
     mpTScale1DF_1500_3500 = dbe->book1D("pTScale1DF_1500_3500", "pTScale_distribution_for_3.0<|eta|<6.0_1500_3500",
-				   50, 0, 2);
+					50, 0, 2);
 
 
-   mpTScale_nvtx_0_5  = dbe->bookProfile("pTScale_nvtx_0_5", "pTScale_nvtx_0_5_0<|eta|<1.3",
-				   log10PtBins, log10PtMin, log10PtMax, 0, 2, " ");
-   mpTScale_nvtx_5_10  = dbe->bookProfile("pTScale_nvtx_5_10", "pTScale_nvtx_5_10_0<|eta|<1.3",
-				   log10PtBins, log10PtMin, log10PtMax, 0, 2, " ");
-   mpTScale_nvtx_10_15  = dbe->bookProfile("pTScale_nvtx_10_15", "pTScale_nvtx_10_15_0<|eta|<1.3",
-				   log10PtBins, log10PtMin, log10PtMax, 0, 2, " ");
-   mpTScale_nvtx_15_20  = dbe->bookProfile("pTScale_nvtx_15_20", "pTScale_nvtx_15_20_0<|eta|<1.3",
-				   log10PtBins, log10PtMin, log10PtMax, 0, 2, " ");
-   mpTScale_nvtx_20_30  = dbe->bookProfile("pTScale_nvtx_20_30", "pTScale_nvtx_20_30_0<|eta|<1.3",
-				   log10PtBins, log10PtMin, log10PtMax, 0, 2, " ");
-   mpTScale_nvtx_30_inf  = dbe->bookProfile("pTScale_nvtx_30_inf", "pTScale_nvtx_30_inf_0<|eta|<1.3",
-				   log10PtBins, log10PtMin, log10PtMax, 0, 2, " ");
-   mpTScale_pT = dbe->bookProfile("pTScale_pT", "pTScale_vs_pT",
+    mpTScale_nvtx_0_5  = dbe->bookProfile("pTScale_nvtx_0_5", "pTScale_nvtx_0_5_0<|eta|<1.3",
+					  log10PtBins, log10PtMin, log10PtMax, 0, 2, " ");
+    mpTScale_nvtx_5_10  = dbe->bookProfile("pTScale_nvtx_5_10", "pTScale_nvtx_5_10_0<|eta|<1.3",
+					   log10PtBins, log10PtMin, log10PtMax, 0, 2, " ");
+    mpTScale_nvtx_10_15  = dbe->bookProfile("pTScale_nvtx_10_15", "pTScale_nvtx_10_15_0<|eta|<1.3",
+					    log10PtBins, log10PtMin, log10PtMax, 0, 2, " ");
+    mpTScale_nvtx_15_20  = dbe->bookProfile("pTScale_nvtx_15_20", "pTScale_nvtx_15_20_0<|eta|<1.3",
+					    log10PtBins, log10PtMin, log10PtMax, 0, 2, " ");
+    mpTScale_nvtx_20_30  = dbe->bookProfile("pTScale_nvtx_20_30", "pTScale_nvtx_20_30_0<|eta|<1.3",
+					    log10PtBins, log10PtMin, log10PtMax, 0, 2, " ");
+    mpTScale_nvtx_30_inf  = dbe->bookProfile("pTScale_nvtx_30_inf", "pTScale_nvtx_30_inf_0<|eta|<1.3",
+					     log10PtBins, log10PtMin, log10PtMax, 0, 2, " ");
+    mpTScale_pT = dbe->bookProfile("pTScale_pT", "pTScale_vs_pT",
                                    log10PtBins, log10PtMin, log10PtMax, 0, 2, " ");
     ///////////Corr profile//////////////
     mpTRatio = dbe->bookProfile("pTRatio", "pTRatio",
@@ -347,39 +355,39 @@ CaloJetTester::CaloJetTester(const edm::ParameterSet& iConfig)
     mpTRatioF_d = dbe->bookProfile("pTRatioF_d", "pTRatio_d_3.0<|eta|<6.0",
                                    log10PtBins, log10PtMin, log10PtMax, 0, 5, " ");
     mpTRatio_30_200_d    = dbe->bookProfile("pTRatio_30_200_d", "pTRatio_d_30<pT<200",
-                                          90,etaRange, 0., 5., " ");
+					    90,etaRange, 0., 5., " ");
     mpTRatio_200_600_d   = dbe->bookProfile("pTRatio_200_600_d", "pTRatio_d_200<pT<600",
-                                          90,etaRange, 0., 5., " ");
+					    90,etaRange, 0., 5., " ");
     mpTRatio_600_1500_d   = dbe->bookProfile("pTRatio_600_1500_d", "pTRatio_d_600<pT<1500",
-                                          90,etaRange, 0., 5., " ");
+					     90,etaRange, 0., 5., " ");
     mpTRatio_1500_3500_d = dbe->bookProfile("pTRatio_1500_3500_d", "pTRatio_d_1500<pt<3500",
-                                          90,etaRange, 0., 5., " "); 
+					    90,etaRange, 0., 5., " "); 
     mpTResponse = dbe->bookProfile("pTResponse", "pTResponse",
-				log10PtBins, log10PtMin, log10PtMax, 100, 0.8,1.2, " ");
+				   log10PtBins, log10PtMin, log10PtMax, 100, 0.8,1.2, " ");
     mpTResponseB_d = dbe->bookProfile("pTResponseB_d", "pTResponse_d_0<|eta|<1.5",
-                                   log10PtBins, log10PtMin, log10PtMax, 0.8, 1.2, " ");
+				      log10PtBins, log10PtMin, log10PtMax, 0.8, 1.2, " ");
     mpTResponseE_d = dbe->bookProfile("pTResponseE_d", "pTResponse_d_1.5<|eta|<3.0",
-				   log10PtBins, log10PtMin, log10PtMax, 0.8, 1.2, " ");
+				      log10PtBins, log10PtMin, log10PtMax, 0.8, 1.2, " ");
     mpTResponseF_d = dbe->bookProfile("pTResponseF_d", "pTResponse_d_3.0<|eta|<6.0",
-                                   log10PtBins, log10PtMin, log10PtMax, 0.8, 1.2, " ");
+				      log10PtBins, log10PtMin, log10PtMax, 0.8, 1.2, " ");
     mpTResponse_30_200_d    = dbe->bookProfile("pTResponse_30_200_d", "pTResponse_d_30<pT<200",
-                                          90,etaRange, 0.8, 1.2, " ");
+					       90,etaRange, 0.8, 1.2, " ");
     mpTResponse_200_600_d   = dbe->bookProfile("pTResponse_200_600_d", "pTResponse_d_200<pT<600",
-                                          90,etaRange, 0.8, 1.2, " ");
+					       90,etaRange, 0.8, 1.2, " ");
     mpTResponse_600_1500_d   = dbe->bookProfile("pTResponse_600_1500_d", "pTResponse_d_600<pT<1500",
-                                          90,etaRange, 0.8, 1.2, " ");
+						90,etaRange, 0.8, 1.2, " ");
     mpTResponse_1500_3500_d = dbe->bookProfile("pTResponse_1500_3500_d", "pTResponse_d_1500<pt<3500",
 					       90,etaRange, 0.8, 1.2, " ");
     mpTResponse_30_d = dbe->bookProfile("pTResponse_30_d", "pTResponse_d_pt>30",
-					       90,etaRange, 0.8, 1.2, " ");
+					90,etaRange, 0.8, 1.2, " ");
 
 
-   mpTResponse_nvtx_0_5 = dbe->bookProfile("pTResponse_nvtx_0_5", "pTResponse_nvtx_0_5", log10PtBins, log10PtMin, log10PtMax, 100, 0.8,1.2, " ");
-   mpTResponse_nvtx_5_10 = dbe->bookProfile("pTResponse_nvtx_5_10", "pTResponse_nvtx_5_10", log10PtBins, log10PtMin, log10PtMax, 100, 0.8,1.2, " ");
-   mpTResponse_nvtx_10_15 = dbe->bookProfile("pTResponse_nvtx_10_15", "pTResponse_nvtx_10_15", log10PtBins, log10PtMin, log10PtMax, 100, 0.8,1.2, " ");
-   mpTResponse_nvtx_15_20 = dbe->bookProfile("pTResponse_nvtx_15_20", "pTResponse_nvtx_15_20", log10PtBins, log10PtMin, log10PtMax, 100, 0.8,1.2, " ");
-   mpTResponse_nvtx_20_30 = dbe->bookProfile("pTResponse_nvtx_20_30", "pTResponse_nvtx_20_30", log10PtBins, log10PtMin, log10PtMax, 100, 0.8,1.2, " ");
-   mpTResponse_nvtx_30_inf = dbe->bookProfile("pTResponse_nvtx_30_inf", "pTResponse_nvtx_30_inf", log10PtBins, log10PtMin, log10PtMax, 100, 0.8,1.2, " ");
+    mpTResponse_nvtx_0_5 = dbe->bookProfile("pTResponse_nvtx_0_5", "pTResponse_nvtx_0_5", log10PtBins, log10PtMin, log10PtMax, 100, 0.8,1.2, " ");
+    mpTResponse_nvtx_5_10 = dbe->bookProfile("pTResponse_nvtx_5_10", "pTResponse_nvtx_5_10", log10PtBins, log10PtMin, log10PtMax, 100, 0.8,1.2, " ");
+    mpTResponse_nvtx_10_15 = dbe->bookProfile("pTResponse_nvtx_10_15", "pTResponse_nvtx_10_15", log10PtBins, log10PtMin, log10PtMax, 100, 0.8,1.2, " ");
+    mpTResponse_nvtx_15_20 = dbe->bookProfile("pTResponse_nvtx_15_20", "pTResponse_nvtx_15_20", log10PtBins, log10PtMin, log10PtMax, 100, 0.8,1.2, " ");
+    mpTResponse_nvtx_20_30 = dbe->bookProfile("pTResponse_nvtx_20_30", "pTResponse_nvtx_20_30", log10PtBins, log10PtMin, log10PtMax, 100, 0.8,1.2, " ");
+    mpTResponse_nvtx_30_inf = dbe->bookProfile("pTResponse_nvtx_30_inf", "pTResponse_nvtx_30_inf", log10PtBins, log10PtMin, log10PtMax, 100, 0.8,1.2, " ");
   }
 
   if (mOutputFile.empty ()) {
@@ -398,7 +406,7 @@ void CaloJetTester::beginJob(){
 }
 
 void CaloJetTester::endJob() {
- if (!mOutputFile.empty() && &*edm::Service<DQMStore>()) edm::Service<DQMStore>()->save (mOutputFile);
+  if (!mOutputFile.empty() && &*edm::Service<DQMStore>()) edm::Service<DQMStore>()->save (mOutputFile);
 }
 
 
@@ -409,70 +417,78 @@ void CaloJetTester::analyze(const edm::Event& mEvent, const edm::EventSetup& mSe
 
   //get primary vertices
   edm::Handle<vector<reco::Vertex> >pvHandle;
-  try {
-    mEvent.getByLabel( "offlinePrimaryVertices", pvHandle );
-  } catch ( cms::Exception & e ) {
-    //cout <<prefix<<"error: " << e.what() << endl;
-  }
-  vector<reco::Vertex> goodVertices;
-  for (unsigned i = 0; i < pvHandle->size(); i++) {
-    if ( (*pvHandle)[i].ndof() > 4 &&
-       ( fabs((*pvHandle)[i].z()) <= 24. ) &&
-       ( fabs((*pvHandle)[i].position().rho()) <= 2.0 ) )
-       goodVertices.push_back((*pvHandle)[i]);
-  }
 
+  //E.Ron elias.ron@cern.ch at 10-4-13
+  //the vertices are only taken if they exist in the event
+  bool offlinePrimaryVerticesPresent=mEvent.getByLabel( "offlinePrimaryVertices",pvHandle);
+
+
+  //  try {
+  //    mEvent.getByLabel( "offlinePrimaryVertices", pvHandle );
+  //  } catch ( cms::Exception& e) {
+    //    cout <<"error: " << e.what() << endl;
+  //  } 
+  vector<reco::Vertex> goodVertices;
+
+  if(offlinePrimaryVerticesPresent){
+    for (unsigned i = 0; i < pvHandle->size(); i++) {
+      if ( (*pvHandle)[i].ndof() > 4 &&
+	   ( fabs((*pvHandle)[i].z()) <= 24. ) &&
+	   ( fabs((*pvHandle)[i].position().rho()) <= 2.0 ) )
+	goodVertices.push_back((*pvHandle)[i]);
+    }
+  }
   nvtx_0_30->Fill(goodVertices.size());
   nvtx_0_60->Fill(goodVertices.size());
 
   // *********************************
   // *** Get pThat
   // *********************************
-if (!mEvent.isRealData()){
-  edm::Handle<HepMCProduct> evt;
-  mEvent.getByLabel("generator", evt);
-  if (evt.isValid()) {
-  HepMC::GenEvent * myGenEvent = new HepMC::GenEvent(*(evt->GetEvent()));
+  if (!mEvent.isRealData()){
+    edm::Handle<HepMCProduct> evt;
+    mEvent.getByLabel("generator", evt);
+    if (evt.isValid()) {
+      HepMC::GenEvent * myGenEvent = new HepMC::GenEvent(*(evt->GetEvent()));
   
-  double pthat = myGenEvent->event_scale();
+      double pthat = myGenEvent->event_scale();
 
-  mPthat_80->Fill(pthat);
-  mPthat_3000->Fill(pthat);
+      mPthat_80->Fill(pthat);
+      mPthat_3000->Fill(pthat);
 
-  delete myGenEvent; 
+      delete myGenEvent; 
+    }
   }
-}
   // ***********************************
   // *** Get CaloMET
   // ***********************************
-
-  const CaloMET *calomet;
-  edm::Handle<CaloMETCollection> calo;
-  mEvent.getByLabel("met", calo);
-  if (!calo.isValid()) {
+  /*
+    const CaloMET *calomet;
+    edm::Handle<CaloMETCollection> calo;
+    mEvent.getByLabel("met", calo);
+    if (!calo.isValid()) {
     edm::LogInfo("OutputInfo") << " failed to retrieve data required by MET Task";
     edm::LogInfo("OutputInfo") << " MET Task cannot continue...!";
-  } else {
+    } else {
     const CaloMETCollection *calometcol = calo.product();
     calomet = &(calometcol->front());
     
-  }
-
+    }
+  */
   // ***********************************
   // *** Get the CaloTower collection
   // ***********************************
   Handle<CaloTowerCollection> caloTowers;
   mEvent.getByLabel( "towerMaker", caloTowers );
   if (caloTowers.isValid()) {
-  for( CaloTowerCollection::const_iterator cal = caloTowers->begin(); cal != caloTowers->end(); ++ cal ){
+    for( CaloTowerCollection::const_iterator cal = caloTowers->begin(); cal != caloTowers->end(); ++ cal ){
 
-    //To compensate for the index
-    if (mTurnOnEverything.compare("yes")==0) {
-    }
+      //To compensate for the index
+      if (mTurnOnEverything.compare("yes")==0) {
+      }
       
-    mHadTiming->Fill (cal->hcalTime());
-    mEmTiming->Fill (cal->ecalTime());    
-  }
+      mHadTiming->Fill (cal->hcalTime());
+      mEmTiming->Fill (cal->ecalTime());    
+    }
   }
   
   // ***********************************
@@ -658,211 +674,218 @@ if (!mEvent.isRealData()){
     mNJets2->Fill( ptStep, njet );
   }
 
-  // Correction jets
-  const JetCorrector* corrector = JetCorrector::getJetCorrector (JetCorrectionService,mSetup);
-
-  //const JetCorrector* corrector = JetCorrector::getJetCorrector ("ak5CaloJetsL2L3",mSetup);
-
-  for (CaloJetCollection::const_iterator jet = caloJets->begin(); jet !=caloJets ->end(); jet++) 
-  {
-  //const math::XYZTLorentzVector theJet = jet->p4();
-      CaloJet  correctedJet = *jet;
-      //double scale = corrector->correction(jet->p4());
-      double scale = corrector->correction(*jet,mEvent,mSetup); 
-      correctedJet.scaleEnergy(scale); 
-      if(correctedJet.pt()>30){
+	
+  const JetCorrector* corrector=0;
+  if(doJetCorrection){
+    corrector = JetCorrector::getJetCorrector (JetCorrectionService,mSetup);
+  }
+  for (CaloJetCollection::const_iterator jet = caloJets->begin(); jet !=caloJets ->end(); jet++){
+    //const math::XYZTLorentzVector theJet = jet->p4();c
+    CaloJet  correctedJet = *jet;
+    //double scale = corrector->correction(jet->p4());
+    double scale=1.0;
+    if(doJetCorrection){
+      scale = corrector->correction(*jet,mEvent,mSetup); 
+    }
+    correctedJet.scaleEnergy(scale); 
+    if(correctedJet.pt()>30){
       mCorrJetPt->Fill(correctedJet.pt());
       mCorrJetPt_80->Fill(correctedJet.pt());
       if(correctedJet.pt() >10) mCorrJetEta->Fill(correctedJet.eta());
       mCorrJetPhi->Fill(correctedJet.phi());
       mpTRatio->Fill(log10(jet->pt()),correctedJet.pt()/jet->pt());
       
-     if (fabs(jet->eta())<1.5) {
-	   mpTRatioB_d->Fill(log10(jet->pt()), correctedJet.pt()/jet->pt());
+      if (fabs(jet->eta())<1.5) {
+	mpTRatioB_d->Fill(log10(jet->pt()), correctedJet.pt()/jet->pt());
       }	
 
-     if (fabs(jet->eta())>1.5 && fabs(jet->eta())<3.0) {
-     	mpTRatioE_d->Fill (log10(jet->pt()), correctedJet.pt()/jet->pt());   
-     }
-     if (fabs(jet->eta())>3.0 && fabs(jet->eta())<6.0) {
-        mpTRatioF_d->Fill (log10(jet->pt()), correctedJet.pt()/jet->pt());
-    }
-     if (jet->pt()>30.0 && jet->pt()<200.0) {
-    mpTRatio_30_200_d->Fill (jet->eta(),correctedJet.pt()/jet->pt());
-  }
-   if (jet->pt()>200.0 && jet->pt()<600.0) {
-    mpTRatio_200_600_d->Fill (jet->eta(),correctedJet.pt()/jet->pt());
-  }
-if (jet->pt()>600.0 && jet->pt()<1500.0) {
-    mpTRatio_600_1500_d->Fill (jet->eta(),correctedJet.pt()/jet->pt());
-  }
-if (jet->pt()>1500.0 && jet->pt()<3500.0) {
-    mpTRatio_1500_3500_d->Fill (jet->eta(),correctedJet.pt()/jet->pt());
-  }
+      if (fabs(jet->eta())>1.5 && fabs(jet->eta())<3.0) {
+	mpTRatioE_d->Fill (log10(jet->pt()), correctedJet.pt()/jet->pt());   
       }
-  }
-
-if (!mEvent.isRealData()){
-  // Gen jet analysis
-  Handle<GenJetCollection> genJets;
-  mEvent.getByLabel(mInputGenCollection, genJets);
-  if (!genJets.isValid()) return;
-  GenJetCollection::const_iterator gjet = genJets->begin ();
-  int gjetIndex = 0;
-  for (; gjet != genJets->end (); gjet++, gjetIndex++) {
-    if (mGenEta) mGenEta->Fill (gjet->eta());
-    if (mGenPhi) mGenPhi->Fill (gjet->phi());
-    if (mGenPt) mGenPt->Fill (gjet->pt());
-    if (mGenPt_80) mGenPt_80->Fill (gjet->pt());
-    if (gjet == genJets->begin ()) { // first jet
-      if (mGenEtaFirst) mGenEtaFirst->Fill (gjet->eta());
-      if (mGenPhiFirst) mGenPhiFirst->Fill (gjet->phi());
-    }
-  }
-
-
-  // now match CaloJets to GenJets
-  JetMatchingTools jetMatching (mEvent);
-  if (!(mInputGenCollection.label().empty())) {
-    //    Handle<GenJetCollection> genJets;
-    //    mEvent.getByLabel(mInputGenCollection, genJets);
-
-    std::vector <std::vector <const reco::GenParticle*> > genJetConstituents (genJets->size());
-    std::vector <std::vector <const reco::GenParticle*> > caloJetConstituents (caloJets->size());
-    if (mRThreshold > 0) { 
-    }
-    else {
-      for (unsigned iGenJet = 0; iGenJet < genJets->size(); ++iGenJet) {
-	genJetConstituents [iGenJet] = jetMatching.getGenParticles ((*genJets) [iGenJet]);
+      if (fabs(jet->eta())>3.0 && fabs(jet->eta())<6.0) {
+	mpTRatioF_d->Fill (log10(jet->pt()), correctedJet.pt()/jet->pt());
       }
-      
-      for (unsigned iCaloJet = 0; iCaloJet < caloJets->size(); ++iCaloJet) {
-	caloJetConstituents [iCaloJet] = jetMatching.getGenParticles ((*caloJets) [iCaloJet], false);
+      if (jet->pt()>30.0 && jet->pt()<200.0) {
+	mpTRatio_30_200_d->Fill (jet->eta(),correctedJet.pt()/jet->pt());
+      }
+      if (jet->pt()>200.0 && jet->pt()<600.0) {
+	mpTRatio_200_600_d->Fill (jet->eta(),correctedJet.pt()/jet->pt());
+      }
+      if (jet->pt()>600.0 && jet->pt()<1500.0) {
+	mpTRatio_600_1500_d->Fill (jet->eta(),correctedJet.pt()/jet->pt());
+      }
+      if (jet->pt()>1500.0 && jet->pt()<3500.0) {
+	mpTRatio_1500_3500_d->Fill (jet->eta(),correctedJet.pt()/jet->pt());
       }
     }
+  }
 
-    for (unsigned iGenJet = 0; iGenJet < genJets->size(); ++iGenJet) {               //****************************************************************
-    //for (unsigned iGenJet = 0; iGenJet < 1; ++iGenJet) {                           // only FIRST Jet !!!!
-      const GenJet& genJet = (*genJets) [iGenJet];
-      double genJetPt = genJet.pt();
+  
 
-      //std::cout << iGenJet <<". Genjet: pT = " << genJetPt << "GeV" << std::endl;  //  *****************************************************
+  if (!mEvent.isRealData()){
+    // Gen jet analysis
+    Handle<GenJetCollection> genJets;
+    mEvent.getByLabel(mInputGenCollection, genJets);
+    if (!genJets.isValid()) return;
+    GenJetCollection::const_iterator gjet = genJets->begin ();
+    int gjetIndex = 0;
+    for (; gjet != genJets->end (); gjet++, gjetIndex++) {
+      if (mGenEta) mGenEta->Fill (gjet->eta());
+      if (mGenPhi) mGenPhi->Fill (gjet->phi());
+      if (mGenPt) mGenPt->Fill (gjet->pt());
+      if (mGenPt_80) mGenPt_80->Fill (gjet->pt());
+      if (gjet == genJets->begin ()) { // first jet
+	if (mGenEtaFirst) mGenEtaFirst->Fill (gjet->eta());
+	if (mGenPhiFirst) mGenPhiFirst->Fill (gjet->phi());
+      }
+    }
+  
 
-      if (fabs(genJet.eta()) > 6.) continue; // out of detector 
-      if (genJetPt < mMatchGenPtThreshold) continue; // no low momentum 
-      //double logPtGen = log10 (genJetPt);
-      //mAllGenJetsPt->Fill (logPtGen);
-      //mAllGenJetsEta->Fill (logPtGen, genJet.eta());
-      if (caloJets->size() <= 0) continue; // no CaloJets - nothing to match
-      if (mRThreshold > 0) {
-	unsigned iCaloJetBest = 0;
-	double deltaRBest = 999.;
-	for (unsigned iCaloJet = 0; iCaloJet < caloJets->size(); ++iCaloJet) {
-	  double dR = deltaR (genJet.eta(), genJet.phi(), (*caloJets) [iCaloJet].eta(), (*caloJets) [iCaloJet].phi());
-	  if (deltaRBest < mRThreshold && dR < mRThreshold && genJet.pt() > 5.) {
-	    /*
-	    std::cout << "Yet another matched jet for GenJet pt=" << genJet.pt()
-		      << " previous CaloJet pt/dr: " << (*caloJets) [iCaloJetBest].pt() << '/' << deltaRBest
-		      << " new CaloJet pt/dr: " << (*caloJets) [iCaloJet].pt() << '/' << dR
-		      << std::endl;
-	    */
-	  }
-	  if (dR < deltaRBest) {
-	    iCaloJetBest = iCaloJet;
-	    deltaRBest = dR;
-	  }
-	}
-	if (mTurnOnEverything.compare("yes")==0) {
-	  //mRMatch->Fill (logPtGen, genJet.eta(), deltaRBest);
-	}
-	if (deltaRBest < mRThreshold) { // Matched
-	  fillMatchHists (genJet, (*caloJets) [iCaloJetBest],goodVertices);
-	}
+    // now match CaloJets to GenJets
+    JetMatchingTools jetMatching (mEvent);
+    if (!(mInputGenCollection.label().empty())) {
+      //    Handle<GenJetCollection> genJets;
+      //    mEvent.getByLabel(mInputGenCollection, genJets);
 
-	///////////pT Response///////////////
-	double CorrdeltaRBest = 999.;
-	double CorrJetPtBest = 0;
-	for (CaloJetCollection::const_iterator jet = caloJets->begin(); jet !=caloJets ->end(); jet++) {
-	  CaloJet  correctedJet = *jet;
-	  //double scale = corrector->correction(jet->p4()); 
-          double scale = corrector->correction(*jet,mEvent,mSetup);
-	  correctedJet.scaleEnergy(scale);
-	  double CorrJetPt = correctedJet.pt();
-	  if(CorrJetPt>30){
-	  double CorrdR = deltaR (genJet.eta(), genJet.phi(), correctedJet.eta(), correctedJet.phi());
-	  if (CorrdR < CorrdeltaRBest) {
-	    CorrdeltaRBest = CorrdR;
-	    CorrJetPtBest = CorrJetPt;
-	  }
-	  }
-	}
-	if (deltaRBest < mRThreshold) { // Matched
-	  mpTResponse->Fill(log10(genJet.pt()),CorrJetPtBest/genJet.pt());
-
-	  if(goodVertices.size()<=5) mpTResponse_nvtx_0_5->Fill(log10(genJet.pt()),CorrJetPtBest/genJet.pt());
-	  if(goodVertices.size()>5 && goodVertices.size()<=10) mpTResponse_nvtx_5_10->Fill(log10(genJet.pt()),CorrJetPtBest/genJet.pt());
-	  if(goodVertices.size()>10 && goodVertices.size()<=15) mpTResponse_nvtx_10_15->Fill(log10(genJet.pt()),CorrJetPtBest/genJet.pt());	  
-	  if(goodVertices.size()>15 && goodVertices.size()<=20) mpTResponse_nvtx_15_20->Fill(log10(genJet.pt()),CorrJetPtBest/genJet.pt());
-	  if(goodVertices.size()>20 && goodVertices.size()<=30) mpTResponse_nvtx_20_30->Fill(log10(genJet.pt()),CorrJetPtBest/genJet.pt());
-	  if(goodVertices.size()>30) mpTResponse_nvtx_30_inf->Fill(log10(genJet.pt()),CorrJetPtBest/genJet.pt());
-
-	  if (fabs(genJet.eta())<1.5) {
-	    mpTResponseB_d->Fill(log10(genJet.pt()), CorrJetPtBest/genJet.pt());
-	  }	
-	  
-	  if (fabs(genJet.eta())>1.5 && fabs(genJet.eta())<3.0) {
-	    mpTResponseE_d->Fill (log10(genJet.pt()), CorrJetPtBest/genJet.pt());   
-	  }
-	  if (fabs(genJet.eta())>3.0 && fabs(genJet.eta())<6.0) {
-        mpTResponseF_d->Fill (log10(genJet.pt()), CorrJetPtBest/genJet.pt());
-	  }
-	  if (genJet.pt()>30.0 && genJet.pt()<200.0) {
-	    mpTResponse_30_200_d->Fill (genJet.eta(),CorrJetPtBest/genJet.pt());
-	  }
-	  if (genJet.pt()>200.0 && genJet.pt()<600.0) {
-	    mpTResponse_200_600_d->Fill (genJet.eta(),CorrJetPtBest/genJet.pt());
-	  }
-	  if (genJet.pt()>600.0 && genJet.pt()<1500.0) {
-	    mpTResponse_600_1500_d->Fill (genJet.eta(),CorrJetPtBest/genJet.pt());
-	  }
-	  if (genJet.pt()>1500.0 && genJet.pt()<3500.0) {
-	    mpTResponse_1500_3500_d->Fill (genJet.eta(),CorrJetPtBest/genJet.pt());
-	  }
-	  if (genJet.pt()>30.0) {
-	    mpTResponse_30_d->Fill (genJet.eta(),CorrJetPtBest/genJet.pt());
-	  } 
-	}
-	///////////////////////////////////
-
+      std::vector <std::vector <const reco::GenParticle*> > genJetConstituents (genJets->size());
+      std::vector <std::vector <const reco::GenParticle*> > caloJetConstituents (caloJets->size());
+      if (mRThreshold > 0) { 
       }
       else {
-	unsigned iCaloJetBest = 0;
-	double energyFractionBest = 0.;
+	for (unsigned iGenJet = 0; iGenJet < genJets->size(); ++iGenJet) {
+	  genJetConstituents [iGenJet] = jetMatching.getGenParticles ((*genJets) [iGenJet]);
+	}
+      
 	for (unsigned iCaloJet = 0; iCaloJet < caloJets->size(); ++iCaloJet) {
-	  double energyFraction = jetMatching.overlapEnergyFraction (genJetConstituents [iGenJet], 
-								     caloJetConstituents [iCaloJet]);
-	  if (energyFraction > energyFractionBest) {
-	    iCaloJetBest = iCaloJet;
-	    energyFractionBest = energyFraction;
+	  caloJetConstituents [iCaloJet] = jetMatching.getGenParticles ((*caloJets) [iCaloJet], false);
+	}
+      }
+
+      for (unsigned iGenJet = 0; iGenJet < genJets->size(); ++iGenJet) {               //****************************************************************
+	//for (unsigned iGenJet = 0; iGenJet < 1; ++iGenJet) {                           // only FIRST Jet !!!!
+	const GenJet& genJet = (*genJets) [iGenJet];
+	double genJetPt = genJet.pt();
+
+	//std::cout << iGenJet <<". Genjet: pT = " << genJetPt << "GeV" << std::endl;  //  *****************************************************
+
+	if (fabs(genJet.eta()) > 6.) continue; // out of detector 
+	if (genJetPt < mMatchGenPtThreshold) continue; // no low momentum 
+	//double logPtGen = log10 (genJetPt);
+	//mAllGenJetsPt->Fill (logPtGen);
+	//mAllGenJetsEta->Fill (logPtGen, genJet.eta());
+	if (caloJets->size() <= 0) continue; // no CaloJets - nothing to match
+	if (mRThreshold > 0) {
+	  unsigned iCaloJetBest = 0;
+	  double deltaRBest = 999.;
+	  for (unsigned iCaloJet = 0; iCaloJet < caloJets->size(); ++iCaloJet) {
+	    double dR = deltaR (genJet.eta(), genJet.phi(), (*caloJets) [iCaloJet].eta(), (*caloJets) [iCaloJet].phi());
+	    if (deltaRBest < mRThreshold && dR < mRThreshold && genJet.pt() > 5.) {
+	      /*
+		std::cout << "Yet another matched jet for GenJet pt=" << genJet.pt()
+		<< " previous CaloJet pt/dr: " << (*caloJets) [iCaloJetBest].pt() << '/' << deltaRBest
+		<< " new CaloJet pt/dr: " << (*caloJets) [iCaloJet].pt() << '/' << dR
+		<< std::endl;
+	      */
+	    }
+	    if (dR < deltaRBest) {
+	      iCaloJetBest = iCaloJet;
+	      deltaRBest = dR;
+	    }
 	  }
-	}
-	if (mTurnOnEverything.compare("yes")==0) {
-	  //mGenJetMatchEnergyFraction->Fill (logPtGen, genJet.eta(), energyFractionBest);
-	}
-	if (energyFractionBest > mGenEnergyFractionThreshold) { // good enough
-	  double reverseEnergyFraction = jetMatching.overlapEnergyFraction (caloJetConstituents [iCaloJetBest], 
-									    genJetConstituents [iGenJet]);
 	  if (mTurnOnEverything.compare("yes")==0) {
-	    //mReverseMatchEnergyFraction->Fill (logPtGen, genJet.eta(), reverseEnergyFraction);
+	    //mRMatch->Fill (logPtGen, genJet.eta(), deltaRBest);
 	  }
-	  if (reverseEnergyFraction > mReverseEnergyFractionThreshold) { // Matched
-	    fillMatchHists (genJet, (*caloJets) [iCaloJetBest], goodVertices);
+	  if (deltaRBest < mRThreshold) { // Matched
+	    fillMatchHists (genJet, (*caloJets) [iCaloJetBest],goodVertices);
+	  }
+
+	  ///////////pT Response///////////////
+	  double CorrdeltaRBest = 999.;
+	  double CorrJetPtBest = 0;
+	  for (CaloJetCollection::const_iterator jet = caloJets->begin(); jet !=caloJets ->end(); jet++) {
+	    CaloJet  correctedJet = *jet;
+	    //double scale = corrector->correction(jet->p4());
+            double scale=1.0;
+            if (doJetCorrection){ 
+	      scale = corrector->correction(*jet,mEvent,mSetup);
+            }
+	    correctedJet.scaleEnergy(scale);
+	    double CorrJetPt = correctedJet.pt();
+	    if(CorrJetPt>30){
+	      double CorrdR = deltaR (genJet.eta(), genJet.phi(), correctedJet.eta(), correctedJet.phi());
+	      if (CorrdR < CorrdeltaRBest) {
+		CorrdeltaRBest = CorrdR;
+		CorrJetPtBest = CorrJetPt;
+	      }
+	    }
+	  }
+	  if (deltaRBest < mRThreshold) { // Matched
+	    mpTResponse->Fill(log10(genJet.pt()),CorrJetPtBest/genJet.pt());
+
+	    if(goodVertices.size()<=5) mpTResponse_nvtx_0_5->Fill(log10(genJet.pt()),CorrJetPtBest/genJet.pt());
+	    if(goodVertices.size()>5 && goodVertices.size()<=10) mpTResponse_nvtx_5_10->Fill(log10(genJet.pt()),CorrJetPtBest/genJet.pt());
+	    if(goodVertices.size()>10 && goodVertices.size()<=15) mpTResponse_nvtx_10_15->Fill(log10(genJet.pt()),CorrJetPtBest/genJet.pt());	  
+	    if(goodVertices.size()>15 && goodVertices.size()<=20) mpTResponse_nvtx_15_20->Fill(log10(genJet.pt()),CorrJetPtBest/genJet.pt());
+	    if(goodVertices.size()>20 && goodVertices.size()<=30) mpTResponse_nvtx_20_30->Fill(log10(genJet.pt()),CorrJetPtBest/genJet.pt());
+	    if(goodVertices.size()>30) mpTResponse_nvtx_30_inf->Fill(log10(genJet.pt()),CorrJetPtBest/genJet.pt());
+
+	    if (fabs(genJet.eta())<1.5) {
+	      mpTResponseB_d->Fill(log10(genJet.pt()), CorrJetPtBest/genJet.pt());
+	    }	
+	  
+	    if (fabs(genJet.eta())>1.5 && fabs(genJet.eta())<3.0) {
+	      mpTResponseE_d->Fill (log10(genJet.pt()), CorrJetPtBest/genJet.pt());   
+	    }
+	    if (fabs(genJet.eta())>3.0 && fabs(genJet.eta())<6.0) {
+	      mpTResponseF_d->Fill (log10(genJet.pt()), CorrJetPtBest/genJet.pt());
+	    }
+	    if (genJet.pt()>30.0 && genJet.pt()<200.0) {
+	      mpTResponse_30_200_d->Fill (genJet.eta(),CorrJetPtBest/genJet.pt());
+	    }
+	    if (genJet.pt()>200.0 && genJet.pt()<600.0) {
+	      mpTResponse_200_600_d->Fill (genJet.eta(),CorrJetPtBest/genJet.pt());
+	    }
+	    if (genJet.pt()>600.0 && genJet.pt()<1500.0) {
+	      mpTResponse_600_1500_d->Fill (genJet.eta(),CorrJetPtBest/genJet.pt());
+	    }
+	    if (genJet.pt()>1500.0 && genJet.pt()<3500.0) {
+	      mpTResponse_1500_3500_d->Fill (genJet.eta(),CorrJetPtBest/genJet.pt());
+	    }
+	    if (genJet.pt()>30.0) {
+	      mpTResponse_30_d->Fill (genJet.eta(),CorrJetPtBest/genJet.pt());
+	    } 
+	  }
+	  ///////////////////////////////////
+
+	}
+	else {
+	  unsigned iCaloJetBest = 0;
+	  double energyFractionBest = 0.;
+	  for (unsigned iCaloJet = 0; iCaloJet < caloJets->size(); ++iCaloJet) {
+	    double energyFraction = jetMatching.overlapEnergyFraction (genJetConstituents [iGenJet], 
+								       caloJetConstituents [iCaloJet]);
+	    if (energyFraction > energyFractionBest) {
+	      iCaloJetBest = iCaloJet;
+	      energyFractionBest = energyFraction;
+	    }
+	  }
+	  if (mTurnOnEverything.compare("yes")==0) {
+	    //mGenJetMatchEnergyFraction->Fill (logPtGen, genJet.eta(), energyFractionBest);
+	  }
+	  if (energyFractionBest > mGenEnergyFractionThreshold) { // good enough
+	    double reverseEnergyFraction = jetMatching.overlapEnergyFraction (caloJetConstituents [iCaloJetBest], 
+									      genJetConstituents [iGenJet]);
+	    if (mTurnOnEverything.compare("yes")==0) {
+	      //mReverseMatchEnergyFraction->Fill (logPtGen, genJet.eta(), reverseEnergyFraction);
+	    }
+	    if (reverseEnergyFraction > mReverseEnergyFractionThreshold) { // Matched
+	      fillMatchHists (genJet, (*caloJets) [iCaloJetBest], goodVertices);
+	    }
 	  }
 	}
       }
     }
   }
-}
 
 }///// Gen close
 
@@ -974,63 +997,63 @@ void CaloJetTester::fillMatchHists (const reco::GenJet& fGenJet, const reco::Cal
 
   if (fabs(fGenJet.eta())<1.3) {
     if(fGenJet.pt()>60.0 && fGenJet.pt()<120.0) {
-     if(goodVertices.size()<=5) mpTScale_a_nvtx_0_5->Fill( PtCalo/PtGen); 
+      if(goodVertices.size()<=5) mpTScale_a_nvtx_0_5->Fill( PtCalo/PtGen); 
     }
     if(fGenJet.pt()>200.0 && fGenJet.pt()<300.0) {
-     if(goodVertices.size()<=5) mpTScale_b_nvtx_0_5->Fill( PtCalo/PtGen); 
+      if(goodVertices.size()<=5) mpTScale_b_nvtx_0_5->Fill( PtCalo/PtGen); 
     }
     if(fGenJet.pt()>600.0 && fGenJet.pt()<900.0) {
-     if(goodVertices.size()<=5) mpTScale_c_nvtx_0_5->Fill( PtCalo/PtGen); 
+      if(goodVertices.size()<=5) mpTScale_c_nvtx_0_5->Fill( PtCalo/PtGen); 
     }
     
     if(fGenJet.pt()>60.0 && fGenJet.pt()<120.0) {
-     if(goodVertices.size()>5 && goodVertices.size()<=10) mpTScale_a_nvtx_5_10->Fill( PtCalo/PtGen); 
+      if(goodVertices.size()>5 && goodVertices.size()<=10) mpTScale_a_nvtx_5_10->Fill( PtCalo/PtGen); 
     }
     if(fGenJet.pt()>200.0 && fGenJet.pt()<300.0) {
-     if(goodVertices.size()>5 && goodVertices.size()<=10) mpTScale_b_nvtx_5_10->Fill( PtCalo/PtGen); 
+      if(goodVertices.size()>5 && goodVertices.size()<=10) mpTScale_b_nvtx_5_10->Fill( PtCalo/PtGen); 
     }
     if(fGenJet.pt()>600.0 && fGenJet.pt()<900.0) {
-     if(goodVertices.size()>5 && goodVertices.size()<=10) mpTScale_c_nvtx_5_10->Fill( PtCalo/PtGen); 
+      if(goodVertices.size()>5 && goodVertices.size()<=10) mpTScale_c_nvtx_5_10->Fill( PtCalo/PtGen); 
     }
 
     if(fGenJet.pt()>60.0 && fGenJet.pt()<120.0) {
-     if(goodVertices.size()>10 && goodVertices.size()<=15) mpTScale_a_nvtx_10_15->Fill( PtCalo/PtGen); 
+      if(goodVertices.size()>10 && goodVertices.size()<=15) mpTScale_a_nvtx_10_15->Fill( PtCalo/PtGen); 
     }
     if(fGenJet.pt()>200.0 && fGenJet.pt()<300.0) {
-     if(goodVertices.size()>10 && goodVertices.size()<=15) mpTScale_b_nvtx_10_15->Fill( PtCalo/PtGen); 
+      if(goodVertices.size()>10 && goodVertices.size()<=15) mpTScale_b_nvtx_10_15->Fill( PtCalo/PtGen); 
     }
     if(fGenJet.pt()>600.0 && fGenJet.pt()<900.0) {
-     if(goodVertices.size()>10 && goodVertices.size()<=15) mpTScale_c_nvtx_10_15->Fill( PtCalo/PtGen); 
+      if(goodVertices.size()>10 && goodVertices.size()<=15) mpTScale_c_nvtx_10_15->Fill( PtCalo/PtGen); 
     }
 
     if(fGenJet.pt()>60.0 && fGenJet.pt()<120.0) {
-     if(goodVertices.size()>15 && goodVertices.size()<=20) mpTScale_a_nvtx_15_20->Fill( PtCalo/PtGen); 
+      if(goodVertices.size()>15 && goodVertices.size()<=20) mpTScale_a_nvtx_15_20->Fill( PtCalo/PtGen); 
     }
     if(fGenJet.pt()>200.0 && fGenJet.pt()<300.0) {
-     if(goodVertices.size()>15 && goodVertices.size()<=20) mpTScale_b_nvtx_15_20->Fill( PtCalo/PtGen); 
+      if(goodVertices.size()>15 && goodVertices.size()<=20) mpTScale_b_nvtx_15_20->Fill( PtCalo/PtGen); 
     }
     if(fGenJet.pt()>600.0 && fGenJet.pt()<900.0) {
-     if(goodVertices.size()>15 && goodVertices.size()<=20) mpTScale_c_nvtx_15_20->Fill( PtCalo/PtGen); 
+      if(goodVertices.size()>15 && goodVertices.size()<=20) mpTScale_c_nvtx_15_20->Fill( PtCalo/PtGen); 
     }
 
     if(fGenJet.pt()>60.0 && fGenJet.pt()<120.0) {
-     if(goodVertices.size()>20 && goodVertices.size()<=30) mpTScale_a_nvtx_20_30->Fill( PtCalo/PtGen); 
+      if(goodVertices.size()>20 && goodVertices.size()<=30) mpTScale_a_nvtx_20_30->Fill( PtCalo/PtGen); 
     }
     if(fGenJet.pt()>200.0 && fGenJet.pt()<300.0) {
-     if(goodVertices.size()>20 && goodVertices.size()<=30) mpTScale_b_nvtx_20_30->Fill( PtCalo/PtGen); 
+      if(goodVertices.size()>20 && goodVertices.size()<=30) mpTScale_b_nvtx_20_30->Fill( PtCalo/PtGen); 
     }
     if(fGenJet.pt()>600.0 && fGenJet.pt()<900.0) {
-     if(goodVertices.size()>20 && goodVertices.size()<=30) mpTScale_c_nvtx_20_30->Fill( PtCalo/PtGen); 
+      if(goodVertices.size()>20 && goodVertices.size()<=30) mpTScale_c_nvtx_20_30->Fill( PtCalo/PtGen); 
     }
  
     if(fGenJet.pt()>60.0 && fGenJet.pt()<120.0) {
-     if(goodVertices.size()>30) mpTScale_a_nvtx_30_inf->Fill( PtCalo/PtGen); 
+      if(goodVertices.size()>30) mpTScale_a_nvtx_30_inf->Fill( PtCalo/PtGen); 
     }
     if(fGenJet.pt()>200.0 && fGenJet.pt()<300.0) {
-     if(goodVertices.size()>30) mpTScale_b_nvtx_30_inf->Fill( PtCalo/PtGen); 
+      if(goodVertices.size()>30) mpTScale_b_nvtx_30_inf->Fill( PtCalo/PtGen); 
     }
     if(fGenJet.pt()>600.0 && fGenJet.pt()<900.0) {
-     if(goodVertices.size()>30) mpTScale_c_nvtx_30_inf->Fill( PtCalo/PtGen); 
+      if(goodVertices.size()>30) mpTScale_c_nvtx_30_inf->Fill( PtCalo/PtGen); 
     }
     //////////////////////////////////////
     if(goodVertices.size()<=5) mpTScale_nvtx_0_5->Fill(log10(PtGen),PtCalo/PtGen);  
@@ -1039,11 +1062,11 @@ void CaloJetTester::fillMatchHists (const reco::GenJet& fGenJet, const reco::Cal
     if(goodVertices.size()>15 && goodVertices.size()<=20) mpTScale_nvtx_15_20->Fill(log10(PtGen), PtCalo/PtGen);
     if(goodVertices.size()>20 && goodVertices.size()<=30) mpTScale_nvtx_20_30->Fill(log10(PtGen), PtCalo/PtGen);
     if(goodVertices.size()>30) mpTScale_nvtx_30_inf->Fill(log10(PtGen), PtCalo/PtGen);
-}
+  }
   if (fabs(fGenJet.eta())<1.3) {
-  if(fGenJet.pt()>60.0 && fGenJet.pt()<120.0) mpTScale_a->Fill(PtCalo/PtGen);
-  if(fGenJet.pt()>200.0 && fGenJet.pt()<300.0) mpTScale_b->Fill(PtCalo/PtGen);
-  if(fGenJet.pt()>600.0 && fGenJet.pt()<900.0) mpTScale_c->Fill(PtCalo/PtGen);
+    if(fGenJet.pt()>60.0 && fGenJet.pt()<120.0) mpTScale_a->Fill(PtCalo/PtGen);
+    if(fGenJet.pt()>200.0 && fGenJet.pt()<300.0) mpTScale_b->Fill(PtCalo/PtGen);
+    if(fGenJet.pt()>600.0 && fGenJet.pt()<900.0) mpTScale_c->Fill(PtCalo/PtGen);
   }
   mpTScale_pT->Fill (log10(PtGen), PtCalo/PtGen);
 }

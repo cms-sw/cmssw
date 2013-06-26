@@ -84,7 +84,7 @@ EBRecoSummary::EBRecoSummary(const edm::ParameterSet& ps)
   dqmStore_= edm::Service<DQMStore>().operator->();
 
   // Monitor Elements (ex THXD)
-  dqmStore_->setCurrentFolder(prefixME_ + "/RecoSummary"); // to organise the histos in folders
+  dqmStore_->setCurrentFolder(prefixME_ + "/EBRecoSummary"); // to organise the histos in folders
      
   // ReducedRecHits ----------------------------------------------
   // ... barrel 
@@ -107,7 +107,7 @@ EBRecoSummary::EBRecoSummary(const edm::ParameterSet& ps)
   h_superClusters_EB_nBC     = dqmStore_->book1D("superClusters_EB_nBC","superClusters_EB_nBC",100,0.,100.);
   h_superClusters_EB_E1oE4   = dqmStore_->book1D("superClusters_EB_E1oE4","superClusters_EB_E1oE4",150,0,1.5);
 
-  h_superClusters_eta        = dqmStore_->book1D("superClusters_EB_eta","superClusters_eta",150,-3.,3.);
+  h_superClusters_eta        = dqmStore_->book1D("superClusters_eta","superClusters_eta",150,-3.,3.);
   h_superClusters_EB_phi     = dqmStore_->book1D("superClusters_EB_phi","superClusters_EB_phi",360,-3.1415927,3.1415927);
   
 }

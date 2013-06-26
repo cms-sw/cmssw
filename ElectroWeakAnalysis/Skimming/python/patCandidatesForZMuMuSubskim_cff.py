@@ -20,8 +20,10 @@ allPatTracks = patGenericParticles.clone(
     # isolation configurables
     userIsolation = cms.PSet(
       tracker = cms.PSet(
+        veto = cms.double(0.015),
         src = cms.InputTag("patAODTrackIsoDepositCtfTk"),
-        deltaR = cms.double(0.3)
+        deltaR = cms.double(0.3),
+        threshold = cms.double(1.5)
       ),
       ecal = cms.PSet(
         src = cms.InputTag("patAODTrackIsoDepositCalByAssociatorTowers","ecal"),
@@ -106,19 +108,19 @@ from PhysicsTools.PatAlgos.triggerLayer1.triggerProducer_cfi import *
 patTrigger.triggerResults = cms.InputTag( "TriggerResults::HLT" )
 patTrigger.triggerEvent = cms.InputTag( "hltTriggerSummaryAOD::HLT" )
 
-muonTriggerMatchHLTMuons = cms.EDProducer( "PATTriggerMatcherDRLessByR",
+muonTriggerMatchHLTMuons = cms.EDProducer( "PATTriggerMatcherDRDPtLessByR",
     src     = cms.InputTag( "selectedPatMuons" ),
     matched = cms.InputTag( "patTrigger" ),
     andOr          = cms.bool( False ),
     filterIdsEnum  = cms.vstring( 'TriggerMuon' ), # 'TriggerMuon' is the enum from trigger::TriggerObjectType for HLT muons
     filterIds      = cms.vint32( 0 ),
     filterLabels   = cms.vstring( '*' ),
-    pathNames      = cms.vstring( 'HLT_Mu11' ),
+    pathNames      = cms.vstring( 'HLT_Mu9' ),
     collectionTags = cms.vstring( '*' ),
-    maxDPtRel = cms.double( 1000.0 ),
+    maxDPtRel = cms.double( 1.0 ),
     maxDeltaR = cms.double( 0.2 ),
     resolveAmbiguities    = cms.bool( True ),
-    resolveByMatchQuality = cms.bool( True )
+    resolveByMatchQuality = cms.bool( False )
 )
 
 from PhysicsTools.PatAlgos.triggerLayer1.triggerEventProducer_cfi import *

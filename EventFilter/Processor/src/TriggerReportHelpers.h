@@ -45,7 +45,7 @@ namespace evf{
       xdata::UnsignedInteger32 &getProcThisLumi(){return eventsProcessed_;}
       xdata::UnsignedInteger32 &getAccThisLumi(){return eventsAccepted_;}
       bool checkLumiSection(unsigned int ls) {return (ls == lumiSectionIndex_);}
-      void packTriggerReport(edm::TriggerReport &, ShmOutputModuleRegistry *);
+      void packTriggerReport(edm::TriggerReport &, ShmOutputModuleRegistry *,bool);
       void sumAndPackTriggerReport(MsgBuf &);
       void resetPackedTriggerReport();
       void adjustLsIndexForRestart(){adjustLsIndex_ = true; if(lumiSectionIndex_>1) lumiSectionIndex_--;}

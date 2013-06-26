@@ -8,14 +8,10 @@
 
 #include "DataFormats/GeometrySurface/interface/MediumProperties.h"
 
-#include "FWCore/Utilities/interface/GCC11Compatibility.h"
-
-
 /*
 #include "DataFormats/GeometrySurface/interface/GlobalError.h"
 #include "DataFormats/GeometrySurface/interface/LocalError.h"
 */
-
 /** Collection of enums to specify orientation of the surface wrt the
  *  volume it a bound of.
  */

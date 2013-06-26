@@ -25,7 +25,7 @@ class HLTRFilter : public edm::EDFilter {
       virtual bool filter(edm::Event&, const edm::EventSetup&);
 
       static double CalcMR(TLorentzVector ja,TLorentzVector jb);
-      static double CalcR(double MR, TLorentzVector ja,TLorentzVector jb, edm::Handle<reco::CaloMETCollection> met, std::vector<math::XYZTLorentzVector> muons);
+      static double CalcR(double MR, TLorentzVector ja,TLorentzVector jb, edm::Handle<reco::CaloMETCollection> met, const std::vector<math::XYZTLorentzVector>& muons);
 
    private:
       edm::InputTag inputTag_; // input tag identifying product

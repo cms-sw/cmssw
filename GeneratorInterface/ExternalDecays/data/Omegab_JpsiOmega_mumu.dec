@@ -1,0 +1,20 @@
+#Created by I. Heredia
+#to decay Omega_b- -> Omega- J/psi (mu+ mu-) and charge conjugate.
+#Omega- is decayed by Geant.
+#
+Alias      MyOmega_b-     Omega_b-
+Alias      Myanti-Omega_b+     anti-Omega_b+
+ChargeConj MyOmega_b-     Myanti-Omega_b+
+Alias      MyJ/psi  J/psi
+ChargeConj MyJ/psi  MyJ/psi
+#
+Decay MyOmega_b-
+  1.000    Omega-     MyJ/psi   PHSP;
+Enddecay
+CDecay Myanti-Omega_b+
+#
+Decay MyJ/psi
+  1.000         mu+       mu-            PHOTOS VLL;
+Enddecay
+End
+
