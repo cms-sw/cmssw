@@ -49,7 +49,7 @@ void URHDump::analyze(const edm::Event& ev, const edm::EventSetup&){
 	      << h.chi2() << " "
 	      << h.outOfTimeEnergy() << " "
 	      << h.outOfTimeChi2() << " "
-	      << h.jitterErrorBits()
+	      << int(h.jitterErrorBits())
 	      << std::endl;
 
 }
