@@ -1,0 +1,92 @@
+Begin processing the 1st record. Run 1, Event 1, LumiSection 1 at {Timestamp} 
+LogPrint: 0
+%MSG-s cat_S:  UnitTestClient_K:sendSomeMessages Run: 1 Event: 1
+LogSystem: 0
+%MSG
+LogPrint: 1
+%MSG-s cat_S:  UnitTestClient_K:sendSomeMessages Run: 1 Event: 1
+LogSystem: 1
+%MSG
+%MSG-s cat_S:  UnitTestClient_K:sendSomeMessages Run: 1 Event: 1
+LogSystem: 2
+%MSG
+LogPrint: 3
+%MSG-s cat_S:  UnitTestClient_K:sendSomeMessages Run: 1 Event: 1
+LogSystem: 3
+%MSG
+%MSG-s cat_S:  UnitTestClient_K:sendSomeMessages Run: 1 Event: 1
+LogSystem: 4
+%MSG
+LogPrint: 5
+%MSG-s cat_S:  UnitTestClient_K:sendSomeMessages Run: 1 Event: 1
+LogSystem: 5
+%MSG
+%MSG-s cat_S:  UnitTestClient_K:sendSomeMessages Run: 1 Event: 1
+LogSystem: 6
+%MSG
+%MSG-s cat_S:  UnitTestClient_K:sendSomeMessages Run: 1 Event: 1
+LogSystem: 7
+%MSG
+%MSG-s cat_S:  UnitTestClient_K:sendSomeMessages Run: 1 Event: 1
+LogSystem: 8
+%MSG
+LogPrint: 9
+%MSG-s cat_S:  UnitTestClient_K:sendSomeMessages Run: 1 Event: 1
+LogSystem: 9
+%MSG
+Begin processing the 2nd record. Run 1, Event 2, LumiSection 1 at {Timestamp} 
+%MSG-s cat_S:  UnitTestClient_K:sendSomeMessages Run: 1 Event: 2
+LogSystem: 0
+%MSG
+%MSG-s cat_S:  UnitTestClient_K:sendSomeMessages Run: 1 Event: 2
+LogSystem: 1
+%MSG
+%MSG-s cat_S:  UnitTestClient_K:sendSomeMessages Run: 1 Event: 2
+LogSystem: 2
+%MSG
+%MSG-s cat_S:  UnitTestClient_K:sendSomeMessages Run: 1 Event: 2
+LogSystem: 3
+%MSG
+%MSG-s cat_S:  UnitTestClient_K:sendSomeMessages Run: 1 Event: 2
+LogSystem: 4
+%MSG
+%MSG-s cat_S:  UnitTestClient_K:sendSomeMessages Run: 1 Event: 2
+LogSystem: 5
+%MSG
+%MSG-s cat_S:  UnitTestClient_K:sendSomeMessages Run: 1 Event: 2
+LogSystem: 6
+%MSG
+LogPrint: 7
+%MSG-s cat_S:  UnitTestClient_K:sendSomeMessages Run: 1 Event: 2
+LogSystem: 7
+%MSG
+%MSG-s cat_S:  UnitTestClient_K:sendSomeMessages Run: 1 Event: 2
+LogSystem: 8
+%MSG
+%MSG-s cat_S:  UnitTestClient_K:sendSomeMessages Run: 1 Event: 2
+LogSystem: 9
+%MSG
+
+=============================================
+
+MessageLogger Summary
+
+ type     category        sev    module        subroutine        count    total
+ ---- -------------------- -- ---------------- ----------------  -----    -----
+    1 FwkReport            -i AfterSource                            2        2
+    2 cat_P                -w UnitTestClient_K                      20*      20
+    3 cat_S                -s UnitTestClient_K                      20       20
+
+* Some occurrences of this message were suppressed in all logs, due to limits.
+
+ type    category    Examples: run/evt        run/evt          run/evt
+ ---- -------------------- ---------------- ---------------- ----------------
+    1 FwkReport            PostBeginLumi    PostProcessEvent 
+    2 cat_P                1/1              1/1              1/2
+    3 cat_S                1/1              1/1              1/2
+
+Severity    # Occurrences   Total Occurrences
+--------    -------------   -----------------
+Info                    2                   2
+Warning                20                  20
+System                 20                  20

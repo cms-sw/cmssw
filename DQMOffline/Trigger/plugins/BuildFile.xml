@@ -1,0 +1,25 @@
+<use   name="FWCore/Framework"/>
+<use   name="FWCore/PluginManager"/>
+<use   name="FWCore/ParameterSet"/>
+<use   name="FWCore/ServiceRegistry"/>
+<use   name="DataFormats/RecoCandidate"/>
+<use   name="DataFormats/HLTReco"/>
+<use   name="DataFormats/MuonReco"/>
+<use   name="DataFormats/EgammaReco"/>
+<use   name="DataFormats/TrackReco"/>
+<use   name="DataFormats/TrajectorySeed"/>
+<use   name="DataFormats/BTauReco"/>
+<use   name="DataFormats/TauReco"/>
+<use   name="DataFormats/METReco"/>
+<use   name="DataFormats/JetReco"/>
+<use   name="RecoEcal/EgammaCoreTools"/>
+<use   name="RecoEgamma/EgammaHLTAlgos"/>
+<use   name="HLTrigger/HLTcore"/>
+<use   name="CondFormats/DataRecord"/>
+<use   name="DQM/HLTEvF"/>
+<use   name="root"/>
+<use   name="roofit"/>
+<use   name="boost"/>
+<library   file="*.cc" name="DQMOfflineTriggerPlugins">
+  <flags   EDM_PLUGIN="1"/>
+</library>

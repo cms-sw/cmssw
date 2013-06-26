@@ -1,0 +1,154 @@
+// Double_t fit_func(Double_t *x, Double_t *par){
+//   Float_t xx =x[0];
+//   if(xx<par[0])f = par[1]*x+par[2];
+//   else f=par[3]*x+par[0]*(par[1]-par[3])+par[2];
+//   return f;
+// }
+{
+  int NBINS=32;
+  //  TFile *resfile=new TFile("resolution.root");
+  TFile *resfile=new TFile("resolution.root");
+  float tibrms[NBINS],tobrms[NBINS],tidrms[NBINS],tecrms[NBINS];
+  float tibrmserror[NBINS],tobrmserror[NBINS],tidrmserror[NBINS],tecrmserror[NBINS];
+  TH1F *tibres[NBINS],*tobres[NBINS],*tidres[NBINS],*tecres[NBINS];
+  TH1F *allres[NBINS];
+  float allrms[NBINS],allrmserror[NBINS];
+  for(int i=0;i<NBINS;i++){
+    TH1F *tibres[i]=(TH1F*)resfile->Get(Form("mTIBres_%f-%f",i*8./NBINS,i*8./NBINS+8./NBINS));
+    TH1F *tobres[i]=(TH1F*)resfile->Get(Form("mTOBres_%f-%f",i*8./NBINS,i*8./NBINS+8./NBINS));
+    TH1F *tidres[i]=(TH1F*)resfile->Get(Form("mTIDres_%f-%f",i*8./NBINS,i*8./NBINS+8./NBINS));
+    TH1F *tecres[i]=(TH1F*)resfile->Get(Form("mTECres_%f-%f",i*8./NBINS,i*8./NBINS+8./NBINS));
+    allres[i]=(TH1F*)tibres[i]->Clone(Form("Allres_%f-%f",i*8./NBINS,i*8./NBINS+8./NBINS));
+    allres[i]->Add(tobres[i]);
+    allres[i]->Add(tidres[i]);
+    allres[i]->Add(tecres[i]);
+    tibres[i]->Fit("gaus");
+    tobres[i]->Fit("gaus");
+    tidres[i]->Fit("gaus");
+    tecres[i]->Fit("gaus");
+    allres[i]->Fit("gaus");
+    tibrms[i]=tibres[i]->GetRMS();
+    tibrmserror[i]=tibres[i]->GetRMSError();
+    tobrms[i]=tobres[i]->GetRMS();
+    tobrmserror[i]=tobres[i]->GetRMSError();
+    tidrms[i]=tidres[i]->GetRMS();
+    tidrmserror[i]=tidres[i]->GetRMSError();
+    tecrms[i]=tecres[i]->GetRMS();
+    tecrmserror[i]=tecres[i]->GetRMSError();
+    allrms[i]=allres[i]->GetRMS();
+    allrmserror[i]=allres[i]->GetRMSError();
+  }
+  float proj[NBINS],proje[NBINS];
+  for (int i=0;i<NBINS;i++){proj[i]=float(i)/4+0.125; proje[i]=0;};
+  TGraphErrors *TIB=new TGraphErrors(NBINS,proj,tibrms,proje,tibrmserror);
+  TGraphErrors *TOB=new TGraphErrors(NBINS,proj,tobrms,proje,tobrmserror);
+  TGraphErrors *TID=new TGraphErrors(NBINS,proj,tidrms,proje,tidrmserror);
+  TGraphErrors *TEC=new TGraphErrors(NBINS,proj,tecrms,proje,tecrmserror);
+  TGraphErrors *ALL=new TGraphErrors(NBINS,proj,allrms,proje,allrmserror);
+
+//   TProfile *tiberr=(TProfile*)resfile->Get("mTIBsqrterrvsprojx");
+//   TProfile *toberr=(TProfile*)resfile->Get("mTOBsqrterrvsprojx");
+//   TProfile *tiderr=(TProfile*)resfile->Get("mTIDsqrterrvsprojx");
+//   TProfile *tecerr=(TProfile*)resfile->Get("mTECsqrterrvsprojx");
+  TProfile *tiberr=(TProfile*)resfile->Get("mTIBtksqrterrvsprojx");
+  TProfile *toberr=(TProfile*)resfile->Get("mTOBtksqrterrvsprojx");
+  TProfile *tiderr=(TProfile*)resfile->Get("mTIDtksqrterrvsprojx");
+  TProfile *tecerr=(TProfile*)resfile->Get("mTECtksqrterrvsprojx");
+
+//   TF1 *errparamtib=new TF1("error_paramtib","((x-[0])*(x-[0])*([1]-[2])/([0]*[0])+[2])",0.01,4);
+//   errparamtib->SetParameter(0,38.07*0.032);
+//   errparamtib->SetParameter(1,0.3184);
+//   errparamtib->SetParameter(2,0.09828);
+//   TF1 *errparamtob=new TF1("error_paramtob","((x-[0])*(x-[0])*([1]-[2])/([0]*[0])+[2])",0.01,4);
+//   errparamtob->SetParameter(0,38.07*0.05);
+//   errparamtob->SetParameter(1,0.3184);
+//   errparamtob->SetParameter(2,0.09828);
+
+//   //  TF1 *newparam=new TF1("error_param","(((x-[0])*(x-[0])*([1]-[2])/([0]*[0]))*(([3]-x)/[3])+[2])*(((x-[0])*(x-[0])*([1]-[2])/([0]*[0]))*(([3]-x)/[3])+[2])",0,8); 
+//   TF1 *newparam=new TF1("error_param","[0]*x*exp(-x*[1])+[2]",0.,8);
+//   //TF1 *newparam=new TF1("error_param","[0]*exp(-0.5*((x-[3])/[1])**2)+[2]*x",0.0001,8);
+//   // TF1 *newparam=new TF1("error_param",fit_func,0.0001,8,4);
+//   newparam->SetParameter(0,-0.25);
+//   newparam->SetParameter(1,1.5);
+//   newparam->SetParameter(2,0.3);
+//   // newparam->SetParameter(3,0.25);
+ 
+ TCanvas * plot=new TCanvas("resolution","resolution");
+  plot->Divide(2,2);
+  plot->cd(1);
+  TIB->SetMaximum(0.4);
+  TIB->SetMinimum(0.);
+  TIB->GetHistogram()->GetXaxis()->SetRangeUser(0,4);
+  TIB->Draw("ap");
+  //  TIB->Fit(newparam);
+  TLine *l=new TLine(0,1./sqrt(12),4,1./sqrt(12));
+  l->SetLineColor(3);
+  l->Draw("same");
+  //  errparamtib->SetLineColor(4);
+  tiberr->SetMarkerColor(2);
+  tiberr->SetLineColor(2);
+  tiberr->Draw("same");
+  //  tibtkerr->SetMarkerColor(4);
+  // tibtkerr->SetLineColor(4);
+  // tibtkerr->Draw("same");
+
+  plot->cd(2);
+  TOB->SetMaximum(0.4);
+  TOB->SetMinimum(0.);
+  TOB->GetHistogram()->GetXaxis()->SetRangeUser(0,4);
+  TOB->Draw("ap");
+  //  TOB->Fit(newparam);
+  TLine *l=new TLine(0,1./sqrt(12),4,1./sqrt(12));
+  l->SetLineColor(3);
+  l->Draw("same");
+  toberr->SetMarkerColor(2);
+  toberr->SetLineColor(2);
+  //  errparamtob->SetLineColor(4);
+  toberr->Draw("same");
+  //tobtkerr->SetMarkerColor(4);
+  //tobtkerr->SetLineColor(4);
+  //tobtkerr->Draw("same");
+
+  plot->cd(3);
+  TID->SetMaximum(0.4);
+  TID->SetMinimum(0.);
+  TID->GetHistogram()->GetXaxis()->SetRangeUser(0,4);
+  TID->Draw("ap");
+  //  TID->Fit(newparam);
+   TLine *l=new TLine(0,1./sqrt(12),8,1./sqrt(12));
+  l->SetLineColor(3);
+  l->Draw("same");
+  //errparamtib->SetLineColor(4);
+  tiderr->SetMarkerColor(2);
+  tiderr->SetLineColor(2);
+  tiderr->Draw("same");
+  //tidtkerr->SetMarkerColor(4);
+  //tidtkerr->SetLineColor(4);
+  //tidtkerr->Draw("same");
+
+  plot->cd(4);
+  TEC->SetMaximum(0.4);
+  TEC->SetMinimum(0.);
+  TEC->GetHistogram()->GetXaxis()->SetRangeUser(0,4);
+  TEC->Draw("ap");
+  //  TEC->Fit(newparam);
+  TLine *l=new TLine(0,1./sqrt(12),4,1./sqrt(12));
+  l->SetLineColor(3);
+  l->Draw("same");
+  tecerr->SetMarkerColor(2);
+  tecerr->SetLineColor(2);
+  tecerr->Draw("same");
+  //tectkerr->SetMarkerColor(4);
+  //tectkerr->SetLineColor(4);
+  //tectkerr->Draw("same");
+
+ TCanvas * plot2=new TCanvas("resolution2","resolution2");
+ ALL->SetMaximum(0.4);
+ ALL->SetMinimum(0.);
+ ALL->GetHistogram()->GetXaxis()->SetRangeUser(0,4);
+ ALL->Draw("ap");
+ // ALL->Fit(newparam);
+ TLine *l=new TLine(0,1./sqrt(12),4,1./sqrt(12));
+ l->SetLineColor(3);
+ l->Draw("same");
+}

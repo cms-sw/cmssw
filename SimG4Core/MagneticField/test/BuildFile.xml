@@ -1,0 +1,13 @@
+<use   name="SimG4Core/Notification"/>
+<use   name="SimG4Core/Watcher"/>
+<use   name="FWCore/Framework"/>
+<use   name="FWCore/ParameterSet"/>
+<use   name="FWCore/MessageLogger"/>
+<use   name="DQMServices/Core"/>
+<use   name="geant4core"/>
+<use   name="boost"/>
+<use   name="root"/>
+<use   name="expat"/>
+<flags   EDM_PLUGIN="1"/>
+<library   file="FieldStepWatcher.cc" name="testSimG4CoreFieldStepWatcher">
+</library>

@@ -1,0 +1,14 @@
+<library   name="RecoMuonTrackingToolsPlugins" file="*.cc">
+  <use   name="DataFormats/GeometryVector"/>
+  <use   name="DataFormats/TrackReco"/>
+  <use   name="DataFormats/TrackingRecHit"/>
+  <use   name="FWCore/Framework"/>
+  <use   name="FWCore/MessageLogger"/>
+  <use   name="FWCore/ParameterSet"/>
+  <use   name="MagneticField/Engine"/>
+  <use   name="MagneticField/Records"/>
+  <use   name="RecoMuon/TrackingTools"/>
+  <use   name="TrackingTools/TrajectoryState"/>
+  <use   name="rootcore"/>
+  <flags   EDM_PLUGIN="1"/>
+</library>

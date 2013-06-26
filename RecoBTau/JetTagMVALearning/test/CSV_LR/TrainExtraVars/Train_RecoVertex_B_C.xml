@@ -1,0 +1,275 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
+<MVATrainer>
+	<general>
+		<!--
+			called with arguments
+				1. name
+				2. additional name info
+				3. file suffix
+			%n$s retrieves the n'th argument
+		-->
+		<option name="trainfiles">train_RecoVertex_%1$s%2$s.%3$s</option>
+		<option name="id">CombinedSVRecoVertex</option>
+	</general>
+	<input id="input">
+		<var name="jetPt" multiple="false" optional="false"/>
+		<var name="jetEta" multiple="false" optional="false"/>
+		<var name="vertexCategory" multiple="false" optional="false"/>
+		<var name="trackSip2dSig" multiple="true" optional="true"/>
+		<var name="trackSip3dSig" multiple="true" optional="true"/>
+		<var name="trackSip2dVal" multiple="true" optional="true"/>
+		<var name="trackSip3dVal" multiple="true" optional="true"/>
+		<var name="trackMomentum" multiple="true" optional="true"/>
+		<var name="trackEta" multiple="true" optional="true"/>
+		<var name="trackPtRel" multiple="true" optional="true"/>
+		<var name="trackPPar" multiple="true" optional="true"/>
+		<var name="trackEtaRel" multiple="true" optional="true"/>
+		<var name="trackDeltaR" multiple="true" optional="true"/>
+		<var name="trackPtRatio" multiple="true" optional="true"/>
+		<var name="trackPParRatio" multiple="true" optional="true"/>
+		<var name="trackJetDist" multiple="true" optional="true"/>
+		<var name="trackFirstTrackDist" multiple="true" optional="true"/>
+		<var name="trackDecayLenVal" multiple="true" optional="true"/>
+		<var name="vertexMass" multiple="false" optional="false"/>
+		<var name="vertexNTracks" multiple="false" optional="false"/>
+		<var name="vertexEnergyRatio" multiple="false" optional="false"/>
+		<var name="trackSip2dSigAboveCharm" multiple="false" optional="false"/>
+		<var name="trackSip3dSigAboveCharm" multiple="false" optional="false"/>
+		<var name="flightDistance2dSig" multiple="false" optional="false"/>
+		<var name="flightDistance3dSig" multiple="false" optional="false"/>
+		<var name="flightDistance2dVal" multiple="false" optional="false"/>
+		<var name="flightDistance3dVal" multiple="false" optional="false"/>
+		<var name="trackSumJetEtRatio" multiple="false" optional="false"/>
+		<var name="jetNSecondaryVertices" multiple="false" optional="false"/>
+		<var name="vertexJetDeltaR" multiple="false" optional="false"/>
+		<var name="trackSumJetDeltaR" multiple="false" optional="false"/>
+		<var name="nTracks" multiple="false" optional="false"/>
+		<var name="category" multiple="false" optional="false"/>
+	</input>
+	<processor id="cat" name="ProcCategory">
+		<input>
+			<var source="input" name="jetPt"/>
+			<var source="input" name="jetEta"/>
+		</input>
+		<config>
+			<group><box><range max="40"/><range min="-1.2" max="1.2"/></box></group>
+			<group><box><range max="40"/><range min="-2.1" max="2.1"/></box></group>
+			<group><box><range max="40"/><range/></box></group>
+			<group><box><range min="40" max="60"/><range min="-1.2" max="1.2"/></box></group>
+			<group><box><range min="40" max="60"/><range min="-2.1" max="2.1"/></box></group>
+			<group><box><range min="40" max="60"/><range/></box></group>
+			<group><box><range min="60" max="90"/><range min="-1.2" max="1.2"/></box></group>
+			<group><box><range min="60" max="90"/><range min="-2.1" max="2.1"/></box></group>
+			<group><box><range min="60" max="90"/><range/></box></group>
+			<group><box><range min="90" max="150"/><range min="-1.2" max="1.2"/></box></group>
+			<group><box><range min="90" max="150"/><range min="-2.1" max="2.1"/></box></group>
+			<group><box><range min="90" max="150"/><range/></box></group>
+			<group><box><range/><range min="-1.2" max="1.2"/></box></group>
+			<group><box><range/><range min="-2.1" max="2.1"/></box></group>
+			
+		</config>
+		<output>
+			<var name="category"/>
+		</output>
+	</processor>
+	<processor id="count" name="ProcCount">
+		<input>
+			<var source="input" name="trackSip2dSig"/>
+		</input>
+		<config>
+			
+		</config>
+		<output>
+			<var name="nTracks"/>
+		</output>
+	</processor>
+
+
+	<processor id="norm2" name="ProcNormalize">
+		<input>
+			<var source="input" name="jetPt"/>
+			<var source="input" name="jetEta"/>
+			<var source="input" name="trackSip2dSig"/>
+			<var source="input" name="trackSip3dSig"/>
+			<var source="input" name="trackSip2dVal"/>
+			<var source="input" name="trackSip3dVal"/>
+			<var source="input" name="trackMomentum"/>
+			<var source="input" name="trackEtaRel"/>
+			<var source="input" name="trackDeltaR"/>
+			<var source="input" name="trackPtRatio"/>
+			<var source="input" name="trackJetDist"/>
+			<var source="input" name="trackDecayLenVal"/>
+			<var source="input" name="vertexMass"/>
+			<var source="input" name="vertexNTracks"/>
+			<var source="input" name="vertexEnergyRatio"/>
+			<var source="input" name="trackSip2dSigAboveCharm"/>
+			<var source="input" name="trackSip3dSigAboveCharm"/>
+			<var source="input" name="flightDistance2dSig"/>
+			<var source="input" name="flightDistance3dSig"/>
+			<var source="input" name="flightDistance2dVal"/>
+			<var source="input" name="flightDistance3dVal"/>
+			<var source="input" name="trackSumJetEtRatio"/>
+			<var source="input" name="jetNSecondaryVertices"/>
+			<var source="input" name="vertexJetDeltaR"/>
+		</input>
+		<config>
+                        <pdf/>
+                        <pdf/>
+                        <pdf smooth="1" lower="-80" upper="150"/>     <!-- trackSip2dSig -->
+                        <pdf smooth="1" lower="-80" upper="150"/>     <!-- trackSip3dSig -->
+                        <pdf smooth="1" lower="-0.2" upper="0.2"/>     <!-- trackSip2dVal -->
+                        <pdf smooth="1" lower="-3" upper="3"/>     <!-- trackSip3dVal -->
+                        <pdf smooth="1" lower="0" upper="250"/>     <!-- trackMomentum -->
+                        <pdf smooth="2" lower="1.2" upper="8.5"/>     <!-- trackEtaRel -->
+                        <pdf smooth="2" lower="0" upper="0.5"/>     <!-- trackDeltaR -->
+                        <pdf smooth="1" lower="0.0" upper="0.3"/>   <!-- trackPtRatio -->
+                        <pdf smooth="1" lower="-0.07" upper="0.0"/> <!-- trackJetDist -->
+                        <pdf smooth="1" lower="0" upper="40"/>      <!-- trackDecayLenVal -->
+                        <pdf smooth="2" lower="0.2" upper="10"/>     <!-- vertexMass -->
+                        <pdf smooth="2" lower="1.5" upper="13.5"/>     <!-- vertexNTracks -->
+                        <pdf lower="0" upper="1"/>     <!-- vertexEnergyRatio -->
+                        <pdf smooth="1" lower="-50" upper="80"/>     <!-- trackSip2dSigAboveCharm -->
+                        <pdf smooth="1" lower="-50" upper="80"/>     <!-- trackSip3dSigAboveCharm -->
+                        <pdf smooth="1" lower="0" upper="150"/>     <!-- flightDistance2dSig -->
+                        <pdf smooth="1" lower="0" upper="200"/>     <!-- flightDistance3dSig -->
+                        <pdf smooth="1" lower="0.01" upper="2.5"/>     <!-- flightDistance2dVal -->
+                        <pdf smooth="1" lower="0" upper="12"/>     <!-- flightDistance3dVal -->
+                        <pdf smooth="1" lower="0.0" upper="5.0"/>   <!-- trackSumJetEtRatio -->
+                        <pdf smooth="2" lower="1" upper="7"/>     <!-- jetNSecondaryVertices -->
+                        <pdf lower="0" upper="0.5"/>                <!-- vertexJetDeltaR -->
+		</config>
+		<output>
+			<var name="varjetPt"/>
+			<var name="varjetEta"/>
+			<var name="vartrackSip2dSig"/>
+			<var name="vartrackSip3dSig"/>
+			<var name="vartrackSip2dVal"/>
+			<var name="vartrackSip3dVal"/>
+			<var name="vartrackMomentum"/>
+			<var name="vartrackEtaRel"/>
+			<var name="vartrackDeltaR"/>
+			<var name="vartrackPtRatio"/>
+			<var name="vartrackJetDist"/>
+			<var name="vartrackDecayLenVal"/>
+			<var name="varvertexMass"/>
+			<var name="varvertexNTracks"/>
+			<var name="varvertexEnergyRatio"/>
+			<var name="vartrackSip2dSigAboveCharm"/>
+			<var name="vartrackSip3dSigAboveCharm"/>
+			<var name="varflightDistance2dSig"/>
+			<var name="varflightDistance3dSig"/>
+			<var name="varflightDistance2dVal"/>
+			<var name="varflightDistance3dVal"/>
+			<var name="vartrackSumJetEtRatio"/>
+			<var name="varjetNSecondaryVertices"/>
+			<var name="varvertexJetDeltaR"/>
+		</output>
+	</processor>
+	<processor id="split2" name="ProcSplitter">
+		<input>
+			<var source="norm2" name="vartrackSip3dSig"/>
+		</input>
+		<config>
+			<select first="3"/>
+			
+		</config>
+		<output>
+			<var name="vartrackSip3dSig_1"/>
+			<var name="vartrackSip3dSig_2"/>
+			<var name="vartrackSip3dSig_3"/>
+			<var name="vartrackSip3dSig_rest"/>
+		</output>
+	</processor>
+	<processor id="lkh2" name="ProcLikelihood">
+		<input>
+			<var source="cat" name="category"/>
+			<var source="norm2" name="vartrackEtaRel"/>
+			<var source="norm2" name="vartrackDeltaR"/>
+			<var source="norm2" name="vartrackPtRatio"/>
+			<var source="norm2" name="vartrackJetDist"/>
+			<var source="norm2" name="vartrackDecayLenVal"/>
+			<var source="norm2" name="varvertexMass"/>
+			<var source="norm2" name="varvertexNTracks"/>
+			<var source="norm2" name="varvertexEnergyRatio"/>
+			<var source="norm2" name="vartrackSip2dSigAboveCharm"/>
+			<var source="norm2" name="varflightDistance2dSig"/>
+			<var source="norm2" name="vartrackSumJetEtRatio"/>
+			<var source="norm2" name="varvertexJetDeltaR"/>
+			<var source="split2" name="vartrackSip3dSig_1"/>
+			<var source="split2" name="vartrackSip3dSig_2"/>
+			<var source="split2" name="vartrackSip3dSig_3"/>
+			<var source="split2" name="vartrackSip3dSig_rest"/>
+		</input>
+		<config>
+                        <general/>
+                        <category count="15"/>
+                        <sigbkg smooth="3"/> <!-- trackEtaRel -->
+                        <sigbkg smooth="3"/> <!-- trackDeltaR -->
+                        <sigbkg smooth="3"/> <!-- trackPtRatio -->
+                        <sigbkg smooth="3"/> <!-- trackJetDist -->
+                        <sigbkg smooth="3"/> <!-- trackDecayLenVal -->
+                        <sigbkg smooth="3"/> <!-- vertexMass -->
+                        <sigbkg/> <!-- vertexNTracks -->
+                        <sigbkg smooth="3"/> <!-- vertexEnergyRatio -->
+                        <sigbkg smooth="3"/> <!-- trackSip2dSigAboveCharm -->
+                        <sigbkg smooth="3"/> <!-- flightDistance2dSig -->
+                        <sigbkg smooth="3"/> <!-- trackSumJetEtRatio -->
+                        <sigbkg smooth="3"/> <!-- vertexJetDeltaR -->
+                        <sigbkg smooth="3"/> <!-- trackSip3dSig_1 -->
+                        <sigbkg smooth="3"/> <!-- trackSip3dSig_2 -->
+                        <sigbkg smooth="3"/> <!-- trackSip3dSig_3 -->
+                        <sigbkg smooth="3"/> <!-- trackSip3dSig_rest -->
+			
+		</config>
+		<output>
+			<var name="discr2"/>
+		</output>
+	</processor>
+	<processor id="normlkh2" name="ProcNormalize">
+		<input>
+			<var source="lkh2" name="discr2"/>
+		</input>
+		<config>
+			<pdf lower="0" upper="1" />
+		</config>
+		<output>
+			<var name="normdiscr2"/>
+		</output>
+	</processor>
+	<processor id="biaslkh2" name="ProcLikelihood">
+		<input>
+			<var source="cat" name="category"/>
+			<var source="normlkh2" name="normdiscr2"/>
+		</input>
+		<config>
+			<general strict="false"/>
+       <bias_table><!--B_C-->
+        <bias>3.76366</bias>
+				<bias>4.18849</bias>
+				<bias>4.14512</bias>
+				<bias>3.20029</bias>
+				<bias>3.50683</bias>
+				<bias>3.90637</bias>
+				<bias>3.00289</bias>
+				<bias>3.17071</bias>
+				<bias>3.54318</bias>
+				<bias>2.8131</bias>
+				<bias>2.85764</bias>
+				<bias>3.07463</bias>
+				<bias>2.53865</bias>
+				<bias>2.47115</bias>
+				<bias>2.48927</bias>
+       </bias_table><!--B_C-->
+			<category count="15"/>
+			<sigbkg smooth="3"/>
+		</config>
+		<output>
+			<var name="biasdiscr2"/>
+		</output>
+	</processor>
+
+	<output>
+		<var source="biaslkh2" name="biasdiscr2"/>
+	</output>
+</MVATrainer>
+

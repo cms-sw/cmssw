@@ -1,0 +1,53 @@
+/*!
+<!-- Substitute SUBSYSTEM and PACKAGE with the proper names! -->
+
+\page RecoTBCalo_HcalTBObjectUnpacker Package RecoTBCalo/HcalTBObjectUnpacker/
+
+<center>
+<small>
+
+
+<!-- @PROJ_VERS@ will be substituted at build time, no need to touch -->
+<a href=http://cmsdoc.cern.ch/swdev/viewcvs/viewcvs.cgi/CMSSW/SUBSYSTEM/PACKAGE/?cvsroot=CMSSW&only_with_tag=@PROJ_VERS@>CVS</a> - 
+<a href=http://cmsdoc.cern.ch/swdev/viewcvs/viewcvs.cgi/CMSSW/SUBSYSTEM/PACKAGE/.admin/developers?rev=HEAD&cvsroot=CMSSW&content-type=text/vnd.viewcvs-markup>Administrative privileges</a>
+</small>
+</center>
+
+
+\section desc Description
+
+Unpacking module and classes for reading HCAL raw data (ancillary testbeam
+information) and converting it into the associated testbeam data formats.
+These include trigger information, so-called "slow data" (run data, test
+table coordinates, etc.), TDC and wire chamber information, and calibration
+source position data.
+
+\subsection interface Public interface
+
+\subsection modules Modules
+<!-- Describe modules implemented in this package and their parameter set -->
+
+ - HcalTBObjectUnpacker : Unpacker module for testbeam data. Produces
+HcalTBTriggerData, HcalTBRunData,HcalTBEventPosition, HcalTBTiming, and
+HcalSourcePositionData records in the event.
+
+<pre>
+\htmlinclude HcalTBObjectUnpacker-Normal.cfi
+</pre>
+
+<pre>
+\htmlinclude HcalTBObjectUnpacker-SourceCal.cfi
+</pre>
+
+<!-- \subsection tests Unit tests and examples
+ Describe cppunit tests and example configuration files -->
+
+
+\section status Status and planned development
+
+- HcalTBObjectUnpacker is complete and tested.
+
+<hr>
+Last updated:
+@DATE@ P. Dudero
+*/

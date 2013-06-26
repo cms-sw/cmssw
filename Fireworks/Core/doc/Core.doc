@@ -1,0 +1,194 @@
+
+/*!
+
+\page Fireworks_Core Package Fireworks/Core
+
+<center>
+<small>
+
+<!-- @CVS_TAG@ will be substituted at build time, no need to touch -->
+<a href=http://cmssw.cvs.cern.ch/cgi-bin/cmssw.cgi/CMSSW/Fireworks/Core/?cvsroot=CMSSW&only_with_tag=@CVS_TAG@>Source code (CVS tag: @CVS_TAG@)</a> - 
+<a href=http://cmssw.cvs.cern.ch/cgi-bin/cmssw.cgi/CMSSW/Fireworks/Core/.admin/developers?rev=HEAD&cvsroot=CMSSW&content-type=text/vnd.viewcvs-markup>Administrative privileges</a>
+</small>
+</center>
+
+\section desc Description
+<!-- Short description of what this package is supposed to provide -->
+
+(THE PACKAGE ADMINISTATOR SHOULD REPLACE THIS SENTENCE WITH HAND-WRITTEN DOCUMENTATION SAYING WHAT THE PACKAGE DOES.)
+
+\subsection interface Public interface
+<!-- List the classes that are provided for use in other packages (if any) -->
+
+- ActionsList
+- BuilderUtils
+- CSGAction
+- CSGActionSupervisor
+- CSGContinuousAction
+- CmsAnnotation
+- CmsShowCommon
+- CmsShowCommonPopup
+- CmsShowEDI
+- CmsShowHelpPopup
+- CmsShowMainBase
+- CmsShowMainFrame
+- CmsShowModelPopup
+- CmsShowNavigator
+- CmsShowSearchFiles
+- CmsShowViewPopup
+- Context
+- FW3DView
+- FW3DViewBase
+- FW3DViewGeometry
+- FWBeamSpot
+- FWBoolParameter
+- FWColorManager
+- FWCompositeParameter
+- FWConfigurable
+- FWConfigurableParameterizable
+- FWConfiguration
+- FWConfigurationManager
+- FWCustomIconsButton
+- FWDataCategories
+- FWDetailView
+- FWDetailViewBase
+- FWDetailViewCanvas
+- FWDetailViewFactory
+- FWDetailViewGL
+- FWDetailViewManager
+- FWDigitSetProxyBuilder
+- FWDisplayProperties
+- FWDoubleParameter
+- FWEDProductRepresentationChecker
+- FWEnumParameter
+- FWEnumParameterSetter
+- FWEveLegoView
+- FWEvePtr
+- FWEveView
+- FWEveViewManager
+- FWEventAnnotation
+- FWEventItem
+- FWEventItemsManager
+- FWEventSelector
+- FWExpressionEvaluator
+- FWExpressionException
+- FWFileEntry
+- FWFromEveSelectorBase
+- FWGLEventHandler
+- FWGUIEventFilter
+- FWGUIEventSelector
+- FWGUIManager
+- FWGUISubviewArea
+- FWGenericParameter
+- FWGenericParameterWithRange
+- FWGeoTopNode
+- FWGeometry
+- FWGeometryTableManagerBase
+- FWGeometryTableViewBase
+- FWGeometryTableViewManager
+- FWGlimpseView
+- FWHFView
+- FWHLTTriggerTableView
+- FWHLTValidator
+- FWHandle
+- FWISpyView
+- FWIntValueListener
+- FWIntValueListenerBase
+- FWInteractionList
+- FWInvMassDialog
+- FWItemAccessorBase
+- FWItemAccessorFactory
+- FWItemAccessorRegistry
+- FWItemChangeSignal
+- FWItemRandomAccessor
+- FWItemValueGetter
+- FWJobMetadataManager
+- FWJobMetadataUpdateRequest
+- FWL1TriggerTableView
+- FWLegoViewBase
+- FWLiteJobMetadataManager
+- FWLiteJobMetadataUpdateRequest
+- FWLongParameter
+- FWMagField
+- FWModelChangeManager
+- FWModelChangeSignal
+- FWModelExpressionSelector
+- FWModelFilter
+- FWModelId
+- FWModelIdFromEveSelector
+- FWNavigatorBase
+- FWParameterBase
+- FWParameterSetterBase
+- FWParameterSetterEditorBase
+- FWParameterizable
+- FWParameters
+- FWPhysicsObjectDesc
+- FWProxyBuilderBase
+- FWProxyBuilderConfiguration
+- FWProxyBuilderFactory
+- FWProxyBuilderTemplate
+- FWRPZView
+- FWRPZViewGeometry
+- FWRecoGeom
+- FWRepresentationCheckerBase
+- FWRepresentationInfo
+- FWSelectionManager
+- FWSimpleProxyBuilder
+- FWSimpleProxyBuilderTemplate
+- FWSimpleProxyHelper
+- FWSimpleRepresentationChecker
+- FWStringParameter
+- FWSummaryManager
+- FWTEventList
+- FWTSelectorToEventList
+- FWTableView
+- FWTableViewManager
+- FWTableViewTableManager
+- FWTextProjected
+- FWTriggerTableView
+- FWTriggerTableViewManager
+- FWTriggerTableViewTableManager
+- FWTypeToRepresentations
+- FWViewBase
+- FWViewContext
+- FWViewContextMenuHandlerBase
+- FWViewContextMenuHandlerGL
+- FWViewEnergyScale
+- FWViewEnergyScaleEditor
+- FWViewGeometryList
+- FWViewManagerBase
+- FWViewManagerManager
+- FWViewType
+- RootGuiUtils
+- TEveElementIter
+- TRootXTReq
+- fw3dlego_xbins
+- fwLog
+- fwPaths
+- register_dataproxybuilder_macro
+- register_itemaccessorbase_macro
+
+
+\subsection pluginai Plugins
+<!-- List the plugins that are provided for use in other packages (if any) -->
+
+
+
+
+\subsection modules Modules
+<!-- Describe modules implemented in this package and their parameter set -->
+
+
+\subsection tests Unit tests and examples
+<!-- Describe cppunit tests and example configuration files -->
+Unknown
+
+\section status Status and planned development
+<!-- e.g. completed, stable, missing features -->
+Unknown
+
+<hr>
+Last updated:
+@DATE@  Author: computer-generated.
+*/
+

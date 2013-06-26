@@ -1,0 +1,216 @@
+#! /usr/bin/env python
+# -*- coding: iso-8859-15 -*-
+
+# Author: Andrea 'fwyzard' Bocci <andrea.bocci@cern.ch>, Università di Pisa
+
+import os, sys
+import re
+
+import os.path
+if 'relpath' in dir(os.path):
+  relpath = os.path.relpath
+else:
+  # this is missing in python before 2.6
+  def relpath(path, start = os.path.curdir):
+    """Return a relative version of a path"""
+
+    if not path:
+        raise ValueError("no path specified")
+    
+    start_list = os.path.abspath(start).split(os.sep)
+    path_list = os.path.abspath(path).split(os.sep)
+    
+    # Work out how much of the filepath is shared by start and path.
+    i = len(os.path.commonprefix([start_list, path_list]))
+
+    rel_list = [os.pardir] * (len(start_list)-i) + path_list[i:]
+    return os.sep.join(rel_list)
+
+# program verbosity level
+verbosity = 1
+
+# 0: silent
+# 1: errors only
+# 2: errors and warnings
+# 3: errors, wanring, infos
+
+def print_verbose_message(level, type, buildfile, message, log = ''):
+  if level > verbosity:
+    return
+  sys.stderr.write('%s: in %s: %s\n' % (type, buildfile, message))
+  if log:
+    sys.stderr.write('\t--------------------------------------------------------------------------------\n')
+    for line in log.splitlines():
+      sys.stderr.write('\t%s\n' % line)
+    sys.stderr.write('\t--------------------------------------------------------------------------------\n')
+
+def print_error(buildfile, message, log = ''):
+  print_verbose_message(1, 'Error', buildfile, message, log)
+
+def print_warning(buildfile, message, log = ''):
+  print_verbose_message(2, 'Warning', buildfile, message, log)
+
+def print_info(buildfile, message, log = ''):
+  print_verbose_message(3, 'Info', buildfile, message, log)
+
+
+def_comment = re.compile(r'\s*#.*?$', re.M)
+def_export  = re.compile(r'<\s*export\s*>.*?<\s*/export\s*>', re.S | re.I)
+def_library = re.compile(r'<\s*library\s+.*?>.*?<\s*/library\s*>', re.S | re.I)
+def_binary  = re.compile(r'<\s*bin\s+.*?>.*?<\s*/bin\s*>', re.S | re.I)
+def_remove  = re.compile(r'\s*(%s|%s|%s)\s*$' % (def_export.pattern, def_library.pattern, def_binary.pattern), re.S | re.M | re.I)
+def_plugin  = re.compile(r'<\s*flags\s+EDM_PLUGIN\s*=\s*(1|"1")\s*>', re.I)
+
+has_export_data  = re.compile(r'<\s*export\s*>(?P<data>.*?)<\s*/export\s*>', re.S | re.I)
+has_export_name  = re.compile(r'<\s*lib\s+name\s*=\s*"?(?P<name>[\w/]+)"?\s*>', re.I)
+has_library_name = re.compile(r'<library(\s+file\s*=\s*"?[\w\s/.,*]*"?)?\s+name\s*=\s*"?(?P<name>[\w]+)"?(\s+file\s*=\s*"?[\w\s/.,*]*"?)?\s*>', re.I)
+has_library_file = re.compile(r'<library\s+file\s*=\s*"?(?P<file>[\w.]+?)\.(cc|cxx|cpp|C)"?\s*>', re.I)
+has_binary_name  = re.compile(r'<bin(\s+file\s*=\s*"?[\w\s/.,*]*"?)?\s+name\s*=\s*"?(?P<name>\w+)"?(\s+file\s*=\s*"?[\w\s/.,*]*"?)?\s*>', re.I)
+has_binary_file  = re.compile(r'<bin\s+file\s*=\s*"?(?P<file>[\w.]+?)\.(cc|cxx|cpp|C)"?\s*>', re.I)
+
+def what_defines(topdir, buildfile):
+  """Return a 3-tuple of lists of libraries, plugins and binaries defined in the given BuildFile[.xml]"""
+  file = open(os.path.join(topdir, buildfile), 'r')
+  lines = file.read()
+  file.close()
+
+  tokens = buildfile.split(os.sep)
+  level = len(tokens) - 1
+  implicit = '%s%s' % tuple(tokens[:2])
+
+  # strip comments
+  lines = re.sub(def_comment, '', lines)
+
+  # extract <library>, <export> and <bin> blocks
+  libraries = re.findall(def_library, lines)
+  exports   = re.findall(def_export,  lines)
+  binaries  = re.findall(def_binary,  lines)
+  lines = re.sub(def_remove, '', lines)
+
+  # check if the global entries in the BuildFile specifies a plugin
+  is_plugin = bool( re.search(def_plugin, lines) )
+
+  libs    = []
+  plugins = []
+  bins    = []
+
+  # extract the names of all libraries and plugins
+  for block in libraries:
+    has_name = re.search(has_library_name, block)
+    has_file = re.search(has_library_file, block)
+    if has_name:
+      name = has_name.group('name')
+    elif has_file:
+      name = has_file.group('file')
+    else:
+      print_error(buildfile, 'found a <library> definition without any name or file parameters', block)
+      continue
+    if is_plugin or re.search(def_plugin, block):
+      plugins.append(name)
+    else:
+      libs.append(name)
+
+  # when defining a plugin, the export blocks are meaningless 
+  if exports and is_plugin:
+    print_warning(buildfile, 'skipping <export> blocks due to global EDM_PLUGIN definition')
+    exports = []
+ 
+  for block in exports:
+    has_data = re.search(has_export_data, block).group('data')
+    if not has_data.split():
+      print_info(buildfile, 'skipping empty export block')
+      continue
+    has_name = re.search(has_export_name, block)
+    if has_name:
+      name = has_name.group('name')
+      # some modules use <lib name=1> to define the library name automatically
+      if name == '1':
+        print_info(buildfile, 'implicit declaration of module name, using to "%s"' % implicit)
+        name = implicit
+      elif '/' in name:
+        print_warning(buildfile, 'invalid module name "%s", falling back to the implicit default "%s"' % (name, implicit))
+        name = implicit
+    elif level == 2:
+      print_warning(buildfile, 'missing declaration of module name, falling back to implicit default "%s"' % implicit)
+      name = implicit
+    else:
+      print_error(buildfile, 'found an <export> definition without any name parameter', block)
+      continue
+    if re.search(def_plugin, block):
+      print_warning(buildfile, 'ignoring EDM_PLUGIN declaration in <export> block')
+    libs.append(name)
+
+  # extract the names of all binaries
+  for block in binaries:
+    has_name = re.search(has_binary_name, block)
+    has_file = re.search(has_binary_file, block)
+    if has_name:
+      name = has_name.group('name')
+    elif has_file:
+      name = has_file.group('file')
+    else:
+      print_error(buildfile, 'found a <bin> definition without any name or file parameters', block)
+      continue
+    bins.append(name)
+
+  # a plugin is implicitly defined for package top level BuildFiles, if there is a <flags EDM_PLUGIN="1"> statement
+  if not libraries and not exports and not binaries:
+    if level == 2 and is_plugin:
+      print_info(buildfile, 'implicit declaration of plugin, using "%s"' % implicit)
+      plugins.append(implicit)
+    else:
+      print_warning(buildfile, 'found no module definitions')
+    
+  return (libs, plugins, bins)
+
+
+def fill_map(topdir):
+  """return a map that associates to each libray and plugin (lib*.so and plugin*.so) the package where it is defined"""
+  map = dict()
+  for (dir, subs, files) in os.walk(topdir):
+    # skip all data, doc and python directories
+    for sub in ('data', 'doc', 'python', 'xml', 'bin'):
+      if sub in subs:
+        subs.remove(sub)
+
+    # look for a BuildFile or BuildFile.xml
+    buildfile = ''
+    if 'BuildFile.xml' in files:
+      buildfile = os.sep.join((dir, 'BuildFile.xml'))
+    elif 'BuildFile' in files:
+      buildfile = os.sep.join((dir, 'BuildFile'))
+    else:
+      continue
+    # keep the relative path for the BuildFile and the package
+    buildfile = relpath(buildfile, topdir)
+    package   = os.sep.join( relpath(dir, topdir).split(os.sep)[:2] )
+
+    # find out which libraries, plugins and binaries are defined in the BuildFile 
+    (libraries, plugins, binaries) = what_defines(topdir, buildfile)
+    modules = libraries + plugins
+
+    for module in modules:
+      if module in map:
+        print_error(buildfile, 'duplicate definition of module "%s", overriding original definition in "%s"' % (module, map[module][1]))
+      map[module] = (package, buildfile)
+
+  return map
+
+
+
+# look for plugins and libraries definitions under $CMSSW_RELEASE_BASE/src
+packagemap = fill_map(os.sep.join((os.environ['CMSSW_RELEASE_BASE'], 'src')))
+
+# remove the leading "plugin" or "lib" and the trailing ".so"
+clean = re.compile(r'^(lib|plugin)(?P<lib>\w+?)(Capabilities)?\.so$')
+
+libs = dict([ (clean.match(line.strip()).group('lib'),line.strip()) for line in sys.stdin ])
+index = libs.keys()
+index.sort()
+
+for lib in index:
+  if lib in packagemap:
+    print "%-80s\t%s" % (libs[lib], packagemap[lib][0])
+  else:
+    print "%-80s\t*** not found ***" % libs[lib]
+

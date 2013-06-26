@@ -1,0 +1,36 @@
+<use name="FWCore/MessageLogger"/>
+<use name="FWCore/ParameterSet"/>
+<use name="FWCore/ServiceRegistry"/>
+<use name="FWCore/Utilities"/>
+<use name="GeneratorInterface/LHEInterface"/>
+<use name="GeneratorInterface/Core"/>
+<use name="boost"/>
+<library name="GeneratorInterfaceLHEProducer" file="LHEProducer.cc LHEFilter.cc LHE2HepMCConverter.cc ExternalLHEProducer.cc ExternalLHEAsciiDumper.cc">
+	<use name="FWCore/Framework"/>
+        <use name="SimDataFormats/GeneratorProducts"/>
+	<flags EDM_PLUGIN="1"/>
+</library>
+<library name="GeneratorInterfaceLHEIO" file="LHESource.cc LHEProvenanceHelper.cc LHEWriter.cc">
+	<use name="FWCore/Framework"/>
+	<use name="FWCore/Sources"/>
+        <use name="SimDataFormats/GeneratorProducts"/>
+	<use name="mcdb"/>
+	<flags EDM_PLUGIN="1"/>
+</library>
+<library name="GeneratorInterfaceLHEAnalyzer" file="LHEAnalyzer.cc">
+	<use name="FWCore/Framework"/>
+	<use name="DataFormats/StdDictionaries"/>
+	<use name="SimDataFormats/GeneratorProducts"/>
+	<use name="CommonTools/UtilAlgos"/>
+	<flags EDM_PLUGIN="1"/>
+</library>
+<library name="GeneratorInterfacePythia8Hadronisation" file="Pythia8Hadronisation.cc">
+	<use name="pythia8"/>
+	<flags EDM_PLUGIN="1"/>
+</library>
+<library name="GeneratorInterfaceLHECOMWeightProducer" file="LHECOMWeightProducer.cc">
+        <use name="FWCore/Framework"/>
+        <use name="SimDataFormats/GeneratorProducts"/>
+        <use name="lhapdf"/>
+        <flags EDM_PLUGIN="1"/>
+</library>

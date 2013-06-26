@@ -1,0 +1,14 @@
+<use   name="DataFormats/GeometrySurface"/>
+<use   name="DataFormats/SiPixelDetId"/>
+<use   name="DataFormats/SiStripDetId"/>
+<use   name="DetectorDescription/Core"/>
+<use   name="FWCore/MessageLogger"/>
+<use   name="FWCore/ServiceRegistry"/>
+<use   name="FWCore/ParameterSet"/>
+<use   name="Geometry/CommonDetUnit"/>
+<use   name="Geometry/CommonTopologies"/>
+<use   name="Geometry/TrackerNumberingBuilder"/>
+<use   name="clhep"/>
+<export>
+  <lib   name="1"/>
+</export>

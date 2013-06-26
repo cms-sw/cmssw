@@ -1,0 +1,346 @@
+2012-11-30  William Tanenbaum <wmtan@fnal.gov>
+	* V01-13-04 (and V01-13-03)
+	* Fill principal in readEvent_(), not in getNextItemType()
+	* Don't use principal cache, as it is no longer accessible
+
+2012-11-28 Srecko Morovic <srecko.morovic@cern.ch>
+
+	* V01-13-02 (CMSSW_6_X_X)
+	* integrated per-time LS and standalone execution (cmsRun)
+
+2012-10-31  William Tanenbaum <wmtan@fnal.gov>
+	* V01-13-01
+	* Adapt to framework change in readEvent_()
+
+2012-10-17  William Tanenbaum <wmtan@fnal.gov>
+	* V01-13-00
+	* move some common functionality into base class InputSource
+
+2012-08-18 Srecko Morovic <srecko.morovic@cern.ch>
+
+	* V01-12-05
+	* fixing compilation error from previous tag
+
+2012-08-11 Srecko Morovic <srecko.morovic@cern.ch>
+
+	* V01-12-04
+	* if event received with late LS, throw framework exception
+	  (will not go into infinite counting loop)
+
+2012-07-07 Srecko Morovic <srecko.morovic@cern.ch>
+
+	* V01-12-02
+	* align lumi and recover in case of lumi events not sequential in LS
+
+2012-05-23 Srecko Morovic <srecko.morovic@cern.ch>
+
+	* V01-12-01
+	* reporting stop state to FU
+
+2012-05-02 Srecko Morovic <srecko.morovic@cern.ch>
+
+	* tag V01-12-00
+	* merging in new forking support from development branch
+
+2012-04-22 Srecko Morovic <srecko.morovic@cern.ch>
+
+	* tag V01-11-00
+	* support for master process fork in framework working thread
+	* slightly safer waiting for scalers thread to lock (requires new
+	  Processor tag)
+	* timing statistics of beginRun
+
+2011-10-14  William Tanenbaum <wmtan@fnal.gov>
+
+	* tag V01-10-01
+	* (also used V01-10-00)
+	* Use "rawDataCollector" as module label of raw data
+	* (instead of "source") to be consistent with MC
+	* Use "LHC" as process name to avoid ambiguity.
+	* Details in new DaqProvenanceHelper class in the framework.
+
+2011-08-10  David Dagenhart <wdd@fnal.gov>
+
+	* tag V01-09-21
+	* adapt to small change in framework interface
+
+2011-05-11  Emilio Meschi  <emilio.meschi@cern.ch>
+
+	* tag V01-09-18
+	* added monitoring of EOL usage 
+	
+2011-03-21  Emilio Meschi  <emilio.meschi@cern.ch>
+
+	* tag V01-09-17 (16 used by Bill)
+	* align for 4_3_X
+
+2011-04-27  Emilio Meschi  <emilio.meschi@cern.ch>
+
+	* tag V01-09-15-01
+	* fix wrongly tagged file in test
+
+2011-04-27  Emilio Meschi  <emilio.meschi@cern.ch>
+
+	* tag V01-09-15-00
+	* disregard EOL signals which are out of line from standard sequence
+	
+2011-03-21  Emilio Meschi  <emilio.meschi@cern.ch>
+
+	* tag V01-09-15
+	* xdata object back to xdaq application and use pointers here 
+
+2011-02-14  Emilio Meschi  <emilio.meschi@cern.ch>
+
+	* tag V01-09-14
+	* more psindex fixes
+
+2011-02-03  Emilio Meschi  <emilio.meschi@cern.ch>
+
+	* tag V01-09-10
+	* fix to psindex special handling
+
+2011-01-19  Emilio Meschi  <emilio.meschi@cern.ch>
+
+	* tag V01-09-09
+	* migration to xml buildfiles(07)
+	* macosx mods (08)
+	* fixes to prescale index(09)
+	
+2010-10-13  Emilio Meschi  <emilio.meschi@cern.ch>
+
+	* tag V01-09-06
+	* added simple web page to enable tests (go to stopping)
+
+2010-03-12  Emilio Meschi  <emilio.meschi@cern.ch>
+
+	* tag V01-09-05
+	* do it again (fix capitalization)
+	
+2010-03-12  Emilio Meschi  <emilio.meschi@cern.ch>
+
+	* tag V01-09-04 (01-09-03 used by Bill) 
+	* Migration of test away from getter functions of FEDNumbering
+
+2010-03-05  Emilio Meschi  <emilio.meschi@cern.ch>
+
+	* tag V01-09-02 (V01-09-01 used by Bill for cosmethics)
+	* more fixes for HLT cters and DQM
+
+2010-02-15  Emilio Meschi  <emilio.meschi@cern.ch>
+
+	* tag V01-09-00
+	* fixes for correct reporting of HLT cters at LS boundary
+
+2010-02-02  Emilio Meschi  <emilio.meschi@cern.ch>
+
+	* tag V01-08-02
+	* merge from branch for 350
+
+2010-01-20  Emilio Meschi  <emilio.meschi@cern.ch>
+
+	* tag V01-08-01-01
+	* backport for 333 fixes to EOL handling (slc4)
+
+2010-01-12  Emilio Meschi  <emilio.meschi@cern.ch>
+
+	* tag V01-08-01-00
+	* backport for 333 to use with slc4 tests
+	
+2010-01-11  Emilio Meschi  <emilio.meschi@cern.ch>
+
+	* tag V01-08-01
+	* put back forgotten bst timestamp setting (merge from branch)
+
+2010-01-11  Emilio Meschi  <emilio.meschi@cern.ch>
+
+	* tag V01-08-00
+	* Implementation of end-of-ls signal event
+	
+2009-12-09 William Tanenbaum <wmtan@fnal.gov>
+	* tag V01-07-03
+	* Use EventID constructor taking three arguments, run, lumi, event numbers
+	The EventID constructor taking only run and event numbers is being removed.
+
+2009-10-20  Emilio Meschi  <emilio.meschi@cern.ch>
+
+	* tag V01-06-18-00
+	* branch tag for 327 compat
+	* use bst timestamp
+	
+2009-10-19  Emilio Meschi  <emilio.meschi@cern.ch>
+
+	* tag V01-07-01-00
+	* branch for 33x to use bst timestamp
+	
+2009-10-19  Emilio Meschi  <emilio.meschi@cern.ch>
+
+	* tag V01-07-00/01
+	* Undocumented mods by Bill to reuse event principal
+
+2009-07-08  Emilio Meschi  <emilio.meschi@cern.ch>
+
+	* tag V01-06-18
+	* Complete the migration away from getter functions for FEDNumbering
+	
+2009-07-07  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
+
+	* tag V01-06-17
+	* add 'DaqBaseReader::setRunNumber()' function, and use it in the
+	DaqSource.
+	* the change was suggested by Kurt Bieri to fix the problem where
+	error events generated by the FUShmReader are generated with an
+	invalid run number.
+
+2009-07-02 Emilio Meschi  <emilio.meschi@cern.ch>
+	* tag V01-06-16 (V01-06-15 used by uncharted update of CLHEP)
+	* merge from branch for 3_1_XV01-06-15
+	
+2009-04-28  Emilio Meschi  <emilio.meschi@cern.ch>
+	* tag V01-06-12-05 (on branch)
+	* add missing getter call to obtain prescale index and pass it on
+
+2009-04-09  Emilio Meschi  <emilio.meschi@cern.ch>
+	* tag V01-06-12-04 (on branch)
+	* adapt to change in evtn interface
+	* set experimentType and timeStamp from EVM data 
+
+2009-02-11 William Tanenbaum <wmtan@fnal.gov>
+	* tag V01-06-14
+	* Use new names for event types (from EventAuxiliary)
+
+2008-11-27  Emilio Meschi  <emilio.meschi@cern.ch>
+	* tag V01-06-12-03
+	* branch tag for 2XX series for online use. Fix problem with fake 
+	events and access to gt data
+
+2008-11-04  Emilio Meschi  <emilio.meschi@cern.ch>
+	* tag V01-06-12-02
+	* branch tag for 2XX series to allow release of DaqSource for online use
+
+2008-10-17  Emilio Meschi  <emilio.meschi@cern.ch>
+	* tag V01-06-13
+	* use timeout for LS in scalers access (cond_timedwait)
+	* enable use of gtpe orbit/bx and ls
+	* requires EventFilter/Utilities V00-14-16-01 or later (see changelog)
+	
+2008-10-16 William Tanenbaum <wmtan@fnal.gov>
+	* tag V01-06-12
+	* Event source signal must come at correct time
+
+2008-10-08 William Tanenbaum <wmtan@fnal.gov>
+	* tag V01-06-11
+	* Use correct exception categories for exceptions.
+
+2008-07-31 William Tanenbaum <wmtan@fnal.gov>
+	* tag V01-06-08
+	* One less argument for readEvent_().
+
+2008-07-03 William Tanenbaum <wmtan@fnal.gov>
+	* tag V01-06-06
+	* Adapt to modification of constructors of Principal classes (e.g. EventPrincipal)
+
+2008-06-03  Emilio Meschi  <emilio.meschi@cern.ch>
+	* tag V01-06-05
+	* fill orbit and bx id from GT EVM block, needs EventFilter/Utilities V00-14-12	
+
+2008-06-03  Emilio Meschi  <emilio.meschi@cern.ch>
+	* tag V01-06-04
+	* added access from xdaq and locks to get hold of hlt counters, and ls,ps id
+
+2008-05-08 William Tanenbaum <wmtan@fnal.gov>
+	* tag V01-06-01
+	* get LS id from L1 EVM block (from Emilio)
+
+2008-03-14  Emilio Meschi  <emilio.meschi@cern.ch>
+	* tag V01-05-04 (on branch for 1_8_X)
+	* get LS id from L1 EVM block
+	
+2008-02-29 William Tanenbaum <wmtan@fnal.gov>
+	* tag V01-06-01
+	* Add call to reset() to fix bug.
+
+2008-01-31 William Tanenbaum <wmtan@fnal.gov>
+	* tag V01-06-00
+	* Adapt to modification of constructors of Principal classes (e.g. EventPrincipal)
+
+2008-01-29  Emilio Meschi  <emilio.meschi@cern.ch>
+	* tag V01-05-02
+	* fix generation of timestamp from gettimeofday
+
+2008-01-28 William Tanenbaum <wmtan@fnal.gov>
+	* tag V01-05-01
+	* don't add 1 to event number returned by reader
+
+2007-12-31 William Tanenbaum <wmtan@fnal.gov>
+	* tag V01-05-00
+	* Add globally unique identifier (GUID) to each event
+
+2007-12-11 William Tanenbaum <wmtan@fnal.gov>
+	* tag V01-04-00
+	* Adapt to new Finite State Machine in event processor
+
+2007-12-03 William Tanenbaum <wmtan@fnal.gov>
+	* tag V01-03-00
+	* Prepare for new Finite State Machine in event processor
+
+2007-11-28 William Tanenbaum <wmtan@fnal.gov>
+	* tag V01-02-03
+	* remove event counting.  It is done in the base class.
+
+2007-10-05  Emilio Meschi  <emilio.meschi@cern.ch>
+	* tag V01-02-02
+	* fix bug in DaqSource::readLuminosityBlock_ causing a crash when run is ended without 
+	* a single event having reached the EP
+
+2007-08-15 William Tanenbaum <wmtan@fnal.gov>
+	* tag V01-02-01
+	* tag V00-06-02 (for prior release 1_6_X)
+	* Fix failure to terminate
+	* Fix possible divide by zero FPE
+	* don't call setLumi()
+
+2007-08-14 William Tanenbaum <wmtan@fnal.gov>
+	* tag V01-01-00
+	* tag V00-06-00 (for prior release 1_6_X)
+	* Absorb RawInputSource base class into DaqSource
+
+2007-08-06  Emilio Meschi  <emilio.meschi@cern.ch>
+
+	* tag V00-05-00
+	* standardized parameters
+	
+2007-04-19  Emilio Meschi  <emilio.meschi@cern.ch>
+
+	* tag V00-04-00
+	* reorganization of code for new plugin manager
+	* added parameter to generate LSid (placeholder for correct handling)
+	* corrected handling of exceptions from reader
+	* added plugin factory without pset argument
+	
+2007-04-10 William Tanenbaum <wmtan@fnal.gov> 
+
+	* tag V00-03-06
+	* adapt to new plugin manager
+
+2007-03-07  Philipp Schieferdecker  <philipp.schieferdecker@cern.ch>
+
+	* tag V00-03-03
+	* adjust to reorganization of FWCore
+
+2006-11-11  Philipp Schieferdecker  <philipp.schieferdecker@cern.ch>
+
+	* tag V00-03-02
+	* src/DaqFakeReader.cc (fillFEDs): include <cmath> and change
+	  log -> std::log and exp -> std::exp for slc4/gcc3.4.5 compliance.
+
+2006-10-23  Philipp Schieferdecker  <philipp.schieferdecker@cern.ch>
+
+	* tag V00-03-00
+	* change interface of DaqBaseReader: pass a pointer reference (not
+	a reference) to fillRawData() in order to allow for an allready
+	existing collection to be passed. Traditional Readers will have to
+	call data=new FEDRawDataCollection() within fillRawData().
+	* adjust DaqFakeReader to the interface change above
+	* adjust DaqSource to the interface change above
+	* [EventFilter/FUReader *is* a DaqBaseReader and is adjusted as
+	well!]

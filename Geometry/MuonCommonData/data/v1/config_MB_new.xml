@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+<Configuration xmlns="http://www.cern.ch/cms/CDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="CMSConfiguration" version="0" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../../DetectorDescription/Schema/CDLSchema.xsd">
+ <Include>
+  <File name="Geometry/CMSCommonData/data/cms.xml" url="."/>
+  <File name="Geometry/CMSCommonData/data/cmsMother.xml" url="."/>
+  <File name="Geometry/CMSCommonData/data/muonBase.xml" url="."/>
+  <File name="Geometry/CMSCommonData/data/cmsMuon.xml" url="."/>
+  <File name="Geometry/CMSCommonData/data/mgnt.xml" url="."/>
+  <File name="Geometry/CMSCommonData/data/muonMagnet.xml" url="."/>
+  <File name="Geometry/CMSCommonData/data/cavern.xml" url="."/>
+  <File name="Geometry/CMSCommonData/data/materials.xml" url="."/>
+  <File name="Geometry/CMSCommonData/data/rotations.xml" url="."/>
+  <File name="Geometry/CMSCommonData/data/extend/cmsextent.xml" url="."/>
+  <File name="Geometry/CMSCommonData/data/muonMB.xml" url="."/>
+  <File name="Geometry/MuonCommonData/data/v1/mbCommon.xml" url="."/>
+  <File name="Geometry/MuonCommonData/data/v1/mb1.xml" url="."/>
+  <File name="Geometry/MuonCommonData/data/v1/mb2.xml" url="."/>
+  <File name="Geometry/MuonCommonData/data/v1/mb3.xml" url="."/>
+  <File name="Geometry/MuonCommonData/data/v1/mb4.xml" url="."/>
+  <File name="Geometry/MuonCommonData/data/v1/muonYoke.xml" url="."/>
+  <File name="Geometry/MuonCommonData/data/mf.xml" url="."/>
+ </Include>
+ <Root fileName="cms.xml" logicalPartName="cms:OCMS"/>
+</Configuration>

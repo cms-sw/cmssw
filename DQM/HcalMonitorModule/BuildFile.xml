@@ -1,0 +1,14 @@
+<flags   EDM_PLUGIN="1"/>
+<use   name="FWCore/Framework"/>
+<use   name="FWCore/ParameterSet"/>
+<use   name="FWCore/Utilities"/>
+<use   name="DQMServices/Core"/>
+<use   name="DQMServices/Components"/>
+<use   name="DQM/HcalMonitorTasks"/>
+<use   name="DataFormats/FEDRawData"/>
+<use   name="DataFormats/L1GlobalTrigger"/>
+<use   name="DataFormats/L1GlobalMuonTrigger"/>
+<use   name="CondFormats/DataRecord"/>
+<use   name="CondFormats/L1TObjects"/>
+<use   name="CondFormats/RunInfo"/>
+

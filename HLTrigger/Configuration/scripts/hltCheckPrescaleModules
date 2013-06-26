@@ -1,0 +1,68 @@
+#! /usr/bin/env python
+
+import sys
+import imp
+import re
+
+# global options
+enableWarnings = False
+
+if '-w' in sys.argv:
+  sys.argv.remove('-w')
+  enableWarnings = True
+
+if len(sys.argv) != 2:
+  print "usage: %s [-w] menu.py" % sys.argv[0]
+  sys.exit(1)
+
+# whitelist paths exempt from validation
+whitelist = ('HLTriggerFirstPath', 'HLTriggerFinalPath')
+
+# load the menu and get the "process" object
+menu = imp.new_module('menu')
+name = sys.argv[1]
+execfile(name, globals(), menu.__dict__)
+process = menu.process
+
+# get all paths
+paths = process.paths_()
+
+# keep track of precaler names, and of duplicates
+prescalerNames = set()
+duplicateNames = set()
+
+# prescaler name generator
+generatePrescalerName = re.compile(r'^HLT_|_v\d+$|_')
+
+# loop over all paths and look for duplicate prescaler modules
+for path in paths:
+    if path in whitelist:
+      continue
+
+    goodLabel = 'hltPre' + generatePrescalerName.sub('', path)
+    found = False
+
+    for module in paths[path].moduleNames():
+        if module in process.filters_(): # found a filter
+            if process.filters_()[module].type_() == 'HLTPrescaler': # it's a prescaler
+                if found:
+                    print 'ERROR: path %s has more than one HLTPrescaler module' % path
+                found = True
+                label = process.filters_()[module].label()
+                if enableWarnings and label != goodLabel:
+                    print 'WARNING: path %s has an HLTPrescaler module labaled "%s", while the suggested label is "%s"' % (path, label, goodLabel)
+                if label in prescalerNames:
+                    duplicateNames.add(label)
+                else:
+                    prescalerNames.add(label)
+    if not found:
+        print 'ERROR: path %s dos not have an HLTPrescaler module' % path
+
+# print the duplicate prescales, and the affected paths
+for label in duplicateNames:
+    print 'ERROR: prescale  "%s"  is shared by the paths' % label
+    for path in paths:
+        if label in paths[path].moduleNames():
+            print '\t%s' % path
+    print
+

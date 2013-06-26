@@ -1,0 +1,97 @@
+
+/*!
+
+\page DQMOffline_RecoB Package DQMOffline/RecoB
+
+<center>
+<small>
+
+<!-- @CVS_TAG@ will be substituted at build time, no need to touch -->
+<a href=http://cmssw.cvs.cern.ch/cgi-bin/cmssw.cgi/CMSSW/DQMOffline/RecoB/?cvsroot=CMSSW&only_with_tag=@CVS_TAG@>Source code (CVS tag: @CVS_TAG@)</a> - 
+<a href=http://cmssw.cvs.cern.ch/cgi-bin/cmssw.cgi/CMSSW/DQMOffline/RecoB/.admin/developers?rev=HEAD&cvsroot=CMSSW&content-type=text/vnd.viewcvs-markup>Administrative privileges</a>
+</small>
+</center>
+
+\section desc Description
+<!-- Short description of what this package is supposed to provide -->
+
+offline DQM package for b-tagging : allowed to produce histograms for the different taggers (discriminant, jet Pt, efficiency cut, performance plots for MC ...) and histograms for important variables related to the track properties and secondary vertices properties (number of hits, normalized chi2, SV multplicity ...).
+
+\subsection interface Public interface
+<!-- List the classes that are provided for use in other packages (if any) -->
+
+- AcceptJet : jet selection with cuts set in pt, eta, p and lepton momentum to jet energy ratio (defined in bTagCommon_cff.py)  
+- BTagDifferentialPlot : should fit the mistag rate at a fixed b-tag efficiency, need enough statistic to work correctly. Define differentialPlots to True in your anlyzer (see Validation/RecoB/python/bTagAnalysis_cfi.py) and mcPlots to 2. The fixed b-tag efficiency value is define for each tagger in the cff files in DQMOffline/RecoB/python/, the default value is 0.5 . 
+- BaseBTagPlotter : class from which will inherit the tag plotter classes like JetTagPlotter.  
+- BaseTagInfoPlotter : like BaseBTagPlotter but for tag info plotter classes (see TrackIPTagPlotter). 
+- CorrectJet : could be used to apply a JEC to the jets
+- EffPurFromHistos : create and compute efficiency and performance plots.
+- EtaPtBin : return if a jet is in the eta/Pt bin given in input 
+- FlavourHistorgrams : create and book the 1D histograms needed accordingly with the mcPlots value (0:all; 1:all,b,c,dusg,ni; 2:all,b,c,dusg,ni,d,u,s,dus,g) and fill them for the appropriate flavour.
+- FlavourHistorgrams2D : same that FlavourHistorgrams but for 2D and profile histograms
+- HistoProviderDQM 
+- HistoShifter
+- JetTagPlotter : fill histograms for informations related to the jets which are used by the taggers (jet pt, eta, phi, p, discriminant value and jet multiplicity)
+- MVAJetTagPlotter : in association with TaggingVariablePlotter allow to access to the variables defined in bTagCombinedSVVariables_cff.py and for the appropriate categories. Theses variables are taken from the tag infos in the reco::btau::TaggingVariableName list. 
+- MatchJet : check if it's needed the jet references when looking at the flavour map, could be also used to match collections
+- SoftLeptonTagPlotter : tag info for variables related to the soft lepton taggers 
+- TagCorrelationPlotter : to look at correlation
+- TagInfoPlotterFactory : return the good Plotter for the corresponding dataFormatType. 
+- TaggingVariablePlotter : see MVAJetTagPlotter
+- Tools
+- TrackCountingTagPlotter : similar at TrackIPTagPlotter but specialized for TrackCounting variables
+- TrackIPHistograms
+- TrackIPTagPlotter : plot distributions for all variables related to the track selection and properties (number of (pixel) hits, track pt, track multiplicity, distance to jet axis...)
+- TrackProbabilityTagPlotter : similar to TrackIPTagPlotter but specialized for TrackProbability variables
+
+
+\subsection pluginai Plugins
+<!-- List the plugins that are provided for use in other packages (if any) -->
+
+- BTagPerformanceAnalyzerOnData : analyzer optimized to run on data and produce all intersting variables to check the reliability of the b-tagging algorithms
+- PrimaryVertexMonitor : plots variables related to the primary vertices
+
+
+\subsection modules Modules
+<!-- Describe modules implemented in this package and their parameter set -->
+
+- bTagAnalysis : define in bTagAnalysisData_cfi.py. Basic module to use BTagPerformanceAnalyzerOnData.
+- calobTagAnalysis :define in dqmAnalyzer_cff.py. Clone of bTagAnalysis, current one used in the central offline dqm sequences.
+- pfbTagAnalysis : define in dqmAnalyzer_cff.py. Clone of bTagAnalysis, to be used in the central offline dqm sequences. Do only the first step, histograms are havrested with bTagCollector.
+- pfbTagValidation : same as pfbTagAnalysis but for MC (clone of bTagValidation define in Validation/RecoB/python/bTagAnalysis_cfi.py)
+- bTagCollector : define in dqmCollector_cff.py. Clone of calobTagAnalysis, used in second step to harvest the histograms. 
+- bTagCollectorDATA : define in dqmCollector_cff.py. Clone of pfbTagAnalysis, to be used in the central offline dqm sequences in order to havrest the histograms.   
+- bTagCollectorMC : same as bTagCollector but for MC
+- pvMonitor : define in PrimaryVertexMonitor_cff.py. Basic module to use PrimaryVertexMonitor.
+
+Modules for prebTagSequence in dqmAnalyzer_cff.py :
+ - goodOfflinePrimaryVertices : create a collection of good primary vertices from "offlinePrimaryVertices"
+ - ak5PFJetsJEC : create a collection of jets with JEC from "ak5PFJets"
+ - PFJetsFilter : create a collection of jets with extra cuts from "ak5PFJetsJEC"
+ - pfAk5JetTracksAssociatorAtVertex : do the JetTracksAssociatorAtVertex for the "PFJetsFilter" jets
+ - pfbtagging (and corresponding modules) : compute all tag infos and discriminant value for the "PFJetsFilter" jets 	 
+
+Modules used the validation conig file (see Validation/RecoB/test/validation_cfg.py) :
+ - myak5JetTracksAssociatorAtVertex : like pfAk5JetTracksAssociatorAtVertex
+ - flavourSeq (sequence) : to run the matching with the proper modules and correct input tag
+ - btagSequence (sequence): to run the btagging sequence modified to run with the correct input tags 
+ - goodOfflinePrimaryVertices : same as goodOfflinePrimaryVertices in dqmAnalyzer_cff.py 
+ - bTagHLT : trigger filter
+ - ak5PFJetsJEC and PFJetsFilter : see the same modules in dqmAnalyzer_cff.py
+
+ 
+\subsection tests Unit tests and examples
+<!-- Describe cppunit tests and example configuration files -->
+See Validation/RecoB/test/validation_cfg.py for an example and see Validation/RecoB/test/GridValidation directory for an example on how to run on the Grid
+
+
+\section status Status and planned development
+<!-- e.g. completed, stable, missing features -->
+Modifications in the MAIN have to be released
+
+
+<hr>
+Last updated: July 8 2012
+@DATE@  Author: Adrien Caudron.
+*/
+

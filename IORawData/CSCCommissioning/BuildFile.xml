@@ -1,0 +1,4 @@
+<use   name="FWCore/Framework"/>
+<use   name="DataFormats/FEDRawData"/>
+<use   name="IORawData/DaqSource"/>
+<flags   EDM_PLUGIN="1"/>

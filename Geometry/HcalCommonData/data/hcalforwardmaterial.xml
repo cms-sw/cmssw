@@ -1,0 +1,26 @@
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
+ <MaterialSection label="hcalforwardmaterial.xml">
+  <CompositeMaterial name="Quartz" density="2.20*g/cm3" symbol=" " method="mixture by weight">
+   <MaterialFraction fraction="0.46748103">
+    <rMaterial name="materials:Silicon"/>
+   </MaterialFraction>
+   <MaterialFraction fraction="0.53251897">
+    <rMaterial name="materials:Oxygen"/>
+   </MaterialFraction>
+  </CompositeMaterial>
+  <CompositeMaterial name="Plastic" density="1.050*g/cm3" symbol=" " method="mixture by weight">
+   <MaterialFraction fraction="0.91512109">
+    <rMaterial name="materials:Carbon"/>
+   </MaterialFraction>
+   <MaterialFraction fraction="0.084878906">
+    <rMaterial name="materials:Hydrogen"/>
+   </MaterialFraction>
+  </CompositeMaterial>
+  <CompositeMaterial name="HFAbsorber" density="7.87*g/cm3" symbol=" " method="mixture by weight">
+   <MaterialFraction fraction="1.0">
+    <rMaterial name="materials:Iron"/>
+   </MaterialFraction>
+  </CompositeMaterial>
+ </MaterialSection>
+</DDDefinition>

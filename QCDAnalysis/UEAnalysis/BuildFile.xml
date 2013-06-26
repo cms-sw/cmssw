@@ -1,0 +1,14 @@
+<flags   EDM_PLUGIN="1"/>
+<use   name="SimDataFormats/GeneratorProducts"/>
+<use   name="DataFormats/JetReco"/>
+<use   name="DataFormats/Candidate"/>
+<use   name="DataFormats/Common"/>
+<use   name="DataFormats/HepMCCandidate"/>
+<use   name="DataFormats/TrackCandidate"/>
+<use   name="DataFormats/HLTReco"/>
+<use   name="CommonTools/UtilAlgos"/>
+<use   name="FWCore/Framework"/>
+<use   name="FWCore/PluginManager"/>
+<use   name="FWCore/ServiceRegistry"/>
+<use   name="clhep"/>
+<use   name="root"/>

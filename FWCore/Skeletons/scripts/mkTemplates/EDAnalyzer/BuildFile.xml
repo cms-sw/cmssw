@@ -1,0 +1,6 @@
+<use name="FWCore/Framework"/>
+<use name="FWCore/PluginManager"/>
+<use name="FWCore/ParameterSet"/>
+<flags EDM_PLUGIN="1"/>
+@example_track <use name="DataFormats/TrackReco"/>
+@example_histo <use name="CommonTools/UtilAlgos"/>

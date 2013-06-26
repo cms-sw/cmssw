@@ -1,0 +1,59 @@
+[lxcmsf1] one cpu
+
+time cms_anycp rfio:lxcmsa:/data2/innocent/File-00002000MB.dat  rfio:lxcmsa:/data1/innocent/tmp/crap1 rfio:lxcmsa:/data1/innocent/tmp/crap2 rfio:lxcmsa:/data1/innocent/tmp/crap3
+
+rfio/construct=4/4/0MB/0.0354896ms; rfio/position=0/0/0MB/0ms; rfio/read=2099/2099/2000MB/138256ms; rfio/write=6294/6294/6000MB/139834ms
+2.810u 17.820s 2:39.35 12.9%    0+0k 0+0io 1137pf+0w
+
+
+
+[lxcmsg2] two cpu
+
+time cms_anycp rfio:lxcmsa:/data2/innocent/File-00002000MB.dat rfio:lxcmsa:/data1/innocent/tmp/crap1 rfio:lxcmsa:/data1/innocent/tmp/crap2 rfio:lxcmsa:/data1/innocent/tmp/crap3
+
+rfio/construct=4/4/0MB/0.0344857ms; rfio/position=0/0/0MB/0ms; rfio/read=2099/2099/2000MB/131462ms; rfio/write=6294/6294/6000MB/149341ms
+2.280u 16.440s 2:42.18 11.5%    0+0k 0+0io 1138pf+0w
+
+
+3 theads
+time cms_anycp rfio:lxcmsa:/data2/innocent/File-00002000MB.dat rfio:lxcmsa:/data1/innocent/tmp/crap
+rfio/construct=2/2/0MB/0.0249975ms; rfio/position=0/0/0MB/0ms; rfio/read=2099/2099/2000MB/98324.2ms; rfio/write=2098/2098/2000MB/42697.9ms
+1.600u 6.770s 1:41.12 8.2%      0+0k 0+0io 1138pf+0w
+
+
+time rfcp lxcmsa:/data2/innocent/File-00002000MB.dat lxcmsa:/data1/innocent/tmp/crap
+2097152000 bytes in 59 seconds through eth0 (in) and eth0 (out) (34711 KB/sec)
+0.200u 5.880s 0:59.50 10.2%     0+0k 0+0io 824pf+0w
+
+time cms_anycp rfio:lxcmsa:/data2/innocent/File-00002000MB.dat /dev/null
+file/construct=1/1/0MB/0.00164986ms; file/position=0/0/0MB/0ms; file/read=0/0/0MB/0ms; file/write=2098/2098/2000MB/11.9271ms; rfio/construct=1/1/0MB/0.0282149ms; rfio/position=0/0/0MB/0ms; rfio/read=2099/2099/2000MB/63243.6ms; rfio/write=0/0/0MB/0ms
+1.520u 2.900s 1:04.89 6.8%      0+0k 0+0io 1139pf+0w
+
+time rfcp lxcmsa:/data2/innocent/File-00002000MB.dat /dev/null
+2097152000 bytes in 33 seconds through eth0 (in) and local (out) (62060 KB/sec)
+0.220u 2.500s 0:33.30 8.1%      0+0k 0+0io 830pf+0w
+
+no threads
+time cms_anycp rfio:lxcmsa:/data2/innocent/File-00002000MB.dat rfio:lxcmsa:/data1/innocent/tmp/crap
+rfio/construct=2/2/0MB/0.0263535ms; rfio/position=0/0/0MB/0ms; rfio/read=2099/2099/2000MB/82178.5ms; rfio/write=2098/2098/2000MB/40770.7ms
+1.630u 5.790s 2:03.34 6.0%      0+0k 0+0io 1139pf+0w
+
+time cms_anycp rfio:lxcmsa:/data2/innocent/File-00002000MB.dat rfio:lxcmsa:/data1/innocent/tmp/crap1 rfio:lxcmsa:/data1/innocent/tmp/crap2 rfio:lxcmsa:/data1/innocent/tmp/crap3
+rfio/construct=4/4/0MB/0.0295135ms; rfio/position=0/0/0MB/0ms; rfio/read=2099/2099/2000MB/80380.2ms; rfio/write=6294/6294/6000MB/126086ms
+1.610u 12.950s 3:33.60 6.8%     0+0k 0+0io 1139pf+0w
+
+three threads
+time cms_anycp rfio:lxcmsa:/data2/innocent/File-00002000MB.dat rfio:lxcmsa:/data1/innocent/tmp/crap1 rfio:lxcmsa:/data1/innocent/tmp/crap2 rfio:lxcmsa:/data1/innocent/tmp/crap3
+rfio/construct=4/4/0MB/0.0342557ms; rfio/position=0/0/0MB/0ms; rfio/read=2099/2099/2000MB/139900ms; rfio/write=6294/6294/6000MB/136020ms
+2.010u 14.840s 2:35.78 10.8%    0+0k 0+0io 1139pf+0w
+
+time cms_anycp rfio:lxcmsa:/data2/innocent/File-00002000MB.dat rfio:lxcmsa:/data1/innocent/tmp/crap 
+rfio/construct=2/2/0MB/0.028498ms; rfio/position=0/0/0MB/0ms; rfio/read=2099/2099/2000MB/101221ms; rfio/write=2098/2098/2000MB/42890.3ms
+1.650u 6.430s 1:42.24 7.9%      0+0k 0+0io 1139pf+0w
+
+
+using read_64_v3
+time cms_anycp rfio:lxcmsa:/data2/innocent/File-00002000MB.dat rfio:lxcmsa:/data1/innocent/tmp/crap
+stats:
+rfio/construct=2/2/0MB/0.0272403ms; rfio/position=0/0/0MB/0ms; rfio/read=2099/2099/2000MB/92633.9ms; rfio/write=2098/2098/2000MB/38725.9ms
+0.440u 8.040s 1:33.38 9.0%      0+0k 0+0io 1140pf+0w

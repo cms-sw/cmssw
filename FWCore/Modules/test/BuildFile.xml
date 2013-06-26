@@ -1,0 +1,6 @@
+<environment>
+  <bin   file="TestIntegration.cpp" name="TestFWCoreModulesContent">
+    <flags   TEST_RUNNER_ARGS=" /bin/bash FWCore/Modules/test ContentTest.sh"/>
+    <use   name="FWCore/Utilities"/>
+  </bin>
+</environment>

@@ -1,0 +1,74 @@
+import FWCore.ParameterSet.Config as cms
+
+process = cms.Process("AlCaHLTBitMonitor")
+
+### standard MessageLoggerConfiguration
+process.load("FWCore.MessageService.MessageLogger_cfi")
+
+### Standard Configurations
+process.load("Configuration.StandardSequences.Services_cff")
+process.load("DQMServices.Core.DQM_cfg")
+process.load("DQMServices.Components.DQMEnvironment_cfi")
+
+process.load("Geometry.CMSCommonData.cmsIdealGeometryXML_cfi")
+process.load("Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi")
+process.load("Geometry.TrackerGeometryBuilder.trackerGeometry_cfi")
+
+### Conditions
+process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
+process.GlobalTag.globaltag = '%%%GLOBALTAG%%%'
+
+process.MessageLogger.cerr = cms.untracked.PSet(placeholder = cms.untracked.bool(True))
+process.MessageLogger = cms.Service("MessageLogger",
+        destinations = cms.untracked.vstring("%%%LOGFILE%%%"),
+        %%%LOGFILE%%% = cms.untracked.PSet(
+              threshold = cms.untracked.string('DEBUG')
+        ),
+)
+process.MessageLogger.%%%LOGFILE%%% = cms.untracked.PSet(
+        INFO = cms.untracked.PSet(
+	      reportEvery = cms.untracked.int32(1000)
+        )
+)
+
+##Input Datasample
+%%%DATA%%%
+
+process.hltMonBits = cms.EDAnalyzer("HLTMonBitSummary",
+        directory = cms.untracked.string("HLT_Summary"),
+        histLabel = cms.untracked.string("MinBiasRun"),
+        HLTPaths = cms.vstring('.*'),
+        denominatorWild = cms.untracked.string(''),
+        denominator = cms.untracked.string(''),
+        TriggerResultsTag = cms.InputTag('TriggerResults','','HLT'),
+)
+
+import FWCore.PythonUtilities.LumiList as LumiList
+import FWCore.ParameterSet.Types as CfgTypes
+myLumis = LumiList.LumiList(filename = '%%%JSON%%%').getCMSSWString().split(',')
+process.source.lumisToProcess = CfgTypes.untracked(CfgTypes.VLuminosityBlockRange())
+process.source.lumisToProcess.extend(myLumis)
+
+process.load("DQMServices/Components/EDMtoMEConverter_cff")
+
+process.options = cms.untracked.PSet(
+   wantSummary = cms.untracked.bool(False),
+   Rethrow = cms.untracked.vstring("ProductNotFound"), # make this exception fatal
+   fileMode  =  cms.untracked.string('NOMERGE') # no ordering needed, but calls endRun/beginRun etc. at file boundaries
+)
+
+process.dqmSaver.convention = 'Offline'
+process.dqmSaver.workflow = '/Validation/MinBias/ALCARECO'
+process.dqmSaver.saveAtJobEnd = True
+process.dqmSaver.forceRunNumber = 100000
+process.dqmSaver.saveByEvent = -1
+process.dqmSaver.saveByRun = -1
+process.dqmSaver.dirName = '%%%KEYNAME%%%'
+process.dqmSaver.referenceHandling = 'all'
+process.EDMtoMEConverter.convertOnEndLumi = True
+process.EDMtoMEConverter.convertOnEndRun = True
+
+process.p2 = cms.Path(
+    process.hltMonBits*
+    process.dqmSaver
+)

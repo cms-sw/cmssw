@@ -1,0 +1,13 @@
+<use   name="DataFormats/GeometryCommonDetAlgo"/>
+<use   name="DataFormats/GeometrySurface"/>
+<use   name="RecoVertex/KalmanVertexFit"/>
+<use   name="RecoVertex/TrimmedKalmanVertexFinder"/>
+<use   name="RecoVertex/VertexPrimitives"/>
+<use   name="RecoVertex/VertexTools"/>
+<use   name="TrackingTools/GeomPropagators"/>
+<use   name="TrackingTools/TrajectoryState"/>
+<use   name="TrackingTools/TransientTrack"/>
+<use   name="clhep"/>
+<export>
+  <lib   name="1"/>
+</export>

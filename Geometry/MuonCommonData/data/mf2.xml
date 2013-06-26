@@ -1,0 +1,4529 @@
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
+ <ConstantsSection label="ChamberSpecsConstants" eval="true">
+  <!-- ME11 parameters -->
+  <Constant name="ME11GasGap" value="7.0*mm"/>
+  <!-- REB thinks LayerOffset is dist from edge of PolycarbBlock to center of 1st gas gap (ME11Layer); orig value -1.56cm -->
+  <Constant name="ME11LayerOffset" value="-17.00*mm"/>
+  <!--intentional change/wrong-->
+  <Constant name="ME11LayerSpacing" value="2.2*cm"/>
+  <Constant name="ME11AlumFrameHalfThick" value="73.5*mm"/>
+  <Constant name="ME11AlumFrameSubtractionThick" value="8.0*mm"/>
+  <Constant name="ME11FR4BodyHalfThick" value="73.5*mm"/>
+  <Constant name="ME11PolycarbPanelHalfThick" value="72.7*mm"/>
+  <Constant name="ME11FR4SkinHalfThick" value="0.4*mm"/>
+  <Constant name="ME11CuFoilHalfThick" value="0.01*mm"/>
+  <Constant name="ME11ActiveGasVolHalfThick" value="3.5*mm"/>
+  <!-- Non-ME11 parameters -->
+  <Constant name="LayerOffset" value="-1.7252*cm"/>
+  <Constant name="LayerSpacing" value="2.54*cm"/>
+  <Constant name="AlumFrameHalfThick" value="90.2335*mm"/>
+  <Constant name="AlumFrameSubtractionThick" value="6.09600*mm"/>
+  <Constant name="FR4BodyHalfThick" value="84.1375*mm"/>
+  <Constant name="PolycarbPanelHalfThick" value="82.6389*mm"/>
+  <Constant name="FR4SkinHalfThick" value="0.74930*mm"/>
+  <Constant name="CuFoilHalfThick" value="0.01778*mm"/>
+  <Constant name="ActiveGasVolHalfThick" value="4.76250*mm"/>
+  <Constant name="FR4SkinCenter" value="5.54736*mm"/>
+  <Constant name="CuFoilCenter" value="4.78028*mm"/>
+ </ConstantsSection>
+ <RotationSection label="mf.xml">
+  <Rotation name="RotYZaroundX90" phiX="0" thetaX="90*deg" phiY="0" thetaY="180*deg" phiZ="90*deg" thetaZ="90*deg"/>
+ </RotationSection>
+ <SolidSection label="mf.xml">
+  <Polycone name="ME" startPhi="0*deg" deltaPhi="360*deg">
+   <ZSection z="[cms:CalorBeamZ2]" rMin="[cms:CalorBeamR2]" rMax="[cms:CalorMuonR]"/>
+   <ZSection z="[cms:MuonBeamZ0]" rMin="[cms:MuonBeamR0]" rMax="[cms:CalorMuonR]"/>
+   <ZSection z="[cms:MuonBeamZ0]" rMin="[cms:MERmin0]" rMax="[cms:MBarRmin]"/>
+   <ZSection z="[cms:MEndcapZ0]" rMin="[cms:MERmin1]" rMax="[cms:MBarRmin]"/>
+   <ZSection z="[cms:MBarZ]" rMin="[cms:MERmin1]" rMax="[cms:MBarRmin]"/>
+   <ZSection z="[cms:MBarZ]" rMin="[cms:MERmin1]" rMax="[cms:CMSR1]"/>
+   <ZSection z="[cms:MEndcapZ1]" rMin="[cms:MERmin2]" rMax="[cms:CMSR1]"/>
+   <ZSection z="[cms:TotemMuonZ1]" rMin="[cms:TotemMuonR1]" rMax="[cms:CMSR1]"/>
+   <ZSection z="[cms:TotemMuonZ1]" rMin="[cms:TotemMuonR2]" rMax="[cms:CMSR1]"/>
+   <ZSection z="[cms:TotemMuonZ2]" rMin="[cms:TotemMuonR2]" rMax="[cms:CMSR1]"/>
+   <ZSection z="[cms:TotemMuonZ2]" rMin="[cms:MERmin3]" rMax="[cms:CMSR1]"/>
+   <ZSection z="[cms:MuonBeamZ2]" rMin="[cms:MERmin3]" rMax="[cms:CMSR1]"/>
+  </Polycone>
+  <Polycone name="SupportTubeForHE" startPhi="0*deg" deltaPhi="360*deg">
+   <ZSection z="5.541*m  " rMin="67.5*cm " rMax="2.51*m  "/>
+   <ZSection z="5.641*m  " rMin="67.5*cm " rMax="2.51*m  "/>
+   <ZSection z="5.641*m  " rMin="67.5*cm " rMax="1.3*m  "/>
+   <ZSection z="5.674*m  " rMin="67.5*cm " rMax="1.3*m  "/>
+   <ZSection z="5.674*m  " rMin="67.5*cm " rMax="85*cm "/>
+   <ZSection z="6590*mm" rMin="67.5*cm " rMax="85*cm "/>
+   <ZSection z="6.835*m  " rMin="701*mm" rMax="85*cm "/>
+  </Polycone>
+  <Polycone name="ME1Ring" startPhi="0*deg" deltaPhi="360*deg">
+   <ZSection z="5.641*m  " rMin="1.3*m " rMax="2.8*m  "/>
+   <ZSection z="5.674*m  " rMin="1.3*m " rMax="2.8*m  "/>
+   <ZSection z="5.674*m  " rMin="85*cm " rMax="2.8*m  "/>
+   <ZSection z="6.345*m  " rMin="85*cm " rMax="2.8*m  "/>
+  </Polycone>
+  <Tubs name="ShieldingBoronPoly_1_ME1" rMin="965*mm" rMax="1240*mm" dz="2*cm " startPhi="0*deg" deltaPhi="360*deg"/>
+  <Tubs name="ShieldingAntinomyLead_1_ME1" rMin="965*mm" rMax="1240*mm" dz="6.49995*mm " startPhi="0*deg" deltaPhi="360*deg"/>
+  <Tubs name="ShieldingBoronPoly_2_ME1" rMin="85.1*cm " rMax="88.1*cm " dz="148.5*mm" startPhi="0*deg" deltaPhi="360*deg"/>
+  <Tubs name="ShieldingAntinomyLead_2_ME1" rMin="88.2*cm " rMax="89.5*cm " dz="148.5*mm" startPhi="0*deg" deltaPhi="360*deg"/>
+  <Tubs name="ShieldingBoronPoly_3_ME1" rMin="89.6*cm " rMax="941*mm" dz="148.5*mm" startPhi="0*deg" deltaPhi="360*deg"/>
+  <Tubs name="ShieldingAntinomyLead_3_ME1" rMin="942*mm" rMax="955*mm" dz="148.5*mm" startPhi="0*deg" deltaPhi="360*deg"/>
+  <Tubs name="ShieldingBoronPoly_4_ME1" rMin="85.1*cm " rMax="88.1*cm " dz="136*mm" startPhi="0*deg" deltaPhi="360*deg"/>
+  <Tubs name="ShieldingAntinomyLead_4_ME1" rMin="88.2*cm " rMax="89.5*cm " dz="136*mm" startPhi="0*deg" deltaPhi="360*deg"/>
+  <Tubs name="ShieldingBoronPoly_5_ME1" rMin="89.6*cm " rMax="931*mm" dz="136*mm" startPhi="0*deg" deltaPhi="360*deg"/>
+  <Tubs name="ShieldingAntinomyLead_5_ME1" rMin="932*mm" rMax="945*mm" dz="136*mm" startPhi="0*deg" deltaPhi="360*deg"/>
+  <Tubs name="ShieldingAntinomyLead_6_ME1" rMin="945.1*mm" rMax="2330*mm" dz="5*mm " startPhi="0*deg" deltaPhi="360*deg"/>
+  <Tubs name="ShieldingBoronPoly_6_ME1" rMin="945.1*mm" rMax="2330*mm" dz="11.9*mm" startPhi="0*deg" deltaPhi="360*deg"/>
+  <Tubs name="ME11SupportDisk" rMin="86*cm " rMax="2455*mm" dz="4*cm " startPhi="0*deg" deltaPhi="360*deg"/>
+  <Tubs name="ME11SupportDisk1" rMin="86*cm " rMax="2455*mm" dz="4*cm " startPhi="0*deg" deltaPhi="360*deg"/>
+  <Tubs name="ME11Space" rMin="990*mm" rMax="2725*mm" dz="91.5*mm" startPhi="0*deg" deltaPhi="360*deg"/>
+  <Trd1 name="ME11" dz="81*cm " dy1="91.5*mm" dy2="91.5*mm" dx1="15.065*cm " dx2="30.45*cm "/>
+  <Trd1 name="ME11AlumFrame" dz="810*mm " dy1="[ME11AlumFrameHalfThick]" dy2="[ME11AlumFrameHalfThick]" dx1="15.065*cm " dx2="30.45*cm "/>
+  <Trd1 name="ME11FR4Body" dz="81*cm " dy1="[ME11FR4BodyHalfThick]" dy2="[ME11FR4BodyHalfThick]" dx1="15.065*cm " dx2="30.45*cm "/>
+  <Trd1 name="ME11PolycarbPanel" dz="81*cm " dy1="[ME11PolycarbPanelHalfThick]" dy2="[ME11PolycarbPanelHalfThick]" dx1="15.065*cm " dx2="30.45*cm "/>
+  <Trd1 name="ME_FR4Skin_1_ME11Layer" dz="81*cm " dy1="[ME11FR4SkinHalfThick]" dy2="[ME11FR4SkinHalfThick]" dx1="15.065*cm " dx2="30.45*cm "/>
+  <Trd1 name="ME_FR4Skin_2_ME11Layer" dz="81*cm " dy1="[ME11FR4SkinHalfThick]" dy2="[ME11FR4SkinHalfThick]" dx1="15.065*cm " dx2="30.45*cm "/>
+  <Trd1 name="MECU_1_ME11Layer" dz="81*cm " dy1="[ME11CuFoilHalfThick]" dy2="[ME11CuFoilHalfThick]" dx1="15.065*cm " dx2="30.45*cm "/>
+  <Trd1 name="MECU_2_ME11Layer" dz="81*cm " dy1="[ME11CuFoilHalfThick]" dy2="[ME11CuFoilHalfThick]" dx1="15.065*cm" dx2="30.45*cm "/>
+  <Trd1 name="ME1A_ActiveGasVol" dz="21.5*cm " dy1="[ME11ActiveGasVolHalfThick]" dy2="[ME11ActiveGasVolHalfThick]" dx1="9.361*cm " dx2="13.123*cm "/>
+  <Trd1 name="ME11_ActiveGasVol" dz="52.75*cm " dy1="[ME11ActiveGasVolHalfThick]" dy2="[ME11ActiveGasVolHalfThick]" dx1="13.123*cm " dx2="22.353*cm "/>
+  <Box name="MEEQ" dx="15*cm " dy="2.5*cm " dz="30*cm "/>
+  <Tubs name="AlgPinNarrowEnd" rMin="0*mm " rMax="4.06*mm " dz="18.8*mm " startPhi="0*deg" deltaPhi="360*deg"/>
+  <Tubs name="AlgPinWideEnd" rMin="0*mm " rMax="4.06*mm " dz="18.8*mm " startPhi="0*deg" deltaPhi="360*deg"/>
+  <Tubs name="AlgPinNarrowEndME1" rMin="0*mm " rMax="4.06*mm " dz="14.99*mm " startPhi="0*deg" deltaPhi="360*deg"/>
+  <Tubs name="AlgPinWideEndME1" rMin="0*mm " rMax="4.06*mm " dz="14.99*mm " startPhi="0*deg" deltaPhi="360*deg"/>
+  <!-- RE1/1 staged volumes
+       <Tubs name="RR11" rMin="1.3*m  " rMax="2.51*m  " dz="4.5*cm " startPhi="0*deg" deltaPhi="360*deg"/>
+       <Tubs name="RT1A" rMin="1.35*m  " rMax="2.46*m  " dz="2*cm " startPhi="-8*deg" deltaPhi="16*deg"/>
+       <Trd1 name="RFAX" dz="52.6*cm " dy1="5.5*mm " dy2="5.5*mm " dx1="12.028*cm " dx2="21.233*cm " />
+       <Trd1 name="RHAX" dz="52.55*cm " dy1="5*mm " dy2="5*mm " dx1="11.988*cm " dx2="21.183*cm " />
+       <Trd1 name="REA1" dz="18.05*cm " dy1="1*mm " dy2="1*mm " dx1="18.021*cm " dx2="21.18*cm " />
+       <Trd1 name="REA2" dz="12*cm " dy1="1*mm " dy2="1*mm " dx1="15.834*cm " dx2="17.934*cm " />
+       <Trd1 name="REA3" dz="10*cm " dy1="1*mm " dy2="1*mm " dx1="13.998*cm " dx2="15.747*cm " />
+       <Trd1 name="REA4" dz="11*cm " dy1="1*mm " dy2="1*mm " dx1="11.985*cm " dx2="13.91*cm " />
+       RE1/1 staged volumes -->
+  <Tubs name="ZStopSpace" rMin="4.694*m  " rMax="4.955*m  " dz="32*cm " startPhi="0*deg" deltaPhi="360*deg"/>
+  <Tubs name="ZStop_1_ZStopSpaceDivision" rMin="4.694*m  " rMax="4.955*m  " dz="32*cm " startPhi="346.25*deg" deltaPhi="3.0999999*deg"/>
+  <Tubs name="ZStop_2_ZStopSpaceDivision" rMin="4.694*m  " rMax="4.955*m  " dz="32*cm " startPhi="10.75*deg" deltaPhi="3.0999999*deg"/>
+  <Tubs name="ME12Ring" rMin="2.734*m  " rMax="4.685*m  " dz="311.8875*mm" startPhi="0*deg" deltaPhi="360*deg"/>
+  <Tubs name="ME12Space" rMin="2.735*m  " rMax="4.685*m  " dz="105.2335*mm" startPhi="0*deg" deltaPhi="360*deg"/>
+  <Trd1 name="ME12" dz="94.7*cm " dy1="105.2335*mm" dy2="105.2335*mm" dx1="37.614*cm " dx2="53.856*cm "/>
+  <!-- <Trd1 name="ME12AlumFrame" dz="94.7*cm " dy1="[AlumFrameHalfThick]" dy2="[AlumFrameHalfThick]" dx1="37.614*cm " dx2="53.856*cm " /> -->
+  <Trd1 name="ME12AlumFrameBlock" dz="947*mm" dy1="[AlumFrameHalfThick]" dy2="[AlumFrameHalfThick]" dx1="376.14*mm" dx2="538.56*mm"/>
+  <!-- REB has not determined ME12 Al frame width but guesses it is approx. 81 mm like the others -->
+  <Trd1 name="ME12AlumFrameSubtraction" dz="947*mm-81*mm" dy1="[AlumFrameSubtractionThick]" dy2="[AlumFrameSubtractionThick]" dx1="376.14*mm-81*mm" dx2="538.56*mm-81*mm"/>
+  <SubtractionSolid name="ME12AlumFrameTempBlock">
+   <rSolid name="ME12AlumFrameBlock"/>
+   <rSolid name="ME12AlumFrameSubtraction"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0.0*fm" y="[AlumFrameHalfThick]-[AlumFrameSubtractionThick]" z="0.0*fm"/>
+  </SubtractionSolid>
+  <SubtractionSolid name="ME12AlumFrame">
+   <rSolid name="ME12AlumFrameTempBlock"/>
+   <rSolid name="ME12AlumFrameSubtraction"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0.0*fm" y="-[AlumFrameHalfThick]+[AlumFrameSubtractionThick]" z="0.0*fm"/>
+  </SubtractionSolid>
+  <Trd1 name="ME12FR4Body" dz="94.7*cm " dy1="[FR4BodyHalfThick]" dy2="[FR4BodyHalfThick]" dx1="37.614*cm " dx2="53.856*cm "/>
+  <Trd1 name="ME12PolycarbPanel" dz="92.8*cm " dy1="[PolycarbPanelHalfThick]" dy2="[PolycarbPanelHalfThick]" dx1="34.215*cm " dx2="51.654*cm "/>
+  <Trd1 name="ME_FR4Skin_1_ME12Layer" dz="92.8*cm " dy1="[FR4SkinHalfThick]" dy2="[FR4SkinHalfThick]" dx1="34.215*cm " dx2="51.654*cm "/>
+  <Trd1 name="ME_FR4Skin_2_ME12Layer" dz="92.8*cm " dy1="[FR4SkinHalfThick]" dy2="[FR4SkinHalfThick]" dx1="34.215*cm " dx2="51.654*cm "/>
+  <Trd1 name="MECU_1_ME12Layer" dz="92.8*cm " dy1="[CuFoilHalfThick]" dy2="[CuFoilHalfThick]" dx1="34.215*cm " dx2="51.654*cm "/>
+  <Trd1 name="MECU_2_ME12Layer" dz="92.8*cm " dy1="[CuFoilHalfThick]" dy2="[CuFoilHalfThick]" dx1="34.215*cm " dx2="51.654*cm "/>
+  <Trd1 name="ME12_ActiveGasVol" dz="87.245*cm " dy1="[ActiveGasVolHalfThick]" dy2="[ActiveGasVolHalfThick]" dx1="25.5*cm " dx2="41.87*cm "/>
+  <Trd1 name="ME_DeadGas_1_ME12_ActiveGasVol" dz="1.5*cm " dy1="[ActiveGasVolHalfThick]" dy2="[ActiveGasVolHalfThick]" dx1="36.68*cm " dx2="36.97*cm "/>
+  <Trd1 name="ME_DeadGas_2_ME12_ActiveGasVol" dz="1.5*cm " dy1="[ActiveGasVolHalfThick]" dy2="[ActiveGasVolHalfThick]" dx1="30.52*cm " dx2="30.8*cm "/>
+  <Tubs name="RR12" rMin="2.745*m  " rMax="4.644*m  " dz="5.5*mm" startPhi="0*deg" deltaPhi="360*deg"/>
+  <Trd1 name="RFBX" dz="92*cm " dy1="5.5*mm " dy2="5.5*mm " dx1="24.368*cm " dx2="40.453*cm "/>
+  <Trd1 name="RHBX" dz="91.95*cm " dy1="5*mm " dy2="5*mm " dx1="24.318*cm " dx2="40.403*cm "/>
+  <Trd1 name="REB1" dz="26.75*cm " dy1="1*mm " dy2="1*mm " dx1="35.721*cm " dx2="40.40*cm "/>
+  <Trd1 name="REB2" dz="24.5*cm " dy1="1*mm " dy2="1*mm " dx1="31.347*cm " dx2="35.633*cm "/>
+  <Trd1 name="REB3" dz="39.7*cm " dy1="1*mm " dy2="1*mm " dx1="24.315*cm " dx2="31.26*cm "/>
+  <Polyhedra name="ME13Ring" numSide="36" startPhi="355*deg" deltaPhi="360*deg">
+   <ZSection z="6.625*m  " rMin="4.955*m  " rMax="7*m  "/>
+   <ZSection z="7.265*m  " rMin="4.955*m  " rMax="7*m  "/>
+  </Polyhedra>
+  <Tubs name="ME13Space" rMin="5.055*m  " rMax="6.95*m  " dz="105.2285*mm " startPhi="0*deg" deltaPhi="360*deg"/>
+  <Trd1 name="ME13" dz="89.65*cm " dy1="105.2285*mm " dy2="105.2285*mm " dx1="43.21*cm " dx2="58.925*cm "/>
+  <Trd1 name="ME13AlumFrameBlock" dz="896.5*mm" dy1="[AlumFrameHalfThick]" dy2="[AlumFrameHalfThick]" dx1="432.1*mm" dx2="589.25*mm"/>
+  <!-- REB determined ME13 Al frame width to be approx. 81 mm based on eng. drawing -->
+  <Trd1 name="ME13AlumFrameSubtraction" dz="896.5*mm-81*mm" dy1="[AlumFrameSubtractionThick]" dy2="[AlumFrameSubtractionThick]" dx1="432.1*mm-81*mm" dx2="589.25*mm-81*mm"/>
+  <SubtractionSolid name="ME13AlumFrameTempBlock">
+   <rSolid name="ME13AlumFrameBlock"/>
+   <rSolid name="ME13AlumFrameSubtraction"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0.0*fm" y="[AlumFrameHalfThick]-[AlumFrameSubtractionThick]" z="0.0*fm"/>
+  </SubtractionSolid>
+  <SubtractionSolid name="ME13AlumFrame">
+   <rSolid name="ME13AlumFrameTempBlock"/>
+   <rSolid name="ME13AlumFrameSubtraction"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0.0*fm" y="-[AlumFrameHalfThick]+[AlumFrameSubtractionThick]" z="0.0*fm"/>
+  </SubtractionSolid>
+  <Trd1 name="ME13FR4Body" dz="89.65*cm " dy1="[FR4BodyHalfThick]" dy2="[FR4BodyHalfThick]" dx1="43.21*cm " dx2="58.925*cm "/>
+  <Trd1 name="ME13PolycarbPanel" dz="87.75*cm " dy1="[PolycarbPanelHalfThick]" dy2="[PolycarbPanelHalfThick]" dx1="40.425*cm " dx2="55.81*cm "/>
+  <Trd1 name="ME_FR4Skin_1_ME13Layer" dz="87.75*cm " dy1="[FR4SkinHalfThick]" dy2="[FR4SkinHalfThick]" dx1="40.425*cm " dx2="55.81*cm "/>
+  <Trd1 name="ME_FR4Skin_2_ME13Layer" dz="87.75*cm " dy1="[FR4SkinHalfThick]" dy2="[FR4SkinHalfThick]" dx1="40.425*cm " dx2="55.81*cm "/>
+  <Trd1 name="MECU_1_ME13Layer" dz="87.75*cm " dy1="[CuFoilHalfThick]" dy2="[CuFoilHalfThick]" dx1="40.425*cm " dx2="55.81*cm "/>
+  <Trd1 name="MECU_2_ME13Layer" dz="87.75*cm " dy1="[CuFoilHalfThick]" dy2="[CuFoilHalfThick]" dx1="40.425*cm " dx2="55.81*cm "/>
+  <Trd1 name="ME13_ActiveGasVol" dz="82.08*cm " dy1="[ActiveGasVolHalfThick]" dy2="[ActiveGasVolHalfThick]" dx1="31.70*cm " dx2="46.05*cm "/>
+  <Trd1 name="ME_DeadGas_1_ME13_ActiveGasVol" dz="1.265*cm " dy1="[ActiveGasVolHalfThick]" dy2="[ActiveGasVolHalfThick]" dx1="42.02*cm " dx2="42.24*cm "/>
+  <Trd1 name="ME_DeadGas_2_ME13_ActiveGasVol" dz="1.265*cm " dy1="[ActiveGasVolHalfThick]" dy2="[ActiveGasVolHalfThick]" dx1="37.59*cm " dx2="37.81*cm "/>
+  <Tubs name="RR13" rMin="5.05*m  " rMax="6.87*m  " dz="4.5*cm " startPhi="0*deg" deltaPhi="360*deg"/>
+  <Tubs name="RT1C" rMin="5.05*m  " rMax="6.87*m  " dz="2*cm " startPhi="-8*deg" deltaPhi="16*deg"/>
+  <Trd1 name="RFCX" dz="87.15*cm " dy1="5.5*mm " dy2="5.5*mm " dx1="44.435*cm " dx2="59.676*cm "/>
+  <Trd1 name="RHCX" dz="87.1*cm " dy1="5*mm " dy2="5*mm " dx1="44.385*cm " dx2="59.626*cm "/>
+  <Trd1 name="REC1" dz="20.15*cm " dy1="1*mm " dy2="1*mm " dx1="56.097*cm " dx2="59.623*cm "/>
+  <Trd1 name="REC2" dz="37.95*cm " dy1="1*mm " dy2="1*mm " dx1="49.369*cm " dx2="56.009*cm "/>
+  <Trd1 name="REC3" dz="28*cm " dy1="1*mm " dy2="1*mm " dx1="44.382*cm " dx2="49.281*cm "/>
+  <!-- <Tubs name="ME2Ring" rMin="1142*mm" rMax="7.02*m  " dz="32.75*cm " startPhi="0*deg" deltaPhi="360*deg"/> -->
+  <Polycone name="ME2Ring" startPhi="0*deg" deltaPhi="360*deg">
+   <ZSection z="7865*mm" rMin="1142*mm" rMax="7020*mm"/>
+   <ZSection z="8509*mm" rMin="1142*mm" rMax="7020*mm"/>
+   <ZSection z="8509*mm" rMin="1361*mm" rMax="7020*mm"/>
+   <ZSection z="8510*mm" rMin="1361*mm" rMax="7020*mm"/>
+  </Polycone>
+  <Tubs name="ShieldingBoronPoly_1_ME2" rMin="1.305*m  " rMax="1.906*m  " dz="2.5*cm " startPhi="0*deg" deltaPhi="360*deg"/>
+  <Tubs name="ShieldingAntinomyLead_1_ME2" rMin="1.305*m  " rMax="1.906*m  " dz="6.49995*mm " startPhi="0*deg" deltaPhi="360*deg"/>
+  <Tubs name="ShieldingBoronPoly_2_ME2" rMin="1.142*m  " rMax="1.217*m  " dz="31.5*cm " startPhi="0*deg" deltaPhi="360*deg"/>
+  <Tubs name="ShieldingAntinomyLead_2_ME2" rMin="1.218*m  " rMax="1.238*m  " dz="31.5*cm " startPhi="0*deg" deltaPhi="360*deg"/>
+  <Tubs name="ShieldingBoronPoly_3_ME2" rMin="1.239*m  " rMax="1.264*m  " dz="31.5*cm " startPhi="0*deg" deltaPhi="360*deg"/>
+  <Tubs name="ShieldingAntinomyLead_3_ME2" rMin="1.265*m  " rMax="1.278*m  " dz="31.5*cm " startPhi="0*deg" deltaPhi="360*deg"/>
+  <Tubs name="ME21Space" rMin="1.39*m  " rMax="3.554*m  " dz="115.39*mm" startPhi="0*deg" deltaPhi="360*deg"/>
+  <Trd1 name="ME21" dz="1.023*m  " dy1="115.39*mm" dy2="115.39*mm" dx1="37.405*cm " dx2="76.545*cm "/>
+  <Trd1 name="ME21AlumFrameBlock" dz="1023*mm" dy1="[AlumFrameHalfThick]" dy2="[AlumFrameHalfThick]" dx1="374.05*mm" dx2="765.45*mm"/>
+  <!-- REB determined ME21 Al frame width to be approx. 83.5 mm based on eng. drawing -->
+  <Trd1 name="ME21AlumFrameSubtraction" dz="1023*mm-83.5*mm" dy1="[AlumFrameSubtractionThick]" dy2="[AlumFrameSubtractionThick]" dx1="374.05*mm-83.5*mm" dx2="765.45*mm-83.5*mm"/>
+  <SubtractionSolid name="ME21AlumFrameTempBlock">
+   <rSolid name="ME21AlumFrameBlock"/>
+   <rSolid name="ME21AlumFrameSubtraction"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0.0*fm" y="[AlumFrameHalfThick]-[AlumFrameSubtractionThick]" z="0.0*fm"/>
+  </SubtractionSolid>
+  <SubtractionSolid name="ME21AlumFrame">
+   <rSolid name="ME21AlumFrameTempBlock"/>
+   <rSolid name="ME21AlumFrameSubtraction"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0.0*fm" y="-[AlumFrameHalfThick]+[AlumFrameSubtractionThick]" z="0.0*fm"/>
+  </SubtractionSolid>
+  <Trd1 name="ME21FR4Body" dz="1.023*m  " dy1="[FR4BodyHalfThick]" dy2="[FR4BodyHalfThick]" dx1="37.405*cm " dx2="76.545*cm "/>
+  <Trd1 name="ME21PolycarbPanel" dz="1.00395*m  " dy1="[PolycarbPanelHalfThick]" dy2="[PolycarbPanelHalfThick]" dx1="35.045*cm " dx2="73.225*cm "/>
+  <Trd1 name="ME_FR4Skin_1_ME21Layer" dz="1.00395*m  " dy1="[FR4SkinHalfThick]" dy2="[FR4SkinHalfThick]" dx1="35.045*cm " dx2="73.225*cm "/>
+  <Trd1 name="ME_FR4Skin_2_ME21Layer" dz="1.00395*m  " dy1="[FR4SkinHalfThick]" dy2="[FR4SkinHalfThick]" dx1="35.045*cm " dx2="73.225*cm "/>
+  <Trd1 name="MECU_1_ME21Layer" dz="1.00395*m  " dy1="[CuFoilHalfThick]" dy2="[CuFoilHalfThick]" dx1="35.045*cm " dx2="73.225*cm "/>
+  <Trd1 name="MECU_2_ME21Layer" dz="1.00395*m  " dy1="[CuFoilHalfThick]" dy2="[CuFoilHalfThick]" dx1="35.045*cm " dx2="73.225*cm "/>
+  <Trd1 name="ME21_ActiveGasVol" dz="94.83*cm " dy1="[ActiveGasVolHalfThick]" dy2="[ActiveGasVolHalfThick]" dx1="27.00*cm " dx2="62.855*cm "/>
+  <Trd1 name="ME_DeadGas_1_ME21_ActiveGasVol" dz="1.25*cm " dy1="[ActiveGasVolHalfThick]" dy2="[ActiveGasVolHalfThick]" dx1="51.92*cm " dx2="52.39*cm "/>
+  <Trd1 name="ME_DeadGas_2_ME21_ActiveGasVol" dz="1.25*cm " dy1="[ActiveGasVolHalfThick]" dy2="[ActiveGasVolHalfThick]" dx1="40.33*cm " dx2="40.805*cm "/>
+  <Tubs name="RR2X" rMin="1.97*m  " rMax="6.99*m  " dz="4.5*cm " startPhi="0*deg" deltaPhi="360*deg"/>
+  <!-- RE2/1 staged volumes 
+       <Tubs name="RT2D" rMin="1.97*m  " rMax="3.3*m  " dz="2*cm " startPhi="-13*deg" deltaPhi="26*deg"/>
+       <Trd1 name="RFDX" dz="61.55*cm " dy1="5.5*mm " dy2="5.5*mm " dx1="35.159*cm " dx2="56.847*cm " />
+       <Trd1 name="RHDX" dz="61.5*cm " dy1="5*mm " dy2="5*mm " dx1="35.109*cm " dx2="56.797*cm " />
+       <Trd1 name="RED1" dz="16.05*cm " dy1="1*mm " dy2="1*mm " dx1="51.134*cm " dx2="56.794*cm " />
+       <Trd1 name="RED2" dz="16.8*cm " dy1="1*mm " dy2="1*mm " dx1="45.033*cm " dx2="50.957*cm " />
+       <Trd1 name="RED3" dz="14.55*cm " dy1="1*mm " dy2="1*mm " dx1="39.725*cm " dx2="44.857*cm " />
+       <Trd1 name="RED4" dz="12.6*cm " dy1="1*mm " dy2="1*mm " dx1="35.106*cm " dx2="39.549*cm " />
+       RE2/1 staged volumes-->
+  <Tubs name="RTXU" rMin="3.29*m  " rMax="6.99*m  " dz="2*cm " startPhi="-8*deg" deltaPhi="16*deg"/>
+  <Trd1 name="RFEX" dz="82.8*cm " dy1="5.5*mm " dy2="5.5*mm " dx1="29.089*cm " dx2="43.569*cm "/>
+  <Trd1 name="RHEX" dz="82.75*cm " dy1="5*mm " dy2="5*mm " dx1="29.039*cm " dx2="43.519*cm "/>
+  <Trd1 name="REE1" dz="30.85*cm " dy1="1*mm " dy2="1*mm " dx1="38.118*cm " dx2="43.516*cm "/>
+  <Trd1 name="REE2" dz="26.95*cm " dy1="1*mm " dy2="1*mm " dx1="33.315*cm " dx2="38.03*cm "/>
+  <Trd1 name="REE3" dz="23.95*cm " dy1="1*mm " dy2="1*mm " dx1="29.036*cm " dx2="33.227*cm "/>
+  <Trd1 name="RFFX" dz="95.15*cm " dy1="5.5*mm " dy2="5.5*mm " dx1="44.094*cm " dx2="60.734*cm "/>
+  <Trd1 name="RHFX" dz="95.1*cm " dy1="5*mm " dy2="5*mm " dx1="44.044*cm " dx2="60.684*cm "/>
+  <Trd1 name="REF1" dz="25.95*cm " dy1="1*mm " dy2="1*mm " dx1="56.14*cm " dx2="60.681*cm "/>
+  <Trd1 name="REF2" dz="37.95*cm " dy1="1*mm " dy2="1*mm " dx1="49.413*cm " dx2="56.053*cm "/>
+  <Trd1 name="REF3" dz="30.2*cm " dy1="1*mm " dy2="1*mm " dx1="44.041*cm " dx2="49.325*cm "/>
+  <Tubs name="ME22Space" rMin="3.555*m  " rMax="7.01*m  " dz="115.39*mm" startPhi="0*deg" deltaPhi="360*deg"/>
+  <Trd1 name="ME22" dz="1.690*m  " dy1="115.39*mm" dy2="115.39*mm" dx1="45.519*cm " dx2="76.34*cm "/>
+  <Trd1 name="ME22AlumFrameBlock" dz="1690*mm" dy1="[AlumFrameHalfThick]" dy2="[AlumFrameHalfThick]" dx1="455.19*mm" dx2="763.4*mm"/>
+  <!-- REB determined ME22 Al frame width to be approx. 81.3 mm based on drawing 400220-B_ME234-2_Integrated_Assy -->
+  <Trd1 name="ME22AlumFrameSubtraction" dz="1690*mm-81.3*mm" dy1="[AlumFrameSubtractionThick]" dy2="[AlumFrameSubtractionThick]" dx1="455.19*mm-81.3*mm" dx2="763.4*mm-81.3*mm"/>
+  <SubtractionSolid name="ME22AlumFrameTempBlock">
+   <rSolid name="ME22AlumFrameBlock"/>
+   <rSolid name="ME22AlumFrameSubtraction"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0.0*fm" y="[AlumFrameHalfThick]-[AlumFrameSubtractionThick]" z="0.0*fm"/>
+  </SubtractionSolid>
+  <SubtractionSolid name="ME22AlumFrame">
+   <rSolid name="ME22AlumFrameTempBlock"/>
+   <rSolid name="ME22AlumFrameSubtraction"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0.0*fm" y="-[AlumFrameHalfThick]+[AlumFrameSubtractionThick]" z="0.0*fm"/>
+  </SubtractionSolid>
+  <Trd1 name="ME22FR4Body" dz="1.690*m  " dy1="[FR4BodyHalfThick]" dy2="[FR4BodyHalfThick]" dx1="45.519*cm " dx2="76.34*cm "/>
+  <Trd1 name="ME22PolycarbPanel" dz="1.67095*m  " dy1="[PolycarbPanelHalfThick]" dy2="[PolycarbPanelHalfThick]" dx1="41.95*cm " dx2="73.345*cm "/>
+  <Trd1 name="ME_FR4Skin_1_ME22Layer" dz="1.67095*m  " dy1="[FR4SkinHalfThick]" dy2="[FR4SkinHalfThick]" dx1="41.95*cm " dx2="73.345*cm "/>
+  <Trd1 name="ME_FR4Skin_2_ME22Layer" dz="1.67095*m  " dy1="[FR4SkinHalfThick]" dy2="[FR4SkinHalfThick]" dx1="41.95*cm " dx2="73.345*cm "/>
+  <Trd1 name="MECU_1_ME22Layer" dz="1.67095*m  " dy1="[CuFoilHalfThick]" dy2="[CuFoilHalfThick]" dx1="41.95*cm " dx2="73.345*cm "/>
+  <Trd1 name="MECU_2_ME22Layer" dz="1.67095*m  " dy1="[CuFoilHalfThick]" dy2="[CuFoilHalfThick]" dx1="41.95*cm " dx2="73.345*cm "/>
+  <Trd1 name="ME22_ActiveGasVol" dz="1.6153*m  " dy1="[ActiveGasVolHalfThick]" dy2="[ActiveGasVolHalfThick]" dx1="33.955*cm " dx2="63.3*cm "/>
+  <Trd1 name="ME_DeadGas_1_ME22_ActiveGasVol" dz="1.265*cm " dy1="[ActiveGasVolHalfThick]" dy2="[ActiveGasVolHalfThick]" dx1="57.7*cm " dx2="57.93*cm "/>
+  <Trd1 name="ME_DeadGas_2_ME22_ActiveGasVol" dz="1.265*cm " dy1="[ActiveGasVolHalfThick]" dy2="[ActiveGasVolHalfThick]" dx1="52.18*cm " dx2="52.42*cm "/>
+  <Trd1 name="ME_DeadGas_3_ME22_ActiveGasVol" dz="1.265*cm " dy1="[ActiveGasVolHalfThick]" dy2="[ActiveGasVolHalfThick]" dx1="46.67*cm " dx2="46.9*cm "/>
+  <Trd1 name="ME_DeadGas_4_ME22_ActiveGasVol" dz="1.265*cm " dy1="[ActiveGasVolHalfThick]" dy2="[ActiveGasVolHalfThick]" dx1="41.16*cm " dx2="41.38*cm "/>
+  <Tubs name="ME3Ring" rMin="1360*mm" rMax="7.02*m  " dz="32.75*cm " startPhi="0*deg" deltaPhi="360*deg"/>
+  <Tubs name="ShieldingBoronPoly_1_ME3" rMin="1.362*m  " rMax="1.437*m  " dz="31.5*cm " startPhi="0*deg" deltaPhi="360*deg"/>
+  <Tubs name="ShieldingAntinomyLead_1_ME3" rMin="1.438*m  " rMax="1.468*m  " dz="31.5*cm " startPhi="0*deg" deltaPhi="360*deg"/>
+  <Tubs name="ShieldingBoronPoly_2_ME3" rMin="1.469*m  " rMax="1.494*m  " dz="31.5*cm " startPhi="0*deg" deltaPhi="360*deg"/>
+  <Tubs name="ShieldingAntinomyLead_2_ME3" rMin="1.5*m  " rMax="1.508*m  " dz="31.5*cm " startPhi="0*deg" deltaPhi="360*deg"/>
+  <Tubs name="ShieldingAntinomyLead_3_ME3" rMin="1.53*m  " rMax="2.394*m  " dz="6.49995*mm " startPhi="0*deg" deltaPhi="360*deg"/>
+  <Tubs name="ShieldingBoronPoly_3_ME3" rMin="1.532*m  " rMax="2.394*m  " dz="2.5*cm " startPhi="0*deg" deltaPhi="360*deg"/>
+  <Tubs name="ME31Space" rMin="1.59*m  " rMax="3.554*m  " dz="125.3*mm" startPhi="0*deg" deltaPhi="360*deg"/>
+  <Trd1 name="ME31" dz="92.3*cm " dy1="125.3*mm" dy2="125.3*mm" dx1="41.46*cm " dx2="76.545*cm "/>
+  <Trd1 name="ME31AlumFrameBlock" dz="923*mm" dy1="[AlumFrameHalfThick]" dy2="[AlumFrameHalfThick]" dx1="414.6*mm" dx2="765.45*mm"/>
+  <Trd1 name="ME31AlumFrameSubtraction" dz="923*mm-83.5*mm" dy1="[AlumFrameSubtractionThick]" dy2="[AlumFrameSubtractionThick]" dx1="414.6*mm-83.5*mm" dx2="765.45*mm-83.5*mm"/>
+  <SubtractionSolid name="ME31AlumFrameTempBlock">
+   <rSolid name="ME31AlumFrameBlock"/>
+   <rSolid name="ME31AlumFrameSubtraction"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0.0*fm" y="[AlumFrameHalfThick]-[AlumFrameSubtractionThick]" z="0.0*fm"/>
+  </SubtractionSolid>
+  <SubtractionSolid name="ME31AlumFrame">
+   <rSolid name="ME31AlumFrameTempBlock"/>
+   <rSolid name="ME31AlumFrameSubtraction"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0.0*fm" y="-[AlumFrameHalfThick]+[AlumFrameSubtractionThick]" z="0.0*fm"/>
+  </SubtractionSolid>
+  <Trd1 name="ME31FR4Body" dz="92.3*cm " dy1="[FR4BodyHalfThick]" dy2="[FR4BodyHalfThick]" dx1="41.46*cm " dx2="76.545*cm "/>
+  <Trd1 name="ME31PolycarbPanel" dz="90.40*cm " dy1="[PolycarbPanelHalfThick]" dy2="[PolycarbPanelHalfThick]" dx1="39.105*cm " dx2="73.225*cm "/>
+  <Trd1 name="ME_FR4Skin_1_ME31Layer" dz="90.40*cm " dy1="[FR4SkinHalfThick]" dy2="[FR4SkinHalfThick]" dx1="39.105*cm " dx2="73.225*cm "/>
+  <Trd1 name="ME_FR4Skin_2_ME31Layer" dz="90.40*cm " dy1="[FR4SkinHalfThick]" dy2="[FR4SkinHalfThick]" dx1="39.105*cm " dx2="73.225*cm "/>
+  <Trd1 name="MECU_1_ME31Layer" dz="90.40*cm " dy1="[CuFoilHalfThick]" dy2="[CuFoilHalfThick]" dx1="39.105*cm " dx2="73.225*cm "/>
+  <Trd1 name="MECU_2_ME31Layer" dz="90.40*cm " dy1="[CuFoilHalfThick]" dy2="[CuFoilHalfThick]" dx1="39.105*cm " dx2="73.225*cm "/>
+  <Trd1 name="ME31_ActiveGasVol" dz="84.85*cm " dy1="[ActiveGasVolHalfThick]" dy2="[ActiveGasVolHalfThick]" dx1="30.70*cm " dx2="62.855*cm "/>
+  <Trd1 name="ME_DeadGas_1_ME31_ActiveGasVol" dz="1.25*cm " dy1="[ActiveGasVolHalfThick]" dy2="[ActiveGasVolHalfThick]" dx1="51.94*cm " dx2="52.405*cm "/>
+  <Trd1 name="ME_DeadGas_2_ME31_ActiveGasVol" dz="1.25*cm " dy1="[ActiveGasVolHalfThick]" dy2="[ActiveGasVolHalfThick]" dx1="40.6*cm " dx2="41.07*cm "/>
+  <Tubs name="RR3X" rMin="2.419*m  " rMax="6.99*m  " dz="4.5*cm " startPhi="0*deg" deltaPhi="360*deg"/>
+  <!-- RE3/1 staged volumes
+       <Tubs name="RT3G" rMin="2.419*m  " rMax="3.3*m  " dz="2*cm " startPhi="-13*deg" deltaPhi="26*deg"/>
+       <Trd1 name="RFGX" dz="39.1*cm " dy1="5.5*mm " dy2="5.5*mm " dx1="43.076*cm " dx2="56.847*cm " />
+       <Trd1 name="RHGX" dz="39.05*cm " dy1="5*mm " dy2="5*mm " dx1="43.026*cm " dx2="56.797*cm " />
+       <Trd1 name="REG1" dz="16.05*cm " dy1="1*mm " dy2="1*mm " dx1="51.134*cm " dx2="56.794*cm " />
+       <Trd1 name="REG2" dz="22.5*cm " dy1="1*mm " dy2="1*mm " dx1="43.023*cm " dx2="50.957*cm " />
+       RE3/1 stage volumes -->
+  <Tubs name="ME32Space" rMin="3.555*m  " rMax="7.01*m  " dz="125.3*mm" startPhi="0*deg" deltaPhi="360*deg"/>
+  <Trd1 name="ME32" dz="1.690*m  " dy1="125.3*mm" dy2="125.3*mm" dx1="45.519*cm " dx2="76.34*cm "/>
+  <Trd1 name="ME32AlumFrameBlock" dz="1.690*m  " dy1="[AlumFrameHalfThick]" dy2="[AlumFrameHalfThick]" dx1="455.19*mm" dx2="763.4*mm"/>
+  <!-- REB determined ME32 Al frame width to be approx. 81.3 mm based on drawing 400220-B_ME234-2_Integrated_Assy -->
+  <Trd1 name="ME32AlumFrameSubtraction" dz="1607.53*mm" dy1="[AlumFrameSubtractionThick]" dy2="[AlumFrameSubtractionThick]" dx1="455.19*mm-81.3*mm" dx2="763.4*mm-81.3*mm"/>
+  <SubtractionSolid name="ME32AlumFrameTempBlock">
+   <rSolid name="ME32AlumFrameBlock"/>
+   <rSolid name="ME32AlumFrameSubtraction"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0.0*fm" y="[AlumFrameHalfThick]-[AlumFrameSubtractionThick]" z="0.0*fm"/>
+  </SubtractionSolid>
+  <SubtractionSolid name="ME32AlumFrame">
+   <rSolid name="ME32AlumFrameTempBlock"/>
+   <rSolid name="ME32AlumFrameSubtraction"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0.0*fm" y="-[AlumFrameHalfThick]+[AlumFrameSubtractionThick]" z="0.0*fm"/>
+  </SubtractionSolid>
+  <Trd1 name="ME32FR4Body" dz="1.690*m  " dy1="[FR4BodyHalfThick]" dy2="[FR4BodyHalfThick]" dx1="45.519*cm " dx2="76.34*cm "/>
+  <Trd1 name="ME32PolycarbPanel" dz="1.67095*m  " dy1="[PolycarbPanelHalfThick]" dy2="[PolycarbPanelHalfThick]" dx1="41.95*cm " dx2="73.345*cm "/>
+  <Trd1 name="ME_FR4Skin_1_ME32Layer" dz="1.67095*m  " dy1="[FR4SkinHalfThick]" dy2="[FR4SkinHalfThick]" dx1="41.95*cm " dx2="73.345*cm "/>
+  <Trd1 name="ME_FR4Skin_2_ME32Layer" dz="1.67095*m  " dy1="[FR4SkinHalfThick]" dy2="[FR4SkinHalfThick]" dx1="41.95*cm " dx2="73.345*cm "/>
+  <Trd1 name="MECU_1_ME32Layer" dz="1.67095*m  " dy1="[CuFoilHalfThick]" dy2="[CuFoilHalfThick]" dx1="41.95*cm " dx2="73.345*cm "/>
+  <Trd1 name="MECU_2_ME32Layer" dz="1.67095*m  " dy1="[CuFoilHalfThick]" dy2="[CuFoilHalfThick]" dx1="41.95*cm " dx2="73.345*cm "/>
+  <Trd1 name="ME32_ActiveGasVol" dz="1.6153*m  " dy1="[ActiveGasVolHalfThick]" dy2="[ActiveGasVolHalfThick]" dx1="33.230*cm " dx2="63.575*cm "/>
+  <Trd1 name="ME_DeadGas_1_ME32_ActiveGasVol" dz="1.265*cm " dy1="[ActiveGasVolHalfThick]" dy2="[ActiveGasVolHalfThick]" dx1="57.7*cm " dx2="57.93*cm "/>
+  <Trd1 name="ME_DeadGas_2_ME32_ActiveGasVol" dz="1.265*cm " dy1="[ActiveGasVolHalfThick]" dy2="[ActiveGasVolHalfThick]" dx1="52.18*cm " dx2="52.42*cm "/>
+  <Trd1 name="ME_DeadGas_3_ME32_ActiveGasVol" dz="1.265*cm " dy1="[ActiveGasVolHalfThick]" dy2="[ActiveGasVolHalfThick]" dx1="46.67*cm " dx2="46.9*cm "/>
+  <Trd1 name="ME_DeadGas_4_ME32_ActiveGasVol" dz="1.265*cm " dy1="[ActiveGasVolHalfThick]" dy2="[ActiveGasVolHalfThick]" dx1="41.16*cm " dx2="41.38*cm "/>
+  <Tubs name="ME4Ring" rMin="1530*mm" rMax="7.02*m  " dz="33.675*cm " startPhi="0*deg" deltaPhi="360*deg"/>
+  <Tubs name="ShieldingBoronPoly_1_ME4" rMin="1.532*m  " rMax="1.607*m  " dz="31.5*cm " startPhi="0*deg" deltaPhi="360*deg"/>
+  <Tubs name="ShieldingAntinomyLead_1_ME4" rMin="1.608*m  " rMax="1.646*m  " dz="31.5*cm " startPhi="0*deg" deltaPhi="360*deg"/>
+  <Tubs name="ShieldingBoronPoly_2_ME4" rMin="1.647*m  " rMax="1.672*m  " dz="31.5*cm " startPhi="0*deg" deltaPhi="360*deg"/>
+  <Tubs name="ShieldingAntinomyLead_2_ME4" rMin="1.673*m  " rMax="1.686*m  " dz="31.5*cm " startPhi="0*deg" deltaPhi="360*deg"/>
+  <Tubs name="ShieldingAntinomyLead_3_ME4" rMin="1.7*m  " rMax="2.478*m  " dz="6.5*mm " startPhi="0*deg" deltaPhi="360*deg"/>
+  <Tubs name="ShieldingBoronPoly_3_ME4" rMin="1.7*m  " rMax="2.478*m  " dz="2.5*cm " startPhi="0*deg" deltaPhi="360*deg"/>
+  <Tubs name="ME41Space" rMin="1.79*m  " rMax="3.554*m  " dz="125.3*mm" startPhi="0*deg" deltaPhi="360*deg"/>
+  <Trd1 name="ME41" dz="833.5*mm" dy1="125.3*mm" dy2="125.3*mm" dx1="44.985*cm " dx2="76.545*cm "/>
+  <!-- 31.5.07 Oleg says ME41 length is 82.35 cm in drawings. Must check all other ME41 length dims. Also, the narrow end alg pin is 34.9 mm from the frame and the wide is 53.9 - 54.3 mm -->
+  <Trd1 name="ME41AlumFrameBlock" dz="833.5*mm" dy1="[AlumFrameHalfThick]" dy2="[AlumFrameHalfThick]" dx1="449.85*mm" dx2="765.45*mm"/>
+  <Trd1 name="ME41AlumFrameSubtraction" dz="833.5*mm-83.5*mm" dy1="[AlumFrameSubtractionThick]" dy2="[AlumFrameSubtractionThick]" dx1="449.85*mm-83.5*mm" dx2="765.45*mm-83.5*mm"/>
+  <SubtractionSolid name="ME41AlumFrameTempBlock">
+   <rSolid name="ME41AlumFrameBlock"/>
+   <rSolid name="ME41AlumFrameSubtraction"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0.0*fm" y="[AlumFrameHalfThick]-[AlumFrameSubtractionThick]" z="0.0*fm"/>
+  </SubtractionSolid>
+  <SubtractionSolid name="ME41AlumFrame">
+   <rSolid name="ME41AlumFrameTempBlock"/>
+   <rSolid name="ME41AlumFrameSubtraction"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0.0*fm" y="-[AlumFrameHalfThick]+[AlumFrameSubtractionThick]" z="0.0*fm"/>
+  </SubtractionSolid>
+  <Trd1 name="ME41FR4Body" dz="83.35*cm " dy1="[FR4BodyHalfThick]" dy2="[FR4BodyHalfThick]" dx1="44.985*cm " dx2="76.545*cm "/>
+  <Trd1 name="ME41PolycarbPanel" dz="80.43*cm " dy1="[PolycarbPanelHalfThick]" dy2="[PolycarbPanelHalfThick]" dx1="42.63*cm " dx2="73.225*cm "/>
+  <Trd1 name="ME_FR4Skin_1_ME41Layer" dz="80.71*cm " dy1="[FR4SkinHalfThick]" dy2="[FR4SkinHalfThick]" dx1="42.63*cm " dx2="73.225*cm "/>
+  <Trd1 name="ME_FR4Skin_2_ME41Layer" dz="80.71*cm " dy1="[FR4SkinHalfThick]" dy2="[FR4SkinHalfThick]" dx1="42.63*cm " dx2="73.225*cm "/>
+  <Trd1 name="MECU_1_ME41Layer" dz="80.71*cm " dy1="[CuFoilHalfThick]" dy2="[CuFoilHalfThick]" dx1="42.63*cm " dx2="73.225*cm "/>
+  <Trd1 name="MECU_2_ME41Layer" dz="80.71*cm " dy1="[CuFoilHalfThick]" dy2="[CuFoilHalfThick]" dx1="42.63*cm " dx2="73.225*cm "/>
+  <Trd1 name="ME41_ActiveGasVol" dz="74.710*cm " dy1="[ActiveGasVolHalfThick]" dy2="[ActiveGasVolHalfThick]" dx1="34.505*cm " dx2="62.825*cm "/>
+  <Trd1 name="ME_DeadGas_1_ME41_ActiveGasVol" dz="1.25*cm " dy1="[ActiveGasVolHalfThick]" dy2="[ActiveGasVolHalfThick]" dx1="52.296*cm " dx2="52.762*cm "/>
+  <Trd1 name="ME_DeadGas_2_ME41_ActiveGasVol" dz="1.25*cm " dy1="[ActiveGasVolHalfThick]" dy2="[ActiveGasVolHalfThick]" dx1="43.32*cm " dx2="43.8*cm "/>
+  <!-- Remove this line and matching comment ending line below to restore ME42 -->
+  <Tubs name="ME42Space" rMin="3.555*m  " rMax="7.01*m  " dz="125.3*mm" startPhi="0*deg" deltaPhi="360*deg"/>
+  <Trd1 name="ME42" dz="1.690*m  " dy1="125.3*mm" dy2="125.3*mm" dx1="45.519*cm " dx2="76.34*cm "/>
+  <Trd1 name="ME42AlumFrameBlock" dz="1.690*m  " dy1="[AlumFrameHalfThick]" dy2="[AlumFrameHalfThick]" dx1="455.19*mm" dx2="763.4*mm"/>
+  <Trd1 name="ME42AlumFrameSubtraction" dz="1607.53*mm" dy1="[AlumFrameSubtractionThick]" dy2="[AlumFrameSubtractionThick]" dx1="455.19*mm-81.3*mm" dx2="763.4*mm-81.3*mm"/>
+  <SubtractionSolid name="ME42AlumFrameTempBlock">
+   <rSolid name="ME42AlumFrameBlock"/>
+   <rSolid name="ME42AlumFrameSubtraction"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0.0*fm" y="[AlumFrameHalfThick]-[AlumFrameSubtractionThick]" z="0.0*fm"/>
+  </SubtractionSolid>
+  <SubtractionSolid name="ME42AlumFrame">
+   <rSolid name="ME42AlumFrameTempBlock"/>
+   <rSolid name="ME42AlumFrameSubtraction"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0.0*fm" y="-[AlumFrameHalfThick]+[AlumFrameSubtractionThick]" z="0.0*fm"/>
+  </SubtractionSolid>
+  <Trd1 name="ME42FR4Body" dz="1.690*m  " dy1="[FR4BodyHalfThick]" dy2="[FR4BodyHalfThick]" dx1="45.519*cm " dx2="76.34*cm "/>
+  <Trd1 name="ME42PolycarbPanel" dz="1.67095*m  " dy1="[PolycarbPanelHalfThick]" dy2="[PolycarbPanelHalfThick]" dx1="41.95*cm " dx2="73.345*cm "/>
+  <Trd1 name="ME_FR4Skin_1_ME42Layer" dz="1.67095*m  " dy1="[FR4SkinHalfThick]" dy2="[FR4SkinHalfThick]" dx1="41.95*cm " dx2="73.345*cm "/>
+  <Trd1 name="ME_FR4Skin_2_ME42Layer" dz="1.67095*m  " dy1="[FR4SkinHalfThick]" dy2="[FR4SkinHalfThick]" dx1="41.95*cm " dx2="73.345*cm "/>
+  <Trd1 name="MECU_1_ME42Layer" dz="1.67095*m  " dy1="[CuFoilHalfThick]" dy2="[CuFoilHalfThick]" dx1="41.95*cm " dx2="73.345*cm "/>
+  <Trd1 name="MECU_2_ME42Layer" dz="1.67095*m  " dy1="[CuFoilHalfThick]" dy2="[CuFoilHalfThick]" dx1="41.95*cm " dx2="73.345*cm "/>
+  <Trd1 name="ME42_ActiveGasVol" dz="1.6153*m  " dy1="[ActiveGasVolHalfThick]" dy2="[ActiveGasVolHalfThick]" dx1="33.230*cm " dx2="63.575*cm "/>
+  <Trd1 name="ME_DeadGas_1_ME42_ActiveGasVol" dz="1.265*cm " dy1="[ActiveGasVolHalfThick]" dy2="[ActiveGasVolHalfThick]" dx1="57.7*cm " dx2="57.93*cm "/>
+  <Trd1 name="ME_DeadGas_2_ME42_ActiveGasVol" dz="1.265*cm " dy1="[ActiveGasVolHalfThick]" dy2="[ActiveGasVolHalfThick]" dx1="52.18*cm " dx2="52.42*cm "/>
+  <Trd1 name="ME_DeadGas_3_ME42_ActiveGasVol" dz="1.265*cm " dy1="[ActiveGasVolHalfThick]" dy2="[ActiveGasVolHalfThick]" dx1="46.67*cm " dx2="46.9*cm "/>
+  <Trd1 name="ME_DeadGas_4_ME42_ActiveGasVol" dz="1.265*cm " dy1="[ActiveGasVolHalfThick]" dy2="[ActiveGasVolHalfThick]" dx1="41.16*cm " dx2="41.38*cm "/>
+  <!-- -->
+  <!-- RE4 staged volumes
+       <Tubs name="RR4X" rMin="2.644*m  " rMax="6.99*m  " dz="4.5*cm " startPhi="0*deg" deltaPhi="360*deg"/>
+       RE4 staged volumes -->
+  <!-- RE4/1 staged volume
+       <Tubs name="RT4H" rMin="2.644*m  " rMax="3.3*m  " dz="2*cm " startPhi="-13*deg" deltaPhi="26*deg"/>
+       <Trd1 name="RFHX" dz="27.85*cm " dy1="5.5*mm " dy2="5.5*mm " dx1="47.044*cm " dx2="56.847*cm " />
+       <Trd1 name="RHHX" dz="27.8*cm " dy1="5*mm " dy2="5*mm " dx1="46.994*cm " dx2="56.797*cm " />
+       <Trd1 name="REH1" dz="16.05*cm " dy1="1*mm " dy2="1*mm " dx1="51.134*cm " dx2="56.794*cm " />
+       <Trd1 name="REH2" dz="11.25*cm " dy1="1*mm " dy2="1*mm " dx1="46.991*cm " dx2="50.957*cm " />
+       RE4/1 staged volumes -->
+  <Tubs name="ShieldingBoronPoly_1_ME" rMin="1.13*m  " rMax="2.15*m  " dz="5*cm " startPhi="0*deg" deltaPhi="360*deg"/>
+ </SolidSection>
+ <LogicalPartSection label="mf.xml">
+  <LogicalPart name="MEP" category="unspecified">
+   <rSolid name="ME"/>
+   <rMaterial name="materials:M_F_Air"/>
+  </LogicalPart>
+  <LogicalPart name="MEN" category="unspecified">
+   <rSolid name="ME"/>
+   <rMaterial name="materials:M_F_Air"/>
+  </LogicalPart>
+  <LogicalPart name="SupportTubeForHE" category="unspecified">
+   <rSolid name="SupportTubeForHE"/>
+   <rMaterial name="materials:StainlessSteel"/>
+  </LogicalPart>
+  <LogicalPart name="ME1RingP" category="unspecified">
+   <rSolid name="ME1Ring"/>
+   <rMaterial name="materials:M_F_Air"/>
+  </LogicalPart>
+  <LogicalPart name="ME1RingN" category="unspecified">
+   <rSolid name="ME1Ring"/>
+   <rMaterial name="materials:M_F_Air"/>
+  </LogicalPart>
+  <LogicalPart name="ShieldingBoronPoly_1_ME1" category="unspecified">
+   <rSolid name="ShieldingBoronPoly_1_ME1"/>
+   <rMaterial name="materials:Boron Polyethyl."/>
+  </LogicalPart>
+  <LogicalPart name="ShieldingAntinomyLead_1_ME1" category="unspecified">
+   <rSolid name="ShieldingAntinomyLead_1_ME1"/>
+   <rMaterial name="materials:AntiLead"/>
+  </LogicalPart>
+  <LogicalPart name="ShieldingBoronPoly_2_ME1" category="unspecified">
+   <rSolid name="ShieldingBoronPoly_2_ME1"/>
+   <rMaterial name="materials:Boron Polyethyl."/>
+  </LogicalPart>
+  <LogicalPart name="ShieldingAntinomyLead_2_ME1" category="unspecified">
+   <rSolid name="ShieldingAntinomyLead_2_ME1"/>
+   <rMaterial name="materials:AntiLead"/>
+  </LogicalPart>
+  <LogicalPart name="ShieldingBoronPoly_3_ME1" category="unspecified">
+   <rSolid name="ShieldingBoronPoly_3_ME1"/>
+   <rMaterial name="materials:Boron Polyethyl."/>
+  </LogicalPart>
+  <LogicalPart name="ShieldingAntinomyLead_3_ME1" category="unspecified">
+   <rSolid name="ShieldingAntinomyLead_3_ME1"/>
+   <rMaterial name="materials:AntiLead"/>
+  </LogicalPart>
+  <LogicalPart name="ShieldingBoronPoly_4_ME1" category="unspecified">
+   <rSolid name="ShieldingBoronPoly_4_ME1"/>
+   <rMaterial name="materials:Boron Polyethyl."/>
+  </LogicalPart>
+  <LogicalPart name="ShieldingAntinomyLead_4_ME1" category="unspecified">
+   <rSolid name="ShieldingAntinomyLead_4_ME1"/>
+   <rMaterial name="materials:AntiLead"/>
+  </LogicalPart>
+  <LogicalPart name="ShieldingBoronPoly_5_ME1" category="unspecified">
+   <rSolid name="ShieldingBoronPoly_5_ME1"/>
+   <rMaterial name="materials:Boron Polyethyl."/>
+  </LogicalPart>
+  <LogicalPart name="ShieldingAntinomyLead_5_ME1" category="unspecified">
+   <rSolid name="ShieldingAntinomyLead_5_ME1"/>
+   <rMaterial name="materials:AntiLead"/>
+  </LogicalPart>
+  <LogicalPart name="ShieldingAntinomyLead_6_ME1" category="unspecified">
+   <rSolid name="ShieldingAntinomyLead_6_ME1"/>
+   <rMaterial name="materials:AntiLead"/>
+  </LogicalPart>
+  <LogicalPart name="ShieldingBoronPoly_6_ME1" category="unspecified">
+   <rSolid name="ShieldingBoronPoly_6_ME1"/>
+   <rMaterial name="materials:Boron Polyethyl."/>
+  </LogicalPart>
+  <LogicalPart name="ME11SupportDisk" category="unspecified">
+   <rSolid name="ME11SupportDisk"/>
+   <rMaterial name="materials:Aluminium"/>
+  </LogicalPart>
+  <LogicalPart name="ME11Space" category="unspecified">
+   <rSolid name="ME11Space"/>
+   <rMaterial name="materials:ME_free_space"/>
+  </LogicalPart>
+  <LogicalPart name="ME11" category="unspecified">
+   <rSolid name="ME11"/>
+   <rMaterial name="materials:M_F_Air"/>
+  </LogicalPart>
+  <LogicalPart name="ME11AlumFrame" category="unspecified">
+   <rSolid name="ME11AlumFrame"/>
+   <rMaterial name="materials:M_Aluminium"/>
+  </LogicalPart>
+  <LogicalPart name="ME11FR4Body" category="unspecified">
+   <rSolid name="ME11FR4Body"/>
+   <rMaterial name="materials:M_NEMA FR4 plate"/>
+  </LogicalPart>
+  <LogicalPart name="ME11PolycarbPanel" category="unspecified">
+   <rSolid name="ME11PolycarbPanel"/>
+   <rMaterial name="materials:Polycarbonate"/>
+  </LogicalPart>
+  <LogicalPart name="ME_FR4Skin_1_ME11Layer" category="unspecified">
+   <rSolid name="ME_FR4Skin_1_ME11Layer"/>
+   <rMaterial name="materials:M_NEMA FR4 plate"/>
+  </LogicalPart>
+  <LogicalPart name="ME_FR4Skin_2_ME11Layer" category="unspecified">
+   <rSolid name="ME_FR4Skin_2_ME11Layer"/>
+   <rMaterial name="materials:M_NEMA FR4 plate"/>
+  </LogicalPart>
+  <LogicalPart name="MECU_1_ME11Layer" category="unspecified">
+   <rSolid name="MECU_1_ME11Layer"/>
+   <rMaterial name="materials:M_Copper"/>
+  </LogicalPart>
+  <LogicalPart name="MECU_2_ME11Layer" category="unspecified">
+   <rSolid name="MECU_2_ME11Layer"/>
+   <rMaterial name="materials:M_Copper"/>
+  </LogicalPart>
+  <LogicalPart name="ME1A_ActiveGasVol" category="unspecified">
+   <rSolid name="ME1A_ActiveGasVol"/>
+   <rMaterial name="materials:M_Argon CF_4 CO_2"/>
+  </LogicalPart>
+  <LogicalPart name="ME11_ActiveGasVol" category="unspecified">
+   <rSolid name="ME11_ActiveGasVol"/>
+   <rMaterial name="materials:M_Argon CF_4 CO_2"/>
+  </LogicalPart>
+  <LogicalPart name="MEEQ" category="unspecified">
+   <rSolid name="MEEQ"/>
+   <rMaterial name="materials:FrontEnd Electronics"/>
+  </LogicalPart>
+  <LogicalPart name="AlgPinNarrowEnd" category="unspecified">
+   <rSolid name="AlgPinNarrowEnd"/>
+   <rMaterial name="materials:StainlessSteel"/>
+  </LogicalPart>
+  <LogicalPart name="AlgPinWideEnd" category="unspecified">
+   <rSolid name="AlgPinWideEnd"/>
+   <rMaterial name="materials:StainlessSteel"/>
+  </LogicalPart>
+  <LogicalPart name="AlgPinNarrowEndME1" category="unspecified">
+   <rSolid name="AlgPinNarrowEndME1"/>
+   <rMaterial name="materials:StainlessSteel"/>
+  </LogicalPart>
+  <LogicalPart name="AlgPinWideEndME1" category="unspecified">
+   <rSolid name="AlgPinWideEndME1"/>
+   <rMaterial name="materials:StainlessSteel"/>
+  </LogicalPart>
+  <!-- RE1/1 staged volumes
+       <LogicalPart name="RR11" category="unspecified">
+       <rSolid name="RR11"/>
+       <rMaterial name="materials:ME_free_space"/>
+  </LogicalPart>
+       <LogicalPart name="RT1A" category="unspecified">
+       <rSolid name="RT1A"/>
+       <rMaterial name="materials:ME_free_space"/>
+  </LogicalPart>
+       <LogicalPart name="RFAX" category="unspecified">
+       <rSolid name="RFAX"/>
+       <rMaterial name="materials:Aluminium"/>
+  </LogicalPart>
+       <LogicalPart name="RHAX" category="unspecified">
+       <rSolid name="RHAX"/>
+       <rMaterial name="materials:Bakelite"/>
+  </LogicalPart>
+       <LogicalPart name="REA1" category="unspecified">
+       <rSolid name="REA1"/>
+       <rMaterial name="materials:M_RPC_Gas"/>
+  </LogicalPart>
+       <LogicalPart name="REA2" category="unspecified">
+       <rSolid name="REA2"/>
+       <rMaterial name="materials:M_RPC_Gas"/>
+  </LogicalPart>
+       <LogicalPart name="REA3" category="unspecified">
+       <rSolid name="REA3"/>
+       <rMaterial name="materials:M_RPC_Gas"/>
+  </LogicalPart>
+       <LogicalPart name="REA4" category="unspecified">
+       <rSolid name="REA4"/>
+       <rMaterial name="materials:M_RPC_Gas"/>
+  </LogicalPart>
+       RE1/1 staged volumes -->
+  <LogicalPart name="ZStopSpace" category="unspecified">
+   <rSolid name="ZStopSpace"/>
+   <rMaterial name="materials:ME_free_space"/>
+  </LogicalPart>
+  <LogicalPart name="ZStop_1_ZStopSpaceDivision" category="unspecified">
+   <rSolid name="ZStop_1_ZStopSpaceDivision"/>
+   <rMaterial name="materials:Aluminium"/>
+  </LogicalPart>
+  <LogicalPart name="ZStop_2_ZStopSpaceDivision" category="unspecified">
+   <rSolid name="ZStop_2_ZStopSpaceDivision"/>
+   <rMaterial name="materials:Aluminium"/>
+  </LogicalPart>
+  <LogicalPart name="ME12RingP" category="unspecified">
+   <rSolid name="ME12Ring"/>
+   <rMaterial name="materials:M_F_Air"/>
+  </LogicalPart>
+  <LogicalPart name="ME12RingN" category="unspecified">
+   <rSolid name="ME12Ring"/>
+   <rMaterial name="materials:M_F_Air"/>
+  </LogicalPart>
+  <LogicalPart name="ME12Space" category="unspecified">
+   <rSolid name="ME12Space"/>
+   <rMaterial name="materials:ME_free_space"/>
+  </LogicalPart>
+  <LogicalPart name="ME12" category="unspecified">
+   <rSolid name="ME12"/>
+   <rMaterial name="materials:M_F_Air"/>
+  </LogicalPart>
+  <LogicalPart name="ME12AlumFrame" category="unspecified">
+   <rSolid name="ME12AlumFrame"/>
+   <rMaterial name="materials:M_Aluminium"/>
+  </LogicalPart>
+  <LogicalPart name="ME12FR4Body" category="unspecified">
+   <rSolid name="ME12FR4Body"/>
+   <rMaterial name="materials:M_NEMA FR4 plate"/>
+  </LogicalPart>
+  <LogicalPart name="ME12PolycarbPanel" category="unspecified">
+   <rSolid name="ME12PolycarbPanel"/>
+   <rMaterial name="materials:Polycarbonate"/>
+  </LogicalPart>
+  <LogicalPart name="ME_FR4Skin_1_ME12Layer" category="unspecified">
+   <rSolid name="ME_FR4Skin_1_ME12Layer"/>
+   <rMaterial name="materials:M_NEMA FR4 plate"/>
+  </LogicalPart>
+  <LogicalPart name="ME_FR4Skin_2_ME12Layer" category="unspecified">
+   <rSolid name="ME_FR4Skin_2_ME12Layer"/>
+   <rMaterial name="materials:M_NEMA FR4 plate"/>
+  </LogicalPart>
+  <LogicalPart name="MECU_1_ME12Layer" category="unspecified">
+   <rSolid name="MECU_1_ME12Layer"/>
+   <rMaterial name="materials:M_Copper"/>
+  </LogicalPart>
+  <LogicalPart name="MECU_2_ME12Layer" category="unspecified">
+   <rSolid name="MECU_2_ME12Layer"/>
+   <rMaterial name="materials:M_Copper"/>
+  </LogicalPart>
+  <LogicalPart name="ME12_ActiveGasVol" category="unspecified">
+   <rSolid name="ME12_ActiveGasVol"/>
+   <rMaterial name="materials:M_Argon CF_4 CO_2"/>
+  </LogicalPart>
+  <LogicalPart name="ME_DeadGas_1_ME12_ActiveGasVol" category="unspecified">
+   <rSolid name="ME_DeadGas_1_ME12_ActiveGasVol"/>
+   <rMaterial name="materials:Dead_Argon CF_4 CO_2"/>
+  </LogicalPart>
+  <LogicalPart name="ME_DeadGas_2_ME12_ActiveGasVol" category="unspecified">
+   <rSolid name="ME_DeadGas_2_ME12_ActiveGasVol"/>
+   <rMaterial name="materials:Dead_Argon CF_4 CO_2"/>
+  </LogicalPart>
+  <LogicalPart name="RR12" category="unspecified">
+   <rSolid name="RR12"/>
+   <rMaterial name="materials:ME_free_space"/>
+  </LogicalPart>
+  <LogicalPart name="RR12N" category="unspecified">
+   <rSolid name="RR12"/>
+   <rMaterial name="materials:ME_free_space"/>
+  </LogicalPart>
+  <LogicalPart name="RFBX" category="unspecified">
+   <rSolid name="RFBX"/>
+   <rMaterial name="materials:Aluminium"/>
+  </LogicalPart>
+  <LogicalPart name="RHBX" category="unspecified">
+   <rSolid name="RHBX"/>
+   <rMaterial name="materials:Bakelite"/>
+  </LogicalPart>
+  <LogicalPart name="REB1" category="unspecified">
+   <rSolid name="REB1"/>
+   <rMaterial name="materials:M_RPC_Gas"/>
+  </LogicalPart>
+  <LogicalPart name="REB2" category="unspecified">
+   <rSolid name="REB2"/>
+   <rMaterial name="materials:M_RPC_Gas"/>
+  </LogicalPart>
+  <LogicalPart name="REB3" category="unspecified">
+   <rSolid name="REB3"/>
+   <rMaterial name="materials:M_RPC_Gas"/>
+  </LogicalPart>
+  <LogicalPart name="ME13RingP" category="unspecified">
+   <rSolid name="ME13Ring"/>
+   <rMaterial name="materials:M_F_Air"/>
+  </LogicalPart>
+  <LogicalPart name="ME13RingN" category="unspecified">
+   <rSolid name="ME13Ring"/>
+   <rMaterial name="materials:M_F_Air"/>
+  </LogicalPart>
+  <LogicalPart name="ME13Space" category="unspecified">
+   <rSolid name="ME13Space"/>
+   <rMaterial name="materials:ME_free_space"/>
+  </LogicalPart>
+  <LogicalPart name="ME13" category="unspecified">
+   <rSolid name="ME13"/>
+   <rMaterial name="materials:M_F_Air"/>
+  </LogicalPart>
+  <LogicalPart name="ME13AlumFrame" category="unspecified">
+   <rSolid name="ME13AlumFrame"/>
+   <rMaterial name="materials:M_Aluminium"/>
+  </LogicalPart>
+  <LogicalPart name="ME13FR4Body" category="unspecified">
+   <rSolid name="ME13FR4Body"/>
+   <rMaterial name="materials:M_NEMA FR4 plate"/>
+  </LogicalPart>
+  <LogicalPart name="ME13PolycarbPanel" category="unspecified">
+   <rSolid name="ME13PolycarbPanel"/>
+   <rMaterial name="materials:Polycarbonate"/>
+  </LogicalPart>
+  <LogicalPart name="ME_FR4Skin_1_ME13Layer" category="unspecified">
+   <rSolid name="ME_FR4Skin_1_ME13Layer"/>
+   <rMaterial name="materials:M_NEMA FR4 plate"/>
+  </LogicalPart>
+  <LogicalPart name="ME_FR4Skin_2_ME13Layer" category="unspecified">
+   <rSolid name="ME_FR4Skin_2_ME13Layer"/>
+   <rMaterial name="materials:M_NEMA FR4 plate"/>
+  </LogicalPart>
+  <LogicalPart name="MECU_1_ME13Layer" category="unspecified">
+   <rSolid name="MECU_1_ME13Layer"/>
+   <rMaterial name="materials:M_Copper"/>
+  </LogicalPart>
+  <LogicalPart name="MECU_2_ME13Layer" category="unspecified">
+   <rSolid name="MECU_2_ME13Layer"/>
+   <rMaterial name="materials:M_Copper"/>
+  </LogicalPart>
+  <LogicalPart name="ME13_ActiveGasVol" category="unspecified">
+   <rSolid name="ME13_ActiveGasVol"/>
+   <rMaterial name="materials:M_Argon CF_4 CO_2"/>
+  </LogicalPart>
+  <LogicalPart name="ME_DeadGas_1_ME13_ActiveGasVol" category="unspecified">
+   <rSolid name="ME_DeadGas_1_ME13_ActiveGasVol"/>
+   <rMaterial name="materials:Dead_Argon CF_4 CO_2"/>
+  </LogicalPart>
+  <LogicalPart name="ME_DeadGas_2_ME13_ActiveGasVol" category="unspecified">
+   <rSolid name="ME_DeadGas_2_ME13_ActiveGasVol"/>
+   <rMaterial name="materials:Dead_Argon CF_4 CO_2"/>
+  </LogicalPart>
+  <LogicalPart name="RR13" category="unspecified">
+   <rSolid name="RR13"/>
+   <rMaterial name="materials:ME_free_space"/>
+  </LogicalPart>
+  <LogicalPart name="RT1C" category="unspecified">
+   <rSolid name="RT1C"/>
+   <rMaterial name="materials:ME_free_space"/>
+  </LogicalPart>
+  <LogicalPart name="RFCX" category="unspecified">
+   <rSolid name="RFCX"/>
+   <rMaterial name="materials:Aluminium"/>
+  </LogicalPart>
+  <LogicalPart name="RHCX" category="unspecified">
+   <rSolid name="RHCX"/>
+   <rMaterial name="materials:Bakelite"/>
+  </LogicalPart>
+  <LogicalPart name="REC1" category="unspecified">
+   <rSolid name="REC1"/>
+   <rMaterial name="materials:M_RPC_Gas"/>
+  </LogicalPart>
+  <LogicalPart name="REC2" category="unspecified">
+   <rSolid name="REC2"/>
+   <rMaterial name="materials:M_RPC_Gas"/>
+  </LogicalPart>
+  <LogicalPart name="REC3" category="unspecified">
+   <rSolid name="REC3"/>
+   <rMaterial name="materials:M_RPC_Gas"/>
+  </LogicalPart>
+  <LogicalPart name="ME2RingP" category="unspecified">
+   <rSolid name="ME2Ring"/>
+   <rMaterial name="materials:M_F_Air"/>
+  </LogicalPart>
+  <LogicalPart name="ME2RingN" category="unspecified">
+   <rSolid name="ME2Ring"/>
+   <rMaterial name="materials:M_F_Air"/>
+  </LogicalPart>
+  <LogicalPart name="ShieldingBoronPoly_1_ME2" category="unspecified">
+   <rSolid name="ShieldingBoronPoly_1_ME2"/>
+   <rMaterial name="materials:Boron Polyethyl."/>
+  </LogicalPart>
+  <LogicalPart name="ShieldingAntinomyLead_1_ME2" category="unspecified">
+   <rSolid name="ShieldingAntinomyLead_1_ME2"/>
+   <rMaterial name="materials:AntiLead"/>
+  </LogicalPart>
+  <LogicalPart name="ShieldingBoronPoly_2_ME2" category="unspecified">
+   <rSolid name="ShieldingBoronPoly_2_ME2"/>
+   <rMaterial name="materials:Boron Polyethyl."/>
+  </LogicalPart>
+  <LogicalPart name="ShieldingAntinomyLead_2_ME2" category="unspecified">
+   <rSolid name="ShieldingAntinomyLead_2_ME2"/>
+   <rMaterial name="materials:AntiLead"/>
+  </LogicalPart>
+  <LogicalPart name="ShieldingBoronPoly_3_ME2" category="unspecified">
+   <rSolid name="ShieldingBoronPoly_3_ME2"/>
+   <rMaterial name="materials:Boron Polyethyl."/>
+  </LogicalPart>
+  <LogicalPart name="ShieldingAntinomyLead_3_ME2" category="unspecified">
+   <rSolid name="ShieldingAntinomyLead_3_ME2"/>
+   <rMaterial name="materials:AntiLead"/>
+  </LogicalPart>
+  <LogicalPart name="ME21Space" category="unspecified">
+   <rSolid name="ME21Space"/>
+   <rMaterial name="materials:ME_free_space"/>
+  </LogicalPart>
+  <LogicalPart name="ME21" category="unspecified">
+   <rSolid name="ME21"/>
+   <rMaterial name="materials:M_F_Air"/>
+  </LogicalPart>
+  <LogicalPart name="ME21AlumFrame" category="unspecified">
+   <rSolid name="ME21AlumFrame"/>
+   <rMaterial name="materials:M_Aluminium"/>
+  </LogicalPart>
+  <LogicalPart name="ME21FR4Body" category="unspecified">
+   <rSolid name="ME21FR4Body"/>
+   <rMaterial name="materials:M_NEMA FR4 plate"/>
+  </LogicalPart>
+  <LogicalPart name="ME21PolycarbPanel" category="unspecified">
+   <rSolid name="ME21PolycarbPanel"/>
+   <rMaterial name="materials:Polycarbonate"/>
+  </LogicalPart>
+  <LogicalPart name="ME_FR4Skin_1_ME21Layer" category="unspecified">
+   <rSolid name="ME_FR4Skin_1_ME21Layer"/>
+   <rMaterial name="materials:M_NEMA FR4 plate"/>
+  </LogicalPart>
+  <LogicalPart name="ME_FR4Skin_2_ME21Layer" category="unspecified">
+   <rSolid name="ME_FR4Skin_2_ME21Layer"/>
+   <rMaterial name="materials:M_NEMA FR4 plate"/>
+  </LogicalPart>
+  <LogicalPart name="MECU_1_ME21Layer" category="unspecified">
+   <rSolid name="MECU_1_ME21Layer"/>
+   <rMaterial name="materials:M_Copper"/>
+  </LogicalPart>
+  <LogicalPart name="MECU_2_ME21Layer" category="unspecified">
+   <rSolid name="MECU_2_ME21Layer"/>
+   <rMaterial name="materials:M_Copper"/>
+  </LogicalPart>
+  <LogicalPart name="ME21_ActiveGasVol" category="unspecified">
+   <rSolid name="ME21_ActiveGasVol"/>
+   <rMaterial name="materials:M_Argon CF_4 CO_2"/>
+  </LogicalPart>
+  <LogicalPart name="ME_DeadGas_1_ME21_ActiveGasVol" category="unspecified">
+   <rSolid name="ME_DeadGas_1_ME21_ActiveGasVol"/>
+   <rMaterial name="materials:Dead_Argon CF_4 CO_2"/>
+  </LogicalPart>
+  <LogicalPart name="ME_DeadGas_2_ME21_ActiveGasVol" category="unspecified">
+   <rSolid name="ME_DeadGas_2_ME21_ActiveGasVol"/>
+   <rMaterial name="materials:Dead_Argon CF_4 CO_2"/>
+  </LogicalPart>
+  <LogicalPart name="RR2X" category="unspecified">
+   <rSolid name="RR2X"/>
+   <rMaterial name="materials:ME_free_space"/>
+  </LogicalPart>
+  <!-- RE2/1 staged volume
+       <LogicalPart name="RT2D" category="unspecified">
+       <rSolid name="RT2D"/>
+       <rMaterial name="materials:ME_free_space"/>
+  </LogicalPart>
+       <LogicalPart name="RFDX" category="unspecified">
+       <rSolid name="RFDX"/>
+       <rMaterial name="materials:Aluminium"/>
+  </LogicalPart>
+       <LogicalPart name="RHDX" category="unspecified">
+       <rSolid name="RHDX"/>
+       <rMaterial name="materials:Bakelite"/>
+  </LogicalPart>
+       <LogicalPart name="RED1" category="unspecified">
+       <rSolid name="RED1"/>
+       <rMaterial name="materials:M_RPC_Gas"/>
+  </LogicalPart>
+       <LogicalPart name="RED2" category="unspecified">
+       <rSolid name="RED2"/>
+       <rMaterial name="materials:M_RPC_Gas"/>
+  </LogicalPart>
+       <LogicalPart name="RED3" category="unspecified">
+       <rSolid name="RED3"/>
+       <rMaterial name="materials:M_RPC_Gas"/>
+  </LogicalPart>
+       <LogicalPart name="RED4" category="unspecified">
+       <rSolid name="RED4"/>
+       <rMaterial name="materials:M_RPC_Gas"/>
+  </LogicalPart>
+       RE2/1 staged volume -->
+  <LogicalPart name="RTXU" category="unspecified">
+   <rSolid name="RTXU"/>
+   <rMaterial name="materials:ME_free_space"/>
+  </LogicalPart>
+  <LogicalPart name="RTXUR" category="unspecified">
+   <rSolid name="RTXU"/>
+   <rMaterial name="materials:ME_free_space"/>
+  </LogicalPart>
+  <LogicalPart name="RFEX" category="unspecified">
+   <rSolid name="RFEX"/>
+   <rMaterial name="materials:Aluminium"/>
+  </LogicalPart>
+  <LogicalPart name="RHEX" category="unspecified">
+   <rSolid name="RHEX"/>
+   <rMaterial name="materials:Bakelite"/>
+  </LogicalPart>
+  <LogicalPart name="REE1" category="unspecified">
+   <rSolid name="REE1"/>
+   <rMaterial name="materials:M_RPC_Gas"/>
+  </LogicalPart>
+  <LogicalPart name="REE2" category="unspecified">
+   <rSolid name="REE2"/>
+   <rMaterial name="materials:M_RPC_Gas"/>
+  </LogicalPart>
+  <LogicalPart name="REE3" category="unspecified">
+   <rSolid name="REE3"/>
+   <rMaterial name="materials:M_RPC_Gas"/>
+  </LogicalPart>
+  <LogicalPart name="RFFX" category="unspecified">
+   <rSolid name="RFFX"/>
+   <rMaterial name="materials:Aluminium"/>
+  </LogicalPart>
+  <LogicalPart name="RHFX" category="unspecified">
+   <rSolid name="RHFX"/>
+   <rMaterial name="materials:Bakelite"/>
+  </LogicalPart>
+  <LogicalPart name="REF1" category="unspecified">
+   <rSolid name="REF1"/>
+   <rMaterial name="materials:M_RPC_Gas"/>
+  </LogicalPart>
+  <LogicalPart name="REF2" category="unspecified">
+   <rSolid name="REF2"/>
+   <rMaterial name="materials:M_RPC_Gas"/>
+  </LogicalPart>
+  <LogicalPart name="REF3" category="unspecified">
+   <rSolid name="REF3"/>
+   <rMaterial name="materials:M_RPC_Gas"/>
+  </LogicalPart>
+  <LogicalPart name="ME22Space" category="unspecified">
+   <rSolid name="ME22Space"/>
+   <rMaterial name="materials:ME_free_space"/>
+  </LogicalPart>
+  <LogicalPart name="ME22" category="unspecified">
+   <rSolid name="ME22"/>
+   <rMaterial name="materials:M_F_Air"/>
+  </LogicalPart>
+  <LogicalPart name="ME22AlumFrame" category="unspecified">
+   <rSolid name="ME22AlumFrame"/>
+   <rMaterial name="materials:M_Aluminium"/>
+  </LogicalPart>
+  <LogicalPart name="ME22FR4Body" category="unspecified">
+   <rSolid name="ME22FR4Body"/>
+   <rMaterial name="materials:M_NEMA FR4 plate"/>
+  </LogicalPart>
+  <LogicalPart name="ME22PolycarbPanel" category="unspecified">
+   <rSolid name="ME22PolycarbPanel"/>
+   <rMaterial name="materials:Polycarbonate"/>
+  </LogicalPart>
+  <LogicalPart name="ME_FR4Skin_1_ME22Layer" category="unspecified">
+   <rSolid name="ME_FR4Skin_1_ME22Layer"/>
+   <rMaterial name="materials:M_NEMA FR4 plate"/>
+  </LogicalPart>
+  <LogicalPart name="ME_FR4Skin_2_ME22Layer" category="unspecified">
+   <rSolid name="ME_FR4Skin_2_ME22Layer"/>
+   <rMaterial name="materials:M_NEMA FR4 plate"/>
+  </LogicalPart>
+  <LogicalPart name="MECU_1_ME22Layer" category="unspecified">
+   <rSolid name="MECU_1_ME22Layer"/>
+   <rMaterial name="materials:M_Copper"/>
+  </LogicalPart>
+  <LogicalPart name="MECU_2_ME22Layer" category="unspecified">
+   <rSolid name="MECU_2_ME22Layer"/>
+   <rMaterial name="materials:M_Copper"/>
+  </LogicalPart>
+  <LogicalPart name="ME22_ActiveGasVol" category="unspecified">
+   <rSolid name="ME22_ActiveGasVol"/>
+   <rMaterial name="materials:M_Argon CF_4 CO_2"/>
+  </LogicalPart>
+  <LogicalPart name="ME_DeadGas_1_ME22_ActiveGasVol" category="unspecified">
+   <rSolid name="ME_DeadGas_1_ME22_ActiveGasVol"/>
+   <rMaterial name="materials:Dead_Argon CF_4 CO_2"/>
+  </LogicalPart>
+  <LogicalPart name="ME_DeadGas_2_ME22_ActiveGasVol" category="unspecified">
+   <rSolid name="ME_DeadGas_2_ME22_ActiveGasVol"/>
+   <rMaterial name="materials:Dead_Argon CF_4 CO_2"/>
+  </LogicalPart>
+  <LogicalPart name="ME_DeadGas_3_ME22_ActiveGasVol" category="unspecified">
+   <rSolid name="ME_DeadGas_3_ME22_ActiveGasVol"/>
+   <rMaterial name="materials:Dead_Argon CF_4 CO_2"/>
+  </LogicalPart>
+  <LogicalPart name="ME_DeadGas_4_ME22_ActiveGasVol" category="unspecified">
+   <rSolid name="ME_DeadGas_4_ME22_ActiveGasVol"/>
+   <rMaterial name="materials:Dead_Argon CF_4 CO_2"/>
+  </LogicalPart>
+  <LogicalPart name="ME3RingP" category="unspecified">
+   <rSolid name="ME3Ring"/>
+   <rMaterial name="materials:M_F_Air"/>
+  </LogicalPart>
+  <LogicalPart name="ME3RingN" category="unspecified">
+   <rSolid name="ME3Ring"/>
+   <rMaterial name="materials:M_F_Air"/>
+  </LogicalPart>
+  <LogicalPart name="ShieldingBoronPoly_1_ME3" category="unspecified">
+   <rSolid name="ShieldingBoronPoly_1_ME3"/>
+   <rMaterial name="materials:Boron Polyethyl."/>
+  </LogicalPart>
+  <LogicalPart name="ShieldingAntinomyLead_1_ME3" category="unspecified">
+   <rSolid name="ShieldingAntinomyLead_1_ME3"/>
+   <rMaterial name="materials:AntiLead"/>
+  </LogicalPart>
+  <LogicalPart name="ShieldingBoronPoly_2_ME3" category="unspecified">
+   <rSolid name="ShieldingBoronPoly_2_ME3"/>
+   <rMaterial name="materials:Boron Polyethyl."/>
+  </LogicalPart>
+  <LogicalPart name="ShieldingAntinomyLead_2_ME3" category="unspecified">
+   <rSolid name="ShieldingAntinomyLead_2_ME3"/>
+   <rMaterial name="materials:AntiLead"/>
+  </LogicalPart>
+  <LogicalPart name="ShieldingAntinomyLead_3_ME3" category="unspecified">
+   <rSolid name="ShieldingAntinomyLead_3_ME3"/>
+   <rMaterial name="materials:AntiLead"/>
+  </LogicalPart>
+  <LogicalPart name="ShieldingBoronPoly_3_ME3" category="unspecified">
+   <rSolid name="ShieldingBoronPoly_3_ME3"/>
+   <rMaterial name="materials:Boron Polyethyl."/>
+  </LogicalPart>
+  <LogicalPart name="ME31Space" category="unspecified">
+   <rSolid name="ME31Space"/>
+   <rMaterial name="materials:ME_free_space"/>
+  </LogicalPart>
+  <LogicalPart name="ME31" category="unspecified">
+   <rSolid name="ME31"/>
+   <rMaterial name="materials:M_F_Air"/>
+  </LogicalPart>
+  <LogicalPart name="ME31AlumFrame" category="unspecified">
+   <rSolid name="ME31AlumFrame"/>
+   <rMaterial name="materials:M_Aluminium"/>
+  </LogicalPart>
+  <LogicalPart name="ME31FR4Body" category="unspecified">
+   <rSolid name="ME31FR4Body"/>
+   <rMaterial name="materials:M_NEMA FR4 plate"/>
+  </LogicalPart>
+  <LogicalPart name="ME31PolycarbPanel" category="unspecified">
+   <rSolid name="ME31PolycarbPanel"/>
+   <rMaterial name="materials:Polycarbonate"/>
+  </LogicalPart>
+  <LogicalPart name="ME_FR4Skin_1_ME31Layer" category="unspecified">
+   <rSolid name="ME_FR4Skin_1_ME31Layer"/>
+   <rMaterial name="materials:M_NEMA FR4 plate"/>
+  </LogicalPart>
+  <LogicalPart name="ME_FR4Skin_2_ME31Layer" category="unspecified">
+   <rSolid name="ME_FR4Skin_2_ME31Layer"/>
+   <rMaterial name="materials:M_NEMA FR4 plate"/>
+  </LogicalPart>
+  <LogicalPart name="MECU_1_ME31Layer" category="unspecified">
+   <rSolid name="MECU_1_ME31Layer"/>
+   <rMaterial name="materials:M_Copper"/>
+  </LogicalPart>
+  <LogicalPart name="MECU_2_ME31Layer" category="unspecified">
+   <rSolid name="MECU_2_ME31Layer"/>
+   <rMaterial name="materials:M_Copper"/>
+  </LogicalPart>
+  <LogicalPart name="ME31_ActiveGasVol" category="unspecified">
+   <rSolid name="ME31_ActiveGasVol"/>
+   <rMaterial name="materials:M_Argon CF_4 CO_2"/>
+  </LogicalPart>
+  <LogicalPart name="ME_DeadGas_1_ME31_ActiveGasVol" category="unspecified">
+   <rSolid name="ME_DeadGas_1_ME31_ActiveGasVol"/>
+   <rMaterial name="materials:Dead_Argon CF_4 CO_2"/>
+  </LogicalPart>
+  <LogicalPart name="ME_DeadGas_2_ME31_ActiveGasVol" category="unspecified">
+   <rSolid name="ME_DeadGas_2_ME31_ActiveGasVol"/>
+   <rMaterial name="materials:Dead_Argon CF_4 CO_2"/>
+  </LogicalPart>
+  <LogicalPart name="RR3X" category="unspecified">
+   <rSolid name="RR3X"/>
+   <rMaterial name="materials:ME_free_space"/>
+  </LogicalPart>
+  <!-- RE3/1 staged volumes 
+       <LogicalPart name="RT3G" category="unspecified">
+       <rSolid name="RT3G"/>
+       <rMaterial name="materials:ME_free_space"/>
+  </LogicalPart>
+       <LogicalPart name="RFGX" category="unspecified">
+       <rSolid name="RFGX"/>
+       <rMaterial name="materials:Aluminium"/>
+  </LogicalPart>
+       <LogicalPart name="RHGX" category="unspecified">
+       <rSolid name="RHGX"/>
+       <rMaterial name="materials:Bakelite"/>
+  </LogicalPart>
+       <LogicalPart name="REG1" category="unspecified">
+       <rSolid name="REG1"/>
+       <rMaterial name="materials:M_RPC_Gas"/>
+  </LogicalPart>
+       <LogicalPart name="REG2" category="unspecified">
+       <rSolid name="REG2"/>
+       <rMaterial name="materials:M_RPC_Gas"/>
+  </LogicalPart>
+       RE3/1 staged volumes -->
+  <LogicalPart name="ME32Space" category="unspecified">
+   <rSolid name="ME32Space"/>
+   <rMaterial name="materials:ME_free_space"/>
+  </LogicalPart>
+  <LogicalPart name="ME32" category="unspecified">
+   <rSolid name="ME32"/>
+   <rMaterial name="materials:M_F_Air"/>
+  </LogicalPart>
+  <LogicalPart name="ME32AlumFrame" category="unspecified">
+   <rSolid name="ME32AlumFrame"/>
+   <rMaterial name="materials:M_Aluminium"/>
+  </LogicalPart>
+  <LogicalPart name="ME32FR4Body" category="unspecified">
+   <rSolid name="ME32FR4Body"/>
+   <rMaterial name="materials:M_NEMA FR4 plate"/>
+  </LogicalPart>
+  <LogicalPart name="ME32PolycarbPanel" category="unspecified">
+   <rSolid name="ME32PolycarbPanel"/>
+   <rMaterial name="materials:Polycarbonate"/>
+  </LogicalPart>
+  <LogicalPart name="ME_FR4Skin_1_ME32Layer" category="unspecified">
+   <rSolid name="ME_FR4Skin_1_ME32Layer"/>
+   <rMaterial name="materials:M_NEMA FR4 plate"/>
+  </LogicalPart>
+  <LogicalPart name="ME_FR4Skin_2_ME32Layer" category="unspecified">
+   <rSolid name="ME_FR4Skin_2_ME32Layer"/>
+   <rMaterial name="materials:M_NEMA FR4 plate"/>
+  </LogicalPart>
+  <LogicalPart name="MECU_1_ME32Layer" category="unspecified">
+   <rSolid name="MECU_1_ME32Layer"/>
+   <rMaterial name="materials:M_Copper"/>
+  </LogicalPart>
+  <LogicalPart name="MECU_2_ME32Layer" category="unspecified">
+   <rSolid name="MECU_2_ME32Layer"/>
+   <rMaterial name="materials:M_Copper"/>
+  </LogicalPart>
+  <LogicalPart name="ME32_ActiveGasVol" category="unspecified">
+   <rSolid name="ME32_ActiveGasVol"/>
+   <rMaterial name="materials:M_Argon CF_4 CO_2"/>
+  </LogicalPart>
+  <LogicalPart name="ME_DeadGas_1_ME32_ActiveGasVol" category="unspecified">
+   <rSolid name="ME_DeadGas_1_ME32_ActiveGasVol"/>
+   <rMaterial name="materials:Dead_Argon CF_4 CO_2"/>
+  </LogicalPart>
+  <LogicalPart name="ME_DeadGas_2_ME32_ActiveGasVol" category="unspecified">
+   <rSolid name="ME_DeadGas_2_ME32_ActiveGasVol"/>
+   <rMaterial name="materials:Dead_Argon CF_4 CO_2"/>
+  </LogicalPart>
+  <LogicalPart name="ME_DeadGas_3_ME32_ActiveGasVol" category="unspecified">
+   <rSolid name="ME_DeadGas_3_ME32_ActiveGasVol"/>
+   <rMaterial name="materials:Dead_Argon CF_4 CO_2"/>
+  </LogicalPart>
+  <LogicalPart name="ME_DeadGas_4_ME32_ActiveGasVol" category="unspecified">
+   <rSolid name="ME_DeadGas_4_ME32_ActiveGasVol"/>
+   <rMaterial name="materials:Dead_Argon CF_4 CO_2"/>
+  </LogicalPart>
+  <LogicalPart name="ME4RingP" category="unspecified">
+   <rSolid name="ME4Ring"/>
+   <rMaterial name="materials:M_F_Air"/>
+  </LogicalPart>
+  <LogicalPart name="ME4RingN" category="unspecified">
+   <rSolid name="ME4Ring"/>
+   <rMaterial name="materials:M_F_Air"/>
+  </LogicalPart>
+  <LogicalPart name="ShieldingBoronPoly_1_ME4" category="unspecified">
+   <rSolid name="ShieldingBoronPoly_1_ME4"/>
+   <rMaterial name="materials:Boron Polyethyl."/>
+  </LogicalPart>
+  <LogicalPart name="ShieldingAntinomyLead_1_ME4" category="unspecified">
+   <rSolid name="ShieldingAntinomyLead_1_ME4"/>
+   <rMaterial name="materials:AntiLead"/>
+  </LogicalPart>
+  <LogicalPart name="ShieldingBoronPoly_2_ME4" category="unspecified">
+   <rSolid name="ShieldingBoronPoly_2_ME4"/>
+   <rMaterial name="materials:Boron Polyethyl."/>
+  </LogicalPart>
+  <LogicalPart name="ShieldingAntinomyLead_2_ME4" category="unspecified">
+   <rSolid name="ShieldingAntinomyLead_2_ME4"/>
+   <rMaterial name="materials:AntiLead"/>
+  </LogicalPart>
+  <LogicalPart name="ShieldingAntinomyLead_3_ME4" category="unspecified">
+   <rSolid name="ShieldingAntinomyLead_3_ME4"/>
+   <rMaterial name="materials:AntiLead"/>
+  </LogicalPart>
+  <LogicalPart name="ShieldingBoronPoly_3_ME4" category="unspecified">
+   <rSolid name="ShieldingBoronPoly_3_ME4"/>
+   <rMaterial name="materials:Boron Polyethyl."/>
+  </LogicalPart>
+  <LogicalPart name="ME41Space" category="unspecified">
+   <rSolid name="ME41Space"/>
+   <rMaterial name="materials:ME_free_space"/>
+  </LogicalPart>
+  <LogicalPart name="ME41" category="unspecified">
+   <rSolid name="ME41"/>
+   <rMaterial name="materials:M_F_Air"/>
+  </LogicalPart>
+  <LogicalPart name="ME41AlumFrame" category="unspecified">
+   <rSolid name="ME41AlumFrame"/>
+   <rMaterial name="materials:M_Aluminium"/>
+  </LogicalPart>
+  <LogicalPart name="ME41FR4Body" category="unspecified">
+   <rSolid name="ME41FR4Body"/>
+   <rMaterial name="materials:M_NEMA FR4 plate"/>
+  </LogicalPart>
+  <LogicalPart name="ME41PolycarbPanel" category="unspecified">
+   <rSolid name="ME41PolycarbPanel"/>
+   <rMaterial name="materials:Polycarbonate"/>
+  </LogicalPart>
+  <LogicalPart name="ME_FR4Skin_1_ME41Layer" category="unspecified">
+   <rSolid name="ME_FR4Skin_1_ME41Layer"/>
+   <rMaterial name="materials:M_NEMA FR4 plate"/>
+  </LogicalPart>
+  <LogicalPart name="ME_FR4Skin_2_ME41Layer" category="unspecified">
+   <rSolid name="ME_FR4Skin_2_ME41Layer"/>
+   <rMaterial name="materials:M_NEMA FR4 plate"/>
+  </LogicalPart>
+  <LogicalPart name="MECU_1_ME41Layer" category="unspecified">
+   <rSolid name="MECU_1_ME41Layer"/>
+   <rMaterial name="materials:M_Copper"/>
+  </LogicalPart>
+  <LogicalPart name="MECU_2_ME41Layer" category="unspecified">
+   <rSolid name="MECU_2_ME41Layer"/>
+   <rMaterial name="materials:M_Copper"/>
+  </LogicalPart>
+  <LogicalPart name="ME41_ActiveGasVol" category="unspecified">
+   <rSolid name="ME41_ActiveGasVol"/>
+   <rMaterial name="materials:M_Argon CF_4 CO_2"/>
+  </LogicalPart>
+  <LogicalPart name="ME_DeadGas_1_ME41_ActiveGasVol" category="unspecified">
+   <rSolid name="ME_DeadGas_1_ME41_ActiveGasVol"/>
+   <rMaterial name="materials:Dead_Argon CF_4 CO_2"/>
+  </LogicalPart>
+  <LogicalPart name="ME_DeadGas_2_ME41_ActiveGasVol" category="unspecified">
+   <rSolid name="ME_DeadGas_2_ME41_ActiveGasVol"/>
+   <rMaterial name="materials:Dead_Argon CF_4 CO_2"/>
+  </LogicalPart>
+  <!-- RE4 staged volumes
+       <LogicalPart name="RR4X" category="unspecified">
+       <rSolid name="RR4X"/>
+       <rMaterial name="materials:ME_free_space"/>
+  </LogicalPart>
+       RE4 staged volumes -->
+  <!-- RE4/1 staged volume
+       <LogicalPart name="RT4H" category="unspecified">
+       <rSolid name="RT4H"/>
+       <rMaterial name="materials:ME_free_space"/>
+  </LogicalPart>
+       <LogicalPart name="RFHX" category="unspecified">
+       <rSolid name="RFHX"/>
+       <rMaterial name="materials:Aluminium"/>
+  </LogicalPart>
+       <LogicalPart name="RHHX" category="unspecified">
+       <rSolid name="RHHX"/>
+       <rMaterial name="materials:Bakelite"/>
+  </LogicalPart>
+       <LogicalPart name="REH1" category="unspecified">
+       <rSolid name="REH1"/>
+       <rMaterial name="materials:M_RPC_Gas"/>
+  </LogicalPart>
+       <LogicalPart name="REH2" category="unspecified">
+       <rSolid name="REH2"/>
+       <rMaterial name="materials:M_RPC_Gas"/>
+  </LogicalPart>
+       RE4/1 staged volumes -->
+  <!-- Remove this line and comment ending line below to restore ME42 -->
+  <LogicalPart name="ME42Space" category="unspecified">
+   <rSolid name="ME42Space"/>
+   <rMaterial name="materials:ME_free_space"/>
+  </LogicalPart>
+  <LogicalPart name="ME42" category="unspecified">
+   <rSolid name="ME42"/>
+   <rMaterial name="materials:M_F_Air"/>
+  </LogicalPart>
+  <LogicalPart name="ME42AlumFrame" category="unspecified">
+   <rSolid name="ME42AlumFrame"/>
+   <rMaterial name="materials:M_Aluminium"/>
+  </LogicalPart>
+  <LogicalPart name="ME42FR4Body" category="unspecified">
+   <rSolid name="ME42FR4Body"/>
+   <rMaterial name="materials:M_NEMA FR4 plate"/>
+  </LogicalPart>
+  <LogicalPart name="ME42PolycarbPanel" category="unspecified">
+   <rSolid name="ME42PolycarbPanel"/>
+   <rMaterial name="materials:Polycarbonate"/>
+  </LogicalPart>
+  <LogicalPart name="ME_FR4Skin_1_ME42Layer" category="unspecified">
+   <rSolid name="ME_FR4Skin_1_ME42Layer"/>
+   <rMaterial name="materials:M_NEMA FR4 plate"/>
+  </LogicalPart>
+  <LogicalPart name="ME_FR4Skin_2_ME42Layer" category="unspecified">
+   <rSolid name="ME_FR4Skin_2_ME42Layer"/>
+   <rMaterial name="materials:M_NEMA FR4 plate"/>
+  </LogicalPart>
+  <LogicalPart name="MECU_1_ME42Layer" category="unspecified">
+   <rSolid name="MECU_1_ME42Layer"/>
+   <rMaterial name="materials:M_Copper"/>
+  </LogicalPart>
+  <LogicalPart name="MECU_2_ME42Layer" category="unspecified">
+   <rSolid name="MECU_2_ME42Layer"/>
+   <rMaterial name="materials:M_Copper"/>
+  </LogicalPart>
+  <LogicalPart name="ME42_ActiveGasVol" category="unspecified">
+   <rSolid name="ME42_ActiveGasVol"/>
+   <rMaterial name="materials:M_Argon CF_4 CO_2"/>
+  </LogicalPart>
+  <LogicalPart name="ME_DeadGas_1_ME42_ActiveGasVol" category="unspecified">
+   <rSolid name="ME_DeadGas_1_ME42_ActiveGasVol"/>
+   <rMaterial name="materials:Dead_Argon CF_4 CO_2"/>
+  </LogicalPart>
+  <LogicalPart name="ME_DeadGas_2_ME42_ActiveGasVol" category="unspecified">
+   <rSolid name="ME_DeadGas_2_ME42_ActiveGasVol"/>
+   <rMaterial name="materials:Dead_Argon CF_4 CO_2"/>
+  </LogicalPart>
+  <LogicalPart name="ME_DeadGas_3_ME42_ActiveGasVol" category="unspecified">
+   <rSolid name="ME_DeadGas_3_ME42_ActiveGasVol"/>
+   <rMaterial name="materials:Dead_Argon CF_4 CO_2"/>
+  </LogicalPart>
+  <LogicalPart name="ME_DeadGas_4_ME42_ActiveGasVol" category="unspecified">
+   <rSolid name="ME_DeadGas_4_ME42_ActiveGasVol"/>
+   <rMaterial name="materials:Dead_Argon CF_4 CO_2"/>
+  </LogicalPart>
+  <!-- -->
+  <LogicalPart name="ShieldingBoronPoly_1_ME" category="unspecified">
+   <rSolid name="ShieldingBoronPoly_1_ME"/>
+   <rMaterial name="materials:Boron Polyethyl."/>
+  </LogicalPart>
+ </LogicalPartSection>
+ <PosPartSection label="mf.xml">
+  <PosPart copyNumber="1">
+   <rParent name="muonBase:MUON"/>
+   <rChild name="mf:MEP"/>
+   <rRotation name="rotations:000D"/>
+  </PosPart>
+  <PosPart copyNumber="2">
+   <rParent name="muonBase:MUON"/>
+   <rChild name="mf:MEN"/>
+   <rRotation name="rotations:180D"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="mf:MEP"/>
+   <rChild name="mf:SupportTubeForHE"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="mf:MEP"/>
+   <rChild name="mf:ME1RingP"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="mf:MEN"/>
+   <rChild name="mf:SupportTubeForHE"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="mf:MEN"/>
+   <rChild name="mf:ME1RingN"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="mf:ME1RingP"/>
+   <rChild name="mf:ShieldingBoronPoly_1_ME1"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="0*fm " z="5698*mm"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="mf:ME1RingP"/>
+   <rChild name="mf:ShieldingAntinomyLead_1_ME1"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="0*fm " z="5724.5*mm"/>
+  </PosPart>
+  <PosPart copyNumber="2">
+   <rParent name="mf:ME1RingP"/>
+   <rChild name="mf:ShieldingBoronPoly_2_ME1"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="0*fm " z="5834.5*mm"/>
+  </PosPart>
+  <PosPart copyNumber="2">
+   <rParent name="mf:ME1RingP"/>
+   <rChild name="mf:ShieldingAntinomyLead_2_ME1"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="0*fm " z="5834.5*mm"/>
+  </PosPart>
+  <PosPart copyNumber="3">
+   <rParent name="mf:ME1RingP"/>
+   <rChild name="mf:ShieldingBoronPoly_3_ME1"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="0*fm " z="5834.5*mm"/>
+  </PosPart>
+  <PosPart copyNumber="3">
+   <rParent name="mf:ME1RingP"/>
+   <rChild name="mf:ShieldingAntinomyLead_3_ME1"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="0*fm " z="5834.5*mm"/>
+  </PosPart>
+  <PosPart copyNumber="4">
+   <rParent name="mf:ME1RingP"/>
+   <rChild name="mf:ShieldingBoronPoly_4_ME1"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="0*fm " z="6209*mm"/>
+  </PosPart>
+  <PosPart copyNumber="4">
+   <rParent name="mf:ME1RingP"/>
+   <rChild name="mf:ShieldingAntinomyLead_4_ME1"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="0*fm " z="6209*mm"/>
+  </PosPart>
+  <PosPart copyNumber="5">
+   <rParent name="mf:ME1RingP"/>
+   <rChild name="mf:ShieldingBoronPoly_5_ME1"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="0*fm " z="6209*mm"/>
+  </PosPart>
+  <PosPart copyNumber="5">
+   <rParent name="mf:ME1RingP"/>
+   <rChild name="mf:ShieldingAntinomyLead_5_ME1"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="0*fm " z="6209*mm"/>
+  </PosPart>
+  <PosPart copyNumber="6">
+   <rParent name="mf:ME1RingP"/>
+   <rChild name="mf:ShieldingAntinomyLead_6_ME1"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="0*fm " z="6316*mm"/>
+  </PosPart>
+  <PosPart copyNumber="6">
+   <rParent name="mf:ME1RingP"/>
+   <rChild name="mf:ShieldingBoronPoly_6_ME1"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="0*fm " z="6333*mm"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="mf:ME1RingP"/>
+   <rChild name="mf:ME11SupportDisk"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="0*fm " z="6023*mm"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="mf:ME1RingP"/>
+   <rChild name="mf:ME11Space"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="0*fm " z="6154.5*mm"/>
+  </PosPart>
+  <PosPart copyNumber="2">
+   <rParent name="mf:ME1RingP"/>
+   <rChild name="mf:ME11Space"/>
+   <rRotation name="rotations:R010"/>
+   <Translation x="0*fm " y="0*fm " z="5861.5*mm"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="mf:ME1RingN"/>
+   <rChild name="mf:ShieldingBoronPoly_1_ME1"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="0*fm " z="5698*mm"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="mf:ME1RingN"/>
+   <rChild name="mf:ShieldingAntinomyLead_1_ME1"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="0*fm " z="5724.5*mm"/>
+  </PosPart>
+  <PosPart copyNumber="2">
+   <rParent name="mf:ME1RingN"/>
+   <rChild name="mf:ShieldingBoronPoly_2_ME1"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="0*fm " z="5834.5*mm"/>
+  </PosPart>
+  <PosPart copyNumber="2">
+   <rParent name="mf:ME1RingN"/>
+   <rChild name="mf:ShieldingAntinomyLead_2_ME1"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="0*fm " z="5834.5*mm"/>
+  </PosPart>
+  <PosPart copyNumber="3">
+   <rParent name="mf:ME1RingN"/>
+   <rChild name="mf:ShieldingBoronPoly_3_ME1"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="0*fm " z="5834.5*mm"/>
+  </PosPart>
+  <PosPart copyNumber="3">
+   <rParent name="mf:ME1RingN"/>
+   <rChild name="mf:ShieldingAntinomyLead_3_ME1"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="0*fm " z="5834.5*mm"/>
+  </PosPart>
+  <PosPart copyNumber="4">
+   <rParent name="mf:ME1RingN"/>
+   <rChild name="mf:ShieldingBoronPoly_4_ME1"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="0*fm " z="6209*mm"/>
+  </PosPart>
+  <PosPart copyNumber="4">
+   <rParent name="mf:ME1RingN"/>
+   <rChild name="mf:ShieldingAntinomyLead_4_ME1"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="0*fm " z="6209*mm"/>
+  </PosPart>
+  <PosPart copyNumber="5">
+   <rParent name="mf:ME1RingN"/>
+   <rChild name="mf:ShieldingBoronPoly_5_ME1"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="0*fm " z="6209*mm"/>
+  </PosPart>
+  <PosPart copyNumber="5">
+   <rParent name="mf:ME1RingN"/>
+   <rChild name="mf:ShieldingAntinomyLead_5_ME1"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="0*fm " z="6209*mm"/>
+  </PosPart>
+  <PosPart copyNumber="6">
+   <rParent name="mf:ME1RingN"/>
+   <rChild name="mf:ShieldingAntinomyLead_6_ME1"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="0*fm " z="6316*mm"/>
+  </PosPart>
+  <PosPart copyNumber="6">
+   <rParent name="mf:ME1RingN"/>
+   <rChild name="mf:ShieldingBoronPoly_6_ME1"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="0*fm " z="6333*mm"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="mf:ME1RingN"/>
+   <rChild name="mf:ME11SupportDisk"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="0*fm " z="6023*mm"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="mf:ME1RingN"/>
+   <rChild name="mf:ME11Space"/>
+   <rRotation name="rotations:180RYZ"/>
+   <Translation x="0*fm " y="0*fm " z="6154.5*mm"/>
+  </PosPart>
+  <PosPart copyNumber="2">
+   <rParent name="mf:ME1RingN"/>
+   <rChild name="mf:ME11Space"/>
+   <rRotation name="rotations:R010R"/>
+   <Translation x="0*fm " y="0*fm " z="5861.5*mm"/>
+  </PosPart>
+  <Division name="ME11SpaceDivision" parent="ME11Space" axis="phi" offset="-10*deg" width="20*deg"/>
+  <PosPart copyNumber="1">
+   <rParent name="mf:ME11SpaceDivision"/>
+   <rChild name="mf:ME11"/>
+   <rRotation name="rotations:90XD"/>
+   <Translation x="1.815*m  " y="0*fm " z="0*fm "/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="mf:ME11"/>
+   <rChild name="mf:ME11AlumFrame"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="1.5*cm " z="0*fm "/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="mf:ME11AlumFrame"/>
+   <rChild name="mf:ME11FR4Body"/>
+   <rRotation name="rotations:000D"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="mf:ME11FR4Body"/>
+   <rChild name="mf:ME11PolycarbPanel"/>
+   <rRotation name="rotations:000D"/>
+  </PosPart>
+  <Division name="ME11Layer" parent="ME11PolycarbPanel" axis="y" offset="[ME11LayerOffset]" width="[ME11LayerSpacing]" nReplicas="6"/>
+  <PosPart copyNumber="1">
+   <rParent name="mf:ME11Layer"/>
+   <rChild name="mf:ME_FR4Skin_1_ME11Layer"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="0.5*[ME11GasGap]+2.0*[ME11CuFoilHalfThick]+[ME11FR4SkinHalfThick]" z="0*fm "/>
+  </PosPart>
+  <PosPart copyNumber="2">
+   <rParent name="mf:ME11Layer"/>
+   <rChild name="mf:ME_FR4Skin_2_ME11Layer"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="-0.5*[ME11GasGap]-2.0*[ME11CuFoilHalfThick]-[ME11FR4SkinHalfThick]" z="0*fm "/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="mf:ME11Layer"/>
+   <rChild name="mf:MECU_1_ME11Layer"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="0.5*[ME11GasGap]+[ME11CuFoilHalfThick]" z="0*fm "/>
+  </PosPart>
+  <PosPart copyNumber="2">
+   <rParent name="mf:ME11Layer"/>
+   <rChild name="mf:MECU_2_ME11Layer"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="-0.5*[ME11GasGap]-[ME11CuFoilHalfThick]" z="0*fm "/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="mf:ME11Layer"/>
+   <rChild name="mf:ME1A_ActiveGasVol"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="0*fm " z="-53*cm "/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="mf:ME11Layer"/>
+   <rChild name="mf:ME11_ActiveGasVol"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="0*fm " z="21.25*cm "/>
+  </PosPart>
+  <!-- REB: remove ME11,12,13,21,22 electronics until they can be made more realistic -->
+  <!-- <PosPart copyNumber="1">
+       <rParent name="mf:ME11"/>
+       <rChild name="mf:MEEQ"/>
+       <rRotation name="rotations:000D"/>
+       <Translation x="0*fm " y="-9.88*cm " z="0*fm " />
+  </PosPart>
+       <PosPart copyNumber="1">
+       <rParent name="mf:ME12"/>
+       <rChild name="mf:MEEQ"/>
+       <rRotation name="rotations:000D"/>
+       <Translation x="0*fm " y="-10.0234*cm " z="0*fm " />
+  </PosPart>
+       <PosPart copyNumber="1">
+       <rParent name="mf:ME13"/>
+       <rChild name="mf:MEEQ"/>
+       <rRotation name="rotations:000D"/>
+       <Translation x="0*fm " y="-10.0234*cm " z="0*fm " />
+  </PosPart>
+       <PosPart copyNumber="1">
+       <rParent name="mf:ME21"/>
+       <rChild name="mf:MEEQ"/>
+       <rRotation name="rotations:000D"/>
+       <Translation x="0*fm " y="-10.0234*cm " z="0*fm " />
+  </PosPart>
+       <PosPart copyNumber="1">
+       <rParent name="mf:ME22"/>
+       <rChild name="mf:MEEQ"/>
+       <rRotation name="rotations:000D"/>
+       <Translation x="0*fm " y="-10.0234*cm " z="0*fm " /> 
+  </PosPart> -->
+  <PosPart copyNumber="1">
+   <rParent name="mf:ME31"/>
+   <rChild name="mf:MEEQ"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="-10.0234*cm " z="0*fm "/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="mf:ME32"/>
+   <rChild name="mf:MEEQ"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="-10.0234*cm " z="0*fm "/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="mf:ME41"/>
+   <rChild name="mf:MEEQ"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="-10.0234*cm " z="0*fm "/>
+  </PosPart>
+  <!-- Remove this line and comment ending line below to restore ME42 -->
+  <PosPart copyNumber="1">
+   <rParent name="mf:ME42"/>
+   <rChild name="mf:MEEQ"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="-10.0234*cm " z="0*fm "/>
+  </PosPart>
+  <!-- -->
+  <PosPart copyNumber="1">
+   <rParent name="mf:ME12"/>
+   <rChild name="mf:AlgPinNarrowEndME1"/>
+   <rRotation name="RotYZaroundX90"/>
+   <Translation x="0*fm " y="-90.224*mm " z="-912.1*mm"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="mf:ME12"/>
+   <rChild name="mf:AlgPinWideEndME1"/>
+   <rRotation name="RotYZaroundX90"/>
+   <Translation x="0*fm " y="-90.224*mm " z="893.1*mm"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="mf:ME13"/>
+   <rChild name="mf:AlgPinNarrowEndME1"/>
+   <rRotation name="RotYZaroundX90"/>
+   <Translation x="0*fm " y="-90.224*mm " z="-861.6*mm"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="mf:ME13"/>
+   <rChild name="mf:AlgPinWideEndME1"/>
+   <rRotation name="RotYZaroundX90"/>
+   <Translation x="0*fm " y="-90.224*mm " z="842.5*mm"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="mf:ME21"/>
+   <rChild name="mf:AlgPinNarrowEnd"/>
+   <rRotation name="RotYZaroundX90"/>
+   <Translation x="0*fm " y="-9.4034*cm " z="-988.05*mm"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="mf:ME21"/>
+   <rChild name="mf:AlgPinWideEnd"/>
+   <rRotation name="RotYZaroundX90"/>
+   <Translation x="0*fm " y="-9.4034*cm " z="969.05*mm"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="mf:ME22"/>
+   <rChild name="mf:AlgPinNarrowEnd"/>
+   <rRotation name="RotYZaroundX90"/>
+   <Translation x="0*fm " y="-9.4034*cm " z="-1655.05*mm"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="mf:ME22"/>
+   <rChild name="mf:AlgPinWideEnd"/>
+   <rRotation name="RotYZaroundX90"/>
+   <Translation x="0*fm " y="-9.4034*cm " z="1636.05*mm"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="mf:ME31"/>
+   <rChild name="mf:AlgPinNarrowEnd"/>
+   <rRotation name="RotYZaroundX90"/>
+   <Translation x="0*fm " y="-9.4034*cm " z="-888.2*mm"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="mf:ME31"/>
+   <rChild name="mf:AlgPinWideEnd"/>
+   <rRotation name="RotYZaroundX90"/>
+   <Translation x="0*fm " y="-9.4034*cm " z="869.2*mm"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="mf:ME32"/>
+   <rChild name="mf:AlgPinNarrowEnd"/>
+   <rRotation name="RotYZaroundX90"/>
+   <Translation x="0*fm " y="-9.4034*cm " z="-1655.05*mm"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="mf:ME32"/>
+   <rChild name="mf:AlgPinWideEnd"/>
+   <rRotation name="RotYZaroundX90"/>
+   <Translation x="0*fm " y="-9.4034*cm " z="1636.05*mm"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="mf:ME41"/>
+   <rChild name="mf:AlgPinNarrowEnd"/>
+   <rRotation name="RotYZaroundX90"/>
+   <Translation x="0*fm " y="-9.4034*cm " z="-788.4*mm"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="mf:ME41"/>
+   <rChild name="mf:AlgPinWideEnd"/>
+   <rRotation name="RotYZaroundX90"/>
+   <Translation x="0*fm " y="-9.4034*cm " z="769.4*mm"/>
+  </PosPart>
+  <!-- Remove this line and comment ending line below to restore ME42 -->
+  <PosPart copyNumber="1">
+   <rParent name="mf:ME42"/>
+   <rChild name="mf:AlgPinNarrowEnd"/>
+   <rRotation name="RotYZaroundX90"/>
+   <Translation x="0*fm " y="-9.4034*cm " z="-1655.05*mm"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="mf:ME42"/>
+   <rChild name="mf:AlgPinWideEnd"/>
+   <rRotation name="RotYZaroundX90"/>
+   <Translation x="0*fm " y="-9.4034*cm " z="1636.05*mm"/>
+  </PosPart>
+  <!-- -->
+  <!-- RE1/1 stage volumes
+       <PosPart copyNumber="1">
+       <rParent name="mf:ME1RingP"/>
+       <rChild name="mf:RR11"/>
+       <rRotation name="rotations:R005"/>
+       <Translation x="0*fm " y="0*fm " z="5.686*m  " />
+  </PosPart>
+       <PosPart copyNumber="1">
+       <rParent name="mf:ME1RingN"/>
+       <rChild name="mf:RR11"/>
+       <rRotation name="rotations:R005"/>
+       <Translation x="0*fm " y="0*fm " z="5.686*m  " />
+  </PosPart>
+       <PosPart copyNumber="1">
+       <rParent name="mf:RR11"/>
+       <rChild name="mf:RT1A"/>
+       <rRotation name="rotations:R005"/>
+       <Translation x="0*fm " y="0*fm " z="-2.2*cm " />
+  </PosPart>
+       <PosPart copyNumber="2">
+       <rParent name="mf:RR11"/>
+       <rChild name="mf:RT1A"/>
+       <rRotation name="rotations:R015"/>
+       <Translation x="0*fm " y="0*fm " z="2.2*cm " />
+  </PosPart>
+       <PosPart copyNumber="3">
+       <rParent name="mf:RR11"/>
+       <rChild name="mf:RT1A"/>
+       <rRotation name="rotations:R025"/>
+       <Translation x="0*fm " y="0*fm " z="-2.2*cm " />
+  </PosPart>
+       <PosPart copyNumber="4">
+       <rParent name="mf:RR11"/>
+       <rChild name="mf:RT1A"/>
+       <rRotation name="rotations:R035"/>
+       <Translation x="0*fm " y="0*fm " z="2.2*cm " />
+  </PosPart>
+       <PosPart copyNumber="5">
+       <rParent name="mf:RR11"/>
+       <rChild name="mf:RT1A"/>
+       <rRotation name="rotations:R045"/>
+       <Translation x="0*fm " y="0*fm " z="-2.2*cm " />
+  </PosPart>
+       <PosPart copyNumber="6">
+       <rParent name="mf:RR11"/>
+       <rChild name="mf:RT1A"/>
+       <rRotation name="rotations:R055"/>
+       <Translation x="0*fm " y="0*fm " z="2.2*cm " />
+  </PosPart>
+       <PosPart copyNumber="7">
+       <rParent name="mf:RR11"/>
+       <rChild name="mf:RT1A"/>
+       <rRotation name="rotations:R065"/>
+       <Translation x="0*fm " y="0*fm " z="-2.2*cm " />
+  </PosPart>
+       <PosPart copyNumber="8">
+       <rParent name="mf:RR11"/>
+       <rChild name="mf:RT1A"/>
+       <rRotation name="rotations:R075"/>
+       <Translation x="0*fm " y="0*fm " z="2.2*cm " />
+  </PosPart>
+       <PosPart copyNumber="9">
+       <rParent name="mf:RR11"/>
+       <rChild name="mf:RT1A"/>
+       <rRotation name="rotations:R085"/>
+       <Translation x="0*fm " y="0*fm " z="-2.2*cm " />
+  </PosPart>
+       <PosPart copyNumber="10">
+       <rParent name="mf:RR11"/>
+       <rChild name="mf:RT1A"/>
+       <rRotation name="rotations:R095"/>
+       <Translation x="0*fm " y="0*fm " z="2.2*cm " />
+  </PosPart>
+       <PosPart copyNumber="11">
+       <rParent name="mf:RR11"/>
+       <rChild name="mf:RT1A"/>
+       <rRotation name="rotations:R105"/>
+       <Translation x="0*fm " y="0*fm " z="-2.2*cm " />
+  </PosPart>
+       <PosPart copyNumber="12">
+       <rParent name="mf:RR11"/>
+       <rChild name="mf:RT1A"/>
+       <rRotation name="rotations:R115"/>
+       <Translation x="0*fm " y="0*fm " z="2.2*cm " />
+  </PosPart>
+       <PosPart copyNumber="13">
+       <rParent name="mf:RR11"/>
+       <rChild name="mf:RT1A"/>
+       <rRotation name="rotations:R125"/>
+       <Translation x="0*fm " y="0*fm " z="-2.2*cm " />
+  </PosPart>
+       <PosPart copyNumber="14">
+       <rParent name="mf:RR11"/>
+       <rChild name="mf:RT1A"/>
+       <rRotation name="rotations:R135"/>
+       <Translation x="0*fm " y="0*fm " z="2.2*cm " />
+  </PosPart>
+       <PosPart copyNumber="15">
+       <rParent name="mf:RR11"/>
+       <rChild name="mf:RT1A"/>
+       <rRotation name="rotations:R145"/>
+       <Translation x="0*fm " y="0*fm " z="-2.2*cm " />
+  </PosPart>
+       <PosPart copyNumber="16">
+       <rParent name="mf:RR11"/>
+       <rChild name="mf:RT1A"/>
+       <rRotation name="rotations:R155"/>
+       <Translation x="0*fm " y="0*fm " z="2.2*cm " />
+  </PosPart>
+       <PosPart copyNumber="17">
+       <rParent name="mf:RR11"/>
+       <rChild name="mf:RT1A"/>
+       <rRotation name="rotations:R165"/>
+       <Translation x="0*fm " y="0*fm " z="-2.2*cm " />
+  </PosPart>
+       <PosPart copyNumber="18">
+       <rParent name="mf:RR11"/>
+       <rChild name="mf:RT1A"/>
+       <rRotation name="rotations:R175"/>
+       <Translation x="0*fm " y="0*fm " z="2.2*cm " />
+  </PosPart>
+       <PosPart copyNumber="19">
+       <rParent name="mf:RR11"/>
+       <rChild name="mf:RT1A"/>
+       <rRotation name="rotations:R185"/>
+       <Translation x="0*fm " y="0*fm " z="-2.2*cm " />
+  </PosPart>
+       <PosPart copyNumber="20">
+       <rParent name="mf:RR11"/>
+       <rChild name="mf:RT1A"/>
+       <rRotation name="rotations:R195"/>
+       <Translation x="0*fm " y="0*fm " z="2.2*cm " />
+  </PosPart>
+       <PosPart copyNumber="21">
+       <rParent name="mf:RR11"/>
+       <rChild name="mf:RT1A"/>
+       <rRotation name="rotations:R205"/>
+       <Translation x="0*fm " y="0*fm " z="-2.2*cm " />
+  </PosPart>
+       <PosPart copyNumber="22">
+       <rParent name="mf:RR11"/>
+       <rChild name="mf:RT1A"/>
+       <rRotation name="rotations:R215"/>
+       <Translation x="0*fm " y="0*fm " z="2.2*cm " />
+  </PosPart>
+       <PosPart copyNumber="23">
+       <rParent name="mf:RR11"/>
+       <rChild name="mf:RT1A"/>
+       <rRotation name="rotations:R225"/>
+       <Translation x="0*fm " y="0*fm " z="-2.2*cm " />
+  </PosPart>
+       <PosPart copyNumber="24">
+       <rParent name="mf:RR11"/>
+       <rChild name="mf:RT1A"/>
+       <rRotation name="rotations:R235"/>
+       <Translation x="0*fm " y="0*fm " z="2.2*cm " />
+  </PosPart>
+       <PosPart copyNumber="25">
+       <rParent name="mf:RR11"/>
+       <rChild name="mf:RT1A"/>
+       <rRotation name="rotations:R245"/>
+       <Translation x="0*fm " y="0*fm " z="-2.2*cm " />
+  </PosPart>
+       <PosPart copyNumber="26">
+       <rParent name="mf:RR11"/>
+       <rChild name="mf:RT1A"/>
+       <rRotation name="rotations:R255"/>
+       <Translation x="0*fm " y="0*fm " z="2.2*cm " />
+  </PosPart>
+       <PosPart copyNumber="27">
+       <rParent name="mf:RR11"/>
+       <rChild name="mf:RT1A"/>
+       <rRotation name="rotations:R265"/>
+       <Translation x="0*fm " y="0*fm " z="-2.2*cm " />
+  </PosPart>
+       <PosPart copyNumber="28">
+       <rParent name="mf:RR11"/>
+       <rChild name="mf:RT1A"/>
+       <rRotation name="rotations:R275"/>
+       <Translation x="0*fm " y="0*fm " z="2.2*cm " />
+  </PosPart>
+       <PosPart copyNumber="29">
+       <rParent name="mf:RR11"/>
+       <rChild name="mf:RT1A"/>
+       <rRotation name="rotations:R285"/>
+       <Translation x="0*fm " y="0*fm " z="-2.2*cm " />
+  </PosPart>
+       <PosPart copyNumber="30">
+       <rParent name="mf:RR11"/>
+       <rChild name="mf:RT1A"/>
+       <rRotation name="rotations:R295"/>
+       <Translation x="0*fm " y="0*fm " z="2.2*cm " />
+  </PosPart>
+       <PosPart copyNumber="31">
+       <rParent name="mf:RR11"/>
+       <rChild name="mf:RT1A"/>
+       <rRotation name="rotations:R305"/>
+       <Translation x="0*fm " y="0*fm " z="-2.2*cm " />
+  </PosPart>
+       <PosPart copyNumber="32">
+       <rParent name="mf:RR11"/>
+       <rChild name="mf:RT1A"/>
+       <rRotation name="rotations:R315"/>
+       <Translation x="0*fm " y="0*fm " z="2.2*cm " />
+  </PosPart>
+       <PosPart copyNumber="33">
+       <rParent name="mf:RR11"/>
+       <rChild name="mf:RT1A"/>
+       <rRotation name="rotations:R325"/>
+       <Translation x="0*fm " y="0*fm " z="-2.2*cm " />
+  </PosPart>
+       <PosPart copyNumber="34">
+       <rParent name="mf:RR11"/>
+       <rChild name="mf:RT1A"/>
+       <rRotation name="rotations:R335"/>
+       <Translation x="0*fm " y="0*fm " z="2.2*cm " />
+  </PosPart>
+       <PosPart copyNumber="35">
+       <rParent name="mf:RR11"/>
+       <rChild name="mf:RT1A"/>
+       <rRotation name="rotations:R345"/>
+       <Translation x="0*fm " y="0*fm " z="-2.2*cm " />
+  </PosPart>
+       <PosPart copyNumber="36">
+       <rParent name="mf:RR11"/>
+       <rChild name="mf:RT1A"/>
+       <rRotation name="rotations:R355"/>
+       <Translation x="0*fm " y="0*fm " z="2.2*cm " />
+  </PosPart>
+       <PosPart copyNumber="1">
+       <rParent name="mf:RT1A"/>
+       <rChild name="mf:RFAX"/>
+       <rRotation name="rotations:90XD"/>
+       <Translation x="1.8955*m  " y="0*fm " z="0*fm " />
+  </PosPart>
+       <PosPart copyNumber="1">
+       <rParent name="mf:RFAX"/>
+       <rChild name="mf:RHAX"/>
+       <rRotation name="rotations:000D"/>
+  </PosPart>
+       <PosPart copyNumber="1">
+       <rParent name="mf:RHAX"/>
+       <rChild name="mf:REA1"/>
+       <rRotation name="rotations:000D"/>
+       <Translation x="0*fm " y="0*fm " z="34.5*cm " />
+  </PosPart>
+       <PosPart copyNumber="1">
+       <rParent name="mf:RHAX"/>
+       <rChild name="mf:REA2"/>
+       <rRotation name="rotations:000D"/>
+       <Translation x="0*fm " y="0*fm " z="3.45*cm " />
+  </PosPart>
+       <PosPart copyNumber="1">
+       <rParent name="mf:RHAX"/>
+       <rChild name="mf:REA3"/>
+       <rRotation name="rotations:000D"/>
+       <Translation x="0*fm " y="0*fm " z="-19.55*cm " />
+  </PosPart>
+       <PosPart copyNumber="1">
+       <rParent name="mf:RHAX"/>
+       <rChild name="mf:REA4"/>
+       <rRotation name="rotations:000D"/>
+       <Translation x="0*fm " y="0*fm " z="-41.55*cm " />
+  </PosPart>
+       RE1/1 staged volumes -->
+  <PosPart copyNumber="1">
+   <rParent name="mf:MEP"/>
+   <rChild name="mf:ZStopSpace"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="0*fm " z="6.945*m "/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="mf:MEN"/>
+   <rChild name="mf:ZStopSpace"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="0*fm " z="6.945*m "/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="mf:ZStopSpaceDivision"/>
+   <rChild name="mf:ZStop_1_ZStopSpaceDivision"/>
+   <rRotation name="rotations:000D"/>
+  </PosPart>
+  <PosPart copyNumber="2">
+   <rParent name="mf:ZStopSpaceDivision"/>
+   <rChild name="mf:ZStop_2_ZStopSpaceDivision"/>
+   <rRotation name="rotations:000D"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="mf:MEP"/>
+   <rChild name="mf:ME12RingP"/>
+   <Translation x="0*fm " y="0*fm " z="6953.1125*mm"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="mf:MEN"/>
+   <rChild name="mf:ME12RingN"/>
+   <Translation x="0*fm " y="0*fm " z="6953.1125*mm"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="mf:ME12RingP"/>
+   <rChild name="mf:ME12Space"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="0*fm " z="159.5*mm"/>
+  </PosPart>
+  <PosPart copyNumber="2">
+   <rParent name="mf:ME12RingP"/>
+   <rChild name="mf:ME12Space"/>
+   <rRotation name="rotations:R010"/>
+   <Translation x="0*fm " y="0*fm " z="-114.5*mm"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="mf:ME12RingN"/>
+   <rChild name="mf:ME12Space"/>
+   <rRotation name="rotations:180RYZ"/>
+   <Translation x="0*fm " y="0*fm " z="159.5*mm"/>
+  </PosPart>
+  <PosPart copyNumber="2">
+   <rParent name="mf:ME12RingN"/>
+   <rChild name="mf:ME12Space"/>
+   <rRotation name="rotations:R010R"/>
+   <Translation x="0*fm " y="0*fm " z="-114.5*mm"/>
+  </PosPart>
+  <Division name="ME12SpaceDivision" parent="ME12Space" axis="phi" offset="-10*deg" width="20*deg"/>
+  <PosPart copyNumber="1">
+   <rParent name="mf:ME12SpaceDivision"/>
+   <rChild name="mf:ME12"/>
+   <rRotation name="rotations:90XD"/>
+   <Translation x="3.697*m  " y="0*fm " z="0*fm "/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="mf:ME12"/>
+   <rChild name="mf:ME12AlumFrame"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="1.5*cm " z="0*fm "/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="mf:ME12AlumFrame"/>
+   <rChild name="mf:ME12FR4Body"/>
+   <rRotation name="rotations:000D"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="mf:ME12FR4Body"/>
+   <rChild name="mf:ME12PolycarbPanel"/>
+   <rRotation name="rotations:000D"/>
+  </PosPart>
+  <Division name="ME12Layer" parent="ME12PolycarbPanel" axis="y" offset="[LayerOffset]" width="[LayerSpacing]" nReplicas="6"/>
+  <PosPart copyNumber="1">
+   <rParent name="mf:ME12Layer"/>
+   <rChild name="mf:ME_FR4Skin_1_ME12Layer"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="[FR4SkinCenter]" z="0*fm "/>
+  </PosPart>
+  <PosPart copyNumber="2">
+   <rParent name="mf:ME12Layer"/>
+   <rChild name="mf:ME_FR4Skin_2_ME12Layer"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="-[FR4SkinCenter]" z="0*fm "/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="mf:ME12Layer"/>
+   <rChild name="mf:MECU_1_ME12Layer"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="[CuFoilCenter]" z="0*fm "/>
+  </PosPart>
+  <PosPart copyNumber="2">
+   <rParent name="mf:ME12Layer"/>
+   <rChild name="mf:MECU_2_ME12Layer"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="-[CuFoilCenter]" z="0*fm "/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="mf:ME12Layer"/>
+   <rChild name="mf:ME12_ActiveGasVol"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="0*fm " z="-0.955*cm "/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="mf:ME12_ActiveGasVol"/>
+   <rChild name="mf:ME_DeadGas_1_ME12_ActiveGasVol"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="0*fm " z="34.2*cm "/>
+  </PosPart>
+  <PosPart copyNumber="2">
+   <rParent name="mf:ME12_ActiveGasVol"/>
+   <rChild name="mf:ME_DeadGas_2_ME12_ActiveGasVol"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="0*fm " z="-31.6*cm "/>
+  </PosPart>
+  <PosPart copyNumber="3">
+   <rParent name="mf:ME12RingP"/>
+   <rChild name="mf:RR12"/>
+   <rRotation name="rotations:R020"/>
+   <Translation x="0*fm " y="0*fm " z="306.3875*mm"/>
+  </PosPart>
+  <PosPart copyNumber="2">
+   <rParent name="mf:ME12RingP"/>
+   <rChild name="mf:RR12N"/>
+   <rRotation name="rotations:R010"/>
+   <Translation x="0*fm " y="0*fm " z="-3.7665*mm"/>
+  </PosPart>
+  <PosPart copyNumber="3">
+   <rParent name="mf:ME12RingN"/>
+   <rChild name="mf:RR12"/>
+   <rRotation name="rotations:R020"/>
+   <Translation x="0*fm " y="0*fm " z="306.3875*mm"/>
+  </PosPart>
+  <PosPart copyNumber="2">
+   <rParent name="mf:ME12RingN"/>
+   <rChild name="mf:RR12N"/>
+   <rRotation name="rotations:R010"/>
+   <Translation x="0*fm " y="0*fm " z="-3.7665*mm"/>
+  </PosPart>
+  <Division name="RT1B" parent="RR12" axis="phi" offset="-10*deg" width="20*deg"/>
+  <Division name="RT1BN" parent="RR12N" axis="phi" offset="-10*deg" width="20*deg"/>
+  <PosPart copyNumber="1">
+   <rParent name="mf:RT1B"/>
+   <rChild name="mf:RFBX"/>
+   <rRotation name="rotations:90XD"/>
+   <Translation x="3.692*m  " y="0*fm " z="0*fm "/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="mf:RT1BN"/>
+   <rChild name="mf:RFBX"/>
+   <rRotation name="rotations:90DX"/>
+   <Translation x="3.692*m  " y="0*fm " z="0*fm "/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="mf:RFBX"/>
+   <rChild name="mf:RHBX"/>
+   <rRotation name="rotations:000D"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="mf:RHBX"/>
+   <rChild name="mf:REB1"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="0*fm " z="65.2*cm "/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="mf:RHBX"/>
+   <rChild name="mf:REB2"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="0*fm " z="12.95*cm "/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="mf:RHBX"/>
+   <rChild name="mf:REB3"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="0*fm " z="-52.25*cm "/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="mf:MEP"/>
+   <rChild name="mf:ME13RingP"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="mf:MEN"/>
+   <rChild name="mf:ME13RingN"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="mf:ME13RingP"/>
+   <rChild name="mf:ME13Space"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="0*fm " z="6936.5874*mm  "/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="mf:ME13RingN"/>
+   <rChild name="mf:ME13Space"/>
+   <rRotation name="rotations:180RYZ"/>
+   <Translation x="0*fm " y="0*fm " z="6936.5874*mm  "/>
+  </PosPart>
+  <Division name="ME13SpaceDivision" parent="ME13Space" axis="phi" offset="-5*deg" width="10*deg"/>
+  <PosPart copyNumber="1">
+   <rParent name="mf:ME13SpaceDivision"/>
+   <rChild name="mf:ME13"/>
+   <rRotation name="rotations:90XD"/>
+   <Translation x="5.9515*m  " y="0*fm " z="0*fm "/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="mf:ME13"/>
+   <rChild name="mf:ME13AlumFrame"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="1.5*cm " z="0*fm "/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="mf:ME13AlumFrame"/>
+   <rChild name="mf:ME13FR4Body"/>
+   <rRotation name="rotations:000D"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="mf:ME13FR4Body"/>
+   <rChild name="mf:ME13PolycarbPanel"/>
+   <rRotation name="rotations:000D"/>
+  </PosPart>
+  <Division name="ME13Layer" parent="ME13PolycarbPanel" axis="y" offset="[LayerOffset]" width="[LayerSpacing]" nReplicas="6"/>
+  <PosPart copyNumber="1">
+   <rParent name="mf:ME13Layer"/>
+   <rChild name="mf:ME_FR4Skin_1_ME13Layer"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="[FR4SkinCenter]" z="0*fm "/>
+  </PosPart>
+  <PosPart copyNumber="2">
+   <rParent name="mf:ME13Layer"/>
+   <rChild name="mf:ME_FR4Skin_2_ME13Layer"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="-[FR4SkinCenter]" z="0*fm "/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="mf:ME13Layer"/>
+   <rChild name="mf:MECU_1_ME13Layer"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="[CuFoilCenter]" z="0*fm "/>
+  </PosPart>
+  <PosPart copyNumber="2">
+   <rParent name="mf:ME13Layer"/>
+   <rChild name="mf:MECU_2_ME13Layer"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="-[CuFoilCenter]" z="0*fm "/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="mf:ME13Layer"/>
+   <rChild name="mf:ME13_ActiveGasVol"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="0*fm " z="-1.075*cm "/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="mf:ME13_ActiveGasVol"/>
+   <rChild name="mf:ME_DeadGas_1_ME13_ActiveGasVol"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="0*fm " z="28.92*cm "/>
+  </PosPart>
+  <PosPart copyNumber="2">
+   <rParent name="mf:ME13_ActiveGasVol"/>
+   <rChild name="mf:ME_DeadGas_2_ME13_ActiveGasVol"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="0*fm " z="-21.66*cm "/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="mf:ME13RingP"/>
+   <rChild name="mf:RR13"/>
+   <rRotation name="rotations:R005"/>
+   <Translation x="0*fm " y="0*fm " z="7.176*m  "/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="mf:ME13RingN"/>
+   <rChild name="mf:RR13"/>
+   <rRotation name="rotations:R005"/>
+   <Translation x="0*fm " y="0*fm " z="7.176*m  "/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="mf:RR13"/>
+   <rChild name="mf:RT1C"/>
+   <rRotation name="rotations:R005"/>
+   <Translation x="0*fm " y="0*fm " z="-2.2*cm "/>
+  </PosPart>
+  <PosPart copyNumber="2">
+   <rParent name="mf:RR13"/>
+   <rChild name="mf:RT1C"/>
+   <rRotation name="rotations:R015"/>
+   <Translation x="0*fm " y="0*fm " z="2.2*cm "/>
+  </PosPart>
+  <PosPart copyNumber="3">
+   <rParent name="mf:RR13"/>
+   <rChild name="mf:RT1C"/>
+   <rRotation name="rotations:R025"/>
+   <Translation x="0*fm " y="0*fm " z="-2.2*cm "/>
+  </PosPart>
+  <PosPart copyNumber="4">
+   <rParent name="mf:RR13"/>
+   <rChild name="mf:RT1C"/>
+   <rRotation name="rotations:R035"/>
+   <Translation x="0*fm " y="0*fm " z="2.2*cm "/>
+  </PosPart>
+  <PosPart copyNumber="5">
+   <rParent name="mf:RR13"/>
+   <rChild name="mf:RT1C"/>
+   <rRotation name="rotations:R045"/>
+   <Translation x="0*fm " y="0*fm " z="-2.2*cm "/>
+  </PosPart>
+  <PosPart copyNumber="6">
+   <rParent name="mf:RR13"/>
+   <rChild name="mf:RT1C"/>
+   <rRotation name="rotations:R055"/>
+   <Translation x="0*fm " y="0*fm " z="2.2*cm "/>
+  </PosPart>
+  <PosPart copyNumber="7">
+   <rParent name="mf:RR13"/>
+   <rChild name="mf:RT1C"/>
+   <rRotation name="rotations:R065"/>
+   <Translation x="0*fm " y="0*fm " z="-2.2*cm "/>
+  </PosPart>
+  <PosPart copyNumber="8">
+   <rParent name="mf:RR13"/>
+   <rChild name="mf:RT1C"/>
+   <rRotation name="rotations:R075"/>
+   <Translation x="0*fm " y="0*fm " z="2.2*cm "/>
+  </PosPart>
+  <PosPart copyNumber="9">
+   <rParent name="mf:RR13"/>
+   <rChild name="mf:RT1C"/>
+   <rRotation name="rotations:R085"/>
+   <Translation x="0*fm " y="0*fm " z="-2.2*cm "/>
+  </PosPart>
+  <PosPart copyNumber="10">
+   <rParent name="mf:RR13"/>
+   <rChild name="mf:RT1C"/>
+   <rRotation name="rotations:R095"/>
+   <Translation x="0*fm " y="0*fm " z="2.2*cm "/>
+  </PosPart>
+  <PosPart copyNumber="11">
+   <rParent name="mf:RR13"/>
+   <rChild name="mf:RT1C"/>
+   <rRotation name="rotations:R105"/>
+   <Translation x="0*fm " y="0*fm " z="-2.2*cm "/>
+  </PosPart>
+  <PosPart copyNumber="12">
+   <rParent name="mf:RR13"/>
+   <rChild name="mf:RT1C"/>
+   <rRotation name="rotations:R115"/>
+   <Translation x="0*fm " y="0*fm " z="2.2*cm "/>
+  </PosPart>
+  <PosPart copyNumber="13">
+   <rParent name="mf:RR13"/>
+   <rChild name="mf:RT1C"/>
+   <rRotation name="rotations:R125"/>
+   <Translation x="0*fm " y="0*fm " z="-2.2*cm "/>
+  </PosPart>
+  <PosPart copyNumber="14">
+   <rParent name="mf:RR13"/>
+   <rChild name="mf:RT1C"/>
+   <rRotation name="rotations:R135"/>
+   <Translation x="0*fm " y="0*fm " z="2.2*cm "/>
+  </PosPart>
+  <PosPart copyNumber="15">
+   <rParent name="mf:RR13"/>
+   <rChild name="mf:RT1C"/>
+   <rRotation name="rotations:R145"/>
+   <Translation x="0*fm " y="0*fm " z="-2.2*cm "/>
+  </PosPart>
+  <PosPart copyNumber="16">
+   <rParent name="mf:RR13"/>
+   <rChild name="mf:RT1C"/>
+   <rRotation name="rotations:R155"/>
+   <Translation x="0*fm " y="0*fm " z="2.2*cm "/>
+  </PosPart>
+  <PosPart copyNumber="17">
+   <rParent name="mf:RR13"/>
+   <rChild name="mf:RT1C"/>
+   <rRotation name="rotations:R165"/>
+   <Translation x="0*fm " y="0*fm " z="-2.2*cm "/>
+  </PosPart>
+  <PosPart copyNumber="18">
+   <rParent name="mf:RR13"/>
+   <rChild name="mf:RT1C"/>
+   <rRotation name="rotations:R175"/>
+   <Translation x="0*fm " y="0*fm " z="2.2*cm "/>
+  </PosPart>
+  <PosPart copyNumber="19">
+   <rParent name="mf:RR13"/>
+   <rChild name="mf:RT1C"/>
+   <rRotation name="rotations:R185"/>
+   <Translation x="0*fm " y="0*fm " z="-2.2*cm "/>
+  </PosPart>
+  <PosPart copyNumber="20">
+   <rParent name="mf:RR13"/>
+   <rChild name="mf:RT1C"/>
+   <rRotation name="rotations:R195"/>
+   <Translation x="0*fm " y="0*fm " z="2.2*cm "/>
+  </PosPart>
+  <PosPart copyNumber="21">
+   <rParent name="mf:RR13"/>
+   <rChild name="mf:RT1C"/>
+   <rRotation name="rotations:R205"/>
+   <Translation x="0*fm " y="0*fm " z="-2.2*cm "/>
+  </PosPart>
+  <PosPart copyNumber="22">
+   <rParent name="mf:RR13"/>
+   <rChild name="mf:RT1C"/>
+   <rRotation name="rotations:R215"/>
+   <Translation x="0*fm " y="0*fm " z="2.2*cm "/>
+  </PosPart>
+  <PosPart copyNumber="23">
+   <rParent name="mf:RR13"/>
+   <rChild name="mf:RT1C"/>
+   <rRotation name="rotations:R225"/>
+   <Translation x="0*fm " y="0*fm " z="-2.2*cm "/>
+  </PosPart>
+  <PosPart copyNumber="24">
+   <rParent name="mf:RR13"/>
+   <rChild name="mf:RT1C"/>
+   <rRotation name="rotations:R235"/>
+   <Translation x="0*fm " y="0*fm " z="2.2*cm "/>
+  </PosPart>
+  <PosPart copyNumber="25">
+   <rParent name="mf:RR13"/>
+   <rChild name="mf:RT1C"/>
+   <rRotation name="rotations:R245"/>
+   <Translation x="0*fm " y="0*fm " z="-2.2*cm "/>
+  </PosPart>
+  <PosPart copyNumber="26">
+   <rParent name="mf:RR13"/>
+   <rChild name="mf:RT1C"/>
+   <rRotation name="rotations:R255"/>
+   <Translation x="0*fm " y="0*fm " z="2.2*cm "/>
+  </PosPart>
+  <PosPart copyNumber="27">
+   <rParent name="mf:RR13"/>
+   <rChild name="mf:RT1C"/>
+   <rRotation name="rotations:R265"/>
+   <Translation x="0*fm " y="0*fm " z="-2.2*cm "/>
+  </PosPart>
+  <PosPart copyNumber="28">
+   <rParent name="mf:RR13"/>
+   <rChild name="mf:RT1C"/>
+   <rRotation name="rotations:R275"/>
+   <Translation x="0*fm " y="0*fm " z="2.2*cm "/>
+  </PosPart>
+  <PosPart copyNumber="29">
+   <rParent name="mf:RR13"/>
+   <rChild name="mf:RT1C"/>
+   <rRotation name="rotations:R285"/>
+   <Translation x="0*fm " y="0*fm " z="-2.2*cm "/>
+  </PosPart>
+  <PosPart copyNumber="30">
+   <rParent name="mf:RR13"/>
+   <rChild name="mf:RT1C"/>
+   <rRotation name="rotations:R295"/>
+   <Translation x="0*fm " y="0*fm " z="2.2*cm "/>
+  </PosPart>
+  <PosPart copyNumber="31">
+   <rParent name="mf:RR13"/>
+   <rChild name="mf:RT1C"/>
+   <rRotation name="rotations:R305"/>
+   <Translation x="0*fm " y="0*fm " z="-2.2*cm "/>
+  </PosPart>
+  <PosPart copyNumber="32">
+   <rParent name="mf:RR13"/>
+   <rChild name="mf:RT1C"/>
+   <rRotation name="rotations:R315"/>
+   <Translation x="0*fm " y="0*fm " z="2.2*cm "/>
+  </PosPart>
+  <PosPart copyNumber="33">
+   <rParent name="mf:RR13"/>
+   <rChild name="mf:RT1C"/>
+   <rRotation name="rotations:R325"/>
+   <Translation x="0*fm " y="0*fm " z="-2.2*cm "/>
+  </PosPart>
+  <PosPart copyNumber="34">
+   <rParent name="mf:RR13"/>
+   <rChild name="mf:RT1C"/>
+   <rRotation name="rotations:R335"/>
+   <Translation x="0*fm " y="0*fm " z="2.2*cm "/>
+  </PosPart>
+  <PosPart copyNumber="35">
+   <rParent name="mf:RR13"/>
+   <rChild name="mf:RT1C"/>
+   <rRotation name="rotations:R345"/>
+   <Translation x="0*fm " y="0*fm " z="-2.2*cm "/>
+  </PosPart>
+  <PosPart copyNumber="36">
+   <rParent name="mf:RR13"/>
+   <rChild name="mf:RT1C"/>
+   <rRotation name="rotations:R355"/>
+   <Translation x="0*fm " y="0*fm " z="2.2*cm "/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="mf:RT1C"/>
+   <rChild name="mf:RFCX"/>
+   <rRotation name="rotations:90XD"/>
+   <Translation x="5.944*m  " y="0*fm " z="0*fm "/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="mf:RFCX"/>
+   <rChild name="mf:RHCX"/>
+   <rRotation name="rotations:000D"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="mf:RHCX"/>
+   <rChild name="mf:REC1"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="0*fm " z="66.95*cm "/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="mf:RHCX"/>
+   <rChild name="mf:REC2"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="0*fm " z="7.85*cm "/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="mf:RHCX"/>
+   <rChild name="mf:REC3"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="0*fm " z="-59.1*cm "/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="mf:MEP"/>
+   <rChild name="mf:ME2RingP"/>
+   <!-- <Translation x="0*fm " y="0*fm " z="8.1925*m  " /> -->
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="mf:MEN"/>
+   <rChild name="mf:ME2RingN"/>
+   <!-- <Translation x="0*fm " y="0*fm " z="8.1925*m  " /> -->
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="mf:ME2RingP"/>
+   <rChild name="mf:ShieldingBoronPoly_1_ME2"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="0*fm " z="-30.25*cm+8.1925*m "/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="mf:ME2RingP"/>
+   <rChild name="mf:ShieldingAntinomyLead_1_ME2"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="0*fm " z="-27.1*cm+8.1925*m "/>
+  </PosPart>
+  <PosPart copyNumber="2">
+   <rParent name="mf:ME2RingP"/>
+   <rChild name="mf:ShieldingBoronPoly_2_ME2"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="0*fm " z="-2.5*mm+8.1925*m "/>
+  </PosPart>
+  <PosPart copyNumber="2">
+   <rParent name="mf:ME2RingP"/>
+   <rChild name="mf:ShieldingAntinomyLead_2_ME2"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="0*fm " z="-2.5*mm+8.1925*m "/>
+  </PosPart>
+  <PosPart copyNumber="3">
+   <rParent name="mf:ME2RingP"/>
+   <rChild name="mf:ShieldingBoronPoly_3_ME2"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="0*fm " z="-2.5*mm+8.1925*m "/>
+  </PosPart>
+  <PosPart copyNumber="3">
+   <rParent name="mf:ME2RingP"/>
+   <rChild name="mf:ShieldingAntinomyLead_3_ME2"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="0*fm " z="-2.5*mm+8.1925*m "/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="mf:ME2RingP"/>
+   <rChild name="mf:ME21Space"/>
+   <rRotation name="rotations:R005"/>
+   <Translation x="0*fm " y="0*fm " z="202.1125*mm+8.1925*m "/>
+  </PosPart>
+  <PosPart copyNumber="2">
+   <rParent name="mf:ME2RingP"/>
+   <rChild name="mf:ME21Space"/>
+   <rRotation name="rotations:R025"/>
+   <Translation x="0*fm " y="0*fm " z="-45.8875*mm+8.1925*m "/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="mf:ME2RingN"/>
+   <rChild name="mf:ShieldingBoronPoly_1_ME2"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="0*fm " z="-30.25*cm+8.1925*m "/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="mf:ME2RingN"/>
+   <rChild name="mf:ShieldingAntinomyLead_1_ME2"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="0*fm " z="-27.1*cm+8.1925*m "/>
+  </PosPart>
+  <PosPart copyNumber="2">
+   <rParent name="mf:ME2RingN"/>
+   <rChild name="mf:ShieldingBoronPoly_2_ME2"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="0*fm " z="-2.5*mm+8.1925*m "/>
+  </PosPart>
+  <PosPart copyNumber="2">
+   <rParent name="mf:ME2RingN"/>
+   <rChild name="mf:ShieldingAntinomyLead_2_ME2"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="0*fm " z="-2.5*mm+8.1925*m "/>
+  </PosPart>
+  <PosPart copyNumber="3">
+   <rParent name="mf:ME2RingN"/>
+   <rChild name="mf:ShieldingBoronPoly_3_ME2"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="0*fm " z="-2.5*mm+8.1925*m "/>
+  </PosPart>
+  <PosPart copyNumber="3">
+   <rParent name="mf:ME2RingN"/>
+   <rChild name="mf:ShieldingAntinomyLead_3_ME2"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="0*fm " z="-2.5*mm+8.1925*m "/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="mf:ME2RingN"/>
+   <rChild name="mf:ME21Space"/>
+   <rRotation name="rotations:R005R"/>
+   <Translation x="0*fm " y="0*fm " z="202.1125*mm+8.1925*m "/>
+  </PosPart>
+  <PosPart copyNumber="2">
+   <rParent name="mf:ME2RingN"/>
+   <rChild name="mf:ME21Space"/>
+   <rRotation name="rotations:R025R"/>
+   <Translation x="0*fm " y="0*fm " z="-45.8875*mm+8.1925*m "/>
+  </PosPart>
+  <Division name="ME21SpaceDivision" parent="ME21Space" axis="phi" offset="-20*deg" width="40*deg"/>
+  <PosPart copyNumber="1">
+   <rParent name="mf:ME21SpaceDivision"/>
+   <rChild name="mf:ME21"/>
+   <rRotation name="rotations:90XD"/>
+   <Translation x="2.427*m  " y="0*fm " z="0*fm "/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="mf:ME21"/>
+   <rChild name="mf:ME21AlumFrame"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="1.5*cm " z="0*fm "/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="mf:ME21AlumFrame"/>
+   <rChild name="mf:ME21FR4Body"/>
+   <rRotation name="rotations:000D"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="mf:ME21FR4Body"/>
+   <rChild name="mf:ME21PolycarbPanel"/>
+   <rRotation name="rotations:000D"/>
+  </PosPart>
+  <Division name="ME21Layer" parent="ME21PolycarbPanel" axis="y" offset="[LayerOffset]" width="[LayerSpacing]" nReplicas="6"/>
+  <PosPart copyNumber="1">
+   <rParent name="mf:ME21Layer"/>
+   <rChild name="mf:ME_FR4Skin_1_ME21Layer"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="[FR4SkinCenter]" z="0*fm "/>
+  </PosPart>
+  <PosPart copyNumber="2">
+   <rParent name="mf:ME21Layer"/>
+   <rChild name="mf:ME_FR4Skin_2_ME21Layer"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="-[FR4SkinCenter]" z="0*fm "/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="mf:ME21Layer"/>
+   <rChild name="mf:MECU_1_ME21Layer"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="[CuFoilCenter]" z="0*fm "/>
+  </PosPart>
+  <PosPart copyNumber="2">
+   <rParent name="mf:ME21Layer"/>
+   <rChild name="mf:MECU_2_ME21Layer"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="-[CuFoilCenter]" z="0*fm "/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="mf:ME21Layer"/>
+   <rChild name="mf:ME21_ActiveGasVol"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="0*fm " z="-9.55*mm "/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="mf:ME21_ActiveGasVol"/>
+   <rChild name="mf:ME_DeadGas_1_ME21_ActiveGasVol"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="0*fm " z="34.62*cm "/>
+  </PosPart>
+  <PosPart copyNumber="2">
+   <rParent name="mf:ME21_ActiveGasVol"/>
+   <rChild name="mf:ME_DeadGas_2_ME21_ActiveGasVol"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="0*fm " z="-26.52*cm "/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="mf:ME2RingP"/>
+   <rChild name="mf:RR2X"/>
+   <rRotation name="rotations:R005"/>
+   <Translation x="0*fm " y="0*fm " z="-28.25*cm+8.1925*m "/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="mf:ME2RingN"/>
+   <rChild name="mf:RR2X"/>
+   <rRotation name="rotations:R005"/>
+   <Translation x="0*fm " y="0*fm " z="-28.25*cm+8.1925*m "/>
+  </PosPart>
+  <!-- RE2/1 staged volumes 
+       <PosPart copyNumber="1">
+       <rParent name="mf:RR2X"/>
+       <rChild name="mf:RT2D"/>
+       <rRotation name="rotations:000D"/>
+       <Translation x="0*fm " y="0*fm " z="-2.2*cm " />
+  </PosPart>
+       <PosPart copyNumber="2">
+       <rParent name="mf:RR2X"/>
+       <rChild name="mf:RT2D"/>
+       <rRotation name="rotations:R020"/>
+       <Translation x="0*fm " y="0*fm " z="2.2*cm " />
+  </PosPart>
+       <PosPart copyNumber="3">
+       <rParent name="mf:RR2X"/>
+       <rChild name="mf:RT2D"/>
+       <rRotation name="rotations:R040"/>
+       <Translation x="0*fm " y="0*fm " z="-2.2*cm " />
+  </PosPart>
+       <PosPart copyNumber="4">
+       <rParent name="mf:RR2X"/>
+       <rChild name="mf:RT2D"/>
+       <rRotation name="rotations:R060"/>
+       <Translation x="0*fm " y="0*fm " z="2.2*cm " />
+  </PosPart>
+       <PosPart copyNumber="5">
+       <rParent name="mf:RR2X"/>
+       <rChild name="mf:RT2D"/>
+       <rRotation name="rotations:R080"/>
+       <Translation x="0*fm " y="0*fm " z="-2.2*cm " />
+  </PosPart>
+       <PosPart copyNumber="6">
+       <rParent name="mf:RR2X"/>
+       <rChild name="mf:RT2D"/>
+       <rRotation name="rotations:R100"/>
+       <Translation x="0*fm " y="0*fm " z="2.2*cm " />
+  </PosPart>
+       <PosPart copyNumber="7">
+       <rParent name="mf:RR2X"/>
+       <rChild name="mf:RT2D"/>
+       <rRotation name="rotations:R120"/>
+       <Translation x="0*fm " y="0*fm " z="-2.2*cm " />
+  </PosPart>
+       <PosPart copyNumber="8">
+       <rParent name="mf:RR2X"/>
+       <rChild name="mf:RT2D"/>
+       <rRotation name="rotations:R140"/>
+       <Translation x="0*fm " y="0*fm " z="2.2*cm " />
+  </PosPart>
+       <PosPart copyNumber="9">
+       <rParent name="mf:RR2X"/>
+       <rChild name="mf:RT2D"/>
+       <rRotation name="rotations:R160"/>
+       <Translation x="0*fm " y="0*fm " z="-2.2*cm " />
+  </PosPart>
+       <PosPart copyNumber="10">
+       <rParent name="mf:RR2X"/>
+       <rChild name="mf:RT2D"/>
+       <rRotation name="rotations:R180"/>
+       <Translation x="0*fm " y="0*fm " z="2.2*cm " />
+  </PosPart>
+       <PosPart copyNumber="11">
+       <rParent name="mf:RR2X"/>
+       <rChild name="mf:RT2D"/>
+       <rRotation name="rotations:R200"/>
+       <Translation x="0*fm " y="0*fm " z="-2.2*cm " />
+  </PosPart>
+       <PosPart copyNumber="12">
+       <rParent name="mf:RR2X"/>
+       <rChild name="mf:RT2D"/>
+       <rRotation name="rotations:R220"/>
+       <Translation x="0*fm " y="0*fm " z="2.2*cm " />
+  </PosPart>
+       <PosPart copyNumber="13">
+       <rParent name="mf:RR2X"/>
+       <rChild name="mf:RT2D"/>
+       <rRotation name="rotations:R240"/>
+       <Translation x="0*fm " y="0*fm " z="-2.2*cm " />
+  </PosPart>
+       <PosPart copyNumber="14">
+       <rParent name="mf:RR2X"/>
+       <rChild name="mf:RT2D"/>
+       <rRotation name="rotations:R260"/>
+       <Translation x="0*fm " y="0*fm " z="2.2*cm " />
+  </PosPart>
+       <PosPart copyNumber="15">
+       <rParent name="mf:RR2X"/>
+       <rChild name="mf:RT2D"/>
+       <rRotation name="rotations:R280"/>
+       <Translation x="0*fm " y="0*fm " z="-2.2*cm " />
+  </PosPart>
+       <PosPart copyNumber="16">
+       <rParent name="mf:RR2X"/>
+       <rChild name="mf:RT2D"/>
+       <rRotation name="rotations:R300"/>
+       <Translation x="0*fm " y="0*fm " z="2.2*cm " />
+  </PosPart>
+       <PosPart copyNumber="17">
+       <rParent name="mf:RR2X"/>
+       <rChild name="mf:RT2D"/>
+       <rRotation name="rotations:R320"/>
+       <Translation x="0*fm " y="0*fm " z="-2.2*cm " />
+  </PosPart>
+       <PosPart copyNumber="18">
+       <rParent name="mf:RR2X"/>
+       <rChild name="mf:RT2D"/>
+       <rRotation name="rotations:R340"/>
+       <Translation x="0*fm " y="0*fm " z="2.2*cm " />
+  </PosPart>
+       <PosPart copyNumber="1">
+       <rParent name="mf:RT2D"/>
+       <rChild name="mf:RFDX"/>
+       <rRotation name="rotations:90XD"/>
+       <Translation x="2.606*m  " y="0*fm " z="0*fm " />
+  </PosPart>
+       <PosPart copyNumber="1">
+       <rParent name="mf:RFDX"/>
+       <rChild name="mf:RHDX"/>
+       <rRotation name="rotations:000D"/>
+  </PosPart>
+       <PosPart copyNumber="1">
+       <rParent name="mf:RHDX"/>
+       <rChild name="mf:RED1"/>
+       <rRotation name="rotations:000D"/>
+       <Translation x="0*fm " y="0*fm " z="45.45*cm " />
+  </PosPart>
+       <PosPart copyNumber="1">
+       <rParent name="mf:RHDX"/>
+       <rChild name="mf:RED2"/>
+       <rRotation name="rotations:000D"/>
+       <Translation x="0*fm " y="0*fm " z="11.6*cm " />
+  </PosPart>
+       <PosPart copyNumber="1">
+       <rParent name="mf:RHDX"/>
+       <rChild name="mf:RED3"/>
+       <rRotation name="rotations:000D"/>
+       <Translation x="0*fm " y="0*fm " z="-20.75*cm " />
+  </PosPart>
+       <PosPart copyNumber="1">
+       <rParent name="mf:RHDX"/>
+       <rChild name="mf:RED4"/>
+       <rRotation name="rotations:000D"/>
+       <Translation x="0*fm " y="0*fm " z="-48.9*cm " />
+  </PosPart>
+       RE2/1 staged volumes -->
+  <PosPart copyNumber="1">
+   <rParent name="mf:RR2X"/>
+   <rChild name="mf:RTXUR"/>
+   <rRotation name="rotations:R005"/>
+   <Translation x="0*fm " y="0*fm " z="-2.2*cm "/>
+  </PosPart>
+  <PosPart copyNumber="2">
+   <rParent name="mf:RR2X"/>
+   <rChild name="mf:RTXUR"/>
+   <rRotation name="rotations:R015"/>
+   <Translation x="0*fm " y="0*fm " z="2.2*cm "/>
+  </PosPart>
+  <PosPart copyNumber="3">
+   <rParent name="mf:RR2X"/>
+   <rChild name="mf:RTXUR"/>
+   <rRotation name="rotations:R025"/>
+   <Translation x="0*fm " y="0*fm " z="-2.2*cm "/>
+  </PosPart>
+  <PosPart copyNumber="4">
+   <rParent name="mf:RR2X"/>
+   <rChild name="mf:RTXUR"/>
+   <rRotation name="rotations:R035"/>
+   <Translation x="0*fm " y="0*fm " z="2.2*cm "/>
+  </PosPart>
+  <PosPart copyNumber="5">
+   <rParent name="mf:RR2X"/>
+   <rChild name="mf:RTXUR"/>
+   <rRotation name="rotations:R045"/>
+   <Translation x="0*fm " y="0*fm " z="-2.2*cm "/>
+  </PosPart>
+  <PosPart copyNumber="6">
+   <rParent name="mf:RR2X"/>
+   <rChild name="mf:RTXUR"/>
+   <rRotation name="rotations:R055"/>
+   <Translation x="0*fm " y="0*fm " z="2.2*cm "/>
+  </PosPart>
+  <PosPart copyNumber="7">
+   <rParent name="mf:RR2X"/>
+   <rChild name="mf:RTXUR"/>
+   <rRotation name="rotations:R065"/>
+   <Translation x="0*fm " y="0*fm " z="-2.2*cm "/>
+  </PosPart>
+  <PosPart copyNumber="8">
+   <rParent name="mf:RR2X"/>
+   <rChild name="mf:RTXUR"/>
+   <rRotation name="rotations:R075"/>
+   <Translation x="0*fm " y="0*fm " z="2.2*cm "/>
+  </PosPart>
+  <PosPart copyNumber="9">
+   <rParent name="mf:RR2X"/>
+   <rChild name="mf:RTXUR"/>
+   <rRotation name="rotations:R085"/>
+   <Translation x="0*fm " y="0*fm " z="-2.2*cm "/>
+  </PosPart>
+  <PosPart copyNumber="10">
+   <rParent name="mf:RR2X"/>
+   <rChild name="mf:RTXUR"/>
+   <rRotation name="rotations:R095"/>
+   <Translation x="0*fm " y="0*fm " z="2.2*cm "/>
+  </PosPart>
+  <PosPart copyNumber="11">
+   <rParent name="mf:RR2X"/>
+   <rChild name="mf:RTXUR"/>
+   <rRotation name="rotations:R105"/>
+   <Translation x="0*fm " y="0*fm " z="-2.2*cm "/>
+  </PosPart>
+  <PosPart copyNumber="12">
+   <rParent name="mf:RR2X"/>
+   <rChild name="mf:RTXUR"/>
+   <rRotation name="rotations:R115"/>
+   <Translation x="0*fm " y="0*fm " z="2.2*cm "/>
+  </PosPart>
+  <PosPart copyNumber="13">
+   <rParent name="mf:RR2X"/>
+   <rChild name="mf:RTXUR"/>
+   <rRotation name="rotations:R125"/>
+   <Translation x="0*fm " y="0*fm " z="-2.2*cm "/>
+  </PosPart>
+  <PosPart copyNumber="14">
+   <rParent name="mf:RR2X"/>
+   <rChild name="mf:RTXUR"/>
+   <rRotation name="rotations:R135"/>
+   <Translation x="0*fm " y="0*fm " z="2.2*cm "/>
+  </PosPart>
+  <PosPart copyNumber="15">
+   <rParent name="mf:RR2X"/>
+   <rChild name="mf:RTXUR"/>
+   <rRotation name="rotations:R145"/>
+   <Translation x="0*fm " y="0*fm " z="-2.2*cm "/>
+  </PosPart>
+  <PosPart copyNumber="16">
+   <rParent name="mf:RR2X"/>
+   <rChild name="mf:RTXUR"/>
+   <rRotation name="rotations:R155"/>
+   <Translation x="0*fm " y="0*fm " z="2.2*cm "/>
+  </PosPart>
+  <PosPart copyNumber="17">
+   <rParent name="mf:RR2X"/>
+   <rChild name="mf:RTXUR"/>
+   <rRotation name="rotations:R165"/>
+   <Translation x="0*fm " y="0*fm " z="-2.2*cm "/>
+  </PosPart>
+  <PosPart copyNumber="18">
+   <rParent name="mf:RR2X"/>
+   <rChild name="mf:RTXUR"/>
+   <rRotation name="rotations:R175"/>
+   <Translation x="0*fm " y="0*fm " z="2.2*cm "/>
+  </PosPart>
+  <PosPart copyNumber="19">
+   <rParent name="mf:RR2X"/>
+   <rChild name="mf:RTXUR"/>
+   <rRotation name="rotations:R185"/>
+   <Translation x="0*fm " y="0*fm " z="-2.2*cm "/>
+  </PosPart>
+  <PosPart copyNumber="20">
+   <rParent name="mf:RR2X"/>
+   <rChild name="mf:RTXUR"/>
+   <rRotation name="rotations:R195"/>
+   <Translation x="0*fm " y="0*fm " z="2.2*cm "/>
+  </PosPart>
+  <PosPart copyNumber="21">
+   <rParent name="mf:RR2X"/>
+   <rChild name="mf:RTXUR"/>
+   <rRotation name="rotations:R205"/>
+   <Translation x="0*fm " y="0*fm " z="-2.2*cm "/>
+  </PosPart>
+  <PosPart copyNumber="22">
+   <rParent name="mf:RR2X"/>
+   <rChild name="mf:RTXUR"/>
+   <rRotation name="rotations:R215"/>
+   <Translation x="0*fm " y="0*fm " z="2.2*cm "/>
+  </PosPart>
+  <PosPart copyNumber="23">
+   <rParent name="mf:RR2X"/>
+   <rChild name="mf:RTXUR"/>
+   <rRotation name="rotations:R225"/>
+   <Translation x="0*fm " y="0*fm " z="-2.2*cm "/>
+  </PosPart>
+  <PosPart copyNumber="24">
+   <rParent name="mf:RR2X"/>
+   <rChild name="mf:RTXUR"/>
+   <rRotation name="rotations:R235"/>
+   <Translation x="0*fm " y="0*fm " z="2.2*cm "/>
+  </PosPart>
+  <PosPart copyNumber="25">
+   <rParent name="mf:RR2X"/>
+   <rChild name="mf:RTXUR"/>
+   <rRotation name="rotations:R245"/>
+   <Translation x="0*fm " y="0*fm " z="-2.2*cm "/>
+  </PosPart>
+  <PosPart copyNumber="26">
+   <rParent name="mf:RR2X"/>
+   <rChild name="mf:RTXUR"/>
+   <rRotation name="rotations:R255"/>
+   <Translation x="0*fm " y="0*fm " z="2.2*cm "/>
+  </PosPart>
+  <PosPart copyNumber="27">
+   <rParent name="mf:RR2X"/>
+   <rChild name="mf:RTXUR"/>
+   <rRotation name="rotations:R265"/>
+   <Translation x="0*fm " y="0*fm " z="-2.2*cm "/>
+  </PosPart>
+  <PosPart copyNumber="28">
+   <rParent name="mf:RR2X"/>
+   <rChild name="mf:RTXUR"/>
+   <rRotation name="rotations:R275"/>
+   <Translation x="0*fm " y="0*fm " z="2.2*cm "/>
+  </PosPart>
+  <PosPart copyNumber="29">
+   <rParent name="mf:RR2X"/>
+   <rChild name="mf:RTXUR"/>
+   <rRotation name="rotations:R285"/>
+   <Translation x="0*fm " y="0*fm " z="-2.2*cm "/>
+  </PosPart>
+  <PosPart copyNumber="30">
+   <rParent name="mf:RR2X"/>
+   <rChild name="mf:RTXUR"/>
+   <rRotation name="rotations:R295"/>
+   <Translation x="0*fm " y="0*fm " z="2.2*cm "/>
+  </PosPart>
+  <PosPart copyNumber="31">
+   <rParent name="mf:RR2X"/>
+   <rChild name="mf:RTXUR"/>
+   <rRotation name="rotations:R305"/>
+   <Translation x="0*fm " y="0*fm " z="-2.2*cm "/>
+  </PosPart>
+  <PosPart copyNumber="32">
+   <rParent name="mf:RR2X"/>
+   <rChild name="mf:RTXUR"/>
+   <rRotation name="rotations:R315"/>
+   <Translation x="0*fm " y="0*fm " z="2.2*cm "/>
+  </PosPart>
+  <PosPart copyNumber="33">
+   <rParent name="mf:RR2X"/>
+   <rChild name="mf:RTXUR"/>
+   <rRotation name="rotations:R325"/>
+   <Translation x="0*fm " y="0*fm " z="-2.2*cm "/>
+  </PosPart>
+  <PosPart copyNumber="34">
+   <rParent name="mf:RR2X"/>
+   <rChild name="mf:RTXUR"/>
+   <rRotation name="rotations:R335"/>
+   <Translation x="0*fm " y="0*fm " z="2.2*cm "/>
+  </PosPart>
+  <PosPart copyNumber="35">
+   <rParent name="mf:RR2X"/>
+   <rChild name="mf:RTXUR"/>
+   <rRotation name="rotations:R345"/>
+   <Translation x="0*fm " y="0*fm " z="-2.2*cm "/>
+  </PosPart>
+  <PosPart copyNumber="36">
+   <rParent name="mf:RR2X"/>
+   <rChild name="mf:RTXUR"/>
+   <rRotation name="rotations:R355"/>
+   <Translation x="0*fm " y="0*fm " z="2.2*cm "/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="mf:RR3X"/>
+   <rChild name="mf:RTXU"/>
+   <rRotation name="rotations:R005"/>
+   <Translation x="0*fm " y="0*fm " z="-2.2*cm "/>
+  </PosPart>
+  <PosPart copyNumber="2">
+   <rParent name="mf:RR3X"/>
+   <rChild name="mf:RTXU"/>
+   <rRotation name="rotations:R015"/>
+   <Translation x="0*fm " y="0*fm " z="2.2*cm "/>
+  </PosPart>
+  <PosPart copyNumber="3">
+   <rParent name="mf:RR3X"/>
+   <rChild name="mf:RTXU"/>
+   <rRotation name="rotations:R025"/>
+   <Translation x="0*fm " y="0*fm " z="-2.2*cm "/>
+  </PosPart>
+  <PosPart copyNumber="4">
+   <rParent name="mf:RR3X"/>
+   <rChild name="mf:RTXU"/>
+   <rRotation name="rotations:R035"/>
+   <Translation x="0*fm " y="0*fm " z="2.2*cm "/>
+  </PosPart>
+  <PosPart copyNumber="5">
+   <rParent name="mf:RR3X"/>
+   <rChild name="mf:RTXU"/>
+   <rRotation name="rotations:R045"/>
+   <Translation x="0*fm " y="0*fm " z="-2.2*cm "/>
+  </PosPart>
+  <PosPart copyNumber="6">
+   <rParent name="mf:RR3X"/>
+   <rChild name="mf:RTXU"/>
+   <rRotation name="rotations:R055"/>
+   <Translation x="0*fm " y="0*fm " z="2.2*cm "/>
+  </PosPart>
+  <PosPart copyNumber="7">
+   <rParent name="mf:RR3X"/>
+   <rChild name="mf:RTXU"/>
+   <rRotation name="rotations:R065"/>
+   <Translation x="0*fm " y="0*fm " z="-2.2*cm "/>
+  </PosPart>
+  <PosPart copyNumber="8">
+   <rParent name="mf:RR3X"/>
+   <rChild name="mf:RTXU"/>
+   <rRotation name="rotations:R075"/>
+   <Translation x="0*fm " y="0*fm " z="2.2*cm "/>
+  </PosPart>
+  <PosPart copyNumber="9">
+   <rParent name="mf:RR3X"/>
+   <rChild name="mf:RTXU"/>
+   <rRotation name="rotations:R085"/>
+   <Translation x="0*fm " y="0*fm " z="-2.2*cm "/>
+  </PosPart>
+  <PosPart copyNumber="10">
+   <rParent name="mf:RR3X"/>
+   <rChild name="mf:RTXU"/>
+   <rRotation name="rotations:R095"/>
+   <Translation x="0*fm " y="0*fm " z="2.2*cm "/>
+  </PosPart>
+  <PosPart copyNumber="11">
+   <rParent name="mf:RR3X"/>
+   <rChild name="mf:RTXU"/>
+   <rRotation name="rotations:R105"/>
+   <Translation x="0*fm " y="0*fm " z="-2.2*cm "/>
+  </PosPart>
+  <PosPart copyNumber="12">
+   <rParent name="mf:RR3X"/>
+   <rChild name="mf:RTXU"/>
+   <rRotation name="rotations:R115"/>
+   <Translation x="0*fm " y="0*fm " z="2.2*cm "/>
+  </PosPart>
+  <PosPart copyNumber="13">
+   <rParent name="mf:RR3X"/>
+   <rChild name="mf:RTXU"/>
+   <rRotation name="rotations:R125"/>
+   <Translation x="0*fm " y="0*fm " z="-2.2*cm "/>
+  </PosPart>
+  <PosPart copyNumber="14">
+   <rParent name="mf:RR3X"/>
+   <rChild name="mf:RTXU"/>
+   <rRotation name="rotations:R135"/>
+   <Translation x="0*fm " y="0*fm " z="2.2*cm "/>
+  </PosPart>
+  <PosPart copyNumber="15">
+   <rParent name="mf:RR3X"/>
+   <rChild name="mf:RTXU"/>
+   <rRotation name="rotations:R145"/>
+   <Translation x="0*fm " y="0*fm " z="-2.2*cm "/>
+  </PosPart>
+  <PosPart copyNumber="16">
+   <rParent name="mf:RR3X"/>
+   <rChild name="mf:RTXU"/>
+   <rRotation name="rotations:R155"/>
+   <Translation x="0*fm " y="0*fm " z="2.2*cm "/>
+  </PosPart>
+  <PosPart copyNumber="17">
+   <rParent name="mf:RR3X"/>
+   <rChild name="mf:RTXU"/>
+   <rRotation name="rotations:R165"/>
+   <Translation x="0*fm " y="0*fm " z="-2.2*cm "/>
+  </PosPart>
+  <PosPart copyNumber="18">
+   <rParent name="mf:RR3X"/>
+   <rChild name="mf:RTXU"/>
+   <rRotation name="rotations:R175"/>
+   <Translation x="0*fm " y="0*fm " z="2.2*cm "/>
+  </PosPart>
+  <PosPart copyNumber="19">
+   <rParent name="mf:RR3X"/>
+   <rChild name="mf:RTXU"/>
+   <rRotation name="rotations:R185"/>
+   <Translation x="0*fm " y="0*fm " z="-2.2*cm "/>
+  </PosPart>
+  <PosPart copyNumber="20">
+   <rParent name="mf:RR3X"/>
+   <rChild name="mf:RTXU"/>
+   <rRotation name="rotations:R195"/>
+   <Translation x="0*fm " y="0*fm " z="2.2*cm "/>
+  </PosPart>
+  <PosPart copyNumber="21">
+   <rParent name="mf:RR3X"/>
+   <rChild name="mf:RTXU"/>
+   <rRotation name="rotations:R205"/>
+   <Translation x="0*fm " y="0*fm " z="-2.2*cm "/>
+  </PosPart>
+  <PosPart copyNumber="22">
+   <rParent name="mf:RR3X"/>
+   <rChild name="mf:RTXU"/>
+   <rRotation name="rotations:R215"/>
+   <Translation x="0*fm " y="0*fm " z="2.2*cm "/>
+  </PosPart>
+  <PosPart copyNumber="23">
+   <rParent name="mf:RR3X"/>
+   <rChild name="mf:RTXU"/>
+   <rRotation name="rotations:R225"/>
+   <Translation x="0*fm " y="0*fm " z="-2.2*cm "/>
+  </PosPart>
+  <PosPart copyNumber="24">
+   <rParent name="mf:RR3X"/>
+   <rChild name="mf:RTXU"/>
+   <rRotation name="rotations:R235"/>
+   <Translation x="0*fm " y="0*fm " z="2.2*cm "/>
+  </PosPart>
+  <PosPart copyNumber="25">
+   <rParent name="mf:RR3X"/>
+   <rChild name="mf:RTXU"/>
+   <rRotation name="rotations:R245"/>
+   <Translation x="0*fm " y="0*fm " z="-2.2*cm "/>
+  </PosPart>
+  <PosPart copyNumber="26">
+   <rParent name="mf:RR3X"/>
+   <rChild name="mf:RTXU"/>
+   <rRotation name="rotations:R255"/>
+   <Translation x="0*fm " y="0*fm " z="2.2*cm "/>
+  </PosPart>
+  <PosPart copyNumber="27">
+   <rParent name="mf:RR3X"/>
+   <rChild name="mf:RTXU"/>
+   <rRotation name="rotations:R265"/>
+   <Translation x="0*fm " y="0*fm " z="-2.2*cm "/>
+  </PosPart>
+  <PosPart copyNumber="28">
+   <rParent name="mf:RR3X"/>
+   <rChild name="mf:RTXU"/>
+   <rRotation name="rotations:R275"/>
+   <Translation x="0*fm " y="0*fm " z="2.2*cm "/>
+  </PosPart>
+  <PosPart copyNumber="29">
+   <rParent name="mf:RR3X"/>
+   <rChild name="mf:RTXU"/>
+   <rRotation name="rotations:R285"/>
+   <Translation x="0*fm " y="0*fm " z="-2.2*cm "/>
+  </PosPart>
+  <PosPart copyNumber="30">
+   <rParent name="mf:RR3X"/>
+   <rChild name="mf:RTXU"/>
+   <rRotation name="rotations:R295"/>
+   <Translation x="0*fm " y="0*fm " z="2.2*cm "/>
+  </PosPart>
+  <PosPart copyNumber="31">
+   <rParent name="mf:RR3X"/>
+   <rChild name="mf:RTXU"/>
+   <rRotation name="rotations:R305"/>
+   <Translation x="0*fm " y="0*fm " z="-2.2*cm "/>
+  </PosPart>
+  <PosPart copyNumber="32">
+   <rParent name="mf:RR3X"/>
+   <rChild name="mf:RTXU"/>
+   <rRotation name="rotations:R315"/>
+   <Translation x="0*fm " y="0*fm " z="2.2*cm "/>
+  </PosPart>
+  <PosPart copyNumber="33">
+   <rParent name="mf:RR3X"/>
+   <rChild name="mf:RTXU"/>
+   <rRotation name="rotations:R325"/>
+   <Translation x="0*fm " y="0*fm " z="-2.2*cm "/>
+  </PosPart>
+  <PosPart copyNumber="34">
+   <rParent name="mf:RR3X"/>
+   <rChild name="mf:RTXU"/>
+   <rRotation name="rotations:R335"/>
+   <Translation x="0*fm " y="0*fm " z="2.2*cm "/>
+  </PosPart>
+  <PosPart copyNumber="35">
+   <rParent name="mf:RR3X"/>
+   <rChild name="mf:RTXU"/>
+   <rRotation name="rotations:R345"/>
+   <Translation x="0*fm " y="0*fm " z="-2.2*cm "/>
+  </PosPart>
+  <PosPart copyNumber="36">
+   <rParent name="mf:RR3X"/>
+   <rChild name="mf:RTXU"/>
+   <rRotation name="rotations:R355"/>
+   <Translation x="0*fm " y="0*fm " z="2.2*cm "/>
+  </PosPart>
+  <!-- RE4 staged volumes 
+       <PosPart copyNumber="1">
+       <rParent name="mf:RR4X"/>
+       <rChild name="mf:RTXU"/>
+       <rRotation name="rotations:R005"/>
+       <Translation x="0*fm " y="0*fm " z="-2.2*cm " />
+  </PosPart>
+       <PosPart copyNumber="2">
+       <rParent name="mf:RR4X"/>
+       <rChild name="mf:RTXU"/>
+       <rRotation name="rotations:R015"/>
+       <Translation x="0*fm " y="0*fm " z="2.2*cm " />
+  </PosPart>
+       <PosPart copyNumber="3">
+       <rParent name="mf:RR4X"/>
+       <rChild name="mf:RTXU"/>
+       <rRotation name="rotations:R025"/>
+       <Translation x="0*fm " y="0*fm " z="-2.2*cm " />
+  </PosPart>
+       <PosPart copyNumber="4">
+       <rParent name="mf:RR4X"/>
+       <rChild name="mf:RTXU"/>
+       <rRotation name="rotations:R035"/>
+       <Translation x="0*fm " y="0*fm " z="2.2*cm " />
+  </PosPart>
+       <PosPart copyNumber="5">
+       <rParent name="mf:RR4X"/>
+       <rChild name="mf:RTXU"/>
+       <rRotation name="rotations:R045"/>
+       <Translation x="0*fm " y="0*fm " z="-2.2*cm " />
+  </PosPart>
+       <PosPart copyNumber="6">
+       <rParent name="mf:RR4X"/>
+       <rChild name="mf:RTXU"/>
+       <rRotation name="rotations:R055"/>
+       <Translation x="0*fm " y="0*fm " z="2.2*cm " />
+  </PosPart>
+       <PosPart copyNumber="7">
+       <rParent name="mf:RR4X"/>
+       <rChild name="mf:RTXU"/>
+       <rRotation name="rotations:R065"/>
+       <Translation x="0*fm " y="0*fm " z="-2.2*cm " />
+  </PosPart>
+       <PosPart copyNumber="8">
+       <rParent name="mf:RR4X"/>
+       <rChild name="mf:RTXU"/>
+       <rRotation name="rotations:R075"/>
+       <Translation x="0*fm " y="0*fm " z="2.2*cm " />
+  </PosPart>
+       <PosPart copyNumber="9">
+       <rParent name="mf:RR4X"/>
+       <rChild name="mf:RTXU"/>
+       <rRotation name="rotations:R085"/>
+       <Translation x="0*fm " y="0*fm " z="-2.2*cm " />
+  </PosPart>
+       <PosPart copyNumber="10">
+       <rParent name="mf:RR4X"/>
+       <rChild name="mf:RTXU"/>
+       <rRotation name="rotations:R095"/>
+       <Translation x="0*fm " y="0*fm " z="2.2*cm " />
+  </PosPart>
+       <PosPart copyNumber="11">
+       <rParent name="mf:RR4X"/>
+       <rChild name="mf:RTXU"/>
+       <rRotation name="rotations:R105"/>
+       <Translation x="0*fm " y="0*fm " z="-2.2*cm " />
+  </PosPart>
+       <PosPart copyNumber="12">
+       <rParent name="mf:RR4X"/>
+       <rChild name="mf:RTXU"/>
+       <rRotation name="rotations:R115"/>
+       <Translation x="0*fm " y="0*fm " z="2.2*cm " />
+  </PosPart>
+       <PosPart copyNumber="13">
+       <rParent name="mf:RR4X"/>
+       <rChild name="mf:RTXU"/>
+       <rRotation name="rotations:R125"/>
+       <Translation x="0*fm " y="0*fm " z="-2.2*cm " />
+  </PosPart>
+       <PosPart copyNumber="14">
+       <rParent name="mf:RR4X"/>
+       <rChild name="mf:RTXU"/>
+       <rRotation name="rotations:R135"/>
+       <Translation x="0*fm " y="0*fm " z="2.2*cm " />
+  </PosPart>
+       <PosPart copyNumber="15">
+       <rParent name="mf:RR4X"/>
+       <rChild name="mf:RTXU"/>
+       <rRotation name="rotations:R145"/>
+       <Translation x="0*fm " y="0*fm " z="-2.2*cm " />
+  </PosPart>
+       <PosPart copyNumber="16">
+       <rParent name="mf:RR4X"/>
+       <rChild name="mf:RTXU"/>
+       <rRotation name="rotations:R155"/>
+       <Translation x="0*fm " y="0*fm " z="2.2*cm " />
+  </PosPart>
+       <PosPart copyNumber="17">
+       <rParent name="mf:RR4X"/>
+       <rChild name="mf:RTXU"/>
+       <rRotation name="rotations:R165"/>
+       <Translation x="0*fm " y="0*fm " z="-2.2*cm " />
+  </PosPart>
+       <PosPart copyNumber="18">
+       <rParent name="mf:RR4X"/>
+       <rChild name="mf:RTXU"/>
+       <rRotation name="rotations:R175"/>
+       <Translation x="0*fm " y="0*fm " z="2.2*cm " />
+  </PosPart>
+       <PosPart copyNumber="19">
+       <rParent name="mf:RR4X"/>
+       <rChild name="mf:RTXU"/>
+       <rRotation name="rotations:R185"/>
+       <Translation x="0*fm " y="0*fm " z="-2.2*cm " />
+  </PosPart>
+       <PosPart copyNumber="20">
+       <rParent name="mf:RR4X"/>
+       <rChild name="mf:RTXU"/>
+       <rRotation name="rotations:R195"/>
+       <Translation x="0*fm " y="0*fm " z="2.2*cm " />
+  </PosPart>
+       <PosPart copyNumber="21">
+       <rParent name="mf:RR4X"/>
+       <rChild name="mf:RTXU"/>
+       <rRotation name="rotations:R205"/>
+       <Translation x="0*fm " y="0*fm " z="-2.2*cm " />
+  </PosPart>
+       <PosPart copyNumber="22">
+       <rParent name="mf:RR4X"/>
+       <rChild name="mf:RTXU"/>
+       <rRotation name="rotations:R215"/>
+       <Translation x="0*fm " y="0*fm " z="2.2*cm " />
+  </PosPart>
+       <PosPart copyNumber="23">
+       <rParent name="mf:RR4X"/>
+       <rChild name="mf:RTXU"/>
+       <rRotation name="rotations:R225"/>
+       <Translation x="0*fm " y="0*fm " z="-2.2*cm " />
+  </PosPart>
+       <PosPart copyNumber="24">
+       <rParent name="mf:RR4X"/>
+       <rChild name="mf:RTXU"/>
+       <rRotation name="rotations:R235"/>
+       <Translation x="0*fm " y="0*fm " z="2.2*cm " />
+  </PosPart>
+       <PosPart copyNumber="25">
+       <rParent name="mf:RR4X"/>
+       <rChild name="mf:RTXU"/>
+       <rRotation name="rotations:R245"/>
+       <Translation x="0*fm " y="0*fm " z="-2.2*cm " />
+  </PosPart>
+       <PosPart copyNumber="26">
+       <rParent name="mf:RR4X"/>
+       <rChild name="mf:RTXU"/>
+       <rRotation name="rotations:R255"/>
+       <Translation x="0*fm " y="0*fm " z="2.2*cm " />
+  </PosPart>
+       <PosPart copyNumber="27">
+       <rParent name="mf:RR4X"/>
+       <rChild name="mf:RTXU"/>
+       <rRotation name="rotations:R265"/>
+       <Translation x="0*fm " y="0*fm " z="-2.2*cm " />
+  </PosPart>
+       <PosPart copyNumber="28">
+       <rParent name="mf:RR4X"/>
+       <rChild name="mf:RTXU"/>
+       <rRotation name="rotations:R275"/>
+       <Translation x="0*fm " y="0*fm " z="2.2*cm " />
+  </PosPart>
+       <PosPart copyNumber="29">
+       <rParent name="mf:RR4X"/>
+       <rChild name="mf:RTXU"/>
+       <rRotation name="rotations:R285"/>
+       <Translation x="0*fm " y="0*fm " z="-2.2*cm " />
+  </PosPart>
+       <PosPart copyNumber="30">
+       <rParent name="mf:RR4X"/>
+       <rChild name="mf:RTXU"/>
+       <rRotation name="rotations:R295"/>
+       <Translation x="0*fm " y="0*fm " z="2.2*cm " />
+  </PosPart>
+       <PosPart copyNumber="31">
+       <rParent name="mf:RR4X"/>
+       <rChild name="mf:RTXU"/>
+       <rRotation name="rotations:R305"/>
+       <Translation x="0*fm " y="0*fm " z="-2.2*cm " />
+  </PosPart>
+       <PosPart copyNumber="32">
+       <rParent name="mf:RR4X"/>
+       <rChild name="mf:RTXU"/>
+       <rRotation name="rotations:R315"/>
+       <Translation x="0*fm " y="0*fm " z="2.2*cm " />
+  </PosPart>
+       <PosPart copyNumber="33">
+       <rParent name="mf:RR4X"/>
+       <rChild name="mf:RTXU"/>
+       <rRotation name="rotations:R325"/>
+       <Translation x="0*fm " y="0*fm " z="-2.2*cm " />
+  </PosPart>
+       <PosPart copyNumber="34">
+       <rParent name="mf:RR4X"/>
+       <rChild name="mf:RTXU"/>
+       <rRotation name="rotations:R335"/>
+       <Translation x="0*fm " y="0*fm " z="2.2*cm " />
+  </PosPart>
+       <PosPart copyNumber="35">
+       <rParent name="mf:RR4X"/>
+       <rChild name="mf:RTXU"/>
+       <rRotation name="rotations:R345"/>
+       <Translation x="0*fm " y="0*fm " z="-2.2*cm " />
+  </PosPart>
+       <PosPart copyNumber="36">
+       <rParent name="mf:RR4X"/>
+       <rChild name="mf:RTXU"/>
+       <rRotation name="rotations:R355"/>
+       <Translation x="0*fm " y="0*fm " z="2.2*cm " />
+  </PosPart>
+       RE4 stage volumes -->
+  <PosPart copyNumber="1">
+   <rParent name="mf:RTXU"/>
+   <rChild name="mf:RFEX"/>
+   <rRotation name="rotations:90XD"/>
+   <Translation x="4.1465*m  " y="0*fm " z="0*fm "/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="mf:RTXUR"/>
+   <rChild name="mf:RFEX"/>
+   <rRotation name="rotations:90DX"/>
+   <Translation x="4.1465*m  " y="0*fm " z="0*fm "/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="mf:RFEX"/>
+   <rChild name="mf:RHEX"/>
+   <rRotation name="rotations:000D"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="mf:RHEX"/>
+   <rChild name="mf:REE1"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="0*fm " z="51.9*cm "/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="mf:RHEX"/>
+   <rChild name="mf:REE2"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="0*fm " z="-6.9*cm "/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="mf:RHEX"/>
+   <rChild name="mf:REE3"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="0*fm " z="-58.8*cm "/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="mf:RTXUR"/>
+   <rChild name="mf:RFFX"/>
+   <rRotation name="rotations:90DX"/>
+   <Translation x="5.985*m  " y="0*fm " z="0*fm "/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="mf:RTXU"/>
+   <rChild name="mf:RFFX"/>
+   <rRotation name="rotations:90XD"/>
+   <Translation x="5.985*m  " y="0*fm " z="0*fm "/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="mf:RFFX"/>
+   <rChild name="mf:RHFX"/>
+   <rRotation name="rotations:000D"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="mf:RHFX"/>
+   <rChild name="mf:REF1"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="0*fm " z="69.15*cm "/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="mf:RHFX"/>
+   <rChild name="mf:REF2"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="0*fm " z="4.25*cm "/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="mf:RHFX"/>
+   <rChild name="mf:REF3"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="0*fm " z="-64.9*cm "/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="mf:ME2RingP"/>
+   <rChild name="mf:ME22Space"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="0*fm " z="202.1125*mm+8.1925*m "/>
+  </PosPart>
+  <PosPart copyNumber="2">
+   <rParent name="mf:ME2RingP"/>
+   <rChild name="mf:ME22Space"/>
+   <rRotation name="rotations:R010"/>
+   <Translation x="0*fm " y="0*fm " z="-45.8875*mm+8.1925*m "/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="mf:ME2RingN"/>
+   <rChild name="mf:ME22Space"/>
+   <rRotation name="rotations:180RYZ"/>
+   <Translation x="0*fm " y="0*fm " z="202.1125*mm+8.1925*m "/>
+  </PosPart>
+  <PosPart copyNumber="2">
+   <rParent name="mf:ME2RingN"/>
+   <rChild name="mf:ME22Space"/>
+   <rRotation name="rotations:R010R"/>
+   <Translation x="0*fm " y="0*fm " z="-45.8875*mm+8.1925*m "/>
+  </PosPart>
+  <Division name="ME22SpaceDivision" parent="ME22Space" axis="phi" offset="-10.*deg" width="20*deg"/>
+  <PosPart copyNumber="1">
+   <rParent name="mf:ME22SpaceDivision"/>
+   <rChild name="mf:ME22"/>
+   <rRotation name="rotations:90XD"/>
+   <Translation x="5265.0*mm" y="0*fm " z="0*fm "/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="mf:ME22"/>
+   <rChild name="mf:ME22AlumFrame"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="1.5*cm " z="0*fm "/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="mf:ME22AlumFrame"/>
+   <rChild name="mf:ME22FR4Body"/>
+   <rRotation name="rotations:000D"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="mf:ME22FR4Body"/>
+   <rChild name="mf:ME22PolycarbPanel"/>
+   <rRotation name="rotations:000D"/>
+  </PosPart>
+  <Division name="ME22Layer" parent="ME22PolycarbPanel" axis="y" offset="[LayerOffset]" width="[LayerSpacing]" nReplicas="6"/>
+  <PosPart copyNumber="1">
+   <rParent name="mf:ME22Layer"/>
+   <rChild name="mf:ME_FR4Skin_1_ME22Layer"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="[FR4SkinCenter]" z="0*fm "/>
+  </PosPart>
+  <PosPart copyNumber="2">
+   <rParent name="mf:ME22Layer"/>
+   <rChild name="mf:ME_FR4Skin_2_ME22Layer"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="-[FR4SkinCenter]" z="0*fm "/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="mf:ME22Layer"/>
+   <rChild name="mf:MECU_1_ME22Layer"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="[CuFoilCenter]" z="0*fm "/>
+  </PosPart>
+  <PosPart copyNumber="2">
+   <rParent name="mf:ME22Layer"/>
+   <rChild name="mf:MECU_2_ME22Layer"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="-[CuFoilCenter]" z="0*fm "/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="mf:ME22Layer"/>
+   <rChild name="mf:ME22_ActiveGasVol"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="0*fm " z="-9.5*mm "/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="mf:ME22_ActiveGasVol"/>
+   <rChild name="mf:ME_DeadGas_1_ME22_ActiveGasVol"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="0*fm " z="1.0116*m  "/>
+  </PosPart>
+  <PosPart copyNumber="2">
+   <rParent name="mf:ME22_ActiveGasVol"/>
+   <rChild name="mf:ME_DeadGas_2_ME22_ActiveGasVol"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="0*fm " z="40.46*cm "/>
+  </PosPart>
+  <PosPart copyNumber="3">
+   <rParent name="mf:ME22_ActiveGasVol"/>
+   <rChild name="mf:ME_DeadGas_3_ME22_ActiveGasVol"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="0*fm " z="-20.23*cm "/>
+  </PosPart>
+  <PosPart copyNumber="4">
+   <rParent name="mf:ME22_ActiveGasVol"/>
+   <rChild name="mf:ME_DeadGas_4_ME22_ActiveGasVol"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="0*fm " z="-80.92*cm "/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="mf:MEP"/>
+   <rChild name="mf:ME3RingP"/>
+   <Translation x="0*fm " y="0*fm " z="9.4475*m  "/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="mf:MEN"/>
+   <rChild name="mf:ME3RingN"/>
+   <Translation x="0*fm " y="0*fm " z="9.4475*m  "/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="mf:ME3RingP"/>
+   <rChild name="mf:ShieldingBoronPoly_1_ME3"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="0*fm " z="-2.5*mm "/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="mf:ME3RingP"/>
+   <rChild name="mf:ShieldingAntinomyLead_1_ME3"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="0*fm " z="-2.5*mm "/>
+  </PosPart>
+  <PosPart copyNumber="2">
+   <rParent name="mf:ME3RingP"/>
+   <rChild name="mf:ShieldingBoronPoly_2_ME3"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="0*fm " z="-2.5*mm "/>
+  </PosPart>
+  <PosPart copyNumber="2">
+   <rParent name="mf:ME3RingP"/>
+   <rChild name="mf:ShieldingAntinomyLead_2_ME3"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="0*fm " z="-2.5*mm "/>
+  </PosPart>
+  <PosPart copyNumber="3">
+   <rParent name="mf:ME3RingP"/>
+   <rChild name="mf:ShieldingAntinomyLead_3_ME3"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="0*fm " z="27.1*cm "/>
+  </PosPart>
+  <PosPart copyNumber="3">
+   <rParent name="mf:ME3RingP"/>
+   <rChild name="mf:ShieldingBoronPoly_3_ME3"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="0*fm " z="30.25*cm "/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="mf:ME3RingP"/>
+   <rChild name="mf:ME31Space"/>
+   <rRotation name="rotations:R005"/>
+   <Translation x="0*fm " y="0*fm " z="-202.1125*mm "/>
+  </PosPart>
+  <PosPart copyNumber="2">
+   <rParent name="mf:ME3RingP"/>
+   <rChild name="mf:ME31Space"/>
+   <rRotation name="rotations:R025"/>
+   <Translation x="0*fm " y="0*fm " z="45.8875*mm "/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="mf:ME3RingN"/>
+   <rChild name="mf:ShieldingBoronPoly_1_ME3"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="0*fm " z="-2.5*mm "/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="mf:ME3RingN"/>
+   <rChild name="mf:ShieldingAntinomyLead_1_ME3"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="0*fm " z="-2.5*mm "/>
+  </PosPart>
+  <PosPart copyNumber="2">
+   <rParent name="mf:ME3RingN"/>
+   <rChild name="mf:ShieldingBoronPoly_2_ME3"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="0*fm " z="-2.5*mm "/>
+  </PosPart>
+  <PosPart copyNumber="2">
+   <rParent name="mf:ME3RingN"/>
+   <rChild name="mf:ShieldingAntinomyLead_2_ME3"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="0*fm " z="-2.5*mm "/>
+  </PosPart>
+  <PosPart copyNumber="3">
+   <rParent name="mf:ME3RingN"/>
+   <rChild name="mf:ShieldingAntinomyLead_3_ME3"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="0*fm " z="27.1*cm "/>
+  </PosPart>
+  <PosPart copyNumber="3">
+   <rParent name="mf:ME3RingN"/>
+   <rChild name="mf:ShieldingBoronPoly_3_ME3"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="0*fm " z="30.25*cm "/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="mf:ME3RingN"/>
+   <rChild name="mf:ME31Space"/>
+   <rRotation name="rotations:R005R"/>
+   <Translation x="0*fm " y="0*fm " z="-202.1125*mm "/>
+  </PosPart>
+  <PosPart copyNumber="2">
+   <rParent name="mf:ME3RingN"/>
+   <rChild name="mf:ME31Space"/>
+   <rRotation name="rotations:R025R"/>
+   <Translation x="0*fm " y="0*fm " z="45.8875*mm "/>
+  </PosPart>
+  <Division name="ME31SpaceDivision" parent="ME31Space" axis="phi" offset="-20*deg" width="40*deg"/>
+  <PosPart copyNumber="1">
+   <rParent name="mf:ME31SpaceDivision"/>
+   <rChild name="mf:ME31"/>
+   <rRotation name="rotations:90DX"/>
+   <Translation x="2.527*m  " y="0*fm " z="0*fm "/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="mf:ME31"/>
+   <rChild name="mf:ME31AlumFrame"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="1.5*cm " z="0*fm "/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="mf:ME31AlumFrame"/>
+   <rChild name="mf:ME31FR4Body"/>
+   <rRotation name="rotations:000D"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="mf:ME31FR4Body"/>
+   <rChild name="mf:ME31PolycarbPanel"/>
+   <rRotation name="rotations:000D"/>
+  </PosPart>
+  <Division name="ME31Layer" parent="ME31PolycarbPanel" axis="y" offset="[LayerOffset]" width="[LayerSpacing]" nReplicas="6"/>
+  <PosPart copyNumber="1">
+   <rParent name="mf:ME31Layer"/>
+   <rChild name="mf:ME_FR4Skin_1_ME31Layer"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="[FR4SkinCenter]" z="0*fm "/>
+  </PosPart>
+  <PosPart copyNumber="2">
+   <rParent name="mf:ME31Layer"/>
+   <rChild name="mf:ME_FR4Skin_2_ME31Layer"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="-[FR4SkinCenter]" z="0*fm "/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="mf:ME31Layer"/>
+   <rChild name="mf:MECU_1_ME31Layer"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="[CuFoilCenter]" z="0*fm "/>
+  </PosPart>
+  <PosPart copyNumber="2">
+   <rParent name="mf:ME31Layer"/>
+   <rChild name="mf:MECU_2_ME31Layer"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="-[CuFoilCenter]" z="0*fm "/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="mf:ME31Layer"/>
+   <rChild name="mf:ME31_ActiveGasVol"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="0*fm " z="-9.65*mm "/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="mf:ME31_ActiveGasVol"/>
+   <rChild name="mf:ME_DeadGas_1_ME31_ActiveGasVol"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="0*fm " z="24.685*cm "/>
+  </PosPart>
+  <PosPart copyNumber="2">
+   <rParent name="mf:ME31_ActiveGasVol"/>
+   <rChild name="mf:ME_DeadGas_2_ME31_ActiveGasVol"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="0*fm " z="-35.205*cm "/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="mf:ME3RingP"/>
+   <rChild name="mf:RR3X"/>
+   <rRotation name="rotations:R005"/>
+   <Translation x="0*fm " y="0*fm " z="28.25*cm "/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="mf:ME3RingN"/>
+   <rChild name="mf:RR3X"/>
+   <rRotation name="rotations:R005"/>
+   <Translation x="0*fm " y="0*fm " z="28.25*cm "/>
+  </PosPart>
+  <!-- RE3/1 staged volumes
+       <PosPart copyNumber="1">
+       <rParent name="mf:RR3X"/>
+       <rChild name="mf:RT3G"/>
+       <rRotation name="rotations:000D"/>
+       <Translation x="0*fm " y="0*fm " z="-2.2*cm " />
+  </PosPart>
+       <PosPart copyNumber="2">
+       <rParent name="mf:RR3X"/>
+       <rChild name="mf:RT3G"/>
+       <rRotation name="rotations:R020"/>
+       <Translation x="0*fm " y="0*fm " z="2.2*cm " />
+  </PosPart>
+       <PosPart copyNumber="3">
+       <rParent name="mf:RR3X"/>
+       <rChild name="mf:RT3G"/>
+       <rRotation name="rotations:R040"/>
+       <Translation x="0*fm " y="0*fm " z="-2.2*cm " />
+  </PosPart>
+       <PosPart copyNumber="4">
+       <rParent name="mf:RR3X"/>
+       <rChild name="mf:RT3G"/>
+       <rRotation name="rotations:R060"/>
+       <Translation x="0*fm " y="0*fm " z="2.2*cm " />
+  </PosPart>
+       <PosPart copyNumber="5">
+       <rParent name="mf:RR3X"/>
+       <rChild name="mf:RT3G"/>
+       <rRotation name="rotations:R080"/>
+       <Translation x="0*fm " y="0*fm " z="-2.2*cm " />
+  </PosPart>
+       <PosPart copyNumber="6">
+       <rParent name="mf:RR3X"/>
+       <rChild name="mf:RT3G"/>
+       <rRotation name="rotations:R100"/>
+       <Translation x="0*fm " y="0*fm " z="2.2*cm " />
+  </PosPart>
+       <PosPart copyNumber="7">
+       <rParent name="mf:RR3X"/>
+       <rChild name="mf:RT3G"/>
+       <rRotation name="rotations:R120"/>
+       <Translation x="0*fm " y="0*fm " z="-2.2*cm " />
+  </PosPart>
+       <PosPart copyNumber="8">
+       <rParent name="mf:RR3X"/>
+       <rChild name="mf:RT3G"/>
+       <rRotation name="rotations:R140"/>
+       <Translation x="0*fm " y="0*fm " z="2.2*cm " />
+  </PosPart>
+       <PosPart copyNumber="9">
+       <rParent name="mf:RR3X"/>
+       <rChild name="mf:RT3G"/>
+       <rRotation name="rotations:R160"/>
+       <Translation x="0*fm " y="0*fm " z="-2.2*cm " />
+  </PosPart>
+       <PosPart copyNumber="10">
+       <rParent name="mf:RR3X"/>
+       <rChild name="mf:RT3G"/>
+       <rRotation name="rotations:R180"/>
+       <Translation x="0*fm " y="0*fm " z="2.2*cm " />
+  </PosPart>
+       <PosPart copyNumber="11">
+       <rParent name="mf:RR3X"/>
+       <rChild name="mf:RT3G"/>
+       <rRotation name="rotations:R200"/>
+       <Translation x="0*fm " y="0*fm " z="-2.2*cm " />
+  </PosPart>
+       <PosPart copyNumber="12">
+       <rParent name="mf:RR3X"/>
+       <rChild name="mf:RT3G"/>
+       <rRotation name="rotations:R220"/>
+       <Translation x="0*fm " y="0*fm " z="2.2*cm " />
+  </PosPart>
+       <PosPart copyNumber="13">
+       <rParent name="mf:RR3X"/>
+       <rChild name="mf:RT3G"/>
+       <rRotation name="rotations:R240"/>
+       <Translation x="0*fm " y="0*fm " z="-2.2*cm " />
+  </PosPart>
+       <PosPart copyNumber="14">
+       <rParent name="mf:RR3X"/>
+       <rChild name="mf:RT3G"/>
+       <rRotation name="rotations:R260"/>
+       <Translation x="0*fm " y="0*fm " z="2.2*cm " />
+  </PosPart>
+       <PosPart copyNumber="15">
+       <rParent name="mf:RR3X"/>
+       <rChild name="mf:RT3G"/>
+       <rRotation name="rotations:R280"/>
+       <Translation x="0*fm " y="0*fm " z="-2.2*cm " />
+  </PosPart>
+       <PosPart copyNumber="16">
+       <rParent name="mf:RR3X"/>
+       <rChild name="mf:RT3G"/>
+       <rRotation name="rotations:R300"/>
+       <Translation x="0*fm " y="0*fm " z="2.2*cm " />
+  </PosPart>
+       <PosPart copyNumber="17">
+       <rParent name="mf:RR3X"/>
+       <rChild name="mf:RT3G"/>
+       <rRotation name="rotations:R320"/>
+       <Translation x="0*fm " y="0*fm " z="-2.2*cm " />
+  </PosPart>
+       <PosPart copyNumber="18">
+       <rParent name="mf:RR3X"/>
+       <rChild name="mf:RT3G"/>
+       <rRotation name="rotations:R340"/>
+       <Translation x="0*fm " y="0*fm " z="2.2*cm " />
+  </PosPart>
+       <PosPart copyNumber="1">
+       <rParent name="mf:RT3G"/>
+       <rChild name="mf:RFGX"/>
+       <rRotation name="rotations:90XD"/>
+       <Translation x="2.8305*m  " y="0*fm " z="0*fm " />
+  </PosPart>
+       <PosPart copyNumber="1">
+       <rParent name="mf:RFGX"/>
+       <rChild name="mf:RHGX"/>
+       <rRotation name="rotations:000D"/>
+  </PosPart>
+       <PosPart copyNumber="1">
+       <rParent name="mf:RHGX"/>
+       <rChild name="mf:REG1"/>
+       <rRotation name="rotations:000D"/>
+       <Translation x="0*fm " y="0*fm " z="23*cm " />
+  </PosPart>
+       <PosPart copyNumber="1">
+       <rParent name="mf:RHGX"/>
+       <rChild name="mf:REG2"/>
+       <rRotation name="rotations:000D"/>
+       <Translation x="0*fm " y="0*fm " z="-16.55*cm " />
+  </PosPart>
+       RE3/1 staged volumes -->
+  <PosPart copyNumber="1">
+   <rParent name="mf:ME3RingP"/>
+   <rChild name="mf:ME32Space"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="0*fm " z="-202.1125*mm "/>
+  </PosPart>
+  <PosPart copyNumber="2">
+   <rParent name="mf:ME3RingP"/>
+   <rChild name="mf:ME32Space"/>
+   <rRotation name="rotations:R010"/>
+   <Translation x="0*fm " y="0*fm " z="45.8875*mm "/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="mf:ME3RingN"/>
+   <rChild name="mf:ME32Space"/>
+   <rRotation name="rotations:180RYZ"/>
+   <Translation x="0*fm " y="0*fm " z="-202.1125*mm "/>
+  </PosPart>
+  <PosPart copyNumber="2">
+   <rParent name="mf:ME3RingN"/>
+   <rChild name="mf:ME32Space"/>
+   <rRotation name="rotations:R010R"/>
+   <Translation x="0*fm " y="0*fm " z="45.8875*mm "/>
+  </PosPart>
+  <Division name="ME32SpaceDivision" parent="ME32Space" axis="phi" offset="-10*deg" width="20*deg"/>
+  <PosPart copyNumber="1">
+   <rParent name="mf:ME32SpaceDivision"/>
+   <rChild name="mf:ME32"/>
+   <rRotation name="rotations:90DX"/>
+   <Translation x="5265.0*mm" y="0*fm " z="0*fm "/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="mf:ME32"/>
+   <rChild name="mf:ME32AlumFrame"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="1.5*cm " z="0*fm "/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="mf:ME32AlumFrame"/>
+   <rChild name="mf:ME32FR4Body"/>
+   <rRotation name="rotations:000D"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="mf:ME32FR4Body"/>
+   <rChild name="mf:ME32PolycarbPanel"/>
+   <rRotation name="rotations:000D"/>
+  </PosPart>
+  <Division name="ME32Layer" parent="ME32PolycarbPanel" axis="y" offset="[LayerOffset]" width="[LayerSpacing]" nReplicas="6"/>
+  <PosPart copyNumber="1">
+   <rParent name="mf:ME32Layer"/>
+   <rChild name="mf:ME_FR4Skin_1_ME32Layer"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="[FR4SkinCenter]" z="0*fm "/>
+  </PosPart>
+  <PosPart copyNumber="2">
+   <rParent name="mf:ME32Layer"/>
+   <rChild name="mf:ME_FR4Skin_2_ME32Layer"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="-[FR4SkinCenter]" z="0*fm "/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="mf:ME32Layer"/>
+   <rChild name="mf:MECU_1_ME32Layer"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="[CuFoilCenter]" z="0*fm "/>
+  </PosPart>
+  <PosPart copyNumber="2">
+   <rParent name="mf:ME32Layer"/>
+   <rChild name="mf:MECU_2_ME32Layer"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="-[CuFoilCenter]" z="0*fm "/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="mf:ME32Layer"/>
+   <rChild name="mf:ME32_ActiveGasVol"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="0*fm " z="-9.5*mm "/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="mf:ME32_ActiveGasVol"/>
+   <rChild name="mf:ME_DeadGas_1_ME32_ActiveGasVol"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="0*fm " z="1.0116*m  "/>
+  </PosPart>
+  <PosPart copyNumber="2">
+   <rParent name="mf:ME32_ActiveGasVol"/>
+   <rChild name="mf:ME_DeadGas_2_ME32_ActiveGasVol"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="0*fm " z="40.46*cm "/>
+  </PosPart>
+  <PosPart copyNumber="3">
+   <rParent name="mf:ME32_ActiveGasVol"/>
+   <rChild name="mf:ME_DeadGas_3_ME32_ActiveGasVol"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="0*fm " z="-20.23*cm "/>
+  </PosPart>
+  <PosPart copyNumber="4">
+   <rParent name="mf:ME32_ActiveGasVol"/>
+   <rChild name="mf:ME_DeadGas_4_ME32_ActiveGasVol"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="0*fm " z="-80.92*cm "/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="mf:MEP"/>
+   <rChild name="mf:ME4RingP"/>
+   <Translation x="0*fm " y="0*fm " z="10.3432*m  "/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="mf:MEN"/>
+   <rChild name="mf:ME4RingN"/>
+   <Translation x="0*fm " y="0*fm " z="10.3432*m  "/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="mf:ME4RingP"/>
+   <rChild name="mf:ShieldingBoronPoly_1_ME4"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="0*fm " z="6.75*mm "/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="mf:ME4RingP"/>
+   <rChild name="mf:ShieldingAntinomyLead_1_ME4"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="0*fm " z="6.75*mm "/>
+  </PosPart>
+  <PosPart copyNumber="2">
+   <rParent name="mf:ME4RingP"/>
+   <rChild name="mf:ShieldingBoronPoly_2_ME4"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="0*fm " z="6.75*mm "/>
+  </PosPart>
+  <PosPart copyNumber="2">
+   <rParent name="mf:ME4RingP"/>
+   <rChild name="mf:ShieldingAntinomyLead_2_ME4"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="0*fm " z="6.75*mm "/>
+  </PosPart>
+  <PosPart copyNumber="3">
+   <rParent name="mf:ME4RingP"/>
+   <rChild name="mf:ShieldingAntinomyLead_3_ME4"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="0*fm " z="28.025*cm "/>
+  </PosPart>
+  <PosPart copyNumber="3">
+   <rParent name="mf:ME4RingP"/>
+   <rChild name="mf:ShieldingBoronPoly_3_ME4"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="0*fm " z="31.175*cm "/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="mf:ME4RingP"/>
+   <rChild name="mf:ME41Space"/>
+   <rRotation name="rotations:R005"/>
+   <Translation x="0*fm " y="0*fm " z="-202.8125*mm "/>
+  </PosPart>
+  <PosPart copyNumber="2">
+   <rParent name="mf:ME4RingP"/>
+   <rChild name="mf:ME41Space"/>
+   <rRotation name="rotations:R025"/>
+   <Translation x="0*fm " y="0*fm " z="45.1875*mm "/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="mf:ME4RingN"/>
+   <rChild name="mf:ShieldingBoronPoly_1_ME4"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="0*fm " z="6.75*mm "/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="mf:ME4RingN"/>
+   <rChild name="mf:ShieldingAntinomyLead_1_ME4"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="0*fm " z="6.75*mm "/>
+  </PosPart>
+  <PosPart copyNumber="2">
+   <rParent name="mf:ME4RingN"/>
+   <rChild name="mf:ShieldingBoronPoly_2_ME4"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="0*fm " z="6.75*mm "/>
+  </PosPart>
+  <PosPart copyNumber="2">
+   <rParent name="mf:ME4RingN"/>
+   <rChild name="mf:ShieldingAntinomyLead_2_ME4"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="0*fm " z="6.75*mm "/>
+  </PosPart>
+  <PosPart copyNumber="3">
+   <rParent name="mf:ME4RingN"/>
+   <rChild name="mf:ShieldingAntinomyLead_3_ME4"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="0*fm " z="28.025*cm "/>
+  </PosPart>
+  <PosPart copyNumber="3">
+   <rParent name="mf:ME4RingN"/>
+   <rChild name="mf:ShieldingBoronPoly_3_ME4"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="0*fm " z="31.175*cm "/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="mf:ME4RingN"/>
+   <rChild name="mf:ME41Space"/>
+   <rRotation name="rotations:R005R"/>
+   <Translation x="0*fm " y="0*fm " z="-202.8125*mm "/>
+  </PosPart>
+  <PosPart copyNumber="2">
+   <rParent name="mf:ME4RingN"/>
+   <rChild name="mf:ME41Space"/>
+   <rRotation name="rotations:R025R"/>
+   <Translation x="0*fm " y="0*fm " z="45.1875*mm "/>
+  </PosPart>
+  <Division name="ME41SpaceDivision" parent="ME41Space" axis="phi" offset="-20*deg" width="40*deg"/>
+  <PosPart copyNumber="1">
+   <rParent name="mf:ME41SpaceDivision"/>
+   <rChild name="mf:ME41"/>
+   <rRotation name="rotations:90DX"/>
+   <Translation x="2.6265*m  " y="0*fm " z="0*fm "/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="mf:ME41"/>
+   <rChild name="mf:ME41AlumFrame"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="1.5*cm " z="0*fm "/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="mf:ME41AlumFrame"/>
+   <rChild name="mf:ME41FR4Body"/>
+   <rRotation name="rotations:000D"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="mf:ME41FR4Body"/>
+   <rChild name="mf:ME41PolycarbPanel"/>
+   <rRotation name="rotations:000D"/>
+  </PosPart>
+  <Division name="ME41Layer" parent="ME41PolycarbPanel" axis="y" offset="[LayerOffset]" width="[LayerSpacing]" nReplicas="6"/>
+  <PosPart copyNumber="1">
+   <rParent name="mf:ME41Layer"/>
+   <rChild name="mf:ME_FR4Skin_1_ME41Layer"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="[FR4SkinCenter]" z="0*fm "/>
+  </PosPart>
+  <PosPart copyNumber="2">
+   <rParent name="mf:ME41Layer"/>
+   <rChild name="mf:ME_FR4Skin_2_ME41Layer"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="-[FR4SkinCenter]" z="0*fm "/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="mf:ME41Layer"/>
+   <rChild name="mf:MECU_1_ME41Layer"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="[CuFoilCenter]" z="0*fm "/>
+  </PosPart>
+  <PosPart copyNumber="2">
+   <rParent name="mf:ME41Layer"/>
+   <rChild name="mf:MECU_2_ME41Layer"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="-[CuFoilCenter]" z="0*fm "/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="mf:ME41Layer"/>
+   <rChild name="mf:ME41_ActiveGasVol"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="0*fm " z="-9.55*mm "/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="mf:ME41_ActiveGasVol"/>
+   <rChild name="mf:ME_DeadGas_1_ME41_ActiveGasVol"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="0*fm " z="24.46*cm "/>
+  </PosPart>
+  <PosPart copyNumber="2">
+   <rParent name="mf:ME41_ActiveGasVol"/>
+   <rChild name="mf:ME_DeadGas_2_ME41_ActiveGasVol"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="0*fm " z="-25.45*cm "/>
+  </PosPart>
+  <!-- Remove this line and comment ending line below to restore ME42 -->
+  <PosPart copyNumber="1">
+   <rParent name="mf:ME4RingP"/>
+   <rChild name="mf:ME42Space"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="0*fm " z="-202.8125*mm "/>
+  </PosPart>
+  <PosPart copyNumber="2">
+   <rParent name="mf:ME4RingP"/>
+   <rChild name="mf:ME42Space"/>
+   <rRotation name="rotations:R010"/>
+   <Translation x="0*fm " y="0*fm " z="45.1875*mm "/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="mf:ME4RingN"/>
+   <rChild name="mf:ME42Space"/>
+   <rRotation name="rotations:180RYZ"/>
+   <Translation x="0*fm " y="0*fm " z="-202.8125*mm "/>
+  </PosPart>
+  <PosPart copyNumber="2">
+   <rParent name="mf:ME4RingN"/>
+   <rChild name="mf:ME42Space"/>
+   <rRotation name="rotations:R010R"/>
+   <Translation x="0*fm " y="0*fm " z="45.1875*mm "/>
+  </PosPart>
+  <Division name="ME42SpaceDivision" parent="ME42Space" axis="phi" offset="-10*deg" width="20*deg"/>
+  <PosPart copyNumber="1">
+   <rParent name="mf:ME42SpaceDivision"/>
+   <rChild name="mf:ME42"/>
+   <rRotation name="rotations:90DX"/>
+   <Translation x="5265.0*mm" y="0*fm " z="0*fm "/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="mf:ME42"/>
+   <rChild name="mf:ME42AlumFrame"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="1.5*cm " z="0*fm "/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="mf:ME42AlumFrame"/>
+   <rChild name="mf:ME42FR4Body"/>
+   <rRotation name="rotations:000D"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="mf:ME42FR4Body"/>
+   <rChild name="mf:ME42PolycarbPanel"/>
+   <rRotation name="rotations:000D"/>
+  </PosPart>
+  <Division name="ME42Layer" parent="ME42PolycarbPanel" axis="y" offset="[LayerOffset]" width="[LayerSpacing]" nReplicas="6"/>
+  <PosPart copyNumber="1">
+   <rParent name="mf:ME42Layer"/>
+   <rChild name="mf:ME_FR4Skin_1_ME42Layer"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="[FR4SkinCenter]" z="0*fm "/>
+  </PosPart>
+  <PosPart copyNumber="2">
+   <rParent name="mf:ME42Layer"/>
+   <rChild name="mf:ME_FR4Skin_2_ME42Layer"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="-[FR4SkinCenter]" z="0*fm "/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="mf:ME42Layer"/>
+   <rChild name="mf:MECU_1_ME42Layer"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="[CuFoilCenter]" z="0*fm "/>
+  </PosPart>
+  <PosPart copyNumber="2">
+   <rParent name="mf:ME42Layer"/>
+   <rChild name="mf:MECU_2_ME42Layer"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="-[CuFoilCenter]" z="0*fm "/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="mf:ME42Layer"/>
+   <rChild name="mf:ME42_ActiveGasVol"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="0*fm " z="-9.5*mm "/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="mf:ME42_ActiveGasVol"/>
+   <rChild name="mf:ME_DeadGas_1_ME42_ActiveGasVol"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="0*fm " z="1.0116*m  "/>
+  </PosPart>
+  <PosPart copyNumber="2">
+   <rParent name="mf:ME42_ActiveGasVol"/>
+   <rChild name="mf:ME_DeadGas_2_ME42_ActiveGasVol"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="0*fm " z="40.46*cm "/>
+  </PosPart>
+  <PosPart copyNumber="3">
+   <rParent name="mf:ME42_ActiveGasVol"/>
+   <rChild name="mf:ME_DeadGas_3_ME42_ActiveGasVol"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="0*fm " z="-20.23*cm "/>
+  </PosPart>
+  <PosPart copyNumber="4">
+   <rParent name="mf:ME42_ActiveGasVol"/>
+   <rChild name="mf:ME_DeadGas_4_ME42_ActiveGasVol"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="0*fm " z="-80.92*cm "/>
+  </PosPart>
+  <!-- -->
+  <!-- RE4/1 staged volume
+       <PosPart copyNumber="1">
+       <rParent name="mf:ME4RingP"/>
+       <rChild name="mf:RR4X"/>
+       <rRotation name="rotations:R005"/>
+       <Translation x="0*fm " y="0*fm " z="29.175*cm " />
+  </PosPart>
+       <PosPart copyNumber="1">
+       <rParent name="mf:ME4RingN"/>
+       <rChild name="mf:RR4X"/>
+       <rRotation name="rotations:R005"/>
+       <Translation x="0*fm " y="0*fm " z="29.175*cm " />
+  </PosPart>
+       
+       
+       <PosPart copyNumber="1">
+       <rParent name="mf:RR4X"/>
+       <rChild name="mf:RT4H"/>
+       <rRotation name="rotations:000D"/>
+       <Translation x="0*fm " y="0*fm " z="-2.2*cm " />
+  </PosPart>
+       <PosPart copyNumber="2">
+       <rParent name="mf:RR4X"/>
+       <rChild name="mf:RT4H"/>
+       <rRotation name="rotations:R020"/>
+       <Translation x="0*fm " y="0*fm " z="2.2*cm " />
+  </PosPart>
+       <PosPart copyNumber="3">
+       <rParent name="mf:RR4X"/>
+       <rChild name="mf:RT4H"/>
+       <rRotation name="rotations:R040"/>
+       <Translation x="0*fm " y="0*fm " z="-2.2*cm " />
+  </PosPart>
+       <PosPart copyNumber="4">
+       <rParent name="mf:RR4X"/>
+       <rChild name="mf:RT4H"/>
+       <rRotation name="rotations:R060"/>
+       <Translation x="0*fm " y="0*fm " z="2.2*cm " />
+  </PosPart>
+       <PosPart copyNumber="5">
+       <rParent name="mf:RR4X"/>
+       <rChild name="mf:RT4H"/>
+       <rRotation name="rotations:R080"/>
+       <Translation x="0*fm " y="0*fm " z="-2.2*cm " />
+  </PosPart>
+       <PosPart copyNumber="6">
+       <rParent name="mf:RR4X"/>
+       <rChild name="mf:RT4H"/>
+       <rRotation name="rotations:R100"/>
+       <Translation x="0*fm " y="0*fm " z="2.2*cm " />
+  </PosPart>
+       <PosPart copyNumber="7">
+       <rParent name="mf:RR4X"/>
+       <rChild name="mf:RT4H"/>
+       <rRotation name="rotations:R120"/>
+       <Translation x="0*fm " y="0*fm " z="-2.2*cm " />
+  </PosPart>
+       <PosPart copyNumber="8">
+       <rParent name="mf:RR4X"/>
+       <rChild name="mf:RT4H"/>
+       <rRotation name="rotations:R140"/>
+       <Translation x="0*fm " y="0*fm " z="2.2*cm " />
+  </PosPart>
+       <PosPart copyNumber="9">
+       <rParent name="mf:RR4X"/>
+       <rChild name="mf:RT4H"/>
+       <rRotation name="rotations:R160"/>
+       <Translation x="0*fm " y="0*fm " z="-2.2*cm " />
+  </PosPart>
+       <PosPart copyNumber="10">
+       <rParent name="mf:RR4X"/>
+       <rChild name="mf:RT4H"/>
+       <rRotation name="rotations:R180"/>
+       <Translation x="0*fm " y="0*fm " z="2.2*cm " />
+  </PosPart>
+       <PosPart copyNumber="11">
+       <rParent name="mf:RR4X"/>
+       <rChild name="mf:RT4H"/>
+       <rRotation name="rotations:R200"/>
+       <Translation x="0*fm " y="0*fm " z="-2.2*cm " />
+  </PosPart>
+       <PosPart copyNumber="12">
+       <rParent name="mf:RR4X"/>
+       <rChild name="mf:RT4H"/>
+       <rRotation name="rotations:R220"/>
+       <Translation x="0*fm " y="0*fm " z="2.2*cm " />
+  </PosPart>
+       <PosPart copyNumber="13">
+       <rParent name="mf:RR4X"/>
+       <rChild name="mf:RT4H"/>
+       <rRotation name="rotations:R240"/>
+       <Translation x="0*fm " y="0*fm " z="-2.2*cm " />
+  </PosPart>
+       <PosPart copyNumber="14">
+       <rParent name="mf:RR4X"/>
+       <rChild name="mf:RT4H"/>
+       <rRotation name="rotations:R260"/>
+       <Translation x="0*fm " y="0*fm " z="2.2*cm " />
+  </PosPart>
+       <PosPart copyNumber="15">
+       <rParent name="mf:RR4X"/>
+       <rChild name="mf:RT4H"/>
+       <rRotation name="rotations:R280"/>
+       <Translation x="0*fm " y="0*fm " z="-2.2*cm " />
+  </PosPart>
+       <PosPart copyNumber="16">
+       <rParent name="mf:RR4X"/>
+       <rChild name="mf:RT4H"/>
+       <rRotation name="rotations:R300"/>
+       <Translation x="0*fm " y="0*fm " z="2.2*cm " />
+  </PosPart>
+       <PosPart copyNumber="17">
+       <rParent name="mf:RR4X"/>
+       <rChild name="mf:RT4H"/>
+       <rRotation name="rotations:R320"/>
+       <Translation x="0*fm " y="0*fm " z="-2.2*cm " />
+  </PosPart>
+       <PosPart copyNumber="18">
+       <rParent name="mf:RR4X"/>
+       <rChild name="mf:RT4H"/>
+       <rRotation name="rotations:R340"/>
+       <Translation x="0*fm " y="0*fm " z="2.2*cm " />
+  </PosPart>
+       <PosPart copyNumber="1">
+       <rParent name="mf:RT4H"/>
+       <rChild name="mf:RFHX"/>
+       <rRotation name="rotations:90XD"/>
+       <Translation x="2.943*m  " y="0*fm " z="0*fm " />
+  </PosPart>
+       <PosPart copyNumber="1">
+       <rParent name="mf:RFHX"/>
+       <rChild name="mf:RHHX"/>
+       <rRotation name="rotations:000D"/>
+  </PosPart>
+       <PosPart copyNumber="1">
+       <rParent name="mf:RHHX"/>
+       <rChild name="mf:REH1"/>
+       <rRotation name="rotations:000D"/>
+       <Translation x="0*fm " y="0*fm " z="11.75*cm " />
+  </PosPart>
+       <PosPart copyNumber="1">
+       <rParent name="mf:RHHX"/>
+       <rChild name="mf:REH2"/>
+       <rRotation name="rotations:000D"/>
+       <Translation x="0*fm " y="0*fm " z="-16.55*cm " />
+  </PosPart>
+       RE4/1 staged volumes -->
+  <PosPart copyNumber="1">
+   <rParent name="mf:MEP"/>
+   <rChild name="mf:ShieldingBoronPoly_1_ME"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="0*fm " z="10.805*m  "/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="mf:MEN"/>
+   <rChild name="mf:ShieldingBoronPoly_1_ME"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="0*fm " z="10.805*m  "/>
+  </PosPart>
+  <Division name="ZStopSpaceDivision" parent="ZStopSpace" axis="phi" offset="-15*deg" width="30*deg"/>
+ </PosPartSection>
+</DDDefinition>

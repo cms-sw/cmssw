@@ -1,0 +1,24 @@
+<library   name="RecoParticleFlowPFClusterProducerPlugins" file="*.cc">
+  <use   name="CondFormats/HcalObjects"/>
+  <use   name="CondFormats/EcalObjects"/>
+  <use   name="CondFormats/DataRecord"/>
+  <use   name="DataFormats/CaloTowers"/>
+  <use   name="DataFormats/DetId"/>
+  <use   name="DataFormats/EcalDetId"/>
+  <use   name="DataFormats/EcalRecHit"/>
+  <use   name="DataFormats/HcalDetId"/>
+  <use   name="DataFormats/HcalRecHit"/>
+  <use   name="DataFormats/Math"/>
+  <use   name="DataFormats/ParticleFlowReco"/>
+  <use   name="FWCore/Framework"/>
+  <use   name="FWCore/MessageLogger"/>
+  <use   name="FWCore/ParameterSet"/>
+  <use   name="FWCore/PluginManager"/>
+  <use   name="Geometry/CaloGeometry"/>
+  <use   name="Geometry/CaloTopology"/>
+  <use   name="Geometry/EcalAlgo"/>
+  <use   name="Geometry/Records"/>
+  <use   name="RecoLocalCalo/HcalRecAlgos"/>
+  <use   name="RecoParticleFlow/PFClusterProducer"/>
+  <flags   EDM_PLUGIN="1"/>
+</library>

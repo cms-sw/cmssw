@@ -1,0 +1,73 @@
+#include "RK4PreciseSolver.h"
+#include "RK4OneStepTempl.h"
+#include <cmath>
+
+inline double signum( double d) {return d>=0 ? 1.0 : -1.0;}
+
+template <typename T, int N>
+typename RKSolver<T,N>::Vector 
+RK4PreciseSolver<T,N>::operator()( Scalar startPar, const Vector& startState,
+				   Scalar step, const RKDerivative<T,N>& deriv,
+				   const RKDistance<T,N>& dist,
+				   float eps)
+{
+    const double Safety = 0.9;
+    double remainigStep = step;
+    double stepSize = step;   // attempt to solve in one step
+    Scalar currentPar   = startPar;
+    Vector currentStart = startState;
+    int nsteps = 0;
+    std::pair<Vector, Scalar> tryStep;
+
+    do {
+	tryStep = stepWithAccuracy( currentPar, currentStart, deriv, dist, stepSize);
+	nsteps++;
+	if (tryStep.second <eps) {
+	    if (abs(remainigStep - stepSize) < eps/2) {
+		if (verbose()) cout << "Accuracy reached, and full step taken in " 
+				    << nsteps << " steps" << endl;
+		return tryStep.first; // we are there
+	    }
+	    else {
+		remainigStep -= stepSize;
+		currentPar += stepSize;
+                // increase step size
+		double factor =  min( Safety * pow( fabs(eps/tryStep.second),0.2), 4.);
+		// stepSize = min( stepSize*factor, remainigStep);
+		double absSize =  min( abs(stepSize*factor), abs(remainigStep));
+		stepSize = absSize * signum(stepSize);
+		currentStart = tryStep.first;
+		if (verbose()) cout << "Accuracy reached, but " << remainigStep 
+		     << " remain after " << nsteps << " steps. Step size increased by " 
+		     << factor << " to " << stepSize << endl;
+	    }
+	}
+	else {
+	    // decrease step size
+	    double factor =  max( Safety * pow( fabs(eps/tryStep.second),0.25), 0.1);
+	    stepSize *= factor;
+	    if (verbose()) cout << "Accuracy not yet reached: delta = " << tryStep.second
+		 << ", step reduced by " << factor << " to " << stepSize << endl;
+	}
+    } while (abs(remainigStep) > eps/2);
+
+    return tryStep.first;
+}
+template <typename T, int N>
+std::pair< typename RKSolver<T,N>::Vector, T> 
+RK4PreciseSolver<T,N>::stepWithAccuracy( Scalar startPar, const Vector& startState,
+					 const RKDerivative<T,N>& deriv,
+					 const RKDistance<T,N>& dist, float step)
+{
+  const Scalar huge = 1.e5;
+  const Scalar hugediff = 100.;
+
+    RK4OneStepTempl<T,N> solver;
+    Vector one(       solver(startPar, startState, deriv, step));
+    if (abs(one[0])>huge || abs(one(1)>huge)) return std::pair<Vector, Scalar>(one,hugediff);
+
+    Vector firstHalf( solver(startPar, startState, deriv, step/2));
+    Vector secondHalf(solver(startPar+step/2, firstHalf, deriv, step/2));
+    Scalar diff = dist(one, secondHalf, startPar+step);
+    return std::pair<Vector, Scalar>(secondHalf,diff);
+}

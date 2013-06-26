@@ -1,0 +1,63 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+<BODY bgcolor="FFFFFF">
+<title>
+          CMS MessageLogger: Setting a Destination's Threshold
+</title>
+
+<center>
+<h1> <img src="header-public.gif" align="center"> </h1>
+
+<font color=red>
+<h1>CMS MessageLogger Service
+<br> 
+Setting a Destination's Threshold</h1>
+</font>
+</center>
+
+
+<pre>
+process TEST = {
+
+  <font color=red>service = MessageLogger</font> {
+    vstring destinations = {   "detailedInfo.txt"
+                             , "critical.txt"
+                             , "cout"
+                             , "cerr"
+                                             }
+    PSet critical.txt     = { string threshold = "ERROR"   }
+    PSet detailedInfo.txt = { <font color=red>string threshold = "INFO"</font>    } 
+    PSet cerr             = { string threshold = "WARNING" }
+  }
+  untracked PSet maxEvents = {untracked int32 input = 5}
+  path p = { myAnalysisModule }
+  module myAnalysisModule = ModuleThatIssuesMessages { }
+  source = EmptySource { }
+}
+</pre>
+
+
+The <font color=red>string threshold = "INFO"</font> parameter
+in the PSet configuring <font color=red>detailedInfo.txt</font> tells the 
+destination producing the file critical.txt to ignore all messages
+with severity below <font color=red>INFO</font>.  Since only message
+issued using <font color=blue>LogDebug</font> are below this severity,
+this means that detailedInfo.txt can react to all non-debug messages but
+will ignore debug messages.
+
+<p><center>
+<img src="bar.gif"></center>
+
+<p><center>
+<a href="http://www.uscms.org/SoftwareComputing/index.html">
+USCMS Software and Computing Home Page </a> - 
+<a href="MessageLogger.html"> CMS MessageLogger Service Page </a> -
+<a href="parameters.html#example"> Configuration File </a>
+</center>
+
+<p>
+      <hr>
+      <address><a href="mailto:mf@fnal.gov">Mark Fischler</a></address>
+<!-- hhmts start -->
+Last modified: November 29, 2005
+<!-- hhmts end -->
+</body>

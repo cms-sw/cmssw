@@ -1,0 +1,14 @@
+<library   name="RecoMuonMuonIsolationProducersPlugins" file="*.cc">
+  <use   name="DataFormats/BeamSpot"/>
+  <use   name="DataFormats/Common"/>
+  <use   name="DataFormats/MuonReco"/>
+  <use   name="DataFormats/RecoCandidate"/>
+  <use   name="DataFormats/TrackReco"/>
+  <use   name="FWCore/Framework"/>
+  <use   name="FWCore/MessageLogger"/>
+  <use   name="FWCore/ParameterSet"/>
+  <use   name="FWCore/PluginManager"/>
+  <use   name="PhysicsTools/IsolationAlgos"/>
+  <use   name="RecoMuon/MuonIsolation"/>
+  <flags   EDM_PLUGIN="1"/>
+</library>

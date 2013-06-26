@@ -1,0 +1,511 @@
+<?xml version="1.0"  standalone="no" ?>
+<html xmlns="http://www.w3.org/1999/xhtml"
+xmlns:svg="http://www.w3.org/2000/svg" 
+xmlns:xlink="http://www.w3.org/1999/xlink"
+>
+<head>
+<script type="text/ecmascript"> <![CDATA[
+  //section to contain script code
+  var myMapApp = new mapApp();
+  var myMainMap;
+  var myRefMapDragger;
+  function init() {
+     myMapApp.resetFactors();
+     myMainMap = new map("mainMap",3000,100,1000,0.6);
+     //set constraints to draggable rect in reference map
+     myRefMapDragger = new dragObj("dragRectForRefMap",0,200,510,610,"ul");
+     
+     //colorRegion();
+  }
+  function showData1(evt) {}
+  function showData(evt) {
+        var xlinkns = "http://www.w3.org/1999/xlink"; 
+	var myPoly = evt.currentTarget;
+	var myDynamicTrackerText = document.getElementById("TrackerText");
+        var myDynamicTrackerText1 = document.getElementById("TrackerText1");
+        var myDynamicTrackerMessage = document.getElementById("TrackerMessage");
+        var myTrackerPlot = document.getElementById("plot");
+        if (evt.type == "mouseover") {
+                var myTracker = myPoly.getAttribute("POS");
+                var myTracker1 = "  value="+myPoly.getAttribute("value");
+                var myMessage = myPoly.getAttribute("MESSAGE");
+                myTracker1 = myTracker1+" count="+myPoly.getAttribute("count");
+//		alert (myTracker+" "+myTracker1);
+                myDynamicTrackerText.firstChild.nodeValue=myTracker;
+                myDynamicTrackerText1.firstChild.nodeValue=myTracker1;
+                myDynamicTrackerMessage.firstChild.nodeValue=myMessage;
+        }
+
+	if (evt.type == "mouseout") {
+		myDynamicTrackerText.firstChild.nodeValue="-";				
+	}
+
+	if (evt.type == "click") {
+		myDynamicTrackerText.firstChild.nodeValue="-";	
+		var moduleId = myPoly.getAttribute("detid");
+                var url_serv = "http://cmstkmon.cern.ch:1972/urn:xdaq-application:lid=15/Request?";
+                var queryString = "RequestID=PlotTkMapHistogram";
+		queryString+= "&ModId=" + moduleId;
+                var url1 = url_serv  + queryString;
+//                var filename=moduleId+".jpg";
+//                myTrackerPlot.setAttributeNS( xlinkns, "xlink:href", filename ) 
+                myTrackerPlot.setAttributeNS( xlinkns, "xlink:href", url1);
+                
+                pausecomp(5000);
+                queryString = "RequestID=UpdatePlot&t="+moduleId;
+                var url2 = url_serv  + queryString;
+
+                myTrackerPlot.setAttributeNS( xlinkns, "xlink:href", url2);  
+              
+		var myTracker = myPoly.getAttribute("POS");
+                myTracker = myTracker+"  value="+myPoly.getAttribute("value");
+	        myTracker = myTracker+"  count="+myPoly.getAttribute("count");
+		myDynamicTrackerText.firstChild.nodeValue=myTracker;
+	}
+
+  }
+  function colorRegion() {
+	var myGroup = document.getElementById("tracker");
+	var children = myGroup.childNodes;
+	var myModule;					
+	//loop over all children
+	//for (var i = 0; i < children.length;i++) {
+	for (var i = 0; i < 10000;i++) {
+	//check if it is a path-element
+	 if (children.item(i).nodeName == "polygon") {
+	   myModule = children.item(i).getAttribute("MODULE");
+		switch (myModule) {
+		   case "stereo":
+			myColor = "blue";
+			break;
+		   case "nostereo":
+			myColor = "rgb(255,255,0)";
+			break;
+		   default:
+			myColor = "red";
+		}
+	   children.item(i).setAttribute("fill",myColor);
+	 }
+        }			
+  }
+  //holds data on map
+  function map(mapName,origWidth,minZoom,maxZoom,zoomFact) {
+	var mapSVG = document.getElementById(mapName);
+	this.mapName = mapName;
+	this.origWidth = origWidth;
+	this.minZoom = minZoom;
+	this.maxZoom = maxZoom;
+	this.zoomFact = zoomFact;
+	this.pixXOffset = parseFloat(mapSVG.getAttributeNS(null,"x"));
+	this.pixYOffset = parseFloat(mapSVG.getAttributeNS(null,"y"));
+	viewBoxArray = mapSVG.getAttributeNS(null,"viewBox").split(" ");
+	this.curxOrig = parseFloat(viewBoxArray[0]);
+	this.curyOrig = parseFloat(viewBoxArray[1]);
+	this.curWidth = parseFloat(viewBoxArray[2]);
+	this.curHeight = parseFloat(viewBoxArray[3]);
+	this.pixWidth = parseFloat(mapSVG.getAttributeNS(null,"width"));
+	this.pixHeight = parseFloat(mapSVG.getAttributeNS(null,"height"));
+	this.pixXOrig = parseFloat(mapSVG.getAttributeNS(null,"x"));
+	this.pixYOrig = parseFloat(mapSVG.getAttributeNS(null,"y"));
+	this.pixSize = this.curWidth / this.pixWidth;
+	this.zoomVal = this.origWidth / this.curWidth * 100;
+  }
+  map.prototype.newViewBox = function(refRectId,refMapId) {
+	var myRefRect = document.getElementById(refRectId);
+	var myRefMapSVG = document.getElementById(refMapId);
+	var viewBoxArray = myRefMapSVG.getAttributeNS(null,"viewBox").split(" ");
+	var refPixSize = viewBoxArray[2] / myRefMapSVG.getAttributeNS(null,"width");
+	this.curxOrig = parseFloat(viewBoxArray[0]) + (myRefRect.getAttributeNS(null,"x") - myRefMapSVG.getAttributeNS(null,"x")) * refPixSize;
+	this.curyOrig = parseFloat(viewBoxArray[1]) + (myRefRect.getAttributeNS(null,"y") - myRefMapSVG.getAttributeNS(null,"y")) * refPixSize;
+	this.curWidth = myRefRect.getAttributeNS(null,"width") * refPixSize;
+	this.curHeight = myRefRect.getAttributeNS(null,"height") * refPixSize;
+	var myViewBoxString = this.curxOrig + " " + this.curyOrig + " " + this.curWidth + " " + this.curHeight;
+	this.pixSize = this.curWidth / this.pixWidth;
+	this.zoomVal = this.origWidth / this.curWidth * 100;
+	document.getElementById(this.mapName).setAttributeNS(null,"viewBox",myViewBoxString);
+  }
+  //holds data on window size
+  function mapApp() {
+  }		
+  //calculate ratio and offset values of app window
+  mapApp.prototype.resetFactors = function() {
+	var svgroot = document.documentElement;
+	if (!svgroot.getScreenCTM) {
+		//case for ASV3 and Corel
+		var viewBoxArray = svgroot.getAttributeNS(null,"viewBox").split(" ");
+		var myRatio = viewBoxArray[2]/viewBoxArray[3];
+		if ((window.innerWidth/window.innerHeight) > myRatio) { //case window is more wide than myRatio
+			this.scaleFactor = viewBoxArray[3] / window.innerHeight;
+		}
+		else { //case window is more tall than myRatio
+			this.scaleFactor = viewBoxArray[2] / window.innerWidth;		
+		}
+		this.offsetX = (window.innerWidth - viewBoxArray[2] * 1 / this.scaleFactor) / 2;
+		this.offsetY = (window.innerHeight - viewBoxArray[3] * 1 / this.scaleFactor) / 2;
+		}
+  }
+   mapApp.prototype.calcCoord = function(coordx,coordy) {
+	var svgroot = document.documentElement;
+	var coords = new Array();
+	if (!svgroot.getScreenCTM) {
+	  //case ASV3 a. Corel
+	  coords["x"] = (coordx  - this.offsetX) * this.scaleFactor;
+	  coords["y"] = (coordy - this.offsetY) * this.scaleFactor;
+	}
+	else {
+	  matrix=svgroot.getScreenCTM();
+	  coords["x"]= matrix.inverse().a*coordx+matrix.inverse().c*coordy+matrix.inverse().e;
+	  coords["y"]= matrix.inverse().b*coordx+matrix.inverse().d*coordy+matrix.inverse().f;
+	 }
+	return coords;
+  }		
+  
+  //make an element draggable with constraints
+  function dragObj(dragId,constrXmin,constrXmax,constrYmin,constrYmax,refPoint) {
+	this.dragId = dragId;
+	this.constrXmin = constrXmin;
+	this.constrXmax = constrXmax;
+	this.constrYmin = constrYmin;
+	this.constrYmax = constrYmax;
+	this.refPoint = refPoint;
+	this.status = "false";
+  }
+  dragObj.prototype.drag = function(evt) {
+        //works only for rect and use-elements
+        var myDragElement = evt.target;
+	if (evt.type == "mousedown") {
+		var coords = myMapApp.calcCoord(evt.clientX,evt.clientY);
+		this.curX = coords["x"];
+		this.curY = coords["y"];
+		this.status = "true";
+	}
+	if (evt.type == "mousemove" && this.status == "true") {
+		var coords = myMapApp.calcCoord(evt.clientX,evt.clientY);
+		var newEvtX = coords["x"];
+		var newEvtY = coords["y"];
+		var bBox = myDragElement.getBBox();
+		if (this.refPoint == "ul") {
+		  var toMoveX = bBox.x + newEvtX - this.curX;
+		  var toMoveY = bBox.y + newEvtY - this.curY;
+		}
+		else {
+		  //refPoint = center
+		  var toMoveX = bBox.x + bBox.width / 2 + newEvtX - this.curX;
+		  var toMoveY = bBox.y + bBox.height / 2 + newEvtY - this.curY;
+		}
+		if ((bBox.x + newEvtX - this.curX) < this.constrXmin) {
+		  if(this.refPoint == "ul") {
+		     toMoveX = this.constrXmin;
+		  }
+		  else {
+		   toMoveX = this.constrXmin + bBox.width / 2;
+		  }
+	        }
+		if ((bBox.x + newEvtX - this.curX + bBox.width) > this.constrXmax) {
+			if(this.refPoint == "ul") {
+		  	  toMoveX = this.constrXmax - bBox.width;
+			}
+			else {
+		  	  toMoveX = this.constrXmax - bBox.width / 2;
+			}					
+		}
+		if ((bBox.y + newEvtY - this.curY) < this.constrYmin) {
+	 		if(this.refPoint == "ul") {
+		  	 toMoveY = this.constrYmin;
+			}
+			else {
+		  	 toMoveY = this.constrYmin + bBox.height / 2;
+			}
+		}
+		if ((bBox.y + bBox.height + newEvtY - this.curY) > this.constrYmax) {
+			if(this.refPoint == "ul") {
+		  	 toMoveY = this.constrYmax - bBox.height;
+			}
+			else {
+		 	 toMoveY = this.constrYmax - bBox.height / 2;
+			}					
+		}
+		myDragElement.setAttributeNS(null,"x",toMoveX);
+		myDragElement.setAttributeNS(null,"y",toMoveY);
+		this.curX = newEvtX;
+		this.curY = newEvtY;
+	}
+	if (evt.type == "mouseup" || evt.type == "mouseout") {
+		this.status = "false";
+	}			
+  }
+  dragObj.prototype.zoom = function(inOrOut) {
+	var myDragElement = document.getElementById(this.dragId);
+	var myOldX = myDragElement.getAttributeNS(null,"x");
+	var myOldY = myDragElement.getAttributeNS(null,"y");
+	var myOldWidth = myDragElement.getAttributeNS(null,"width");
+	var myOldHeight = myDragElement.getAttributeNS(null,"height");
+	switch (inOrOut) {
+	   case "in":
+		var myNewX = parseFloat(myOldX) + myOldWidth / 2 - (myOldWidth * myMainMap.zoomFact * 0.5);
+		var myNewY = parseFloat(myOldY) + myOldHeight / 2 - (myOldHeight * myMainMap.zoomFact * 0.5);
+		var myNewWidth = myOldWidth * myMainMap.zoomFact;
+		var myNewHeight = myOldHeight * myMainMap.zoomFact;
+		break;
+	   case "out":
+		var myNewX = parseFloat(myOldX) + myOldWidth / 2 - (myOldWidth * (1 + myMainMap.zoomFact) * 0.5);
+		var myNewY = parseFloat(myOldY) + myOldHeight / 2 - (myOldHeight * (1 + myMainMap.zoomFact) * 0.5);
+		var myNewWidth = myOldWidth * (1 + myMainMap.zoomFact);
+		var myNewHeight = myOldHeight * (1 + myMainMap.zoomFact);
+		break;
+           case "down":
+                var myNewX = parseFloat(myOldX);
+                var myNewY = parseFloat(myOldY) +1.3* 6.*myMainMap.zoomFact;
+                var myNewWidth = myOldWidth ;
+                var myNewHeight = myOldHeight ;
+                break;
+           case "up":
+                var myNewX = parseFloat(myOldX);
+                var myNewY = parseFloat(myOldY) -1.3*6.* myMainMap.zoomFact;
+                var myNewWidth = myOldWidth ;
+                var myNewHeight = myOldHeight ;
+                break;
+           case "left":
+                var myNewX = parseFloat(myOldX) - 3.*6.* myMainMap.zoomFact;
+                var myNewY = parseFloat(myOldY);
+                var myNewWidth = myOldWidth ;
+                var myNewHeight = myOldHeight ;
+                break;
+           case "right":
+                var myNewX = parseFloat(myOldX)+3.*6.* myMainMap.zoomFact;
+                var myNewY = parseFloat(myOldY);
+                var myNewWidth = myOldWidth ;
+                var myNewHeight = myOldHeight ;
+                break;
+           case "PIXB":
+                var myNewX = 0.;
+                var myNewY = 540.;
+                var myNewWidth = 62. ;
+                var myNewHeight = 36. ;
+                break;
+           case "FPIX-z":
+                var myNewX = 0.;
+                var myNewY = 581.;
+                var myNewWidth = 35.83 ;
+                var myNewHeight = 21.01 ;
+                break;
+           case "FPIX+z":
+                var myNewX = 0.;
+                var myNewY = 516.;
+                var myNewWidth = 35.83 ;
+                var myNewHeight = 21.01 ;
+                break;
+           case "TID-z":
+                var myNewX = 40.0;
+                var myNewY = 585.;
+                var myNewWidth = 34. ;
+                var myNewHeight = 15. ;
+                break;
+           case "TID+z":
+                var myNewX = 40.0;
+                var myNewY = 520.;
+                var myNewWidth = 34. ;
+                var myNewHeight = 15. ;
+                break;
+           case "TOB":
+                var myNewX = 97.;
+                var myNewY = 542.;
+                var myNewWidth = 72. ;
+                var myNewHeight = 36. ;
+                break;
+           case "TIB":
+                var myNewX = 46.8;
+                var myNewY = 540.;
+                var myNewWidth = 64.8 ;
+                var myNewHeight = 38. ;
+                break;
+           case "TEC-z":
+                var myNewX = 73.8;
+                var myNewY = 568.;
+                var myNewWidth = 115.2 ;
+                var myNewHeight = 57.6 ;
+                break;
+           case "TEC+z":
+                var myNewX = 73.8;
+                var myNewY = 500.;
+                var myNewWidth = 115.2 ;
+                var myNewHeight = 57.6 ;
+                break;
+
+	   default:
+		var myNewX = this.constrXmin;
+		var myNewY = this.constrYmin;
+		var myNewWidth = this.constrXmax - this.constrXmin;
+		var myNewHeight = this.constrYmax - this.constrYmin;
+		break;
+	}
+if(inOrOut=="in" || inOrOut=="out" || inOrOut=="full"){
+	if (myNewWidth > (this.constrXmax - this.constrXmin)) {
+		myNewWidth = this.constrXmax - this.constrXmin;
+	}
+	if (myNewHeight > (this.constrYmax - this.constrYmin)) {
+		myNewHeight = this.constrYmax - this.constrYmin;
+	}
+	if (myNewX < this.constrXmin) {
+		myNewX = this.constrXmin;
+	}
+	if (myNewY < this.constrYmin) {
+		myNewY = this.constrYmin;
+	}
+	if ((myNewX + myNewWidth) > this.constrXmax) {
+		myNewX = this.constrXmax - myNewWidth;
+	}
+	if ((myNewY + myNewHeight) > this.constrYmax) {
+		myNewY = this.constrYmax - myNewHeight;
+	}
+	}
+	myDragElement.setAttributeNS(null,"x",myNewX);
+	myDragElement.setAttributeNS(null,"y",myNewY);
+	myDragElement.setAttributeNS(null,"width",myNewWidth);
+	myDragElement.setAttributeNS(null,"height",myNewHeight);
+	myMainMap.newViewBox(this.dragId,"referenceMap");
+  }
+  //magnifier glass mouse-over effects
+  function magnify(evt,scaleFact,inOrOut) {
+	if (inOrOut == "in") {
+	   if (myMainMap.zoomVal < myMainMap.maxZoom) {
+	      scaleObject(evt,scaleFact);
+	   }
+	   else {
+	   }
+	}
+	if (inOrOut == "out") {
+           if (myMainMap.zoomVal > myMainMap.minZoom) {
+	       scaleObject(evt,scaleFact);
+	   }
+	   else {
+	   }		
+	}
+	if (inOrOut == "full") {
+	   if (myMainMap.zoomVal > myMainMap.minZoom) {
+	      scaleObject(evt,scaleFact);
+	   }
+	   else {			
+	   }		
+	}
+	if (scaleFact == 1) {	
+	   scaleObject(evt,scaleFact);
+        }
+  }
+  //scale an object
+  function scaleObject(evt,factor) {
+  //reference to the currently selected object
+        var element = evt.currentTarget;
+	var myX = element.getAttributeNS(null,"x");
+	var myY = element.getAttributeNS(null,"y");
+        var newtransform = "scale(" + factor + ") translate(" + (myX * 1 / factor - myX) + " " + (myY * 1 / factor - myY) +")";
+        element.setAttributeNS(null,'transform', newtransform);
+  }
+  function zoomIt(inOrOut) {
+	if (inOrOut == "in") {
+	   if (myMainMap.zoomVal < myMainMap.maxZoom) {
+              myRefMapDragger.zoom("in");
+	   }
+	   else {
+	   }
+	}
+	if (inOrOut == "out") {
+	   if (myMainMap.zoomVal > myMainMap.minZoom) {
+	       myRefMapDragger.zoom("out");
+	   }
+	   else {			
+	   }		
+	}
+	if (inOrOut == "full") {
+	     if (myMainMap.zoomVal > myMainMap.minZoom) {
+	        myRefMapDragger.zoom("full");				
+	     }
+	     else {	
+	     }		
+	}
+if(inOrOut!="in" && inOrOut!="out" && inOrOut!="full") myRefMapDragger.zoom(inOrOut);
+  }
+
+function pausecomp(millis)
+{
+  var inizio = new Date();
+  var inizioint=inizio.getTime();
+  var intervallo = 0;
+  while(intervallo<millis){
+    var fine = new Date();
+    var fineint=fine.getTime();
+     intervallo = fineint-inizioint;
+   }
+  return;
+}
+
+]]> </script>
+<!-- section for CSS stylesheet definitions -->
+<style type="text/css"><![CDATA[  
+      .normalText {font-size:20;fill:black;font-weight:bold;}
+      .dragRect {fill:darkcyan;stroke:none;opacity:0.4;}
+  ]]></style>
+</head>
+<body onload="init()" onresize="myMapApp.resetFactors();" style=" background-color:lightyellow; ">
+<div id="controlbuttons">
+<button onclick="zoomIt('in');">Zoom in</button>
+<button onclick="zoomIt('out');">Zoom out</button>
+<button onclick="zoomIt('full');">Home</button>
+<button onclick="zoomIt('up');">Up</button>
+<button onclick="zoomIt('down');">Down</button>
+<button onclick="zoomIt('left');">Left</button>
+<button onclick="zoomIt('right');">Right</button>
+<button onclick="zoomIt('TIB');">TIB</button>
+<button onclick="zoomIt('TOB');">TOB</button>
+<button onclick="zoomIt('TID+z');">TID+z</button>
+<button onclick="zoomIt('TID-z');">TID-z</button>
+<button onclick="zoomIt('TEC+z');">TEC+z</button>
+<button onclick="zoomIt('TEC-z');">TEC-z</button>
+<button onclick="zoomIt('PIXB');">PIXB</button>
+<button onclick="zoomIt('FPIX+z');">FPIX+z</button>
+<button onclick="zoomIt('FPIX-z');">FPIX-z</button>
+</div>
+<br />
+<svg:svg width="100%" height="100%" viewBox="0 0 1400 700"  >
+<svg:rect x      = "-500"
+         y        = "-500"
+         width    = "6000"
+        overflow = "hidden"
+         height   = "8000"
+        style    = "fill:#d5e6fc;stroke:red;stroke-width:1px;" />
+<svg:defs>
+   <svg:symbol id="magnifyer" overflow="visible" style="fill:white;stroke:darkcyan;stroke-width:2;" >
+    <svg:circle r="12" />
+  </svg:symbol>
+  <svg:symbol id="magnifyerZoomOut" overflow="visible" style="fill:white;stroke:darkcyan;stroke-width:2;" >
+    <svg:use xlink:href="#magnifyer"/>
+    <svg:line x1="-6" y1="0" x2="6" y2="0" style="stroke:darkcyan;stroke-width:2;"/>
+  </svg:symbol>
+  <svg:symbol id="magnifyerZoomIn" overflow="visible">
+    <svg:use xlink:href="#magnifyer"/>
+    <svg:line x1="-6" y1="0" x2="6" y2="0" style="stroke:darkcyan;stroke-width:2;"/>
+    <svg:line x1="0" y1="-6" x2="0" y2="6" style="stroke:darkcyan;stroke-width:2;"/>
+  </svg:symbol>
+  <svg:symbol id="magnifyerFull" overflow="visible">
+    <svg:use xlink:href="#magnifyer"/>
+    <svg:line x1="-2" y1="0" x2="4" y2="0" style="stroke:darkcyan;stroke-width:2;"/>
+    <svg:line x1="-2" y1="-6" x2="-4" y2="6" style="stroke:darkcyan;stroke-width:2;"/>
+    <svg:line x1="-2" y1="-6" x2="5" y2="-6" style="stroke:darkcyan;stroke-width:2;"/>
+  </svg:symbol>
+</svg:defs>
+<svg:rect fill="white" stroke="none" x="0" y="0" width="100%" height="100%" onclick="showData1(evt);"/>
+<svg:svg id="referenceMap" x="0" y="510" viewBox="0 0 3000 1600" width="180"
+height="100" >
+        <svg:use xlink:href="#tracker" />
+</svg:svg>
+<svg:rect id="dragRectForRefMap" class="dragRect" x="0" y="510" width="180"
+height="100" />
+  <svg:g id="navigatorElements" class="normalText">       	  
+        <svg:text id="TrackerText" x="350" y="530"> - </svg:text>
+        <svg:text id="TrackerText1" x="350" y="565"> - </svg:text>
+        <svg:text id="TrackerMessage" x="350" y="600"> - </svg:text>
+  </svg:g>
+<svg:image id="plot" xlink:href="plot.jpg" x="900" y="10" width="420" height="400" /> 
+<svg:svg id="mainMap" x="0" y="0" viewBox="0 0 3000 1600" width="900" height="500">
+<svg:rect fill="lightblue" stroke="none" x="0" y="0" width="3000" height="1600" /> 
+<svg:g id="tracker" transform="translate(10,1500) rotate(270)" style="fill:none;stroke:black;stroke-width:0;"> 

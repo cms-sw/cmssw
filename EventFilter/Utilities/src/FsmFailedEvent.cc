@@ -1,0 +1,25 @@
+////////////////////////////////////////////////////////////////////////////////
+//
+// FsmFailedEvent
+// --------------
+//
+//            03/01/2007 Philipp Schieferdecker <philipp.schieferdecker@cern.ch>
+////////////////////////////////////////////////////////////////////////////////
+
+
+#include "EventFilter/Utilities/interface/FsmFailedEvent.h"
+
+using namespace std;
+using namespace evf;
+
+
+////////////////////////////////////////////////////////////////////////////////
+// construction/destruction
+////////////////////////////////////////////////////////////////////////////////
+
+//______________________________________________________________________________
+FsmFailedEvent::FsmFailedEvent(const string& errorMessage,void* originator)
+  : toolbox::Event("Fail",originator)
+{
+  errorMessage_ = errorMessage;
+}

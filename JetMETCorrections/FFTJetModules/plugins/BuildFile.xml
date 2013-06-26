@@ -1,0 +1,11 @@
+<library   file="*.cc" name="JetMETCorrectionsFFTJetModulesPlugins">
+  <use   name="CondCore/PluginSystem"/>
+  <use   name="CondFormats/DataRecord"/>
+  <use   name="CondCore/DBCommon"/>
+  <use   name="CondCore/DBOutputService"/>
+  <use   name="DataFormats/JetReco"/>
+  <use   name="FWCore/Framework"/>
+  <use   name="FWCore/PluginManager"/>
+  <use   name="JetMETCorrections/FFTJetObjects"/>
+  <flags   EDM_PLUGIN="1"/>
+</library>

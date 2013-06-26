@@ -1,0 +1,8 @@
+<!ELEMENT site-local-config (site)+>
+<!ELEMENT site (event-data?|calib-data?)>
+<!ELEMENT event-data (catalog*)>
+<!ELEMENT calib-data (catalog*|frontier-proxy*)>
+<!ELEMENT catalog EMPTY>
+<!ATTLIST catalog url CDATA "">
+<!ELEMENT frontier-proxy EMPTY>
+<!ATTLIST frontier-proxy url CDATA "">

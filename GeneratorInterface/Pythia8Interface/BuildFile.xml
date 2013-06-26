@@ -1,0 +1,11 @@
+<use name="FWCore/Framework"/>
+<use name="FWCore/MessageLogger"/>
+<use name="SimDataFormats/GeneratorProducts"/>
+<use name="GeneratorInterface/Core"/>
+<use name="boost"/>
+<use name="pythia8"/>
+<use name="hepmc"/>
+<use name="clhep"/>
+<export>
+  <lib   name="1"/>
+</export>

@@ -1,0 +1,40 @@
+#!/usr/bin/env python
+#-*- coding: utf-8 -*-
+#pylint: disable-msg=
+"""
+File       : mkskel
+Author     : Valentin Kuznetsov <vkuznet@gmail.com>
+Description: mkskel code
+"""
+
+# system modules
+import sys
+
+if  sys.version_info < (2, 6):
+    raise Exception("This script requires python 2.6 or greater")
+
+# package modules
+from FWCore.Skeletons.cms import generate, config
+
+def tmpl_dir():
+    "Return location of template directory wrt script location"
+    return '%s/mkTemplates' % '/'.join(__file__.split('/')[:-1])
+
+def pkg_help():
+    "mkskel help function"
+    msg  = '\nmkskel script generates CMS C++ Skeleton code'
+    msg += '\nUsage  : mkskel MySkeleton -author "FirstName LastName"'
+    msg += '\nOutput : '
+    msg += """
+        MySkeleton.cc
+        MySkeleton.h"""
+    msg += '\nExample:'
+    msg += '\n        # create new C++ Skeleton'
+    msg += '\n        mkskel MySkeleton'
+    msg += '\n        # create new C++ Skeleton with given author'
+    msg += '\n        mkskel MySkeleton -author "First Last"'
+    msg += '\n'
+    return msg
+
+if __name__ == '__main__':
+    generate(config('Skeleton', pkg_help(), tmpl_dir()))

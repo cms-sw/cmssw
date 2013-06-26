@@ -1,0 +1,142 @@
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
+	<ConstantsSection label="tidring1b.xml" eval="true">
+		<Constant name="zero" value="0.0*fm"/>
+	</ConstantsSection>
+	<LogicalPartSection label="tidring1b.xml">
+		<LogicalPart name="TIDRing1B" category="unspecified">
+			<rSolid name="tidringpar:TIDRing"/>
+			<rMaterial name="materials:Air"/>
+		</LogicalPart>
+	</LogicalPartSection>
+	<PosPartSection label="tidring1b.xml">
+		<PosPart copyNumber="1">
+			<rParent name="tidring1b:TIDRing1B"/>
+			<rChild name="tidring1:TIDStructure1"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="tidring1b:TIDRing1B"/>
+			<rChild name="tidring1:TIDRing1ICB"/>
+			<Translation x="[zero]" y="[zero]" z="-[tidringpar:ICBZ]"/>
+		</PosPart>
+		<PosPart copyNumber="2">
+			<rParent name="tidring1b:TIDRing1B"/>
+			<rChild name="tidring1:TIDRing1ICB"/>
+			<Translation x="[zero]" y="[zero]" z="[tidringpar:ICBZ]"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="tidring1b:TIDRing1B"/>
+			<rChild name="tidring1:TIDRing1Cool1"/>
+			<Translation x="[zero]" y="[zero]" z="-[tidringpar:CoolZ]"/>
+		</PosPart>
+		<PosPart copyNumber="2">
+			<rParent name="tidring1b:TIDRing1B"/>
+			<rChild name="tidring1:TIDRing1Cool1"/>
+			<Translation x="[zero]" y="[zero]" z="[tidringpar:CoolZ]"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="tidring1b:TIDRing1B"/>
+			<rChild name="tidring1:TIDRing1Cool2"/>
+			<Translation x="[zero]" y="[zero]" z="-[tidringpar:CoolZ]"/>
+		</PosPart>
+		<PosPart copyNumber="2">
+			<rParent name="tidring1b:TIDRing1B"/>
+			<rChild name="tidring1:TIDRing1Cool2"/>
+			<Translation x="[zero]" y="[zero]" z="[tidringpar:CoolZ]"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="tidring1b:TIDRing1B"/>
+			<rChild name="tidring1:TIDRing1FiberLayer"/>
+			<Translation x="[zero]" y="[zero]" z="-[tidringpar:FiberLayerZ]"/>
+		</PosPart>
+		<PosPart copyNumber="2">
+			<rParent name="tidring1b:TIDRing1B"/>
+			<rChild name="tidring1:TIDRing1FiberLayer"/>
+			<Translation x="[zero]" y="[zero]" z="[tidringpar:FiberLayerZ]"/>
+		</PosPart>
+	</PosPartSection>
+	<Algorithm name="track:DDTrackerPhiAlgo">
+		<rParent name="tidring1b:TIDRing1B"/>
+		<String name="ChildName" value="tidring1:TIDRing1ICBTail"/>
+		<Numeric name="Radius" value="[tidring1:ICBTailRPos]"/>
+		<Numeric name="Tilt" value="-90*deg"/>
+		<Vector name="Phi" type="numeric" nEntries="8">
+			167.5*deg,         117.5*deg,           77.5*deg,          27.5*deg,
+			347.5*deg,         297.5*deg,          257.5*deg,         207.5*deg
+		</Vector>
+		<Vector name="ZPos" type="numeric" nEntries="8">
+			-[tidringpar:ICBZ], [tidringpar:ICBZ], -[tidringpar:ICBZ], [tidringpar:ICBZ],
+			-[tidringpar:ICBZ], [tidringpar:ICBZ], -[tidringpar:ICBZ], [tidringpar:ICBZ]
+		</Vector>
+	</Algorithm>
+	<Algorithm name="track:DDTrackerPhiAlgo">
+		<rParent name="tidring1b:TIDRing1B"/>
+		<String name="ChildName" value="tidringpar:TIDCCUMBox"/>
+		<Numeric name="Radius" value="[tidring1:CCUMrPos]"/>
+		<Numeric name="Tilt" value="-90*deg"/>
+		<Vector name="Phi" type="numeric" nEntries="8">
+			167.5*deg,         117.5*deg,           77.5*deg,          27.5*deg,
+			347.5*deg,         297.5*deg,          257.5*deg,         207.5*deg
+		</Vector>
+		<Vector name="ZPos" type="numeric" nEntries="8">
+			-[tidringpar:CCUMZ],  [tidringpar:CCUMZ],-[tidringpar:CCUMZ],  [tidringpar:CCUMZ],
+			-[tidringpar:CCUMZ],  [tidringpar:CCUMZ],-[tidringpar:CCUMZ],  [tidringpar:CCUMZ]
+		</Vector>
+	</Algorithm>
+	<Algorithm name="track:DDTrackerPhiAlgo">
+		<rParent name="tidring1b:TIDRing1B"/>
+		<String name="ChildName" value="tidring1:TIDRing1DOHM"/>
+		<Numeric name="Radius" value="[tidring1:DOHMrOff]"/>
+		<Numeric name="Tilt" value="0*deg"/>
+		<Vector name="Phi" type="numeric" nEntries="2">
+			[tidring1:DOHMphiPos], [tidring1:DOHMphiPos]+180*deg
+		</Vector>
+		<Vector name="ZPos" type="numeric" nEntries="2">
+			-[tidringpar:DOHMZ], [tidringpar:DOHMZ]
+		</Vector>
+	</Algorithm>
+	<Algorithm name="track:DDTrackerPhiAlgo">
+		<rParent name="tidring1b:TIDRing1B"/>
+		<String name="ChildName" value="tidring1:TIDRing1FlatCable"/>
+		<Numeric name="Radius" value="[zero]"/>
+		<Numeric name="Tilt" value="0*deg"/>
+		<Vector name="Phi" type="numeric" nEntries="4">
+			[tidring1:FlatCablephiPosF], [tidring1:FlatCablephiPosF]+180*deg, 
+			[tidring1:FlatCablephiPosB], [tidring1:FlatCablephiPosB]+180*deg
+		</Vector>
+		<Vector name="ZPos" type="numeric" nEntries="4">
+			-[tidringpar:FlatCableZ], -[tidringpar:FlatCableZ], 
+			[tidringpar:FlatCableZ],  [tidringpar:FlatCableZ]
+		</Vector>
+	</Algorithm>
+	<Algorithm name="track:DDTIDRingAlgo">
+		<rParent name="tidring1b:TIDRing1B"/>
+		<Vector name="ModuleName" type="string" nEntries="2">
+			tidmodule1l:TIDModule1L, tidmodule1r:TIDModule1R</Vector>
+		<String name="ICCName" value="tidring1:TIDICC1"/>
+		<Numeric name="Number" value="[tidring1:NPhi]"/>
+		<Numeric name="StartAngle" value="[tidring1:PhiOff]"/>
+		<Numeric name="ModuleR" value="[tidring1:RPos]"/>
+		<Vector name="ModuleZ" type="numeric" nEntries="2">
+			-[tidringpar:ModuleZDS],    [tidringpar:ModuleZDS]   </Vector>
+		<Numeric name="ICCR" value="[tidring1:ICCRPos]"/>
+		<Numeric name="ICCShift" value="[zero]"/>
+		<Vector name="ICCZ" type="numeric" nEntries="2">
+			-[tidringpar:ICCZ],         [tidringpar:ICCZ]        </Vector>
+	</Algorithm>
+	<Algorithm name="track:DDTrackerPhiAlgo">
+		<rParent name="tidring1b:TIDRing1B"/>
+		<String name="ChildName" value="tidringpar:TIDManifoldFix"/>
+		<Numeric name="Radius" value="[tidringpar:CoolManifoldR]"/>
+		<Numeric name="Tilt" value="-90*deg"/>
+		<Vector name="Phi" type="numeric" nEntries="4">
+			52.5*deg,         52.5*deg,          232.5*deg,         232.5*deg
+		</Vector>
+		<Vector name="ZPos" type="numeric" nEntries="4">
+			[tidringpar:ManifoldFixZ]+[tidringpar:FiberLayerT]+[tidringpar:ICBT] , 
+			-([tidringpar:ManifoldFixZ]+[tidringpar:FiberLayerT]+[tidringpar:ICBT]),
+			[tidringpar:ManifoldFixZ]+[tidringpar:FiberLayerT]+[tidringpar:ICBT] , 
+			-([tidringpar:ManifoldFixZ]+[tidringpar:FiberLayerT]+[tidringpar:ICBT])
+		</Vector>
+	</Algorithm>
+</DDDefinition>

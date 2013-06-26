@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
+  <SpecParSection label="csc_reco_sim.xml">
+    <SpecPar name="METree">
+      <PartSelector path="//ME1A_ActiveGasVol"/>
+      <PartSelector path="//ME11_ActiveGasVol"/>
+      <PartSelector path="//ME12_ActiveGasVol"/>
+      <PartSelector path="//ME13_ActiveGasVol"/>
+      <PartSelector path="//ME21_ActiveGasVol"/>
+      <PartSelector path="//ME22_ActiveGasVol"/>
+      <PartSelector path="//ME31_ActiveGasVol"/>
+      <PartSelector path="//ME32_ActiveGasVol"/>
+      <PartSelector path="//ME41_ActiveGasVol"/>
+      <PartSelector path="//ME42_ActiveGasVol"/>
+      <Parameter name="MuStructure" value="MuonEndcapCSC"/>
+    </SpecPar>
+  </SpecParSection>
+</DDDefinition>

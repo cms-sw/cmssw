@@ -1,0 +1,66 @@
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
+
+<SpecParSection label="spec-pars.xml">
+  <SpecPar name="ROUHitsTrackerPixelBarrel">
+    <PartSelector path="//PixelBarrelActiveFull" />
+    <PartSelector path="//PixelBarrelActiveHalf" />
+    <PartSelector path="//PixelBarrelActiveFull1" />
+    <PartSelector path="//PixelBarrelActiveHalf1" />
+    <PartSelector path="//PixelBarrelActiveFull2" />
+    <PartSelector path="//PixelBarrelActiveHalf2" />
+    <Parameter name="SensitiveDetector" value="TkAccumulatingSensitiveDetector" />
+    <Parameter name="ReadOutName" value="TrackerHitsPixelBarrel" />
+  </SpecPar>
+  <SpecPar name="ROUHitsTrackerPixelEndcap">
+    <PartSelector path="//PixelForwardActive1x2" />
+    <PartSelector path="//PixelForwardActive1x5" />
+    <PartSelector path="//PixelForwardActive2x3" />
+    <PartSelector path="//PixelForwardActive2x4" />
+    <PartSelector path="//PixelForwardActive2x5" />
+    <Parameter name="SensitiveDetector" value="TkAccumulatingSensitiveDetector" />
+    <Parameter name="ReadOutName" value="TrackerHitsPixelEndcap" />
+  </SpecPar>
+  <SpecPar name="ROUHitsTrackerTIB">
+  <!--
+    <PartSelector path="//TIBActiveRphi0" />
+    <PartSelector path="//TIBActiveSter0" />
+    -->
+    <PartSelector path="//TIBActiveRphi2" />
+    <Parameter name="SensitiveDetector" value="TkAccumulatingSensitiveDetector" />
+    <Parameter name="ReadOutName" value="TrackerHitsTIB" />
+  </SpecPar>
+  <SpecPar name="ROUHitsTrackerTID">
+     <PartSelector path="//TIDModule0RphiActive" />
+     <PartSelector path="//TIDModule0StereoActive" />
+     <PartSelector path="//TIDModule1RphiActive" />
+     <PartSelector path="//TIDModule1StereoActive" />
+     <PartSelector path="//TIDModule2RphiActive" />
+    <Parameter name="SensitiveDetector" value="TkAccumulatingSensitiveDetector" />
+    <Parameter name="ReadOutName" value="TrackerHitsTID" />
+  </SpecPar>
+  <SpecPar name="ROUHitsTrackerTOB">
+    <PartSelector path="//TOBActiveRphi0" />
+    <PartSelector path="//TOBActiveSter0" />
+    <PartSelector path="//TOBActiveRphi2" />
+    <PartSelector path="//TOBActiveRphi4" />
+    <Parameter name="SensitiveDetector" value="TkAccumulatingSensitiveDetector" />
+    <Parameter name="ReadOutName" value="TrackerHitsTOB" />
+  </SpecPar>
+  <SpecPar name="ROUHitsTrackerTEC">
+    <PartSelector path="//TECModule0RphiActive" />
+    <PartSelector path="//TECModule0StereoActive" />
+    <PartSelector path="//TECModule1RphiActive" />
+    <PartSelector path="//TECModule1StereoActive" />
+    <PartSelector path="//TECModule2RphiActive" />
+    <PartSelector path="//TECModule3RphiActive" />
+    <PartSelector path="//TECModule4RphiActive" />
+    <PartSelector path="//TECModule4StereoActive" />
+    <PartSelector path="//TECModule5RphiActive" />
+    <PartSelector path="//TECModule6RphiActive" />
+    <Parameter name="SensitiveDetector" value="TkAccumulatingSensitiveDetector" />
+    <Parameter name="ReadOutName" value="TrackerHitsTEC" />
+  </SpecPar>
+</SpecParSection>
+</DDDefinition>
+ 

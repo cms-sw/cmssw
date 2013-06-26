@@ -1,0 +1,12 @@
+<use   name="DataFormats/Common"/>
+<use   name="DataFormats/MuonReco"/>
+<use   name="DataFormats/TrackReco"/>
+<use   name="FWCore/Framework"/>
+<use   name="FWCore/MessageLogger"/>
+<use   name="FWCore/ParameterSet"/>
+<use   name="FWCore/PluginManager"/>
+<use   name="RecoMuon/GlobalTrackFinder"/>
+<use   name="RecoMuon/GlobalTrackingTools"/>
+<use   name="RecoMuon/TrackingTools"/>
+<use   name="TrackingTools/PatternTools"/>
+<flags   EDM_PLUGIN="1"/>

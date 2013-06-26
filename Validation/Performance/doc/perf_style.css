@@ -1,0 +1,44 @@
+body{ 
+    font-family: Trebuchet MS, Lucida Sans Unicode, Arial, sans-serif;
+    padding:0px;
+    height:100%;
+    background-color:#E2EBED; 
+    font-size: small 
+}   
+
+h1 {
+ font-family:arial, "Lucida Grande", verdana, sans-serif;
+ font-weight: bold;
+ text-align: center
+}
+h2 {
+ font-family:arial, "Lucida Grande", verdana, sans-serif;
+}
+
+h3 {
+ font-family:arial, "Lucida Grande", verdana, sans-serif;
+}
+
+p {
+ font-family:arial, "Lucida Grande", verdana, sans-serif;
+}
+
+#data { text-align: right }
+
+#content {width: 80%; 
+     margin-left: auto;
+     margin-right: auto;
+     padding: 20px;
+     border: medium solid black;
+     background-color: #FFFFFF}
+
+table {
+       border-spacing: 0px;
+       border: thin solid black;
+       border-color: #000000}
+
+ td {background-color: #FFFFFF ; padding: 4px; border: thin solid black }
+ 
+ li.c2 {list-style: none}
+
+img { border:none;} 

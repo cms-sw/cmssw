@@ -1,0 +1,11 @@
+<use   name="DataFormats/Common"/>
+<use   name="DataFormats/ParticleFlowCandidate"/>
+<use   name="DataFormats/EgammaCandidates"/>
+<use   name="DataFormats/METReco"/>
+<use   name="DataFormats/JetReco"/>
+<use   name="DataFormats/PatCandidates"/>
+<use   name="rootmath"/>
+<use   name="FWCore/ParameterSet"/>
+<export>
+  <lib   name="1"/>
+</export>

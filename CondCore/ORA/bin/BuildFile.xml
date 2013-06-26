@@ -1,0 +1,6 @@
+<use   name="CondCore/ORA"/>
+<bin   file="ora_database_manager.cpp" name="ora_database_manager">
+  <use   name="FWCore/PluginManager"/>
+  <use   name="FWCore/ParameterSet"/>
+  <use   name="FWCore/ServiceRegistry"/>
+</bin>

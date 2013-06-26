@@ -1,0 +1,142 @@
+body {
+  margin:0px;
+  padding-top:0px;
+  padding-bottom:100px;
+}
+
+html,body,div,center,p,table,tr,th,td,ul,li {
+  font-family:arial,helvetica,sans-serif;
+  font-size:14px;
+  color:black;
+}
+
+big {
+  font-family:arial,helvetica,sans-serif;
+  font-size:18px;
+}
+
+small {
+  font-family:verdana,helvetica,sans-serif;
+  font-size:10px;
+}
+
+code, tt {
+  font-size:13px;
+  font-family:courier new,courier;
+  white-space:nowrap;
+}
+
+a:link {
+  color:#3355cc;
+  text-decoration:underline;
+  font-weight:bold;
+}
+a:visited {
+  color:#8800aa;
+  text-decoration:underline;
+  font-weight:bold;
+}
+a:hover {
+  color:#660099;
+  background:#ececec;
+  text-decoration:underline;
+  font-weight:bold;
+}
+a:active {
+  color:#3355cc;
+  text-decoration:underline;
+  font-weight:bold;
+}
+
+a.nodeco:link {
+  text-decoration:none;
+}
+
+a.nodeco:visited {
+  text-decoration:none;
+}
+
+a.nodeco:hover {
+  text-decoration:none;
+}
+
+a.nodeco:active {
+  text-decoration:none;
+}
+
+a.code:link {
+  font-size:13px;
+  text-decoration:none;
+  font-family:courier new,courier;
+  background:#e0e0e0;
+}
+
+a.code:visited {
+  font-size:13px;
+  text-decoration:none;
+  font-family:courier new,courier;
+  background:#e0e0e0;
+}
+
+a.code:hover {
+  font-size:13px;
+  text-decoration:none;
+  font-family:courier new,courier;
+  background:#e0e0e0;
+}
+
+a.code:active {
+  font-size:13px;
+  text-decoration:none;
+  font-family:courier new,courier;
+  background:#e0e0e0;
+}
+
+input {
+  font-size:12px;
+  font-family:courier new,courier,arial,helvetica,sans-serif;
+  color:black;
+}
+
+textarea {
+  background-color:white;
+  font-family:courier new,courier;
+  font-size:12px;
+}
+
+.lite {
+  color:#cc6666;
+}
+
+.bt1 {
+  font-size:17px;
+  font-family:arial,helvetica,sans-serif;
+}
+
+.bt1b {
+  font-size:17px;
+  font-family:arial,helvetica,sans-serif;
+  font-weight:bold;
+}
+
+.bt2 {
+  font-size:13px;
+  font-family:arial,helvetica,sans-serif;
+}
+
+.bt2b {
+  font-size:13px;
+  font-family:arial,helvetica,sans-serif;
+  font-weight:bold;
+}
+
+.bt3 {
+  font-size:11px;
+  font-family:arial,helvetica,sans-serif;
+}
+
+.bt3b {
+  font-size:11px;
+  font-family:arial,helvetica,sans-serif;
+  font-weight:bold;
+}

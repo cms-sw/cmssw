@@ -1,0 +1,38 @@
+%MSG-i expect_supercede_specific:  UnitTestClient_E:sendSomeMessages  Run: 1 Event: 1
+The following outputs are expected: 
+lim2bycommondefault appearing in events 1,2,3,4,5,6,7,8,16,24,40 
+
+%MSG
+%MSG-i lim2bycommondefault:  UnitTestClient_E:sendSomeMessages Run: 1 Event: 1
+message with specific overall default limit of 2: 1
+%MSG
+%MSG-i lim2bycommondefault:  UnitTestClient_E:sendSomeMessages Run: 1 Event: 1
+message with specific overall default limit of 2: 2
+%MSG
+%MSG-i lim2bycommondefault:  UnitTestClient_E:sendSomeMessages Run: 1 Event: 1
+message with specific overall default limit of 2: 3
+%MSG
+%MSG-i lim2bycommondefault:  UnitTestClient_E:sendSomeMessages Run: 1 Event: 1
+message with specific overall default limit of 2: 4
+%MSG
+%MSG-i lim2bycommondefault:  UnitTestClient_E:sendSomeMessages Run: 1 Event: 1
+message with specific overall default limit of 2: 5
+%MSG
+%MSG-i lim2bycommondefault:  UnitTestClient_E:sendSomeMessages Run: 1 Event: 1
+message with specific overall default limit of 2: 6
+%MSG
+%MSG-i lim2bycommondefault:  UnitTestClient_E:sendSomeMessages Run: 1 Event: 1
+message with specific overall default limit of 2: 7
+%MSG
+%MSG-i lim2bycommondefault:  UnitTestClient_E:sendSomeMessages Run: 1 Event: 1
+message with specific overall default limit of 2: 8
+%MSG
+%MSG-i lim2bycommondefault:  UnitTestClient_E:sendSomeMessages Run: 1 Event: 1
+message with specific overall default limit of 2: 16
+%MSG
+%MSG-i lim2bycommondefault:  UnitTestClient_E:sendSomeMessages Run: 1 Event: 1
+message with specific overall default limit of 2: 24
+%MSG
+%MSG-i lim2bycommondefault:  UnitTestClient_E:sendSomeMessages Run: 1 Event: 1
+message with specific overall default limit of 2: 40
+%MSG

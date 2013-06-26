@@ -1,0 +1,93 @@
+<environment>
+  <use   name="boost"/>
+  <use   name="xdaq"/>
+  <use   name="EventFilter/StorageManager"/>
+  <library   file="SMDQMSourceExample.cc" name="SMDQMServicesDaemonExample">
+    <flags   EDM_PLUGIN="1"/>
+    <use   name="DQMServices/Core"/>
+    <use   name="FWCore/Framework"/>
+  </library>
+  <library   file="SMDQMClientExample.cc" name="SMDQMClientDaemonExample">
+    <flags   EDM_PLUGIN="1"/>
+    <use   name="DQMServices/Core"/>
+    <use   name="FWCore/Framework"/>
+  </library>
+  <library   file="SMHttpConsumerExample.cc" name="SMHttpConsumerClientExample">
+    <flags   EDM_PLUGIN="1"/>
+    <use   name="FWCore/Framework"/>
+  </library>
+  <library   file="DQMMessageAnalyzer.cc" name="DQMMessageAnalyzer">
+    <flags   EDM_PLUGIN="1"/>
+    <use   name="DQMServices/Core"/>
+    <use   name="FWCore/Framework"/>
+    <use   name="IOPool/Streamer"/>
+  </library>
+  <bin   file="state_machine_t.cpp">
+    <use   name="cppunit"/>
+  </bin>
+  <bin   file="xhtmlmaker_t.cpp">
+    <use   name="cppunit"/>
+  </bin>
+  <bin   file="EnquingPolicyTag_t.cpp">
+    <use   name="cppunit"/>
+  </bin>
+  <bin   file="ConsumerRegistrationInfo_t.cpp">
+    <use   name="cppunit"/>
+  </bin>
+  <bin   file="I2OChain_t.cpp">
+    <use   name="cppunit"/>
+  </bin>
+  <bin   file="CommandQueue_t.cpp">
+    <use   name="cppunit"/>
+  </bin>
+  <bin   file="StreamQueue_t.cpp">
+    <use   name="cppunit"/>
+  </bin>
+  <bin   file="MonitoredQuantity_t.cpp">
+    <use   name="cppunit"/>
+  </bin>
+  <bin   file="ConcurrentQueue_t.cpp">
+    <flags NO_TESTRUN="1"/>
+    <use   name="cppunit"/>
+  </bin>
+  <bin   file="FragmentStore_t.cpp">
+    <use   name="cppunit"/>
+  </bin>
+  <bin   file="QueueID_t.cpp">
+    <use   name="cppunit"/>
+  </bin>
+  <bin   file="EventDistributor_t.cpp">
+    <use   name="cppunit"/>
+  </bin>
+  <bin   file="MockNotifier_t.cpp">
+    <use   name="cppunit"/>
+  </bin>
+  <bin   file="InitMsgCollection_t.cpp">
+    <use   name="cppunit"/>
+  </bin>
+  <bin   file="ExpirableQueue_t.cpp">
+    <use   name="cppunit"/>
+  </bin>
+  <bin   file="EventQueueCollection_t.cpp">
+    <use   name="cppunit"/>
+  </bin>
+  <bin   file="Sleep_t.cpp">
+    <use   name="cppunit"/>
+  </bin>
+  <bin   file="Time_t.cpp">
+    <use   name="cppunit"/>
+  </bin>
+  <bin   file="ConsumerID_t.cpp">
+    <use   name="cppunit"/>
+  </bin>
+  <bin   file="ResourceMonitorCollection_t.cpp">
+    <use   name="cppunit"/>
+  </bin>
+  <bin   file="TriggerSelector_t.cpp">
+    <use   name="cppunit"/>
+  </bin>
+  <bin   file="DiskWriter_t.cpp">
+    <flags NO_TESTRUN="1"/>
+    <use   name="cppunit"/>
+  </bin>
+</environment>

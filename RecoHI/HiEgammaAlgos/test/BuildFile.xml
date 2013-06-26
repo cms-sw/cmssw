@@ -1,0 +1,13 @@
+<export>
+</export>
+<library   name="RecoHIHiEgammaAlgos_testAnalyzers" file="patTest/*.cc">
+  <use   name="FWCore/Framework"/>
+  <use   name="FWCore/ParameterSet"/>
+  <use   name="DataFormats/BTauReco"/>
+  <use   name="PhysicsTools/PatUtils"/>
+  <use   name="PhysicsTools/PatAlgos"/>
+  <use   name="CommonTools/UtilAlgos"/>
+  <use   name="DataFormats/PatCandidates"/>
+  <use   name="root"/>
+  <flags   EDM_PLUGIN="1"/>
+</library>

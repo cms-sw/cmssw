@@ -1,0 +1,53 @@
+
+/*!
+
+\page DataFormats_L1GlobalTrigger Package DataFormats/L1GlobalTrigger
+
+<center>
+<small>
+
+<!-- @CVS_TAG@ will be substituted at build time, no need to touch -->
+<a href=http://cmssw.cvs.cern.ch/cgi-bin/cmssw.cgi/CMSSW/DataFormats/L1GlobalTrigger/?cvsroot=CMSSW&only_with_tag=@CVS_TAG@>Source code (CVS tag: @CVS_TAG@)</a> - 
+<a href=http://cmssw.cvs.cern.ch/cgi-bin/cmssw.cgi/CMSSW/DataFormats/L1GlobalTrigger/.admin/developers?rev=HEAD&cvsroot=CMSSW&content-type=text/vnd.viewcvs-markup>Administrative privileges</a>
+</small>
+</center>
+
+\section desc Description
+<!-- Short description of what this package is supposed to provide -->
+
+Classes for L1 Global Trigger (emulator, unpacker, packer).
+
+\subsection interface Public interface
+<!-- List the classes that are provided for use in other packages (if any) -->
+
+- L1GlobalTriggerEvmReadoutRecord
+- L1GlobalTriggerObjectMapFwd
+- L1GlobalTriggerObjectMap
+- L1GlobalTriggerObjectMapRecord
+- L1GlobalTriggerReadoutRecord
+- L1GlobalTriggerReadoutSetupFwd
+- L1GlobalTriggerReadoutSetup
+- L1GtFdlWord
+- L1GtfeWord
+- L1GtLogicParser
+- L1GtPsbWord
+- L1TcsWord
+- 
+
+\subsection modules Modules
+<!-- Describe modules implemented in this package and their parameter set -->
+none
+
+\subsection tests Unit tests and examples
+<!-- Describe cppunit tests and example configuration files -->
+none
+
+\section status Status and planned development
+<!-- e.g. completed, stable, missing features -->
+Stable. 
+
+<hr>
+Last updated:
+@DATE@  Author: Vasile Mihai Ghete.
+*/
+

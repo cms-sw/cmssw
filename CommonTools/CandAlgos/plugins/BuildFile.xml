@@ -1,0 +1,12 @@
+<export>
+</export>
+<library   name="CommonToolsCandAlgos_plugins" file="*.cc">
+  <use   name="FWCore/Framework"/>
+  <use   name="FWCore/ParameterSet"/>
+  <use   name="DataFormats/Candidate"/>
+  <use   name="DataFormats/HepMCCandidate"/>
+  <use   name="CommonTools/UtilAlgos"/>
+  <use   name="CommonTools/Utils"/>
+  <use   name="CommonTools/CandAlgos"/>
+  <use   name="CommonTools/CandUtils"/>
+</library>

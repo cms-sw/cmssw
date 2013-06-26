@@ -1,0 +1,60 @@
+
+/*!
+
+\page Validation_RecoB Package Validation/RecoB
+
+<center>
+<small>
+
+<!-- @CVS_TAG@ will be substituted at build time, no need to touch -->
+<a href=http://cmssw.cvs.cern.ch/cgi-bin/cmssw.cgi/CMSSW/Validation/RecoB/?cvsroot=CMSSW&only_with_tag=@CVS_TAG@>Source code (CVS tag: @CVS_TAG@)</a> - 
+<a href=http://cmssw.cvs.cern.ch/cgi-bin/cmssw.cgi/CMSSW/Validation/RecoB/.admin/developers?rev=HEAD&cvsroot=CMSSW&content-type=text/vnd.viewcvs-markup>Administrative privileges</a>
+</small>
+</center>
+
+\section desc Description
+<!-- Short description of what this package is supposed to provide -->
+
+Validation package for b-tagging : contain useful scripts for validation purpose. Use the DQMOffline/RecoB package.   
+
+
+\subsection interface Public interface
+<!-- List the classes that are provided for use in other packages (if any) -->
+
+- BTagValidator
+- HistoCompare
+
+
+\subsection pluginai Plugins
+<!-- List the plugins that are provided for use in other packages (if any) -->
+
+- BTagPerformanceAnalyzerMC : analyzer optimized to run on MC and produce all intersting variables to check the reliability of the b-tagging algorithms. Produce also performance plots.
+
+
+\subsection modules Modules
+<!-- Describe modules implemented in this package and their parameter set -->
+
+- BTagValidator
+
+- bTagValidation : define in bTagAnalysis_cfi.py. Basic module to use BTagPerformanceAnalyzerMC.
+- bTagValidationFirstStepData : define in bTagAnalysis_firststep_cfi.py. Clone of bTagAnalysis (DQMOffline/RecoB/python/bTagAnalysisData_cfi.py). To run the first step on Grid for Data.
+- bTagValidationFirstStep : define in bTagAnalysis_firststep_cfi.py. Clone of bTagValidation. To run the first step on Grid for MC. 
+- bTagValidationHarvestData : define in bTagAnalysis_harvesting_cfi.py. Clone of bTagAnalysis (DQMOffline/RecoB/python/bTagAnalysisData_cfi.py). To harvest the histograms for Data.
+- bTagValidationHarvest : define in bTagAnalysis_harvesting_cfi.py. Clone of bTagValidation. To harvest the histograms for MC.
+
+
+\subsection tests Unit tests and examples
+<!-- Describe cppunit tests and example configuration files -->
+- file validation_cfg.py : to be run as ' cmsRun validation_cfg.py jets="ak5PF" '. Other jets label possible : "ak5PFJEC", "ak5PFnoPU". Other options which could be changed : runOnMC(True for MC ; False for DATA) ; useTrigger(False:no trigger filter used ; True:trigger filter used, path could be modified in the cfg, default:HLT_PFJet40) ; tag(put here your global tag).
+
+- directory GridValidation/ : tools to run on Grid, cfg based on validation_cfg.py. In README, the step to run on the Grid are listed.   
+
+\section status Status and planned development
+<!-- e.g. completed, stable, missing features -->
+Scripts for validation automation perhaps to be updated if the modifications in the Validation/RecoB and DQMOffline/RecoB are released
+
+<hr>
+Last updated: July 8 2012
+@DATE@  Author: Adrien Caudron.
+*/
+

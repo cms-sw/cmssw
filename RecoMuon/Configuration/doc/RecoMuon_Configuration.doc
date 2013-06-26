@@ -1,0 +1,69 @@
+/*!
+
+\page RecoMuon_Configuration Package RecoMuon/Configuration
+
+<center>
+<small>
+
+<!-- @CVS_TAG@ will be substituted at build time, no need to touch -->
+<a href=http://cmsdoc.cern.ch/swdev/viewcvs/viewcvs.cgi/CMSSW/RecoMuon/Configuration/?cvsroot=CMSSW&only_with_tag=@CVS_TAG@>Source code (CVS tag: @CVS_TAG@)</a> - 
+<a href=http://cmsdoc.cern.ch/swdev/viewcvs/viewcvs.cgi/CMSSW/RecoMuon/Configuration/.admin/developers?rev=HEAD&cvsroot=CMSSW&content-type=text/vnd.viewcvs-markup>Administrative privileges</a>
+</small>
+</center>
+
+
+\section desc Configuration Package for RecoMuon Sequences and Event Content definitions
+
+\subsection files Configuration Fragments
+
+- \b RecoMuon.cff : configuration fragment which defines the sequence
+
+- \b RecoMuon_EventContent.cff : configuration fragment which contains blocks definitions for FullEvent, \ref RecoData "RECO" and \ref AodData "AOD"
+
+\subsection seq Sequence
+
+- \b muonreco : sequence to perform the whole muon reconstruction. 
+
+<pre>
+\htmlinclude RecoMuon.cff
+</pre>
+.
+\b inputs are:
+- DT's segments: InputTag: \b dt4DSegments
+- CSC's segments: InputTag: \b cscSegments
+- RPC' hits:  InputTags: \b rpcRecHits
+
+\b Note. The following inputs are automatically taken into account inside the reconstruction's chain:
+
+- The seed producer needs the DT and(or) CSC's segments
+- The stand alone producer needs the DT and CSC's segments, RPC's rechits and the seed
+- The global producer needs the DT and CSC's segments, RPC's rechits and the standalone track (trajectory if present in the event)
+
+products are:
+ - Seed: TrajectorySeedCollection. InputTag: \b MuonSeed
+ - Stand Alone: TrackCollection. InputTag: \b standAloneMuons 
+ - Global: TrackCollection and a MuonCollection. InputTag: \b globalMuons
+
+\subsection eventc EventContent
+
+- \b the FEVT (Full Event), \ref RecoData "RECO" and \ref AodData "AOD" Tier save the following products:
+
+The main output of the Stand Alone muon reconstruction is a TrackCollection, but to upload all the information in the event, two other collections are created:
+- TrackExtraCollection
+- TrackingRecHitCollection
+
+The main output of the Global muon reconstruction are a MuonCollection and a TrackCollection. The TrackCollection contains the muon's tracks with both the 
+information from the tracker and the muon's systems (matching and refit of the two independent tracks). The MuonCollection contains the three reference at 
+the three Tracks: stand alone track, matched track in the tracker, combined track. 
+As for the stand alone reco two collections are uploaded in the event.
+
+<pre>
+\htmlinclude RecoMuon_EventContent.cff
+</pre>
+
+<hr>
+
+Last updated: @DATE@ Riccardo Bellan
+
+
+*/

@@ -1,0 +1,67 @@
+Begin processing the 1st record. Run 1, Event 1, LumiSection 1 at {Timestamp} 
+%MSG-w cat_A:  UnitTestClient_G:sendSomeMessages Run: 1 Event: 1
+Test of std::setprecision(p): Pi with precision 12 is 3.14159265358
+%MSG
+%MSG-w cat_C:  UnitTestClient_G:sendSomeMessages Run: 1 Event: 1
+		Emit Warning level message 1
+%MSG
+%MSG-w cat_C:  UnitTestClient_G:sendSomeMessages Run: 1 Event: 1
+		Emit Warning level message 2
+%MSG
+%MSG-w cat_C:  UnitTestClient_G:sendSomeMessages Run: 1 Event: 1
+		Emit Warning level message 3
+%MSG
+%MSG-w cat_C:  UnitTestClient_G:sendSomeMessages Run: 1 Event: 1
+		Emit Warning level message 4
+%MSG
+%MSG-w cat_C:  UnitTestClient_G:sendSomeMessages Run: 1 Event: 1
+		Emit Warning level message 5
+%MSG
+%MSG-w cat_C:  UnitTestClient_G:sendSomeMessages Run: 1 Event: 1
+		Emit Warning level message 6
+%MSG
+%MSG-w cat_C:  UnitTestClient_G:sendSomeMessages Run: 1 Event: 1
+		Emit Warning level message 7
+%MSG
+%MSG-w cat_C:  UnitTestClient_G:sendSomeMessages Run: 1 Event: 1
+		Emit Warning level message 8
+%MSG
+%MSG-w cat_C:  UnitTestClient_G:sendSomeMessages Run: 1 Event: 1
+		Emit Warning level message 9
+%MSG
+%MSG-w cat_C:  UnitTestClient_G:sendSomeMessages Run: 1 Event: 1
+		Emit Warning level message 10
+%MSG
+%MSG-w cat_C:  UnitTestClient_G:sendSomeMessages Run: 1 Event: 1
+		Emit Warning level message 11
+%MSG
+%MSG-w cat_C:  UnitTestClient_G:sendSomeMessages Run: 1 Event: 1
+		Emit Warning level message 12
+%MSG
+%MSG-w cat_C:  UnitTestClient_G:sendSomeMessages Run: 1 Event: 1
+		Emit Warning level message 13
+%MSG
+%MSG-w cat_C:  UnitTestClient_G:sendSomeMessages Run: 1 Event: 1
+		Emit Warning level message 14
+%MSG
+%MSG-w cat_C:  UnitTestClient_G:sendSomeMessages Run: 1 Event: 1
+		Emit Warning level message 15
+%MSG
+
+=============================================
+
+MessageLogger Summary
+
+ type     category        sev    module        subroutine        count    total
+ ---- -------------------- -- ---------------- ----------------  -----    -----
+    1 cat_A                -w UnitTestClient_G                       1        1
+    2 cat_C                -w UnitTestClient_G                      15       15
+
+ type    category    Examples: run/evt        run/evt          run/evt
+ ---- -------------------- ---------------- ---------------- ----------------
+    1 cat_A                1/1                               
+    2 cat_C                1/1              1/1              1/1
+
+Severity    # Occurrences   Total Occurrences
+--------    -------------   -----------------
+Warning                16                  16

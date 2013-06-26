@@ -1,0 +1,32 @@
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
+ <MaterialSection label="zdcmaterials.xml">
+  <CompositeMaterial name="Air" density="1.29*mg/cm3" symbol=" " method="mixture by weight">
+   <MaterialFraction fraction="0.7">
+    <rMaterial name="materials:Nitrogen"/>
+   </MaterialFraction>
+   <MaterialFraction fraction="0.3">
+    <rMaterial name="materials:Oxygen"/>
+   </MaterialFraction>
+  </CompositeMaterial>
+  <ElementaryMaterial name="Copper" density="8.92*g/cm3" symbol=" " atomicWeight="63.546*g/mole" atomicNumber="29"/>
+  <ElementaryMaterial name="Galactic" density="1e-22*mg/cm3" symbol=" " atomicWeight="1.01*g/mole" atomicNumber="1"/>
+  <CompositeMaterial name="Luminosity Gas" density="6.5933*mg/cm3" symbol=" " method="mixture by weight">
+   <MaterialFraction fraction="0.01">
+    <rMaterial name="materials:Nitrogen"/>
+   </MaterialFraction>
+   <MaterialFraction fraction="0.99">
+    <rMaterial name="materials:Argon"/>
+   </MaterialFraction>
+  </CompositeMaterial>
+  <ElementaryMaterial name="Tungsten" density="19.25*g/cm3" symbol=" " atomicWeight="183.84*g/mole" atomicNumber="74"/>
+  <CompositeMaterial name="quartz" density="2.2*g/cm3" symbol=" " method="mixture by weight">
+   <MaterialFraction fraction="0.46746547">
+    <rMaterial name="materials:Silicon"/>
+   </MaterialFraction>
+   <MaterialFraction fraction="0.53253453">
+    <rMaterial name="materials:Oxygen"/>
+   </MaterialFraction>
+  </CompositeMaterial>
+ </MaterialSection>
+</DDDefinition>

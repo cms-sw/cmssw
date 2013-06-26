@@ -1,0 +1,15 @@
+<use   name="FWCore/Framework"/>
+
+<use   name="FWCore/ParameterSet"/>
+
+<use   name="CondFormats/SiPixelObjects"/>
+<use   name="CalibTracker/SiPixelESProducers"/>
+<use   name="DataFormats/SiPixelCluster"/>
+<use   name="DataFormats/TrackerRecHit2D"/>
+<use   name="TrackingTools/TrajectoryState"/>
+<use   name="boost"/>
+<use   name="vdt"/>
+
+<export>
+  <lib   name="1"/>
+</export>

@@ -1,0 +1,535 @@
+<?xml version="1.0"?>
+<?xmsl version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xsi="http://www.w3.org/2001/XMLSchema-instance" schemaLocation="http://www.cern.ch/cms/DDL ../../../../DetectorDescription/Schema/DDLSchema.xsd">
+    <!-- this file defines the geometry of the Alignment Tubes in the CMS Tracker -->
+    <SolidSection label="AlignmentTubes.xml">
+        <!-- define the solids for the alignment tubes -->
+        <!-- this is for Alignment Tubes in +y direction -->
+        <Tubs name="ATEV" dz="1137.0*mm" rMin="0.0*fm" rMax="8.0*mm" startPhi="0*deg" deltaPhi="360*deg"/>
+        <!-- this for Alingment Tubes in -y direction -->
+        <Tubs name="AlignmentTube" dz="0.5*1135.0*mm" rMin="6.0*mm" rMax="8.0*mm" startPhi="0*deg" deltaPhi="360*deg"/>
+        <Tubs name="Mirror" dz="0.5*0.6*mm" rMin="0.0*fm" rMax="6.0*mm" startPhi="0*deg" deltaPhi="360*deg"/>
+    </SolidSection>
+    <LogicalPartSection label="AlignmentTubes.xml">
+        <!-- define the properties of the Solids -->
+        <LogicalPart name="ATEV" category="unspecified">
+            <rSolid name="ATEV"/>
+            <rMaterial name="materials:T_Air"/>
+        </LogicalPart>
+        <LogicalPart name="AlignmentTube" category="unspecified">
+            <rSolid name="AlignmentTube"/>
+            <rMaterial name="tobmaterial:TOB_CF_Str"/>
+        </LogicalPart>
+        <LogicalPart name="Mirror" category="unspecified">
+            <rSolid name="Mirror"/>
+            <rMaterial name="materials:Si O_2"/>
+        </LogicalPart>
+    </LogicalPartSection>
+    <PosPartSection label="AlignmentTubes.xml">
+        <!-- position the logical parts -->
+        <!-- position the first alignment tube -->
+        <Algorithm name="global:DDAngular">
+            <rParent name="tob:TOB"/>
+            <String name="ChildName" value="AlignmentTubes:ATEV"/>
+            <Numeric name="StartCopyNo" value="1"/>
+            <Numeric name="IncrCopyNo" value="1"/>
+            <Numeric name="N" value="1"/>
+            <Numeric name="Radius" value="0*mm"/>
+            <Numeric name="StartAngle" value="0*deg"/>
+            <Numeric name="RangeAngle" value="360*deg"/>
+            <Vector name="Center" type="numeric" nEntries="3"> 564*cos(22.5*deg)*mm, 564*sin(22.5*deg)*mm, 0*mm </Vector>
+            <Vector name="RotateSolid" type="numeric" nEntries="6"> 0.*deg, 0.*deg, 0.*deg, 0.*deg, 0.*deg, (22.5-90)*deg </Vector>
+            <!-- first rotation -->
+            <!-- first rotate the mirror about 0 degrees w.r.t. to the x-axis -->
+            <!-- theta=0*deg -->
+            <!-- phi = 0*deg -->
+            <!-- rotate by 0*deg around (theta,phi) -->
+            <!-- second rotation -->
+            <!-- rotate the tube, so it has the appropriate angle w.r.t. the z-axis -->
+            <!-- theta=0*deg -->
+            <!-- phi=0*deg -->
+            <!-- rotate by (22.5-90)*deg around (theta,phi); the angle is the position angle in phi -->
+        </Algorithm>
+        <!-- position the second alignment tube -->
+        <Algorithm name="global:DDAngular">
+            <rParent name="tob:TOB"/>
+            <String name="ChildName" value="AlignmentTubes:ATEV"/>
+            <Numeric name="StartCopyNo" value="2"/>
+            <Numeric name="IncrCopyNo" value="1"/>
+            <Numeric name="N" value="1"/>
+            <Numeric name="Radius" value="0*mm"/>
+            <Numeric name="StartAngle" value="0*deg"/>
+            <Numeric name="RangeAngle" value="360*deg"/>
+            <Vector name="Center" type="numeric" nEntries="3"> 564*cos(73.92857*deg)*mm, 564*sin(73.92857*deg)*mm, 0*mm </Vector>
+            <Vector name="RotateSolid" type="numeric" nEntries="6"> 0.*deg, 0.*deg, 0.*deg, 0.*deg, 0.*deg, (73.92857-90)*deg </Vector>
+            <!-- first rotation -->
+            <!-- first rotate the mirror about 0 degrees w.r.t. to the x-axis -->
+            <!-- theta=0*deg -->
+            <!-- phi = 0*deg -->
+            <!-- rotate by 0*deg around (theta,phi) -->
+            <!-- second rotation -->
+            <!-- rotate the tube, so it has the appropriate angle w.r.t. the z-axis -->
+            <!-- theta=0*deg -->
+            <!-- phi=0*deg -->
+            <!-- rotate (73.92857-90)*deg around (theta,phi); the angle is the position angle in phi -->
+        </Algorithm>
+        <!-- position the third alignment tube -->
+        <Algorithm name="global:DDAngular">
+            <rParent name="tob:TOB"/>
+            <String name="ChildName" value="AlignmentTubes:ATEV"/>
+            <Numeric name="StartCopyNo" value="3"/>
+            <Numeric name="IncrCopyNo" value="1"/>
+            <Numeric name="N" value="1"/>
+            <Numeric name="Radius" value="0*mm"/>
+            <Numeric name="StartAngle" value="0*deg"/>
+            <Numeric name="RangeAngle" value="360*deg"/>
+            <Vector name="Center" type="numeric" nEntries="3"> 564*cos(106.07143*deg)*mm, 564*sin(106.07143*deg)*mm, 0*mm </Vector>
+            <Vector name="RotateSolid" type="numeric" nEntries="6"> 0.*deg, 0.*deg, 0.*deg, 0.*deg, 0.*deg, (106.07143-90)*deg </Vector>
+            <!-- first rotation -->
+            <!-- first rotate the mirror about 0 degrees w.r.t. to the x-axis -->
+            <!-- theta=0*deg -->
+            <!-- phi = 0*deg -->
+            <!-- rotate by 0*deg around (theta,phi) -->
+            <!-- second rotation -->
+            <!-- rotate the tube, so it has the appropriate angle w.r.t. the z-axis -->
+            <!-- theta=0*deg -->
+            <!-- phi=0*deg -->
+            <!-- rotate by (106.07143-90)*deg around (theta,phi); the angle is the position angle in phi -->
+        </Algorithm>
+        <!-- position the fourth alignment tube -->
+        <Algorithm name="global:DDAngular">
+            <rParent name="tob:TOB"/>
+            <String name="ChildName" value="AlignmentTubes:ATEV"/>
+            <Numeric name="StartCopyNo" value="4"/>
+            <Numeric name="IncrCopyNo" value="1"/>
+            <Numeric name="N" value="1"/>
+            <Numeric name="Radius" value="0*mm"/>
+            <Numeric name="StartAngle" value="0*deg"/>
+            <Numeric name="RangeAngle" value="360*deg"/>
+            <Vector name="Center" type="numeric" nEntries="3"> 564*cos(157.5*deg)*mm, 564*sin(157.5*deg)*mm, 0*mm </Vector>
+            <Vector name="RotateSolid" type="numeric" nEntries="6"> 0.*deg, 0.*deg, 0.*deg, 0.*deg, 0.*deg, (157.5-90)*deg </Vector>
+            <!-- first rotation -->
+            <!-- first rotate the mirror about 0 degrees w.r.t. to the x-axis -->
+            <!-- theta=0*deg -->
+            <!-- phi = 0*deg -->
+            <!-- rotate by 0*deg around (theta,phi) -->
+            <!-- second rotation -->
+            <!-- rotate the tube, so it has the appropriate angle w.r.t. the z-axis -->
+            <!-- theta=0*deg -->
+            <!-- phi=0*deg -->
+            <!-- rotate by (157.5-90)*deg around (theta,phi); the angle is the position angle in phi -->
+        </Algorithm>
+        <!-- position the fifth alignment tube -->
+        <Algorithm name="global:DDAngular">
+            <rParent name="tob:TOB"/>
+            <String name="ChildName" value="AlignmentTubes:ATEV"/>
+            <Numeric name="StartCopyNo" value="5"/>
+            <Numeric name="IncrCopyNo" value="1"/>
+            <Numeric name="N" value="1"/>
+            <Numeric name="Radius" value="0*mm"/>
+            <Numeric name="StartAngle" value="0*deg"/>
+            <Numeric name="RangeAngle" value="360*deg"/>
+            <Vector name="Center" type="numeric" nEntries="3"> 564*cos(208.92857*deg)*mm, 564*sin(208.92857*deg)*mm, 0*mm </Vector>
+            <Vector name="RotateSolid" type="numeric" nEntries="6"> 0.*deg, 0.*deg, 0.*deg, 0.*deg, 0.*deg, (208.92857-90)*deg </Vector>
+            <!-- first rotation -->
+            <!-- first rotate the mirror about 0 degrees w.r.t. to the x-axis -->
+            <!-- theta=0*deg -->
+            <!-- phi = 0*deg -->
+            <!-- rotate by 0*deg around (theta,phi) -->
+            <!-- second rotation -->
+            <!-- rotate the tube, so it has the appropriate angle w.r.t. the z-axis -->
+            <!-- theta=0*deg -->
+            <!-- phi=0*deg -->
+            <!-- rotate by (208.92857-90)*deg around (theta,phi); the angle is the position angle in phi -->
+        </Algorithm>
+        <!-- position the sixth alignment tube -->
+        <Algorithm name="global:DDAngular">
+            <rParent name="tob:TOB"/>
+            <String name="ChildName" value="AlignmentTubes:ATEV"/>
+            <Numeric name="StartCopyNo" value="6"/>
+            <Numeric name="IncrCopyNo" value="1"/>
+            <Numeric name="N" value="1"/>
+            <Numeric name="Radius" value="0*mm"/>
+            <Numeric name="StartAngle" value="0*deg"/>
+            <Numeric name="RangeAngle" value="360*deg"/>
+            <Vector name="Center" type="numeric" nEntries="3"> 564*cos(247.5*deg)*mm, 564*sin(247.5*deg)*mm, 0*mm </Vector>
+            <Vector name="RotateSolid" type="numeric" nEntries="6"> 0.*deg, 0.*deg, 0.*deg, 0.*deg, 0.*deg, (247.5-90)*deg </Vector>
+            <!-- first rotation -->
+            <!-- first rotate the mirror about 0 degrees w.r.t. to the x-axis -->
+            <!-- theta=0*deg -->
+            <!-- phi = 0*deg -->
+            <!-- rotate by 0*deg around (theta,phi) -->
+            <!-- second rotation -->
+            <!-- rotate the tube, so it has the appropriate angle w.r.t. the z-axis -->
+            <!-- theta=0*deg -->
+            <!-- phi=0*deg -->
+            <!-- rotate by (247.5-90)*deg around (theta,phi); the angle is the position angle in phi -->
+        </Algorithm>
+        <!-- position the seventh alignment tube -->
+        <Algorithm name="global:DDAngular">
+            <rParent name="tob:TOB"/>
+            <String name="ChildName" value="AlignmentTubes:ATEV"/>
+            <Numeric name="StartCopyNo" value="7"/>
+            <Numeric name="IncrCopyNo" value="1"/>
+            <Numeric name="N" value="1"/>
+            <Numeric name="Radius" value="0*mm"/>
+            <Numeric name="StartAngle" value="0*deg"/>
+            <Numeric name="RangeAngle" value="360*deg"/>
+            <Vector name="Center" type="numeric" nEntries="3"> 564*cos(298.92857*deg)*mm, 564*sin(298.92857*deg)*mm, 0*mm </Vector>
+            <Vector name="RotateSolid" type="numeric" nEntries="6"> 0.*deg, 0.*deg, 0.*deg, 0.*deg, 0.*deg, (298.92857-90)*deg </Vector>
+            <!-- first rotation -->
+            <!-- first rotate the mirror about 0 degrees w.r.t. to the x-axis -->
+            <!-- theta=0*deg -->
+            <!-- phi = 0*deg -->
+            <!-- rotate by 0*deg around (theta,phi) -->
+            <!-- second rotation -->
+            <!-- rotate the tube, so it has the appropriate angle w.r.t. the z-axis -->
+            <!-- theta=0*deg -->
+            <!-- phi=0*deg -->
+            <!-- rotate by (298.92857-90)*deg around (theta,phi); the angle is the position angle in phi -->
+        </Algorithm>
+        <!-- position the eigth alignment tube -->
+        <Algorithm name="global:DDAngular">
+            <rParent name="tob:TOB"/>
+            <String name="ChildName" value="AlignmentTubes:ATEV"/>
+            <Numeric name="StartCopyNo" value="8"/>
+            <Numeric name="IncrCopyNo" value="1"/>
+            <Numeric name="N" value="1"/>
+            <Numeric name="Radius" value="0*mm"/>
+            <Numeric name="StartAngle" value="0*deg"/>
+            <Numeric name="RangeAngle" value="360*deg"/>
+            <Vector name="Center" type="numeric" nEntries="3"> 564*cos(331.07143*deg)*mm, 564*sin(331.07143*deg)*mm, 0*mm </Vector>
+            <Vector name="RotateSolid" type="numeric" nEntries="6"> 0.*deg, 0.*deg, 0.*deg, 0.*deg, 0.*deg, (331.07143-90)*deg </Vector>
+            <!-- first rotation -->
+            <!-- first rotate the mirror about 0 degrees w.r.t. to the x-axis -->
+            <!-- theta=0*deg -->
+            <!-- phi = 0*deg -->
+            <!-- rotate by 0*deg around (theta,phi) -->
+            <!-- second rotation -->
+            <!-- rotate the tube, so it has the appropriate angle w.r.t. the z-axis -->
+            <!-- theta=0*deg -->
+            <!-- phi=0*deg -->
+            <!-- rotate by (331.07143-90)*deg around (theta,phi); the angle is the position angle in phi -->
+        </Algorithm>
+        <!-- start of the alignment tube (+z direction) -->
+        <!-- the Alignment Tube -->
+        <PosPart copyNumber="9">
+            <rParent name="AlignmentTubes:ATEV"/>
+            <rChild name="AlignmentTubes:AlignmentTube"/>
+            <rRotation name="rotations:000D"/>
+            <Translation x="0*fm" y="0*fm" z="(567.5 + 2.0)*mm"/>
+        </PosPart>
+        <!-- the first mirror (beam down) -->
+        <Algorithm name="global:DDAngular">
+            <!-- start="1" incr="1" end="2"> -->
+            <rParent name="AlignmentTubes:ATEV"/>
+            <String name="ChildName" value="AlignmentTubes:Mirror"/>
+            <Numeric name="StartCopyNo" value="1"/>
+            <Numeric name="IncrCopyNo" value="1"/>
+            <Numeric name="N" value="1"/>
+            <Numeric name="Radius" value="0*mm"/>
+            <Numeric name="StartAngle" value="0*deg"/>
+            <Numeric name="RangeAngle" value="360*deg"/>
+            <Vector name="Center" type="numeric" nEntries="3"> 0, 0, 180*mm </Vector>
+            <Vector name="RotateSolid" type="numeric" nEntries="6"> 90.*deg, 135.*deg, 90.*deg, 90.*deg, 90.*deg, 90.*deg </Vector>
+            <!-- rotate the solid in its local reference frame first,
+                 then position it acording to angular algorithm.
+                 There can be up to 3 rotations which are applied in 
+                 sequence to the solid (this is only for convinience and not
+                 really necessary).
+                 
+                 In this example the solid first is rotated by 90deg around
+                 its z-axis and then this resulting solid is again
+                 rotated by 90deg around the y-axis.
+                 
+                 One rotation consists of 3 parameters: (theta,phi) of the 
+                 rotation axis and (alpha) - the angle of rotation with respect
+                 to the axis (theta,phi). -->
+            <!-- first rotate the mirror about 45 degrees w.r.t. to the x-axis -->
+            <!-- theta=90*deg -->
+            <!-- phi = 45*deg: beam up, phi = 135*deg: beam down -->
+            <!-- rotate by 90*deg around (theta,phi) -->
+            <!-- second rotation -->
+            <!-- rotate the mirror, so it has the appropriate angle w.r.t. the z-axis -->
+            <!-- theta=90*deg -->
+            <!-- phi=90*deg -->
+            <!-- rotate by 90deg around (theta,phi) -->
+        </Algorithm>
+        <!-- the second mirror (beam up) -->
+        <Algorithm name="global:DDAngular">
+            <!-- start="1" incr="1" end="2"> -->
+            <rParent name="AlignmentTubes:ATEV"/>
+            <String name="ChildName" value="AlignmentTubes:Mirror"/>
+            <Numeric name="StartCopyNo" value="2"/>
+            <Numeric name="IncrCopyNo" value="1"/>
+            <Numeric name="N" value="1"/>
+            <Numeric name="Radius" value="0*mm"/>
+            <Numeric name="StartAngle" value="0*deg"/>
+            <Numeric name="RangeAngle" value="360*deg"/>
+            <Vector name="Center" type="numeric" nEntries="3"> 0, 0, (180 + 40)*mm </Vector>
+            <Vector name="RotateSolid" type="numeric" nEntries="6"> 90.*deg, 45.*deg, 90.*deg, 90.*deg, 90.*deg, 90.*deg </Vector>
+            <!-- first rotate the mirror about 45 degrees w.r.t. to the x-axis -->
+            <!-- theta=90*deg -->
+            <!-- phi = 45*deg: beam up, phi = 135*deg: beam down -->
+            <!-- rotate by 90*deg around (theta,phi) -->
+            <!-- second rotation -->
+            <!-- rotate the mirror, so it has the appropriate angle w.r.t. the z-axis -->
+            <!-- theta=90*deg -->
+            <!-- phi=90*deg -->
+            <!-- rotate by 90deg around (theta,phi) -->
+        </Algorithm>
+        <!-- the third mirror (beam down) -->
+        <Algorithm name="global:DDAngular">
+            <!-- start="1" incr="1" end="2"> -->
+            <rParent name="AlignmentTubes:ATEV"/>
+            <String name="ChildName" value="AlignmentTubes:Mirror"/>
+            <Numeric name="StartCopyNo" value="3"/>
+            <Numeric name="IncrCopyNo" value="1"/>
+            <Numeric name="N" value="1"/>
+            <Numeric name="Radius" value="0*mm"/>
+            <Numeric name="StartAngle" value="0*deg"/>
+            <Numeric name="RangeAngle" value="360*deg"/>
+            <Vector name="Center" type="numeric" nEntries="3"> 0, 0, 380*mm </Vector>
+            <Vector name="RotateSolid" type="numeric" nEntries="6"> 90.*deg, 135.*deg, 90.*deg, 90.*deg, 90.*deg, 90.*deg </Vector>
+            <!-- first rotate the mirror about 45 degrees w.r.t. to the x-axis -->
+            <!-- theta=90*deg -->
+            <!-- phi = 45*deg: beam up, phi = 135*deg: beam down -->
+            <!-- rotate by 90*deg around (theta,phi) -->
+            <!-- second rotation -->
+            <!-- rotate the mirror, so it has the appropriate angle w.r.t. the z-axis -->
+            <!-- theta=90*deg -->
+            <!-- phi=90*deg -->
+            <!-- rotate by 90deg around (theta,phi) -->
+        </Algorithm>
+        <!-- the fourth mirror (beam up) -->
+        <Algorithm name="global:DDAngular">
+            <!-- start="1" incr="1" end="2"> -->
+            <rParent name="AlignmentTubes:ATEV"/>
+            <String name="ChildName" value="AlignmentTubes:Mirror"/>
+            <Numeric name="StartCopyNo" value="4"/>
+            <Numeric name="IncrCopyNo" value="1"/>
+            <Numeric name="N" value="1"/>
+            <Numeric name="Radius" value="0*mm"/>
+            <Numeric name="StartAngle" value="0*deg"/>
+            <Numeric name="RangeAngle" value="360*deg"/>
+            <Vector name="Center" type="numeric" nEntries="3"> 0, 0, 580*mm </Vector>
+            <Vector name="RotateSolid" type="numeric" nEntries="6"> 90.*deg, 45.*deg, 90.*deg, 90.*deg, 90.*deg, 90.*deg </Vector>
+            <!-- first rotate the mirror about 45 degrees w.r.t. to the x-axis -->
+            <!-- theta=90*deg -->
+            <!-- phi = 45*deg: beam up, phi = 135*deg: beam down -->
+            <!-- rotate by 90*deg around (theta,phi) -->
+            <!-- second rotation -->
+            <!-- rotate the mirror, so it has the appropriate angle w.r.t. the z-axis -->
+            <!-- theta=90*deg -->
+            <!-- phi=90*deg -->
+            <!-- rotate by 90deg around (theta,phi) -->
+        </Algorithm>
+        <!-- the fifth mirror (beam down) -->
+        <Algorithm name="global:DDAngular">
+            <!-- start="1" incr="1" end="2"> -->
+            <rParent name="AlignmentTubes:ATEV"/>
+            <String name="ChildName" value="AlignmentTubes:Mirror"/>
+            <Numeric name="StartCopyNo" value="5"/>
+            <Numeric name="IncrCopyNo" value="1"/>
+            <Numeric name="N" value="1"/>
+            <Numeric name="Radius" value="0*mm"/>
+            <Numeric name="StartAngle" value="0*deg"/>
+            <Numeric name="RangeAngle" value="360*deg"/>
+            <Vector name="Center" type="numeric" nEntries="3"> 0, 0, (580 + 40)*mm </Vector>
+            <Vector name="RotateSolid" type="numeric" nEntries="6"> 90.*deg, 135.*deg, 90.*deg, 90.*deg, 90.*deg, 90.*deg </Vector>
+            <!-- first rotate the mirror about 45 degrees w.r.t. to the x-axis -->
+            <!-- theta=90*deg -->
+            <!-- phi = 45*deg: beam up, phi = 135*deg: beam down -->
+            <!-- rotate by 90*deg around (theta,phi) -->
+            <!-- second rotation -->
+            <!-- rotate the mirror, so it has the appropriate angle w.r.t. the z-axis -->
+            <!-- theta=90*deg -->
+            <!-- phi=90*deg -->
+            <!-- rotate by 90deg around (theta,phi) -->
+        </Algorithm>
+        <!-- the sixth mirror (beam up) -->
+        <Algorithm name="global:DDAngular">
+            <!-- start="1" incr="1" end="2"> -->
+            <rParent name="AlignmentTubes:ATEV"/>
+            <String name="ChildName" value="AlignmentTubes:Mirror"/>
+            <Numeric name="StartCopyNo" value="6"/>
+            <Numeric name="IncrCopyNo" value="1"/>
+            <Numeric name="N" value="1"/>
+            <Numeric name="Radius" value="0*mm"/>
+            <Numeric name="StartAngle" value="0*deg"/>
+            <Numeric name="RangeAngle" value="360*deg"/>
+            <Vector name="Center" type="numeric" nEntries="3"> 0, 0, 1040*mm </Vector>
+            <Vector name="RotateSolid" type="numeric" nEntries="6"> 90.*deg, 45.*deg, 90.*deg, 90.*deg, 90.*deg, 90.*deg </Vector>
+            <!-- first rotate the mirror about 45 degrees w.r.t. to the x-axis -->
+            <!-- theta=90*deg -->
+            <!-- phi = 45*deg: beam up, phi = 135*deg: beam down -->
+            <!-- rotate by 90*deg around (theta,phi) -->
+            <!-- second rotation -->
+            <!-- rotate the mirror, so it has the appropriate angle w.r.t. the z-axis -->
+            <!-- theta=90*deg -->
+            <!-- phi=90*deg -->
+            <!-- rotate by 90deg around (theta,phi) -->
+        </Algorithm>
+        <!-- end of the alignment tube (+z direction) -->
+        <!-- start of the alignment tube (-z direction) -->
+        <!-- the Alignment Tube -->
+        <PosPart copyNumber="10">
+            <rParent name="AlignmentTubes:ATEV"/>
+            <rChild name="AlignmentTubes:AlignmentTube"/>
+            <rRotation name="rotations:000D"/>
+            <Translation x="0*fm" y="0*fm" z="-1*(567.5 + 2.0)*mm"/>
+        </PosPart>
+        <!-- the first mirror (beam down) -->
+        <Algorithm name="global:DDAngular">
+            <!-- start="1" incr="1" end="2"> -->
+            <rParent name="AlignmentTubes:ATEV"/>
+            <String name="ChildName" value="AlignmentTubes:Mirror"/>
+            <Numeric name="StartCopyNo" value="7"/>
+            <Numeric name="IncrCopyNo" value="1"/>
+            <Numeric name="N" value="1"/>
+            <Numeric name="Radius" value="0*mm"/>
+            <Numeric name="StartAngle" value="0*deg"/>
+            <Numeric name="RangeAngle" value="360*deg"/>
+            <Vector name="Center" type="numeric" nEntries="3"> 0, 0, -1*100*mm </Vector>
+            <Vector name="RotateSolid" type="numeric" nEntries="6"> 90.*deg, 135.*deg, 90.*deg, 90.*deg, 90.*deg, 90.*deg </Vector>
+            <!-- rotate the solid in its local reference frame first,
+                 then position it acording to angular algorithm.
+                 There can be up to 3 rotations which are applied in 
+                 sequence to the solid (this is only for convinience and not
+                 really necessary).
+                 
+                 In this example the solid first is rotated by 90deg around
+                 its z-axis and then this resulting solid is again
+                 rotated by 90deg around the y-axis.
+                 
+                 One rotation consists of 3 parameters: (theta,phi) of the 
+                 rotation axis and (alpha) - the angle of rotation with respect
+                 to the axis (theta,phi). -->
+            <!-- first rotate the mirror about 45 degrees w.r.t. to the x-axis -->
+            <!-- theta=90*deg -->
+            <!-- phi = 45*deg: beam up, phi = 135*deg: beam down -->
+            <!-- rotate by 90*deg around (theta,phi) -->
+            <!-- second rotation -->
+            <!-- rotate the mirror, so it has the appropriate angle w.r.t. the z-axis -->
+            <!-- theta=90*deg -->
+            <!-- phi=90*deg -->
+            <!-- rotate by 90deg around (theta,phi) -->
+        </Algorithm>
+        <!-- the second mirror (beam up) -->
+        <Algorithm name="global:DDAngular">
+            <!-- start="1" incr="1" end="2"> -->
+            <rParent name="AlignmentTubes:ATEV"/>
+            <String name="ChildName" value="AlignmentTubes:Mirror"/>
+            <Numeric name="StartCopyNo" value="8"/>
+            <Numeric name="IncrCopyNo" value="1"/>
+            <Numeric name="N" value="1"/>
+            <Numeric name="Radius" value="0*mm"/>
+            <Numeric name="StartAngle" value="0*deg"/>
+            <Numeric name="RangeAngle" value="360*deg"/>
+            <Vector name="Center" type="numeric" nEntries="3"> 0, 0, -1*(100 + 40)*mm </Vector>
+            <Vector name="RotateSolid" type="numeric" nEntries="6"> 90.*deg, 45.*deg, 90.*deg, 90.*deg, 90.*deg, 90.*deg </Vector>
+            <!-- first rotate the mirror about 45 degrees w.r.t. to the x-axis -->
+            <!-- theta=90*deg -->
+            <!-- phi = 45*deg: beam up, phi = 135*deg: beam down -->
+            <!-- rotate by 90*deg around (theta,phi) -->
+            <!-- second rotation -->
+            <!-- rotate the mirror, so it has the appropriate angle w.r.t. the z-axis -->
+            <!-- theta=90*deg -->
+            <!-- phi=90*deg -->
+            <!-- rotate by 90deg around (theta,phi) -->
+        </Algorithm>
+        <!-- the third mirror (beam down) -->
+        <Algorithm name="global:DDAngular">
+            <!-- start="1" incr="1" end="2"> -->
+            <rParent name="AlignmentTubes:ATEV"/>
+            <String name="ChildName" value="AlignmentTubes:Mirror"/>
+            <Numeric name="StartCopyNo" value="9"/>
+            <Numeric name="IncrCopyNo" value="1"/>
+            <Numeric name="N" value="1"/>
+            <Numeric name="Radius" value="0*mm"/>
+            <Numeric name="StartAngle" value="0*deg"/>
+            <Numeric name="RangeAngle" value="360*deg"/>
+            <Vector name="Center" type="numeric" nEntries="3"> 0, 0, -1*340*mm </Vector>
+            <Vector name="RotateSolid" type="numeric" nEntries="6"> 90.*deg, 135.*deg, 90.*deg, 90.*deg, 90.*deg, 90.*deg </Vector>
+            <!-- first rotate the mirror about 45 degrees w.r.t. to the x-axis -->
+            <!-- theta=90*deg -->
+            <!-- phi = 45*deg: beam up, phi = 135*deg: beam down -->
+            <!-- rotate by 90*deg around (theta,phi) -->
+            <!-- second rotation -->
+            <!-- rotate the mirror, so it has the appropriate angle w.r.t. the z-axis -->
+            <!-- theta=90*deg -->
+            <!-- phi=90*deg -->
+            <!-- rotate by 90deg around (theta,phi) -->
+        </Algorithm>
+        <!-- the fourth mirror (beam up) -->
+        <Algorithm name="global:DDAngular">
+            <!-- start="1" incr="1" end="2"> -->
+            <rParent name="AlignmentTubes:ATEV"/>
+            <String name="ChildName" value="AlignmentTubes:Mirror"/>
+            <Numeric name="StartCopyNo" value="10"/>
+            <Numeric name="IncrCopyNo" value="1"/>
+            <Numeric name="N" value="1"/>
+            <Numeric name="Radius" value="0*mm"/>
+            <Numeric name="StartAngle" value="0*deg"/>
+            <Numeric name="RangeAngle" value="360*deg"/>
+            <Vector name="Center" type="numeric" nEntries="3"> 0, 0, -1*500*mm </Vector>
+            <Vector name="RotateSolid" type="numeric" nEntries="6"> 90.*deg, 45.*deg, 90.*deg, 90.*deg, 90.*deg, 90.*deg </Vector>
+            <!-- first rotate the mirror about 45 degrees w.r.t. to the x-axis -->
+            <!-- theta=90*deg -->
+            <!-- phi = 45*deg: beam up, phi = 135*deg: beam down -->
+            <!-- rotate by 90*deg around (theta,phi) -->
+            <!-- second rotation -->
+            <!-- rotate the mirror, so it has the appropriate angle w.r.t. the z-axis -->
+            <!-- theta=90*deg -->
+            <!-- phi=90*deg -->
+            <!-- rotate by 90deg around (theta,phi) -->
+        </Algorithm>
+        <!-- the fifth mirror (beam down) -->
+        <Algorithm name="global:DDAngular">
+            <!-- start="1" incr="1" end="2"> -->
+            <rParent name="AlignmentTubes:ATEV"/>
+            <String name="ChildName" value="AlignmentTubes:Mirror"/>
+            <Numeric name="StartCopyNo" value="11"/>
+            <Numeric name="IncrCopyNo" value="1"/>
+            <Numeric name="N" value="1"/>
+            <Numeric name="Radius" value="0*mm"/>
+            <Numeric name="StartAngle" value="0*deg"/>
+            <Numeric name="RangeAngle" value="360*deg"/>
+            <Vector name="Center" type="numeric" nEntries="3"> 0, 0, -1*(500 + 40)*mm </Vector>
+            <Vector name="RotateSolid" type="numeric" nEntries="6"> 90.*deg, 135.*deg, 90.*deg, 90.*deg, 90.*deg, 90.*deg </Vector>
+            <!-- first rotate the mirror about 45 degrees w.r.t. to the x-axis -->
+            <!-- theta=90*deg -->
+            <!-- phi = 45*deg: beam up, phi = 135*deg: beam down -->
+            <!-- rotate by 90*deg around (theta,phi) -->
+            <!-- second rotation -->
+            <!-- rotate the mirror, so it has the appropriate angle w.r.t. the z-axis -->
+            <!-- theta=90*deg -->
+            <!-- phi=90*deg -->
+            <!-- rotate by 90deg around (theta,phi) -->
+        </Algorithm>
+        <!-- the sixth mirror (beam up) -->
+        <Algorithm name="global:DDAngular">
+            <!-- start="1" incr="1" end="2"> -->
+            <rParent name="AlignmentTubes:ATEV"/>
+            <String name="ChildName" value="AlignmentTubes:Mirror"/>
+            <Numeric name="StartCopyNo" value="12"/>
+            <Numeric name="IncrCopyNo" value="1"/>
+            <Numeric name="N" value="1"/>
+            <Numeric name="Radius" value="0*mm"/>
+            <Numeric name="StartAngle" value="0*deg"/>
+            <Numeric name="RangeAngle" value="360*deg"/>
+            <Vector name="Center" type="numeric" nEntries="3"> 0, 0, -1*860*mm </Vector>
+            <Vector name="RotateSolid" type="numeric" nEntries="6"> 90.*deg, 45.*deg, 90.*deg, 90.*deg, 90.*deg, 90.*deg </Vector>
+            <!-- first rotate the mirror about 45 degrees w.r.t. to the x-axis -->
+            <!-- theta=90*deg -->
+            <!-- phi = 45*deg: beam up, phi = 135*deg: beam down -->
+            <!-- rotate by 90*deg around (theta,phi) -->
+            <!-- second rotation -->
+            <!-- rotate the mirror, so it has the appropriate angle w.r.t. the z-axis -->
+            <!-- theta=90*deg -->
+            <!-- phi=90*deg -->
+            <!-- rotate by 90deg around (theta,phi) -->
+        </Algorithm>
+        <!-- end of the alignment tube (-z direction) -->
+    </PosPartSection>
+</DDDefinition>

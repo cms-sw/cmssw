@@ -1,0 +1,51 @@
+#!/usr/bin/env python
+#-*- coding: utf-8 -*-
+#pylint: disable-msg=
+"""
+File       : mkedprod
+Author     : Valentin Kuznetsov <vkuznet@gmail.com>
+Description: mkedprod code
+"""
+
+# system modules
+import sys
+
+if  sys.version_info < (2, 6):
+    raise Exception("This script requires python 2.6 or greater")
+
+# package modules
+from FWCore.Skeletons.cms import generate, config
+
+def tmpl_dir():
+    "Return location of template directory wrt script location"
+    return '%s/mkTemplates' % '/'.join(__file__.split('/')[:-1])
+
+def pkg_help():
+    "mkedprod help function"
+    msg  = '\nmkedprod script generates CMS EDProducer code'
+    msg += '\nUsage  : mkedprod ProducerName -author "FirstName LastName"'
+    msg += ' <example_myparticle>'
+    msg += '\nOutput : '
+    msg += """
+        MyProd/
+        |  plugins/
+        |  |-- BuildFile.xml
+        |  |-- MyProd.cc
+        |  python/
+        |  |-- CfiFile_cfi.py
+        |  |-- ConfFile_cfg.py
+        |  test/
+        |  doc/
+        """
+    msg += '\nExample:'
+    msg += '\n        # create new EDProducer code'
+    msg += '\n        mkedprod MyProd'
+    msg += '\n        # create new EDProducer code with given author'
+    msg += '\n        mkedprod MyProd -author "First Last"'
+    msg += '\n        # create new EDProducer code with myparticle example'
+    msg += '\n        mkedprod MyProd example_myparticle'
+    msg += '\n'
+    return msg
+
+if __name__ == '__main__':
+    generate(config('EDProducer', pkg_help(), tmpl_dir()))

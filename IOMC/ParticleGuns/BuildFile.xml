@@ -1,0 +1,8 @@
+<use   name="boost"/>
+<use   name="FWCore/Framework"/>
+<use   name="SimDataFormats/GeneratorProducts"/>
+<use   name="SimGeneral/HepPDTRecord"/>
+<use   name="clhep"/>
+<use   name="hepmc"/>
+<use   name="heppdt"/>
+<flags   EDM_PLUGIN="1"/>

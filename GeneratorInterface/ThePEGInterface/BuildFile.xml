@@ -1,0 +1,7 @@
+<use name="SimDataFormats/GeneratorProducts"/>
+<use name="GeneratorInterface/Core"/>
+<use name="hepmc"/>
+<use name="thepeg"/>
+<export>
+	<lib name="GeneratorInterfaceThePEGInterface"/>
+</export>

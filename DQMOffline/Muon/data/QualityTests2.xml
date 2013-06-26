@@ -1,0 +1,50 @@
+<TESTSCONFIGURATION>
+
+<QTEST name="ResidualsMeanInRange">
+	<TYPE>ContentsYRange</TYPE>	
+	<PARAM name="ymin">-0.001</PARAM>
+	<PARAM name="ymax">0.001</PARAM>
+	<PARAM name="useEmptyBins">1</PARAM>
+	<PARAM name="error">0.30</PARAM>
+	<PARAM name="warning">0.70</PARAM>
+</QTEST>
+
+
+<QTEST name="ResidualsSigmaInRange">
+	<TYPE>ContentsYRange</TYPE>	
+	<PARAM name="ymin">0</PARAM>
+	<PARAM name="ymax">0.009</PARAM>
+	<PARAM name="useEmptyBins">1</PARAM>
+	<PARAM name="error">0.30</PARAM>
+	<PARAM name="warning">0.70</PARAM>
+</QTEST>
+
+
+<QTEST name="EfficiencyInRange">
+	<TYPE>ContentsYRange</TYPE>	
+	<PARAM name="ymin">0.85</PARAM>
+	<PARAM name="ymax">1.0</PARAM>
+        <PARAM name="useEmptyBins">1</PARAM>
+	<PARAM name="error">0.30</PARAM>
+	<PARAM name="warning">0.70</PARAM>
+</QTEST>
+
+
+<LINK name="*trackResidualsTest/MeanTest*">
+	<TestName activate="true">ResidualsMeanInRange</TestName>
+</LINK>
+
+<LINK name="*trackResidualsTest/SigmaTest*">
+	<TestName activate="true">ResidualsSigmaInRange</TestName>
+</LINK>
+
+<LINK name="*muonRecoTest/etaEfficiency*">
+	<TestName activate="true">EfficiencyInRange</TestName>
+</LINK>
+
+<LINK name="*muonRecoTest/phiEfficiency*">
+	<TestName activate="true">EfficiencyInRange</TestName>
+</LINK>
+
+
+</TESTSCONFIGURATION>

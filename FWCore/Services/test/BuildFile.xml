@@ -1,0 +1,21 @@
+<library   file="TestInitRootHandlers.cc" name="FWCoreServicesTestInitRootHandlers">
+  <flags   EDM_PLUGIN="1"/>
+  <use   name="FWCore/Framework"/>
+  <use   name="FWCore/PluginManager"/>
+  <use   name="FWCore/ParameterSet"/>
+</library>
+<library   file="FpeTester.cc" name="FpeTester">
+  <flags   EDM_PLUGIN="1"/>
+  <use   name="FWCore/PluginManager"/>
+  <use   name="FWCore/Framework"/>
+</library>
+<library   file="SiteLocalConfigServiceTester.cc" name="SiteLocalConfigUnitTestClient">
+  <flags   EDM_PLUGIN="1"/>
+  <use   name="FWCore/Services"/>
+  <use   name="FWCore/PluginManager"/>
+  <use   name="FWCore/Framework"/>
+</library>
+<bin   file="TestFWCoreServicesDriver.cpp">
+  <flags   TEST_RUNNER_ARGS=" /bin/bash FWCore/Services/test fpe_test_2.sh test_mallocopts.sh test_sitelocalconfig.sh test_resource.sh"/>
+  <use   name="FWCore/Utilities"/>
+</bin>

@@ -1,0 +1,70 @@
+
+/*!
+
+\page Alignment_MillePedeAlignmentAlgorithm Package Alignment/MillePedeAlignmentAlgorithm
+
+<center>
+<small>
+
+<!-- @CVS_TAG@ will be substituted at build time, no need to touch -->
+<a href=http://cmssw.cvs.cern.ch/cgi-bin/cmssw.cgi/CMSSW/Alignment/MillePedeAlignmentAlgorithm/?cvsroot=CMSSW&only_with_tag=@CVS_TAG@>Source code (CVS tag: @CVS_TAG@)</a> - 
+<a href=http://cmssw.cvs.cern.ch/cgi-bin/cmssw.cgi/CMSSW/Alignment/MillePedeAlignmentAlgorithm/.admin/developers?rev=HEAD&cvsroot=CMSSW&content-type=text/vnd.viewcvs-markup>Administrative privileges</a>
+</small>
+</center>
+
+\section desc Description
+<!-- Short description of what this package is supposed to provide -->
+MillePedeAlignmentAlgorithm implements the CMSSW interface to the Millepede II program
+written by V. Blobel. Millepede II is the successor of 
+<a href=http://www.desy.de/~blobel/wwwmille.html>Millpede</a>.
+The algorithm is meant to be used as a plugin loaded by the Alignment/AlignmentProducer.
+Currently it can deal with tracker, but not with muon alignment.
+
+Millepede is separated into two part:
+
+1) Mille:
+Writes out measurements, global and local derivatives into a binary file. This part is
+fully integrated into CMSSW.
+
+2) Pede:
+This standalone program is the main part of Millepede II. After reading one (or more)
+of the binary files from Mille and possibly some text steering files, it computes the 
+result and writes them out as a text file.
+
+This CMSSW package handles also automatically the writing and reading of the text
+files for communication with Pede.
+Further documentation will hopefully be reachable in some time with a few clicks
+from this <a href=https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideCalAli>page in the SWGuide</a>.
+
+\subsection interface Public interface
+<!-- List the classes that are provided for use in other packages (if any) -->
+Since the package is a plugin, there are no interfaces.
+Unfortunately these classes have their header still in the interface directory:
+
+- MillePedeAlignmentAlgorithm
+- MillePedeMonitor
+- MillePedeVariables
+- MillePedeVariablesIORoot
+
+
+\subsection modules Modules
+<!-- Describe modules implemented in this package and their parameter set -->
+The following block from data/MillePedeAlignmentAlgorithm.cfi is intended to be
+used via using declaration as AlignmentProducer.algoConfig:
+
+\htmlinclude MillePedeAlignmentAlgorithm.cfi
+
+\subsection tests Unit tests and examples
+<!-- Describe cppunit tests and example configuration files -->
+No unit tests so far, but an example cfg can be found the test directory:
+\htmlinclude alignment.cfg
+
+\section status Status and planned development
+<!-- e.g. completed, stable, missing features -->
+Under development.
+
+<hr>
+Last updated:
+@DATE@  Author: Gero Flucke
+*/
+

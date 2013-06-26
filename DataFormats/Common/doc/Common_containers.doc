@@ -1,0 +1,151 @@
+/*!
+\page DataFormats_Common_containers Package DataFormats/Common: container classes
+<center>
+<small>
+<a href=http://cmsdoc.cern.ch/swdev/viewcvs/viewcvs.cgi/CMSSW/DataFormats/Common/?cvsroot=CMSSW>CVS head for this package</a> - 
+<a href=http://cmsdoc.cern.ch/swdev/viewcvs/viewcvs.cgi/CMSSW/DataFormats/Common/.admin/developers?rev=HEAD&cvsroot=CMSSW&content-type=text/vnd.viewcvs-markup>Administrative privileges</a>
+</small>
+</center>
+
+\section desc Description
+Commonly used persistent containers.
+
+\subsection interface Public interface
+- edm::AssociationMap <b>&lt;Tag&gt;</b>: one-to-many, one-to-one
+  or one-to-value association based on edm::Ref. Objects in a EDM collection 
+  are associated to one or many objects in another EDM collection or to
+  values of a specified type.<br><br>
+  The template <tt>Tag</tt> should be one of the following:
+  - edm::OneToValue <b><CKey, Val, index></b> for associations by value
+  - edm::OneToOne <b><CKey, CVal, index></b> for one-to-one maps by reference
+  - edm::OneToMany <b><CKey, CVal, index></b> for one-to-many maps by reference
+  - edm::OneToManyWithQuality <b><CKey, CVal, Q, index></b>
+  <b>CKey</b> is the collection type of the object to be associated, <b>CVal</b> is the collection of 
+  associated objects, <b>Val</b> is the associated value type and <b>Q</b> is the data type describing
+  the match quality. References are stored as indices of type <tt>index</tt>, that is by default 
+  <tt>unsigned long</tt>, but could be <tt>unsigned short</tt> for collections with less than 65535 
+  objects or <tt>unsigned char</tt> for collections with less than 255 objects.<br><br>
+  One example of basic usage is presented below:
+\htmlonly
+<pre>
+  typedef edm::AssociationMap&lt;edm::OneToMany&lt;CaloJetCollection, TrackCollection&gt; &gt;
+    JetTracksMap;
+  JetTracksMap map;
+
+  CaloJetRef rj = ...; 
+  TrackRef rt = ...;
+  map->insert( rj, rt );
+  const TrackRefVector & tracks = map[ rj ];
+
+  JetTracksMap::const_iterator i = map.find( rj );
+  assert( i != map.end() );
+  const CaloJetRef & jet1 = i-&gt;key;
+  const TrackRefVector & tracks1 = i-&gt;val;
+</pre>
+\endhtmlonly
+  The attribute <tt>transientMap_</tt> has to be declared transient in the
+  Reflex dictionary. Other used persistent 
+  types have to be declared in the Reflex dictionary, depending case by case:
+\htmlonly
+<pre>
+&lt;lcgdict&gt;
+  &lt;class name="edm::AssociationMap&lt; ... &gt;" &gt;
+    &lt;field name="transientMap_" transient="true" /&gt;
+  &lt;/class &gt;
+&lt;/lcgdict&gt;
+</pre>
+\endhtmlonly
+
+- edm::AssociationVector <b>&lt;CKey, CVal&gt;</b>: container very similar to
+  <tt>std::vector&lt;CVal&gt;</tt>, with in addition an <tt>edm::RefProd&lt;CKey&gt;</tt>.
+  Assuming the two collection of types <tt>CKey</tt> and <tt>CVal</tt> are of the same
+  size and properly ordered, this container implements in a very simple way a one-to-one
+  association. In order to get the reference to the <i>i<sup>th</sup></i> object in 
+  the <tt>CKey</tt> collection, the method <tt>key(i)</tt> is implemented. Below
+  a user example:
+\htmlonly
+<pre>
+  edm::AssiciationVector&lt;reco::MuonCollection, std::vector&lt;double&gt; &gt; isolations( muonRefProd );
+  // fill the association ...
+  for( size_t i = 0; i < isolations.size(); ++ i ) {
+    double iso = isolations[ i ];
+    reco::MuonRef muon = isolations.key( i );
+    double pt = muon->pt();
+  }
+</pre>
+\endhtmlonly
+
+- edm::DetSet <b>&lt;T&gt;</b>:
+
+- edm::EDCollection <b>&lt;T&gt;</b>: Functionally equivalent to <tt>std::vector&lt;T&gt;</tt>. 
+  Still present for hystorical reason; will be probably removed in one of the next releases.
+
+- edm::IDVectorMap <b>&lt;ID, C, P&gt;</b>:
+
+- edm::OwnVector <b>&lt;T, P = edm::ClonePolicy&lt;T&gt; &gt;</b>: container 
+  with interface very similar to <tt>std::vector&lt;T&gt;</tt>,  
+  capable of storing polymorphic objects that are owned by the 
+  container to avoid memory leak. 
+  edm::OwnVector has functionalities very similar to 
+  <a href="http://www.boost.org/libs/ptr_container/doc/ptr_vector.html"><tt>boost::ptr_vector&lt;T&gt;</tt></a>, 
+  providing also EDM persistent capabilities. 
+  <br><br>The first template argument <tt><b>T</b></tt> is the common base class of
+  polymorphic objects to be stored; the second parameter <tt><b>P</b></TT> specifies
+  the  \ref DataFormats_Common_helpers "policy" required to allocate clones of 
+  the stored object. By default, it
+  is equal to the type <b>edm::ClonePolicy&lt;T&gt;</b> assuming the 
+  type <tt>T</tt> is equipped with a virtual method <tt><b>clone()</b></tt> that returning a cloned
+  instance of the actual concrete object. Other user-provided policy implementations are possible.
+  <br><br>
+  As for <a href="http://www.boost.org/libs/ptr_container/doc/ptr_vector.html"><tt>boost::ptr_vector</tt></a>,
+  due to the polymorphic nature of contained objects, the STL <tt><b>std::sort</b></tt>
+  function and other mutating algorithms do not work with edm::OwnVector. For this reason, functions to sort
+  the collection are provided as class methods, using the same approach
+  taken by <a href="http://www.boost.org/libs/ptr_container/doc/ptr_vector.html"><tt>boost::ptr_vector</tt></a>.
+  See also this <a href="http://www.boost.org/libs/ptr_container/doc/tutorial.html#algorithms">documentation</a>
+  from <a href="http://www.boost.org">Boost library</a>.<br><br>
+  Please, note that for classes that do not provide a "<" operator, the function
+  <tt>sort()</tt> has to be <b>explicitly removed</b> from the reflex dictionary generation.
+  So, you should add to your <tt>classes_def.xml</tt> the following lines:
+\htmlonly
+<pre>
+&lt;lcgdict&gt;
+&lt;selection&gt;
+  &lt;class name="MyBaseClass" /&gt;
+  &lt;class name="edm::OwnVector&lt;MyBaseClass, edm::ClonePolicy&lt;MyBaseClass&gt; &gt;" /&gt;
+  . . .
+&lt;/selection&gt;
+&lt;exclusion&gt;
+  &lt;class name="edm::OwnVector&lt;MyBaseClass, edm::ClonePolicy&lt;MyBaseClass&gt; &gt;"&gt;
+    &lt;method name="sort" /&gt;
+  &lt;/class&gt;
+&lt;/exclusion&gt;
+&lt;/lcgdict&gt;
+</pre>
+\endhtmlonly
+
+- edm::RangeMap <b>&lt;ID, C, P&gt;</b>: generic container of objects
+  organized in a collection of type <tt><b>C</b></tt> and sorted 
+  according to an identified of type <tt><b>ID</b></tt>. It is
+  possible to iterate over contained object, iterate over identifiers,
+  access only objects with a specified identifier, or whose identifier
+  match a specified criterion. The collection is sorted before being
+  inserted in the Event. The  \ref DataFormats_Common_helpers "policy" to be used
+  to produce copies/clones of the objects during insertion and final
+  sorting phases can be specified as template parameter <tt><b>P</b></tt>.
+
+- edm::SortedCollection <b>&lt;T, SORT&gt;</b>:
+
+</pre>
+\subsection modules Modules
+None.
+
+\subsection tests Unit tests and examples
+None.
+
+\section status Status and planned development
+Completed, stable.
+
+<hr>
+Last updated: @DATE@ L. Lista
+*/

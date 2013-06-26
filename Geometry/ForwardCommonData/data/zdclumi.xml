@@ -1,0 +1,394 @@
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
+	<ConstantsSection label="zdclumi">
+		<Constant name="LUMIWorldHalfdX" value="8.0000*cm"/>
+		<Constant name="LUMIWorldHalfdY" value="64.0000*cm"/>
+		<Constant name="LUMIWorldHalfdZ" value="8.0000*cm"/>
+		<Constant name="LUMIPositionX" value="0.0000*cm"/>
+		<Constant name="LUMIPositionY" value="25.3650*cm"/>
+		<Constant name="LUMIPositionZ" value="34.8500*cm"/>
+		<Constant name="LUMIHalfdX" value="8.0000*cm"/>
+		<Constant name="LUMIHalfdY" value="32.0000*cm"/>
+		<Constant name="LUMIHalfdZ" value="4.9510*cm"/>
+		<Constant name="casePositionX" value="0.0000*cm"/>
+		<Constant name="casePositionY" value="0.4765*cm"/>
+		<Constant name="casePositionZ" value="0.0000*cm"/>
+		<Constant name="box1CaseHalfdX" value="4.6990*cm"/>
+		<Constant name="box1CaseHalfdY" value="29.8015*cm"/>
+		<Constant name="box1CaseHalfdZ" value="4.6990*cm"/>
+		<Constant name="box2CaseHalfdX" value="4.4700*cm"/>
+		<Constant name="box2CaseHalfdY" value="29.9016*cm"/>
+		<Constant name="box2CaseHalfdZ" value="4.47250*cm"/>
+		<Constant name="box1CaseBottomHalfdX" value="4.6990*cm"/>
+		<Constant name="box1CaseBottomHalfdY" value=" 1.2800*cm"/>
+		<Constant name="box1CaseBottomHalfdZ" value="4.9505*cm"/>
+		<Constant name="box2CaseBottomHalfdX" value="4.4700*cm"/>
+		<Constant name="box2CaseBottomHalfdY" value=" 0.8800*cm"/>
+		<Constant name="box2CaseBottomHalfdZ" value="4.4725*cm"/>
+		<Constant name="box2CasePositionX" value="0.0000*cm"/>
+		<Constant name="box2CasePositionY" value="0.4765*cm"/>
+		<Constant name="box2CasePositionZ" value="0.0000*cm"/>
+		<Constant name="caseBottomPositionX" value="0.0000*cm"/>
+		<Constant name="caseBottomPositionY" value="-[box1CaseHalfdY] + [casePositionY] - [box1CaseBottomHalfdY]"/>
+		<Constant name="caseBottomPositionZ" value="0.0000*cm"/>
+		<Constant name="caseTopHalfdX" value="6.5090*cm"/>
+		<Constant name="caseTopHalfdY" value=" 0.6350*cm"/>
+		<Constant name="caseTopHalfdZ" value="4.9505*cm"/>
+		<Constant name="caseTopPositionX" value="1.1000*cm"/>
+		<Constant name="caseTopPositionY" value="[box1CaseHalfdY] + [casePositionY] + [caseTopHalfdY]"/>
+		<Constant name="caseTopPositionZ" value="0.0000*cm"/>
+		<Constant name="cuCoverZPosHalfdX" value="4.3810*cm"/>
+		<Constant name="cuCoverZPosHalfdY" value="29.7650*cm"/>
+		<Constant name="cuCoverZPosHalfdZ" value="1.0650*cm"/>
+		<Constant name="cuCoverZPosPositionX" value="0.0000*cm"/>
+		<Constant name="cuCoverZPosPositionY" value="-0.4400*cm"/>
+		<Constant name="cuCoverZPosPositionZ" value="[box2CaseHalfdZ] - [cuCoverZPosHalfdZ]"/>
+		<Constant name="cuCoverZNegHalfdX" value="4.3810*cm"/>
+		<Constant name="cuCoverZNegHalfdY" value="29.7650*cm"/>
+		<Constant name="cuCoverZNegHalfdZ" value="1.0650*cm"/>
+		<Constant name="cuCoverZNegPositionX" value="0.0000*cm"/>
+		<Constant name="cuCoverZNegPositionY" value="-0.4400*cm"/>
+		<Constant name="cuCoverZNegPositionZ" value="-[box2CaseHalfdZ] + [cuCoverZNegHalfdZ]"/>
+		<Constant name="box1CuSupportHalfdX" value="4.3810*cm"/>
+		<Constant name="box1CuSupportHalfdY" value="23.4110*cm"/>
+		<Constant name="box1CuSupportHalfdZ" value="2.0470*cm"/>
+		<Constant name="box2CuSupportHalfdX" value="2.5400*cm"/>
+		<Constant name="box2CuSupportHalfdY" value="30.0000*cm"/>
+		<Constant name="box2CuSupportHalfdZ" value="2.0470*cm"/>
+		<Constant name="box3CuSupportHalfdX" value="4.3810*cm"/>
+		<Constant name="box3CuSupportHalfdY" value=" 0.8485*cm"/>
+		<Constant name="box3CuSupportHalfdZ" value="0.3175*cm"/>
+		<Constant name="box3CuSupportRelativeX" value="0.0000*cm"/>
+		<Constant name="box3CuSupportRelativeY" value="-[box1CuSupportHalfdY]-[box3CuSupportHalfdY]"/>
+		<Constant name="box3CuSupportRelativeZ" value="[box1CuSupportHalfdZ]-[box3CuSupportHalfdZ]"/>
+		<Constant name="box4CuSupportHalfdX" value="4.3810*cm"/>
+		<Constant name="box4CuSupportHalfdY" value="1.8985*cm"/>
+		<Constant name="box4CuSupportHalfdZ" value="1.4120*cm"/>
+		<Constant name="deltaAdjust" value="0.005"/>
+		<Constant name="box4CuSupportRelativeX" value="0.0000*cm"/>
+		<Constant name="box4CuSupportRelativeY" value="-[box1CuSupportHalfdY]-[box4CuSupportHalfdY]"/>
+		<Constant name="box4CuSupportRelativeZ" value="-[deltaAdjust]"/>
+		<Constant name="cuSupportPositionX" value="0.0000*cm"/>
+		<Constant name="cuSupportPositionY" value="6.7945*cm"/>
+		<Constant name="cuSupportPositionZ" value="0.0000*cm"/>
+		<Constant name="boxFrontCoverHalfdX" value="4.3810*cm"/>
+		<Constant name="boxFrontCoverHalfdY" value="5.5000*cm"/>
+		<Constant name="boxFrontCoverHalfdZ" value="0.1590*cm"/>
+		<Constant name="boxBackCoverHalfdX" value="4.3810*cm"/>
+		<Constant name="boxBackCoverHalfdY" value="6.79425*cm"/>
+		<Constant name="boxBackCoverHalfdZ" value="0.1825*cm"/>
+		<Constant name="frontCoverPositionX" value="0.0000*cm"/>
+		<Constant name="frontCoverPositionY" value="-[boxFrontCoverHalfdY]-[box3CuSupportHalfdY]-[box3CuSupportHalfdY]-[box1CuSupportHalfdY]+[cuSupportPositionY]-[box2CaseBottomHalfdY]"/>
+		<Constant name="frontCoverPositionZ" value="[box1CuSupportHalfdZ] - [boxFrontCoverHalfdZ]"/>
+		<Constant name="backCoverPositionX" value="0.0000*cm"/>
+		<Constant name="backCoverPositionY" value="[caseBottomPositionY] + [box1CaseBottomHalfdY] - [box2CaseBottomHalfdY] + [boxBackCoverHalfdY]"/>
+		<Constant name="backCoverPositionZ" value="-[box1DetectorCoverHalfdZ] - [boxBackCoverHalfdZ]"/>
+		<Constant name="box1DetectorCoverHalfdX" value="4.3500*cm"/>
+		<Constant name="box1DetectorCoverHalfdY" value="4.8000*cm"/>
+		<Constant name="box1DetectorCoverHalfdZ" value="1.6500*cm"/>
+		<Constant name="dtCoverPositionX" value="0.0000*cm"/>
+		<Constant name="dtCoverPositionY" value="-[box4CuSupportHalfdY] - [box4CuSupportHalfdY] -[box1CuSupportHalfdY] - [box1DetectorCoverHalfdY] + [cuSupportPositionY]"/>
+		<Constant name="dtCoverPositionZ" value="0.0000*cm"/>
+		<Constant name="box1DetectorGasHalfdX" value="3.9490*cm"/>
+		<Constant name="box1DetectorGasHalfdY" value="4.3990*cm"/>
+		<Constant name="box1DetectorGasHalfdZ" value="1.2490*cm"/>
+		<Constant name="boxDetectorGridHalfdX" value="3.8000*cm"/>
+		<Constant name="boxDetectorGridHalfdY" value="1.6625*cm"/>
+		<Constant name="boxDetectorGridHalfdZ" value="0.1000*cm"/>
+		<Constant name="boxDetectorLayerHalfdX" value="3.8000*cm"/>
+		<Constant name="boxDetectorLayerHalfdY" value="0.1000*cm"/>
+		<Constant name="boxDetectorLayerHalfdZ" value="1.2000*cm"/>
+		<Constant name="deltaGrid" value="0.3250*cm"/>
+		<Constant name="deltaLayer" value="[boxDetectorGridHalfdY] + [boxDetectorLayerHalfdY]"/>
+		<Constant name="deltaGap" value="0.1250*cm"/>
+		<Constant name="deltaAdjust1" value="0.001"/>
+	</ConstantsSection>
+	<SolidSection label="zdclumi">
+		<Box name="LUMIWorldBox" dx="[LUMIWorldHalfdX]" dy="[LUMIWorldHalfdY]" dz="[LUMIWorldHalfdZ]"/>
+		<Box name="LUMIBox" dx="[LUMIHalfdX]" dy="[LUMIHalfdY]" dz="[LUMIHalfdZ]"/>
+		<Box name="box1Case" dx="[box1CaseHalfdX]" dy="[box1CaseHalfdY]" dz="[box1CaseHalfdZ]"/>
+		<Box name="box2Case" dx="[box2CaseHalfdX]" dy="[box2CaseHalfdY]" dz="[box2CaseHalfdZ]"/>
+		<Box name="box1CaseBottom" dx="[box1CaseBottomHalfdX]" dy="[box1CaseBottomHalfdY]" dz="[box1CaseBottomHalfdZ]"/>
+		<Box name="box2CaseBottom" dx="[box2CaseBottomHalfdX]" dy="[box2CaseBottomHalfdY]" dz="[box2CaseBottomHalfdZ]"/>
+		<Box name="caseTop" dx="[caseTopHalfdX]" dy="[caseTopHalfdY]" dz="[caseTopHalfdZ]"/>
+		<Box name="cuCoverZPos" dx="[cuCoverZPosHalfdX]" dy="[cuCoverZPosHalfdY]" dz="[cuCoverZPosHalfdZ]"/>
+		<Box name="cuCoverZNeg" dx="[cuCoverZNegHalfdX]" dy="[cuCoverZNegHalfdY]" dz="[cuCoverZNegHalfdZ]"/>
+		<Box name="box1CuSupport" dx="[box1CuSupportHalfdX]" dy="[box1CuSupportHalfdY]" dz="[box1CuSupportHalfdZ]"/>
+		<Box name="box2CuSupport" dx="[box2CuSupportHalfdX]" dy="[box2CuSupportHalfdY]" dz="[box2CuSupportHalfdZ]"/>
+		<Box name="box3CuSupport" dx="[box3CuSupportHalfdX]" dy="[box3CuSupportHalfdY]" dz="[box3CuSupportHalfdZ]"/>
+		<Box name="box4CuSupport" dx="[box4CuSupportHalfdX]" dy="[box4CuSupportHalfdY]" dz="[box4CuSupportHalfdZ]"/>
+		<Box name="boxFrontCover" dx="[boxFrontCoverHalfdX]" dy="[boxFrontCoverHalfdY]" dz="[boxFrontCoverHalfdZ]"/>
+		<Box name="boxBackCover" dx="[boxBackCoverHalfdX]" dy="[boxBackCoverHalfdY]" dz="[boxBackCoverHalfdZ]"/>
+		<Box name="box1DetectorCover" dx="[box1DetectorCoverHalfdX]" dy="[box1DetectorCoverHalfdY]" dz="[box1DetectorCoverHalfdZ]"/>
+		<Box name="box1DetectorGas" dx="[box1DetectorGasHalfdX]" dy="[box1DetectorGasHalfdY]" dz="[box1DetectorGasHalfdZ]"/>
+		<Box name="boxDetectorGrid" dx="[boxDetectorGridHalfdX]" dy="[boxDetectorGridHalfdY]" dz="[boxDetectorGridHalfdZ]"/>
+		<Box name="boxDetectorLayer" dx="[boxDetectorLayerHalfdX]" dy="[boxDetectorLayerHalfdY]" dz="[boxDetectorLayerHalfdZ]"/>
+		<SubtractionSolid name="case">
+			<rSolid name="zdclumi:box1Case"/>
+			<rSolid name="zdclumi:box2Case"/>
+			<Translation x="0.0*cm" y="0.0*cm" z="0.0*cm"/>
+			<rRotation name="lumirotations:LUMINoRot"/>
+		</SubtractionSolid>
+		<SubtractionSolid name="caseBottom">
+			<rSolid name="zdclumi:box1CaseBottom"/>
+			<rSolid name="zdclumi:box2CaseBottom"/>
+			<Translation x="0.0*cm" y="1.28*cm" z="0.0*cm"/>
+			<rRotation name="lumirotations:LUMINoRot"/>
+		</SubtractionSolid>
+		<SubtractionSolid name="cuSupport1">
+			<rSolid name="zdclumi:box1CuSupport"/>
+			<rSolid name="zdclumi:box2CuSupport"/>
+			<Translation x="0.0*cm" y="0.0*cm" z="-2.8140*cm"/>
+			<rRotation name="lumirotations:LUMIRot01"/>
+		</SubtractionSolid>
+		<UnionSolid name="cuSupport2">
+			<rSolid name="zdclumi:cuSupport1"/>
+			<rSolid name="zdclumi:box3CuSupport"/>
+			<Translation x="[box3CuSupportRelativeX]" y="[box3CuSupportRelativeY]" z="[box3CuSupportRelativeZ]"/>
+			<rRotation name="lumirotations:LUMINoRot"/>
+		</UnionSolid>
+		<UnionSolid name="cuSupport">
+			<rSolid name="zdclumi:cuSupport2"/>
+			<rSolid name="zdclumi:box4CuSupport"/>
+			<Translation x="[box4CuSupportRelativeX]" y="[box4CuSupportRelativeY]" z="[box4CuSupportRelativeZ]"/>
+			<rRotation name="lumirotations:LUMINoRot"/>
+		</UnionSolid>
+		<UnionSolid name="detectorC1">
+			<rSolid name="zdclumi:boxDetectorLayer"/>
+			<rSolid name="zdclumi:boxDetectorGrid"/>
+			<Translation x="0.0000*cm" y="[deltaLayer]-[deltaAdjust1]" z="[deltaGrid]+[deltaGrid]"/>
+			<rRotation name="lumirotations:LUMINoRot"/>
+		</UnionSolid>
+		<UnionSolid name="detectorC2">
+			<rSolid name="zdclumi:detectorC1"/>
+			<rSolid name="zdclumi:boxDetectorGrid"/>
+			<Translation x="0.0000*cm" y="[deltaLayer]-[deltaAdjust1]" z="-[deltaGrid]-[deltaGrid]"/>
+			<rRotation name="lumirotations:LUMINoRot"/>
+		</UnionSolid>
+		<UnionSolid name="detectorC3">
+			<rSolid name="zdclumi:detectorC2"/>
+			<rSolid name="zdclumi:boxDetectorGrid"/>
+			<Translation x="0.0000*cm" y="-[deltaLayer]+[deltaAdjust1]" z="[deltaGrid]+[deltaGrid]"/>
+			<rRotation name="lumirotations:LUMINoRot"/>
+		</UnionSolid>
+		<UnionSolid name="detectorC4">
+			<rSolid name="zdclumi:detectorC3"/>
+			<rSolid name="zdclumi:boxDetectorGrid"/>
+			<Translation x="0.0000*cm" y="-[deltaLayer]+[deltaAdjust1]" z="-[deltaGrid]-[deltaGrid]"/>
+			<rRotation name="lumirotations:LUMINoRot"/>
+		</UnionSolid>
+		<UnionSolid name="detectorC5">
+			<rSolid name="zdclumi:detectorC4"/>
+			<rSolid name="zdclumi:boxDetectorGrid"/>
+			<Translation x="0.0000*cm" y="-[deltaLayer]+[deltaAdjust1]" z="0.0000*cm"/>
+			<rRotation name="lumirotations:LUMINoRot"/>
+		</UnionSolid>
+		<UnionSolid name="detectorC6">
+			<rSolid name="zdclumi:detectorC5"/>
+			<rSolid name="zdclumi:boxDetectorGrid"/>
+			<Translation x="0.0000*cm" y="+[deltaLayer]-[deltaAdjust1]" z="[deltaAdjust1]"/>
+			<rRotation name="lumirotations:LUMINoRot"/>
+		</UnionSolid>
+		<UnionSolid name="detectorA11">
+			<rSolid name="zdclumi:boxDetectorLayer"/>
+			<rSolid name="zdclumi:boxDetectorGrid"/>
+			<Translation x="0.0000*cm" y="-[deltaLayer]+[deltaAdjust1]" z="[deltaGrid]"/>
+			<rRotation name="lumirotations:LUMINoRot"/>
+		</UnionSolid>
+		<UnionSolid name="detectorA12">
+			<rSolid name="zdclumi:detectorA11"/>
+			<rSolid name="zdclumi:boxDetectorGrid"/>
+			<Translation x="0.0000*cm" y="-[deltaLayer]+[deltaAdjust1]" z="-[deltaGrid]"/>
+			<rRotation name="lumirotations:LUMINoRot"/>
+		</UnionSolid>
+		<UnionSolid name="detectorA13">
+			<rSolid name="zdclumi:detectorA12"/>
+			<rSolid name="zdclumi:boxDetectorGrid"/>
+			<Translation x="0.0000*cm" y="-[deltaLayer]+[deltaAdjust1]" z="-[deltaGrid]-[deltaGrid]-[deltaGrid]"/>
+			<rRotation name="lumirotations:LUMINoRot"/>
+		</UnionSolid>
+		<UnionSolid name="detectorA14">
+			<rSolid name="zdclumi:detectorA13"/>
+			<rSolid name="zdclumi:boxDetectorGrid"/>
+			<Translation x="0.0000*cm" y="-[deltaLayer]+[deltaAdjust1]" z="[deltaGrid]+[deltaGrid]+[deltaGrid]"/>
+			<rRotation name="lumirotations:LUMINoRot"/>
+		</UnionSolid>
+		<UnionSolid name="detectorA15">
+			<rSolid name="zdclumi:detectorA14"/>
+			<rSolid name="zdclumi:boxDetectorGrid"/>
+			<Translation x="0.0000*cm" y="-[deltaLayer]+[deltaAdjust1]" z="[deltaGrid]"/>
+			<rRotation name="lumirotations:LUMINoRot"/>
+		</UnionSolid>
+		<UnionSolid name="detectorA21">
+			<rSolid name="zdclumi:boxDetectorLayer"/>
+			<rSolid name="zdclumi:boxDetectorGrid"/>
+			<Translation x="0.0000*cm" y="[deltaLayer]-[deltaAdjust1]" z="[deltaGrid]"/>
+			<rRotation name="lumirotations:LUMINoRot"/>
+		</UnionSolid>
+		<UnionSolid name="detectorA22">
+			<rSolid name="zdclumi:detectorA21"/>
+			<rSolid name="zdclumi:boxDetectorGrid"/>
+			<Translation x="0.0000*cm" y="[deltaLayer]-[deltaAdjust1]" z="-[deltaGrid]"/>
+			<rRotation name="lumirotations:LUMINoRot"/>
+		</UnionSolid>
+		<UnionSolid name="detectorA23">
+			<rSolid name="zdclumi:detectorA22"/>
+			<rSolid name="zdclumi:boxDetectorGrid"/>
+			<Translation x="0.0000*cm" y="[deltaLayer]-[deltaAdjust1]-[deltaAdjust1]" z="-[deltaGrid]-[deltaGrid]-[deltaGrid]+[deltaAdjust1]"/>
+			<rRotation name="lumirotations:LUMINoRot"/>
+		</UnionSolid>
+		<UnionSolid name="detectorA24">
+			<rSolid name="zdclumi:detectorA23"/>
+			<rSolid name="zdclumi:boxDetectorGrid"/>
+			<Translation x="0.0000*cm" y="[deltaLayer]-[deltaAdjust1]" z="[deltaGrid]+[deltaGrid]+[deltaGrid]-[deltaAdjust1]"/>
+			<rRotation name="lumirotations:LUMINoRot"/>
+		</UnionSolid>
+		<UnionSolid name="detectorA25">
+			<rSolid name="zdclumi:detectorA24"/>
+			<rSolid name="zdclumi:boxDetectorGrid"/>
+			<Translation x="0.0000*cm" y="[deltaLayer]-[deltaAdjust1]" z="[deltaGrid]"/>
+			<rRotation name="lumirotations:LUMINoRot"/>
+		</UnionSolid>
+	</SolidSection>
+	<LogicalPartSection label="zdclumi">
+		<LogicalPart name="LUMIWorld" category="unspecified">
+			<rSolid name="LUMIWorldBox"/>
+			<rMaterial name="lumimaterials:lumiair"/>
+		</LogicalPart>
+		<LogicalPart name="LUMI" category="unspecified">
+			<rSolid name="LUMIBox"/>
+			<rMaterial name="lumimaterials:lumiair"/>
+		</LogicalPart>
+		<LogicalPart name="caseLog" category="unspecified">
+			<rSolid name="case"/>
+			<rMaterial name="materials:Aluminium"/>
+		</LogicalPart>
+		<LogicalPart name="caseBottomLog" category="unspecified">
+			<rSolid name="caseBottom"/>
+			<rMaterial name="materials:Aluminium"/>
+		</LogicalPart>
+		<LogicalPart name="caseTopLog" category="unspecified">
+			<rSolid name="caseTop"/>
+			<rMaterial name="materials:Aluminium"/>
+		</LogicalPart>
+		<LogicalPart name="cuCoverZPosLog" category="unspecified">
+			<rSolid name="cuCoverZPos"/>
+			<rMaterial name="materials:Copper"/>
+		</LogicalPart>
+		<LogicalPart name="cuCoverZNegLog" category="unspecified">
+			<rSolid name="cuCoverZNeg"/>
+			<rMaterial name="materials:Copper"/>
+		</LogicalPart>
+		<LogicalPart name="cuSupportLog" category="unspecified">
+			<rSolid name="cuSupport"/>
+			<rMaterial name="materials:Copper"/>
+		</LogicalPart>
+		<LogicalPart name="frontCoverLog" category="unspecified">
+			<rSolid name="boxFrontCover"/>
+			<rMaterial name="materials:Aluminium"/>
+		</LogicalPart>
+		<LogicalPart name="backCoverLog" category="unspecified">
+			<rSolid name="boxBackCover"/>
+			<rMaterial name="materials:Copper"/>
+		</LogicalPart>
+		<LogicalPart name="dtCoverLog" category="unspecified">
+			<rSolid name="box1DetectorCover"/>
+			<rMaterial name="lumimaterials:mancor"/>
+		</LogicalPart>
+		<LogicalPart name="detectorGasLog" category="unspecified">
+			<rSolid name="box1DetectorGas"/>
+			<rMaterial name="lumimaterials:lumiGas"/>
+		</LogicalPart>
+		<LogicalPart name="detectorCathodeLog" category="unspecified">
+			<rSolid name="detectorC6"/>
+			<rMaterial name="materials:Copper"/>
+		</LogicalPart>
+		<LogicalPart name="detectorAnode1Log" category="unspecified">
+			<rSolid name="detectorA15"/>
+			<rMaterial name="materials:Copper"/>
+		</LogicalPart>
+		<LogicalPart name="detectorAnode2Log" category="unspecified">
+			<rSolid name="detectorA25"/>
+			<rMaterial name="materials:Copper"/>
+		</LogicalPart>
+	</LogicalPartSection>
+	<PosPartSection label="zsdlumi">
+		<!--
+		     <PosPart copyNumber="1">
+		     <rParent name="lumi:LUMIWorld"/>
+		     <rChild name="lumi:LUMI"/> 
+		     <Translation x="0.0*cm" y="0.0*cm" z="0.0*cm"/>
+		</PosPart>
+		     -->
+		<PosPart copyNumber="1">
+			<rParent name="zdc:ZDC"/>
+			<rChild name="zdclumi:LUMI"/>
+			<Translation x="[LUMIPositionX]" y="[LUMIPositionY]" z="-[LUMIPositionZ]"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="zdclumi:LUMI"/>
+			<rChild name="zdclumi:caseLog"/>
+			<Translation x="[casePositionX]" y="[casePositionY]" z="[casePositionZ]"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="zdclumi:LUMI"/>
+			<rChild name="zdclumi:caseBottomLog"/>
+			<Translation x="[caseBottomPositionX]" y="[caseBottomPositionY]" z="[caseBottomPositionZ]"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="zdclumi:LUMI"/>
+			<rChild name="zdclumi:caseTopLog"/>
+			<Translation x="[caseTopPositionX]" y="[caseTopPositionY]" z="[caseTopPositionZ]"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="zdclumi:LUMI"/>
+			<rChild name="zdclumi:cuCoverZPosLog"/>
+			<Translation x="[cuCoverZPosPositionX]" y="[cuCoverZPosPositionY]" z="[cuCoverZPosPositionZ]"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="zdclumi:LUMI"/>
+			<rChild name="zdclumi:cuCoverZNegLog"/>
+			<Translation x="[cuCoverZNegPositionX]" y="[cuCoverZNegPositionY]" z="[cuCoverZNegPositionZ]"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="zdclumi:LUMI"/>
+			<rChild name="zdclumi:cuSupportLog"/>
+			<Translation x="[cuSupportPositionX]" y="[cuSupportPositionY]" z="[cuSupportPositionZ]"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="zdclumi:LUMI"/>
+			<rChild name="zdclumi:frontCoverLog"/>
+			<Translation x="[frontCoverPositionX]" y="[frontCoverPositionY]" z="[frontCoverPositionZ]"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="zdclumi:LUMI"/>
+			<rChild name="zdclumi:backCoverLog"/>
+			<Translation x="[backCoverPositionX]" y="[backCoverPositionY]" z="[backCoverPositionZ]"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="zdclumi:LUMI"/>
+			<rChild name="zdclumi:dtCoverLog"/>
+			<Translation x="[dtCoverPositionX]" y="[dtCoverPositionY]" z="[dtCoverPositionZ]"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="zdclumi:dtCoverLog"/>
+			<rChild name="zdclumi:detectorGasLog"/>
+			<Translation x="0.0000" y="0.0000" z="0.0000"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="zdclumi:detectorGasLog"/>
+			<rChild name="zdclumi:detectorCathodeLog"/>
+			<Translation x="0.0000" y="0.0000" z="0.0000"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="zdclumi:detectorGasLog"/>
+			<rChild name="zdclumi:detectorAnode1Log"/>
+			<Translation x="0.0000*cm" y="[boxDetectorGridHalfdY]+[boxDetectorGridHalfdY]+[boxDetectorLayerHalfdY]+[boxDetectorLayerHalfdY]+[deltaGap]" z="0.0000*cm"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="zdclumi:detectorGasLog"/>
+			<rChild name="zdclumi:detectorAnode2Log"/>
+			<Translation x="0.0000*cm" y="-[boxDetectorGridHalfdY]-[boxDetectorGridHalfdY]-[boxDetectorLayerHalfdY]-[boxDetectorLayerHalfdY]-[deltaGap]" z="0.0000*cm"/>
+		</PosPart>
+	</PosPartSection>
+</DDDefinition>

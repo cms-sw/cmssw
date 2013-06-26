@@ -1,0 +1,5 @@
+<use   name="OnlineDB/Oracle"/>
+<use   name="DataFormats/EcalDetId"/>
+<export>
+  <lib   name="1"/>
+</export>

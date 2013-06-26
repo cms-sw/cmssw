@@ -1,0 +1,13 @@
+#!/bin/sh
+
+cd $DEPDIR
+
+rm -f .scales
+for f in *.ps *.eps; do
+  [ -f $f ] || continue
+  case $f in *.html.ps | A4-* ) continue ;; esac
+  base=`echo $f | sed 's/\.[^.]*$//'`
+  gif=$base.gif
+  type=`echo $f | sed 's/.*\.//'`
+  eps2gif --maxsize=800 --$type --record-title=$base --record=.scales $f > $gif
+done

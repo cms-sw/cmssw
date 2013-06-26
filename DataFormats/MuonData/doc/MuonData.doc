@@ -1,0 +1,37 @@
+/*!
+<!-- Substitute DataFormats and MuonData with the proper names! -->
+
+\page DataFormats_MuonData Package DataFormats/MuonData
+<center>
+<small>
+<!-- @CVS_TAG@ will be substituted at build time, no need to touch -->
+<a href=http://cmsdoc.cern.ch/swdev/viewcvs/viewcvs.cgi/CMSSW/DataFormats/MuonData/?cvsroot=CMSSW&only_with_tag=@CVS_TAG@>Source code (CVS tag: @CVS_TAG@)</a> - 
+<a href=http://cmsdoc.cern.ch/swdev/viewcvs/viewcvs.cgi/CMSSW/DataFormats/MuonData/.admin/developers?rev=HEAD&cvsroot=CMSSW&content-type=text/vnd.viewcvs-markup>Administrative privileges</a>
+</small>
+</center>
+
+
+\section desc Description
+<!-- Short description of what this package is supposed to provide -->
+Common data classes to all muon detectors.
+
+\subsection interface Public interface
+<!-- List the classes that are provided for use in other packages (if any) -->
+- MuonDigiCollection: a collection of digis to be stored in the event. Digis are organized by DetUnit and indexed by the DetUnit's DetId.
+
+\subsection modules Modules
+<!-- Describe modules implemented in this package and their parameter set -->
+None.
+
+\subsection tests Unit tests and examples
+<!-- Describe cppunit tests and example configuration files -->
+None.
+
+\section status Status and planned development
+<!-- e.g. completed, stable, missing features -->
+Completed, stable.
+
+<hr>
+Last updated: @DATE@ 
+Author: N. Amapane
+*/

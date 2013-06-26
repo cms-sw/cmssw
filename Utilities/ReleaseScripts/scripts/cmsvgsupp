@@ -1,0 +1,29 @@
+#!/usr/bin/env perl
+#
+# Trivial script to choose cms valgrind memcheck suppression file from either
+# the local scram development area or the base release (with the former 
+# having precedence of the latter) and print 
+#
+#   --suppressions=<path-to-file>
+#
+# (with no end-of-line) such that one can run valgrind as:
+#
+# valgrind --tool=memcheck `cmsvgsupp` .....
+#
+# and get the appropriate suppressions.
+#
+# Peter Elmer, Princeton University                         24 May, 2008
+#
+#############################################################################
+
+   $devarea = $ENV{'CMSSW_BASE'};
+   $baserelease = $ENV{'CMSSW_RELEASE_BASE'};
+   $suppfile = "Utilities/ReleaseScripts/data/cms-valgrind-memcheck.supp";
+
+  if (-e "$devarea/src/$suppfile") {
+    print "--suppressions=$devarea/src/$suppfile"; # No EOL
+  } elsif (-e "$baserelease/src/$suppfile") {
+    print "--suppressions=$baserelease/src/$suppfile"; # No EOL
+  } else {
+    die "Could not find the suppression file!\n"; # This shouldn't happen!
+  }

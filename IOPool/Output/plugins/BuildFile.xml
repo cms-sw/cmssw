@@ -1,0 +1,4 @@
+<use   name="IOPool/Output"/>
+<library   file="Module.cc" name="IOPoolOutputPlugins">
+  <flags   EDM_PLUGIN="1"/>
+</library>

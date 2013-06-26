@@ -1,0 +1,88 @@
+<FrameworkJobReport>
+
+<InputFile>
+<State  Value="closed"/>
+<LFN></LFN>
+<Catalog></Catalog>
+<ModuleLabel>source</ModuleLabel>
+<Branches>
+  <Branch>edmTriggerResults_TriggerResults__TESTPROD.</Branch>
+  <Branch>edmtestThings_Thing__TESTPROD.</Branch>
+</Branches>
+<InputType>primaryFiles</InputType>
+<InputSourceClass>PoolSource</InputSourceClass>
+<EventsRead>10</EventsRead>
+<Runs>
+<Run ID="100">
+   <LumiSection ID="1"/>
+</Run>
+
+</Runs>
+</InputFile>
+
+<InputFile>
+<State  Value="closed"/>
+<LFN></LFN>
+<Catalog></Catalog>
+<ModuleLabel>source</ModuleLabel>
+<Branches>
+  <Branch>edmTriggerResults_TriggerResults__TESTPROD.</Branch>
+  <Branch>edmtestThings_Thing__TESTPROD.</Branch>
+</Branches>
+<InputType>primaryFiles</InputType>
+<InputSourceClass>PoolSource</InputSourceClass>
+<EventsRead>15</EventsRead>
+<Runs>
+<Run ID="200">
+   <LumiSection ID="1"/>
+</Run>
+
+</Runs>
+</InputFile>
+
+<File>
+<State  Value="closed"/>
+<LFN></LFN>
+<Catalog></Catalog>
+<ModuleLabel>output</ModuleLabel>
+<Branches>
+  <Branch>edmTriggerResults_TriggerResults__TESTPROD.</Branch>
+  <Branch>edmtestThings_Thing__TESTPROD.</Branch>
+</Branches>
+<OutputModuleClass>PoolOutputModule</OutputModuleClass>
+<TotalEvents>25</TotalEvents>
+
+<DataType>MC</DataType>
+
+<BranchHash>f3ae954022ffadcccfe7e8cbf1446f0d</BranchHash>
+
+<Runs>
+<Run ID="100">
+   <LumiSection ID="1"/>
+</Run>
+
+<Run ID="200">
+   <LumiSection ID="1"/>
+</Run>
+
+</Runs>
+
+<Inputs>
+<Input>
+  <LFN></LFN>
+  <FastCopying>1</FastCopying>
+</Input>
+<Input>
+  <LFN></LFN>
+  <FastCopying>1</FastCopying>
+</Input>
+</Inputs>
+</File>
+<ReadBranches>
+<Branch Name="edmTriggerResults_TriggerResults__TESTPROD." ReadCount="35" />
+<Branch Name="edmtestThings_Thing__TESTPROD." ReadCount="35" />
+</ReadBranches>
+
+<GeneratorInfo>
+</GeneratorInfo>
+</FrameworkJobReport>

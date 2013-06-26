@@ -1,0 +1,12 @@
+<export>
+</export>
+<library   name="PhysicsToolsUtilAlgos_plugins" file="*.cc">
+  <use   name="FWCore/Framework"/>
+  <use   name="FWCore/ParameterSet"/>
+  <use   name="CommonTools/UtilAlgos"/>
+  <use   name="PhysicsTools/UtilAlgos"/>
+  <use   name="FWCore/ServiceRegistry"/>
+  <use   name="DataFormats/CLHEP"/>
+  <use   name="DataFormats/PatCandidates"/>
+  <use  name="PhysicsTools/SelectorUtils"/>
+</library>

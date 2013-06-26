@@ -1,0 +1,1605 @@
+#!/bin/sh
+
+##u. Usage: RunIgnominy [options] [RELEASE] [CONFDIR]
+##u.
+##u. where options are
+##u. -h, --help      To get help message
+###. -u, --usage     To get the usage message
+##u. -f, --force     Run to run analysis instead of copying from the release
+##u.                 area
+##u. -r, --rescale   To re-scale the postscript file to A4 size for proper
+##u.                 printing
+##u. -A, --allsubsys To generate seperate diagram for all sub-systems. It is
+##u.                 same as if you run this script multiple time with -G <system>
+##u.                 for each sub-system (except the one excluded via the 
+##u.                 exclude-graphs config file).
+##u. -e, --external  To generate externals/imported diagrams (if
+##u.                 exclude-graphs-self exists too)
+##u. -p, --package   To generate packages diagrams
+##u. -s, --subsys    To generate sub-systems diagrams
+##u. -d, --diagrams  <type>
+##u.                 To generate diagram by the <type>, where <type> could be
+##u.                 os 
+##u.                   To generate diagram by origin and with shortest path
+##u.                   to other packages/sub-system deleted.
+##u.                 p           
+##u.                   To generate diagram by purpose of the package/sub-system
+##u.                 ps          
+##u.                   To generate diagram by purpose of the package/sub-system
+##u.                   with shortest path to other packages/sub-system deleted.
+##u.                 ds          
+##u.                   To generate diagram by domain of the package/sub-system
+##u.                   with shortest path to other packages/sub-system deleted.
+##u.                 If -d option not provided then only diagrams by origins
+##u.                 of package/sub-system will be created.
+##u.                 Note: You can use "," seperated list if you wish to use
+##u.                 more then one <type> e.g -d os,p,ps OR use multiple -d
+##u.                 options
+##u. -g, --group <tool|external subsystem>
+##u.                 Group all the packages under this tool or subsystem into
+##u.                 one. e.g. if you use -g POOL then every thing under SEAL
+##u.                 would be grouped in one node (SEAL). You can use this
+##u.                 option multiple times.
+##u.                 If "-g all" is used then all build system based base level
+##u.                 projects will be grouped.
+##u. -G, --notgroup <Subsystem>
+##u.                 Group every other sub-system except <Subsystem>. One can
+##u.                 use it multiple times or provide a "," seperated list of
+##u.                 subsystems.
+##u. -S, --size <n>  Maximum size of the diagram to be generated.
+##u. -a, --all       To generate all diagrams and also rescale
+##u.                 postscripts files to A4 size
+##u. -n, --noanalysis  To skip the ignominy-analysis part and just create new
+##u.                 diagrams
+##u. --keep-ps       Do not delete generated ps files.
+##u. -i, --ignominy  Only run ignominy and generate inc/lib 
+##u. -t, --time      To print out the time it took for different steps
+##u. -j, --jobs <n>  Run <n> jobs in parallel, default is 10
+##u. -b, --buildsystem <buildsystem>
+##u.                 Name if the build system. e.g. "SCRAM". Default is SCRAM
+##u. -P, --project <project>
+##u.                 Name of the project.
+##u. -V, --version <version>
+##u.                 Project version.
+##u. RELEASE         Base path of your project. If notprovided then current 
+##u.                 directory will be used.
+##u. CONFDIR         Directory path where your project-specific ignominy
+##u.                 configuration files exists. If not provided then this
+##u.                 script will search the default paths.
+##h. 
+##h. This script generates an ignominy analysis for any BuildSystem-based
+##h. project.  Usage: Go into the directory into which you want to
+##h. generate the analysis results, and then run this. For example:
+##h.
+##h.  cd /afs/cern.ch/cms/Releases/IGUANA/IGUANA_4_2_1
+##h.  mkdir -p doc/dependencies/linux-2.4
+##h.  cd doc/dependencies/linux-2.4
+##h.  RunIgnominy
+##h.
+##h. RunIgnominy optionaly needs some configuration files (listed below).
+##h. There are three types of configuration files.
+##h. 1) Standalone:  For these type of file RunIgnominy does not append or
+##h.                 insert any thing.
+##h. 2) Concatenate: For these files RunIgnominy searches the project
+##h.                 specific configuration directories and uses the first
+##h.                 file it finds and then append the contents of the same
+##h.                 file from config/IgnominyCommon (if exists) to it.
+##h. 3) Concatenate Reverse: For these files, file is read from
+##h.                 config/IgnominyCommon directory first and then the
+##h.                 contents of the first project specifc file are added to it.
+##h. 
+##h. Project-specific directories and their search order is
+##h. 1) Directory provided via 2nd command-line option
+##h. 2) src/Ig_Documentation/Ignominy (for IGUANA and IGNOMINY)
+##h.    src/VisDocumentation/Ignominy (for IGUANACMS)
+##h.    src/Documentation/Ignominy    (for ORCA, COBRA, OSCAR etc)
+##h. 3) If your release directory is not a base release then the above
+##h.    mentioned directories are also searched for base release
+##h. 4) $CMSSW_BASE/src/Utilities/ReleaseScripts/ignominy/config/Ignominy{PROJECT}
+##h.    e.g $CMSSW_BASE/src/Utilities/ReleaseScripts/ignominy/config/IgnominyCMSSW
+##h. Note: Currecntly 2 & 3 are disabled.
+##h. 
+##h. Common configuration directory is
+##h. $CMSSW_BASE/src/Utilities/ReleaseScripts/ignominy/config/IgnominyCommon
+##h. 
+##h. Configuration files and their types are
+##h.   url.conf                  Type: Concatenate
+##h.                             Mapping of package names to urls.
+##h. 
+##h.   group-purpose.conf        Type: Concatenate Reverse
+##h.                             By-purpose package colour map
+##h. 
+##h.   group-origin.conf         Type: Concatenate Reverse
+##h.                             By-origin package colour map
+##h. 
+##h.   group-domain.conf         Type: Concatenate Reverse
+##h.                             By-origin subsytem colour map
+##h. 
+##h.   rename-short.conf         Type: Concatenate Reverse
+##h.                             Package renaming rules for diagrams
+##h.
+##h.   rename-origin.conf        Type: Concatenate Reverse
+##h.                             Package renaming according to their origin
+##h.                             rules for diagrams
+##h.
+##h.   path.conf                 Type: Standalone
+##h.                             Additional ignominy configuration.
+##h.
+##h.   exclude-graphs            Type: Concatenate Reverse
+##h.                             Packages to reject from the graphs,
+##h.                             such as example programs.
+##h.
+##h.   exclude-graphs-self       Type: Concatenate Reverse
+##h.                             Packages to reject from "imported and
+##h.                             externals" graph.  The graph is
+##h.                             created only if this file exists, and
+##h.                             will contain all packages except those
+##h.                             matched by these regexps; normally the
+##h.                             file names the top-level subsystems
+##h.                             that contain the project's own code.
+##h.
+##h.   exclude-graphs-packages   Type: Concatenate Reverse
+##h.                             Packages to exclude from the diagrams,
+##h.                             such as very commonly used utilities,
+##h.                             e.g. config header packages (space
+##h.                             separated list of perl regexps).
+##h.
+##h.   skip-graphs-subsystems    Type: Concatenate Reverse
+##h.                             No diagrams for these subsystems
+##h.
+##h.   skip-graphs-packages      Type: Concatenate Reverse
+##h.                             No diagrams for these packages
+
+######################################################################
+######################################################################
+######################################################################
+APPNAME=
+APPVERSION=
+DIST=
+DIST_SRC=
+RESCALE=
+EXTERNALS_DIAGRAMS=
+PACKAGES_DIAGRAMS=
+SUBSYS_DIAGRAMS=
+OS_DIAGRAMS=
+P_DIAGRAMS=
+PS_DIAGRAMS=
+DS_DIAGRAMS=
+DIAGRAM_GROUPS=
+DIAGRAM_NGROUPS=
+DIAGRAM_NGROUPS_NAME=
+MAXSIZE=1600
+CONFDIR=
+SKIP_ANALYSIS=
+TIMINGS=
+FORCE_ANA=
+MAXJOBS=10
+ALL_SUBSYSTEM=
+ALL_BUILDSYS_BASE_PROJECTS="SEAL POOL PI CORAL IGNOMINY IGUANA COBRA ORCA OSCAR IGUANACMS Geometry CMSSW"
+ALL_SUB_SYSTEM=
+BUILDSYSTEM="SCRAM"
+BUILDSYSTEM_ARCH=
+DEPS_ARCH=
+DEPS_DOC_RELDIR=
+SEARCHPATH_SCRIPT=
+SETENV_SCRIPT=
+IGNOMINYCONF_SCRIPT=
+IGNOMINY_ONLY=
+EXTRA_OPTIONS=
+KEEP_PS=
+me=`ls -l $0 | sed 's|.* ||'`
+case $me in /* ) ;; * ) me=$PWD/$me ;; esac
+medir=`dirname $me`
+
+######################################################################
+######################################################################
+######################################################################
+# parse command-line arguments
+parseargs() {
+  while [ $# -gt 0 ]; do
+    arg=$1; shift
+    case $arg in
+      -* )        
+	case $arg in
+	  -A | --allsubsys ) ALL_SUBSYSTEM=yes ;;
+	  -f | --force    ) FORCE_ANA=yes ;;
+	  -r | --rescale  ) RESCALE=yes ;;
+	  -e | --external ) EXTERNALS_DIAGRAMS=yes ;;
+	  -p | --package  ) PACKAGES_DIAGRAMS=yes ;;
+	  -s | --subsys   ) SUBSYS_DIAGRAMS=yes ;;
+	  --keep-ps )       KEEP_PS=yes ;;
+	  -d | --diagrams | --diagrams=* )
+	    case $arg in 
+	      --diagrams=* )
+	        value=`echo $arg | sed 's|--diagrams=||'`
+		arg="--diagrams"
+		;;
+	      * ) value=$1; shift ;;
+	    esac
+	    for t in `echo $value | tr ',' ' '`; do
+	      case $t in
+	        os|so ) OS_DIAGRAMS=yes; EXTRA_OPTIONS="$EXTRA_OPTIONS -d os" ;;
+		p     ) P_DIAGRAMS=yes; EXTRA_OPTIONS="$EXTRA_OPTIONS -d p" ;;
+	        ps|sp ) PS_DIAGRAMS=yes; EXTRA_OPTIONS="$EXTRA_OPTIONS -d ps" ;;
+	        ds|sd ) DS_DIAGRAMS=yes; EXTRA_OPTIONS="$EXTRA_OPTIONS -d ds" ;;
+		*  )
+		  echo "Wrong type \"$t\" with command-line argument \"$arg\". Valid types are os, p, ps and ds" 1>&2
+		  echo "Use -u option to get the usage." 1>&2
+		  exit 1
+		  ;;
+	      esac
+	    done 
+	    ;;
+	  -a | --all     )
+	    RESCALE=yes
+	    MAKESTATS=yes
+	    EXTERNALS_DIAGRAMS=yes
+	    PACKAGES_DIAGRAMS=yes
+	    SUBSYS_DIAGRAMS=yes
+	    OS_DIAGRAMS=yes
+	    P_DIAGRAMS=yes
+	    PS_DIAGRAMS=yes
+	    DS_DIAGRAMS=yes
+	    ;;
+          -n | --noanalysis ) SKIP_ANALYSIS=yes ;;
+          -i | --ignominy ) IGNOMINY_ONLY="-i" ;;
+	  -t | --time    ) TIMINGS=yes ;;
+	  -j | --jobs | --jobs=* ) 
+	    case $arg in 
+	      --jobs=* )
+	        value=`echo $arg | sed 's|--jobs=||'`
+		arg="--jobs"
+		;;
+	      * ) value=$1; shift ;;
+	    esac	    
+	    MAXJOBS=`echo $value | tr -d '[0-9]'`
+	    if [ X"$MAXJOBS" != X ]; then
+	      echo "Wrong number of jobs \"$value\" given with \"$arg\" option. Use -u option to get the usage." 1>&2
+	      exit 1
+	    fi
+	    MAXJOBS=$value
+	    ;;
+	  -S | --size | --size=* ) 
+	    case $arg in 
+	      --size=* )
+	        value=`echo $arg | sed 's|--size=||'`
+		arg="--size"
+		;;
+	      * ) value=$1; shift ;;
+	    esac	    
+	    MAXSIZE=`echo $value | tr -d '[0-9]'`
+	    if [ X"$MAXSIZE" != X ]; then
+	      echo "Wrong max size \"$value\" of gif file given with \"$arg\" option. Use -u option to get the usage." 1>&2
+	      exit 1
+	    fi
+	    MAXSIZE=$value
+	    ;;
+	  -b | --buildsys | --buildsys=* ) 
+	    case $arg in 
+	      --buildsys=* )
+	        value=`echo $arg | sed 's|--buildsys=||'`
+		arg="--buildsys"
+		;;
+	      * ) value=$1; shift ;;
+	    esac	    
+	    BUILDSYSTEM=$value
+	    ;;
+	  -P | --project | --project=* ) 
+	    case $arg in 
+	      --project=* )
+	        value=`echo $arg | sed 's|--project=||'`
+		arg="--project"
+		;;
+	      * ) value=$1; shift ;;
+	    esac	    
+	    APPNAME=$value
+	    ;;
+	  -V | --version | --version=* ) 
+	    case $arg in 
+	      --version=* )
+	        value=`echo $arg | sed 's|--version=||'`
+		arg="--version"
+		;;
+	      * ) value=$1; shift ;;
+	    esac	    
+	    APPVERSION=$value
+	    ;;
+	  -g | --group | --group=* )
+	    case $arg in 
+	      --group=* )
+	        value=`echo $arg | sed 's|--group=||'`
+		arg="--group"
+		;;
+	      * ) value=$1; shift ;;
+	    esac
+	    for v in `echo $value | tr ',' ' '`; do
+	      if [ X$v = Xall ] ; then
+	        v="$ALL_BUILDSYS_BASE_PROJECTS"
+	      fi
+	      if [ X"$DIAGRAM_GROUPS" = X ] ; then
+	        DIAGRAM_GROUPS="$v"
+              else
+	        DIAGRAM_GROUPS="$DIAGRAM_GROUPS $v"
+              fi
+	    done
+	    ;;
+	  -G | --notgroup | --notgroup=* )
+	    case $arg in 
+	      --notgroup=* )
+	        value=`echo $arg | sed 's|--notgroup=||'`
+		arg="--notgroup"
+		;;
+	      * ) value=$1; shift ;;
+	    esac
+	    for v in `echo $value | tr ',' ' '`; do
+	      if [ X"$DIAGRAM_NGROUPS" = X ] ; then
+	        DIAGRAM_NGROUPS="$v"
+	        DIAGRAM_NGROUPS_NAME="$v"
+              else
+	        DIAGRAM_NGROUPS="$DIAGRAM_NGROUPS\|$v"
+	        DIAGRAM_NGROUPS_NAME="$DIAGRAM_NGROUPS_NAME $v"
+	      fi
+	    done
+	    ;;
+	  -h | --help    )
+            grep '^##u\.' "$me" | sed 's/^##u\.\( \|\)//'
+            grep '^##h\.' "$me" | sed 's/^##h\.\( \|\)//'
+	    exit ;;
+          -u | --usage    )
+            grep '^##u\.' "$me" | sed 's/^##u\.\( \|\)//'
+	    exit ;;
+	  * )
+	    echo "Unknown option: $arg. Use -u option to get the usage." 1>&2
+	    exit 1
+        esac ;;	
+      * )
+        if [ X"$DIST" = X ]; then
+	  DIST=`cd $arg; /bin/pwd`
+	elif [ X"$CONFDIR" = X ]; then
+	  CONFDIR=`cd $arg; /bin/pwd`
+	else
+	  echo "Unknown option or argument provided: $arg. Use -u option to get the usage." 1>&2
+	  exit 1
+	fi
+    esac
+  done
+  if [ X"$DIST" = X ]; then
+    DIST=`/bin/pwd`
+  fi
+}
+
+######################################################################
+######################################################################
+######################################################################
+# Little utilities
+
+# Extract a named file from the end of this script
+getfile () {
+  sed "1,/^# BEGIN FILE $1\$/d; /^# END FILE $1/,\$d" < $me
+}
+
+######################################################################
+######################################################################
+######################################################################
+# Clean up all generated files.  In theory we could just "rm -fr *",
+# but avoid that in case user runs this script in a directory with
+# other stuff already in there.  Kill just the files we produce.
+cleanup() {
+  echo "Cleaning up previous results"
+
+  rm -f PROJECT-*.gif
+  rm -f PROJECT-*.dot
+  rm -f PROJECT-*.gz
+  rm -f PROJECT-*
+  rm -f A4-*
+  rm -f dependencies*
+  rm -f xdeps*
+  rm -f  index*.html
+  rm -f *.conf
+  rm -f log* exclude-* extra-* skip-* metrics* versions
+  rm -f *.html
+}
+######################################################################
+######################################################################
+######################################################################
+#
+genArg () {
+  argFile=$1 ; shift
+  argValue=$1; shift
+  if [ -f $argFile ] ; then
+    echo "${argValue}${argFile}"
+  else
+    echo ""
+  fi
+}
+
+######################################################################
+######################################################################
+######################################################################
+# Utility to create a ignominy configuration file
+# CONFDIR should have a ' ' (space) seperated list of items
+# each item could be a ':' seperated list of directories
+# each directory in the item will be searched and the first file
+# found will be used.
+# currently there are two items in CONFDIR
+# 1) list of project specific directories i.e
+#    a) directory provided as 2nd argument to this script
+#    b) ignominy conf area of the project provided as 1st argument 
+#       to this script
+#       i.e RELEASE/src/{Ig_|Vis}Documentation/Ignominy
+#    c) ignominy conf area of the project's release area i.e
+#       PROJECT_RELEASE/src/{Ig_|Vis}Documentation/Ignominy
+#       (if the RELEASE provided as 1st argument is a development area)
+#    d) Ignominy's config/Ignominy{PROJECT} directory
+#    e.g. config/IgnominyORCA
+# 2) list of common configuration directories i.e
+#    a) Ignominy's config/IgnominyCommon
+
+createconf (){
+  src=$1; shift
+  concatenate=$1; shift
+  order=$1; shift
+  list=
+  
+  rm -rf $DEPDIR/$src
+  for dir in $CONFDIR; do
+    for subdir in `echo $dir | tr ':' ' '`; do
+      if [ -f $subdir/$src ]; then
+        if [ X"$concatenate" = X ]; then
+          cat $subdir/$src > $DEPDIR/$src
+	  return
+        elif [ X"$order" = X ]; then
+          list="$list $subdir/$src"
+        else
+          list="$subdir/$src $list"
+        fi
+	break
+      fi
+    done
+  done
+  if [ X"$list" != X ]; then
+    touch $DEPDIR/$src
+    for f in $list ; do
+      echo "####################################" >> $DEPDIR/$src
+      echo "#ADDING contents of $f" >> $DEPDIR/$src
+      echo "####################################" >> $DEPDIR/$src
+      cat $f >> $DEPDIR/$src
+      echo "" >> $DEPDIR/$src
+    done
+  fi
+}
+
+######################################################################
+######################################################################
+######################################################################
+# Utility to create all configuration files by searching in different 
+# configuration areas
+
+initconfs(){
+  initgraphsconfs
+  createconf path.conf
+}
+
+updategroups(){
+  group_name=`echo $APPNAME | tr '[A-Z]' '[a-z]'`
+  group_color=
+  if [ -f group-purpose.conf ] ; then
+    group_color="`grep $group_name group-purpose.conf| grep $APPNAME | head -1 | sed 's|.*-- *||'`"
+  fi
+  if [ "X$group_color" != X ] ; then
+    group_line="`echo group $group_name $GROUP_SUBSYSTEMS -- $group_color`"
+    touch group-origin.conf; echo "$group_line" >> group-origin.conf
+    touch group-domain.conf; echo "$group_line" >> group-domain.conf
+    touch group-purpose.conf; echo "group $group_name .+ -- $group_color" >> group-purpose.conf
+    touch exclude-graphs-self; echo "$GROUP_SUBSYSTEMS" >> exclude-graphs-self
+  fi
+  tmpRENAME_ORIGIN=`echo $PROJECT_SUBSYSTEMS | tr ' ' '|'`
+  if [ "X$tmpRENAME_ORIGIN" != X ] ; then
+    touch rename-origin.conf; echo "rename ^($tmpRENAME_ORIGIN)$:\"\$1($APPNAME)\"" >> rename-origin.conf
+    echo "rename ^(($tmpRENAME_ORIGIN)/(.+))$:\"\$1($APPNAME)\"" >> rename-origin.conf
+    #echo "rename .*/([^/]+):\"\$1\"" >> rename-origin.conf
+  fi
+}
+
+initgraphsconfs(){
+  echo "Creating configuration files"
+
+  createconf url.conf concatenate 
+  createconf rename-short.conf concatenate reverse
+  createconf rename-origin.conf concatenate reverse
+  createconf group-purpose.conf concatenate reverse
+  createconf group-origin.conf concatenate reverse
+  createconf group-domain.conf concatenate reverse
+  createconf exclude-graphs concatenate reverse
+  createconf exclude-graphs-self concatenate reverse
+  createconf exclude-graphs-packages concatenate reverse
+  createconf exclude-xdeps concatenate reverse
+  createconf exclude-metrics concatenate reverse
+  createconf extra-deps concatenate reverse
+  createconf skip-graphs-subsystems concatenate reverse
+  createconf skip-graphs-packages concatenate reverse
+
+  rm -f extra-rename-short.conf; touch extra-rename-short.conf
+  for g in $RENAME_SHORT; do
+    if [ X`echo "$g" | grep ".*:.*"` != X ] ; then
+      echo "rename $g" >> extra-rename-short.conf
+    else
+      echo "rename ^$g/.+:\"$g\"" >> extra-rename-short.conf
+    fi
+  done
+  if [ -f rename-short.conf ]; then
+    cat rename-short.conf >> extra-rename-short.conf
+  fi
+  mv extra-rename-short.conf rename-short.conf
+
+  rm -f extra-rename-origin.conf; touch extra-rename-origin.conf
+  for g in $RENAME_ORIGIN; do
+    if [ X`echo "$g" | grep ".*:.*"` != X ] ; then
+      echo "rename $g" >> extra-rename-origin.conf
+    else
+      echo "rename ^$g/.+:\"$g\"" >> extra-rename-origin.conf
+    fi
+  done
+  if [ -f rename-origin.conf ]; then
+    cat rename-origin.conf >> extra-rename-origin.conf
+  fi
+  mv extra-rename-origin.conf rename-origin.conf
+  
+  rm -f extra-url.conf; touch extra-url.conf
+  for g in $XDIAGRAM_GROUPS; do
+    if [ X$ALL_SUBSYSTEM != X -o "X`echo $PROJECT_SUBSYSTEMS | tr ' ' '\n' | grep ^$g$`" = X -o -d ../subsystem.$g ] ; then
+      echo ^$g$:\"../subsystem.$g/index-links.html#PROJECT-02-$g-RO\" >> extra-url.conf
+      echo ^$g/:\"../subsystem.$g/index-links.html#PROJECT-02-$g-RO\" >> extra-url.conf      
+    else
+      echo ^$g$:undef >> extra-url.conf
+      echo ^$g/:undef >> extra-url.conf
+    fi
+  done
+  if [ -f url.conf ]; then
+    cat url.conf >> extra-url.conf
+  fi  
+  mv extra-url.conf url.conf
+  updategroups
+}
+
+######################################################################
+######################################################################
+######################################################################
+# Generate main configuration files for Buildsystem-based releases.  The
+# first part is a common unchanged configuration file that we spit out
+# from this script (see the end of the script).  The second part is
+# tool configuration which we spit out by querying BuildSystem for the
+# configuration of this project on this platform.
+
+mkconfs() {
+  echo "Generating analysis configuration"
+
+  createconf path.conf concatenate reverse
+  confs="$DEPDIR/path.conf"
+
+  # Generate configuration by querying Build system
+  sconf=$DEPDIR/path-${BUILDSYSTEM}.conf
+  confs="$confs $sconf"
+  rm -f $sconf
+  $SEARCHPATH_SCRIPT $DIST $DEPDIR > $sconf
+  if [ $? != 0 ] ; then
+    cat $sconf
+    exit
+  fi
+}
+
+######################################################################
+######################################################################
+######################################################################
+# Auto-generate "logical" mappings.  These would be things we know are
+# dependencies, but are not found by ignominy, e.g. dependencies via
+# string literals and such.  If there are commonly used forms that are
+# easy to check for, put the code in here.  For now, nothing to do
+# here.
+mklogicalmap() {
+  echo "Guessing for hidden dependencies"
+}
+
+######################################################################
+######################################################################
+######################################################################
+# Perform ignominy project area scan.  Get the project runtime, feed
+# in the configuration and capture the output.  Then look for warnings
+# and capture them to a separate file.
+mkdeps() {
+  echo "Running ignominy analysis"
+
+  # Get runtime so ldd etc. works correctly, but shield against getting
+  # into this script's environment.
+  touch toplevel
+  ignominy_script=$medir/ignominy
+  ignominy_args="--jobs=$MAXJOBS --root=$DIST --skip=makedeps"
+  if [ -f extra-args ] ; then
+    ignominy_args=`cat extra-args`;
+  fi
+  echo "Extra args passed to ignominy are: $ignominy_args"
+  ( eval `cd $DIST; $SETENV_SCRIPT $DIST`
+    $ignominy_script --verbose $ignominy_args \
+      `for f in $confs; do echo --conf=$f; done` \
+      > dependencies.txt 2> log )
+
+  # add the version dependency
+  if [ -e $DEPDIR/versions-deps.conf ] ; then
+    echo "" >> dependencies.txt
+    cat $DEPDIR/versions-deps.conf >> dependencies.txt
+  fi
+  
+  # Get all warnings but filter out symbol matches for "warning" :-)
+  egrep '(oops|warning):' < log | \
+    grep -v ': warning: resolved from' > logwarnings
+}
+
+######################################################################
+######################################################################
+######################################################################
+# Generated dependency diagrams.
+
+mkdiag() {
+  echo " Generating diagram $3"
+
+  # Options for diagram variants
+  xopts=$1; shift
+  opts="$xopts --shape=ellipse"
+  confp="`genArg url.conf --url=$DEPDIR/` `genArg group-purpose.conf --group=$DEPDIR/` `genArg rename-short.conf --rename=$DEPDIR/`"
+  confo="`genArg url.conf --url=$DEPDIR/` `genArg group-origin.conf --group=$DEPDIR/` `genArg rename-short.conf --rename=$DEPDIR/`"
+  confd="`genArg url.conf --url=$DEPDIR/` `genArg group-domain.conf --group=$DEPDIR/` `genArg rename-short.conf --rename=$DEPDIR/`"
+
+  types=$1; shift
+  base=$1; shift
+  sel=$1; shift
+  title=$1; shift
+  restrict=$1; shift
+  if [ "X$dot" = "X" ]; then
+    exit 1
+  fi
+
+  R= res_title=
+  if [ X"$restrict" != X ]; then
+    R=R res_title="\\n(Restricted to $restrict)"
+  fi
+  for t in $types; do case $t in
+   p )
+     # Purpose
+     if [ X"$P_DIAGRAMS" = Xyes ]; then     
+       deps2dot $opts $confp dependencies.txt \
+         "$sel" "$DEPS_SUBPART" "$title by Purpose $res_title" \
+         ${1+"$@"} > $base-${R}P.dot
+       $dot -Tps -o $base-${R}P.ps $base-${R}P.dot
+     fi
+     
+     if [ X"$PS_DIAGRAMS" = Xyes ]; then
+       deps2dot $opts $confp --long-edges=no dependencies.txt \
+         "$sel" "$DEPS_SUBPART" "$title by Purpose $res_title\\n(Edges Suppressed!)" \
+         ${1+"$@"} > $base-${R}PS.dot
+       $dot -Tps -o $base-${R}PS.ps $base-${R}PS.dot
+     fi
+     ;;
+
+   o )
+     # Origin
+     deps2dot $opts $confo dependencies.txt \
+       "$sel" "$DEPS_SUBPART" "$title by Origin $res_title" \
+       ${1+"$@"} > $base-${R}O.dot
+     $dot -Tps -o $base-${R}O.ps $base-${R}O.dot
+
+     if [ X"$OS_DIAGRAMS" = Xyes ]; then
+       deps2dot $opts $confo --long-edges=no dependencies.txt \
+         "$sel" "$DEPS_SUBPART" "$title by Origin $res_title\\n(Edges Suppressed!)" \
+         ${1+"$@"} > $base-${R}OS.dot
+       $dot -Tps -o $base-${R}OS.ps $base-${R}OS.dot
+     fi
+     ;;
+
+   d )
+     # Domain
+     deps2dot $opts $confd dependencies.txt \
+       "$sel" "" "$title by Domain $res_title" \
+       ${1+"$@"} > $base-${R}O.dot
+     $dot -Tps -o $base-${R}O.ps $base-${R}O.dot
+
+     if [ X"$DS_DIAGRAMS" = Xyes ]; then
+       deps2dot $opts $confd --long-edges=no dependencies.txt \
+         "$sel" "" "$title by Domain $res_title\\n(Edges Suppressed!)" \
+         ${1+"$@"} > $base-${R}OS.dot
+       $dot -Tps -o $base-${R}OS.ps $base-${R}OS.dot
+     fi
+     ;;
+
+   * )
+     echo "internal error: mkdiag: unrecognised diagram type \`$t'" 1>&2
+     exit 1
+     ;;
+
+  esac; done
+}
+
+mkgraphs() {
+  echo "Generating diagrams"
+
+  # Get project parameters
+  exclude=; [ -f $DEPDIR/exclude-graphs ] &&
+    exclude="`cat $DEPDIR/exclude-graphs | tr '\n' ' '`"
+
+  exclude_self=; [ -f $DEPDIR/exclude-graphs-self ] &&
+   exclude_self="`cat $DEPDIR/exclude-graphs-self | tr '\n' ' '`"
+
+  exclude_pkgs=; [ -f $DEPDIR/exclude-graphs-packages ] &&
+   exclude_pkgs="`cat $DEPDIR/exclude-graphs-packages | tr '\n' ' '`"
+
+  skip_subsys=; [ -f $DEPDIR/skip-graphs-subsystems ] &&
+   skip_subsys="`cat $DEPDIR/skip-graphs-subsystems | tr '\n' ' '`"
+
+  [ "X$xskip_subsys" != X ] &&
+    skip_subsys="$xskip_subsys $skip_subsys"
+    
+  skip_pkgs=; [ -f $DEPDIR/skip-graphs-packages ] &&
+   skip_pkgs="`cat $DEPDIR/skip-graphs-packages | tr '\n' ' '`"
+
+  [ "X$xskip_pkgs" != X ] &&
+    skip_pkgs="$xskip_pkgs $skip_pkgs"
+
+  # Various categories we are interested in.
+  binsel="Direct binary"
+  srcsel="Direct source"
+  comsel="Direct combined"
+  domsel="Domain only"
+  versel="Direct version"
+
+  # Titles
+  bindep="$APP Direct Binary Dependencies"
+  srcdep="$APP Direct Source Dependencies"
+  dirdep="$APP Direct Dependencies"
+  verdep="$APP Direct Version Dependencies"
+
+  # Scan log for the list of packages and subsystems.
+  hpgl_packages=
+  TOPLEVELDIR=$BASE_ANALYSIS_DIR
+  if [ -f toplevel ] ; then
+    [ -f log.gz ] && gunzip log.gz
+    grep '^found package.* of type `leaf' log | \
+      sed 's/.* package `//; s/'\''.*//' > toplevel-pkg &
+    grep '^found package.* of type `subsystem' log | \
+      sed 's/.* package `//; s/'\''.*//' > toplevel-subsys &
+    wait
+    grep 'instantiating package' log | \
+      sed 's/.*package //' | grep -v '<' >> toplevel-pkg &
+    grep 'instantiating package' log | \
+      sed 's/.*package //; /^[^\/]*$/d; s|/.*||' >> toplevel-subsys &
+    wait
+    cat toplevel-subsys | grep -v '^tools$' | sort | uniq > toplevel-subsys.new
+    cat toplevel-pkg | grep -v '^tools/' > toplevel-pkg.new
+    mv toplevel-subsys.new toplevel-subsys
+    mv toplevel-pkg.new toplevel-pkg
+    TOPLEVELDIR=.
+  fi
+  ps_packages=`cat $TOPLEVELDIR/toplevel-pkg`
+  ps_subsystems=`cat $TOPLEVELDIR/toplevel-subsys`
+  ps_subsystems="$ps_subsystems"
+
+  # Remove all old diagrams
+  rm -f *.dot 
+  rm -f *.hpgl 
+  rm -f *.gif
+  touch $$.ps $$.ps.gz $$.html
+  rm -f *.html
+  rm -f *.ps *.ps.gz
+
+  # Render jobs we are currently running and will run at most.  Most
+  # jobs run very fast, usually less than five at a time process for
+  # more than a few seconds.
+  jobs=0 maxjobs=$MAXJOBS
+  verfile=
+  if [ -f $DEPDIR/tool-versions.conf ] ; then
+    verfile="--version=$DEPDIR/tool-versions.conf"
+  fi
+  if [ X"$DIAGRAM_NGROUPS" = X ] ; then
+    # Generate subsystem dependency diagram
+    mkdiag "" "d" PROJECT-00-Subsystems "$domsel" \
+      "$dirdep:\\nSubsystems Only" "" no '^\(.*\)$' &
+
+    # Generate externals/imported version diagrams
+    tmpDEPS_SUBPART=$DEPS_SUBPART; DEPS_SUBPART=""
+    mkdiag "$verfile" "o" PROJECT-01-ImportAndExternalVersion "$versel" \
+       "$verdep:\\nImported and Externals Versions" "" no $exclude $exclude_self &
+    DEPS_SUBPART=$tmpDEPS_SUBPART
+  fi
+  
+  # Generate externals/imported diagrams if requested  
+  if [ X"$DIAGRAM_NGROUPS" = X -a X"$EXTERNALS_DIAGRAMS" = Xyes ]; then
+    if [ X"$exclude" != X -o X"$exclude_self" != X ]; then
+      tmpDEPS_SUBPART=$DEPS_SUBPART; DEPS_SUBPART=""
+      mkdiag "$verfile" "p o" PROJECT-01-ImportAndExternal "$comsel" \
+        "$dirdep:\\nImported and Externals" "" no $exclude $exclude_self &
+      DEPS_SUBPART=$tmpDEPS_SUBPART
+    fi
+    if [ X"$exclude" != X ]; then
+      mkdiag "" "p o" PROJECT-01-AllLibs "$comsel" \
+        "$dirdep:\\nLibraries" "" no $exclude &
+    fi
+  fi
+
+  # Generate in-subsystem diagrams: restricted to the subsystem itself
+  if [ X"$SUBSYS_DIAGRAMS" = Xyes ]; then
+    for f in $ps_subsystems; do
+      # Skip it if it matches perl rejection regexp
+      perl -e 'exit !grep("'"$f"'" =~ /$_/, qw('"$skip_subsys"'));' && continue
+
+      # Convert subsystem name to regexp
+      frx=`echo $f | sed 's/+/\\\\+/g'`
+ 
+      # FIXME: IGUANA allowed diagrams that restricted to IGUANA or
+      # Anaphe only; do a simpler thing here, restricting to that
+      # particular subsystem.  It's less useful for IGUANA but much more
+      # useful for other projects.  This would be better handled if this
+      # script was a perl script that could read a real config file
+      # instead of reading simple text files; we don't want too many of
+      # them.
+      [ $jobs -lt $maxjobs ] || { wait; jobs=0; }
+      jobs=`expr $jobs + 1`
+      mkdiag "" "p o" PROJECT-02-`echo $f | sed 's|/|-|g'` "$comsel" \
+        "$dirdep:\\nSubsystem $f" "$f only" yes $frx/ ! yes $frx/ &
+    done
+  fi
+
+  # Generate package diagrams
+  if [ X"$PACKAGES_DIAGRAMS" = Xyes ]; then
+    for f in $ps_packages; do
+      # Skip it if it matches perl rejection regexp
+      perl -e 'exit !grep("'"$f"'" =~ /$_/, qw('"$skip_pkgs"'));' && continue
+
+      # Convert name to regexp
+      frx=`echo $f | sed 's/+/\\\\+/g'`
+
+      res=; [ X"$exclude_pkgs" != X ] && res="! no $exclude_pkgs"
+
+      [ $jobs -lt $maxjobs ] || { wait; jobs=0; }
+      jobs=`expr $jobs + 1`
+      mkdiag "" "p o" PROJECT-`echo $f | sed 's|/|-|g'` "$comsel" \
+        "$dirdep:\\n$f" "" yes $frx\$ $res &
+    done
+  fi
+  wait
+}
+
+rescaleps() {
+  # Rescale all diagrams so they can be printed on A4.
+  if [ X"$RESCALE" = Xyes ]; then
+    echo "Rescaling all diagrams to A4 size" 
+    rescale PROJECT-*.ps
+  fi
+}
+
+######################################################################
+######################################################################
+######################################################################
+# Generate the cross-dependency tables and diagram.  Grep the log
+# files for all the dependency data details (which symbol and header
+# was included from where and found where), the list of all packages
+# and binaries, and generate cross-tabulation info.  Also generate
+# postscript diagram with in/out edge map.  Merge the dependency
+# tables into a big HTML page and print that table (print disabled,
+# pending a tool to generated good postscript from html).
+#
+# The project configuration can provide a list of packages not to
+# include in this detail, as well as logical dependencies table
+# (see mkmetrics for details).
+mkxdeps() {
+  rm -f xdeps.* xdeps-*
+
+  echo "Generating dependency statistics tables"
+  exclude=yes; [ -f $DEPDIR/exclude-xdeps ] &&
+    exclude="no `cat $DEPDIR/exclude-xdeps`"
+
+  extradeps=; [ -f $DEPDIR/extra-deps ] &&
+    extradeps="-- $DEPDIR/extra-deps yes"
+
+  confp="`genArg group-purpose.conf --group=$DEPDIR/` `genArg rename-origin.conf --rename=$DEPDIR/`"
+  confo="`genArg group-origin.conf --group=$DEPDIR/` `genArg rename-origin.conf --rename=$DEPDIR/`"
+
+  TOPLEVELDIR=$BASE_ANALYSIS_DIR
+  if [ -f toplevel ] ; then
+    [ -f log.gz ] && gunzip log.gz
+    grep '^binary .* found in ' log | \
+      sed 's/^binary /s%/; s/ found in /($| )%/; s/$/$1%go;/; s/+/\\+/g' > toplevel.perl &
+
+    grep '^.*: .*: resolved from ' log | \
+      sed 's/: .*: resolved from / /;' | \
+      perl -ne '/^(\S+)\s+(\S+(,\s+\S+)*)$/; map { print "$1 $_\n" } split(/,\s+/,$2)' \
+      > toplevel.lib-raw &
+    wait
+    sort < toplevel.lib-raw | uniq -c > xdeps.lib-raw &
+    perl -p toplevel.perl < toplevel.lib-raw | egrep -v '<.*>' | sort | uniq -c > xdeps.lib &
+    grep 'source dependency' log | \
+      sed 's/^ *//; s/: source dependency on//; s/ via.*//;' | \
+      egrep -v '<.*>' | \
+      sort | uniq -c > xdeps.inc &
+  
+    grep 'source dependency' log | \
+      sed 's/^ *//; s/: source dependency on//;' | \
+      egrep -v '<.*>' | \
+      sort | uniq -c > xdeps.incdetail &
+    wait
+    rm -f toplevel.perl toplevel.lib-raw
+    TOPLEVELDIR=.
+  else
+    ln -s   $TOPLEVELDIR/xdeps.lib-raw   xdeps.lib-raw
+    mindeps $TOPLEVELDIR/xdeps.inc       "$DEPS_SUBPART" > xdeps.inc &
+    mindeps $TOPLEVELDIR/xdeps.lib       "$DEPS_SUBPART" > xdeps.lib &
+    mindeps $TOPLEVELDIR/xdeps.incdetail "$DEPS_SUBPART" > xdeps.incdetail &
+    wait
+  fi
+  if [ "X$IGNOMINY_ONLY" = X ] ; then
+    set -x
+    xmerge $confp xdeps.inc xdeps.lib "$DEPS_SUBPART" $exclude $extradeps > xdeps.all
+    xmerge $confp --side-by-side xdeps.inc xdeps.lib "$DEPS_SUBPART" $exclude $extradeps > xdeps-purpose.ps
+    xmerge $confo --side-by-side xdeps.inc xdeps.lib "$DEPS_SUBPART" $exclude $extradeps > xdeps-origin.ps
+    set +x
+    (echo 'h3.page-break { page-break-before: always; }'
+     echo '@html2ps {'
+     echo '  margin { left: 1cm; right 1cm; top: 1cm; bottom: 1cm }'
+     echo '  font { arial { names: "Helvetica Helvetica-Oblique Helvetica-Bold Helvetica-BoldOblique" } }'
+     echo '}'
+     echo 'ol { font-family: arial, helvetica, sans-serif; font-size: 7pt; }'
+     echo 'table { font-family: arial, helvetica, sans-serif; font-size: 7pt; }'
+     echo 'td { font-family: arial, helvetica, sans-serif; font-size: 7pt; text-align: center; }'
+     echo 'th { font-family: arial, helvetica, sans-serif; font-size: 7pt; font-weight: normal; }'
+     ) > xdeps.css
+    (echo "<HTML><TITLE>$APP Dependency Statistics</TITLE>"
+     echo '<LINK REL="stylesheet" href="xdeps.css" type="text/css">'
+     echo '<BODY>'
+     xmerge $confp --html xdeps.inc xdeps.lib "$DEPS_SUBPART" $exclude $extradeps
+     echo '</BODY></HTML>') > xdeps.html
+  else
+    touch xdeps.html
+  fi
+}
+
+######################################################################
+######################################################################
+######################################################################
+# Generate the NCCD metrics file.  The project can provide a list of
+# applications that should be excluded from the analysis: normally one
+# is interested mainly in the complexity of the core library set, and
+# the example and test programs can confuse that picture considerably
+# as they normally use a much larger set of packages than the library
+# being tested or exemplified.  The project may also provide a list of
+# hand-crafted "logical" dependency file (cf. mklogical for an auto
+# generated one) that should be included in the numbers.
+mkmetrics() {
+  echo "Generating dependency metrics"
+  
+  rm -f metrics metrics_local
+  exclude=yes; [ -f $DEPDIR/exclude-metrics ] &&
+    exclude="no `cat $DEPDIR/exclude-metrics | tr '\n' ' '`"
+
+  extradeps=; [ -f $DEPDIR/extra-deps ] &&
+    extradeps="-- $DEPDIR/extra-deps yes"
+
+  # Generate metrics table from direct combined dependency data
+  deps2metrics dependencies.txt "Direct combined" "$DEPS_SUBPART" "" \
+    $exclude $extradeps > metrics &
+
+  # Generate metrics table from direct combined dependency data for subpart only
+  deps2metrics dependencies.txt "Direct combined" "$DEPS_SUBPART" "subpartonly" \
+    $exclude $extradeps > metrics_local &
+  wait
+}
+
+######################################################################
+######################################################################
+######################################################################
+# Generate .gif files from all the .ps files.  Our eps2gif utility
+# autoscales the images to a certain size, and we record all that info
+# into a file ".scales" in this directory.  We later use that data to
+# generate image maps for each of the .gif files (mkdirindex).
+mkgifs() {
+  
+  echo "Converting diagrams to GIFs"  
+  jobs=0 maxjobs=$MAXJOBS
+  for f in *.ps *.eps; do
+    [ -f $f ] || continue
+    [ $jobs -lt $maxjobs ] || { wait; jobs=0; }
+    jobs=`expr $jobs + 1`
+
+    case $f in *.html.ps | A4-* ) continue ;; esac
+    base=`echo $f | sed 's/\.[^.]*$//'`
+    gif=$base.gif
+    type=`echo $f | sed 's/.*\.//'`
+    eps2gif --maxsize=$MAXSIZE --$type --record-title=$base \
+	--record=.scales.$f $f > $gif &
+  done
+
+  wait
+  if [ X$KEEP_PS = X ] ; then
+    rm -f *.ps *.ps.gz
+  fi
+  cat .scales.* > .scales
+  rm .scales.* 
+}
+
+######################################################################
+######################################################################
+######################################################################
+# Generate the final index page.  Add links to the various top-level
+# items, plus generate a table for all the diagrams.  This assumes
+# mkgifs was already done, and generates appropriate image map using
+# the markers dot stuck into the .ps file, plus the scaling
+# information we generated with eps2gif in mkgifs.
+
+mkdirindex() {
+  echo "Creating HTML index"
+
+  rm -f index*.html
+  { echo "<HEAD><TITLE>$APP Dependency Information</TITLE></HEAD>"
+    echo "<FRAMESET BORDER=1 ROWS='50%, *'>"
+    echo "  <FRAME SRC='index-links.html' NAME='DIAGRAMS'>"
+    echo "  <FRAME SRC='dependencies.txt' NAME='GIF'>"
+    echo "</FRAMESET>"
+    echo "</HTML>"
+  } > index.html
+
+  { echo "<HEAD><TITLE>$APP Dependency Information</TITLE></HEAD>"
+    echo "<BODY BGCOLOR='#ffffff'>"
+    echo "<H1>$APP Dependency Information</H1>"
+    tmp_flag=
+    if [ -f dependencies.txt ] ; then
+      if [ `stat -t  dependencies.txt | awk '{print $2}'` != 0 ] ; then
+        echo "<P><A TARGET='GIF' HREF='dependencies.txt'>Dependency data</A></P>"
+	tmp_flag=ok
+      fi
+    fi
+    if [ X$tmp_flag = X ] ; then
+      echo "<P>Dependency data</P>"
+    fi
+    tmp_flag=
+    if [ -f xdeps.html ] ; then
+      if [ `stat -t xdeps.html | awk '{print $2}'` != 0 ] ; then
+        echo "<P><A TARGET='GIF' HREF='xdeps.html'>Dependency statistics</A></P>"
+	tmp_flag=ok
+      fi
+    fi
+    if [ X$tmp_flag = X ] ; then
+      echo "<P>Dependency statistics</P>"
+    fi
+    tmp_flag=
+    if [ -f versions ] ; then
+      if [ `stat -t  versions| awk '{print $2}'` != 0 ] ; then
+        echo "<P><A TARGET='GIF' HREF='versions'>External tools versions</A></P>"
+	tmp_flag=ok
+      fi
+    fi
+    if [ X$tmp_flag = X ] ; then
+      echo "<P>External tools versions</P>"
+    fi
+    if [ "X$BASE_ANALYSIS_DIR" = X ] ; then
+      echo "<P><A TARGET='GIF' HREF='index-subsystem.html'>Individual Sub-Systems</A></P>"
+    fi
+    echo "<P>Metrics: "
+    tmp_flag=
+    if [ -f metrics ] ; then
+      if [ `stat -t metrics | awk '{print $2}'` != 0 ] ; then
+        echo "<A TARGET='GIF' HREF='metrics'>All</A> |"
+	tmp_flag=ok
+      fi
+    fi
+    if [ X$tmp_flag = X ] ; then
+      echo "All |"
+    fi
+    tmp_flag=
+    if [ -f metrics_local ] ; then
+      if [ `stat -t metrics_local | awk '{print $2}'` != 0 ] ; then
+        echo "<A TARGET='GIF' HREF='metrics_local'>Project/Subsystem Only</A>"
+	tmp_flag=ok
+      fi
+    fi
+    if [ X$tmp_flag = X ] ; then
+      echo "Project/Subsystem Only"
+    fi
+    echo "</P><P>Extra detail: "
+    tmp_flag=
+    if [ -f xdeps.all ] ; then 
+      if [ `stat -t xdeps.all | awk '{print $2}'` != 0 ] ; then
+        echo "<A TARGET='GIF' HREF='xdeps.all'>All</A> |"
+	tmp_flag=ok
+      fi
+    fi
+    if [ X$tmp_flag = X ] ; then
+      echo "All |"
+    fi
+    tmp_flag=
+    if [ -f xdeps.inc ] ; then
+      if [ `stat -t xdeps.inc | awk '{print $2}'` != 0 ] ; then
+        echo "<A TARGET='GIF' HREF='xdeps.inc'>Includes</A> |"
+	tmp_flag=ok
+      fi
+    fi
+    if [ X$tmp_flag = X ] ; then
+      echo "Includes |"
+    fi
+    tmp_flag=
+    if [ -f xdeps.incdetail ] ; then
+      if [ `stat -t xdeps.incdetail | awk '{print $2}'` != 0 ] ; then
+        echo "<A TARGET='GIF' HREF='xdeps.incdetail'>Includes (detailed)</A> |"
+	tmp_flag=ok
+      fi
+    fi
+    if [ X$tmp_flag = X ] ; then
+      echo "Includes (detailed) |"
+    fi
+    tmp_flag=
+    if [ -f xdeps.lib ] ; then
+      if [ `stat -t xdeps.lib | awk '{print $2}'` != 0 ] ; then
+        echo "<A TARGET='GIF' HREF='xdeps.lib'>Libraries</A> |"
+	tmp_flag=ok
+      fi
+    fi
+    if [ X$tmp_flag = X ] ; then
+      echo "Libraries |"
+    fi
+    tmp_flag=
+    if [ -f xdeps.lib-raw ] ; then
+      if [ `stat -t xdeps.lib-raw | awk '{print $2}'` != 0 ] ; then
+        echo "<A TARGET='GIF' HREF='xdeps.lib-raw'>Libraries (raw)</A>"
+	tmp_flag=ok
+      fi
+    fi
+    if [ X$tmp_flag = X ] ; then
+      echo "Libraries (raw)"
+    fi
+    echo "</P><P><A TARGET='GIF' HREF='log.gz'>Log</A> |"
+    tmp_flag=
+    if [ -f logwarnings ] ; then
+      if [ `stat -t  logwarnings| awk '{print $2}'` != 0 ] ; then
+        echo "<A TARGET='GIF' HREF='logwarnings'>Warnings only</A></P>"
+	tmp_flag=ok
+      fi
+    fi
+    if [ X$tmp_flag = X ] ; then
+      echo "Warnings only</P>"
+    fi
+    echo "<P><HR BORDER='1'>"
+    echo "<P>C: Concentrated; L: Logical; M: Maximial Logical; R: Restricted to Domain<BR>"
+    echo "B: Binary Only; PP: PACKAGE Dependencies<BR>"
+    echo "P: By Package Purpose; O: By Package Origin<BR>"
+    echo "S: Only longest edges kept</P>"
+    echo "<TABLE BORDER='0'>"
+    echo "<TR BGCOLOR='#ffff00'><TH COLSPAN='2'>Diagram</TH><TH COLSPAN='5'>Plots</TH></TR>"
+    for f in *.gif; do
+      [ -f $f ] || continue
+      base=`echo $f | sed 's/\.[^.]*$//'`
+      ps=$base.ps
+      gif=$base.gif
+      name="`echo $base|sed 's/^[A-Z0-9]*-//;s/^0[012]-//;s/-/ /g'`"
+      namebeg="`echo $base|sed 's/^[A-Z0-9]*-//;s/^0[012]-//;s/-[A-Z]*$//;s/-/ /g'`"
+      nametrail="`echo $base|sed 's/.*-\([A-Z]*\)$/\1/'`"
+      [ $nametrail = $base ] && nametrail='&nbsp;'
+
+      echo "<TR>"
+      echo "  <TD>$nametrail</TD>"
+      echo "  <TD><A NAME='$base'>$namebeg</A></TD>"
+      if [ -f $gif ] ; then
+        echo "  <TD><A TARGET='GIF' HREF='$gif.html'>GIF</A></TD>"
+      else
+        echo "  <TD>GIF</TD>"
+      fi
+      if [ -f $ps ] ; then      
+        echo "  <TD>| <A TARGET='GIF' HREF='$ps.gz'>PS</A></TD>"
+      else
+        echo "  <TD>| PS</TD>"
+      fi
+      if [ -f A4-$ps ]; then
+        echo "  <TD>| <A TARGET='GIF' HREF='A4-$ps.gz'>PS (A4 scaled)</A></TD>"
+      else
+        echo "  <TD>| PS (A4 scaled)</TD>"
+      fi
+      if [ -f "$base.hpgl" ]; then
+        echo "  <TD>| <A TARGET='GIF' HREF='$base.hpgl'>HPGL</A></TD>"
+      else
+        echo "  <TD>| HPGL</TD>"
+      fi
+      if [ -f "$base.dot" ] ; then
+        echo "  <TD>| <A TARGET='GIF' HREF='$base.dot'>DOT</A></TD>"
+      else
+        echo "  <TD>| DOT</TD>"
+      fi
+      echo "</TR>"
+
+      { echo "<HEAD><TITLE>$APP Dependency Information: $name</TITLE></HEAD>"
+        echo "<BODY BGCOLOR='#ffffff'>"
+        echo "<H1>$APP Dependency Information: $name</H1>"
+        echo "<P><IMG BORDER='0' SRC='$f' USEMAP='#MAP-${base}'>"
+        ps2map --target=DIAGRAMS `grep "^$base " .scales | sed 's/^/MAP-/'` $ps
+       } > $gif.html
+    done
+    echo "</TABLE>"
+  } > index-links.html
+}
+
+######################################################################
+######################################################################
+######################################################################
+# Update the subsystem html page
+
+mksubsystemindex (){
+  echo "Creating HTML Sub-system index"
+  
+  rm -f index-subsystem.html
+  subsys_dirs=
+  for dir in `ls | grep "subsystem.*"` ; do
+    if [ -d $dir ] ; then
+      subsys_dirs="$subsys_dirs $dir"
+    fi
+  done
+  if [ "X$subsys_dirs" = X ] ; then
+    { echo "<HEAD><TITLE>$APP Sub-system Level Analysis</TITLE></HEAD>"
+      echo "<BODY BGCOLOR='#ffffff'>"
+      echo "<H1>$APP Sub-system Level Analysis</H1>"
+      echo "<P>There are no sub-system level ignominy analysis available."
+    } > index-subsystem.html
+  else
+    { echo "<HEAD><TITLE>$APP Sub-system Level Analysis</TITLE></HEAD>"
+      echo "<BODY BGCOLOR='#ffffff'>"
+      echo "<H1>$APP Sub-system Level Analysis</H1>"
+      echo "<BR><BR><TABLE CELLPADDING=\"2\" CELLSPACING=\"2\" BORDER=\"1\""
+      echo "STYLE=\"WIDTH: 30%; TEXT-ALIGN: CENTER; MARGIN-LEFT: AUTO; MARGIN-RIGHT: AUTO; "
+      echo "BACKGROUND-COLOR: RGB(255, 255, 204);\"><TBODY>"
+      echo "<TR><TD><B>Sub-System Name</B></TD></TR>"
+    } > index-subsystem.html
+    for dir in $subsys_dirs ; do
+      dir1=`echo $dir | sed 's|subsystem.||'`
+      echo "<TR><TD><A TARGET=_blank HREF=\"$dir/index.html\">$dir1</A></TD></TR>" >> index-subsystem.html
+    done
+    echo "</TBODY></TABLE></BODY></HTML>" >> index-subsystem.html     
+  fi
+}
+
+######################################################################
+######################################################################
+######################################################################
+# Compress all the files so they take much less space.  Your average
+# web browser is smart enough to uncompress them before showing them,
+# so no harm is done to the clients.
+zipfiles() {
+  echo "Compressing files"
+  [ -f log ] && gzip --best log
+  touch $$-tmp.ps
+  gzip --best *.ps
+  rm -f $$-tmp.ps $$-tmp.ps.gz
+}
+
+######################################################################
+######################################################################
+######################################################################
+# Utility to find a scram-based release top directory
+
+scramreleasetop() {
+  dir=$1; shift
+  while [ ! -d "$dir/.SCRAM" -a X$dir != X/ ]; do
+    dir=`dirname $dir`
+  done
+  if [ ! -d "$dir/.SCRAM" ]; then
+    dir=""
+  fi
+  echo $dir
+}
+
+######################################################################
+######################################################################
+######################################################################
+# utility to run a function and also print the results of time it took
+timeit() {
+  func=$1; shift
+  if [ X"$TIMINGS" = X ]; then
+    $func $@
+  else
+    func_list="$func_list/`basename $func`"
+    echo "Starting:$func"
+    time $func $@
+    func=`basename $func_list`
+    func_list=`dirname $func_list`
+    echo "Done:$func"
+  fi
+}
+
+######################################################################
+######################################################################
+######################################################################
+# 
+run_ignominy () {  
+  if [ X"$DIAGRAM_NGROUPS" != X ] ; then
+    echo "Generationg Dependency Diagrams for $DIAGRAM_NGROUPS"
+    exclude=; [ -f $DEPDIR/exclude-graphs ] &&
+      exclude="`cat $DEPDIR/exclude-graphs | tr '\n' ' '`"
+    
+    for exclude_subsys in $exclude ; do
+      if [ "X`echo $DIAGRAM_NGROUPS | grep $exclude_subsys`" != X ] ; then
+	return
+      fi
+    done
+    
+    XDIAGRAM_GROUPS=`echo $PROJECT_SUBSYSTEMS | tr ' ' '\n' | grep -v ^$DIAGRAM_NGROUPS$ | tr '\n' ' '`
+    RENAME_SHORT=
+    RENAME_ORIGIN=
+    DEPS_SUBPART=
+    for subsys in $DIAGRAM_NGROUPS_NAME ; do
+      RENAME_SHORT=^\($subsys/.+\):\"\$1\"" $RENAME_SHORT"
+      RENAME_ORIGIN=^\($subsys/.+\):\"\$1"($APPNAME)\" $RENAME_ORIGIN"
+      if [ "X$DEPS_SUBPART" = X ] ; then
+        DEPS_SUBPART="^$subsys/"
+      else
+        DEPS_SUBPART="^$subsys/|$DEPS_SUBPART"
+      fi
+    done
+    
+    RENAME_ORIGIN=^\(`echo $XDIAGRAM_GROUPS | tr ' ' '|'`\)/.+:\"\$1\($APPNAME\)\"" $RENAME_ORIGIN"
+    RENAME_ORIGIN="$RENAME_ORIGIN $DIAGRAM_GROUPS"
+  
+    SKIP_ANALYSIS=yes
+    DIAGRAM_NGROUPS_NAME=subsystem.`echo $DIAGRAM_NGROUPS_NAME | tr ' ' '\n' | sort | tr '\n' '.' | sed 's|.$||'`
+    rm -rf $DIAGRAM_NGROUPS_NAME
+    mkdir $DIAGRAM_NGROUPS_NAME
+    cd $DIAGRAM_NGROUPS_NAME
+    ln -s $BASE_ANALYSIS_DIR/log.gz .
+    for file in dependencies.txt versions logwarnings tool-versions.conf ; do
+      if [ -f $BASE_ANALYSIS_DIR/$file ] ; then
+        ln -s $BASE_ANALYSIS_DIR/$file .
+      fi
+    done
+    for file in `ls $BASE_ANALYSIS_DIR/xdeps.*` ; do
+      file=`basename $file`
+      ln -s $BASE_ANALYSIS_DIR/$file .
+    done
+    
+    RENAME_SHORT="$RENAME_SHORT $XDIAGRAM_GROUPS $DIAGRAM_GROUPS"
+    xskip_subsys=
+    xskip_pkgs=
+    for exclude_subsys in $XDIAGRAM_GROUPS ; do
+      if [ "X$xskip_subsys" = X ] ; then
+        xskip_subsys="^$exclude_subsys\$ ^$exclude_subsys/"
+      else
+        xskip_subsys="$xskip_subsys ^$exclude_subsys\$ ^$exclude_subsys/"
+      fi
+    done
+    xskip_pkgs="$xskip_subsys"
+    echo "Working on $DIAGRAM_NGROUPS_NAME"
+    DEPDIR=`pwd`
+  else
+    RENAME_ORIGIN="$DIAGRAM_GROUPS"
+    RENAME_SHORT="$DIAGRAM_GROUPS"
+    DEPS_SUBPART="$DEPS_SUBPART_PROJECT"
+  fi
+  if [ X"$SKIP_ANALYSIS" = X ] ; then
+    timeit cleanup
+    timeit initconfs
+    timeit mkconfs
+    timeit mklogicalmap
+    timeit mkdeps
+  else
+    echo "Skipping analysis"
+    initgraphsconfs
+  fi
+  timeit mkmetrics &
+  if [ "X$IGNOMINY_ONLY" = "X" ] ; then
+    timeit mkxdeps &
+    timeit mkgraphs
+    timeit rescaleps
+    timeit mkgifs
+    wait
+    timeit mkdirindex
+    timeit zipfiles
+  else
+    wait
+  fi
+  rm -f core.* .scales
+
+  if [ "X$DIAGRAM_NGROUPS" != X ] ; then
+    cd ..
+    echo "Done Dependency Diagrams for $DIAGRAM_NGROUPS"
+  fi
+  
+}
+
+######################################################################
+######################################################################
+######################################################################
+# Run ignominy for each subsystem
+
+allsubsys_ignominy () {
+  jobs=0 maxjobs=4
+  PRE_MAXJOBS=$MAXJOBS
+  MAXJOBS=`expr $PRE_MAXJOBS / $maxjobs`
+  if [ $MAXJOBS -le 3 ] ; then
+    MAXJOBS=4
+  fi
+  echo "Max. sub-system processing in parallel: $maxjobs"
+  echo "Max. jobs/sub-system: $MAXJOBS"
+  for subsys in  $PROJECT_SUBSYSTEMS; do
+    DIAGRAM_NGROUPS=$subsys
+    DIAGRAM_NGROUPS_NAME=$subsys
+    [ $jobs -lt $maxjobs ] || { wait; jobs=0; }
+    jobs=`expr $jobs + 1`
+    timeit run_ignominy &
+  done
+  wait
+  MAXJOBS=$PRE_MAXJOBS
+}
+
+######################################################################
+######################################################################
+######################################################################
+# Search the required project/buildsystem specific scripts
+
+searchScripts () {
+  type=$1 ; shift
+  sep=$1 ; shift
+  if [ -d "$IGNOMINYDIR/Ignominy${type}" ] ; then
+    if [ X"$CONFDIR" != X ]; then
+      CONFDIR="${CONFDIR}${sep}${IGNOMINYDIR}/Ignominy${type}"
+    else
+      CONFDIR="${IGNOMINYDIR}/Ignominy${type}"
+    fi
+    for script in searchPath  setEnv IgnominyConf ; do
+      uc_script=`echo $script | tr '[a-z]' '[A-Z]'`
+      tmpscript=${uc_script}_SCRIPT
+      eval "tmpscriptv=\$$tmpscript"
+      if [ "X$tmpscriptv" = X ] ; then
+	tscript=${IGNOMINYDIR}/Ignominy${type}/${script}
+        if [ -x $tscript ] ; then
+          eval "$tmpscript=$tscript"
+        fi
+      fi
+    done
+  fi
+}
+
+######################################################################
+######################################################################
+######################################################################
+# Main function body
+parseargs $@
+
+IGNOMINYDIR=$medir/config
+
+# Determine application title (name and version)
+if [ "X$APPNAME" = X ] ; then
+  APPNAME="`echo $DIST | sed 's|.*/||; s|_.*||'`"
+fi
+if [ "X$APPVERSION" = X ] ; then
+  APPVERSION="`echo $DIST | sed 's|.*/||; s|^[^_]*_||; s|_|.|g'`"
+fi
+APP="$APPNAME $APPVERSION"
+
+# Project specific ignominy configuration directory
+searchScripts $APPNAME ":"
+
+# BuildSystem specific ignominy configuration directory
+if [ "X$BUILDSYSTEM" != X -a "X$APPNAME" != "X$BUILDSYSTEM" ] ; then
+  searchScripts $BUILDSYSTEM " "
+fi
+
+# Ignominy common configuration directory
+searchScripts "Common" " "
+  
+# Set dependency data output directory: here
+DEPDIR=`/bin/pwd`
+dot=`which dot`
+if [ "X$dot" != "X" ] ; then
+  $dot -V
+fi
+
+# Find the SCRAM release area root
+if [ "X$BUILDSYSTEM" = "XSCRAM" ] ; then
+  DIST=`scramreleasetop $DIST`
+  if [ X"$DIST" = X ]; then
+    echo "Can't find SCRAM release root" 1>&2
+    exit 1
+  fi
+  # Determine base release if $DIST is a development area
+  RELEASEDIST=`grep RELEASETOP $DIST/.SCRAM/Environment | sed 's|RELEASETOP=||'`
+  [ -d "$RELEASEDIST" ] && RELEASEDIST=`cd $RELEASEDIST; /bin/pwd`
+fi
+
+# One should not run this script from a ignominy configuration directories
+for dir in $CONFDIR; do
+  for subdir in `echo $dir | tr ':' ' '`; do
+    if [ $subdir = $DEPDIR ]; then
+      echo "oops: You should not run this script from a ignominy configuration area, otherwise it will delete your configuration files" 1>&2
+      exit 1
+    fi
+  done
+done
+if [ X`echo $DEPDIR | grep "^$IGNOMINYDIR"` != X ] ; then
+  echo "Error: You should not run it from any directory under $IGNOMINYDIR"
+  exit 1
+fi
+
+if [ X"$CONFDIR" = X ]; then
+  echo "Can't locate any ignominy configuration directory for this project" 1>&2
+  exit 1
+fi
+
+# Make sure $CMS_PATH is set (FIXME: needed anymore?)
+[ -z $CMS_PATH ] && CMS_PATH=/afs/cern.ch/cms
+export CMS_PATH
+
+# Run the stages
+echo "Running analysis for $APP"
+echo "Ignominy Directory: $IGNOMINYDIR"
+echo "Release Directory:$DIST"
+echo "IGNOMINY Configuration Directories:$CONFDIR"
+echo "Number of jobs:$MAXJOBS"
+echo "App Name: $APPNAME"
+echo "App Version: $APPVERSION"
+echo "Build system: $BUILDSYSTEM"
+echo "Environment setting script: $SETENV_SCRIPT"
+echo "src/bin search script: $SEARCHPATH_SCRIPT"
+echo "Ignominy Configuration script: $IGNOMINYCONF_SCRIPT"
+
+. $IGNOMINYCONF_SCRIPT
+DEPS_ARCH=`echo $BUILDSYSTEM_ARCH | sed 's/[_/][_/]*/-/g' | tr '[A-Z]' '[a-z]'`
+DEPS_DOC_RELDIR="doc/deps/$DEPS_ARCH"
+
+PROJECT_SUBSYSTEMS=
+DEPS_SUBPART_PROJECT=
+GROUP_SUBSYSTEMS=
+for subsys in $ALL_SUB_SYSTEM ; do
+  if [ ! -d "$DIST_SRC/$subsys" ] ; then
+    continue
+  elif [ "X$PROJECT_SUBSYSTEMS" = X ] ; then
+    PROJECT_SUBSYSTEMS=$subsys
+    DEPS_SUBPART_PROJECT="^$subsys/"
+    GROUP_SUBSYSTEMS="^$subsys\$ ^$subsys/"
+  else
+    PROJECT_SUBSYSTEMS="$PROJECT_SUBSYSTEMS $subsys"
+    DEPS_SUBPART_PROJECT="^$subsys/|$DEPS_SUBPART_PROJECT"
+    GROUP_SUBSYSTEMS="$GROUP_SUBSYSTEMS ^$subsys\$ ^$subsys/"
+  fi
+done
+
+BASE_ANALYSIS_DIR=
+if [ X"$DIAGRAM_NGROUPS" != X -o X$ALL_SUBSYSTEM != X ] ; then
+  if [ -f log.gz ] ; then
+    BASE_ANALYSIS_DIR=".."
+  elif [ X$FORCE_ANA = X -a -f $DIST/$DEPS_DOC_RELDIR/log.gz ] ; then
+    BASE_ANALYSIS_DIR=$DIST/$DEPS_DOC_RELDIR
+  fi
+  if [ "X$BASE_ANALYSIS_DIR" = X ] ; then
+    OPTS="$IGNOMINY_ONLY -j $MAXJOBS -b $BUILDSYSTEM -P $APPNAME -V $APPVERSION"
+    if [ X"$DIAGRAM_GROUPS" != X ] ; then
+      OPTS="$OPTS --group=`echo $DIAGRAM_GROUPS | tr ' ' ','`"
+    fi
+    echo "Running Analysis ..."
+    echo ">> Running: $me $EXTRA_OPTIONS $OPTS $DIST"
+    timeit $me $EXTRA_OPTIONS $OPTS $DIST
+    echo "Done Analysis"
+    if [ ! -f log.gz ] ; then
+      exit
+    fi
+    if [ "X$IGNOMINY_ONLY" != "X" ] ; then
+      exit
+    fi
+    BASE_ANALYSIS_DIR=".."
+  fi
+  if [ X$PACKAGES_DIAGRAMS = X -a X$SUBSYS_DIAGRAMS = X ] ; then
+    PACKAGES_DIAGRAMS=yes
+    SUBSYS_DIAGRAMS=yes
+  fi
+fi
+
+if [ X$ALL_SUBSYSTEM != X ] ; then
+  timeit allsubsys_ignominy
+else
+  timeit run_ignominy
+fi
+echo "Finished analysis"
+
+if [ "X$BASE_ANALYSIS_DIR" = "X.." -o "X$BASE_ANALYSIS_DIR" = X ] ; then
+  mksubsystemindex
+fi
+
+exit

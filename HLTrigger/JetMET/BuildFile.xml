@@ -1,0 +1,17 @@
+<use   name="DataFormats/Common"/>
+<use   name="DataFormats/HLTReco"/>
+<use   name="DataFormats/HcalRecHit"/>
+<use   name="DataFormats/JetReco"/>
+<use   name="DataFormats/METReco"/>
+<use   name="DataFormats/Math"/>
+<use   name="Geometry/Records"/>
+<use   name="Geometry/CaloTopology"/>
+<use   name="FWCore/Framework"/>
+<use   name="FWCore/MessageLogger"/>
+<use   name="FWCore/ParameterSet"/>
+<use   name="FWCore/PluginManager"/>
+<use   name="FWCore/Utilities"/>
+<use   name="RecoMET/METAlgorithms"/>
+<use   name="HLTrigger/HLTcore"/>
+<use   name="RecoJets/JetProducers"/>
+<flags   EDM_PLUGIN="1"/>

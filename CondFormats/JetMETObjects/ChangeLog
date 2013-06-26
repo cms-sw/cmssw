@@ -1,0 +1,70 @@
+2010-05-19  Philipp Schieferdecker  <philipp.schieferdecker@cern.ch>
+
+	* add JetResolution class
+	* add bin directory
+	* add bin/JetResolution_t.cc test executable
+	* add data/*Resolution*.txt files containing jet pt, eta and phi
+	resolution parameters
+	* update Makefile
+	* minimal changes to JetCorrectorParameters to make JetResolution
+	work
+	* created documentation TWIKI:
+	https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideJetResolution
+
+2010-03-17  Konstantinos KOUSOURIS <konstantinos.kousouris@cern.ch>
+
+        * migration to CondDB
+        * JPT migration to RecoJets
+
+2009-11-27  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
+
+	* add missing includes to comply with gcc4.4 requirements
+
+2009-11-20  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
+
+	* bugfix (!) to FactorizedJetCorrector: for the L6 (SLB)
+	correction, only scale for the presence of the lepton if the
+	corresponding flag is set!!
+
+2009-11-12  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
+
+	* add data/L6SLB.txt
+	* not the final version, but to have something in CVS to run
+	examples
+
+2009-11-11  Philipp Schieferdecker  <philipp.schieferdecker@cern.ch>
+
+	* remove interface/*_linkdef.h files, replace by single file
+	interface/Linkdef.h
+	* adjust standalone Makefile accordingly
+
+2009-11-10  Philipp Schieferdecker  <philipp.schieferdecker@cern.ch>
+
+	* added interface/*_linkdef.h files in order to enable Makefile to
+	build dictionaries in standalone mode. This allows one to
+	instantiate the classes e.g. in a ROOT macro after '.L
+	libJetMETObjects.so'
+
+2009-11-10  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
+
+	* add getLepPt() and getRelLepPt()
+	* remove kLepPx, kLepPy, kLepPy from the list of correction
+	variables, add kRelLepPt and kPtRel
+	* update fillVector() accordingly
+	* add isAddLepToJetset flag, according to the other variables
+	* scale jet pt to pt(jet + lep) if so requested
+
+2009-11-09  Konstantinos KOUSOURIS  <konstantinos.kousouris@cern.ch>
+        * added the ability to calculate the correction from response inversion.
+        This affected JetCorrectorParameters and SimpleJetCorrector.
+ 
+2009-11-07  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
+
+        * add STANDALONE directives, and statements within, which replace
+	the use of cms::Exception by std::runtime_error
+	* add Makefile for standalone compilation of
+	JetCorrectorParameters, SimpleJetCorrector, and
+	FactorizedJetCorrector (based on above STANDALONE directives)
+	* Makefile contains build instructions
+	* replace 'CombinedJetCorrector' with 'FactorizedJetCorrector' in
+	several strings across FactorizedJetCorrector.cc

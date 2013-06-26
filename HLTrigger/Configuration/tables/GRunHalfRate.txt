@@ -1,0 +1,263 @@
+# "Half Rate GRun" menu
+
+HLT_PFJet360_v*						# Half rate menu postLS1
+HLT_Jet420_NoJetID_v*					# Half rate menu postLS1
+HLT_PFJet450_v*						# Half rate menu postLS1
+HLT_MonoCentralPFJet150_PFMETnoMu105_NHEF0p95_v*	# Half rate menu postLS1
+HLT_DiPFJetAve450_v*					# Half rate menu postLS1
+HLT_FatDiPFJetMass850_DR1p1_Deta1p5_v*			# Half rate menu postLS1
+HLT_DiJet80_DiJet60_DiJet30_v*				# Half rate menu postLS1
+HLT_DiPFJet40_PFMETnoMu75_MJJ800VBF_AllJets_v*		# Half rate menu postLS1
+HLT_DiPFJet40_PFMETnoMu75_MJJ600VBF_LeadingJets_v*	# Half rate menu postLS1
+HLT_DiJet110Eta2p6_BTagIP3DFastPVLoose_v*		# Half rate menu postLS1
+HLT_Jet100Eta1p7_Jet85Eta1p7_DiBTagIP3DFastPV_v*	# Half rate menu postLS1
+HLT_Jet190Eta2p4_Jet145Eta2p4_DiBTagIP3DFastPVLoose_v*	# Half rate menu postLS1
+HLT_QuadJet60_DiJet30_v*				# Half rate menu postLS1
+HLT_QuadJet100_v*					# Half rate menu postLS1
+HLT_QuadJet90_65_45_25_BTagIP_VBF_v*			# Half rate menu postLS1
+HLT_QuadPFJet95_75_55_40_BTagCSV_VBF_v*			# Half rate menu postLS1
+HLT_SixJet55_v*						# Half rate menu postLS1
+HLT_EightJet40_eta3p0_v*				# Half rate menu postLS1
+HLT_HT285_AlphaT0p55_v*					# Half rate menu postLS1
+HLT_HT290_AlphaT0p57_v*					# Half rate menu postLS1
+HLT_HT340_AlphaT0p53_v*					# Half rate menu postLS1
+HLT_HT340_AlphaT0p54_v*					# Half rate menu postLS1
+HLT_HT360_DoubleDisplacedPFJet60_v*			# Half rate menu postLS1
+HLT_HT360_SingleDisplacedPFJet60_v*			# Half rate menu postLS1
+HLT_HT385_AlphaT0p52_v*					# Half rate menu postLS1
+HLT_HT380_AlphaT0p53_v*					# Half rate menu postLS1
+HLT_HT440_AlphaT0p51_v*					# Half rate menu postLS1
+HLT_HT445_AlphaT0p52_v*					# Half rate menu postLS1
+HLT_HT500_AlphaT0p51_v*					# Half rate menu postLS1
+HLT_HT820_Track50_dEdx3p6_v*				# Half rate menu postLS1
+HLT_HT820_Track60_dEdx3p7_v*				# Half rate menu postLS1
+HLT_HT850_v*						# Half rate menu postLS1
+HLT_PFNoPUHT735_v*					# Half rate menu postLS1
+HLT_PFNoPUHT735_DiCentralPFNoPUJet80_CenPFNoPUJet40_v*	# Half rate menu postLS1
+HLT_PFNoPUHT800_v*					# Half rate menu postLS1
+HLT_PFNoPUHT850_v*					# Half rate menu postLS1
+HLT_PFMET200_v*						# Half rate menu postLS1
+HLT_PFMET230_v*						# Half rate menu postLS1
+HLT_DiCentralJetSumpT100_dPhi05_DiCentralPFJet60_25_PFMET120_HBHENoiseCleaned_v*	# Half rate menu postLS1
+HLT_DiCentralPFNoPUJet50_PFMETORPFMETNoMu100_v*		# Half rate menu postLS1
+HLT_DiCentralPFJet30_PFMET90_BTagCSV07_v*		# Half rate menu postLS1
+HLT_DiPFJet95_DiPFJet35_BTagCSVd07d05d03_v*		# Half rate menu postLS1
+HLT_DiPFJet95_DiPFJet35_BTagCSVd07d05d05_v*		# Half rate menu postLS1
+HLT_DiPFJet95_DiPFJet35_BTagCSVd07d05_v*		# Half rate menu postLS1
+HLT_MET85_Track50_dEdx3p6_v*				# Half rate menu postLS1
+HLT_MET85_Track60_dEdx3p7_v*				# Half rate menu postLS1
+HLT_MET140_HBHENoiseCleaned_v*				# Half rate menu postLS1
+HLT_MET250_v*						# Half rate menu postLS1
+HLT_MET230_HBHENoiseCleaned_v*				# Half rate menu postLS1
+HLT_MET375_v*						# Half rate menu postLS1
+HLT_MET500_HBHENoiseCleaned_v*				# Half rate menu postLS1
+HLT_MET500_v*						# Half rate menu postLS1
+HLT_L2Mu75_2Cha_eta2p1_PFMET60_v*			# Half rate menu postLS1
+HLT_L2Mu75_2Cha_eta2p1_PFMET65_v*			# Half rate menu postLS1
+HLT_L2TripleMu17_4_4_NoVertex_PFJet40Neutral_v*		# Half rate menu postLS1
+HLT_DoubleDisplacedMu6_DiPFJet40Neutral_v*		# Half rate menu postLS1
+HLT_Mu47_v*						# Half rate menu postLS1
+HLT_Mu47_eta2p1_v*					# Half rate menu postLS1
+HLT_Mu60_eta2p1_v*					# Half rate menu postLS1
+HLT_IsoMu25_eta2p1_L1ETM20_v*				# Half rate menu postLS1
+HLT_IsoMu34_v*						# Half rate menu postLS1
+HLT_IsoMu38_v*						# Half rate menu postLS1
+HLT_IsoMu38_eta2p1_v*					# Half rate menu postLS1
+HLT_IsoMu47_eta2p1_v*					# Half rate menu postLS1
+HLT_Mu40_eta2p1_Track60_dEdx3p6_v*			# Half rate menu postLS1
+HLT_Mu40_eta2p1_Track70_dEdx3p7_v*			# Half rate menu postLS1
+HLT_L2DoubleMu48_NoVertex_2Cha_Angle2p5_v*		# Half rate menu postLS1
+HLT_DoubleMu20_Acoplanarity03_v*			# Half rate menu postLS1
+HLT_Mu23_Mu10_v*			# Half rate menu postLS1
+HLT_Mu23_TkMu10_v*			# Half rate menu postLS1
+HLT_Mu23_TkMu10_NoDZ_v*			# Half rate menu postLS1
+HLT_Mu30_TkMu10_v*			# Half rate menu postLS1
+HLT_Mu30_TkMu30_v*			# Half rate menu postLS1
+HLT_TripleMu6_v*			# Half rate menu postLS1
+HLT_DoubleMu6_IsoMu6_v*			# Half rate menu postLS1
+HLT_Photon34_R9Id85_OR_CaloId10_Iso50_Photon24_R9Id85_OR_CaloId10_Iso50_Mass70_v*	# Half rate menu postLS1
+HLT_Photon42_R9Id85_Photon28_R9Id85_v*	 			# Half rate menu postLS1
+HLT_Photon42_R9Id85_Photon28_CaloId10_Iso50_v*			# Half rate menu postLS1
+HLT_Photon42_CaloId10_Iso50_Photon28_R9Id85_v*			# Half rate menu postLS1
+HLT_Photon42_CaloId10_Iso50_Photon28_CaloId10_Iso50_v*		# Half rate menu postLS1
+HLT_Photon42_R9Id85_OR_CaloId10_Iso50_Photon28_R9Id85_OR_CaloId10_Iso50_v*		# Half rate menu postLS1
+HLT_Photon42_R9Id85_OR_CaloId10_Iso50_Photon15_R9Id85_OR_CaloId10_Iso50_Mass80_v*	# Half rate menu postLS1
+HLT_Photon70_CaloIdXL_PFNoPUHT470_v*			# Half rate menu postLS1
+HLT_Photon70_CaloIdXL_PFNoPUHT580_v*			# Half rate menu postLS1
+HLT_Photon110_CaloIdXL_PFMET100_v*			# Half rate menu postLS1
+HLT_DisplacedPhoton70_CaloIdVL_IsoL_PFMET30_v*		# Half rate menu postLS1
+HLT_DisplacedPhoton70EBOnly_CaloIdVL_IsoL_PFMET35_v*	# Half rate menu postLS1
+HLT_Photon155_v*			# Half rate menu postLS1
+HLT_Photon175_v*			# Half rate menu postLS1
+HLT_Photon185_v*			# Half rate menu postLS1
+HLT_Photon330_NoHE_v*			# Half rate menu postLS1
+HLT_DoublePhoton56_HEVT_v*		# Half rate menu postLS1
+HLT_DoublePhoton61_HEVT_v*		# Half rate menu postLS1
+HLT_DoublePhoton92_v*			# Half rate menu postLS1
+HLT_Ele30_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_Ele27_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_v*	# Half rate menu postLS1
+HLT_Ele38_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_Ele20_CaloIdT_CaloIsoVL_trackless_v*		# Half rate menu postLS1
+HLT_Ele38_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_HFT20_v*					# Half rate menu postLS1
+HLT_Ele30_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_HFT35_v*					# Half rate menu postLS1
+HLT_Ele28_CaloIdVT_CaloIsoT_TrkIdVL_TrkIsoT_TriCentralPFNoPUJet40_v*			# Half rate menu postLS1
+HLT_Ele28_CaloIdVT_CaloIsoT_TrkIdVL_TrkIsoT_TriCentralPFNoPUJet60_40_25_v*		# Half rate menu postLS1
+HLT_Ele28_CaloIdVT_CaloIsoT_TrkIdVL_TrkIsoT_TriCentralPFNoPUJet65_45_30_v*		# Half rate menu postLS1
+HLT_Ele36_WP80_v*				# Half rate menu postLS1
+HLT_Ele36_WP80_PFMET_MT60_v*			# Half rate menu postLS1
+HLT_Ele100_CaloIdVT_GsfTrkIdT_v*		# Half rate menu postLS1
+HLT_Ele115_CaloIdVT_GsfTrkIdT_v*		# Half rate menu postLS1
+HLT_DoubleEle40_CaloIdL_GsfTrkIdVL_v*		# Half rate menu postLS1
+HLT_DoubleEle40_CaloIdT_v*			# Half rate menu postLS1
+HLT_Ele18_Ele12_Ele10_CaloIdL_TrkIdVL_v*	# Half rate menu postLS1
+HLT_LooseIsoPFTau50_Trk20_Prong1_v*		# Half rate menu postLS1
+HLT_LooseIsoPFTau50_Trk20_Prong1_MET75_v*			# Half rate menu postLS1
+HLT_LooseIsoPFTau50_Trk20_Prong1_MET80_v*			# Half rate menu postLS1
+HLT_IsoMu25_eta2p1_LooseIsoPFTau35_Trk45_Prong1_L1ETM20_v*	# Half rate menu postLS1
+HLT_IsoMu8_eta2p1_LooseIsoPFTau40_L1ETM26_v*			# Half rate menu postLS1
+HLT_IsoMu8_eta2p1_LooseIsoPFTau40_v*				# Half rate menu postLS1
+HLT_Ele25_eta2p1_WP90Rho_LooseIsoPFTau45_L1ETM36_v*		# Half rate menu postLS1
+HLT_Ele25_eta2p1_WP90Rho_LooseIsoPFTau45_v*			# Half rate menu postLS1
+HLT_DoubleMediumIsoPFTau45_Trk1_eta2p1_Reg_Jet30_v*		# Half rate menu postLS1
+HLT_DoubleMediumIsoPFTau50_Trk1_eta2p1_Prong1_Reg_v*		# Half rate menu postLS1
+HLT_IsoMu26_eta2p1_MediumIsoPFTau30_Trk1_eta2p1_Reg_v*		# Half rate menu postLS1
+HLT_BTagMu_Jet375_Mu5_v*					# Half rate menu postLS1
+HLT_Mu10_Ele20_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_v*		# Half rate menu postLS1
+HLT_Mu8_QuadJet42_v*						# Half rate menu postLS1
+HLT_IsoMu22_CentralPFJet35_CentralPFJet30_v*			# Half rate menu postLS1
+HLT_IsoMu22_PFJet33_PFJet28_Deta3_v*				# Half rate menu postLS1
+HLT_IsoMu22_CentralPFJet35_CentralPFJet30_PFMET22_v*		# Half rate menu postLS1
+HLT_IsoMu22_PFJet33_PFJet28_Deta3_CentralPFJet25_v*		# Half rate menu postLS1
+HLT_Ele36_WP80_CentralPFJet40_CentralPFJet30_v*			# Half rate menu postLS1
+HLT_Ele36_WP80_PFJet35_PFJet30_Deta3_v*				# Half rate menu postLS1
+HLT_Ele36_WP80_PFJet35_PFJet30_Deta3_CentralPFJet35_v*		# Half rate menu postLS1
+HLT_Ele36_WP80_CentralPFJet40_CentralPFJet30_PFMET25_v*		# Half rate menu postLS1
+HLT_IsoMu20_eta2p1_CentralPFNoPUJet40_BTagIPIter_v*		# Half rate menu postLS1
+HLT_IsoMu20_eta2p1_TriCentralPFNoPUJet60_40_25_v*		# Half rate menu postLS1
+HLT_IsoMu20_eta2p1_TriCentralPFNoPUJet35_v*			# Half rate menu postLS1
+HLT_IsoMu25_WCandPt90_v*					# Half rate menu postLS1
+HLT_Mu20_Ele10_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_v*		# Half rate menu postLS1
+HLT_Mu15_eta2p1_DiCentral_50_20_DiBTagIP3D1stTrack_v*		# Half rate menu postLS1
+HLT_Mu18_eta2p1_TriCentral_50_20_20_DiBTagIP3D1stTrack_v*	# Half rate menu postLS1
+HLT_Mu36_Ele36_CaloIdL_v*					# Half rate menu postLS1
+HLT_IsoMu17_eta2p1_DiCentralPFNoPUJet30_PFNoPUHT410_PFMHT40_v*	# Half rate menu postLS1
+HLT_IsoMu25_eta2p1_CentralPFJet90_v*				# Half rate menu postLS1
+HLT_DoubleRelIso1p0Mu5_Mass8_PFNoPUHT300_v*			# Half rate menu postLS1
+HLT_DoubleRelIso1p0Mu5_Mass8_PFNoPUHT325_v*			# Half rate menu postLS1
+HLT_DoubleMu8_Mass8_PFNoPUHT300_v*				# Half rate menu postLS1
+HLT_DoubleMu8_Mass8_PFNoPUHT340_v*				# Half rate menu postLS1
+HLT_RelIso1p0Mu5_Ele8_CaloIdT_TrkIdVL_Mass8_PFNoPUHT300_v*	# Half rate menu postLS1
+HLT_RelIso1p0Mu5_Ele8_CaloIdT_TrkIdVL_Mass8_PFNoPUHT325_v*	# Half rate menu postLS1
+HLT_Mu8_Ele8_CaloIdT_TrkIdVL_Mass8_PFNoPUHT300_v*		# Half rate menu postLS1
+HLT_Mu8_Ele8_CaloIdT_TrkIdVL_Mass8_PFNoPUHT325_v*		# Half rate menu postLS1
+HLT_PFNoPUHT400_Mu15_PFMET50_v*					# Half rate menu postLS1
+HLT_PFNoPUHT400_Mu15_PFMET55_v*					# Half rate menu postLS1
+HLT_PFNoPUHT450_Mu5_PFMET50_v*					# Half rate menu postLS1
+HLT_PFNoPUHT450_Mu5_PFMET55_v*					# Half rate menu postLS1
+HLT_Mu40_PFNoPUHT410_v*						# Half rate menu postLS1
+HLT_Mu60_PFNoPUHT470_v*						# Half rate menu postLS1
+HLT_DoubleMu8_Ele10_CaloIdT_TrkIdVL_v*				# Half rate menu postLS1
+HLT_DoubleMu10_Ele10_CaloIdT_TrkIdVL_v*				# Half rate menu postLS1
+HLT_Ele36_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_CentralPFNoPUJet50_BTagIPIter_v*	# Half rate menu postLS1
+HLT_Ele36_WP80_CentralPFJet95_v*				# Half rate menu postLS1
+HLT_Ele36_WP80_WCandPt108_v*					# Half rate menu postLS1
+HLT_Ele30_CaloIdVT_TrkIdT_PFNoPUJet125_PFNoPUJet25_v*			# Half rate menu postLS1
+HLT_Ele30_CaloIdVT_TrkIdT_PFNoPUJet180_PFNoPUJet25_v*			# Half rate menu postLS1
+HLT_DoubleEle8_CaloIdT_TrkIdVL_Mass8_PFNoPUHT325_v*			# Half rate menu postLS1
+HLT_DoubleEle13_CaloIdL_TrkIdVL_Ele13_CaloIdT_TrkIdVL_v*		# Half rate menu postLS1
+HLT_TripleEle13_CaloIdL_TrkIdVL_v*					# Half rate menu postLS1
+HLT_Ele12_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_RsqMR35_Rsq0p04_MR200_v*	# Half rate menu postLS1
+HLT_Ele12_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_RsqMR47_Rsq0p04_MR200_v*	# Half rate menu postLS1
+HLT_Photon40_CaloIdL_RsqMR55_Rsq0p09_MR150_v*				# Half rate menu postLS1
+HLT_DoublePhoton46_CaloIdL_Rsq0p035_v*					# Half rate menu postLS1
+HLT_DoublePhoton46_CaloIdL_Rsq0p06_v*					# Half rate menu postLS1
+HLT_Mu26_Photon26_CaloIdL_v*						# Half rate menu postLS1
+HLT_Mu10_DoubleEle10_CaloIdT_TrkIdVL_v*					# Half rate menu postLS1
+HLT_Mu10_Ele10_CaloIdT_TrkIdVL_Ele10_CaloIdL_TrkIdVL_v*			# Half rate menu postLS1
+HLT_DoubleMu14_Mass8_PFMET60_v*						# Half rate menu postLS1
+HLT_DoubleEle14_CaloIdT_TrkIdVL_Mass8_PFMET55_v*			# Half rate menu postLS1
+HLT_Mu14_Ele14_CaloIdT_TrkIdVL_Mass8_PFMET60_v*				# Half rate menu postLS1
+HLT_PFNoPUHT405_PFMET100_v*						# Half rate menu postLS1
+HLT_PFNoPUHT450_PFMET100_v*						# Half rate menu postLS1
+HLT_CleanPFNoPUHT400_Ele8_CaloIdT_CaloIsoVL_TrkIdT_TrkIsoVL_PFMET50_v*	# Half rate menu postLS1
+HLT_CleanPFNoPUHT400_Ele8_CaloIdT_CaloIsoVL_TrkIdT_TrkIsoVL_PFMET60_v*	# Half rate menu postLS1
+HLT_CleanPFNoPUHT350_Ele18_CaloIdT_CaloIsoVL_TrkIdT_TrkIsoVL_PFMET50_v*	# Half rate menu postLS1
+HLT_CleanPFNoPUHT350_Ele18_CaloIdT_CaloIsoVL_TrkIdT_TrkIsoVL_PFMET60_v*	# Half rate menu postLS1
+HLT_CleanPFNoPUHT300_Ele55_CaloIdVT_TrkIdT_v*				# Half rate menu postLS1
+HLT_CleanPFNoPUHT300_Ele85_CaloIdVT_TrkIdT_v*				# Half rate menu postLS1
+HLT_Ele30_eta2p1_WP90Rho_LooseIsoPFTau45_v*				# Half rate menu postLS1
+HLT_IsoMu30_eta2p1_LooseIsoPFTau45_v*					# Half rate menu postLS1
+HLT_IsoMu17_eta2p1_DiCentralPFNoPUJet30_PFNoPUHT350_PFMHT60_v*		# Half rate menu postLS1
+
+HLT_L2DoubleMu38_NoVertex_2Cha_Angle2p5_v*			# Also in the previous 2012 pp menu
+HLT_DoublePhoton80_v*						# Also in the previous 2012 pp menu
+HLT_DoubleEle14_CaloIdT_TrkIdVL_Mass8_PFMET50_v*		# Also in the previous 2012 pp menu
+HLT_DoubleEle8_CaloIdT_TrkIdVL_Mass8_PFNoPUHT225_v*		# Also in the previous 2012 pp menu
+HLT_MET400_HBHENoiseCleaned_v*					# Also in the previous 2012 pp menu
+HLT_DoubleMu14_Mass8_PFMET50_v*					# Also in the previous 2012 pp menu
+HLT_Mu14_Ele14_CaloIdT_TrkIdVL_Mass8_PFMET50_v*			# Also in the previous 2012 pp menu
+HLT_EightJet35_eta3p0_v*					# Also in the previous 2012 pp menu
+HLT_QuadJet90_v*						# Also in the previous 2012 pp menu
+HLT_SixJet50_v*							# Also in the previous 2012 pp menu
+HLT_Photon40_CaloIdL_RsqMR50_Rsq0p09_MR150_v*			# Also in the previous 2012 pp menu
+HLT_IsoMu34_eta2p1_v*						# Also in the previous 2012 pp menu
+HLT_IsoMu40_eta2p1_v*						# Also in the previous 2012 pp menu
+
+HLT_Dimuon0_Jpsi_Muon_v*			# Also in the previous 2012 pp menu (Muonia)
+#HLT_Dimuon0_Jpsi_NoVertexing_v*		# Also in the previous 2012 pp menu (Muonia)
+#HLT_Dimuon0_Jpsi_v*				# Also in the previous 2012 pp menu (Muonia)
+#HLT_Dimuon0_PsiPrime_v*			# Also in the previous 2012 pp menu (Muonia)
+HLT_Dimuon0_Upsilon_Muon_v*			# Also in the previous 2012 pp menu (Muonia)
+#HLT_Dimuon0_Upsilon_v*				# Also in the previous 2012 pp menu (Muonia)
+HLT_Dimuon11_Upsilon_v*				# Also in the previous 2012 pp menu (Muonia)
+#HLT_Dimuon3p5_SameSign_v*			# Also in the previous 2012 pp menu (Muonia)
+HLT_Dimuon7_Upsilon_v*				# Also in the previous 2012 pp menu (Muonia)
+HLT_DoubleMu3_4_Dimuon5_Bs_Central_v*		# Also in the previous 2012 pp menu (Muonia)
+HLT_DoubleMu3p5_4_Dimuon5_Bs_Central_v*		# Also in the previous 2012 pp menu (Muonia)
+HLT_DoubleMu4_Dimuon7_Bs_Forward_v*		# Also in the previous 2012 pp menu (Muonia)
+HLT_DoubleMu4_JpsiTk_Displaced_v*		# Also in the previous 2012 pp menu (Muonia)
+HLT_DoubleMu4_Jpsi_Displaced_v*			# Also in the previous 2012 pp menu (Muonia)
+#HLT_Mu5_L2Mu3_Jpsi_v*				# Also in the previous 2012 pp menu (Muonia)
+HLT_Mu5_Track2_Jpsi_v*				# Also in the previous 2012 pp menu (Muonia)
+HLT_Mu5_Track3p5_Jpsi_v*			# Also in the previous 2012 pp menu (Muonia)
+HLT_Mu7_Track7_Jpsi_v*				# Also in the previous 2012 pp menu (Muonia)
+HLT_Tau2Mu_ItTrack_v*				# Also in the previous 2012 pp menu (Muonia)
+
+HLT_BTagMu_Jet20_Mu4_v*				# Also in the previous 2012 pp menu (MuoniaParked)
+#HLT_BTagMu_Jet60_Mu4_v*			# Also in the previous 2012 pp menu (MuoniaParked)
+HLT_Dimuon10_Jpsi_v*				# Also in the previous 2012 pp menu (MuoniaParked)
+HLT_Dimuon5_PsiPrime_v*				# Also in the previous 2012 pp menu (MuoniaParked)
+HLT_Dimuon5_Upsilon_v*				# Also in the previous 2012 pp menu (MuoniaParked)
+HLT_Dimuon7_PsiPrime_v*				# Also in the previous 2012 pp menu (MuoniaParked)
+HLT_Dimuon8_Jpsi_v*				# Also in the previous 2012 pp menu (MuoniaParked)
+HLT_Dimuon8_Upsilon_v*				# Also in the previous 2012 pp menu (MuoniaParked)
+HLT_DoubleMu3p5_LowMassNonResonant_Displaced_v*	# Also in the previous 2012 pp menu (MuoniaParked)
+HLT_DoubleMu3p5_LowMass_Displaced_v*		# Also in the previous 2012 pp menu (MuoniaParked)
+HLT_Mu15_TkMu5_Onia_v*				# Also in the previous 2012 pp menu (MuoniaParked)
+
+HLT_JetE30_NoBPTX3BX_NoHalo_v*			# Also in the previous 2012 pp menu (noBTPX)
+#HLT_JetE30_NoBPTX_v*				# Also in the previous 2012 pp menu (noBTPX)
+HLT_JetE50_NoBPTX3BX_NoHalo_v*			# Also in the previous 2012 pp menu (noBTPX)
+HLT_JetE70_NoBPTX3BX_NoHalo_v*			# Also in the previous 2012 pp menu (noBTPX)
+HLT_L2Mu10_NoVertex_NoBPTX3BX_NoHalo_v*		# Also in the previous 2012 pp menu (noBTPX)
+HLT_L2Mu20_NoVertex_2Cha_NoBPTX3BX_NoHalo_v*	# Also in the previous 2012 pp menu (noBTPX)
+#HLT_L2Mu20_eta2p1_NoVertex_v*			# Also in the previous 2012 pp menu (noBTPX)
+HLT_L2Mu30_NoVertex_2Cha_NoBPTX3BX_NoHalo_v*	# Also in the previous 2012 pp menu (noBTPX)
+
+HLTriggerFirstPath
+HLTriggerFinalPath
+HLTAnalyzerEndpath                                                                              # only in 'GRun', not in 'online'
+AOutput
+BOutput
+ALCAP0Output
+ALCAPHISYMOutput
+ALCALUMIPIXELSOutput
+CalibrationOutput
+DQMOutput                                                                                       # reintroduced in the 7e33 v2 May 10th bugfix menu (sr #128571)
+EcalCalibrationOutput
+ExpressForCosmicsOutput                                                                         # only in 'GRun' and 'cosmics', not in 'online'
+ExpressOutput
+HLTDQMOutput
+HLTMONOutput
+NanoDSTOutput
+PhysicsDSTOutput
+RPCMONOutput
+TrackerCalibrationOutput

@@ -1,0 +1,28 @@
+%MSG-e duplicateDestination:  (NoModuleName) pre-events
+Duplicate name for a MessageLogger Destination: u24.log
+Only the first configuration instructions are used
+%MSG
+%MSG-e cat_A:  UnitTestClient_A:sendSomeMessages Run: 1 Event: 1
+LogError was used to send this message-which is long enough to span lines but-will not be broken up by the logger any more
+%MSG
+%MSG-e cat_B:  UnitTestClient_A:sendSomeMessages Run: 1 Event: 1
+LogError was used to send this other message
+%MSG
+%MSG-w cat_A:  UnitTestClient_A:sendSomeMessages Run: 1 Event: 1
+LogWarning was used to send this message
+%MSG
+%MSG-w cat_B:  UnitTestClient_A:sendSomeMessages Run: 1 Event: 1
+LogWarning was used to send this other message
+%MSG
+%MSG-e cat_A:  UnitTestClient_A:sendSomeMessages Run: 1 Event: 2
+LogError was used to send this message-which is long enough to span lines but-will not be broken up by the logger any more
+%MSG
+%MSG-e cat_B:  UnitTestClient_A:sendSomeMessages Run: 1 Event: 2
+LogError was used to send this other message
+%MSG
+%MSG-w cat_A:  UnitTestClient_A:sendSomeMessages Run: 1 Event: 2
+LogWarning was used to send this message
+%MSG
+%MSG-w cat_B:  UnitTestClient_A:sendSomeMessages Run: 1 Event: 2
+LogWarning was used to send this other message
+%MSG

@@ -1,0 +1,4 @@
+<use   name="EventFilter/SiPixelRawToDigi"/>
+<library   file="*.cc" name="EventFilterSiPixelRawToDigiPlugins">
+  <flags   EDM_PLUGIN="1"/>
+</library>

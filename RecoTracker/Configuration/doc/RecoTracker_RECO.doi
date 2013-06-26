@@ -1,0 +1,48 @@
+<tr class="colgroup">
+  <td class="colgroup" colspan=5>Track collections</td>
+</tr>
+
+<tr>
+  <td><a href="classreco_1_1Track.html">reco::Track</a></td>
+  <td><a href="DataFormats_TrackReco.html">reco::TrackCollection</a></td>
+  <td><a href="RecoTracker_TrackProducer.html">ctfWithMaterialTracks</a></td>
+  <td class="description">Combinatorial finder with propagation in the material</td>
+  <td>S.Magni</td>
+</tr>
+<tr>
+  <td><a href="classreco_1_1TrackExtra.html">reco::TrackExtra</a></td>
+  <td><a href="DataFormats_TrackReco.html">reco::TrackExtraCollection</a></td>
+  <td><a href="RecoTracker_TrackProducer.html">ctfWithMaterialTracks</a></td>
+  <td class="description">Combinatorial finder with propagation in the material</td>
+  <td>S.Magni</td> 
+</tr>
+<tr>
+  <td><a href="classTrackingRecHit.html">TrackingRecHit</a></td>
+  <td><a href="DataFormats_TrackingRecHit.html">TrackingRecHitCollection</a></td>
+  <td><a href="RecoTracker_TrackProducer.html">ctfWithMaterialTracks</a></td>
+  <td class="description">Combinatorial finder with propagation in the material</td>
+  <td>S.Magni</td>
+</tr>
+
+
+<tr>
+  <td><a href="classreco_1_1Track.html">reco::Track</a></td>
+  <td><a href="DataFormats_TrackReco.html">reco::TrackCollection</a></td>
+  <td><a href="RecoTracker_TrackProducer.html">rsWithMaterialTracks</a></td>
+  <td class="description">Road search with propagation in the material</td>
+  <td>S.Magni</td>
+</tr>
+<tr>
+  <td><a href="classreco_1_1TrackExtra.html">reco::TrackExtra</a></td>
+  <td><a href="DataFormats_TrackReco.html">reco::TrackExtraCollection</a></td>
+  <td><a href="RecoTracker_TrackProducer.html">rsWithMaterialTracks</a></td>
+  <td class="description">Road search with propagation in the material</td>
+  <td>S.Magni</td>
+</tr>
+<tr>
+  <td><a href="classTrackingRecHit.html">TrackingRecHit</a></td>
+  <td><a href="DataFormats_TrackingRecHit.html">TrackingRecHitCollection</a></td>
+  <td><a href="RecoTracker_TrackProducer.html">rsWithMaterialTracks</a></td>
+  <td class="description">Road search with propagation in the material</td>
+  <td>S.Magni</td>
+</tr>

@@ -1,0 +1,264 @@
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
+  <Algorithm name="hcal:DDHCalBarrelAlgo">
+    <rParent name="hcalalgo:HCal"/>
+    <Numeric name="IdOffset" value="3000"/>
+    <!--#. Barrel Hadron Calorimeter (for test beam) description file
+         *DO HcalBarrel
+         #. General Volume
+         #.      <====- Zmax =====->
+         #. Rout ************************======-
+         #.      *                      *Rstep2|
+         #.      *                      *======-
+         #.      *                      * 
+         #.      *                     *
+         #.      *                    *Theta1
+         #.      *                   *============-
+         #.      *                 *Theta2  RStep1|
+         #. Rin  *****************================-    (Angle = 90 - Theta)
+         #.                                     
+         #. Material	Nsector	Nhalf	Rin	Rout	Rzone
+         #.	Angle	Rmax	Zoff	
+         -->
+    <String name="MotherName" value="HB"/>
+    <String name="MaterialName" value="materials:Air"/>
+    <Numeric name="NSector" value="18"/>
+    <Numeric name="NSectorTot" value="18"/>
+    <Numeric name="NHalf" value="2"/>
+    <Numeric name="RIn" value="1775*mm"/>
+    <Numeric name="ROut" value="2876.5*mm"/>
+    <Numeric name="RZones" value="5"/>
+    <Vector name="Theta" type="numeric" nEntries="5">
+      60.1*deg, 62.1*deg, 37.0*deg, 0.0*deg, 0.0*deg
+    </Vector>
+    <Vector name="RMax" type="numeric" nEntries="5">
+      1927.5*mm, 2027.2*mm, 2699.2*mm, 2754.5*mm, 2876.5*mm
+    </Vector>
+    <Vector name="ZOff" type="numeric" nEntries="5">
+      -4.43*mm, -3.11*mm, 2298.0*mm, 4332.0*mm, 4017.0*mm
+    </Vector>
+    <String name="RotHalf" value="180D"/>
+    <String name="RotNameSpace" value="hcalrotations"/>
+    <String name="LayerBaseName" value="Layer"/>
+    <!--
+         
+         #.Layers inside sectors & volumes inside layers
+         
+         #. Front view of layers
+         #.  *****************************              alpha = (2*pi/Nsectors) / 4
+         #.   *       *********** |     *               alpha fixes the lower corners of
+         #.    *      *    :    * t    *                the boxes inside the layers
+         #.     *     *********** |   *           |
+         #.      *    :    :    :    *            |
+         #.       * *****  :  ***** *             |
+         #.        **  :*  :  *:  **              d2
+         #.         *****  :  *****         d1    |
+         #.          ***:*****:***          |     |
+         #.           :  : : :  :
+         #.            : : : : :
+         #.             : :::-:=-> alpha
+         #.              :::::
+         #.               :::
+         #.                :
+         
+         #. Side view of upper layers
+         #.     <===- Zout ===->                           Particular treatment of boxes
+         #.  |  ****************     |
+         #.  |  *              *     Wstep
+         #.  W  *              ***** |
+         #.  |  *                  *
+         #.  |  ********************
+         #.     <=====- Zin ======->
+         #.
+         #. Side view of Middle layers
+         #.     <=====- Zout =====->              Zout = Full sector Z at position
+         #.  |  ********************              Zin  = Full sector Z at position
+         #.  |  *                 *               Zboxes = Zout - (t(i)-d(i))*tan(Theta)
+         #.  W  *                * Angle = Theta sector
+         #.  |  *               *  )
+         #.  |  ****************=======-
+         #.     <=====- Zin ======->
+         #.
+         #. Lower layers
+         #.     <=====- Zout =====->         Zin(i)=Zout(i-1)
+         #.  |  *********************        Zout(i)=Zin(i)+W(i)/tan(Theta(i))
+         #.  |  *                  *=-       Zboxes = Zout - (t(i)-d(i))*tan(Theta)
+         #.  |  *                *           Top most layer is special - a mixture     
+         #.  W  *              *  Theta      of middle and low
+         #.  |  *            *
+         #.  |  ***********===========-
+         #.     <==- Zin =====->
+         #. BaseName	Nlayers
+         
+         
+         #. Mat.	Id	Thick	 d1	 d2	Alpha2	  t	AbsL	Gap
+         -->
+    <Numeric name="NLayers" value="17"/>
+    <Vector name="LayerMat" type="string" nEntries="17">
+      materials:Air,     materials:H_Brass, materials:H_Brass,
+      materials:H_Brass, materials:H_Brass, materials:H_Brass,
+      materials:H_Brass, materials:H_Brass, materials:H_Brass,
+      materials:H_Brass, materials:H_Brass, materials:H_Brass,
+      materials:H_Brass, materials:H_Brass, materials:H_Brass,
+      materials:H_Brass, materials:StainlessSteel</Vector>
+    <Vector name="LayerWidth" type="numeric" nEntries="17">
+      76.5*mm, 60.0*mm, 60.0*mm, 60.0*mm, 60.0*mm, 60.0*mm,
+      60.0*mm, 60.0*mm, 60.0*mm, 60.0*mm, 66.0*mm, 66.0*mm,
+      66.0*mm, 66.0*mm, 66.0*mm, 66.0*mm, 89.0*mm
+    </Vector>
+    <Vector name="Id" type="numeric" nEntries="17">
+      1,  2,  3,  4,  5,  6,  7,  8,  9,
+      10, 11, 12, 13, 14, 15, 16, 17
+    </Vector>
+    <Vector name="D1" type="numeric" nEntries="17">
+      0.0*mm, 20.5*mm, 20.5*mm, 20.5*mm, 20.5*mm, 20.5*mm,
+      20.5*mm, 20.5*mm, 20.5*mm, 20.5*mm, 23.5*mm, 23.5*mm,
+      23.5*mm, 23.5*mm, 23.5*mm, 23.5*mm, 75.0*mm
+    </Vector>
+    <Vector name="D2" type="numeric" nEntries="17">
+      48.0*mm, 50.5*mm, 50.5*mm, 50.5*mm, 50.5*mm, 50.5*mm,
+      50.5*mm, 50.5*mm, 50.5*mm, 50.5*mm, 56.5*mm, 56.5*mm,
+      56.5*mm, 56.5*mm, 56.5*mm, 56.5*mm, 75.0*mm
+    </Vector>
+    <Vector name="Alpha2" type="numeric" nEntries="17">
+      5.0*deg, 5.0*deg, 5.0*deg, 5.0*deg, 5.0*deg, 5.0*deg,
+      5.0*deg, 5.0*deg, 5.0*deg, 5.0*deg, 5.0*deg, 5.0*deg,
+      5.0*deg, 5.0*deg, 5.0*deg, 5.0*deg, 5.0*deg
+    </Vector>
+    <Vector name="T1" type="numeric" nEntries="17">
+      12.0*mm,  9.5*mm,  9.5*mm,  9.5*mm,  9.5*mm,  9.5*mm,
+      9.5*mm,  9.5*mm,  9.5*mm,  9.5*mm,  9.5*mm,  9.5*mm,
+      9.5*mm,  9.5*mm,  9.5*mm,  9.5*mm, 14.0*mm
+    </Vector>
+    <Vector name="T2" type="numeric" nEntries="17">
+      14.0*mm,  9.5*mm,  9.5*mm,  9.5*mm,  9.5*mm,  9.5*mm,
+      9.5*mm,  9.5*mm,  9.5*mm,  9.5*mm,  9.5*mm,  9.5*mm,
+      9.5*mm,  9.5*mm,  9.5*mm,  9.5*mm, 14.0*mm
+    </Vector>
+    <Vector name="LayerLabel" type="string" nEntries="17">
+      Layer0,  Layer1,  Layer2,  Layer3,  Layer4,  Layer5,
+      Layer6,  Layer7,  Layer8,  Layer9,  Layer10, Layer11,
+      Layer12, Layer13, Layer14, Layer15, Layer16</Vector>
+    <Vector name="AbsL" type="numeric" nEntries="17">
+      -2,  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
+      0,  0,  0,  0,  0
+    </Vector>
+    <Vector name="Gap" type="numeric" nEntries="17">
+      0.0*mm,  1.5*mm,  1.5*mm,  1.5*mm,  1.5*mm,  1.5*mm,
+      1.5*mm,  1.5*mm,  1.5*mm,  1.5*mm,  1.5*mm,  1.5*mm,
+      1.5*mm,  1.5*mm,  1.5*mm,  1.5*mm,  0.0*mm
+    </Vector>
+    <!--
+         
+         #. Absorber Layer
+         #.  Material	  d	Alpha	 t
+         
+         -->
+    <Vector name="AbsorbName" type="string" nEntries="2">
+      Front, Back</Vector>
+    <Vector name="AbsorbMat" type="string" nEntries="2">
+      materials:StainlessSteel,  materials:StainlessSteel</Vector>
+    <Vector name="AbsorbD" type="numeric" nEntries="2">
+      12.0*mm,  62.0*mm
+    </Vector>
+    <Vector name="AbsorbT" type="numeric" nEntries="2">
+      50.0*mm,  14.5*mm
+    </Vector>
+    <String name="MiddleMat" value="materials:Air"/>
+    <Numeric name="MiddleD" value="36.0*mm"/>
+    <Numeric name="MiddleW" value="162.0*mm"/>
+    <Vector name="MidAbsName" type="string" nEntries="5">
+      Rail, Ledge, ExtPlate, Spacer, Gap</Vector>
+    <Vector name="MidAbsMat" type="string" nEntries="5">
+      materials:StainlessSteel, materials:Aluminium, materials:StainlessSteel,
+      materials:Aluminium, materials:Air</Vector>
+    <Vector name="MidAbsW" type="numeric" nEntries="5">
+      242.0*mm, 162.0*mm, 130.0*mm, 130.0*mm, 50.0*mm</Vector>
+    <Vector name="MidAbsT" type="numeric" nEntries="5">
+      50.0*mm, 36.0*mm, 36.0*mm, 6.0*mm, 6.0*mm</Vector>
+    <Vector name="SideMat" type="string" nEntries="2">
+      materials:StainlessSteel, materials:Air</Vector>
+    <Vector name="SideD" type="numeric" nEntries="2">
+      0.0*mm,   0.0*mm</Vector>
+    <Vector name="SideT" type="numeric" nEntries="2">
+      30.0*mm,  12.0*mm</Vector>
+    <Vector name="SideAbsName" type="string" nEntries="2">
+      Spacer, Gap</Vector>
+    <Vector name="SideAbsMat" type="string" nEntries="2">
+      materials:Aluminium, materials:Air</Vector>
+    <Vector name="SideAbsW" type="numeric" nEntries="2">
+      130.0*mm,  50.0*mm</Vector>
+    <!--
+         #. Detectors. Each volume inside the layer has the shape:
+         #.
+         #. ******************************* |
+         #. *\\\\\\\Plastic\\\\\\\\\\\\\\\* T2
+         #. ******************************* |       
+         #. *////Scintillator/////////////* Tsc     
+         #. ******************************* |       
+         #. *\\\\\\\Plastic\\\\\\\\\\\\\\\* T1      
+         #. ******************************* |   |   
+         #. *                             *     dP1 
+         #. *******************************     |   
+         #. 
+         #. GenMat	MatPl		MatSc
+         -->
+    <String name="DetMat" value="materials:Air"/>
+    <String name="DetRot" value="180X"/>
+    <String name="DetMatPl" value="materials:Polyethylene"/>
+    <String name="DetMatSc" value="materials:Scintillator"/>
+    <Vector name="DetType" type="numeric" nEntries="17">
+      0,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,
+      1,  1,  1,  1,  2
+    </Vector>
+    <Vector name="DetdP1" type="numeric" nEntries="17">
+      0.0*mm,  2.5*mm,  2.5*mm,  2.5*mm,  2.5*mm,  2.5*mm,
+      2.5*mm,  2.5*mm,  2.5*mm,  2.5*mm,  2.5*mm,  2.5*mm,
+      2.5*mm,  2.5*mm,  2.5*mm,  2.5*mm,  0.5*mm
+    </Vector>
+    <Vector name="DetdP2" type="numeric" nEntries="17">
+      2.0*mm,  2.5*mm,  2.5*mm,  2.5*mm,  2.5*mm,  2.5*mm,
+      2.5*mm,  2.5*mm,  2.5*mm,  2.5*mm,  2.5*mm,  2.5*mm,
+      2.5*mm,  2.5*mm,  2.5*mm,  2.5*mm,  0.5*mm
+    </Vector>
+    <Vector name="DetT11" type="numeric" nEntries="17">
+      2.0*mm,  2.0*mm,  2.0*mm,  2.0*mm,  2.0*mm,  2.0*mm,
+      2.0*mm,  2.0*mm,  2.0*mm,  2.0*mm,  2.0*mm,  2.0*mm,
+      2.0*mm,  2.0*mm,  2.0*mm,  2.0*mm,  2.0*mm
+    </Vector>
+    <Vector name="DetT12" type="numeric" nEntries="17">
+      2.0*mm,  2.0*mm,  2.0*mm,  2.0*mm,  2.0*mm,  2.0*mm,
+      2.0*mm,  2.0*mm,  2.0*mm,  2.0*mm,  2.0*mm,  2.0*mm,
+      2.0*mm,  2.0*mm,  2.0*mm,  2.0*mm,  2.0*mm
+    </Vector>
+    <Vector name="DetTsc" type="numeric" nEntries="17">
+      9.0*mm,  3.7*mm,  3.7*mm,  3.7*mm,  3.7*mm,  3.7*mm,
+      3.7*mm,  3.7*mm,  3.7*mm,  3.7*mm,  3.7*mm,  3.7*mm,
+      3.7*mm,  3.7*mm,  3.7*mm,  3.7*mm,  9.0*mm
+    </Vector>
+    <Vector name="DetT21" type="numeric" nEntries="17">
+      1.0*mm,  1.0*mm,  1.0*mm,  1.0*mm,  1.0*mm,  1.0*mm,
+      1.0*mm,  1.0*mm,  1.0*mm,  1.0*mm,  1.0*mm,  1.0*mm,
+      1.0*mm,  1.0*mm,  1.0*mm,  1.0*mm,  1.0*mm
+    </Vector>
+    <Vector name="DetT22" type="numeric" nEntries="17">
+      1.0*mm,  1.0*mm,  1.0*mm,  1.0*mm,  1.0*mm,  1.0*mm,
+      1.0*mm,  1.0*mm,  1.0*mm,  1.0*mm,  1.0*mm,  1.0*mm,
+      1.0*mm,  1.0*mm,  1.0*mm,  1.0*mm,  1.0*mm
+    </Vector>
+    <Vector name="DetWidth1" type="numeric" nEntries="17">
+      154.0*mm, 161.8*mm, 167.1*mm, 172.4*mm, 177.8*mm, 183.1*mm,
+      188.4*mm, 193.8*mm, 199.1*mm, 204.4*mm, 210.0*mm, 215.9*mm,
+      221.7*mm, 227.6*mm, 233.5*mm, 239.3*mm, 242.0*mm
+    </Vector>
+    <Vector name="DetWidth2" type="numeric" nEntries="17">
+      159.4*mm, 165.3*mm, 170.6*mm, 175.8*mm, 181.1*mm, 186.3*mm,
+      191.6*mm, 196.8*mm, 202.1*mm, 207.3*mm, 213.1*mm, 218.9*mm,
+      224.6*mm, 230.4*mm, 236.2*mm, 242.0*mm, 242.0*mm
+    </Vector>
+    <Vector name="DetPosY" type="numeric" nEntries="17">
+      0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
+      0,  0,  0,  0,  1
+    </Vector>
+  </Algorithm>
+</DDDefinition>

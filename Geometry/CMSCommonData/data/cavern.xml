@@ -1,0 +1,44 @@
+<?xml version="1.0"?>
+<!-- 2006-09-19 Michael Case:  As per Sunanda Banerjee's request, this file
+     should be kept around for background studies. 
+     -->
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
+	<ConstantsSection label="cavern.xml" eval="true">
+		<Constant name="SideWallRmin" value="12.0*m"/>
+		<Constant name="dzwall" value="([cms:HallZ]-[cms:CMSZ2])/2"/>
+		<Constant name="zposwall" value="([cms:HallZ]+[cms:CMSZ2])/2"/>
+	</ConstantsSection>
+	<SolidSection label="cavern.xml">
+		<Tubs name="OSWL" rMin="[SideWallRmin]" rMax="[cms:HallR]" dz="[cms:HallZ]" startPhi="0*deg" deltaPhi="360*deg"/>
+		<Tubs name="OZWL" rMin="[cms:CMSR2]" rMax="[SideWallRmin]" dz="[dzwall]" startPhi="0*deg" deltaPhi="360*deg"/>
+	</SolidSection>
+	<LogicalPartSection label="cavern.xml">
+		<LogicalPart name="OSWL" category="unspecified">
+			<rSolid name="OSWL"/>
+			<rMaterial name="materials:Stand.Concrete"/>
+		</LogicalPart>
+		<LogicalPart name="OZWL" category="unspecified">
+			<rSolid name="OZWL"/>
+			<rMaterial name="materials:Stand.Concrete"/>
+		</LogicalPart>
+	</LogicalPartSection>
+	<PosPartSection label="cavern.xml">
+		<PosPart copyNumber="1">
+			<rParent name="cms:OCMS"/>
+			<rChild name="cavern:OSWL"/>
+			<rRotation name="rotations:000D"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="cms:OCMS"/>
+			<rChild name="cavern:OZWL"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="0*fm" y="0*fm" z="[zposwall]"/>
+		</PosPart>
+		<PosPart copyNumber="2">
+			<rParent name="cms:OCMS"/>
+			<rChild name="cavern:OZWL"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="0*fm" y="0*fm" z="-[zposwall]"/>
+		</PosPart>
+	</PosPartSection>
+</DDDefinition>

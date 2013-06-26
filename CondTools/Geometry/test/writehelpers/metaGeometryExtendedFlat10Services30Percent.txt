@@ -1,0 +1,10 @@
+destDB oracle://cms_orcoff_prep/CMS_COND_GEOMETRY
+tag XMLFILE_Geometry_TagXX_ExtendedFlat10Services30Percent_mc
+inputtag 
+since 
+Timetype runnumber
+IOVCheck offline
+DuplicateTagHLT 
+DuplicateTagEXPRESS 
+DuplicateTagPROMPT 
+usertext Geometry payload for Full DDD XML Extended config with Flat10Services30Percent material. TagXX

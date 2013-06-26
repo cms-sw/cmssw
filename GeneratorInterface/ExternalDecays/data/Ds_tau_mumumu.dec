@@ -1,0 +1,16 @@
+Alias 	   MyD_s+   D_s+
+Alias 	   MyD_s-   D_s-
+ChargeConj MyD_s-   MyD_s+
+Alias      Mytau+   tau+
+Alias      Mytau-   tau-
+ChargeConj Mytau-   Mytau+
+Decay MyD_s+
+1.000      Mytau+     nu_tau         SLN;
+Enddecay
+CDecay MyD_s-
+Decay Mytau+
+1.000      mu+  mu-  mu+           PHSP;
+Enddecay
+CDecay Mytau-
+End
+

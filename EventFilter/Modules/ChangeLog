@@ -1,0 +1,96 @@
+2012-10-11 Srecko Morovic <srecko.morovic@cern.ch>
+
+	* tag V00-08-18
+	* separate retrieving new dataset information from modules and from
+	registry
+	* removal of postponed init message sending dead code)
+
+2012-09-03 Srecko Morovic <srecko.morovic@cern.ch>
+
+	* tag V00-08-17
+	* dataset and stream information provided by FUEventProcessor
+
+2012-09-02 Srecko Morovic <srecko.morovic@cern.ch>
+
+	* tag V00-08-16
+	* forgot to remove experimental module definition
+
+2012-09-02 Srecko Morovic <srecko.morovic@cern.ch>
+
+	* tag V00-08-15
+	* dataset counters in FUShmOutputModule
+
+2012-05-02 Srecko Morovic <srecko.morovic@cern.ch>
+
+	* tag V00-08-14
+	* merging in NewEPforking branch
+
+2011-04-30 Srecko Morovic <srecko.morovic@cern.ch>
+
+	* tag V00-08-09
+	* moving ShmOutputModuleRegistry here
+
+2011-04-22 Srecko Morovic <srecko.morovic@cern.ch>
+	* tag V00-08-08
+	* improvements for new forking development
+	* support for sending init message in master and
+	  disconnecting from Shm
+
+2011-08-17 Emilio Meschi <Remigius.Mommsen@cern.ch>
+
+	* tag V00-08-07
+	* remove circular dependency with Utilties
+
+2011-06-08 Emilio Meschi <Remigius.Mommsen@cern.ch>
+
+	* tag V00-08-06
+	* further fixes for mods to MicroStateService
+
+2011-05-19 Emilio Meschi <Remigius.Mommsen@cern.ch>
+
+	* tag V00-08-05
+	* small change to adapt to modifications in MicroStateService
+	
+2011-04-14 Remi Mommsen <Remigius.Mommsen@cern.ch>
+
+	* tag V00-08-04
+	* Use process id of actual process, i.e. the slave EP,
+	  instead of the creating process, i.e. the master EP.
+	  This improves the diagonstic on the StorageManager side.
+
+2011-01-19 Emilio Meschi <emilio.meschi@cern.ch>
+
+	* tag V00-08-03
+	* (01) parameterset desciption
+	* (02) migration to xml BuildFiles
+	* (03) add support for stream rates
+
+2010-04-30 Remi Mommsen <Remigius.Mommsen@cern.ch>
+
+	* tag V00-08-00
+	* Add host_name and adler32 checksum for DQM messages to
+	  satisfy new IOPool/Streamer format
+
+2010-04-13 Emilio Meschi <emilio.meschi@cern.ch>
+
+	* tag V00-07-07
+	* put back pythond dir and content accidentally removed 
+
+2010-03-05 Emilio Meschi <emilio.meschi@cern.ch>
+
+	* tag V00-07-06 (00-07-05 used by Bill for warning removal)
+	* catch xdata::Exception when publishing to infospace 
+	(trouble when restarting from halted)
+
+2010-03-05 Emilio Meschi <emilio.meschi@cern.ch>
+
+	* tag V00-07-04
+	* fixes for correct updating of DQM histos to SM
+	
+2010-02-17  Philipp Schieferdecker  <philipp.schieferdecker@cern.ch>
+
+	* tag V00-07-02
+	* add python directory
+	* add cfi.py file for FUShmDQMOutputService
+	
+

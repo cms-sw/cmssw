@@ -1,0 +1,993 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
+    <SpecParSection xmlns="http://www.cern.ch/cms/DDL" label="Try1" eval="true">
+        <!-- p o r t e d  f r o m  ORCA/Data/MuonData/EndcapData Tim Cox-->
+        <!-- converted for just physical chambers - ME1a & ME1b params part of ME11 - Tim Cox 02.04.2007-->
+        <!-- # =========================================================== -->
+        <!-- # Parameters for Cathode Strip Chambers: ME11AlumFrame        -->
+        <!-- # =========================================================== -->
+        <SpecPar name="ChamberSpecs_ME11">
+            <PartSelector path="//ME11AlumFrame"/>
+            <Parameter name="NoOfAnonParams" value="35"/>
+            <!-- ME1b PARAMETERS FOLLOW -->
+            <Parameter name="upar" value="0.015"/>
+            <!--# 0 - strip resolution-->
+            <Parameter name="upar" value="1.08"/>
+            <!--# 1 - wire resolution-->
+            <Parameter name="upar" value="1"/>
+            <!--# 2 - efficiency-->
+            <Parameter name="upar" value="10"/>
+            <!--# 3 - time window (bx)-->
+            <Parameter name="upar" value="0.00"/>
+            <!--# 4 - neutron hit rate per CSC layer per event-->
+            <Parameter name="upar" value="64"/>
+            <!--# 5 - number of strips in each layer of chamber-->
+            <Parameter name="upar" value="2"/>
+            <!--# 6 - number of strips 2*nnodes+1 around hit-->
+            <Parameter name="upar" value="11"/>
+            <!--# 7 - No. of wires in group-->
+            <Parameter name="upar" value="1"/>
+            <!--# 8 - No. of floating strips-->
+            <Parameter name="upar" value="0.35"/>
+            <!--# 9 - "h" - Anode - Cathode spacing in cm-->
+            <Parameter name="upar" value="6.00"/>
+            <!--# 10 - gas gain-->
+            <Parameter name="upar" value="2800"/>
+            <!--# 11 - CSC Voltage-->
+            <Parameter name="upar" value="29"/>
+            <!--# 12 - tilt angle for CSC wire slope (+z)-->
+            <Parameter name="upar" value="0.01"/>
+            <!--# 13 - calibration error-->
+            <Parameter name="upar" value="0.00000"/>
+            <!--# 14 - e- attraction in gas-->
+            <Parameter name="upar" value="0.12"/>
+            <!--# 15 - f_ind = 0.4 * f_sh = 0.3-->
+            <Parameter name="upar" value="0.125"/>
+            <!--# 16 - ADC count (fC) (KATOD gain 4mV/fC; ADC 1 cnt/.5mV)-->
+            <Parameter name="upar" value="0.0015"/>
+            <!--# 17 - Anode wire radius-->
+            <Parameter name="upar" value="30"/>
+            <!--# 18 - Fast shaper peaking time (ns)-->
+            <Parameter name="upar" value="120"/>
+            <!--# 19 - Peaking Time of Amplifier & Shaped Chamber signal (ns)-->
+            <!--# 20 & 21 - strip offset in strip widths (alternate layers)-->
+            <Parameter name="upar" value=".0"/>
+            <Parameter name="upar" value=".0"/>
+            <!--# 22 & 23 - (700e + 25 e/pF * 75 pF/m)/sqrt (time/100 [ns])(T.Y.)-->
+            <Parameter name="upar" value="700"/>
+            <Parameter name="upar" value="25"/>
+            <!--# 24 - global nominal radial position of alignment pin (cm) -->
+            <!-- No alignment pin for ME11 so just take bot edge of chamber frame -->
+            <Parameter name="upar" value="100.5"/>
+            <!--# 25 - distance from bottom edge of frame to alignment pin (cm) -->
+            <Parameter name="upar" value="0.0"/>
+            <!--# 26 - length of chamber from outer edges of frame (cm) -->
+            <Parameter name="upar" value="162.0"/>
+            <!--# 27 - distance from end of strip to alignment pin (cm) -->
+            <!-- No alignment pin for ME11 so  w.r.t. bot edge of chamber frame -->
+            <Parameter name="upar" value="49.5"/>
+            <!--# 28 - length of (sensitive region of) strip along local y axis (cm) -->
+            <Parameter name="upar" value="107.5"/>
+            <!--# 29 - strip deltaPhi (mrad) -->
+            <Parameter name="upar" value="2.958185"/>
+            <!--# 30 - ctiOffset - possible future use -->
+            <Parameter name="upar" value="0.0"/>
+            <!--# 31 - chamber frame thickness (mm) TREAT AS ZERO SINCE THEY HAVE NO FRAME-->
+            <Parameter name="upar" value="0.0"/>
+            <!--# 32 - gas gap thickness (mm) -->
+            <Parameter name="upar" value="7.0"/>
+            <!--# 33 - panel thickness (mm) -->
+            <Parameter name="upar" value="15.0"/>
+            <!--# 34 - zlocal offset between AF and average AGV centre (mm) = zC - (zL1+zL2)/2 -->
+            <Parameter name="upar" value="1.7"/>
+            <!-- ME1a PARAMETERS FOLLOW, EACH INDEX IS REALLY (#+34) -->
+            <Parameter name="upar" value="0.015"/>
+            <!--# 0 - strip resolution-->
+            <Parameter name="upar" value="1.08"/>
+            <!--# 1 - wire resolution-->
+            <Parameter name="upar" value="1"/>
+            <!--# 2 - efficiency-->
+            <Parameter name="upar" value="10"/>
+            <!--# 3 - time window (bx)-->
+            <Parameter name="upar" value="0.00"/>
+            <!--# 4 - neutron hit rate per CSC layer per event-->
+            <Parameter name="upar" value="48"/>
+            <!--# 5 - number of strips in each layer of chamber-->
+            <Parameter name="upar" value="2"/>
+            <!--# 6 - number of strips 2*nnodes+1 around hit-->
+            <Parameter name="upar" value="11"/>
+            <!--# 7 - No. of wires in group-->
+            <Parameter name="upar" value="1"/>
+            <!--# 8 - No. of floating strips-->
+            <Parameter name="upar" value="0.35"/>
+            <!--# 9 - "h" - Anode - Cathode spacing in cm-->
+            <Parameter name="upar" value="6.00"/>
+            <!--# 10 - gas gain-->
+            <Parameter name="upar" value="2800"/>
+            <!--# 11 - CSC Voltage-->
+            <Parameter name="upar" value="29"/>
+            <!--# 12 - tilt angle for CSC wire slope (+z)-->
+            <Parameter name="upar" value="0.01"/>
+            <!--# 13 - calibration error-->
+            <Parameter name="upar" value="0.00000"/>
+            <!--# 14 - e- attraction in gas-->
+            <Parameter name="upar" value="0.12"/>
+            <!--# 15 - f_ind = 0.4 * f_sh = 0.3-->
+            <Parameter name="upar" value="0.5"/>
+            <!--# 16 - ADC count (fC) (KATOD gain 4mV/fC; ADC 1 cnt/.5mV)-->
+            <Parameter name="upar" value="0.0015"/>
+            <!--# 17 - Anode wire radius-->
+            <Parameter name="upar" value="30"/>
+            <!--# 18 - Fast shaper peaking time (ns)-->
+            <Parameter name="upar" value="80"/>
+            <!--# 19 - Peaking Time of Amplifier & Shaped Chamber signal (ns)-->
+            <!--# 20 & 21 - strip offset in strip widths (alternate layers)-->
+            <Parameter name="upar" value=".0"/>
+            <Parameter name="upar" value=".0"/>
+            <!--# 22 & 23 - (700e + 25 e/pF * 75 pF/m)/sqrt (time/100 [ns])(T.Y.)-->
+            <Parameter name="upar" value="700"/>
+            <Parameter name="upar" value="25"/>
+            <!--# 24 - global nominal radial position of alignment pin (cm) -->
+            <!-- No alignment pin for ME11 so just take bot edge of chamber frame -->
+            <Parameter name="upar" value="100.5"/>
+            <!--# 25 - distance from bottom edge of frame to alignment pin (cm) -->
+            <Parameter name="upar" value="0.0"/>
+            <!--# 26 - length of chamber from outer edges of frame (cm) -->
+            <Parameter name="upar" value="162.0"/>
+            <!--# 27 - distance from end of strip to alignment pin (cm) -->
+            <!-- No alignment pin for ME11 so  w.r.t. bot edge of chamber frame -->
+            <Parameter name="upar" value="5.0"/>
+            <!--# 28 - length of (sensitive region of) strip along local y axis (cm) -->
+            <Parameter name="upar" value="44.5"/>
+            <!--# 29 - strip deltaPhi (mrad) -->
+            <Parameter name="upar" value="3.878509"/>
+            <!--# 30 - ctiOffset - possible future use -->
+            <Parameter name="upar" value="0.0"/>
+            <!--# 31 - chamber frame thickness (mm) -->
+            <Parameter name="upar" value="0.0"/>
+            <!--# 32 - gas gap thickness (mm) -->
+            <Parameter name="upar" value="7.0"/>
+            <!--# 33 - panel thickness (mm) -->
+            <Parameter name="upar" value="15.0"/>
+            <!--# 34 - zlocal offset between AF and average AGV centre (mm) -->
+            <Parameter name="upar" value="1.7"/>
+            <!-- Wire group specs. 
+                 The wire grouping is specified by two vectors NumGroups and NumWiresPerGrp, of the same length. 
+                 The elements of NumGroups specify the number of consecutive groups of wires of a specific size, 
+                 with this size (i.e. number of wires) specified in the corresponding element of NumWiresPerGrp.
+                 A dead region (or where there are no wires) is specified by a 0 in the appropriate position
+                 in NumGroups, and the corresponding element in NumWiresPerGrp contains the number of 'virtual'
+                 wires to define the extent of the dead region.     
+                 
+                 e.g. ME11: 1 group of 37 wires, then 46 groups of 11 wires, and finally 1 group of 43 wires.
+                 There are (apparently) no dead wire regions in ME11.
+                 
+                 Note that, for reasons that escape me, the total number of grouped wires
+                 is only 586 rather than the nominal 587. 
+                 
+                 For ME11, no alignment pin so give value for first wire from bottom edge chamber frame.
+                 And 'LengthOfxxxWire' is effective width of wire plane at bottom and top.
+                 -->
+            <Parameter name="WireSpacing" value="2.5*mm"/>
+            <Parameter name="AlignmentPinToFirstWire" value="10.646*mm"/>
+            <Parameter name="LengthOfFirstWire" value="201.3*mm"/>
+            <Parameter name="LengthOfLastWire" value="487.1*mm"/>
+            <Parameter name="RadialExtentOfWirePlane" value="1505.0*mm"/>
+            <Parameter name="TotNumWireGroups" value="48"/>
+            <Parameter name="NumGroups" value="1"/>
+            <Parameter name="NumGroups" value="46"/>
+            <Parameter name="NumGroups" value="1"/>
+            <Parameter name="NumWiresPerGrp" value="37"/>
+            <Parameter name="NumWiresPerGrp" value="11"/>
+            <Parameter name="NumWiresPerGrp" value="43"/>
+        </SpecPar>
+        <!--# ========================================================-->
+        <!--# Parameters for Cathode Strip Chambers: ME12AlumFrame    -->
+        <!--# ========================================================-->
+        <SpecPar name="ChamberSpecs_ME12">
+            <PartSelector path="//ME12AlumFrame"/>
+            <Parameter name="upar" value="0.015"/>
+            <!--# 0 - strip resolution-->
+            <Parameter name="upar" value="0.9815"/>
+            <!--# 1 - wire resolution-->
+            <Parameter name="upar" value="1"/>
+            <!--# 2 - efficiency-->
+            <Parameter name="upar" value="10"/>
+            <!--# 3 - time window (bx)-->
+            <Parameter name="upar" value="0.00"/>
+            <!--# 4 - neutron hit rate per CSC layer per event-->
+            <Parameter name="upar" value="80"/>
+            <!--# 5 - number of strips in each layer of chamber-->
+            <Parameter name="upar" value="2"/>
+            <!--# 6 - number of strips 2*nnodes+1 around hit-->
+            <Parameter name="upar" value="11"/>
+            <!--# 7 - No. of wires in group-->
+            <Parameter name="upar" value="0."/>
+            <!--# 8 - No. of floating strips-->
+            <Parameter name="upar" value="0.47625"/>
+            <!--# 9 - "h" - Anode - Cathode spacing-->
+            <Parameter name="upar" value="8.88"/>
+            <!--# 10 - gas gain-->
+            <Parameter name="upar" value="4000"/>
+            <!--# 11 - CSC Voltage-->
+            <Parameter name="upar" value="0.000"/>
+            <!--# 12 - tilt angle for CSC wire slope (+z)-->
+            <Parameter name="upar" value="0.01"/>
+            <!--# 13 - calibration error-->
+            <Parameter name="upar" value="0.5"/>
+            <!--# 14 - e- attraction in gas-->
+            <Parameter name="upar" value="0.0779"/>
+            <!--# 15 - f_ind = 0.41 * f_sh = 0.19-->
+            <Parameter name="upar" value="0.5"/>
+            <!--# 16 - ADC count (fC)-->
+            <Parameter name="upar" value="0.0025"/>
+            <!--# 17 - Anode wire radius-->
+            <Parameter name="upar" value="50"/>
+            <!--# 18 - Fast shaper peaking time (ns)-->
+            <Parameter name="upar" value="120"/>
+            <!--# 19 - Peaking Time of Amplifier & Shaped Chamber signal (ns)-->
+            <!--# 20 & 21 - strip offset in strip widths (alternate layers)-->
+            <Parameter name="upar" value="-0.25"/>
+            <Parameter name="upar" value="0.25"/>
+            <!--# 22 & 23 - (700e + 25 e/pF * 75 pF/m)/sqrt (time/100 [ns])(T.Y.)-->
+            <Parameter name="upar" value="700"/>
+            <Parameter name="upar" value="25"/>
+            <!--# 24 - global nominal radial position of alignment pin (cm) -->
+            <Parameter name="upar" value="278.49"/>
+            <!--# 25 - distance from bottom edge of frame to alignment pin (cm) -->
+            <Parameter name="upar" value="3.49"/>
+            <!--# 26 - length of chamber from outer edges of frame (cm) -->
+            <Parameter name="upar" value="189.4"/>
+            <!--# 27 - distance from end of strip to alignment pin (cm) -->
+            <Parameter name="upar" value="3.01"/>
+            <!--# 28 - length of (sensitive region of) strip along local y axis (cm) -->
+            <Parameter name="upar" value="174.49"/>
+            <!--# 29 - strip deltaPhi (mrad) -->
+            <Parameter name="upar" value="2.327105"/>
+            <!--# 30 - ctiOffset - possible future use -->
+            <Parameter name="upar" value="0.0"/>
+            <!--# 31 - chamber frame thickness (mm) -->
+            <Parameter name="upar" value="6.096"/>
+            <!--# 32 - gas gap thickness (mm) -->
+            <Parameter name="upar" value="9.525"/>
+            <!--# 33 - panel thickness (mm) -->
+            <Parameter name="upar" value="15.875"/>
+            <!--# 34 - zlocal offset between AF and average AGV centre (mm) -->
+            <Parameter name="upar" value="-1.71"/>
+            <!-- Wire group specs. 
+                 The wire grouping is specified by two vectors NumGroups and NumWiresPerGrp, of the same length. 
+                 The elements of NumGroups specify the number of consecutive groups of wires of a specific size, 
+                 with this size (i.e. number of wires) specified in the corresponding element of NumWiresPerGrp.
+                 A dead region (or where there are no wires) is specified by a 0 in the appropriate position
+                 in NumGroups, and the corresponding element in NumWiresPerGrp contains the number of 'virtual'
+                 wires to define the extent of the dead region.     
+                 
+                 e.g. ME12: 16 groups of 7 wires, 7 groups of 8 wires, 1 group of 5, a dead region of 6, etc.
+                 -->
+            <Parameter name="WireSpacing" value="3.16108*mm"/>
+            <Parameter name="AlignmentPinToFirstWire" value="28.5*mm"/>
+            <Parameter name="LengthOfFirstWire" value="510.0*mm"/>
+            <Parameter name="LengthOfLastWire" value="837.4*mm"/>
+            <Parameter name="RadialExtentOfWirePlane" value="1748.1*mm"/>
+            <Parameter name="TotNumWireGroups" value="64"/>
+            <Parameter name="NumGroups" value="16"/>
+            <Parameter name="NumGroups" value="7"/>
+            <Parameter name="NumGroups" value="1"/>
+            <Parameter name="NumGroups" value="0"/>
+            <Parameter name="NumGroups" value="1"/>
+            <Parameter name="NumGroups" value="7"/>
+            <Parameter name="NumGroups" value="15"/>
+            <Parameter name="NumGroups" value="1"/>
+            <Parameter name="NumGroups" value="0"/>
+            <Parameter name="NumGroups" value="1"/>
+            <Parameter name="NumGroups" value="7"/>
+            <Parameter name="NumGroups" value="7"/>
+            <Parameter name="NumGroups" value="1"/>
+            <Parameter name="NumWiresPerGrp" value="7"/>
+            <Parameter name="NumWiresPerGrp" value="8"/>
+            <Parameter name="NumWiresPerGrp" value="5"/>
+            <Parameter name="NumWiresPerGrp" value="6"/>
+            <Parameter name="NumWiresPerGrp" value="5"/>
+            <Parameter name="NumWiresPerGrp" value="8"/>
+            <Parameter name="NumWiresPerGrp" value="9"/>
+            <Parameter name="NumWiresPerGrp" value="6"/>
+            <Parameter name="NumWiresPerGrp" value="6"/>
+            <Parameter name="NumWiresPerGrp" value="7"/>
+            <Parameter name="NumWiresPerGrp" value="10"/>
+            <Parameter name="NumWiresPerGrp" value="11"/>
+            <Parameter name="NumWiresPerGrp" value="13"/>
+        </SpecPar>
+        <!--# ========================================================-->
+        <!--# Parameters for Cathode Strip Chambers: ME13AlumFrame    -->
+        <!--# ========================================================-->
+        <SpecPar name="ChamberSpecs_ME13">
+            <PartSelector path="//ME13AlumFrame"/>
+            <Parameter name="upar" value="0.03"/>
+            <!--# 0 - strip resolution-->
+            <Parameter name="upar" value="1.3741"/>
+            <!--# 1 - wire resolution-->
+            <Parameter name="upar" value="1"/>
+            <!--# 2 - efficiency-->
+            <Parameter name="upar" value="10"/>
+            <!--# 3 - time window (bx)-->
+            <Parameter name="upar" value="0.00"/>
+            <!--# 4 - neutron hit rate per CSC layer per event-->
+            <Parameter name="upar" value="64"/>
+            <!--# 5 - number of strips in each layer of chamber-->
+            <Parameter name="upar" value="2"/>
+            <!--# 6 - number of strips 2*nnodes+1 around hit-->
+            <Parameter name="upar" value="12"/>
+            <!--# 7 - No. of wires in group-->
+            <Parameter name="upar" value="0."/>
+            <!--# 8 - No. of floating strips-->
+            <Parameter name="upar" value="0.47625"/>
+            <!--# 9 - "h" - Anode - Cathode spacing-->
+            <Parameter name="upar" value="8.89"/>
+            <!--# 10 - gas gain-->
+            <Parameter name="upar" value="4000"/>
+            <!--# 11 - CSC Voltage-->
+            <Parameter name="upar" value="0.00000E+00"/>
+            <!--# 12 - tilt angle for CSC wire slope (+z)-->
+            <Parameter name="upar" value="0.01"/>
+            <!--# 13 - calibration error-->
+            <Parameter name="upar" value="0.5"/>
+            <!--# 14 - e- attraction in gas-->
+            <Parameter name="upar" value="0.0779"/>
+            <!--# 15 - f_ind = 0.41 * f_sh = 0.19-->
+            <Parameter name="upar" value="0.5"/>
+            <!--# 16 - ADC count (fC)-->
+            <Parameter name="upar" value="0.0025"/>
+            <!--# 17 - Anode wire radius-->
+            <Parameter name="upar" value="50"/>
+            <!--# 18 - Fast shaper peaking time (ns)-->
+            <Parameter name="upar" value="120"/>
+            <!--# 19 - Peaking Time of Amplifier & Shaped Chamber signal (ns)-->
+            <!--# 20 & 21 - strip offset in strip widths (alternate layers)-->
+            <Parameter name="upar" value="-0.25"/>
+            <Parameter name="upar" value="0.25"/>
+            <!--# 22 & 23 - (700e + 25 e/pF * 75 pF/m)/sqrt (time/100 [ns])(T.Y.)-->
+            <Parameter name="upar" value="700"/>
+            <Parameter name="upar" value="25"/>
+            <!--# 24 - global nominal radial position of alignment pin (cm) -->
+            <Parameter name="upar" value="508.99"/>
+            <!--# 25 - distance from bottom edge of frame to alignment pin (cm) -->
+            <Parameter name="upar" value="3.49"/>
+            <!--# 26 - length of chamber from outer edges of frame (cm) -->
+            <Parameter name="upar" value="179.3"/>
+            <!--# 27 - distance from end of strip to alignment pin (cm) -->
+            <Parameter name="upar" value="3.00"/>
+            <!--# 28 - length of (sensitive region of) strip along local y axis (cm) -->
+            <Parameter name="upar" value="164.16"/>
+            <!--# 29 - strip deltaPhi (mrad) -->
+            <Parameter name="upar" value="2.152552"/>
+            <!--# 30 - ctiOffset - possible future use -->
+            <Parameter name="upar" value="0.0"/>
+            <!--# 31 - chamber frame thickness (mm) -->
+            <Parameter name="upar" value="6.096"/>
+            <!--# 32 - gas gap thickness (mm) -->
+            <Parameter name="upar" value="9.525"/>
+            <!--# 33 - panel thickness (mm) -->
+            <Parameter name="upar" value="15.875"/>
+            <!--# 34 - zlocal offset between AF and average AGV centre (mm) -->
+            <Parameter name="upar" value="-1.71"/>
+            <!-- Wire group specs. 
+                 The wire grouping is specified by two vectors NumGroups and NumWiresPerGrp, of the same length. 
+                 The elements of NumGroups specify the number of consecutive groups of wires of a specific size, 
+                 with this size (i.e. number of wires) specified in the corresponding element of NumWiresPerGrp.
+                 A dead region (or where there are no wires) is specified by a 0 in the appropriate position
+                 in NumGroups, and the corresponding element in NumWiresPerGrp contains the number of 'virtual'
+                 wires to define the extent of the dead region.     
+                 
+                 e.g. ME13: 11 groups of 16 wires, 1 group of 13, a dead region of 6, etc.
+                 -->
+            <Parameter name="WireSpacing" value="3.16292*mm"/>
+            <Parameter name="AlignmentPinToFirstWire" value="28.5*mm"/>
+            <Parameter name="LengthOfFirstWire" value="634.0*mm"/>
+            <Parameter name="LengthOfLastWire" value="921.0*mm"/>
+            <Parameter name="RadialExtentOfWirePlane" value="1644.7*mm"/>
+            <Parameter name="TotNumWireGroups" value="32"/>
+            <Parameter name="NumGroups" value="11"/>
+            <Parameter name="NumGroups" value="1"/>
+            <Parameter name="NumGroups" value="0"/>
+            <Parameter name="NumGroups" value="1"/>
+            <Parameter name="NumGroups" value="8"/>
+            <Parameter name="NumGroups" value="1"/>
+            <Parameter name="NumGroups" value="0"/>
+            <Parameter name="NumGroups" value="1"/>
+            <Parameter name="NumGroups" value="1"/>
+            <Parameter name="NumGroups" value="7"/>
+            <Parameter name="NumGroups" value="1"/>
+            <Parameter name="NumWiresPerGrp" value="16"/>
+            <Parameter name="NumWiresPerGrp" value="13"/>
+            <Parameter name="NumWiresPerGrp" value="6"/>
+            <Parameter name="NumWiresPerGrp" value="13"/>
+            <Parameter name="NumWiresPerGrp" value="16"/>
+            <Parameter name="NumWiresPerGrp" value="13"/>
+            <Parameter name="NumWiresPerGrp" value="6"/>
+            <Parameter name="NumWiresPerGrp" value="13"/>
+            <Parameter name="NumWiresPerGrp" value="16"/>
+            <Parameter name="NumWiresPerGrp" value="17"/>
+            <Parameter name="NumWiresPerGrp" value="18"/>
+        </SpecPar>
+        <!--# ========================================================-->
+        <!--# Parameters for Cathode Strip Chambers: ME21AlumFrame    -->
+        <!--# ========================================================-->
+        <SpecPar name="ChamberSpecs_ME21">
+            <PartSelector path="//ME21AlumFrame"/>
+            <Parameter name="upar" value="0.03"/>
+            <!--# 0 - strip resolution-->
+            <Parameter name="upar" value="0.9815"/>
+            <!--# 1 - wire resolution-->
+            <Parameter name="upar" value="1"/>
+            <!--# 2 - efficiency-->
+            <Parameter name="upar" value="10"/>
+            <!--# 3 - time window (bx)-->
+            <Parameter name="upar" value="0.00"/>
+            <!--# 4 - neutron hit rate per CSC layer per event-->
+            <Parameter name="upar" value="80"/>
+            <!--# 5 - number of strips in each layer of chamber-->
+            <Parameter name="upar" value="2"/>
+            <!--# 6 - number of strips 2*nnodes+1 around hit-->
+            <Parameter name="upar" value="5"/>
+            <!--# 7 - No. of wires in group-->
+            <Parameter name="upar" value="0."/>
+            <!--# 8 - No. of floating strips-->
+            <Parameter name="upar" value="0.47625"/>
+            <!--# 9 - "h" - Anode - Cathode spacing-->
+            <Parameter name="upar" value="1.0"/>
+            <!--# 10 - gas gain-->
+            <Parameter name="upar" value="4000"/>
+            <!--# 11 - CSC Voltage-->
+            <Parameter name="upar" value="0.00000E+00"/>
+            <!--# 12 - tilt angle for CSC wire slope (+z)-->
+            <Parameter name="upar" value="0.01"/>
+            <!--# 13 - calibration error-->
+            <Parameter name="upar" value="0.5"/>
+            <!--# 14 - e- attraction in gas-->
+            <Parameter name="upar" value="0.0779"/>
+            <!--# 15 - f_ind = 0.41 * f_sh = 0.19-->
+            <Parameter name="upar" value="0.5"/>
+            <!--# 16 - ADC count (fC)-->
+            <Parameter name="upar" value="0.0025"/>
+            <!--# 17 - Anode wire radius-->
+            <Parameter name="upar" value="50"/>
+            <!--# 18 - Fast shaper peaking time (ns)-->
+            <Parameter name="upar" value="120"/>
+            <!--# 19 - Peaking Time of Amplifier & Shaped Chamber signal (ns)-->
+            <!--# 20 & 21 - strip offset in strip widths (alternate layers)-->
+            <Parameter name="upar" value="-0.25"/>
+            <Parameter name="upar" value="0.25"/>
+            <!--# 22 & 23 - (700e + 25 e/pF * 75 pF/m)/sqrt (time/100 [ns])(T.Y.)-->
+            <Parameter name="upar" value="700"/>
+            <Parameter name="upar" value="25"/>
+            <!--# 24 - global nominal radial position of alignment pin (cm) -->
+            <Parameter name="upar" value="143.89"/>
+            <!--# 25 - distance from bottom edge of frame to alignment pin (cm) -->
+            <Parameter name="upar" value="3.49"/>
+            <!--# 26 - length of chamber from outer edges of frame (cm) -->
+            <Parameter name="upar" value="204.6"/>
+            <!--# 27 - distance from end of strip to alignment pin (cm) -->
+            <Parameter name="upar" value="3.01"/>
+            <!--# 28 - length of (sensitive region of) strip along local y axis (cm) -->
+            <Parameter name="upar" value="189.66"/>
+            <!--# 29 - strip deltaPhi (mrad) -->
+            <Parameter name="upar" value="4.654210"/>
+            <!--# 30 - ctiOffset - possible future use -->
+            <Parameter name="upar" value="0.0"/>
+            <!--# 31 - chamber frame thickness (mm) -->
+            <Parameter name="upar" value="6.096"/>
+            <!--# 32 - gas gap thickness (mm) -->
+            <Parameter name="upar" value="9.525"/>
+            <!--# 33 - panel thickness (mm) -->
+            <Parameter name="upar" value="15.875"/>
+            <!--# 34 - zlocal offset between AF and average AGV centre (mm) -->
+            <Parameter name="upar" value="-1.71"/>
+            <!-- Wire group specs. 
+                 The wire grouping is specified by two vectors NumGroups and NumWiresPerGrp, of the same length. 
+                 The elements of NumGroups specify the number of consecutive groups of wires of a specific size, 
+                 with this size (i.e. number of wires) specified in the corresponding element of NumWiresPerGrp.
+                 A dead region (or where there are no wires) is specified by a 0 in the appropriate position
+                 in NumGroups, and the corresponding element in NumWiresPerGrp contains the number of 'virtual'
+                 wires to define the extent of the dead region.     
+                 
+                 e.g. ME21:43 groups of 5 wires, 1 group of 2, a dead region of 6, 1 group of 2, etc.
+                 -->
+            <Parameter name="WireSpacing" value="3.11945*mm"/>
+            <Parameter name="AlignmentPinToFirstWire" value="28.7*mm"/>
+            <Parameter name="LengthOfFirstWire" value="540.0*mm"/>
+            <Parameter name="LengthOfLastWire" value="1257.1*mm"/>
+            <Parameter name="RadialExtentOfWirePlane" value="1899.7*mm"/>
+            <Parameter name="TotNumWireGroups" value="112"/>
+            <Parameter name="NumGroups" value="43"/>
+            <Parameter name="NumGroups" value="1"/>
+            <Parameter name="NumGroups" value="0"/>
+            <Parameter name="NumGroups" value="1"/>
+            <Parameter name="NumGroups" value="19"/>
+            <Parameter name="NumGroups" value="15"/>
+            <Parameter name="NumGroups" value="1"/>
+            <Parameter name="NumGroups" value="0"/>
+            <Parameter name="NumGroups" value="1"/>
+            <Parameter name="NumGroups" value="30"/>
+            <Parameter name="NumGroups" value="1"/>
+            <Parameter name="NumWiresPerGrp" value="5"/>
+            <Parameter name="NumWiresPerGrp" value="2"/>
+            <Parameter name="NumWiresPerGrp" value="6"/>
+            <Parameter name="NumWiresPerGrp" value="2"/>
+            <Parameter name="NumWiresPerGrp" value="5"/>
+            <Parameter name="NumWiresPerGrp" value="6"/>
+            <Parameter name="NumWiresPerGrp" value="3"/>
+            <Parameter name="NumWiresPerGrp" value="6"/>
+            <Parameter name="NumWiresPerGrp" value="3"/>
+            <Parameter name="NumWiresPerGrp" value="6"/>
+            <Parameter name="NumWiresPerGrp" value="8"/>
+        </SpecPar>
+        <!--# ========================================================-->
+        <!--# Parameters for Cathode Strip Chambers: ME31AlumFrame    -->
+        <!--# ========================================================-->
+        <SpecPar name="ChamberSpecs_ME31">
+            <PartSelector path="//ME31AlumFrame"/>
+            <Parameter name="upar" value="0.03"/>
+            <!--# 0 - strip resolution-->
+            <Parameter name="upar" value="0.88335"/>
+            <!--# 1 - wire resolution-->
+            <Parameter name="upar" value="1"/>
+            <!--# 2 - efficiency-->
+            <Parameter name="upar" value="10"/>
+            <!--# 3 - time window (bx)-->
+            <Parameter name="upar" value="0.00"/>
+            <!--# 4 - neutron hit rate per CSC layer per event-->
+            <Parameter name="upar" value="80"/>
+            <!--# 5 - number of strips in each layer of chamber-->
+            <Parameter name="upar" value="2"/>
+            <!--# 6 - number of strips 2*nnodes+1 around hit-->
+            <Parameter name="upar" value="6"/>
+            <!--# 7 - No. of wires in group-->
+            <Parameter name="upar" value="0."/>
+            <!--# 8 - No. of floating strips-->
+            <Parameter name="upar" value="0.47625"/>
+            <!--# 9 - "h" - Anode - Cathode spacing-->
+            <Parameter name="upar" value="1.0"/>
+            <!--# 10 - gas gain-->
+            <Parameter name="upar" value="4000"/>
+            <!--# 11 - CSC Voltage-->
+            <Parameter name="upar" value="0.00000E+00"/>
+            <!--# 12 - tilt angle for CSC wire slope (+z)-->
+            <Parameter name="upar" value="0.01"/>
+            <!--# 13 - calibration error-->
+            <Parameter name="upar" value="0.5"/>
+            <!--# 14 - e- attraction in gas-->
+            <Parameter name="upar" value="0.0779"/>
+            <!--# 15 - f_ind = 0.41 * f_sh = 0.19-->
+            <Parameter name="upar" value="0.5"/>
+            <!--# 16 - ADC count (fC)-->
+            <Parameter name="upar" value="0.0025"/>
+            <!--# 17 - Anode wire radius-->
+            <Parameter name="upar" value="50"/>
+            <!--# 18 - Fast shaper peaking time (ns)-->
+            <Parameter name="upar" value="120"/>
+            <!--# 19 - Peaking Time of Amplifier & Shaped Chamber signal (ns)-->
+            <!--# 20 & 21 - strip offset in strip widths (alternate layers)-->
+            <Parameter name="upar" value="-0.25"/>
+            <Parameter name="upar" value="0.25"/>
+            <!--# 22 & 23 - (700e + 25 e/pF * 75 pF/m)/sqrt (time/100 [ns])(T.Y.)-->
+            <Parameter name="upar" value="700"/>
+            <Parameter name="upar" value="25"/>
+            <!--# 24 - global nominal radial position of alignment pin (cm) -->
+            <Parameter name="upar" value="163.89"/>
+            <!--# 25 - distance from bottom edge of frame to alignment pin (cm) -->
+            <Parameter name="upar" value="3.49"/>
+            <!--# 26 - length of chamber from outer edges of frame (cm) -->
+            <Parameter name="upar" value="184.6"/>
+            <!--# 27 - distance from end of strip to alignment pin (cm) -->
+            <Parameter name="upar" value="3.00"/>
+            <!--# 28 - length of (sensitive region of) strip along local y axis (cm) -->
+            <Parameter name="upar" value="169.70"/>
+            <!--# 29 - strip deltaPhi (mrad) -->
+            <Parameter name="upar" value="4.654210"/>
+            <!--# 30 - ctiOffset - possible future use -->
+            <Parameter name="upar" value="0.0"/>
+            <!--# 31 - chamber frame thickness (mm) -->
+            <Parameter name="upar" value="6.096"/>
+            <!--# 32 - gas gap thickness (mm) -->
+            <Parameter name="upar" value="9.525"/>
+            <!--# 33 - panel thickness (mm) -->
+            <Parameter name="upar" value="15.875"/>
+            <!--# 34 - zlocal offset between AF and average AGV centre (mm) -->
+            <Parameter name="upar" value="1.71"/>
+            <!-- Wire group specs. 
+                 The wire grouping is specified by two vectors NumGroups and NumWiresPerGrp, of the same length. 
+                 The elements of NumGroups specify the number of consecutive groups of wires of a specific size, 
+                 with this size (i.e. number of wires) specified in the corresponding element of NumWiresPerGrp.
+                 A dead region (or where there are no wires) is specified by a 0 in the appropriate position
+                 in NumGroups, and the corresponding element in NumWiresPerGrp contains the number of 'virtual'
+                 wires to define the extent of the dead region.     
+                 
+                 e.g. ME31: 31 groups of 5 wires, 1 group of 2, a dead region of 6, etc.
+                 -->
+            <Parameter name="WireSpacing" value="3.11945*mm"/>
+            <Parameter name="AlignmentPinToFirstWire" value="28.4*mm"/>
+            <Parameter name="LengthOfFirstWire" value="614.0*mm"/>
+            <Parameter name="LengthOfLastWire" value="1257.1*mm"/>
+            <Parameter name="RadialExtentOfWirePlane" value="1700.1*mm"/>
+            <Parameter name="TotNumWireGroups" value="96"/>
+            <Parameter name="NumGroups" value="31"/>
+            <Parameter name="NumGroups" value="1"/>
+            <Parameter name="NumGroups" value="0"/>
+            <Parameter name="NumGroups" value="1"/>
+            <Parameter name="NumGroups" value="30"/>
+            <Parameter name="NumGroups" value="1"/>
+            <Parameter name="NumGroups" value="0"/>
+            <Parameter name="NumGroups" value="1"/>
+            <Parameter name="NumGroups" value="30"/>
+            <Parameter name="NumGroups" value="1"/>
+            <Parameter name="NumWiresPerGrp" value="5"/>
+            <Parameter name="NumWiresPerGrp" value="2"/>
+            <Parameter name="NumWiresPerGrp" value="6"/>
+            <Parameter name="NumWiresPerGrp" value="3"/>
+            <Parameter name="NumWiresPerGrp" value="6"/>
+            <Parameter name="NumWiresPerGrp" value="3"/>
+            <Parameter name="NumWiresPerGrp" value="6"/>
+            <Parameter name="NumWiresPerGrp" value="3"/>
+            <Parameter name="NumWiresPerGrp" value="6"/>
+            <Parameter name="NumWiresPerGrp" value="8"/>
+        </SpecPar>
+        <!--# ========================================================-->
+        <!--# Parameters for Cathode Strip Chambers: ME41AlumFrame    -->
+        <!--# ========================================================-->
+        <SpecPar name="ChamberSpecs_ME41">
+            <PartSelector path="//ME41AlumFrame"/>
+            <Parameter name="upar" value="0.30000"/>
+            <!--# 0 - strip resolution (if no MF4: set to 1m)-->
+            <Parameter name="upar" value="0.88335"/>
+            <!--# 1 - wire resolution-->
+            <Parameter name="upar" value="1"/>
+            <!--# 2 - efficiency-->
+            <Parameter name="upar" value="10"/>
+            <!--# 3 - time window (bx)-->
+            <Parameter name="upar" value="0.00"/>
+            <!--# 4 - neutron hit rate per CSC layer per event-->
+            <Parameter name="upar" value="80"/>
+            <!--# 5 - number of strips in each layer of chamber-->
+            <Parameter name="upar" value="2"/>
+            <!--# 6 - number of strips 2*nnodes+1 around hit-->
+            <Parameter name="upar" value="5"/>
+            <!--# 7 - No. of wires in group-->
+            <Parameter name="upar" value="0."/>
+            <!--# 8 - No. of floating strips-->
+            <Parameter name="upar" value="0.47625"/>
+            <!--# 9 - "h" - Anode - Cathode spacing-->
+            <Parameter name="upar" value="1.0"/>
+            <!--# 10 - gas gain-->
+            <Parameter name="upar" value="4000"/>
+            <!--# 11 - CSC Voltage-->
+            <Parameter name="upar" value="0.00000E+00"/>
+            <!--# 12 - tilt angle for CSC wire slope (+z)-->
+            <Parameter name="upar" value="0.01"/>
+            <!--# 13 - calibration error-->
+            <Parameter name="upar" value="0.5"/>
+            <!--# 14 - e- attraction in gas-->
+            <Parameter name="upar" value="0.0779"/>
+            <!--# 15 - f_ind = 0.41 * f_sh = 0.19-->
+            <Parameter name="upar" value="0.5"/>
+            <!--# 16 - ADC count (fC)-->
+            <Parameter name="upar" value="0.0025"/>
+            <!--# 17 - Anode wire radius-->
+            <Parameter name="upar" value="50"/>
+            <!--# 18 - Fast shaper peaking time (ns)-->
+            <Parameter name="upar" value="120"/>
+            <!--# 19 - Peaking Time of Amplifier & Shaped Chamber signal (ns)-->
+            <!--# 20 & 21 - strip offset in strip widths (alternate layers)-->
+            <Parameter name="upar" value="-0.25"/>
+            <Parameter name="upar" value="0.25"/>
+            <!--# 22 & 23 - (700e + 25 e/pF * 75 pF/m)/sqrt (time/100 [ns])(T.Y.)-->
+            <Parameter name="upar" value="700"/>
+            <Parameter name="upar" value="25"/>
+            <!--# 24 - global nominal radial position of alignment pin (cm) -->
+            <Parameter name="upar" value="183.79"/>
+            <!--# 25 - distance from bottom edge of frame to alignment pin (cm) -->
+            <Parameter name="upar" value="3.49"/>
+            <!--# 26 - length of chamber from outer edges of frame (cm) -->
+            <Parameter name="upar" value="164.7"/>
+            <!--# 27 - distance from end of strip to alignment pin (cm) -->
+            <Parameter name="upar" value="3.20"/>
+            <!--# 28 - length of (sensitive region of) strip along local y axis (cm) -->
+            <Parameter name="upar" value="149.42"/>
+            <!--# 29 - strip deltaPhi (mrad) -->
+            <Parameter name="upar" value="4.654210"/>
+            <!--# 30 - ctiOffset - possible future use -->
+            <Parameter name="upar" value="0.0"/>
+            <!--# 31 - chamber frame thickness (mm) -->
+            <Parameter name="upar" value="6.096"/>
+            <!--# 32 - gas gap thickness (mm) -->
+            <Parameter name="upar" value="9.525"/>
+            <!--# 33 - panel thickness (mm) -->
+            <Parameter name="upar" value="15.875"/>
+            <!--# 34 - zlocal offset between AF and average AGV centre (mm) -->
+            <Parameter name="upar" value="1.71"/>
+            <!-- Wire group specs. 
+                 The wire grouping is specified by two vectors NumGroups and NumWiresPerGrp, of the same length. 
+                 The elements of NumGroups specify the number of consecutive groups of wires of a specific size, 
+                 with this size (i.e. number of wires) specified in the corresponding element of NumWiresPerGrp.
+                 A dead region (or where there are no wires) is specified by a 0 in the appropriate position
+                 in NumGroups, and the corresponding element in NumWiresPerGrp contains the number of 'virtual'
+                 wires to define the extent of the dead region.     
+                 
+                 e.g. ME41: 31 groups of 5 wires, 1 group of 2, dead region of 6, etc.
+                 -->
+            <Parameter name="WireSpacing" value="3.11945*mm"/>
+            <Parameter name="AlignmentPinToFirstWire" value="30.4*mm"/>
+            <Parameter name="LengthOfFirstWire" value="690.1*mm"/>
+            <Parameter name="LengthOfLastWire" value="1256.5*mm"/>
+            <Parameter name="RadialExtentOfWirePlane" value="1497.3*mm"/>
+            <Parameter name="TotNumWireGroups" value="96"/>
+            <Parameter name="NumGroups" value="31"/>
+            <Parameter name="NumGroups" value="1"/>
+            <Parameter name="NumGroups" value="0"/>
+            <Parameter name="NumGroups" value="1"/>
+            <Parameter name="NumGroups" value="30"/>
+            <Parameter name="NumGroups" value="1"/>
+            <Parameter name="NumGroups" value="0"/>
+            <Parameter name="NumGroups" value="1"/>
+            <Parameter name="NumGroups" value="30"/>
+            <Parameter name="NumGroups" value="1"/>
+            <Parameter name="NumWiresPerGrp" value="5"/>
+            <Parameter name="NumWiresPerGrp" value="2"/>
+            <Parameter name="NumWiresPerGrp" value="6"/>
+            <Parameter name="NumWiresPerGrp" value="2"/>
+            <Parameter name="NumWiresPerGrp" value="5"/>
+            <Parameter name="NumWiresPerGrp" value="2"/>
+            <Parameter name="NumWiresPerGrp" value="6"/>
+            <Parameter name="NumWiresPerGrp" value="2"/>
+            <Parameter name="NumWiresPerGrp" value="5"/>
+            <Parameter name="NumWiresPerGrp" value="6"/>
+        </SpecPar>
+        <!--# ========================================================-->
+        <!--# Parameters for Cathode Strip Chambers: ME22AlumFrame    -->
+        <!--# ========================================================-->
+        <SpecPar name="ChamberSpecs_ME22">
+            <PartSelector path="//ME22AlumFrame"/>
+            <Parameter name="upar" value="0.03"/>
+            <!--# 0 - strip resolution-->
+            <Parameter name="upar" value="1.4722"/>
+            <!--# 1 - wire resolution-->
+            <Parameter name="upar" value="1"/>
+            <!--# 2 - efficiency-->
+            <Parameter name="upar" value="10"/>
+            <!--# 3 - time window (bx)-->
+            <Parameter name="upar" value="0.00"/>
+            <!--# 4 - neutron hit rate per CSC layer per event-->
+            <Parameter name="upar" value="80"/>
+            <!--# 5 - number of strips in each layer of chamber-->
+            <Parameter name="upar" value="2"/>
+            <!--# 6 - number of strips 2*nnodes+1 around hit-->
+            <Parameter name="upar" value="16"/>
+            <!--# 7 - No. of wires in group-->
+            <Parameter name="upar" value="0."/>
+            <!--# 8 - No. of floating strips-->
+            <Parameter name="upar" value="0.47625"/>
+            <!--# 9 - "h" - Anode - Cathode spacing-->
+            <Parameter name="upar" value="1.330"/>
+            <!--# 10 - gas gain-->
+            <Parameter name="upar" value="4000"/>
+            <!--# 11 - CSC Voltage-->
+            <Parameter name="upar" value="0.00000E+00"/>
+            <!--# 12 - tilt angle for CSC wire slope (+z)-->
+            <Parameter name="upar" value="0.01"/>
+            <!--# 13 - calibration error-->
+            <Parameter name="upar" value="0.5"/>
+            <!--# 14 - e- attraction in gas-->
+            <Parameter name="upar" value="0.0779"/>
+            <!--# 15 - f_ind = 0.41 * f_sh = 0.19-->
+            <Parameter name="upar" value="0.5"/>
+            <!--# 16 - ADC count (fC)-->
+            <Parameter name="upar" value="0.0025"/>
+            <!--# 17 - Anode wire radius-->
+            <Parameter name="upar" value="50"/>
+            <!--# 18 - Fast shaper peaking time (ns)-->
+            <Parameter name="upar" value="120"/>
+            <!--# 19 - Peaking Time of Amplifier & Shaped Chamber signal (ns)-->
+            <!--# 20 & 21 - strip offset in strip widths (alternate layers)-->
+            <Parameter name="upar" value="-0.25"/>
+            <Parameter name="upar" value="0.25"/>
+            <!--# 22 & 23 - (700e + 25 e/pF * 75 pF/m)/sqrt (time/100 [ns])(T.Y.)-->
+            <Parameter name="upar" value="700"/>
+            <Parameter name="upar" value="25"/>
+            <!--# 24 - global nominal radial position of alignment pin (cm) -->
+            <Parameter name="upar" value="360.99"/>
+            <!--# 25 - distance from bottom edge of frame to alignment pin (cm) -->
+            <Parameter name="upar" value="3.49"/>
+            <!--# 26 - length of chamber from outer edges of frame (cm) -->
+            <Parameter name="upar" value="338.0"/>
+            <!--# 27 - distance from end of strip to alignment pin (cm) -->
+            <Parameter name="upar" value="3.03"/>
+            <!--# 28 - length of (sensitive region of) strip along local y axis (cm) -->
+            <Parameter name="upar" value="323.06"/>
+            <!--# 29 - strip deltaPhi (mrad) -->
+            <Parameter name="upar" value="2.327105"/>
+            <!--# 30 - ctiOffset - possible future use -->
+            <Parameter name="upar" value="0.0"/>
+            <!--# 31 - chamber frame thickness (mm) -->
+            <Parameter name="upar" value="6.096"/>
+            <!--# 32 - gas gap thickness (mm) -->
+            <Parameter name="upar" value="9.525"/>
+            <!--# 33 - panel thickness (mm) -->
+            <Parameter name="upar" value="15.875"/>
+            <!--# 34 - zlocal offset between AF and average AGV centre (mm) -->
+            <Parameter name="upar" value="-1.71"/>
+            <!-- Wire group specs. 
+                 The wire grouping is specified by two vectors NumGroups and NumWiresPerGrp, of the same length. 
+                 The elements of NumGroups specify the number of consecutive groups of wires of a specific size, 
+                 with this size (i.e. number of wires) specified in the corresponding element of NumWiresPerGrp.
+                 A dead region (or where there are no wires) is specified by a 0 in the appropriate position
+                 in NumGroups, and the corresponding element in NumWiresPerGrp contains the number of 'virtual'
+                 wires to define the extent of the dead region.     
+                 
+                 e.g. ME22: 15 groups of 16 wires, 1 group of 13, dead region of 6, etc.
+                 -->
+            <Parameter name="WireSpacing" value="3.16108*mm"/>
+            <Parameter name="AlignmentPinToFirstWire" value="28.7*mm"/>
+            <Parameter name="LengthOfFirstWire" value="664.6*mm"/>
+            <Parameter name="LengthOfLastWire" value="1271.5*mm"/>
+            <Parameter name="RadialExtentOfWirePlane" value="3233.8*mm"/>
+            <Parameter name="TotNumWireGroups" value="64"/>
+            <Parameter name="NumGroups" value="15"/>
+            <Parameter name="NumGroups" value="1"/>
+            <Parameter name="NumGroups" value="0"/>
+            <Parameter name="NumGroups" value="1"/>
+            <Parameter name="NumGroups" value="10"/>
+            <Parameter name="NumGroups" value="1"/>
+            <Parameter name="NumGroups" value="0"/>
+            <Parameter name="NumGroups" value="1"/>
+            <Parameter name="NumGroups" value="10"/>
+            <Parameter name="NumGroups" value="1"/>
+            <Parameter name="NumGroups" value="0"/>
+            <Parameter name="NumGroups" value="1"/>
+            <Parameter name="NumGroups" value="10"/>
+            <Parameter name="NumGroups" value="1"/>
+            <Parameter name="NumGroups" value="0"/>
+            <Parameter name="NumGroups" value="1"/>
+            <Parameter name="NumGroups" value="11"/>
+            <Parameter name="NumWiresPerGrp" value="16"/>
+            <Parameter name="NumWiresPerGrp" value="13"/>
+            <Parameter name="NumWiresPerGrp" value="6"/>
+            <Parameter name="NumWiresPerGrp" value="13"/>
+            <Parameter name="NumWiresPerGrp" value="16"/>
+            <Parameter name="NumWiresPerGrp" value="13"/>
+            <Parameter name="NumWiresPerGrp" value="6"/>
+            <Parameter name="NumWiresPerGrp" value="13"/>
+            <Parameter name="NumWiresPerGrp" value="16"/>
+            <Parameter name="NumWiresPerGrp" value="13"/>
+            <Parameter name="NumWiresPerGrp" value="6"/>
+            <Parameter name="NumWiresPerGrp" value="13"/>
+            <Parameter name="NumWiresPerGrp" value="16"/>
+            <Parameter name="NumWiresPerGrp" value="13"/>
+            <Parameter name="NumWiresPerGrp" value="6"/>
+            <Parameter name="NumWiresPerGrp" value="13"/>
+            <Parameter name="NumWiresPerGrp" value="16"/>
+        </SpecPar>
+        <!--# ========================================================-->
+        <!--# Parameters for Cathode Strip Chambers: ME32AlumFrame    -->
+        <!--# ========================================================-->
+        <SpecPar name="ChamberSpecs_ME32">
+            <PartSelector path="//ME32AlumFrame"/>
+            <Parameter name="upar" value="0.03"/>
+            <!--# 0 - strip resolution-->
+            <Parameter name="upar" value="1.4722"/>
+            <!--# 1 - wire resolution-->
+            <Parameter name="upar" value="1"/>
+            <!--# 2 - efficiency-->
+            <Parameter name="upar" value="10"/>
+            <!--# 3 - time window (bx)-->
+            <Parameter name="upar" value="0.00"/>
+            <!--# 4 - neutron hit rate per CSC layer per event-->
+            <Parameter name="upar" value="80"/>
+            <!--# 5 - number of strips in each layer of chamber-->
+            <Parameter name="upar" value="2"/>
+            <!--# 6 - number of strips 2*nnodes+1 around hit-->
+            <Parameter name="upar" value="16"/>
+            <!--# 7 - No. of wires in group-->
+            <Parameter name="upar" value="0."/>
+            <!--# 8 - No. of floating strips-->
+            <Parameter name="upar" value="0.47625"/>
+            <!--# 9 - "h" - Anode - Cathode spacing-->
+            <Parameter name="upar" value="1.33"/>
+            <!--# 10 - gas gain-->
+            <Parameter name="upar" value="4000"/>
+            <!--# 11 - CSC Voltage-->
+            <Parameter name="upar" value="0.00000E+00"/>
+            <!--# 12 - tilt angle for CSC wire slope (+z)-->
+            <Parameter name="upar" value="0.01"/>
+            <!--# 13 - calibration error-->
+            <Parameter name="upar" value="0.5"/>
+            <!--# 14 - e- attraction in gas-->
+            <Parameter name="upar" value="0.0779"/>
+            <!--# 15 - f_ind = 0.41 * f_sh = 0.19-->
+            <Parameter name="upar" value="0.5"/>
+            <!--# 16 - ADC count (fC)-->
+            <Parameter name="upar" value="0.0025"/>
+            <!--# 17 - Anode wire radius-->
+            <Parameter name="upar" value="50"/>
+            <!--# 18 - Fast shaper peaking time (ns)-->
+            <Parameter name="upar" value="120"/>
+            <!--# 19 - Peaking Time of Amplifier & Shaped Chamber signal (ns)-->
+            <!--# 20 & 21 - strip offset in strip widths (alternate layers)-->
+            <Parameter name="upar" value="-0.25"/>
+            <Parameter name="upar" value="0.25"/>
+            <!--# 22 & 23 - (700e + 25 e/pF * 75 pF/m)/sqrt (time/100 [ns])(T.Y.)-->
+            <Parameter name="upar" value="700"/>
+            <Parameter name="upar" value="25"/>
+            <!--# 24 - global nominal radial position of alignment pin (cm) -->
+            <Parameter name="upar" value="360.99"/>
+            <!--# 25 - distance from bottom edge of frame to alignment pin (cm) -->
+            <Parameter name="upar" value="3.49"/>
+            <!--# 26 - length of chamber from outer edges of frame (cm) -->
+            <Parameter name="upar" value="338.0"/>
+            <!--# 27 - distance from end of strip to alignment pin (cm) -->
+            <Parameter name="upar" value="3.03"/>
+            <!--# 28 - length of (sensitive region of) strip along local y axis (cm) -->
+            <Parameter name="upar" value="323.06"/>
+            <!--# 29 - strip deltaPhi (mrad) -->
+            <Parameter name="upar" value="2.327105"/>
+            <!--# 30 - ctiOffset - possible future use -->
+            <Parameter name="upar" value="0.0"/>
+            <!--# 31 - chamber frame thickness (mm) -->
+            <Parameter name="upar" value="6.096"/>
+            <!--# 32 - gas gap thickness (mm) -->
+            <Parameter name="upar" value="9.525"/>
+            <!--# 33 - panel thickness (mm) -->
+            <Parameter name="upar" value="15.875"/>
+            <!--# 34 - zlocal offset between AF and average AGV centre (mm) -->
+            <Parameter name="upar" value="1.71"/>
+            <!-- Wire group specs. 
+                 The wire grouping is specified by two vectors NumGroups and NumWiresPerGrp, of the same length. 
+                 The elements of NumGroups specify the number of consecutive groups of wires of a specific size, 
+                 with this size (i.e. number of wires) specified in the corresponding element of NumWiresPerGrp.
+                 A dead region (or where there are no wires) is specified by a 0 in the appropriate position
+                 in NumGroups, and the corresponding element in NumWiresPerGrp contains the number of 'virtual'
+                 wires to define the extent of the dead region.     
+                 
+                 e.g. ME32: 15 groups of 16 wires, 1 group of 13, dead region of 6 wire-spacings, etc.
+                 -->
+            <Parameter name="WireSpacing" value="3.16108*mm"/>
+            <Parameter name="AlignmentPinToFirstWire" value="28.7*mm"/>
+            <Parameter name="LengthOfFirstWire" value="664.6*mm"/>
+            <Parameter name="LengthOfLastWire" value="1271.5*mm"/>
+            <Parameter name="RadialExtentOfWirePlane" value="3233.8*mm"/>
+            <Parameter name="TotNumWireGroups" value="64"/>
+            <Parameter name="NumGroups" value="15"/>
+            <Parameter name="NumGroups" value="1"/>
+            <Parameter name="NumGroups" value="0"/>
+            <Parameter name="NumGroups" value="1"/>
+            <Parameter name="NumGroups" value="10"/>
+            <Parameter name="NumGroups" value="1"/>
+            <Parameter name="NumGroups" value="0"/>
+            <Parameter name="NumGroups" value="1"/>
+            <Parameter name="NumGroups" value="10"/>
+            <Parameter name="NumGroups" value="1"/>
+            <Parameter name="NumGroups" value="0"/>
+            <Parameter name="NumGroups" value="1"/>
+            <Parameter name="NumGroups" value="10"/>
+            <Parameter name="NumGroups" value="1"/>
+            <Parameter name="NumGroups" value="0"/>
+            <Parameter name="NumGroups" value="1"/>
+            <Parameter name="NumGroups" value="11"/>
+            <Parameter name="NumWiresPerGrp" value="16"/>
+            <Parameter name="NumWiresPerGrp" value="13"/>
+            <Parameter name="NumWiresPerGrp" value="6"/>
+            <Parameter name="NumWiresPerGrp" value="13"/>
+            <Parameter name="NumWiresPerGrp" value="16"/>
+            <Parameter name="NumWiresPerGrp" value="13"/>
+            <Parameter name="NumWiresPerGrp" value="6"/>
+            <Parameter name="NumWiresPerGrp" value="13"/>
+            <Parameter name="NumWiresPerGrp" value="16"/>
+            <Parameter name="NumWiresPerGrp" value="13"/>
+            <Parameter name="NumWiresPerGrp" value="6"/>
+            <Parameter name="NumWiresPerGrp" value="13"/>
+            <Parameter name="NumWiresPerGrp" value="16"/>
+            <Parameter name="NumWiresPerGrp" value="13"/>
+            <Parameter name="NumWiresPerGrp" value="6"/>
+            <Parameter name="NumWiresPerGrp" value="13"/>
+            <Parameter name="NumWiresPerGrp" value="16"/>
+        </SpecPar>
+    </SpecParSection>
+</DDDefinition>

@@ -1,0 +1,7 @@
+<export>
+  <lib   name="1"/>
+</export>
+<use   name="clhep"/>
+<use   name="boost"/>
+<use   name="DataFormats/CLHEP"/>
+<use   name="FWCore/MessageLogger"/>

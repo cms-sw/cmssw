@@ -1,0 +1,102 @@
+#!/usr/bin/env python
+#-*- coding: utf-8 -*-
+#pylint: disable-msg=
+"""
+File       : mkesprod
+Author     : Valentin Kuznetsov <vkuznet@gmail.com>
+Description: mkesprod code
+"""
+
+# system modules
+import sys
+
+if  sys.version_info < (2, 6):
+    raise Exception("This script requires python 2.6 or greater")
+
+# package modules
+from FWCore.Skeletons.cms import generate
+
+def tmpl_dir():
+    "Return location of template directory wrt script location"
+    return '%s/mkTemplates' % '/'.join(__file__.split('/')[:-1])
+
+def pkg_help():
+    "mkesprod help function"
+    msg  = '\nmkesprod script generates CMS ESProducer code'
+    msg += '\nUsage  : mkesprod MyProd RecName DataType1 DataType2 ...'
+    msg += '\n         -author "FirstName LastName"'
+    msg += '\n'
+    msg += '\n         MyProd = name of the producer'
+    msg += '\n         RecName = name of the record to which the producer adds data'
+    msg += '\n         DataType1 = data type created by the producer'
+    msg += '\nOutput : '
+    msg += """
+        MyProd/
+        |  plugins/
+        |  |-- BuildFile.xml
+        |  |-- MyProd.cc
+        |  python/
+        |  test/
+        |  doc/
+        """
+    msg += '\nExample:'
+    msg += '\n        # create new ESProducer code'
+    msg += '\n        mkesprod MyProd'
+    msg += '\n        # create new ESProducer code with given author'
+    msg += '\n        mkesprod MyProd -author "First Last"'
+    msg += '\n        # create new ESProducer code with given RecName'
+    msg += '\n        mkesprod MyProd MyRec'
+    msg += '\n        # create new ESProducer code with given RecName/DataType'
+    msg += '\n        mkesprod MyProd MyRec MyType'
+    msg += '\n'
+    return msg
+
+def config(tmpl, pkg_help, tmpl_dir):
+    "Parse input arguments to mk-script"
+    kwds  = {'author': '', 'tmpl': tmpl,
+             'args': {}, 'debug': False, 'tmpl_dir': tmpl_dir}
+    etags = []
+    args  = []
+    if  len(sys.argv) >= 2: # user give us arguments
+        if  sys.argv[1] in ['-h', '--help', '-help']:
+            print pkg_help
+            sys.exit(0)
+        kwds['pname'] = sys.argv[1]
+        for idx in xrange(2, len(sys.argv)):
+            opt = sys.argv[idx]
+            if  opt == '-author':
+                kwds['author'] = sys.argv[idx+1]
+            elif  opt.find('example') != -1:
+                etags.append('@%s' % opt)
+                continue
+            elif  opt in ['-h', '--help', '-help']:
+                print pkg_help
+                sys.exit(0)
+            elif  opt == '-debug':
+                kwds['debug'] = True
+                continue
+            elif sys.argv[idx-1] != '-author':
+                args.append(opt)
+    elif len(sys.argv) == 1:
+        # need to walk
+        msg   = 'Please enter %s name: ' % tmpl.lower()
+        kwds['pname'] = raw_input(msg)
+        msg   = 'Please enter record name: '
+        args.append(raw_input(msg))
+        msg   = 'Please enter data types (separate by space): '
+        args += [t for t in raw_input(msg).split()]
+    else:
+        print pkg_help
+        sys.exit(0)
+    if  args:
+        # first element is record name, others are data types
+        record = args[0]
+        datatypes = args[1:] if len(args) > 1 else ['MyData']
+        kwds['args'] = {'__record__': record, '__datatypes__': datatypes}
+    else:
+        kwds['args'] = {'__record__': 'MyRecord', '__datatypes__': ['MyType']}
+    kwds['tmpl_etags'] = etags
+    return kwds
+
+if __name__ == '__main__':
+    generate(config('ESProducer', pkg_help(), tmpl_dir()))

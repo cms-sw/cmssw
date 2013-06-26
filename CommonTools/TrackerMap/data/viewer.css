@@ -1,0 +1,48 @@
+.name
+{
+	border: 1px solid #000;
+	display: inline;
+	padding: 10px;
+	text-align: center;
+}
+.elements
+{
+	background-color: #ccf;
+	border: 1px solid #000;
+	height: 600px;
+	margin-top: 10px;
+	width: 1020px;
+}
+.content
+{
+	display: none;
+	margin: 10px;
+}
+.tab
+{
+	display: inline;
+}
+.footer
+{
+	clear: both;
+}
+.container
+{
+	margin: 30px;
+}
+.map
+{
+      border: 1px solid #000;
+      height: 600px;
+      left: 50px;
+      overflow: hidden;
+      position: absolute;
+      top: 100px;
+      width: 1000px;
+      z-index:1;
+}
+
+img
+{
+	cursor:pointer;
+}

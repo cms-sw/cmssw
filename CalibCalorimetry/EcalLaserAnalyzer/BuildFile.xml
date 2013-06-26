@@ -1,0 +1,10 @@
+<use   name="FWCore/Framework"/>
+<use   name="FWCore/ParameterSet"/>
+<use   name="root"/>
+<use   name="rootgraphics"/>
+<use   name="DataFormats/EcalDigi"/>
+<use   name="DataFormats/EcalRecHit"/>
+<use   name="Geometry/EcalMapping"/>
+<export>
+  <lib   name="1"/>
+</export>

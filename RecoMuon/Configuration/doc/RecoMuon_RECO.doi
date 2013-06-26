@@ -1,0 +1,52 @@
+<tr class="colgroup">
+  <td class="colgroup" colspan=5>Muon collections</td>
+</tr>
+<tr>
+  <td><a href="classreco_1_1Muon.html">reco::Muon</a></td>
+  <td><a href="DataFormats_MuonReco.html">reco::MuonCollection</a></td>
+  <td><a href="RecoMuon_Configuration.html">globalMuons</a></td>
+  <td class="description">Global muon objects</td>
+  <td>S.Magni</td>
+</tr>
+<tr>
+  <td><a href="classreco_1_1Track.html">reco::Track</a></td>
+  <td><a href="DataFormats_TrackReco.html">reco::TrackCollection</a></td>
+  <td><a href="RecoMuon_Configuration.html">globalMuons</a></td>
+  <td class="description">Global muon fits</td>
+  <td>N.Amapane</td>
+</tr>
+<tr>
+  <td><a href="classreco_1_1TrackExtra.html">reco::TrackExtra</a></td>
+  <td><a href="DataFormats_TrackReco.html">reco::TrackExtraCollection</a></td>
+  <td><a href="RecoTracker_Configuration.html">globalMuons</a></td>
+  <td class="description">Global muon fits</td>
+  <td>N.Amapane</td>
+</tr>
+<tr>
+  <td><a href="classTrackingRecHit.html">TrackingRecHit</a></td>
+  <td><a href="DataFormats_TrackingRecHit.html">TrackingRecHitCollection</a></td>
+  <td><a href="RecoTracker_Configuration.html">globalMuons</a></td>
+  <td class="description">Global muon fits</td>
+  <td>N.Amapane</td>
+</tr>
+<tr>
+  <td><a href="classreco_1_1Track.html">reco::Track</a></td>
+  <td><a href="DataFormats_TrackReco.html">reco::TrackCollection</a></td>
+  <td><a href="RecoMuon_Configuration.html">standAloneMuons</a></td>
+  <td class="description">Stand-alone muon fits</td>
+  <td>N.Amapane</td>
+</tr>
+<tr>
+  <td><a href="classreco_1_1TrackExtra.html">reco::TrackExtra</a></td>
+  <td><a href="DataFormats_TrackReco.html">reco::TrackExtraCollection</a></td>
+  <td><a href="RecoTracker_Configuration.html">standAloneMuons</a></td>
+  <td class="description">Stand-alone muon fits</td>
+  <td>N.Amapane</td>
+</tr>
+<tr>
+  <td><a href="classTrackingRecHit.html">TrackingRecHit</a></td>
+  <td><a href="DataFormats_TrackingRecHit.html">TrackingRecHitCollection</a></td>
+  <td><a href="RecoTracker_Configuration.html">standAloneMuons</a></td>
+  <td class="description">Stand-alone muon fits</td>
+  <td>N.Amapane</td>
+</tr>

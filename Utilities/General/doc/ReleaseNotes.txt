@@ -1,0 +1,10 @@
+2005-09-22  Marc Paterno  <paterno@fnal.gov>
+
+	* Added the MapVector class, taken from the original by Jim
+	Kowalkowski as used at CDF for many years. I had to make minor
+	updates in the class, because CMS is using a newer compiler than
+	does CDF. The changes were primarily addition of the keyword
+	'typename' where KCC did not require, but recent GCC versions do
+	require, its use. I also modified the tests, removing use of the
+	ZOOM timer classes. I have not yet made sure the tests are
+	comprehensive, nor have I modified them to use CPP_UNIT

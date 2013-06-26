@@ -1,0 +1,291 @@
+#! /usr/bin/env python
+# -*- coding: utf-8 -*-
+
+import sys, imp, re
+import operator
+import FWCore.ParameterSet.Config as cms
+
+# parse the HLT configuration from standard input or from the given file
+hlt = imp.new_module('hlt')
+try:
+  configname = sys.argv[1]
+except:
+  config = sys.stdin
+else:
+  config = open(configname)
+exec config in globals(), hlt.__dict__
+config.close()
+process = hlt.process
+
+# read global prescale service
+prescale = dict()
+columns  = 1
+if 'PrescaleService' in process.__dict__:
+  columns = len( process.PrescaleService.lvl1Labels.value() )
+  for entry in process.PrescaleService.prescaleTable:
+    prescale[entry.pathName.value()] = entry.prescales.value()
+
+
+# search a path for a single module with a certain name
+class SearchModuleByName(object):
+  def __init__(self, target, barrier = None):
+    self.target  = target
+    self.barrier = barrier
+    self.found   = [ ]
+    self.stop    = False
+
+  def enter(self, node):
+    if self.stop:
+      return
+
+    if isinstance(node, cms._Module):
+      if node.label_() == self.barrier:
+        self.stop = True
+        return
+      if node.label_() == self.target:
+        self.found.append(node)
+    
+  def leave(self, node):
+    pass
+
+
+# search a path for a single module of a certain type
+class SearchModuleByType(object):
+  def __init__(self, target, barrier = None):
+    self.target  = target
+    self.barrier = barrier
+    self.found   = [ ]
+    self.stop    = False
+
+  def enter(self, node):
+    if self.stop:
+      return
+
+    if isinstance(node, cms._Module):
+      if node.label_() == self.barrier:
+        self.stop = True
+        return
+      if node.type_() == self.target:
+        self.found.append(node)
+    
+  def leave(self, node):
+    pass
+
+
+# search a path for a "dumb" prescaler
+class SearchDumbPrescale(SearchModuleByType):
+  def __init__(self, barrier = None):
+    super(SearchDumbPrescale, self).__init__('HLTPrescaler', barrier)
+    
+
+# search a path for a "smart" prescaler
+class SearchSmartPrescale(SearchModuleByType):
+  def __init__(self, barrier = None):
+    super(SearchSmartPrescale, self).__init__('HLTHighLevelDev', barrier)
+
+
+# search a path for a "smart" prescaler
+class SearchNewSmartPrescale(SearchModuleByType):
+  def __init__(self, barrier = None):
+    super(SearchNewSmartPrescale, self).__init__('TriggerResultsFilter', barrier)
+
+
+# extract the L1 seed for a given path
+def getL1Seed(path):
+  searchSeed = SearchModuleByType('HLTLevel1GTSeed')
+  path.visit(searchSeed)
+  if searchSeed.found:
+    return [ (seed.L1SeedsLogicalExpression.value(), seed.L1TechTriggerSeeding.value()) for seed in searchSeed.found ]
+  else:
+    return [ ]
+
+
+# prepare a description of the L1 seed for a given path
+def getL1SeedDescription(path):
+  seeds = getL1Seed(path)
+  if len(seeds) == 0:
+    seedDesc = '(none)'
+  elif len(seeds) == 1:
+    if seeds[0][1]:
+      desc = 'technical bits: ' + seeds[0][0]
+    else:
+      desc = seeds[0][0]
+    seedDesc = desc
+  else:
+    entries = []
+    for seed in seeds:
+      if seed[1]:
+        desc = 'technical bits: ' + seed[0]
+      else:
+        desc = seed[0]
+      entries.append(desc)
+    seedDesc = '(' + ') AND ('.join(entries) + ')'
+
+  return seedDesc
+
+# get the BPTX coincidenxe information for the given path
+def getBPTXMatching(path):
+  searchSeed  = SearchModuleByName('hltL1sL1BPTX')
+  searchPlus  = SearchModuleByName('hltL1sL1BPTXPlusOnly')
+  searchMinus = SearchModuleByName('hltL1sL1BPTXMinusOnly')
+  searchZero  = SearchModuleByName('hltL1sZeroBias')
+  searchBPTX  = SearchModuleByName('hltBPTXCoincidence')
+  path.visit(searchSeed)
+  path.visit(searchPlus)
+  path.visit(searchMinus)
+  path.visit(searchZero)
+  path.visit(searchBPTX)
+  if searchSeed.found or searchPlus.found or searchMinus.found or searchZero.found:
+    bptx = 2
+  elif searchBPTX.found:
+    bptx = 1
+  else:
+    bptx = 0
+  return bptx
+
+# get the BPTX coincidenxe information for the given path, formatted as a charachter
+def getBPTXMatchingDescription(path):
+  code = r' ~='
+  bptx = getBPTXMatching(path)
+  return code[bptx]
+
+
+# get a tuple with the prescale factors for a path in a given endpath
+def getPrescales(name, out, end):
+  # look for a gobal prescale for the given path
+  if name in prescale:
+    pre = prescale[name]
+  else:
+    pre = [1] * columns
+
+  # check for a valid EndPath
+  if out and end:
+    endp = process.endpaths[end]
+
+    # look for a local dumb prescaler in the output path
+    dumb = SearchDumbPrescale(out)
+    endp.visit(dumb)
+    if dumb.found and end in prescale:
+      pre = map(operator.mul, pre, prescale[end])
+
+    # look for an old-style local smart prescaler in the output path
+    smart = SearchSmartPrescale(out)
+    endp.visit(smart)
+    # FIXME wildcards are not supported yet
+    for found in smart.found:
+      if name in found.HLTPaths.value():
+        index = found.HLTPaths.value().index(name)
+        scale = found.HLTPathsPrescales.value()[index] * found.HLTOverallPrescale.value()
+        pre = [ scale * p for p in pre ]
+      else:
+        pre = [ 0 ] * columns
+
+    # look for a new-style local smart prescaler in the output path
+    smart = SearchNewSmartPrescale(out)
+    endp.visit(smart)
+    # FIXME wildcards are not supported yet
+    # FIXME arbitrary expressions are not supported yet, only "HLT_Xxx" and "HLT_Xxx / N"
+    match_pre = re.compile(r'%s\s*/\s*(\d+)' % name)
+    for found in smart.found:
+      scale = 0
+      for condition in found.triggerConditions.value():
+        if name == condition:
+          scale = 1
+        elif match_pre.match(condition):
+          scale = int(match_pre.match(condition).groups()[0])
+      # apply the smart prescale to all columns 
+      pre = [ scale * p for p in pre ]
+
+  return pre
+
+
+# get the prescale factors for a path in a given endpath
+def getPrescalesDescription(name, out, end):
+  pre = getPrescales(name, out, end)
+  return ''.join(['  %6d' % p for p in pre])
+
+
+# format the information about a path associated to a specific endpath
+def dumpPath(name, out, end):
+  path = process.paths[name]
+  length = max(len(p) for p in process.paths) + 4
+  
+  # look for prescales
+  preDesc = getPrescalesDescription(name, out, end)
+
+  # look for BPTX coincidence in the given path
+  bptxDesc = getBPTXMatchingDescription(path)
+
+  # look for L1 seed
+  seedDesc = getL1SeedDescription(path)
+
+  return '      %s %-*s%s    %s' % (bptxDesc, length, name, preDesc, seedDesc)
+
+
+def getEndPath(output):
+  # look for the EndPath with the corresponding output module
+  out = ''
+  for o in process.endpaths.itervalues():
+    searchOut = SearchModuleByName(output)
+    o.visit(searchOut)
+    if searchOut.found:
+      out = o.label_()
+      break
+  else:
+    print "    *** corresponding EndPath not found ***"
+  return out
+
+
+def dumpStream(stream):
+  assigned = set()
+  allpaths = set()
+
+  print 'stream', stream
+  out = 'hltOutput%s' % stream
+  end = getEndPath(out)
+  if end:
+    output = eval('process.hltOutput%s' % stream)
+    allpaths = set( path for path in output.SelectEvents.SelectEvents )
+
+  pds = sorted( process.streams.__dict__[stream] )
+  for pd in pds:
+    print '    dataset', pd
+    if pd in process.datasets.__dict__:
+      paths = sorted( path for path in process.datasets.__dict__[pd] )
+      assigned.update( paths )
+      for path in paths:
+        print dumpPath(path, out, end)
+    else:
+      print '        *** not found ***'
+
+  unassigned = allpaths - assigned
+  if unassigned:
+    print '    *** unassigned paths ***'
+    for path in sorted(unassigned):
+      print dumpPath(path, out, end)
+
+  missing    = assigned - allpaths
+  if missing:
+    print '    *** missing paths in the output module ***'
+    for path in sorted(missing):
+      print dumpPath(path, out, end)
+
+
+def dumpOutput(stream):
+  print 'output', stream
+  out = 'hltOutput%s' % stream
+  end = getEndPath(out)
+
+  output = eval('process.hltOutput%s' % stream)
+  paths = [ path for path in output.SelectEvents.SelectEvents ]
+  paths.sort()
+  for path in paths:
+    print dumpPath(path, out, end)
+
+
+# read the list of streams
+streams = process.streams._Parameterizable__parameterNames
+streams.sort()
+
+for stream in streams:
+  dumpStream(stream)

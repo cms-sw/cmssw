@@ -1,0 +1,9 @@
+<use   name="FWCore/Framework"/>
+<use   name="FWCore/Utilities"/>
+<use   name="FWCore/PluginManager"/>
+<use   name="FWCore/ParameterSet"/>
+<use   name="FWCore/ServiceRegistry"/>
+<use   name="RecoTBCalo/HcalTBObjectUnpacker"/>
+<library   file="HcalTBObjectUnpacker.cc" name="RecoTBCaloHcalTBObjectUnpackerPlugins">
+  <flags   EDM_PLUGIN="1"/>
+</library>

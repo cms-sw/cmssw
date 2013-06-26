@@ -1,0 +1,53 @@
+#!/usr/bin/env python
+#-*- coding: utf-8 -*-
+#pylint: disable-msg=
+"""
+File       : mkedanlzr
+Author     : Valentin Kuznetsov <vkuznet@gmail.com>
+Description: mkedanlzr code
+"""
+
+# system modules
+import sys
+
+if  sys.version_info < (2, 6):
+    raise Exception("This script requires python 2.6 or greater")
+
+# package modules
+from FWCore.Skeletons.cms import generate, config
+
+def tmpl_dir():
+    "Return location of template directory wrt script location"
+    return '%s/mkTemplates' % '/'.join(__file__.split('/')[:-1])
+
+def pkg_help():
+    "mkedanlzr help function"
+    msg  = '\nmkedanlzr script generates CMS EDAnalyzer code'
+    msg += '\nUsage  : mkedanlzr MyAnalyzer -author "FirstName LastName"'
+    msg += ' <example_track> <example_histo>'
+    msg += '\nOutput : '
+    msg += """
+        MyAnalyzer/
+        |  plugins/
+        |  |-- BuildFile.xml
+        |  |-- MyAnalyzer.cc
+        |  python/
+        |  |-- CfiFile_cfi.py
+        |  |-- ConfFile_cfg.py
+        |  test/
+        |  doc/
+        """
+    msg += '\nExample:'
+    msg += '\n        # create new EDAnalyzer code'
+    msg += '\n        mkedanlzr MyAnalyzer'
+    msg += '\n        # create new EDAnalyzer code with given author'
+    msg += '\n        mkedanlzr MyAnalyzer -author "First Last"'
+    msg += '\n        # create new EDAnalyzer code with track example'
+    msg += '\n        mkedanlzr MyAnalyzer example_track'
+    msg += '\n        # create new EDAnalyzer code with histo example'
+    msg += '\n        mkedanlzr MyAnalyzer example_histo'
+    msg += '\n'
+    return msg
+
+if __name__ == '__main__':
+    generate(config('EDAnalyzer', pkg_help(), tmpl_dir()))

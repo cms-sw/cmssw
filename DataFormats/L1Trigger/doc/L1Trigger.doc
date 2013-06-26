@@ -1,0 +1,54 @@
+
+/*!
+
+\page DataFormats_L1Trigger Package DataFormats/L1Trigger
+
+<center>
+<small>
+
+<!-- @CVS_TAG@ will be substituted at build time, no need to touch -->
+<a href=http://cmssw.cvs.cern.ch/cgi-bin/cmssw.cgi/CMSSW/DataFormats/L1Trigger/?cvsroot=CMSSW&only_with_tag=@CVS_TAG@>Source code (CVS tag: @CVS_TAG@)</a> - 
+<a href=http://cmssw.cvs.cern.ch/cgi-bin/cmssw.cgi/CMSSW/DataFormats/L1Trigger/.admin/developers?rev=HEAD&cvsroot=CMSSW&content-type=text/vnd.viewcvs-markup>Administrative privileges</a>
+</small>
+</center>
+
+\section desc Description
+<!-- Short description of what this package is supposed to provide -->
+
+This package defines the persistent L1Extra objects, which contain the
+physical representations of the Level-1 trigger hardware objects.  It also
+defines the map objects that provide the links between triggers and L1Extra
+particles.
+
+\subsection interface Public interface
+<!-- List the classes that are provided for use in other packages (if any) -->
+
+- L1EmParticle
+- L1EmParticleCollection
+- L1EtMissParticle
+- L1EtMissParticleRef
+- L1JetParticle
+- L1JetParticleCollection
+- L1MuonParticle
+- L1MuonParticleCollection
+- L1ParticleMap
+- L1ParticleMapCollection
+
+\subsection modules Modules
+<!-- Describe modules implemented in this package and their parameter set -->
+
+
+\subsection tests Unit tests and examples
+<!-- Describe cppunit tests and example configuration files -->
+
+
+\section status Status and planned development
+<!-- e.g. completed, stable, missing features -->
+L1XXParticle classes are complete.  L1ParticleMap needs to adapt to new
+GT emulator object map.
+
+<hr>
+Last updated:
+@DATE@  Author: Werner Sun
+*/
+

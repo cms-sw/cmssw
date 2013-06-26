@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
+	<ConstantsSection label="forward.xml" eval="true">
+		<Constant name="TotemT1Rin1" value="15.41*cm"/>
+		<Constant name="TotemT1Rin2" value="15.90*cm"/>
+		<Constant name="TotemT1Rout1" value="81.40*cm"/>
+		<Constant name="TotemT2Z1" value="14.360*m"/>
+		<Constant name="TotemT2Rout" value="25.00*cm"/>
+		<Constant name="CastorL1" value="1.6165*m"/>
+		<Constant name="CastorL2" value="1.334*m"/>
+		<Constant name="CastorZ1" value="[cms:ForwdDetsZ1]-[CastorL1]"/>
+		<Constant name="PLTdZ" value="([cms:TrackLumiZ2]-[cms:TrackLumiZ1])/2"/>
+		<Constant name="PLTZ" value="([cms:TrackLumiZ2]+[cms:TrackLumiZ1])/2"/>
+	</ConstantsSection>
+	<SolidSection label="forward.xml">
+		<Polycone name="TotemT1" startPhi="0*deg" deltaPhi="360*deg">
+			<ZSection z="[cms:MuonBeamZ1]" rMin="[cms:TotemBeamR1]" rMax="[cms:MuonBeamR2]"/>
+			<ZSection z="[cms:TotemBeamZ1]" rMin="[cms:TotemBeamR2]" rMax="[TotemT1Rout1]"/>
+			<ZSection z="[cms:TotemBeamZ1]" rMin="[cms:TotemBeamR3]" rMax="[TotemT1Rout1]"/>
+			<ZSection z="[cms:TotemMuonZ1]" rMin="[TotemT1Rin1]" rMax="[cms:TotemMuonR1]"/>
+			<ZSection z="[cms:TotemMuonZ1]" rMin="[TotemT1Rin1]" rMax="[cms:TotemMuonR2]"/>
+			<ZSection z="[cms:TotemMuonZ2]" rMin="[TotemT1Rin2]" rMax="[cms:TotemMuonR2]"/>
+		</Polycone>
+		<Polycone name="TotemT2" startPhi="0*deg" deltaPhi="360*deg">
+			<ZSection z="[cms:TotemBeamZ2]" rMin="[cms:TotemBeamR4]" rMax="[TotemT2Rout]"/>
+			<ZSection z="[cms:TotemBeamZ3]" rMin="[cms:TotemBeamR4]" rMax="[TotemT2Rout]"/>
+			<ZSection z="[cms:TotemBeamZ3]" rMin="[cms:TotemBeamR5]" rMax="[TotemT2Rout]"/>
+			<ZSection z="[cms:TotemBeamZ4]" rMin="[cms:ForwdBeamR4]" rMax="[TotemT2Rout]"/>
+			<ZSection z="[TotemT2Z1]" rMin="[cms:ForwdBeamR4]" rMax="[TotemT2Rout]"/>
+		</Polycone>
+		<Polycone name="Castor" startPhi="0*deg" deltaPhi="360*deg">
+			<ZSection z="0.0*fm" rMin="[cms:ForwdBeamR4]" rMax="[cms:ForwdDetsR1]"/>
+			<ZSection z="[CastorL2]" rMin="[cms:ForwdBeamR4]" rMax="[cms:ForwdDetsR1]"/>
+			<ZSection z="[CastorL1]" rMin="[cms:ForwdDetsR1]" rMax="[cms:ForwdDetsR1]"/>
+		</Polycone>
+		<Tubs name="PLT" rMin="[cms:TrackBeamR1]" rMax="[cms:TrackLumiR1]" dz="[PLTdZ]" startPhi="0*deg" deltaPhi="360*deg"/>
+	</SolidSection>
+	<LogicalPartSection label="forward.xml">
+		<LogicalPart name="TotemT1" category="unspecified">
+			<rSolid name="TotemT1"/>
+			<rMaterial name="materials:Air"/>
+		</LogicalPart>
+		<LogicalPart name="TotemT2" category="unspecified">
+			<rSolid name="TotemT2"/>
+			<rMaterial name="materials:Air"/>
+		</LogicalPart>
+		<LogicalPart name="CastorF" category="unspecified">
+			<rSolid name="Castor"/>
+			<rMaterial name="materials:Air"/>
+		</LogicalPart>
+		<LogicalPart name="CastorB" category="unspecified">
+			<rSolid name="Castor"/>
+			<rMaterial name="materials:Air"/>
+		</LogicalPart>
+		<LogicalPart name="PLT" category="unspecified">
+			<rSolid name="PLT"/>
+			<rMaterial name="materials:Air"/>
+		</LogicalPart>
+	</LogicalPartSection>
+	<PosPartSection label="forward.xml">
+		<PosPart copyNumber="1">
+			<rParent name="cms:CMSE"/>
+			<rChild name="forward:TotemT1"/>
+			<rRotation name="rotations:000D"/>
+		</PosPart>
+		<PosPart copyNumber="2">
+			<rParent name="cms:CMSE"/>
+			<rChild name="forward:TotemT1"/>
+			<rRotation name="rotations:180D"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="cms:CMSE"/>
+			<rChild name="forward:TotemT2"/>
+			<rRotation name="rotations:000D"/>
+		</PosPart>
+		<PosPart copyNumber="2">
+			<rParent name="cms:CMSE"/>
+			<rChild name="forward:TotemT2"/>
+			<rRotation name="rotations:180D"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="cms:CMSE"/>
+			<rChild name="forward:CastorF"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="0*fm" y="0*fm" z="[CastorZ1]"/>
+		</PosPart>
+		<PosPart copyNumber="2">
+			<rParent name="cms:CMSE"/>
+			<rChild name="forward:CastorB"/>
+			<rRotation name="rotations:180D"/>
+			<Translation x="0*fm" y="0*fm" z="-[CastorZ1]"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="cms:CMSE"/>
+			<rChild name="forward:PLT"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="0*fm" y="0*fm" z="[PLTZ]"/>
+		</PosPart>
+		<PosPart copyNumber="2">
+			<rParent name="cms:CMSE"/>
+			<rChild name="forward:PLT"/>
+			<rRotation name="rotations:180D"/>
+			<Translation x="0*fm" y="0*fm" z="-[PLTZ]"/>
+		</PosPart>
+	</PosPartSection>
+</DDDefinition>

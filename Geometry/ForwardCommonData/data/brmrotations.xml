@@ -1,0 +1,11 @@
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
+ <RotationSection label="brmrotations.xml">
+  <Rotation name="B45R" thetaX="90*deg" phiX="-45*deg" thetaY="90*deg" phiY="45*deg" thetaZ="0*deg" phiZ="0*deg"/>
+  <Rotation name="B202X" thetaX="90*deg" phiX="158.5*deg" thetaY="90*deg" phiY="248.5*deg" thetaZ="0*deg" phiZ="0*deg"/>
+  <Rotation name="B22X" thetaX="90*deg" phiX="338.5*deg" thetaY="90*deg" phiY="68.5*deg" thetaZ="0*deg" phiZ="0*deg"/>
+  <Rotation name="B90P" thetaX="90*deg" phiX="-90*deg" thetaY="90*deg" phiY="0*deg" thetaZ="0*deg" phiZ="0*deg"/>
+  <Rotation name="B90M" thetaX="90*deg" phiX="90*deg" thetaY="90*deg" phiY="180*deg" thetaZ="0*deg" phiZ="0*deg"/>
+  <Rotation name="B90L" thetaX="90*deg" phiX="180*deg" thetaY="90*deg" phiY="-90*deg" thetaZ="0*deg" phiZ="0*deg"/>
+ </RotationSection>
+</DDDefinition>

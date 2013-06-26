@@ -1,0 +1,226 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+<BODY bgcolor="FFFFFF">
+<title>
+          CMS MessageLogger: Controlling LogDebug Behavior
+</title>
+
+<center>
+<h1> <img src="header-public.gif" align="center"> </h1>
+
+<font color=red>
+<h1>CMS MessageLogger Service
+<br> 
+Controlling LogDebug Behavior</h1>
+</font>
+</center>
+
+<p>
+
+Code in user modules can be instrumented with LogDebug messages, intended
+for use when abnormal circumstances require the output of detailed information.
+In order that this instrumentation can be left in place 
+without impacting performance under normal circmstances,
+it is important that LogDebug messages, by default, cost as little as possible
+in runtime overhead.  
+That includes:
+<ul>
+<li> Avoiding sending the messages through the logic that gives each 
+destination a chance to respond.
+<li> Measures to eliminate almost all of the cost of processing the 
+operator&lt;&lt; operations that stream text or other items to the message. 
+</ul>
+<p>
+Since LogDebug messages are (by default) rapidly discarded, 
+the user can explicitly enable LogDebug messages issued by 
+some or all modules.  This is done without needing to re-compile
+code, via parameters in the .cfg file.
+<p>
+For time-critical running, there is also a way to elminate the effect of
+LogDebug messages at compile-time.  When this approach is used, the
+LogDebug calls will be optimized down to be truly zero-cost.  The trade-off
+is that for code compiled with this switch set, the LogDebug messages cannot
+be explicitly enabled via parameters in the .cfg file. 
+<p>
+<ul>
+<li>
+<a href="#enabling"> Enabling LogDebug Messages </a>
+<li>
+<a href="#ML_NDEBUG"> Compile-time Elimination of LogDebug Messages
+<li>
+<a href="#why"> Why are my LogDebug Messages Not Being Reported?
+</ul>
+
+<p><hr><p>
+<a name="enabling">
+<h2> Enabling LogDebug Messages </h2>
+
+Code can be freely sprinkled with LogDebug messages, without fear of undue
+performance overhead:  By default, each call to LogDebug("category") will
+consult a boolean variable to check whether debug messages are enabled for 
+the current module.  Unless debug messages have explicitly been enabled,
+LogDebug() will do no other work, and each operator&lt;&lt; to the LogDebug
+will merely check that same boolean and do no work either.
+<p>
+In order to "turn on" responses to LogDebug, the user does two things in the
+.cfg file, as illustrated by this example:
+
+<pre>
+process TEST = {
+  service = MessageLogger {
+    vstring destinations = {   "detailedInfo.txt"
+                             , "critical.txt"
+                           }
+    PSet detailedInfo.txt = { <font color=red>string threshold = "DEBUG" </font>   } 
+    <font color=red>vstring debugModules = {   "myAnalysisModule" 
+                             , "myOtherModule   
+			   }</font>
+  }
+  untracked PSet maxEvents = {untracked int32 input = 5}
+  path p = { myAnalysisModule, myOtherModule, aThirdModule }
+  module myAnalysisModule = ModuleThatIssuesDebugMessages { }
+  module myOtherModule    = ModuleThatIssuesDebugMessages { }
+  module aThirdModule     = ModuleThatIssuesDebugMessages { }
+  source = EmptySource { }
+}
+</pre>
+
+The <code><font color=red>string threshold = "DEBUG" </font></code>
+parameter in the Pset for <code>detailedInfo.txt</code> specifies that 
+the destination writing to that file should respond to all messages of
+severity DEBUG or higher -- that is, to all messages.  By default
+the threshold is <code>INFO</code>, so in the above example,
+the destination writing to <code>critical.txt</code> 
+would not report the LogDebug
+messages.
+<p>
+The <code><font color=red>vstring debugModules = {...}</font></code>
+list specifies all the modules for which LogDebug should be enabled.
+As illustrated, these modules are specified by their module labels.
+In this example, LogDebug messages issued while in 
+<code>myAnalysisModule</code> or <code>myOtherModule</code> would be enabled,
+while those issued while in <code>aThirdModule</code> would be rapidly 
+discarded.
+<p>
+<a name="star">
+<h3> Enabling all LogDebug Messages </h3>
+One further syntax is provided, for the convenience of users wishing to enable
+all LogDebug messages:
+<pre>
+process TEST = {
+  service = MessageLogger {
+    vstring destinations = {   "detailedInfo.txt"
+                             , "critical.txt"
+                           }
+    PSet detailedInfo.txt = { string threshold = "DEBUG"    } 
+    <font color=red>vstring debugModules = {  "*"  } </font>
+  }
+  untracked PSet maxEvents = {untracked int32 input = 5}
+  path p = { myAnalysisModule, myOtherModule, aThirdModule }
+  module myAnalysisModule = ModuleThatIssuesDebugMessages { }
+  module myOtherModule    = ModuleThatIssuesDebugMessages { }
+  module aThirdModule     = ModuleThatIssuesDebugMessages { }
+  source = EmptySource { }
+}
+</pre>
+(Remember that you still have to set one or more thresholds to 
+<code>DEBUG</code>.
+Unless some destination(s) have their thresholds set at 
+<code>DEBUG</code>, the LogDebug messages will be composed but no destination 
+will report them.)
+
+<p>
+<a name="ML_NDEBUG">
+<h2> Compile-time Elimination of LogDebug Messages </h2>
+
+If <code>NDEBUG</code> is defined (this is the same <code>NDEBUG</code> that
+would turn <code>assert</code> into nothingness), then the LogDebug macro
+will be transformed into a form that is easily optimized down to zero run-time 
+cost.
+<p>
+If the code was compiled with <code>NDEBUG</code> defined, LogDebug messages
+will be completely suppressed (even if the .cfg file directs that they be
+enabled), since the code for testing whether such messages are enabled will not
+be present.
+<p>
+While the default behavior, as described above, is tied to the same
+<code>NDEBUG</code> that applies to <code>assert</code> macros,
+two additional symbols are provided to allow the user to over-ride 
+that behavior.
+<ul>
+<li>
+If <code>ML_NDEBUG</code> is defined, 
+then LogDebug message code will not be compiled (that is, LogDebug will
+be transformed into the zero-runtime-cost form) even if <code>NDEBUG</code> 
+is not defined.
+<li>
+If <code>ML_DEBUG</code> is defined, 
+then LogDebug message code will be compiled, not matter what.
+</ul>
+
+<a name="why">
+<h2> Why are my LogDebug Messages Not Being Reported? </h2>
+
+By design, the MessageLogger avoids (by default) reporting LogDebug
+messages, and discards such messages as rapidly as possible unless 
+they are enabled.  In addition, destinations' thresholds are set 
+above that of DEBUG severity by default; again, users must specifically
+indicate that they want a destination to respond to LogDebug messages.
+This design choice was made so that users can instrument their code with 
+(normally inactive) LogDebug diagnostics, and leave these in for future 
+use without impacting performance when the information is not needed.
+<p>
+A consequence of this policy is that there are several points at which 
+LogDebug message responses can be disabled, and the user requiring such
+output needs to enable both the issuing and the reporting of the messages.
+<p>
+If you are trying to get your LogDebug messages to be reported and they are
+not being shown, here is a checklist of reasons why LogDebug messages would
+not be reported by a destination:
+<ol>
+<li>
+If the code is compiled with the <code>NDEBUG</code> symbol defined
+(for example, certain production compilations would do this to turn off 
+assert checking), then the <code>LogDebug</code> macro is turned to a no-op.
+<p>
+<em>You can define the symbol <code>ML_DEBUG</code> to override this.</em>
+<p>
+<li>
+If the .cfg file does not explicitly enable LogDebug messages for a given
+module, such messages issued by that module will be discarded.  Make sure
+the parameter 
+<font color=blue><code>vstring debugModules = { "myModuleLabel" }</code></font>
+is present in the MessageLogger parameter set.  Check the spelling of 
+<font color=blue><code>debugModules</code></font> and check that the module
+label suppied is the correct label. This label will appear outside the
+MessageLogger parameter set, on the left
+side of a <font color=blue><code>module myModuleLabel =</code></font> parameter
+and in the <font color=blue><code>path = { ..., myModuleLabel, ...}<code></font>
+parameter.  
+<p>
+<em> <font color=blue><code>vstring debugModules = { "*" }</code></font> 
+enables LogDebug messages from all modules.</em>
+<p>
+<li>
+The threshold for every destination is, by default, set above the level that
+would permit LogDebug messaes to be reported.  In the parameter set for the
+desired reporting destination, there must appear 
+<font color=blue><code>string threshold = "DEBUG"</code></font>
+</ol>
+
+
+<p><center>
+<img src="bar.gif"></center>
+
+<p><center>
+<a href="http://www.uscms.org/SoftwareComputing/index.html">
+USCMS Software and Computing Home Page </a> -
+<a href="MessageLogger.html">CMS MessageLogger Service Page</a>
+</center>
+
+<p>
+      <hr>
+      <address><a href="mailto:mf@fnal.gov">Mark Fischler</a></address>
+<!-- hhmts start -->
+Last modified: December 1, 2005
+<!-- hhmts end -->
+</body>

@@ -1,0 +1,141 @@
+JetMonitor:
+  OpenHLT_L1Jet15 
+  OpenHLT_Jet30 
+  OpenHLT_DiJetAve15
+  OpenHLT_QuadJet30 
+
+  OpenHLT_Jet50 
+  OpenHLT_Jet80 
+  OpenHLT_DiJetAve30
+  OpenHLT_DiJetAve50
+
+
+Jets:
+  OpenHLT_Jet110 
+  OpenHLT_Jet180 
+  OpenHLT_DiJetAve70
+  OpenHLT_DiJetAve130
+  
+  OpenHLT_HT200 
+	OpenHLT_Ele10_LW_L1R_HT200
+
+MET_BTag:
+  OpenHLT_L1MET20 
+  OpenHLT_MET25 
+  OpenHLT_MET50 
+  OpenHLT_MET100 
+  OpenHLT_HT300_MHT100 
+  OpenHLT_SumET120 
+
+  OpenHLT_BTagIP_Jet80 
+  OpenHLT_BTagIP_Jet120 
+  OpenHLT_BTagMu_Jet20 
+  
+  OpenHLT_FwdJet40 
+  
+
+    
+SingleEGMonitoring:
+  OpenHLT_L1SingleEG5 
+  OpenHLT_Ele10_SW_L1R 
+  OpenHLT_Ele15_SW_L1R 
+
+  OpenHLT_Photon10_L1R 
+  OpenHLT_Photon10_LooseEcalIso_TrackIso_L1R 
+  OpenHLT_Photon15_L1R 
+  OpenHLT_Photon20_LooseEcalIso_TrackIso_L1R 
+
+  OpenHLT_Ele10_SW_L1R_TripleJet30 
+
+
+SingleEG:
+  OpenHLT_Ele15_SW_LooseTrackIso_L1R 
+  OpenHLT_Ele15_SC15_SW_LooseTrackIso_L1R 
+
+
+	OpenHLT_Ele15_SW_EleId_L1R
+  OpenHLT_Ele15_SC15_SW_EleId_L1R
+  OpenHLT_Ele25_SW_EleId_LooseTrackIso_L1R
+
+
+
+  OpenHLT_Ele20_SW_L1R 
+  OpenHLT_Ele20_SC15_SW_L1R 
+	OpenHLT_Ele20_SiStrip_L1R
+
+
+  OpenHLT_Ele25_SW_L1R 
+
+
+
+  OpenHLT_Photon25_L1R 
+  OpenHLT_Photon25_LooseEcalIso_TrackIso_L1R 
+  OpenHLT_Photon30_L1R 
+  OpenHLT_Photon70_L1R 
+
+
+DoubleEG:
+  OpenHLT_DoubleEle10_SW_L1R 
+  OpenHLT_DoublePhoton10_L1R 
+
+  OpenHLT_DoublePhoton15_L1R 
+  OpenHLT_DoublePhoton15_VeryLooseEcalIso_L1R 
+
+  OpenHLT_DoubleEle5_SW_Jpsi_L1R
+ 	OpenHLT_DoubleEle5_SW_Upsilon_L1R
+
+
+
+Tau:
+	OpenHLT_SingleIsoTau30_Trk5
+  OpenHLT_DoubleLooseIsoTau15_Trk5
+
+SingleMuMonitor:
+  OpenHLT_L1MuOpen 
+  OpenHLT_L1Mu 
+  OpenHLT_Mu5 
+
+
+
+
+SingleMu:
+  OpenHLT_Mu9 
+  OpenHLT_Mu11 
+  OpenHLT_L2Mu11 
+  OpenHLT_Mu15
+  OpenHLT_IsoMu9 
+
+  OpenHLT_L1Mu20HQ
+	OpenHLT_L1Mu30
+
+  OpenHLT_L1Mu14_L1SingleEG10 
+
+  OpenHLT_L1Mu14_L1SingleJet20 
+  OpenHLT_L2Mu5_Photon13_L1R 
+
+  OpenHLT_L1Mu14_L1ETM40 
+  OpenHLT_L2Mu9_DiJet30
+	OpenHLT_L2Mu8_HT50
+
+DiMu:
+  OpenHLT_DoubleMu0 
+  OpenHLT_DoubleMu3 
+  OpenHLT_L1DoubleMuOpen 
+
+
+MinB:
+  OpenHLT_ZeroBias 
+  OpenHLT_MinBiasHcal 
+  OpenHLT_MinBiasEcal 
+  HLT_MinBiasPixel 
+  HLT_MinBiasPixel_Trk5 
+
+BH_Forward:
+
+  HLT_CSCBeamHalo 
+  HLT_CSCBeamHaloOverlapRing1 
+  HLT_CSCBeamHaloOverlapRing2 
+  HLT_CSCBeamHaloRing2or3 
+  HLT_BackwardBSC 
+  HLT_ForwardBSC 
+  HLT_TrackerCosmics 

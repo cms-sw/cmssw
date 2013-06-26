@@ -1,0 +1,1172 @@
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../../DetectorDescription/Schema/DDLSchema.xsd">
+	<ConstantsSection label="forwardshield.xml" eval="true">
+		<Constant name="ForwdRmax" value="3.00*m"/>
+		<Constant name="ForwdZv01" value="14.300*m"/>
+		<Constant name="ForwdZv02" value="21.700*m"/>
+		<Constant name="CalShldZ1" value="13.250*m"/>
+		<Constant name="CalShldZ2" value="13.350*m"/>
+		<Constant name="VcalEleZ1" value="13.750*m"/>
+		<Constant name="VcalEleZ2" value="14.150*m"/>
+		<Constant name="VcalEleR1" value="1.0200*m"/>
+		<Constant name="VcalEleR2" value="1.4500*m"/>
+		<Constant name="VcalEleBoxDx" value="85.0*mm"/>
+		<Constant name="VcalEleBoxDy" value="155.0*mm"/>
+		<Constant name="VcalEleBoxDz" value="140.0*mm"/>
+		<Constant name="VcalEleBoxR0" value="1075.0*mm"/>
+		<Constant name="VcalLGR" value="13.5*mm"/>
+                <Constant name="VcalPMTx" value="30.0*mm"/>
+                <Constant name="VcalPMTy" value="30.0*mm"/>
+                <Constant name="VcalPMTz" value="22.0*mm"/>
+		<Constant name="VcalPMTDist" value="130.0*mm"/>
+		<Constant name="VcalPMTSep" value="42.0*mm"/>
+                <Constant name="VcalCathx" value="9.0*mm"/>
+                <Constant name="VcalCathy" value="9.0*mm"/>
+                <Constant name="VcalCathz" value="0.6*mm"/>
+		<Constant name="halfAngHF" value="10*deg"/>
+		<Constant name="VcalEleR3" value="([VcalEleR2]*cos([halfAngHF]))"/>
+		<Constant name="dxLowEleBox" value="([VcalEleR1]*tan([halfAngHF]))"/>
+		<Constant name="dxTopEleBox" value="([VcalEleR2]*sin([halfAngHF]))"/>
+		<Constant name="dyEleBox" value="([VcalEleR3]-[VcalEleR1])/2"/>
+		<Constant name="dzEleBox" value="([VcalEleZ2]-[VcalEleZ1])/2"/>
+		<Constant name="yposEleBox" value="([VcalEleR3]+[VcalEleR1])/2"/>
+		<Constant name="zposEleBox" value="([VcalEleZ2]+[VcalEleZ1])/2"/>
+		<Constant name="VcalPlateT" value="10.0*mm"/>
+		<Constant name="VcalEleBoxX" value="([VcalEleBoxR0] + [VcalEleBoxDy]) *                                        sin([halfAngHF]/2)"/>
+		<Constant name="VcalEleBoxY" value="([VcalEleBoxR0] + [VcalEleBoxDy]) *                                       cos([halfAngHF]/2) - [yposEleBox]"/>
+		<Constant name="VcalEleBoxZ" value="([VcalPlateT]*2 + [VcalEleBoxDz] -                                       [dzEleBox])"/>
+		<Constant name="FixRotRad" value="1.0000*m"/>
+		<Constant name="FixShldZ1" value="10.910*m"/>
+		<Constant name="FixShldZ2" value="11.110*m"/>
+		<Constant name="FixShldZ3" value="13.125*m"/>
+		<Constant name="FixShldZ4" value="13.550*m"/>
+		<Constant name="FixShldZ5" value="13.650*m"/>
+		<Constant name="FixShldZ6" value="13.688*m"/>
+		<Constant name="FixShldZ7" value="13.713*m"/>
+		<Constant name="FixShldZ8" value="13.726*m"/>
+		<Constant name="FixShldZ9" value="13.750*m"/>
+		<Constant name="FixShldZ10" value="18.050*m"/>
+		<Constant name="FixShldZ11" value="19.050*m"/>
+		<Constant name="FixShldZ12" value="20.850*m"/>
+		<Constant name="FixShldZ13" value="21.900*m"/>
+		<Constant name="FixShldZ14" value="22.500*m"/>
+		<Constant name="FixShldZ15" value="22.550*m"/>
+		<Constant name="dZFixShld5" value="([FixShldZ4]-[CalShldZ2])/2"/>
+		<Constant name="dZFixShld6" value="([FixShldZ5]-[FixShldZ4])/2"/>
+		<Constant name="dZFixShld7" value="([FixShldZ6]-[FixShldZ5])/2"/>
+		<Constant name="dZFixShld8" value="([FixShldZ7]-[FixShldZ6])/2"/>
+		<Constant name="dZFixShld9" value="([FixShldZ8]-[FixShldZ7])/2"/>
+		<Constant name="dZFixShld10" value="([FixShldZ9]-[FixShldZ8])/2"/>
+		<Constant name="FixShldR1" value="1.1130*m"/>
+		<Constant name="FixShldR2" value="[cms:ForwdVcalR1]"/>
+		<Constant name="FixShldR3" value="1.5200*m"/>
+		<Constant name="FixShldR4" value="1.6000*m"/>
+		<Constant name="FixShldR5" value="1.7000*m"/>
+		<Constant name="FixShldR6" value="1.7500*m"/>
+		<Constant name="FixShldR7" value="2.1000*m"/>
+		<Constant name="FixShldR8" value="2.1500*m"/>
+		<Constant name="FixShldR9" value="3.000*cm"/>
+		<Constant name="FixShldR10" value="25.00*cm"/>
+		<Constant name="FixShldR11" value="27.00*cm"/>
+		<Constant name="FixShldR12" value="60.00*cm"/>
+		<Constant name="FixShldR13" value="70.00*cm"/>
+		<Constant name="FixShldR14" value="75.70*cm"/>
+		<Constant name="FixShldR15" value="66.00*cm"/>
+		<Constant name="FixShldR16" value="92.00*cm"/>
+		<Constant name="FixShldR17" value="1.1600*m"/>
+		<Constant name="FixShldR18" value="1.4000*m"/>
+		<Constant name="FixShldR19" value="1.0000*m"/>
+		<Constant name="FixShldR20" value="2.7000*m"/>
+		<Constant name="RotShldZ1" value="13.000*m"/>
+		<Constant name="RotShldZ2" value="13.150*m"/>
+		<Constant name="RotShldZ3" value="13.350*m"/>
+		<Constant name="RotShldZ4" value="13.550*m"/>
+		<Constant name="RotShldZ5" value="14.6464*m"/>
+		<Constant name="RotShldZ6" value="14.6897*m"/>
+		<Constant name="RotShldZ7" value="14.7330*m"/>
+		<Constant name="RotShldZ8" value="15.600*m"/>
+		<Constant name="RotShldZ9" value="17.750*m"/>
+		<Constant name="RotShldZ10" value="17.860*m"/>
+		<Constant name="RotShldZ11" value="18.200*m"/>
+		<Constant name="RotShldZ12" value="18.840*m"/>
+		<Constant name="RotShldZ13" value="18.890*m"/>
+		<Constant name="RotShldZ14" value="19.839*m"/>
+		<Constant name="RotShldZ15" value="19.889*m"/>
+		<Constant name="RotShldR1" value="[cms:ForwdDetsR1]"/>
+		<Constant name="RotShldR2" value="40.00*cm"/>
+		<Constant name="RotShldR3" value="74.29*cm"/>
+		<Constant name="RotShldR4" value="70.00*cm"/>
+		<Constant name="RotShldR5" value="90.00*cm"/>
+		<Constant name="RotShldR6" value="97.50*cm"/>
+		<Constant name="RotShldR7" value="55.00*cm"/>
+		<Constant name="RotShldR8" value="1.1500*m"/>
+		<Constant name="RotShldR9" value="1.1250*m"/>
+		<Constant name="RotShldR10" value="1.2000*m"/>
+		<Constant name="RotShldR11" value="1.1750*m"/>
+		<Constant name="RotShldR12" value="72.25*cm"/>
+		<Constant name="RotShldR13" value="80.00*cm"/>
+		<Constant name="RotShldR14" value="91.22*cm"/>
+		<Constant name="RotShldR15" value="1.1156*m"/>
+		<Constant name="RotShldR16" value="1.2600*m"/>
+		<Constant name="RotShldR17" value="1.6000*m"/>
+		<Constant name="RotShldR18" value="1.6700*m"/>
+		<Constant name="RotShldR19" value="1.7350*m"/>
+		<Constant name="RotShldR20" value="1.6500*m"/>
+		<Constant name="RotShldR21" value="1.7200*m"/>
+		<Constant name="RotShldR22" value="1.7850*m"/>
+		<Constant name="RotShldR23" value="65.714*cm"/>
+		<Constant name="QuadZ1" value="22.500*m"/>
+		<Constant name="QuadR1" value="2.300*cm"/>
+		<Constant name="QuadR2" value="3.500*cm"/>
+		<Constant name="QuadR3" value="6.900*cm"/>
+		<Constant name="QuadR4" value="22.00*cm"/>
+		<Constant name="FibreR1" value="13.24*mm"/>
+		<Constant name="FibreR2" value="14.43*mm"/>
+		<Constant name="FibreR3" value="12.22*mm"/>
+		<Constant name="FibreR4" value="10.16*mm"/>
+		<Constant name="FibreR5" value="8.57*mm"/>
+		<Constant name="FibreR6" value="7.29*mm"/>
+		<Constant name="FibreR7" value="6.18*mm"/>
+		<Constant name="FibreR8" value="5.29*mm"/>
+		<Constant name="FibreR9" value="4.48*mm"/>
+		<Constant name="FibreR10" value="3.83*mm"/>
+		<Constant name="FibreR11" value="3.38*mm"/>
+		<Constant name="FibreR12" value="4.07*mm"/>
+		<Constant name="FibreR13" value="3.99*mm"/>
+		<Constant name="FibreDz" value="([CalShldZ2]-[CalShldZ1])"/>
+	</ConstantsSection>
+	<RotationSection label="forwardshield.xml">
+		<Rotation name="R005" thetaX="90*deg" phiX="5*deg" thetaY="90*deg" phiY="95*deg" thetaZ="0*deg" phiZ="0*deg"/>
+		<Rotation name="R010" thetaX="90*deg" phiX="10*deg" thetaY="90*deg" phiY="100*deg" thetaZ="0*deg" phiZ="0*deg"/>
+		<Rotation name="R350" thetaX="90*deg" phiX="-10*deg" thetaY="90*deg" phiY="80*deg" thetaZ="0*deg" phiZ="0*deg"/>
+		<Rotation name="R355" thetaX="90*deg" phiX="-5*deg" thetaY="90*deg" phiY="85*deg" thetaZ="0*deg" phiZ="0*deg"/>
+	</RotationSection>
+	<SolidSection label="forwardshield.xml">
+		<Polycone name="OQUA" startPhi="0*deg" deltaPhi="360*deg">
+			<ZSection z="[cms:MuonBeamZ2]" rMin="[cms:ForwdBeamR1]" rMax="[ForwdRmax]"/>
+			<ZSection z="[cms:ForwdVcalZ1]" rMin="[cms:ForwdBeamR1]" rMax="[ForwdRmax]"/>
+			<ZSection z="[cms:ForwdVcalZ1]" rMin="[cms:ForwdVcalR1]" rMax="[ForwdRmax]"/>
+			<ZSection z="[cms:ForwdVcalZ2]" rMin="[cms:ForwdVcalR1]" rMax="[ForwdRmax]"/>
+			<ZSection z="[cms:ForwdVcalZ2]" rMin="[cms:ForwdBeamR1]" rMax="[ForwdRmax]"/>
+			<ZSection z="[cms:ForwdBeamZ3]" rMin="[cms:ForwdBeamR1]" rMax="[ForwdRmax]"/>
+			<ZSection z="[cms:ForwdBeamZ3]" rMin="[cms:ForwdDetsR1]" rMax="[ForwdRmax]"/>
+			<ZSection z="[cms:ForwdDetsZ1]" rMin="[cms:ForwdDetsR1]" rMax="[ForwdRmax]"/>
+			<ZSection z="[cms:ForwdDetsZ1]" rMin="[cms:ForwdBeamR3]" rMax="[ForwdRmax]"/>
+			<ZSection z="[cms:ForwdBeamZ9]" rMin="[cms:ForwdBeamR3]" rMax="[ForwdRmax]"/>
+			<ZSection z="[cms:ForwdBeamZ9]" rMin="[cms:ForwdBeamR8]" rMax="[ForwdRmax]"/>
+			<ZSection z="[cms:CMSZ2]" rMin="[cms:ForwdBeamR8]" rMax="[ForwdRmax]"/>
+			<ZSection z="[cms:CMSZ2]" rMin="[cms:ForwdBeamR8]" rMax="[cms:CMSR2]"/>
+			<ZSection z="[cms:HallZ]" rMin="[cms:ForwdBeamR8]" rMax="[cms:CMSR2]"/>
+		</Polycone>
+		<Cone name="VcalFibreBundleContainer" dz="([CalShldZ1]-[cms:ForwdVcalZ2])/2" rMin1="[cms:ForwdBeamR1]" rMax1="[VcalEleR2]" rMin2="[VcalEleR1]" rMax2="[VcalEleR2]" startPhi="0*deg" deltaPhi="360*deg"/>
+		<Cone name="VcalFibreBundleSector" dz="([CalShldZ1]-[cms:ForwdVcalZ2])/2" rMin1="[cms:ForwdBeamR1]" rMax1="[VcalEleR2]" rMin2="[VcalEleR1]" rMax2="[VcalEleR2]" startPhi="-10*deg" deltaPhi="20*deg"/>
+		<Cone name="VcalFibreBundleHalfSector" dz="([CalShldZ1]-[cms:ForwdVcalZ2])/2" rMin1="[cms:ForwdBeamR1]" rMax1="[VcalEleR2]" rMin2="[VcalEleR1]" rMax2="[VcalEleR2]" startPhi="-5*deg" deltaPhi="10*deg"/>
+		<Tubs name="VcalElectronics" rMin="[VcalEleR1]" rMax="[VcalEleR2]" dz="([VcalEleZ2]-[VcalEleZ1])/2" startPhi="0*deg" deltaPhi="360*deg"/>
+		<Trapezoid name="VcalEleBox" dz="[dzEleBox]" alp1="0*deg" bl1="[dxLowEleBox]" tl1="[dxTopEleBox]" h1="[dyEleBox]" alp2="0*deg" bl2="[dxLowEleBox]" tl2="[dxTopEleBox]" h2="[dyEleBox]" phi="0*deg" theta="0*deg"/>
+		<Trapezoid name="VcalPlate" dz="[VcalPlateT]" alp1="0*deg" bl1="[dxLowEleBox]" tl1="[dxTopEleBox]" h1="[dyEleBox]" alp2="0*deg" bl2="[dxLowEleBox]" tl2="[dxTopEleBox]" h2="[dyEleBox]" phi="0*deg" theta="0*deg"/>
+		<Box name="VcalElecRBX" dx="[VcalEleBoxDx]" dy="[VcalEleBoxDy]" dz="[VcalEleBoxDz]"/>
+                <Box name="VcalElecPMT" dx="[VcalPMTx]/2" dy="[VcalPMTy]/2" dz="[VcalPMTz]/2"/>
+                <Box name="VcalElecCathode" dx="[VcalCathx]/2" dy="[VcalCathy]/2" dz="[VcalCathz]/2"/>
+		<Tubs name="FixedShield01" rMin="[cms:ForwdBeamR2]" rMax="[FixShldR1]" dz="([FixShldZ2]-[FixShldZ1])/2" startPhi="0*deg" deltaPhi="360*deg"/>
+		<Polycone name="FixedShield02" startPhi="0*deg" deltaPhi="360*deg">
+			<ZSection z="[cms:MuonBeamZ2]" rMin="[FixShldR1]" rMax="[FixShldR5]"/>
+			<ZSection z="[FixShldZ2]" rMin="[FixShldR1]" rMax="[FixShldR5]"/>
+			<ZSection z="[FixShldZ2]" rMin="[FixShldR2]" rMax="[FixShldR5]"/>
+			<ZSection z="[cms:ForwdVcalZ2]" rMin="[FixShldR2]" rMax="[FixShldR5]"/>
+			<ZSection z="[FixShldZ3]" rMin="[FixShldR3]" rMax="[FixShldR5]"/>
+			<ZSection z="[FixShldZ3]" rMin="[FixShldR3]" rMax="[FixShldR6]"/>
+			<ZSection z="[FixShldZ9]" rMin="[FixShldR3]" rMax="[FixShldR6]"/>
+			<ZSection z="[FixShldZ9]" rMin="[FixShldR4]" rMax="[FixShldR6]"/>
+			<ZSection z="[ForwdZv01]" rMin="[FixShldR4]" rMax="[FixShldR6]"/>
+		</Polycone>
+		<Polycone name="FixedShield03" startPhi="0*deg" deltaPhi="360*deg">
+			<ZSection z="[cms:MuonBeamZ2]" rMin="[FixShldR5]" rMax="[FixShldR7]"/>
+			<ZSection z="[FixShldZ3]" rMin="[FixShldR5]" rMax="[FixShldR7]"/>
+			<ZSection z="[FixShldZ3]" rMin="[FixShldR6]" rMax="[FixShldR7]"/>
+			<ZSection z="[ForwdZv01]" rMin="[FixShldR6]" rMax="[FixShldR7]"/>
+		</Polycone>
+		<Tubs name="FixedShield04" rMin="[FixShldR7]" rMax="[FixShldR8]" dz="([ForwdZv01]-[cms:MuonBeamZ2])/2" startPhi="0*deg" deltaPhi="360*deg"/>
+		<Tubs name="FibreContainer" rMin="[FixRotRad]" rMax="[FixShldR3]" dz="[FibreDz]/2" startPhi="0*deg" deltaPhi="360*deg"/>
+		<Tubs name="FixedShield05" rMin="[FixRotRad]" rMax="[FixShldR3]" dz="([FixShldZ4]-[CalShldZ2])/2" startPhi="0*deg" deltaPhi="360*deg"/>
+		<Tubs name="FixedShield06" rMin="[FixRotRad]" rMax="[FixShldR3]" dz="([FixShldZ5]-[FixShldZ4])/2" startPhi="0*deg" deltaPhi="360*deg"/>
+		<Tubs name="FixedShield07" rMin="[FixRotRad]" rMax="[FixShldR3]" dz="([FixShldZ6]-[FixShldZ5])/2" startPhi="0*deg" deltaPhi="360*deg"/>
+		<Tubs name="FixedShield08" rMin="[FixRotRad]" rMax="[FixShldR3]" dz="([FixShldZ7]-[FixShldZ6])/2" startPhi="0*deg" deltaPhi="360*deg"/>
+		<Tubs name="FixedShield09" rMin="[FixRotRad]" rMax="[FixShldR3]" dz="([FixShldZ8]-[FixShldZ7])/2" startPhi="0*deg" deltaPhi="360*deg"/>
+		<Tubs name="FixedShieldBK" rMin="[FixRotRad]" rMax="[FixShldR3]" dz="([FixShldZ9]-[FixShldZ8])/2" startPhi="0*deg" deltaPhi="360*deg"/>
+		<Tubs name="FixedShield10" rMin="[FixShldR9]" rMax="[FixShldR10]" dz="([FixShldZ12]-[FixShldZ11])/2" startPhi="0*deg" deltaPhi="360*deg"/>
+		<Polycone name="FixedShield11" startPhi="0*deg" deltaPhi="360*deg">
+			<ZSection z="[FixShldZ10]" rMin="[FixShldR11]" rMax="[FixShldR15]"/>
+			<ZSection z="[FixShldZ12]" rMin="[FixShldR11]" rMax="[FixShldR16]"/>
+			<ZSection z="[FixShldZ12]" rMin="[FixShldR12]" rMax="[FixShldR16]"/>
+			<ZSection z="[FixShldZ13]" rMin="[FixShldR13]" rMax="[FixShldR17]"/>
+			<ZSection z="[FixShldZ13]" rMin="[FixShldR13]" rMax="[FixShldR18]"/>
+			<ZSection z="[FixShldZ14]" rMin="[FixShldR14]" rMax="[FixShldR18]"/>
+		</Polycone>
+		<Polycone name="FixedShield12" startPhi="0*deg" deltaPhi="360*deg">
+			<ZSection z="[ForwdZv02]" rMin="[FixShldR18]" rMax="[FixShldR20]"/>
+			<ZSection z="[FixShldZ15]" rMin="[FixShldR18]" rMax="[FixShldR20]"/>
+			<ZSection z="[FixShldZ15]" rMin="[FixShldR19]" rMax="[FixShldR20]"/>
+			<ZSection z="[cms:CMSZ2]" rMin="[FixShldR19]" rMax="[FixShldR20]"/>
+		</Polycone>
+		<Trapezoid name="FibreBoxTrap" dz="[FibreDz]/2" alp1="0*deg" bl1="[dxLowEleBox]" tl1="[dxTopEleBox]" h1="[dyEleBox]" alp2="0*deg" bl2="[dxLowEleBox]" tl2="[dxTopEleBox]" h2="[dyEleBox]" phi="0*deg" theta="0*deg"/>
+		<Box name="FibreBox" dx="[VcalEleBoxDx]" dy="[VcalEleBoxDy]" dz="[FibreDz]/2"/>
+		<Tubs name="FibreBundle1" rMin="0*fm" rMax="[FibreR1]" dz="[FibreDz]/2" startPhi="0*deg" deltaPhi="360*deg"/>
+		<Tubs name="FibreBundle2" rMin="0*fm" rMax="[FibreR2]" dz="[FibreDz]/2" startPhi="0*deg" deltaPhi="360*deg"/>
+		<Tubs name="FibreBundle3" rMin="0*fm" rMax="[FibreR3]" dz="[FibreDz]/2" startPhi="0*deg" deltaPhi="360*deg"/>
+		<Tubs name="FibreBundle4" rMin="0*fm" rMax="[FibreR4]" dz="[FibreDz]/2" startPhi="0*deg" deltaPhi="360*deg"/>
+		<Tubs name="FibreBundle5" rMin="0*fm" rMax="[FibreR5]" dz="[FibreDz]/2" startPhi="0*deg" deltaPhi="360*deg"/>
+		<Tubs name="FibreBundle6" rMin="0*fm" rMax="[FibreR6]" dz="[FibreDz]/2" startPhi="0*deg" deltaPhi="360*deg"/>
+		<Tubs name="FibreBundle7" rMin="0*fm" rMax="[FibreR7]" dz="[FibreDz]/2" startPhi="0*deg" deltaPhi="360*deg"/>
+		<Tubs name="FibreBundle8" rMin="0*fm" rMax="[FibreR8]" dz="[FibreDz]/2" startPhi="0*deg" deltaPhi="360*deg"/>
+		<Tubs name="FibreBundle9" rMin="0*fm" rMax="[FibreR9]" dz="[FibreDz]/2" startPhi="0*deg" deltaPhi="360*deg"/>
+		<Tubs name="FibreBundle10" rMin="0*fm" rMax="[FibreR10]" dz="[FibreDz]/2" startPhi="0*deg" deltaPhi="360*deg"/>
+		<Tubs name="FibreBundle11" rMin="0*fm" rMax="[FibreR11]" dz="[FibreDz]/2" startPhi="0*deg" deltaPhi="360*deg"/>
+		<Tubs name="FibreBundle12" rMin="0*fm" rMax="[FibreR12]" dz="[FibreDz]/2" startPhi="0*deg" deltaPhi="360*deg"/>
+		<Tubs name="FibreBundle13" rMin="0*fm" rMax="[FibreR13]" dz="[FibreDz]/2" startPhi="0*deg" deltaPhi="360*deg"/>
+		<Trapezoid name="FixedShieldTrap5" dz="[dZFixShld5]" alp1="0*deg" bl1="[dxLowEleBox]" tl1="[dxTopEleBox]" h1="[dyEleBox]" alp2="0*deg" bl2="[dxLowEleBox]" tl2="[dxTopEleBox]" h2="[dyEleBox]" phi="0*deg" theta="0*deg"/>
+		<Box name="FixedShieldBox5" dx="[VcalEleBoxDx]" dy="[VcalEleBoxDy]" dz="[dZFixShld5]"/>
+		<Tubs name="FixedShieldTube5" rMin="0*fm" rMax="[VcalLGR]" dz="[dZFixShld5]" startPhi="0*deg" deltaPhi="360*deg"/>
+		<Trapezoid name="FixedShieldTrap6" dz="[dZFixShld6]" alp1="0*deg" bl1="[dxLowEleBox]" tl1="[dxTopEleBox]" h1="[dyEleBox]" alp2="0*deg" bl2="[dxLowEleBox]" tl2="[dxTopEleBox]" h2="[dyEleBox]" phi="0*deg" theta="0*deg"/>
+		<Box name="FixedShieldBox6" dx="[VcalEleBoxDx]" dy="[VcalEleBoxDy]" dz="[dZFixShld6]"/>
+		<Tubs name="FixedShieldTube6" rMin="0*fm" rMax="[VcalLGR]" dz="[dZFixShld6]" startPhi="0*deg" deltaPhi="360*deg"/>
+		<Trapezoid name="FixedShieldTrap7" dz="[dZFixShld7]" alp1="0*deg" bl1="[dxLowEleBox]" tl1="[dxTopEleBox]" h1="[dyEleBox]" alp2="0*deg" bl2="[dxLowEleBox]" tl2="[dxTopEleBox]" h2="[dyEleBox]" phi="0*deg" theta="0*deg"/>
+		<Box name="FixedShieldBox7" dx="[VcalEleBoxDx]" dy="[VcalEleBoxDy]" dz="[dZFixShld7]"/>
+		<Tubs name="FixedShieldTube7" rMin="0*fm" rMax="[VcalLGR]" dz="[dZFixShld7]" startPhi="0*deg" deltaPhi="360*deg"/>
+		<Trapezoid name="FixedShieldTrap8" dz="[dZFixShld8]" alp1="0*deg" bl1="[dxLowEleBox]" tl1="[dxTopEleBox]" h1="[dyEleBox]" alp2="0*deg" bl2="[dxLowEleBox]" tl2="[dxTopEleBox]" h2="[dyEleBox]" phi="0*deg" theta="0*deg"/>
+		<Box name="FixedShieldBox8" dx="[VcalEleBoxDx]" dy="[VcalEleBoxDy]" dz="[dZFixShld8]"/>
+		<Tubs name="FixedShieldTube8" rMin="0*fm" rMax="[VcalLGR]" dz="[dZFixShld8]" startPhi="0*deg" deltaPhi="360*deg"/>
+		<Trapezoid name="FixedShieldTrap9" dz="[dZFixShld9]" alp1="0*deg" bl1="[dxLowEleBox]" tl1="[dxTopEleBox]" h1="[dyEleBox]" alp2="0*deg" bl2="[dxLowEleBox]" tl2="[dxTopEleBox]" h2="[dyEleBox]" phi="0*deg" theta="0*deg"/>
+		<Box name="FixedShieldBox9" dx="[VcalEleBoxDx]" dy="[VcalEleBoxDy]" dz="[dZFixShld9]"/>
+		<Tubs name="FixedShieldTube9" rMin="0*fm" rMax="[VcalLGR]" dz="[dZFixShld9]" startPhi="0*deg" deltaPhi="360*deg"/>
+		<Polycone name="RotatedShield01" startPhi="0*deg" deltaPhi="360*deg">
+			<ZSection z="[RotShldZ1]" rMin="[RotShldR1]" rMax="[RotShldR2]"/>
+			<ZSection z="[RotShldZ2]" rMin="[RotShldR1]" rMax="[RotShldR2]"/>
+			<ZSection z="[RotShldZ3]" rMin="[RotShldR1]" rMax="[RotShldR3]"/>
+			<ZSection z="[RotShldZ3]" rMin="[RotShldR1]" rMax="[FixRotRad]"/>
+			<ZSection z="[RotShldZ4]" rMin="[RotShldR1]" rMax="[FixRotRad]"/>
+			<ZSection z="[RotShldZ4]" rMin="[RotShldR1]" rMax="[RotShldR4]"/>
+			<ZSection z="[ForwdZv01]" rMin="[RotShldR1]" rMax="[RotShldR4]"/>
+		</Polycone>
+		<Polycone name="RotatedShield02" startPhi="0*deg" deltaPhi="360*deg">
+			<ZSection z="[RotShldZ1]" rMin="[RotShldR2]" rMax="[RotShldR2]"/>
+			<ZSection z="[RotShldZ2]" rMin="[RotShldR2]" rMax="[RotShldR23]"/>
+			<ZSection z="[RotShldZ3]" rMin="[RotShldR3]" rMax="[FixRotRad]"/>
+		</Polycone>
+		<Tubs name="RotatedShield03" rMin="[RotShldR4]" rMax="[RotShldR5]" dz="([ForwdZv01]-[RotShldZ4])/2" startPhi="0*deg" deltaPhi="360*deg"/>
+		<Tubs name="RotatedShield04" rMin="[RotShldR5]" rMax="[RotShldR6]" dz="([ForwdZv01]-[RotShldZ4])/2" startPhi="0*deg" deltaPhi="360*deg"/>
+		<Tubs name="RotatedShield05" rMin="[RotShldR6]" rMax="[FixRotRad]" dz="([ForwdZv01]-[RotShldZ4])/2" startPhi="0*deg" deltaPhi="360*deg"/>
+		<Tubs name="RotatedShield06" rMin="[RotShldR1]" rMax="[RotShldR7]" dz="([RotShldZ8]-[ForwdZv01])/2" startPhi="0*deg" deltaPhi="360*deg"/>
+		<Polycone name="RotatedShield07" startPhi="0*deg" deltaPhi="360*deg">
+			<ZSection z="[ForwdZv01]" rMin="[RotShldR7]" rMax="[RotShldR5]"/>
+			<ZSection z="[RotShldZ7]" rMin="[RotShldR7]" rMax="[RotShldR8]"/>
+			<ZSection z="[RotShldZ8]" rMin="[RotShldR7]" rMax="[RotShldR8]"/>
+		</Polycone>
+		<Polycone name="RotatedShield08" startPhi="0*deg" deltaPhi="360*deg">
+			<ZSection z="[ForwdZv01]" rMin="[RotShldR5]" rMax="[RotShldR6]"/>
+			<ZSection z="[RotShldZ6]" rMin="[RotShldR9]" rMax="[RotShldR10]"/>
+			<ZSection z="[RotShldZ7]" rMin="[RotShldR8]" rMax="[RotShldR10]"/>
+			<ZSection z="[RotShldZ8]" rMin="[RotShldR8]" rMax="[RotShldR10]"/>
+		</Polycone>
+		<Polycone name="RotatedShield09" startPhi="0*deg" deltaPhi="360*deg">
+			<ZSection z="[ForwdZv01]" rMin="[RotShldR6]" rMax="[FixRotRad]"/>
+			<ZSection z="[RotShldZ5]" rMin="[RotShldR11]" rMax="[RotShldR10]"/>
+			<ZSection z="[RotShldZ6]" rMin="[RotShldR10]" rMax="[RotShldR10]"/>
+		</Polycone>
+		<Tubs name="RotatedShield10" rMin="[RotShldR1]" rMax="[RotShldR7]" dz="([RotShldZ10]-[RotShldZ8])/2" startPhi="0*deg" deltaPhi="360*deg"/>
+		<Polycone name="RotatedShield11" startPhi="0*deg" deltaPhi="360*deg">
+			<ZSection z="[RotShldZ8]" rMin="[RotShldR7]" rMax="[RotShldR8]"/>
+			<ZSection z="[RotShldZ9]" rMin="[RotShldR7]" rMax="[RotShldR8]"/>
+			<ZSection z="[RotShldZ10]" rMin="[RotShldR7]" rMax="[RotShldR16]"/>
+			<ZSection z="[RotShldZ10]" rMin="[RotShldR12]" rMax="[RotShldR16]"/>
+			<ZSection z="[RotShldZ11]" rMin="[RotShldR12]" rMax="[RotShldR17]"/>
+			<ZSection z="[RotShldZ13]" rMin="[RotShldR13]" rMax="[RotShldR17]"/>
+			<ZSection z="[RotShldZ13]" rMin="[RotShldR13]" rMax="[RotShldR18]"/>
+			<ZSection z="[RotShldZ15]" rMin="[RotShldR14]" rMax="[RotShldR18]"/>
+			<ZSection z="[RotShldZ15]" rMin="[RotShldR14]" rMax="[RotShldR19]"/>
+			<ZSection z="[ForwdZv02]" rMin="[RotShldR15]" rMax="[RotShldR19]"/>
+		</Polycone>
+		<Polycone name="RotatedShield12" startPhi="0*deg" deltaPhi="360*deg">
+			<ZSection z="[RotShldZ8]" rMin="[RotShldR8]" rMax="[RotShldR10]"/>
+			<ZSection z="[RotShldZ9]" rMin="[RotShldR8]" rMax="[RotShldR10]"/>
+			<ZSection z="[RotShldZ11]" rMin="[RotShldR17]" rMax="[RotShldR20]"/>
+			<ZSection z="[RotShldZ12]" rMin="[RotShldR17]" rMax="[RotShldR20]"/>
+			<ZSection z="[RotShldZ12]" rMin="[RotShldR17]" rMax="[RotShldR21]"/>
+			<ZSection z="[RotShldZ13]" rMin="[RotShldR17]" rMax="[RotShldR21]"/>
+			<ZSection z="[RotShldZ13]" rMin="[RotShldR18]" rMax="[RotShldR21]"/>
+			<ZSection z="[RotShldZ14]" rMin="[RotShldR18]" rMax="[RotShldR21]"/>
+			<ZSection z="[RotShldZ14]" rMin="[RotShldR18]" rMax="[RotShldR22]"/>
+			<ZSection z="[RotShldZ15]" rMin="[RotShldR18]" rMax="[RotShldR22]"/>
+			<ZSection z="[RotShldZ15]" rMin="[RotShldR19]" rMax="[RotShldR22]"/>
+			<ZSection z="[ForwdZv02]" rMin="[RotShldR19]" rMax="[RotShldR22]"/>
+		</Polycone>
+		<Tubs name="QuadInner" rMin="[QuadR1]" rMax="[QuadR2]" dz="([cms:HallZ]-[QuadZ1])/2" startPhi="0*deg" deltaPhi="360*deg"/>
+		<Tubs name="QuadCoil" rMin="[QuadR2]" rMax="[QuadR3]" dz="([cms:HallZ]-[QuadZ1])/2" startPhi="0*deg" deltaPhi="360*deg"/>
+		<Tubs name="QuadOuter" rMin="[QuadR3]" rMax="[QuadR4]" dz="([cms:HallZ]-[QuadZ1])/2" startPhi="0*deg" deltaPhi="360*deg"/>
+	</SolidSection>
+	<LogicalPartSection label="forwardshield.xml">
+		<LogicalPart name="OQUA" category="unspecified">
+			<rSolid name="OQUA"/>
+			<rMaterial name="materials:Air"/>
+		</LogicalPart>
+		<LogicalPart name="VcalFibreBundleContainer" category="unspecified">
+			<rSolid name="VcalFibreBundleContainer"/>
+			<rMaterial name="materials:Air"/>
+		</LogicalPart>
+		<LogicalPart name="VcalFibreBundleSector" category="unspecified">
+			<rSolid name="VcalFibreBundleSector"/>
+			<rMaterial name="materials:Air"/>
+		</LogicalPart>
+		<LogicalPart name="VcalFibreBundleHalfSectorL" category="unspecified">
+			<rSolid name="VcalFibreBundleHalfSector"/>
+			<rMaterial name="materials:Air"/>
+		</LogicalPart>
+		<LogicalPart name="VcalFibreBundleHalfSectorR" category="unspecified">
+			<rSolid name="VcalFibreBundleHalfSector"/>
+			<rMaterial name="materials:Air"/>
+		</LogicalPart>
+		<LogicalPart name="VcalElectronics" category="unspecified">
+			<rSolid name="VcalElectronics"/>
+			<rMaterial name="materials:Air"/>
+		</LogicalPart>
+		<LogicalPart name="VcalEleBox" category="unspecified">
+			<rSolid name="VcalEleBox"/>
+			<rMaterial name="materials:FrontEnd Electronics"/>
+		</LogicalPart>
+		<LogicalPart name="VcalPlate" category="unspecified">
+			<rSolid name="VcalPlate"/>
+			<rMaterial name="materials:Steel-008"/>
+		</LogicalPart>
+		<LogicalPart name="VcalElecRBX" category="unspecified">
+			<rSolid name="VcalElecRBX"/>
+			<rMaterial name="materials:FrontEnd Electronics"/>
+		</LogicalPart>
+		<LogicalPart name="VcalElecPMT" category="unspecified">
+			<rSolid name="VcalElecPMT"/>
+			<rMaterial name="materials:FrontEnd Electronics"/>
+		</LogicalPart>
+		<LogicalPart name="VcalElecCathode" category="unspecified">
+			<rSolid name="VcalElecCathode"/>
+			<rMaterial name="materials:PhotoCathode"/>
+		</LogicalPart>
+		<LogicalPart name="FixedShield01" category="unspecified">
+			<rSolid name="FixedShield01"/>
+			<rMaterial name="materials:Polyethylene"/>
+		</LogicalPart>
+		<LogicalPart name="FixedShield02" category="unspecified">
+			<rSolid name="FixedShield02"/>
+			<rMaterial name="materials:Steel-008"/>
+		</LogicalPart>
+		<LogicalPart name="FixedShield03" category="unspecified">
+			<rSolid name="FixedShield03"/>
+			<rMaterial name="materials:MagnetiteConc"/>
+		</LogicalPart>
+		<LogicalPart name="FixedShield04" category="unspecified">
+			<rSolid name="FixedShield04"/>
+			<rMaterial name="materials:Borated Polyethyl."/>
+		</LogicalPart>
+		<LogicalPart name="FixedShield05" category="unspecified">
+			<rSolid name="FixedShield05"/>
+			<rMaterial name="materials:Steel-008"/>
+		</LogicalPart>
+		<LogicalPart name="FixedShield06" category="unspecified">
+			<rSolid name="FixedShield06"/>
+			<rMaterial name="materials:Borated Polyethyl."/>
+		</LogicalPart>
+		<LogicalPart name="FixedShield07" category="unspecified">
+			<rSolid name="FixedShield07"/>
+			<rMaterial name="materials:Lead"/>
+		</LogicalPart>
+		<LogicalPart name="FixedShield08" category="unspecified">
+			<rSolid name="FixedShield08"/>
+			<rMaterial name="materials:Borated Polyethyl."/>
+		</LogicalPart>
+		<LogicalPart name="FixedShield09" category="unspecified">
+			<rSolid name="FixedShield09"/>
+			<rMaterial name="materials:Lead"/>
+		</LogicalPart>
+		<LogicalPart name="FixedShieldBK" category="unspecified">
+			<rSolid name="FixedShieldBK"/>
+			<rMaterial name="materials:Air"/>
+		</LogicalPart>
+		<LogicalPart name="FixedShield10" category="unspecified">
+			<rSolid name="FixedShield10"/>
+			<rMaterial name="materials:Copper"/>
+		</LogicalPart>
+		<LogicalPart name="FixedShield11" category="unspecified">
+			<rSolid name="FixedShield11"/>
+			<rMaterial name="materials:Steel-008"/>
+		</LogicalPart>
+		<LogicalPart name="FixedShield12" category="unspecified">
+			<rSolid name="FixedShield12"/>
+			<rMaterial name="materials:Stand.Concrete"/>
+		</LogicalPart>
+		<LogicalPart name="FixedShieldTrap5" category="unspecified">
+			<rSolid name="FixedShieldTrap5"/>
+			<rMaterial name="materials:Steel-008"/>
+		</LogicalPart>
+		<LogicalPart name="FixedShieldBox5" category="unspecified">
+			<rSolid name="FixedShieldBox5"/>
+			<rMaterial name="materials:Steel-008"/>
+		</LogicalPart>
+		<LogicalPart name="FixedShieldTube5" category="unspecified">
+			<rSolid name="FixedShieldTube5"/>
+			<rMaterial name="materials:Air"/>
+		</LogicalPart>
+		<LogicalPart name="FixedShieldTrap6" category="unspecified">
+			<rSolid name="FixedShieldTrap6"/>
+			<rMaterial name="materials:Borated Polyethyl."/>
+		</LogicalPart>
+		<LogicalPart name="FixedShieldBox6" category="unspecified">
+			<rSolid name="FixedShieldBox6"/>
+			<rMaterial name="materials:Borated Polyethyl."/>
+		</LogicalPart>
+		<LogicalPart name="FixedShieldTube6" category="unspecified">
+			<rSolid name="FixedShieldTube6"/>
+			<rMaterial name="materials:Air"/>
+		</LogicalPart>
+		<LogicalPart name="FixedShieldTrap7" category="unspecified">
+			<rSolid name="FixedShieldTrap7"/>
+			<rMaterial name="materials:Lead"/>
+		</LogicalPart>
+		<LogicalPart name="FixedShieldBox7" category="unspecified">
+			<rSolid name="FixedShieldBox7"/>
+			<rMaterial name="materials:Lead"/>
+		</LogicalPart>
+		<LogicalPart name="FixedShieldTube7" category="unspecified">
+			<rSolid name="FixedShieldTube7"/>
+			<rMaterial name="materials:Air"/>
+		</LogicalPart>
+		<LogicalPart name="FixedShieldTrap8" category="unspecified">
+			<rSolid name="FixedShieldTrap8"/>
+			<rMaterial name="materials:Borated Polyethyl."/>
+		</LogicalPart>
+		<LogicalPart name="FixedShieldBox8" category="unspecified">
+			<rSolid name="FixedShieldBox8"/>
+			<rMaterial name="materials:Borated Polyethyl."/>
+		</LogicalPart>
+		<LogicalPart name="FixedShieldTube8" category="unspecified">
+			<rSolid name="FixedShieldTube8"/>
+			<rMaterial name="materials:Air"/>
+		</LogicalPart>
+		<LogicalPart name="FixedShieldTrap9" category="unspecified">
+			<rSolid name="FixedShieldTrap9"/>
+			<rMaterial name="materials:Lead"/>
+		</LogicalPart>
+		<LogicalPart name="FixedShieldBox9" category="unspecified">
+			<rSolid name="FixedShieldBox9"/>
+			<rMaterial name="materials:Lead"/>
+		</LogicalPart>
+		<LogicalPart name="FixedShieldTube9" category="unspecified">
+			<rSolid name="FixedShieldTube9"/>
+			<rMaterial name="materials:Air"/>
+		</LogicalPart>
+		<LogicalPart name="RotatedShield01" category="unspecified">
+			<rSolid name="RotatedShield01"/>
+			<rMaterial name="materials:Steel-008"/>
+		</LogicalPart>
+		<LogicalPart name="RotatedShield02" category="unspecified">
+			<rSolid name="RotatedShield02"/>
+			<rMaterial name="materials:Borated Polyethyl."/>
+		</LogicalPart>
+		<LogicalPart name="RotatedShield03" category="unspecified">
+			<rSolid name="RotatedShield03"/>
+			<rMaterial name="materials:MagnetiteConc"/>
+		</LogicalPart>
+		<LogicalPart name="RotatedShield04" category="unspecified">
+			<rSolid name="RotatedShield04"/>
+			<rMaterial name="materials:Borated Polyethyl."/>
+		</LogicalPart>
+		<LogicalPart name="RotatedShield05" category="unspecified">
+			<rSolid name="RotatedShield05"/>
+			<rMaterial name="materials:Lead"/>
+		</LogicalPart>
+		<LogicalPart name="RotatedShield06" category="unspecified">
+			<rSolid name="RotatedShield06"/>
+			<rMaterial name="materials:Steel-008"/>
+		</LogicalPart>
+		<LogicalPart name="RotatedShield07" category="unspecified">
+			<rSolid name="RotatedShield07"/>
+			<rMaterial name="materials:Stand.Concrete"/>
+		</LogicalPart>
+		<LogicalPart name="RotatedShield08" category="unspecified">
+			<rSolid name="RotatedShield08"/>
+			<rMaterial name="materials:Borated Polyethyl."/>
+		</LogicalPart>
+		<LogicalPart name="RotatedShield09" category="unspecified">
+			<rSolid name="RotatedShield09"/>
+			<rMaterial name="materials:Lead"/>
+		</LogicalPart>
+		<LogicalPart name="RotatedShield10" category="unspecified">
+			<rSolid name="RotatedShield10"/>
+			<rMaterial name="materials:Steel-008"/>
+		</LogicalPart>
+		<LogicalPart name="RotatedShield11" category="unspecified">
+			<rSolid name="RotatedShield11"/>
+			<rMaterial name="materials:Stand.Concrete"/>
+		</LogicalPart>
+		<LogicalPart name="RotatedShield12" category="unspecified">
+			<rSolid name="RotatedShield12"/>
+			<rMaterial name="materials:Borated Polyethyl."/>
+		</LogicalPart>
+		<LogicalPart name="QuadInner" category="unspecified">
+			<rSolid name="QuadInner"/>
+			<rMaterial name="materials:StainlessSteel"/>
+		</LogicalPart>
+		<LogicalPart name="QuadCoil" category="unspecified">
+			<rSolid name="QuadCoil"/>
+			<rMaterial name="materials:Super Conductor"/>
+		</LogicalPart>
+		<LogicalPart name="QuadOuter" category="unspecified">
+			<rSolid name="QuadOuter"/>
+			<rMaterial name="materials:YokeSteel"/>
+		</LogicalPart>
+		<LogicalPart name="FibreContainer" category="unspecified">
+			<rSolid name="FibreContainer"/>
+			<rMaterial name="materials:Air"/>
+		</LogicalPart>
+		<LogicalPart name="FibreBoxTrap" category="unspecified">
+			<rSolid name="FibreBoxTrap"/>
+			<rMaterial name="materials:Air"/>
+		</LogicalPart>
+		<LogicalPart name="FibreBoxL" category="unspecified">
+			<rSolid name="FibreBox"/>
+			<rMaterial name="materials:Air"/>
+		</LogicalPart>
+		<LogicalPart name="FibreBoxR" category="unspecified">
+			<rSolid name="FibreBox"/>
+			<rMaterial name="materials:Air"/>
+		</LogicalPart>
+		<LogicalPart name="FibreBundle1" category="unspecified">
+			<rSolid name="FibreBundle1"/>
+			<rMaterial name="hcalforwardmaterial:Quartz"/>
+		</LogicalPart>
+		<LogicalPart name="FibreBundle2" category="unspecified">
+			<rSolid name="FibreBundle2"/>
+			<rMaterial name="hcalforwardmaterial:Quartz"/>
+		</LogicalPart>
+		<LogicalPart name="FibreBundle3" category="unspecified">
+			<rSolid name="FibreBundle3"/>
+			<rMaterial name="hcalforwardmaterial:Quartz"/>
+		</LogicalPart>
+		<LogicalPart name="FibreBundle4" category="unspecified">
+			<rSolid name="FibreBundle4"/>
+			<rMaterial name="hcalforwardmaterial:Quartz"/>
+		</LogicalPart>
+		<LogicalPart name="FibreBundle5" category="unspecified">
+			<rSolid name="FibreBundle5"/>
+			<rMaterial name="hcalforwardmaterial:Quartz"/>
+		</LogicalPart>
+		<LogicalPart name="FibreBundle6" category="unspecified">
+			<rSolid name="FibreBundle6"/>
+			<rMaterial name="hcalforwardmaterial:Quartz"/>
+		</LogicalPart>
+		<LogicalPart name="FibreBundle7" category="unspecified">
+			<rSolid name="FibreBundle7"/>
+			<rMaterial name="hcalforwardmaterial:Quartz"/>
+		</LogicalPart>
+		<LogicalPart name="FibreBundle8" category="unspecified">
+			<rSolid name="FibreBundle8"/>
+			<rMaterial name="hcalforwardmaterial:Quartz"/>
+		</LogicalPart>
+		<LogicalPart name="FibreBundle9" category="unspecified">
+			<rSolid name="FibreBundle9"/>
+			<rMaterial name="hcalforwardmaterial:Quartz"/>
+		</LogicalPart>
+		<LogicalPart name="FibreBundle10" category="unspecified">
+			<rSolid name="FibreBundle10"/>
+			<rMaterial name="hcalforwardmaterial:Quartz"/>
+		</LogicalPart>
+		<LogicalPart name="FibreBundle11" category="unspecified">
+			<rSolid name="FibreBundle11"/>
+			<rMaterial name="hcalforwardmaterial:Quartz"/>
+		</LogicalPart>
+		<LogicalPart name="FibreBundle12" category="unspecified">
+			<rSolid name="FibreBundle12"/>
+			<rMaterial name="hcalforwardmaterial:Quartz"/>
+		</LogicalPart>
+		<LogicalPart name="FibreBundle13" category="unspecified">
+			<rSolid name="FibreBundle13"/>
+			<rMaterial name="hcalforwardmaterial:Quartz"/>
+		</LogicalPart>
+	</LogicalPartSection>
+	<PosPartSection label="forwardshield.xml">
+		<PosPart copyNumber="1">
+			<rParent name="cms:CMSE"/>
+			<rChild name="forwardshield:OQUA"/>
+			<rRotation name="rotations:000D"/>
+		</PosPart>
+		<PosPart copyNumber="2">
+			<rParent name="cms:CMSE"/>
+			<rChild name="forwardshield:OQUA"/>
+			<rRotation name="rotations:180D"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="forwardshield:OQUA"/>
+			<rChild name="forwardshield:VcalFibreBundleContainer"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="0*fm" y="0*fm" z="([CalShldZ1]+[cms:ForwdVcalZ2])/2"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="forwardshield:VcalFibreBundleSector"/>
+			<rChild name="forwardshield:VcalFibreBundleHalfSectorL"/>
+			<rRotation name="forwardshield:R355"/>
+			<Translation x="0*fm" y="0*fm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="2">
+			<rParent name="forwardshield:VcalFibreBundleSector"/>
+			<rChild name="forwardshield:VcalFibreBundleHalfSectorR"/>
+			<rRotation name="forwardshield:R005"/>
+			<Translation x="0*fm" y="0*fm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="forwardshield:OQUA"/>
+			<rChild name="forwardshield:VcalElectronics"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="0*fm" y="0*fm" z="([VcalEleZ2]+[VcalEleZ1])/2"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="forwardshield:VcalEleBox"/>
+			<rChild name="forwardshield:VcalPlate"/>
+			<Translation x="0*fm" y="0*fm" z="([VcalPlateT]-[dzEleBox])"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="forwardshield:VcalEleBox"/>
+			<rChild name="forwardshield:VcalElecRBX"/>
+			<rRotation name="forwardshield:R355"/>
+			<Translation x="[VcalEleBoxX]" y="[VcalEleBoxY]" z="[VcalEleBoxZ]"/>
+		</PosPart>
+		<PosPart copyNumber="2">
+			<rParent name="forwardshield:VcalEleBox"/>
+			<rChild name="forwardshield:VcalElecRBX"/>
+			<rRotation name="forwardshield:R005"/>
+			<Translation x="-[VcalEleBoxX]" y="[VcalEleBoxY]" z="[VcalEleBoxZ]"/>
+		</PosPart>
+                <PosPart copyNumber="1">
+                        <rParent name="forwardshield:VcalElecPMT"/>
+                        <rChild name="forwardshield:VcalElecCathode"/>
+                        <Translation x="-[VcalCathx]/2" y="[VcalCathy]/2" z="([VcalCathz]-[VcalPMTz])/2"/>
+                </PosPart>
+                <PosPart copyNumber="2">
+                        <rParent name="forwardshield:VcalElecPMT"/>
+                        <rChild name="forwardshield:VcalElecCathode"/>
+                        <Translation x="[VcalCathx]/2" y="[VcalCathy]/2" z="([VcalCathz]-[VcalPMTz])/2"/>
+                </PosPart>
+                <PosPart copyNumber="3">
+                        <rParent name="forwardshield:VcalElecPMT"/>
+                        <rChild name="forwardshield:VcalElecCathode"/>
+                        <Translation x="[VcalCathx]/2" y="-[VcalCathy]/2" z="([VcalCathz]-[VcalPMTz])/2"/>
+                </PosPart>
+                <PosPart copyNumber="4">
+                        <rParent name="forwardshield:VcalElecPMT"/>
+                        <rChild name="forwardshield:VcalElecCathode"/>
+                        <Translation x="-[VcalCathx]/2" y="-[VcalCathy]/2" z="([VcalCathz]-[VcalPMTz])/2"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="forwardshield:OQUA"/>
+			<rChild name="forwardshield:FibreContainer"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="0*fm" y="0*fm" z="([CalShldZ2]+[CalShldZ1])/2"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="forwardshield:OQUA"/>
+			<rChild name="forwardshield:FixedShield01"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="0*fm" y="0*fm" z="([FixShldZ2]+[FixShldZ1])/2"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="forwardshield:OQUA"/>
+			<rChild name="forwardshield:FixedShield02"/>
+			<rRotation name="rotations:000D"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="forwardshield:OQUA"/>
+			<rChild name="forwardshield:FixedShield03"/>
+			<rRotation name="rotations:000D"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="forwardshield:OQUA"/>
+			<rChild name="forwardshield:FixedShield04"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="0*fm" y="0*fm" z="([ForwdZv01]+[cms:MuonBeamZ2])/2"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="forwardshield:OQUA"/>
+			<rChild name="forwardshield:FixedShield05"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="0*fm" y="0*fm" z="([FixShldZ4]+[CalShldZ2])/2"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="forwardshield:OQUA"/>
+			<rChild name="forwardshield:FixedShield06"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="0*fm" y="0*fm" z="([FixShldZ5]+[FixShldZ4])/2"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="forwardshield:OQUA"/>
+			<rChild name="forwardshield:FixedShield07"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="0*fm" y="0*fm" z="([FixShldZ6]+[FixShldZ5])/2"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="forwardshield:OQUA"/>
+			<rChild name="forwardshield:FixedShield08"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="0*fm" y="0*fm" z="([FixShldZ7]+[FixShldZ6])/2"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="forwardshield:OQUA"/>
+			<rChild name="forwardshield:FixedShield09"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="0*fm" y="0*fm" z="([FixShldZ8]+[FixShldZ7])/2"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="forwardshield:OQUA"/>
+			<rChild name="forwardshield:FixedShieldBK"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="0*fm" y="0*fm" z="([FixShldZ9]+[FixShldZ8])/2"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="forwardshield:OQUA"/>
+			<rChild name="forwardshield:FixedShield10"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="0*fm" y="0*fm" z="([FixShldZ12]+[FixShldZ11])/2"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="forwardshield:OQUA"/>
+			<rChild name="forwardshield:FixedShield11"/>
+			<rRotation name="rotations:000D"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="forwardshield:OQUA"/>
+			<rChild name="forwardshield:FixedShield12"/>
+			<rRotation name="rotations:000D"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="forwardshield:FixedShieldTrap5"/>
+			<rChild name="forwardshield:FixedShieldBox5"/>
+			<rRotation name="forwardshield:R355"/>
+			<Translation x="[VcalEleBoxX]" y="[VcalEleBoxY]" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="2">
+			<rParent name="forwardshield:FixedShieldTrap5"/>
+			<rChild name="forwardshield:FixedShieldBox5"/>
+			<rRotation name="forwardshield:R005"/>
+			<Translation x="-[VcalEleBoxX]" y="[VcalEleBoxY]" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="forwardshield:FixedShieldTrap6"/>
+			<rChild name="forwardshield:FixedShieldBox6"/>
+			<rRotation name="forwardshield:R355"/>
+			<Translation x="[VcalEleBoxX]" y="[VcalEleBoxY]" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="2">
+			<rParent name="forwardshield:FixedShieldTrap6"/>
+			<rChild name="forwardshield:FixedShieldBox6"/>
+			<rRotation name="forwardshield:R005"/>
+			<Translation x="-[VcalEleBoxX]" y="[VcalEleBoxY]" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="forwardshield:FixedShieldTrap7"/>
+			<rChild name="forwardshield:FixedShieldBox7"/>
+			<rRotation name="forwardshield:R355"/>
+			<Translation x="[VcalEleBoxX]" y="[VcalEleBoxY]" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="2">
+			<rParent name="forwardshield:FixedShieldTrap7"/>
+			<rChild name="forwardshield:FixedShieldBox7"/>
+			<rRotation name="forwardshield:R005"/>
+			<Translation x="-[VcalEleBoxX]" y="[VcalEleBoxY]" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="forwardshield:FixedShieldTrap8"/>
+			<rChild name="forwardshield:FixedShieldBox8"/>
+			<rRotation name="forwardshield:R355"/>
+			<Translation x="[VcalEleBoxX]" y="[VcalEleBoxY]" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="2">
+			<rParent name="forwardshield:FixedShieldTrap8"/>
+			<rChild name="forwardshield:FixedShieldBox8"/>
+			<rRotation name="forwardshield:R005"/>
+			<Translation x="-[VcalEleBoxX]" y="[VcalEleBoxY]" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="forwardshield:FixedShieldTrap9"/>
+			<rChild name="forwardshield:FixedShieldBox9"/>
+			<rRotation name="forwardshield:R355"/>
+			<Translation x="[VcalEleBoxX]" y="[VcalEleBoxY]" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="2">
+			<rParent name="forwardshield:FixedShieldTrap9"/>
+			<rChild name="forwardshield:FixedShieldBox9"/>
+			<rRotation name="forwardshield:R005"/>
+			<Translation x="-[VcalEleBoxX]" y="[VcalEleBoxY]" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="forwardshield:OQUA"/>
+			<rChild name="forwardshield:RotatedShield01"/>
+			<rRotation name="rotations:000D"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="forwardshield:OQUA"/>
+			<rChild name="forwardshield:RotatedShield02"/>
+			<rRotation name="rotations:000D"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="forwardshield:OQUA"/>
+			<rChild name="forwardshield:RotatedShield03"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="0*fm" y="0*fm" z="([ForwdZv01]+[RotShldZ4])/2"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="forwardshield:OQUA"/>
+			<rChild name="forwardshield:RotatedShield04"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="0*fm" y="0*fm" z="([ForwdZv01]+[RotShldZ4])/2"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="forwardshield:OQUA"/>
+			<rChild name="forwardshield:RotatedShield05"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="0*fm" y="0*fm" z="([ForwdZv01]+[RotShldZ4])/2"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="forwardshield:OQUA"/>
+			<rChild name="forwardshield:RotatedShield06"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="0*fm" y="0*fm" z="([RotShldZ8]+[ForwdZv01])/2"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="forwardshield:OQUA"/>
+			<rChild name="forwardshield:RotatedShield07"/>
+			<rRotation name="rotations:000D"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="forwardshield:OQUA"/>
+			<rChild name="forwardshield:RotatedShield08"/>
+			<rRotation name="rotations:000D"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="forwardshield:OQUA"/>
+			<rChild name="forwardshield:RotatedShield09"/>
+			<rRotation name="rotations:000D"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="forwardshield:OQUA"/>
+			<rChild name="forwardshield:RotatedShield10"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="0*fm" y="0*fm" z="([RotShldZ10]+[RotShldZ8])/2"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="forwardshield:OQUA"/>
+			<rChild name="forwardshield:RotatedShield11"/>
+			<rRotation name="rotations:000D"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="forwardshield:OQUA"/>
+			<rChild name="forwardshield:RotatedShield12"/>
+			<rRotation name="rotations:000D"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="forwardshield:OQUA"/>
+			<rChild name="forwardshield:QuadInner"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="0*fm" y="0*fm" z="([cms:HallZ]+[QuadZ1])/2"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="forwardshield:OQUA"/>
+			<rChild name="forwardshield:QuadCoil"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="0*fm" y="0*fm" z="([cms:HallZ]+[QuadZ1])/2"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="forwardshield:OQUA"/>
+			<rChild name="forwardshield:QuadOuter"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="0*fm" y="0*fm" z="([cms:HallZ]+[QuadZ1])/2"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="forwardshield:FibreBoxTrap"/>
+			<rChild name="forwardshield:FibreBoxL"/>
+			<rRotation name="forwardshield:R355"/>
+			<Translation x="[VcalEleBoxX]" y="[VcalEleBoxY]" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="2">
+			<rParent name="forwardshield:FibreBoxTrap"/>
+			<rChild name="forwardshield:FibreBoxR"/>
+			<rRotation name="forwardshield:R005"/>
+			<Translation x="-[VcalEleBoxX]" y="[VcalEleBoxY]" z="0*fm"/>
+		</PosPart>
+	</PosPartSection>
+	<Algorithm name="hcal:DDHCalAngular">
+		<rParent name="forwardshield:VcalElectronics"/>
+		<String name="ChildName" value="VcalEleBox"/>
+		<String name="RotNameSpace" value="hcalrotations"/>
+		<Numeric name="n" value="18"/>
+		<Numeric name="startCopyNo" value="1"/>
+		<Numeric name="incrCopyNo" value="1"/>
+		<Numeric name="rangeAngle" value="360*deg"/>
+		<Numeric name="startAngle" value="-90*deg"/>
+		<Numeric name="shiftY" value="[yposEleBox]"/>
+		<Numeric name="shiftX" value="0*fm"/>
+		<Numeric name="zoffset" value="0*fm"/>
+	</Algorithm>
+	<Algorithm name="hcal:DDHCalLinearXY">
+		<rParent name="forwardshield:VcalElecRBX"/>
+		<Vector name="Child" type="string" nEntries="1">
+			forwardshield:VcalElecPMT</Vector>
+		<Numeric name="DeltaX" value="[VcalPMTSep]"/>
+		<Numeric name="DeltaY" value="[VcalPMTSep]"/>
+		<Numeric name="NumberX" value="4"/>
+		<Numeric name="NumberY" value="7"/>
+		<Vector name="Center" type="numeric" nEntries="3">
+			0., 0., 0.
+		</Vector>
+	</Algorithm>
+	<Algorithm name="hcal:DDHCalAngular">
+		<rParent name="forwardshield:FixedShield05"/>
+		<String name="ChildName" value="FixedShieldTrap5"/>
+		<String name="RotNameSpace" value="hcalrotations"/>
+		<Numeric name="n" value="18"/>
+		<Numeric name="startCopyNo" value="1"/>
+		<Numeric name="incrCopyNo" value="1"/>
+		<Numeric name="rangeAngle" value="360*deg"/>
+		<Numeric name="startAngle" value="-90*deg"/>
+		<Numeric name="shiftY" value="[yposEleBox]"/>
+		<Numeric name="shiftX" value="0*fm"/>
+		<Numeric name="zoffset" value="0*fm"/>
+	</Algorithm>
+	<Algorithm name="hcal:DDHCalLinearXY">
+		<rParent name="forwardshield:FixedShieldBox5"/>
+		<Vector name="Child" type="string" nEntries="1">
+			forwardshield:FixedShieldTube5</Vector>
+		<Numeric name="DeltaX" value="[VcalPMTSep]"/>
+		<Numeric name="DeltaY" value="[VcalPMTSep]"/>
+		<Numeric name="NumberX" value="4"/>
+		<Numeric name="NumberY" value="7"/>
+		<Vector name="Center" type="numeric" nEntries="3">
+			0., 0., 0.
+		</Vector>
+	</Algorithm>
+	<Algorithm name="hcal:DDHCalAngular">
+		<rParent name="forwardshield:FixedShield06"/>
+		<String name="ChildName" value="FixedShieldTrap6"/>
+		<String name="RotNameSpace" value="hcalrotations"/>
+		<Numeric name="n" value="18"/>
+		<Numeric name="startCopyNo" value="1"/>
+		<Numeric name="incrCopyNo" value="1"/>
+		<Numeric name="rangeAngle" value="360*deg"/>
+		<Numeric name="startAngle" value="-90*deg"/>
+		<Numeric name="shiftY" value="[yposEleBox]"/>
+		<Numeric name="shiftX" value="0*fm"/>
+		<Numeric name="zoffset" value="0*fm"/>
+	</Algorithm>
+	<Algorithm name="hcal:DDHCalLinearXY">
+		<rParent name="forwardshield:FixedShieldBox6"/>
+		<Vector name="Child" type="string" nEntries="1">
+			forwardshield:FixedShieldTube6</Vector>
+		<Numeric name="DeltaX" value="[VcalPMTSep]"/>
+		<Numeric name="DeltaY" value="[VcalPMTSep]"/>
+		<Numeric name="NumberX" value="4"/>
+		<Numeric name="NumberY" value="7"/>
+		<Vector name="Center" type="numeric" nEntries="3">
+			0., 0., 0.
+		</Vector>
+	</Algorithm>
+	<Algorithm name="hcal:DDHCalAngular">
+		<rParent name="forwardshield:FixedShield07"/>
+		<String name="ChildName" value="FixedShieldTrap7"/>
+		<String name="RotNameSpace" value="hcalrotations"/>
+		<Numeric name="n" value="18"/>
+		<Numeric name="startCopyNo" value="1"/>
+		<Numeric name="incrCopyNo" value="1"/>
+		<Numeric name="rangeAngle" value="360*deg"/>
+		<Numeric name="startAngle" value="-90*deg"/>
+		<Numeric name="shiftY" value="[yposEleBox]"/>
+		<Numeric name="shiftX" value="0*fm"/>
+		<Numeric name="zoffset" value="0*fm"/>
+	</Algorithm>
+	<Algorithm name="hcal:DDHCalLinearXY">
+		<rParent name="forwardshield:FixedShieldBox7"/>
+		<Vector name="Child" type="string" nEntries="1">
+			forwardshield:FixedShieldTube7</Vector>
+		<Numeric name="DeltaX" value="[VcalPMTSep]"/>
+		<Numeric name="DeltaY" value="[VcalPMTSep]"/>
+		<Numeric name="NumberX" value="4"/>
+		<Numeric name="NumberY" value="7"/>
+		<Vector name="Center" type="numeric" nEntries="3">
+			0., 0., 0.
+		</Vector>
+	</Algorithm>
+	<Algorithm name="hcal:DDHCalAngular">
+		<rParent name="forwardshield:FixedShield08"/>
+		<String name="ChildName" value="FixedShieldTrap8"/>
+		<String name="RotNameSpace" value="hcalrotations"/>
+		<Numeric name="n" value="18"/>
+		<Numeric name="startCopyNo" value="1"/>
+		<Numeric name="incrCopyNo" value="1"/>
+		<Numeric name="rangeAngle" value="360*deg"/>
+		<Numeric name="startAngle" value="-90*deg"/>
+		<Numeric name="shiftY" value="[yposEleBox]"/>
+		<Numeric name="shiftX" value="0*fm"/>
+		<Numeric name="zoffset" value="0*fm"/>
+	</Algorithm>
+	<Algorithm name="hcal:DDHCalLinearXY">
+		<rParent name="forwardshield:FixedShieldBox8"/>
+		<Vector name="Child" type="string" nEntries="1">
+			forwardshield:FixedShieldTube8</Vector>
+		<Numeric name="DeltaX" value="[VcalPMTSep]"/>
+		<Numeric name="DeltaY" value="[VcalPMTSep]"/>
+		<Numeric name="NumberX" value="4"/>
+		<Numeric name="NumberY" value="7"/>
+		<Vector name="Center" type="numeric" nEntries="3">
+			0., 0., 0.
+		</Vector>
+	</Algorithm>
+	<Algorithm name="hcal:DDHCalAngular">
+		<rParent name="forwardshield:FixedShield09"/>
+		<String name="ChildName" value="FixedShieldTrap9"/>
+		<String name="RotNameSpace" value="hcalrotations"/>
+		<Numeric name="n" value="18"/>
+		<Numeric name="startCopyNo" value="1"/>
+		<Numeric name="incrCopyNo" value="1"/>
+		<Numeric name="rangeAngle" value="360*deg"/>
+		<Numeric name="startAngle" value="-90*deg"/>
+		<Numeric name="shiftY" value="[yposEleBox]"/>
+		<Numeric name="shiftX" value="0*fm"/>
+		<Numeric name="zoffset" value="0*fm"/>
+	</Algorithm>
+	<Algorithm name="hcal:DDHCalLinearXY">
+		<rParent name="forwardshield:FixedShieldBox9"/>
+		<Vector name="Child" type="string" nEntries="1">
+			forwardshield:FixedShieldTube9</Vector>
+		<Numeric name="DeltaX" value="[VcalPMTSep]"/>
+		<Numeric name="DeltaY" value="[VcalPMTSep]"/>
+		<Numeric name="NumberX" value="4"/>
+		<Numeric name="NumberY" value="7"/>
+		<Vector name="Center" type="numeric" nEntries="3">
+			0., 0., 0.
+		</Vector>
+	</Algorithm>
+	<Algorithm name="hcal:DDHCalAngular">
+		<rParent name="forwardshield:FibreContainer"/>
+		<String name="ChildName" value="FibreBoxTrap"/>
+		<String name="RotNameSpace" value="hcalrotations"/>
+		<Numeric name="n" value="18"/>
+		<Numeric name="startCopyNo" value="1"/>
+		<Numeric name="incrCopyNo" value="1"/>
+		<Numeric name="rangeAngle" value="360*deg"/>
+		<Numeric name="startAngle" value="-90*deg"/>
+		<Numeric name="shiftY" value="[yposEleBox]"/>
+		<Numeric name="shiftX" value="0*fm"/>
+		<Numeric name="zoffset" value="0*fm"/>
+	</Algorithm>
+	<Algorithm name="hcal:DDHCalLinearXY">
+		<rParent name="forwardshield:FibreBoxL"/>
+		<Vector name="Child" type="string" nEntries="28">
+			Null, forwardshield:FibreBundle12, forwardshield:FibreBundle10, 
+			forwardshield:FibreBundle8,  forwardshield:FibreBundle6,
+			forwardshield:FibreBundle4,  forwardshield:FibreBundle2,  
+			Null, forwardshield:FibreBundle12, forwardshield:FibreBundle10, 
+			forwardshield:FibreBundle8,  forwardshield:FibreBundle6,
+			forwardshield:FibreBundle4,  forwardshield:FibreBundle2,  
+			Null, forwardshield:FibreBundle11, forwardshield:FibreBundle9, 
+			forwardshield:FibreBundle7,  forwardshield:FibreBundle5,
+			forwardshield:FibreBundle3,  forwardshield:FibreBundle1,  
+			Null, forwardshield:FibreBundle11, forwardshield:FibreBundle9, 
+			forwardshield:FibreBundle7,  forwardshield:FibreBundle5,
+			forwardshield:FibreBundle3,  forwardshield:FibreBundle1</Vector>
+		<Numeric name="DeltaX" value="[VcalPMTSep]"/>
+		<Numeric name="DeltaY" value="[VcalPMTSep]"/>
+		<Numeric name="NumberX" value="4"/>
+		<Numeric name="NumberY" value="7"/>
+		<Vector name="Center" type="numeric" nEntries="3">
+			0., 0., 0.
+		</Vector>
+	</Algorithm>
+	<Algorithm name="hcal:DDHCalLinearXY">
+		<rParent name="forwardshield:FibreBoxR"/>
+		<Vector name="Child" type="string" nEntries="28">
+			Null, forwardshield:FibreBundle11, forwardshield:FibreBundle9, 
+			forwardshield:FibreBundle7,  forwardshield:FibreBundle5,
+			forwardshield:FibreBundle3,  forwardshield:FibreBundle1,  
+			Null, forwardshield:FibreBundle11, forwardshield:FibreBundle9, 
+			forwardshield:FibreBundle7,  forwardshield:FibreBundle5,
+			forwardshield:FibreBundle3,  forwardshield:FibreBundle1,  
+			Null, forwardshield:FibreBundle13, forwardshield:FibreBundle10,
+			forwardshield:FibreBundle8,  forwardshield:FibreBundle6,
+			forwardshield:FibreBundle4,  forwardshield:FibreBundle2,  
+			Null, forwardshield:FibreBundle13, forwardshield:FibreBundle10,
+			forwardshield:FibreBundle8,  forwardshield:FibreBundle6,
+			forwardshield:FibreBundle4,  forwardshield:FibreBundle2</Vector>
+		<Numeric name="DeltaX" value="[VcalPMTSep]"/>
+		<Numeric name="DeltaY" value="[VcalPMTSep]"/>
+		<Numeric name="NumberX" value="4"/>
+		<Numeric name="NumberY" value="7"/>
+		<Vector name="Center" type="numeric" nEntries="3">
+			0., 0., 0.
+		</Vector>
+	</Algorithm>
+	<Algorithm name="hcal:DDHCalAngular">
+		<rParent name="forwardshield:VcalFibreBundleContainer"/>
+		<String name="ChildName" value="VcalFibreBundleSector"/>
+		<String name="RotNameSpace" value="hcalrotations"/>
+		<Numeric name="n" value="18"/>
+		<Numeric name="startCopyNo" value="1"/>
+		<Numeric name="incrCopyNo" value="1"/>
+		<Numeric name="rangeAngle" value="360*deg"/>
+		<Numeric name="startAngle" value="0*deg"/>
+		<Numeric name="shiftY" value="0*fm"/>
+		<Numeric name="shiftX" value="0*fm"/>
+		<Numeric name="zoffset" value="0*fm"/>
+	</Algorithm>
+	<Algorithm name="hcal:DDHCalFibreBundle">
+		<rParent name="forwardshield:VcalFibreBundleHalfSectorL"/>
+		<Numeric name="DeltaPhi" value="10*deg"/>
+		<Numeric name="DeltaZ" value="([CalShldZ1]-[cms:ForwdVcalZ2])"/>
+		<Numeric name="NumberPhi" value="4"/>
+		<Numeric name="TiltAngle" value="5.0*deg"/>
+		<String name="Material" value="hcalforwardmaterial:Quartz"/>
+		<String name="Child" value="VcalFibreBundleL"/>
+		<Vector name="AreaSection" type="numeric" nEntries="13">
+			551*mm2, 652*mm2, 469*mm2, 324*mm2, 231*mm2, 167*mm2,
+			120*mm2,  88*mm2,  63*mm2,  46*mm2,  35*mm2,  52*mm2,  50*mm2
+		</Vector>
+		<Vector name="RadiusStart" type="numeric" nEntries="13">
+			1231.0*mm, 1068.5*mm,  896.5*mm,  757.0*mm,  631.0*mm,  529.5*mm,
+			444.5*mm,  373.0*mm,  313.0*mm,  263.0*mm,  220.5*mm,  185.0*mm, 147.0*mm
+		</Vector>
+		<Vector name="RadiusEnd" type="numeric" nEntries="13">
+			1350.0*mm, 1350.0*mm, 1308.0*mm, 1308.0*mm, 1266.0*mm, 1266.0*mm,
+			1224.0*mm, 1224.0*mm, 1182.0*mm, 1182.0*mm, 1140.0*mm, 1140.0*mm,1140.0*mm
+		</Vector>
+		<Vector name="Bundles" type="numeric" nEntries="28">
+			-1, 11,  9,  7,  5,  3,  1, -1, 11,  9,  7,  5,  3,  1,
+			-1, 10,  8,  6,  4,  2,  0, -1, 10,  8,  6,  4,  2,  0
+		</Vector>
+	</Algorithm>
+	<Algorithm name="hcal:DDHCalFibreBundle">
+		<rParent name="forwardshield:VcalFibreBundleHalfSectorR"/>
+		<Numeric name="DeltaPhi" value="10*deg"/>
+		<Numeric name="DeltaZ" value="([CalShldZ1]-[cms:ForwdVcalZ2])"/>
+		<Numeric name="NumberPhi" value="4"/>
+		<Numeric name="TiltAngle" value="5.0*deg"/>
+		<String name="Material" value="hcalforwardmaterial:Quartz"/>
+		<String name="Child" value="VcalFibreBundleR"/>
+		<Vector name="AreaSection" type="numeric" nEntries="13">
+			551*mm2, 652*mm2, 469*mm2, 324*mm2, 231*mm2, 167*mm2,
+			120*mm2,  88*mm2,  63*mm2,  46*mm2,  35*mm2,  52*mm2,  50*mm2
+		</Vector>
+		<Vector name="RadiusStart" type="numeric" nEntries="13">
+			1231.0*mm, 1068.5*mm,  896.5*mm,  757.0*mm,  631.0*mm,  529.5*mm,
+			444.5*mm,  373.0*mm,  313.0*mm,  263.0*mm,  220.5*mm,  185.0*mm, 147.0*mm
+		</Vector>
+		<Vector name="RadiusEnd" type="numeric" nEntries="13">
+			1350.0*mm, 1350.0*mm, 1308.0*mm, 1308.0*mm, 1266.0*mm, 1266.0*mm,
+			1224.0*mm, 1224.0*mm, 1182.0*mm, 1182.0*mm, 1140.0*mm, 1140.0*mm,1140.0*mm
+		</Vector>
+		<Vector name="Bundles" type="numeric" nEntries="28">
+			-1, 10,  8,  6,  4,  2,  0, -1, 10,  8,  6,  4,  2,  0,
+			-1, 12,  9,  7,  5,  3,  1, -1, 12,  9,  7,  5,  3,  1
+		</Vector>
+	</Algorithm>
+</DDDefinition>

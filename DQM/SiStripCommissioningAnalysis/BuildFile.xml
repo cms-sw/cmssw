@@ -1,0 +1,9 @@
+<use   name="CondFormats/SiStripObjects"/>
+<use   name="DataFormats/SiStripCommon"/>
+<use   name="FWCore/MessageLogger"/>
+<use   name="FWCore/ParameterSet"/>
+<use   name="roothistmatrix"/>
+<use   name="boost"/>
+<export>
+  <lib   name="1"/>
+</export>

@@ -1,0 +1,232 @@
+
+void
+AnalyticalCurvilinearJacobian::computeFullJacobian
+(const GlobalTrajectoryParameters& globalParameters,
+ const GlobalPoint& x, 
+ const GlobalVector& p, 
+ const GlobalVector& h, 
+ const double& s)
+{ 
+
+  //GlobalVector p1 = fts.momentum().unit();
+  GlobalVector p1 = globalParameters.momentum().unit();
+  GlobalVector p2 = p.unit();
+  //GlobalPoint xStart = fts.position();
+  GlobalPoint xStart = globalParameters.position();
+  GlobalVector dxf = xStart - x;
+  //GlobalVector h  = MagneticField::inInverseGeV(xStart);
+  // Martijn: field is now given as parameter.. GlobalVector h  = globalParameters.magneticFieldInInverseGeV(xStart);
+
+  //double qbp = fts.signedInverseMomentum();
+  double qbp = globalParameters.signedInverseMomentum();
+  double absS = s;
+  
+  // calculate transport matrix
+  // Origin: TRPRFN
+  double cosl0 = p1.perp(); double cosl1 = 1./p2.perp();
+
+  // define average magnetic field and gradient 
+  // at initial point - inlike TRPRFN
+  GlobalVector hnf = h.unit();
+  double qp = -h.mag();
+  //   double q = -h.mag()*qbp;
+  double q = qp*qbp;
+
+  double theta = q*absS; double sint = sin(theta); double cost = cos(theta);
+
+  Vec3D t1;
+  Vec3D t2;
+  
+  Vec3D hn;
+  Vec3D dx;
+  
+  for ( int i=0; i!=4;++i) {
+    t1[i]=p1.basicVector().v[i];
+    t2[i]=p2.basicVector().v[i];
+    hn[i]=hnf.basicVector().v[i];
+    dx[i]=dxf.basicVector().v[i];
+  }
+
+  double gamma = dot(hn,t2);
+  Vec3D an = cross3(hn,t2);
+
+  typedef unsigned long long  v4sl __attribute__ ((vector_size (32)));
+  v4sl mask{1,0,5,4};
+  Vec4D t = __builtin_shuffle(t1,t2,mask);
+  Vec4D tt = t*t;
+
+  double au1 = std::sqrt(tt[0] + tt[1]);
+  double au2 = std::sqrt(tt[2] + tt[3]);
+  Vec4D au{-au1,au1,-au2,au2};
+  Vec4D uu = t/au;
+
+  Vec2D u1{uu[0],uu[1]};
+  Vec2D u2{uu[2],uu[3]};
+
+  Vec3D u13{uu[0],uu[1],0,0};
+  Vec3D v1 = cross3(t1,u13);
+  Vec3D u23{uu[2],uu[3],0,0};
+  Vec3D v2 = cross3(t2,u23);
+
+
+  // now prepare the transport matrix
+  // pp only needed in high-p case (WA)
+  //   double pp = 1./qbp;
+  ////    double pp = fts.momentum().mag();
+  // moved up (where -h.mag() is needed()
+  //   double qp = q*pp;
+
+  double anv = -dot(hn,u23);
+  double anu =  dot(hn,v2);
+
+  double omcost = 1. - cost; double tmsint = theta - sint;
+  
+  
+  Vec3D hu = cross3(hn,u13);
+  Vec3D hv = cross3(hn,v1);
+
+  
+  //   1/p - doesn't change since |p1| = |p2|
+  
+  //   lambda
+  
+  theJacobian(1,0) = -qp*anv*dot(t2,dx);
+  
+  theJacobian(1,1) = 
+    cost*dot(v1,v2) +
+    sint*dot(hv,v2) +
+    omcost*dot(hn,v1) * dot(hn,v2) +
+    anv*(-sint*dot(v1,t2) +
+	 omcost*dot(v1,an) -
+	 tmsint*gamma*dot(hn,v1)
+	 )
+    ;
+
+  theJacobian(1,2) = 
+    cost*dot2(u1,v2) +
+    sint*dot(hu,v2) +
+    omcost*dot2(hn,u1) * dot(hn,v2) +
+    anv*(-sint*dot2(u1,t2) +
+	 omcost*dot2(u1,an)  -
+	 tmsint*gamma*dot2(hn,u1)
+	 )
+    ;
+  theJacobian(1,2) *= cosl0;
+
+  theJacobian(1,3) = -q*anv*dot2(u1,t2);
+
+  theJacobian(1,4) = -q*anv*dot(v1,t2);
+
+  //   phi
+
+  theJacobian(2,0) = -qp*anu*cosl1*dot(t2,dx);
+
+  theJacobian(2,1) = 
+    cost*dot(xy(v1),u2) +
+    sint*dot(xy(hv),u2) +
+    omcost*dot(hn,v1)*dot2(hn,u2) +
+    anu*(-sint*dot(v1,t2) +
+	 omcost*dot(v1,an) -
+	 tmsint*gamma*dot(hn,v1)
+	 )
+    ;
+  theJacobian(2,1) *= cosl1;
+
+  theJacobian(2,2) = 
+    cost*dot(u1,u2) +
+    sint*dot2(hu,u2) +
+    omcost*dot2(hn,u1)*dot2(hn,u2) +
+    anu*(-sint*dot2(u1,t2) +
+	 omcost*dot2(u1,an) -
+	 tmsint*gamma*dot2(hn,u1)
+	 )
+    ;
+  theJacobian(2,2) *= cosl1*cosl0;
+
+  theJacobian(2,3) = -q*anu*cosl1*dot2(u1,t2);
+
+  theJacobian(2,4) = -q*anu*cosl1*dot(v1,t2);
+
+  //   yt
+
+
+  double overQ = 1./q;
+
+  theJacobian(3,1) = (sint*dot(xy(v1),u2) +
+		      omcost*dot2(hv,u2) +
+		      tmsint*dot(hn,v1)*dot2(hn,u2)
+		      )*overQ;
+
+  theJacobian(3,2) = (sint*dot(u1,u2) +
+		      omcost*dot2(hu,u2) +
+		      tmsint*dot2(hn,u1)*dot2(hn,u2) 
+		      )*(cosl0*overQ);
+
+  theJacobian(3,3) = dot(u1,u2);
+  
+  theJacobian(3,4) = dot(xy(v1),u2);
+
+  //   zt
+
+  theJacobian(4,1) = (sint*dot(v1,v2) +
+		      omcost*dot(hv,v2) +
+		      tmsint*dot(hn,v1)*dot(hn,v2)
+		      )*overQ;
+
+  theJacobian(4,2) = (sint*dot(u1,xy(v2)) +
+		      omcost*dot(hu,v2) +
+		      tmsint*dot2(hn,u1)*dot(hn,v2)
+		      )*(cosl0*overQ);
+
+  theJacobian(4,3) = dot2(u1,v2); 
+
+  theJacobian(4,4) = dot(v1,v2);
+
+  //double cutCriterion = abs(s/fts.momentum().mag());
+  //  double cutCriterion = fabs(s/globalParameters.momentum().mag());
+  double cutCriterion = std::abs(s*qbp);
+  const double limit = 5.; // valid for propagations with effectively float precision
+
+  if (cutCriterion > limit) {
+    double pp = 1./qbp;
+    theJacobian(3,0) = pp*dot2(u2,dx);
+//    theJacobian(4,0) = -pp*dot(v2,dx);  // was wrong sign???
+/*
+It seems so.
+The effect was noticed analysing the distribution of reduced chi2 of general tracks
+vs eta. A +3% difference was noticed whem using the - sign instead of the plus,
+in the region .75 < |eta| < 1.5, in particular for <1GeV tracks.
+Indeed, the reduced chi2 is only one of the symptoms: many other quantities 
+were affected (momentum for example). In addition additional tracks were reconstructed.
+*/
+    theJacobian(4,0) = pp*dot(v2,dx);  
+
+  }
+  else {
+    Vec3D hp1 = cross3(hn,t1);
+    double temp1 = dot2(hp1,u2);
+    Vec3D ghnmp = gamma*hn - t1;
+    double temp2 = dot(xy(ghnmp),u2);
+
+    double qps = qp*s;
+    double h2 = qps*qbp;
+    double h3 = (-1./8.) * h2;
+
+    double secondOrder41 = 0.5 * temp1;
+    double thirdOrder41  =  (1./3.) *temp2;
+    double fourthOrder41 = h3 * temp1;
+    theJacobian(3,0) = (s*qps)*(secondOrder41 + h2*(thirdOrder41 + fourthOrder41));
+
+    double temp3 = dot(hp1,v2);
+    double temp4 = dot(ghnmp,v2);
+
+    double secondOrder51 = 0.5 * temp3;
+    double thirdOrder51  = (1./3.) *temp4;
+    double fourthOrder51 =  h3 * temp3;
+    theJacobian(4,0) = (s*qps)*(secondOrder51 + h2*(thirdOrder51 + fourthOrder51));
+  }
+
+
+
+  // end of TRPRFN
+}

@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="ascii"?>
+<xml>
+	<test name="ORA_regression">
+		<init>
+			<command exec ="$TTEST/setupDB -c -A $TAUTH -C $TMAINDB" env ="ref"></command>
+			<command exec ="$TTEST/testCompat -w ref -A $TAUTH -C $TMAINDB" env ="ref"></command>
+		</init>
+		<sequence>
+			<command exec ="$TTEST/testCompat -R -A $TAUTH -C $TMAINDB" result="Cand READ Ref" env ="cand"></command>
+			<command exec ="$TTEST/testCompat -w cand -A $TAUTH -C $TMAINDB" result="Cand WRITE" env ="cand"></command>
+			<command exec ="$TTEST/testCompat -R -A $TAUTH -C $TMAINDB" result="Cand READ Cand" env ="cand"></command>
+			<command exec ="$TTEST/testCompat -R -A $TAUTH -C $TMAINDB" result="Ref READ Cand" env ="ref"></command>
+		</sequence>
+		<final>
+			<command exec ="$TTEST/setupDB -D -A $TAUTH -C $TMAINDB" env ="ref"></command>
+		</final>
+	</test>
+	<test name="ExportIOV_regression">
+		<init>
+			<command exec ="$TTEST/testExport -I testExport -M -P $TAUTH -s $TMAINDB" env ="ref"></command>
+			<command exec ="$TTEST/testExport -I dummy -P $TAUTH -s $TAUXDB" env ="ref"></command>
+		</init>
+		<sequence>
+			<command exec ="$TTEST/testExport -E -s $TMAINDB -d $TAUXDB -P $TAUTH -t testExport" result="EXP from Ref to Ref" env ="cand"></command>
+			<command exec ="$TTEST/testExport -R testExport -s $TMAINDB -d $TAUXDB -P $TAUTH"  result="Ref READ" env ="ref"></command>
+			<command exec ="$TTEST/testExport -I dummy -s $TAUXDB -P $TAUTH" env ="cand"></command>
+			<command exec ="$TTEST/testExport -E -s $TMAINDB -d $TAUXDB -P $TAUTH -t testExport" result="EXP from Ref to Cand" env ="cand"></command>
+			<command exec ="$TTEST/testExport -R testExport -s $TMAINDB -d $TAUXDB -P $TAUTH"  result="Cand READ" env ="cand"></command>
+			<command exec ="$TTEST/testExport -I testExport  -M -s $TMAINDB -P $TAUTH" env ="cand"></command>
+			<command exec ="$TTEST/testExport -I dummy  -s $TAUXDB -P $TAUTH" env ="ref"></command>
+			<command exec ="$TTEST/testExport -E -s $TMAINDB -d $TAUXDB -P $TAUTH -t testExport" result="EXP from Cand to Ref" env ="cand"></command>
+			<command exec ="$TTEST/testExport -R testExport -s $TMAINDB -d $TAUXDB -P $TAUTH"  result="Cand READ" env ="cand"></command>
+			<command exec ="$TTEST/testExport -C -s $TAUXDB -P $TAUTH" env ="cand"></command>
+			<command exec ="$TTEST/testExport -E -s $TMAINDB -d $TAUXDB -P $TAUTH -t testExport" result="EXP from Ref" env ="cand"></command>
+			<command exec ="$TTEST/testExport -R testExport -s $TMAINDB -d $TAUXDB -P $TAUTH"  result="Cand READ" env ="cand"></command>
+		</sequence>
+		<final>
+			<command exec ="$TTEST/setupDB -D -A $TAUTH -C $TMAINDB" env ="ref"></command>
+			<command exec ="$TTEST/setupDB -D -A $TAUTH -C $TAUXDB" env ="ref"></command>
+		</final>
+	</test>
+</xml>

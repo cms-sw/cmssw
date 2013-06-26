@@ -1,0 +1,204 @@
+
+The DD_* variables are configuration variables for the script electronDataDiscovery.py,
+which prepares and send a query to the Data Discovery web server,
+and receive as a result the corresponding list of input data files.
+
+Oval is able to check the output channel of an execution and compare it with a reference output.
+The tags below are defining which are lines to be compared. The currently specification is a
+first draft, and we do not yet check the differences that Oval could raise.
+
+<diffline expr="^(TH1.Print Name  = [a-zA-Z_]+, Entries= ).*$">
+<diffnumber expr="^TH1.Print Name  = [a-zA-Z_]+, Entries= (\d+),.*$" tolerance="20%">
+<diffnumber expr="^TH1.Print Name  = [a-zA-Z_]+, Entries= \d+, Total sum= (\S+)$" tolerance="10%">
+<diffline expr="^(h_\S+ has )\d+ entries of mean value \S+$">
+<diffnumber expr="^h_\S+ has (\d+) entries of mean value \S+$" tolerance="20%">
+<diffnumber expr="^h_\S+ has \d+ entries of mean value (\S+)$" tolerance="10%">
+<!diffvar name="HISTO" expr="^TH1.Print Name  = [a-zA-Z_]+, Entries= \d+, Total sum= (\S+)$" tolerance="10%">
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+================================================================================
+Tests with real data
+================================================================================
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+<var name="TEST_RELEASE" value="4_2_0_pre8">
+<var name="TEST_GLOBAL_TAG" value="MC_42_V7">
+<var name="TEST_GLOBAL_STARTUP_TAG" value="START42_V7">
+<var name="TEST_GLOBAL_VERSION" value="v1">
+<var name="DD_STRATEGY" value="search">
+  
+<environment name="ExpressAnalysis">
+
+  <var name="TOP_WEB_DIR" value="/afs/cern.ch/cms/Physics/egamma/w1/ElectronDataValidation">
+
+  <var name="DD_RELEASE" value="Any">
+  <var name="DD_TIER" value="FEVT">
+  <var name="DD_COND" value="Commissioning10-Express-v9">
+  <var name="DD_SAMPLE" value="ExpressPhysics">
+
+  <var name="VAL_ANALYZER" value="ElectronAnalyzer">
+  <var name="VAL_CONFIGURATION" value="${VAL_ANALYZER}_cfg.py">
+  <!--var name="DD_STRATEGY" value="local"-->
+  <!--var name="DD_COND" value=""-->
+
+  <environment name="DataRun">
+  
+    <var name="DD_RUN" value="161312">
+    
+    <target name="dd" cmd="electronDataDiscovery.py">
+    
+    <var name="TEST_HISTOS_FILE" value="cmsRun.${DD_RUN}.olog.electronHistos.root">
+    <var name="TEST_WORKFLOW" value="/${DD_SAMPLE}/${DD_COND}/DQMOFFLINE">
+  
+    <target name="analyze" cmd="cmsRun ElectronAnalyzer_cfg.py">
+    <target name="finalize" cmd="cmsRun ElectronOfflineClient_cfg.py">
+    
+    <var name="DQM_PREFIX" value="DQM_V0001_R000000001">
+        
+    <var name="PUB_INPUT_FILE" value="${DQM_PREFIX}__${DD_SAMPLE}__${DD_COND}__DQMOFFLINE.root">
+    <var name="PUB_INPUT_FOLDER" value="DQMData/Run 1/Egamma/Run summary/Electrons/">
+    <var name="PUB_OUTPUT_DIR" value="${TOP_WEB_DIR}/${DD_RUN}/DQMOffline">
+    <var name="PUB_TITLE" value="DQMOffline Electron Histograms for ${DD_RUN}">
+    <var name="PUB_COMMENT" value="">
+    
+    <target name="publish" cmd="root -b -l -n -q elePublishHistos.C">
+    
+  </environment>
+  
+</environment>
+  
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+================================================================================
+Tests with same datasets as release validation
+================================================================================
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+<environment name="RelValAnalysis">
+
+  <var name="TEST_RELEASE" value="4_2_0_pre8">
+  <var name="TEST_GLOBAL_TAG" value="MC_42_V7">
+  <var name="TEST_GLOBAL_STARTUP_TAG" value="START42_V7">
+  <var name="TEST_GLOBAL_VERSION" value="v1">
+  <var name="DD_STRATEGY" value="search">
+
+  <var name="DD_RELEASE" value="CMSSW_${TEST_RELEASE}">
+  <var name="DD_TIER" value="*-RECO">
+  <var name="DD_COND" value="${TEST_GLOBAL_TAG}-${TEST_GLOBAL_VERSION}">
+
+  <var name="VAL_ANALYZER" value="ElectronAnalyzer">
+  <var name="VAL_CONFIGURATION" value="${VAL_ANALYZER}_cfg.py">
+  <!--var name="DD_STRATEGY" value="local"-->
+  <!--var name="DD_COND" value=""-->
+
+  <var name="PUB_INPUT_FOLDER" value="DQMData/Run 1/Egamma/Run summary/Electrons/">
+  <var name="PUB_TITLE" value="DQMOffline Electron Histograms">
+  <var name="PUB_COMMENT" value="Histograms for CMSSW ${TEST_RELEASE}">
+  <var name="PUB_OUTPUT_DIR" value="/afs/cern.ch/cms/Physics/egamma/www/validation/4_2_0_pre8/Electrons/DqmOffline">
+  <var name="DQM_PREFIX" value="DQM_V0001_R000000001">
+  
+  <var name="TEST_HISTOS_FILE" value="cmsRun.${OVAL_ENVNAME}.olog.electronHistos.root">
+
+  <environment name="Pt35">
+  
+    <var name="TEST_DATASET" value="SingleElectronPt35">
+    <var name="DD_SAMPLE" value="RelVal${TEST_DATASET}">
+    <target name="dd" cmd="electronDataDiscovery.py">
+    <target name="analyze" cmd="cmsRun ElectronAnalyzer_cfg.py">
+
+    <var name="TEST_WORKFLOW" value="/${TEST_DATASET}/${DD_RELEASE}-${DD_COND}/DQMOFFLINE">
+    <target name="finalize" cmd="cmsRun ElectronOfflineClient_cfg.py">
+    
+    <!--executable name="root" args="-b -l -q eleListHistos.C"-->
+
+    <var name="PUB_INPUT_FILE" value="${DQM_PREFIX}__${TEST_DATASET}__${DD_RELEASE}-${DD_COND}__DQMOFFLINE.root">
+    <var name="PUB_OUTPUT_DIR" value="${PUB_OUTPUT_DIR}/${DD_SAMPLE}">
+    <var name="PUB_COMMENT" value="${PUB_COMMENT} and sample ${DD_SAMPLE}.">
+    <target name="publish" cmd="root -b -l -n -q elePublishHistos.C">
+
+  </environment>
+  
+  <environment name="QcdPt80Pt120">
+    <var name="TEST_DATASET" value="QcdPt80Pt120">
+    <var name="DD_SAMPLE" value="RelValQCD_Pt_80_120">
+    <!var name="DD_TIER_SECONDARY" value="*-RAW">
+    <target name="dd" cmd="electronDataDiscovery.py">
+    <var name="TEST_WORKFLOW" value="/${TEST_DATASET}/${DD_RELEASE}-${DD_COND}/DQMOFFLINE">
+    <executable name="cmsRun" args="EgammaAnalyzers_cfg.py">
+    <executable name="cmsRun" args="EgammaOfflineClients_cfg.py">
+    <!executable name="root" args="-b -l -q eleListHistos.C">
+    <var name="PUB_INPUT_FILE" value="${DQM_PREFIX}__${TEST_DATASET}__${DD_RELEASE}-${DD_COND}__DQMOFFLINE.root">
+    <var name="PUB_OUTPUT_DIR" value="${PUB_OUTPUT_DIR}/${DD_SAMPLE}">
+    <var name="PUB_COMMENT" value="${PUB_COMMENT} and sample ${DD_SAMPLE}.">
+    <target name="publish" cmd="root -b -l -n -q elePublishHistos.C">
+  </environment>
+  
+  <environment name="Pt10">
+    <var name="TEST_DATASET" value="SingleElectronPt10">
+    <var name="DD_SAMPLE" value="RelVal${TEST_DATASET}">
+    <target name="dd" cmd="electronDataDiscovery.py">
+    <var name="TEST_WORKFLOW" value="/${TEST_DATASET}/${DD_RELEASE}-${DD_COND}/DQMOFFLINE">
+    <target name="analyze" cmd="cmsRun ElectronAnalyzer_cfg.py">
+    <target name="finalize" cmd="cmsRun ElectronOfflineClient_cfg.py">
+    <!executable name="root" args="-b -l -q eleListHistos.C">
+    <var name="PUB_INPUT_FILE" value="${DQM_PREFIX}__${TEST_DATASET}__${DD_RELEASE}-${DD_COND}__DQMOFFLINE.root">
+    <var name="PUB_OUTPUT_DIR" value="${PUB_OUTPUT_DIR}/${DD_SAMPLE}">
+    <var name="PUB_COMMENT" value="${PUB_COMMENT} and sample ${DD_SAMPLE}.">
+    <target name="publish" cmd="root -b -l -n -q elePublishHistos.C">
+  </environment>
+  
+  <environment name="TTbar">
+    <var name="TEST_DATASET" value="TTbar">
+    <var name="DD_SAMPLE" value="RelVal${TEST_DATASET}">
+    <target name="dd" cmd="electronDataDiscovery.py">
+    <var name="TEST_WORKFLOW" value="/${TEST_DATASET}/${DD_RELEASE}-${DD_COND}/DQMOFFLINE">
+    <target name="analyze" cmd="cmsRun ElectronAnalyzer_cfg.py">
+    <target name="finalize" cmd="cmsRun ElectronOfflineClient_cfg.py">
+    <!executable name="root" args="-b -l -q eleListHistos.C">
+    <var name="PUB_INPUT_FILE" value="${DQM_PREFIX}__${TEST_DATASET}__${DD_RELEASE}-${DD_COND}__DQMOFFLINE.root">
+    <var name="PUB_OUTPUT_DIR" value="${PUB_OUTPUT_DIR}/${DD_SAMPLE}">
+    <var name="PUB_COMMENT" value="${PUB_COMMENT} and sample ${DD_SAMPLE}.">
+    <target name="publish" cmd="root -b -l -n -q elePublishHistos.C">
+  </environment>
+  
+  <environment name="ZEEIdeal">
+    <var name="TEST_DATASET" value="ZEE">
+    <var name="DD_SAMPLE" value="RelVal${TEST_DATASET}">
+    <!--var name="DD_COND" value="MC"-->
+    <target name="dd" cmd="electronDataDiscovery.py">
+    <var name="TEST_WORKFLOW" value="/${TEST_DATASET}/${DD_RELEASE}-${DD_COND}/DQMOFFLINE">
+    <target name="analyze" cmd="cmsRun ElectronAnalyzer_cfg.py">
+    <target name="finalize" cmd="cmsRun ElectronOfflineClient_cfg.py">
+    <!executable name="root" args="-b -l -q eleListHistos.C">
+    <var name="PUB_INPUT_FILE" value="${DQM_PREFIX}__${TEST_DATASET}__${DD_RELEASE}-${DD_COND}__DQMOFFLINE.root">
+    <var name="PUB_OUTPUT_DIR" value="${PUB_OUTPUT_DIR}/${DD_SAMPLE}Ideal">
+    <var name="PUB_COMMENT" value="${PUB_COMMENT} and sample ${DD_SAMPLE} Ideal.">
+    <target name="publish" cmd="root -b -l -n -q elePublishHistos.C">
+  </environment>
+  
+  <environment name="ZEEStartup">
+    <var name="TEST_DATASET" value="ZEE">
+    <var name="DD_SAMPLE" value="RelVal${TEST_DATASET}">
+    <var name="TEST_GLOBAL_TAG" value="${TEST_GLOBAL_STARTUP_TAG}">
+    <var name="DD_COND" value="${TEST_GLOBAL_TAG}-${TEST_GLOBAL_VERSION}">
+    <!--var name="DD_COND" value="STARTUP"-->
+    <target name="dd" cmd="electronDataDiscovery.py">
+    <var name="TEST_WORKFLOW" value="/${TEST_DATASET}/${DD_RELEASE}-${DD_COND}/DQMOFFLINE">
+    <target name="analyze" cmd="cmsRun ElectronAnalyzer_cfg.py">
+    <target name="finalize" cmd="cmsRun ElectronOfflineClient_cfg.py">
+    <!executable name="root" args="-b -l -q eleListHistos.C">
+    <var name="PUB_INPUT_FILE" value="${DQM_PREFIX}__${TEST_DATASET}__${DD_RELEASE}-${DD_COND}__DQMOFFLINE.root">
+    <var name="PUB_OUTPUT_DIR" value="${PUB_OUTPUT_DIR}/${DD_SAMPLE}Startup">
+    <var name="PUB_COMMENT" value="${PUB_COMMENT} and sample ${DD_SAMPLE} Startup.">
+    <target name="publish" cmd="root -b -l -n -q elePublishHistos.C">
+  </environment>
+  
+</environment>
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+================================================================================
+================================================================================
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+

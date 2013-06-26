@@ -1,0 +1,96 @@
+/*!
+
+\page PhysicsTools_PythonAnalysis Package PhysicsTools/PythonAnalysis
+<center>
+<small>
+<a href=http://cmssw.cvs.cern.ch/cgi-bin/cmssw.cgi/CMSSW/PhysicsTools/PythonAnalysis/?cvsroot=CMSSW>CVS head for this package</a> - 
+<a href=http://cmssw.cvs.cern.ch/cgi-bin/cmssw.cgi/CMSSW/PhysicsTools/PythonAnalysis/developers?rev=HEAD&cvsroot=CMSSW&content-type=text/vnd.viewcvs-markup>Administrative privileges</a>
+</small>
+</center>
+
+\section desc Description
+<!-- Short description of what this package is supposed to provide -->
+Examples of using CMSSW in Python. 
+Some helper routines for startup, tab completion and shorter syntax.
+
+
+\subsection interface Public interface
+- <b>cmstools</b>: public interface to all modules.
+ 
+\subsection modules Modules
+- <b>cmstools.py</b>: prepares environment and defines some commands
+- <b>cmscompleter.py</b>: class for tab completion
+- <b>namespaceDict.py</b>: builds the FWLite namespace (without loading libs)
+- <b>iterators.py></b>: decorator for adding iterators to some containers 
+
+\subsection tests Unit tests and examples
+- <b>interactive use</b>: all libraries are loaded automatically when needed. 
+fire up the python interpreter
+\htmlonly
+<pre>
+python
+</pre>
+\endhtmlonly
+and import cmstools and ROOT:
+\htmlonly
+<pre>
+from PhysicsTools.PythonAnalysis import *
+from ROOT import *
+</pre>
+\endhtmlonly
+That's it. 
+- <b>MCTruth.py</b>: Reads gen event information and prints event number (root version)
+- <b>MCTruth2.py</b>: Reads gen event information and prints event number (using cmstools)
+- <b>trackerHits.py</b>: Reads sim event information and creates the files <tt>histo.root</tt> 
+and <tt>tofhits.jpg</tt>.
+\htmlonly
+<ol>
+<li>Prepare the environment and load the cms module:
+<pre>
+from PhysicsTools.PythonAnalysis.cmstools import *
+from ROOT import *
+</pre>
+<li>Open ROOT file and access branch:
+<pre>
+events = EventTree.('simevents.root')
+</pre>
+<li>Prepare histogram and loop over all events to fill it
+<pre>
+histo = TH1F('tofhits', 'Tof of hits', 100, -0.5, 50)
+
+for event in events:
+    simHits = event.getProduct('PSimHit_r_TrackerHitsTIBLowTof.obj')
+    for hit in simHits:
+        histo.Fill(hit.timeOfFlight())
+</pre>
+<li>Save histogram in a file:
+<pre>
+hFile = TFile('histo.root', 'RECREATE')
+histo.Write()
+</pre>
+<li>Plot histogram as a jpg-file:
+<pre>
+gROOT.SetBatch()
+gROOT.SetStyle('Plain')
+
+c = TCanvas()
+histo.Draw()
+c.SaveAs('tofhits.jpg')
+</pre>
+</ol>
+\endhtmlonly
+
+- <b>howto.txt</b>: short explanation
+
+\section status Status and planned development
+<!-- e.g. completed, stable, missing features -->
+Prototype.
+
+For more details, refer to the
+<a href="https://twiki.cern.ch/twiki/bin/view/CMS/SWGuidePhysicsTools">Analysis Tools</a>
+TWiki on the Software Guide.
+
+<hr>
+Last updated: 03-MAR-2007 B. Hegner
+*/
+

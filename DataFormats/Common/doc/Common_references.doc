@@ -1,0 +1,37 @@
+/*!
+\page DataFormats_Common_references Package DataFormats/Common: reference classes
+<center>
+<small>
+<a href=http://cmsdoc.cern.ch/swdev/viewcvs/viewcvs.cgi/CMSSW/DataFormats/Common/?cvsroot=CMSSW>CVS head for this package</a> - 
+<a href=http://cmsdoc.cern.ch/swdev/viewcvs/viewcvs.cgi/CMSSW/DataFormats/Common/.admin/developers?rev=HEAD&cvsroot=CMSSW&content-type=text/vnd.viewcvs-markup>Administrative privileges</a>
+</small>
+</center>
+
+\section desc Description
+Commonly used persistent references.
+
+\subsection interface Public interface
+- edm::Ref: 
+- edm::RefVector:
+- edm::RefProd:
+- edm::RefVectorIterator:
+- edm::RefBase:
+- edm::RefVectorBase:
+- edm::RefCore:
+- edm::RefItem:
+
+- edm::CloningPtr <b>&lt;T, P&gt;</b>: owning pointer to an object that gets cloned
+  with a specified \ref DataFormats_Common_helpers "policy".
+
+\subsection modules Modules
+None.
+
+\subsection tests Unit tests and examples
+None.
+
+\section status Status and planned development
+Completed, stable.
+
+<hr>
+Last updated: @DATE@ L. Lista
+*/

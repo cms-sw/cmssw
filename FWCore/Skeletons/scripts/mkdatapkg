@@ -1,0 +1,47 @@
+#!/usr/bin/env python
+#-*- coding: utf-8 -*-
+#pylint: disable-msg=
+"""
+File       : mkdatapkg
+Author     : Valentin Kuznetsov <vkuznet@gmail.com>
+Description: mkdatapkg code
+"""
+
+# system modules
+import sys
+
+if  sys.version_info < (2, 6):
+    raise Exception("This script requires python 2.6 or greater")
+
+# package modules
+from FWCore.Skeletons.cms import generate, config
+
+def tmpl_dir():
+    "Return location of template directory wrt script location"
+    return '%s/mkTemplates' % '/'.join(__file__.split('/')[:-1])
+
+def pkg_help():
+    "mkdatapkg help function"
+    msg  = '\nmkdatapkg script generates CMS DataPkg code'
+    msg += '\nUsage  : mkdatapkg MyDataPkg -author "FirstName LastName"'
+    msg += '\nOutput : '
+    msg += """
+        MyDataPkg/
+        |-- BuildFile.xml
+        |  src/
+        |  |-- classes.h
+        |  |-- classes_def.xml
+        |  interface/
+        |  test/
+        |  doc/
+        """
+    msg += '\nExample:'
+    msg += '\n        # create new DataPkg code'
+    msg += '\n        mkdatapkg MyDataPkg'
+    msg += '\n        # create new DataPkg code with given author'
+    msg += '\n        mkdatapkg MyDataPkg -author "First Last"'
+    msg += '\n'
+    return msg
+
+if __name__ == '__main__':
+    generate(config('DataPkg', pkg_help(), tmpl_dir()))

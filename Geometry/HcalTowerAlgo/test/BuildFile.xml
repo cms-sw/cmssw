@@ -1,0 +1,15 @@
+<use   name="Geometry/HcalTowerAlgo"/>
+<use   name="boost"/>
+<use   name="FWCore/Framework"/>
+<use   name="FWCore/ParameterSet"/>
+<use   name="FWCore/PythonParameterSet"/>
+<use   name="FWCore/Utilities"/>
+<use   name="Geometry/Records"/>
+<bin   file="HcalGeometryTest.cpp">
+</bin>
+<library   file="HcalGeometryAnalyzer.cc" name="testHcalGeometryESProducer">
+ <flags   EDM_PLUGIN="1"/>
+</library>
+<library   file="HcalGeometryDetIdAnalyzer.cc" name="testHcalGeometryDetIdESProducer">
+ <flags   EDM_PLUGIN="1"/>
+</library>

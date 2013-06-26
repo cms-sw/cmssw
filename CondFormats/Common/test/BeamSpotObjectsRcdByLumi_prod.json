@@ -1,0 +1,13 @@
+{
+    "destinationDatabase": "oracle://cms_orcon_prod/CMS_COND_31X_BEAMSPOT", 
+    "destinationTags": {
+        "BeamSpotObjects_PCL_byLumi_v1_prompt": {
+            "dependencies": {
+            }, 
+            "synchronizeTo": "prompt"
+        }
+    },
+    "inputTag": "BeamSpotObject_ByLumi", 
+    "since": null, 
+    "userText": "Tier0 PCL Upload for BS byLumi"
+}

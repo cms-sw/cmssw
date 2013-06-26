@@ -1,0 +1,32 @@
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
+ <RotationSection label="hcalrotations.xml">
+  <Rotation name="180D" thetaX="90*deg" phiX="180*deg" thetaY="90*deg" phiY="90*deg" thetaZ="180*deg" phiZ="0*deg"/>
+  <Rotation name="180X" thetaX="90*deg" phiX="0*deg" thetaY="90*deg" phiY="-90*deg" thetaZ="180*deg" phiZ="0*deg"/>
+  <Rotation name="R020" thetaX="90*deg" phiX="20*deg" thetaY="90*deg" phiY="110*deg" thetaZ="0*deg" phiZ="0*deg"/>
+  <Rotation name="R030" thetaX="90*deg" phiX="30*deg" thetaY="90*deg" phiY="120*deg" thetaZ="0*deg" phiZ="0*deg"/>
+  <Rotation name="R040" thetaX="90*deg" phiX="40*deg" thetaY="90*deg" phiY="130*deg" thetaZ="0*deg" phiZ="0*deg"/>
+  <Rotation name="R060" thetaX="90*deg" phiX="60*deg" thetaY="90*deg" phiY="150*deg" thetaZ="0*deg" phiZ="0*deg"/>
+  <Rotation name="R080" thetaX="90*deg" phiX="80*deg" thetaY="90*deg" phiY="170*deg" thetaZ="0*deg" phiZ="0*deg"/>
+  <Rotation name="R090" thetaX="90*deg" phiX="90*deg" thetaY="90*deg" phiY="180*deg" thetaZ="0*deg" phiZ="0*deg"/>
+  <Rotation name="R100" thetaX="90*deg" phiX="100*deg" thetaY="90*deg" phiY="-170*deg" thetaZ="0*deg" phiZ="0*deg"/>
+  <Rotation name="R120" thetaX="90*deg" phiX="120*deg" thetaY="90*deg" phiY="-150*deg" thetaZ="0*deg" phiZ="0*deg"/>
+  <Rotation name="R140" thetaX="90*deg" phiX="140*deg" thetaY="90*deg" phiY="-130*deg" thetaZ="0*deg" phiZ="0*deg"/>
+  <Rotation name="R150" thetaX="90*deg" phiX="150*deg" thetaY="90*deg" phiY="-120*deg" thetaZ="0*deg" phiZ="0*deg"/>
+  <Rotation name="R160" thetaX="90*deg" phiX="160*deg" thetaY="90*deg" phiY="-110*deg" thetaZ="0*deg" phiZ="0*deg"/>
+  <Rotation name="R180" thetaX="90*deg" phiX="180*deg" thetaY="90*deg" phiY="-90*deg" thetaZ="0*deg" phiZ="0*deg"/>
+  <Rotation name="R200" thetaX="90*deg" phiX="-160*deg" thetaY="90*deg" phiY="-70*deg" thetaZ="0*deg" phiZ="0*deg"/>
+  <Rotation name="R210" thetaX="90*deg" phiX="-150*deg" thetaY="90*deg" phiY="-60*deg" thetaZ="0*deg" phiZ="0*deg"/>
+  <Rotation name="R220" thetaX="90*deg" phiX="-140*deg" thetaY="90*deg" phiY="-50*deg" thetaZ="0*deg" phiZ="0*deg"/>
+  <Rotation name="R240" thetaX="90*deg" phiX="-120*deg" thetaY="90*deg" phiY="-30*deg" thetaZ="0*deg" phiZ="0*deg"/>
+  <Rotation name="R260" thetaX="90*deg" phiX="-100*deg" thetaY="90*deg" phiY="-10*deg" thetaZ="0*deg" phiZ="0*deg"/>
+  <Rotation name="R270" thetaX="90*deg" phiX="-90*deg" thetaY="90*deg" phiY="0*deg" thetaZ="0*deg" phiZ="0*deg"/>
+  <Rotation name="R280" thetaX="90*deg" phiX="-80*deg" thetaY="90*deg" phiY="10*deg" thetaZ="0*deg" phiZ="0*deg"/>
+  <Rotation name="R300" thetaX="90*deg" phiX="-60*deg" thetaY="90*deg" phiY="30*deg" thetaZ="0*deg" phiZ="0*deg"/>
+  <Rotation name="R320" thetaX="90*deg" phiX="-40*deg" thetaY="90*deg" phiY="50*deg" thetaZ="0*deg" phiZ="0*deg"/>
+  <Rotation name="R330" thetaX="90*deg" phiX="-30*deg" thetaY="90*deg" phiY="60*deg" thetaZ="0*deg" phiZ="0*deg"/>
+  <Rotation name="R340" thetaX="90*deg" phiX="-20*deg" thetaY="90*deg" phiY="70*deg" thetaZ="0*deg" phiZ="0*deg"/>
+  <Rotation name="R360" thetaX="90*deg" phiX="0*deg" thetaY="90*deg" phiY="90*deg" thetaZ="0*deg" phiZ="0*deg"/>
+  <Rotation name="YXZ4" thetaX="90*deg" phiX="-90*deg" thetaY="90*deg" phiY="0*deg" thetaZ="0*deg" phiZ="0*deg"/>
+ </RotationSection>
+</DDDefinition>

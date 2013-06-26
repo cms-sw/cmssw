@@ -1,0 +1,695 @@
+2013-04-07 Emilio Meschi <emilio.meschi@cern.ch>
+
+	* tag V02-05-29
+	* minor fix for compilation in 62X
+	
+2012-11-04 Srecko Morovic <srecko.morovic@cern.ch>
+
+	* tag V02-05-26
+	* send number of working processes (slaves) to FastTimerService
+
+2012-10-17 Srecko Morovic <srecko.morovic@cern.ch>
+
+	* tag V02-05-25
+	* fix setting failed state twice in stopping
+
+2012-10-11 Srecko Morovic <srecko.morovic@cern.ch>
+
+	* tag V02-05-24
+	* reset shm output module vector and recalculate dataset info when
+	creating FWEP.
+
+2012-09-14 Srecko Morovic <srecko.morovic@cern.ch>
+
+	* tag V02-05-23
+	* removed exit on sStopping state while running
+
+2012-09-03 Srecko Morovic <srecko.morovic@cern.ch>
+
+	* tag V02-05-22
+	* dataset and stream information for dataset counters
+	  now read from process pset and passed to the FUShmOutputModules
+	* proper resetting number of datasets in trigger report helper reset
+
+2012-09-02 Srecko Morovic <srecko.morovic@cern.ch>
+
+	* tag V02-05-21
+	* dataset stat reporting
+
+2012-08-28 Srecko Morovic <srecko.morovic@cern.ch>
+
+	* tag V02-05-20
+	* not restarting slaves until previous one has finished restarting
+
+2012-08-15 Srecko Morovic <srecko.morovic@cern.ch>
+
+	* tag V02-05-19
+	* MessageService handling cleanup. Keeping auto_ptr in FU class,
+	  destroy before fork and recreate everywhere after fork.
+	  (to prevent occassional lockups in slaves)
+
+2012-07-20 Srecko Morovic <srecko.morovic@cern.ch>
+
+	* tag V02-05-18
+	* sending time elapsed from the last report to the iDie
+	* detach DQM from Shm before setting failed state
+
+2012-07-10 Srecko Morovic <srecko.morovic@cern.ch>
+
+	* tag V02-05-17
+	* improved logging of EP slave failures
+
+2012-07-01 Srecko Morovic <srecko.morovic@cern.ch>
+
+	* tag V02-05-16
+	* fixed closing /proc/stat
+
+2012-06-29 Srecko Morovic <srecko.morovic@cern.ch>
+
+	* tag V02-05-15
+	* retrieving /proc/stat cpu usage for iDie
+
+2012-06-29 Srecko Morovic <srecko.morovic@cern.ch>
+
+	* tag V02-05-14
+	* shared timeout between waiting for STOP event and stopping framework
+
+2012-06-20 Srecko Morovic <srecko.morovic@cern.ch>
+
+	* tag V02-05-13
+	* endJob executed before evtProcessor_ is destroyed
+	* moving again EnableDone after the fork of child processes
+
+2012-06-11 Srecko Morovic <srecko.morovic@cern.ch>
+
+	* tag V02-05-12
+	* temporarily have enabled early until FM support is there
+
+2012-06-08 Srecko Morovic <srecko.morovic@cern.ch>
+
+	* tag V02-05-11
+	* moving EnableDone after subprocesses are forked
+	* coredump protection enabled stopping
+	* longer stacktrace sent to logger (20 lines)
+	* try-catch for fsm transitions in slave EPs
+
+2012-05-24 Srecko Morovic <srecko.morovic@cern.ch>
+
+	* tag V02-05-10
+	* set up semaphore pointer to 0 in the beginning,
+	  to get it memory mapped properly
+
+2012-05-22 Srecko Morovic <srecko.morovic@cern.ch>
+
+	* tag V02-05-09
+	* #ifded linux for MMAP_ANONYMOUS (OS X fix)
+
+2012-05-16 Srecko Morovic <srecko.morovic@cern.ch>
+
+	* tag V02-05-08
+	* add alarm signal handler, use it as timeout in signal handling
+
+2012-05-15 Srecko Morovic <srecko.morovic@cern.ch>
+
+	* tag V02-05-07
+	* automatic limiter of core dumps in slave EP's
+	* sets up custom signal handler for SIGSEGV
+	  and other signals generating core dumps
+	* stack trace is printed and logged
+
+2012-05-10 Srecko Morovic <srecko.morovic@cern.ch>
+
+	* tag V02-05-06
+	* putting message posting in try/catch
+	* check that prc is alive
+
+2012-05-10 Srecko Morovic <srecko.morovic@cern.ch>
+
+	* tag V02-05-05
+	* limit core dump size to 0 with two or more restarts in a run
+	* parameter crashestoDump unsignedInt can override this value
+	* it detects this using status from the waitpid call
+
+2012-05-02 Srecko morovic <srecko.morovic@cern.ch>
+
+	* tag V02-05-04
+	* merging new forking method support
+	* new forking can be turned off with xdaq parameter:
+	* forkInEDM unsignedInt 0
+
+2012-04-30 Srecko Morovic <srecko.morovic@cern.ch>
+
+	* tag V02-05-02
+	* ShmOutputModuleRegistry moved to Modules
+
+2012-04-27 Srecko Morovic <srecko.morovic@cern.ch>
+
+	* tag V02-05-01
+	* fixing possible invalid write when pid from invalid
+	  location is 0 (passing waitpid check)
+	* related thread safety improvements
+
+2012-04-17 Srecko Morovic <srecko.smorovic@cern.ch>
+
+	* tag V02-05-00
+	* support for fork in DaqSource (framework thread)
+	* requires new DaqSource, Modules and Utilities
+
+2011-10-21 Emilio Meschi <emilio.meschi@cern.ch>
+
+	* tag V02-04-17
+	* fix compiler warning 
+	
+2011-10-20 Emilio Meschi <emilio.meschi@cern.ch>
+
+	* tag V02-04-16
+	* fixes and additions to statistics gathering for iDie
+	* improvements to handling of subWeb requests
+	* incorporated some fixes from Giulio for Coverity warnings 
+
+2011-09-27 Emilio Meschi <emilio.meschi@cern.ch>
+
+	* tag V02-04-15
+	* call prctl ( PR_SET_PDEATHSIG, SIGKILL ); to fix pb with recycle 
+	immediately after start
+	* add flip chart of busy fraction from cpustat  
+	* fill microstate legenda every 80 instances
+	
+2011-08-17 Emilio Meschi <emilio.meschi@cern.ch>
+
+	* tag V02-04-14
+	* changes to remove circular dep between Utilities and Modules
+
+2011-07-20 Emilio Meschi <emilio.meschi@cern.ch>
+
+	* tag V02-04-12
+	* hack away possibly taken lock coming from xdaq update or 
+	* refcounted pointers
+	
+2011-06-27 Emilio Meschi <emilio.meschi@cern.ch>
+
+	* tag V02-04-11
+	* comment out scalers flashlist refresh
+	* refresh microstate legenda every 10 lumisections
+
+2011-06-08 Emilio Meschi <emilio.meschi@cern.ch>
+
+	* tag V02-04-10
+	* remove debug flags from BuildFile
+
+2011-06-09 Emilio Meschi <emilio.meschi@cern.ch>
+
+	* tag V02-04-09
+	* Varios bug fixes mostly to handling of EOL and MsgBuf
+
+2011-05-20 Emilio Meschi <emilio.meschi@cern.ch>
+
+	* tag V02-04-08
+	* disconnect forcestopped process from msgq
+
+2011-05-20 Emilio Meschi <emilio.meschi@cern.ch>
+
+	* tag V02-04-07
+	* adjust parameters of stuck process detection
+	
+2011-05-19 Emilio Meschi <emilio.meschi@cern.ch>
+
+	* tag V02-04-06
+	* use FSTOP signal to exit processes with invalid (stuck) state
+	* issue sentinel error when FSTOP is used
+	* call _exit instead of exit
+
+2011-05-13 Emilio Meschi <emilio.meschi@cern.ch>
+
+	* tag V02-04-05
+	* fix inconsistency in fsm_ transitions on stop failure
+
+2011-05-11 Emilio Meschi <emilio.meschi@cern.ch>
+
+	* tag V02-04-04
+	* added monitoring of usage of EOL signals in slaves
+
+2011-04-27 Emilio Meschi <emilio.meschi@cern.ch>
+
+	* tag V02-04-03
+	* fix handling of filedescriptor close which was causing problems to frontierclient
+
+2011-04-15 Emilio Meschi <emilio.meschi@cern.ch>
+
+	* tag V02-04-02
+	* fix bug introduced by commenting out clear of SubProcess array
+	
+2011-04-12 Emilio Meschi <emilio.meschi@cern.ch>
+
+	* tag V02-04-01
+	* fix bug introduced in stopAndHalt by breaking stop of slaves in two steps
+	* fix bug in TriggerReportHelpers which decremented reference LS below zero after 2 restarts
+	* move sentinel message to after max restart is reached
+
+2011-04-12 Emilio Meschi <emilio.meschi@cern.ch>
+
+	* tag V02-04-00
+	* change handling of socket FD after fork (moved to SubProcess)
+	* perform stop in two steps: first send signal to all live subprocesses
+	then wait for response
+	* improve handling of subweb requests
+
+2011-04-05 Emilio Meschi <emilio.meschi@cern.ch>
+
+	* tag V02-03-07
+	* small fix for classic mode
+	
+2011-04-01 Emilio Meschi <emilio.meschi@cern.ch>
+
+	* tag V02-03-06 
+	* limit the number of restart per slave process to 3
+	
+2011-03-23 Emilio Meschi <emilio.meschi@cern.ch>
+
+	* tag V02-03-05
+	* put back begin job in mFU enabling thread
+	* remove unused infospace
+
+2011-03-21 Emilio Meschi <emilio.meschi@cern.ch>
+
+	* tag V02-03-04
+	* merge from branch
+	* fixes to monitoring usage 
+	* fix loss of total counters when all slave processes
+	crash
+	
+2011-02-16 Emilio Meschi <emilio.meschi@cern.ch>
+
+	* tag V02-03-00-02
+	* add forgotten mutex_destroy/mutex_init in slave process recycle
+
+2011-02-14 Emilio Meschi <emilio.meschi@cern.ch>
+
+	* tag V02-03-00-01
+	* more fixes with psindex reporting to db
+	
+2011-02-09 Emilio Meschi <emilio.meschi@cern.ch>
+
+	* tag V02-03-00-00
+	* fix deadlock and minor issues with path index 
+
+2011-02-04 Emilio Meschi <emilio.meschi@cern.ch>
+
+	* tag V02-03-03
+	* added rate statistics gathering to idie
+
+2011-01-21 Emilio Meschi <emilio.meschi@cern.ch>
+
+	* tag V02-03-02
+	* fix pathindex handling when path missing in index file
+	* sleep 10 s in summarize to avoid tight loop when no msg present
+
+2011-01-21 Emilio Meschi <emilio.meschi@cern.ch>
+
+	* tag V02-03-01
+	* handling of path indices in scalers message table
+	* added statistics gathering switch
+	* some cleanup of xdata variables
+	
+2011-01-19 Emilio Meschi <emilio.meschi@cern.ch>
+
+	* tag V02-03-00
+	* 02-08 xml buildfile migration
+	* 02-09 macosx compat 
+	* 02-10 removed compilation flags
+	* 03-00 streamlining
+	*       stream rate support 
+	*       fix psid reporting
+	
+2010-10-13 Emilio Meschi <emilio.meschi@cern.ch>
+
+	* tag V02-02-07
+	* exitOnError added for slave processes
+	* latch inconsistent subprocess state to avoid flooding sentinel
+
+2010-06-14 Andrea Bocci <andrea.bocci@cern.ch>
+
+	* tag V02-02-06-02
+	* add explicit type cast to msgbuf.mtype to quiet -Wsign-compare
+
+2010-06-14 Emilio Meschi <emilio.meschi@cern.ch>
+
+	* tag V02-02-06-01
+	* put back redirection for stderr 
+
+2010-06-02 Emilio Meschi <emilio.meschi@cern.ch>
+
+	* tag V02-02-06-00
+	* fix uninitialized macrostates at start of run
+
+2010-05-21 Emilio Meschi <emilio.meschi@cern.ch>
+
+	* tag V02-02-06
+	* add sentinel message for when edm::EP inopinately goes to stopping
+
+2010-05-17 Emilio Meschi <emilio.meschi@cern.ch>
+
+	* tag V02-02-05
+	* catch exceptions in rcv of summarize loop per node and not globally
+	* minor fixes in web page
+	* put guard lock around edm::ep state queries (lock out delete)
+	* add "notstarted" EP state
+
+2010-04-20 Emilio Meschi <emilio.meschi@cern.ch>
+
+	* tag V02-02-04
+	* fix initialization of l1pre and pspre markers causing crashes
+	* when switching menus
+	
+2010-04-13 Emilio Meschi <emilio.meschi@cern.ch>
+
+	* tag V02-02-03
+	* remove all using namespace std;
+	* moved some common classes for msgq to Utilities
+	* new Vulture interface
+	
+2010-03-25 Emilio Meschi <emilio.meschi@cern.ch>
+
+	* tag V02-02-02
+	* remove using namespace std; from icc file
+	
+2010-03-23 Emilio Meschi <emilio.meschi@cern.ch>
+
+	* tag V02-02-01
+	* added Vulture
+	
+2010-03-05 Emilio Meschi <emilio.meschi@cern.ch>
+
+	* tag V02-02-00
+	* more fixes for correct updating of HLT cters and DQM
+
+2010-02-15 Emilio Meschi <emilio.meschi@cern.ch>
+
+	* tag V02-01-00
+	* fixes for correct updating of HLT cters and DQM
+	
+2010-02-02 Emilio Meschi <emilio.meschi@cern.ch>
+
+	* tag V02-00-10
+	* fix monitorreceiver appdesc broken by xdaq10
+
+2010-02-02 Emilio Meschi <emilio.meschi@cern.ch>
+
+	* tag V02-00-09-00
+	* put back fix for compilation warning from branch
+
+2010-01-27 Emilio Meschi <emilio.meschi@cern.ch>
+
+	* tag V02-00-07-01 (branch)
+	* remove warning again
+
+2010-01-27 Emilio Meschi <emilio.meschi@cern.ch>
+
+	* tag V02-00-07-00 (branch)
+	* remove last compilation warning
+
+2010-01-20 Emilio Meschi <emilio.meschi@cern.ch>
+
+	* tag V02-00-09
+	* add general counters for processed and accepted events to HLTS message
+	* add web interface for counters
+	
+2010-01-20 Emilio Meschi <emilio.meschi@cern.ch>
+
+	* tag V02-00-08
+	* fix for dangling FDs from ptHTTP in slave processes
+	
+2010-01-20 Emilio Meschi <emilio.meschi@cern.ch>
+
+	* tag V02-00-07
+	* remove compilation warnings for gcc4 (P.E.)
+	
+2009-11-17 Emilio Meschi <emilio.meschi@cern.ch>
+
+	* tag V02-00-06
+	* remove some rare deadlocks causing problems in stop
+	
+2009-11-09 Emilio Meschi <emilio.meschi@cern.ch>
+
+	* tag V02-00-05
+	* update HLT menu upon reconfiguration on start
+
+2009-11-09 Emilio Meschi <emilio.meschi@cern.ch>
+
+	* tag V02-00-04
+	* fix one deadlock in slave and stuck summarize loop in stopping
+	
+2009-11-06 Emilio Meschi <emilio.meschi@cern.ch>
+
+	* tag V02-00-03
+	* flashlist available at initialization time
+	* improve stability of stop transition
+	* cleanup printouts
+	* fix deadlock of scalers update when some process crashes
+	
+2009-11-02 Emilio Meschi <emilio.meschi@cern.ch>
+
+	* tag V02-00-02
+	* fix bug for LS timeouts causing lock to be acquired twice
+
+2009-10-28 Emilio Meschi <emilio.meschi@cern.ch>
+
+	* tag V02-00-01
+	* various improvements and fixes
+
+2009-10-20 Emilio Meschi <emilio.meschi@cern.ch>
+
+	* tag V02-00-00-00
+	* New implementation of Multiprocess EP
+	* for details see https://twiki.cern.ch/twiki/bin/view/CMS/FUEventProcessor
+	* this is the branch tag for 327 compat
+	
+2009-10-19 Emilio Meschi <emilio.meschi@cern.ch>
+
+	* tag V02-00-00
+	* New implementation of Multiprocess EP
+	* for details see https://twiki.cern.ch/twiki/bin/view/CMS/FUEventProcessor
+
+2009-09-18 Emilio Meschi <emilio.meschi@cern.ch>
+
+	* tag V01-04-13
+	* fix warning on cast loses precision for 64 bit 
+
+2009-09-18 Emilio Meschi <emilio.meschi@cern.ch>
+
+	* tag V01-04-11/12
+	* update of includes for FW compat by wmtan
+
+2009-07-02 Emilio Meschi <emilio.meschi@cern.ch>
+
+	* tag V01-04-10
+	* put back missed setting of prescale index to PSservice and add dqmhistos to modmap
+
+2009-07-02 Emilio Meschi <emilio.meschi@cern.ch>
+	
+	* tags 08-09 used to introduce and back off a FW change
+	
+2009-02-17  Emilio Meschi  <emilio.meschi@cern.ch>
+		
+	* tag V01-04-07
+	* small fix to spotlight web must bump up version no
+
+2009-02-17  Emilio Meschi  <emilio.meschi@cern.ch>
+
+	* tag V01-04-06
+	* update version number in web page
+
+2009-01-08  Emilio Meschi  <emilio.meschi@cern.ch>
+
+	* tag V01-04-05
+	* moved js to datafile
+	* added support for service webs
+
+2008-11-27  Emilio Meschi  <emilio.meschi@cern.ch>
+
+	* tag V01-04-04
+	* fix problem with scaler message containing 0 lsid
+	* added python configuration capability
+
+2008-11-20  Philipp Schieferdecker  <philipp.schieferdecker@cern.ch>
+
+	* tag V01-04-03
+	* call fsm_.findRcmsStateListener()
+	* requires EventFilter/Utilities V00-15-01
+
+2008-11-12  Emilio Meschi  <emilio.meschi@cern.ch>
+
+	* tag V01-04-02
+	* remove deadlock on forceHalt
+	* cover missed LSs for prolonged timeouts
+
+2008-11-03  Emilio Meschi  <emilio.meschi@cern.ch>
+
+	* tag V01-04-01
+	* improved LS timeout logic
+	* reset of trigger report table when stopping
+	* web page now shows timed out LS index
+	
+2008-10-17  Emilio Meschi  <emilio.meschi@cern.ch>
+
+	* tag V01-04-00
+	* reworked web pages and micropage
+	* some fixes to scalers code 
+
+2008-10-09  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
+
+	* tag V01-03-06
+	* requires EventFilter/Utilities V00-14-16
+	* add StateMachine::rcmsStateListener() to infospace
+
+2008-09-17  Emilio Meschi  <emilio.meschi@cern.ch>
+
+	* tag V01-03-05
+	* fix scalers workloop
+	
+2008-08-27  Emilio Meschi  <emilio.meschi@cern.ch>
+
+	* tag V01-03-04
+	* pull mode HLT config and added squid check to monitor and web page
+
+2008-06-19  Emilio Meschi  <emilio.meschi@cern.ch>
+
+	* tag V01-03-03
+	* added counter for recovery attempts
+	* fixed bug in defaultWebPage causing crash when page is loaded while
+	in recovery
+
+2008-06-19  Emilio Meschi  <emilio.meschi@cern.ch>
+
+	* tag V01-03-02
+	* removed printout ( or replaced with log where necessary)
+	* block watchdog when starting edm::eventProcessor to avoid races
+
+2008-06-13  Emilio Meschi  <emilio.meschi@cern.ch>
+
+	* tag V01-03-01
+	* removed all soap callbacks for prescales etc
+	* introduced retrieval of hlt scalers and push to runcontrol
+	* added TriggerReportHelpers
+	
+2008-05-04  Philipp Schieferdecler  <philipp.schieferdecker@cern.ch>
+
+	* tag V01-02-04
+	* removed obsolete PrescaleService stuff
+
+2008-03-18  Emilio Meschi  <emilio.meschi@cern.ch>
+
+	* tag V01-02-03
+	* removed obsolete DQM stuff
+
+2008-03-07  Emilio Meschi  <emilio.meschi@cern.ch>
+
+	* tag V01-02-02
+	* fix flashlists and small fix to monitoring 
+
+2008-02-29  Emilio Meschi  <emilio.meschi@cern.ch>
+
+	* tag V01-02-01
+	* fixed defaultWebPage crash in halted
+	* Now calls explicitly beginJob in configuring
+	* call clear of ModuleWebRegistry at halting if present
+
+2008-02-27  Emilio Meschi  <emilio.meschi@cern.ch>
+
+	* tag V01-02-00
+	* add state transition E->F when edm failure detected 
+	* added separate flashlists for numerical microstates and legenda
+	* split web page in two, moved module description vector to data member
+	* use TimeProfilerService to get timing info in web page
+	* updated icons
+
+2007-11-28  Emilio Meschi  <emilio.meschi@cern.ch>
+
+	* tag V01-01-04
+	* added bool flag isRunNumberSetter to toggle use of 
+	* setRunNumber/declareRunNumber
+
+2007-10-09  Emilio Meschi  <emilio.meschi@cern.ch>
+	
+	* tag V01-01-03
+	* use clearCounters in enabling to reset all schedule counters via EP
+	* addded boolean flag to use/not use PrescaleService 
+
+2007-10-09  Emilio Meschi  <emilio.meschi@cern.ch>
+	
+	* tag V01-01-02
+	* fix halting to call detachDqmFromShm only when shm is present
+
+2007-08-14  Emilio Meschi  <emilio.meschi@cern.ch>
+
+	* tag V01-01-00
+	* fixed bug in handling state transition in case of bad configuration
+	* removed PLUGIN_PATH from web page
+	* removed MonitorDaemon initialization (obsolete)
+	* added reasonForFailed to web page
+	* mispace -> monitorInfoSpace_
+
+2007-07-03  Philipp Schieferdecker  <philipp.schieferdecker@cern.ch>
+
+	* tag V01-00-05
+	* create monitorable infospace the xdaq3.9 (xmas) way
+
+2007-03-26  Emilio Meschi  <emilio.meschi@cern.ch>
+
+	* tag V00-11-02
+	* compliant with edm::EventProcessor for pre2
+	* based on evf::StateMachine provided by EventFilter/Utilities
+	V00-12-00
+	* stopping and halting logic now should function properly
+
+2007-03-10  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
+
+	* tag V00-11-01
+	* ready to go back in the nightly! :)
+	* reverted to od halting strategy (edm::EP::shutDownAsync() instead
+	of edm::EP::stopAsync()), edm::EP needs to be enabled to cleanly
+	stop first, note that 'Stop' command won't work properly for
+	current FUEventProcessor
+
+2007-03-08  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
+
+	* tag V00-11-00
+	* collect fixes commited by Chris Y.
+	* compliant with FWCore reorganization in 140 series
+	* based on evf::StateMachine provided by EventFilter/Utilities
+	V00-12-00
+	* runtime test shows PluginManager related segfault, to be
+	investigated. 
+	* for stopping and halting logic to function properly,
+	edm::EventProcessor needs some fixes, Emilio is taking care of
+	that.
+	
+	
+2007-03-01  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
+
+	* add boolean flag epInitialized_ which indicates to the
+	initEventProcessor() method if any initalization is
+	necessary. Each time the 'parameterSet' parameter is reset via
+	XDAQ, the flag will be set to 'false', indicating
+	(re-)initialization is necessary.
+	* use evf::FsmFailedEvent (EventFilter/Utilities V00-11-11) to
+	force the FUEP into 'Failed' state whenever an exception is raised
+	in any of the transitional state actions.
+
+2007-02-24  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
+
+	* prescale relevant changes by Chris
+	* add rcmsStateNotifier from xdaq2rc package to inform run control
+	of self-triggered transition into target state
+
+2007-02-21  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
+
+	* no tag :(
+	* change to asynchronous state model
+	* incorporate prescale relevant code from Chris
+	* missing from the code is the asynchronous notification of run
+	control (function manager) of the arrival in the target
+	state. To do this, the xdaq2rc library will be employed, which
+	will be available in xdaq 3.8.
+	
+

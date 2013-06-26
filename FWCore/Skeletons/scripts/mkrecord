@@ -1,0 +1,40 @@
+#!/usr/bin/env python
+#-*- coding: utf-8 -*-
+#pylint: disable-msg=
+"""
+File       : mkrecord
+Author     : Valentin Kuznetsov <vkuznet@gmail.com>
+Description: mkrecord code
+"""
+
+# system modules
+import sys
+
+if  sys.version_info < (2, 6):
+    raise Exception("This script requires python 2.6 or greater")
+
+# package modules
+from FWCore.Skeletons.cms import generate, config
+
+def tmpl_dir():
+    "Return location of template directory wrt script location"
+    return '%s/mkTemplates' % '/'.join(__file__.split('/')[:-1])
+
+def pkg_help():
+    "mkrecord help function"
+    msg  = '\nmkrecord script generates CMS C++ record code'
+    msg += '\nUsage  : mkrecord MyRecord -author "FirstName LastName"'
+    msg += '\nOutput : '
+    msg += """
+        MyRecord.cc
+        MyRecord.h"""
+    msg += '\nExample:'
+    msg += '\n        # create new C++ Record'
+    msg += '\n        mkrecord MyRecord'
+    msg += '\n        # create new C++ Record with given author'
+    msg += '\n        mkrecord MyRecord -author "First Last"'
+    msg += '\n'
+    return msg
+
+if __name__ == '__main__':
+    generate(config('Record', pkg_help(), tmpl_dir()))

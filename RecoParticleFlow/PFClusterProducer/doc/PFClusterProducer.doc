@@ -1,0 +1,40 @@
+
+/*!
+
+\page RecoParticleFlow_PFClusterProducer Package RecoParticleFlow/PFClusterProducer
+
+<center>
+<small>
+
+<!-- @CVS_TAG@ will be substituted at build time, no need to touch -->
+<a href=http://cmsdoc.cern.ch/swdev/viewcvs/viewcvs.cgi/CMSSW/RecoParticleFlow/PFClusterProducer/?cvsroot=CMSSW&only_with_tag=@CVS_TAG@>Source code (CVS tag: @CVS_TAG@)</a> - 
+<a href=http://cmsdoc.cern.ch/swdev/viewcvs/viewcvs.cgi/CMSSW/RecoParticleFlow/PFClusterProducer/.admin/developers?rev=HEAD&cvsroot=CMSSW&content-type=text/vnd.viewcvs-markup>Administrative privileges</a>
+</small>
+</center>
+
+\section desc Description
+<!-- Short description of what this package is supposed to provide -->
+
+Producer of Particle Flow Clusters. 
+
+<!-- \subsection interface Public interface -->
+<!-- List the classes that are provided for use in other packages (if any) -->
+
+
+\subsection modules Modules
+<!-- Describe modules implemented in this package and their parameter set -->
+- PFClusterProducer
+
+\subsection tests Unit tests and examples
+<!-- Describe cppunit tests and example configuration files -->
+test/singletau_all.cfg
+
+\section status Status and planned development
+<!-- e.g. completed, stable, missing features -->
+Stable
+
+<hr>
+Last updated:
+@DATE@  Author: computer-generated.
+*/
+

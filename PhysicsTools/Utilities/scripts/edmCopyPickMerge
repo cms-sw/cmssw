@@ -1,0 +1,14 @@
+#! /usr/bin/env bash
+
+export CPMConfig=$CMSSW_BASE/src/PhysicsTools/Utilities/configuration/copyPickMerge_cfg.py
+
+if [ ! -e $CPMConfig ] ; then
+   export CPMConfig=$CMSSW_RELEASE_BASE/src/PhysicsTools/Utilities/configuration/copyPickMerge_cfg.py
+   if [ ! -e $CPMConfig ] ; then
+       echo Can not find PhysicsTools/Utilities/configuration/copyPickMerge_cfg.py.  Aborting
+       exit
+   fi
+fi
+
+cmsRun $CPMConfig $@
+ 

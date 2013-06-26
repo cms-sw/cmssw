@@ -1,0 +1,6 @@
+#!/bin/bash
+[ -e /tmp/headers1.txt ] || ./classes_extract 
+[ -e /tmp/headers2.txt ] || ./classes_extract2
+cd ${CMSSW_RELEASE_BASE}/src
+cat /tmp/headers[12].txt | sort -u | ctags -f - -L - | awk '/\tm\t(class|struct|union):/ {print}' | sort -u >/tmp/class_members.txt 
+for class in `cat /tmp/classes[12].txt | sort -u`;do grep -e ${class} /tmp/class_members.txt |  awk '/\tm\t(class|struct|union):/ {print }' ;done | sort -u >/tmp/members.txt

@@ -1,0 +1,396 @@
+1) Create the DB file. Make sure all of the names are consistent,
+as of this writing, Jec11_V12 is the latest.
+
+cd JetMETCorrections/Modules/test
+cmsRun JetCorrectionDBWriter_cfg.py
+cmsRun JetCorrectionLocalDBReader_cfg.py
+
+ 
+This will print out a great deal of information for debugging purposes.
+
+
+2) Test the payloads for content:
+
+cmsRun JetCorrectorDemoLocal_cfg.py
+
+ 
+
+3) Get the templates for the dropbox scripts:
+
+wget http://condb.web.cern.ch/condb/DropBoxOffline/templateForDropbox.txt
+wget http://condb.web.cern.ch/condb/DropBoxOffline/dropBoxOffline.sh
+wget http://condb.web.cern.ch/condb/DropBoxOffline/dropBoxOffline_test.sh
+
+then
+
+chmod +x dropBoxOffline.sh
+chmod +x dropBoxOffline_test.sh
+ 
+
+4) First upload to the "prep" testing drop-box. Modify the template to be this for testing:
+
+destDB oracle://cms_orcoff_prep/CMS_COND_PHYSICSTOOLS
+tag TAGNAME
+inputtag PRODNAME
+since
+Timetype runnumber
+IOVCheck offline
+DuplicateTagHLT
+DuplicateTagEXPRESS
+DuplicateTagPROMPT
+usertext
+
+
+
+
+
+
+ 
+
+5) Check the payloads that are present in the created file, as of this writing, "Jec11_V12", but change
+to the latest tag as you've done above. 
+
+lxbuild150:$ cmscond_list_iov -c sqlite_file:Jec11_V12.db -a
+JetCorrectorParametersCollection_Jec11_V12_AK5Calo
+JetCorrectorParametersCollection_Jec11_V12_AK5PF
+JetCorrectorParametersCollection_Jec11_V12_AK5PFchs
+JetCorrectorParametersCollection_Jec11_V12_AK5JPT
+JetCorrectorParametersCollection_Jec11_V12_AK5TRK
+JetCorrectorParametersCollection_Jec11_V12_AK7Calo
+JetCorrectorParametersCollection_Jec11_V12_AK7PF
+JetCorrectorParametersCollection_Jec11_V12_AK7JPT
+JetCorrectorParametersCollection_Jec11_V12_KT4Calo
+JetCorrectorParametersCollection_Jec11_V12_KT4PF
+JetCorrectorParametersCollection_Jec11_V12_KT6Calo
+JetCorrectorParametersCollection_Jec11_V12_KT6PF
+JetCorrectorParametersCollection_Jec11_V12_IC5Calo
+JetCorrectorParametersCollection_Jec11_V12_IC5PF
+
+
+
+
+
+6) Then check each of the payloads individually. There is a script to help you out called "testAllIOVs.py".
+Update the names to what you decided above. Output example:
+
+
+lxbuild150:$ python testAllIOVs.py
+Tag JetCorrectorParametersCollection_Jec11_V12_AK5Calo
+TimeType runnumber
+PayloadContainerName JetCorrectorParametersCollection
+since 	 till 	 payloadToken
+1 	 4294967295 	 [DB=00000000-0000-0000-0000-000000000000][CNT=JetCorrectorParametersCollection][CLID=8B390EB7-E018-28E3-3AE1-56A63E52AEEA][TECH=00000B01][OID=00000001-00000000]
+Total # of payload objects: 1
+Tag JetCorrectorParametersCollection_Jec11_V12_AK5PF
+TimeType runnumber
+PayloadContainerName JetCorrectorParametersCollection
+since 	 till 	 payloadToken
+1 	 4294967295 	 [DB=00000000-0000-0000-0000-000000000000][CNT=JetCorrectorParametersCollection][CLID=8B390EB7-E018-28E3-3AE1-56A63E52AEEA][TECH=00000B01][OID=00000001-00000001]
+Total # of payload objects: 1
+Tag JetCorrectorParametersCollection_Jec11_V12_AK5PFchs
+TimeType runnumber
+PayloadContainerName JetCorrectorParametersCollection
+since 	 till 	 payloadToken
+1 	 4294967295 	 [DB=00000000-0000-0000-0000-000000000000][CNT=JetCorrectorParametersCollection][CLID=8B390EB7-E018-28E3-3AE1-56A63E52AEEA][TECH=00000B01][OID=00000001-00000002]
+Total # of payload objects: 1
+Tag JetCorrectorParametersCollection_Jec11_V12_AK5JPT
+TimeType runnumber
+PayloadContainerName JetCorrectorParametersCollection
+since 	 till 	 payloadToken
+1 	 4294967295 	 [DB=00000000-0000-0000-0000-000000000000][CNT=JetCorrectorParametersCollection][CLID=8B390EB7-E018-28E3-3AE1-56A63E52AEEA][TECH=00000B01][OID=00000001-00000003]
+Total # of payload objects: 1
+Tag JetCorrectorParametersCollection_Jec11_V5_AK5TRK
+TimeType runnumber
+PayloadContainerName JetCorrectorParametersCollection
+since 	 till 	 payloadToken
+1 	 4294967295 	 [DB=00000000-0000-0000-0000-000000000000][CNT=JetCorrectorParametersCollection][CLID=8B390EB7-E018-28E3-3AE1-56A63E52AEEA][TECH=00000B01][OID=00000001-00000004]
+Total # of payload objects: 1
+Tag JetCorrectorParametersCollection_Jec11_V5_AK7Calo
+TimeType runnumber
+PayloadContainerName JetCorrectorParametersCollection
+since 	 till 	 payloadToken
+1 	 4294967295 	 [DB=00000000-0000-0000-0000-000000000000][CNT=JetCorrectorParametersCollection][CLID=8B390EB7-E018-28E3-3AE1-56A63E52AEEA][TECH=00000B01][OID=00000001-00000005]
+Total # of payload objects: 1
+Tag JetCorrectorParametersCollection_Jec11_V5_AK7PF
+TimeType runnumber
+PayloadContainerName JetCorrectorParametersCollection
+since 	 till 	 payloadToken
+1 	 4294967295 	 [DB=00000000-0000-0000-0000-000000000000][CNT=JetCorrectorParametersCollection][CLID=8B390EB7-E018-28E3-3AE1-56A63E52AEEA][TECH=00000B01][OID=00000001-00000006]
+Total # of payload objects: 1
+Tag JetCorrectorParametersCollection_Jec11_V5_AK7JPT
+TimeType runnumber
+PayloadContainerName JetCorrectorParametersCollection
+since 	 till 	 payloadToken
+1 	 4294967295 	 [DB=00000000-0000-0000-0000-000000000000][CNT=JetCorrectorParametersCollection][CLID=8B390EB7-E018-28E3-3AE1-56A63E52AEEA][TECH=00000B01][OID=00000001-00000007]
+Total # of payload objects: 1
+Tag JetCorrectorParametersCollection_Jec11_V5_KT4Calo
+TimeType runnumber
+PayloadContainerName JetCorrectorParametersCollection
+since 	 till 	 payloadToken
+1 	 4294967295 	 [DB=00000000-0000-0000-0000-000000000000][CNT=JetCorrectorParametersCollection][CLID=8B390EB7-E018-28E3-3AE1-56A63E52AEEA][TECH=00000B01][OID=00000001-00000008]
+Total # of payload objects: 1
+Tag JetCorrectorParametersCollection_Jec11_V5_KT4PF
+TimeType runnumber
+PayloadContainerName JetCorrectorParametersCollection
+since 	 till 	 payloadToken
+1 	 4294967295 	 [DB=00000000-0000-0000-0000-000000000000][CNT=JetCorrectorParametersCollection][CLID=8B390EB7-E018-28E3-3AE1-56A63E52AEEA][TECH=00000B01][OID=00000001-00000009]
+Total # of payload objects: 1
+Tag JetCorrectorParametersCollection_Jec11_V5_KT6Calo
+TimeType runnumber
+PayloadContainerName JetCorrectorParametersCollection
+since 	 till 	 payloadToken
+1 	 4294967295 	 [DB=00000000-0000-0000-0000-000000000000][CNT=JetCorrectorParametersCollection][CLID=8B390EB7-E018-28E3-3AE1-56A63E52AEEA][TECH=00000B01][OID=00000001-0000000A]
+Total # of payload objects: 1
+Tag JetCorrectorParametersCollection_Jec11_V5_KT6PF
+TimeType runnumber
+PayloadContainerName JetCorrectorParametersCollection
+since 	 till 	 payloadToken
+1 	 4294967295 	 [DB=00000000-0000-0000-0000-000000000000][CNT=JetCorrectorParametersCollection][CLID=8B390EB7-E018-28E3-3AE1-56A63E52AEEA][TECH=00000B01][OID=00000001-0000000B]
+Total # of payload objects: 1
+Tag JetCorrectorParametersCollection_Jec11_V5_IC5Calo
+TimeType runnumber
+PayloadContainerName JetCorrectorParametersCollection
+since 	 till 	 payloadToken
+1 	 4294967295 	 [DB=00000000-0000-0000-0000-000000000000][CNT=JetCorrectorParametersCollection][CLID=8B390EB7-E018-28E3-3AE1-56A63E52AEEA][TECH=00000B01][OID=00000001-0000000C]
+Total # of payload objects: 1
+Tag JetCorrectorParametersCollection_Jec11_V5_IC5PF
+TimeType runnumber
+PayloadContainerName JetCorrectorParametersCollection
+since 	 till 	 payloadToken
+1 	 4294967295 	 [DB=00000000-0000-0000-0000-000000000000][CNT=JetCorrectorParametersCollection][CLID=8B390EB7-E018-28E3-3AE1-56A63E52AEEA][TECH=00000B01][OID=00000001-0000000D]
+Total # of payload objects: 1
+
+
+
+ 
+
+ 
+
+7) Upload the payloads to the TEST dropbox:
+NOTE: For "V12", we're only updating the AK5 payloads but normally you do all of them. 
+
+
+lxbuild150:$ cat uploadConstants.py
+#! /usr/bin/env python
+import os
+import re
+import sys
+import subprocess
+
+#******************   template file  **********************************
+templateFile = open('templateForDropbox.txt', 'r')
+fileContents = templateFile.read(-1)
+print '--------------- TEMPLATE :  -----------------'
+print fileContents
+p1 = re.compile(r'TAGNAME')
+p2 = re.compile(r'PRODNAME')
+
+#******************   definitions  **********************************
+jec_type    = 'JetCorrectorParametersCollection'
+ERA         = 'Jec11_V12'
+ALGO_LIST   = ['IC5Calo','IC5PF',
+               'AK5Calo','AK5PF','AK5PFchs','AK5JPT','AK5TRK',
+               'AK7Calo','AK7PF',
+               'KT4Calo','KT4PF',
+               'KT6Calo','KT6PF'
+               ]
+#*********************************************************************
+
+files = []
+
+
+### L2+L3 Corrections
+for aa in ALGO_LIST: #loop for jet algorithms
+
+    s1 = jec_type + '_' + ERA + '_' + aa
+    s2 = jec_type + '_' + ERA + '_' + aa
+    k1 = p1.sub( s1, fileContents )
+    k2 = p2.sub( s2, k1 )
+    k2outfile = s2 + '.txt'
+    print '--------------------------------------'
+    print 'ORCOFF File for jet correction : ' + s2
+    print 'Written to ' + k2outfile
+    FILE = open(k2outfile,"w")
+    FILE.write(k2)       
+    files.append( k2outfile )
+    
+
+
+for ifile in files :
+    s = "./dropBoxOffline_test.sh "+ERA+".db " + ifile
+    print s
+    subprocess.call( ["./dropBoxOffline_test.sh", ERA+".db", ifile])
+
+  
+  
+
+ 
+lxbuild150:$ uploadConstants.py
+
+
+ 
+
+
+
+
+8) Now the files can be checked here:
+
+http://condb.web.cern.ch/condb/DropBoxOffline/HTTPRequest_test.py
+
+
+
+9) Check the uploaded test payloads. Be sure to change "Jec11_V12" to whatever you set above. 
+
+lxbuild150:$ cmscond_list_iov -c frontier://FrontierPrep/CMS_COND_PHYSICSTOOLS -a | grep JetCorrectorParametersCollection_Jec11_V12
+JetCorrectorParametersCollection_Jec11_V12_AK5Calo
+JetCorrectorParametersCollection_Jec11_V12_AK5JPT
+JetCorrectorParametersCollection_Jec11_V12_AK5PF
+JetCorrectorParametersCollection_Jec11_V12_AK5PFchs
+JetCorrectorParametersCollection_Jec11_V12_AK5TRK
+JetCorrectorParametersCollection_Jec11_V12_AK7Calo
+JetCorrectorParametersCollection_Jec11_V12_AK7PF
+JetCorrectorParametersCollection_Jec11_V12_IC5Calo
+JetCorrectorParametersCollection_Jec11_V12_IC5PF
+JetCorrectorParametersCollection_Jec11_V12_KT4Calo
+JetCorrectorParametersCollection_Jec11_V12_KT4PF
+JetCorrectorParametersCollection_Jec11_V12_KT6Calo
+JetCorrectorParametersCollection_Jec11_V12_KT6PF
+
+
+
+
+10) Run on the uploaded test payloads. Again be sure to change the input tag name:
+
+cmsRun JetCorrectorDemoPrep_cfg.py
+
+
+
+
+
+11) Now we're ready to upload to the PRODUCTION account. So change the template to:
+
+destDB oracle://cms_orcon_prod/CMS_COND_31X_PHYSICSTOOLS
+tag TAGNAME
+inputtag PRODNAME
+since
+Timetype runnumber
+IOVCheck offline
+DuplicateTagHLT
+DuplicateTagEXPRESS
+DuplicateTagPROMPT
+usertext
+
+
+
+
+
+
+12) Now change the "uploadConstants.py" script, and instead of calling "dropBoxOffline_test.sh" in the last line, call "dropBoxOffline.sh" instead.
+ 
+
+13) Check here to make sure they were uploaded correctly:
+
+http://condb.web.cern.ch/condb/DropBoxOffline/HTTPRequest.py
+
+
+14) Then check to see if the payloads were uploaded. Either:
+
+cmscond_list_iov -P /afs/cern.ch/cms/DB/conddb -c oracle://cms_orcoff_prod/CMS_COND_31X_PHYSICSTOOLS -a | grep Jec11_V12
+
+or check
+
+http://cms-conddb.cern.ch/payload_inspector/
+
+The DBService is "offline production" 
+
+The account is "Physics Tools for 31x"
+
+Then click "SUBMIT"
+
+
+15) Check that the right number of payloads was updated
+
+cmscond_list_iov -P /afs/cern.ch/cms/DB/conddb -c oracle://cms_orcoff_prod/CMS_COND_31X_PHYSICSTOOLS -a | grep Jec11_V12 | wc -l 
+
+This should match the number sent to the ALCA list
+
+16) Ask the ALCA L2's to create the global tag.
+
+ 
+
+17) Check the global tags here:
+
+http://cms-conddb.cern.ch/popcon/PopConRecentActivityRecorded.html
+
+
+
+18) FOR HLT Only!
+
+If you would like a new HLT global tag, you have to append the payloads to the existing
+ones.
+
+Here is the documentation:
+
+https://twiki.cern.ch/twiki/bin/viewauth/CMS/DropBoxOffline
+
+For instance, we need tags for both HLT and express:
+
+destDB oracle://cms_orcon_prod/CMS_COND_31X_PHYSICSTOOLS
+tag JetCorrectorParametersCollection_AK5Calo_v1_hlt
+inputtag JetCorrectorParametersCollection_Jec11_V1_AK5Calo
+since
+Timetype runnumber
+IOVCheck hlt
+DuplicateTagHLT
+DuplicateTagEXPRESS
+DuplicateTagPROMPT
+usertext
+
+destDB oracle://cms_orcon_prod/CMS_COND_31X_PHYSICSTOOLS
+tag JetCorrectorParametersCollection_AK5Calo_v1_express
+inputtag JetCorrectorParametersCollection_Jec11_V1_AK5Calo
+since
+Timetype runnumber
+IOVCheck express
+DuplicateTagHLT
+DuplicateTagEXPRESS
+DuplicateTagPROMPT
+usertext
+
+
+
+
+
+19) They will again show up here:
+
+https://twiki.cern.ch/twiki/bin/viewauth/CMS/DropBoxOffline
+
+
+
+20) Then check them as:
+
+lxbuild150:$ cmscond_list_iov -P /afs/cern.ch/cms/DB/conddb -c
+oracle://cms_orcoff_prod/CMS_COND_31X_PHYSICSTOOLS -t
+JetCorrectorParametersCollection_AK5Calo_v1_hlt
+Tag JetCorrectorParametersCollection_AK5Calo_v1_hlt
+TimeType runnumber
+PayloadContainerName JetCorrectorParametersCollection
+since    till    payloadToken
+1        164601          [DB=00000000-0000-0000-0000-000000000000][CNT=JetCorrectorParametersCollection][CLID=8B390EB7-E018-28E3-3AE1-56A63E52AEEA][TECH=00000B01][OID=00000008-0000003E]
+164602   4294967295
+[DB=00000000-0000-0000-0000-000000000000][CNT=JetCorrectorParametersCollection][CLID=8B390EB7-E018-28E3-3AE1-56A63E52AEEA][TECH=00000B01][OID=00000008-00000067]
+Total # of payload objects: 2
+lxbuild150:$ cmscond_list_iov -P /afs/cern.ch/cms/DB/conddb -c
+oracle://cms_orcoff_prod/CMS_COND_31X_PHYSICSTOOLS -t
+JetCorrectorParametersCollection_AK5Calo_v1_express
+Tag JetCorrectorParametersCollection_AK5Calo_v1_express
+TimeType runnumber
+PayloadContainerName JetCorrectorParametersCollection
+since    till    payloadToken
+1        164601          [DB=00000000-0000-0000-0000-000000000000][CNT=JetCorrectorParametersCollection][CLID=8B390EB7-E018-28E3-3AE1-56A63E52AEEA][TECH=00000B01][OID=00000008-0000003E]
+164602   4294967295
+[DB=00000000-0000-0000-0000-000000000000][CNT=JetCorrectorParametersCollection][CLID=8B390EB7-E018-28E3-3AE1-56A63E52AEEA][TECH=00000B01][OID=00000008-00000068]
+Total # of payload objects: 2
+
+
+21) Finally make a request for the IOV append to the alca conveners.

@@ -1,0 +1,7 @@
+<flags   EDM_PLUGIN="1"/>
+<use   name="SimG4Core/Notification"/>
+<use   name="SimG4Core/Watcher"/>
+<use   name="Geometry/Records"/>
+<use   name="FWCore/ParameterSet"/>
+<use   name="geant4core"/>
+<use   name="boost"/>

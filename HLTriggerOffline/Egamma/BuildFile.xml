@@ -1,0 +1,11 @@
+<use   name="FWCore/Framework"/>
+<use   name="FWCore/PluginManager"/>
+<use   name="FWCore/ParameterSet"/>
+<use   name="FWCore/ServiceRegistry"/>
+<use   name="DQMServices/Core"/>
+<use   name="DataFormats/HepMCCandidate"/>
+<use   name="DataFormats/CLHEP"/>
+<use   name="SimDataFormats/GeneratorProducts"/>
+<use   name="HLTrigger/HLTcore"/>
+<use   name="boost"/>
+<flags   EDM_PLUGIN="1"/>

@@ -1,0 +1,82 @@
+<FrameworkJobReport>
+
+<InputFile>
+<State  Value="closed"/>
+<LFN></LFN>
+<Catalog></Catalog>
+<ModuleLabel>source</ModuleLabel>
+<Branches>
+  <Branch>edmTriggerResults_TriggerResults__TESTPROD.</Branch>
+  <Branch>edmtestThings_Thing__TESTPROD.</Branch>
+</Branches>
+<InputType>primaryFiles</InputType>
+<InputSourceClass>PoolSource</InputSourceClass>
+<EventsRead>0</EventsRead>
+<Runs>
+<Run ID="100">
+</Run>
+
+</Runs>
+</InputFile>
+
+<InputFile>
+<State  Value="closed"/>
+<LFN></LFN>
+<Catalog></Catalog>
+<ModuleLabel>source</ModuleLabel>
+<Branches>
+  <Branch>edmTriggerResults_TriggerResults__TESTPROD.</Branch>
+  <Branch>edmtestThings_Thing__TESTPROD.</Branch>
+</Branches>
+<InputType>primaryFiles</InputType>
+<InputSourceClass>PoolSource</InputSourceClass>
+<EventsRead>0</EventsRead>
+<Runs>
+<Run ID="200">
+</Run>
+
+</Runs>
+</InputFile>
+
+<File>
+<State  Value="closed"/>
+<LFN></LFN>
+<Catalog></Catalog>
+<ModuleLabel>output</ModuleLabel>
+<Branches>
+  <Branch>edmTriggerResults_TriggerResults__TESTPROD.</Branch>
+  <Branch>edmtestThings_Thing__TESTPROD.</Branch>
+</Branches>
+<OutputModuleClass>PoolOutputModule</OutputModuleClass>
+<TotalEvents>0</TotalEvents>
+
+<DataType></DataType>
+
+<BranchHash>f3ae954022ffadcccfe7e8cbf1446f0d</BranchHash>
+
+<Runs>
+<Run ID="100">
+</Run>
+
+<Run ID="200">
+</Run>
+
+</Runs>
+
+<Inputs>
+<Input>
+  <LFN></LFN>
+  <FastCopying>0</FastCopying>
+</Input>
+<Input>
+  <LFN></LFN>
+  <FastCopying>0</FastCopying>
+</Input>
+</Inputs>
+</File>
+<ReadBranches>
+</ReadBranches>
+
+<GeneratorInfo>
+</GeneratorInfo>
+</FrameworkJobReport>

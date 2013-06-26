@@ -1,0 +1,48 @@
+<library   file="ReadMath.cc,WriteMath.cc,SealModule.cc" name="DataFormatsMath_test">
+  <use   name="FWCore/Framework"/>
+  <use   name="DataFormats/Common"/>
+  <flags   EDM_PLUGIN="1"/>
+</library>
+<use   name="rootmath"/>
+<use   name="rootgraphics"/>
+<use   name="DataFormats/Math"/>
+<bin   file="Matrices_t.cpp" name="DataFormatsMatrices_t">
+</bin>
+<bin   file="ProjectMatrix_t.cpp" name="DataFormatsProjectMatrix_t">
+</bin>
+<bin   file="FastMath_t.cpp" name="DataFormatsFastMath_t">
+  <flags CXXFLAGS="-std=gnu++11 -Wno-error=format -Wno-format"/>
+  <flags REM_CXXFLAGS="-Wformat -ansi"/>
+</bin>
+<bin   file="testApproximations.cpp" name="testMathApproximations">
+  <flags CXXFLAGS="-std=gnu++11 -Wno-error=format -Wno-format"/>
+  <flags REM_CXXFLAGS="-std=c++%"/>
+  <flags REM_CXXFLAGS="-Wformat"/>
+  <flags REM_CXXFLAGS="-ansi"/>
+</bin>
+<bin   file="testApproxMath.cpp" name="testMathApproxMath">
+  <flags CXXFLAGS="-std=gnu++11 -Wno-error=format -Wno-format"/>
+  <flags REM_CXXFLAGS="-std=c++%"/>
+  <flags REM_CXXFLAGS="-Wformat"/>
+  <flags REM_CXXFLAGS="-ansi"/>
+</bin>
+<bin   file="ExtVec_t.cpp" name="DataFormatsExtVec_t">
+</bin>
+<bin   file="SSEVec_t.cpp" name="DataFormatsSSEVec_t">
+</bin>
+<bin   file="SSEMathFun_t.cpp" name="DataFormatsSSEMathFun_t">
+</bin>
+<bin   file="sign_t.cpp" name="DataFormatsSign_t">
+</bin>
+<bin   file="eta_t.cpp" name="DataFormatsEta_t">
+</bin>
+<bin   file="deltaR_t.cpp" name="DataFormatsDeltaR_t">
+  <flags CXXFLAGS="-std=gnu++11 -Wno-error=format -Wno-format"/>
+  <flags REM_CXXFLAGS="-std=c++%"/>
+  <flags REM_CXXFLAGS="-Wformat"/>
+  <flags REM_CXXFLAGS="-ansi"/>
+</bin>
+<bin   file="Similarity_t.cpp" name="DataFormatsSimilarity_t">
+</bin>
+<bin   file="MulSymMatrix_t.cpp" name="DataFormatsMulSymMatrix_t">
+</bin>

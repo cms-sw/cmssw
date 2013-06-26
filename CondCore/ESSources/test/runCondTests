@@ -1,0 +1,77 @@
+#!/bin/bash
+#run standard condtions write/read 
+#default source base $CMSSW_RELEASE_BASE, non-default $1 
+
+eval `scramv1 runtime -sh`
+runbasedir="$CMSSW_RELEASE_BASE"
+echo "$runbasedir"
+if [ -z "$1" ]
+then   
+   echo "test code base $runbasedir"
+else
+   runbasedir="$1"
+   echo "test code base $runbasedir"
+fi
+echo "populate test.db PedestalsRcd/Pedestals  mytest tag"
+if [ -d runCondTests ]
+then
+   rm -rf ./runCondTests
+fi
+
+mkdir runCondTests
+cd runCondTests
+
+cmsRun $runbasedir/src/CondCore/DBOutputService/test/python/testIOVPayloadAnalyzer_cfg.py
+echo "read back"
+cmsRun $runbasedir/src/CondCore/ESSources/test/python/print_ped_cfg.py
+
+echo "test blob"
+cmsRun $runbasedir/src/CondCore/DBOutputService/test/python/writeBlob_cfg.py
+cmscond_list_iov -c sqlite_file:blob.db  -t noise_tag 
+echo "XML dump"
+echo " " 
+cmscond_2XML -c sqlite_file:blob.db -t noise_tag
+cat noise_tag.xml
+echo " "
+ora_database_manager -c sqlite_file:blob.db -dm -mv mySiStripNoises_M000 -f mapping.xml
+cat mapping.xml
+echo "read back blob"
+cmsRun $runbasedir/src/CondCore/ESSources/test/python/load_ped_strip_cfg.py
+echo "test export iov"
+cmscond_export_iov    -s sqlite_file:blob.db -d sqlite_file:blob2.db -t noise_tag -l sqlite_file:log.db 
+cmscond_export_iov -m -s sqlite_file:blob.db -d sqlite_file:blob2.db -t noise_tag2 -i noise_tag -l sqlite_file:log.db 
+cmscond_export_iov -m -s sqlite_file:blob.db -d sqlite_file:blob3.db -t noise_tag -l sqlite_file:log.db
+cmscond_export_iov -m -s sqlite_file:blob.db -d sqlite_file:blob3.db -t noise_tag2 -i noise_tag -l sqlite_file:log.db
+cp blob.db blob4.db
+cmscond_export_iov -m -s sqlite_file:blob.db -d sqlite_file:blob4.db -t noise_tag2 -i noise_tag -l sqlite_file:log.db 
+ora_database_manager -c sqlite_file:blob2.db -dm -mv mySiStripNoises_M000 -f mapping2.xml
+cat mapping2.xml
+ora_database_manager -c sqlite_file:blob3.db -dm -mv mySiStripNoises_M000 -f mapping3.xml
+cat mapping3.xml
+ora_database_manager -c sqlite_file:blob4.db -dm -mv mySiStripNoises_M000 -f mapping4.xml
+cat mapping4.xml
+ora_database_manager -c sqlite_file:blob.db -lm -cn mySiStripNoises
+ora_database_manager -c sqlite_file:blob2.db -lm -cn mySiStripNoises
+ora_database_manager -c sqlite_file:blob3.db -lm -cn mySiStripNoises
+ora_database_manager -c sqlite_file:blob4.db -lm -cn mySiStripNoises
+
+
+echo "test Keyed sequence"
+cmsRun $runbasedir/src/CondCore/DBOutputService/test/python/writeKeyed_cfg.py
+cmscond_list_iov -c sqlite:keys.db -t KeyTest -s
+cmscond_list_iov -c sqlite:keys.db -t ConfTest
+ora_database_manager -c sqlite_file:keys.db -list
+$runbasedir/bin/$SCRAM_ARCH/CondDataProxy_t -c sqlite_file:keys.db -t ConfTest -k KeyTest -r ExDwarfListRcd -a 15
+$runbasedir/bin/$SCRAM_ARCH/CondDataProxy_t -c sqlite_file:keys.db -t ConfTest -k KeyTest -r ExDwarfListRcd -a 99
+
+
+echo "test refresh"
+cp  $runbasedir/src/CondCore/DBOutputService/test/python/writeInt_cfg.py .
+sed 's?_CurrentRun_?10?g' writeInt_cfg.py > cfg.py; cmsRun cfg.py
+cmscond_list_iov -c sqlite_file:Ints.db -t OneInt -s
+cmsRun $runbasedir/src/CondCore/ESSources/test/python/testUpdater_cfg.py
+cmscond_list_iov -c sqlite_file:Ints.db -t OneInt -s
+
+
+cd ..
+exit 0

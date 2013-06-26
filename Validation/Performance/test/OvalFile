@@ -1,0 +1,19 @@
+<!===== ==========================================================
+ ! environment for HcalDigis validation
+ !===============================================================>
+
+<config name="run tool" value="oval">
+
+<executable name=test_suite.csh>validation suite</executable>
+
+<diffnumber expr="^\[OVAL\] : OscarProducer - MEAN CPU = (\S+)" tolerance="2.0%">
+<diffnumber expr="^\[OVAL\] : VertexGenerator - MEAN CPU = (\S+)" tolerance="10.0%">
+<diffnumber expr="^\[OVAL\] : SiPixelDigitizer - MEAN CPU = (\S+)" tolerance="10.0%">
+<diffnumber expr="^\[OVAL\] : SiStripDigitizer - MEAN CPU = (\S+)" tolerance="10.0%">
+<diffnumber expr="^\[OVAL\] : EcalDigiProducer - MEAN CPU = (\S+)" tolerance="10.0%">
+<diffnumber expr="^\[OVAL\] : HcalDigiProducer - MEAN CPU = (\S+)" tolerance="10.0%">
+<diffnumber expr="^\[OVAL\] : CSCDigiProducer - MEAN CPU = (\S+)" tolerance="10.0%">
+<diffnumber expr="^\[OVAL\] : DTDigitizer - MEAN CPU = (\S+)" tolerance="10.0%">
+
+
+

@@ -1,0 +1,68 @@
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
+	<ConstantsSection label="hcalforwardalgo.xml" eval="true">
+		<Constant name="dzHF" value="82.5*cm"/>
+		<Constant name="dzVCal" value="([cms:ForwdVcalZ2]-[cms:ForwdVcalZ1])/2"/>
+		<Constant name="dzHFx" value="([dzVCal])"/>
+		<Constant name="halfAngHF" value="10*deg"/>
+		<Constant name="rMinHF" value="12.5*cm"/>
+		<Constant name="rMaxHF" value="1.570*m"/>
+		<Constant name="dxLowHF" value="([rMinHF]*tan([halfAngHF]))"/>
+		<Constant name="dxTopHF" value="([rMaxHF]*tan([halfAngHF]))"/>
+		<Constant name="dyHF" value="([rMaxHF]-[rMinHF])/2"/>
+		<Constant name="yposHF" value="([rMaxHF]+[rMinHF])/2"/>
+		<Constant name="zposVCal" value="([cms:ForwdVcalZ2]+[cms:ForwdVcalZ1])/2"/>
+		<Constant name="zposModule" value="11.975*m"/>
+	</ConstantsSection>
+	<SolidSection label="hcalforwardalgo.xml">
+		<Tubs name="VCAL" rMin="[cms:ForwdBeamR1]" rMax="[cms:ForwdVcalR1]" dz="[dzVCal]" startPhi="0*deg" deltaPhi="360*deg"/>
+		<Tubs name="HVQF" rMin="[cms:ForwdBeamR1]" rMax="[cms:ForwdVcalR1]" dz="[dzHFx]" startPhi="0*deg" deltaPhi="360*deg"/>
+		<Trapezoid name="HVQX" dz="[dzHF]" alp1="0*deg" bl1="[dxLowHF]" tl1="[dxTopHF]" h1="[dyHF]" alp2="0*deg" bl2="[dxLowHF]" tl2="[dxTopHF]" h2="[dyHF]" phi="0*deg" theta="0*deg"/>
+	</SolidSection>
+	<LogicalPartSection label="hcalforwardalgo.xml">
+		<LogicalPart name="VCAL" category="unspecified">
+			<rSolid name="VCAL"/>
+			<rMaterial name="materials:Air"/>
+		</LogicalPart>
+		<LogicalPart name="HVQF" category="unspecified">
+			<rSolid name="HVQF"/>
+			<rMaterial name="materials:Air"/>
+		</LogicalPart>
+		<LogicalPart name="HVQX" category="unspecified">
+			<rSolid name="HVQX"/>
+			<rMaterial name="hcalforwardmaterial:HFAbsorber"/>
+		</LogicalPart>
+	</LogicalPartSection>
+	<PosPartSection label="hcalforwardalgo.xml">
+		<PosPart copyNumber="5001">
+			<rParent name="cms:CMSE"/>
+			<rChild name="hcalforwardalgo:VCAL"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="0*fm" y="0*fm" z="[zposVCal]"/>
+		</PosPart>
+		<PosPart copyNumber="5002">
+			<rParent name="cms:CMSE"/>
+			<rChild name="hcalforwardalgo:VCAL"/>
+			<rRotation name="rotations:180D"/>
+			<Translation x="0*fm" y="0*fm" z="-[zposVCal]"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="hcalforwardalgo:VCAL"/>
+			<rChild name="hcalforwardalgo:HVQF"/>
+			<Translation x="0*fm" y="0*fm" z="[zposModule]-[zposVCal]"/>
+		</PosPart>
+	</PosPartSection>
+	<Algorithm name="hcal:DDHCalAngular">
+		<rParent name="hcalforwardalgo:HVQF"/>
+		<String name="ChildName" value="HVQX"/>
+		<String name="RotNameSpace" value="hcalrotations"/>
+		<Numeric name="n" value="18"/>
+		<Numeric name="startCopyNo" value="1"/>
+		<Numeric name="incrCopyNo" value="1"/>
+		<Numeric name="rangeAngle" value="360*deg"/>
+		<Numeric name="startAngle" value="-90*deg"/>
+		<Numeric name="shiftY" value="[yposHF]"/>
+		<Numeric name="shiftX" value="0*fm"/>
+		<Numeric name="zoffset" value="0*fm"/>
+	</Algorithm>
+</DDDefinition>

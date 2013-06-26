@@ -1,0 +1,6 @@
+<use   name="RecoTracker/TkSeedGenerator"/>
+<use   name="RecoTracker/TkTrackingRegions"/>
+<use   name="RecoTracker/ConversionSeedGenerators"/>
+<library   file="*.cc" name="GammaConversionTrackingForConversionPlugins">
+  <flags   EDM_PLUGIN="1"/>
+</library>

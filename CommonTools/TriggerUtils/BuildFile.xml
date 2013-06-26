@@ -1,0 +1,11 @@
+<use   name="CondFormats/DataRecord"/>
+<use   name="CondFormats/L1TObjects"/>
+<use   name="DataFormats/Common"/>
+<use   name="DataFormats/Scalers"/>
+<use   name="DataFormats/L1GlobalTrigger"/>
+<use   name="FWCore/Framework"/>
+<use   name="L1Trigger/GlobalTriggerAnalyzer"/>
+<use   name="HLTrigger/HLTcore"/>
+<export>
+  <lib   name="1"/>
+</export>

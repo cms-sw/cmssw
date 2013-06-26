@@ -1,0 +1,81 @@
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
+ <MaterialSection label="lumimaterials">
+  <CompositeMaterial name="lumiair" density="1.29*mg/cm3" symbol=" " method="mixture by weight">
+   <MaterialFraction fraction="0.7">
+    <rMaterial name="materials:Nitrogen"/>
+   </MaterialFraction>
+   <MaterialFraction fraction="0.3">
+    <rMaterial name="materials:Oxygen"/>
+   </MaterialFraction>
+  </CompositeMaterial>
+  <CompositeMaterial name="lumiGas" density="6.5933*mg/cm3" symbol=" " method="mixture by weight">
+   <MaterialFraction fraction="0.01">
+    <rMaterial name="materials:Nitrogen"/>
+   </MaterialFraction>
+   <MaterialFraction fraction="0.99">
+    <rMaterial name="materials:Argon"/>
+   </MaterialFraction>
+  </CompositeMaterial>
+  <CompositeMaterial name="aluminumoxide" density="3.69*g/cm3" symbol=" " method="compound by atomic proportion">
+   <MaterialFraction fraction="0.4">
+    <rMaterial name="materials:Aluminium"/>
+   </MaterialFraction>
+   <MaterialFraction fraction="0.6">
+    <rMaterial name="materials:Oxygen"/>
+   </MaterialFraction>
+  </CompositeMaterial>
+  <CompositeMaterial name="silicondioxide" density="2.19*g/cm3" symbol=" " method="compound by atomic proportion">
+   <MaterialFraction fraction="0.33333">
+    <rMaterial name="materials:Silicon"/>
+   </MaterialFraction>
+   <MaterialFraction fraction="0.66664">
+    <rMaterial name="materials:Oxygen"/>
+   </MaterialFraction>
+  </CompositeMaterial>
+  <CompositeMaterial name="magnesiumoxide" density="3.6*g/cm3" symbol=" " method="compound by atomic proportion">
+   <MaterialFraction fraction="0.5">
+    <rMaterial name="materials:Magnesium"/>
+   </MaterialFraction>
+   <MaterialFraction fraction="0.5">
+    <rMaterial name="materials:Oxygen"/>
+   </MaterialFraction>
+  </CompositeMaterial>
+  <CompositeMaterial name="potassiumoxide" density="3.6*g/cm3" symbol=" " method="compound by atomic proportion">
+   <MaterialFraction fraction="0.4">
+    <rMaterial name="materials:Potassium"/>
+   </MaterialFraction>
+   <MaterialFraction fraction="0.6">
+    <rMaterial name="materials:Oxygen"/>
+   </MaterialFraction>
+  </CompositeMaterial>
+  <CompositeMaterial name="boronoxide" density="3.6*g/cm3" symbol=" " method="compound by atomic proportion">
+   <MaterialFraction fraction="0.4">
+    <rMaterial name="materials:Boron"/>
+   </MaterialFraction>
+   <MaterialFraction fraction="0.6">
+    <rMaterial name="materials:Oxygen"/>
+   </MaterialFraction>
+  </CompositeMaterial>
+  <CompositeMaterial name="mancor" density="2.53*g/cm3" symbol=" " method="mixture by weight">
+   <MaterialFraction fraction="0.46">
+    <rMaterial name="lumimaterials:silicondioxide"/>
+   </MaterialFraction>
+   <MaterialFraction fraction="0.17">
+    <rMaterial name="lumimaterials:magnesiumoxide"/>
+   </MaterialFraction>
+   <MaterialFraction fraction="0.16">
+    <rMaterial name="lumimaterials:aluminumoxide"/>
+   </MaterialFraction>
+   <MaterialFraction fraction="0.10">
+    <rMaterial name="lumimaterials:potassiumoxide"/>
+   </MaterialFraction>
+   <MaterialFraction fraction="0.07">
+    <rMaterial name="lumimaterials:boronoxide"/>
+   </MaterialFraction>
+   <MaterialFraction fraction="0.04">
+    <rMaterial name="materials:Iron"/>
+   </MaterialFraction>
+  </CompositeMaterial>
+ </MaterialSection>
+</DDDefinition>

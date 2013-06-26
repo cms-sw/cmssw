@@ -1,0 +1,48 @@
+/*!
+<!-- Substitute DataFormats and FEDRawData with the proper names! -->
+
+\page DataFormats_FEDRawData Package DataFormats/FEDRawData
+<center>
+<small>
+<a href=http://cmsdoc.cern.ch/swdev/viewcvs/viewcvs.cgi/CMSSW/DataFormats/FEDRawData/?cvsroot=CMSSW&only_with_tag=@CVS_TAG@>Source code (CVS tag: @CVS_TAG@)</a> - 
+<a href=http://cmsdoc.cern.ch/swdev/viewcvs/viewcvs.cgi/CMSSW/DataFormats/FEDRawData/.admin/developers?rev=HEAD&cvsroot=CMSSW&content-type=text/vnd.viewcvs-markup>Administrative privileges</a>
+</small>
+</center>
+
+
+\section desc Description
+<!-- Short description of what this package is supposed to provide -->
+Classes to store raw data blocks in the event.
+FED data blocks are required to have correct padding (64 bit).
+
+
+\subsection interface Public interface
+<!-- List the classes that are provided for use in other packages (if any) -->
+- FEDHeader
+- FEDNumbering
+- FEDRawData
+- FEDRawDataCollection
+- FEDTrailer
+
+\subsection modules Modules
+<!-- Describe modules implemented in this package and their parameter set -->
+None (see also "Examples")
+
+\subsection tests Unit tests and Examples
+<!-- Describe cppunit tests and example configuration files -->
+- testFEDRawData: unit test
+- testDumpFEDRawDataProduct: test module, prints the list of non-empy FEDs in the event and their data size. To use it include in your parameter set:
+\verbatim
+module dump = DumpFEDRawDataProduct{ }
+\endverbatim
+
+\section status Status and planned development
+<!-- e.g. completed, stable, missing features -->
+Stable.
+
+FEDHeader and FEDTrailer should be modified use the implementation of XDAQ, including CRC check, etc.
+
+<hr>
+Last updated: @DATE@ 
+Author: N. Amapane
+*/

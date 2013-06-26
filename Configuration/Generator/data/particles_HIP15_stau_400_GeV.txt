@@ -1,0 +1,7 @@
+Block MASS   #
+#  PDG code   mass                 particle
+        17    400.0  #  ~HIP15
+       -17    400.0  #  ~HIPbar15
+Block       
+
+

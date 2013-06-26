@@ -1,0 +1,44 @@
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
+
+<ConstantsSection label="pixbarlayerstack7.xml" eval="true">
+ <Constant name="Ladders"           value="[pixbar:LaddersStack7]"/>
+ <Constant name="ModuleRadius"      value="[pixbar:RadiusStack7]"/>
+ <Constant name="LayerDz"           value="[pixbar:LayerDzStack7]"/>
+ <Constant name="PhiOffset"         value="[pixbar:PhiOffsetStack7]"/>
+ <Constant name="Layout"            value="[pixbar:LayoutStack7]"/>
+ <Constant name="CoolDz"            value="[pixbarladderstack7:CFWrapDz]"/>
+ <Constant name="CoolSide"          value="[pixbarladderstack7:CoolWidth]"/>
+ <Constant name="CoolThick"         value="0.1*mm"/>
+ <Constant name="CoolWidth"         value="[pixbarladderstack7:CoolThick]"/>
+ <Constant name="CoolNumber"        value="[pixbarladderstack7:CoolNumber]"/>
+ <Constant name="CoolZ"             value="[pixbarladderstack7:CoolZ]"/>
+ <Constant name="HybridThick"       value="[pixbarladderstack7:HybridThick]"/>
+</ConstantsSection>
+
+<Algorithm name="track:DDPixBarTPGStackLayerAlgo">
+  <rParent name="pixbarlayerstack7:PixelBarrelLayerStack7"/>
+  <String name="VolumeMaterial"    value="materials:Air"/>
+  <Numeric name="Ladders"          value="[pixbarlayerstack7:Ladders]"/>
+  <Numeric name="LayerDz"          value="[pixbarlayerstack7:LayerDz]"/>
+  <Numeric name="SensorEdge"       value="[pixbarladderstack7:SensorEdge]"/>
+  <Numeric name="CoolDz"           value="[pixbarlayerstack7:CoolDz]"/>
+  <Numeric name="CoolWidth"        value="[pixbarlayerstack7:CoolWidth]"/>
+  <Numeric name="CoolSide"         value="[pixbarlayerstack7:CoolSide]"/>
+  <Numeric name="CoolThick"        value="[pixbarlayerstack7:CoolThick]"/>
+  <Numeric name="CoolNumber"       value="[pixbarlayerstack7:CoolNumber]"/>
+  <Numeric name="CoolZ"            value="[pixbarlayerstack7:CoolZ]"/>
+  <Numeric name="HybridThick"      value="[pixbarlayerstack7:HybridThick]"/>
+  <Numeric name="ModuleRadius"     value="[pixbarlayerstack7:ModuleRadius]"/>
+  <String name="CoolMaterial"      value="materials:CO2_Upgrade"/>
+  <String name="CoolTubeMaterial"  value="materials:Ctube_Upgrade"/>
+  <String name="LadderNameUp"      value="pixbarladderstack7:PixelBarrelLadderUpStack7"/>
+  <String name="LadderNameDown"    value="pixbarladderstack7:PixelBarrelLadderDownStack7"/>
+  <Numeric name="LadderWidth"      value="[pixbarladderstack7:LadderWidth]"/>
+  <Numeric name="LadderThick"      value="[pixbarladderstack7:LadderThick]"/>
+  <Numeric name="ModuleOffset"     value="[pixbarlayerstack7:PhiOffset]"/>
+  <Numeric name="LayoutType"       value="[pixbarlayerstack7:Layout]"/>
+  <Numeric name="ActiveWidth"      value="[pixbarladderstack7:ActiveWidth]"/>
+</Algorithm>
+
+</DDDefinition>

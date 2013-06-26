@@ -1,0 +1,1720 @@
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
+	<ConstantsSection label="zdc">
+		<Constant name="zdcHadThetaDeg" value="45.0"/>
+		<Constant name="zdcHadTheta" value="([zdcHadThetaDeg]*acos(-1)/180.)*rad"/>
+		<Constant name="zdcHadZinitial" value="(-29.0+ 6.25*cos([zdcHadTheta]))*cm"/>
+		<Constant name="zdcHadZDelta" value="2.32*cm"/>
+		<Constant name="zdcHadXinitial" value="-47.57525*mm"/>
+		<Constant name="zdcHadXDelta" value="0.8495*mm"/>
+		<Constant name="zdcEMZinitial" value="-49.85*cm"/>
+		<Constant name="zdcEMZDelta" value="3.0*mm"/>
+		<Constant name="zdcEMXinitial" value="-47.56365*mm"/>
+		<Constant name="zdcEMXDelta" value="0.8727*mm"/>
+	</ConstantsSection>
+	<SolidSection label="zdcSolids">
+		<Box name="ZDC" dx="8.0*cm" dy="64.0*cm" dz="90.0*cm"/>
+		<Box name="ZDC_HadLayer" dx="4.8*cm" dy="6.25*cm" dz="8.2*mm"/>
+		<Box name="ZDC_HadAbsorber" dx="4.8*cm" dy="6.25*cm" dz="7.75*mm"/>
+		<Tube name="ZDC_HadFiber" rMin="0.*mum" rMax="350.0*mum" dz="6.25*cm"/>
+		<Box name="ZDC_EMLayer" dx="4.8*cm" dy="6.25*cm" dz="1.5*mm"/>
+		<Box name="ZDC_EMAbsorber" dx="4.8*cm" dy="6.25*cm" dz="1.0*mm"/>
+		<Tube name="ZDC_EMFiber" rMin="0.*mum" rMax="350.0*mum" dz="6.25*cm"/>
+	</SolidSection>
+	<LogicalPartSection label="zdcLog">
+		<LogicalPart name="ZDC" category="unspecified">
+			<rSolid name="ZDC"/>
+			<rMaterial name="materials:Air"/>
+		</LogicalPart>
+		<LogicalPart name="ZDC_HadLayer" category="unspecified">
+			<rSolid name="ZDC_HadLayer"/>
+			<rMaterial name="materials:Air"/>
+		</LogicalPart>
+		<LogicalPart name="ZDC_HadAbsorber" category="unspecified">
+			<rSolid name="ZDC_HadAbsorber"/>
+			<rMaterial name="materials:Tungsten"/>
+		</LogicalPart>
+		<LogicalPart name="ZDC_HadFiber" category="sensitive">
+			<rSolid name="ZDC_HadFiber"/>
+			<rMaterial name="zdcmaterials:quartz"/>
+		</LogicalPart>
+		<LogicalPart name="ZDC_EMLayer" category="unspecified">
+			<rSolid name="ZDC_EMLayer"/>
+			<rMaterial name="materials:Air"/>
+		</LogicalPart>
+		<LogicalPart name="ZDC_EMAbsorber" category="unspecified">
+			<rSolid name="ZDC_EMAbsorber"/>
+			<rMaterial name="materials:Tungsten"/>
+		</LogicalPart>
+		<LogicalPart name="ZDC_EMFiber" category="sensitive">
+			<rSolid name="ZDC_EMFiber"/>
+			<rMaterial name="zdcmaterials:quartz"/>
+		</LogicalPart>
+	</LogicalPartSection>
+	<!-- Position of zdc volumes -->
+	<PosPartSection label="zdcPar">
+		<!-- Position of Hadronic layers -->
+		<PosPart copyNumber="1">
+			<rParent name="zdc:ZDC"/>
+			<rChild name="zdc:ZDC_HadLayer"/>
+			<rRotation name="zdcrotations:R2"/>
+			<Translation x="0*fm" y="0*fm" z="[zdcHadZinitial]+0.0*[zdcHadZDelta]"/>
+		</PosPart>
+		<PosPart copyNumber="2">
+			<rParent name="zdc:ZDC"/>
+			<rChild name="zdc:ZDC_HadLayer"/>
+			<rRotation name="zdcrotations:R2"/>
+			<Translation x="0*fm" y="0*fm" z="[zdcHadZinitial]+1.0*[zdcHadZDelta]"/>
+		</PosPart>
+		<PosPart copyNumber="3">
+			<rParent name="zdc:ZDC"/>
+			<rChild name="zdc:ZDC_HadLayer"/>
+			<rRotation name="zdcrotations:R2"/>
+			<Translation x="0*fm" y="0*fm" z="[zdcHadZinitial]+2.0*[zdcHadZDelta]"/>
+		</PosPart>
+		<PosPart copyNumber="4">
+			<rParent name="zdc:ZDC"/>
+			<rChild name="zdc:ZDC_HadLayer"/>
+			<rRotation name="zdcrotations:R2"/>
+			<Translation x="0*fm" y="0*fm" z="[zdcHadZinitial]+3.0*[zdcHadZDelta]"/>
+		</PosPart>
+		<PosPart copyNumber="5">
+			<rParent name="zdc:ZDC"/>
+			<rChild name="zdc:ZDC_HadLayer"/>
+			<rRotation name="zdcrotations:R2"/>
+			<Translation x="0*fm" y="0*fm" z="[zdcHadZinitial]+4.0*[zdcHadZDelta]"/>
+		</PosPart>
+		<PosPart copyNumber="6">
+			<rParent name="zdc:ZDC"/>
+			<rChild name="zdc:ZDC_HadLayer"/>
+			<rRotation name="zdcrotations:R2"/>
+			<Translation x="0*fm" y="0*fm" z="[zdcHadZinitial]+5.0*[zdcHadZDelta]"/>
+		</PosPart>
+		<PosPart copyNumber="7">
+			<rParent name="zdc:ZDC"/>
+			<rChild name="zdc:ZDC_HadLayer"/>
+			<rRotation name="zdcrotations:R2"/>
+			<Translation x="0*fm" y="0*fm" z="[zdcHadZinitial]+6.0*[zdcHadZDelta]"/>
+		</PosPart>
+		<PosPart copyNumber="8">
+			<rParent name="zdc:ZDC"/>
+			<rChild name="zdc:ZDC_HadLayer"/>
+			<rRotation name="zdcrotations:R2"/>
+			<Translation x="0*fm" y="0*fm" z="[zdcHadZinitial]+7.0*[zdcHadZDelta]"/>
+		</PosPart>
+		<PosPart copyNumber="9">
+			<rParent name="zdc:ZDC"/>
+			<rChild name="zdc:ZDC_HadLayer"/>
+			<rRotation name="zdcrotations:R2"/>
+			<Translation x="0*fm" y="0*fm" z="[zdcHadZinitial]+8.0*[zdcHadZDelta]"/>
+		</PosPart>
+		<PosPart copyNumber="10">
+			<rParent name="zdc:ZDC"/>
+			<rChild name="zdc:ZDC_HadLayer"/>
+			<rRotation name="zdcrotations:R2"/>
+			<Translation x="0*fm" y="0*fm" z="[zdcHadZinitial]+9.0*[zdcHadZDelta]"/>
+		</PosPart>
+		<PosPart copyNumber="11">
+			<rParent name="zdc:ZDC"/>
+			<rChild name="zdc:ZDC_HadLayer"/>
+			<rRotation name="zdcrotations:R2"/>
+			<Translation x="0*fm" y="0*fm" z="[zdcHadZinitial]+10.0*[zdcHadZDelta]"/>
+		</PosPart>
+		<PosPart copyNumber="12">
+			<rParent name="zdc:ZDC"/>
+			<rChild name="zdc:ZDC_HadLayer"/>
+			<rRotation name="zdcrotations:R2"/>
+			<Translation x="0*fm" y="0*fm" z="[zdcHadZinitial]+11.0*[zdcHadZDelta]"/>
+		</PosPart>
+		<PosPart copyNumber="13">
+			<rParent name="zdc:ZDC"/>
+			<rChild name="zdc:ZDC_HadLayer"/>
+			<rRotation name="zdcrotations:R2"/>
+			<Translation x="0*fm" y="0*fm" z="[zdcHadZinitial]+12.0*[zdcHadZDelta]"/>
+		</PosPart>
+		<PosPart copyNumber="14">
+			<rParent name="zdc:ZDC"/>
+			<rChild name="zdc:ZDC_HadLayer"/>
+			<rRotation name="zdcrotations:R2"/>
+			<Translation x="0*fm" y="0*fm" z="[zdcHadZinitial]+13.0*[zdcHadZDelta]"/>
+		</PosPart>
+		<PosPart copyNumber="15">
+			<rParent name="zdc:ZDC"/>
+			<rChild name="zdc:ZDC_HadLayer"/>
+			<rRotation name="zdcrotations:R2"/>
+			<Translation x="0*fm" y="0*fm" z="[zdcHadZinitial]+14.0*[zdcHadZDelta]"/>
+		</PosPart>
+		<PosPart copyNumber="16">
+			<rParent name="zdc:ZDC"/>
+			<rChild name="zdc:ZDC_HadLayer"/>
+			<rRotation name="zdcrotations:R2"/>
+			<Translation x="0*fm" y="0*fm" z="[zdcHadZinitial]+15.0*[zdcHadZDelta]"/>
+		</PosPart>
+		<PosPart copyNumber="17">
+			<rParent name="zdc:ZDC"/>
+			<rChild name="zdc:ZDC_HadLayer"/>
+			<rRotation name="zdcrotations:R2"/>
+			<Translation x="0*fm" y="0*fm" z="[zdcHadZinitial]+16.0*[zdcHadZDelta]"/>
+		</PosPart>
+		<PosPart copyNumber="18">
+			<rParent name="zdc:ZDC"/>
+			<rChild name="zdc:ZDC_HadLayer"/>
+			<rRotation name="zdcrotations:R2"/>
+			<Translation x="0*fm" y="0*fm" z="[zdcHadZinitial]+17.0*[zdcHadZDelta]"/>
+		</PosPart>
+		<PosPart copyNumber="19">
+			<rParent name="zdc:ZDC"/>
+			<rChild name="zdc:ZDC_HadLayer"/>
+			<rRotation name="zdcrotations:R2"/>
+			<Translation x="0*fm" y="0*fm" z="[zdcHadZinitial]+18.0*[zdcHadZDelta]"/>
+		</PosPart>
+		<PosPart copyNumber="20">
+			<rParent name="zdc:ZDC"/>
+			<rChild name="zdc:ZDC_HadLayer"/>
+			<rRotation name="zdcrotations:R2"/>
+			<Translation x="0*fm" y="0*fm" z="[zdcHadZinitial]+19.0*[zdcHadZDelta]"/>
+		</PosPart>
+		<PosPart copyNumber="21">
+			<rParent name="zdc:ZDC"/>
+			<rChild name="zdc:ZDC_HadLayer"/>
+			<rRotation name="zdcrotations:R2"/>
+			<Translation x="0*fm" y="0*fm" z="[zdcHadZinitial]+20.0*[zdcHadZDelta]"/>
+		</PosPart>
+		<PosPart copyNumber="22">
+			<rParent name="zdc:ZDC"/>
+			<rChild name="zdc:ZDC_HadLayer"/>
+			<rRotation name="zdcrotations:R2"/>
+			<Translation x="0*fm" y="0*fm" z="[zdcHadZinitial]+21.0*[zdcHadZDelta]"/>
+		</PosPart>
+		<PosPart copyNumber="23">
+			<rParent name="zdc:ZDC"/>
+			<rChild name="zdc:ZDC_HadLayer"/>
+			<rRotation name="zdcrotations:R2"/>
+			<Translation x="0*fm" y="0*fm" z="[zdcHadZinitial]+22.0*[zdcHadZDelta]"/>
+		</PosPart>
+		<PosPart copyNumber="24">
+			<rParent name="zdc:ZDC"/>
+			<rChild name="zdc:ZDC_HadLayer"/>
+			<rRotation name="zdcrotations:R2"/>
+			<Translation x="0*fm" y="0*fm" z="[zdcHadZinitial]+23.0*[zdcHadZDelta]"/>
+		</PosPart>
+		<!-- Position of absorber -->
+		<PosPart copyNumber="1">
+			<rParent name="zdc:ZDC_HadLayer"/>
+			<rChild name="zdc:ZDC_HadAbsorber"/>
+			<Translation x="0*fm" y="0*fm" z="-0.45*mm"/>
+		</PosPart>
+		<!-- Position of fibers -->
+		<PosPart copyNumber="1">
+			<rParent name="zdc:ZDC_HadLayer"/>
+			<rChild name="zdc:ZDC_HadFiber"/>
+			<rRotation name="zdcrotations:R1"/>
+			<Translation x="[zdcHadXinitial]+0.0*[zdcHadXDelta]" y="0*fm" z="7.75*mm"/>
+		</PosPart>
+		<PosPart copyNumber="2">
+			<rParent name="zdc:ZDC_HadLayer"/>
+			<rChild name="zdc:ZDC_HadFiber"/>
+			<rRotation name="zdcrotations:R1"/>
+			<Translation x="[zdcHadXinitial]+1.0*[zdcHadXDelta]" y="0*fm" z="7.75*mm"/>
+		</PosPart>
+		<PosPart copyNumber="3">
+			<rParent name="zdc:ZDC_HadLayer"/>
+			<rChild name="zdc:ZDC_HadFiber"/>
+			<rRotation name="zdcrotations:R1"/>
+			<Translation x="[zdcHadXinitial]+2.0*[zdcHadXDelta]" y="0*fm" z="7.75*mm"/>
+		</PosPart>
+		<PosPart copyNumber="4">
+			<rParent name="zdc:ZDC_HadLayer"/>
+			<rChild name="zdc:ZDC_HadFiber"/>
+			<rRotation name="zdcrotations:R1"/>
+			<Translation x="[zdcHadXinitial]+3.0*[zdcHadXDelta]" y="0*fm" z="7.75*mm"/>
+		</PosPart>
+		<PosPart copyNumber="5">
+			<rParent name="zdc:ZDC_HadLayer"/>
+			<rChild name="zdc:ZDC_HadFiber"/>
+			<rRotation name="zdcrotations:R1"/>
+			<Translation x="[zdcHadXinitial]+4.0*[zdcHadXDelta]" y="0*fm" z="7.75*mm"/>
+		</PosPart>
+		<PosPart copyNumber="6">
+			<rParent name="zdc:ZDC_HadLayer"/>
+			<rChild name="zdc:ZDC_HadFiber"/>
+			<rRotation name="zdcrotations:R1"/>
+			<Translation x="[zdcHadXinitial]+5.0*[zdcHadXDelta]" y="0*fm" z="7.75*mm"/>
+		</PosPart>
+		<PosPart copyNumber="7">
+			<rParent name="zdc:ZDC_HadLayer"/>
+			<rChild name="zdc:ZDC_HadFiber"/>
+			<rRotation name="zdcrotations:R1"/>
+			<Translation x="[zdcHadXinitial]+6.0*[zdcHadXDelta]" y="0*fm" z="7.75*mm"/>
+		</PosPart>
+		<PosPart copyNumber="8">
+			<rParent name="zdc:ZDC_HadLayer"/>
+			<rChild name="zdc:ZDC_HadFiber"/>
+			<rRotation name="zdcrotations:R1"/>
+			<Translation x="[zdcHadXinitial]+7.0*[zdcHadXDelta]" y="0*fm" z="7.75*mm"/>
+		</PosPart>
+		<PosPart copyNumber="9">
+			<rParent name="zdc:ZDC_HadLayer"/>
+			<rChild name="zdc:ZDC_HadFiber"/>
+			<rRotation name="zdcrotations:R1"/>
+			<Translation x="[zdcHadXinitial]+8.0*[zdcHadXDelta]" y="0*fm" z="7.75*mm"/>
+		</PosPart>
+		<PosPart copyNumber="10">
+			<rParent name="zdc:ZDC_HadLayer"/>
+			<rChild name="zdc:ZDC_HadFiber"/>
+			<rRotation name="zdcrotations:R1"/>
+			<Translation x="[zdcHadXinitial]+9.0*[zdcHadXDelta]" y="0*fm" z="7.75*mm"/>
+		</PosPart>
+		<PosPart copyNumber="11">
+			<rParent name="zdc:ZDC_HadLayer"/>
+			<rChild name="zdc:ZDC_HadFiber"/>
+			<rRotation name="zdcrotations:R1"/>
+			<Translation x="[zdcHadXinitial]+10.0*[zdcHadXDelta]" y="0*fm" z="7.75*mm"/>
+		</PosPart>
+		<PosPart copyNumber="12">
+			<rParent name="zdc:ZDC_HadLayer"/>
+			<rChild name="zdc:ZDC_HadFiber"/>
+			<rRotation name="zdcrotations:R1"/>
+			<Translation x="[zdcHadXinitial]+11.0*[zdcHadXDelta]" y="0*fm" z="7.75*mm"/>
+		</PosPart>
+		<PosPart copyNumber="13">
+			<rParent name="zdc:ZDC_HadLayer"/>
+			<rChild name="zdc:ZDC_HadFiber"/>
+			<rRotation name="zdcrotations:R1"/>
+			<Translation x="[zdcHadXinitial]+12.0*[zdcHadXDelta]" y="0*fm" z="7.75*mm"/>
+		</PosPart>
+		<PosPart copyNumber="14">
+			<rParent name="zdc:ZDC_HadLayer"/>
+			<rChild name="zdc:ZDC_HadFiber"/>
+			<rRotation name="zdcrotations:R1"/>
+			<Translation x="[zdcHadXinitial]+13.0*[zdcHadXDelta]" y="0*fm" z="7.75*mm"/>
+		</PosPart>
+		<PosPart copyNumber="15">
+			<rParent name="zdc:ZDC_HadLayer"/>
+			<rChild name="zdc:ZDC_HadFiber"/>
+			<rRotation name="zdcrotations:R1"/>
+			<Translation x="[zdcHadXinitial]+14.0*[zdcHadXDelta]" y="0*fm" z="7.75*mm"/>
+		</PosPart>
+		<PosPart copyNumber="16">
+			<rParent name="zdc:ZDC_HadLayer"/>
+			<rChild name="zdc:ZDC_HadFiber"/>
+			<rRotation name="zdcrotations:R1"/>
+			<Translation x="[zdcHadXinitial]+15.0*[zdcHadXDelta]" y="0*fm" z="7.75*mm"/>
+		</PosPart>
+		<PosPart copyNumber="17">
+			<rParent name="zdc:ZDC_HadLayer"/>
+			<rChild name="zdc:ZDC_HadFiber"/>
+			<rRotation name="zdcrotations:R1"/>
+			<Translation x="[zdcHadXinitial]+16.0*[zdcHadXDelta]" y="0*fm" z="7.75*mm"/>
+		</PosPart>
+		<PosPart copyNumber="18">
+			<rParent name="zdc:ZDC_HadLayer"/>
+			<rChild name="zdc:ZDC_HadFiber"/>
+			<rRotation name="zdcrotations:R1"/>
+			<Translation x="[zdcHadXinitial]+17.0*[zdcHadXDelta]" y="0*fm" z="7.75*mm"/>
+		</PosPart>
+		<PosPart copyNumber="19">
+			<rParent name="zdc:ZDC_HadLayer"/>
+			<rChild name="zdc:ZDC_HadFiber"/>
+			<rRotation name="zdcrotations:R1"/>
+			<Translation x="[zdcHadXinitial]+18.0*[zdcHadXDelta]" y="0*fm" z="7.75*mm"/>
+		</PosPart>
+		<PosPart copyNumber="20">
+			<rParent name="zdc:ZDC_HadLayer"/>
+			<rChild name="zdc:ZDC_HadFiber"/>
+			<rRotation name="zdcrotations:R1"/>
+			<Translation x="[zdcHadXinitial]+19.0*[zdcHadXDelta]" y="0*fm" z="7.75*mm"/>
+		</PosPart>
+		<PosPart copyNumber="21">
+			<rParent name="zdc:ZDC_HadLayer"/>
+			<rChild name="zdc:ZDC_HadFiber"/>
+			<rRotation name="zdcrotations:R1"/>
+			<Translation x="[zdcHadXinitial]+20.0*[zdcHadXDelta]" y="0*fm" z="7.75*mm"/>
+		</PosPart>
+		<PosPart copyNumber="22">
+			<rParent name="zdc:ZDC_HadLayer"/>
+			<rChild name="zdc:ZDC_HadFiber"/>
+			<rRotation name="zdcrotations:R1"/>
+			<Translation x="[zdcHadXinitial]+21.0*[zdcHadXDelta]" y="0*fm" z="7.75*mm"/>
+		</PosPart>
+		<PosPart copyNumber="23">
+			<rParent name="zdc:ZDC_HadLayer"/>
+			<rChild name="zdc:ZDC_HadFiber"/>
+			<rRotation name="zdcrotations:R1"/>
+			<Translation x="[zdcHadXinitial]+22.0*[zdcHadXDelta]" y="0*fm" z="7.75*mm"/>
+		</PosPart>
+		<PosPart copyNumber="24">
+			<rParent name="zdc:ZDC_HadLayer"/>
+			<rChild name="zdc:ZDC_HadFiber"/>
+			<rRotation name="zdcrotations:R1"/>
+			<Translation x="[zdcHadXinitial]+23.0*[zdcHadXDelta]" y="0*fm" z="7.75*mm"/>
+		</PosPart>
+		<PosPart copyNumber="25">
+			<rParent name="zdc:ZDC_HadLayer"/>
+			<rChild name="zdc:ZDC_HadFiber"/>
+			<rRotation name="zdcrotations:R1"/>
+			<Translation x="[zdcHadXinitial]+24.0*[zdcHadXDelta]" y="0*fm" z="7.75*mm"/>
+		</PosPart>
+		<PosPart copyNumber="26">
+			<rParent name="zdc:ZDC_HadLayer"/>
+			<rChild name="zdc:ZDC_HadFiber"/>
+			<rRotation name="zdcrotations:R1"/>
+			<Translation x="[zdcHadXinitial]+25.0*[zdcHadXDelta]" y="0*fm" z="7.75*mm"/>
+		</PosPart>
+		<PosPart copyNumber="27">
+			<rParent name="zdc:ZDC_HadLayer"/>
+			<rChild name="zdc:ZDC_HadFiber"/>
+			<rRotation name="zdcrotations:R1"/>
+			<Translation x="[zdcHadXinitial]+26.0*[zdcHadXDelta]" y="0*fm" z="7.75*mm"/>
+		</PosPart>
+		<PosPart copyNumber="28">
+			<rParent name="zdc:ZDC_HadLayer"/>
+			<rChild name="zdc:ZDC_HadFiber"/>
+			<rRotation name="zdcrotations:R1"/>
+			<Translation x="[zdcHadXinitial]+27.0*[zdcHadXDelta]" y="0*fm" z="7.75*mm"/>
+		</PosPart>
+		<PosPart copyNumber="29">
+			<rParent name="zdc:ZDC_HadLayer"/>
+			<rChild name="zdc:ZDC_HadFiber"/>
+			<rRotation name="zdcrotations:R1"/>
+			<Translation x="[zdcHadXinitial]+28.0*[zdcHadXDelta]" y="0*fm" z="7.75*mm"/>
+		</PosPart>
+		<PosPart copyNumber="30">
+			<rParent name="zdc:ZDC_HadLayer"/>
+			<rChild name="zdc:ZDC_HadFiber"/>
+			<rRotation name="zdcrotations:R1"/>
+			<Translation x="[zdcHadXinitial]+29.0*[zdcHadXDelta]" y="0*fm" z="7.75*mm"/>
+		</PosPart>
+		<PosPart copyNumber="31">
+			<rParent name="zdc:ZDC_HadLayer"/>
+			<rChild name="zdc:ZDC_HadFiber"/>
+			<rRotation name="zdcrotations:R1"/>
+			<Translation x="[zdcHadXinitial]+30.0*[zdcHadXDelta]" y="0*fm" z="7.75*mm"/>
+		</PosPart>
+		<PosPart copyNumber="32">
+			<rParent name="zdc:ZDC_HadLayer"/>
+			<rChild name="zdc:ZDC_HadFiber"/>
+			<rRotation name="zdcrotations:R1"/>
+			<Translation x="[zdcHadXinitial]+31.0*[zdcHadXDelta]" y="0*fm" z="7.75*mm"/>
+		</PosPart>
+		<PosPart copyNumber="33">
+			<rParent name="zdc:ZDC_HadLayer"/>
+			<rChild name="zdc:ZDC_HadFiber"/>
+			<rRotation name="zdcrotations:R1"/>
+			<Translation x="[zdcHadXinitial]+32.0*[zdcHadXDelta]" y="0*fm" z="7.75*mm"/>
+		</PosPart>
+		<PosPart copyNumber="34">
+			<rParent name="zdc:ZDC_HadLayer"/>
+			<rChild name="zdc:ZDC_HadFiber"/>
+			<rRotation name="zdcrotations:R1"/>
+			<Translation x="[zdcHadXinitial]+33.0*[zdcHadXDelta]" y="0*fm" z="7.75*mm"/>
+		</PosPart>
+		<PosPart copyNumber="35">
+			<rParent name="zdc:ZDC_HadLayer"/>
+			<rChild name="zdc:ZDC_HadFiber"/>
+			<rRotation name="zdcrotations:R1"/>
+			<Translation x="[zdcHadXinitial]+34.0*[zdcHadXDelta]" y="0*fm" z="7.75*mm"/>
+		</PosPart>
+		<PosPart copyNumber="36">
+			<rParent name="zdc:ZDC_HadLayer"/>
+			<rChild name="zdc:ZDC_HadFiber"/>
+			<rRotation name="zdcrotations:R1"/>
+			<Translation x="[zdcHadXinitial]+35.0*[zdcHadXDelta]" y="0*fm" z="7.75*mm"/>
+		</PosPart>
+		<PosPart copyNumber="37">
+			<rParent name="zdc:ZDC_HadLayer"/>
+			<rChild name="zdc:ZDC_HadFiber"/>
+			<rRotation name="zdcrotations:R1"/>
+			<Translation x="[zdcHadXinitial]+36.0*[zdcHadXDelta]" y="0*fm" z="7.75*mm"/>
+		</PosPart>
+		<PosPart copyNumber="38">
+			<rParent name="zdc:ZDC_HadLayer"/>
+			<rChild name="zdc:ZDC_HadFiber"/>
+			<rRotation name="zdcrotations:R1"/>
+			<Translation x="[zdcHadXinitial]+37.0*[zdcHadXDelta]" y="0*fm" z="7.75*mm"/>
+		</PosPart>
+		<PosPart copyNumber="39">
+			<rParent name="zdc:ZDC_HadLayer"/>
+			<rChild name="zdc:ZDC_HadFiber"/>
+			<rRotation name="zdcrotations:R1"/>
+			<Translation x="[zdcHadXinitial]+38.0*[zdcHadXDelta]" y="0*fm" z="7.75*mm"/>
+		</PosPart>
+		<PosPart copyNumber="40">
+			<rParent name="zdc:ZDC_HadLayer"/>
+			<rChild name="zdc:ZDC_HadFiber"/>
+			<rRotation name="zdcrotations:R1"/>
+			<Translation x="[zdcHadXinitial]+39.0*[zdcHadXDelta]" y="0*fm" z="7.75*mm"/>
+		</PosPart>
+		<PosPart copyNumber="41">
+			<rParent name="zdc:ZDC_HadLayer"/>
+			<rChild name="zdc:ZDC_HadFiber"/>
+			<rRotation name="zdcrotations:R1"/>
+			<Translation x="[zdcHadXinitial]+40.0*[zdcHadXDelta]" y="0*fm" z="7.75*mm"/>
+		</PosPart>
+		<PosPart copyNumber="42">
+			<rParent name="zdc:ZDC_HadLayer"/>
+			<rChild name="zdc:ZDC_HadFiber"/>
+			<rRotation name="zdcrotations:R1"/>
+			<Translation x="[zdcHadXinitial]+41.0*[zdcHadXDelta]" y="0*fm" z="7.75*mm"/>
+		</PosPart>
+		<PosPart copyNumber="43">
+			<rParent name="zdc:ZDC_HadLayer"/>
+			<rChild name="zdc:ZDC_HadFiber"/>
+			<rRotation name="zdcrotations:R1"/>
+			<Translation x="[zdcHadXinitial]+42.0*[zdcHadXDelta]" y="0*fm" z="7.75*mm"/>
+		</PosPart>
+		<PosPart copyNumber="44">
+			<rParent name="zdc:ZDC_HadLayer"/>
+			<rChild name="zdc:ZDC_HadFiber"/>
+			<rRotation name="zdcrotations:R1"/>
+			<Translation x="[zdcHadXinitial]+43.0*[zdcHadXDelta]" y="0*fm" z="7.75*mm"/>
+		</PosPart>
+		<PosPart copyNumber="45">
+			<rParent name="zdc:ZDC_HadLayer"/>
+			<rChild name="zdc:ZDC_HadFiber"/>
+			<rRotation name="zdcrotations:R1"/>
+			<Translation x="[zdcHadXinitial]+44.0*[zdcHadXDelta]" y="0*fm" z="7.75*mm"/>
+		</PosPart>
+		<PosPart copyNumber="46">
+			<rParent name="zdc:ZDC_HadLayer"/>
+			<rChild name="zdc:ZDC_HadFiber"/>
+			<rRotation name="zdcrotations:R1"/>
+			<Translation x="[zdcHadXinitial]+45.0*[zdcHadXDelta]" y="0*fm" z="7.75*mm"/>
+		</PosPart>
+		<PosPart copyNumber="47">
+			<rParent name="zdc:ZDC_HadLayer"/>
+			<rChild name="zdc:ZDC_HadFiber"/>
+			<rRotation name="zdcrotations:R1"/>
+			<Translation x="[zdcHadXinitial]+46.0*[zdcHadXDelta]" y="0*fm" z="7.75*mm"/>
+		</PosPart>
+		<PosPart copyNumber="48">
+			<rParent name="zdc:ZDC_HadLayer"/>
+			<rChild name="zdc:ZDC_HadFiber"/>
+			<rRotation name="zdcrotations:R1"/>
+			<Translation x="[zdcHadXinitial]+47.0*[zdcHadXDelta]" y="0*fm" z="7.75*mm"/>
+		</PosPart>
+		<PosPart copyNumber="49">
+			<rParent name="zdc:ZDC_HadLayer"/>
+			<rChild name="zdc:ZDC_HadFiber"/>
+			<rRotation name="zdcrotations:R1"/>
+			<Translation x="[zdcHadXinitial]+48.0*[zdcHadXDelta]" y="0*fm" z="7.75*mm"/>
+		</PosPart>
+		<PosPart copyNumber="50">
+			<rParent name="zdc:ZDC_HadLayer"/>
+			<rChild name="zdc:ZDC_HadFiber"/>
+			<rRotation name="zdcrotations:R1"/>
+			<Translation x="[zdcHadXinitial]+49.0*[zdcHadXDelta]" y="0*fm" z="7.75*mm"/>
+		</PosPart>
+		<PosPart copyNumber="51">
+			<rParent name="zdc:ZDC_HadLayer"/>
+			<rChild name="zdc:ZDC_HadFiber"/>
+			<rRotation name="zdcrotations:R1"/>
+			<Translation x="[zdcHadXinitial]+50.0*[zdcHadXDelta]" y="0*fm" z="7.75*mm"/>
+		</PosPart>
+		<PosPart copyNumber="52">
+			<rParent name="zdc:ZDC_HadLayer"/>
+			<rChild name="zdc:ZDC_HadFiber"/>
+			<rRotation name="zdcrotations:R1"/>
+			<Translation x="[zdcHadXinitial]+51.0*[zdcHadXDelta]" y="0*fm" z="7.75*mm"/>
+		</PosPart>
+		<PosPart copyNumber="53">
+			<rParent name="zdc:ZDC_HadLayer"/>
+			<rChild name="zdc:ZDC_HadFiber"/>
+			<rRotation name="zdcrotations:R1"/>
+			<Translation x="[zdcHadXinitial]+52.0*[zdcHadXDelta]" y="0*fm" z="7.75*mm"/>
+		</PosPart>
+		<PosPart copyNumber="54">
+			<rParent name="zdc:ZDC_HadLayer"/>
+			<rChild name="zdc:ZDC_HadFiber"/>
+			<rRotation name="zdcrotations:R1"/>
+			<Translation x="[zdcHadXinitial]+53.0*[zdcHadXDelta]" y="0*fm" z="7.75*mm"/>
+		</PosPart>
+		<PosPart copyNumber="55">
+			<rParent name="zdc:ZDC_HadLayer"/>
+			<rChild name="zdc:ZDC_HadFiber"/>
+			<rRotation name="zdcrotations:R1"/>
+			<Translation x="[zdcHadXinitial]+54.0*[zdcHadXDelta]" y="0*fm" z="7.75*mm"/>
+		</PosPart>
+		<PosPart copyNumber="56">
+			<rParent name="zdc:ZDC_HadLayer"/>
+			<rChild name="zdc:ZDC_HadFiber"/>
+			<rRotation name="zdcrotations:R1"/>
+			<Translation x="[zdcHadXinitial]+55.0*[zdcHadXDelta]" y="0*fm" z="7.75*mm"/>
+		</PosPart>
+		<PosPart copyNumber="57">
+			<rParent name="zdc:ZDC_HadLayer"/>
+			<rChild name="zdc:ZDC_HadFiber"/>
+			<rRotation name="zdcrotations:R1"/>
+			<Translation x="[zdcHadXinitial]+56.0*[zdcHadXDelta]" y="0*fm" z="7.75*mm"/>
+		</PosPart>
+		<PosPart copyNumber="58">
+			<rParent name="zdc:ZDC_HadLayer"/>
+			<rChild name="zdc:ZDC_HadFiber"/>
+			<rRotation name="zdcrotations:R1"/>
+			<Translation x="[zdcHadXinitial]+57.0*[zdcHadXDelta]" y="0*fm" z="7.75*mm"/>
+		</PosPart>
+		<PosPart copyNumber="59">
+			<rParent name="zdc:ZDC_HadLayer"/>
+			<rChild name="zdc:ZDC_HadFiber"/>
+			<rRotation name="zdcrotations:R1"/>
+			<Translation x="[zdcHadXinitial]+58.0*[zdcHadXDelta]" y="0*fm" z="7.75*mm"/>
+		</PosPart>
+		<PosPart copyNumber="60">
+			<rParent name="zdc:ZDC_HadLayer"/>
+			<rChild name="zdc:ZDC_HadFiber"/>
+			<rRotation name="zdcrotations:R1"/>
+			<Translation x="[zdcHadXinitial]+59.0*[zdcHadXDelta]" y="0*fm" z="7.75*mm"/>
+		</PosPart>
+		<PosPart copyNumber="61">
+			<rParent name="zdc:ZDC_HadLayer"/>
+			<rChild name="zdc:ZDC_HadFiber"/>
+			<rRotation name="zdcrotations:R1"/>
+			<Translation x="[zdcHadXinitial]+60.0*[zdcHadXDelta]" y="0*fm" z="7.75*mm"/>
+		</PosPart>
+		<PosPart copyNumber="62">
+			<rParent name="zdc:ZDC_HadLayer"/>
+			<rChild name="zdc:ZDC_HadFiber"/>
+			<rRotation name="zdcrotations:R1"/>
+			<Translation x="[zdcHadXinitial]+61.0*[zdcHadXDelta]" y="0*fm" z="7.75*mm"/>
+		</PosPart>
+		<PosPart copyNumber="63">
+			<rParent name="zdc:ZDC_HadLayer"/>
+			<rChild name="zdc:ZDC_HadFiber"/>
+			<rRotation name="zdcrotations:R1"/>
+			<Translation x="[zdcHadXinitial]+62.0*[zdcHadXDelta]" y="0*fm" z="7.75*mm"/>
+		</PosPart>
+		<PosPart copyNumber="64">
+			<rParent name="zdc:ZDC_HadLayer"/>
+			<rChild name="zdc:ZDC_HadFiber"/>
+			<rRotation name="zdcrotations:R1"/>
+			<Translation x="[zdcHadXinitial]+63.0*[zdcHadXDelta]" y="0*fm" z="7.75*mm"/>
+		</PosPart>
+		<PosPart copyNumber="65">
+			<rParent name="zdc:ZDC_HadLayer"/>
+			<rChild name="zdc:ZDC_HadFiber"/>
+			<rRotation name="zdcrotations:R1"/>
+			<Translation x="[zdcHadXinitial]+64.0*[zdcHadXDelta]" y="0*fm" z="7.75*mm"/>
+		</PosPart>
+		<PosPart copyNumber="66">
+			<rParent name="zdc:ZDC_HadLayer"/>
+			<rChild name="zdc:ZDC_HadFiber"/>
+			<rRotation name="zdcrotations:R1"/>
+			<Translation x="[zdcHadXinitial]+65.0*[zdcHadXDelta]" y="0*fm" z="7.75*mm"/>
+		</PosPart>
+		<PosPart copyNumber="67">
+			<rParent name="zdc:ZDC_HadLayer"/>
+			<rChild name="zdc:ZDC_HadFiber"/>
+			<rRotation name="zdcrotations:R1"/>
+			<Translation x="[zdcHadXinitial]+66.0*[zdcHadXDelta]" y="0*fm" z="7.75*mm"/>
+		</PosPart>
+		<PosPart copyNumber="68">
+			<rParent name="zdc:ZDC_HadLayer"/>
+			<rChild name="zdc:ZDC_HadFiber"/>
+			<rRotation name="zdcrotations:R1"/>
+			<Translation x="[zdcHadXinitial]+67.0*[zdcHadXDelta]" y="0*fm" z="7.75*mm"/>
+		</PosPart>
+		<PosPart copyNumber="69">
+			<rParent name="zdc:ZDC_HadLayer"/>
+			<rChild name="zdc:ZDC_HadFiber"/>
+			<rRotation name="zdcrotations:R1"/>
+			<Translation x="[zdcHadXinitial]+68.0*[zdcHadXDelta]" y="0*fm" z="7.75*mm"/>
+		</PosPart>
+		<PosPart copyNumber="70">
+			<rParent name="zdc:ZDC_HadLayer"/>
+			<rChild name="zdc:ZDC_HadFiber"/>
+			<rRotation name="zdcrotations:R1"/>
+			<Translation x="[zdcHadXinitial]+69.0*[zdcHadXDelta]" y="0*fm" z="7.75*mm"/>
+		</PosPart>
+		<PosPart copyNumber="71">
+			<rParent name="zdc:ZDC_HadLayer"/>
+			<rChild name="zdc:ZDC_HadFiber"/>
+			<rRotation name="zdcrotations:R1"/>
+			<Translation x="[zdcHadXinitial]+70.0*[zdcHadXDelta]" y="0*fm" z="7.75*mm"/>
+		</PosPart>
+		<PosPart copyNumber="72">
+			<rParent name="zdc:ZDC_HadLayer"/>
+			<rChild name="zdc:ZDC_HadFiber"/>
+			<rRotation name="zdcrotations:R1"/>
+			<Translation x="[zdcHadXinitial]+71.0*[zdcHadXDelta]" y="0*fm" z="7.75*mm"/>
+		</PosPart>
+		<PosPart copyNumber="73">
+			<rParent name="zdc:ZDC_HadLayer"/>
+			<rChild name="zdc:ZDC_HadFiber"/>
+			<rRotation name="zdcrotations:R1"/>
+			<Translation x="[zdcHadXinitial]+72.0*[zdcHadXDelta]" y="0*fm" z="7.75*mm"/>
+		</PosPart>
+		<PosPart copyNumber="74">
+			<rParent name="zdc:ZDC_HadLayer"/>
+			<rChild name="zdc:ZDC_HadFiber"/>
+			<rRotation name="zdcrotations:R1"/>
+			<Translation x="[zdcHadXinitial]+73.0*[zdcHadXDelta]" y="0*fm" z="7.75*mm"/>
+		</PosPart>
+		<PosPart copyNumber="75">
+			<rParent name="zdc:ZDC_HadLayer"/>
+			<rChild name="zdc:ZDC_HadFiber"/>
+			<rRotation name="zdcrotations:R1"/>
+			<Translation x="[zdcHadXinitial]+74.0*[zdcHadXDelta]" y="0*fm" z="7.75*mm"/>
+		</PosPart>
+		<PosPart copyNumber="76">
+			<rParent name="zdc:ZDC_HadLayer"/>
+			<rChild name="zdc:ZDC_HadFiber"/>
+			<rRotation name="zdcrotations:R1"/>
+			<Translation x="[zdcHadXinitial]+75.0*[zdcHadXDelta]" y="0*fm" z="7.75*mm"/>
+		</PosPart>
+		<PosPart copyNumber="77">
+			<rParent name="zdc:ZDC_HadLayer"/>
+			<rChild name="zdc:ZDC_HadFiber"/>
+			<rRotation name="zdcrotations:R1"/>
+			<Translation x="[zdcHadXinitial]+76.0*[zdcHadXDelta]" y="0*fm" z="7.75*mm"/>
+		</PosPart>
+		<PosPart copyNumber="78">
+			<rParent name="zdc:ZDC_HadLayer"/>
+			<rChild name="zdc:ZDC_HadFiber"/>
+			<rRotation name="zdcrotations:R1"/>
+			<Translation x="[zdcHadXinitial]+77.0*[zdcHadXDelta]" y="0*fm" z="7.75*mm"/>
+		</PosPart>
+		<PosPart copyNumber="79">
+			<rParent name="zdc:ZDC_HadLayer"/>
+			<rChild name="zdc:ZDC_HadFiber"/>
+			<rRotation name="zdcrotations:R1"/>
+			<Translation x="[zdcHadXinitial]+78.0*[zdcHadXDelta]" y="0*fm" z="7.75*mm"/>
+		</PosPart>
+		<PosPart copyNumber="80">
+			<rParent name="zdc:ZDC_HadLayer"/>
+			<rChild name="zdc:ZDC_HadFiber"/>
+			<rRotation name="zdcrotations:R1"/>
+			<Translation x="[zdcHadXinitial]+79.0*[zdcHadXDelta]" y="0*fm" z="7.75*mm"/>
+		</PosPart>
+		<PosPart copyNumber="81">
+			<rParent name="zdc:ZDC_HadLayer"/>
+			<rChild name="zdc:ZDC_HadFiber"/>
+			<rRotation name="zdcrotations:R1"/>
+			<Translation x="[zdcHadXinitial]+80.0*[zdcHadXDelta]" y="0*fm" z="7.75*mm"/>
+		</PosPart>
+		<PosPart copyNumber="82">
+			<rParent name="zdc:ZDC_HadLayer"/>
+			<rChild name="zdc:ZDC_HadFiber"/>
+			<rRotation name="zdcrotations:R1"/>
+			<Translation x="[zdcHadXinitial]+81.0*[zdcHadXDelta]" y="0*fm" z="7.75*mm"/>
+		</PosPart>
+		<PosPart copyNumber="83">
+			<rParent name="zdc:ZDC_HadLayer"/>
+			<rChild name="zdc:ZDC_HadFiber"/>
+			<rRotation name="zdcrotations:R1"/>
+			<Translation x="[zdcHadXinitial]+82.0*[zdcHadXDelta]" y="0*fm" z="7.75*mm"/>
+		</PosPart>
+		<PosPart copyNumber="84">
+			<rParent name="zdc:ZDC_HadLayer"/>
+			<rChild name="zdc:ZDC_HadFiber"/>
+			<rRotation name="zdcrotations:R1"/>
+			<Translation x="[zdcHadXinitial]+83.0*[zdcHadXDelta]" y="0*fm" z="7.75*mm"/>
+		</PosPart>
+		<PosPart copyNumber="85">
+			<rParent name="zdc:ZDC_HadLayer"/>
+			<rChild name="zdc:ZDC_HadFiber"/>
+			<rRotation name="zdcrotations:R1"/>
+			<Translation x="[zdcHadXinitial]+84.0*[zdcHadXDelta]" y="0*fm" z="7.75*mm"/>
+		</PosPart>
+		<PosPart copyNumber="86">
+			<rParent name="zdc:ZDC_HadLayer"/>
+			<rChild name="zdc:ZDC_HadFiber"/>
+			<rRotation name="zdcrotations:R1"/>
+			<Translation x="[zdcHadXinitial]+85.0*[zdcHadXDelta]" y="0*fm" z="7.75*mm"/>
+		</PosPart>
+		<PosPart copyNumber="87">
+			<rParent name="zdc:ZDC_HadLayer"/>
+			<rChild name="zdc:ZDC_HadFiber"/>
+			<rRotation name="zdcrotations:R1"/>
+			<Translation x="[zdcHadXinitial]+86.0*[zdcHadXDelta]" y="0*fm" z="7.75*mm"/>
+		</PosPart>
+		<PosPart copyNumber="88">
+			<rParent name="zdc:ZDC_HadLayer"/>
+			<rChild name="zdc:ZDC_HadFiber"/>
+			<rRotation name="zdcrotations:R1"/>
+			<Translation x="[zdcHadXinitial]+87.0*[zdcHadXDelta]" y="0*fm" z="7.75*mm"/>
+		</PosPart>
+		<PosPart copyNumber="89">
+			<rParent name="zdc:ZDC_HadLayer"/>
+			<rChild name="zdc:ZDC_HadFiber"/>
+			<rRotation name="zdcrotations:R1"/>
+			<Translation x="[zdcHadXinitial]+88.0*[zdcHadXDelta]" y="0*fm" z="7.75*mm"/>
+		</PosPart>
+		<PosPart copyNumber="90">
+			<rParent name="zdc:ZDC_HadLayer"/>
+			<rChild name="zdc:ZDC_HadFiber"/>
+			<rRotation name="zdcrotations:R1"/>
+			<Translation x="[zdcHadXinitial]+89.0*[zdcHadXDelta]" y="0*fm" z="7.75*mm"/>
+		</PosPart>
+		<PosPart copyNumber="91">
+			<rParent name="zdc:ZDC_HadLayer"/>
+			<rChild name="zdc:ZDC_HadFiber"/>
+			<rRotation name="zdcrotations:R1"/>
+			<Translation x="[zdcHadXinitial]+90.0*[zdcHadXDelta]" y="0*fm" z="7.75*mm"/>
+		</PosPart>
+		<PosPart copyNumber="92">
+			<rParent name="zdc:ZDC_HadLayer"/>
+			<rChild name="zdc:ZDC_HadFiber"/>
+			<rRotation name="zdcrotations:R1"/>
+			<Translation x="[zdcHadXinitial]+91.0*[zdcHadXDelta]" y="0*fm" z="7.75*mm"/>
+		</PosPart>
+		<PosPart copyNumber="93">
+			<rParent name="zdc:ZDC_HadLayer"/>
+			<rChild name="zdc:ZDC_HadFiber"/>
+			<rRotation name="zdcrotations:R1"/>
+			<Translation x="[zdcHadXinitial]+92.0*[zdcHadXDelta]" y="0*fm" z="7.75*mm"/>
+		</PosPart>
+		<PosPart copyNumber="94">
+			<rParent name="zdc:ZDC_HadLayer"/>
+			<rChild name="zdc:ZDC_HadFiber"/>
+			<rRotation name="zdcrotations:R1"/>
+			<Translation x="[zdcHadXinitial]+93.0*[zdcHadXDelta]" y="0*fm" z="7.75*mm"/>
+		</PosPart>
+		<PosPart copyNumber="95">
+			<rParent name="zdc:ZDC_HadLayer"/>
+			<rChild name="zdc:ZDC_HadFiber"/>
+			<rRotation name="zdcrotations:R1"/>
+			<Translation x="[zdcHadXinitial]+94.0*[zdcHadXDelta]" y="0*fm" z="7.75*mm"/>
+		</PosPart>
+		<PosPart copyNumber="96">
+			<rParent name="zdc:ZDC_HadLayer"/>
+			<rChild name="zdc:ZDC_HadFiber"/>
+			<rRotation name="zdcrotations:R1"/>
+			<Translation x="[zdcHadXinitial]+95.0*[zdcHadXDelta]" y="0*fm" z="7.75*mm"/>
+		</PosPart>
+		<PosPart copyNumber="97">
+			<rParent name="zdc:ZDC_HadLayer"/>
+			<rChild name="zdc:ZDC_HadFiber"/>
+			<rRotation name="zdcrotations:R1"/>
+			<Translation x="[zdcHadXinitial]+96.0*[zdcHadXDelta]" y="0*fm" z="7.75*mm"/>
+		</PosPart>
+		<PosPart copyNumber="98">
+			<rParent name="zdc:ZDC_HadLayer"/>
+			<rChild name="zdc:ZDC_HadFiber"/>
+			<rRotation name="zdcrotations:R1"/>
+			<Translation x="[zdcHadXinitial]+97.0*[zdcHadXDelta]" y="0*fm" z="7.75*mm"/>
+		</PosPart>
+		<PosPart copyNumber="99">
+			<rParent name="zdc:ZDC_HadLayer"/>
+			<rChild name="zdc:ZDC_HadFiber"/>
+			<rRotation name="zdcrotations:R1"/>
+			<Translation x="[zdcHadXinitial]+98.0*[zdcHadXDelta]" y="0*fm" z="7.75*mm"/>
+		</PosPart>
+		<PosPart copyNumber="100">
+			<rParent name="zdc:ZDC_HadLayer"/>
+			<rChild name="zdc:ZDC_HadFiber"/>
+			<rRotation name="zdcrotations:R1"/>
+			<Translation x="[zdcHadXinitial]+99.0*[zdcHadXDelta]" y="0*fm" z="7.75*mm"/>
+		</PosPart>
+		<PosPart copyNumber="101">
+			<rParent name="zdc:ZDC_HadLayer"/>
+			<rChild name="zdc:ZDC_HadFiber"/>
+			<rRotation name="zdcrotations:R1"/>
+			<Translation x="[zdcHadXinitial]+100.0*[zdcHadXDelta]" y="0*fm" z="7.75*mm"/>
+		</PosPart>
+		<PosPart copyNumber="102">
+			<rParent name="zdc:ZDC_HadLayer"/>
+			<rChild name="zdc:ZDC_HadFiber"/>
+			<rRotation name="zdcrotations:R1"/>
+			<Translation x="[zdcHadXinitial]+101.0*[zdcHadXDelta]" y="0*fm" z="7.75*mm"/>
+		</PosPart>
+		<PosPart copyNumber="103">
+			<rParent name="zdc:ZDC_HadLayer"/>
+			<rChild name="zdc:ZDC_HadFiber"/>
+			<rRotation name="zdcrotations:R1"/>
+			<Translation x="[zdcHadXinitial]+102.0*[zdcHadXDelta]" y="0*fm" z="7.75*mm"/>
+		</PosPart>
+		<PosPart copyNumber="104">
+			<rParent name="zdc:ZDC_HadLayer"/>
+			<rChild name="zdc:ZDC_HadFiber"/>
+			<rRotation name="zdcrotations:R1"/>
+			<Translation x="[zdcHadXinitial]+103.0*[zdcHadXDelta]" y="0*fm" z="7.75*mm"/>
+		</PosPart>
+		<PosPart copyNumber="105">
+			<rParent name="zdc:ZDC_HadLayer"/>
+			<rChild name="zdc:ZDC_HadFiber"/>
+			<rRotation name="zdcrotations:R1"/>
+			<Translation x="[zdcHadXinitial]+104.0*[zdcHadXDelta]" y="0*fm" z="7.75*mm"/>
+		</PosPart>
+		<PosPart copyNumber="106">
+			<rParent name="zdc:ZDC_HadLayer"/>
+			<rChild name="zdc:ZDC_HadFiber"/>
+			<rRotation name="zdcrotations:R1"/>
+			<Translation x="[zdcHadXinitial]+105.0*[zdcHadXDelta]" y="0*fm" z="7.75*mm"/>
+		</PosPart>
+		<PosPart copyNumber="107">
+			<rParent name="zdc:ZDC_HadLayer"/>
+			<rChild name="zdc:ZDC_HadFiber"/>
+			<rRotation name="zdcrotations:R1"/>
+			<Translation x="[zdcHadXinitial]+106.0*[zdcHadXDelta]" y="0*fm" z="7.75*mm"/>
+		</PosPart>
+		<PosPart copyNumber="108">
+			<rParent name="zdc:ZDC_HadLayer"/>
+			<rChild name="zdc:ZDC_HadFiber"/>
+			<rRotation name="zdcrotations:R1"/>
+			<Translation x="[zdcHadXinitial]+107.0*[zdcHadXDelta]" y="0*fm" z="7.75*mm"/>
+		</PosPart>
+		<PosPart copyNumber="109">
+			<rParent name="zdc:ZDC_HadLayer"/>
+			<rChild name="zdc:ZDC_HadFiber"/>
+			<rRotation name="zdcrotations:R1"/>
+			<Translation x="[zdcHadXinitial]+108.0*[zdcHadXDelta]" y="0*fm" z="7.75*mm"/>
+		</PosPart>
+		<PosPart copyNumber="110">
+			<rParent name="zdc:ZDC_HadLayer"/>
+			<rChild name="zdc:ZDC_HadFiber"/>
+			<rRotation name="zdcrotations:R1"/>
+			<Translation x="[zdcHadXinitial]+109.0*[zdcHadXDelta]" y="0*fm" z="7.75*mm"/>
+		</PosPart>
+		<PosPart copyNumber="111">
+			<rParent name="zdc:ZDC_HadLayer"/>
+			<rChild name="zdc:ZDC_HadFiber"/>
+			<rRotation name="zdcrotations:R1"/>
+			<Translation x="[zdcHadXinitial]+100.0*[zdcHadXDelta]" y="0*fm" z="7.75*mm"/>
+		</PosPart>
+		<PosPart copyNumber="112">
+			<rParent name="zdc:ZDC_HadLayer"/>
+			<rChild name="zdc:ZDC_HadFiber"/>
+			<rRotation name="zdcrotations:R1"/>
+			<Translation x="[zdcHadXinitial]+111.0*[zdcHadXDelta]" y="0*fm" z="7.75*mm"/>
+		</PosPart>
+		<PosPart copyNumber="113">
+			<rParent name="zdc:ZDC_HadLayer"/>
+			<rChild name="zdc:ZDC_HadFiber"/>
+			<rRotation name="zdcrotations:R1"/>
+			<Translation x="[zdcHadXinitial]+112.0*[zdcHadXDelta]" y="0*fm" z="7.75*mm"/>
+		</PosPart>
+		<!-- Position EM Layers -->
+		<PosPart copyNumber="1">
+			<rParent name="zdc:ZDC"/>
+			<rChild name="zdc:ZDC_EMLayer"/>
+			<Translation x="0*fm" y="0*fm" z="[zdcEMZinitial]+0.0*[zdcEMZDelta]"/>
+		</PosPart>
+		<PosPart copyNumber="2">
+			<rParent name="zdc:ZDC"/>
+			<rChild name="zdc:ZDC_EMLayer"/>
+			<Translation x="0*fm" y="0*fm" z="[zdcEMZinitial]+1.0*[zdcEMZDelta]"/>
+		</PosPart>
+		<PosPart copyNumber="3">
+			<rParent name="zdc:ZDC"/>
+			<rChild name="zdc:ZDC_EMLayer"/>
+			<Translation x="0*fm" y="0*fm" z="[zdcEMZinitial]+2.0*[zdcEMZDelta]"/>
+		</PosPart>
+		<PosPart copyNumber="4">
+			<rParent name="zdc:ZDC"/>
+			<rChild name="zdc:ZDC_EMLayer"/>
+			<Translation x="0*fm" y="0*fm" z="[zdcEMZinitial]+3.0*[zdcEMZDelta]"/>
+		</PosPart>
+		<PosPart copyNumber="5">
+			<rParent name="zdc:ZDC"/>
+			<rChild name="zdc:ZDC_EMLayer"/>
+			<Translation x="0*fm" y="0*fm" z="[zdcEMZinitial]+4.0*[zdcEMZDelta]"/>
+		</PosPart>
+		<PosPart copyNumber="6">
+			<rParent name="zdc:ZDC"/>
+			<rChild name="zdc:ZDC_EMLayer"/>
+			<Translation x="0*fm" y="0*fm" z="[zdcEMZinitial]+5.0*[zdcEMZDelta]"/>
+		</PosPart>
+		<PosPart copyNumber="7">
+			<rParent name="zdc:ZDC"/>
+			<rChild name="zdc:ZDC_EMLayer"/>
+			<Translation x="0*fm" y="0*fm" z="[zdcEMZinitial]+6.0*[zdcEMZDelta]"/>
+		</PosPart>
+		<PosPart copyNumber="8">
+			<rParent name="zdc:ZDC"/>
+			<rChild name="zdc:ZDC_EMLayer"/>
+			<Translation x="0*fm" y="0*fm" z="[zdcEMZinitial]+7.0*[zdcEMZDelta]"/>
+		</PosPart>
+		<PosPart copyNumber="9">
+			<rParent name="zdc:ZDC"/>
+			<rChild name="zdc:ZDC_EMLayer"/>
+			<Translation x="0*fm" y="0*fm" z="[zdcEMZinitial]+8.0*[zdcEMZDelta]"/>
+		</PosPart>
+		<PosPart copyNumber="10">
+			<rParent name="zdc:ZDC"/>
+			<rChild name="zdc:ZDC_EMLayer"/>
+			<Translation x="0*fm" y="0*fm" z="[zdcEMZinitial]+9.0*[zdcEMZDelta]"/>
+		</PosPart>
+		<PosPart copyNumber="11">
+			<rParent name="zdc:ZDC"/>
+			<rChild name="zdc:ZDC_EMLayer"/>
+			<Translation x="0*fm" y="0*fm" z="[zdcEMZinitial]+10.0*[zdcEMZDelta]"/>
+		</PosPart>
+		<PosPart copyNumber="12">
+			<rParent name="zdc:ZDC"/>
+			<rChild name="zdc:ZDC_EMLayer"/>
+			<Translation x="0*fm" y="0*fm" z="[zdcEMZinitial]+11.0*[zdcEMZDelta]"/>
+		</PosPart>
+		<PosPart copyNumber="13">
+			<rParent name="zdc:ZDC"/>
+			<rChild name="zdc:ZDC_EMLayer"/>
+			<Translation x="0*fm" y="0*fm" z="[zdcEMZinitial]+12.0*[zdcEMZDelta]"/>
+		</PosPart>
+		<PosPart copyNumber="14">
+			<rParent name="zdc:ZDC"/>
+			<rChild name="zdc:ZDC_EMLayer"/>
+			<Translation x="0*fm" y="0*fm" z="[zdcEMZinitial]+13.0*[zdcEMZDelta]"/>
+		</PosPart>
+		<PosPart copyNumber="15">
+			<rParent name="zdc:ZDC"/>
+			<rChild name="zdc:ZDC_EMLayer"/>
+			<Translation x="0*fm" y="0*fm" z="[zdcEMZinitial]+14.0*[zdcEMZDelta]"/>
+		</PosPart>
+		<PosPart copyNumber="16">
+			<rParent name="zdc:ZDC"/>
+			<rChild name="zdc:ZDC_EMLayer"/>
+			<Translation x="0*fm" y="0*fm" z="[zdcEMZinitial]+15.0*[zdcEMZDelta]"/>
+		</PosPart>
+		<PosPart copyNumber="17">
+			<rParent name="zdc:ZDC"/>
+			<rChild name="zdc:ZDC_EMLayer"/>
+			<Translation x="0*fm" y="0*fm" z="[zdcEMZinitial]+16.0*[zdcEMZDelta]"/>
+		</PosPart>
+		<PosPart copyNumber="18">
+			<rParent name="zdc:ZDC"/>
+			<rChild name="zdc:ZDC_EMLayer"/>
+			<Translation x="0*fm" y="0*fm" z="[zdcEMZinitial]+17.0*[zdcEMZDelta]"/>
+		</PosPart>
+		<PosPart copyNumber="19">
+			<rParent name="zdc:ZDC"/>
+			<rChild name="zdc:ZDC_EMLayer"/>
+			<Translation x="0*fm" y="0*fm" z="[zdcEMZinitial]+18.0*[zdcEMZDelta]"/>
+		</PosPart>
+		<PosPart copyNumber="20">
+			<rParent name="zdc:ZDC"/>
+			<rChild name="zdc:ZDC_EMLayer"/>
+			<Translation x="0*fm" y="0*fm" z="[zdcEMZinitial]+19.0*[zdcEMZDelta]"/>
+		</PosPart>
+		<PosPart copyNumber="21">
+			<rParent name="zdc:ZDC"/>
+			<rChild name="zdc:ZDC_EMLayer"/>
+			<Translation x="0*fm" y="0*fm" z="[zdcEMZinitial]+20.0*[zdcEMZDelta]"/>
+		</PosPart>
+		<PosPart copyNumber="22">
+			<rParent name="zdc:ZDC"/>
+			<rChild name="zdc:ZDC_EMLayer"/>
+			<Translation x="0*fm" y="0*fm" z="[zdcEMZinitial]+21.0*[zdcEMZDelta]"/>
+		</PosPart>
+		<PosPart copyNumber="23">
+			<rParent name="zdc:ZDC"/>
+			<rChild name="zdc:ZDC_EMLayer"/>
+			<Translation x="0*fm" y="0*fm" z="[zdcEMZinitial]+22.0*[zdcEMZDelta]"/>
+		</PosPart>
+		<PosPart copyNumber="24">
+			<rParent name="zdc:ZDC"/>
+			<rChild name="zdc:ZDC_EMLayer"/>
+			<Translation x="0*fm" y="0*fm" z="[zdcEMZinitial]+23.0*[zdcEMZDelta]"/>
+		</PosPart>
+		<PosPart copyNumber="25">
+			<rParent name="zdc:ZDC"/>
+			<rChild name="zdc:ZDC_EMLayer"/>
+			<Translation x="0*fm" y="0*fm" z="[zdcEMZinitial]+24.0*[zdcEMZDelta]"/>
+		</PosPart>
+		<PosPart copyNumber="26">
+			<rParent name="zdc:ZDC"/>
+			<rChild name="zdc:ZDC_EMLayer"/>
+			<Translation x="0*fm" y="0*fm" z="[zdcEMZinitial]+25.0*[zdcEMZDelta]"/>
+		</PosPart>
+		<PosPart copyNumber="27">
+			<rParent name="zdc:ZDC"/>
+			<rChild name="zdc:ZDC_EMLayer"/>
+			<Translation x="0*fm" y="0*fm" z="[zdcEMZinitial]+26.0*[zdcEMZDelta]"/>
+		</PosPart>
+		<PosPart copyNumber="28">
+			<rParent name="zdc:ZDC"/>
+			<rChild name="zdc:ZDC_EMLayer"/>
+			<Translation x="0*fm" y="0*fm" z="[zdcEMZinitial]+27.0*[zdcEMZDelta]"/>
+		</PosPart>
+		<PosPart copyNumber="29">
+			<rParent name="zdc:ZDC"/>
+			<rChild name="zdc:ZDC_EMLayer"/>
+			<Translation x="0*fm" y="0*fm" z="[zdcEMZinitial]+28.0*[zdcEMZDelta]"/>
+		</PosPart>
+		<PosPart copyNumber="30">
+			<rParent name="zdc:ZDC"/>
+			<rChild name="zdc:ZDC_EMLayer"/>
+			<Translation x="0*fm" y="0*fm" z="[zdcEMZinitial]+29.0*[zdcEMZDelta]"/>
+		</PosPart>
+		<PosPart copyNumber="31">
+			<rParent name="zdc:ZDC"/>
+			<rChild name="zdc:ZDC_EMLayer"/>
+			<Translation x="0*fm" y="0*fm" z="[zdcEMZinitial]+30.0*[zdcEMZDelta]"/>
+		</PosPart>
+		<PosPart copyNumber="32">
+			<rParent name="zdc:ZDC"/>
+			<rChild name="zdc:ZDC_EMLayer"/>
+			<Translation x="0*fm" y="0*fm" z="[zdcEMZinitial]+31.0*[zdcEMZDelta]"/>
+		</PosPart>
+		<PosPart copyNumber="33">
+			<rParent name="zdc:ZDC"/>
+			<rChild name="zdc:ZDC_EMLayer"/>
+			<Translation x="0*fm" y="0*fm" z="[zdcEMZinitial]+32.0*[zdcEMZDelta]"/>
+		</PosPart>
+		<!-- Position of EM absorber -->
+		<PosPart copyNumber="1">
+			<rParent name="zdc:ZDC_EMLayer"/>
+			<rChild name="zdc:ZDC_EMAbsorber"/>
+			<Translation x="0*fm" y="0*fm" z="-500*mum"/>
+		</PosPart>
+		<!-- Position of EM fibers -->
+		<PosPart copyNumber="1">
+			<rParent name="zdc:ZDC_EMLayer"/>
+			<rChild name="zdc:ZDC_EMFiber"/>
+			<rRotation name="zdcrotations:R1"/>
+			<Translation x="[zdcEMXinitial]+0.0*[zdcEMXDelta]" y="0*fm" z="1000*mum"/>
+		</PosPart>
+		<PosPart copyNumber="2">
+			<rParent name="zdc:ZDC_EMLayer"/>
+			<rChild name="zdc:ZDC_EMFiber"/>
+			<rRotation name="zdcrotations:R1"/>
+			<Translation x="[zdcEMXinitial]+1.0*[zdcEMXDelta]" y="0*fm" z="1000*mum"/>
+		</PosPart>
+		<PosPart copyNumber="3">
+			<rParent name="zdc:ZDC_EMLayer"/>
+			<rChild name="zdc:ZDC_EMFiber"/>
+			<rRotation name="zdcrotations:R1"/>
+			<Translation x="[zdcEMXinitial]+2.0*[zdcEMXDelta]" y="0*fm" z="1000*mum"/>
+		</PosPart>
+		<PosPart copyNumber="4">
+			<rParent name="zdc:ZDC_EMLayer"/>
+			<rChild name="zdc:ZDC_EMFiber"/>
+			<rRotation name="zdcrotations:R1"/>
+			<Translation x="[zdcEMXinitial]+3.0*[zdcEMXDelta]" y="0*fm" z="1000*mum"/>
+		</PosPart>
+		<PosPart copyNumber="5">
+			<rParent name="zdc:ZDC_EMLayer"/>
+			<rChild name="zdc:ZDC_EMFiber"/>
+			<rRotation name="zdcrotations:R1"/>
+			<Translation x="[zdcEMXinitial]+4.0*[zdcEMXDelta]" y="0*fm" z="1000*mum"/>
+		</PosPart>
+		<PosPart copyNumber="6">
+			<rParent name="zdc:ZDC_EMLayer"/>
+			<rChild name="zdc:ZDC_EMFiber"/>
+			<rRotation name="zdcrotations:R1"/>
+			<Translation x="[zdcEMXinitial]+5.0*[zdcEMXDelta]" y="0*fm" z="1000*mum"/>
+		</PosPart>
+		<PosPart copyNumber="7">
+			<rParent name="zdc:ZDC_EMLayer"/>
+			<rChild name="zdc:ZDC_EMFiber"/>
+			<rRotation name="zdcrotations:R1"/>
+			<Translation x="[zdcEMXinitial]+6.0*[zdcEMXDelta]" y="0*fm" z="1000*mum"/>
+		</PosPart>
+		<PosPart copyNumber="8">
+			<rParent name="zdc:ZDC_EMLayer"/>
+			<rChild name="zdc:ZDC_EMFiber"/>
+			<rRotation name="zdcrotations:R1"/>
+			<Translation x="[zdcEMXinitial]+7.0*[zdcEMXDelta]" y="0*fm" z="1000*mum"/>
+		</PosPart>
+		<PosPart copyNumber="9">
+			<rParent name="zdc:ZDC_EMLayer"/>
+			<rChild name="zdc:ZDC_EMFiber"/>
+			<rRotation name="zdcrotations:R1"/>
+			<Translation x="[zdcEMXinitial]+8.0*[zdcEMXDelta]" y="0*fm" z="1000*mum"/>
+		</PosPart>
+		<PosPart copyNumber="10">
+			<rParent name="zdc:ZDC_EMLayer"/>
+			<rChild name="zdc:ZDC_EMFiber"/>
+			<rRotation name="zdcrotations:R1"/>
+			<Translation x="[zdcEMXinitial]+9.0*[zdcEMXDelta]" y="0*fm" z="1000*mum"/>
+		</PosPart>
+		<PosPart copyNumber="11">
+			<rParent name="zdc:ZDC_EMLayer"/>
+			<rChild name="zdc:ZDC_EMFiber"/>
+			<rRotation name="zdcrotations:R1"/>
+			<Translation x="[zdcEMXinitial]+10.0*[zdcEMXDelta]" y="0*fm" z="1000*mum"/>
+		</PosPart>
+		<PosPart copyNumber="12">
+			<rParent name="zdc:ZDC_EMLayer"/>
+			<rChild name="zdc:ZDC_EMFiber"/>
+			<rRotation name="zdcrotations:R1"/>
+			<Translation x="[zdcEMXinitial]+11.0*[zdcEMXDelta]" y="0*fm" z="1000*mum"/>
+		</PosPart>
+		<PosPart copyNumber="13">
+			<rParent name="zdc:ZDC_EMLayer"/>
+			<rChild name="zdc:ZDC_EMFiber"/>
+			<rRotation name="zdcrotations:R1"/>
+			<Translation x="[zdcEMXinitial]+12.0*[zdcEMXDelta]" y="0*fm" z="1000*mum"/>
+		</PosPart>
+		<PosPart copyNumber="14">
+			<rParent name="zdc:ZDC_EMLayer"/>
+			<rChild name="zdc:ZDC_EMFiber"/>
+			<rRotation name="zdcrotations:R1"/>
+			<Translation x="[zdcEMXinitial]+13.0*[zdcEMXDelta]" y="0*fm" z="1000*mum"/>
+		</PosPart>
+		<PosPart copyNumber="15">
+			<rParent name="zdc:ZDC_EMLayer"/>
+			<rChild name="zdc:ZDC_EMFiber"/>
+			<rRotation name="zdcrotations:R1"/>
+			<Translation x="[zdcEMXinitial]+14.0*[zdcEMXDelta]" y="0*fm" z="1000*mum"/>
+		</PosPart>
+		<PosPart copyNumber="16">
+			<rParent name="zdc:ZDC_EMLayer"/>
+			<rChild name="zdc:ZDC_EMFiber"/>
+			<rRotation name="zdcrotations:R1"/>
+			<Translation x="[zdcEMXinitial]+15.0*[zdcEMXDelta]" y="0*fm" z="1000*mum"/>
+		</PosPart>
+		<PosPart copyNumber="17">
+			<rParent name="zdc:ZDC_EMLayer"/>
+			<rChild name="zdc:ZDC_EMFiber"/>
+			<rRotation name="zdcrotations:R1"/>
+			<Translation x="[zdcEMXinitial]+16.0*[zdcEMXDelta]" y="0*fm" z="1000*mum"/>
+		</PosPart>
+		<PosPart copyNumber="18">
+			<rParent name="zdc:ZDC_EMLayer"/>
+			<rChild name="zdc:ZDC_EMFiber"/>
+			<rRotation name="zdcrotations:R1"/>
+			<Translation x="[zdcEMXinitial]+17.0*[zdcEMXDelta]" y="0*fm" z="1000*mum"/>
+		</PosPart>
+		<PosPart copyNumber="19">
+			<rParent name="zdc:ZDC_EMLayer"/>
+			<rChild name="zdc:ZDC_EMFiber"/>
+			<rRotation name="zdcrotations:R1"/>
+			<Translation x="[zdcEMXinitial]+18.0*[zdcEMXDelta]" y="0*fm" z="1000*mum"/>
+		</PosPart>
+		<PosPart copyNumber="20">
+			<rParent name="zdc:ZDC_EMLayer"/>
+			<rChild name="zdc:ZDC_EMFiber"/>
+			<rRotation name="zdcrotations:R1"/>
+			<Translation x="[zdcEMXinitial]+19.0*[zdcEMXDelta]" y="0*fm" z="1000*mum"/>
+		</PosPart>
+		<PosPart copyNumber="21">
+			<rParent name="zdc:ZDC_EMLayer"/>
+			<rChild name="zdc:ZDC_EMFiber"/>
+			<rRotation name="zdcrotations:R1"/>
+			<Translation x="[zdcEMXinitial]+20.0*[zdcEMXDelta]" y="0*fm" z="1000*mum"/>
+		</PosPart>
+		<PosPart copyNumber="22">
+			<rParent name="zdc:ZDC_EMLayer"/>
+			<rChild name="zdc:ZDC_EMFiber"/>
+			<rRotation name="zdcrotations:R1"/>
+			<Translation x="[zdcEMXinitial]+21.0*[zdcEMXDelta]" y="0*fm" z="1000*mum"/>
+		</PosPart>
+		<PosPart copyNumber="23">
+			<rParent name="zdc:ZDC_EMLayer"/>
+			<rChild name="zdc:ZDC_EMFiber"/>
+			<rRotation name="zdcrotations:R1"/>
+			<Translation x="[zdcEMXinitial]+22.0*[zdcEMXDelta]" y="0*fm" z="1000*mum"/>
+		</PosPart>
+		<PosPart copyNumber="24">
+			<rParent name="zdc:ZDC_EMLayer"/>
+			<rChild name="zdc:ZDC_EMFiber"/>
+			<rRotation name="zdcrotations:R1"/>
+			<Translation x="[zdcEMXinitial]+23.0*[zdcEMXDelta]" y="0*fm" z="1000*mum"/>
+		</PosPart>
+		<PosPart copyNumber="25">
+			<rParent name="zdc:ZDC_EMLayer"/>
+			<rChild name="zdc:ZDC_EMFiber"/>
+			<rRotation name="zdcrotations:R1"/>
+			<Translation x="[zdcEMXinitial]+24.0*[zdcEMXDelta]" y="0*fm" z="1000*mum"/>
+		</PosPart>
+		<PosPart copyNumber="26">
+			<rParent name="zdc:ZDC_EMLayer"/>
+			<rChild name="zdc:ZDC_EMFiber"/>
+			<rRotation name="zdcrotations:R1"/>
+			<Translation x="[zdcEMXinitial]+25.0*[zdcEMXDelta]" y="0*fm" z="1000*mum"/>
+		</PosPart>
+		<PosPart copyNumber="27">
+			<rParent name="zdc:ZDC_EMLayer"/>
+			<rChild name="zdc:ZDC_EMFiber"/>
+			<rRotation name="zdcrotations:R1"/>
+			<Translation x="[zdcEMXinitial]+26.0*[zdcEMXDelta]" y="0*fm" z="1000*mum"/>
+		</PosPart>
+		<PosPart copyNumber="28">
+			<rParent name="zdc:ZDC_EMLayer"/>
+			<rChild name="zdc:ZDC_EMFiber"/>
+			<rRotation name="zdcrotations:R1"/>
+			<Translation x="[zdcEMXinitial]+27.0*[zdcEMXDelta]" y="0*fm" z="1000*mum"/>
+		</PosPart>
+		<PosPart copyNumber="29">
+			<rParent name="zdc:ZDC_EMLayer"/>
+			<rChild name="zdc:ZDC_EMFiber"/>
+			<rRotation name="zdcrotations:R1"/>
+			<Translation x="[zdcEMXinitial]+28.0*[zdcEMXDelta]" y="0*fm" z="1000*mum"/>
+		</PosPart>
+		<PosPart copyNumber="30">
+			<rParent name="zdc:ZDC_EMLayer"/>
+			<rChild name="zdc:ZDC_EMFiber"/>
+			<rRotation name="zdcrotations:R1"/>
+			<Translation x="[zdcEMXinitial]+29.0*[zdcEMXDelta]" y="0*fm" z="1000*mum"/>
+		</PosPart>
+		<PosPart copyNumber="31">
+			<rParent name="zdc:ZDC_EMLayer"/>
+			<rChild name="zdc:ZDC_EMFiber"/>
+			<rRotation name="zdcrotations:R1"/>
+			<Translation x="[zdcEMXinitial]+30.0*[zdcEMXDelta]" y="0*fm" z="1000*mum"/>
+		</PosPart>
+		<PosPart copyNumber="32">
+			<rParent name="zdc:ZDC_EMLayer"/>
+			<rChild name="zdc:ZDC_EMFiber"/>
+			<rRotation name="zdcrotations:R1"/>
+			<Translation x="[zdcEMXinitial]+31.0*[zdcEMXDelta]" y="0*fm" z="1000*mum"/>
+		</PosPart>
+		<PosPart copyNumber="33">
+			<rParent name="zdc:ZDC_EMLayer"/>
+			<rChild name="zdc:ZDC_EMFiber"/>
+			<rRotation name="zdcrotations:R1"/>
+			<Translation x="[zdcEMXinitial]+32.0*[zdcEMXDelta]" y="0*fm" z="1000*mum"/>
+		</PosPart>
+		<PosPart copyNumber="34">
+			<rParent name="zdc:ZDC_EMLayer"/>
+			<rChild name="zdc:ZDC_EMFiber"/>
+			<rRotation name="zdcrotations:R1"/>
+			<Translation x="[zdcEMXinitial]+33.0*[zdcEMXDelta]" y="0*fm" z="1000*mum"/>
+		</PosPart>
+		<PosPart copyNumber="35">
+			<rParent name="zdc:ZDC_EMLayer"/>
+			<rChild name="zdc:ZDC_EMFiber"/>
+			<rRotation name="zdcrotations:R1"/>
+			<Translation x="[zdcEMXinitial]+34.0*[zdcEMXDelta]" y="0*fm" z="1000*mum"/>
+		</PosPart>
+		<PosPart copyNumber="36">
+			<rParent name="zdc:ZDC_EMLayer"/>
+			<rChild name="zdc:ZDC_EMFiber"/>
+			<rRotation name="zdcrotations:R1"/>
+			<Translation x="[zdcEMXinitial]+35.0*[zdcEMXDelta]" y="0*fm" z="1000*mum"/>
+		</PosPart>
+		<PosPart copyNumber="37">
+			<rParent name="zdc:ZDC_EMLayer"/>
+			<rChild name="zdc:ZDC_EMFiber"/>
+			<rRotation name="zdcrotations:R1"/>
+			<Translation x="[zdcEMXinitial]+36.0*[zdcEMXDelta]" y="0*fm" z="1000*mum"/>
+		</PosPart>
+		<PosPart copyNumber="38">
+			<rParent name="zdc:ZDC_EMLayer"/>
+			<rChild name="zdc:ZDC_EMFiber"/>
+			<rRotation name="zdcrotations:R1"/>
+			<Translation x="[zdcEMXinitial]+37.0*[zdcEMXDelta]" y="0*fm" z="1000*mum"/>
+		</PosPart>
+		<PosPart copyNumber="39">
+			<rParent name="zdc:ZDC_EMLayer"/>
+			<rChild name="zdc:ZDC_EMFiber"/>
+			<rRotation name="zdcrotations:R1"/>
+			<Translation x="[zdcEMXinitial]+38.0*[zdcEMXDelta]" y="0*fm" z="1000*mum"/>
+		</PosPart>
+		<PosPart copyNumber="40">
+			<rParent name="zdc:ZDC_EMLayer"/>
+			<rChild name="zdc:ZDC_EMFiber"/>
+			<rRotation name="zdcrotations:R1"/>
+			<Translation x="[zdcEMXinitial]+39.0*[zdcEMXDelta]" y="0*fm" z="1000*mum"/>
+		</PosPart>
+		<PosPart copyNumber="41">
+			<rParent name="zdc:ZDC_EMLayer"/>
+			<rChild name="zdc:ZDC_EMFiber"/>
+			<rRotation name="zdcrotations:R1"/>
+			<Translation x="[zdcEMXinitial]+40.0*[zdcEMXDelta]" y="0*fm" z="1000*mum"/>
+		</PosPart>
+		<PosPart copyNumber="42">
+			<rParent name="zdc:ZDC_EMLayer"/>
+			<rChild name="zdc:ZDC_EMFiber"/>
+			<rRotation name="zdcrotations:R1"/>
+			<Translation x="[zdcEMXinitial]+41.0*[zdcEMXDelta]" y="0*fm" z="1000*mum"/>
+		</PosPart>
+		<PosPart copyNumber="43">
+			<rParent name="zdc:ZDC_EMLayer"/>
+			<rChild name="zdc:ZDC_EMFiber"/>
+			<rRotation name="zdcrotations:R1"/>
+			<Translation x="[zdcEMXinitial]+42.0*[zdcEMXDelta]" y="0*fm" z="1000*mum"/>
+		</PosPart>
+		<PosPart copyNumber="44">
+			<rParent name="zdc:ZDC_EMLayer"/>
+			<rChild name="zdc:ZDC_EMFiber"/>
+			<rRotation name="zdcrotations:R1"/>
+			<Translation x="[zdcEMXinitial]+43.0*[zdcEMXDelta]" y="0*fm" z="1000*mum"/>
+		</PosPart>
+		<PosPart copyNumber="45">
+			<rParent name="zdc:ZDC_EMLayer"/>
+			<rChild name="zdc:ZDC_EMFiber"/>
+			<rRotation name="zdcrotations:R1"/>
+			<Translation x="[zdcEMXinitial]+44.0*[zdcEMXDelta]" y="0*fm" z="1000*mum"/>
+		</PosPart>
+		<PosPart copyNumber="46">
+			<rParent name="zdc:ZDC_EMLayer"/>
+			<rChild name="zdc:ZDC_EMFiber"/>
+			<rRotation name="zdcrotations:R1"/>
+			<Translation x="[zdcEMXinitial]+45.0*[zdcEMXDelta]" y="0*fm" z="1000*mum"/>
+		</PosPart>
+		<PosPart copyNumber="47">
+			<rParent name="zdc:ZDC_EMLayer"/>
+			<rChild name="zdc:ZDC_EMFiber"/>
+			<rRotation name="zdcrotations:R1"/>
+			<Translation x="[zdcEMXinitial]+46.0*[zdcEMXDelta]" y="0*fm" z="1000*mum"/>
+		</PosPart>
+		<PosPart copyNumber="48">
+			<rParent name="zdc:ZDC_EMLayer"/>
+			<rChild name="zdc:ZDC_EMFiber"/>
+			<rRotation name="zdcrotations:R1"/>
+			<Translation x="[zdcEMXinitial]+47.0*[zdcEMXDelta]" y="0*fm" z="1000*mum"/>
+		</PosPart>
+		<PosPart copyNumber="49">
+			<rParent name="zdc:ZDC_EMLayer"/>
+			<rChild name="zdc:ZDC_EMFiber"/>
+			<rRotation name="zdcrotations:R1"/>
+			<Translation x="[zdcEMXinitial]+48.0*[zdcEMXDelta]" y="0*fm" z="1000*mum"/>
+		</PosPart>
+		<PosPart copyNumber="50">
+			<rParent name="zdc:ZDC_EMLayer"/>
+			<rChild name="zdc:ZDC_EMFiber"/>
+			<rRotation name="zdcrotations:R1"/>
+			<Translation x="[zdcEMXinitial]+49.0*[zdcEMXDelta]" y="0*fm" z="1000*mum"/>
+		</PosPart>
+		<PosPart copyNumber="51">
+			<rParent name="zdc:ZDC_EMLayer"/>
+			<rChild name="zdc:ZDC_EMFiber"/>
+			<rRotation name="zdcrotations:R1"/>
+			<Translation x="[zdcEMXinitial]+50.0*[zdcEMXDelta]" y="0*fm" z="1000*mum"/>
+		</PosPart>
+		<PosPart copyNumber="52">
+			<rParent name="zdc:ZDC_EMLayer"/>
+			<rChild name="zdc:ZDC_EMFiber"/>
+			<rRotation name="zdcrotations:R1"/>
+			<Translation x="[zdcEMXinitial]+51.0*[zdcEMXDelta]" y="0*fm" z="1000*mum"/>
+		</PosPart>
+		<PosPart copyNumber="53">
+			<rParent name="zdc:ZDC_EMLayer"/>
+			<rChild name="zdc:ZDC_EMFiber"/>
+			<rRotation name="zdcrotations:R1"/>
+			<Translation x="[zdcEMXinitial]+52.0*[zdcEMXDelta]" y="0*fm" z="1000*mum"/>
+		</PosPart>
+		<PosPart copyNumber="54">
+			<rParent name="zdc:ZDC_EMLayer"/>
+			<rChild name="zdc:ZDC_EMFiber"/>
+			<rRotation name="zdcrotations:R1"/>
+			<Translation x="[zdcEMXinitial]+53.0*[zdcEMXDelta]" y="0*fm" z="1000*mum"/>
+		</PosPart>
+		<PosPart copyNumber="55">
+			<rParent name="zdc:ZDC_EMLayer"/>
+			<rChild name="zdc:ZDC_EMFiber"/>
+			<rRotation name="zdcrotations:R1"/>
+			<Translation x="[zdcEMXinitial]+54.0*[zdcEMXDelta]" y="0*fm" z="1000*mum"/>
+		</PosPart>
+		<PosPart copyNumber="56">
+			<rParent name="zdc:ZDC_EMLayer"/>
+			<rChild name="zdc:ZDC_EMFiber"/>
+			<rRotation name="zdcrotations:R1"/>
+			<Translation x="[zdcEMXinitial]+55.0*[zdcEMXDelta]" y="0*fm" z="1000*mum"/>
+		</PosPart>
+		<PosPart copyNumber="57">
+			<rParent name="zdc:ZDC_EMLayer"/>
+			<rChild name="zdc:ZDC_EMFiber"/>
+			<rRotation name="zdcrotations:R1"/>
+			<Translation x="[zdcEMXinitial]+56.0*[zdcEMXDelta]" y="0*fm" z="1000*mum"/>
+		</PosPart>
+		<PosPart copyNumber="58">
+			<rParent name="zdc:ZDC_EMLayer"/>
+			<rChild name="zdc:ZDC_EMFiber"/>
+			<rRotation name="zdcrotations:R1"/>
+			<Translation x="[zdcEMXinitial]+57.0*[zdcEMXDelta]" y="0*fm" z="1000*mum"/>
+		</PosPart>
+		<PosPart copyNumber="59">
+			<rParent name="zdc:ZDC_EMLayer"/>
+			<rChild name="zdc:ZDC_EMFiber"/>
+			<rRotation name="zdcrotations:R1"/>
+			<Translation x="[zdcEMXinitial]+58.0*[zdcEMXDelta]" y="0*fm" z="1000*mum"/>
+		</PosPart>
+		<PosPart copyNumber="60">
+			<rParent name="zdc:ZDC_EMLayer"/>
+			<rChild name="zdc:ZDC_EMFiber"/>
+			<rRotation name="zdcrotations:R1"/>
+			<Translation x="[zdcEMXinitial]+59.0*[zdcEMXDelta]" y="0*fm" z="1000*mum"/>
+		</PosPart>
+		<PosPart copyNumber="61">
+			<rParent name="zdc:ZDC_EMLayer"/>
+			<rChild name="zdc:ZDC_EMFiber"/>
+			<rRotation name="zdcrotations:R1"/>
+			<Translation x="[zdcEMXinitial]+60.0*[zdcEMXDelta]" y="0*fm" z="1000*mum"/>
+		</PosPart>
+		<PosPart copyNumber="62">
+			<rParent name="zdc:ZDC_EMLayer"/>
+			<rChild name="zdc:ZDC_EMFiber"/>
+			<rRotation name="zdcrotations:R1"/>
+			<Translation x="[zdcEMXinitial]+61.0*[zdcEMXDelta]" y="0*fm" z="1000*mum"/>
+		</PosPart>
+		<PosPart copyNumber="63">
+			<rParent name="zdc:ZDC_EMLayer"/>
+			<rChild name="zdc:ZDC_EMFiber"/>
+			<rRotation name="zdcrotations:R1"/>
+			<Translation x="[zdcEMXinitial]+62.0*[zdcEMXDelta]" y="0*fm" z="1000*mum"/>
+		</PosPart>
+		<PosPart copyNumber="64">
+			<rParent name="zdc:ZDC_EMLayer"/>
+			<rChild name="zdc:ZDC_EMFiber"/>
+			<rRotation name="zdcrotations:R1"/>
+			<Translation x="[zdcEMXinitial]+63.0*[zdcEMXDelta]" y="0*fm" z="1000*mum"/>
+		</PosPart>
+		<PosPart copyNumber="65">
+			<rParent name="zdc:ZDC_EMLayer"/>
+			<rChild name="zdc:ZDC_EMFiber"/>
+			<rRotation name="zdcrotations:R1"/>
+			<Translation x="[zdcEMXinitial]+64.0*[zdcEMXDelta]" y="0*fm" z="1000*mum"/>
+		</PosPart>
+		<PosPart copyNumber="66">
+			<rParent name="zdc:ZDC_EMLayer"/>
+			<rChild name="zdc:ZDC_EMFiber"/>
+			<rRotation name="zdcrotations:R1"/>
+			<Translation x="[zdcEMXinitial]+65.0*[zdcEMXDelta]" y="0*fm" z="1000*mum"/>
+		</PosPart>
+		<PosPart copyNumber="67">
+			<rParent name="zdc:ZDC_EMLayer"/>
+			<rChild name="zdc:ZDC_EMFiber"/>
+			<rRotation name="zdcrotations:R1"/>
+			<Translation x="[zdcEMXinitial]+66.0*[zdcEMXDelta]" y="0*fm" z="1000*mum"/>
+		</PosPart>
+		<PosPart copyNumber="68">
+			<rParent name="zdc:ZDC_EMLayer"/>
+			<rChild name="zdc:ZDC_EMFiber"/>
+			<rRotation name="zdcrotations:R1"/>
+			<Translation x="[zdcEMXinitial]+67.0*[zdcEMXDelta]" y="0*fm" z="1000*mum"/>
+		</PosPart>
+		<PosPart copyNumber="69">
+			<rParent name="zdc:ZDC_EMLayer"/>
+			<rChild name="zdc:ZDC_EMFiber"/>
+			<rRotation name="zdcrotations:R1"/>
+			<Translation x="[zdcEMXinitial]+68.0*[zdcEMXDelta]" y="0*fm" z="1000*mum"/>
+		</PosPart>
+		<PosPart copyNumber="70">
+			<rParent name="zdc:ZDC_EMLayer"/>
+			<rChild name="zdc:ZDC_EMFiber"/>
+			<rRotation name="zdcrotations:R1"/>
+			<Translation x="[zdcEMXinitial]+69.0*[zdcEMXDelta]" y="0*fm" z="1000*mum"/>
+		</PosPart>
+		<PosPart copyNumber="71">
+			<rParent name="zdc:ZDC_EMLayer"/>
+			<rChild name="zdc:ZDC_EMFiber"/>
+			<rRotation name="zdcrotations:R1"/>
+			<Translation x="[zdcEMXinitial]+70.0*[zdcEMXDelta]" y="0*fm" z="1000*mum"/>
+		</PosPart>
+		<PosPart copyNumber="72">
+			<rParent name="zdc:ZDC_EMLayer"/>
+			<rChild name="zdc:ZDC_EMFiber"/>
+			<rRotation name="zdcrotations:R1"/>
+			<Translation x="[zdcEMXinitial]+71.0*[zdcEMXDelta]" y="0*fm" z="1000*mum"/>
+		</PosPart>
+		<PosPart copyNumber="73">
+			<rParent name="zdc:ZDC_EMLayer"/>
+			<rChild name="zdc:ZDC_EMFiber"/>
+			<rRotation name="zdcrotations:R1"/>
+			<Translation x="[zdcEMXinitial]+72.0*[zdcEMXDelta]" y="0*fm" z="1000*mum"/>
+		</PosPart>
+		<PosPart copyNumber="74">
+			<rParent name="zdc:ZDC_EMLayer"/>
+			<rChild name="zdc:ZDC_EMFiber"/>
+			<rRotation name="zdcrotations:R1"/>
+			<Translation x="[zdcEMXinitial]+73.0*[zdcEMXDelta]" y="0*fm" z="1000*mum"/>
+		</PosPart>
+		<PosPart copyNumber="75">
+			<rParent name="zdc:ZDC_EMLayer"/>
+			<rChild name="zdc:ZDC_EMFiber"/>
+			<rRotation name="zdcrotations:R1"/>
+			<Translation x="[zdcEMXinitial]+74.0*[zdcEMXDelta]" y="0*fm" z="1000*mum"/>
+		</PosPart>
+		<PosPart copyNumber="76">
+			<rParent name="zdc:ZDC_EMLayer"/>
+			<rChild name="zdc:ZDC_EMFiber"/>
+			<rRotation name="zdcrotations:R1"/>
+			<Translation x="[zdcEMXinitial]+75.0*[zdcEMXDelta]" y="0*fm" z="1000*mum"/>
+		</PosPart>
+		<PosPart copyNumber="77">
+			<rParent name="zdc:ZDC_EMLayer"/>
+			<rChild name="zdc:ZDC_EMFiber"/>
+			<rRotation name="zdcrotations:R1"/>
+			<Translation x="[zdcEMXinitial]+76.0*[zdcEMXDelta]" y="0*fm" z="1000*mum"/>
+		</PosPart>
+		<PosPart copyNumber="78">
+			<rParent name="zdc:ZDC_EMLayer"/>
+			<rChild name="zdc:ZDC_EMFiber"/>
+			<rRotation name="zdcrotations:R1"/>
+			<Translation x="[zdcEMXinitial]+77.0*[zdcEMXDelta]" y="0*fm" z="1000*mum"/>
+		</PosPart>
+		<PosPart copyNumber="79">
+			<rParent name="zdc:ZDC_EMLayer"/>
+			<rChild name="zdc:ZDC_EMFiber"/>
+			<rRotation name="zdcrotations:R1"/>
+			<Translation x="[zdcEMXinitial]+78.0*[zdcEMXDelta]" y="0*fm" z="1000*mum"/>
+		</PosPart>
+		<PosPart copyNumber="80">
+			<rParent name="zdc:ZDC_EMLayer"/>
+			<rChild name="zdc:ZDC_EMFiber"/>
+			<rRotation name="zdcrotations:R1"/>
+			<Translation x="[zdcEMXinitial]+79.0*[zdcEMXDelta]" y="0*fm" z="1000*mum"/>
+		</PosPart>
+		<PosPart copyNumber="81">
+			<rParent name="zdc:ZDC_EMLayer"/>
+			<rChild name="zdc:ZDC_EMFiber"/>
+			<rRotation name="zdcrotations:R1"/>
+			<Translation x="[zdcEMXinitial]+80.0*[zdcEMXDelta]" y="0*fm" z="1000*mum"/>
+		</PosPart>
+		<PosPart copyNumber="82">
+			<rParent name="zdc:ZDC_EMLayer"/>
+			<rChild name="zdc:ZDC_EMFiber"/>
+			<rRotation name="zdcrotations:R1"/>
+			<Translation x="[zdcEMXinitial]+81.0*[zdcEMXDelta]" y="0*fm" z="1000*mum"/>
+		</PosPart>
+		<PosPart copyNumber="83">
+			<rParent name="zdc:ZDC_EMLayer"/>
+			<rChild name="zdc:ZDC_EMFiber"/>
+			<rRotation name="zdcrotations:R1"/>
+			<Translation x="[zdcEMXinitial]+82.0*[zdcEMXDelta]" y="0*fm" z="1000*mum"/>
+		</PosPart>
+		<PosPart copyNumber="84">
+			<rParent name="zdc:ZDC_EMLayer"/>
+			<rChild name="zdc:ZDC_EMFiber"/>
+			<rRotation name="zdcrotations:R1"/>
+			<Translation x="[zdcEMXinitial]+83.0*[zdcEMXDelta]" y="0*fm" z="1000*mum"/>
+		</PosPart>
+		<PosPart copyNumber="85">
+			<rParent name="zdc:ZDC_EMLayer"/>
+			<rChild name="zdc:ZDC_EMFiber"/>
+			<rRotation name="zdcrotations:R1"/>
+			<Translation x="[zdcEMXinitial]+84.0*[zdcEMXDelta]" y="0*fm" z="1000*mum"/>
+		</PosPart>
+		<PosPart copyNumber="86">
+			<rParent name="zdc:ZDC_EMLayer"/>
+			<rChild name="zdc:ZDC_EMFiber"/>
+			<rRotation name="zdcrotations:R1"/>
+			<Translation x="[zdcEMXinitial]+85.0*[zdcEMXDelta]" y="0*fm" z="1000*mum"/>
+		</PosPart>
+		<PosPart copyNumber="87">
+			<rParent name="zdc:ZDC_EMLayer"/>
+			<rChild name="zdc:ZDC_EMFiber"/>
+			<rRotation name="zdcrotations:R1"/>
+			<Translation x="[zdcEMXinitial]+86.0*[zdcEMXDelta]" y="0*fm" z="1000*mum"/>
+		</PosPart>
+		<PosPart copyNumber="88">
+			<rParent name="zdc:ZDC_EMLayer"/>
+			<rChild name="zdc:ZDC_EMFiber"/>
+			<rRotation name="zdcrotations:R1"/>
+			<Translation x="[zdcEMXinitial]+87.0*[zdcEMXDelta]" y="0*fm" z="1000*mum"/>
+		</PosPart>
+		<PosPart copyNumber="89">
+			<rParent name="zdc:ZDC_EMLayer"/>
+			<rChild name="zdc:ZDC_EMFiber"/>
+			<rRotation name="zdcrotations:R1"/>
+			<Translation x="[zdcEMXinitial]+88.0*[zdcEMXDelta]" y="0*fm" z="1000*mum"/>
+		</PosPart>
+		<PosPart copyNumber="90">
+			<rParent name="zdc:ZDC_EMLayer"/>
+			<rChild name="zdc:ZDC_EMFiber"/>
+			<rRotation name="zdcrotations:R1"/>
+			<Translation x="[zdcEMXinitial]+89.0*[zdcEMXDelta]" y="0*fm" z="1000*mum"/>
+		</PosPart>
+		<PosPart copyNumber="91">
+			<rParent name="zdc:ZDC_EMLayer"/>
+			<rChild name="zdc:ZDC_EMFiber"/>
+			<rRotation name="zdcrotations:R1"/>
+			<Translation x="[zdcEMXinitial]+90.0*[zdcEMXDelta]" y="0*fm" z="1000*mum"/>
+		</PosPart>
+		<PosPart copyNumber="92">
+			<rParent name="zdc:ZDC_EMLayer"/>
+			<rChild name="zdc:ZDC_EMFiber"/>
+			<rRotation name="zdcrotations:R1"/>
+			<Translation x="[zdcEMXinitial]+91.0*[zdcEMXDelta]" y="0*fm" z="1000*mum"/>
+		</PosPart>
+		<PosPart copyNumber="93">
+			<rParent name="zdc:ZDC_EMLayer"/>
+			<rChild name="zdc:ZDC_EMFiber"/>
+			<rRotation name="zdcrotations:R1"/>
+			<Translation x="[zdcEMXinitial]+92.0*[zdcEMXDelta]" y="0*fm" z="1000*mum"/>
+		</PosPart>
+		<PosPart copyNumber="94">
+			<rParent name="zdc:ZDC_EMLayer"/>
+			<rChild name="zdc:ZDC_EMFiber"/>
+			<rRotation name="zdcrotations:R1"/>
+			<Translation x="[zdcEMXinitial]+93.0*[zdcEMXDelta]" y="0*fm" z="1000*mum"/>
+		</PosPart>
+		<PosPart copyNumber="95">
+			<rParent name="zdc:ZDC_EMLayer"/>
+			<rChild name="zdc:ZDC_EMFiber"/>
+			<rRotation name="zdcrotations:R1"/>
+			<Translation x="[zdcEMXinitial]+94.0*[zdcEMXDelta]" y="0*fm" z="1000*mum"/>
+		</PosPart>
+		<PosPart copyNumber="96">
+			<rParent name="zdc:ZDC_EMLayer"/>
+			<rChild name="zdc:ZDC_EMFiber"/>
+			<rRotation name="zdcrotations:R1"/>
+			<Translation x="[zdcEMXinitial]+95.0*[zdcEMXDelta]" y="0*fm" z="1000*mum"/>
+		</PosPart>
+		<PosPart copyNumber="97">
+			<rParent name="zdc:ZDC_EMLayer"/>
+			<rChild name="zdc:ZDC_EMFiber"/>
+			<rRotation name="zdcrotations:R1"/>
+			<Translation x="[zdcEMXinitial]+96.0*[zdcEMXDelta]" y="0*fm" z="1000*mum"/>
+		</PosPart>
+		<PosPart copyNumber="98">
+			<rParent name="zdc:ZDC_EMLayer"/>
+			<rChild name="zdc:ZDC_EMFiber"/>
+			<rRotation name="zdcrotations:R1"/>
+			<Translation x="[zdcEMXinitial]+97.0*[zdcEMXDelta]" y="0*fm" z="1000*mum"/>
+		</PosPart>
+		<PosPart copyNumber="99">
+			<rParent name="zdc:ZDC_EMLayer"/>
+			<rChild name="zdc:ZDC_EMFiber"/>
+			<rRotation name="zdcrotations:R1"/>
+			<Translation x="[zdcEMXinitial]+98.0*[zdcEMXDelta]" y="0*fm" z="1000*mum"/>
+		</PosPart>
+		<PosPart copyNumber="100">
+			<rParent name="zdc:ZDC_EMLayer"/>
+			<rChild name="zdc:ZDC_EMFiber"/>
+			<rRotation name="zdcrotations:R1"/>
+			<Translation x="[zdcEMXinitial]+99.0*[zdcEMXDelta]" y="0*fm" z="1000*mum"/>
+		</PosPart>
+		<PosPart copyNumber="101">
+			<rParent name="zdc:ZDC_EMLayer"/>
+			<rChild name="zdc:ZDC_EMFiber"/>
+			<rRotation name="zdcrotations:R1"/>
+			<Translation x="[zdcEMXinitial]+100.0*[zdcEMXDelta]" y="0*fm" z="1000*mum"/>
+		</PosPart>
+		<PosPart copyNumber="102">
+			<rParent name="zdc:ZDC_EMLayer"/>
+			<rChild name="zdc:ZDC_EMFiber"/>
+			<rRotation name="zdcrotations:R1"/>
+			<Translation x="[zdcEMXinitial]+101.0*[zdcEMXDelta]" y="0*fm" z="1000*mum"/>
+		</PosPart>
+		<PosPart copyNumber="103">
+			<rParent name="zdc:ZDC_EMLayer"/>
+			<rChild name="zdc:ZDC_EMFiber"/>
+			<rRotation name="zdcrotations:R1"/>
+			<Translation x="[zdcEMXinitial]+102.0*[zdcEMXDelta]" y="0*fm" z="1000*mum"/>
+		</PosPart>
+		<PosPart copyNumber="104">
+			<rParent name="zdc:ZDC_EMLayer"/>
+			<rChild name="zdc:ZDC_EMFiber"/>
+			<rRotation name="zdcrotations:R1"/>
+			<Translation x="[zdcEMXinitial]+103.0*[zdcEMXDelta]" y="0*fm" z="1000*mum"/>
+		</PosPart>
+		<PosPart copyNumber="105">
+			<rParent name="zdc:ZDC_EMLayer"/>
+			<rChild name="zdc:ZDC_EMFiber"/>
+			<rRotation name="zdcrotations:R1"/>
+			<Translation x="[zdcEMXinitial]+104.0*[zdcEMXDelta]" y="0*fm" z="1000*mum"/>
+		</PosPart>
+		<PosPart copyNumber="106">
+			<rParent name="zdc:ZDC_EMLayer"/>
+			<rChild name="zdc:ZDC_EMFiber"/>
+			<rRotation name="zdcrotations:R1"/>
+			<Translation x="[zdcEMXinitial]+105.0*[zdcEMXDelta]" y="0*fm" z="1000*mum"/>
+		</PosPart>
+		<PosPart copyNumber="107">
+			<rParent name="zdc:ZDC_EMLayer"/>
+			<rChild name="zdc:ZDC_EMFiber"/>
+			<rRotation name="zdcrotations:R1"/>
+			<Translation x="[zdcEMXinitial]+106.0*[zdcEMXDelta]" y="0*fm" z="1000*mum"/>
+		</PosPart>
+		<PosPart copyNumber="108">
+			<rParent name="zdc:ZDC_EMLayer"/>
+			<rChild name="zdc:ZDC_EMFiber"/>
+			<rRotation name="zdcrotations:R1"/>
+			<Translation x="[zdcEMXinitial]+107.0*[zdcEMXDelta]" y="0*fm" z="1000*mum"/>
+		</PosPart>
+		<PosPart copyNumber="109">
+			<rParent name="zdc:ZDC_EMLayer"/>
+			<rChild name="zdc:ZDC_EMFiber"/>
+			<rRotation name="zdcrotations:R1"/>
+			<Translation x="[zdcEMXinitial]+108.0*[zdcEMXDelta]" y="0*fm" z="1000*mum"/>
+		</PosPart>
+		<PosPart copyNumber="110">
+			<rParent name="zdc:ZDC_EMLayer"/>
+			<rChild name="zdc:ZDC_EMFiber"/>
+			<rRotation name="zdcrotations:R1"/>
+			<Translation x="[zdcEMXinitial]+109.0*[zdcEMXDelta]" y="0*fm" z="1000*mum"/>
+		</PosPart>
+	</PosPartSection>
+</DDDefinition>

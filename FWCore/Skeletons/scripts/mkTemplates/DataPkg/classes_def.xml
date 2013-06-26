@@ -1,0 +1,15 @@
+<lcgdict>
+  <class name="std::vector<YOUR_CLASS_GOES_HERE>" />
+  <class pattern="edm::Wrapper<YOUR_CLASS_GOES_HERE>"/>
+  <class name="edm::Wrapper<std::vector<YOUR_CLASS_GOES_HERE> >" />
+  <!--
+    These classes are commented out because they are used more rarely. If you need them, move them
+    outside the comments and make the corresponding change in classes.h
+
+uncomment_xml_here
+
+  <class pattern="edm::Ref<std::vector<YOUR_CLASS_GOES_HERE>,*>" />
+  <class pattern="edm::RefVector<std::vector<YOUR_CLASS_GOES_HERE>,*>" />
+  <class name="edm::RefProd<std::vector<YOUR_CLASS_GOES_HERE> >" />
+  -->
+</lcgdict>

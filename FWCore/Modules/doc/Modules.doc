@@ -1,0 +1,43 @@
+
+/*!
+
+\page FWCore_Modules Package FWCore/Modules
+
+<center>
+<small>
+
+<!-- @PROJ_VERS@ will be substituted at build time, no need to touch -->
+<a href=http://cmsdoc.cern.ch/swdev/viewcvs/viewcvs.cgi/CMSSW/FWCore/Modules/?cvsroot=CMSSW&only_with_tag=@PROJ_VERS@>CVS</a> - 
+<a href=http://cmsdoc.cern.ch/swdev/viewcvs/viewcvs.cgi/CMSSW/FWCore/Modules/.admin/developers?rev=HEAD&cvsroot=CMSSW&content-type=text/vnd.viewcvs-markup>Administrative privileges</a>
+</small>
+</center>
+
+\section desc Description
+<!-- Short description of what this package is supposed to provide -->
+Utility module plugins
+
+\subsection interface Public interface
+<!-- List the classes that are provided for use in other packages (if any) -->
+
+
+\subsection modules Modules
+<!-- Describe modules implemented in this package and their parameter set -->
+
+AsciiOutputModule
+EventContentAnalyzer
+EventSetupRecordDataGetter
+Prescaler
+
+\subsection tests Unit tests and examples
+<!-- Describe cppunit tests and example configuration files -->
+Unknown
+
+\section status Status and planned development
+<!-- e.g. completed, stable, missing features -->
+Unknown
+
+<hr>
+Last updated:
+@DATE@  Author: computer-generated.
+*/
+

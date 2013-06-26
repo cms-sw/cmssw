@@ -1,0 +1,11 @@
+<use   name="rootmath"/>
+<use   name="boost"/>
+<use   name="FWCore/Framework"/>
+<use   name="FWCore/Utilities"/>
+<use   name="FWCore/ParameterSet"/>
+<use   name="RecoVertex/VertexTools"/>
+<use   name="RecoVertex/LinearizationPointFinders"/>
+<use   name="TrackingTools/TransientTrack"/>
+<export>
+  <lib   name="1"/>
+</export>

@@ -1,0 +1,99 @@
+Random:
+	HLT_Random
+
+Cosmics:
+	HLT_L1MuOpen
+      	HLT_L1Mu
+      	HLT_L1Mu20
+      	HLT_L2Mu3_NoVertex
+      	HLT_L2Mu9
+      	HLT_L2Mu11
+      	HLT_Mu3
+      	HLT_Mu5
+      	HLT_Mu9
+      	HLT_Mu15
+      	HLT_IsoMu3
+      	HLT_OIstateTkMu3
+      	HLT_L1DoubleMuOpen
+      	HLT_DoubleMu0
+      	HLT_DoubleMu3
+      	HLT_TrackPointing
+      	HLT_TrackerCosmics
+      	HLT_CSCBeamHalo
+      	HLT_CSCBeamHaloOverlapRing1
+      	HLT_CSCBeamHaloOverlapRing2
+      	HLT_CSCBeamHaloRing2or3
+
+Calo:
+      	HLT_L1SingleEG5
+      	HLT_L1SingleEG8
+      	HLT_EgammaSuperClusterOnly_L1R
+      	HLT_Ele10_LW_L1R
+      	HLT_Ele10_LW_EleId_L1R
+      	HLT_Ele15_LW_L1R
+      	HLT_Ele15_SC10_LW_L1R
+      	HLT_Ele20_LW_L1R
+      	HLT_L1DoubleEG5
+      	HLT_DoubleEle5_SW_L1R
+      	HLT_Photon10_L1R
+      	HLT_Photon15_L1R
+      	HLT_Photon15_TrackIso_L1R
+      	HLT_Photon15_LooseEcalIso_L1R
+      	HLT_Photon20_L1R
+      	HLT_Photon30_L1R
+      	HLT_DoublePhoton10_L1R
+      	HLT_SingleLooseIsoTau20
+      	HLT_DoubleLooseIsoTau15
+      	HLT_BTagIP_Jet50U
+      	HLT_BTagMu_Jet10U
+      	HLT_L1Mu14_L1SingleEG10
+      	HLT_L1Mu14_L1SingleJet6U
+      	HLT_L1Mu14_L1ETM30
+      	HLT_MinBias
+      	HLT_MinBiasHcal
+      	HLT_MinBiasEcal
+      	HLT_IsoTrack_8E29
+      	AlCa_EcalPi0_8E29
+      	AlCa_EcalEta_8E29
+      	AlCa_EcalPi0_Cosmics
+      	AlCa_EcalEta_Cosmics
+      	AlCa_EcalPhiSym
+      	AlCa_HcalPhiSym
+      	AlCa_RPCMuonNoHits
+      	AlCa_RPCMuonNormalisation
+      	HLT_DataIntegrity
+      	HLT_L1_BPTX
+      	HLT_L1_BSC
+      	HLT_L1_HFtech
+      	HLT_BackwardBSC
+      	HLT_ForwardBSC
+      	HLT_HFThreshold
+      	HLT_PhysicsNoMuon
+      	HLT_L1Jet6U
+      	HLT_Jet15U
+      	HLT_Jet30U
+      	HLT_Jet50U
+      	HLT_FwdJet20U
+      	HLT_DiJetAve15U_8E29
+      	HLT_DiJetAve30U_8E29
+      	HLT_QuadJet15U
+      	HLT_L1MET20
+      	HLT_MET35
+      	HLT_MET100
+      	HLT_StoppedHSCP_8E29
+      	HLT_Calibration
+      	HLT_EcalCalibration
+	HLT_DoublePhoton5_eeRes_L1R
+	HLT_DoublePhoton5_Jpsi_L1R 
+	HLT_DoublePhoton5_Upsilon_L1R
+	HLT_ZeroBias
+
+
+MinimumBiasNoCalo:
+      	HLT_MinBiasPixel
+      	HLT_MinBiasPixel_Trk5
+      	HLT_PixelFEDSize
+
+HcalHPDNoise:
+      	HLT_GlobalRunHPDNoise
+

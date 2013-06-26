@@ -1,0 +1,16 @@
+<use name="SimDataFormats/GeneratorProducts"/>
+<use name="GeneratorInterface/Core"/>
+<use name="GeneratorInterface/ExternalDecays"/>
+<use name="boost"/>
+<use name="clhep"/> 
+<use name="herwig"/>
+<use name="fastjet"/>
+<use name="jimmy"/>
+<architecture name="osx">
+  <use name="jimmy_headers"/>
+  <flags NO_EXPORT="jimmy"/>
+</architecture>
+<use name="f77compiler"/>
+<export>
+  <lib name="GeneratorInterfaceHerwig6Interface"/>
+</export>

@@ -1,0 +1,143 @@
+<var name="MY_GLOBAL_TAG" value="MC_39Y_V5">
+<var name="MY_CMSSW_RELEASE" value="CMSSW_3_10_0_pre5">
+<var name="MY_OUTPUT_CASTOR_DIR" value="/castor/cern.ch/cms/store/caf/user/chamont/MyRelVals/${MY_CMSSW_RELEASE}">
+
+<diffline expr="(Begin processing the \S* record)">
+<diffline expr="^Histo ">
+
+This following tries to compute the relval standard samples.
+
+<environment name="FullRelVals">
+
+  <environment name="SingleElectronPt35">
+    <var name="MY_ENV_NAME" value="SingleElectronPt35">
+    <environment name="SingleElectronPt35Raw">
+      <executable name="electronBsub" args="cmscaf1nw cmsDriver.py SingleElectronPt35.cfi -s GEN,SIM,DIGI,L1,DIGI2RAW,HLT -n 9000 --geometry DB --conditions FrontierConditions_GlobalTag,${MY_GLOBAL_TAG}::All --datatier 'GEN-SIM-DIGI-RAW-HLTDEBUG' --eventcontent FEVTDEBUGHLT --fileout=${MY_ENV_NAME}.Raw.root">
+    </environment>
+    <environment name="SingleElectronPt35Reco">
+      <executable name="electronBsub" args="cmscaf1nd cmsDriver.py step2 -s RAW2DIGI,RECO -n 9000 --geometry DB --conditions FrontierConditions_GlobalTag,${MY_GLOBAL_TAG}::All --datatier GEN-SIM-RECO --eventcontent RECOSIM --filein=rfio:${MY_OUTPUT_CASTOR_DIR}/${MY_ENV_NAME}/${MY_ENV_NAME}.Raw.root --fileout=RelValSingleElectronPt35-MC-RECO.root">
+    </environment>
+  </environment>
+  
+  <environment name="QcdPt80Pt120">
+    <var name="MY_ENV_NAME" value="QcdPt80Pt120">
+    <environment name="QcdPt80Pt120Raw">
+      <executable name="electronBsub" args="cmscaf1nw cmsDriver.py QCD_Pt_80_120_7TeV.cfi -s GEN,SIM,DIGI,L1,DIGI2RAW,HLT -n 9000 --geometry DB --conditions FrontierConditions_GlobalTag,${MY_GLOBAL_TAG}::All --datatier 'GEN-SIM-DIGI-RAW-HLTDEBUG' --eventcontent FEVTDEBUGHLT --fileout=${MY_ENV_NAME}.Raw.root">
+    </environment>
+    <environment name="QcdPt80Pt120Reco">
+      <executable name="electronBsub" args="cmscaf1nd cmsDriver.py step2 -s RAW2DIGI,RECO -n 9000 --geometry DB --conditions FrontierConditions_GlobalTag,${MY_GLOBAL_TAG}::All --datatier GEN-SIM-RECO --eventcontent RECOSIM --filein=rfio:${MY_OUTPUT_CASTOR_DIR}/${MY_ENV_NAME}/${MY_ENV_NAME}.Raw.root --fileout=RelValQCD_Pt_80_120-MC-RECO.root">
+    </environment>
+  </environment>
+  
+  <environment name="SingleElectronPt10">
+    <var name="MY_ENV_NAME" value="SingleElectronPt10">
+    <environment name="SingleElectronPt10Raw">
+      <executable name="electronBsub" args="cmscaf1nd cmsDriver.py SingleElectronPt10.cfi -s GEN,SIM,DIGI,L1,DIGI2RAW,HLT -n 9000 --geometry DB --conditions FrontierConditions_GlobalTag,${MY_GLOBAL_TAG}::All --datatier 'GEN-SIM-DIGI-RAW-HLTDEBUG' --eventcontent FEVTDEBUGHLT --fileout=${MY_ENV_NAME}.Raw.root">
+    </environment>
+    <environment name="SingleElectronPt10Reco">
+      <executable name="electronBsub" args="cmscaf1nd cmsDriver.py step2 -s RAW2DIGI,RECO -n 9000 --geometry DB --conditions FrontierConditions_GlobalTag,${MY_GLOBAL_TAG}::All --datatier GEN-SIM-RECO --eventcontent RECOSIM --filein=rfio:${MY_OUTPUT_CASTOR_DIR}/${MY_ENV_NAME}/${MY_ENV_NAME}.Raw.root --fileout=RelValSingleElectronPt10-MC-RECO.root">
+    </environment>
+  </environment>
+  
+</environment>
+
+
+======================================================== 
+The following is meant to check one has not broken the
+configurations used for the RelVal samples. It is trying
+SingleElectronPt35 and QcdPt80-120 with 10 events.
+========================================================
+
+<environment name="SingleElectronPt35">
+
+  <environment name="SingleElectronPt35Raw">
+    <executable name="cmsDriver.py" args="SingleElectronPt35.cfi GEN,SIM,DIGI,L1,DIGI2RAW,HLT -n 3 --eventcontent FEVTDEBUGHLT --conditions FrontierConditions_GlobalTag,${MY_GLOBAL_TAG}::All --python_filename=SingleElectronPt35Raw.py --fileout=SingleElectronPt35Raw.root">
+  </environment>
+  
+  <environment name="SingleElectronPt35Reco">
+    <executable name="cmsDriver.py" args="step2 -s RAW2DIGI,RECO,VALIDATION --filein file:SingleElectronPt35Raw.root -n 3 --datatier GEN-SIM-RECO --eventcontent RECOSIM --conditions FrontierConditions_GlobalTag,${MY_GLOBAL_TAG}::All --python_filename=SingleElectronPt35Reco.py --fileout=SingleElectronPt35Reco.root">
+  </environment>
+  
+  
+
+  
+  
+  <environment name="SingleElectronPt35Harv">
+    <executable name="cmsDriver.py" args="step3 -s HARVESTING:validationHarvesting --filein file:SingleElectronPt35Reco.root  --harvesting AtRunEnd --conditions FrontierConditions_GlobalTag,${MY_GLOBAL_TAG}::All --python_filename=SingleElectronPt35Harv.py --no_exec">
+    <executable name="cmsRun" args="MyElectronPt35Harv.py">
+  </environment>
+
+  <environment name="SingleElectronPt35List">
+    <var name="TEST_INPUT_FILE" value="DQM_V0001_R000000001__ElectronPt35__Local__Reco.root">
+    <executable name="root" args="-b -l -q cmsListHistos.C">
+  </environment>
+
+</environment>
+
+<environment name="SinglePhotonPt35">
+
+  <environment name="SinglePhotonPt35Raw">
+    <executable name="cmsDriver.py" args="SingleGammaPt35.cfi -s GEN,SIM,DIGI,L1,DIGI2RAW,HLT -n 3 --eventcontent FEVTDEBUGHLT --conditions FrontierConditions_GlobalTag,${MY_GLOBAL_TAG}::All --python_filename=SinglePhotonPt35Raw.py --fileout=SinglePhotonPt35Raw.root">
+  </environment>
+  
+  <environment name="SinglePhotonPt35Reco">
+    <executable name="cmsDriver.py" args="step2 -s RAW2DIGI,RECO,VALIDATION --filein file:SinglePhotonPt35Raw.root -n 3 --datatier GEN-SIM-RECO --eventcontent RECOSIM --conditions FrontierConditions_GlobalTag,${MY_GLOBAL_TAG}::All --python_filename=SinglePhotonPt35Reco.py --fileout=SinglePhotonPt35Reco.root">
+  </environment>
+  
+  <environment name="SinglePhotonPt35Harv">
+    <executable name="cmsDriver.py" args="step3 -s HARVESTING:validationHarvesting --filein file:SinglePhotonPt35Reco.root  --harvesting AtRunEnd --conditions FrontierConditions_GlobalTag,${MY_GLOBAL_TAG}::All --python_filename=SinglePhotonPt35Harv.py --no_exec">
+    <executable name="cmsRun" args="MyPhotonPt35Harv.py">
+  </environment>
+
+  <environment name="SinglePhotonPt35List">
+    <var name="TEST_INPUT_FILE" value="DQM_V0001_R000000001__PhotonPt35__Local__Reco.root">
+    <executable name="root" args="-b -l -q cmsListHistos.C">
+  </environment>
+
+</environment>
+
+<environment name="QcdPt80Pt120">
+
+  <environment name="QcdPt80Pt120Raw">
+    <executable name="cmsDriver.py" args="QCD_Pt_80_120.cfi -s GEN,SIM,DIGI,L1,DIGI2RAW,HLT -n 3 --eventcontent FEVTDEBUGHLT --conditions FrontierConditions_GlobalTag,${MY_GLOBAL_TAG}::All --python_filename=QcdPt80Pt120Raw.py --fileout=QcdPt80Pt120Raw.root">
+  </environment>
+  
+  <environment name="QcdPt80Pt120Reco">
+    <executable name="cmsDriver.py" args="step2 -s RAW2DIGI,RECO,VALIDATION --filein file:QcdPt80Pt120Raw.root -n 3 --datatier GEN-SIM-RECO --eventcontent RECOSIM --conditions FrontierConditions_GlobalTag,${MY_GLOBAL_TAG}::All --python_filename=QcdPt80Pt120Reco.py --fileout=QcdPt80Pt120Reco.root">
+  </environment>
+  
+  <environment name="QcdPt80Pt120Harv">
+    <executable name="cmsDriver.py" args="step3 -s HARVESTING:validationHarvesting --filein file:QcdPt80Pt120Reco.root --harvesting AtRunEnd --conditions FrontierConditions_GlobalTag,${MY_GLOBAL_TAG}::All --python_filename=QcdPt80Pt120Harv.py --no_exec">
+    <executable name="cmsRun" args="MyQcdPt80Pt120Harv.py">
+  </environment>
+
+  <environment name="QcdPt80Pt120List">
+    <var name="TEST_INPUT_FILE" value="DQM_V0001_R000000001__QcdPt80Pt120__Local__Reco.root">
+    <executable name="root" args="-b -l -q cmsListHistos.C">
+  </environment>
+
+</environment>
+  
+<environment name="SingleElectronPt10">
+
+  <environment name="SingleElectronPt10Raw">
+    <executable name="cmsDriver.py" args="SingleElectronPt10.cfi -s GEN,SIM,DIGI,L1,DIGI2RAW,HLT -n 3 --eventcontent FEVTDEBUGHLT --conditions FrontierConditions_GlobalTag,${MY_GLOBAL_TAG}::All --python_filename=SingleElectronPt10Raw.py --fileout=SingleElectronPt10Raw.root">
+  </environment>
+  
+  <environment name="SingleElectronPt10Reco">
+    <executable name="cmsDriver.py" args="step2 -s RAW2DIGI,RECO,VALIDATION --filein file:SingleElectronPt10Raw.root -n 3 --datatier GEN-SIM-RECO --eventcontent RECOSIM --conditions FrontierConditions_GlobalTag,${MY_GLOBAL_TAG}::All --python_filename=SingleElectronPt10Reco.py --fileout=SingleElectronPt10Reco.root">
+  </environment>
+  
+  <environment name="SingleElectronPt10Harv">
+    <executable name="cmsDriver.py" args="step3 -s HARVESTING:validationHarvesting --filein file:SingleElectronPt10Reco.root  --harvesting AtRunEnd --conditions FrontierConditions_GlobalTag,${MY_GLOBAL_TAG}::All --python_filename=SingleElectronPt10Harv.py --no_exec">
+    <executable name="cmsRun" args="MyElectronPt10Harv.py">
+  </environment>
+
+  <environment name="SingleElectronPt10List">
+    <var name="TEST_INPUT_FILE" value="DQM_V0001_R000000001__ElectronPt10__Local__Reco.root">
+    <executable name="root" args="-b -l -q cmsListHistos.C">
+  </environment>
+
+</environment>
+
+  

@@ -1,0 +1,288 @@
+<use   name="boost"/>
+<library   file="DummyData.cc,DummyRecord.cc,DepRecord.cc,Dummy2Record.cc,DepOn2Record.cc" name="FWCoreFrameworkTestDummyForEventSetup">
+  <use   name="FWCore/Framework"/>
+</library>
+<library   file="MockEventProcessor.cc" name="FWCoreFrameworkTest">
+  <use   name="FWCore/Framework"/>
+</library>
+<library   file="stubs/TestOutputModule.cc" name="TestOutputModule">
+  <flags   EDM_PLUGIN="1"/>
+  <use   name="DataFormats/Common"/>
+  <use   name="FWCore/Framework"/>
+  <use   name="FWCore/ParameterSet"/>
+</library>
+<library   file="stubs/TestFilterModule.cc" name="TestFilterModule">
+  <flags   EDM_PLUGIN="1"/>
+  <use   name="DataFormats/Common"/>
+  <use   name="FWCore/Framework"/>
+  <use   name="FWCore/ParameterSet"/>
+</library>
+<library   file="stubs/TestTBBTasksAnalyzer.cc" name="TestTBBTasksAnalyzer">
+  <flags   EDM_PLUGIN="1"/>
+  <use   name="tbb"/>
+  <use   name="DataFormats/Common"/>
+  <use   name="FWCore/Framework"/>
+  <use   name="FWCore/ParameterSet"/>
+</library>
+<bin   name="TestFWCoreFrameworkTBBTasks" file="TestDriver.cpp">
+  <flags   TEST_RUNNER_ARGS=" /bin/bash FWCore/Framework/test run_tbbTasks.sh"/>
+  <use   name="FWCore/Utilities"/>
+</bin>
+<library   file="stubs/TestTriggerNames.cc" name="TestTriggerNames">
+  <flags   EDM_PLUGIN="1"/>
+  <use   name="DataFormats/Common"/>
+  <use   name="DataFormats/Provenance"/>
+  <use   name="FWCore/Framework"/>
+  <use   name="FWCore/ParameterSet"/>
+  <use   name="FWCore/ServiceRegistry"/>
+  <use   name="FWCore/Utilities"/>
+</library>
+<library   file="stubs/TestMergeResults.cc" name="TestMergeResults">
+  <flags   EDM_PLUGIN="1"/>
+  <use   name="DataFormats/Common"/>
+  <use   name="DataFormats/TestObjects"/>
+  <use   name="DataFormats/Provenance"/>
+  <use   name="FWCore/Framework"/>
+  <use   name="FWCore/MessageLogger"/>
+  <use   name="FWCore/ParameterSet"/>
+  <use   name="FWCore/ServiceRegistry"/>
+  <use   name="FWCore/Utilities"/>
+</library>
+<library   file="stubs/RunLumiEventAnalyzer.cc" name="RunLumiEventAnalyzer">
+  <flags   EDM_PLUGIN="1"/>
+  <use   name="FWCore/Framework"/>
+  <use   name="FWCore/ParameterSet"/>
+</library>
+<library   file="stubs/TestMod.cc" name="TestMod">
+  <flags   EDM_PLUGIN="1"/>
+  <use   name="FWCore/Framework"/>
+  <use   name="FWCore/ParameterSet"/>
+</library>
+<library   file="stubs/ToyModules.cc,stubs/ToyAnalyzers.cc,stubs/ToyIntProducers.cc,stubs/ToyDoubleProducers.cc,stubs/ToySTLProducers.cc,stubs/ToyRefProducers.cc,stubs/DeleteEarlyModules.cc" name="TestToyModules">
+  <flags   EDM_PLUGIN="1"/>
+  <use   name="DataFormats/Common"/>
+  <use   name="DataFormats/TestObjects"/>
+  <use   name="FWCore/Framework"/>
+  <use   name="FWCore/ParameterSet"/>
+</library>
+<library   file="stubs/TestSchedulerModule1.cc" name="TestSchedulerModule1">
+  <flags   EDM_PLUGIN="1"/>
+  <use   name="FWCore/Framework"/>
+  <use   name="FWCore/ParameterSet"/>
+</library>
+<library   file="stubs/TestSchedulerModule2.cc" name="TestSchedulerModule2">
+  <flags   EDM_PLUGIN="1"/>
+  <use   name="DataFormats/Provenance"/>
+  <use   name="FWCore/Framework"/>
+  <use   name="FWCore/ParameterSet"/>
+</library>
+<library   file="stubs/LoadableDummyFinder.cc" name="TestLoadableDummyFinder">
+  <flags   EDM_PLUGIN="1"/>
+  <lib   name="FWCoreFrameworkTestDummyForEventSetup"/>
+  <use   name="FWCore/Framework"/>
+</library>
+<library   file="stubs/LoadableDummyESSource.cc" name="TestLoadableDummyESSource">
+  <flags   EDM_PLUGIN="1"/>
+  <lib   name="FWCoreFrameworkTestDummyForEventSetup"/>
+  <use   name="FWCore/Framework"/>
+</library>
+<library   file="stubs/LoadableDummyEventSetupRecordRetriever.cc" name="TestLoadableDummyEventSetupRecordRetriever">
+  <flags   EDM_PLUGIN="1"/>
+  <use   name="FWCore/Framework"/>
+</library>
+<library   file="stubs/LoadableDummyProvider.cc" name="TestLoadableDummyProvider">
+  <flags   EDM_PLUGIN="1"/>
+  <lib   name="FWCoreFrameworkTestDummyForEventSetup"/>
+  <use   name="FWCore/Framework"/>
+</library>
+<library   file="stubs/DummyLooper.cc,stubs/TestModuleChangeLooper.cc" name="FWCoreFrameworkTestDummyLooper">
+  <flags   EDM_PLUGIN="1"/>
+  <lib   name="FWCoreFrameworkTestDummyForEventSetup"/>
+  <use   name="FWCore/Framework"/>
+  <use   name="DataFormats/TestObjects"/>
+</library>
+<library   file="stubs/TestESDummyDataAnalyzer.cc" name="FWCoreFrameworkTestESDummyDataAnalyzer">
+  <flags   EDM_PLUGIN="1"/>
+  <lib   name="FWCoreFrameworkTestDummyForEventSetup"/>
+  <use   name="FWCore/Framework"/>
+  <use   name="FWCore/ParameterSet"/>
+  <use   name="FWCore/Utilities"/>
+</library>
+<library   file="stubs/TestPRegisterModule2.cc,stubs/TestPRegisterModule1.cc,stubs/TestPRegisterModules.cc" name="FWCoreFrameworkTestPRegisterModules">
+  <flags   EDM_PLUGIN="1"/>
+  <use   name="DataFormats/Common"/>
+  <use   name="FWCore/Framework"/>
+  <use   name="cppunit"/>
+</library>
+<library   file="stubs/TestBeginEndJobAnalyzer.cc,stubs/TestBeginEndJobAnalyzerModule.cc" name="FWCoreFrameworkTestBeginEndJobAnalyzer">
+  <flags   EDM_PLUGIN="1"/>
+  <use   name="FWCore/Framework"/>
+</library>
+<library   file="stubs/TestFailuresAnalyzer.cc" name="FWCoreFrameworkTestFailuresAnalyzer">
+  <flags   EDM_PLUGIN="1"/>
+  <use   name="FWCore/Framework"/>
+  <use   name="FWCore/ParameterSet"/>
+  <use   name="FWCore/Utilities"/>
+</library>
+<library   file="stubs/HistoryAnalyzer.cc" name="FWCoreFrameworkHistoryAnalyzer">
+  <flags   EDM_PLUGIN="1"/>
+  <use   name="DataFormats/Provenance"/>
+  <use   name="FWCore/Framework"/>
+  <use   name="FWCore/ParameterSet"/>
+</library>
+<bin   name="TestFWCoreFramework" file="testRunner.cpp,maker2_t.cppunit.cc,maker_t.cppunit.cc,productregistry.cppunit.cc,edproducer_productregistry_callback.cc,event_getrefbeforeput_t.cppunit.cc,generichandle_t.cppunit.cc,edconsumerbase_t.cppunit.cc">
+  <use   name="DataFormats/Common"/>
+  <use   name="DataFormats/Provenance"/>
+  <use   name="DataFormats/TestObjects"/>
+  <use   name="FWCore/Framework"/>
+  <use   name="FWCore/ParameterSet"/>
+  <use   name="FWCore/RootAutoLibraryLoader"/>
+  <use   name="FWCore/Utilities"/>
+  <use   name="FWCore/Version"/>
+  <use   name="cppunit"/>
+</bin>
+<bin   name="TestFWCoreFrameworkeventsetup" file="testRunner.cpp,callback_t.cppunit.cc,datakey_t.cppunit.cc,dependentrecord_t.cppunit.cc,esproducer_t.cppunit.cc,esproducts_t.cppunit.cc,eventsetupplugin_t.cppunit.cc,eventsetuprecord_t.cppunit.cc,eventsetup_t.cppunit.cc,fullchain_t.cppunit.cc,interval_t.cppunit.cc,proxyfactoryproducer_t.cppunit.cc,iovsyncvalue_t.cppunit.cc,intersectingiovrecordintervalfinder_t.cppunit.cc,eventsetupscontroller_t.cppunit.cc">
+  <lib   name="FWCoreFrameworkTestDummyForEventSetup"/>
+  <use   name="FWCore/Framework"/>
+  <use   name="FWCore/ParameterSet"/>
+  <use   name="FWCore/RootAutoLibraryLoader"/>
+  <use   name="FWCore/Utilities"/>
+  <use   name="FWCore/Version"/>
+  <use   name="cppunit"/>
+</bin>
+<bin   name="TestFWCoreFrameworkeventprocessor" file="testRunner.cpp,eventprocessor2_t.cppunit.cc,eventprocessor_t.cppunit.cc">
+  <use   name="DataFormats/Provenance"/>
+  <use   name="FWCore/Framework"/>
+  <use   name="FWCore/RootAutoLibraryLoader"/>
+  <use   name="FWCore/ServiceRegistry"/>
+  <use   name="FWCore/Utilities"/>
+  <use   name="cppunit"/>
+</bin>
+<bin   name="TestFWCoreFrameworkeventprincipal" file="testRunner.cpp,eventprincipal_t.cppunit.cc">
+  <use   name="DataFormats/Common"/>
+  <use   name="DataFormats/Provenance"/>
+  <use   name="DataFormats/TestObjects"/>
+  <use   name="FWCore/Framework"/>
+  <use   name="FWCore/ParameterSet"/>
+  <use   name="FWCore/RootAutoLibraryLoader"/>
+  <use   name="FWCore/Utilities"/>
+  <use   name="FWCore/Version"/>
+  <use   name="cppunit"/>
+</bin>
+<bin   name="TestFWCoreFrameworkEvent" file="Event_t.cpp">
+  <use   name="DataFormats/Common"/>
+  <use   name="DataFormats/Provenance"/>
+  <use   name="DataFormats/TestObjects"/>
+  <use   name="DataFormats/WrappedStdDictionaries"/>
+  <use   name="FWCore/Framework"/>
+  <use   name="FWCore/ParameterSet"/>
+  <use   name="FWCore/RootAutoLibraryLoader"/>
+  <use   name="FWCore/Utilities"/>
+  <use   name="FWCore/Version"/>
+  <use   name="rootcintex"/>
+  <use   name="cppunit"/>
+</bin>
+<bin   name="TestFWCoreFrameworkView" file="View_t.cpp">
+  <use   name="DataFormats/Common"/>
+  <use   name="cppunit"/>
+</bin>
+<bin   name="TestFWCoreFrameworkCmsRun" file="TestDriver.cpp">
+  <flags   TEST_RUNNER_ARGS=" /bin/bash FWCore/Framework/test run_cmsRun.sh"/>
+  <use   name="FWCore/Utilities"/>
+</bin>
+<bin   name="TestFWCoreFrameworkESRefer" file="TestDriver.cpp">
+  <flags   TEST_RUNNER_ARGS=" /bin/bash FWCore/Framework/test run_es_refer_tests.sh"/>
+  <use   name="FWCore/Utilities"/>
+</bin>
+<bin   name="TestFWCoreFrameworkUnscheduled" file="TestDriver.cpp">
+  <flags   TEST_RUNNER_ARGS=" /bin/bash FWCore/Framework/test run_unscheduled.sh"/>
+  <use   name="FWCore/Utilities"/>
+</bin>
+<bin   name="TestFWCoreFrameworkReplace" file="TestDriver.cpp">
+  <flags   TEST_RUNNER_ARGS=" /bin/bash FWCore/Framework/test run_replace_tests.sh"/>
+  <use   name="FWCore/Utilities"/>
+</bin>
+<bin   name="TestFWCoreFrameworkESProducerLooper" file="TestDriver.cpp">
+  <flags   TEST_RUNNER_ARGS=" /bin/bash FWCore/Framework/test run_esproducerlooper.sh"/>
+  <use   name="FWCore/Utilities"/>
+</bin>
+<bin   name="TestFWCoreFrameworkTrigBit" file="TestDriver.cpp">
+  <flags   TEST_RUNNER_ARGS=" /bin/bash FWCore/Framework/test run_trigbit.sh"/>
+  <use   name="FWCore/Utilities"/>
+</bin>
+<bin   name="TestFWCoreFrameworkTrigMask" file="TestDriver.cpp">
+  <flags   TEST_RUNNER_ARGS=" /bin/bash FWCore/Framework/test run_trigmask.sh"/>
+  <use   name="FWCore/Utilities"/>
+</bin>
+<bin   name="TestXMLSafeException" file="TestDriver.cpp">
+  <flags   TEST_RUNNER_ARGS=" /bin/bash FWCore/Framework/test run_XMLException.sh"/>
+  <use   name="FWCore/Utilities"/>
+</bin>
+<bin   name="TestFWCoreFrameworkProductSelector" file="ProductSelector_t.cpp">
+  <use   name="DataFormats/Provenance"/>
+  <use   name="FWCore/Framework"/>
+  <use   name="FWCore/ParameterSet"/>
+  <use   name="FWCore/Utilities"/>
+</bin>
+<bin   name="TestFWCoreFrameworkEventSelector" file="EventSelector_t.cpp">
+  <use   name="DataFormats/Common"/>
+  <use   name="FWCore/Framework"/>
+  <use   name="FWCore/ParameterSet"/>
+  <use   name="FWCore/ServiceRegistry"/>
+  <use   name="FWCore/Utilities"/>
+</bin>
+<bin   name="TestFWCoreFrameworkEventSelWildcard" file="EventSelWildcard_t.cpp">
+  <use   name="DataFormats/Common"/>
+  <use   name="FWCore/Framework"/>
+  <use   name="FWCore/ParameterSet"/>
+  <use   name="FWCore/ServiceRegistry"/>
+  <use   name="FWCore/Utilities"/>
+</bin>
+<bin   name="TestFWCoreFrameworkEventSelExc" file="EventSelExc_t.cpp">
+  <use   name="DataFormats/Common"/>
+  <use   name="FWCore/Framework"/>
+  <use   name="FWCore/ParameterSet"/>
+  <use   name="FWCore/ServiceRegistry"/>
+  <use   name="FWCore/Utilities"/>
+</bin>
+<bin   name="TestFWCoreFrameworkEventSelOverlap" file="EventSelOverlap_t.cpp">
+  <use   name="DataFormats/Common"/>
+  <use   name="FWCore/Framework"/>
+  <use   name="FWCore/ParameterSet"/>
+  <use   name="FWCore/ServiceRegistry"/>
+  <use   name="FWCore/Utilities"/>
+</bin>
+<bin   name="TestFWCoreFrameworkCurrentProcessingContext" file="CurrentProcessingContext_t.cpp">
+  <use   name="DataFormats/Provenance"/>
+  <use   name="FWCore/Framework"/>
+  <use   name="FWCore/Utilities"/>
+</bin>
+<bin   name="TestFWCoreFrameworkCPCSentry" file="CPCSentry_t.cpp">
+  <use   name="FWCore/Framework"/>
+  <use   name="FWCore/Utilities"/>
+</bin>
+<bin   name="TestFWCoreFrameworkRegistryTemplate" file="RegistryTemplate_t.cpp">
+  <use   name="DataFormats/Provenance"/>
+  <use   name="FWCore/ParameterSet"/>
+  <use   name="FWCore/Utilities"/>
+</bin>
+<bin   name="TestFWCoreOutputModuleUtilities" file="OutputModuleUtilities_t.cpp">
+  <use   name="FWCore/Framework"/>
+</bin>
+<bin   name="TestFWCoreFrameworkStatemachine" file="statemachine_t.cc">
+  <lib   name="FWCoreFrameworkTest"/>
+  <use   name="FWCore/Framework"/>
+  <use   name="boost_program_options"/>
+</bin>
+<bin   name="TestFWCoreFrameworkStatemachineSH" file="TestDriver.cpp">
+  <flags   TEST_RUNNER_ARGS=" /bin/bash FWCore/Framework/test run_statemachine.sh"/>
+  <use   name="FWCore/Utilities"/>
+</bin>
+<bin   name="TestFWCoreFrameworkInputTagFailure" file="TestDriver.cpp">
+  <flags   TEST_RUNNER_ARGS=" /bin/bash FWCore/Framework/test test_InputTag_cache_failure.sh"/>
+  <use   name="FWCore/Utilities"/>
+</bin>
+<bin   name="TestFWCoreFrameworkDeleteEarly" file="TestDriver.cpp">
+  <flags   TEST_RUNNER_ARGS=" /bin/bash FWCore/Framework/test test_deleteEarly.sh"/>
+  <use   name="FWCore/Utilities"/>
+</bin>

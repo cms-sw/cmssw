@@ -1,0 +1,11 @@
+This file tries to keep track of which version of the transfer system
+was used with which version of the database schema.
+
+Labels:
+Tier0: COMP/T0/perl_lib/T0
+SQL:   CMSSW/EventFilter/StorageManager/scripts
+
+|   Date   | SQL  tag | Tier0 tag | Comment |
+ 2011-01-28 SM20110128 SM20110128  Migrated triggers on the transfer tables to stored procedures
+ 2011-02-03 SM20110203 SM20110203  Migrated triggers on the inject tables to stored procedures
+

@@ -1,0 +1,26 @@
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
+	<SolidSection label="zdcworldSolids">
+		<Box name="ZDCWorld" dx="14.4*cm" dy="64.00*cm" dz="2.0*m"/>
+	</SolidSection>
+	<LogicalPartSection label="zdcworldLog">
+		<LogicalPart name="ZDCWorld" category="unspecified">
+			<rSolid name="ZDCWorld"/>
+			<rMaterial name="materials:Air"/>
+		</LogicalPart>
+	</LogicalPartSection>
+	<!-- Position of zdc volumes -->
+	<PosPartSection label="zdcworldPosPart">
+		<PosPart copyNumber="1">
+			<rParent name="zdcworld:ZDCWorld"/>
+			<rChild name="zdc:ZDC"/>
+			<Translation x="0*fm" y="0*fm" z="100.0*cm"/>
+		</PosPart>
+		<PosPart copyNumber="2">
+			<rParent name="zdcworld:ZDCWorld"/>
+			<rChild name="zdc:ZDC"/>
+			<rRotation name="zdcrotations:R0"/>
+			<Translation x="0*fm" y="0*fm" z="-100.0*cm"/>
+		</PosPart>
+	</PosPartSection>
+</DDDefinition>

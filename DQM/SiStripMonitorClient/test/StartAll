@@ -1,0 +1,47 @@
+#!/bin/sh
+function usage() {
+cat <<EOF
+
+  execute the script in the following way : 
+
+  ./StartAll  RUN_TYPE
+
+  where
+    - RUN_TYPE    (DQM sources you want to activate): ped/digi/digi_cluster
+
+  Example 1 : ./StartAll  ped
+  Example 2 : ./StartAll  digi_cluster
+
+EOF
+}
+if [ $# -lt 1 ]; then
+  usage; exit 1;
+fi
+./StopAll
+COLLECTORNAME=`/bin/hostname`
+echo "The hostname is = " $COLLECTORNAME
+eval `scramv1 runtime -sh`
+xterm -T "DQM Collector" -sb -sl 100   -e DQMCollector &
+source_type=$1
+echo  $source_type
+if [ "$source_type" == "ped" ]; then
+  cp sistrip_monitorelement_config_ped.xml sistrip_monitorelement_config.xml
+  cp sistrip_qualitytest_config_ped.xml sistrip_qualitytest_config.xml
+  export PRODUCER_PATH=${CMSSW_BASE}/src/DQM/SiStripMonitorPedestals/test
+  cd  ${PRODUCER_PATH}
+  export CORAL_AUTH_PATH=/afs/cern.ch/cms/DB/conddb
+  xterm -T "DQM Producer(Source)"  -sb -sl 30000 -e ./PedsMonWithDB.csh &
+elif [ "$source_type" == "digi_cluster" ]; then
+  cp sistrip_monitorelement_config_cluster_digi.xml sistrip_monitorelement_config.xml
+  cp sistrip_qualitytest_config_cluster_digi.xml sistrip_qualitytest_config.xml
+  export PRODUCER_PATH=${CMSSW_BASE}/src/DQM/SiStripMonitorCluster/test
+  cd  ${PRODUCER_PATH}
+  perl -pi.bak -e "s#localhost#$COLLECTORNAME#g" OnlyDQM.cfg 
+  xterm -T "DQM Producer(Source)"  -sb -sl 30000 -e cmsRun OnlyDQM.cfg &
+fi
+export CONSUMER_PATH=${CMSSW_BASE}/src/DQM/SiStripMonitorClient/test
+cd ${CONSUMER_PATH}
+./setup.sh $COLLECTORNAME
+./startMonitorClient 
+
+

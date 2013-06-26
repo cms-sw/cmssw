@@ -1,0 +1,15 @@
+DO NOT MODIFY THIS FILE!
+It may be used as an input to various unit tests (e.g. checksumming).
+If this file is modified in any way, even just adding whitespace,
+unit tests will fail
+
+the quick fox jumps over a lazy brown dog
+
+`1234567890-=
+qwertyuiop[]\
+asdfghjkl;'
+zxcvbnm,./
+~!@#$%^&*()_+
+QWERTYUIOP{}|
+ASDFGHJKL:"
+ZXCVBNM<>?

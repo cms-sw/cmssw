@@ -1,0 +1,10 @@
+destDB oracle://cms_orcoff_prep/CMS_COND_GEOMETRY
+tag XMLFILE_Geometry_TagXX_ExtendedHFLibraryNoCastor_mc
+inputtag 
+since 
+Timetype runnumber
+IOVCheck offline
+DuplicateTagHLT 
+DuplicateTagEXPRESS 
+DuplicateTagPROMPT 
+usertext Geometry payload for Full DDD XML Extended HFLibrary NoCastor config. TagXX

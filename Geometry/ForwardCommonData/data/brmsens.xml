@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
+    <!-- BSC1 and 2 part only of the BRM -->
+    <SpecParSection label="brmsens.xml" eval="true">
+        <SpecPar name="bsc1">
+            <PartSelector path="//BSCPadActive"/>
+            <PartSelector path="//BSCTopTrapezoid"/>
+            <PartSelector path="//BSCBottomTrapezoid"/>
+            <PartSelector path="//BSC2Pad"/>
+            <Parameter name="SensitiveDetector" value="BSCSensitiveDetector" eval="false"/>
+            <Parameter name="ReadOutName" value="BSCHits" eval="false"/>
+        </SpecPar>
+    </SpecParSection>
+</DDDefinition>

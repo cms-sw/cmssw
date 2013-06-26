@@ -1,0 +1,13 @@
+<export>
+</export>
+<bin   file="test-large-voronoi-area.cc" name="test-large-voronoi-area">
+  <use   name="RecoJets/JetProducers"/>
+  <use   name="RecoJets/JetAlgorithms"/>
+  <use   name="FWCore/Framework"/>
+  <use   name="DataFormats/JetReco"/>
+  <use   name="DataFormats/VertexReco"/>
+  <use   name="Geometry/CaloGeometry"/>
+  <use   name="Geometry/Records"/>
+  <use   name="CommonTools/UtilAlgos"/>
+  <use   name="fastjet"/>
+</bin>

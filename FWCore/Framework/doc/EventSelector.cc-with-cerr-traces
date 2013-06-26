@@ -1,0 +1,364 @@
+// Change Log
+//
+// 1 - M Fischler 2/8/08 Enable partial wildcards, as in HLT* or !CAL*
+//			 A version of this code with cerr debugging traces has
+//			 been placed in the doc area.
+// This file is a version equipped with (commented out) cerr trace ouptputs
+// for maintenance purposes. 
+
+
+#include "FWCore/Framework/interface/EventSelector.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/Framework/interface/TriggerNamesService.h"
+#include "FWCore/Utilities/interface/Algorithms.h"
+
+#include "boost/algorithm/string.hpp"
+#include "boost/regex.hpp"
+
+#include <algorithm>
+#include <iostream> // ###
+#include <iomanip> // ###
+
+namespace edm
+{
+  EventSelector::EventSelector(Strings const& pathspecs,
+			       Strings const& names):
+    accept_all_(false),
+    decision_bits_(),
+    nonveto_bits_(),
+    results_from_current_process_(true),
+    psetID_initialized_(false),
+    psetID_(),
+    paths_(),
+    nTriggerNames_(0),
+    notStarPresent_(false)
+  {
+    init(pathspecs, names);
+  }
+
+  EventSelector::EventSelector(Strings const& pathspecs):
+    accept_all_(false),
+    decision_bits_(),
+    nonveto_bits_(),
+    results_from_current_process_(false),
+    psetID_initialized_(false),
+    psetID_(),
+    paths_(pathspecs),
+    nTriggerNames_(0),
+    notStarPresent_(false)
+  {
+  }
+
+  void
+  EventSelector::init(Strings const& paths,
+		      Strings const& triggernames)
+  {
+    // std::cerr << "### init entered\n";
+    accept_all_ = false;
+    decision_bits_.clear();
+
+    nTriggerNames_ = triggernames.size();
+    notStarPresent_ = false;
+
+    if ( paths.empty() )
+      {
+	accept_all_ = true;
+	return;
+      }
+
+    bool star_done = false;
+    for (Strings::const_iterator i(paths.begin()), end(paths.end()); 
+	 i!=end; ++i)
+      {
+
+	std::string current_path(*i);
+	boost::erase_all(current_path, " \t");
+	if (current_path == "!*")
+	  {
+            notStarPresent_ = true;
+	  }
+	if (current_path == "*")
+	  {
+            star_done = true;
+	  }
+	bool negative_criterion = false;
+	if (current_path[0] == '!') {
+	  negative_criterion = true;
+	}
+	std::string const& realname =
+	      negative_criterion 
+	      ? std::string((current_path.begin()+1), current_path.end())
+	      : current_path;
+
+	// instead of "see if the name can be found in the full list of paths"
+	// we want to find all paths that match this name.	
+	std::vector< Strings::const_iterator> matches =
+		matching_triggers(triggernames, realname);
+	
+	if (matches.empty() && (glob2reg(realname) == realname)) 
+	{
+            throw edm::Exception(edm::errors::Configuration)
+              << "EventSelector::init, An OutputModule is using SelectEvents\n"
+                 "to request a trigger name that does not exist\n"
+              << "The unknown trigger name is: " << realname << "\n";  
+	}
+		 	 
+#ifdef REALNAME_MUST_MATCH_FEATURE_MIGHT_BE_WANTED
+	if (matches.empty() && (glob2reg(realname) != realname)) 
+	{
+            throw edm::Exception(edm::errors::Configuration)
+              << "EventSelector::init, An OutputModule is using SelectEvents\n"
+                 "to request a wildcarded trigger name that does not match any trigger \n"
+              << "The wildcarded trigger name is: " << realname << "\n";  
+	}
+#endif
+
+	if ( !negative_criterion ) {
+	  for (unsigned int t = 0; t != matches.size(); ++t) {
+	    BitInfo bi(distance(triggernames.begin(),matches[t]), true);
+	    decision_bits_.push_back(bi);
+	  }
+	} else if (negative_criterion) {
+	  if (matches.empty()) {
+              throw edm::Exception(edm::errors::Configuration)
+              << "EventSelector::init, An OutputModule is using SelectEvents\n"
+                 "to request a veto a set trigger names that do not exist\n"
+              << "The problematic name is: " << current_path << "\n";  
+	  
+	  } else if (matches.size() == 1) {
+	    BitInfo bi(distance(triggernames.begin(),matches[0]), false);
+	    decision_bits_.push_back(bi);
+	  } else {
+	    Bits nonveto;
+	    for (unsigned int t = 0; t != matches.size(); ++t) {
+	      BitInfo bi(distance(triggernames.begin(),matches[t]), true);
+	      // We set this to true because if the trigger bit is set,
+	      // we want acceptTriggerBits to return true so that we will
+	      // **reject** the criterion.
+	      nonveto.push_back(bi);
+	    }
+	    nonveto_bits_.push_back(nonveto);
+	  } 	
+	}
+    } // end of the for loop on i(paths.begin()), end(paths.end())
+
+    if (notStarPresent_ && star_done) accept_all_ = true;
+
+    // std::cerr << "### init exited\n";
+
+  } // EventSelector::init
+  
+  EventSelector::EventSelector(edm::ParameterSet const& config,
+			       Strings const& triggernames):
+    accept_all_(false),
+    decision_bits_(),
+    results_from_current_process_(true),
+    psetID_initialized_(false),
+    psetID_(),
+    paths_(),
+    nTriggerNames_(0),
+    notStarPresent_(false)
+  {
+    Strings paths; // default is empty...
+
+    if (!config.empty())
+      paths = config.getParameter<Strings>("SelectEvents");
+
+    init(paths, triggernames);
+  }
+
+
+  bool EventSelector::acceptEvent(TriggerResults const& tr)
+  {
+    // For the current process we already initialized in the constructor,
+    // The trigger names will not change so we can skip initialization.
+    if (!results_from_current_process_) {
+  
+      // For previous processes we need to get the trigger names that
+      // correspond to the bits in TriggerResults from the ParameterSet
+      // set registry, which is stored once per file.  The ParameterSetID
+      // stored in TriggerResults is the key used to find the info in the
+      // registry.  We optimize using the fact the ID is unique. If the ID
+      // has not changed since the last time we initialized with new triggernames,
+      // then the names have not changed and we can skip this initialization.
+      if ( !(psetID_initialized_ && psetID_ == tr.parameterSetID()) ) {
+
+        Strings triggernames;
+        bool fromPSetRegistry;
+
+        edm::Service<edm::service::TriggerNamesService> tns;
+        if (tns->getTrigPaths(tr, triggernames, fromPSetRegistry)) {
+
+          init(paths_, triggernames);
+
+          if (fromPSetRegistry) {
+            psetID_ = tr.parameterSetID();
+            psetID_initialized_ = true;
+          }
+          else {
+            psetID_initialized_ = false;
+          }
+        }
+        // This should never happen
+        else {
+          throw edm::Exception(edm::errors::Unknown)
+            << "EventSelector::acceptEvent cannot find the trigger names for\n"
+               "a process for which the configuration has requested that the\n"
+               "OutputModule use TriggerResults to select events from.  This should\n"
+               "be impossible, please send information to reproduce this problem to\n"
+               "the edm developers.\n"; 
+	}
+      }
+    }
+
+    Bits::const_iterator i(decision_bits_.begin()),e(decision_bits_.end());
+    for(;i!=e;++i)
+      {
+        if ( this->acceptTriggerPath(tr[i->pos_], *i) )
+          {
+            return true;
+          }
+      }
+    
+    // handle each entry in nonveto_bits_:
+    // the previously special "!*" case is now handled routinely by this code.
+    
+    for (std::vector<Bits>::const_iterator nv =  nonveto_bits_.begin();
+    					   nv != nonveto_bits_.end(); ++nv)
+    {
+      bool allFail = true;
+      Bits::const_iterator i(nv->begin());
+      Bits::const_iterator e(nv->end());
+      for(;i!=e;++i) 
+      {
+            // std::cerr << "..i->accept_state_: " << i->accept_state_ << "\n";
+        if (this->acceptTriggerPath(tr[i->pos_], *i)) 
+	{ allFail = false; break; }
+      }
+      if (allFail) return true;
+    }
+
+    // If we have not accepted based on decision_bits_, nor on any one of
+    // the nonveto_bits_ collections, then we reject this event.
+    
+    return false;
+  }
+
+  bool 
+  EventSelector::acceptEvent(unsigned char const* array_of_trigger_results, 
+  			     int number_of_trigger_paths) const
+  {
+	// std::cerr << "array_of_trigger_results: \n";
+	for (int k=0; k<(number_of_trigger_paths+3)/4; ++k) {
+	  //std::cerr << std::hex << (int)array_of_trigger_results[k] 
+	  //	    << std::dec << " ";
+	}
+	//std::cerr << "\n";
+
+    // This should never occur unless someone uses this function in
+    // an incorrect way ...
+    if (!results_from_current_process_) {
+      throw edm::Exception(edm::errors::Configuration)
+        << "\nEventSelector.cc::acceptEvent, you are attempting to\n"
+        << "use a bit array for trigger results instead of the\n"
+        << "TriggerResults object for a previous process.  This\n"
+        << "will not work and ought to be impossible\n";
+    }
+
+    Bits::const_iterator i(decision_bits_.begin()),e(decision_bits_.end());
+    for(;i!=e;++i)
+      {
+        int pathIndex = i->pos_;
+        if (pathIndex < number_of_trigger_paths)
+          {
+            int byteIndex = ((int) pathIndex / 4);
+            int subIndex = pathIndex % 4;
+            int state = array_of_trigger_results[byteIndex] >> (subIndex * 2);
+            state &= 0x3;
+            HLTPathStatus pathStatus(static_cast<hlt::HLTState>(state));
+            if ( this->acceptTriggerPath(pathStatus, *i) )
+              {
+                return true;
+              }
+          }
+      }
+
+    // handle each entry in nonveto_bits_:
+    // the previously special "!*" case is now handled routinely by this code.
+    
+    for (std::vector<Bits>::const_iterator nv =  nonveto_bits_.begin();
+    					   nv != nonveto_bits_.end(); ++nv)
+    {
+	//std::cerr << "nonveto_bits_ loop\n";
+      
+      bool allFail = true;
+      Bits::const_iterator i(nv->begin());
+      Bits::const_iterator e(nv->end());
+      //std::cerr << "nv->size() = " << nv->size() << "\n";
+      for(;i!=e;++i) 
+      {
+        //std::cerr << "Bits (*i) is " << i->pos_ << ", " << i->accept_state_ 
+	 //         << "\n";
+        int pathIndex = i->pos_;
+	//std::cerr << "pathIndex is " << pathIndex << ";  ";
+        if (pathIndex < number_of_trigger_paths)
+        {
+            int byteIndex = ((int) pathIndex / 4);
+            int subIndex = pathIndex % 4;
+            int state = array_of_trigger_results[byteIndex] >> (subIndex * 2);
+            state &= 0x3;
+	   // std::cerr << "byteIndex: " << byteIndex << "  ";
+	    //std::cerr << "subIndex: " << subIndex << "  ";
+	   // std::cerr << "aotr[bi]: " << std::hex 
+	    //	      << (int)array_of_trigger_results[byteIndex]  
+		//      << std::dec << "  ";
+	    //std::cerr << "state: " << state << "\n";
+            HLTPathStatus pathStatus(static_cast<hlt::HLTState>(state));
+            //std::cerr << "i->accept_state_: " << i->accept_state_ << "\n";
+ 	    if ( this->acceptTriggerPath(pathStatus, *i) )
+	    { // std::cerr << "acceptTriggerPath returned true \n";
+	      allFail = false; break; }
+        }
+      }
+      if (allFail) return true;
+    }
+    
+    // If we have not accepted based on decision_bits_, nor on any one of
+    // the nonveto_bits_ collections, then we reject this event.
+    
+    return false;
+
+  }
+
+  bool EventSelector::acceptTriggerPath(HLTPathStatus const& pathStatus,
+                                        BitInfo const& pathInfo) const
+  {
+    return ( ((pathStatus.state()==hlt::Pass) &&  (pathInfo.accept_state_)) ||
+             ((pathStatus.state()==hlt::Fail) && !(pathInfo.accept_state_)) ||
+             ((pathStatus.state()==hlt::Exception)) );
+  }
+
+  std::string  EventSelector::glob2reg(std::string const& s) 
+  {
+    std::string r = s;
+    boost::replace_all(r, "*", ".*");
+    boost::replace_all(r, "?", ".");
+    return r;
+  }
+
+  std::vector< EventSelector::Strings::const_iterator > 
+  EventSelector::matching_triggers(Strings const& trigs, std::string const& s) 
+  {
+    std::vector< Strings::const_iterator > m;
+    boost::regex r ( glob2reg(s) );
+    for (Strings::const_iterator i = trigs.begin(); i != trigs.end(); ++i)
+    {
+      if  (boost::regex_match((*i),r)) 
+      {
+        m.push_back(i);
+      }
+    }
+    return m;
+  }
+
+}

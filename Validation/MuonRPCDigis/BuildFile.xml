@@ -1,0 +1,15 @@
+<use   name="FWCore/Framework"/>
+<use   name="FWCore/PluginManager"/>
+<use   name="DataFormats/RPCDigi"/>
+<use   name="Geometry/Records"/>
+<use   name="Geometry/RPCGeometry"/>
+<use   name="DQMServices/Core"/>
+<use   name="DataFormats/Common"/>
+<use   name="FWCore/ParameterSet"/>
+<use   name="FWCore/ServiceRegistry"/>
+<use   name="SimDataFormats/CrossingFrame"/>
+<use   name="CommonTools/UtilAlgos"/>
+<use   name="rootcore"/>
+<use   name="root"/>
+<use   name="FWCore/Utilities"/>
+<flags   EDM_PLUGIN="1"/>

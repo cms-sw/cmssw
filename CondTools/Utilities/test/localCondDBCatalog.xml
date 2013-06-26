@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
+<!-- Edited By POOL -->
+<!DOCTYPE POOLFILECATALOG SYSTEM "InMemory">
+<POOLFILECATALOG>
+  <File ID="96D5C3CC-113C-DC11-A877-001320DD001B">
+    <physical>
+      <pfn filetype="POOL_RDBMS" name="sqlite_file:ecalped.db"/>
+    </physical>
+    <logical>
+      <lfn name="/local/ecalped.db"/>
+    </logical>
+  </File>
+
+
+</POOLFILECATALOG>

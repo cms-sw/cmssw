@@ -1,0 +1,107 @@
+<library file="DisplayGeom.cc" name="FireworksDisplayGeomPlugin">
+	<use name="FWCore/Framework"/>
+	<use name="Fireworks/Geometry"/>
+	<use name="Fireworks/Eve"/>
+        <lib name="Eve"/>
+        <lib name="Geom"/>
+        <lib name="Physics"/>
+	<use name="MagneticField/Engine"/>
+	<use name="MagneticField/Records"/>
+	<flags EDM_PLUGIN="1"/>
+</library>
+
+<library file="EveDisplayPlugin.cc" name="FireworksGeometryPlugins">
+	<use name="Geometry/Records"/>
+	<use name="Fireworks/Geometry"/>
+	<use name="rootgpad"/>
+	<lib name="Eve"/>
+	<lib name="Geom"/>
+	<flags EDM_PLUGIN="1"/>
+</library>
+
+<library file="DumpSimGeometry.cc" name="FireworksGeometryDumpSimGeometryPlugin">
+	<use name="Fireworks/Geometry"/>
+        <use name="FWCore/Framework"/>
+        <use name="FWCore/PluginManager"/>
+        <use name="FWCore/ParameterSet"/>
+        <lib name="Geom"/>
+	<flags EDM_PLUGIN="1"/>
+</library>
+
+<library file="MFProducer.cc" name="FireworksGeometryMFProducerPlugin">
+        <use name="FWCore/Framework"/>
+        <use name="FWCore/PluginManager"/>
+        <use name="FWCore/ParameterSet"/>
+	<use name="clhep"/>
+	<use name="MagneticField/Engine"/>
+	<use name="MagneticField/Records"/>
+	<use name="rootgpad"/>
+	<flags EDM_PLUGIN="1"/>
+</library>
+
+<library file="DumpFWRecoGeometry.cc" name="FireworksGeometryDumpFWRecoGeometryPlugin">
+	<use name="Fireworks/Geometry"/>
+        <lib name="Eve"/>
+	<lib name="Geom"/>
+	<use name="rootcore"/>
+        <use name="FWCore/Framework"/>
+        <use name="FWCore/PluginManager"/>
+        <use name="FWCore/ParameterSet"/>
+        <use name="Geometry/CaloGeometry"/>
+        <use name="Geometry/DTGeometry"/>
+        <use name="Geometry/CSCGeometry"/>
+        <use name="Geometry/RPCGeometry"/>
+	<use name="Geometry/TrackerGeometryBuilder"/>
+	<use name="Geometry/Records"/>
+	<flags EDM_PLUGIN="1"/>
+</library>
+
+<library file="DumpFWTGeoRecoGeometry.cc" name="FireworksGeometryDumpFWTGeoRecoGeometryPlugin">
+	<use name="Fireworks/Geometry"/>
+        <lib name="Eve"/>
+	<lib name="Geom"/>
+	<use name="rootcore"/>
+        <use name="FWCore/Framework"/>
+        <use name="FWCore/PluginManager"/>
+        <use name="FWCore/ParameterSet"/>
+        <use name="Geometry/CaloGeometry"/>
+        <use name="Geometry/DTGeometry"/>
+        <use name="Geometry/CSCGeometry"/>
+        <use name="Geometry/RPCGeometry"/>
+	<use name="Geometry/TrackerGeometryBuilder"/>
+	<use name="Geometry/Records"/>
+	<flags EDM_PLUGIN="1"/>
+</library>
+
+<library file="ValidateGeometry.cc" name="FireworksGeometryValidateGeometryPlugin">
+        <use name="FWCore/Framework"/>
+        <use name="Geometry/RPCGeometry"/>
+        <use name="Geometry/DTGeometry"/>
+        <use name="Geometry/CSCGeometry"/>
+        <use name="Geometry/CaloGeometry"/>
+        <use name="Geometry/TrackerGeometryBuilder"/>
+        <use name="Geometry/Records"/>
+        <use name="Fireworks/Core"/>
+        <use name="Fireworks/Tracks"/> 
+        <use name="rootcore"/>
+        <lib name="Geom"/>
+	<flags EDM_PLUGIN="1"/>
+</library>
+
+<library file="TGeoMgrFromDddPlugin.cc"
+         name="FireworksGeometryTGeoMgrFromDddPlugin">
+        <use name="Fireworks/Geometry"/>
+	<flags EDM_PLUGIN="1"/>
+</library>
+
+<library file="FWRecoGeometryESProducerPlugin.cc"
+         name="FireworksGeometryFWRecoGeometryESProducerPlugin">
+        <use name="Fireworks/Geometry"/>
+	<flags EDM_PLUGIN="1"/>
+</library>
+
+<library file="FWTGeoRecoGeometryESProducerPlugin.cc"
+         name="FireworksGeometryFWTGeoRecoGeometryESProducerPlugin">
+        <use name="Fireworks/Geometry"/>
+	<flags EDM_PLUGIN="1"/>
+</library>

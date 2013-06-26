@@ -1,0 +1,76 @@
+
+=============================================
+
+MessageLogger Summary
+
+ type     category        sev    module        subroutine        count    total
+ ---- -------------------- -- ---------------- ----------------  -----    -----
+    1 FwkReport            -i AfterSource                            1*       1
+    2 cat_A                -e UnitTestClient_B                       1        1
+    3 cat_B                -e UnitTestClient_B                       1        1
+
+* Some occurrences of this message were suppressed in all logs, due to limits.
+
+ type    category    Examples: run/evt        run/evt          run/evt
+ ---- -------------------- ---------------- ---------------- ----------------
+    1 FwkReport            PostBeginLumi                     
+    2 cat_A                1/1                               
+    3 cat_B                1/1                               
+
+Severity    # Occurrences   Total Occurrences
+--------    -------------   -----------------
+Info                    1                   1
+Error                   2                   2
+
+=============================================
+
+MessageLogger Summary
+
+ type     category        sev    module        subroutine        count    total
+ ---- -------------------- -- ---------------- ----------------  -----    -----
+    1 FwkReport            -i AfterSource                            1*       1
+    2 cat_A                -e UnitTestClient_B                       2        2
+    3 cat_B                -e UnitTestClient_B                       1        1
+
+* Some occurrences of this message were suppressed in all logs, due to limits.
+
+ type    category    Examples: run/evt        run/evt          run/evt
+ ---- -------------------- ---------------- ---------------- ----------------
+    1 FwkReport            PostProcessEvent                  
+    2 cat_A                1/2              1/2              
+    3 cat_B                1/2                               
+
+Severity    # Occurrences   Total Occurrences
+--------    -------------   -----------------
+Info                    1                   1
+Error                   3                   3
+
+=============================================
+
+MessageLogger Summary
+
+ type     category        sev    module        subroutine        count    total
+ ---- -------------------- -- ---------------- ----------------  -----    -----
+    1 FwkReport            -i AfterSource                            1*       1
+    2 cat_A                -e UnitTestClient_B                       3        3
+    3 cat_B                -e UnitTestClient_B                       1        1
+
+* Some occurrences of this message were suppressed in all logs, due to limits.
+
+ type    category    Examples: run/evt        run/evt          run/evt
+ ---- -------------------- ---------------- ---------------- ----------------
+    1 FwkReport            PostProcessEvent                  
+    2 cat_A                1/3              1/3              1/3
+    3 cat_B                1/3                               
+
+Severity    # Occurrences   Total Occurrences
+--------    -------------   -----------------
+Info                    1                   1
+Error                   4                   4
+
+=============================================
+
+MessageLogger Summary
+
+Severity    # Occurrences   Total Occurrences
+--------    -------------   -----------------

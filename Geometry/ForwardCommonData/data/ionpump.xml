@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
+	<SolidSection label="ionpump.xml">
+		<Polycone name="FULLTUB" startPhi="0*deg" deltaPhi="360*deg">
+			<ZSection z="0*fm" rMin="0*fm" rMax="1.9*cm"/>
+			<ZSection z="40*mm" rMin="0*fm" rMax="1.9*cm"/>
+			<ZSection z="40*mm" rMin="0*fm" rMax="3.5*cm"/>
+			<ZSection z="65.4*mm" rMin="0*fm" rMax="3.5*cm"/>
+			<ZSection z="65.4*mm" rMin="0*fm" rMax="1.9*cm"/>
+			<ZSection z="80.*mm" rMin="0*fm" rMax="1.9*cm"/>
+		</Polycone>
+		<Trd1 dx1="5.291*cm" dx2="8.505*cm" dy1="3.9*cm" dy2="3.9*cm" dz="3.075*cm" name="BOXA"/>
+		<Trd1 dx1="8.505*cm" dx2="5.291*cm" dy1="3.9*cm" dy2="3.9*cm" dz="3.075*cm" name="BOXB"/>
+		<Polycone name="VTUB" startPhi="0*deg" deltaPhi="360*deg">
+			<ZSection z="0*fm" rMin="0*fm" rMax="1.8*cm"/>
+			<ZSection z="40*mm" rMin="0*fm" rMax="1.8*cm"/>
+			<ZSection z="40*mm" rMin="0*fm" rMax="1.8*cm"/>
+			<ZSection z="65.4*mm" rMin="0*fm" rMax="1.8*cm"/>
+			<ZSection z="65.4*mm" rMin="0*fm" rMax="1.8*cm"/>
+			<ZSection z="80.*mm" rMin="0*fm" rMax="1.8*cm"/>
+		</Polycone>
+		<Trd1 dx1="5.191*cm" dx2="8.405*cm" dy1="3.8*cm" dy2="3.8*cm" dz="3.075*cm" name="VBOXA"/>
+		<Trd1 dx1="8.405*cm" dx2="5.191*cm" dy1="3.8*cm" dy2="3.8*cm" dz="2.975*cm" name="VBOXB"/>
+		<!--<Trd1 dx1="8.505*cm" dx2="8.505*cm" dy1="3.9*cm" dy2="3.9*cm" dz="6.15*cm" name="PUMP" />-->
+	</SolidSection>
+	<LogicalPartSection label="ionpump.xml">
+		<LogicalPart name="FULLTUB" category="unspecified">
+			<rSolid name="FULLTUB"/>
+			<rMaterial name="materials:StainlessSteel"/>
+		</LogicalPart>
+		<LogicalPart name="BOXA" category="unspecified">
+			<rSolid name="BOXA"/>
+			<rMaterial name="materials:StainlessSteel"/>
+		</LogicalPart>
+		<LogicalPart name="BOXB" category="unspecified">
+			<rSolid name="BOXB"/>
+			<rMaterial name="materials:StainlessSteel"/>
+		</LogicalPart>
+		<LogicalPart name="VTUB" category="unspecified">
+			<rSolid name="VTUB"/>
+			<rMaterial name="materials:Vacuum"/>
+		</LogicalPart>
+		<LogicalPart name="VBOXA" category="unspecified">
+			<rSolid name="VBOXA"/>
+			<rMaterial name="materials:Vacuum"/>
+		</LogicalPart>
+		<LogicalPart name="VBOXB" category="unspecified">
+			<rSolid name="VBOXB"/>
+			<rMaterial name="materials:Vacuum"/>
+		</LogicalPart>
+		<!--
+		     <LogicalPart name="PUMP" category="unspecified">
+		     <rSolid name="PUMP"/>
+		     <rMaterial name="materials:Air"/>
+		</LogicalPart>
+		     -->
+	</LogicalPartSection>
+	<RotationSection label="ionpump.xml">
+		<Rotation name="rota11" thetaX="90.0*deg" phiX="0.0*deg" thetaY="101.0*deg" phiY="90.0*deg" thetaZ="11.0*deg" phiZ="90.0*deg"/>
+		<Rotation name="rota2" thetaX="90.0*deg" phiX="135.0*deg" thetaY="101.0*deg" phiY="225.0*deg" thetaZ="11.0*deg" phiZ="225.0*deg"/>
+		<Rotation name="rota3" thetaX="90.0*deg" phiX="45.0*deg" thetaY="79.0*deg" phiY="135.0*deg" thetaZ="11.0*deg" phiZ="315.0*deg"/>
+	</RotationSection>
+	<PosPartSection label="ionpump.xml">
+		<PosPart copyNumber="1">
+			<rParent name="forward:TotemT2"/>
+			<rChild name="ionpump:FULLTUB"/>
+			<rRotation name="ionpump:rota11"/>
+			<!-- <rRotation name="rotations:000D"/> -->
+			<Translation x="0*mm" y="158.0*mm+4.42*mm" z="13465.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="2">
+			<rParent name="forward:TotemT2"/>
+			<rChild name="ionpump:FULLTUB"/>
+			<rRotation name="ionpump:rota3"/>
+			<!-- <rRotation name="rotations:000D"/> -->
+			<Translation x="111.72*mm+3.13*mm" y="-111.72*mm-3.13*mm" z="13465.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="3">
+			<rParent name="forward:TotemT2"/>
+			<rChild name="ionpump:FULLTUB"/>
+			<rRotation name="ionpump:rota2"/>
+			<!-- <rRotation name="rotations:000D"/> -->
+			<Translation x="-111.72*mm-3.13*mm" y="-111.72*mm-3.13*mm" z="13465.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="ionpump:FULLTUB"/>
+			<rChild name="ionpump:VTUB"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="forward:TotemT2"/>
+			<rChild name="ionpump:BOXA"/>
+			<rRotation name="ionpump:rota11"/>
+			<Translation x="0*mm" y="158.0*mm+25.95*mm" z="13576.25*mm"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="forward:TotemT2"/>
+			<rChild name="ionpump:BOXB"/>
+			<rRotation name="ionpump:rota11"/>
+			<Translation x="0*mm" y="158.0*mm+37.9*mm" z="13637.75*mm"/>
+		</PosPart>
+		<PosPart copyNumber="2">
+			<rParent name="forward:TotemT2"/>
+			<rChild name="ionpump:BOXA"/>
+			<rRotation name="ionpump:rota2"/>
+			<Translation x="-111.72*mm-18.35*mm" y="-111.72*mm-18.35*mm" z="13576.25*mm"/>
+		</PosPart>
+		<PosPart copyNumber="2">
+			<rParent name="forward:TotemT2"/>
+			<rChild name="ionpump:BOXB"/>
+			<rRotation name="ionpump:rota2"/>
+			<Translation x="-111.72*mm-26.8*mm" y="-111.72*mm-26.8*mm" z="13637.75*mm"/>
+		</PosPart>
+		<PosPart copyNumber="3">
+			<rParent name="forward:TotemT2"/>
+			<rChild name="ionpump:BOXA"/>
+			<rRotation name="ionpump:rota3"/>
+			<Translation x="111.72*mm+18.35*mm" y="-111.72*mm-18.35*mm" z="13576.25*mm"/>
+		</PosPart>
+		<PosPart copyNumber="3">
+			<rParent name="forward:TotemT2"/>
+			<rChild name="ionpump:BOXB"/>
+			<rRotation name="ionpump:rota3"/>
+			<Translation x="111.72*mm+26.8*mm" y="-111.72*mm-26.8*mm" z="13637.75*mm"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="ionpump:BOXA"/>
+			<rChild name="ionpump:VBOXA"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="ionpump:BOXB"/>
+			<rChild name="ionpump:VBOXB"/>
+		</PosPart>
+		<!--
+		     <PosPart copyNumber="1">
+		     <rParent name="forward:TotemT2"/>
+		     <rChild name="ionpump:PUMP"/>
+		     <rRotation name="ionpump:rota11"/>
+		     <Translation x="0*mm" y="158.0*mm+31.92*mm" z="13607*mm" />
+		</PosPart>
+		     
+		     <PosPart copyNumber="2">
+		     <rParent name="forward:TotemT2"/> 
+		     <rChild name="ionpump:PUMP"/>
+		     <rRotation name="ionpump:rota2"/>
+		     <Translation x="-111.72*mm-22.57*mm" y="-111.72*mm-22.57*mm" z="13607*mm" />
+		</PosPart>
+		     
+		     <PosPart copyNumber="3">
+		     <rParent name="forward:TotemT2"/> 
+		     <rChild name="ionpump:PUMP"/>
+		     <rRotation name="ionpump:rota3"/>
+		     <Translation x="111.72*mm+22.57*mm" y="-111.72*mm-22.57*mm" z="13607*mm" />   
+		</PosPart>
+		     <PosPart copyNumber="1">
+		     <rParent name="ionpump:PUMP"/>
+		     <rChild name="ionpump:BOXA"/>
+		     <Translation x="0*cm" y="0.0*cm" z="-3.075*cm" />
+		</PosPart>
+		     <PosPart copyNumber="1">
+		     <rParent name="ionpump:PUMP"/>
+		     <rChild name="ionpump:BOXB"/>
+		     <Translation x="0*cm" y="0.0*cm" z="3.075*cm" />
+		</PosPart>
+		     -->
+	</PosPartSection>
+</DDDefinition>

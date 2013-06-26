@@ -1,0 +1,5 @@
+<use   name="CondCore/PluginSystem"/>
+<use   name="CondCore/ESSources"/>
+<use   name="CondFormats/JetMETObjects"/>
+<use   name="CondFormats/DataRecord"/>
+<flags   EDM_PLUGIN="1"/>

@@ -1,0 +1,12 @@
+<library   file="*.cc" name="EventFilterUtilitiesPlugins">
+  <use   name="FWCore/MessageLogger"/>
+  <use   name="FWCore/ServiceRegistry"/>
+  <use   name="FWCore/Framework"/>
+  <use   name="FWCore/Sources"/>
+  <use   name="EventFilter/Utilities"/>
+  <use   name="DataFormats/FEDRawData"/>
+  <use   name="xdaq"/>
+  <use   name="root"/>
+  <use   name="boost"/>
+  <flags   EDM_PLUGIN="1"/>
+</library>

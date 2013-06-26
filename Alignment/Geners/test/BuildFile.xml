@@ -1,0 +1,20 @@
+<bin   name="cmerge" file="cmerge.cc">
+   <use  name="Alignment/Geners"/>
+</bin>
+
+<bin   name="crecover" file="crecover.cc">
+   <use  name="Alignment/Geners"/>
+</bin>
+
+<bin   name="print_items" file="print_items.cc">
+   <use  name="Alignment/Geners"/>
+</bin>
+
+<bin   name="cdump" file="cdump.cc">
+   <use  name="Alignment/Geners"/>
+</bin>
+
+<bin  file="GenersTestHelper_t.cc">
+   <use  name="FWCore/Utilities"/>
+   <flags   TEST_RUNNER_ARGS=" /bin/tcsh Alignment/Geners/test test_cdump.csh"/>
+</bin>

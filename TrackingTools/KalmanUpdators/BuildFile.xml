@@ -1,0 +1,13 @@
+<use   name="boost"/>
+<use   name="clhep"/>
+<use   name="RecoTracker/TransientTrackingRecHit"/>
+<use   name="TrackingTools/TransientTrackingRecHit"/>
+<use   name="TrackingTools/TrajectoryState"/>
+<use   name="TrackingTools/DetLayers"/>
+<use   name="TrackingTools/GeomPropagators"/>
+<use   name="Geometry/CommonDetUnit"/>
+<use   name="Geometry/CommonTopologies"/>
+<export>
+  <lib   name="1"/>
+</export>
+<use   name="FWCore/Utilities"/>

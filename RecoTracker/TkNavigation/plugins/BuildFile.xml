@@ -1,0 +1,8 @@
+<use   name="RecoTracker/TkNavigation"/>
+<use   name="FWCore/PluginManager"/>
+<use   name="RecoTracker/Record"/>
+<use   name="RecoTracker/TkDetLayers"/>
+<use   name="MagneticField/Engine"/>
+<library   file="*.cc" name="RecoTrackerTkNavigationPlugins">
+  <flags   EDM_PLUGIN="1"/>
+</library>

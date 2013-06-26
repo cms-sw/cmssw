@@ -1,0 +1,16 @@
+<FrameworkJobReport>
+<MessageSummary>
+  <Category_i_FwkReport  Value="1" />
+  <Category_i_cat_A  Value="6" />
+  <Category_i_timer  Value="6" />
+  <Category_i_trace  Value="6" />
+  <LogDebug_LogTrace  Value="0" />
+  <LogError_LogProblem  Value="0" />
+  <LogInfo_LogVerbatim  Value="19" />
+  <LogSystem_LogAbsolute  Value="0" />
+  <LogWarnng_LogPrint  Value="0" />
+</MessageSummary>
+
+<GeneratorInfo>
+</GeneratorInfo>
+</FrameworkJobReport>

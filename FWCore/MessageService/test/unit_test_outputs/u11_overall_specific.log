@@ -1,0 +1,29 @@
+%MSG-i expect_overall_specific:  UnitTestClient_F:sendSomeMessages  Run: 1 Event: 1
+The following outputs are expected: 
+int7bycommondefault    appearing in events 1,8,15,22,29,36,43,50 
+
+%MSG
+%MSG-i int7bycommondefault:  UnitTestClient_F:sendSomeMessages Run: 1 Event: 1
+message with specific overall default interval of 7: 1
+%MSG
+%MSG-i int7bycommondefault:  UnitTestClient_F:sendSomeMessages Run: 1 Event: 1
+message with specific overall default interval of 7: 8
+%MSG
+%MSG-i int7bycommondefault:  UnitTestClient_F:sendSomeMessages Run: 1 Event: 1
+message with specific overall default interval of 7: 15
+%MSG
+%MSG-i int7bycommondefault:  UnitTestClient_F:sendSomeMessages Run: 1 Event: 1
+message with specific overall default interval of 7: 22
+%MSG
+%MSG-i int7bycommondefault:  UnitTestClient_F:sendSomeMessages Run: 1 Event: 1
+message with specific overall default interval of 7: 29
+%MSG
+%MSG-i int7bycommondefault:  UnitTestClient_F:sendSomeMessages Run: 1 Event: 1
+message with specific overall default interval of 7: 36
+%MSG
+%MSG-i int7bycommondefault:  UnitTestClient_F:sendSomeMessages Run: 1 Event: 1
+message with specific overall default interval of 7: 43
+%MSG
+%MSG-i int7bycommondefault:  UnitTestClient_F:sendSomeMessages Run: 1 Event: 1
+message with specific overall default interval of 7: 50
+%MSG

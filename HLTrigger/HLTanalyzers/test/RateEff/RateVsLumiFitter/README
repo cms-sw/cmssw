@@ -1,0 +1,31 @@
+RateEff/RateVsLumiFitter
+========================
+
+This module contains Roberto Rossin's rate vs. luminosity fitter.
+
+Usage:
+
+- lumiByLS_maker.sh:
+  produces a lumi-vs-LS table for a given run (output: x.icc)
+
+- correctLumiMap.C:
+  takes x.icc, applies some correction
+  produces x_corr.icc
+
+- runRateEffParallel.sh:
+  runs OHltRateEff in parallel on a list of datasets,
+  and for each dataset on several cfg files, for several runs;
+  the output is just a list of the usual RateEff root files (plus log files)
+
+- FitRatesPerLS.C:
+  runs on the root files produces by runHighPU.sh;
+  produces fit plots for the paths belonging to a given "dataset" (cfg file tuple)
+
+
+Useful bash commands for running FitRatesPerLS.C in a loop:
+
+DS_ARR=("AlphaT" "DoubleMu" "EleHadEG12" "HTMHT" "MET" "MuHad" "MultiJet" "PhotonDoubleEle" "PhotonDoublePhoton" "PhotonHad" "PhotonPhoton" "RMR" "SingleMu" "Tau" "Jet")
+REBIN_ARR=("28" "19" "17" "28" "28" "28" "28" "17" "17" "17" "17" "28" "28" "28" "28")
+nbDS=${#DS_ARR[@]}
+for (( i=0; i<${nbDS}; i++ )) ; do DS=${DS_ARR[$i]}; REBIN=${REBIN_ARR[$i]}; root -l FitRatesPerLS.C+\(\"${DS}\",5000,${REBIN},100\); done
+

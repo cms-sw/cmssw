@@ -1,0 +1,56 @@
+
+/*!
+
+\page FastSimulation_Tracking Package FastSimulation/Tracking
+
+<center>
+<small>
+
+<!-- @CVS_TAG@ will be substituted at build time, no need to touch -->
+<a href=http://cmssw.cvs.cern.ch/cgi-bin/cmssw.cgi/CMSSW/FastSimulation/Tracking/?cvsroot=CMSSW&only_with_tag=@CVS_TAG@>Source code (CVS tag: @CVS_TAG@)</a> - 
+<a href=http://cmssw.cvs.cern.ch/cgi-bin/cmssw.cgi/CMSSW/FastSimulation/Tracking/.admin/developers?rev=HEAD&cvsroot=CMSSW&content-type=text/vnd.viewcvs-markup>Administrative privileges</a>
+</small>
+</center>
+
+\section desc Description
+<!-- Short description of what this package is supposed to provide -->
+
+The package deals with the interface between the Fast Simulation and the reco::Tracking package in the Full Reconstruction.<br>
+In FastSim a fast tracking is implemented, in which only the RecHits produced by a given simTrack are fitted, so that the time-expensive pattern recognition step can be avoided. <br>
+For the track fit, however, the same Iterative Tracking procedure as in the Full Reconstruction is implemented: the configurations in the /python directory are used to steed the customized Iterative Tracking for FastSim.
+
+
+\subsection interface Public interface
+<!-- List the classes that are provided for use in other packages (if any) -->
+
+- TrackerRecHit <br>
+A class that gives some properties of the Tracker Layers in the Fast Simulation
+
+
+\subsection pluginai Plugins
+<!-- List the plugins that are provided for use in other packages (if any) -->
+
+- FastTrackMerger
+- PixelTracksProducer
+- TrackCandidateProducer
+- TrajectorySeedProducer
+
+
+
+\subsection modules Modules
+<!-- Describe modules implemented in this package and their parameter set -->
+
+
+\subsection tests Unit tests and examples
+<!-- Describe cppunit tests and example configuration files -->
+Unknown
+
+\section status Status and planned development
+<!-- e.g. completed, stable, missing features -->
+Unknown
+
+<hr>
+Last updated:
+@DATE@  Author: computer-generated.
+*/
+

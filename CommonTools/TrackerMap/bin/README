@@ -1,0 +1,54 @@
+1)Example on how to generate a tkmap starting from a list of 
+<detids> <value>  (NB: a single entry for each detid)
+
+Starting from a ascii file containing the list (dummy.txt) and from an empty tkmap.xml 
+run this awk script to create a new xml tkmap
+ 
+awk -f tkmap.awk [optional vmin=value0 vmax=value1] dummy.txt tkmap_white.xml > ! dummy.xml
+
+-------------------------------------------------
+
+To generate a .png, .pdf, .C file containing the same tkmap included in a tkmap.xml
+run the application 
+
+svgTopng.exe <inputTkMap> <outputFile>
+
+for example
+./svgTopng.exe dummy.xml dummy.png
+./svgTopng.exe dummy.xml dummy.pdf
+
+or
+./svgTopng.exe NoiseTkMap_Run_109574.svg Noise.png
+-------------------------------------------------
+
+To compile the executable svtTopng.exe run the script ./compile.sh
+
+
+2)Example on how to create the set of 41 images of the "tracker scan" (one for each layer)
+starting from a text file "points.txt" containing a list of points in space in the format: 
+detid x y z 
+
+./tkScanBuild.exe points.txt
+
+To compile the executable tkScanBuild.exe
+
+use the command:
+
+g++ -g -m32 -Wall -ansi -I $ROOTSYS/include -L $ROOTSYS/lib `root-config --glibs` -o tkScanBuild.exe tkScanBuild.C
+
+To test the program you need to download in the same directory:
+  tkScanBuild.exe
+  points.txt
+  CommonTools/TrackerMap/data/tracker.dat
+
+Then give the command:
+
+./tkScanBuild.exe points.txt
+
+To create the web page "tkscan.html" with thumbnails linked to the 41 images use
+the following command:
+montage -geometry 240x120+10+10 -background white -tile 5x100 -label %f PIXB*.png TIB*.png TOB*.png NULL: NULL: PIXEM*.png TIDM*.png TECM*.png NULL: PIXEP*.png TIDP*.png TECP*.png tkscan.html
+
+  
+
+

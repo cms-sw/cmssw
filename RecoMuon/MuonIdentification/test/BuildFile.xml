@@ -1,0 +1,16 @@
+<use   name="DataFormats/Common"/>
+<use   name="DataFormats/TrackReco"/>
+<use   name="DataFormats/MuonReco"/>
+<use   name="TrackingTools/TrackAssociator"/>
+<use   name="FWCore/Framework"/>
+<use   name="FWCore/PluginManager"/>
+<use   name="FWCore/ParameterSet"/>
+<use   name="boost"/>
+<use   name="RecoMuon/MuonIsolation"/>
+<use   name="RecoMuon/MuonIdentification"/>
+<use   name="DataFormats/RecoCandidate"/>
+<use   name="PhysicsTools/UtilAlgos"/>
+<use   name="CommonTools/Utils"/>
+<library   file="*.cc" name="TestMuonMuonIdentificationPlugins">
+  <flags   EDM_PLUGIN="1"/>
+</library>

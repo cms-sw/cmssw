@@ -1,0 +1,20 @@
+# $Id: Onia_Upsilon2S_Upsilon1Spipi.dec,v 1.1 2013/01/22 22:28:24 xshi Exp $
+#
+#
+Alias      MyUpsilon  Upsilon
+ChargeConj MyUpsilon  MyUpsilon
+#
+Decay MyUpsilon
+  1.000         mu+       mu-            PHOTOS VLL;
+Enddecay
+#
+#
+Alias      MyUpsilon(2S)  Upsilon(2S)
+ChargeConj MyUpsilon(2S)  MyUpsilon(2S)
+#Particle MyUpsilon(2S) 10.3552 0.00002
+#
+Decay MyUpsilon(2S)
+  1.000  MyUpsilon    pi+        pi-         PHSP ;
+Enddecay
+End
+

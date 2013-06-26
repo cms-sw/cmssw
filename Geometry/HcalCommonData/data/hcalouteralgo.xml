@@ -1,0 +1,1358 @@
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
+	<ConstantsSection label="hcalouteralgo.xml" eval="true">
+		<Constant name="dxLayer0" value="960.0*mm"/>
+		<Constant name="dxLayer1C" value="1025.0*mm"/>
+		<Constant name="dxLayer1" value="1095.0*mm"/>
+		<Constant name="dyTail" value="94.0*mm"/>
+		<Constant name="dzPanel" value="1268.00*mm"/>
+		<Constant name="dzLong" value="1255.00*mm"/>
+		<Constant name="dzShort" value="1059.50*mm"/>
+		<Constant name="dzDiff" value="([dzLong]-[dzShort])"/>
+		<Constant name="dzRing" value="([dzPanel]-[dzLong])"/>
+		<Constant name="topThick" value="3.0*mm"/>
+		<Constant name="botThick" value="5.0*mm"/>
+		<Constant name="trayThick" value="7.0*mm"/>
+		<Constant name="plasThick" value="5.5*mm"/>
+		<Constant name="scntThick" value="5.0*mm"/>
+		<Constant name="layThick" value="([topThick]+[botThick]+[trayThick])"/>
+		<Constant name="yTop" value="([layThick]-[topThick])"/>
+		<Constant name="yTray" value="([yTop]-[topThick]-[trayThick])"/>
+		<Constant name="yBot" value="([yTray]-[trayThick]-[botThick])"/>
+		<Constant name="dxGap" value="6.0*mm"/>
+		<Constant name="dxL0Tray1" value="137.0*mm"/>
+		<Constant name="dxL0Tray2" value="171.5*mm"/>
+		<Constant name="dxL0Tray3" value="166.0*mm"/>
+		<Constant name="dxL0Tray4" value="163.5*mm"/>
+		<Constant name="dxL0Tray5" value="163.5*mm"/>
+		<Constant name="dxL0Tray6" value="134.0*mm"/>
+		<Constant name="xL0Tray1" value="(-[dxLayer0]+[dxL0Tray1]+8.5*mm)"/>
+		<Constant name="xL0Tray2" value="([xL0Tray1]+[dxL0Tray1]+[dxL0Tray2]+[dxGap])"/>
+		<Constant name="xL0Tray3" value="([xL0Tray2]+[dxL0Tray2]+[dxL0Tray3]+[dxGap])"/>
+		<Constant name="xL0Tray4" value="([xL0Tray3]+[dxL0Tray3]+[dxL0Tray4]+[dxGap])"/>
+		<Constant name="xL0Tray5" value="([xL0Tray4]+[dxL0Tray4]+[dxL0Tray5]+[dxGap])"/>
+		<Constant name="xL0Tray6" value="([xL0Tray5]+[dxL0Tray5]+[dxL0Tray6]+[dxGap])"/>
+		<Constant name="dxL1CTray1" value="150.0*mm"/>
+		<Constant name="dxL1CTray2" value="182.0*mm"/>
+		<Constant name="dxL1CTray3" value="176.0*mm"/>
+		<Constant name="dxL1CTray4" value="173.5*mm"/>
+		<Constant name="dxL1CTray5" value="173.5*mm"/>
+		<Constant name="dxL1CTray6" value="146.0*mm"/>
+		<Constant name="xL1CTray1" value="(-[dxLayer1C]+[dxL1CTray1]+9.0*mm)"/>
+		<Constant name="xL1CTray2" value="([xL1CTray1]+[dxL1CTray1]+[dxL1CTray2]+[dxGap])"/>
+		<Constant name="xL1CTray3" value="([xL1CTray2]+[dxL1CTray2]+[dxL1CTray3]+[dxGap])"/>
+		<Constant name="xL1CTray4" value="([xL1CTray3]+[dxL1CTray3]+[dxL1CTray4]+[dxGap])"/>
+		<Constant name="xL1CTray5" value="([xL1CTray4]+[dxL1CTray4]+[dxL1CTray5]+[dxGap])"/>
+		<Constant name="xL1CTray6" value="([xL1CTray5]+[dxL1CTray5]+[dxL1CTray6]+[dxGap])"/>
+		<Constant name="dxL1Tray1" value="158.5*mm"/>
+		<Constant name="dxL1Tray2" value="183.0*mm"/>
+		<Constant name="dxL1Tray3" value="177.0*mm"/>
+		<Constant name="dxL1Tray4" value="174.5*mm"/>
+		<Constant name="dxL1Tray5" value="174.5*mm"/>
+		<Constant name="dxL1Tray6" value="203.0*mm"/>
+		<Constant name="xL1Tray1" value="(-[dxLayer1]+[dxL1Tray1]+9.5*mm)"/>
+		<Constant name="xL1Tray2" value="([xL1Tray1]+[dxL1Tray1]+[dxL1Tray2]+[dxGap])"/>
+		<Constant name="xL1Tray3" value="([xL1Tray2]+[dxL1Tray2]+[dxL1Tray3]+[dxGap])"/>
+		<Constant name="xL1Tray4" value="([xL1Tray3]+[dxL1Tray3]+[dxL1Tray4]+[dxGap])"/>
+		<Constant name="xL1Tray5" value="([xL1Tray4]+[dxL1Tray4]+[dxL1Tray5]+[dxGap])"/>
+		<Constant name="xL1Tray6" value="([xL1Tray5]+[dxL1Tray5]+[dxL1Tray6]+[dxGap])"/>
+		<Constant name="dxGapP" value="([dxL1Tray4]+[dxL1Tray5]+[dxGap])"/>
+		<Constant name="xGapP" value="([xL1Tray3]+[dxL1Tray3]+[dxGapP]+[dxGap])"/>
+		<Constant name="dxGapM" value="([dxL1Tray3]+[dxL1Tray4]+[dxL1Tray5]+[dxL1Tray6]+3*[dxGap]+9.5*mm)"/>
+		<Constant name="xGapM" value="([dxLayer1]-[dxGapM])"/>
+		<Constant name="yTail" value="3.957*m"/>
+		<Constant name="yLayer0" value="3.848*m"/>
+		<Constant name="yLayer1" value="4.066*m"/>
+		<Constant name="xOffC" value="-34.5763*cm"/>
+		<Constant name="xOff" value="-36.0674*cm"/>
+		<Constant name="dxStripEnd" value="3*mm"/>
+		<Constant name="dxStripMid" value="1*mm"/>
+		<Constant name="xStripEndL0" value="([dxStripEnd]-[dxLayer0])"/>
+		<Constant name="xStripEndL1C" value="([dxStripEnd]-[dxLayer1C])"/>
+		<Constant name="xStripEndL1" value="([dxStripEnd]-[dxLayer1])"/>
+		<Constant name="xStrip1L0" value="(-[dxLayer0]+2*[dxL0Tray1]+0.5*[dxGap]+8.5*mm)"/>
+		<Constant name="xStrip2L0" value="([xStrip1L0]+2*[dxL0Tray2]+[dxGap])"/>
+		<Constant name="xStrip3L0" value="([xStrip2L0]+2*[dxL0Tray3]+[dxGap])"/>
+		<Constant name="xStrip4L0" value="([xStrip3L0]+2*[dxL0Tray4]+[dxGap])"/>
+		<Constant name="xStrip5L0" value="([xStrip4L0]+2*[dxL0Tray5]+[dxGap])"/>
+		<Constant name="xStrip1L1C" value="(-[dxLayer1C]+2*[dxL1CTray1]+0.5*[dxGap]+9.0*mm)"/>
+		<Constant name="xStrip2L1C" value="([xStrip1L1C]+2*[dxL1CTray2]+[dxGap])"/>
+		<Constant name="xStrip3L1C" value="([xStrip2L1C]+2*[dxL1CTray3]+[dxGap])"/>
+		<Constant name="xStrip4L1C" value="([xStrip3L1C]+2*[dxL1CTray4]+[dxGap])"/>
+		<Constant name="xStrip5L1C" value="([xStrip4L1C]+2*[dxL1CTray5]+[dxGap])"/>
+		<Constant name="xStrip1L1" value="(-[dxLayer1]+2*[dxL1Tray1]+0.5*[dxGap]+9.5*mm)"/>
+		<Constant name="xStrip2L1" value="([xStrip1L1]+2*[dxL1Tray2]+[dxGap])"/>
+		<Constant name="xStrip3L1" value="([xStrip2L1]+2*[dxL1Tray3]+[dxGap])"/>
+		<Constant name="xStrip4L1" value="([xStrip3L1]+2*[dxL1Tray4]+[dxGap])"/>
+		<Constant name="xStrip5L1" value="([xStrip4L1]+2*[dxL1Tray5]+[dxGap])"/>
+	</ConstantsSection>
+	<SolidSection label="hcalouteralgo.xml">
+		<Trapezoid name="MBTail" dz="[dzPanel]" alp1="0*deg" bl1="[dxLayer0]" tl1="[dxLayer1C]" h1="[dyTail]" alp2="0*deg" bl2="[dxLayer0]" tl2="[dxLayer1C]" h2="[dyTail]" phi="0*deg" theta="0*deg"/>
+		<Box name="MBAT" dx="[dxLayer0]" dy="[layThick]" dz="[dzPanel]"/>
+		<Box name="HTP0_Top" dx="[dxLayer0]" dy="[topThick]" dz="[dzLong]"/>
+		<Box name="HTP0_Bot" dx="[dxLayer0]" dy="[botThick]" dz="[dzLong]"/>
+		<Box name="HTP0_T1" dx="[dxL0Tray1]" dy="[trayThick]" dz="[dzLong]"/>
+		<Box name="HTP0_T2" dx="[dxL0Tray2]" dy="[trayThick]" dz="[dzLong]"/>
+		<Box name="HTP0_T3" dx="[dxL0Tray3]" dy="[trayThick]" dz="[dzLong]"/>
+		<Box name="HTP0_T4" dx="[dxL0Tray4]" dy="[trayThick]" dz="[dzLong]"/>
+		<Box name="HTP0_T5" dx="[dxL0Tray5]" dy="[trayThick]" dz="[dzLong]"/>
+		<Box name="HTP0_T6" dx="[dxL0Tray6]" dy="[trayThick]" dz="[dzLong]"/>
+		<Box name="HTT0_T1" dx="[dxL0Tray1]" dy="[plasThick]" dz="[dzLong]"/>
+		<Box name="HTT0_T2" dx="[dxL0Tray2]" dy="[plasThick]" dz="[dzLong]"/>
+		<Box name="HTT0_T3" dx="[dxL0Tray3]" dy="[plasThick]" dz="[dzLong]"/>
+		<Box name="HTT0_T4" dx="[dxL0Tray4]" dy="[plasThick]" dz="[dzLong]"/>
+		<Box name="HTT0_T5" dx="[dxL0Tray5]" dy="[plasThick]" dz="[dzLong]"/>
+		<Box name="HTT0_T6" dx="[dxL0Tray6]" dy="[plasThick]" dz="[dzLong]"/>
+		<Box name="HTS0_T1" dx="[dxL0Tray1]" dy="[scntThick]" dz="[dzLong]"/>
+		<Box name="HTS0_T2" dx="[dxL0Tray2]" dy="[scntThick]" dz="[dzLong]"/>
+		<Box name="HTS0_T3" dx="[dxL0Tray3]" dy="[scntThick]" dz="[dzLong]"/>
+		<Box name="HTS0_T4" dx="[dxL0Tray4]" dy="[scntThick]" dz="[dzLong]"/>
+		<Box name="HTS0_T5" dx="[dxL0Tray5]" dy="[scntThick]" dz="[dzLong]"/>
+		<Box name="HTS0_T6" dx="[dxL0Tray6]" dy="[scntThick]" dz="[dzLong]"/>
+		<Box name="MBBTC" dx="[dxLayer1C]" dy="[layThick]" dz="[dzPanel]"/>
+		<Box name="MBBT" dx="[dxLayer1]" dy="[layThick]" dz="[dzPanel]"/>
+		<Box name="HTP1C_Top" dx="[dxLayer1C]" dy="[topThick]" dz="[dzLong]"/>
+		<Box name="HTP1_Top" dx="[dxLayer1]" dy="[topThick]" dz="[dzLong]"/>
+		<Box name="HTP1_R1P_Top" dx="[dxLayer1]" dy="[topThick]" dz="[dzLong]"/>
+		<Box name="HTP1_R1M_Top" dx="[dxLayer1]" dy="[topThick]" dz="[dzLong]"/>
+		<Box name="HTP1C_Bot" dx="[dxLayer1C]" dy="[botThick]" dz="[dzLong]"/>
+		<Box name="HTP1_Bot" dx="[dxLayer1]" dy="[botThick]" dz="[dzLong]"/>
+		<Box name="HTP1_R1P_Bot" dx="[dxLayer1]" dy="[botThick]" dz="[dzLong]"/>
+		<Box name="HTP1_R1M_Bot" dx="[dxLayer1]" dy="[botThick]" dz="[dzLong]"/>
+		<Box name="HTA1_R1P_Top" dx="[dxGapP]" dy="[topThick]" dz="[dzDiff]"/>
+		<Box name="HTA1_R1P_Bot" dx="[dxGapP]" dy="[botThick]" dz="[dzDiff]"/>
+		<Box name="HTA1_R1M_Top" dx="[dxGapM]" dy="[topThick]" dz="[dzDiff]"/>
+		<Box name="HTA1_R1M_Bot" dx="[dxGapM]" dy="[botThick]" dz="[dzDiff]"/>
+		<Box name="HTP1C_T1" dx="[dxL1CTray1]" dy="[trayThick]" dz="[dzLong]"/>
+		<Box name="HTP1_T1" dx="[dxL1Tray1]" dy="[trayThick]" dz="[dzLong]"/>
+		<Box name="HTP1C_T2" dx="[dxL1CTray2]" dy="[trayThick]" dz="[dzLong]"/>
+		<Box name="HTP1_T2" dx="[dxL1Tray2]" dy="[trayThick]" dz="[dzLong]"/>
+		<Box name="HTP1C_T3" dx="[dxL1CTray3]" dy="[trayThick]" dz="[dzLong]"/>
+		<Box name="HTP1_T3" dx="[dxL1Tray3]" dy="[trayThick]" dz="[dzLong]"/>
+		<Box name="HTP1_T3_S" dx="[dxL1Tray3]" dy="[trayThick]" dz="[dzShort]"/>
+		<Box name="HTP1C_T4" dx="[dxL1CTray4]" dy="[trayThick]" dz="[dzLong]"/>
+		<Box name="HTP1_T4" dx="[dxL1Tray4]" dy="[trayThick]" dz="[dzLong]"/>
+		<Box name="HTP1_T4_S" dx="[dxL1Tray4]" dy="[trayThick]" dz="[dzShort]"/>
+		<Box name="HTP1C_T5" dx="[dxL1CTray5]" dy="[trayThick]" dz="[dzLong]"/>
+		<Box name="HTP1_T5" dx="[dxL1Tray5]" dy="[trayThick]" dz="[dzLong]"/>
+		<Box name="HTP1_T5_S" dx="[dxL1Tray5]" dy="[trayThick]" dz="[dzShort]"/>
+		<Box name="HTP1C_T6" dx="[dxL1CTray6]" dy="[trayThick]" dz="[dzLong]"/>
+		<Box name="HTP1_T6" dx="[dxL1Tray6]" dy="[trayThick]" dz="[dzLong]"/>
+		<Box name="HTP1_T6_S" dx="[dxL1Tray6]" dy="[trayThick]" dz="[dzShort]"/>
+		<Box name="HTT1C_T1" dx="[dxL1CTray1]" dy="[plasThick]" dz="[dzLong]"/>
+		<Box name="HTT1_T1" dx="[dxL1Tray1]" dy="[plasThick]" dz="[dzLong]"/>
+		<Box name="HTT1C_T2" dx="[dxL1CTray2]" dy="[plasThick]" dz="[dzLong]"/>
+		<Box name="HTT1_T2" dx="[dxL1Tray2]" dy="[plasThick]" dz="[dzLong]"/>
+		<Box name="HTT1C_T3" dx="[dxL1CTray3]" dy="[plasThick]" dz="[dzLong]"/>
+		<Box name="HTT1_T3" dx="[dxL1Tray3]" dy="[plasThick]" dz="[dzLong]"/>
+		<Box name="HTT1_T3_S" dx="[dxL1Tray3]" dy="[plasThick]" dz="[dzShort]"/>
+		<Box name="HTT1C_T4" dx="[dxL1CTray4]" dy="[plasThick]" dz="[dzLong]"/>
+		<Box name="HTT1_T4" dx="[dxL1Tray4]" dy="[plasThick]" dz="[dzLong]"/>
+		<Box name="HTT1_T4_S" dx="[dxL1Tray4]" dy="[plasThick]" dz="[dzShort]"/>
+		<Box name="HTT1C_T5" dx="[dxL1CTray5]" dy="[plasThick]" dz="[dzLong]"/>
+		<Box name="HTT1_T5" dx="[dxL1Tray5]" dy="[plasThick]" dz="[dzLong]"/>
+		<Box name="HTT1_T5_S" dx="[dxL1Tray5]" dy="[plasThick]" dz="[dzShort]"/>
+		<Box name="HTT1C_T6" dx="[dxL1CTray6]" dy="[plasThick]" dz="[dzLong]"/>
+		<Box name="HTT1_T6" dx="[dxL1Tray6]" dy="[plasThick]" dz="[dzLong]"/>
+		<Box name="HTT1_T6_S" dx="[dxL1Tray6]" dy="[plasThick]" dz="[dzShort]"/>
+		<Box name="HTS1C_T1" dx="[dxL1CTray1]" dy="[scntThick]" dz="[dzLong]"/>
+		<Box name="HTS1_T1" dx="[dxL1Tray1]" dy="[scntThick]" dz="[dzLong]"/>
+		<Box name="HTS1C_T2" dx="[dxL1CTray2]" dy="[scntThick]" dz="[dzLong]"/>
+		<Box name="HTS1_T2" dx="[dxL1Tray2]" dy="[scntThick]" dz="[dzLong]"/>
+		<Box name="HTS1C_T3" dx="[dxL1CTray3]" dy="[scntThick]" dz="[dzLong]"/>
+		<Box name="HTS1_T3" dx="[dxL1Tray3]" dy="[scntThick]" dz="[dzLong]"/>
+		<Box name="HTS1_T3_S" dx="[dxL1Tray3]" dy="[scntThick]" dz="[dzShort]"/>
+		<Box name="HTS1C_T4" dx="[dxL1CTray4]" dy="[scntThick]" dz="[dzLong]"/>
+		<Box name="HTS1_T4" dx="[dxL1Tray4]" dy="[scntThick]" dz="[dzLong]"/>
+		<Box name="HTS1_T4_S" dx="[dxL1Tray4]" dy="[scntThick]" dz="[dzShort]"/>
+		<Box name="HTS1C_T5" dx="[dxL1CTray5]" dy="[scntThick]" dz="[dzLong]"/>
+		<Box name="HTS1_T5" dx="[dxL1Tray5]" dy="[scntThick]" dz="[dzLong]"/>
+		<Box name="HTS1_T5_S" dx="[dxL1Tray5]" dy="[scntThick]" dz="[dzShort]"/>
+		<Box name="HTS1C_T6" dx="[dxL1CTray6]" dy="[scntThick]" dz="[dzLong]"/>
+		<Box name="HTS1_T6" dx="[dxL1Tray6]" dy="[scntThick]" dz="[dzLong]"/>
+		<Box name="HTS1_T6_S" dx="[dxL1Tray6]" dy="[scntThick]" dz="[dzShort]"/>
+		<Box name="HTCE" dx="[dxStripEnd]" dy="[trayThick]" dz="[dzLong]"/>
+		<Box name="HTCE_S" dx="[dxStripEnd]" dy="[trayThick]" dz="[dzShort]"/>
+		<Box name="HTCM" dx="[dxStripMid]" dy="[trayThick]" dz="[dzLong]"/>
+		<Box name="HTCM_S" dx="[dxStripMid]" dy="[trayThick]" dz="[dzShort]"/>
+	</SolidSection>
+	<LogicalPartSection label="hcalouteralgo.xml">
+		<LogicalPart name="MBTail" category="unspecified">
+			<rSolid name="MBTail"/>
+			<rMaterial name="materials:StainlessSteel"/>
+		</LogicalPart>
+		<LogicalPart name="MBAT" category="unspecified">
+			<rSolid name="MBAT"/>
+			<rMaterial name="materials:Air"/>
+		</LogicalPart>
+		<LogicalPart name="HTP0_Top" category="unspecified">
+			<rSolid name="HTP0_Top"/>
+			<rMaterial name="materials:Honeycomb"/>
+		</LogicalPart>
+		<LogicalPart name="HTP0_Bot" category="unspecified">
+			<rSolid name="HTP0_Bot"/>
+			<rMaterial name="materials:Honeycomb"/>
+		</LogicalPart>
+		<LogicalPart name="HTP0_T1" category="unspecified">
+			<rSolid name="HTP0_T1"/>
+			<rMaterial name="materials:Polystyrene"/>
+		</LogicalPart>
+		<LogicalPart name="HTP0_T2" category="unspecified">
+			<rSolid name="HTP0_T2"/>
+			<rMaterial name="materials:Polystyrene"/>
+		</LogicalPart>
+		<LogicalPart name="HTP0_T3" category="unspecified">
+			<rSolid name="HTP0_T3"/>
+			<rMaterial name="materials:Polystyrene"/>
+		</LogicalPart>
+		<LogicalPart name="HTP0_T4" category="unspecified">
+			<rSolid name="HTP0_T4"/>
+			<rMaterial name="materials:Polystyrene"/>
+		</LogicalPart>
+		<LogicalPart name="HTP0_T5" category="unspecified">
+			<rSolid name="HTP0_T5"/>
+			<rMaterial name="materials:Polystyrene"/>
+		</LogicalPart>
+		<LogicalPart name="HTP0_T6" category="unspecified">
+			<rSolid name="HTP0_T6"/>
+			<rMaterial name="materials:Polystyrene"/>
+		</LogicalPart>
+		<LogicalPart name="HTT0_T1" category="unspecified">
+			<rSolid name="HTT0_T1"/>
+			<rMaterial name="materials:Polyethylene"/>
+		</LogicalPart>
+		<LogicalPart name="HTT0_T2" category="unspecified">
+			<rSolid name="HTT0_T2"/>
+			<rMaterial name="materials:Polyethylene"/>
+		</LogicalPart>
+		<LogicalPart name="HTT0_T3" category="unspecified">
+			<rSolid name="HTT0_T3"/>
+			<rMaterial name="materials:Polyethylene"/>
+		</LogicalPart>
+		<LogicalPart name="HTT0_T4" category="unspecified">
+			<rSolid name="HTT0_T4"/>
+			<rMaterial name="materials:Polyethylene"/>
+		</LogicalPart>
+		<LogicalPart name="HTT0_T5" category="unspecified">
+			<rSolid name="HTT0_T5"/>
+			<rMaterial name="materials:Polyethylene"/>
+		</LogicalPart>
+		<LogicalPart name="HTT0_T6" category="unspecified">
+			<rSolid name="HTT0_T6"/>
+			<rMaterial name="materials:Polyethylene"/>
+		</LogicalPart>
+		<LogicalPart name="HTS0_T1" category="unspecified">
+			<rSolid name="HTS0_T1"/>
+			<rMaterial name="materials:Scintillator"/>
+		</LogicalPart>
+		<LogicalPart name="HTS0_T2" category="unspecified">
+			<rSolid name="HTS0_T2"/>
+			<rMaterial name="materials:Scintillator"/>
+		</LogicalPart>
+		<LogicalPart name="HTS0_T3" category="unspecified">
+			<rSolid name="HTS0_T3"/>
+			<rMaterial name="materials:Scintillator"/>
+		</LogicalPart>
+		<LogicalPart name="HTS0_T4" category="unspecified">
+			<rSolid name="HTS0_T4"/>
+			<rMaterial name="materials:Scintillator"/>
+		</LogicalPart>
+		<LogicalPart name="HTS0_T5" category="unspecified">
+			<rSolid name="HTS0_T5"/>
+			<rMaterial name="materials:Scintillator"/>
+		</LogicalPart>
+		<LogicalPart name="HTS0_T6" category="unspecified">
+			<rSolid name="HTS0_T6"/>
+			<rMaterial name="materials:Scintillator"/>
+		</LogicalPart>
+		<LogicalPart name="MBBTC" category="unspecified">
+			<rSolid name="MBBTC"/>
+			<rMaterial name="materials:Air"/>
+		</LogicalPart>
+		<LogicalPart name="MBBTR" category="unspecified">
+			<rSolid name="MBBT"/>
+			<rMaterial name="materials:Air"/>
+		</LogicalPart>
+		<LogicalPart name="MBBTL" category="unspecified">
+			<rSolid name="MBBT"/>
+			<rMaterial name="materials:Air"/>
+		</LogicalPart>
+		<LogicalPart name="MBBT_R1P" category="unspecified">
+			<rSolid name="MBBT"/>
+			<rMaterial name="materials:Air"/>
+		</LogicalPart>
+		<LogicalPart name="MBBT_R1M" category="unspecified">
+			<rSolid name="MBBT"/>
+			<rMaterial name="materials:Air"/>
+		</LogicalPart>
+		<LogicalPart name="HTP1C_Top" category="unspecified">
+			<rSolid name="HTP1C_Top"/>
+			<rMaterial name="materials:Honeycomb"/>
+		</LogicalPart>
+		<LogicalPart name="HTP1_Top" category="unspecified">
+			<rSolid name="HTP1_Top"/>
+			<rMaterial name="materials:Honeycomb"/>
+		</LogicalPart>
+		<LogicalPart name="HTP1_R1P_Top" category="unspecified">
+			<rSolid name="HTP1_R1P_Top"/>
+			<rMaterial name="materials:Honeycomb"/>
+		</LogicalPart>
+		<LogicalPart name="HTP1_R1M_Top" category="unspecified">
+			<rSolid name="HTP1_R1M_Top"/>
+			<rMaterial name="materials:Honeycomb"/>
+		</LogicalPart>
+		<LogicalPart name="HTP1C_Bot" category="unspecified">
+			<rSolid name="HTP1C_Bot"/>
+			<rMaterial name="materials:Honeycomb"/>
+		</LogicalPart>
+		<LogicalPart name="HTP1_Bot" category="unspecified">
+			<rSolid name="HTP1_Bot"/>
+			<rMaterial name="materials:Honeycomb"/>
+		</LogicalPart>
+		<LogicalPart name="HTP1_R1P_Bot" category="unspecified">
+			<rSolid name="HTP1_R1P_Bot"/>
+			<rMaterial name="materials:Honeycomb"/>
+		</LogicalPart>
+		<LogicalPart name="HTP1_R1M_Bot" category="unspecified">
+			<rSolid name="HTP1_R1M_Bot"/>
+			<rMaterial name="materials:Honeycomb"/>
+		</LogicalPart>
+		<LogicalPart name="HTA1_R1P_Top" category="unspecified">
+			<rSolid name="HTA1_R1P_Top"/>
+			<rMaterial name="materials:Air"/>
+		</LogicalPart>
+		<LogicalPart name="HTA1_R1P_Bot" category="unspecified">
+			<rSolid name="HTA1_R1P_Bot"/>
+			<rMaterial name="materials:Air"/>
+		</LogicalPart>
+		<LogicalPart name="HTA1_R1M_Top" category="unspecified">
+			<rSolid name="HTA1_R1M_Top"/>
+			<rMaterial name="materials:Air"/>
+		</LogicalPart>
+		<LogicalPart name="HTA1_R1M_Bot" category="unspecified">
+			<rSolid name="HTA1_R1M_Bot"/>
+			<rMaterial name="materials:Air"/>
+		</LogicalPart>
+		<LogicalPart name="HTP1C_T1" category="unspecified">
+			<rSolid name="HTP1C_T1"/>
+			<rMaterial name="materials:Polystyrene"/>
+		</LogicalPart>
+		<LogicalPart name="HTP1_T1" category="unspecified">
+			<rSolid name="HTP1_T1"/>
+			<rMaterial name="materials:Polystyrene"/>
+		</LogicalPart>
+		<LogicalPart name="HTP1C_T2" category="unspecified">
+			<rSolid name="HTP1C_T2"/>
+			<rMaterial name="materials:Polystyrene"/>
+		</LogicalPart>
+		<LogicalPart name="HTP1_T2" category="unspecified">
+			<rSolid name="HTP1_T2"/>
+			<rMaterial name="materials:Polystyrene"/>
+		</LogicalPart>
+		<LogicalPart name="HTP1C_T3" category="unspecified">
+			<rSolid name="HTP1C_T3"/>
+			<rMaterial name="materials:Polystyrene"/>
+		</LogicalPart>
+		<LogicalPart name="HTP1_T3" category="unspecified">
+			<rSolid name="HTP1_T3"/>
+			<rMaterial name="materials:Polystyrene"/>
+		</LogicalPart>
+		<LogicalPart name="HTP1_T3_S" category="unspecified">
+			<rSolid name="HTP1_T3_S"/>
+			<rMaterial name="materials:Polystyrene"/>
+		</LogicalPart>
+		<LogicalPart name="HTP1C_T4" category="unspecified">
+			<rSolid name="HTP1C_T4"/>
+			<rMaterial name="materials:Polystyrene"/>
+		</LogicalPart>
+		<LogicalPart name="HTP1_T4" category="unspecified">
+			<rSolid name="HTP1_T4"/>
+			<rMaterial name="materials:Polystyrene"/>
+		</LogicalPart>
+		<LogicalPart name="HTP1_T4_S" category="unspecified">
+			<rSolid name="HTP1_T4_S"/>
+			<rMaterial name="materials:Polystyrene"/>
+		</LogicalPart>
+		<LogicalPart name="HTP1C_T5" category="unspecified">
+			<rSolid name="HTP1C_T5"/>
+			<rMaterial name="materials:Polystyrene"/>
+		</LogicalPart>
+		<LogicalPart name="HTP1_T5" category="unspecified">
+			<rSolid name="HTP1_T5"/>
+			<rMaterial name="materials:Polystyrene"/>
+		</LogicalPart>
+		<LogicalPart name="HTP1_T5_S" category="unspecified">
+			<rSolid name="HTP1_T5_S"/>
+			<rMaterial name="materials:Polystyrene"/>
+		</LogicalPart>
+		<LogicalPart name="HTP1C_T6" category="unspecified">
+			<rSolid name="HTP1C_T6"/>
+			<rMaterial name="materials:Polystyrene"/>
+		</LogicalPart>
+		<LogicalPart name="HTP1_T6" category="unspecified">
+			<rSolid name="HTP1_T6"/>
+			<rMaterial name="materials:Polystyrene"/>
+		</LogicalPart>
+		<LogicalPart name="HTP1_T6_S" category="unspecified">
+			<rSolid name="HTP1_T6_S"/>
+			<rMaterial name="materials:Polystyrene"/>
+		</LogicalPart>
+		<LogicalPart name="HTT1C_T1" category="unspecified">
+			<rSolid name="HTT1C_T1"/>
+			<rMaterial name="materials:Polyethylene"/>
+		</LogicalPart>
+		<LogicalPart name="HTT1_T1" category="unspecified">
+			<rSolid name="HTT1_T1"/>
+			<rMaterial name="materials:Polyethylene"/>
+		</LogicalPart>
+		<LogicalPart name="HTT1C_T2" category="unspecified">
+			<rSolid name="HTT1C_T2"/>
+			<rMaterial name="materials:Polyethylene"/>
+		</LogicalPart>
+		<LogicalPart name="HTT1_T2" category="unspecified">
+			<rSolid name="HTT1_T2"/>
+			<rMaterial name="materials:Polyethylene"/>
+		</LogicalPart>
+		<LogicalPart name="HTT1C_T3" category="unspecified">
+			<rSolid name="HTT1C_T3"/>
+			<rMaterial name="materials:Polyethylene"/>
+		</LogicalPart>
+		<LogicalPart name="HTT1_T3" category="unspecified">
+			<rSolid name="HTT1_T3"/>
+			<rMaterial name="materials:Polyethylene"/>
+		</LogicalPart>
+		<LogicalPart name="HTT1_T3_S" category="unspecified">
+			<rSolid name="HTT1_T3_S"/>
+			<rMaterial name="materials:Polyethylene"/>
+		</LogicalPart>
+		<LogicalPart name="HTT1C_T4" category="unspecified">
+			<rSolid name="HTT1C_T4"/>
+			<rMaterial name="materials:Polyethylene"/>
+		</LogicalPart>
+		<LogicalPart name="HTT1_T4" category="unspecified">
+			<rSolid name="HTT1_T4"/>
+			<rMaterial name="materials:Polyethylene"/>
+		</LogicalPart>
+		<LogicalPart name="HTT1_T4_S" category="unspecified">
+			<rSolid name="HTT1_T4_S"/>
+			<rMaterial name="materials:Polyethylene"/>
+		</LogicalPart>
+		<LogicalPart name="HTT1C_T5" category="unspecified">
+			<rSolid name="HTT1C_T5"/>
+			<rMaterial name="materials:Polyethylene"/>
+		</LogicalPart>
+		<LogicalPart name="HTT1_T5" category="unspecified">
+			<rSolid name="HTT1_T5"/>
+			<rMaterial name="materials:Polyethylene"/>
+		</LogicalPart>
+		<LogicalPart name="HTT1_T5_S" category="unspecified">
+			<rSolid name="HTT1_T5_S"/>
+			<rMaterial name="materials:Polyethylene"/>
+		</LogicalPart>
+		<LogicalPart name="HTT1C_T6" category="unspecified">
+			<rSolid name="HTT1C_T6"/>
+			<rMaterial name="materials:Polyethylene"/>
+		</LogicalPart>
+		<LogicalPart name="HTT1_T6" category="unspecified">
+			<rSolid name="HTT1_T6"/>
+			<rMaterial name="materials:Polyethylene"/>
+		</LogicalPart>
+		<LogicalPart name="HTT1_T6_S" category="unspecified">
+			<rSolid name="HTT1_T6_S"/>
+			<rMaterial name="materials:Polyethylene"/>
+		</LogicalPart>
+		<LogicalPart name="HTS1C_T1" category="unspecified">
+			<rSolid name="HTS1C_T1"/>
+			<rMaterial name="materials:Scintillator"/>
+		</LogicalPart>
+		<LogicalPart name="HTS1_T1" category="unspecified">
+			<rSolid name="HTS1_T1"/>
+			<rMaterial name="materials:Scintillator"/>
+		</LogicalPart>
+		<LogicalPart name="HTS1C_T2" category="unspecified">
+			<rSolid name="HTS1C_T2"/>
+			<rMaterial name="materials:Scintillator"/>
+		</LogicalPart>
+		<LogicalPart name="HTS1_T2" category="unspecified">
+			<rSolid name="HTS1_T2"/>
+			<rMaterial name="materials:Scintillator"/>
+		</LogicalPart>
+		<LogicalPart name="HTS1C_T3" category="unspecified">
+			<rSolid name="HTS1C_T3"/>
+			<rMaterial name="materials:Scintillator"/>
+		</LogicalPart>
+		<LogicalPart name="HTS1_T3" category="unspecified">
+			<rSolid name="HTS1_T3"/>
+			<rMaterial name="materials:Scintillator"/>
+		</LogicalPart>
+		<LogicalPart name="HTS1_T3_S" category="unspecified">
+			<rSolid name="HTS1_T3_S"/>
+			<rMaterial name="materials:Scintillator"/>
+		</LogicalPart>
+		<LogicalPart name="HTS1C_T4" category="unspecified">
+			<rSolid name="HTS1C_T4"/>
+			<rMaterial name="materials:Scintillator"/>
+		</LogicalPart>
+		<LogicalPart name="HTS1_T4" category="unspecified">
+			<rSolid name="HTS1_T4"/>
+			<rMaterial name="materials:Scintillator"/>
+		</LogicalPart>
+		<LogicalPart name="HTS1_T4_S" category="unspecified">
+			<rSolid name="HTS1_T4_S"/>
+			<rMaterial name="materials:Scintillator"/>
+		</LogicalPart>
+		<LogicalPart name="HTS1C_T5" category="unspecified">
+			<rSolid name="HTS1C_T5"/>
+			<rMaterial name="materials:Scintillator"/>
+		</LogicalPart>
+		<LogicalPart name="HTS1_T5" category="unspecified">
+			<rSolid name="HTS1_T5"/>
+			<rMaterial name="materials:Scintillator"/>
+		</LogicalPart>
+		<LogicalPart name="HTS1_T5_S" category="unspecified">
+			<rSolid name="HTS1_T5_S"/>
+			<rMaterial name="materials:Scintillator"/>
+		</LogicalPart>
+		<LogicalPart name="HTS1C_T6" category="unspecified">
+			<rSolid name="HTS1C_T6"/>
+			<rMaterial name="materials:Scintillator"/>
+		</LogicalPart>
+		<LogicalPart name="HTS1_T6" category="unspecified">
+			<rSolid name="HTS1_T6"/>
+			<rMaterial name="materials:Scintillator"/>
+		</LogicalPart>
+		<LogicalPart name="HTS1_T6_S" category="unspecified">
+			<rSolid name="HTS1_T6_S"/>
+			<rMaterial name="materials:Scintillator"/>
+		</LogicalPart>
+		<LogicalPart name="HTCE" category="unspecified">
+			<rSolid name="HTCE"/>
+			<rMaterial name="materials:Aluminium"/>
+		</LogicalPart>
+		<LogicalPart name="HTCE_S" category="unspecified">
+			<rSolid name="HTCE_S"/>
+			<rMaterial name="materials:Aluminium"/>
+		</LogicalPart>
+		<LogicalPart name="HTCM" category="unspecified">
+			<rSolid name="HTCM"/>
+			<rMaterial name="materials:Aluminium"/>
+		</LogicalPart>
+		<LogicalPart name="HTCM_S" category="unspecified">
+			<rSolid name="HTCM_S"/>
+			<rMaterial name="materials:Aluminium"/>
+		</LogicalPart>
+	</LogicalPartSection>
+	<PosPartSection label="hcalouteralgo.xml">
+		<PosPart copyNumber="3001">
+			<rParent name="hcalouteralgo:HTP0_T1"/>
+			<rChild name="hcalouteralgo:HTT0_T1"/>
+			<Translation x="0*fm" y="-0.5*mm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="173">
+			<rParent name="hcalouteralgo:HTT0_T1"/>
+			<rChild name="hcalouteralgo:HTS0_T1"/>
+		</PosPart>
+		<PosPart copyNumber="3001">
+			<rParent name="hcalouteralgo:HTP0_T2"/>
+			<rChild name="hcalouteralgo:HTT0_T2"/>
+			<Translation x="0*fm" y="-0.5*mm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="173">
+			<rParent name="hcalouteralgo:HTT0_T2"/>
+			<rChild name="hcalouteralgo:HTS0_T2"/>
+		</PosPart>
+		<PosPart copyNumber="3001">
+			<rParent name="hcalouteralgo:HTP0_T3"/>
+			<rChild name="hcalouteralgo:HTT0_T3"/>
+			<Translation x="0*fm" y="-0.5*mm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="173">
+			<rParent name="hcalouteralgo:HTT0_T3"/>
+			<rChild name="hcalouteralgo:HTS0_T3"/>
+		</PosPart>
+		<PosPart copyNumber="3001">
+			<rParent name="hcalouteralgo:HTP0_T4"/>
+			<rChild name="hcalouteralgo:HTT0_T4"/>
+			<Translation x="0*fm" y="-0.5*mm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="173">
+			<rParent name="hcalouteralgo:HTT0_T4"/>
+			<rChild name="hcalouteralgo:HTS0_T4"/>
+		</PosPart>
+		<PosPart copyNumber="3001">
+			<rParent name="hcalouteralgo:HTP0_T5"/>
+			<rChild name="hcalouteralgo:HTT0_T5"/>
+			<Translation x="0*fm" y="-0.5*mm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="173">
+			<rParent name="hcalouteralgo:HTT0_T5"/>
+			<rChild name="hcalouteralgo:HTS0_T5"/>
+		</PosPart>
+		<PosPart copyNumber="3001">
+			<rParent name="hcalouteralgo:HTP0_T6"/>
+			<rChild name="hcalouteralgo:HTT0_T6"/>
+			<Translation x="0*fm" y="-0.5*mm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="173">
+			<rParent name="hcalouteralgo:HTT0_T6"/>
+			<rChild name="hcalouteralgo:HTS0_T6"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="hcalouteralgo:MBAT"/>
+			<rChild name="hcalouteralgo:HTP0_Top"/>
+			<Translation x="0*fm" y="[yTop]" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="2">
+			<rParent name="hcalouteralgo:MBAT"/>
+			<rChild name="hcalouteralgo:HTP0_Bot"/>
+			<Translation x="0*fm" y="[yBot]" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="hcalouteralgo:MBAT"/>
+			<rChild name="hcalouteralgo:HTP0_T1"/>
+			<Translation x="[xL0Tray1]" y="[yTray]" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="2">
+			<rParent name="hcalouteralgo:MBAT"/>
+			<rChild name="hcalouteralgo:HTP0_T2"/>
+			<Translation x="[xL0Tray2]" y="[yTray]" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="3">
+			<rParent name="hcalouteralgo:MBAT"/>
+			<rChild name="hcalouteralgo:HTP0_T3"/>
+			<Translation x="[xL0Tray3]" y="[yTray]" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="4">
+			<rParent name="hcalouteralgo:MBAT"/>
+			<rChild name="hcalouteralgo:HTP0_T4"/>
+			<Translation x="[xL0Tray4]" y="[yTray]" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="5">
+			<rParent name="hcalouteralgo:MBAT"/>
+			<rChild name="hcalouteralgo:HTP0_T5"/>
+			<Translation x="[xL0Tray5]" y="[yTray]" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="6">
+			<rParent name="hcalouteralgo:MBAT"/>
+			<rChild name="hcalouteralgo:HTP0_T6"/>
+			<Translation x="[xL0Tray6]" y="[yTray]" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="hcalouteralgo:MBAT"/>
+			<rChild name="hcalouteralgo:HTCE"/>
+			<Translation x="[xStripEndL0]" y="[yTray]" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="2">
+			<rParent name="hcalouteralgo:MBAT"/>
+			<rChild name="hcalouteralgo:HTCE"/>
+			<Translation x="-[xStripEndL0]" y="[yTray]" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="hcalouteralgo:MBAT"/>
+			<rChild name="hcalouteralgo:HTCM"/>
+			<Translation x="[xStrip1L0]" y="[yTray]" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="2">
+			<rParent name="hcalouteralgo:MBAT"/>
+			<rChild name="hcalouteralgo:HTCM"/>
+			<Translation x="[xStrip2L0]" y="[yTray]" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="3">
+			<rParent name="hcalouteralgo:MBAT"/>
+			<rChild name="hcalouteralgo:HTCM"/>
+			<Translation x="[xStrip3L0]" y="[yTray]" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="4">
+			<rParent name="hcalouteralgo:MBAT"/>
+			<rChild name="hcalouteralgo:HTCM"/>
+			<Translation x="[xStrip4L0]" y="[yTray]" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="5">
+			<rParent name="hcalouteralgo:MBAT"/>
+			<rChild name="hcalouteralgo:HTCM"/>
+			<Translation x="[xStrip5L0]" y="[yTray]" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="3001">
+			<rParent name="hcalouteralgo:HTP1C_T1"/>
+			<rChild name="hcalouteralgo:HTT1C_T1"/>
+			<Translation x="0*fm" y="-0.5*mm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="183">
+			<rParent name="hcalouteralgo:HTT1C_T1"/>
+			<rChild name="hcalouteralgo:HTS1C_T1"/>
+		</PosPart>
+		<PosPart copyNumber="3001">
+			<rParent name="hcalouteralgo:HTP1_T1"/>
+			<rChild name="hcalouteralgo:HTT1_T1"/>
+			<Translation x="0*fm" y="-0.5*mm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="183">
+			<rParent name="hcalouteralgo:HTT1_T1"/>
+			<rChild name="hcalouteralgo:HTS1_T1"/>
+		</PosPart>
+		<PosPart copyNumber="3001">
+			<rParent name="hcalouteralgo:HTP1C_T2"/>
+			<rChild name="hcalouteralgo:HTT1C_T2"/>
+			<Translation x="0*fm" y="-0.5*mm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="183">
+			<rParent name="hcalouteralgo:HTT1C_T2"/>
+			<rChild name="hcalouteralgo:HTS1C_T2"/>
+		</PosPart>
+		<PosPart copyNumber="3001">
+			<rParent name="hcalouteralgo:HTP1_T2"/>
+			<rChild name="hcalouteralgo:HTT1_T2"/>
+			<Translation x="0*fm" y="-0.5*mm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="183">
+			<rParent name="hcalouteralgo:HTT1_T2"/>
+			<rChild name="hcalouteralgo:HTS1_T2"/>
+		</PosPart>
+		<PosPart copyNumber="3001">
+			<rParent name="hcalouteralgo:HTP1C_T3"/>
+			<rChild name="hcalouteralgo:HTT1C_T3"/>
+			<Translation x="0*fm" y="-0.5*mm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="183">
+			<rParent name="hcalouteralgo:HTT1C_T3"/>
+			<rChild name="hcalouteralgo:HTS1C_T3"/>
+		</PosPart>
+		<PosPart copyNumber="3001">
+			<rParent name="hcalouteralgo:HTP1_T3"/>
+			<rChild name="hcalouteralgo:HTT1_T3"/>
+			<Translation x="0*fm" y="-0.5*mm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="183">
+			<rParent name="hcalouteralgo:HTT1_T3"/>
+			<rChild name="hcalouteralgo:HTS1_T3"/>
+		</PosPart>
+		<PosPart copyNumber="3001">
+			<rParent name="hcalouteralgo:HTP1_T3_S"/>
+			<rChild name="hcalouteralgo:HTT1_T3_S"/>
+			<Translation x="0*fm" y="-0.5*mm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="183">
+			<rParent name="hcalouteralgo:HTT1_T3_S"/>
+			<rChild name="hcalouteralgo:HTS1_T3_S"/>
+		</PosPart>
+		<PosPart copyNumber="3001">
+			<rParent name="hcalouteralgo:HTP1C_T4"/>
+			<rChild name="hcalouteralgo:HTT1C_T4"/>
+			<Translation x="0*fm" y="-0.5*mm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="183">
+			<rParent name="hcalouteralgo:HTT1C_T4"/>
+			<rChild name="hcalouteralgo:HTS1C_T4"/>
+		</PosPart>
+		<PosPart copyNumber="3001">
+			<rParent name="hcalouteralgo:HTP1_T4"/>
+			<rChild name="hcalouteralgo:HTT1_T4"/>
+			<Translation x="0*fm" y="-0.5*mm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="183">
+			<rParent name="hcalouteralgo:HTT1_T4"/>
+			<rChild name="hcalouteralgo:HTS1_T4"/>
+		</PosPart>
+		<PosPart copyNumber="3001">
+			<rParent name="hcalouteralgo:HTP1_T4_S"/>
+			<rChild name="hcalouteralgo:HTT1_T4_S"/>
+			<Translation x="0*fm" y="-0.5*mm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="183">
+			<rParent name="hcalouteralgo:HTT1_T4_S"/>
+			<rChild name="hcalouteralgo:HTS1_T4_S"/>
+		</PosPart>
+		<PosPart copyNumber="3001">
+			<rParent name="hcalouteralgo:HTP1C_T5"/>
+			<rChild name="hcalouteralgo:HTT1C_T5"/>
+			<Translation x="0*fm" y="-0.5*mm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="183">
+			<rParent name="hcalouteralgo:HTT1C_T5"/>
+			<rChild name="hcalouteralgo:HTS1C_T5"/>
+		</PosPart>
+		<PosPart copyNumber="3001">
+			<rParent name="hcalouteralgo:HTP1_T5"/>
+			<rChild name="hcalouteralgo:HTT1_T5"/>
+			<Translation x="0*fm" y="-0.5*mm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="183">
+			<rParent name="hcalouteralgo:HTT1_T5"/>
+			<rChild name="hcalouteralgo:HTS1_T5"/>
+		</PosPart>
+		<PosPart copyNumber="3001">
+			<rParent name="hcalouteralgo:HTP1_T5_S"/>
+			<rChild name="hcalouteralgo:HTT1_T5_S"/>
+			<Translation x="0*fm" y="-0.5*mm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="183">
+			<rParent name="hcalouteralgo:HTT1_T5_S"/>
+			<rChild name="hcalouteralgo:HTS1_T5_S"/>
+		</PosPart>
+		<PosPart copyNumber="3001">
+			<rParent name="hcalouteralgo:HTP1C_T6"/>
+			<rChild name="hcalouteralgo:HTT1C_T6"/>
+			<Translation x="0*fm" y="-0.5*mm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="183">
+			<rParent name="hcalouteralgo:HTT1C_T6"/>
+			<rChild name="hcalouteralgo:HTS1C_T6"/>
+		</PosPart>
+		<PosPart copyNumber="3001">
+			<rParent name="hcalouteralgo:HTP1_T6"/>
+			<rChild name="hcalouteralgo:HTT1_T6"/>
+			<Translation x="0*fm" y="-0.5*mm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="183">
+			<rParent name="hcalouteralgo:HTT1_T6"/>
+			<rChild name="hcalouteralgo:HTS1_T6"/>
+		</PosPart>
+		<PosPart copyNumber="3001">
+			<rParent name="hcalouteralgo:HTP1_T6_S"/>
+			<rChild name="hcalouteralgo:HTT1_T6_S"/>
+			<Translation x="0*fm" y="-0.5*mm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="183">
+			<rParent name="hcalouteralgo:HTT1_T6_S"/>
+			<rChild name="hcalouteralgo:HTS1_T6_S"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="hcalouteralgo:MBBTC"/>
+			<rChild name="hcalouteralgo:HTP1C_Top"/>
+			<Translation x="0*fm" y="[yTop]" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="2">
+			<rParent name="hcalouteralgo:MBBTC"/>
+			<rChild name="hcalouteralgo:HTP1C_Bot"/>
+			<Translation x="0*fm" y="[yBot]" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="hcalouteralgo:MBBTC"/>
+			<rChild name="hcalouteralgo:HTP1C_T1"/>
+			<Translation x="[xL1CTray1]" y="[yTray]" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="2">
+			<rParent name="hcalouteralgo:MBBTC"/>
+			<rChild name="hcalouteralgo:HTP1C_T2"/>
+			<Translation x="[xL1CTray2]" y="[yTray]" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="3">
+			<rParent name="hcalouteralgo:MBBTC"/>
+			<rChild name="hcalouteralgo:HTP1C_T3"/>
+			<Translation x="[xL1CTray3]" y="[yTray]" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="4">
+			<rParent name="hcalouteralgo:MBBTC"/>
+			<rChild name="hcalouteralgo:HTP1C_T4"/>
+			<Translation x="[xL1CTray4]" y="[yTray]" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="5">
+			<rParent name="hcalouteralgo:MBBTC"/>
+			<rChild name="hcalouteralgo:HTP1C_T5"/>
+			<Translation x="[xL1CTray5]" y="[yTray]" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="6">
+			<rParent name="hcalouteralgo:MBBTC"/>
+			<rChild name="hcalouteralgo:HTP1C_T6"/>
+			<Translation x="[xL1CTray6]" y="[yTray]" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="hcalouteralgo:MBBTC"/>
+			<rChild name="hcalouteralgo:HTCE"/>
+			<Translation x="[xStripEndL1C]" y="[yTray]" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="2">
+			<rParent name="hcalouteralgo:MBBTC"/>
+			<rChild name="hcalouteralgo:HTCE"/>
+			<Translation x="-[xStripEndL1C]" y="[yTray]" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="hcalouteralgo:MBBTC"/>
+			<rChild name="hcalouteralgo:HTCM"/>
+			<Translation x="[xStrip1L1C]" y="[yTray]" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="2">
+			<rParent name="hcalouteralgo:MBBTC"/>
+			<rChild name="hcalouteralgo:HTCM"/>
+			<Translation x="[xStrip2L1C]" y="[yTray]" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="3">
+			<rParent name="hcalouteralgo:MBBTC"/>
+			<rChild name="hcalouteralgo:HTCM"/>
+			<Translation x="[xStrip3L1C]" y="[yTray]" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="4">
+			<rParent name="hcalouteralgo:MBBTC"/>
+			<rChild name="hcalouteralgo:HTCM"/>
+			<Translation x="[xStrip4L1C]" y="[yTray]" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="5">
+			<rParent name="hcalouteralgo:MBBTC"/>
+			<rChild name="hcalouteralgo:HTCM"/>
+			<Translation x="[xStrip5L1C]" y="[yTray]" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="hcalouteralgo:MBBTR"/>
+			<rChild name="hcalouteralgo:HTP1_Top"/>
+			<Translation x="0*fm" y="[yTop]" z="[dzRing]"/>
+		</PosPart>
+		<PosPart copyNumber="2">
+			<rParent name="hcalouteralgo:MBBTR"/>
+			<rChild name="hcalouteralgo:HTP1_Bot"/>
+			<Translation x="0*fm" y="[yBot]" z="[dzRing]"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="hcalouteralgo:MBBTR"/>
+			<rChild name="hcalouteralgo:HTP1_T1"/>
+			<Translation x="[xL1Tray1]" y="[yTray]" z="[dzRing]"/>
+		</PosPart>
+		<PosPart copyNumber="2">
+			<rParent name="hcalouteralgo:MBBTR"/>
+			<rChild name="hcalouteralgo:HTP1_T2"/>
+			<Translation x="[xL1Tray2]" y="[yTray]" z="[dzRing]"/>
+		</PosPart>
+		<PosPart copyNumber="3">
+			<rParent name="hcalouteralgo:MBBTR"/>
+			<rChild name="hcalouteralgo:HTP1_T3"/>
+			<Translation x="[xL1Tray3]" y="[yTray]" z="[dzRing]"/>
+		</PosPart>
+		<PosPart copyNumber="4">
+			<rParent name="hcalouteralgo:MBBTR"/>
+			<rChild name="hcalouteralgo:HTP1_T4"/>
+			<Translation x="[xL1Tray4]" y="[yTray]" z="[dzRing]"/>
+		</PosPart>
+		<PosPart copyNumber="5">
+			<rParent name="hcalouteralgo:MBBTR"/>
+			<rChild name="hcalouteralgo:HTP1_T5"/>
+			<Translation x="[xL1Tray5]" y="[yTray]" z="[dzRing]"/>
+		</PosPart>
+		<PosPart copyNumber="6">
+			<rParent name="hcalouteralgo:MBBTR"/>
+			<rChild name="hcalouteralgo:HTP1_T6"/>
+			<Translation x="[xL1Tray6]" y="[yTray]" z="[dzRing]"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="hcalouteralgo:MBBTR"/>
+			<rChild name="hcalouteralgo:HTCE"/>
+			<Translation x="[xStripEndL1]" y="[yTray]" z="[dzRing]"/>
+		</PosPart>
+		<PosPart copyNumber="2">
+			<rParent name="hcalouteralgo:MBBTR"/>
+			<rChild name="hcalouteralgo:HTCE"/>
+			<Translation x="-[xStripEndL1]" y="[yTray]" z="[dzRing]"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="hcalouteralgo:MBBTR"/>
+			<rChild name="hcalouteralgo:HTCM"/>
+			<Translation x="[xStrip1L1]" y="[yTray]" z="[dzRing]"/>
+		</PosPart>
+		<PosPart copyNumber="2">
+			<rParent name="hcalouteralgo:MBBTR"/>
+			<rChild name="hcalouteralgo:HTCM"/>
+			<Translation x="[xStrip2L1]" y="[yTray]" z="[dzRing]"/>
+		</PosPart>
+		<PosPart copyNumber="3">
+			<rParent name="hcalouteralgo:MBBTR"/>
+			<rChild name="hcalouteralgo:HTCM"/>
+			<Translation x="[xStrip3L1]" y="[yTray]" z="[dzRing]"/>
+		</PosPart>
+		<PosPart copyNumber="4">
+			<rParent name="hcalouteralgo:MBBTR"/>
+			<rChild name="hcalouteralgo:HTCM"/>
+			<Translation x="[xStrip4L1]" y="[yTray]" z="[dzRing]"/>
+		</PosPart>
+		<PosPart copyNumber="5">
+			<rParent name="hcalouteralgo:MBBTR"/>
+			<rChild name="hcalouteralgo:HTCM"/>
+			<Translation x="[xStrip5L1]" y="[yTray]" z="[dzRing]"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="hcalouteralgo:MBBTL"/>
+			<rChild name="hcalouteralgo:HTP1_Top"/>
+			<Translation x="0*fm" y="[yTop]" z="-[dzRing]"/>
+		</PosPart>
+		<PosPart copyNumber="2">
+			<rParent name="hcalouteralgo:MBBTL"/>
+			<rChild name="hcalouteralgo:HTP1_Bot"/>
+			<Translation x="0*fm" y="[yBot]" z="-[dzRing]"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="hcalouteralgo:MBBTL"/>
+			<rChild name="hcalouteralgo:HTP1_T1"/>
+			<Translation x="[xL1Tray1]" y="[yTray]" z="-[dzRing]"/>
+		</PosPart>
+		<PosPart copyNumber="2">
+			<rParent name="hcalouteralgo:MBBTL"/>
+			<rChild name="hcalouteralgo:HTP1_T2"/>
+			<Translation x="[xL1Tray2]" y="[yTray]" z="-[dzRing]"/>
+		</PosPart>
+		<PosPart copyNumber="3">
+			<rParent name="hcalouteralgo:MBBTL"/>
+			<rChild name="hcalouteralgo:HTP1_T3"/>
+			<Translation x="[xL1Tray3]" y="[yTray]" z="-[dzRing]"/>
+		</PosPart>
+		<PosPart copyNumber="4">
+			<rParent name="hcalouteralgo:MBBTL"/>
+			<rChild name="hcalouteralgo:HTP1_T4"/>
+			<Translation x="[xL1Tray4]" y="[yTray]" z="-[dzRing]"/>
+		</PosPart>
+		<PosPart copyNumber="5">
+			<rParent name="hcalouteralgo:MBBTL"/>
+			<rChild name="hcalouteralgo:HTP1_T5"/>
+			<Translation x="[xL1Tray5]" y="[yTray]" z="-[dzRing]"/>
+		</PosPart>
+		<PosPart copyNumber="6">
+			<rParent name="hcalouteralgo:MBBTL"/>
+			<rChild name="hcalouteralgo:HTP1_T6"/>
+			<Translation x="[xL1Tray6]" y="[yTray]" z="-[dzRing]"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="hcalouteralgo:MBBTL"/>
+			<rChild name="hcalouteralgo:HTCE"/>
+			<Translation x="[xStripEndL1]" y="[yTray]" z="-[dzRing]"/>
+		</PosPart>
+		<PosPart copyNumber="2">
+			<rParent name="hcalouteralgo:MBBTL"/>
+			<rChild name="hcalouteralgo:HTCE"/>
+			<Translation x="-[xStripEndL1]" y="[yTray]" z="-[dzRing]"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="hcalouteralgo:MBBTL"/>
+			<rChild name="hcalouteralgo:HTCM"/>
+			<Translation x="[xStrip1L1]" y="[yTray]" z="-[dzRing]"/>
+		</PosPart>
+		<PosPart copyNumber="2">
+			<rParent name="hcalouteralgo:MBBTL"/>
+			<rChild name="hcalouteralgo:HTCM"/>
+			<Translation x="[xStrip2L1]" y="[yTray]" z="-[dzRing]"/>
+		</PosPart>
+		<PosPart copyNumber="3">
+			<rParent name="hcalouteralgo:MBBTL"/>
+			<rChild name="hcalouteralgo:HTCM"/>
+			<Translation x="[xStrip3L1]" y="[yTray]" z="-[dzRing]"/>
+		</PosPart>
+		<PosPart copyNumber="4">
+			<rParent name="hcalouteralgo:MBBTL"/>
+			<rChild name="hcalouteralgo:HTCM"/>
+			<Translation x="[xStrip4L1]" y="[yTray]" z="-[dzRing]"/>
+		</PosPart>
+		<PosPart copyNumber="5">
+			<rParent name="hcalouteralgo:MBBTL"/>
+			<rChild name="hcalouteralgo:HTCM"/>
+			<Translation x="[xStrip5L1]" y="[yTray]" z="-[dzRing]"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="hcalouteralgo:HTP1_R1P_Top"/>
+			<rChild name="hcalouteralgo:HTA1_R1P_Top"/>
+			<Translation x="[xGapP]" y="0.0*fm" z="-[dzShort]"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="hcalouteralgo:HTP1_R1P_Bot"/>
+			<rChild name="hcalouteralgo:HTA1_R1P_Bot"/>
+			<Translation x="[xGapP]" y="0.0*fm" z="-[dzShort]"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="hcalouteralgo:MBBT_R1P"/>
+			<rChild name="hcalouteralgo:HTP1_R1P_Top"/>
+			<Translation x="0*fm" y="[yTop]" z="-[dzRing]"/>
+		</PosPart>
+		<PosPart copyNumber="2">
+			<rParent name="hcalouteralgo:MBBT_R1P"/>
+			<rChild name="hcalouteralgo:HTP1_R1P_Bot"/>
+			<Translation x="0*fm" y="[yBot]" z="-[dzRing]"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="hcalouteralgo:MBBT_R1P"/>
+			<rChild name="hcalouteralgo:HTP1_T1"/>
+			<Translation x="[xL1Tray1]" y="[yTray]" z="-[dzRing]"/>
+		</PosPart>
+		<PosPart copyNumber="2">
+			<rParent name="hcalouteralgo:MBBT_R1P"/>
+			<rChild name="hcalouteralgo:HTP1_T2"/>
+			<Translation x="[xL1Tray2]" y="[yTray]" z="-[dzRing]"/>
+		</PosPart>
+		<PosPart copyNumber="3">
+			<rParent name="hcalouteralgo:MBBT_R1P"/>
+			<rChild name="hcalouteralgo:HTP1_T3"/>
+			<Translation x="[xL1Tray3]" y="[yTray]" z="-[dzRing]"/>
+		</PosPart>
+		<PosPart copyNumber="4">
+			<rParent name="hcalouteralgo:MBBT_R1P"/>
+			<rChild name="hcalouteralgo:HTP1_T4_S"/>
+			<Translation x="[xL1Tray4]" y="[yTray]" z="[dzDiff]-[dzRing]"/>
+		</PosPart>
+		<PosPart copyNumber="5">
+			<rParent name="hcalouteralgo:MBBT_R1P"/>
+			<rChild name="hcalouteralgo:HTP1_T5_S"/>
+			<Translation x="[xL1Tray5]" y="[yTray]" z="[dzDiff]-[dzRing]"/>
+		</PosPart>
+		<PosPart copyNumber="6">
+			<rParent name="hcalouteralgo:MBBT_R1P"/>
+			<rChild name="hcalouteralgo:HTP1_T6"/>
+			<Translation x="[xL1Tray6]" y="[yTray]" z="-[dzRing]"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="hcalouteralgo:MBBT_R1P"/>
+			<rChild name="hcalouteralgo:HTCE"/>
+			<Translation x="[xStripEndL1]" y="[yTray]" z="-[dzRing]"/>
+		</PosPart>
+		<PosPart copyNumber="2">
+			<rParent name="hcalouteralgo:MBBT_R1P"/>
+			<rChild name="hcalouteralgo:HTCE"/>
+			<Translation x="-[xStripEndL1]" y="[yTray]" z="-[dzRing]"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="hcalouteralgo:MBBT_R1P"/>
+			<rChild name="hcalouteralgo:HTCM"/>
+			<Translation x="[xStrip1L1]" y="[yTray]" z="-[dzRing]"/>
+		</PosPart>
+		<PosPart copyNumber="2">
+			<rParent name="hcalouteralgo:MBBT_R1P"/>
+			<rChild name="hcalouteralgo:HTCM"/>
+			<Translation x="[xStrip2L1]" y="[yTray]" z="-[dzRing]"/>
+		</PosPart>
+		<PosPart copyNumber="3">
+			<rParent name="hcalouteralgo:MBBT_R1P"/>
+			<rChild name="hcalouteralgo:HTCM"/>
+			<Translation x="[xStrip3L1]" y="[yTray]" z="-[dzRing]"/>
+		</PosPart>
+		<PosPart copyNumber="4">
+			<rParent name="hcalouteralgo:MBBT_R1P"/>
+			<rChild name="hcalouteralgo:HTCM_S"/>
+			<Translation x="[xStrip4L1]" y="[yTray]" z="[dzDiff]-[dzRing]"/>
+		</PosPart>
+		<PosPart copyNumber="5">
+			<rParent name="hcalouteralgo:MBBT_R1P"/>
+			<rChild name="hcalouteralgo:HTCM"/>
+			<Translation x="[xStrip5L1]" y="[yTray]" z="-[dzRing]"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="hcalouteralgo:HTP1_R1M_Top"/>
+			<rChild name="hcalouteralgo:HTA1_R1M_Top"/>
+			<Translation x="[xGapM]" y="0.0*fm" z="[dzShort]"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="hcalouteralgo:HTP1_R1M_Bot"/>
+			<rChild name="hcalouteralgo:HTA1_R1M_Bot"/>
+			<Translation x="[xGapM]" y="0.0*fm" z="[dzShort]"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="hcalouteralgo:MBBT_R1M"/>
+			<rChild name="hcalouteralgo:HTP1_R1M_Top"/>
+			<Translation x="0*fm" y="[yTop]" z="[dzRing]"/>
+		</PosPart>
+		<PosPart copyNumber="2">
+			<rParent name="hcalouteralgo:MBBT_R1M"/>
+			<rChild name="hcalouteralgo:HTP1_R1M_Bot"/>
+			<Translation x="0*fm" y="[yBot]" z="[dzRing]"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="hcalouteralgo:MBBT_R1M"/>
+			<rChild name="hcalouteralgo:HTP1_T1"/>
+			<Translation x="[xL1Tray1]" y="[yTray]" z="[dzRing]"/>
+		</PosPart>
+		<PosPart copyNumber="2">
+			<rParent name="hcalouteralgo:MBBT_R1M"/>
+			<rChild name="hcalouteralgo:HTP1_T2"/>
+			<Translation x="[xL1Tray2]" y="[yTray]" z="[dzRing]"/>
+		</PosPart>
+		<PosPart copyNumber="3">
+			<rParent name="hcalouteralgo:MBBT_R1M"/>
+			<rChild name="hcalouteralgo:HTP1_T3_S"/>
+			<Translation x="[xL1Tray3]" y="[yTray]" z="[dzRing]-[dzDiff]"/>
+		</PosPart>
+		<PosPart copyNumber="4">
+			<rParent name="hcalouteralgo:MBBT_R1M"/>
+			<rChild name="hcalouteralgo:HTP1_T4_S"/>
+			<Translation x="[xL1Tray4]" y="[yTray]" z="[dzRing]-[dzDiff]"/>
+		</PosPart>
+		<PosPart copyNumber="5">
+			<rParent name="hcalouteralgo:MBBT_R1M"/>
+			<rChild name="hcalouteralgo:HTP1_T5_S"/>
+			<Translation x="[xL1Tray5]" y="[yTray]" z="[dzRing]-[dzDiff]"/>
+		</PosPart>
+		<PosPart copyNumber="6">
+			<rParent name="hcalouteralgo:MBBT_R1M"/>
+			<rChild name="hcalouteralgo:HTP1_T6_S"/>
+			<Translation x="[xL1Tray6]" y="[yTray]" z="[dzRing]-[dzDiff]"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="hcalouteralgo:MBBT_R1M"/>
+			<rChild name="hcalouteralgo:HTCE"/>
+			<Translation x="[xStripEndL1]" y="[yTray]" z="[dzRing]"/>
+		</PosPart>
+		<PosPart copyNumber="2">
+			<rParent name="hcalouteralgo:MBBT_R1M"/>
+			<rChild name="hcalouteralgo:HTCE_S"/>
+			<Translation x="-[xStripEndL1]" y="[yTray]" z="[dzRing]-[dzDiff]"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="hcalouteralgo:MBBT_R1M"/>
+			<rChild name="hcalouteralgo:HTCM"/>
+			<Translation x="[xStrip1L1]" y="[yTray]" z="[dzRing]"/>
+		</PosPart>
+		<PosPart copyNumber="2">
+			<rParent name="hcalouteralgo:MBBT_R1M"/>
+			<rChild name="hcalouteralgo:HTCM"/>
+			<Translation x="[xStrip2L1]" y="[yTray]" z="[dzRing]"/>
+		</PosPart>
+		<PosPart copyNumber="3">
+			<rParent name="hcalouteralgo:MBBT_R1M"/>
+			<rChild name="hcalouteralgo:HTCM_S"/>
+			<Translation x="[xStrip3L1]" y="[yTray]" z="[dzRing]-[dzDiff]"/>
+		</PosPart>
+		<PosPart copyNumber="4">
+			<rParent name="hcalouteralgo:MBBT_R1M"/>
+			<rChild name="hcalouteralgo:HTCM_S"/>
+			<Translation x="[xStrip4L1]" y="[yTray]" z="[dzRing]-[dzDiff]"/>
+		</PosPart>
+		<PosPart copyNumber="5">
+			<rParent name="hcalouteralgo:MBBT_R1M"/>
+			<rChild name="hcalouteralgo:HTCM_S"/>
+			<Translation x="[xStrip5L1]" y="[yTray]" z="[dzRing]-[dzDiff]"/>
+		</PosPart>
+	</PosPartSection>
+	<Algorithm name="hcal:DDHCalAngular">
+		<rParent name="muonBase:MBWheel_0"/>
+		<String name="ChildName" value="MBAT"/>
+		<String name="RotNameSpace" value="hcalrotations"/>
+		<Numeric name="n" value="12"/>
+		<Numeric name="startCopyNo" value="1"/>
+		<Numeric name="incrCopyNo" value="1"/>
+		<Numeric name="rangeAngle" value="360*deg"/>
+		<Numeric name="startAngle" value="270*deg"/>
+		<Numeric name="shiftY" value="[yLayer0]"/>
+		<Numeric name="shiftX" value="[xOffC]"/>
+		<Numeric name="zoffset" value="0*fm"/>
+	</Algorithm>
+	<Algorithm name="hcal:DDHCalAngular">
+		<rParent name="muonBase:MBWheel_0"/>
+		<String name="ChildName" value="MBTail"/>
+		<String name="RotNameSpace" value="hcalrotations"/>
+		<Numeric name="n" value="12"/>
+		<Numeric name="startCopyNo" value="1"/>
+		<Numeric name="incrCopyNo" value="1"/>
+		<Numeric name="rangeAngle" value="360*deg"/>
+		<Numeric name="startAngle" value="270*deg"/>
+		<Numeric name="shiftY" value="[yTail]"/>
+		<Numeric name="shiftX" value="[xOffC]"/>
+		<Numeric name="zoffset" value="0*fm"/>
+	</Algorithm>
+	<Algorithm name="hcal:DDHCalAngular">
+		<rParent name="muonBase:MBWheel_0"/>
+		<String name="ChildName" value="MBBTC"/>
+		<String name="RotNameSpace" value="hcalrotations"/>
+		<Numeric name="n" value="12"/>
+		<Numeric name="startCopyNo" value="1"/>
+		<Numeric name="incrCopyNo" value="1"/>
+		<Numeric name="rangeAngle" value="360*deg"/>
+		<Numeric name="startAngle" value="270*deg"/>
+		<Numeric name="shiftY" value="[yLayer1]"/>
+		<Numeric name="shiftX" value="[xOffC]"/>
+		<Numeric name="zoffset" value="0*fm"/>
+	</Algorithm>
+	<Algorithm name="hcal:DDHCalAngular">
+		<rParent name="muonBase:MBWheel_1P"/>
+		<String name="ChildName" value="MBBTL"/>
+		<String name="RotNameSpace" value="hcalrotations"/>
+		<Numeric name="n" value="3"/>
+		<Numeric name="startCopyNo" value="1"/>
+		<Numeric name="incrCopyNo" value="1"/>
+		<Numeric name="rangeAngle" value="90*deg"/>
+		<Numeric name="startAngle" value="270*deg"/>
+		<Numeric name="shiftY" value="[yLayer1]"/>
+		<Numeric name="shiftX" value="[xOff]"/>
+		<Numeric name="zoffset" value="0*fm"/>
+	</Algorithm>
+	<Algorithm name="hcal:DDHCalAngular">
+		<rParent name="muonBase:MBWheel_1P"/>
+		<String name="ChildName" value="MBBT_R1P"/>
+		<String name="RotNameSpace" value="hcalrotations"/>
+		<Numeric name="n" value="1"/>
+		<Numeric name="startCopyNo" value="4"/>
+		<Numeric name="incrCopyNo" value="1"/>
+		<Numeric name="rangeAngle" value="30*deg"/>
+		<Numeric name="startAngle" value="0*deg"/>
+		<Numeric name="shiftY" value="[yLayer1]"/>
+		<Numeric name="shiftX" value="[xOff]"/>
+		<Numeric name="zoffset" value="0*fm"/>
+	</Algorithm>
+	<Algorithm name="hcal:DDHCalAngular">
+		<rParent name="muonBase:MBWheel_1P"/>
+		<String name="ChildName" value="MBBTL"/>
+		<String name="RotNameSpace" value="hcalrotations"/>
+		<Numeric name="n" value="8"/>
+		<Numeric name="startCopyNo" value="5"/>
+		<Numeric name="incrCopyNo" value="1"/>
+		<Numeric name="rangeAngle" value="240*deg"/>
+		<Numeric name="startAngle" value="30*deg"/>
+		<Numeric name="shiftY" value="[yLayer1]"/>
+		<Numeric name="shiftX" value="[xOff]"/>
+		<Numeric name="zoffset" value="0*fm"/>
+	</Algorithm>
+	<Algorithm name="hcal:DDHCalAngular">
+		<rParent name="muonBase:MBWheel_2P"/>
+		<String name="ChildName" value="MBBTR"/>
+		<String name="RotNameSpace" value="hcalrotations"/>
+		<Numeric name="n" value="12"/>
+		<Numeric name="startCopyNo" value="1"/>
+		<Numeric name="incrCopyNo" value="1"/>
+		<Numeric name="rangeAngle" value="360*deg"/>
+		<Numeric name="startAngle" value="270*deg"/>
+		<Numeric name="shiftY" value="[yLayer1]"/>
+		<Numeric name="shiftX" value="[xOff]"/>
+		<Numeric name="zoffset" value="0*fm"/>
+	</Algorithm>
+	<Algorithm name="hcal:DDHCalAngular">
+		<rParent name="muonBase:MBWheel_1N"/>
+		<String name="ChildName" value="MBBTR"/>
+		<String name="RotNameSpace" value="hcalrotations"/>
+		<Numeric name="n" value="2"/>
+		<Numeric name="startCopyNo" value="1"/>
+		<Numeric name="incrCopyNo" value="1"/>
+		<Numeric name="rangeAngle" value="60*deg"/>
+		<Numeric name="startAngle" value="270*deg"/>
+		<Numeric name="shiftY" value="[yLayer1]"/>
+		<Numeric name="shiftX" value="[xOff]"/>
+		<Numeric name="zoffset" value="0*fm"/>
+	</Algorithm>
+	<Algorithm name="hcal:DDHCalAngular">
+		<rParent name="muonBase:MBWheel_1N"/>
+		<String name="ChildName" value="MBBT_R1M"/>
+		<String name="RotNameSpace" value="hcalrotations"/>
+		<Numeric name="n" value="1"/>
+		<Numeric name="startCopyNo" value="3"/>
+		<Numeric name="incrCopyNo" value="1"/>
+		<Numeric name="rangeAngle" value="30*deg"/>
+		<Numeric name="startAngle" value="330*deg"/>
+		<Numeric name="shiftY" value="[yLayer1]"/>
+		<Numeric name="shiftX" value="[xOff]"/>
+		<Numeric name="zoffset" value="0*fm"/>
+	</Algorithm>
+	<Algorithm name="hcal:DDHCalAngular">
+		<rParent name="muonBase:MBWheel_1N"/>
+		<String name="ChildName" value="MBBTR"/>
+		<String name="RotNameSpace" value="hcalrotations"/>
+		<Numeric name="n" value="9"/>
+		<Numeric name="startCopyNo" value="4"/>
+		<Numeric name="incrCopyNo" value="1"/>
+		<Numeric name="rangeAngle" value="270*deg"/>
+		<Numeric name="startAngle" value="0*deg"/>
+		<Numeric name="shiftY" value="[yLayer1]"/>
+		<Numeric name="shiftX" value="[xOff]"/>
+		<Numeric name="zoffset" value="0*fm"/>
+	</Algorithm>
+	<Algorithm name="hcal:DDHCalAngular">
+		<rParent name="muonBase:MBWheel_2N"/>
+		<String name="ChildName" value="MBBTL"/>
+		<String name="RotNameSpace" value="hcalrotations"/>
+		<Numeric name="n" value="12"/>
+		<Numeric name="startCopyNo" value="1"/>
+		<Numeric name="incrCopyNo" value="1"/>
+		<Numeric name="rangeAngle" value="360*deg"/>
+		<Numeric name="startAngle" value="270*deg"/>
+		<Numeric name="shiftY" value="[yLayer1]"/>
+		<Numeric name="shiftX" value="[xOff]"/>
+		<Numeric name="zoffset" value="0*fm"/>
+	</Algorithm>
+</DDDefinition>

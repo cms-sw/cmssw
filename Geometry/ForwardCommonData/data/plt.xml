@@ -1,0 +1,144 @@
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
+ <ConstantsSection label="plt">
+  <Constant name="pltTilt" value="10*deg"/>
+  <Constant name="pltBladeR" value="54*mm"/>
+  <Constant name="pltBladeZ" value="30*mm"/>
+  <Constant name="pltBladeX" value="6*mm"/>
+  <Constant name="pltBladeY" value="6*mm"/>
+  <Constant name="pltBladeThickness" value="0.5*mm"/>
+  <Constant name="pltSensorXoff" value="-3*mm"/>
+  <Constant name="pltSensorX" value="2*mm"/>
+  <Constant name="pltSensorY" value="2*mm"/>
+  <Constant name="pltSensorThickness" value="1*mm"/>
+  <Constant name="pltSensorZ" value="[pltBladeThickness]+[pltSensorThickness]"/>
+  <Constant name="pltBackBoneX" value="1*mm"/>
+  <Constant name="pltBackBoneY" value="1*mm"/>
+  <Constant name="pltBackBoneZ" value="35*mm"/>
+ </ConstantsSection>
+ <SolidSection label="pltSolids">
+  <Box name="PLT_Telescope" dx="1*cm" dy="1*cm" dz="3.5*cm"/>
+  <Box name="PLT_Backbone" dx="[pltBackBoneX]" dy="[pltBackBoneY]" dz="[pltBackBoneZ]"/>
+  <Box name="PLT_Blade" dx="[pltBladeX]" dy="[pltBladeY]" dz="[pltBladeThickness]"/>
+  <Box name="PLTSensitiveDetector" dx="[pltSensorX]" dy="[pltSensorY]" dz="[pltSensorThickness]"/>
+ </SolidSection>
+ <RotationSection label="pltRotations">
+  <Rotation name="PLTrot1" phiX="0*deg" thetaX="90.*deg+[pltTilt]" phiY="90.*deg" thetaY="90.*deg" phiZ="0.*deg" thetaZ="[pltTilt]"/>
+  <Rotation name="PLTrot2" phiX="45.*deg" thetaX="90.*deg+[pltTilt]" phiY="135.*deg" thetaY="90.*deg" phiZ="45.*deg" thetaZ="[pltTilt]"/>
+  <Rotation name="PLTrot3" phiX="90.*deg" thetaX="90.*deg+[pltTilt]" phiY="180.*deg" thetaY="90.*deg" phiZ="90.*deg" thetaZ="[pltTilt]"/>
+  <Rotation name="PLTrot4" phiX="135.*deg" thetaX="90.*deg+[pltTilt]" phiY="225.*deg" thetaY="90.*deg" phiZ="135.*deg" thetaZ="[pltTilt]"/>
+  <Rotation name="PLTrot5" phiX="180.*deg" thetaX="90.*deg+[pltTilt]" phiY="270.*deg" thetaY="90.*deg" phiZ="180.*deg" thetaZ="[pltTilt]"/>
+  <Rotation name="PLTrot6" phiX="225.*deg" thetaX="90.*deg+[pltTilt]" phiY="315.*deg" thetaY="90.*deg" phiZ="225.*deg" thetaZ="[pltTilt]"/>
+  <Rotation name="PLTrot7" phiX="270.*deg" thetaX="90.*deg+[pltTilt]" phiY="0.*deg" thetaY="90.*deg" phiZ="270.*deg" thetaZ="[pltTilt]"/>
+  <Rotation name="PLTrot8" phiX="315.*deg" thetaX="90.*deg+[pltTilt]" phiY="45.*deg" thetaY="90.*deg" phiZ="315.*deg" thetaZ="[pltTilt]"/>
+ </RotationSection>
+ <LogicalPartSection label="PLTLog">
+  <LogicalPart name="PLT_Telescope" category="unspecified">
+   <rSolid name="PLT_Telescope"/>
+   <rMaterial name="materials:Air"/>
+  </LogicalPart>
+  <LogicalPart name="PLT_Backbone" category="unspecified">
+   <rSolid name="PLT_Backbone"/>
+   <rMaterial name="materials:Copper"/>
+  </LogicalPart>
+  <LogicalPart name="PLT_Blade" category="unspecified">
+   <rSolid name="PLT_Blade"/>
+   <rMaterial name="trackermaterial:T_G10"/>
+  </LogicalPart>
+  <LogicalPart name="PLTSensitiveDetector" category="unspecified">
+   <rSolid name="PLTSensitiveDetector"/>
+   <rMaterial name="materials:Carbon"/>
+  </LogicalPart>
+ </LogicalPartSection>
+ <!-- Position of plt volumes -->
+ <PosPartSection label="pltPar">
+  <PosPart copyNumber="1">
+   <rParent name="forward:PLT"/>
+   <rChild name="plt:PLT_Telescope"/>
+   <Translation x="[pltBladeR]*cos(0*deg)" y="[pltBladeR]*sin(0*deg)" z="0*cm"/>
+   <rRotation name="PLTrot1"/>
+  </PosPart>
+  <PosPart copyNumber="2">
+   <rParent name="forward:PLT"/>
+   <rChild name="plt:PLT_Telescope"/>
+   <Translation x="[pltBladeR]*cos(45*deg)" y="[pltBladeR]*sin(45*deg)" z="0*cm"/>
+   <rRotation name="PLTrot2"/>
+  </PosPart>
+  <PosPart copyNumber="3">
+   <rParent name="forward:PLT"/>
+   <rChild name="plt:PLT_Telescope"/>
+   <Translation x="[pltBladeR]*cos(90*deg)" y="[pltBladeR]*sin(90*deg)" z="0*cm"/>
+   <rRotation name="PLTrot3"/>
+  </PosPart>
+  <PosPart copyNumber="4">
+   <rParent name="forward:PLT"/>
+   <rChild name="plt:PLT_Telescope"/>
+   <Translation x="[pltBladeR]*cos(135*deg)" y="[pltBladeR]*sin(135*deg)" z="0*cm"/>
+   <rRotation name="PLTrot4"/>
+  </PosPart>
+  <PosPart copyNumber="5">
+   <rParent name="forward:PLT"/>
+   <rChild name="plt:PLT_Telescope"/>
+   <Translation x="[pltBladeR]*cos(180*deg)" y="[pltBladeR]*sin(180*deg)" z="0*cm"/>
+   <rRotation name="PLTrot5"/>
+  </PosPart>
+  <PosPart copyNumber="6">
+   <rParent name="forward:PLT"/>
+   <rChild name="plt:PLT_Telescope"/>
+   <Translation x="[pltBladeR]*cos(225*deg)" y="[pltBladeR]*sin(225*deg)" z="0*cm"/>
+   <rRotation name="PLTrot6"/>
+  </PosPart>
+  <PosPart copyNumber="7">
+   <rParent name="forward:PLT"/>
+   <rChild name="plt:PLT_Telescope"/>
+   <Translation x="[pltBladeR]*cos(270*deg)" y="[pltBladeR]*sin(270*deg)" z="0*cm"/>
+   <rRotation name="PLTrot7"/>
+  </PosPart>
+  <PosPart copyNumber="8">
+   <rParent name="forward:PLT"/>
+   <rChild name="plt:PLT_Telescope"/>
+   <Translation x="[pltBladeR]*cos(315*deg)" y="[pltBladeR]*sin(315*deg)" z="0*cm"/>
+   <rRotation name="PLTrot8"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="plt:PLT_Telescope"/>
+   <rChild name="plt:PLT_Backbone"/>
+   <Translation x="[pltBladeX]" y="-[pltBladeY]-[pltBackBoneY]" z="0*cm"/>
+  </PosPart>
+  <PosPart copyNumber="2">
+   <rParent name="plt:PLT_Telescope"/>
+   <rChild name="plt:PLT_Backbone"/>
+   <Translation x="[pltBladeX]" y="[pltBladeY]+[pltBackBoneY]" z="0*cm"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="plt:PLT_Telescope"/>
+   <rChild name="plt:PLT_Blade"/>
+   <Translation x="0*fm" y="0*fm" z="[pltBladeZ]"/>
+  </PosPart>
+  <PosPart copyNumber="2">
+   <rParent name="plt:PLT_Telescope"/>
+   <rChild name="plt:PLT_Blade"/>
+   <Translation x="0*fm" y="0*fm" z="0*cm"/>
+  </PosPart>
+  <PosPart copyNumber="3">
+   <rParent name="plt:PLT_Telescope"/>
+   <rChild name="plt:PLT_Blade"/>
+   <Translation x="0*fm" y="0*fm" z="-[pltBladeZ]"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="plt:PLT_Telescope"/>
+   <rChild name="plt:PLTSensitiveDetector"/>
+   <Translation x="[pltSensorXoff]" y="0*fm" z="[pltBladeZ]-[pltSensorZ]"/>
+  </PosPart>
+  <PosPart copyNumber="2">
+   <rParent name="plt:PLT_Telescope"/>
+   <rChild name="plt:PLTSensitiveDetector"/>
+   <Translation x="[pltSensorXoff]" y="0*fm" z="-[pltSensorZ]"/>
+  </PosPart>
+  <PosPart copyNumber="3">
+   <rParent name="plt:PLT_Telescope"/>
+   <rChild name="plt:PLTSensitiveDetector"/>
+   <Translation x="[pltSensorXoff]" y="0*fm" z="-[pltBladeZ]-[pltSensorZ]"/>
+  </PosPart>
+ </PosPartSection>
+</DDDefinition>

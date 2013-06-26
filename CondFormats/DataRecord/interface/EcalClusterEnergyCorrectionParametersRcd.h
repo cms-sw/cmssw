@@ -1,0 +1,6 @@
+#ifndef CondFormats_DataRecord_EcalClusterEnergyCorrectionParametersRcd_h
+#define CondFormats_DataRecord_EcalClusterEnergyCorrectionParametersRcd_h
+
+#include "FWCore/Framework/interface/EventSetupRecordImplementation.h"
+class EcalClusterEnergyCorrectionParametersRcd : public edm::eventsetup::EventSetupRecordImplementation<EcalClusterEnergyCorrectionParametersRcd> {};
+#endif

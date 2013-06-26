@@ -1,0 +1,7 @@
+<use   name="RecoTracker/TkSeedGenerator"/>
+<use   name="RecoTracker/TkTrackingRegions"/>
+<use   name="RecoPixelVertexing/PixelTriplets"/>
+<library   file="*.cc" name="RecoTrackerTkSeedGeneratorPlugins">
+  <flags   EDM_PLUGIN="1"/>
+  <use   name="RecoTracker/TrackProducer"/>
+</library>

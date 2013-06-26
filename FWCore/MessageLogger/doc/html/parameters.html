@@ -1,0 +1,386 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+<BODY bgcolor="FFFFFF">
+<title>
+          CMS MessageLogger: Configuring the MessageLogger Service
+</title>
+
+<center>
+<h1> <img src="header-public.gif" align="center"> </h1>
+
+<font color=red>
+<h1>CMS MessageLogger Service
+<br> 
+Configuring the MessageLogger Service</h1>
+</font>
+</center>
+
+<p>
+The <a href="MessageLogger.html">CMS MessageLogger Service </a> 
+is meant to allow code to log 
+messages to a unified message logging 
+and statistics facility.  
+While reasonable default behaviors are provided,  
+the behavior of the MessageLogger can be adjusted via lines in the 
+job's configuration file (.cfg).  
+<p>
+<ul>
+<li> <a href="#Concepts"> Message Logging Concepts </a>
+<li> <a href="#cms"> Routine MessageLogger Parameters </a>
+<li> <a href="#example"> Example .cfg File Exercising Some Options</a>
+<li> <a href="#log4cplus"> Routing Messages to log4cplus </a>
+<li> <a href="#debug"> Enable LogDebug Messages </a>
+<li> <a href="#complete"> Examples of Limits and Timespan Parameters </a> 
+<li> <a href="#linelength"> Adjusting Linebreak Policy </a>
+<li> <a href="statistics.html"> Obtaining Message Statistics  </a>
+</ul>
+<p>
+
+<a name="concepts">
+<h2> Message Logging Concepts </h2>
+
+To understand what sort of flexibility is available, it is useful to 
+be familiar with the following concepts:
+<ul>
+<li><font color=blue><b> Destination
+  </b></font>
+  <ul>
+    The MessageLogger is capable of routing messages to multiple 
+    <b>Destination</b>s.  
+    The behavior -- the nature of which messages would appear 
+    and which would be ignored -- can be controlled for each destination.  
+    At present, two types of <b>destination</b>s are supported:  
+    <ol>
+    <li> Output files, the names of which can be specified in the job's
+    .cfg file.  (If the file specified already exists, the messages will
+    be appended to the file.)
+    <li> Streams <font color=blue><b>cerr</b></font> and 
+    <font color=blue><b>cout</b></font>.  (Because our parameter set
+    syntax treats these names specially, creation of an output <em>file</em>
+    named cerr or cout is not supported.)
+    </ol>
+  </ul>
+<li><font color=blue><b> Message ID
+  </b></font>
+  <ul>
+  Each message is given a category when issued.  This is intended to represent
+  what this message is about.  For example, several messages
+  with different detailed content could all be of type <b>tracking</b>.
+  Limits can be imposed on the reporting of messages in a given category,
+  and statistics can be obtained by category.
+  </ul>
+<li><font color=blue><b> Severity
+  </b></font>
+  <ul>
+  <font color=blue>LogDebug</font>, 
+  <font color=blue>edm::LogWarning</font>, 
+  <font color=blue>edm::LogInfo</font>, and
+  <font color=blue>edm::LogError</font> produce messages with severity 
+   <font color=blue>DEBUG</font>, 
+   <font color=blue>WARNING</font>, 
+  <font color=blue>INFO</font>, and
+  <font color=blue>ERROR</font> respectively.  
+  These are ordered with <font color=blue>DEBUG</font> as the lowest
+  severity and <font color=blue>ERROR</font> as the highest.  
+  </ul>
+<li><font color=blue><b> Threshold
+  </b></font>
+  <ul>
+  For any given destination, the .cfg file can specify that every
+  message with a severity lower than a given <font color=blue>threshold</font>
+  shall be ignored.  
+  <font color=green>By default, a destination will have a threshold of
+  <font color=blue>INFO</font>; responses to messages issued via LogDebug
+  can be enabled by setting a threshold to <font color=blue>DEBUG</font>.
+  </font> 
+  </ul>
+<li><font color=blue><b> Limit
+  </b></font>
+  <ul>
+  For each message category, 
+  or for messages in general, or for a specified severity
+  level, the .cfg file can instruct the logger to ignore messages after some
+  number (the <font color=blue>limit</font>) have been encountered.  
+  (Actually, beyond the applicable limit, an occasional further message will
+  appear, based on an exponential backoff.  Thus, if the a limit is set at 
+  5, and 100 messages of that id are issued, then that destination will react
+  to the messages number 1, 2, 3, 4, 5, 10, 15, 25, 45, and 85.)  A limit of
+  zero will disable reporting that category of messages.
+  </ul>
+<li><font color=blue><b> Timespan
+  </b></font>
+  <ul>
+  When a limit is set, it is possible to specify that if no occurrences of that
+  type of message are seen in some number of seconds (the 
+  <font color=blue>timespan</font>), then the count toward that limit is to 
+  be reset.  Thus if you wish to suppress most of the thousands of warnings of
+  some type expected at startup, but would like to know if another one happens
+  after a gap of ten minutes, this can be specified as a timespan of 600.
+  </ul> 
+</ul>
+<p>
+The typical user may not be interested in specifying limits of how many times
+messages of types will be displayed.  
+<font color=green> By default, the MessageLogger service
+will impose a limit of 5 occurrences of each category of 
+LogInfo messages, except for framework event messages which will be 
+unlimited. </font>
+
+
+output to each destination every messages meeting the severity threshold 
+criteria specific for that destination.  In fact, the user need not specify
+any thresholds; then every message will be output.  And if the user does not
+specify any destinations, then a single destination of cerr is assumed.
+<p>
+
+In the near future, concepts for establishing and/or controlling a destination
+involving the <font color=blue> log4cplus </font> service may also
+be listed here.
+
+
+<a name="cms">
+<h2> Routine MessageLogger Parameters </h2>
+
+The following is a portion of a .cfg file requesting the MessageLogger
+Service, and setting up setting a destination which will write messages
+to the file <font color=blue>messages.txt</font>.  The default threshold
+and limits will apply:  No LogDebug messages will be reported, and 
+only the first five messages of each category will be reported.
+<font color=blue>
+<pre>
+process TEST = 
+{
+  service = MessageLoggger { vstring destinations = { "messages.txt" } }
+}
+</pre>
+</font>
+
+
+<a name="example">
+<h2> Example .cfg File Exercising Some Options </h2>
+
+The following is an example .cfg file, requesting the MessageLogger
+Service, setting up some destinations, and specifying some thresholds
+for how "severe" a message must be in order for it to appear in each
+destination.
+
+<pre>
+process TEST = {
+
+  <a href="serviceML.html">service = MessageLogger</a> {
+    <a href="files.html">vstring destinations = </a>{   <a href="filename.html">"detailedInfo.txt"</a>
+                             , <a href="filename.html">"critical.txt"</a>
+                             , <a href="cout.html">"cout"</a>
+                             , <a href="cerr.html">"cerr"</a>
+                      }
+    <a href="filename.html">PSet critical.txt</a>     = { <a href="errorthreshold.html">string threshold = "ERROR"</a>   }
+    <a href="filename.html">PSet detailedInfo.txt</a> = { <a href="infothreshold.html">string threshold = "INFO"</a>    } 
+    <a href="cerr.html">PSet cerr</a>             = { <a href="warnthreshold.html">string threshold = "WARNING"</a> }
+  }
+  untracked PSet maxEvents = {untracked int32 input = 5}
+  path p = { myAnalysisModule }
+  module myAnalysisModule = ModuleThatIssuesMessages { }
+  source = EmptySource { }
+}
+</pre>
+
+<a name="debug">
+<h2> Enabling LogDebug Messages </h2>
+
+The following is a portion of a .cfg file appropriate for a job that will
+run code instrumented with many LogDebug messages.  This hypothetical user
+cares only about those LogDebug messages in the category 
+<font color=blue>interestingToMe</font> and, in this file, prefers not
+to see any other LogDebug or LogInfo messages.
+
+<font color=blue>
+<pre>
+process TEST = 
+{
+  service = MessageLoggger 
+  {
+  vstring destinations   = { "debugmessages.txt" }
+  vstring categories     = { "interestingToMe" }
+  vstring debugModules   = { "*" }
+  PSet debugmessages.txt = { string threshold = "DEBUG"
+                             PSet INFO  = { int32 limit = 0 }
+                             PSet DEBUG = { int32 limit = 0 }
+			     PSet interestingToMe = {int32 limit = 10000000}
+  } 
+}
+</pre>
+</font>
+
+By default, all LogDebug messages issued from any modules would be
+rapidly discarded.  This user chooses to enable the LogDebug messages
+issued by all modules, via  
+<font color=blue>vstring debugModules   = { "*" }</font>.  (Instead,
+LogDebugs from a set of specific modules could be enabled; see
+<a href="debug.html#enabling"> 
+Controlling LogDebug Behavior: Enabling LogDebug Messages </a> for details.
+<p>
+Even if LogDebug messages are not rapidly discarded, destination have
+a default threshold of <code>INFO</code>, so no LogDebug messages would be
+reported.  
+Here, for the <code>debugmessages.txt</code> destination, 
+the user causes LogDebug messages to be reported by 
+<font color=blue>string threshold = "DEBUG"</font>.
+If the PSet for <code>debugmessages.txt</code> were to end there,
+all LogDebug messages would be reported by this destination.
+<p>
+This user, however, desires more selectivity.
+The next two lines establish that for any category of messages 
+without its own limit specification, if the message has severity 
+INFO or DEBUG, use a limit of zero (which means don't report those
+messages).  Finally, the .cfg file overrides this for messages in the
+category <font color=blue>interestingToMe</font>, permitting messages of
+that category to be reported.
+
+<a name="log4cplus">
+<h2> Routing Messages to log4cplus </h2>
+
+The MessageLogger will route messages to <b><code>log4cplus</code></b>
+if the .cfg file requests the <b><code>MLlog4cplus</code></b> service.
+The following is an example .cfg file, requesting the 
+<code>MLlog4cplus</code>
+service, and specifying a threshold
+for how "severe" a message must be in order for it to be routed to 
+<code>log4cplus</code>.
+
+<pre>
+process TEST = {
+  <a href="log4cplus.html">service = MLlog4cplus</a>
+  service = MessageLogger {
+    vstring destinations = {   "detailedInfo.txt"  }
+    <a href="log4cplus.html">PSet log4cplus     = { string threshold = "ERROR"   }</a>
+  }
+  untracked PSet maxEvents = {untracked int32 input = 5}
+  path p = { myAnalysisModule }
+  module myAnalysisModule = ModuleThatIssuesMessages { }
+  source = EmptySource { }
+}
+</pre>
+
+The four severities of MessageLogger messages correspond to the four 
+directives for issuing to <code>log4cplus</code>.  For instance,
+<code>LogWarning("category")</code> leads to a <code>LOG4CPLUS_WARN(...)</code>
+call.
+<p>
+<code>log4cplus</code> dispatches to "appenders". For example, a 
+<code>fileAppender</code> may be established to write the text to 
+a file, or a <code>consoleAppender</code> to write to the job console.
+It is up to the user code or configuration file to establish which
+appenders are wanted.
+In the current implementation, 
+the <code>MLlog4cplus</code> service automatically
+establishes a <code>fileAppender</code> writing <code>log4cplus.ouput</code>.
+
+
+<a name="complete">
+<h2> Examples of Limits and Timespan Parameters  </h2>
+
+The following is an example .cfg file, requesting the MessageLogger
+Service, setting up some destinations, and specifying some  
+choices for thresholds, and for limits and timespans applicable 
+to severities, to specific
+message ID's, and to all non-specified (default) message ID's.
+<p>
+The .cfg file contains not only a list of files, but also a list of message 
+ID's that the author wishes to control individually.
+<pre>
+process TEST = {
+
+  <a href="serviceMLc.html">service = MessageLogger {</a>
+    <a href="destinations.html">vstring destinations = { "detailedInfo.txt"</a>
+			   <a href="destinations.html">, "critical.txt"</a>
+			   <a href="destinations.html">, "jobdebug.txt"</a>
+			   <a href="destinations.html">, "anotherfile.txt"</a>
+			   <a href="destinations.html">, "cout"</a>
+			   <a href="destinations.html">, "cerr"</a>
+			   <a href="destinations.html">}</a>
+    <a href="mIDs.html">vstring categories = { "unimportant"</a>
+			 <a href="mIDs.html">, "trkwarning"</a>
+ 			 <a href="mIDs.html">, "serious_matter"</a>
+                         <a href="mIDs.html">}</a>
+    <a href="destname.html">PSet critical.txt = {</a> <a href="thresh.html">string threshold = "ERROR"</a>
+                              <a href="defaults.html">PSet default = {</a> <a href="limits.html">int32 limit</a>    = 10
+			                       <a href="limits.html">int32 timespan = 180</a>
+					     <a href="defaults.html">}</a>
+			      <a href="notimespan.html">PSet serious_matter = { int32 limit = 100000 }</a>
+                        }
+    <a href="destname.html">PSet detailedInfo.txt = {</a> <a href="thresh.html">string threshold = "INFO"</a>
+			      <a href="defaults.html">PSet default        = {</a> <a href="limits.html">int32 limit    =  10</a>
+					              <a href="limits.html">int32 timespan =  60</a>
+					            <a href="defaults.html">}</a>
+			      <a href="severity.html">PSet WARNING        = </a>{ <a href="limits.html">int32 limit    = 100</a>
+			                              <a href="limits.html">int32 timespan =  60</a> 
+					            }
+			      <a href="severity.html">PSet ERROR          = </a>{ <a href="limits.html">int32 limit    = 100</a>
+			                              <a href="limits.html">int32 timespan =  60</a> 
+					            }
+			      <a href="mIDs.html">PSet trkwarning</a>     = { <a href="limits.html">int32 limit    = 20</a>
+			                              <a href="limits.html">int32 timespan = 1200</a>
+						    }
+			      <a href="mIDs.html">PSet unimportant</a>    = { <a href="limits.html">int32 limit    = 5</a> }
+			      <a href="mIDs.html">PSet serious_matter</a> = { <a href="limits.html">int32 limit    = 1000000</a> }
+                            }
+    PSet cerr     = { <a href="thresh.html">string threshold = "WARNING"</a> }
+
+    <a href="destname.html">PSet jobdebug.txt =     {</a> <a href="defaults.html">PSet default        = { </a><a href="limits.html">int32 limit    = 1000000</a> <a href="mIDs.html">}</a>
+                            }
+    <a href="destname.html">PSet anotherfile.txt =  {</a> <a href="notimespan.html">PSet serious_matter = { int32 limit    = 1000</a> } 
+                            }
+    <a href="defdefault.html">PSet default = { int32 limit    = 10</a>
+                     <a href="defdefault.html">int32 timespan = 60</a>
+		   <a href="defdefault.html">}</a>
+  }
+  untracked PSet maxEvents = {untracked int32 input = 10}
+  path p = { sendSomeMessages }
+  module sendSomeMessages = MessageLoggerClient { }
+  source = EmptySource { }
+}
+</pre>
+
+<a name="linelength">
+<h2> Adjusting Linebreak Policy  </h2>
+
+By default, output destinations format the message, breaking the text (at
+boundaries where there was a new item of information or an operator&lt;&lt;)
+to avoid lines of greater than 80 columns.
+<p>
+If this is not the desired behavior (for example, if the output file will be 
+processed by an automated parsing tool which prefers each message to be on a
+single line) then this can be controled in the .cfg file:
+<pre>
+process TEST = {
+
+ service = MessageLogger {
+    vstring destinations = {   "detailedInfo.txt"
+                             , "critical.txt"
+                           }
+    PSet critical.txt     = { <a href="linebreak.html">bool noLineBreaks = true</a>   }
+    PSet detailedInfo.txt = { <a href="linebreak.html">int32  lineLength = 132</a>    } 
+  }
+  untracked PSet maxEvents = {untracked int32 input = 5}
+  path p = { myAnalysisModule }
+  module myAnalysisModule = ModuleThatIssuesMessages { }
+  source = EmptySource { }
+}
+</pre>
+
+
+<p><center>
+<img src="bar.gif"></center>
+
+<p><center>
+<a href="http://www.uscms.org/SoftwareComputing/index.html">
+USCMS Software and Computing Home Page </a> -
+<a href="MessageLogger.html">CMS MessageLogger Service Page</a>
+</center>
+
+<p>
+      <hr>
+      <address><a href="mailto:mf@fnal.gov">Mark Fischler</a></address>
+<!-- hhmts start -->
+Last modified: December 1, 2005
+<!-- hhmts end -->
+</body>

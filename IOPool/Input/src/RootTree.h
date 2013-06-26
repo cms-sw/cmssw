@@ -1,0 +1,174 @@
+#ifndef IOPool_Input_RootTree_h
+#define IOPool_Input_RootTree_h
+
+/*----------------------------------------------------------------------
+
+RootTree.h // used by ROOT input sources
+
+----------------------------------------------------------------------*/
+
+#include "DataFormats/Provenance/interface/ConstBranchDescription.h"
+#include "DataFormats/Provenance/interface/ProvenanceFwd.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+
+#include "Rtypes.h"
+#include "TBranch.h"
+
+#include <map>
+#include <memory>
+#include <string>
+#include <vector>
+#include <unordered_set>
+
+class TBranch;
+class TClass;
+class TTree;
+class TTreeCache;
+
+namespace edm {
+  struct BranchKey;
+  class DelayedReader;
+  class InputFile;
+  class RootTree;
+
+  namespace roottree {
+    unsigned int const defaultCacheSize = 20U * 1024 * 1024;
+    unsigned int const defaultNonEventCacheSize = 1U * 1024 * 1024;
+    unsigned int const defaultLearningEntries = 20U;
+    unsigned int const defaultNonEventLearningEntries = 1U;
+    typedef Long64_t EntryNumber;
+    struct BranchInfo {
+      BranchInfo(ConstBranchDescription const& prod) :
+        branchDescription_(prod),
+        productBranch_(0),
+        provenanceBranch_(0),
+        classCache_(0) {}
+      ConstBranchDescription branchDescription_;
+      TBranch* productBranch_;
+      TBranch* provenanceBranch_; // For backward compatibility
+      mutable TClass* classCache_;
+    };
+    typedef std::map<BranchKey const, BranchInfo> BranchMap;
+    Int_t getEntry(TBranch* branch, EntryNumber entryNumber);
+    Int_t getEntry(TTree* tree, EntryNumber entryNumber);
+    std::unique_ptr<TTreeCache> trainCache(TTree* tree, InputFile& file, unsigned int cacheSize, char const* branchNames);
+  }
+
+  class RootTree {
+  public:
+    typedef roottree::BranchMap BranchMap;
+    typedef roottree::EntryNumber EntryNumber;
+    RootTree(boost::shared_ptr<InputFile> filePtr,
+             BranchType const& branchType,
+             unsigned int maxVirtualSize,
+             unsigned int cacheSize,
+             unsigned int learningEntries,
+             bool enablePrefetching);
+    ~RootTree();
+
+    RootTree(RootTree const&) = delete; // Disallow copying and moving
+    RootTree& operator=(RootTree const&) = delete; // Disallow copying and moving
+
+    bool isValid() const;
+    void addBranch(BranchKey const& key,
+                   BranchDescription const& prod,
+                   std::string const& oldBranchName);
+    void dropBranch(std::string const& oldBranchName);
+    void getEntry(TBranch *branch, EntryNumber entry) const;
+    void setPresence(BranchDescription const& prod,
+                   std::string const& oldBranchName);
+
+    bool next() {return ++entryNumber_ < entries_;}
+    bool previous() {return --entryNumber_ >= 0;}
+    bool current() {return entryNumber_ < entries_ && entryNumber_ >= 0;}
+    void rewind() {entryNumber_ = 0;}
+    void close();
+    EntryNumber const& entryNumber() const {return entryNumber_;}
+    EntryNumber const& entries() const {return entries_;}
+    void setEntryNumber(EntryNumber theEntryNumber);
+    std::vector<std::string> const& branchNames() const {return branchNames_;}
+    DelayedReader* rootDelayedReader() const;
+    template <typename T>
+    void fillAux(T*& pAux) {
+      auxBranch_->SetAddress(&pAux);
+      getEntry(auxBranch_, entryNumber_);
+    }
+    template <typename T>
+    void fillBranchEntryMeta(TBranch* branch, T*& pbuf) {
+      if (metaTree_ != 0) {
+        // Metadata was in separate tree.  Not cached.
+        branch->SetAddress(&pbuf);
+        roottree::getEntry(branch, entryNumber_);
+      } else {
+        fillBranchEntry<T>(branch, pbuf);
+      }
+    }
+
+    template <typename T>
+    void fillBranchEntry(TBranch* branch, T*& pbuf) {
+      branch->SetAddress(&pbuf);
+      getEntry(branch, entryNumber_);
+    }
+
+    TTree const* tree() const {return tree_;}
+    TTree* tree() {return tree_;}
+    TTree const* metaTree() const {return metaTree_;}
+    BranchMap const& branches() const;
+
+    //For backwards compatibility
+    TBranch* branchEntryInfoBranch() const {return branchEntryInfoBranch_;}
+
+    inline TTreeCache* checkTriggerCache(TBranch* branch, EntryNumber entryNumber) const;
+    TTreeCache* checkTriggerCacheImpl(TBranch* branch, EntryNumber entryNumber) const;
+    inline TTreeCache* selectCache(TBranch* branch, EntryNumber entryNumber) const;
+    void trainCache(char const* branchNames);
+    void resetTraining() {trainNow_ = true;}
+
+    BranchType branchType() const {return branchType_;}
+  private:
+    void setCacheSize(unsigned int cacheSize);
+    void setTreeMaxVirtualSize(int treeMaxVirtualSize);
+    void startTraining();
+    void stopTraining();
+
+    boost::shared_ptr<InputFile> filePtr_;
+// We use bare pointers for pointers to some ROOT entities.
+// Root owns them and uses bare pointers internally.
+// Therefore,using smart pointers here will do no good.
+    TTree* tree_;
+    TTree* metaTree_;
+    BranchType branchType_;
+    TBranch* auxBranch_;
+// We use a smart pointer to own the TTreeCache.
+// Unfortunately, ROOT owns it when attached to a TFile, but not after it is detached.
+// So, we make sure to it is detached before closing the TFile so there is no double delete.
+    boost::shared_ptr<TTreeCache> treeCache_;
+    boost::shared_ptr<TTreeCache> rawTreeCache_;
+    mutable boost::shared_ptr<TTreeCache> triggerTreeCache_;
+    mutable boost::shared_ptr<TTreeCache> rawTriggerTreeCache_;
+    mutable std::unordered_set<TBranch*> trainedSet_;
+    mutable std::unordered_set<TBranch*> triggerSet_;
+    EntryNumber entries_;
+    EntryNumber entryNumber_;
+    std::vector<std::string> branchNames_;
+    boost::shared_ptr<BranchMap> branches_;
+    bool trainNow_;
+    EntryNumber switchOverEntry_;
+    mutable EntryNumber rawTriggerSwitchOverEntry_;
+    mutable bool performedSwitchOver_;
+    unsigned int learningEntries_;
+    unsigned int cacheSize_;
+    unsigned long treeAutoFlush_;
+// Enable asynchronous I/O in ROOT (done in a separate thread).  Only takes
+// effect on the primary treeCache_; all other caches have this explicitly disabled.
+    bool enablePrefetching_;
+    bool enableTriggerCache_;
+    std::unique_ptr<DelayedReader> rootDelayedReader_;
+
+    TBranch* branchEntryInfoBranch_; //backwards compatibility
+    // below for backward compatibility
+    TTree* infoTree_; // backward compatibility
+    TBranch* statusBranch_; // backward compatibility
+  };
+}
+#endif

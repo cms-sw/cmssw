@@ -1,0 +1,171 @@
+// Original Author:  Anne-Marie Magnan
+//         Created:  2010/02/25
+// $Id: SiStripSpyIdentifyRuns.cc,v 1.1 2012/10/15 09:02:47 threus Exp $
+//
+
+#include <sstream>
+#include <fstream>
+#include <iostream>
+#include <memory>
+#include <list>
+#include <algorithm>
+#include <cassert>
+
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/InputTag.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/Utilities/interface/Exception.h"
+
+#include "DataFormats/FEDRawData/interface/FEDNumbering.h"
+#include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
+#include "DataFormats/FEDRawData/interface/FEDRawData.h"
+#include "DataFormats/SiStripCommon/interface/ConstantsForHardwareSystems.h"
+
+#include "DQM/SiStripMonitorHardware/interface/SiStripFEDSpyBuffer.h"
+
+//
+// Class declaration
+//
+namespace sistrip {
+
+  class SpyIdentifyRunsModule : public edm::EDAnalyzer
+  {
+  public:
+
+    explicit SpyIdentifyRunsModule(const edm::ParameterSet&);
+    ~SpyIdentifyRunsModule();
+
+  private:
+
+    virtual void beginJob();
+    virtual void analyze(const edm::Event&, const edm::EventSetup&);
+    virtual void endJob();
+
+    void writeRunInFile(const unsigned int aRunNumber);
+ 
+    //name of the output file containing the run numbers
+    //of spy runs
+    std::string fileName_;
+    std::ofstream outFile_;
+
+    //tag of spydata source collection
+    edm::InputTag srcTag_;
+
+    uint32_t prevRun_;
+
+  };
+}//namespace
+
+using edm::LogError;
+using edm::LogWarning;
+using edm::LogInfo;
+//
+// Constructors and destructor
+//
+namespace sistrip {
+
+  SpyIdentifyRunsModule::SpyIdentifyRunsModule(const edm::ParameterSet& iConfig)
+    : fileName_(iConfig.getParameter<std::string>("OutputTextFile")),
+      srcTag_(iConfig.getParameter<edm::InputTag>("InputProductLabel")),
+      prevRun_(0)
+  {
+
+  }
+
+
+  SpyIdentifyRunsModule::~SpyIdentifyRunsModule() {
+
+  }
+
+  void SpyIdentifyRunsModule::beginJob()
+  {
+    outFile_.open(fileName_.c_str(),std::ios::out);
+    if (!outFile_.is_open()) {
+      edm::LogError("SiStripSpyIdentifyRuns")  << " -- Cannot open file : " << fileName_ << " for writting." 
+					       << std::endl;
+      edm::LogInfo("SiStripSpyIdentifyRuns")  << " *** SPY RUNS *** "<< std::endl;
+
+    }
+    else {
+      outFile_ << " *** SPY RUNS *** " << std::endl;
+    }
+  }
+
+  void SpyIdentifyRunsModule::analyze(const edm::Event& aEvt, const edm::EventSetup& aSetup)
+  {
+
+    //static bool lFirstEvent = true;
+    //if (!lFirstEvent) return;
+    uint32_t lRunNum = aEvt.id().run();
+    if (lRunNum == prevRun_) return;
+
+    edm::Handle<FEDRawDataCollection> lHandle;
+    aEvt.getByLabel( srcTag_, lHandle ); 
+    const FEDRawDataCollection& buffers = *lHandle;
+
+    for (unsigned int iFed(FEDNumbering::MINSiStripFEDID);
+	 iFed <= FEDNumbering::MAXSiStripFEDID;
+	 iFed++)
+      {
+
+	//retrieve FED raw data for given FED 
+	const FEDRawData& input = buffers.FEDData( static_cast<int>(iFed) );
+	//check on FEDRawData pointer and size
+	if ( !input.data() ||!input.size() ) continue;
+          
+	//construct FEDBuffer
+	std::auto_ptr<sistrip::FEDSpyBuffer> buffer;
+	try {
+	  buffer.reset(new sistrip::FEDSpyBuffer(input.data(),input.size()));
+	} catch (const cms::Exception& e) { 
+	  edm::LogWarning("SiStripSpyIdentifyRuns")
+	    << "Exception caught when creating FEDSpyBuffer object for FED " << iFed << ": " << e.what();
+	  //if (!(buffer->readoutMode() == READOUT_MODE_SPY)) break;
+	  std::string lErrStr = e.what();
+	  if (lErrStr.find("Buffer is not from spy channel")!=lErrStr.npos) break;
+	  else {
+	    writeRunInFile(lRunNum);
+	    break;
+	  }
+	} // end of buffer reset try.
+        edm::LogWarning("SiStripSpyIdentifyRuns")
+	  << " -- this is a spy file, run " << lRunNum << std::endl;
+	writeRunInFile(lRunNum);
+	break;
+      }
+    //lFirstEvent = false;
+    prevRun_ = lRunNum;
+
+  }
+
+  void SpyIdentifyRunsModule::writeRunInFile(const unsigned int aRunNumber){
+    if (!outFile_.is_open()) {
+      edm::LogInfo("SiStripSpyIdentifyRuns") << aRunNumber
+					     << std::endl;
+    }
+    else {
+      outFile_ << aRunNumber  << std::endl;
+    }
+  }
+
+  void SpyIdentifyRunsModule::endJob() {
+
+    //save global run number in text file in local directory
+    //output loginfo with number of errors
+    //or throw exception ?
+    if (outFile_.is_open()) outFile_.close();
+
+  }
+
+
+}//namespace
+
+#include "FWCore/Framework/interface/MakerMacros.h"
+typedef sistrip::SpyIdentifyRunsModule SiStripSpyIdentifyRuns;
+DEFINE_FWK_MODULE(SiStripSpyIdentifyRuns);

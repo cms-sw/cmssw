@@ -1,0 +1,310 @@
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
+    <!--*******************************************************************************************************************
+         ********           IMPORTANT!!! WHILE SECTIONS ARE LABELED ABOVE, COMMENTS ARE UNDERNEATH THE LINES THEY ARE ABOUT!!!
+         
+         notes:
+         When I refer to central pad, I am speaking of the circular detection area of the BSC.
+         When I refer to the trapezoidal paddles, I am speaking of the 4 trapezoidal parts of the detector. 
+         ************************************************************************************************************************-->
+    <ConstantsSection label="brm.xml" eval="true">
+        <!--BSC1_Specifications(below)-->
+        <Constant name="rMinBSC" value="22.0*cm"/>
+        <Constant name="rMaxBSC" value="45.0*cm"/>
+        <Constant name="rMaxBSCActive" value="43.4*cm"/>
+        <Constant name="rMinBSCActive" value="26.3*cm"/>
+        <!--^^^^Specifications for the central pad of the BSC1^^^^-->
+        <Constant name="dzBSC1" value="1.0*cm"/>
+        <!--^^^^Thickness from center of BSC^^^^-->
+        <Constant name="dhTrapezoid" value="48.691*cm"/>
+        <Constant name="dlTrapezoid" value="5.409*cm"/>
+        <Constant name="dLTrapezoid" value="12.179*cm"/>
+        <Constant name="posTrapezoid" value="675.76*mm"/>
+        <!--^^^^Trapezoidal Paddles of the BSC1^^^^-->
+        <!--^^^^^Where the BSC1 is located down the beampipe^^^-->
+        <Constant name="dzBSCAl1" value="0.2*cm"/>
+        <Constant name="dzBSCAl1F" value="0.4*cm"/>
+        <Constant name="dzBSCExtra" value="([dzBSCAl1]+[dzBSCAl1F])"/>
+        <Constant name="dzBSC1Total" value="([dzBSC1]+[dzBSCExtra])"/>
+        <Constant name="zposBSC1" value="[forwardshield:FixShldZ1]-[dzBSC1Total]"/>
+        <!--^^^^ Thickness of Aluminum shield of the central pad on the back and front respectively-->
+        <Constant name="dzBSCAlTrap1" value="0.2*cm"/>
+        <Constant name="dzBSCAlTrap1F" value="0.1*cm"/>
+        <Constant name="dzBSC1Extra" value="([dzBSCAlTrap1]+[dzBSCAlTrap1F])"/>
+        <Constant name="dzBSC1Trap" value="([dzBSC1]+[dzBSC1Extra])"/>
+        <Constant name="zposBSC1Trap" value="[dzBSC1Total]-[dzBSC1Trap]"/>
+        <Constant name="zposBSC1TrapT" value="[dzBSC1Trap]-[dzBSC1]-2*[dzBSCAlTrap1]"/>
+        <Constant name="zposBSC1Pad" value="[dzBSC1Total]-[dzBSC1]-2*[dzBSCAl1]"/>
+        <!--^^^ Thickness of Aluminum shields of trapezoidal paddles on bsc1 (back,then front)-->
+        <!--BSC2 Specifications-->
+        <Constant name="dzBSC2" value="0.8*cm"/>
+        <Constant name="dzBSC2Total" value="([dzBSC2]+[dzBSCExtra])"/>
+        <!--^^^ Thickness of BSC2 ^^^^-->
+        <Constant name="zposBSC2" value="[forward:CastorZ1]-[dzBSC2Total]"/>
+        <!--^^^Where BSC2 rests along the beamline-->
+    </ConstantsSection>
+    <SolidSection label="brm.xml">
+        <!--BSC1 Section (below)-->
+        <Tubs name="BSC1" rMin="[cms:ForwdBeamR1]" rMax="95*cm" dz="[dzBSC1Total]" startPhi="0*deg" deltaPhi="360*deg"/>
+        <!--^^Making an invisible volume, radius of 95cm and 360degrees around beam-->
+        <TruncTubs name="BSCPadAir" rMin="[rMinBSC]" rMax="[rMaxBSC]" zHalf="[dzBSC1Total]" cutAtStart="[rMinBSC]" cutAtDelta="[rMinBSC]" startPhi="0*deg" deltaPhi="45*deg" cutInside="true"/>
+        <!--^^^Creating a pad which will be the central BSC pad with max radius defined above, this is only an octant of a circle as seen by deltaPhi being 45deg. This will be a hollowed out volume-->
+        <TruncTubs name="BSCPad" rMin="[rMinBSC]" rMax="[rMaxBSC]" zHalf="[dzBSC1]" cutAtStart="[rMinBSC]" cutAtDelta="[rMinBSC]" startPhi="0*deg" deltaPhi="45*deg" cutInside="true"/>
+        <!-- ^^^We just created the stainless steal mount which the scintillator is on.-->
+        <TruncTubs name="BSCPadActive" rMin="[rMinBSCActive]" rMax="[rMaxBSCActive]" zHalf="[dzBSC1]" cutAtStart="[rMinBSCActive]" cutAtDelta="[rMinBSCActive]" startPhi="0*deg" deltaPhi="45*deg" cutInside="true"/>
+        <!--^^^ Making the detector part of the pad. This covers 45 degrees and will then be rotated to make a complete circle.-->
+        <Trapezoid name="BSCTrap" dz="[dzBSC1]+[dzBSC1Extra]" alp1="0*deg" bl1="[dlTrapezoid]" tl1="[dLTrapezoid]" h1="[dhTrapezoid]" alp2="0*deg" bl2="[dlTrapezoid]" tl2="[dLTrapezoid]" h2="[dhTrapezoid]" phi="0*deg" theta="0*deg"/>
+        <!--^^^ Creating the hollowed out trapezoidal space that will become the BSC1 paddles.-->
+        <Trapezoid name="BSCTopTrapezoid" dz="[dzBSC1]" alp1="0*deg" bl1="([dlTrapezoid]+[dLTrapezoid])/2" tl1="[dLTrapezoid]" h1="[dhTrapezoid]/2" alp2="0*deg" bl2="([dlTrapezoid]+[dLTrapezoid])/2" tl2="[dLTrapezoid]" h2="[dhTrapezoid]/2" phi="0*deg" theta="0*deg"/>
+        <!--^^^The bigger half of the bisected trapezoidal paddle-->
+        <Trapezoid name="BSCBottomTrapezoid" dz="[dzBSC1]" alp1="0*deg" bl1="[dlTrapezoid]" tl1="([dlTrapezoid]+[dLTrapezoid])/2" h1="[dhTrapezoid]/2" alp2="0*deg" bl2="[dlTrapezoid]" tl2="([dlTrapezoid]+[dLTrapezoid])/2" h2="[dhTrapezoid]/2" phi="0*deg" theta="0*deg"/>
+        <!--^^^The smaller half of the bisceted trapezoidal paddle-->
+        <!--Now to add in aluminum volumes(below)-->
+        <TruncTubs name="BSCAlPadCoversBack" rMin="[rMinBSC]" rMax="[rMaxBSC]" zHalf="[dzBSCAl1]" cutAtStart="[rMinBSC]" cutAtDelta="[rMinBSC]" startPhi="0*deg" deltaPhi="45*deg" cutInside="true"/>
+        <!--^^^Aluminum cover on the back of the BSC pad, these will be rotated to cover the whole of the active area-->
+        <TruncTubs name="BSCAlPadCoversFront" rMin="[rMinBSC]" rMax="[rMaxBSC]" zHalf="[dzBSCAl1F]" cutAtStart="[rMinBSC]" cutAtDelta="[rMinBSC]" startPhi="0*deg" deltaPhi="45*deg" cutInside="true"/>
+        <!--^^Aluminum cover on the front of the BSC pad-->
+        <Trapezoid name="BSCAlTrapCoversBack" dz="[dzBSCAlTrap1]" alp1="0*deg" bl1="[dlTrapezoid]" tl1="[dLTrapezoid]" alp2="0*deg" bl2="[dlTrapezoid]" tl2="[dLTrapezoid]" h1="[dhTrapezoid]" h2="[dhTrapezoid]" phi="0*deg" theta="0*deg"/>
+        <Trapezoid name="BSCAlTrapCoversFront" dz="[dzBSCAlTrap1F]" alp1="0*deg" bl1="[dlTrapezoid]" tl1="[dLTrapezoid]" alp2="0*deg" bl2="[dlTrapezoid]" tl2="[dLTrapezoid]" h1="[dhTrapezoid]" h2="[dhTrapezoid]" phi="0*deg" theta="0*deg"/>
+        <!--^^Aluminum covers on the trapezoidal paddles of the BSC1-->
+        <!--BSC2 Information(below)-->
+        <Tubs name="BSC2" rMin="[cms:ForwdBeamR4]" rMax="[cms:ForwdDetsR1]" dz="[dzBSC2Total]" startPhi="0*deg" deltaPhi="360*deg"/>
+        <!--^^^ Weve just created a volume in which we will place the BSC2-->
+        <Tubs name="BSC2MountArea" rMin="5.4*cm" rMax="32.0*cm" dz="[dzBSC2Total]" startPhi="0*deg" deltaPhi="360*deg"/>
+        <!-- We have just made the area that holds the BSC2 Pads-->
+        <TruncTubs name="BSC2Pad" rMin="9.7*cm" rMax="31.0*cm" zHalf="[dzBSC2Total]" cutAtStart="9.7*cm" cutAtDelta="9.7*cm" startPhi="0*deg" deltaPhi="45*deg" cutInside="true"/>
+        <!-- We have just made what will become the two active tiles on the BSC2-->
+        <TruncTubs name="BSC2AlPadCoversBack" rMin="9.7*cm" rMax="31.0*cm" zHalf="[dzBSCAl1]" cutAtStart="9.7*cm" cutAtDelta="9.7*cm" startPhi="0*deg" deltaPhi="45*deg" cutInside="true"/>
+        <TruncTubs name="BSC2AlPadCoversFront" rMin="9.7*cm" rMax="31.0*cm" zHalf="[dzBSCAl1F]" cutAtStart="9.7*cm" cutAtDelta="9.7*cm" startPhi="0*deg" deltaPhi="45*deg" cutInside="true"/>
+        <!--We have just made the covers that will go on the two active areas of the BSC2-->
+    </SolidSection>
+    <LogicalPartSection label="brm.xml">
+        <!--BSC1 Definitions-->
+        <LogicalPart name="BSC1" category="unspecified">
+            <rSolid name="BSC1"/>
+            <rMaterial name="materials:Air"/>
+        </LogicalPart>
+        <!--^^Making BSC1 hollowed area full of air-->
+        <LogicalPart name="BSCPadAir" category="unspecified">
+            <rSolid name="BSCPadAir"/>
+            <rMaterial name="materials:Air"/>
+        </LogicalPart>
+        <!--just made the air section for the central pad-->
+        <LogicalPart name="BSCPad" category="unspecified">
+            <rSolid name="BSCPad"/>
+            <rMaterial name="materials:StainlessSteel"/>
+            <!--<rMaterial name="materials:Air"/>-->
+        </LogicalPart>
+        <!--^^Doing the same thing for the central pad-->
+        <LogicalPart name="BSCPadActive" category="unspecified">
+            <rSolid name="BSCPadActive"/>
+            <rMaterial name="materials:Scintillator"/>
+        </LogicalPart>
+        <!--^^Making the octants be made of scintillator-->
+        <LogicalPart name="BSCTrap" category="unspecified">
+            <rSolid name="BSCTrap"/>
+            <rMaterial name="materials:Air"/>
+        </LogicalPart>
+        <!--^^repeat above process for the trapezoidal paddles-->
+        <LogicalPart name="BSCTopTrapezoid" category="unspecified">
+            <rSolid name="BSCTopTrapezoid"/>
+            <rMaterial name="materials:Scintillator"/>
+        </LogicalPart>
+        <LogicalPart name="BSCBottomTrapezoid" category="unspecified">
+            <rSolid name="BSCBottomTrapezoid"/>
+            <rMaterial name="materials:Scintillator"/>
+        </LogicalPart>
+        <!--Aluminum Definitions (below)-->
+        <LogicalPart name="BSCAlTrapCoversBack" category="unspecified">
+            <rSolid name="BSCAlTrapCoversBack"/>
+            <rMaterial name="materials:Aluminium"/>
+        </LogicalPart>
+        <LogicalPart name="BSCAlTrapCoversFront" category="unspecified">
+            <rSolid name="BSCAlTrapCoversFront"/>
+            <rMaterial name="materials:Aluminium"/>
+        </LogicalPart>
+        <LogicalPart name="BSCAlPadCoversBack" category="unspecified">
+            <rSolid name="BSCAlPadCoversBack"/>
+            <rMaterial name="materials:Aluminium"/>
+        </LogicalPart>
+        <LogicalPart name="BSCAlPadCoversFront" category="unspecified">
+            <rSolid name="BSCAlPadCoversFront"/>
+            <rMaterial name="materials:Aluminium"/>
+        </LogicalPart>
+        <!--^^In the above part we have made an Aluminum trapezoid, we have covered the octants in aluminum on both sides, front and back -->
+        <!--BSC2 definitions(below)-->
+        <LogicalPart name="BSC2" category="unspecified">
+            <rSolid name="BSC2"/>
+            <rMaterial name="materials:Air"/>
+        </LogicalPart>
+        <LogicalPart name="BSC2MountArea" category="unspecified">
+            <rSolid name="BSC2MountArea"/>
+            <rMaterial name="materials:StainlessSteel"/>
+        </LogicalPart>
+        <LogicalPart name="BSC2Pad" category="unspecified">
+            <rSolid name="BSC2Pad"/>
+            <rMaterial name="materials:Scintillator"/>
+        </LogicalPart>
+        <LogicalPart name="BSC2AlPadCoversBack" category="unspecified">
+            <rSolid name="BSC2AlPadCoversBack"/>
+            <rMaterial name="materials:Aluminium"/>
+        </LogicalPart>
+        <LogicalPart name="BSC2AlPadCoversFront" category="unspecified">
+            <rSolid name="BSC2AlPadCoversFront"/>
+            <rMaterial name="materials:Aluminium"/>
+        </LogicalPart>
+    </LogicalPartSection>
+    <PosPartSection label="brm.xml">
+        <!--We will start with the BSC2(below)-->
+        <PosPart copyNumber="1">
+            <rParent name="cms:CMSE"/>
+            <rChild name="brm:BSC2"/>
+            <rRotation name="rotations:000D"/>
+            <Translation x="0*fm" y="0*fm" z="[zposBSC2]"/>
+        </PosPart>
+        <PosPart copyNumber="2">
+            <rParent name="cms:CMSE"/>
+            <rChild name="brm:BSC2"/>
+            <rRotation name="rotations:000D"/>
+            <Translation x="0*fm" y="0*fm" z="-[zposBSC2]"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="brm:BSC2"/>
+            <rChild name="brm:BSC2MountArea"/>
+            <rRotation name="rotations:000D"/>
+            <Translation x="0*cm" y="0*fm" z="0*fm"/>
+        </PosPart>
+        <!--Above we have just placed the stainless steel mount for the BSC2 inside of the volume of air-->
+        <PosPart copyNumber="1">
+            <rParent name="brm:BSC2MountArea"/>
+            <rChild name="brm:BSC2Pad"/>
+            <rRotation name="brmrotations:B202X"/>
+            <Translation x="0*cm" y="0*fm" z="0*fm"/>
+        </PosPart>
+        <PosPart copyNumber="2">
+            <rParent name="brm:BSC2MountArea"/>
+            <rChild name="brm:BSC2Pad"/>
+            <rRotation name="brmrotations:B22X"/>
+            <Translation x="0*cm" y="0*fm" z="0*fm"/>
+        </PosPart>
+        <!--Above we have just mounted the BSC2 scintillator pads onto the BSC2 mounting area-->
+        <PosPart copyNumber="1">
+            <rParent name="brm:BSC2Pad"/>
+            <rChild name="brm:BSC2AlPadCoversFront"/>
+            <rRotation name="rotations:000D"/>
+            <Translation x="0*cm" y="0*cm" z="-([dzBSC2Total]-[dzBSCAl1F])"/>
+        </PosPart>
+        <!--We have just put the frontal aluminium shields on the BSC2 scintillator tiles-->
+        <PosPart copyNumber="1">
+            <rParent name="brm:BSC2Pad"/>
+            <rChild name="brm:BSC2AlPadCoversBack"/>
+            <rRotation name="rotations:000D"/>
+            <Translation x="0*cm" y="0*cm" z="([dzBSC2Total]-[dzBSCAl1])"/>
+        </PosPart>
+        <!--We have just put the rear aluminium shields on the BSC2 scintillator tiles-->
+        <!--Now we work on the BSC1(below)-->
+        <PosPart copyNumber="1">
+            <rParent name="forwardshield:OQUA"/>
+            <rChild name="brm:BSC1"/>
+            <rRotation name="brmrotations:B45R"/>
+            <Translation x="0*fm" y="0*fm" z="[zposBSC1]"/>
+        </PosPart>
+        <!--We have just finished creating the large hollow area where we are gonna put the BSC1-->
+        <PosPart copyNumber="1">
+            <rParent name="brm:BSC1"/>
+            <rChild name="brm:BSCTrap"/>
+            <rRotation name="rotations:000D"/>
+            <Translation x="+[posTrapezoid]" y="0*cm" z="[zposBSC1Trap]"/>
+        </PosPart>
+        <!--We have just created the trapezoidal paddles and declared it as being a part of the large hollow area-->
+        <PosPart copyNumber="2">
+            <rParent name="brm:BSC1"/>
+            <rChild name="brm:BSCTrap"/>
+            <rRotation name="brmrotations:B90P"/>
+            <Translation x="0*cm" y="+[posTrapezoid]" z="[zposBSC1Trap]"/>
+        </PosPart>
+        <PosPart copyNumber="3">
+            <rParent name="brm:BSC1"/>
+            <rChild name="brm:BSCTrap"/>
+            <rRotation name="brmrotations:B90M"/>
+            <Translation x="0*cm" y="-[posTrapezoid]" z="[zposBSC1Trap]"/>
+        </PosPart>
+        <PosPart copyNumber="4">
+            <rParent name="brm:BSC1"/>
+            <rChild name="brm:BSCTrap"/>
+            <rRotation name="brmrotations:B90L"/>
+            <Translation x="-[posTrapezoid]" y="0*cm" z="[zposBSC1Trap]"/>
+        </PosPart>
+        <!--Above we have just duplicated the first trapezoid 4 times to make the 4 trapezoidal panels of the BSC1-->
+        <PosPart copyNumber="1">
+            <rParent name="brm:BSCTrap"/>
+            <rChild name="brm:BSCTopTrapezoid"/>
+            <rRotation name="rotations:000D"/>
+            <Translation x="0*cm" y="([dhTrapezoid]/2)" z="[zposBSC1TrapT]"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="brm:BSCTrap"/>
+            <rChild name="brm:BSCBottomTrapezoid"/>
+            <rRotation name="rotations:000D"/>
+            <Translation x="0*cm" y="(-[dhTrapezoid]/2)" z="[zposBSC1TrapT]"/>
+        </PosPart>
+        <!--We have just made the two different sections of the trapezoid and put them into their appropriate places inside the large hollow trapezoid-->
+        <!--Now we will make the aluminum covers for the Trapezoidal sections and tie them onto the trapezoids we just made-->
+        <PosPart copyNumber="1">
+            <rParent name="brm:BSCTrap"/>
+            <rChild name="brm:BSCAlTrapCoversFront"/>
+            <rRotation name="rotations:000D"/>
+            <Translation x="0*cm" y="0*cm" z="-([dzBSC1Trap]-[dzBSCAlTrap1F])"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="brm:BSCTrap"/>
+            <rChild name="brm:BSCAlTrapCoversBack"/>
+            <rRotation name="rotations:000D"/>
+            <Translation x="0*cm" y="0*cm" z="([dzBSC1Trap]-[dzBSCAlTrap1])"/>
+        </PosPart>
+        <!--Just put aluminum covers on the BSC trapezoidal paddles-->
+        <!--Now we will work on the BSC central pad-->
+        <PosPart copyNumber="1">
+            <rParent name="brm:BSCPadAir"/>
+            <rChild name="brm:BSCPad"/>
+            <rRotation name="rotations:000D"/>
+            <Translation x="0*cm" y="0*cm" z="[zposBSC1Pad]"/>
+        </PosPart>
+        <!--Just tied the stainless steel pads onto the hollow octants on the central pad-->
+        <PosPart copyNumber="1">
+            <rParent name="brm:BSCPad"/>
+            <rChild name="brm:BSCPadActive"/>
+            <rRotation name="rotations:000D"/>
+            <Translation x="0*cm" y="0*cm" z="0*cm"/>
+        </PosPart>
+        <!--Just made the scintillator pads embedded inside of the stainless steel mounts-->
+        <PosPart copyNumber="1">
+            <rParent name="brm:BSCPadAir"/>
+            <rChild name="brm:BSCAlPadCoversBack"/>
+            <rRotation name="rotations:000D"/>
+            <Translation x="0*cm" y="0*cm" z="([dzBSC1Total]-[dzBSCAl1])"/>
+        </PosPart>
+        <!--Just tied the aluminum shield to the back of one of the octants-->
+        <PosPart copyNumber="1">
+            <rParent name="brm:BSCPadAir"/>
+            <rChild name="brm:BSCAlPadCoversFront"/>
+            <rRotation name="rotations:000D"/>
+            <Translation x="0*cm" y="0*cm" z="-([dzBSC1Total]-[dzBSCAl1F])"/>
+        </PosPart>
+        <!--Just tied the aluminum to the front of one of the octants-->
+        <Algorithm name="hcal:DDHCalAngular">
+            <rParent name="brm:BSC1"/>
+            <String name="ChildName" value="BSCPadAir"/>
+            <String name="RotNameSpace" value="hcalrotations"/>
+            <Numeric name="n" value="8"/>
+            <Numeric name="startCopyNo" value="1"/>
+            <Numeric name="incrCopyNo" value="1"/>
+            <Numeric name="rangeAngle" value="360*deg"/>
+            <Numeric name="startAngle" value="0*deg"/>
+            <Numeric name="shiftY" value="0*fm"/>
+            <Numeric name="shiftX" value="0*fm"/>
+            <Numeric name="zoffset" value="0*fm"/>
+        </Algorithm>
+        <!--This above algorithim takes the aluminum covered octants and rotates them and copies them 8 times leaving the finished central pad-->
+    </PosPartSection>
+</DDDefinition>

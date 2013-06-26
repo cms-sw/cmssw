@@ -1,0 +1,1994 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<LesHouchesEvents version="1.0">
+<!-- File generated with CompHEP 4.5.1 -->
+<!-- 
+     This file is compatible with the Les Houches event file
+     format (hep-ph/0609017), but contains extra HepML tags.
+-->
+<header>
+<samples xmlns="http://mcdb.cern.ch/hepml/0.2/"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://mcdb.cern.ch/hepml/0.2/ file:/home/dudko/MCDB/hepml/schemas/0.2/hepml.xsd">
+    <files>
+        <file>
+            <eventsNumber>    914809</eventsNumber>
+            <crossSection unit="pb" errorMinus=" 3.7808E-01" errorPlus=" 3.7808E-01"> 2.2900E+01</crossSection>
+            <fileSize>    813704504</fileSize>
+            <checksum type="md5">01d6f6aa9ccc91837f141239d29d4639</checksum>
+            <comments></comments>
+            <location>
+              <path/>
+            </location>
+        </file>
+    </files>
+    <description>
+        <title></title>
+        <abstract></abstract>
+        <authorComments></authorComments>
+        <experimentGroup>
+            <experiment></experiment>
+            <group></group>
+            <responsiblePerson></responsiblePerson>
+            <description></description>
+        </experimentGroup>
+        <generator>
+            <name>CompHEP</name>
+            <version>4.5.1</version>
+            <homepage>http://comphep.sinp.msu.ru</homepage>
+            <description>
+
+                CompHEP: a package for evaluation of Feynman diagrams, integration over multi-particle 
+                phase space and event generation (supported in part by RFBR grants 96-02-19773-a, 
+                99-02-04011-a, 01-02-16710-a, 04-02-17448-a). CompHEP Collaboration: 
+                E.Boos, V.Bunichev, M.Dubinin, L.Dudko, V.Edneral, V.ILyin, A.Kryukov, V.Savrin 
+                (SINP MSU, Moscow, Russia), A.Semenov (JINR, Dubna, Russia), A.Sherstnev 
+                (SINP MSU, Moscow, Russia and University of Cambridge, UK) 
+            
+            </description>
+        </generator>
+        <process>
+            <beam1>
+                <particle pdgcode="2212">proton</particle>
+                <energy unit="GeV">5000.000000</energy>
+                <pdf name="CTEQ" version="6m" PDFLIBset="57" PDFLIBgroup="4" LHAPDFset="0" LHAPDFmember="0" LHAPDFfile="" />
+                <QCDCoupling>
+                    <Lambda unit="GeV">0.226200</Lambda>
+                    <NFlavours>6</NFlavours>
+                    <NLoopsAlphaS>2</NLoopsAlphaS>
+                </QCDCoupling>
+            </beam1>
+            <beam2>
+                <particle pdgcode="2212">proton</particle>
+                <energy unit="GeV">5000.000000</energy>
+                <pdf name="CTEQ" version="6m" PDFLIBset="57" PDFLIBgroup="4" LHAPDFset="0" LHAPDFmember="0" LHAPDFfile="" />
+                <QCDCoupling>
+                    <Lambda unit="GeV">0.226200</Lambda>
+                    <NFlavours>6</NFlavours>
+                    <NLoopsAlphaS>2</NLoopsAlphaS>
+                </QCDCoupling>
+            </beam2>
+            <finalState>
+                <state>Nm,m,c,B</state>
+                <notation>
+                    <plain>Nm,m,c,B</plain>
+                    <Latex></Latex>
+                </notation>
+            </finalState>
+            <crossSection unit="pb"> 2.2386E-01</crossSection>
+            <subprocesses>
+                <subprocess cutset_id="1">
+                    <notation>s,B -> Nm,m,c,B</notation>
+                    <crossSection unit="pb" errorMinus=" 1.0647E-03" errorPlus=" 1.0647E-03"> 2.2386E-01</crossSection>
+                    <FactorisationScale>
+                        <plain>85</plain>
+                        <Latex></Latex>
+                    </FactorisationScale>
+                    <RenormalisationScale>
+                        <plain>85</plain>
+                        <Latex></Latex>
+                    </RenormalisationScale>
+                </subprocess>
+                <subprocess cutset_id="2">
+                    <notation>c,b -> nm,M,d,b</notation>
+                    <crossSection unit="pb" errorMinus=" 1.0637E-03" errorPlus=" 1.0637E-03"> 1.0264E-02</crossSection>
+                    <FactorisationScale>
+                        <plain>85</plain>
+                        <Latex></Latex>
+                    </FactorisationScale>
+                    <RenormalisationScale>
+                        <plain>85</plain>
+                        <Latex></Latex>
+                    </RenormalisationScale>
+                </subprocess>
+                <subprocess cutset_id="3">
+                    <notation>c,b -> nm,M,s,b</notation>
+                    <crossSection unit="pb" errorMinus=" 1.0637E-03" errorPlus=" 1.0637E-03"> 1.9600E-01</crossSection>
+                    <FactorisationScale>
+                        <plain>85</plain>
+                        <Latex></Latex>
+                    </FactorisationScale>
+                    <RenormalisationScale>
+                        <plain>85</plain>
+                        <Latex></Latex>
+                    </RenormalisationScale>
+                </subprocess>
+                <subprocess cutset_id="4">
+                    <notation>S,b -> nm,M,U,b</notation>
+                    <crossSection unit="pb" errorMinus=" 1.0165E-03" errorPlus=" 1.0165E-03"> 1.1730E-02</crossSection>
+                    <FactorisationScale>
+                        <plain>85</plain>
+                        <Latex></Latex>
+                    </FactorisationScale>
+                    <RenormalisationScale>
+                        <plain>85</plain>
+                        <Latex></Latex>
+                    </RenormalisationScale>
+                </subprocess>
+                <subprocess cutset_id="5">
+                    <notation>S,b -> nm,M,C,b</notation>
+                    <crossSection unit="pb" errorMinus=" 1.0647E-03" errorPlus=" 1.0647E-03"> 2.2386E-01</crossSection>
+                    <FactorisationScale>
+                        <plain>85</plain>
+                        <Latex></Latex>
+                    </FactorisationScale>
+                    <RenormalisationScale>
+                        <plain>85</plain>
+                        <Latex></Latex>
+                    </RenormalisationScale>
+                </subprocess>
+                <subprocess cutset_id="6">
+                    <notation>C,B -> Nm,m,D,B</notation>
+                    <crossSection unit="pb" errorMinus=" 1.0637E-03" errorPlus=" 1.0637E-03"> 1.0264E-02</crossSection>
+                    <FactorisationScale>
+                        <plain>85</plain>
+                        <Latex></Latex>
+                    </FactorisationScale>
+                    <RenormalisationScale>
+                        <plain>85</plain>
+                        <Latex></Latex>
+                    </RenormalisationScale>
+                </subprocess>
+                <subprocess cutset_id="7">
+                    <notation>C,B -> Nm,m,S,B</notation>
+                    <crossSection unit="pb" errorMinus=" 1.0637E-03" errorPlus=" 1.0637E-03"> 1.9600E-01</crossSection>
+                    <FactorisationScale>
+                        <plain>85</plain>
+                        <Latex></Latex>
+                    </FactorisationScale>
+                    <RenormalisationScale>
+                        <plain>85</plain>
+                        <Latex></Latex>
+                    </RenormalisationScale>
+                </subprocess>
+                <subprocess cutset_id="8">
+                    <notation>b,u -> nm,M,d,b</notation>
+                    <crossSection unit="pb" errorMinus=" 1.0977E-03" errorPlus=" 1.0977E-03"> 2.7782E+00</crossSection>
+                    <FactorisationScale>
+                        <plain>85</plain>
+                        <Latex></Latex>
+                    </FactorisationScale>
+                    <RenormalisationScale>
+                        <plain>85</plain>
+                        <Latex></Latex>
+                    </RenormalisationScale>
+                </subprocess>
+                <subprocess cutset_id="9">
+                    <notation>b,u -> nm,M,s,b</notation>
+                    <crossSection unit="pb" errorMinus=" 1.0979E-03" errorPlus=" 1.0979E-03"> 1.4526E-01</crossSection>
+                    <FactorisationScale>
+                        <plain>85</plain>
+                        <Latex></Latex>
+                    </FactorisationScale>
+                    <RenormalisationScale>
+                        <plain>85</plain>
+                        <Latex></Latex>
+                    </RenormalisationScale>
+                </subprocess>
+                <subprocess cutset_id="10">
+                    <notation>b,D -> nm,M,U,b</notation>
+                    <crossSection unit="pb" errorMinus=" 1.1192E-03" errorPlus=" 1.1192E-03"> 3.6139E-01</crossSection>
+                    <FactorisationScale>
+                        <plain>85</plain>
+                        <Latex></Latex>
+                    </FactorisationScale>
+                    <RenormalisationScale>
+                        <plain>85</plain>
+                        <Latex></Latex>
+                    </RenormalisationScale>
+                </subprocess>
+                <subprocess cutset_id="11">
+                    <notation>u,b -> nm,M,d,b</notation>
+                    <crossSection unit="pb" errorMinus=" 1.0014E-03" errorPlus=" 1.0014E-03"> 2.7794E+00</crossSection>
+                    <FactorisationScale>
+                        <plain>85</plain>
+                        <Latex></Latex>
+                    </FactorisationScale>
+                    <RenormalisationScale>
+                        <plain>85</plain>
+                        <Latex></Latex>
+                    </RenormalisationScale>
+                </subprocess>
+                <subprocess cutset_id="12">
+                    <notation>b,D -> nm,M,C,b</notation>
+                    <crossSection unit="pb" errorMinus=" 1.1178E-03" errorPlus=" 1.1178E-03"> 1.8886E-02</crossSection>
+                    <FactorisationScale>
+                        <plain>85</plain>
+                        <Latex></Latex>
+                    </FactorisationScale>
+                    <RenormalisationScale>
+                        <plain>85</plain>
+                        <Latex></Latex>
+                    </RenormalisationScale>
+                </subprocess>
+                <subprocess cutset_id="13">
+                    <notation>b,c -> nm,M,d,b</notation>
+                    <crossSection unit="pb" errorMinus=" 1.1598E-03" errorPlus=" 1.1598E-03"> 1.0246E-02</crossSection>
+                    <FactorisationScale>
+                        <plain>85</plain>
+                        <Latex></Latex>
+                    </FactorisationScale>
+                    <RenormalisationScale>
+                        <plain>85</plain>
+                        <Latex></Latex>
+                    </RenormalisationScale>
+                </subprocess>
+                <subprocess cutset_id="14">
+                    <notation>b,c -> nm,M,s,b</notation>
+                    <crossSection unit="pb" errorMinus=" 1.1595E-03" errorPlus=" 1.1595E-03"> 1.9569E-01</crossSection>
+                    <FactorisationScale>
+                        <plain>85</plain>
+                        <Latex></Latex>
+                    </FactorisationScale>
+                    <RenormalisationScale>
+                        <plain>85</plain>
+                        <Latex></Latex>
+                    </RenormalisationScale>
+                </subprocess>
+                <subprocess cutset_id="15">
+                    <notation>b,S -> nm,M,U,b</notation>
+                    <crossSection unit="pb" errorMinus=" 1.1074E-03" errorPlus=" 1.1074E-03"> 1.1695E-02</crossSection>
+                    <FactorisationScale>
+                        <plain>85</plain>
+                        <Latex></Latex>
+                    </FactorisationScale>
+                    <RenormalisationScale>
+                        <plain>85</plain>
+                        <Latex></Latex>
+                    </RenormalisationScale>
+                </subprocess>
+                <subprocess cutset_id="16">
+                    <notation>b,S -> nm,M,C,b</notation>
+                    <crossSection unit="pb" errorMinus=" 1.1064E-03" errorPlus=" 1.1064E-03"> 2.2328E-01</crossSection>
+                    <FactorisationScale>
+                        <plain>85</plain>
+                        <Latex></Latex>
+                    </FactorisationScale>
+                    <RenormalisationScale>
+                        <plain>85</plain>
+                        <Latex></Latex>
+                    </RenormalisationScale>
+                </subprocess>
+                <subprocess cutset_id="17">
+                    <notation>B,d -> Nm,m,u,B</notation>
+                    <crossSection unit="pb" errorMinus=" 1.0815E-03" errorPlus=" 1.0815E-03"> 1.1681E+00</crossSection>
+                    <FactorisationScale>
+                        <plain>85</plain>
+                        <Latex></Latex>
+                    </FactorisationScale>
+                    <RenormalisationScale>
+                        <plain>85</plain>
+                        <Latex></Latex>
+                    </RenormalisationScale>
+                </subprocess>
+                <subprocess cutset_id="18">
+                    <notation>B,d -> Nm,m,c,B</notation>
+                    <crossSection unit="pb" errorMinus=" 1.0917E-03" errorPlus=" 1.0917E-03"> 6.1024E-02</crossSection>
+                    <FactorisationScale>
+                        <plain>85</plain>
+                        <Latex></Latex>
+                    </FactorisationScale>
+                    <RenormalisationScale>
+                        <plain>85</plain>
+                        <Latex></Latex>
+                    </RenormalisationScale>
+                </subprocess>
+                <subprocess cutset_id="19">
+                    <notation>B,U -> Nm,m,D,B</notation>
+                    <crossSection unit="pb" errorMinus=" 1.1615E-03" errorPlus=" 1.1615E-03"> 3.9105E-01</crossSection>
+                    <FactorisationScale>
+                        <plain>85</plain>
+                        <Latex></Latex>
+                    </FactorisationScale>
+                    <RenormalisationScale>
+                        <plain>85</plain>
+                        <Latex></Latex>
+                    </RenormalisationScale>
+                </subprocess>
+                <subprocess cutset_id="20">
+                    <notation>B,U -> Nm,m,S,B</notation>
+                    <crossSection unit="pb" errorMinus=" 1.1623E-03" errorPlus=" 1.1623E-03"> 2.0445E-02</crossSection>
+                    <FactorisationScale>
+                        <plain>85</plain>
+                        <Latex></Latex>
+                    </FactorisationScale>
+                    <RenormalisationScale>
+                        <plain>85</plain>
+                        <Latex></Latex>
+                    </RenormalisationScale>
+                </subprocess>
+                <subprocess cutset_id="21">
+                    <notation>B,s -> Nm,m,u,B</notation>
+                    <crossSection unit="pb" errorMinus=" 1.1074E-03" errorPlus=" 1.1074E-03"> 1.1695E-02</crossSection>
+                    <FactorisationScale>
+                        <plain>85</plain>
+                        <Latex></Latex>
+                    </FactorisationScale>
+                    <RenormalisationScale>
+                        <plain>85</plain>
+                        <Latex></Latex>
+                    </RenormalisationScale>
+                </subprocess>
+                <subprocess cutset_id="22">
+                    <notation>u,b -> nm,M,s,b</notation>
+                    <crossSection unit="pb" errorMinus=" 1.0013E-03" errorPlus=" 1.0013E-03"> 1.4531E-01</crossSection>
+                    <FactorisationScale>
+                        <plain>85</plain>
+                        <Latex></Latex>
+                    </FactorisationScale>
+                    <RenormalisationScale>
+                        <plain>85</plain>
+                        <Latex></Latex>
+                    </RenormalisationScale>
+                </subprocess>
+                <subprocess cutset_id="23">
+                    <notation>B,s -> Nm,m,c,B</notation>
+                    <crossSection unit="pb" errorMinus=" 1.1064E-03" errorPlus=" 1.1064E-03"> 2.2328E-01</crossSection>
+                    <FactorisationScale>
+                        <plain>85</plain>
+                        <Latex></Latex>
+                    </FactorisationScale>
+                    <RenormalisationScale>
+                        <plain>85</plain>
+                        <Latex></Latex>
+                    </RenormalisationScale>
+                </subprocess>
+                <subprocess cutset_id="24">
+                    <notation>B,C -> Nm,m,D,B</notation>
+                    <crossSection unit="pb" errorMinus=" 1.1598E-03" errorPlus=" 1.1598E-03"> 1.0246E-02</crossSection>
+                    <FactorisationScale>
+                        <plain>85</plain>
+                        <Latex></Latex>
+                    </FactorisationScale>
+                    <RenormalisationScale>
+                        <plain>85</plain>
+                        <Latex></Latex>
+                    </RenormalisationScale>
+                </subprocess>
+                <subprocess cutset_id="25">
+                    <notation>B,C -> Nm,m,S,B</notation>
+                    <crossSection unit="pb" errorMinus=" 1.1595E-03" errorPlus=" 1.1595E-03"> 1.9569E-01</crossSection>
+                    <FactorisationScale>
+                        <plain>85</plain>
+                        <Latex></Latex>
+                    </FactorisationScale>
+                    <RenormalisationScale>
+                        <plain>85</plain>
+                        <Latex></Latex>
+                    </RenormalisationScale>
+                </subprocess>
+                <subprocess cutset_id="26">
+                    <notation>d,B -> Nm,m,u,B</notation>
+                    <crossSection unit="pb" errorMinus=" 9.9653E-04" errorPlus=" 9.9653E-04"> 1.1695E+00</crossSection>
+                    <FactorisationScale>
+                        <plain>85</plain>
+                        <Latex></Latex>
+                    </FactorisationScale>
+                    <RenormalisationScale>
+                        <plain>85</plain>
+                        <Latex></Latex>
+                    </RenormalisationScale>
+                </subprocess>
+                <subprocess cutset_id="27">
+                    <notation>d,B -> Nm,m,c,B</notation>
+                    <crossSection unit="pb" errorMinus=" 9.8301E-04" errorPlus=" 9.8301E-04"> 6.1130E-02</crossSection>
+                    <FactorisationScale>
+                        <plain>85</plain>
+                        <Latex></Latex>
+                    </FactorisationScale>
+                    <RenormalisationScale>
+                        <plain>85</plain>
+                        <Latex></Latex>
+                    </RenormalisationScale>
+                </subprocess>
+                <subprocess cutset_id="28">
+                    <notation>U,B -> Nm,m,D,B</notation>
+                    <crossSection unit="pb" errorMinus=" 1.0721E-03" errorPlus=" 1.0721E-03"> 3.9159E-01</crossSection>
+                    <FactorisationScale>
+                        <plain>85</plain>
+                        <Latex></Latex>
+                    </FactorisationScale>
+                    <RenormalisationScale>
+                        <plain>85</plain>
+                        <Latex></Latex>
+                    </RenormalisationScale>
+                </subprocess>
+                <subprocess cutset_id="29">
+                    <notation>U,B -> Nm,m,S,B</notation>
+                    <crossSection unit="pb" errorMinus=" 1.0726E-03" errorPlus=" 1.0726E-03"> 2.0476E-02</crossSection>
+                    <FactorisationScale>
+                        <plain>85</plain>
+                        <Latex></Latex>
+                    </FactorisationScale>
+                    <RenormalisationScale>
+                        <plain>85</plain>
+                        <Latex></Latex>
+                    </RenormalisationScale>
+                </subprocess>
+                <subprocess cutset_id="30">
+                    <notation>D,b -> nm,M,U,b</notation>
+                    <crossSection unit="pb" errorMinus=" 1.0370E-03" errorPlus=" 1.0370E-03"> 3.6184E-01</crossSection>
+                    <FactorisationScale>
+                        <plain>85</plain>
+                        <Latex></Latex>
+                    </FactorisationScale>
+                    <RenormalisationScale>
+                        <plain>85</plain>
+                        <Latex></Latex>
+                    </RenormalisationScale>
+                </subprocess>
+                <subprocess cutset_id="31">
+                    <notation>D,b -> nm,M,C,b</notation>
+                    <crossSection unit="pb" errorMinus=" 1.0220E-03" errorPlus=" 1.0220E-03"> 1.8910E-02</crossSection>
+                    <FactorisationScale>
+                        <plain>85</plain>
+                        <Latex></Latex>
+                    </FactorisationScale>
+                    <RenormalisationScale>
+                        <plain>85</plain>
+                        <Latex></Latex>
+                    </RenormalisationScale>
+                </subprocess>
+                <subprocess cutset_id="32">
+                    <notation>s,B -> Nm,m,u,B</notation>
+                    <crossSection unit="pb" errorMinus=" 1.0165E-03" errorPlus=" 1.0165E-03"> 1.1730E-02</crossSection>
+                    <FactorisationScale>
+                        <plain>85</plain>
+                        <Latex></Latex>
+                    </FactorisationScale>
+                    <RenormalisationScale>
+                        <plain>85</plain>
+                        <Latex></Latex>
+                    </RenormalisationScale>
+                </subprocess>
+                <subprocess cutset_id="33">
+                    <notation>s,G -> Nm,m,c,b,B</notation>
+                    <crossSection unit="pb" errorMinus=" 2.1530E-03" errorPlus=" 2.1530E-03"> 1.9592E-01</crossSection>
+                    <FactorisationScale>
+                        <plain>85</plain>
+                        <Latex></Latex>
+                    </FactorisationScale>
+                    <RenormalisationScale>
+                        <plain>85</plain>
+                        <Latex></Latex>
+                    </RenormalisationScale>
+                </subprocess>
+                <subprocess cutset_id="34">
+                    <notation>c,G -> nm,M,d,b,B</notation>
+                    <crossSection unit="pb" errorMinus=" 3.0912E-03" errorPlus=" 3.0912E-03"> 8.3858E-03</crossSection>
+                    <FactorisationScale>
+                        <plain>85</plain>
+                        <Latex></Latex>
+                    </FactorisationScale>
+                    <RenormalisationScale>
+                        <plain>85</plain>
+                        <Latex></Latex>
+                    </RenormalisationScale>
+                </subprocess>
+                <subprocess cutset_id="35">
+                    <notation>c,G -> nm,M,s,b,B</notation>
+                    <crossSection unit="pb" errorMinus=" 3.0910E-03" errorPlus=" 3.0910E-03"> 1.6019E-01</crossSection>
+                    <FactorisationScale>
+                        <plain>85</plain>
+                        <Latex></Latex>
+                    </FactorisationScale>
+                    <RenormalisationScale>
+                        <plain>85</plain>
+                        <Latex></Latex>
+                    </RenormalisationScale>
+                </subprocess>
+                <subprocess cutset_id="36">
+                    <notation>S,G -> nm,M,U,b,B</notation>
+                    <crossSection unit="pb" errorMinus=" 2.9484E-03" errorPlus=" 2.9484E-03"> 1.0241E-02</crossSection>
+                    <FactorisationScale>
+                        <plain>85</plain>
+                        <Latex></Latex>
+                    </FactorisationScale>
+                    <RenormalisationScale>
+                        <plain>85</plain>
+                        <Latex></Latex>
+                    </RenormalisationScale>
+                </subprocess>
+                <subprocess cutset_id="37">
+                    <notation>S,G -> nm,M,C,b,B</notation>
+                    <crossSection unit="pb" errorMinus=" 2.9223E-03" errorPlus=" 2.9223E-03"> 1.9543E-01</crossSection>
+                    <FactorisationScale>
+                        <plain>85</plain>
+                        <Latex></Latex>
+                    </FactorisationScale>
+                    <RenormalisationScale>
+                        <plain>85</plain>
+                        <Latex></Latex>
+                    </RenormalisationScale>
+                </subprocess>
+                <subprocess cutset_id="38">
+                    <notation>C,G -> Nm,m,D,b,B</notation>
+                    <crossSection unit="pb" errorMinus=" 2.2227E-03" errorPlus=" 2.2227E-03"> 8.3728E-03</crossSection>
+                    <FactorisationScale>
+                        <plain>85</plain>
+                        <Latex></Latex>
+                    </FactorisationScale>
+                    <RenormalisationScale>
+                        <plain>85</plain>
+                        <Latex></Latex>
+                    </RenormalisationScale>
+                </subprocess>
+                <subprocess cutset_id="39">
+                    <notation>C,G -> Nm,m,S,b,B</notation>
+                    <crossSection unit="pb" errorMinus=" 2.2229E-03" errorPlus=" 2.2229E-03"> 1.5993E-01</crossSection>
+                    <FactorisationScale>
+                        <plain>85</plain>
+                        <Latex></Latex>
+                    </FactorisationScale>
+                    <RenormalisationScale>
+                        <plain>85</plain>
+                        <Latex></Latex>
+                    </RenormalisationScale>
+                </subprocess>
+                <subprocess cutset_id="40">
+                    <notation>G,u -> nm,M,d,b,B</notation>
+                    <crossSection unit="pb" errorMinus=" 4.6990E-03" errorPlus=" 4.6990E-03"> 2.5945E+00</crossSection>
+                    <FactorisationScale>
+                        <plain>85</plain>
+                        <Latex></Latex>
+                    </FactorisationScale>
+                    <RenormalisationScale>
+                        <plain>85</plain>
+                        <Latex></Latex>
+                    </RenormalisationScale>
+                </subprocess>
+                <subprocess cutset_id="41">
+                    <notation>G,u -> nm,M,s,b,B</notation>
+                    <crossSection unit="pb" errorMinus=" 4.3557E-03" errorPlus=" 4.3557E-03"> 1.3572E-01</crossSection>
+                    <FactorisationScale>
+                        <plain>85</plain>
+                        <Latex></Latex>
+                    </FactorisationScale>
+                    <RenormalisationScale>
+                        <plain>85</plain>
+                        <Latex></Latex>
+                    </RenormalisationScale>
+                </subprocess>
+                <subprocess cutset_id="42">
+                    <notation>G,d -> Nm,m,u,b,B</notation>
+                    <crossSection unit="pb" errorMinus=" 1.5050E-03" errorPlus=" 1.5050E-03"> 1.1170E+00</crossSection>
+                    <FactorisationScale>
+                        <plain>85</plain>
+                        <Latex></Latex>
+                    </FactorisationScale>
+                    <RenormalisationScale>
+                        <plain>85</plain>
+                        <Latex></Latex>
+                    </RenormalisationScale>
+                </subprocess>
+                <subprocess cutset_id="43">
+                    <notation>u,G -> nm,M,d,b,B</notation>
+                    <crossSection unit="pb" errorMinus=" 3.2324E-03" errorPlus=" 3.2324E-03"> 2.6074E+00</crossSection>
+                    <FactorisationScale>
+                        <plain>85</plain>
+                        <Latex></Latex>
+                    </FactorisationScale>
+                    <RenormalisationScale>
+                        <plain>85</plain>
+                        <Latex></Latex>
+                    </RenormalisationScale>
+                </subprocess>
+                <subprocess cutset_id="44">
+                    <notation>G,d -> Nm,m,c,b,B</notation>
+                    <crossSection unit="pb" errorMinus=" 1.5071E-03" errorPlus=" 1.5071E-03"> 5.8361E-02</crossSection>
+                    <FactorisationScale>
+                        <plain>85</plain>
+                        <Latex></Latex>
+                    </FactorisationScale>
+                    <RenormalisationScale>
+                        <plain>85</plain>
+                        <Latex></Latex>
+                    </RenormalisationScale>
+                </subprocess>
+                <subprocess cutset_id="45">
+                    <notation>G,U -> Nm,m,D,b,B</notation>
+                    <crossSection unit="pb" errorMinus=" 1.7947E-03" errorPlus=" 1.7947E-03"> 3.3011E-01</crossSection>
+                    <FactorisationScale>
+                        <plain>85</plain>
+                        <Latex></Latex>
+                    </FactorisationScale>
+                    <RenormalisationScale>
+                        <plain>85</plain>
+                        <Latex></Latex>
+                    </RenormalisationScale>
+                </subprocess>
+                <subprocess cutset_id="46">
+                    <notation>G,U -> Nm,m,S,b,B</notation>
+                    <crossSection unit="pb" errorMinus=" 1.7945E-03" errorPlus=" 1.7945E-03"> 1.7259E-02</crossSection>
+                    <FactorisationScale>
+                        <plain>85</plain>
+                        <Latex></Latex>
+                    </FactorisationScale>
+                    <RenormalisationScale>
+                        <plain>85</plain>
+                        <Latex></Latex>
+                    </RenormalisationScale>
+                </subprocess>
+                <subprocess cutset_id="47">
+                    <notation>G,D -> nm,M,U,b,B</notation>
+                    <crossSection unit="pb" errorMinus=" 2.6505E-03" errorPlus=" 2.6505E-03"> 3.2255E-01</crossSection>
+                    <FactorisationScale>
+                        <plain>85</plain>
+                        <Latex></Latex>
+                    </FactorisationScale>
+                    <RenormalisationScale>
+                        <plain>85</plain>
+                        <Latex></Latex>
+                    </RenormalisationScale>
+                </subprocess>
+                <subprocess cutset_id="48">
+                    <notation>G,D -> nm,M,C,b,B</notation>
+                    <crossSection unit="pb" errorMinus=" 2.5910E-03" errorPlus=" 2.5910E-03"> 1.6827E-02</crossSection>
+                    <FactorisationScale>
+                        <plain>85</plain>
+                        <Latex></Latex>
+                    </FactorisationScale>
+                    <RenormalisationScale>
+                        <plain>85</plain>
+                        <Latex></Latex>
+                    </RenormalisationScale>
+                </subprocess>
+                <subprocess cutset_id="49">
+                    <notation>G,s -> Nm,m,u,b,B</notation>
+                    <crossSection unit="pb" errorMinus=" 1.7210E-03" errorPlus=" 1.7210E-03"> 1.0261E-02</crossSection>
+                    <FactorisationScale>
+                        <plain>85</plain>
+                        <Latex></Latex>
+                    </FactorisationScale>
+                    <RenormalisationScale>
+                        <plain>85</plain>
+                        <Latex></Latex>
+                    </RenormalisationScale>
+                </subprocess>
+                <subprocess cutset_id="50">
+                    <notation>G,s -> Nm,m,c,b,B</notation>
+                    <crossSection unit="pb" errorMinus=" 1.7706E-03" errorPlus=" 1.7706E-03"> 1.9598E-01</crossSection>
+                    <FactorisationScale>
+                        <plain>85</plain>
+                        <Latex></Latex>
+                    </FactorisationScale>
+                    <RenormalisationScale>
+                        <plain>85</plain>
+                        <Latex></Latex>
+                    </RenormalisationScale>
+                </subprocess>
+                <subprocess cutset_id="51">
+                    <notation>G,c -> nm,M,d,b,B</notation>
+                    <crossSection unit="pb" errorMinus=" 2.3738E-03" errorPlus=" 2.3738E-03"> 8.3677E-03</crossSection>
+                    <FactorisationScale>
+                        <plain>85</plain>
+                        <Latex></Latex>
+                    </FactorisationScale>
+                    <RenormalisationScale>
+                        <plain>85</plain>
+                        <Latex></Latex>
+                    </RenormalisationScale>
+                </subprocess>
+                <subprocess cutset_id="52">
+                    <notation>G,c -> nm,M,s,b,B</notation>
+                    <crossSection unit="pb" errorMinus=" 2.3699E-03" errorPlus=" 2.3699E-03"> 1.5982E-01</crossSection>
+                    <FactorisationScale>
+                        <plain>85</plain>
+                        <Latex></Latex>
+                    </FactorisationScale>
+                    <RenormalisationScale>
+                        <plain>85</plain>
+                        <Latex></Latex>
+                    </RenormalisationScale>
+                </subprocess>
+                <subprocess cutset_id="53">
+                    <notation>G,S -> nm,M,U,b,B</notation>
+                    <crossSection unit="pb" errorMinus=" 2.5955E-03" errorPlus=" 2.5955E-03"> 1.0256E-02</crossSection>
+                    <FactorisationScale>
+                        <plain>85</plain>
+                        <Latex></Latex>
+                    </FactorisationScale>
+                    <RenormalisationScale>
+                        <plain>85</plain>
+                        <Latex></Latex>
+                    </RenormalisationScale>
+                </subprocess>
+                <subprocess cutset_id="54">
+                    <notation>u,G -> nm,M,s,b,B</notation>
+                    <crossSection unit="pb" errorMinus=" 3.2254E-03" errorPlus=" 3.2254E-03"> 1.3630E-01</crossSection>
+                    <FactorisationScale>
+                        <plain>85</plain>
+                        <Latex></Latex>
+                    </FactorisationScale>
+                    <RenormalisationScale>
+                        <plain>85</plain>
+                        <Latex></Latex>
+                    </RenormalisationScale>
+                </subprocess>
+                <subprocess cutset_id="55">
+                    <notation>G,S -> nm,M,C,b,B</notation>
+                    <crossSection unit="pb" errorMinus=" 2.2570E-03" errorPlus=" 2.2570E-03"> 1.9549E-01</crossSection>
+                    <FactorisationScale>
+                        <plain>85</plain>
+                        <Latex></Latex>
+                    </FactorisationScale>
+                    <RenormalisationScale>
+                        <plain>85</plain>
+                        <Latex></Latex>
+                    </RenormalisationScale>
+                </subprocess>
+                <subprocess cutset_id="56">
+                    <notation>G,C -> Nm,m,D,b,B</notation>
+                    <crossSection unit="pb" errorMinus=" 1.9944E-03" errorPlus=" 1.9944E-03"> 8.3955E-03</crossSection>
+                    <FactorisationScale>
+                        <plain>85</plain>
+                        <Latex></Latex>
+                    </FactorisationScale>
+                    <RenormalisationScale>
+                        <plain>85</plain>
+                        <Latex></Latex>
+                    </RenormalisationScale>
+                </subprocess>
+                <subprocess cutset_id="57">
+                    <notation>G,C -> Nm,m,S,b,B</notation>
+                    <crossSection unit="pb" errorMinus=" 1.9929E-03" errorPlus=" 1.9929E-03"> 1.6036E-01</crossSection>
+                    <FactorisationScale>
+                        <plain>85</plain>
+                        <Latex></Latex>
+                    </FactorisationScale>
+                    <RenormalisationScale>
+                        <plain>85</plain>
+                        <Latex></Latex>
+                    </RenormalisationScale>
+                </subprocess>
+                <subprocess cutset_id="58">
+                    <notation>d,G -> Nm,m,u,b,B</notation>
+                    <crossSection unit="pb" errorMinus=" 2.0101E-03" errorPlus=" 2.0101E-03"> 1.6659E+00</crossSection>
+                    <FactorisationScale>
+                        <plain>85</plain>
+                        <Latex></Latex>
+                    </FactorisationScale>
+                    <RenormalisationScale>
+                        <plain>85</plain>
+                        <Latex></Latex>
+                    </RenormalisationScale>
+                </subprocess>
+                <subprocess cutset_id="59">
+                    <notation>d,G -> Nm,m,c,b,B</notation>
+                    <crossSection unit="pb" errorMinus=" 2.1110E-03" errorPlus=" 2.1110E-03"> 5.8282E-02</crossSection>
+                    <FactorisationScale>
+                        <plain>85</plain>
+                        <Latex></Latex>
+                    </FactorisationScale>
+                    <RenormalisationScale>
+                        <plain>85</plain>
+                        <Latex></Latex>
+                    </RenormalisationScale>
+                </subprocess>
+                <subprocess cutset_id="60">
+                    <notation>U,G -> Nm,m,D,b,B</notation>
+                    <crossSection unit="pb" errorMinus=" 2.2627E-03" errorPlus=" 2.2627E-03"> 3.2940E-01</crossSection>
+                    <FactorisationScale>
+                        <plain>85</plain>
+                        <Latex></Latex>
+                    </FactorisationScale>
+                    <RenormalisationScale>
+                        <plain>85</plain>
+                        <Latex></Latex>
+                    </RenormalisationScale>
+                </subprocess>
+                <subprocess cutset_id="61">
+                    <notation>U,G -> Nm,m,S,b,B</notation>
+                    <crossSection unit="pb" errorMinus=" 2.2650E-03" errorPlus=" 2.2650E-03"> 1.7221E-02</crossSection>
+                    <FactorisationScale>
+                        <plain>85</plain>
+                        <Latex></Latex>
+                    </FactorisationScale>
+                    <RenormalisationScale>
+                        <plain>85</plain>
+                        <Latex></Latex>
+                    </RenormalisationScale>
+                </subprocess>
+                <subprocess cutset_id="62">
+                    <notation>D,G -> nm,M,U,b,B</notation>
+                    <crossSection unit="pb" errorMinus=" 3.0004E-03" errorPlus=" 3.0004E-03"> 3.2111E-01</crossSection>
+                    <FactorisationScale>
+                        <plain>85</plain>
+                        <Latex></Latex>
+                    </FactorisationScale>
+                    <RenormalisationScale>
+                        <plain>85</plain>
+                        <Latex></Latex>
+                    </RenormalisationScale>
+                </subprocess>
+                <subprocess cutset_id="63">
+                    <notation>D,G -> nm,M,C,b,B</notation>
+                    <crossSection unit="pb" errorMinus=" 3.0172E-03" errorPlus=" 3.0172E-03"> 1.6781E-02</crossSection>
+                    <FactorisationScale>
+                        <plain>85</plain>
+                        <Latex></Latex>
+                    </FactorisationScale>
+                    <RenormalisationScale>
+                        <plain>85</plain>
+                        <Latex></Latex>
+                    </RenormalisationScale>
+                </subprocess>
+                <subprocess cutset_id="64">
+                    <notation>s,G -> Nm,m,u,b,B</notation>
+                    <crossSection unit="pb" errorMinus=" 2.1422E-03" errorPlus=" 2.1422E-03"> 1.0264E-02</crossSection>
+                    <FactorisationScale>
+                        <plain>85</plain>
+                        <Latex></Latex>
+                    </FactorisationScale>
+                    <RenormalisationScale>
+                        <plain>85</plain>
+                        <Latex></Latex>
+                    </RenormalisationScale>
+                </subprocess>
+            </subprocesses>
+        </process>
+        <model>
+             <name></name>
+             <description></description>
+            <parameters>
+                <parameter>
+                    <name>Sqrt(S)</name>
+                    <value>10000.000000</value>
+                    <notation>
+                        <plain>Sqrt(S)</plain>
+                        <Latex></Latex>
+                    </notation>
+                    <description></description>
+                </parameter>
+                <parameter>
+                    <name>EE</name>
+                    <value>0.313450</value>
+                    <notation>
+                        <plain>EE</plain>
+                        <Latex></Latex>
+                    </notation>
+                    <description></description>
+                </parameter>
+                <parameter>
+                    <name>SW</name>
+                    <value>0.480760</value>
+                    <notation>
+                        <plain>SW</plain>
+                        <Latex></Latex>
+                    </notation>
+                    <description></description>
+                </parameter>
+                <parameter>
+                    <name>s12</name>
+                    <value>0.222900</value>
+                    <notation>
+                        <plain>s12</plain>
+                        <Latex></Latex>
+                    </notation>
+                    <description></description>
+                </parameter>
+                <parameter>
+                    <name>s23</name>
+                    <value>0.041200</value>
+                    <notation>
+                        <plain>s23</plain>
+                        <Latex></Latex>
+                    </notation>
+                    <description></description>
+                </parameter>
+                <parameter>
+                    <name>s13</name>
+                    <value>0.003600</value>
+                    <notation>
+                        <plain>s13</plain>
+                        <Latex></Latex>
+                    </notation>
+                    <description></description>
+                </parameter>
+                <parameter>
+                    <name>MZ</name>
+                    <value>91.187600</value>
+                    <notation>
+                        <plain>MZ</plain>
+                        <Latex></Latex>
+                    </notation>
+                    <description></description>
+                </parameter>
+                <parameter>
+                    <name>wW</name>
+                    <value>2.027980</value>
+                    <notation>
+                        <plain>wW</plain>
+                        <Latex></Latex>
+                    </notation>
+                    <description></description>
+                </parameter>
+                <parameter>
+                    <name>Mm</name>
+                    <value>0.105660</value>
+                    <notation>
+                        <plain>Mm</plain>
+                        <Latex></Latex>
+                    </notation>
+                    <description></description>
+                </parameter>
+                <parameter>
+                    <name>Mc</name>
+                    <value>1.650000</value>
+                    <notation>
+                        <plain>Mc</plain>
+                        <Latex></Latex>
+                    </notation>
+                    <description></description>
+                </parameter>
+                <parameter>
+                    <name>Ms</name>
+                    <value>0.117000</value>
+                    <notation>
+                        <plain>Ms</plain>
+                        <Latex></Latex>
+                    </notation>
+                    <description></description>
+                </parameter>
+                <parameter>
+                    <name>Mtop</name>
+                    <value>170.000000</value>
+                    <notation>
+                        <plain>Mtop</plain>
+                        <Latex></Latex>
+                    </notation>
+                    <description></description>
+                </parameter>
+                <parameter>
+                    <name>wtop</name>
+                    <value>1.417200</value>
+                    <notation>
+                        <plain>wtop</plain>
+                        <Latex></Latex>
+                    </notation>
+                    <description></description>
+                </parameter>
+                <parameter>
+                    <name>Mb</name>
+                    <value>4.850000</value>
+                    <notation>
+                        <plain>Mb</plain>
+                        <Latex></Latex>
+                    </notation>
+                    <description></description>
+                </parameter>
+                <parameter>
+                    <name>CW</name>
+                    <value>0.876852</value>
+                    <notation>
+                        <plain>CW</plain>
+                        <Latex></Latex>
+                    </notation>
+                    <description></description>
+                </parameter>
+                <parameter>
+                    <name>c12</name>
+                    <value>0.974841</value>
+                    <notation>
+                        <plain>c12</plain>
+                        <Latex></Latex>
+                    </notation>
+                    <description></description>
+                </parameter>
+                <parameter>
+                    <name>c23</name>
+                    <value>0.999151</value>
+                    <notation>
+                        <plain>c23</plain>
+                        <Latex></Latex>
+                    </notation>
+                    <description></description>
+                </parameter>
+                <parameter>
+                    <name>c13</name>
+                    <value>0.999994</value>
+                    <notation>
+                        <plain>c13</plain>
+                        <Latex></Latex>
+                    </notation>
+                    <description></description>
+                </parameter>
+                <parameter>
+                    <name>Vud</name>
+                    <value>0.974835</value>
+                    <notation>
+                        <plain>Vud</plain>
+                        <Latex></Latex>
+                    </notation>
+                    <description></description>
+                </parameter>
+                <parameter>
+                    <name>Vus</name>
+                    <value>0.222899</value>
+                    <notation>
+                        <plain>Vus</plain>
+                        <Latex></Latex>
+                    </notation>
+                    <description></description>
+                </parameter>
+                <parameter>
+                    <name>Vcd</name>
+                    <value>-0.222855</value>
+                    <notation>
+                        <plain>Vcd</plain>
+                        <Latex></Latex>
+                    </notation>
+                    <description></description>
+                </parameter>
+                <parameter>
+                    <name>Vcs</name>
+                    <value>0.973981</value>
+                    <notation>
+                        <plain>Vcs</plain>
+                        <Latex></Latex>
+                    </notation>
+                    <description></description>
+                </parameter>
+                <parameter>
+                    <name>Vtb</name>
+                    <value>0.999144</value>
+                    <notation>
+                        <plain>Vtb</plain>
+                        <Latex></Latex>
+                    </notation>
+                    <description></description>
+                </parameter>
+                <parameter>
+                    <name>MW</name>
+                    <value>79.958050</value>
+                    <notation>
+                        <plain>MW</plain>
+                        <Latex></Latex>
+                    </notation>
+                    <description></description>
+                </parameter>
+                <parameter>
+                    <name>GG</name>
+                    <value>1.224226</value>
+                    <notation>
+                        <plain>GG</plain>
+                        <Latex></Latex>
+                    </notation>
+                    <description></description>
+                </parameter>
+                <parameter>
+                    <name>Vub</name>
+                    <value>0.003600</value>
+                    <notation>
+                        <plain>Vub</plain>
+                        <Latex></Latex>
+                    </notation>
+                    <description></description>
+                </parameter>
+                <parameter>
+                    <name>Vtd</name>
+                    <value>0.005677</value>
+                    <notation>
+                        <plain>Vtd</plain>
+                        <Latex></Latex>
+                    </notation>
+                    <description></description>
+                </parameter>
+                <parameter>
+                    <name>Vtb</name>
+                    <value>0.999144</value>
+                    <notation>
+                        <plain>Vtb</plain>
+                        <Latex></Latex>
+                    </notation>
+                    <description></description>
+                </parameter>
+                <parameter>
+                    <name>MW</name>
+                    <value>79.958050</value>
+                    <notation>
+                        <plain>MW</plain>
+                        <Latex></Latex>
+                    </notation>
+                    <description></description>
+                </parameter>
+            </parameters>
+        </model>
+        <cuts>
+            <cutSet cutset_id="1">
+            </cutSet>
+            <cutSet cutset_id="2">
+            </cutSet>
+            <cutSet cutset_id="3">
+            </cutSet>
+            <cutSet cutset_id="4">
+            </cutSet>
+            <cutSet cutset_id="5">
+            </cutSet>
+            <cutSet cutset_id="6">
+            </cutSet>
+            <cutSet cutset_id="7">
+            </cutSet>
+            <cutSet cutset_id="8">
+            </cutSet>
+            <cutSet cutset_id="9">
+            </cutSet>
+            <cutSet cutset_id="10">
+            </cutSet>
+            <cutSet cutset_id="11">
+            </cutSet>
+            <cutSet cutset_id="12">
+            </cutSet>
+            <cutSet cutset_id="13">
+            </cutSet>
+            <cutSet cutset_id="14">
+            </cutSet>
+            <cutSet cutset_id="15">
+            </cutSet>
+            <cutSet cutset_id="16">
+            </cutSet>
+            <cutSet cutset_id="17">
+            </cutSet>
+            <cutSet cutset_id="18">
+            </cutSet>
+            <cutSet cutset_id="19">
+            </cutSet>
+            <cutSet cutset_id="20">
+            </cutSet>
+            <cutSet cutset_id="21">
+            </cutSet>
+            <cutSet cutset_id="22">
+            </cutSet>
+            <cutSet cutset_id="23">
+            </cutSet>
+            <cutSet cutset_id="24">
+            </cutSet>
+            <cutSet cutset_id="25">
+            </cutSet>
+            <cutSet cutset_id="26">
+            </cutSet>
+            <cutSet cutset_id="27">
+            </cutSet>
+            <cutSet cutset_id="28">
+            </cutSet>
+            <cutSet cutset_id="29">
+            </cutSet>
+            <cutSet cutset_id="30">
+            </cutSet>
+            <cutSet cutset_id="31">
+            </cutSet>
+            <cutSet cutset_id="32">
+            </cutSet>
+            <cutSet cutset_id="33">
+                <cut>
+                    <object>
+                        <name>S15</name>
+                        <notation>
+                            <plain>S15</plain>
+                            <Latex></Latex>
+                        </notation>
+                    </object>
+                    <maxValue>-1.0000E-03</maxValue>
+                    <logic>include</logic>
+                </cut>
+            </cutSet>
+            <cutSet cutset_id="34">
+                <cut>
+                    <object>
+                        <name>S15</name>
+                        <notation>
+                            <plain>S15</plain>
+                            <Latex></Latex>
+                        </notation>
+                    </object>
+                    <maxValue>-1.0000E-03</maxValue>
+                    <logic>include</logic>
+                </cut>
+            </cutSet>
+            <cutSet cutset_id="35">
+                <cut>
+                    <object>
+                        <name>S15</name>
+                        <notation>
+                            <plain>S15</plain>
+                            <Latex></Latex>
+                        </notation>
+                    </object>
+                    <maxValue>-1.0000E-03</maxValue>
+                    <logic>include</logic>
+                </cut>
+            </cutSet>
+            <cutSet cutset_id="36">
+                <cut>
+                    <object>
+                        <name>S15</name>
+                        <notation>
+                            <plain>S15</plain>
+                            <Latex></Latex>
+                        </notation>
+                    </object>
+                    <maxValue>-1.0000E-03</maxValue>
+                    <logic>include</logic>
+                </cut>
+            </cutSet>
+            <cutSet cutset_id="37">
+                <cut>
+                    <object>
+                        <name>S15</name>
+                        <notation>
+                            <plain>S15</plain>
+                            <Latex></Latex>
+                        </notation>
+                    </object>
+                    <maxValue>-1.0000E-03</maxValue>
+                    <logic>include</logic>
+                </cut>
+            </cutSet>
+            <cutSet cutset_id="38">
+                <cut>
+                    <object>
+                        <name>S15</name>
+                        <notation>
+                            <plain>S15</plain>
+                            <Latex></Latex>
+                        </notation>
+                    </object>
+                    <maxValue>-1.0000E-03</maxValue>
+                    <logic>include</logic>
+                </cut>
+            </cutSet>
+            <cutSet cutset_id="39">
+                <cut>
+                    <object>
+                        <name>S15</name>
+                        <notation>
+                            <plain>S15</plain>
+                            <Latex></Latex>
+                        </notation>
+                    </object>
+                    <maxValue>-1.0000E-03</maxValue>
+                    <logic>include</logic>
+                </cut>
+            </cutSet>
+            <cutSet cutset_id="40">
+                <cut>
+                    <object>
+                        <name>S25</name>
+                        <notation>
+                            <plain>S25</plain>
+                            <Latex></Latex>
+                        </notation>
+                    </object>
+                    <maxValue>-1.0000E-03</maxValue>
+                    <logic>include</logic>
+                </cut>
+            </cutSet>
+            <cutSet cutset_id="41">
+                <cut>
+                    <object>
+                        <name>S25</name>
+                        <notation>
+                            <plain>S25</plain>
+                            <Latex></Latex>
+                        </notation>
+                    </object>
+                    <maxValue>-1.0000E-03</maxValue>
+                    <logic>include</logic>
+                </cut>
+            </cutSet>
+            <cutSet cutset_id="42">
+                <cut>
+                    <object>
+                        <name>S25</name>
+                        <notation>
+                            <plain>S25</plain>
+                            <Latex></Latex>
+                        </notation>
+                    </object>
+                    <maxValue>-1.0000E-03</maxValue>
+                    <logic>include</logic>
+                </cut>
+            </cutSet>
+            <cutSet cutset_id="43">
+                <cut>
+                    <object>
+                        <name>S15</name>
+                        <notation>
+                            <plain>S15</plain>
+                            <Latex></Latex>
+                        </notation>
+                    </object>
+                    <maxValue>-1.0000E-03</maxValue>
+                    <logic>include</logic>
+                </cut>
+            </cutSet>
+            <cutSet cutset_id="44">
+                <cut>
+                    <object>
+                        <name>S25</name>
+                        <notation>
+                            <plain>S25</plain>
+                            <Latex></Latex>
+                        </notation>
+                    </object>
+                    <maxValue>-1.0000E-03</maxValue>
+                    <logic>include</logic>
+                </cut>
+            </cutSet>
+            <cutSet cutset_id="45">
+                <cut>
+                    <object>
+                        <name>S25</name>
+                        <notation>
+                            <plain>S25</plain>
+                            <Latex></Latex>
+                        </notation>
+                    </object>
+                    <maxValue>-1.0000E-03</maxValue>
+                    <logic>include</logic>
+                </cut>
+            </cutSet>
+            <cutSet cutset_id="46">
+                <cut>
+                    <object>
+                        <name>S25</name>
+                        <notation>
+                            <plain>S25</plain>
+                            <Latex></Latex>
+                        </notation>
+                    </object>
+                    <maxValue>-1.0000E-03</maxValue>
+                    <logic>include</logic>
+                </cut>
+            </cutSet>
+            <cutSet cutset_id="47">
+                <cut>
+                    <object>
+                        <name>S25</name>
+                        <notation>
+                            <plain>S25</plain>
+                            <Latex></Latex>
+                        </notation>
+                    </object>
+                    <maxValue>-1.0000E-03</maxValue>
+                    <logic>include</logic>
+                </cut>
+            </cutSet>
+            <cutSet cutset_id="48">
+                <cut>
+                    <object>
+                        <name>S25</name>
+                        <notation>
+                            <plain>S25</plain>
+                            <Latex></Latex>
+                        </notation>
+                    </object>
+                    <maxValue>-1.0000E-03</maxValue>
+                    <logic>include</logic>
+                </cut>
+            </cutSet>
+            <cutSet cutset_id="49">
+                <cut>
+                    <object>
+                        <name>S25</name>
+                        <notation>
+                            <plain>S25</plain>
+                            <Latex></Latex>
+                        </notation>
+                    </object>
+                    <maxValue>-1.0000E-03</maxValue>
+                    <logic>include</logic>
+                </cut>
+            </cutSet>
+            <cutSet cutset_id="50">
+                <cut>
+                    <object>
+                        <name>S25</name>
+                        <notation>
+                            <plain>S25</plain>
+                            <Latex></Latex>
+                        </notation>
+                    </object>
+                    <maxValue>-1.0000E-03</maxValue>
+                    <logic>include</logic>
+                </cut>
+            </cutSet>
+            <cutSet cutset_id="51">
+                <cut>
+                    <object>
+                        <name>S25</name>
+                        <notation>
+                            <plain>S25</plain>
+                            <Latex></Latex>
+                        </notation>
+                    </object>
+                    <maxValue>-1.0000E-03</maxValue>
+                    <logic>include</logic>
+                </cut>
+            </cutSet>
+            <cutSet cutset_id="52">
+                <cut>
+                    <object>
+                        <name>S25</name>
+                        <notation>
+                            <plain>S25</plain>
+                            <Latex></Latex>
+                        </notation>
+                    </object>
+                    <maxValue>-1.0000E-03</maxValue>
+                    <logic>include</logic>
+                </cut>
+            </cutSet>
+            <cutSet cutset_id="53">
+                <cut>
+                    <object>
+                        <name>S25</name>
+                        <notation>
+                            <plain>S25</plain>
+                            <Latex></Latex>
+                        </notation>
+                    </object>
+                    <maxValue>-1.0000E-03</maxValue>
+                    <logic>include</logic>
+                </cut>
+            </cutSet>
+            <cutSet cutset_id="54">
+                <cut>
+                    <object>
+                        <name>S15</name>
+                        <notation>
+                            <plain>S15</plain>
+                            <Latex></Latex>
+                        </notation>
+                    </object>
+                    <maxValue>-1.0000E-03</maxValue>
+                    <logic>include</logic>
+                </cut>
+            </cutSet>
+            <cutSet cutset_id="55">
+                <cut>
+                    <object>
+                        <name>S25</name>
+                        <notation>
+                            <plain>S25</plain>
+                            <Latex></Latex>
+                        </notation>
+                    </object>
+                    <maxValue>-1.0000E-03</maxValue>
+                    <logic>include</logic>
+                </cut>
+            </cutSet>
+            <cutSet cutset_id="56">
+                <cut>
+                    <object>
+                        <name>S25</name>
+                        <notation>
+                            <plain>S25</plain>
+                            <Latex></Latex>
+                        </notation>
+                    </object>
+                    <maxValue>-1.0000E-03</maxValue>
+                    <logic>include</logic>
+                </cut>
+            </cutSet>
+            <cutSet cutset_id="57">
+                <cut>
+                    <object>
+                        <name>S25</name>
+                        <notation>
+                            <plain>S25</plain>
+                            <Latex></Latex>
+                        </notation>
+                    </object>
+                    <maxValue>-1.0000E-03</maxValue>
+                    <logic>include</logic>
+                </cut>
+            </cutSet>
+            <cutSet cutset_id="58">
+                <cut>
+                    <object>
+                        <name>S15</name>
+                        <notation>
+                            <plain>S15</plain>
+                            <Latex></Latex>
+                        </notation>
+                    </object>
+                    <maxValue>-1.0000E-03</maxValue>
+                    <logic>include</logic>
+                </cut>
+            </cutSet>
+            <cutSet cutset_id="59">
+                <cut>
+                    <object>
+                        <name>S15</name>
+                        <notation>
+                            <plain>S15</plain>
+                            <Latex></Latex>
+                        </notation>
+                    </object>
+                    <maxValue>-1.0000E-03</maxValue>
+                    <logic>include</logic>
+                </cut>
+            </cutSet>
+            <cutSet cutset_id="60">
+                <cut>
+                    <object>
+                        <name>S15</name>
+                        <notation>
+                            <plain>S15</plain>
+                            <Latex></Latex>
+                        </notation>
+                    </object>
+                    <maxValue>-1.0000E-03</maxValue>
+                    <logic>include</logic>
+                </cut>
+            </cutSet>
+            <cutSet cutset_id="61">
+                <cut>
+                    <object>
+                        <name>S15</name>
+                        <notation>
+                            <plain>S15</plain>
+                            <Latex></Latex>
+                        </notation>
+                    </object>
+                    <maxValue>-1.0000E-03</maxValue>
+                    <logic>include</logic>
+                </cut>
+            </cutSet>
+            <cutSet cutset_id="62">
+                <cut>
+                    <object>
+                        <name>S15</name>
+                        <notation>
+                            <plain>S15</plain>
+                            <Latex></Latex>
+                        </notation>
+                    </object>
+                    <maxValue>-1.0000E-03</maxValue>
+                    <logic>include</logic>
+                </cut>
+            </cutSet>
+            <cutSet cutset_id="63">
+                <cut>
+                    <object>
+                        <name>S15</name>
+                        <notation>
+                            <plain>S15</plain>
+                            <Latex></Latex>
+                        </notation>
+                    </object>
+                    <maxValue>-1.0000E-03</maxValue>
+                    <logic>include</logic>
+                </cut>
+            </cutSet>
+            <cutSet cutset_id="64">
+                <cut>
+                    <object>
+                        <name>S15</name>
+                        <notation>
+                            <plain>S15</plain>
+                            <Latex></Latex>
+                        </notation>
+                    </object>
+                    <maxValue>-1.0000E-03</maxValue>
+                    <logic>include</logic>
+                </cut>
+            </cutSet>
+        </cuts>
+        <authors>
+        </authors>
+        <relatedPapers></relatedPapers>
+    </description>
+</samples>
+</header>
+<init>
+2212 2212  5.0000000000E+03  5.0000000000E+03 4 4 57 57 3 64
+ 2.2386340000E-01  2.9263100000E-04  1.0000000000E+00 1
+ 1.0264240000E-02  1.3404930000E-05  1.0000000000E+00 2
+ 1.9599960000E-01  2.5598700000E-04  1.0000000000E+00 3
+ 1.1730330000E-02  1.4638880000E-05  1.0000000000E+00 4
+ 2.2386340000E-01  2.9263100000E-04  1.0000000000E+00 5
+ 1.0264240000E-02  1.3404930000E-05  1.0000000000E+00 6
+ 1.9599960000E-01  2.5598700000E-04  1.0000000000E+00 7
+ 2.7781540000E+00  3.7441430000E-03  1.0000000000E+00 8
+ 1.4525670000E-01  1.9580410000E-04  1.0000000000E+00 9
+ 3.6139050000E-01  4.9658010000E-04  1.0000000000E+00 10
+ 2.7793760000E+00  3.4172870000E-03  1.0000000000E+00 11
+ 1.8885650000E-02  2.5917980000E-05  1.0000000000E+00 12
+ 1.0245510000E-02  1.4588380000E-05  1.0000000000E+00 13
+ 1.9569010000E-01  2.7858100000E-04  1.0000000000E+00 14
+ 1.1695300000E-02  1.5900530000E-05  1.0000000000E+00 15
+ 2.2327700000E-01  3.0330090000E-04  1.0000000000E+00 16
+ 1.1681460000E+00  1.5510390000E-03  1.0000000000E+00 17
+ 6.1024260000E-02  8.1791390000E-05  1.0000000000E+00 18
+ 3.9105440000E-01  5.5765080000E-04  1.0000000000E+00 19
+ 2.0445400000E-02  2.9175950000E-05  1.0000000000E+00 20
+ 1.1695300000E-02  1.5900530000E-05  1.0000000000E+00 21
+ 1.4531370000E-01  1.7865090000E-04  1.0000000000E+00 22
+ 2.2327700000E-01  3.0330090000E-04  1.0000000000E+00 23
+ 1.0245510000E-02  1.4588380000E-05  1.0000000000E+00 24
+ 1.9569010000E-01  2.7858100000E-04  1.0000000000E+00 25
+ 1.1695300000E+00  1.4308200000E-03  1.0000000000E+00 26
+ 6.1130140000E-02  7.3778400000E-05  1.0000000000E+00 27
+ 3.9159190000E-01  5.1546000000E-04  1.0000000000E+00 28
+ 2.0475540000E-02  2.6962980000E-05  1.0000000000E+00 29
+ 3.6183850000E-01  4.6070170000E-04  1.0000000000E+00 30
+ 1.8910080000E-02  2.3729440000E-05  1.0000000000E+00 31
+ 1.1730330000E-02  1.4638880000E-05  1.0000000000E+00 32
+ 1.9592000000E-01  4.2182000000E-04  1.0000000000E+00 33
+ 8.3858000000E-03  2.5922000000E-05  1.0000000000E+00 34
+ 1.6019000000E-01  4.9513000000E-04  1.0000000000E+00 35
+ 1.0241000000E-02  3.0193000000E-05  1.0000000000E+00 36
+ 1.9543000000E-01  5.7111000000E-04  1.0000000000E+00 37
+ 8.3728000000E-03  1.8610000000E-05  1.0000000000E+00 38
+ 1.5993000000E-01  3.5551000000E-04  1.0000000000E+00 39
+ 2.5945000000E+00  1.2192000000E-02  1.0000000000E+00 40
+ 1.3572000000E-01  5.9117000000E-04  1.0000000000E+00 41
+ 1.1170000000E+00  1.6810000000E-03  1.0000000000E+00 42
+ 2.6074000000E+00  8.4281000000E-03  1.0000000000E+00 43
+ 5.8361000000E-02  8.7957000000E-05  1.0000000000E+00 44
+ 3.3011000000E-01  5.9246000000E-04  1.0000000000E+00 45
+ 1.7259000000E-02  3.0971000000E-05  1.0000000000E+00 46
+ 3.2255000000E-01  8.5491000000E-04  1.0000000000E+00 47
+ 1.6827000000E-02  4.3600000000E-05  1.0000000000E+00 48
+ 1.0261000000E-02  1.7659000000E-05  1.0000000000E+00 49
+ 1.9598000000E-01  3.4700000000E-04  1.0000000000E+00 50
+ 8.3677000000E-03  1.9863000000E-05  1.0000000000E+00 51
+ 1.5982000000E-01  3.7876000000E-04  1.0000000000E+00 52
+ 1.0256000000E-02  2.6620000000E-05  1.0000000000E+00 53
+ 1.3630000000E-01  4.3961000000E-04  1.0000000000E+00 54
+ 1.9549000000E-01  4.4123000000E-04  1.0000000000E+00 55
+ 8.3955000000E-03  1.6744000000E-05  1.0000000000E+00 56
+ 1.6036000000E-01  3.1959000000E-04  1.0000000000E+00 57
+ 1.6659000000E+00  3.3485000000E-03  1.0000000000E+00 58
+ 5.8282000000E-02  1.2303000000E-04  1.0000000000E+00 59
+ 3.2940000000E-01  7.4532000000E-04  1.0000000000E+00 60
+ 1.7221000000E-02  3.9006000000E-05  1.0000000000E+00 61
+ 3.2111000000E-01  9.6344000000E-04  1.0000000000E+00 62
+ 1.6781000000E-02  5.0631000000E-05  1.0000000000E+00 63
+ 1.0264000000E-02  2.1987000000E-05  1.0000000000E+00 64
+</init>
+<event>
+6 8  1.0000000000E+00  8.5000000000E+01  1.1926507202E-01  7.8125000000E-03
+5 -1 0 0 500 0  0.0000000000E+00  0.0000000000E+00  1.5859039708E+00  5.1027043227E+00  4.8500000000E+00 0.000000 9.000000
+2 -1 0 0 501 0  0.0000000000E+00  0.0000000000E+00 -2.4773693798E+03  2.4773693798E+03  0.0000000000E+00 0.000000 9.000000
+14 1 1 2 0 0 -6.1421481964E+01  3.4894191193E+01 -1.5066060592E+03  1.5082612574E+03  0.0000000000E+00 0.000000 9.000000
+-13 1 1 2 0 0  1.5494955476E+01 -1.6019045339E+01 -4.7354554642E+02  4.7406971972E+02  1.0566000000E-01 0.000000 9.000000
+1 1 1 2 501 0 -4.3023675198E+00 -9.9371559891E+00 -1.8444328257E+02  1.8476087768E+02  0.0000000000E+00 0.000000 9.000000
+5 1 1 2 500 0  5.0228894008E+01 -8.9379898655E+00 -3.1118858767E+02  3.1538022933E+02  4.8500000000E+00 0.000000 9.000000
+</event>
+<event>
+6 5  1.0000000000E+00  8.5000000000E+01  1.1926507202E-01  7.8125000000E-03
+-3 -1 0 0 0 501  0.0000000000E+00  0.0000000000E+00  2.6271116404E+02  2.6271119009E+02  1.1700000000E-01 0.000000 9.000000
+5 -1 0 0 500 0  0.0000000000E+00  0.0000000000E+00 -6.5153361649E+01  6.5333628662E+01  4.8500000000E+00 0.000000 9.000000
+14 1 1 2 0 0 -1.8110142285E+01  3.3939879504E+00  4.1502053187E+01  4.5408334329E+01  0.0000000000E+00 0.000000 9.000000
+-13 1 1 2 0 0 -5.9140058128E+01  4.5425488162E+00  3.6125557159E+01  6.9449609569E+01  1.0566000000E-01 0.000000 9.000000
+-4 1 1 2 0 501  7.0772472836E+00  2.4577763462E+01  1.3226010752E+02  1.3472049743E+02  1.6500000000E+00 0.000000 9.000000
+5 1 1 2 500 0  7.0172953129E+01 -3.2514300229E+01 -1.2329915482E+01  7.8466377424E+01  4.8500000000E+00 0.000000 9.000000
+</event>
+<event>
+6 8  1.0000000000E+00  8.5000000000E+01  1.1926507202E-01  7.8125000000E-03
+5 -1 0 0 500 0  0.0000000000E+00  0.0000000000E+00  3.5683842297E+01  3.6011929982E+01  4.8500000000E+00 0.000000 9.000000
+2 -1 0 0 501 0  0.0000000000E+00  0.0000000000E+00 -6.0747673153E+02  6.0747673153E+02  0.0000000000E+00 0.000000 9.000000
+14 1 1 2 0 0 -3.2479802756E+01 -1.1571083814E+01 -2.8441584958E+01  4.4696211502E+01  0.0000000000E+00 0.000000 9.000000
+-13 1 1 2 0 0  1.3323635965E+01  2.1804444428E+01 -1.4807797567E+02  1.5026660013E+02  1.0566000000E-01 0.000000 9.000000
+1 1 1 2 501 0 -4.3470279224E+01 -3.7151973657E+00 -3.8137613974E+02  3.8386355367E+02  0.0000000000E+00 0.000000 9.000000
+5 1 1 2 500 0  6.2626446015E+01 -6.5181632477E+00 -1.3897188853E+01  6.4662296206E+01  4.8500000000E+00 0.000000 9.000000
+</event>
+<event>
+6 26  1.0000000000E+00  8.5000000000E+01  1.1926507202E-01  7.8125000000E-03
+1 -1 0 0 500 0  0.0000000000E+00  0.0000000000E+00  7.3229015490E+02  7.3229015490E+02  0.0000000000E+00 0.000000 9.000000
+-5 -1 0 0 0 501  0.0000000000E+00  0.0000000000E+00 -3.9895180015E+01  4.0188902553E+01  4.8500000000E+00 0.000000 9.000000
+-14 1 1 2 0 0  2.0124347956E+01  1.0890604729E+02  7.8552246390E+01  1.3577912921E+02  0.0000000000E+00 0.000000 9.000000
+13 1 1 2 0 0 -2.6558283495E+01  6.3760796966E+00  4.1585632470E+01  4.9753118560E+01  1.0566000000E-01 0.000000 9.000000
+2 1 1 2 500 0  1.8677144405E+01 -1.0728554496E+02  4.1911358505E+02  4.3303027730E+02  0.0000000000E+00 0.000000 9.000000
+-5 1 1 2 0 501 -1.2243208866E+01 -7.9965820269E+00  1.5314351097E+02  1.5391653238E+02  4.8500000000E+00 0.000000 9.000000
+</event>
+<event>
+6 17  1.0000000000E+00  8.5000000000E+01  1.1926507202E-01  7.8125000000E-03
+-5 -1 0 0 0 501  0.0000000000E+00  0.0000000000E+00  2.6977409688E+01  2.7409909403E+01  4.8500000000E+00 0.000000 9.000000
+1 -1 0 0 500 0  0.0000000000E+00  0.0000000000E+00 -6.4289888364E+02  6.4289888364E+02  0.0000000000E+00 0.000000 9.000000
+-14 1 1 2 0 0 -2.2168205976E+01 -1.5882702059E+01 -3.2553064561E+00  2.7464278636E+01  0.0000000000E+00 0.000000 9.000000
+13 1 1 2 0 0  7.2215018411E+00  6.7504638988E+01 -8.8337027692E+01  1.1141125616E+02  1.0566000000E-01 0.000000 9.000000
+2 1 1 2 500 0  8.9702129571E+00 -8.0323587118E+00 -3.8614698653E+02  3.8633467190E+02  0.0000000000E+00 0.000000 9.000000
+-5 1 1 2 0 501  5.9764911778E+00 -4.3589578217E+01 -1.3818215327E+02  1.4509858635E+02  4.8500000000E+00 0.000000 9.000000
+</event>
+<event>
+7 43  1.0000000000E+00  8.5000000000E+01  1.1926507202E-01  7.8125000000E-03
+2 -1 0 0 500 0  0.0000000000E+00  0.0000000000E+00  3.5457275673E+02  3.5457275673E+02  0.0000000000E+00 0.000000 9.000000
+21 -1 0 0 501 502  0.0000000000E+00  0.0000000000E+00 -4.7848798986E+02  4.7848798986E+02  0.0000000000E+00 0.000000 9.000000
+14 1 1 2 0 0 -4.5945604578E+00 -2.8874672824E+01  2.3837195802E+01  3.7723581752E+01  0.0000000000E+00 0.000000 9.000000
+-13 1 1 2 0 0  9.7841551837E+00  5.3068640585E+01  2.6888488125E+01  6.0291062886E+01  1.0566000000E-01 0.000000 9.000000
+1 1 1 2 500 0 -4.6777735115E+01 -3.6458579430E+01  2.7234092917E+02  2.7872381710E+02  0.0000000000E+00 0.000000 9.000000
+5 1 1 2 501 0  3.4673658615E+01  1.4905371549E+01 -7.3772584628E+01  8.3008128791E+01  4.8500000000E+00 0.000000 9.000000
+-5 1 1 2 0 502  6.9144817743E+00 -2.6407598797E+00 -3.7320926160E+02  3.7331415606E+02  4.8500000000E+00 0.000000 9.000000
+</event>
+<event>
+7 40  1.0000000000E+00  8.5000000000E+01  1.1926507202E-01  7.8125000000E-03
+21 -1 0 0 500 502  0.0000000000E+00  0.0000000000E+00  1.4846434267E+02  1.4846434267E+02  0.0000000000E+00 0.000000 9.000000
+2 -1 0 0 501 0  0.0000000000E+00  0.0000000000E+00 -5.8940101558E+02  5.8940101558E+02  0.0000000000E+00 0.000000 9.000000
+14 1 1 2 0 0  1.5106263972E+01 -6.6217624105E+01 -7.2503730550E+01  9.9346685385E+01  0.0000000000E+00 0.000000 9.000000
+-13 1 1 2 0 0  2.8369934675E+01  1.8866599622E+01 -4.8655615005E+01  5.9398500067E+01  1.0566000000E-01 0.000000 9.000000
+1 1 1 2 501 0 -2.2399139912E+01  5.8276032442E+01 -4.4525713840E+02  4.4961287428E+02  0.0000000000E+00 0.000000 9.000000
+5 1 1 2 500 0 -1.4489780334E+01 -3.2469176153E+00  3.4914333994E+01  3.8249567663E+01  4.8500000000E+00 0.000000 9.000000
+-5 1 1 2 0 502 -6.5872784006E+00 -7.6780903431E+00  9.0565477043E+01  9.1257730851E+01  4.8500000000E+00 0.000000 9.000000
+</event>
+<event>
+6 3  1.0000000000E+00  8.5000000000E+01  1.1926507202E-01  7.8125000000E-03
+4 -1 0 0 500 0  0.0000000000E+00  0.0000000000E+00  1.2697820729E+03  1.2697831450E+03  1.6500000000E+00 0.000000 9.000000
+5 -1 0 0 501 0  0.0000000000E+00  0.0000000000E+00 -6.2231610623E+00  7.8898817233E+00  4.8500000000E+00 0.000000 9.000000
+14 1 1 2 0 0  1.4601741356E+01 -2.7997918375E+01  1.5185787443E+02  1.5510611951E+02  0.0000000000E+00 0.000000 9.000000
+-13 1 1 2 0 0 -6.4176964771E+01  3.8620325269E+00  5.2465972252E+02  5.2858436763E+02  1.0566000000E-01 0.000000 9.000000
+3 1 1 2 500 0 -1.2322280468E+01 -1.2945983542E+01  1.3855558696E+02  1.3970362004E+02  1.1700000000E-01 0.000000 9.000000
+5 1 1 2 501 0  6.1897503883E+01  3.7081869389E+01  4.4848572795E+02  4.5427891949E+02  4.8500000000E+00 0.000000 9.000000
+</event>
+<event>
+7 54  1.0000000000E+00  8.5000000000E+01  1.1926507202E-01  7.8125000000E-03
+2 -1 0 0 500 0  0.0000000000E+00  0.0000000000E+00  1.0468634250E+03  1.0468634250E+03  0.0000000000E+00 0.000000 9.000000
+21 -1 0 0 501 502  0.0000000000E+00  0.0000000000E+00 -6.2630679723E+01  6.2630679723E+01  0.0000000000E+00 0.000000 9.000000
+14 1 1 2 0 0  7.8677231212E+01 -3.4092681260E+01  1.1516490538E+02  1.4358054554E+02  0.0000000000E+00 0.000000 9.000000
+-13 1 1 2 0 0 -1.5359972218E+01  1.0561746879E+01  3.2296138979E+01  3.7289824358E+01  1.0566000000E-01 0.000000 9.000000
+3 1 1 2 500 0  3.3257240607E+00  1.5621682953E+01  7.7585810036E+02  7.7602248872E+02  1.1700000000E-01 0.000000 9.000000
+5 1 1 2 501 0 -1.0116977382E+00 -1.2199283582E+01 -3.3371408090E+01  3.5875053033E+01  4.8500000000E+00 0.000000 9.000000
+-5 1 1 2 0 502 -6.5631285316E+01  2.0108535009E+01  9.4285008640E+01  1.1672619306E+02  4.8500000000E+00 0.000000 9.000000
+</event>
+<event>
+7 40  1.0000000000E+00  8.5000000000E+01  1.1926507202E-01  7.8125000000E-03
+21 -1 0 0 500 502  0.0000000000E+00  0.0000000000E+00  1.3495658763E+02  1.3495658763E+02  0.0000000000E+00 0.000000 9.000000
+2 -1 0 0 501 0  0.0000000000E+00  0.0000000000E+00 -1.3611997646E+03  1.3611997646E+03  0.0000000000E+00 0.000000 9.000000
+14 1 1 2 0 0 -4.2071421182E+00  2.4258595721E+01 -4.2974605162E+01  4.9527731626E+01  0.0000000000E+00 0.000000 9.000000
+-13 1 1 2 0 0  3.7496848215E+01 -4.3254567745E+01 -1.0755330789E+02  1.2183881344E+02  1.0566000000E-01 0.000000 9.000000
+1 1 1 2 501 0 -1.6997111369E+01 -1.2730942292E+01 -1.1749268095E+03  1.1751187116E+03  0.0000000000E+00 0.000000 9.000000
+5 1 1 2 500 0  1.7064417085E+01  5.0531811922E+01  1.2848554612E+01  5.5075096025E+01  4.8500000000E+00 0.000000 9.000000
+-5 1 1 2 0 502 -3.3357011812E+01 -1.8804897606E+01  8.6362990993E+01  9.4595999515E+01  4.8500000000E+00 0.000000 9.000000
+</event>
+<event>
+6 11  1.0000000000E+00  8.5000000000E+01  1.1926507202E-01  7.8125000000E-03
+2 -1 0 0 500 0  0.0000000000E+00  0.0000000000E+00  2.1883760143E+03  2.1883760143E+03  0.0000000000E+00 0.000000 9.000000
+5 -1 0 0 501 0  0.0000000000E+00  0.0000000000E+00 -1.3986342056E+01  1.4803386914E+01  4.8500000000E+00 0.000000 9.000000
+14 1 1 2 0 0 -3.2587795855E+01  8.6756187108E+00  7.3440117646E+01  8.0812633162E+01  0.0000000000E+00 0.000000 9.000000
+-13 1 1 2 0 0  1.2220182148E+01  4.6492988001E+01  3.5346403842E+02  3.5671805169E+02  1.0566000000E-01 0.000000 9.000000
+1 1 1 2 500 0  2.2855091700E+01 -1.8621662283E+00  1.6767591520E+03  1.6769159421E+03  0.0000000000E+00 0.000000 9.000000
+5 1 1 2 501 0 -2.4874779930E+00 -5.3306440483E+01  7.0726364097E+01  8.8732774228E+01  4.8500000000E+00 0.000000 9.000000
+</event>
+<event>
+7 43  1.0000000000E+00  8.5000000000E+01  1.1926507202E-01  7.8125000000E-03
+2 -1 0 0 500 0  0.0000000000E+00  0.0000000000E+00  3.4886672326E+02  3.4886672326E+02  0.0000000000E+00 0.000000 9.000000
+21 -1 0 0 501 502  0.0000000000E+00  0.0000000000E+00 -1.5465701272E+02  1.5465701272E+02  0.0000000000E+00 0.000000 9.000000
+14 1 1 2 0 0  1.4322565004E+01  2.6022192489E+01 -1.4473125645E+01  3.3041817991E+01  0.0000000000E+00 0.000000 9.000000
+-13 1 1 2 0 0  2.7089615214E+01 -5.3424725092E+01  1.7659697556E+01  6.2449376182E+01  1.0566000000E-01 0.000000 9.000000
+1 1 1 2 500 0  1.6221938679E+01 -2.4335360824E+01  2.4729821660E+02  2.4902162359E+02  0.0000000000E+00 0.000000 9.000000
+5 1 1 2 501 0 -7.5995197966E+01  4.2372107691E+00  8.1993743753E+00  7.6707081219E+01  4.8500000000E+00 0.000000 9.000000
+-5 1 1 2 0 502  1.8361079069E+01  4.7500682659E+01 -6.4474452349E+01  8.2303836990E+01  4.8500000000E+00 0.000000 9.000000
+</event>
+<event>
+7 43  1.0000000000E+00  8.5000000000E+01  1.1926507202E-01  7.8125000000E-03
+2 -1 0 0 500 0  0.0000000000E+00  0.0000000000E+00  1.4160262732E+03  1.4160262732E+03  0.0000000000E+00 0.000000 9.000000
+21 -1 0 0 501 502  0.0000000000E+00  0.0000000000E+00 -6.3683644933E+01  6.3683644933E+01  0.0000000000E+00 0.000000 9.000000
+14 1 1 2 0 0 -2.6131687821E+01 -1.0877442499E+02  4.1616849774E+02  4.3094194406E+02  0.0000000000E+00 0.000000 9.000000
+-13 1 1 2 0 0 -6.3037203085E+00  1.4286340029E+01  4.5237594772E+01  4.7856948774E+01  1.0566000000E-01 0.000000 9.000000
+1 1 1 2 500 0  2.0287572583E+01  1.1406023258E+01  8.2594265226E+02  8.2627050521E+02  0.0000000000E+00 0.000000 9.000000
+5 1 1 2 501 0 -4.0712960030E+01  3.4302409289E+01  8.4469674620E+01  9.9964237744E+01  4.8500000000E+00 0.000000 9.000000
+-5 1 1 2 0 502  5.2860795576E+01  4.8779652418E+01 -1.9475791150E+01  7.4676282312E+01  4.8500000000E+00 0.000000 9.000000
+</event>
+<event>
+7 40  1.0000000000E+00  8.5000000000E+01  1.1926507202E-01  7.8125000000E-03
+21 -1 0 0 500 502  0.0000000000E+00  0.0000000000E+00  7.4042360621E+00  7.4042360621E+00  0.0000000000E+00 0.000000 9.000000
+2 -1 0 0 501 0  0.0000000000E+00  0.0000000000E+00 -2.8314893412E+03  2.8314893412E+03  0.0000000000E+00 0.000000 9.000000
+14 1 1 2 0 0 -2.5844741540E+00 -3.8937527547E+01 -8.9792129800E+02  8.9876886237E+02  0.0000000000E+00 0.000000 9.000000
+-13 1 1 2 0 0  3.8596654952E+01  2.4774132211E+01 -1.2993759560E+03  1.3001851197E+03  1.0566000000E-01 0.000000 9.000000
+1 1 1 2 501 0 -1.9900921331E+01  1.6888531918E+00 -5.9358600201E+02  5.9392191463E+02  0.0000000000E+00 0.000000 9.000000
+5 1 1 2 500 0 -1.6863079027E+01  7.6466546459E+00 -3.4070256806E+01  3.9078634321E+01  4.8500000000E+00 0.000000 9.000000
+-5 1 1 2 0 502  7.5181956018E-01  4.8278874981E+00  8.6840767725E-01  6.9390462053E+00  4.8500000000E+00 0.000000 9.000000
+</event>
+<event>
+7 43  1.0000000000E+00  8.5000000000E+01  1.1926507202E-01  7.8125000000E-03
+2 -1 0 0 500 0  0.0000000000E+00  0.0000000000E+00  4.1031886171E+02  4.1031886171E+02  0.0000000000E+00 0.000000 9.000000
+21 -1 0 0 501 502  0.0000000000E+00  0.0000000000E+00 -9.1757023200E+01  9.1757023200E+01  0.0000000000E+00 0.000000 9.000000
+14 1 1 2 0 0 -3.6821792632E+01 -7.0534349122E+00  5.1664675083E+01  6.3834426512E+01  0.0000000000E+00 0.000000 9.000000
+-13 1 1 2 0 0  1.4889123083E-01 -1.0429187123E+02  1.9442674919E+02  2.2063224727E+02  1.0566000000E-01 0.000000 9.000000
+1 1 1 2 500 0  8.7623400049E+01  1.0048242969E+02  7.7274792623E+01  1.5409728255E+02  0.0000000000E+00 0.000000 9.000000
+5 1 1 2 501 0 -4.5178590221E+01 -4.5008846454E+00  2.7110564187E-01  4.5661351001E+01  4.8500000000E+00 0.000000 9.000000
+-5 1 1 2 0 502 -5.7719084265E+00  1.5363761091E+01 -5.0754840273E+00  1.7850577577E+01  4.8500000000E+00 0.000000 9.000000
+</event>
+<event>
+6 9  1.0000000000E+00  8.5000000000E+01  1.1926507202E-01  7.8125000000E-03
+5 -1 0 0 500 0  0.0000000000E+00  0.0000000000E+00  1.9261961440E+02  1.9268066419E+02  4.8500000000E+00 0.000000 9.000000
+2 -1 0 0 501 0  0.0000000000E+00  0.0000000000E+00 -1.2219562830E+03  1.2219562830E+03  0.0000000000E+00 0.000000 9.000000
+14 1 1 2 0 0 -1.4200099568E+01 -2.8111111740E+01  6.2910642336E+00  3.2116271891E+01  0.0000000000E+00 0.000000 9.000000
+-13 1 1 2 0 0 -1.2523523769E+01  4.8007032486E+01  5.5554520889E+01  7.4483755081E+01  1.0566000000E-01 0.000000 9.000000
+3 1 1 2 501 0 -7.2567166142E+01 -2.9997935663E+01 -1.1749969637E+03  1.1776178277E+03  1.1700000000E-01 0.000000 9.000000
+5 1 1 2 500 0  9.9290789479E+01  1.0102014918E+01  8.3814709984E+01  1.3041909251E+02  4.8500000000E+00 0.000000 9.000000
+</event>
+<event>
+7 40  1.0000000000E+00  8.5000000000E+01  1.1926507202E-01  7.8125000000E-03
+21 -1 0 0 500 502  0.0000000000E+00  0.0000000000E+00  8.2326593784E+01  8.2326593784E+01  0.0000000000E+00 0.000000 9.000000
+2 -1 0 0 501 0  0.0000000000E+00  0.0000000000E+00 -1.1750088908E+03  1.1750088908E+03  0.0000000000E+00 0.000000 9.000000
+14 1 1 2 0 0 -9.3140302168E+01  4.0821440383E+01 -1.5953630979E+02  1.8919127893E+02  0.0000000000E+00 0.000000 9.000000
+-13 1 1 2 0 0 -6.9063938882E+01  3.1692678640E+01 -3.0751137238E+02  3.1676096483E+02  1.0566000000E-01 0.000000 9.000000
+1 1 1 2 501 0  6.8718883482E+01  6.8571746486E+01 -4.8557620999E+02  4.9518544513E+02  0.0000000000E+00 0.000000 9.000000
+5 1 1 2 500 0 -2.9226810469E+01 -1.4100805888E+01 -3.6633404760E+00  3.3014871503E+01  4.8500000000E+00 0.000000 9.000000
+-5 1 1 2 0 502  1.2271216804E+02 -1.2698505962E+02 -1.3639506433E+02  2.2318292414E+02  4.8500000000E+00 0.000000 9.000000
+</event>
+<event>
+6 3  1.0000000000E+00  8.5000000000E+01  1.1926507202E-01  7.8125000000E-03
+4 -1 0 0 500 0  0.0000000000E+00  0.0000000000E+00  3.0385719793E+01  3.0430485821E+01  1.6500000000E+00 0.000000 9.000000
+5 -1 0 0 501 0  0.0000000000E+00  0.0000000000E+00 -4.9108223251E+02  4.9110618158E+02  4.8500000000E+00 0.000000 9.000000
+14 1 1 2 0 0  3.8499708688E+01 -1.1444894318E+00 -1.5135290099E+02  1.5617694473E+02  0.0000000000E+00 0.000000 9.000000
+-13 1 1 2 0 0 -2.5913489139E+00 -8.1998669198E+00  8.8731746229E+00  1.2357074841E+01  1.0566000000E-01 0.000000 9.000000
+3 1 1 2 500 0  5.2029339720E+01  3.0994299374E+01 -1.5262429866E+02  1.6420075827E+02  1.1700000000E-01 0.000000 9.000000
+5 1 1 2 501 0 -8.7937699494E+01 -2.1649943023E+01 -1.6559248768E+02  1.8880188956E+02  4.8500000000E+00 0.000000 9.000000
+</event>
+<event>
+7 43  1.0000000000E+00  8.5000000000E+01  1.1926507202E-01  7.8125000000E-03
+2 -1 0 0 500 0  0.0000000000E+00  0.0000000000E+00  1.0203879341E+03  1.0203879341E+03  0.0000000000E+00 0.000000 9.000000
+21 -1 0 0 501 502  0.0000000000E+00  0.0000000000E+00 -6.2897951376E+01  6.2897951376E+01  0.0000000000E+00 0.000000 9.000000
+14 1 1 2 0 0 -3.0205454603E+01  2.6994947099E+01 -3.6952934420E+01  5.4832618202E+01  0.0000000000E+00 0.000000 9.000000
+-13 1 1 2 0 0 -5.2523101475E+00  2.3163193763E-01  3.6887715143E+01  3.7260637512E+01  1.0566000000E-01 0.000000 9.000000
+1 1 1 2 500 0  1.6986328854E+01 -2.9270190550E+00  8.7451362760E+02  8.7468347856E+02  0.0000000000E+00 0.000000 9.000000
+5 1 1 2 501 0  3.7691608152E+01 -3.7556954723E+01  7.3398979356E+01  9.0786093889E+01  4.8500000000E+00 0.000000 9.000000
+-5 1 1 2 0 502 -1.9220172255E+01  1.3257394742E+01  9.6425950003E+00  2.5723057267E+01  4.8500000000E+00 0.000000 9.000000
+</event>
+<event>
+6 8  1.0000000000E+00  8.5000000000E+01  1.1926507202E-01  7.8125000000E-03
+5 -1 0 0 500 0  0.0000000000E+00  0.0000000000E+00  3.0093425923E+01  3.0481745091E+01  4.8500000000E+00 0.000000 9.000000
+2 -1 0 0 501 0  0.0000000000E+00  0.0000000000E+00 -7.3348896456E+02  7.3348896456E+02  0.0000000000E+00 0.000000 9.000000
+14 1 1 2 0 0  6.2007816401E+01  5.2864025122E+01 -1.2881470630E+02  1.5242310522E+02  0.0000000000E+00 0.000000 9.000000
+-13 1 1 2 0 0 -7.9296013488E+00  2.7111398784E+01 -1.5614237416E+02  1.5867690031E+02  1.0566000000E-01 0.000000 9.000000
+1 1 1 2 501 0 -2.6334890142E+01 -6.7401848656E+01 -4.1564935031E+02  4.2190155020E+02  0.0000000000E+00 0.000000 9.000000
+5 1 1 2 500 0 -2.7743324909E+01 -1.2573575250E+01 -2.7891078627E+00  3.0969153916E+01  4.8500000000E+00 0.000000 9.000000
+</event>
+<event>
+6 26  1.0000000000E+00  8.5000000000E+01  1.1926507202E-01  7.8125000000E-03
+1 -1 0 0 500 0  0.0000000000E+00  0.0000000000E+00  2.4012033094E+03  2.4012033094E+03  0.0000000000E+00 0.000000 9.000000
+-5 -1 0 0 0 501  0.0000000000E+00  0.0000000000E+00 -1.9758984288E+01  2.0345514496E+01  4.8500000000E+00 0.000000 9.000000
+-14 1 1 2 0 0  6.4374211881E+01  1.3252796709E+01  1.1388031135E+02  1.3148536454E+02  0.0000000000E+00 0.000000 9.000000
+13 1 1 2 0 0 -9.5693794174E+00 -3.1835390045E+01  7.4683472389E+01  8.1747766293E+01  1.0566000000E-01 0.000000 9.000000
+2 1 1 2 500 0  8.6504458829E+00 -1.3802644354E+01  2.0346931759E+03  2.0347583795E+03  0.0000000000E+00 0.000000 9.000000
+-5 1 1 2 0 501 -6.3455278346E+01  3.2385237690E+01  1.5818736555E+02  1.7355731356E+02  4.8500000000E+00 0.000000 9.000000
+</event>
+<event>
+7 40  1.0000000000E+00  8.5000000000E+01  1.1926507202E-01  7.8125000000E-03
+21 -1 0 0 500 502  0.0000000000E+00  0.0000000000E+00  1.5787522918E+02  1.5787522918E+02  0.0000000000E+00 0.000000 9.000000
+2 -1 0 0 501 0  0.0000000000E+00  0.0000000000E+00 -5.9875552690E+02  5.9875552690E+02  0.0000000000E+00 0.000000 9.000000
+14 1 1 2 0 0 -1.5846581226E+01  9.2105190878E+00  2.2886420450E+01  2.9321255761E+01  0.0000000000E+00 0.000000 9.000000
+-13 1 1 2 0 0 -6.8992332919E+01 -4.2695942060E+01 -4.9038122783E+01  9.4803133493E+01  1.0566000000E-01 0.000000 9.000000
+1 1 1 2 501 0  3.9677559247E+01  1.8419923268E+01 -4.6009382365E+02  4.6216872335E+02  0.0000000000E+00 0.000000 9.000000
+5 1 1 2 500 0  2.8771484316E+01  3.9474552771E+01 -5.0213926473E+01  7.0221076167E+01  4.8500000000E+00 0.000000 9.000000
+-5 1 1 2 0 502  1.6389870582E+01 -2.4409053067E+01  9.5579154740E+01  1.0011656731E+02  4.8500000000E+00 0.000000 9.000000
+</event>
+<event>
+7 62  1.0000000000E+00  8.5000000000E+01  1.1926507202E-01  7.8125000000E-03
+-1 -1 0 0 0 501  0.0000000000E+00  0.0000000000E+00  1.3056647727E+02  1.3056647727E+02  0.0000000000E+00 0.000000 9.000000
+21 -1 0 0 500 502  0.0000000000E+00  0.0000000000E+00 -4.0556631765E+02  4.0556631765E+02  0.0000000000E+00 0.000000 9.000000
+14 1 1 2 0 0  5.8086049739E+01  1.2196856682E+01 -2.1818877527E+01  6.3236191408E+01  0.0000000000E+00 0.000000 9.000000
+-13 1 1 2 0 0 -1.7059956556E+01 -1.3979149338E+01 -6.7853164156E+00  2.3076187224E+01  1.0566000000E-01 0.000000 9.000000
+-2 1 1 2 0 501  4.2042928400E+01  2.2528621944E+01  7.8761239867E+01  9.2078659528E+01  0.0000000000E+00 0.000000 9.000000
+5 1 1 2 500 0 -8.4227892506E+01 -2.0973164325E+01 -9.9902356242E+01  1.3243192508E+02  4.8500000000E+00 0.000000 9.000000
+-5 1 1 2 0 502  1.1588709218E+00  2.2683503724E-01 -2.2525453007E+02  2.2530983168E+02  4.8500000000E+00 0.000000 9.000000
+</event>
+<event>
+7 40  1.0000000000E+00  8.5000000000E+01  1.1926507202E-01  7.8125000000E-03
+21 -1 0 0 500 502  0.0000000000E+00  0.0000000000E+00  5.3999279325E+02  5.3999279325E+02  0.0000000000E+00 0.000000 9.000000
+2 -1 0 0 501 0  0.0000000000E+00  0.0000000000E+00 -7.0742874312E+02  7.0742874312E+02  0.0000000000E+00 0.000000 9.000000
+14 1 1 2 0 0  6.1717511223E+01 -6.0489434625E+01 -1.0896887518E+02  1.3907637704E+02  0.0000000000E+00 0.000000 9.000000
+-13 1 1 2 0 0  4.3103286192E+00  1.1889829218E+00  1.3274198825E+01  1.4007431302E+01  1.0566000000E-01 0.000000 9.000000
+1 1 1 2 501 0 -9.7218146055E+01  9.3837328907E+01 -5.1113458922E+02  5.2869214153E+02  0.0000000000E+00 0.000000 9.000000
+5 1 1 2 500 0 -5.5258524502E+00 -1.1552347062E+02 -1.5821969656E+00  1.1576801439E+02  4.8500000000E+00 0.000000 9.000000
+-5 1 1 2 0 502  3.6716158663E+01  8.0986593413E+01  4.4097551266E+02  4.4987757211E+02  4.8500000000E+00 0.000000 9.000000
+</event>
+<event>
+6 26  1.0000000000E+00  8.5000000000E+01  1.1926507202E-01  7.8125000000E-03
+1 -1 0 0 500 0  0.0000000000E+00  0.0000000000E+00  2.1147304693E+02  2.1147304693E+02  0.0000000000E+00 0.000000 9.000000
+-5 -1 0 0 0 501  0.0000000000E+00  0.0000000000E+00 -1.1351305835E+02  1.1361662254E+02  4.8500000000E+00 0.000000 9.000000
+-14 1 1 2 0 0 -1.8746828270E+01 -4.8069872291E+01 -3.3944153006E+01  6.1760519068E+01  0.0000000000E+00 0.000000 9.000000
+13 1 1 2 0 0  1.8313302647E+01  5.4861879594E+00  2.3194202421E+01  3.0057569798E+01  1.0566000000E-01 0.000000 9.000000
+2 1 1 2 500 0 -1.9095769867E+01 -3.7889027958E+01  1.3871676598E+02  1.4506056677E+02  0.0000000000E+00 0.000000 9.000000
+-5 1 1 2 0 501  1.9529295489E+01  8.0472712289E+01 -3.0006826819E+01  8.8211013832E+01  4.8500000000E+00 0.000000 9.000000
+</event>
+<event>
+7 43  1.0000000000E+00  8.5000000000E+01  1.1926507202E-01  7.8125000000E-03
+2 -1 0 0 500 0  0.0000000000E+00  0.0000000000E+00  5.2688423936E+02  5.2688423936E+02  0.0000000000E+00 0.000000 9.000000
+21 -1 0 0 501 502  0.0000000000E+00  0.0000000000E+00 -4.0142702614E+02  4.0142702614E+02  0.0000000000E+00 0.000000 9.000000
+14 1 1 2 0 0  2.6060334087E+01 -4.5834987773E+01 -9.7913916757E+00  5.3627031130E+01  0.0000000000E+00 0.000000 9.000000
+-13 1 1 2 0 0 -4.7524728931E+00  2.6824392924E+00 -9.2548565396E+01  9.2709382482E+01  1.0566000000E-01 0.000000 9.000000
+1 1 1 2 500 0 -1.2443543789E+00  1.6372511306E+02  4.5175945514E+02  4.8051437687E+02  0.0000000000E+00 0.000000 9.000000
+5 1 1 2 501 0 -3.9231705719E+01 -1.3303116864E+02 -8.9849144723E+01  1.6532637379E+02  4.8500000000E+00 0.000000 9.000000
+-5 1 1 2 0 502  1.9168198904E+01  1.2458604059E+01 -1.3411314013E+02  1.3613410124E+02  4.8500000000E+00 0.000000 9.000000
+</event>
+<event>
+6 26  1.0000000000E+00  8.5000000000E+01  1.1926507202E-01  7.8125000000E-03
+1 -1 0 0 500 0  0.0000000000E+00  0.0000000000E+00  8.8897278708E+02  8.8897278708E+02  0.0000000000E+00 0.000000 9.000000
+-5 -1 0 0 0 501  0.0000000000E+00  0.0000000000E+00 -3.5049840814E+01  3.5383807612E+01  4.8500000000E+00 0.000000 9.000000
+-14 1 1 2 0 0 -8.7794013686E+00  4.1045429139E+01  2.7940929532E+01  5.0423215732E+01  0.0000000000E+00 0.000000 9.000000
+13 1 1 2 0 0 -2.8148831155E+01 -3.0476393860E+01  6.6315286413E+01  7.8223370256E+01  1.0566000000E-01 0.000000 9.000000
+2 1 1 2 500 0 -4.9027299700E+01  1.9667451218E+00  6.6625385592E+02  6.6805818962E+02  0.0000000000E+00 0.000000 9.000000
+-5 1 1 2 0 501  8.5955532223E+01 -1.2535780400E+01  9.3412874407E+01  1.2765181908E+02  4.8500000000E+00 0.000000 9.000000
+</event>
+<event>
+7 43  1.0000000000E+00  8.5000000000E+01  1.1926507202E-01  7.8125000000E-03
+2 -1 0 0 500 0  0.0000000000E+00  0.0000000000E+00  8.5790687144E+02  8.5790687144E+02  0.0000000000E+00 0.000000 9.000000
+21 -1 0 0 501 502  0.0000000000E+00  0.0000000000E+00 -8.7001004714E+01  8.7001004714E+01  0.0000000000E+00 0.000000 9.000000
+14 1 1 2 0 0 -2.5991935573E+01  8.7193189585E+00  1.9336935111E+02  1.9530313153E+02  0.0000000000E+00 0.000000 9.000000
+-13 1 1 2 0 0  1.5000541310E+01  6.7161669609E+01  1.4050000656E+02  1.5644797573E+02  1.0566000000E-01 0.000000 9.000000
+1 1 1 2 500 0  5.0109580151E+01 -6.2412500329E+00  2.5377012875E+02  2.5874543758E+02  0.0000000000E+00 0.000000 9.000000
+5 1 1 2 501 0 -4.3709606967E+01 -5.2551099030E+01  2.5309764625E+02  2.6221000894E+02  4.8500000000E+00 0.000000 9.000000
+-5 1 1 2 0 502  4.5914210793E+00 -1.7088639505E+01 -6.9831265944E+01  7.2201322363E+01  4.8500000000E+00 0.000000 9.000000
+</event>
+<event>
+6 5  1.0000000000E+00  8.5000000000E+01  1.1926507202E-01  7.8125000000E-03
+-3 -1 0 0 0 501  0.0000000000E+00  0.0000000000E+00  2.6754380433E+02  2.6754382992E+02  1.1700000000E-01 0.000000 9.000000
+5 -1 0 0 500 0  0.0000000000E+00  0.0000000000E+00 -2.2295340514E+02  2.2300615095E+02  4.8500000000E+00 0.000000 9.000000
+14 1 1 2 0 0 -1.3398877954E+01 -3.3551809683E+01 -1.1030304994E+02  1.1606901692E+02  0.0000000000E+00 0.000000 9.000000
+-13 1 1 2 0 0 -8.2980974466E+00 -2.1803004487E+01  1.0186759832E+01  2.5456053618E+01  1.0566000000E-01 0.000000 9.000000
+-4 1 1 2 0 501  9.9127272689E+01  2.0108671872E-01  2.1092910837E+02  2.3306665975E+02  1.6500000000E+00 0.000000 9.000000
+5 1 1 2 500 0 -7.7430297288E+01  5.5153727451E+01 -6.6222419069E+01  1.1595825058E+02  4.8500000000E+00 0.000000 9.000000
+</event>
+<event>
+6 8  1.0000000000E+00  8.5000000000E+01  1.1926507202E-01  7.8125000000E-03
+5 -1 0 0 500 0  0.0000000000E+00  0.0000000000E+00  5.7881571772E+01  5.8084411427E+01  4.8500000000E+00 0.000000 9.000000
+2 -1 0 0 501 0  0.0000000000E+00  0.0000000000E+00 -2.9593789012E+02  2.9593789012E+02  0.0000000000E+00 0.000000 9.000000
+14 1 1 2 0 0 -8.9226302017E+00 -2.0482130476E+01  3.2810578908E+01  3.9694648088E+01  0.0000000000E+00 0.000000 9.000000
+-13 1 1 2 0 0 -2.8377455902E+00 -3.5972726362E+01 -3.6404033190E+01  5.1257727598E+01  1.0566000000E-01 0.000000 9.000000
+1 1 1 2 501 0  2.8964482845E+01 -7.9744322117E+00 -1.6081928180E+02  1.6360126600E+02  0.0000000000E+00 0.000000 9.000000
+5 1 1 2 500 0 -1.7204107053E+01  6.4429289050E+01 -7.3643582260E+01  9.9468659864E+01  4.8500000000E+00 0.000000 9.000000
+</event>
+<event>
+7 40  1.0000000000E+00  8.5000000000E+01  1.1926507202E-01  7.8125000000E-03
+21 -1 0 0 500 502  0.0000000000E+00  0.0000000000E+00  2.7409002745E+01  2.7409002745E+01  0.0000000000E+00 0.000000 9.000000
+2 -1 0 0 501 0  0.0000000000E+00  0.0000000000E+00 -9.3892805936E+02  9.3892805936E+02  0.0000000000E+00 0.000000 9.000000
+14 1 1 2 0 0  2.7955270348E+01  5.9501084069E+01 -1.2835829307E+02  1.4421417248E+02  0.0000000000E+00 0.000000 9.000000
+-13 1 1 2 0 0 -4.8299876097E+01  3.0595976058E+01 -1.2440393627E+02  1.3691363082E+02  1.0566000000E-01 0.000000 9.000000
+1 1 1 2 501 0 -4.5237530899E+01 -5.9805701007E+01 -5.3707886115E+02  5.4228853867E+02  0.0000000000E+00 0.000000 9.000000
+5 1 1 2 500 0  5.3181218213E+01 -2.7275825740E+01 -1.0837628107E+02  1.2385940997E+02  4.8500000000E+00 0.000000 9.000000
+-5 1 1 2 0 502  1.2400918434E+01 -3.0155333790E+00 -1.3301685055E+01  1.9061310156E+01  4.8500000000E+00 0.000000 9.000000
+</event>
+<event>
+7 43  1.0000000000E+00  8.5000000000E+01  1.1926507202E-01  7.8125000000E-03
+2 -1 0 0 500 0  0.0000000000E+00  0.0000000000E+00  6.5982375258E+02  6.5982375258E+02  0.0000000000E+00 0.000000 9.000000
+21 -1 0 0 501 502  0.0000000000E+00  0.0000000000E+00 -3.3911702052E+01  3.3911702052E+01  0.0000000000E+00 0.000000 9.000000
+14 1 1 2 0 0 -1.1765770218E+01  5.2840359238E+01  1.0479372313E+02  1.1795024935E+02  0.0000000000E+00 0.000000 9.000000
+-13 1 1 2 0 0  2.8590852297E+00 -2.3560725533E+01  1.3082565679E+02  1.3296106872E+02  1.0566000000E-01 0.000000 9.000000
+1 1 1 2 500 0  2.2646843967E+01 -3.2537427109E+01  3.0675857835E+02  3.0930953606E+02  0.0000000000E+00 0.000000 9.000000
+5 1 1 2 501 0 -3.1116895163E+01 -2.0571529060E+01 -6.9227898189E+00  3.8247829890E+01  4.8500000000E+00 0.000000 9.000000
+-5 1 1 2 0 502  1.7376736184E+01  2.3829322463E+01  9.0456882071E+01  9.5266770615E+01  4.8500000000E+00 0.000000 9.000000
+</event>
+<event>
+6 8  1.0000000000E+00  8.5000000000E+01  1.1926507202E-01  7.8125000000E-03
+5 -1 0 0 500 0  0.0000000000E+00  0.0000000000E+00  2.6257486432E+02  2.6261965248E+02  4.8500000000E+00 0.000000 9.000000
+2 -1 0 0 501 0  0.0000000000E+00  0.0000000000E+00 -9.3452930183E+02  9.3452930183E+02  0.0000000000E+00 0.000000 9.000000
+14 1 1 2 0 0  3.6976441939E+01  3.4002644962E+01  7.3391541737E+01  8.8936806336E+01  0.0000000000E+00 0.000000 9.000000
+-13 1 1 2 0 0 -7.0842079571E+00 -2.0932282538E+01 -3.6384667960E+00  2.2396340311E+01  1.0566000000E-01 0.000000 9.000000
+1 1 1 2 501 0 -8.4493855404E+01  1.0260659258E+02 -8.8427754757E+02  8.9421144344E+02  0.0000000000E+00 0.000000 9.000000
+5 1 1 2 500 0  5.4601621423E+01 -1.1567695500E+02  1.4257003511E+02  1.9160436423E+02  4.8500000000E+00 0.000000 9.000000
+</event>
+<event>
+6 9  1.0000000000E+00  8.5000000000E+01  1.1926507202E-01  7.8125000000E-03
+5 -1 0 0 500 0  0.0000000000E+00  0.0000000000E+00  3.6519317794E+01  3.6839965691E+01  4.8500000000E+00 0.000000 9.000000
+2 -1 0 0 501 0  0.0000000000E+00  0.0000000000E+00 -1.0109078407E+03  1.0109078407E+03  0.0000000000E+00 0.000000 9.000000
+14 1 1 2 0 0  1.7388688366E+01 -1.1409311447E+01 -3.5141360342E+01  4.0834471681E+01  0.0000000000E+00 0.000000 9.000000
+-13 1 1 2 0 0 -8.5224357904E+01 -2.9933898942E+01 -2.5186616248E+02  2.6757392334E+02  1.0566000000E-01 0.000000 9.000000
+3 1 1 2 501 0  7.3318681132E+01  6.4101005931E+01 -7.0369182637E+02  7.1039902038E+02  1.1700000000E-01 0.000000 9.000000
+5 1 1 2 500 0 -5.4830115934E+00 -2.2757795542E+01  1.6310826314E+01  2.8940390963E+01  4.8500000000E+00 0.000000 9.000000
+</event>
+</LesHouchesEvents>

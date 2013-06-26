@@ -1,0 +1,40 @@
+
+<diffline expr="(Begin processing the \S* record)">
+<diffline expr="(found \S* particles)">
+
+<var name="TEST_GLOBAL_TAG" value="MC_39Y_V5">
+
+<environment name="Pt10">
+
+  <var name="TEST_RAW_FILE" value="SingleElectronPt10Raw.root">
+  <var name="TEST_RECO_FILE" value="SingleElectronPt10.root">
+  <executable name="cmsDriver.py" args="SingleElectronPt10.cfi -s GEN,SIM,DIGI,L1,DIGI2RAW,HLT -n 3 --eventcontent FEVTDEBUGHLT --conditions FrontierConditions_GlobalTag,${TEST_GLOBAL_TAG}::All --python_filename=SingleElectronPt10Raw.py --fileout=$TEST_RAW_FILE">
+  <executable name="cmsRun" args="egammaRawDataToGsfElectrons_cfg.py">
+
+</environment>
+
+<environment name="Qcd">
+
+  <var name="TEST_RAW_FILE" value="QCD_Pt_80_120_Raw.root">
+  <var name="TEST_RECO_FILE" value="QCD_Pt_80_120.root">
+  <executable name="cmsDriver.py" args="QCD_Pt_80_120.cfi -s GEN,SIM,DIGI,L1,DIGI2RAW -n 10 --eventcontent FEVTDEBUGHLT --conditions FrontierConditions_GlobalTag,${TEST_GLOBAL_TAG}::All --python_filename=QCD_Pt_80_120_Raw.py --fileout=$TEST_RAW_FILE">
+  <executable name="cmsRun" args="egammaRawDataToGsfElectrons_cfg.py">
+
+</environment>
+
+<environment name="Pt35">
+
+  Here we try to redo the electrons starting from the core electrons
+  from previous rel val samples.
+
+  <!--var name="TEST_GLOBAL_TAG" value="MC_31X_V8"-->
+  <var name="TEST_RECO_FILE" value="SingleElectronPt35.root">
+  <var name="DBS_RELEASE" value="CMSSW_3_10_0_pre5">
+  <var name="DBS_TIER" value="-RECO">
+  <var name="DBS_COND" value="${TEST_GLOBAL_TAG}-v*">
+  <var name="DBS_SAMPLE" value="RelValSingleElectronPt35">
+  <executable name="dbs_discovery.py">
+  <executable name="cmsRun" args="egammaCoresToGsfElectrons_cfg.py">
+
+</environment>
+

@@ -1,0 +1,290 @@
+			MessageLogger Design
+			--------------------
+Glossary
+--------
+
+KitchenSink		Initializes certain static-lifetime entities
+			which need to be around before any subtantive
+			code in main() is done.  Instantiated at the
+			begining of main(); goes out of scope only when
+			main() terminates.  We rely on precisely one
+			KitchenSink to be instantiated.
+
+MessageLoggerSpigot	Owns the messageLoggerScribe thread -- it starts it,
+			it makes it (tells it to) go away.  Concpetually
+			a destructible singleton:  We rely on the fact that
+			the dtor is invoked at the end of the job, to
+			cleanly terminate the messageLoggerScribe thread.
+			Instantiated early in instantiation of a KitchenSink.
+			We do not use the DestructibleSingleton pattern
+			because we want to keep the code reuired in
+			KitchenSink as trivial as possible.
+
+MessageLoggerQ		Interthread communication buffer of MessageLoggerSlot
+			blocks.  Handles all the locking, blocking, sleeping,
+			waking, etc.  Singleton.  Makes use of framework's
+			Interthread communication buffer mechanism.
+
+MessageLoggerScribe	Singleton, responsible for creating, owning, and
+			managing the (single) ErrorLog and for consuming
+			MessageLoggerSlot blocks from the MessageLoggerQ.
+
+MessageSender		Primary interface between the user composing a
+			message (by invoking LogWarning or the like) and
+			the MessageLoggerQ, for which it acts as a producer.
+
+MessageLogger		A framework service, which when started up (and
+			possibly at other times) passes	parameter-set
+			or other information via the  MessageLoggerQ
+			for purpose of configuring the behavior of the
+			ErrorLog owned by MessageLoggerScribe.
+
+===========================================================================
+int
+main() {
+ KitchenSink ks;
+ .
+ .
+ .
+}
+
+struct
+KitchenSink {
+ KitchenSink() : theMessageLoggerSpigot(),	// The order is chosen carefully
+		 theAccountingSpigot(),
+		 ... {}
+ private:
+ MessageLoggerSpigot theMessageLoggerSpigot;   // If we want everything else
+					       // to be MessageLogger ready,
+					       // then this spigot goes first
+ // ...
+};
+
+MessageLoggerQ * messageLoggerQ() {
+  static MessageLoggerQ q(500,sizeof(MessageLoggerSlot));
+  return &q;
+}
+
+
+// The purpose of MessageLoggerSpigot is to own the messageLoggerScribe
+// thread -- it starts it, it makes it (tells it to) go away.
+
+// This should be a singleton in fact.
+
+struct
+MessageLoggerSpigot {
+ MessageLoggerSpigot() {
+   startAthread (messageLoggerScribe);
+ }
+ ~MessageLoggerSpigot() {
+  UnstructuredQslot * s = messageLoggerQ()->getSlot();
+  MessageLoggerSlotRaw * mx = static_cast<MessageLoggerSlotRaw *> (s);
+  mx->command = DIE;
+  s->commmit();
+ }
+};
+
+
+void messageLoggerScribe() {
+ MessageLoggerScribe m;
+ m.activate();
+}
+
+struct MessageLoggerScribe {
+ MessageLoggerScribe() {
+  logger = ELadministrator::instance();
+  earlyOutput = logger->attach(ELoutput ( cerr ));
+  // possibly modify some behaviors of logger or earlyOutput here
+  errlogp = new ErrorLog();
+ }
+ void activate() {
+  bool dontDie = true;
+  while (dontDie) {
+   ProducerBuffer b ( messageLoggerQ() );
+   MessageLoggerSlotRaw * mx = static_cast<MessageLoggerSlotRaw*>(b.buffer());
+   switch (mx.command) {
+    case LOG:
+    {
+     MessageLoggerSlot m = static_cast<MessageLoggerSlot> m;
+     auto_ptr<ErrorObj> ep (m->ep);
+     (*errlogp) << *ep;
+    } break;
+    case SETUP_USING_PARAMETERS:
+    {
+      edm::ParameterSet * params (mx-> params);
+      logger->detach(earlyOutput);
+      setupErrorLogger ( logger, params );
+    } break;
+    case STATISTICS:
+    {
+    } break;
+    case OTHER_TYPE_OF_CONTROL:
+    {
+    } break;
+    case DIE:
+    {
+     dontDie = false;
+    } break;
+   }
+  // I think the buffer should be put back into the pool here.
+  }
+ }
+ ~MessageLoggerScribe() {
+  errlogp->emit_statistics();
+  delete errlogp;
+ }
+ ErrorLog * errlogp;
+ ELadministrator * logger;
+ ELdestControl earlyOutput;
+};
+
+
+class MessageLoggerQ /* not written by us, part of framework */ {
+public:
+  MessageLoggerQ(int howManySlots, size_t sizeOfEachSlot);
+  UnstructuredQSlot * getSlot();
+
+};
+
+
+struct MessageSender {
+  MessageSender(sev,id) : ep(new ErrorObj(sev,id)) {}
+  template <typename T>
+  operator<<(const T& t) { *ep << t; }
+  ~MessageSender() {
+    UnstructuredQslot * s = messageLoggerQ()->getSlot();
+    MessageLoggerSlot * m = static_cast<MessageLoggerSlot *> (s);
+    m->command = LOG;
+    m->Object = ep;
+    s->commit();
+  }
+  boost::shared_ptr<ErrorObj> ep;
+};
+
+MessageLogger::MessageLogger ( const edm::parameter_set & p, ... ) {
+  UnstructuredQslot * s = messageLoggerQ()->getSlot();
+  MessageLoggerSetupSlot * ms = static_cast<MessageLoggerSetupSlot *> (s);
+  ms.params = p;
+  ms.command = SETUP_USING_PARAMETERS;
+  s->commit();
+}
+
+MessageSender LogWarning (const char* id)
+{
+  return MessageSender (ELwarning, id);
+}
+
+1) a pre-services activity issues a LogError("id"):
+
+  a) Because the first thing main does ins instantiate a KitchenSink,
+     and the first thing the ctor of KitchenSink does is instnatiate
+     a (default) MessageLoggerSpigot, the ctor of MessageLoggerSpigot
+     has already been called.
+
+  b) The ctor of MessageLoggerSpigot starts a thread, running
+     messageLoggerScribe, which instantiates a MessageLoggerScribe
+     and calls its activate() method.  So this will already have been done.
+
+  c) The ctor of MessageLoggerScribe has already attached an ELoutput (using
+     cerr) to the error logger.  So the errorLogger does have one sensible
+     destination.
+
+  d) The activate() member function is in a loop, getting a buffer from
+     the queue, which is found by invokiing messageLoggerQ(). messageLoggerQ()
+     has a function-level static MessageLoggerQ, so even if this was not
+     in place before, that queue certainly exists by the time activate()
+     tries to get a buffer.
+
+  d*)If the queue is empty, activate() sleeps at that point.  Eventually
+     somebody -- in fact, somebody we will encounter next in this story-line,
+     will obtain a buffer from the queue, fill it, and commit.  That will
+     cause the buffer() method to wake up, in possesion of a committed buffer.
+
+  e) One of the pre-services activities decides, for some reason, to issue
+     a message via (say) LogWarning.  The syntax of the statement issuing
+     the message is
+     LogWarning("myid") << a << b;
+
+  f) LogWarning is a free function, returning a MessageSender which it
+     constructs.  The MessageSender class contains an ErrorObj*, which
+     the ctor initializes to point to an ErrorObj on the heap, constructed
+     from ELwarning and myid.  This ErrorObj, though allocated via new,
+     will not be deleted explicitly by MessageSender - instead, an auto_ptr
+     will be formed to pass that duty onward.
+
+  g) The messageSender now has a couple of invocations of operator<<().  It
+     passes a and b on to its internal ErrorObj in the obvious manner.
+
+  h) At the end of the statement issuing the message, the MessageSender
+     returned by LogWarning goes out of scope and is destructed.
+
+  i) The dtor of MessageSender obtains a slot in the queue obtained by
+     messageLoggerQ().  It casts this unstructured slot into form for taking
+     a command and an auto_ptr to an ErrorObj.  It then fills that structure
+     with the command LOG and an auto_ptr to the on-the-heap ErrorObj
+     (at this point, it is relieved of responsibility for deleting the
+     ErrorObj).
+
+  j) The last act of the MessageSender dtor is to call the commit() member
+     function of the slot obtained.  Now we resolve the hanging execution
+     issue that we left at steps d and d*:  activate() has obtained a buffer.
+
+  k) The unstructured buffer is cast into a raw MessageLoggerSlot, and the
+     command member of that struct is examined and found (in this case) to
+     be LOG.
+
+  l) An auto_ptr<ErrorObj> is formed from the pointer sitting in the
+     raw slot.  This is done by casting the raw memory into its Message
+     SenderSlot form.  This is crucial because we had "lost" the auto_ptr
+     nature of that pointer.
+
+  m) The activate() is a member function of MessageLoggerScribe; it has
+     the class variable errlogp in scope.  *ep is sent (<<) to that
+     error logger.  Thus the message is formated and comes out in all
+     the destinations -- in this case just cerr -- attached to the logger.
+
+  n) At the end of the LOG case, the auto_ptr goes out of scope, thus deleting
+     the ErrorObj so that the memory on the heap is properly freed.
+
+  o) At the end of the switch on command, the buffer is replaced into the pool.
+     Since dontDie remains true, the loop continues -- and the
+     messageLoggerScribe thread immediately sleeps since now the queue is empty.
+     It is waiting for a new message or other command.
+
+2) a post-services activity issues a LogError("id"):
+
+
+
+3) end of job is reached (MessageLoggerSpigot is destructed):
+
+===========================================================================
+
+Design of interface to configure the MessageLogger service
+via a ParameterSet:
+
+Features wanted:
+  create an ELoutput destination
+  attaching an ELoutput destination
+  detaching an ELoutput destination
+  attaching a statistics destination
+
+  controlling a particular destination (ELunspecified == unrecognized sevLevel)
+    setLimit(ID,n)
+    setLimit(severity,n)
+    setLimit("*",n)
+    setThreshold(severity)
+    setTimespan(ID,sec)
+    setTimespan(severity,sec)
+    setTimespan("*",sec)
+
+===========================================================================
+
+Features not wanted:
+  ELcollected
+
+===========================================================================
+
+Future features?
+  contextSupplier
+  moduleName
+  processName (threadID?)

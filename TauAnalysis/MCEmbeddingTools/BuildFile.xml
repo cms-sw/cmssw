@@ -1,0 +1,23 @@
+<use   name="FWCore/Framework"/>
+<use   name="FWCore/PluginManager"/>
+<use   name="FWCore/ParameterSet"/>
+<use   name="rootmath"/>
+<use   name="boost"/>
+<use   name="SimDataFormats/GeneratorProducts"/>
+<use   name="DataFormats/HepMCCandidate"/>
+<use   name="RecoMuon/MuonIsolation"/>
+<use   name="DataFormats/DetId"/>
+<use   name="TrackingTools/TrackAssociator"/>
+<use   name="DataFormats/VertexReco"/>
+<use   name="CommonTools/Utils"/>
+<use   name="CommonTools/UtilAlgos"/>
+<use   name="GeneratorInterface/ExternalDecays"/>
+<use   name="DataFormats/MuonReco"/>
+<use   name="DataFormats/EcalRecHit"/>
+<use   name="pythia6"/>
+<use   name="GeneratorInterface/Pythia6Interface"/>
+<use   name="GeneratorInterface/Core"/>
+<export>
+  <lib   name="1"/>
+</export>
+

@@ -1,0 +1,8 @@
+<export>
+  <lib   name="1"/>
+</export>
+<use   name="FWCore/PluginManager"/>
+<use   name="FWCore/ParameterSet"/>
+<use   name="boost"/>
+<use   name="geant4core"/>
+<use   name="expat"/>

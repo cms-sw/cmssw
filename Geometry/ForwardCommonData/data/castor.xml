@@ -1,0 +1,982 @@
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
+    <SolidSection label="castor.xml">
+        <!--  -->
+        <!-- main CASTOR volume  -->
+        <!--  -->
+        <Polyhedra name="CAST" numSide="8" startPhi="0.0*deg" deltaPhi="360.0*deg">
+            <ZSection rMin="39.00*mm" rMax="40.00*mm" z="0.0*mm"/>
+            <ZSection rMin="39.00*mm" rMax="303.20*mm" z="263.2*mm"/>
+            <ZSection rMin="39.00*mm" rMax="303.20*mm" z="1320.1*mm"/>
+            <ZSection rMin="303.20*mm" rMax="303.20*mm" z="1583.3*mm"/>
+        </Polyhedra>
+        <!--  -->
+        <!--  -->
+        <!-- 5mm Aluminium, separating EM + H sections -->
+        <Polyhedra name="CAAI" numSide="8" startPhi="0.0*deg" deltaPhi="360.0*deg">
+            <ZSection rMin="40.00*mm" rMax="40.00*mm" z="0.0*mm"/>
+            <ZSection rMin="40.00*mm" rMax="45.00*mm" z="5.0*mm"/>
+            <ZSection rMin="139.50*mm" rMax="144.50*mm" z="104.5*mm"/>
+            <ZSection rMin="144.50*mm" rMax="144.50*mm" z="109.5*mm"/>
+        </Polyhedra>
+        <!--  -->
+        <!-- START OF ELECTROMAGNETIC CALO  -->
+        <!--  CASC - StainlessSteel -->
+        <Polyhedra name="CAEC" numSide="8" startPhi="0.0*deg" deltaPhi="360.0*deg">
+            <ZSection rMin="39.00*mm" rMax="40.00*mm" z="0.0*mm"/>
+            <ZSection rMin="39.00*mm" rMax="141.00*mm" z="102.0*mm"/>
+            <ZSection rMin="41.50*mm" rMax="144.50*mm" z="104.5*mm"/>
+            <ZSection rMin="144.50*mm" rMax="144.50*mm" z="207.5*mm"/>
+        </Polyhedra>
+        <!-- to have octant StainlessSteel skeleton to support WQ plates  -->
+        <!-- CASS sector - Air, 8 copies with deltaPhi=45.0  -->
+        <Polyhedra name="CAES" numSide="1" startPhi="0.0*deg" deltaPhi="45.0*deg">
+            <ZSection rMin="40.00*mm" rMax="40.00*mm" z="0.0*mm"/>
+            <ZSection rMin="40.00*mm" rMax="144.00*mm" z="103.0*mm"/>
+            <ZSection rMin="40.50*mm" rMax="144.50*mm" z="104.5*mm"/>
+            <ZSection rMin="144.50*mm" rMax="144.50*mm" z="207.5*mm"/>
+        </Polyhedra>
+        <!-- EM read-out channel  with StainlessSteel size  1 copy -->
+        <Polyhedra name="CAER" numSide="1" startPhi="0.0*deg" deltaPhi="45.0*deg">
+            <ZSection rMin="40.00*mm" rMax="40.00*mm" z="0.0*mm"/>
+            <ZSection rMin="40.00*mm" rMax="91.50*mm" z="51.5*mm"/>
+            <ZSection rMin="93.00*mm" rMax="144.50*mm" z="104.5*mm"/>
+            <ZSection rMin="144.50*mm" rMax="144.50*mm" z="156.0*mm"/>
+        </Polyhedra>
+        <!-- reduced rMin, rMax by (1.mm (StainlessSteel)/tg(22.5))= 2.41mm-->
+        <!-- the special X,Y shifts are needed  -->
+        <!-- the positions: x = 2.41*cos22.5 = 1.30, y=...sin...=0.54  1 copy     -->
+        <Polyhedra name="CERR" numSide="1" startPhi="0.0*deg" deltaPhi="45.0*deg">
+            <ZSection rMin="37.59*mm" rMax="37.59*mm" z="0.0*mm"/>
+            <ZSection rMin="37.59*mm" rMax="89.90*mm" z="51.5*mm"/>
+            <ZSection rMin="90.59*mm" rMax="142.09*mm" z="104.5*mm"/>
+            <ZSection rMin="142.09*mm" rMax="142.09*mm" z="156.0*mm"/>
+        </Polyhedra>
+        <!-- layer    5 copies (5.+2)*sqrt(2) + 0.40mm = 10.3 (7.07+2.83+0.40) -->
+        <!-- 0.4 mm air gap included -->
+        <!-- CAEL: Tungsten layer, CAEA: air layer, CAHF: quartz -->
+        <Polyhedra name="CAEL" numSide="1" startPhi="0.0*deg" deltaPhi="45.0*deg">
+            <ZSection rMin="37.59*mm" rMax="37.59*mm" z="0.0*mm"/>
+            <ZSection rMin="37.59*mm" rMax="47.89*mm" z="10.3*mm"/>
+            <ZSection rMin="131.79*mm" rMax="142.09*mm" z="104.5*mm"/>
+            <ZSection rMin="142.09*mm" rMax="142.09*mm" z="114.8*mm"/>
+        </Polyhedra>
+        <Polyhedra name="CAEA" numSide="1" startPhi="0.0*deg" deltaPhi="45.0*deg">
+            <ZSection rMin="37.59*mm" rMax="37.59*mm" z="0.0*mm"/>
+            <ZSection rMin="37.59*mm" rMax="40.82*mm" z="3.23*mm"/>
+            <ZSection rMin="138.86*mm" rMax="142.09*mm" z="104.5*mm"/>
+            <ZSection rMin="142.09*mm" rMax="142.09*mm" z="107.73*mm"/>
+        </Polyhedra>
+        <Polyhedra name="CAEF" numSide="1" startPhi="0.0*deg" deltaPhi="45.0*deg">
+            <ZSection rMin="37.59*mm" rMax="37.59*mm" z="0.0*mm"/>
+            <ZSection rMin="37.59*mm" rMax="40.42*mm" z="2.83*mm"/>
+            <ZSection rMin="139.26*mm" rMax="142.09*mm" z="104.5*mm"/>
+            <ZSection rMin="142.09*mm" rMax="142.09*mm" z="107.33*mm"/>
+        </Polyhedra>
+        <!-- shape to be used for Intersection to create C3TF,C4TF semi-trapezoid solids   -->
+        <!-- dz=Height of plate/2 + 3 mm (arbitrary) ; dy = B/2 -->
+        <Box name="C2EF" dz="76.890*mm" dy="28.79*mm" dx="1.495*mm"/>
+        <IntersectionSolid name="castor:C3EF">
+            <rSolid name="castor:CAEF"/>
+            <rSolid name="castor:C2EF"/>
+            <rRotation name="rotations:CARM"/>
+            <Translation x="94.02258*mm" y="7.7723*mm" z="52.9571*mm"/>
+        </IntersectionSolid>
+        <IntersectionSolid name="castor:C4EF">
+            <rSolid name="castor:CAEF"/>
+            <rSolid name="castor:C2EF"/>
+            <rRotation name="rotations:CARM"/>
+            <Translation x="71.98*mm" y="60.9877*mm" z="52.9571*mm"/>
+        </IntersectionSolid>
+        <!--  -->
+        <!-- tree with HADRONIC calorimeter  1 copy 8x14x7x(10.5) -->
+        <!--  -->
+        <!--  -->
+        <Polyhedra name="CAHC" numSide="8" startPhi="0.0*deg" deltaPhi="360.0*deg">
+            <ZSection rMin="39.00*mm" rMax="40.00*mm" z="0.0*mm"/>
+            <ZSection rMin="39.00*mm" rMax="178.40*mm" z="138.4*mm"/>
+            <ZSection rMin="39.00*mm" rMax="178.40*mm" z="1211.0*mm"/>
+            <ZSection rMin="178.40*mm" rMax="178.40*mm" z="1350.4*mm"/>
+        </Polyhedra>
+        <!-- to have octant StainlessSteel skeleton to support WQ plates  -->
+        <!-- CAHS sector - Air, 8 copies with deltaPhi=45.0  -->
+        <Polyhedra name="CAHS" numSide="1" startPhi="0.0*deg" deltaPhi="45.0*deg">
+            <ZSection rMin="40.00*mm" rMax="40.00*mm" z="0.0*mm"/>
+            <ZSection rMin="40.00*mm" rMax="178.40*mm" z="138.4*mm"/>
+            <ZSection rMin="40.00*mm" rMax="178.40*mm" z="1212.0*mm"/>
+            <ZSection rMin="178.40*mm" rMax="178.40*mm" z="1350.4*mm"/>
+        </Polyhedra>
+        <!-- HAD read-out channel  with StainlessSteel size  12 copies -->
+        <Polyhedra name="CAHR" numSide="1" startPhi="0.0*deg" deltaPhi="45.0*deg">
+            <ZSection rMin="40.00*mm" rMax="40.00*mm" z="0.0*mm"/>
+            <ZSection rMin="40.00*mm" rMax="141.00*mm" z="101.0*mm"/>
+            <ZSection rMin="77.40*mm" rMax="178.40*mm" z="138.4*mm"/>
+            <ZSection rMin="178.40*mm" rMax="178.40*mm" z="239.9*mm"/>
+        </Polyhedra>
+        <!-- reduced rMin,rMax by (1.mm (StainlessSteel)/tg(22.5))= 2.41mm-->
+        <!-- the special X,Y shifts are needed  -->
+        <!-- the positions: x = 2.41*cos22.5 = 1.30, y=...sin...=0.54  1 copy     -->
+        <Polyhedra name="CHRR" numSide="1" startPhi="0.0*deg" deltaPhi="45.0*deg">
+            <ZSection rMin="37.59*mm" rMax="37.59*mm" z="0.0*mm"/>
+            <ZSection rMin="37.59*mm" rMax="138.59*mm" z="101.0*mm"/>
+            <ZSection rMin="74.99*mm" rMax="175.99*mm" z="138.4*mm"/>
+            <ZSection rMin="175.99*mm" rMax="175.99*mm" z="239.9*mm"/>
+        </Polyhedra>
+        <!-- layer    7 copies (5.+2)*sqrt(2)+0.60=10.5  (7.07+2.83+0.60) -->
+        <Polyhedra name="CAHL" numSide="1" startPhi="0.0*deg" deltaPhi="45.0*deg">
+            <ZSection rMin="37.59*mm" rMax="37.59*mm" z="0.0*mm"/>
+            <ZSection rMin="37.59*mm" rMax="57.79*mm" z="20.2*mm"/>
+            <ZSection rMin="155.79*mm" rMax="175.99*mm" z="138.4*mm"/>
+            <ZSection rMin="175.99*mm" rMax="175.99*mm" z="158.6*mm"/>
+        </Polyhedra>
+        <Polyhedra name="CAHA" numSide="1" startPhi="0.0*deg" deltaPhi="45.0*deg">
+            <ZSection rMin="37.59*mm" rMax="37.59*mm" z="0.0*mm"/>
+            <ZSection rMin="37.59*mm" rMax="43.65*mm" z="6.06*mm"/>
+            <ZSection rMin="169.93*mm" rMax="175.99*mm" z="138.4*mm"/>
+            <ZSection rMin="175.99*mm" rMax="175.99*mm" z="144.46*mm"/>
+        </Polyhedra>
+        <Polyhedra name="CAHF" numSide="1" startPhi="0.0*deg" deltaPhi="45.0*deg">
+            <ZSection rMin="37.59*mm" rMax="37.59*mm" z="0.0*mm"/>
+            <ZSection rMin="37.59*mm" rMax="43.25*mm" z="5.66*mm"/>
+            <ZSection rMin="170.33*mm" rMax="175.99*mm" z="138.4*mm"/>
+            <ZSection rMin="175.99*mm" rMax="175.99*mm" z="144.06*mm"/>
+        </Polyhedra>
+        <!--  -->
+        <!--  -->
+        <!-- shape to be used for Intersection to create C3TF,C4TF solids   -->
+        <Box name="C2HF" dz="100.865*mm" dy="36.35*mm" dx="2.980*mm"/>
+        <IntersectionSolid name="castor:C3HF">
+            <rSolid name="castor:CAHF"/>
+            <rSolid name="castor:C2HF"/>
+            <rRotation name="rotations:CARM"/>
+            <Translation x="110.861741*mm" y="6.71078*mm" z="69.9071*mm"/>
+        </IntersectionSolid>
+        <IntersectionSolid name="castor:C4HF">
+            <rSolid name="castor:CAHF"/>
+            <rSolid name="castor:C2HF"/>
+            <rRotation name="rotations:CARM"/>
+            <Translation x="83.13641*mm" y="73.645852*mm" z="69.9071*mm"/>
+        </IntersectionSolid>
+        <!--  -->
+        <!-- tree with EM dead material  1 copy 8x2  -->
+        <!--  -->
+        <Polyhedra name="CEDC" numSide="8" startPhi="0.0*deg" deltaPhi="360.0*deg">
+            <ZSection rMin="144.50*mm" rMax="144.50*mm" z="104.5*mm"/>
+            <ZSection rMin="144.50*mm" rMax="247.50*mm" z="207.5*mm"/>
+            <ZSection rMin="200.20*mm" rMax="303.20*mm" z="263.2*mm"/>
+            <ZSection rMin="303.20*mm" rMax="303.20*mm" z="366.2*mm"/>
+        </Polyhedra>
+        <!-- one sector  8 copies -->
+        <Polyhedra name="CEDS" numSide="1" startPhi="0.0*deg" deltaPhi="45.0*deg">
+            <ZSection rMin="144.50*mm" rMax="144.50*mm" z="104.5*mm"/>
+            <ZSection rMin="144.50*mm" rMax="247.50*mm" z="207.5*mm"/>
+            <ZSection rMin="200.20*mm" rMax="303.20*mm" z="263.2*mm"/>
+            <ZSection rMin="303.20*mm" rMax="303.20*mm" z="366.2*mm"/>
+        </Polyhedra>
+        <!-- read-out channel  2 copies -->
+        <Polyhedra name="CEDR" numSide="1" startPhi="0.0*deg" deltaPhi="45.0*deg">
+            <ZSection rMin="144.50*mm" rMax="144.50*mm" z="104.5*mm"/>
+            <ZSection rMin="144.50*mm" rMax="196.00*mm" z="156.0*mm"/>
+            <ZSection rMin="251.70*mm" rMax="303.20*mm" z="263.2*mm"/>
+            <ZSection rMin="303.20*mm" rMax="303.20*mm" z="314.7*mm"/>
+        </Polyhedra>
+        <!--  Aluminium (1mm) compartment with Air lightguide (external part)  1 copy -->
+        <Polyhedra name="CEAL" numSide="1" startPhi="11.6287*deg" deltaPhi="21.74255*deg">
+            <ZSection rMin="67.6913*mm" rMax="67.6913*mm" z="13.50*mm"/>
+            <ZSection rMin="67.6913*mm" rMax="98.829*mm" z="39.5*mm"/>
+            <ZSection rMin="105.2413*mm" rMax="149.9623*mm" z="82.27*mm"/>
+            <ZSection rMin="149.9623*mm" rMax="149.9623*mm" z="133.27*mm"/>
+        </Polyhedra>
+        <!-- Air compartment - lightguide (internal part of LG)  1 copy -->
+        <Polyhedra name="CEAI" numSide="1" startPhi="11.6287*deg" deltaPhi="21.74255*deg">
+            <ZSection rMin="62.4836*mm" rMax="62.4836*mm" z="14.5*mm"/>
+            <ZSection rMin="62.4836*mm" rMax="91.2261*mm" z="38.5*mm"/>
+            <ZSection rMin="101.7908*mm" rMax="144.7546*mm" z="83.27*mm"/>
+            <ZSection rMin="144.7546*mm" rMax="144.7546*mm" z="132.27*mm"/>
+        </Polyhedra>
+        <!-- Air volume to be filled by PMT  1 copy -->
+        <!-- volume for PMT's -->
+        <!-- Air volume to be filled by PMT box   1 copy -->
+        <Polyhedra name="CEEL" numSide="1" startPhi="19.4709*deg" deltaPhi="6.0582*deg">
+            <ZSection rMin="226.771*mm" rMax="226.771*mm" z="214.771*mm"/>
+            <ZSection rMin="226.771*mm" rMax="250.771*mm" z="238.771*mm"/>
+            <ZSection rMin="258.271*mm" rMax="282.271*mm" z="270.271*mm"/>
+            <ZSection rMin="282.271*mm" rMax="282.271*mm" z="294.271*mm"/>
+        </Polyhedra>
+        <!-- -->
+        <!--  -->
+        <!-- tree with Hadronic dead material  1 copy 8x12 -->
+        <!--  -->
+        <Polyhedra name="CHDC" numSide="8" startPhi="0.0*deg" deltaPhi="360.0*deg">
+            <ZSection rMin="178.40*mm" rMax="178.40*mm" z="241.4*mm"/>
+            <ZSection rMin="178.40*mm" rMax="303.20*mm" z="366.2*mm"/>
+            <ZSection rMin="178.40*mm" rMax="303.20*mm" z="1453.4*mm"/>
+            <ZSection rMin="303.20*mm" rMax="303.20*mm" z="1578.2*mm"/>
+        </Polyhedra>
+        <!-- one sector  8 copies -->
+        <!-- radius of LG + PMT housing = 124.8 mm -->
+        <Polyhedra name="CHDS" numSide="1" startPhi="0.0*deg" deltaPhi="45.0*deg">
+            <ZSection rMin="178.40*mm" rMax="178.40*mm" z="241.4*mm"/>
+            <ZSection rMin="178.40*mm" rMax="303.20*mm" z="366.2*mm"/>
+            <ZSection rMin="178.40*mm" rMax="303.20*mm" z="1453.4*mm"/>
+            <ZSection rMin="303.20*mm" rMax="303.20*mm" z="1578.2*mm"/>
+        </Polyhedra>
+        <!-- read-out channel  12 copies -->
+        <Polyhedra name="CHDR" numSide="1" startPhi="0.0*deg" deltaPhi="45.0*deg">
+            <ZSection rMin="178.40*mm" rMax="178.40*mm" z="241.4*mm"/>
+            <ZSection rMin="178.40*mm" rMax="279.40*mm" z="342.4*mm"/>
+            <ZSection rMin="217.60*mm" rMax="303.20*mm" z="381.6*mm"/>
+            <ZSection rMin="303.20*mm" rMax="303.20*mm" z="467.2*mm"/>
+        </Polyhedra>
+        <!--  Aluminium (1mm) compartment with Air lightguide (external part)  1 copy -->
+        <Polyhedra name="CHAL" numSide="1" startPhi="7.1364*deg" deltaPhi="30.7273*deg">
+            <ZSection rMin="45.1808*mm" rMax="45.1808*mm" z="21.65*mm"/>
+            <ZSection rMin="45.1808*mm" rMax="83.2830*mm" z="48.65*mm"/>
+            <ZSection rMin="64.6976*mm" rMax="119.3108*mm" z="74.13*mm"/>
+            <ZSection rMin="119.3108*mm" rMax="119.3108*mm" z="145.43*mm"/>
+        </Polyhedra>
+        <Polyhedra name="CHAI" numSide="1" startPhi="7.1364*deg" deltaPhi="30.7273*deg">
+            <ZSection rMin="43.5074*mm" rMax="43.5074*mm" z="22.15*mm"/>
+            <ZSection rMin="43.5074*mm" rMax="80.1985*mm" z="48.15*mm"/>
+            <ZSection rMin="63.7902*mm" rMax="117.6374*mm" z="74.63*mm"/>
+            <ZSection rMin="117.6374*mm" rMax="117.6374*mm" z="144.93*mm"/>
+        </Polyhedra>
+        <!-- Air volume to be filled by PMT  1 copy -->
+        <!-- volume for PMT's -->
+        <Polyhedra name="CHEL" numSide="1" startPhi="19.5531*deg" deltaPhi="5.89386*deg">
+            <ZSection rMin="252.53*mm" rMax="252.53*mm" z="239.53*mm"/>
+            <ZSection rMin="252.53*mm" rMax="278.53*mm" z="264.53*mm"/>
+            <ZSection rMin="277.20*mm" rMax="303.20*mm" z="290.2*mm"/>
+            <ZSection rMin="303.20*mm" rMax="303.20*mm" z="316.2*mm"/>
+        </Polyhedra>
+    </SolidSection>
+    <!--  -->
+    <!-- MATERIALS -->
+    <LogicalPartSection label="castor.xml">
+        <!--  -->
+        <!--  -->
+        <LogicalPart name="CAST" category="unspecified">
+            <rSolid name="CAST"/>
+            <rMaterial name="materials:Air"/>
+        </LogicalPart>
+        <!-- -->
+        <!--  Aluminium separation of EM+H sections  -->
+        <LogicalPart name="CAAI" category="unspecified">
+            <rSolid name="CAAI"/>
+            <rMaterial name="materials:Aluminium"/>
+        </LogicalPart>
+        <!-- -->
+        <!--  Materials for EM calorimeter -->
+        <!-- -->
+        <LogicalPart name="CAEC" category="unspecified">
+            <rSolid name="CAEC"/>
+            <rMaterial name="materials:StainlessSteel"/>
+        </LogicalPart>
+        <LogicalPart name="CAES" category="unspecified">
+            <rSolid name="CAES"/>
+            <rMaterial name="materials:StainlessSteel"/>
+        </LogicalPart>
+        <LogicalPart name="CAER" category="unspecified">
+            <rSolid name="CAER"/>
+            <rMaterial name="materials:StainlessSteel"/>
+        </LogicalPart>
+        <LogicalPart name="CERR" category="unspecified">
+            <rSolid name="CERR"/>
+            <rMaterial name="materials:Air"/>
+        </LogicalPart>
+        <LogicalPart name="CAEL" category="unspecified">
+            <rSolid name="CAEL"/>
+            <rMaterial name="materials:Tungsten"/>
+        </LogicalPart>
+        <LogicalPart name="CAEA" category="unspecified">
+            <rSolid name="CAEA"/>
+            <rMaterial name="materials:Air"/>
+        </LogicalPart>
+        <LogicalPart name="CAEF" category="unspecified">
+            <rSolid name="CAEF"/>
+            <rMaterial name="materials:Air"/>
+        </LogicalPart>
+        <!-- quartz plates -->
+        <LogicalPart name="C3EF" category="unspecified">
+            <rSolid name="C3EF"/>
+            <rMaterial name="materials:Quartz"/>
+        </LogicalPart>
+        <LogicalPart name="C4EF" category="unspecified">
+            <rSolid name="C4EF"/>
+            <rMaterial name="materials:Quartz"/>
+        </LogicalPart>
+        <!-- dead volume materials -->
+        <LogicalPart name="CEDC" category="unspecified">
+            <rSolid name="CEDC"/>
+            <rMaterial name="materials:Air"/>
+        </LogicalPart>
+        <LogicalPart name="CEDS" category="unspecified">
+            <rSolid name="CEDS"/>
+            <rMaterial name="materials:Air"/>
+        </LogicalPart>
+        <LogicalPart name="CEDR" category="unspecified">
+            <rSolid name="CEDR"/>
+            <rMaterial name="materials:Air"/>
+        </LogicalPart>
+        <LogicalPart name="CEAL" category="unspecified">
+            <rSolid name="CEAL"/>
+            <rMaterial name="materials:Aluminium"/>
+        </LogicalPart>
+        <LogicalPart name="CEAI" category="unspecified">
+            <rSolid name="CEAI"/>
+            <rMaterial name="materials:Air"/>
+        </LogicalPart>
+        <LogicalPart name="CEEL" category="unspecified">
+            <rSolid name="CEEL"/>
+            <rMaterial name="materials:Castor_Electronics averag"/>
+        </LogicalPart>
+        <!-- materials for HAD section -->
+        <LogicalPart name="CAHC" category="unspecified">
+            <rSolid name="CAHC"/>
+            <rMaterial name="materials:StainlessSteel"/>
+        </LogicalPart>
+        <LogicalPart name="CAHS" category="unspecified">
+            <rSolid name="CAHS"/>
+            <rMaterial name="materials:StainlessSteel"/>
+        </LogicalPart>
+        <LogicalPart name="CAHR" category="unspecified">
+            <rSolid name="CAHR"/>
+            <rMaterial name="materials:StainlessSteel"/>
+        </LogicalPart>
+        <LogicalPart name="CHRR" category="unspecified">
+            <rSolid name="CHRR"/>
+            <rMaterial name="materials:Air"/>
+        </LogicalPart>
+        <LogicalPart name="CAHL" category="unspecified">
+            <rSolid name="CAHL"/>
+            <rMaterial name="materials:Tungsten"/>
+        </LogicalPart>
+        <LogicalPart name="CAHA" category="unspecified">
+            <rSolid name="CAHA"/>
+            <rMaterial name="materials:Air"/>
+        </LogicalPart>
+        <LogicalPart name="CAHF" category="unspecified">
+            <rSolid name="CAHF"/>
+            <rMaterial name="materials:Air"/>
+        </LogicalPart>
+        <LogicalPart name="C3HF" category="unspecified">
+            <rSolid name="C3HF"/>
+            <rMaterial name="materials:Quartz"/>
+        </LogicalPart>
+        <LogicalPart name="C4HF" category="unspecified">
+            <rSolid name="C4HF"/>
+            <rMaterial name="materials:Quartz"/>
+        </LogicalPart>
+        <!-- materials for the dead HAD volumes -->
+        <LogicalPart name="CHDC" category="unspecified">
+            <rSolid name="CHDC"/>
+            <rMaterial name="materials:Air"/>
+        </LogicalPart>
+        <LogicalPart name="CHDS" category="unspecified">
+            <rSolid name="CHDS"/>
+            <rMaterial name="materials:Air"/>
+        </LogicalPart>
+        <LogicalPart name="CHDR" category="unspecified">
+            <rSolid name="CHDR"/>
+            <rMaterial name="materials:Air"/>
+        </LogicalPart>
+        <LogicalPart name="CHAL" category="unspecified">
+            <rSolid name="CHAL"/>
+            <rMaterial name="materials:Aluminium"/>
+        </LogicalPart>
+        <LogicalPart name="CHAI" category="unspecified">
+            <rSolid name="CHAI"/>
+            <rMaterial name="materials:Air"/>
+        </LogicalPart>
+        <LogicalPart name="CHEL" category="unspecified">
+            <rSolid name="CHEL"/>
+            <rMaterial name="materials:Castor_Electronics averag"/>
+        </LogicalPart>
+        <!--  -->
+    </LogicalPartSection>
+    <PosPartSection label="castor.xml">
+        <!--  -->
+        <!--  -->
+        <!-- main CASTOR volume inside polycone "forward:Castor" -->
+        <!--  -->
+        <PosPart copyNumber="2">
+            <rParent name="forward:CastorB"/>
+            <rChild name="castor:CAST"/>
+            <rRotation name="rotations:000D"/>
+            <Translation x="0.0*cm" y="0.0*cm" z="-0.1*mm"/>
+        </PosPart>
+        <!--  -->
+        <!-- Aluminium volume between EM & HAD sections : 1 copy  -->
+        <PosPart copyNumber="1">
+            <rParent name="castor:CAST"/>
+            <rChild name="castor:CAAI"/>
+            <rRotation name="rotations:000D"/>
+            <Translation x="0.0*cm" y="0.0*cm" z="103.1*mm"/>
+        </PosPart>
+        <!-- EM calorimeter  1 copy -->
+        <!--  -->
+        <PosPart copyNumber="1">
+            <rParent name="castor:CAST"/>
+            <rChild name="castor:CAEC"/>
+            <rRotation name="rotations:000D"/>
+            <Translation x="0.0*cm" y="0.0*cm" z="0.1*mm"/>
+        </PosPart>
+        <!-- HADRONIC calorimeter 1 copy  -->
+        <PosPart copyNumber="1">
+            <rParent name="castor:CAST"/>
+            <rChild name="castor:CAHC"/>
+            <rRotation name="rotations:000D"/>
+            <Translation x="0.0*cm" y="0.0*cm" z="108.1*mm"/>
+        </PosPart>
+        <!--  -->
+        <!--  -->
+        <!-- one EM-sector 8 copies -->
+        <!--  -->
+        <PosPart copyNumber="1">
+            <rParent name="castor:CAEC"/>
+            <rChild name="castor:CAES"/>
+            <rRotation name="rotations:000D"/>
+        </PosPart>
+        <PosPart copyNumber="2">
+            <rParent name="castor:CAEC"/>
+            <rChild name="castor:CAES"/>
+            <rRotation name="rotations:R045"/>
+        </PosPart>
+        <PosPart copyNumber="3">
+            <rParent name="castor:CAEC"/>
+            <rChild name="castor:CAES"/>
+            <rRotation name="rotations:R090"/>
+        </PosPart>
+        <PosPart copyNumber="4">
+            <rParent name="castor:CAEC"/>
+            <rChild name="castor:CAES"/>
+            <rRotation name="rotations:R135"/>
+        </PosPart>
+        <PosPart copyNumber="5">
+            <rParent name="castor:CAEC"/>
+            <rChild name="castor:CAES"/>
+            <rRotation name="rotations:R180"/>
+        </PosPart>
+        <PosPart copyNumber="6">
+            <rParent name="castor:CAEC"/>
+            <rChild name="castor:CAES"/>
+            <rRotation name="rotations:R225"/>
+        </PosPart>
+        <PosPart copyNumber="7">
+            <rParent name="castor:CAEC"/>
+            <rChild name="castor:CAES"/>
+            <rRotation name="rotations:R270"/>
+        </PosPart>
+        <PosPart copyNumber="8">
+            <rParent name="castor:CAEC"/>
+            <rChild name="castor:CAES"/>
+            <rRotation name="rotations:R315"/>
+        </PosPart>
+        <!--  -->
+        <!-- HADRONIC part sector :  8 copies -->
+        <!--  -->
+        <PosPart copyNumber="1">
+            <rParent name="castor:CAHC"/>
+            <rChild name="castor:CAHS"/>
+            <rRotation name="rotations:000D"/>
+        </PosPart>
+        <PosPart copyNumber="2">
+            <rParent name="castor:CAHC"/>
+            <rChild name="castor:CAHS"/>
+            <rRotation name="rotations:R045"/>
+        </PosPart>
+        <PosPart copyNumber="3">
+            <rParent name="castor:CAHC"/>
+            <rChild name="castor:CAHS"/>
+            <rRotation name="rotations:R090"/>
+        </PosPart>
+        <PosPart copyNumber="4">
+            <rParent name="castor:CAHC"/>
+            <rChild name="castor:CAHS"/>
+            <rRotation name="rotations:R135"/>
+        </PosPart>
+        <PosPart copyNumber="5">
+            <rParent name="castor:CAHC"/>
+            <rChild name="castor:CAHS"/>
+            <rRotation name="rotations:R180"/>
+        </PosPart>
+        <PosPart copyNumber="6">
+            <rParent name="castor:CAHC"/>
+            <rChild name="castor:CAHS"/>
+            <rRotation name="rotations:R225"/>
+        </PosPart>
+        <PosPart copyNumber="7">
+            <rParent name="castor:CAHC"/>
+            <rChild name="castor:CAHS"/>
+            <rRotation name="rotations:R270"/>
+        </PosPart>
+        <PosPart copyNumber="8">
+            <rParent name="castor:CAHC"/>
+            <rChild name="castor:CAHS"/>
+            <rRotation name="rotations:R315"/>
+        </PosPart>
+        <!--  -->
+        <!--  -->
+        <!-- EM read-out channels, 2 copies 5 layers each -->
+        <!--  -->
+        <PosPart copyNumber="1">
+            <rParent name="castor:CAES"/>
+            <rChild name="castor:CAER"/>
+            <rRotation name="rotations:000D"/>
+            <Translation x="0.0*mm" y="0.0*mm" z="0.0*mm"/>
+        </PosPart>
+        <PosPart copyNumber="2">
+            <rParent name="castor:CAES"/>
+            <rChild name="castor:CAER"/>
+            <rRotation name="rotations:000D"/>
+            <Translation x="0.0*mm" y="0.0*mm" z="51.5*mm"/>
+        </PosPart>
+        <!-- reduced rmin, rmax volume  -->
+        <PosPart copyNumber="1">
+            <rParent name="castor:CAER"/>
+            <rChild name="castor:CERR"/>
+            <rRotation name="rotations:000D"/>
+            <Translation x="+1.30*mm" y="+0.54*mm" z="0.0*mm"/>
+        </PosPart>
+        <!--  -->
+        <!-- HAD read-out channel  12 copies include 5 layers -->
+        <!--  -->
+        <PosPart copyNumber="1">
+            <rParent name="castor:CAHS"/>
+            <rChild name="castor:CAHR"/>
+            <rRotation name="rotations:000D"/>
+            <Translation x="0.0*mm" y="0.0*mm" z="0.0*mm"/>
+        </PosPart>
+        <PosPart copyNumber="2">
+            <rParent name="castor:CAHS"/>
+            <rChild name="castor:CAHR"/>
+            <rRotation name="rotations:000D"/>
+            <Translation x="0.0*mm" y="0.0*mm" z="101.0*mm"/>
+        </PosPart>
+        <PosPart copyNumber="3">
+            <rParent name="castor:CAHS"/>
+            <rChild name="castor:CAHR"/>
+            <rRotation name="rotations:000D"/>
+            <Translation x="0.0*mm" y="0.0*mm" z="202.0*mm"/>
+        </PosPart>
+        <PosPart copyNumber="4">
+            <rParent name="castor:CAHS"/>
+            <rChild name="castor:CAHR"/>
+            <rRotation name="rotations:000D"/>
+            <Translation x="0.0*mm" y="0.0*mm" z="303.0*mm"/>
+        </PosPart>
+        <PosPart copyNumber="5">
+            <rParent name="castor:CAHS"/>
+            <rChild name="castor:CAHR"/>
+            <rRotation name="rotations:000D"/>
+            <Translation x="0.0*mm" y="0.0*mm" z="404.0*mm"/>
+        </PosPart>
+        <PosPart copyNumber="6">
+            <rParent name="castor:CAHS"/>
+            <rChild name="castor:CAHR"/>
+            <rRotation name="rotations:000D"/>
+            <Translation x="0.0*mm" y="0.0*mm" z="505.0*mm"/>
+        </PosPart>
+        <PosPart copyNumber="7">
+            <rParent name="castor:CAHS"/>
+            <rChild name="castor:CAHR"/>
+            <rRotation name="rotations:000D"/>
+            <Translation x="0.0*mm" y="0.0*mm" z="606.0*mm"/>
+        </PosPart>
+        <PosPart copyNumber="8">
+            <rParent name="castor:CAHS"/>
+            <rChild name="castor:CAHR"/>
+            <rRotation name="rotations:000D"/>
+            <Translation x="0.0*mm" y="0.0*mm" z="707.0*mm"/>
+        </PosPart>
+        <PosPart copyNumber="9">
+            <rParent name="castor:CAHS"/>
+            <rChild name="castor:CAHR"/>
+            <rRotation name="rotations:000D"/>
+            <Translation x="0.0*mm" y="0.0*mm" z="808.0*mm"/>
+        </PosPart>
+        <PosPart copyNumber="10">
+            <rParent name="castor:CAHS"/>
+            <rChild name="castor:CAHR"/>
+            <rRotation name="rotations:000D"/>
+            <Translation x="0.0*mm" y="0.0*mm" z="909.0*mm"/>
+        </PosPart>
+        <PosPart copyNumber="11">
+            <rParent name="castor:CAHS"/>
+            <rChild name="castor:CAHR"/>
+            <rRotation name="rotations:000D"/>
+            <Translation x="0.0*mm" y="0.0*mm" z="1010.0*mm"/>
+        </PosPart>
+        <PosPart copyNumber="12">
+            <rParent name="castor:CAHS"/>
+            <rChild name="castor:CAHR"/>
+            <rRotation name="rotations:000D"/>
+            <Translation x="0.0*mm" y="0.0*mm" z="1111.0*mm"/>
+        </PosPart>
+        <!-- reduced rmin, rmax volumes -->
+        <PosPart copyNumber="1">
+            <rParent name="castor:CAHR"/>
+            <rChild name="castor:CHRR"/>
+            <rRotation name="rotations:000D"/>
+            <Translation x="+1.30*mm" y="+0.54*mm" z="0.0*mm"/>
+        </PosPart>
+        <!--  -->
+        <!-- EM layers :   5 copies -->
+        <!--  -->
+        <PosPart copyNumber="1">
+            <rParent name="castor:CERR"/>
+            <rChild name="castor:CAEL"/>
+            <rRotation name="rotations:000D"/>
+            <Translation x="0.0*mm" y="0.0*mm" z="0.0*mm"/>
+        </PosPart>
+        <PosPart copyNumber="2">
+            <rParent name="castor:CERR"/>
+            <rChild name="castor:CAEL"/>
+            <rRotation name="rotations:000D"/>
+            <Translation x="0.0*mm" y="0.0*mm" z="10.30*mm"/>
+        </PosPart>
+        <PosPart copyNumber="3">
+            <rParent name="castor:CERR"/>
+            <rChild name="castor:CAEL"/>
+            <rRotation name="rotations:000D"/>
+            <Translation x="0.0*mm" y="0.0*mm" z="20.60*mm"/>
+        </PosPart>
+        <PosPart copyNumber="4">
+            <rParent name="castor:CERR"/>
+            <rChild name="castor:CAEL"/>
+            <rRotation name="rotations:000D"/>
+            <Translation x="0.0*mm" y="0.0*mm" z="30.90*mm"/>
+        </PosPart>
+        <PosPart copyNumber="5">
+            <rParent name="castor:CERR"/>
+            <rChild name="castor:CAEL"/>
+            <rRotation name="rotations:000D"/>
+            <Translation x="0.0*mm" y="0.0*mm" z="41.20*mm"/>
+        </PosPart>
+        <!--  -->
+        <!-- HAD layers : 5 copies -->
+        <!--  -->
+        <PosPart copyNumber="1">
+            <rParent name="castor:CHRR"/>
+            <rChild name="castor:CAHL"/>
+            <rRotation name="rotations:000D"/>
+            <Translation x="0.0*mm" y="0.0*mm" z="0.0*mm"/>
+        </PosPart>
+        <PosPart copyNumber="2">
+            <rParent name="castor:CHRR"/>
+            <rChild name="castor:CAHL"/>
+            <rRotation name="rotations:000D"/>
+            <Translation x="0.0*mm" y="0.0*mm" z="20.20*mm"/>
+        </PosPart>
+        <PosPart copyNumber="3">
+            <rParent name="castor:CHRR"/>
+            <rChild name="castor:CAHL"/>
+            <rRotation name="rotations:000D"/>
+            <Translation x="0.0*mm" y="0.0*mm" z="40.40*mm"/>
+        </PosPart>
+        <PosPart copyNumber="4">
+            <rParent name="castor:CHRR"/>
+            <rChild name="castor:CAHL"/>
+            <rRotation name="rotations:000D"/>
+            <Translation x="0.0*mm" y="0.0*mm" z="60.60*mm"/>
+        </PosPart>
+        <PosPart copyNumber="5">
+            <rParent name="castor:CHRR"/>
+            <rChild name="castor:CAHL"/>
+            <rRotation name="rotations:000D"/>
+            <Translation x="0.0*mm" y="0.0*mm" z="80.80*mm"/>
+        </PosPart>
+        <!--  -->
+        <!--  -->
+        <!-- EM section: Air-Paper-Quartz volumes 1 by 1 by 1 copies -->
+        <!--  -->
+        <PosPart copyNumber="1">
+            <rParent name="castor:CAEL"/>
+            <rChild name="castor:CAEA"/>
+            <rRotation name="rotations:000D"/>
+            <Translation x="0.0*mm" y="0.0*mm" z="7.07*mm"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="castor:CAEA"/>
+            <rChild name="castor:CAEF"/>
+            <rRotation name="rotations:000D"/>
+            <Translation x="0.0*mm" y="0.0*mm" z="0.2*mm"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="castor:CAEF"/>
+            <rChild name="castor:C3EF"/>
+            <rRotation name="rotations:000D"/>
+            <Translation x="0.0*mm" y="0.0*mm" z="0.000*mm"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="castor:CAEF"/>
+            <rChild name="castor:C4EF"/>
+            <rRotation name="rotations:000D"/>
+            <Translation x="0.0*mm" y="0.0*mm" z="0.000*mm"/>
+        </PosPart>
+        <!-- HAD sampling unit : Air-Paper-Quartz volumes 1 by 1 by 1 copies -->
+        <!--  -->
+        <PosPart copyNumber="1">
+            <rParent name="castor:CAHL"/>
+            <rChild name="castor:CAHA"/>
+            <rRotation name="rotations:000D"/>
+            <Translation x="0.0*mm" y="0.0*mm" z="14.14*mm"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="castor:CAHA"/>
+            <rChild name="castor:CAHF"/>
+            <rRotation name="rotations:000D"/>
+            <Translation x="0.0*mm" y="0.0*mm" z="0.2*mm"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="castor:CAHF"/>
+            <rChild name="castor:C3HF"/>
+            <rRotation name="rotations:000D"/>
+            <Translation x="0.0*mm" y="0.0*mm" z="0.000*mm"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="castor:CAHF"/>
+            <rChild name="castor:C4HF"/>
+            <rRotation name="rotations:000D"/>
+            <Translation x="0.0*mm" y="0.0*mm" z="0.000*mm"/>
+        </PosPart>
+        <!--  -->
+        <!-- copies for dead material -->
+        <!-- EM dead material -->
+        <PosPart copyNumber="1">
+            <rParent name="castor:CAST"/>
+            <rChild name="castor:CEDC"/>
+            <rRotation name="rotations:000D"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="castor:CEDC"/>
+            <rChild name="castor:CEDS"/>
+            <rRotation name="rotations:000D"/>
+        </PosPart>
+        <PosPart copyNumber="2">
+            <rParent name="castor:CEDC"/>
+            <rChild name="castor:CEDS"/>
+            <rRotation name="rotations:R045"/>
+        </PosPart>
+        <PosPart copyNumber="3">
+            <rParent name="castor:CEDC"/>
+            <rChild name="castor:CEDS"/>
+            <rRotation name="rotations:R090"/>
+        </PosPart>
+        <PosPart copyNumber="4">
+            <rParent name="castor:CEDC"/>
+            <rChild name="castor:CEDS"/>
+            <rRotation name="rotations:R135"/>
+        </PosPart>
+        <PosPart copyNumber="5">
+            <rParent name="castor:CEDC"/>
+            <rChild name="castor:CEDS"/>
+            <rRotation name="rotations:R180"/>
+        </PosPart>
+        <PosPart copyNumber="6">
+            <rParent name="castor:CEDC"/>
+            <rChild name="castor:CEDS"/>
+            <rRotation name="rotations:R225"/>
+        </PosPart>
+        <PosPart copyNumber="7">
+            <rParent name="castor:CEDC"/>
+            <rChild name="castor:CEDS"/>
+            <rRotation name="rotations:R270"/>
+        </PosPart>
+        <PosPart copyNumber="8">
+            <rParent name="castor:CEDC"/>
+            <rChild name="castor:CEDS"/>
+            <rRotation name="rotations:R315"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="castor:CEDS"/>
+            <rChild name="castor:CEDR"/>
+            <rRotation name="rotations:000D"/>
+            <Translation x="0.0*mm" y="0.0*mm" z="0.0*mm"/>
+        </PosPart>
+        <PosPart copyNumber="2">
+            <rParent name="castor:CEDS"/>
+            <rChild name="castor:CEDR"/>
+            <rRotation name="rotations:000D"/>
+            <Translation x="0.0*mm" y="0.0*mm" z="51.5*mm"/>
+        </PosPart>
+        <!-- HAD dead volumes -->
+        <PosPart copyNumber="1">
+            <rParent name="castor:CAST"/>
+            <rChild name="castor:CHDC"/>
+            <rRotation name="rotations:000D"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="castor:CHDC"/>
+            <rChild name="castor:CHDS"/>
+            <rRotation name="rotations:000D"/>
+        </PosPart>
+        <PosPart copyNumber="2">
+            <rParent name="castor:CHDC"/>
+            <rChild name="castor:CHDS"/>
+            <rRotation name="rotations:R045"/>
+        </PosPart>
+        <PosPart copyNumber="3">
+            <rParent name="castor:CHDC"/>
+            <rChild name="castor:CHDS"/>
+            <rRotation name="rotations:R090"/>
+        </PosPart>
+        <PosPart copyNumber="4">
+            <rParent name="castor:CHDC"/>
+            <rChild name="castor:CHDS"/>
+            <rRotation name="rotations:R135"/>
+        </PosPart>
+        <PosPart copyNumber="5">
+            <rParent name="castor:CHDC"/>
+            <rChild name="castor:CHDS"/>
+            <rRotation name="rotations:R180"/>
+        </PosPart>
+        <PosPart copyNumber="6">
+            <rParent name="castor:CHDC"/>
+            <rChild name="castor:CHDS"/>
+            <rRotation name="rotations:R225"/>
+        </PosPart>
+        <PosPart copyNumber="7">
+            <rParent name="castor:CHDC"/>
+            <rChild name="castor:CHDS"/>
+            <rRotation name="rotations:R270"/>
+        </PosPart>
+        <PosPart copyNumber="8">
+            <rParent name="castor:CHDC"/>
+            <rChild name="castor:CHDS"/>
+            <rRotation name="rotations:R315"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="castor:CHDS"/>
+            <rChild name="castor:CHDR"/>
+            <rRotation name="rotations:000D"/>
+            <Translation x="0.0*mm" y="0.0*mm" z="0.0*mm"/>
+        </PosPart>
+        <PosPart copyNumber="2">
+            <rParent name="castor:CHDS"/>
+            <rChild name="castor:CHDR"/>
+            <rRotation name="rotations:000D"/>
+            <Translation x="0.0*mm" y="0.0*mm" z="101.0*mm"/>
+        </PosPart>
+        <PosPart copyNumber="3">
+            <rParent name="castor:CHDS"/>
+            <rChild name="castor:CHDR"/>
+            <rRotation name="rotations:000D"/>
+            <Translation x="0.0*mm" y="0.0*mm" z="202.0*mm"/>
+        </PosPart>
+        <PosPart copyNumber="4">
+            <rParent name="castor:CHDS"/>
+            <rChild name="castor:CHDR"/>
+            <rRotation name="rotations:000D"/>
+            <Translation x="0.0*mm" y="0.0*mm" z="303.0*mm"/>
+        </PosPart>
+        <PosPart copyNumber="5">
+            <rParent name="castor:CHDS"/>
+            <rChild name="castor:CHDR"/>
+            <rRotation name="rotations:000D"/>
+            <Translation x="0.0*mm" y="0.0*mm" z="404.0*mm"/>
+        </PosPart>
+        <PosPart copyNumber="6">
+            <rParent name="castor:CHDS"/>
+            <rChild name="castor:CHDR"/>
+            <rRotation name="rotations:000D"/>
+            <Translation x="0.0*mm" y="0.0*mm" z="505.0*mm"/>
+        </PosPart>
+        <PosPart copyNumber="7">
+            <rParent name="castor:CHDS"/>
+            <rChild name="castor:CHDR"/>
+            <rRotation name="rotations:000D"/>
+            <Translation x="0.0*mm" y="0.0*mm" z="606.0*mm"/>
+        </PosPart>
+        <PosPart copyNumber="8">
+            <rParent name="castor:CHDS"/>
+            <rChild name="castor:CHDR"/>
+            <rRotation name="rotations:000D"/>
+            <Translation x="0.0*mm" y="0.0*mm" z="707.0*mm"/>
+        </PosPart>
+        <PosPart copyNumber="9">
+            <rParent name="castor:CHDS"/>
+            <rChild name="castor:CHDR"/>
+            <rRotation name="rotations:000D"/>
+            <Translation x="0.0*mm" y="0.0*mm" z="808.0*mm"/>
+        </PosPart>
+        <PosPart copyNumber="10">
+            <rParent name="castor:CHDS"/>
+            <rChild name="castor:CHDR"/>
+            <rRotation name="rotations:000D"/>
+            <Translation x="0.0*mm" y="0.0*mm" z="909.0*mm"/>
+        </PosPart>
+        <PosPart copyNumber="11">
+            <rParent name="castor:CHDS"/>
+            <rChild name="castor:CHDR"/>
+            <rRotation name="rotations:000D"/>
+            <Translation x="0.0*mm" y="0.0*mm" z="1010.0*mm"/>
+        </PosPart>
+        <PosPart copyNumber="12">
+            <rParent name="castor:CHDS"/>
+            <rChild name="castor:CHDR"/>
+            <rRotation name="rotations:000D"/>
+            <Translation x="0.0*mm" y="0.0*mm" z="1111.0*mm"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="castor:CEDR"/>
+            <rChild name="castor:CEAL"/>
+            <rRotation name="rotations:CABK"/>
+            <Translation x="283.5002*mm" y="85.037*mm" z="239.2853*mm"/>
+        </PosPart>
+        <PosPart copyNumber="2">
+            <rParent name="castor:CEDR"/>
+            <rChild name="castor:CEAL"/>
+            <rRotation name="rotations:CABK"/>
+            <Translation x="260.5945*mm" y="140.33465*mm" z="239.2853*mm"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="castor:CEAL"/>
+            <rChild name="castor:CEAI"/>
+            <rRotation name="rotations:000D"/>
+            <Translation x="6.0815*mm" y="2.51905*mm" z="0.0*mm"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="castor:CEDR"/>
+            <rChild name="castor:CEEL"/>
+            <rRotation name="rotations:000D"/>
+            <Translation x="11.4525*mm" y="-27.6488*mm" z="-13.0*mm"/>
+        </PosPart>
+        <PosPart copyNumber="2">
+            <rParent name="castor:CEDR"/>
+            <rChild name="castor:CEEL"/>
+            <rRotation name="rotations:000D"/>
+            <Translation x="-11.4525*mm" y="27.6488*mm" z="-13.0*mm"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="castor:CHDR"/>
+            <rChild name="castor:CHAL"/>
+            <rRotation name="rotations:CABK"/>
+            <Translation x="289.1883*mm" y="79.7934*mm" z="404.6267*mm"/>
+        </PosPart>
+        <PosPart copyNumber="2">
+            <rParent name="castor:CHDR"/>
+            <rChild name="castor:CHAL"/>
+            <rRotation name="rotations:CABK"/>
+            <Translation x="260.9096*mm" y="148.0646*mm" z="404.6267*mm"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="castor:CHAL"/>
+            <rChild name="castor:CHAI"/>
+            <rRotation name="rotations:000D"/>
+            <Translation x="1.5460*mm" y="0.6404*mm" z="0.0*mm"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="castor:CHDR"/>
+            <rChild name="castor:CHEL"/>
+            <rRotation name="rotations:000D"/>
+            <Translation x="14.1393*mm" y="-34.1354*mm" z="109.5*mm"/>
+        </PosPart>
+        <PosPart copyNumber="2">
+            <rParent name="castor:CHDR"/>
+            <rChild name="castor:CHEL"/>
+            <rRotation name="rotations:000D"/>
+            <Translation x="-14.1393*mm" y="34.1354*mm" z="109.5*mm"/>
+        </PosPart>
+    </PosPartSection>
+</DDDefinition>

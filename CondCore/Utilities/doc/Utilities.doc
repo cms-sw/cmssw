@@ -1,0 +1,51 @@
+
+/*!
+
+\page CondCore_Utilities Package CondCore/Utilities
+
+<center>
+<small>
+
+<!-- @CVS_TAG@ will be substituted at build time, no need to touch -->
+<a href=http://cmssw.cvs.cern.ch/cgi-bin/cmssw.cgi/CMSSW/CondCore/Utilities/?cvsroot=CMSSW&only_with_tag=@CVS_TAG@>Source code (CVS tag: @CVS_TAG@)</a> - 
+<a href=http://cmssw.cvs.cern.ch/cgi-bin/cmssw.cgi/CMSSW/CondCore/Utilities/.admin/developers?rev=HEAD&cvsroot=CMSSW&content-type=text/vnd.viewcvs-markup>Administrative privileges</a>
+</small>
+</center>
+
+\section desc Description
+<!-- Short description of what this package is supposed to provide -->
+Collection of cond db command line utilities in bin dir
+- remove_pool_tables
+- remove_mapping
+- cmscond_list_iov
+- cmscond_build_iov
+- cmscond_duplicate_iov
+- cmscond_export_iov
+- cmscond_load_iov
+- cmscond_delete_iov
+
+Detail see <a href="https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideCondDB">CondDB Wiki</a>
+
+\subsection interface Public interface
+<!-- List the classes that are provided for use in other packages (if any) -->
+
+-
+
+
+\subsection modules Modules
+<!-- Describe modules implemented in this package and their parameter set -->
+None
+
+\subsection tests Unit tests and examples
+<!-- Describe cppunit tests and example configuration files -->
+
+
+\section status Status and planned development
+<!-- e.g. completed, stable, missing features -->
+Stable
+
+<hr>
+Last updated:
+@DATE@  Author: Z.Xie
+*/
+

@@ -1,0 +1,360 @@
+
+21-07-05, SA
+
+Added Product Registration mechanism.
+ 
+- EDProducer: Added product registration. Function produces<Product>("label") 
+              registers to an internal list, that then is read by the Worker 
+              that wraps the EDProducter
+
+- InputSourceDescription: the ctor takes a  ptr to ProductRegistry, that can
+              then be accessed by the InputSource
+
+- ProductRegistry: Added ProductRegistry, a list of ProductDescription objects,
+                   describing the products of all modules
+
+- ScheduleBuilder: takes a ptr to the ProductRegistry in the ctor, then passes 
+                   it to the workers via WorkerParams
+
+- EventProcessor: FwkImpl now has in its data members a ProductRegistry object,
+                  and passes it to ScheduleBuilder and
+                  InputSource thru InputSourceDesc
+
+- ProoducerWorker: Modified for ProductRegister machanism .Takes product infor-
+                  mations from the EDProducer and fills the ProductRegistry
+
+
+Added cppunit tests 
+
+18-07-05
+
+First version of assert handling and plugin manager feedback handling 
+designed to improve the error messages coming from the framework
+when really bad thing happen in the seal utilities.  All the
+processing is in the ProblemTracker class and the example use is
+in cmsRun.  This ProblemTracker class may need to be enhanced so 
+framework code can add/subtract context information.
+
+The first version of exception processing controls have been added.
+The parameter set file can contain directives to indicate the
+action that is supposed to happen when an exception is encountered.
+See Actions.h for the currently supported list.  The roadmap will
+contain the instructions for use.
+
+Converted the EventSetup-related exception to use cms::Exception.
+Since what is assumed virtual in these classes and the behavior
+has been changed so that the constructor generates the message,
+I suspect that we may see redundant information from derived
+classes (the what function is no longer solely in charge of
+adding data to the final message).
+
+This first version has catches for all the various sorts of 
+interesting thing in all the *Worker*.h classes.  This is where
+the framework calls developer-written code.  Currently the 
+exceptions that we cannot process are just repropagated and a
+message is sent to cerr indicating the context.  The cerr will
+turn into a message logger call when that interface is defined.
+The caught exceptions will probably be changed into new types
+and the beginning of the history will be used for altering program
+control.  Weird exceptions are mapped into cms::Exceptions.
+
+Converted the factory, worker registry, and maker classes to use
+a single struct WorkerParams instead of many individual arguments.
+This will hopefully help minimize changes to the factory interface
+in the future - although the struct data members still will need
+to be populated.
+
+Added a contained class to EventRegistry to automate the add/remove
+of an event to make sure the operation is exception safe.  Converted
+the EventProcessor to use this class.
+
+Currently there is a lot of redundency in the exception processing
+code in the Worker cc files.  Each of them look very similar.
+This code needs to be factored out.
+
+The printing of the path name is missing in most of the output
+message from exception and from printouts from ignored exceptions.
+
+01-11-05
+
+Added a way to get at the InputSource from the EventProcessor interface.
+
+22-01-06
+
+output modules are not yet confined to endpaths.
+
+A dependency on MessageLogger cannot be added to the Framework because the
+plugin manager dies during "load all capabilities" service initialization.
+This may be due to the fact that MessageLogger needs to use ModuleDescription
+in the Framework library.  Anyway, there seems to be a problem with
+dependencies.
+
+Currently the LogError and LogWarning calls are not made to the MessageLogger
+because of the crash problems.   The Log.h file controls where the functions
+come from (local macros or MessageLogger API).
+
+The TriggerResults product and the TriggerResultInserter producer are both
+contained within the Framework library.  This is a temporary solution until
+we figure out how to split them out.
+
+An on-demand report of path/worker stats in not available.  The report only
+comes out at the endJob time.  The report does not include work-in-path stats, 
+only workers and paths.
+
+A "TriggerResultsAnalzer" is needed that looks at the trigger result to see
+if it is correct or not.  A test filter is needed that fails or succeed
+based on some configurable criteria (e.g. 50% pass or 1 out of N pass -
+prescale).
+
+26-01-06
+
+Things still missing:
+1) prepath/postpath callback for timing
+2) bitvector service for use in the output modules (bits to names mapping)
+3) move output modules to endpath and print warning
+
+(2 and 3 are now complete)
+
+The TriggerResult and TriggerNamesService do not have unit tests yet!
+The TriggerResult is valid in the output file.
+The OutputModules have not been modified to do writing based on bits.
+
+28-01-06
+
+Now triggerresults are only available if there is a filter in any
+path or if the is an untracked bool called makeTriggerResults set to
+true in the options pset of the process pset.
+
+All the existing unit tests now work.
+
+A TriggerResultInserter module only gets made if the TriggerResults
+object needs to be available.
+
+Verified that all the service callback are being called correctly
+using the Tracer service.
+
+29-01-06
+
+Everything is working in the first release of the new scheduler with 
+trigger results.  Some of the things that need to be addressed:
+
+ 1) The message logger is still not being used because of dependency
+    problems.
+ 2) There is now a Producer, Product, and Service directly in the Framework
+    library.  There is a way to separate them out, if necessary, bu it is
+	more than could be done in this release.
+ 3) The TriggerResults product is more complex than it needs to be.  The
+    stored entity is a vector<bool> instead of a bitbit<N> because I 
+	could not get the bitset working properly with ROOT.
+ 4) The path statistics report is somewhat crude and does not include 
+    information about the module-in-path.  It only does module stats and
+	path summary stats.
+ 5) There in no support in the parameter set language for addition 
+    path algebra.  This includes inverting decisions of paths or modules
+	and disabling modules in paths.
+ 6) The scheduler summary (paths/modules) in now going to what will be
+    the message logger.  Each line goes out as an individual message.  This
+	is undesirable behavior.  The report should go to std::cout, meaning
+	that routing cannot be easily done, or the report needs to be 
+	accumulated in an ostringstream and then sent as one message.  I prefer
+	this last option.
+ 7) Path pre/post signals posting is not implemented.
+ 8) The current statistics cannot be read out through an EventProcessor
+    interface.  This is interesting for the trigger so the control
+	system can query a processor for current statistics.
+
+ The output modules, as of this date,  have not been modified to 
+ include/exclude events based on trigger bits.  They will need to 
+ account for cases where there are zero, one, or more TriggerResults
+ objects in the event.  The parameters must be able to choose the
+ proper "process name".
+
+ As of this date, the TriggerResults interface has not been unit tested!
+
+02-02-06
+
+Currently the endpath processing is trivial.  All modules in all 
+endpaths see the event regardless of trigger bits or prior success/failure
+of modules in the endpaths.  This means that if a filter-like path is
+in the endpath, it will not stop further processing in that endpath.
+This is unlike regular paths.  This may need to be changed.  Another
+issue is running endpath modules if all trigger bits are off.  Should
+processing of this event be truncated if all bits are off?
+
+The OutputModule modifications are complete for allowing selecting
+events based on trigger bits.
+
+The unit testing is still not complete for TriggerResults.  Only the
+functions that provide information to the outputmodule are tested.
+
+03-02-06
+
+List of tasks:
+  1) assign module numbers to each module and make the total and the
+  number available to Services during construction or through a signal.
+  2) change the existing service over to use this instead of doing a 
+  lookup by module_label.
+  3) finish automated unit testing of the TriggerResults and
+  TriggerNamesService and Scheduler.
+  4) Add path signals so that Services can track time spent in paths
+  5) make an interface to retrieve the trigger summary info on demand as the
+  program is running
+  6) complete the module-by-path stats report at end of job
+  7) fix the scheduler summary report (and others) so that the entire report
+  comes out as a single LogMessage (not individual lines)
+  8) need run info and process info stored in the output files.  This includes
+  parameter sets.
+
+  For event selection based on trigger bits, targeted TriggerResults from
+  prior runs cannot be used until ParameterSets and additional run information
+  are stored in the input file.  The output module needs to translate the
+  names from is configuration to bits in the TriggerResults at module
+  construction time.  The only way to do this is to get the names-to-bits
+  information from the file header.
+
+  The endpath processing needs to be fixed.  Use a second set of objects 
+  analogous to the path processing to do so. (place endpath modules into
+  Paths whos results do not contribute to the saved TriggerResult)
+
+  To get the veto or inverted decision going for modules-in-paths, the
+  temporary "Workers" collection needs to be pair<bool inverted, Worker*>
+  instead of just the Worker*.  The Path will need to take this
+  and use it in the construction of the WorkerInPath.
+
+  Martin requested adding a vstring named "listOfTriggers" that can be
+  used to explicitly list the paths that will have bits assigned to them.
+  In addition, we need a control that stops event propagation through
+  endpaths if all trigger bits are false. (the outputmodules in "veto"
+  mode will not see these then).
+
+03-02-06
+
+completed unit test scripts testBits*.cfg that excerise the trigger bit
+logic.  They also test the output module interface - in particular 
+they test the event selection logic.
+
+endpaths are now real paths
+
+all output modules in regular paths now get moved to a single new endpath.
+if the output module makes a regular path empty, then that path is not
+included in the processing of the schedule.
+
+the veto specification for modules in paths is complete.  you can now
+place a ! in front of any module in a path and reverse its decision for
+that path only.
+
+The "listOfTriggers" feature is still not complete. (see previous entry)
+One way this might work is to prepare a better PSet to give to
+the scheduler and the triggernameservice.  The better one would have
+a list of trigger paths, a list of none-trigger paths, and a list of
+endpaths (or perhaps just move all none-trigger paths to endpaths.
+Must be careful here for bad interactions if paths are reordered.
+It should not matter since paths are supposed to be independent.
+Need to communicate a bit more with Martin about this reordering or
+marking.
+
+Warning: the SelectEvents pset untracked option is not working properly
+because of problems in the parameterset library.  The test scripts
+will need to be upgraded when it is fixed.
+
+06-02-06
+
+Now the listOfTriggers feature is complete.  If the "options" 
+pset of the process pset contains "makeTriggerResults", then the user
+is required to include "listOfTriggers".  The list must be a subset
+of the list of paths.  The list can have "*" as its first member, in
+which case all the paths are included.  This feature is implemented 
+using entirely in Schedule.cc.  The test/testBitsCount.cfg script
+tests that a correctly specified listOfTriggers works properly; it 
+does not check the bad cases.
+
+10-04-06 jbk
+
+The listOfTriggers information was not properly applied to both the
+TriggerNamesService and the Schedule.  Although it was correct in the
+Schedule, the TriggerNameService never saw it and therefore OutputModules
+did not make the correct selection when listOfTriggers was set in the
+process pset options pset.  Now the TriggerNameService calculates all the
+values needed for making the trigger bit mask and both the OutputModule
+and Schedule use its results.
+
+Note: The code in Schedule:runOneEvent replies on the fact that trigger bits
+are assigned sequencially and the set contains only the paths that are
+labelled as trigger paths (included in listOfTriggers if it is present).
+
+Note: The artificially generated "@trigger_paths" parameter (within 
+@trigger_paths - yes, a bit obscure and confusing) is untracked.  This
+may not be a good idea.  To interpret bit names, care must be taken to
+make use of the "options" information i.e. listOfTriggers.  We are ok for
+now because the TriggerResult caches the trigger names (because the psets
+were not stored in the output files when it was written).  The TriggerResultInserter
+module relies on @trigger_paths to be the list of paths with listOfTriggers
+applied.  If TriggerResults is modified to only hold the parameter set ID,
+then care must be taken to produce a trigger name list that applies the
+listOfTriggers.  It might be as easy as making @trigger_paths (within
+@trigger_paths of process pset - can't forget that). tracked instead of untracked.
+
+The set of tests has not been adjusted to check that listOfTriggers is
+functioning correctly in each release (I did a temporary mod in my own area
+to test it).  The testBitsPass.cfg can be copied and modified to use a subset
+of the full path set in listOfTriggers and the pass/fail numbers can be
+verified (the run_trig*.sh script will need to be modified to include the
+new test case).
+
+19-04-06 jbk
+
+Added the state machine behavior to the event processor.  All tests run.
+There are a number of ugly things.  See the comments in the state table
+in EventProcessor.cc.  Right now the state does not go to "Error" if
+a "beginJob" of a module throws an exception (unlike "run").  There is
+also a check at the front of beginJob that makes sure we are coming from
+the correct state.  There is a state diagram at 
+ https://uimon.cern.ch/twiki/bin/view/CMS/EventProcessorStateHandlingProposal
+that is at this time up to date.  The "testFramework" test runs without
+modification.  The "Running" state should probably be "RunningAsync" and
+"RunningSync".  There is no checked-in test for "runAsync".
+Timing scenario are not complete.
+
+This feature includes having the event loop run in its own thread and being
+able to ask it to shut it down.  Signal USR2 can be sent to cmsRun and have
+the event processor finished up its work and shut down cleanly.
+
+Still missing or incomplete: 
+  * total event timeout
+  * Schedule features from EventFilter-land like global prescales and endpath
+    disabling.
+  * waiting up input sources that are blocking if a stop signal arrives
+  * interface that gives out const module lists so that parameters and names
+    can  be inspected by applications.
+  * interface to get at statistics in the Schedule object
+
+16-03-07 jbk
+
+Updated the async run/shutdown/stop/wait calls.
+If the event loop stops before wait or the other calls are made, they
+will just return successfully now.
+The shutdown/stop/wait commands now take a timeout value.  If the timeout
+happens, then the event loop thread is assumed to be stuck (either in
+I/O or an infinite loop).  The thread is cancelled (using cancel policy
+asynchronous meaning immediately).  The state of the event processor
+is marked as "error".  It is likely that resources have been leaked or
+stuck in an invalid state at this point and the program should be shut
+down.  All the shutdown/wait/stop calls now return a "timedout" return
+code if they time out.
+
+Added a series of tests to eventprocessor_t.cpp that run the 
+async event loop and attempt to time out.  The time out test is
+commented out due to a runtime error from the environment connected to
+pthread_cancel libraries.
+
+added states:
+      { sJobReady,      mStopAsync,      sJobReady },
+      { sJobReady,      mCountComplete,  sJobReady },
+      { sStopping,      mCountComplete,  sJobReady },
+      { sStopping,      mShutdownAsync,  sShuttingDown },
+      { sStopping,      mStopAsync,      sStopping },
+
+The task_id_set / stop_count variables are overly complicated and need
+to be simplified.  The count contain all the necessary information to
+known if a task ID is present or not.
+

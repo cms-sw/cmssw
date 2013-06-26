@@ -1,0 +1,4 @@
+<library   file="*.cc" name="CalibTrackerSiStripAPVAnalysisPlugins">
+  <use   name="CalibTracker/SiStripAPVAnalysis"/>
+  <flags   EDM_PLUGIN="1"/>
+</library>

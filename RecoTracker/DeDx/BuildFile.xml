@@ -1,0 +1,21 @@
+<use   name="FWCore/Framework"/>
+<use   name="FWCore/PluginManager"/>
+<use   name="FWCore/ParameterSet"/>
+<use   name="FWCore/ServiceRegistry"/>
+<use   name="DataFormats/TrackReco"/>
+<use   name="DataFormats/DetId"/>
+<use   name="DataFormats/TrackerRecHit2D"/>
+<use   name="Geometry/Records"/>
+<use   name="Geometry/TrackerGeometryBuilder"/>
+<use   name="CondCore/DBOutputService"/>
+<use   name="CondFormats/PhysicsToolsObjects"/>
+<use   name="CondFormats/DataRecord"/>
+<use   name="TrackingTools/TrajectoryState"/>
+<use   name="PhysicsTools/UtilAlgos"/>
+<use   name="HLTrigger/HLTcore"/>
+<use   name="rootcore"/>
+<use   name="root"/>
+<use   name="clhep"/>
+<export>
+  <lib   name="1"/>
+</export>

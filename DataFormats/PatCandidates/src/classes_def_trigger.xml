@@ -1,0 +1,103 @@
+<lcgdict>
+ <selection>
+
+  <class name="pat::TriggerObject"  ClassVersion="10">
+   <version ClassVersion="10" checksum="2299474032"/>
+  </class>
+  <class name="std::vector<pat::TriggerObject>" />
+  <class name="std::vector<pat::TriggerObject>::const_iterator" />
+  <class name="edm::Wrapper<std::vector<pat::TriggerObject> >" />
+  <class name="pat::TriggerObjectRef" />
+  <class name="std::pair<std::string, pat::TriggerObjectRef>" />
+  <class name="std::map<std::string, pat::TriggerObjectRef>" />
+  <class name="pat::TriggerObjectRefProd" />
+  <class name="edm::Wrapper<pat::TriggerObjectRefProd>" />
+  <class name="pat::TriggerObjectRefVector" />
+  <class name="pat::TriggerObjectRefVectorIterator" />
+  <class name="edm::Association<std::vector<pat::TriggerObject> >" />
+  <class name="edm::reftobase::Holder<reco::Candidate,pat::TriggerObjectRef>" />
+  <class name="edm::reftobase::RefHolder<pat::TriggerObjectRef>" />
+  <class name="edm::Wrapper<edm::Association<std::vector<pat::TriggerObject> > >" />
+  <class name="edm::RefProd<edm::Association<std::vector<pat::TriggerObject> > >" />
+  <class name="std::pair<std::string, edm::RefProd<edm::Association<std::vector<pat::TriggerObject> > > >" />
+  <class name="std::map<std::string, edm::RefProd<edm::Association<std::vector<pat::TriggerObject> > > >" />
+  <class name="std::map<std::string, edm::RefProd<edm::Association<std::vector<pat::TriggerObject> > > >::const_iterator" />
+  <class name="edm::Wrapper<std::map<std::string, edm::RefProd<edm::Association<std::vector<pat::TriggerObject> > > > >" />
+
+  <class name="pat::TriggerObjectStandAlone"  ClassVersion="10">
+   <version ClassVersion="10" checksum="3478292234"/>
+  </class>
+  <class name="std::vector<pat::TriggerObjectStandAlone>" />
+  <class name="std::vector<pat::TriggerObjectStandAlone>::const_iterator" />
+  <class name="edm::Wrapper<std::vector<pat::TriggerObjectStandAlone> >" />
+  <class name="pat::TriggerObjectStandAloneRef" />
+  <class name="pat::TriggerObjectStandAloneRefProd" />
+  <class name="edm::Wrapper<pat::TriggerObjectStandAloneRefProd>" />
+  <class name="pat::TriggerObjectStandAloneRefVector" />
+  <class name="pat::TriggerObjectStandAloneRefVectorIterator" />
+  <class name="edm::Association<std::vector<pat::TriggerObjectStandAlone> >" />
+  <class name="edm::reftobase::Holder<reco::Candidate,pat::TriggerObjectStandAloneRef>" />
+  <class name="edm::reftobase::RefHolder<pat::TriggerObjectStandAloneRef>" />
+  <class name="edm::Wrapper<edm::Association<std::vector<pat::TriggerObjectStandAlone> > >" />
+
+  <class name="pat::TriggerFilter"  ClassVersion="10">
+   <version ClassVersion="10" checksum="2906762000"/>
+  </class>
+  <class name="std::vector<pat::TriggerFilter>" />
+  <class name="std::vector<pat::TriggerFilter>::const_iterator" />
+  <class name="edm::Wrapper<std::vector<pat::TriggerFilter> >" />
+  <class name="pat::TriggerFilterRef" />
+  <class name="pat::TriggerFilterRefProd" />
+  <class name="edm::Wrapper<pat::TriggerFilterRefProd >" />
+  <class name="pat::TriggerFilterRefVector" />
+  <class name="pat::TriggerFilterRefVectorIterator" />
+
+  <class name="pat::TriggerPath"  ClassVersion="10">
+   <version ClassVersion="10" checksum="2458567651"/>
+  </class>
+  <class name="std::vector<pat::TriggerPath>" />
+  <class name="std::vector<pat::TriggerPath>::const_iterator" />
+  <class name="edm::Wrapper<std::vector<pat::TriggerPath> >" />
+  <class name="pat::TriggerPathRef" />
+  <class name="pat::TriggerPathRefProd" />
+  <class name="edm::Wrapper<pat::TriggerPathRefProd >" />
+  <class name="pat::TriggerPathRefVector" />
+  <class name="pat::TriggerPathRefVectorIterator" />
+  <class name="pat::L1Seed" />
+  <class name="std::vector<pat::L1Seed>" />
+  <class name="std::vector<pat::L1Seed>::const_iterator" />
+
+  <class name="pat::TriggerCondition"  ClassVersion="10">
+   <version ClassVersion="10" checksum="4134787846"/>
+  </class>
+  <class name="std::vector<pat::TriggerCondition>" />
+  <class name="std::vector<pat::TriggerCondition>::const_iterator" />
+  <class name="edm::Wrapper<std::vector<pat::TriggerCondition> >" />
+  <class name="pat::TriggerConditionRef" />
+  <class name="pat::TriggerConditionRefProd" />
+  <class name="edm::Wrapper<pat::TriggerConditionRefProd >" />
+  <class name="pat::TriggerConditionRefVector" />
+  <class name="pat::TriggerConditionRefVectorIterator" />
+
+  <class name="pat::TriggerAlgorithm"  ClassVersion="10">
+   <version ClassVersion="10" checksum="1625162602"/>
+  </class>
+  <class name="std::vector<pat::TriggerAlgorithm>" />
+  <class name="std::vector<pat::TriggerAlgorithm>::const_iterator" />
+  <class name="edm::Wrapper<std::vector<pat::TriggerAlgorithm> >" />
+  <class name="pat::TriggerAlgorithmRef" />
+  <class name="pat::TriggerAlgorithmRefProd" />
+  <class name="edm::Wrapper<pat::TriggerAlgorithmRefProd >" />
+  <class name="pat::TriggerAlgorithmRefVector" />
+  <class name="pat::TriggerAlgorithmRefVectorIterator" />
+
+  <class name="pat::TriggerEvent"  ClassVersion="10">
+   <version ClassVersion="10" checksum="174329539"/>
+  </class>
+  <class name="edm::Wrapper<pat::TriggerEvent>" />
+
+  </selection>
+ <exclusion>
+ </exclusion>
+</lcgdict>
+

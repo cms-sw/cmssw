@@ -1,0 +1,49 @@
+#ifndef Alignment_SurveyAnalysis_SurveyInputTrackerFromDB_h
+#define Alignment_SurveyAnalysis_SurveyInputTrackerFromDB_h
+
+/** \class SurveyInputTrackerFromDB
+ *
+ *  Class to read ideal tracker from DB.
+ *
+ *  $Date: 2012/06/13 16:23:31 $
+ *  $Revision: 1.5 $
+ *  \author Chung Khim Lae
+ */
+
+#include "Alignment/SurveyAnalysis/interface/SurveyInputBase.h"
+#include "Alignment/SurveyAnalysis/interface/SurveyInputTextReader.h"
+
+namespace edm {
+  class ParameterSet;
+}
+
+class SurveyInputTrackerFromDB:
+  public SurveyInputBase
+{
+public:
+	
+  SurveyInputTrackerFromDB(
+			   const edm::ParameterSet&
+			   );
+	
+  /// Read ideal tracker geometry from DB
+  virtual void analyze(
+		       const edm::Event&,
+		       const edm::EventSetup&
+		       );
+	
+private:
+	
+  SurveyInputTextReader::MapType uIdMap;
+
+  std::string textFileName;
+	
+  /// Add survey info to an alignable
+  void addSurveyInfo(
+		     Alignable*
+		     );
+
+  const edm::ParameterSet theParameterSet;
+};
+
+#endif

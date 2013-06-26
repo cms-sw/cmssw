@@ -1,0 +1,67 @@
+			TODO list
+			---------
+Before Phase 1 Initial Release
+------------------------------
+
+
+<ALL DONE!>
+
+		
+To Complete Phase 1
+-------------------
+
+<ALL DONE!>
+		
+
+Known for Phase 2
+-----------------
+
+statistics destination(s) 
+
+Destination connecting to log4cplus - set up the basics involving
+EventFilter package dependency and so forth.
+
+Destination connecting to log4cplus - polish
+
+Information order (is time etc first or last...)
+
+Default behaviour (particularly destination) if none provided.
+
+Deal with case of ofstream failing to construct.
+
+Multiple types in a message ID (note - this requires ErrorLogger work) -
+we need first to discuss the meaning of this, both in filtering and in
+statistics.
+
+Vet the Guide to Issuing CMS MessageLogger Messages
+
+If no destinations attached, re-enable cerr (may already be done)
+
+Add string name for debug's severity of DEBUG to map (may already be done)
+
+Figure out how CMS wants to specify which directory the log files should go to
+
+other filtering options
+
+context
+
+endl support
+
+multi-statement message building
+
+logger control after configuration - first decide if this is to be done at all
+
+			Recommended options
+			-------------------
+
+Way to incorporate Module name
+
+
+ErrorLogger has a scheme for establishing debug verbosity levels and
+discriminating about whether a given message will be rapidly discarded
+based on the level assigned. The LogDebug mechanism should be able to 
+exploit that scheme.
+
+
+			Plausible options
+			-----------------

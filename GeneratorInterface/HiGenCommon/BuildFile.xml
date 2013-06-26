@@ -1,0 +1,8 @@
+<use   name="GeneratorInterface/Core"/>
+<use   name="SimDataFormats/GeneratorProducts"/>
+<use   name="SimGeneral/HepPDTRecord"/>
+<use   name="FWCore/ParameterSet"/>
+<use   name="IOMC/EventVertexGenerators"/>
+<export>
+  <lib   name="1"/>
+</export>
