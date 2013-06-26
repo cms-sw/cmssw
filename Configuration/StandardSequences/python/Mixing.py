@@ -107,6 +107,8 @@ addMixingScenario("FS_2012_Startup_inTimeOnly",{'file': 'FastSimulation.PileUpPr
 addMixingScenario("FS_2012_Summer_inTimeOnly",{'file': 'FastSimulation.PileUpProducer.PileUpSimulator_2012_Summer_inTimeOnly_cff'})
 addMixingScenario("FS_mix_2012_Startup_inTimeOnly",{'file': 'FastSimulation.PileUpProducer.mix_2012_Startup_inTimeOnly_cff'})
 addMixingScenario("FS_mix_2012_Summer_inTimeOnly",{'file': 'FastSimulation.PileUpProducer.mix_2012_Summer_inTimeOnly_cff'})
+addMixingScenario("FS_E14TeV_2012SummerLike_inTimeOnly",{'file': 'FastSimulation.PileUpProducer.PileUpSimulator_E14TeV_2012SummerLike_inTimeOnly_cff'})
+addMixingScenario("FS_E14TeV_PU50_inTimeOnly",{'file': 'FastSimulation.PileUpProducer.PileUpSimulator_E14TeV_PU50_inTimeOnly_cff'})
 
 
 #scenarios for L1 tdr work
