@@ -17,8 +17,8 @@ questions please have a look at the [FAQ](faq.html) pages.
 
 > Set up the work area just like you used to.
 
-    > scram project CMSSW_6_2_0_pre7
-    > cd CMSSW_6_2_0_pre7/src
+    > scram project CMSSW_6_2_0_pre8
+    > cd CMSSW_6_2_0_pre8/src
     > cmsenv
 
 ### Checkout a few packages using git cms-addpkg
@@ -27,17 +27,16 @@ questions please have a look at the [FAQ](faq.html) pages.
 The src directory is populated with just what we asked for (here
 `Tutorial/Test`).
 
-    > git cms-addpkg Tutorial/Test CMSSW_6_2_0_TUTORIAL
+    > git cms-addpkg Tutorial/Test
     > ls Tutorial/Test/bin
     BuildFile.xml
 
->Notice we had to provide the `CMSSW_6_2_0_TUTORIAL` tag explicitly because
->there is no real release called like that. By default it would simply use the
->current release name (e.g. CMSSW_6_2_0_pre7). At any point you can list the
-> available branches via `git branch`.
+>By default it would simply use the current release tag (e.g.
+>CMSSW_6_2_0_pre8). At any point you can list the available branches via `git
+>branch`.
 
     > git branch
-    * from-CMSSW_6_2_0_TUTORIAL
+    * from-CMSSW_6_2_0_pre8
 
 > the `*` next to the branch name will tell you which one is the current one.
 > The name of the branch is meant to show you the tag which was used as a base
@@ -64,7 +63,7 @@ The src directory is populated with just what we asked for (here
     > cd Tutorial/Test
     > nedit bin/BuildFile.xml
     > git commit -m "Test feature" bin/BuildFile.xml
-    [my-new-feature dc306ba] Test feature
+    [my-new-feature 8135042] Test feature
      1 file changed, 1 insertion(+)
 
 > You have just committed to your **LOCAL** copy of the repository.
@@ -79,8 +78,8 @@ The src directory is populated with just what we asked for (here
 >To show what remotes are available you can use `git remote show`:
 
     > git remote show
-    official-cmssw
     my-cmssw
+    official-cmssw
 
 >The general workflow for development will be the following:
 >- Fetch official sources from `official-cmssw`.
@@ -128,16 +127,17 @@ The src directory is populated with just what we asked for (here
 
 ![Pull request](images/pull-request-gui.png)
 
-> First of all, select the "head branch" i.e. your addition on to of the official CMSSW.
+> If you click on the "Edit" button in the top right corner, you can select the
+> "head branch" i.e. your addition on to of the official CMSSW.
 
 ![Pull request](images/head-branch.png)
 
-> Then select the "base branch", i.e. the one to which you want to have your changes merged.
+> Or change the "base branch", i.e. the one to which you want to have your changes merged.
 
 ![Pull requests GUI](images/base-branch.png)
 
-> *write a sensible comment* just like you used to do for the publishing of
-> tagsets and click on Send Pull Request.
+> Remember to *write a sensible comment* just like you used to do for the
+> publishing of tagsets and click on Send Pull Request.
 
 ### Go to the Topic Collector and check approval status
 
