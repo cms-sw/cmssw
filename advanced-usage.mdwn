@@ -246,6 +246,35 @@ particular once you are familiar with the concept you might want to look at
 more flexibility when you want to do more that simply merge a set of commits
 into one.
 
+### I made a mess and I do not know what I've currently checked out!
+
+It can happen that due to wrong manipulations of the history, merging or
+rebasing, one finds itself with the current branch ref pointing to something
+unexpected. In order to view the history of the actions done, one can use the
+
+    git reflog
+
+command which will print out the various steps of the HEAD. E.g:
+
+    7225357 HEAD@{0}: commit: Align header.
+    a59e3bd HEAD@{1}: rebase -i (finish): returning to refs/heads/gh-pages
+    a59e3bd HEAD@{2}: rebase -i (pick): Typos.
+    fbb9019 HEAD@{3}: rebase -i (pick): Nicer tables.
+    83a21a1 HEAD@{4}: rebase -i (pick): Migration postponed.
+    5acef5f HEAD@{5}: rebase -i (squash): Move Rosetta stone in a glorified page.
+    9911088 HEAD@{6}: rebase -i (squash): updating HEAD
+    d3f80cb HEAD@{7}: checkout: moving from gh-pages to d3f80cb
+    f48873e HEAD@{8}: commit: Move rosetta.
+    ff1e4b0 HEAD@{9}: rebase -i (finish): returning to refs/heads/gh-pages
+
+One can then use `git reset --hard <some-hash>` to revert back to some point in
+history.
+
+To learn more about git reflog you can look at [its man
+page](https://www.kernel.org/pub/software/scm/git/docs/git-reflog.html) or the
+[Pro Git](http://git-scm.com/book/ch6-1.html#RefLog-Shortnames) section about
+it.
+
 ### How do I ask a question?
 
 If you have more questions about git and CMSSW on git, please use [this

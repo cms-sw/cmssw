@@ -1,0 +1,31 @@
+---
+title: CMS Offline Software
+layout: default
+related:
+ - { name: Project page, link: https://github.com/cms-sw/cmssw }
+ - { name: Topic Collector, link: https://cern.ch/cmsgit/cmsgit }
+ - { name: Feedback, link: https://github.com/cms-sw/cmssw/issues/new }
+---
+# Rosetta Stone
+
+### Converting CVS-speak to git-speak
+
+| CMS CVS                              | CMS GIT                                      |
+| -                                    | -                                            |
+| tagset                               | topic branch                                 |
+| publish a tagset                     | create a pull request                        |
+| Tag Collector                        | Topic Collector                              |
+| `addpkg`                             | `git addpkg`                                 |
+| `checkdeps`                          | `git checkdeps`                              |
+| `cmstc tagset <tagset-id> -a`        | `git cms-merge-topic <topic-id>`             |
+| `cvs log`                            | `git log`                                    |
+| `cvs diff -r some tag`               | `git diff -r <some-tag>`                     |
+| `cvs diff -r TAG1 -r TAG2 Package`   | `git diff TAG1..TAG2 Package`                |
+
+
+### Converting "Real World" git to "CMS" git
+
+| Rest of the world                    | CMS                                          |
+| -                                    | -                                            |
+| `upstream`                           | `official-cmssw`                             |
+| `origin`                             | `my-cmssw`                                   |
