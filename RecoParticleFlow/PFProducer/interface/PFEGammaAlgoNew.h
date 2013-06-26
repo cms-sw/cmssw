@@ -173,8 +173,8 @@ class PFEGammaAlgoNew {
   //get the PFCandidateExtra (for all candidates)
   reco::PFCandidateEGammaExtraCollection& getEGExtra() {return outcandsextra_;}
   
-  //get electron PFCandidate
-  
+  //get refined SCs
+  reco::SuperClusterCollection& getRefinedSCs() {return refinedscs_;}
   
 private: 
   

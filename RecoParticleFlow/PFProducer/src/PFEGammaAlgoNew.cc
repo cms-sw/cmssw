@@ -1956,17 +1956,21 @@ fillPFCandidates(const std::list<PFEGammaAlgoNew::ProtoEGObject>& ROs,
     }    
     if( RO.primaryKFs.size() ) {
       cand.setCharge(RO.primaryKFs[0].first->trackRef()->charge());
+      xtra.setKfTrackRef(RO.primaryKFs[0].first->trackRef());
       cand.setTrackRef(RO.primaryKFs[0].first->trackRef());
       cand.addElementInBlock(_currentblock,RO.primaryKFs[0].first->index());
     }
     if( RO.primaryGSFs.size() ) {        
       cand.setCharge(RO.primaryGSFs[0].first->GsftrackRef()->chargeMode());
+      xtra.setGsfTrackRef(RO.primaryGSFs[0].first->GsftrackRef());
       cand.setGsfTrackRef(RO.primaryGSFs[0].first->GsftrackRef());
       cand.addElementInBlock(_currentblock,RO.primaryGSFs[0].first->index());
     }
     if( RO.parentSC ) {
-      // we'll set the refined supercluster back up in the producer
+      xtra.setSuperClusterBoxRef(RO.parentSC->superClusterRef());      
+      // we'll set to the refined supercluster back up in the producer
       cand.setSuperClusterRef(RO.parentSC->superClusterRef());
+      xtra.setSuperClusterRef(RO.parentSC->superClusterRef());      
       cand.addElementInBlock(_currentblock,RO.parentSC->index());
     }
     // add brems

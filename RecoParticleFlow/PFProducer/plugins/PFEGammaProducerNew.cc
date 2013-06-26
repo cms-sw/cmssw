@@ -82,9 +82,7 @@ PFEGammaProducerNew::PFEGammaProducerNew(const edm::ParameterSet& iConfig) {
 
   // register products
   produces<reco::PFCandidateCollection>();
-  produces<reco::PFCandidateEGammaExtraCollection>();
-  produces<reco::CaloClusterCollection>("EBEEClusters");
-  produces<reco::CaloClusterCollection>("ESClusters");
+  produces<reco::PFCandidateEGammaExtraCollection>();  
   produces<reco::SuperClusterCollection>();
   
   //PFElectrons Configuration
@@ -420,158 +418,41 @@ PFEGammaProducerNew::produce(edm::Event& iEvent,
 	      pfeg_->getEGExtra().end(),
 	      egxinsertfrom);
 
+    const size_t rscsize = sClusters_->size();
+    sClusters_->resize(egxsize + pfeg_->getRefinedSCs().size());
+    reco::SuperClusterCollection::iterator rscinsertfrom = 
+      sClusters_->begin() + rscsize;
+    std::move(pfeg_->getRefinedSCs().begin(),
+	      pfeg_->getRefinedSCs().end(),
+	      rscinsertfrom);
+
     LOGDRESSED("PFEGammaProducerNew")
       << "post algo: egCandidates size = " 
       << egCandidates_->size() << std::endl;
   }
   
-//   edm::RefProd<reco::CaloClusterCollection> ebeeClusterProd = iEvent.getRefBeforePut<reco::CaloClusterCollection>("EBEEClusters");
-//   edm::RefProd<reco::CaloClusterCollection> esClusterProd = iEvent.getRefBeforePut<reco::CaloClusterCollection>("ESClusters");
   edm::RefProd<reco::SuperClusterCollection> sClusterProd = 
     iEvent.getRefBeforePut<reco::SuperClusterCollection>();
+
+  edm::RefProd<reco::PFCandidateEGammaExtraCollection> egXtraProd = 
+    iEvent.getRefBeforePut<reco::PFCandidateEGammaExtraCollection>();
   
-  //printf("loop over candidates\n");
-  //make CaloClusters for Refined SuperClusters
-  // LGRAY -- why do we need to do this... can't we just keep the references
-  //          of the original EGcand??
-  // This is super bloaty other wise.... we should fix this...
-  std::vector<std::vector<int> > ebeeidxs(egCandidates_->size());
-  std::vector<std::vector<int> > esidxs(egCandidates_->size());;
-  for (unsigned int icand=0; icand<egCandidates_->size(); ++icand) {
-    reco::PFCandidate &cand = egCandidates_->at(icand);
-    //reco::PFCandidateEGammaExtra &extra = egExtra_->at(icand);
-
-    //loop over blockelements
-   // printf("loop over blockelements\n");
-    // this auto is a reco::PFCandidate::ElementsInBlocks
-    for( const auto& used : cand.elementsInBlocks() ) {    
-      const reco::PFBlockElement& element(used.first->elements()[used.second]);
-      switch( element.type() ) {
-      case reco::PFBlockElement::ECAL:
-        ebeeClusters_->push_back( *(element.clusterRef()) );
-        ebeeidxs[icand].push_back(ebeeClusters_->size()-1);     
-	break;
-      case reco::PFBlockElement::PS1:
-      case reco::PFBlockElement::PS2:
-	esClusters_->push_back( *(element.clusterRef()) );	 
-	esidxs[icand].push_back(esClusters_->size()-1);
-	break;
-      default:
-	break;
-      }
-    }
-  }
+  //set the correct references to refined SC and EG extra using the refprods
+  for (unsigned int i=0; i < egCandidates_->size(); ++i) {
+    reco::PFCandidate &cand = egCandidates_->at(i);
+    reco::PFCandidateEGammaExtra &xtra = egExtra_->at(i);
     
-  //put cluster products
-  std::auto_ptr< reco::CaloClusterCollection >
-    pOutputEBEEClusters( ebeeClusters_ ); 
-  edm::OrphanHandle<reco::CaloClusterCollection > ebeeClusterProd=
-    iEvent.put(pOutputEBEEClusters,"EBEEClusters");        
+    reco::SuperClusterRef refinedSCRef(sClusterProd,i);
+    reco::PFCandidateEGammaExtraRef extraref(egXtraProd,i);
     
-  std::auto_ptr< reco::CaloClusterCollection >
-    pOutputESClusters( esClusters_ ); 
-  edm::OrphanHandle<reco::CaloClusterCollection > esClusterProd=
-    iEvent.put(pOutputESClusters,"ESClusters");         
-    
-  //loop over sets of clusters to make superclusters
-  for (unsigned int iclus=0; iclus<egCandidates_->size(); ++iclus) {
-    reco::PFCandidate &cand = egCandidates_->at(iclus);
-    reco::PFCandidateEGammaExtra &extra = egExtra_->at(iclus);    
-
-    const std::vector<int> &ebeeidx = ebeeidxs[iclus];
-    const std::vector<int> &esidx = esidxs[iclus];
-    reco::CaloClusterPtr seed;
-    
-    reco::CaloClusterPtrVector ebeeclusters;
-    reco::CaloClusterPtrVector esclusters;
-    
-    double maxenergy = 0.;
-    double rawenergy = 0.;
-    double energy = 0.;
-
-    double posX = 0.;
-    double posY = 0.;
-    double posZ = 0.;
-    for (unsigned int icaloclus=0; icaloclus<ebeeidx.size(); ++icaloclus) {
-      const reco::CaloCluster &cluster = ebeeClusterProd->at(ebeeidx[icaloclus]);
-      reco::CaloClusterPtr caloptr(ebeeClusterProd,ebeeidx[icaloclus]);
-      ebeeclusters.push_back(caloptr);
-            
-      rawenergy += cluster.energy();        
-      energy += cluster.energy();   
-      
-      posX += cluster.energy()*cluster.position().x();
-      posY += cluster.energy()*cluster.position().y();
-      posZ += cluster.energy()*cluster.position().z();
-      
-      if (cluster.energy()>maxenergy) {
-        maxenergy = cluster.energy();
-        seed = caloptr;
-      }      
-    }
-    
-    for (unsigned int icaloclus=0; icaloclus<esidx.size(); ++icaloclus) {
-      const reco::CaloCluster &cluster = esClusterProd->at(esidx[icaloclus]);
-      
-      reco::CaloClusterPtr caloptr(esClusterProd,esidx[icaloclus]);
-      esclusters.push_back(caloptr);
-      
-      energy += cluster.energy();        
-    } 
-        
-    posX /= rawenergy;
-    posY /= rawenergy;
-    posZ /= rawenergy;
-    
-    math::XYZPoint scposition(posX,posY,posZ);
-    
-    reco::SuperCluster refinedSC(rawenergy,scposition,seed,ebeeclusters,esclusters);
-    sClusters_->push_back(refinedSC);
-    
-    reco::SuperClusterRef scref(sClusterProd,sClusters_->size()-1);
-    cand.setSuperClusterRef(scref);
-    extra.setSuperClusterRef(scref);
-  }
-    
-// Save the PFEGamma Extra Collection First as to be able to create valid References  
-  std::auto_ptr< reco::PFCandidateEGammaExtraCollection >
-    pOutputEGammaCandidateExtraCollection( egExtra_ );    
-  const edm::OrphanHandle<reco::PFCandidateEGammaExtraCollection > egammaExtraProd=
-    iEvent.put(pOutputEGammaCandidateExtraCollection);      
-  //pfAlgo_->setEGammaExtraRef(egammaExtraProd);
-   
-  //final loop over Candidates to set PFCandidateEGammaExtra references
-  for (unsigned int icand=0; icand<egCandidates_->size(); ++icand) {
-    reco::PFCandidate &cand = egCandidates_->at(icand);
-    
-    reco::PFCandidateEGammaExtraRef extraref(egammaExtraProd,icand);
+    xtra.setSuperClusterRef(refinedSCRef); 
+    cand.setSuperClusterRef(refinedSCRef);
     cand.setPFEGammaExtraRef(extraref);    
   }
-     
-    
-  std::auto_ptr< reco::SuperClusterCollection >
-    pOutputSClusters( sClusters_ ); 
-  //edm::OrphanHandle<reco::SuperClusterCollection > sClusterProd=
-    iEvent.put(pOutputSClusters);    
-    
-  // Save the final PFCandidate collection
-  std::auto_ptr< reco::PFCandidateCollection > 
-    pOutputCandidateCollection( egCandidates_ ); 
-  
-
-  
-//   LogDebug("PFEGammaProducerNew")<<"particle flow: putting products in the event"<<std::endl;
-//   if ( verbose_ ) std::cout <<"particle flow: putting products in the event. Here the full list"<<std::endl;
-//   int nC=0;
-//   for( reco::PFCandidateCollection::const_iterator  itCand =  (*pOutputCandidateCollection).begin(); itCand !=  (*pOutputCandidateCollection).end(); itCand++) {
-//     nC++;
-//       if (verbose_ ) std::cout << nC << ")" << (*itCand).particleId() << std::std::endl;
-// 
-//   }
-// 
-//   // Write in the event
-   iEvent.put(pOutputCandidateCollection);
- 
+  // release our demonspawn into the wild to cause havoc
+  iEvent.put(sClusters_);
+  iEvent.put(egExtra_);  
+  iEvent.put(egCandidates_); 
 }
 
 //PFEGammaAlgo: a new method added to set the parameters for electron and photon reconstruction. 
