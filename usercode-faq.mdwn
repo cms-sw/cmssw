@@ -113,7 +113,7 @@ the above mentioned `MY_REMOTE` variable.
 
 ### Do you have any more in-depth FAQs?
 
-Yes, please look at the [Standard git FAQ](faq) or at the [Advanced
+Yes, please look at the [Standard git FAQ](faq.html) or at the [Advanced
 Usage](advanced-usage) section.
 
 ### How do I prevent people from committing to the old CVS area?

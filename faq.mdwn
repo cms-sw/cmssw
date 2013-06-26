@@ -19,6 +19,7 @@ related:
 - github.com specific help can be found at <https://help.github.com>.
 - A 15 minutes, interactive, git tutorial <http://try.github.com/levels/1/challenges/1>
 - A nice video about git <http://www.youtube.com/watch?v=ZDR433b0HJY>
+- Even more FAQs <https://git.wiki.kernel.org/index.php/Git_FAQ>
 
 ### How do I subscribe to github?
 
@@ -135,19 +136,11 @@ You can also have a look at the CMS git tutorial found [here](tutorial).
 
 Please have a look at the [UserCode FAQ](usercode-faq).
 
-### CVS-speak to git speak
+### I used to do X in CVS how do I do the same in git?
 
-| CMS CVS                              | CMS GIT                                          |
-| -                                    | -                                                |
-| tagset                               | topic branch                                     |
-| publish a tagset                     | create a pull request                            |
-| Tag Collector                        | Topic Collector                                  |
-| `addpkg`                             | `git cms-addpkg`                                 |
-| `checkdeps`                          | `git cms-checkdeps`                              |
-| `cmstc tagset <tagset-id> -a`        | `git pull official-cmssw --track <topic-branch>` |
-| `cvs log`                            | `git log`                                        |
-| `cvs diff -r some tag`               | `git diff -r <some-tag>`                         |
-| `cvs diff -r TAG1 -r TAG2 Package`   | `git diff TAG1..TAG2 Package`                    |
+Please have a look at the [Rosetta Stone](rosetta.html) page which has a few
+conversions from CVS-speak to git-speak. Keep in mind that due to different
+designs not all the things which you do in one are possible in the other.
 
 ### How do I tag a single package?
 
