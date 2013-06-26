@@ -8,7 +8,7 @@
 //
 // Original Author:  Joshua Berger
 //         Created:  Mon Jun 23 15:48:11 EDT 2008
-// $Id: CmsShowEDI.cc,v 1.46.2.1 2012/02/18 01:58:26 matevz Exp $
+// $Id: CmsShowEDI.cc,v 1.51 2013/04/05 22:39:44 amraktad Exp $
 //
 
 // system include files
@@ -114,7 +114,11 @@ CmsShowEDI::CmsShowEDI(const TGWindow* p, UInt_t w, UInt_t h, FWSelectionManager
       .addLabel("Expression", 8)
       .addValidatingTextEntry(0, &m_selectExpressionEntry)
       .addTextButton("Select", &m_selectButton).floatLeft().expand(false)
-      .addTextButton("Select all", &m_selectAllButton).expand(false)
+      .addTextButton("Select all", &m_selectAllButton).expand(false).floatLeft()
+      .addTextButton("Unselect all", &m_deselectAllButton).expand(false)
+      .indent(3)
+      .addLabel("Color Selection", 8)
+      .addColorPicker(colorMgr, &m_cw).expand(false)
       .addTextView("", &m_selectError)
       .vSpacer()
       .endTab()
@@ -149,6 +153,7 @@ CmsShowEDI::CmsShowEDI(const TGWindow* p, UInt_t w, UInt_t h, FWSelectionManager
    m_selectExpressionEntry->setValidator(m_validator);
 
    m_colorSelectWidget->Connect("ColorChosen(Color_t)", "CmsShowEDI", this, "changeItemColor(Color_t)");
+   m_cw->Connect("ColorChosen(Color_t)", "CmsShowEDI", this, "changeSelectionColor(Color_t)");
    m_opacitySlider->Connect("PositionChanged(Int_t)", "CmsShowEDI", this, "changeItemOpacity(Int_t)");
    m_isVisibleButton->Connect("Toggled(Bool_t)", "CmsShowEDI", this, "toggleItemVisible(Bool_t)");
    m_filterExpressionEntry->Connect("ReturnPressed()", "CmsShowEDI", this, "runFilter()");
@@ -157,6 +162,7 @@ CmsShowEDI::CmsShowEDI(const TGWindow* p, UInt_t w, UInt_t h, FWSelectionManager
    m_selectButton->Connect("Clicked()", "CmsShowEDI", this, "runSelection()");
    m_removeButton->Connect("Clicked()", "CmsShowEDI", this, "removeItem()");
    m_selectAllButton->Connect("Clicked()", "CmsShowEDI", this, "selectAll()");
+   m_deselectAllButton->Connect("Clicked()", "CmsShowEDI", this, "deselectAll()");
    m_frontButton->Connect("Clicked()","CmsShowEDI",this,"moveToFront()");
    m_backButton->Connect("Clicked()","CmsShowEDI",this,"moveToBack()");
    m_layerEntry->Connect("ValueSet(Long_t)","CmsShowEDI",this,"moveToLayer(Long_t)");
@@ -185,6 +191,7 @@ CmsShowEDI::~CmsShowEDI()
 {
    disconnectAll();
    m_colorSelectWidget->Disconnect("ColorSelected(Pixel_t)", this, "changeItemColor(Pixel_t)");
+   m_cw->Disconnect("ColorSelected(Pixel_t)", this, "changeSelectionColor(Pixel_t)");
    m_opacitySlider->Disconnect("PositionChanged(Int_t)", this, "changeItemColor");
    m_isVisibleButton->Disconnect("Toggled(Bool_t)", this, "toggleItemVisible(Bool_t)");
    m_filterExpressionEntry->Disconnect("ReturnPressed()", this, "runFilter()");
@@ -192,6 +199,7 @@ CmsShowEDI::~CmsShowEDI()
    m_filterButton->Disconnect("Clicked()", this, "runFilter()");
    m_selectButton->Disconnect("Clicked()", this, "runSelection()");
    m_selectAllButton->Disconnect("Clicked()", this, "selectAll()");
+   m_deselectAllButton->Disconnect("Clicked()", this, "deselectAll()");
    m_removeButton->Disconnect("Clicked()", this, "removeItem()");
    m_frontButton->Disconnect("Clicked()",this,"moveToFront()");
    m_backButton->Disconnect("Clicked()",this,"moveToBack()");
@@ -270,6 +278,9 @@ CmsShowEDI::fillEDIFrame() {
          m_filterButton->SetEnabled(kTRUE);
          m_selectButton->SetEnabled(kTRUE);
          m_selectAllButton->SetEnabled(kTRUE);
+         m_deselectAllButton->SetEnabled(kTRUE);
+	 m_cw->SetColorByIndex(p.color(),kFALSE);
+         m_cw->SetEnabled(kTRUE);
          m_removeButton->SetEnabled(kTRUE);
          updateLayerControls();
          m_layerEntry->SetState(kTRUE);
@@ -384,6 +395,7 @@ CmsShowEDI::disconnectAll() {
       m_selectExpressionEntry->SetEnabled(kFALSE);
       m_selectButton->SetEnabled(kFALSE);
       m_selectAllButton->SetEnabled(kFALSE);
+      m_deselectAllButton->SetEnabled(kFALSE);
       m_removeButton->SetEnabled(kFALSE);
       m_backButton->SetEnabled(kFALSE);
       m_frontButton->SetEnabled(kFALSE);
@@ -406,6 +418,7 @@ CmsShowEDI::changeItemColor(Color_t color) {
    FWDisplayProperties changeProperties = m_item->defaultDisplayProperties();
    changeProperties.setColor(color);
    m_item->setDefaultDisplayProperties(changeProperties);
+   m_cw->SetColorByIndex(color,kFALSE);
 }
 
 /** See changeItemColor for additional details.*/
@@ -461,7 +474,7 @@ CmsShowEDI::runSelection() {
          FWEventItem* item = m_item;
          item->selectionManager()-> clearModelSelectionLeaveItem();
 
-         selector.select(item, selection);
+         selector.select(item, selection, TColor::GetColor(m_cw->GetColor()));
       }
       catch( const FWExpressionException& e)
       {
@@ -484,6 +497,29 @@ CmsShowEDI::selectAll()
       m_item->select(i);
    }
 }
+void
+CmsShowEDI::deselectAll()
+{
+   FWChangeSentry sentry(*(m_item->changeManager()));
+   for (int i = 0; i < static_cast<int>(m_item->size()); i++)
+   {
+      m_item->unselect(i);
+   }
+}
+
+void 
+CmsShowEDI::changeSelectionColor(Color_t c)
+{
+   FWChangeSentry sentry(*(m_item->changeManager()));
+   const std::set<FWModelId>& ss =  m_item->selectionManager()->selected();
+   FWDisplayProperties dp = m_item->defaultDisplayProperties();
+   dp.setColor(c);
+   for (std::set<FWModelId>::const_iterator i = ss.begin(); i != ss.end(); ++i ) {
+     m_item->setDisplayProperties(i->index(), dp);
+   }
+}
+
+
 void 
 CmsShowEDI::show(FWDataCategories iToView)
 {
@@ -498,5 +534,6 @@ CmsShowEDI::colorSetChanged()
    {
       const FWDisplayProperties &p = m_item->defaultDisplayProperties();
       m_colorSelectWidget->SetColorByIndex(p.color(),kFALSE);
+      m_cw->SetColorByIndex(p.color(),kFALSE);
    }
 }

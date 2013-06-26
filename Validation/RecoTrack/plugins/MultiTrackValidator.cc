@@ -11,7 +11,7 @@
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
 #include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
 #include "SimTracker/TrackAssociation/interface/TrackAssociatorByChi2.h"
-#include "SimTracker/TrackAssociation/interface/TrackAssociatorByHits.h"
+#include "SimTracker/TrackAssociation/interface/QuickTrackAssociatorByHits.h"
 #include "SimTracker/TrackerHitAssociation/interface/TrackerHitAssociator.h"
 #include "SimTracker/Records/interface/TrackAssociatorRecord.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
@@ -446,7 +446,7 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
 	  h_assochi2[www]->Fill(assocChi2);
 	  h_assochi2_prob[www]->Fill(TMath::Prob((assocChi2)*5,5));
 	}
-	else if (associators[ww]=="TrackAssociatorByHits"){
+	else if (associators[ww]=="quickTrackAssociatorByHits"){
 	  double fraction = tp.begin()->second;
 	  h_assocFraction[www]->Fill(fraction);
 	  h_assocSharedHit[www]->Fill(fraction*track->numberOfValidHits());

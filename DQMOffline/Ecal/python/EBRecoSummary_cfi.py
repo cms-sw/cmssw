@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 ecalBarrelRecoSummary = cms.EDAnalyzer("EBRecoSummary",
-    prefixME = cms.untracked.string('Ecal'),    
+    prefixME = cms.untracked.string('EcalBarrel'),    
     superClusterCollection_EB = cms.InputTag("correctedHybridSuperClusters"),
     recHitCollection_EB       = cms.InputTag("ecalRecHit","EcalRecHitsEB"),
     redRecHitCollection_EB    = cms.InputTag("reducedEcalRecHitsEB"),

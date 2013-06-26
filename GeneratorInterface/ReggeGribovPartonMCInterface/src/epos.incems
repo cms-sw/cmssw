@@ -1,0 +1,281 @@
+
+      parameter (mmrye=4,mmryk=1)   !memory saving factor
+
+      parameter (kollmx=45000/mmrye,npommx=150)
+      parameter (mamx=210/mmryk,ngrmx=1,ntymi=0,ntymx=2)
+      parameter (nflavems=4)
+
+!----------------------------------------------------------------------
+! POMERON
+!----------------------------------------------------------------------
+
+      double precision om1int,om1intc
+     *        ,atilde,btildep,btildepp
+      common/comega/om1int(kollmx),om1intc(kollmx)
+      common/comtilde/atilde(ntymi:ntymx,kollmx)
+     *,btildep(ntymi:ntymx,kollmx),btildepp(ntymi:ntymx,kollmx)
+     *,ntymin
+
+!----------------------------------------------------------------------
+! POMERON CONFIGURATION
+!----------------------------------------------------------------------
+
+      common/col/koll,iproj(kollmx),itarg(kollmx),coord(4,kollmx)
+      common/col1/kremn(mamx,mamx,2),lremn(mamx,2)
+      dimension kproj(mamx,mamx),ktarg(mamx,mamx)
+     *,lproj(mamx),ltarg(mamx)
+      equivalence (kproj(1,1),kremn(1,1,1)),(ktarg(1,1),kremn(1,1,2))
+      equivalence (lproj(1),lremn(1,1)),(ltarg(1),lremn(1,2))
+      double precision gammaV
+      common/col6/kproj3(mamx,mamx),ktarg3(mamx,mamx)
+     *,lproj3(mamx),ltarg3(mamx)
+     *,epsilongp(kollmx,0:1),epsilongt(kollmx,0:1)
+     *,epsilongs(kollmx,0:1),gammaV(kollmx)
+     *,epsilongf(kollmx),epsilongb(kollmx)
+      common/col4/bk(kollmx),bhpr(npommx,kollmx),bkx(kollmx)
+     *,bky(kollmx)
+      double precision PomInck,xxnuc,xzcutpar
+      common/col7/zparremn(kollmx,2),PomInck(kollmx),xzcutpar(kollmx)
+     *,xxnuc(mamx,2,kollmx),npnuc(mamx,2,kollmx)
+     *,irnuc(mamx,2,kollmx),knucnt(2,kollmx)
+      real zparpro(kollmx),zpartar(kollmx)
+      equivalence (zparpro(1),zparremn(1,1)),(zpartar(1),zparremn(1,2))
+
+!----------------------------------------------------------------------
+! koll: number of relevant pairs
+! iproj(k): projectile index for k-th pair
+! itarg(k): target index for k-th pair
+! lproj(ip): number of pairs linked to projectile ip
+! kproj(ip,l): corresponding pair index of the l-th pair
+! ltarg(it): number of pairs linked to target it
+! ktarg(it,l): corresponding pair index of the l-th pair
+! bk(k): b value of the k-th pair (=sqrt(bx**2.+by**2.)) 
+! bkx(k): bx value of the k-th pair
+! bky(k): by value of the k-th pair
+! lproj3(ip): number of pairs linked to projectile ip (no diffraction) 
+! kproj3(ip,l): corresponding pair index of the l-th pair (no diffraction)
+! ltarg3(it): number of pairs linked to target it (no diffraction)
+! ktarg3(it,l): corresponding pair index of the l-th pair (no diffraction)
+!----------------------------------------------------------------------
+
+      common/cems3/nprt(kollmx),npr(0:3,kollmx)
+      common/cems4/nprmx(kollmx)
+
+!----------------------------------------------------------------------
+! nprt(k):     number of pomerons of collision k
+! npr(id,k):   number of pomerons of type id of collision k
+!                   (id: 0=zero, 1=soft, 2=reggeon, 3=hard)
+! nprmx(k):    maximum number of pomerons of collision k
+!----------------------------------------------------------------------
+
+      common/cems2/itpr(kollmx),idpr(npommx,kollmx),ivpr(npommx,kollmx)
+     *,idfpr(npommx,kollmx)
+     *,nvpr(npommx,kollmx),nbkpr(npommx,kollmx)
+      
+!----------------------------------------------------------------------
+! itpr(k):     interaction type of collision k  
+!                       (0=nothing, 1=inelastic, 2=diffractive)   
+! idpr(n,k):   type of pomeron (n,k)
+!                       (0=zero, 1=soft, 2=reggeon, 3=hard)   
+! ivpr(n,k):   status of pomeron (n,k)   (0=virtual, 1=real, 2=backup)
+! nbkpr(n,k):  position of the backup pomeron
+! nvpr(n,k):   position of the pomeron for this backup pomeron
+! idfpr(n,k):  link of pomeron (n,k) (0=no, 1=pro&tar, 2=pro, 3=tar)
+!              idfpr=-1 means backup pomeron
+!----------------------------------------------------------------------
+
+      double precision xpr,ypr,xppr,xmpr,xpprbor,xmprbor
+      common/cems1/xpr(npommx,kollmx),ypr(npommx,kollmx)
+      common/cems1c/xppr(npommx,kollmx),xmpr(npommx,kollmx)
+      common/cems1d/xpprbor(npommx,kollmx),xmprbor(npommx,kollmx)
+      common/cems1e/nemispr(2,npommx,kollmx),ptprboo(2,npommx,kollmx)
+     
+!----------------------------------------------------------------------
+! xpr(n,k):     x=x+x- of pomeron (n,k)
+! ypr(n,k):     rapidity of pomeron (n,k) 
+! xpprbor(n,k): x+ of in Born parton of pomeron (n,k)
+! xmprbor(n,k): x- of in Born parton of pomeron (n,k)
+! nemispr(i,n,k): number of up (i=1) and down (i=2) emissions
+!----------------------------------------------------------------------
+
+      double precision xp1pr,xp2pr,xm1pr,xm2pr,xxp1pr,xyp1pr  
+     *                ,xxp2pr,xyp2pr,xxm1pr,xym1pr,xxm2pr,xym2pr 
+       common/cems7/xp1pr(npommx,kollmx),xp2pr(npommx,kollmx)
+     *            ,xm1pr(npommx,kollmx),xm2pr(npommx,kollmx)
+     *            ,idp1pr(npommx,kollmx),idp2pr(npommx,kollmx)
+     *            ,idm1pr(npommx,kollmx),idm2pr(npommx,kollmx)
+      common/cems8/xxp1pr(npommx,kollmx),xyp1pr(npommx,kollmx)
+     *            ,xxp2pr(npommx,kollmx),xyp2pr(npommx,kollmx)
+     *            ,xxm1pr(npommx,kollmx),xym1pr(npommx,kollmx)
+     *            ,xxm2pr(npommx,kollmx),xym2pr(npommx,kollmx)
+     
+!----------------------------------------------------------------------
+! xp1pr(n,k):  x of string end p1                               p1    p2
+! xp2pr(n,k):  x of string end p2                                \    / 
+! xm1pr(n,k):  x of string end m1                                 \  /
+! xm2pr(n,k):  x of string end m2                                  \/
+! idp1pr(n,k): id of string end p1 ( 0=0            )              /\
+! idp2pr(n,k): id of string end p2 ( 1=s    2=v     )             /  \
+! idm1pr(n,k): id of string end m1 ( 4=ss*2 5=ss    )            /    \
+! idm2pr(n,k): id of string end m2 ( 8=f            )           m1    m2
+! xxp1pr(n,k),xyp1pr(n,k): px,py of string end p1
+! xxp2pr(n,k),xyp2pr(n,k): px,py of string end p2
+! xxm1pr(n,k),xym1pr(n,k): px,py of string end m1
+! xxm2pr(n,k),xym2pr(n,k): px,py of string end m2    
+!----------------------------------------------------------------------
+     
+      double precision xme
+      common/cems11/xme(mamx)
+     
+!----------------------------------------------------------------------
+! xme(j):  x- exchange for nucleon j    
+!----------------------------------------------------------------------
+
+      common/cems22/idhpr(npommx,kollmx),idrpr(npommx,kollmx)
+     *             ,idsppr(npommx,kollmx),idstpr(npommx,kollmx)
+     
+!----------------------------------------------------------------------
+! idhpr(n,k):  flav hard Pom (n,k)  (0=gg,1=qg,2=gq,3=qq) 
+! idrpr(n,k):  flav Regg (n,k) (0=ss,1=0va0,2=v00a,3=0as0,4=s00a,5=0sv0,6=v00s)
+! idsppr(n,k): flav soft P (n,k) (proj) (0=ss,1=vs,2=sa,3=va,4=dd,5=svv,6=aas)
+! idstpr(n,k): flav soft P (n,k) (targ) (0=ss,1=vs,2=sa,3=va,4=dd,5=svv,6=aas)
+!----------------------------------------------------------------------
+
+
+!----------------------------------------------------------------------
+! REMNANT CONFIGURATION 
+!----------------------------------------------------------------------
+      common/remn4/jcpval(nflavems,2,mamx),jctval(nflavems,2,mamx)
+      common/remn3/jcpref(nflavems,2,mamx),jctref(nflavems,2,mamx)
+      common/remn2/zzremn(mamx,2)
+      common/remn/icremn(2,mamx,2)
+      dimension icproj(2,mamx),ictarg(2,mamx)     
+      double precision xpp,xmp,xpt,xmt,xxp,xyp,xxt,xyt
+      double precision xpz,xmz,xxz,xyz
+      common/cemsr/xpz(mamx,2),xmz(mamx,2)
+     *            ,xxz(mamx,2),xyz(mamx,2)
+     *            ,idz(mamx,2),ivz(mamx,2)
+     *            ,isz(mamx,2),iaz(mamx,2)
+      dimension xpp(mamx),xmp(mamx),xpt(mamx),xmt(mamx)
+     *         ,xxp(mamx),xyp(mamx),xxt(mamx),xyt(mamx)
+     *         ,idp(mamx),ivp(mamx),ivt(mamx),idt(mamx)
+     *         ,isp(mamx),iap(mamx),ist(mamx),iat(mamx)
+
+      equivalence (icproj(1,1),icremn(1,1,1))
+     *           ,(ictarg(1,1),icremn(1,1,2))
+      equivalence (xpp(1),xpz(1,1)),(xmt(1),xpz(1,2))
+     *           ,(xmp(1),xmz(1,1)),(xpt(1),xmz(1,2))
+     *           ,(xxp(1),xxz(1,1)),(xxt(1),xxz(1,2))
+     *           ,(xyp(1),xyz(1,1)),(xyt(1),xyz(1,2))
+     *           ,(idp(1),idz(1,1)),(idt(1),idz(1,2))
+     *           ,(ivp(1),ivz(1,1)),(ivt(1),ivz(1,2))
+     *           ,(isp(1),isz(1,1)),(ist(1),isz(1,2))
+     *           ,(iap(1),iaz(1,1)),(iat(1),iaz(1,2))
+     
+!----------------------------------------------------------------------
+! xpp(ip),xmp(ip),xpt(it),xmt(it): x+,x- of projectile ip / target it
+! xxp(ip),xyp(ip),xxt(it),xyt(it): px,py of projectile ip / target it
+! idp(ip),idt(it): diquark counter 
+! ivp(ip),ivt(it): valenve quark counter
+! isp(ip),ist(it): sea quark counter
+! iap(ip),iat(it): anti valence quark counter
+!----------------------------------------------------------------------
+     
+      double precision xpmn,xtmn,xpmx,xtmx,xppmx,xptmx,xmpmx,xmtmx 
+     *                 ,xppmn ,xptmn,xmpmn,xmtmn,xpos,xtos     
+      double precision xzmn,xzmx,xpzmx,xmzmx 
+     *                 ,xpzmn ,xmzmn,xzos     
+      common/cemsr1/xzmn(mamx,2),xzmx(mamx,2)
+     *             ,xpzmx(mamx,2)
+     *             ,xmzmx(mamx,2)
+     *             ,xpzmn(mamx,2)
+     *             ,xmzmn(mamx,2)
+     *             ,xzos(mamx,2)   
+      dimension  xpmn(mamx),xtmn(mamx),xpmx(mamx),xtmx(mamx)
+     *          ,xppmx(mamx),xptmx(mamx)
+     *          ,xmpmx(mamx),xmtmx(mamx)
+     *          ,xppmn(mamx),xptmn(mamx)
+     *          ,xmpmn(mamx),xmtmn(mamx)
+     *          ,xpos(mamx),xtos(mamx)    
+
+      equivalence ( xpmn(1), xzmn(1,1)),( xtmn(1), xzmn(1,2))
+     *           ,( xpmx(1), xzmx(1,1)),( xtmx(1), xzmx(1,2))
+     *           ,(xppmx(1),xpzmx(1,1)),(xptmx(1),xpzmx(1,2))
+     *           ,(xmpmx(1),xmzmx(1,1)),(xmtmx(1),xmzmx(1,2))
+     *           ,(xppmn(1),xpzmn(1,1)),(xptmn(1),xpzmn(1,2))
+     *           ,(xmpmn(1),xmzmn(1,1)),(xmtmn(1),xmzmn(1,2))
+     *           ,( xpos(1), xzos(1,1)),( xtos(1), xzos(1,2))
+     
+!----------------------------------------------------------------------
+! xpmn(ip),xtmn(it),xpmx(ip),xtmx(it):      x proj/targ minimum/maximum
+! xppmx(ip),xptmx(it),xmpmx(ip),xmtmx(it):  x+/x- proj/targ maximum
+! xppmn(ip),xptmn(it),xmpmn(ip),xmtmn(it):  x+/x- proj/targ minimum
+! xpos(ip),xtos(it): x value for on shell condition proj/targ
+!----------------------------------------------------------------------
+      
+      common/cemsr3/kolp(mamx),kolt(mamx),npp(mamx),npt(mamx)
+      common/cemsr4/iez(mamx,2),ifz(mamx,2)
+      dimension iep(mamx),iet(mamx),ifp(mamx),ift(mamx) 
+      equivalence (iep(1),iez(1,1)),(iet(1),iez(1,2))
+     *           ,(ifp(1),ifz(1,1)),(ift(1),ifz(1,2))
+      
+!----------------------------------------------------------------------
+! kolp(ip),kolt(it): number of cut Pomerons of proj ip / targ it
+! iep(ip),iet(it):   excitation type of proj ip / targ it 
+!                       (0=none,1=inelastic,2=diffractive)
+! ifp(ip),ift(it):   remnant flip flag proj/targ (0=no,1=yes)
+! if3dp(ip), if3dp(it): triple pomeron diffraction (if 1)
+!----------------------------------------------------------------------
+
+
+!----------------------------------------------------------------------
+! transfer from emsini
+!----------------------------------------------------------------------
+
+      double precision amzmn,ampmn,amtmn,ammn,amemn,amemx,amprmn,xis
+     &,delxi,ddelx,r3pompi,r3pommi,r3pompi3,r3pommi3
+      parameter (ntypmx=19)
+      common/cems12/ammn(0:ntypmx),amprmn(0:ntypmx)
+      common/cemsr6/amzmn(0:1,2),amemn(0:1,0:6),amemx(0:2)
+      dimension ampmn(0:1),amtmn(0:1)
+      equivalence (ampmn(0),amzmn(0,1)), (amtmn(0),amzmn(0,2))  
+      common/cemsr13/xis,delxi,ddelx,r3pompi,r3pommi
+     &,r3pompi3,r3pommi3,ucfpro,ucftar
+
+!----------------------------------------------------------------------
+! STORAGE
+!----------------------------------------------------------------------
+     
+      double precision 
+     *xxpr,xxpr0,yx,yx0,xxppr,xxmpr,xxppr0,xxmpr0
+     *,xmtx,xmtx0,xmtlx,xmtlx0
+     *,xppx,xppx0,xpplx,xpplx0
+     *,xppst,xmpst,xposst,xpest,xppstx0,xmpstx0,xppstx,xmpstx
+     *,xmtst,xptst,xtosst,xmest,xmtstx0,xptstx0,xmtstx,xptstx
+      dimension nprx(0:3),nprx0(0:3),iepst(mamx),ietst(mamx)
+     *,xppst(mamx),xmpst(mamx),xposst(mamx),xpest(mamx)
+     *,xmtst(mamx),xptst(mamx),xtosst(mamx),xmest(mamx)
+
+     
+      common/emsstore/
+     *xxpr,xxpr0,yx,yx0,xxppr,xxmpr,xxppr0,xxmpr0
+     *,xmtx,xmtx0,xmtlx,xmtlx0
+     *,xppx,xppx0,xpplx,xpplx0
+     *,itx,itx0,idx,idx0,iepst,ietst
+     *,npplx0,nptlx0,npplx,nptlx
+     *,nppx,nppx0,nptx,nptx0,nprx,nprx0,nprtx,nprtx0
+     *,xppst,xmpst,xposst,xpest,xppstx0,xmpstx0,xppstx,xmpstx
+     *,xmtst,xptst,xtosst,xmest,xmtstx0,xptstx0,xmtstx,xptstx
+
+
+!----------------------------------------------------------------------
+! utilities
+!----------------------------------------------------------------------
+     
+      double precision facto,fctrl
+      common/factori/facto(0:npommx),fctrl(0:npommx),nfctrl
+
+
+
+
+

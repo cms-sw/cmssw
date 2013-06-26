@@ -74,6 +74,7 @@ g4SimHits = cms.EDProducer("OscarProducer",
         MonopoleDeltaRay     = cms.untracked.bool(True),
         MonopoleMultiScatter = cms.untracked.bool(False),
         MonopoleTransport    = cms.untracked.bool(True),
+        MonopoleMass         = cms.untracked.double(0.),
         Region      = cms.string(' '),
 	TrackingCut = cms.bool(True),
         SRType      = cms.bool(True),
@@ -286,7 +287,7 @@ g4SimHits = cms.EDProducer("OscarProducer",
     CastorSD = cms.PSet(
         useShowerLibrary               = cms.bool(True),
         minEnergyInGeVforUsingSLibrary = cms.double(1.0),
-        nonCompensationFactor          = cms.double(1.0),
+        nonCompensationFactor          = cms.double(0.77),
         Verbosity                      = cms.untracked.int32(0)
     ),
     CastorShowerLibrary =  cms.PSet(

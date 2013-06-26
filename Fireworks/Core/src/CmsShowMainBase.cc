@@ -14,6 +14,7 @@
 #include "TStopwatch.h"
 #include "TTimer.h"
 #include "TEveManager.h"
+#include "TPRegexp.h"
 
 #include "Fireworks/Core/interface/CmsShowMainBase.h"
 #include "Fireworks/Core/interface/ActionsList.h"
@@ -527,14 +528,25 @@ CmsShowMainBase::sendVersionInfo()
       return;
    }
 
+  // get OSX version
+   TString osx_version;
+   try {
+     ifstream infoFile("/System/Library/CoreServices/SystemVersion.plist");
+     osx_version.ReadFile(infoFile);
+     TPMERegexp re("ProductVersion\\</key\\>\\n\\t\\<string\\>(10.*)\\</string\\>");
+     re.Match(osx_version);
+     osx_version = re[1];
+   }
+   catch (...) {}
+
    // send data 
    SysInfo_t sInfo;
    gSystem->GetSysInfo(&sInfo);
-
    char msg[128];
+
    if (gSystem->Getenv("CMSSW_VERSION"))
    {
-      snprintf(msg, 64,"%s %s", gSystem->Getenv("CMSSW_VERSION"), sInfo.fOS.Data());
+     snprintf(msg, 64,"%s %s %s", gSystem->Getenv("CMSSW_VERSION"), sInfo.fOS.Data(), osx_version.Data());
    }
    else
    {
@@ -544,8 +556,10 @@ CmsShowMainBase::sendVersionInfo()
       TString infoText;
       infoText.ReadLine(fs);
       fs.close();
-      snprintf(msg, 64,"Standalone %s %s", infoText.Data(), sInfo.fOS.Data() );
+      snprintf(msg, 64,"Standalone %s %s %s", infoText.Data(), sInfo.fOS.Data(), osx_version.Data() );
    }
+
+ 
    int flags = 0;
    sendto(sd, msg, strlen(msg), flags, 
           (struct sockaddr *) &remoteServAddr, 

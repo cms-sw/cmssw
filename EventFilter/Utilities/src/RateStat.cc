@@ -26,4 +26,9 @@ namespace evf{
     poster_->postString(message.c_str(),message.length(),0,CurlPoster::leg);
   }
 
+  void RateStat::sendAuxLegenda(const std::string &message)
+  {
+    poster_->postString(message.c_str(),message.length(),0,CurlPoster::legaux);
+  }
+
 }

@@ -1,0 +1,254 @@
+{% extends "base.html" %}
+{% block title_block %}RelMon Summary{% endblock title_block %}
+{% block scripts %}
+    <script src="https://www.google.com/jsapi" type="text/javascript"></script>
+    <script type="text/javascript" src="https://www.google.com/uds/?file=visualization&amp;v=1&amp;packages=corechart"></script>
+    <script type="text/javascript" src="https://www.google.com/uds/api/visualization/1.0/66b81c45612b098032b562b20ed13080/format+en_GB,default,corechart.I.js"></script>
+    <script src="https://www.google.com/jsapi" type="text/javascript"></script>
+    <link href="https://ajax.googleapis.com/ajax/static/modules/gviz/1.0/core/tooltip.css" rel="stylesheet" type="text/css">
+    <script type="text/javascript">
+      google.load("visualization", "1", {packages:["corechart"]});
+      google.setOnLoadCallback(drawChart);
+      function drawChart() {
+        var data = new google.visualization.DataTable();
+        data.addColumn('string', 'DQM Directory');
+        data.addColumn('number', 'Success Rate');
+
+        data.addRows({{ detailed_ratios|length }});
+        {% for name, value in detailed_ratios %}
+        {% if value %}
+            data.setValue({{ loop.index0 }}, 0, '{{ name }}');
+            data.setValue({{ loop.index0 }}, 1, {{ value|round(2) }});
+        {% endif %}
+        {% endfor %}
+
+        var chart = new google.visualization.BarChart(document.getElementById('dir_chart'));
+        chart.draw(data, {width: 1024, height: 840, title: 'Success Rate',
+                vAxis: {title: 'DQM Directory',
+                titleTextStyle: {color: 'red'},textStyle: {fontSize: 14}} });
+      }
+    </script>
+
+    <script type="text/javascript">
+      google.load("visualization", "1", {packages:["corechart"]});
+      google.setOnLoadCallback(drawChart);
+      function drawChart() {
+        var data = new google.visualization.DataTable();
+        data.addColumn('string', 'DQM Directory');
+        data.addColumn('number', 'Success Rate');
+        
+        data.addRows({{ summary_ratios|length }});
+        {% for name, value in summary_ratios %}
+        {% if value %}
+        data.setValue({{ loop.index0 }}, 0, '{{ name }}');
+        data.setValue({{ loop.index0 }}, 1, {{ value|round(2) }});
+        {% endif %}
+        {% endfor %}
+
+        var chart = new google.visualization.BarChart(document.getElementById('cat_chart'));
+        chart.draw(data, {width: 1024, height: 680, title: 'Success Rate',
+                vAxis: {title: 'Category', titleTextStyle:
+                {color: 'red'},textStyle: {fontSize: 14}} });
+      }
+    </script>
+{% endblock scripts %}
+
+
+{% block content %}
+    {% block header %}
+    <div class="span-20"><h2>
+        <a href="https://twiki.cern.ch/twiki/bin/view/CMSPublic/RelMon" name="top">RelMon</a>
+            Global Report: {{ release_title }}
+    </h2></div>
+    <div class="span-1"><h2>
+            <a href="{% if static_html %}{{ base_path }}/index.html{% else %}http://localhost:8080/{% endif %}">main...</a>
+    </h2></div>
+    <hr>
+    {% endblock %}
+
+    {% block release_summary %}
+    <div class="span-8"><h3>Summary</h3><p>
+        <span class="caps alt">{{ total }} comparisons:</span></p>
+        <ul>
+            <li><span class="caps">Success: {{ success }}% ({{ successes }})</span></li>
+            <li><span class="caps">Null: {{ null }}% ({{ nulls }})</span></li>
+            <li><span class="caps">Fail: {{ fail }}% ({{ fails }})</span></li>
+        </ul>
+        <a href="http://cmsweb.cern.ch/dqm/relval">To the DQM GUI...</a>
+    </div>
+    <div class="span-5 colborder">
+        <img class="top right" src="https://chart.googleapis.com/chart?cht=p3&amp;chco=00FF00|FFFF00|FF0000&amp;chs=200x200&amp;chd=t:{{ success }},{{ null }},{{ fail }}">
+    </div>
+    <div class="span-9 last">
+        <h3>Releases:</h3>
+            <ul>
+                <li><p>{{ release1 }}</p></li>
+                <li><p>{{ release2 }}</p></li>
+           </ul>
+           <h3>Statistical Test (Pvalue threshold):</h3>
+           <p><ul><li>
+               <div class="caps" style="display: inline-block;width: 100px;">{{ st_test }} (<label id="threshold"></label>)</div>{% if not static_html %}
+               <span id="slider" class='ui-slider ui-widget ui-widget-content ui-corner-all'></span>
+               <input type="button" class="defaultbtn" value="Default" title="">
+             {% endif %}
+           </li></ul></p>
+        </div>
+    <hr>
+    {% endblock %}
+
+    {% block content_table %}
+    <div class="span-20 colborder"><h2 class="alt">Sections:</h2>
+        <ul>
+            <li> <a href="#summary_barchart">Summary Barchart</a></li>
+            <li><a href="#categories">Categories</a></li>
+            <li><a href="#detailed_barchart">Detailed Barchart</a></li>
+            <li><a href="#summary_table">Summary Table</a></li>
+            {# <li><a href="#rank_summary">Ranks Summary</a></li>
+            <li><a href="#twiki_table">Twiki Table</a></li> #}
+        </ul>
+    </div>
+    <hr>
+    {% endblock %}
+
+    {% block summary_barchart %}
+    <div class="span-24"><h2 class="alt"><a name="summary_barchart">Summary Barchart</a></h2></div>
+    <div id="cat_chart" style="position: relative;">
+        <iframe width="1024" scrolling="no" height="680" frameborder="0"
+            name="Drawing_Frame_96360" id="Drawing_Frame_96360"
+            marginheight="0" marginwidth="0">
+        </iframe><div></div>
+    </div>
+    <a href="#top">Top...</a>
+    <hr>
+    {% endblock %}
+    
+    {% block categories %}
+    <div class="span-20 colborder"><h2 class="alt"><a name="categories">Categories:</a></h2>
+        {% for name, value in summary_ratios %}
+        <div class="span-3 prepend-0 colborder">
+            <h3>{{ name }}</h3>
+            <div><span class="alt">Avg. Success rate:</span></div>
+            <div><span class="alt">{{ 100 * value|round(2) }}%</span></div>
+        </div>
+        <div class="span-9">
+            <div><p><span class="caps alt">DQM Directories (? comparisons):</span></p></div>
+            <div><p><span class="alt">name: succ. rate - rel. weight</span></p></div>
+            <ul>
+                <li><span class="caps">-</span></li>
+            </ul>
+        </div>
+        <div class="span-6 last">
+            <img
+            src="https://chart.googleapis.com/chart?chs=200x100&cht=gom&chd=t:{{ 500 * value|round(2) - 400 }}&chxt=x,y&chxl=0:|{{ 100 * value|round(2) }}%|1:|80%|90%|100%&chma=10,10,10,0">
+        </div>
+        <hr>
+        {% endfor %}
+        <br><a href="#top">Top...</a> </div>
+
+    <hr>
+    {% endblock %}
+
+    {% block detailed_barchart %}
+    <div class="span-24"><h2 class="alt"><a name="detailed_barchart">Detailed Barchart</a></h2></div>
+    <div id="dir_chart" style="position: relative;"><iframe width="1024"
+        scrolling="no" height="840" frameborder="0" name="Drawing_Frame_32197"
+        id="Drawing_Frame_32197" marginheight="0"
+        marginwidth="0"></iframe><div></div></div>
+    <a href="#top">Top...</a>
+    <hr>
+    {% endblock %}
+
+    {% block summary_table %}
+    <div class="span-24"><p></p></div>
+    <div class="span-24"><p></p></div>
+    <div class="span-24"><h2 class="alt"><a name="summary_table">Summary Table</a></h2></div>
+    <div class="span-24"><p></p></div>
+    <div class="span-24"><p></p></div>
+    <div class="span-24"><p></p></div>
+    <div class="span-24"><p></p></div>
+    <div class="span-24"><p></p></div>
+    <table border="1">
+        <tbody>
+            {# Show titles #}
+              <tr>
+                  <td> </td>          
+                  {% for file in folders[0][1] %}
+                    {% if loop.first %}
+                      <td><div class="span-1"><p style="alt" class="rotation"><b>{{ file[1] }}</b></p></div></td>
+                    {% else %}
+                      <td><div class="span-1"><p style="" class="rotation">{{ file[1] }}</p></div></td>
+                    {% endif %}
+                  {% endfor %}
+              </tr>
+
+            {# Show charts #}
+            {% for folder_name, folder in folders %}
+              <tr>
+                {% if loop.first %}
+                  {# Show summary charts #}
+                  {% for file_id, filename, success, null, fail in folder %}
+                      {% if loop.first %}
+                          <td style="background-color:white;"><div
+                                  class="span-1"><b>{{ folder_name }}</b></div></td>
+                          <td class="colborder" style="background-color:white;">
+                              <div class="span-1">
+                                  {% if not success and not null and not fail %}
+                                      <img width="50" height="50" title="N/A"
+                                      src="https://chart.googleapis.com/chart?cht=p3&chco=C0C0C0&chs=50x50&chd=t:1">
+                                  {% else %}
+                                      <img alt="global S:{{ success }}% N:{{ null }}% F:{{ fail }}%"
+                                      src="https://chart.googleapis.com/chart?cht=p3&amp;chco=00FF00|FFFF00|FF0000&amp;chs=55x55&amp;chd=t:{{ success }},{{ null }},{{ fail }}">
+                                  {% endif %}
+                              </div>
+                          </td>
+                      {% else %}
+                          <td style="background-color:white;">
+                              <div class="span-1">
+                                  <a href="{% if static_html %}{{ base_path }}{% else %}/{{ db_name }}{% endif %}/{{ release_title }}/{{ st_test }}/{{ file_id }}{% if static_html %}.html{% endif %}{% if threshold %}?threshold={{ threshold }}{% endif %}"><img title="{{ filename }} S:{{ success }}% N:{{ null }}% F:{{ fail }}%" src="https://chart.googleapis.com/chart?cht=p3&amp;chco=00FF00|FFFF00|FF0000&amp;chs=55x55&amp;chd=t:{{ success }},{{ null }},{{ fail }}"></a>
+                              </div>
+                          </td>
+                      {% endif %}
+                  {% endfor %}
+                {% else %}
+                  {# Show row #}
+                  {% for file_id, filename, success, null, fail in folder %}
+                      {% if loop.first %}
+                          {# Show summary chart #}
+                          <td style="background-color:white;">{{ folder_name }}</td>
+                          <td style="background-color:white;">
+                              <div class="span-1">
+                                  <img title="Row summary
+                                  S:{{ success }}% N:{{ null }}% F:{{ fail }}%"
+                                  src="https://chart.googleapis.com/chart?cht=p3&amp;chco=00FF00|FFFF00|FF0000&amp;chs=55x55&amp;chd=t:{{ success }},{{ null }},{{ fail }}">
+                              </div>
+                          </td>
+                      {% else %}
+                          {# Show file folder chart #}
+                          <td style="background-color:white;">
+                              <div class="span-1">
+                                  {% if not success and not null and not fail %}
+                                      <img width="50" height="50" title="N/A"
+                                      src="https://chart.googleapis.com/chart?cht=p3&chco=C0C0C0&chs=50x50&chd=t:1">
+                                  {% else %}
+                                      <a href="{% if static_html %}{{ base_path }}{% else %}/{{ db_name }}{% endif %}/{{ release_title }}/{{ st_test }}/{{ file_id }}/{{ folder_name }}{% if static_html %}.html{% endif %}{% if threshold %}?threshold={{ threshold }}{% endif %}"><img width="50" height="50" title="{{ filename }} S:{{ success }}% N:{{ null }}% F:{{ fail }}%" src="https://chart.googleapis.com/chart?cht=p3&amp;chco=00FF00|FFFF00|FF0000&amp;chs=50x50&amp;chd=t:{{ success }},{{ null }},{{ fail }}"></a>
+                                  {% endif %}
+                              </div>
+                          </td>
+                      {% endif %}
+                  {% endfor %}
+                {% endif %}
+              </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <a href="#top">Top...</a>
+    <hr>
+    {% endblock %}
+
+    {% block ranks_summary %}
+    {% endblock %}
+
+    {% block twiki_table %}
+    {% endblock %}
+
+{% endblock %}

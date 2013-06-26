@@ -6,8 +6,8 @@
  *  This is necessary e.g. when the seed introduced a bias (by using
  *  a beam contraint etc.). Ported from ORCA
  *
- *  $Date: 2010/06/16 15:47:09 $
- *  $Revision: 1.15 $
+ *  $Date: 2011/01/06 17:04:16 $
+ *  $Revision: 1.16 $
  *  \author todorov, cerati
  */
 
@@ -74,6 +74,9 @@ private:
   
   void smoothingStep(std::vector<Trajectory>& fitted, std::vector<Trajectory> & smoothed) const;
   TrajectoryStateWithArbitraryError   tsosWithError;
+
+  /// Method to check that the trajectory has no NaN in the states and chi2
+  bool checkForNans(const Trajectory &theTraj) const;
   
 };
 

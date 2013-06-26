@@ -16,7 +16,7 @@
 //
 // Original Author:  Marco De Mattia
 //         Created:  Thu Sep 11 12:16:00 CEST 2008
-// $Id: TestCorrection.h,v 1.7 2010/03/29 18:15:57 demattia Exp $
+// $Id: TestCorrection.h,v 1.9 2010/10/22 17:48:08 wmtan Exp $
 //
 //
 
@@ -50,7 +50,7 @@
 #include "TProfile.h"
 #include "TH1F.h"
 
-#include "MuonAnalysis/MomentumScaleCalibration/interface/MuScleFitBase.h"
+#include "MuScleFitBase.h"
 
 //
 // class decleration

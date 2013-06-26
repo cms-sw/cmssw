@@ -25,8 +25,8 @@
 
 /** \class HcalDeadCellMonitor
   *
-  * $Date: 2012/04/09 12:56:19 $
-  * $Revision: 1.58 $
+  * $Date: 2012/04/26 03:04:50 $
+  * $Revision: 1.59 $
   * \author J. Temple - Univ. of Maryland
   */
 
@@ -89,6 +89,7 @@ class HcalDeadCellMonitor: public HcalBaseDQMonitor {
 
   // Problems vs. lumi block
   MonitorElement *ProblemsVsLB, *ProblemsVsLB_HB, *ProblemsVsLB_HE, *ProblemsVsLB_HO, *ProblemsVsLB_HO2, *ProblemsVsLB_HF;
+  MonitorElement *RBX_loss_VS_LB;
   MonitorElement *ProblemsInLastNLB_HBHEHF_alarm;
   MonitorElement *ProblemsInLastNLB_HO01_alarm;
   MonitorElement *NumberOfNeverPresentDigis, *NumberOfNeverPresentDigisHB, *NumberOfNeverPresentDigisHE, *NumberOfNeverPresentDigisHO, *NumberOfNeverPresentDigisHF;

@@ -46,6 +46,16 @@
 #include "DQM/SiPixelCommon/interface/SiPixelFolderOrganizer.h"
 #include "DQM/SiPixelMonitorTrack/interface/SiPixelTrackResidualSource.h"
 
+//Claudia new libraries
+#include "DataFormats/VertexReco/interface/Vertex.h"
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
+#include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
+#include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
+#include "TrackingTools/Records/interface/TransientTrackRecord.h"
+#include "TrackingTools/TransientTrack/interface/TransientTrack.h"
+#include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHitBuilder.h"
+#include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
+#include "TrackingTools/Records/interface/TransientRecHitRecord.h"
 
 using namespace std;
 using namespace edm;
@@ -61,13 +71,16 @@ SiPixelTrackResidualSource::SiPixelTrackResidualSource(const edm::ParameterSet& 
   ringOn( pSet.getUntrackedParameter<bool>("ringOn",false) ), 
   bladeOn( pSet.getUntrackedParameter<bool>("bladeOn",false) ), 
   diskOn( pSet.getUntrackedParameter<bool>("diskOn",false) )
- { 
+   
+{ 
    pSet_ = pSet; 
-  debug_ = pSet_.getUntrackedParameter<bool>("debug", false); 
-    src_ = pSet_.getParameter<edm::InputTag>("src"); 
-    clustersrc_ = pSet_.getParameter<edm::InputTag>("clustersrc");
-    tracksrc_ = pSet_.getParameter<edm::InputTag>("trajectoryInput");
-    dbe_ = edm::Service<DQMStore>().operator->();
+   debug_ = pSet_.getUntrackedParameter<bool>("debug", false); 
+   src_ = pSet_.getParameter<edm::InputTag>("src"); 
+   clustersrc_ = pSet_.getParameter<edm::InputTag>("clustersrc");
+   tracksrc_ = pSet_.getParameter<edm::InputTag>("trajectoryInput");
+   dbe_ = edm::Service<DQMStore>().operator->();
+   ttrhbuilder_ = pSet_.getParameter<std::string>("TTRHBuilder");
+   ptminres_= pSet.getUntrackedParameter<double>("PtMinRes",4.0) ;
 
   LogInfo("PixelDQM") << "SiPixelTrackResidualSource constructor" << endl;
   LogInfo ("PixelDQM") << "Mod/Lad/Lay/Phi " << modOn << "/" << ladOn << "/" 
@@ -500,112 +513,248 @@ void SiPixelTrackResidualSource::endJob(void) {
 
 
 void SiPixelTrackResidualSource::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
-
+  
   // retrieve TrackerGeometry again and MagneticField for use in transforming 
   // a TrackCandidate's P(ersistent)TrajectoryStateoOnDet (PTSoD) to a TrajectoryStateOnSurface (TSoS)
   ESHandle<TrackerGeometry> TG;
   iSetup.get<TrackerDigiGeometryRecord>().get(TG);
   const TrackerGeometry* theTrackerGeometry = TG.product();
-  ESHandle<MagneticField> MF;
-  iSetup.get<IdealMagneticFieldRecord>().get(MF);
-  const MagneticField* theMagneticField = MF.product();
   
-  // retrieve TransientTrackingRecHitBuilder to build TTRHs with TrackCandidate's TrackingRecHits for refitting 
-  std::string TTRHBuilder = pSet_.getParameter<std::string>("TTRHBuilder"); 
-  ESHandle<TransientTrackingRecHitBuilder> TTRHB; 
-  iSetup.get<TransientRecHitRecord>().get(TTRHBuilder, TTRHB);
-  const TransientTrackingRecHitBuilder* theTTRHBuilder = TTRHB.product();
-   
-  // get a fitter to refit TrackCandidates, the same fitter as used in standard reconstruction 
-  std::string Fitter = pSet_.getParameter<std::string>("Fitter");
-  ESHandle<TrajectoryFitter> TF;
-  iSetup.get<TrajectoryFitter::Record>().get(Fitter, TF);
-  const TrajectoryFitter* theFitter = TF.product();
-
-  // get TrackCandidateCollection in accordance with the fitter, i.e. rs-RS, ckf-KF... 
-  std::string TrackCandidateLabel = pSet_.getParameter<std::string>("TrackCandidateLabel");
-  std::string TrackCandidateProducer = pSet_.getParameter<std::string>("TrackCandidateProducer");  
-  Handle<TrackCandidateCollection> trackCandidateCollection;
-  iEvent.getByLabel(TrackCandidateProducer, TrackCandidateLabel, trackCandidateCollection);
-
-  for (TrackCandidateCollection::const_iterator tc = trackCandidateCollection->begin(); 
-       tc!=trackCandidateCollection->end(); ++tc) {
-    TrajectoryStateTransform transformer;
-    PTrajectoryStateOnDet tcPTSoD = tc->trajectoryStateOnDet();
-    TrajectoryStateOnSurface tcTSoS = transformer.transientState(tcPTSoD, &(theTrackerGeometry->idToDet(tcPTSoD.detId())->surface()), 
-						                 theMagneticField);
-    const TrajectorySeed& tcSeed = tc->seed();
-
-    const TrackCandidate::range& tcRecHits = tc->recHits();    
-    if (debug_) cout << "track candidate has "<< int(tcRecHits.second - tcRecHits.first) <<" hits with ID "; 
+  //analytic triplet method to calculate the track residuals in the pixe barrel detector    
+  
+  //--------------------------------------------------------------------
+  // beam spot:
+  //
+  edm::Handle<reco::BeamSpot> rbs;
+  iEvent.getByLabel( "offlineBeamSpot", rbs );
+  math::XYZPoint bsP = math::XYZPoint(0,0,0);
+  if( !rbs.failedToGet() && rbs.isValid() )
+    {
+      bsP = math::XYZPoint( rbs->x0(), rbs->y0(), rbs->z0() );
+    }
+  
+  //--------------------------------------------------------------------
+  // primary vertices:
+  //
+  edm::Handle<reco::VertexCollection> vertices;
+  iEvent.getByLabel("offlinePrimaryVertices", vertices );
+  
+  if( vertices.failedToGet() ) return;
+  if( !vertices.isValid() ) return;
+  
+  math::XYZPoint vtxN = math::XYZPoint(0,0,0);
+  math::XYZPoint vtxP = math::XYZPoint(0,0,0);
+  
+  double bestNdof = 0;
+  double maxSumPt = 0;
+  reco::Vertex bestPvx;
+  for(reco::VertexCollection::const_iterator iVertex = vertices->begin();
+      iVertex != vertices->end(); ++iVertex ) {
+    if( iVertex->ndof() > bestNdof ) {
+      bestNdof = iVertex->ndof();
+      vtxN = math::XYZPoint( iVertex->x(), iVertex->y(), iVertex->z() );
+    }//ndof
+    if( iVertex->p4().pt() > maxSumPt ) {
+      maxSumPt = iVertex->p4().pt();
+      vtxP = math::XYZPoint( iVertex->x(), iVertex->y(), iVertex->z() );
+      bestPvx = *iVertex;
+    }//sumpt
     
-    Trajectory::RecHitContainer tcTTRHs;
-    for (TrackingRecHitCollection::const_iterator tcRecHit = tcRecHits.first; 
-         tcRecHit!=tcRecHits.second; ++tcRecHit) { 
-      if (debug_) cout << tcRecHit->geographicalId().rawId() <<" "; 
+  }//vertex
+  
+  if( maxSumPt < 1 ) return;
+  
+  if( maxSumPt < 1 ) vtxP = vtxN;
+  
+  //---------------------------------------------
+  //get Tracks
+  //
+  edm:: Handle<reco::TrackCollection> TracksForRes;
+  iEvent.getByLabel( "generalTracks", TracksForRes );
+  //
+  // transient track builder, needs B-field from data base (global tag in .py)
+  //
+  edm::ESHandle<TransientTrackBuilder> theB;
+  iSetup.get<TransientTrackRecord>().get( "TransientTrackBuilder", theB );
+
+  //get the TransienTrackingRecHitBuilder needed for extracting the global position of the hits in the pixel
+  edm::ESHandle<TransientTrackingRecHitBuilder> theTrackerRecHitBuilder;
+  iSetup.get<TransientRecHitRecord>().get(ttrhbuilder_,theTrackerRecHitBuilder);
+
+  //check that tracks are valid
+  if( TracksForRes.failedToGet() ) return;
+  if( !TracksForRes.isValid() ) return;
+
+  //get tracker geometry
+  edm::ESHandle<TrackerGeometry> pDD;
+  iSetup.get<TrackerDigiGeometryRecord>().get(pDD);
+  
+  if( !pDD.isValid() ) {
+    cout << "Unable to find TrackerDigiGeometry. Return\n";
+    return;
+  }
+ 
+  int kk = -1;
+  //----------------------------------------------------------------------------
+  // Residuals:
+  //
+  for( reco::TrackCollection::const_iterator iTrack = TracksForRes->begin();
+       iTrack != TracksForRes->end(); ++iTrack ) {
+    //count
+    kk++;
+    //Calculate minimal track pt before curling
+    // cpt = cqRB = 0.3*R[m]*B[T] = 1.14*R[m] for B=3.8T
+    // D = 2R = 2*pt/1.14
+    // calo: D = 1.3 m => pt = 0.74 GeV/c
+    double pt = iTrack->pt();
+    if( pt < 0.75 ) continue;// curls up
+    if( abs( iTrack->dxy(vtxP) ) > 5*iTrack->dxyError() ) continue; // not prompt
+    
+    double charge = iTrack->charge();
+       
+    reco::TransientTrack tTrack = theB->build(*iTrack);
+    //get curvature of the track, needed for the residuals
+    double kap = tTrack.initialFreeState().transverseCurvature();
+    //needed for the TransienTrackingRecHitBuilder
+    TrajectoryStateOnSurface initialTSOS = tTrack.innermostMeasurementState();
+    if( iTrack->extra().isNonnull() &&iTrack->extra().isAvailable() ){
       
-      tcTTRHs.push_back(theTTRHBuilder->build(&(*tcRecHit)));
-    } 
-    // note a TrackCandidate keeps only the PTSoD of the first hit as well as the seed and all the hits; 
-    // to 99.9%-recover all the hit's TSoS's, refit with the seed, the hits and an initial TSoS from the PTSoD 
-    // to get a Trajectory of all the hit's TrajectoryMeasurements (TMs) 
-    std::vector<Trajectory> refitTrajectoryCollection = theFitter->fit(tcSeed, tcTTRHs, tcTSoS);	    
-    if (debug_) cout << "refitTrajectoryCollection size is "<< refitTrajectoryCollection.size() << endl;
-
-    if (refitTrajectoryCollection.size()>0) { // should be either 0 or 1 
-      const Trajectory& refitTrajectory = refitTrajectoryCollection.front();
-
-      // retrieve and loop over all the TMs 
-      Trajectory::DataContainer refitTMs = refitTrajectory.measurements();								
-      if (debug_) cout << "refitTrajectory has "<< refitTMs.size() <<" hits with ID "; 
-
-      for (Trajectory::DataContainer::iterator refitTM = refitTMs.begin(); 
-           refitTM!=refitTMs.end(); refitTM++) {  					
-    	TransientTrackingRecHit::ConstRecHitPointer refitTTRH = refitTM->recHit();
-        if (debug_) cout << refitTTRH->geographicalId().rawId() <<" "; 
+      double x1 = 0;
+      double y1 = 0;
+      double z1 = 0;
+      double x2 = 0;
+      double y2 = 0;
+      double z2 = 0;
+      double x3 = 0;
+      double y3 = 0;
+      double z3 = 0;
+      int n1 = 0;
+      int n2 = 0;
+      int n3 = 0;
+      
+      //for saving the pixel barrel hits
+      vector<TransientTrackingRecHit::RecHitPointer> GoodPixBarrelHits;
+      //looping through the RecHits of the track
+      for( trackingRecHit_iterator irecHit = iTrack->recHitsBegin();
+	   irecHit != iTrack->recHitsEnd(); ++irecHit){
 	
-	// only analyze the most elemental pixel hit's TMs to calculate residuals 
-	const GeomDet* ttrhDet = refitTTRH->det(); 
-	if (ttrhDet->components().empty() && (ttrhDet->subDetector()==GeomDetEnumerators::PixelBarrel ||				
-    					      ttrhDet->subDetector()==GeomDetEnumerators::PixelEndcap)) {				
+	if( (*irecHit)->isValid() ){
+	  DetId detId = (*irecHit)->geographicalId();
+	  // enum Detector { Tracker=1, Muon=2, Ecal=3, Hcal=4, Calo=5 };
+	  if( detId.det() != 1 ){
+	    if(debug_){
+	      cout << "rec hit ID = " << detId.det() << " not in tracker!?!?\n";
+	    }
+	    continue;
+	  }
+	  uint32_t subDet = detId.subdetId();
+	  
+	  // enum SubDetector{ PixelBarrel=1, PixelEndcap=2 };
+	  // enum SubDetector{ TIB=3, TID=4, TOB=5, TEC=6 };
+	  
+	  TransientTrackingRecHit::RecHitPointer trecHit = theTrackerRecHitBuilder->build(  &*(*irecHit), initialTSOS);
+	  
+	  
+	  double gX = trecHit->globalPosition().x();
+	  double gY = trecHit->globalPosition().y();
+	  double gZ = trecHit->globalPosition().z();
+	      
+	      
+	      if( subDet == PixelSubdetector::PixelBarrel ) {
 
-    	  // combine the forward and backward states without using the hit's information (hence unbiased by the hit); 
-	  // the TM's updated state keeps the state combined and updated with the hit's info but we don't use the updated state at all 
-	  TrajectoryStateOnSurface combinedTSoS = TrajectoryStateCombiner().combine(refitTM->forwardPredictedState(),        
-    					        				    refitTM->backwardPredictedState());      
-	  if (refitTTRH->isValid() && combinedTSoS.isValid()) { 
-	    // calculate the distance between the hit location and the track-crossing point predicted by the combined state 
-            const GeomDetUnit* GDU = static_cast<const GeomDetUnit*>(ttrhDet);
-	    const Topology* theTopology = &(GDU->topology()); 									
-    	    
-	    MeasurementPoint hitPosition = theTopology->measurementPosition(refitTTRH->localPosition());				
-    	    MeasurementPoint combinedTSoSPosition = theTopology->measurementPosition(combinedTSoS.localPosition());	
-    	    
-	    Measurement2DVector residual = hitPosition - combinedTSoSPosition;  			
-	    if(debug_) std::cout << "fill residual " << residual.x() << " " << residual.y() << " \n";
-    																
-    	    // fill the residual histograms 
-	    std::map<uint32_t, SiPixelTrackResidualModule*>::iterator pxd = theSiPixelStructure.find(refitTTRH->geographicalId().rawId());	
-    	    if (pxd!=theSiPixelStructure.end()) (*pxd).second->fill(residual, reducedSet, modOn, ladOn, layOn, phiOn, bladeOn, diskOn, ringOn);			
-    																
-    	    if (debug_) {
-	      if (ttrhDet->subDetector()==GeomDetEnumerators::PixelBarrel) {			        		       
-    	        meSubdetResidualX[0]->Fill(residual.x());					        		   
-    	        meSubdetResidualY[0]->Fill(residual.y());					        		   
-    	      } 										        		       
-    	      else {										  
-    	        meSubdetResidualX[PXFDetId(refitTTRH->geographicalId()).side()]->Fill(residual.x());  						    
-    	        meSubdetResidualY[PXFDetId(refitTTRH->geographicalId()).side()]->Fill(residual.y());  						    
-    	      } 
-	    }															
-    	  }
-    	} 											
-      } 
-      if (debug_) cout << endl; 															
-    }																
-  } 
+		int ilay = PXBDetId(detId).layer();
+		
+		if( ilay == 1 ){
+		  n1++;
+		  x1 = gX;
+		  y1 = gY;
+		  z1 = gZ;
+		  
+		  GoodPixBarrelHits.push_back((trecHit));
+		}//PXB1
+		if( ilay == 2 ){
+		  
+		  n2++;
+		  x2 = gX;
+		  y2 = gY;
+		  z2 = gZ;
+		  
+		  GoodPixBarrelHits.push_back((trecHit));
+		  
+		}//PXB2
+		if( ilay == 3 ){
+		  
+		  n3++;
+		  x3 = gX;
+		  y3 = gY;
+		  z3 = gZ;
+		  GoodPixBarrelHits.push_back((trecHit));
+		}
+	      }//PXB
+	      
+	      
+	    }//valid
+	  }//loop rechits
+	  
+	  //CS extra plots    
+	  
+	 	  
+	  if( n1+n2+n3 == 3 && n1*n2*n3 > 0) {      
+	    for( unsigned int i = 0; i < GoodPixBarrelHits.size(); i++){
+	      
+	      if( GoodPixBarrelHits[i]->isValid() ){
+		DetId detId = GoodPixBarrelHits[i]->geographicalId().rawId();
+		int ilay = PXBDetId(detId).layer();
+		if(pt > ptminres_){   
+		  
+		  double dca2 = 0.0, dz2=0.0;
+		  double ptsig = pt;
+		  if(charge<0.) ptsig = -pt;
+		  //Filling the histograms in modules
+		  
+		  MeasurementPoint Test;
+		  MeasurementPoint Test2;
+		  Test=MeasurementPoint(0,0);
+		  Test2=MeasurementPoint(0,0);
+		  Measurement2DVector residual;
+		 
+		  if( ilay == 1 ){
+		    
+		    triplets(x2,y2,z2,x1,y1,z1,x3,y3,z3,ptsig,dca2,dz2, kap);	
+		    		
+		    Test=MeasurementPoint(dca2*1E4,dz2*1E4);
+		    residual=Test-Test2;
+		  }
+		  
+		  if( ilay == 2 ){
+		    
+		    triplets(x1,y1,z1,x2,y2,z2,x3,y3,z3,ptsig,dca2,dz2, kap);
+		    
+		    Test=MeasurementPoint(dca2*1E4,dz2*1E4);
+		    residual=Test-Test2;
+	      
+		  }
+		  
+		  if( ilay == 3 ){
+		    
+		    triplets(x1,y1,z1,x3,y3,z3,x2,y2,z2,ptsig,dca2,dz2, kap);
+		    
+		    Test=MeasurementPoint(dca2*1E4,dz2*1E4);
+		    residual=Test-Test2;
+	    }
+		  // fill the residual histograms 
 
-
+		  std::map<uint32_t, SiPixelTrackResidualModule*>::iterator pxd = theSiPixelStructure.find(detId);
+		  if (pxd!=theSiPixelStructure.end()) (*pxd).second->fill(residual, reducedSet, modOn, ladOn, layOn, phiOn, bladeOn, diskOn, ringOn);		
+		}//three hits
+	      }//is valid
+	    }//rechits loop
+	  }//pt 4
+	}
+	
+	
+ }//-----Tracks
+  ////////////////////////////
   //get trajectories
   edm::Handle<std::vector<Trajectory> > trajCollectionHandle;
   iEvent.getByLabel(tracksrc_,trajCollectionHandle);
@@ -1104,6 +1253,98 @@ void SiPixelTrackResidualSource::analyze(const edm::Event& iEvent, const edm::Ev
   if(pixeltracks>0)(meNofTracks_)->Fill(1,pixeltracks);
   if(bpixtracks>0)(meNofTracks_)->Fill(2,bpixtracks);
   if(fpixtracks>0)(meNofTracks_)->Fill(3,fpixtracks);
+}
+void SiPixelTrackResidualSource::triplets(double x1,double y1,double z1,double x2,double y2,double z2,double x3,double y3,double z3,
+					  double ptsig, double & dca2,double & dz2, double kap) {
+  
+  //Define some constants
+  using namespace std;
+
+  //Curvature kap from global Track
+
+ //inverse of the curvature is the radius in the transverse plane
+  double rho = 1/kap;
+  //Check that the hits are in the correct layers
+  double r1 = sqrt( x1*x1 + y1*y1 );
+  double r3 = sqrt( x3*x3 + y3*y3 );
+
+  if( r3-r1 < 2.0 ) cout << "warn r1 = " << r1 << ", r3 = " << r3 << endl;
+  
+  // Calculate the centre of the helix in xy-projection with radius rho from the track.
+  //start with a line (sekante) connecting the two points (x1,y1) and (x3,y3) vec_L = vec_x3-vec_x1
+  //with L being the length of that vector.
+  double L=sqrt((x3-x1)*(x3-x1)+(y3-y1)*(y3-y1));
+  //lam is the line from the middel point of vec_q towards the center of the circle X0,Y0
+  // we already have kap and rho = 1/kap
+  double lam = sqrt(rho*rho - L*L/4);
+  
+  // There are two solutions, the sign of kap gives the information
+  // which of them is correct.
+  //
+  if( kap > 0 ) lam = -lam;
+
+  //
+  // ( X0, Y0 ) is the centre of the circle that describes the helix in xy-projection.
+  //
+  double x0 =  0.5*( x1 + x3 ) + lam/L * ( -y1 + y3 );
+  double y0 =  0.5*( y1 + y3 ) + lam/L * (  x1 - x3 );
+
+  // Calculate the dipangle in z direction (needed later for z residual) :
+  //Starting from the heliz equation whihc has to hold for both points z1,z3
+  double num = ( y3 - y0 ) * ( x1 - x0 ) - ( x3 - x0 ) * ( y1 - y0 );
+  double den = ( x1 - x0 ) * ( x3 - x0 ) + ( y1 - y0 ) * ( y3 - y0 );
+  double tandip = kap * ( z3 - z1 ) / atan( num / den );
+
+ 
+  // angle from first hit to dca point:
+  //
+  double dphi = atan( ( ( x1 - x0 ) * y0 - ( y1 - y0 ) * x0 )
+                      / ( ( x1 - x0 ) * x0 + ( y1 - y0 ) * y0 ) );
+  //z position of the track based on the middle of the circle
+  //track equation for the z component
+  double uz0 = z1 + tandip * dphi * rho;
+
+  /////////////////////////
+  //RESIDUAL IN R-PHI
+  ////////////////////////////////
+  //Calculate distance dca2 from point (x2,y2) to the circle which is given by
+  //the distance of the point to the middlepoint dcM = sqrt((x0-x2)^2+(y0-y2)) and rho
+  //dca = rho +- dcM
+  if(kap>0) dca2=rho-sqrt((x0-x2)*(x0-x2)+(y0-y2)*(y0-y2));
+  else dca2=rho+sqrt((-x0+x2)*(-x0+x2)+(-y0+y2)*(-y0+y2));
+
+  /////////////////////////
+  //RESIDUAL IN Z
+  /////////////////////////
+  double xx =0 ;
+  double yy =0 ;
+  //sign of kappa determines the calculation
+  //xx and yy are the new coordinates starting from x2, y2 that are on the track itself
+  //vec_X2+-dca2*vec(X0-X2)/|(X0-X2)|
+  if(kap<0){
+    xx =   x2+(dca2*((x0-x2))/sqrt((x0-x2)*(x0-x2)+(y0-y2)*(y0-y2)));
+    yy = y2+(dca2*((y0-y2))/sqrt((x0-x2)*(x0-x2)+(y0-y2)*(y0-y2)));
+  }
+  else if(kap>=0){
+    xx =   x2-(dca2*((x0-x2))/sqrt((x0-x2)*(x0-x2)+(y0-y2)*(y0-y2)));
+    yy = y2-(dca2*((y0-y2))/sqrt((x0-x2)*(x0-x2)+(y0-y2)*(y0-y2)));
+  }
+
+  //to get residual in z start with calculating the new uz2 position if one has moved to xx, yy
+  //on the track. First calculate the change in phi2 with respect to the center X0, Y0
+  double dphi2 = atan( ( ( xx - x0 ) * y0 - ( yy - y0 ) * x0 )
+		       / ( ( xx - x0 ) * x0 + ( yy - y0 ) * y0 ) );
+  //Solve track equation for this new z depending on the dip angle of the track (see above
+  //calculated based on X1, X3 and X0, use uz0 as reference point again.
+  double  uz2= uz0 - dphi2*tandip*rho;
+  
+  //subtract new z position from the old one
+  dz2=z2-uz2;
+  
+  //if we are interested in the arclength this is unsigned though
+  //  double cosphi2 = (x2*xx+y2*yy)/(sqrt(x2*x2+y2*y2)*sqrt(xx*xx+yy*yy));
+  //double arcdca2=sqrt(x2*x2+y2*y2)*acos(cosphi2);
+  
 }
 
 

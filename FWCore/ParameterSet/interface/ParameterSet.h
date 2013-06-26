@@ -239,7 +239,7 @@ namespace edm {
                                       bool trackiness=true) const;
 
     // need a simple interface for python
-    std::string dump(unsigned int indent = 0) const;
+    std::string dump() const;
 
     friend std::ostream& operator << (std::ostream& os, ParameterSet const& pset);
 

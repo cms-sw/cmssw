@@ -8,7 +8,7 @@ process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(100) )
 
 process.source = cms.Source("PoolSource",
-                                fileNames = cms.untracked.vstring('/store/relval/CMSSW_4_4_0_pre9/RelValQCD_FlatPt_15_3000_N30/GEN-SIM-RECO/DESIGN44_V4_PU_E7TeV_FIX_1_BX156_N30_special_110831-v1/0035/DEEF96F2-BFD3-E011-BEE1-003048679274.root')
+                                fileNames = cms.untracked.vstring('/store/mc/Spring10/MinBias/GEN-SIM-RECO/START3X_V25B_356ReReco-v1/0004/0E72CE54-F43B-DF11-A06F-0026189438BD.root')
 )
 
 process.simpleVertexAnalysis = cms.EDAnalyzer("PrimaryVertexAnalyzer",

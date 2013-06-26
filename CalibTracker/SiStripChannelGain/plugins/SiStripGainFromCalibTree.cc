@@ -291,7 +291,7 @@ SiStripGainFromCalibTree::algoBeginJob(const edm::EventSetup& iSetup)
 		if(!FirstSetOfConstants){
 		   if(gainHandle->getNumberOfTags()!=2){printf("ERROR: NUMBER OF GAIN TAG IS EXPECTED TO BE 2\n");fflush(stdout);exit(0);};		   
 		   APV->PreviousGain  = gainHandle->getApvGain(APV->APVId,gainHandle->getRange(APV->DetId, 1),1);
-                   //printf("DETID = %7i APVID=%1i Previous Gain=%8.4f\n",APV->DetId,APV->APVId,APV->PreviousGain);
+                   printf("DETID = %7i APVID=%1i Previous Gain=%8.4f\n",APV->DetId,APV->APVId,APV->PreviousGain);
 		}
 
                 APVsCollOrdered.push_back(APV);

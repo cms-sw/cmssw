@@ -152,7 +152,7 @@ class Reco(Scenario):
         configBuilder = ConfigBuilder(options, process = process)
         configBuilder.prepare()
 
-        harvestingMode(process,datasetName,args,rANDl=False)
+        harvestingMode(process,datasetName,args,rANDl=True)
         return process
 
 

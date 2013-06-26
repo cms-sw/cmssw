@@ -83,7 +83,7 @@ namespace ora {
       }
 
       /// Returns the persistent size of the container
-      size_t persistentSize( const void* address );
+      size_t* persistentSize( const void* address );
 
       /// execute the ending procedure for the container
       void finalize( void* address );

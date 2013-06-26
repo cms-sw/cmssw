@@ -81,15 +81,15 @@ namespace {
 #include <iostream>
 
 int grid3d_t() {
-  
+
   Grid3D const  * grid = factory();
-  
+
   LinearGridInterpolator3D inter(*grid);
   
   std::cout << inter.interpolate(7.5,7.2,-3.4) << std::endl;
   std::cout << inter.interpolate(-0.5,10.2,-3.4) << std::endl;
-  
-  
+
+
   delete grid;
   return 0;
 }

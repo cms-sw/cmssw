@@ -8,13 +8,20 @@
  *  \author D. Pagano - Dip. Fis. Nucl. e Teo. & INFN Pavia
  */
 
+#include <vector>
+#include <string>
+#include <iostream>
+#include <typeinfo>
+
 #include "CondCore/PopCon/interface/PopConSourceHandler.h"
 
 #include "CondFormats/RPCObjects/interface/RPCObCond.h"
 #include "CondFormats/DataRecord/interface/RPCObCondRcd.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "CoralBase/TimeStamp.h"
+#include "FWCore/ParameterSet/interface/ParameterSetfwd.h"
 #include "CondTools/RPC/interface/RPCFw.h"
 #include<string>
+
 
 namespace popcon{
   class RpcDataT : public popcon::PopConSourceHandler<RPCObTemp>{
@@ -26,14 +33,16 @@ namespace popcon{
 
     RPCObTemp* Tdata;
 
+    unsigned long long snc;
+    unsigned long long niov;	    
+    unsigned long long utime;
   private:
     std::string m_name;
     std::string host;
     std::string user;
     std::string passw;
-    bool m_first;
     unsigned long long m_since;
-    unsigned long long m_range;
+    unsigned long long m_till;
   };
 }
 #endif

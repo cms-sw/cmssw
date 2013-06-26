@@ -240,7 +240,11 @@ void TtSemiLepHitFitProducer<LeptonCollection>::produce(edm::Event& evt, const e
   // Add jets into HitFit
   unsigned int nJetsFound = 0;
   for(unsigned iJet=0; iJet<(*jets).size() && (int)nJetsFound!=maxNJets_; ++iJet) {
-    if(std::abs((*jets)[iJet].eta()) <= maxEtaJet_) {
+    double jet_eta = (*jets)[iJet].eta();
+    if ( (*jets)[iJet].isCaloJet() ) {
+      jet_eta = ((reco::CaloJet*) ((*jets)[iJet]).originalObject())->detectorP4().eta();
+    }
+    if(std::abs(jet_eta) <= maxEtaJet_) {
       HitFit->AddJet((*jets)[iJet]);
       nJetsFound++;
     }

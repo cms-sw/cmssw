@@ -338,7 +338,10 @@ bool SharedResources::watching(toolbox::task::WorkLoop*) {
 	}
 
 	vector<pid_t> prcids;
-	try {
+	try {  
+                #ifdef linux 
+		auto lk = resourceStructure_->lockCrashHandler();
+                #endif
 		prcids = resourceStructure_->clientPrcIds();
 		for (UInt_t i = 0; i < prcids.size(); i++) {
 			pid_t pid = prcids[i];
@@ -352,6 +355,7 @@ bool SharedResources::watching(toolbox::task::WorkLoop*) {
 					nbTimeoutsWithoutEvent_++;
 			}
 		}
+
 	} catch (evf::Exception& e) {
 		goToFailedState(e);
 	}

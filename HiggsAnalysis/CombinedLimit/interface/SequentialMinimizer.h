@@ -33,6 +33,9 @@ namespace cmsmath {
 
             const std::string &  name() const { return name_; }
             const char        * cname() const { return name_.c_str(); }
+            double max() const { return  xmax_; }
+            double min() const { return  xmin_; }
+            double step() const { return  xstep_; }
 
             bool isInit() const { return f_ != 0; }
             void init(const MinimizerContext &ctx, unsigned int idx, double xmin, double xmax, double xstep, const std::string &name) {
@@ -59,6 +62,8 @@ namespace cmsmath {
             /// force = true will instead force the update even if it's trivial
             enum ImproveRet { Unchanged = 2, Done = 1, NotDone = 0 };
             ImproveRet improve(int steps=1, double ytol=0, double xtol = 0, bool force=true);
+            
+            void moveTo(double x) ;
         private:
             // Function
             const MinimizerContext * f_;
@@ -158,11 +163,13 @@ namespace cmsmath {
             enum State { Cleared, Ready, Active, Done, Fixed, Unknown };
             struct Worker : public OneDimMinimizer {
                 Worker() : OneDimMinimizer(), state(Unknown) {}
-                State state;     
+                State state;
+                int   nUnaffected; /// number of consecutive times it has been woken up and set to sleep immediately afterwards
             };
         protected:
             bool minimize(int smallsteps=5);
             bool improve(int smallsteps=5);
+            bool doFullMinim(); 
 
             std::auto_ptr<MinimizerContext> func_;
             unsigned int nDim_, nFree_;
@@ -174,6 +181,10 @@ namespace cmsmath {
             // Workers
             std::vector<Worker> workers_;
             State state_;
+
+            // ROOT::Math::Minimizer for strategy 2
+            std::auto_ptr<ROOT::Math::Minimizer> fullMinimizer_;
+            std::vector<int> subspaceIndices_;
                     
     };
 

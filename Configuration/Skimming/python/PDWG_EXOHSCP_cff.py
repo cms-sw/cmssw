@@ -1,4 +1,4 @@
-TRACK_PT = 40.0  
+TRACK_PT = 20.0  
 import FWCore.ParameterSet.Config as cms
 import Alignment.CommonAlignmentProducer.AlignmentTrackSelector_cfi
 
@@ -18,6 +18,7 @@ HSCPTrigger.HLTPaths = [
             "HLT_PFMET*",
             "HLT_*L2Mu*_NoBPTX*",
             "HLT_L2Mu*_eta2p1_PFMET*",
+            "HLT_Mu17_Mu8_v*",
 		]
 hltSeq = cms.Sequence(HSCPTrigger)  
 

@@ -324,5 +324,21 @@ extern "C" {
 
 //------------------------------ LHAPDF functions -------------------------------------------------
 
+//MLM-style matching for aMC@NLO
+extern "C" {
+  extern struct {
+    int n_match, max_multiplicity_flag;
+    double matching_scale;
+  } hwmatchpram_;
+}
+#define hwmatchpram hwmatchpram_
+
+extern "C" {
+  void hwmatch_(int*);
+  void hwhdecay_();
+}
+#define hwmatch hwmatch_
+#define hwhdecay hwhdecay_
+
 
 #endif

@@ -28,8 +28,8 @@ namespace cond {
       int execute();
   };
 
-  static size_t sinceTillColumnSize = 20;
-  static size_t sinceTillTSColumnSize = 20;
+  static const size_t sinceTillColumnSize = 20;
+  static const size_t sinceTillTSColumnSize = 20;
 
   std::string printValidityHeader( cond::TimeType timeType ){
       std::stringstream headerLine;

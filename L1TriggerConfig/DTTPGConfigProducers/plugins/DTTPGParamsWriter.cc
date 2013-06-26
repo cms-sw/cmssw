@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2011/02/17 14:42:44 $
- *  $Revision: 1.2 $
+ *  $Date: 2013/03/27 17:23:06 $
+ *  $Revision: 1.5 $
  *  \author C. Battilana CIEMAT
  */
 
@@ -61,13 +61,13 @@ void DTTPGParamsWriter::analyze(const Event & event, const EventSetup& eventSetu
 
   while(std::getline(inputFile_, line)) {
     DTChamberId chId;
-    float fine;
-    int coarse;
+    float fine = 0.;
+    int coarse = 0;
     pharseLine(line,chId,fine,coarse);
     phaseMap_->set(chId,coarse,fine,DTTimeUnits::ns);
     if (debug_) {
-      float fineDB;
-      int coarseDB;
+      float fineDB = 0.;
+      int coarseDB = 0;
       phaseMap_->get(chId,coarseDB,fineDB,DTTimeUnits::ns);
       std::cout << "[DTTPGParamsWriter] Read data for chamber " << chId 
 		<< ". File params -> fine: " << fine << " coarse: " << coarse 

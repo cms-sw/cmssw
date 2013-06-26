@@ -13,7 +13,7 @@
 //
 // Original Author:  Tommaso Boccali
 //         Created:  Tue Nov 25 15:50:50 CET 2008
-// $Id: TestPerformanceFW_ES_TFormula.cc,v 1.1 2012/02/15 21:34:17 msegala Exp $
+// $Id: TestPerformanceFW_ES_TFormula.cc,v 1.2 2012/02/17 22:57:11 msegala Exp $
 //
 //
 
@@ -120,7 +120,7 @@ TestPerformanceFW_ES_TFormula::analyze(const edm::Event& iEvent, const edm::Even
 
   
   p.insert(BinningVariables::JetEta,0.6);
-  p.insert(BinningVariables::Discriminator,2.3);
+  p.insert(BinningVariables::Discriminator,0.23);
 
   std::cout <<" test eta=0.6, discrim = 0.3"<<std::endl;
   std::cout <<" beff/berr ?"<<perf.isResultOk(PerformanceResult::BTAGBEFF,p)<<"/"<<perf.isResultOk(PerformanceResult::BTAGBERR,p)<<std::endl;
@@ -131,7 +131,7 @@ TestPerformanceFW_ES_TFormula::analyze(const edm::Event& iEvent, const edm::Even
   std::cout << std::endl;
 
   p.insert(BinningVariables::JetEta,1.8);
-  p.insert(BinningVariables::Discriminator,5.3);
+  p.insert(BinningVariables::Discriminator,0.53);
 
   std::cout <<" NEW POINT "<<std::endl;
 
@@ -143,7 +143,7 @@ TestPerformanceFW_ES_TFormula::analyze(const edm::Event& iEvent, const edm::Even
 
   
   p.insert(BinningVariables::JetEta,0.8);
-  p.insert(BinningVariables::Discriminator,16.4);
+  p.insert(BinningVariables::Discriminator,1.64);
   
   std::cout << std::endl;
 

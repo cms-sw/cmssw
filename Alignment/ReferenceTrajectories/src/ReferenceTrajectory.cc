@@ -1,6 +1,6 @@
 //  Author     : Gero Flucke (based on code by Edmund Widl replacing ORCA's TkReferenceTrack)
 //  date       : 2006/09/17
-//  last update: $Date: 2011/09/06 13:50:18 $
+//  last update: $Date: 2011/11/24 14:33:37 $
 //  by         : $Author: mussgill $
 
 #include <memory>
@@ -19,6 +19,7 @@
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
 
 #include "DataFormats/TrajectoryState/interface/LocalTrajectoryParameters.h"
+#include "DataFormats/TrackingRecHit/interface/KfComponentsHolder.h"
 
 #include "TrackingTools/AnalyticalJacobians/interface/AnalyticalCurvilinearJacobian.h"
 #include "TrackingTools/AnalyticalJacobians/interface/JacobianLocalToCurvilinear.h"
@@ -267,9 +268,7 @@ bool ReferenceTrajectory::construct(const TrajectoryStateOnSurface &refTsos,
     allCurvatureChanges.push_back(previousChangeInCurvature);
     
     // projection-matrix tsos-parameters -> measurement-coordinates
-    if ( useRecHit( hitPtr ) ) { allProjections.push_back( hitPtr->projectionMatrix() ); }
-    else                       { allProjections.push_back( AlgebraicMatrix( 2, 5, 0) ); } // get size from ???
-    
+    allProjections.push_back(this->getHitProjectionMatrix(hitPtr));
     // set start-parameters for next propagation. trajectory-state without error
     //  - no error propagation needed here.
     previousHitPtr = hitPtr;
@@ -771,6 +770,8 @@ bool ReferenceTrajectory::addMaterialEffectsBrl(const std::vector<AlgebraicMatri
   return true;
 }
 
+//__________________________________________________________________________________
+
 bool ReferenceTrajectory::addMaterialEffectsBrl(const std::vector<AlgebraicMatrix> &allProjections,
 						const std::vector<AlgebraicSymMatrix> &allDeltaParameterCovs,
 						const std::vector<AlgebraicMatrix> &allLocalToCurv,
@@ -915,3 +916,57 @@ bool ReferenceTrajectory::addMaterialEffectsBrl(const std::vector<AlgebraicMatri
 
   return true;
 }
+
+//__________________________________________________________________________________
+
+AlgebraicMatrix
+ReferenceTrajectory::getHitProjectionMatrix
+(const TransientTrackingRecHit::ConstRecHitPointer &hitPtr) const
+{
+  if (this->useRecHit(hitPtr)) {
+    // check which templated non-member function to call:
+    switch (hitPtr->dimension()) {
+    case 1:
+      return getHitProjectionMatrixT<1>(hitPtr);
+    case 2:
+      return getHitProjectionMatrixT<2>(hitPtr);
+    case 3:
+      return getHitProjectionMatrixT<3>(hitPtr);
+    case 4:
+      return getHitProjectionMatrixT<4>(hitPtr);
+    case 5:
+      return getHitProjectionMatrixT<5>(hitPtr);
+    default:
+      throw cms::Exception("ReferenceTrajectory::getHitProjectionMatrix")
+        << "Unexpected hit dimension: " << hitPtr->dimension() << "\n";
+    }
+  }
+  // invalid or (to please compiler) unknown dimension
+  return AlgebraicMatrix(2, 5, 0); // get size from ???
+}
+
+//__________________________________________________________________________________
+
+template<unsigned int N>
+AlgebraicMatrix 
+ReferenceTrajectory::getHitProjectionMatrixT
+(const TransientTrackingRecHit::ConstRecHitPointer &hitPtr) const
+{
+  // define variables that will be used to setup the KfComponentsHolder
+  // (their allocated memory is needed by 'hitPtr->getKfComponents(..)'
+  // ProjectMatrix<double,5,N>  pf; // not needed
+  typename AlgebraicROOTObject<N,5>::Matrix H; 
+  typename AlgebraicROOTObject<N>::Vector r, rMeas; 
+  typename AlgebraicROOTObject<N,N>::SymMatrix V, VMeas;
+  // input for the holder - but dummy is OK here to just get the projection matrix:
+  const AlgebraicVector5 dummyPars;
+  const AlgebraicSymMatrix55 dummyErr;
+
+  // setup the holder with the correct dimensions and get the values
+  KfComponentsHolder holder;
+  holder.setup<N>(&r, &V, &H, /*&pf,*/ &rMeas, &VMeas, dummyPars, dummyErr);
+  hitPtr->getKfComponents(holder);
+
+  return asHepMatrix<N,5>(holder.projection<N>());
+}
+

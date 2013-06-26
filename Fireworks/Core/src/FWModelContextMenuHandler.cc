@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Sep 22 13:26:04 CDT 2009
-// $Id: FWModelContextMenuHandler.cc,v 1.21 2011/06/21 05:19:22 amraktad Exp $
+// $Id: FWModelContextMenuHandler.cc,v 1.22 2011/06/28 01:35:50 amraktad Exp $
 //
 
 // system include files
@@ -143,14 +143,13 @@ FWModelContextMenuHandler::chosenItem(Int_t iChoice)
       }
       case kPrint:
       {
-         using namespace Reflex;
          FWModelId id = *(m_selectionManager->selected().begin());
-         Type rtype(ROOT::Reflex::Type::ByName(id.item()->modelType()->GetName()));
-         Object o(rtype, const_cast<void *>(id.item()->modelData(id.index())));
+         Reflex::Type rtype(Reflex::Type::ByName(id.item()->modelType()->GetName()));
+         Reflex::Object o(rtype, const_cast<void *>(id.item()->modelData(id.index())));
 
          // void* xx = &std::cout;
          //const std::vector<void*> j(1, xx);
-         //Member m = rtype.FunctionMemberByName("print",Type(Type::ByName("void (std::ostream&)"), CONST), 0 ,INHERITEDMEMBERS_ALSO );
+         //Reflex::Member m = rtype.FunctionMemberByName("print",Reflex::Type(Reflex::Type::ByName("void (std::ostream&)"), Reflex::CONST), 0 ,INHERITEDMEMBERS_ALSO );
          //m.Invoke(o, 0, j);
 
          const char* cmd  = Form("FWGUIManager::OStream() << *(%s*)%p ;",  id.item()->modelType()->GetName(), (void*)id.item()->modelData(id.index()));
@@ -255,11 +254,10 @@ FWModelContextMenuHandler::showSelectedModelContext(Int_t iX, Int_t iY, FWViewCo
 
    if( m_selectionManager->selected().size()==1 ) {
       {
-         using namespace Reflex;
-         ROOT::Reflex::Type rtype(ROOT::Reflex::Type::ByName(id.item()->modelType()->GetName()));
-         ROOT::Reflex::Object o(rtype, const_cast<void *>(id.item()->modelData(id.index())));
-         EMEMBERQUERY inh =  INHERITEDMEMBERS_ALSO;
-         if ( rtype.FunctionMemberByName("print",Type(Type::ByName("void (std::ostream&)"), CONST), 0 , inh))
+         Reflex::Type rtype(Reflex::Type::ByName(id.item()->modelType()->GetName()));
+         Reflex::Object o(rtype, const_cast<void *>(id.item()->modelData(id.index())));
+         Reflex::EMEMBERQUERY inh =  Reflex::INHERITEDMEMBERS_ALSO;
+         if ( rtype.FunctionMemberByName("print",Reflex::Type(Reflex::Type::ByName("void (std::ostream&)"), Reflex::CONST), 0 , inh))
          {
             m_modelPopup->EnableEntry(kPrint);
             // std::cout <<  "Enable " <<std::endl;

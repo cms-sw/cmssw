@@ -25,7 +25,8 @@ RKAdaptiveSolver<T,StepWithPrec,N>::operator()( Scalar startPar, const Vector& s
     do {
 	tryStep = stepWithAccuracy( currentPar, currentStart, deriv, dist, stepSize);
 	nsteps++;
-	if (tryStep.second <eps) {
+	//either we are very close or the step size is small enough
+	if (tryStep.second <eps || std::abs(stepSize) < std::abs(remainigStep)*0.1) {
 	    if (std::abs(remainigStep - stepSize) < eps/2) {
 		if (verbose()) std::cout << "Accuracy reached, and full step taken in " 
 				    << nsteps << " steps" << std::endl;
@@ -39,7 +40,9 @@ RKAdaptiveSolver<T,StepWithPrec,N>::operator()( Scalar startPar, const Vector& s
 		double factor =  tryStep.second == 0 ? 4. : std::min( Safety * pow( std::fabs(eps/tryStep.second),0.2), 4.);
 
 		// stepSize = std::min( stepSize*factor, remainigStep);
-		double absSize =  std::min( std::abs(stepSize*factor), std::abs(remainigStep));
+	        double absRemainingStep = std::abs(remainigStep);
+		double absSize =  std::min( std::abs(stepSize*factor), absRemainingStep);
+	        if (absSize < 0.05* absRemainingStep ) absSize =  0.05* absRemainingStep;
 		stepSize = absSize * signum(stepSize);
 		currentStart = tryStep.first;
 		if (verbose()) std::cout << "Accuracy reached, but " << remainigStep 
@@ -51,8 +54,10 @@ RKAdaptiveSolver<T,StepWithPrec,N>::operator()( Scalar startPar, const Vector& s
 	    // decrease step size
 	    double factor =  std::max( Safety * pow( std::fabs(eps/tryStep.second),0.25), 0.1);
 	    stepSize *= factor;
+	    //don't let it run crazy
+	    if (std::abs(stepSize) < 0.05*std::abs(remainigStep)) stepSize = 0.05*remainigStep;
 	    if (verbose()) std::cout << "Accuracy not yet reached: delta = " << tryStep.second
-		 << ", step reduced by " << factor << " to " << stepSize << std::endl;
+		 << ", step reduced by " << factor << " to " << stepSize <<" of remaining "<< remainigStep << std::endl;
 	}
     } while (std::abs(remainigStep) > eps/2);
 

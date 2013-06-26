@@ -1,8 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 
-HcalGeometryFromDBEP = cms.ESProducer("HcalGeometryFromDBEP",
-                                      applyAlignment = cms.bool(False)
-                                      )
+HcalGeometryFromDBEP = cms.ESProducer( "HcalGeometryFromDBEP",
+                                       applyAlignment = cms.bool(False)
+                                       )
 
-HcalAlignmentEP = cms.ESProducer("HcalAlignmentEP")
+HcalAlignmentEP = cms.ESProducer( "HcalAlignmentEP" )
 

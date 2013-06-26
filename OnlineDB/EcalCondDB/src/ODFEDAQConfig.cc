@@ -39,10 +39,7 @@ void ODFEDAQConfig::clear(){
    m_btt =MY_NULL;
    m_tbtt=MY_NULL;
    m_tbxt=MY_NULL;
-   m_tby=MY_NULL;
-   m_vfe=MY_NULL;
-   m_gol=MY_NULL;
-   
+
    m_version=0;
    m_com="";
 }
@@ -85,8 +82,8 @@ void ODFEDAQConfig::prepareWrite()
   try {
     m_writeStmt = m_conn->createStatement();
     m_writeStmt->setSQL("INSERT INTO FE_DAQ_CONFIG ( config_id, tag, version, ped_id, " 
-			" del_id, wei_id,bxt_id, btt_id, tr_bxt_id, tr_btt_id, tby_id, vfe_id, gol_id, user_comment ) "
-			"VALUES ( :1, :2, :3, :4, :5, :6, :7 ,:8, :9, :10, :11 ,:12, :13, :14)" );
+			" del_id, wei_id,bxt_id, btt_id, tr_bxt_id, tr_btt_id, user_comment ) "
+			"VALUES ( :1, :2, :3, :4, :5, :6, :7 ,:8, :9, :10, :11 )" );
 
     m_writeStmt->setInt(1, next_id);
     m_ID=next_id;
@@ -115,10 +112,6 @@ void ODFEDAQConfig::setParameters(std::map<string,string> my_keys_map){
     if(ci->first==  "TRIG_BXT_ID") setTriggerBadXtId(atoi(ci->second.c_str()));
     if(ci->first==  "TRIG_BTT_ID") setTriggerBadTTId(atoi(ci->second.c_str()));
 
-    if(ci->first==  "TBY_ID") setTowersToBypass(atoi(ci->second.c_str()));
-    if(ci->first==  "VFE_ID") setVFEConfig(atoi(ci->second.c_str()));
-    if(ci->first==  "GOL_ID") setGOLConfig(atoi(ci->second.c_str()));
-
     if(ci->first==  "COMMENT" || ci->first==  "USER_COMMENT") setComment(ci->second);
     
   }
@@ -142,13 +135,9 @@ void ODFEDAQConfig::writeDB()
     SET_INT(m_writeStmt,7, this->getBadXtId());
     SET_INT(m_writeStmt,8, this->getBadTTId());
     SET_INT(m_writeStmt,9, this->getTriggerBadXtId());
-    SET_INT(m_writeStmt,10,this->getTriggerBadTTId());  
+    SET_INT(m_writeStmt,10,this->getTriggerBadTTId());
 
-    SET_INT(m_writeStmt, 11, this->getTowersToBypass());
-    SET_INT(m_writeStmt, 12, this->getVFEConfig());
-    SET_INT(m_writeStmt, 13, this->getGOLConfig());
-
-    m_writeStmt->setString(14, this->getComment());
+    m_writeStmt->setString(11, this->getComment());
 
     m_writeStmt->executeUpdate();
 
@@ -174,21 +163,23 @@ void ODFEDAQConfig::fetchData(ODFEDAQConfig * result)
     throw(std::runtime_error("ODFEDAQConfig::fetchData(): no Id defined for this ODFEDAQConfig "));
   }
 
+  m_readStmt = m_conn->createStatement(); 
   if(result->getConfigTag()!="" && result->getVersion() ==0  ){
     int new_version=0;
     std::cout<< "using new method : retrieving last version for this tag "<<endl;
     try {
       this->checkConnection();
-      
+
       m_readStmt->setSQL("select max(version) from "+getTable()+" where tag=:tag " );
       m_readStmt->setString(1, result->getConfigTag());
-      ResultSet* rset = m_readStmt->executeQuery();
+      std::cout << "Getting last ver" << std::endl << std::flush; 
+     ResultSet* rset = m_readStmt->executeQuery();
       while (rset->next ()){
 	new_version= rset->getInt(1);
       }
       m_conn->terminateStatement(m_readStmt);
 
-      m_readStmt = m_conn->createStatement(); 
+      //      m_readStmt = m_conn->createStatement(); 
       
       result->setVersion(new_version);
       
@@ -224,10 +215,7 @@ void ODFEDAQConfig::fetchData(ODFEDAQConfig * result)
     result->setBadTTId(          getInt(rset,8) );
     result->setTriggerBadXtId(   getInt(rset,9) );
     result->setTriggerBadTTId(   getInt(rset,10) );
-    result->setTowersToBypass(  rset->getInt(11) );
-    result->setVFEConfig(  rset->getInt(12) );
-    result->setGOLConfig(  rset->getInt(13) );
-    result->setComment(          rset->getString(14) );
+    result->setComment(          rset->getString(11) );
 
   } catch (SQLException &e) {
     throw(std::runtime_error("ODFEDAQConfig::fetchData():  "+e.getMessage()));

@@ -1470,7 +1470,7 @@ void SiStripTrackingRecHitsValid::analyze(const edm::Event& e, const edm::EventS
 	  //	  const GeomDetUnit *  det = tracker.idToDetUnit(detid);
 	  //stripdet=(const StripGeomDetUnit*)(gdet);
 	  stripdet=(const StripGeomDetUnit*)(monodet);
-	  //	  const StripTopology &topol2=(StripTopology&)stripdet->topology();
+	  //	  const StripTopology &topol2=(const StripTopology&)stripdet->topology();
 
 	  if(monotkdir.z()!=0){
 	    anglealpha = atan(monotkdir.x()/monotkdir.z())*180/TMath::Pi();
@@ -1479,7 +1479,7 @@ void SiStripTrackingRecHitsValid::analyze(const edm::Event& e, const edm::EventS
 	  
 	  if(monohit){
 
-	    const StripTopology &topol=(StripTopology&)stripdet->topology();
+	    const StripTopology &topol=(const StripTopology&)stripdet->topology();
 
 	    position = monohit->localPosition();
 	    error = monohit->localPositionError();
@@ -1600,7 +1600,7 @@ void SiStripTrackingRecHitsValid::analyze(const edm::Event& e, const edm::EventS
 	    
 	      //	      const GeomDetUnit *  det = tracker.idToDetUnit(detid2);
 	      const StripGeomDetUnit * stripdet=(const StripGeomDetUnit*)(stereodet);
-	      const StripTopology &topol=(StripTopology&)stripdet->topology();
+	      const StripTopology &topol=(const StripTopology&)stripdet->topology();
 
 	      position = stereohit->localPosition();
 	      //  Mposition = topol.measurementPosition(position);
@@ -1708,7 +1708,7 @@ void SiStripTrackingRecHitsValid::analyze(const edm::Event& e, const edm::EventS
 
 	  const GeomDetUnit *  det = tracker.idToDetUnit(detid2);
 	  const StripGeomDetUnit * stripdet=(const StripGeomDetUnit*)(det);
-	  const StripTopology &topol=(StripTopology&)stripdet->topology();
+	  const StripTopology &topol=(const StripTopology&)stripdet->topology();
 
 	  float anglealpha = atan(trackdirection.x()/trackdirection.z())*180/TMath::Pi();
 	  float anglebeta = atan(trackdirection.y()/trackdirection.z())*180/TMath::Pi();
@@ -1882,7 +1882,7 @@ void SiStripTrackingRecHitsValid::analyze(const edm::Event& e, const edm::EventS
 
           const GeomDetUnit *  det = tracker.idToDetUnit(detid2);
           const StripGeomDetUnit * stripdet=(const StripGeomDetUnit*)(det);
-          const StripTopology &topol=(StripTopology&)stripdet->topology();
+          const StripTopology &topol=(const StripTopology&)stripdet->topology();
 
           float anglealpha = atan(trackdirection.x()/trackdirection.z())*180/TMath::Pi();
           float anglebeta = atan(trackdirection.y()/trackdirection.z())*180/TMath::Pi();
@@ -1985,7 +1985,7 @@ void SiStripTrackingRecHitsValid::analyze(const edm::Event& e, const edm::EventS
 
 	  const GeomDetUnit *  det = tracker.idToDetUnit(detid2);
 	  const StripGeomDetUnit * stripdet=(const StripGeomDetUnit*)(det);
-	  const StripTopology &topol=(StripTopology&)stripdet->topology();
+	  const StripTopology &topol=(const StripTopology&)stripdet->topology();
 
 	  float anglealpha = atan(trackdirection.x()/trackdirection.z())*180/TMath::Pi();
 	  float anglebeta = atan(trackdirection.y()/trackdirection.z())*180/TMath::Pi();
@@ -2158,7 +2158,7 @@ void SiStripTrackingRecHitsValid::analyze(const edm::Event& e, const edm::EventS
 
           const GeomDetUnit *  det = tracker.idToDetUnit(detid2);
           const StripGeomDetUnit * stripdet=(const StripGeomDetUnit*)(det);
-          const StripTopology &topol=(StripTopology&)stripdet->topology();
+          const StripTopology &topol=(const StripTopology&)stripdet->topology();
 
           float anglealpha = atan(trackdirection.x()/trackdirection.z())*180/TMath::Pi();
           float anglebeta = atan(trackdirection.y()/trackdirection.z())*180/TMath::Pi();

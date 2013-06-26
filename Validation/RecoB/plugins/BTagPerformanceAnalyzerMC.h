@@ -28,7 +28,7 @@
 #include "DQMOffline/RecoB/interface/CorrectJet.h"
 #include "DQMOffline/RecoB/interface/MatchJet.h"
 
-#include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
+
 
 #include <string>
 #include <vector>
@@ -83,9 +83,6 @@ typedef std::map<edm::RefToBase<reco::Jet>, reco::JetFlavour::Leptons, JetRefCom
   bool update, allHisto;
   bool finalize;
   bool finalizeOnly;
-
-  bool ptHatWeight;
-
   edm::InputTag jetMCSrc;
   edm::InputTag slInfoTag;
 

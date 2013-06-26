@@ -37,24 +37,25 @@ using namespace std;
 //#define CBOLTZ (1.38E-23)
 //#define e_SI (1.6E-19)
 
+
+
 FP420DigiMain::FP420DigiMain(const edm::ParameterSet& conf):conf_(conf){
   std::cout << "Creating a FP420DigiMain" << std::endl;
   ndigis=0;
-  verbosity          = conf_.getUntrackedParameter<int>("VerbosityLevel");
-  theElectronPerADC  = conf_.getParameter<double>("ElectronFP420PerAdc");
-  theThreshold       = conf_.getParameter<double>("AdcFP420Threshold");
-  noNoise            = conf_.getParameter<bool>("NoFP420Noise");
-  addNoisyPixels     = conf_.getParameter<bool>("AddNoisyPixelsFP420");
-  thez420            = conf_.getParameter<double>("zFP420");
-  thezD2             = conf_.getParameter<double>("zFP420D2");
-  thezD3             = conf_.getParameter<double>("zFP420D3");
-  theApplyTofCut     = conf_.getParameter<bool>("ApplyTofCutFP420");
-  tofCut             = conf_.getParameter<double>("LowtofCutFP420");
-  theApplyChargeIneff= conf_.getParameter<bool>("ApplyChargeIneffFP420");
+  verbosity        = conf_.getUntrackedParameter<int>("VerbosityLevel");
+  theElectronPerADC= conf_.getParameter<double>("ElectronFP420PerAdc");
+  theThreshold     = conf_.getParameter<double>("AdcFP420Threshold");
+  noNoise          = conf_.getParameter<bool>("NoFP420Noise");
+  addNoisyPixels   = conf_.getParameter<bool>("AddNoisyPixels");
+  thez420          = conf_.getParameter<double>("z420");
+  thezD2           = conf_.getParameter<double>("zD2");
+  thezD3           = conf_.getParameter<double>("zD3");
+  theApplyTofCut   = conf_.getParameter<bool>("ApplyTofCut");
+  tofCut           = conf_.getParameter<double>("LowtofCutAndTo200ns");
   //  sn0              = 3;// number of stations
   // pn0              = 6;// number of superplanes
   // rn0              = 3; // number of sensors in superlayer
-  xytype             = 2;
+  xytype           = 2;
   if(verbosity>0) {
     std::cout << "theApplyTofCut=" << theApplyTofCut << " tofCut=" << tofCut << std::endl;
     std::cout << "FP420DigiMain theElectronPerADC=" << theElectronPerADC << " theThreshold=" << theThreshold << " noNoise=" << noNoise << std::endl;
@@ -65,37 +66,23 @@ FP420DigiMain::FP420DigiMain(const edm::ParameterSet& conf):conf_(conf){
   //ENC= 2160.;             //          EquivalentNoiseCharge300um = 2160. + other sources of noise
   ENC= 960.;             //          EquivalentNoiseCharge300um = 2160. + other sources of noise
   
-  //ldriftX = 0.050;        // in mm(xytype=1)
-  //ldriftY = 0.050;        // in mm(xytype=2)
-  //itchY= 0.050;          // in mm(xytype=1)
-  //itchX= 0.050;          // in mm(xytype=2)
-  ldriftX = 0.100;        // in mm(xytype=1)
-  ldriftY = 0.100;        // in mm(xytype=2)
-  pitchY= 0.100;          // in mm(xytype=1)
-  pitchX= 0.100;          // in mm(xytype=2)
-
-  //moduleThickness = 0.250; // mm(xytype=1)(xytype=2)
+  ldriftX = 0.050;        // in mm(xytype=1)
+  ldriftY = 0.050;        // in mm(xytype=2)
   moduleThickness = 0.250; // mm(xytype=1)(xytype=2)
-  ////////////////////////////////////////
-  //
+  
+  pitchY= 0.050;          // in mm(xytype=1)
+  pitchX= 0.050;          // in mm(xytype=2)
   //numStripsY = 200;        // Y plate number of strips:200*0.050=10mm (xytype=1)
   //numStripsX = 400;        // X plate number of strips:400*0.050=20mm (xytype=2)
-  numStripsY = 72;        // Y plate number of strips:144*0.050=7.2mm (xytype=1)
-  numStripsX = 80;        // X plate number of strips:160*0.050=8.0mm (xytype=2)
-  //numStripsY = 144;        // Y plate number of strips:144*0.050=7.2mm (xytype=1)
-  //numStripsX = 160;        // X plate number of strips:160*0.050=8.0mm (xytype=2)
-  //
-  //  pitchYW= 0.400;          // in mm(xytype=1)
-  //  pitchXW= 0.400;          // in mm(xytype=2)
-  pitchYW= 0.150;          // in mm(xytype=1)
-  pitchXW= 0.150;          // in mm(xytype=2)
-  //
+  numStripsY = 144;        // Y plate number of strips:144*0.050=7.2mm (xytype=1)
+  numStripsX = 160;        // X plate number of strips:160*0.050=8.0mm (xytype=2)
+  
+  pitchYW= 0.400;          // in mm(xytype=1)
+  pitchXW= 0.400;          // in mm(xytype=2)
   //numStripsYW = 50;        // Y plate number of W strips:50 *0.400=20mm (xytype=1) - W have ortogonal projection
   //numStripsXW = 25;        // X plate number of W strips:25 *0.400=10mm (xytype=2) - W have ortogonal projection
-  numStripsYW = 53;        // Y plate number of W strips:20 *0.400=8.0mm (xytype=1) - W have ortogonal projection
-  numStripsXW = 48;        // X plate number of W strips:18 *0.400=7.2mm (xytype=2) - W have ortogonal projection
-  //  numStripsYW = 20;        // Y plate number of W strips:20 *0.400=8.0mm (xytype=1) - W have ortogonal projection
-  //  numStripsXW = 18;        // X plate number of W strips:18 *0.400=7.2mm (xytype=2) - W have ortogonal projection
+  numStripsYW = 20;        // Y plate number of W strips:20 *0.400=8.0mm (xytype=1) - W have ortogonal projection
+  numStripsXW = 18;        // X plate number of W strips:18 *0.400=7.2mm (xytype=2) - W have ortogonal projection
   
   //  tofCut = 1350.;           // Cut on the particle TOF range  = 1380 - 1500
   elossCut = 0.00003;           // Cut on the particle TOF   = 100 or 50
@@ -219,9 +206,8 @@ vector <HDigiFP420> FP420DigiMain::run(const std::vector<PSimHit> &input,
   }
 
   //
-  // tofCut for HPS240 to be equal 790 ns   ;         for 420m to be = 1390 ns
 
-  //  if ( ( !(theApplyTofCut)  ||  (theApplyTofCut &&   tofCut < abs(tof) < (tofCut+40.)) ) && losenergy > elossCut) {
+  //  if ( ( !(theApplyTofCut)  ||  (theApplyTofCut &&   tofCut < abs(tof) < (tofCut+200.)) ) && losenergy > elossCut) {
     if ( ( !(theApplyTofCut)  ||  ( theApplyTofCut &&   abs(tof) > tofCut && abs(tof) < (tofCut+200.)) ) && losenergy > elossCut) {
       //    if ( abs(tof) < tofCut && losenergy > elossCut) {
       // if ( losenergy>0) {
@@ -229,7 +215,7 @@ vector <HDigiFP420> FP420DigiMain::run(const std::vector<PSimHit> &input,
       
       //   xytype = 1 - Y strips;   =2 - X strips;
       //	  HitDigitizerFP420::hit_map_type _temp = theHitDigitizerFP420->processHit(ihit,bfield,xytype,numStrips,pitch);
-      HitDigitizerFP420::hit_map_type _temp = theHitDigitizerFP420->processHit(ihit,bfield,xytype,numStrips,pitch,numStripsW,pitchW,moduleThickness,theApplyChargeIneff, verbosity); 
+      HitDigitizerFP420::hit_map_type _temp = theHitDigitizerFP420->processHit(ihit,bfield,xytype,numStrips,pitch,numStripsW,pitchW,moduleThickness,verbosity); 
       
       
       

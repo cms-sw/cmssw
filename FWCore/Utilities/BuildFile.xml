@@ -1,9 +1,15 @@
 <use   name="boost"/>
 <use   name="boost_filesystem"/>
 <use   name="boost_regex"/>
+<use   name="rootcintex"/>
 <use   name="rootcore"/>
 <use   name="rootrflx"/>
-<use   name="uuid"/>
+<architecture name="slc6.*">
+  <use name="libuuid"/>
+</architecture>
+<architecture name="(?!slc6.*)">
+  <use name="uuid"/>
+</architecture>
 <export>
   <lib   name="1"/>
 </export>

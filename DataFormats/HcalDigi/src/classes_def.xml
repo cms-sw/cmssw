@@ -35,8 +35,9 @@
    <class name="CastorTriggerPrimitiveDigi" ClassVersion="10">
     <version ClassVersion="10" checksum="4248257989"/>
    </class>
-   <class name="HcalUnpackerReport" ClassVersion="10">
+   <class name="HcalUnpackerReport" ClassVersion="11">
     <version ClassVersion="10" checksum="2469069632"/>
+    <version ClassVersion="11" checksum="2110607657"/>
    </class>
    <class name="HcalTTPDigi" ClassVersion="10">
     <version ClassVersion="10" checksum="3127055275"/>

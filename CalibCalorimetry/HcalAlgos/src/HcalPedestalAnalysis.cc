@@ -21,9 +21,6 @@ HcalPedestalAnalysis::HcalPedestalAnalysis(const edm::ParameterSet& ps)
     fValPedestals (0),
     fValPedestalWidths (0)
 {
-
-  m_coder = 0;
-  m_shape = 0;
   evt=0;
   sample=0;
   m_file=0;

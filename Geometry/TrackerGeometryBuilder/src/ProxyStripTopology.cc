@@ -11,7 +11,6 @@ ProxyStripTopology::ProxyStripTopology(StripGeomDetType* type, BoundPlane * bp)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-/* inlined
 LocalPoint ProxyStripTopology::localPosition( const MeasurementPoint& mp ) const
 {
   return specificTopology().localPosition(mp);
@@ -23,7 +22,6 @@ LocalPoint ProxyStripTopology::localPosition( const MeasurementPoint& mp ) const
 //   const LocalPoint posOrig(specificTopology().localPosition(mp));
 //   return this->localPosition(mp, Topology::LocalTrackPred(posOrig.x(), posOrig.y(), 0., 0.));
 }
-*/
 
 ////////////////////////////////////////////////////////////////////////////////
 LocalPoint ProxyStripTopology::localPosition( const MeasurementPoint& mp, 
@@ -39,7 +37,6 @@ LocalPoint ProxyStripTopology::localPosition( const MeasurementPoint& mp,
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-/* inlined
 LocalPoint ProxyStripTopology::localPosition( float strip ) const
 {
   return specificTopology().localPosition(strip);
@@ -51,7 +48,6 @@ LocalPoint ProxyStripTopology::localPosition( float strip ) const
 //   const LocalPoint posOrig(specificTopology().localPosition(strip));
 //   return this->localPosition(mp, Topology::LocalTrackPred(posOrig.x(), posOrig.y(), 0., 0.));
 }
-*/
 
 ////////////////////////////////////////////////////////////////////////////////
 LocalPoint ProxyStripTopology::localPosition(float strip, const Topology::LocalTrackPred &trkPred) const
@@ -65,7 +61,11 @@ LocalPoint ProxyStripTopology::localPosition(float strip, const Topology::LocalT
   return LocalPoint(posOld.x()+corr.x(), posOld.y()+corr.y(), posOld.z());
 }
 
-
+////////////////////////////////////////////////////////////////////////////////
+LocalError ProxyStripTopology::localError( float strip, float stripErr2 ) const
+{
+  return specificTopology().localError(strip, stripErr2);
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 LocalError ProxyStripTopology::localError(float strip, float stripErr2,
@@ -82,6 +82,12 @@ LocalError ProxyStripTopology::localError(float strip, float stripErr2,
   return specificTopology().localError(strip, stripErr2);
 }
 
+////////////////////////////////////////////////////////////////////////////////
+LocalError ProxyStripTopology::localError( const MeasurementPoint& mp,
+					   const MeasurementError& me) const
+{
+  return specificTopology().localError(mp, me);
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 LocalError ProxyStripTopology::localError( const MeasurementPoint& mp,
@@ -93,6 +99,11 @@ LocalError ProxyStripTopology::localError( const MeasurementPoint& mp,
   return specificTopology().localError(mp, me);
 }
 
+////////////////////////////////////////////////////////////////////////////////
+MeasurementPoint ProxyStripTopology::measurementPosition( const LocalPoint& lp) const
+{
+  return specificTopology().measurementPosition(lp);
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 MeasurementPoint ProxyStripTopology::measurementPosition( const LocalPoint& lp, 
@@ -107,6 +118,11 @@ MeasurementPoint ProxyStripTopology::measurementPosition( const LocalPoint& lp,
   return specificTopology().measurementPosition(posOrig);
 }
 
+////////////////////////////////////////////////////////////////////////////////
+MeasurementError ProxyStripTopology::measurementError( const LocalPoint& lp, const LocalError& le ) const
+{
+  return specificTopology().measurementError(lp, le);
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 MeasurementError ProxyStripTopology::measurementError( const LocalPoint &lp, const LocalError &le,
@@ -123,6 +139,11 @@ MeasurementError ProxyStripTopology::measurementError( const LocalPoint &lp, con
   return specificTopology().measurementError(posOrig, le);
 }
 
+////////////////////////////////////////////////////////////////////////////////
+int ProxyStripTopology::channel( const LocalPoint& lp) const
+{
+  return specificTopology().channel(lp);
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 int ProxyStripTopology::channel( const LocalPoint &lp, const Topology::LocalTrackAngles &dir) const
@@ -136,6 +157,11 @@ int ProxyStripTopology::channel( const LocalPoint &lp, const Topology::LocalTrac
   return specificTopology().channel(posOrig);
 }
 
+////////////////////////////////////////////////////////////////////////////////
+float ProxyStripTopology::strip(const LocalPoint& lp) const
+{
+  return specificTopology().strip(lp);
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 float ProxyStripTopology::strip( const LocalPoint& lp, const Topology::LocalTrackAngles &dir ) const
@@ -149,6 +175,16 @@ float ProxyStripTopology::strip( const LocalPoint& lp, const Topology::LocalTrac
   return specificTopology().strip(posOrig);
 }
 
+float ProxyStripTopology::pitch() const
+{
+  return specificTopology().pitch();
+}
+
+////////////////////////////////////////////////////////////////////////////////
+float ProxyStripTopology::localPitch( const LocalPoint& lp) const
+{
+  return specificTopology().localPitch(lp);
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 float ProxyStripTopology::localPitch( const LocalPoint& lp, const Topology::LocalTrackAngles &dir ) const
@@ -162,6 +198,29 @@ float ProxyStripTopology::localPitch( const LocalPoint& lp, const Topology::Loca
   return specificTopology().localPitch(posOrig);
 }
 
+////////////////////////////////////////////////////////////////////////////////
+float ProxyStripTopology::stripAngle( float strip ) const
+{
+  return specificTopology().stripAngle(strip);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+int ProxyStripTopology::nstrips() const
+{
+  return specificTopology().nstrips();
+}
+
+////////////////////////////////////////////////////////////////////////////////
+float ProxyStripTopology::stripLength() const
+{
+  return specificTopology().stripLength();
+}
+
+////////////////////////////////////////////////////////////////////////////////
+float ProxyStripTopology::localStripLength(const LocalPoint& lp) const
+{
+  return specificTopology().localStripLength(lp);
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 float ProxyStripTopology::localStripLength( const LocalPoint& lp, const Topology::LocalTrackAngles &dir ) const
@@ -175,6 +234,17 @@ float ProxyStripTopology::localStripLength( const LocalPoint& lp, const Topology
   return specificTopology().localStripLength(posOrig);
 }
 
+////////////////////////////////////////////////////////////////////////////////
+const GeomDetType& ProxyStripTopology::type() const { return *theType;}
+
+////////////////////////////////////////////////////////////////////////////////
+StripGeomDetType& ProxyStripTopology::specificType() const { return *theType;}
+
+////////////////////////////////////////////////////////////////////////////////
+const StripTopology& ProxyStripTopology::specificTopology() const
+{ 
+  return specificType().specificTopology();
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 void ProxyStripTopology::setSurfaceDeformation(const SurfaceDeformation * deformation)

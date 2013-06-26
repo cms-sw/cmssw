@@ -13,7 +13,7 @@
  * and pointing in the direction of top_edge.
  */
 
-class GeneralTrapezoidalPlaneBounds GCC11_FINAL : public Bounds {
+class GeneralTrapezoidalPlaneBounds : public Bounds {
 public:
 
   GeneralTrapezoidalPlaneBounds( float be, float te, float ang, 

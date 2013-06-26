@@ -7,8 +7,10 @@ HLT_JetE50_NoBPTX3BX_NoHalo_v*									# added sr128706
 HLT_JetE70_NoBPTX3BX_NoHalo_v*									# added sr128706
 HLT_L2Mu20_eta2p1_NoVertex_v*									# added sr128706
 HLT_L2Mu10_NoVertex_NoBPTX3BX_NoHalo_v*								# added sr128706
-HLT_L2Mu20_NoVertex_NoBPTX3BX_NoHalo_v*								# added sr128706
-HLT_L2Mu30_NoVertex_NoBPTX3BX_NoHalo_v*								# added sr128706
+#HLT_L2Mu20_NoVertex_NoBPTX3BX_NoHalo_v*							# added sr128706, removed in sr129063
+#HLT_L2Mu30_NoVertex_NoBPTX3BX_NoHalo_v*							# added sr128706, removed in sr129063
+HLT_L2Mu20_NoVertex_2Cha_NoBPTX3BX_NoHalo_v*							# added sr129063
+HLT_L2Mu30_NoVertex_2Cha_NoBPTX3BX_NoHalo_v*							# added sr129063
 HLT_L1SingleMuOpen_v*
 HLT_L1SingleMuOpen_DT_v*
 HLT_L1SingleMu12_v*

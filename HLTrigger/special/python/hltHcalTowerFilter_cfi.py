@@ -8,5 +8,8 @@ hltHcalTowerFilter = cms.EDFilter( "HLTHcalTowerFilter",
    MinE_HF   = cms.double( 9.0 ),
    MaxN_HB   = cms.int32( 2 ),
    MaxN_HE   = cms.int32( 2 ),
-   MaxN_HF   = cms.int32( 8 )                                
+   MaxN_HF   = cms.int32( 8 ),
+   MinN_HF   = cms.int32( -1 ),
+   MinN_HFM  = cms.int32( -1 ),
+   MinN_HFP  = cms.int32( -1 )
 )

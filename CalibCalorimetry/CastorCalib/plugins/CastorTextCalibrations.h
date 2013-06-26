@@ -23,6 +23,7 @@ class CastorQIEDataRcd;
 class CastorChannelQualityRcd;
 class CastorElectronicsMapRcd;
 class CastorRecoParamsRcd;
+class CastorSaturationCorrsRcd;
 
 class CastorTextCalibrations : public edm::ESProducer,
 		       public edm::EventSetupRecordIntervalFinder
@@ -46,6 +47,7 @@ protected:
   std::auto_ptr<CastorChannelQuality> produceChannelQuality (const CastorChannelQualityRcd& rcd);
   std::auto_ptr<CastorElectronicsMap> produceElectronicsMap (const CastorElectronicsMapRcd& rcd);
   std::auto_ptr<CastorRecoParams> produceRecoParams (const CastorRecoParamsRcd& rcd);
+  std::auto_ptr<CastorSaturationCorrs> produceSaturationCorrs (const CastorSaturationCorrsRcd& rcd);
 
  private:
   std::map <std::string, std::string> mInputs;

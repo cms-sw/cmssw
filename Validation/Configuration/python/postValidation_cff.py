@@ -11,7 +11,7 @@ from Validation.RecoEgamma.electronPostValidationSequence_cff import *
 from Validation.RecoParticleFlow.PFValidationClient_cff import *
 from Validation.RPCRecHits.postValidation_cfi import *
 from Validation.RecoTau.DQMMCValidation_cfi import *
-
+from Validation.RecoEgamma.photonFastSimPostProcessor_cff import *
 
 postValidation = cms.Sequence(
       recoMuonPostProcessors
@@ -36,6 +36,7 @@ postValidation_fastsim = cms.Sequence(
       recoMuonPostProcessorsFastSim
     + postProcessorTrack
     + MuIsoValPostProcessor
+    + photonPostProcessor
 )
 
  

@@ -2,6 +2,3 @@
 <library   file="plugins.cc" name="DQMEcalBarrelMonitorTasksPlugins">
   <flags   EDM_PLUGIN="1"/>
 </library>
-<library file="SealModule.cc" name="DQMEcalMonitorTaskPlugins">
-  <flags EDM_PLUGIN="1"/>
-</library>

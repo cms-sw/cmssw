@@ -105,9 +105,8 @@ void ora::CArrayWriter::write( int oid,
   
   // Use the iterator to loop over the elements of the container.
   size_t containerSize = m_arrayHandler->size( data  );
-  size_t persistentSize = m_arrayHandler->persistentSize( data  );
   
-  if ( containerSize == 0 || containerSize < persistentSize ) return;
+  if ( containerSize == 0  ) return;
 
   size_t startElementIndex = m_arrayHandler->startElementIndex( data );
 

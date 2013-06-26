@@ -1,4 +1,12 @@
-<TESTSCONFIGURATION> 
+<TESTSCONFIGURATION>
+<QTEST name="CompareLastFilledBin:DataPresentInLS" activate="true"> 
+      <TYPE>CompareLastFilledBin</TYPE> 
+      <PARAM name="error">0.01</PARAM> 
+      <PARAM name="warning">0.1</PARAM> 
+      <PARAM name="AvVal">0.0</PARAM>
+      <PARAM name="MinVal">0.5</PARAM>
+      <PARAM name="MaxVal">2.0</PARAM>
+</QTEST>
 <QTEST name="MeanWithinExpectedRange:nFEDErrors">
       <TYPE>MeanWithinExpected</TYPE>
       <PARAM name="error">0.05</PARAM>
@@ -149,6 +157,9 @@
      <PARAM name="xmin">0</PARAM> 
      <PARAM name="xmax">100.0</PARAM> 
 </QTEST>
+<LINK name="*MechanicalView/DataPresentInLS*">
+  <TestName activate="true">CompareLastFilledBin:DataPresentInLS</TestName>
+</LINK>
 <LINK name="*nFEDErrors">
   <TestName activate="true">MeanWithinExpectedRange:nFEDErrors</TestName>
 </LINK>

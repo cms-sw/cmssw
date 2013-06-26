@@ -4,6 +4,7 @@
 <use   name="DataFormats/Provenance"/>
 <use   name="FWCore/Framework"/>
 <use   name="FWCore/MessageLogger"/>
+<use   name="FWCore/Utilities"/>
 <use   name="FWCore/Version"/>
 <use   name="DataFormats/Luminosity"/>
 <use   name="boost"/>

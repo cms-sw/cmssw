@@ -81,7 +81,7 @@
   TFileAdaptor::TFileAdaptor(edm::ParameterSet const& pset, edm::ActivityRegistry& ar)
     : enabled_(true),
       doStats_(true),
-      cacheHint_("auto-detect"),
+      cacheHint_("application-only"),
       readHint_("auto-detect"),
       tempDir_(),
       minFree_(0),

@@ -6,8 +6,8 @@
  *  Class to take dqm monitor elements and convert into a
  *  ROOT dataformat stored in Run tree of edm file
  *
- *  $Date: 2010/05/15 14:46:56 $
- *  $Revision: 1.17 $
+ *  $Date: 2010/09/14 09:12:54 $
+ *  $Revision: 1.18 $
  *  \author M. Strang SUNY-Buffalo
  */
 
@@ -24,6 +24,7 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 
 //DQM services
 #include "DQMServices/Core/interface/DQMStore.h"
@@ -85,6 +86,9 @@ class EDMtoMEConverter : public edm::EDAnalyzer
   std::map<int,int> iCount;
 
   std::vector<std::string> classtypes;
+
+  edm::InputTag runInputTag_;
+  edm::InputTag lumiInputTag_;
 
 }; // end class declaration
 

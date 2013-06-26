@@ -431,6 +431,8 @@ GroupedCkfTrajectoryBuilder::advanceOneLayer (TempTrajectory& traj,
 	  
 	  TransverseImpactPointExtrapolator extrapolator;
 	  stateToUse = extrapolator.extrapolate(stateToUse, target, *propagator);
+	  if (!stateToUse.isValid()) continue; //SK: consider trying the original? probably not
+
 	  //dPhiCacheForLoopersReconstruction = fabs(target1.phi()-target2.phi())*2.;
 	  dPhiCacheForLoopersReconstruction = fabs(tmpDphi);
 	  traj.incrementLoops();
@@ -451,11 +453,12 @@ GroupedCkfTrajectoryBuilder::advanceOneLayer (TempTrajectory& traj,
       }
     }
     
+    unsigned int maxCandidates = theMaxCand > 21 ? theMaxCand*2 : 42; //limit the number of returned segments
     TrajectorySegmentBuilder layerBuilder(theMeasurementTracker,
 					  theLayerMeasurements,
 					  **il,*propagator,
 					  *theUpdator,*theEstimator,
-					  theLockHits,theBestHitOnly);
+					  theLockHits,theBestHitOnly, maxCandidates);
 
     LogDebug("CkfPattern")<<whatIsTheStateToUse(stateAndLayers.first,stateToUse,*il);
     

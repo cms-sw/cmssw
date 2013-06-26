@@ -1,5 +1,5 @@
 // Original Author: Gero Flucke
-// last change    : $Date: 2009/01/20 20:21:38 $
+// last change    : $Date: 2008/08/13 08:46:03 $
 // by             : $Author: flucke $
 
 void allMillePede(bool forceCompile = false) {
@@ -9,7 +9,6 @@ void allMillePede(bool forceCompile = false) {
 
   gROOT->ProcessLine(".L MillePedeTrees.C" + compile);
   gROOT->ProcessLine(".L PlotMillePede.C" + compile);
-  gROOT->ProcessLine(".L PlotMillePedeIOV.C" + compile);
   gROOT->ProcessLine(".L CompareMillePede.C" + compile);
 
   gROOT->ProcessLine(".L PlotMilleMonitor.C" + compile);

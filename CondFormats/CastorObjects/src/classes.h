@@ -10,6 +10,8 @@
 #include "CondFormats/CastorObjects/interface/CastorChannelQuality.h"
 #include "CondFormats/CastorObjects/interface/CastorRecoParam.h"
 #include "CondFormats/CastorObjects/interface/CastorRecoParams.h"
+#include "CondFormats/CastorObjects/interface/CastorSaturationCorr.h"
+#include "CondFormats/CastorObjects/interface/CastorSaturationCorrs.h"
 
 namespace {
   struct dictionary {
@@ -41,6 +43,10 @@ namespace {
     CastorRecoParam myrecoparam;
     std::vector<CastorRecoParam> myrecoparamVec;
     CastorRecoParams myrecoparams;
+    
+    CastorSaturationCorr mysatcorr;
+    std::vector<CastorSaturationCorr> mysatcorrVec;
+    CastorSaturationCorrs mysatcorrs;
   };
 }
 

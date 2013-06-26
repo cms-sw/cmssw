@@ -4,6 +4,8 @@
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
+#include "DataFormats/TrackCandidate/interface/TrackCandidateCollection.h"
+
 class TrackerGeometry;
 class TrajectoryStateOnSurface;
 class PropagatorWithMaterial;
@@ -19,6 +21,7 @@ namespace reco {
 }
 
 class TrackerRecHit;
+class TrackingRecHit;
 
 #include <vector>
 
@@ -39,6 +42,8 @@ class TrackCandidateProducer : public edm::EDProducer
   int findId(const reco::Track& aTrack) const;
 
   void addSplitHits(const TrackerRecHit&, std::vector<TrackerRecHit>&); 
+  bool isDuplicateCandidate(const TrackCandidateCollection& candidates, const TrackCandidate& newCand) const;
+  bool sameLocalParameters(const TrackingRecHit* aH, const TrackingRecHit* bH) const;
 
  private:
 

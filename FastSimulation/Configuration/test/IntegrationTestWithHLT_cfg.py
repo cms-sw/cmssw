@@ -80,8 +80,8 @@ process.load('FastSimulation.PileUpProducer.PileUpSimulator_2012_Startup_inTimeO
 #process.famosPileUp.PileUpSimulator.averageNumber = 0.0
 
 # Get frontier conditions   - not applied in the HCAL, see below
-from Configuration.AlCa.autoCond import autoCond
-process.GlobalTag.globaltag = autoCond['startup']
+from HLTrigger.Configuration.AutoCondGlobalTag import AutoCondGlobalTag
+process.GlobalTag = AutoCondGlobalTag(process.GlobalTag,'auto:startup_GRun')
 
 # Apply ECAL miscalibration 
 process.ecalRecHit.doMiscalib = True

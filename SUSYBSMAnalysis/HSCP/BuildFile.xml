@@ -34,8 +34,8 @@
 <use   name="rootgraphics"/>
 <use   name="AnalysisDataFormats/SUSYBSMObjects"/>
 <use   name="TrackingTools/TrackAssociator"/>
-<use   name="RecoTracker/DeDx"/>
 <use   name="Geometry/EcalMapping"/>
 <use   name="SimGeneral/HepPDTRecord"/>
 <use   name="CommonTools/UtilAlgos"/>
+<use   name="hepmc"/>
 <flags   EDM_PLUGIN="1"/>

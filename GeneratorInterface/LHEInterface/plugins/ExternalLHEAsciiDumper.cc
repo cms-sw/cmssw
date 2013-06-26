@@ -1,6 +1,6 @@
 // F. Cossutti
-// $Date: 2011/10/31 15:52:55 $
-// $Revision: 1.1 $//
+// $Date: 2011/11/13 22:36:09 $
+// $Revision: 1.2 $//
 
 // Dump in standard ascii format the LHE file stored as string lumi product
 
@@ -8,7 +8,9 @@
 // system include files
 #include <memory>
 #include <string>
+#include <sstream>
 #include <fstream>
+#include <boost/algorithm/string.hpp>
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -20,6 +22,8 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Run.h"
+
+#include "SimDataFormats/GeneratorProducts/interface/LHEXMLStringProduct.h"
 
 #include "FWCore/Utilities/interface/InputTag.h"
 
@@ -68,14 +72,29 @@ ExternalLHEAsciiDumper::analyze(const edm::Event&, const edm::EventSetup&)
 void
 ExternalLHEAsciiDumper::endRun(edm::Run const& iRun, edm::EventSetup const&) {
 
-  edm::Handle< std::string > LHEAscii;
+  edm::Handle< LHEXMLStringProduct > LHEAscii;
   iRun.getByLabel(lheProduct_,LHEAscii);
+  
+  const std::vector<std::string>& lheOutputs = LHEAscii->getStrings();
 
-  const char * theName(lheFileName_.c_str());
-  std::ofstream outfile;
-  outfile.open (theName, std::ofstream::out | std::ofstream::app);
-  outfile << (*LHEAscii);
-  outfile.close();
+  size_t lastdot = lheFileName_.find_last_of(".");
+  std::string basename = lheFileName_.substr(0, lastdot);
+  std::string extension = lastdot != std::string::npos ?  lheFileName_.substr(lastdot+1, std::string::npos) : "";
+
+  for (unsigned int i = 0; i < lheOutputs.size(); ++i){
+    std::ofstream outfile;
+    if (i == 0)
+      outfile.open (lheFileName_.c_str(), std::ofstream::out | std::ofstream::app);
+    else {
+      std::stringstream fname;
+      fname << basename << "_" << i ;
+      if (extension != "")
+        fname << "." << extension;
+      outfile.open (fname.str().c_str(), std::ofstream::out | std::ofstream::app);
+    }
+    outfile << lheOutputs[i];
+    outfile.close();
+  }
 
 }
 

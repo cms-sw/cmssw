@@ -40,7 +40,6 @@
 #include "CommonTools/RecoAlgos/interface/HBHENoiseFilter.h"
 #include "DataFormats/METReco/interface/HcalNoiseSummary.h"
 
-#include "RecoMET/METAlgorithms/interface/HcalNoiseRBXArray.h"
 
 using namespace edm;
 using namespace reco;
@@ -86,8 +85,6 @@ myFilter::myFilter(const edm::ParameterSet& cfg) :
   _nEvent      = 0;
   _acceptedEvt = 0;
   _passPt      = 0;
-  _passForwardPt = 0;
-  _passCentralPt = 0;
   _passNJets   = 0;
   _passDiJet   = 0;
   _passNTrks   = 0;
@@ -115,14 +112,6 @@ myFilter::myFilter(const edm::ParameterSet& cfg) :
   _passHFTime      = 0;
   _passHFFlagged   = 0;
   _passHFHighEnergy   = 0;
-  _passBadBunch    = 0;
-  _passGoodBunch   = 0;
-  _passFBFN   = 0;
-  _passFBSN   = 0;
-  _passFBTN   = 0;
-  _passR45    = 0;
-  _passTS4TS5    = 0;
-  _passR45Collision    = 0;
 
   for (int i=0; i<10; i++) _NoiseResult[i] = 0;
 
@@ -142,8 +131,6 @@ void myFilter::endJob() {
   std::cout << "myFilter: accepted " 
 	    << _acceptedEvt << " / " <<  _nEvent <<  " / " << _nTotal << " events" << std::endl;
   std::cout << "Pt            = " << _passPt          << std::endl;
-  std::cout << "Forward Pt    = " << _passForwardPt   << std::endl;
-  std::cout << "Central Pt    = " << _passCentralPt   << std::endl;
   std::cout << "NJets         = " << _passNJets       << std::endl;
   std::cout << "DiJets        = " << _passDiJet       << std::endl;
   std::cout << "NTrks         = " << _passNTrks       << std::endl;
@@ -167,19 +154,9 @@ void myFilter::endJob() {
   std::cout << "OERatio       = " << _passOERatio    << std::endl;
   std::cout << "Time          = " << _passTime    << std::endl;
   std::cout << "HF Time       = " << _passHFTime    << std::endl;
-  std::cout << "HBHE Time     = " << _passHBHETime      << std::endl;
-  std::cout << "HF Flagged    = " << _passHFFlagged     << std::endl;
-  std::cout << "HF High Energy= " << _passHFHighEnergy  << std::endl;
-  std::cout << "Good Bunch= "     << _passGoodBunch     << std::endl;
-  std::cout << "Bad  Bunch= "     << _passBadBunch      << std::endl;
-
-  std::cout << "FB: Flat Noise=     "     << _passFBFN      << std::endl;
-  std::cout << "FB: Spike Noise=    "     << _passFBSN      << std::endl;
-  std::cout << "FB: Triangle Noise= "     << _passFBTN      << std::endl;
-
-  std::cout << "HPB/RBX R45=        "     << _passR45      << std::endl;
-  std::cout << "TS4TS5=        "     << _passTS4TS5      << std::endl;
-  std::cout << "TS4TS5Collision=        "     << _passR45Collision      << std::endl;
+  std::cout << "HBHE Time     = " << _passHBHETime    << std::endl;
+  std::cout << "HF Flagged    = " << _passHFFlagged    << std::endl;
+  std::cout << "HF High Energy= " << _passHFHighEnergy    << std::endl;
   std::cout << "=============================================================" << std::endl;
 
 
@@ -196,13 +173,11 @@ myFilter::filter(edm::Event& evt, edm::EventSetup const& es) {
 
 
   double HFThreshold   = 4.0;
-  double HOThreshold   = 1.0;
+  //double HOThreshold   = 1.0;
 
 
   bool result         = false;
   bool filter_Pt      = false;
-  bool filter_CentralPt      = false;
-  bool filter_ForwardPt      = false;
   bool filter_DiJet   = false;
   bool filter_NTrks   = false;
   bool filter_EMF     = false;
@@ -231,16 +206,6 @@ myFilter::filter(edm::Event& evt, edm::EventSetup const& es) {
   bool filter_HFFlagged    = false;
   bool filter_HFHighEnergy = false;
 
-  bool filter_GoodBunch = false;
-  bool filter_BadBunch = false;
-
-  bool filter_FBFN = false;
-  bool filter_FBSN = false;
-  bool filter_FBTN = false;
-
-  bool filter_R45  = false;
-  bool filter_TS4TS5  = false;
-  bool filter_R45Collision  = false;
 
   bool Pass = false;
   if (evt.id().run() == 124009) {
@@ -264,7 +229,6 @@ myFilter::filter(edm::Event& evt, edm::EventSetup const& es) {
       Pass = true;
     }
   }
- 
 
   if ( (evt.bunchCrossing() == 51)  ||
        (evt.bunchCrossing() == 151) ||
@@ -272,51 +236,6 @@ myFilter::filter(edm::Event& evt, edm::EventSetup const& es) {
     Pass = true;
   }
 
-  bool OKCrossing  = false;
-  if ( ((evt.bunchCrossing() > 6 )    && (evt.bunchCrossing() < 25  ))  ||
-       ((evt.bunchCrossing() > 144 )  && (evt.bunchCrossing() < 218 ))  ||
-       ((evt.bunchCrossing() > 852 )  && (evt.bunchCrossing() < 926 ))  ||
-       ((evt.bunchCrossing() > 1038 ) && (evt.bunchCrossing() < 1112 )) ||
-       ((evt.bunchCrossing() > 1746 ) && (evt.bunchCrossing() < 1808 )) ||
-       ((evt.bunchCrossing() > 1932 ) && (evt.bunchCrossing() < 1994 )) ||
-       ((evt.bunchCrossing() > 2628 ) && (evt.bunchCrossing() < 2702 )) ||
-       ((evt.bunchCrossing() > 2814 ) && (evt.bunchCrossing() < 2888 )) ) {
-    OKCrossing = true;
-  }
-
-
-  if (evt.bunchCrossing() % 2 == 0) {
-    // It's even
-    //    if ( ((evt.bunchCrossing() > 100 )  && (evt.bunchCrossing() < 300  )) ||
-    //         ((evt.bunchCrossing() > 1000 ) && (evt.bunchCrossing() < 1200 )) ||
-    //         ((evt.bunchCrossing() > 1900 ) && (evt.bunchCrossing() < 2000 )) ||
-    //	 ((evt.bunchCrossing() > 2800 ) && (evt.bunchCrossing() < 2900 )) ) {
-
-    if ( ((evt.bunchCrossing() > 144 )  && (evt.bunchCrossing() < 218  )) ||   	
-	 ((evt.bunchCrossing() > 1038 ) && (evt.bunchCrossing() < 1112 )) ||
-	 ((evt.bunchCrossing() > 1932 ) && (evt.bunchCrossing() < 1994 )) ||
-	 ((evt.bunchCrossing() > 2814 ) && (evt.bunchCrossing() < 2888 )) ) {
-      filter_GoodBunch = true;
-    } else {
-      filter_BadBunch = true;
-    }
-
-  } else {
-    // It's odd
-    //    if ( ((evt.bunchCrossing() < 100 )) ||
-    //         ((evt.bunchCrossing() > 800 )  && (evt.bunchCrossing() < 1000 )) ||
-    //         ((evt.bunchCrossing() > 1700 ) && (evt.bunchCrossing() < 1900 )) ||
-    //	 ((evt.bunchCrossing() > 2500 ) && (evt.bunchCrossing() < 2800 )) ) {
-
-    if ( ((evt.bunchCrossing() > 6 )    && (evt.bunchCrossing() < 25  ))  ||
-	 ((evt.bunchCrossing() > 852 )  && (evt.bunchCrossing() < 926 )) ||
-	 ((evt.bunchCrossing() > 1746 ) && (evt.bunchCrossing() < 1808 )) || 
-	 ((evt.bunchCrossing() > 2628 ) && (evt.bunchCrossing() < 2702 )) ) {
-      filter_GoodBunch = true;
-    } else {
-      filter_BadBunch = true;
-    }
-  }
 
   // ***********************
   // ***********************
@@ -373,36 +292,6 @@ myFilter::filter(edm::Event& evt, edm::EventSetup const& es) {
     _NoiseResult[8]++;
   }
 
-
-  double totalNoiseEne = summary.flatNoiseSumE() + summary.spikeNoiseSumE() + summary.TS4TS5NoiseSumE();
-
-  filter_R45 = summary.HasBadRBXTS4TS5();
-
-
-  //***********************
-  //*** R45
-  //***********************
-  //  if (summary.HasBadRBXTS4TS5()) {
-  //  filter_TS4TS5 = false;
-  if (1) {
-    Handle<HcalNoiseRBXCollection> handle;
-    evt.getByLabel("hcalnoise", handle);
-
-    // loop over the RBXs
-    for(HcalNoiseRBXCollection::const_iterator rit=handle->begin(); rit!=handle->end(); ++rit) {
-      // get the rbx
-      HcalNoiseRBX rbx=(*rit);
-      std::vector<float> AllCharge = rbx.allCharge();
-      double BaseCharge = AllCharge[4] + AllCharge[5];
-   
-      if(BaseCharge < 1) BaseCharge = 1;
-      double TS4TS5 = (AllCharge[4] - AllCharge[5]) / BaseCharge;
-      
-      if (TS4TS5 < -0.9) filter_TS4TS5 = true;      
-    }
-  }
-
-
   //  if (filter_NoiseSummary) 
   //    std::cout << ">>> Noise Filter         = " << filter_NoiseSummary    << std::endl;
 
@@ -424,7 +313,7 @@ myFilter::filter(edm::Event& evt, edm::EventSetup const& es) {
 
 
   double HFM_ETime, HFP_ETime;
-  double HFEne, HFEneClean, HFEneFlagged, HFM_E, HFP_E;
+  double HFM_E, HFP_E;
   double HF_PMM;
   double MaxRecHitEne;
 
@@ -433,14 +322,10 @@ myFilter::filter(edm::Event& evt, edm::EventSetup const& es) {
   HFM_E = 0.;
   HFP_ETime = 0.;
   HFP_E = 0.;
-  HFEne = 0.;
-  HFEneClean = 0.;
-  HFEneFlagged = 0.;
   int NPMTHits;
   int NHFDigiTimeHits;
   int NHFLongShortHits;
-  int nHFTime   = 0;
-  int nHBHETime = 0;
+  int nTime = 0;
 
   NPMTHits          = 0;
   NHFDigiTimeHits   = 0;
@@ -454,31 +339,21 @@ myFilter::filter(edm::Event& evt, edm::EventSetup const& es) {
       for (HFRecHitCollection::const_iterator j=(*i)->begin(); j!=(*i)->end(); j++) {
         if (j->id().subdet() == HcalForward) {
 
-	  // Long:  depth = 1
-	  // Short: depth = 2
-	  float en   = j->energy();
-	  float time = j->time();
-
-	  if (en > 1.0) HFEne += en;
-
 	  int myFlag;
 	  myFlag= j->flagField(HcalCaloFlagLabels::HFLongShort);
 	  if (myFlag==1) {
 	    filter_HFFlagged=true;
 	    NHFLongShortHits++;
-	    if (en > 1.0) HFEneFlagged += en; 
 	  }
 	  myFlag= j->flagField(HcalCaloFlagLabels::HFDigiTime);
 	  if (myFlag==1) {
 	    filter_HFFlagged=true;
 	    NHFDigiTimeHits++;
-	    if (en > 1.0) HFEneFlagged += en; 
 	  }
 
 	  if ( ( (j->flagField(HcalCaloFlagLabels::HFLongShort)) == 0) &&
 	       ( (j->flagField(HcalCaloFlagLabels::HFDigiTime))  == 0) ) {
 	    if (j->energy() > MaxRecHitEne) MaxRecHitEne = j->energy();
-	    if (en > 1.0) HFEneClean += en;
 	  }
 
 
@@ -487,8 +362,12 @@ myFilter::filter(edm::Event& evt, edm::EventSetup const& es) {
 	  //	  }
 
 
-	  if ( (en > 40.) && (time > 15.)) {
-	    nHFTime++;
+	  // Long:  depth = 1
+	  // Short: depth = 2
+	  float en = j->energy();
+	  float time = j->time();
+	  if ( (en > 20.) && (time > 10.)) {
+	    nTime++;
 	  }
 	  int ieta = j->id().ieta();
 	  int iphi = j->id().iphi();
@@ -545,8 +424,8 @@ myFilter::filter(edm::Event& evt, edm::EventSetup const& es) {
 
   if (MaxRecHitEne > 1000.) filter_HFHighEnergy = true;
 
-  //  if (nTime > 0) filter_Time = true;
-  if (nHFTime > 0) filter_HFTime = true;
+  if (nTime > 0) filter_Time = true;
+  if (nTime > 0) filter_HFTime = true;
 
 
   double OER, OddEne, EvenEne;
@@ -860,13 +739,7 @@ myFilter::filter(edm::Event& evt, edm::EventSetup const& es) {
   edm::Handle<HcalSourcePositionData> spd;
 
   int nHPDNoise = 0;
-  nHBHETime = 0;
-
-  int nFBFN = 0;
-  int nFBSN = 0;
-  int nFBTN = 0;
-
-  double totalHBHEEne = 0;
+  nTime = 0;
 
   try {
     std::vector<edm::Handle<HBHERecHitCollection> > colls;
@@ -886,10 +759,8 @@ myFilter::filter(edm::Event& evt, edm::EventSetup const& es) {
 	float en = j->energy();
 	float time = j->time();
 
-	if (en > 1.) totalHBHEEne += en;
-
-	if ( (en > 40.) && (time > 15.)) {
-	  nHBHETime++;
+	if ( (en > 10.) && (time > 20.)) {
+	  nTime++;
 	}
 
 	/***
@@ -901,40 +772,14 @@ myFilter::filter(edm::Event& evt, edm::EventSetup const& es) {
 		  << j->energy() << " "
 		  << j->time()   << std::endl;
 	****/
-	
-	if (j->flagField(HcalCaloFlagLabels::HBHEFlatNoise)  == 1) {
-	  nFBFN++;
-	}
-	if (j->flagField(HcalCaloFlagLabels::HBHESpikeNoise) == 1) {
-	  nFBSN++;
-	}
-        if (j->flagField(HcalCaloFlagLabels::HBHETriangleNoise) == 1) {
-	  nFBTN++;
-	}
-
       }
-      break;
-
     }
   } catch (...) {
     cout << "No HB/HE RecHits." << endl;
   }
 
-
-  if (totalHBHEEne > 0) {
-    if ( ((totalNoiseEne / totalHBHEEne) < 0.5) && 
-	 (summary.numFlatNoiseChannels() > 10) ) {
-      filter_R45Collision = true;
-    }
-  }
-
-
   if (nHPDNoise > 10) filter_NHPDNoise = true;
-  if (nHBHETime > 0)  filter_HBHETime  = true;
-
-  if (nFBFN > 0)  filter_FBFN  = true;
-  if (nFBSN > 0)  filter_FBSN  = true;
-  if (nFBTN > 0)  filter_FBTN  = true;
+  if (nTime > 0) filter_HBHETime = true;
 
 
   try {
@@ -1022,24 +867,7 @@ myFilter::filter(edm::Event& evt, edm::EventSetup const& es) {
     }
 
     if (ijet->pt() > 50.) nDiJet++;
-
-    if (ijet->pt() > 50.) { 
-      filter_Pt  = true;
-    }
-
-    if (ijet->pt() > 50.) { 
-      if ( fabs(ijet->eta()) < 3.0)  {
-	filter_CentralPt  = true;
-      }
-    }
-
-    if (ijet->pt() > 20.) { 
-      if ( fabs(ijet->eta()) > 3.0)  {
-	filter_ForwardPt  = true;
-      }
-    }
-
-
+    if (ijet->pt() > 50.) filter_Pt  = true;
     if (ijet->pt() > 10.)  njet++;
     if (ijet->pt() > 10.) {
       if (ijet->emEnergyFraction() > 0.05)  filter_EMF = true;
@@ -1067,7 +895,7 @@ myFilter::filter(edm::Event& evt, edm::EventSetup const& es) {
 
   Handle<reco::CaloMETCollection> calometcoll;
   evt.getByLabel("met", calometcoll);
-  double caloMET;
+  double caloMET = 0;
   if (calometcoll.isValid()) {
     const CaloMETCollection *calometcol = calometcoll.product();
     const CaloMET *calomet;
@@ -1076,9 +904,9 @@ myFilter::filter(edm::Event& evt, edm::EventSetup const& es) {
     //double caloMETSig = calomet->mEtSig();
     //double caloSumET  = calomet->sumEt();
     //    if ((caloMET > 50.) && (evtType = 0)) filter_MET = true;
-    if (caloMET > 200.) filter_MET = true;
+    if (caloMET > 40.) filter_MET = true;
   }
-  if ((fabs(OER) > 0.9) && (caloMET > 20.0)) filter_OERatio = true;
+  if ((std::abs(OER) > 0.9) && (caloMET > 20.0)) filter_OERatio = true;
   if (nRBX > 3) filter_NRBX = true;
 
   // *********************************************************
@@ -1086,31 +914,37 @@ myFilter::filter(edm::Event& evt, edm::EventSetup const& es) {
 
   //  if ( (filter_HLT) || (filter_NJets) )  {
   //    result = true;
+  //    _acceptedEvt++;
   //  }
 
   /***
   if ( (filter_Pt)  || (filter_NTrks) || (filter_EMF) || (filter_NJets) || 
        (filter_MET) || (filter_METSig) || (filter_HighPtTower) ) {
     result = true;
+    _acceptedEvt++;
   }
   ***/
 
   //  if ( (filter_Pt) || (filter_NJets) ) {
   //    result = true;
+  //    _acceptedEvt++;
   //  }  
 
   //  if ((filter_PKAM) || (filter_HFMET) ||(filter_NMultiPMTHits) )  {
   //  if ( (filter_DiJet) || (filter_HFMET) ||(filter_NMultiPMTHits) )  {
   //  if ( (filter_NHPDNoise) && ( (filter_Pt) || (filter_MET) ) )  {
   //    result = true;
+  //    _acceptedEvt++;
   //  }  
 
   //  if ( (filter_NoiseSummary) && ( (filter_Pt) || (filter_MET) ) )  {
   //    result = true;
+  //    _acceptedEvt++;
   //  }  
 
   //  if (filter_NoiseSummaryEMF) {
   //    result = true;
+  //    _acceptedEvt++;
   //  }  
 
   //  if (filter_Time) {
@@ -1118,82 +952,48 @@ myFilter::filter(edm::Event& evt, edm::EventSetup const& es) {
 
   //  if (filter_NoiseSummary) {
   //    result = true;
-  //  }  
-
-  //  if (nFBFN > 0)  filter_FBFN  = true;
-  //  if (nFBSN > 0)  filter_FBSN  = true;
-  //  if (nFBTN > 0)  filter_FBTN  = true;
-
-  //  if ((filter_MET) && (!filter_FBSN))  {
-  //    result = true;
+  //    _acceptedEvt++;
   //  }  
 
   //  if (filter_HFTime) {
   //    result = true;
+  //    _acceptedEvt++;
   //  }  
 
   //  if (filter_HBHETime) {
   //    result = true;
+  //    _acceptedEvt++;
   //  }  
 
 
   //  if (!filter_NoiseSummary && filter_HBHETime) {
   //    result = true;
+  //    _acceptedEvt++;
   //  }
 
   //  if (filter_NoiseSummary && filter_NTrks) {
   //    result = true;
+  //    _acceptedEvt++;
   //  }
 
   //  if (!filter_NoiseSummaryADC0   && !filter_NoiseSummaryNHITS && 
   //      filter_NoiseSummaryE2E10 && !filter_NoiseSummaryNoOther) {
   //    result = true;
+  //    _acceptedEvt++;
   //  }  
+
 
   //  if ((filter_HFFlagged) && ((NHFLongShortHits > 2) || (NHFDigiTimeHits > 2))) {
-  //     result = true;
+  //    result = true;
+  //    _acceptedEvt++;
   //  }
 
-  //  if ((filter_HFFlagged) && (HFEneClean > 500.)) {
-  //     result = true;
-  //  }
-
-  //  if (filter_HFHighEnergy) {
-  //    result = true;
-  //  }
-
-  //  if ( (filter_Pt) && (filter_MET) ) {
-  //    result = true;
-  //  }  
-
-  //  if (OKCrossing && filter_BadBunch && filter_CentralPt) {
-  //  if (!OKCrossing && filter_BadBunch && filter_CentralPt) {
-  //  if ( filter_ForwardPt && filter_BadBunch ) {
-  //    result = true;
-  //  }  
-
-  //  if (filter_FBFN) {
-  //    result = true;
-  //  }  
-  //  if (filter_FBSN) {
-  //    result = true;
-  //  }  
-  //  if (filter_FBTN) {
-  //    result = true;
-  //  }  
-
-  //  if (filter_TS4TS5) {
-  //    result = true;
-  //  }  
-
-
-  if (filter_R45Collision) {
+  if (filter_HFHighEnergy) {
     result = true;
-  }  
+    _acceptedEvt++;
+  }
 
   if (filter_Pt)            _passPt++;
-  if (filter_ForwardPt)     _passForwardPt++;
-  if (filter_CentralPt)     _passCentralPt++;
   if (filter_NJets)         _passNJets++;
   if (filter_DiJet)         _passDiJet++;
   if (filter_NTrks)         _passNTrks++;
@@ -1219,18 +1019,11 @@ myFilter::filter(edm::Event& evt, edm::EventSetup const& es) {
   if (filter_HBHETime)  _passHBHETime++;
   if (filter_HFFlagged) _passHFFlagged++;
   if (filter_HFHighEnergy) _passHFHighEnergy++;
-  if (filter_GoodBunch) _passGoodBunch++;
-  if (filter_BadBunch) _passBadBunch++;
-  if (filter_FBFN) _passFBFN++;
-  if (filter_FBSN) _passFBSN++;
-  if (filter_FBTN) _passFBTN++;
-  if (filter_R45)  _passR45++;
-  if (filter_TS4TS5)  _passTS4TS5++;
-  if (filter_R45Collision)  _passR45Collision++;
 
   /****  
   if ((evt.id().run() == 120020) && (evt.id().event() == 453)) {
     result = true;
+    _acceptedEvt++;
   } else {
     result = false;
   }
@@ -1240,17 +1033,7 @@ myFilter::filter(edm::Event& evt, edm::EventSetup const& es) {
 
   }
 
-  // Do not accept any events
-  result = false;
-  
-  // If event fails the R45 filter then don't write out the event
-  //  if (filter_R45) {
-  //    result = true;
-    //    result = false;
-  //  }
-
   if (result) {
-    _acceptedEvt++;    
     std::cout << "<<<< Event Passed" 
 	      << std::endl;
   }

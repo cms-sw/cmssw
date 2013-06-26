@@ -2,7 +2,7 @@
 //
 // Package:     Muons
 // Class  :     FWMuonBuilder
-// $Id: FWMuonBuilder.cc,v 1.35 2010/09/07 15:46:48 yana Exp $
+// $Id: FWMuonBuilder.cc,v 1.37 2012/06/07 06:23:44 yana Exp $
 //
 
 #include "TEveVSDStructs.h"
@@ -98,9 +98,14 @@ void addMatchInformation( const reco::Muon* muon,
         segmentLength = det->shape[3];
         segmentLimit  = det->shape[4];
       }
-      else if( det->shape[0] == 0 ) // TGeoBBox
+      else if( det->shape[0] == 2 ) // TGeoBBox
       {
 	segmentLength = det->shape[3];
+      }
+      else
+      {   
+        const double segmentLength = 15;
+        fwLog( fwlog::kWarning ) << Form("FWMuonBuilder: unknown shape type in muon chamber with detId=%d. Setting segment length to %.0f cm.\n",  rawid, segmentLength);
       }
         
       if( ids.insert( rawid ).second &&  // ensure that we add same chamber only once

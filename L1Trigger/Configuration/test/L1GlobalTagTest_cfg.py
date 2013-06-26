@@ -23,7 +23,8 @@ process = cms.Process('L1GlobalTagTest')
 # compatible with that global tag.
 
 #    data global tags
-useGlobalTag = 'GR10_P_V6'
+# 5_2_X
+useGlobalTag = 'GR_P_V37'
 
 #    MC production global tags
 #useGlobalTag = 'MC_37Y_V5'

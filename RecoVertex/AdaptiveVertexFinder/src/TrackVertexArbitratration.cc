@@ -1,6 +1,6 @@
 #include "RecoVertex/AdaptiveVertexFinder/interface/TrackVertexArbitratration.h"
 #include "DataFormats/GeometryVector/interface/VectorUtil.h"
-
+using namespace reco;
 
 TrackVertexArbitration::TrackVertexArbitration(const edm::ParameterSet &params) :
 	primaryVertexCollection   (params.getParameter<edm::InputTag>("primaryVertices")),

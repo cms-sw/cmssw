@@ -9,8 +9,6 @@ output stream.
 ----------------------------------------------------------------------*/
 
 #include "DataFormats/Provenance/interface/BranchChildren.h"
-#include "DataFormats/Provenance/interface/BranchID.h"
-#include "DataFormats/Provenance/interface/BranchIDList.h"
 #include "DataFormats/Provenance/interface/ParentageID.h"
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
 #include "DataFormats/Provenance/interface/Selections.h"
@@ -62,15 +60,14 @@ namespace edm {
     static void fillDescriptions(ConfigurationDescriptions& descriptions);
     static const std::string& baseType();
     static void prevalidate(ConfigurationDescriptions& );
+    
+
 
     BranchChildren const& branchChildren() const {return branchChildren_;}
 
     bool wantAllEvents() const {return wantAllEvents_;}
 
-    BranchIDLists const* branchIDLists() const;
-
   protected:
-
     //Trig const& getTriggerResults(Event const& ep) const;
     Trig getTriggerResults(Event const& ep) const;
 
@@ -103,12 +100,6 @@ namespace edm {
 
     void setEventSelectionInfo(std::map<std::string, std::vector<std::pair<std::string, int> > > const& outputModulePathPositions,
                                bool anyProductProduced);
-
-    void configure(OutputModuleDescription const& desc);
-
-    std::map<BranchID::value_type, BranchID::value_type> const& droppedBranchIDToKeptBranchID() {
-      return droppedBranchIDToKeptBranchID_;
-    }
 
   private:
 
@@ -151,12 +142,6 @@ namespace edm {
     // subsystem.
     ParameterSetID selector_config_id_;
 
-    // needed because of possible EDAliases.
-    // filled in only if key and value are different.
-    std::map<BranchID::value_type, BranchID::value_type> droppedBranchIDToKeptBranchID_;
-    std::unique_ptr<BranchIDLists> branchIDLists_;
-    BranchIDLists const* origBranchIDLists_;
-
     typedef std::map<BranchID, std::set<ParentageID> > BranchParents;
     BranchParents branchParents_;
 
@@ -165,6 +150,7 @@ namespace edm {
     //------------------------------------------------------------------
     // private member functions
     //------------------------------------------------------------------
+    void configure(OutputModuleDescription const& desc);
     void doWriteRun(RunPrincipal const& rp);
     void doWriteLuminosityBlock(LuminosityBlockPrincipal const& lbp);
     void doOpenFile(FileBlock const& fb);

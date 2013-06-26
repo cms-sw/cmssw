@@ -21,9 +21,12 @@ class ShapeBuilder(ModelBuilder):
         if (self.options.verbose > 1): stderr.write("Using shapes: qui si parra' la tua nobilitate\n")
         self.prepareAllShapes();
         if len(self.DC.bins) > 1 or self.options.forceSimPdf:
-            strexpr="CMS_channel[" + ",".join(["%s=%d" % (l,i) for i,l in enumerate(self.DC.bins)]) + "]";
+            ## start with just a few channels
+            strexpr="CMS_channel[" + ",".join(["%s=%d" % (l,i) for i,l in enumerate(self.DC.bins[:5])]) + "]";
             self.doVar(strexpr);
             self.out.binCat = self.out.cat("CMS_channel");
+            ## then add all the others, to avoid a too long factory string
+            for i,l in enumerate(self.DC.bins[5:]): self.out.binCat.defineType(l,i+5)   
             if self.options.verbose: stderr.write("Will use category 'CMS_channel' to identify the %d channels\n" % self.out.binCat.numTypes())
             self.out.obs = ROOT.RooArgSet()
             self.out.obs.add(self.out.binVars)
@@ -381,6 +384,7 @@ class ShapeBuilder(ModelBuilder):
         if shapeNominal.InheritsFrom("TH1"): normNominal = shapeNominal.Integral()
         elif shapeNominal.InheritsFrom("RooDataHist"): normNominal = shapeNominal.sumEntries()
         else: return None    
+        if normNominal == 0: raise RuntimeError, "Null norm for channel %s, process %s" % (channel,process)
         for (syst,nofloat,pdf,args,errline) in self.DC.systs:
             if "shape" not in pdf: continue
             if errline[channel][process] != 0:
@@ -394,6 +398,8 @@ class ShapeBuilder(ModelBuilder):
                     kappaUp,kappaDown = shapeUp.Integral(),shapeDown.Integral()
                 elif shapeNominal.InheritsFrom("RooDataHist"):
                     kappaUp,kappaDown = shapeUp.sumEntries(),shapeDown.sumEntries()
+                if not kappaUp > 0: raise RuntimeError, "Bogus norm %r for channel %s, process %s, systematic %s Up" % (kappaUp, channel,process,syst)
+                if not kappaDown > 0: raise RuntimeError, "Bogus norm %r for channel %s, process %s, systematic %s Down" % (kappaDown, channel,process,syst)
                 kappaUp /=normNominal; kappaDown /= normNominal
                 if abs(kappaUp-1) < 1e-3 and abs(kappaDown-1) < 1e-3: continue
                 # if errline[channel][process] == <x> it means the gaussian should be scaled by <x> before doing pow
@@ -448,7 +454,7 @@ class ShapeBuilder(ModelBuilder):
             elif shape.InheritsFrom("RooAbsPdf"):
                 _cache[shape.GetName()+"Pdf"] = shape
             elif shape.InheritsFrom("RooDataHist"):
-                rhp = ROOT.RooHistPdf("%sPdf" % shape.GetName(), "", self.out.binVars, shape) 
+                rhp = ROOT.RooHistPdf("%sPdf" % shape.GetName(), "", shape.get(), shape) 
                 self.out._import(rhp)
                 _cache[shape.GetName()+"Pdf"] = rhp
             elif shape.InheritsFrom("RooDataSet"):

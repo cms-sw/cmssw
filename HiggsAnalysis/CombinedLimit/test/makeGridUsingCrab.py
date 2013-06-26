@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 from math import *
-import os
+import os,sys
 from optparse import OptionParser
 import ROOT
 parser = OptionParser(usage="usage: %prog [options] workspace min max \nrun with --help to get list of options")
@@ -23,6 +23,8 @@ parser.add_option("-P", "--priority", dest="prio",     default=False, action="st
 parser.add_option("-s", "--smart",    dest="smart",     default=False, action="store_true", help="Run more toys at low edge of the band, to get better low range")
 parser.add_option("-S", "--signif",   dest="signif",     default=False, action="store_true", help="Compute significance. You should set min = 1, max = 1")
 parser.add_option("-u", "--uidir",    dest="uidir", default="", help="Sepcify a CRAB UI directory.  If not provided using the normal crab_0_timestamp")
+parser.add_option("-d", "--diagnosticRun", dest="diagnosticRun", default=False ,action="store_true",help="Run MaxLikelihoodFit with toys for diagnostic studies")
+parser.add_option("-m", "--mass",     dest="mass",	default=120, type="float",help="Hypothesis mass (mH)")
 #parser.add_option("--fork",           dest="fork",     default=1,   type="int",  help="Cores to use (leave to 1)") # no fork in batch jobs for now
 (options, args) = parser.parse_args()
 if len(args) != 3:
@@ -32,13 +34,17 @@ options.fork = 1 ## NEVER EVER FORK IN GRID JOBS. NOT ALLOWED BY THE SYSTEM ##
 
 workspace = args[0]
 if workspace.endswith(".txt"):
-    os.system("text2workspace.py -b %s -o %s.workspace.root" % (workspace, options.out))
+    os.system("text2workspace.py -b %s -o %s.workspace.root -m %f" % (workspace, options.out, options.mass))
     workspace = options.out+".workspace.root"
     print "Converted workspace to binary",workspace
+
+if options.diagnosticRun : options.points = 1 
 
 min, max = float(args[1]), float(args[2])
 dx = (max-min)/(options.points-1) if options.points > 1 else 0
 points = [ min + dx*i for i in range(options.points) ]
+
+if (min!=max) and options.diagnosticRun : sys.exit("Cannot run diagnostics with > 1 expected signal (set min=max=prefit signal")
 
 if options.log:
     dx = log(max/min)/(options.points-1) if options.points > 1 else 0
@@ -89,13 +95,21 @@ for i,x in enumerate(points):
         elif i < 0.4 * options.points:
             toys = "$(( 2 * $n ))";
     what = "--singlePoint %g " % x if options.signif == False else "--signif";
-    script.write("{cond} ./combine {wsp} -M HybridNew {opts} --fork $nchild -T {T} --clsAcc 0 -v {v} -n {out} --saveHybridResult --saveToys -s {seed} -i {toys} {what}\n".format(
+    if options.diagnosticRun:
+      what = "--expectSignal %g --preFitValue %g "%(x,x)
+      script.write("./combine {wsp} -M MaxLikelihoodFit {opts} -m {mass} --toysFrequentist -v {v} -n {out} -s {seed} -t {toys} {what} \n".format(
                 wsp=workspace, opts=options.options, fork=options.fork, T=options.T, seed=seed, out=options.out, what=what, v=options.v,
-                cond=interleave, toys=toys
+                toys=toys,mass=options.mass
+              ))
+    else:
+      script.write("{cond} ./combine {wsp} -M HybridNew {opts} -m {mass} --fork $nchild -T {T} --clsAcc 0 -v {v} -n {out} --saveHybridResult --saveToys -s {seed} -i {toys} {what}\n".format(
+                wsp=workspace, opts=options.options, fork=options.fork, T=options.T, seed=seed, out=options.out, what=what, v=options.v,
+                cond=interleave, toys=toys,mass=options.mass
               ))
 
 script.write("\n");
 script.write("hadd %s.root higgsCombine*.root\n" % options.out)
+if options.diagnosticRun : script.write("hadd mlfit%s.root mlfit*.root\n" % options.out)
 script.write('echo "## Done at $(date)"\n');
 script.close()
 os.system("chmod +x %s.sh" % options.out)
@@ -127,17 +141,18 @@ queue = {queue}
 [CMSSW]
 datasetpath = None
 pset = None
-output_file = {out}.root
+output_file = {out}
 total_number_of_events = {total}
 number_of_jobs = {jobs}
 
 [USER]
-script_exe = {out}.sh
+script_exe = {scriptout}.sh
 additional_input_files = combine,{wsp}
 return_data = 1
 {uidir_line}
 """.format(
-    wsp=workspace, out=options.out,
+    wsp=workspace, out="mlfit%s.root,%s.root"%(options.out,options.out) if options.diagnosticRun else options.out+'.root',
+    scriptout=options.out,
     sched=sched, srv=(1 if options.server else 0),
     queue=options.queue, jobs=options.j, total=options.t,
     uidir_line = uidir_line

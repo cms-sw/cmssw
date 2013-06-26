@@ -5,7 +5,7 @@
 // 
 //
 // Original Author:  Jake Ribnik, Dmytro Kovalskyi
-// $Id: MuonSelectors.h,v 1.13 2010/06/28 08:06:37 dmytro Exp $
+// $Id: MuonSelectors.h,v 1.14.2.1 2012/09/24 21:11:53 gpetrucc Exp $
 
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "TMath.h"
@@ -82,7 +82,12 @@ namespace muon {
 		    bool   applyAlsoAngularCuts = false);
 
    bool isTightMuon(const reco::Muon&, const reco::Vertex&);
-   
+   bool isLooseMuon(const reco::Muon&);
+   bool isSoftMuon(const reco::Muon&, const reco::Vertex&);
+   enum TunePType{defaultTuneP, improvedTuneP};
+   bool isHighPtMuon(const reco::Muon&, const reco::Vertex&, TunePType = muon::improvedTuneP);
+   reco::TrackRef improvedMuonBestTrack(const reco::Muon&, TunePType);
+
    // determine if station was crossed well withing active volume
    unsigned int RequiredStationMask( const reco::Muon& muon,
 				     double maxChamberDist,
@@ -102,6 +107,11 @@ namespace muon {
    // and pullY
    bool overlap( const reco::Muon& muon1, const reco::Muon& muon2, 
 		 double pullX = 1.0, double pullY = 1.0, bool checkAdjacentChambers = false);
+
+   /// Determine the number of shared segments between two muons.
+   /// Comparison is done using the segment references in the reco::Muon object.
+   int sharedSegments( const reco::Muon& muon1, const reco::Muon& muon2, 
+                       unsigned int segmentArbitrationMask = reco::MuonSegmentMatch::BestInChamberByDR ) ;
 
 }
 #endif

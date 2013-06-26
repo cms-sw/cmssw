@@ -1,6 +1,6 @@
 //
 // F.Ratnikov (UMd), Oct 28, 2005
-// $Id: CastorDbASCIIIO.cc,v 1.6 2011/05/09 19:35:15 mundim Exp $
+// $Id: CastorDbASCIIIO.cc,v 1.7 2012/01/12 14:15:44 muzaffar Exp $
 //
 #include <vector>
 #include <string>
@@ -223,6 +223,9 @@ bool getObject (std::istream& fInput, CastorGains* fObject) {return getCastorObj
 bool dumpObject (std::ostream& fOutput, const CastorGains& fObject) {return dumpCastorObject (fOutput, fObject);}
 bool getObject (std::istream& fInput, CastorGainWidths* fObject) {return getCastorObject (fInput, fObject, new CastorGainWidth);}
 bool dumpObject (std::ostream& fOutput, const CastorGainWidths& fObject) {return dumpCastorObject (fOutput, fObject);}
+
+bool getObject (std::istream& fInput, CastorSaturationCorrs* fObject) {return getCastorSingleFloatObject (fInput, fObject, new CastorSaturationCorr);}
+bool dumpObject (std::ostream& fOutput, const CastorSaturationCorrs& fObject) {return dumpCastorSingleFloatObject (fOutput, fObject);}
 
 
 

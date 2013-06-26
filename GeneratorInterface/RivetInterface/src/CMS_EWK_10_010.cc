@@ -50,13 +50,11 @@ namespace Rivet {
 
       const ZFinder& zfinder = applyProjection<ZFinder>(e, "ZFinder");
 
-      const FinalState& fs = zfinder.constituentsFinalState();
-
-      if (zfinder.particles().size() != 1) 
+      if (zfinder.particles().size() != 2) 
 	vetoEvent;
 
-      Particle lepton0 = fs.particles().at(0);
-      Particle lepton1 = fs.particles().at(1);
+      Particle lepton0 = zfinder.particles().at(0);
+      Particle lepton1 = zfinder.particles().at(1);
 
       if (lepton0.pdgId() != -lepton1.pdgId())
 	vetoEvent;
@@ -66,8 +64,8 @@ namespace Rivet {
       double eta0 = lepton0.momentum().eta();
       double eta1 = lepton1.momentum().eta();
 
-      double Zpt = zfinder.particles()[0].momentum().pT()/GeV;
-      double Zy = zfinder.particles()[0].momentum().rapidity();
+      double Zpt = zfinder.bosons()[0].momentum().pT()/GeV;
+      double Zy = zfinder.bosons()[0].momentum().rapidity();
 
 	//Begin Pt Part
       bool inAcceptance = fabs(eta0)<2.1 && fabs(eta1)<2.1 && pt0>20 && pt1>20;
@@ -89,7 +87,7 @@ namespace Rivet {
 
       normalize(_h_Z_pT_normalised,1.0);
       normalize(_h_Z_pT_peak_normalised,pT_peak_integral/pT_integral);
-      normalize(_h_Z_y_normalised,1.0);
+      normalize(_h_Z_y_normalised,2.0);
 
     }
 

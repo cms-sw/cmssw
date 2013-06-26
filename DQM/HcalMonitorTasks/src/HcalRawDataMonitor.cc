@@ -63,6 +63,16 @@ HcalRawDataMonitor::HcalRawDataMonitor(const edm::ParameterSet& ps) {
   meChann_DataIntegrityCheck_[29]=meCh_DataIntegrityFED29_;
   meChann_DataIntegrityCheck_[30]=meCh_DataIntegrityFED30_;
   meChann_DataIntegrityCheck_[31]=meCh_DataIntegrityFED31_;
+  
+  this->reset();
+} // HcalRawDataMonitor::HcalRawDataMonitor()
+
+// destructor
+HcalRawDataMonitor::~HcalRawDataMonitor(){}
+
+// reset
+void HcalRawDataMonitor::reset(void)
+{
 
   for (int f=0; f<NUMDCCS; f++) {
     for (int s=0; s<15; s++) {
@@ -112,9 +122,6 @@ HcalRawDataMonitor::HcalRawDataMonitor(const edm::ParameterSet& ps) {
   NumBadHO12=0;
 
 } // HcalRawDataMonitor::HcalRawDataMonitor()
-
-// destructor
-HcalRawDataMonitor::~HcalRawDataMonitor(){}
 
 // BeginRun
 void HcalRawDataMonitor::beginRun(const edm::Run& run, const edm::EventSetup& c){
@@ -604,6 +611,14 @@ void HcalRawDataMonitor::processEvent(const FEDRawDataCollection& rawraw,
   for (int i=FEDNumbering::MINHCALFEDID; i<=FEDNumbering::MAXHCALFEDID; i++) {
     const FEDRawData& fed = rawraw.FEDData(i);
     if (fed.size()<12) continue;  //At least the size of headers and trailers of a DCC.
+
+    int value = (int)((const HcalDCCHeader*)(fed.data()))->getCalibType() ;
+    if(value>7) 
+      {
+	edm::LogWarning("HcalMonitorModule::CalibTypeFilter") << "Unexpected Calibration type: "<< value << " in FED: "<<i<<" (should be 0-7). I am bailing out...";
+	return;
+      }
+
     unpack(fed); //Interpret data, fill histograms, everything.
   }
   
@@ -884,6 +899,11 @@ void HcalRawDataMonitor::unpack(const FEDRawData& raw){
     }
 
     unsigned short HTRwdcount = htr.getRawLength();
+    if (HTRwdcount == 0) 
+      {
+      	edm::LogWarning("HcalMonitorModule::RawDataTas") << "Unexpected Raw Length: "<< HTRwdcount <<" I am bailing out...";	
+	continue;
+      }
 
     // Size checks for internal consistency
     // getNTP(), get NDD() seems to be mismatched with format. Manually:

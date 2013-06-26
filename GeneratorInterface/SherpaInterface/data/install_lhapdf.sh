@@ -232,9 +232,12 @@ pdflocation=`find $LHAPDFDIR -type d -name lhapdf`
 mkdir $pdflocation/PDFsets
 pdflocation=$pdflocation/PDFsets
 for pdfset in $PDFSETS; do
-  echo " <I> retrieving PDFset: "$pdfset
-  wget $pdfweblocation/$pdfset
-  mv $pdfset $pdflocation/
+  echo " <I> retrieving PDFset(s): "$pdfset
+#  wget $pdfweblocation/$pdfset
+#  mv $pdfset $pdflocation/
+  cd $pdflocation/
+  $LHAPDFDIR/bin/lhapdf-getdata $pdfset
+  cd -
 done
 
 

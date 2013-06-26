@@ -4,11 +4,11 @@
 
 const int APVCyclePhaseCollection::getPhase(const std::string partition) const {
 
-  int phase = empty;
+  int phase = invalid;
 
   for(std::map<std::string,int>::const_iterator it=_apvmap.begin();it!=_apvmap.end();it++) {
     if(strstr(it->first.c_str(),partition.c_str())==it->first.c_str() || strcmp(partition.c_str(),"All")==0 ) {
-      if(phase==empty ) {
+      if(phase==invalid ) {
 	phase = it->second;
       }
       else if(phase!=it->second) {
@@ -17,7 +17,7 @@ const int APVCyclePhaseCollection::getPhase(const std::string partition) const {
     }
   }
 
-  if(phase==empty) return nopartition;
+  if(phase==invalid) return nopartition;
   return phase;
 
 
@@ -38,9 +38,7 @@ const std::vector<int> APVCyclePhaseCollection::getPhases(const std::string part
   std::vector<int> phases;
   
   for(std::set<int>::const_iterator phase=phasesset.begin();phase!=phasesset.end();++phase) {
-    if(*phase!=empty && *phase!=invalid) {
-      phases.push_back(*phase);
-    }
+    phases.push_back(*phase);
   }
 
   return phases;

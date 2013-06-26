@@ -24,7 +24,7 @@ scoutingRazorVarAnalyzer = cms.EDAnalyzer("RazorVarAnalyzer",
 
 
 #this file contains the sequence for data scouting using the Razor analysis
-scoutingRazorDQMSequence = cms.Sequence(scoutingRHemisphere*
+scoutingRazorDQMSequence = cms.Sequence(cms.ignore(scoutingRHemisphere)*
                                         scoutingRazorVariables*
                                         scoutingRazorVarAnalyzer
                                         )

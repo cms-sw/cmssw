@@ -14,7 +14,6 @@
 #include "SimG4CMS/Calo/interface/HFShowerPMT.h"
 #include "SimG4CMS/Calo/interface/HFShowerFibreBundle.h"
 #include "SimG4CMS/Calo/interface/HcalNumberingScheme.h"
-#include "SimG4CMS/Calo/interface/HEDarkening.h"
 #include "DetectorDescription/Core/interface/DDsvalues.h"
 #include "Geometry/HcalCommonData/interface/HcalNumberingFromDDD.h"
 
@@ -60,7 +59,6 @@ private:
   bool                          isItStraightBundle(G4LogicalVolume*);
   bool                          isItConicalBundle(G4LogicalVolume*);
   bool                          isItScintillator(G4Material*);
-  bool                          isItinFidVolume (G4ThreeVector&);
   void                          getFromLibrary(G4Step * step);
   void                          hitForFibre(G4Step * step);
   void                          getFromParam(G4Step * step);
@@ -71,7 +69,6 @@ private:
   double                        layerWeight(int, G4ThreeVector, int, int);
   void                          plotProfile(G4Step* step, G4ThreeVector pos, 
                                             double edep, double time, int id);
-  void                          plotHF(G4ThreeVector& pos, bool emType);
 
   HcalNumberingFromDDD*         numberingFromDDD;
   HcalNumberingScheme*          numberingScheme;
@@ -80,20 +77,22 @@ private:
   HFShowerParam *               showerParam;
   HFShowerPMT *                 showerPMT;
   HFShowerFibreBundle *         showerBundle;
-  HEDarkening *                 darkening; 
-  bool                          useBirk, useLayerWt, useFibreBundle, usePMTHit;
+  bool                          useBirk, useLayerWt, useFibreBundle, applyFidCut;
   double                        birk1, birk2, birk3, betaThr;
-  bool                          useHF, useShowerLibrary, useParam, applyFidCut;
+  bool                          useHF, useShowerLibrary, useParam, usePMTHit;
   double                        eminHitHB, eminHitHE, eminHitHO, eminHitHF;
-  double                        lumiDarkening;
   G4int                         mumPDG, mupPDG; 
-  std::vector<double>           layer0wt, gpar;
+  std::vector<double>           layer0wt;
+  std::vector<G4LogicalVolume*> hfLV;
+  std::vector<G4String>         hfNames;
   std::vector<int>              hfLevels;
-  std::vector<G4String>         hfNames, fibreNames, matNames;
+  std::vector<G4LogicalVolume*> fibreLV;
+  std::vector<G4String>         fibreNames;
+  std::vector<G4String>         matNames;
   std::vector<G4Material*>      materials;
-  std::vector<G4LogicalVolume*> hfLV, fibreLV, pmtLV, fibre1LV, fibre2LV;
+  std::vector<G4LogicalVolume*> pmtLV, fibre1LV, fibre2LV;
   std::map<uint32_t,double>     layerWeights;
-  TH1F                          *hit_[9], *time_[9], *dist_[9], *hzvem, *hzvhad;
+  TH1F                          *hit_[9], *time_[9], *dist_[9];
 
 };
 

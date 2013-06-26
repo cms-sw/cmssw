@@ -5,8 +5,8 @@
  *   Configuration parameters for L1MuDTTrackFinder
  *
  *
- *   $Date: 2008/05/09 15:02:00 $
- *   $Revision: 1.4 $
+ *   $Date: 2010/02/11 00:12:32 $
+ *   $Revision: 1.5 $
  *
  *   N. Neumeister            CERN EP
  */
@@ -62,6 +62,7 @@ class L1MuDTTFConfig {
     static bool getopenLUTs() { return m_openLUTs; } 
     static bool getUseEX21() { return m_useEX21; }
     static bool getEtaTF() { return m_etaTF; }
+    static bool getEtaCanc() { return m_etacanc; }
     static bool getTSOutOfTimeFilter() { return m_TSOutOfTimeFilter; }
     static int  getTSOutOfTimeWindow() { return m_TSOutOfTimeWindow; }
     static int getNbitsExtPhi() { return m_NbitsExtPhi; }
@@ -97,6 +98,8 @@ class L1MuDTTFConfig {
     static bool   m_useEX21;           // perform EX21 extrapolation (cross-check EX12)
 
     static bool   m_etaTF;             // use eta track finder
+
+    static bool   m_etacanc;           // use etaFlag for CSC segment cancellation
 
     static bool   m_TSOutOfTimeFilter; // perform out-of-time TS cancellation
     static int    m_TSOutOfTimeWindow; // phi window size to be checked

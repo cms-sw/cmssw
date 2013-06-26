@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Fri Jan  4 10:38:18 EST 2008
-// $Id: FWEventItemsManager.cc,v 1.44 2011/08/11 03:41:08 amraktad Exp $
+// $Id: FWEventItemsManager.cc,v 1.45 2011/08/16 01:29:42 amraktad Exp $
 //
 
 // system include files
@@ -164,10 +164,10 @@ FWEventItemsManager::addTo(FWConfiguration& iTo) const
    {
       if(!*it) continue;
       FWConfiguration conf(6);
-      ROOT::Reflex::Type dataType( ROOT::Reflex::Type::ByTypeInfo(*((*it)->type()->GetTypeInfo())));
-      assert(dataType != ROOT::Reflex::Type() );
+      Reflex::Type dataType( Reflex::Type::ByTypeInfo(*((*it)->type()->GetTypeInfo())));
+      assert(dataType != Reflex::Type() );
 
-      conf.addKeyValue(kType,FWConfiguration(dataType.Name(ROOT::Reflex::SCOPED)));
+      conf.addKeyValue(kType,FWConfiguration(dataType.Name(Reflex::SCOPED)));
       conf.addKeyValue(kModuleLabel,FWConfiguration((*it)->moduleLabel()));
       conf.addKeyValue(kProductInstanceLabel, FWConfiguration((*it)->productInstanceLabel()));
       conf.addKeyValue(kProcessName, FWConfiguration((*it)->processName()));

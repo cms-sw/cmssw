@@ -65,10 +65,18 @@ class Iov :
                Plug = __import__(self.__modName)
            except RuntimeError :
                self.__modName = 0
-           self.__me = db.iov(tag)
-           if (till) : self.__me.setRange(since,till)
-           if (head) : self.__me.head(head)
-           if (tail) : self.__me.tail(tail)
+           iov = db.iov(tag)
+           #the __me data member is always an IOVRange
+           #the IOVSequence is used in the ctor only
+           self.__me = iov.range(iov.firstSince(), iov.lastTill())
+           if (till) : self.__me = iov.range(since,till)
+           if (head) : self.__me = iov.head(head)
+           if (tail) : self.__me = iov.tail(tail)
+           self.__timetype = iov.timetype()
+           self.__comment = iov.comment()
+           self.__revision = iov.revision()
+           self.__timestamp = CondDB.unpackTime(iov.timestamp())
+           self.__payloadClasses = list(iov.payloadClasses())
            self.__db.commitTransaction()
 
        def list(self) :
@@ -140,15 +148,15 @@ class Iov :
            return ret
     
        def timetype(self):
-           return  self.__me.timetype()
+           return  self.__timetype
        def comment(self):
-           return self.__me.comment()
+           return self.__comment
        def revision(self):
-           return self.__me.revision()
+           return self.__revision
        def timestamp(self):
-           return  CondDB.unpackTime(self.__me.timestamp())
+           return self.__timestamp
        def payloadClasses(self):
-           return list(self.__me.payloadClasses())
+           return self.__payloadClasses
        def payLoad(self, since):
            listOfIovElem= [iovElem for iovElem in self.__me.elements if iovElem.since() == since]
            IOVElem = listOfIovElem[0]
