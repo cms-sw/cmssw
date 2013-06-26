@@ -22,3 +22,7 @@
 <library   file="stubs/EcalSampleMaskRecordESProducer.cc" name="testEcalSampleMaskRecordESProducer">
   <flags   EDM_PLUGIN="1"/>
 </library>
+
+<library   file="stubs/URHDump.cc" name="testURHDump">
+  <flags   EDM_PLUGIN="1"/>
+</library>
