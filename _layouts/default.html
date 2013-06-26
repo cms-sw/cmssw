@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>{{ page.title }}</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="css/bootstrap.min.css" rel="stylesheet" media="screen">
+  <style>
+  body {
+    padding: 40px;
+  }
+  </style>
+</head>
+<body>
+  <div class="navbar navbar-inverse navbar-fixed-top">
+    <div class="navbar-inner">
+      <a class="brand" href="index.html">CMSSW on GitHub</a>
+      <ul class="nav">
+        {% for r in page.related %}
+         <li><a href="{{ r.link }}">{{ r.name }}</a></li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+  <div class="container-fluid">
+    <div class="row-fluid">
+      <div class="span9">
+        {{content}}
+      </div>
+      <div class="span3">
+        <h3 id='quick_start'>Quick start</h3>
+        <ul>
+          <li><a href='index.html'>Main page</a></li>
+          <li><a href='faq.html'>CMSSW on Github FAQ</a></li>
+          <li><a href='usercode-faq.html'>UserCode on Github FAQ</a></li>
+          <li><a href='tutorial.html'>CMSSW Git Tutorial</a></li>
+          <li><a href='troubleshooting.html'>Troubleshooting git</a></li>
+          <li><a href='advanced-usage.html'>Advanced Usage FAQ</a></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+  <div id="footer"><a href="http://copyright.web.cern.ch">Copyright 1956-2013 CERN</a></div>
+  </div>
+  <script src="http://code.jquery.com/jquery.js"></script>
+  <script src="js/bootstrap.min.js"></script>
+</body>
+</html>

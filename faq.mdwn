@@ -1,0 +1,211 @@
+---
+title: CMS Offline Software
+layout: default
+related:
+ - { name: Project page, link: https://github.com/cms-sw/cmssw }
+ - { name: Topic Collector, link: https://cern.ch/cmsgit/cmsgit }
+ - { name: Feedback, link: https://github.com/cms-sw/cmssw/issues/new }
+---
+# FAQs
+
+* auto-gen TOC:
+{:toc}
+
+# General questions
+
+### Where can I learn about git, github in general?
+
+- Generic git help can be found at <http://git-scm.com/book/>.
+- github.com specific help can be found at <https://help.github.com>.
+- A 15 minutes, interactive, git tutorial <http://try.github.com/levels/1/challenges/1>
+- A nice video about git <http://www.youtube.com/watch?v=ZDR433b0HJY>
+
+### How do I subscribe to github?
+
+In order to develop CMSSW you will need a github account and to link it to your
+CERN account. This is easily done by going to [CMS Topic
+Collector][cms-topic-collector].
+
+* In case you don't, simply click on the "Sign up for free" button 
+
+  ![signup button](images/github-signup.png)
+
+  and follow the instructions to create a new account.
+
+  Go back to the [CMS Topic Collector][cms-topic-collector] page when done.
+
+ * In case you already have an account you can simply use "the Sign in" dialog and
+put your username and password.
+
+  ![signin dialog](images/github-signin.png)
+
+Once you are done, you'll be prompted to grant CMS Topic Collector the rights to
+connect to your github account, simply click on "Authorize app".
+
+![signup button](images/github-authorize.png)
+
+Once you are done you should also setup your personal information:
+
+    git config --global user.name <First Name> <Last Name>
+    git config --global user.email <Your-Email-Address>
+    git config --global user.github <Your-Just-Created-GitHub-Account>
+
+[cms-topic-collector]: https://cern.ch/cmsgit/cmsgit
+
+# Working with CMSSW on github
+
+### How do I checkout one or more packages?
+
+If you are in a CMSSW area (remember to do `cmsenv`) you can simply use:
+  
+    git cms-addpkg <package-name>
+
+once you have developments you can checkout dependent packages by doing.
+
+    git cms-checkdeps
+
+[To learn more about git cms-addpkg click here](git-cms-addpkg.html).
+
+You can also find a complete tutorial [here](tutorial.html).
+
+
+### How do I develop a new feature using git?
+
+First of all you need to fork cmssw to your own personal repository. This
+repository will be used to hold all your incomplete developments. 
+
+In your working area checkout a few packages you want to modify via `git
+cms-addpkg`. When you are ready to start developing create a new topic branch
+to hold your developments, e.g.:
+
+    git checkout -b my-new-feature
+
+Notice you'll be able to add more packages afterwards, so do not worry if you
+don't have all of them right ahead.
+
+Once you are happy with your changes, push them to your private repository on
+github, e.g.:
+
+    git push my-cmssw
+
+You can do the above multiple times, whenever you have updated your
+development.  Whenever you are happy, open a pull request to merge your topic
+branch into the official repository.
+
+This can be done by going to [CMS Topic Collector][cms-topic-collector] and by
+clicking on the "Create new pull request for ...".
+
+![Create pull request](images/create-pull-request.png) 
+
+This will redirect you to the github equivalent of the "tagset publishing"
+page in the old tag collector ("pull request creation" in git jargon):
+
+![Publish pull request](images/publish-branch.png) 
+
+there you can select your release queue (or "release branch") and your source branch.
+
+### How do I check the status of my pull request(s).
+
+Go to the [CMS Topic Collector][cms-topic-collector]. There you'll find all the
+open requests and their approval status.
+
+### How do I make sure my topic branch is updated with the latest developments?
+
+Simply merge the release branch into your topic branch:
+
+    git checkout new-feature
+    git fetch official-cmssw
+    git merge official-cmssw/CMSSW_6_2_X
+
+or in one command:
+
+    git pull official-cmssw CMSSW_6_2_X
+
+assuming you are on the `new-feature` branch already. 
+
+For more information about merging branching read
+[here](http://git-scm.com/book/en/Git-Branching-Basic-Branching-and-Merging).
+
+You can also have a look at the CMS git tutorial found [here](tutorial).
+
+### What about UserCode?
+
+Please have a look at the [UserCode FAQ](usercode-faq).
+
+### CVS-speak to git speak
+
+| CMS CVS                              | CMS GIT                                          |
+| -                                    | -                                                |
+| tagset                               | topic branch                                     |
+| publish a tagset                     | create a pull request                            |
+| Tag Collector                        | Topic Collector                                  |
+| `addpkg`                             | `git cms-addpkg`                                 |
+| `checkdeps`                          | `git cms-checkdeps`                              |
+| `cmstc tagset <tagset-id> -a`        | `git pull official-cmssw --track <topic-branch>` |
+| `cvs log`                            | `git log`                                        |
+| `cvs diff -r some tag`               | `git diff -r <some-tag>`                         |
+| `cvs diff -r TAG1 -r TAG2 Package`   | `git diff TAG1..TAG2 Package`                    |
+
+### How do I tag a single package?
+
+Tagging a single package is not possible with git, when you tag something
+you'll always tag the full repository, tags are only aliases to commits.
+However tags are cheap, so we can afford to tag a single integration build.
+
+### How can I limit the diff between two tags to one single package?
+
+You can do it by specifying a path at the end of the git command:
+
+    git diff TAG1..TAG2 <some-path>
+
+### Will you migrate all the release tags we used to have for `CMSSW`?
+
+Yes, all release (`CMSSW_X_Y_Z`) tags currently in CVS will be available in
+git. This is not currently the case though.
+
+### Will you migrate all the per package tags?
+
+No. Per package tags will not be migrated. You can however have a look at the
+[Dealing with CVS History page](cvs-interaction.html) to see how you can get
+old tags which were not in any release. This will also be useful to import
+packages which did not end up in any release.
+
+
+### Do you have any more in-depth FAQs?
+
+Yes, please look at the [Advanced Usage](advanced-usage) section.
+
+### Do you have a nice tutorial on how to develop CMSSW on git?
+
+Yes, please have a look at the [CMSSW git tutorial page](tutorial.html).
+
+### How do I ask a question?
+
+If you have more questions about git and CMSSW on git, please use [this
+form][new-faq-form].
+
+### How do I contribute to these pages?
+
+The documentation you are reading uses [GitHub Pages](http://pages.github.com)
+to publish web pages. To contribute to it you need to:
+
+- Register to github.
+- Fork the cmssw project under your account ([click here to do
+  it](https://github.com/cms-sw/cmssw/fork)).
+- Checkout the `gh-pages` branch:
+
+      git clone -b gh-pages git@github.com:cms-sw/cmssw.git cmssw-pages
+
+- Edit the documentation and push it to your branch:
+
+      <edit-some-documentation>
+      git commit <my-changed-files>
+      git push git@github.com:<your-github-username>/cmssw.git gh-pages
+
+- Create a "pull request" for you changes by going 
+  [here](https://github.com/cms-sw/cmssw/pull/new/gh-pages).
+
+This will trigger a discussion (and most likely immediate approval) of your
+documentation changes.
+
+[new-faq-form]: https://github.com/cms-sw/cmssw/issues/new
