@@ -273,10 +273,16 @@ CSCStubMatcher::matchLCTsToSimTrack(const CSCCorrelatedLCTDigiCollection& lcts)
       int hs = lct->getStrip() + 1; // LCT halfstrip and wiregoup numbers start from 0
       int wg = lct->getKeyWG() + 1;
 
-      auto mydigi = make_digi(id, hs, bx, CSC_LCT, lct->getQuality(), lct->getPattern(), wg);
+      float dphi = lct->getGEMDPhi();
+
+      auto mydigi = make_digi(id, hs, bx, CSC_LCT, lct->getQuality(), lct->getPattern(), wg, dphi);
       lcts_tmp.push_back(mydigi);
       bx_to_lcts[bx].push_back(mydigi);
-      if (bx_to_lcts[bx].size() == 2) // add ghost LCTs if the two don't share half-strip or wiregroup
+
+      // Add ghost LCTs when there are two in bx
+      // and the two don't share half-strip or wiregroup
+      // TODO: when GEMs would be used to resolve this, there might ned to be an option to turn this off!
+      if (bx_to_lcts[bx].size() == 2)
       {
         auto lct11 = bx_to_lcts[bx][0];
         auto lct22 = bx_to_lcts[bx][1];
@@ -297,7 +303,9 @@ CSCStubMatcher::matchLCTsToSimTrack(const CSCCorrelatedLCTDigiCollection& lcts)
           cout<<"added ghosts"<<endl<<lct11<<"    "<<lct22<<endl <<lct12<<"    "<<lct21<<endl;
         }
       }
-    }
+
+    } // lcts_in_det
+
     size_t n_lct = lcts_tmp.size();
     if (n_lct == 0) continue; // no LCTs in this chamber
 
