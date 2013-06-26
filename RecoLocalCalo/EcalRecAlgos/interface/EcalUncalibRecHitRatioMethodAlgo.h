@@ -5,9 +5,6 @@
  *  Template used to compute amplitude, pedestal, time jitter, chi2 of a pulse
  *  using a ratio method
  *
- *  $Id: EcalUncalibRecHitRatioMethodAlgo.h,v 1.50 2012/06/11 21:02:13 wmtan Exp $
- *  $Date: 2012/06/11 21:02:13 $
- *  $Revision: 1.50 $
  *  \author A. Ledovskoy (Design) - M. Balazs (Implementation)
  */
 
@@ -244,7 +241,7 @@ void EcalUncalibRecHitRatioMethodAlgo<C>::computeTime(std::vector < double >&tim
   double alpha = amplitudeFitParameters[0];
   double beta = amplitudeFitParameters[1];
 
-  std::array < Ratio,C::MAXSAMPLES*(C::MAXSAMPLES-1)/2 > ratios_;
+  Ratio ratios_[C::MAXSAMPLES*(C::MAXSAMPLES-1)/2] ;
   unsigned int ratios_size=0;
   
   
@@ -295,7 +292,7 @@ void EcalUncalibRecHitRatioMethodAlgo<C>::computeTime(std::vector < double >&tim
 
 
   //  std::array < Tmax, C::MAXSAMPLES*(C::MAXSAMPLES-1)/2 > times_;
-  std::array < Tmax, C::MAXSAMPLES*(C::MAXSAMPLES-1)/2 > timesAB_;
+  Tmax timesAB_[C::MAXSAMPLES*(C::MAXSAMPLES-1)/2];
   unsigned int timesAB_size=0;
 
   // make a vector of Tmax measurements that correspond to each ratio
@@ -371,7 +368,7 @@ void EcalUncalibRecHitRatioMethodAlgo<C>::computeTime(std::vector < double >&tim
   double chi2Limit = chi2min + 1.0;
   double time_max = 0;
   double time_wgt = 0;
-  for(unsigned int i = 0; i < timesAB_.size(); i++){
+  for(unsigned int i = 0; i < timesAB_size; i++){
     if(  timesAB_[i].chi2 < chi2Limit  ){
       double inverseSigmaSquared = 1.0/(timesAB_[i].error*timesAB_[i].error);
       time_wgt += inverseSigmaSquared;
@@ -430,7 +427,7 @@ void EcalUncalibRecHitRatioMethodAlgo<C>::computeTime(std::vector < double >&tim
 	double time_wgt = 0;
 
 
-	for (unsigned int i = 0; i < ratios_.size(); i++) {
+	for (unsigned int i = 0; i < ratios_size; i++) {
 
           if(ratios_[i].step == 1
               && ratios_[i].value >= timeFitLimits.first
