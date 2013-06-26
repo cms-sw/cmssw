@@ -50,6 +50,9 @@ Once you are done you should also setup your personal information:
     git config --global user.email <Your-Email-Address>
     git config --global user.github <Your-Just-Created-GitHub-Account>
 
+Finally, make sure you [register in github your ssh
+key](https://help.github.com/articles/generating-ssh-keys).
+
 [cms-topic-collector]: https://cern.ch/cmsgit/cmsgit
 
 # Working with CMSSW on github
