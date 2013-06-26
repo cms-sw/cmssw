@@ -52,6 +52,17 @@ void URHDump::analyze(const edm::Event& ev, const edm::EventSetup&){
 	      << int(h.jitterErrorBits())
 	      << std::endl;
 
+  for (auto const & h : (*EEURecHits_))
+    std::cout << h.id() << " "
+	      << h.amplitude() << " "
+	      << h.pedestal() << " "
+	      << h.jitter() << " "
+	      << h.chi2() << " "
+	      << h.outOfTimeEnergy() << " "
+	      << h.outOfTimeChi2() << " "
+	      << int(h.jitterErrorBits())
+	      << std::endl;
+
 }
 
 //define this as a plug-in
