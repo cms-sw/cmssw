@@ -27,4 +27,17 @@ you forgot to register your ssh key when you registered to github, you can do
 it by going to <https://github.com/settings/ssh> and adding your public key
 there.
 
+### My repository and the official CMSSW repository seem to be completely different!
 
+This probably means that you did not reset your fork on the 26th of June, when
+the git migration started. All the copies of the repository before that are to
+be considered obsolete.
+
+You can check you have the correct fork by looking at your repository page,
+`https://github.com/<username>/cmssw`, if it shows that you have  forked from the
+repository called `cms-sw/cmssw-old` it means that you need to fork again.
+
+![old-fork](old-fork.png)
+
+You can fix this by deleting your current fork (look under the settings
+directory), and then fork again.
