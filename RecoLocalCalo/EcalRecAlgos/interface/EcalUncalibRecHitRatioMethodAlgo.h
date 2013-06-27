@@ -15,7 +15,21 @@
 #include <vector>
 #include <array>
 
-#include "vdt/vdtMath.h"
+//#include "vdt/vdtMath.h"
+#include "DataFormats/Math/interface/approx_exp.h"
+#include "DataFormats/Math/interface/approx_log.h"
+
+namespace myMath {
+  inline
+  float fast_expf(float x) {
+    return unsafe_expf<6>(x);
+  }
+  inline
+  float fast_logf(float x) {
+    return unsafe_logf<7>(x);
+  }
+}
+
 
 template < class C > class EcalUncalibRecHitRatioMethodAlgo {
 public:
@@ -277,7 +291,7 @@ void EcalUncalibRecHitRatioMethodAlgo<C>::computeTime(std::vector < double >&tim
 	// don't include useless ratios
 	if(totalError < 1.0
 	   && Rtmp>0.001
-	   && Rtmp<vdt::fast_exp(double(j-i)/beta)-0.001
+	   && Rtmp<myMath::fast_expf(double(j-i)/beta)-0.001
 	   ){
 	  Ratio currentRatio = { i, (j-i), Rtmp, totalError };
 	  ratios_[ratios_size++] = currentRatio;
@@ -309,11 +323,11 @@ void EcalUncalibRecHitRatioMethodAlgo<C>::computeTime(std::vector < double >&tim
     if(Rmin<0.001) Rmin=0.001;
 
     double Rmax = ratios_[i].value + ratios_[i].error;
-    double RLimit = vdt::fast_exp(stepOverBeta)-0.001;
+    double RLimit = myMath::fast_expf(stepOverBeta)-0.001;
     if( Rmax > RLimit ) Rmax = RLimit;
 
-    double time1 = offset - ratios_[i].step/(vdt::fast_exp((stepOverBeta-vdt::fast_log(Rmin))/alpha)-1.0);
-    double time2 = offset - ratios_[i].step/(vdt::fast_exp((stepOverBeta-vdt::fast_log(Rmax))/alpha)-1.0);
+    double time1 = offset - ratios_[i].step/(myMath::fast_expf((stepOverBeta-myMath::fast_logf(Rmin))/alpha)-1.0);
+    double time2 = offset - ratios_[i].step/(myMath::fast_expf((stepOverBeta-myMath::fast_logf(Rmax))/alpha)-1.0);
 
     // this is the time measurement based on the ratios[i]
     double tmax = 0.5 * (time1 + time2);
@@ -327,7 +341,7 @@ void EcalUncalibRecHitRatioMethodAlgo<C>::computeTime(std::vector < double >&tim
       double offset = (double(it) - tmax)*invalphabeta;
       double term1 = 1.0 + offset;
       if(term1>1e-6){
-	double f = vdt::fast_exp( alpha*(vdt::fast_log(1.0+offset) - offset) );
+	double f = myMath::fast_expf( alpha*(myMath::fast_logf(1.0+offset) - offset) );
 	sumAf += amplitudes_[it]*(f/err2);
 	sumff += f*(f/err2);
       }
@@ -389,7 +403,7 @@ void EcalUncalibRecHitRatioMethodAlgo<C>::computeTime(std::vector < double >&tim
     double offset = (double(i) - tMaxAlphaBeta)/alphabeta;
     double term1 = 1.0 + offset;
     if(term1>1e-6){
-      double f = vdt::fast_exp( alpha*(vdt::fast_log(1.0+offset) - offset) );
+      double f = myMath::fast_expf( alpha*(myMath::fast_logf(1.0+offset) - offset) );
       sumAf += amplitudes_[i]*(f/err2);
       sumff += f*(f/err2);
     }
@@ -534,7 +548,7 @@ void EcalUncalibRecHitRatioMethodAlgo<C>::computeAmplitude( std::vector< double 
 	        double err2 = amplitudeErrors_[i]*amplitudeErrors_[i];
 		double f = 0;
 		double termOne = 1 + (i - calculatedRechit_.timeMax) / (alpha * beta);
-		if (termOne > 1.e-5) f = vdt::fast_exp(alpha * vdt::fast_log(termOne)-(i - calculatedRechit_.timeMax) / beta);
+		if (termOne > 1.e-5) f = myMath::fast_expf(alpha * myMath::fast_logf(termOne)-(i - calculatedRechit_.timeMax) / beta);
 
 		// apply range of interesting samples
 
