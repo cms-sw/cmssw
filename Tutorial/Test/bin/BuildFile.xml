@@ -1,0 +1,3 @@
+#there are no .cc files
+<bin file="*.cc" name="git-tutorial-test">
+</bin>
