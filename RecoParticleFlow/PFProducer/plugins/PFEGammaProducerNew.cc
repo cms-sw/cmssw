@@ -23,6 +23,8 @@
 
 #include "TFile.h"
 
+#define PFLOW_DEBUG
+
 #ifdef PFLOW_DEBUG
 #define docast(x,y) dynamic_cast<x>(y)
 #define LOGVERB(x) edm::LogVerbatim(x)
@@ -289,10 +291,7 @@ PFEGammaProducerNew::produce(edm::Event& iEvent,
   // reset output collection  
   egCandidates_.reset( new reco::PFCandidateCollection );   
   egExtra_.reset( new reco::PFCandidateEGammaExtraCollection ); 
-  sClusters_.reset( new reco::SuperClusterCollection );    
-  // copies of things for some reason?
-  ebeeClusters_.reset( new reco::CaloClusterCollection );  
-  esClusters_.reset( new reco::CaloClusterCollection );      
+  sClusters_.reset( new reco::SuperClusterCollection );      
     
   // Get the EE-PS associations
   edm::Handle<reco::SuperCluster::EEtoPSAssociation> eetops;
@@ -419,7 +418,7 @@ PFEGammaProducerNew::produce(edm::Event& iEvent,
 	      egxinsertfrom);
 
     const size_t rscsize = sClusters_->size();
-    sClusters_->resize(egxsize + pfeg_->getRefinedSCs().size());
+    sClusters_->resize(rscsize + pfeg_->getRefinedSCs().size());
     reco::SuperClusterCollection::iterator rscinsertfrom = 
       sClusters_->begin() + rscsize;
     std::move(pfeg_->getRefinedSCs().begin(),
@@ -437,14 +436,22 @@ PFEGammaProducerNew::produce(edm::Event& iEvent,
   edm::RefProd<reco::PFCandidateEGammaExtraCollection> egXtraProd = 
     iEvent.getRefBeforePut<reco::PFCandidateEGammaExtraCollection>();
   
+  size_t non_zero_sc_idx = 0; 
+  
   //set the correct references to refined SC and EG extra using the refprods
   for (unsigned int i=0; i < egCandidates_->size(); ++i) {
     reco::PFCandidate &cand = egCandidates_->at(i);
     reco::PFCandidateEGammaExtra &xtra = egExtra_->at(i);
+    reco::SuperCluster& rsc = sClusters_->at(non_zero_sc_idx);
     
-    reco::SuperClusterRef refinedSCRef(sClusterProd,i);
     reco::PFCandidateEGammaExtraRef extraref(egXtraProd,i);
-    
+    reco::SuperClusterRef refinedSCRef;
+    // only set refined SC refs where the is valid!
+    if( rsc.energy() != 0.0 ) {      
+      refinedSCRef = reco::SuperClusterRef(sClusterProd,non_zero_sc_idx++);
+    } else {
+      sClusters_->erase(sClusters_->begin() + non_zero_sc_idx);
+    }
     xtra.setSuperClusterRef(refinedSCRef); 
     cand.setSuperClusterRef(refinedSCRef);
     cand.setPFEGammaExtraRef(extraref);    
@@ -562,22 +569,6 @@ PFEGammaProducerNew::setPFEGParameters(double mvaEleCut,
 				  sumPtTrackIsoForPhoton,
 				  sumPtTrackIsoSlopeForPhoton
 				  ));
-  return;  
-  
-//   pfele_= new PFElectronAlgo(mvaEleCut_,mvaWeightFileEleID_,
-//                           thePFSCEnergyCalibration_,
-//                           thePFEnergyCalibration,
-//                           applyCrackCorrectionsElectrons_,
-//                           usePFSCEleCalib_,
-//                           useEGElectrons_,
-//                           useEGammaSupercluster_,
-//                           sumEtEcalIsoForEgammaSC_barrel_,
-//                           sumEtEcalIsoForEgammaSC_endcap_,
-//                           coneEcalIsoForEgammaSC_,
-//                           sumPtTrackIsoForEgammaSC_barrel_,
-//                           sumPtTrackIsoForEgammaSC_endcap_,
-//                           nTrackIsoForEgammaSC_,
-//                           coneTrackIsoForEgammaSC_);
 }
 
 /*

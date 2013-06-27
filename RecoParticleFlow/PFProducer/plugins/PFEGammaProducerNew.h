@@ -145,13 +145,12 @@ class PFEGammaProducerNew : public edm::EDProducer {
   reco::Vertex       primaryVertex_;
   bool               useVertices_;   
   
-  std::auto_ptr< reco::PFCandidateCollection >    egCandidates_;
-  std::auto_ptr< reco::CaloClusterCollection >    ebeeClusters_;
-  std::auto_ptr< reco::CaloClusterCollection >    esClusters_;
-  std::auto_ptr< reco::SuperClusterCollection >    sClusters_;
+  std::auto_ptr< reco::PFCandidateCollection >          egCandidates_;
+  std::auto_ptr<reco::PFCandidateEGammaExtraCollection> egExtra_;
+  std::auto_ptr< reco::SuperClusterCollection >         sClusters_;  
 
   /// the unfiltered electron collection 
-  std::auto_ptr<reco::PFCandidateEGammaExtraCollection>    egExtra_;  
+    
   
   // Name of the calibration functions to read from the database
   // std::vector<std::string> fToRead;
