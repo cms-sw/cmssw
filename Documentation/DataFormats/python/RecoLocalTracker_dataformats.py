@@ -1,23 +1,68 @@
-full_title = "RecoLocalTracker collections (in RECO and AOD)"
+'''
+    Created on Jun 26, 2013 
+    @author:  Mantas Stankevicius
+    @contact: mantas.stankevicius@cern.ch
+    http://cmsdoxy.web.cern.ch/cmsdoxy/dataformats/
+    
+    @responsible: 
+    
+'''
 
-full = {
-    '0':['siStripDigis', 'DetIdedmEDCollection', 'No documentation'] ,
-    '1':['siPixelDigis', 'DetIdedmEDCollection', 'No documentation'] ,
-    '2':['siPixelClusters', '*', 'No documentation'] ,
-    '3':['siStripClusters', '*', 'No documentation'] 
-}
+json = {
+  "full": {
+    "title": "RecoLocalTracker collections (in RECO and AOD)",
+    "data": [
+     {
+      "instance": "siPixelDigis",
+      "container": "DetIdedmEDCollection",
+      "desc": "No documentation"
+     },
+     {
+      "instance": "siStripDigis",
+      "container": "DetIdedmEDCollection",
+      "desc": "No documentation"
+     },
+     {
+      "instance": "siStripClusters",
+      "container": "*",
+      "desc": "No documentation"
+     },
+     {
+      "instance": "siPixelClusters",
+      "container": "*",
+      "desc": "No documentation"
+     }
+    ]
+  },
+  "aod": {
+    "title": "RecoLocalTracker collections (in AOD only)",
+    "data": [
 
-reco_title = "RecoLocalTracker collections (in RECO only)"
-
-reco = {
-    '0':['siStripDigis', 'DetIdedmEDCollection', 'No documentation'] ,
-    '1':['siPixelDigis', 'DetIdedmEDCollection', 'No documentation'] ,
-    '2':['siPixelClusters', '*', 'No documentation'] ,
-    '3':['siStripClusters', '*', 'No documentation'] 
-}
-
-aod_title = "RecoLocalTracker collections (in AOD only)"
-
-aod = {
-
+    ]
+  },
+  "reco": {
+    "title": "RecoLocalTracker collections (in RECO only)",
+    "data": [
+     {
+      "instance": "siPixelDigis",
+      "container": "DetIdedmEDCollection",
+      "desc": "No documentation"
+     },
+     {
+      "instance": "siStripDigis",
+      "container": "DetIdedmEDCollection",
+      "desc": "No documentation"
+     },
+     {
+      "instance": "siStripClusters",
+      "container": "*",
+      "desc": "No documentation"
+     },
+     {
+      "instance": "siPixelClusters",
+      "container": "*",
+      "desc": "No documentation"
+     }
+    ]
+  }
 }
