@@ -219,11 +219,11 @@ void EcalUncalibRecHitRatioMethodAlgo<C>::computeTime(std::vector < double >&tim
 
   // null hypothesis = no pulse, pedestal only
   for(unsigned int i = 0; i < amplitudes_.size(); i++){
-    double err2 = amplitudeErrors_[i]*amplitudeErrors_[i];
+    double inverr2 = 1./(amplitudeErrors_[i]*amplitudeErrors_[i]);
     sum0  += 1;
-    sum1  += 1/err2;
-    sumA  += amplitudes_[i]/err2;
-    sumAA += amplitudes_[i]*amplitudes_[i]/err2;
+    sum1  += inverr2;
+    sumA  += amplitudes_[i]*inverr2;
+    sumAA += amplitudes_[i]*(amplitudes_[i]*inverr2);
   }
   if(sum0>0){
     NullChi2 = (sumAA - sumA*sumA/sum1)/sum0;
@@ -239,6 +239,7 @@ void EcalUncalibRecHitRatioMethodAlgo<C>::computeTime(std::vector < double >&tim
   //       where Amp[i] is pedestal subtracted ADC value in a time sample [i]
   //
   double alphabeta = amplitudeFitParameters[0]*amplitudeFitParameters[1];
+  double invalphabeta = 1./alphabeta;
   double alpha = amplitudeFitParameters[0];
   double beta = amplitudeFitParameters[1];
 
@@ -323,20 +324,20 @@ void EcalUncalibRecHitRatioMethodAlgo<C>::computeTime(std::vector < double >&tim
     sumff = 0;
     for(unsigned int it = 0; it < amplitudes_.size(); it++){
       double err2 = amplitudeErrors_[it]*amplitudeErrors_[it];
-      double offset = (double(it) - tmax)/alphabeta;
+      double offset = (double(it) - tmax)*invalphabeta;
       double term1 = 1.0 + offset;
       if(term1>1e-6){
 	double f = vdt::fast_exp( alpha*(log(1.0+offset) - offset) );
-	sumAf += amplitudes_[it]*f/err2;
-	sumff += f*f/err2;
+	sumAf += amplitudes_[it]*(f/err2);
+	sumff += f*(f/err2);
       }
     }
 
     double chi2 = sumAA;
     double amp = 0;
     if( sumff > 0 ){
-      chi2 = sumAA - sumAf*sumAf/sumff;
-      amp = sumAf/sumff;
+      chi2 = sumAA - sumAf*(sumAf/sumff);
+      amp = (sumAf/sumff);
     }
     chi2 /= sum0;
 
@@ -389,8 +390,8 @@ void EcalUncalibRecHitRatioMethodAlgo<C>::computeTime(std::vector < double >&tim
     double term1 = 1.0 + offset;
     if(term1>1e-6){
       double f = vdt::fast_exp( alpha*(vdt::fast_log(1.0+offset) - offset) );
-      sumAf += amplitudes_[i]*f/err2;
-      sumff += f*f/err2;
+      sumAf += amplitudes_[i]*(f/err2);
+      sumff += f*(f/err2);
     }
   }
 
@@ -419,7 +420,7 @@ void EcalUncalibRecHitRatioMethodAlgo<C>::computeTime(std::vector < double >&tim
 
 
   // Do Ratio's Method with "large" pulses
-  if( ampMaxAlphaBeta/ampMaxError_ > 5.0 ){
+  if( ampMaxAlphaBeta > 5.0*ampMaxError_ ){
 
 	// make a vector of Tmax measurements that correspond to each
 	// ratio. Each measurement have it's value and the error
@@ -533,18 +534,19 @@ void EcalUncalibRecHitRatioMethodAlgo<C>::computeAmplitude( std::vector< double 
 	        double err2 = amplitudeErrors_[i]*amplitudeErrors_[i];
 		double f = 0;
 		double termOne = 1 + (i - calculatedRechit_.timeMax) / (alpha * beta);
-		if (termOne > 1.e-5) f = vdt::fast_exp(alpha * vdt::fast_log(termOne)) * vdt::fast_exp(-(i - calculatedRechit_.timeMax) / beta);
+		if (termOne > 1.e-5) f = vdt::fast_exp(alpha * vdt::fast_log(termOne)-(i - calculatedRechit_.timeMax) / beta);
 
 		// apply range of interesting samples
 
 		if ( (i < pedestalLimit)
 		     || (f > 0.6 && i <= calculatedRechit_.timeMax)
 		     || (f > 0.4 && i >= calculatedRechit_.timeMax)) {
-		  	  sum1  += 1/err2;
-			  sumA  += amplitudes_[i]/err2;
-			  sumF  += f/err2;
-			  sumAF += f*amplitudes_[i]/err2;
-			  sumFF += f*f/err2;
+		  auto inverr2 = 1/err2;
+		  sum1  += inverr2;
+		  sumA  += amplitudes_[i]*inverr2;
+		  sumF  += f*inverr2;
+		  sumAF += (f*inverr2)*amplitudes_[i];
+		  sumFF += f*(f*inverr2);
 		}
 	}
 
