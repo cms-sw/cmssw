@@ -312,8 +312,8 @@ void EcalUncalibRecHitRatioMethodAlgo<C>::computeTime(std::vector < double >&tim
     double RLimit = vdt::fast_exp(stepOverBeta)-0.001;
     if( Rmax > RLimit ) Rmax = RLimit;
 
-    double time1 = offset - ratios_[i].step/(vdt::fast_exp((stepOverBeta-log(Rmin))/alpha)-1.0);
-    double time2 = offset - ratios_[i].step/(vdt::fast_exp((stepOverBeta-log(Rmax))/alpha)-1.0);
+    double time1 = offset - ratios_[i].step/(vdt::fast_exp((stepOverBeta-vdt::fast_log(Rmin))/alpha)-1.0);
+    double time2 = offset - ratios_[i].step/(vdt::fast_exp((stepOverBeta-vdt::fast_log(Rmax))/alpha)-1.0);
 
     // this is the time measurement based on the ratios[i]
     double tmax = 0.5 * (time1 + time2);
@@ -327,7 +327,7 @@ void EcalUncalibRecHitRatioMethodAlgo<C>::computeTime(std::vector < double >&tim
       double offset = (double(it) - tmax)*invalphabeta;
       double term1 = 1.0 + offset;
       if(term1>1e-6){
-	double f = vdt::fast_exp( alpha*(log(1.0+offset) - offset) );
+	double f = vdt::fast_exp( alpha*(vdt::fast_log(1.0+offset) - offset) );
 	sumAf += amplitudes_[it]*(f/err2);
 	sumff += f*(f/err2);
       }
