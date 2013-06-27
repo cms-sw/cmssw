@@ -13,6 +13,12 @@ This tutorial wil guide you step to step from an empty directory to
 a new feature being proposed in the CMS Topic Collector. For more general
 questions please have a look at the [FAQ](faq.html) pages.
 
+### Before you start.
+
+> Please make sure you registered to GitHub and that you have provided them
+> a ssh public key to access your private repository. For more information see
+> the [FAQ](faq.html).
+
 ### Create a CMSSW area
 
 > Set up the work area just like you used to.
