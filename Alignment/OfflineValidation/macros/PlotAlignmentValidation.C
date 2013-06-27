@@ -902,7 +902,7 @@ void  PlotAlignmentValidation::setCanvasStyle( TCanvas& canv )
   canv.SetLeftMargin  ( 0.15 );
   canv.SetRightMargin ( 0.05 );
   canv.SetBottomMargin( 0.15 );
-  canv.SetTopMargin   ( 0.10 );
+  canv.SetTopMargin   ( 0.12 );
 }
 
 //------------------------------------------------------------------------------
