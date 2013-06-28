@@ -3,9 +3,9 @@
 // -*- C++ -*-
 //
 // Package:     FWCore/Utilities
-// Class  :     RunIndex
+// Class  :     edm::RunIndex
 // 
-/**\class RunIndex RunIndex.h "FWCore/Utilities/interface/RunIndex.h"
+/**\class edm::RunIndex RunIndex.h "FWCore/Utilities/interface/RunIndex.h"
 
  Description: Identifies a 'slot' being used to hold an active Run
 
@@ -49,6 +49,7 @@ namespace edm {
     const RunIndex& operator=(const RunIndex&) = delete; // stop default
     
     // ---------- member data --------------------------------
+    unsigned int value_;
     
   };
 }
