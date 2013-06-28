@@ -19,6 +19,12 @@
 #include "DataFormats/Math/interface/approx_exp.h"
 #include "DataFormats/Math/interface/approx_log.h"
 
+
+#define RANDOM_MAGIC
+
+#include<random>
+
+
 namespace myMath {
   inline
   float fast_expf(float x) {
@@ -83,6 +89,16 @@ protected:
   double ampMaxError_;
   
   CalculatedRecHit calculatedRechit_;
+public:
+#ifdef RANDOM_MAGIC
+  EcalUncalibRecHitRatioMethodAlgo() : rgen(0.99,1.01) {}
+  std::mt19937 eng;
+  std::uniform_real_distribution<double> rgen;
+  double corr() { return rgen(eng); } 
+#else
+  double corr() { return 1.;}
+#endif
+
 };
 
 template <class C>
@@ -287,8 +303,8 @@ void EcalUncalibRecHitRatioMethodAlgo<C>::computeTime(std::vector < double >&tim
 	
 	// don't include useless ratios
 	if(totalError < 1.0
-	   && Rtmp>0.001
-	   && Rtmp<myMath::fast_expf(double(j-i)/beta)-0.001
+	   && Rtmp>0.001*corr()
+	   && Rtmp<myMath::fast_expf(double(j-i)/beta)-0.001*corr()
 	   ){
 	  Ratio currentRatio = { i, (j-i), Rtmp, totalError };
 	  ratios_[ratios_size++] = currentRatio;
@@ -550,8 +566,8 @@ void EcalUncalibRecHitRatioMethodAlgo<C>::computeAmplitude( std::vector< double 
 		// apply range of interesting samples
 
 		if ( (i < pedestalLimit)
-		     || (f > 0.6 && i <= calculatedRechit_.timeMax)
-		     || (f > 0.4 && i >= calculatedRechit_.timeMax)) {
+		     || (f > 0.6*corr() && i <= calculatedRechit_.timeMax)
+		     || (f > 0.4*corr() && i >= calculatedRechit_.timeMax)) {
 		  auto inverr2 = 1/err2;
 		  sum1  += inverr2;
 		  sumA  += amplitudes_[i]*inverr2;
