@@ -77,9 +77,6 @@ protected:
   DetId          theDetId_;
   std::array< double, C::MAXSAMPLES> amplitudes_;
   std::array < double, C::MAXSAMPLES> amplitudeErrors_;
-  std::array < Ratio,C::MAXSAMPLES*(C::MAXSAMPLES-1)/2 > ratios_;
-  std::array < Tmax, C::MAXSAMPLES*(C::MAXSAMPLES-1)/2 > times_;
-  std::array < Tmax, C::MAXSAMPLES*(C::MAXSAMPLES-1)/2 > timesAB_;
   
   double pedestal_;
   int    num_;
@@ -434,7 +431,7 @@ void EcalUncalibRecHitRatioMethodAlgo<C>::computeTime(std::vector < double >&tim
 
 
   // Do Ratio's Method with "large" pulses
-  if( ampMaxAlphaBeta > 5.0*ampMaxError_ ){
+  if( ampMaxAlphaBeta/ampMaxError_ > 5.0 ){
 
 	// make a vector of Tmax measurements that correspond to each
 	// ratio. Each measurement have it's value and the error
