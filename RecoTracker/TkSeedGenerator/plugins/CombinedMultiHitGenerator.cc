@@ -1,10 +1,10 @@
-#include "CombinedHitTripletGenerator.h"
+#include "CombinedMultiHitGenerator.h"
 
 #include "RecoTracker/TkSeedingLayers/interface/SeedingLayerSets.h"
 #include "RecoTracker/TkSeedingLayers/interface/SeedingLayerSetsBuilder.h"
 #include "RecoTracker/TkHitPairs/interface/HitPairGeneratorFromLayerPair.h"
-#include "RecoPixelVertexing/PixelTriplets/interface/HitTripletGeneratorFromPairAndLayers.h"
-#include "RecoPixelVertexing/PixelTriplets/interface/HitTripletGeneratorFromPairAndLayersFactory.h"
+#include "RecoTracker/TkSeedGenerator/interface/MultiHitGeneratorFromPairAndLayers.h"
+#include "RecoTracker/TkSeedGenerator/interface/MultiHitGeneratorFromPairAndLayersFactory.h"
 #include "RecoPixelVertexing/PixelTriplets/interface/LayerTriplets.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -14,11 +14,11 @@
 using namespace std;
 using namespace ctfseeding;
 
-CombinedHitTripletGenerator::CombinedHitTripletGenerator(const edm::ParameterSet& cfg)
+CombinedMultiHitGenerator::CombinedMultiHitGenerator(const edm::ParameterSet& cfg)
   : initialised(false), theConfig(cfg)
 { }
 
-void CombinedHitTripletGenerator::init(const edm::ParameterSet & cfg, const edm::EventSetup& es)
+void CombinedMultiHitGenerator::init(const edm::ParameterSet & cfg, const edm::EventSetup& es)
 {
 //  edm::ParameterSet leyerPSet = cfg.getParameter<edm::ParameterSet>("LayerPSet");
 //  SeedingLayerSets layerSets  = SeedingLayerSetsBuilder(leyerPSet).layers(es);
@@ -41,11 +41,11 @@ void CombinedHitTripletGenerator::init(const edm::ParameterSet & cfg, const edm:
     edm::ParameterSet generatorPSet = theConfig.getParameter<edm::ParameterSet>("GeneratorPSet");
     std::string       generatorName = generatorPSet.getParameter<std::string>("ComponentName");
 
-    HitTripletGeneratorFromPairAndLayers * aGen =
-        HitTripletGeneratorFromPairAndLayersFactory::get()->create(generatorName,generatorPSet);
+    MultiHitGeneratorFromPairAndLayers * aGen =
+        MultiHitGeneratorFromPairAndLayersFactory::get()->create(generatorName,generatorPSet);
 
     aGen->init( HitPairGeneratorFromLayerPair( first, second, &theLayerCache),
-                thirds, &theLayerCache);
+		thirds, &theLayerCache);
 
     theGenerators.push_back( aGen);
   }
@@ -54,7 +54,7 @@ void CombinedHitTripletGenerator::init(const edm::ParameterSet & cfg, const edm:
 
 }
 
-CombinedHitTripletGenerator::~CombinedHitTripletGenerator()
+CombinedMultiHitGenerator::~CombinedMultiHitGenerator()
 {
   GeneratorContainer::const_iterator it;
   for (it = theGenerators.begin(); it!= theGenerators.end(); it++) {
@@ -63,15 +63,15 @@ CombinedHitTripletGenerator::~CombinedHitTripletGenerator()
 }
 
 
-void CombinedHitTripletGenerator::hitTriplets(
-   const TrackingRegion& region, OrderedHitTriplets & result,
+void CombinedMultiHitGenerator::hitSets(
+   const TrackingRegion& region, OrderedMultiHits & result,
    const edm::Event& ev, const edm::EventSetup& es)
 {
   if (!initialised) init(theConfig,es);
 
   GeneratorContainer::const_iterator i;
   for (i=theGenerators.begin(); i!=theGenerators.end(); i++) {
-    (**i).hitTriplets( region, result, ev, es);
+    (**i).hitSets( region, result, ev, es);
   }
   theLayerCache.clear();
 }

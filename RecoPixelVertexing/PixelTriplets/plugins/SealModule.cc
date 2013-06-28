@@ -17,3 +17,4 @@ DEFINE_EDM_PLUGIN(HitTripletGeneratorFromPairAndLayersFactory,PixelTripletNoTipG
 #include "RecoTracker/TkTrackingRegions/interface/OrderedHitsGenerator.h"
 #include "CombinedHitTripletGenerator.h"
 DEFINE_EDM_PLUGIN(OrderedHitsGeneratorFactory, CombinedHitTripletGenerator, "StandardHitTripletGenerator");
+
