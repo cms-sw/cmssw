@@ -3,9 +3,9 @@
 // -*- C++ -*-
 //
 // Package:     FWCore/Utilities
-// Class  :     LuminosityBlockIndex
+// Class  :     edm::LuminosityBlockIndex
 // 
-/**\class LuminosityBlockIndex LuminosityBlockIndex.h "FWCore/Utilities/interface/LuminosityBlockIndex.h"
+/**\class edm::LuminosityBlockIndex LuminosityBlockIndex.h "FWCore/Utilities/interface/LuminosityBlockIndex.h"
 
  Description: Identifies a 'slot' being used to hold an active LuminosityBlock
 

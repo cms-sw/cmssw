@@ -3,9 +3,9 @@
 // -*- C++ -*-
 //
 // Package:     FWCore/Utilities
-// Class  :     StreamID
+// Class  :     edm::StreamID
 // 
-/**\class StreamID StreamID.h "FWCore/Utilities/interface/StreamID.h"
+/**\class edm::StreamID StreamID.h "FWCore/Utilities/interface/StreamID.h"
 
  Description: Identifies an edm stream
 
