@@ -1,0 +1,39 @@
+hortCosmicsRun13824s_003_130420_144345_UTC.raw','/local/data/csc_00000001_EmuRUI01_ME11Test_ShortCosmicsRun13824s_004_130420_144345_UTC.raw')
+        #RUI01 = cms.untracked.vstring('/local/data/csc_00000001_EmuRUI01_ME11Test_ShortCosmicsRun6144s_000_130430_160359_UTC.raw')
+        #RUI01 = cms.untracked.vstring('/local/data/csc_00000001_EmuRUI01_ME11Test_ShortCosmicsRun4096s_000_130501_005900_UTC.raw')
+        RUI01 = cms.untracked.vstring('/local/data/csc_00000001_EmuRUI01_ME11Test_ShortCosmicsRun6144s_000_130501_121902_UTC.raw','/local/data/csc_00000001_EmuRUI01_ME11Test_ShortCosmicsRun6144s_001_130501_121902_UTC.raw')
+          )
+          )
+
+
+          # Optional output
+          process.output = cms.OutputModule("PoolOutputModule",
+              fileName = cms.untracked.string("lct.root"),
+                  outputCommands = cms.untracked.vstring("keep *",
+                          "drop *_DaqSource_*_*")
+                          )
+
+
+                          # ROOT file to save histograms
+                          process.TFileService = cms.Service("TFileService",
+                              #fileName = cms.string('TPEHists_2fix.root')
+                              fileName = cms.string('TPEHists.root')
+                              )
+
+
+                              #process.cscdigiana = cms.EDAnalyzer('CSCDigiAnalizer',
+                              #    fillTree = cms.untracked.bool(True)
+                              #)
+
+
+                              # Optional debuging tools:
+                              #process.d=cms.EDAnalyzer('EventContentAnalyzer')
+                              #process.Tracer = cms.Service("Tracer")
+
+
+                              # Scheduler path
+                              # ==============
+                              process.p = cms.Path(process.muonCSCDigis * process.cscTriggerPrimitiveDigis * process.lctreader)
+                              #process.p = cms.Path(process.muonCSCDigis * process.cscdigiana * process.cscTriggerPrimitiveDigis * process.lctreader)
+                              #process.p = cms.Path(process.cscTriggerPrimitiveDigis * process.d * process.lctreader)
+                              #process.ep = cms.EndPath(process.output)

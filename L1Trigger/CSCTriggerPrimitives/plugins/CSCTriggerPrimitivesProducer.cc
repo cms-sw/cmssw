@@ -1,3 +1,4 @@
+
 //-------------------------------------------------
 //
 //   Class: CSCTriggerPrimitivesProducer
@@ -23,6 +24,7 @@
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
 #include "L1Trigger/CSCCommonTrigger/interface/CSCTriggerGeometry.h"
 #include "CondFormats/DataRecord/interface/CSCBadChambersRcd.h"
+#include "Geometry/GEMGeometry/interface/GEMGeometry.h"
 
 #include "DataFormats/CSCDigi/interface/CSCComparatorDigiCollection.h"
 #include "DataFormats/CSCDigi/interface/CSCWireDigiCollection.h"
@@ -43,6 +45,7 @@ CSCTriggerPrimitivesProducer::CSCTriggerPrimitivesProducer(const edm::ParameterS
 
   wireDigiProducer_ = conf.getParameter<edm::InputTag>("CSCWireDigiProducer");
   compDigiProducer_ = conf.getParameter<edm::InputTag>("CSCComparatorDigiProducer");
+  gemPadProducer_ = conf.getUntrackedParameter<edm::InputTag>("gemPadProducer", edm::InputTag());
   checkBadChambers_ = conf.getUntrackedParameter<bool>("checkBadChambers", true);
 
   lctBuilder_ = new CSCTriggerPrimitivesBuilder(conf); // pass on the conf
@@ -75,6 +78,11 @@ void CSCTriggerPrimitivesProducer::produce(edm::Event& ev,
     edm::ESHandle<CSCGeometry> h;
     setup.get<MuonGeometryRecord>().get(h);
     CSCTriggerGeometry::setGeometry(h);
+    lctBuilder_->setCSCGeometry(&*h);
+
+    edm::ESHandle<GEMGeometry> h_gem;
+    setup.get<MuonGeometryRecord>().get(h_gem);
+    lctBuilder_->setGEMGeometry(&*h_gem);
   }
 
   // Find conditions data for bad chambers.
@@ -102,6 +110,13 @@ void CSCTriggerPrimitivesProducer::produce(edm::Event& ev,
   ev.getByLabel(compDigiProducer_.label(), compDigiProducer_.instance(), compDigis);
   ev.getByLabel(wireDigiProducer_.label(), wireDigiProducer_.instance(), wireDigis);
 
+  const GEMCSCPadDigiCollection *gemPads = nullptr;
+  if (!gemPadProducer_.label().empty()) {
+    edm::Handle<GEMCSCPadDigiCollection> h_pads;
+    ev.getByLabel(gemPadProducer_, h_pads);
+    gemPads = h_pads.product();
+  }
+
   // Create empty collections of ALCTs, CLCTs, and correlated LCTs upstream
   // and downstream of MPC.
   std::auto_ptr<CSCALCTDigiCollection> oc_alct(new CSCALCTDigiCollection);
@@ -128,7 +143,7 @@ void CSCTriggerPrimitivesProducer::produce(edm::Event& ev,
   if (wireDigis.isValid() && compDigis.isValid()) {   
     const CSCBadChambers* temp = checkBadChambers_ ? pBadChambers.product() : new CSCBadChambers;
     lctBuilder_->build(temp,
-		       wireDigis.product(), compDigis.product(),
+		       wireDigis.product(), compDigis.product(), gemPads,
 		       *oc_alct, *oc_clct, *oc_pretrig, *oc_lct, *oc_sorted_lct);
     if (!checkBadChambers_)
       delete temp;
