@@ -16,7 +16,6 @@ TauA1NuConstrainedFitter::TauA1NuConstrainedFitter(unsigned int ambiguity,Lorent
   LorentzVectorParticle Nu=EstimateNu(A1,PVertex, ambiguity_,Tau);
   particles_.push_back(A1);
   particles_.push_back(Nu);
-
   isconfigured=false;
   // setup 13 by 13 matrix
   int size=LorentzVectorParticle::NVertex+particles_.size()*LorentzVectorParticle::NLorentzandVertexPar;
@@ -53,7 +52,6 @@ TauA1NuConstrainedFitter::TauA1NuConstrainedFitter(unsigned int ambiguity,Lorent
   PAR_0=ComputeExpParToPar(exppar);
   for(int i=0; i<npar;i++)par_0(i)=PAR_0(i,0);
   cov_0=ErrorMatrixPropagator::PropogateError(&TauA1NuConstrainedFitter::ComputeExpParToPar,exppar,expcov);
-
   for(int i=0; i<npar;i++){
     for(int j=0;j<npar;j++){cov_0(i,j)=expcov(i,j);}
   }
@@ -69,32 +67,27 @@ TauA1NuConstrainedFitter::TauA1NuConstrainedFitter(unsigned int ambiguity,Lorent
     }*/
   /////////////////////////////////////////////////////////////////////////////////////////////////////////
   // Check if Tau Direction is unphysical and if nessicary set the starting point to Theta_{GJ-Max} 
-  
   TLorentzVector a1(par(a1_px),par(a1_py),par(a1_pz),sqrt(par(a1_m)*par(a1_m)+par(a1_px)*par(a1_px)+par(a1_py)*par(a1_py)+par(a1_pz)*par(a1_pz)));
   double phi(par(tau_phi)),theta(par(tau_theta));
   double scale=0.999;
   if(ambiguity==zero)scale=-1.0;
   if(SetTauDirectionatThetaGJMax(a1,theta,phi,scale)){
-    std::cout <<  "resetting phi and theta" << std::endl;
     TLorentzVector Tau_plus,Tau_minus,nu_plus,nu_minus;
     TVector3 TauDir; TauDir.SetMagThetaPhi(1.0,theta,phi);
     SolvebyRotation(TauDir,a1,Tau_plus,Tau_minus,nu_plus,nu_minus);
     par(tau_phi)=phi;
     par(tau_theta)=theta;
     if(ambiguity_==plus){
-      nu_plus.Print();
       par(nu_px)=nu_plus.Px();
       par(nu_py)=nu_plus.Py();
       par(nu_pz)=nu_plus.Pz();
     }
     if(ambiguity_==minus){
-      nu_minus.Print();
       par(nu_px)=nu_minus.Px();
       par(nu_py)=nu_minus.Py();
       par(nu_pz)=nu_minus.Pz();
     }
     if(ambiguity_==zero){
-      nu_minus.Print();
       par(nu_px)=(nu_minus.Px()+nu_plus.Px())/2;
       par(nu_py)=(nu_minus.Py()+nu_plus.Py())/2;
       par(nu_pz)=(nu_minus.Pz()+nu_plus.Pz())/2;
