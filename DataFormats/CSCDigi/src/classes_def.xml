@@ -12,7 +12,7 @@
     <version ClassVersion="10" checksum="656608282"/>
    </class>
    <class name="CSCCorrelatedLCTDigi" ClassVersion="10">
-    <version ClassVersion="10" checksum="1301481852"/>
+    <version ClassVersion="10" checksum="3605618748"/>
    </class>
    <class name="CSCCLCTDigi" ClassVersion="10">
     <version ClassVersion="10" checksum="3910057547"/>
