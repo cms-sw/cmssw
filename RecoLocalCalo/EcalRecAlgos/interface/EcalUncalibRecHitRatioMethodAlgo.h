@@ -296,25 +296,28 @@ void EcalUncalibRecHitRatioMethodAlgo<C>::computeTime(std::vector < double >&tim
 
       if(amplitudes_[i]>1 && amplitudes_[j]>1){
 	
+	auto invampl = 1./amplitudes_[j];
+
 	// ratio
 	double Rtmp = amplitudes_[i]/amplitudes_[j];
 	
 	// error^2 due to stat fluctuations of time samples
 	// (uncorrelated for both samples)
 	
-	double err1 = Rtmp*Rtmp*( (amplitudeE2_[i]/(amplitudes_[i]*amplitudes_[i])) + (amplitudeE2_[j]/(amplitudes_[j]*amplitudes_[j])) );
+	double err1 = Rtmp*Rtmp*( (amplitudeE2_[i]/(amplitudes_[i]*amplitudes_[i])) + (amplitudeE2_[j]*(invampl*invampl)) );
 	
 	// error due to fluctuations of pedestal (common to both samples)
 	double stat;
 	if(num_>0) stat = num_;      // num presampeles used to compute pedestal
 	else       stat = 1;         // pedestal from db
-	double err2 = amplitudeErrors_[j]*(amplitudes_[i]-amplitudes_[j])/(amplitudes_[j]*amplitudes_[j])/sqrt(stat);
-	
+	double err2 = amplitudeErrors_[j]*(amplitudes_[i]-amplitudes_[j])*(invampl*invampl); // /sqrt(stat);
+	err2 *= err2/stat;
+
 	//error due to integer round-down. It is relevant to low
 	//amplitudes_ in gainID=1 and negligible otherwise.
-        double err3 = 0.289/amplitudes_[j];
+        double err3 = (0.289*0.289)*(invampl*invampl);
 	
-	double totalError = sqrt(err1 + err2*err2 +err3*err3);
+	double totalError = sqrt(err1 + err2 +err3);
 	
 	
 	// don't include useless ratios
@@ -373,7 +376,7 @@ void EcalUncalibRecHitRatioMethodAlgo<C>::computeTime(std::vector < double >&tim
       loffset +=invalphabeta;
       double term1 = 1.0 + loffset;
       // assert(term1>1e-6);
-      double f = myMath::fast_expf( alpha*(myMath::fast_logf(term1) - loffset) );
+      double f = (term1>1e-6) ? myMath::fast_expf( alpha*(myMath::fast_logf(term1) - loffset) ) : 0;
       sumAf += amplitudes_[it]*(f/err2);
       sumff += f*(f/err2);
     }
