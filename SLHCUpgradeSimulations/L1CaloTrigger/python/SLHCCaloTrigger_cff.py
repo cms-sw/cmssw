@@ -24,6 +24,7 @@ SLHCCaloTrigger  = cms.Sequence(#L1TestPatternCaloTowerProducer+
 
                                 rawSLHCL1ExtraParticles+
                                 SLHCL1ExtraParticles+
+                                SLHCL1ExtraParticlesNewCalib+
                                 l1extraParticlesCalibrated
 )
 

@@ -207,11 +207,55 @@ SLHCL1ExtraParticles = cms.EDProducer("L1ExtraCalibrator",
                                       
                                       #Calibration good for 30GeV threshold
                                       eGammaBinCorr = cms.vdouble( 0.980478 , 0.977497 , 0.991688 , 0.974088 , 0.957387 , 0.958428 , 0.946692 , 1.010764 , 1.000194 , 0.876818 , 0.859533 , 0.766770 , 0.852342),
-                                      tauBinCorr=cms.vdouble( 0.966896, 0.968547, 0.981441, 0.993066, 1.003556, 1.036209, 1.043883, 1.089409, 1.051449, 0.968977, 0.962960, 0.875468, 0.944211)
+                                      tauBinCorr=cms.vdouble( 0.966896, 0.968547, 0.981441, 0.993066, 1.003556, 1.036209, 1.043883, 1.089409, 1.051449, 0.968977, 0.962960, 0.875468, 0.944211),
                                       
                                       #eGammaBinCorr = cms.vdouble( 1.0 , 1.0 , 1.0 , 1.0 , 1.0 , 1.0 , 1.0 , 1.0 , 1.0 , 1.0 , 1.0 , 1.0 , 1.0),
                                       #tauBinCorr = cms.vdouble( 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0)
-                                      
+
+                                      ## June 2013
+                                      ## New calibration. Corrections computed in bins of |eta| + linear interpolation
+                                      ## Only for e/g
+                                      applyNewCalib = cms.bool(False), # switch between old and new calibration
+                                      eGammaEtaPoints = cms.vdouble(0.125, 0.375, 0.625, 0.875, 1.125, 1.3645, 1.6145, 1.875, 2.125, 2.375),
+                                      eGammaNewCorr = cms.vdouble(0.0952467, 0.101389, 0.10598, 0.12605, 0.162749, 0.193123, 0.249227, 0.2800289, 0.271548, 0.27855), 
+                                      )
+
+SLHCL1ExtraParticlesNewCalib = cms.EDProducer("L1ExtraCalibrator",
+                                      eGamma = cms.InputTag("rawSLHCL1ExtraParticles","EGamma"),
+                                      isoEGamma = cms.InputTag("rawSLHCL1ExtraParticles","IsoEGamma"),
+                                      taus = cms.InputTag("rawSLHCL1ExtraParticles","Taus"),
+                                      isoTaus = cms.InputTag("rawSLHCL1ExtraParticles","IsoTaus"),
+                                      jets = cms.InputTag("rawSLHCL1ExtraParticles","Jets"),
+
+                                      ##How to calibrate  
+                                      ##Scale factor = MC/RAW = a+b |eta| +c|eta|^2 
+                                      ##Give the coeffs for egamma and taus 
+                                      ##So you need to fit the eta correction with a  
+                                      ##parabola and add the coeffs here
+                                      ## Same as we do for RCT Calibration
+                                      ## 6.Aug.2010 -- Barrel/endcap calibration separated
+                                      ## L1ExtraCalibrator.cc currently ignores the second coefficient, to provide symmetric 
+
+                                      eGammaCoefficientsB = cms.vdouble(1.112,-0.02623,0.08898),
+                                      tauCoefficientsB    = cms.vdouble(1.175,0.1656,0.03392),
+                                      eGammaCoefficientsE = cms.vdouble(1.506,0.2938,-0.1501),
+                                      tauCoefficientsE    = cms.vdouble(1.175,0.1656,0.03392),
+
+
+                                      ## 18.Aug.2010 -- Added bin-by-bin correction factors to further improve upon functional form.
+                                      ## These correction factors are pulled from the MC/Reco( |eta| ) plots after the above calibrations
+                                      ## were applied (ZEE and HTT)
+
+                                      #Calibration good for 30GeV threshold
+                                      eGammaBinCorr = cms.vdouble( 0.980478 , 0.977497 , 0.991688 , 0.974088 , 0.957387 , 0.958428 , 0.946692 , 1.010764 , 1.000194 , 0.876818 , 0.859533 , 0.766770 , 0.852342),
+                                      tauBinCorr=cms.vdouble( 0.966896, 0.968547, 0.981441, 0.993066, 1.003556, 1.036209, 1.043883, 1.089409, 1.051449, 0.968977, 0.962960, 0.875468, 0.944211),
+
+                                      ## June 2013
+                                      ## New calibration. Corrections computed in bins of |eta| + linear interpolation
+                                      ## Only for e/g
+                                      applyNewCalib = cms.bool(True), # switch between old and new calibration
+                                      eGammaEtaPoints = cms.vdouble(0.125, 0.375, 0.625, 0.875, 1.125, 1.3645, 1.6145, 1.875, 2.125, 2.375),
+                                      eGammaNewCorr = cms.vdouble(0.0952467, 0.101389, 0.10598, 0.12605, 0.162749, 0.193123, 0.249227, 0.2800289, 0.271548, 0.27855),
                                       )
 
 l1extraParticlesCalibrated = cms.EDProducer("L1ExtraCalibrator",
@@ -250,9 +294,15 @@ l1extraParticlesCalibrated = cms.EDProducer("L1ExtraCalibrator",
                                             
                                             #Calibration good for 30 GeV threshold.
                                             eGammaBinCorr = cms.vdouble( 1.044700, 1.000000, 1.045531, 1.000000, 1.025850, 1.000000, 0.994333, 1.000238, 1.000000, 0.984849, 1.000000, 1.000000, 0.988361),
-                                            tauBinCorr=cms.vdouble( 0.908360, 1.000000, 0.904475, 1.000000, 0.913780, 1.000000, 0.927715, 0.969766, 1.000000, 0.953172, 1.000000, 1.000000, 0.900906)
+                                            tauBinCorr=cms.vdouble( 0.908360, 1.000000, 0.904475, 1.000000, 0.913780, 1.000000, 0.927715, 0.969766, 1.000000, 0.953172, 1.000000, 1.000000, 0.900906),
                                                                                 
                                             #eGammaBinCorr = cms.vdouble( 1.0 , 1.0 , 1.0 , 1.0 , 1.0 , 1.0 , 1.0 , 1.0 , 1.0 , 1.0 , 1.0 , 1.0 , 1.0),
                                             #tauBinCorr = cms.vdouble( 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0)
-                                                                                        
+                                                                                                                         ## June 2013
+                                            ## New calibration. Corrections computed in bins of |eta| + linear interpolation
+                                            ## Only for e/g
+                                            applyNewCalib = cms.bool(False), # switch between old and new calibration
+					    # These numbers are for SLHC, don't use them here
+                                            eGammaEtaPoints = cms.vdouble(0.125, 0.375, 0.625, 0.875, 1.125, 1.3645, 1.6145, 1.875, 2.125, 2.375),
+                                            eGammaNewCorr = cms.vdouble(0.0952467, 0.101389, 0.10598, 0.12605, 0.162749, 0.193123, 0.249227, 0.2800289, 0.271548, 0.27855)
                                             )
