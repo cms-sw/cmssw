@@ -355,15 +355,16 @@ void EcalUncalibRecHitRatioMethodAlgo<C>::computeTime(std::vector < double >&tim
     // calculate chi2
     sumAf = 0;
     sumff = 0;
-    for(unsigned int it = 0; it < amplitudes_.size(); it++){
+    int itmin = int(tmax - alphabeta);
+    double loffset = (double(itmin) - tmax)*invalphabeta;
+    for(unsigned int it = itmin+1; it < amplitudes_.size(); it++){
       double err2 = amplitudeErrors_[it]*amplitudeErrors_[it];
-      double offset = (double(it) - tmax)*invalphabeta;
-      double term1 = 1.0 + offset;
-      if(term1>1e-6){
-	double f = myMath::fast_expf( alpha*(myMath::fast_logf(1.0+offset) - offset) );
-	sumAf += amplitudes_[it]*(f/err2);
-	sumff += f*(f/err2);
-      }
+      loffset +=invalphabeta;
+      double term1 = 1.0 + loffset;
+      assert(term1>1e-6);
+      double f = myMath::fast_expf( alpha*(myMath::fast_logf(term1) - loffset) );
+      sumAf += amplitudes_[it]*(f/err2);
+      sumff += f*(f/err2);
     }
 
     double chi2 = sumAA;
@@ -422,7 +423,7 @@ void EcalUncalibRecHitRatioMethodAlgo<C>::computeTime(std::vector < double >&tim
     double offset = (double(i) - tMaxAlphaBeta)/alphabeta;
     double term1 = 1.0 + offset;
     if(term1>1e-6){
-      double f = myMath::fast_expf( alpha*(myMath::fast_logf(1.0+offset) - offset) );
+      double f = myMath::fast_expf( alpha*(myMath::fast_logf(term1) - offset) );
       sumAf += amplitudes_[i]*(f/err2);
       sumff += f*(f/err2);
     }
