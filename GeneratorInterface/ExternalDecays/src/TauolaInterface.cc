@@ -276,9 +276,9 @@ void TauolaInterface::statistics()
 
 #include "GeneratorInterface/ExternalDecays/interface/TauolaInterface.h"
 
-#include "Tauola/Tauola.h"
-#include "Tauola/TauolaHepMCEvent.h"
-#include "Tauola/Log.h"
+#include "Tauola.h"
+#include "TauolaHepMCEvent.h"
+#include "Log.h"
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
@@ -293,7 +293,6 @@ void TauolaInterface::statistics()
 #include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
 
 // #include "GeneratorInterface/ExternalDecays/interface/DecayRandomEngine.h"
-using namespace Tauolapp;
 
 extern "C" {
 
