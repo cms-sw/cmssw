@@ -20,7 +20,7 @@
 #include "DataFormats/Math/interface/approx_log.h"
 
 
-#define RANDOM_MAGIC
+// #define RANDOM_MAGIC
 
 #include<random>
 
@@ -276,6 +276,9 @@ void EcalUncalibRecHitRatioMethodAlgo<C>::computeTime(std::vector < double >&tim
   Ratio ratios_[C::MAXSAMPLES*(C::MAXSAMPLES-1)/2] ;
   unsigned int ratios_size=0;
   
+  double Rlim[amplitudes_.size()-1];
+  for (unsigned int k=1; k!=amplitudes_.size()-1; ++k)
+    Rlim[k] = myMath::fast_expf(double(k)/beta)-0.001;
   
   
   for(unsigned int i = 0; i < amplitudes_.size()-1; i++){
@@ -307,7 +310,7 @@ void EcalUncalibRecHitRatioMethodAlgo<C>::computeTime(std::vector < double >&tim
 	// don't include useless ratios
 	if(totalError < 1.0
 	   && Rtmp>0.001 // *corr()
-	   && Rtmp<myMath::fast_expf(double(j-i)/beta)-0.001 // *corr()
+	   && Rtmp< Rlim[j-i] // *corr()
 	   ){
 	  Ratio currentRatio = { i, (j-i), Rtmp, totalError };
 	  ratios_[ratios_size++] = currentRatio;
@@ -339,7 +342,7 @@ void EcalUncalibRecHitRatioMethodAlgo<C>::computeTime(std::vector < double >&tim
     if(Rmin<0.001) Rmin=0.001;
 
     double Rmax = ratios_[i].value + ratios_[i].error;
-    double RLimit = myMath::fast_expf(stepOverBeta)-0.001;
+    double RLimit = Rlim[ratios_[i].step];
     if( Rmax > RLimit ) Rmax = RLimit;
 
     double time1 = offset - ratios_[i].step/(myMath::fast_expf((stepOverBeta-myMath::fast_logf(Rmin))/alpha)-1.0);
@@ -388,7 +391,7 @@ void EcalUncalibRecHitRatioMethodAlgo<C>::computeTime(std::vector < double >&tim
   //double timeMinimum = 5;
   //double errorMinimum = 999;
   for(unsigned int i = 0; i < timesAB_size; i++){
-    if( timesAB_[i].chi2 <= chi2min ){
+    if( timesAB_[i].chi2 < chi2min ){
       chi2min = timesAB_[i].chi2;
       //timeMinimum = timesAB_[i].value;
       //errorMinimum = timesAB_[i].error;
@@ -543,15 +546,18 @@ template<class C>
 void EcalUncalibRecHitRatioMethodAlgo<C>::computeAmplitude( std::vector< double > &amplitudeFitParameters )
 {
 
+#ifdef DELTA_DEBUG
   double corr[7]{1.0,.999,1.001,0.995,1.005,.99,1.01};
 
   std::cout << "Delta " << theDetId_.rawId();
   for (int i6=0; i6!=7; ++i6)
     for (int i4=0; i4!=7; ++i4)
       std::cout <<  " " << computeAmplitudeImpl(amplitudeFitParameters,corr[i4],corr[i6]);
-     
   std::cout << std::endl;
+#endif
+
   calculatedRechit_.amplitudeMax = computeAmplitudeImpl(amplitudeFitParameters,1.,1.);
+
 }
 template<class C>
 double EcalUncalibRecHitRatioMethodAlgo<C>::computeAmplitudeImpl( std::vector< double > &amplitudeFitParameters, double corr4, double corr6 )
