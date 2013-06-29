@@ -86,6 +86,7 @@ protected:
   DetId          theDetId_;
   std::array< double, C::MAXSAMPLES> amplitudes_;
   std::array < double, C::MAXSAMPLES> amplitudeErrors_;
+  std::array < double, C::MAXSAMPLES> amplitudeE2_;
   
   double pedestal_;
   int    num_;
@@ -179,6 +180,7 @@ void EcalUncalibRecHitRatioMethodAlgo<C>::init( const C &dataFrame, const EcalSa
     amplitudes_[iSample] = sample;
     // inflate error for useless samples
     amplitudeErrors_[iSample] = (sampleError>0) ? sampleError :1e+9 ;
+    amplitudeE2_[iSample] = amplitudeErrors_[iSample]*amplitudeErrors_[iSample];
     if(sampleError>0){
       if(ampMaxValue < sample){
 	ampMaxValue = sample;
@@ -249,7 +251,7 @@ void EcalUncalibRecHitRatioMethodAlgo<C>::computeTime(std::vector < double >&tim
 
   // null hypothesis = no pulse, pedestal only
   for(unsigned int i = 0; i < amplitudes_.size(); i++){
-    double inverr2 = 1./(amplitudeErrors_[i]*amplitudeErrors_[i]);
+    double inverr2 = 1./amplitudeE2_[i];
     sum0  += 1;
     sum1  += inverr2;
     sumA  += amplitudes_[i]*inverr2;
@@ -292,7 +294,7 @@ void EcalUncalibRecHitRatioMethodAlgo<C>::computeTime(std::vector < double >&tim
 	// error^2 due to stat fluctuations of time samples
 	// (uncorrelated for both samples)
 	
-	double err1 = Rtmp*Rtmp*( (amplitudeErrors_[i]*amplitudeErrors_[i]/(amplitudes_[i]*amplitudes_[i])) + (amplitudeErrors_[j]*amplitudeErrors_[j]/(amplitudes_[j]*amplitudes_[j])) );
+	double err1 = Rtmp*Rtmp*( (amplitudeE2_[i]/(amplitudes_[i]*amplitudes_[i])) + (amplitudeE2_[j]/(amplitudes_[j]*amplitudes_[j])) );
 	
 	// error due to fluctuations of pedestal (common to both samples)
 	double stat;
@@ -358,10 +360,10 @@ void EcalUncalibRecHitRatioMethodAlgo<C>::computeTime(std::vector < double >&tim
     int itmin = int(tmax - alphabeta);
     double loffset = (double(itmin) - tmax)*invalphabeta;
     for(unsigned int it = itmin+1; it < amplitudes_.size(); it++){
-      double err2 = amplitudeErrors_[it]*amplitudeErrors_[it];
+      double err2 = amplitudeE2_[it];
       loffset +=invalphabeta;
       double term1 = 1.0 + loffset;
-      assert(term1>1e-6);
+      // assert(term1>1e-6);
       double f = myMath::fast_expf( alpha*(myMath::fast_logf(term1) - loffset) );
       sumAf += amplitudes_[it]*(f/err2);
       sumff += f*(f/err2);
@@ -419,7 +421,7 @@ void EcalUncalibRecHitRatioMethodAlgo<C>::computeTime(std::vector < double >&tim
   sumAf = 0;
   sumff = 0;
   for(unsigned int i = 0; i < amplitudes_.size(); i++){
-    double err2 = amplitudeErrors_[i]*amplitudeErrors_[i];
+    double err2 = amplitudeE2_[i];
     double offset = (double(i) - tMaxAlphaBeta)/alphabeta;
     double term1 = 1.0 + offset;
     if(term1>1e-6){
@@ -582,7 +584,7 @@ double EcalUncalibRecHitRatioMethodAlgo<C>::computeAmplitudeImpl( std::vector< d
 	double sumFF = 0;
 	double sum1 = 0;
 	for (unsigned int i = 0; i < amplitudes_.size(); i++) {
-	        double err2 = amplitudeErrors_[i]*amplitudeErrors_[i];
+	        double err2 = amplitudeE2_[i];
 		double f = 0;
 		double termOne = 1 + (i - calculatedRechit_.timeMax) / (alpha * beta);
 		if (termOne > 1.e-5) f = myMath::fast_expf(alpha * myMath::fast_logf(termOne)-(i - calculatedRechit_.timeMax) / beta);
