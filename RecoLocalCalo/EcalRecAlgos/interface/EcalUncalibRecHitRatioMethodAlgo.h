@@ -76,6 +76,9 @@ public:
   void computeAmplitude( std::vector< double > &amplitudeFitParameters );
   CalculatedRecHit getCalculatedRecHit() { return calculatedRechit_; };
   bool fixMGPAslew( const C &dataFrame );
+
+  double computeAmplitudeImpl( std::vector< double > &amplitudeFitParameters, double, double );
+
   
 protected:
   
@@ -303,8 +306,8 @@ void EcalUncalibRecHitRatioMethodAlgo<C>::computeTime(std::vector < double >&tim
 	
 	// don't include useless ratios
 	if(totalError < 1.0
-	   && Rtmp>0.001*corr()
-	   && Rtmp<myMath::fast_expf(double(j-i)/beta)-0.001*corr()
+	   && Rtmp>0.001 // *corr()
+	   && Rtmp<myMath::fast_expf(double(j-i)/beta)-0.001 // *corr()
 	   ){
 	  Ratio currentRatio = { i, (j-i), Rtmp, totalError };
 	  ratios_[ratios_size++] = currentRatio;
@@ -539,6 +542,20 @@ void EcalUncalibRecHitRatioMethodAlgo<C>::computeTime(std::vector < double >&tim
 template<class C>
 void EcalUncalibRecHitRatioMethodAlgo<C>::computeAmplitude( std::vector< double > &amplitudeFitParameters )
 {
+
+  double corr[7]{1.0,.999,1.001,0.995,1.005,.99,1.01};
+
+  std::cout << "Delta " << theDetId_.rawId();
+  for (int i6=0; i6!=7; ++i6)
+    for (int i4=0; i4!=7; ++i4)
+      std::cout <<  " " << computeAmplitudeImpl(amplitudeFitParameters,corr[i4],corr[i6]);
+     
+  std::cout << std::endl;
+  calculatedRechit_.amplitudeMax = computeAmplitudeImpl(amplitudeFitParameters,1.,1.);
+}
+template<class C>
+double EcalUncalibRecHitRatioMethodAlgo<C>::computeAmplitudeImpl( std::vector< double > &amplitudeFitParameters, double corr4, double corr6 )
+{
 	////////////////////////////////////////////////////////////////
 	//                                                            //
 	//             CALCULATE AMPLITUDE                            //
@@ -566,8 +583,8 @@ void EcalUncalibRecHitRatioMethodAlgo<C>::computeAmplitude( std::vector< double 
 		// apply range of interesting samples
 
 		if ( (i < pedestalLimit)
-		     || (f > 0.6*corr() && i <= calculatedRechit_.timeMax)
-		     || (f > 0.4*corr() && i >= calculatedRechit_.timeMax)) {
+		     || (f > 0.6*corr6 && i <= calculatedRechit_.timeMax)
+		     || (f > 0.4*corr4 && i >= calculatedRechit_.timeMax)) {
 		  auto inverr2 = 1/err2;
 		  sum1  += inverr2;
 		  sumA  += amplitudes_[i]*inverr2;
@@ -577,13 +594,14 @@ void EcalUncalibRecHitRatioMethodAlgo<C>::computeAmplitude( std::vector< double 
 		}
 	}
 
-	calculatedRechit_.amplitudeMax = 0;
+	double amplitudeMax = 0;
 	if(sum1 > 0){
 	  double denom = sumFF*sum1 - sumF*sumF;
 	  if(fabs(denom)>1.0e-20){
-	    calculatedRechit_.amplitudeMax = (sumAF*sum1 - sumA*sumF)/denom;
+	    amplitudeMax = (sumAF*sum1 - sumA*sumF)/denom;
 	  }
 	}
+	return amplitudeMax;
 }
 
 
