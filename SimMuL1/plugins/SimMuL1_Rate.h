@@ -1,5 +1,5 @@
-#ifndef SimMuL1_Eff_SimMuL1_Eff_h
-#define SimMuL1_Eff_SimMuL1_Eff_h
+#ifndef SimMuL1_Rate_SimMuL1_Rate_h
+#define SimMuL1_Rate_SimMuL1_Rate_h
 
 
 
@@ -82,12 +82,12 @@ class CSCStripConditions;
 
 class GEMGeometry;
 
-class SimMuL1_Eff : public edm::EDFilter 
+class SimMuL1_Rate : public edm::EDFilter 
 {
 public:
 
-  explicit SimMuL1_Eff(const edm::ParameterSet&);
-  ~SimMuL1_Eff();
+  explicit SimMuL1_Rate(const edm::ParameterSet&);
+  ~SimMuL1_Rate();
 
   enum trig_cscs {MAX_STATIONS = 4, CSC_TYPES = 10};
   //Various useful constants
