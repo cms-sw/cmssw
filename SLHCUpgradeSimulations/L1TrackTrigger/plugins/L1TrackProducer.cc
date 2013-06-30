@@ -476,11 +476,15 @@ void L1TrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   stubMapType stubMap;
   int iter=0;
 
+  int stubcounter=0;
+
   /// Loop over L1TkStubs
   L1TkStub_PixelDigi_Collection::const_iterator iterL1TkStub;
   for ( iterL1TkStub = pixelDigiL1TkStubHandle->begin();
 	iterL1TkStub != pixelDigiL1TkStubHandle->end();
 	++iterL1TkStub ) {
+
+    stubcounter++;
 
     double stubPt = theStackedGeometry->findRoughPt(mMagneticFieldStrength,&(*iterL1TkStub));
         
@@ -555,27 +559,28 @@ void L1TrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
       }    
     }    
 
-    ev.addStub(iStack-1,iPhi,iZ,stubPt,
-	       stubPosition.x(),stubPosition.y(),stubPosition.z(),
-	       innerStack,irphi,iz,iladder,imodule);
-    Stub *aStub = new Stub;
-    *aStub = ev.stub(iter);
-    iter++;
+    if  (ev.addStub(iStack-1,iPhi,iZ,stubPt,
+		    stubPosition.x(),stubPosition.y(),stubPosition.z(),
+		    innerStack,irphi,iz,iladder,imodule)) {
+      Stub *aStub = new Stub;
+      *aStub = ev.stub(iter);
+      iter++;
+      
+      //int theSimtrackId=ev.simtrackid(*aStub);                                  
+      int theSimtrackId=-1;
 
-    //int theSimtrackId=ev.simtrackid(*aStub);                                  
-    int theSimtrackId=-1;
+      L1TStub L1Stub(theSimtrackId, aStub->iphi(), aStub->iz(),
+		     aStub->layer()+1, aStub->ladder()+1, aStub->module(),
+		     aStub->x(), aStub->y(), aStub->z(),0.0,0.0);
+      delete aStub;
 
-    L1TStub L1Stub(theSimtrackId, aStub->iphi(), aStub->iz(),
-                   aStub->layer()+1, aStub->ladder()+1, aStub->module(),
-                   aStub->x(), aStub->y(), aStub->z(),0.0,0.0);
-    delete aStub;
-
-    stubMap.insert( make_pair(L1Stub, L1TkStubPtrType(pixelDigiL1TkStubHandle,
-                               iterL1TkStub-pixelDigiL1TkStubHandle->begin()) ) );
-
+      stubMap.insert( make_pair(L1Stub, L1TkStubPtrType(pixelDigiL1TkStubHandle,
+							iterL1TkStub-pixelDigiL1TkStubHandle->begin()) ) );
+    }
         
   }
 
+  cout << "L1TrackProducer: "<<stubcounter<<endl;
 
   //std::cout << "Will actually do L1 tracking:"<<std::endl;
 

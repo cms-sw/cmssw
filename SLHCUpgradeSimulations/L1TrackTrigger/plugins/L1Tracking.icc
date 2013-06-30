@@ -69,7 +69,7 @@
 
 
 
-    //cout << "looping over stubs"<<endl;
+    cout << "looping over stubs: "<<ev.nstubs()<<endl;
       
     for (int j=0;j<ev.nstubs();j++){
 
@@ -387,13 +387,40 @@
       allTracks.addTracks(L[2]->allTracks());
     }
   
+    if(1){
+      L[3]->findTracklets(L[4]);
+      L[3]->findTracklets(B[0]);
+      L[3]->findTracklets(F[0]);
+      L[3]->findMatches(L[0],0.025,5.0);
+      L[3]->findMatches(L[1],0.025,3.0);
+      L[3]->findMatches(L[2],0.03,8.0);
+      L[3]->findMatches(L[5],0.05,10.0);
+      L[3]->findMatches(F[0]);
+      L[3]->findMatches(F[1]);
+      L[3]->findMatches(F[2]);
+      L[3]->findMatches(F[3]);
+      L[3]->findMatches(F[4]);
+      L[3]->findMatches(F[5]);
+      L[3]->findMatches(F[6]);
+      L[3]->findMatches(B[0]);
+      L[3]->findMatches(B[1]);
+      L[3]->findMatches(B[2]);
+      L[3]->findMatches(B[3]);
+      L[3]->findMatches(B[4]);
+      L[3]->findMatches(B[5]);
+      L[3]->findMatches(B[6]);
+      L[3]->fitTracks();
+      
+      allTracks.addTracks(L[3]->allTracks());
+    }
+  
     if(1){      
       F[0]->findTracklets(F[1]);
-      F[0]->findMatches(F[2],0.05,0.5);
-      F[0]->findMatches(F[3],0.08,0.6);
-      F[0]->findMatches(F[4],0.1,1.0);
-      F[0]->findMatches(F[5],0.15,1.0);
-      F[0]->findMatches(F[6],0.15,1.0);
+      F[0]->findMatches(F[2],0.05,0.5,0.05);
+      F[0]->findMatches(F[3],0.09,0.6,0.09);
+      F[0]->findMatches(F[4],0.1,1.0,0.1);
+      F[0]->findMatches(F[5],0.15,1.0,0.15);
+      F[0]->findMatches(F[6],0.15,1.0,0.15);
       F[0]->findBarrelMatches(L[0]);
       F[0]->findBarrelMatches(L[1]);
       F[0]->findBarrelMatches(L[2]);
@@ -407,11 +434,11 @@
 
     if(1){
       F[1]->findTracklets(F[2]);
-      F[1]->findMatches(F[0],0.04,0.4);
-      F[1]->findMatches(F[3],0.05,0.5);
-      F[1]->findMatches(F[4],0.075,0.5);
-      F[1]->findMatches(F[5],0.1,1.0);
-      F[1]->findMatches(F[6],0.1,1.0);
+      F[1]->findMatches(F[0],0.04,0.4,0.04);
+      F[1]->findMatches(F[3],0.05,0.5,0.05);
+      F[1]->findMatches(F[4],0.075,0.5,0.075);
+      F[1]->findMatches(F[5],0.1,1.0,0.1);
+      F[1]->findMatches(F[6],0.1,1.0,0.1);
       F[1]->findBarrelMatches(L[0]);
       F[1]->findBarrelMatches(L[1]);
       F[1]->findBarrelMatches(L[2]);
@@ -425,11 +452,11 @@
 
     if(1){
       F[2]->findTracklets(F[3]);
-      F[2]->findMatches(F[0],0.05,0.5);
-      F[2]->findMatches(F[1],0.04,0.5);
-      F[2]->findMatches(F[4],0.05,0.5);
-      F[2]->findMatches(F[5],0.05,0.8);
-      F[2]->findMatches(F[6],0.08,1.0);
+      F[2]->findMatches(F[0],0.05,0.5,0.05);
+      F[2]->findMatches(F[1],0.04,0.5,0.04);
+      F[2]->findMatches(F[4],0.05,0.5,0.05);
+      F[2]->findMatches(F[5],0.05,0.8,0.05);
+      F[2]->findMatches(F[6],0.08,1.0,0.08);
       F[2]->findBarrelMatches(L[0]);
       F[2]->findBarrelMatches(L[1]);
       F[2]->findBarrelMatches(L[2]);
@@ -443,11 +470,11 @@
 
     if(1){
       F[3]->findTracklets(F[4]);
-      F[3]->findMatches(F[0],0.05,0.5);
-      F[3]->findMatches(F[1],0.05,0.5);
-      F[3]->findMatches(F[2],0.05,0.5);
-      F[3]->findMatches(F[5],0.05,0.8);
-      F[3]->findMatches(F[6],0.05,0.8);
+      F[3]->findMatches(F[0],0.05,0.5,0.05);
+      F[3]->findMatches(F[1],0.05,0.5,0.05);
+      F[3]->findMatches(F[2],0.05,0.5,0.05);
+      F[3]->findMatches(F[5],0.05,0.8,0.05);
+      F[3]->findMatches(F[6],0.05,0.8,0.05);
       F[3]->findBarrelMatches(L[0]);
       F[3]->findBarrelMatches(L[1]);
       F[3]->findBarrelMatches(L[2]);
@@ -461,11 +488,11 @@
 
     if(1){
       F[4]->findTracklets(F[5]);
-      F[4]->findMatches(F[0],0.05,0.5);
-      F[4]->findMatches(F[1],0.05,0.5);
-      F[4]->findMatches(F[2],0.05,0.5);
-      F[4]->findMatches(F[3],0.05,0.5);
-      F[4]->findMatches(F[6],0.05,0.5);
+      F[4]->findMatches(F[0],0.05,0.5,0.05);
+      F[4]->findMatches(F[1],0.05,0.5,0.05);
+      F[4]->findMatches(F[2],0.05,0.5,0.05);
+      F[4]->findMatches(F[3],0.05,0.5,0.05);
+      F[4]->findMatches(F[6],0.05,0.5,0.05);
       F[4]->findBarrelMatches(L[0]);
       F[4]->findBarrelMatches(L[1]);
       F[4]->findBarrelMatches(L[2]);
@@ -479,11 +506,11 @@
 
     if(1){
       F[5]->findTracklets(F[6]);
-      F[5]->findMatches(F[0],0.05,0.5);
-      F[5]->findMatches(F[1],0.05,0.5);
-      F[5]->findMatches(F[2],0.05,0.5);
-      F[5]->findMatches(F[3],0.05,0.5);
-      F[5]->findMatches(F[4],0.05,0.5);
+      F[5]->findMatches(F[0],0.05,0.5,0.05);
+      F[5]->findMatches(F[1],0.05,0.5,0.05);
+      F[5]->findMatches(F[2],0.05,0.5,0.05);
+      F[5]->findMatches(F[3],0.05,0.5,0.05);
+      F[5]->findMatches(F[4],0.05,0.5,0.05);
       F[5]->findBarrelMatches(L[0]);
       F[5]->findBarrelMatches(L[1]);
       F[5]->findBarrelMatches(L[2]);
@@ -497,11 +524,11 @@
 
     if(1){
       B[0]->findTracklets(B[1]);
-      B[0]->findMatches(B[2],0.05,0.5);
-      B[0]->findMatches(B[3],0.08,0.6);
-      B[0]->findMatches(B[4],0.1,1.0);
-      B[0]->findMatches(B[5],0.15,1.0);
-      B[0]->findMatches(B[6],0.15,1.0);
+      B[0]->findMatches(B[2],0.05,0.5,0.05);
+      B[0]->findMatches(B[3],0.08,0.6,0.08);
+      B[0]->findMatches(B[4],0.1,1.0,0.1);
+      B[0]->findMatches(B[5],0.15,1.0,0.15);
+      B[0]->findMatches(B[6],0.15,1.0,0.15);
       B[0]->findBarrelMatches(L[0]);
       B[0]->findBarrelMatches(L[1]);
       B[0]->findBarrelMatches(L[2]);
@@ -515,11 +542,11 @@
 
     if(1){
       B[1]->findTracklets(B[2]);
-      B[1]->findMatches(B[0],0.04,0.4);
-      B[1]->findMatches(B[3],0.05,0.5);
-      B[1]->findMatches(B[4],0.075,0.5);
-      B[1]->findMatches(B[5],0.1,1.0);
-      B[1]->findMatches(B[6],0.1,1.0);
+      B[1]->findMatches(B[0],0.04,0.4,0.04);
+      B[1]->findMatches(B[3],0.05,0.5,0.05);
+      B[1]->findMatches(B[4],0.075,0.5,0.075);
+      B[1]->findMatches(B[5],0.1,1.0,0.1);
+      B[1]->findMatches(B[6],0.1,1.0,0.1);
       B[1]->findBarrelMatches(L[0]);
       B[1]->findBarrelMatches(L[1]);
       B[1]->findBarrelMatches(L[2]);
@@ -533,11 +560,11 @@
       
     if(1){  
       B[2]->findTracklets(B[3]);
-      B[2]->findMatches(B[0],0.05,0.5);
-      B[2]->findMatches(B[1],0.04,0.5);
-      B[2]->findMatches(B[4],0.05,0.5);
-      B[2]->findMatches(B[5],0.05,0.8);
-      B[2]->findMatches(B[6],0.08,1.0);
+      B[2]->findMatches(B[0],0.05,0.5,0.05);
+      B[2]->findMatches(B[1],0.04,0.5,0.04);
+      B[2]->findMatches(B[4],0.05,0.5,0.05);
+      B[2]->findMatches(B[5],0.05,0.8,0.05);
+      B[2]->findMatches(B[6],0.08,1.0,0.08);
       B[2]->findBarrelMatches(L[0]);
       B[2]->findBarrelMatches(L[1]);
       B[2]->findBarrelMatches(L[2]);
@@ -551,11 +578,11 @@
 
     if(1){
       B[3]->findTracklets(B[4]);
-      B[3]->findMatches(B[0],0.05,0.5);
-      B[3]->findMatches(B[1],0.05,0.5);
-      B[3]->findMatches(B[2],0.05,0.5);
-      B[3]->findMatches(B[5],0.05,0.8);
-      B[3]->findMatches(B[6],0.05,0.8);
+      B[3]->findMatches(B[0],0.05,0.5,0.05);
+      B[3]->findMatches(B[1],0.05,0.5,0.05);
+      B[3]->findMatches(B[2],0.05,0.5,0.05);
+      B[3]->findMatches(B[5],0.05,0.8,0.05);
+      B[3]->findMatches(B[6],0.05,0.8,0.05);
       B[3]->findBarrelMatches(L[0]);
       B[3]->findBarrelMatches(L[1]);
       B[3]->findBarrelMatches(L[2]);
@@ -569,11 +596,11 @@
 
     if(1){
       B[4]->findTracklets(B[5]);
-      B[4]->findMatches(B[0],0.05,0.5);
-      B[4]->findMatches(B[1],0.05,0.5);
-      B[4]->findMatches(B[2],0.05,0.5);
-      B[4]->findMatches(B[3],0.05,0.5);
-      B[4]->findMatches(B[6],0.05,0.5);
+      B[4]->findMatches(B[0],0.05,0.5,0.05);
+      B[4]->findMatches(B[1],0.05,0.5,0.05);
+      B[4]->findMatches(B[2],0.05,0.5,0.05);
+      B[4]->findMatches(B[3],0.05,0.5,0.05);
+      B[4]->findMatches(B[6],0.05,0.5,0.05);
       B[4]->findBarrelMatches(L[0]);
       B[4]->findBarrelMatches(L[1]);
       B[4]->findBarrelMatches(L[2]);
@@ -587,11 +614,11 @@
 
     if(1){
       B[5]->findTracklets(B[6]);
-      B[5]->findMatches(B[0],0.05,0.5);
-      B[5]->findMatches(B[1],0.05,0.5);
-      B[5]->findMatches(B[2],0.05,0.5);
-      B[5]->findMatches(B[3],0.05,0.5);
-      B[5]->findMatches(B[4],0.05,0.5);
+      B[5]->findMatches(B[0],0.05,0.5,0.05);
+      B[5]->findMatches(B[1],0.05,0.5,0.05);
+      B[5]->findMatches(B[2],0.05,0.5,0.05);
+      B[5]->findMatches(B[3],0.05,0.5,0.05);
+      B[5]->findMatches(B[4],0.05,0.5,0.05);
       B[5]->findBarrelMatches(L[0]);
       B[5]->findBarrelMatches(L[1]);
       B[5]->findBarrelMatches(L[2]);
@@ -679,6 +706,8 @@
 
 	bool match=false;
 
+        double chisq=-999.9;
+
 	for (unsigned itrack=0;itrack<purgedTracks.size();itrack++) {
 	  L1TTrack track=purgedTracks.get(itrack);
 	  
@@ -687,16 +716,17 @@
 
 	  //cout << "simtrackidmatch frac:"<<simtrackidmatch<<" "<<frac<<endl;
 
-	  if (simtrackidmatch==simtrackid&&frac>0.7) {
+	  if (simtrackidmatch==simtrackid&&frac>0.3) {
 	    //cout << "Found Track"<<endl;
 	    match=true;
+            chisq=track.chisq();
 	  }
 
 	}
 	
 	out << aSimTrack.pt() << " " << aSimTrack.eta() 
 	    << " " << aSimTrack.phi() << " " 
-	    << aSimTrack.type() << " " << r << " ";
+	    << aSimTrack.type() << " " << r << " " << chisq << " ";
 	
 	if (match) {
 	  out <<"1"<<endl;
