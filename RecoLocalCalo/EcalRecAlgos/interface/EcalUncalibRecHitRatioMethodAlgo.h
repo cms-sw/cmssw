@@ -162,8 +162,8 @@ void EcalUncalibRecHitRatioMethodAlgo<C>::init( const C &dataFrame, const EcalSa
     // only use normally samples which are desired; if sample not to be used
     // inflate error so won't generate ratio considered for the measurement
     if (!sampleMask_.useSample(iSample, theDetId_ ) ) {
-      sample      = 1e-9;
-      sampleError = 1e+9;
+      sample      = 0;
+      sampleError = 0;
       bad=true;
     }
     else if (GainId == 1) {
@@ -175,8 +175,8 @@ void EcalUncalibRecHitRatioMethodAlgo<C>::init( const C &dataFrame, const EcalSa
       sampleError = pedestalRMSes[GainId-1]*gainRatios[GainId-1];
     } 
     else {
-      sample      = 1e-9;  // GainId=0 case falls here, from saturation
-      sampleError = 1e+9;  // inflate error so won't generate ratio considered for the measurement 
+      sample      = 0;  // GainId=0 case falls here, from saturation
+      sampleError = 0;  // inflate error so won't generate ratio considered for the measurement 
       bad=true;
     }
     
@@ -221,7 +221,7 @@ bool EcalUncalibRecHitRatioMethodAlgo<C>::fixMGPAslew( const C &dataFrame )
     if( GainIdPrev>=1 && GainIdPrev<=3 && 
         GainIdNext>=1 && GainIdNext<=3 && 
         GainIdPrev<GainIdNext ){
-      amplitudes_[iSample-1]=1e-9;
+      amplitudes_[iSample-1]=0;
       amplitudeErrors_[iSample-1]=1e+9;
       useless_[iSample-1] = true;
       result = true;      
@@ -288,15 +288,21 @@ void EcalUncalibRecHitRatioMethodAlgo<C>::computeTime(std::vector < double >&tim
   for (unsigned int k=1; k!=amplitudes_.size(); ++k)
     Rlim[k] = myMath::fast_expf(double(k)/beta)-0.001;
   
+
+  // double relErr2[amplitudes_.size()];
+  double invampl[amplitudes_.size()];
+  for(unsigned int i = 0; i < amplitudes_.size(); i++){
+    invampl[i] = (useless_[i]) ? 0 : 1./amplitudes_[i];
+//    relErr2[i] = (useless_[i]) ? 0 : (amplitudeErrors_[i]*invampl[i])*(amplitudeErrors_[i]*invampl[i]);
+  }
+
   
   for(unsigned int i = 0; i < amplitudes_.size()-1; i++){
     if (useless_[i]) continue;
     for(unsigned int j = i+1; j < amplitudes_.size(); j++){
       if (useless_[j]) continue;
 
-      if(amplitudes_[i]>1 && amplitudes_[j]>1){
-	
-	auto invampl = 1./amplitudes_[j];
+      if(amplitudes_[i]>1 && amplitudes_[j]>1) {
 
 	// ratio
 	double Rtmp = amplitudes_[i]/amplitudes_[j];
@@ -304,18 +310,19 @@ void EcalUncalibRecHitRatioMethodAlgo<C>::computeTime(std::vector < double >&tim
 	// error^2 due to stat fluctuations of time samples
 	// (uncorrelated for both samples)
 	
-	double err1 = Rtmp*Rtmp*( (amplitudeE2_[i]/(amplitudes_[i]*amplitudes_[i])) + (amplitudeE2_[j]*(invampl*invampl)) );
+	// double err1 = Rtmp*Rtmp*(relErr2[i] + relErr2[j] );
+	double err1 = Rtmp*Rtmp*( (amplitudeE2_[i]/(amplitudes_[i]*amplitudes_[i])) + (amplitudeE2_[j]*(invampl[j]*invampl[j])) );
 	
 	// error due to fluctuations of pedestal (common to both samples)
 	double stat;
 	if(num_>0) stat = num_;      // num presampeles used to compute pedestal
 	else       stat = 1;         // pedestal from db
-	double err2 = amplitudeErrors_[j]*(amplitudes_[i]-amplitudes_[j])*(invampl*invampl); // /sqrt(stat);
+	double err2 = amplitudeErrors_[j]*(amplitudes_[i]-amplitudes_[j])*(invampl[j]*invampl[j]); // /sqrt(stat);
 	err2 *= err2/stat;
 
 	//error due to integer round-down. It is relevant to low
 	//amplitudes_ in gainID=1 and negligible otherwise.
-        double err3 = (0.289*0.289)*(invampl*invampl);
+        double err3 = (0.289*0.289)*(invampl[j]*invampl[j]);
 	
 	double totalError = sqrt(err1 + err2 +err3);
 	
@@ -436,7 +443,7 @@ void EcalUncalibRecHitRatioMethodAlgo<C>::computeTime(std::vector < double >&tim
   for(unsigned int i = 0; i < amplitudes_.size(); i++){
     if (useless_[i]) continue;
     double err2 = amplitudeE2_[i];
-    double offset = (double(i) - tMaxAlphaBeta)/alphabeta;
+    double offset = (double(i) - tMaxAlphaBeta)*invalphabeta;
     double term1 = 1.0 + offset;
     if(term1>1e-6){
       double f = myMath::fast_expf( alpha*(myMath::fast_logf(term1) - offset) );
