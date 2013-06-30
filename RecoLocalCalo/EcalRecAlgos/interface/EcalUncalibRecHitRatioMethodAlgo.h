@@ -284,8 +284,8 @@ void EcalUncalibRecHitRatioMethodAlgo<C>::computeTime(std::vector < double >&tim
   Ratio ratios_[C::MAXSAMPLES*(C::MAXSAMPLES-1)/2] ;
   unsigned int ratios_size=0;
   
-  double Rlim[amplitudes_.size()-1];
-  for (unsigned int k=1; k!=amplitudes_.size()-1; ++k)
+  double Rlim[amplitudes_.size()];
+  for (unsigned int k=1; k!=amplitudes_.size(); ++k)
     Rlim[k] = myMath::fast_expf(double(k)/beta)-0.001;
   
   
@@ -368,11 +368,12 @@ void EcalUncalibRecHitRatioMethodAlgo<C>::computeTime(std::vector < double >&tim
     // calculate chi2
     sumAf = 0;
     sumff = 0;
-    int itmin = int(tmax - alphabeta);
+    int itmin = std::max(-1,int(std::floor(tmax - alphabeta)));
     double loffset = (double(itmin) - tmax)*invalphabeta;
     for(unsigned int it = itmin+1; it < amplitudes_.size(); it++){
       if (useless_[it]) continue;
       double err2 = amplitudeE2_[it];
+      //      double offset = (double(it) - tmax)/alphabeta;
       loffset +=invalphabeta;
       double term1 = 1.0 + loffset;
       // assert(term1>1e-6);
