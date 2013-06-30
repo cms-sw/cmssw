@@ -33,7 +33,6 @@ class ModuleGeometry {
 public:
 
   ModuleGeometry() {
-
     x0_=0.0;
     y0_=0.0;
     z0_=0.0;
@@ -436,6 +435,8 @@ public:
   int module() {return module_;}
   double r() {return sqrt(x_*x_+y_*y_);}
   double z() {return z_;}
+  double phi() {return atan2(y_,x_);}
+
 
   bool operator==(const Digi& anotherdigi) const {
     if (irphi_!=anotherdigi.irphi_) return false;
@@ -451,6 +452,13 @@ public:
 
   int nsimtrack() {return simtrackids_.size();}
   int simtrackid(int isim) {return simtrackids_[isim];}
+  bool matchsimtrackid(int simtrackid){
+    for (unsigned int i=0;i<simtrackids_.size();i++){
+      if (simtrackids_[i]==simtrackid) return true;
+    }
+    return false;
+  }
+
 
 private:
 
@@ -984,7 +992,7 @@ public:
   }
 
 
-  void addStub(int layer,int ladder,int module,double pt,
+  bool addStub(int layer,int ladder,int module,double pt,
 	   double x,double y,double z,
 	   vector<bool> innerStack,
 	   vector<int> irphi,
@@ -1006,8 +1014,23 @@ public:
       }
     }   
 
-    stubs_.push_back(stub);
-    
+    bool foundclose=false;
+
+    for (unsigned int i=0;i<stubs_.size();i++) {
+      if (fabs(stubs_[i].x()-stub.x())<0.2&&
+    	  fabs(stubs_[i].y()-stub.y())<0.2&&
+    	  fabs(stubs_[i].z()-stub.z())<2.0) {
+    	foundclose=true;
+      }
+    }
+
+    if (!foundclose) {
+      stubs_.push_back(stub);
+      return true;
+    }
+
+    return false;
+   
   }
 
 

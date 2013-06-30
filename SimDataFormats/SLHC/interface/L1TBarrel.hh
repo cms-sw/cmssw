@@ -48,6 +48,8 @@ public:
 
   void findTracklets(L1TBarrel* L, bool hermetic=false){
 
+    //return;
+
     for(int iSector=0;iSector<NSector_;iSector++){
       for (int offset=-1;offset<2;offset++) {
 	int jSector=iSector+offset;
@@ -112,6 +114,14 @@ public:
 
 	    tracklets_[iSector].push_back(tracklet);
 
+	    if (1) {
+	      static ofstream out("barreltracklets.txt");
+	      out << iSector<<" "<<stubs_[iSector].size()<<" "
+		  << jSector<<" "<<stubs_[jSector].size()<<" "
+		  << i<<" "<<j<<" "<<z0<<" "<<rinv
+		  << endl;
+	    }
+
 	    //cout << "rinv phi0 t z0:"<<
 	    //  rinv<<" "<<phi0<<" "<<t<<" "<<z0<<endl;
 
@@ -122,6 +132,8 @@ public:
   }
 
   void findTracklets(L1TDisk* D){
+
+    //return;
 
     for(int iSector=0;iSector<NSector_;iSector++){
       for (int offset=-1;offset<2;offset++) {
@@ -138,7 +150,9 @@ public:
 	    double r2=D->stubs_[jSector][j].r();
 	    double z2=D->stubs_[jSector][j].z();
 	    double phi2=D->stubs_[jSector][j].phi();
-	    
+
+	    if (r2>80.0) continue;
+
 	    double deltaphi=phi1-phi2;
 
 	    if (deltaphi>0.5*two_pi) deltaphi-=two_pi;
@@ -154,7 +168,10 @@ public:
 
 	    if (phi0>0.5*two_pi) phi0-=two_pi;
 	    if (phi0<-0.5*two_pi) phi0+=two_pi;
-	    assert(fabs(phi0)<0.5*two_pi);
+	    if (!(fabs(phi0)<0.5*two_pi)) {
+	      cout << "phi0 phi1 r1 rinv : "<<phi0<<" "<<phi1<<" "<<r1<<" "<<rinv<<endl;
+	      continue;
+	    }
 
 	    double rhopsi1=2*asin(0.5*r1*rinv)/rinv;
 	    
@@ -190,6 +207,12 @@ public:
   }
 
   void findMatches(L1TBarrel* L,double cutrphi, double cutrz){
+
+    double scale=1.0;
+
+    cutrphi*=scale;
+    cutrz*=scale;
+    
 
     for(int iSector=0;iSector<NSector_;iSector++){
       for (unsigned int i=0;i<tracklets_[iSector].size();i++) {
@@ -300,32 +323,49 @@ public:
 	    //  <<L->stubs_[jSector][j].r()<<" "
 	    //  <<L->stubs_[jSector][j].phi()<<endl;
 
-	    double phiturn=0.5*(z-z0)*rinv/t;
-	    if (fabs(phiturn)>0.25*two_pi) continue;
+	    double r_track=2.0*sin(0.5*rinv*(z-z0)/t)/rinv;
+	    double phi_track=phi0-0.5*rinv*(z-z0)/t;
 
-	    double phiproj=phi0-phiturn;
+	    int iphi=D->stubs_[jSector][j].iphi();
+	    double width=4.608;
+	    if (r<60.0) width=5.12;
+	    double Deltai=width*(iphi-508)/508.0;  //A bit of a hack...
+	    if (z>0.0) Deltai=-Deltai;
+	    
+
+	    double theta0=asin(Deltai/r);
+
+	    double Delta=Deltai-r_track*sin(theta0-(phi_track-phi));
+
+
+
+	    //double phiturn=0.5*(z-z0)*rinv/t;
+	    //if (fabs(phiturn)>0.25*two_pi) continue;
+
+	    //double phiproj=phi0-phiturn;
 	    double rproj=2.0*sin(0.5*(z-z0)*rinv/t)/rinv;
 
-	    double deltaphi=phi-phiproj;
+	    //double deltaphi=phi-phiproj;
 	    //cout << "deltaphi phi phiproj:"<<deltaphi<<" "<<phi<<" "<<phiproj<<" "<<phi0<<" "<<asin(0.5*r*rinv)<<endl;
 
-	    if (deltaphi>0.5*two_pi) deltaphi-=two_pi;
-	    if (deltaphi<-0.5*two_pi) deltaphi+=two_pi;
-	    if (!(fabs(deltaphi)<0.5*two_pi)) {
-	      cout << "deltaphi: "<<deltaphi<<" "<<phi<<" "<<phiproj<<endl;
-	      cout << "z z0: "<<z<<" "<<z0<<endl;
-	      cout << "phi0 rinv t: "<<phi0<<" "<<rinv<<" "<<t<<endl;
-	      continue;
-	    }
-	    assert(fabs(deltaphi)<0.5*two_pi);
+	    //if (deltaphi>0.5*two_pi) deltaphi-=two_pi;
+	    //if (deltaphi<-0.5*two_pi) deltaphi+=two_pi;
+	    //if (!(fabs(deltaphi)<0.5*two_pi)) {
+	    //  cout << "deltaphi: "<<deltaphi<<" "<<phi<<" "<<phiproj<<endl;
+	    //  cout << "z z0: "<<z<<" "<<z0<<endl;
+	    //  cout << "phi0 rinv t: "<<phi0<<" "<<rinv<<" "<<t<<endl;
+	    //  continue;
+	    //}
+	    //assert(fabs(deltaphi)<0.5*two_pi);
 
-	    double rdeltaphi=r*deltaphi;
+	    double rdeltaphi=Delta;
             double deltar=r-rproj;
 
-	    if (fabs(rdeltaphi)>1.0) continue;
-	    if (fabs(deltar)>2.0) continue;
+
+	    if (fabs(rdeltaphi)>0.2) continue;
+	    if (fabs(deltar)>3.0) continue;
 	    
-	    double dist=hypot(rdeltaphi/1.0,deltar/2.0);
+	    double dist=hypot(rdeltaphi/0.2,deltar/3.0);
 	    
 	    if (dist<distbest){
 	      tmp=D->stubs_[jSector][j];

@@ -69,6 +69,8 @@ public:
 	    double z2=D->stubs_[jSector][j].z();
 	    double phi2=D->stubs_[jSector][j].phi();
 	    
+	    if (r1>60.0||r2>60.0) continue;
+
 	    double deltaphi=phi1-phi2;
 
 	    if (deltaphi>0.5*two_pi) deltaphi-=two_pi;
@@ -127,6 +129,13 @@ public:
   void findMatches(L1TDisk* D, double rphicut1, double rcut1, 
 		   double rphicut2=0.2, double rcut2=3.0){
 
+    double scale=1.0;
+
+    rphicut1*=scale;
+    rphicut2*=scale;
+    rcut1*=scale;
+    rcut2*=scale;
+
     for(int iSector=0;iSector<NSector_;iSector++){
       for (unsigned int i=0;i<tracklets_[iSector].size();i++) {
 	L1TTracklet& aTracklet=tracklets_[iSector][i];
@@ -154,6 +163,27 @@ public:
 	    //  <<L->stubs_[jSector][j].phi()<<endl;
 
 	    
+	    double r_track=2.0*sin(0.5*rinv*(z-z0)/t)/rinv;
+	    double phi_track=phi0-0.5*rinv*(z-z0)/t;
+
+	    int iphi=D->stubs_[jSector][j].iphi();
+	    double width=4.608;
+	    if (r<60.0) width=5.12;
+	    double Deltai=width*(iphi-508)/508.0;  //A bit of a hack...
+	    if (z>0.0) Deltai=-Deltai;
+	    
+
+	    double theta0=asin(Deltai/r);
+
+	    double Delta=Deltai-r_track*sin(theta0-(phi_track-phi));
+
+
+
+	    if (Delta!=Delta) {
+	      cout << "Error: "<<t<<" "<<rinv<<" "<<theta0<<endl;
+	      continue;
+	    }
+	    
 	    double phiproj=phi0-0.5*(z-z0)*rinv/t;
 	    double rproj=2.0*sin(0.5*(z-z0)*rinv/t)/rinv;
 
@@ -164,13 +194,13 @@ public:
 	    if (deltaphi<-0.5*two_pi) deltaphi+=two_pi;
 	    assert(fabs(deltaphi)<0.5*two_pi);
 
-	    double rdeltaphi=r*deltaphi;
+	    double rdeltaphi=Delta;
             double deltar=r-rproj;
 
-	    if (1) {
+	    if (1&&fabs(Delta)<10.0&&fabs(deltar)<15.0) {
 	      static ofstream out("diskmatch.txt");
 	      out << aTracklet.r()<<" "<<aTracklet.z()<<" "<<r<<" "<<z<<" "
-		  <<rdeltaphi<<" "<<deltar<<endl;
+		  <<Delta<<" "<<deltar<<endl;
 	    }
 
 	    double dist=0.0;
@@ -246,10 +276,10 @@ public:
 	    double rdeltaphi=r*deltaphi;
             double deltaz=z-zproj;
 
-	    if (fabs(rdeltaphi)>1.0) continue;
-	    if (fabs(deltaz)>3.0) continue;
+	    if (fabs(rdeltaphi)>0.1) continue;
+	    if (fabs(deltaz)>0.5) continue;
 
-	    double dist=hypot(rdeltaphi/1.0,deltaz/3.0);
+	    double dist=hypot(rdeltaphi/0.1,deltaz/0.5);
 
 	    if (dist<bestdist) {
 	      bestdist=dist;
