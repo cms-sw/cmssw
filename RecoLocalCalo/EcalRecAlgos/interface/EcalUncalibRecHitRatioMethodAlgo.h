@@ -294,7 +294,8 @@ void EcalUncalibRecHitRatioMethodAlgo<C>::computeTime(std::vector < double >&tim
   double invampl[amplitudes_.size()];
   for(unsigned int i = 0; i < amplitudes_.size(); i++){
     invampl[i] = (useless_[i]) ? 0 : 1./amplitudes_[i];
-    relErr2[i] = (useless_[i]) ? 0 : (amplitudeErrors_[i]*invampl[i])*(amplitudeErrors_[i]*invampl[i]);
+    relErr2[i] = (useless_[i]) ? 0 : (amplitudeErrors_[i]*amplitudeErrors_[i])*(invampl[i]*invampl[i]);
+    //    relErr2[i] = (useless_[i]) ? 0 : (amplitudeErrors_[i]*invampl[i])*(amplitudeErrors_[i]*invampl[i]);
   }
 
   for(unsigned int i = 0; i < amplitudes_.size()-1; i++){
@@ -377,10 +378,10 @@ void EcalUncalibRecHitRatioMethodAlgo<C>::computeTime(std::vector < double >&tim
     int itmin = std::max(-1,int(std::floor(tmax - alphabeta)));
     double loffset = (double(itmin) - tmax)*invalphabeta;
     for(unsigned int it = itmin+1; it < amplitudes_.size(); it++){
+      loffset +=invalphabeta;
       if (useless_[it]) continue;
       double inverr2 = amplitudeIE2_[it];
       //      double offset = (double(it) - tmax)/alphabeta;
-      loffset +=invalphabeta;
       double term1 = 1.0 + loffset;
       // assert(term1>1e-6);
       double f = (term1>1e-6) ? myMath::fast_expf( alpha*(myMath::fast_logf(term1) - loffset) ) : 0;
