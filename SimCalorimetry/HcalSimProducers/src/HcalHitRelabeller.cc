@@ -11,6 +11,7 @@ HcalHitRelabeller::HcalHitRelabeller(const edm::ParameterSet& ps) {
   // try to make sure the memory gets pinned in place
   m_segmentation.resize(29);
   m_CorrectPhi = ps.getUntrackedParameter<bool>("CorrectPhi",false);
+  m_ResetDepth0E = ps.getUntrackedParameter<bool>("ResetDepth0E",false);
   for (int i=0; i<29; i++) {
     char name[10];
     snprintf(name,10,"Eta%d",i+1);
@@ -27,7 +28,8 @@ HcalHitRelabeller::HcalHitRelabeller(const edm::ParameterSet& ps) {
       std::cout << " " << m_segmentation[i][k];
     std::cout << std::endl;
   }
-  std::cout << "correctPhi " << m_CorrectPhi << std::endl;
+  std::cout << "correctPhi " << m_CorrectPhi << " ResetDepth0Energy " 
+	    << m_ResetDepth0E << std::endl;
 #endif
 }
 
@@ -39,6 +41,16 @@ void HcalHitRelabeller::process(std::vector<PCaloHit>& hcalHits) {
     std::cout << "Hit[" << ii << "] " << std::hex << hcalHits[ii].id() << std::dec << '\n';
 #endif
     DetId newid = relabel(hcalHits[ii].id());
+    if (m_ResetDepth0E) {
+      int det, z, depth, eta, phi, layer;
+      HcalTestNumbering::unpackHcalIndex(hcalHits[ii].id(),det,z,depth,eta,phi,layer);
+      if (layer == 0) {
+	hcalHits[ii].setEnergy(0);
+#ifdef DEBUG
+	std::cout << "Hit [" << ii << "] " << (HcalDetId)(hcalHits[ii]) << " Layer " << layer << " energy set to " << hcalhits[ii].energy() << '\n';
+#endif
+      }
+    }
 #ifdef DEBUG
     std::cout << "Hit " << ii << " out of " << hcalHits.size() << " " << std::hex << newid.rawId() << std::dec << '\n';
     HcalDetId newcell(newid);

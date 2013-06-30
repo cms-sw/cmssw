@@ -19,6 +19,6 @@ private:
   const CaloGeometry* theGeometry;
 
   std::vector<std::vector<int> > m_segmentation;
-  bool                           m_CorrectPhi;
+  bool                           m_CorrectPhi, m_ResetDepth0E;
 };
 #endif
