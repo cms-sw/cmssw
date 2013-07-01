@@ -54,6 +54,7 @@
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 #include "FWCore/Utilities/interface/UnixSignalHandlers.h"
 #include "FWCore/Utilities/interface/ExceptionCollector.h"
+#include "FWCore/Utilities/interface/StreamID.h"
 
 #include "MessageForSource.h"
 #include "MessageForParent.h"
@@ -658,7 +659,11 @@ namespace edm {
     connectSigs(this);
 
     // Reusable event principal
-    boost::shared_ptr<EventPrincipal> ep(new EventPrincipal(preg_, branchIDListHelper_, *processConfiguration_, historyAppender_.get()));
+    boost::shared_ptr<EventPrincipal> ep(new EventPrincipal(preg_,
+                                                            branchIDListHelper_,
+                                                            *processConfiguration_,
+                                                            historyAppender_.get(),
+                                                            StreamID{0}));
     principalCache_.insert(ep);
       
     // initialize the subprocess, if there is one

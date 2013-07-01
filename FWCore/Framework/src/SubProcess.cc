@@ -122,7 +122,8 @@ namespace edm {
     std::map<std::string, std::vector<std::pair<std::string, int> > > outputModulePathPositions;
     setEventSelectionInfo(outputModulePathPositions, parentProductRegistry->anyProductProduced());
 
-    boost::shared_ptr<EventPrincipal> ep(new EventPrincipal(preg_, branchIDListHelper_, *processConfiguration_, historyAppender_.get()));
+    boost::shared_ptr<EventPrincipal> ep(new EventPrincipal(preg_, branchIDListHelper_, *processConfiguration_, historyAppender_.get(),
+                                                            StreamID::invalidStreamID()));
     principalCache_.insert(ep);
 
     if(subProcessParameterSet) {
@@ -194,6 +195,7 @@ namespace edm {
     }
 
     EventPrincipal& ep = principalCache_.eventPrincipal();
+    ep.setStreamID(principal.streamID());
     ep.fillEventPrincipal(aux,
                           esids,
                           boost::shared_ptr<BranchListIndexes>(new BranchListIndexes(principal.branchListIndexes())),
@@ -220,7 +222,7 @@ namespace edm {
   SubProcess::beginRun(RunPrincipal const& principal) {
     boost::shared_ptr<RunAuxiliary> aux(new RunAuxiliary(principal.aux()));
     aux->setProcessHistoryID(principal.processHistoryID());
-    boost::shared_ptr<RunPrincipal> rpp(new RunPrincipal(aux, preg_, *processConfiguration_, historyAppender_.get()));
+    boost::shared_ptr<RunPrincipal> rpp(new RunPrincipal(aux, preg_, *processConfiguration_, historyAppender_.get(),principal.index()));
     rpp->fillRunPrincipal(principal.reader());
     principalCache_.insert(rpp);
 
@@ -286,7 +288,7 @@ namespace edm {
   SubProcess::beginLuminosityBlock(LuminosityBlockPrincipal const& principal) {
     boost::shared_ptr<LuminosityBlockAuxiliary> aux(new LuminosityBlockAuxiliary(principal.aux()));
     aux->setProcessHistoryID(principal.processHistoryID());
-    boost::shared_ptr<LuminosityBlockPrincipal> lbpp(new LuminosityBlockPrincipal(aux, preg_, *processConfiguration_, historyAppender_.get()));
+    boost::shared_ptr<LuminosityBlockPrincipal> lbpp(new LuminosityBlockPrincipal(aux, preg_, *processConfiguration_, historyAppender_.get(),principal.index()));
     lbpp->fillLuminosityBlockPrincipal(principal.reader());
     lbpp->setRunPrincipal(principalCache_.runPrincipalPtr());
     principalCache_.insert(lbpp);
