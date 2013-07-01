@@ -16,7 +16,7 @@ class OHltRatePrinter
 {
 public:
 
-   static const double fTwo=2.;
+   constexpr static double fTwo=2.;
 
    OHltRatePrinter() {}
 
