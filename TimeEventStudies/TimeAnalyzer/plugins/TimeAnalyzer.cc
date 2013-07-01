@@ -45,6 +45,9 @@
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 
+#include "DataFormats/EgammaReco/interface/SuperCluster.h"
+#include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
+
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 
 #include "TFile.h"
@@ -76,8 +79,15 @@ class TimeAnalyzer : public edm::EDAnalyzer {
       // ----------member data ---------------------------
 
   // pointers to the histograms for persistency
-  TH1F* h_nVtx;
-  TH1F* h_pType;
+  TH1F* h_nVtx_;
+  TH1F* h_pType_;
+  TH1F* h_pTypeSel_;
+  TH1F* h_nSCEB_;
+  TH1F* h_nSCEE_;
+
+  // list of particle tipe(s) which are used for the study and matched to clusters/recHits
+  std::vector<int> acceptedParticleTypes_;
+
 
 };
 
@@ -95,7 +105,10 @@ class TimeAnalyzer : public edm::EDAnalyzer {
 TimeAnalyzer::TimeAnalyzer(const edm::ParameterSet& iConfig)
 
 {
-   //now do what ever initialization is needed
+  //now do what ever initialization is needed
+  
+  // list of particle tipe(s) which are used for the study and matched to clusters/recHits
+  acceptedParticleTypes_ = iConfig.getParameter< std::vector<int> >("acceptedParticleTypes");
 
 }
 
@@ -138,28 +151,50 @@ TimeAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    iEvent.getByLabel("offlinePrimaryVerticesWithBS", vertexHandle);
    const reco::VertexCollection * vertexCollection = vertexHandle.product();
    // reco vertex multiplicity
-   h_nVtx -> Fill( vertexCollection->size() );
+   h_nVtx_ -> Fill( vertexCollection->size() );
    math::XYZPoint recoVtx(0.,0.,0.);
    if (vertexCollection->size()>0) recoVtx = vertexCollection->begin()->position();
    
 
+
    // get hold of the MC product and loop over truth-level particles 
-   // standard numeric ParticleId: http://www.physics.ox.ac.uk/CDF/Mphys/old/notes/pythia_codeListing.html
+   // standard numeric ParticleId:
+   // http://www.physics.ox.ac.uk/CDF/Mphys/old/notes/pythia_codeListing.html
    Handle< edm::HepMCProduct > hepProd ;
    iEvent.getByLabel("generator",hepProd) ;
    const HepMC::GenEvent * myGenEvent = hepProd->GetEvent();
    
-   
-   for ( HepMC::GenEvent::particle_const_iterator p = myGenEvent->particles_begin(); p != myGenEvent->particles_end(); ++p ) {
-     // match only to truth of electrons or photons
-     h_pType ->  Fill((*p)->pdg_id());
-     if ( !( (fabs((*p)->pdg_id())==11 || (*p)->pdg_id()==22) && (*p)->status()==1 )  )  continue;
-    
-     //std::cout << "particle found SCwithTruthPUAnalysis " <<  (*p)->pdg_id() << "\t" << (*p)->status() << std::endl;
+   // loop over MC particles
+   for ( HepMC::GenEvent::particle_const_iterator p = myGenEvent->particles_begin(); p != myGenEvent->particles_end(); ++p ) 
+     {
+       
+       // You only want particles with status 1
+       if  ((*p)->status()!=1 ) continue; 
+       
+       h_pType_ ->  Fill((*p)->pdg_id()); 
+       
+       // match only to truth of desired particle types
+       if (std::find(acceptedParticleTypes_.begin(), acceptedParticleTypes_.end(), (*p)->pdg_id())==acceptedParticleTypes_.end() )  continue;
+       h_pTypeSel_ ->  Fill((*p)->pdg_id()); 
+
    }
+
+   // superclusters are groups of neighboring Electromagnetic Calorimeter (ECAL) recHits
+   // collecting the energy relesed by (at least) one particle in the ECAL
+   Handle<std::vector<reco::SuperCluster> > barrelSCHandle;
+   iEvent.getByLabel("correctedHybridSuperClusters","",barrelSCHandle);
+   const reco::SuperClusterCollection * barrelSCCollection = barrelSCHandle.product();
+   h_nSCEB_ -> Fill( barrelSCCollection->size() );
+   
+   Handle<std::vector<reco::SuperCluster> > endcapSCHandle;
+   iEvent.getByLabel("correctedMulti5x5SuperClustersWithPreshower","",endcapSCHandle);
+   const reco::SuperClusterCollection * endcapSCCollection = endcapSCHandle.product();
+   h_nSCEE_ -> Fill( endcapSCCollection->size() );
+
    
 
-
+   // for an example of matching between truth MC particles and ECAL superclusters see: 
+   // http://cmssw.cvs.cern.ch/cgi-bin/cmssw.cgi/UserCode/Minnesota/Hgg/ClusteringWithPU/plugins/SCwithTruthPUAnalysis.cc?revision=1.3&view=markup 
 
 }
 
@@ -170,10 +205,13 @@ TimeAnalyzer::beginJob()
 {
   edm::Service<TFileService> fs;
   TFileDirectory subDir=fs->mkdir("baseHistoDir");  
-
+  
   // histograms need be booked in the beginJob, which is run only once at  the  beginning of execution
-  h_nVtx  = fs->make<TH1F>("h_nVtx","no. of primary vertices; num vertices reco",40,0.,40.);
-  h_pType = fs->make<TH1F>("h_pType","truth particle type",81,-40.,40.);
+  h_nVtx_     = fs->make<TH1F>("h_nVtx","no. of primary vertices; num vertices reco",40,0.,40.);
+  h_pType_    = fs->make<TH1F>("h_pType","truth particle type; truth particle type",80,-40.,40.);
+  h_pTypeSel_ = fs->make<TH1F>("h_pTypeSel","truth particle type (selected); truth particle type",80,-40.,40.);
+  h_nSCEE_    = fs->make<TH1F>("h_nSCEE","number superclusters in EE; num EE SC  ",100,0.,100.);
+  h_nSCEB_    = fs->make<TH1F>("h_nSCEB","number superclusters in EB; num EB SC",100,0.,100.);
 
 }
 
