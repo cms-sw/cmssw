@@ -51,7 +51,7 @@ namespace edm {
         boost::shared_ptr<BranchIDListHelper const> branchIDListHelper,
         ProcessConfiguration const& pc,
         HistoryAppender* historyAppender,
-                   StreamID const& streamID = StreamID::invalidStreamID());
+        StreamID const& streamID = StreamID::invalidStreamID());
     ~EventPrincipal() {}
 
     void fillEventPrincipal(EventAuxiliary const& aux,
