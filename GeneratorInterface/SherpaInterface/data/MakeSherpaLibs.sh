@@ -1,4 +1,3 @@
-
 #!/bin/bash
 #
 #  file:        MakeSherpaLibs.sh
@@ -436,6 +435,7 @@ exec_log2(){
     local fout=$1
     local ferr=$2
     shift 2;
+
     if [ "$verbose" = "TRUE" ]; then
 #	{ "$@" | tee $append_opt "$fout"; } 2>&1 | tee $append_opt "$ferr"
          $@ 1> >(tee $append_opt $fout) 2> >(tee $append_opt $ferr >&2)
@@ -501,8 +501,9 @@ if [ "${lbo}" = "LIBS" ] || [ "${lbo}" = "LBCR" ]; then
       nlines=200
       nphbw=`tail -${nlines} ${shrun}/${outflbs}_passLC.out | grep -c "has been written"`
       npasw=`tail -${nlines} ${shrun}/${outflbs}_passLC.out | grep -c "AMEGIC::Single_Process::WriteLibrary"`
-      if [ ${nphbw} -gt 0 ] || [ ${npasw} -gt 0 ]; then
-        echo "<I> (AMEGIC) detected library writing: "${nphbw}" (HBW), "${npasw}" (ASW)"
+      npnlc=`tail -${nlines} ${shrun}/${outflbs}_passLC.out | grep -c "New libraries created. Please compile."` 
+      if [ ${nphbw} -gt 0 ] || [ ${npasw} -gt 0 ] || [ ${npnlc} -gt 0 ] ; then
+        echo " <I> (AMEGIC) detected library writing: "${nphbw}" (HBW), "${npasw}" (ASW), "${npnlc}" (NLC)"
         FLGWRITLIB="TRUE"
       else
         FLGWRITLIB="FALSE"
