@@ -1,4 +1,3 @@
-// -*- C++ -*-
 //
 // Package:    GEMSimHitAnalyzer
 // Class:      GEMSimHitAnalyzer
@@ -12,21 +11,27 @@
 
 // system include files
 #include <memory>
+#include <algorithm>
+#include <set>
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
+#include "CommonTools/UtilAlgos/interface/TFileService.h"
 
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
 
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
 #include "Geometry/GEMGeometry/interface/GEMGeometry.h"
+#include "Geometry/GEMGeometry/interface/GEMEtaPartitionSpecs.h"
+#include "Geometry/CommonTopologies/interface/StripTopology.h"
 
 #include "DataFormats/MuonDetId/interface/GEMDetId.h"
 #include "DataFormats/Math/interface/deltaPhi.h"
@@ -51,11 +56,14 @@ struct MyGEMSimHit
 
 struct MySimTrack
 {
-  Float_t charge, pt, eta, phi, x, y;
+  Float_t charge, pt, eta, phi;
   Char_t endcap;
   Char_t gem_sh_layer1, gem_sh_layer2; // bit1: in odd  bit2: even
   Float_t gem_sh_eta, gem_sh_phi;
-  Float_t gem_sh_x, gem_sh_y;
+  Float_t gem_trk_eta, gem_trk_phi, gem_trk_rho;
+  Float_t gem_lx_even, gem_ly_even;
+  Float_t gem_lx_odd, gem_ly_odd;
+  Char_t  has_gem_sh_l1, has_gem_sh_l2;
 };
 
 
@@ -77,10 +85,13 @@ private:
   
   void bookGEMSimHitsTree();
   void bookSimTracksTree();
-    
+  
   void analyzeGEM( const edm::Event& iEvent );
   bool isSimTrackGood(const SimTrack &t);
   void analyzeTracks(const edm::Event& iEvent, const edm::EventSetup& iSetup);
+  void buildLUT();
+  std::pair<int,int> getClosestChambers(int region, float phi);
+
   
   TTree* gem_sh_tree_;
   TTree* track_tree_;
@@ -89,18 +100,20 @@ private:
   edm::Handle<edm::SimTrackContainer> simTracks;
   edm::Handle<edm::SimVertexContainer> simVertices;
   
-  edm::ESHandle<GEMGeometry> gem_geom;
-  
   const GEMGeometry* gem_geometry;
   
   MyGEMSimHit gem_sh;
   MySimTrack  track;
-  GlobalPoint hitGP;
  
   edm::ParameterSet cfg_;
   std::string simInputLabel_;
   float minPt_;
   int verbose_;
+  float radiusCenter_;
+  float chamberHeight_;
+
+  std::pair<std::vector<float>,std::vector<int> > positiveLUT_;
+  std::pair<std::vector<float>,std::vector<int> > negativeLUT_;
 };
 
 // Constructor
@@ -110,7 +123,7 @@ GEMSimHitAnalyzer::GEMSimHitAnalyzer(const edm::ParameterSet& ps)
 , minPt_(ps.getUntrackedParameter<double>("minPt", 4.5))
 , verbose_(ps.getUntrackedParameter<int>("verbose", 0))
 {
-  bookGEMSimHitsTree();  
+  bookGEMSimHitsTree();
   bookSimTracksTree();
 }
 
@@ -122,20 +135,43 @@ GEMSimHitAnalyzer::~GEMSimHitAnalyzer()
 
 void GEMSimHitAnalyzer::beginRun(const edm::Run &iRun, const edm::EventSetup &iSetup)
 {
+  edm::ESHandle<GEMGeometry> gem_geom;
+  iSetup.get<MuonGeometryRecord>().get(gem_geom);
+  gem_geometry = &*gem_geom;
+
+  const auto top_chamber = static_cast<const GEMEtaPartition*>(gem_geometry->idToDetUnit(GEMDetId(1,1,1,1,1,1)));
+   // TODO: it's really bad to hardcode max partition number!
+  const auto bottom_chamber = static_cast<const GEMEtaPartition*>(gem_geometry->idToDetUnit(GEMDetId(1,1,1,1,1,6)));
+  const float top_half_striplength = top_chamber->specs()->specificTopology().stripLength()/2.;
+  const float bottom_half_striplength = bottom_chamber->specs()->specificTopology().stripLength()/2.;
+  const LocalPoint lp_top(0., top_half_striplength, 0.);
+  const LocalPoint lp_bottom(0., -bottom_half_striplength, 0.);
+  const GlobalPoint gp_top = top_chamber->toGlobal(lp_top);
+  const GlobalPoint gp_bottom = bottom_chamber->toGlobal(lp_bottom);
+
+  radiusCenter_ = (gp_bottom.perp() + gp_top.perp())/2.;
+  chamberHeight_ = gp_top.perp() - gp_bottom.perp();
+
+  using namespace std;
+  cout<<"half top "<<top_half_striplength<<" bot "<<lp_bottom<<endl;
+  cout<<"r  top "<<gp_top.perp()<<" bot "<<gp_bottom.perp()<<endl;
+  LocalPoint p0(0.,0.,0.);
+  cout<<"r0 top "<<top_chamber->toGlobal(p0).perp()<<" bot "<< bottom_chamber->toGlobal(p0).perp()<<endl;
+  cout<<"rch "<<radiusCenter_<<" hch "<<chamberHeight_<<endl;
+
+  buildLUT();
 }
 
 
 void GEMSimHitAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-  iSetup.get<MuonGeometryRecord>().get(gem_geom);
-  gem_geometry = &*gem_geom;
 
   iEvent.getByLabel(simInputLabel_, simTracks);
   iEvent.getByLabel(simInputLabel_, simVertices);
 
   iEvent.getByLabel(edm::InputTag(simInputLabel_,"MuonGEMHits"), GEMHits);
-  if(GEMHits->size()) analyzeGEM( iEvent );  
- 
+  if(GEMHits->size()) analyzeGEM( iEvent );
+  
   analyzeTracks(iEvent,iSetup);
 }
 
@@ -179,15 +215,20 @@ void GEMSimHitAnalyzer::bookSimTracksTree()
   track_tree_->Branch("pt",&track.pt);
   track_tree_->Branch("eta",&track.eta);
   track_tree_->Branch("phi",&track.phi);
-  track_tree_->Branch("x", &track.x);
-  track_tree_->Branch("y", &track.y);
   track_tree_->Branch("endcap",&track.endcap);
   track_tree_->Branch("gem_sh_layer1",&track.gem_sh_layer1);
   track_tree_->Branch("gem_sh_layer2",&track.gem_sh_layer2);
   track_tree_->Branch("gem_sh_eta",&track.gem_sh_eta);
   track_tree_->Branch("gem_sh_phi",&track.gem_sh_phi);
-  track_tree_->Branch("gem_sh_x",&track.gem_sh_x);
-  track_tree_->Branch("gem_sh_y",&track.gem_sh_y);
+  track_tree_->Branch("gem_trk_eta",&track.gem_trk_eta);
+  track_tree_->Branch("gem_trk_phi",&track.gem_trk_phi);
+  track_tree_->Branch("gem_trk_rho",&track.gem_trk_rho);
+  track_tree_->Branch("gem_lx_even",&track.gem_lx_even);
+  track_tree_->Branch("gem_ly_even",&track.gem_ly_even);
+  track_tree_->Branch("gem_lx_odd",&track.gem_lx_odd);
+  track_tree_->Branch("gem_ly_odd",&track.gem_ly_odd);
+  track_tree_->Branch("has_gem_sh_l1",&track.has_gem_sh_l1);
+  track_tree_->Branch("has_gem_sh_l2",&track.has_gem_sh_l2);
 }
 
 
@@ -204,7 +245,7 @@ void GEMSimHitAnalyzer::analyzeGEM( const edm::Event& iEvent )
     gem_sh.pabs = itHit->pabs();
     gem_sh.timeOfFlight = itHit->timeOfFlight();
     
-    GEMDetId id(itHit->detUnitId());
+    const GEMDetId id(itHit->detUnitId());
     
     gem_sh.region = id.region();
     gem_sh.ring = id.ring();
@@ -213,30 +254,28 @@ void GEMSimHitAnalyzer::analyzeGEM( const edm::Event& iEvent )
     gem_sh.chamber = id.chamber();
     gem_sh.roll = id.roll();
 
-    LocalPoint p0(0., 0., 0.);
-    GlobalPoint Gp0 = gem_geometry->idToDet(itHit->detUnitId())->surface().toGlobal(p0);
+    const LocalPoint p0(0., 0., 0.);
+    const GlobalPoint Gp0(gem_geometry->idToDet(itHit->detUnitId())->surface().toGlobal(p0));
+
     gem_sh.Phi_0 = Gp0.phi();
     gem_sh.R_0 = Gp0.perp();
-
-    if(id.region()*pow(-1,id.chamber()) == 1) gem_sh.DeltaPhi = atan(-(itHit->localPosition().x())/(Gp0.perp() + itHit->localPosition().y()));
-    if(id.region()*pow(-1,id.chamber()) == -1) gem_sh.DeltaPhi = atan(itHit->localPosition().x()/(Gp0.perp() + itHit->localPosition().y()));
-    
-    LocalPoint hitLP = itHit->localPosition();
-    hitGP = gem_geometry->idToDet(itHit->detUnitId())->surface().toGlobal(hitLP);
-    
+    gem_sh.DeltaPhi = atan(-1*id.region()*pow(-1,id.chamber())*itHit->localPosition().x()/(Gp0.perp() + itHit->localPosition().y()));
+ 
+    const LocalPoint hitLP(itHit->localPosition());
+    const GlobalPoint hitGP(gem_geometry->idToDet(itHit->detUnitId())->surface().toGlobal(hitLP));
     gem_sh.globalR = hitGP.perp();
     gem_sh.globalEta = hitGP.eta();
     gem_sh.globalPhi = hitGP.phi();
     gem_sh.globalX = hitGP.x();
     gem_sh.globalY = hitGP.y();
     gem_sh.globalZ = hitGP.z();
-    
+
     //  Now filling strip info using entry point rather than local position to be
     //  consistent with digi strips. To change back, just switch the comments - WHF
     //  gem_sh.strip=gem_geometry->etaPartition(itHit->detUnitId())->strip(hitLP);
-    LocalPoint hitEP = itHit->entryPoint();
+    const LocalPoint hitEP(itHit->entryPoint());
     gem_sh.strip=gem_geometry->etaPartition(itHit->detUnitId())->strip(hitEP);
-
+    
     gem_sh_tree_->Fill();
   }
 }
@@ -248,57 +287,110 @@ bool GEMSimHitAnalyzer::isSimTrackGood(const SimTrack &t)
   if (t.noGenpart()) return false;
   if (std::abs(t.type()) != 13) return false; // only interested in direct muon simtracks
   if (t.momentum().pt() < minPt_) return false;
-  float eta = std::abs(t.momentum().eta());
+  const float eta(std::abs(t.momentum().eta()));
   if (eta > 2.18 || eta < 1.55) return false; // no GEMs could be in such eta
   return true;
 }
 
 void GEMSimHitAnalyzer::analyzeTracks(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-  const edm::SimVertexContainer & sim_vert = *simVertices.product();
+  const edm::SimVertexContainer & sim_vert(*simVertices.product());
   
   for (auto& t: *simTracks.product())
   {
     if (!isSimTrackGood(t)) continue;
     
     // match hits and digis to this SimTrack
-    SimTrackMatchManager match(t, sim_vert[t.vertIndex()], cfg_, iEvent, iSetup);
-    
+    const SimTrackMatchManager match(t, sim_vert[t.vertIndex()], cfg_, iEvent, iSetup);
     const SimHitMatcher& match_sh = match.simhits();
    
     track.pt = t.momentum().pt();
     track.phi = t.momentum().phi();
     track.eta = t.momentum().eta();
-    track.x = -999.;
-    track.y = 999.;
     track.charge = t.charge();
     track.endcap = (track.eta > 0.) ? 1 : -1;
     track.gem_sh_layer1 = 0;
     track.gem_sh_layer2 = 0;
     track.gem_sh_eta = -9.;
     track.gem_sh_phi = -9.;
-    track.gem_sh_x = -999.;
-    track.gem_sh_y = -999.;
+    track.gem_trk_eta = -999.;
+    track.gem_trk_phi = -999.;
+    track.gem_trk_rho = -999.;
+    track.gem_lx_even = -999.;
+    track.gem_ly_even = -999.;
+    track.gem_lx_odd = -999.;
+    track.gem_ly_odd = -999.;
+    track.has_gem_sh_l1 = 0;
+    track.has_gem_sh_l2 = 0;
 
-    // ** GEM SimHits ** //    
+
+    // ** GEM SimHits ** //
     auto gem_sh_ids_sch = match_sh.superChamberIdsGEM();
     for(auto d: gem_sh_ids_sch)
     {
-      auto gem_simhits = match_sh.hitsInSuperChamber(d);
-      auto gem_simhits_gp = match_sh.simHitsMeanPosition(gem_simhits);
+      const auto gem_simhits(match_sh.hitsInSuperChamber(d));
+      const auto gem_simhits_gp(match_sh.simHitsMeanPosition(gem_simhits));
 
       track.gem_sh_eta = gem_simhits_gp.eta();
       track.gem_sh_phi = gem_simhits_gp.phi();
-      track.gem_sh_x = gem_simhits_gp.x();
-      track.gem_sh_y = gem_simhits_gp.y();
     }
+
+    // Calculation of the localXY efficiency
+    GlobalPoint gp_track(match_sh.propagatedPositionGEM());
+    track.gem_trk_eta = gp_track.eta();
+    track.gem_trk_phi = gp_track.phi();
+    track.gem_trk_rho = gp_track.perp();
+    std::cout << "track eta phi rho = " << track.gem_trk_eta << " " << track.gem_trk_phi << " " << track.gem_trk_rho << std::endl;
     
-    auto gem_sh_ids_ch = match_sh.chamberIdsGEM();
+    float track_angle = gp_track.phi().degrees();
+    if (track_angle < 0.) track_angle += 360.;
+    std::cout << "track angle = " << track_angle << std::endl;
+    const int track_region = (gp_track.z() > 0 ? 1 : -1);
+    
+    // closest chambers in phi
+    const auto mypair = getClosestChambers(track_region, track_angle);
+    
+    // chambers
+    GEMDetId detId_first(mypair.first);
+    GEMDetId detId_second(mypair.second);
+
+    // assignment of local even and odd chambers (there is always an even and an odd chamber)
+    bool firstIsOdd = detId_first.chamber() & 1;
+    
+    GEMDetId detId_even_L1(firstIsOdd ? detId_second : detId_first);
+    GEMDetId detId_odd_L1(firstIsOdd ? detId_first  : detId_second);
+
+    auto even_partition = gem_geometry->idToDetUnit(detId_even_L1)->surface();
+    auto odd_partition  = gem_geometry->idToDetUnit(detId_odd_L1)->surface();
+
+    // global positions of partitions' centers
+    LocalPoint p0(0.,0.,0.);
+    GlobalPoint gp_even_partition = even_partition.toGlobal(p0);
+    GlobalPoint gp_odd_partition = odd_partition.toGlobal(p0);
+    
+    LocalPoint lp_track_even_partition = even_partition.toLocal(gp_track);
+    LocalPoint lp_track_odd_partition = odd_partition.toLocal(gp_track);
+
+    // track chamber local x is the same as track partition local x
+    track.gem_lx_even = lp_track_even_partition.x();
+    track.gem_lx_odd = lp_track_odd_partition.x();
+
+    // track chamber local y is the same as track partition local y
+    // corrected for partition's local y WRT chamber
+    track.gem_ly_even = lp_track_even_partition.y() + (gp_even_partition.perp() - radiusCenter_);
+    track.gem_ly_odd = lp_track_odd_partition.y() + (gp_odd_partition.perp() - radiusCenter_);
+
+    std::cout << track.gem_lx_even << " " << track.gem_ly_even << std::endl;
+    std::cout << track.gem_lx_odd << " " << track.gem_ly_odd << std::endl;
+
+    
+    // check for hit chambers
+    const auto gem_sh_ids_ch = match_sh.chamberIdsGEM();
     for(auto d: gem_sh_ids_ch)
     {
-      GEMDetId id(d);
-      bool odd = id.chamber() & 1;
-
+      const GEMDetId id(d);
+      const bool odd(id.chamber() & 1);
+      
       if (id.layer() == 1)
       {
         if (odd) track.gem_sh_layer1 |= 1;
@@ -310,7 +402,20 @@ void GEMSimHitAnalyzer::analyzeTracks(const edm::Event& iEvent, const edm::Event
         else     track.gem_sh_layer2 |= 2;
       }
     }
-    track_tree_->Fill();    
+  
+    // Construct Chamber DetIds from the "projected" ids:
+    GEMDetId id_ch_even_L1(detId_even_L1.region(), detId_even_L1.ring(), detId_even_L1.station(), 1, detId_even_L1.chamber(), 0);
+    GEMDetId id_ch_odd_L1(detId_odd_L1.region(), detId_odd_L1.ring(), detId_odd_L1.station(), 1, detId_odd_L1.chamber(), 0);
+    GEMDetId id_ch_even_L2(detId_even_L1.region(), detId_even_L1.ring(), detId_even_L1.station(), 2, detId_even_L1.chamber(), 0);
+    GEMDetId id_ch_odd_L2(detId_odd_L1.region(), detId_odd_L1.ring(), detId_odd_L1.station(), 2, detId_odd_L1.chamber(), 0);
+
+    // check if track has sh 
+    if(gem_sh_ids_ch.count(id_ch_even_L1)!=0) track.has_gem_sh_l1 |= 2;
+    if(gem_sh_ids_ch.count(id_ch_odd_L1)!=0)  track.has_gem_sh_l1 |= 1;
+    if(gem_sh_ids_ch.count(id_ch_even_L2)!=0) track.has_gem_sh_l2 |= 2;
+    if(gem_sh_ids_ch.count(id_ch_odd_L2)!=0)  track.has_gem_sh_l2 |= 1;
+
+    track_tree_->Fill();
   }
 }
 
@@ -323,4 +428,38 @@ void GEMSimHitAnalyzer::fillDescriptions(edm::ConfigurationDescriptions& descrip
   descriptions.addDefault(desc);
 }
 
+void GEMSimHitAnalyzer::buildLUT()
+{
+  std::vector<int> pos_ids;
+  pos_ids.push_back(GEMDetId(1,1,1,1,36,1).rawId());
+
+  std::vector<int> neg_ids;
+  neg_ids.push_back(GEMDetId(-1,1,1,1,36,1).rawId());
+
+  // VK: I would really suggest getting phis from GEMGeometry
+  
+  std::vector<float> phis;
+  phis.push_back(0.);
+  for(int i=1; i<37; ++i)
+  {
+    pos_ids.push_back(GEMDetId(1,1,1,1,i,1).rawId());
+    neg_ids.push_back(GEMDetId(-1,1,1,1,i,1).rawId());
+    phis.push_back(i*10.);
+  }
+  positiveLUT_ = std::make_pair(phis,pos_ids);
+  negativeLUT_ = std::make_pair(phis,neg_ids);
+}
+
+std::pair<int,int>
+GEMSimHitAnalyzer::getClosestChambers(int region, float phi)
+{
+  auto& phis(positiveLUT_.first);
+  auto upper = std::upper_bound(phis.begin(), phis.end(), phi);
+  std::cout << "lower = " << upper - phis.begin()  << std::endl;
+  std::cout << "upper = " << upper - phis.begin() + 1 << std::endl;
+  auto& LUT = (region == 1 ? positiveLUT_.second : negativeLUT_.second);
+  return std::make_pair(LUT.at(upper - phis.begin()), (LUT.at((upper - phis.begin() + 1)%36)));
+}
+
 DEFINE_FWK_MODULE(GEMSimHitAnalyzer);
+

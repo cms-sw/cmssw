@@ -21,7 +21,8 @@
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "TrackingTools/GeomPropagators/interface/Propagator.h"
 
-static const float AVERAGE_GEM_Z(587.5); // [cm]
+//static const float AVERAGE_GEM_Z(587.5); // [cm]
+static const float AVERAGE_GEM_Z(568.6); // [cm]
 
 class BaseMatcher
 {
