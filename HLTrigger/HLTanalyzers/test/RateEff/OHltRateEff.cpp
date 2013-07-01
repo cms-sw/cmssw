@@ -356,7 +356,7 @@ void calcRates(
 
          if (cfg->isRealData == 1)
          {
-	   if (isCounts == 1) {
+	   if (cfg->isCounts == 1) {
 	       Rate[j] +=  (double)rcs[i]->iCount[j];
 	       RateErr[j] += (double)rcs[i]->iCount[j];
 	       Count[j] += rcs[i]->iCount[j];
