@@ -33,11 +33,11 @@ typedef std::tuple<unsigned int, int, int, DigiType, int, int, int, float> Digi;
 typedef std::vector<Digi> DigiContainer;
 
 // digi makeres
-inline Digi make_digi() { return std::make_tuple(0, 0, 0, INVALID, 0, 0, 0); }
-inline Digi make_digi(unsigned int id, int ch, int bx, DigiType t) { return std::make_tuple(id, ch, bx, t, 0, 0, 0); }
-inline Digi make_digi(unsigned int id, int ch, int bx, DigiType t, int q) { return std::make_tuple(id, ch, bx, t, q, 0, 0); }
-inline Digi make_digi(unsigned int id, int ch, int bx, DigiType t, int q, int pat) { return std::make_tuple(id, ch, bx, t, q, pat, 0); }
-inline Digi make_digi(unsigned int id, int ch, int bx, DigiType t, int q, int pat, int wg) { return std::make_tuple(id, ch, bx, t, q, pat, wg); }
+inline Digi make_digi() { return std::make_tuple(0, 0, 0, INVALID, 0, 0, 0, 0.); }
+inline Digi make_digi(unsigned int id, int ch, int bx, DigiType t) { return std::make_tuple(id, ch, bx, t, 0, 0, 0, 0.); }
+inline Digi make_digi(unsigned int id, int ch, int bx, DigiType t, int q) { return std::make_tuple(id, ch, bx, t, q, 0, 0, 0.); }
+inline Digi make_digi(unsigned int id, int ch, int bx, DigiType t, int q, int pat) { return std::make_tuple(id, ch, bx, t, q, pat, 0, 0.); }
+inline Digi make_digi(unsigned int id, int ch, int bx, DigiType t, int q, int pat, int wg) { return std::make_tuple(id, ch, bx, t, q, pat, wg, 0.); }
 inline Digi make_digi(unsigned int id, int ch, int bx, DigiType t, int q, int pat, int wg, float dphi) { return std::make_tuple(id, ch, bx, t, q, pat, wg, dphi); }
 
 // digi accessors
@@ -56,9 +56,9 @@ int& digi_wg(Digi& d);
 int digi_wg(const Digi& d);
 
 // can access and also modify the dphi value by reference with this one
-int& digi_dphi(Digi& d) { return std::get<7>(d); }
+inline float& digi_dphi(Digi& d) { return std::get<7>(d); }
 // only read for const digi
-int digi_dphi(const Digi& d) { return std::get<7>(d); }
+inline float digi_dphi(const Digi& d) { return std::get<7>(d); }
 
 }
 
