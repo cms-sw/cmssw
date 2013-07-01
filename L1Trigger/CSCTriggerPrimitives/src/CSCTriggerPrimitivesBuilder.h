@@ -11,7 +11,7 @@
  *
  * \author Slava Valuev, UCLA.
  *
- * $Id: CSCTriggerPrimitivesBuilder.h,v 1.9 2012/12/05 21:14:23 khotilov Exp $
+ * $Id: CSCTriggerPrimitivesBuilder.h,v 1.9.2.1 2013/05/21 12:02:25 khotilov Exp $
  *
  */
 
@@ -22,11 +22,14 @@
 #include <DataFormats/CSCDigi/interface/CSCCLCTDigiCollection.h>
 #include <DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigiCollection.h>
 #include <DataFormats/CSCDigi/interface/CSCCLCTPreTriggerCollection.h>
+#include <DataFormats/GEMDigi/interface/GEMCSCPadDigiCollection.h>
 #include <FWCore/ParameterSet/interface/ParameterSet.h>
 
 class CSCDBL1TPParameters;
 class CSCMotherboard;
 class CSCMuonPortCard;
+class CSCGeometry;
+class GEMGeometry;
 
 class CSCTriggerPrimitivesBuilder
 {
@@ -43,12 +46,17 @@ class CSCTriggerPrimitivesBuilder
   /** Sets configuration parameters obtained via EventSetup mechanism. */
   void setConfigParameters(const CSCDBL1TPParameters* conf);
 
+  /// set CSC and GEM geometries for the matching needs
+  void setCSCGeometry(const CSCGeometry *g) { csc_g = g; }
+  void setGEMGeometry(const GEMGeometry *g) { gem_g = g; }
+
   /** Build anode, cathode, and correlated LCTs in each chamber and fill
    *  them into output collections.  Select up to three best correlated LCTs
    *  in each (sub)sector and put them into an output collection as well. */
   void build(const CSCBadChambers* badChambers,
 	     const CSCWireDigiCollection* wiredc,
 	     const CSCComparatorDigiCollection* compdc,
+	     const GEMCSCPadDigiCollection* gemPads,
 	     CSCALCTDigiCollection& oc_alct, CSCCLCTDigiCollection& oc_clct,
              CSCCLCTPreTriggerCollection & oc_pretrig,
 	     CSCCorrelatedLCTDigiCollection& oc_lct,
@@ -90,6 +98,9 @@ class CSCTriggerPrimitivesBuilder
 
   /** Pointer to MPC processor. */
   CSCMuonPortCard* m_muonportcard;
+
+  const CSCGeometry* csc_g;
+  const GEMGeometry* gem_g;
 };
 
 #endif

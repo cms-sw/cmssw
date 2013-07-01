@@ -8,7 +8,7 @@
  *
  * \author Slava Valuev, UCLA.
  *
- * $Id: CSCTriggerPrimitivesReader.h,v 1.19 2012/12/05 21:12:53 khotilov Exp $
+ * $Id: CSCTriggerPrimitivesReader.h,v 1.20 2013/05/09 17:20:52 khotilov Exp $
  *
  */
 
@@ -60,6 +60,12 @@ class CSCTriggerPrimitivesReader : public edm::EDAnalyzer
 
  private:
   int eventsAnalyzed;       // event number
+
+  // data vs emulator difference counters
+  int ndiff_alct;
+  int ndiff_clct;
+  int ndiff_lct;
+
   bool debug;               // on/off switch
   std::string rootFileName; // root file name
   //  TFile *theFile;
@@ -335,12 +341,18 @@ class CSCTriggerPrimitivesReader : public edm::EDAnalyzer
   TH1F *hEfficHitsEtaCsc[CSC_TYPES];
   TH1F *hEfficALCTEtaCsc[CSC_TYPES], *hEfficCLCTEtaCsc[CSC_TYPES];
 
+  // Vadim's histograms
   TH1F *hAlctKeyGroupME11;
   TH1F *hClctKeyStripME11;
   TH1F *hLctTMBKeyGroupME11;
   TH1F *hLctTMBKeyStripME11;
   TH1F *hLctMPCKeyGroupME11;
   TH1F *hLctMPCKeyStripME11;
+
+  TH2F *hDataVsEmuME11_nALCTPerCSC, *hDataVsEmuME11_nCLCTPerCSC, *hDataVsEmuME11_nLCTPerCSC;
+  TH2F *hDataVsEmuME11_ALCTWG, *hDataVsEmuME11_CLCTHS, *hDataVsEmuME11_LCTWG, *hDataVsEmuME11_LCTHS;
+  TH2F *hDataVsEmuME11_ALCTQ, *hDataVsEmuME11_CLCTQ, *hDataVsEmuME11_LCTQ;
+  TH2F *hDataME11_LCTHSvsWG, *hEmuME11_LCTHSvsWG;
 };
 
 #endif

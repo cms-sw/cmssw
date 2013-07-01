@@ -23,7 +23,7 @@
  * in ORCA).
  * Porting from ORCA by S. Valuev (Slava.Valuev@cern.ch), May 2006.
  *
- * $Id: CSCCathodeLCTProcessor.h,v 1.26 2012/12/05 21:14:22 khotilov Exp $
+ * $Id: CSCCathodeLCTProcessor.h,v 1.27 2013/05/14 10:11:54 khotilov Exp $
  *
  */
 
@@ -128,6 +128,12 @@ class CSCCathodeLCTProcessor
   unsigned int theRing;
   unsigned int theChamber;
   bool isME11;
+
+  /** auxiliary string to keep the "ME+1/2/13"-like id of a chamber */
+  std::string theMEStr;
+
+  /** auxiliary string to keep the "(trig. sector 2 subsector 1 id 4)"-like trigger info for a chamber */
+  std::string theTrigStr;
   
   int numStrips;
   int stagger[CSCConstants::NUM_LAYERS];

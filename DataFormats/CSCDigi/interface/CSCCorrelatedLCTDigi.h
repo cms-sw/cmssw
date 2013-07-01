@@ -86,6 +86,22 @@ class CSCCorrelatedLCTDigi
   /// set quality code
   void setQuality(unsigned int q) {quality=q;}
 
+  //------- GEM matching extras ---------
+  /// has any sort of associated GEM pad?
+  bool hasGEM() const {return gemDPhi > -9. && gemDPhi < 9.;}
+
+  /// GEM pad's BX; is == 99 if no associated GEM pad
+  //uint16_t getGEMBX() const {return gemBX;}
+
+  /// set GEM pad's BX
+  //void setGEMBX(const uint16_t bx) {gemBX = bx;}
+
+  /// LCT phi - gem pad phi for ME11
+  float getGEMDPhi() const {return gemDPhi;}
+
+  /// set gem pad deltaPhi for ME11
+  void setGEMDPhi(const float dphi) {gemDPhi = dphi;}
+
  private:
   uint16_t trknmb;
   uint16_t valid;
@@ -99,6 +115,8 @@ class CSCCorrelatedLCTDigi
   uint16_t bx0; 
   uint16_t syncErr;
   uint16_t cscID;
+  //uint16_t gemBX;
+  float gemDPhi;
 };
 
 std::ostream & operator<<(std::ostream & o, const CSCCorrelatedLCTDigi& digi);
