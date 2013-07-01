@@ -1,49 +1,187 @@
-
-full_title = "RecoEcal collections (in RECO and AOD)"
-
-full = {
-    '0':['selectDigi', '*', 'No documentation'] ,
-    '1':['reducedEcalRecHitsEB', 'edm::SortedCollection', 'Rechits from a 5x5 around Basic Clusters, for the ES, hits corresponding to clusters in EE'] ,
-    '2':['reducedEcalRecHitsEE', 'edm::SortedCollection', 'Rechits from a 5x5 around Basic Clusters, for the ES, hits corresponding to clusters in EE'] ,
-    '3':['reducedEcalRecHitsES', 'edm::SortedCollection', 'Rechits from a 5x5 around Basic Clusters, for the ES, hits corresponding to clusters in EE'] ,
-    '4':['interestingEcalDetId*', '*', 'No documentation'] ,
-    '5':['ecalWeightUncalibRecHit', '*', 'No documentation'] ,
-    '6':['ecalPreshowerRecHit', '*', 'No documentation'] ,
-    '7':['hybridSuperClusters', 'reco::BasicClusterCollection reco::ClusterShapeCollection reco::BasicClusterShapeAssociationCollection reco::SuperClusterCollection','Basic clusters, cluster shapes and super-clusters reconstructed with the hybrid algorithm with no energy corrections applied (barrel only)'] ,
-    '8':['correctedHybridSuperClusters', 'reco::SuperClusterCollection', 'Super-clusters reconstructed with the hybrid algorithm with energy corrections applied (barrel only)'] ,
-    '9':['multi5x5*', 'reco::BasicClusterCollection', 'Basic clusters in EE, 5x5 algorithm'] ,
-    '10':['correctedMulti5x5*', 'reco::SuperCluster', 'Corrected superclusters in EE, 5x5 algorithm'] ,
-    '11':['multi5x5SuperClustersWithPreshower', 'recoPreshowerClusters', 'Preshower clusters'] ,
-    '12':['multi5x5PreshowerClusterShape', 'recoPreshowerClusterShapes', 'No documentation'] ,
-    '13':['particleFlowSuperClusterECAL', '*', 'No documentation'],
+'''
+    Created on Jun 26, 2013 
+    @author:  Mantas Stankevicius
+    @contact: mantas.stankevicius@cern.ch
+    http://cmsdoxy.web.cern.ch/cmsdoxy/dataformats/
     
-     # Correction needed, because not matched with Event Content 
-    '14':['hybridSuperClusters:uncleanOnlyHybridSuperClusters','reco::SuperClusterCollection','Only the SuperClusters containing anomalous signals, with no cleaning'] 
-}
+    @responsible: 
+    
+'''
 
-reco_title = "RecoEcal collections (in RECO only)"
-
-reco = {
-    '0':['selectDigi', '*', 'No documentation'] ,
-    '1':['reducedEcalRecHitsEE', 'EcalRecHitsSorted', 'No documentation'] ,
-    '2':['reducedEcalRecHitsEB', 'EcalRecHitsSorted', 'No documentation'] ,
-    '3':['reducedEcalRecHitsES', 'EcalRecHitsSorted', 'No documentation'] ,
-    '4':['hybridSuperClusters', '*', 'No documentation'] ,
-    '5':['correctedHybridSuperClusters', 'recoSuperClusters', 'No documentation'] ,
-    '6':['multi5x5SuperClusters', '*', 'No documentation'] ,
-    '7':['multi5x5SuperClusters', 'recoSuperClusters', 'No documentation'] ,
-    '8':['multi5x5SuperClustersWithPreshower', 'recoSuperClusters', 'No documentation'] ,
-    '9':['correctedMulti5x5SuperClustersWithPreshower', 'recoSuperClusters', 'No documentation'] ,
-    '10':['multi5x5SuperClustersWithPreshower', 'recoPreshowerClusters', 'No documentation'] ,
-    '11':['multi5x5PreshowerClusterShape', 'recoPreshowerClusterShapes', 'No documentation'] ,
-    '12':['particleFlowSuperClusterECAL', '*', 'No documentation'] 
-}
-
-aod_title = "RecoEcal collections (in AOD only)"
-
-aod = {
-    '0':['selectDigi', '*', 'No documentation'] ,
-    '1':['reducedEcalRecHitsEB', 'EcalRecHitsSorted', 'No documentation'] ,
-    '2':['reducedEcalRecHitsEE', 'EcalRecHitsSorted', 'No documentation'] ,
-    '3':['reducedEcalRecHitsES', 'EcalRecHitsSorted', 'No documentation'] 
+json = {
+  "full": {
+    "title": "RecoEcal collections (in RECO and AOD)",
+    "data": [
+     {
+      "instance": "multi5x5SuperClustersWithPreshower",
+      "container": "recoPreshowerClusters",
+      "desc": "Preshower clusters"
+     },
+     {
+      "instance": "correctedMulti5x5*",
+      "container": "reco::SuperCluster",
+      "desc": "Corrected superclusters in EE, 5x5 algorithm"
+     },
+     {
+      "instance": "particleFlowSuperClusterECAL",
+      "container": "*",
+      "desc": "No documentation"
+     },
+     {
+      "instance": "multi5x5PreshowerClusterShape",
+      "container": "recoPreshowerClusterShapes",
+      "desc": "No documentation"
+     },
+     {
+      "instance": "hybridSuperClusters:uncleanOnlyHybridSuperClusters",
+      "container": "reco::SuperClusterCollection",
+      "desc": "Only the SuperClusters containing anomalous signals, with no cleaning"
+     },
+     {
+      "instance": "reducedEcalRecHitsEB",
+      "container": "edm::SortedCollection",
+      "desc": "Rechits from a 5x5 around Basic Clusters, for the ES, hits corresponding to clusters in EE"
+     },
+     {
+      "instance": "selectDigi",
+      "container": "*",
+      "desc": "No documentation"
+     },
+     {
+      "instance": "reducedEcalRecHitsES",
+      "container": "edm::SortedCollection",
+      "desc": "Rechits from a 5x5 around Basic Clusters, for the ES, hits corresponding to clusters in EE"
+     },
+     {
+      "instance": "reducedEcalRecHitsEE",
+      "container": "edm::SortedCollection",
+      "desc": "Rechits from a 5x5 around Basic Clusters, for the ES, hits corresponding to clusters in EE"
+     },
+     {
+      "instance": "ecalWeightUncalibRecHit",
+      "container": "*",
+      "desc": "No documentation"
+     },
+     {
+      "instance": "interestingEcalDetId*",
+      "container": "*",
+      "desc": "No documentation"
+     },
+     {
+      "instance": "hybridSuperClusters",
+      "container": "reco::BasicClusterCollection reco::ClusterShapeCollection reco::BasicClusterShapeAssociationCollection reco::SuperClusterCollection",
+      "desc": "Basic clusters, cluster shapes and super-clusters reconstructed with the hybrid algorithm with no energy corrections applied (barrel only)"
+     },
+     {
+      "instance": "ecalPreshowerRecHit",
+      "container": "*",
+      "desc": "No documentation"
+     },
+     {
+      "instance": "multi5x5*",
+      "container": "reco::BasicClusterCollection",
+      "desc": "Basic clusters in EE, 5x5 algorithm"
+     },
+     {
+      "instance": "correctedHybridSuperClusters",
+      "container": "reco::SuperClusterCollection",
+      "desc": "Super-clusters reconstructed with the hybrid algorithm with energy corrections applied (barrel only)"
+     }
+    ]
+  },
+  "aod": {
+    "title": "RecoEcal collections (in AOD only)",
+    "data": [
+     {
+      "instance": "reducedEcalRecHitsEB",
+      "container": "EcalRecHitsSorted",
+      "desc": "No documentation"
+     },
+     {
+      "instance": "selectDigi",
+      "container": "*",
+      "desc": "No documentation"
+     },
+     {
+      "instance": "reducedEcalRecHitsES",
+      "container": "EcalRecHitsSorted",
+      "desc": "No documentation"
+     },
+     {
+      "instance": "reducedEcalRecHitsEE",
+      "container": "EcalRecHitsSorted",
+      "desc": "No documentation"
+     }
+    ]
+  },
+  "reco": {
+    "title": "RecoEcal collections (in RECO only)",
+    "data": [
+     {
+      "instance": "multi5x5PreshowerClusterShape",
+      "container": "recoPreshowerClusterShapes",
+      "desc": "No documentation"
+     },
+     {
+      "instance": "multi5x5SuperClustersWithPreshower",
+      "container": "recoPreshowerClusters",
+      "desc": "No documentation"
+     },
+     {
+      "instance": "particleFlowSuperClusterECAL",
+      "container": "*",
+      "desc": "No documentation"
+     },
+     {
+      "instance": "reducedEcalRecHitsEE",
+      "container": "EcalRecHitsSorted",
+      "desc": "No documentation"
+     },
+     {
+      "instance": "selectDigi",
+      "container": "*",
+      "desc": "No documentation"
+     },
+     {
+      "instance": "reducedEcalRecHitsES",
+      "container": "EcalRecHitsSorted",
+      "desc": "No documentation"
+     },
+     {
+      "instance": "reducedEcalRecHitsEB",
+      "container": "EcalRecHitsSorted",
+      "desc": "No documentation"
+     },
+     {
+      "instance": "correctedHybridSuperClusters",
+      "container": "recoSuperClusters",
+      "desc": "No documentation"
+     },
+     {
+      "instance": "hybridSuperClusters",
+      "container": "*",
+      "desc": "No documentation"
+     },
+     {
+      "instance": "multi5x5SuperClusters",
+      "container": "recoSuperClusters",
+      "desc": "No documentation"
+     },
+     {
+      "instance": "multi5x5SuperClusters",
+      "container": "*",
+      "desc": "No documentation"
+     },
+     {
+      "instance": "correctedMulti5x5SuperClustersWithPreshower",
+      "container": "recoSuperClusters",
+      "desc": "No documentation"
+     },
+     {
+      "instance": "multi5x5SuperClustersWithPreshower",
+      "container": "recoSuperClusters",
+      "desc": "No documentation"
+     }
+    ]
+  }
 }

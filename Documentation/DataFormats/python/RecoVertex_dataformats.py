@@ -1,35 +1,112 @@
+'''
+    Created on Jun 26, 2013 
+    @author:  Mantas Stankevicius
+    @contact: mantas.stankevicius@cern.ch
+    http://cmsdoxy.web.cern.ch/cmsdoxy/dataformats/
+    
+    @responsible: 
+    
+'''
 
-full_title = "RecoVertex collections (in RECO and AOD)"
-
-full = {
-    '0':['offlinePrimaryVertices', 'reco::VertexCollection ', 'Primary vertex reconstructed using the tracks taken from the generalTracks collection'] ,
-    '1':['offlinePrimaryVerticesWithBS', 'reco::VertexCollection ', 'Primary vertex reconstructed using the tracks taken from the generalTracks collection, and imposing the offline beam spot as a constraint in the fit of the vertex position.'] ,
-    '2':['offlinePrimaryVerticesFromCosmicTracks', '*', 'No documentation'] ,
-    '3':['nuclearInteractionMaker', '*', 'No documentation'],
-
-  # Correction needed, because not matched with Event Content
-    '4':['generalV0Candidates:Kshort','reco::VertexCompositeCandidateCollection ','K0S candidate collection reconstructed using the tracks taken from the generalTracks collection'],
-    '5':['generalV0Candidates:Lambda','reco::VertexCompositeCandidateCollection ','Lambda0 candidate collection reconstructed using the tracks taken from the generalTracks collection'],
-    '6':['offlinePrimaryVerticesFromCTFTracks','reco::VertexCollection','Identical to the offlinePrimaryVertices collection.'],
-    '7':['offlinePrimaryVerticesFromCTFTracks','reco::VertexCollection','Primary vertex reconstructed using the CKF tracks, taken from the ctfWithMaterialTracks collection'],
-    '8':['offlinePrimaryVerticesFromRSTracks','reco::VertexCollection','Primary vertex reconstructed using the CKF tracks, taken from the rsWithMaterialTracks collection']    
-     
-}
-
-reco_title = "RecoVertex collections (in RECO only)"
-
-reco = {
-    '0':['offlinePrimaryVertices', 'reco::VertexCollection', 'Primary vertex reconstructed using the tracks taken from the generalTracks collection'] ,
-    '1':['offlinePrimaryVerticesWithBS', 'reco::VertexCollection ', 'Primary vertex reconstructed using the tracks taken from the generalTracks collection, and imposing the offline beam spot as a constraint in the fit of the vertex position.'] ,
-    '2':['offlinePrimaryVerticesFromCosmicTracks', '*', 'No documentation'] ,
-    '3':['nuclearInteractionMaker', '*', 'No documentation'] 
-}
-
-aod_title = "RecoVertex collections (in AOD only)"
-
-aod = {
-    '0':['offlinePrimaryVertices', 'reco::VertexCollection', 'Primary vertex reconstructed using the tracks taken from the generalTracks collection'],
-    '1':['offlinePrimaryVerticesWithBS', '*', 'No documentation'] ,
-    '2':['offlinePrimaryVerticesFromCosmicTracks', '*', 'No documentation'] ,
-    '3':['nuclearInteractionMaker', '*', 'No documentation'] 
+json = {
+  "full": {
+    "title": "RecoVertex collections (in RECO and AOD)",
+    "data": [
+     {
+      "instance": "offlinePrimaryVerticesWithBS",
+      "container": "reco::VertexCollection ",
+      "desc": "Primary vertex reconstructed using the tracks taken from the generalTracks collection, and imposing the offline beam spot as a constraint in the fit of the vertex position."
+     },
+     {
+      "instance": "offlinePrimaryVertices",
+      "container": "reco::VertexCollection ",
+      "desc": "Primary vertex reconstructed using the tracks taken from the generalTracks collection"
+     },
+     {
+      "instance": "nuclearInteractionMaker",
+      "container": "*",
+      "desc": "No documentation"
+     },
+     {
+      "instance": "offlinePrimaryVerticesFromCosmicTracks",
+      "container": "*",
+      "desc": "No documentation"
+     },
+     {
+      "instance": "generalV0Candidates:Lambda",
+      "container": "reco::VertexCompositeCandidateCollection ",
+      "desc": "Lambda0 candidate collection reconstructed using the tracks taken from the generalTracks collection"
+     },
+     {
+      "instance": "generalV0Candidates:Kshort",
+      "container": "reco::VertexCompositeCandidateCollection ",
+      "desc": "K0S candidate collection reconstructed using the tracks taken from the generalTracks collection"
+     },
+     {
+      "instance": "offlinePrimaryVerticesFromCTFTracks",
+      "container": "reco::VertexCollection",
+      "desc": "Primary vertex reconstructed using the CKF tracks, taken from the ctfWithMaterialTracks collection"
+     },
+     {
+      "instance": "offlinePrimaryVerticesFromCTFTracks",
+      "container": "reco::VertexCollection",
+      "desc": "Identical to the offlinePrimaryVertices collection."
+     },
+     {
+      "instance": "offlinePrimaryVerticesFromRSTracks",
+      "container": "reco::VertexCollection",
+      "desc": "Primary vertex reconstructed using the CKF tracks, taken from the rsWithMaterialTracks collection"
+     }
+    ]
+  },
+  "aod": {
+    "title": "RecoVertex collections (in AOD only)",
+    "data": [
+     {
+      "instance": "offlinePrimaryVerticesWithBS",
+      "container": "*",
+      "desc": "No documentation"
+     },
+     {
+      "instance": "offlinePrimaryVertices",
+      "container": "reco::VertexCollection",
+      "desc": "Primary vertex reconstructed using the tracks taken from the generalTracks collection"
+     },
+     {
+      "instance": "nuclearInteractionMaker",
+      "container": "*",
+      "desc": "No documentation"
+     },
+     {
+      "instance": "offlinePrimaryVerticesFromCosmicTracks",
+      "container": "*",
+      "desc": "No documentation"
+     }
+    ]
+  },
+  "reco": {
+    "title": "RecoVertex collections (in RECO only)",
+    "data": [
+     {
+      "instance": "offlinePrimaryVerticesWithBS",
+      "container": "reco::VertexCollection ",
+      "desc": "Primary vertex reconstructed using the tracks taken from the generalTracks collection, and imposing the offline beam spot as a constraint in the fit of the vertex position."
+     },
+     {
+      "instance": "offlinePrimaryVertices",
+      "container": "reco::VertexCollection",
+      "desc": "Primary vertex reconstructed using the tracks taken from the generalTracks collection"
+     },
+     {
+      "instance": "nuclearInteractionMaker",
+      "container": "*",
+      "desc": "No documentation"
+     },
+     {
+      "instance": "offlinePrimaryVerticesFromCosmicTracks",
+      "container": "*",
+      "desc": "No documentation"
+     }
+    ]
+  }
 }
