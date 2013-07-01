@@ -25,6 +25,7 @@ For its usage, see "FWCore/Framework/interface/PrincipalGetAdapter.h"
 #include "FWCore/Framework/interface/PrincipalGetAdapter.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
 #include "FWCore/Utilities/interface/ProductKindOfType.h"
+#include "FWCore/Utilities/interface/LuminosityBlockIndex.h"
 
 
 #include "boost/shared_ptr.hpp"
@@ -46,6 +47,10 @@ namespace edm {
     // AUX functions are defined in LuminosityBlockBase
     LuminosityBlockAuxiliary const& luminosityBlockAuxiliary() const {return aux_;}
 
+    /**\return Reusable index which can be used to separate data for different simultaneous LuminosityBlocks.
+     */
+    LuminosityBlockIndex index() const;
+    
     //Used in conjunction with EDGetToken
     void setConsumer(EDConsumerBase const* iConsumer);
     template <typename PROD>
