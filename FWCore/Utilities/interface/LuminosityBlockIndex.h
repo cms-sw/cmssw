@@ -29,25 +29,36 @@
 
 // forward declarations
 namespace edm {
+  class LuminosityBlockPrincipal;
+  
   class LuminosityBlockIndex
   {
     
   public:
+    LuminosityBlockIndex(const LuminosityBlockIndex&) = default;
+    LuminosityBlockIndex& operator=(const LuminosityBlockIndex&) = default;
     ~LuminosityBlockIndex() = default;
     
     // ---------- const member functions ---------------------
+    operator unsigned int() const {
+      return value_;
+    }
+    
     bool operator==(LuminosityBlockIndex const& iRHS) const {
       return value() == iRHS.value();
     }
 
+    /** \return value ranging from 0 to one less than max number of simultaneous luminosityblocks.
+     */
     unsigned int value() const { return value_;}
     
   private:
+    ///Only the LuminosityBlockPrincipal is allowed to make one of these
+    friend class LuminosityBlockPrincipal;
+
     explicit LuminosityBlockIndex(unsigned int iValue): value_{iValue} {}
     
     LuminosityBlockIndex()= delete;
-    LuminosityBlockIndex(const LuminosityBlockIndex&) = delete; // stop default    
-    const LuminosityBlockIndex& operator=(const LuminosityBlockIndex&) = delete; // stop default
     
     // ---------- member data --------------------------------
     unsigned int value_;

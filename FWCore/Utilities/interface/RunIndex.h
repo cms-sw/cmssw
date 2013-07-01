@@ -28,25 +28,35 @@
 
 // forward declarations
 namespace edm {
+  class RunPrincipal;
+  
   class RunIndex
   {
     
   public:
     ~RunIndex() = default;
+    RunIndex(const RunIndex&) = default;
+    RunIndex& operator=(const RunIndex&) = default;
     
     // ---------- const member functions ---------------------
     bool operator==(const RunIndex& iIndex) const {
       return value() == iIndex.value();
     }
+    operator unsigned int() const {
+      return value_;
+    }
+    
+    /** \return value ranging from 0 to one less than max number of simultaneous runs.
+     */
     unsigned int value() const { return value_;}
     
     
   private:
+    ///Only the RunPrincipal is allowed to make one of these
+    friend class RunPrincipal;
     explicit RunIndex(unsigned int iIndex) : value_(iIndex) {}
 
     RunIndex() = delete;
-    RunIndex(const RunIndex&) = delete; // stop default
-    const RunIndex& operator=(const RunIndex&) = delete; // stop default
     
     // ---------- member data --------------------------------
     unsigned int value_;
