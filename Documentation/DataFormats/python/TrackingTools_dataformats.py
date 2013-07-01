@@ -1,26 +1,87 @@
-full_title = "TrackingTools collections (in RECO and AOD)"
+'''
+    Created on Jun 26, 2013 
+    @author:  Mantas Stankevicius
+    @contact: mantas.stankevicius@cern.ch
+    http://cmsdoxy.web.cern.ch/cmsdoxy/dataformats/
+    
+    @responsible: 
+    
+'''
 
-full = {
-    '0':['CkfElectronCandidates', '*', 'No documentation'] ,
-    '1':['GsfGlobalElectronTest', '*', 'No documentation'] ,
-    '2':['electronMergedSeeds', '*', 'No documentation'] ,
-    '3':['electronGsfTracks', '*', 'No documentation'] 
-}
-
-reco_title = "TrackingTools collections (in RECO only)"
-
-reco = {
-    '0':['CkfElectronCandidates', '*', 'No documentation'] ,
-    '1':['GsfGlobalElectronTest', '*', 'No documentation'] ,
-    '2':['electronMergedSeeds', '*', 'No documentation'] ,
-    '3':['electronGsfTracks', 'recoGsfTracks', 'No documentation'] ,
-    '4':['electronGsfTracks', 'recoGsfTrackExtras', 'No documentation'] ,
-    '5':['electronGsfTracks', 'recoTrackExtras', 'No documentation'] 
-}
-
-aod_title = "TrackingTools collections (in AOD only)"
-
-aod = {
-    '0':['GsfGlobalElectronTest', 'recoTracks', 'No documentation'] ,
-    '1':['electronGsfTracks', 'recoGsfTracks', 'No documentation'] 
+json = {
+  "full": {
+    "title": "TrackingTools collections (in RECO and AOD)",
+    "data": [
+     {
+      "instance": "GsfGlobalElectronTest",
+      "container": "*",
+      "desc": "No documentation"
+     },
+     {
+      "instance": "CkfElectronCandidates",
+      "container": "*",
+      "desc": "No documentation"
+     },
+     {
+      "instance": "electronGsfTracks",
+      "container": "*",
+      "desc": "No documentation"
+     },
+     {
+      "instance": "electronMergedSeeds",
+      "container": "*",
+      "desc": "No documentation"
+     }
+    ]
+  },
+  "aod": {
+    "title": "TrackingTools collections (in AOD only)",
+    "data": [
+     {
+      "instance": "electronGsfTracks",
+      "container": "recoGsfTracks",
+      "desc": "No documentation"
+     },
+     {
+      "instance": "GsfGlobalElectronTest",
+      "container": "recoTracks",
+      "desc": "No documentation"
+     }
+    ]
+  },
+  "reco": {
+    "title": "TrackingTools collections (in RECO only)",
+    "data": [
+     {
+      "instance": "GsfGlobalElectronTest",
+      "container": "*",
+      "desc": "No documentation"
+     },
+     {
+      "instance": "CkfElectronCandidates",
+      "container": "*",
+      "desc": "No documentation"
+     },
+     {
+      "instance": "electronGsfTracks",
+      "container": "recoGsfTracks",
+      "desc": "No documentation"
+     },
+     {
+      "instance": "electronMergedSeeds",
+      "container": "*",
+      "desc": "No documentation"
+     },
+     {
+      "instance": "electronGsfTracks",
+      "container": "recoTrackExtras",
+      "desc": "No documentation"
+     },
+     {
+      "instance": "electronGsfTracks",
+      "container": "recoGsfTrackExtras",
+      "desc": "No documentation"
+     }
+    ]
+  }
 }
