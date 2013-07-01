@@ -25,24 +25,36 @@
 
 // forward declarations
 namespace edm {
+  class EventProcessor;
+  
   class StreamID
   {
     
   public:
     ~StreamID() = default;
+    StreamID(const StreamID&) = default;
+    StreamID& operator=(const StreamID&) = default;
     
     bool operator==(const StreamID& iID) const {
       return iID.value_ == value_;
     }
 
+    operator unsigned int() const {return value_;}
+    
+    /** \return value ranging from 0 to one less than max number of streams.
+     */
     unsigned int value() const { return value_; }
     
+    static StreamID invalidStreamID() {
+      return StreamID(0xFFFFFFFFU);
+    }
+    
   private:
+    ///Only a Schedule is allowed to create one of these
+    friend class EventProcessor;
     explicit StreamID(unsigned int iValue) : value_(iValue) {}
     
     StreamID() = delete;
-    StreamID(const StreamID&) = delete; // stop default
-    const StreamID& operator=(const StreamID&) - delete; // stop default
     
     // ---------- member data --------------------------------
     unsigned int value_;
