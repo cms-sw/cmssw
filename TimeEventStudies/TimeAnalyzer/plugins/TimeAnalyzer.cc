@@ -152,7 +152,9 @@ TimeAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    
    for ( HepMC::GenEvent::particle_const_iterator p = myGenEvent->particles_begin(); p != myGenEvent->particles_end(); ++p ) {
      // match only to truth of electrons or photons
+     h_pType ->  Fill((*p)->pdg_id());
      if ( !( (fabs((*p)->pdg_id())==11 || (*p)->pdg_id()==22) && (*p)->status()==1 )  )  continue;
+    
      //std::cout << "particle found SCwithTruthPUAnalysis " <<  (*p)->pdg_id() << "\t" << (*p)->status() << std::endl;
    }
    
