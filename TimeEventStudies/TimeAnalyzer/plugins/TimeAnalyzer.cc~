@@ -22,7 +22,7 @@
 #include <memory>
 
 // ==> user include files
-// =-> defaults
+// -> defaults
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 
@@ -31,16 +31,17 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-// =-> for development
+// -> for development
 #include <TMath.h>
 
-
+//#include "CLHEP/Matrix/Vector.h"
 #include "DataFormats/Common/interface/Handle.h"
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 
-#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
+//#include "CLHEP/Matrix/Vector.h"
+//#include "CLHEP/Units/GlobalPhysicalConstants.h"
 
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
@@ -75,10 +76,8 @@ class TimeAnalyzer : public edm::EDAnalyzer {
 
       // ----------member data ---------------------------
 
-  // pointers to the histograms for persistency
+  // pointers to the histograms for persistency  
   TH1F* h_nVtx;
-  TH1F* h_pType;
-
 };
 
 //
@@ -133,31 +132,16 @@ TimeAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 #endif
 
 
-   // reconstructed vertex in the event
+
+   h_nVtx -> Fill(1);
+
    Handle<reco::VertexCollection> vertexHandle;
    iEvent.getByLabel("offlinePrimaryVerticesWithBS", vertexHandle);
    const reco::VertexCollection * vertexCollection = vertexHandle.product();
-   // reco vertex multiplicity
    h_nVtx -> Fill( vertexCollection->size() );
-   math::XYZPoint recoVtx(0.,0.,0.);
-   if (vertexCollection->size()>0) recoVtx = vertexCollection->begin()->position();
+   //math::XYZPoint recoVtx(0.,0.,0.);
+   //if (vertexCollection->size()>0) recoVtx = vertexCollection->begin()->position();
    
-
-   // get hold of the MC product and loop over truth-level particles 
-   // standard numeric ParticleId: http://www.physics.ox.ac.uk/CDF/Mphys/old/notes/pythia_codeListing.html
-   Handle< edm::HepMCProduct > hepProd ;
-   iEvent.getByLabel("generator",hepProd) ;
-   const HepMC::GenEvent * myGenEvent = hepProd->GetEvent();
-   
-   
-   for ( HepMC::GenEvent::particle_const_iterator p = myGenEvent->particles_begin(); p != myGenEvent->particles_end(); ++p ) {
-     // match only to truth of electrons or photons
-     if ( !( (fabs((*p)->pdg_id())==11 || (*p)->pdg_id()==22) && (*p)->status()==1 )  )  continue;
-     //std::cout << "particle found SCwithTruthPUAnalysis " <<  (*p)->pdg_id() << "\t" << (*p)->status() << std::endl;
-   }
-   
-
-
 
 }
 
@@ -168,11 +152,7 @@ TimeAnalyzer::beginJob()
 {
   edm::Service<TFileService> fs;
   TFileDirectory subDir=fs->mkdir("baseHistoDir");  
-
-  // histograms need be booked in the beginJob, which is run only once at  the  beginning of execution
-  h_nVtx  = fs->make<TH1F>("h_nVtx","no. of primary vertices; num vertices reco",40,0.,40.);
-  h_pType = fs->make<TH1F>("h_pType","truth particle type",81,-40.,40.);
-
+  h_nVtx = fs->make<TH1F>("h_nVtx","no. of primary vertices; num vertices reco",40,0.,40.);  // usig h_nVtx  histogram can be used as a counter of events 
 }
 
 // ------------ method called once each job just after ending the event loop  ------------
