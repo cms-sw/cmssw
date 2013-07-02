@@ -3,22 +3,23 @@ from array import array
 
 #-------------------------------------------------------------------------------
 def tfile_cd(dirname,tfile,debug=False):
-  """
-  Safely re-build and navigate the directory structure.
-  """
 
-  if not tfile.GetDirectory(dirname):
-    gDirectory.cd("/")
+  """ Safely re-build and navigate the directory structure. dirname is
+  considered to be an absolute path."""
+
+  gDirectory.cd("/")
+  if tfile.GetDirectory(dirname):
+    gDirectory.cd(dirname)
+  else:
     path=""
     for component in dirname.split('/'):
-      path+="/%s" %component
+      path += "/%s" % component
       if not tfile.GetDirectory(path):
         gDirectory.mkdir(component)
       gDirectory.cd(component)
 
-      if debug:
-        print "Current dir"
-        gDirectory.pwd()
+  if debug:
+    print "Current dir %s" % gDirectory.pwd()
 
 #-------------------------------------------------------------------------------
 def literal2root (literal,rootType,tstreamerinfo=None):
