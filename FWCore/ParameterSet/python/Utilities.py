@@ -135,6 +135,7 @@ def convertToUnscheduled(proc):
   knownStringInputLabels['KProd'] = ['xSrc'] # a fake entry for a unit test below
   knownStringInputLabels['SeedGeneratorFromRegionHitsEDProducer'] = ['vertexSrc']
   knownStringInputLabels['PixelTrackProducer'] = ['vertexSrc']
+  knownStringInputLabels['PixelTracksProducer'] = ['vertexSrc']
   knownStringInputLabels['SimpleTrackListMerger'] = ['TrackProducer1', 'TrackProducer2']
 
   allEDFilters = set(proc.filters_().keys())
