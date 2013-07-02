@@ -6,7 +6,10 @@
 #include "DataFormats/TrajectoryState/interface/TrackCharge.h"
 #include "DataFormats/Math/interface/AlgebraicROOTObjects.h"
 
-class MagneticField;
+// Can move the second constructor to .cc, too ... or make all 
+// functions inline?
+// class MagneticField;
+#include "MagneticField/Engine/interface/MagneticField.h"
 
 /** Class providing access to a set of relevant parameters of a trajectory
  *  in the global, Cartesian frame. The basic data members used to calculate
@@ -19,9 +22,8 @@ public:
   GlobalTrajectoryParameters() :
     theField(0), 
     theX(), theP(), 
-    cachedCurvature_(0.0),
-    theCharge(0),
-    hasCurvature_(false)  {}  // we must initialize cache to non-NAN to avoid FPE
+    theCharge(0)
+  {}  // we must initialize cache to non-NAN to avoid FPE
 
   /** Constructing class from global position, global momentum and charge.
    */
@@ -32,9 +34,9 @@ public:
 			     const MagneticField* fieldProvider) :
     theField(fieldProvider),
     theX(aX), theP(aP),     
-    cachedCurvature_(aCharge),
-    theCharge(aCharge),
-    hasCurvature_(false) {
+    theCharge(aCharge)
+  {
+    cachedMagneticField = theField->inTesla(theX);
   } // we must initialize cache to non-NAN to avoid FPE
 
   /** Constructing class from global position, direction (unit length) 
@@ -91,7 +93,9 @@ public:
    *  counterclockwise rotation of the track with respect to the global z-axis.
    */
 
-  float transverseCurvature() const;
+  float transverseCurvature() const {
+    return -2.99792458e-3f * signedInverseTransverseMomentum() * cachedMagneticField.z();
+  }
 
   /** Vector whose first three elements are the global position coordinates and
    *  whose last three elements are the global momentum coordinates.
@@ -110,6 +114,10 @@ public:
 
  
   GlobalVector magneticFieldInInverseGeV( const GlobalPoint& x) const; 
+  GlobalVector magneticFieldInInverseGeV() const {
+    return 2.99792458e-3f * cachedMagneticField;
+  }
+
   const MagneticField& magneticField() const {return *theField;}
 
 
@@ -117,10 +125,8 @@ private:
   const MagneticField* theField;
   GlobalPoint theX;
   GlobalVector theP;
-  mutable float cachedCurvature_;
+  GlobalVector cachedMagneticField;
   signed char  theCharge;
-  mutable bool hasCurvature_; 
-  //mutable bool hasMagneticField_; mutable GlobalVector cachedMagneticField_; // 
 
 };
 
