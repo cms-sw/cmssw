@@ -122,7 +122,7 @@ void L1CaloClusterEGIsolator::algorithm( const int &trigEta, const int &trigPhi,
       newCluster.setIsoEmAndHadEtEG(emIsolEt,hadIsolEt);  
 
       int nrTowers = caloTowersHandle_->size(); //we are using this as a proxy for rho for now. this will change
-      int rho = nrTowers/20; //it seems to work, although at 140 PU it may not
+      int rho = nrTowers/40; //it seems to work, although at 140 PU it may not
       if(emIsolEt+hadIsolEt-rho <=isolEtCut_) newCluster.setIsoEG(true);
       outputColl.insert(newCluster.iEta(),newCluster.iPhi(),newCluster);
     }
@@ -160,13 +160,19 @@ int L1CaloClusterEGIsolator::egEcalIsolation(int iEta,int iPhi)const
   }
   
   int isolEmEt=0;
-  //now loop over +/-4 towers in eta phi (be carefull in the endcap)
-  for(int etaNr=-4;etaNr<=4;etaNr++){
+  //now loop over +/-2 towers in eta and +/-4 in phi (be carefull in the endcap)
+  for(int etaNr=-2;etaNr<=2;etaNr++){
     int towerIEta = L1TowerNav::getOffsetIEta(leadTowerIEta,etaNr);
     if(abs(towerIEta)>maxTowerIEta_) continue; //outside allowed eta region (aka likely HF in normal config)
-    if(towerIEta==iEta || towerIEta==L1TowerNav::getOffsetIEta(iEta,1)) continue; //eta veto region
+
     for(int phiNr=-4;phiNr<=4;phiNr++){
       int towerIPhi = L1TowerNav::getOffsetIPhi(towerIEta,leadTowerIPhi,phiNr);
+      
+      //vetoing +/-2 in phi from leadTower and iEta = cluster which is towerIEta and towerIEta+1
+      if(abs(phiNr)<=2){
+	if(towerIEta==iEta) continue;
+	if(towerIEta==L1TowerNav::getOffsetIEta(iEta,1)) continue; //eta veto region
+      }
       l1slhc::L1CaloTowerCollection::const_iterator towerIt = caloTowersHandle_->find(towerIEta,towerIPhi);
       if(towerIt!=caloTowersHandle_->end()) isolEmEt+=towerIt->E();
     }//end phi loop
@@ -206,9 +212,11 @@ int L1CaloClusterEGIsolator::egHcalIsolation(int iEta,int iPhi)const
   
   // std::cout <<"iEta "<<iEta<<" iPhi "<<iPhi<<" lead tower eta "<<leadTowerIEta <<" phi "<<leadTowerIPhi<<std::endl;
 
+  
+
   int isolHadEt=0;
-  //now loop over +/-4 towers in eta phi (be carefull in the endcap)
-  for(int etaNr=-4;etaNr<=4;etaNr++){
+  //now loop over +/-2 towers in eta and +/- 4 in phi (be carefull in the endcap)
+  for(int etaNr=-2;etaNr<=2;etaNr++){
     int towerIEta = L1TowerNav::getOffsetIEta(leadTowerIEta,etaNr);
     if(abs(towerIEta)>maxTowerIEta_) continue; //outside allowed eta region (aka likely HF in normal config)
     for(int phiNr=-4;phiNr<=4;phiNr++){
@@ -216,9 +224,10 @@ int L1CaloClusterEGIsolator::egHcalIsolation(int iEta,int iPhi)const
 
       //    std::cout <<"towerIEta "<<towerIEta<<" towerIPhi "<<towerIPhi<<" iphi "<<iPhi<<" offset iphi "<<L1TowerNav::getOffsetIPhi(iEta,iPhi,phiNr)<<std::endl;
 
-      //somewhat confusing, should just be checking if the tower in is in the 2x2 of the cluster for which iEta,iPhi is lower left of
-      if(towerIEta==iEta && (towerIPhi==iPhi || towerIPhi==L1TowerNav::getOffsetIPhi(iEta,iPhi,1))) continue; //eta veto region
-      if(towerIEta==L1TowerNav::getOffsetIEta(iEta,1) && (towerIPhi==iPhi || towerIPhi==L1TowerNav::getOffsetIPhi(L1TowerNav::getOffsetIEta(iEta,1),iPhi,1))) continue;
+      //somewhat confusing, should just be checking if the tower in is in the 1x2 of the cluster with eta = leadTower, its below leadTower for -ve eta, above lead Tower for +ve eta
+      int localPhiVeto = iEta>0 ? 1 : -1;
+      if(etaNr==0 && (phiNr==0 || phiNr==localPhiVeto)) continue; //eta veto region
+      
       l1slhc::L1CaloTowerCollection::const_iterator towerIt = caloTowersHandle_->find(towerIEta,towerIPhi);
    
       if(towerIt!=caloTowersHandle_->end()) isolHadEt+=towerIt->H();
