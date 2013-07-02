@@ -34,6 +34,7 @@
 #include "TTree.h"
 
 #include <iomanip>
+#include <sstream>
 #include <memory>
 
 using namespace std;
@@ -75,8 +76,12 @@ struct MyTrackChamberDelta
   Float_t deta_lct_pad;
 };
 
+
 struct MyTrackEff
 {
+  void init(); // initialize to default values
+  TTree* book(TTree *t, const std::string & name = "trk_eff");
+
   Float_t pt, eta, phi;
   Char_t charge;
   Char_t endcap;
@@ -102,6 +107,8 @@ struct MyTrackEff
   Float_t phi_lct_even;
   Float_t eta_lct_odd;
   Float_t eta_lct_even;
+  Float_t dphi_lct_odd; // dphi stored as data member in LCT
+  Float_t dphi_lct_even;
 
   Char_t has_gem_sh; // bit1: in odd, bit2: even
   Char_t has_gem_sh2; // has SimHits in 2 layers  bit1: in odd, bit2: even
@@ -132,6 +139,123 @@ struct MyTrackEff
 };
 
 
+void MyTrackEff::init()
+{
+  pt = 0.;
+  phi = 0.;
+  eta = -9.;
+  charge = -9;
+  endcap = -9;
+  chamber_odd = 0;
+  chamber_even = 0;
+
+  has_csc_sh = 0;
+  has_csc_strips = 0;
+  has_csc_wires = 0;
+  has_lct = 0;
+  bend_lct_odd = -9;
+  bend_lct_even = -9;
+  bx_lct_odd = -9;
+  bx_lct_even = -9;
+  hs_lct_odd = 0;
+  hs_lct_even = 0;
+  phi_lct_odd = -9.;
+  phi_lct_even = -9.;
+  eta_lct_odd = -9.;
+  eta_lct_even = -9.;
+  dphi_lct_odd = -9.;
+  dphi_lct_even = -9.;
+
+  has_gem_sh = 0;
+  has_gem_sh2 = 0;
+  has_gem_dg = 0;
+  has_gem_dg2 = 0;
+  has_gem_pad = 0;
+  has_gem_pad2 = 0;
+  has_gem_copad = 0;
+  strip_gemsh_odd = -9.;
+  strip_gemsh_even = -9.;
+  eta_gemsh_odd = -9.;
+  eta_gemsh_even = -9.;
+  strip_gemdg_odd = -9;
+  strip_gemdg_even = -9;
+
+  bx_pad_odd = -9;
+  bx_pad_even = -9;
+  phi_pad_odd = -9.;
+  phi_pad_even = -9.;
+  eta_pad_odd = -9.;
+  eta_pad_even = -9.;
+  dphi_pad_odd = -9.;
+  dphi_pad_even = -9.;
+  deta_pad_odd = -9.;
+  deta_pad_even = -9.;
+}
+
+
+TTree* MyTrackEff::book(TTree *t, const std::string & name)
+{
+  edm::Service< TFileService > fs;
+  t = fs->make<TTree>(name.c_str(), name.c_str());
+
+  t->Branch("pt", &pt);
+  t->Branch("eta", &eta);
+  t->Branch("phi", &phi);
+  t->Branch("charge", &charge);
+  t->Branch("endcap", &endcap);
+  t->Branch("chamber_odd", &chamber_odd);
+  t->Branch("chamber_even", &chamber_even);
+  t->Branch("has_csc_sh", &has_csc_sh);
+  t->Branch("has_csc_strips", &has_csc_strips);
+  t->Branch("has_csc_wires", &has_csc_wires);
+  //t->Branch("has_clct", &has_clct);
+  //t->Branch("has_alct", &has_alct);
+  t->Branch("has_lct", &has_lct);
+  t->Branch("bend_lct_odd", &bend_lct_odd);
+  t->Branch("bend_lct_even", &bend_lct_even);
+  t->Branch("bx_lct_odd", &bx_lct_odd);
+  t->Branch("bx_lct_even", &bx_lct_even);
+  t->Branch("hs_lct_odd", &hs_lct_odd);
+  t->Branch("hs_lct_even", &hs_lct_even);
+  t->Branch("phi_lct_odd", &phi_lct_odd);
+  t->Branch("phi_lct_even", &phi_lct_even);
+  t->Branch("eta_lct_odd", &eta_lct_odd);
+  t->Branch("eta_lct_even", &eta_lct_even);
+  t->Branch("dphi_lct_odd", &dphi_lct_odd);
+  t->Branch("dphi_lct_even", &dphi_lct_even);
+
+  t->Branch("has_gem_sh", &has_gem_sh);
+  t->Branch("has_gem_sh2", &has_gem_sh2);
+  t->Branch("has_gem_dg", &has_gem_dg);
+  t->Branch("has_gem_dg2", &has_gem_dg2);
+  t->Branch("has_gem_pad", &has_gem_pad);
+  t->Branch("has_gem_pad2", &has_gem_pad2);
+  t->Branch("has_gem_copad", &has_gem_copad);
+  t->Branch("strip_gemsh_odd", &strip_gemsh_odd);
+  t->Branch("strip_gemsh_even", &strip_gemsh_even);
+  t->Branch("eta_gemsh_odd", &eta_gemsh_odd);
+  t->Branch("eta_gemsh_even", &eta_gemsh_even);
+  t->Branch("strip_gemdg_odd", &strip_gemdg_odd);
+  t->Branch("strip_gemdg_even", &strip_gemdg_even);
+
+  t->Branch("bx_pad_odd", &bx_pad_odd);
+  t->Branch("bx_pad_even", &bx_pad_even);
+  t->Branch("phi_pad_odd", &phi_pad_odd);
+  t->Branch("phi_pad_even", &phi_pad_even);
+  t->Branch("eta_pad_odd", &eta_pad_odd);
+  t->Branch("eta_pad_even", &eta_pad_even);
+  t->Branch("dphi_pad_odd", &dphi_pad_odd);
+  t->Branch("dphi_pad_even", &dphi_pad_even);
+  t->Branch("deta_pad_odd", &deta_pad_odd);
+  t->Branch("deta_pad_even", &deta_pad_even);
+
+  //t->Branch("", &);
+  
+  return t;
+}
+
+// --------------------------- GEMCSCAnalyzer ---------------------------
+
 class GEMCSCAnalyzer : public edm::EDAnalyzer
 {
 public:
@@ -149,7 +273,6 @@ public:
 private:
   
   void bookSimTracksDeltaTree();
-  void bookSimTracksEffTree();
 
   void analyzeTrackChamberDeltas(SimTrackMatchManager& match, int trk_no);
   void analyzeTrackEff(SimTrackMatchManager& match, int trk_no);
@@ -162,11 +285,12 @@ private:
   int verbose_;
   bool ntupleTrackChamberDelta_;
   bool ntupleTrackEff_;
+  std::set<int> stations_to_use_;
 
-  TTree* tree_eff_;
-  TTree* tree_delta_;
+  TTree *tree_eff_[5]; // for up to 4 stations
+  TTree *tree_delta_;
   
-  MyTrackEff  etrk_;
+  MyTrackEff  etrk_[5];
   MyTrackChamberDelta dtrk_;
 };
 
@@ -180,7 +304,17 @@ GEMCSCAnalyzer::GEMCSCAnalyzer(const edm::ParameterSet& ps)
 , ntupleTrackEff_(ps.getUntrackedParameter<bool>("ntupleTrackEff", true))
 {
   if (ntupleTrackChamberDelta_) bookSimTracksDeltaTree();
-  if (ntupleTrackEff_) bookSimTracksEffTree();
+  if (ntupleTrackEff_)
+  {
+    vector<int> stations = ps.getParameter<vector<int> >("stationsToUse");
+    copy(stations.begin(), stations.end(), inserter(stations_to_use_, stations_to_use_.end()) );
+    for(auto s: stations_to_use_)
+    {
+      stringstream ss;
+      ss << "trk_eff_st"<< s;
+      tree_eff_[s] = etrk_[s].book(tree_eff_[s], ss.str());
+    }
+  }
 }
 
 
@@ -279,64 +413,31 @@ void GEMCSCAnalyzer::analyzeTrackEff(SimTrackMatchManager& match, int trk_no)
   const CSCStubMatcher& match_lct = match.cscStubs();
   const SimTrack &t = match_sh.trk();
 
-  etrk_.pt = t.momentum().pt();
-  etrk_.phi = t.momentum().phi();
-  etrk_.eta = t.momentum().eta();
-  etrk_.charge = t.charge();
-  etrk_.endcap = (etrk_.eta > 0.) ? 1 : -1;
 
-  etrk_.has_csc_sh = 0;
-  etrk_.has_csc_strips = 0;
-  etrk_.has_csc_wires = 0;
-  etrk_.has_lct = 0;
-  etrk_.bend_lct_odd = -9;
-  etrk_.bend_lct_even = -9;
-  etrk_.bx_lct_odd = -9;
-  etrk_.bx_lct_even = -9;
-  etrk_.hs_lct_odd = 0;
-  etrk_.hs_lct_even = 0;
-  etrk_.phi_lct_odd = -9.;
-  etrk_.phi_lct_even = -9.;
-  etrk_.eta_lct_odd = -9.;
-  etrk_.eta_lct_even = -9.;
+  for (auto s: stations_to_use_)
+  {
+    etrk_[s].init();
 
-  etrk_.has_gem_sh = 0;
-  etrk_.has_gem_sh2 = 0;
-  etrk_.has_gem_dg = 0;
-  etrk_.has_gem_dg2 = 0;
-  etrk_.has_gem_pad = 0;
-  etrk_.has_gem_pad2 = 0;
-  etrk_.has_gem_copad = 0;
-  etrk_.strip_gemsh_odd = -9.;
-  etrk_.strip_gemsh_even = -9.;
-  etrk_.eta_gemsh_odd = -9.;
-  etrk_.eta_gemsh_even = -9.;
-  etrk_.strip_gemdg_odd = -9;
-  etrk_.strip_gemdg_even = -9;
+    etrk_[s].pt = t.momentum().pt();
+    etrk_[s].phi = t.momentum().phi();
+    etrk_[s].eta = t.momentum().eta();
+    etrk_[s].charge = t.charge();
+    etrk_[s].endcap = (etrk_[s].eta > 0.) ? 1 : -1;
+  }
 
-  etrk_.bx_pad_odd = -9;
-  etrk_.bx_pad_even = -9;
-  etrk_.phi_pad_odd = -9.;
-  etrk_.phi_pad_even = -9.;
-  etrk_.eta_pad_odd = -9.;
-  etrk_.eta_pad_even = -9.;
-  etrk_.dphi_pad_odd = -9.;
-  etrk_.dphi_pad_even = -9.;
-  etrk_.deta_pad_odd = -9.;
-  etrk_.deta_pad_even = -9.;
-
-  etrk_.chamber_odd = 0;
-  etrk_.chamber_even = 0;
-
-  auto csc_ch_ids = match_sh.chamberIdsCSC();
+  // SimHits
+  auto csc_ch_ids = match_sh.chamberIdsCSC(0);
   for(auto d: csc_ch_ids)
   {
     CSCDetId id(d);
+    int st = id.station();
+    if (stations_to_use_.count(st) == 0) continue;
+
     int nlayers = match_sh.nLayersWithHitsInSuperChamber(d);
     if (nlayers < 4) continue;
 
-    if (id.chamber() & 1) etrk_.has_csc_sh |= 1;
-    else etrk_.has_csc_sh |= 2;
+    if (id.chamber() & 1) etrk_[st].has_csc_sh |= 1;
+    else etrk_[st].has_csc_sh |= 2;
 
     //const auto& hits = match_sh.hitsInChamber(d);
     //auto gp = match_sh.simHitsMeanPosition(hits);
@@ -344,41 +445,60 @@ void GEMCSCAnalyzer::analyzeTrackEff(SimTrackMatchManager& match, int trk_no)
     //cout<<"DBGCSC "<<id.endcap()<<" "<<id.chamber()<<" "<<gp.eta()<<" "<<mean_strip<<endl;
   }
 
-  csc_ch_ids = match_cd.chamberIdsStrip();
+  // CSC strip digis
+  csc_ch_ids = match_cd.chamberIdsStrip(0);
   for(auto d: csc_ch_ids)
   {
     CSCDetId id(d);
+    int st = id.station();
+    if (stations_to_use_.count(st) == 0) continue;
+
     int nlayers = match_cd.nLayersWithStripInChamber(d);
     if (nlayers < 4) continue;
 
-    if (id.chamber() & 1) etrk_.has_csc_strips |= 1;
-    else etrk_.has_csc_strips |= 2;
+    if (id.chamber() & 1) etrk_[st].has_csc_strips |= 1;
+    else etrk_[st].has_csc_strips |= 2;
   }
 
-  csc_ch_ids = match_cd.chamberIdsWire();
+  // CSC wire digis
+  csc_ch_ids = match_cd.chamberIdsWire(0.);
   for(auto d: csc_ch_ids)
   {
     CSCDetId id(d);
+    int st = id.station();
+    if (stations_to_use_.count(st) == 0) continue;
+
     int nlayers = match_cd.nLayersWithWireInChamber(d);
     if (nlayers < 4) continue;
 
-    if (id.chamber() & 1) etrk_.has_csc_wires |= 1;
-    else etrk_.has_csc_wires |= 2;
+    if (id.chamber() & 1) etrk_[st].has_csc_wires |= 1;
+    else etrk_[st].has_csc_wires |= 2;
   }
 
-  Digi lct_odd = make_digi();
-  Digi lct_even = make_digi();
-  GlobalPoint gp_lct_odd;
-  GlobalPoint gp_lct_even;
+  // holders for track's LCTs
+  Digi lct_odd[5];
+  Digi lct_even[5];
+  GlobalPoint gp_lct_odd[5];
+  GlobalPoint gp_lct_even[5];
+  for (auto s: stations_to_use_)
+  {
+    lct_odd[s] = make_digi();
+    lct_even[s] = make_digi();
+  }
 
-  csc_ch_ids = match_lct.chamberIdsLCT();
+  // LCT stubs
+  csc_ch_ids = match_lct.chamberIdsLCT(0);
   for(auto d: csc_ch_ids)
   {
     CSCDetId id(d);
+    int st = id.station();
+    //cout<<"LCT st "<<st<<endl;
+    if (stations_to_use_.count(st) == 0) continue;
+
     bool odd = id.chamber() & 1;
 
-    if (odd) etrk_.has_lct |= 1;
-    else etrk_.has_lct |= 2;
+    if (odd) etrk_[st].has_lct |= 1;
+    else etrk_[st].has_lct |= 2;
 
     auto lct = match_lct.lctInChamber(d);
 
@@ -392,119 +512,130 @@ void GEMCSCAnalyzer::analyzeTrackEff(SimTrackMatchManager& match, int trk_no)
 
     if (odd)
     {
-      lct_odd = lct;
-      gp_lct_odd = gp;
-      etrk_.bend_lct_odd = bend;
-      etrk_.phi_lct_odd = gp.phi();
-      etrk_.eta_lct_odd = gp.eta();
-      etrk_.bx_lct_odd = digi_bx(lct);
-      etrk_.hs_lct_odd = digi_channel(lct);
-      etrk_.chamber_odd |= 2;
+      lct_odd[st] = lct;
+      gp_lct_odd[st] = gp;
+      etrk_[st].bend_lct_odd = bend;
+      etrk_[st].phi_lct_odd = gp.phi();
+      etrk_[st].eta_lct_odd = gp.eta();
+      etrk_[st].dphi_lct_odd = digi_dphi(lct);
+      etrk_[st].bx_lct_odd = digi_bx(lct);
+      etrk_[st].hs_lct_odd = digi_channel(lct);
+      etrk_[st].chamber_odd |= 2;
     }
     else
     {
-      lct_even = lct;
-      gp_lct_even = gp;
-      etrk_.bend_lct_even = bend;
-      etrk_.phi_lct_even = gp.phi();
-      etrk_.eta_lct_even = gp.eta();
-      etrk_.bx_lct_even = digi_bx(lct);
-      etrk_.hs_lct_even = digi_channel(lct);
-      etrk_.chamber_even |= 2;
+      lct_even[st] = lct;
+      gp_lct_even[st] = gp;
+      etrk_[st].bend_lct_even = bend;
+      etrk_[st].phi_lct_even = gp.phi();
+      etrk_[st].eta_lct_even = gp.eta();
+      etrk_[st].dphi_lct_even = digi_dphi(lct);
+      etrk_[st].bx_lct_even = digi_bx(lct);
+      etrk_[st].hs_lct_even = digi_channel(lct);
+      etrk_[st].chamber_even |= 2;
     }
   }
 
+  // GEM simhits in superchamber
   auto gem_superch_ids = match_sh.superChamberIdsGEM();
   for(auto d: gem_superch_ids)
   {
     GEMDetId id(d);
+    int st = id.station();
+    if (stations_to_use_.count(st) == 0) continue;
+
     bool odd = id.chamber() & 1;
 
     if (match_sh.hitsInSuperChamber(d).size() > 0)
     {
-      if (odd) etrk_.has_gem_sh |= 1;
-      else etrk_.has_gem_sh |= 2;
+      if (odd) etrk_[st].has_gem_sh |= 1;
+      else     etrk_[st].has_gem_sh |= 2;
 
       auto sh_gp = match_sh.simHitsMeanPosition(match_sh.hitsInSuperChamber(d));
-      if (odd) etrk_.eta_gemsh_odd = sh_gp.eta();
-      else etrk_.eta_gemsh_even = sh_gp.eta();
+      if (odd) etrk_[st].eta_gemsh_odd = sh_gp.eta();
+      else     etrk_[st].eta_gemsh_even = sh_gp.eta();
 
       float mean_strip = match_sh.simHitsMeanStrip(match_sh.hitsInSuperChamber(d));
-      if (odd) etrk_.strip_gemsh_odd = mean_strip;
-      else etrk_.strip_gemsh_even = mean_strip;
+      if (odd) etrk_[st].strip_gemsh_odd = mean_strip;
+      else     etrk_[st].strip_gemsh_even = mean_strip;
     }
 
     if (match_sh.nLayersWithHitsInSuperChamber(d) > 1)
     {
-      if (odd) etrk_.has_gem_sh2 |= 1;
-      else etrk_.has_gem_sh2 |= 2;
+      if (odd) etrk_[st].has_gem_sh2 |= 1;
+      else     etrk_[st].has_gem_sh2 |= 2;
     }
   }
 
-  GlobalPoint best_pad_odd;
-  GlobalPoint best_pad_even;
+  // placeholders for best mtching pads
+  GlobalPoint best_pad_odd[5];
+  GlobalPoint best_pad_even[5];
 
+  // GEM digis and pads in superchambers
   gem_superch_ids = match_gd.superChamberIds();
   for(auto d: gem_superch_ids)
   {
     GEMDetId id(d);
+    int st = id.station();
+    if (stations_to_use_.count(st) == 0) continue;
+
     bool odd = id.chamber() & 1;
 
     if (match_gd.nLayersWithDigisInSuperChamber(d) > 1)
     {
-      if (odd) etrk_.has_gem_dg2 |= 1;
-      else etrk_.has_gem_dg2 |= 2;
+      if (odd) etrk_[st].has_gem_dg2 |= 1;
+      else     etrk_[st].has_gem_dg2 |= 2;
     }
 
     auto digis = match_gd.digisInSuperChamber(d);
     int median_strip = match_gd.median(digis);
     if (odd && digis.size() > 0)
     {
-      etrk_.has_gem_dg |= 1;
-      etrk_.strip_gemdg_odd = median_strip;
+      etrk_[st].has_gem_dg |= 1;
+      etrk_[st].strip_gemdg_odd = median_strip;
     }
     else if (digis.size() > 0)
     {
-      etrk_.has_gem_dg |= 2;
-      etrk_.strip_gemdg_even = median_strip;
+      etrk_[st].has_gem_dg |= 2;
+      etrk_[st].strip_gemdg_even = median_strip;
     }
 
     if (match_gd.nLayersWithPadsInSuperChamber(d) > 1)
     {
-      if (odd) etrk_.has_gem_pad2 |= 1;
-      else etrk_.has_gem_pad2 |= 2;
+      if (odd) etrk_[st].has_gem_pad2 |= 1;
+      else     etrk_[st].has_gem_pad2 |= 2;
     }
 
     auto pads = match_gd.padsInSuperChamber(d);
     if(pads.size() == 0) continue;
     if (odd)
     {
-      etrk_.has_gem_pad |= 1;
-      etrk_.chamber_odd |= 1;
-      if (is_valid(lct_odd))
+      etrk_[st].has_gem_pad |= 1;
+      etrk_[st].chamber_odd |= 1;
+      if (is_valid(lct_odd[st]))
       {
-        auto gem_dg_and_gp = match_gd.digiInGEMClosestToCSC(pads, gp_lct_odd);
-        best_pad_odd = gem_dg_and_gp.second;
-        etrk_.bx_pad_odd = digi_bx(gem_dg_and_gp.first);
-        etrk_.phi_pad_odd = best_pad_odd.phi();
-        etrk_.eta_pad_odd = best_pad_odd.eta();
-        etrk_.dphi_pad_odd = deltaPhi(etrk_.phi_lct_odd, etrk_.phi_pad_odd);
-        etrk_.deta_pad_odd = etrk_.eta_lct_odd - etrk_.eta_pad_odd;
+        auto gem_dg_and_gp = match_gd.digiInGEMClosestToCSC(pads, gp_lct_odd[st]);
+        best_pad_odd[st] = gem_dg_and_gp.second;
+        etrk_[st].bx_pad_odd = digi_bx(gem_dg_and_gp.first);
+        etrk_[st].phi_pad_odd = best_pad_odd[st].phi();
+        etrk_[st].eta_pad_odd = best_pad_odd[st].eta();
+        etrk_[st].dphi_pad_odd = deltaPhi(etrk_[st].phi_lct_odd, etrk_[st].phi_pad_odd);
+        etrk_[st].deta_pad_odd = etrk_[st].eta_lct_odd - etrk_[st].eta_pad_odd;
       }
     }
     else
     {
-      etrk_.has_gem_pad |= 2;
-      etrk_.chamber_even |= 1;
-      if (is_valid(lct_even))
+      etrk_[st].has_gem_pad |= 2;
+      etrk_[st].chamber_even |= 1;
+      if (is_valid(lct_even[st]))
       {
-        auto gem_dg_and_gp = match_gd.digiInGEMClosestToCSC(pads, gp_lct_even);
-        best_pad_even = gem_dg_and_gp.second;
-        etrk_.bx_pad_even = digi_bx(gem_dg_and_gp.first);
-        etrk_.phi_pad_even = best_pad_even.phi();
-        etrk_.eta_pad_even = best_pad_even.eta();
-        etrk_.dphi_pad_even = deltaPhi(etrk_.phi_lct_even, etrk_.phi_pad_even);
-        etrk_.deta_pad_even = etrk_.eta_lct_even - etrk_.eta_pad_even;
+        auto gem_dg_and_gp = match_gd.digiInGEMClosestToCSC(pads, gp_lct_even[st]);
+        best_pad_even[st] = gem_dg_and_gp.second;
+        etrk_[st].bx_pad_even = digi_bx(gem_dg_and_gp.first);
+        etrk_[st].phi_pad_even = best_pad_even[st].phi();
+        etrk_[st].eta_pad_even = best_pad_even[st].eta();
+        etrk_[st].dphi_pad_even = deltaPhi(etrk_[st].phi_lct_even, etrk_[st].phi_pad_even);
+        etrk_[st].deta_pad_even = etrk_[st].eta_lct_even - etrk_[st].eta_pad_even;
       }
     }
   }
@@ -513,13 +644,21 @@ void GEMCSCAnalyzer::analyzeTrackEff(SimTrackMatchManager& match, int trk_no)
   for(auto d: gem_superch_ids)
   {
     GEMDetId id(d);
+    int st = id.station();
+    if (stations_to_use_.count(st) == 0) continue;
+
     bool odd = id.chamber() & 1;
-    if (odd) etrk_.has_gem_copad |= 1;
-    else etrk_.has_gem_copad |= 2;
+    if (odd) etrk_[st].has_gem_copad |= 1;
+    else     etrk_[st].has_gem_copad |= 2;
   }
 
-  tree_eff_->Fill();
+  for (auto s: stations_to_use_)
+  {
+    tree_eff_[s]->Fill();
+  }
 }
+
+
 
 void GEMCSCAnalyzer::analyzeTrackChamberDeltas(SimTrackMatchManager& match, int trk_no)
 {
@@ -832,61 +971,6 @@ void GEMCSCAnalyzer::bookSimTracksDeltaTree()
   //tree_delta_->Branch("", &dtrk_.);
 }
 
-void GEMCSCAnalyzer::bookSimTracksEffTree()
-{
-  edm::Service< TFileService > fs;
-  tree_eff_ = fs->make<TTree>("trk_eff", "trk_eff");
-  tree_eff_->Branch("pt", &etrk_.pt);
-  tree_eff_->Branch("eta", &etrk_.eta);
-  tree_eff_->Branch("phi", &etrk_.phi);
-  tree_eff_->Branch("charge", &etrk_.charge);
-  tree_eff_->Branch("endcap", &etrk_.endcap);
-  tree_eff_->Branch("chamber_odd", &etrk_.chamber_odd);
-  tree_eff_->Branch("chamber_even", &etrk_.chamber_even);
-  tree_eff_->Branch("has_csc_sh", &etrk_.has_csc_sh);
-  tree_eff_->Branch("has_csc_strips", &etrk_.has_csc_strips);
-  tree_eff_->Branch("has_csc_wires", &etrk_.has_csc_wires);
-  //tree_eff_->Branch("has_clct", &etrk_.has_clct);
-  //tree_eff_->Branch("has_alct", &etrk_.has_alct);
-  tree_eff_->Branch("has_lct", &etrk_.has_lct);
-  tree_eff_->Branch("bend_lct_odd", &etrk_.bend_lct_odd);
-  tree_eff_->Branch("bend_lct_even", &etrk_.bend_lct_even);
-  tree_eff_->Branch("bx_lct_odd", &etrk_.bx_lct_odd);
-  tree_eff_->Branch("bx_lct_even", &etrk_.bx_lct_even);
-  tree_eff_->Branch("hs_lct_odd", &etrk_.hs_lct_odd);
-  tree_eff_->Branch("hs_lct_even", &etrk_.hs_lct_even);
-  tree_eff_->Branch("phi_lct_odd", &etrk_.phi_lct_odd);
-  tree_eff_->Branch("phi_lct_even", &etrk_.phi_lct_even);
-  tree_eff_->Branch("eta_lct_odd", &etrk_.eta_lct_odd);
-  tree_eff_->Branch("eta_lct_even", &etrk_.eta_lct_even);
-  tree_eff_->Branch("has_gem_sh", &etrk_.has_gem_sh);
-  tree_eff_->Branch("has_gem_sh2", &etrk_.has_gem_sh2);
-  tree_eff_->Branch("has_gem_dg", &etrk_.has_gem_dg);
-  tree_eff_->Branch("has_gem_dg2", &etrk_.has_gem_dg2);
-  tree_eff_->Branch("has_gem_pad", &etrk_.has_gem_pad);
-  tree_eff_->Branch("has_gem_pad2", &etrk_.has_gem_pad2);
-  tree_eff_->Branch("has_gem_copad", &etrk_.has_gem_copad);
-  tree_eff_->Branch("strip_gemsh_odd", &etrk_.strip_gemsh_odd);
-  tree_eff_->Branch("strip_gemsh_even", &etrk_.strip_gemsh_even);
-  tree_eff_->Branch("eta_gemsh_odd", &etrk_.eta_gemsh_odd);
-  tree_eff_->Branch("eta_gemsh_even", &etrk_.eta_gemsh_even);
-  tree_eff_->Branch("strip_gemdg_odd", &etrk_.strip_gemdg_odd);
-  tree_eff_->Branch("strip_gemdg_even", &etrk_.strip_gemdg_even);
-
-  tree_eff_->Branch("bx_pad_odd", &etrk_.bx_pad_odd);
-  tree_eff_->Branch("bx_pad_even", &etrk_.bx_pad_even);
-  tree_eff_->Branch("phi_pad_odd", &etrk_.phi_pad_odd);
-  tree_eff_->Branch("phi_pad_even", &etrk_.phi_pad_even);
-  tree_eff_->Branch("eta_pad_odd", &etrk_.eta_pad_odd);
-  tree_eff_->Branch("eta_pad_even", &etrk_.eta_pad_even);
-  tree_eff_->Branch("dphi_pad_odd", &etrk_.dphi_pad_odd);
-  tree_eff_->Branch("dphi_pad_even", &etrk_.dphi_pad_even);
-  tree_eff_->Branch("deta_pad_odd", &etrk_.deta_pad_odd);
-  tree_eff_->Branch("deta_pad_even", &etrk_.deta_pad_even);
-
-  //tree_eff_->Branch("", &etrk_.);
-}
-
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
 void GEMCSCAnalyzer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
@@ -898,3 +982,4 @@ void GEMCSCAnalyzer::fillDescriptions(edm::ConfigurationDescriptions& descriptio
 }
 
 DEFINE_FWK_MODULE(GEMCSCAnalyzer);
+
