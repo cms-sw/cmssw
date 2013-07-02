@@ -114,7 +114,7 @@ public:
 
 	    tracklets_[iSector].push_back(tracklet);
 
-	    if (1) {
+	    if (0) {
 	      static ofstream out("barreltracklets.txt");
 	      out << iSector<<" "<<stubs_[iSector].size()<<" "
 		  << jSector<<" "<<stubs_[jSector].size()<<" "
@@ -267,7 +267,7 @@ public:
 	    double rdeltaphi=r*deltaphi;
             double deltaz=z-zproj;
 
-	    if (1) {
+	    if (0) {
 	      static ofstream out("barrelmatch.txt");
 	      out << aTracklet.r()<<" "<<r<<" "<<rdeltaphi<<" "<<deltaz
 		       <<endl;
