@@ -113,8 +113,8 @@ private:
 
   // these configuration vectors have to have 10 elements corresponding to 10 chamber types
   // negative parameters values would mean chambers are not supposed to be used
-  std::vector<double> zOddGE21_;
-  std::vector<double> zEvenGE21_;
+  std::vector<double> zOddGEM_;
+  std::vector<double> zEvenGEM_;
   std::vector<double> phiSmearCSC_;
   std::vector<double> phiSmearGEM_;
 

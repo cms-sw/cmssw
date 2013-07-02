@@ -16,8 +16,8 @@ using namespace matching;
 
 
 FastGEMCSCBuilder::FastGEMCSCBuilder(const edm::ParameterSet& ps, CLHEP::HepRandomEngine& eng)
-: zOddGE21_(ps.getParameter<vector<double> >("zOddGE21"))
-, zEvenGE21_(ps.getParameter<vector<double> >("zEvenGE21"))
+: zOddGEM_(ps.getParameter<vector<double> >("zOddGEM"))
+, zEvenGEM_(ps.getParameter<vector<double> >("zEvenGEM"))
 , phiSmearCSC_(ps.getParameter<vector<double> >("phiSmearCSC"))
 , phiSmearGEM_(ps.getParameter<vector<double> >("phiSmearGEM"))
 , fitterXZ_(new TLinearFitter(1, "pol1"))
@@ -28,17 +28,17 @@ FastGEMCSCBuilder::FastGEMCSCBuilder(const edm::ParameterSet& ps, CLHEP::HepRand
   fitterYZ_->StoreData(1);
 
   // these configuration vectors have to have 1+10 elements corresponding to 10 chamber types
-  assert(zOddGE21_.size() == 11);
-  assert(zEvenGE21_.size() == 11);
+  assert(zOddGEM_.size() == 11);
+  assert(zEvenGEM_.size() == 11);
   assert(phiSmearCSC_.size() == 11);
   assert(phiSmearCSC_.size() == 11);
   // Sanity check: negative parameters values would mean chambers are not supposed to be used
   // non-used chamber types have to be the same between all the vectors
   for (int i=1; i<11; ++i)
   {
-    if (zOddGE21_[i] < 0.)
+    if (zOddGEM_[i] < 0.)
     {
-      assert(zEvenGE21_[i] < 0. && phiSmearCSC_[i] < 0. && phiSmearCSC_[i] < 0.);
+      assert(zEvenGEM_[i] < 0. && phiSmearCSC_[i] < 0. && phiSmearCSC_[i] < 0.);
     }
   }
 }
@@ -77,12 +77,12 @@ void FastGEMCSCBuilder::build(const SimHitMatcher& match_sh)
     // --- determine the z-position of gem
     double z_gem;
     if (odd) {
-      if (id.endcap() == 1) z_gem =  zOddGE21_[ch_type];
-      else                  z_gem = -zOddGE21_[ch_type];
+      if (id.endcap() == 1) z_gem =  zOddGEM_[ch_type];
+      else                  z_gem = -zOddGEM_[ch_type];
     }
     else {
-      if (id.endcap() == 1) z_gem =  zEvenGE21_[ch_type];
-      else                  z_gem = -zEvenGE21_[ch_type];
+      if (id.endcap() == 1) z_gem =  zEvenGEM_[ch_type];
+      else                  z_gem = -zEvenGEM_[ch_type];
     }
 
     SimStub stub(z_gem);

@@ -1,4 +1,4 @@
-/**\class FastGE21CSCProducer
+/**\class FastGEMCSCProducer
 
  Description:
 
@@ -50,13 +50,13 @@ enum {CSC_ALL = 0, CSC_ME1a, CSC_ME1b, CSC_ME12, CSC_ME13,
       CSC_ME21, CSC_ME22, CSC_ME31, CSC_ME32, CSC_ME41, CSC_ME42};
 
 
-class FastGE21CSCProducer : public edm::EDProducer
+class FastGEMCSCProducer : public edm::EDProducer
 {
 public:
 
-  explicit FastGE21CSCProducer(const edm::ParameterSet&);
+  explicit FastGEMCSCProducer(const edm::ParameterSet&);
 
-  ~FastGE21CSCProducer() {}
+  ~FastGEMCSCProducer() {}
   
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
   
@@ -85,11 +85,11 @@ private:
 };
 
 
-FastGE21CSCProducer::FastGE21CSCProducer(const edm::ParameterSet& ps)
+FastGEMCSCProducer::FastGEMCSCProducer(const edm::ParameterSet& ps)
 : cfg_(ps.getParameterSet("simTrackMatching"))
 , simInputLabel_(ps.getUntrackedParameter<string>("simInputLabel", "g4SimHits"))
 , lctInput_(ps.getUntrackedParameter<edm::InputTag>("lctInput", edm::InputTag("simCscTriggerPrimitiveDigis", "MPCSORTED")))
-, productInstanceName_(ps.getUntrackedParameter<string>("productInstanceName", "FastGE21"))
+, productInstanceName_(ps.getUntrackedParameter<string>("productInstanceName", "FastGEM"))
 , minPt_(ps.getUntrackedParameter<double>("minPt", 4.5))
 , minEta_(ps.getUntrackedParameter<double>("minEta", 1.55))
 , maxEta_(ps.getUntrackedParameter<double>("maxEta", 2.4))
@@ -100,7 +100,7 @@ FastGE21CSCProducer::FastGE21CSCProducer(const edm::ParameterSet& ps)
   if ( ! rng.isAvailable())
   {
    throw cms::Exception("Configuration")
-     << "FastGE21CSCProducer::FastGE21CSCProducer() - RandomNumberGeneratorService is not present in configuration file.\n"
+     << "FastGEMCSCProducer::FastGEMCSCProducer() - RandomNumberGeneratorService is not present in configuration file.\n"
      << "Add the service in the configuration file or remove the modules that require it.";
   }
   CLHEP::HepRandomEngine& engine = rng->getEngine();
@@ -111,13 +111,13 @@ FastGE21CSCProducer::FastGE21CSCProducer(const edm::ParameterSet& ps)
 }
 
 
-void FastGE21CSCProducer::beginRun(edm::Run &iRun, edm::EventSetup const &iSetup)
+void FastGEMCSCProducer::beginRun(edm::Run &iRun, edm::EventSetup const &iSetup)
 {
   //
 }
 
 
-bool FastGE21CSCProducer::isSimTrackGood(const SimTrack &t)
+bool FastGEMCSCProducer::isSimTrackGood(const SimTrack &t)
 {
   // SimTrack selection
   if (t.noVertex()) return false;
@@ -130,7 +130,7 @@ bool FastGE21CSCProducer::isSimTrackGood(const SimTrack &t)
 }
 
 
-void FastGE21CSCProducer::produce(edm::Event& ev, const edm::EventSetup& es)
+void FastGEMCSCProducer::produce(edm::Event& ev, const edm::EventSetup& es)
 {
   edm::ESHandle<CSCGeometry> csc_g;
   es.get<MuonGeometryRecord>().get(csc_g);
@@ -181,7 +181,7 @@ void FastGE21CSCProducer::produce(edm::Event& ev, const edm::EventSetup& es)
 }
 
 
-void FastGE21CSCProducer::processStubs4SimTrack(map<unsigned int, vector<CSCCorrelatedLCTDigi> >& stubs, SimTrackMatchManager& match)
+void FastGEMCSCProducer::processStubs4SimTrack(map<unsigned int, vector<CSCCorrelatedLCTDigi> >& stubs, SimTrackMatchManager& match)
 {
   const SimHitMatcher& match_sh = match.simhits();
 
@@ -214,7 +214,7 @@ void FastGE21CSCProducer::processStubs4SimTrack(map<unsigned int, vector<CSCCorr
 
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
-void FastGE21CSCProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions)
+void FastGEMCSCProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions)
 {
   // The following says we do not know what parameters are allowed so do no validation
   // Please change this to state exactly what you do use, even if it is no parameters
@@ -223,4 +223,4 @@ void FastGE21CSCProducer::fillDescriptions(edm::ConfigurationDescriptions& descr
   descriptions.addDefault(desc);
 }
 
-DEFINE_FWK_MODULE(FastGE21CSCProducer);
+DEFINE_FWK_MODULE(FastGEMCSCProducer);

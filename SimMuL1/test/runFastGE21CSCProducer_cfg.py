@@ -23,34 +23,34 @@ process.load('Geometry.GEMGeometry.gemGeometry_cfi')
 #process.load('SimMuon.GEMDigitizer.muonGEMCSCPadDigis_cfi')
 
 # the analyzer configuration
-process.load('GEMCode.SimMuL1.FastGE21CSCProducer_cfi')
-#process.FastGE21CSCProducer.verbose = 2
-#process.FastGE21CSCProducer.createNtuple = cms.untracked.bool(False)
-#process.FastGE21CSCProducer.lctInput = cms.untracked.InputTag("simCscTriggerPrimitiveDigis", "MPCSORTED")
-#process.FastGE21CSCProducer.productInstanceName = cms.untracked.string("FastGE21")
-#process.FastGE21CSCProducer.minPt = 1.5
+process.load('GEMCode.SimMuL1.FastGEMCSCProducer_cfi')
+#process.FastGEMCSCProducer.verbose = 2
+#process.FastGEMCSCProducer.createNtuple = cms.untracked.bool(False)
+#process.FastGEMCSCProducer.lctInput = cms.untracked.InputTag("simCscTriggerPrimitiveDigis", "MPCSORTED")
+#process.FastGEMCSCProducer.productInstanceName = cms.untracked.string("FastGEM")
+#process.FastGEMCSCProducer.minPt = 1.5
 
-#process.FastGE21CSCProducer.cscType = cms.untracked.int32(5)
-#process.FastGE21CSCProducer.zOddGE21 = cms.untracked.double(798.3)
-#process.FastGE21CSCProducer.zEvenGE21 = cms.untracked.double(796.2)
+#process.FastGEMCSCProducer.cscType = cms.untracked.int32(5)
+#process.FastGEMCSCProducer.zOddGEM = cms.untracked.double(798.3)
+#process.FastGEMCSCProducer.zEvenGEM = cms.untracked.double(796.2)
 
-#process.FastGE21CSCProducer.cscType = cms.untracked.int32(2)
-#process.FastGE21CSCProducer.zOddGE21 = cms.untracked.double(569.7)
-#process.FastGE21CSCProducer.zEvenGE21 = cms.untracked.double(567.6)
-#process.FastGE21CSCProducer.simTrackMatching.useCSCChamberTypes = cms.untracked.vint32( 2, )
+#process.FastGEMCSCProducer.cscType = cms.untracked.int32(2)
+#process.FastGEMCSCProducer.zOddGEM = cms.untracked.double(569.7)
+#process.FastGEMCSCProducer.zEvenGEM = cms.untracked.double(567.6)
+#process.FastGEMCSCProducer.simTrackMatching.useCSCChamberTypes = cms.untracked.vint32( 2, )
 
-#process.FastGE21CSCProducer.phiSmearCSC = [-1.]*11
-#process.FastGE21CSCProducer.phiSmearGEM = [-1.]*11
+#process.FastGEMCSCProducer.phiSmearCSC = [-1.]*11
+#process.FastGEMCSCProducer.phiSmearGEM = [-1.]*11
 
-#process.FastGE21CSCProducer.simTrackMatching.verboseSimHit = 1
-#process.FastGE21CSCProducer.simTrackMatching.verboseCSCDigi = 1
-#process.FastGE21CSCProducer.simTrackMatching.verboseCSCStub = 1
-#process.FastGE21CSCProducer.simTrackMatching.simMuOnlyCSC = False
-#process.FastGE21CSCProducer.simTrackMatching.discardEleHitsCSC = False
+#process.FastGEMCSCProducer.simTrackMatching.verboseSimHit = 1
+#process.FastGEMCSCProducer.simTrackMatching.verboseCSCDigi = 1
+#process.FastGEMCSCProducer.simTrackMatching.verboseCSCStub = 1
+#process.FastGEMCSCProducer.simTrackMatching.simMuOnlyCSC = False
+#process.FastGEMCSCProducer.simTrackMatching.discardEleHitsCSC = False
 
 
 # extend the random generator service with our new producer:
-process.RandomNumberGeneratorService.FastGE21CSCProducer = cms.PSet(
+process.RandomNumberGeneratorService.FastGEMCSCProducer = cms.PSet(
     initialSeed = cms.untracked.uint32(1234567),
     engineName = cms.untracked.string('HepJamesRandom')
 )
@@ -79,7 +79,7 @@ process.FastGEMCSCAnalyzer = process.GEMCSCAnalyzer.clone()
 process.FastGEMCSCAnalyzer.stationsToUse = [1,2]
 process.FastGEMCSCAnalyzer.maxEta = 2.48
 process.FastGEMCSCAnalyzer.simTrackMatching.useCSCChamberTypes = [2, 5]
-process.FastGEMCSCAnalyzer.simTrackMatching.cscLCTInput = cms.untracked.InputTag("FastGE21CSCProducer","FastGEM")
+process.FastGEMCSCAnalyzer.simTrackMatching.cscLCTInput = cms.untracked.InputTag("FastGEMCSCProducer","FastGEM")
 
 
 
@@ -162,10 +162,10 @@ process.TFileService = cms.Service("TFileService",
 #process.contentAna = cms.EDAnalyzer("EventContentAnalyzer")
 
 
-#process.p = cms.Path( process.FastGE21CSCProducer + process.contentAna)
-#process.p = cms.Path( process.FastGE21CSCProducer)
-#process.p = cms.Path( process.simMuonGEMCSCPadDigis + process.GEMCSCAnalyzer + process.FastGE21CSCProducer + process.FastGEMCSCAnalyzer)
-process.p = cms.Path( process.simMuonGEMCSCPadDigis +  process.FastGE21CSCProducer + process.FastGEMCSCAnalyzer)
+#process.p = cms.Path( process.FastGEMCSCProducer + process.contentAna)
+#process.p = cms.Path( process.FastGEMCSCProducer)
+process.p = cms.Path( process.simMuonGEMCSCPadDigis + process.GEMCSCAnalyzer + process.FastGEMCSCProducer + process.FastGEMCSCAnalyzer)
+#process.p = cms.Path( process.simMuonGEMCSCPadDigis +  process.FastGEMCSCProducer + process.FastGEMCSCAnalyzer)
 
 #process.out_step  = cms.EndPath(process.output)
 
