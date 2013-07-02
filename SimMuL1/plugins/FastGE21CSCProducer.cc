@@ -93,7 +93,7 @@ FastGE21CSCProducer::FastGE21CSCProducer(const edm::ParameterSet& ps)
 , minPt_(ps.getUntrackedParameter<double>("minPt", 4.5))
 , minEta_(ps.getUntrackedParameter<double>("minEta", 1.55))
 , maxEta_(ps.getUntrackedParameter<double>("maxEta", 2.4))
-, usePropagatedDPhi_(ps.getUntrackedParameter<double>("usePropagatedDPhi", true))
+, usePropagatedDPhi_(ps.getUntrackedParameter<bool>("usePropagatedDPhi", true))
 , verbose_(ps.getUntrackedParameter<int>("verbose", 0))
 {
   edm::Service<edm::RandomNumberGenerator> rng;
