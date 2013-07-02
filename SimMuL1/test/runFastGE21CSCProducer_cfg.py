@@ -77,6 +77,7 @@ process.GEMCSCAnalyzer.minPt = 1.5
 
 process.FastGEMCSCAnalyzer = process.GEMCSCAnalyzer.clone()
 process.FastGEMCSCAnalyzer.stationsToUse = [1,2]
+process.FastGEMCSCAnalyzer.maxEta = 2.48
 process.FastGEMCSCAnalyzer.simTrackMatching.useCSCChamberTypes = [2, 5]
 process.FastGEMCSCAnalyzer.simTrackMatching.cscLCTInput = cms.untracked.InputTag("FastGE21CSCProducer","FastGEM")
 
@@ -122,7 +123,7 @@ inputDir = dir_pt5  ; ntupleFile = 'fast_ge21_pt5_sharp.root'
 inputDir = dir_pt20 ; ntupleFile = 'fast_ge21_pt20_sharp.root'
 
 inputDir = dir_pt5  ; ntupleFile = 'fast_ge21_pt5_smear.root'
-#inputDir = dir_pt20 ; ntupleFile = 'fast_ge21_pt20_smear.root'
+inputDir = dir_pt20 ; ntupleFile = 'fast_ge21_pt20_smear.root'
 
 
 #inputDir = dir_pt15  ; ntupleFile = 'fast_ge21_pt15.root'

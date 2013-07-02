@@ -282,6 +282,8 @@ private:
   edm::ParameterSet cfg_;
   std::string simInputLabel_;
   float minPt_;
+  float minEta_;
+  float maxEta_;
   int verbose_;
   bool ntupleTrackChamberDelta_;
   bool ntupleTrackEff_;
@@ -299,6 +301,8 @@ GEMCSCAnalyzer::GEMCSCAnalyzer(const edm::ParameterSet& ps)
 : cfg_(ps.getParameterSet("simTrackMatching"))
 , simInputLabel_(ps.getUntrackedParameter<std::string>("simInputLabel", "g4SimHits"))
 , minPt_(ps.getUntrackedParameter<double>("minPt", 4.5))
+, minEta_(ps.getUntrackedParameter<double>("minEta", 1.55))
+, maxEta_(ps.getUntrackedParameter<double>("maxEta", 2.18))
 , verbose_(ps.getUntrackedParameter<int>("verbose", 0))
 , ntupleTrackChamberDelta_(ps.getUntrackedParameter<bool>("ntupleTrackChamberDelta", true))
 , ntupleTrackEff_(ps.getUntrackedParameter<bool>("ntupleTrackEff", true))
@@ -332,7 +336,7 @@ bool GEMCSCAnalyzer::isSimTrackGood(const SimTrack &t)
   if (std::abs(t.type()) != 13) return false; // only interested in direct muon simtracks
   if (t.momentum().pt() < minPt_) return false;
   float eta = std::abs(t.momentum().eta());
-  if (eta > 2.18 || eta < 1.55) return false; // no GEMs could be in such eta
+  if (eta > maxEta_ || eta < minEta_) return false; // no GEMs could be in such eta
   return true;
 }
 
