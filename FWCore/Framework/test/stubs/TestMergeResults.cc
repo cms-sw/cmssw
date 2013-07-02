@@ -10,10 +10,14 @@
 
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Common/interface/Wrapper.h"
+#include "DataFormats/Provenance/interface/BranchID.h"
+#include "DataFormats/Provenance/interface/ConstBranchDescription.h"
 #include "DataFormats/Provenance/interface/ProcessHistory.h"
+#include "DataFormats/Provenance/interface/Provenance.h"
 #include "DataFormats/TestObjects/interface/Thing.h"
 #include "DataFormats/TestObjects/interface/ThingWithIsEqual.h"
 #include "DataFormats/TestObjects/interface/ThingWithMerge.h"
+#include "FWCore/Framework/interface/ConstProductRegistry.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/FileBlock.h"
@@ -22,6 +26,7 @@
 #include "FWCore/Framework/interface/Run.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
 #include <cassert>
@@ -253,6 +258,20 @@ namespace edmtest {
       edm::InputTag inputTag("aliasForThingToBeDropped2", "instance2","PROD");
       e.getByLabel(inputTag, h_thing);
       assert(h_thing->a == 11);
+
+      edm::BranchID const& originalBranchID = h_thing.provenance()->constBranchDescription().originalBranchID();
+      bool foundOriginalInRegistry = false;
+      edm::Service<edm::ConstProductRegistry> reg;
+      // Loop over provenance of products in registry.
+      for (edm::ProductRegistry::ProductList::const_iterator it =  reg->productList().begin();
+           it != reg->productList().end(); ++it) {
+        edm::BranchDescription const& desc = it->second;
+        if (desc.branchID() == originalBranchID) {
+          foundOriginalInRegistry = true;
+          break;
+        }
+      }
+      assert(foundOriginalInRegistry);
     }
   }
 
@@ -318,6 +337,20 @@ namespace edmtest {
       edm::InputTag inputTag("aliasForThingToBeDropped2", "endRun2","PROD");
       run.getByLabel(inputTag, h_thing);
       assert(h_thing->a == 100001);
+
+      edm::BranchID const& originalBranchID = h_thing.provenance()->constBranchDescription().originalBranchID();
+      bool foundOriginalInRegistry = false;
+      edm::Service<edm::ConstProductRegistry> reg;
+      // Loop over provenance of products in registry.
+      for (edm::ProductRegistry::ProductList::const_iterator it =  reg->productList().begin();
+           it != reg->productList().end(); ++it) {
+        edm::BranchDescription const& desc = it->second;
+        if (desc.branchID() == originalBranchID) {
+          foundOriginalInRegistry = true;
+          break;
+        }
+      }
+      assert(foundOriginalInRegistry);
     }
   }
 
@@ -373,6 +406,20 @@ namespace edmtest {
       edm::InputTag inputTag("aliasForThingToBeDropped2", "endLumi2","PROD");
       lumi.getByLabel(inputTag, h_thing);
       assert(h_thing->a == 1001);
+
+      edm::BranchID const& originalBranchID = h_thing.provenance()->constBranchDescription().originalBranchID();
+      bool foundOriginalInRegistry = false;
+      edm::Service<edm::ConstProductRegistry> reg;
+      // Loop over provenance of products in registry.
+      for (edm::ProductRegistry::ProductList::const_iterator it =  reg->productList().begin();
+           it != reg->productList().end(); ++it) {
+        edm::BranchDescription const& desc = it->second;
+        if (desc.branchID() == originalBranchID) {
+          foundOriginalInRegistry = true;
+          break;
+        }
+      }
+      assert(foundOriginalInRegistry);
     }
   }
 
