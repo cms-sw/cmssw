@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue, 02 Apr 2013 21:35:53 GMT
-// $Id: EDConsumerBase.h,v 1.5 2013/06/04 14:59:02 wdd Exp $
+// $Id: EDConsumerBase.h,v 1.6 2013/06/07 17:58:31 chrjones Exp $
 //
 
 // system include files
@@ -37,6 +37,7 @@
 
 namespace edm {
   class ProductHolderIndexHelper;
+  class ConsumesCollector;
   
   class EDConsumerBase
   {
@@ -65,6 +66,9 @@ namespace edm {
     void labelsForToken(EDGetToken iToken, Labels& oLabels) const;
     
   protected:
+    friend class ConsumesCollector;
+    ///Use a ConsumesCollector to gather consumes information from helper functions
+    ConsumesCollector consumesCollector();
     
     template <typename ProductType, BranchType B=InEvent>
     EDGetTokenT<ProductType> consumes(edm::InputTag const& tag) {

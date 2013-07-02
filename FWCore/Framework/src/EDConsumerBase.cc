@@ -8,14 +8,16 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue, 02 Apr 2013 21:36:06 GMT
-// $Id: EDConsumerBase.cc,v 1.5 2013/06/04 14:59:02 wdd Exp $
+// $Id: EDConsumerBase.cc,v 1.6 2013/06/07 17:58:32 chrjones Exp $
 //
 
 // system include files
 #include <cassert>
+#include <utility>
 
 // user include files
 #include "FWCore/Framework/interface/EDConsumerBase.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Utilities/interface/Likely.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "DataFormats/Provenance/interface/ProductHolderIndexHelper.h"
@@ -61,6 +63,12 @@ EDConsumerBase::~EDConsumerBase()
 //
 // member functions
 //
+ConsumesCollector
+EDConsumerBase::consumesCollector() {
+  ConsumesCollector c{this};
+  return std::move(c);
+}
+
 
 unsigned int
 EDConsumerBase::recordConsumes(BranchType iBranch, TypeToGet const& iType, edm::InputTag const& iTag, bool iAlwaysGets) {
