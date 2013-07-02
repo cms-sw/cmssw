@@ -646,7 +646,7 @@ namespace edm {
     input_ = makeInput(*parameterSet, *common, *items.preg_, items.branchIDListHelper_, items.actReg_, items.processConfiguration_);
 
     // intialize the Schedule
-    schedule_ = items.initSchedule(*parameterSet,subProcessParameterSet.get());
+    schedule_ = items.initSchedule(*parameterSet,subProcessParameterSet.get(),StreamID{0});
 
     // set the data members
     act_table_ = std::move(items.act_table_);

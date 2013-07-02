@@ -22,7 +22,7 @@ namespace edm {
     }
 
     template <typename T>
-    void runNow(typename T::MyPrincipal& p, EventSetup const& es) {
+    void runNow(typename T::MyPrincipal& p, EventSetup const& es, StreamID streamID) {
       //do nothing for event since we will run when requested
       if(!T::isEvent_) {
         for(std::map<std::string, Worker*>::iterator it = labelToWorkers_.begin(), itEnd=labelToWorkers_.end();
@@ -30,7 +30,7 @@ namespace edm {
             ++it) {
           CPUTimer timer;
           try {
-            it->second->doWork<T>(p, es, nullptr, &timer);
+            it->second->doWork<T>(p, es, nullptr, &timer,streamID);
           }
           catch (cms::Exception & ex) {
 	    std::ostringstream ost;
@@ -75,7 +75,7 @@ namespace edm {
       if(itFound != labelToWorkers_.end()) {
         CPUTimer timer;
         try {
-          itFound->second->doWork<OccurrenceTraits<EventPrincipal, BranchActionBegin> >(event, eventSetup, iContext, &timer);
+          itFound->second->doWork<OccurrenceTraits<EventPrincipal, BranchActionBegin> >(event, eventSetup, iContext, &timer,event.streamID());
         }
         catch (cms::Exception & ex) {
 	  std::ostringstream ost;

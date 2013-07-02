@@ -285,7 +285,8 @@ namespace edm {
                      ActionTable const& actions,
                      boost::shared_ptr<ActivityRegistry> areg,
                      boost::shared_ptr<ProcessConfiguration> processConfiguration,
-                     const ParameterSet* subProcPSet) :
+                     const ParameterSet* subProcPSet,
+                     StreamID streamID) :
     worker_reg_(areg),
     act_table_(&actions),
     actReg_(areg),
@@ -304,6 +305,7 @@ namespace edm {
     total_passed_(),
     stopwatch_(wantSummary_? new RunStopwatch::StopwatchPointer::element_type : static_cast<RunStopwatch::StopwatchPointer::element_type*> (nullptr)),
     unscheduled_(new UnscheduledCallProducer),
+    streamID_(streamID),
     endpathsAreActive_(true) {
 
     ParameterSet const& opts = proc_pset.getUntrackedParameterSet("options", ParameterSet());

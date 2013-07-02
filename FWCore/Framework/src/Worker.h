@@ -31,6 +31,7 @@ the worker is reset().
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/ConvertException.h"
 #include "FWCore/Utilities/interface/BranchType.h"
+#include "FWCore/Utilities/interface/StreamID.h"
 
 #include "boost/shared_ptr.hpp"
 
@@ -43,6 +44,7 @@ namespace edm {
   class EventPrincipal;
   class EarlyDeleteHelper;
   class ProductHolderIndexHelper;
+  class StreamID;
 
   class Worker {
   public:
@@ -57,8 +59,9 @@ namespace edm {
 
     template <typename T>
     bool doWork(typename T::MyPrincipal&, EventSetup const& c,
-		CurrentProcessingContext const* cpc,
-                CPUTimer *const timer);
+		            CurrentProcessingContext const* cpc,
+                CPUTimer *const timer,
+                StreamID stream);
     void beginJob() ;
     void endJob();
     void respondToOpenInputFile(FileBlock const& fb) {implRespondToOpenInputFile(fb);}
@@ -215,7 +218,8 @@ namespace edm {
   bool Worker::doWork(typename T::MyPrincipal& ep, 
                        EventSetup const& es,
                        CurrentProcessingContext const* cpc,
-                       CPUTimer* const iTimer) {
+                       CPUTimer* const iTimer,
+                       StreamID streamID) {
 
     // A RunStopwatch, but only if we are processing an event.
     RunDualStopwatches stopwatch(T::isEvent_ ? stopwatch_ : RunStopwatch::StopwatchPointer(),

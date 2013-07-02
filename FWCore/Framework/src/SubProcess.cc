@@ -108,7 +108,7 @@ namespace edm {
     esp_ = esController.makeProvider(*processParameterSet_);
 
     // intialize the Schedule
-    schedule_ = items.initSchedule(*processParameterSet_,subProcessParameterSet.get());
+    schedule_ = items.initSchedule(*processParameterSet_,subProcessParameterSet.get(),StreamID{0});
 
     // set the items
     act_table_ = std::move(items.act_table_);
