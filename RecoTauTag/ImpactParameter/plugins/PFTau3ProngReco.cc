@@ -62,13 +62,9 @@
 #include "RecoVertex/KinematicFitPrimitives/interface/KinematicParticleFactoryFromTransientTrack.h"
 #include "RecoTauTag/ImpactParameter/interface/ParticleMassHelper.h"
 #include "TLorentzVector.h"
-//#include "RecoTauTag/ImpactParameter/interface/Chi2VertexFitter.h"
-//#include "RecoTauTag/ImpactParameter/interface/ChiSquareFunctionUpdator.h"   
-//#include "RecoTauTag/ImpactParameter/interface/TauA1NuConstrainedFitter.h"
-//#include "RecoTauTag/ImpactParameter/interface/LagrangeMultipliersFitter.h"  
-//#include "RecoTauTag/ImpactParameter/interface/TrackHelixVertexFitter.h"
-//#include "RecoTauTag/ImpactParameter/interface/TrackTools.h"
-//#include "RecoTauTag/ImpactParameter/interface/PDGInfo.h"
+
+#include "DataFormats/HepMCCandidate/interface/GenParticle.h"
+
 
 using namespace reco;
 using namespace edm;
@@ -251,6 +247,7 @@ void PFTau3ProngReco::produce(edm::Event& iEvent,const edm::EventSetup& iSetup){
 		daughter_PDGID.push_back(daughter.at(d).PDGID());
 	      }
 	      PFTau3PS.AddSolution(i,theTau.LV(),daughter_p4,daughter_charge,daughter_PDGID,(isFitOK&&TauA1NU.isConverged()),TauA1NU.ChiSquare(),-999);
+
 	    }
 	  }
 	}
@@ -263,5 +260,5 @@ void PFTau3ProngReco::produce(edm::Event& iEvent,const edm::EventSetup& iSetup){
   iEvent.put(PFTau3PSCollection_out,"PFTau3ProngSummary");
   iEvent.put(AVPFTau3PS);
 }
-  
+
 DEFINE_FWK_MODULE(PFTau3ProngReco);
