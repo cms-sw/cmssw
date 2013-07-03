@@ -66,6 +66,18 @@ namespace
     else return false;
   }
 
+  bool isME1abEtaRegion(float eta, float eta_min = 1.64)
+  {
+    if (fabs(eta) >= eta_min) return true;
+    else return false;
+  }
+
+  bool isME1aEtaRegion(float eta, float eta_min = 2.14)
+  {
+    if (fabs(eta) >= eta_min) return true;
+    else return false;
+  }
+
 
 }
 
@@ -450,7 +462,10 @@ SimMuL1_Rate::SimMuL1_Rate(const edm::ParameterSet& iConfig):
   h_rt_gmt_csc_ptmax20_eta_2s = fs->make<TH1D>("h_rt_gmt_csc_ptmax20_eta_2s","h_rt_gmt_csc_ptmax20_eta_2s",N_ETA_BINS_CSC, ETA_START_CSC, ETA_END_CSC);
   h_rt_gmt_csc_ptmax20_eta_2s_2s1b = fs->make<TH1D>("h_rt_gmt_csc_ptmax20_eta_2s_2s1b","h_rt_gmt_csc_ptmax20_eta_2s_2s1b",N_ETA_BINS_CSC, ETA_START_CSC, ETA_END_CSC);
   h_rt_gmt_csc_ptmax20_eta_3s = fs->make<TH1D>("h_rt_gmt_csc_ptmax20_eta_3s","h_rt_gmt_csc_ptmax20_eta_3s",N_ETA_BINS_CSC, ETA_START_CSC, ETA_END_CSC);
+
   h_rt_gmt_csc_ptmax20_eta_3s_1b = fs->make<TH1D>("h_rt_gmt_csc_ptmax20_eta_3s_1b","h_rt_gmt_csc_ptmax20_eta_3s_1b",N_ETA_BINS_CSC, ETA_START_CSC, ETA_END_CSC);
+  h_rt_gmt_csc_ptmax20_eta_3s_1ab = fs->make<TH1D>("h_rt_gmt_csc_ptmax20_eta_3s_1ab","h_rt_gmt_csc_ptmax20_eta_3s_1ab",N_ETA_BINS_CSC, ETA_START_CSC, ETA_END_CSC);
+
   h_rt_gmt_csc_ptmax20_eta_3s_no1a = fs->make<TH1D>("h_rt_gmt_csc_ptmax20_eta_3s_no1a","h_rt_gmt_csc_ptmax20_eta_3s_no1a",N_ETA_BINS_CSC, ETA_START_CSC, ETA_END_CSC);
   h_rt_gmt_csc_ptmax20_eta_3s_2s1b = fs->make<TH1D>("h_rt_gmt_csc_ptmax20_eta_3s_2s1b","h_rt_gmt_csc_ptmax20_eta_3s_2s1b",N_ETA_BINS_CSC, ETA_START_CSC, ETA_END_CSC);
   h_rt_gmt_csc_ptmax20_eta_3s_2s1b_1b = fs->make<TH1D>("h_rt_gmt_csc_ptmax20_eta_3s_2s1b_1b","h_rt_gmt_csc_ptmax20_eta_3s_2s1b_1b",N_ETA_BINS_CSC, ETA_START_CSC, ETA_END_CSC);
@@ -459,7 +474,10 @@ SimMuL1_Rate::SimMuL1_Rate(const edm::ParameterSet& iConfig):
   h_rt_gmt_csc_ptmax20_eta_3s_2s1b_no1a = fs->make<TH1D>("h_rt_gmt_csc_ptmax20_eta_3s_2s1b_no1a","h_rt_gmt_csc_ptmax20_eta_3s_2s1b_no1a",N_ETA_BINS_CSC, ETA_START_CSC, ETA_END_CSC);
   h_rt_gmt_csc_ptmax20_eta_3s_2s123_no1a = fs->make<TH1D>("h_rt_gmt_csc_ptmax20_eta_3s_2s123_no1a","h_rt_gmt_csc_ptmax20_eta_3s_2s123_no1a",N_ETA_BINS_CSC, ETA_START_CSC, ETA_END_CSC);
   h_rt_gmt_csc_ptmax20_eta_3s_2s13_no1a = fs->make<TH1D>("h_rt_gmt_csc_ptmax20_eta_3s_2s13_no1a","h_rt_gmt_csc_ptmax20_eta_3s_2s13_no1a",N_ETA_BINS_CSC, ETA_START_CSC, ETA_END_CSC);
+
   h_rt_gmt_csc_ptmax20_eta_3s_3s1b = fs->make<TH1D>("h_rt_gmt_csc_ptmax20_eta_3s_3s1b","h_rt_gmt_csc_ptmax20_eta_3s_3s1b",N_ETA_BINS_CSC, ETA_START_CSC, ETA_END_CSC);
+  h_rt_gmt_csc_ptmax20_eta_3s_3s1ab = fs->make<TH1D>("h_rt_gmt_csc_ptmax20_eta_3s_3s1ab","h_rt_gmt_csc_ptmax20_eta_3s_3s1ab",N_ETA_BINS_CSC, ETA_START_CSC, ETA_END_CSC);
+
   h_rt_gmt_csc_ptmax20_eta_3s_3s1b_1b = fs->make<TH1D>("h_rt_gmt_csc_ptmax20_eta_3s_3s1b_1b","h_rt_gmt_csc_ptmax20_eta_3s_3s1b_1b",N_ETA_BINS_CSC, ETA_START_CSC, ETA_END_CSC);
   h_rt_gmt_csc_ptmax20_eta_3s_3s1b_no1a = fs->make<TH1D>("h_rt_gmt_csc_ptmax20_eta_3s_3s1b_no1a","h_rt_gmt_csc_ptmax20_eta_3s_3s1b_no1a",N_ETA_BINS_CSC, ETA_START_CSC, ETA_END_CSC);
   h_rt_gmt_csc_ptmax20_eta_2q = fs->make<TH1D>("h_rt_gmt_csc_ptmax20_eta_2q","h_rt_gmt_csc_ptmax20_eta_2q",N_ETA_BINS_CSC, ETA_START_CSC, ETA_END_CSC);
@@ -468,7 +486,10 @@ SimMuL1_Rate::SimMuL1_Rate(const edm::ParameterSet& iConfig):
   h_rt_gmt_csc_ptmax30_eta_2s = fs->make<TH1D>("h_rt_gmt_csc_ptmax30_eta_2s","h_rt_gmt_csc_ptmax30_eta_2s",N_ETA_BINS_CSC, ETA_START_CSC, ETA_END_CSC);
   h_rt_gmt_csc_ptmax30_eta_2s_2s1b = fs->make<TH1D>("h_rt_gmt_csc_ptmax30_eta_2s_2s1b","h_rt_gmt_csc_ptmax30_eta_2s_2s1b",N_ETA_BINS_CSC, ETA_START_CSC, ETA_END_CSC);
   h_rt_gmt_csc_ptmax30_eta_3s = fs->make<TH1D>("h_rt_gmt_csc_ptmax30_eta_3s","h_rt_gmt_csc_ptmax30_eta_3s",N_ETA_BINS_CSC, ETA_START_CSC, ETA_END_CSC);
+
   h_rt_gmt_csc_ptmax30_eta_3s_1b = fs->make<TH1D>("h_rt_gmt_csc_ptmax30_eta_3s_1b","h_rt_gmt_csc_ptmax30_eta_3s_1b",N_ETA_BINS_CSC, ETA_START_CSC, ETA_END_CSC);
+  h_rt_gmt_csc_ptmax30_eta_3s_1ab = fs->make<TH1D>("h_rt_gmt_csc_ptmax30_eta_3s_1ab","h_rt_gmt_csc_ptmax30_eta_3s_1ab",N_ETA_BINS_CSC, ETA_START_CSC, ETA_END_CSC);
+
   h_rt_gmt_csc_ptmax30_eta_3s_no1a = fs->make<TH1D>("h_rt_gmt_csc_ptmax30_eta_3s_no1a","h_rt_gmt_csc_ptmax30_eta_3s_no1a",N_ETA_BINS_CSC, ETA_START_CSC, ETA_END_CSC);
   h_rt_gmt_csc_ptmax30_eta_3s_2s1b = fs->make<TH1D>("h_rt_gmt_csc_ptmax30_eta_3s_2s1b","h_rt_gmt_csc_ptmax30_eta_3s_2s1b",N_ETA_BINS_CSC, ETA_START_CSC, ETA_END_CSC);
   h_rt_gmt_csc_ptmax30_eta_3s_2s1b_1b = fs->make<TH1D>("h_rt_gmt_csc_ptmax30_eta_3s_2s1b_1b","h_rt_gmt_csc_ptmax30_eta_3s_2s1b_1b",N_ETA_BINS_CSC, ETA_START_CSC, ETA_END_CSC);
@@ -477,7 +498,11 @@ SimMuL1_Rate::SimMuL1_Rate(const edm::ParameterSet& iConfig):
   h_rt_gmt_csc_ptmax30_eta_3s_2s1b_no1a = fs->make<TH1D>("h_rt_gmt_csc_ptmax30_eta_3s_2s1b_no1a","h_rt_gmt_csc_ptmax30_eta_3s_2s1b_no1a",N_ETA_BINS_CSC, ETA_START_CSC, ETA_END_CSC);
   h_rt_gmt_csc_ptmax30_eta_3s_2s123_no1a = fs->make<TH1D>("h_rt_gmt_csc_ptmax30_eta_3s_2s123_no1a","h_rt_gmt_csc_ptmax30_eta_3s_2s123_no1a",N_ETA_BINS_CSC, ETA_START_CSC, ETA_END_CSC);
   h_rt_gmt_csc_ptmax30_eta_3s_2s13_no1a = fs->make<TH1D>("h_rt_gmt_csc_ptmax30_eta_3s_2s13_no1a","h_rt_gmt_csc_ptmax30_eta_3s_2s13_no1a",N_ETA_BINS_CSC, ETA_START_CSC, ETA_END_CSC);
+
   h_rt_gmt_csc_ptmax30_eta_3s_3s1b = fs->make<TH1D>("h_rt_gmt_csc_ptmax30_eta_3s_3s1b","h_rt_gmt_csc_ptmax30_eta_3s_3s1b",N_ETA_BINS_CSC, ETA_START_CSC, ETA_END_CSC);
+  h_rt_gmt_csc_ptmax30_eta_3s_3s1ab = fs->make<TH1D>("h_rt_gmt_csc_ptmax30_eta_3s_3s1ab","h_rt_gmt_csc_ptmax30_eta_3s_3s1ab",N_ETA_BINS_CSC, ETA_START_CSC, ETA_END_CSC);
+
+
   h_rt_gmt_csc_ptmax30_eta_3s_3s1b_1b = fs->make<TH1D>("h_rt_gmt_csc_ptmax30_eta_3s_3s1b_1b","h_rt_gmt_csc_ptmax30_eta_3s_3s1b_1b",N_ETA_BINS_CSC, ETA_START_CSC, ETA_END_CSC);
   h_rt_gmt_csc_ptmax30_eta_3s_3s1b_no1a = fs->make<TH1D>("h_rt_gmt_csc_ptmax30_eta_3s_3s1b_no1a","h_rt_gmt_csc_ptmax30_eta_3s_3s1b_no1a",N_ETA_BINS_CSC, ETA_START_CSC, ETA_END_CSC);
   h_rt_gmt_csc_ptmax30_eta_2q = fs->make<TH1D>("h_rt_gmt_csc_ptmax30_eta_2q","h_rt_gmt_csc_ptmax30_eta_2q",N_ETA_BINS_CSC, ETA_START_CSC, ETA_END_CSC);
@@ -1523,6 +1548,7 @@ bool SimMuL1_Rate::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   float max_pt_2s_1b = -1;//,   max_pt_2s_eta_1b = -111;
   float max_pt_3s_no1a = -1, max_pt_3s_eta_no1a = -111;
   float max_pt_3s_1b = -1,   max_pt_3s_eta_1b = -111;
+  float max_pt_3s_1ab = -1,   max_pt_3s_eta_1ab = -111;
 
   float max_pt_3s_2s1b = -1,      max_pt_3s_2s1b_eta = -111;
   float max_pt_3s_2s1b_no1a = -1, max_pt_3s_2s1b_eta_no1a = -111;
@@ -1536,7 +1562,13 @@ bool SimMuL1_Rate::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   float max_pt_3s_3s1b_no1a = -1, max_pt_3s_3s1b_eta_no1a = -111;
   float max_pt_3s_3s1b_1b = -1,   max_pt_3s_3s1b_eta_1b = -111;
 
+
+  float max_pt_3s_3s1ab = -1,      max_pt_3s_3s1ab_eta = -111;
+  float max_pt_3s_3s1ab_no1a = -1, max_pt_3s_3s1ab_eta_no1a = -111;
+  float max_pt_3s_3s1ab_1b = -1,   max_pt_3s_3s1ab_eta_1b = -111;
+
   MatchCSCMuL1::TFTRACK *trk__max_pt_3s_3s1b_eta = nullptr;
+  MatchCSCMuL1::TFTRACK *trk__max_pt_3s_3s1ab_eta = nullptr;
   MatchCSCMuL1::TFTRACK *trk__max_pt_2s1b_1b = nullptr;
   const CSCCorrelatedLCTDigi * the_me1_stub = nullptr;
   CSCDetId the_me1_id;
@@ -1597,15 +1629,23 @@ bool SimMuL1_Rate::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   	      continue;
   	    }
 
+  	  bool has_1a_stub = false;
+  	  for (auto& id: myGMTREGCand.ids) if (id.iChamberType() == 1) {
+  	      has_1a_stub = true;
+  	      continue;
+  	    }
+
   	  bool eta_me1b = isME1bEtaRegion(myGMTREGCand.eta);
+  	  bool eta_me1ab = isME1abEtaRegion(myGMTREGCand.eta);
+  	  bool eta_me1a = isME1aEtaRegion(myGMTREGCand.eta);
   	  bool eta_me1b_whole = isME1bEtaRegion(myGMTREGCand.eta, 1.6, 2.14);
   	  bool eta_no1a = (geta >= 1.2 && geta < 2.14);
-      
+	  
   	  n_stubs = myGMTREGCand.nTFStubs;
   	  size_t n_stubs_id = myGMTREGCand.ids.size();
   	  //if (n_stubs == n_stubs_id) cout<<"n_stubs good"<<endl;
   	  if (n_stubs != n_stubs_id) cout<<"n_stubs bad: "<<eta_q<<" "<<n_stubs<<" != "<<n_stubs_id<<" "<< geta  <<endl;
-
+	  
   	  auto stub_ids = myGMTREGCand.tfcand->tftrack->trgids;
   	  for (size_t i=0; i<stub_ids.size(); ++i)
   	    {
@@ -1641,7 +1681,11 @@ bool SimMuL1_Rate::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   	      if (eta_me42) h_rt_gmt_csc_pt_3s42->Fill(gpt);
   	      if (eta_me42r) h_rt_gmt_csc_pt_3s42r->Fill(gpt);
   	      if (            gpt > max_pt_3s     ) { max_pt_3s = gpt; max_pt_3s_eta = geta; }
+
+
   	      if (eta_me1b && gpt > max_pt_3s_1b  ) { max_pt_3s_1b = gpt; max_pt_3s_eta_1b = geta; }
+  	      if (eta_me1ab && gpt > max_pt_3s_1ab  ) { max_pt_3s_1ab = gpt; max_pt_3s_eta_1ab = geta; }
+
   	      if (eta_no1a && gpt > max_pt_3s_no1a) { max_pt_3s_no1a = gpt; max_pt_3s_eta_no1a = geta; }
   	      if (eta_me42 && gpt > max_pt_me42_3s) max_pt_me42_3s = gpt;
   	      if (eta_me42r && gpt>max_pt_me42r_3s) max_pt_me42r_3s = gpt;
@@ -1672,6 +1716,16 @@ bool SimMuL1_Rate::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   	      if (eta_me1b && gpt > max_pt_3s_3s1b_1b   ) { max_pt_3s_3s1b_1b = gpt; max_pt_3s_3s1b_eta_1b = geta; }
   	      if (eta_no1a && gpt > max_pt_3s_3s1b_no1a ) { max_pt_3s_3s1b_no1a = gpt; max_pt_3s_3s1b_eta_no1a = geta; }
   	    }
+
+  	  if (n_stubs >=3 && ( (eta_me1a && has_1a_stub) || (eta_me1b && has_1b_stub) || (!has_1a_stub && !has_1b_stub && !eta_me1ab) ) )
+  	    {
+  	      if (            gpt > max_pt_3s_3s1ab      ) { max_pt_3s_3s1ab = gpt; max_pt_3s_3s1ab_eta = geta;
+  		trk__max_pt_3s_3s1ab_eta = myGMTREGCand.tfcand->tftrack; }
+  	      if (eta_me1b && gpt > max_pt_3s_3s1ab_1b   ) { max_pt_3s_3s1ab_1b = gpt; max_pt_3s_3s1ab_eta_1b = geta; }
+  	      if (eta_no1a && gpt > max_pt_3s_3s1ab_no1a ) { max_pt_3s_3s1ab_no1a = gpt; max_pt_3s_3s1ab_eta_no1a = geta; }
+  	    }
+
+
   	} else { 
   	cout<<"GMTCSC match not found pt="<<gpt<<" eta="<<myGMTREGCand.eta<<"  packed: "<<trk->phi_packed()<<" "<<trk->eta_packed()<<endl;
   	for (unsigned i=0; i< rtTFCands.size(); i++) cout<<"    "<<rtTFCands[i].l1cand->phi_packed()<<" "<<rtTFCands[i].l1cand->eta_packed();
@@ -1770,7 +1824,10 @@ bool SimMuL1_Rate::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   if (max_pt_2s>=20.) h_rt_gmt_csc_ptmax20_eta_2s->Fill(max_pt_2s_eta);
   if (max_pt_2s_2s1b>=20.) h_rt_gmt_csc_ptmax20_eta_2s_2s1b->Fill(max_pt_2s_2s1b_eta);
   if (max_pt_3s>=20.) h_rt_gmt_csc_ptmax20_eta_3s->Fill(max_pt_3s_eta);
+
   if (max_pt_3s_1b>=20.) h_rt_gmt_csc_ptmax20_eta_3s_1b->Fill(max_pt_3s_eta_1b);
+  if (max_pt_3s_1ab>=20.) h_rt_gmt_csc_ptmax20_eta_3s_1ab->Fill(max_pt_3s_eta_1ab);
+
   if (max_pt_3s_no1a>=20.) h_rt_gmt_csc_ptmax20_eta_3s_no1a->Fill(max_pt_3s_eta_no1a);
   if (max_pt_3s_2s1b>=20.) h_rt_gmt_csc_ptmax20_eta_3s_2s1b->Fill(max_pt_3s_2s1b_eta);
   if (max_pt_3s_2s1b_1b>=20.) h_rt_gmt_csc_ptmax20_eta_3s_2s1b_1b->Fill(max_pt_3s_2s1b_eta_1b);
@@ -1779,7 +1836,10 @@ bool SimMuL1_Rate::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   if (max_pt_3s_2s1b_no1a>=20.) h_rt_gmt_csc_ptmax20_eta_3s_2s1b_no1a->Fill(max_pt_3s_2s1b_eta_no1a);
   if (max_pt_3s_2s123_no1a>=20.) h_rt_gmt_csc_ptmax20_eta_3s_2s123_no1a->Fill(max_pt_3s_2s123_eta_no1a);
   if (max_pt_3s_2s13_no1a>=20.) h_rt_gmt_csc_ptmax20_eta_3s_2s13_no1a->Fill(max_pt_3s_2s13_eta_no1a);
+
   if (max_pt_3s_3s1b>=20.) h_rt_gmt_csc_ptmax20_eta_3s_3s1b->Fill(max_pt_3s_3s1b_eta);
+  if (max_pt_3s_3s1ab>=20.) h_rt_gmt_csc_ptmax20_eta_3s_3s1ab->Fill(max_pt_3s_3s1b_eta);
+
   if (max_pt_3s_3s1b_1b>=20.) h_rt_gmt_csc_ptmax20_eta_3s_3s1b_1b->Fill(max_pt_3s_3s1b_eta_1b);
   if (max_pt_3s_3s1b_no1a>=20.) h_rt_gmt_csc_ptmax20_eta_3s_3s1b_no1a->Fill(max_pt_3s_3s1b_eta_no1a);
   if (max_pt_2q>=20.) h_rt_gmt_csc_ptmax20_eta_2q->Fill(max_pt_2q_eta);
@@ -1788,7 +1848,11 @@ bool SimMuL1_Rate::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   if (max_pt_2s>=30.) h_rt_gmt_csc_ptmax30_eta_2s->Fill(max_pt_2s_eta);
   if (max_pt_2s_2s1b>=30.) h_rt_gmt_csc_ptmax30_eta_2s_2s1b->Fill(max_pt_2s_2s1b_eta);
   if (max_pt_3s>=30.) h_rt_gmt_csc_ptmax30_eta_3s->Fill(max_pt_3s_eta);
+
   if (max_pt_3s_1b>=30.) h_rt_gmt_csc_ptmax30_eta_3s_1b->Fill(max_pt_3s_eta_1b);
+  if (max_pt_3s_1ab>=30.) h_rt_gmt_csc_ptmax30_eta_3s_1ab->Fill(max_pt_3s_eta_1ab);
+
+
   if (max_pt_3s_no1a>=30.) h_rt_gmt_csc_ptmax30_eta_3s_no1a->Fill(max_pt_3s_eta_no1a);
   if (max_pt_3s_2s1b>=30.) h_rt_gmt_csc_ptmax30_eta_3s_2s1b->Fill(max_pt_3s_2s1b_eta);
   if (max_pt_3s_2s1b_1b>=30.) h_rt_gmt_csc_ptmax30_eta_3s_2s1b_1b->Fill(max_pt_3s_2s1b_eta_1b);
@@ -1797,9 +1861,16 @@ bool SimMuL1_Rate::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   if (max_pt_3s_2s1b_no1a>=30.) h_rt_gmt_csc_ptmax30_eta_3s_2s1b_no1a->Fill(max_pt_3s_2s1b_eta_no1a);
   if (max_pt_3s_2s123_no1a>=30.) h_rt_gmt_csc_ptmax30_eta_3s_2s123_no1a->Fill(max_pt_3s_2s123_eta_no1a);
   if (max_pt_3s_2s13_no1a>=30.) h_rt_gmt_csc_ptmax30_eta_3s_2s13_no1a->Fill(max_pt_3s_2s13_eta_no1a);
+
+
   if (max_pt_3s_3s1b>=30.) h_rt_gmt_csc_ptmax30_eta_3s_3s1b->Fill(max_pt_3s_3s1b_eta);
+  if (max_pt_3s_3s1ab>=30.) h_rt_gmt_csc_ptmax30_eta_3s_3s1ab->Fill(max_pt_3s_3s1ab_eta);
+
+
+
   if (max_pt_3s_3s1b_1b>=30.) h_rt_gmt_csc_ptmax30_eta_3s_3s1b_1b->Fill(max_pt_3s_3s1b_eta_1b);
   if (max_pt_3s_3s1b_no1a>=30.) h_rt_gmt_csc_ptmax30_eta_3s_3s1b_no1a->Fill(max_pt_3s_3s1b_eta_no1a);
+
   if (max_pt_2q>=30.) h_rt_gmt_csc_ptmax30_eta_2q->Fill(max_pt_2q_eta);
   if (max_pt_3q>=30.) h_rt_gmt_csc_ptmax30_eta_3q->Fill(max_pt_3q_eta);
 
