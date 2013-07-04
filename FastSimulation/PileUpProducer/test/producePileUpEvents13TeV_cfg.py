@@ -60,7 +60,7 @@ process.GENoutput = cms.OutputModule("PoolOutputModule",
     'keep GenFilterInfo_*_*_*',
     'keep *_genParticles_*_*'
     ),
-                                     fileName = cms.untracked.string('MinBias14TeV_GEN.root'),
+                                     fileName = cms.untracked.string('MinBias13TeV_GEN.root'),
                                      )
 
 process.prodPU = cms.EDProducer("producePileUpEvents",
@@ -75,7 +75,7 @@ process.prodPU = cms.EDProducer("producePileUpEvents",
         # Particles with energy smaller than EMin (GeV) are not simulated
         EMin = cms.double(0.0)
     ),
-    PUEventFile = cms.untracked.string('MinBias14TeV.root'),
+    PUEventFile = cms.untracked.string('MinBias13TeV.root'),
     SavePileUpEvents = cms.bool(True),
     BunchPileUpEventSize = cms.uint32(1000)
 )
