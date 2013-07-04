@@ -142,6 +142,9 @@ GitHub has to possible ways of dealing with this.
   ticket](https://github.com/cms-sw/cmssw/issues/new) so that it can be
   discussed and eventually approved.
 
+Moreover a very nice overview of collaborative workflows using GitHub and git
+can be found [here](https://help.github.com/articles/using-pull-requests).
+
 ### Does this affect physics notes?
 
 No. They are hosted in SVN and this will continue to be the case.
