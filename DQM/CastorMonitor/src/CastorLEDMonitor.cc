@@ -121,7 +121,7 @@ void CastorLEDMonitor::beginRun(const edm::EventSetup& iSetup)
   {
   if(fVerbosity>0) std::cout<<"CastorLEDMonitor::beginRun (start)"<<std::endl;  
 
-  if ( m_dbe )
+  if (m_dbe !=NULL)
 	{
     	m_dbe->setCurrentFolder(baseFolder_);
     	meEVT_ = m_dbe->bookInt("LED Task Event Number");    
@@ -164,6 +164,7 @@ void CastorLEDMonitor::processEvent( const CastorDigiCollection& castorDigis, co
     if(fVerbosity>0) std::cout<<"CastorLEDMonitor::processEvent DQMStore not instantiated!!!"<<std::endl;  
     return; 
   }
+
   float vals[10];
 
   
@@ -211,7 +212,7 @@ void CastorLEDMonitor::processEvent( const CastorDigiCollection& castorDigis, co
       if( doPerChannel_) perChanHists(digi.id(),vals,castHists.shape, castHists.time, castHists.energy, baseFolder_);
     }        
   } else {
-    if(fVerbosity > 0) std::cout << "CastorPSMonitor::processEvent NO Castor Digis !!!" << std::endl;
+    if(fVerbosity > 0) std::cout << "CastorLEDMonitor::processEvent NO Castor Digis !!!" << std::endl;
   }
  
 
