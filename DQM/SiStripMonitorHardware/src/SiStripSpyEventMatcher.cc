@@ -63,7 +63,7 @@ namespace sistrip {
     edm::ParameterSet emptyPSet;
     emptyPSet.registerIt();
     processConfiguration_->setParameterSetID(emptyPSet.id());
-    source_->productRegistry()->setFrozen();
+    productRegistry_->setFrozen();
 
     eventPrincipal_.reset(new edm::EventPrincipal(source_->productRegistry(),
                                                   source_->branchIDListHelper(),
