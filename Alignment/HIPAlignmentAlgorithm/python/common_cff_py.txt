@@ -30,7 +30,7 @@ process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 if 'COSMICS'=='<FLAG>':
    process.GlobalTag.globaltag='GR_P_V40::All'
 else :
-   process.GlobalTag.globaltag='GR_R_42_V21::All'
+   process.GlobalTag.globaltag='GR_P_V28::All'
  
 process.load("FWCore.MessageService.MessageLogger_cfi")
 process.MessageLogger.cerr.FwkReport.reportEvery = 10000
@@ -60,6 +60,10 @@ process.GlobalTag.toGet = cms.VPSet(
    cms.PSet(record = cms.string('TrackerAlignmentRcd'),
             tag = cms.string('Alignments'),
             connect = cms.untracked.string('sqlite_file:/afs/cern.ch/cms/CAF/CMSALCA/ALCA_TRACKERALIGN2/HIP/yduh/CMSSW_5_3_2_patch4/src/Alignment/HIPAlignmentAlgorithm/GR_53.db')
+            ),
+   cms.PSet(record = cms.string('GlobalPositionRcd'),
+            tag = cms.string('GlobalAlignment'),
+            connect = cms.untracked.string('sqlite_file:/afs/cern.ch/cms/CAF/CMSALCA/ALCA_TRACKERALIGN2/HIP/aspiezia/CMSSW_5_3_2_patch4/src/Alignment/HIPAlignmentAlgorithm/GlobalAlignment_2009_v2_express_TraslRot.db')
             ),
    cms.PSet(record = cms.string('TrackerSurfaceDeformationRcd'),
             tag = cms.string('TrackerSurfaceDeformations_v2_offline'),
