@@ -49,6 +49,7 @@ namespace edm {
     void allocateForReading();
     void setNewClassType();
     void clearClassType();
+    void initializeTransients();
 
    void clear() {
      prod_= 0;
@@ -90,7 +91,8 @@ namespace edm {
     ProcessHistory const& processHistory() const {return processHistory_;}
     EventSelectionIDVector const& eventSelectionIDs() const {return eventSelectionIDs_;}
     BranchListIndexes const& branchListIndexes() const {return branchListIndexes_;}
-    SendProds & products() {return products_;}
+    SendProds& products() {return products_;}
+    void initializeTransients();
   private:
     EventAuxiliary aux_;
     ProcessHistory processHistory_;
@@ -106,7 +108,7 @@ namespace edm {
   class SendJobHeader {
   public:
     typedef std::map<ParameterSetID, ParameterSetBlob> ParameterSetMap;
-    SendJobHeader() { }
+    SendJobHeader() {}
     SendDescs const& descs() const {return descs_;}
     ParameterSetMap const& processParameterSet() const {return processParameterSet_;}
     BranchIDLists const& branchIDLists() const {return branchIDLists_;}
@@ -115,6 +117,7 @@ namespace edm {
     void setParameterSetMap(ParameterSetMap const& psetMap) {processParameterSet_ = psetMap;}
     void setBranchIDLists(BranchIDLists const& bidlists) {branchIDLists_ = bidlists;}
     void setProcessConfigurations(std::vector<ProcessConfiguration> const& pcs) {processConfigurations_ = pcs;}
+    void initializeTransients();
 
   private:
     SendDescs descs_;

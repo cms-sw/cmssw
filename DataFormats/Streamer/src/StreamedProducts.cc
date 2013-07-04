@@ -35,5 +35,24 @@ namespace edm {
         prod_ = 0;
       }
     }
+
+    void
+    StreamedProduct::initializeTransients() {
+      desc_->init();
+    }
+
+    void
+    SendEvent::initializeTransients() {
+      for(StreamedProduct& prod : products_) {
+        prod.initializeTransients();
+      }
+    }
+
+    void
+    SendJobHeader::initializeTransients() {
+      for(BranchDescription& desc : descs_) {
+        desc.init();
+      }
+    }
 }
 
