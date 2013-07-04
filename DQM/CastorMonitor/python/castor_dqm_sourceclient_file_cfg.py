@@ -31,7 +31,7 @@ process.source = cms.Source("PoolSource",
 
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(-1)
+    input = cms.untracked.int32(2)
 )
 
 
@@ -158,8 +158,11 @@ process.castorDigis = cms.EDProducer("CastorRawToDigi",
 
 process.castorMonitor = cms.EDAnalyzer("CastorMonitorModule",
                            ### GLOBAL VARIABLES
-                           debug = cms.untracked.int32(0), # make debug an int so that different
+                           debug = cms.untracked.int32(1), # make debug an int so that different
                                                            # values can trigger different levels of messaging
+							   # 0 - no debug infomration
+							   # 1 - Program flow in/out
+							   # 2 - All major computations
                            # Turn on/off timing diagnostic info
                            showTiming          = cms.untracked.bool(False),
                            dump2database       = cms.untracked.bool(False),
@@ -175,7 +178,7 @@ process.castorMonitor = cms.EDAnalyzer("CastorMonitorModule",
                            CastorJetIDLabel     = cms.InputTag("ak7CastorJetID"),
                           
 			   DataIntMonitor= cms.untracked.bool(True),
-			   TowerJetMonitor= cms.untracked.bool(False),
+			   TowerJetMonitor= cms.untracked.bool(True),
 
                            DigiMonitor = cms.untracked.bool(True),
                            DigiPerChannel = cms.untracked.bool(True), 

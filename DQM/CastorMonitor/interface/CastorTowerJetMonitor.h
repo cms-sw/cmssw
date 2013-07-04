@@ -23,6 +23,7 @@ public:
   ~CastorTowerJetMonitor(); 
 
   void setup(const edm::ParameterSet& ps, DQMStore* dbe);
+  void beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup);
 
   void processEventTowers(const reco::CastorTowerCollection& castorTowers);
   void processEventJets(const  reco::BasicJet& castorBasicJets);

@@ -13,32 +13,44 @@
 //==================================================================//
 //======================= Constructor ==============================//
 //==================================================================//
-CastorRecHitMonitor::CastorRecHitMonitor() {
+CastorRecHitMonitor::CastorRecHitMonitor()
+  {
+
   doPerChannel_ = true;
   //  occThresh_ = 1;
   ievt_=0; 
-}
+
+  }
 
 //==================================================================//
 //======================= Destructor ==============================//
 //==================================================================//
-CastorRecHitMonitor::~CastorRecHitMonitor(){
-}
+CastorRecHitMonitor::~CastorRecHitMonitor()
+  {
+  
+  }
 
-void CastorRecHitMonitor::reset(){
-}
+
+//==================================================================//
+//======================= Reset ====================================//
+//==================================================================//
+
+void CastorRecHitMonitor::reset()
+  {
+
+  }
 
 
 //==========================================================//
 //========================= setup ==========================//
 //==========================================================//
 
-void CastorRecHitMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe){
-  
+void CastorRecHitMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe)
+  {
   CastorBaseMonitor::setup(ps,dbe);
-  baseFolder_ = rootFolder_+"CastorRecHitMonitor";
+  if(fVerbosity>0) std::cout << "CastorRecHitMonitor::setup (start)" << std::endl;
 
-   if(fVerbosity>0) std::cout << "CastorRecHitMonitor::setup (start)" << std::endl;
+  baseFolder_ = rootFolder_+"CastorRecHitMonitor";
   
   if ( ps.getUntrackedParameter<bool>("RecHitsPerChannel", false) ){
     doPerChannel_ = true;
@@ -56,59 +68,75 @@ void CastorRecHitMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe){
       }
     }
   
-  if ( m_dbe !=NULL ) {    
- m_dbe->setCurrentFolder(baseFolder_);
-////---- book MonitorElements
-meEVT_ = m_dbe->bookInt("RecHit Event Number"); // meEVT_->Fill(ievt_);
-////---- energy and time of all RecHits
-castorHists.meRECHIT_E_all = m_dbe->book1D("CastorRecHit Energies- above threshold on RecHitEnergy","CastorRecHit Energies- above threshold on RecHitEnergy",150,0,150);
-castorHists.meRECHIT_T_all = m_dbe->book1D("CastorRecHit Times- above threshold on RecHitEnergy","CastorRecHit Times- above threshold on RecHitEnergy",300,-100,100);    
-////---- 1D energy map
-castorHists.meRECHIT_MAP_CHAN_E = m_dbe->book1D("CastorRecHit Energy in each channel- above threshold","CastorRecHit Energy in each channel- above threshold",224,0,224);
-////---- energy in modules    
-castorHists.meRECHIT_E_modules = m_dbe->book1D("CastorRecHit Energy in modules- above threshold","CastorRecHit Energy in modules- above threshold", 14, 0, 14);
-////---- energy in sectors    
-castorHists.meRECHIT_E_sectors = m_dbe->book1D("CastorRecHit Energy in sectors- above threshold","CastorRecHit Energy in sectors- above threshold", 16, 0, 16);
+  if(fVerbosity>0) std::cout << "CastorRecHitMonitor::setup (end)" << std::endl;
 
-////---- number of rechits in modules    
-castorHists.meRECHIT_N_modules = m_dbe->book1D("Number of CastorRecHits in modules- above threshold","Number of CastorRecHits in modules- above threshold", 14, 0, 14);
-////---- number of rechist in sectors    
-castorHists.meRECHIT_N_sectors = m_dbe->book1D("Number of CastorRecHits in sectors- above threshold","Number of CastorRecHits in sectors- above threshold", 16, 0, 16);
-////---- occupancy
-castorHists.meCastorRecHitsOccupancy = m_dbe->book2D("CastorRecHits Occupancy Map", "CastorRecHits Occupancy Map", 14, 0,14, 16, 0,16);
-////---- number of rechits per event 
-castorHists.meRECHIT_N_event = m_dbe->book1D("Number of CASTOR RecHits per event- above threshold","Number of CASTOR RecHits per event- above threshold", 23, 0, 230);
+  return;
+}
 
- m_dbe->setCurrentFolder(baseFolder_+"/EnergyFraction");
-////---- fraction of the energy deposted in each module    
-castorHists.meRECHIT_E_relative_modules = m_dbe->book1D("Fraction of the total energy in CASTOR modules","Fraction of the total energy in CASTOR modules", 14, 0, 14);
-////---- fraction of the energy deposted in each sector    
-castorHists.meRECHIT_E_relative_sectors = m_dbe->book1D("Fraction of the total energy in CASTOR sectors","Fraction of the total energy in CASTOR sectors", 16, 0, 16);
-/*
-castorHists.meRECHIT_E_relative_modules->getTH1F()->GetYaxis()->SetTitle("fraction of the total energy");
-castorHists.meRECHIT_E_relative_sectors->getTH1F()->GetYaxis()->SetTitle("fraction of the total energy");
+
+//=================================================================//
+//========================== beginRun =============================//
+//================================================================//
+void CastorRecHitMonitor::beginRun(const edm::EventSetup& iSetup)
+  {
+  if(fVerbosity>0) std::cout << "CastorRecHitMonitor::beginRun (start)" << std::endl;
  
-   char ibin1[1024];
-    for(int i=0; i<14; i++){
-     sprintf(ibin1,"%i", i+1);
-     castorHists.meRECHIT_E_relative_modules->getTH1F()->GetXaxis()->SetBinLabel(i+1,ibin1);
-    }
-   char ibin2[1024];
-    for(int i=0; i<16; i++){
-     sprintf(ibin2,"%i", i+1);
-     castorHists.meRECHIT_E_relative_sectors->getTH1F()->GetXaxis()->SetBinLabel(i+1,ibin2);
-    }
+  if ( m_dbe !=NULL )
+	{    
+ 	m_dbe->setCurrentFolder(baseFolder_);
+	////---- book MonitorElements
+	meEVT_ = m_dbe->bookInt("RecHit Event Number"); // meEVT_->Fill(ievt_);
+	////---- energy and time of all RecHits
+	castorHists.meRECHIT_E_all = m_dbe->book1D("CastorRecHit Energies- above threshold on RecHitEnergy","CastorRecHit Energies- above threshold on RecHitEnergy",150,0,150);
+	castorHists.meRECHIT_T_all = m_dbe->book1D("CastorRecHit Times- above threshold on RecHitEnergy","CastorRecHit Times- above threshold on RecHitEnergy",300,-100,100);    
+	////---- 1D energy map
+	castorHists.meRECHIT_MAP_CHAN_E = m_dbe->book1D("CastorRecHit Energy in each channel- above threshold","CastorRecHit Energy in each channel- above threshold",224,0,224);
+	////---- energy in modules    
+	castorHists.meRECHIT_E_modules = m_dbe->book1D("CastorRecHit Energy in modules- above threshold","CastorRecHit Energy in modules- above threshold", 14, 0, 14);
+	////---- energy in sectors    
+	castorHists.meRECHIT_E_sectors = m_dbe->book1D("CastorRecHit Energy in sectors- above threshold","CastorRecHit Energy in sectors- above threshold", 16, 0, 16);
+
+	////---- number of rechits in modules    
+	castorHists.meRECHIT_N_modules = m_dbe->book1D("Number of CastorRecHits in modules- above threshold","Number of CastorRecHits in modules- above threshold", 14, 0, 14);
+	////---- number of rechist in sectors    
+	castorHists.meRECHIT_N_sectors = m_dbe->book1D("Number of CastorRecHits in sectors- above threshold","Number of CastorRecHits in sectors- above threshold", 16, 0, 16);
+	////---- occupancy
+	castorHists.meCastorRecHitsOccupancy = m_dbe->book2D("CastorRecHits Occupancy Map", "CastorRecHits Occupancy Map", 14, 0,14, 16, 0,16);
+	////---- number of rechits per event 
+	castorHists.meRECHIT_N_event = m_dbe->book1D("Number of CASTOR RecHits per event- above threshold","Number of CASTOR RecHits per event- above threshold", 23, 0, 230);
+
+
+	m_dbe->setCurrentFolder(baseFolder_+"/EnergyFraction");
+	////---- fraction of the energy deposted in each module    
+	castorHists.meRECHIT_E_relative_modules = m_dbe->book1D("Fraction of the total energy in CASTOR modules","Fraction of the total energy in CASTOR modules", 14, 0, 14);
+	////---- fraction of the energy deposted in each sector    
+	castorHists.meRECHIT_E_relative_sectors = m_dbe->book1D("Fraction of the total energy in CASTOR sectors","Fraction of the total energy in CASTOR sectors", 16, 0, 16);
+	/*
+	castorHists.meRECHIT_E_relative_modules->getTH1F()->GetYaxis()->SetTitle("fraction of the total energy");
+	castorHists.meRECHIT_E_relative_sectors->getTH1F()->GetYaxis()->SetTitle("fraction of the total energy");
+ 
+   	char ibin1[1024];
+    	for(int i=0; i<14; i++)
+		{
+     		sprintf(ibin1,"%i", i+1);
+     		castorHists.meRECHIT_E_relative_modules->getTH1F()->GetXaxis()->SetBinLabel(i+1,ibin1);
+    		}
+   	char ibin2[1024];
+    	for(int i=0; i<16; i++)
+		{
+     		sprintf(ibin2,"%i", i+1);
+     		castorHists.meRECHIT_E_relative_sectors->getTH1F()->GetXaxis()->SetBinLabel(i+1,ibin2);
+    		}
 */
 
-  } 
+  	}
+  else
+	{
+  	if(fVerbosity>0) std::cout << "CastorRecHitMonitor::beginRun - NO DQMStore service" << std::endl; 
+ 	}
 
-
-
-  else{
-  if(fVerbosity>0) std::cout << "CastorRecHitMonitor::setup - NO DQMStore service" << std::endl; 
- }
-
-  if(fVerbosity>0) std::cout << "CastorRecHitMonitor::setup (end)" << std::endl;
+ 
+  if(fVerbosity>0) std::cout << "CastorRecHitMonitor::beginRun (end)" << std::endl;
 
   return;
 }
@@ -171,7 +199,7 @@ namespace CastorRecHitPerChan{
 
 void CastorRecHitMonitor::processEvent(const CastorRecHitCollection& castorHits ){
 
-  if(fVerbosity>0) std::cout << "==>CastorRecHitMonitor::processEvent !!!"<< std::endl;
+  if(fVerbosity>0) std::cout << "CastorRecHitMonitor::processEvent (begin)"<< std::endl;
        
 
   ////--- increment here
@@ -195,7 +223,7 @@ void CastorRecHitMonitor::processEvent(const CastorRecHitCollection& castorHits 
 
      if(castorHits.size()>0)
     {    
-       if(fVerbosity>0) std::cout << "==>CastorRecHitMonitor::processEvent: castorHits.size()>0 !!!" << std::endl; 
+       if(fVerbosity>1) std::cout << "==>CastorRecHitMonitor::processEvent: castorHits.size()>0 !!!" << std::endl; 
 
       //////////////////////---------------------- loop over all hits
       for (CASTORiter=castorHits.begin(); CASTORiter!=castorHits.end(); ++CASTORiter) { 
@@ -283,6 +311,8 @@ void CastorRecHitMonitor::processEvent(const CastorRecHitCollection& castorHits 
     }
     
  
+  if(fVerbosity>0) std::cout << "CastorRecHitMonitor::processEvent (begin)"<< std::endl;
+
   return;
 }
 

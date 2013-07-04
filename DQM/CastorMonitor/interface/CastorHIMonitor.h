@@ -12,6 +12,7 @@ public:
   ~CastorHIMonitor(); 
 
   void setup(const edm::ParameterSet& ps, DQMStore* dbe);
+  void beginRun(const edm::EventSetup& iSetup);
   void processEvent(const CastorRecHitCollection& castorHits, const CastorDigiCollection& cast, const CastorDbService& cond);
   void reset();
 
