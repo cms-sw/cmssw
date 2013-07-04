@@ -1,17 +1,30 @@
-full_title = "RecoBTau collections (in RECO and AOD)"
+'''
+    Created on Jun 26, 2013 
+    @author:  Mantas Stankevicius
+    @contact: mantas.stankevicius@cern.ch
+    http://cmsdoxy.web.cern.ch/cmsdoxy/dataformats/
+    
+    @responsible: 
+    
+'''
 
-full = {
+json = {
+  "full": {
+    "title": "RecoBTau collections (in RECO and AOD)",
+    "data": [
 
-}
+    ]
+  },
+  "aod": {
+    "title": "RecoBTau collections (in AOD only)",
+    "data": [
 
-reco_title = "RecoBTau collections (in RECO only)"
+    ]
+  },
+  "reco": {
+    "title": "RecoBTau collections (in RECO only)",
+    "data": [
 
-reco = {
-
-}
-
-aod_title = "RecoBTau collections (in AOD only)"
-
-aod = {
-
+    ]
+  }
 }
