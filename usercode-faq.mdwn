@@ -136,7 +136,11 @@ GitHub has to possible ways of dealing with this.
   organization. The main advantage of organizations is that they provide much
   more flexible organization of contributors in terms of "Teams" with different
   commit rights.  To learn more about organizations please have a look at
-  <https://github.com/blog/674-introducing-organizations>.
+  <https://github.com/blog/674-introducing-organizations>. If you would like to
+  create an official CMS organization for some of the code you have in
+  UserCode, (for example for a given POG / PAG), please [create an issue
+  ticket](https://github.com/cms-sw/cmssw/issues/new) so that it can be
+  discussed and eventually approved.
 
 ### Does this affect physics notes?
 
