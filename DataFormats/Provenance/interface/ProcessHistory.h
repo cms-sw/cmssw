@@ -77,18 +77,18 @@ namespace edm {
 
     void reduce();
 
-    void initializeTransients() const {transient_.reset();}
+    void initializeTransients() {transient_.reset();}
 
     struct Transients {
       Transients() : phid_() {}
       void reset() {phid_.reset();}
-      ProcessHistoryID phid_;
+      mutable ProcessHistoryID phid_;
     };
 
   private:
     ProcessHistoryID& phid() const {return transient_.phid_;}
     collection_type data_;
-    mutable Transients transient_;
+    Transients transient_;
   };
 
   // Free swap function
