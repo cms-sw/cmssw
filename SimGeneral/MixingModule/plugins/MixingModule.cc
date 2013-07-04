@@ -50,7 +50,7 @@ namespace edm {
     if (labelPlayback.empty()) {
       labelPlayback = ps_mix.getParameter<std::string>("@module_label");
     }
-    inputTagPlayback_ = InputTag(labelPlayback, "");
+    inputTagPlayback_ = InputTag(labelPlayback, "", edm::InputTag::kSkipCurrentProcess);
 
     ParameterSet ps=ps_mix.getParameter<ParameterSet>("mixObjects");
     std::vector<std::string> names = ps.getParameterNames();
@@ -416,6 +416,7 @@ dropUnwantedBranches(wantedBranches_);
   }
 
   void MixingModule::beginRun(edm::Run const& run, edm::EventSetup const& setup) {
+    this->BMixingModule::beginRun(run, setup);
     for(Accumulators::const_iterator accItr = digiAccumulators_.begin(), accEnd = digiAccumulators_.end(); accItr != accEnd; ++accItr) {
       (*accItr)->beginRun(run, setup);
     }
@@ -425,9 +426,11 @@ dropUnwantedBranches(wantedBranches_);
     for(Accumulators::const_iterator accItr = digiAccumulators_.begin(), accEnd = digiAccumulators_.end(); accItr != accEnd; ++accItr) {
       (*accItr)->endRun(run, setup);
     }
+    this->BMixingModule::endRun(run, setup);
   }
 
   void MixingModule::beginLuminosityBlock(edm::LuminosityBlock const& lumi, edm::EventSetup const& setup) {
+    this->BMixingModule::beginLuminosityBlock(lumi, setup);
     for(Accumulators::const_iterator accItr = digiAccumulators_.begin(), accEnd = digiAccumulators_.end(); accItr != accEnd; ++accItr) {
       (*accItr)->beginLuminosityBlock(lumi, setup);
     }
@@ -437,6 +440,7 @@ dropUnwantedBranches(wantedBranches_);
     for(Accumulators::const_iterator accItr = digiAccumulators_.begin(), accEnd = digiAccumulators_.end(); accItr != accEnd; ++accItr) {
       (*accItr)->endLuminosityBlock(lumi, setup);
     }
+    this->BMixingModule::endLuminosityBlock(lumi, setup);
   }
 
   void
