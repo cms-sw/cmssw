@@ -280,11 +280,12 @@ namespace edm {
     if(i != moduleLabelsRunning_.end()) {
       throw Exception(errors::LogicError)
         << "Hit circular dependency while trying to run an unscheduled module.\n"
-        << "Current implementation of unscheduled execution cannot always determine\n"
-        << "the proper order for module execution.  It is also possible the modules\n"
-        << "have a built in circular dependence that will not work with any order.\n"
-        << "In the first case, scheduling some or all required modules in paths will help.\n"
-        << "In the second case, the modules themselves will have to be fixed.\n";
+        << "The last module on the stack shown above requested data from the\n"
+        << "module with label: '" << moduleLabel << "'.\n"
+        << "This is illegal because this module is already running (it is in the\n"
+        << "stack shown above, it might or might not be asking for data from itself).\n"
+        << "More information related to resolving circular dependences can be found here:\n"
+        << "https://twiki.cern.ch/twiki/bin/view/CMSPublic/SWGuideUnscheduledExecution#Circular_Dependence_Errors.";
     }
 
     moduleLabelsRunning_.push_back(moduleLabel);
