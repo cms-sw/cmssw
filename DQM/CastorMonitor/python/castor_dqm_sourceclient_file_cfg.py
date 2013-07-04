@@ -31,7 +31,7 @@ process.source = cms.Source("PoolSource",
 
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(2)
+    input = cms.untracked.int32(-1)
 )
 
 
@@ -158,7 +158,7 @@ process.castorDigis = cms.EDProducer("CastorRawToDigi",
 
 process.castorMonitor = cms.EDAnalyzer("CastorMonitorModule",
                            ### GLOBAL VARIABLES
-                           debug = cms.untracked.int32(1), # make debug an int so that different
+                           debug = cms.untracked.int32(0), # make debug an int so that different
                                                            # values can trigger different levels of messaging
 							   # 0 - no debug infomration
 							   # 1 - Program flow in/out
