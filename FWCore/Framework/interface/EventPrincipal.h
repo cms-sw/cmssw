@@ -74,6 +74,8 @@ namespace edm {
 
     void setLuminosityBlockPrincipal(boost::shared_ptr<LuminosityBlockPrincipal> const& lbp);
 
+    void setRunAndLumiNumber(RunNumber_t run, LuminosityBlockNumber_t lumi);
+
     EventID const& id() const {
       return aux().id();
     }
