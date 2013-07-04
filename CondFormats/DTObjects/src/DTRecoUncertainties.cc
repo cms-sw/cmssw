@@ -36,6 +36,7 @@ float DTRecoUncertainties::get(const DTWireId& wireid, DTRecoUncertainties::Type
     return -1.;
   }
   
+
   return (*slIt).second[type];
 }
   
