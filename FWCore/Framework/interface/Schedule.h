@@ -65,6 +65,7 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/OccurrenceTraits.h"
 #include "FWCore/Framework/interface/UnscheduledCallProducer.h"
+#include "FWCore/Framework/interface/WorkerManager.h"
 #include "FWCore/Framework/src/Path.h"
 #include "FWCore/Framework/src/RunStopwatch.h"
 #include "FWCore/Framework/src/Worker.h"
@@ -226,23 +227,17 @@ namespace edm {
     /// Returns true if successful.
     bool changeModule(std::string const& iLabel, ParameterSet const& iPSet);
 
+    /// returns the collection of pointers to workers
+    AllWorkers const& allWorkers() const {
+      return workerManager_.allWorkers();
+    }
+
+    /// returns the action table
+    ActionTable const& actionTable() const {
+      return workerManager_.actionTable();
+    }
+
   private:
-
-    AllWorkers::const_iterator workersBegin() const {
-      return all_workers_.begin();
-    }
-
-    AllWorkers::const_iterator workersEnd() const {
-      return all_workers_.end();
-    }
-
-    AllWorkers::iterator workersBegin() {
-      return  all_workers_.begin();
-    }
-
-    AllWorkers::iterator workersEnd() {
-      return all_workers_.end();
-    }
 
     void resetAll();
 
@@ -251,8 +246,6 @@ namespace edm {
 
     template <typename T>
     void runEndPaths(typename T::MyPrincipal&, EventSetup const&);
-
-    void setupOnDemandSystem(EventPrincipal& principal, EventSetup const& es);
 
     void reportSkipped(EventPrincipal const& ep) const;
     void reportSkipped(LuminosityBlockPrincipal const&) const {}
@@ -289,8 +282,7 @@ namespace edm {
                                edm::ProductRegistry const& preg, 
                                edm::ParameterSet const* subProcPSet);
 
-    WorkerRegistry                                worker_reg_;
-    ActionTable const*                            act_table_;
+    WorkerManager            workerManager_;
     boost::shared_ptr<ActivityRegistry>           actReg_;
 
     State                    state_;
@@ -301,7 +293,6 @@ namespace edm {
     TrigResPtr               endpath_results_;
 
     WorkerPtr                results_inserter_;
-    AllWorkers               all_workers_;
     AllOutputWorkers         all_output_workers_;
     TrigPaths                trig_paths_;
     TrigPaths                end_paths_;
@@ -327,8 +318,6 @@ namespace edm {
     int                            total_events_;
     int                            total_passed_;
     RunStopwatch::StopwatchPointer stopwatch_;
-
-    boost::shared_ptr<UnscheduledCallProducer> unscheduled_;
 
     volatile bool           endpathsAreActive_;
   };
@@ -373,22 +362,22 @@ namespace edm {
     // A RunStopwatch, but only if we are processing an event.
     RunStopwatch stopwatch(T::isEvent_ ? stopwatch_ : RunStopwatch::StopwatchPointer());
 
+    // This call takes care of the unscheduled processing.
+    workerManager_.processOneOccurrence<T>(ep, es, cleaningUpAfterException);
+
     if (T::isEvent_) {
       ++total_events_;
-      setupOnDemandSystem(dynamic_cast<EventPrincipal&>(ep), es);
     }
     try {
       try {
         try {
-          //make sure the unscheduled items see this transition [Event will be a no-op]
-          unscheduled_->runNow<T>(ep, es);
           if (runTriggerPaths<T>(ep, es)) {
             if (T::isEvent_) ++total_passed_;
           }
           state_ = Latched;
         }
         catch(cms::Exception& e) {
-          actions::ActionCodes action = (T::isEvent_ ? act_table_->find(e.category()) : actions::Rethrow);
+          actions::ActionCodes action = (T::isEvent_ ? actionTable().find(e.category()) : actions::Rethrow);
           assert (action != actions::IgnoreCompletely);
           assert (action != actions::FailPath);
           if (action == actions::SkipEvent) {
