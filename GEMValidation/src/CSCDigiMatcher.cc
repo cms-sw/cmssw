@@ -52,7 +52,7 @@ void CSCDigiMatcher::init()
 void
 CSCDigiMatcher::matchTriggerDigisToSimTrack(const CSCComparatorDigiCollection& comparators, const CSCWireDigiCollection& wires)
 {
-  auto det_ids = simhit_matcher_->detIdsCSC();
+  auto det_ids = simhit_matcher_->detIdsCSC(0);
   for (auto id: det_ids)
   {
     CSCDetId layer_id(id);

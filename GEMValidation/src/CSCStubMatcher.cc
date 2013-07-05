@@ -61,7 +61,7 @@ CSCStubMatcher::matchCLCTsToSimTrack(const CSCCLCTDigiCollection& clcts)
 {
   // only look for stub in chambers that have digis matching to this track
 
-  auto cathode_ids = digi_matcher_->chamberIdsStrip();
+  auto cathode_ids = digi_matcher_->chamberIdsStrip(0);
   int n_4layers = 0;
   for (auto id: cathode_ids)
   {
@@ -154,7 +154,7 @@ CSCStubMatcher::matchALCTsToSimTrack(const CSCALCTDigiCollection& alcts)
 {
   // only look for stub in chambers that have digis matching to this track
 
-  auto anode_ids = digi_matcher_->chamberIdsWire();
+  auto anode_ids = digi_matcher_->chamberIdsWire(0);
   int n_4layers = 0;
   for (auto id: anode_ids)
   {
@@ -240,8 +240,8 @@ void
 CSCStubMatcher::matchLCTsToSimTrack(const CSCCorrelatedLCTDigiCollection& lcts)
 {
   // only look for stubs in chambers that already have CLCT and ALCT
-  auto cathode_ids = chamberIdsAllCLCT();
-  auto anode_ids = chamberIdsAllALCT();
+  auto cathode_ids = chamberIdsAllCLCT(0);
+  auto anode_ids = chamberIdsAllALCT(0);
 
   std::set<int> cathode_and_anode_ids;
   std::set_union(
@@ -273,10 +273,16 @@ CSCStubMatcher::matchLCTsToSimTrack(const CSCCorrelatedLCTDigiCollection& lcts)
       int hs = lct->getStrip() + 1; // LCT halfstrip and wiregoup numbers start from 0
       int wg = lct->getKeyWG() + 1;
 
-      auto mydigi = make_digi(id, hs, bx, CSC_LCT, lct->getQuality(), lct->getPattern(), wg);
+      float dphi = lct->getGEMDPhi();
+
+      auto mydigi = make_digi(id, hs, bx, CSC_LCT, lct->getQuality(), lct->getPattern(), wg, dphi);
       lcts_tmp.push_back(mydigi);
       bx_to_lcts[bx].push_back(mydigi);
-      if (bx_to_lcts[bx].size() == 2) // add ghost LCTs if the two don't share half-strip or wiregroup
+
+      // Add ghost LCTs when there are two in bx
+      // and the two don't share half-strip or wiregroup
+      // TODO: when GEMs would be used to resolve this, there might ned to be an option to turn this off!
+      if (bx_to_lcts[bx].size() == 2)
       {
         auto lct11 = bx_to_lcts[bx][0];
         auto lct22 = bx_to_lcts[bx][1];
@@ -297,8 +303,11 @@ CSCStubMatcher::matchLCTsToSimTrack(const CSCCorrelatedLCTDigiCollection& lcts)
           cout<<"added ghosts"<<endl<<lct11<<"    "<<lct22<<endl <<lct12<<"    "<<lct21<<endl;
         }
       }
-    }
+
+    } // lcts_in_det
+
     size_t n_lct = lcts_tmp.size();
+    if (verbose()) cout<<"n_lct = "<<n_lct<<endl;
     if (n_lct == 0) continue; // no LCTs in this chamber
 
     // assign the non necessarily matching LCTs

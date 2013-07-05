@@ -16,8 +16,8 @@ using namespace matching;
 
 
 FastGEMCSCBuilder::FastGEMCSCBuilder(const edm::ParameterSet& ps, CLHEP::HepRandomEngine& eng)
-: zOddGE21_(ps.getParameter<vector<double> >("zOddGE21"))
-, zEvenGE21_(ps.getParameter<vector<double> >("zEvenGE21"))
+: zOddGEM_(ps.getParameter<vector<double> >("zOddGEM"))
+, zEvenGEM_(ps.getParameter<vector<double> >("zEvenGEM"))
 , phiSmearCSC_(ps.getParameter<vector<double> >("phiSmearCSC"))
 , phiSmearGEM_(ps.getParameter<vector<double> >("phiSmearGEM"))
 , fitterXZ_(new TLinearFitter(1, "pol1"))
@@ -28,17 +28,17 @@ FastGEMCSCBuilder::FastGEMCSCBuilder(const edm::ParameterSet& ps, CLHEP::HepRand
   fitterYZ_->StoreData(1);
 
   // these configuration vectors have to have 1+10 elements corresponding to 10 chamber types
-  assert(zOddGE21_.size() == 11);
-  assert(zEvenGE21_.size() == 11);
+  assert(zOddGEM_.size() == 11);
+  assert(zEvenGEM_.size() == 11);
   assert(phiSmearCSC_.size() == 11);
   assert(phiSmearCSC_.size() == 11);
   // Sanity check: negative parameters values would mean chambers are not supposed to be used
   // non-used chamber types have to be the same between all the vectors
   for (int i=1; i<11; ++i)
   {
-    if (zOddGE21_[i] < 0.)
+    if (zOddGEM_[i] < 0.)
     {
-      assert(zEvenGE21_[i] < 0. && phiSmearCSC_[i] < 0. && phiSmearCSC_[i] < 0.);
+      assert(zEvenGEM_[i] < 0. && phiSmearCSC_[i] < 0. && phiSmearCSC_[i] < 0.);
     }
   }
 }
@@ -74,15 +74,18 @@ void FastGEMCSCBuilder::build(const SimHitMatcher& match_sh)
     int ch_type = id.iChamberType();
     bool odd = id.chamber() & 1;
 
+    float smear_csc = phiSmearCSC_[ch_type];
+    float smear_gem = phiSmearGEM_[ch_type];
+
     // --- determine the z-position of gem
     double z_gem;
     if (odd) {
-      if (id.endcap() == 1) z_gem =  zOddGE21_[ch_type];
-      else                  z_gem = -zOddGE21_[ch_type];
+      if (id.endcap() == 1) z_gem =  zOddGEM_[ch_type];
+      else                  z_gem = -zOddGEM_[ch_type];
     }
     else {
-      if (id.endcap() == 1) z_gem =  zEvenGE21_[ch_type];
-      else                  z_gem = -zEvenGE21_[ch_type];
+      if (id.endcap() == 1) z_gem =  zEvenGEM_[ch_type];
+      else                  z_gem = -zEvenGEM_[ch_type];
     }
 
     SimStub stub(z_gem);
@@ -101,7 +104,7 @@ void FastGEMCSCBuilder::build(const SimHitMatcher& match_sh)
     const auto& hits = match_sh.hitsInChamber(d);
     for (auto& h: hits)
     {
-      stub.addHalfStrips( match_sh.hitStripsInDetId(h.detUnitId(), 1) ); // use single HS margin
+      stub.addStrips( match_sh.hitStripsInDetId(h.detUnitId(), 1) ); // use single strip margin
       stub.addWireGroups( match_sh.hitWiregroupsInDetId(h.detUnitId(), 1) ); // use single WG margin
 
       GlobalPoint gp = csc_geo_->idToDet(h.detUnitId())->surface().toGlobal(h.entryPoint());
@@ -135,12 +138,12 @@ void FastGEMCSCBuilder::build(const SimHitMatcher& match_sh)
     // fitted SimHits stub position at key layer
     GlobalPoint gp_csc = stub.globalPointAtZ( gp_key.z() );
     // optionally, do phi smearing
-    if (phiSmearCSC_[ch_type] > 0.)
+    if (smear_csc > 0.)
     {
       auto theta = gp_csc.theta(); // Geom::Theta<> object
       auto phi   = gp_csc.phi(); // Geom::Phi<> object
       auto r     = gp_csc.mag();
-      float smear = flat_->fire(phiSmearCSC_[ch_type]) - phiSmearCSC_[ch_type] * 0.5;
+      float smear = flat_->fire(smear_csc) - smear_csc * 0.5;
       phi += smear;
       gp_csc = GlobalPoint(GlobalPoint::Spherical(theta, phi, r));
     }
@@ -148,12 +151,12 @@ void FastGEMCSCBuilder::build(const SimHitMatcher& match_sh)
 
     GlobalPoint gp_gem_lin = stub.globalPointAtZ( z_gem );
     float gem_phi_smear = 0.;
-    if (phiSmearGEM_[ch_type] > 0.)
+    if (smear_gem> 0.)
     {
       auto theta = gp_gem_lin.theta(); // Geom::Theta<> object
       auto phi   = gp_gem_lin.phi(); // Geom::Phi<> object
       auto r     = gp_gem_lin.mag();
-      gem_phi_smear = flat_->fire(phiSmearGEM_[ch_type]) - phiSmearGEM_[ch_type] * 0.5;
+      gem_phi_smear = flat_->fire(smear_gem) - smear_gem * 0.5;
       phi += gem_phi_smear;
       gp_gem_lin = GlobalPoint(GlobalPoint::Spherical(theta, phi, r));
     }
@@ -162,7 +165,7 @@ void FastGEMCSCBuilder::build(const SimHitMatcher& match_sh)
     // propagate to z_gem
     GlobalVector inner_vector = match_sh.trk().momentum().P() * stub.direction();
     GlobalPoint gp_gem_prop = match_sh.propagateToZ(gp_csc, inner_vector, z_gem);
-    if (phiSmearGEM_[ch_type] > 0.)
+    if (smear_gem > 0.)
     {
       auto theta = gp_gem_prop.theta(); // Geom::Theta<> object
       auto phi   = gp_gem_prop.phi(); // Geom::Phi<> object
@@ -224,10 +227,12 @@ void SimStub::setFitParameters(double x0, double x1, double y0, double y1)
 }
 
 
-void SimStub::addHalfStrips(std::set<int> hs)
+void SimStub::addStrips(std::set<int> strips)
 {
-  int hs_min = *hs.begin();
-  int hs_max = *hs.rbegin();
+  // the inputs are *strips* that were hit by SimHits (strip count starting from 1)
+  // convert to half-strips range (hs count also starting from 1)
+  int hs_min = 2 * (*strips.begin()) - 1; 
+  int hs_max = 2 * (*strips.rbegin());
   if (hs_min < min_hs_) min_hs_ = hs_min;
   if (hs_max > max_hs_) max_hs_ = hs_max;
 }

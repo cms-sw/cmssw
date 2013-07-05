@@ -1,4 +1,4 @@
-/**\class FastGE21CSCProducer
+/**\class FastGEMCSCProducer
 
  Description:
 
@@ -32,6 +32,8 @@
 #include "Geometry/CSCGeometry/interface/CSCGeometry.h"
 //#include "Geometry/GEMGeometry/interface/GEMGeometry.h"
 
+#include "L1Trigger/CSCCommonTrigger/interface/CSCConstants.h"
+
 #include "GEMCode/GEMValidation/src/SimTrackMatchManager.h"
 #include "GEMCode/SimMuL1/interface/FastGEMCSCBuilder.h"
 
@@ -50,13 +52,13 @@ enum {CSC_ALL = 0, CSC_ME1a, CSC_ME1b, CSC_ME12, CSC_ME13,
       CSC_ME21, CSC_ME22, CSC_ME31, CSC_ME32, CSC_ME41, CSC_ME42};
 
 
-class FastGE21CSCProducer : public edm::EDProducer
+class FastGEMCSCProducer : public edm::EDProducer
 {
 public:
 
-  explicit FastGE21CSCProducer(const edm::ParameterSet&);
+  explicit FastGEMCSCProducer(const edm::ParameterSet&);
 
-  ~FastGE21CSCProducer() {}
+  ~FastGEMCSCProducer() {}
   
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
   
@@ -77,6 +79,7 @@ private:
   float minPt_;
   float minEta_, maxEta_;
   bool usePropagatedDPhi_;
+  bool useLCTPosition_;
   int verbose_;
 
   const CSCGeometry* csc_geo_;
@@ -85,22 +88,23 @@ private:
 };
 
 
-FastGE21CSCProducer::FastGE21CSCProducer(const edm::ParameterSet& ps)
+FastGEMCSCProducer::FastGEMCSCProducer(const edm::ParameterSet& ps)
 : cfg_(ps.getParameterSet("simTrackMatching"))
-, simInputLabel_(ps.getUntrackedParameter<string>("simInputLabel", "g4SimHits"))
-, lctInput_(ps.getUntrackedParameter<edm::InputTag>("lctInput", edm::InputTag("simCscTriggerPrimitiveDigis", "MPCSORTED")))
-, productInstanceName_(ps.getUntrackedParameter<string>("productInstanceName", "FastGE21"))
+, simInputLabel_(ps.getParameter<string>("simInputLabel"))
+, lctInput_(ps.getParameter<edm::InputTag>("lctInput"))
+, productInstanceName_(ps.getUntrackedParameter<string>("productInstanceName", "FastGEM"))
 , minPt_(ps.getUntrackedParameter<double>("minPt", 4.5))
 , minEta_(ps.getUntrackedParameter<double>("minEta", 1.55))
-, maxEta_(ps.getUntrackedParameter<double>("maxEta", 2.4))
-, usePropagatedDPhi_(ps.getUntrackedParameter<double>("usePropagatedDPhi", true))
+, maxEta_(ps.getUntrackedParameter<double>("maxEta", 2.48))
+, usePropagatedDPhi_(ps.getParameter<bool>("usePropagatedDPhi"))
+, useLCTPosition_(ps.getParameter<bool>("useLCTPosition"))
 , verbose_(ps.getUntrackedParameter<int>("verbose", 0))
 {
   edm::Service<edm::RandomNumberGenerator> rng;
   if ( ! rng.isAvailable())
   {
    throw cms::Exception("Configuration")
-     << "FastGE21CSCProducer::FastGE21CSCProducer() - RandomNumberGeneratorService is not present in configuration file.\n"
+     << "FastGEMCSCProducer::FastGEMCSCProducer() - RandomNumberGeneratorService is not present in configuration file.\n"
      << "Add the service in the configuration file or remove the modules that require it.";
   }
   CLHEP::HepRandomEngine& engine = rng->getEngine();
@@ -111,13 +115,13 @@ FastGE21CSCProducer::FastGE21CSCProducer(const edm::ParameterSet& ps)
 }
 
 
-void FastGE21CSCProducer::beginRun(edm::Run &iRun, edm::EventSetup const &iSetup)
+void FastGEMCSCProducer::beginRun(edm::Run &iRun, edm::EventSetup const &iSetup)
 {
   //
 }
 
 
-bool FastGE21CSCProducer::isSimTrackGood(const SimTrack &t)
+bool FastGEMCSCProducer::isSimTrackGood(const SimTrack &t)
 {
   // SimTrack selection
   if (t.noVertex()) return false;
@@ -130,7 +134,7 @@ bool FastGE21CSCProducer::isSimTrackGood(const SimTrack &t)
 }
 
 
-void FastGE21CSCProducer::produce(edm::Event& ev, const edm::EventSetup& es)
+void FastGEMCSCProducer::produce(edm::Event& ev, const edm::EventSetup& es)
 {
   edm::ESHandle<CSCGeometry> csc_g;
   es.get<MuonGeometryRecord>().get(csc_g);
@@ -181,7 +185,7 @@ void FastGE21CSCProducer::produce(edm::Event& ev, const edm::EventSetup& es)
 }
 
 
-void FastGE21CSCProducer::processStubs4SimTrack(map<unsigned int, vector<CSCCorrelatedLCTDigi> >& stubs, SimTrackMatchManager& match)
+void FastGEMCSCProducer::processStubs4SimTrack(map<unsigned int, vector<CSCCorrelatedLCTDigi> >& stubs, SimTrackMatchManager& match)
 {
   const SimHitMatcher& match_sh = match.simhits();
 
@@ -191,21 +195,52 @@ void FastGE21CSCProducer::processStubs4SimTrack(map<unsigned int, vector<CSCCorr
   auto model_stubs_ch_ids = builder_->getChamberIds();
   for (auto d: model_stubs_ch_ids)
   {
+    CSCDetId id(d);
+    //bool s2 = id.station()==2;
+    //if (s2) cout<<"model in "<<id<<endl;
+
     // was there any actual LCT in this detid?
     auto dstubs = stubs.find(d);
-    if (dstubs == stubs.end()) continue;
+    if (dstubs == stubs.end()) {/*if (s2) cout<<"  --not in stubs"<<endl;*/ continue;}
 
     auto &model_stubs = builder_->getStubs(d);
+    //if (s2) cout<<"  ++in stubs: mod "<<model_stubs.size()<<" lct "<<dstubs->second.size()<<endl;
+
     for (auto &model_stub: model_stubs)
     {
+      //cout<<"  mstub "<<model_stub<<endl;
       for (auto& stub: dstubs->second)
       {
         int wg = 1 + stub.getKeyWG(); // LCT halfstrip and wiregoup numbers start from 0
         int hs = 1 + stub.getStrip();
+        //if (s2) cout<<"  wg hs "<<wg<<" "<<hs<<" ->  "<< model_stub.hasWireGroup(wg)<<" "<<model_stub.hasHalfStrip(hs) <<endl;
+
         if ( ! (model_stub.hasHalfStrip(hs) && model_stub.hasWireGroup(wg)) ) continue;
+
+        if (useLCTPosition_)
+        {
+          // replace model_stub's CSC position with that of the matched LCT
+          
+          auto layer_geo = csc_geo_->chamber(id)->layer(CSCConstants::KEY_CLCT_LAYER)->geometry();
+
+          float fractional_strip = 0.5 * hs - 0.25;
+          float wire = layer_geo->middleWireOfGroup(wg);
+          LocalPoint intersect = layer_geo->intersectionOfStripAndWire(fractional_strip, wire);
+
+          // return global point on the KEY_CLCT_LAYER layer
+          CSCDetId key_id(id.endcap(), id.station(), id.ring(), id.chamber(), CSCConstants::KEY_CLCT_LAYER);
+          GlobalPoint gp = csc_geo_->idToDet(key_id)->surface().toGlobal(intersect);
+
+          //GlobalPoint gp_sh = model_stub.globalPointCSC();
+          //if (s2) cout<<"  dgpCSC "<<deltaPhi(gp.phi(), gp_sh.phi())<<endl;
+
+          model_stub.setCSC(gp);
+        }
+
         //float old_dphi = digiIt->getGEMDPhi();
         float dphi = model_stub.dPhiGEMCSCLinear();
         if (usePropagatedDPhi_) dphi = model_stub.dPhiGEMCSCPropagator();
+        //if (s2) cout<<"     setting dphi "<<dphi<<" # "<<model_stub.dPhiGEMCSCLinear()<<endl;
         stub.setGEMDPhi(dphi);
       }
     }
@@ -214,7 +249,7 @@ void FastGE21CSCProducer::processStubs4SimTrack(map<unsigned int, vector<CSCCorr
 
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
-void FastGE21CSCProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions)
+void FastGEMCSCProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions)
 {
   // The following says we do not know what parameters are allowed so do no validation
   // Please change this to state exactly what you do use, even if it is no parameters
@@ -223,4 +258,4 @@ void FastGE21CSCProducer::fillDescriptions(edm::ConfigurationDescriptions& descr
   descriptions.addDefault(desc);
 }
 
-DEFINE_FWK_MODULE(FastGE21CSCProducer);
+DEFINE_FWK_MODULE(FastGEMCSCProducer);

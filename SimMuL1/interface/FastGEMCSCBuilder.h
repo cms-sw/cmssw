@@ -66,12 +66,13 @@ struct SimStub
 
   void setFitParameters(double x0, double x1, double y0, double y1);
 
-  void addHalfStrips(std::set<int> hs);
-  void addWireGroups(std::set<int> wg);
-
   void setCSC(GlobalPoint &gp) { gp_csc_ = gp; }
+
   void setGEMLinear(GlobalPoint &gp) { gp_gem_lin_ = gp; }
   void setGEMPropagator(GlobalPoint &gp) { gp_gem_prop_ = gp; }
+
+  void addStrips(std::set<int> s);
+  void addWireGroups(std::set<int> wg);
 
   // ----- printing -----
   friend std::ostream& operator<<(std::ostream& os, const SimStub& s);
@@ -111,10 +112,10 @@ public:
 
 private:
 
-  // these configuration vectors have to have 10 elements corresponding to 10 chamber types
+  // these configuration vectors have to have 11 elements corresponding to 10 chamber types (+ 1 index 0)
   // negative parameters values would mean chambers are not supposed to be used
-  std::vector<double> zOddGE21_;
-  std::vector<double> zEvenGE21_;
+  std::vector<double> zOddGEM_;
+  std::vector<double> zEvenGEM_;
   std::vector<double> phiSmearCSC_;
   std::vector<double> phiSmearGEM_;
 
