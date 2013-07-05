@@ -23,8 +23,8 @@ questions please have a look at the [FAQ](faq.html) pages.
 
 > Set up the work area just like you used to.
 
-    > scram project CMSSW_7_0_0_pre0
-    > cd CMSSW_7_0_0_pre0/src
+    > scram project CMSSW_6_2_0_pre8
+    > cd CMSSW_6_2_0_pre8/src
     > cmsenv
 
 ### Checkout a few packages using git cms-addpkg
@@ -38,11 +38,11 @@ The src directory is populated with just what we asked for (here
     BuildFile.xml
 
 >By default it would simply use the current release tag (e.g.
->CMSSW_7_0_0_pre0). At any point you can list the available branches via `git
+>CMSSW_6_2_0_pre8). At any point you can list the available branches via `git
 >branch`.
 
     > git branch
-    * from-CMSSW_7_0_0_pre0
+    * from-CMSSW_6_2_0_pre8
 
 > the `*` next to the branch name will tell you which one is the current one.
 > The name of the branch is meant to show you the tag which was used as a base
