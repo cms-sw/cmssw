@@ -18,6 +18,7 @@ is the DataBlock.
 #include "DataFormats/Provenance/interface/BranchMapper.h"
 #include "DataFormats/Provenance/interface/EventAuxiliary.h"
 #include "DataFormats/Provenance/interface/EventSelectionID.h"
+#include "FWCore/Utilities/interface/StreamID.h"
 #include "FWCore/Framework/interface/Principal.h"
 
 #include "boost/shared_ptr.hpp"
@@ -49,7 +50,8 @@ namespace edm {
         boost::shared_ptr<ProductRegistry const> reg,
         boost::shared_ptr<BranchIDListHelper const> branchIDListHelper,
         ProcessConfiguration const& pc,
-        HistoryAppender* historyAppender);
+        HistoryAppender* historyAppender,
+        StreamID const& streamID = StreamID::invalidStreamID());
     ~EventPrincipal() {}
 
     void fillEventPrincipal(EventAuxiliary const& aux,
@@ -102,6 +104,11 @@ namespace edm {
       return aux_;
     }
 
+    StreamID streamID() const { return streamID_;}
+    void setStreamID(StreamID const& iID) {
+      streamID_ = iID;
+    }
+    
     LuminosityBlockNumber_t luminosityBlock() const {
       return id().luminosityBlock();
     }
@@ -176,6 +183,8 @@ namespace edm {
     boost::shared_ptr<BranchListIndexes> branchListIndexes_;
 
     std::map<BranchListIndex, ProcessIndex> branchListIndexToProcessIndex_;
+    
+    StreamID streamID_;
 
   };
 

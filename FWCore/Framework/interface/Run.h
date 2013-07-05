@@ -23,6 +23,7 @@ For its usage, see "FWCore/Framework/interface/PrincipalGetAdapter.h"
 #include "FWCore/Common/interface/RunBase.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
 #include "FWCore/Utilities/interface/ProductKindOfType.h"
+#include "FWCore/Utilities/interface/RunIndex.h"
 
 #include <memory>
 #include <set>
@@ -52,6 +53,10 @@ namespace edm {
 //     RunNumber_t run() const {return aux_.run();}
 //     Timestamp const& beginTime() const {return aux_.beginTime();}
 //     Timestamp const& endTime() const {return aux_.endTime();}
+
+    /**\return Reusable index which can be used to separate data for different simultaneous Runs.
+     */
+    RunIndex index() const;
 
     template <typename PROD>
     bool
