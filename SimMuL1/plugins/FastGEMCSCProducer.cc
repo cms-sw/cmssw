@@ -32,6 +32,8 @@
 #include "Geometry/CSCGeometry/interface/CSCGeometry.h"
 //#include "Geometry/GEMGeometry/interface/GEMGeometry.h"
 
+#include "L1Trigger/CSCCommonTrigger/interface/CSCConstants.h"
+
 #include "GEMCode/GEMValidation/src/SimTrackMatchManager.h"
 #include "GEMCode/SimMuL1/interface/FastGEMCSCBuilder.h"
 
@@ -77,6 +79,7 @@ private:
   float minPt_;
   float minEta_, maxEta_;
   bool usePropagatedDPhi_;
+  bool useLCTPosition_;
   int verbose_;
 
   const CSCGeometry* csc_geo_;
@@ -87,13 +90,14 @@ private:
 
 FastGEMCSCProducer::FastGEMCSCProducer(const edm::ParameterSet& ps)
 : cfg_(ps.getParameterSet("simTrackMatching"))
-, simInputLabel_(ps.getUntrackedParameter<string>("simInputLabel", "g4SimHits"))
-, lctInput_(ps.getUntrackedParameter<edm::InputTag>("lctInput", edm::InputTag("simCscTriggerPrimitiveDigis", "MPCSORTED")))
+, simInputLabel_(ps.getParameter<string>("simInputLabel"))
+, lctInput_(ps.getParameter<edm::InputTag>("lctInput"))
 , productInstanceName_(ps.getUntrackedParameter<string>("productInstanceName", "FastGEM"))
 , minPt_(ps.getUntrackedParameter<double>("minPt", 4.5))
 , minEta_(ps.getUntrackedParameter<double>("minEta", 1.55))
-, maxEta_(ps.getUntrackedParameter<double>("maxEta", 2.4))
-, usePropagatedDPhi_(ps.getUntrackedParameter<bool>("usePropagatedDPhi", true))
+, maxEta_(ps.getUntrackedParameter<double>("maxEta", 2.48))
+, usePropagatedDPhi_(ps.getParameter<bool>("usePropagatedDPhi"))
+, useLCTPosition_(ps.getParameter<bool>("useLCTPosition"))
 , verbose_(ps.getUntrackedParameter<int>("verbose", 0))
 {
   edm::Service<edm::RandomNumberGenerator> rng;
@@ -191,21 +195,52 @@ void FastGEMCSCProducer::processStubs4SimTrack(map<unsigned int, vector<CSCCorre
   auto model_stubs_ch_ids = builder_->getChamberIds();
   for (auto d: model_stubs_ch_ids)
   {
+    CSCDetId id(d);
+    //bool s2 = id.station()==2;
+    //if (s2) cout<<"model in "<<id<<endl;
+
     // was there any actual LCT in this detid?
     auto dstubs = stubs.find(d);
-    if (dstubs == stubs.end()) continue;
+    if (dstubs == stubs.end()) {/*if (s2) cout<<"  --not in stubs"<<endl;*/ continue;}
 
     auto &model_stubs = builder_->getStubs(d);
+    //if (s2) cout<<"  ++in stubs: mod "<<model_stubs.size()<<" lct "<<dstubs->second.size()<<endl;
+
     for (auto &model_stub: model_stubs)
     {
+      //cout<<"  mstub "<<model_stub<<endl;
       for (auto& stub: dstubs->second)
       {
         int wg = 1 + stub.getKeyWG(); // LCT halfstrip and wiregoup numbers start from 0
         int hs = 1 + stub.getStrip();
+        //if (s2) cout<<"  wg hs "<<wg<<" "<<hs<<" ->  "<< model_stub.hasWireGroup(wg)<<" "<<model_stub.hasHalfStrip(hs) <<endl;
+
         if ( ! (model_stub.hasHalfStrip(hs) && model_stub.hasWireGroup(wg)) ) continue;
+
+        if (useLCTPosition_)
+        {
+          // replace model_stub's CSC position with that of the matched LCT
+          
+          auto layer_geo = csc_geo_->chamber(id)->layer(CSCConstants::KEY_CLCT_LAYER)->geometry();
+
+          float fractional_strip = 0.5 * hs - 0.25;
+          float wire = layer_geo->middleWireOfGroup(wg);
+          LocalPoint intersect = layer_geo->intersectionOfStripAndWire(fractional_strip, wire);
+
+          // return global point on the KEY_CLCT_LAYER layer
+          CSCDetId key_id(id.endcap(), id.station(), id.ring(), id.chamber(), CSCConstants::KEY_CLCT_LAYER);
+          GlobalPoint gp = csc_geo_->idToDet(key_id)->surface().toGlobal(intersect);
+
+          //GlobalPoint gp_sh = model_stub.globalPointCSC();
+          //if (s2) cout<<"  dgpCSC "<<deltaPhi(gp.phi(), gp_sh.phi())<<endl;
+
+          model_stub.setCSC(gp);
+        }
+
         //float old_dphi = digiIt->getGEMDPhi();
         float dphi = model_stub.dPhiGEMCSCLinear();
         if (usePropagatedDPhi_) dphi = model_stub.dPhiGEMCSCPropagator();
+        //if (s2) cout<<"     setting dphi "<<dphi<<" # "<<model_stub.dPhiGEMCSCLinear()<<endl;
         stub.setGEMDPhi(dphi);
       }
     }
