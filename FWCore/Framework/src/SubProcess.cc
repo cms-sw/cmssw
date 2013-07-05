@@ -203,7 +203,7 @@ namespace edm {
                           principal.reader());
     ep.setLuminosityBlockPrincipal(principalCache_.lumiPrincipalPtr());
     propagateProducts(InEvent, principal, ep);
-    typedef OccurrenceTraits<EventPrincipal, BranchActionBegin> Traits;
+    typedef OccurrenceTraits<EventPrincipal, BranchActionStreamBegin> Traits;
     schedule_->processOneOccurrence<Traits>(ep, esInfo_->es_);
     if(subProcess_.get()) subProcess_->doEvent(ep, esInfo_->ts_);
     ep.clearEventPrincipal();
@@ -234,7 +234,7 @@ namespace edm {
 
     RunPrincipal& rp = *principalCache_.runPrincipalPtr();
     propagateProducts(InRun, principal, rp);
-    typedef OccurrenceTraits<RunPrincipal, BranchActionBegin> Traits;
+    typedef OccurrenceTraits<RunPrincipal, BranchActionGlobalBegin> Traits;
     schedule_->processOneOccurrence<Traits>(rp, esInfo_->es_);
     if(subProcess_.get()) subProcess_->doBeginRun(rp, esInfo_->ts_);
   }
@@ -253,7 +253,7 @@ namespace edm {
   SubProcess::endRun(RunPrincipal const& principal) {
     RunPrincipal& rp = *principalCache_.runPrincipalPtr();
     propagateProducts(InRun, principal, rp);
-    typedef OccurrenceTraits<RunPrincipal, BranchActionEnd> Traits;
+    typedef OccurrenceTraits<RunPrincipal, BranchActionGlobalEnd> Traits;
     schedule_->processOneOccurrence<Traits>(rp, esInfo_->es_, cleaningUpAfterException_);
     if(subProcess_.get()) subProcess_->doEndRun(rp, esInfo_->ts_, cleaningUpAfterException_);
   }
@@ -294,7 +294,7 @@ namespace edm {
     principalCache_.insert(lbpp);
     LuminosityBlockPrincipal& lbp = *principalCache_.lumiPrincipalPtr();
     propagateProducts(InLumi, principal, lbp);
-    typedef OccurrenceTraits<LuminosityBlockPrincipal, BranchActionBegin> Traits;
+    typedef OccurrenceTraits<LuminosityBlockPrincipal, BranchActionGlobalBegin> Traits;
     schedule_->processOneOccurrence<Traits>(lbp, esInfo_->es_);
     if(subProcess_.get()) subProcess_->doBeginLuminosityBlock(lbp, esInfo_->ts_);
   }
@@ -313,7 +313,7 @@ namespace edm {
   SubProcess::endLuminosityBlock(LuminosityBlockPrincipal const& principal) {
     LuminosityBlockPrincipal& lbp = *principalCache_.lumiPrincipalPtr();
     propagateProducts(InLumi, principal, lbp);
-    typedef OccurrenceTraits<LuminosityBlockPrincipal, BranchActionEnd> Traits;
+    typedef OccurrenceTraits<LuminosityBlockPrincipal, BranchActionGlobalEnd> Traits;
     schedule_->processOneOccurrence<Traits>(lbp, esInfo_->es_, cleaningUpAfterException_);
     if(subProcess_.get()) subProcess_->doEndLuminosityBlock(lbp, esInfo_->ts_, cleaningUpAfterException_);
   }

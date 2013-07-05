@@ -75,7 +75,7 @@ namespace edm {
       if(itFound != labelToWorkers_.end()) {
         CPUTimer timer;
         try {
-          itFound->second->doWork<OccurrenceTraits<EventPrincipal, BranchActionBegin> >(event, eventSetup, iContext, &timer,event.streamID());
+          itFound->second->doWork<OccurrenceTraits<EventPrincipal, BranchActionStreamBegin> >(event, eventSetup, iContext, &timer,event.streamID());
         }
         catch (cms::Exception & ex) {
 	  std::ostringstream ost;

@@ -31,7 +31,7 @@ namespace edm{
   template<typename T>
   inline
   bool
-  WorkerT<T>::implDoBegin(EventPrincipal& ep, EventSetup const& c, CurrentProcessingContext const* cpc) {
+  WorkerT<T>::implDo(EventPrincipal& ep, EventSetup const& c, CurrentProcessingContext const* cpc) {
     UnscheduledHandlerSentry s(getUnscheduledHandler(ep), cpc);
     boost::shared_ptr<Worker> sentry(this,[&ep](Worker* obj) {obj->postDoEvent(ep);});
     return module_->doEvent(ep, c, cpc);
@@ -40,15 +40,24 @@ namespace edm{
   template<typename T>
   inline
   bool
-  WorkerT<T>::implDoEnd(EventPrincipal&, EventSetup const&, CurrentProcessingContext const*) {
-    return false;
+  WorkerT<T>::implDoBegin(RunPrincipal& rp, EventSetup const& c, CurrentProcessingContext const* cpc) {
+    module_->doBeginRun(rp, c, cpc);
+    return true;
   }
   
   template<typename T>
   inline
   bool
-  WorkerT<T>::implDoBegin(RunPrincipal& rp, EventSetup const& c, CurrentProcessingContext const* cpc) {
-    module_->doBeginRun(rp, c, cpc);
+  WorkerT<T>::implDoStreamBegin(StreamID id, RunPrincipal& rp, EventSetup const& c, CurrentProcessingContext const* cpc) {
+    //module_->doStreamBeginRun(id, rp, c, cpc);
+    return true;
+  }
+  
+  template<typename T>
+  inline
+  bool
+  WorkerT<T>::implDoStreamEnd(StreamID id, RunPrincipal& rp, EventSetup const& c, CurrentProcessingContext const* cpc) {
+    //module_->doStreamEndRun(id, rp, c, cpc);
     return true;
   }
   
@@ -65,6 +74,22 @@ namespace edm{
   bool
   WorkerT<T>::implDoBegin(LuminosityBlockPrincipal& lbp, EventSetup const& c, CurrentProcessingContext const* cpc) {
     module_->doBeginLuminosityBlock(lbp, c, cpc);
+    return true;
+  }
+  
+  template<typename T>
+  inline
+  bool
+  WorkerT<T>::implDoStreamBegin(StreamID id, LuminosityBlockPrincipal& lbp, EventSetup const& c, CurrentProcessingContext const* cpc) {
+    //module_->doStreamBeginLuminosityBlock(id, lbp, c, cpc);
+    return true;
+  }
+  
+  template<typename T>
+  inline
+  bool
+  WorkerT<T>::implDoStreamEnd(StreamID id, LuminosityBlockPrincipal& lbp, EventSetup const& c, CurrentProcessingContext const* cpc) {
+    //module_->doStreamEndLuminosityBlock(id, lbp, c, cpc);
     return true;
   }
   
