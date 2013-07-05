@@ -21,18 +21,18 @@ setenv RUNTYPE Central
 setenv STARTUP True
 
 
-setenv CMSSWver1 6_1_0
-setenv CMSSWver2 6_1_0
-setenv OLDRELEASE 6_1_0
-setenv NEWRELEASE 6_1_0
-setenv OLDPRERELEASE pre3
-setenv NEWPRERELEASE pre7
+setenv CMSSWver1 6_0_0
+setenv CMSSWver2 6_0_0
+setenv OLDRELEASE 6_0_0
+setenv NEWRELEASE 6_0_0
+setenv OLDPRERELEASE pre7
+setenv NEWPRERELEASE pre8
 
 
 
 if ( $STARTUP == True) then
-setenv OLDGLOBALTAG START61_V1-v1
-setenv NEWGLOBALTAG START61_V5A-v1
+setenv OLDGLOBALTAG PU_START53_V6-v1
+setenv NEWGLOBALTAG PU_START60_V1-v1
 else 
 setenv OLDGLOBALTAG START50_V8-v3
 setenv NEWGLOBALTAG START50_V8-v3
@@ -60,10 +60,9 @@ setenv WorkDir2   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver
 #setenv WorkDir2   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver2}/src/Validation/RecoEgamma/test
 
 
-#Name of sample (affects output directory name and htmlde
+#Name of sample (affects output directory name and htmldescription only)
 
-
-setenv PU False
+setenv PU True
 #setenv SAMPLE SingleGammaPt10
 #setenv SAMPLE SingleGammaPt35
 #setenv SAMPLE QCD_Pt_80_120

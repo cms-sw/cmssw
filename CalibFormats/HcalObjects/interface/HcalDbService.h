@@ -77,7 +77,7 @@ class HcalDbService {
   const HcalPedestalWidths* mPedestalWidths;
   const HcalGains* mGains;
   const HcalGainWidths* mGainWidths;
-  mutable QieShape* mQieShapeCache;
+  mutable HcalQIEShape* mQieShapeCache;
   const HcalQIEData* mQIEData;
   const HcalChannelQuality* mChannelQuality;
   const HcalElectronicsMap* mElectronicsMap;

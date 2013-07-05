@@ -1,33 +1,27 @@
 from HLTriggerOffline.HeavyFlavor.heavyFlavorValidation_cfi import *
 
 hfv1 = heavyFlavorValidation.clone(
-    #TriggerProcessName = cms.untracked.string("HLT"),
-    TriggerPathName = cms.untracked.string("HLT_Dimuon0_Jpsi_NoVertexing_v"),
-    MuonPtBins = cms.untracked.vdouble(0.5, 1., 2., 3., 3.5, 4., 5., 6., 7., 8., 9., 10., 20.),
-    MuonEtaBins = cms.untracked.vdouble(24, -2.4, 2.4),
-    DimuonPtBins = cms.untracked.vdouble(0., 2., 4., 6., 8., 10., 12., 15., 25.)
+    TriggerProcessName = cms.untracked.string("HLT"),
+    TriggerPathName = cms.untracked.string("HLT_Mu3"),
+    MuonPtBins = cms.untracked.vdouble(0.5, 1., 2., 3., 4., 5., 7., 9., 20., 50.),
+    MuonEtaBins = cms.untracked.vdouble(24, -2.4, 2.4)
 )
 hfv2 = hfv1.clone(
-    TriggerPathName = cms.untracked.string("HLT_Dimuon0_Jpsi_v")
+    TriggerPathName = cms.untracked.string("HLT_IsoMu3")
 )
 hfv3 = hfv1.clone(
-    TriggerPathName = cms.untracked.string("HLT_Dimuon10_Jpsi_v")
+    TriggerPathName = cms.untracked.string("HLT_Mu5")
 )
 hfv4 = hfv1.clone(
-    TriggerPathName = cms.untracked.string("HLT_Mu5_L2Mu3_Jpsi_v")
+    TriggerPathName = cms.untracked.string("HLT_Mu9")
 )
 hfv5 = hfv1.clone(
-    TriggerPathName = cms.untracked.string("HLT_Mu5_Track2_Jpsi_v")
+    TriggerPathName = cms.untracked.string("HLT_DoubleMu0")
 )
 hfv6 = hfv1.clone(
-    TriggerPathName = cms.untracked.string("HLT_Mu7_Track7_Jpsi_v")
+    TriggerPathName = cms.untracked.string("HLT_DoubleMu3")
 )
-hfv7 = hfv1.clone(
-    TriggerPathName = cms.untracked.string("HLT_Mu3")
-)
-
 
 heavyFlavorValidationSequence = cms.Sequence(
   hfv1+hfv2+hfv3+hfv4+hfv5+hfv6
-  #+hfv7
 )

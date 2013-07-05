@@ -23,7 +23,6 @@
 #include "DQM/SiStripCommissioningSources/interface/FineDelayTask.h"
 #include "DQM/SiStripCommissioningSources/interface/CalibrationTask.h"
 #include "DQM/SiStripCommissioningSources/interface/CalibrationScanTask.h"
-#include "DQM/SiStripCommissioningSources/interface/NoiseHVScanTask.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -298,7 +297,6 @@ void SiStripCommissioningSource::analyze( const edm::Event& event,
 
   // Retrieve raw digis with mode appropriate to task 
   edm::Handle< edm::DetSetVector<SiStripRawDigi> > raw;
-
   if ( task_ == sistrip::DAQ_SCOPE_MODE ) { 
     if ( summary->fedReadoutMode() == FED_VIRGIN_RAW ) {
       event.getByLabel( inputModuleLabel_, "VirginRaw", raw );
@@ -326,8 +324,7 @@ void SiStripCommissioningSource::analyze( const edm::Event& event,
 	      task_ == sistrip::PEDESTALS ||
 	      task_ == sistrip::PEDS_ONLY ||
 	      task_ == sistrip::NOISE ||
-	      task_ == sistrip::PEDS_FULL_NOISE ||
-	      task_ == sistrip::NOISE_HVSCAN ) {
+	      task_ == sistrip::PEDS_FULL_NOISE ) {
     event.getByLabel( inputModuleLabel_, "VirginRaw", raw );
   } else if ( task_ == sistrip::APV_LATENCY ||
 	      task_ == sistrip::FINE_DELAY ) {
@@ -1026,8 +1023,6 @@ void SiStripCommissioningSource::createTasks( sistrip::RunType run_type, const e
             tasks_[iconn->fedId()][iconn->fedCh()] = new NoiseTask( dqm(), *iconn );
           } else if ( task_ == sistrip::PEDS_FULL_NOISE ) { 
             tasks_[iconn->fedId()][iconn->fedCh()] = new PedsFullNoiseTask( dqm(), *iconn, parameters_ );
-          } else if ( task_ == sistrip::NOISE_HVSCAN ) { 
-            tasks_[iconn->fedId()][iconn->fedCh()] = new NoiseHVScanTask( dqm(), *iconn, parameters_ );
           } else if ( task_ == sistrip::DAQ_SCOPE_MODE ) { 
             tasks_[iconn->fedId()][iconn->fedCh()] = new DaqScopeModeTask( dqm(), *iconn );
           } else if ( task_ == sistrip::CALIBRATION_SCAN || 

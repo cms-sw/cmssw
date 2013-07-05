@@ -14,6 +14,7 @@
 #include "Geometry/DTGeometry/interface/DTChamber.h"
 #include "Geometry/DTGeometry/interface/DTLayer.h"
 #include "Geometry/RPCGeometry/interface/RPCGeometry.h"
+#include "Geometry/GEMGeometry/interface/GEMGeometry.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/TrackerGeometryBuilder/interface/RectangularPixelTopology.h"
@@ -78,6 +79,7 @@ FWRecoGeometryESProducer::produce( const FWRecoGeometryRecord& record )
   m_fwGeometry =  boost::shared_ptr<FWRecoGeometry>( new FWRecoGeometry );
 
   record.getRecord<GlobalTrackingGeometryRecord>().get( m_geomRecord );
+  record.getRecord<MuonGeometryRecord>().get( m_gemGeom );
   
   DetId detId( DetId::Tracker, 0 );
   m_trackerGeom = (const TrackerGeometry*) m_geomRecord->slaveGeometry( detId );
@@ -93,6 +95,7 @@ FWRecoGeometryESProducer::produce( const FWRecoGeometryRecord& record )
   addDTGeometry();
   addCSCGeometry();
   addRPCGeometry();
+  addGEMGeometry();
   addCaloGeometry();
 
   m_fwGeometry->idToName.resize( m_current + 1 );
@@ -230,6 +233,33 @@ FWRecoGeometryESProducer::addRPCGeometry( void )
     }
   }
 }
+
+void
+FWRecoGeometryESProducer::addGEMGeometry( void )
+{
+  //
+  // GEM geometry
+  //
+
+  for( std::vector<GEMEtaPartition *>::const_iterator it = m_gemGeom->etaPartitions().begin(),
+						     end = m_gemGeom->etaPartitions().end(); 
+       it != end; ++it )
+  {
+    GEMEtaPartition* roll = (*it);
+    if( roll )
+    {
+      unsigned int rawid = (*it)->geographicalId().rawId();
+      unsigned int current = insert_id( rawid );
+      fillShapeAndPlacement( current, roll );
+
+      const StripTopology& topo = roll->specificTopology();
+      m_fwGeometry->idToName[current].topology[0] = topo.nstrips();
+      m_fwGeometry->idToName[current].topology[1] = topo.stripLength();
+      m_fwGeometry->idToName[current].topology[2] = topo.pitch();
+    }
+  }
+}
+
 
 void
 FWRecoGeometryESProducer::addPixelBarrelGeometry( void )

@@ -37,7 +37,7 @@
 		<var name="trackSip3dSigAboveCharm" multiple="false" optional="false"/>
 		<var name="trackSumJetEtRatio" multiple="false" optional="false"/>
 		<var name="vertexJetDeltaR" multiple="false" optional="false"/>
-		<var name="trackSumJetDeltaR" multiple="false" optional="false"/>  
+		<var name="trackSumJetDeltaR" multiple="false" optional="false"/>
 	</input>
 	<processor id="category" name="ProcCategory">
 		<input>

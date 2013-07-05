@@ -7,8 +7,7 @@ magfield = cms.ESSource("XMLIdealGeometryESSource",
     geomXMLFiles = cms.vstring('Geometry/CMSCommonData/data/normal/cmsextent.xml', 
         'Geometry/CMSCommonData/data/cms.xml', 
         'Geometry/CMSCommonData/data/cmsMagneticField.xml', 
-        'MagneticField/GeomBuilder/data/MagneticFieldVolumes_1103l.xml',
-        'MagneticField/GeomBuilder/data/MagneticFieldParameters_07.xml'),
+        'MagneticField/GeomBuilder/data/MagneticFieldVolumes_1103l.xml'),
     rootNodeName = cms.string('cmsMagneticField:MAGF')
 )
 
@@ -33,9 +32,16 @@ VolumeBasedMagneticFieldESProducer = cms.ESProducer("VolumeBasedMagneticFieldESP
     geometryVersion = cms.int32(71212),
     debugBuilder = cms.untracked.bool(False),
     cacheLastVolume = cms.untracked.bool(True),
-    overrideMasterSector = cms.bool(True),
     scalingVolumes = cms.vint32(),
-    scalingFactors = cms.vdouble()
+    scalingFactors = cms.vdouble(),
+    gridFiles = cms.VPSet(
+        cms.PSet( # Default tables, replicate sector 1
+            volumes   = cms.string('1-312'),
+            sectors   = cms.string('0') ,
+            master    = cms.int32(1),
+            path      = cms.string('grid.[v].bin'),
+        ),
+    )
 )
 
 

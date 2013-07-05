@@ -1,9 +1,8 @@
 
 #include "AnalyzeTuples.h"
 
-AnalyzeTuples::AnalyzeTuples(const edm::ParameterSet & iConfig)
-{
-
+AnalyzeTuples::AnalyzeTuples(const edm::ParameterSet & iConfig) {
+  std::cout<<"analyzetuples a buraya girdi"<<std::endl;
   edm::ParameterSet m_HS = iConfig.getParameter<edm::ParameterSet>("HFShowerLibrary");
   edm::FileInPath fp       = m_HS.getParameter<edm::FileInPath>("FileName");
   std::string pTreeName    = fp.fullPath();
@@ -70,75 +69,76 @@ AnalyzeTuples::AnalyzeTuples(const edm::ParameterSet & iConfig)
 }
 
 
-AnalyzeTuples::~AnalyzeTuples() {
-
-
-}
+AnalyzeTuples::~AnalyzeTuples() { }
 
 void AnalyzeTuples::analyze(const edm::Event & iEvent, const edm::EventSetup & iSetup) {
-    for(int ibin = 0; ibin < 12;++ibin){
-         int min = evtPerBin*(ibin);
-         int max = evtPerBin*(ibin+1);
-         for(int i = min; i < max;++i){
-	     getRecord(0,i);
-	     int npe_long = 0;
-	     int npe_short = 0;
-	     for(int j = 0; j < int(photon.size());++j){
-                 //int depth = 0;
-		 if(photon[j].z() < 0){
-		     //depth = 2; 
-		     ++npe_short;
-		 }else{
-		     //depth = 1; 
-		     ++npe_long;
-		 }
-	     }
-             hNPELongElec[ibin]->Fill(npe_long);
-             hNPEShortElec[ibin]->Fill(npe_short);
-	 }
+  for(int ibin = 0; ibin < 12;++ibin){
+    int min = evtPerBin*(ibin);
+    int max = evtPerBin*(ibin+1);
+    for(int i = min; i < max;++i){
+      getRecord(0,i);
+      int npe_long = 0;
+      int npe_short = 0;
+      std::cout<<"phptons size"<<photon.size()<<std::endl;
+      for(int j = 0; j < int(photon.size());++j){
+	//int depth = 0;
+	if(photon[j].z() < 0){
+	  //depth = 2; 
+	  ++npe_short;
+	}else{
+	  //depth = 1; 
+	  ++npe_long;
+	  std::cout<<photon[j].z()<<std::endl;
+	}
+      }
+      hNPELongElec[ibin]->Fill(npe_long);
+      std::cout<<ibin<<npe_long<<std::endl;
+      hNPEShortElec[ibin]->Fill(npe_short);
     }
-    for(int ibin = 0; ibin < 12;++ibin){
-         int min = evtPerBin*(ibin);
-         int max = evtPerBin*(ibin+1);
-         for(int i = min; i < max;++i){
-	     getRecord(1,i);
-	     int npe_long = 0;
-	     int npe_short = 0;
-	     for(int j = 0; j < int(photon.size());++j){
-                 //int depth = 0;
-		 if(photon[j].z() < 0){
-		     //depth = 2; 
-		     ++npe_short;
-		 }else{
-		     //depth = 1; 
-		     ++npe_long;
-		 }
-	     }
-             hNPELongPion[ibin]->Fill(npe_long);
-             hNPEShortPion[ibin]->Fill(npe_short);
-	 }
+  }
+  for(int ibin = 0; ibin < 12;++ibin){
+    int min = evtPerBin*(ibin);
+    int max = evtPerBin*(ibin+1);
+    for(int i = min; i < max;++i){
+      getRecord(1,i);
+      int npe_long = 0;
+      int npe_short = 0;
+      for(int j = 0; j < int(photon.size());++j){
+	//int depth = 0;
+	if(photon[j].z() < 0){
+	  //depth = 2; 
+	  ++npe_short;
+	}else{
+	  //depth = 1; 
+	  ++npe_long;
+	}
+      }
+      hNPELongPion[ibin]->Fill(npe_long);
+      hNPEShortPion[ibin]->Fill(npe_short);
     }
+  }
 }
 
 void AnalyzeTuples::beginJob() {
     
-    TFileDirectory HFDir = fs->mkdir("HF");
-    char title[128];
-    for(int i = 0; i < int(pmom.size());++i){
-        sprintf(title,"NPELongElec_Mom_%i",int(pmom[i]));
-	int maxBin = int(pmom[i]+50);
-        hNPELongElec[i] = HFDir.make<TH1I>(title, "NPE Long", maxBin, 0, maxBin);
-        sprintf(title,"NPEShortElec_Mom_%i",int(pmom[i]));
-        hNPEShortElec[i] = HFDir.make<TH1I>(title, "NPE Short", maxBin, 0, maxBin);
-        sprintf(title,"NPELongPion_Mom_%i",int(pmom[i]));
-        hNPELongPion[i] = HFDir.make<TH1I>(title, "NPE Long", maxBin, 0, maxBin);
-        sprintf(title,"NPEShortPion_Mom_%i",int(pmom[i]));
-        hNPEShortPion[i] = HFDir.make<TH1I>(title, "NPE Short", maxBin, 0, maxBin);
-    }
+  TFileDirectory HFDir = fs->mkdir("HF");
+  char title[128];
+  for(int i = 0; i < int(pmom.size());++i){
+    sprintf(title,"NPELongElec_Mom_%i",int(pmom[i]));
+    int maxBin = int(pmom[i]+50);
+    hNPELongElec[i] = HFDir.make<TH1I>(title, "NPE Long", 140, 0, 140);
+    sprintf(title,"NPEShortElec_Mom_%i",int(pmom[i]));
+    hNPEShortElec[i] = HFDir.make<TH1I>(title, "NPE Short", maxBin, 0, maxBin);
+    sprintf(title,"NPELongPion_Mom_%i",int(pmom[i]));
+    hNPELongPion[i] = HFDir.make<TH1I>(title, "NPE Long", maxBin, 0, maxBin);
+    sprintf(title,"NPEShortPion_Mom_%i",int(pmom[i]));
+    hNPEShortPion[i] = HFDir.make<TH1I>(title, "NPE Short", maxBin, 0, maxBin);
+  }
 }
 
 void AnalyzeTuples::endJob() {
 }
+
 void AnalyzeTuples::loadEventInfo(TBranch* branch) {
 
   std::vector<HFShowerLibraryEventInfo> eventInfoCollection;
@@ -154,6 +154,7 @@ void AnalyzeTuples::loadEventInfo(TBranch* branch) {
   listVersion = eventInfoCollection[0].physListVersion();
   pmom        = eventInfoCollection[0].energyBins();
 }
+
 void AnalyzeTuples::getRecord(int type, int record) {
 
   int nrc     = record-1;
@@ -174,5 +175,6 @@ void AnalyzeTuples::getRecord(int type, int record) {
     LogDebug("HFShower") << "Photon " << j << " " << photon[j];
 #endif
 }
+
 // define this as a plug-in
 DEFINE_FWK_MODULE(AnalyzeTuples);

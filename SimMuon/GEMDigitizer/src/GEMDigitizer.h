@@ -28,16 +28,14 @@ class GEMGeometry;
 class GEMDigitizer
 {
 public:
-
+  
   typedef edm::DetSetVector<StripDigiSimLink> StripDigiSimLinks;
 
   GEMDigitizer(const edm::ParameterSet& config, CLHEP::HepRandomEngine&);
 
   ~GEMDigitizer();
 
-  /**  digitize
-   */
-  void doAction(MixCollection<PSimHit> & simHits,
+  void digitize(MixCollection<PSimHit> & simHits,
                 GEMDigiCollection & rpcDigis,
                 StripDigiSimLinks & digiSimLinks);
 

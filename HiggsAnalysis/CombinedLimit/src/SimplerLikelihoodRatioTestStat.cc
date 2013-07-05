@@ -1,1 +1,0 @@
-#include "../interface/SimplerLikelihoodRatioTestStat.h"

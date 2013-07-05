@@ -13,7 +13,6 @@
   <use   name="FWCore/ParameterSet"/>
   <use   name="FWCore/MessageLogger"/>
   <use   name="DataFormats/TauReco"/>
-  <use   name="DataFormats/MuonReco"/>
   <use   name="CommonTools/CandUtils"/>
   <use   name="RecoTauTag/TauTagTools"/>
   <use   name="RecoTauTag/RecoTau"/>

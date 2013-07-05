@@ -11,6 +11,13 @@
 
 /*
   Does post-reco fixes to ECAL photon energy and estimates resolution.
+  This can run outside of the usual CMS software framework but requires 
+  access to a file 'EcalGaps.dat' which must be in the same directory as 
+  that used to run.
+
+  To run within CMSSW use PhotonFixCMS.h (which can access the geometry 
+  directly - go to "RecoEcal/EgammaCoreTools/plugins/PhotonFixCMS.h"
+  for details.
 
   Before instantiating any objects of PhotonFix, the constants must be
   initialised in the first event using
@@ -23,8 +30,11 @@
   aid with testing the performance of these corrections in data).
 
   Make objects using
-    PhotonFixCMS a(p);
-  where p is a reco::Photon reference 
+    PhotonFix a(energy,eta,phi,r9);
+  where energy is the photon energy, eta and phi are the ECAL
+  cluster positions (NB from the Supercluster object, _not_ the
+  Photon object, as the latter gives eta and phi directions,
+  not positions), and r9 is the R9 value of the SC.
 
   Get the corrected energy using
     a.fixedEnergy();
@@ -36,26 +46,19 @@
 #include <iostream>
 #include <string>
 
-#ifndef LOCAL_FITTING_PROCEDURE
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "DataFormats/EgammaCandidates/interface/Photon.h"
-#endif
-
 class PhotonFix {
  public:
-  PhotonFix(double e, double eta, double phi, double r9, double aC, double aS, double aM, double bC, double bS, double bM);
+  PhotonFix(double e, double eta, double phi, double r9);
 
-#ifndef LOCAL_FITTING_PROCEDURE
-  PhotonFix(const reco::Photon &p);
-  PhotonFix(double eta, double phi);  
-  
   // Must be called before instantiating any PhotonFix objects
-  static bool initialiseParameters(const edm::ParameterSet &iConfig);
-  static bool initialiseGeometry(const edm::EventSetup &iSetup);
-#endif
+  static bool initialise(const std::string &s="Nominal");
+  static bool initialised() ;
 
-  // Find distance of photon from cracks between crystals and module boundaries 
-  void setup(bool doGeom);
+  // Used by above; do not call directly
+  static bool initialiseParameters(const std::string &s);
+  static bool initialiseGeometry(const std::string &s);
+
+  void setup();
   
   // Corrected energy and sigma
   double fixedEnergy() const;
@@ -87,14 +90,6 @@ class PhotonFix {
   double yS() const;
   double yM() const;
 
-  // Return values for Paul's fit
-  double aC() const;
-  double aS() const;
-  double aM() const;
-  double bC() const;
-  double bS() const;
-  double bM() const;
-
   // Return arrays containing positions of ecal gaps
   static void barrelCGap(unsigned i, unsigned j, unsigned k, double c);
   static void barrelSGap(unsigned i, unsigned j, unsigned k, double c);
@@ -110,14 +105,14 @@ class PhotonFix {
   static void setParameters(unsigned be, unsigned hl, const double *p);
   static void getParameters(unsigned be, unsigned hl, double *p);
 
-  // Utility functions
-  static void dumpConfigParameters(std::ostream &o);
-  static void readConfigParameters(std::istream &i);
   static void dumpParameters(std::ostream &o);
   static void printParameters(std::ostream &o);
-  static void dumpGaps(std::ostream &o);
+
+  // Utility functions
+  static double GetaPhi(double f0, double f1);
   static double asinh(double s);  
- 
+  static void dumpGaps(std::ostream &o);
+  
  private:
 
   // Utility functions
@@ -136,9 +131,8 @@ class PhotonFix {
   static const double _onePi;
   static const double _twoPi;
   
-  // Initialisation flags
-  static bool _initialisedParams;
-  static bool _initialisedGeom;
+  // Initialisation flag
+  static bool _initialised;
   
   // Parameters for fixes
   static double _meanScale[2][2][4];

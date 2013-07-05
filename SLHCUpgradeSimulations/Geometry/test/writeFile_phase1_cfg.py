@@ -1,29 +1,29 @@
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("ICALIB")
-#process.load("Configuration.StandardSequences.FakeConditions_cff")
-process.load("Configuration.StandardSequences.Services_cff")
-#process.load("Configuration.StandardSequences.Geometry_cff")
-#process.load("SLHCUpgradeSimulations.Geometry.Phase1_R39F16_smpx_cmsSimIdealGeometryXML_cff")
-#process.load('SLHCUpgradeSimulations.Geometry.Phase1_R34F16_cmsSimIdealGeometryXML_cff')
-process.load('SLHCUpgradeSimulations.Geometry.Phase1_R30F12_cmsSimIdealGeometryXML_cff')
-#process.load('SLHCUpgradeSimulations.Geometry.fakeConditions_Phase1_R30F12_cff')
 
-process.TrackerDigiGeometryESModule = cms.ESProducer( "TrackerDigiGeometryESModule",
-  appendToDataLabel = cms.string( "" ),
-  fromDDD = cms.bool( False ),
-  applyAlignment = cms.bool( False ),
-  alignmentsLabel = cms.string( "" )
-)
-process.TrackerGeometricDetESModule = cms.ESProducer( "TrackerGeometricDetESModule",
-  fromDDD = cms.bool( False )
-)
+process.load("Configuration.StandardSequences.Services_cff")
+process.load('Configuration.Geometry.GeometryExtendedPhaseIPixel_cff')
+
+
+#process.TrackerDigiGeometryESModule = cms.ESProducer( "TrackerDigiGeometryESModule",
+#  appendToDataLabel = cms.string( "" ),
+#  fromDDD = cms.bool( False ),
+#  applyAlignment = cms.bool( False ),
+#  alignmentsLabel = cms.string( "" )
+#)
+#rocess.TrackerGeometricDetESModule = cms.ESProducer( "TrackerGeometricDetESModule",
+#  fromDDD = cms.bool( False )
+#)
+process.load('Geometry.TrackerGeometryBuilder.trackerSLHCGeometry_cfi')
+process.trackerSLHCGeometry.applyAlignment = cms.bool(False)
+
 
 
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = 'DESIGN53_V3::All'
-print process.TrackerGeometricDetESModule.fromDDD
-print process.TrackerDigiGeometryESModule.fromDDD,process.TrackerDigiGeometryESModule.applyAlignment
+process.GlobalTag.globaltag = 'DESIGN61_V10::All'
+#print process.TrackerGeometricDetESModule.fromDDD
+#print process.TrackerDigiGeometryESModule.fromDDD,process.TrackerDigiGeometryESModule.applyAlignment
 
 process.source = cms.Source("EmptyIOVSource",
     firstValue = cms.uint64(1),

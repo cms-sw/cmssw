@@ -16,10 +16,12 @@ process.source = cms.Source("PoolSource",
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(100) )
 
 ## Geometry and Detector Conditions (needed for a few patTuple production steps)
-process.load("Configuration.Geometry.GeometryIdeal_cff")
+#process.load("Configuration.Geometry.GeometryIdeal_cff")
+process.load("Configuration.Geometry.GeometryExtended2017Reco_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:startup')
+#process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:startup')
+process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:upgradePLS3')
 process.load("Configuration.StandardSequences.MagneticField_cff")
 
 ## Output Module Configuration (expects a path 'p')

@@ -18,7 +18,7 @@
 //
 // Original Author:  Jean-Roch Vlimant
 //         Created:  Fri Sep 28 18:07:52 CEST 2007
-// $Id: ClusterShapeHitFilterESProducer.h,v 1.1 2009/04/22 13:10:25 sikler Exp $
+// $Id: ClusterShapeHitFilterESProducer.h,v 1.2 2009/04/22 17:56:57 vlimant Exp $
 //
 //
 
@@ -49,6 +49,7 @@ class ClusterShapeHitFilterESProducer : public edm::ESProducer
   ReturnType produce(const ClusterShapeHitFilter::Record &);
 
  private:
+  const std::string use_PixelShapeFile;
 };
 
 #endif

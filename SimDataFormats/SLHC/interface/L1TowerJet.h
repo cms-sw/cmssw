@@ -52,6 +52,8 @@ namespace l1slhc
 		const int& JetSize(  ) const;
 		const L1TowerJet::tJetShape& JetShape(  ) const;
 
+                const int& JetArea(  ) const;
+
 //              possibly helpful methods
 //		double EcalVariance(  ) const;
 //		double HcalVariance(  ) const;

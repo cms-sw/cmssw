@@ -44,7 +44,7 @@ process.GlobalTag.globaltag = tag
 process.load("DQMServices.Core.DQM_cfg")
 
 process.load("DQMOffline.RecoB.bTagSequences_cff")
-#process.bTagHLT.HLTPaths = ["HLT_PFJet80_v*"] #uncomment this line if you want to use different trigger
+#bTagHLT.HLTPaths = ["HLT_PFJet80_v*"] #uncomment this line if you want to use different trigger
 
 if whichJets=="ak5PFnoPU":
     process.out = cms.OutputModule("PoolOutputModule",

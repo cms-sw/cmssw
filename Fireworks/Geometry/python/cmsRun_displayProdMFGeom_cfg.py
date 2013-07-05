@@ -45,22 +45,26 @@ process.add_( cms.ESProducer(
 ))
 
 
+process.dump = cms.EDAnalyzer("DisplayGeom",
+    level = cms.untracked.int32(2),
+    MF = cms.untracked.int32(True),           #Display the MF geometry instead of detector geometry
+    MF_component = cms.untracked.string("B"), #Field map: None, B, AbsBZ, AbsBR, AvsBphi, BR, Bphi
+    MF_pickable = cms.untracked.bool(True),   #Field map: pickable values
+    
+#Field map on ZY plane @ X=0
+    MF_plane_d0 = cms.untracked.vdouble(0, -900, -2000),
+    MF_plane_d1 = cms.vdouble(0, -900., 2000),
+    MF_plane_d2 = cms.vdouble(0, 900., -2000.),
 
-process.disp = cms.EDProducer("MFProducer",
-        mapDensityX = cms.untracked.uint32(10),
-        mapDensityY = cms.untracked.uint32(10),
-        mapDensityZ = cms.untracked.uint32(10),
-        minX = cms.untracked.double(-18.0),
-        maxX = cms.untracked.double(18.0),
-        minY = cms.untracked.double(-18.0),
-        maxY = cms.untracked.double(18.0),
-        minZ = cms.untracked.double(-18.0),
-        maxZ = cms.untracked.double(18.0))
+#Field map on XY plane @ Z=0
+#    MF_plane_d0 = cms.untracked.vdouble(-900, -900, 0.),
+#    MF_plane_d1 = cms.vdouble(-900, 900, 0.),
+#    MF_plane_d2 = cms.vdouble(900, -900, 0.),
 
-process.dump = cms.EDAnalyzer(
-    "DisplayGeom",
-        level   = cms.untracked.int32(2),
-           MF   = cms.untracked.int32(True)
+    MF_plane_N  = cms.untracked.uint32(500), #Field map bins
+   
+    MF_plane_draw_dir =  cms.untracked.int32(False)
 )
 
-process.p = cms.Path(process.dump+process.disp)
+process.p = cms.Path(process.dump)
+

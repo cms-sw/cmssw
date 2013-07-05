@@ -146,10 +146,11 @@ namespace {
       if(fm!=0||fs!=0) ++singleF;
     }
     ~Stat() {
-      printf("Matches:%d/%d/%d/%d/%d/%d : %f/%f/%f/%f/%f/%f/%f\n",
-	     int(totCall),int(matchF),int(singleF-matchF),int(matchT),int(zeroM),int(zeroS),
-	     totMono/totCall,totStereo/totCall,totComb/totCall,totMatched/matchT,
-	     filtMono/totCall,filtStereo/totCall,filtComb/matchF);
+      if ( totCall>0)
+	printf("Matches:%d/%d/%d/%d/%d/%d : %f/%f/%f/%f/%f/%f/%f\n",
+	       int(totCall),int(matchF),int(singleF-matchF),int(matchT),int(zeroM),int(zeroS),
+	       totMono/totCall,totStereo/totCall,totComb/totCall,totMatched/matchT,
+	       filtMono/totCall,filtStereo/totCall,filtComb/matchF);
     }
   };
 

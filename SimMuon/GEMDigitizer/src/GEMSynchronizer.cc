@@ -9,8 +9,6 @@
 #include "CLHEP/Random/RandGaussQ.h"
 
 
-using namespace std;
-
 namespace 
 {
   // "magic" parameter for cosmics
@@ -21,21 +19,17 @@ namespace
 GEMSynchronizer::GEMSynchronizer(const edm::ParameterSet& config):
   gauss1_(0), gauss2_(0)
 {
-  timeRes_ = config.getParameter<double>("timeResolution");
-  timOff_ = config.getParameter<double>("timingOffset");
-  dtimCs_ = config.getParameter<double>("deltatimeAdjacentStrip");
-  resEle_ = config.getParameter<double>("timeJitter");
-  sspeed_ = config.getParameter<double>("signalPropagationSpeed");
-  lbGate_ = config.getParameter<double>("linkGateWidth");
+  timeResolution_ = config.getParameter<double>("timeResolution");
+  averageShapingTime_ = config.getParameter<double>("averageShapingTime");
+  timeJitter_ = config.getParameter<double>("timeJitter");
+  signalPropagationSpeed_ = config.getParameter<double>("signalPropagationSpeed");
   cosmics_ = config.getParameter<bool>("cosmics");
+  bxwidth_ = config.getParameter<double>("bxwidth");
 
-  const double c = 299792458;// [m/s]
-
-  //light speed in [cm/ns]
-  const double cspeed = c * 1e+2 * 1e-9;
-
-  //signal propagation speed [cm/ns]
-  sspeed_ = sspeed_ * cspeed;
+  // signal propagation speed in vacuum in [m/s]
+  const double cspeed = 299792458;
+  // signal propagation speed in material in [cm/ns]
+  signalPropagationSpeed_ = signalPropagationSpeed_ * cspeed * 1e+2 * 1e-9;
 }
 
 
@@ -57,15 +51,14 @@ int GEMSynchronizer::getSimHitBx(const PSimHit* simhit)
 {
   GEMSimSetUp* simsetup = getGEMSimSetUp();
   const GEMGeometry * geometry = simsetup->getGeometry();
-  float timeref = simsetup->getTime(simhit->detUnitId());
+  // calibration offset for a particular detector part
+  float calibrationTime = simsetup->getTime(simhit->detUnitId());
 
   int bx = -999;
   LocalPoint simHitPos = simhit->localPosition();
   float tof = simhit->timeOfFlight();
-  
-  //automatic variable to prevent memory leak
-  
-  float rr_el = gauss1_->fire(0., resEle_);
+  // random Gaussian time correction due to electronics jitter
+  float randomJitterTime = gauss1_->fire(0., timeJitter_);
   
   GEMDetId shdetid(simhit->detUnitId());
 
@@ -88,61 +81,39 @@ int GEMSynchronizer::getSimHitBx(const PSimHit* simhit)
   if(shRoll != 0)
   {
     float distanceFromEdge = 0;
-    float half_strip_length = 0.;
+    float halfStripLength = 0.;
 
     if(shRoll->id().region() == 0)
     {
       throw cms::Exception("Geometry")
-        << "Exception coming from GEMSynchronizer - this GEM id is from barrel, which cannot happen:  "<<shRoll->id()<< "\n";
+        << "GEMSynchronizer::getSimHitBx() - this GEM id is from barrel, which cannot happen:  "<<shRoll->id()<< "\n";
     }
     else
     {
-      const TrapezoidalStripTopology* top= dynamic_cast<const TrapezoidalStripTopology*> (&(shRoll->topology()));
-      half_strip_length = 0.5 * top->stripLength();
-      distanceFromEdge = half_strip_length - simHitPos.y();
+      const TrapezoidalStripTopology* top = dynamic_cast<const TrapezoidalStripTopology*> (&(shRoll->topology()));
+      halfStripLength = 0.5 * top->stripLength();
+      distanceFromEdge = halfStripLength - simHitPos.y();
     }
-
-    float prop_time =  distanceFromEdge/sspeed_;
-
-    double rr_tim1 = gauss2_->fire(0., resEle_);
-    double total_time = tof + prop_time + timOff_ + rr_tim1 + rr_el;
     
-    // Bunch crossing assignment
-    double time_differ = 0.;
+    // average time for the signal to propagate from the SimHit to the top of a strip
+    float averagePropagationTime =  distanceFromEdge/signalPropagationSpeed_;
+    // random Gaussian time correction due to the finite timing resolution of the detector
+    float randomResolutionTime = gauss2_->fire(0., timeResolution_);
 
-    if(cosmics_)
-    {
-      time_differ = (total_time - (timeref + ( half_strip_length/sspeed_ + timOff_)))/COSMIC_PAR;
-    }
-    else
-    {
-      time_differ = total_time - (timeref + ( half_strip_length/sspeed_ + timOff_));
-    }
-     
-    double inf_time = 0;
-    double sup_time = 0;
+    float simhitTime = tof + (averageShapingTime_ + randomResolutionTime) + (averagePropagationTime + randomJitterTime);
+    float referenceTime = calibrationTime + halfStripLength/signalPropagationSpeed_ + averageShapingTime_;
+    float timeDifference = cosmics_ ? (simhitTime - referenceTime)/COSMIC_PAR : simhitTime - referenceTime;
 
-    for(int n = -5; n <= 5; ++n)
-    {
-      if(cosmics_)
-      {
-        inf_time = (-lbGate_/2 + n*lbGate_ )/COSMIC_PAR;
-        sup_time = ( lbGate_/2 + n*lbGate_ )/COSMIC_PAR;
-      }
-      else
-      {
-        inf_time = -lbGate_/2 + n*lbGate_;
-        sup_time =  lbGate_/2 + n*lbGate_;
-      }
+    // assign the bunch crossing
+    bx = static_cast<int>( std::round((timeDifference)/bxwidth_) );
 
-      if(inf_time < time_differ && time_differ < sup_time)
+    // check time
+    const bool debug( false );
+    if (debug)
       {
-        bx = n;
-        break;
+	std::cout<<"checktime "<<bx<<" "<<timeDifference<<" "<<simhitTime<<" "<<referenceTime<<" "<<tof<<" "<<averagePropagationTime<<std::endl;
       }
-    }
   }
-
   return bx;
 }
 

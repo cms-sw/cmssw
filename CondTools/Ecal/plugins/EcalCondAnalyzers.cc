@@ -26,8 +26,8 @@
 #include "CondFormats/EcalObjects/interface/EcalDCSTowerStatus.h"
 #include "CondTools/Ecal/interface/EcalDCSTowerStatusXMLTranslator.h"
 
-#include "CondFormats/EcalObjects/interface/EcalLinearCorrections.h"
-#include "CondTools/Ecal/interface/EcalFloatCondObjectContainerXMLTranslator.h"
+//  #include "CondFormats/EcalObjects/interface/EcalLinearCorrections.h"
+//  #include "CondTools/Ecal/interface/EcalFloatCondObjectContainerXMLTranslator.h"
 
 #include "CondFormats/EcalObjects/interface/EcalIntercalibConstants.h"
 #include "CondTools/Ecal/interface/EcalFloatCondObjectContainerXMLTranslator.h"
@@ -85,11 +85,11 @@ typedef popcon::PopConAnalyzer<EcalTBWeightsHandler>
                                          EcalTBWeightsAnalyzer;
 
 
-typedef EcalCondHandler<EcalLinearCorrections,
-			EcalFloatCondObjectContainerXMLTranslator> EcalLinearCorrectionsHandler;
+// typedef EcalCondHandler<EcalLinearCorrections,
+//			EcalFloatCondObjectContainerXMLTranslator> EcalLinearCorrectionsHandler;
 
-typedef popcon::PopConAnalyzer<EcalLinearCorrectionsHandler>  
-                                         EcalLinearCorrectionsAnalyzer;
+// typedef popcon::PopConAnalyzer<EcalLinearCorrectionsHandler>  
+//                                         EcalLinearCorrectionsAnalyzer;
 
 typedef EcalCondHandler<EcalIntercalibConstants,
 			EcalFloatCondObjectContainerXMLTranslator> EcalIntercalibConstantsHandler;
@@ -136,11 +136,11 @@ DEFINE_FWK_MODULE(EcalDAQTowerStatusAnalyzer);
 DEFINE_FWK_MODULE(EcalDCSTowerStatusAnalyzer);
 DEFINE_FWK_MODULE(EcalTBWeightsAnalyzer);
 DEFINE_FWK_MODULE(EcalWeightGroupAnalyzer);
-DEFINE_FWK_MODULE(EcalLinearCorrectionsAnalyzer);
 DEFINE_FWK_MODULE(EcalIntercalibConstantsAnalyzer);
 DEFINE_FWK_MODULE(EcalIntercalibErrorsAnalyzer);
 DEFINE_FWK_MODULE(EcalIntercalibConstantsMCAnalyzer);
 DEFINE_FWK_MODULE(EcalTimeCalibConstantsAnalyzer);
 DEFINE_FWK_MODULE(EcalTimeCalibErrorsAnalyzer);
 DEFINE_FWK_MODULE(EcalTimeOffsetConstantAnalyzer);
+// DEFINE_FWK_MODULE(EcalLinearCorrectionsAnalyzer);
 

@@ -1,114 +1,111 @@
+/// ////////////////////////////////////////
+/// Stacked Tracker Simulations          ///
+/// Changed by:                          ///
+/// Nicola Pozzobon                      ///
+/// UNIPD                                ///
+/// 2010, June; 2011, July               ///
+///                                      ///
+/// Added L1Tracks and ClusterBuilder    ///
+/// Unification of Local and Global Stub ///
+/// ////////////////////////////////////////
+
 #include "SimDataFormats/SLHC/interface/StackedTrackerTypes.h"
 
-#include "SLHCUpgradeSimulations/L1TrackTrigger/interface/LocalStubBuilder.h"
-typedef LocalStubBuilder<cmsUpgrades::Ref_PSimHit_> LocalStubBuilder_PSimHit_;
-DEFINE_FWK_MODULE(LocalStubBuilder_PSimHit_);
-typedef LocalStubBuilder<cmsUpgrades::Ref_PixelDigi_> LocalStubBuilder_PixelDigi_;
-DEFINE_FWK_MODULE(LocalStubBuilder_PixelDigi_);
-typedef LocalStubBuilder<cmsUpgrades::Ref_TTHit_> LocalStubBuilder_TTHit_;
-DEFINE_FWK_MODULE(LocalStubBuilder_TTHit_);
+/// The Builders
+
+//#include "SLHCUpgradeSimulations/L1TrackTrigger/interface/L1TkBeamBuilder.h"
+//DEFINE_FWK_MODULE(L1TkBeamBuilder);
+
+#include "SLHCUpgradeSimulations/L1TrackTrigger/interface/L1TkClusterBuilder.h"
+typedef L1TkClusterBuilder<Ref_PSimHit_> L1TkClusterBuilder_PSimHit_;
+DEFINE_FWK_MODULE(L1TkClusterBuilder_PSimHit_);
+typedef L1TkClusterBuilder<Ref_PixelDigi_> L1TkClusterBuilder_PixelDigi_;
+DEFINE_FWK_MODULE(L1TkClusterBuilder_PixelDigi_);
+
+#include "SLHCUpgradeSimulations/L1TrackTrigger/interface/L1TkStubBuilder.h"
+typedef L1TkStubBuilder<Ref_PSimHit_> L1TkStubBuilder_PSimHit_;
+DEFINE_FWK_MODULE(L1TkStubBuilder_PSimHit_);
+typedef L1TkStubBuilder<Ref_PixelDigi_> L1TkStubBuilder_PixelDigi_;
+DEFINE_FWK_MODULE(L1TkStubBuilder_PixelDigi_);
+
+#include "SLHCUpgradeSimulations/L1TrackTrigger/interface/L1TkTrackBuilder.h"
+typedef L1TkTrackBuilder<Ref_PixelDigi_> L1TkTrackBuilder_PixelDigi_;
+DEFINE_FWK_MODULE(L1TkTrackBuilder_PixelDigi_);
+
+/// The Seed Propagation (Tracking) Algorithms
+#include "SLHCUpgradeSimulations/L1TrackTrigger/interface/TrackingAlgorithm_exactLongBarrel.h"
+typedef ES_TrackingAlgorithm_exactLongBarrel<Ref_PixelDigi_> TrackingAlgorithm_exactLongBarrel_PixelDigi_;
+DEFINE_FWK_EVENTSETUP_MODULE(TrackingAlgorithm_exactLongBarrel_PixelDigi_);
+
+#include "SLHCUpgradeSimulations/L1TrackTrigger/interface/TrackingAlgorithm_exactBarrelEndcap.h"
+typedef ES_TrackingAlgorithm_exactBarrelEndcap<Ref_PixelDigi_> TrackingAlgorithm_exactBarrelEndcap_PixelDigi_;
+DEFINE_FWK_EVENTSETUP_MODULE(TrackingAlgorithm_exactBarrelEndcap_PixelDigi_);
+
+#include "SLHCUpgradeSimulations/L1TrackTrigger/interface/TrackingAlgorithm_associativeBarrelEndcap.h"
+typedef ES_TrackingAlgorithm_associativeBarrelEndcap<Ref_PixelDigi_> TrackingAlgorithm_associativeBarrelEndcap_PixelDigi_;
+DEFINE_FWK_EVENTSETUP_MODULE(TrackingAlgorithm_associativeBarrelEndcap_PixelDigi_);
 
 
-#include "SLHCUpgradeSimulations/L1TrackTrigger/interface/GlobalStubBuilder.h"
-typedef GlobalStubBuilder<cmsUpgrades::Ref_PSimHit_> GlobalStubBuilder_PSimHit_;
-DEFINE_FWK_MODULE(GlobalStubBuilder_PSimHit_);
-typedef GlobalStubBuilder<cmsUpgrades::Ref_PixelDigi_> GlobalStubBuilder_PixelDigi_;
-DEFINE_FWK_MODULE(GlobalStubBuilder_PixelDigi_);
-typedef GlobalStubBuilder<cmsUpgrades::Ref_TTHit_> GlobalStubBuilder_TTHit_;
-DEFINE_FWK_MODULE(GlobalStubBuilder_TTHit_);
-
-#include "SLHCUpgradeSimulations/L1TrackTrigger/interface/TrackletBuilder.h"
-typedef TrackletBuilder<cmsUpgrades::Ref_PSimHit_> TrackletBuilder_PSimHit_;
-DEFINE_FWK_MODULE(TrackletBuilder_PSimHit_);
-typedef TrackletBuilder<cmsUpgrades::Ref_PixelDigi_> TrackletBuilder_PixelDigi_;
-DEFINE_FWK_MODULE(TrackletBuilder_PixelDigi_);
-typedef TrackletBuilder<cmsUpgrades::Ref_TTHit_> TrackletBuilder_TTHit_;
-DEFINE_FWK_MODULE(TrackletBuilder_TTHit_);
-
-#include "SLHCUpgradeSimulations/L1TrackTrigger/interface/TrackletChainBuilder.h"
-typedef TrackletChainBuilder<cmsUpgrades::Ref_PSimHit_> TrackletChainBuilder_PSimHit_;
-DEFINE_FWK_MODULE(TrackletChainBuilder_PSimHit_);
-typedef TrackletChainBuilder<cmsUpgrades::Ref_PixelDigi_> TrackletChainBuilder_PixelDigi_;
-DEFINE_FWK_MODULE(TrackletChainBuilder_PixelDigi_);
-typedef TrackletChainBuilder<cmsUpgrades::Ref_TTHit_> TrackletChainBuilder_TTHit_;
-DEFINE_FWK_MODULE(TrackletChainBuilder_TTHit_);
-
-/* - The Hit Matching Algorithms - */
-
+/// The Hit Matching Algorithms
 
 #include "SLHCUpgradeSimulations/L1TrackTrigger/interface/HitMatchingAlgorithm_a.h"
-typedef ES_HitMatchingAlgorithm_a<cmsUpgrades::Ref_PSimHit_> HitMatchingAlgorithm_a_PSimHit_;
+typedef ES_HitMatchingAlgorithm_a<Ref_PSimHit_> HitMatchingAlgorithm_a_PSimHit_;
 DEFINE_FWK_EVENTSETUP_MODULE(HitMatchingAlgorithm_a_PSimHit_);
-typedef ES_HitMatchingAlgorithm_a<cmsUpgrades::Ref_PixelDigi_> HitMatchingAlgorithm_a_PixelDigi_;
+typedef ES_HitMatchingAlgorithm_a<Ref_PixelDigi_> HitMatchingAlgorithm_a_PixelDigi_;
 DEFINE_FWK_EVENTSETUP_MODULE(HitMatchingAlgorithm_a_PixelDigi_);
-typedef ES_HitMatchingAlgorithm_a<cmsUpgrades::Ref_TTHit_> HitMatchingAlgorithm_a_TTHit_;
-DEFINE_FWK_EVENTSETUP_MODULE(HitMatchingAlgorithm_a_TTHit_);
 
 #include "SLHCUpgradeSimulations/L1TrackTrigger/interface/HitMatchingAlgorithm_thresholds.h"
-typedef ES_HitMatchingAlgorithm_thresholds<cmsUpgrades::Ref_PixelDigi_> HitMatchingAlgorithm_thresholds_PixelDigi_;
+typedef ES_HitMatchingAlgorithm_thresholds<Ref_PixelDigi_> HitMatchingAlgorithm_thresholds_PixelDigi_;
 DEFINE_FWK_EVENTSETUP_MODULE(HitMatchingAlgorithm_thresholds_PixelDigi_);
-typedef ES_HitMatchingAlgorithm_thresholds<cmsUpgrades::Ref_TTHit_> HitMatchingAlgorithm_thresholds_TTHit_;
-DEFINE_FWK_EVENTSETUP_MODULE(HitMatchingAlgorithm_thresholds_TTHit_);
 
 #include "SLHCUpgradeSimulations/L1TrackTrigger/interface/HitMatchingAlgorithm_window.h"
-typedef ES_HitMatchingAlgorithm_window<cmsUpgrades::Ref_PixelDigi_> HitMatchingAlgorithm_window_PixelDigi_;
+typedef ES_HitMatchingAlgorithm_window<Ref_PixelDigi_> HitMatchingAlgorithm_window_PixelDigi_;
 DEFINE_FWK_EVENTSETUP_MODULE(HitMatchingAlgorithm_window_PixelDigi_);
-typedef ES_HitMatchingAlgorithm_window<cmsUpgrades::Ref_TTHit_> HitMatchingAlgorithm_window_TTHit_;
-DEFINE_FWK_EVENTSETUP_MODULE(HitMatchingAlgorithm_window_TTHit_);
 
 #include "SLHCUpgradeSimulations/L1TrackTrigger/interface/HitMatchingAlgorithm_globalgeometry.h"
-typedef ES_HitMatchingAlgorithm_globalgeometry<cmsUpgrades::Ref_PSimHit_> HitMatchingAlgorithm_globalgeometry_PSimHit_;
+typedef ES_HitMatchingAlgorithm_globalgeometry<Ref_PSimHit_> HitMatchingAlgorithm_globalgeometry_PSimHit_;
 DEFINE_FWK_EVENTSETUP_MODULE(HitMatchingAlgorithm_globalgeometry_PSimHit_);
-typedef ES_HitMatchingAlgorithm_globalgeometry<cmsUpgrades::Ref_PixelDigi_> HitMatchingAlgorithm_globalgeometry_PixelDigi_;
+typedef ES_HitMatchingAlgorithm_globalgeometry<Ref_PixelDigi_> HitMatchingAlgorithm_globalgeometry_PixelDigi_;
 DEFINE_FWK_EVENTSETUP_MODULE(HitMatchingAlgorithm_globalgeometry_PixelDigi_);
-typedef ES_HitMatchingAlgorithm_globalgeometry<cmsUpgrades::Ref_TTHit_> HitMatchingAlgorithm_globalgeometry_TTHit_;
-DEFINE_FWK_EVENTSETUP_MODULE(HitMatchingAlgorithm_globalgeometry_TTHit_);
 
 #include "SLHCUpgradeSimulations/L1TrackTrigger/interface/HitMatchingAlgorithm_pixelray.h"
-typedef ES_HitMatchingAlgorithm_pixelray<cmsUpgrades::Ref_PixelDigi_> HitMatchingAlgorithm_pixelray_PixelDigi_;
+typedef ES_HitMatchingAlgorithm_pixelray<Ref_PixelDigi_> HitMatchingAlgorithm_pixelray_PixelDigi_;
 DEFINE_FWK_EVENTSETUP_MODULE(HitMatchingAlgorithm_pixelray_PixelDigi_);
-typedef ES_HitMatchingAlgorithm_pixelray<cmsUpgrades::Ref_TTHit_> HitMatchingAlgorithm_pixelray_TTHit_;
-DEFINE_FWK_EVENTSETUP_MODULE(HitMatchingAlgorithm_pixelray_TTHit_);
 
+#include "SLHCUpgradeSimulations/L1TrackTrigger/interface/HitMatchingAlgorithm_window2012.h"
+typedef ES_HitMatchingAlgorithm_window2012<Ref_PixelDigi_> HitMatchingAlgorithm_window2012_PixelDigi_;
+DEFINE_FWK_EVENTSETUP_MODULE(HitMatchingAlgorithm_window2012_PixelDigi_);
 
-/* - The Clustering Algorithms - */
+#include "SLHCUpgradeSimulations/L1TrackTrigger/interface/HitMatchingAlgorithm_window2013.h"
+typedef ES_HitMatchingAlgorithm_window2013<Ref_PixelDigi_> HitMatchingAlgorithm_window2013_PixelDigi_;
+DEFINE_FWK_EVENTSETUP_MODULE(HitMatchingAlgorithm_window2013_PixelDigi_);
 
+#include "SLHCUpgradeSimulations/L1TrackTrigger/interface/HitMatchingAlgorithm_tab2013.h"
+typedef ES_HitMatchingAlgorithm_tab2013<Ref_PixelDigi_> HitMatchingAlgorithm_tab2013_PixelDigi_;
+DEFINE_FWK_EVENTSETUP_MODULE(HitMatchingAlgorithm_tab2013_PixelDigi_);
+
+/// The Clustering Algorithms
 
 #include "SLHCUpgradeSimulations/L1TrackTrigger/interface/ClusteringAlgorithm_a.h"
-typedef ES_ClusteringAlgorithm_a<cmsUpgrades::Ref_PSimHit_> ClusteringAlgorithm_a_PSimHit_;
+typedef ES_ClusteringAlgorithm_a<Ref_PSimHit_> ClusteringAlgorithm_a_PSimHit_;
 DEFINE_FWK_EVENTSETUP_MODULE(ClusteringAlgorithm_a_PSimHit_);
-typedef ES_ClusteringAlgorithm_a<cmsUpgrades::Ref_PixelDigi_> ClusteringAlgorithm_a_PixelDigi_;
+typedef ES_ClusteringAlgorithm_a<Ref_PixelDigi_> ClusteringAlgorithm_a_PixelDigi_;
 DEFINE_FWK_EVENTSETUP_MODULE(ClusteringAlgorithm_a_PixelDigi_);
-typedef ES_ClusteringAlgorithm_a<cmsUpgrades::Ref_TTHit_> ClusteringAlgorithm_a_TTHit_;
-DEFINE_FWK_EVENTSETUP_MODULE(ClusteringAlgorithm_a_TTHit_);
-
 
 #include "SLHCUpgradeSimulations/L1TrackTrigger/interface/ClusteringAlgorithm_broadside.h"
-typedef ES_ClusteringAlgorithm_broadside<cmsUpgrades::Ref_PSimHit_> ClusteringAlgorithm_broadside_PSimHit_;
-DEFINE_FWK_EVENTSETUP_MODULE(ClusteringAlgorithm_broadside_PSimHit_);
-typedef ES_ClusteringAlgorithm_broadside<cmsUpgrades::Ref_PixelDigi_> ClusteringAlgorithm_broadside_PixelDigi_;
+typedef ES_ClusteringAlgorithm_broadside<Ref_PixelDigi_> ClusteringAlgorithm_broadside_PixelDigi_;
 DEFINE_FWK_EVENTSETUP_MODULE(ClusteringAlgorithm_broadside_PixelDigi_);
-typedef ES_ClusteringAlgorithm_broadside<cmsUpgrades::Ref_TTHit_> ClusteringAlgorithm_broadside_TTHit_;
-DEFINE_FWK_EVENTSETUP_MODULE(ClusteringAlgorithm_broadside_TTHit_);
 
 #include "SLHCUpgradeSimulations/L1TrackTrigger/interface/ClusteringAlgorithm_2d.h"
-typedef ES_ClusteringAlgorithm_2d<cmsUpgrades::Ref_PSimHit_> ClusteringAlgorithm_2d_PSimHit_;
-DEFINE_FWK_EVENTSETUP_MODULE(ClusteringAlgorithm_2d_PSimHit_);
-typedef ES_ClusteringAlgorithm_2d<cmsUpgrades::Ref_PixelDigi_> ClusteringAlgorithm_2d_PixelDigi_;
+typedef ES_ClusteringAlgorithm_2d<Ref_PixelDigi_> ClusteringAlgorithm_2d_PixelDigi_;
 DEFINE_FWK_EVENTSETUP_MODULE(ClusteringAlgorithm_2d_PixelDigi_);
-typedef ES_ClusteringAlgorithm_2d<cmsUpgrades::Ref_TTHit_> ClusteringAlgorithm_2d_TTHit_;
-DEFINE_FWK_EVENTSETUP_MODULE(ClusteringAlgorithm_2d_TTHit_);
-
 
 #include "SLHCUpgradeSimulations/L1TrackTrigger/interface/ClusteringAlgorithm_neighbor.h"
-typedef ES_ClusteringAlgorithm_neighbor<cmsUpgrades::Ref_PixelDigi_> ClusteringAlgorithm_neighbor_PixelDigi_;
+typedef ES_ClusteringAlgorithm_neighbor<Ref_PixelDigi_> ClusteringAlgorithm_neighbor_PixelDigi_;
 DEFINE_FWK_EVENTSETUP_MODULE(ClusteringAlgorithm_neighbor_PixelDigi_);
-typedef ES_ClusteringAlgorithm_neighbor<cmsUpgrades::Ref_TTHit_> ClusteringAlgorithm_neighbor_TTHit_;
-DEFINE_FWK_EVENTSETUP_MODULE(ClusteringAlgorithm_neighbor_TTHit_);
 
 /* - L1 CaloTrigger - */
-//#include "SLHCUpgradeSimulations/CaloTrigger/interface/L1CaloTriggerSetupProducer.h"
+//#include "SLHCUpgradeSimulations/L1TrackTrigger/interface/L1CaloTriggerSetupProducer.h"
 //DEFINE_FWK_EVENTSETUP_MODULE(L1CaloTriggerSetupProducer);
-
 
 

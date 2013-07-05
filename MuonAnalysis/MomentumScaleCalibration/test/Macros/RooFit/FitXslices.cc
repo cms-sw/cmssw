@@ -24,23 +24,28 @@ class FitXslices
 public:
   FitXslices()
   {
-    fitter_.initMean( 3.1, 2.9, 3.3 );
+    //fitter_.initMean( 9.46, 9.1, 9.7 );
+    fitter_.initMean2( 0., -20., 20. );
+    fitter_.mean2()->setConstant(kTRUE);
     // fitter_.initSigma( 2.3, 0., 10. );
-    fitter_.initSigma( 0.03, 0., 10. );
-    fitter_.initSigma2( 1., 0., 10. );
+    fitter_.initSigma( 2., 0., 10. );
+    fitter_.initSigma2( 0.2, 0.0001, 2. );
 
     // Fix the gamma for the Z
     fitter_.initGamma( 2.4952, 0., 10. );
     fitter_.gamma()->setConstant(kTRUE);
 
     fitter_.initGaussFrac( 0.5, 0., 1. );
-    fitter_.initExpCoeff( -1., -10., 0. );
-    fitter_.initFsig(0.5, 0., 1.);
+    fitter_.initExpCoeff( -0.1, -5., 0. );
+    fitter_.initFsig(0.9, 0., 1.);
 
-    fitter_.initConstant(0, 0, 10000);
+    fitter_.initConstant(500., 0, 10000);
+    fitter_.initLinearTerm(0, -10., 10);
+    fitter_.initParabolicTerm(0, -1., 1.);
+    fitter_.initQuarticTerm(0, -0.1, 0.1);
 
-    fitter_.initAlpha(3., 0., 4.);
-    fitter_.initN(1, 0., 100.);
+    fitter_.initAlpha(3., 0., 30.);
+    fitter_.initN(2, 0., 50.);
 
     fitter_.useChi2_ = false;
   }
@@ -88,6 +93,9 @@ public:
     TCanvas * signalFractionCanvas = new TCanvas("signalFractionCanvas", "signalFractionCanvas", 1000, 800);
     TH1D * signalFractionHisto = new TH1D("signalFractionHisto", "signalFractionHisto", binsX, histo->GetXaxis()->GetXmin(), histo->GetXaxis()->GetXmax());
 
+    TCanvas * probChi2Canvas = new TCanvas("probChi2Canvas", "probChi2Canvas", 1000, 800);
+    TH1D * probChi2Histo = new TH1D("probChi2Histo", "probChi2Histo", binsX, histo->GetXaxis()->GetXmin(), histo->GetXaxis()->GetXmax());
+
 
     // Store all the non-empty slices
     std::map< unsigned int, TH1 *> slices;
@@ -118,6 +126,9 @@ public:
     for( ; it != slices.end(); ++it, ++i ) {
       fitsCanvas->cd(i);
       fitter_.fit(it->second, signalType, backgroundType, xMin, xMax);
+      //      fitsCanvas->GetPad(i)->SetLogy();
+
+      //      probChi2Histo->SetBinContent(it->first, mean->getVal());
 
       RooRealVar * mean = fitter_.mean();
       
@@ -166,6 +177,8 @@ public:
     }
     signalFractionCanvas->cd();
     signalFractionHisto->Draw();
+    probChi2Canvas->cd();
+    probChi2Histo->Draw();
 
     fitsCanvas->Write();
     meanCanvas->Write();
@@ -175,7 +188,7 @@ public:
     if( backgroundType == "linear" ) {
       backgroundCanvas2->Write();
     }
-
+    probChi2Canvas->Write();
     // fitSlices(slices, xMin, xMax, signalType, backgroundType, false); ///DEVO PASSARGLI xMin, xMax e il resto....
 
   }

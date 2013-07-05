@@ -3,7 +3,7 @@
    test file for RPCCompDetId
 
    \author Stefano ARGIRO
-   \version $Id: testRPCCompDetId.cc,v 1.1 2011/11/05 10:39:54 mmaggi Exp $
+   \version $Id: testRPCCompDetId.cc,v 1.5 2011/01/14 03:35:58 sunanda Exp $
    \date 27 Jul 2005
 */
 
@@ -48,7 +48,7 @@ void testRPCCompDetId::testOne(){
             for (int layer=RPCCompDetId::minLayerId; layer<=RPCCompDetId::maxLayerId; ++layer)
               for (int subSector=RPCCompDetId::minSubSectorId; subSector<=RPCCompDetId::maxSubSectorId; ++subSector){
 
-		RPCCompDetId detid(region, ring, station, sector, layer, subSector,RPCCompDetId::GAS);
+		RPCCompDetId detid(region, ring, station, sector, layer, subSector,0);
 		
 		CPPUNIT_ASSERT(detid.region() == region);
 		CPPUNIT_ASSERT(detid.ring() == ring);
@@ -59,7 +59,7 @@ void testRPCCompDetId::testOne(){
 		
 	         //  test constructor from id
 		int myId = detid.rawId();
-		RPCCompDetId anotherId(myId,RPCCompDetId::GAS);
+		RPCCompDetId anotherId(myId);
 		CPPUNIT_ASSERT(detid==anotherId);
 		
 	      }
@@ -72,7 +72,7 @@ void testRPCCompDetId::testFail(){
   // contruct using an invalid input index
   try {
     // Station number too high
-    RPCCompDetId detid(0,1,7,2,2,1,RPCCompDetId::TEMPERATURE);
+    RPCCompDetId detid(0,1,7,2,2,1,1);
     CPPUNIT_ASSERT("Failed to throw required exception" == 0);      
     detid.rawId(); // avoid compiler warning
   } catch (cms::Exception& e) {
@@ -83,7 +83,7 @@ void testRPCCompDetId::testFail(){
   
   // contruct using an invalid input id
   try {
-    RPCCompDetId detid(100,RPCCompDetId::GAS);
+    RPCCompDetId detid(100);
     CPPUNIT_ASSERT("Failed to throw required exception" == 0);      
     detid.rawId(); // avoid compiler warning
   } catch (cms::Exception& e) {
@@ -95,7 +95,7 @@ void testRPCCompDetId::testFail(){
 
 
 void testRPCCompDetId::testMemberOperators(){
-  RPCCompDetId unit1(0,-2,1,2,2,1,RPCCompDetId::GAS);
+  RPCCompDetId unit1(0,-2,1,2,2,1,1);
   RPCCompDetId unit2=unit1;
   CPPUNIT_ASSERT(unit2==unit1);
 }

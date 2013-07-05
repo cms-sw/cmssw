@@ -3,7 +3,11 @@
 
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/SiStripDetId/interface/SiStripDetId.h"
+#include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
+#include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
+
 #include <vector>
+#include <string>
 
 //knower of all things tracker geometry
 //flexible replacement for PXBDetId and friends
@@ -229,15 +233,77 @@ class TrackerTopology {
   bool tidIsZPlusSide(const DetId &id) const {return !tidIsZMinusSide(id);}
   bool tidIsZMinusSide(const DetId &id) const { return tidSide(id)==1;}
 
-  bool tobIsStereo(const DetId &id) const {return SiStripDetId(id).stereo()!=0 && !tobIsDoubleSide(id);}
-  bool tecIsStereo(const DetId &id) const {return SiStripDetId(id).stereo()!=0 && !tecIsDoubleSide(id);}
-  bool tibIsStereo(const DetId &id) const {return SiStripDetId(id).stereo()!=0 && !tibIsDoubleSide(id);}
-  bool tidIsStereo(const DetId &id) const {return SiStripDetId(id).stereo()!=0 && !tidIsDoubleSide(id);}
+  bool tecIsZPlusSide(const DetId &id) const {return !tecIsZMinusSide(id);}
+  bool tecIsZMinusSide(const DetId &id) const { return tecSide(id)==1;}
+
+  //these are from the old TOB/TEC/TID/TIB DetId
+  bool tobIsStereo(const DetId &id) const {return tobStereo(id)!=0 && !tobIsDoubleSide(id);}
+  bool tecIsStereo(const DetId &id) const {return tecStereo(id)!=0 && !tecIsDoubleSide(id);}
+  bool tibIsStereo(const DetId &id) const {return tibStereo(id)!=0 && !tibIsDoubleSide(id);}
+  bool tidIsStereo(const DetId &id) const {return tidStereo(id)!=0 && !tidIsDoubleSide(id);}
+
+  //these are clones of the old SiStripDetId
+  uint32_t tobStereo(const DetId &id) const {
+    if ( ((id.rawId() >>tobVals_.sterStartBit_ ) & tobVals_.sterMask_ ) == 1 ) {
+      return ( (id.rawId()>>tobVals_.sterStartBit_) & tobVals_.sterMask_ );
+    } else { return 0; }
+  }
+
+  uint32_t tibStereo(const DetId &id) const {
+    if ( ((id.rawId() >>tibVals_.sterStartBit_ ) & tibVals_.sterMask_ ) == 1 ) {
+      return ( (id.rawId()>>tibVals_.sterStartBit_) & tibVals_.sterMask_ );
+    } else { return 0; }
+  }
+
+  uint32_t tidStereo(const DetId &id) const {
+    if ( ((id.rawId() >>tidVals_.sterStartBit_ ) & tidVals_.sterMask_ ) == 1 ) {
+      return ( (id.rawId()>>tidVals_.sterStartBit_) & tidVals_.sterMask_ );
+    } else { return 0; }
+  }
+
+  uint32_t tecStereo(const DetId &id) const {
+    if ( ((id.rawId() >>tecVals_.sterStartBit_ ) & tecVals_.sterMask_ ) == 1 ) {
+      return ( (id.rawId()>>tecVals_.sterStartBit_) & tecVals_.sterMask_ );
+    } else { return 0; }
+  }
+
+  uint32_t tibGlued(const DetId &id) const {
+    if ( ((id.rawId()>>tibVals_.sterStartBit_) & tibVals_.sterMask_ ) == 1 ) {
+      return ( id.rawId() - 1 );
+    } else if ( ((id.rawId()>>tibVals_.sterStartBit_) & tibVals_.sterMask_ ) == 2 ) {
+      return ( id.rawId() - 2 );
+    } else { return 0; }
+  }
+
+  uint32_t tecGlued(const DetId &id) const {
+    if ( ((id.rawId()>>tecVals_.sterStartBit_) & tecVals_.sterMask_ ) == 1 ) {
+      return ( id.rawId() - 1 );
+    } else if ( ((id.rawId()>>tecVals_.sterStartBit_) & tecVals_.sterMask_ ) == 2 ) {
+      return ( id.rawId() - 2 );
+    } else { return 0; }
+  }
+
+  uint32_t tobGlued(const DetId &id) const {
+    if ( ((id.rawId()>>tobVals_.sterStartBit_) & tobVals_.sterMask_ ) == 1 ) {
+      return ( id.rawId() - 1 );
+    } else if ( ((id.rawId()>>tobVals_.sterStartBit_) & tobVals_.sterMask_ ) == 2 ) {
+      return ( id.rawId() - 2 );
+    } else { return 0; }
+  }
+
+  uint32_t tidGlued(const DetId &id) const {
+    if ( ((id.rawId()>>tidVals_.sterStartBit_) & tidVals_.sterMask_ ) == 1 ) {
+      return ( id.rawId() - 1 );
+    } else if ( ((id.rawId()>>tidVals_.sterStartBit_) & tidVals_.sterMask_ ) == 2 ) {
+      return ( id.rawId() - 2 );
+    } else { return 0; }
+  }
 
   bool tobIsRPhi(const DetId &id) const { return SiStripDetId(id).stereo()==0 && !tobIsDoubleSide(id);}
   bool tecIsRPhi(const DetId &id) const { return SiStripDetId(id).stereo()==0 && !tecIsDoubleSide(id);}
   bool tibIsRPhi(const DetId &id) const { return SiStripDetId(id).stereo()==0 && !tibIsDoubleSide(id);}
   bool tidIsRPhi(const DetId &id) const { return SiStripDetId(id).stereo()==0 && !tidIsDoubleSide(id);}
+
 
   //misc tec
   std::vector<unsigned int> tecPetalInfo(const DetId &id) const {
@@ -254,9 +320,17 @@ class TrackerTopology {
   bool tecIsFrontPetal(const DetId &id) const {return !tecIsBackPetal(id);}
 
   //misc tib
-  unsigned int tibStringNumber(const DetId &id) const {
+  unsigned int tibString(const DetId &id) const {
     return (id.rawId()>>tibVals_.strStartBit_)&tibVals_.strMask_;
   }
+
+  std::vector<unsigned int> tibStringInfo(const DetId &id) const
+    { std::vector<unsigned int> num;
+      num.push_back( tibSide(id) );
+      num.push_back( tibOrder(id) );
+      num.push_back(tibString(id));
+      return num ;
+    }
 
   bool tibIsInternalString(const DetId &id) const {
     return (tibOrder(id)==1);
@@ -291,6 +365,102 @@ class TrackerTopology {
   unsigned int pxfPanel(const DetId &id) const {
     return int((id.rawId()>>pfVals_.panelStartBit_) & pfVals_.panelMask_);
   }
+
+  //old constructors, now return DetId
+  DetId pxbDetId(uint32_t layer,
+		 uint32_t ladder,
+		 uint32_t module) const {
+    //uply
+    DetId id(DetId::Tracker,PixelSubdetector::PixelBarrel);
+    uint32_t rawid=id.rawId();
+    rawid |= (layer& pbVals_.layerMask_) << pbVals_.layerStartBit_     |
+      (ladder& pbVals_.ladderMask_) << pbVals_.ladderStartBit_  |
+      (module& pbVals_.moduleMask_) << pbVals_.moduleStartBit_;
+    return DetId(rawid);
+  }
+
+  DetId pxfDetId(uint32_t side,
+		 uint32_t disk,
+		 uint32_t blade,
+		 uint32_t panel,
+		 uint32_t module) const {
+    DetId id(DetId::Tracker,PixelSubdetector::PixelEndcap);
+    uint32_t rawid=id.rawId();
+    rawid |= (side& pfVals_.sideMask_)  << pfVals_.sideStartBit_   |
+      (disk& pfVals_.diskMask_)        << pfVals_.diskStartBit_      |
+      (blade& pfVals_.bladeMask_)      << pfVals_.bladeStartBit_     |
+      (panel& pfVals_.panelMask_)      << pfVals_.panelStartBit_     |
+      (module& pfVals_.moduleMask_)    << pfVals_.moduleStartBit_  ;
+    return DetId(rawid);
+  }
+
+  DetId tecDetId(uint32_t side, uint32_t wheel,
+		 uint32_t petal_fw_bw, uint32_t petal,
+		 uint32_t ring, uint32_t module, uint32_t ster) const {  
+
+    DetId id=SiStripDetId(DetId::Tracker,StripSubdetector::TEC);
+    uint32_t rawid=id.rawId();
+
+    rawid |= (side& tecVals_.sideMask_)         << tecVals_.sideStartBit_ |
+      (wheel& tecVals_.wheelMask_)             << tecVals_.wheelStartBit_ |
+      (petal_fw_bw& tecVals_.petal_fw_bwMask_) << tecVals_.petal_fw_bwStartBit_ |
+      (petal& tecVals_.petalMask_)             << tecVals_.petalStartBit_ |
+      (ring& tecVals_.ringMask_)               << tecVals_.ringStartBit_ |
+      (module& tecVals_.moduleMask_)                 << tecVals_.moduleStartBit_ |
+      (ster& tecVals_.sterMask_)               << tecVals_.sterStartBit_ ;
+    return DetId(rawid);
+  }
+
+  DetId tibDetId(uint32_t layer,
+		 uint32_t str_fw_bw,
+		 uint32_t str_int_ext,
+		 uint32_t str,
+		 uint32_t module,
+		 uint32_t ster) const {
+    DetId id=SiStripDetId(DetId::Tracker,StripSubdetector::TIB);
+    uint32_t rawid=id.rawId();
+    rawid |= (layer& tibVals_.layerMask_) << tibVals_.layerStartBit_ |
+      (str_fw_bw& tibVals_.str_fw_bwMask_) << tibVals_.str_fw_bwStartBit_ |
+      (str_int_ext& tibVals_.str_int_extMask_) << tibVals_.str_int_extStartBit_ |
+      (str& tibVals_.strMask_) << tibVals_.strStartBit_ |
+      (module& tibVals_.moduleMask_) << tibVals_.moduleStartBit_ |
+      (ster& tibVals_.sterMask_) << tibVals_.sterStartBit_ ;
+    return DetId(rawid);
+  }
+
+  DetId tidDetId(uint32_t side,
+		 uint32_t wheel,
+		 uint32_t ring,
+		 uint32_t module_fw_bw,
+		 uint32_t module,
+		 uint32_t ster) const { 
+    DetId id=SiStripDetId(DetId::Tracker,StripSubdetector::TID);
+    uint32_t rawid=id.rawId();
+    rawid |= (side& tidVals_.sideMask_)      << tidVals_.sideStartBit_    |
+      (wheel& tidVals_.wheelMask_)          << tidVals_.wheelStartBit_      |
+      (ring& tidVals_.ringMask_)            << tidVals_.ringStartBit_       |
+      (module_fw_bw& tidVals_.module_fw_bwMask_)  << tidVals_.module_fw_bwStartBit_  |
+      (module& tidVals_.moduleMask_)              << tidVals_.moduleStartBit_        |
+      (ster& tidVals_.sterMask_)            << tidVals_.sterStartBit_ ;
+    return DetId(rawid);
+  }
+
+  DetId tobDetId(uint32_t layer,
+		 uint32_t rod_fw_bw,
+		 uint32_t rod,
+		 uint32_t module,
+		 uint32_t ster) const {
+    DetId id=SiStripDetId(DetId::Tracker,StripSubdetector::TOB);
+    uint32_t rawid=id.rawId();
+    rawid |= (layer& tobVals_.layerMask_) << tobVals_.layerStartBit_ |
+      (rod_fw_bw& tobVals_.rod_fw_bwMask_) << tobVals_.rod_fw_bwStartBit_ |
+      (rod& tobVals_.rodMask_) << tobVals_.rodStartBit_ |
+      (module& tobVals_.moduleMask_) << tobVals_.moduleStartBit_ |
+      (ster& tobVals_.sterMask_) << tobVals_.sterStartBit_ ;
+    return DetId(rawid);
+  }
+
+  std::string print(DetId detid) const;
 
  private:
 

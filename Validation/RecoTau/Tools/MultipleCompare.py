@@ -11,14 +11,7 @@ from ROOT import *
 
 __author__  = "Mauro Verzetti (mauro.verzetti@cern.ch)"
 __doc__ = """Script to plot the content of a Validation .root file and compare it to a different file:\n\n
-Usage: MultipleCompare.py -T testFile -R refFile [options] [search strings that you want to apply '*' is supported as special character].
-  Special patterns:
-  - Using plotPattern like [[ref][test]] allows to define different histogram names for ref and test files.
-  - Similar patterns can be combined like *{Loose}{Medium}{Tight}commonPattern*. This translates into *LoosecommonPattern* *MediumcommonPattern* *TightcommonPattern*.
-  Both special patterns can be combined.
-  Example:
-  python MultipleCompare.py -T TauVal.root -R TauVal.root -t TEST -r REF *{Loose}{Medium}{Tight}CombinedIsolationDBSumPtCorr[[][3Hits]]vtxFilterOnPvFindAlgoOldEffpt
-  """
+Usage: MultipleCompare.py -T testFile -R refFile [options] [search strings that you want to apply '*' is supported as special character]"""
 
 def LoadCommandlineOptions(argv):
   sys.argv = argv
@@ -31,14 +24,12 @@ def LoadCommandlineOptions(argv):
   parser.add_option('--fakeRate','-f',action="store_true", dest="fakeRate", default=False, help="Sets the fake rate options and put the correct label (implies --logScale)")
   parser.add_option('--testLabel','-t',metavar='testLabel', type=str,help='Sets the label to put in the plots for test file',dest='testLabel',default = None)
   parser.add_option('--refLabel','-r',metavar='refLabel', type=str,help='Sets the label to put in the plots for ref file',dest='refLabel',default = None)
-  parser.add_option('--maxX', metavar='number', type=float, help='Sets the maximum of the x scale in the ratio pad',dest='maxX')
-  parser.add_option('--minDiv',metavar='number', type=float, help='Sets the minimum of the y scale in the ratio pad',dest='minDiv')
-  parser.add_option('--maxDiv',metavar='number', type=float, help='Sets the maximum of the y scale in the ratio pad',dest='maxDiv')
-  parser.add_option('--minMain',metavar='number',type=float, help='Sets the minimum of the y scale in the main pad (auto-defined if no user input)', dest='minMain', default=-1)
-  parser.add_option('--maxMain',metavar='number', type=float, help='Sets the maximum of the y scale in the main pad in linear scale (auto-defined if no user input)', dest='maxMain', default=-1)
-  parser.add_option('--maxLog', metavar='number', type=float, help='Sets the maximum of the y scale in the main pad in log scale (requires --logScale or -f to work)',dest='maxLog')
+  parser.add_option('--maxLog',metavar='number', type=float,help='Sets the maximum of the scale in log scale (requires --logScale or -f to work)',dest='maxLog',default = 3)
+  parser.add_option('--minDiv',metavar='number', type=float,help='Sets the minimum of the scale in the ratio pad',dest='minDiv',default = 0.001)
+  parser.add_option('--maxDiv',metavar='number', type=float,help='Sets the maximum of the scale in the ratio pad',dest='maxDiv',default = 2)
   parser.add_option('--logDiv',action="store_true", dest="logDiv", default=False, help="Sets the log scale in the plot")
   parser.add_option('--normalize',action="store_true", dest="normalize", default=False, help="plot normalized")
+  parser.add_option('--maxRange',metavar='number',type=float, dest="maxRange", default=1.6, help="Sets the maximum range in linear plots")
   parser.add_option('--rebin', dest="rebin", type=int, default=-1, help="Sets the rebinning scale")
   parser.add_option('--branding','-b',metavar='branding', type=str,help='Define a branding to label the plots (in the top right corner)',dest='branding',default = None)
   #parser.add_option('--search,-s',metavar='searchStrings', type=str,help='Sets the label to put in the plots for ref file',dest='testLabel',default = None) No idea on how to tell python to use all the strings before a new option, thus moving this from option to argument (but may be empty)  
@@ -147,28 +138,36 @@ def DrawBranding(options, label=''):
     text.DrawLatex(rightMargin+.01, topMargin+0.025, label+options.branding);
 
 
-def FindParents(histoPath, tfile):
-    root    = histoPath[:histoPath.find('_')]
-    par     = '_vs_'+histoPath[histoPath.find('Eff')+3:]+'TauVisible'
-    dirname = histoPath[:histoPath.rfind('/')]
-    tdir    = tfile.Get(dirname)
-    hists   = []
-    MapDirStructure( tdir, dirname, hists )
-    num     = filter(lambda x: par in x, hists)[0] #otherwise raises error
-    den     = histoPath[:histoPath.find('_')]+'_ReferenceCollection/nRef_Taus'+par
-    return (num,den)
+def FindParents(histoPath):
+    root = histoPath[:histoPath.find('_')]
+    par = histoPath[histoPath.find('Eff')+3:]
+    validationPlots = validation.proc.efficiencies.plots._Parameterizable__parameterNames
+    found =0
+    num = ''
+    den = ''
+    for efficiency in validationPlots:
+        effpset = getattr(validation.proc.efficiencies.plots,efficiency)
+        effName = effpset.efficiency.value()
+        effNameCut = effName[effName.find('_'):effName.find('#')]
+        if effNameCut in histoPath:
+            if found == 1:
+                print 'More than one pair of parents found for ' + histopath + ':'
+                assert(False)
+            num = root + effpset.numerator.value()[effName.find('_'):].replace('#PAR#',par)
+            den = root + effpset.denominator.value()[effName.find('_'):].replace('#PAR#',par)
+            found += 1
+    return [num,den]
 
 def Rebin(tfile, histoPath, rebinVal):
-    numpath, denpath = FindParents(histoPath, tfile)
-    print (numpath, denpath)
-    num = tfile.Get(numpath)
+    parents = FindParents(histoPath)
+    num = tfile.Get(parents[0])
     if type(num) != TH1F:
-        print 'Looking for '+numpath
+        print 'Looking for '+num
         print 'Plot now found! What the hell are you doing? Exiting...'
         sys.exit()
-    denSingle = tfile.Get(denpath)
+    denSingle = tfile.Get(parents[1])
     if type(denSingle) != TH1F:
-        print 'Looking for '+denpath
+        print 'Looking for '+denSingle
         print 'Plot now found! What the hell are you doing? Exiting...'
         sys.exit()
     num.Rebin(rebinVal)
@@ -199,13 +198,13 @@ def findRange(hists, min0=-1, max0=-1):
           max = maxTmp
   return [min, max]
 
-def optimizeRangeMainPad(options, pad, hists):
+def optimizeRangeMainPad(argv, pad, hists):
   pad.Update()
-  if pad.GetLogy() and options.maxLog:
+  if pad.GetLogy() and argv.count('maxLog') > 0:
     maxLog = options.maxLog
   else:
-    maxLog = options.maxMain
-  min, max = findRange(hists, options.minMain, maxLog)
+    maxLog = -1
+  min, max = findRange(hists, -1, maxLog)
   if pad.GetLogy():
     if min == 0:
       min = 0.001
@@ -217,22 +216,18 @@ def optimizeRangeMainPad(options, pad, hists):
     if max <= 1.1 and max > 0.7:
       max = 1.2 #prefere fixed range for easy comparison
   hists[0].SetAxisRange(min, max, "Y")
-  if options.maxX:
-    hists[0].SetAxisRange(hists[0].GetXaxis().GetXmin(), options.maxX, "X")
 
-def optimizeRangeSubPad(options, hists):
+def optimizeRangeSubPad(argv, hists):
   min = -1
   max = -1
-  if options.minDiv:
+  if argv.count('minDiv') > 0:
     min = options.minDiv
-  if options.maxDiv:
+  if argv.count('maxDiv') > 0:
     max = options.maxDiv
   min, max = findRange(hists, min, max)
   if max > 2:
     max = 2 #maximal bound
   hists[0].SetAxisRange(min, max, "Y")
-  if options.maxX:
-    hists[0].SetAxisRange(hists[0].GetXaxis().GetXmin(), options.maxX, "X")
 
 
 def getMaximumIncludingErrors(hist):
@@ -262,8 +257,13 @@ def getMinimumIncludingErrors(hist):
         min = 0  
   return min - distance*hist.GetBinError(pos)
 
-def setupROOT():
-  """ setup ROOT parameters """
+
+def main(argv=None):
+  if argv is None:
+    argv = sys.argv
+
+  options, toPlot = LoadCommandlineOptions(argv)
+
   gROOT.SetStyle('Plain')
   gROOT.SetBatch()
   gStyle.SetPalette(1)
@@ -276,10 +276,35 @@ def setupROOT():
   gStyle.SetPadLeftMargin(0.13)
   gStyle.SetPadRightMargin(0.07)
 
-def drawPlots(testFile, refFile, matchedHists, matchedHistDict, commonLabelDict, options):
-  """ do the actual drawing """
+
+  testFile = TFile(options.test)
+  refFile = None
+  if options.ref != None:
+    refFile = TFile(options.ref)
+
+  #Takes the position of all plots that were produced
+  plotList = []
+  MapDirStructure( testFile,'',plotList)
+
+  histoList = []
+  for plot in toPlot:
+    for path in plotList:
+        if Match(plot.lower(),path.lower()):
+            histoList.append(path)
+
+#  print "options: ",options
+#  print "toPlot: ",toPlot
+  print histoList
+
+  if len(histoList)<1:
+    print '\tError: Please specify at least one histogram.'
+    if len(toPlot)>0:
+      print 'Check your plot list:', toPlot
+    sys.exit()
+
+
   #WARNING: For now the hist type is assumed to be constant over all histos.
-  histType, label, prefix = DetermineHistType(matchedHists[0])
+  histType, label, prefix = DetermineHistType(histoList[0])
   #decide whether or not to scale to an integral of 1
   #should usually not be used most plot types. they are already normalized.
   scaleToIntegral = False
@@ -287,24 +312,28 @@ def drawPlots(testFile, refFile, matchedHists, matchedHistDict, commonLabelDict,
     scaleToIntegral = True
 
   ylabel = 'Efficiency'
+
   if options.fakeRate:
     ylabel = 'Fake rate'
+
   drawStats = False
-  if histType=='pTRatio' and len(matchedHists)<3:
+  if histType=='pTRatio' and len(histoList)<3:
     drawStats = True
 
   #legend = TLegend(0.6,0.83,0.6+0.39,0.83+0.17)
-  x1 = 0.3
+  x1 = 0.55
   x2 = 1-gStyle.GetPadRightMargin()
   y2 = 1-gStyle.GetPadTopMargin()
-  lineHeight = .04
-  y1 = y2 - lineHeight*len(matchedHists)
+  lineHeight = .025
+  if len(histoList) == 1:
+    lineHeight = .05
+  y1 = y2 - lineHeight*len(histoList)
   legend = TLegend(x1,y1,x2,y2)
   #legend.SetHeader(label)
   legend.SetFillColor(0)
   if drawStats:
     y2 = y1
-    y1 = y2 - .07*len(matchedHists)
+    y1 = y2 - .07*len(histoList)
     statsBox = TPaveText(x1,y1,x2,y2,"NDC")
     statsBox.SetFillColor(0)
     statsBox.SetTextAlign(12)#3*10=right,3*1=top
@@ -334,7 +363,7 @@ def drawPlots(testFile, refFile, matchedHists, matchedHistDict, commonLabelDict,
   statTemplate = '%s Mean: %.3f RMS: %.3f'
   testHs = []
   refHs = []
-  for histoPath,color in zip(matchedHists, colors):
+  for histoPath,color in zip(histoList,colors):
     if(options.rebin == -1):
       testH = testFile.Get(histoPath)
     else:
@@ -358,15 +387,10 @@ def drawPlots(testFile, refFile, matchedHists, matchedHistDict, commonLabelDict,
     testH.SetMarkerSize(1)
     testH.SetMarkerStyle(20)
     testH.SetMarkerColor(color)
-    legendLabel = ""
-    if histoPath in commonLabelDict.keys():
-      legendLabel = commonLabelDict[histoPath]
+    if histType == 'Eff':
+      legend.AddEntry(testH,histoPath[histoPath.rfind('/')+1:histoPath.find(histType)],'p')
     else:
-      if histType == 'Eff':
-        legendLabel = histoPath[histoPath.rfind('/')+1:histoPath.find(histType)]
-      else:
-        legendLabel = DetermineHistType(histoPath)[2]
-    legend.AddEntry(testH, legendLabel, 'p')
+      legend.AddEntry(testH,DetermineHistType(histoPath)[2],'p')
     if drawStats:
         text = statsBox.AddText(statTemplate % ('Dots',testH.GetMean(), testH.GetRMS()) )
         text.SetTextColor(color)
@@ -393,13 +417,10 @@ def drawPlots(testFile, refFile, matchedHists, matchedHistDict, commonLabelDict,
             testH.Draw('same ex0 l')
     if refFile == None:
         continue
-    refPath = histoPath
-    if histoPath in matchedHistDict.keys():
-      refPath = matchedHistDict[histoPath]
     if(options.rebin == -1):
-        refH = refFile.Get(refPath)
+        refH = refFile.Get(histoPath)
     else:
-        refH = Rebin(refFile, refPath, options.rebin)
+        refH = Rebin(refFile,histoPath,options.rebin)
     if type(refH) != TH1F:
         continue
     refHs.append(refH)
@@ -423,14 +444,13 @@ def drawPlots(testFile, refFile, matchedHists, matchedHistDict, commonLabelDict,
         refH.Sumw2()
         if entries > 0:
           refH.Scale(1./entries)
-    #refH.Draw('same e3')
-    refH.Draw('same')
+    refH.Draw('same e3')
     divHistos.append(Divide(testH,refH))
 
   tmpHists = []
   tmpHists.extend(testHs)
   tmpHists.extend(refHs)
-  optimizeRangeMainPad(options, effPad, tmpHists)
+  optimizeRangeMainPad(argv, effPad, tmpHists)
   
   firstD = True
   if refFile != None:
@@ -452,7 +472,7 @@ def drawPlots(testFile, refFile, matchedHists, matchedHistDict, commonLabelDict,
         else:
             histo.Draw('same ex0')
             diffPad.Update()
-    optimizeRangeSubPad(options, divHistos)
+    optimizeRangeSubPad(argv, divHistos)
 
     effPad.cd()
   legend.Draw()
@@ -460,102 +480,6 @@ def drawPlots(testFile, refFile, matchedHists, matchedHistDict, commonLabelDict,
     statsBox.Draw()
   canvas.Print(options.out)
 
-def determineHistoList(testFile, refFile, plotPattern):
-  """Scan all histograms of testFile. returns dictionary of histograms that match to plotPattern.
-     Usually key=value, but using plotPattern like [[ref][test]] allows to define different histogram names for ref and test files.
-     Similar patterns can be combined like *{Loose}{Medium}{Tight}commonPattern*. This translates into *LoosecommonPattern* *MediumcommonPattern* *TightcommonPattern*
-     Both special patterns can be combined.
-    """
-  #determin pattern
-
-  plotListTest = [] # all hists contained in test file
-  plotListRef = []  # all hists contained in ref file (only tested if files differ and different pattern provided)
-  MapDirStructure(testFile,'',plotListTest)
-  parseRefFile = False
-  if testFile.GetPath()==refFile.GetPath():
-    #no need to parse the file twice
-    plotListRef = plotListTest # identical lists
-    #print "same file at", testFile.GetPath()
-  else:
-    parseRefFile = True
-    #print "two different files"
-
-  #translate pattern like *{Loose}{Medium}{Tight} into multiple explicit patterns
-  explicitPattern = []
-  for pattern in plotPattern:
-    match = re.findall(r'\{\w*\}', pattern)
-    if len(match) > 0:
-      for explicit in match:
-        explicitPattern.append(re.sub(r'\{.*\}', explicit.strip('{}'), pattern))
-    else:
-      explicitPattern.append(pattern)
-
-  matchedHists = [] # list of all hists that could be matched to pattern (i.e. test pattern)
-  matchedHistDict = {} # dictionary of only these hists (test: ref) that have been matched to individual pattern for test and ref
-  commonLabelDict = {} # dictionary of only these labels (test: common label) from hists that have been matched to individual pattern for test and ref
-  print "\n".join(explicitPattern)
-  for pattern in explicitPattern:
-    match = re.match(r'(.*)\[\[(.*)\]\[(.*)\]\](.*)', pattern)
-    if not match:
-      # common histogram names for ref and test files
-      print "Apply common pattern to both files:", pattern
-      countMatches = len(matchedHists)
-      for path in plotListTest:
-        if Match(pattern.lower(), path.lower()):
-          matchedHists.append(path)
-      print "...added", len(matchedHists)-countMatches, "histogram(s)"
-    else:
-      # different histogram names for ref and test files
-      if parseRefFile:
-        MapDirStructure(refFile,'',plotListRef)
-        parseRefFile = False # only once
-      commonPatternLeft = match.group(1) # left common part
-      rPattern = match.group(2)
-      tPattern = match.group(3)
-      commonPatternRight = match.group(4) # right common part
-      print "Apply individual pattern:", pattern
-      countMatches = len(matchedHists)
-      for path in plotListTest:
-        if Match((commonPatternLeft+tPattern+commonPatternRight).lower(), path.lower()):
-          #find corresponding match in refFile to current explicit pattern
-          #refPattern = path.replace(commonPatternLeft.strip('*')+tPattern, commonPatternLeft.strip('*')+rPattern)
-          refPattern = path.replace(tPattern, rPattern)
-          for pathRef in plotListRef:
-            if pathRef == refPattern:
-              matchedHistDict[path] = pathRef
-              commonLabelDict[path] = commonPatternLeft.strip('*')
-              #print "insert label", commonLabelDict[path]
-              break
-          if path in matchedHistDict.keys():
-            matchedHists.append(path)
-          else:
-            print "ERROR in determineHistoList! Could not find the corresponding reference plot\n", refPattern
-            print "    ignore unmatched test plot\n", path
-      print "...added", len(matchedHists)-countMatches, "histogram(s)"
-  #print "matchedHists", matchedHists
-  #print "matchedHistDict", matchedHistDict
-  if len(matchedHists) < 1:
-    print "Your pattern did not match any histograms. STOP!"
-    print "Your test file contains:"
-    print "\n".join(plotListTest)
-
-    sys.exit(404)
-  return [matchedHists, matchedHistDict, commonLabelDict]
-
-def main(argv=None):
-  if argv is None:
-    argv = sys.argv
-
-  options, toPlot = LoadCommandlineOptions(argv)
-  setupROOT()
-
-  testFile = TFile(options.test)
-  refFile = None
-  if options.ref != None:
-    refFile = TFile(options.ref)
-
-  matchedHists, matchedHistDict, commonLabelDict = determineHistoList(testFile, refFile, toPlot)
-  drawPlots(testFile, refFile, matchedHists, matchedHistDict, commonLabelDict, options)
 
 if __name__ == '__main__':
   sys.exit(main())

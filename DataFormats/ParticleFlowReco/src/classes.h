@@ -70,8 +70,13 @@ namespace {
     std::vector<reco::PFCluster>                         dummy1;
     edm::Wrapper< std::vector<reco::PFCluster> >         dummy2;
 
-    std::vector<reco::PFSuperCluster>                    dummy481;
-    edm::Wrapper< std::vector<reco::PFSuperCluster> >    dummy482;
+    std::vector<reco::PFSuperCluster>                    dummy1a;
+    edm::Wrapper< std::vector<reco::PFSuperCluster> >    dummy2a;
+
+    edm::PtrVector<reco::PFCluster>                         dummy1b;
+   
+
+    edm::PtrVector<reco::PFSuperCluster>                    dummy1c;
 
     std::vector<reco::PFRecHit>                          dummy3;
     edm::Ref< std::vector<reco::PFRecHit> >              dummy4;
@@ -110,7 +115,6 @@ namespace {
     edm::RefVector<std::vector<reco::GsfPFRecTrack>,reco::GsfPFRecTrack,edm::refhelper::FindUsingAdvance<std::vector<reco::GsfPFRecTrack>,reco::GsfPFRecTrack> > dummy19d;
     std::vector<edm::Ref<std::vector<reco::GsfPFRecTrack>,reco::GsfPFRecTrack,edm::refhelper::FindUsingAdvance<std::vector<reco::GsfPFRecTrack>,reco::GsfPFRecTrack> > > dummy19e;
     edm::Ref<std::vector<reco::PFCluster>,reco::PFCluster,edm::refhelper::FindUsingAdvance<std::vector<reco::PFCluster>,reco::PFCluster> > dummy20;
-    edm::Ref<std::vector<reco::PFSuperCluster>,reco::PFSuperCluster,edm::refhelper::FindUsingAdvance<std::vector<reco::PFSuperCluster>,reco::PFSuperCluster> > dummy488;
 
     /* NuclearInteraction stuffs  */
     reco::PFNuclearInteraction                                dummy21;

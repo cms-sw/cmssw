@@ -96,6 +96,8 @@
 <!-- typedefs for EcalCondObjectContainer -->
 <class name="EcalPedestals"/>
 
+
+
 <!-- base class -->
 <class name="EcalTPGCrystalStatusCode"/>
 <!-- templates for EcalCondObjectContainer having the class as template parameter -->
@@ -165,6 +167,7 @@
 <class name="EcalLaserAlphas"/>
 <class name="EcalTimeCalibConstants"/>
 <class name="EcalTimeCalibErrors"/>
+
 
 <!-- base class -->
 <class name="EcalLaserAPDPNRatios::EcalLaserAPDPNpair"/>

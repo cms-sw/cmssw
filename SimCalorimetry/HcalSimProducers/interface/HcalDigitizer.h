@@ -3,14 +3,18 @@
 
 #include "SimCalorimetry/HcalSimAlgos/interface/HcalDigitizerTraits.h"
 #include "SimCalorimetry/CaloSimAlgos/interface/CaloTDigitizer.h"
+#include "SimCalorimetry/HcalSimAlgos/interface/HcalUpgradeTraits.h"
 #include "SimCalorimetry/HcalSimAlgos/interface/HBHEHitFilter.h"
 #include "SimCalorimetry/HcalSimAlgos/interface/HFHitFilter.h"
 #include "SimCalorimetry/HcalSimAlgos/interface/HOHitFilter.h"
 #include "SimCalorimetry/HcalSimAlgos/interface/HcalHitFilter.h"
 #include "SimCalorimetry/HcalSimAlgos/interface/ZDCHitFilter.h"
+#include "SimCalorimetry/HcalSimProducers/interface/HcalHitRelabeller.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "DataFormats/HcalCalibObjects/interface/HEDarkening.h"
+#include "DataFormats/HcalCalibObjects/interface/HFRecalibration.h"
 
 #include <vector>
 
@@ -60,12 +64,16 @@ private:
 
   void buildHOSiPMCells(const std::vector<DetId>& allCells, const edm::EventSetup& eventSetup);
 
+  //function to evaluate aging at the digi level
+  void darkening(std::vector<PCaloHit>& hcalHits);
+  
   /** Reconstruction algorithm*/
   typedef CaloTDigitizer<HBHEDigitizerTraits> HBHEDigitizer;
-  typedef CaloTDigitizer<HODigitizerTraits> HODigitizer;
-  typedef CaloTDigitizer<HFDigitizerTraits> HFDigitizer;
-  typedef CaloTDigitizer<ZDCDigitizerTraits> ZDCDigitizer;
- 
+  typedef CaloTDigitizer<HODigitizerTraits>   HODigitizer;
+  typedef CaloTDigitizer<HFDigitizerTraits>   HFDigitizer;
+  typedef CaloTDigitizer<ZDCDigitizerTraits>  ZDCDigitizer;
+  typedef CaloTDigitizer<HcalUpgradeDigitizerTraits> UpgradeDigitizer;
+
   HcalSimParameterMap * theParameterMap;
   HcalShapes * theShapes;
 
@@ -85,12 +93,14 @@ private:
 
   HPDIonFeedbackSim * theIonFeedback;
   HcalCoderFactory * theCoderFactory;
+  HcalCoderFactory * theUpgradeCoderFactory;
 
   HcalElectronicsSim * theHBHEElectronicsSim;
   HcalElectronicsSim * theHFElectronicsSim;
   HcalElectronicsSim * theHOElectronicsSim;
   HcalElectronicsSim * theZDCElectronicsSim;
-
+  HcalElectronicsSim * theUpgradeHBHEElectronicsSim;
+  HcalElectronicsSim * theUpgradeHFElectronicsSim;
 
   HBHEHitFilter theHBHEHitFilter;
   HFHitFilter   theHFHitFilter;
@@ -109,6 +119,9 @@ private:
   HODigitizer* theHOSiPMDigitizer;
   HFDigitizer* theHFDigitizer;
   ZDCDigitizer* theZDCDigitizer;
+  UpgradeDigitizer * theHBHEUpgradeDigitizer;
+  UpgradeDigitizer * theHFUpgradeDigitizer;
+  HcalHitRelabeller* theRelabeller;
 
   // need to cache some DetIds for the digitizers,
   // if they don't come straight from the geometry
@@ -117,12 +130,18 @@ private:
   std::vector<DetId> theHOSiPMDetIds;
 
   bool isZDC,isHCAL,zdcgeo,hbhegeo,hogeo,hfgeo;
+  bool relabel_;
 
   std::string hitsProducer_;
 
   int theHOSiPMCode;
+  
+  double deliveredLumi;
+  HEDarkening* m_HEDarkening;
+  HFRecalibration* m_HFRecalibration;
 };
 
 #endif
 
 
+ 

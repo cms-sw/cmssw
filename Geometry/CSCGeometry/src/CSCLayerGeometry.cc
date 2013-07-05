@@ -204,8 +204,9 @@ LocalPoint CSCLayerGeometry::intersectionOfStripAndWire( float s, int w) const {
   // replace its y by that of appropriate edge of wire plane
   if ( !(theWireTopology->insideYOfWirePlane( sw.y() ) ) ) {
      float y  = theWireTopology->restrictToYOfWirePlane( sw.y() );
-     LocalPoint sw2(sw.x(), y);
-     sw = sw2;
+     // and adjust x to match new y
+     float x = sw.x() + (y - sw.y())*tan(theStripTopology->stripAngle(s));
+     sw = LocalPoint(x, y);
   }
 	
   return sw;

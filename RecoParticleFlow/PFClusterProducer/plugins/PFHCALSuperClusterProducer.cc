@@ -2,7 +2,7 @@
 
 #include <memory>
 
-#include "RecoParticleFlow/PFClusterProducer/interface/PFSuperClusterAlgo.h"
+#include "RecoParticleFlow/PFClusterProducer/interface/PFHcalSuperClusterAlgo.h"
 
 #include "DataFormats/ParticleFlowReco/interface/PFRecHit.h"
 #include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
@@ -71,18 +71,18 @@ void PFHCALSuperClusterProducer::produce(edm::Event& iEvent,
   }
 
   // do clustering
-  superClusterAlgo_.doClustering( clustersHandle, clustersHOHandle );
+  hcalSuperClusterAlgo_.doClustering( clustersHandle, clustersHOHandle );
   
   if( verbose_ ) {
     LogInfo("PFHCALSuperClusterProducer")
       <<"  superclusters --------------------------------- "<<endl
-      <<superClusterAlgo_<<endl;
+      <<hcalSuperClusterAlgo_<<endl;
   }    
   
   // get clusters out of the clustering algorithm 
   // and put them in the event. There is no copy.
-  auto_ptr< vector<reco::PFCluster> > outClusters( superClusterAlgo_.clusters() ); 
-  auto_ptr< vector<reco::PFSuperCluster> > outSuperClusters( superClusterAlgo_.superClusters() ); 
+  auto_ptr< vector<reco::PFCluster> > outClusters( hcalSuperClusterAlgo_.clusters() ); 
+  auto_ptr< vector<reco::PFSuperCluster> > outSuperClusters( hcalSuperClusterAlgo_.superClusters() ); 
   iEvent.put( outClusters );    
   iEvent.put( outSuperClusters );    
 
@@ -90,7 +90,7 @@ void PFHCALSuperClusterProducer::produce(edm::Event& iEvent,
   
 void PFHCALSuperClusterProducer::endJob(){
 
-superClusterAlgo_.write();
+hcalSuperClusterAlgo_.write();
 
 }
 

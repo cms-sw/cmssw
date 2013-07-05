@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 ### Modifed by Pratima Jindal,Purdue University Calumet, July 2009 to include files for Phase 1 geometry
 
 XMLIdealGeometryESSource = cms.ESSource("XMLIdealGeometryESSource",
-    geomXMLFiles = cms.vstring('Geometry/CMSCommonData/data/PhaseI/materials.xml', 
+    geomXMLFiles = cms.vstring('Geometry/CMSCommonData/data/materials.xml', 
         'Geometry/CMSCommonData/data/rotations.xml', 
         'Geometry/CMSCommonData/data/normal/cmsextent.xml', 
         'Geometry/CMSCommonData/data/PhaseI/R34F16/cms.xml', 

@@ -1,0 +1,67 @@
+##GEN_SIM cmsdriver for BarrelEndCap5Disks
+cmsDriver.py FourMuPt_1_200_cfi \
+--conditions auto:upgradePLS3 -n 10 \
+--eventcontent FEVTDEBUG --relval 10000,100 \
+-s GEN,SIM --datatier GEN-SIM --beamspot HLLHC \
+--customise SLHCUpgradeSimulations/Configuration/combinedCustoms.cust_phase2_BE5D \
+--geometry ExtendedPhase2TkBE5D --fileout file:step1BE5D.root
+
+##DIGI-LOCAL RECO for BarrelEndCap5Disks
+cmsDriver.py step2_BE5D \
+--conditions auto:upgradePLS3 -n -1 \
+--eventcontent FEVTDEBUG  \
+-s DIGI,L1,DIGI2RAW,L1TrackTrigger,RECO:pixeltrackerlocalreco --datatier GEN-SIM-DIGI-RAW  \
+--customise SLHCUpgradeSimulations/Configuration/combinedCustoms.cust_phase2_BE5D \
+--geometry ExtendedPhase2TkBE5D --filein file:step1BE5D.root --fileout file:step2BE5D.root 
+
+##GEN_SIM cmsdriver for BarrelEndCap
+cmsDriver.py FourMuPt_1_200_cfi \
+--conditions auto:upgradePLS3 -n 10 \
+--eventcontent FEVTDEBUG --relval 10000,100 \
+-s GEN,SIM --datatier GEN-SIM --beamspot HLLHC \
+--customise SLHCUpgradeSimulations/Configuration/postLS1Customs.customisePostLS1,SLHCUpgradeSimulations/Configuration/phase2TkCustomsBE.customise \
+--geometry ExtendedPhase2TkBE --fileout file:step1BE.root
+
+##DIGI-LOCAL RECO for BarrelEndCap
+cmsDriver.py step2_BE \
+--conditions auto:upgradePLS3 -n -1 \
+--eventcontent FEVTDEBUG  \
+-s DIGI,L1,DIGI2RAW,L1TrackTrigger,RECO:pixeltrackerlocalreco --datatier GEN-SIM-DIGI-RAW  \
+--customise SLHCUpgradeSimulations/Configuration/postLS1Customs.customisePostLS1,SLHCUpgradeSimulations/Configuration/phase2TkCustomsBE.customise,SLHCUpgradeSimulations/Configuration/phase2TkCustomsBE.l1EventContent \
+--geometry ExtendedPhase2TkBE --filein file:step1BE.root --fileout file:step2BE.root 
+
+
+##GEN_SIM cmsdriver for LongBarrel_6PS
+cmsDriver.py FourMuPt_1_200_cfi \
+--conditions auto:upgradePLS3 -n 10 \
+--eventcontent FEVTDEBUG --relval 10000,100 \
+-s GEN,SIM --datatier GEN-SIM --beamspot HLLHC \
+--customise SLHCUpgradeSimulations/Configuration/postLS1Customs.customisePostLS1,SLHCUpgradeSimulations/Configuration/phase2TkCustoms_LB_6PS.customise \
+--geometry ExtendedPhase2TkLB_6PS --fileout file:stepLB1.root
+
+##DIGI-LOCAL RECO for LongBarrel_6PS
+cmsDriver.py step2_LB1 \
+--conditions auto:upgradePLS3::All -n -1 \
+--eventcontent FEVTDEBUG  \
+-s DIGI,L1,DIGI2RAW,L1TrackTrigger,RECO:pixeltrackerlocalreco --datatier GEN-SIM-DIGI-RAW  \
+--customise SLHCUpgradeSimulations/Configuration/postLS1Customs.customisePostLS1,SLHCUpgradeSimulations/Configuration/phase2TkCustoms_LB_6PS.customise,SLHCUpgradeSimulations/Configuration/phase2TkCustoms_LB_6PS.l1EventContent \
+--geometry ExtendedPhase2TkLB_6PS --filein file:step1LB1.root --fileout file:step2LB1.root 
+
+
+##GEN_SIM cmsdriver for LongBarrel_4LPS_2L2S
+cmsDriver.py FourMuPt_1_200_cfi \
+--conditions auto:upgradePLS3 -n 10 \
+--eventcontent FEVTDEBUG --relval 10000,100 \
+-s GEN,SIM --datatier GEN-SIM --beamspot HLLHC \
+--customise SLHCUpgradeSimulations/Configuration/postLS1Customs.customisePostLS1,SLHCUpgradeSimulations/Configuration/phase2TkCustoms_LB_4LPS_2L2S.customise \
+--geometry ExtendedPhase2TkLB_4LPS_2L2S --fileout file:step1LB2.root
+
+
+##DIGI-LOCAL RECO for LongBarrel_4LPS_2L2S
+
+cmsDriver.py step2_LB2 \
+--conditions auto:upgradePLS3 -n -1 \
+--eventcontent FEVTDEBUG  \
+-s DIGI,L1,DIGI2RAW,L1TrackTrigger,RECO:pixeltrackerlocalreco --datatier GEN-SIM-DIGI-RAW  \
+--customise SLHCUpgradeSimulations/Configuration/postLS1Customs.customisePostLS1,SLHCUpgradeSimulations/Configuration/phase2TkCustoms_LB_4LPS_2L2S.customise,SLHCUpgradeSimulations/Configuration/phase2TkCustoms_LB_4LPS_2L2S.l1EventContent \
+--geometry ExtendedPhase2TkLB_4LPS_2L2S --filein file:step1LB2.root --fileout file:step2LB2.root 

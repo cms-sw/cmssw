@@ -10,6 +10,10 @@
  *   *-rpz-* (Cylindrical)
  * -remark: the units of the ASCII file are unknown to this class
  *
+ * Inputs are assumed to be in local coordinates if rotateFromSector=0.
+ * Otherwise, inputs are assumed to be in global coordinates, and are converted 
+ * to the local reference frame of the sector specified in rotateFromSector.
+ *
  * determine the structure of the coordinate points (e.g. trapezoid)
  * and store the information on a grid like structure for fast access
  * -remark: one variable may depend linearly on the others 
@@ -18,7 +22,7 @@
  * additional functions either translate indices <-> coordinates,
  * transfer data, or activate the interpolation between grid points
  *
- * \author : <Volker.Drollinger@cern.ch>, updated N. Amapane 04/2008
+ * \author : <Volker.Drollinger@cern.ch>, updated N. Amapane 04/2008, 2102, 2013
  * $date   : 09/09/2003 11:49:38 CET $
  * 
  *
@@ -38,7 +42,9 @@
 class prepareMagneticFieldGrid{
 public:
   // constructor
-  prepareMagneticFieldGrid(){
+  prepareMagneticFieldGrid(int rotateFromSector=0) :
+    rotateSector(rotateFromSector)
+{
     GridType = 0;
     for (int i=0;i<3; ++i) {NumberOfPoints[i] = 0;};
     for (int i=0;i<3; ++i) {ReferencePoint[i] = 0.;};
@@ -110,6 +116,7 @@ private:
   bool   KnownStructure;
   bool   XyzCoordinates;
   bool   RpzCoordinates;
+  int rotateSector;
   masterSector sector;
 
   // all points (X1,X2,X3,Bx,By,Bz) of one volume

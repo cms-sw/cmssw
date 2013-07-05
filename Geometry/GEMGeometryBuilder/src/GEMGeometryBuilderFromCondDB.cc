@@ -42,42 +42,42 @@ GEMGeometry* GEMGeometryBuilderFromCondDB::build(const RecoIdealGeometry& rgeo)
   std::vector<double>::const_iterator rotStart;
   std::vector<std::string>::const_iterator strStart;
   
-  for (unsigned int id=0; id<detids.size(); id++){
-    
+  for (unsigned int id = 0; id < detids.size(); ++id)
+  {  
     GEMDetId gemid(detids[id]);
     //    GEMDetId chid(gemid.region(),gemid.ring(),gemid.station(),
     //		  gemid.sector(),gemid.layer(),gemid.subsector(),0);
     
-    tranStart=rgeo.tranStart(id);
-    shapeStart=rgeo.shapeStart(id);
-    rotStart=rgeo.rotStart(id);
-    strStart=rgeo.strStart(id);
-    name=*(strStart);
+    tranStart = rgeo.tranStart(id);
+    shapeStart = rgeo.shapeStart(id);
+    rotStart = rgeo.rotStart(id);
+    strStart = rgeo.strStart(id);
+    name = *(strStart);
 
     Surface::PositionType pos(*(tranStart)/cm,*(tranStart+1)/cm, *(tranStart+2)/cm);
     // CLHEP way
-    Surface::RotationType rot(*(rotStart+0),*(rotStart+1),*(rotStart+2),
-			      *(rotStart+3),*(rotStart+4),*(rotStart+5),
-			      *(rotStart+6),*(rotStart+7),*(rotStart+8));
-      
-    std::vector<float> pars;
-    GEMEtaPartitionSpecs* etapartitionspecs= 0;
+    Surface::RotationType rot(*(rotStart+0), *(rotStart+1), *(rotStart+2),
+                              *(rotStart+3), *(rotStart+4), *(rotStart+5),
+                              *(rotStart+6), *(rotStart+7), *(rotStart+8));
+    
     Bounds* bounds = 0;
-
     float be = *(shapeStart+0)/cm;
     float te = *(shapeStart+1)/cm;
     float ap = *(shapeStart+2)/cm;
     float ti = *(shapeStart+3)/cm;
     float nstrip = *(shapeStart+4);
+    float npad = *(shapeStart+5);
     //  TrapezoidalPlaneBounds* 
-    bounds = 
-      new TrapezoidalPlaneBounds(be,te,ap,ti);
+    bounds = new TrapezoidalPlaneBounds(be, te, ap, ti);
+
+    std::vector<float> pars;
     pars.push_back(be); //b/2;
     pars.push_back(te); //B/2;
     pars.push_back(ap); //h/2;
-    pars.push_back(nstrip); 
+    pars.push_back(nstrip);
+    pars.push_back(npad);
     
-    etapartitionspecs = new GEMEtaPartitionSpecs(GeomDetEnumerators::GEM,name,pars);
+    GEMEtaPartitionSpecs* e_p_specs = new GEMEtaPartitionSpecs(GeomDetEnumerators::GEM, name, pars);
       
       //Change of axes for the forward
     Basic3DVector<float> newX(1.,0.,0.);
@@ -85,12 +85,12 @@ GEMGeometry* GEMGeometryBuilderFromCondDB::build(const RecoIdealGeometry& rgeo)
     //      if (tran[2] > 0. )
     newY *= -1;
     Basic3DVector<float> newZ(0.,1.,0.);
-    rot.rotateAxes (newX, newY,newZ);	
+    rot.rotateAxes (newX, newY, newZ);	
   
     
-    BoundPlane* bp = new BoundPlane(pos,rot,bounds);
+    BoundPlane* bp = new BoundPlane(pos, rot, bounds);
     ReferenceCountingPointer<BoundPlane> surf(bp);
-    GEMEtaPartition* gep=new GEMEtaPartition(gemid,surf,etapartitionspecs);
+    GEMEtaPartition* gep=new GEMEtaPartition(gemid, surf, e_p_specs);
     geometry->add(gep);
     
     

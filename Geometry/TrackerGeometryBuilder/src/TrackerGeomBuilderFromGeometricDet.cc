@@ -19,12 +19,18 @@ using std::vector;
 using std::string;
 
 namespace {
-  void verifyDUinTG(TrackerGeometry const & tg) {
+    void verifyDUinTG(TrackerGeometry const & tg, bool upgradeGeometry) {
     int off=0; int end=0;
     for ( int i=1; i!=7; i++) {
       auto det = GeomDetEnumerators::tkDetEnum[i];
       off = tg.offsetDU(det);
-      end = tg.endsetDU(det); assert(end>off);
+      end = tg.endsetDU(det);
+
+      // Allow Upgrade to skip sub-detector NULL size verification
+      // as some of them may not be defined intentionally.
+      if(! upgradeGeometry)
+	  assert(end>off);
+
       for (int j=off; j!=end; ++j) {
 	assert(tg.detUnits()[j]->geographicalId().subdetId()==i);
 	assert(tg.detUnits()[j]->subDetector()==det);
@@ -82,7 +88,7 @@ TrackerGeomBuilderFromGeometricDet::build( const GeometricDet* gd, const edm::Pa
   buildSilicon(tec,tracker,GeomDetEnumerators::SubDetector::TEC, "endcap");//"TEC"        
   buildGeomDet(tracker);//"GeomDet"
 
-  verifyDUinTG(*tracker);
+  verifyDUinTG(*tracker, upgradeGeometry);
 
   return tracker;
 }

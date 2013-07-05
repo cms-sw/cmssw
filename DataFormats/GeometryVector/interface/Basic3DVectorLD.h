@@ -1,6 +1,10 @@
 #ifndef GeometryVector_Basic3DVectorLD_h
 #define GeometryVector_Basic3DVectorLD_h
 
+#ifdef __clang__
+#pragma clang diagnostic push 
+#pragma clang diagnostic ignored "-Wunused-private-field"
+#endif
 
 // long double specialization
 template <> 
@@ -323,6 +327,9 @@ inline Basic3DVector<long double> operator/( const Basic3DVector<long double>& v
 
 typedef Basic3DVector<long double> Basic3DVectorLD;
 
+#ifdef __clang__
+#pragma clang diagnostic pop
+#endif
 
 #endif // GeometryVector_Basic3DVectorLD_h
 

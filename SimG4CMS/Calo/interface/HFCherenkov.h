@@ -10,6 +10,7 @@
 
 #include "G4DynamicParticle.hh"
 #include "G4ParticleDefinition.hh"
+#include "G4Step.hh"
 #include "G4ThreeVector.hh"
 #include "globals.hh"
 
@@ -22,8 +23,8 @@ public:
    HFCherenkov(edm::ParameterSet const & p);
    virtual ~HFCherenkov();
   
-   int                 computeNPE(G4ParticleDefinition* pDef,double pBeta, 
-				  double u, double v, double w, 
+   int                 computeNPE(G4Step* step, G4ParticleDefinition* pDef,
+				  double pBeta, double u, double v, double w, 
 				  double step_length, double zFiber, 
 				  double Dose, int Npe_Dose);
    
@@ -58,8 +59,8 @@ private:
 
    double              ref_index;
    double              lambda1, lambda2;
-   double              aperture, apertureTrap;
-   double              gain;
+   double              aperture, aperturetrapped, apertureTrap;
+   double              gain, fibreR, sinPsimax;
    bool                checkSurvive;
    bool                UseNewPMT;
 

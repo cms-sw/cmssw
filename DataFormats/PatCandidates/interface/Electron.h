@@ -1,5 +1,5 @@
 //
-// $Id: Electron.h,v 1.43 2012/10/02 22:08:12 beaudett Exp $
+// $Id: Electron.h,v 1.45 2013/04/01 17:52:02 tjkim Exp $
 //
 
 #ifndef DataFormats_PatCandidates_Electron_h
@@ -16,7 +16,7 @@
    https://hypernews.cern.ch/HyperNews/CMS/get/physTools.html
 
   \author   Steven Lowette, Giovanni Petrucciani, Frederic Ronga
-  \version  $Id: Electron.h,v 1.43 2012/10/02 22:08:12 beaudett Exp $
+  \version  $Id: Electron.h,v 1.45 2013/04/01 17:52:02 tjkim Exp $
 */
 
 
@@ -76,12 +76,23 @@ namespace pat {
       reco::GsfTrackRef gsfTrack() const;
       /// override the reco::GsfElectron::superCluster method, to access the internal storage of the supercluster
       reco::SuperClusterRef superCluster() const;
+      /// override the reco::GsfElectron::pflowSuperCluster method, to access the internal storage of the pflowSuperCluster
+      reco::SuperClusterRef pflowSuperCluster() const;
       /// returns nothing. Use either gsfTrack or closestCtfTrack
       reco::TrackRef track() const;
       /// override the reco::GsfElectron::closestCtfTrackRef method, to access the internal storage of the track
       reco::TrackRef closestCtfTrackRef() const;
       /// direct access to the seed cluster
       reco::CaloClusterPtr seed() const; 
+
+      //method to access the basic clusters
+      const std::vector<reco::CaloCluster>& basicClusters() const { return basicClusters_ ; }
+      //method to access the preshower clusters
+      const std::vector<reco::CaloCluster>& preshowerClusters() const { return preshowerClusters_ ; }
+      //method to access the pflow basic clusters
+      const std::vector<reco::CaloCluster>& pflowBasicClusters() const { return pflowBasicClusters_ ; }
+      //method to access the pflow preshower clusters
+      const std::vector<reco::CaloCluster>& pflowPreshowerClusters() const { return pflowPreshowerClusters_ ; }
 
       using reco::RecoCandidate::track; // avoid hiding the base implementation
       /// method to store the electron's core internally
@@ -90,8 +101,18 @@ namespace pat {
       void embedGsfTrack();
       /// method to store the electron's SuperCluster internally
       void embedSuperCluster();
+      /// method to store the electron's PflowSuperCluster internally
+      void embedPflowSuperCluster();
       /// method to store the electron's seedcluster internally
       void embedSeedCluster();
+      /// method to store the electron's basic clusters
+      void embedBasicClusters();
+      /// method to store the electron's preshower clusters
+      void embedPreshowerClusters();
+      /// method to store the electron's pflow basic clusters
+      void embedPflowBasicClusters();
+      /// method to store the electron's pflow preshower clusters
+      void embedPflowPreshowerClusters();
       /// method to store the electron's Track internally
       void embedTrack();
       /// method to store the RecHits internally - can be called from the PATElectronProducer
@@ -229,8 +250,20 @@ namespace pat {
       std::vector<reco::GsfTrack> gsfTrack_;
       /// True if electron's supercluster is stored internally
       bool embeddedSuperCluster_;
+      /// True if electron's pflowsupercluster is stored internally
+      bool embeddedPflowSuperCluster_;
       /// Place to store electron's supercluster internally
       std::vector<reco::SuperCluster> superCluster_;
+      /// Place to store electron's basic clusters internally 
+      std::vector<reco::CaloCluster> basicClusters_;
+      /// Place to store electron's preshower clusters internally      
+      std::vector<reco::CaloCluster> preshowerClusters_;
+      /// Place to store electron's pflow basic clusters internally
+      std::vector<reco::CaloCluster> pflowBasicClusters_;
+      /// Place to store electron's pflow preshower clusters internally
+      std::vector<reco::CaloCluster> pflowPreshowerClusters_;
+      /// Place to store electron's pflow supercluster internally
+      std::vector<reco::SuperCluster> pflowSuperCluster_;
       /// True if electron's track is stored internally
       bool embeddedTrack_;
       /// Place to store electron's track internally

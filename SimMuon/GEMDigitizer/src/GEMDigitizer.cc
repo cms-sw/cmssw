@@ -22,12 +22,12 @@ GEMDigitizer::~GEMDigitizer()
 }
 
 
-void GEMDigitizer::doAction(MixCollection<PSimHit> & simHits, 
+void GEMDigitizer::digitize(MixCollection<PSimHit> & simHits, 
                             GEMDigiCollection & digis,
                             StripDigiSimLinks & digiSimLinks)
 {
   gemSim_->setGEMSimSetUp(simSetUp_);
-
+  
   // arrange the hits by roll
   std::map<int, edm::PSimHitContainer> hitMap;
   for(auto &hit: simHits)
@@ -38,8 +38,8 @@ void GEMDigitizer::doAction(MixCollection<PSimHit> & simHits,
   if ( ! geometry_)
   {
     throw cms::Exception("Configuration")
-      << "GEMDigitizer requires the GEMGeometry which is not present in the configuration file.\n"
-         "You must add the service\n in the configuration file or remove the modules that require it.";
+      << "GEMDigitizer::digitize() - No GEMGeometry present in the configuration file."
+      << "Add the service in the configuration file or remove the modules that require it.";
   }
 
   auto etaPartitions = geometry_->etaPartitions() ;

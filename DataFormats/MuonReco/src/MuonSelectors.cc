@@ -786,12 +786,14 @@ bool muon::isHighPtMuon(const reco::Muon& muon, const reco::Vertex& vtx){
   bool muID =   muon.isGlobalMuon() && muon.globalTrack()->hitPattern().numberOfValidMuonHits() >0 && (muon.numberOfMatchedStations() > 1);
   if(!muID) return false;
 
-  bool hits = muon.innerTrack()->hitPattern().trackerLayersWithMeasurement() > 8 &&
+  bool hits = muon.innerTrack()->hitPattern().trackerLayersWithMeasurement() > 5 &&
     muon.innerTrack()->hitPattern().numberOfValidPixelHits() > 0; 
+
+  bool momQuality = muon.muonBestTrack()->ptError()/muon.muonBestTrack()->pt() < 0.3;
 
   bool ip = fabs(muon.muonBestTrack()->dxy(vtx.position())) < 0.2 && fabs(muon.bestTrack()->dz(vtx.position())) < 0.5;
   
-  return muID && hits && ip;
+  return muID && hits && momQuality && ip;
 
 }
 

@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-particleFlowRecHitHCAL = cms.EDProducer("PFRecHitProducerHCAL",
+particleFlowRecHitHCAL = cms.EDProducer("PFHCALDualTimeRecHitProducer",
     # verbosity 
     verbose = cms.untracked.bool(False),
     caloTowers = cms.InputTag("towerMakerPF"),

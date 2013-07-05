@@ -22,21 +22,38 @@ HcalSimpleReconstructor::HcalSimpleReconstructor(edm::ParameterSet const& conf):
   firstSample_(conf.getParameter<int>("firstSample")),
   samplesToAdd_(conf.getParameter<int>("samplesToAdd")),
   tsFromDB_(conf.getParameter<bool>("tsFromDB")),
+  upgradeHBHE_(false),
+  upgradeHF_(false),
   paramTS(0),
   theTopology(0)
 {
 
   std::string subd=conf.getParameter<std::string>("Subdetector");
-  if (!strcasecmp(subd.c_str(),"HBHE")) {
-    subdet_=HcalBarrel;
-    produces<HBHERecHitCollection>();
-  } else if (!strcasecmp(subd.c_str(),"HO")) {
+  if(!strcasecmp(subd.c_str(),"upgradeHBHE")) {
+     upgradeHBHE_ = true;
+     produces<HBHERecHitCollection>();
+  }
+  else if (!strcasecmp(subd.c_str(),"upgradeHF")) {
+     upgradeHF_ = true;
+     produces<HFRecHitCollection>();
+  }
+  else if (!strcasecmp(subd.c_str(),"HO")) {
     subdet_=HcalOuter;
     produces<HORecHitCollection>();
-  } else if (!strcasecmp(subd.c_str(),"HF")) {
+  }  
+  else if (!strcasecmp(subd.c_str(),"HBHE")) {
+    if( !upgradeHBHE_) {
+      subdet_=HcalBarrel;
+      produces<HBHERecHitCollection>();
+    }
+  } 
+  else if (!strcasecmp(subd.c_str(),"HF")) {
+    if( !upgradeHF_) {
     subdet_=HcalForward;
     produces<HFRecHitCollection>();
-  } else {
+    }
+  } 
+  else {
     std::cout << "HcalSimpleReconstructor is not associated with a specific subdetector!" << std::endl;
   }       
   
@@ -47,7 +64,7 @@ HcalSimpleReconstructor::~HcalSimpleReconstructor() {
   delete theTopology;
 }
 
-void HcalSimpleReconstructor::beginRun(edm::Run&r, edm::EventSetup const & es){
+void HcalSimpleReconstructor::beginRun(edm::Run &r, edm::EventSetup const & es){
   if(tsFromDB_) {
     edm::ESHandle<HcalRecoParams> p;
     es.get<HcalRecoParamsRcd>().get(p);
@@ -62,7 +79,7 @@ void HcalSimpleReconstructor::beginRun(edm::Run&r, edm::EventSetup const & es){
   reco_.beginRun(es);
 }
 
-void HcalSimpleReconstructor::endRun(edm::Run&r, edm::EventSetup const & es){
+void HcalSimpleReconstructor::endRun(edm::Run &r, edm::EventSetup const & es){
   if(tsFromDB_ && paramTS) {
     delete paramTS;
     paramTS = 0;
@@ -78,11 +95,7 @@ void HcalSimpleReconstructor::process(edm::Event& e, const edm::EventSetup& even
   edm::ESHandle<HcalDbService> conditions;
   eventSetup.get<HcalDbRecord>().get(conditions);
 
-  // HACK related to HB- corrections
-  if(e.isRealData()) reco_.setForData();
-
   edm::Handle<DIGICOLL> digi;
-
   e.getByLabel(inputLabel_,digi);
 
   // create empty output
@@ -110,12 +123,96 @@ void HcalSimpleReconstructor::process(edm::Event& e, const edm::EventSetup& even
       first = param_ts->firstSample();
       toadd = param_ts->samplesToAdd();
     }
-    rec->push_back(reco_.reconstruct(*i,first,toadd,coder,calibrations));
-
+    rec->push_back(reco_.reconstruct(*i,first,toadd,coder,calibrations));   
   }
   // return result
   e.put(rec);
 }
+
+
+void HcalSimpleReconstructor::processUpgrade(edm::Event& e, const edm::EventSetup& eventSetup)
+{
+  // get conditions
+  edm::ESHandle<HcalDbService> conditions;
+  eventSetup.get<HcalDbRecord>().get(conditions);
+
+  if(upgradeHBHE_){
+   
+    edm::Handle<HBHEUpgradeDigiCollection> digi;
+    e.getByLabel(inputLabel_, digi);
+
+    // create empty output
+    std::auto_ptr<HBHERecHitCollection> rec(new HBHERecHitCollection);
+    rec->reserve(digi->size()); 
+
+    // run the algorithm
+    int first = firstSample_;
+    int toadd = samplesToAdd_;
+    HBHEUpgradeDigiCollection::const_iterator i;
+    for (i=digi->begin(); i!=digi->end(); i++) {
+      HcalDetId cell = i->id();
+      DetId detcell=(DetId)cell;
+      // rof 27.03.09: drop ZS marked and passed digis:
+      if (dropZSmarkedPassed_)
+      if (i->zsMarkAndPass()) continue;
+      
+      const HcalCalibrations& calibrations=conditions->getHcalCalibrations(cell);
+      const HcalQIECoder* channelCoder = conditions->getHcalCoder (cell);
+      const HcalQIEShape* shape = conditions->getHcalShape (channelCoder); 
+      HcalCoderDb coder (*channelCoder, *shape);
+
+      //>>> firstSample & samplesToAdd
+      if(tsFromDB_) {
+	const HcalRecoParam* param_ts = paramTS->getValues(detcell.rawId());
+	first = param_ts->firstSample();
+	toadd = param_ts->samplesToAdd();
+      }
+      rec->push_back(reco_.reconstructHBHEUpgrade(*i,first,toadd,coder,calibrations));
+
+    }
+
+    e.put(rec); // put results
+  }// End of upgradeHBHE
+
+  if(upgradeHF_){
+
+    edm::Handle<HFUpgradeDigiCollection> digi;
+    e.getByLabel(inputLabel_, digi);
+
+    // create empty output
+    std::auto_ptr<HFRecHitCollection> rec(new HFRecHitCollection);
+    rec->reserve(digi->size()); 
+
+    // run the algorithm
+    int first = firstSample_;
+    int toadd = samplesToAdd_;
+    HFUpgradeDigiCollection::const_iterator i;
+    for (i=digi->begin(); i!=digi->end(); i++) {
+      HcalDetId cell = i->id();
+      DetId detcell=(DetId)cell;
+      // rof 27.03.09: drop ZS marked and passed digis:
+      if (dropZSmarkedPassed_)
+      if (i->zsMarkAndPass()) continue;
+      
+      const HcalCalibrations& calibrations=conditions->getHcalCalibrations(cell);
+      const HcalQIECoder* channelCoder = conditions->getHcalCoder (cell);
+      const HcalQIEShape* shape = conditions->getHcalShape (channelCoder); 
+      HcalCoderDb coder (*channelCoder, *shape);
+
+      //>>> firstSample & samplesToAdd
+      if(tsFromDB_) {
+	const HcalRecoParam* param_ts = paramTS->getValues(detcell.rawId());
+	first = param_ts->firstSample();
+	toadd = param_ts->samplesToAdd();
+      }
+      rec->push_back(reco_.reconstructHFUpgrade(*i,first,toadd,coder,calibrations));
+
+    }  
+    e.put(rec); // put results
+  }// End of upgradeHF
+
+}
+
 
 
 void HcalSimpleReconstructor::produce(edm::Event& e, const edm::EventSetup& eventSetup)
@@ -123,11 +220,14 @@ void HcalSimpleReconstructor::produce(edm::Event& e, const edm::EventSetup& even
   // HACK related to HB- corrections
   if(e.isRealData()) reco_.setForData();
  
-  
-  if (det_==DetId::Hcal) {
-    if (subdet_==HcalBarrel || subdet_==HcalEndcap) {
+  // What to produce, better to avoid the same subdet Upgrade and regular 
+  // rechits "clashes"
+  if(upgradeHBHE_ || upgradeHF_) {
+      processUpgrade(e, eventSetup);
+  } else if (det_==DetId::Hcal) {
+    if ((subdet_==HcalBarrel || subdet_==HcalEndcap) && !upgradeHBHE_) {
       process<HBHEDigiCollection, HBHERecHitCollection>(e, eventSetup);
-    } else if (subdet_==HcalForward) {
+    } else if (subdet_==HcalForward && !upgradeHF_) {
       process<HFDigiCollection, HFRecHitCollection>(e, eventSetup);
     } else if (subdet_==HcalOuter) {
       process<HODigiCollection, HORecHitCollection>(e, eventSetup);

@@ -5,8 +5,8 @@
  *
  *  Generic virtual implementation of a MFGrid for a 3D underlying regular grid.
  *
- *  $Date: 2009/08/17 09:14:01 $
- *  $Revision: 1.9 $
+ *  $Date: 2011/04/16 12:47:57 $
+ *  $Revision: 1.1 $
  *  \author T. Todorov
  */
 
@@ -58,8 +58,8 @@ public:
 
 protected:
 
-  typedef Basic3DVector<float>      BVector;
-  typedef Grid3D                    GridType;
+  using GridType =  Grid3D;
+  using BVector = Grid3D::BVector;
 
   GridType       grid_; // should become private...
 

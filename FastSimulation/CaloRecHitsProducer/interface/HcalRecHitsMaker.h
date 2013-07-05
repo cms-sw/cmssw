@@ -60,10 +60,14 @@ class HcalRecHitsMaker
   //  edm::ESHandle<CaloTowerConstituentsMap> calotowerMap_;
   edm::InputTag inputCol_;
   static bool initialized_;
+  static bool initializedHB_;
+  static bool initializedHE_;
+  static bool initializedHO_;
+  static bool initializedHF_;
   bool doDigis_;
   bool doMiscalib_;
   bool doSaturation_;
-  bool noiseFromDb_;
+  std::vector<bool> noiseFromDb_;
   double refactor_;
   double refactor_mean_;
   std::string hcalfileinpath_;

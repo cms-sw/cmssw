@@ -31,8 +31,8 @@
 
     /** \class HcalHitReconstructor
 	
-    $Date: 2011/11/23 13:54:08 $
-    $Revision: 1.19 $
+    $Date: 2013/02/28 08:28:56 $
+    $Revision: 1.21 $
     \author J. Temple & E. Yazgan
     ** Based on HcalSimpleReconstructor.h by J. Mans
     */
@@ -43,8 +43,8 @@ class HcalTopology;
     public:
       explicit HcalHitReconstructor(const edm::ParameterSet& ps);
       virtual ~HcalHitReconstructor();
-      virtual void beginRun(edm::Run&r, edm::EventSetup const & es);
-      virtual void endRun(edm::Run&r, edm::EventSetup const & es);
+      virtual void beginRun(edm::Run &r, edm::EventSetup const & es) override final;
+      virtual void endRun(edm::Run &r, edm::EventSetup const & es) override final;
       virtual void produce(edm::Event& e, const edm::EventSetup& c);
     private:      
       HcalSimpleRecAlgo reco_;

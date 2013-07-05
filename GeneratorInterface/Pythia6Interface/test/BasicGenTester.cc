@@ -43,8 +43,6 @@ class BasicGenTester : public edm::EDAnalyzer
      TH1D*       fNPartFinalState;
      TH1D*       fPtChgPartFinalState ;
      TH1D*       fPtNeuPartFinalState ;
-     TH1D*       fEtaChgPartFinalState ;
-     TH1D*       fEtaNeuPartFinalState ;
      int         fNPart;
      double      fPtMin;
      double      fPtMax;
@@ -81,10 +79,6 @@ void BasicGenTester::beginJob()
                                          500, fPtMin, fPtMax );
   fPtNeuPartFinalState = fs->make<TH1D>( "PtNeuPartFinalState", "Pt of final state neutral particles", 
                                          500, fPtMin, fPtMax );
-  fEtaChgPartFinalState = fs->make<TH1D>( "EtaChgPartFinalState", "Eta of final state charged particles", 
-                                         100, -5.0, 5.0 );
-  fEtaNeuPartFinalState = fs->make<TH1D>( "EtaNeuPartFinalState", "Eta of final state neutral particles", 
-                                         100, -5.0, 5.0 );
   return ;
   
 }
@@ -135,27 +129,10 @@ void BasicGenTester::analyze( const Event& e, const EventSetup& )
    for ( HepMC::GenEvent::particle_const_iterator part = Evt->particles_begin();
 	 part != Evt->particles_end(); ++part ) 
    {
-      
-/*
-      int pid = (*part)->pdg_id();
-      if ( abs(pid) == 15 )
-      {      
-         std::cout << "found tau " << std::endl;
-	 int stat = (*part)->status();
-	 if ( (*part)->end_vertex() )
-	 {
-	    (*part)->end_vertex()->print();
-	    std::cout << "done with tau end vertex " << std::endl;
-	 }
-	 std::cout << " end looking at tau" << std::endl;      
-      }
-*/      
-      
       if ( (*part)->status() == 1 && !((*part)->end_vertex()) ) 
       {	  
       
          int PartID = (*part)->pdg_id();
-	 
 	 const HepPDT::ParticleData* 
              PData = fPDGTable->particle(HepPDT::ParticleID(abs(PartID))) ;
          double charge = PData->charge();
@@ -163,13 +140,11 @@ void BasicGenTester::analyze( const Event& e, const EventSetup& )
 	 {
 	    NChgPartFS++;
 	    fPtChgPartFinalState->Fill( ((*part)->momentum()).perp() );
-	    fEtaChgPartFinalState->Fill( ((*part)->momentum()).eta() );
 	 }
 	 else
 	 {
 	    NNeuPartFS++;
 	    fPtNeuPartFinalState->Fill( ((*part)->momentum()).perp() );
-	    fEtaNeuPartFinalState->Fill( ((*part)->momentum()).perp() );
 	 }
       }
    }

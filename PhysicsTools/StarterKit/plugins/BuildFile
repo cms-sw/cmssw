@@ -1,4 +1,0 @@
-<export></export>
-<library name=PhysicsToolsStarterKit_plugins file=PatAnalyzerKit.cc,PatAnalyzerSkeleton.cc,CompositeKit.cc>
-  <use name=PhysicsTools/StarterKit>
-</library>

@@ -21,9 +21,6 @@
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerObjectMap.h"
 
 #include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
-#include "SimDataFormats/PileupSummaryInfo/interface/PileupSummaryInfo.h"  
-#include "HLTrigger/HLTanalyzers/interface/HLTMCtruth.h" 
-#include "HLTrigger/HLTanalyzers/interface/RECOVertex.h" 
 
 /** \class HLTBitAnalyzer
   *  
@@ -52,9 +49,6 @@ private:
   EventHeader evt_header_;
   HLTInfo     hlt_analysis_;
 
-  HLTMCtruth  mct_analysis_;
-  RECOVertex  vrt_analysisOffline0_;
-
   edm::InputTag hltresults_,genEventInfo_;
   std::string l1extramc_, l1extramu_;
   edm::InputTag m_l1extramu;
@@ -69,10 +63,6 @@ private:
 
   edm::InputTag gtReadoutRecord_,gtObjectMap_; 
   edm::InputTag gctBitCounts_,gctRingSums_;
-
-  edm::InputTag mctruth_,simhits_; 
-  edm::InputTag VertexTagOffline0_;
-  edm::InputTag pileupInfo_;
 
   int errCnt;
   static int errMax() { return 5; }

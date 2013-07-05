@@ -342,7 +342,7 @@ LHEReader::~LHEReader()
 {
 }
 
-  boost::shared_ptr<LHEEvent> LHEReader::next()
+  boost::shared_ptr<LHEEvent> LHEReader::next(bool* newFileOpened)
   {
 
     while(curDoc.get() || curIndex < fileURLs.size() || (fileURLs.size() == 0 && strName != "" ) ) {
@@ -351,6 +351,7 @@ LHEReader::~LHEReader()
           logFileAction("  Initiating request to open LHE file ", fileURLs[curIndex]);
           curSource.reset(new FileSource(fileURLs[curIndex]));
           logFileAction("  Successfully opened LHE file ", fileURLs[curIndex]);
+          if ( newFileOpened != nullptr ) *newFileOpened = true;
           ++curIndex;
         } else if ( strName != "" ) {
           curSource.reset(new StringSource(strName));

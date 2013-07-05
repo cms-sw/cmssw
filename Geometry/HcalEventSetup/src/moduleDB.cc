@@ -29,6 +29,7 @@ CaloGeometryDBEP<HcalGeometry, CaloGeometryDBReader>::produceAligned( const type
     TrVec  tvec ;
     DimVec dvec ;
     IVec   ivec ;
+    std::vector<uint32_t> dins;
 
     if( CaloGeometryDBReader::writeFlag() )
     {
@@ -37,27 +38,33 @@ CaloGeometryDBEP<HcalGeometry, CaloGeometryDBReader>::produceAligned( const type
 
 	const CaloSubdetectorGeometry* pGptr ( pG.product() ) ;
 
-	pGptr->getSummary( tvec, ivec, dvec ) ;
+	pGptr->getSummary( tvec, ivec, dvec, dins ) ;
 
-	CaloGeometryDBReader::write( tvec, dvec, ivec, HcalGeometry::dbString() ) ;
+	CaloGeometryDBReader::writeIndexed( tvec, dvec, ivec, dins, HcalGeometry::dbString() ) ;
     }
     else
     {
-	//std::cout<<"Getting Geometry from DB for "<<HcalGeometry::producerTag()<<std::endl ;
 	edm::ESHandle<PCaloGeometry> pG ;
 	iRecord.getRecord<typename HcalGeometry::PGeometryRecord >().get( pG ) ; 
 
 	tvec = pG->getTranslation() ;
 	dvec = pG->getDimension() ;
 	ivec = pG->getIndexes() ;
+	dins = pG->getDenseIndices();
     }	 
     //*********************************************************************************************
 
  
     edm::ESHandle<HcalTopology> hcalTopology;
     iRecord.getRecord<IdealGeometryRecord>().get( hcalTopology );
-    assert( dvec.size() == hcalTopology->getNumberOfShapes() * HcalGeometry::k_NumberOfParametersPerShape ) ;
+    // We know that the numer of shapes chanes with changing depth
+    // so, this check is temporary disabled. We need to implement
+    // a way either to store or calculate the number of shapes or be able
+    // to deal with only max numer of shapes.
+    // assert( dvec.size() == hcalTopology->getNumberOfShapes() * HcalGeometry::k_NumberOfParametersPerShape ) ;
+    assert( dvec.size() <= hcalTopology->getNumberOfShapes() * HcalGeometry::k_NumberOfParametersPerShape ) ;
     HcalGeometry* hcg=new HcalGeometry( *hcalTopology );
+    
     PtrType ptr ( hcg );
  
     const unsigned int nTrParm ( tvec.size()/hcalTopology->ncells() ) ;
@@ -69,7 +76,7 @@ CaloGeometryDBEP<HcalGeometry, CaloGeometryDBReader>::produceAligned( const type
     ptr->allocatePar(    dvec.size() ,
 			 HcalGeometry::k_NumberOfParametersPerShape ) ;
 
-    for( unsigned int i ( 0 ) ; i !=hcalTopology->ncells() ; ++i )
+    for( unsigned int i ( 0 ) ; i < dins.size() ; ++i )
     {
 	const unsigned int nPerShape ( HcalGeometry::k_NumberOfParametersPerShape ) ;
 	DimVec dims ;
@@ -90,7 +97,7 @@ CaloGeometryDBEP<HcalGeometry, CaloGeometryDBReader>::produceAligned( const type
 							       ptr->parVecVec() ) ) ;
 
 
-	const DetId id ( hcalTopology->denseId2detId(i) );
+	const DetId id ( hcalTopology->denseId2detId(dins[i]) );
     
 	const unsigned int iGlob ( 0 == globalPtr ? 0 :
 				   HcalGeometry::alignmentTransformIndexGlobal( id ) ) ;
@@ -111,17 +118,15 @@ CaloGeometryDBEP<HcalGeometry, CaloGeometryDBReader>::produceAligned( const type
 
 	assert( 0 == at || ( HcalGeometry::alignmentTransformIndexLocal( DetId( at->rawId() ) ) == iLoc ) ) ;
 
-	const CaloGenericDetId gId ( id ) ;
-
 	Pt3D  lRef ;
 	Pt3DVec lc ( 8, Pt3D(0,0,0) ) ;
-	hcg->localCorners( lc, &dims.front(), i, lRef ) ;
+	hcg->localCorners( lc, &dims.front(), dins[i], lRef ) ;
 
 	const Pt3D lBck ( 0.25*(lc[4]+lc[5]+lc[6]+lc[7] ) ) ; // ctr rear  face in local
 	const Pt3D lCor ( lc[0] ) ;
 
 	//----------------------------------- create transform from 6 numbers ---
-	const unsigned int jj ( i*nTrParm ) ;
+	const unsigned int jj ( dins[i]*nTrParm ) ;
 	Tr3D tr ;
 	const ROOT::Math::Translation3D tl ( tvec[jj], tvec[jj+1], tvec[jj+2] ) ;
 	const ROOT::Math::EulerAngles ea (

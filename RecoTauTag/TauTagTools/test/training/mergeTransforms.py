@@ -34,7 +34,6 @@ for input in input_files:
 output_object = cms.VPSet()
 
 # Figure out the cut to apply for the different purity discriminators
-weighted_vloose_cut = 0.0
 weighted_loose_cut = 0.0
 weighted_medium_cut = 0.0
 weighted_tight_cut = 0.0
@@ -42,7 +41,6 @@ weight_sum = 0.0
 
 for name in input_transforms.keys():
     dm_weight = input_transforms[name].signalDecayModeWeight.value()
-    weighted_vloose_cut += input_transforms[name].vlooseCut.value()*dm_weight
     weighted_loose_cut += input_transforms[name].looseCut.value()*dm_weight
     weighted_medium_cut += input_transforms[name].mediumCut.value()*dm_weight
     weighted_tight_cut += input_transforms[name].tightCut.value()*dm_weight
@@ -59,7 +57,6 @@ for name in input_transforms.keys():
     )
 
 cuts = cms.PSet(
-    vlooseCut = cms.double(weighted_vloose_cut/weight_sum),
     looseCut = cms.double(weighted_loose_cut/weight_sum),
     mediumCut = cms.double(weighted_medium_cut/weight_sum),
     tightCut = cms.double(weighted_tight_cut/weight_sum),

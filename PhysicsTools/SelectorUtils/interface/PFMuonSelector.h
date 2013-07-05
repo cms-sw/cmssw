@@ -36,8 +36,6 @@ class PFMuonSelector : public Selector<pat::Muon> {
     }
 
     initialize( version, 
-		parameters.getParameter<bool>  ("GlobalMuon"),
-		parameters.getParameter<bool>  ("TrackerMuon"),
 		parameters.getParameter<double>("Chi2"),
 		parameters.getParameter<double>("D0")  ,
 		parameters.getParameter<int>   ("NHits")   ,
@@ -53,11 +51,7 @@ class PFMuonSelector : public Selector<pat::Muon> {
 
   }
 
-
-
   void initialize( Version_t version,
-		   double globalMuon = true,
-		   double trackerMuon = true,
 		   double chi2 = 10.0,
 		   double d0 = 0.02,
 		   int nhits = 11,
@@ -68,18 +62,14 @@ class PFMuonSelector : public Selector<pat::Muon> {
   {
     version_ = version; 
 
-    push_back("GlobalMuon",       globalMuon);
-    push_back("TrackerMuon",      trackerMuon);
-    push_back("Chi2",             chi2   );
-    push_back("D0",               d0     );
-    push_back("NHits",            nhits  );
-    push_back("NValMuHits",       nValidMuonHits  );
-    push_back("PFIso",            pfiso );
-    push_back("nPixelHits",       minPixelHits);
+    push_back("Chi2",      chi2   );
+    push_back("D0",        d0     );
+    push_back("NHits",     nhits  );
+    push_back("NValMuHits",nValidMuonHits  );
+    push_back("PFIso",     pfiso );
+    push_back("nPixelHits",minPixelHits);
     push_back("nMatchedStations", minNMatches);
 
-    set("GlobalMuon");
-    set("TrackerMuon");
     set("Chi2");
     set("D0");
     set("NHits");
@@ -88,12 +78,12 @@ class PFMuonSelector : public Selector<pat::Muon> {
     set("nPixelHits");
     set("nMatchedStations");  
 
-    indexChi2_          = index_type(&bits_, "Chi2"            );
-    indexD0_            = index_type(&bits_, "D0"              );
-    indexNHits_         = index_type(&bits_, "NHits"           );
-    indexNValMuHits_    = index_type(&bits_, "NValMuHits"      );
-    indexPFIso_         = index_type(&bits_, "PFIso"           );
-    indexPixHits_       = index_type(&bits_, "nPixelHits"      );
+    indexChi2_          = index_type(&bits_, "Chi2"         );
+    indexD0_            = index_type(&bits_, "D0"           );
+    indexNHits_         = index_type(&bits_, "NHits"        );
+    indexNValMuHits_    = index_type(&bits_, "NValMuHits"   );
+    indexPFIso_         = index_type(&bits_, "PFIso"       );
+    indexPixHits_       = index_type(&bits_, "nPixelHits");
     indexStations_      = index_type(&bits_, "nMatchedStations");
 
   }
@@ -106,19 +96,13 @@ class PFMuonSelector : public Selector<pat::Muon> {
       return false;
     }
   }
-  
-
 
   using Selector<pat::Muon>::operator();
-  
 
-
+  // cuts based on top group L+J synchronization exercise
   bool spring11Cuts( const pat::Muon & muon, pat::strbitset & ret)
   {
     ret.set(false);
-    
-    bool isGlobal  = muon.isGlobalMuon();
-    bool isTracker = muon.isTrackerMuon();
 
     double norm_chi2 = 9999999.0;
     if ( muon.globalTrack().isNonnull() && muon.globalTrack().isAvailable() )
@@ -127,7 +111,7 @@ class PFMuonSelector : public Selector<pat::Muon> {
     if ( muon.globalTrack().isNonnull() && muon.globalTrack().isAvailable() )    
       corr_d0 = muon.dB();
 
-    int nhits = static_cast<int>( muon.innerTrack()->numberOfValidHits() );
+    int nhits = static_cast<int>( muon.numberOfValidHits() );
     int nValidMuonHits = 0;
     if ( muon.globalTrack().isNonnull() && muon.globalTrack().isAvailable() )
       nValidMuonHits = static_cast<int> (muon.globalTrack()->hitPattern().numberOfValidMuonHits());
@@ -145,15 +129,13 @@ class PFMuonSelector : public Selector<pat::Muon> {
 
     int nMatchedStations = muon.numberOfMatches();
 
-    if ( isGlobal  || ignoreCut("GlobalMuon")  )  passCut(ret, "GlobalMuon" );
-    if ( isTracker  || ignoreCut("TrackerMuon")  )  passCut(ret, "TrackerMuon" );
-    if ( norm_chi2        <  cut(indexChi2_,   double()) || ignoreCut(indexChi2_)    ) passCut(ret, indexChi2_   );
-    if ( nhits            >= cut(indexNHits_,  int()   ) || ignoreCut(indexNHits_)   ) passCut(ret, indexNHits_  );
-    if ( nValidMuonHits   >= cut(indexNValMuHits_,int()) || ignoreCut(indexNValMuHits_)) passCut(ret, indexNValMuHits_  );
-    if ( fabs(corr_d0)    <  cut(indexD0_,     double()) || ignoreCut(indexD0_)      ) passCut(ret, indexD0_     );
-    if ( pfIso            <  cut(indexPFIso_, double())  || ignoreCut(indexPFIso_)  ) passCut(ret, indexPFIso_ );
-    if ( nPixelHits       >= cut(indexPixHits_,int())    || ignoreCut(indexPixHits_))  passCut(ret, indexPixHits_);
-    if ( nMatchedStations >= cut(indexStations_,int())  || ignoreCut(indexStations_))  passCut(ret, indexStations_);
+    if ( norm_chi2     <  cut(indexChi2_,   double()) || ignoreCut(indexChi2_)    ) passCut(ret, indexChi2_   );
+    if ( fabs(corr_d0) <  cut(indexD0_,     double()) || ignoreCut(indexD0_)      ) passCut(ret, indexD0_     );
+    if ( nhits         >= cut(indexNHits_,  int()   ) || ignoreCut(indexNHits_)   ) passCut(ret, indexNHits_  );
+    if ( nValidMuonHits>  cut(indexNValMuHits_,int()) || ignoreCut(indexNValMuHits_)) passCut(ret, indexNValMuHits_  );
+    if ( pfIso         <  cut(indexPFIso_, double())  || ignoreCut(indexPFIso_)  ) passCut(ret, indexPFIso_ );
+    if ( nPixelHits    >  cut(indexPixHits_,int())    || ignoreCut(indexPixHits_))  passCut(ret, indexPixHits_);
+    if ( nMatchedStations> cut(indexStations_,int())  || ignoreCut(indexStations_))  passCut(ret, indexStations_);
 
     setIgnored(ret);
     

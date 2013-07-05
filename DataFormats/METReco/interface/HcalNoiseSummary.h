@@ -133,9 +133,6 @@ class HcalNoiseSummary
 
   bool HasBadRBXTS4TS5(void) const;
 
-  double GetCalibChargeHF(void) const;
-  int    GetCalibCountHF(void)  const;
-
   // Get charge only in TS45
   int GetCalibCountTS45(void) const;  // get number of HBHE calibration channels
   int GetCalibgt15CountTS45(void) const; // get number of HBHE calib channels > 15 fC
@@ -192,9 +189,6 @@ class HcalNoiseSummary
   int calibCountgt15TS45_;
   double calibChargeTS45_;
   double calibChargegt15TS45_;
-
-  int calibCountHF_; // calibration channels only in HF; no threshold used for determining HF noise
-  double calibChargeHF_;
 
   int hitsInLaserRegion_;
   int hitsInNonLaserRegion_;

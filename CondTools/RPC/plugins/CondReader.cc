@@ -48,8 +48,8 @@ void CondReader::analyze(const edm::Event& evt, const edm::EventSetup& evtSetup)
   std::cout << "Run start: " << since << " - Run stop: " << till << std::endl;
   
   RPCFw time ("", "", "");
-  coral::TimeStamp sTime = time.UTtoCT(since);
-  coral::TimeStamp tTime = time.UTtoCT(till);
+  coral::TimeStamp sTime = time.UTtoT(since);
+  coral::TimeStamp tTime = time.UTtoT(till);
   int ndateS = (sTime.day() * 10000) + (sTime.month() * 100) + (sTime.year()-2000);
   int ntimeS = (sTime.hour() * 10000) + (sTime.minute() * 100) + sTime.second();
   int ndateT = (tTime.day() * 10000) + (tTime.month() * 100) + (tTime.year()-2000);
@@ -63,8 +63,8 @@ void CondReader::analyze(const edm::Event& evt, const edm::EventSetup& evtSetup)
   std::cout << "************************************" << std::endl;
   for(icond = mycond.begin(); icond < mycond.end(); ++icond){
 
-    if (icond->unixtime >= since && icond->unixtime <= till)
-      std::cout<<"detid = " << icond->detid << " - value = " << icond->value << " - unixtime = " << icond->unixtime << std::endl;
+    if (icond->day >= ndateS && icond->time >= ntimeS && icond->day <= ndateT && icond->time <= ntimeT)
+      std::cout<<"dpid = " << icond->dpid << " - value = " << icond->value << " - day = " << icond->day << " - time = " << icond->time << std::endl;
   }
   
 }

@@ -97,7 +97,6 @@ L1TowerJetFilter1D::~L1TowerJetFilter1D(  )
 //{
 //}
 
-int ONE_IT(0);
 void L1TowerJetFilter1D::algorithm( const int &aEta, const int &aPhi )
 {
   if ( mComparisonDirection == phi && aPhi != mCaloTriggerSetup->phiMin() ) return;
@@ -137,14 +136,12 @@ void L1TowerJetFilter1D::algorithm( const int &aEta, const int &aPhi )
 // This system is used everywhere beyond this point
 //-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-//  if(ONE_IT==0){
 //  std::cout << "Sorting Jets produced by " << sourceName() << std::endl;  
 //   for( std::vector<JetWrapper>::iterator lIt =lJetWrapperVector.begin(); lIt != lJetWrapperVector.end(); ++lIt){
 //     if( (*lIt).mJet )	{
 //       //  std::cout << "Before sort, (eta, phi) = " << (*lIt).mJet->iEta() << " " << (*lIt).mJet->iPhi() <<"  energy " << (*lIt).mJet->E() << " and asym = " << (*lIt).mJet->AsymPhi() <<std::endl;	
 //     }
 //   }
-//  }
 
   // sort jets around eta/phi by energy
   std::vector<JetWrapper>::iterator lStart( lJetWrapperVector.begin() );
@@ -215,7 +212,6 @@ void L1TowerJetFilter1D::algorithm( const int &aEta, const int &aPhi )
   }
 
   
-  ++ONE_IT;
 }
 
 DEFINE_EDM_PLUGIN (edm::MakerPluginFactory,edm::WorkerMaker<L1TowerJetFilter1D>,"L1TowerJetFilter1D");

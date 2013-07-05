@@ -10,7 +10,6 @@
 #include<TLorentzVector.h>
 
 #include <TH1F.h>
-#include <TH2D.h>
 #include <TProfile.h>
 
 #include <TClonesArray.h>
@@ -20,10 +19,10 @@ class UEAnalysisJets {
 
   UEAnalysisJets();
   ~UEAnalysisJets(){}
+  void jetCalibAnalysis(float ,float,TClonesArray *,TClonesArray *,TClonesArray *,TClonesArray *);
+  void writeToFile(TFile *);
 
-  void jetCalibAnalysis(float ,float,TClonesArray *,TClonesArray *,TClonesArray *,TClonesArray *, TClonesArray* , TFile* , std::string );
-
-  void Begin(TFile *, std::string );
+  void Begin(TFile *);
 
   //Charged Jet caharacterization
   TH1F* dr_chgcalo;
@@ -65,57 +64,7 @@ class UEAnalysisJets {
   TProfile* calib_chgmcreco_phi;
   TProfile* calib_caloinc_phi;
 
-  //
-  TH2D* h2d_weightVSratioPtTracksJetPtCaloJet;
-  TH2D* h2d_calib_chgcalo;
-  TH2D* h2d_calib_chgmcreco;
-  //
-
-  //
-  // hltMinBiasPixelFilter
-  // hltpreMin (prescaled minbias trigger)
-  // hltpreZero (prescaled zerobias trigger)
-
-  // hlt1jet30
-  // hlt1jet50
-  // hlt1jet80
-  // hlt1jet110
-  // hlt1jet180
-  // hlt1jet250
-
-  TH1F* pT_cal_hlt1jet30 ;
-  TH1F* pT_cal_hlt1jet50 ;
-  TH1F* pT_cal_hlt1jet80;
-  TH1F* pT_cal_hlt1jet110;
-  TH1F* pT_cal_hlt1jet180;
-  TH1F* pT_cal_hlt1jet250;
-
-  TH1F* pT_chgreco_hlt1jet30 ;
-  TH1F* pT_chgreco_hlt1jet50 ;
-  TH1F* pT_chgreco_hlt1jet80;
-  TH1F* pT_chgreco_hlt1jet110;
-  TH1F* pT_chgreco_hlt1jet180;
-  TH1F* pT_chgreco_hlt1jet250;
-
-  TH1F* pT_chgmc_hlt1jet30 ;
-  TH1F* pT_chgmc_hlt1jet50 ;
-  TH1F* pT_chgmc_hlt1jet80;
-  TH1F* pT_chgmc_hlt1jet110;
-  TH1F* pT_chgmc_hlt1jet180;
-  TH1F* pT_chgmc_hlt1jet250;
-
-  TH1F* pT_inc_hlt1jet30 ;
-  TH1F* pT_inc_hlt1jet50 ;
-  TH1F* pT_inc_hlt1jet80 ;
-  TH1F* pT_inc_hlt1jet110;
-  TH1F* pT_inc_hlt1jet180;
-  TH1F* pT_inc_hlt1jet250;
-  //
-
   float piG;
-
-  std::vector<std::string> HLTBits;
-
 };
 
 #endif

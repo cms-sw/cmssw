@@ -27,6 +27,7 @@ RecoParticleFlowFEVT = cms.PSet(
     'keep recoPFClusters_particleFlowClusterHFEM_*_*',
     'keep recoPFClusters_particleFlowClusterHFHAD_*_*',
     'keep recoPFClusters_particleFlowClusterPS_*_*',
+    #'keep *_particleFlowHCALSuperClusterDualTime_*_*',
     #'keep recoPFBlocks_*_*_*',
     'keep recoPFBlocks_particleFlowBlock_*_*',
     #'keep recoPFCandidates_*_*_*',
@@ -41,9 +42,10 @@ RecoParticleFlowFEVT = cms.PSet(
     'keep *_particleFlow_photons_*',
     'keep *_trackerDrivenElectronSeeds_preid_*',
     'keep *_particleFlowPtrs_*_*',
-    'keep *_particleFlowTmpPtrs_*_*'
-        )
+    'keep *_particleFlowTmpPtrs_*_*',     
+    'keep *_particleFlowHCALSuperClusterDualTime_*_*' 
     )
+)
 # RECO content
 RecoParticleFlowRECO = cms.PSet(
     outputCommands = cms.untracked.vstring(
@@ -81,8 +83,9 @@ RecoParticleFlowRECO = cms.PSet(
     'keep *_particleFlow_photons_*',
     'keep *_trackerDrivenElectronSeeds_preid_*',
     'keep *_particleFlowPtrs_*_*',
-    'keep *_particleFlowTmpPtrs_*_*'
-        )
+    'keep *_particleFlowTmpPtrs_*_*',
+    'keep *_particleFlowHCALSuperClusterDualTime_*_*'     
+    )
 )    
     
 # AOD content

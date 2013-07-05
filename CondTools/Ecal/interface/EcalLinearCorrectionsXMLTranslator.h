@@ -3,22 +3,46 @@
    and vice versa   
 
    \author Stefano ARGIRO
-   \version $Id: EcalLinearCorrectionsXMLTranslator.h,v 1.3 2009/06/30 16:15:16 argiro Exp $
+   \version $Id: EcalLinearCorrectionsXMLTranslator.h,v 1.1 2012/11/21 17:01:39 fra Exp $
    \date 20 Jun 2008
 */
-
 #ifndef __EcalLinearCorrectionsXMLTranslator_h_
 #define __EcalLinearCorrectionsXMLTranslator_h_
 
-#include "CondTools/Ecal/interface/EcalFloatCondObjectContainerXMLTranslator.h"
+#include "CondFormats/EcalObjects/interface/EcalLinearCorrections.h"
+#include "CondTools/Ecal/interface/EcalCondHeader.h"
+#include "CondTools/Ecal/interface/XMLTags.h"
+#include "CondTools/Ecal/interface/XercesString.h"
+#include <string>
+#include <xercesc/dom/DOMNode.hpp>
+#include <xercesc/dom/DOM.hpp>
+#include <xercesc/parsers/XercesDOMParser.hpp>
+#include <xercesc/util/PlatformUtils.hpp>
+#include <xercesc/util/XMLString.hpp>
+#include <xercesc/sax/SAXException.hpp>
+#include <xercesc/framework/LocalFileFormatTarget.hpp>
 
-typedef EcalFloatCondObjectContainerXMLTranslator  EcalLinearCorrectionsXMLTranslator;
+static const char CVSId__EcalLinearCorrectionsXMLTranslator[] = 
+"$Id: EcalLinearCorrectionsXMLTranslator.h,v 1.2 2012/05/12 15:33:28 fra Exp $";
+
+class EcalLinearCorrectionsXMLTranslator {
+
+public:
+
+  static int readXML  (const std::string& filename,
+		       EcalCondHeader& header,
+		       EcalLinearCorrections& record);
+
+  static int writeXML (const std::string& filename,
+		       const EcalCondHeader& header,
+		       const EcalLinearCorrections& record);
+
+  static std::string dumpXML(const EcalCondHeader& header,
+			     const EcalLinearCorrections& record);
+
+  //  void WriteNodeWithTime(xercesc::DOMNode* node, const std::string& value, long int& time);
+  //  static void WriteNodeWithTime(xercesc::DOMNode* node);
+};
 
 
 #endif // __EcalLinearCorrectionsXMLTranslator_h_
-
-// Configure (x)emacs for this file ...
-// Local Variables:
-// mode:c++
-// compile-command: "cd ..; scram b"
-// End:

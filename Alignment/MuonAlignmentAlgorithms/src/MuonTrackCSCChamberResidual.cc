@@ -1,5 +1,5 @@
 /* 
- * $Id: MuonTrackCSCChamberResidual.cc,v 1.2 2011/11/02 07:38:30 mussgill Exp $
+ * $Id: MuonTrackCSCChamberResidual.cc,v 1.3 2011/11/02 19:58:38 khotilov Exp $
  */
 
 #include "Alignment/MuonAlignmentAlgorithms/interface/MuonTrackCSCChamberResidual.h"
@@ -19,7 +19,6 @@ MuonTrackCSCChamberResidual::MuonTrackCSCChamberResidual(edm::ESHandle<GlobalTra
 void MuonTrackCSCChamberResidual::setSegmentResidual(const reco::MuonChamberMatch *trk, const reco::MuonSegmentMatch *seg)
 {
   CSCDetId id(trk->id.rawId());
-  CSCDetId chamber(id.chamberId());
   
   CSCSegmentRef segmentCSC = seg->cscSegmentRef;
   if (segmentCSC.get() != 0)

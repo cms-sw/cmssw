@@ -7,6 +7,9 @@ AlCaRecoMatrix = {'ExpressCosmics' : 'SiStripCalZeroBias+TkAlCosmics0T',
                   'MuOnia'         : 'TkAlJpsiMuMu+TkAlUpsilonMuMu',
                   'SingleElectron' : 'EcalCalElectron',
                   'DoubleElectron' : 'EcalCalElectron',
+                  'AlCaLumiPixels' : 'LumiPixels',
+                  'DoubleMuParked' : 'MuAlCalIsolatedMu+MuAlOverlaps+DtCalib+TkAlZMuMu',
+                  'MuOniaParked'   : 'TkAlJpsiMuMu+TkAlUpsilonMuMu',
                   'Cosmics'        : 'TkAlCosmics0T+MuAlGlobalCosmics+HcalCalHOCosmics+DtCalibCosmics',
                   # These two cannot run on RAW, they are just meant to run on the dedicated AlcaRAW so they do not enter the allForPrompt list
                   'AlCaP0'         : 'EcalCalPi0Calib+EcalCalEtaCalib',
@@ -32,7 +35,7 @@ def buildList(pdList, matrix):
     return stringList
 
 # Update the lists anytime a new PD is added to the matrix
-autoAlca = { 'allForPrompt'         : buildList(['MinimumBias', 'Commissioning', 'SingleMu', 'DoubleMu', 'MuOnia', 'SingleElectron', 'DoubleElectron', 'HcalNZS'], AlCaRecoMatrix),
+autoAlca = { 'allForPrompt'         : buildList(['MinimumBias', 'Commissioning', 'SingleMu', 'DoubleMu', 'MuOnia', 'DoubleMuParked', 'MuOniaParked', 'SingleElectron', 'DoubleElectron', 'HcalNZS'], AlCaRecoMatrix),
              'allForExpress'        : buildList(['StreamExpress'], AlCaRecoMatrix),
              'allForPromptCosmics'  : buildList(['Cosmics'], AlCaRecoMatrix),
              'allForExpressCosmics' : buildList(['ExpressCosmics'], AlCaRecoMatrix) }

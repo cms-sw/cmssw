@@ -4,7 +4,6 @@
 <use   name="TrackingTools/TransientTrackingRecHit"/>
 <use   name="TrackingTools/TrajectoryState"/>
 <use   name="TrackingTools/DetLayers"/>
-<use   name="TrackingTools/GeomPropagators"/>
 <use   name="Geometry/CommonDetUnit"/>
 <use   name="Geometry/CommonTopologies"/>
 <export>

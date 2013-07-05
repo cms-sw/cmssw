@@ -9,9 +9,9 @@
 using namespace std;
 
 int main(int argc, char **argv) {
-  if (argc != 3) {
+  if (argc > 4) {
     cout << "SYNOPSIS:" << endl
-	 << " prepareFieldTable [input.table] [output.bin]" << endl;
+	 << " prepareFieldTable input.table output.bin [sector]" << endl;
     cout << "Example:" << endl
 	 << " prepareFieldTable /afs/cern.ch/cms/OO/mag_field/version_85l_030919/v-xyz-217.table grid.217.bin" << endl;
       return 1;  
@@ -20,7 +20,13 @@ int main(int argc, char **argv) {
   string filename1 = argv[1];
   string filename2 = argv[2];
 
-  prepareMagneticFieldGrid MFG001;                                    // MFG001 for standard cases
+  int sector=0;
+  if (argc==4) {  
+    sector = atoi(argv[3]);
+  }
+  
+
+  prepareMagneticFieldGrid MFG001(sector);                                    // MFG001 for standard cases
   MFG001.countTrueNumberOfPoints(filename1);   // check, if file contains some points twice
 
 
@@ -39,7 +45,7 @@ int main(int argc, char **argv) {
   }
 
   // MFG001 anlysis was not successful. Different processing for special cases
-  prepareMagneticFieldGrid MFG002;                                  // MFG002 for special cases
+  prepareMagneticFieldGrid MFG002(sector);                                  // MFG002 for special cases
   MFG002.fillFromFileSpecial(filename1);     // determine grid structure (special cases)
   type = MFG002.gridType();                         // grid type
   if (type == 0) cout << "  special grid sructure detection failed " << endl;

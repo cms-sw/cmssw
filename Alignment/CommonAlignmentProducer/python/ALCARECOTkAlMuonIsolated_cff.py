@@ -37,16 +37,14 @@ ALCARECOTkAlMuonIsolated = Alignment.CommonAlignmentProducer.AlignmentTrackSelec
     nHitMin = 0
 )
 
-#GFALCARECOTkAlMuonIsolated.GlobalSelector.muonSource = 'ALCARECOTkAlMuonIsolatedRelCombIsoMuons'
+ALCARECOTkAlMuonIsolated.GlobalSelector.muonSource = 'ALCARECOTkAlMuonIsolatedRelCombIsoMuons'
 # Isolation is shifted to the muon preselection, and then applied intrinsically if applyGlobalMuonFilter = True
 ALCARECOTkAlMuonIsolated.GlobalSelector.applyIsolationtest = False
-ALCARECOTkAlMuonIsolated.GlobalSelector.minJetDeltaR = 0. #GF0.1
+ALCARECOTkAlMuonIsolated.GlobalSelector.minJetDeltaR = 0.1
 ALCARECOTkAlMuonIsolated.GlobalSelector.applyGlobalMuonFilter = True
 
 ALCARECOTkAlMuonIsolated.TwoBodyDecaySelector.applyMassrangeFilter = False
 ALCARECOTkAlMuonIsolated.TwoBodyDecaySelector.applyChargeFilter = False
 ALCARECOTkAlMuonIsolated.TwoBodyDecaySelector.applyAcoplanarityFilter = False
 
-seqALCARECOTkAlMuonIsolated = cms.Sequence(ALCARECOTkAlMuonIsolatedHLT+ALCARECOTkAlMuonIsolatedDCSFilter
-                                           #GF+ALCARECOTkAlMuonIsolatedGoodMuons+ALCARECOTkAlMuonIsolatedRelCombIsoMuons
-                                           +ALCARECOTkAlMuonIsolated)
+seqALCARECOTkAlMuonIsolated = cms.Sequence(ALCARECOTkAlMuonIsolatedHLT+ALCARECOTkAlMuonIsolatedDCSFilter+ALCARECOTkAlMuonIsolatedGoodMuons+ALCARECOTkAlMuonIsolatedRelCombIsoMuons+ALCARECOTkAlMuonIsolated)

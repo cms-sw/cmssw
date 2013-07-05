@@ -38,7 +38,7 @@ from DQM.Physics.DQMPhysics_cff import *
 DQMOfflineCosmicsPrePOG = cms.Sequence( muonCosmicMonitors *
                                         jetMETDQMOfflineSourceCosmic *
                                         egammaCosmicPhotonMonitors *
-                                        l1TriggerDqmOffline * 
+#                                        l1TriggerDqmOffline * 
                                         triggerCosmicOfflineDQMSource *
                                         dqmPhysicsCosmics
                                         )

@@ -1,4 +1,4 @@
- #include <iostream>
+#include <iostream>
 #include <cmath>
 #include <string>
 
@@ -39,6 +39,11 @@ using namespace edm;
 using namespace std;
 using namespace gen;
 
+#include "GeneratorInterface/ReggeGribovPartonMCInterface/interface/IO_EPOS.h"
+#include "GeneratorInterface/ReggeGribovPartonMCInterface/interface/EPOS_Wrapper.h"
+
+EPOS::IO_EPOS conv;
+
 extern "C"
 {
   float gen::rangen_()
@@ -65,7 +70,9 @@ ReggeGribovPartonMCHadronizer::ReggeGribovPartonMCHadronizer(const ParameterSet 
   m_bMin(pset.getParameter<double>("bmin")),
   m_bMax(pset.getParameter<double>("bmax")),
   m_ParamFileName(pset.getUntrackedParameter<string>("paramFileName")),
+  m_SkipNuclFrag(pset.getParameter<bool>("skipNuclFrag")),
   m_NEvent(0),
+  m_NParticles(0),
   m_ImpactParameter(0.)
 {
   Service<RandomNumberGenerator> rng;
@@ -116,7 +123,14 @@ bool ReggeGribovPartonMCHadronizer::generatePartonsAndHadronize()
           m_PartEnergy[0],m_PartMass[0],m_PartStatus[0]);
   LogDebug("ReggeGribovPartonMCInterface") << "event generated" << endl;
 
-  HepMC::GenEvent* evt = new HepMC::GenEvent();
+  const bool isHeavyIon =  (m_TargetID + m_BeamID > 2);
+
+  if(isHeavyIon)
+    conv.set_trust_beam_particles(false);
+
+  conv.set_skip_nuclear_fragments(m_SkipNuclFrag);
+
+  HepMC::GenEvent* evt = conv.read_next_event();
 
   evt->set_event_number(m_NEvent++);
   int sig_id = -1;
@@ -142,61 +156,7 @@ bool ReggeGribovPartonMCHadronizer::generatePartonsAndHadronize()
   evt->set_cross_section(theCrossSection);
 #endif
 
-  //create event structure;
-
-  vector<HepMC::GenParticle*> vecGenParticles;
-  vecGenParticles.resize(m_NParticles);
-
-  for(int i = 0; i < m_NParticles; i++)
-    {
-      //add particle. do not delete. not stored as a copy
-      HepMC::GenParticle* p = new HepMC::GenParticle(HepMC::FourVector(m_PartPx[i],
-                                                                       m_PartPy[i],
-                                                                       m_PartPz[i],
-                                                                       m_PartEnergy[i]),
-                                                     m_PartID[i],
-                                                     m_PartStatus[i]);
-      vecGenParticles[i] = p;
-    }
-
-
-  //number of beam particles
-  for(int i = 0; i < m_NParticles; i++)
-    {
-      HepMC::GenParticle* p = vecGenParticles[i];
-      HepMC::FourVector pos(hepcom_.vhep[0][i],hepcom_.vhep[1][i],hepcom_.vhep[2][i],0);
-      int firstMother = hepcom_.jmohep[1][i];
-      int secondMother = hepcom_.jmohep[2][i];
-      if (firstMother < 0 || secondMother < 0 || firstMother > m_NParticles || secondMother > m_NParticles)
-        LogError("ReggeGribovPartonMCInterface") << "First mother: " << firstMother << " second mother: " << secondMother << " (max: " << m_NParticles << ")" << endl;
-
-      //Check if production vertex exists
-      HepMC::GenVertex* vertex = p->production_vertex();
-      if (!vertex && vecGenParticles[firstMother]->production_vertex ())
-        {
-          vertex = vecGenParticles[firstMother]->production_vertex ();
-          vertex->add_particle_out(p);
-        }
-      if (!vertex && vecGenParticles[secondMother]->production_vertex ())
-        {
-          vertex = vecGenParticles[secondMother]->production_vertex ();
-          vertex->add_particle_out(p);
-        }
-
-      //no vertex found
-      if(!vertex)
-        {
-          vertex = new HepMC::GenVertex(pos);
-          if(!vertex)
-            LogError("ReggeGribovPartonMCInterface") << "Could not create new vertex" << endl;
-          vertex->add_particle_out(p);
-          evt->add_vertex(vertex);
-          if(p->status() == 4)
-            evt->set_signal_process_vertex(vertex); // beam particle. set signal vertex
-        }
-    }
-
-  if (m_TargetID + m_BeamID > 2) //other than pp
+  if (isHeavyIon) //other than pp
     {
       HepMC::HeavyIon ion(cevt_.kohevt,                // Number of hard scatterings
                           cevt_.npjevt,                // Number of projectile participants
@@ -213,9 +173,12 @@ bool ReggeGribovPartonMCHadronizer::generatePartonsAndHadronize()
                           hadr5_.sigine*1e9);        // nucleon-nucleon inelastic (in pB)
       evt->set_heavy_ion(ion);
     }
-  LogDebug("ReggeGribovPartonMCInterface") << "HepEvt and vertex constructed" << endl;
-  //evt->print();
+
+
   event().reset(evt);
+  //evt->print();
+  //EPOS::EPOS_Wrapper::print_hepcom();
+
   return true;
 }
 

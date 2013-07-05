@@ -3,7 +3,7 @@
 // GFHistManager
 //   Author:      Gero Flucke
 //   Date:        Feb. 10th, 2002
-//   last update: $Date: 2012/03/29 07:57:38 $  
+//   last update: $Date: 2011/08/08 17:20:24 $  
 //   by:          $Author: flucke $
 //
 
@@ -253,7 +253,7 @@ void GFHistManager::DrawReally(Int_t layer)
     Int_t nPads = this->NumberOfSubPadsOf(can);
     if (fNoX[layer] * fNoY[layer] != nPads && 
 	!(nPads == 0 && fNoX[layer] * fNoY[layer] == 1)) {
-      this->Warning("DrawReally", "inconsistent number of pads %d, expect %d*%d",
+      this->Warning("Update", "inconsistent number of pads %d, expect %d*%d",
 		    nPads, fNoX[layer], fNoY[layer]);
     }
     for(Int_t i = 0; i <= nPads; ++i){
@@ -438,33 +438,19 @@ void GFHistManager::Update(Int_t layer)
   if(!this->CheckDepth("Update", layer, kFALSE)) {
     return;
   }
-
-  // First loop on canvases:
-  // If meanwhile the setting of fNoX/fNoY has changed, we are better with
-  // drawing from scratch:
-  Bool_t drawFromScratch = kFALSE;
   TIter canIter(static_cast<TObjArray*>(fCanArrays->At(layer)));
-  while(TCanvas* can = static_cast<TCanvas*>(canIter.Next())){
-    const Int_t nPads = this->NumberOfSubPadsOf(can);
-    if (fNoX[layer] * fNoY[layer] != nPads && // does not fit...
-	!(nPads == 0 && fNoX[layer] * fNoY[layer] == 1)) {// ...nor single hist canvas
-      drawFromScratch = kTRUE;
-      break;
-    }
-  }
-  if (drawFromScratch) {
-    this->Draw(layer);
-    return; // nothing else to be done...
-  }
 
-  // Now second loop doing the real Update work:
-  canIter = static_cast<TObjArray*>(fCanArrays->At(layer));
   Int_t numPreviousCansHists = 0;
   const Int_t numHistsLayer = this->GetNumHistsOf(layer);
   while(TCanvas* can = static_cast<TCanvas*>(canIter.Next())){
-    const Int_t nPads = this->NumberOfSubPadsOf(can); // get numbers of first loop?
+    Int_t nPads = this->NumberOfSubPadsOf(can);
+    if (fNoX[layer] * fNoY[layer] != nPads && 
+	!(nPads == 0 && fNoX[layer] * fNoY[layer] == 1)) {
+      this->Warning("Update", "inconsistent number of pads %d, expect %d*%d",
+		    nPads, fNoX[layer], fNoY[layer]);
+    }
     for(Int_t i = 0; i <= nPads; ++i){
-      if (i == 0 && nPads != 0) i = 1;// i==0: single hist canvas, else step into pad
+      if (i == 0 && nPads != 0) i = 1;
       can->cd(i);
 
       const Int_t histNo = TMath::Max(0, numPreviousCansHists + i - 1);// for nPad == 0
@@ -751,18 +737,13 @@ void GFHistManager::AddLegend(TLegend* leg, Int_t layer, Int_t histoNum)
 //_____________________________________________________
 void GFHistManager::AddObject(TObject* obj, Int_t layer, Int_t histoNum, Option_t* opt)
 {
-  // Hist and layer must already exist.
-  // If the given pad is already drawn, it will get updated to display the object.
-  // If you add many objects, this can become pretty slow, so it is recommended
-  // to first work in batch mode (SetBatch()), add all hists and objects and then
-  // go back and draw: SetBatch(false); Draw();// or Draw(layer)
+  // hist and layer must already exist
   if(!this->CheckHistNum("AddObject", layer, histoNum)) return;
 
   TList* objList = this->MakeObjList(layer, histoNum);
   objList->Add(obj, opt);
 
   if(layer < fCanArrays->GetEntriesFast()) {
-    // Would be nice to update only for histoNum to speed up...
     this->Update(layer); // if canvas already drawn
   }
 }
@@ -877,7 +858,7 @@ Int_t GFHistManager::NumberOfSubPadsOf(TCanvas* can)
 
   TIter next(can ? can->GetListOfPrimitives() : NULL);
   while (TObject* obj = next()) {
-    if (obj->InheritsFrom(TVirtualPad::Class())){
+    if (obj->InheritsFrom(TPad::Class())){
       ++n;
     }
   }

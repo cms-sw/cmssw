@@ -2,9 +2,9 @@
 # RelMon: a tool for automatic Release Comparison                              
 # https://twiki.cern.ch/twiki/bin/view/CMSPublic/RelMon
 #
-# $Author: dpiparo $
-# $Date: 2012/06/12 12:25:27 $
-# $Revision: 1.1 $
+# $Author: anorkus $
+# $Date: 2012/11/21 15:22:13 $
+# $Revision: 1.2 $
 #
 #                                                                              
 # Danilo Piparo CERN - danilo.piparo@cern.ch                                   
@@ -26,7 +26,7 @@ test_codes={"EMPTY":-101,
             "NO_HIST":-105,
             "FEW_BINS":-105}
 #-------------------------------------------------------------------------------  
-relmon_mainpage="https://cms-service-reldqm.web.cern.ch/cms-service-reldqm"
+relmon_mainpage="https://cms-pdmv.cern.ch/relmon"
 
 #-------------------------------------------------------------------------------  
 

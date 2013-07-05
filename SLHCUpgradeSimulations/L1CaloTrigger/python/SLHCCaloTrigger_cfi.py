@@ -7,7 +7,7 @@ L1CaloTriggerSetupSource = cms.ESSource("EmptyESSource",
                                         )
 
 L1CaloTriggerSetup = cms.ESProducer("L1CaloTriggerSetupProducer",
-                                    InputXMLFile = cms.FileInPath('SLHCUpgradeSimulations/L1CaloTrigger/data/setupHF.xml')
+                                    InputXMLFile = cms.FileInPath('SLHCUpgradeSimulations/L1CaloTrigger/data/setup.xml')
                                     )
 
 #UNCOMMENT HERE TO RUN ON DATA - IO
@@ -76,6 +76,24 @@ L1TowerJetFilter2D = cms.EDProducer("L1TowerJetFilter2D",
 	ComparisonDirection = cms.string("phi"), # "eta" or "phi"
 	NumOfOutputJets = cms.uint32(12)
 )
+L1TowerJetPUEstimator = cms.EDProducer("L1TowerJetPUEstimator",
+    inRhodata_file = cms.FileInPath('SLHCUpgradeSimulations/L1CaloTrigger/data/rho_lookup.txt'),
+    FilteredCircle8 = cms.InputTag("L1TowerJetFilter2D"),
+)
+
+L1TowerJetPUSubtractedProducer =  cms.EDProducer("L1TowerJetPUSubtractedProducer",
+    FilteredCircle8 = cms.InputTag("L1TowerJetFilter2D"),
+    CalibratedL1Rho = cms.InputTag("L1TowerJetPUEstimator", "Rho"),
+)
+
+L1CalibFilterTowerJetProducer = cms.EDProducer("L1CalibFilterTowerJetProducer",
+    inMVA_weights_file = cms.FileInPath('SLHCUpgradeSimulations/L1CaloTrigger/data/TMVARegression_BDT.weights.xml'),
+    PUSubtractedCentralJets = cms.InputTag("L1TowerJetPUSubtractedProducer","PUSubCenJets"),
+)
+
+
+
+
 
 L1TowerFwdJetProducer = cms.EDProducer("L1TowerFwdJetProducer",
     src = cms.InputTag("L1CaloTowerProducer"),
@@ -98,8 +116,10 @@ L1TowerFwdJetFilter2D = cms.EDProducer("L1TowerJetFilter2D",
 rawSLHCL1ExtraParticles = cms.EDProducer("L1ExtraTranslator",
                                   Clusters = cms.InputTag("L1CaloClusterIsolator"),
                                   Jets = cms.InputTag("L1CaloJetExpander"),
+                                  Towers = cms.InputTag("L1CaloTowerProducer"),                                         
                                   NParticles = cms.uint32(8),
-                                  NJets      = cms.uint32(12)
+                                  NJets      = cms.uint32(12),
+                                  maxJetTowerEta = cms.double(3.0)
                               
 )
 
@@ -152,6 +172,7 @@ l1extraParticlesCalibrated = cms.EDProducer("L1ExtraCalibrator",
                                             taus = cms.InputTag("l1extraParticles","Tau"),
                                             isoTaus = cms.InputTag("l1extraParticles","isoTau"), #comment out?
                                             jets = cms.InputTag("l1extraParticles","Central"), #no forward jets in SLHC, so only considering centra LHC jets
+                                            
                                             ##How to calibrate
                                             ##Scale factor = MC/RAW = a+b |eta| +c|eta|^2
                                             ##Give the coeffs for egamma and taus

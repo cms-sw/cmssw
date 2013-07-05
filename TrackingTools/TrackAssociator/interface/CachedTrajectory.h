@@ -18,7 +18,7 @@
 //
 // Original Author:  Dmytro Kovalskyi
 //         Created:  Fri Apr 21 10:59:41 PDT 2006
-// $Id: CachedTrajectory.h,v 1.21 2012/03/10 21:40:27 dmytro Exp $
+// $Id: CachedTrajectory.h,v 1.19 2011/04/21 06:42:45 innocent Exp $
 //
 //
 
@@ -37,14 +37,8 @@ propagateThoughFromIP(const SteppingHelixStateInfo& state,const Propagator* prop
 		      const FiducialVolume& volume,int nsteps,
 		      float step, float minR, float minZ, float maxR, float maxZ);
 
+
 class CachedTrajectory {
- public:
-
-  const std::vector<SteppingHelixStateInfo>& getEcalTrajectory() const;
-  const std::vector<SteppingHelixStateInfo>& getHcalTrajectory() const;
-  const std::vector<SteppingHelixStateInfo>& getHOTrajectory() const;
-  const std::vector<SteppingHelixStateInfo>& getPreshowerTrajectory() const;
-
 private:
   friend class TrackDetectorAssociator;
   friend std::vector<SteppingHelixStateInfo> 
@@ -86,6 +80,11 @@ private:
   void findHcalTrajectory(const FiducialVolume&) dso_internal;
   void findHOTrajectory(const FiducialVolume&) dso_internal;
   void findPreshowerTrajectory(const FiducialVolume&) dso_internal;
+  
+  const std::vector<SteppingHelixStateInfo>& getEcalTrajectory() dso_internal;
+  const std::vector<SteppingHelixStateInfo>& getHcalTrajectory() dso_internal;
+  const std::vector<SteppingHelixStateInfo>& getHOTrajectory() dso_internal;
+  const std::vector<SteppingHelixStateInfo>& getPreshowerTrajectory() dso_internal;
   
   std::vector<GlobalPoint>* getWideTrajectory(const std::vector<SteppingHelixStateInfo>&,
 					      WideTrajectoryType) dso_internal;

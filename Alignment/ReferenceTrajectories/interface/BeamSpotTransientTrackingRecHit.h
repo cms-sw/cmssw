@@ -8,8 +8,8 @@
  *
  * Author     : Andreas Mussgiller
  * date       : 2010/08/30
- * last update: $Date: 2012/02/04 15:02:59 $
- * by         : $Author: innocent $
+ * last update: $Date: 2011/05/18 10:19:12 $
+ * by         : $Author: mussgill $
  */
 
 #include <cmath>
@@ -22,9 +22,9 @@
 
 #include "BeamSpotGeomDet.h"
 
-#include "TrackingTools/TransientTrackingRecHit/interface/TValidTrackingRecHit.h"
+#include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
 
-class BeamSpotTransientTrackingRecHit GCC11_FINAL : public TValidTrackingRecHit {
+class BeamSpotTransientTrackingRecHit: public TransientTrackingRecHit {
  public:
 
   typedef TrackingRecHit::Type Type;
@@ -32,7 +32,7 @@ class BeamSpotTransientTrackingRecHit GCC11_FINAL : public TValidTrackingRecHit 
   BeamSpotTransientTrackingRecHit(const reco::BeamSpot &beamSpot,
 				  const BeamSpotGeomDet * geom,
 				  double phi)
-    : TValidTrackingRecHit(geom, AlignableBeamSpot::detId(), valid) {
+    :TransientTrackingRecHit(geom, AlignableBeamSpot::detId(), valid) {
 
     localPosition_ = det()->toLocal(GlobalPoint(beamSpot.x0(), beamSpot.y0(), beamSpot.z0()));
     localError_ = LocalError(std::pow(beamSpot.BeamWidthX()*cos(phi), 2) +
@@ -49,9 +49,7 @@ class BeamSpotTransientTrackingRecHit GCC11_FINAL : public TValidTrackingRecHit 
   virtual AlgebraicSymMatrix parametersError() const;
   virtual int dimension() const { return 1; }
 
-  virtual const TrackingRecHit * hit() const { return nullptr; }
-  virtual TrackingRecHit * cloneHit() const { return nullptr;}
-
+  virtual const TrackingRecHit * hit() const { return 0; }
 
   virtual std::vector<const TrackingRecHit*> recHits() const {
     return std::vector<const TrackingRecHit*>();
@@ -59,6 +57,8 @@ class BeamSpotTransientTrackingRecHit GCC11_FINAL : public TValidTrackingRecHit 
   virtual std::vector<TrackingRecHit*> recHits() {
     return std::vector<TrackingRecHit*>();
   }
+
+  virtual const Surface * surface() const { return &(det()->surface()); }
 
   virtual AlgebraicMatrix projectionMatrix() const {
     if (!isInitialized) initialize();

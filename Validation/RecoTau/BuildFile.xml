@@ -6,6 +6,4 @@
 <use   name="PhysicsTools/JetMCUtils"/>
 <use   name="CommonTools/Utils"/>
 <use   name="CommonTools/TriggerUtils"/>
-<export>
-   <lib name="1"/>
-</export>
+<flags   EDM_PLUGIN="1"/>

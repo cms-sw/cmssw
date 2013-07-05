@@ -35,8 +35,8 @@ void HcalHitCorrection::fillChargeSums(MixCollection<PCaloHit> & hits)
 }
 
 
-void HcalHitCorrection::fillChargeSums( const std::vector<PCaloHit> & hits)
-{
+void HcalHitCorrection::fillChargeSums(std::vector<PCaloHit> & hits) {
+
   for(std::vector<PCaloHit>::const_iterator hitItr = hits.begin();
       hitItr != hits.end(); ++hitItr)
   {

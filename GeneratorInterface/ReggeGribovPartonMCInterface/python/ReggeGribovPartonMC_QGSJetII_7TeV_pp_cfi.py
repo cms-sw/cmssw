@@ -1,22 +1,20 @@
 import FWCore.ParameterSet.Config as cms
 
-source = cms.Source("EmptySource")
+from GeneratorInterface.ReggeGribovPartonMCInterface.ReggeGribovPartonMC_AdvancedParameters_cfi import *
 
 generator = cms.EDFilter("ReggeGribovPartonMCGeneratorFilter",
+                    ReggeGribovPartonMCAdvancedParameters,
                     beammomentum = cms.double(3500),
                     targetmomentum = cms.double(-3500),
                     beamid = cms.int32(1),
                     targetid = cms.int32(1),
-                    model = cms.int32(7),
-                    bmin = cms.double(0),
-                    bmax = cms.double(10000),
-                    paramFileName = cms.untracked.string("Configuration/Generator/data/ReggeGribovPartonMC.param")
+                    model = cms.int32(7)
                     )
 
 
 configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.3 $'),
-    name = cms.untracked.string('$Source: /local/reps/CMSSW/CMSSW/GeneratorInterface/ReggeGribovPartonMCInterface/python/ReggeGribovPartonMC_cfi.py,v $'),
+    version = cms.untracked.string('$Revision: 1.1 $'),
+    name = cms.untracked.string('$Source: /local/reps/CMSSW/CMSSW/GeneratorInterface/ReggeGribovPartonMCInterface/python/ReggeGribovPartonMC_QGSJetII_7TeV_pp_cfi.py,v $'),
     annotation = cms.untracked.string('ReggeGribovMC generator')
     )
 

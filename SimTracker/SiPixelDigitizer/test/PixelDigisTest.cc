@@ -16,7 +16,7 @@
 //
 // Original Author:  d.k.
 //         Created:  Jan CET 2006
-// $Id: PixelDigisTest.cc,v 1.26 2010/11/30 09:23:31 dkotlins Exp $
+// $Id: PixelDigisTest.cc,v 1.27 2011/01/14 01:24:51 fwyzard Exp $
 //
 //
 // system include files
@@ -45,8 +45,8 @@
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetType.h"
 
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
-#include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
-#include "DataFormats/SiPixelDetId/interface/PXFDetId.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "DataFormats/SiPixelDetId/interface/PixelBarrelName.h"
 
 // data formats
@@ -344,6 +344,11 @@ void PixelDigisTest::beginJob() {
 // ------------ method called to produce the data  ------------
 void PixelDigisTest::analyze(const edm::Event& iEvent, 
 			   const edm::EventSetup& iSetup) {
+  //Retrieve tracker topology from geometry
+  edm::ESHandle<TrackerTopology> tTopo;
+  iSetup.get<IdealGeometryRecord>().get(tTopo);
+
+
   using namespace edm;
   if(PRINT) cout<<" Analyze PixelDigisTest "<<endl;
 
@@ -486,12 +491,12 @@ void PixelDigisTest::analyze(const edm::Event& iEvent,
       hrowsF->Fill(float(rows));
 #endif
 
-      PXFDetId pdetId = PXFDetId(detid);
-      disk=pdetId.disk(); //1,2,3
-      blade=pdetId.blade(); //1-24
-      zindex=pdetId.module(); //
-      side=pdetId.side(); //size=1 for -z, 2 for +z
-      panel=pdetId.panel(); //panel=1
+      
+      disk=tTopo->pxfDisk(detid); //1,2,3
+      blade=tTopo->pxfBlade(detid); //1-24
+      zindex=tTopo->pxfModule(detid); //
+      side=tTopo->pxfSide(detid); //size=1 for -z, 2 for +z
+      panel=tTopo->pxfPanel(detid); //panel=1
       
       if(PRINT) {
 	cout<<"Forward det "<<subid<<", disk "<<disk<<", blade "
@@ -503,15 +508,15 @@ void PixelDigisTest::analyze(const edm::Event& iEvent,
 
     } else if(subid == 1) { // Barrel 
       
-      PXBDetId pdetId = PXBDetId(detid);
+      
       // Barell layer = 1,2,3
-      layerC=pdetId.layer();
+      layerC=tTopo->pxbLayer(detid);
       // Barrel ladder id 1-20,32,44.
-      ladderC=pdetId.ladder();
+      ladderC=tTopo->pxbLadder(detid);
       // Barrel Z-index=1,8
-      zindex=pdetId.module();
+      zindex=tTopo->pxbModule(detid);
       // Convert to online 
-      PixelBarrelName pbn(pdetId);
+      PixelBarrelName pbn(detid);
       // Shell { mO = 1, mI = 2 , pO =3 , pI =4 };
       PixelBarrelName::Shell sh = pbn.shell(); //enum
       sector = pbn.sectorName();

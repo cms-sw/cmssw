@@ -27,22 +27,13 @@
 #include "TrackingTools/TrackFitters/interface/TrajectoryStateCombiner.h"
 #include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
-
-//tests for solving topology problem
-//#include "Geometry/TrackerGeometryBuilder/interface/RectangularPixelTopology.h"
-//#include "Geometry/TrackerGeometryBuilder/interface/RectangularPixelTopology.h"
-
-//#include "Geometry/TrackerTopology/interface/RectangularPixelTopology.h"
-
-
-
 int lower_bin_;
 
 using namespace std;
 using namespace edm;
 using namespace reco;
 
-PixelLorentzAngle::PixelLorentzAngle(edm::ParameterSet const& conf) : 
+SiPixelLorentzAngle::SiPixelLorentzAngle(edm::ParameterSet const& conf) : 
   conf_(conf), filename_(conf.getParameter<std::string>("fileName")), filenameFit_(conf.getParameter<std::string>("fileNameFit")), ptmin_(conf.getParameter<double>("ptMin")), simData_(conf.getParameter<bool>("simData")),	normChi2Max_(conf.getParameter<double>("normChi2Max")), clustSizeYMin_(conf.getParameter<int>("clustSizeYMin")), residualMax_(conf.getParameter<double>("residualMax")), clustChargeMax_(conf.getParameter<double>("clustChargeMax")),hist_depth_(conf.getParameter<int>("binsDepth")), hist_drift_(conf.getParameter<int>("binsDrift"))
 {
   //   	anglefinder_=new  TrackLocalAngle(conf);
@@ -61,12 +52,12 @@ PixelLorentzAngle::PixelLorentzAngle(edm::ParameterSet const& conf) :
 }
 
 // Virtual destructor needed.
-PixelLorentzAngle::~PixelLorentzAngle() {  }  
+SiPixelLorentzAngle::~SiPixelLorentzAngle() {  }  
 
-void PixelLorentzAngle::beginJob()
+void SiPixelLorentzAngle::beginJob()
 {
 
-  //cout << "started PixelLorentzAngle: BEGIN JOB ------------------------------" << endl;
+  // 	cout << "started SiPixelLorentzAngle" << endl;
   hFile_ = new TFile (filename_.c_str(), "RECREATE" );
   int bufsize = 64000;
   // create tree structure
@@ -78,7 +69,6 @@ void PixelLorentzAngle::beginJob()
   SiPixelLorentzAngleTree_->Branch("layer", &layer_, "layer/I", bufsize);
   SiPixelLorentzAngleTree_->Branch("isflipped", &isflipped_, "isflipped/I", bufsize);
   SiPixelLorentzAngleTree_->Branch("pt", &pt_, "pt/F", bufsize);
-  SiPixelLorentzAngleTree_->Branch("p", &p_, "p/F", bufsize);//M: momentum
   SiPixelLorentzAngleTree_->Branch("eta", &eta_, "eta/F", bufsize);
   SiPixelLorentzAngleTree_->Branch("phi", &phi_, "phi/F", bufsize);
   SiPixelLorentzAngleTree_->Branch("chi2", &chi2_, "chi2/D", bufsize);
@@ -93,11 +83,6 @@ void PixelLorentzAngle::beginJob()
   SiPixelLorentzAngleTree_->Branch("ypix", pixinfo_.y, "y[npix]/F", bufsize);
   SiPixelLorentzAngleTree_->Branch("clust", &clust_, "x/F:y/F:charge/F:size_x/I:size_y/I:maxPixelCol/I:maxPixelRow:minPixelCol/I:minPixelRow/I", bufsize);
   SiPixelLorentzAngleTree_->Branch("rechit", &rechit_, "x/F:y/F", bufsize);
-  SiPixelLorentzAngleTree_->Branch("trackQuality", &trackQuality_, "trackQuality/I", bufsize);
-  SiPixelLorentzAngleTree_->Branch("nHitsPerTrack", &nHitsPerTrack_, "nHitsPerTrack/I", bufsize);
-  SiPixelLorentzAngleTree_->Branch("isHighPurity", &isHighPurity_, "isHighPurity/I", bufsize);
-
-
 	
   SiPixelLorentzAngleTreeForward_ = new TTree("SiPixelLorentzAngleTreeForward_","SiPixel LorentzAngle tree forward", bufsize);
   SiPixelLorentzAngleTreeForward_->Branch("run", &run_, "run/I", bufsize);
@@ -108,7 +93,6 @@ void PixelLorentzAngle::beginJob()
   SiPixelLorentzAngleTreeForward_->Branch("panel", &panelF_, "panel/I", bufsize);
   SiPixelLorentzAngleTreeForward_->Branch("module", &moduleF_, "module/I", bufsize);
   SiPixelLorentzAngleTreeForward_->Branch("pt", &pt_, "pt/F", bufsize);
-  SiPixelLorentzAngleTreeForward_->Branch("p", &p_, "p/F", bufsize);//M: momentum
   SiPixelLorentzAngleTreeForward_->Branch("eta", &eta_, "eta/F", bufsize);
   SiPixelLorentzAngleTreeForward_->Branch("phi", &phi_, "phi/F", bufsize);
   SiPixelLorentzAngleTreeForward_->Branch("chi2", &chi2_, "chi2/D", bufsize);
@@ -123,11 +107,6 @@ void PixelLorentzAngle::beginJob()
   SiPixelLorentzAngleTreeForward_->Branch("ypix", pixinfoF_.y, "y[npix]/F", bufsize);
   SiPixelLorentzAngleTreeForward_->Branch("clust", &clustF_, "x/F:y/F:charge/F:size_x/I:size_y/I:maxPixelCol/I:maxPixelRow:minPixelCol/I:minPixelRow/I", bufsize);
   SiPixelLorentzAngleTreeForward_->Branch("rechit", &rechitF_, "x/F:y/F", bufsize);
-  SiPixelLorentzAngleTreeForward_->Branch("trackQuality", &trackQuality_, "trackQuality/I", bufsize);
-  SiPixelLorentzAngleTreeForward_->Branch("nHitsPerTrack", &nHitsPerTrack_, "nHitsPerTrack/I", bufsize);
-  SiPixelLorentzAngleTreeForward_->Branch("isHighPurity", &isHighPurity_, "isHighPurity/I", bufsize);
-
-  //cout<<"STOP 1"<<endl;
 	
 	
   //book histograms
@@ -146,8 +125,6 @@ void PixelLorentzAngle::beginJob()
       _h_mean_[i_module + (i_layer -1) * 8] = new TH1F(name,name,hist_depth_, min_depth_, max_depth_);
     }
   }
-
-  //cout<<"STOP 2"<<endl;
 	
   // just for some expaining plots
   h_cluster_shape_adc_  = new TH2F("h_cluster_shape_adc","cluster shape with adc weight", hist_x_, min_x_, max_x_, hist_y_, min_y_, max_y_);
@@ -166,16 +143,12 @@ void PixelLorentzAngle::beginJob()
 //   edm::ESHandle<TrackerGeometry> estracker; //this block should not be in beginJob()
 //   c.get<TrackerDigiGeometryRecord>().get(estracker);
 //   tracker=&(* estracker);
-  //cout<<"STOP 3"<<endl;
-
 }
 
 
 // Functions that gets called by framework every event
-void PixelLorentzAngle::analyze(const edm::Event& e, const edm::EventSetup& es)
+void SiPixelLorentzAngle::analyze(const edm::Event& e, const edm::EventSetup& es)
 {  
-  //cout<<"STOP 4"<<endl;
-
   event_counter_++;
   // 	if(event_counter_ % 500 == 0) cout << "event number " << event_counter_ << endl;
   cout << "event number " << event_counter_ << endl;
@@ -192,11 +165,9 @@ void PixelLorentzAngle::analyze(const edm::Event& e, const edm::EventSetup& es)
   ladder_ = -1;
   isflipped_ = -1;
   pt_ = -999;
-  p_ = -999;
   eta_ = 999;
   phi_ = 999;
   pixinfo_.npix = 0;
-  trackQuality_ = -5;
 
   run_       = e.id().run();
   event_     = e.id().event();
@@ -214,64 +185,20 @@ void PixelLorentzAngle::analyze(const edm::Event& e, const edm::EventSetup& es)
       std::vector<TrajectoryMeasurement> tmColl = traj.measurements(); 
       // 			TrajectoryStateOnSurface tsos = tsoscomb( itTraj->forwardPredictedState(), itTraj->backwardPredictedState() );
       pt_ = track.pt();
-      p_ = track.p();
       eta_ = track.eta();
       phi_ = track.phi();
       chi2_ = traj.chiSquared();
       ndof_ = traj.ndof();
-      //cout<<"tmColl size: "<<tmColl.size()<<endl;//number of hits per track
-      nHitsPerTrack_ = tmColl.size();
-
-      //cout<<"Track quality check"<<endl;
-      //Track Quality:
-      reco::TrackBase::TrackQuality trackQualityUndef         =  reco::TrackBase::qualityByName("undefQuality");
-      reco::TrackBase::TrackQuality trackQualityLoose         =  reco::TrackBase::qualityByName("loose");
-      reco::TrackBase::TrackQuality trackQualityTight         =  reco::TrackBase::qualityByName("tight");
-      reco::TrackBase::TrackQuality trackQualityhighPur       =  reco::TrackBase::qualityByName("highPurity");
-      reco::TrackBase::TrackQuality trackQualityConfirmed     =  reco::TrackBase::qualityByName("confirmed");
-      reco::TrackBase::TrackQuality trackQualityGoodIterative =  reco::TrackBase::qualityByName("goodIterative");
-      
-      signed short trakQuality  = -5;
-      if(track.quality(trackQualityUndef))          trakQuality = -1;
-      if(track.quality(trackQualityLoose))          trakQuality = 0;
-      if(track.quality(trackQualityTight))          trakQuality = 1;
-      if(track.quality(trackQualityhighPur))        trakQuality = 2;
-      if(track.quality(trackQualityConfirmed))      trakQuality = 3;
-      if(track.quality(trackQualityGoodIterative))  trakQuality = 4;
-
-
-      trackQuality_ = trakQuality;
-
-
-
-      //cout<<"quality mask: "<<track.qualityMask()<<endl;
-      bool ishighPurity = ((track.qualityMask() & 4) == 4);//bit by bit AND
-      //      if(ishighPurity)cout<<"is high purity. trkQ: "<<trackQuality_<<endl;
-      //      else cout<<"not high purity. trkQ: "<<trackQuality_<<endl;
-      if(ishighPurity)isHighPurity_ = 1;
-      else isHighPurity_ = 0;
-      
-      
-      //cout<<"trakQuality"<<trakQuality<<endl;
-
-
-
-      if(pt_ < ptmin_) {
-	//cout<<"CONTINUE FROM PT CUT"<<endl;
-	continue;}
+      if(pt_ < ptmin_) continue;
       // iterate over trajectory measurements
       std::vector<PSimHit> matched;
       h_tracks_->Fill(0);
       bool pixeltrack = false;
       for(std::vector<TrajectoryMeasurement>::const_iterator itTraj = tmColl.begin(); itTraj != tmColl.end(); itTraj++) {
-	if(! itTraj->updatedState().isValid()) {
-	  //cout<<"CONTINUE FROM TRAJECTORY STATE CUT"<<endl;
-	  continue;}
+	if(! itTraj->updatedState().isValid()) continue;
 	TransientTrackingRecHit::ConstRecHitPointer recHit = itTraj->recHit();
-	if(! recHit->isValid() || recHit->geographicalId().det() != DetId::Tracker ) {
-	  //cout<<"CONTINUE FROM RECHIT VALID CUT"<<endl;
-	  continue;}
-	uint subDetID = (recHit->geographicalId().subdetId());
+	if(! recHit->isValid() || recHit->geographicalId().det() != DetId::Tracker ) continue;
+	unsigned int subDetID = (recHit->geographicalId().subdetId());
 	if( subDetID == PixelSubdetector::PixelBarrel || subDetID == PixelSubdetector::PixelEndcap){
 	  if(!pixeltrack){
 	    h_tracks_->Fill(1);
@@ -285,15 +212,11 @@ void PixelLorentzAngle::analyze(const edm::Event& e, const edm::EventSetup& es)
 				
 	  DetId detIdObj = recHit->geographicalId();
 	  const PixelGeomDetUnit * theGeomDet = dynamic_cast<const PixelGeomDetUnit*> ( tracker->idToDet(detIdObj) );
-	  if(!theGeomDet) {
-	    //cout<<"CONTINUE FROM GEOMETRY DET"<<endl;
-	    continue;}
-	  //const RectangularPixelTopology * topol = dynamic_cast<const RectangularPixelTopology*>(&(theGeomDet->specificTopology()));
+	  if(!theGeomDet) continue;
+
 	  const PixelTopology * topol = &(theGeomDet->specificTopology());
-	  //cout<<"TOPOLOGY: "<<topol<<endl;
-	  if(!topol) {
-	    //cout<<"CONTINUE FROM TOPOLOGY"<<endl;
-	    continue;}
+
+	  if(!topol) continue;
 	  PXBDetId pxbdetIdObj(detIdObj);
 	  layer_ = pxbdetIdObj.layer();
 	  ladder_ = pxbdetIdObj.ladder();
@@ -303,9 +226,7 @@ void PixelLorentzAngle::analyze(const edm::Event& e, const edm::EventSetup& es)
 	  if ( tmp2<tmp1 ) isflipped_ = 1;
 	  else isflipped_ = 0;
 	  const SiPixelRecHit * recHitPix = dynamic_cast<const SiPixelRecHit *>((*recHit).hit());
-	  if(!recHitPix) {
-	    //cout<<"CONTINUE FROM RECHITPIX"<<endl;
-	    continue;}
+	  if(!recHitPix) continue;
 	  rechit_.x  = recHitPix->localPosition().x();
 	  rechit_.y  = recHitPix->localPosition().y();
 	  SiPixelRecHit::ClusterRef const& cluster = recHitPix->cluster();	
@@ -409,7 +330,7 @@ void PixelLorentzAngle::analyze(const edm::Event& e, const edm::EventSetup& es)
 	  DetId detIdObj = recHit->geographicalId();
 	  const PixelGeomDetUnit * theGeomDet = dynamic_cast<const PixelGeomDetUnit*> ( tracker->idToDet(detIdObj) );
 	  if(!theGeomDet) continue;
-	  //const RectangularPixelTopology * topol = dynamic_cast<const RectangularPixelTopology*>(&(theGeomDet->specificTopology()));
+	  
 	  const PixelTopology * topol = &(theGeomDet->specificTopology());
 
 	  if(!topol) continue;
@@ -490,7 +411,7 @@ void PixelLorentzAngle::analyze(const edm::Event& e, const edm::EventSetup& es)
 	      }
 	    } // end of filling simhit_
 	  }
-	  //SiPixelLorentzAngleTreeForward_->Fill();//don't fill Forward tree for the moment, not needed
+	  SiPixelLorentzAngleTreeForward_->Fill();
 	}
       }	//end iteration over trajectory measurements
     } //end iteration over trajectories
@@ -502,7 +423,7 @@ void PixelLorentzAngle::analyze(const edm::Event& e, const edm::EventSetup& es)
 	
 }
 
-void PixelLorentzAngle::endJob()
+void SiPixelLorentzAngle::endJob()
 {
   // produce histograms with the average adc counts
   for(int i_ring = 1; i_ring<=24; i_ring++){
@@ -562,8 +483,8 @@ void PixelLorentzAngle::endJob()
   cout << "number of used Hits: " << usedHitCounter_ << endl;
 }
 
-//inline void PixelLorentzAngle::fillPix(const SiPixelCluster & LocPix, const RectangularPixelTopology * topol, Pixinfo& pixinfo)
-inline void PixelLorentzAngle::fillPix(const SiPixelCluster & LocPix, const PixelTopology * topol, Pixinfo& pixinfo)
+inline void SiPixelLorentzAngle::fillPix(const SiPixelCluster & LocPix, const PixelTopology * topol, Pixinfo& pixinfo)
+
 {
   const std::vector<SiPixelCluster::Pixel>& pixvector = LocPix.pixels();
   pixinfo.npix = 0;
@@ -579,7 +500,7 @@ inline void PixelLorentzAngle::fillPix(const SiPixelCluster & LocPix, const Pixe
   }
 }
 
-void PixelLorentzAngle::findMean(int i, int i_ring)
+void SiPixelLorentzAngle::findMean(int i, int i_ring)
 {
   double nentries = 0;
 	

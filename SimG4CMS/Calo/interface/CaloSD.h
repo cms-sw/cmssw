@@ -71,6 +71,7 @@ protected:
 
   virtual G4bool   getStepInfo(G4Step* aStep);
   G4ThreeVector    setToLocal(G4ThreeVector, const G4VTouchable*);
+  G4ThreeVector    setToGlobal(G4ThreeVector, const G4VTouchable*);
   G4bool           hitExists();
   G4bool           checkHit();
   CaloG4Hit*       createNewHit();

@@ -44,6 +44,7 @@ void HcalTimeSlewSim::delay(CaloSamples & samples) const
       HcalTimeSlew::Medium;
 
     double totalCharge = charge(samples);
+    if(totalCharge <= 0.) totalCharge = 1.e-6; // protecion against negaive v.
     double delay = HcalTimeSlew::delay(totalCharge, biasSetting);
     // now, the smearing
     const HcalSimParameters& params=static_cast<const HcalSimParameters&>(theParameterMap->simParameters(detId));

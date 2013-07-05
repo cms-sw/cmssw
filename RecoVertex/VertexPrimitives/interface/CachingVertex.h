@@ -89,6 +89,7 @@ public:
   GlobalWeight weight() const;
   AlgebraicVector3 weightTimesPosition() const;
   std::vector<RefCountedVertexTrack> tracks() const { return theTracks; }
+  const std::vector<RefCountedVertexTrack> &tracksRef() const { return theTracks; }
   GlobalPoint priorPosition() const {return priorVertexState().position();}
   GlobalError priorError() const {return priorVertexState().error();}
   bool hasPrior() const {return withPrior;}

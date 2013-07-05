@@ -117,13 +117,15 @@ CmsTrackerDetIdBuilder::iterate( GeometricDet const *in, int level, unsigned int
 	// PXB
 	case 1:
 	  {
-	    temp |= (((in)->components())[i]->geographicalID().rawId() << m_layerNumberPXB ); // Layer Number start bit is 16 [5 unused]
+//	    temp |= (((in)->components())[i]->geographicalID().rawId() << m_layerNumberPXB ); // Layer Number start bit is 16 [5 unused]
+	    temp |= (((in)->components())[i]->geographicalID().rawId()<<20); // Layer Number start bit is 16 [5 unused]
 	    break;
 	  }
 	// PXF
 	case 2:
 	  {
-	    temp |= (((in)->components())[i]->geographicalID().rawId() << 16 ); // Disk Number start bit is 16
+//	    temp |= (((in)->components())[i]->geographicalID().rawId() << 16 ); // Disk Number start bit is 16
+            temp |= (((in)->components())[i]->geographicalID().rawId()<<18); // Disk Number start bit is 16
 	    break;
 	  }
 	// TIB
@@ -183,7 +185,7 @@ CmsTrackerDetIdBuilder::iterate( GeometricDet const *in, int level, unsigned int
 	{
 	  uint32_t temp = ID;
 	  // Ladder Starting bit = 2 (last unused) + 6 (Module Number) = 8
-	  temp |= (((in)->components())[i]->geographicalID().rawId()<<8);
+	  temp |= (((in)->components())[i]->geographicalID().rawId()<<12);//<<10);//8)
 	  ((in)->components())[i]->setGeographicalID(temp);
 	  break;
 	}
@@ -193,7 +195,8 @@ CmsTrackerDetIdBuilder::iterate( GeometricDet const *in, int level, unsigned int
 	{
 	  uint32_t temp = ID;
 	  // Blade Starting bit = 1 (last unused) + 5 (Module Number) + 2 (Plaquette part) = 8
-	  temp |= (((in)->components())[i]->geographicalID().rawId()<<8);
+//	  temp |= (((in)->components())[i]->geographicalID().rawId()<<8);
+          temp |= (((in)->components())[i]->geographicalID().rawId()<<10);
 	  ((in)->components())[i]->setGeographicalID(temp);
 	  break;
 	}

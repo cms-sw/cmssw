@@ -8,7 +8,6 @@ magfield = cms.ESSource("XMLIdealGeometryESSource",
         'Geometry/CMSCommonData/data/cms.xml', 
         'Geometry/CMSCommonData/data/cmsMagneticField.xml', 
         'MagneticField/GeomBuilder/data/MagneticFieldVolumes_1103l.xml',
-        'MagneticField/GeomBuilder/data/MagneticFieldParameters_07_2pi.xml',
         'Geometry/CMSCommonData/data/materials.xml'),
     rootNodeName = cms.string('cmsMagneticField:MAGF')
 )
@@ -57,9 +56,16 @@ VBF0 = cms.ESProducer("VolumeBasedMagneticFieldESProducer",
     geometryVersion = cms.int32(71212),
     debugBuilder = cms.untracked.bool(False),
     cacheLastVolume = cms.untracked.bool(True),
-    overrideMasterSector = cms.bool(True),
     scalingVolumes = cms.vint32(),
-    scalingFactors = cms.vdouble()
+    scalingFactors = cms.vdouble(),
+    gridFiles = cms.VPSet(
+        cms.PSet( # Default tables, replicate sector 1
+            volumes   = cms.string('1-312'),
+            sectors   = cms.string('0') ,
+            master    = cms.int32(1),
+            path      = cms.string('grid.[v].bin'),
+        ),
+    )
 )
 
 VBF20 = VBF0.clone()
@@ -77,16 +83,60 @@ VBF35.version = 'grid_1103l_071212_3_5t'
 VBF35.paramLabel = 'slave_35'
 VBF35.label = '071212_3_5t'
 
-#3.8T map: apply scaling factors; use sector-specific maps (overrideMasterSector=False)
+#3.8T map: apply scaling factors; use sector-specific maps
 from MagneticField.Engine.ScalingFactors_090322_2pi_090520_cfi import *
 VBF38 = VBF0.clone()
 VBF38.version = 'grid_1103l_090322_3_8t'
 VBF38.geometryVersion = 90322
 VBF38.paramLabel = 'slave_38'
 VBF38.label = '090322_3_8t'
-VBF38.overrideMasterSector = False
 VBF38.scalingVolumes = fieldScaling.scalingVolumes
 VBF38.scalingFactors = fieldScaling.scalingFactors
+VBF38.gridFiles = cms.VPSet(
+        cms.PSet( # Default tables, replicate sector 1
+            volumes   = cms.string('1-312'),
+            sectors   = cms.string('0') ,
+            master    = cms.int32(1),
+            path      = cms.string('grid.[v].bin'),
+        ),
+
+        cms.PSet( # Specific volumes in Barrel, sector 3
+            volumes   = cms.string('176-186,231-241,286-296'),
+            sectors   = cms.string('3') ,
+            master    = cms.int32(3),
+            path      = cms.string('S3/grid.[v].bin'),
+        ),
+
+        cms.PSet( # Specific volumes in Barrel, sector 4
+            volumes   = cms.string('176-186,231-241,286-296'),
+            sectors   = cms.string('4') ,
+            master    = cms.int32(4),
+            path      = cms.string('S4/grid.[v].bin'),
+        ),
+
+        cms.PSet(  # Specific volumes in Barrel and endcaps, sector 9
+            volumes   = cms.string('14,15,20,21,24-27,32,33,40,41,48,49,56,57,62,63,70,71,286-296'),
+            sectors   = cms.string('9') ,
+            master    = cms.int32(9),
+            path      = cms.string('S9/grid.[v].bin'),
+        ),
+
+        cms.PSet(  # Specific volumes in Barrel and endcaps, sector 10
+            volumes   = cms.string('14,15,20,21,24-27,32,33,40,41,48,49,56,57,62,63,70,71,286-296'),
+            sectors   = cms.string('10') ,
+            master    = cms.int32(10),
+            path      = cms.string('S10/grid.[v].bin'),
+        ),
+                                                        
+        cms.PSet( # Specific volumes in Barrel and endcaps, sector 11
+            volumes   = cms.string('14,15,20,21,24-27,32,33,40,41,48,49,56,57,62,63,70,71,286-296'),
+            sectors   = cms.string('11') ,
+            master    = cms.int32(11),
+            path      = cms.string('S11/grid.[v].bin'),
+        ),
+    )
+
+
 
 VBF40 = VBF0.clone()
 VBF40.version = 'grid_1103l_071212_4t'

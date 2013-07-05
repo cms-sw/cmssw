@@ -1,13 +1,20 @@
-#!/bin/sh
-#Example tag : CentralityTable_HFhits40_Hydjet2760GeV_v1_mc -> CentralityTable_HFhits40_Hydjet2760GeV_v1_mc_MC_38Y_V12
-version=0
 
-for run in r150305  r150308 r150431v2  r150436v2  r150442v2  r150471  r150476v2
-  do
-  for variable in HFtowers HFhits PixelHits Ntracks ETmidRapidity
-    do
-    root -b -q "makeTable.C+(40,\"$variable\",\"CentralityTable_${variable}40_AMPTOrgan_v${version}_run${run}_mc\",\"$run\")"
-  done 
+datadir=../data
+
+cp $CMSSW_BASE/src/CmsHi/JulyExercise/data/CentralityTables.root $datadir/
+
+####eff=90.2
+for binning in 40 20 10 5
+do
+  root -b -q makeDataCentralityTable.C+\(${binning},\"hf\",\"HFhits${binning}_DataJulyExercise_Hydjet2760GeV_MC_37Y_V5_NZS_v0\",\"HFhits${binning}_MC_Hydjet2760GeV_MC_3XY_V24_v0\",1\)
 done
+
+
+
+
+
+
+
+
 
 

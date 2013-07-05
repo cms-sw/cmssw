@@ -1,5 +1,5 @@
 //
-// $Id: EcalTrivialConditionRetriever.h,v 1.32 2012/05/18 13:15:17 fay Exp $
+// $Id: EcalTrivialConditionRetriever.h,v 1.35 2013/03/11 09:47:58 fra Exp $
 // Created: 2 Mar 2006
 //          Shahram Rahatlou, University of Rome & INFN
 //
@@ -35,6 +35,7 @@
 
 #include "CondFormats/EcalObjects/interface/EcalIntercalibConstants.h"
 #include "CondFormats/DataRecord/interface/EcalIntercalibConstantsRcd.h"
+
 
 #include "CondFormats/EcalObjects/interface/EcalIntercalibConstantsMC.h"
 #include "CondFormats/DataRecord/interface/EcalIntercalibConstantsMCRcd.h"
@@ -100,6 +101,10 @@
 #include "CondFormats/EcalObjects/interface/EcalSampleMask.h"
 #include "CondFormats/DataRecord/interface/EcalSampleMaskRcd.h"
 
+
+#include "SimG4CMS/Calo/interface/EnergyResolutionVsLumi.h"
+#include "SimG4CMS/Calo/interface/EvolutionECAL.h"
+
 // forward declarations
 
 namespace edm{
@@ -126,12 +131,13 @@ public:
   virtual std::auto_ptr<EcalGainRatios> produceEcalGainRatios( const EcalGainRatiosRcd& );
   virtual std::auto_ptr<EcalADCToGeVConstant> produceEcalADCToGeVConstant( const EcalADCToGeVConstantRcd& );
   virtual std::auto_ptr<EcalTBWeights> produceEcalTBWeights( const EcalTBWeightsRcd& );
-  virtual std::auto_ptr<EcalLinearCorrections>  getLinearCorrectionsFromConfiguration ( const EcalLinearCorrectionsRcd& ) ;
   virtual std::auto_ptr<EcalIntercalibConstants>  getIntercalibConstantsFromConfiguration ( const EcalIntercalibConstantsRcd& ) ;
+  virtual std::auto_ptr<EcalIntercalibConstantsMC>  getIntercalibConstantsMCFromConfiguration ( const EcalIntercalibConstantsMCRcd& ) ;
   virtual std::auto_ptr<EcalIntercalibErrors>  getIntercalibErrorsFromConfiguration ( const EcalIntercalibErrorsRcd& ) ;
   virtual std::auto_ptr<EcalTimeCalibConstants>  getTimeCalibConstantsFromConfiguration ( const EcalTimeCalibConstantsRcd& ) ;
   virtual std::auto_ptr<EcalTimeCalibErrors>  getTimeCalibErrorsFromConfiguration ( const EcalTimeCalibErrorsRcd& ) ;
   virtual std::auto_ptr<EcalTimeOffsetConstant> produceEcalTimeOffsetConstant( const EcalTimeOffsetConstantRcd& );
+
 
   virtual std::auto_ptr<EcalLaserAlphas> produceEcalLaserAlphas( const EcalLaserAlphasRcd& );
   virtual std::auto_ptr<EcalLaserAPDPNRatiosRef> produceEcalLaserAPDPNRatiosRef( const EcalLaserAPDPNRatiosRefRcd& );
@@ -181,8 +187,6 @@ private:
   double adcToGeVEBConstant_;      // ADC -> GeV scale for barrel
   double adcToGeVEEConstant_;      // ADC -> GeV scale for endcap
 
-  double linCorrMean_;  // mean of lin corr
-  double linCorrSigma_; // sigma of lin corr
 
   double intercalibConstantMean_;  // mean of intercalib constant. default: 1.0
   double intercalibConstantSigma_; // sigma of intercalib constant
@@ -207,6 +211,10 @@ private:
   std::vector<double> energyUncertaintyParameters_;
   std::vector<double> energyCorrectionObjectSpecificParameters_;
 
+  // ageing parameters 
+  double totLumi_;
+  double instLumi_;
+
   // laser
   double laserAlphaMean_;  
   double laserAlphaSigma_;  
@@ -217,6 +225,13 @@ private:
   unsigned long laserAPDPNTime1_;
   unsigned long laserAPDPNTime2_;
   unsigned long laserAPDPNTime3_;
+
+  double linCorrMean_;  // mean of lin corr
+  double linCorrSigma_; // sigma of lin corr
+
+  unsigned long linearTime1_;
+  unsigned long linearTime2_;
+  unsigned long linearTime3_;
 
   double EBpedMeanX12_;              // pedestal mean pedestal at gain 12
   double EBpedRMSX12_;               // pedestal rms at gain 12
@@ -257,6 +272,7 @@ private:
   std::string chi2MatrixAftFile_;
   std::string linearCorrectionsFile_ ;
   std::string intercalibConstantsFile_ ;
+  std::string intercalibConstantsMCFile_ ;
   std::string intercalibErrorsFile_ ;
   std::string timeCalibConstantsFile_ ;
   std::string timeCalibErrorsFile_ ;

@@ -3,21 +3,13 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("PROD")
 
 process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
-
 process.load("IOMC.EventVertexGenerators.VtxSmearedGauss_cfi")
-
 process.load("Geometry.CMSCommonData.cmsIdealGeometryAPD2XML_cfi")
-
 process.load("Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi")
-
 process.load("Configuration.StandardSequences.MagneticField_cff")
-
 process.load("Configuration.EventContent.EventContent_cff")
-
 process.load("SimG4Core.Application.g4SimHits_cfi")
-
 process.load("SimG4CMS.Calo.CaloSimHitStudy_cfi")
-
 process.load("SimG4CMS.Calo.HitParentTest_cfi")
 
 process.MessageLogger = cms.Service("MessageLogger",
@@ -71,14 +63,10 @@ process.MessageLogger = cms.Service("MessageLogger",
     )
 )
 
-process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService",
-    moduleSeeds = cms.PSet(
-        generator = cms.untracked.uint32(456789),
-        g4SimHits = cms.untracked.uint32(9876),
-        VtxSmeared = cms.untracked.uint32(123456789)
-    ),
-    sourceSeed = cms.untracked.uint32(135799753)
-)
+process.load("IOMC.RandomEngine.IOMC_cff")
+process.RandomNumberGeneratorService.generator.initialSeed = 456789
+process.RandomNumberGeneratorService.g4SimHits.initialSeed = 9876
+process.RandomNumberGeneratorService.VtxSmeared.initialSeed = 123456789
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(100)
