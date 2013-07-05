@@ -16,5 +16,11 @@ ok_gL2dg = TCut("gem_dg_layer2 > 0")
 ok_gL1pad = TCut("gem_pad_layer1 > 0")
 ok_gL2pad = TCut("gem_pad_layer2 > 0")
 
+ok_trk_gL1sh = TCut("has_gem_sh_l1 > 0")
+ok_trk_gL2sh = TCut("has_gem_sh_l2 > 0")
+
+ok_lx_odd =  TCut("TMath::Abs(TMath::ASin(gem_lx_odd/gem_trk_rho)) < 5*TMath::Pi()/180.")
+ok_lx_even = TCut("TMath::Abs(TMath::ASin(gem_lx_even/gem_trk_rho)) < 5*TMath::Pi()/180.")
+
 
     
