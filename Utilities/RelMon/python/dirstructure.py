@@ -3,8 +3,8 @@
 # https://twiki.cern.ch/twiki/bin/view/CMSPublic/RelMon
 #
 # $Author: anorkus $
-# $Date: 2012/11/21 15:22:14 $
-# $Revision: 1.3 $
+# $Date: 2013/06/05 14:30:03 $
+# $Revision: 1.4 $
 #
 #                                                                              
 # Danilo Piparo CERN - danilo.piparo@cern.ch                                   
@@ -85,7 +85,8 @@ class Directory(Weighted):
     self.filename1 = ""
     self.filename2 = ""
     self.n_missing_objs = 0
-
+    self.full_path = ""
+    
   def is_empty(self):
     if len(self.subdirs)==0 and len(self.comparisons)==0:
       return True
@@ -135,6 +136,7 @@ class Directory(Weighted):
 
     for subdir in self.subdirs:
       subdir.mother_dir=join(self.mother_dir,self.name)
+      subdir.full_path = join(self.mother_dir,self.name).replace("/Run summary","")
       subdir.calcStats(make_pie)
       subdir.meta=self.meta 
       self.weight+=subdir.weight
@@ -147,7 +149,8 @@ class Directory(Weighted):
       
       self.rank_histo.Add(subdir.rank_histo)
 
-    self.stats_calculated=True 
+    self.stats_calculated=True
+    self.full_path = join(self.mother_dir,self.name).replace("/Run summary","")
     #if make_pie:
       #self.__create_pie_image()
 

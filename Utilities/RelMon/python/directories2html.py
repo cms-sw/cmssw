@@ -3,8 +3,8 @@
 # https://twiki.cern.ch/twiki/bin/view/CMSPublic/RelMon
 #
 # $Author: anorkus $
-# $Date: 2013/04/22 11:42:01 $
-# $Revision: 1.7 $
+# $Date: 2013/06/05 14:30:03 $
+# $Revision: 1.8 $
 
 #
 #                                                                              
@@ -143,6 +143,7 @@ def get_title_section(directory, hashing_flag, standalone, depth=2):
               dir_name = files[-2]+files[-1] ##return the mother directory name only as the html file name by it
           else:
               dir_name = files[-1]
+          dir_name = directory.mother_dir
           mother_file_name="%s.html" %(hash_name(dir_name, hashing_flag))
       else:
           mother_file_name="%s.html" %directory.mother_dir.replace("/","_")
@@ -177,7 +178,7 @@ def get_dir_stats(directory):
   if directory.n_skiped>0:
     html+='<li><span class="caps">Skipped: %.1f%% (%s)</span></li>'%(directory.get_skiped_rate(),directory.n_skiped)
   if directory.n_missing_objs>0:
-    html+='<li><span class="caps">Missing: %s</span></li>'%(directory.n_missing_objs)
+    html+='<li><span class="caps">Unpaired: %s</span></li>'%(directory.n_missing_objs)
   html+='</ul>'
   return html
 
@@ -196,7 +197,7 @@ def get_subdirs_section(directory, hashing_flag):
   for subdir in sorted_subdirs:
     name=subdir.name
     if hashing_flag:
-        link = "%s.html" %(hash_name(directory.name+name, hashing_flag)) #do hash with directory name + subdirname as single name hashing might get problems with same subdirs name in different parent dirs.
+        link = "%s.html" %(hash_name(join(directory.full_path,name), hashing_flag)) #do hash with directory name + subdirname as single name hashing might get problems with same subdirs name in different parent dirs.
     else:
         link="%s_%s_%s.html" %(directory.mother_dir.replace("/","_"),directory.name.replace("/","_"),name)
         link=link.strip("_")
@@ -416,11 +417,11 @@ def get_rank_section(directory):
 def get_missing_objs_section(directory):
     """Method to get missing objects from directory: in case histogram/directory was in one ROOT file but not in other
     """
-    page_html = "Missing in %s</br>"%(directory.filename1)
+    page_html = "Unpaired in %s</br>"%(directory.filename1)
     for elem in directory.different_histograms['file1']:
         page_html += "name: %s type:%s </br>"%(elem,directory.different_histograms['file1'][elem])
     page_html +="</br>"
-    page_html += "Missing in %s</br>"%(directory.filename2)
+    page_html += "Unpaired in %s</br>"%(directory.filename2)
     for elem in directory.different_histograms['file2']:
         page_html += "name: %s type:%s </br>"%(elem,directory.different_histograms['file2'][elem])
     return page_html
@@ -470,9 +471,8 @@ def directory2html(directory, hashing, standalone, depth=0):
   if len(page_name)==0:
     page_name="RelMonSummary"
   if hashing:
-      #print "  ##: "+ directory.mother_dir
       if page_name != "RelMonSummary":
-          ofilename = "%s.html" %(hash_name(directory.mother_dir.split("/")[-1]+page_name, hashing)) #as links is generated: parentdi+subdir; we split and get the last parent dir
+          ofilename = "%s.html" %(hash_name(join(directory.full_path), hashing)) #as links is generated: parentdi+subdir; we split and get the last parent dir
       else:
           ofilename = "RelMonSummary.html"
   else:
@@ -881,9 +881,10 @@ def make_summary_table(indir,aggregation_rules,aggregation_rules_twiki, hashing_
       subdirs_dict=directory.get_subdirs_dict()
 
       # Check if the directory is the top one
-      summary_page=join(sample,"%s.html"%(hash_name(directory.name+subdir_name, hashing_flag)))
       if directory.name!="":
         # We did not run on the topdir
+        summary_page=join(sample,"%s.html"%(hash_name(directory.name+"_"+subdir_name,hashing_flag)))
+      else:
         summary_page=join(sample,"%s.html"%(hash_name(directory.name+subdir_name,hashing_flag)))
       dir_is_there=subdirs_dict.has_key(subdir_name)
 
