@@ -25,23 +25,18 @@ process.load('Geometry.GEMGeometry.gemGeometry_cfi')
 # the analyzer configuration
 process.load('GEMCode.SimMuL1.FastGEMCSCProducer_cfi')
 #process.FastGEMCSCProducer.verbose = 2
-#process.FastGEMCSCProducer.createNtuple = cms.untracked.bool(False)
-#process.FastGEMCSCProducer.lctInput = cms.untracked.InputTag("simCscTriggerPrimitiveDigis", "MPCSORTED")
+#process.FastGEMCSCProducer.lctInput = cms.InputTag("simCscTriggerPrimitiveDigis", "MPCSORTED")
 #process.FastGEMCSCProducer.productInstanceName = cms.untracked.string("FastGEM")
 #process.FastGEMCSCProducer.minPt = 1.5
 
-#process.FastGEMCSCProducer.cscType = cms.untracked.int32(5)
-#process.FastGEMCSCProducer.zOddGEM = cms.untracked.double(798.3)
-#process.FastGEMCSCProducer.zEvenGEM = cms.untracked.double(796.2)
+#process.FastGEMCSCProducer.usePropagatedDPhi = False
+#process.FastGEMCSCProducer.useLCTPosition = False
 
-#process.FastGEMCSCProducer.cscType = cms.untracked.int32(2)
-#process.FastGEMCSCProducer.zOddGEM = cms.untracked.double(569.7)
-#process.FastGEMCSCProducer.zEvenGEM = cms.untracked.double(567.6)
-#process.FastGEMCSCProducer.simTrackMatching.useCSCChamberTypes = cms.untracked.vint32( 2, )
-
+### uncomment those to turn off the detector smearing
 #process.FastGEMCSCProducer.phiSmearCSC = [-1.]*11
 #process.FastGEMCSCProducer.phiSmearGEM = [-1.]*11
 
+#process.FastGEMCSCProducer.simTrackMatching.useCSCChamberTypes = cms.untracked.vint32( 2, )
 #process.FastGEMCSCProducer.simTrackMatching.verboseSimHit = 1
 #process.FastGEMCSCProducer.simTrackMatching.verboseCSCDigi = 1
 #process.FastGEMCSCProducer.simTrackMatching.verboseCSCStub = 1
@@ -119,10 +114,14 @@ dir_pt20 = '/pnfs/cms/WAX/11/store/user/lpcgem/khotilov/khotilov/MuomGUN_SIM_Pt2
 import os
 
 
-inputDir = dir_pt5  ; ntupleFile = 'fast_ge21_pt5_sharp.root'
+inputDir = dir_pt5  ; ntupleFile = 'fast_ge21_pt5_sharp_noprop_locsh.root'
+inputDir = dir_pt5  ; ntupleFile = 'fast_ge21_pt5_sharp_prop_locsh.root'
+inputDir = dir_pt5  ; ntupleFile = 'fast_ge21_pt5_sharp_noprop_loclct.root'
+
+#inputDir = dir_pt5  ; ntupleFile = 'fast_ge21_pt5_sharp.root'
 inputDir = dir_pt20 ; ntupleFile = 'fast_ge21_pt20_sharp.root'
 
-inputDir = dir_pt5  ; ntupleFile = 'fast_ge21_pt5_smear.root'
+#inputDir = dir_pt5  ; ntupleFile = 'fast_ge21_pt5_smear.root'
 inputDir = dir_pt20 ; ntupleFile = 'fast_ge21_pt20_smear.root'
 
 
