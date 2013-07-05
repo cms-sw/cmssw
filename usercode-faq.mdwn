@@ -81,9 +81,10 @@ repository into two parts, one for the datafiles, one for the actual code.
 You can now import your old CVS repository into a new git one you created
 on git hub:
 
-    MY_GITHUB_USER=ktf
+    MY_GITHUB_USER=`git config --get user.github`
     MY_REMOTE=git@github.com:$MY_GITHUB_USER/usercode.git
-    # setenv MY_REMOTE git@github.com:$MY_GITHUB_USER/usercode.git # csh
+    # set MY_GITHUB_USER `git config --get user.github` # csh
+    # setenv MY_REMOTE git@github.com:`git config --get user.github`/usercode.git # csh
     git init usercode
     cd usercode
     git remote add origin $MY_REMOTE
@@ -108,8 +109,23 @@ Further information about cvs2git can be found at <http://cvs2svn.tigris.org/cvs
 
 First of all, keep in mind that your UserCode area was never private, so you
 are asking for something new. If you really want to have a private repository you can 
-use CERN/IT provided service at <https://cernforge.cern.ch/cernforge/>. Simply adapt
-the above mentioned `MY_REMOTE` variable.
+use CERN/IT provided service at <https://cernforge.cern.ch/cernforge/>. 
+
+The above mentioned recipe becomes:
+
+    MY_REMOTE=https://:@git.cern.ch/kerberos/<repo_name>
+    # setenv MY_REMOTE https://:@git.cern.ch/kerberos/<repo_name> # tcsh
+    # or https://git.cern.ch/reps/<repo_name>
+    git clone $MY_REMOTE
+    cd your_repo_directory
+    cat ../git-blob.dat ../git-dump.dat | git fast-import
+    git config http.postBuffer 524288000
+    git push --mirror -u origin
+
+You can find more documentation, provided by CERN/IT,
+[here](https://cern.service-now.com/service-portal/faq.do?se=git-service). In
+case of troubles with CERN/IT provided repositories please use the [standard
+Service NOW! portal](https://cern.service-now.com).
 
 ### Do you have any more in-depth FAQs?
 
