@@ -7,7 +7,7 @@
  * stores isolation, shower shape and additional info
  * needed for identification
  * 
- * \version $Id: Photon.h,v 1.48 2012/03/26 16:44:27 nancy Exp $
+ * \version $Id: Photon.h,v 1.49 2013/06/05 16:37:06 nancy Exp $
  *
  */
 #include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
@@ -409,6 +409,8 @@ namespace reco {
     float chargedHadronIso() const {return  pfIsolation_.chargedHadronIso;}
     float neutralHadronIso() const {return  pfIsolation_.neutralHadronIso;}
     float photonIso() const {return  pfIsolation_.photonIso;}
+    float modFrixione() const {return  pfIsolation_.modFrixione;}
+
 
     /// Set Particle Flow Isolation variables
     void setPflowIsolationVariables ( const PflowIsolationVariables& pfisol ) {  pfIsolation_ = pfisol;} 
