@@ -12,7 +12,7 @@ Implementation:
 //
 // Original Author:  Jason Michael Slaunwhite,512 1-008,`+41227670494,
 //         Created:  Fri Aug  5 10:34:47 CEST 2011
-// $Id: GeneralHLTOffline.cc,v 1.11 2013/02/02 16:24:44 rovere Exp $
+// $Id: GeneralHLTOffline.cc,v 1.12 2013/03/06 11:34:04 deguio Exp $
 //
 //
 
@@ -79,6 +79,9 @@ class GeneralHLTOffline : public edm::EDAnalyzer {
   std::vector< std::vector<std::string> > PDsVectorPathsVector;
   std::vector<std::string> AddedDatasets;
 
+  bool printWarnings;
+
+
   DQMStore * dbe_;
   MonitorElement * cppath_;
 };
@@ -93,6 +96,9 @@ GeneralHLTOffline::GeneralHLTOffline(const edm::ParameterSet& ps):streamA_found_
   debugPrint  = false;
   outputPrint = false;
 
+
+  printWarnings = ps.getUntrackedParameter<bool>("printWarnings", false);
+  
   plotDirectoryName = ps.getUntrackedParameter<std::string>("dirname",
                                                             "HLT/General");
 
@@ -123,7 +129,7 @@ GeneralHLTOffline::analyze(const edm::Event& iEvent,
   iEvent.getByLabel(edm::InputTag("TriggerResults", "", hltTag), triggerResults);
 
   if (!triggerResults.isValid()) {
-    if (debugPrint)
+    if (printWarnings)
       std::cout << "Trigger results not valid" << std::endl;
     return;
   }
@@ -136,7 +142,7 @@ GeneralHLTOffline::analyze(const edm::Event& iEvent,
                     aodTriggerEvent);
 
   if (!aodTriggerEvent.isValid()) {
-    if (debugPrint)
+    if (printWarnings)
       std::cout << "No AOD trigger summary found! Returning...";
     return;
   }
@@ -313,7 +319,7 @@ GeneralHLTOffline::beginRun(edm::Run const& iRun,
 
   bool changed = true;
   if (!hlt_config_.init(iRun, iSetup, hltTag, changed)) {
-    if (debugPrint) {
+    if (printWarnings) {
       std::cout << "Warning, didn't find process HLT" << std::endl;
       return;
     }
