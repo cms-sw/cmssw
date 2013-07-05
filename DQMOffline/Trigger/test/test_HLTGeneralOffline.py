@@ -3,16 +3,57 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("DQMPathChecker")
 
 process.load("DQMServices.Core.DQM_cfg")
-process.load("DQMOffline.Trigger.HLTGeneralOffline_cfi")
+#process.load("DQMOffline.Trigger.HLTGeneralOffline_cfi")
+
+
+# Make this configuration inline
+process.hltResults = cms.EDAnalyzer("GeneralHLTOffline",
+    dirname = cms.untracked.string("HLT/General/paths"),
+    muonRecoCollectionName = cms.untracked.string("muons"),
+    plotAll = cms.untracked.bool(False),
+
+    ptMax = cms.untracked.double(100.0),
+    ptMin = cms.untracked.double(0.0),
+    Nbins = cms.untracked.uint32(50),
+    Nbins2D = cms.untracked.uint32(40),
+    referenceBX= cms.untracked.uint32(1),
+    NLuminositySegments= cms.untracked.uint32(2000),
+    LuminositySegmentSize= cms.untracked.double(23),
+    NbinsOneOverEt = cms.untracked.uint32(1000),
+
+    muonEtaMax = cms.untracked.double(2.1),
+
+    jetEtMin = cms.untracked.double(5.0),
+    jetEtaMax = cms.untracked.double(3.0),
+
+    electronEtMin = cms.untracked.double(5.0),
+
+    photonEtMin = cms.untracked.double(5.0),
+
+    tauEtMin = cms.untracked.double(10.0),
+                          
+     # this is I think MC and CRUZET4
+    triggerSummaryLabel = cms.InputTag("hltTriggerSummaryAOD","","HLT"),
+    triggerResultsLabel = cms.InputTag("TriggerResults","","HLT"),
+    HltProcessName = cms.string("HLTGRun"),
+    processname = cms.string("HLT"),
+
+    printWarnings = cms.untracked.bool(True)
+
+
+ )
+
 
 # Load up your offline processor
 process.load("DQMServices.Components.DQMEnvironment_cfi")
 #now you have a process.hltResults thing that will run
 
-
 process.load( "Configuration.StandardSequences.FrontierConditions_GlobalTag_cff" )
-process.GlobalTag.globaltag = 'GR_R_52_V9::All'
-process.prefer("GlobalTag")
+#from Configuration.AlCa.GlobalTag import GlobalTag as customiseGlobalTag
+#process.GlobalTag = customiseGlobalTag(process.GlobalTag, globaltag = 'auto:startup_GRun', )
+#process.prefer("GlobalTag")
+process.GlobalTag.globaltag = 'PRE_ST61_V1::All'
+
 
 
 
@@ -26,7 +67,7 @@ process.source = cms.Source("PoolSource",
     # never use old files to do this test
     # you will be sad
 #	 'file:/data/ndpc0/c/abrinke1/RAW/170354/SingleMu/08B0697A-B7B0-E011-B0DE-003048D375AA.root'
-    '/store/relval/CMSSW_5_2_7/RelValTTbar/GEN-SIM-RECO/PU_START52_V10-v1/0004/12EAF8E1-3708-E211-8649-003048D2C108.root'
+    'file:/data/ndpc0/c/slaunwhj/ONLINE/CMSSW_6_2_0_pre5/src/UserCode/slaunwhj/onlineDQMTest/onlineDQMContent/tttbar_620_pre5.root'
     
     )
 )
