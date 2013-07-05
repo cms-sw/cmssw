@@ -4,7 +4,7 @@ import FWCore.ParameterSet.Config as cms
 
 muonCSCDigis = cms.EDProducer("CSCDCCUnpacker",
     # Define input to the unpacker
-    InputObjects = cms.InputTag("source"),
+    InputObjects = cms.InputTag("rawDataCollector"),
     # Use CSC examiner to check for corrupt or semi-corrupt data & avoid unpacker crashes
     UseExaminer = cms.bool(True),
     # This mask is needed by the examiner 

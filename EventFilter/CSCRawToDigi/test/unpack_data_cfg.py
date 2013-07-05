@@ -105,7 +105,7 @@ process.muonCSCDigis = cms.EDProducer("CSCDCCUnpacker",
     ErrorMask = cms.untracked.uint32(0x0),
     # Define input to the unpacker
     #InputTag InputObjects = cscpacker:CSCRawData
-    InputObjects = cms.InputTag("source"),
+    InputObjects = cms.InputTag("rawDataCollector"),
     # This mask is needed by the examiner if it's used
     ExaminerMask = cms.untracked.uint32(0x1FEBF3F6),
     #this flag disables unpacking of the Status Digis
