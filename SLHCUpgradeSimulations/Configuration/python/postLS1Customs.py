@@ -1,7 +1,7 @@
 
 import FWCore.ParameterSet.Config as cms
 
-from muonCustoms import customise_csc_PostLS1
+from muonCustoms import customise_csc_PostLS1,customise_csc_hlt
 
 
 def customisePostLS1(process):
@@ -18,6 +18,8 @@ def customisePostLS1(process):
         process=customise_Reco(process)
     if hasattr(process,'digitisation_step'):
         process=customise_Digi(process)
+    if hasattr(process,'HLTSchedule'):
+        process=customise_HLT(process)
     if hasattr(process,'L1simulation_step'):
         process=customise_L1Emulator(process)
     if hasattr(process,'dqmoffline_step'):
@@ -75,6 +77,7 @@ def customise_DigiToRaw(process):
 
 
 def customise_HLT(process):
+    process=customise_csc_hlt(process)
     return process
 
 

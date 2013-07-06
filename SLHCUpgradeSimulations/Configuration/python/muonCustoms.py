@@ -287,3 +287,16 @@ def customise_csc_PostLS1(process):
 
     return process
 
+def customise_csc_hlt(process):
+    
+    process.CSCGeometryESModule.useGangedStripsInME1a = False
+    
+    process.hltCsc2DRecHits.readBadChannels = cms.bool(False)
+    process.hltCsc2DRecHits.CSCUseGasGainCorrection = cms.bool(False)
+    
+    # Switch input for CSCRecHitD to  s i m u l a t e d  digis
+    
+    process.hltCsc2DRecHits.wireDigiTag  = cms.InputTag("simMuonCSCDigis","MuonCSCWireDigi")
+    process.hltCsc2DRecHits.stripDigiTag = cms.InputTag("simMuonCSCDigis","MuonCSCStripDigi")
+    
+    return process
