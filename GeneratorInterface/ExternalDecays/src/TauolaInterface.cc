@@ -276,9 +276,9 @@ void TauolaInterface::statistics()
 
 #include "GeneratorInterface/ExternalDecays/interface/TauolaInterface.h"
 
-#include "Tauola.h"
-#include "TauolaHepMCEvent.h"
-#include "Log.h"
+#include "Tauola/Tauola.h"
+#include "Tauola/TauolaHepMCEvent.h"
+#include "Tauola/Log.h"
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
