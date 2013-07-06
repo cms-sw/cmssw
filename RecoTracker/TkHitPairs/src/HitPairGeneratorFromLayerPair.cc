@@ -86,7 +86,10 @@ void HitPairGeneratorFromLayerPair::hitPairs(
   for (std::size_t i=0; i!=ds.size(); ++i) {
     result.push_back( OrderedHitPair( ds.hit(i,HitDoublets::inner),ds.hit(i,HitDoublets::outer) ));
   }
-  
+  if (theMaxElement!=0 && result.size() >= theMaxElement){
+     result.clear();
+    edm::LogError("TooManyPairs")<<"number of pairs exceed maximum, no pairs produced";
+  }
 }
 
 
