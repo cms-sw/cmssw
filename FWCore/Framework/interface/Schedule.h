@@ -96,7 +96,7 @@ namespace edm {
   class BranchIDListHelper;
   class EventSetup;
   class ExceptionCollector;
-  class OutputWorker;
+  class OutputModuleCommunicator;
   class RunStopwatch;
   class UnscheduledCallProducer;
   class WorkerInPath;
@@ -108,7 +108,7 @@ namespace edm {
     typedef boost::shared_ptr<HLTGlobalStatus> TrigResPtr;
     typedef boost::shared_ptr<Worker> WorkerPtr;
     typedef std::vector<Worker*> AllWorkers;
-    typedef std::vector<OutputWorker*> AllOutputWorkers;
+    typedef std::vector<boost::shared_ptr<OutputModuleCommunicator>> AllOutputModuleCommunicators;
 
     typedef std::vector<Worker*> Workers;
 
@@ -302,7 +302,7 @@ namespace edm {
 
     WorkerPtr                results_inserter_;
     AllWorkers               all_workers_;
-    AllOutputWorkers         all_output_workers_;
+    AllOutputModuleCommunicators         all_output_communicators_;
     TrigPaths                trig_paths_;
     TrigPaths                end_paths_;
     std::vector<int>         empty_trig_paths_;
