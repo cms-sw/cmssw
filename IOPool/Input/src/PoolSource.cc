@@ -60,7 +60,7 @@ namespace edm {
                            new RootInputFileSequence(pset, *this, catalog(1), InputType::SecondaryFile)),
     secondaryRunPrincipal_(),
     secondaryLumiPrincipal_(),
-    secondaryEventPrincipal_(secondaryFileSequence_ ? new EventPrincipal(secondaryFileSequence_->fileProductRegistry(), secondaryFileSequence_->fileBranchIDListHelper(), processConfiguration(), nullptr) : 0),
+  secondaryEventPrincipal_(secondaryFileSequence_ ? new EventPrincipal(secondaryFileSequence_->fileProductRegistry(), secondaryFileSequence_->fileBranchIDListHelper(), processConfiguration(), nullptr,StreamID::invalidStreamID()) : 0),
     branchIDsToReplace_() {
     if(secondaryFileSequence_) {
       assert(primary());
@@ -138,7 +138,7 @@ namespace edm {
       if(found) {
         boost::shared_ptr<RunAuxiliary> secondaryAuxiliary = secondaryFileSequence_->readRunAuxiliary_();
         checkConsistency(primaryPrincipal->aux(), *secondaryAuxiliary);
-        boost::shared_ptr<RunPrincipal> rp(new RunPrincipal(secondaryAuxiliary, secondaryFileSequence_->fileProductRegistry(), processConfiguration(), nullptr));
+        boost::shared_ptr<RunPrincipal> rp(new RunPrincipal(secondaryAuxiliary, secondaryFileSequence_->fileProductRegistry(), processConfiguration(), nullptr,runPrincipal->index()));
         secondaryRunPrincipal_ = secondaryFileSequence_->readRun_(rp);
         checkHistoryConsistency(*primaryPrincipal, *secondaryRunPrincipal_);
         primaryPrincipal->recombine(*secondaryRunPrincipal_, branchIDsToReplace_[InRun]);
@@ -160,7 +160,7 @@ namespace edm {
       if(found) {
         boost::shared_ptr<LuminosityBlockAuxiliary> secondaryAuxiliary = secondaryFileSequence_->readLuminosityBlockAuxiliary_();
         checkConsistency(primaryPrincipal->aux(), *secondaryAuxiliary);
-        boost::shared_ptr<LuminosityBlockPrincipal> lbp(new LuminosityBlockPrincipal(secondaryAuxiliary, secondaryFileSequence_->fileProductRegistry(), processConfiguration(), nullptr));
+        boost::shared_ptr<LuminosityBlockPrincipal> lbp(new LuminosityBlockPrincipal(secondaryAuxiliary, secondaryFileSequence_->fileProductRegistry(), processConfiguration(), nullptr,lumiPrincipal->index()));
         secondaryLumiPrincipal_ = secondaryFileSequence_->readLuminosityBlock_(lbp);
         checkHistoryConsistency(*primaryPrincipal, *secondaryLumiPrincipal_);
         primaryPrincipal->recombine(*secondaryLumiPrincipal_, branchIDsToReplace_[InLumi]);

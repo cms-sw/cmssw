@@ -365,13 +365,13 @@ void testEvent::setUp() {
   EventID id = make_id();
   ProcessConfiguration const& pc = currentModuleDescription_->processConfiguration();
   boost::shared_ptr<RunAuxiliary> runAux(new RunAuxiliary(id.run(), time, time));
-  boost::shared_ptr<RunPrincipal> rp(new RunPrincipal(runAux, preg, pc, &historyAppender_));
+  boost::shared_ptr<RunPrincipal> rp(new RunPrincipal(runAux, preg, pc, &historyAppender_,0));
   boost::shared_ptr<LuminosityBlockAuxiliary> lumiAux(new LuminosityBlockAuxiliary(rp->run(), 1, time, time));
-  boost::shared_ptr<LuminosityBlockPrincipal>lbp(new LuminosityBlockPrincipal(lumiAux, preg, pc, &historyAppender_));
+  boost::shared_ptr<LuminosityBlockPrincipal>lbp(new LuminosityBlockPrincipal(lumiAux, preg, pc, &historyAppender_,0));
   lbp->setRunPrincipal(rp);
   EventAuxiliary eventAux(id, uuid, time, true);
   const_cast<ProcessHistoryID &>(eventAux.processHistoryID()) = processHistoryID;
-  principal_.reset(new edm::EventPrincipal(preg, branchIDListHelper_, pc, &historyAppender_));
+  principal_.reset(new edm::EventPrincipal(preg, branchIDListHelper_, pc, &historyAppender_,edm::StreamID::invalidStreamID()));
   principal_->fillEventPrincipal(eventAux);
   principal_->setLuminosityBlockPrincipal(lbp);
   currentEvent_.reset(new Event(*principal_, *currentModuleDescription_));
