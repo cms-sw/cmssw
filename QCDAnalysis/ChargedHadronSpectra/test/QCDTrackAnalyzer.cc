@@ -237,7 +237,12 @@ bool QCDTrackAnalyzer::isAccepted(const TrackingParticle& simTrack_, const Track
   const int nLayers = 5;
   std::vector<bool> filled(nLayers,false);
 
+#warning "This file has been modified just to get it to compile without any regard as to whether it still functions as intended"
+#ifdef REMOVED_JUST_TO_GET_IT_TO_COMPILE__THIS_CODE_NEEDS_TO_BE_CHECKED
   std::vector<PSimHit> trackerPSimHit( simTrack->trackPSimHit(DetId::Tracker));
+#else
+  std::vector<PSimHit> trackerPSimHit;
+#endif
   
   for(std::vector<PSimHit>::const_iterator
         simHit = trackerPSimHit.begin();
@@ -848,7 +853,7 @@ void QCDTrackAnalyzer::analyze
   proc = hepEv->GetEvent()->signal_process_id();
   LogTrace("MinBiasTracking") << " [TrackAnalyzer] process = " << proc;
 
-  ev.getByLabel("mergedtruth", simCollection);
+  ev.getByLabel("mix", simCollection);
   LogTrace("MinBiasTracking") << " [TrackAnalyzer] simTracks    = "
     << simCollection.product()->size();
   }

@@ -29,7 +29,7 @@ process.maxEvents = cms.untracked.PSet(
 # Input source
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
-       'file:~/lpcphys/HSCPRawData/PPStau308BX1.root'
+       'file:~/lpcphys/HSCPRawData/Gluino900.root'
 	   )
 )
 
@@ -39,7 +39,7 @@ process.options = cms.untracked.PSet(
 
 # Production Info
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.1 $'),
+    version = cms.untracked.string('$Revision: 1.303.2.7 $'),
     annotation = cms.untracked.string('REDIGI nevts:3'),
     name = cms.untracked.string('PyReleaseValidation')
 )
@@ -62,14 +62,11 @@ process.RAWSIMoutput = cms.OutputModule("PoolOutputModule",
 # Other statements
 process.GlobalTag.globaltag = 'START42_V11::All'
 process.g4SimHits = cms.EDProducer("SimHitShifter",
-			ShiftTiming = cms.untracked.bool(False),
-			ShiftAmplitude = cms.untracked.bool(True),
-			AmplitudeShiftSize = cms.untracked.double(-0.14),
 			ShiftFileName = cms.untracked.string('2011_2Map.txt')
 								   )
 
 # Path and EndPath definitions
-process.digitisation_step = cms.Path(process.g4SimHits+process.pdigi)
+process.digitisation_step = cms.Path(process.mix+process.pdigi)
 process.L1simulation_step = cms.Path(process.SimL1Emulator)
 process.digi2raw_step = cms.Path(process.DigiToRaw)
 process.endjob_step = cms.EndPath(process.endOfProcess)

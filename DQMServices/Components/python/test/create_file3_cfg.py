@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
-import DQMServices.Components.test.checkBooking as booking
-import DQMServices.Components.test.createElements as c
+import DQMTools.Tests.checkBooking as booking
+import DQMTools.Tests.createElements as c
 import sys
 
 process =cms.Process("TEST")
@@ -30,9 +30,7 @@ process.filler = cms.EDAnalyzer("DummyBookFillDQMStore",
 process.reader = cms.EDAnalyzer("DummyTestReadDQMStore",
                                 folder = cms.untracked.string("TestFolder/"),
                                 runElements = cms.untracked.VPSet(*readRunElements),
-                                lumiElements = cms.untracked.VPSet(*readLumiElements),
-                                runToCheck = cms.untracked.int32(2)
-    )
+                                lumiElements = cms.untracked.VPSet(*readLumiElements) )
 
 process.out = cms.OutputModule("DQMRootOutputModule",
                                fileName = cms.untracked.string("dqm_file3.root"))

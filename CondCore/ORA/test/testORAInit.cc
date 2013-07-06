@@ -18,7 +18,7 @@ namespace ora {
     virtual ~TestORAInit(){
     }
 
-    int execute( const std::string& connStr ){
+    void execute( const std::string& connStr ){
       ora::OId id0, id1, id2, id3;
       {
 	//clean up if needed
@@ -116,13 +116,12 @@ namespace ora {
 	db.transaction().commit();
 	db.disconnect();
       }
-      return 0;
     }
   };
 }
 
 int main(int argc, char** argv){
   ora::TestORAInit test;
-  return test.run();
+  test.run();
 }
 

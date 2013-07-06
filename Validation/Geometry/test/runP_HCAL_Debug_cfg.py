@@ -68,12 +68,11 @@ process.TFileService = cms.Service("TFileService",
 )
 
 process.p1 = cms.Path(process.generator*process.g4SimHits)
-process.g4SimHits.UseMagneticField = cms.bool(False)
+process.g4SimHits.UseMagneticField = False
 process.g4SimHits.Physics.type = 'SimG4Core/Physics/DummyPhysics'
-process.g4SimHits.Physics.DummyEMPhysics = cms.bool(True)
-process.g4SimHits.Physics.CutsPerRegion = cms.bool(False)
-process.g4SimHits.Generator.ApplyEtaCuts = cms.bool(False)
-process.g4SimHits.StackingAction.TrackNeutrino = cms.bool(True)
+process.g4SimHits.Physics.DummyEMPhysics = True
+process.g4SimHits.Physics.CutsPerRegion = False
+process.g4SimHits.Generator.ApplyEtaCuts = False
 process.g4SimHits.Watchers = cms.VPSet(cms.PSet(
     MaterialBudgetHcal = cms.PSet(
         FillHisto    = cms.untracked.bool(False),

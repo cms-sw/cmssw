@@ -15,7 +15,7 @@ cscTriggerPrimitiveDigisPostLS1 = cms.EDProducer("CSCTriggerPrimitivesProducer",
     CSCWireDigiProducer = cms.InputTag("simMuonCSCDigis","MuonCSCWireDigi"),
 
     # for SLHC studies we don't want bad chambers checks so far
-    checkBadChambers = cms.untracked.bool(False),
+    checkBadChambers_ = cms.untracked.bool(False),
 
     # Parameters common for all boards
     commonParam = cms.PSet(

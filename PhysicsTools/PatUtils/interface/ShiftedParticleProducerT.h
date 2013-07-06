@@ -10,9 +10,9 @@
  *
  * \author Christian Veelken, LLR
  *
- * \version $Revision: 1.2 $
+ * \version $Revision: 1.1 $
  *
- * $Id: ShiftedParticleProducerT.h,v 1.2 2011/11/02 14:03:07 veelken Exp $
+ * $Id: ShiftedParticleProducerT.h,v 1.1 2011/10/14 11:18:24 veelken Exp $
  *
  */
 
@@ -27,11 +27,12 @@
 
 #include <string>
 #include <vector>
-#include <math.h>
 
-template <typename T, typename TCollection = std::vector<T> >
+template <typename T>
 class ShiftedParticleProducerT : public edm::EDProducer  
 {
+  typedef std::vector<T> ParticleCollection;
+
  public:
 
   explicit ShiftedParticleProducerT(const edm::ParameterSet& cfg)
@@ -50,12 +51,10 @@ class ShiftedParticleProducerT : public edm::EDProducer
       }
     } else {
       double uncertainty = cfg.getParameter<double>("uncertainty");
-      double offset = ( cfg.exists("offset") ) ?
-	cfg.getParameter<double>("offset") : 0.;
-      binning_.push_back(new binningEntryType(uncertainty, offset));
+      binning_.push_back(new binningEntryType(uncertainty));
     }
     
-    produces<TCollection>();
+    produces<ParticleCollection>();
   }
   ~ShiftedParticleProducerT()
   {
@@ -69,37 +68,29 @@ class ShiftedParticleProducerT : public edm::EDProducer
 
   void produce(edm::Event& evt, const edm::EventSetup& es)
   {
-    edm::Handle<TCollection> originalParticles;
+    edm::Handle<ParticleCollection> originalParticles;
     evt.getByLabel(src_, originalParticles);
 
-    std::auto_ptr<TCollection> shiftedParticles(new TCollection());
+    std::auto_ptr<ParticleCollection> shiftedParticles(new ParticleCollection);
 
-    for ( typename TCollection::const_iterator originalParticle = originalParticles->begin();
+    for ( typename ParticleCollection::const_iterator originalParticle = originalParticles->begin();
 	  originalParticle != originalParticles->end(); ++originalParticle ) {
 
       double uncertainty = 0.;
-      double offset = 0.;
       for ( typename std::vector<binningEntryType*>::iterator binningEntry = binning_.begin();
 	    binningEntry != binning_.end(); ++binningEntry ) {
 	if ( (!(*binningEntry)->binSelection_) || (*(*binningEntry)->binSelection_)(*originalParticle) ) {
 	  uncertainty = (*binningEntry)->binUncertainty_;
-	  offset = (*binningEntry)->binOffset_;
 	  break;
 	}
       }
       
-      double shift = shiftBy_*uncertainty - offset;
+      double shift = shiftBy_*uncertainty;
 
-      double shiftedParticlePx = (1. + shift)*originalParticle->px();
-      double shiftedParticlePy = (1. + shift)*originalParticle->py();
-      double shiftedParticlePz = (1. + shift)*originalParticle->pz();
-      double shiftedParticleEn = sqrt(
-         shiftedParticlePx*shiftedParticlePx 
-       + shiftedParticlePy*shiftedParticlePy 
-       + shiftedParticlePz*shiftedParticlePz
-       + originalParticle->mass()*originalParticle->mass());
+      reco::Candidate::LorentzVector shiftedParticleP4 = originalParticle->p4();
+      shiftedParticleP4 *= (1. + shift);
+
       T shiftedParticle(*originalParticle);      
-      reco::Candidate::LorentzVector shiftedParticleP4(shiftedParticlePx, shiftedParticlePy, shiftedParticlePz, shiftedParticleEn);
       shiftedParticle.setP4(shiftedParticleP4);
 
       shiftedParticles->push_back(shiftedParticle);
@@ -114,25 +105,20 @@ class ShiftedParticleProducerT : public edm::EDProducer
 
   struct binningEntryType
   {
-    binningEntryType(double uncertainty, double offset)
+    binningEntryType(double uncertainty)
       : binSelection_(0),
-        binUncertainty_(uncertainty),
-	binOffset_(offset)
+        binUncertainty_(uncertainty)
     {}
     binningEntryType(const edm::ParameterSet& cfg)
     : binSelection_(new StringCutObjectSelector<T>(cfg.getParameter<std::string>("binSelection"))),
       binUncertainty_(cfg.getParameter<double>("binUncertainty"))
-    {
-      binOffset_ = ( cfg.exists("binOffset") ) ?
-	cfg.getParameter<double>("binOffset") : 0.;
-    }
+    {}
     ~binningEntryType() 
     {
       delete binSelection_;
     }
     StringCutObjectSelector<T>* binSelection_;
     double binUncertainty_;
-    double binOffset_;
   };
   std::vector<binningEntryType*> binning_;
 

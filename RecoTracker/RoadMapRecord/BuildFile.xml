@@ -1,7 +1,0 @@
-<use   name="FWCore/Framework"/>
-<use   name="FWCore/MessageLogger"/>
-<use   name="RecoTracker/RingRecord"/>
-<use   name="TrackingTools/RoadSearchHitAccess"/>
-<export>
-  <lib   name="1"/>
-</export>

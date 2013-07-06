@@ -1,45 +1,15 @@
 def castorlayout(i, p, *rows): i["Castor/Layouts/" + p] = DQMItem(layout=rows)
 
 
-castorlayout(dqmitems, "CASTOR Report Summary Map",
-           [{ 'path': "Castor/CastorPSMonitor/reportSummaryMap",
-             'description':"Report Summary Map"}]
-           )
-
 castorlayout(dqmitems, "CASTOR Digi ChannelSummaryMap",
            [{ 'path': "Castor/CastorPSMonitor/CASTOR Digi ChannelSummaryMap",
-             'description':"Digi Channel Summary Map"}]
+             'description':""}]
            )
 
 castorlayout(dqmitems, "CASTOR Digi Occupancy Map",
            [{ 'path': "Castor/CastorPSMonitor/CASTOR Digi Occupancy Map",
-             'description':"Digi Occcupancy Map"}]
+             'description':"dynamic scale"}]
            )
-
-castorlayout(dqmitems, "CASTOR Digi Saturation Summary Map",
-           [{ 'path': "Castor/CastorPSMonitor/CASTOR Digi SaturationSummaryMap",
-             'description':"Digi Saturation Summary Map"}]
-           )
-
-castorlayout(dqmitems, "CASTOR FEDFatal errors",
-           [{ 'path': "Castor/CastorDataIntegrityMonitor/CASTOR FEDFatal errors",
-             'description':"FED Fatal errors"}]
-           )
-
-castorlayout(dqmitems, "CASTOR spigot status",
-           [{ 'path': "Castor/CastorDataIntegrityMonitor/CASTOR spigot status",
-             'description':"Data Integrity Summary - Spigot Status"}]
-           )
-
-castorlayout(dqmitems, "CASTOR RecHit Energies",
-           [{ 'path': "Castor/CastorRecHitMonitor/CastorRecHit Energies- above threshold on RecHitEnergy",
-             'description':"Energy of all Castor RecHits"}]
-           )
-
-#castorlayout(dqmitems, "CASTOR RecHit Energy 2D Map",
-#           [{ 'path': "Castor/CastorRecHitMonitor/CastorRecHit 2D Energy Map- above threshold",
-#             'description':"2D Energy Map"}]
-#           )
 
 castorlayout(dqmitems, "CASTOR RecHit Energy based Channel Status",
            [{ 'path': "Castor/CastorChannelQuality/RecHitEnergyBasedSummaryMap",
@@ -49,7 +19,12 @@ castorlayout(dqmitems, "CASTOR RecHit Energy based Channel Status",
 castorlayout(dqmitems, "CASTOR event products",
            [{ 'path': "Castor/CastorEventProducts/CastorEventProduct",
              'description':"check whether CASTOR objects are present in the events"}]
-           )         
+           )
+              
+castorlayout(dqmitems, "CASTOR RecHit Energies",
+           [{ 'path': "Castor/CastorRecHitMonitor/CastorRecHit Energies- above threshold on RecHitEnergy",
+             'description':"Energy of all Castor RecHits"}]
+           )          
 	  
 castorlayout(dqmitems, "CASTOR RecHit Energy in modules",
            [{ 'path': "Castor/CastorRecHitMonitor/CastorRecHit Energy in modules- above threshold",
@@ -59,17 +34,27 @@ castorlayout(dqmitems, "CASTOR RecHit Energy in modules",
 castorlayout(dqmitems, "CASTOR RecHit Energy in sectors",
            [{ 'path': "Castor/CastorRecHitMonitor/CastorRecHit Energy in sectors- above threshold",
              'description':"RecHitEnergy in each of 16 CASTOR sectors"}]
+           )         
+	  
+castorlayout(dqmitems, "CASTOR RecHit Energy 2D Map",
+           [{ 'path': "Castor/CastorRecHitMonitor/CastorRecHit 2D Energy Map- above threshold",
+             'description':"2D Energy Map"}]
+           )
+	  	  
+castorlayout(dqmitems, "CASTOR All Digi Values",
+           [{ 'path': "Castor/CastorDigiMonitor/Castor All Digi Values",
+             'description':"all CASTOR ADC values"}]
            )
 
-#castorlayout(dqmitems, "CASTOR hits 3D- cumulative",
-#           [{ 'path': "Castor/CastorEventDisplay/CASTOR 3D hits- cumulative",
-#             'description':"cumulative event display"}]
-#           )         
+castorlayout(dqmitems, "CASTOR hits 3D- cumulative",
+           [{ 'path': "Castor/CastorEventDisplay/CASTOR 3D hits- cumulative",
+             'description':"cumulative event display"}]
+           )         
 
-#castorlayout(dqmitems, "CASTOR hits 3D- event with the largest deposited E",
-#           [{ 'path': "Castor/CastorEventDisplay/CASTOR 3D hits- event with the largest deposited E",
-#             'description':"display of the event with largest deposited energy"}]
-#           )         
+castorlayout(dqmitems, "CASTOR hits 3D- event with the largest deposited E",
+           [{ 'path': "Castor/CastorEventDisplay/CASTOR 3D hits- event with the largest deposited E",
+             'description':"display of the event with largest deposited energy"}]
+           )         
 
 castorlayout(dqmitems, "CASTOR average pulse in bunch crossings",
            [{ 'path': "Castor/CastorPSMonitor/CASTOR average pulse in bunch crossings",

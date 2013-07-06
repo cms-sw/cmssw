@@ -11,7 +11,7 @@ import FWCore.ParameterSet.Config as cms
 ## | |_| | (_| | || (_| | | (_) | |    | |  | | |___ 
 ## |____/ \__,_|\__\__,_|  \___/|_|    |_|  |_|\____|
             
-isMC = False
+isMC = True
 
 
 ##   ____             __ _                       _     _           
@@ -21,18 +21,12 @@ isMC = False
 ##  \____\___/|_| |_|_| |_|\__, |\__,_|_|  \__,_|_.__/|_|\___||___/
 ##                         |___/                                   
 
-## GLOBAL_TAG = 'GR_R_38X_V15::All'
-## inputFile = 'file:/uscms_data/d2/kalanand/dijet-Run2010A-JetMET-Nov4ReReco-9667events.root'
-## if isMC:
-##     GLOBAL_TAG = 'START38_V14::All'    
-##     inputFile ='/store/mc/Fall10/QCD_Pt_80to120_TuneZ2_7TeV_pythia6/GEN-SIM-RECO/START38_V12-v1/0000/FEF4D100-4CCB-DF11-94CB-00E08178C12F.root'
-
-
-GLOBAL_TAG = 'GR_R_42_V19::All'
-inputFile = '/store/user/lpctlbsm/vasquez/Jet/ttbsm_v9_Run2011A-May10ReReco/f8e845a0332c56398831da6c30999af1/ttbsm_42x_data_60_1_EbE.root'
+GLOBAL_TAG = 'GR_R_38X_V15::All'
+inputFile = 'file:/uscms_data/d2/kalanand/dijet-Run2010A-JetMET-Nov4ReReco-9667events.root'
 if isMC:
-  inputFile ='/store/user/lpctlbsm/srappocc/QCD_Pt-15to3000_TuneZ2_Flat_7TeV_pythia6/ttbsm_v8_Summer11-PU_S3_-START42_V11-v2/d870fa9b0dd695e8eb649b7e725d070f/ttbsm_42x_mc_86_2_fG3.root'
-  
+    GLOBAL_TAG = 'START38_V14::All'    
+    inputFile ='/store/mc/Fall10/QCD_Pt_80to120_TuneZ2_7TeV_pythia6/GEN-SIM-RECO/START38_V12-v1/0000/FEF4D100-4CCB-DF11-94CB-00E08178C12F.root'
+
 
 ##   _            _           _           
 ## (_)_ __   ___| |_   _  __| | ___  ___ 

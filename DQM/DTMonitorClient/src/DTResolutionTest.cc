@@ -3,8 +3,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2010/01/05 10:15:46 $
- *  $Revision: 1.36 $
+ *  $Date: 2009/03/09 10:44:31 $
+ *  $Revision: 1.35 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -260,7 +260,7 @@ void DTResolutionTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, EventS
 	  //prof->Fit("pol1","Q0");
 	  try {
 	    prof->Fit("pol1","Q0");
-	  } catch (cms::Exception& iException) {
+	  } catch (...) {
 	    edm::LogError ("resolution") << "[DTResolutionTest]: Exception when fitting..."
 					 << "SuperLayer : " << slID << "\n"
 					 << "                    STEP : " << parameters.getUntrackedParameter<string>("STEP", "STEP3") << "\n"		

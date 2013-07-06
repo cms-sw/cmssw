@@ -3,8 +3,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2011/10/31 17:22:23 $
- *  $Revision: 1.24 $
+ *  $Date: 2011/02/10 11:49:43 $
+ *  $Revision: 1.23 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -209,7 +209,7 @@ void DTResolutionAnalysisTest::endRun(Run const& run, EventSetup const& context)
           TF1 *gfit = new TF1("Gaussian","gaus",(statMean-(2*statSigma)),(statMean+(2*statSigma)));
           try {
             histo_root->Fit(gfit, "Q0", "", -0.1, 0.1);
-          } catch (cms::Exception& iException) {
+          } catch (...) {
             LogWarning ("DTDQM|DTMonitorModule|DTResolutionAnalysisTask")
               << "[DTResolutionAnalysisTask]: Exception when fitting SL : " << slID;
             // FIXME: the SL is set as OK in the summary

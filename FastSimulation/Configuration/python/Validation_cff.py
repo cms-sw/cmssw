@@ -3,13 +3,6 @@ from Validation.EventGenerator.BasicGenValidation_cff import *
 from FastSimulation.Validation.globalValidation_cff import *
 from HLTriggerOffline.Common.HLTValidation_cff import *
 
-mergedtruth.mixLabel = cms.string('mix')
-mergedtruth.simHitLabel = cms.string('famosSimHits')
-mergedtruth.simHitCollections = cms.PSet(tracker = cms.vstring("famosSimHitsTrackerHits"))
-mergedtruthMuon.mixLabel = cms.string('mix')
-mergedtruthMuon.simHitLabel = cms.string('famosSimHits')
-mergedtruthMuon.simHitCollections = cms.PSet(tracker = cms.vstring("famosSimHitsTrackerHits"))
-TrackAssociatorByHits.ROUList = ['famosSimHitsTrackerHits']
 
 prevalidation = cms.Sequence(globalAssociation+hltassociation_fastsim)
 prevalidation_preprod = cms.Sequence(globalAssociation)

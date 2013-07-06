@@ -113,31 +113,23 @@ namespace npstat {
                 return binnum + (x - left)/(right - left);
             else
             {
-                // It is not obvious what is best to do here.
-                // The following works to preserve interpolation
-                // of 0th order. The commented out snippet below
-                // would instead connect bin centers by straight
-                // lines during interpolation.
-                return binnum + (x - left)/(right - left) - 0.5;
-
                 // Bin center is mapped to binnum.
                 // Bin center of the next bin is mapped to binnum + 1.
-                // Bin center of the previous bin is mapped to binnum - 1.
-                //
-                // const double binCenter = (left + right)/2.0;
-                // if ((binnum == 0 && x <= binCenter) ||
-                //     (static_cast<unsigned>(binnum) == nBins_ - 1 && x >= binCenter))
-                //     return binnum + (x - left)/(right - left) - 0.5;
-                // else if (x <= binCenter)
-                // {
-                //     const double otherBinCenter = (left + binEdges_[binnum - 1])/2.0;
-                //     return binnum + (x - binCenter)/(binCenter - otherBinCenter);
-                // }
-                // else
-                // {
-                //     const double otherBinCenter = (right + binEdges_[binnum + 2])/2.0;
-                //     return binnum + (x - binCenter)/(otherBinCenter - binCenter);
-                // }
+                // Bin center of the previos bin is mapped to binnum - 1.
+                const double binCenter = (left + right)/2.0;
+                if ((binnum == 0 && x <= binCenter) ||
+                    (static_cast<unsigned>(binnum) == nBins_ - 1 && x >= binCenter))
+                    return binnum + (x - left)/(right - left) - 0.5;
+                else if (x <= binCenter)
+                {
+                    const double otherBinCenter = (left + binEdges_[binnum - 1])/2.0;
+                    return binnum + (x - binCenter)/(binCenter - otherBinCenter);
+                }
+                else
+                {
+                    const double otherBinCenter = (right + binEdges_[binnum + 1])/2.0;
+                    return binnum + (x - binCenter)/(otherBinCenter - binCenter);
+                }
             }
         }
     }

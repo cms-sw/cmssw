@@ -11,7 +11,7 @@ from SimTracker.VertexAssociation.VertexAssociatorByTracks_cfi import *
 # Track history parameters
 vertexHistory = cms.PSet(
     bestMatchByMaxValue = cms.untracked.bool(True),
-    trackingTruth = cms.untracked.InputTag('mergedtruth','MergedTrackTruth'),
+    trackingTruth = cms.untracked.InputTag('mix','MergedTrackTruth'),
     trackAssociator = cms.untracked.string('TrackAssociatorByHits'),
     trackProducer = cms.untracked.InputTag('generalTracks'),
     vertexAssociator = cms.untracked.string('VertexAssociatorByTracks'),

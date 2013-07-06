@@ -54,7 +54,6 @@ PhotosInterface::PhotosInterface( const edm::ParameterSet& )
    : fOnlyPDG(-1)
 {
    fSpecialSettings.push_back("QED-brem-off:all");
-   fAvoidTauLeptonicDecays = false;
    fIsInitialized = false;
 }
 

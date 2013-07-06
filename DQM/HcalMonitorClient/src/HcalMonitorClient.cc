@@ -1,8 +1,8 @@
 /*
  * \file HcalMonitorClient.cc
  * 
- * $Date: 2011/04/18 20:12:14 $
- * $Revision: 1.102 $
+ * $Date: 2012/11/02 14:23:43 $
+ * $Revision: 1.103 $
  * \author J. Temple
  * 
  */
@@ -23,7 +23,6 @@
 #include "DQM/HcalMonitorClient/interface/HcalDetDiagNoiseMonitorClient.h"
 #include "DQM/HcalMonitorClient/interface/HcalDetDiagTimingClient.h"
 #include "DQM/HcalMonitorClient/interface/HcalCoarsePedestalClient.h"
-#include "DQM/HcalMonitorClient/interface/ZDCMonitorClient.h"
 
 #include "FWCore/Framework/interface/Run.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
@@ -127,8 +126,6 @@ HcalMonitorClient::HcalMonitorClient(const edm::ParameterSet& ps)
     clients_.push_back(new HcalDetDiagTimingClient((std::string)"DetDiagTimingMonitor",ps));
  if (find(enabledClients_.begin(), enabledClients_.end(),"CoarsePedestalMonitor")!=enabledClients_.end())
     clients_.push_back(new HcalCoarsePedestalClient((std::string)"CoarsePedestalMonitor",ps));
- if (find(enabledClients_.begin(), enabledClients_.end(),"ZDCMonitor")!=enabledClients_.end())
-    clients_.push_back(new ZDCMonitorClient((std::string)"ZDCMonitor",ps));
 
   if (find(enabledClients_.begin(), enabledClients_.end(),"Summary")!=enabledClients_.end())
     summaryClient_ = new HcalSummaryClient((std::string)"ReportSummaryClient",ps);
@@ -194,9 +191,13 @@ void HcalMonitorClient::beginRun(const edm::Run& r, const edm::EventSetup& c)
   badchannelmap.clear();
 
   // Let's get the channel status quality
+  edm::ESHandle<HcalTopology> topo;
+  c.get<IdealGeometryRecord>().get(topo);
+
   edm::ESHandle<HcalChannelQuality> p;
   c.get<HcalChannelQualityRcd>().get(p);
   chanquality_= new HcalChannelQuality(*p.product());
+  if (!chanquality_->topo()) chanquality_->setTopo(topo.product());
  
   if (dqmStore_ && ChannelStatus==0)
     {
@@ -328,7 +329,13 @@ void HcalMonitorClient::analyze(const edm::Event & e, const edm::EventSetup & c)
 
   run_=e.id().run();
   evt_=e.id().event();
-  if (prescaleFactor_>0 && jevt_%prescaleFactor_==0) this->analyze(e.luminosityBlock());
+  if (prescaleFactor_>0 && jevt_%prescaleFactor_==0) {
+
+    for (unsigned int i=0;i<clients_.size();++i)
+      clients_[i]->getLogicalMap(c); // actually runs just once internally
+
+    this->analyze(e.luminosityBlock());
+  }
 
 } // void HcalMonitorClient::analyze(const edm::Event & e, const edm::EventSetup & c)
 
@@ -547,7 +554,7 @@ void HcalMonitorClient::writeChannelStatus()
   if (debug_>0) std::cout <<"<HcalMonitorClient::writeChannelStatus()>  myquality size = "<<myquality.size()<<std::endl;
 
   std::vector<DetId> mydetids = chanquality_->getAllChannels();
-  HcalChannelQuality* newChanQual = new HcalChannelQuality();
+  HcalChannelQuality* newChanQual = new HcalChannelQuality(chanquality_->topo());
 
   for (unsigned int i=0;i<mydetids.size();++i)
     {
@@ -590,7 +597,6 @@ void HcalMonitorClient::writeChannelStatus()
 
 void HcalMonitorClient::PlotPedestalValues(const HcalDbService& cond)
 {
-  const HcalQIEShape* shape_ = cond.getHcalShape(); // this one is generic
 
   double ADC_ped=0;
   double ADC_width=0;
@@ -631,6 +637,7 @@ void HcalMonitorClient::PlotPedestalValues(const HcalDbService& cond)
 		  calibs_= cond.getHcalCalibrations(detid);  
 		  const HcalPedestalWidth* pedw = cond.getPedestalWidth(detid);
 		  const HcalQIECoder* channelCoder_ = cond.getHcalCoder(detid);
+		  const HcalQIEShape* shape_ = cond.getHcalShape(channelCoder_); 
 
 		  // Loop over capIDs
 		  for (unsigned int capid=0;capid<4;++capid)

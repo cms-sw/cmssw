@@ -226,7 +226,6 @@ public:
   MonitorElement* meLatency_;
   MonitorElement* meQuality_;
   MonitorElement* CastorEventProduct;
-  //MonitorElement* CastorMonitorStatus;
   
 
   ////---- define monitors

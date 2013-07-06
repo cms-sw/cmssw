@@ -5,12 +5,12 @@ from Validation.RecoEgamma.photonValidator_cfi import *
 
 photonPostprocessing = cms.EDAnalyzer("PhotonPostprocessing",
 
-    Name = cms.untracked.string('photonPostprocessing'),
-
+    ComponentName = cms.string('photonPostprocessing'),
+    analyzerName = cms.string('PhotonValidator'),
     standAlone = cms.bool(False),
     batch = cms.bool(False),                                     
     Verbosity = cms.untracked.int32(0),
-    isRunCentrally = photonValidation.isRunCentrally,
+    isRunCentrally = cms.bool(True),
     fastSim = cms.bool(False),
                                       
     etBin = photonValidation.etBin,

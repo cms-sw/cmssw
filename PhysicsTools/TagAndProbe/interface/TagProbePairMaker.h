@@ -35,10 +35,6 @@ namespace tnp {
             double arbitrationMass_;
             void arbitrate(TagProbePairs &pairs) const ;
 	    TRandom2* randGen_;
-
-	    // SCZ
-	    bool phiCutForTwoLeg_;
-	    void phiCutByEventNumber(TagProbePairs &pairs, int eventNumber) const ;
     };
 }
 

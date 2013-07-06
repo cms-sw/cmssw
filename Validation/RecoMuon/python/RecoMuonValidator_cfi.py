@@ -8,7 +8,7 @@ recoMuonValidator = cms.EDAnalyzer("RecoMuonValidator",
 
     usePFMuon = cms.untracked.bool(False),
 
-    simLabel = cms.InputTag("mergedtruth","MergedTrackTruth"),
+    simLabel = cms.InputTag("mix","MergedTrackTruth"),
     muonLabel = cms.InputTag("muons"),
 
     muAssocLabel = cms.InputTag("MuonAssociatorByHits"),

@@ -494,7 +494,7 @@ if (!mEvent.isRealData()){
 	*/
       }
     }
-  } catch (cms::Exception& iException) {
+  } catch (...) {
     edm::LogInfo("OutputInfo") << " No HB/HE RecHits.";
   }
 
@@ -513,7 +513,7 @@ if (!mEvent.isRealData()){
 	*/
       }
     }
-  } catch (cms::Exception& iException) {
+  } catch (...) {
     edm::LogInfo("OutputInfo") << " No HF RecHits.";
   }
 
@@ -531,7 +531,7 @@ if (!mEvent.isRealData()){
 	*/
       }
     }
-  } catch (cms::Exception& iException) {
+  } catch (...) {
     edm::LogInfo("OutputInfo") << " No HO RecHits.";
   }
   try {
@@ -548,7 +548,7 @@ if (!mEvent.isRealData()){
         //      std::cout << j->id() << std::endl;
       }
     }
-  } catch (cms::Exception& iException) {
+  } catch (...) {
     edm::LogInfo("OutputInfo") << " No EB RecHits.";
   }
 
@@ -565,7 +565,7 @@ if (!mEvent.isRealData()){
 	//      std::cout << *j << std::endl;
       }
     }
-  } catch (cms::Exception& iException) {
+  } catch (...) {
     edm::LogInfo("OutputInfo") << " No EE RecHits.";
   }
 

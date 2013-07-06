@@ -133,7 +133,7 @@ void SiPixelWebInterface::handleEDARequest(xgi::Input* in,xgi::Output* out, int 
   } else if (requestID == "PlotAsModule") {
     //theActionFlag = PlotSingleModuleHistos;    
     theActionFlag = NoAction;  
-//IASONAS//    infoExtractor_->getSingleModuleHistos(bei_, requestMap_, out);    
+    infoExtractor_->getSingleModuleHistos(bei_, requestMap_, out);    
   } else if (requestID == "PlotHistogramFromPath") {
    //theActionFlag = PlotHistogramFromPath;
    theActionFlag = NoAction;
@@ -151,7 +151,7 @@ void SiPixelWebInterface::handleEDARequest(xgi::Input* in,xgi::Output* out, int 
     //out->getHTTPResponseHeader().addHeader("Expires","Mon, 26 Jul 1997 05:00:00 GMT");
     //*out << infoExtractor_->getNamedImage(theMEName).str();
     theActionFlag = NoAction;    
-//IASONAS//    infoExtractor_->getTrackerMapHistos(bei_, requestMap_, out);
+    infoExtractor_->getTrackerMapHistos(bei_, requestMap_, out);
   //} else if (requestID == "UpdatePlot") {
   //  string theMEName = get_from_multimap(requestMap_, "MEName");
   //  out->getHTTPResponseHeader().addHeader("Content-Type", "image/png");
@@ -228,7 +228,7 @@ void SiPixelWebInterface::performAction() {
     }
   case SiPixelWebInterface::Summary :
     {
-      //ias actionExecutor_->createSummary(bei_, isUpgrade);
+      actionExecutor_->createSummary(bei_);
       break;
     }
   case SiPixelWebInterface::Occupancy :

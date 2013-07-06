@@ -174,12 +174,7 @@ void ObjectViewMatcher<T1, T2>::endJob()
 
 typedef ObjectViewMatcher<reco::Photon, reco::Track>      TrackMatchedPhotonProducer;
 typedef ObjectViewMatcher<reco::Jet, reco::Track>         TrackMatchedJetProducer;
-typedef ObjectViewMatcher<reco::Photon, reco::Track>      TrackMatchedPhotonProducer;
-typedef ObjectViewMatcher<reco::Jet, reco::Track>         TrackMatchedJetProducer;
-
 
 #include "FWCore/Framework/interface/MakerMacros.h"
-DEFINE_FWK_MODULE(TrackMatchedPhotonProducer);
-DEFINE_FWK_MODULE(TrackMatchedJetProducer);
 DEFINE_FWK_MODULE(TrackMatchedPhotonProducer);
 DEFINE_FWK_MODULE(TrackMatchedJetProducer);

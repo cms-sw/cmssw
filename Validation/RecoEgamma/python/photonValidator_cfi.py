@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
-import SimTracker.TrackAssociation.TrackAssociatorByHits_cfi
-trackAssociatorByHitsForPhotonValidation = SimTracker.TrackAssociation.TrackAssociatorByHits_cfi.TrackAssociatorByHits.clone()
+import SimTracker.TrackAssociation.quickTrackAssociatorByHits_cfi
+trackAssociatorByHitsForPhotonValidation = SimTracker.TrackAssociation.quickTrackAssociatorByHits_cfi.quickTrackAssociatorByHits.clone()
 trackAssociatorByHitsForPhotonValidation.ComponentName = cms.string('trackAssociatorByHitsForPhotonValidation')
 trackAssociatorByHitsForPhotonValidation.Cut_RecoToSim = 0.5
 trackAssociatorByHitsForPhotonValidation.Quality_SimToReco = 0.5
@@ -10,7 +10,7 @@ trackAssociatorByHitsForPhotonValidation.SimToRecoDenominator = 'reco'
 
 
 photonValidation = cms.EDAnalyzer("PhotonValidator",
-    Name = cms.untracked.string('photonValidation'),
+    ComponentName = cms.string('photonValidation'),
     OutputFileName = cms.string('PhotonValidationHistos.root'),
     scEndcapProducer = cms.string('correctedMulti5x5SuperClustersWithPreshower'),
     scBarrelProducer = cms.string('correctedHybridSuperClusters'),
@@ -29,6 +29,7 @@ photonValidation = cms.EDAnalyzer("PhotonValidator",
     Verbosity = cms.untracked.int32(0),
     fastSim = cms.bool(False),
     isRunCentrally = cms.bool(False),
+    analyzerName = cms.string('PhotonValidator'),
 #
     minPhoEtCut = cms.double(10.),
     convTrackMinPtCut = cms.double(1.),

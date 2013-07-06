@@ -26,8 +26,6 @@ class PedsFullNoiseAlgorithm : public CommissioningAlgorithm {
   inline const Histo& hNoise() const;
   
   inline const Histo& hNoise1D() const;
-  inline const Histo& hIsDead() const;
-  inline const Histo& hIsNoisy() const;
 
  private:
 
@@ -47,19 +45,16 @@ class PedsFullNoiseAlgorithm : public CommissioningAlgorithm {
   /** Residuals and noise */
   Histo hNoise_;
   Histo hNoise1D_;
-  Histo hIsDead_;
-  Histo hIsNoisy_;
   
   /** Analysis parameters */
   float deadStripMax_;
   float noisyStripMin_;
   std::string noiseDef_;
+  float ksProbCut_;
 };
 
 const PedsFullNoiseAlgorithm::Histo& PedsFullNoiseAlgorithm::hPeds() const { return hPeds_; }
 
 const PedsFullNoiseAlgorithm::Histo& PedsFullNoiseAlgorithm::hNoise() const { return hNoise_; }
-const PedsFullNoiseAlgorithm::Histo& PedsFullNoiseAlgorithm::hIsDead() const { return hIsDead_; }
-const PedsFullNoiseAlgorithm::Histo& PedsFullNoiseAlgorithm::hIsNoisy() const { return hIsNoisy_; }
 
 #endif // DQM_SiStripCommissioningAnalysis_PedsFullNoiseAlgorithm_H

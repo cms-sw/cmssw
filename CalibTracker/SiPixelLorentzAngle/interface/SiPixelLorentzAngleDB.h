@@ -39,17 +39,12 @@ class SiPixelLorentzAngleDB : public edm::EDAnalyzer
   
  private:
 
-  unsigned int HVgroup(unsigned int panel, unsigned int module);
-
   std::vector< std::pair<uint32_t, float> > detid_la;
   edm::ParameterSet conf_;
   double magneticField_;
   std::string recordName_;
-
-  typedef std::vector< edm::ParameterSet > Parameters;
-  Parameters BPixParameters_;
-  Parameters FPixParameters_;
-
+  float bPixLorentzAnglePerTesla_;
+  float fPixLorentzAnglePerTesla_;
   std::string fileName_;
   bool useFile_;
 };

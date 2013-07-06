@@ -11,7 +11,7 @@
  **
  **
  **  $Id: PhotonPostprocessing
- **  $Date: 2012/02/14 19:42:41 $
+ **  $Date: 2013/06/07 11:19:14 $
  **  author:
  **   Nancy Marinelli, U. of Notre Dame, US
  **
@@ -32,6 +32,7 @@ PhotonPostprocessing::PhotonPostprocessing(const edm::ParameterSet& pset)
   parameters_ = pset;
 
 
+  analyzerName_     = pset.getParameter<std::string>("analyzerName"); 
   standAlone_ = pset.getParameter<bool>("standAlone");
   batch_ = pset.getParameter<bool>("batch");
   outputFileName_ = pset.getParameter<string>("OutputFileName");
@@ -96,10 +97,10 @@ void PhotonPostprocessing::runPostprocessing()
 {
 
 
-  std::string simInfoPathName = "EgammaV/PhotonValidator/SimulationInfo/";
-  std::string convPathName    = "EgammaV/PhotonValidator/ConversionInfo/";
-  std::string effPathName     = "EgammaV/PhotonValidator/Efficiencies/";
-  std::string photonPathName  = "EgammaV/PhotonValidator/Photons/";
+  std::string simInfoPathName = "EgammaV/"+ analyzerName_+"/SimulationInfo/";
+  std::string convPathName    = "EgammaV/"+ analyzerName_+"/ConversionInfo/";
+  std::string effPathName     = "EgammaV/"+ analyzerName_+"/Efficiencies/";
+  std::string photonPathName  = "EgammaV/"+ analyzerName_+"/Photons/";
 
   if(batch_)  dbe_->open(inputFileName_);
 
@@ -107,6 +108,7 @@ void PhotonPostprocessing::runPostprocessing()
   //  Photon reconstruction efficiencies
   string histname = "recoEffVsEta";
   phoRecoEffEta_ =  dbe_->book1D(histname,"Photon reconstruction efficiency vs simulated #eta",etaBin,etaMin, etaMax);
+
   histname = "recoEffVsPhi";
   phoRecoEffPhi_ =  dbe_->book1D(histname,"Photon reconstruction efficiency vs simulated #phi",phiBin,phiMin, phiMax);
   histname = "recoEffVsEt";
@@ -250,8 +252,9 @@ void PhotonPostprocessing::endLuminosityBlock(const edm::LuminosityBlock& lumi, 
 
 void  PhotonPostprocessing::dividePlots(MonitorElement* dividend, MonitorElement* numerator, MonitorElement* denominator, std::string type ){
   double value,err;
+  
   for (int j=1; j<=numerator->getNbinsX(); j++){
-
+    dividend->setEfficiencyFlag();
     if (denominator->getBinContent(j)!=0){
       if (type=="effic")
 	value = ((double) numerator->getBinContent(j))/((double) denominator->getBinContent(j));

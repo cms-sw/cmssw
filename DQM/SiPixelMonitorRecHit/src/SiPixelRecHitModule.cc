@@ -12,9 +12,7 @@
 
 // Data Formats
 #include "DataFormats/SiPixelDetId/interface/PixelBarrelName.h"
-#include "DataFormats/SiPixelDetId/interface/PixelBarrelNameUpgrade.h"
 #include "DataFormats/SiPixelDetId/interface/PixelEndcapName.h"
-#include "DataFormats/SiPixelDetId/interface/PixelEndcapNameUpgrade.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
 //
@@ -35,17 +33,13 @@ SiPixelRecHitModule::~SiPixelRecHitModule() {}
 // Book histograms
 //
 void SiPixelRecHitModule::book(const edm::ParameterSet& iConfig, int type, 
-                               bool twoD, bool reducedSet, bool isUpgrade) {
+                               bool twoD, bool reducedSet) {
 
   bool barrel = DetId(id_).subdetId() == static_cast<int>(PixelSubdetector::PixelBarrel);
   bool endcap = DetId(id_).subdetId() == static_cast<int>(PixelSubdetector::PixelEndcap);
   bool isHalfModule = false;
   if(barrel){
-    if (!isUpgrade) {
-      isHalfModule = PixelBarrelName(DetId(id_)).isHalfModule(); 
-    } else if (isUpgrade) {
-      isHalfModule = PixelBarrelNameUpgrade(DetId(id_)).isHalfModule(); 
-    }
+    isHalfModule = PixelBarrelName(DetId(id_)).isHalfModule(); 
   }
 
   std::string hid;
@@ -97,9 +91,7 @@ void SiPixelRecHitModule::book(const edm::ParameterSet& iConfig, int type,
   }
 
   if(type==1 && barrel){
-    uint32_t DBladder;
-    if (!isUpgrade) { DBladder = PixelBarrelName(DetId(id_)).ladderName(); }
-    else if (isUpgrade) { DBladder = PixelBarrelNameUpgrade(DetId(id_)).ladderName(); }
+    uint32_t DBladder = PixelBarrelName(DetId(id_)).ladderName();
     char sladder[80]; sprintf(sladder,"Ladder_%02i",DBladder);
     hid = src.label() + "_" + sladder;
     if(isHalfModule) hid += "H";
@@ -134,9 +126,7 @@ void SiPixelRecHitModule::book(const edm::ParameterSet& iConfig, int type,
 
   if(type==2 && barrel){
     
-    uint32_t DBlayer;
-    if (!isUpgrade) { DBlayer = PixelBarrelName(DetId(id_)).layerName(); }
-    else if (isUpgrade) { DBlayer = PixelBarrelNameUpgrade(DetId(id_)).layerName(); }
+    uint32_t DBlayer = PixelBarrelName(DetId(id_)).layerName();
     char slayer[80]; sprintf(slayer,"Layer_%i",DBlayer);
     hid = src.label() + "_" + slayer;
     
@@ -170,9 +160,7 @@ void SiPixelRecHitModule::book(const edm::ParameterSet& iConfig, int type,
   }
 
   if(type==3 && barrel){
-    uint32_t DBmodule;
-    if (!isUpgrade) { DBmodule = PixelBarrelName(DetId(id_)).moduleName(); }
-    else if (isUpgrade) { DBmodule = PixelBarrelNameUpgrade(DetId(id_)).moduleName(); }
+    uint32_t DBmodule = PixelBarrelName(DetId(id_)).moduleName();
     char smodule[80]; sprintf(smodule,"Ring_%i",DBmodule);
     hid = src.label() + "_" + smodule;
     
@@ -205,9 +193,7 @@ void SiPixelRecHitModule::book(const edm::ParameterSet& iConfig, int type,
   }
 
   if(type==4 && endcap){
-    uint32_t blade;
-    if (!isUpgrade) { blade= PixelEndcapName(DetId(id_)).bladeName(); }
-    else if (isUpgrade) { blade= PixelEndcapNameUpgrade(DetId(id_)).bladeName(); }
+    uint32_t blade= PixelEndcapName(DetId(id_)).bladeName();
     
     char sblade[80]; sprintf(sblade, "Blade_%02i",blade);
     hid = src.label() + "_" + sblade;
@@ -228,9 +214,7 @@ void SiPixelRecHitModule::book(const edm::ParameterSet& iConfig, int type,
 
   }
   if(type==5 && endcap){
-    uint32_t disk;
-    if (!isUpgrade) { disk = PixelEndcapName(DetId(id_)).diskName(); }
-    else if (isUpgrade) { disk = PixelEndcapNameUpgrade(DetId(id_)).diskName(); }
+    uint32_t disk = PixelEndcapName(DetId(id_)).diskName();
     
     char sdisk[80]; sprintf(sdisk, "Disk_%i",disk);
     hid = src.label() + "_" + sdisk;
@@ -252,21 +236,13 @@ void SiPixelRecHitModule::book(const edm::ParameterSet& iConfig, int type,
   }
 
   if(type==6 && endcap){
-    uint32_t panel;
-    uint32_t module;
-    if (!isUpgrade) {
-      panel= PixelEndcapName(DetId(id_)).pannelName();
-      module= PixelEndcapName(DetId(id_)).plaquetteName();
-    } else if (isUpgrade) {
-      panel= PixelEndcapNameUpgrade(DetId(id_)).pannelName();
-      module= PixelEndcapNameUpgrade(DetId(id_)).plaquetteName();
-    }
-    
+    uint32_t panel= PixelEndcapName(DetId(id_)).pannelName();
+    uint32_t module= PixelEndcapName(DetId(id_)).plaquetteName();
     char slab[80]; sprintf(slab, "Panel_%i_Ring_%i",panel, module);
     hid = src.label() + "_" + slab;
     
-   if(!reducedSet)
-   {
+	if(!reducedSet)
+	{
     if(twoD){
       meXYPosRing_ = theDMBE->book2D("xypos_" + hid,"XY Position",100,-1.,1,100,-4,4);
       meXYPosRing_->setAxisTitle("X Position",1);
@@ -279,7 +255,7 @@ void SiPixelRecHitModule::book(const edm::ParameterSet& iConfig, int type,
       meXYPosRing_py_ = theDMBE->book1D("xypos_"+hid+"_py","Y Position",100,-4,4);
       meXYPosRing_py_->setAxisTitle("Y Position",1);
     }
-   }
+	}
     meClustXRing_ = theDMBE->book1D("ClustX_" +hid, "RecHit X size", 10, 0., 10.);
     meClustXRing_->setAxisTitle("RecHit size X dimension", 1);
     meClustYRing_ = theDMBE->book1D("ClustY_" +hid,"RecHit Y size", 15, 0.,15.);
@@ -313,14 +289,14 @@ void SiPixelRecHitModule::fill(const float& rechit_x, const float& rechit_y,
     meClustY_->Fill(sizeY);
     meErrorX_->Fill(lerr_x);
     meErrorY_->Fill(lerr_y);  
-   if(!reducedSet)
-   {
+	if(!reducedSet)
+	{
     if(twoD) meXYPos_->Fill(rechit_x, rechit_y);
     else {
       meXYPos_px_->Fill(rechit_x); 
       meXYPos_py_->Fill(rechit_y);
     }
-   }
+	}
   }
   //std::cout<<"number of detector units="<<numberOfDetUnits<<std::endl;
 
@@ -344,14 +320,14 @@ void SiPixelRecHitModule::fill(const float& rechit_x, const float& rechit_y,
     meClustYLay_->Fill(sizeY);
     meErrorXLay_->Fill(lerr_x);
     meErrorYLay_->Fill(lerr_y); 
-   if(!reducedSet)
-   {
+	if(!reducedSet)
+	{
     if(twoD) meXYPosLay_->Fill(rechit_x, rechit_y);
     else{
       meXYPosLay_px_->Fill(rechit_x); 
       meXYPosLay_py_->Fill(rechit_y);
     }
-   }
+	}
   }
 
   if(phion && barrel){
@@ -359,14 +335,14 @@ void SiPixelRecHitModule::fill(const float& rechit_x, const float& rechit_y,
     meClustYPhi_->Fill(sizeY);
     meErrorXPhi_->Fill(lerr_x);
     meErrorYPhi_->Fill(lerr_y); 
-   if(!reducedSet)
-   {
+    if(!reducedSet)
+	{
     if(twoD) meXYPosPhi_->Fill(rechit_x, rechit_y);
     else{
       meXYPosPhi_px_->Fill(rechit_x); 
       meXYPosPhi_py_->Fill(rechit_y);
     }
-   }
+	}	
   }
 
   if(bladeon && endcap){
@@ -390,14 +366,14 @@ void SiPixelRecHitModule::fill(const float& rechit_x, const float& rechit_y,
     meClustYRing_->Fill(sizeY);
     meErrorXRing_->Fill(lerr_x);
     meErrorYRing_->Fill(lerr_y); 
-   if(!reducedSet)
-   {
+	if(!reducedSet)
+	{
     if(twoD) meXYPosRing_->Fill(rechit_x, rechit_y);
     else{
       meXYPosRing_px_->Fill(rechit_x); 
       meXYPosRing_py_->Fill(rechit_y);
     }
-   }
+	}	
   }
 }
 

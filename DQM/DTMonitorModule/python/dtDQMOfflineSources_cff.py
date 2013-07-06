@@ -6,7 +6,6 @@ from DQM.DTMonitorModule.dtDCSByLumiTask_cfi import *
 from DQM.DTMonitorModule.dtRunConditionVar_cfi import *
 dtSegmentAnalysisMonitor.detailedAnalysis = True
 dtSegmentAnalysisMonitor.slideTimeBins = False
-dtSegmentAnalysisMonitor.nTimeBins = 500
 dtSegmentAnalysisMonitor.nLSTimeBin = 5
 
 from DQM.DTMonitorModule.dtResolutionTask_cfi import *

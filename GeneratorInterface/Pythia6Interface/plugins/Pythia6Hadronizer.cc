@@ -868,7 +868,7 @@ bool Pythia6Hadronizer::initializeForInternalPartons()
    return true;
 }
 
-bool Pythia6Hadronizer::declareStableParticles( const std::vector<int>& pdg )
+bool Pythia6Hadronizer::declareStableParticles( const std::vector<int> pdg )
 {
    
    for ( unsigned int i=0; i<pdg.size(); i++ )
@@ -890,7 +890,7 @@ bool Pythia6Hadronizer::declareStableParticles( const std::vector<int>& pdg )
    return true;
 }
 
-bool Pythia6Hadronizer::declareSpecialSettings( const std::vector<std::string>& settings )
+bool Pythia6Hadronizer::declareSpecialSettings( const std::vector<std::string> settings )
 {
    
    for ( unsigned int iss=0; iss<settings.size(); iss++ )

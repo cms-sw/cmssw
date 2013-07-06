@@ -68,11 +68,11 @@ process.TFileService = cms.Service("TFileService",
 )
 
 process.p1 = cms.Path(process.generator*process.g4SimHits)
-process.g4SimHits.UseMagneticField = cms.bool(False)
+process.g4SimHits.UseMagneticField = False
 process.g4SimHits.Physics.type = 'SimG4Core/Physics/DummyPhysics'
-process.g4SimHits.Physics.DummyEMPhysics = cms.bool(True)
-process.g4SimHits.Physics.CutsPerRegion = cms.bool(False)
-process.g4SimHits.Generator.ApplyEtaCuts = cms.bool(False)
+process.g4SimHits.Physics.DummyEMPhysics = True
+process.g4SimHits.Physics.CutsPerRegion = False
+process.g4SimHits.Generator.ApplyEtaCuts = False
 process.common_maximum_timex = cms.PSet(
     MaxTrackTime  = cms.double(1000.0),
     MaxTimeNames  = cms.vstring(),
@@ -100,7 +100,6 @@ process.g4SimHits.SteppingAction = cms.PSet(
     EkinParticles           = cms.vstring(),
     Verbosity               = cms.untracked.int32(2)
 )
-process.g4SimHits.StackingAction.TrackNeutrino = cms.bool(True)
 process.g4SimHits.Watchers = cms.VPSet(cms.PSet(
     MaterialBudgetForward = cms.PSet(
         DetectorTypes = cms.vstring('BeamPipe','Tracker','EM Calorimeter','Hadron Calorimeter','Forward Calorimeter','TOTEM','CASTOR','Forward Shield','Muon System'),

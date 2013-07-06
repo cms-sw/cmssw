@@ -111,7 +111,7 @@ muonAssociatorByHits = cms.EDProducer("MuonAssociatorEDProducer",
     # tracksTag = cms.InputTag("hltL3TkTracksFromL2")
     #
     # ... TrackingParticle collection
-    tpTag = cms.InputTag("mergedtruth","MergedTrackTruth"),
+    tpTag = cms.InputTag("mix","MergedTrackTruth"),
     ignoreMissingTrackCollection = cms.untracked.bool(False),
 )
  

@@ -58,7 +58,7 @@ The script mps_disablejob.pl can be used to disable several Mille jobs by using 
 # disable some Mille jobs
 % mps_disablejob.pl 3 5 6 77 4
 # submit the Pede job (works only if the "force" option is used):
-% mps_fire.pl -mf
+% mps_setup.pl -mf
 
 #third example:
 # disable a sequence of jobs

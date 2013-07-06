@@ -3,9 +3,9 @@
  *
  *  \author    : Gero Flucke
  *  date       : October 2006
- *  $Revision: 1.4 $
- *  $Date: 2012/08/10 09:01:11 $
- *  (last update by $Author: flucke $)
+ *  $Revision: 1.3 $
+ *  $Date: 2011/08/10 12:51:00 $
+ *  (last update by $Author: mussgill $)
  */
 
 #include <algorithm>
@@ -13,7 +13,6 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Parse.h"
 
-#include "Alignment/CommonAlignment/interface/AlignableObjectId.h"
 #include "Alignment/CommonAlignment/interface/Alignable.h"
 #include "Alignment/TrackerAlignment/interface/AlignableTracker.h"
 #include "Alignment/MuonAlignment/interface/AlignableMuon.h"
@@ -351,7 +350,7 @@ unsigned int RunRangeDependentPedeLabeler::buildRunRangeDependencyMap(AlignableT
   theAlignableToRunRangeRangeMap.clear();
 
   AlignmentParameterSelector selector(aliTracker, aliMuon, aliExtras);
- 
+  
   std::vector<char> paramSelDummy(6, '1');
   
   const std::vector<edm::ParameterSet> RunRangeSelectionVPSet =
@@ -423,21 +422,9 @@ unsigned int RunRangeDependentPedeLabeler::buildRunRangeDependencyMap(AlignableT
       selector.addSelection(decompSel[0], paramSelDummy);
 
       const std::vector<Alignable*> &alis = selector.selectedAlignables();
-       
       for (std::vector<Alignable*>::const_iterator iAli = alis.begin();
 	   iAli != alis.end();
 	   ++iAli) {
-        
-        if((*iAli)->alignmentParameters() == NULL) {
-          throw cms::Exception("BadConfig")
-            << "@SUB=RunRangeDependentPedeLabeler::buildRunRangeDependencyMap\n"
-            << "Run dependence configured for alignable of type "
-            << AlignableObjectId::idToString((*iAli)->alignableObjectId())
-            << " at (" << (*iAli)->globalPosition().x() << ","<< (*iAli)->globalPosition().y() << "," << (*iAli)->globalPosition().z()<< "), "
-            << "but that has no parameters. Please check that all run "
-            << "dependent parameters are also selected for alignment.\n"; 
-        }
-
 	for (std::vector<unsigned int>::const_iterator iParam = selParam.begin();
 	     iParam != selParam.end();
 	     ++iParam) {

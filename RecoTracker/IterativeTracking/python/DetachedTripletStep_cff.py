@@ -117,6 +117,8 @@ detachedTripletStepTracks = RecoTracker.TrackProducer.TrackProducer_cfi.TrackPro
 import RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi
 detachedTripletStepSelector = RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.multiTrackSelector.clone(
     src='detachedTripletStepTracks',
+    useAnyMVA = cms.bool(True),
+    GBRForestLabel = cms.string('MVASelectorIter3'),
     trackSelectors= cms.VPSet(
         RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.looseMTS.clone(
             name = 'detachedTripletStepVtxLoose',

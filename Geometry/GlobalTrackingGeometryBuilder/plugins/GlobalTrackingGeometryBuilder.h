@@ -5,8 +5,8 @@
  *
  *  Build the GlobalTrackingGeometry.
  *
- *  $Date: 2011/08/16 14:54:34 $
- *  $Revision: 1.1 $
+ *  $Date: 2006/05/09 14:08:41 $
+ *  $Revision: 1.2 $
  *  \author Matteo Sani
  */
 
@@ -17,7 +17,6 @@ class TrackerGeometry;
 class DTGeometry;
 class CSCGeometry;
 class RPCGeometry;
-class GEMGeometry;
 
 class GlobalTrackingGeometryBuilder {
 public:
@@ -28,11 +27,8 @@ public:
   virtual ~GlobalTrackingGeometryBuilder();
 
   /// Build the geometry
-  GlobalTrackingGeometry* build(const TrackerGeometry* tk, 
-				const DTGeometry* dt, 
-                                const CSCGeometry* csc, 
-				const RPCGeometry* rpc,
-				const GEMGeometry* gem);
+  GlobalTrackingGeometry* build(const TrackerGeometry* tk, const DTGeometry* dt, 
+                                const CSCGeometry* csc, const RPCGeometry* rpc);
 
 protected:
 

@@ -12,6 +12,7 @@ typedef edm::RefVector<TrackingParticleCollection> TrackingParticleRefVector;
 typedef edm::RefProd<TrackingParticleCollection> TrackingParticleRefProd;
 typedef edm::RefVector<TrackingParticleCollection> TrackingParticleContainer;
 
+std::ostream& operator<< (std::ostream& s, TrackingParticle const & tp);
 
 #endif
 

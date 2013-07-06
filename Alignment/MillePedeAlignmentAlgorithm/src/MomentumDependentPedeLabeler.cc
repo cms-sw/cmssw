@@ -3,9 +3,9 @@
  *
  *  \author    : Gero Flucke
  *  date       : October 2006
- *  $Revision: 1.2 $
- *  $Date: 2012/08/10 09:01:11 $
- *  (last update by $Author: flucke $)
+ *  $Revision: 1.1 $
+ *  $Date: 2011/03/05 20:12:23 $
+ *  (last update by $Author: mussgill $)
  */
 
 #include <algorithm>
@@ -13,7 +13,6 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Parse.h"
 
-#include "Alignment/CommonAlignment/interface/AlignableObjectId.h"
 #include "Alignment/CommonAlignment/interface/Alignable.h"
 #include "Alignment/TrackerAlignment/interface/AlignableTracker.h"
 #include "Alignment/MuonAlignment/interface/AlignableMuon.h"
@@ -369,17 +368,6 @@ unsigned int MomentumDependentPedeLabeler::buildMomentumDependencyMap(AlignableT
       for (std::vector<Alignable*>::const_iterator iAli = alis.begin();
 	   iAli != alis.end();
 	   ++iAli) {
-
-        if((*iAli)->alignmentParameters() == NULL) {
-          throw cms::Exception("BadConfig")
-            << "@SUB=MomentumDependentPedeLabeler::buildMomentumDependencyMap\n"
-            << "Momentum dependence configured for alignable of type "
-            << AlignableObjectId::idToString((*iAli)->alignableObjectId())
-            << " at (" << (*iAli)->globalPosition().x() << ","<< (*iAli)->globalPosition().y() << "," << (*iAli)->globalPosition().z()<< "), "
-            << "but that has no parameters. Please check that all run "
-            << "momentum parameters are also selected for alignment.\n"; 
-        }
-
 	for (std::vector<unsigned int>::const_iterator iParam = selParam.begin();
 	     iParam != selParam.end();
 	     ++iParam) {

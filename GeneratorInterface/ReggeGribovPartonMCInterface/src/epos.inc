@@ -1,4 +1,3 @@
-
 c---------------------------------------------------------------------------
 c                         dimensions
 c---------------------------------------------------------------------------
@@ -394,9 +393,9 @@ c------------------------------------------------------------------------
       double precision rnucl
       real         bnucl,xbtot
       integer      ixbDens
-      common/nucl5/rnucl(mxnucl,2),bnucl(mxnucl,4),xbtot(4),ixbDens
-      integer      infragm
       common/nucl6/infragm
+      integer      infragm
+      common/nucl5/rnucl(mxnucl,2),bnucl(mxnucl,4),xbtot(4),ixbDens
       real         drnucl,rnuclo
       integer      nrnucl
       common/nucl4/nrnucl(2),drnucl(2),rnuclo(mxnucl,2)

@@ -83,10 +83,6 @@ process.looper.algoConfig.doDT = doDT
 process.looper.algoConfig.doCSC = doCSC
 process.looper.algoConfig.useResiduals = cms.string(useResiduals)
 
-#process.looper.algoConfig.specialFitPatternDT6DOF = "1000-100011_0100-010000"
-process.looper.algoConfig.specialFitPatternDT6DOF = ""
-process.looper.algoConfig.specialFitPatternDT5DOF = ""
-process.looper.algoConfig.specialFitPatternCSC = ""
 
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 process.GlobalTag.globaltag = cms.string(globaltag)

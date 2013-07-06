@@ -35,20 +35,12 @@ options.register( 'eventType',
                         \n\t\t\tZMM\
                         \n\t\t\tZTTFastSim\
                         \n\t\t\tZEEFastSim\
-                        \n\t\t\tZTTDQM\
-                        \n\t\t\tZEEDQM\
-                        \n\t\t\tZMMDQM\
                         \n\t\t\tRealData          (Jets faking taus)\
                         \n\t\t\tRealMuonsData     (Iso Muons faking taus)\
-                        \n\t\t\tRealTausData      (Real Taus from ZMuTau)\
                         \n\t\t\tRealElectronsData (Iso Electrons faking taus)\n"
                  )
 
-<<<<<<< ValidationOptions_cff.py
-allowedOptions['eventType'] = [ 'ZTT', 'QCD', 'ZEE', 'ZMM', 'RealData', 'RealMuonsData', 'RealElectronsData','ZTTFastSim','ZEEFastSim','ZTTDQM','ZMMDQM','ZEEDQM']
-=======
-allowedOptions['eventType'] = [ 'ZTT', 'QCD', 'ZEE', 'ZMM', 'RealData', 'RealMuonsData', 'RealTausData', 'RealElectronsData','ZTTFastSim','ZEEFastSim']
->>>>>>> 1.4
+allowedOptions['eventType'] = [ 'ZTT', 'QCD', 'ZEE', 'ZMM', 'RealData', 'RealMuonsData', 'RealElectronsData','ZTTFastSim','ZEEFastSim']
 
 options.register( 'label',
                   "none",
@@ -67,11 +59,10 @@ options.register( 'dataSource',
                         \n\t\t\trecoFiles+PFTau+CaloTau:\t\tRun CaloTau too \
                         \n\t\t\tdigiFiles:\t\t\tGet data from [sourceFile] (must have DIGI) and rerun RECO \
                         \n\t\t\tfastsim:\t\t\tRun FastSim \
-                        \n\t\t\tdqm:\t\t\tRun DQM \
                         \n\t\t\tfullsim:\t\t\tGen-Sim-Digi-Reco-Validate!\n"
                   )
 
-allowedOptions['dataSource'] = ['recoFiles', 'recoFiles+PFTau', 'recoFiles+PFTau+CaloTau', 'recoFiles+CaloTau', 'recoFiles+CaloTau+PFTau', 'fastsim', 'dqm','digiFiles', 'fullsim']
+allowedOptions['dataSource'] = ['recoFiles', 'recoFiles+PFTau', 'recoFiles+PFTau+CaloTau', 'recoFiles+CaloTau', 'recoFiles+CaloTau+PFTau', 'fastsim', 'digiFiles', 'fullsim']
 
 options.register( 'sourceFile',
                   'none',

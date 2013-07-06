@@ -12,24 +12,6 @@ COLUMN pct_increase       FORMAT 999        HEADING '%|Inc'
 COLUMN partition_position FORMAT 9999       HEADING 'Part|Nmbr'
 COLUMN high_value         FORMAT a8         HEADING 'High|Value'
 COLUMN column_name        FORMAT a15        HEADING 'key'
-COLUMN usage              FORMAT 9.99       HEADING 'Usage'
-
-CREATE FUNCTION gethighvalue (
-  p_table_name IN VARCHAR2,
-  p_partition_name IN VARCHAR2
-)
-RETURN VARCHAR2
-AS
-l_tmp LONG;
-BEGIN
-  SELECT high_value
-  INTO l_tmp
-  FROM user_tab_partitions
-  WHERE table_name = p_table_name 
-  AND partition_name = p_partition_name;
-RETURN l_tmp;
-END;
-/
 
 CREATE TABLE TEMP_TABLE (
 	TABLE_NAME VARCHAR2(35),
@@ -61,9 +43,8 @@ SELECT
      partition_position,
      column_name, 
      high_value,
-     t.max,
-     t.max/gethighvalue(p.table_name, partition_name) usage
-/*   pct_free,
+     t.max, 
+     pct_free,
      pct_used,
      ini_trans,
      max_trans,
@@ -71,19 +52,14 @@ SELECT
      next_extent,
      max_extent,
      pct_increase
-*/
 FROM USER_tab_partitions p JOIN USER_part_key_columns c ON 
      p.TABLE_NAME = c.NAME JOIN TEMP_TABLE t ON p.TABLE_NAME =
      t.TABLE_NAME
-WHERE t.max <= gethighvalue(p.table_name, partition_name)
-/*AND column_name like '%SUB_IOV%' and partition_name like '%12%'*/
-ORDER BY table_name, partition_position, usage
+/*WHERE partition_name like '%_0' and partition_name not like '%_10'*/
+ORDER BY table_name, partition_position
 /
 
 drop table TEMP_TABLE
-/
-
-drop function gethighvalue
 /
 
 

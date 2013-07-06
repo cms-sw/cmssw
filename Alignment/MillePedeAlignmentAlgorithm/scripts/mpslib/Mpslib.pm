@@ -1,6 +1,6 @@
 package Mpslib;  # assumes Some/Module.pm
 
-# $Revision: 1.9 $ by $Author: jbehr $
+# $Revision: 1.8 $ by $Author: flucke $
 #
 # Meaning of the database variables:
 #
@@ -35,8 +35,8 @@ package Mpslib;  # assumes Some/Module.pm
 #  @JOBINCR - CPU increment since last check
 #  @JOBREMARK - comment
 #  @JOBSP1 - spare
-#  @JOBSP2 - possible weight for pede
-#  @JOBSP3 - possible name as given to mps_setup.pl -N <name> ...
+#  @JOBSP2 - spare
+#  @JOBSP3 - spare
 
   
   use Exporter   ();
@@ -60,7 +60,7 @@ package Mpslib;  # assumes Some/Module.pm
                    );
 
 sub write_db() {
-  $header = "mps database schema 3.2" ;
+  $header = "mps database schema 3.2 R. Mankel 2-Aug-2007 (update by A. Parenti, 23-June-2009)" ;
   $currentTime = `date +%s`;
   chomp $currentTime;
   $elapsedTime = 0;
@@ -172,10 +172,10 @@ sub read_db() {
 sub print_memdb() {
   print "=== mps database printout ===\n";
   print "$header\n";
-  printf "Script: %s\ncfg: %s\nfiles: %s\nclass: %s\nname: %s\ndriver: %s\nmergeScript: %s\nmssDir: %s\nupdateTime: %s\nelapsed: %d\nmssDirPool: %s\npedeMem: %d\n",$batchScript,
+  printf "Script %s card %s infi %s class %s files %s driver %s mergeScript %s mssDir %s updateTime %s elapsed %d mssDirPool %s pedeMem %d\n",$batchScript,
   $cfgTemplate,$infiList,$class,$addFiles,$driver,$mergeScript,$mssDir,$updateTimeHuman,$elapsedTime,$mssDirPool,$pedeMem;
-  printf "%3s %6s %9s %6s %3s %5s %8s %6s %8s %s\n",
-  '###',"dir","jobid","stat","try","rtime","nevt","t/evt","remark","name";
+  printf "%3s %8s %8s %5s %4s %6s %9s %10s %10s \n",
+  '###',"dir","jobid","stat","ntry","rtime","nevt","time/evt","remark";
   my $i;
   my $totEvt = 0;
   my $totCpu = 0;
@@ -186,9 +186,9 @@ sub print_memdb() {
     if (@JOBRUNTIME[$i]>0 and @JOBNEVT[$i]>0) {
       $cpuPerEvt = $thisCpu / @JOBNEVT[$i];
     }
-    printf "%03d %6s %09d %6s %3d %5d %8d %6.3f %8s %s\n",
+    printf "%03d %8s %08d %5s %4d %6d %9d %10.3f %10s\n",
     $i+1,@JOBDIR[$i],@JOBID[$i],@JOBSTATUS[$i],@JOBNTRY[$i],
-      $thisCpu,@JOBNEVT[$i],$cpuPerEvt,@JOBHOST[$i],$JOBSP3[$i];
+      $thisCpu,@JOBNEVT[$i],$cpuPerEvt,@JOBHOST[$i];
     if (@JOBNEVT[$i] > 0) {
       $totEvt = $totEvt + @JOBNEVT[$i];
     }
@@ -201,8 +201,8 @@ sub print_memdb() {
       while ($i < @JOBID) {
         $cpuFactor = get_cpufactor(@JOBHOST[$i]);
         $thisCpu = @JOBRUNTIME[$i] * $cpuFactor;
-        printf "%3s %6s %09d %6s %3d %5d %8d %6.3f %8s\n",
-        "MMM",@JOBDIR[$i],@JOBID[$i],@JOBSTATUS[$i],@JOBNTRY[$i],
+        printf "%3s %8s %08d %5s %4d %6d %9d %10.3f %10s\n",
+      "MMM",@JOBDIR[$i],@JOBID[$i],@JOBSTATUS[$i],@JOBNTRY[$i],
         $thisCpu,@JOBNEVT[$i],0,@JOBHOST[$i];
 	++$i;
       }

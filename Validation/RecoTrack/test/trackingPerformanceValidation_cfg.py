@@ -49,7 +49,8 @@ process.multiTrackValidator.runStandalone = True
 process.cutsRecoTracks.algorithm = cms.vstring(ALGORITHM)
 process.cutsRecoTracks.quality = cms.vstring(QUALITY)
 
-process.multiTrackValidator.associators = ['TrackAssociatorByHits']
+#process.multiTrackValidator.associators = ['TrackAssociatorByHits']
+process.multiTrackValidator.associators = ['quickTrackAssociatorByHits']
 process.multiTrackValidator.useLogPt=cms.untracked.bool(True)
 process.multiTrackValidator.minpT = cms.double(0.1)
 process.multiTrackValidator.maxpT = cms.double(1000)

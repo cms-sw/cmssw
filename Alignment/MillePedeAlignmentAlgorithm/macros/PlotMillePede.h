@@ -1,7 +1,7 @@
 #ifndef PLOTMILLEPEDE_H
 #define PLOTMILLEPEDE_H
 // Original Author: Gero Flucke
-// last change    : $Date: 2012/06/25 13:19:30 $
+// last change    : $Date: 2012/03/29 08:42:23 $
 // by             : $Author: flucke $
 //
 // PlotMillePede is a class to interprete the content of the ROOT
@@ -30,8 +30,6 @@
 // contains 'add', canvases from previous Draw-commands are kept (in fact they
 // are re-drawn).
 //
-// General Options
-// ===============
 // A title can be set by 'void SetTitle(const char *title)':
 // The title will appear as part of all histogram titles.
 //
@@ -42,25 +40,6 @@
 //   Int_t SetNbins(Int_t nBins); // set number of bins for some result plots
 // that returns the previous setting (default: 101)
 //
-// When drawing pede parameters using DrawPede<...>, the class cannot know
-// what type of parameters that are, e.g. RigidBodyParameters or 
-// (Two)BowedSurface(s)Parameters. To get correct axis labels and units you
-// can switch between these two using p.SetBowsParameters(bool).
-// If you do not choose, RigidBodyParameters are expected.
-// 
-// If something is plotted versus the radius, you can choose to use the signed
-// radius instead that uses the sign of the y-coordinate:
-// p.SetUseSignedR(bool)
-//
-// When drawing surface deformation values of double sensor modules (TOB, TEC R5-7),
-// by default the bow parameters as stored in TwoBowedSurfacesDeformations are plotted,
-// i.e. the average w_20, w_11, w_02 and their differences. You might want to see
-// instead the full bow of sensor one and two instead, e.g. w_20^1 and w_20^2.
-// This can be chosen by calling p.SetSurfDefDeltaBows(false).
-//
-//
-// Alignable Selections
-// ====================
 // Several cuts can be set and are active until reset for all drawing routines
 // called after setting them. Active selections are mentioned in histogram titles.
 // The possibilites to set cuts are:
@@ -131,8 +110,6 @@
 // In case of IOV dependent alignment, results are stored for each IOV.
 // The second argument of the constructor decides which IOV is used.
 // The default is 1 that is also valid in case there is no IOV dependence. 
-// To draw the time dependence of parameters vs IOV numbers, use the class
-// PlotMillePedeIOV.
 //
 // Note that the hit statistics is (unfortunately) counted without
 // taking care of IOV boundaries, i.e. whatever IOV is chosen, the number of
@@ -163,11 +140,6 @@ class PlotMillePede : public MillePedeTrees
   void DrawPedeParamVsLocation(Option_t *option = "", unsigned int nNonRigidParam = 12);//"add" to add plots; params beyond rigid body 
   void DrawSurfaceDeformations(const TString &whichOne = "result start", Option_t *option = "",
 			       unsigned int maxNumPars = 12, unsigned int firstPar = 0);//"start result diff"; "add" to add plots, "all" to erase selection to be valid, "nolimit" w/o axis limits
-  void DrawSurfaceDeformationsVsLocation(const TString &whichOne = "result",
-					 Option_t *option = "",
-					 unsigned int maxNumPar = 11,
-					 unsigned int firstPar = 0); //
-
   void DrawSurfaceDeformationsLayer(Option_t *option = "", const unsigned int firstDetLayer = 22,
 				    const unsigned int lastDetLayer = 33,
 				    const TString &whichOne = "result",

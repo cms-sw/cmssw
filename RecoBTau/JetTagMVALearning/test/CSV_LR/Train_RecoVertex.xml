@@ -52,28 +52,35 @@
 			<var source="input" name="jetEta"/>
 		</input>
 		<config>
-                        <group><box><range max="40"/><range min="-1.2" max="1.2"/></box></group>
-                        <group><box><range max="40"/><range min="-2.1" max="2.1"/></box></group>
-                        <group><box><range max="40"/><range/></box></group>
-                        <group><box><range min="40" max="60"/><range min="-1.2" max="1.2"/></box></group>
-                        <group><box><range min="40" max="60"/><range min="-2.1" max="2.1"/></box></group>
-                        <group><box><range min="40" max="60"/><range/></box></group>
-                        <group><box><range min="60" max="90"/><range min="-1.2" max="1.2"/></box></group>
-                        <group><box><range min="60" max="90"/><range min="-2.1" max="2.1"/></box></group>
-                        <group><box><range min="60" max="90"/><range/></box></group>
-                        <group><box><range min="90" max="150"/><range min="-1.2" max="1.2"/></box></group>
-                        <group><box><range min="90" max="150"/><range min="-2.1" max="2.1"/></box></group>
-                        <group><box><range min="90" max="150"/><range/></box></group>
-												<group><box><range min="150" max="400"/><range min="-1.2" max="1.2"/></box></group>
-                        <group><box><range min="150" max="400"/><range min="-2.1" max="2.1"/></box></group>
-                        <group><box><range min="150" max="400"/><range/></box></group>
-                        <group><box><range min="400" max="600"/><range min="-1.2" max="1.2"/></box></group>
-                        <group><box><range min="400" max="600"/><range/></box></group>
-												<group><box><range/><range min="-1.2" max="1.2"/></box></group>
-                        <group><box><range/><range/></box></group> 			
+			<group><box><range max="40"/><range min="-1.2" max="1.2"/></box></group>
+			<group><box><range max="40"/><range min="-2.1" max="2.1"/></box></group>
+			<group><box><range max="40"/><range/></box></group>
+			<group><box><range min="40" max="60"/><range min="-1.2" max="1.2"/></box></group>
+			<group><box><range min="40" max="60"/><range min="-2.1" max="2.1"/></box></group>
+			<group><box><range min="40" max="60"/><range/></box></group>
+			<group><box><range min="60" max="90"/><range min="-1.2" max="1.2"/></box></group>
+			<group><box><range min="60" max="90"/><range min="-2.1" max="2.1"/></box></group>
+			<group><box><range min="60" max="90"/><range/></box></group>
+			<group><box><range min="90" max="150"/><range min="-1.2" max="1.2"/></box></group>
+			<group><box><range min="90" max="150"/><range min="-2.1" max="2.1"/></box></group>
+			<group><box><range min="90" max="150"/><range/></box></group>
+			<group><box><range/><range min="-1.2" max="1.2"/></box></group>
+			<group><box><range/><range min="-2.1" max="2.1"/></box></group>
+			
 		</config>
 		<output>
 			<var name="category"/>
+		</output>
+	</processor>
+	<processor id="count" name="ProcCount">
+		<input>
+			<var source="input" name="trackSip2dSig"/>
+		</input>
+		<config>
+			
+		</config>
+		<output>
+			<var name="nTracks"/>
 		</output>
 	</processor>
 	<processor id="norm1" name="ProcNormalize">
@@ -167,8 +174,8 @@
 			<var source="split1" name="vartrackSip3dSig_rest"/>
 		</input>
 		<config>
-                        <general strict="true"/>
-                        <category count="19"/>
+                        <general/>
+                        <category count="15"/>
                         <sigbkg smooth="3"/> <!-- vartrackEtaRel -->
                         <sigbkg smooth="3"/> <!-- varvertexMass -->
                         <sigbkg/> <!-- varvertexNTracks -->
@@ -190,7 +197,7 @@
 			<var source="lkh1" name="discr1"/>
 		</input>
 		<config>
-			<pdf smooth="3"/>
+			<pdf lower="0" upper="1" />
 		</config>
 		<output>
 			<var name="normdiscr1"/>
@@ -202,46 +209,33 @@
 			<var source="normlkh1" name="normdiscr1"/>
 		</input>
 		<config>
-			 <general strict="true"/>
-       <category count="19"/>
-	     <sigbkg smooth="3"/>			 
+			<general strict="false"/>
        <bias_table><!--B_DUSG-->
-<bias>63.7152</bias>
-<bias>46.4696</bias>
-<bias>30.0772</bias>
-<bias>42.7671</bias>
-<bias>30.8956</bias>
-<bias>20.7596</bias>
-<bias>35.5407</bias>
-<bias>25.6944</bias>
-<bias>17.3897</bias>
-<bias>28.6057</bias>
-<bias>20.335</bias>
-<bias>13.2094</bias>
-<bias>20.9432</bias>
-<bias>13.9977</bias>
-<bias>9.06977</bias>
-<bias>11.3267</bias>
-<bias>6.77222</bias>
-<bias>8.01444</bias>
-<bias>5.13726</bias>
+        <bias>73.4032</bias>
+				<bias>53.6842</bias>
+				<bias>28.9836</bias>
+				<bias>40.4916</bias>
+				<bias>27.9614</bias>
+				<bias>19.4163</bias>
+				<bias>31.3001</bias>
+				<bias>21.0905</bias>
+				<bias>14.6575</bias>
+				<bias>25.5065</bias>
+				<bias>16.8402</bias>
+				<bias>11.7351</bias>
+				<bias>13.8672</bias>
+				<bias>8.56481</bias>
+				<bias>6.90638</bias>
        </bias_table><!--B_DUSG-->
+			<category count="15"/>
+			<sigbkg smooth="3"/>
 		</config>
 		<output>
 			<var name="biasdiscr1"/>
 		</output>
 	</processor>
-  <processor id="opt1" name="ProcOptional">
-					<input>
-						<var source="biaslkh1" name="biasdiscr1"/>
-					</input>
-					<config>
-						<neutral pos="-1"/>
-					</config>
-					<output>
-						<var name="optdiscr1"/>
-					</output>
-  </processor>
+
+
 
 	<processor id="norm2" name="ProcNormalize">
 		<input>
@@ -335,8 +329,8 @@
 			<var source="split2" name="vartrackSip3dSig_rest"/>
 		</input>
 		<config>
-                        <general strict="true"/>
-                        <category count="19"/>
+                        <general/>
+                        <category count="15"/>
                         <sigbkg smooth="3"/> <!-- trackEtaRel -->
                         <sigbkg smooth="3"/> <!-- vertexMass -->
                         <sigbkg/> <!-- vertexNTracks -->
@@ -358,7 +352,7 @@
 			<var source="lkh2" name="discr2"/>
 		</input>
 		<config>
-			<pdf smooth="3"/>
+			<pdf lower="0" upper="1" />
 		</config>
 		<output>
 			<var name="normdiscr2"/>
@@ -370,50 +364,35 @@
 			<var source="normlkh2" name="normdiscr2"/>
 		</input>
 		<config>
-       <general strict="true"/>
-       <category count="19"/>
-	     <sigbkg smooth="3"/>
+			<general strict="false"/>
        <bias_table><!--B_C-->
-<bias>3.6321</bias>
-<bias>4.09951</bias>
-<bias>4.10019</bias>
-<bias>3.17093</bias>
-<bias>3.44871</bias>
-<bias>3.6968</bias>
-<bias>2.98549</bias>
-<bias>3.22756</bias>
-<bias>3.35043</bias>
-<bias>2.86468</bias>
-<bias>2.96515</bias>
-<bias>3.10996</bias>
-<bias>2.86159</bias>
-<bias>2.84639</bias>
-<bias>2.91854</bias>
-<bias>2.889</bias>
-<bias>2.43796</bias>
-<bias>2.68901</bias>
-<bias>2.86275</bias>
+        <bias>3.76366</bias>
+				<bias>4.18849</bias>
+				<bias>4.14512</bias>
+				<bias>3.20029</bias>
+				<bias>3.50683</bias>
+				<bias>3.90637</bias>
+				<bias>3.00289</bias>
+				<bias>3.17071</bias>
+				<bias>3.54318</bias>
+				<bias>2.8131</bias>
+				<bias>2.85764</bias>
+				<bias>3.07463</bias>
+				<bias>2.53865</bias>
+				<bias>2.47115</bias>
+				<bias>2.48927</bias>
        </bias_table><!--B_C-->
+			<category count="15"/>
+			<sigbkg smooth="3"/>
 		</config>
 		<output>
 			<var name="biasdiscr2"/>
 		</output>
 	</processor>
-	<processor id="opt2" name="ProcOptional">
-					<input>
-						<var source="biaslkh2" name="biasdiscr2"/>
-					</input>
-					<config>
-						<neutral pos="-1"/>
-					</config>
-					<output>
-						<var name="optdiscr2"/>
-					</output>
-  </processor>
 	<processor id="comb" name="ProcLinear">
 		<input>
-			<var source="opt1" name="optdiscr1"/> <!-- B vs DUSG -->
-			<var source="opt2" name="optdiscr2"/> <!-- B vs C -->
+			<var source="biaslkh1" name="biasdiscr1"/> <!-- B vs DUSG -->
+			<var source="biaslkh2" name="biasdiscr2"/> <!-- B vs C -->
 		</input>
 		<config>
 			<coefficients offset="0.0" coeff1="0.75" coeff2="0.25"/> 
@@ -428,11 +407,5 @@
 	</output>
 
 </MVATrainer>
-
-
-
-
-
-
 
 

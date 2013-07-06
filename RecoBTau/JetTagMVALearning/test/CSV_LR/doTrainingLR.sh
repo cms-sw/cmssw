@@ -8,49 +8,45 @@ answer=3
 #echo "start the training, make sure you extracted the variables first using cmsRun VariableExtractor_LR_cfg.py (usually QCD events are used)"
 #
 ##!/bin/sh
-path_to_rootfiles=/user/pvmulder/NewEraOfDataAnalysis/BTagServiceWork/CMSSW_5_3_4_patch1/src/RootFiles_QCDhighpT_53X/
+path_to_rootfiles=/user/pvmulder/NewEraOfDataAnalysis/BTagServiceWork/CMSSW_4_4_4/src/BTagging/RootFiles_AK5PFL2L3JetID/
 prefix=CombinedSV
 Combinations="NoVertex_B_DUSG NoVertex_B_C PseudoVertex_B_DUSG PseudoVertex_B_C RecoVertex_B_DUSG RecoVertex_B_C"
-CAT="Reco Pseudo No"
-
 
 echo "Merging the rootfiles" 
 
+CAT="Reco Pseudo No"
 for i in $CAT ; do
-##	hadd $path_to_rootfiles/${prefix}${i}Vertex_DUSG.root $path_to_rootfiles/${prefix}${i}Vertex_D.root $path_to_rootfiles/${prefix}${i}Vertex_U.root $path_to_rootfiles/${prefix}${i}Vertex_S.root $path_to_rootfiles/${prefix}${i}Vertex_G.root 
+#	hadd $path_to_rootfiles/${prefix}${i}Vertex_DUSG.root $path_to_rootfiles/${prefix}${i}Vertex_D.root $path_to_rootfiles/${prefix}${i}Vertex_U.root $path_to_rootfiles/${prefix}${i}Vertex_S.root $path_to_rootfiles/${prefix}${i}Vertex_G.root 
 	hadd $path_to_rootfiles/${prefix}${i}Vertex_B_DUSG.root $path_to_rootfiles/${prefix}${i}Vertex_DUSG.root $path_to_rootfiles/${prefix}${i}Vertex_B.root
 	hadd $path_to_rootfiles/${prefix}${i}Vertex_B_C.root $path_to_rootfiles/${prefix}${i}Vertex_C.root $path_to_rootfiles/${prefix}${i}Vertex_B.root
 done
-
 
 echo "Filling the 2D pt/eta histograms" 
 
 g++ ../histoJetEtaPt.cpp `root-config --cflags --glibs` -o histos
 ./histos $path_to_rootfiles $prefix
 
-
 echo "Calculating the pt/eta weights"
 
-#g++ ../fitJetEtaPt.cpp `root-config --cflags --glibs` -o fitter
-#mkdir weights
-#for i in $CAT ; do
-#	./fitter ${prefix}${i}Vertex_B_C_histo.root
-#  mv out.txt weights/${prefix}${i}Vertex_BC_histo.txt
-#  mv out.root weights/${prefix}${i}Vertex_BC_histo_check.root
-#
-#	./fitter ${prefix}${i}Vertex_B_histo.root ${prefix}${i}Vertex_C_histo.root
-#	mv out.txt weights/${prefix}${i}Vertex_B_C_ratio.txt
-#  mv out.root weights/${prefix}${i}Vertex_B_C_ratio_check.root
-#	
-#	./fitter ${prefix}${i}Vertex_B_DUSG_histo.root 
-#	mv out.txt weights/${prefix}${i}Vertex_BDUSG_histo.txt
-#  mv out.root weights/${prefix}${i}Vertex_BDUSG_histo_check.root
-#
-#	./fitter ${prefix}${i}Vertex_B_histo.root ${prefix}${i}Vertex_DUSG_histo.root
-#	mv out.txt weights/${prefix}${i}Vertex_B_DUSG_ratio.txt
-#  mv out.root weights/${prefix}${i}Vertex_B_DUSG_ratio_check.root
-#done
+g++ ../fitJetEtaPt.cpp `root-config --cflags --glibs` -o fitter
+mkdir weights
+for i in $CAT ; do
+	./fitter ${prefix}${i}Vertex_B_C_histo.root
+  mv out.txt weights/${prefix}${i}Vertex_BC_histo.txt
+  mv out.root weights/${prefix}${i}Vertex_BC_histo_check.root
 
+	./fitter ${prefix}${i}Vertex_B_histo.root ${prefix}${i}Vertex_C_histo.root
+	mv out.txt weights/${prefix}${i}Vertex_B_C_ratio.txt
+  mv out.root weights/${prefix}${i}Vertex_B_C_ratio_check.root
+	
+	./fitter ${prefix}${i}Vertex_B_DUSG_histo.root 
+	mv out.txt weights/${prefix}${i}Vertex_BDUSG_histo.txt
+  mv out.root weights/${prefix}${i}Vertex_BDUSG_ratio_check.root
+
+	./fitter ${prefix}${i}Vertex_B_histo.root ${prefix}${i}Vertex_DUSG_histo.root
+	mv out.txt weights/${prefix}${i}Vertex_B_DUSG_ratio.txt
+  mv out.root weights/${prefix}${i}Vertex_B_DUSG_ratio_check.root
+done
 
 for j in $( ls ../MVATrainer_*cfg.py ) ; do cp $j . ; done
 for j in $( ls MVATrainer_*cfg.py ) ; do
@@ -63,18 +59,15 @@ for j in $( ls Save*xml ) ; do
 	sed -i 's@CombinedSV@'$prefix'@g#' $j # change the name of the tag in the file
 done
 
-
 echo "Reweighting the trees according to the pt/eta weights and saving the relevant variables " 
 
 files=("MVATrainer_No_B_DUSG_cfg.py" "MVATrainer_No_B_C_cfg.py" "MVATrainer_Pseudo_B_DUSG_cfg.py" "MVATrainer_Pseudo_B_C_cfg.py" "MVATrainer_Reco_B_DUSG_cfg.py" "MVATrainer_Reco_B_C_cfg.py")
-
 l=0
 while [ $l -lt 6 ]
 do
 	jobsrunning=0
 	while [ $jobsrunning -lt $answer ]
 	do
-	  #echo ${files[l]}
 		nohup cmsRun ${files[l]} &
 		let jobsrunning=$jobsrunning+1
 		let l=$l+1
@@ -82,11 +75,8 @@ do
 	wait
 done
 
-
-##echo "SelectVars.C only to be run to study variables AND if you checked that the files in the TrainExtraVars directory are correct!"
-##echo "I will run the default CSV LR, therefore removing some variables from the Train*xml files!!!"
-##root -l -q ../SelectVars.C
-
+echo "I will run the default CSV LR, therefore removing some variables from the Train*xml files!!!"
+root -l -q ../SelectVars.C
 
 echo "Calculating the bias: ARE YOU SURE THAT YOU HAVE ENOUGH STATISTICS TO DETERMINE THE BIAS ACCURATELY?"
 g++ ../biasForXml.cpp `root-config --cflags --glibs` -o bias
@@ -116,7 +106,6 @@ for k in $Vertex ; do
 	done
 done
 
-
 echo "Do the actual training"
 
 CombinationsArray=("NoVertex_B_DUSG" "NoVertex_B_C" "PseudoVertex_B_DUSG" "PseudoVertex_B_C" "RecoVertex_B_DUSG" "RecoVertex_B_C")
@@ -138,7 +127,6 @@ echo train_${CombinationsArray[l]}_save.root
 	done
 	wait
 done
-
 
 echo "Combine the B versus DUSG and B versus C training "
 

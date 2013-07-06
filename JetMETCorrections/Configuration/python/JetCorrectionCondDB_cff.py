@@ -3,6 +3,7 @@ from CondCore.DBCommon.CondDBCommon_cfi import *
 #CondDBCommon.connect = 'frontier://FrontierPrep/CMS_COND_PHYSICSTOOLS'
 CondDBCommon.connect = cms.string('sqlite_file:JEC_Spring10.db')
 
+
 PoolDBESSource = cms.ESSource("PoolDBESSource",
   CondDBCommon,
   toGet = cms.VPSet( 

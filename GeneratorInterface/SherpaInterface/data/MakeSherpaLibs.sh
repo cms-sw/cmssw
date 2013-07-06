@@ -1,4 +1,3 @@
-
 #!/bin/bash
 #
 #  file:        MakeSherpaLibs.sh
@@ -7,11 +6,10 @@
 #  uses:        the required SHERPA data cards (+ libraries) [see below]
 #
 #  author:      Markus Merschmeyer, Sebastian Thueer, RWTH Aachen
-#  date:        19th February 2013
-#  version:     4.2
+#  date:        17th July 2012
+#  version:     4.0
 #
 
-set +o posix
 
 
 # +-----------------------------------------------------------------------------------------------+
@@ -20,7 +18,7 @@ set +o posix
 
 print_help() {
     echo "" && \
-    echo "MakeSherpaLibs version 4.2" && echo && \
+    echo "MakeSherpaLibs version 4.0" && echo && \
     echo "options: -d  path       (optional) path to your SHERPA installation (otherwise the SHERPA" && \
     echo "                         package belonging to the release under '\$CMSSW_BASE' is used)" && \
     echo "                         -> ( "${shr}" )" && \
@@ -38,10 +36,7 @@ print_help() {
     echo "         -L  filename   (optional) name of library file ( "${cflb}" )" && \
     echo "         -C  filename   (optional) name of cross section file ( "${cfcr}" )" && \
     echo "         -A             switch on multiple interactions in Run.dat card ( "${FLGAMISIC}" )" && \
-    echo "         -v             verbose mode ( "${verbose}" )" && \
-    echo "         -m             disable library compilation in multithreading mode ( "${nomultithread}" )"  && \
-    echo "         -h             display this help and exit" && \
-    echo ""
+    echo "         -h             display this help and exit" && echo
 }
 
 check_occurence() {
@@ -87,6 +82,26 @@ clean_libs() {
   done
 }
 
+fix_makelibs() {
+# fix 'makelibs' script for 32-bit compatibility
+  echo " <W> setting 32bit flags in 'makelibs' script !!!"
+
+  CNFFLG="CFLAGS=-m32 FFLAGS=-m32 CXXFLAGS=-m32 LDFLAGS=-m32"
+  MKEFLG="CFLAGS=-m32 FFLAGS=-m32 CXXFLAGS=\"-O2 -m32\" LDFLAGS=-m32"
+
+  if [ -e ${SHERPA_SHARE_PATH} ]; then
+    sed -e "s/configure/configure ${CNFFLG}/" < ${SHERPA_SHARE_PATH}/makelibs > ./makelibs.tmp
+    sed -e "s/-j2 \"CXXFLAGS=-O2\"/-j2 ${MKEFLG}/" < ./makelibs.tmp > ./makelibs
+    rm ./makelibs.tmp
+    chmod 755 ./makelibs
+  else
+    echo " <E> SHERPA_SHARE_PATH does not exist, stopping..."
+    exit
+  fi
+
+}
+
+
 
 
 
@@ -98,7 +113,7 @@ clean_libs() {
 HDIR=`pwd`
 
 # dummy setup (if all options are missing)
-shr=${HDIR}/SHERPA_1.4.2        # path to SHERPA installation
+shr=${HDIR}/SHERPA-MC-1.1.2        # path to SHERPA installation
 scrloc=`which scramv1 &> tmp.tmp; cat tmp.tmp | cut -f1 -d"/"; rm tmp.tmp`
 if [ "${scrloc}" = "" ]; then
   shr=`scramv1 tool info sherpa | grep "SHERPA_BASE" | cut -f2 -d"="`
@@ -113,12 +128,9 @@ cflb=""                            # custom library file name
 cfcr=""                            # custom cross section file name
 fin=${HDIR}                        # output path for SHERPA libraries & cross sections
 FLGAMISIC="FALSE"                  # switch on multiple interactions for production
-FLGAMEGIC="FALSE"                  # flag to indicate the usage of AMEGIC -> library compilation required
-verbose="FALSE"                    # controls verbose mode
-nomultithread="FALSE"              # disables multithread mode of Sherpa library compilation
 
 # get & evaluate options
-while getopts :d:i:p:o:f:D:L:C:Ahvm OPT
+while getopts :d:i:p:o:f:D:L:C:Ah OPT
 do
   case $OPT in
   d) shr=$OPTARG ;;
@@ -130,8 +142,6 @@ do
   L) cflb=$OPTARG ;;
   C) cfcr=$OPTARG ;;
   A) FLGAMISIC="TRUE" ;;
-  v) verbose="TRUE";;
-  m) nomultithread="TRUE";;
   h) print_help && exit 0 ;;
   \?)
     shift `expr $OPTIND - 1`
@@ -188,26 +198,6 @@ echo "  -> custom data card file name: '"${cfdc}"'"
 echo "  -> custom library file name: '"${cflb}"'"
 echo "  -> custom cross section file name: '"${cfcr}"'"
 echo "  -> output path: '"${fin}"'"
-
-# get the number of CPU cores
-FLGMCORE="TRUE"
-POPTS=""
-nprc=1
-if [ "$FLGMCORE" = "TRUE" ]; then
-    nprc=`cat /proc/cpuinfo | grep  -c processor`
-    let nprc=$nprc+1
-    if [ $nprc -gt 2 ]; then
-      echo " <I> multiple CPU cores detected: "$nprc"-1"
-      POPTS=" -j"$nprc" "
-    fi
-fi
-
-# enable multithreading for library compilation
-multithread_opt="-j $((nprc-1))"
-if [ "$nomultithread" = "TRUE" ]; then
-  multithread_opt=""
-  POPTS=""
-fi
 
 
 ### go to 'Run' subdirectory of SHERPA
@@ -312,11 +302,11 @@ fi
 if [ -e ${runfile} ]; then
   iamegic=`check_occurence ${runfile} "ME_SIGNAL_GENERATOR" "AMEGIC"`
   if [ ${iamegic} -gt 0 ]; then
-    FLGAMEGIC="TRUE"                   # using AMEGIC
+    FLGCOMIX="FALSE"                   # use AMEGIC
     echo " <I> using AMEGIC ME generator"
   else
-#    FLGAMEGIC="FALSE"                  # using no AMEGIC
-    echo " <I> using COMIX/internal ME generator"
+    FLGCOMIX="TRUE"                    # use COMIX
+    echo " <I> using COMIX ME generator"
     lbo="LBCR"
   fi
 fi
@@ -361,7 +351,7 @@ else
   echo " cleaning '"${dir1}"' subdirectory"
   rm -rf ${dir1}/*
 fi
-## generate/clean 'Results' subdirectory
+## generate/clean 'Result' subdirectory
 if [ ! -e ${dir2} ]; then
   echo " '"${dir2}"' subdirectory does not exist and will be created"
   mkdir ${dir2}
@@ -407,120 +397,54 @@ fi
 
 
 ### generate process-specific libraries -> redirect output (stdout, stderr) to files
+## first pass
 sherpaexe=`find ${shr} -type f -name Sherpa`
 echo " <I> Sherpa executable is "${sherpaexe}
 cd ${pth}
 
-# create logfiles
-touch ${shrun}/${outflbs}_passLC.out
-touch ${shrun}/${outflbs}_passLC.err
-if [ "${FLGAMEGIC}" == "TRUE" ]; then
-  touch ${shrun}/${outflbs}_mklib.out
-  touch ${shrun}/${outflbs}_mklib.err
-  touch ${shrun}/${outflbs}_cllib.out
-  touch ${shrun}/${outflbs}_cllib.err
-fi
-
-#Executes a command and logs its stdout and stderr outputs to files.
-#If global variable verbose is TRUE, then output is also display on the terminal
-#Usage exec_log2 [-a] stdout_file stderr_file cmd args ....
-# -a: append outputs to the files.
-exec_log2(){
-    local append_opt=""
-    if [ $1 = -a ]; then
-	append_opt=-a
-	shift
-    else
-	unset append_opt
-    fi
-    local fout=$1
-    local ferr=$2
-    shift 2;
-    if [ "$verbose" = "TRUE" ]; then
-#	{ "$@" | tee $append_opt "$fout"; } 2>&1 | tee $append_opt "$ferr"
-         $@ 1> >(tee $append_opt $fout) 2> >(tee $append_opt $ferr >&2)
-    elif [ -n "$append_opt" ]; then
-	"$@" >> "$fout" 2>> "$ferr"
-    else
-	"$@" > "$fout" 2> "$ferr"
-    fi
-}
-
-## first pass (loop if AMEGIC + NLO loop generators are used)
 if [ "${lbo}" = "LIBS" ] || [ "${lbo}" = "LBCR" ]; then
   echo " <I> creating library code..."
-  echo "     ...Logs stored in ${shrun}/${outflbs}_passLC.out and ${shrun}/${outflbs}_passLC.err."
-#  ${sherpaexe} ${multithread_opt} "PATH="${pth} "PATH_PIECE="${pth} "RESULT_DIRECTORY="${dir2} 1>>${shrun}/${outflbs}_passLC.out 2>>${shrun}/${outflbs}_passLC.err
-  exec_log2 -a ${shrun}/${outflbs}_passLC.out ${shrun}/${outflbs}_passLC.err ${sherpaexe} ${multithread_opt} "PATH="${pth} "PATH_PIECE="${pth} "RESULT_DIRECTORY="${dir2}
-
+  ${sherpaexe} "PATH="${pth} "PATH_PIECE="${pth} "RESULT_DIRECTORY="${dir2} 1>${shrun}/${outflbs}_pass1.out 2>${shrun}/${outflbs}_pass1.err #Sherpa 1.3.0 needs full path MN 070611
 ###  cd ${pth}
-
-  if [ "${FLGAMEGIC}" == "TRUE" ]; then
-
-    FLGNEWCODE="TRUE"
-    FLGWRITLIB="TRUE"
-
-    while [ "${FLGNEWCODE}" = "TRUE" ] || [ "${FLGWRITLIB}" = "TRUE" ]; do
-
-# compile created library code
-      echo " <I> compiling libraries..."
-      echo "     ...Logs stored in ${shrun}/${outflbs}_mklib.out and ${shrun}/${outflbs}_mklib.err."
-#      ./makelibs ${POPTS} 1>>${shrun}/${outflbs}_mklib.out 2>>${shrun}/${outflbs}_mklib.err
-      exec_log2 -a ${shrun}/${outflbs}_mklib.out ${shrun}/${outflbs}_mklib.err ./makelibs ${POPTS} 
-# get gross size of created libraries
-      nf=`du -sh | grep -o "\." | grep -c "\."`
-      lsize=`du -sh  | cut -f 1-${nf} -d "."`
-      echo " <I>  -> raw size: "${lsize}
-      echo " <I> cleaning libraries..."
-      echo "     ...Logs stored in ${shrun}/${outflbs}_cllib.out and ${shrun}/${outflbs}_cllib.err."
-#      clean_libs 1>>${shrun}/${outflbs}_cllib.out 2>>${shrun}/${outflbs}_cllib.err
-      exec_log2 -a ${shrun}/${outflbs}_cllib.out ${shrun}/${outflbs}_cllib.err clean_libs
-# get net size of created libraries
-      nf=`du -sh | grep -o "\." | grep -c "\."`
-      lsize=`du -sh  | cut -f 1-${nf} -d "."`
-      echo " <I>  -> clean size: "${lsize}
-
-# reinvoke Sherpa
-      echo " <I> re-invoking Sherpa for futher library/cross section calculation..."
-      echo "     ...Logs stored in ${shrun}/${outflbs}_passLC.out and ${shrun}/${outflbs}_passLC.err."
-      exec_log2 -a ${shrun}/${outflbs}_passLC.out ${shrun}/${outflbs}_passLC.err ${sherpaexe} ${multithread_opt} "PATH="${pth} "PATH_PIECE="${pth} "RESULT_DIRECTORY="${dir2}
-
-# newly created process code by AMEGIC?
-      cd ${dir1}
-      lastdir=`ls -C1 -drt * | tail -1`
-      npdir=`echo ${lastdir} | grep -c "P2"`
-      if [ ${npdir} -gt 0 ]; then
-        echo " <I> (AMEGIC) library code was created in (at least) "${lastdir}
-        FLGNEWCODE="TRUE"
-      else
-        FLGNEWCODE="FALSE"
-      fi
-      cd ${pth}
-
-# mentioning of "" in last 100 lines output file?
-      nlines=200
-      nphbw=`tail -${nlines} ${shrun}/${outflbs}_passLC.out | grep -c "has been written"`
-      npasw=`tail -${nlines} ${shrun}/${outflbs}_passLC.out | grep -c "AMEGIC::Single_Process::WriteLibrary"`
-      if [ ${nphbw} -gt 0 ] || [ ${npasw} -gt 0 ]; then
-        echo "<I> (AMEGIC) detected library writing: "${nphbw}" (HBW), "${npasw}" (ASW)"
-        FLGWRITLIB="TRUE"
-      else
-        FLGWRITLIB="FALSE"
-      fi
-
-    done
-
+  if [ "${FLGCOMIX}" == "FALSE" ]; then
+  testfile=`find ${shr} -type f -name libSherpaMain.so.0.0.0`
+  echo "testfile: "${testfile}
+  testbit=`file ${testfile} | grep -i -c "ELF 32"`
+  echo "testbit: "${testbit}
+  if [ ${testbit} -ge 1 ]; then
+##  cp ${shr}/share/SHERPA-MC/makelibs .
+    fix_makelibs
+    fi
+    echo " <I> compiling libraries..."
+    ./makelibs 1>${shrun}/${outflbs}_mklib.out 2>${shrun}/${outflbs}_mklib.err
+    nf=`du -sh | grep -o "\." | grep -c "\."`
+    lsize=`du -sh  | cut -f 1-${nf} -d "."`
+    echo " <I>  -> raw size: "${lsize}
+    echo " <I> cleaning libraries..."
+    clean_libs 1>${shrun}/${outflbs}_cllib.out 2>${shrun}/${outflbs}_cllib.err
   fi
-
+  nf=`du -sh | grep -o "\." | grep -c "\."`
+  lsize=`du -sh  | cut -f 1-${nf} -d "."`
+  echo " <I>  -> clean size: "${lsize}
 ###  cd ${shrun}
 fi
 
-if [ "${FLGAMEGIC}" == "TRUE" ]; then
-## last pass (event generation)
+if [ "${FLGCOMIX}" == "FALSE" ]; then
+## second pass (save integration results)
+  if [ "${lbo}" = "LBCR" ] || [ "${lbo}" = "CRSS" ]; then
+    echo " <I> calculating cross sections..."
+    ${sherpaexe} "PATH="${pth} "PATH_PIECE="${pth} "RESULT_DIRECTORY="${dir2} 1>${shrun}/${outflbs}_pass2.out 2>${shrun}/${outflbs}_pass2.err #Sherpa 1.3.0 needs full path MN 070611
+#    ${sherpaexe} -p ${pth} -g -r ${pth}/${dir2} 1>${shrun}/${outflbs}_pass2.out 2>${shrun}/${outflbs}_pass2.err
+    if [ -d ${dir3} ]; then
+      mv ${dir3} ${pth}/
+    else
+      mkdir ${pth}/${dir3}
+    fi
+  fi
+## third pass (event generation)
   if [ "${lbo}" = "EVTS" ]; then
-    echo " <I> generating events... Logs stored in ${shrun}/${outflbs}_passE.out and ${shrun}/${outflbs}_passE.err."
-#    ${sherpaexe} ${multithread_opt} "PATH="${pth} "PATH_PIECE="${pth} "RESULT_DIRECTORY="${dir2} 1>${shrun}/${outflbs}_passE.out 2>${shrun}/${outflbs}_passE.err
-    exec_log2 ${shrun}/${outflbs}_passE.out ${shrun}/${outflbs}_passE.err ${sherpaexe} ${multithread_opt} "PATH="${pth} "PATH_PIECE="${pth} "RESULT_DIRECTORY="${dir2}
+    echo " <I> generating events..."
+    ${sherpaexe} "PATH="${pth} "PATH_PIECE="${pth} "RESULT_DIRECTORY="${dir2} 1>${shrun}/${outflbs}_pass3.out 2>${shrun}/${outflbs}_pass3.err #Sherpa 1.3.0 needs full path MN 070611
   fi
 fi
 
@@ -552,17 +476,10 @@ if [ "${lbo}" = "LBCR" ] || [ "${lbo}" = "CRSS" ]; then
   mv ${crssfile} ${shrun}/
 fi
 
-#### create tarball with multiple interactions grid files
-migdir=`find ./ -type d -name MIG\*`
-echo " <I> MPI grid located in "${migdir}
-migfil=`find ./ -type f -name MPI\*.dat`
-echo " <I> MPI file found: "${migfil}
-if [ -d "${migdir}" ]; then
-  if [ -e "${migfil}" ]; then
-    tar -czf ${gridfile} ${migdir} ${migfil}
-  else
-    tar -czf ${gridfile} ${migdir}
-  fi
+####
+ migdir=`find ./ -type d -name MIG\*`
+if [ -d ${migdir} ]; then
+  tar -czf ${gridfile} ${migdir}
   mv ${gridfile} ${shrun}/
 fi
 ####

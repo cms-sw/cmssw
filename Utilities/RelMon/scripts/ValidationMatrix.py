@@ -4,8 +4,8 @@
 # https://twiki.cern.ch/twiki/bin/view/CMSPublic/RelMon
 #
 # $Author: anorkus $
-# $Date: 2012/10/25 16:10:22 $
-# $Revision: 1.8 $
+# $Date: 2012/10/23 15:10:14 $
+# $Revision: 1.7 $
 #
 #                                                                              
 # Danilo Piparo CERN - danilo.piparo@cern.ch                                   
@@ -295,8 +295,6 @@ def call_compare_using_files(args):
   if options.blacklist_file:
     command += " --use_black_file "
 
-  if options.standalone:
-    command += " --standalone "
   if len(blacklists[sample]) >0:
     command+= '-B %s ' %blacklists[sample]
   print "\nExecuting --  %s" %command
@@ -413,7 +411,7 @@ def do_reports(indir):
   os.chdir("..")
   
 #-------------------------------------------------------------------------------
-def do_html(options, hashing_flag, standalone):
+def do_html(options, hashing_flag):
 
   if options.reports:
     print "Preparing reports for the single files..."
@@ -429,7 +427,7 @@ def do_html(options, hashing_flag, standalone):
   else:
     aggregation_rules=definitions.aggr_pairs_dict['reco']
     aggregation_rules_twiki=definitions.aggr_pairs_twiki_dict['reco']
-  table_html = make_summary_table(options.input_dir,aggregation_rules,aggregation_rules_twiki, hashing_flag, standalone)
+  table_html = make_summary_table(options.input_dir,aggregation_rules,aggregation_rules_twiki, hashing_flag)
 
   # create summary html file
   ofile = open("RelMonSummary.html","w")
@@ -534,18 +532,12 @@ if __name__ == "__main__":
                     dest="hash_name",
                     default=False,
                     help="Set if you want to minimize & hash the output HTML files.")
-##--Blacklist File --##
+##--Blacklist File --##                  
   parser.add_option("--use_black_file",
                     action="store_true",
                     dest="blacklist_file",
                     default=False,
                     help="Use a black list file of histograms located @ /RelMon/data")
-##-- USE CSS files in web access, for stand-alone usage --##
-  parser.add_option("--standalone",
-                  action="store_true",
-                  dest="standalone",
-                  default=False,
-                  help="Define that using RelMon in standalone method. Makes CSS files accessible over HTTP")
 
   (options, args) = parser.parse_args()
 
@@ -557,7 +549,7 @@ if __name__ == "__main__":
   if len(options.all_samples)>0 or (len(options.ref_samples)*len(options.test_samples)>0):
     do_comparisons_threaded(options)
   if len(options.input_dir)>0:
-    do_html(options, options.hash_name, options.standalone)
+    do_html(options, options.hash_name)
 
 
 

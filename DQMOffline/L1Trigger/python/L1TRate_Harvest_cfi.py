@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-from DQMOffline.L1Trigger.L1TRateOfflineParams_cff import RateParams_2011
+from DQMOffline.L1Trigger.L1TRateParams_cff import RateParams
 
 l1tRate_Harvest = cms.EDAnalyzer("L1TRate_Harvest",
 
@@ -53,7 +53,7 @@ l1tRate_Harvest = cms.EDAnalyzer("L1TRate_Harvest",
   # Algo XSec Fits  
   # srcAlgoXSecFit = 0 -> From WbM via OMDS
   # srcAlgoXSecFit = 1 -> From python
-  srcAlgoXSecFit = cms.int32(1),
+  srcAlgoXSecFit = cms.int32(0),
 
   # if srcAlgoXSecFit = 0 we need to define 
   ## Online
@@ -65,6 +65,6 @@ l1tRate_Harvest = cms.EDAnalyzer("L1TRate_Harvest",
   #pathCondDB = cms.string("/afs/cern.ch/cms/DB/conddb"), 
 
   # if srcAlgoXSecFit = 1 we need to define 
-  fitParameters = RateParams_2011
+  fitParameters = RateParams
 
 )

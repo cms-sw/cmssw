@@ -1,4 +1,4 @@
-<bin   name="testPhysicsToolsCandUtils" file="testThrust.cc,testRunner.cpp ">
+<bin   name="testPhysicsToolsCandUtils" file="testMakeCompositeCandidate.cc,testThrust.cc,testRunner.cpp ">
   <use   name="PhysicsTools/CandUtils"/>
   <use   name="cppunit"/>
 </bin>

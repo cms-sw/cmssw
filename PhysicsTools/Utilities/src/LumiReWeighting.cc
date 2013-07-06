@@ -15,10 +15,6 @@
   and produce weights to convert the input distribution (1) to the latter (2).
 
   \author Salvatore Rappoccio, modified by Mike Hildreth
-
-  Jan 29, 2013: modified by Gena Kukartsev
-    - added verbosity setting,
-    - moved constructor default parameter values to header
   
 */
 #include "TRandom1.h"
@@ -40,15 +36,13 @@
 using namespace edm;
 
 LumiReWeighting::LumiReWeighting( std::string generatedFile,
-				  std::string dataFile,
-				  std::string GenHistName,
-				  std::string DataHistName,
-				  int verbosity ) :
+		   std::string dataFile,
+		   std::string GenHistName = "pileup",
+		   std::string DataHistName = "pileup" ) :
       generatedFileName_( generatedFile), 
       dataFileName_     ( dataFile ), 
-      GenHistName_      ( GenHistName ), 
-      DataHistName_     ( DataHistName ),
-      mVerbosity_       ( verbosity )
+      GenHistName_        ( GenHistName ), 
+      DataHistName_        ( DataHistName )
       {
 	generatedFile_ = boost::shared_ptr<TFile>( new TFile(generatedFileName_.c_str()) ); //MC distribution
 	dataFile_      = boost::shared_ptr<TFile>( new TFile(dataFileName_.c_str()) );      //Data distribution
@@ -77,10 +71,8 @@ LumiReWeighting::LumiReWeighting( std::string generatedFile,
 
 	int NBins = weights_->GetNbinsX();
 
-	if (mVerbosity_>0){
-	  for(int ibin = 1; ibin<NBins+1; ++ibin){
-	    std::cout << "   " << ibin-1 << " " << weights_->GetBinContent(ibin) << std::endl;
-	  }
+	for(int ibin = 1; ibin<NBins+1; ++ibin){
+	  std::cout << "   " << ibin-1 << " " << weights_->GetBinContent(ibin) << std::endl;
 	}
 
 
@@ -88,9 +80,7 @@ LumiReWeighting::LumiReWeighting( std::string generatedFile,
 	OldLumiSection_ = -1;
 }
 
-LumiReWeighting::LumiReWeighting( std::vector< float > MC_distr, 
-				  std::vector< float > Lumi_distr,
-				  int verbosity ):mVerbosity_(verbosity) {
+LumiReWeighting::LumiReWeighting( std::vector< float > MC_distr, std::vector< float > Lumi_distr) {
   // no histograms for input: use vectors
   
   // now, make histograms out of them:
@@ -106,11 +96,11 @@ LumiReWeighting::LumiReWeighting( std::vector< float > MC_distr,
 
   Int_t NBins = MC_distr.size();
 
-  MC_distr_ = boost::shared_ptr<TH1> ( new TH1F("MC_distr","MC dist",NBins,0.0, float(NBins)) );
-  Data_distr_ = boost::shared_ptr<TH1> ( new TH1F("Data_distr","Data dist",NBins, 0.0, float(NBins)) );
+  MC_distr_ = boost::shared_ptr<TH1> ( new TH1F("MC_distr","MC dist",NBins,-0.5, float(NBins)-0.5) );
+  Data_distr_ = boost::shared_ptr<TH1> ( new TH1F("Data_distr","Data dist",NBins,-0.5, float(NBins)-0.5) );
 
-  weights_ = boost::shared_ptr<TH1> ( new TH1F("luminumer","luminumer",NBins,0.0, float(NBins)) );
-  TH1* den = new TH1F("lumidenom","lumidenom",NBins,0.0, float(NBins)) ;
+  weights_ = boost::shared_ptr<TH1> ( new TH1F("luminumer","luminumer",NBins,-0.5, float(NBins)-0.5) );
+  TH1* den = new TH1F("lumidenom","lumidenom",NBins,-0.5, float(NBins)-0.5) ;
 
   for(int ibin = 1; ibin<NBins+1; ++ibin ) {
     weights_->SetBinContent(ibin, Lumi_distr[ibin-1]);
@@ -136,10 +126,8 @@ LumiReWeighting::LumiReWeighting( std::vector< float > MC_distr,
 
   std::cout << " Lumi/Pileup Reweighting: Computed Weights per In-Time Nint " << std::endl;
 
-  if (mVerbosity_>0){
-    for(int ibin = 1; ibin<NBins+1; ++ibin){
-      std::cout << "   " << ibin-1 << " " << weights_->GetBinContent(ibin) << std::endl;
-    }
+  for(int ibin = 1; ibin<NBins+1; ++ibin){
+    std::cout << "   " << ibin-1 << " " << weights_->GetBinContent(ibin) << std::endl;
   }
 
   FirstWarning_ = true;

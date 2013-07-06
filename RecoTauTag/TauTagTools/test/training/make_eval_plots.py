@@ -32,12 +32,7 @@ def make_perf_curve2(signal, background, signal_denom, background_denom):
         points.add((signal_passing, background_passing))
     points_sorted = sorted(points)
     # Take all but first and last points
-    points_to_plot = []
-    if len(points_sorted) > 1:
-        points_to_plot = points_sorted[1:-1]
-    else:
-        points_to_plot = points_sorted
-
+    points_to_plot = points_sorted[1:-1]
     output = ROOT.TGraph(len(points_to_plot))
     for index, (sig, bkg) in enumerate(points_to_plot):
         output.SetPoint(index, sig*1.0/signal_denom, bkg*1.0/background_denom)
@@ -105,7 +100,6 @@ discriminators['hpsTancTaus'] = [
     #'hpsTancTausDiscriminationByTancRaw',
     #'hpsTancTausDiscriminationByTanc',
     'hpsTancTausDiscriminationByTancLoose',
-    'hpsTancTausDiscriminationByDecayModeSelection',
     'hpsTancTausDiscriminationByTancMedium',
     'hpsTancTausDiscriminationByTancTight',
 ]
@@ -134,7 +128,6 @@ discriminator_translator = {
     'shrinkingConePFTauDiscriminationByTaNCfrHalfPercent' : 'TaNC 0.50% ',
     'shrinkingConePFTauDiscriminationByTaNCfrQuarterPercent' : 'TaNC 0.25% ',
     'shrinkingConePFTauDiscriminationByTaNCfrTenthPercent' : 'TaNC 0.10% ',
-    'hpsTancTausDiscriminationByDecayModeSelection' : 'decay finding',
     'hpsTancTausDiscriminationByTanc' : 'scan',
     'hpsTancTausDiscriminationByTancLoose' : 'loose',
     'hpsTancTausDiscriminationByTancMedium' : 'medium',
@@ -152,21 +145,17 @@ pt_curves_to_plot = [
     #('shrinkingConePFTauProducer',
      #'shrinkingConePFTauDiscriminationByTaNCfrHalfPercent'),
     ('hpsPFTauProducer',
-     'hpsPFTauDiscriminationByDecayModeFinding'),
-    ('hpsPFTauProducer',
      'hpsPFTauDiscriminationByLooseIsolation'),
     ('hpsPFTauProducer',
      'hpsPFTauDiscriminationByMediumIsolation'),
-    #('hpsPFTauProducer',
-     #'hpsPFTauDiscriminationByTightIsolation'),
-    ('hpsTancTaus',
-    'hpsTancTausDiscriminationByDecayModeSelection'),
+    ('hpsPFTauProducer',
+     'hpsPFTauDiscriminationByTightIsolation'),
     ('hpsTancTaus',
     'hpsTancTausDiscriminationByTancLoose'),
     ('hpsTancTaus',
     'hpsTancTausDiscriminationByTancMedium'),
-    #('hpsTancTaus',
-    #'hpsTancTausDiscriminationByTancTight'),
+    ('hpsTancTaus',
+    'hpsTancTausDiscriminationByTancTight'),
 ]
 
 _PT_CUT = 15
@@ -226,7 +215,6 @@ if __name__ == "__main__":
                 raw_histo.GetXaxis().SetRange(0, raw_histo.GetNbinsX()+1)
                 raw_histo.GetYaxis().SetRange(0, raw_histo.GetNbinsY()+1)
                 pt_eff_denom = raw_histo.Project3D("denom_z")
-                pt_eff_vs_reco_pt_denom = raw_histo.Project3D("denom_y")
 
                 discriminator_cut = 0.975
 
@@ -236,7 +224,6 @@ if __name__ == "__main__":
                 raw_histo.GetYaxis().SetRange(
                     min_pt_bin, raw_histo.GetNbinsY()+1)
                 pt_eff_numerator = raw_histo.Project3D("numerator_z")
-                pt_eff_vs_reco_pt_numerator = raw_histo.Project3D("numerator_y")
 
                 # Get the vertex information
                 vs_truePU = producer_folder.Get(
@@ -267,7 +254,7 @@ if __name__ == "__main__":
                             passing_entries, total_entries)
                         graph.SetPoint(nPUVtx, nPUVtx, efficiency)
                         graph.SetPointError(nPUVtx, 0, error)
-                        graph.Fit("pol1","Q")
+                        graph.Fit("pol1")
 
                 #print "Mean X Proj:", projection.GetMean(1)
                 #print "Post cut entries:", projection.Integral()
@@ -276,8 +263,6 @@ if __name__ == "__main__":
                     'denominator' : denom,
                     'pt_eff_num' : pt_eff_numerator,
                     'pt_eff_denom' : pt_eff_denom,
-                    'pt_eff_num_vs_reco_pt' : pt_eff_vs_reco_pt_numerator,
-                    'pt_eff_denom_vs_reco_pt' : pt_eff_vs_reco_pt_denom,
                     'truePU' : truePU_graph,
                     'recoPU' : recoPU_graph
                 }
@@ -324,7 +309,6 @@ if __name__ == "__main__":
                 steering['signal']['algos'][producer][discriminator]['denominator'],
                 steering['background']['algos'][producer][discriminator]['denominator'],
             )
-            print "New graph has", new_graph.GetN(), " points"
             new_graph.SetMarkerStyle(marker)
             new_graph.SetMarkerColor(color)
             new_graph.SetMarkerSize(1.5)
@@ -357,65 +341,53 @@ if __name__ == "__main__":
     pt_legend.SetBorderSize(0)
     pt_canvas = ROOT.TCanvas('pt', 'pt', 1000, 500)
     pt_canvas.Divide(2)
-    signal_frame = ROOT.TH1F("sigbkg", "Signal efficiency", 10, 0, 300)
+    signal_frame = ROOT.TH1F("sigbkg", "Signal efficiency", 10, 0, 200)
     signal_frame.SetMaximum(1)
     signal_frame.GetXaxis().SetTitle("True tau p_{T}")
-    background_frame = ROOT.TH1F("bkgbkg", "Fake Rate", 10, 0, 300)
+    background_frame = ROOT.TH1F("bkgbkg", "Fake Rate", 10, 0, 200)
     background_frame.SetMaximum(1e-1)
     background_frame.GetXaxis().SetTitle("Jet p_{T}")
     background_frame.SetMinimum(1e-4)
+    pt_canvas.cd(1)
+    signal_frame.Draw()
+    pt_canvas.cd(2)
+    ROOT.gPad.SetLogy(True)
+    background_frame.Draw()
     keep = []
     #pt_canvas.SaveAs(output_file.replace('.pdf', '_pt_eff.pdf'))
 
-    for plot_type_suffix, sig_title, bkg_title in [
-        ('', 'True tau p_{T}', 'Jet p_{T}'),
-        ('_vs_reco_pt', 'Reco. vis. #tau p_{T}', 'Reco. vis. #tau p_{T}')]:
+    for color, (producer, discriminator) in zip(good_colors, pt_curves_to_plot):
+        signal_algos = steering['signal']['algos'][producer]
+        background_algos = steering['background']['algos'][producer]
+        signal_num = signal_algos[discriminator]['pt_eff_num']
+        signal_denom = signal_algos[discriminator]['pt_eff_denom']
+        signal_num.Rebin(5)
+        signal_denom.Rebin(5)
         pt_canvas.cd(1)
-        signal_frame.GetXaxis().SetTitle(sig_title)
-        signal_frame.Draw()
+        signal_eff = ROOT.TGraphAsymmErrors(signal_num, signal_denom)
+        signal_eff.Draw("p")
+        signal_eff.SetMarkerColor(color)
+        signal_eff.SetMarkerStyle(20)
+        pt_legend.AddEntry(
+            signal_eff,
+            "%s - %s" % (
+                producer_translator[producer],
+                discriminator_translator[discriminator],
+            ), "p")
+        keep.append(signal_eff)
+        background_num = background_algos[discriminator]['pt_eff_num']
+        background_denom = background_algos[discriminator]['pt_eff_denom']
+        background_num.Rebin(20)
+        background_denom.Rebin(20)
+        background_eff = ROOT.TGraphAsymmErrors(background_num, background_denom)
+        background_eff.SetMarkerColor(color)
+        background_eff.SetMarkerStyle(20)
         pt_canvas.cd(2)
-        ROOT.gPad.SetLogy(True)
-        background_frame.GetXaxis().SetTitle(bkg_title)
-        background_frame.Draw()
-        for color, (producer, discriminator) in zip(
-            good_colors, pt_curves_to_plot):
-            signal_algos = steering['signal']['algos'][producer]
-            background_algos = steering['background']['algos'][producer]
-            signal_num = signal_algos[discriminator][
-                'pt_eff_num' + plot_type_suffix]
-            signal_denom = signal_algos[discriminator][
-                'pt_eff_denom' + plot_type_suffix]
-            signal_num.Rebin(5)
-            signal_denom.Rebin(5)
-            pt_canvas.cd(1)
-            signal_eff = ROOT.TGraphAsymmErrors(signal_num, signal_denom)
-            signal_eff.Draw("p")
-            signal_eff.SetMarkerColor(color)
-            signal_eff.SetMarkerStyle(20)
-            pt_legend.AddEntry(
-                signal_eff,
-                "%s - %s" % (
-                    producer_translator[producer],
-                    discriminator_translator[discriminator],
-                ), "p")
-            keep.append(signal_eff)
-            background_num = background_algos[discriminator][
-                'pt_eff_num' + plot_type_suffix]
-            background_denom = background_algos[discriminator][
-                'pt_eff_denom' + plot_type_suffix]
-            background_num.Rebin(20)
-            background_denom.Rebin(20)
-            background_eff = ROOT.TGraphAsymmErrors(
-                background_num, background_denom)
-            background_eff.SetMarkerColor(color)
-            background_eff.SetMarkerStyle(20)
-            pt_canvas.cd(2)
-            background_eff.Draw("p")
-            keep.append(background_eff)
+        background_eff.Draw("p")
+        keep.append(background_eff)
 
-        pt_legend.Draw()
-        pt_canvas.SaveAs(output_file.replace(
-            '.pdf', '_pt_eff' + plot_type_suffix + '.pdf'))
+    pt_legend.Draw()
+    pt_canvas.SaveAs(output_file.replace('.pdf', '_pt_eff.pdf'))
 
     print "Making PU plots"
     vtx_signal = ROOT.TH1F("sig_vtx", "Efficiency vs. PU", 16, -0.5, 15.5)

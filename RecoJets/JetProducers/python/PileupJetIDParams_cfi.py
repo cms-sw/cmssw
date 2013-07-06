@@ -2,67 +2,6 @@ import FWCore.ParameterSet.Config as cms
 from RecoJets.JetProducers.PileupJetIDCutParams_cfi import *
 
 ####################################################################################################################  
-full_53x = cms.PSet(
- impactParTkThreshold = cms.double(1.) ,
- cutBased = cms.bool(False),
- tmvaWeights = cms.string("RecoJets/JetProducers/data/TMVAClassificationCategory_JetID_53X_Dec2012.weights.xml"),
- tmvaMethod  = cms.string("JetIDMVAHighPt"),
- version = cms.int32(-1),
- tmvaVariables = cms.vstring(
-    "nvtx"     ,
-    "dZ"       , 
-    "beta"     , 
-    "betaStar" , 
-    "nCharged" , 
-    "nNeutrals", 
-    "dR2Mean"  , 
-    "ptD"      , 
-    "frac01"   , 
-    "frac02"   , 
-    "frac03"   , 
-    "frac04"   , 
-    "frac05"   , 
-    ),
- tmvaSpectators = cms.vstring(
-    "jetPt",
-    "jetEta",
-    "jetPhi"
-    ),
- JetIdParams = full_53x_wp,
- label = cms.string("full")
- )
-
-full_53x_chs = cms.PSet(
- impactParTkThreshold = cms.double(1.) ,
- cutBased = cms.bool(False),
- tmvaWeights = cms.string("RecoJets/JetProducers/data/TMVAClassificationCategory_JetID_53X_chs_Dec2012.weights.xml"),
- tmvaMethod  = cms.string("JetIDMVAHighPt"),
- version = cms.int32(-1),
- tmvaVariables = cms.vstring(
-    "nvtx"     ,
-    "dZ"       , 
-    "beta"     , 
-    "betaStar" , 
-    "nCharged" , 
-    "nNeutrals", 
-    "dR2Mean"  , 
-    "ptD"      , 
-    "frac01"   , 
-    "frac02"   , 
-    "frac03"   , 
-    "frac04"   , 
-    "frac05"   , 
-    ),
- tmvaSpectators = cms.vstring(
-    "jetPt",
-    "jetEta",
-    "jetPhi"
-    ),
- JetIdParams = full_53x_chs_wp,
- label = cms.string("full")
- )
-
-####################################################################################################################  
 full_5x = cms.PSet(
  impactParTkThreshold = cms.double(1.) ,
  cutBased = cms.bool(False),

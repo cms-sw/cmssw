@@ -11,6 +11,8 @@ using namespace edm;
 using namespace reco;
 
 TrajectoryStateOnSurface TrackAssociatorByPosition::getState(const TrackingParticle & st)const{
+#warning "This file has been modified just to get it to compile without any regard as to whether it still functions as intended"
+#ifdef REMOVED_JUST_TO_GET_IT_TO_COMPILE__THIS_CODE_NEEDS_TO_BE_CHECKED
   //  TrackingParticle* simtrack = const_cast<TrackingParticle*>(&st);
   //loop over PSimHits
   const PSimHit * psimhit=0;
@@ -53,6 +55,9 @@ TrajectoryStateOnSurface TrackAssociatorByPosition::getState(const TrackingParti
   else{
     //    edm::LogError("TrackAssociatorByPosition")<<"no corresponding PSimHit for a tracking particle. will fail.";
     return TrajectoryStateOnSurface();}
+#else
+  return TrajectoryStateOnSurface();
+#endif
 }
 
 FreeTrajectoryState TrackAssociatorByPosition::getState(const reco::Track & track)const{

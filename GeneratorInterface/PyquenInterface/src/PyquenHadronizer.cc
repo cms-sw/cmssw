@@ -2,7 +2,7 @@
  *
  * Generates PYQUEN HepMC events
  *
- * $Id: PyquenHadronizer.cc,v 1.15 2013/01/20 23:55:21 mnguyen Exp $
+ * $Id: PyquenHadronizer.cc,v 1.14 2012/09/18 17:19:35 yilmaz Exp $
 */
 
 #include <iostream>
@@ -303,9 +303,8 @@ void PyquenHadronizer::rotateEvtPlane(HepMC::GenEvent* evt, double angle){
       }
 }
 
-bool PyquenHadronizer::declareStableParticles(const std::vector<int>& _pdg )
+bool PyquenHadronizer::declareStableParticles( std::vector<int> pdg )
 {
-   std::vector<int> pdg = _pdg;
    for ( size_t i=0; i < pdg.size(); i++ )
       {
          int pyCode = pycomp_( pdg[i] );

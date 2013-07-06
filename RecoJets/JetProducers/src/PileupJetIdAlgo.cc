@@ -8,7 +8,6 @@
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 #include "TMatrixDSym.h"
 #include "TMatrixDSymEigen.h"
-#include "CommonTools/Utils/interface/TMVAZipReader.h"
 
 // ------------------------------------------------------------------------------------------
 const float large_val = std::numeric_limits<float>::max();
@@ -203,7 +202,7 @@ void PileupJetIdAlgo::bookReader()
 		}
 		reader_->AddSpectator( *it, variables_[ tmvaNames_[*it] ].first );
 	}
-    reco::details::loadTMVAWeights(reader_, tmvaMethod_.c_str(), tmvaWeights_.c_str());
+	reader_->BookMVA(tmvaMethod_.c_str(), tmvaWeights_.c_str());
 }
 
 // ------------------------------------------------------------------------------------------

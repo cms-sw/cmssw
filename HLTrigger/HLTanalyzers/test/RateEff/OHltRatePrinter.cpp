@@ -428,20 +428,16 @@ int OHltRatePrinter::ivecMin(vector<int> ivec)
    return min;
 }
 
-
 /* ********************************************** */
 // Fill histos
 /* ********************************************** */
-void OHltRatePrinter::writeHistos(OHltConfig *cfg, OHltMenu *menu, int Nevents)
+void OHltRatePrinter::writeHistos(OHltConfig *cfg, OHltMenu *menu)
 {
    TString tableFileName = GetFileName(cfg, menu);
-   TString NumberOfProcessedEvents(Nevents);
-   cout<<"numEvents to write="<<Nevents<<endl;
-   TString Temp("Nevt");
-   Temp+=Nevents;
-   TNamed* NumberToWrite=new TNamed(TString("ProcessedEvents"),Temp);
+
    TFile *fr = new TFile(tableFileName+TString(".root"),"recreate");
    fr->cd();
+
    int nTrig = (int)menu->GetTriggerSize();
    int nL1Trig = (int)menu->GetL1TriggerSize();
    TH1F *individual = new TH1F("individual","individual",nTrig,1,nTrig+1);
@@ -595,7 +591,7 @@ void OHltRatePrinter::writeHistos(OHltConfig *cfg, OHltMenu *menu, int Nevents)
          overlap->GetYaxis()->SetBinLabel(j+1, menu->GetTriggerName(j));
       }
    }
-   NumberToWrite->Write();
+
    individual->SetStats(0);
    individual->SetYTitle("Rate (Hz)");
    individual->SetTitle("Individual trigger rate");

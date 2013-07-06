@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
-import DQMServices.Components.test.checkBooking as booking
-import DQMServices.Components.test.createElements as c
+import DQMTools.Tests.checkBooking as booking
+import DQMTools.Tests.createElements as c
 import sys
 
 process =cms.Process("TEST")
@@ -13,7 +13,7 @@ process.load('Configuration.StandardSequences.EndOfProcess_cff')
 
 process.source = cms.Source("EmptySource", numberEventsInRun = cms.untracked.uint32(100),
                             firstLuminosityBlock = cms.untracked.uint32(1),
-                            firstEvent = cms.untracked.uint32(1000),
+                            firstEvent = cms.untracked.uint32(1),
                             firstRun = cms.untracked.uint32(2),
                             numberEventsInLuminosityBlock = cms.untracked.uint32(1))
 

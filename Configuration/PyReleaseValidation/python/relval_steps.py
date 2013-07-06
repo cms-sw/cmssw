@@ -271,7 +271,6 @@ baseDataSetRelease=[
     'CMSSW_6_2_0_pre2-START61_V11_g496p1-v2',#'CMSSW_6_1_0_pre6-START61_V5-v2',#'CMSSW_6_0_0-PU_START60_V4-v1',
     'CMSSW_6_1_0_pre6-START61_V5_FastSim-v1',#'CMSSW_6_0_0-START60_V4_FastSim-v1'
     'CMSSW_6_2_0_pre2-START61_V11_g496p1-v3',
-    'CMSSW_6_2_0_pre2-START61_V11_g496p1_02May2013-v1' ## this is a fuck up in the dataset naming
     ]
 
 steps['MinBiasINPUT']={'INPUT':InputInfo(dataSet='/RelValMinBias/%s/GEN-SIM'%(baseDataSetRelease[2],),location='STD')}
@@ -299,7 +298,10 @@ steps['Wjet_Pt_80_120INPUT']={'INPUT':InputInfo(dataSet='/RelValWjet_Pt_80_120/%
 steps['Wjet_Pt_3000_3500INPUT']={'INPUT':InputInfo(dataSet='/RelValWjet_Pt_3000_3500/%s/GEN-SIM'%(baseDataSetRelease[0],),location='STD')}
 steps['LM1_sftsINPUT']={'INPUT':InputInfo(dataSet='/RelValLM1_sfts/%s/GEN-SIM'%(baseDataSetRelease[0],),location='STD')}
 steps['QCD_FlatPt_15_3000INPUT']={'INPUT':InputInfo(dataSet='/RelValQCD_FlatPt_15_3000/%s/GEN-SIM'%(baseDataSetRelease[0],),location='STD')}
-
+# this input is dummy, waiting to have the actual GEN-SIM - to be updated
+steps['ZpMM_2250_8TeV_TauolaINPUT']={'INPUT':InputInfo(dataSet='/RelValQCD_FlatPt_15_3000/%s/GEN-SIM'%(baseDataSetRelease[0],),location='STD')}
+steps['ZpEE_2250_8TeV_TauolaINPUT']={'INPUT':InputInfo(dataSet='/RelValQCD_FlatPt_15_3000/%s/GEN-SIM'%(baseDataSetRelease[0],),location='STD')}
+steps['ZpTT_1500_8TeV_TauolaINPUT']={'INPUT':InputInfo(dataSet='/RelValQCD_FlatPt_15_3000/%s/GEN-SIM'%(baseDataSetRelease[0],),location='STD')}
 
 
 steps['QCD_FlatPt_15_3000HSINPUT']={'INPUT':InputInfo(dataSet='/RelValQCD_FlatPt_15_3000/CMSSW_5_2_2-PU_START52_V4_special_120326-v1/GEN-SIM',location='STD')}
@@ -367,10 +369,6 @@ steps['QQH1352T_TauolaINPUT']={'INPUT':InputInfo(dataSet='/RelValQQH1352T_Tauola
 steps['ADDMonoJet_d3MD3INPUT']={'INPUT':InputInfo(dataSet='/RelValADDMonoJet_d3MD3/%s/GEN-SIM'%(baseDataSetRelease[0],),location='STD')}
 steps['WpMINPUT']={'INPUT':InputInfo(dataSet='/RelValWpM/%s/GEN-SIM'%(baseDataSetRelease[2],),location='STD')}
 steps['ZpMMINPUT']={'INPUT':InputInfo(dataSet='/RelValZpMM/%s/GEN-SIM'%(baseDataSetRelease[0],),location='STD')}
-steps['ZpMM_2250_8TeV_TauolaINPUT']={'INPUT':InputInfo(dataSet='/RelValZpMM_2250_8TeV_Tauola/%s/GEN-SIM'%(baseDataSetRelease[5],),location='STD')}
-steps['ZpEE_2250_8TeV_TauolaINPUT']={'INPUT':InputInfo(dataSet='/RelValZpEE_2250_8TeV_Tauola/%s/GEN-SIM'%(baseDataSetRelease[5],),location='STD')}
-steps['ZpTT_1500_8TeV_TauolaINPUT']={'INPUT':InputInfo(dataSet='/RelValZpTT_1500_8TeV_Tauola/%s/GEN-SIM'%(baseDataSetRelease[5],),location='STD')}
-
 
 steps['ZmumuJets_Pt_20_300INPUT']={'INPUT':InputInfo(dataSet='/RelValZmumuJets_Pt_20_300/%s/GEN-SIM'%(baseDataSetRelease[4],),location='STD')}
                                 
@@ -1093,21 +1091,18 @@ steps['HARVESTHI']={'-s':'HARVESTING:validationHarvesting+dqmHarvesting',
 steps['HARVESTUP']={'-s':'HARVESTING:validationHarvesting+dqmHarvesting',
                    '--conditions':'DESIGN61_V10::All', #to be updtaed with autocond
                    '--mc':'',
-                   '--customise' : 'SLHCUpgradeSimulations/Configuration/phase1TkCustoms.customise',
-		   '--geometry' : 'ExtendedPhaseIPixel'
+                   '--customise' : 'SLHCUpgradeSimulations/Configuration/phase1TkCustoms.customise'
                    }
 		   
 steps['HARVESTUP15']={'-s':'HARVESTING:validationHarvesting+dqmHarvesting',
                    '--conditions':'auto:upgradePLS1', 
                    '--mc':'',
-                   '--customise' : 'SLHCUpgradeSimulations/Configuration/postLS1Customs.customisePostLS1',
-		   '--geometry' : 'Extended2015'
+                   '--customise' : 'SLHCUpgradeSimulations/Configuration/postLS1Customs.customisePostLS1'
                    }
 steps['HARVESTUP17']={'-s':'HARVESTING:validationHarvesting+dqmHarvesting',
                    '--conditions':'auto:upgradePLS1', 
                    '--mc':'',
-                   '--customise' : 'SLHCUpgradeSimulations/Configuration/phase1TkCustoms.customise',
-		   '--geometry' : 'Extended2017'
+                   '--customise' : 'SLHCUpgradeSimulations/Configuration/phase1TkCustoms.customise'
                    }
 steps['ALCASPLIT']={'-s':'ALCAOUTPUT:@allForPrompt',
                     '--conditions':'auto:com10',

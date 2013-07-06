@@ -41,7 +41,7 @@ PFPileUp::PFPileUp(const edm::ParameterSet& iConfig) {
   
   //produces<reco::PFCandidateCollection>();
   produces< PFCollection > ();
-  // produces< PFCollectionByValue > ();
+  produces< PFCollectionByValue > ();
 }
 
 
@@ -111,15 +111,15 @@ void PFPileUp::produce(Event& iEvent,
     pileUpAlgo_.process(*pfCandidatesRef,*vertices);
     pOutput->insert(pOutput->end(),pileUpAlgo_.getPFCandidatesFromPU().begin(),pileUpAlgo_.getPFCandidatesFromPU().end());
 
-    // for ( PFCollection::const_iterator byValueBegin = pileUpAlgo_.getPFCandidatesFromPU().begin(),
-    // 	    byValueEnd = pileUpAlgo_.getPFCandidatesFromPU().end(), ibyValue = byValueBegin;
-    // 	  ibyValue != byValueEnd; ++ibyValue ) {
-    //   pOutputByValue->push_back( **ibyValue );
-    // }
+    for ( PFCollection::const_iterator byValueBegin = pileUpAlgo_.getPFCandidatesFromPU().begin(),
+	    byValueEnd = pileUpAlgo_.getPFCandidatesFromPU().end(), ibyValue = byValueBegin;
+	  ibyValue != byValueEnd; ++ibyValue ) {
+      pOutputByValue->push_back( **ibyValue );
+    }
 
   } // end if enabled
   // outsize of the loop to fill the collection anyway even when disabled
   iEvent.put( pOutput );
-  // iEvent.put( pOutputByValue );
+  iEvent.put( pOutputByValue );
 }
 

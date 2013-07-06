@@ -14,5 +14,4 @@
 <use   name="RecoEcal/EgammaCoreTools"/>
 <use   name="clhep"/>
 <use   name="TrackingTools/TrackAssociator" />
-<use   name="CommonTools/UtilAlgos"/>
 <flags   EDM_PLUGIN="1"/>

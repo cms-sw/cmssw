@@ -3820,7 +3820,6 @@ c----------------------------------------------------------------------
       !   xpara(5,n) ... factor
       !   xpara(6,n) ... divisor
       !   xpara(7,n) ... absolute value of eta (1)
-      !   xpara(8,n) ... take into account leptons (1)
       !
       ! output
       !   ypara(1,n) ... multiplicity
@@ -3853,8 +3852,6 @@ c----------------------------------------------------------------------
             eta=1000.
           endif
           if(xpara(7,n).ge.1.)eta=abs(eta)
-          idmin=100
-          if(xpara(8,n).ge.1.)idmin=0
           if(abs(idptl(i)).ge.100
      $   .and.abs(idptl(i)).lt.10000)then
             call idchrg(idptl(i),ch)

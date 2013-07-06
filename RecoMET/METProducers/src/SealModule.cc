@@ -8,7 +8,6 @@
 #include "RecoMET/METProducers/interface/HcalHaloDataProducer.h" 
 #include "RecoMET/METProducers/interface/EcalHaloDataProducer.h" 
 #include "RecoMET/METProducers/interface/GlobalHaloDataProducer.h" 
-#include "RecoMET/METProducers/interface/TrackMETProducer.h"
 #include "RecoMET/METProducers/interface/ParticleFlowForChargedMETProducer.h" 
 
 using cms::METProducer;
@@ -25,7 +24,6 @@ DEFINE_FWK_MODULE(CSCHaloDataProducer);
 DEFINE_FWK_MODULE(HcalHaloDataProducer);
 DEFINE_FWK_MODULE(EcalHaloDataProducer);
 DEFINE_FWK_MODULE(GlobalHaloDataProducer);
-DEFINE_FWK_MODULE(TrackMETProducer);
 DEFINE_FWK_MODULE(ParticleFlowForChargedMETProducer);
 
 #include "RecoMET/METProducers/interface/MuonMET.h"

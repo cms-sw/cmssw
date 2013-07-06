@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 trackingParticleSelector = cms.EDFilter("TrackingParticleSelector",
-    src = cms.InputTag("mergedtruth","MergedTrackTruth"),
+    src = cms.InputTag("mix","MergedTrackTruth"),
     chargedOnly = cms.bool(True),
     stableOnly = cms.bool(False),
     pdgId = cms.vint32(),

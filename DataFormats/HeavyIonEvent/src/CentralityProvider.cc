@@ -9,13 +9,7 @@ CentralityProvider::CentralityProvider(const edm::EventSetup& iSetup) :
       edm::ParameterSet hiPset = thepset.getParameter<edm::ParameterSet>("HeavyIonGlobalParameters");
       tag_ = hiPset.getParameter<edm::InputTag>("centralitySrc");
       centralityVariable_ = hiPset.getParameter<std::string>("centralityVariable");
-      pPbRunFlip_ = hiPset.getUntrackedParameter<unsigned int>("pPbRunFlip",99999999);
       if(centralityVariable_.compare("HFtowers") == 0) varType_ = HFtowers;
-      if(centralityVariable_.compare("HFtowersPlus") == 0) varType_ = HFtowersPlus;
-      if(centralityVariable_.compare("HFtowersMinus") == 0) varType_ = HFtowersMinus;
-      if(centralityVariable_.compare("HFtowersTrunc") == 0) varType_ = HFtowersTrunc;
-      if(centralityVariable_.compare("HFtowersPlusTrunc") == 0) varType_ = HFtowersPlusTrunc;
-      if(centralityVariable_.compare("HFtowersMinusTrunc") == 0) varType_ = HFtowersMinusTrunc;
       if(centralityVariable_.compare("HFhits") == 0) varType_ = HFhits;
       if(centralityVariable_.compare("PixelHits") == 0) varType_ = PixelHits;
       if(centralityVariable_.compare("PixelTracks") == 0) varType_ = PixelTracks;
@@ -24,7 +18,7 @@ CentralityProvider::CentralityProvider(const edm::EventSetup& iSetup) :
       if(centralityVariable_.compare("EE") == 0) varType_ = EE;
       if(varType_ == Missing){
 	 std::string errorMessage="Requested Centrality variable does not exist : "+centralityVariable_+"\n" +
-	    "Supported variables are: \n" + "HFtowers HFtowersPlus HFtowersMinus HFtowersTrunc HFtowersPlusTrunc HFtowersMinusTrunc HFhits PixelHits PixelTracks Tracks EB EE" + "\n";
+	    "Supported variables are: \n" + "HFtowers HFhits PixelHits PixelTracks Tracks EB EE" + "\n";
 	 throw cms::Exception("Configuration",errorMessage);
       }
       if(hiPset.exists("nonDefaultGlauberModel")){
@@ -40,15 +34,7 @@ CentralityProvider::CentralityProvider(const edm::EventSetup& iSetup) :
 void CentralityProvider::newEvent(const edm::Event& ev,const edm::EventSetup& iSetup){
    ev.getByLabel(tag_,chandle_);
    if(ev.id().run() == prevRun_) return;
-   if(prevRun_ < pPbRunFlip_ && ev.id().run() >= pPbRunFlip_){
-     LogDebug("CentralityProvider") << "Attention, the sides are flipped from this run on!\n";
-     if(centralityVariable_.compare("HFtowersPlus") == 0) varType_ = HFtowersMinus;
-     if(centralityVariable_.compare("HFtowersMinus") == 0) varType_ = HFtowersPlus;
-     if(centralityVariable_.compare("HFtowersPlusTrunc") == 0) varType_ = HFtowersMinusTrunc;
-     if(centralityVariable_.compare("HFtowersMinusTrunc") == 0) varType_ = HFtowersPlusTrunc;
-   }
    prevRun_ = ev.id().run();
-
    newRun(iSetup);
 }
 
@@ -105,11 +91,6 @@ double CentralityProvider::centralityValue() const {
    double var = -99;
    if(varType_ == HFhits) var = chandle_->EtHFhitSum();
    if(varType_ == HFtowers) var = chandle_->EtHFtowerSum();
-   if(varType_ == HFtowersPlus) var = chandle_->EtHFtowerSumPlus();
-   if(varType_ == HFtowersMinus) var = chandle_->EtHFtowerSumMinus();
-   if(varType_ == HFtowersTrunc) var = chandle_->EtHFtruncated();
-   if(varType_ == HFtowersPlusTrunc) var = chandle_->EtHFtruncatedPlus();
-   if(varType_ == HFtowersMinusTrunc) var = chandle_->EtHFtruncatedMinus();
    if(varType_ == PixelHits) var = chandle_->multiplicityPixel();
    if(varType_ == PixelTracks) var = chandle_->NpixelTracks();
    if(varType_ == Tracks) var = chandle_->Ntracks();

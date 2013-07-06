@@ -201,6 +201,8 @@ mixedTripletStepTracks = RecoTracker.TrackProducer.TrackProducer_cfi.TrackProduc
 import RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi
 mixedTripletStepSelector = RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.multiTrackSelector.clone(
     src='mixedTripletStepTracks',
+    useAnyMVA = cms.bool(True),
+    GBRForestLabel = cms.string('MVASelectorIter4'),
     trackSelectors= cms.VPSet(
         RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.looseMTS.clone(
             name = 'mixedTripletStepVtxLoose',

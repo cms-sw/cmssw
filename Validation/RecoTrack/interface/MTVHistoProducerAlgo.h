@@ -37,18 +37,18 @@ class MTVHistoProducerAlgo{
   virtual void bookRecoHistos()=0;
   virtual void bookRecoHistosForStandaloneRunning()=0;
 
-  virtual void fill_generic_simTrack_histos(int counter,const ParticleBase::Vector&, const ParticleBase::Point& vertex, int bx)=0;
+  virtual void fill_generic_simTrack_histos(int counter,const TrackingParticle::Vector&,const TrackingParticle::Point& vertex, int bx)=0;
 
   virtual void fill_recoAssociated_simTrack_histos(int count,
 						   const TrackingParticle& tp,
-						   const ParticleBase::Vector& momentumTP,const ParticleBase::Point& vertexTP,
+						   const TrackingParticle::Vector& momentumTP, const TrackingParticle::Point& vertexTP,
 						   double dxy, double dz, int nSimHits,
 						   const reco::Track* track,
 						   int numVertices, double vertz)=0;
 
   virtual void fill_recoAssociated_simTrack_histos(int count,
 						   const reco::GenParticle& tp,
-						   const ParticleBase::Vector& momentumTP,const ParticleBase::Point& vertexTP,
+						   const TrackingParticle::Vector & momentumTP, const TrackingParticle::Point & vertexTP,
 						   double dxy, double dz, int nSimHits,
 						   const reco::Track* track,
 						   int numVertices, double vertz)=0;
@@ -77,8 +77,8 @@ class MTVHistoProducerAlgo{
 			      	      int numSimTracks)=0;
 
   virtual void fill_ResoAndPull_recoTrack_histos(int count,
-						 const ParticleBase::Vector& momentumTP,
-						 const ParticleBase::Point& vertexTP,
+						 const TrackingParticle::Vector& momentumTP,
+						 const TrackingParticle::Point& vertexTP,
 						 int chargeTP,
 						 const reco::Track& track,
 						 const math::XYZPoint& bsPosition)=0;

@@ -7,7 +7,7 @@
 
 //   Author:      Gero Flucke
 //   Date:        October 2007
-//   last update: $Date: 2012/03/29 08:48:50 $  
+//   last update: $Date: 2008/05/26 14:24:53 $  
 //   by:          $Author: flucke $
 //
 // Class to overlay hists with same names from (several) different files.
@@ -21,23 +21,17 @@
 // 1)
 // If 'option' contains 'norm', the hists are normalised to their number of entries.
 // 2)
-// If 'option' contains 'skip(XYZ)' or 'skipHist(XYZ)', hists are skipped if their names
-// contain 'XYZ', similarly with 'skip(XYZ)' or 'skipDir(XYZ)' for directories.
-// Can be given several times.
+// If 'option' contains 'skip(XYZ)', hists and directories are skipped if
+// their name contains 'XYZ'. Can be given several times.
 // 3)
-// If 'option' contains 'name(XYZ)' or 'nameHist(XYZ)', hists are skipped if their names
-// do NOT contain 'XYZ', similarly with 'name(XYZ)' or 'nameHist(XYZ)' for directories.
-// Can be given several times.
+// If 'option' contains 'name(XYZ)', hists and directories are skipped if
+// their name does not contain 'XYZ'. Can be given several times.
 // 4)
 // If 'option' contains 'sumperdir', for each directory hists created containing
 // the means and RMS of all (1D-)hists of that directory and puts these in the following
 // 'layer' of the GFHistManager.
 // 
 // (Lower and upper case are ignored for 'norm', 'skip', 'name' and 'sumperdir'.)
-//
-// CAVEAT:
-// If you want to skip all hists that contain 'Norm' in their name by option 'skip(Norm)',
-// this will also lead to the normalisation option being switched on...
 
 class TFile;
 class TDirectory;
@@ -68,10 +62,8 @@ class GFOverlay {
   TObjArray      fLegends;
   Bool_t         fNormalise;
   Bool_t         fSummaries;
-  TObjArray      fDirNames;
-  TObjArray      fSkipDirNames;
-  TObjArray      fHistNames;
-  TObjArray      fSkipHistNames;
+  TObjArray      fNames;
+  TObjArray      fSkipNames;
 };
 
 #endif

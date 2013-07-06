@@ -1,105 +1,291 @@
+#include "SimDataFormats/TrackingAnalysis/interface/TrackingVertex.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
 
-typedef std::vector<TrackingVertex>                TrackingVertexCollection;
-typedef edm::Ref<TrackingVertexCollection>         TrackingVertexRef;
-typedef edm::RefVector<TrackingVertexCollection>   TrackingVertexRefVector;
-typedef TrackingVertexRefVector::iterator          tv_iterator;
+#include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 
-TrackingParticle::TrackingParticle( char q, const LorentzVector & p4, const Point & vtx,
-                                    double t, const int pdgId, const int status, const EncodedEventId eventId) :
-        ParticleBase( q, p4, vtx,pdgId,status ), t_( t ), pdgId_( pdgId ), eventId_( eventId )
+#include <FWCore/MessageLogger/interface/MessageLogger.h>
+
+const unsigned int TrackingParticle::longLivedTag = 65536;
+
+TrackingParticle::TrackingParticle()
 {
+	// No operation
+}
+
+TrackingParticle::TrackingParticle( const SimTrack& simtrk, const TrackingVertexRef& parentVertex )
+{
+	addG4Track( simtrk );
+	setParentVertex( parentVertex );
 }
 
 TrackingParticle::~TrackingParticle()
 {
 }
 
-void TrackingParticle::addGenParticle( const edm::Ref<edm::HepMCProduct, HepMC::GenParticle > &ref)
+int TrackingParticle::pdgId() const
 {
-    genParticles_.push_back(ref);
+	if( genParticles_.empty() ) return g4Tracks_.at( 0 ).type();
+	else return (*genParticles_.begin())->pdgId();
 }
 
-void TrackingParticle::addG4Track( const SimTrack& t)
+EncodedEventId TrackingParticle::eventId() const
 {
-    g4Tracks_.push_back(t);
+	return g4Tracks_.at( 0 ).eventId();
 }
 
-void TrackingParticle::addPSimHit( const PSimHit & hit)
+void TrackingParticle::addGenParticle( const reco::GenParticleRef& ref )
 {
-    trackPSimHit_.push_back(hit);
+	genParticles_.push_back( ref );
+}
+
+void TrackingParticle::addG4Track( const SimTrack& t )
+{
+	g4Tracks_.push_back( t );
 }
 
 TrackingParticle::genp_iterator TrackingParticle::genParticle_begin() const
 {
-    return genParticles_.begin();
+	return genParticles_.begin();
 }
 
 TrackingParticle::genp_iterator TrackingParticle::genParticle_end() const
 {
-    return genParticles_.end();
+	return genParticles_.end();
 }
 
 TrackingParticle::g4t_iterator TrackingParticle::g4Track_begin() const
 {
-    return g4Tracks_.begin();
+	return g4Tracks_.begin();
 }
 
 TrackingParticle::g4t_iterator TrackingParticle::g4Track_end() const
 {
-    return g4Tracks_.end();
+	return g4Tracks_.end();
 }
 
-const std::vector<PSimHit>::const_iterator TrackingParticle::pSimHit_begin() const
+void TrackingParticle::setParentVertex( const TrackingVertexRef& ref )
 {
-    return trackPSimHit_.begin();
+	parentVertex_=ref;
 }
 
-const std::vector<PSimHit>::const_iterator TrackingParticle::pSimHit_end() const
+void TrackingParticle::addDecayVertex( const TrackingVertexRef& ref )
 {
-    return trackPSimHit_.end();
-}
-
-std::vector<PSimHit> TrackingParticle::trackPSimHit(DetId::Detector detector) const
-{
-
-    std::vector<PSimHit> result;    
-    result.reserve(50);
-    for (std::vector<PSimHit>::const_iterator iHit = trackPSimHit_.begin(); iHit != trackPSimHit_.end(); ++iHit)
-        if ( detector == DetId( (uint32_t)((*iHit).detUnitId()) ).det() )
-            result.push_back(*iHit);
-    return result;
-}
-
-void TrackingParticle::setParentVertex(const TrackingVertexRef &ref)
-{
-    parentVertex_ = ref;
-}
-
-void TrackingParticle::addDecayVertex(const TrackingVertexRef &ref)
-{
-    decayVertices_.push_back(ref);
+	decayVertices_.push_back( ref );
 }
 
 void TrackingParticle::clearParentVertex()
 {
-    parentVertex_ = TrackingVertexRef();
+	parentVertex_=TrackingVertexRef();
 }
 
 void TrackingParticle::clearDecayVertices()
 {
-    decayVertices_.clear();
+	decayVertices_.clear();
 }
 
-void TrackingParticle::setMatchedHit(const int &hitnumb)
+const reco::GenParticleRefVector& TrackingParticle::genParticles() const
 {
-    matchedHit_ = hitnumb;
+	return genParticles_;
 }
 
-void TrackingParticle::setVertex(const Point & vtx, double t)
+const std::vector<SimTrack>& TrackingParticle::g4Tracks() const
 {
-    t_ = t;
-    ParticleBase::setVertex(vtx);
+	return g4Tracks_;
+}
+
+const TrackingVertexRef& TrackingParticle::parentVertex() const
+{
+	return parentVertex_;
+}
+
+const TrackingVertexRefVector& TrackingParticle::decayVertices() const
+{
+	return decayVertices_;
+}
+
+tv_iterator TrackingParticle::decayVertices_begin() const
+{
+	return decayVertices_.begin();
+}
+
+tv_iterator TrackingParticle::decayVertices_end() const
+{
+	return decayVertices_.end();
+}
+
+int TrackingParticle::charge() const
+{
+	return g4Tracks_.at( 0 ).charge();
+}
+
+int TrackingParticle::threeCharge() const
+{
+	return g4Tracks_.at( 0 ).charge()*3;
+}
+
+const TrackingParticle::LorentzVector& TrackingParticle::p4() const
+{
+	return g4Tracks_.at( 0 ).momentum();
+}
+
+TrackingParticle::Vector TrackingParticle::momentum() const
+{
+	return p4().Vect();
+}
+
+TrackingParticle::Vector TrackingParticle::boostToCM() const
+{
+	return p4().BoostToCM();
+}
+
+double TrackingParticle::p() const
+{
+	return p4().P();
+}
+
+double TrackingParticle::energy() const
+{
+	return p4().E();
+}
+
+double TrackingParticle::et() const
+{
+	return p4().Et();
+}
+
+double TrackingParticle::mass() const
+{
+	return p4().M();
+}
+
+double TrackingParticle::massSqr() const
+{
+	return pow( mass(), 2 );
+}
+
+double TrackingParticle::mt() const
+{
+	return p4().Mt();
+}
+
+double TrackingParticle::mtSqr() const
+{
+	return p4().Mt2();
+}
+
+double TrackingParticle::px() const
+{
+	return p4().Px();
+}
+
+double TrackingParticle::py() const
+{
+	return p4().Py();
+}
+
+double TrackingParticle::pz() const
+{
+	return p4().Pz();
+}
+
+double TrackingParticle::pt() const
+{
+	return p4().Pt();
+}
+
+double TrackingParticle::phi() const
+{
+	return p4().Phi();
+}
+
+double TrackingParticle::theta() const
+{
+	return p4().Theta();
+}
+
+double TrackingParticle::eta() const
+{
+	return p4().Eta();
+}
+
+double TrackingParticle::rapidity() const
+{
+	return p4().Rapidity();
+}
+
+double TrackingParticle::y() const
+{
+	return rapidity();
+}
+
+TrackingParticle::Point TrackingParticle::vertex() const
+{
+	return Point( vx(), vy(), vz() );
+}
+
+double TrackingParticle::vx() const
+{
+	const TrackingVertex& r=( *parentVertex_);
+	return r.position().X();
+}
+
+double TrackingParticle::vy() const
+{
+	const TrackingVertex& r=( *parentVertex_);
+	return r.position().Y();
+}
+
+double TrackingParticle::vz() const
+{
+	const TrackingVertex& r=( *parentVertex_);
+	return r.position().Z();
+}
+
+int TrackingParticle::status() const
+{
+	if( genParticles_.empty() ) return -99; // Use the old invalid status flag that used to be set by TrackingTruthProducer.
+	else return (*genParticles_.begin())->status();
+}
+
+bool TrackingParticle::longLived() const
+{
+	return status()&longLivedTag;
+}
+
+int TrackingParticle::numberOfHits() const
+{
+    return numberOfHits_;
+}
+
+int TrackingParticle::numberOfTrackerHits() const
+{
+    return numberOfTrackerHits_;
+}
+
+int TrackingParticle::matchedHit() const
+{
+	edm::LogWarning("TrackingParticle") << "The method matchedHit() has been deprecated. Use numberOfTrackerLayers() instead.";
+	return numberOfTrackerLayers_;
+}
+
+int TrackingParticle::numberOfTrackerLayers() const
+{
+	return numberOfTrackerLayers_;
+}
+
+void TrackingParticle::setNumberOfHits( int numberOfHits )
+{
+    numberOfHits_=numberOfHits;
+}
+
+void TrackingParticle::setNumberOfTrackerHits( int numberOfTrackerHits )
+{
+    numberOfTrackerHits_=numberOfTrackerHits;
+}
+
+void TrackingParticle::setNumberOfTrackerLayers( const int numberOfTrackerLayers )
+{
+	numberOfTrackerLayers_=numberOfTrackerLayers;
 }
 
 std::ostream& operator<< (std::ostream& s, TrackingParticle const & tp)
@@ -107,14 +293,6 @@ std::ostream& operator<< (std::ostream& s, TrackingParticle const & tp)
     s << "TP momentum, q, ID, & Event #: "
     << tp.p4()                      << " " << tp.charge() << " "   << tp.pdgId() << " "
     << tp.eventId().bunchCrossing() << "." << tp.eventId().event() << std::endl;
-    s << " Hits for this track: " << tp.trackPSimHit().size() << std::endl;
-
-    for (int i = 1; i < DetId::Calo + 1; ++i)
-    {
-    	int numberOfHits = tp.trackPSimHit((DetId::Detector)i).size();
-        if (numberOfHits)
-          s << "\t sub-detector id : " << i << " -> " << numberOfHits << std::endl;
-    }
 
     for (TrackingParticle::genp_iterator hepT = tp.genParticle_begin(); hepT !=  tp.genParticle_end(); ++hepT)
     {

@@ -60,18 +60,18 @@ class L1GtVhdlTemplateFile
 		/// replaces the whole line containing atLine with the content of file
 		bool insert(const std::string atLine, const L1GtVhdlTemplateFile& file);
 		/// prints the content of the VHDL File (only lines_)
-		void print();
+		void print() const;
 		/// prints the parameter map
-		void printParameterMap();
+		void printParameterMap() const;
 		/// returns a string vector with the current content of the VHDL File
-		std::vector<std::string> returnLines();
+		std::vector<std::string> returnLines() const;
 		/// returns parameter map
-		std::map<std::string,std::string> returnParameterMap();
+		std::map<std::string,std::string> returnParameterMap() const;
 		/// returns a vector with all substitution parameters that are found in the template file
-		std::vector<std::string> getSubstitutionParametersFromTemplate();
+		std::vector<std::string> getSubstitutionParametersFromTemplate() const;
 		/// finds all substitution parameters in str and collects them in the vector parameters.
 		/// This routine is used by getSubstitutionParametersFromTemplate();
-		bool extractParametersFromString(const std::string &str, std::vector<std::string> &parameters);
+		bool extractParametersFromString(const std::string &str, std::vector<std::string> &parameters) const;
 		/// adds a line at the end of the the file with the content of str
 		void append(const std::string &str);
 		/// adds the content of file at the end of (*this); the parameter map won't be changed
@@ -81,13 +81,13 @@ class L1GtVhdlTemplateFile
 		/// deletes all empty lines in a template file
 		bool removeEmptyLines();
 		/// checks weather a char is a blank
-		bool isBlank(const char &chr);
+		bool isBlank(const char &chr) const;
 		/// seperates a string at all blanks and saves the elements in result
-		bool split(const std::string &param, std::vector<std::string> &result);
+		bool split(const std::string &param, std::vector<std::string> &result) const;
 		/// extracts all conditions from a algorithm
-		void getConditionsFromAlgo(std::string condString, std::vector<std::string> &result);
+		void getConditionsFromAlgo(std::string condString, std::vector<std::string> &result) const;
 		/// returns a string with the content of vector lines
-		std::string lines2String();
+		std::string lines2String() const;
 		/// returns a parameter of a internal template file
 		std::string getInternalParameter(const std::string &indentifier);
 

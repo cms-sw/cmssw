@@ -1,10 +1,10 @@
-// $Id: QcdLowPtDQM.cc,v 1.21 2013/01/03 18:59:34 wmtan Exp $
+// $Id: QcdLowPtDQM.cc,v 1.20 2013/01/02 13:59:43 wmtan Exp $
 
 #include "DQM/Physics/src/QcdLowPtDQM.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "DataFormats/GeometryVector/interface/LocalPoint.h"
-//#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHitCollection.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
@@ -819,9 +819,9 @@ void QcdLowPtDQM::fillPixels(const Event &iEvent, const edm::EventSetup& iSetup)
   }
 
   //Retrieve tracker topology from geometry
-  //edm::ESHandle<TrackerTopology> tTopoHandle;
-  //iSetup.get<IdealGeometryRecord>().get(tTopoHandle);
-  //const TrackerTopology* const tTopo = tTopoHandle.product();
+  edm::ESHandle<TrackerTopology> tTopoHandle;
+  iSetup.get<IdealGeometryRecord>().get(tTopoHandle);
+  const TrackerTopology* const tTopo = tTopoHandle.product();
 
   const SiPixelRecHitCollection *hits = hRecHits.product();
   for(SiPixelRecHitCollection::DataContainer::const_iterator hit = hits->data().begin(), 
@@ -869,7 +869,7 @@ void QcdLowPtDQM::fillPixels(const Event &iEvent, const edm::EventSetup& iSetup)
     Pixel pix(gpos, adc, sizex, sizey);
 
     
-    int layer = 0; // tTopo->pxbLayer(id);
+    int layer = tTopo->pxbLayer(id);
 
     if (layer==1) {
       bpix1_.push_back(pix);     

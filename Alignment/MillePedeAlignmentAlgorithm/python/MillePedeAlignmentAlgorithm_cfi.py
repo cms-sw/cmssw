@@ -60,9 +60,7 @@ MillePedeAlignmentAlgorithm = cms.PSet(
         minHieraParPerConstr = cms.uint32(2), # ignore hierarchy constraints with less params
 
         # specify additional steering files
-        additionalSteerFiles = cms.vstring(), # obsolete - can be given as entries in 'options'
-        applyConstraints = cms.bool(False),
-        constraints = cms.VPSet()
+        additionalSteerFiles = cms.vstring() # obsolete - can be given as entries in 'options'
     ),
 
     pedeReader = cms.PSet(

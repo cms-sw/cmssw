@@ -238,8 +238,7 @@ bool L1GtVhdlTemplateFile::insert(const std::string &atLine, const std::vector<s
 
 bool L1GtVhdlTemplateFile::insert(const std::string atLine, const L1GtVhdlTemplateFile& _file)
 {
-    L1GtVhdlTemplateFile file = _file;
-    std::vector<std::string> temp = file.returnLines();
+    std::vector<std::string> temp = _file.returnLines();
 
     if (insert(atLine,temp)) return true;
 
@@ -254,9 +253,9 @@ bool L1GtVhdlTemplateFile::close()
 }
 
 
-void L1GtVhdlTemplateFile::print()
+void L1GtVhdlTemplateFile::print() const
 {
-    std::vector<std::string>::iterator iter = lines_.begin();
+    std::vector<std::string>::const_iterator iter = lines_.begin();
     while( iter != lines_.end())
     {
         std::cout<<*iter<<std::endl;
@@ -266,17 +265,17 @@ void L1GtVhdlTemplateFile::print()
 }
 
 
-std::vector<std::string> L1GtVhdlTemplateFile::returnLines() 
+std::vector<std::string> L1GtVhdlTemplateFile::returnLines() const
 {
     return lines_;
 }
 
 
-void L1GtVhdlTemplateFile::printParameterMap()
+void L1GtVhdlTemplateFile::printParameterMap() const
 {
     std::cout<<"Enter parametermap"<<std::endl;
 
-    std::map<std::string,std::string>::iterator iter =  parameterMap_.begin();
+    std::map<std::string,std::string>::const_iterator iter =  parameterMap_.begin();
 
     while( iter != parameterMap_.end())
     {
@@ -286,13 +285,13 @@ void L1GtVhdlTemplateFile::printParameterMap()
 }
 
 
-std::map<std::string,std::string> L1GtVhdlTemplateFile::returnParameterMap()
+std::map<std::string,std::string> L1GtVhdlTemplateFile::returnParameterMap() const
 {
     return parameterMap_;
 }
 
 
-bool L1GtVhdlTemplateFile::extractParametersFromString(const std::string &str, std::vector<std::string> &parameters)
+bool L1GtVhdlTemplateFile::extractParametersFromString(const std::string &str, std::vector<std::string> &parameters) const
 {
     // check, weather the current line is containing a substitution parameter
     // the routine is making sure, that it's not extracting a parameter from
@@ -323,10 +322,10 @@ bool L1GtVhdlTemplateFile::extractParametersFromString(const std::string &str, s
 }
 
 
-std::vector<std::string> L1GtVhdlTemplateFile::getSubstitutionParametersFromTemplate()
+std::vector<std::string> L1GtVhdlTemplateFile::getSubstitutionParametersFromTemplate() const
 {
     std::vector<std::string> temp;
-    std::vector<std::string>::iterator iter = lines_.begin();
+    std::vector<std::string>::const_iterator iter = lines_.begin();
 
     // loop until the substitution parameter is discovered the first time
     while( iter != lines_.end() )
@@ -389,7 +388,7 @@ bool L1GtVhdlTemplateFile::removeEmptyLines()
 }
 
 
-bool L1GtVhdlTemplateFile::isBlank(const char &chr)
+bool L1GtVhdlTemplateFile::isBlank(const char &chr) const
 {
     if (chr==' ') return true;
     return false;
@@ -397,7 +396,7 @@ bool L1GtVhdlTemplateFile::isBlank(const char &chr)
 }
 
 
-bool L1GtVhdlTemplateFile::split(const std::string &param, std::vector<std::string> &result)
+bool L1GtVhdlTemplateFile::split(const std::string &param, std::vector<std::string> &result) const
 {
     unsigned int i = 0;
     while (isBlank(param[i]))
@@ -425,7 +424,7 @@ bool L1GtVhdlTemplateFile::split(const std::string &param, std::vector<std::stri
 }
 
 
-void L1GtVhdlTemplateFile::getConditionsFromAlgo(std::string condString, std::vector<std::string> &result)
+void L1GtVhdlTemplateFile::getConditionsFromAlgo(std::string condString, std::vector<std::string> &result) const
 {
     std::vector<std::string> operators;
 
@@ -445,9 +444,9 @@ void L1GtVhdlTemplateFile::getConditionsFromAlgo(std::string condString, std::ve
 }
 
 
-std::string L1GtVhdlTemplateFile::lines2String()
+std::string L1GtVhdlTemplateFile::lines2String() const
 {
-    std::vector<std::string>::iterator iter = lines_.begin();
+    std::vector<std::string>::const_iterator iter = lines_.begin();
     std::ostringstream buffer;
 
     while( iter != lines_.end() )

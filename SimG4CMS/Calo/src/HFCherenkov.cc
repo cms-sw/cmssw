@@ -93,7 +93,8 @@ int HFCherenkov::computeNPE(G4Step * aStep, G4ParticleDefinition* pDef,
   }
    
   double uv = sqrt(u*u + v*v);
-  int nbOfPhotons = computeNbOfPhotons(pBeta, step_length);
+  int nbOfPhotons = computeNbOfPhotons(pBeta, step_length)
+    *aStep->GetTrack()->GetWeight();
 #ifdef DebugLog
   LogDebug("HFShower") << "HFCherenkov::computeNPE: pBeta " << pBeta 
 		       << " u/v/w " << u << "/" << v << "/" << w 

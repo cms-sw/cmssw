@@ -1,8 +1,8 @@
 /*
  * \file EELaserTask.cc
  *
- * $Date: 2012/07/02 19:39:30 $
- * $Revision: 1.82 $
+ * $Date: 2012/04/20 06:20:35 $
+ * $Revision: 1.78.2.2 $
  * \author G. Della Ricca
  *
 */
@@ -120,22 +120,10 @@ void EELaserTask::beginRun(const edm::Run& r, const edm::EventSetup& c) {
 
   if ( ! mergeRuns_ ) this->reset();
 
-  ievt_ = 0;
-  nEmpty_ = 0;
-
 }
 
 void EELaserTask::endRun(const edm::Run& r, const edm::EventSetup& c) {
 
-}
-
-void
-EELaserTask::endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&)
-{
-  if(init_ && dqmStore_ && !dqmStore_->dirExists(prefixME_ + "/EELaserTask")){
-	cleanup();
-	setup();
-  }
 }
 
 void EELaserTask::reset(void) {
@@ -836,7 +824,7 @@ void EELaserTask::analyze(const edm::Event& e, const edm::EventSetup& c){
       }
     }
 
-    if(!enable && (ievt_ < 4000 || double(nEmpty_++) / double(ievt_) < 0.95)) return;
+    if(!enable) return;
 
     int need = digis->size();
     LogDebug("EELaserTask") << "event " << ievt_ << " digi collection size " << need;

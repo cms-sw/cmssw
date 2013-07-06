@@ -102,7 +102,6 @@ int main(int argc, char *argv[])
    vector<OHltTree*> procs;
    procs.clear();
    fillProcesses(ocfg, procs, chains, omenu, hltDatasets);
-   int nevts=0;
 
    /* **** */
    // Count rates
@@ -110,8 +109,7 @@ int main(int argc, char *argv[])
    rcs.clear();
    for (unsigned int i=0; i<procs.size(); i++)
    {
-     nevts+=procs[i]->fChain->GetEntries();
-     rcs.push_back(new OHltRateCounter(omenu->GetTriggerSize(), omenu->GetL1TriggerSize()));
+      rcs.push_back(new OHltRateCounter(omenu->GetTriggerSize(), omenu->GetL1TriggerSize()));
    }
    OHltRatePrinter* rprint = new OHltRatePrinter();
    calcRates(ocfg, omenu, procs, rcs, rprint, hltDatasets);
@@ -128,9 +126,7 @@ int main(int argc, char *argv[])
       //    rprint->printRatesTex(ocfg,omenu);    
       rprint->printRatesTwiki(ocfg, omenu);
       //    rprint->printPrescalesCfg(ocfg,omenu);
-      if (ocfg->nEntries > 0 ) nevts=ocfg->nEntries;
-      printf("nevents to TNamed = %d",nevts);
-      rprint->writeHistos(ocfg, omenu,nevts);
+      rprint->writeHistos(ocfg, omenu);
       if(ocfg->nonlinearPileupFit != "none")
 	rprint->fitRatesForPileup(ocfg, omenu);
       char sLumi[10], sEnergy[10];

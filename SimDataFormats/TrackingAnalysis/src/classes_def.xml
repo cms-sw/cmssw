@@ -1,25 +1,4 @@
 <lcgdict>
-
-  <class name="ParticleBase" ClassVersion="12">
-   <field name="vertex_" iotype="ROOT::Math::PositionVector3D<ROOT::Math::Cartesian3D<Double32_t>,ROOT::Math::DefaultCoordinateSystemTag>" />
-   <field name="p4Polar_" transient="true" />
-   <field name="p4Cartesian_" transient="true" />
-   <field name="cachePolarFixed_" transient="true" />
-   <field name="cacheCartesianFixed_" transient="true" />
-   <version ClassVersion="12" checksum="342077122"/>
-   <version ClassVersion="11" checksum="3838809954"/>
-   <version ClassVersion="10" checksum="1390413442"/>
-  </class>
-  <ioread sourceClass = "ParticleBase" version="[1-]" targetClass="ParticleBase" source = "" target="cachePolarFixed_">
-    <![CDATA[cachePolarFixed_ = false;]]>
-  </ioread>
-  <ioread sourceClass = "ParticleBase" version="[1-]" targetClass="ParticleBase" source = "" target="cacheCartesianFixed_">
-    <![CDATA[cacheCartesianFixed_ = false;]]>
-  </ioread>
-
-  <class name="std::vector<ParticleBase>" />
-  <class name="edm::Wrapper<std::vector<ParticleBase> >" />
-
   <class name="TrackingVertex"  ClassVersion="10">
    <version ClassVersion="10" checksum="378811908"/>
   </class>
@@ -31,7 +10,8 @@
   <class pattern="edm::RefVector<std::vector<TrackingVertex>,*>" />
   <class name="edm::RefProd<std::vector<TrackingVertex> >" />
 
-  <class name="TrackingParticle" ClassVersion="10">
+  <class name="TrackingParticle" ClassVersion="11">
+   <version ClassVersion="11" checksum="2086515162"/>
    <version ClassVersion="10" checksum="2835241548"/>
   </class>
   <class name="std::vector<TrackingParticle>" />
@@ -43,8 +23,6 @@
   <class pattern="edm::Ref< std::vector<HepMC::GenVertex>,*>" />
   <class pattern="edm::RefVector< std::vector<HepMC::GenVertex>,*>" />
 
-  <class name="std::vector<PSimHit>::const_iterator" />
-  <class name="std::vector<PSimHit>::iterator" />
  
   <class name="edm::helpers::KeyVal<edm::RefProd<std::vector<TrackingParticle> >,edm::RefToBaseProd<reco::Track> >" />
   <class name="edm::helpers::KeyVal<edm::RefToBaseProd<reco::Track>,edm::RefProd<std::vector<TrackingParticle> > >" />

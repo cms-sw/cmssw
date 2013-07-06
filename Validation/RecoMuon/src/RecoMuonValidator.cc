@@ -892,7 +892,7 @@ void RecoMuonValidator::analyze(const Event& event, const EventSetup& eventSetup
     const double simDxy = -simVtx.x()*sin(simPhi)+simVtx.y()*cos(simPhi);
     const double simDz  = simVtx.z() - (simVtx.x()*simMom.x()+simVtx.y()*simMom.y())*simMom.z()/simMom.perp2();
     
-    const unsigned int nSimHits = simRef->pSimHit_end() - simRef->pSimHit_begin();
+    const unsigned int nSimHits = simRef->numberOfHits();
 
     muonME_->hSimP_  ->Fill(simP  );
     muonME_->hSimPt_ ->Fill(simPt );

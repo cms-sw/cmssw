@@ -47,13 +47,10 @@ dqmEnvL1TEMU.subSystemFolder = 'L1TEMU'
 # DQM Offline Step 1 cfi/cff imports
 from DQMOffline.L1Trigger.L1TRate_Offline_cfi import *
 from DQMOffline.L1Trigger.L1TSync_Offline_cfi import *
-from DQMOffline.L1Trigger.L1TEfficiencyMuons_Offline_cfi import *
 from DQMOffline.L1Trigger.L1TEmulatorMonitorOffline_cff import *  
 
 # DQM Offline Step 2 cfi/cff imports
-from DQMOffline.L1Trigger.L1TRate_Harvest_cfi import *
 from DQMOffline.L1Trigger.L1TSync_Harvest_cfi import *
-from DQMOffline.L1Trigger.L1TEfficiencyHarvesting_cfi import *
 from DQMOffline.L1Trigger.L1TEmulatorMonitorClientOffline_cff import *
 from DQMOffline.L1Trigger.L1TEmulatorMonitorClientOffline_cff import *
 
@@ -90,16 +87,13 @@ l1TriggerDqmOffline = cms.Sequence(
                                 l1TriggerOffline
                                 * l1tRate_Offline
                                 * l1tSync_Offline
-                                * l1tEfficiencyMuons_offline
                                 * l1TriggerEmulatorOffline
                                 )                                  
 
 # DQM Offline Step 2 sequence                                 
 l1TriggerDqmOfflineClient = cms.Sequence(
                                 l1tMonitorClient
-                                * l1tRate_Harvest
                                 * l1tSync_Harvest
-                                * l1tEfficiencyHarvesting
                                 * l1EmulatorMonitorClient
                                 )
 

@@ -1,6 +1,6 @@
 //   Author:      Gero Flucke
 //   Date:        October 2007
-//   last update: $Date: 2012/05/12 19:14:58 $  
+//   last update: $Date: 2012/03/29 08:48:50 $  
 //   by:          $Author: flucke $
 
 #include "GFOverlay.h"
@@ -24,48 +24,22 @@ GFOverlay::GFOverlay(const char *fileLegendList, Option_t *option) :
   fFiles(), fLegends(),
   fNormalise(TString(option).Contains("norm", TString::kIgnoreCase)),
   fSummaries(TString(option).Contains("sumperdir", TString::kIgnoreCase)),
-  fDirNames(), fSkipDirNames(), fHistNames(), fSkipHistNames()
+  fNames(), fSkipNames()
 {
-  if (fNormalise) ::Info("GFOverlay", "Normalising hists.");
-  if (fSummaries) ::Info("GFOverlay", "Add summary hists for each directory.");
-
   fFiles.SetOwner();
   fLegends.SetOwner();
 
   const TString opt(option);
 
-  // directory parts to require: either generally selecetd or only for dirs
-  fDirNames = this->FindAllBetween(opt, "name(", ")");
-  TObjArray tmp(this->FindAllBetween(opt, "nameDir(", ")"));
-  fDirNames.AddAll(&tmp);
-  fDirNames.SetOwner();
-  for (Int_t iN = 0; iN < fDirNames.GetEntriesFast(); ++iN) {
-    ::Info("GFOverlay", "Use only directories containing '%s'.", fDirNames[iN]->GetName());
+  fNames = this->FindAllBetween(opt, "name(", ")");
+  fNames.SetOwner();
+  for (Int_t iN = 0; iN < fNames.GetEntriesFast(); ++iN) {
+    ::Info("GFOverlay", "Use only hists/dirs containing '%s'.", fNames[iN]->GetName());
   }
-  // hist name parts to require: either generally selecetd or only for hists
-  fHistNames = this->FindAllBetween(opt, "name(", ")");
-  tmp = this->FindAllBetween(opt, "nameHist(", ")");
-  fHistNames.AddAll(&tmp);
-  fHistNames.SetOwner();
-  for (Int_t iN = 0; iN < fHistNames.GetEntriesFast(); ++iN) {
-    ::Info("GFOverlay", "Use only hists containing '%s'.", fHistNames[iN]->GetName());
-  }
-
-  // directory name parts to skip: either generally selecetd or only for dirs
-  fSkipDirNames = this->FindAllBetween(opt, "skip(", ")");
-  tmp = this->FindAllBetween(opt, "skipDir(", ")");
-  fSkipDirNames.AddAll(&tmp);
-  fSkipDirNames.SetOwner();
-  for (Int_t iS = 0; iS < fSkipDirNames.GetEntriesFast(); ++iS) {
-    ::Info("GFOverlay", "Skip directories containing '%s'.", fSkipDirNames[iS]->GetName());
-  }
-  // hist name parts to skip: either generally selecetd or only for hists
-  fSkipHistNames = this->FindAllBetween(opt, "skip(", ")");
-  tmp = this->FindAllBetween(opt, "skipHist(", ")");
-  fSkipHistNames.AddAll(&tmp);
-  fSkipHistNames.SetOwner();
-  for (Int_t iS = 0; iS < fSkipHistNames.GetEntriesFast(); ++iS) {
-    ::Info("GFOverlay", "Skip hists containing '%s'.", fSkipHistNames[iS]->GetName());
+  fSkipNames = this->FindAllBetween(opt, "skip(", ")");
+  fSkipNames.SetOwner();
+  for (Int_t iS = 0; iS < fSkipNames.GetEntriesFast(); ++iS) {
+    ::Info("GFOverlay", "Skip hists/dirs containing '%s'.", fSkipNames[iS]->GetName());
   }
 
   fHistMan->SameWithStats(true); // to draw both statistic boxes
@@ -169,8 +143,7 @@ bool GFOverlay::OpenFilesLegends(const char *fileLegendList)
 //________________________________________________________
 void GFOverlay::Overlay(const TObjArray &dirs, const TObjArray &legends)
 {
-  // 'directories' must contain TDirectory and inheriting, being parallel with legends,
-  // method is called recursively
+  // 'directories' must contain TDirectory and inheriting, being parallel with legends
   TDirectory *dir1 = 0;
   for (Int_t iDir = 0; !dir1 && iDir < dirs.GetEntriesFast(); ++iDir) {
     dir1 = static_cast<TDirectory*>(dirs[iDir]);
@@ -181,39 +154,15 @@ void GFOverlay::Overlay(const TObjArray &dirs, const TObjArray &legends)
   fLayer += (fSummaries ? 2 : 1);
   std::vector<TH1*> meanHists, rmsHists;
 
-  // Now loop on keys of first directory (i.e. first file). If not deselected, foresee hists
-  // for plotting and directories for recursion. Other objects are ignored. 
   UInt_t counter = 0;
   TIter nextKey(dir1->GetListOfKeys());
 //   //  while(TKey* key = static_cast <TKey*> (nextKey())) {
 //   // OK, make CINT happy, i.e. make .L GFOverlay.C work without extending '+':
   TKey* key = NULL; 
   while ((key = static_cast <TKey*> (nextKey()))) {
-    // If key's name is deselected for both cases (hist and dir), avoid reading object:
-    if (!fHistNames.IsEmpty()   && !this->KeyContainsListMember(key->GetName(), fHistNames)
-	&& !fDirNames.IsEmpty() && !this->KeyContainsListMember(key->GetName(), fDirNames )) {
-      continue; // type (dir/hist) independent skip: not actively selected!
-    }
-    if (this->KeyContainsListMember(key->GetName(), fSkipHistNames)
-	&& this->KeyContainsListMember(key->GetName(), fSkipDirNames)) {
-      continue; // type (dir/hist) independent skip: actively deselected!
-    }
-    // Now read object (only of first directory/file!) to be able to check type specific
-    // skipping (hist or dir):
-    TObject *obj = key->ReadObj();
-    if (!obj) continue; // What ? How that?
-    if (obj->InheritsFrom(TH1::Class())) {
-      if (!fHistNames.IsEmpty() && !this->KeyContainsListMember(key->GetName(), fHistNames)) {
-	continue;
-      }
-      if (this->KeyContainsListMember(key->GetName(), fSkipHistNames)) continue;
-    } else if (obj->InheritsFrom(TDirectory::Class())) {
-      if (!fDirNames.IsEmpty() && !this->KeyContainsListMember(key->GetName(), fDirNames)) {
-	continue;
-      }
-      if (this->KeyContainsListMember(key->GetName(), fSkipDirNames)) continue;
-    }
-    // Now key survived! First treat for hist case:
+    if (!fNames.IsEmpty() && !this->KeyContainsListMember(key->GetName(), fNames)) continue;
+    if (this->KeyContainsListMember(key->GetName(), fSkipNames)) continue;
+
     TObjArray hists(this->GetTypeWithNameFromDirs(TH1::Class(), key->GetName(), dirs));
     if (this->AddHistsAt(hists, legends, currentLayer, counter) > 0) {
       if (fSummaries) {
@@ -221,13 +170,13 @@ void GFOverlay::Overlay(const TObjArray &dirs, const TObjArray &legends)
       }
       ++counter;
     }
-    // Now treat directory case:
+    
     TObjArray subDirs(this->GetTypeWithNameFromDirs(TDirectory::Class(), key->GetName(), dirs));
     if (subDirs.GetEntries()) { // NOT GetEntriesFast()!
-      ::Info("GFOverlay::Overlay", "Key '%s' is directory to do recursion.", key->GetName());
+      ::Info("GFOverlay::Overlay", "Key '%s' has directories to do recursion.", key->GetName());
       this->Overlay(subDirs, legends);
     }
-  } // end of loop on keys
+  }
    
   // If mean/rms hists created, add them to manager:
   for (unsigned int iMean = 0; iMean < meanHists.size(); ++iMean) {

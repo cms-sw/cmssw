@@ -2,9 +2,6 @@
 #define CkfTrackCandidateMaker_h
 
 #include "FWCore/Framework/interface/EDProducer.h"
-#ifdef EDM_TRAMPOLINE
-#include "FWCore/Framework/interface/EDProducerTrampoline.h"
-#endif
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -27,12 +24,7 @@ class TransientInitialStateEstimator;
 
 namespace cms
 {
-  class CkfTrackCandidateMaker : public CkfTrackCandidateMakerBase, 
-#ifdef EDM_TRAMPOLINE
-				 public edm::EDProducerTrampoline<CkfTrackCandidateMaker,15>
-#else
-				 public edm::EDProducer
-#endif
+  class CkfTrackCandidateMaker : public CkfTrackCandidateMakerBase, public edm::EDProducer
   {
   public:
 
@@ -45,12 +37,8 @@ namespace cms
 
     virtual void beginRun (edm::Run const& r, edm::EventSetup const & es) override {beginRunBase(r,es);}
 
-#ifdef EDM_TRAMPOLINE
-    virtual void produceChild(edm::Event& e, const edm::EventSetup& es) final {produceBase(e,es);}
-#else
-    virtual void produce(edm::Event& e, const edm::EventSetup& es) final{produceBase(e,es);}
-#endif
-
+    virtual void produce(edm::Event& e, const edm::EventSetup& es) override {produceBase(e,es);}
+    
   };
 }
 

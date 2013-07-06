@@ -1,6 +1,10 @@
 // File: SiStripDigitizerAlgorithm.cc
 // Description:  Class for digitization.
 
+// Modified 15/May/2013 mark.grimes@bristol.ac.uk - Modified so that the digi-sim link has the correct
+// index for the sim hits stored. It was previously always set to zero (I won't mention that it was
+// me who originally wrote that).
+
 // system include files
 #include <memory>
 
@@ -13,6 +17,7 @@
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/SiStripDigi/interface/SiStripDigi.h"
 #include "DataFormats/SiStripDigi/interface/SiStripRawDigi.h"
+#include "SimDataFormats/TrackerDigiSimLink/interface/StripDigiSimLink.h"
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -62,7 +67,8 @@ SiStripDigitizer::SiStripDigitizer(const edm::ParameterSet& conf, edm::EDProduce
   PRDigi(conf.getParameter<edm::ParameterSet>("DigiModeList").getParameter<std::string>("PRDigi")),
   geometryType(conf.getParameter<std::string>("GeometryType")),
   useConfFromDB(conf.getParameter<bool>("TrackerConfigurationFromDB")),
-  zeroSuppression(conf.getParameter<bool>("ZeroSuppression"))
+  zeroSuppression(conf.getParameter<bool>("ZeroSuppression")),
+  makeDigiSimLinks_(conf.getUntrackedParameter<bool>("makeDigiSimLinks", false))
 { 
   const std::string alias("simSiStripDigis");
   
@@ -70,6 +76,7 @@ SiStripDigitizer::SiStripDigitizer(const edm::ParameterSet& conf, edm::EDProduce
   mixMod.produces<edm::DetSetVector<SiStripRawDigi> >(SCDigi).setBranchAlias(alias + SCDigi);
   mixMod.produces<edm::DetSetVector<SiStripRawDigi> >(VRDigi).setBranchAlias(alias + VRDigi);
   mixMod.produces<edm::DetSetVector<SiStripRawDigi> >(PRDigi).setBranchAlias(alias + PRDigi);
+  mixMod.produces<edm::DetSetVector<StripDigiSimLink> >().setBranchAlias(alias + "siStripDigiSimLink");
   edm::Service<edm::RandomNumberGenerator> rng;
   if ( ! rng.isAvailable()) {
     throw cms::Exception("Configuration")
@@ -88,11 +95,15 @@ SiStripDigitizer::~SiStripDigitizer() {
 }  
 
 void SiStripDigitizer::accumulateStripHits(edm::Handle<std::vector<PSimHit> > hSimHits,
-					   const TrackerTopology *tTopo) {
+					   const TrackerTopology *tTopo, size_t globalSimHitIndex ) {
+  // globalSimHitIndex is the index the sim hit will have when it is put in a collection
+  // of sim hits for all crossings. This is only used when creating digi-sim links if
+  // configured to do so.
+
   if(hSimHits.isValid()) {
     std::set<unsigned int> detIds;
     std::vector<PSimHit> const& simHits = *hSimHits.product();
-    for(std::vector<PSimHit>::const_iterator it = simHits.begin(), itEnd = simHits.end(); it != itEnd; ++it) {
+    for(std::vector<PSimHit>::const_iterator it = simHits.begin(), itEnd = simHits.end(); it != itEnd; ++it, ++globalSimHitIndex ) {
       unsigned int detId = (*it).detUnitId();
       if(detIds.insert(detId).second) {
         // The insert succeeded, so this detector element has not yet been processed.
@@ -101,9 +112,9 @@ void SiStripDigitizer::accumulateStripHits(edm::Handle<std::vector<PSimHit> > hS
         GlobalVector bfield = pSetup->inTesla(stripdet->surface().position());
         LogDebug ("Digitizer ") << "B-field(T) at " << stripdet->surface().position() << "(cm): "
                                 << pSetup->inTesla(stripdet->surface().position());
-        theDigiAlgo->accumulateSimHits(it, itEnd, stripdet, bfield, tTopo);
+        theDigiAlgo->accumulateSimHits(it, itEnd, globalSimHitIndex, stripdet, bfield, tTopo);
       }
-    }
+    } // end of loop over sim hits
   }
 }
 
@@ -121,7 +132,12 @@ void SiStripDigitizer::accumulateStripHits(edm::Handle<std::vector<PSimHit> > hS
       edm::InputTag tag(hitsProducer, *i);
 
       iEvent.getByLabel(tag, simHits);
-      accumulateStripHits(simHits,tTopo);
+      accumulateStripHits(simHits,tTopo,crossingSimHitIndexOffset_[tag.encode()]);
+      // Now that the hits have been processed, I'll add the amount of hits in this crossing on to
+      // the global counter. Next time accumulateStripHits() is called it will count the sim hits
+      // as though they were on the end of this collection.
+      // Note that this is only used for creating digi-sim links (if configured to do so).
+      if( simHits.isValid() ) crossingSimHitIndexOffset_[tag.encode()]+=simHits->size();
     }
   }
 
@@ -138,12 +154,23 @@ void SiStripDigitizer::accumulateStripHits(edm::Handle<std::vector<PSimHit> > hS
       edm::InputTag tag(hitsProducer, *i);
 
       iEvent.getByLabel(tag, simHits);
-      accumulateStripHits(simHits,tTopo);
+      accumulateStripHits(simHits,tTopo,crossingSimHitIndexOffset_[tag.encode()]);
+      // Now that the hits have been processed, I'll add the amount of hits in this crossing on to
+      // the global counter. Next time accumulateStripHits() is called it will count the sim hits
+      // as though they were on the end of this collection.
+      // Note that this is only used for creating digi-sim links (if configured to do so).
+      if( simHits.isValid() ) crossingSimHitIndexOffset_[tag.encode()]+=simHits->size();
     }
   }
 
 
 void SiStripDigitizer::initializeEvent(edm::Event const& iEvent, edm::EventSetup const& iSetup) {
+  // Make sure that the first crossing processed starts indexing the sim hits from zero.
+  // This variable is used so that the sim hits from all crossing frames have sequential
+  // indices used to create the digi-sim link (if configured to do so) rather than starting
+  // from zero for each crossing.
+  crossingSimHitIndexOffset_.clear();
+
   // Step A: Get Inputs
 
   if(useConfFromDB){
@@ -192,7 +219,7 @@ void SiStripDigitizer::finalizeEvent(edm::Event& iEvent, edm::EventSetup const& 
 
   std::vector<edm::DetSet<SiStripDigi> > theDigiVector;
   std::vector<edm::DetSet<SiStripRawDigi> > theRawDigiVector;
-
+  std::auto_ptr< edm::DetSetVector<StripDigiSimLink> > pOutputDigiSimLink( new edm::DetSetVector<StripDigiSimLink> );
   
   // Step B: LOOP on StripGeomDetUnit
   theDigiVector.reserve(10000);
@@ -208,15 +235,18 @@ void SiStripDigitizer::finalizeEvent(edm::Event& iEvent, edm::EventSetup const& 
     if (sgd != 0){
       edm::DetSet<SiStripDigi> collectorZS((*iu)->geographicalId().rawId());
       edm::DetSet<SiStripRawDigi> collectorRaw((*iu)->geographicalId().rawId());
-      theDigiAlgo->digitize(collectorZS,collectorRaw,sgd,
+      edm::DetSet<StripDigiSimLink> collectorLink((*iu)->geographicalId().rawId());
+      theDigiAlgo->digitize(collectorZS,collectorRaw,collectorLink,sgd,
 	 	       gainHandle,thresholdHandle,noiseHandle,pedestalHandle);
       if(zeroSuppression){
         if(collectorZS.data.size()>0){
           theDigiVector.push_back(collectorZS);
+          if( !collectorLink.data.empty() ) pOutputDigiSimLink->insert(collectorLink);
         }
       }else{
         if(collectorRaw.data.size()>0){
           theRawDigiVector.push_back(collectorRaw);
+          if( !collectorLink.data.empty() ) pOutputDigiSimLink->insert(collectorLink);
         }
       }
     }
@@ -233,6 +263,7 @@ void SiStripDigitizer::finalizeEvent(edm::Event& iEvent, edm::EventSetup const& 
     iEvent.put(output_scopemode, SCDigi);
     iEvent.put(output_virginraw, VRDigi);
     iEvent.put(output_processedraw, PRDigi);
+    if( makeDigiSimLinks_ ) iEvent.put( pOutputDigiSimLink ); // The previous EDProducer didn't name this collection so I won't either
   }else{
     // Step C: create output collection
     std::auto_ptr<edm::DetSetVector<SiStripRawDigi> > output_virginraw(new edm::DetSetVector<SiStripRawDigi>(theRawDigiVector));
@@ -244,5 +275,6 @@ void SiStripDigitizer::finalizeEvent(edm::Event& iEvent, edm::EventSetup const& 
     iEvent.put(output_scopemode, SCDigi);
     iEvent.put(output_virginraw, VRDigi);
     iEvent.put(output_processedraw, PRDigi);
+    if( makeDigiSimLinks_ ) iEvent.put( pOutputDigiSimLink ); // The previous EDProducer didn't name this collection so I won't either
   }
 }

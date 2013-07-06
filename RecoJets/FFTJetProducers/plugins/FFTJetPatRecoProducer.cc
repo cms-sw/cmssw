@@ -13,7 +13,7 @@
 //
 // Original Author:  Igor Volobouev
 //         Created:  Tue Jun 15 12:45:45 CDT 2010
-// $Id: FFTJetPatRecoProducer.cc,v 1.5 2011/07/18 17:08:24 igv Exp $
+// $Id: FFTJetPatRecoProducer.cc,v 1.4 2011/07/05 06:28:02 igv Exp $
 //
 //
 
@@ -139,12 +139,6 @@ protected:
     // Sparsify the clustering tree?
     const bool sparsify;
 
-    // Calculate the cluster radii?
-    const bool calculateClusterRadii;
-
-    // Calculate cluster separations?
-    const bool calculateClusterSeparations;
-
 private:
     FFTJetPatRecoProducer();
     FFTJetPatRecoProducer(const FFTJetPatRecoProducer&);
@@ -167,8 +161,6 @@ FFTJetPatRecoProducer::FFTJetPatRecoProducer(const edm::ParameterSet& ps)
       verifyDataConversion(ps.getUntrackedParameter<bool>("verifyDataConversion",false)),
       storeDiscretizationGrid(ps.getParameter<bool>("storeDiscretizationGrid")),
       sparsify(ps.getParameter<bool>("sparsify")),
-      calculateClusterRadii(ps.getParameter<bool>("calculateClusterRadii")),
-      calculateClusterSeparations(ps.getParameter<bool>("calculateClusterSeparations")),
       extGrid(0)
 {
     // register your products
@@ -444,10 +436,7 @@ void FFTJetPatRecoProducer::produce(
         if (getEventScale() > 0.0)
 	    sequencer->insertCompleteEvent(getEventScale(), *energyFlow,
                                            clusteringTree, completeEventDataCutoff);
-        if (calculateClusterRadii)
-            clusteringTree->updateClusterRadiusInfo();
-        if (calculateClusterSeparations)
-            clusteringTree->updateClusterSeparationInfo();
+
         if (sparsify)
         {
             sparsifier->sparsify(*clusteringTree, &sparseTree);

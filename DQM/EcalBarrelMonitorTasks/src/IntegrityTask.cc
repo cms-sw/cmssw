@@ -4,112 +4,121 @@
 
 namespace ecaldqm {
 
-  IntegrityTask::IntegrityTask(edm::ParameterSet const& _workerParams, edm::ParameterSet const& _commonParams) :
-    DQWorkerTask(_workerParams, _commonParams, "IntegrityTask"),
-    hltTaskMode_(_commonParams.getUntrackedParameter<int>("hltTaskMode"))
+  IntegrityTask::IntegrityTask(const edm::ParameterSet &_params, const edm::ParameterSet& _paths) :
+    DQWorkerTask(_params, _paths, "IntegrityTask"),
+    hltTaskMode_(0),
+    hltTaskFolder_("")
   {
-    collectionMask_[kLumiSection] = true;
-    collectionMask_[kGainErrors] = true;
-    collectionMask_[kChIdErrors] = true;
-    collectionMask_[kGainSwitchErrors] = true;
-    collectionMask_[kTowerIdErrors] = true;
-    collectionMask_[kBlockSizeErrors] = true;
+    collectionMask_ = 
+      (0x1 << kLumiSection) |
+      (0x1 << kGainErrors) |
+      (0x1 << kChIdErrors) |
+      (0x1 << kGainSwitchErrors) |
+      (0x1 << kTowerIdErrors) |
+      (0x1 << kBlockSizeErrors);
+
+    edm::ParameterSet const& commonParams(_params.getUntrackedParameterSet("Common"));
+
+    hltTaskMode_ = commonParams.getUntrackedParameter<int>("hltTaskMode");
+    hltTaskFolder_ = commonParams.getUntrackedParameter<std::string>("hltTaskFolder");
+
+    if(hltTaskMode_ != 0 && hltTaskFolder_.size() == 0)
+	throw cms::Exception("InvalidConfiguration") << "HLTTask mode needs a folder name";
+
+    if(hltTaskMode_ != 0){
+      std::string path;
+      std::map<std::string, std::string> replacements;
+      replacements["hlttask"] = hltTaskFolder_;
+
+      MEs_[kFEDNonFatal]->name(replacements);
+    }
+  }
+
+  IntegrityTask::~IntegrityTask()
+  {
   }
 
   void
   IntegrityTask::bookMEs()
   {
     if(hltTaskMode_ != 1){
-      for(MESetCollection::iterator mItr(MEs_.begin()); mItr != MEs_.end(); ++mItr){
-        if(mItr->first == "FEDNonFatal") continue;
-	mItr->second->book();
-      }
-      MEs_["ByLumi"]->setLumiFlag();
+      for(unsigned iME(kByLumi); iME < kFEDNonFatal; iME++)
+	MEs_[iME]->book();
     }
-    if(hltTaskMode_ != 0){
-      MEs_["FEDNonFatal"]->book();
-      MEs_["FEDNonFatal"]->getME(0)->getTH1()->GetXaxis()->SetLimits(601., 655.);
-    }
+    if(hltTaskMode_ != 0)
+      MEs_[kFEDNonFatal]->book();
   }
 
   void
   IntegrityTask::beginLuminosityBlock(const edm::LuminosityBlock &, const edm::EventSetup &)
   {
-    MEs_["ByLumi"]->reset();
+    if(MEs_[kByLumi]->isActive()) MEs_[kByLumi]->reset();
   }
 
   void
   IntegrityTask::runOnErrors(const DetIdCollection &_ids, Collections _collection)
   {
-    if(_ids.size() == 0) return;
-
-    MESet* set(0);
+    MESets set(nMESets);
     switch(_collection){
     case kGainErrors:
-      set = MEs_["Gain"];
+      set = kGain;
       break;
     case kChIdErrors:
-      set = MEs_["ChId"];
+      set = kChId;
       break;
     case kGainSwitchErrors:
-      set = MEs_["GainSwitch"];
+      set = kGainSwitch;
       break;
     default:
       return;
     }
 
-    MESet* meFEDNonFatal(MEs_["FEDNonFatal"]);
-    MESet* meByLumi(MEs_["ByLumi"]);
-    MESet* meTotal(MEs_["Total"]);
-    MESet* meTrendNErrors(online ? MEs_["TrendNErrors"] : 0);
-
     for(DetIdCollection::const_iterator idItr(_ids.begin()); idItr != _ids.end(); ++idItr){
-      set->fill(*idItr);
-      unsigned dccid(dccId(*idItr));
-      meFEDNonFatal->fill(dccid);
-      meByLumi->fill(dccid);
-      meTotal->fill(dccid);
-
-      if(online) meTrendNErrors->fill(double(iLumi), 1.);
+      if(MEs_[set]->isActive()) MEs_[set]->fill(*idItr);
+      if(MEs_[kFEDNonFatal]->isActive()) MEs_[kFEDNonFatal]->fill(*idItr);
+      if(MEs_[kByLumi]->isActive()) MEs_[kByLumi]->fill(*idItr);
+      if(MEs_[kTotal]->isActive()) MEs_[kTotal]->fill(*idItr);
     }
   }
   
   void
   IntegrityTask::runOnErrors(const EcalElectronicsIdCollection &_ids, Collections _collection)
   {
-    if(_ids.size() == 0) return;
+    MESets set(nMESets);
 
-    MESet* set(0);
     switch(_collection){
     case kTowerIdErrors:
-      set = MEs_["TowerId"];
+      set = kTowerId;
       break;
     case kBlockSizeErrors:
-      set = MEs_["BlockSize"];
+      set = kBlockSize;
       break;
     default:
       return;
     }
 
-    MESet* meFEDNonFatal(MEs_["FEDNonFatal"]);
-    MESet* meByLumi(MEs_["ByLumi"]);
-    MESet* meTotal(MEs_["Total"]);
-    MESet* meTrendNErrors(online ? MEs_["TrendNErrors"] : 0);
+    // 25 is not correct
 
     for(EcalElectronicsIdCollection::const_iterator idItr(_ids.begin()); idItr != _ids.end(); ++idItr){
-      set->fill(*idItr);
-      unsigned dccid(idItr->dccId());
-      double nCrystals(0.);
-      if(dccid <= kEEmHigh + 1 || dccid >= kEEpLow + 1)
-        nCrystals = getElectronicsMap()->dccTowerConstituents(dccid, idItr->towerId()).size();
-      else
-        nCrystals = 25.;
-      meFEDNonFatal->fill(dccid, nCrystals);
-      meByLumi->fill(dccid, nCrystals);
-      meTotal->fill(dccid, nCrystals);
-
-      if(online) meTrendNErrors->fill(double(iLumi), nCrystals);
+      if(MEs_[set]->isActive()) MEs_[set]->fill(*idItr, 25.);
+      if(MEs_[kFEDNonFatal]->isActive()) MEs_[kFEDNonFatal]->fill(*idItr, 25.);
+      if(MEs_[kByLumi]->isActive()) MEs_[kByLumi]->fill(*idItr, 25.);
+      if(MEs_[kTotal]->isActive()) MEs_[kTotal]->fill(*idItr, 25.);
     }
+  }
+
+  /*static*/
+  void
+  IntegrityTask::setMEData(std::vector<MEData>& _data)
+  {
+    _data[kByLumi] = MEData("ByLumi", BinService::kEcal2P, BinService::kDCC, MonitorElement::DQM_KIND_TH1F);
+    _data[kTotal] = MEData("Total", BinService::kEcal2P, BinService::kDCC, MonitorElement::DQM_KIND_TH1F);
+    _data[kGain] = MEData("Gain", BinService::kChannel, BinService::kCrystal, MonitorElement::DQM_KIND_TH1F);
+    _data[kChId] = MEData("ChId", BinService::kChannel, BinService::kCrystal, MonitorElement::DQM_KIND_TH1F);
+    _data[kGainSwitch] = MEData("GainSwitch", BinService::kChannel, BinService::kCrystal, MonitorElement::DQM_KIND_TH1F);
+    _data[kBlockSize] = MEData("BlockSize", BinService::kChannel, BinService::kSuperCrystal, MonitorElement::DQM_KIND_TH1F);
+    _data[kTowerId] = MEData("TowerId", BinService::kChannel, BinService::kSuperCrystal, MonitorElement::DQM_KIND_TH1F);
+    _data[kFEDNonFatal] = MEData("FEDNonFatal", BinService::kEcal2P, BinService::kDCC, MonitorElement::DQM_KIND_TH1F);
   }
 
   DEFINE_ECALDQM_WORKER(IntegrityTask);

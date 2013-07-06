@@ -5,8 +5,8 @@ from SimTracker.TrackAssociation.CosmicParametersDefinerForTP_cfi import *
 
 muonTrackValidator = cms.EDAnalyzer("MuonTrackValidator",
     # input TrackingParticle collections
-    label_tp_effic = cms.InputTag("mergedtruth","MergedTrackTruth"),
-    label_tp_fake = cms.InputTag("mergedtruth","MergedTrackTruth"),
+    label_tp_effic = cms.InputTag("mix","MergedTrackTruth"),
+    label_tp_fake = cms.InputTag("mix","MergedTrackTruth"),
     # input reco::Track collection
     label = cms.VInputTag(cms.InputTag("globalMuons")),
     # switches to be set according to the input Track collection to properly count SimHits

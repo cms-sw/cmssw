@@ -17,7 +17,7 @@
 //
 // Original Author:  Dan Duggan
 //         Created:
-// $Id: SiPixelMuonHLT.h,v 1.4 2013/02/04 13:51:01 merkelp Exp $
+// $Id: SiPixelMuonHLT.h,v 1.2 2009/12/18 20:44:49 wmtan Exp $
 //
 //////////////////////////////////////////////////////////
 
@@ -48,9 +48,7 @@
 #include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
 #include "DataFormats/SiPixelDetId/interface/PixelBarrelName.h"
-#include "DataFormats/SiPixelDetId/interface/PixelBarrelNameUpgrade.h"
 #include "DataFormats/SiPixelDetId/interface/PixelEndcapName.h"
-#include "DataFormats/SiPixelDetId/interface/PixelEndcapNameUpgrade.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHit.h"
 //DataFormats for MuonHLT
 #include "DataFormats/RecoCandidate/interface/RecoChargedCandidate.h"

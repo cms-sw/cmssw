@@ -10,9 +10,9 @@
  *
  * \author Christian Veelken, LLR
  *
- * \version $Revision: 1.4 $
+ * \version $Revision: 1.3 $
  *
- * $Id: ShiftedJetProducerT.h,v 1.4 2012/08/31 09:59:15 veelken Exp $
+ * $Id: ShiftedJetProducerT.h,v 1.3 2012/02/13 14:12:12 veelken Exp $
  *
  */
 
@@ -144,9 +144,6 @@ class ShiftedJetProducerT : public edm::EDProducer
 	    jetCorrExtractor_(*originalJet, jetCorrLabelUpToL3Res_, &evt, &es, jetCorrEtaMax_, &rawJetP4);
 	  if ( corrJetP4upToL3.E() > 1.e-1 && corrJetP4upToL3Res.E() > 1.e-1 ) {
 	    double residualJES = (corrJetP4upToL3Res.E()/corrJetP4upToL3.E()) - 1.;
-	    if ( verbosity_ ) {
-	      std::cout << "residualJES = " << residualJES << std::endl;
-	    }
 	    shift = TMath::Sqrt(shift*shift + residualJES*residualJES);
 	  }
 	}

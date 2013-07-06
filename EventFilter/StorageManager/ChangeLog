@@ -1,30 +1,4 @@
-2013-01-07 Giulio Eulisse <Giulio.Eulisse@cern.ch>
-
-	* tag V08-11-05
-	* Misc fixes for clang
-
-2012-12-06 Giulio Eulisse <Giulio.Eulisse@cern.ch>
-
-	* tag V08-11-04
-	* Use `edm::isNotFinite` in place of `std::isnan`
-
-2012-11-01 William Tanenbaum <wmtan@fnal.gov>
-
-	* tag V08-11-03
-	* Add missing setEventCached() call in DQMHttpSource
-
-2012-10-31 William Tanenbaum <wmtan@fnal.gov>
-
-	* tag V08-11-02
-	* Don't fill event principal prematurely in DQMHttpSource and EventStreamHttpReader
-
-2012-10-17 William Tanenbaum <wmtan@fnal.gov>
-
-	* tag V08-11-01
-	* Restore makeEvent() for DQMHttpSource
-	* Include fixes from tag V08-10-02
-
-2012-10-17 William Tanenbaum <wmtan@fnal.gov>
+2009-10-17 William Tanenbaum <wmtan@fnal.gov>
 
 	* tag V08-11-00
 	* Adapt HTTP sources to changes in StreamerInputSource base class

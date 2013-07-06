@@ -2,7 +2,6 @@
  <class name="CSCPedestals" id="7C1F7D6C-BE30-DA11-95EF-0008743F7CC7"/>
  <class name="CSCPedestals::Item"/>
  <class name="std::vector<CSCPedestals::Item>"/>
- <class name="std::map<int,std::vector<CSCPedestals::Item> >"/>
 
  <class name="CSCDBPedestals">
    <field name = "pedestals" mapping = "blob"/>
@@ -25,7 +24,6 @@
  <class name="CSCGains" id="24647172-BE30-DA11-888A-0008743F7CC7"/>
  <class name="CSCGains::Item"/>
  <class name="std::vector<CSCGains::Item>"/>
- <class name="std::map<int, std::vector<CSCGains::Item> >"/>
 
  <class name="CSCDBGains">
    <field name = "gains" mapping = "blob"/>
@@ -36,7 +34,6 @@
  <class name="CSCNoiseMatrix" id="E885ACBB-5EA8-DA11-A44A-001320A4DDB1"/>
  <class name="CSCNoiseMatrix::Item"/>
  <class name="std::vector<CSCNoiseMatrix::Item>"/>
- <class name="std::map<int, std::vector<CSCNoiseMatrix::Item> >"/>
 
  <class name="CSCDBNoiseMatrix">
    <field name = "matrix" mapping = "blob"/>
@@ -47,7 +44,6 @@
  <class name="CSCcrosstalk" id="DA52D078-BE30-DA11-9387-0008743F7CC7"/>
  <class name="CSCcrosstalk::Item"/>
  <class name="std::vector<CSCcrosstalk::Item>"/>
- <class name="std::map<int,std::vector<CSCcrosstalk::Item> >"/>
 
  <class name="CSCDBCrosstalk">
    <field name = "crosstalk" mapping = "blob"/>

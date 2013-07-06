@@ -2,26 +2,8 @@
 #include <iostream>
 #include "L1Trigger/RegionalCaloTrigger/interface/L1RCTLookupTables.h"
 #include "CondFormats/L1TObjects/interface/L1RCTParameters.h"
-#include "CondFormats/L1TObjects/interface/L1RCTChannelMask.h"
-#include "CondFormats/L1TObjects/interface/L1RCTNoisyChannelMask.h"
 using std::cout;
 using std::endl;
-
-// clear/initialize the masks (they start w/ garbage) 
-template<typename MaskType>
-void clearMask(MaskType* mask) {
-  for(int i = 0; i< 18; i++)
-    for(int j =0; j< 2; j++){
-      for(int k =0; k<28; k++){
-        mask->ecalMask[i][j][k] = 0;
-        mask->hcalMask[i][j][k] = 0;
-      }
-      for(int k =0; k<4;k++)
-        mask->hfMask[i][j][k] = 0;
-    }
-}
-
-
 int main() {
   // For testing use 1:1 LUT
   std::vector<double> eGammaECalScaleFactors(32, 1.0);
@@ -60,14 +42,6 @@ int main() {
 			);
   L1RCTLookupTables* lut = new L1RCTLookupTables();
   lut->setRCTParameters(rctParameters);  // transcoder and etScale are not used
-  L1RCTChannelMask mask;
-  clearMask(&mask);
-  mask.print(std::cout);
-  L1RCTNoisyChannelMask noiseMask;
-  clearMask(&noiseMask);
-  noiseMask.print(std::cout);
-  lut->setChannelMask(&mask);
-  lut->setNoisyChannelMask(&noiseMask);
   std::cout << lut->lookup(0,0,0,0,0,0) << " should equal 0" << std::endl;
   std::cout << lut->lookup(2,0,0,0,0,0) << " should equal 514" << std::endl;
   std::cout << lut->lookup(10,0,0,0,0,0) << " should equal 133642 " << std::endl;
