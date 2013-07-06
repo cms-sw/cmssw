@@ -146,19 +146,6 @@ namespace edm{
     module_->updateLookup(iBranchType,iHelper);
   }
 
-  template<typename T>
-  void WorkerT<T>::setEventSelectionInfo(std::map<std::string, std::vector<std::pair<std::string, int> > > const& outputModulePathPositions,
-                             bool anyProductProduced) {
-    //do nothing for the regular case
-  }
-
-
-  template<>
-  void WorkerT<OutputModule>::setEventSelectionInfo(std::map<std::string, std::vector<std::pair<std::string, int> > > const& outputModulePathPositions,
-                             bool anyProductProduced) {
-    module_->setEventSelectionInfo(outputModulePathPositions, anyProductProduced);
-  }
-
   template<>
   Worker::Types WorkerT<EDAnalyzer>::moduleType() const { return Worker::kAnalyzer;}
   template<>

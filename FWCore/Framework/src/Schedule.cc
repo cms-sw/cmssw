@@ -9,7 +9,7 @@
 #include "FWCore/Framework/interface/TriggerReport.h"
 #include "FWCore/Framework/src/Factory.h"
 #include "FWCore/Framework/interface/OutputModule.h"
-#include "FWCore/Framework/src/OutputWorker.h"
+#include "FWCore/Framework/src/OutputModuleCommunicator.h"
 #include "FWCore/Framework/src/TriggerResultInserter.h"
 #include "FWCore/Framework/src/WorkerInPath.h"
 #include "FWCore/Framework/src/WorkerMaker.h"
@@ -294,7 +294,8 @@ namespace edm {
     results_(new HLTGlobalStatus(trig_name_list_.size())),
     endpath_results_(), // delay!
     results_inserter_(),
-    all_output_workers_(),
+    all_workers_(),
+    all_output_communicators_(),
     trig_paths_(),
     end_paths_(),
     wantSummary_(tns.wantSummary()),
@@ -398,14 +399,15 @@ namespace edm {
     
     // This is used for a little sanity-check to make sure no code
     // modifications alter the number of workers at a later date.
-    size_t all_workers_count = allWorkers().size();
+    size_t all_workers_count = all_workers_.size();
 
-    for (auto& worker : allWorkers()) {
-      // All the workers should be in at this point. Thus
-      // we can now fill all_output_workers_.
-      OutputWorker* ow = dynamic_cast<OutputWorker*>(worker);
-      if (ow) {
-        all_output_workers_.push_back(ow);
+    for (auto w : all_workers_) {
+
+      // All the workers should be in all_workers_ by this point. Thus
+      // we can now fill all_output_communicators_.
+      auto comm = w->createOutputModuleCommunicator();
+      if (comm) {
+        all_output_communicators_.emplace_back(boost::shared_ptr<OutputModuleCommunicator>{comm.release()});
       }
     }
     // Now that the output workers are filled in, set any output limits or information.
@@ -415,9 +417,9 @@ namespace edm {
 
     preg.setFrozen();
 
-    for (auto& worker : all_output_workers_) {
-      worker->setEventSelectionInfo(outputModulePathPositions, preg.anyProductProduced());
-      worker->selectProducts(preg);
+    for (auto c : all_output_communicators_) {
+      c->setEventSelectionInfo(outputModulePathPositions, preg.anyProductProduced());
+      c->selectProducts(preg);
     }
 
     // Sanity check: make sure nobody has added a worker after we've
@@ -450,13 +452,13 @@ namespace edm {
     unsigned int upperLimitOnReadingWorker =0;
     unsigned int upperLimitOnIndicies = 0;
     unsigned int nUniqueBranchesToDelete=branchToReadingWorker.size();
-    for (auto& worker : allWorkers()) {
-      OutputWorker* ow = dynamic_cast<OutputWorker*>(worker);
-      if (ow) {
+    for (auto w :all_workers_) {
+      auto comm = w->createOutputModuleCommunicator();
+      if (comm) {
         if(branchToReadingWorker.size()>0) {
           //If an OutputModule needs a product, we can't delete it early
           // so we should remove it from our list
-          SelectionsArray const&kept = ow->keptProducts();
+          SelectionsArray const&kept = comm->keptProducts();
           for( auto const& item: kept[InEvent]) {
             auto found = branchToReadingWorker.equal_range(item->branchName());
             if(found.first !=found.second) {
@@ -468,7 +470,7 @@ namespace edm {
       } else {
         if(branchToReadingWorker.size()>0) {
           //determine if this module could read a branch we want to delete early
-          auto pset = pset::Registry::instance()->getMapped(worker->description().parameterSetID());
+          auto pset = pset::Registry::instance()->getMapped(w->description().parameterSetID());
           if(0!=pset) {
             auto branches = pset->getUntrackedParameter<std::vector<std::string>>("mightGet",kEmpty);
             if(not branches.empty()) {
@@ -478,11 +480,11 @@ namespace edm {
               auto found = branchToReadingWorker.equal_range(branch);
               if(found.first != found.second) {
                 ++upperLimitOnIndicies;
-                ++reserveSizeForWorker[worker];
+                ++reserveSizeForWorker[w];
                 if(nullptr == found.first->second) {
-                  found.first->second = worker;
+                  found.first->second = w;
                 } else {
-                  branchToReadingWorker.insert(make_pair(found.first->first,worker));
+                  branchToReadingWorker.insert(make_pair(found.first->first,w));
                 }
               }
             }
@@ -720,11 +722,10 @@ namespace edm {
         "\nAt most, one form of 'output' may appear in the 'maxEvents' parameter set";
     }
 
-    for (AllOutputWorkers::const_iterator it = all_output_workers_.begin(), itEnd = all_output_workers_.end();
-        it != itEnd; ++it) {
+    for (auto c : all_output_communicators_) {
       OutputModuleDescription desc(branchIDLists, maxEventsOut);
       if (vMaxEventsOut != 0 && !vMaxEventsOut->empty()) {
-        std::string moduleLabel = (*it)->description().moduleLabel();
+        std::string const& moduleLabel = c->description().moduleLabel();
         try {
           desc.maxEvents_ = vMaxEventsOut->getUntrackedParameter<int>(moduleLabel);
         } catch (Exception const&) {
@@ -732,18 +733,16 @@ namespace edm {
             "\nNo entry in 'maxEvents' for output module label '" << moduleLabel << "'.\n";
         }
       }
-      (*it)->configure(desc);
+      c->configure(desc);
     }
   }
 
   bool Schedule::terminate() const {
-    if (all_output_workers_.empty()) {
+    if (all_output_communicators_.empty()) {
       return false;
     }
-    for (AllOutputWorkers::const_iterator it = all_output_workers_.begin(),
-         itEnd = all_output_workers_.end();
-         it != itEnd; ++it) {
-      if (!(*it)->limitReached()) {
+    for (auto c : all_output_communicators_) {
+      if (!c->limitReached()) {
         // Found an output module that has not reached output event count.
         return false;
       }
@@ -1212,30 +1211,30 @@ namespace edm {
   }
 
   void Schedule::closeOutputFiles() {
-    for_all(all_output_workers_, boost::bind(&OutputWorker::closeFile, _1));
+    for_all(all_output_communicators_, boost::bind(&OutputModuleCommunicator::closeFile, _1));
   }
 
   void Schedule::openNewOutputFilesIfNeeded() {
-    for_all(all_output_workers_, boost::bind(&OutputWorker::openNewFileIfNeeded, _1));
+    for_all(all_output_communicators_, boost::bind(&OutputModuleCommunicator::openNewFileIfNeeded, _1));
   }
 
   void Schedule::openOutputFiles(FileBlock& fb) {
-    for_all(all_output_workers_, boost::bind(&OutputWorker::openFile, _1, boost::cref(fb)));
+    for_all(all_output_communicators_, boost::bind(&OutputModuleCommunicator::openFile, _1, boost::cref(fb)));
   }
 
   void Schedule::writeRun(RunPrincipal const& rp) {
-    for_all(all_output_workers_, boost::bind(&OutputWorker::writeRun, _1, boost::cref(rp)));
+    for_all(all_output_communicators_, boost::bind(&OutputModuleCommunicator::writeRun, _1, boost::cref(rp)));
   }
 
   void Schedule::writeLumi(LuminosityBlockPrincipal const& lbp) {
-    for_all(all_output_workers_, boost::bind(&OutputWorker::writeLumi, _1, boost::cref(lbp)));
+    for_all(all_output_communicators_, boost::bind(&OutputModuleCommunicator::writeLumi, _1, boost::cref(lbp)));
   }
 
   bool Schedule::shouldWeCloseOutput() const {
     // Return true iff at least one output module returns true.
-    return (std::find_if (all_output_workers_.begin(), all_output_workers_.end(),
-                     boost::bind(&OutputWorker::shouldWeCloseFile, _1))
-                     != all_output_workers_.end());
+    return (std::find_if (all_output_communicators_.begin(), all_output_communicators_.end(),
+                     boost::bind(&OutputModuleCommunicator::shouldWeCloseFile, _1))
+                     != all_output_communicators_.end());
   }
 
   void Schedule::respondToOpenInputFile(FileBlock const& fb) {
