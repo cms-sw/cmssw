@@ -5,6 +5,7 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 #include "RecoVertex/VertexPrimitives/interface/TransientVertex.h"
@@ -21,9 +22,8 @@ PrimaryVertexProducer::PrimaryVertexProducer(const edm::ParameterSet& conf)
 {
 
   fVerbose   = conf.getUntrackedParameter<bool>("verbose", false);
-  trackLabel = conf.getParameter<edm::InputTag>("TrackLabel");
-  beamSpotLabel = conf.getParameter<edm::InputTag>("beamSpotLabel");
-
+  trkToken = consumes<reco::TrackCollection>(conf.getParameter<edm::InputTag>("TrackLabel"));
+  bsToken = consumes<reco::BeamSpot>(conf.getParameter<edm::InputTag>("beamSpotLabel"));
 
   // select and configure the track selection
   std::string trackSelectionAlgorithm=conf.getParameter<edm::ParameterSet>("TkFilterParameters").getParameter<std::string>("algorithm");
@@ -122,7 +122,7 @@ PrimaryVertexProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
   // get the BeamSpot, it will alwys be needed, even when not used as a constraint
   reco::BeamSpot beamSpot;
   edm::Handle<reco::BeamSpot> recoBeamSpotHandle;
-  iEvent.getByLabel(beamSpotLabel,recoBeamSpotHandle);
+  iEvent.getByToken(bsToken,recoBeamSpotHandle);
   if (recoBeamSpotHandle.isValid()){
     beamSpot = *recoBeamSpotHandle;
   }else{
@@ -142,7 +142,7 @@ PrimaryVertexProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
   // get RECO tracks from the event
   // `tks` can be used as a ptr to a reco::TrackCollection
   edm::Handle<reco::TrackCollection> tks;
-  iEvent.getByLabel(trackLabel, tks);
+  iEvent.getByToken(trkToken, tks);
 
 
   // interface RECO tracks to vertex reconstruction
