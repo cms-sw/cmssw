@@ -1175,7 +1175,18 @@ void PFEGammaAlgoNew::buildAndRefineEGObjects(const reco::PFBlockRef& block) {
 
   LOGDRESSED("PFEGammaAlgo")
     << "There are " << _refinableObjects.size() 
-    << " after the linking step." << std::endl;
+    << " after the 2nd merging step." << std::endl;
+  dumpCurrentRefinableObjects();
+
+  // -- unlinking and proto-object vetos 
+  for( auto& RO : _refinableObjects ) {
+    // remove KFs (and possibly ECALs) matched to HCAL clusters
+    unlinkRefinableObjectKFandECALMatchedToHCAL(RO);
+  }
+
+  LOGDRESSED("PFEGammaAlgo")
+    << "There are " << _refinableObjects.size() 
+    << " after the unlinking and vetos step." << std::endl;
   dumpCurrentRefinableObjects();
 
   // fill the PF candidates and then build the refined SC
@@ -1319,7 +1330,7 @@ unwrapSuperCluster(const PFSCElement* thesc,
   reco::SuperClusterRef scref = thesc->superClusterRef();
   // this check needs to be done in a different way
   const bool is_pf_sc = (bool)
-    docast(const reco::PFCluster*,(*scref->clustersBegin()).get());
+    dynamic_cast<const reco::PFCluster*>((*scref->clustersBegin()).get());
   if( !(scref.isAvailable() && scref.isNonnull()) ) {
     throw cms::Exception("PFEGammaAlgoNew::unwrapSuperCluster()")
       << "SuperCluster pointed to by block element is null!" 
@@ -2131,6 +2142,99 @@ buildRefinedSuperCluster(const PFEGammaAlgoNew::ProtoEGObject& RO) {
   
   return new_sc;
 }
+
+void PFEGammaAlgoNew::
+unlinkRefinableObjectKFWithBadEoverP(ProtoEGObject& RO) {
+}
+
+void PFEGammaAlgoNew::
+unlinkRefinableObjectKFandECALMatchedToHCAL(ProtoEGObject& RO,
+					    bool removeFreeECAL,
+					    bool removeSCEcal) {
+  std::vector<bool> cluster_in_sc;
+  std::vector<std::vector<PFKFFlaggedElement>::iterator> kfs_to_remove;
+  auto seckfs_begin = RO.secondaryKFs.begin();
+  auto seckfs_end   = RO.secondaryKFs.end();
+  auto ecal_begin = RO.ecalclusters.begin();
+  auto ecal_end   = RO.ecalclusters.end();
+  auto hcal_begin = _splayedblock[reco::PFBlockElement::HCAL].begin();
+  auto hcal_end   = _splayedblock[reco::PFBlockElement::HCAL].end();
+  for( auto secd_kf = seckfs_begin; secd_kf != seckfs_end; ++secd_kf ) {
+    NotCloserToOther<reco::PFBlockElement::TRACK,reco::PFBlockElement::HCAL>
+      tracksToHCALs(_currentblock,_currentlinks,secd_kf->first);
+    reco::TrackRef trkRef =   secd_kf->first->trackRef();
+    const unsigned int Algo = whichTrackAlgo(trkRef);
+    const float secpin = trkRef->p();       
+    
+    for( auto ecal = ecal_begin; ecal != ecal_end; ++ecal ) {
+      const double ecalenergy = ecal->first->clusterRef()->energy();
+      // first check if the cluster is in the SC (use dist calc for fastness)
+      const size_t clus_idx = std::distance(ecal_begin,ecal);
+      if( RO.parentSC && cluster_in_sc.size() < clus_idx + 1) {
+	const float dist = _currentblock->dist(secd_kf->first->index(),
+					       ecal->first->index(),
+					       _currentlinks,
+					       reco::PFBlock::LINKTEST_ALL);
+	cluster_in_sc.push_back(dist == 0.001f); 
+      }
+
+      ElementMap::value_type check_match(ecal->first,secd_kf->first);
+      auto secd_kfs_matched = RO.localMap.equal_range(ecal->first);
+      auto kf_matched = std::find(secd_kfs_matched.first,
+				  secd_kfs_matched.second,
+				  check_match);
+      // if we've found a secondary KF that matches this ecal cluster
+      // now we see if it is matched to HCAL 
+      // if it is matched to an HCAL cluster we take different 
+      // actions if the cluster was in an SC or not
+      if( kf_matched != secd_kfs_matched.second ) {
+	auto hcal_matched = std::partition(hcal_begin,hcal_end,tracksToHCALs);
+	for( auto hcalclus = hcal_begin; 
+	     hcalclus != hcal_matched; 
+	     ++hcalclus                 ) {
+	  const reco::PFBlockElementCluster * clusthcal =  
+	    dynamic_cast<const reco::PFBlockElementCluster*>(hcalclus->first); 
+	  const double hcalenergy = clusthcal->clusterRef()->energy();	  
+	  const double hpluse = ecalenergy+hcalenergy;
+	  const bool isHoHE = ( (hcalenergy / hpluse ) > 0.1 && Algo < 3 );
+	  const bool isHoE  = ( hcalenergy > ecalenergy );
+	  const bool isPoHE = ( secpin > hpluse );	
+	  if( cluster_in_sc[clus_idx] ) {
+	    if(isHoE || isPoHE) {
+	      LOGDRESSED("PFEGammaAlgo")
+		<< "REJECTED TRACK FOR H/E or P/(H+E), CLUSTER IN SC"
+		<< " H/H+E " << (hcalenergy / hpluse)
+		<< " H/E " << (hcalenergy > ecalenergy)
+		<< " P/(H+E) " << (secpin/hpluse)
+		<< " HCAL ENE " << hcalenergy
+		<< " ECAL ENE " << ecalenergy
+		<< " secPIN " << secpin 
+		<< " Algo Track " << Algo << std::endl;
+	      kfs_to_remove.push_back(secd_kf);
+	    }
+	  } else {
+	    if(isHoHE){
+	      LOGDRESSED("PFEGammaAlgo")
+		<< "REJECTED TRACK FOR H/H+E, CLUSTER NOT IN SC"
+		<< " H/H+E " << (hcalenergy / hpluse)
+		<< " H/E " << (hcalenergy > ecalenergy)
+		<< " P/(H+E) " << (secpin/hpluse) 
+		<< " HCAL ENE " << hcalenergy
+		<< " ECAL ENE " << ecalenergy
+		<< " secPIN " << secpin 
+		<< " Algo Track " << Algo << std::endl;
+	      kfs_to_remove.push_back(secd_kf);
+	    }
+	  }  
+	}
+      }
+    }
+  }
+  for( auto& to_remove : kfs_to_remove ) {
+    RO.secondaryKFs.erase(to_remove);
+  }
+}
+
 
 unsigned int PFEGammaAlgoNew::whichTrackAlgo(const reco::TrackRef& trackRef) {
   unsigned int Algo = 0; 

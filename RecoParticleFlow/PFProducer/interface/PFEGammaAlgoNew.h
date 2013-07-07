@@ -2,11 +2,12 @@
 #define PFProducer_PFEGammaAlgoNew_H
 
 //
+// Rewrite for GED integration:  Lindsey Gray (FNAL): lagray@fnal.gov
+//
 // Original Authors: Fabian Stoeckli: fabian.stoeckli@cern.ch
 //                   Nicholas Wardle: nckw@cern.ch
 //                   Rishi Patel: rpatel@cern.ch
 //                   Josh Bendavid : Josh.Bendavid@cern.ch
-// Rewrite for GED integration:  Lindsey Gray (FNAL): lagray@fnal.gov
 //
 
 #include "DataFormats/ParticleFlowReco/interface/PFBlockFwd.h"
@@ -268,8 +269,15 @@ private:
 
   // wax off
 
-  // refining steps to remove ECAL clusters linked to HCAL clusters by track
-  void unlinkRefinableObjectECALMatchedToHCAL(ProtoEGObject&);
+  // refining steps remove things from the built-up objects
+  // original bits were for removing bad KF tracks
+  // new (experimental) piece to remove clusters associated to these tracks
+  // behavior determined by bools passed to unlink_KFandECALMatchedToHCAL
+  void unlinkRefinableObjectKFWithBadEoverP(ProtoEGObject&);
+  void unlinkRefinableObjectKFandECALMatchedToHCAL(ProtoEGObject&,
+						   bool removeFreeECAL = false,
+						   bool removeSCECAL = false);
+  
 
   // things for building the final candidate and refined SC collections    
   void fillPFCandidates(const std::list<ProtoEGObject>&, 

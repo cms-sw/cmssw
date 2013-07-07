@@ -329,11 +329,12 @@ PFBlockProducer::produce(Event& iEvent,
   Handle< reco::PFRecTrackCollection > nuclearRecTracks;
 
   
-  Handle< reco::PhotonCollection >  egPhotons;
-  found = iEvent.getByLabel(inputTagEGPhotons_,
-			    egPhotons);
 
-  if(!found && useEGPhotons_ )
+  Handle< reco::PhotonCollection >  egPhotons;
+  if( useEGPhotons_ ) 
+    found = iEvent.getByLabel(inputTagEGPhotons_,egPhotons);
+
+  if(!found &&  useEGPhotons_)
     LogError("PFBlockProducer")<<" cannot get photons" 
 			       << inputTagEGPhotons_ << endl;
 			       
