@@ -16,8 +16,9 @@ process.source = cms.Source("PoolSource",
     # dbs search --query='find dataset,file where dataset=/RelValZEE/CMSSW_6_2_0_pre7-PRE_ST62_V7_FastSim-v3/GEN-SIM-DIGI-RECO '                            
 )
 
-# service needed to write out .root file with histograms
+# import the settings of your analyzer from its own configuration file
 process.load("TimeEventStudies.TimeAnalyzer.CfiFile_cfi")
+# service needed to write out .root file with histograms
 # the name of the root file which will hold your histograms
 process.TFileService = cms.Service("TFileService",
                                    fileName = cms.string('TimeAnalyzer_output.root')

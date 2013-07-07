@@ -23,6 +23,7 @@ process.load('FastSimulation.Configuration.FamosSequences_cff')
 process.load('Configuration.StandardSequences.EndOfProcess_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
+# maximum number of events which will be generated+simulated and analyzed
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(10)
 )
@@ -41,23 +42,6 @@ process.configurationMetadata = cms.untracked.PSet(
     name = cms.untracked.string('Applications')
 )
 
-# Output definition
-
-#process.RECOSIMoutput = cms.OutputModule("PoolOutputModule",
-#    splitLevel = cms.untracked.int32(0),
-#    eventAutoFlushCompressedSize = cms.untracked.int32(5242880),
-#    outputCommands = process.RECOSIMEventContent.outputCommands,
-#    fileName = cms.untracked.string('ZEE_8TeV_cfi_GEN_SIM_RECO.root'),
-#    dataset = cms.untracked.PSet(
-#        filterName = cms.untracked.string(''),
-#        dataTier = cms.untracked.string('')
-#    ),
-#    SelectEvents = cms.untracked.PSet(
-#        SelectEvents = cms.vstring('generation_step')
-#    )
-#)
-
-# Additional output definition
 
 # Other statements
 process.genstepfilter.triggerConditions=cms.vstring("generation_step")
@@ -69,6 +53,8 @@ process.famosPileUp.VertexGenerator = process.Realistic8TeVCollisionVtxSmearingP
 from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:startup', '')
 
+# Pythia6 is the events generator we're using to simulate events
+# the settings below are of Z boson dycaying in electron pairs 
 process.generator = cms.EDFilter("Pythia6GeneratorFilter",
     pythiaPylistVerbosity = cms.untracked.int32(0),
     filterEfficiency = cms.untracked.double(1.0),
@@ -119,6 +105,7 @@ process.generator = cms.EDFilter("Pythia6GeneratorFilter",
 
 
 # load analysis module
+# import the settings of your analyzer from its own configuration file
 process.load("TimeEventStudies.TimeAnalyzer.CfiFile_cfi")
 
 # service needed to write out .root file with histograms
@@ -133,16 +120,14 @@ process.simulation_step = cms.Path(process.simulationWithFamos)
 process.reconstruction_step = cms.Path(process.reconstructionWithFamos)
 process.genfiltersummary_step = cms.EndPath(process.genFilterSummary)
 process.endjob_step = cms.EndPath(process.endOfProcess)
-#process.RECOSIMoutput_step = cms.EndPath(process.RECOSIMoutput)
 process.analysis_step = cms.EndPath(process.TimeAnalysis)
 
 # Schedule definition
 process.schedule = cms.Schedule(
 	process.generation_step,process.genfiltersummary_step,process.simulation_step,process.reconstruction_step,process.endjob_step,
-	# process.RECOSIMoutput_step
 	process.analysis_step
 	)
+
 # filter all path with the production filter sequence
 for path in process.paths:
 	getattr(process,path)._seq = process.generator * getattr(process,path)._seq 
-
