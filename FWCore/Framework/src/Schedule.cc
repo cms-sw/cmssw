@@ -79,7 +79,7 @@ namespace edm {
       ParameterSet* trig_pset = proc_pset.getPSetForUpdate("@trigger_paths");
       trig_pset->registerIt();
 
-      WorkerParams work_args(proc_pset, trig_pset, preg, processConfiguration, actions);
+      WorkerParams work_args(trig_pset, preg, processConfiguration, actions);
       ModuleDescription md(trig_pset->id(),
                            "TriggerResultInserter",
                            "TriggerResults",
@@ -286,8 +286,7 @@ namespace edm {
                      boost::shared_ptr<ActivityRegistry> areg,
                      boost::shared_ptr<ProcessConfiguration> processConfiguration,
                      const ParameterSet* subProcPSet) :
-    worker_reg_(areg),
-    act_table_(&actions),
+    workerManager_(areg, actions),
     actReg_(areg),
     state_(Ready),
     trig_name_list_(tns.getTrigPaths()),
@@ -295,7 +294,6 @@ namespace edm {
     results_(new HLTGlobalStatus(trig_name_list_.size())),
     endpath_results_(), // delay!
     results_inserter_(),
-    all_workers_(),
     all_output_communicators_(),
     trig_paths_(),
     end_paths_(),
@@ -303,7 +301,6 @@ namespace edm {
     total_events_(),
     total_passed_(),
     stopwatch_(wantSummary_? new RunStopwatch::StopwatchPointer::element_type : static_cast<RunStopwatch::StopwatchPointer::element_type*> (nullptr)),
-    unscheduled_(new UnscheduledCallProducer),
     endpathsAreActive_(true) {
 
     ParameterSet const& opts = proc_pset.getUntrackedParameterSet("options", ParameterSet());
@@ -339,10 +336,8 @@ namespace edm {
 
     //See if all modules were used
     std::set<std::string> usedWorkerLabels;
-    for (AllWorkers::iterator itWorker = workersBegin();
-        itWorker != workersEnd();
-        ++itWorker) {
-      usedWorkerLabels.insert((*itWorker)->description().moduleLabel());
+    for (auto const& worker : allWorkers()) {
+      usedWorkerLabels.insert(worker->description().moduleLabel());
     }
     std::vector<std::string> modulesInConfig(proc_pset.getParameter<std::vector<std::string> >("@all_modules"));
     std::set<std::string> modulesInConfigSet(modulesInConfig.begin(), modulesInConfig.end());
@@ -359,31 +354,16 @@ namespace edm {
       // 1) create worker
       // 2) if it is a WorkerT<EDProducer>, add it to our list
       // 3) hand list to our delayed reader
-
-      for (std::vector<std::string>::iterator itLabel = unusedLabels.begin(), itLabelEnd = unusedLabels.end();
-          itLabel != itLabelEnd;
-          ++itLabel) {
+      for (auto const& label : unusedLabels) {
         if (allowUnscheduled) {
           bool isTracked;
-          ParameterSet* modulePSet(proc_pset.getPSetForUpdate(*itLabel, isTracked));
+          ParameterSet* modulePSet(proc_pset.getPSetForUpdate(label, isTracked));
           assert(isTracked);
-          assert(modulePSet != 0);
-          WorkerParams params(proc_pset, modulePSet, preg,
-                              processConfiguration, *act_table_);
-          Worker* newWorker(worker_reg_.getWorker(params, *itLabel));
-          if (newWorker->moduleType() == Worker::kProducer ||
-              newWorker->moduleType() == Worker::kFilter) {
-            unscheduledLabels.insert(*itLabel);
-            unscheduled_->addWorker(newWorker);
-            //add to list so it gets reset each new event
-            addToAllWorkers(newWorker);
-          } else {
-            //not a producer so should be marked as not used
-            shouldBeUsedLabels.push_back(*itLabel);
-          }
+          assert(modulePSet != nullptr);
+          workerManager_.addToUnscheduledWorkers(*modulePSet, preg, processConfiguration, label, wantSummary_, unscheduledLabels, shouldBeUsedLabels);
         } else {
           //everthing is marked are unused so no 'on demand' allowed
-          shouldBeUsedLabels.push_back(*itLabel);
+          shouldBeUsedLabels.push_back(label);
         }
       }
       if (!shouldBeUsedLabels.empty()) {
@@ -402,16 +382,7 @@ namespace edm {
       }
     }
     if (!unscheduledLabels.empty()) {
-      for (ProductRegistry::ProductList::const_iterator it = preg.productList().begin(),
-          itEnd = preg.productList().end();
-          it != itEnd;
-          ++it) {
-        if (it->second.produced() &&
-            it->second.branchType() == InEvent &&
-            unscheduledLabels.end() != unscheduledLabels.find(it->second.moduleLabel())) {
-          it->second.setOnDemand();
-        }
-      }
+      workerManager_.setOnDemandProducts(preg, unscheduledLabels);
     }
 
     std::map<std::string, std::vector<std::pair<std::string, int> > > outputModulePathPositions;
@@ -427,9 +398,9 @@ namespace edm {
     
     // This is used for a little sanity-check to make sure no code
     // modifications alter the number of workers at a later date.
-    size_t all_workers_count = all_workers_.size();
+    size_t all_workers_count = allWorkers().size();
 
-    for (auto w : all_workers_) {
+    for (auto w : allWorkers()) {
 
       // All the workers should be in all_workers_ by this point. Thus
       // we can now fill all_output_communicators_.
@@ -451,8 +422,8 @@ namespace edm {
     }
 
     // Sanity check: make sure nobody has added a worker after we've
-    // already relied on all_workers_ being full.
-    assert (all_workers_count == all_workers_.size());
+    // already relied on the WorkerManager being full.
+    assert (all_workers_count == allWorkers().size());
 
     ProcessConfigurationRegistry::instance()->insertMapped(*processConfiguration);
     branchIDListHelper.updateRegistries(preg);
@@ -480,7 +451,7 @@ namespace edm {
     unsigned int upperLimitOnReadingWorker =0;
     unsigned int upperLimitOnIndicies = 0;
     unsigned int nUniqueBranchesToDelete=branchToReadingWorker.size();
-    for (auto w :all_workers_) {
+    for (auto w :allWorkers()) {
       auto comm = w->createOutputModuleCommunicator();
       if (comm) {
         if(branchToReadingWorker.size()>0) {
@@ -789,18 +760,17 @@ namespace edm {
                              PathWorkers& out,
                              vstring* labelsOnPaths) {
     vstring modnames = proc_pset.getParameter<vstring>(name);
-    vstring::iterator it(modnames.begin()), ie(modnames.end());
     PathWorkers tmpworkers;
 
-    for (; it != ie; ++it) {
+    for (auto const& name : modnames) {
 
-      if (labelsOnPaths) labelsOnPaths->push_back(*it);
+      if (labelsOnPaths) labelsOnPaths->push_back(name);
 
       WorkerInPath::FilterAction filterAction = WorkerInPath::Normal;
-      if ((*it)[0] == '!')       filterAction = WorkerInPath::Veto;
-      else if ((*it)[0] == '-')  filterAction = WorkerInPath::Ignore;
+      if (name[0] == '!')       filterAction = WorkerInPath::Veto;
+      else if (name[0] == '-')  filterAction = WorkerInPath::Ignore;
 
-      std::string moduleLabel = *it;
+      std::string moduleLabel = name;
       if (filterAction != WorkerInPath::Normal) moduleLabel.erase(0, 1);
 
       bool isTracked;
@@ -817,8 +787,7 @@ namespace edm {
       }
       assert(isTracked);
 
-      WorkerParams params(proc_pset, modpset, preg, processConfiguration, *act_table_);
-      Worker* worker = worker_reg_.getWorker(params, moduleLabel);
+      Worker* worker = workerManager_.getWorker(*modpset, preg, processConfiguration, moduleLabel);
       if (ignoreFilters && filterAction != WorkerInPath::Ignore && worker->moduleType()==Worker::kFilter) {
         // We have a filter on an end path, and the filter is not explicitly ignored.
         // See if the filter is allowed.
@@ -855,7 +824,7 @@ namespace edm {
 
     // an empty path will cause an extra bit that is not used
     if (!tmpworkers.empty()) {
-      Path p(bitpos, name, tmpworkers, trptr, *act_table_, actReg_, false);
+      Path p(bitpos, name, tmpworkers, trptr, actionTable(), actReg_, false);
       if (wantSummary_) {
         p.useStopwatch();
       }
@@ -880,7 +849,7 @@ namespace edm {
     }
 
     if (!tmpworkers.empty()) {
-      Path p(bitpos, name, tmpworkers, endpath_results_, *act_table_, actReg_, true);
+      Path p(bitpos, name, tmpworkers, endpath_results_, actionTable(), actReg_, true);
       if (wantSummary_) {
         p.useStopwatch();
       }
@@ -890,26 +859,8 @@ namespace edm {
   }
 
   void Schedule::endJob(ExceptionCollector & collector) {
-    bool failure = false;
-    AllWorkers::iterator ai(workersBegin()), ae(workersEnd());
-    for (; ai != ae; ++ai) {
-      try {
-        try {
-          (*ai)->endJob();
-        }
-        catch (cms::Exception& e) { throw; }
-        catch (std::bad_alloc& bda) { convertException::badAllocToEDM(); }
-        catch (std::exception& e) { convertException::stdToEDM(e); }
-        catch (std::string& s) { convertException::stringToEDM(s); }
-        catch (char const* c) { convertException::charPtrToEDM(c); }
-        catch (...) { convertException::unknownToEDM(); }
-      }      
-      catch (cms::Exception const& ex) {
-        collector.addException(ex);
-        failure = true;
-      }
-    }
-    if (failure) {
+    workerManager_.endJob(collector);
+    if (collector.hasThrown()) {
       return;
     }
 
@@ -1052,16 +1003,14 @@ namespace edm {
                               << std::right << std::setw(10) << "Failed" << " "
                               << std::right << std::setw(10) << "Error" << " "
                               << "Name" << "";
-    ai = workersBegin();
-    ae = workersEnd();
-    for (; ai != ae; ++ai) {
+    for (auto const& worker : allWorkers()) {
       LogVerbatim("FwkSummary") << "TrigReport "
-                                << std::right << std::setw(10) << (*ai)->timesVisited() << " "
-                                << std::right << std::setw(10) << (*ai)->timesRun() << " "
-                                << std::right << std::setw(10) << (*ai)->timesPassed() << " "
-                                << std::right << std::setw(10) << (*ai)->timesFailed() << " "
-                                << std::right << std::setw(10) << (*ai)->timesExcept() << " "
-                                << (*ai)->description().moduleLabel() << "";
+                                << std::right << std::setw(10) << worker->timesVisited() << " "
+                                << std::right << std::setw(10) << worker->timesRun() << " "
+                                << std::right << std::setw(10) << worker->timesPassed() << " "
+                                << std::right << std::setw(10) << worker->timesFailed() << " "
+                                << std::right << std::setw(10) << worker->timesExcept() << " "
+                                << worker->description().moduleLabel() << "";
 
     }
     LogVerbatim("FwkSummary") << "";
@@ -1230,18 +1179,16 @@ namespace edm {
                               << std::right << std::setw(10) << "CPU" << " "
                               << std::right << std::setw(10) << "Real" << " "
                               << "Name" << "";
-    ai = workersBegin();
-    ae = workersEnd();
-    for (; ai != ae; ++ai) {
+    for (auto const& worker : allWorkers()) {
       LogVerbatim("FwkSummary") << "TimeReport "
                                 << std::setprecision(6) << std::fixed
-                                << std::right << std::setw(10) << (*ai)->timeCpuReal().first/std::max(1, totalEvents()) << " "
-                                << std::right << std::setw(10) << (*ai)->timeCpuReal().second/std::max(1, totalEvents()) << " "
-                                << std::right << std::setw(10) << (*ai)->timeCpuReal().first/std::max(1, (*ai)->timesRun()) << " "
-                                << std::right << std::setw(10) << (*ai)->timeCpuReal().second/std::max(1, (*ai)->timesRun()) << " "
-                                << std::right << std::setw(10) << (*ai)->timeCpuReal().first/std::max(1, (*ai)->timesVisited()) << " "
-                                << std::right << std::setw(10) << (*ai)->timeCpuReal().second/std::max(1, (*ai)->timesVisited()) << " "
-                                << (*ai)->description().moduleLabel() << "";
+                                << std::right << std::setw(10) << worker->timeCpuReal().first/std::max(1, totalEvents()) << " "
+                                << std::right << std::setw(10) << worker->timeCpuReal().second/std::max(1, totalEvents()) << " "
+                                << std::right << std::setw(10) << worker->timeCpuReal().first/std::max(1, worker->timesRun()) << " "
+                                << std::right << std::setw(10) << worker->timeCpuReal().second/std::max(1, worker->timesRun()) << " "
+                                << std::right << std::setw(10) << worker->timeCpuReal().first/std::max(1, worker->timesVisited()) << " "
+                                << std::right << std::setw(10) << worker->timeCpuReal().second/std::max(1, worker->timesVisited()) << " "
+                                << worker->description().moduleLabel() << "";
     }
     LogVerbatim("FwkSummary") << "TimeReport "
                               << std::right << std::setw(10) << "CPU" << " "
@@ -1290,53 +1237,42 @@ namespace edm {
   }
 
   void Schedule::respondToOpenInputFile(FileBlock const& fb) {
-    for_all(all_workers_, boost::bind(&Worker::respondToOpenInputFile, _1, boost::cref(fb)));
+    for_all(allWorkers(), boost::bind(&Worker::respondToOpenInputFile, _1, boost::cref(fb)));
   }
 
   void Schedule::respondToCloseInputFile(FileBlock const& fb) {
-    for_all(all_workers_, boost::bind(&Worker::respondToCloseInputFile, _1, boost::cref(fb)));
+    for_all(allWorkers(), boost::bind(&Worker::respondToCloseInputFile, _1, boost::cref(fb)));
   }
 
   void Schedule::respondToOpenOutputFiles(FileBlock const& fb) {
-    for_all(all_workers_, boost::bind(&Worker::respondToOpenOutputFiles, _1, boost::cref(fb)));
+    for_all(allWorkers(), boost::bind(&Worker::respondToOpenOutputFiles, _1, boost::cref(fb)));
   }
 
   void Schedule::respondToCloseOutputFiles(FileBlock const& fb) {
-    for_all(all_workers_, boost::bind(&Worker::respondToCloseOutputFiles, _1, boost::cref(fb)));
+    for_all(allWorkers(), boost::bind(&Worker::respondToCloseOutputFiles, _1, boost::cref(fb)));
   }
 
   void Schedule::beginJob(ProductRegistry const& iRegistry) {
-    auto const runLookup = iRegistry.productLookup(InRun);
-    auto const lumiLookup = iRegistry.productLookup(InLumi);
-    auto const eventLookup = iRegistry.productLookup(InEvent);
-    for(auto & worker: all_workers_) {
-      worker->updateLookup(InRun,*runLookup);
-      worker->updateLookup(InLumi,*lumiLookup);
-      worker->updateLookup(InEvent,*eventLookup);
-    }
-    
-    for_all(all_workers_, boost::bind(&Worker::beginJob, _1));
-    loadMissingDictionaries();
+    workerManager_.beginJob(iRegistry);
   }
 
   void Schedule::preForkReleaseResources() {
-    for_all(all_workers_, boost::bind(&Worker::preForkReleaseResources, _1));
+    for_all(allWorkers(), boost::bind(&Worker::preForkReleaseResources, _1));
   }
   void Schedule::postForkReacquireResources(unsigned int iChildIndex, unsigned int iNumberOfChildren) {
-    for_all(all_workers_, boost::bind(&Worker::postForkReacquireResources, _1, iChildIndex, iNumberOfChildren));
+    for_all(allWorkers(), boost::bind(&Worker::postForkReacquireResources, _1, iChildIndex, iNumberOfChildren));
   }
 
   bool Schedule::changeModule(std::string const& iLabel,
                               ParameterSet const& iPSet) {
-    Worker* found = 0;
-    for (AllWorkers::const_iterator it=all_workers_.begin(), itEnd=all_workers_.end();
-        it != itEnd; ++it) {
-      if ((*it)->description().moduleLabel() == iLabel) {
-        found = *it;
+    Worker* found = nullptr;
+    for (auto const& worker : allWorkers()) {
+      if (worker->description().moduleLabel() == iLabel) {
+        found = worker;
         break;
       }
     }
-    if (0 == found) {
+    if (nullptr == found) {
       return false;
     }
 
@@ -1348,14 +1284,11 @@ namespace edm {
 
   std::vector<ModuleDescription const*>
   Schedule::getAllModuleDescriptions() const {
-    AllWorkers::const_iterator i(workersBegin());
-    AllWorkers::const_iterator e(workersEnd());
-
     std::vector<ModuleDescription const*> result;
-    result.reserve(all_workers_.size());
+    result.reserve(allWorkers().size());
 
-    for (; i != e; ++i) {
-      ModuleDescription const* p = (*i)->descPtr();
+    for (auto const& worker : allWorkers()) {
+      ModuleDescription const* p = worker->descPtr();
       result.push_back(p);
     }
     return result;
@@ -1452,7 +1385,7 @@ namespace edm {
 
     fill_summary(trig_paths_,  rep.trigPathSummaries, &fillPathSummary);
     fill_summary(end_paths_,   rep.endPathSummaries,  &fillPathSummary);
-    fill_summary(all_workers_, rep.workerSummaries,   &fillWorkerSummary);
+    fill_summary(allWorkers(), rep.workerSummaries,   &fillWorkerSummary);
   }
 
   void
@@ -1460,33 +1393,20 @@ namespace edm {
     total_events_ = total_passed_ = 0;
     for_all(trig_paths_, boost::bind(&Path::clearCounters, _1));
     for_all(end_paths_, boost::bind(&Path::clearCounters, _1));
-    for_all(all_workers_, boost::bind(&Worker::clearCounters, _1));
+    for_all(allWorkers(), boost::bind(&Worker::clearCounters, _1));
   }
 
   void
   Schedule::resetAll() {
-    for_all(all_workers_, boost::bind(&Worker::reset, _1));
     results_->reset();
     endpath_results_->reset();
   }
 
   void
   Schedule::addToAllWorkers(Worker* w) {
-    if (!search_all(all_workers_, w)) {
-      if (wantSummary_) {
-        w->useStopwatch();
-      }
-      all_workers_.push_back(w);
-    }
+    workerManager_.addToAllWorkers(w, wantSummary_);
   }
 
-  void
-  Schedule::setupOnDemandSystem(EventPrincipal& ep, EventSetup const& es) {
-    // NOTE: who owns the productdescrption?  Just copied by value
-    unscheduled_->setEventSetup(es);
-    ep.setUnscheduledHandler(unscheduled_);
-  }
-  
   void 
   Schedule::resetEarlyDelete() {
     //must be sure we have cleared the count first
