@@ -1180,8 +1180,11 @@ void PFEGammaAlgoNew::buildAndRefineEGObjects(const reco::PFBlockRef& block) {
 
   // -- unlinking and proto-object vetos 
   for( auto& RO : _refinableObjects ) {
-    // remove KFs (and possibly ECALs) matched to HCAL clusters
-    unlinkRefinableObjectKFandECALMatchedToHCAL(RO);
+    // remove secondary KFs (and possibly ECALs) matched to HCAL clusters
+    unlinkRefinableObjectKFandECALMatchedToHCAL(RO, false, false);
+    // remove secondary KFs and ECALs linked to them that have bad E/p_in 
+    // and spoil the resolution
+    unlinkRefinableObjectKFandECALWithBadEoverP(RO);
   }
 
   LOGDRESSED("PFEGammaAlgo")
@@ -2146,10 +2149,14 @@ buildRefinedSuperCluster(const PFEGammaAlgoNew::ProtoEGObject& RO) {
 void PFEGammaAlgoNew::
 unlinkRefinableObjectKFandECALWithBadEoverP(ProtoEGObject& RO) {
   // this only means something for ROs with a primary GSF track
-  if( !RO.primaryGSFs.size() ) return;
+  if( !RO.primaryGSFs.size() ) return;  
   // need energy sums to tell if we've added crap or not
   const double Pin_gsf = RO.primaryGSFs.front().first->GsftrackRef()->pMode();
+  const double gsfOuterEta  = 
+    RO.primaryGSFs.front().first->positionAtECALEntrance().Eta();
   double tot_ecal= 0.0;  
+  std::vector<double> min_brem_dists;
+  std::vector<double> closest_brem_eta;
   std::vector<std::vector<PFKFFlaggedElement>::iterator> kfs_to_remove;
   std::vector<std::vector<PFClusterFlaggedElement>::iterator> ecals_to_remove;
   auto seckfs_begin = RO.secondaryKFs.begin();
@@ -2159,7 +2166,23 @@ unlinkRefinableObjectKFandECALWithBadEoverP(ProtoEGObject& RO) {
   // first get the total ecal energy (we should replace this with a cache)
   for( const auto& ecal : RO.ecalclusters ) {
     tot_ecal += ecal.first->clusterRef()->energy();
-  }
+    // we also need to look at the minimum distance to brems
+    // since energetic brems will be closer to the brem than the track
+    double min_brem_dist = 5000.0; 
+    double eta = -999.0;
+    for( const auto& brem : RO.brems ) {
+      const float dist = _currentblock->dist(brem.first->index(),
+					     ecal.first->index(),
+					     _currentlinks,
+					     reco::PFBlock::LINKTEST_ALL);
+      if( dist < min_brem_dist && dist != -1.0f ) {
+	min_brem_dist = dist;
+	eta = brem.first->positionAtECALEntrance().Eta();
+      }
+    }
+    min_brem_dists.push_back(min_brem_dist);
+    closest_brem_eta.push_back(eta);
+  }  
   
   // loop through the ECAL clusters and remove ECAL clusters matched to
   // secondary track either in *or* out of the SC if the E/pin is bad
@@ -2167,16 +2190,32 @@ unlinkRefinableObjectKFandECALWithBadEoverP(ProtoEGObject& RO) {
     reco::TrackRef trkRef =   secd_kf->first->trackRef();   
     const float secpin = secd_kf->first->trackRef()->p();       
     for( auto ecal = ecal_begin; ecal != ecal_end; ++ecal ) {
+      const float minbremdist = min_brem_dists[std::distance(ecal_begin,ecal)];
       const double ecalenergy = ecal->first->clusterRef()->energy();
       const double Epin = ecalenergy/secpin;
+      const double detaGsf = 
+	std::abs(gsfOuterEta - ecal->first->clusterRef()->positionREP().Eta());
+      const double detaBrem = 
+	std::abs(closest_brem_eta[std::distance(ecal_begin,ecal)] - 
+		 ecal->first->clusterRef()->positionREP().Eta());
       
       ElementMap::value_type check_match(ecal->first,secd_kf->first);
-	auto secd_kfs_matched = RO.localMap.equal_range(ecal->first);
-	auto kf_matched = std::find(secd_kfs_matched.first,
-				    secd_kfs_matched.second,
-				    check_match);
-
-      if(Epin > 3 && kf_matched != secd_kfs_matched.second ) {
+      auto secd_kfs_matched = RO.localMap.equal_range(ecal->first);
+      auto kf_matched = std::find(secd_kfs_matched.first,
+				  secd_kfs_matched.second,
+				  check_match);
+      
+      const float tkdist = _currentblock->dist(secd_kf->first->index(),
+					       ecal->first->index(),
+					       _currentlinks,
+					       reco::PFBlock::LINKTEST_ALL);
+      
+      // do not reject this track if it is closer to a brem than the
+      // secondary track, or if it lies in the delta-eta plane with the
+      // gsf track or if it is in the dEta plane with the brems
+      if( Epin > 3 && kf_matched != secd_kfs_matched.second && 
+	  tkdist != -1.0f && tkdist < minbremdist &&
+	  detaGsf > 0.05 && detaBrem > 0.015) {
 	double res_with = std::abs((tot_ecal-Pin_gsf)/Pin_gsf);
 	double res_without = std::abs((tot_ecal-ecalenergy-Pin_gsf)/Pin_gsf);
 	if(res_without < res_with) {	  
@@ -2228,12 +2267,15 @@ unlinkRefinableObjectKFandECALMatchedToHCAL(ProtoEGObject& RO,
       const double ecalenergy = ecal->first->clusterRef()->energy();
       // first check if the cluster is in the SC (use dist calc for fastness)
       const size_t clus_idx = std::distance(ecal_begin,ecal);
-      if( RO.parentSC && cluster_in_sc.size() < clus_idx + 1) {
-	const float dist = _currentblock->dist(secd_kf->first->index(),
-					       ecal->first->index(),
-					       _currentlinks,
-					       reco::PFBlock::LINKTEST_ALL);
-	cluster_in_sc.push_back(dist == 0.001f); 
+      if( cluster_in_sc.size() < clus_idx + 1) {
+	float dist = -1.0f;
+	if( RO.parentSC ) {
+	  dist = _currentblock->dist(secd_kf->first->index(),
+				     ecal->first->index(),
+				     _currentlinks,
+				     reco::PFBlock::LINKTEST_ALL);
+	} 
+	cluster_in_sc.push_back(dist != -1.0f); 
       }
 
       ElementMap::value_type check_match(ecal->first,secd_kf->first);
