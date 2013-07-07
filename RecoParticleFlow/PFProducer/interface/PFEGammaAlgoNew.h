@@ -41,6 +41,7 @@
 #include <TH2D.h>
 
 #include <list>
+#include <forward_list>
 #include <unordered_map>
 
 class PFSCEnergyCalibration;
@@ -76,7 +77,7 @@ class PFEGammaAlgoNew {
     // this is a mutable list of clusters
     // if ECAL driven we take the PF SC and refine it
     // if Tracker driven we add things to it as we discover more valid clusters
-    std::list<PFClusterFlaggedElement> ecalclusters;
+    std::vector<PFClusterFlaggedElement> ecalclusters;
     ClusterMap ecal2ps;
     // associations to tracks of various sorts
     std::vector<PFGSFFlaggedElement> primaryGSFs; 
@@ -230,7 +231,7 @@ private:
   // turn a supercluster into a map of ECAL cluster elements 
   // related to PS cluster elements
   void unwrapSuperCluster(const reco::PFBlockElementSuperCluster*,
-			  std::list<PFClusterFlaggedElement>&,
+			  std::vector<PFClusterFlaggedElement>&,
 			  ClusterMap&);    
   
   // for EGamma SCs
@@ -273,7 +274,7 @@ private:
   // original bits were for removing bad KF tracks
   // new (experimental) piece to remove clusters associated to these tracks
   // behavior determined by bools passed to unlink_KFandECALMatchedToHCAL
-  void unlinkRefinableObjectKFWithBadEoverP(ProtoEGObject&);
+  void unlinkRefinableObjectKFandECALWithBadEoverP(ProtoEGObject&);
   void unlinkRefinableObjectKFandECALMatchedToHCAL(ProtoEGObject&,
 						   bool removeFreeECAL = false,
 						   bool removeSCECAL = false);

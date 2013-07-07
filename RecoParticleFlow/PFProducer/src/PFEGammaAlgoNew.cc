@@ -1312,7 +1312,7 @@ initializeProtoCands(std::list<PFEGammaAlgoNew::ProtoEGObject>& egobjs) {
 
 void PFEGammaAlgoNew::
 unwrapSuperCluster(const PFSCElement* thesc,
-		   std::list<PFClusterFlaggedElement>& ecalclusters,
+		   std::vector<PFClusterFlaggedElement>& ecalclusters,
 		   ClusterMap& ecal2ps) {
   ecalclusters.clear();
   ecal2ps.clear();
@@ -1782,7 +1782,7 @@ linkRefinableObjectPrimaryGSFTrackToECAL(ProtoEGObject& RO) {
       LOGDRESSED("PFEGammaAlgo::linkGSFTracktoECAL()") 
 	<< "Found a cluster not already associated to GSF extrapolation"
 	<< " at ECAL surface!" << std::endl;
-      RO.ecalclusters.push_front(temp);
+      RO.ecalclusters.insert(RO.ecalclusters.begin(),temp);
       attachPSClusters(elemascluster,RO.ecal2ps[elemascluster]);      
       RO.localMap.emplace(primgsf.first,temp.first);
       RO.localMap.emplace(temp.first,primgsf.first);
@@ -1808,7 +1808,7 @@ linkRefinableObjectKFTracksToECAL(ProtoEGObject& RO) {
 
 void PFEGammaAlgoNew::linkKFTrackToECAL(const KFFlaggedElement& kfflagged,
 					ProtoEGObject& RO) {
-  std::list<PFClusterFlaggedElement>& currentECAL = RO.ecalclusters;
+  std::vector<PFClusterFlaggedElement>& currentECAL = RO.ecalclusters;
   auto ECALbegin = _splayedblock[reco::PFBlockElement::ECAL].begin();
   auto ECALend = _splayedblock[reco::PFBlockElement::ECAL].end();
   NotCloserToOther<reco::PFBlockElement::TRACK,reco::PFBlockElement::ECAL>
@@ -2144,7 +2144,65 @@ buildRefinedSuperCluster(const PFEGammaAlgoNew::ProtoEGObject& RO) {
 }
 
 void PFEGammaAlgoNew::
-unlinkRefinableObjectKFWithBadEoverP(ProtoEGObject& RO) {
+unlinkRefinableObjectKFandECALWithBadEoverP(ProtoEGObject& RO) {
+  // this only means something for ROs with a primary GSF track
+  if( !RO.primaryGSFs.size() ) return;
+  // need energy sums to tell if we've added crap or not
+  const double Pin_gsf = RO.primaryGSFs.front().first->GsftrackRef()->pMode();
+  double tot_ecal= 0.0;  
+  std::vector<std::vector<PFKFFlaggedElement>::iterator> kfs_to_remove;
+  std::vector<std::vector<PFClusterFlaggedElement>::iterator> ecals_to_remove;
+  auto seckfs_begin = RO.secondaryKFs.begin();
+  auto seckfs_end   = RO.secondaryKFs.end();
+  auto ecal_begin = RO.ecalclusters.begin();
+  auto ecal_end   = RO.ecalclusters.end();
+  // first get the total ecal energy (we should replace this with a cache)
+  for( const auto& ecal : RO.ecalclusters ) {
+    tot_ecal += ecal.first->clusterRef()->energy();
+  }
+  
+  // loop through the ECAL clusters and remove ECAL clusters matched to
+  // secondary track either in *or* out of the SC if the E/pin is bad
+  for( auto secd_kf = seckfs_begin; secd_kf != seckfs_end; ++secd_kf ) {
+    reco::TrackRef trkRef =   secd_kf->first->trackRef();   
+    const float secpin = secd_kf->first->trackRef()->p();       
+    for( auto ecal = ecal_begin; ecal != ecal_end; ++ecal ) {
+      const double ecalenergy = ecal->first->clusterRef()->energy();
+      const double Epin = ecalenergy/secpin;
+      
+      ElementMap::value_type check_match(ecal->first,secd_kf->first);
+	auto secd_kfs_matched = RO.localMap.equal_range(ecal->first);
+	auto kf_matched = std::find(secd_kfs_matched.first,
+				    secd_kfs_matched.second,
+				    check_match);
+
+      if(Epin > 3 && kf_matched != secd_kfs_matched.second ) {
+	double res_with = std::abs((tot_ecal-Pin_gsf)/Pin_gsf);
+	double res_without = std::abs((tot_ecal-ecalenergy-Pin_gsf)/Pin_gsf);
+	if(res_without < res_with) {	  
+	    LOGDRESSED("PFEGammaAlgo")
+	      << " REJECTED_RES totenergy " << tot_ecal
+	      << " Pin_gsf " << Pin_gsf 
+	      << " cluster to secondary " <<  ecalenergy
+	      << " res_with " <<  res_with
+	      << " res_without " << res_without << std::endl;
+	    tot_ecal -= ecalenergy;
+	    ecals_to_remove.push_back(ecal);
+	    kfs_to_remove.push_back(secd_kf);
+	}
+      }
+    }
+  }
+  std::sort(ecals_to_remove.begin(), ecals_to_remove.end());
+  std::unique(ecals_to_remove.begin(), ecals_to_remove.end());
+  for( auto& to_remove : ecals_to_remove ) {
+    RO.ecalclusters.erase(to_remove);
+  }
+  std::sort(kfs_to_remove.begin(), kfs_to_remove.end());
+  std::unique(kfs_to_remove.begin(), kfs_to_remove.end());
+  for( auto& to_remove : kfs_to_remove ) {
+    RO.secondaryKFs.erase(to_remove);
+  }
 }
 
 void PFEGammaAlgoNew::
@@ -2230,6 +2288,8 @@ unlinkRefinableObjectKFandECALMatchedToHCAL(ProtoEGObject& RO,
       }
     }
   }
+  std::sort(kfs_to_remove.begin(), kfs_to_remove.end());
+  std::unique(kfs_to_remove.begin(), kfs_to_remove.end());
   for( auto& to_remove : kfs_to_remove ) {
     RO.secondaryKFs.erase(to_remove);
   }
