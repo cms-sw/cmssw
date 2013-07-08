@@ -17,6 +17,7 @@ class CastorDataIntegrityMonitor: public CastorBaseMonitor
   void setup(const edm::ParameterSet& ps, DQMStore* dbe);
 
   void processEvent(const FEDRawDataCollection& RawData, const HcalUnpackerReport& report, const CastorElectronicsMap& emap);
+  void beginRun(const edm::EventSetup& iSetup);
 
   void unpack(const FEDRawData& raw, const CastorElectronicsMap& emap);
 

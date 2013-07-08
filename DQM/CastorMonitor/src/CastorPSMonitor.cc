@@ -63,8 +63,10 @@ CastorPSMonitor::CastorPSMonitor() {
 CastorPSMonitor::~CastorPSMonitor(){
 }
 
-void CastorPSMonitor::reset(){
-}
+void CastorPSMonitor::reset()
+  {
+  
+  }
 
 //==========================================================//
 //========================= setup ==========================//
@@ -97,21 +99,38 @@ void CastorPSMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe){
     }
   }
 
-  if ( m_dbe !=NULL ) {    
-    m_dbe->setCurrentFolder(baseFolder_);
-    
-    ////---- book MonitorElements
-    meEvt_ = m_dbe->bookInt("PS Event Number"); 
-    castorDigiHists.meDigi_pulseBX = m_dbe->book1D("CASTOR average pulse in bunch crossings","CASTOR average pulse in bunch crossings", 3600,  -0.5, 3600);
-    TH1F* h_meDigi_pulseBX = castorDigiHists.meDigi_pulseBX->getTH1F();
-    h_meDigi_pulseBX->GetXaxis()->SetTitle("orbit");
 
-    //---- Pulse Shape per sector
-    char name[1024];
-    for(int i=0; i<16; i++){
-    sprintf(name,"Castor Pulse Shape for sector=%d (in all 14 modules)",i+1);      
-    PSsector[i] =  m_dbe->book1D(name,name,140,-0.5,139.5);
-    }
+
+  if(fVerbosity>0) std::cout << "CastorPSMonitor::setup (end)" << std::endl;
+
+  return;
+}
+
+
+//=================================================================//
+//========================== beginRun =============================//
+//================================================================//
+void CastorPSMonitor::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup)
+  {
+  if(fVerbosity>0) std::cout << "CastorPSMonitor::beginRun (start)" << std::endl;
+
+  if ( m_dbe !=NULL )
+	{    
+    	m_dbe->setCurrentFolder(baseFolder_);
+    
+    	////---- book MonitorElements
+    	meEvt_ = m_dbe->bookInt("PS Event Number"); 
+    	castorDigiHists.meDigi_pulseBX = m_dbe->book1D("CASTOR average pulse in bunch crossings","CASTOR average pulse in bunch crossings", 3600,  -0.5, 3600);
+    	TH1F* h_meDigi_pulseBX = castorDigiHists.meDigi_pulseBX->getTH1F();
+    	h_meDigi_pulseBX->GetXaxis()->SetTitle("orbit");
+
+    	//---- Pulse Shape per sector
+    	char name[1024];
+    	for(int i=0; i<16; i++)
+		{
+    		sprintf(name,"Castor Pulse Shape for sector=%d (in all 14 modules)",i+1);      
+    		PSsector[i] =  m_dbe->book1D(name,name,140,-0.5,139.5);
+    		}
 
     ////---- digi occupancy map
     DigiOccupancyMap = m_dbe->book2D("CASTOR Digi Occupancy Map","CASTOR Digi Occupancy Map",14,0.0,14.0,16,0.0,16.0);
@@ -125,7 +144,7 @@ void CastorPSMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe){
 
 
     ////---- create Digi based reportSummaryMap
-    m_dbe->setCurrentFolder(rootFolder_+"EventInfo");
+    m_dbe->setCurrentFolder(rootFolder_+"EventInfo"); //this is saved in the EventInfo folder so it can appear in the main page of the DQM
     reportSummary    = m_dbe->bookFloat("reportSummary");
     reportSummaryMap = m_dbe->book2D("reportSummaryMap","CASTOR reportSummaryMap",14,0.0,14.0,16,0.0,16.0);
     if(offline_){
@@ -134,29 +153,26 @@ void CastorPSMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe){
       h_reportSummaryMap->GetXaxis()->SetTitle("module");
       h_reportSummaryMap->GetYaxis()->SetTitle("sector");
     }
-    m_dbe->setCurrentFolder(rootFolder_+"EventInfo/reportSummaryContents");
+    m_dbe->setCurrentFolder(rootFolder_+"EventInfo/reportSummaryContents");  //this is saved in the EventInfo folder so it can appear in the main page of the DQM
     overallStatus = m_dbe->bookFloat("fraction of good channels");
     overallStatus->Fill(fraction); reportSummary->Fill(fraction); 
   } 
 
-  else{
-    if(fVerbosity>0) std::cout << "CastorPSMonitor::setup - NO DQMStore service" << std::endl; 
+  else
+	{
+    	if(fVerbosity>0) std::cout << "CastorPSMonitor::beginRun - NO DQMStore service" << std::endl; 
+  	}
+
+  if(fVerbosity>0) std::cout << "CastorPSMonitor::beginRun (end)" << std::endl;
   }
-
-  if(fVerbosity>0) std::cout << "CastorPSMonitor::setup (end)" << std::endl;
-
-  return;
-}
 
 //==========================================================//
 //================== processEvent ==========================//
 //==========================================================//
 
 void CastorPSMonitor::processEvent(const CastorDigiCollection& castorDigis, const CastorDbService& conditions, std::vector<HcalGenericDetId> listEMap, int iBunch, float PedSigmaInChannel[14][16])
- {
-  
-     
-  if(fVerbosity>0) std::cout << "==>CastorPSMonitor::processEvent !!!" << std::endl;
+  {   
+  if(fVerbosity>0) std::cout << "CastorPSMonitor::processEvent (begin)" << std::endl;
  
   if(!m_dbe) { 
     if(fVerbosity>0) std::cout <<"CastorPSMonitor::processEvent => DQMStore not instantiated !!!"<<std::endl;  
@@ -178,7 +194,7 @@ void CastorPSMonitor::processEvent(const CastorDigiCollection& castorDigis, cons
       //===> show the array of sigmas
       for (int i=0; i<14; i++){
         for (int k=0; k<16; k++){
-	if(fVerbosity>0)  std::cout<< "module:"<<i+1<< " sector:"<<k+1<< " Sigma=" <<   PedSigmaInChannel[i][k] << std::endl;   
+	if(fVerbosity>1)  std::cout<< "module:"<<i+1<< " sector:"<<k+1<< " Sigma=" <<   PedSigmaInChannel[i][k] << std::endl;   
 	}
       }
       for (std::vector<HcalGenericDetId>::const_iterator it = listEMap.begin(); it != listEMap.end(); it++)
@@ -248,7 +264,7 @@ void CastorPSMonitor::processEvent(const CastorDigiCollection& castorDigis, cons
 		    bxTS = (iBunch+ts-1-digi.presamples());
 		    if ( bxTS < 0 ) bxTS += 3563;
 		    bxTS = ( bxTS % 3563 ) + 1;
-		    if(fVerbosity>0) std::cout << "!!! " << bxTS << " " << iBunch <<" "<< ts << " " << digi.presamples() << std::endl;
+		    if(fVerbosity>1) std::cout << "!!! " << bxTS << " " << iBunch <<" "<< ts << " " << digi.presamples() << std::endl;
 		  }
 		
                   const CastorQIECoder* coder = conditions.getCastorCoder(digi.id().rawId());
@@ -264,9 +280,9 @@ void CastorPSMonitor::processEvent(const CastorDigiCollection& castorDigis, cons
 		  castorDigiHists.meDigi_pulseBX->Fill(static_cast<double>(bxTS),(bunch_it->tsfC[ts])/224.);
 		  ////---- fill pulse shape in sectors 
 
-		  // PK: do not normalize histograms
-		  //  PSsector[bunch_it->detid.sector()-1]->Fill(10*(bunch_it->detid.module()-1)+ts, bunch_it->tsfC[ts]/double(ievt_)); 
-                  PSsector[bunch_it->detid.sector()-1]->Fill(10*(bunch_it->detid.module()-1)+ts, bunch_it->tsfC[ts]);
+		  // PK: do not normalize histograms - now it is normalized
+		  PSsector[bunch_it->detid.sector()-1]->Fill(10*(bunch_it->detid.module()-1)+ts, bunch_it->tsfC[ts]/double(ievt_)); 
+                  // PSsector[bunch_it->detid.sector()-1]->Fill(10*(bunch_it->detid.module()-1)+ts, bunch_it->tsfC[ts]);
  
                   ////---- sum the signal over all TS in fC
                   sumDigi +=  bunch_it->tsfC[ts]; //std::cout<< " signal(fC) in TS:"<<ts << " =" << bunch_it->tsfC[ts] << std::endl; 	   
@@ -276,7 +292,7 @@ void CastorPSMonitor::processEvent(const CastorDigiCollection& castorDigis, cons
 		  ////---- check whether the channel is saturated
 		  if(bunch_it->tsAdc[ts]>126.95) {
                     saturated = true;
-		  if(fVerbosity>0) 
+		  if(fVerbosity>1) 
                   std::cout<< "WARNING: ==> Module:" << bunch_it->detid.module() << " Sector:" << bunch_it->detid.sector() << " SATURATED !!! in TS:"<< ts <<std::endl;   
                  }
 
@@ -292,7 +308,7 @@ void CastorPSMonitor::processEvent(const CastorDigiCollection& castorDigis, cons
 	    DigiOccupancyMap->Fill(bunch_it->detid.module()-1,bunch_it->detid.sector()-1, double(sumDigi/10)); //std::cout<< "=====> sumDigi=" << sumDigi << std::endl;
 
             
-            if(fVerbosity>0){
+            if(fVerbosity>1){
              std::cout<< "==> Module:" << bunch_it->detid.module() << " Sector:" << bunch_it->detid.sector() << std::endl; 
              std::cout<< "==> Total charge in fC:" << sumDigi << std::endl;  
              std::cout<< "==> Total charge in ADC:" << sumDigiADC << std::endl;  
@@ -343,7 +359,7 @@ void CastorPSMonitor::processEvent(const CastorDigiCollection& castorDigis, cons
  //-- define the fraction of saturated events for a particular channel
  double fractionSaturated =  double(saturatedMap[module][sector])/double(ievt_) ;
  ////---- channel is saturated (in more than saturatedThreshold_ events) 
- if(fVerbosity>0) std::cout<< "==> module: " << module << " sector: " << sector << " ==> N_saturation:" << saturatedMap[module][sector] << " events:"<< ievt_ << " fraction:" << fractionSaturated << std::endl;
+ if(fVerbosity>1) std::cout<< "==> module: " << module << " sector: " << sector << " ==> N_saturation:" << saturatedMap[module][sector] << " events:"<< ievt_ << " fraction:" << fractionSaturated << std::endl;
 
  if( fractionSaturated > saturatedThreshold_ ) 
    { status = -0.25; statusRS=0.88 ; statusSaturated=-1.0; }
@@ -405,17 +421,7 @@ void CastorPSMonitor::processEvent(const CastorDigiCollection& castorDigis, cons
       cpu_timer.reset(); cpu_timer.start();  
     }
  
-  
+  if(fVerbosity>0) std::cout << "CastorPSMonitor::processEvent (end)" << std::endl;  
+
   return;
-}
-
-
-
-
-
-
-
-
-
-
-
+  }
