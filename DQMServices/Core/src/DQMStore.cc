@@ -3,15 +3,20 @@
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/QReport.h"
 #include "DQMServices/Core/interface/QTest.h"
+#include "DQMServices/Core/src/ROOTFilePB.pb.h"
 #include "DQMServices/Core/src/DQMError.h"
 #include "classlib/utils/RegexpMatch.h"
 #include "classlib/utils/Regexp.h"
 #include "classlib/utils/StringOps.h"
+#include <google/protobuf/io/coded_stream.h>
+#include <google/protobuf/io/gzip_stream.h>
+#include <google/protobuf/io/zero_copy_stream_impl.h>
 #include "TFile.h"
 #include "TROOT.h"
 #include "TKey.h"
 #include "TClass.h"
 #include "TSystem.h"
+#include "TBufferFile.h"
 #include <iterator>
 #include <cerrno>
 #include <boost/algorithm/string.hpp>
@@ -54,6 +59,7 @@ static const lat::Regexp s_rxmeval ("^<(.*)>(i|f|s|e|t|qr)=(.*)</\\1>$");
 static const lat::Regexp s_rxmeqr1 ("^st:(\\d+):([-+e.\\d]+):([^:]*):(.*)$");
 static const lat::Regexp s_rxmeqr2 ("^st\\.(\\d+)\\.(.*)$");
 static const lat::Regexp s_rxtrace ("(.*)\\((.*)\\+0x.*\\).*");
+static const lat::Regexp s_rxpbfile (".*\\.pb$");
 
 //////////////////////////////////////////////////////////////////////
 /// Check whether the @a path is a subdirectory of @a ofdir.  Returns
@@ -603,7 +609,8 @@ DQMStore::goUp(void)
 }
 
 // -------------------------------------------------------------------
-/// get folder corresponding to inpath wrt to root (create subdirs if necessary)
+/// get folder corresponding to inpath wrt to root (create subdirs if
+/// necessary)
 void
 DQMStore::makeDirectory(const std::string &path)
 {
@@ -2289,6 +2296,78 @@ DQMStore::cdInto(const std::string &path) const
   return true;
 }
 
+void DQMStore::savePB(const std::string &filename,
+                      const std::string &path /* = "" */)
+{
+  using google::protobuf::io::FileOutputStream;
+  using google::protobuf::io::GzipOutputStream;
+  using google::protobuf::io::StringOutputStream;
+
+  std::set<std::string>::iterator di, de;
+  MEMap::iterator mi, me = data_.end();
+  dqmstorepb::ROOTFilePB dqmstore_message;
+  int nme = 0;
+
+  if (verbose_)
+    std::cout << "\n DQMStore: Opening PBFile '"
+              << filename << "'"<< std::endl;
+
+  // Loop over the directory structure.
+  for (di = dirs_.begin(), de = dirs_.end(); di != de; ++di)
+  {
+    // Check if we should process this directory.  We process the
+    // requested part of the object tree, including references.
+    if (! path.empty()
+	&& ! isSubdirectory(path, *di))
+      continue;
+
+    // Loop over monitor elements in this directory.
+    MonitorElement proto(&*di, std::string());
+    mi = data_.lower_bound(proto);
+    for ( ; mi != me && isSubdirectory(*di, *mi->data_.dirname); ++mi)
+    {
+      // Skip if it isn't a direct child.
+      if (*di != *mi->data_.dirname)
+	continue;
+      // Skip if it is not a ROOT object
+      if ((*mi).kind() < MonitorElement::DQM_KIND_TH1F)
+        continue;
+
+      if (verbose_ > 1)
+	std::cout << "DQMStore::save: saving monitor element '"
+		  << *mi->data_.dirname << "/" << mi->data_.objname << "'\n";
+
+      nme++;
+      dqmstorepb::ROOTFilePB::Histo* me = dqmstore_message.add_histo();
+      me->set_full_pathname((*mi->data_.dirname) + '/' + mi->data_.objname);
+      TBufferFile buffer(TBufferFile::kWrite);
+      buffer.WriteObject(mi->object_);
+      me->set_size(buffer.Length());
+      me->set_streamed_histo((const void*)buffer.Buffer(),
+                             buffer.Length());
+      delete mi->object_;
+      const_cast<MonitorElement*>(&*mi)->object_ = 0;
+    }
+  }
+  int filedescriptor = ::open(filename.c_str(),
+			      O_WRONLY | O_CREAT | O_TRUNC,
+			      S_IREAD | S_IWRITE);
+  FileOutputStream file_stream(filedescriptor);
+  GzipOutputStream::Options options;
+  options.format = GzipOutputStream::GZIP;
+  options.compression_level = 6;
+  GzipOutputStream gzip_stream(&file_stream,
+                               options);
+  dqmstore_message.SerializeToZeroCopyStream(&gzip_stream);
+
+  // Maybe make some noise.
+  if (verbose_)
+    std::cout << "DQMStore::save: successfully wrote " << nme
+              << " objects from path '" << path
+	      << "' into DQM file '" << filename << "'\n";
+}
+
+
 /// save directory with monitoring objects into root file <filename>;
 /// include quality test results with status >= minimum_status
 /// (defined in Core/interface/QTestStatus.h);
@@ -2308,10 +2387,11 @@ DQMStore::save(const std::string &filename,
   DQMNet::QReports::const_iterator qi, qe;
   int nme=0;
 
-  // TFile flushes to disk with fsync() on every TDirectory written to the
-  // file.  This makes DQM file saving painfully slow, and ironically makes
-  // it _more_ likely the file saving gets interrupted and corrupts the file.
-  // The utility class below simply ignores the flush synchronisation.
+  // TFile flushes to disk with fsync() on every TDirectory written to
+  // the file.  This makes DQM file saving painfully slow, and
+  // ironically makes it _more_ likely the file saving gets
+  // interrupted and corrupts the file.  The utility class below
+  // simply ignores the flush synchronisation.
   class TFileNoSync : public TFile
   {
   public:
@@ -2660,8 +2740,10 @@ DQMStore::load(const std::string &filename,
       std::cout << "DQMStore::load: in overwrite mode   " << "\n";
   }
 
-  return readFile(filename,overwrite,"","",stripdirs,fileMustExist);
-
+  if (!s_rxpbfile.match(filename, 0, 0))
+    return readFile(filename, overwrite, "", "", stripdirs, fileMustExist);
+  else
+    return readFilePB(filename, false, "", "", stripdirs, fileMustExist);
 }
 
 /// private readFile <filename>, and copy MonitorElements;
@@ -2718,6 +2800,89 @@ DQMStore::readFile(const std::string &filename,
     if (! prepend.empty())
       std::cout << " into directory '" << prepend << "'";
     std::cout << std::endl;
+  }
+  return true;
+}
+
+/** Extract the next serialised ROOT object from @a buf. Returns null
+if there are no more objects in the buffer, or a null pointer was
+serialised at this location. */
+inline TObject * DQMStore::extractNextObject(TBufferFile &buf) const {
+  if (buf.Length() == buf.BufferSize())
+    return 0;
+  buf.InitMap();
+  return reinterpret_cast<TObject *>(buf.ReadObjectAny(0));
+}
+
+void DQMStore::get_info(const dqmstorepb::ROOTFilePB::Histo &h,
+                        std::string &dirname,
+                        std::string &objname,
+                        TH1 ** obj) {
+  size_t slash = h.full_pathname().rfind('/');
+  size_t dirpos = (slash == std::string::npos ? 0 : slash);
+  size_t namepos = (slash == std::string::npos ? 0 : slash+1);
+  dirname.assign(h.full_pathname(), 0, dirpos);
+  objname.assign(h.full_pathname(), namepos, std::string::npos);
+  TBufferFile buf(TBufferFile::kRead, h.size(),
+                  (void*)h.streamed_histo().data(),
+                  kFALSE);
+  buf.Reset();
+  *obj = static_cast<TH1*>(extractNextObject(buf));
+  if (!*obj) {
+    raiseDQMError("DQMStore", "Error reading element:'%s'" , h.full_pathname().c_str());
+  }
+}
+
+bool
+DQMStore::readFilePB(const std::string &filename,
+		     bool overwrite /* = false */,
+		     const std::string &onlypath /* ="" */,
+		     const std::string &prepend /* ="" */,
+		     OpenRunDirs stripdirs /* =StripRunDirs */,
+		     bool fileMustExist /* =true */)
+{
+  using google::protobuf::io::FileInputStream;
+  using google::protobuf::io::FileOutputStream;
+  using google::protobuf::io::GzipInputStream;
+  using google::protobuf::io::GzipOutputStream;
+  using google::protobuf::io::CodedInputStream;
+  using google::protobuf::io::ArrayInputStream;
+
+  if (verbose_)
+    std::cout << "DQMStore::readFile: reading from file '" << filename << "'\n";
+
+  int filedescriptor;
+  if ((filedescriptor = ::open(filename.c_str(), O_RDONLY)) == -1) {
+    if (fileMustExist)
+      raiseDQMError("DQMStore", "Failed to open file '%s'", filename.c_str());
+    else
+      if (verbose_)
+        std::cout << "DQMStore::readFile: file '" << filename << "' does not exist, continuing\n";
+    return false;
+  }
+
+  dqmstorepb::ROOTFilePB dqmstore_message;
+  FileInputStream fin(filedescriptor);
+  GzipInputStream input(&fin);
+  CodedInputStream input_coded(&input);
+  input_coded.SetTotalBytesLimit(1024*1024*1024, -1);
+  if (!dqmstore_message.ParseFromCodedStream(&input_coded)) {
+    raiseDQMError("DQMStore", "Fatal parsing file '%s'", filename.c_str());
+    return false;
+  }
+
+  for (int i = 0; i < dqmstore_message.histo_size(); i++) {
+    std::string path;
+    std::string objname;
+    TH1 *obj = NULL;
+    const dqmstorepb::ROOTFilePB::Histo &h = dqmstore_message.histo(i);
+    get_info(h, path, objname, &obj);
+    setCurrentFolder(path);
+    if (obj)
+    {
+      extract(static_cast<TObject *>(obj), path, overwrite);
+      delete obj;
+    }
   }
   return true;
 }
