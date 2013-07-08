@@ -33,7 +33,7 @@ namespace edm {
       processName_(procName),
       parameterSetID_(),
       releaseVersion_(relVersion),
-      passID_(pass) { isCurrentProcess() = true; }
+      passID_(pass) { setCurrentProcess(); }
 
   ParameterSetID const&
   ProcessConfiguration::parameterSetID() const {
@@ -61,7 +61,7 @@ namespace edm {
     std::string stringrep = oss.str();
     cms::Digest md5alg(stringrep);
     ProcessConfigurationID tmp(md5alg.digest().toString());
-    pcid().swap(tmp);
+    transient_.pcid_.swap(tmp);
     return pcid();
   }
 
@@ -82,7 +82,7 @@ namespace edm {
     while(iter != iEnd && isdigit(*iter) == 0) ++iter;
     while(iter != iEnd && isdigit(*iter) != 0) ++iter;
     if (iter == iEnd) return;
-    pcid() = ProcessConfigurationID();
+    setPCID(ProcessConfigurationID());
     releaseVersion_.erase(iter,iEnd);
   }
 
