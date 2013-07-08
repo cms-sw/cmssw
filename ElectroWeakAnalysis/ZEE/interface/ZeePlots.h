@@ -94,9 +94,6 @@ private:
     edm::InputTag caloJetCollectionTag_;
     edm::InputTag pfJetCollectionTag_;
 
-    edm::InputTag PrimaryVerticesCollection_;
-    edm::InputTag PrimaryVerticesCollectionBS_;
-
     TFile *histofile;
 
     // the histograms
@@ -134,6 +131,39 @@ private:
     // ***********************************
     //
     // the selection cuts
+
+//      /*  Electron 0  */
+//     Double_t trackIso0_EB_          ; Double_t trackIso0_EE_          ; 
+//     Double_t ecalIso0_EB_           ; Double_t ecalIso0_EE_           ; 
+//     Double_t hcalIso0_EB_           ; Double_t hcalIso0_EE_           ; 
+// 
+//     Double_t sihih0_EB_             ; Double_t sihih0_EE_             ; 
+//     Double_t dphi0_EB_              ; Double_t dphi0_EE_              ; 
+//     Double_t deta0_EB_              ; Double_t deta0_EE_              ; 
+//     Double_t hoe0_EB_               ; Double_t hoe0_EE_               ; 
+//     Double_t cIso0_EB_              ; Double_t cIso0_EE_              ; 
+//     Double_t tip_bspot0_EB_         ; Double_t tip_bspot0_EE_         ; 
+//     Double_t eop0_EB_               ; Double_t eop0_EE_               ; 
+// 
+//     Double_t trackIsoUser0_EB_      ; Double_t trackIsoUser0_EE_      ; 
+//     Double_t ecalIsoUser0_EB_       ; Double_t ecalIsoUser0_EE_       ; 
+//     Double_t hcalIsoUser0_EB_       ; Double_t hcalIsoUser0_EE_       ; 
+//     //.................................................................                                         
+//     Bool_t   trackIso0_EB_inv       ; Bool_t   trackIso0_EE_inv       ; 
+//     Bool_t   ecalIso0_EB_inv        ; Bool_t   ecalIso0_EE_inv        ; 
+//     Bool_t   hcalIso0_EB_inv        ; Bool_t   hcalIso0_EE_inv        ; 
+// 
+//     Bool_t   sihih0_EB_inv          ; Bool_t   sihih0_EE_inv          ; 
+//     Bool_t   dphi0_EB_inv           ; Bool_t   dphi0_EE_inv           ; 
+//     Bool_t   deta0_EB_inv           ; Bool_t   deta0_EE_inv           ; 
+//     Bool_t   hoe0_EB_inv            ; Bool_t   hoe0_EE_inv            ; 
+//     Bool_t   cIso0_EB_inv           ; Bool_t   cIso0_EE_inv           ; 
+//     Bool_t   tip_bspot0_EB_inv      ; Bool_t   tip_bspot0_EE_inv      ; 
+//     Bool_t   eop0_EB_inv            ; Bool_t   eop0_EE_inv            ; 
+// 
+//     Bool_t   trackIsoUser0_EB_inv   ; Bool_t   trackIsoUser0_EE_inv   ; 
+//     Bool_t   ecalIsoUser0_EB_inv    ; Bool_t   ecalIsoUser0_EE_inv    ; 
+//     Bool_t   hcalIsoUser0_EB_inv    ; Bool_t   hcalIsoUser0_EE_inv    ; 
 
     /*  Electron 1  */
     Double_t trackIso1_EB_          ; Double_t trackIso1_EE_          ; 
@@ -212,160 +242,49 @@ private:
     //
     // variables related to the VBTF root tuples:
     //
-    Int_t runNumber, lumiSection ;
+    Int_t runNumber, lumiSection;
 
-    Long64_t eventNumber ;
+    Long64_t eventNumber;
 
-    /*  Electron 1  */
-    Float_t  pv_x1 ;
-    Float_t  pv_y1 ;
-    Float_t  pv_z1 ;
-    Float_t  ele1_tip_pv ;
+    Float_t ele1_sc_energy, ele1_sc_eta, ele1_sc_phi;
+    Float_t ele1_sc_gsf_et;
+    Float_t ele1_cand_et, ele1_cand_eta, ele1_cand_phi;
+    Float_t ele1_iso_track, ele1_iso_ecal, ele1_iso_hcal;
+    Float_t ele1_id_sihih, ele1_id_dphi, ele1_id_deta, ele1_id_hoe;
+    Float_t ele1_cr_mhitsinner, ele1_cr_dcot, ele1_cr_dist;
+    Float_t ele1_vx, ele1_vy, ele1_vz;
+
+    Float_t pv_x1, pv_y1, pv_z1;
+
+    Int_t   ele1_gsfCharge, ele1_ctfCharge, ele1_scPixCharge;
+    Float_t ele1_eop, ele1_tip_bs, ele1_tip_pv;
+
+    Float_t ele2_sc_energy, ele2_sc_eta, ele2_sc_phi;
+    Float_t ele2_sc_gsf_et;
+    Float_t ele2_cand_et, ele2_cand_eta, ele2_cand_phi;
+    Float_t ele2_iso_track, ele2_iso_ecal, ele2_iso_hcal;
+    Float_t ele2_id_sihih, ele2_id_dphi, ele2_id_deta, ele2_id_hoe;
+    Float_t ele2_cr_mhitsinner, ele2_cr_dcot, ele2_cr_dist;
+    Float_t ele2_vx, ele2_vy, ele2_vz;
+
+    Float_t pv_x2, pv_y2, pv_z2;
+
+    Int_t   ele2_gsfCharge, ele2_ctfCharge, ele2_scPixCharge;
+    Float_t ele2_eop, ele2_tip_bs, ele2_tip_pv;
+
+    Float_t event_caloMET, event_pfMET, event_tcMET;
+    Float_t event_caloMET_phi, event_pfMET_phi, event_tcMET_phi;
+
+    Float_t event_Mee;
+
+    Float_t calojet_et[5];
+    Float_t calojet_eta[5];
+    Float_t calojet_phi[5];
+    Float_t pfjet_et[5];
+    Float_t pfjet_eta[5];
+    Float_t pfjet_phi[5];
     
-    Float_t  pvBS_x1 ;
-    Float_t  pvBS_y1 ;
-    Float_t  pvBS_z1 ;
-    Float_t  ele1_tip_pvBS ;
-    
-    Float_t  ele1_sc_eta ;
-    Float_t  ele1_sc_phi ;
-    Float_t  ele1_sc_energy ;
-    Float_t  ele1_sc_gsf_et ;
-
-    Float_t  ele1_sc_x ;
-    Float_t  ele1_sc_y ;
-    Float_t  ele1_sc_z ;
-    
-    Float_t  ele1_sc_rho ;
-    
-    Float_t  ele1_pin ;
-    Float_t  ele1_pout ;
-    
-    Float_t  ele1_fbrem ;
-    
-    Float_t  ele1_cand_eta ;
-    Float_t  ele1_cand_phi ;
-    Float_t  ele1_cand_et ;
-    
-    Float_t  ele1_iso_track ;
-    Float_t  ele1_iso_ecal ;
-    Float_t  ele1_iso_hcal ;
-
-    Float_t  ele1_id_sihih ;
-    Float_t  ele1_id_deta ;
-    Float_t  ele1_id_dphi ;
-    Float_t  ele1_id_hoe ;
-
-    Float_t  ele1_trk_ndof ;
-    Float_t  ele1_trk_normChi2 ;
-    Int_t    ele1_trk_lostHits ;
-    Int_t    ele1_trk_validHits ;
-
-    Int_t    ele1_cr_mhitsouter ;
-    Int_t    ele1_cr_mhitsinner ;
-    Float_t  ele1_cr_dcot ;
-    Float_t  ele1_cr_dist ;
-
-    Float_t  ele1_vx ;
-    Float_t  ele1_vy ;
-    Float_t  ele1_vz ;
-
-    Int_t    ele1_gsfCharge ;
-    Int_t    ele1_ctfCharge ;
-    Int_t    ele1_scPixCharge ;
-    Float_t  ele1_eop ;
-    Float_t  ele1_tip_bs ;
-
-    Float_t  ele1_hltmatched_dr;
-    Int_t    event1_triggerDecision;
-
-    /*  Electron 2  */
-    Float_t  pv_x2 ;
-    Float_t  pv_y2 ;
-    Float_t  pv_z2 ;
-    Float_t  ele2_tip_pv ;
-
-    Float_t  pvBS_x2 ;
-    Float_t  pvBS_y2 ;
-    Float_t  pvBS_z2 ;
-    Float_t  ele2_tip_pvBS ;
-
-    Float_t  ele2_sc_eta ;
-    Float_t  ele2_sc_phi ;
-    Float_t  ele2_sc_energy ;
-    Float_t  ele2_sc_gsf_et ;
-
-    Float_t  ele2_sc_x ;
-    Float_t  ele2_sc_y ;
-    Float_t  ele2_sc_z ;
-
-    Float_t  ele2_sc_rho ;
-
-    Float_t  ele2_pin ;
-    Float_t  ele2_pout ;
-
-    Float_t  ele2_fbrem ;
-
-    Float_t  ele2_cand_eta ;
-    Float_t  ele2_cand_phi ;
-    Float_t  ele2_cand_et ;
-
-    Float_t  ele2_iso_track ;
-    Float_t  ele2_iso_ecal ;
-    Float_t  ele2_iso_hcal ;
-
-    Float_t  ele2_id_sihih ;
-    Float_t  ele2_id_deta ;
-    Float_t  ele2_id_dphi ;
-    Float_t  ele2_id_hoe ;
-
-    Float_t  ele2_trk_ndof ;
-    Float_t  ele2_trk_normChi2 ;
-    Int_t    ele2_trk_lostHits ;
-    Int_t    ele2_trk_validHits ;
-
-    Int_t    ele2_cr_mhitsouter ;
-    Int_t    ele2_cr_mhitsinner ;
-    Float_t  ele2_cr_dcot ;
-    Float_t  ele2_cr_dist ;
-
-    Float_t  ele2_vx ;
-    Float_t  ele2_vy ;
-    Float_t  ele2_vz ;
-
-    Int_t    ele2_gsfCharge ;
-    Int_t    ele2_ctfCharge ;
-    Int_t    ele2_scPixCharge ;
-    Float_t  ele2_eop ;
-    Float_t  ele2_tip_bs ;
-
-    Float_t  ele2_hltmatched_dr;
-    Int_t    event2_triggerDecision;
-
-    Float_t event_caloMET ;
-    Float_t event_pfMET ;
-    Float_t event_tcMET ;
-
-    Float_t event_caloMET_phi ;
-    Float_t event_pfMET_phi ;
-    Float_t event_tcMET_phi ;
-
-    Float_t event_caloSumEt ;
-    Float_t event_pfSumEt ;
-    Float_t event_tcSumEt ;
-
-    Float_t event_Mee ;
-
-    Float_t calojet_et[5] ;
-    Float_t calojet_eta[5] ;
-    Float_t calojet_phi[5] ;
-    Float_t pfjet_et[5] ;
-    Float_t pfjet_eta[5] ;
-    Float_t pfjet_phi[5] ;
-    
-    Int_t event_datasetTag ;
-
-    std::vector<std::string> vZeeOutputFileNames_ ;
+    Int_t event_datasetTag;
 
     TFile *ZEE_VBTFpreseleFile_;
     TFile *ZEE_VBTFselectionFile_;
@@ -375,18 +294,10 @@ private:
     
     std::string ZEE_VBTFselectionFileName_;
     std::string ZEE_VBTFpreseleFileName_;
-
-    Bool_t storeExtraInformation_;
+    
     Bool_t includeJetInformationInNtuples_;
     Double_t DRJetFromElectron_;
     Int_t DatasetTag_;
-
-    std::vector<Int_t>   VtxTracksSize;
-    std::vector<Float_t> VtxNormalizedChi2;
-    
-    std::vector<Int_t>   VtxTracksSizeBS;
-    std::vector<Float_t> VtxNormalizedChi2BS;
-
     
 };
 

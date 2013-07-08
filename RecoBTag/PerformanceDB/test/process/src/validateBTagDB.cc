@@ -13,7 +13,7 @@
 //
 // Original Author:  Tommaso Boccali
 //         Created:  Tue Nov 25 15:50:50 CET 2008
-// $Id: TestOctoberExe.cc,v 1.2 2009/08/13 12:33:24 tboccali Exp $
+// $Id: validateBTagDB.cc,v 1.1 2010/06/03 13:02:16 chadwick Exp $
 //
 //
 
@@ -128,21 +128,27 @@ validateBTagDB::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	std::string name;
 	float workingPoint;
 	std::string type;
+std::cout << "1" << std::endl;
 //Name
 	inFile >> name;
 	output << name << std::endl;
+std::cout << "2" << std::endl;
 //WP
 	inFile >> workingPoint;
 	output << workingPoint << std::endl;
+std::cout << "3" << std::endl;
 //Payload type
 	inFile >> type;
 	output << type << std::endl;
+std::cout << "4" << std::endl;
 //N measurements
 	inFile >> nMeasures;
 	output << nMeasures << std::endl;
+std::cout << "5" << std::endl;
 //N Vars
 	inFile >> nVars;
 	output << nVars << std::endl;
+std::cout << "6" << std::endl;
 //Measure enums
 	std::vector< int > measureList;
 	for( int iM = 1; iM <= nMeasures; iM++ )
@@ -153,7 +159,7 @@ validateBTagDB::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	    output << measureList[ iM - 1 ] << " ";
 	}
 	output << std::endl;
-
+std::cout << "7" << std::endl;
 //Vars enums
 	std::vector< int > varList;
 	for( int iV = 1; iV <= nVars; iV++ )
@@ -164,13 +170,13 @@ validateBTagDB::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	    output << varList[ iV - 1 ] << " ";
 	}
 	output << std::endl;
-
+std::cout << "8" << std::endl;
 	while( !inFile.eof() )
 	{
 //	std::vector< std::pair<float,float> > varBins;
 	    BinningPointByMap tempMeasure;
 	    bool done = false;
-
+	    //std::cout <<"nvars = "<< nVars << std::endl;
 	    for( int iV = 1; iV <= nVars; iV++ )
 	    {
 		float val1, val2;
@@ -180,10 +186,11 @@ validateBTagDB::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 		output << val1 << " " << val2 << " ";
 		tempMeasure.insert((BinningVariables::BinningVariablesType)varList[iV - 1], (val1+val2)/2.0);
 	    }
+//std::cout << "9" << std::endl;
 //Measurement goes here!
 	    for( int iM = 1; iM <= nMeasures; iM++ )
 	    {
-		if( inFile.peek() == EOF ){ done = true; }
+	      if( inFile.peek() == EOF ){ done = true; }
 	    }
 	    if(done){ continue; }
 	    for( int iM = 1; iM <= nMeasures; iM++ )
@@ -192,6 +199,7 @@ validateBTagDB::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 		measured = perfTest.getResult( (PerformanceResult::ResultType)measureList[iM -1], tempMeasure );
 		inFile >> res1;
 		output << measured << " ";
+		std::cout << measured << std::endl;
 		if( res1 != measured )
 		{
 		    std::cout << "Measure/result mismatch with" << measured << " " << res1 << std::endl;

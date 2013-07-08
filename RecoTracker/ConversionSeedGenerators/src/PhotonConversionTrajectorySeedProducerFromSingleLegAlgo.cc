@@ -67,6 +67,7 @@ analyze(const edm::Event & event, const edm::EventSetup &setup){
   edm::ESHandle<MagneticField> handleMagField;
   setup.get<IdealMagneticFieldRecord>().get(handleMagField);
   magField = handleMagField.product();
+  if (unlikely(magField->inTesla(GlobalPoint(0.,0.,0.)).z()<0.01)) return;
 
   _IdealHelixParameters.setMagnField(magField);
 
@@ -299,7 +300,8 @@ inspectTrack(const reco::Track* track, const TrackingRegion & region, math::XYZP
 
   _IdealHelixParameters.setData(track,primaryVertexPoint);   
     
-  if(_IdealHelixParameters.GetTangentPoint().r()==0){
+  if (std::isnan(_IdealHelixParameters.GetTangentPoint().r()) || 
+	(_IdealHelixParameters.GetTangentPoint().r()==0)){
     //this case means a null results on the _IdealHelixParameters side
     return false;
   }

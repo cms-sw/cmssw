@@ -8,8 +8,8 @@
  *  \warning: should be revised, probably works only when local and global
  *  Z axis coincide
  *
- *  $Date: 2007/01/17 20:58:44 $
- *  $Revision: 1.1 $
+ *  $Date: 2006/08/18 11:04:02 $
+ *  $Revision: 1.2 $
  */
 
 #include "DataFormats/GeometryVector/interface/LocalPoint.h"
@@ -23,7 +23,7 @@
 #include <algorithm>
 
 
-class SimpleConeBounds GCC11_FINAL : public Bounds {
+class SimpleConeBounds : public Bounds {
 public:
 
   /// Construct from inner/outer radius on the two Z faces 

@@ -8,7 +8,7 @@
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
 #include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
 #include "SimTracker/TrackAssociation/interface/TrackAssociatorByChi2.h"
-#include "SimTracker/TrackAssociation/interface/TrackAssociatorByHits.h"
+#include "SimTracker/TrackAssociation/interface/QuickTrackAssociatorByHits.h"
 #include "SimTracker/TrackerHitAssociation/interface/TrackerHitAssociator.h"
 #include "SimTracker/Records/interface/TrackAssociatorRecord.h"
 
@@ -93,7 +93,7 @@ void TrackerSeedValidator::beginRun(edm::Run const&, edm::EventSetup const& setu
       h_pullDz.push_back( dbe_->book1D("pullDz","pull of dz parameter",250,-25,25) );
       h_pullQoverp.push_back( dbe_->book1D("pullQoverp","pull of qoverp parameter",250,-25,25) );
       
-      if (associators[ww]=="TrackAssociatorByHits"){
+      if (associators[ww]=="quickTrackAssociatorByHits"){
 	h_assocFraction.push_back( dbe_->book1D("assocFraction","fraction of shared hits",200,0,2) );
 	h_assocSharedHit.push_back(dbe_->book1D("assocSharedHit","number of shared hits",20,0,20));
       }
@@ -321,7 +321,7 @@ void TrackerSeedValidator::analyze(const edm::Event& event, const edm::EventSetu
 	  TrackingParticleRef tpr = tp.begin()->first;
 	  const SimTrack * assocTrack = &(*tpr->g4Track_begin());
 	
-	  if (associators[ww]=="TrackAssociatorByHits"){
+	  if (associators[ww]=="quickTrackAssociatorByHits"){
 	    double fraction = tp.begin()->second;
 	    h_assocFraction[www]->Fill(fraction);
 	    h_assocSharedHit[www]->Fill(fraction*numberOfHitsSeed);

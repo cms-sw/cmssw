@@ -44,11 +44,19 @@ from DQM.SiStripMonitorCluster.SiStripMonitorCluster_cfi import *
 SiStripMonitorCluster.Mod_On = False
 SiStripMonitorCluster.TProfClustersApvCycle.subdetswitchon = True
 SiStripMonitorCluster.TProfTotalNumberOfClusters.subdetswitchon = True
-SiStripMonitorCluster.TH2CStripVsCpixel.globalswitchon=True
-SiStripMonitorCluster.TH1MultiplicityRegions.globalswitchon=True
-SiStripMonitorCluster.TH1MainDiagonalPosition.globalswitchon=True
+SiStripMonitorCluster.TH2CStripVsCpixel.globalswitchon=False
+SiStripMonitorCluster.TH1MultiplicityRegions.globalswitchon=False
+SiStripMonitorCluster.TH1MainDiagonalPosition.globalswitchon=False
 SiStripMonitorCluster.TH1StripNoise2ApvCycle.globalswitchon=True
 SiStripMonitorCluster.TH1StripNoise3ApvCycle.globalswitchon=True
+SiStripMonitorCluster.TH1TotalNumberOfClusters.subdetswitchon = True
+SiStripMonitorCluster.ClusterHisto = True
+SiStripMonitorCluster.TH1NClusStrip.Nbinsx = cms.int32(200)
+SiStripMonitorCluster.TH1NClusStrip.xmax = cms.double(3999.5)
+SiStripMonitorCluster.TH1NClusPx.Nbinsx = cms.int32(100)
+SiStripMonitorCluster.TH1NClusPx.xmax = cms.double(999.5)
+SiStripMonitorCluster.TH1TotalNumberOfClusters.Nbinx = cms.int32(100)
+SiStripMonitorCluster.TH1TotalNumberOfClusters.xmax = cms.double(1999.5)
 
 # SiStripMonitorTrack ####
 # Clone for Cosmic Tracks

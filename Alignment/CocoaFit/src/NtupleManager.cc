@@ -1,6 +1,6 @@
 //   COCOA class implementation file
 //Id:  NtupleManager.cc
-//CAT: Fit
+//CAT: Analysis
 //
 //   History: v1.0 
 //   Luca Scodellaro
@@ -163,7 +163,7 @@ void NtupleManager::FillChi2()
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 //@@ Fill ntuple with fitted parameters
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-void NtupleManager::FillFitParameters(MatrixMeschach AtWAMatrix)
+void NtupleManager::FillFitParameters(MatrixMeschach* AtWAMatrix)
 {
 
 //   double ParValue[1000], ParError[1000];
@@ -177,7 +177,7 @@ void NtupleManager::FillFitParameters(MatrixMeschach AtWAMatrix)
     if ( (*vecite)->quality() >= theMinEntryQuality ) {
 
       ALIint ipos = (*vecite)->fitPos();
-      FittedEntry* fe = new FittedEntry( (*vecite), ipos, sqrt(AtWAMatrix.Mat()->me[ipos][ipos]));
+      FittedEntry* fe = new FittedEntry( (*vecite), ipos, sqrt(AtWAMatrix->Mat()->me[ipos][ipos]));
 //       if (!BookFitParameters) {
 // 	CocoaTree->Branch("NFitParameters",&NFitParameters,"NFitParameters/I:");
 // 	ALIstring partype = fe->getName() + "/D";
@@ -248,7 +248,7 @@ void NtupleManager::FillFitParameters(MatrixMeschach AtWAMatrix)
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 //@@ Fill ntuple with optical object positions and orientations
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-void NtupleManager::FillOptObjects(MatrixMeschach AtWAMatrix)
+void NtupleManager::FillOptObjects(MatrixMeschach* AtWAMatrix)
 {
 
   int ii = 0;

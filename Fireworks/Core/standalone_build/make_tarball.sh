@@ -28,7 +28,10 @@ getExternals()
 	fi
 	echo "Copy gcc from  $ext/gcc/${gv}/ to ${gccd}"
 	cp -a $ext/gcc/${gv}/ ${gccd}/gcc
-
+        if [ `uname` = "Darwin" ]; then
+           echo "Renaming gcc lib directory to lib64."
+           mv ${gccd}/gcc/lib ${gccd}/gcc/lib64
+        fi
     
     echo "=========================================================="
     echo "=========================================================="
@@ -120,6 +123,7 @@ getSources()
    # binary 
    mkdir ${tard}/libexec
    cp $CMSSW_BASE/bin/*/cmsShow.exe ${tard}/libexec
+   cp $CMSSW_BASE/bin/*/cmsShowSendReport ${tard}/libexec
    
    # src
    srcDir="${tard}/src/Fireworks/Core"
@@ -157,6 +161,11 @@ getDataFiles()
    name=`perl -e '($ver, $a, $b, $c) = split('_', $ENV{CMSSW_VERSION}); print  "data", $a, $b, ".root"  '`
    $dwnCmd http://amraktad.web.cern.ch/amraktad/mail/scratch0/data/$name
    mv $name data.root
+
+   mc_name=`perl -e '($ver, $a, $b, $c) = split('_', $ENV{CMSSW_VERSION}); print  "mc", $a, $b, ".root"  '`
+   $dwnCmd http://amraktad.web.cern.ch/amraktad/mail/scratch0/data/$mc_name
+   mv $mc_name mc.root
+
    $dwnCmd http://amraktad.web.cern.ch/amraktad/mail/scratch0/data/cmsSimGeom-14.root
    $dwnCmd http://amraktad.web.cern.ch/amraktad/mail/scratch0/data/cmsGeom10.root
 }

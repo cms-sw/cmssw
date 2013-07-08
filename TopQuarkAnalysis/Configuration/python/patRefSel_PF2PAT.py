@@ -25,5 +25,5 @@ pfElectronSelectionCut += ' && gsfTrackRef.isNonnull'
 pfElectronSelectionCut += ' && gsfTrackRef.trackerExpectedHitsInner.numberOfLostHits < 2'
 
 # Isolation
-pfElectronIsoConeR03 = False
+pfElectronIsoConeR03 = True
 pfElectronCombIsoCut = 0.2

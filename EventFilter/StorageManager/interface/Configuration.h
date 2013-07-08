@@ -1,4 +1,4 @@
-// $Id: Configuration.h,v 1.30 2011/06/01 13:47:01 mommsen Exp $
+// $Id: Configuration.h,v 1.31 2011/07/05 13:25:43 mommsen Exp $
 /// @file: Configuration.h 
 
 
@@ -136,14 +136,16 @@ namespace stor
   struct AlarmParams
   {
     bool isProductionSystem_;      // indicates if the SM is running in production system.
-                                   // If set to false, certain checks/alarms are disabled. 
+                                   // If set to false, certain checks/alarms are disabled.
+    bool careAboutUnwantedEvents_; // If set to false, the SM does not keep track of events
+                                   // not served to any consumer or stream
     unsigned int errorEvents_;     // number of recent error events triggering an alarm
     unsigned int unwantedEvents_;  // number of unwanted events triggering an alarm
 
     AlarmParams() :
-    isProductionSystem_(false) {}; // Initialize default to false here. This struct is
-                                   // used before the actual values are set during the
-                                   // configure transition.
+    isProductionSystem_(false),    // Initialize default to false here. This struct is
+    careAboutUnwantedEvents_(true) // used before the actual values are set during the
+    {};                            // configure transition.
   };
 
   /**
@@ -160,8 +162,8 @@ namespace stor
    * only at requested times.
    *
    * $Author: mommsen $
-   * $Revision: 1.30 $
-   * $Date: 2011/06/01 13:47:01 $
+   * $Revision: 1.31 $
+   * $Date: 2011/07/05 13:25:43 $
    */
 
   class Configuration : public xdata::ActionListener
@@ -390,6 +392,7 @@ namespace stor
     xdata::Integer nCopyWorkers_;
 
     xdata::Boolean isProductionSystem_;
+    xdata::Boolean careAboutUnwantedEvents_;
     xdata::UnsignedInteger32 errorEvents_;
     xdata::UnsignedInteger32 unwantedEvents_;
 

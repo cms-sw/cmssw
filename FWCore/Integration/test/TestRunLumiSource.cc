@@ -2,7 +2,6 @@
 ----------------------------------------------------------------------*/
 
 #include "FWCore/Integration/test/TestRunLumiSource.h"
-#include "DataFormats/Provenance/interface/BranchIDListHelper.h"
 #include "DataFormats/Provenance/interface/EventID.h"
 #include "DataFormats/Provenance/interface/EventAuxiliary.h"
 #include "DataFormats/Provenance/interface/LuminosityBlockAuxiliary.h"
@@ -117,8 +116,7 @@ namespace edm {
     EventID id(run, lbp2->luminosityBlock(), event);
     currentIndex_ += 3;
     EventAuxiliary eventAux(id, processGUID(), ts, false);
-    boost::shared_ptr<BranchIDListHelper> branchIDListHelper(new BranchIDListHelper());
-    EventPrincipal* result(new EventPrincipal(productRegistry(), branchIDListHelper, processConfiguration()));
+    EventPrincipal* result(new EventPrincipal(productRegistry(), processConfiguration()));
     result->fillEventPrincipal(eventAux, lbp2);
     return result;
   }

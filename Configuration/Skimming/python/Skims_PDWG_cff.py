@@ -141,6 +141,107 @@ SKIMStreamHZZ = cms.FilteredStream(
         dataTier = cms.untracked.string('AOD')
         )
 
+#####################
+
+# file name "PDWG_HLTZEROBIASSIG_SD" inherited from 2011 - it's actually a filter on HLT_Physics bit
+from Configuration.Skimming.PDWG_HLTZEROBIASSIG_SD_cff import *
+HLTZEROBIASSIGSDPath = cms.Path(HLTZEROBIASSIGSD)
+SKIMStreamHLTPhysics = cms.FilteredStream(
+    responsible = 'TSG',
+    name = 'HLTPhysics',
+    paths = (HLTZEROBIASSIGSDPath),
+    content = skimContent.outputCommands,
+    selectEvents = cms.untracked.PSet(),
+    dataTier = cms.untracked.string('RAW-RECO') 
+    )
+
+#####################
+
+from Configuration.Skimming.PDWG_MonoPhoton_cff import *
+EXOMonoPhotonPath = cms.Path(monophotonSkimSequence)
+SKIMStreamEXOMonoPhoton = cms.FilteredStream(
+    responsible = 'EXO',
+    name = 'EXOMonoPhoton',
+    paths = (EXOMonoPhotonPath),
+    content = skimContent.outputCommands,
+    selectEvents = cms.untracked.PSet(),
+    dataTier = cms.untracked.string('RAW-RECO') 
+    )
+
+
+#####################
+# Jan 15th 2013 - The skims defined below should be used only for
+# pPb run (2013).
+# This pPb run uses the standard pp scenario, and for this reason the
+# skims where included in this area 
+#####################
+
+
+## for the Dilepton group #########################
+
+## PsiMuMu
+
+from Configuration.Skimming.pA_DiLeptonSkim_cff import *
+psiPath = cms.Path( psiCandidateSequence )
+SKIMStreamPsiMuMuPA = cms.FilteredStream(
+                    responsible = 'HIN PAG',
+                    name = 'PsiMuMuPA',
+                    paths = (psiPath),
+                    content = skimRecoContent.outputCommands,
+                    selectEvents = cms.untracked.PSet(),
+                    dataTier = cms.untracked.string('RECO')
+                    )
+
+## UpsMuMu
+from Configuration.Skimming.pA_DiLeptonSkim_cff import *
+upsPath = cms.Path( upsCandidateSequence )
+SKIMStreamUpsMuMuPA = cms.FilteredStream(
+                    responsible = 'HIN PAG',
+                    name = 'UpsMuMuPA',
+                    paths = (upsPath),
+                    content = skimRecoContent.outputCommands,
+                    selectEvents = cms.untracked.PSet(),
+                    dataTier = cms.untracked.string('RECO')
+                    )
+
+## ZMuMu
+from Configuration.Skimming.pA_DiLeptonSkim_cff import *
+ZPath = cms.Path( ZCandidateSequence )
+SKIMStreamZMuMuPA = cms.FilteredStream(
+                    responsible = 'HIN PAG',
+                    name = 'ZMuMuPA',
+                    paths = (ZPath),
+                    content = skimRecoContent.outputCommands,
+                    selectEvents = cms.untracked.PSet(),
+                    dataTier = cms.untracked.string('RECO')
+                    )
+
+## for the Flow/correlation  group #########################
+
+from Configuration.Skimming.pA_FlowCorrSkim_cff import *
+FlowCorrPath = cms.Path( flowCorrCandidateSequence )
+SKIMStreamFlowCorrPA = cms.FilteredStream(
+                                       responsible = 'HIN PAG',
+                                       name = 'FlowCorrPA',
+                                       paths = (FlowCorrPath),
+                                       content = skimRecoContent.outputCommands,
+                                       selectEvents = cms.untracked.PSet(),
+                                       dataTier = cms.untracked.string('RECO')
+                                       )
+
+## for the High Pt group #########################
+
+from Configuration.Skimming.pA_HighPtSkim_cff import *
+HighPtPath = cms.Path( HighPtCandidateSequence )
+SKIMStreamHighPtPA = cms.FilteredStream(
+                                        responsible = 'HIN PAG',
+                                        name = 'HighPtPA',
+                                        paths = (HighPtPath),
+                                        content = skimRecoContent.outputCommands,
+                                        selectEvents = cms.untracked.PSet(),
+                                        dataTier = cms.untracked.string('RECO')
+                                        )
+
 
 """
 #####################
@@ -155,18 +256,6 @@ SKIMStreamHLTZEROBIASPUSD = cms.FilteredStream(
     responsible = 'PDWG',
     name = 'HLTZEROBIASPUSD',
     paths = (HLTZEROBIASPUSDPath),
-    content = skimRecoContent.outputCommands,
-    selectEvents = cms.untracked.PSet(),
-    dataTier = cms.untracked.string('RAW') # for the moment, it could be DIGI in the future
-    )
-
-#The events to be used as signal
-from Configuration.Skimming.PDWG_HLTZEROBIASSIG_SD_cff import *
-HLTZEROBIASSIGSDPath = cms.Path(HLTZEROBIASSIGSD)
-SKIMStreamHLTZEROBIASSIGSD = cms.FilteredStream(
-    responsible = 'PDWG',
-    name = 'HLTZEROBIASSIGSD',
-    paths = (HLTZEROBIASSIGSDPath),
     content = skimRecoContent.outputCommands,
     selectEvents = cms.untracked.PSet(),
     dataTier = cms.untracked.string('RAW') # for the moment, it could be DIGI in the future
@@ -260,8 +349,6 @@ SKIMStreamHLTZEROBIASSIGSD = cms.FilteredStream(
 #    )
 
 
-
-## exo skims
 """
 from SUSYBSMAnalysis.Skimming.EXOLLResSkim_cff import *
 exoLLResmmPath = cms.Path(exoLLResdiMuonSequence)

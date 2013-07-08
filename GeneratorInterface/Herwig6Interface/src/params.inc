@@ -26,6 +26,7 @@ enum ParamTypes {
 #define PARM_N3_O1(type, block, name) \
 	{ #name, &block.name, type, { { sizeof block.name / sizeof block.name[0], 1 }, { sizeof block.name[0] / sizeof block.name[0][0], 1 }, { sizeof block.name[0][0] / sizeof block.name[0][0][0], 1 } } }
 
+
 // end
 #define PARM_LAST { 0, }
 

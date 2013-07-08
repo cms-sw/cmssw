@@ -36,7 +36,7 @@ DCCEBEventBlock::DCCEBEventBlock( DCCDataUnpacker * u, EcalElectronicsMapper * m
 
 
 
-void DCCEBEventBlock::unpack( uint64_t * buffer, unsigned int numbBytes, unsigned int expFedId){
+void DCCEBEventBlock::unpack(const uint64_t * buffer, size_t numbBytes, unsigned int expFedId){
   
   reset();
  
@@ -199,6 +199,11 @@ void DCCEBEventBlock::unpack( uint64_t * buffer, unsigned int numbBytes, unsigne
     // pointer for the
     std::vector<short>::iterator it = feChStatus_.begin();
     
+    // fields for tower recovery code
+    unsigned int next_tower_id = 1000;
+    const uint64_t* next_data = data_;
+    unsigned int next_dwToEnd = dwToEnd_;
+    
     // looping over FE channels, i.e. tower blocks
     for (unsigned int chNumber=1; chNumber<= numbChannels && STATUS!=STOP_EVENT_UNPACKING; chNumber++, it++ ){
       //for( unsigned int i=1; chNumber<= numbChannels; chNumber++, it++ ){                        
@@ -236,50 +241,66 @@ void DCCEBEventBlock::unpack( uint64_t * buffer, unsigned int numbBytes, unsigne
         continue;
       }
       
-      // Unpack Tower (Xtal Block) in case of SR (data are 0 suppressed)
-      if(feUnpacking_ && sr_ && chNumber<=68)
-        {
-
-          if( fov_ > 0){  
-            bool applyZS(true);
-            
-              if( !ignoreSR && chStatus != CH_FORCEDZS1
-                && (srpBlock_->srFlag(chNumber) & SRP_SRVAL_MASK) == SRP_FULLREADOUT){ applyZS = false; }
+      // preserve data pointer
+      const uint64_t* const prev_data = data_;
+      const unsigned int prev_dwToEnd = dwToEnd_;
+      
+      // skip corrupted/problematic data block
+      if (chNumber >= next_tower_id) {
+        data_ = next_data;
+        dwToEnd_ = next_dwToEnd;
+        next_tower_id = 1000;
+      }
+      
+      
+      // Unpack Tower (Xtal Block)
+      if (feUnpacking_ && chNumber <= 68) {
+        
+        //  in case of SR (data are 0 suppressed)
+        if (sr_) {
+          const bool applyZS =
+            (fov_ == 0) ||      // backward compatibility with FOV = 0;
+            ignoreSR ||
+            (chStatus == CH_FORCEDZS1) ||
+            ((srpBlock_->srFlag(chNumber) & SRP_SRVAL_MASK) != SRP_FULLREADOUT);
           
-                 STATUS = towerBlock_->unpack(&data_,&dwToEnd_,applyZS,chNumber);
-                
+          STATUS = towerBlock_->unpack(&data_, &dwToEnd_, applyZS, chNumber);
+          
               // If there is an action to suppress SR channel the associated channel status should be updated 
               // so we can remove this piece of code
               // if ( ( srpBlock_->srFlag(chNumber) & SRP_SRVAL_MASK) != SRP_NREAD ){
               //
               //  STATUS = towerBlock_->unpack(&data_,&dwToEnd_,applyZS,chNumber);
               //}
-            
-          }
-          else{
-
-             // introduced to keep backward compatibility with FOV = 0; 
-             STATUS = towerBlock_->unpack(&data_,&dwToEnd_,true,chNumber);
-
-          }
-          
         }
-      
-      
-      // Unpack Tower (Xtal Block) for no SR (possibly 0 suppression flags)
-      else if (feUnpacking_ && chNumber<=68)
-        {
+        // no SR (possibly 0 suppression flags)
+        else {
           // if tzs_ data are not really suppressed, even though zs flags are calculated
           if(tzs_){ zs_ = false;}
           STATUS = towerBlock_->unpack(&data_,&dwToEnd_,zs_,chNumber);
         }
+      }
       
       
       // Unpack Mem blocks
-      if(memUnpacking_        && chNumber>68 )
-        {
+      if (memUnpacking_ && chNumber > 68) {
           STATUS = memBlock_->unpack(&data_,&dwToEnd_,chNumber);
-        }
+      }
+      
+      
+      // corruption recovery
+      if (STATUS == SKIP_BLOCK_UNPACKING) {
+        data_ = prev_data;
+        dwToEnd_ = prev_dwToEnd;
+        
+        next_tower_id = next_tower_search(chNumber);
+        
+        next_data = data_;
+        next_dwToEnd = dwToEnd_;
+        
+        data_ = prev_data;
+        dwToEnd_ = prev_dwToEnd;
+      }
       
     }
     // closing loop over FE/TTblock channels

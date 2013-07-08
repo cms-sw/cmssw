@@ -39,7 +39,6 @@ for every event.
 #include "boost/utility/enable_if.hpp"
 
 #include <string>
-#include <typeinfo>
 
 namespace edm {
   //------------------------------------------------------------------
@@ -77,10 +76,6 @@ namespace edm {
       return (pn_=="*") || (p.processName() == pn_);
     }
 
-    virtual bool doMatchSelectorType(std::type_info const& type) const {
-      return (pn_!="*") && (typeid(ProcessNameSelector) == type);
-    }
-
     virtual ProcessNameSelector* clone() const {
       return new ProcessNameSelector(*this);
     }
@@ -110,10 +105,6 @@ namespace edm {
       return p.productInstanceName() == pin_;
     }
 
-    virtual bool doMatchSelectorType(std::type_info const& type) const {
-      return typeid(ProductInstanceNameSelector) == type;
-    }
-
     virtual ProductInstanceNameSelector* clone() const {
       return new ProductInstanceNameSelector(*this);
     }
@@ -136,10 +127,6 @@ namespace edm {
     
     virtual bool doMatch(ConstBranchDescription const& p) const {
       return p.moduleLabel() == label_;
-    }
-
-    virtual bool doMatchSelectorType(std::type_info const& type) const {
-      return typeid(ModuleLabelSelector) == type;
     }
 
     virtual ModuleLabelSelector* clone() const {
@@ -165,10 +152,6 @@ namespace edm {
       return true;
     }
 
-    virtual bool doMatchSelectorType(std::type_info const&) const {
-      return false;
-    }
-
     virtual MatchAllSelector* clone() const {
       return new MatchAllSelector;
     }
@@ -186,7 +169,6 @@ namespace edm {
   public:
     AndHelper(A const& a, B const& b) : a_(a), b_(b) { }
     bool match(ConstBranchDescription const& p) const { return a_.match(p) && b_.match(p); }  
-    bool matchSelectorType(std::type_info const& type) const { return a_.matchSelectorType(type) || b_.matchSelectorType(type); }  
   private:
     A a_;
     B b_;
@@ -216,7 +198,6 @@ namespace edm {
   public:
     OrHelper(A const& a, B const& b) : a_(a), b_(b) { }
     bool match(ConstBranchDescription const& p) const { return a_.match(p) || b_.match(p); }  
-    bool matchSelectorType(std::type_info const& type) const { return a_.matchSelectorType(type) && b_.matchSelectorType(type); }  
   private:
     A a_;
     B b_;
@@ -277,7 +258,6 @@ namespace edm {
     explicit ComposedSelectorWrapper(T const& t) : expression_(t) { }
     ~ComposedSelectorWrapper() {};
     virtual bool doMatch(ConstBranchDescription const& p) const { return expression_.match(p); }
-    virtual bool doMatchSelectorType(std::type_info const& type) const { return expression_.matchSelectorType(type); }
     ComposedSelectorWrapper<T>* clone() const { return new ComposedSelectorWrapper<T>(*this); }
   private:
     wrapped_type expression_;
@@ -297,7 +277,6 @@ namespace edm {
     virtual Selector* clone() const;
 
     virtual bool doMatch(ConstBranchDescription const& p) const;
-    virtual bool doMatchSelectorType(std::type_info const& type) const;
     
   private:
     value_ptr<SelectorBase> sel_;

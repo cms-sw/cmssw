@@ -41,6 +41,7 @@
 
 #include "DPGAnalysis/SiStripTools/interface/Multiplicities.h"
 
+
 //
 // class declaration
 //
@@ -61,6 +62,7 @@ class ByMultiplicityEventFilter : public edm::EDFilter {
 
   T m_multiplicities;
   StringCutObjectSelector<T> m_selector;
+  bool m_taggedMode, m_forcedValue;
 
 };
 
@@ -78,11 +80,14 @@ class ByMultiplicityEventFilter : public edm::EDFilter {
 template <class T>
 ByMultiplicityEventFilter<T>::ByMultiplicityEventFilter(const edm::ParameterSet& iConfig):
   m_multiplicities(iConfig.getParameter<edm::ParameterSet>("multiplicityConfig")),
-  m_selector(iConfig.getParameter<std::string>("cut"))
+  m_selector(iConfig.getParameter<std::string>("cut")),
+  m_taggedMode(iConfig.getUntrackedParameter<bool>("taggedMode", false)),
+  m_forcedValue(iConfig.getUntrackedParameter<bool>("forcedValue", true))
+
 
 {
    //now do what ever initialization is needed
-
+  produces<bool>();
 
 }
 
@@ -109,7 +114,11 @@ ByMultiplicityEventFilter<T>::filter(edm::Event& iEvent, const edm::EventSetup& 
 
    m_multiplicities.getEvent(iEvent,iSetup);
 
-   return(m_selector(m_multiplicities));
+   bool value = m_selector(m_multiplicities);
+   iEvent.put( std::auto_ptr<bool>(new bool(value)) );
+
+   if(m_taggedMode) return m_forcedValue;
+   return value;
 
 }
 
@@ -139,8 +148,12 @@ typedef ByMultiplicityEventFilter<SingleSiStripDigiMultiplicity> BySiStripDigiMu
 typedef ByMultiplicityEventFilter<SingleSiStripClusterMultiplicity> BySiStripClusterMultiplicityEventFilter;
 typedef ByMultiplicityEventFilter<SingleSiPixelClusterMultiplicity> BySiPixelClusterMultiplicityEventFilter;
 typedef ByMultiplicityEventFilter<SiPixelClusterSiStripClusterMultiplicityPair> BySiPixelClusterVsSiStripClusterMultiplicityEventFilter;
+typedef ByMultiplicityEventFilter<ClusterSummarySingleMultiplicity> ByClusterSummarySingleMultiplicityEventFilter;
+typedef ByMultiplicityEventFilter<ClusterSummaryMultiplicityPair> ByClusterSummaryMultiplicityPairEventFilter;
 
 DEFINE_FWK_MODULE(BySiStripDigiMultiplicityEventFilter);
 DEFINE_FWK_MODULE(BySiStripClusterMultiplicityEventFilter);
 DEFINE_FWK_MODULE(BySiPixelClusterMultiplicityEventFilter);
 DEFINE_FWK_MODULE(BySiPixelClusterVsSiStripClusterMultiplicityEventFilter);
+DEFINE_FWK_MODULE(ByClusterSummarySingleMultiplicityEventFilter);
+DEFINE_FWK_MODULE(ByClusterSummaryMultiplicityPairEventFilter);

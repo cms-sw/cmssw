@@ -30,7 +30,7 @@ int DCCSCBlock::unpackXtalData(unsigned int expStripID, unsigned int expXtalID){
   
   bool errorOnXtal(false);
  
-  uint16_t * xData_= reinterpret_cast<uint16_t *>(data_);
+  const uint16_t * xData_= reinterpret_cast<const uint16_t *>(data_);
 
  
   // Get xtal data ids

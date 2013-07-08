@@ -49,7 +49,7 @@ namespace cond {
   struct ClassID : public  ClassInfo {
     ClassID() : ClassInfo(typeid(T)) {}
     ClassID(char const * res ) : ClassInfo(typeid(T)), m_res(res) {}
-    ClassID(int i) : ClassInfo(typeid(T),i) {}
+//    ClassID(int i) : ClassInfo(typeid(T),i) {}
     virtual std::string resource() const { return m_res;}
   private:
     std::string m_res;

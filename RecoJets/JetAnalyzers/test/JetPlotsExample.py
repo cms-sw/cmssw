@@ -14,8 +14,8 @@ import FWCore.ParameterSet.Config as cms
 ## | |_| | (_| | || (_| | | (_) | |    | |  | | |___ 
 ## |____/ \__,_|\__\__,_|  \___/|_|    |_|  |_|\____|
             
-##isMC = False
 isMC = True
+
 
 ##   ____             __ _                       _     _           
 ##  / ___|___  _ __  / _(_) __ _ _   _ _ __ __ _| |__ | | ___  ___ 
@@ -25,33 +25,10 @@ isMC = True
 ##                         |___/                                   
 
 NJetsToKeep = 2
-CaloJetCollection = 'ak5CaloJets'
-#PFJetCollection   = 'ak5PFJets'
-JPTJetCollection  = 'JetPlusTrackZSPCorJetAntiKt5'
-#GenJetCollection  = 'ak5GenJets'
-PFJetCollection   = "goodPatJetsPFlow"
-CAJetCollection   = "goodPatJetsCA8PF"
-CAPrunedJetCollection   = "goodPatJetsCA8PrunedPF"
-GenJetCollection  = "ak5GenJetsNoNu"
 
-
-PlotSuffix = "_Data"
+inputFile = 'file:/uscms_data/d2/kalanand/dijet-Run2010A-JetMET-Nov4ReReco-9667events.root'
 if isMC:
-  PlotSuffix = "_MC"
-
-## inputFile = 'file:/uscms_data/d2/kalanand/dijet-Run2010A-JetMET-Nov4ReReco-9667events.root'
-## if isMC:
-##   inputFile ='/store/mc/Fall10/QCD_Pt_80to120_TuneZ2_7TeV_pythia6/GEN-SIM-RECO/START38_V12-v1/0000/FEF4D100-4CCB-DF11-94CB-00E08178C12F.root'
-
-
-#inputFile = '/store/data/Run2011A/SingleMu/AOD/PromptReco-v6/000/173/692/EE90CCE0-E9CF-E011-B4C7-BCAEC54DB5D6.root'
-#inputFile = '/store/user/lpctlbsm/srappocc/Jet/ttbsm_v8_Run2011-May10ReReco/0d3d9a54f3a29af186ad87df2a0c3ce1/ttbsm_42x_data_9_1_BzR.root'
-
-inputFile = '/store/user/lpctlbsm/vasquez/Jet/ttbsm_v9_Run2011A-May10ReReco/f8e845a0332c56398831da6c30999af1/ttbsm_42x_data_60_1_EbE.root'
-
-if isMC:
-  #inputFile ='/store/mc/Spring11/QCD_Pt-15_TuneZ2_7TeV-pythia6/AODSIM/PU_S2_START311_V2-v1/0007/0AD300BD-5659-E011-B47A-002618943836.root'
-  inputFile ='/store/user/lpctlbsm/srappocc/QCD_Pt-15to3000_TuneZ2_Flat_7TeV_pythia6/ttbsm_v8_Summer11-PU_S3_-START42_V11-v2/d870fa9b0dd695e8eb649b7e725d070f/ttbsm_42x_mc_86_2_fG3.root'
+  inputFile ='/store/mc/Fall10/QCD_Pt_80to120_TuneZ2_7TeV_pythia6/GEN-SIM-RECO/START38_V12-v1/0000/FEF4D100-4CCB-DF11-94CB-00E08178C12F.root'
   
 
 ##   _            _           _           
@@ -76,7 +53,7 @@ process.MessageLogger.cerr.FwkReport.reportEvery = 10
 
 #############   Set the number of events #############
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(1000)
+    input = cms.untracked.int32(100)
 )
 #############   Define the source file ###############
 process.source = cms.Source("PoolSource",
@@ -93,67 +70,42 @@ process.source.inputCommands = cms.untracked.vstring("keep *","drop *_MEtoEDMCon
 
 #############   Calo Jets  ###########################
 process.calo = cms.EDAnalyzer("CaloJetPlotsExample",
-    JetAlgorithm  = cms.string(CaloJetCollection),
-    HistoFileName = cms.string('CaloJetPlotsExample'+PlotSuffix+'.root'),
+    JetAlgorithm  = cms.string('ak5CaloJets'),
+    HistoFileName = cms.string('CaloJetPlotsExample.root'),
     NJets         = cms.int32(NJetsToKeep)
 )
 #############   PF Jets    ###########################
 process.pf = cms.EDAnalyzer("PFJetPlotsExample",
-    JetAlgorithm  = cms.string(PFJetCollection),
-    HistoFileName = cms.string('PFJetPlotsExample'+PlotSuffix+'.root'),
+    JetAlgorithm  = cms.string('ak5PFJets'),
+    HistoFileName = cms.string('PFJetPlotsExample.root'),
     NJets         = cms.int32(NJetsToKeep)
 )
-
-#############   PF Jets, No Corrections    ###########
-process.pfUncorr = cms.EDAnalyzer("PFJetPlotsExample",
-    JetAlgorithm  = cms.string(PFJetCollection),
-    HistoFileName = cms.string('PFJetUncorrPlotsExample'+PlotSuffix+'.root'),
-    NJets         = cms.int32(NJetsToKeep),
-    jecLevels     = cms.string("Uncorrected")
-)
-
-
 #############   JPT Jets    ###########################
 process.jpt = cms.EDAnalyzer("JPTJetPlotsExample",
-    JetAlgorithm  = cms.string(JPTJetCollection),
-    HistoFileName = cms.string('JPTJetPlotsExample'+PlotSuffix+'.root'),
+    JetAlgorithm  = cms.string('JetPlusTrackZSPCorJetAntiKt5'),
+    HistoFileName = cms.string('JPTJetPlotsExample.root'),
     NJets         = cms.int32(NJetsToKeep)
 )
 #############   Gen Jets   ###########################
-process.gen = cms.EDAnalyzer("GenJetPlotsExample",
-     JetAlgorithm  = cms.string(GenJetCollection),
-     HistoFileName = cms.string('GenJetPlotsExample'+PlotSuffix+'.root'),
-     NJets         = cms.int32(NJetsToKeep)
-)
-
-#############   Cambridge-Aachen Jets R=0.8 ###########################
-process.ca = cms.EDAnalyzer("PFJetPlotsExample",
-    JetAlgorithm  = cms.string(CAJetCollection),
-    HistoFileName = cms.string('CAJetPlotsExample'+PlotSuffix+'.root'),
-    NJets         = cms.int32(NJetsToKeep)
-)
-
-
-#############   Cambridge-Aachen Jets R=0.8, With Pruning ############
-process.caPruned = cms.EDAnalyzer("PFJetPlotsExample",
-    JetAlgorithm  = cms.string(CAPrunedJetCollection),
-    HistoFileName = cms.string('CAPrunedJetPlotsExample'+PlotSuffix+'.root'),
-    NJets         = cms.int32(NJetsToKeep)
-)
-
+if isMC:
+    process.gen = cms.EDAnalyzer("GenJetPlotsExample",
+        JetAlgorithm  = cms.string('ak5GenJets'),
+        HistoFileName = cms.string('GenJetPlotsExample.root'),
+        NJets         = cms.int32(NJetsToKeep)
+    )
 
 #############   Path       ###########################
+
 ##  ____       _   _     
 ## |  _ \ __ _| |_| |__  
 ## | |_) / _` | __| '_ \ 
 ## |  __/ (_| | |_| | | |
 ## |_|   \__,_|\__|_| |_|
 
-##process.myseq = cms.Sequence(process.calo*process.pf*process.jpt*process.gen)
-process.myseq = cms.Sequence(process.pf * process.gen * process.pfUncorr * process.ca * process.caPruned )
-  
-if not isMC: 
-  process.myseq.remove ( process.gen )
+    
+if isMC:    
+    process.p = cms.Path(process.calo*process.pf*process.jpt*process.gen)
+else:
+    process.p = cms.Path(process.calo*process.pf*process.jpt)    
 
-process.p = cms.Path( process.myseq)
 

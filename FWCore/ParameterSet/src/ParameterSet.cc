@@ -900,27 +900,26 @@ namespace edm {
     return true;
   }
 
-  std::string ParameterSet::dump(unsigned int indent) const {
+  std::string ParameterSet::dump() const {
     std::ostringstream os;
-    // indent a bit
-    std::string indentation(indent, ' ');
     os << "{" << std::endl;
     for(table::const_iterator i = tbl_.begin(), e = tbl_.end(); i != e; ++i) {
-      os << indentation << "  " << i->first << ": " << i->second << std::endl;
+      // indent a bit
+      os << "  " << i->first << ": " << i->second << std::endl;
     }
     for(psettable::const_iterator i = psetTable_.begin(), e = psetTable_.end(); i != e; ++i) {
       // indent a bit
       std::string n = i->first;
       ParameterSetEntry const& pe = i->second;
-      os << indentation << "  " << n << ": " << pe.dump(indent + 2) <<  std::endl;
+      os << "  " << n << ": " << pe <<  std::endl;
     }
     for(vpsettable::const_iterator i = vpsetTable_.begin(), e = vpsetTable_.end(); i != e; ++i) {
       // indent a bit
       std::string n = i->first;
       VParameterSetEntry const& pe = i->second;
-      os << indentation << "  " << n << ": " << pe.dump(indent + 2) <<  std::endl;
+      os << "  " << n << ": " << pe <<  std::endl;
     }
-    os << indentation << "}";
+    os << "}";
     return os.str();
   }
 

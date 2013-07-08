@@ -26,7 +26,7 @@
 
 // This will force the symbols below to be kept, even in the case pythia6
 // is an archive library.
-extern "C" void pyexec_(void);
+//extern "C" void pyexec_(void);
 extern "C" void pyedit_(void);
 __attribute__((visibility("hidden"))) void dummy()
 {

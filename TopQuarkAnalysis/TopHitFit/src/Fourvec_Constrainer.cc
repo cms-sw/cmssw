@@ -1,5 +1,5 @@
 //
-// $Id: Fourvec_Constrainer.cc,v 1.6 2009/11/18 13:45:37 haryo Exp $
+// $Id: Fourvec_Constrainer.cc,v 1.1 2011/05/26 09:47:00 mseidel Exp $
 //
 // File: src/Fourvec_Constrainer.cc
 // Purpose: Do a kinematic fit for a set of 4-vectors, given a set
@@ -612,7 +612,7 @@ void unpack_event (Fourvec_Event& ev,
 //
 {
   // Do all the objects.
-  Fourvec sum = 0;
+  Fourvec sum = Fourvec(0);
   for (int j=0; j<ev.nobjs(); j++) {
     const FE_Obj& obj = ev.obj (j);
     ev.set_obj_p (j, get_p_eta_phi_vec (x, obj_index (j), obj, use_e_flag));
@@ -1278,7 +1278,7 @@ void calculate_kt_constraints (const Fourvec_Event& ev,
 //   Bx -          The well-measured variable gradients, updated.
 //
 {
-  Fourvec tmp = 0;
+  Fourvec tmp = Fourvec(0);
   int base = F.num_col() - 2;
   int nobjs = ev.nobjs();
   for (int j=0; j<nobjs; j++) {

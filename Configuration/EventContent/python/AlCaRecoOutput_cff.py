@@ -1,5 +1,5 @@
 import FWCore.ParameterSet.Config as cms
-# last update: $Date: 2012/02/11 15:19:29 $ by $Author: demattia $
+# last update: $Date: 2012/03/30 17:07:33 $ by $Author: cerminar $
 ###############################################################
 # Tracker Alignment
 ###############################################################
@@ -15,6 +15,8 @@ from Alignment.CommonAlignmentProducer.ALCARECOTkAlCosmics0THLT_Output_cff impor
 from Alignment.CommonAlignmentProducer.ALCARECOTkAlLAS_Output_cff import *
 # AlCaReco for track based alignment using isoMu events
 from Alignment.CommonAlignmentProducer.ALCARECOTkAlMuonIsolated_Output_cff import *
+# AlCaReco for track based alignment using isoMu events for PA data-taking
+from Alignment.CommonAlignmentProducer.ALCARECOTkAlMuonIsolatedPA_Output_cff import *
 # AlCaReco for track based alignment using J/Psi events
 from Alignment.CommonAlignmentProducer.ALCARECOTkAlJpsiMuMu_Output_cff import *
 # AlCaReco for track based alignment using Upsilon events

@@ -129,6 +129,18 @@ class _Module(_ConfigureComponent,_TypedParameterizable,_Labelable,_SequenceLeaf
          # return something like "EDAnalyzer("foo", ...)"
         typename = format_typename(self)
         return "%s('%s', ...)" %(typename, self.type_())
+    
+    def setPrerequisites(self, *libs):
+        self.__dict__["libraries_"] = libs
+
+    def insertInto(self, parameterSet, myname):
+        if "libraries_" in self.__dict__:
+            from ctypes import LibraryLoader, CDLL
+            import platform
+            loader = LibraryLoader(CDLL)
+            ext = platform.uname()[0] == "Darwin" and "dylib" or "so"
+            [loader.LoadLibrary("lib%s.%s" % (l, ext)) for l in self.libraries_]
+        super(_Module,self).insertInto(parameterSet,myname)
 
 class EDProducer(_Module):
     def __init__(self,type_,*arg,**kargs):

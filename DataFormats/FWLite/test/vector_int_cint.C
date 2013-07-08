@@ -2,6 +2,7 @@
 #include <typeinfo>
 #include <TFile.h>
 #include <TClass.h>
+#include <TROOT.h>
 
 using namespace std;
 
@@ -33,6 +34,7 @@ namespace edm {
 
 void vector_int_cint()
 {
+  gROOT->ProcessLine(".autodict"); // disable auto building of dictionaries.
   const std::type_info& t = edm::Wrapper<vector<int> >::typeInfo();
   TClass* tc = TClass::GetClass(t);
   std::cout << tc->GetName() << std::endl;

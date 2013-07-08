@@ -46,11 +46,9 @@ public:
   // fill entry
   // For single variables and arrays (for arrays only a single index can be filled)
   void fill ( const int & flavour,  const T & variableX, const G & variableY) const;
-  void fill ( const int & flavour,  const T & variableX, const G & variableY, const float & w) const;
 
   // For single variables and arrays
   void fill ( const int & flavour,  const T * variableX, const G * variableY) const;
-  void fill ( const int & flavour,  const T * variableX, const G * variableY, const float & w) const;
 
 
   void settitle(const char* titleX, const char* titleY) ;
@@ -105,7 +103,7 @@ public:
 
 protected:
 
-  void fillVariable ( const int & flavour , const T & varX , const G & varY , const float & w) const;
+  void fillVariable ( const int & flavour , const T & varX , const G & varY ) const;
   
   //
   // the data members
@@ -323,24 +321,18 @@ FlavourHistograms2D<T, G>::~FlavourHistograms2D () {}
   
 // fill entry
 template <class T, class G> void
-  FlavourHistograms2D<T, G>::fill ( const int & flavour,  const T & variableX, const G & variableY, const float & w) const 
-{
-  // For single variables and arrays (for arrays only a single index can be filled)
-  fillVariable ( flavour , variableX , variableY , w ) ;
-}
-
-template <class T, class G> void
 FlavourHistograms2D<T, G>::fill ( const int & flavour,  const T & variableX, const G & variableY) const 
 {
-  fill ( flavour , variableX , variableY , 1. ) ;
+  // For single variables and arrays (for arrays only a single index can be filled)
+  fillVariable ( flavour , variableX , variableY ) ;
 }
 
 template <class T, class G> void
-  FlavourHistograms2D<T, G>::fill ( const int & flavour,  const T * variableX, const G * variableY, const float & w) const
+FlavourHistograms2D<T, G>::fill ( const int & flavour,  const T * variableX, const G * variableY) const
 {
   if ( theArrayDimension == 0 ) {       
     // single variable
-    fillVariable ( flavour , *variableX, *variableY , w) ;
+    fillVariable ( flavour , *variableX, *variableY ) ;
   } else {
     // array      
     int iMax = *theArrayDimension ;
@@ -349,7 +341,7 @@ template <class T, class G> void
     for ( int i = 0 ; i != iMax ; ++i ) {
       // check if only one index to be plotted (<0: switched off -> plot all)
       if ( ( theIndexToPlot < 0 ) || ( i == theIndexToPlot ) ) { 
-	fillVariable ( flavour , *(variableX+i) , *(variableY+i) , w) ;
+	fillVariable ( flavour , *(variableX+i) , *(variableY+i) ) ;
       }
     }
 
@@ -358,16 +350,11 @@ template <class T, class G> void
       // cout << "==>> The index to be filled is too big -> fill 0.0 : " << theBaseNameTitle << " : " << theIndexToPlot << " >= " << iMax << endl ;
       const T& theZeroT = static_cast<T> ( 0.0) ;
       const G& theZeroG = static_cast<T> ( 0.0 );
-      fillVariable ( flavour , theZeroT , theZeroG , w ) ;
+      fillVariable ( flavour , theZeroT , theZeroG ) ;
     }
   }
 } 
 
-template <class T, class G> void
-  FlavourHistograms2D<T, G>::fill ( const int & flavour,  const T * variableX, const G * variableY) const
-{
-  fill ( flavour,  variableX , variableY , 1. );
-}
 
 template <class T, class G>
 void FlavourHistograms2D<T, G>::settitle(const char* titleX, const char* titleY) {
@@ -447,80 +434,63 @@ void FlavourHistograms2D<T, G>::divide ( const FlavourHistograms2D<T, G> & bHD )
   
 
 template <class T, class G>
-  void FlavourHistograms2D<T, G>::fillVariable ( const int & flavour , const T & varX , const G & varY , const float & w) const {
+void FlavourHistograms2D<T, G>::fillVariable ( const int & flavour , const T & varX , const G & varY ) const {
   // all
-  theHisto_all                ->Fill ( varX, varY,w ) ;
+  theHisto_all                ->Fill ( varX, varY ) ;
   if(createProfile_)
-    //theProfile_all->Fill( varX, varY, w );
-    theProfile_all->Fill( varX, varY);
-
-  //exit(-1);
+    theProfile_all->Fill( varX, varY );
   // flavour specific
   if (!mcPlots_) return;
 
   switch( flavour ) {
     case 1:
-      theHisto_d->Fill( varX, varY,w );
-      theHisto_dus->Fill( varX, varY,w );
-      theHisto_dusg->Fill( varX, varY,w );
+      theHisto_d->Fill( varX, varY );
+      theHisto_dus->Fill( varX, varY );
+      theHisto_dusg->Fill( varX, varY );
       if(createProfile_) {
-        //theProfile_d->Fill(varX, varY,w);
-        //theProfile_dus->Fill(varX, varY,w);
-        //theProfile_dusg->Fill(varX, varY,w);
-	theProfile_d->Fill(varX, varY);
+        theProfile_d->Fill(varX, varY);
         theProfile_dus->Fill(varX, varY);
         theProfile_dusg->Fill(varX, varY);
       }
       return;
     case 2:
-      theHisto_u->Fill( varX, varY,w );
-      theHisto_dus->Fill( varX, varY,w );
-      theHisto_dusg->Fill( varX, varY,w );
+      theHisto_u->Fill( varX, varY );
+      theHisto_dus->Fill( varX, varY );
+      theHisto_dusg->Fill( varX, varY );
       if(createProfile_) {
-        //theProfile_u->Fill(varX, varY,w);
-        //theProfile_dus->Fill(varX, varY,w);
-        //theProfile_dusg->Fill(varX, varY,w);
-	theProfile_u->Fill(varX, varY);
+        theProfile_u->Fill(varX, varY);
         theProfile_dus->Fill(varX, varY);
         theProfile_dusg->Fill(varX, varY);
       }
       return;
     case 3:
-      theHisto_s->Fill( varX, varY,w );
-      theHisto_dus->Fill( varX, varY,w );
-      theHisto_dusg->Fill( varX, varY,w );
+      theHisto_s->Fill( varX, varY );
+      theHisto_dus->Fill( varX, varY );
+      theHisto_dusg->Fill( varX, varY );
       if(createProfile_) {
-        //theProfile_s->Fill(varX, varY,w);
-        //theProfile_dus->Fill(varX, varY,w);
-        //theProfile_dusg->Fill(varX, varY,w);	
-	theProfile_s->Fill(varX, varY);
+        theProfile_s->Fill(varX, varY);
         theProfile_dus->Fill(varX, varY);
         theProfile_dusg->Fill(varX, varY);
       }
       return;
     case 4:
-      theHisto_c->Fill( varX, varY,w );
-      //if(createProfile_) theProfile_c->Fill(varX, varY,w);
+      theHisto_c->Fill( varX, varY );
       if(createProfile_) theProfile_c->Fill(varX, varY);
       return;
     case 5:
-      theHisto_b->Fill( varX, varY,w );
-      //if(createProfile_) theProfile_b->Fill(varX, varY,w);
+      theHisto_b->Fill( varX, varY );
       if(createProfile_) theProfile_b->Fill(varX, varY);
       return;
     case 21:
-      theHisto_g->Fill( varX, varY,w );
-      theHisto_dusg->Fill( varX, varY,w );
+      theHisto_g->Fill( varX, varY );
+      theHisto_dusg->Fill( varX, varY );
       if(createProfile_) {
-        //theProfile_g->Fill(varX, varY,w);
-        //theProfile_dusg->Fill(varX, varY,w);
-	theProfile_g->Fill(varX, varY);
+        theProfile_g->Fill(varX, varY);
         theProfile_dusg->Fill(varX, varY);
       }
       return;
     default:
-      theHisto_ni->Fill( varX, varY,w );
-      //if(createProfile_) theProfile_ni->Fill(varX, varY,w);
+      theHisto_ni->Fill( varX, varY );
       if(createProfile_) theProfile_ni->Fill(varX, varY);
       return;
   }

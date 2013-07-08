@@ -13,7 +13,7 @@
 //
 // Original Author:  Michael Segala
 //         Created:  Wed Feb 23 17:36:23 CST 2011
-// $Id: ClusterAnalyzer.cc,v 1.2 2012/02/02 18:17:38 msegala Exp $
+// $Id: ClusterAnalyzer.cc,v 1.3 2012/04/24 15:44:32 msegala Exp $
 //
 //
 
@@ -216,7 +216,7 @@ ClusterAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
        mod_tmp /= 10;
      }
      
-     if ( mod_tmp < 6 ){
+     if ( mod_tmp < 5 ){
 
        histos1D_[ (tmpstr + "nclusters").c_str() ] -> Fill( class_ -> GetGenericVariable("cHits", *mod) );
        histos1D_[ (tmpstr + "avgSize").c_str()   ] -> Fill( class_ -> GetGenericVariable("cSize", *mod)  /class_ -> GetGenericVariable("cHits", *mod) );
@@ -242,7 +242,7 @@ ClusterAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
 
    }
    
-   cout << "----------------------------------------------------" << endl;
+   cout << "-------------------------------------------------------" << endl;
    
 
 }

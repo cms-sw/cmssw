@@ -44,6 +44,7 @@ class ConfigDataAccessor(BasicDataAccessor, RelativeDataAccessor):
     
     def _initLists(self):
         self._allObjects = []
+        self._scheduledObjects = []
         self._connections = {}
         self._topLevelObjects = []
         self._inputTagsDict = {}
@@ -203,6 +204,17 @@ class ConfigDataAccessor(BasicDataAccessor, RelativeDataAccessor):
                         self._readRecursive(None, o)
         return True
 
+    def _scheduleRecursive(self,object):
+        if object in self._scheduledObjects:
+	    return
+        if self.isContainer(object):
+	    for obj in reversed(self.children(object)):
+	        self._scheduleRecursive(obj)
+        else:
+            self._scheduledObjects+=[object]
+	    for used in self.motherRelations(object):
+	        self._scheduleRecursive(used)
+
     def setProcess(self,process):
         self._file.process=process
         self._initLists()
@@ -219,17 +231,35 @@ class ConfigDataAccessor(BasicDataAccessor, RelativeDataAccessor):
         else:
             folder_list += [("paths", self.process().paths.itervalues())]
         folder_list += [("endpaths", self.process().endpaths.itervalues())]
+	if hasattr(self.process(),"options") and hasattr(self.process().options,"allowUnscheduled") and self.process().options.allowUnscheduled:
+	    print "Running in Unscheduled mode"
+            folder_list += [("modules", self._sort_list(self.process().producers.values()+self.process().filters.values()+self.process().analyzers.values()))]
         folder_list += [("services", self._sort_list(self.process().services.values()))]
         folder_list += [("psets", self._sort_list(self.process().psets.values()))]
         folder_list += [("vpsets", self._sort_list(self.process().vpsets.values()))]
         folder_list += [("essources", self._sort_list(self.process().es_sources.values()))]
         folder_list += [("esproducers", self._sort_list(self.process().es_producers.values()))]
         folder_list += [("esprefers", self._sort_list(self.process().es_prefers.values()))]
-        for foldername, entry in folder_list:
+        folders={}
+	for foldername, entry in folder_list:
             folder = ConfigFolder(foldername, process_folder)
             self._allObjects += [folder]
+	    folders[foldername]=folder
             for path in entry:
                 self._readRecursive(folder, path)
+	if hasattr(self.process(),"options") and hasattr(self.process().options,"allowUnscheduled") and self.process().options.allowUnscheduled:
+	    print "Creating schedule...",
+            self.readConnections(self.allChildren(folders["modules"]))
+	    self._scheduleRecursive(folders["paths"])
+	    self._scheduledObjects.reverse()
+            scheduled_folder = ConfigFolder("scheduled", folders["paths"])
+            self._allObjects += [scheduled_folder]
+            folders["paths"]._configChildren.remove(scheduled_folder)
+            folders["paths"]._configChildren.insert(0,scheduled_folder)
+	    scheduled_folder._configChildren=self._scheduledObjects
+	    print "done"
+        else:
+	    self._scheduledObjects=self._allObjects
 
     def process(self):
         if hasattr(self._file, "process"):
@@ -282,6 +312,9 @@ class ConfigDataAccessor(BasicDataAccessor, RelativeDataAccessor):
         if hasattr(object, "label_") and (not hasattr(object,"hasLabel_") or object.hasLabel_()):
             text = str(object.label_())
         if text == "":
+            if hasattr(object, "_name"):
+                text = str(object._name)
+        if text == "":
             if hasattr(object, "type_"):
                 text = str(object.type_())
         if text == "":
@@ -296,7 +329,7 @@ class ConfigDataAccessor(BasicDataAccessor, RelativeDataAccessor):
             return ()
         
     def isContainer(self, object):
-        return isinstance(object, (ConfigFolder, list, cms.Path, cms.EndPath, cms.Sequence, cms.SequencePlaceholder))
+        return isinstance(object, (ConfigFolder, list, cms.Path, cms.EndPath, cms.Sequence)) # cms.SequencePlaceholder assumed to be a module
 
     def nonSequenceChildren(self, object):
         objects=[]
@@ -605,9 +638,9 @@ class ConfigDataAccessor(BasicDataAccessor, RelativeDataAccessor):
 
     def inputEventContent(self):
         content = []
-        allLabels = [self.label(object) for object in self._allObjects]
+        allLabels = [self.label(object) for object in self._scheduledObjects]
         content_objects = {}
-        for object in self._allObjects:
+        for object in self._scheduledObjects:
             for key, value in self.inputTags(object):
                 elements=str(value).split(":")
                 module = elements[0]

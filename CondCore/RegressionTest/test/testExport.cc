@@ -29,29 +29,42 @@ cond_regression::ExportIOVTest::~ExportIOVTest(){
 int cond_regression::ExportIOVTest::execute(){
   // TestFunct returns false in case of success!
   if( hasOptionValue("initDatabase") ){
-    if(!hasOptionValue("seed")){
-      throw std::runtime_error("seed parameter has not been provided.");
-    }
     m_tf.s = openDbSession("sourceConnect");
     std::string tag = getOptionValue<std::string>("initDatabase");
-    int seed = getOptionValue<int>("seed");
+    int seed = -1;
+    if(hasOptionValue("seed")){
+      seed = getOptionValue<int>("seed");
+    } else {
+      long now = ::time(NULL);
+      int low = now%100;
+      ::srand( low );
+      seed = ::rand()%100;
+    }
     cond::Time_t since = 1;
     if( hasOptionValue("beginTime") ){
       since = getOptionValue<cond::Time_t>("beginTime");
     }
     if(!m_tf.DropTables( m_tf.s.connectionString() )){
-      bool withTestMetadata = false;
-      if( hasOptionValue("metadata") ) {
-	m_tf.CreateMetaTable();
-	withTestMetadata = true;
-      }
-      return m_tf.WriteWithIOV(tag, seed, since, withTestMetadata );
+      return 1;
     }
-    return 1;
+    bool withTestMetadata = false;
+    if( hasOptionValue("metadata") ) {
+      withTestMetadata = true;
+      if(!m_tf.CreateMetaTable()){
+	return 1;
+      }
+    }
+    if(!m_tf.WriteWithIOV(tag, seed, since, withTestMetadata)){
+      return 1;
+    }
+    return 0;
   }
   if( hasOptionValue("cleanUp") ){
     m_tf.s = openDbSession("sourceConnect");
-    return m_tf.DropTables( m_tf.s.connectionString() );
+    if(!m_tf.DropTables( m_tf.s.connectionString() )){
+      return 1;
+    }
+    return 0;
   }
   if( hasOptionValue("read") ){
     std::string tag = getOptionValue<std::string>("read");
@@ -62,9 +75,12 @@ int cond_regression::ExportIOVTest::execute(){
     }
     bool ret = m_tf.ReadWithIOV( tag, metadata.first, metadata.second );
     if( hasDebug() ){
-      std::cout <<"## Object from tag="<<tag<<" seed="<<metadata.first<<" validity="<<metadata.second<<" from target database READ"<<(ret?" NOT ":" ")<<"OK "<<std::endl;
+      std::cout <<"## Object from tag="<<tag<<" seed="<<metadata.first<<" validity="<<metadata.second<<" from target database READ"<<(ret?" ":" NOT ")<<"OK "<<std::endl;
     }
-    return ret;
+    if(!ret){
+      return 1;
+    }
+    return 0;
   }
   if( hasOptionValue("export") ){
     return cond::ExportIOVUtilities::execute();

@@ -15,7 +15,7 @@ It also allows users to remove events in which the number of HBHE rechits exceed
 //
 // Original Author:  Jeff Temple (temple@cern.ch)
 //         Created:  Thu Nov 17 12:44:22 EST 2011
-// $Id: HcalLaserEventFilter.cc,v 1.2 2012/05/14 01:11:28 lhx Exp $
+// $Id: HcalLaserEventFilter.cc,v 1.4 2012/05/18 17:32:35 lhx Exp $
 //
 //
 
@@ -70,11 +70,11 @@ class HcalLaserEventFilter : public edm::EDFilter {
   
   // Filter option 1:  veto events by run, event number
   const bool vetoByRunEventNumber_;
-  std::vector<std::pair<uint,uint> > RunEventData_;
+  std::vector<std::pair<unsigned int,unsigned int> > RunEventData_;
   
   // Filter option 2:  veto events by HBHE occupancy
   const bool vetoByHBHEOccupancy_;
-  const uint minOccupiedHBHE_;
+  const unsigned int minOccupiedHBHE_;
 
   // Allow for debugging information to be printed
   const bool debug_;
@@ -116,7 +116,7 @@ HcalLaserEventFilter::HcalLaserEventFilter(const edm::ParameterSet& iConfig)
   // Get values from python cfg file
   : vetoByRunEventNumber_ (iConfig.getUntrackedParameter<bool>("vetoByRunEventNumber",true))
   , vetoByHBHEOccupancy_  (iConfig.getUntrackedParameter<bool>("vetoByHBHEOccupancy",false))
-  , minOccupiedHBHE_            (iConfig.getUntrackedParameter<uint>("minOccupiedHBHE",5000))
+  , minOccupiedHBHE_            (iConfig.getUntrackedParameter<unsigned int>("minOccupiedHBHE",5000))
   , debug_                      (iConfig.getUntrackedParameter<bool>("debug",false))
   , reverseFilter_              (iConfig.getUntrackedParameter<bool>("reverseFilter",false)) 
   , hbheInputLabel_             (iConfig.getUntrackedParameter<edm::InputTag>("hbheInputLabel",edm::InputTag("hbhereco")))
@@ -128,17 +128,17 @@ HcalLaserEventFilter::HcalLaserEventFilter(const edm::ParameterSet& iConfig)
   , forceUseHcalNoiseSummary_   (iConfig.getUntrackedParameter<bool>("forceUseHcalNoiseSummary",false))
 
 {
-  std::vector<uint> dummy; // dummy empty vector
+  std::vector<unsigned int> dummy; // dummy empty vector
   dummy.clear();
 
-  std::vector<uint> temprunevt   = iConfig.getUntrackedParameter<std::vector<uint> >("BadRunEventNumbers",dummy);
+  std::vector<unsigned int> temprunevt   = iConfig.getUntrackedParameter<std::vector<unsigned int> >("BadRunEventNumbers",dummy);
 
   // Make (run,evt) pairs for storing bad events
   // Make this a map for better search performance?
-  for (uint i=0;i+1<temprunevt.size();i+=2)
+  for (unsigned int i=0;i+1<temprunevt.size();i+=2)
     {
-      uint run=temprunevt[i];
-      uint evt=temprunevt[i+1];
+      unsigned int run=temprunevt[i];
+      unsigned int evt=temprunevt[i+1];
       RunEventData_.push_back(std::make_pair(run,evt));
     }
   errorcount=0;
@@ -172,7 +172,7 @@ HcalLaserEventFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    // Veto events by run/event numbers
    if (vetoByRunEventNumber_)
      {
-       for (uint i=0;i<RunEventData_.size();++i)
+       for (unsigned int i=0;i<RunEventData_.size();++i)
 	 {
 	   if (iEvent.id().run()==RunEventData_[i].first &&
 	       iEvent.id().event()==RunEventData_[i].second)

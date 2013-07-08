@@ -380,8 +380,8 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
     utils::setAllConstant(*nuisances, true);
   }
 
-  bool validModel = utils::checkModel(*mc, validateModel_);
-  if (verbose) std::cout << "Sanity checks on the model: " << (validModel ? "OK" : "FAIL") << std::endl;
+  bool validModel = validateModel_ ? utils::checkModel(*mc, false) : true;
+  if (validateModel_ && verbose) std::cout << "Sanity checks on the model: " << (validModel ? "OK" : "FAIL") << std::endl;
 
   // make sure these things are set consistently with what we expect
   if (mc->GetNuisanceParameters() && withSystematics) utils::setAllConstant(*mc->GetNuisanceParameters(), false);

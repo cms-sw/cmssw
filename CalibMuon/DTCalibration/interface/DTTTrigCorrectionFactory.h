@@ -5,8 +5,8 @@
  *  Factory of seal plugins for TTrig DB corrections.
  *  The plugins are concrete implementations of DTTTrigBaseCorrection case class.
  *
- *  $Date: 2008/12/11 16:34:34 $
- *  $Revision: 1.1 $
+ *  $Date: 2007/04/17 22:46:21 $
+ *  $Revision: 1.2 $
  *  \author A. Vilela Pereira
  */
 #include "FWCore/PluginManager/interface/PluginFactory.h"
@@ -14,9 +14,8 @@
 namespace edm {
   class ParameterSet;
 }
-namespace dtCalibration {
-  class DTTTrigBaseCorrection;
-}
+class DTTTrigBaseCorrection;
 
-typedef edmplugin::PluginFactory<dtCalibration::DTTTrigBaseCorrection *(const edm::ParameterSet &)> DTTTrigCorrectionFactory;
+typedef edmplugin::PluginFactory<DTTTrigBaseCorrection *(const edm::ParameterSet &)> DTTTrigCorrectionFactory;
 #endif
+

@@ -28,7 +28,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 L1GtPatternWriter::L1GtPatternWriter(std::ostream& destination, const std::string& header,
-		    const std::string& footer, const std::vector<std::string> columns,
+		    const std::string& footer, const std::vector<std::string>& columns,
 		    const std::vector<uint32_t>& lengths, const std::vector<uint32_t>& defaults, 
                     const std::vector<int>& bx, bool debug) :
     m_dest(destination),

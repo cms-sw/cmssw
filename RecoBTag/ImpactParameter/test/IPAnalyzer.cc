@@ -13,11 +13,16 @@
 //
 // Original Author:  Andrea Rizzi
 //         Created:  Wed Apr 12 11:12:49 CEST 2006
-// $Id: IPAnalyzer.cc,v 1.10 2010/02/20 21:00:42 wmtan Exp $
+// $Id: IPAnalyzer.cc,v 1.9 2009/03/23 09:21:41 saout Exp $
 //
 //
 
 
+// system include files
+#include <memory>
+#include <string>
+#include <iostream>
+using namespace std;
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -40,12 +45,6 @@
 #include "Math/GenVector/VectorUtil.h"
 #include "Math/GenVector/PxPyPzE4D.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
-
-// system include files
-#include <string>
-#include <iostream>
-
-using namespace std;
 using namespace reco;
 
 //

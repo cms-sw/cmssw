@@ -28,7 +28,8 @@ class FP420RecoMain
 
   /// Runs the algorithm
   void run(edm::Handle<TrackCollectionFP420> &input,
-	   std::auto_ptr<RecoCollectionFP420> &toutput
+	   std::auto_ptr<RecoCollectionFP420> &toutput,
+	   double VtxX, double VtxY, double VtxZ
 	   );
 
  private:
@@ -41,18 +42,9 @@ class FP420RecoMain
 
   double m_rpp420_f;
   double m_rpp420_b;
-  double m_zreffFP420;
-  double m_zrefbFP420;
-
-  int dn0, dh0;
-  int VtxFlagFP420, VtxFlagHPS240;
-  double VtxFP420X, VtxFP420Y, VtxFP420Z ;
-  double VtxHPS240X, VtxHPS240Y, VtxHPS240Z ;
-
-  double m_rpp240_f;
-  double m_rpp240_b;
-  double m_zreffHPS240;
-  double m_zrefbHPS240;
+  double m_zreff;
+  double m_zrefb;
+  int dn0;
 
   double zinibeg_;
 

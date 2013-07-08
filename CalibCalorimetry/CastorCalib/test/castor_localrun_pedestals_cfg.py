@@ -36,7 +36,12 @@ process.dumpRaw = cms.EDAnalyzer( "DumpFEDRawDataProduct",
 
 process.m = cms.EDAnalyzer("HcalDigiDump")
 
-process.dump = cms.EDAnalyzer("HcalTBObjectDump")
+process.dump = cms.EDAnalyzer('HcalTBObjectDump',
+                              hcalTBTriggerDataTag = cms.InputTag('tbunpack'),
+                              hcalTBRunDataTag = cms.InputTag('tbunpack'),
+                              hcalTBEventPositionTag = cms.InputTag('tbunpack'),
+                              hcalTBTimingTag = cms.InputTag('tbunpack')
+)
 
 process.dumpECA = cms.EDAnalyzer("EventContentAnalyzer")
 
@@ -104,9 +109,10 @@ process.es_pool = cms.ESSource(
 
 process.castorpedestalsanalysis = cms.EDAnalyzer("CastorPedestalsAnalysis",
     hiSaveFlag  = cms.untracked.bool( False ),
-	verboseflag = cms.untracked.bool( True ),
-        firstTS = cms.untracked.int32(0),
-         lastTS = cms.untracked.int32(9),
+    verboseflag = cms.untracked.bool( True ),
+    firstTS = cms.untracked.int32(0),
+    lastTS = cms.untracked.int32(9),
+    castorDigiCollectionTag = cms.InputTag('castorDigis')
 )
 
 

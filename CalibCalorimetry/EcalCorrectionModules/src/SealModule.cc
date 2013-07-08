@@ -1,9 +1,0 @@
-#include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/Framework/interface/SourceFactory.h"
-#include "CalibCalorimetry/EcalCorrectionModules/interface/EcalShowerContainmentCorrectionsESProducer.h"
-#include "CalibCalorimetry/EcalCorrectionModules/interface/EcalShowerContainmentCorrectionsLogE2E1ESProducer.h"
-#include "CalibCalorimetry/EcalCorrectionModules/interface/EcalGlobalShowerContainmentCorrectionsVsEtaESProducer.h"
-
-DEFINE_FWK_EVENTSETUP_MODULE(EcalShowerContainmentCorrectionsESProducer);
-DEFINE_FWK_EVENTSETUP_MODULE(EcalShowerContainmentCorrectionsLogE2E1ESProducer);
-DEFINE_FWK_EVENTSETUP_MODULE(EcalGlobalShowerContainmentCorrectionsVsEtaESProducer);

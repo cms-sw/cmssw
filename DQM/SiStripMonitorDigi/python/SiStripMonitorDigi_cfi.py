@@ -21,9 +21,9 @@ SiStripMonitorDigi = cms.EDAnalyzer("SiStripMonitorDigi",
     ),
 
    TH1ChargeMedianApvShots = cms.PSet(
-       Nbins = cms.int32(256),
+       Nbins = cms.int32(255),
        xmin = cms.double(0.5),
-       xmax = cms.double(256.5),
+       xmax = cms.double(255.5),
        subdetswitchon = cms.bool(False),
        globalswitchon = cms.bool(False)
     ),
@@ -73,7 +73,6 @@ SiStripMonitorDigi = cms.EDAnalyzer("SiStripMonitorDigi",
         layerswitchon = cms.bool(False),
         moduleswitchon = cms.bool(True)
     ),
-                                    
     TH1DigiADCs = cms.PSet(
         Nbinx = cms.int32(64),
         xmin = cms.double(-0.5),

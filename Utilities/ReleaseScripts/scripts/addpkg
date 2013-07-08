@@ -3,7 +3,7 @@
 # Created by: Shahram Rahatlou
 #             University of Rome & INFN
 #             11 September 2006
-#  $Id: addpkg,v 1.19 2010/04/12 07:23:18 muzaffar Exp $
+#  $Id: addpkg,v 1.20 2010/04/12 08:18:33 muzaffar Exp $
 #
 use strict;
 use warnings;
@@ -44,6 +44,7 @@ my $taglist = "${releasetop}/src/PackageList.cmssw";
 die "ERROR: Cannot find release package/tag list at $taglist\n" if (!-e $taglist);
 
 my $exitcode=0;
+if (!-e "${localtop}/src"){system("mkdir ${localtop}/src");}
 if(!(defined $file)) {
     chdir("${localtop}/src");
     # addpkg <package> : use default tag for the release - 1 argument

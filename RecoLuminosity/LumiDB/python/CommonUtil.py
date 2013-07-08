@@ -11,6 +11,22 @@ def flatten(obj):
             result.append (piece)
     return result
 
+def parseTime(iTime):
+    '''
+    input string of the ("^\d\d/\d\d/\d\d \d\d:\d\d:\d\d$|^\d{6}$|^\d{4}$" format
+    output (runnum,fillnum,timeStr)
+    '''
+    if not iTime: return (None,None,None)
+    p=re.compile('^\d\d/\d\d/\d\d \d\d:\d\d:\d\d$')
+    if re.match(p,iTime):
+        return (None,None,iTime)
+    p=re.compile('^\d{6}$')
+    if re.match(p,iTime):
+        return (int(iTime),None,None)
+    p=re.compile('^\d{4}$')
+    if re.match(p,iTime):
+        return (None,int(iTime),None)
+    
 def lumiUnitForPrint(t):
     '''
     input : largest lumivalue
@@ -250,7 +266,16 @@ def splitlistToRangeString (inPut):
             counter += 1
             result.append ([i])
         last = i
-    return ', '.join (['['+str (min (x))+'-'+str (max (x))+']' for x in result])    
+    return ', '.join (['['+str (min (x))+'-'+str (max (x))+']' for x in result])
+
+def parselumicorrector(correctorStr):
+    '''
+    output: (functionname,parametersinuppercase[])
+    '''
+    cleancorrectorStr=correctorStr.replace(' ','')#in case of whitespace by mistake
+    [correctorFunc,paramsStr]=cleancorrectorStr.split(':')
+    params=paramsStr.split(',')
+    return (correctorFunc,params)
 
 if __name__=='__main__':
     nested=[[[1,2],[6,6,8]],[[3,4,5],[4,5]]]

@@ -8,15 +8,16 @@ process.load("Configuration.StandardSequences.SimulationRandomNumberGeneratorSee
 #process.RandomNumberGeneratorService.generator.initialSeed = 12345XXXX
 
 process.load("Configuration.StandardSequences.Simulation_cff")
-process.load("SimGeneral.MixingModule.mixNoPU_cfi")
+process.load("Configuration.StandardSequences.MixingNoPileUp_cff")
 process.load("Configuration.StandardSequences.Reconstruction_cff")
 process.load('Configuration/StandardSequences/DigiToRaw_cff')
 process.load('Configuration/StandardSequences/RawToDigi_cff')
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-from Configuration.AlCa.autoCond import autoCond
+from Configuration.PyReleaseValidation.autoCond import autoCond
 process.GlobalTag.globaltag = autoCond['mc']
 
-process.load("IOMC.EventVertexGenerators.VtxSmearedGauss_cfi")
+
+process.load("Configuration.StandardSequences.VtxSmearedGauss_cff")
 process.load("Configuration.StandardSequences.GeometryECALHCAL_cff")
 process.load("Configuration.StandardSequences.MagneticField_cff")
 process.g4SimHits.UseMagneticField = False

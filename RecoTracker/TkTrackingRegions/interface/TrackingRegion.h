@@ -26,7 +26,6 @@ namespace edm { class Event; class EventSetup; }
 class TrackingRegion{
 public:
 
-  virtual ~TrackingRegion(){}
   typedef PixelRecoRange<float> Range;
   typedef TransientTrackingRecHit::ConstRecHitPointer Hit;
   typedef std::vector<Hit> Hits;

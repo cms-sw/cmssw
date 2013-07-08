@@ -79,7 +79,7 @@ class AlCa(Scenario):
         return process
 
 
-    def dqmHarvesting(self, datasetName, runNumber, globalTag, args):
+    def dqmHarvesting(self, datasetName, runNumber, globalTag, **args):
         """
         _dqmHarvesting_
 

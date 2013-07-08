@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripEventSummary.h,v 1.10 2008/06/09 12:55:03 delaer Exp $
+// Last commit: $Id: SiStripEventSummary.h,v 1.9 2007/12/19 17:56:25 bainbrid Exp $
 
 #ifndef DataFormats_SiStripEventSummary_SiStripEventSummary_H
 #define DataFormats_SiStripEventSummary_SiStripEventSummary_H
@@ -137,9 +137,6 @@ class SiStripEventSummary {
   /** Returns the layer mask for fine delay runs */
   inline const uint32_t& layerScanned() const;
 
-  /** Returns the sensor bias voltage during a HV scan */
-  inline const uint32_t& highVoltage() const;
-
   // ---------- Setter methods ----------
   
   /** Sets commissioning-related information. */
@@ -258,7 +255,6 @@ const uint32_t& SiStripEventSummary::processId() const { return params_[1]; }
 const uint32_t& SiStripEventSummary::processIp() const { return params_[2]; }
 const uint32_t& SiStripEventSummary::dcuId() const { return params_[3]; }
 const uint32_t& SiStripEventSummary::layerScanned() const { return params_[3]; }
-const uint32_t& SiStripEventSummary::highVoltage() const { return params_[0]; }
 
 void SiStripEventSummary::triggerFed( const int16_t& fed ) { fed < 0 ? triggerFed_ = 0 : triggerFed_ = fed; }
 void SiStripEventSummary::event( const uint32_t& event ) { event_ = event; }

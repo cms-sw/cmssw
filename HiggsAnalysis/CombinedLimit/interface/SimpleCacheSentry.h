@@ -18,6 +18,7 @@ class SimpleCacheSentry : public RooAbsArg {
         void addVars(const RooAbsCollection &vars) ; 
         void addFunc(const RooAbsArg &func, const RooArgSet *obs=0) ;
         bool good() const { return !isValueDirty(); } 
+        bool empty() const { return _deps.getSize() == 0; }
         void reset() { clearValueDirty(); } 
         // base class methods to be implemented
         virtual TObject* clone(const char* newname) const { return new SimpleCacheSentry(*this, newname); }

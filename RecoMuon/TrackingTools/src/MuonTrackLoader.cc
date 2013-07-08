@@ -3,8 +3,8 @@
  *  Class to load the product in the event
  *
 
- *  $Date: 2011/01/10 00:17:45 $
- *  $Revision: 1.87 $
+ *  $Date: 2012/04/26 10:13:43 $
+ *  $Revision: 1.88 $
 
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
@@ -78,6 +78,14 @@ MuonTrackLoader::~MuonTrackLoader(){
 OrphanHandle<reco::TrackCollection> 
 MuonTrackLoader::loadTracks(const TrajectoryContainer& trajectories,
 			    Event& event, const string& instance, bool reallyDoSmoothing) {
+  std::vector<bool> dummyVecBool;
+  return loadTracks(trajectories, event, dummyVecBool, instance, reallyDoSmoothing);
+}
+  
+OrphanHandle<reco::TrackCollection> 
+MuonTrackLoader::loadTracks(const TrajectoryContainer& trajectories,
+			    Event& event,  std::vector<bool>& tkBoolVec, 
+			    const string& instance, bool reallyDoSmoothing) {
   
   const bool doSmoothing = theSmoothingStep && reallyDoSmoothing;
   
@@ -146,9 +154,9 @@ MuonTrackLoader::loadTracks(const TrajectoryContainer& trajectories,
   if(doSmoothing)
     theService->eventSetup().get<TrajectoryFitter::Record>().get(theSmootherName,theSmoother);
   
-  
+  unsigned int tjCnt = 0;
   for(TrajectoryContainer::const_iterator rawTrajectory = trajectories.begin();
-      rawTrajectory != trajectories.end(); ++rawTrajectory){
+      rawTrajectory != trajectories.end(); ++rawTrajectory, ++tjCnt){
     
     Trajectory &trajectory = **rawTrajectory;
     
@@ -243,6 +251,7 @@ MuonTrackLoader::loadTracks(const TrajectoryContainer& trajectories,
     // it is required to put it into the event.
     delete *rawTrajectory;
 
+    if(tkBoolVec.size()>tjCnt) tkBoolVec[tjCnt] = true;
     if(theTrajectoryFlag) tjTkMap[iTjRef-1] = iTkRef-1;
   }
   
@@ -311,7 +320,7 @@ MuonTrackLoader::loadTracks(const CandidateContainer& muonCands,
   // get combined Trajectories
   TrajectoryContainer combinedTrajs;
   TrajectoryContainer trackerTrajs;
-  for (CandidateContainer::const_iterator it = muonCands.begin(); it != muonCands.end(); it++) {
+  for (CandidateContainer::const_iterator it = muonCands.begin(); it != muonCands.end(); ++it) {
     LogDebug(metname) << "Loader glbSeedRef " << (*it)->trajectory()->seedRef().isNonnull();
     if ((*it)->trackerTrajectory() )  LogDebug(metname) << " " << "tkSeedRef " << (*it)->trackerTrajectory()->seedRef().isNonnull();
 
@@ -322,24 +331,26 @@ MuonTrackLoader::loadTracks(const CandidateContainer& muonCands,
       if ((*it)->trackerTrajectory()) delete ((*it)->trackerTrajectory());
     }
   
-    // Create the links between sta and tracker tracks
-    reco::MuonTrackLinks links;
-    links.setStandAloneTrack((*it)->muonTrack());
-    links.setTrackerTrack((*it)->trackerTrack());
-    trackLinksCollection->push_back(links);
-    delete *it;
+    // // Create the links between sta and tracker tracks
+    // reco::MuonTrackLinks links;
+    // links.setStandAloneTrack((*it)->muonTrack());
+    // links.setTrackerTrack((*it)->trackerTrack());
+    // trackLinksCollection->push_back(links);
+    // delete *it;
   }
   
   // create the TrackCollection of combined Trajectories
   // FIXME: could this be done one track at a time in the previous loop?
   LogTrace(metname) << "Build combinedTracks";
-  OrphanHandle<reco::TrackCollection> combinedTracks = loadTracks(combinedTrajs, event);
+  std::vector<bool> combTksVec(combinedTrajs.size(), false); 
+  OrphanHandle<reco::TrackCollection> combinedTracks = loadTracks(combinedTrajs, event, combTksVec);
 
   OrphanHandle<reco::TrackCollection> trackerTracks;
+  std::vector<bool> trackerTksVec(trackerTrajs.size(), false); 
   if(thePutTkTrackFlag) {
     LogTrace(metname) << "Build trackerTracks: "
 		      << trackerTrajs.size();
-    trackerTracks = loadTracks(trackerTrajs, event, theL2SeededTkLabel, theSmoothTkTrackFlag);
+    trackerTracks = loadTracks(trackerTrajs, event, trackerTksVec, theL2SeededTkLabel, theSmoothTkTrackFlag);
   } else {
     for (TrajectoryContainer::iterator it = trackerTrajs.begin(); it != trackerTrajs.end(); ++it) {
         if(*it) delete *it;
@@ -348,16 +359,40 @@ MuonTrackLoader::loadTracks(const CandidateContainer& muonCands,
 
   LogTrace(metname) << "Set the final links in the MuonTrackLinks collection";
 
-  reco::MuonTrackLinksCollection::iterator links = trackLinksCollection->begin();
-  for ( unsigned int position = 0; position != combinedTracks->size(); ++position, ++links) {
-    reco::TrackRef combinedTR(combinedTracks, position);
+  unsigned int candposition(0), position(0), tkposition(0);
+  //reco::TrackCollection::const_iterator glIt = combinedTracks->begin(), 
+  //  glEnd = combinedTracks->end();
 
-    reco::TrackRef trackerTR;
-    if(thePutTkTrackFlag) trackerTR = reco::TrackRef(trackerTracks, position);
+  for (CandidateContainer::const_iterator it = muonCands.begin(); it != muonCands.end(); ++it, ++candposition) {
 
-    // fill the combined information.
-    links->setGlobalTrack(combinedTR);
-    if(thePutTkTrackFlag) links->setTrackerTrack(trackerTR);
+    // The presence of the global track determines whether to fill the MuonTrackLinks or not
+    // N.B. We are assuming here that the global tracks in "combinedTracks" 
+    //      have the same order as the muon candidates in "muonCands"
+    //      (except for possible missing tracks), which should always be the case...
+    //if( glIt == glEnd ) break;
+    if(combTksVec[candposition]) {
+      reco::TrackRef combinedTR(combinedTracks, position++);
+      //++glIt;
+
+      // Create the links between sta and tracker tracks
+      reco::MuonTrackLinks links;
+      links.setStandAloneTrack((*it)->muonTrack());
+      links.setTrackerTrack((*it)->trackerTrack());
+      links.setGlobalTrack(combinedTR);
+
+      if(thePutTkTrackFlag && trackerTksVec[candposition]) {
+	reco::TrackRef trackerTR(trackerTracks, tkposition++);
+	links.setTrackerTrack(trackerTR);
+      }
+
+      trackLinksCollection->push_back(links);
+    }
+
+    else { // if no global track, still increment the tracker-track counter when appropriate
+      if(thePutTkTrackFlag && trackerTksVec[candposition]) tkposition++; 
+    }
+
+    delete *it;
   }
 
   if( thePutTkTrackFlag && trackerTracks.isValid() && !(combinedTracks->size() > 0 && trackerTracks->size() > 0 ) )

@@ -65,12 +65,12 @@ bool
 edm::EventBase::getByLabel<FWGenericObject>(edm::InputTag const& tag,
                                              Handle<FWGenericObject>& result) const
 {
-   std::string dataTypeName = result.type().Name(ROOT::Reflex::SCOPED);
+   std::string dataTypeName = result.type().Name(Reflex::SCOPED);
    if (dataTypeName[dataTypeName.size() -1] == '>')
       dataTypeName += " ";
    std::string wrapperName = "edm::Wrapper<" + dataTypeName + ">";
 
-   ROOT::Reflex::Type wrapperType = ROOT::Reflex::Type::ByName(wrapperName);
+   Reflex::Type wrapperType = Reflex::Type::ByName(wrapperName);
 
    BasicHandle bh = this->getByLabelImpl(wrapperType.TypeInfo(),
                                          result.type().TypeInfo(),

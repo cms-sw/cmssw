@@ -14,7 +14,7 @@
 // Original Author:  Fedor Ratnikov
 //         Created:  Tue Aug  9 19:10:10 CDT 2005
 //         Adapted for CASTOR by L. Mundim
-// $Id: CastorDbProducer.cc,v 1.22 2009/03/24 16:11:35 rofierzy Exp $
+// $Id: CastorDbProducer.cc,v 1.3 2009/03/26 17:49:44 mundim Exp $
 //
 //
 
@@ -82,8 +82,10 @@ boost::shared_ptr<CastorDbService> CastorDbProducer::produce( const CastorDbReco
 }
 
 void CastorDbProducer::pedestalsCallback (const CastorPedestalsRcd& fRecord) {
+
   edm::ESHandle <CastorPedestals> item;
   fRecord.get (item);
+
   mService->setData (item.product ());
   if (std::find (mDumpRequest.begin(), mDumpRequest.end(), std::string ("Pedestals")) != mDumpRequest.end()) {
     *mDumpStream << "New HCAL/CASTOR Pedestals set" << std::endl;

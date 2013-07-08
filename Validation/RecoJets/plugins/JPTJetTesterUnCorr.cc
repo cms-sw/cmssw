@@ -1,7 +1,7 @@
 // Producer for validation histograms for CaloJet objects
 // F. Ratnikov, Sept. 7, 2006
 // Modified by J F Novak July 10, 2008
-// $Id: JPTJetTesterUnCorr.cc,v 1.6 2011/09/18 21:01:00 kovitang Exp $
+// $Id: JPTJetTesterUnCorr.cc,v 1.8 2012/12/02 23:38:40 kovitang Exp $
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -253,7 +253,7 @@ JPTJetTesterUnCorr::JPTJetTesterUnCorr(const edm::ParameterSet& iConfig)
     //double linPtMax = 155;
     //int linPtBins = 15;
 
-    int log10PtFineBins = 50;
+    //int log10PtFineBins = 50;
     /*
     mAllGenJetsPt = dbe->book1D("GenJetLOGpT", "GenJet LOG(pT_gen)", 
 				log10PtBins, log10PtMin, log10PtMax);
@@ -424,7 +424,7 @@ if (!mEvent.isRealData()){
   // ***********************************
   // *** Get CaloMET
   // ***********************************
-
+/*
   const CaloMET *calomet;
   edm::Handle<CaloMETCollection> calo;
   mEvent.getByLabel("met", calo);
@@ -434,7 +434,7 @@ if (!mEvent.isRealData()){
   } else {
     const CaloMETCollection *calometcol = calo.product();
     calomet = &(calometcol->front());
-    /*
+    
     double caloSumET = calomet->sumEt();
     double caloMETSig = calomet->mEtSig();
     double caloMET = calomet->pt();
@@ -453,9 +453,9 @@ if (!mEvent.isRealData()){
     mCaloSumET_3000->Fill(caloSumET);
     mCaloMETSig->Fill(caloMETSig);
     mCaloMETSig_3000->Fill(caloMETSig);
-    */
+    
   }
-
+*/
   // ***********************************
   // *** Get the CaloTower collection
   // ***********************************

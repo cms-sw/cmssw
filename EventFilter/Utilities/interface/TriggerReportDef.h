@@ -9,6 +9,7 @@ namespace evf{
   static const size_t max_endpaths = 30;
   static const size_t max_label = 30;
   static const size_t max_modules = 50;
+  static const size_t max_datasets = 60;
 
   class ShmOutputModuleRegistry;
 
@@ -35,6 +36,9 @@ namespace evf{
     //    char name[max_label];
     //    ModuleInPathsSummaryStatic moduleInPathSummaries[max_modules];
   };
+  struct DatasetSummaryStatic{
+    int timesPassed;
+  };
   struct TriggerReportStatic{
     //max number of paths in a menu is 500
     //max number of endpaths in a menu is 20
@@ -47,6 +51,8 @@ namespace evf{
     int                    endPathsInMenu;
     PathSummaryStatic      trigPathSummaries[max_paths];
     PathSummaryStatic      endPathSummaries[max_endpaths];
+    int                    datasetsInMenu;
+    DatasetSummaryStatic   datasetSummaries[max_datasets];
     TriggerReportStatic();
   };
   namespace funcs{

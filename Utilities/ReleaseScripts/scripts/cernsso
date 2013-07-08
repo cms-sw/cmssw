@@ -1,0 +1,298 @@
+#!/usr/bin/env python2.6
+
+from ctypes import *
+from optparse import OptionParser
+import random
+import hashlib
+import sys
+import urllib2
+import re
+import HTMLParser
+import sys
+import os
+import stat
+import string
+
+LONG, OBJECTPOINT, FUNCTIONPOINT, OFF_T = (0, 10000, 20000, 30000)
+
+CURLOPTTYPE = {
+  LONG: 0,
+  OBJECTPOINT: 10000,
+  FUNCTIONPOINT: 20000,
+  OFF_T: 30000
+}
+
+CURLOPT = {}
+
+def CINIT (na, t, nu):
+  global CURLOPT
+  CURLOPT[na] = CURLOPTTYPE[t] + nu
+
+CINIT("SSL_VERIFYPEER", LONG, 64)
+CINIT("USERAGENT", OBJECTPOINT, 18)
+CINIT("HTTPAUTH", LONG, 107)
+CINIT("USERPWD", OBJECTPOINT, 5)
+CINIT("COOKIEFILE", OBJECTPOINT, 31)
+CINIT("COOKIEJAR", OBJECTPOINT, 82)
+CINIT("COOKIELIST", OBJECTPOINT, 135)
+CINIT("COOKIESESSION", LONG, 96)
+CINIT("COOKIE", OBJECTPOINT, 22)
+CINIT("FOLLOWLOCATION", LONG, 52)
+CINIT("UNRESTRICTED_AUTH", LONG, 105)
+CINIT("VERBOSE", LONG, 41)
+CINIT("HEADER", LONG, 42)
+CINIT("TIMEOUT", LONG, 13)
+CINIT("CONNECTTIMEOUT", LONG, 78)
+CINIT("URL", OBJECTPOINT, 2)
+CINIT("POSTFIELDS", OBJECTPOINT, 15)
+CINIT("POSTFIELDSIZE", LONG, 60)
+CINIT("POST", LONG, 47)
+CINIT("FILE", OBJECTPOINT, 1)
+CINIT("WRITEDATA", OBJECTPOINT, 1) # alias to FILE
+CINIT("WRITEHEADER", OBJECTPOINT, 29)
+
+CURLAUTH = {
+  'GSSNEGOTIATE': c_uint64(1 << 2)
+}
+
+curl_infotype = {
+  'TEXT': 0,
+  'HEADER_IN': 1, 
+  'HEADER_OUT': 2,
+  'DATA_IN': 3,
+  'DATA_OUT': 4,
+  'SSL_DATA_IN': 5,
+  'SSL_DATA_OUT': 6,
+  'END': 7
+}
+
+CURLINFO = {}
+CURLINFO['STRING'] = 0x100000
+CURLINFO['EFFECTIVE_URL'] = CURLINFO['STRING'] + 1
+
+CURLcode = {
+  'OK': 0
+}
+
+CERN_SSO_TOOL_VERSION = "0.0.2"
+CERN_SSO_CURL_USER_AGENT_KRB = "curl-sso-kerberos/{0}".format(CERN_SSO_TOOL_VERSION)
+CERN_SSO_CURL_ADFS_EP = "/adfs/ls/auth"
+CERN_SSO_CURL_AUTHERR = "401.2"
+CERN_SSO_CURL_ADFS_SIGNIN = "wa=wsignin1.0"
+
+def fetch_cookie(url, debug=False, verbose=False, cookie=None, libc=None, libcurl=None): 
+  # Select C and cURL libraries
+  libc_path = _find_libc() if libc is None else libc
+  libcurl_path = _find_libcurl() if libcurl is None else libcurl
+
+  cookie_path = cookie if cookie is not None else "{0}.cookie".format("".join(random.choice(string.ascii_uppercase + string.digits) for _ in range(7)))
+
+  if verbose:
+    sys.stderr.write("libc selected: {0}\n".format(libc_path))
+    sys.stderr.write("libcurl selected: {0}\n".format(libcurl_path))
+    sys.stderr.write("cookie file: {0}\n".format(cookie_path))
+
+  # Load cURL library
+  cdll.LoadLibrary(libcurl_path)
+  libcurl = CDLL(libcurl_path)
+
+  # Load C library
+  cdll.LoadLibrary(libc_path)
+  libc = CDLL(libc_path)
+
+  # cURL functions prototypes
+  libcurl.curl_easy_init.argtypes = []
+  libcurl.curl_easy_init.restype = c_void_p
+  
+  # No control for argument list types
+  libcurl.curl_easy_setopt.restype = c_int
+  
+  libcurl.curl_easy_perform.argtypes = [c_void_p]
+  libcurl.curl_easy_perform.restype = c_int 
+  
+  libcurl.curl_easy_getinfo.argtypes = [c_void_p, c_int]
+  libcurl.curl_easy_getinfo.restype = c_int
+  
+  # libc functions prototypes
+  libc.fopen.argtypes = [c_char_p, c_char_p]
+  libc.fopen.restype = c_void_p # return void pointer instead of struct FILE pointer
+
+  libc.fclose.argtypes = [c_void_p] # take void pointer instead of struct FILE pointer
+  libc.fclose.restype = c_int 
+ 
+  # General cURL settings  
+  curl = libcurl.curl_easy_init()
+  libcurl.curl_easy_setopt(c_void_p(curl), CURLOPT['SSL_VERIFYPEER'], 0)
+  libcurl.curl_easy_setopt(c_void_p(curl), CURLOPT['USERAGENT'], CERN_SSO_CURL_USER_AGENT_KRB)
+  libcurl.curl_easy_setopt(c_void_p(curl), CURLOPT['HTTPAUTH'], CURLAUTH['GSSNEGOTIATE'])
+  libcurl.curl_easy_setopt(c_void_p(curl), CURLOPT['USERPWD'], ":")
+  libcurl.curl_easy_setopt(c_void_p(curl), CURLOPT['COOKIEFILE'], cookie_path)
+  libcurl.curl_easy_setopt(c_void_p(curl), CURLOPT['COOKIEJAR'], cookie_path)
+  libcurl.curl_easy_setopt(c_void_p(curl), CURLOPT['COOKIESESSION'], 1)
+  m = hashlib.md5()
+  random.seed()
+  m.update(str(random.randint(0, 99999999)))
+  perlsessid = m.hexdigest()
+  libcurl.curl_easy_setopt(c_void_p(curl), CURLOPT['COOKIE'], "PERLSESSID={0}".format(perlsessid))
+  libcurl.curl_easy_setopt(c_void_p(curl), CURLOPT['FOLLOWLOCATION'], 1)
+  libcurl.curl_easy_setopt(c_void_p(curl), CURLOPT['UNRESTRICTED_AUTH'], 1)
+  libcurl.curl_easy_setopt(c_void_p(curl), CURLOPT['HEADER'], 0)
+  libcurl.curl_easy_setopt(c_void_p(curl), curl_infotype['HEADER_OUT'], 1)
+  libcurl.curl_easy_setopt(c_void_p(curl), CURLOPT['TIMEOUT'], 10)
+  libcurl.curl_easy_setopt(c_void_p(curl), CURLOPT['CONNECTTIMEOUT'], 10)
+
+  # Enable cURL debug mode if requested
+  if debug:
+    libcurl.curl_easy_setopt(c_void_p(curl), CURLOPT['VERBOSE'], 1)
+  else:
+    libcurl.curl_easy_setopt(c_void_p(curl), CURLOPT['VERBOSE'], 0)
+
+  # Create files for storing headers and data
+  fn_writedata = "data.{0}.out".format(perlsessid)
+  fn_writeheader = "header.{0}.out".format(perlsessid)
+  fd_writedata = libc.fopen(fn_writedata, "w")
+  libcurl.curl_easy_setopt(c_void_p(curl), CURLOPT['WRITEDATA'], c_void_p(fd_writedata))
+  fd_writeheader = libc.fopen(fn_writeheader, "w")
+  libcurl.curl_easy_setopt(c_void_p(curl), CURLOPT['WRITEHEADER'], c_void_p(fd_writeheader)) 
+
+  if verbose:
+    sys.stderr.write("file created for data: {0}\n".format(fn_writedata))
+    sys.stderr.write("file created for headers: {0}\n".format(fn_writeheader))
+
+  # Step 1
+  if verbose:
+    sys.stderr.write("requesting... {0}\n".format(url))
+  use_url = c_char_p(url)
+  libcurl.curl_easy_setopt(c_void_p(curl), CURLOPT['URL'], use_url)
+  ret = libcurl.curl_easy_perform(c_void_p(curl))
+  if ret != CURLcode['OK']:
+    sys.stderr.write("failed to request {0}\n".format(url))
+    sys.stderr.write("enable cURL debug mode (--debug) for more details.\n")
+    sys.exit(1000 + ret)
+  c_url = c_char_p(None)
+  ret = libcurl.curl_easy_getinfo(c_void_p(curl), CURLINFO['EFFECTIVE_URL'], byref(c_url)) 
+  if ret != CURLcode['OK']:
+    sys.stderr("failed fetch effective URL.\n")
+    sys.exit(1000 + ret)
+  if verbose:
+    sys.stderr.write("effective URL: {0}\n".format(urllib2.unquote(c_url.value)))
+  if c_url.value.find(CERN_SSO_CURL_ADFS_EP) == -1:
+    sys.stderr.write("error: redirected to a wrong location.\n")
+    sys.exit(1)  
+
+  # Step 2
+  if verbose:
+    sys.stderr.write("requesting... {0}\n".format(urllib2.unquote(c_url.value)))
+  use_url = c_char_p(urllib2.unquote(c_url.value))
+  libcurl.curl_easy_setopt(c_void_p(curl), CURLOPT['URL'], use_url)
+  libcurl.curl_easy_setopt(c_void_p(curl), CURLOPT['POST'], 1)
+  ret = libcurl.curl_easy_perform(c_void_p(curl))
+  if ret != CURLcode['OK']:
+    sys.stderr.write("error: failed to follow redirect.\n")
+    sys.stderr.write("enable cURL debug mode (--debug) for more details.\n")
+    sys.exit(1000 + ret)
+
+  # Step 3
+  post_body = ""
+  c_url_sp = ""
+  with open(fn_writedata) as dataout:
+    content = dataout.readline()
+    if content.find(CERN_SSO_CURL_AUTHERR) != -1:
+      sys.stderr.write("error: IDP authentication failed.\n")
+      sys.exit(1)
+    if verbose:
+      sys.stderr.write("IDP authentication successful.\n")
+    ret = re.search("<form .+? action=\"(.+?)\">", content)
+    if ret == None:
+      sys.stderr.write("error: reditected to a wrong location.\n")
+      sys.exit(1)
+    c_url_sp = ret.group(1)
+    h = HTMLParser.HTMLParser()
+    for pair in re.finditer("input type=\"hidden\" name=\"(.+?)\" value=\"(.+?)\"", content, re.I | re.M):
+      post_body += "&{0}={1}".format(pair.group(1), urllib2.quote(h.unescape(pair.group(2))))
+      
+  # Step 4
+  if verbose:
+    sys.stderr.write("requesting... {0}\n".format(urllib2.unquote(c_url_sp)))
+  use_url = c_char_p(urllib2.unquote(c_url_sp))
+  libcurl.curl_easy_setopt(c_void_p(curl), CURLOPT['URL'], use_url)
+  post_body = post_body[1:]
+  libcurl.curl_easy_setopt(c_void_p(curl), CURLOPT['POSTFIELDS'], post_body)
+  libcurl.curl_easy_setopt(c_void_p(curl), CURLOPT['POSTFIELDSIZE'], len(post_body))
+  ret = libcurl.curl_easy_perform(c_void_p(curl))
+  if ret != CURLcode['OK']:
+    sys.stderr.write("error: failed to acquire SSO cookie.\n")
+    sys.stderr.write("enable cURL debug mode (--debug) for more details.\n")
+    sys.exit(1000 + ret)
+  c_url = c_char_p(None)
+  ret = libcurl.curl_easy_getinfo(c_void_p(curl), CURLINFO['EFFECTIVE_URL'], byref(c_url))
+  if verbose:
+    sys.stderr.write("effective URL: {0}\n".format(urllib2.unquote(c_url.value)))
+  if ret != CURLcode['OK']:
+    sys.stderr.write("error: failed to fetch effective URL. Cannot confirm if cookie is correct.\n")
+    sys.exit(1000 + ret)
+  if c_url.value.find(CERN_SSO_CURL_ADFS_SIGNIN) != -1:
+    sys.std.err("error: wrong redirect location. Cannot confirm if cookie is correct.\n")
+    sys.exit(1)
+
+  # Cleanup and flush cookies to the file
+  libcurl.curl_easy_cleanup(c_void_p(curl))
+  
+  # Close & delete output files  
+  libc.fclose(c_void_p(fd_writeheader))
+  libc.fclose(c_void_p(fd_writedata))
+  if not debug:
+    os.unlink(fn_writeheader)
+    os.unlink(fn_writedata)
+
+  # chmod cookie file
+  os.chmod(cookie_path, stat.S_IRUSR)
+
+  if cookie is None:
+    sys.stdout.write("{0}\n".format(cookie_path))
+    sys.exit(0)
+
+def _get_platform():
+  if sys.platform.startswith("linux"):
+    with open("/etc/redhat-release") as verfile:
+      if verfile.readline().find("Scientific Linux CERN") != -1:
+        return "linux-cern"
+    return "linux-unknown"
+  elif sys.platform.startswith("darwin"):
+    return "darwin"
+
+def _find_libc():
+  platform = _get_platform() 
+  if platform == "linux-cern":
+    # For SLC{5,6} to avoid picking /usr/lib/libc.so (ld script)
+    return "/lib64/libc.so.6"
+  elif platform == "linux-unknown":
+    return "libc.so"
+  elif platform == "darwin":
+    return "libc.dylib"
+  else:
+    return None
+
+def _find_libcurl():
+  platform = _get_platform()
+  if platform == "linux-cern" or platform == "linux-unknown":
+    return "libcurl.so"
+  elif platform == "darwin":
+    return "libcurl.dylib"
+  else:
+    return None
+
+if __name__ == "__main__":
+  parser = OptionParser(usage="%prog [-c COOKIE_FILENAME] [-d] [-v] [--with-libc LIBC_PATH] [--with-libcurl LIBCURL_PATH] URL", version=CERN_SSO_TOOL_VERSION) 
+  parser.add_option("-c", "--cookie", dest="cookie_filename", help="Path to cookie file name. If not specified a random name is used and printed to stdout.", action="store")
+  parser.add_option("-d", "--debug", dest="debug", help="Enable cURL debugging. Prints to stderr and keeps data and header files.", action="store_true", default=False)
+  parser.add_option("-v", "--verbose", dest="verbose", help="Verbose output. Prints to stderr.", action="store_true", default=False)
+  parser.add_option("--with-libc", dest="libc_path", help="Absolute path to libc. Default: auto-detected.", action="store")
+  parser.add_option("--with-libcurl", dest="libcurl_path", help="Absolute path to libcurl. Default: auto-detected.", action="store")
+
+  (options, args) = parser.parse_args()
+  if len(args) != 1:
+    sys.stderr.write("error: A single argumnet required, an URL.\n")
+    sys.exit(1)
+
+  fetch_cookie(url=args[0], debug=options.debug, verbose=options.verbose, cookie=options.cookie_filename, libc=options.libc_path, libcurl=options.libcurl_path)

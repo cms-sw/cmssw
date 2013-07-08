@@ -1,6 +1,5 @@
 #ifndef _TrackerMap_h_
 #define _TrackerMap_h_
-#include <utility>
 #include <string>
 #include <iostream>
 #include <fstream>
@@ -30,7 +29,7 @@ class TrackerMap {
   void init();
   void drawModule(TmModule * mod, int key, int layer, bool total, std::ofstream * file);
   void print(bool print_total=true,float minval=0., float maxval=0.,std::string s="svgmap");
-  void printall(bool print_total=true,float minval=0., float maxval=0.,std::string s="svgmap",int width=6000, int height=3200);
+  void printall(bool print_total=true,float minval=0., float maxval=0.,std::string s="svgmap");
   void printonline();
   void printlayers(bool print_total=true,float minval=0., float maxval=0.,std::string s="layer");
   void save(bool print_total=true,float minval=0., float maxval=0.,std::string s="svgmap.svg",int width=1500, int height=800);
@@ -70,8 +69,7 @@ class TrackerMap {
   void drawPalette(std::ofstream * file); 
   void showPalette(bool printflag1){printflag=printflag1;}; 
   void setTitle(std::string s){title=s;};
-  void setRange(float min,float max);
-  std::pair<float,float>getAutomaticRange();
+  void setRange(float min,float max){gminvalue=min;gmaxvalue=max;};
   void addPixel(bool addPixelfl){addPixelFlag=addPixelfl;};
   void reset();
   void load(std::string s="tmap.svg"); 
@@ -101,13 +99,10 @@ class TrackerMap {
   PsuModule psuModuleMap;
   int palette;
   bool printflag;
-  bool saveWebInterface;
-  bool saveGeoTrackerMap;
   bool enableFedProcessing;
   bool enableFecProcessing;
   bool enableLVProcessing;
   bool enableHVProcessing;
-  bool tkMapLog;
   int ndet; //number of detectors 
   int npart; //number of detectors parts 
   std::string title;

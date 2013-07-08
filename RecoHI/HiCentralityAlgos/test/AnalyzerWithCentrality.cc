@@ -13,7 +13,7 @@
 //
 // Original Author:  Yetkin Yilmaz
 //         Created:  Mon Mar  1 17:18:04 EST 2010
-// $Id: AnalyzerWithCentrality.cc,v 1.13 2011/03/24 21:46:52 yilmaz Exp $
+// $Id: AnalyzerWithCentrality.cc,v 1.9 2010/10/27 08:46:43 yilmaz Exp $
 //
 //
 
@@ -47,7 +47,7 @@ class AnalyzerWithCentrality : public edm::EDAnalyzer {
    public:
       explicit AnalyzerWithCentrality(const edm::ParameterSet&);
       ~AnalyzerWithCentrality();
-  void dumpTable();
+
 
    private:
       virtual void beginJob() ;
@@ -56,8 +56,6 @@ class AnalyzerWithCentrality : public edm::EDAnalyzer {
 
       // ----------member data ---------------------------
 
-  bool tableDump_;
-  bool debugEvents_;
    CentralityProvider * centrality_;
    edm::Service<TFileService> fs;
    TH1D* h1;
@@ -78,8 +76,6 @@ class AnalyzerWithCentrality : public edm::EDAnalyzer {
 AnalyzerWithCentrality::AnalyzerWithCentrality(const edm::ParameterSet& iConfig) : 
 centrality_(0)
 {
-  bool tableDump_ = iConfig.getUntrackedParameter<bool>("dumpTable",true);
-  bool debugEvents_ = iConfig.getUntrackedParameter<bool>("debugEvents",false);
    //now do what ever initialization is needed
    h1 = fs->make<TH1D>("h1","histogram",100,0,100);
    nt = fs->make<TNtuple>("hi","hi","hf:hft:hftp:hftm:eb:ee:eep:eem:npix:et:zdc:zdcp:zdcm:bin:trig");
@@ -104,14 +100,7 @@ AnalyzerWithCentrality::analyze(const edm::Event& iEvent, const edm::EventSetup&
 {
    using namespace edm;
    if(!centrality_) centrality_ = new CentralityProvider(iSetup);
-   if(debugEvents_){
-     centrality_->newEvent(iEvent,iSetup);
-   }else{
-     centrality_->newRun(iSetup);
-     dumpTable();
-   }
-
-   if(debugEvents_){
+   centrality_->newEvent(iEvent,iSetup);
 
    double hf = centrality_->raw()->EtHFhitSum();
    double hft = centrality_->raw()->EtHFtowerSum();
@@ -131,16 +120,25 @@ AnalyzerWithCentrality::analyze(const edm::Event& iEvent, const edm::EventSetup&
    cout<<"Total energy in HF hits : "<<hf<<endl;
    cout<<"Asymmetry of HF towers : "<<fabs(hftp-hftm)/(hftp+hftm)<<endl;
    cout<<"Total energy in EE basic clusters : "<<eep+eem<<endl;
-   cout<<"Total energy in EB basic clusters : "<<eb<<endl;      
+   cout<<"Total energy in EB basic clusters : "<<eb<<endl;
+   
+   centrality_->print();
+   
    cout<<"Centrality of the event : "<<centrality_->centralityValue()<<endl;
 
    int bin = centrality_->getBin();
+   cout<<"a"<<endl;
    nt->Fill(hf,hft,hftp,hftm,eb,ee,eep,eem,npix,et,zdc,zdcp,zdcm,bin,1);
+   cout<<"b"<<endl;
 
    h1->Fill(bin);
+   cout<<"c"<<endl;
+
    int nbins = centrality_->getNbins(); 
-    int binsize = 100./nbins;
-    char* binName = Form("%d to % d",bin*binsize,(bin+1)*binsize);
+   cout<<"d"<<endl;
+   int binsize = 100./nbins;
+   cout<<"e"<<endl;
+   char* binName = Form("%d to % d",bin*binsize,(bin+1)*binsize);
    cout<<"The event falls into centrality bin : "<<binName<<" id : "<<bin<<endl;
 
    double npartMean = centrality_->NpartMean();
@@ -170,7 +168,7 @@ AnalyzerWithCentrality::analyze(const edm::Event& iEvent, const edm::EventSetup&
 
    bMean = centrality_->bMeanOfBin(bin);
    bSigma = centrality_->bSigmaOfBin(bin);
-   }
+
 
 }
 
@@ -185,54 +183,6 @@ AnalyzerWithCentrality::beginJob()
 void 
 AnalyzerWithCentrality::endJob() {
 }
-
-void
-AnalyzerWithCentrality::dumpTable(){
-
-  cout<<"Bin Index"<<"\t";
-  cout<<"Bin Name"<<"\t";
-  cout<<"Npart Mean"<<"\t";
-  cout<<"RMS"<<"\t";
-  cout<<"Ncoll Mean"<<"\t";
-  cout<<"RMS"<<"\t";
-  cout<<"b Mean"<<"\t";
-  cout<<"b RMS"<<"\t";
-  cout<<"eccentricity Mean"<<"\t";
-  cout<<"eccentricity RMS"<<"\t";
-  cout<<"S Mean"<<"\t";
-  cout<<"S RMS"<<endl;;
-
-  cout<<"____________________________________________________________________________________________________________________________________"<<std::endl;
-
-  for(int j=0; j<centrality_->getNbins(); j++){
-
-    cout<<j<<"\t";
-
-    double binMin = (double)(100*j)/centrality_->getNbins();
-    double binMax = (double)(100*(j+1))/centrality_->getNbins();
-
-    string binName = Form("%0.1f - %0.1f",binMin,binMax);
-    cout<<binName.data()<<"\t";
-    cout<<centrality_->lowEdgeOfBin(j) <<"\t";
-    cout<<centrality_->NpartMeanOfBin(j)<<"\t";
-    cout<<centrality_->NpartSigmaOfBin(j)<<"\t";
-    cout<<centrality_->NcollMeanOfBin(j)<<"\t";
-    cout<<centrality_->NcollSigmaOfBin(j)<<"\t";
-    cout<<centrality_->bMeanOfBin(j)<<"\t";
-    cout<<centrality_->bSigmaOfBin(j)<<"\t";
-    cout<<centrality_->eccentricityMeanOfBin(j)<<"\t";
-    cout<<centrality_->eccentricitySigmaOfBin(j)<<"\t";
-    cout<<centrality_->areaMeanOfBin(j)<<"\t";
-    cout<<centrality_->areaSigmaOfBin(j)<<std::endl;
-    cout<<"____________________________________________________________________________________________________________________________________"<<std::endl;
-
-  }
-
-
-
-
-}
-
 
 //define this as a plug-in
 DEFINE_FWK_MODULE(AnalyzerWithCentrality);

@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Jan 23 10:37:13 EST 2008
-// $Id: FWModelExpressionSelector.h,v 1.4 2009/01/23 21:35:41 amraktad Exp $
+// $Id: FWModelExpressionSelector.h,v 1.5 2011/11/18 02:57:07 amraktad Exp $
 //
 
 // system include files
@@ -37,7 +37,7 @@ public:
 
    // ---------- const member functions ---------------------
    /** Throws an FWExpressionException if there is a problem */
-   void select(FWEventItem* iItem, const std::string& iExpression) const;
+   void select(FWEventItem* iItem, const std::string& iExpression, Color_t c = -1) const;
 
    // ---------- static member functions --------------------
 

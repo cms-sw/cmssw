@@ -31,8 +31,5 @@ class JetPlotsExample : public edm::EDAnalyzer
        std::string HistoFileName;
        /////// Number of jets used for the plots /////////////////////////// 
        int NJets;    
-       /////// Jet correction levels used for the plots /////////////////////////// 
-       bool        useJecLevels;
-       std::string jecLevels;
    };
 #endif

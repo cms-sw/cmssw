@@ -53,7 +53,7 @@ class SiStripQualityChecker {
   void fillDetectorStatus(DQMStore* dqm_store, const edm::ESHandle< SiStripDetCabling >& cabling);
   void fillTrackingStatus(DQMStore* dqm_store);
   void fillSubDetStatus(DQMStore* dqm_store,const edm::ESHandle< SiStripDetCabling >& cabling, SubDetMEs& mes, unsigned int xbin,float& gflag);
-  void getModuleStatus(std::vector<MonitorElement*>& layer_mes, int& errdet);
+  void getModuleStatus(DQMStore* dqm_store, std::vector<MonitorElement*>& layer_mes, int& errdet);
 
   void fillStatusHistogram(MonitorElement*, int xbin, int ybin, float val);
   void initialiseBadModuleList();  

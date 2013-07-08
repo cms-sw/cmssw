@@ -18,8 +18,8 @@
  * 2D means that this segment has information about position and direction in
  * one projection (r-phi or r-theta/zeta).
  *
- * $Date: 2010/07/12 08:31:22 $
- * $Revision: 1.17 $
+ * $Date: 2010/04/16 07:37:24 $
+ * $Revision: 1.16 $
  * \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  * \author Riccardo Bellan - INFN TO <riccardo.bellan@cern.ch>
  *
@@ -62,7 +62,7 @@ class DTRecSegment2D : public RecSegment{
 		 std::vector<DTRecHit1D> &hits1D);
 
   /// Destructor
-  virtual ~DTRecSegment2D();
+  virtual ~DTRecSegment2D() {};
 
   /* Operations */ 
 

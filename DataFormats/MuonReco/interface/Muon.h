@@ -10,7 +10,7 @@
  *
  * \author Luca Lista, Claudio Campagnari, Dmytro Kovalskyi, Jake Ribnik, Riccardo Bellan, Michalis Bachtis
  *
- * \version $Id: Muon.h,v 1.70 2012/03/21 22:11:05 slava77 Exp $
+ * \version $Id: Muon.h,v 1.71 2012/03/28 09:52:15 dmytro Exp $
  *
  */
 #include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
@@ -59,10 +59,15 @@ namespace reco {
     virtual TrackRef pickyTrack() const { return muonTrackFromMap(Picky);}
     virtual TrackRef dytTrack()   const { return muonTrackFromMap(DYT);}
     
-    virtual const Track * bestTrack() const         {return muonTrack(bestTrackType_).get();}
-    virtual TrackBaseRef  bestTrackRef() const      {return reco::TrackBaseRef(muonTrack(bestTrackType_));}
-    virtual TrackRef      muonBestTrack() const     {return muonTrack(bestTrackType_);}
-    virtual MuonTrackType muonBestTrackType() const {return bestTrackType_;}
+    virtual const Track * bestTrack() const         {return muonTrack(muonBestTrackType()).get();}
+    virtual TrackBaseRef  bestTrackRef() const      {return reco::TrackBaseRef(muonTrack(muonBestTrackType()));}
+    virtual TrackRef      muonBestTrack() const     {return muonTrack(muonBestTrackType());}
+    virtual MuonTrackType muonBestTrackType() const {
+      if (bestTrackType_!=None) return bestTrackType_;
+      if (!innerTrack().isNull()) return InnerTrack;
+      if (!standAloneMuon().isNull()) return OuterTrack;
+      return None;
+    }
 
 
     bool isAValidMuonTrack(const MuonTrackType& type) const;

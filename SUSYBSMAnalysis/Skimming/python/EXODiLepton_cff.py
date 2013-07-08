@@ -1,54 +1,95 @@
 import FWCore.ParameterSet.Config as cms
 
+from HLTrigger.HLTfilters.hltHighLevel_cfi import *
+exoticaDiMuonHLT = hltHighLevel.clone()
 #Define the HLT path to be used.
-import HLTrigger.HLTfilters.hltHighLevel_cfi as hlt
-exoticaDiMuonHLT = hlt.hltHighLevel.clone()
-exoticaDiMuonHLT.TriggerResultsTag = cms.InputTag("TriggerResults","","HLT") 
-exoticaDiMuonHLT.HLTPaths = cms.vstring('HLT_L2DoubleMu*_NoVertex_v*')
+exoticaDiMuonHLT.HLTPaths =['HLT_DoubleMu3']
+exoticaDiMuonHLT.TriggerResultsTag = cms.InputTag("TriggerResults","","HLT8E29") 
 
-exoticaDiElectronHLT = hlt.hltHighLevel.clone()
-exoticaDiElectronHLT.TriggerResultsTag = cms.InputTag("TriggerResults","","HLT")
-exoticaDiElectronHLT.HLTPaths = cms.vstring('HLT_DoubleEle*_CaloIdL_TrkIdVL_Ele*_v*')
+exoticaDiElectronHLT = hltHighLevel.clone()
+exoticaDiElectronHLT.HLTPaths =['HLT_Ele10_LW_L1R']
+exoticaDiElectronHLT.TriggerResultsTag = cms.InputTag("TriggerResults","","HLT8E29")
 
-exoticaDiEMuHLT = hlt.hltHighLevel.clone()
-exoticaDiEMuHLT.TriggerResultsTag = cms.InputTag("TriggerResults","","HLT")
-exoticaDiEMuHLT.HLTPaths = cms.vstring('HLT_Mu8_Ele17_CaloIdL_v*','HLT_Mu17_Ele8_CaloIdL_v*')
+exoticaEMuHLT = hltHighLevel.clone()
+exoticaEMuHLT.HLTPaths =['HLT_Ele10_LW_L1R','HLT_Mu5']
+exoticaEMuHLT.TriggerResultsTag = cms.InputTag("TriggerResults","","HLT8E29")
+
+#Define the HLT quality cut 
+from HLTrigger.HLTfilters.hltSummaryFilter_cfi import *
+
+exoticaHLTDiMuonFilter = hltSummaryFilter.clone(
+    summary = cms.InputTag("hltTriggerSummaryAOD","","HLT8E29"), # trigger summary
+    member  = cms.InputTag("hltL3MuonCandidates","","HLT8E29"),      # filter or collection
+    cut     = cms.string("pt>10"),                     # cut on trigger object
+    minN    = cms.int32(2)                  # min. # of passing objects needed
+ )
+                               
+exoticaHLTDiElectronFilter =hltSummaryFilter.clone(										  
+    summary = cms.InputTag("hltTriggerSummaryAOD","","HLT8E29"), # trigger summary
+    member  = cms.InputTag("hltL1NonIsoHLTNonIsoSingleElectronLWEt10EleIdDphiFilter","","HLT8E29"),      # filter or collection
+    cut     = cms.string("pt>10"),                     # cut on trigger object
+    minN    = cms.int32(2)                  # min. # of passing objects needed
+)
+
+exoticaHLTMuonFilter = hltSummaryFilter.clone(
+    summary = cms.InputTag("hltTriggerSummaryAOD","","HLT8E29"), # trigger summary
+    member  = cms.InputTag("hltL3MuonCandidates","","HLT8E29"),      # filter or collection
+    cut     = cms.string("pt>10"),                     # cut on trigger object
+    minN    = cms.int32(1)                  # min. # of passing objects needed
+ )
+   
+exoticaHLTElectronFilter =hltSummaryFilter.clone(										  
+    summary = cms.InputTag("hltTriggerSummaryAOD","","HLT8E29"), # trigger summary
+    member  = cms.InputTag("hltL1NonIsoHLTNonIsoSingleElectronLWEt10EleIdDphiFilter","","HLT8E29"),      # filter or collection
+    cut     = cms.string("pt>10"),                     # cut on trigger object
+    minN    = cms.int32(1)                  # min. # of passing objects needed
+ )
+
+
+   
 
 #Define the Reco quality cut
-exoticaRecoDiDiMuonFilter = cms.EDFilter(
-    "PtMinMuonCountFilter",
-    src = cms.InputTag("muons"),
-    ptMin = cms.double(25.0),
-    minNumber = cms.uint32(2)
-    )
-exoticaRecoDiDiElectronFilter = cms.EDFilter(
-    "PtMinGsfElectronCountFilter",
-    src = cms.InputTag("gsfElectrons"),
-    ptMin = cms.double(12.0),
-    minNumber = cms.uint32(2)
-    )
-exoticaRecoDiSiMuonFilter = cms.EDFilter(
-    "PtMinMuonCountFilter",
-    src = cms.InputTag("muons"),
-    ptMin = cms.double(10.0),
-    minNumber = cms.uint32(1)
-    )
-exoticaRecoDiSiElectronFilter = cms.EDFilter(
-    "PtMinGsfElectronCountFilter",
-    src = cms.InputTag("gsfElectrons"),
-    ptMin = cms.double(10.0),
-    minNumber = cms.uint32(1)
-    )
+exoticaRecoDiMuonFilter = cms.EDFilter("PtMinMuonCountFilter",
+	src = cms.InputTag("muons"),
+    ptMin = cms.double(10.0),									   
+    minNumber = cms.uint32(2)									   
+)
+exoticaRecoDiElectronFilter = cms.EDFilter("PtMinGsfElectronCountFilter",
+	src = cms.InputTag("gsfElectrons"),
+    ptMin = cms.double(10.0),									   
+    minNumber = cms.uint32(2)									   
+)
+exoticaRecoMuonFilter = cms.EDFilter("PtMinMuonCountFilter",
+	src = cms.InputTag("muons"),
+    ptMin = cms.double(10.0),									   
+    minNumber = cms.uint32(1)									   
+)
+exoticaRecoElectronFilter = cms.EDFilter("PtMinGsfElectronCountFilter",
+	src = cms.InputTag("gsfElectrons"),
+    ptMin = cms.double(10.0),									   
+    minNumber = cms.uint32(1)									   
+)
 
+
+#Define group sequence, using HLT/Reco quality cut. 
+exoticaDiMuonHLTQualitySeq = cms.Sequence(
+	exoticaDiMuonHLT+exoticaHLTDiMuonFilter
+)
+exoticaDiElectronHLTQualitySeq = cms.Sequence(
+	exoticaDiElectronHLT+exoticaHLTDiElectronFilter
+)
+exoticaEMuHLTQualitySeq = cms.Sequence(
+    exoticaEMuHLT+exoticaHLTElectronFilter+exoticaHLTMuonFilter
+)
 #
-exoDiMuSequence = cms.Sequence(
-    exoticaDiMuonHLT+exoticaRecoDiDiMuonFilter
+exoticaDiMuonRecoQualitySeq = cms.Sequence(
+    exoticaDiMuonHLT+exoticaRecoDiMuonFilter
 )
-exoDiEleSequence = cms.Sequence(
-    exoticaDiElectronHLT+exoticaRecoDiDiElectronFilter
+exoticaDiElectronRecoQualitySeq = cms.Sequence(
+    exoticaDiElectronHLT+exoticaRecoDiElectronFilter
 )
 
-exoEMuSequence = cms.Sequence(
-    exoticaDiEMuHLT+exoticaRecoDiSiElectronFilter+exoticaRecoDiSiMuonFilter
+exoticaEMuRecoQualitySeq = cms.Sequence(
+    exoticaEMuHLT+exoticaRecoElectronFilter+exoticaRecoMuonFilter
 )
 

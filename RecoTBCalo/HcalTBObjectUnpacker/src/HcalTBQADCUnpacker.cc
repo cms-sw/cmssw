@@ -68,13 +68,6 @@ struct ClassicQADCDataFormat {
     unsigned short qdc_values[4];
   };
 
-  void HcalTBQADCUnpacker::setCalib(int ichan, double ped, double gain) {
-    if (ichan>=0 && ichan<N_QADCS_ALLOWED*32) {
-      qdc_ped[ichan]=ped;
-      qdc_gain[ichan]=gain;
-    }
-  }
-
 // Sets the pedestal and gain
 void HcalTBQADCUnpacker::setCalib(const std::vector<std::vector<std::string> >& calibLines_) {
 // The default pedestal and gain
@@ -103,51 +96,39 @@ void HcalTBQADCUnpacker::setCalib(const std::vector<std::vector<std::string> >& 
 	 } // End of calibLines.
 	}
 
-  void HcalTBQADCUnpacker::unpackRaw(const FEDRawData& raw, std::vector<uint16_t>& values, bool is04) const {
-    values=std::vector<uint16_t>(N_QADCS_ALLOWED*32,0xFFFF);
-    
-    if(is04){ ///this is TB04
-      const ClassicQADCDataFormat* qadc=(const ClassicQADCDataFormat*)raw.data();
-      // Applying mask, pedestal subtraction and gain.
-      for (unsigned int i=0;i<N_QADCS_ALLOWED*32;i++)
-	values[i]=(qadc->data[i]&0xFFF);
-    } else {
-      const CombinedTDCQDCDataFormat* qdctdc=(const CombinedTDCQDCDataFormat*)raw.data();
-      for (unsigned int i=0;i<qdctdc->n_qdc_hits;i++)
-	  values[i]=(qdctdc->qdc_values[i]&0xFFF);
-    }
-  }
-  void HcalTBQADCUnpacker::unpackWithGains(const FEDRawData& raw, std::vector<double>& values, bool is04) const {
-    std::vector<uint16_t> rawValues;
-    unpackRaw(raw,rawValues,is04);
-    values=std::vector<double>(N_QADCS_ALLOWED*32,-1000.0);
-
-    for (unsigned int i=0;i<N_QADCS_ALLOWED*32;i++)
-      if (rawValues[i]!=0xFFFF) values[i]=((rawValues[i]&0xFFF)-qdc_ped[i])/qdc_gain[i];
-  }
-
 void HcalTBQADCUnpacker::unpack(const FEDRawData& raw,
   			       HcalTBBeamCounters& beamadc, bool is04) const {
 
   if (raw.size()<3*8) {
     throw cms::Exception("Missing Data") << "No data in the QDC block";
   }
-  std::vector<double> qdc_calib_hits;
-  unpackWithGains(raw,qdc_calib_hits,is04);
+
 
   if(is04){ ///this is TB04
+    const ClassicQADCDataFormat* qadc=(const ClassicQADCDataFormat*)raw.data();
+    double qdc_calib_hits[N_QADCS_ALLOWED*32];
+    // Applying mask, pedestal subtraction and gain.
+	for (unsigned int i=0;i<N_QADCS_ALLOWED*32;i++)
+	  qdc_calib_hits[i]=((qadc->data[i]&0xFFF)-qdc_ped[i])/qdc_gain[i];
+
     // Ecal energy sum should go here.
-    double Ecal7x7=0.;
-    for(int i=0;i<49;i++)Ecal7x7+=qdc_calib_hits[i];
+	double Ecal7x7=0.;
+	for(int i=0;i<49;i++)Ecal7x7+=qdc_calib_hits[i];
 
 
     beamadc.setADCs04(qdc_calib_hits[aMuonV],qdc_calib_hits[aMuonV3],qdc_calib_hits[aMuonV6],
-		      qdc_calib_hits[aMuonVH1],qdc_calib_hits[aMuonVH2],qdc_calib_hits[aMuonVH3],
-		      qdc_calib_hits[aMuonVH4],qdc_calib_hits[aCerenkov2],qdc_calib_hits[aCerenkov3],
-		      qdc_calib_hits[aSCI_VLE],qdc_calib_hits[aSCI_521],qdc_calib_hits[aSCI_528],
-		      qdc_calib_hits[aScint1],qdc_calib_hits[aScint2],qdc_calib_hits[aScint3],
-		      qdc_calib_hits[aScint4],Ecal7x7);
-  } else{ /// this is TB06
+		    qdc_calib_hits[aMuonVH1],qdc_calib_hits[aMuonVH2],qdc_calib_hits[aMuonVH3],
+		    qdc_calib_hits[aMuonVH4],qdc_calib_hits[aCerenkov2],qdc_calib_hits[aCerenkov3],
+		    qdc_calib_hits[aSCI_VLE],qdc_calib_hits[aSCI_521],qdc_calib_hits[aSCI_528],
+		    qdc_calib_hits[aScint1],qdc_calib_hits[aScint2],qdc_calib_hits[aScint3],
+		    qdc_calib_hits[aScint4],Ecal7x7);
+       }
+  else{ /// this is TB06
+    const CombinedTDCQDCDataFormat* qdctdc=(const CombinedTDCQDCDataFormat*)raw.data();
+    double qdc_calib_hits[32];
+	for (unsigned int i=0;i<qdctdc->n_qdc_hits;i++)
+	  qdc_calib_hits[i]=((qdctdc->qdc_values[i]&0xFFF)-qdc_ped[i])/qdc_gain[i];
+
     beamadc.setADCs06( qdc_calib_hits[bMuonVF], qdc_calib_hits[bMuonVB],
                     qdc_calib_hits[bMuonV1],qdc_calib_hits[bMuonV2],qdc_calib_hits[bMuonV3], 
                     qdc_calib_hits[bMuonV4],qdc_calib_hits[bMuonV5],qdc_calib_hits[bMuonV6], 

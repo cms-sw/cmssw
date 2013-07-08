@@ -22,19 +22,6 @@ cond::UtilitiesError::UtilitiesError(const std::string& message ):Exception(mess
 }
 cond::UtilitiesError::~UtilitiesError() throw(){}
 
-/**cond::Utilities::Utilities( const std::string& commandName):m_name(commandName),
-                                                            m_options(std::string("Usage: ")+m_name+std::string(" [options] \n")),
-                                                            m_positionalOptions(),
-                                                            m_values(),
-                                                            m_dbConnection(0),
-                                                            m_pluginMgrInitialized(false),
-                                                            m_dbSessions(){
-  m_options.add_options()
-    ("debug","switch on debug mode")
-    ("help,h", "help message")
-    ;
-    }**/
-
 cond::Utilities::Utilities( const std::string& commandName,
                             std::string positionalParameter):m_name(commandName),
 							     m_options(std::string("Usage: ")+m_name+
@@ -248,7 +235,9 @@ void cond::Utilities::initializeForDbConnection(){
       }
     }
     if(m_options.find_nothrow("sql",false)){
-      if(m_values.count("sql")) m_dbConnection->configuration().setSQLMonitoring( true );
+      if(m_values.count("sql")) {
+	m_dbConnection->configuration().setSQLMonitoring( true );
+      } 
     }
     m_dbConnection->configure();
     

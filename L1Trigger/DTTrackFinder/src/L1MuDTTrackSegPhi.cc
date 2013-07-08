@@ -5,8 +5,8 @@
 //   Description: PHI Track Segment 
 //
 //
-//   $Date: 2007/02/27 11:44:00 $
-//   $Revision: 1.2 $
+//   $Date: 2008/10/13 07:44:43 $
+//   $Revision: 1.3 $
 //
 //   Author :
 //   N. Neumeister            CERN EP 
@@ -125,7 +125,7 @@ void L1MuDTTrackSegPhi::reset() {
 double L1MuDTTrackSegPhi::phiValue() const {
 
   double tmp = static_cast<double>(m_location.sector())*M_PI/6;
-  tmp += static_cast<const double>(m_phi)/4096;
+  tmp += static_cast<double>(m_phi)/4096;
   return (tmp > 0 ) ? tmp : (2*M_PI + tmp);
 
 }
@@ -136,7 +136,7 @@ double L1MuDTTrackSegPhi::phiValue() const {
 //
 double L1MuDTTrackSegPhi::phibValue() const {
 
-  return static_cast<const double>(m_phib)/512;
+  return static_cast<double>(m_phib)/512;
 
 }
 

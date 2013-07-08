@@ -431,7 +431,8 @@ class SwitchOnTriggerMatching( ConfigToolBase ):
             print _longLine
         else:
             trigEvtProdMod.patTriggerMatches = cms.VInputTag()
-        trigEvtProdMod.patTriggerMatches += triggerMatchers
+        for matcher in triggerMatchers:
+            trigEvtProdMod.patTriggerMatches.append( cms.InputTag( matcher ) )
 
         # Add event content
         if outputModule is not '':

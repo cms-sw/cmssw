@@ -9,7 +9,7 @@
 //
 // Original Author: Shan-Huei Chuang
 //         Created: Fri Mar 23 18:41:42 CET 2007
-// $Id: SiPixelTrackResidualModule.cc,v 1.8 2010/07/20 02:58:26 wmtan Exp $
+// $Id: SiPixelTrackResidualModule.cc,v 1.9 2010/07/20 14:29:51 wmtan Exp $
 
 
 #include <string>
@@ -56,18 +56,18 @@ void SiPixelTrackResidualModule::book(const edm::ParameterSet& iConfig, bool red
   if(barrel){
     isHalfModule = PixelBarrelName(DetId(id_)).isHalfModule(); 
   }
-
+  
   edm::InputTag src = iConfig.getParameter<edm::InputTag>("src");
   std::string hisID;
 
   if(type==0){
     SiPixelHistogramId* theHistogramId = new SiPixelHistogramId(src.label());
     hisID = theHistogramId->setHistoId("residualX",id_);
-    meResidualX_ = dbe->book1D(hisID,"Hit-to-Track Residual in X",100,-5.,5.);
-    meResidualX_->setAxisTitle("hit-to-track residual in x (cm)",1);
+    meResidualX_ = dbe->book1D(hisID,"Hit-to-Track Residual in r-phi",100,-150,150);
+    meResidualX_->setAxisTitle("hit-to-track residual in r-phi (um)",1);
     hisID = theHistogramId->setHistoId("residualY",id_);
-    meResidualY_ = dbe->book1D(hisID,"Hit-to-Track Residual in Y",100,-5.,5.);
-    meResidualY_->setAxisTitle("hit-to-track residual in y (cm)",1);
+    meResidualY_ = dbe->book1D(hisID,"Hit-to-Track Residual in Z",100,-300,300);
+    meResidualY_->setAxisTitle("hit-to-track residual in z (um)",1);
     // Number of clusters
     hisID = theHistogramId->setHistoId("nclusters_OnTrack",id_);
     meNClusters_onTrack_ = dbe->book1D(hisID,"Number of Clusters (on Track)",10,0.,10.);
@@ -119,10 +119,10 @@ void SiPixelTrackResidualModule::book(const edm::ParameterSet& iConfig, bool red
     hisID = src.label() + "_" + sladder;
     if(isHalfModule) hisID += "H";
     else hisID += "F";
-    meResidualXLad_ = dbe->book1D("residualX_"+hisID,"Hit-to-Track Residual in X",100,-5.,5.);
-    meResidualXLad_->setAxisTitle("hit-to-track residual in x (cm)",1);
-    meResidualYLad_ = dbe->book1D("residualY_"+hisID,"Hit-to-Track Residual in Y",100,-5.,5.);
-    meResidualYLad_->setAxisTitle("hit-to-track residual in y (cm)",1);
+    meResidualXLad_ = dbe->book1D("residualX_"+hisID,"Hit-to-Track Residual in r-phi",100,-150,150);
+    meResidualXLad_->setAxisTitle("hit-to-track residual in r-phi (um)",1);
+    meResidualYLad_ = dbe->book1D("residualY_"+hisID,"Hit-to-Track Residual in Z",100,-300,300);
+    meResidualYLad_->setAxisTitle("hit-to-track residual in z (um)",1);
     // Number of clusters
     meNClusters_onTrackLad_ = dbe->book1D("nclusters_OnTrack_" + hisID,"Number of Clusters (on Track)",10,0.,10.);
     meNClusters_onTrackLad_->setAxisTitle("Number of Clusters on Track",1);
@@ -161,10 +161,10 @@ void SiPixelTrackResidualModule::book(const edm::ParameterSet& iConfig, bool red
     uint32_t DBlayer = PixelBarrelName(DetId(id_)).layerName();
     char slayer[80]; sprintf(slayer,"Layer_%i",DBlayer);
     hisID = src.label() + "_" + slayer;
-    meResidualXLay_ = dbe->book1D("residualX_"+hisID,"Hit-to-Track Residual in X",100,-5.,5.);
-    meResidualXLay_->setAxisTitle("hit-to-track residual in x (cm)",1);
-    meResidualYLay_ = dbe->book1D("residualY_"+hisID,"Hit-to-Track Residual in Y",100,-5.,5.);
-    meResidualYLay_->setAxisTitle("hit-to-track residual in y (cm)",1);
+    meResidualXLay_ = dbe->book1D("residualX_"+hisID,"Hit-to-Track Residual in r-phi",100,-150,150);
+    meResidualXLay_->setAxisTitle("hit-to-track residual in r-phi (um)",1);
+    meResidualYLay_ = dbe->book1D("residualY_"+hisID,"Hit-to-Track Residual in Z",100,-300,300);
+    meResidualYLay_->setAxisTitle("hit-to-track residual in z (um)",1);
     // Number of clusters
     meNClusters_onTrackLay_ = dbe->book1D("nclusters_OnTrack_" + hisID,"Number of Clusters (on Track)",10,0.,10.);
     meNClusters_onTrackLay_->setAxisTitle("Number of Clusters on Track",1);
@@ -203,10 +203,10 @@ void SiPixelTrackResidualModule::book(const edm::ParameterSet& iConfig, bool red
     uint32_t DBmodule = PixelBarrelName(DetId(id_)).moduleName();
     char smodule[80]; sprintf(smodule,"Ring_%i",DBmodule);
     hisID = src.label() + "_" + smodule;
-    meResidualXPhi_ = dbe->book1D("residualX_"+hisID,"Hit-to-Track Residual in X",100,-5.,5.);
-    meResidualXPhi_->setAxisTitle("hit-to-track residual in x (cm)",1);
-    meResidualYPhi_ = dbe->book1D("residualY_"+hisID,"Hit-to-Track Residual in Y",100,-5.,5.);
-    meResidualYPhi_->setAxisTitle("hit-to-track residual in y (cm)",1);
+    meResidualXPhi_ = dbe->book1D("residualX_"+hisID,"Hit-to-Track Residual in r-phi",100,-150,150);
+    meResidualXPhi_->setAxisTitle("hit-to-track residual in r-phi (um)",1);
+    meResidualYPhi_ = dbe->book1D("residualY_"+hisID,"Hit-to-Track Residual in Z",100,-300,300);
+    meResidualYPhi_->setAxisTitle("hit-to-track residual in z (um)",1);
     // Number of clusters
     meNClusters_onTrackPhi_ = dbe->book1D("nclusters_OnTrack_" + hisID,"Number of Clusters (on Track)",10,0.,10.);
     meNClusters_onTrackPhi_->setAxisTitle("Number of Clusters on Track",1);
@@ -245,10 +245,10 @@ void SiPixelTrackResidualModule::book(const edm::ParameterSet& iConfig, bool red
     uint32_t blade= PixelEndcapName(DetId(id_)).bladeName();
     char sblade[80]; sprintf(sblade, "Blade_%02i",blade);
     hisID = src.label() + "_" + sblade;
-    meResidualXBlade_ = dbe->book1D("residualX_"+hisID,"Hit-to-Track Residual in X",100,-5.,5.);
-    meResidualXBlade_->setAxisTitle("hit-to-track residual in x (cm)",1);
-    meResidualYBlade_ = dbe->book1D("residualY_"+hisID,"Hit-to-Track Residual in Y",100,-5.,5.);
-    meResidualYBlade_->setAxisTitle("hit-to-track residual in y (cm)",1);
+    meResidualXBlade_ = dbe->book1D("residualX_"+hisID,"Hit-to-Track Residual in r-phi",100,-150,150);
+    meResidualXBlade_->setAxisTitle("hit-to-track residual in r-phi (um)",1);
+    meResidualYBlade_ = dbe->book1D("residualY_"+hisID,"Hit-to-Track Residual in Z",100,-300,300);
+    meResidualYBlade_->setAxisTitle("hit-to-track residual in z (um)",1);
     // Number of clusters
     meNClusters_onTrackBlade_ = dbe->book1D("nclusters_OnTrack_" + hisID,"Number of Clusters (on Track)",10,0.,10.);
     meNClusters_onTrackBlade_->setAxisTitle("Number of Clusters on Track",1);
@@ -287,10 +287,10 @@ void SiPixelTrackResidualModule::book(const edm::ParameterSet& iConfig, bool red
     uint32_t disk = PixelEndcapName(DetId(id_)).diskName();
     char sdisk[80]; sprintf(sdisk, "Disk_%i",disk);
     hisID = src.label() + "_" + sdisk;
-    meResidualXDisk_ = dbe->book1D("residualX_"+hisID,"Hit-to-Track Residual in X",100,-5.,5.);
-    meResidualXDisk_->setAxisTitle("hit-to-track residual in x (cm)",1);
-    meResidualYDisk_ = dbe->book1D("residualY_"+hisID,"Hit-to-Track Residual in Y",100,-5.,5.);
-    meResidualYDisk_->setAxisTitle("hit-to-track residual in y (cm)",1);
+    meResidualXDisk_ = dbe->book1D("residualX_"+hisID,"Hit-to-Track Residual in r-phi",100,-150,150);
+    meResidualXDisk_->setAxisTitle("hit-to-track residual in r-phi (um)",1);
+    meResidualYDisk_ = dbe->book1D("residualY_"+hisID,"Hit-to-Track Residual in Z",100,-300,300);
+    meResidualYDisk_->setAxisTitle("hit-to-track residual in z (um)",1);
     // Number of clusters
     meNClusters_onTrackDisk_ = dbe->book1D("nclusters_OnTrack_" + hisID,"Number of Clusters (on Track)",10,0.,10.);
     meNClusters_onTrackDisk_->setAxisTitle("Number of Clusters on Track",1);
@@ -330,10 +330,10 @@ void SiPixelTrackResidualModule::book(const edm::ParameterSet& iConfig, bool red
     uint32_t module= PixelEndcapName(DetId(id_)).plaquetteName();
     char slab[80]; sprintf(slab, "Panel_%i_Ring_%i",panel, module);
     hisID = src.label() + "_" + slab;
-    meResidualXRing_ = dbe->book1D("residualX_"+hisID,"Hit-to-Track Residual in X",100,-5.,5.);
-    meResidualXRing_->setAxisTitle("hit-to-track residual in x (cm)",1);
-    meResidualYRing_ = dbe->book1D("residualY_"+hisID,"Hit-to-Track Residual in Y",100,-5.,5.);
-    meResidualYRing_->setAxisTitle("hit-to-track residual in y (cm)",1);
+    meResidualXRing_ = dbe->book1D("residualX_"+hisID,"Hit-to-Track Residual in r-phi",100,-150,150);
+    meResidualXRing_->setAxisTitle("hit-to-track residual in r-phi (um)",1);
+    meResidualYRing_ = dbe->book1D("residualY_"+hisID,"Hit-to-Track Residual in Z",100,-300,300);
+    meResidualYRing_->setAxisTitle("hit-to-track residual in z (um)",1);
     // Number of clusters
     meNClusters_onTrackRing_ = dbe->book1D("nclusters_OnTrack_" + hisID,"Number of Clusters (on Track)",10,0.,10.);
     meNClusters_onTrackRing_->setAxisTitle("Number of Clusters on Track",1);

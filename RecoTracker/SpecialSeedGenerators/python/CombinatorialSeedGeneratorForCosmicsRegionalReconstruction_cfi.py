@@ -1,80 +1,16 @@
 import FWCore.ParameterSet.Config as cms
 
 layerInfo = cms.PSet(
-    TIB3 = cms.PSet(
-        TTRHBuilder = cms.string('WithTrackAngle'),
-        rphiRecHits = cms.InputTag("siStripMatchedRecHits","rphiRecHit")
-    ),
-    TIB2 = cms.PSet(
-        matchedRecHits = cms.InputTag("siStripMatchedRecHits","matchedRecHit"),
-        TTRHBuilder = cms.string('WithTrackAngle')
-    ),
-    TIB1 = cms.PSet(
-        matchedRecHits = cms.InputTag("siStripMatchedRecHits","matchedRecHit"),
-        TTRHBuilder = cms.string('WithTrackAngle')
-    ),
-    TOB6 = cms.PSet(
-        TTRHBuilder = cms.string('WithTrackAngle'),
-        rphiRecHits = cms.InputTag("siStripMatchedRecHits","rphiRecHit")
-    ),
-    TOB1 = cms.PSet(
-        matchedRecHits = cms.InputTag("siStripMatchedRecHits","matchedRecHit"),
-        TTRHBuilder = cms.string('WithTrackAngle')
-    ),
-    TOB3 = cms.PSet(
-        TTRHBuilder = cms.string('WithTrackAngle'),
-        rphiRecHits = cms.InputTag("siStripMatchedRecHits","rphiRecHit")
-    ),
-    TOB2 = cms.PSet(
-        matchedRecHits = cms.InputTag("siStripMatchedRecHits","matchedRecHit"),
-        TTRHBuilder = cms.string('WithTrackAngle')
-    ),
+    TOB = cms.PSet(
+      TTRHBuilder = cms.string('WithTrackAngle'),
+      ),
     TEC = cms.PSet(
-        useSimpleRphiHitsCleaner = cms.bool(True),
-        minRing = cms.int32(5),
-        matchedRecHits = cms.InputTag("siStripMatchedRecHits","matchedRecHit"),
-        useRingSlector = cms.bool(False),
-        TTRHBuilder = cms.string('WithTrackAngle'),
-        rphiRecHits = cms.InputTag("siStripMatchedRecHits","rphiRecHit"),
-        maxRing = cms.int32(7)
-    ),
-    TOB4 = cms.PSet(
-        TTRHBuilder = cms.string('WithTrackAngle'),
-        rphiRecHits = cms.InputTag("siStripMatchedRecHits","rphiRecHit")
-    ),
-    TOB5 = cms.PSet(
-        TTRHBuilder = cms.string('WithTrackAngle'),
-        rphiRecHits = cms.InputTag("siStripMatchedRecHits","rphiRecHit")
-    )
+      minRing = cms.int32(6),
+      useRingSlector = cms.bool(False),
+      TTRHBuilder = cms.string('WithTrackAngle'),
+      maxRing = cms.int32(7)
+      )
 )
-
-def makeSimpleCosmicSeedLayers(*layers):
-    layerList = cms.vstring()
-    if 'ALL' in layers: 
-        layers = [ 'TOB', 'TEC', 'TOBTEC', 'TECSKIP' ]
-    if 'TOB' in layers:
-        layerList += ['TOB4+TOB5+TOB6',
-                      'TOB3+TOB5+TOB6',
-                      'TOB3+TOB4+TOB5',
-                      'TOB3+TOB4+TOB6',
-                      'TOB2+TOB4+TOB5',
-                      'TOB2+TOB3+TOB5']
-    if 'TEC' in layers:
-        TECwheelTriplets = [ (i,i+1,i+2) for i in range(7,0,-1)]
-        layerList += [ 'TEC%d_pos+TEC%d_pos+TEC%d_pos' % ls for ls in TECwheelTriplets ]
-        layerList += [ 'TEC%d_neg+TEC%d_neg+TEC%d_neg' % ls for ls in TECwheelTriplets ]
-    if 'TECSKIP' in layers:
-        TECwheelTriplets = [ (i-1,i+1,i+2) for i in range(7,1,-1)] + [ (i-1,i,i+2) for i in range(7,1,-1)  ]
-        layerList += [ 'TEC%d_pos+TEC%d_pos+TEC%d_pos' % ls for ls in TECwheelTriplets ]
-        layerList += [ 'TEC%d_neg+TEC%d_neg+TEC%d_neg' % ls for ls in TECwheelTriplets ]
-    if 'TOBTEC' in layers:
-        layerList += [ 'TOB6+TEC1_pos+TEC2_pos',
-                       'TOB6+TEC1_neg+TEC2_neg',
-                       'TOB6+TOB5+TEC1_pos',
-                       'TOB6+TOB5+TEC1_neg' ]
-    #print "SEEDING LAYER LIST = ", layerList
-    return layerList
-
 
 regionalCosmicTrackerSeeds = cms.EDProducer( "SeedGeneratorFromRegionHitsEDProducer",
    RegionFactoryPSet = cms.PSet(                                 
@@ -94,7 +30,7 @@ regionalCosmicTrackerSeeds = cms.EDProducer( "SeedGeneratorFromRegionHitsEDProdu
 
         ),
       CollectionsPSet = cms.PSet(
-        recoMuonsCollection            = cms.InputTag(""),  # se to "muons" and change ToolsPSet.regionBase to "" in order to use these
+        recoMuonsCollection            = cms.InputTag(""),  # se to "muons" and change ToolsPSet.regionBase to "" in order to use these.
         recoTrackMuonsCollection       = cms.InputTag("cosmicMuons"), # or cosmicMuons1Leg and change ToolsPSet.regionBase to "seedOnCosmicMuon" in order to use these.
         recoL2MuonsCollection          = cms.InputTag(""), # given by the hlt path sequence
         ),
@@ -106,13 +42,23 @@ regionalCosmicTrackerSeeds = cms.EDProducer( "SeedGeneratorFromRegionHitsEDProdu
         )
     ),
     OrderedHitsFactoryPSet = cms.PSet(
-        ComponentName = cms.string('GenericTripletGenerator'),
+        ComponentName = cms.string( "GenericPairGenerator"),
         LayerPSet = cms.PSet(
-            layerInfo,
-            layerList = makeSimpleCosmicSeedLayers('ALL'),
-        ),
-        PropagationDirection = cms.string('alongMomentum'),
-        NavigationDirection = cms.string('outsideIn')
+           layerInfo,
+           layerList = cms.vstring('TOB6+TOB5',
+                                   'TOB6+TOB4', 
+                                   'TOB6+TOB3',
+                                   'TOB5+TOB4',
+                                   'TOB5+TOB3',
+                                   'TOB4+TOB3',
+                                   'TEC1_neg+TOB6',
+                                   'TEC1_neg+TOB5',
+                                   'TEC1_neg+TOB4',
+                                   'TEC1_pos+TOB6',
+                                   'TEC1_pos+TOB5',
+                                   'TEC1_pos+TOB4'                                   
+                                   )
+           ),
     ), 
 
     ClusterCheckPSet = cms.PSet (

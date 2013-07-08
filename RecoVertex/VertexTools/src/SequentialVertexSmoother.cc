@@ -55,6 +55,11 @@ SequentialVertexSmoother<N>::smooth(const CachingVertex<N> & vertex) const
   // intermediate vertex for chi2 calculation and TktoTkcovariance map
   CachingVertex<N> interVertex(vertex.position(), vertex.weight(),
   				newTracks, 0.);
+  if ( vertex.hasPrior() )
+  {
+    interVertex = CachingVertex<N> ( vertex.priorPosition(), vertex.priorError(), 
+        vertex.position(), vertex.weight(), newTracks, 0.); 
+  }
 
   // Smoothed chi2
 

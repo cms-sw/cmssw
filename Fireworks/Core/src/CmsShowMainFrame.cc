@@ -9,7 +9,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu May 29 20:58:23 CDT 2008
-// $Id: CmsShowMainFrame.cc,v 1.120 2011/09/07 22:37:02 amraktad Exp $
+// $Id: CmsShowMainFrame.cc,v 1.121 2012/03/16 02:51:51 amraktad Exp $
 
 #include "FWCore/Common/interface/EventBase.h"
 
@@ -728,24 +728,34 @@ CmsShowMainFrame::showFWorksInfo()
 {
    if (m_fworksAbout == 0)
    {
+      UInt_t ww = 280, hh = 190;
+      int number_of_lines = 0;
+      int fontSize = 8;
       TString infoText;
       if (gSystem->Getenv("CMSSW_VERSION"))
       {
          infoText = "Version ";
          infoText += gSystem->Getenv("CMSSW_VERSION");
+         infoText +="\n";
+         number_of_lines += 1;
       }
       else
       {
          TString infoFileName("/data/version.txt");
          fireworks::setPath(infoFileName);
+         std::string line;
          ifstream infoFile(infoFileName);
-         infoText.ReadFile(infoFile);
+         while (std::getline(infoFile, line))
+         {
+            ++number_of_lines;
+            infoText += line.c_str();
+            infoText += "\n";
+         }
          infoFile.close();
       }
-
       infoText += "\nIt works or we fix it for free!\nhn-cms-visualization@cern.ch\n";
 
-      const UInt_t ww = 280, hh = 190;
+      hh = 130 + 2* fontSize*(number_of_lines + 1);
       
       m_fworksAbout = new InfoFrame(gClient->GetRoot(), ww, hh, kVerticalFrame | kFixedSize);
       m_fworksAbout->SetWMSizeHints(ww, hh, ww, hh, 0, 0);
@@ -759,7 +769,21 @@ CmsShowMainFrame::showFWorksInfo()
       TGLabel* label = new TGLabel(m_fworksAbout, infoText);
       label->SetBackgroundColor(0x2f2f2f);
       label->SetForegroundColor(0xffffff);
-      m_fworksAbout->AddFrame(label, new TGLayoutHints(kLHintsCenterX | kLHintsCenterY));      
+
+      FontStruct_t defaultFontStruct = label->GetDefaultFontStruct();
+      try
+      {
+         TGFontPool *pool = gClient->GetFontPool();
+         TGFont* defaultFont = pool->GetFont(defaultFontStruct);
+         FontAttributes_t attributes = defaultFont->GetFontAttributes();
+         label->SetTextFont(pool->GetFont(attributes.fFamily, fontSize, 
+                                          attributes.fWeight, attributes.fSlant));
+      } 
+      catch(...)
+      {
+      }
+
+      m_fworksAbout->AddFrame(label, new TGLayoutHints(kLHintsCenterX | kLHintsCenterY, 0, 0, 12, 0));      
             
       TGTextButton* btn = new TGTextButton(m_fworksAbout, "  OK  ");
       btn->SetBackgroundColor(0x2f2f2f);

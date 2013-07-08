@@ -34,9 +34,9 @@ MTVHistoProducerAlgoForTrackerBlock = cms.PSet(
     maxPhi = cms.double(3.1416),
     nintPhi = cms.int32(36),
     #
-    minDxy = cms.double(-40),
-    maxDxy = cms.double(40),
-    nintDxy = cms.int32(80),
+    minDxy = cms.double(-25),
+    maxDxy = cms.double(25),
+    nintDxy = cms.int32(100),
     #
     minDz = cms.double(-30),
     maxDz = cms.double(30),
@@ -49,8 +49,8 @@ MTVHistoProducerAlgoForTrackerBlock = cms.PSet(
     #
     # TP originating vertical position
     minVertpos = cms.double(0),
-    maxVertpos = cms.double(80),
-    nintVertpos = cms.int32(40),
+    maxVertpos = cms.double(60),
+    nintVertpos = cms.int32(60),
     #
     # TP originating z position
     minZpos = cms.double(-30),
@@ -58,9 +58,9 @@ MTVHistoProducerAlgoForTrackerBlock = cms.PSet(
     nintZpos = cms.int32(60),                               
 
     # Pileup vertices
-    minVertcount = cms.double(0),
-    maxVertcount = cms.double(20),
-    nintVertcount = cms.int32(20),
+    minVertcount = cms.double(-0.5),
+    maxVertcount = cms.double(120.5),
+    nintVertcount = cms.int32(121),
     #
     #parameters for resolution plots
     ptRes_rangeMin = cms.double(-0.1),

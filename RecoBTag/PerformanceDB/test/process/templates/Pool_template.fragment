@@ -1,10 +1,10 @@
     cms.PSet(
     record = cms.string('PerformancePayloadRecord'),
-    tag = cms.string('BTagTEMPLATEtable_VERSION_offline'),
-    label = cms.untracked.string('BTagTEMPLATEtable_VERSION_offline')
+    tag = cms.string('TAG_TEMPLATE_VERSION_offline'),
+    label = cms.untracked.string('TEMPLATE_T')
     ),
     cms.PSet(
     record = cms.string('PerformanceWPRecord'),
-    tag = cms.string('BTagTEMPLATEwp_VERSION_offline'),
-    label = cms.untracked.string('BTagTEMPLATEwp_VERSION_offline')
+    tag = cms.string('PerformanceWorkingPoint_TEMPLATE_VERSION_offline'),
+    label = cms.untracked.string('TEMPLATE_WP')
     ),

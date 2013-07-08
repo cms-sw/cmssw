@@ -26,7 +26,13 @@ namespace edm {
     
     static void fillDescription(ParameterSetDescription& desc);
 
+  protected:
+    void incrementFileIndex() {++fileIndex_;}
+
   private:
+    virtual size_t fileIndex() const {return fileIndex_;}
+
+    size_t fileIndex_;
     InputFileCatalog catalog_;
   };
 }

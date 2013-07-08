@@ -234,7 +234,16 @@ void L1GtPatternGenerator::packHfRecords(const std::string& resultName, L1GtPatt
 */
 void L1GtPatternGenerator::analyze(const edm::Event& iEvent, const edm::EventSetup& evSetup)
 {
-   L1GtPatternMap allPatterns;
+    // debug information
+    const unsigned int runNumber = iEvent.run();
+    const unsigned int lsNumber = iEvent.luminosityBlock();
+    const unsigned int eventNumber = iEvent.id().event();
+
+    LogTrace("L1GtPatternGenerator") << "\n\nL1GtPatternGenerator::analyze: Run: " << runNumber << " LS: " << lsNumber << " Event: "
+            << eventNumber << "\n\n" << std::endl;
+    
+
+  L1GtPatternMap allPatterns;
 
   // GMT muon candidates
   extractRecordData(iEvent, allPatterns, m_gmtTag.label(), m_gmtTag.instance(), &L1MuGMTCand::getDataWord, "gmtMuon");

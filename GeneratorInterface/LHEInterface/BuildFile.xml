@@ -11,6 +11,7 @@
 <use name="rootmath"/>
 <use name="libhepml"/>
 <use name="fastjet"/>
+<use name="xz"/>
 <export>
 	<use name="FWCore/ParameterSet"/>
 	<use name="FWCore/PluginManager"/>

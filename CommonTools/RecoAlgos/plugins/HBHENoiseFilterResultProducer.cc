@@ -30,7 +30,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "DataFormats/METReco/interface/HcalNoiseSummary.h"
-
+#include "DataFormats/JetReco/interface/PFJetCollection.h"
 
 //
 // class declaration
@@ -57,6 +57,11 @@ class HBHENoiseFilterResultProducer : public edm::EDProducer {
       double minIsolatedNoiseSumE_, minIsolatedNoiseSumEt_;
 
       bool useTS4TS5_;
+
+      bool IgnoreTS4TS5ifJetInLowBVRegion_;
+      edm::InputTag jetlabel_;
+      int maxjetindex_;
+      double maxNHF_;
 };
 
 
@@ -67,7 +72,7 @@ class HBHENoiseFilterResultProducer : public edm::EDProducer {
 HBHENoiseFilterResultProducer::HBHENoiseFilterResultProducer(const edm::ParameterSet& iConfig)
 {
   //now do what ever initialization is needed
-  noiselabel_ = iConfig.getParameter<edm::InputTag>("noiselabel"),
+  noiselabel_ = iConfig.getParameter<edm::InputTag>("noiselabel");
   minRatio_ = iConfig.getParameter<double>("minRatio");
   maxRatio_ = iConfig.getParameter<double>("maxRatio");
   minHPDHits_ = iConfig.getParameter<int>("minHPDHits");
@@ -81,6 +86,11 @@ HBHENoiseFilterResultProducer::HBHENoiseFilterResultProducer(const edm::Paramete
   minIsolatedNoiseSumE_ = iConfig.getParameter<double>("minIsolatedNoiseSumE");
   minIsolatedNoiseSumEt_ = iConfig.getParameter<double>("minIsolatedNoiseSumEt");  
   useTS4TS5_ = iConfig.getParameter<bool>("useTS4TS5");
+
+  IgnoreTS4TS5ifJetInLowBVRegion_ = iConfig.getParameter<bool>("IgnoreTS4TS5ifJetInLowBVRegion");
+  jetlabel_ =  iConfig.getParameter<edm::InputTag>("jetlabel");
+  maxjetindex_ = iConfig.getParameter<int>("maxjetindex");
+  maxNHF_ = iConfig.getParameter<double>("maxNHF");
 
   produces<bool>("HBHENoiseFilterResult");
 }
@@ -111,7 +121,40 @@ HBHENoiseFilterResultProducer::produce(edm::Event& iEvent, const edm::EventSetup
   }
   const HcalNoiseSummary summary = *summary_h;
 
-  bool result=true;
+  bool result=true; // stores overall filter result
+
+  bool goodJetFoundInLowBVRegion=false; // checks whether a jet is in a low BV region, where false noise flagging rate is higher.
+
+  if ( IgnoreTS4TS5ifJetInLowBVRegion_==true)
+    {
+      edm::Handle<reco::PFJetCollection> pfjet_h;
+      iEvent.getByLabel(jetlabel_, pfjet_h);
+      if(pfjet_h.isValid())  // valid jet collection found
+	{
+	  int jetindex=0;
+	  for( reco::PFJetCollection::const_iterator jet = pfjet_h->begin(); jet != pfjet_h->end(); ++jet) 
+	    {
+	      if (jetindex>maxjetindex_) break; // only look at first N jets (N specified by user via maxjetindex_)
+	      // Check whether jet is in low-BV region (0<eta<1.4, -1.8<phi<-1.4)
+	      if (jet->eta()>0 && jet->eta()<1.4 && 
+		  jet->phi()>-1.8 && jet->phi()<-1.4)
+		{
+		  // Look for a good jet in low BV region; if found, we will keep event
+		  if  (maxNHF_<0 ||  jet->neutralHadronEnergyFraction()<maxNHF_)
+		    {
+		      goodJetFoundInLowBVRegion=true;
+		      break;
+		    }
+		}
+	      ++jetindex;
+	    }
+	} // if (pfjet_h.isValid())
+      else // no valid jet collection found
+	{
+	  // If no jet collection found, do we want to throw a fatal exception?  Or just proceed normally, not treating the lowBV region as special?
+	  //throw edm::Exception(edm::errors::ProductNotFound) << " could not find PFJetCollection with label "<<jetlabel_<<".\n";
+	}
+    } // if (IgnoreTS4TS5ifJetInLowBVRegion_==true)
 
   if(summary.minE2Over10TS()<minRatio_) result=false;
   if(summary.maxE2Over10TS()>maxRatio_) result=false;
@@ -125,7 +168,7 @@ HBHENoiseFilterResultProducer::produce(edm::Event& iEvent, const edm::EventSetup
   if(summary.numIsolatedNoiseChannels()>=minNumIsolatedNoiseChannels_) result=false;
   if(summary.isolatedNoiseSumE()>=minIsolatedNoiseSumE_) result=false;
   if(summary.isolatedNoiseSumEt()>=minIsolatedNoiseSumEt_) result=false;
-  if(useTS4TS5_ == true && summary.HasBadRBXTS4TS5() == true) result = false;
+  if(useTS4TS5_ == true && summary.HasBadRBXTS4TS5() == true && goodJetFoundInLowBVRegion==false) result = false;
 
   std::auto_ptr<bool> pOut(new bool);
   *pOut=result;

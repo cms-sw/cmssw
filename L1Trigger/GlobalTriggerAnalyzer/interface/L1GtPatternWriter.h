@@ -41,7 +41,7 @@ public:
    *  @param debug        set to true to enable extensive debug logging
    */
   L1GtPatternWriter(std::ostream& destination, const std::string& header,
-		    const std::string& footer, const std::vector<std::string> columns,
+		    const std::string& footer, const std::vector<std::string>& columns,
 		    const std::vector<boost::uint32_t>& lengths,
 		    const std::vector<boost::uint32_t>& defaultValues,
 		    const std::vector<int>& bx,

@@ -170,6 +170,16 @@ expertSettings.add_option("--pileup_input",
                           default=None,
                           dest="pileup_input")
 
+parser.add_option("--runsAndWeightsForMC",
+                   help="Assign run numbers to MC source according to relatieve weights. [(run1,weight1),...,(runN,weightN)])",
+                   default=None,
+                   dest="runsAndWeightsForMC")
+
+parser.add_option("--runsScenarioForMC",
+                   help="Load a scenario to set run numbers in MC.)",
+                   default=None,
+                   dest="runsScenarioForMC")
+
 expertSettings.add_option("--datamix",
                   help="What datamix config to use. Default=DataOnSim.",
                   default=defaultOptions.datamix,

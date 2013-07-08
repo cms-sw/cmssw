@@ -3,7 +3,10 @@ from PhysicsTools.PatAlgos.patTemplate_cfg import *
 
 runOnMC = True
 
-if not runOnMC:
+if runOnMC:
+    from PhysicsTools.PatAlgos.patInputFiles_cff import filesRelValProdTTbarAODSIM
+    process.source.fileNames = filesRelValProdTTbarAODSIM
+else:
     from PhysicsTools.PatAlgos.patInputFiles_cff import filesSingleMuRECO
     process.source.fileNames = filesSingleMuRECO
     process.GlobalTag.globaltag = cms.string( autoCond[ 'com10' ] )
@@ -22,6 +25,10 @@ from PhysicsTools.PatAlgos.tools.pfTools import *
 postfix = "PFlow"
 jetAlgo = "AK5"
 usePF2PAT(process,runPF2PAT=True, jetAlgo=jetAlgo, runOnMC=runOnMC, postfix=postfix)
+
+# to turn on type-1 MET corrections, use the following call
+#usePF2PAT(process,runPF2PAT=True, jetAlgo=jetAlgo, runOnMC=runOnMC, postfix=postfix, typeIMetCorrections=True)
+
 # to run second PF2PAT+PAT with different postfix uncomment the following lines
 # and add the corresponding sequence to path
 #postfix2 = "PFlow2"

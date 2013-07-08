@@ -45,6 +45,7 @@ IPCMethod::IPCMethod(bool segmentationMode, UInt_t nbRawCells,
 		freeResRequiredForAllocate_ = freeResReq;
 
 	sem_init(&lock_, 0, 1);
+	//pthread_mutex_init(&crashHandlerLock_, NULL);
 }
 
 IPCMethod::~IPCMethod() {
@@ -94,6 +95,12 @@ void IPCMethod::dumpEvent(FUShmRawCell* cell) {
 		fout << endl;
 	}
 	fout.close();
+}
+
+//______________________________________________________________________________
+std::string IPCMethod::printStatus() {
+	std::string s = "Status not implemented";
+	return s;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -220,8 +227,6 @@ void IPCMethod::sendDqmEvent(UInt_t fuDqmId, UInt_t runNumber,
 	if (0 == sm_) {
 		LOG4CPLUS_WARN(log_, "No StorageManager, DROP DQM EVENT.");
 	} else {
-		sm_->sendDqmEvent(fuDqmId, runNumber, evtAtUpdate, folderId,
-				fuProcessId, fuGuid, data, dataSize);
 
 		nbPendingSMDqmDiscards_++;
 
@@ -234,6 +239,8 @@ void IPCMethod::sendDqmEvent(UInt_t fuDqmId, UInt_t runNumber,
 							<< folderId << " process " << fuProcessId
 							<< " guid " << fuGuid);
 		nbSentDqm_++;
+		sm_->sendDqmEvent(fuDqmId, runNumber, evtAtUpdate, folderId,
+				fuProcessId, fuGuid, data, dataSize);
 	}
 }
 

@@ -36,7 +36,6 @@ TrackerMap::TrackerMap(const edm::ParameterSet & tkmapPset,const edm::ESHandle<S
   jsfilename="CommonTools/TrackerMap/data/trackermap.txt";
   infilename="CommonTools/TrackerMap/data/tracker.dat";
   saveAsSingleLayer=false;
-  tkMapLog = false;
   if(tkmapPset.exists("trackermaptxtPath")){
   jsPath=tkmapPset.getUntrackedParameter<std::string>("trackermaptxtPath",""
 );
@@ -44,21 +43,16 @@ TrackerMap::TrackerMap(const edm::ParameterSet & tkmapPset,const edm::ESHandle<S
   std::cout << jsfilename << std::endl;
   infilename=tkmapPset.getUntrackedParameter<std::string>("trackerdatPath","")+"tracker.dat";
   std::cout << infilename << std::endl;
-  saveWebInterface=tkmapPset.getUntrackedParameter<bool>("saveWebInterface",false);
-  saveGeoTrackerMap=tkmapPset.getUntrackedParameter<bool>("saveGeoTrackerMap",true);
   ncrates=0;
   enableFedProcessing=tkmapPset.getUntrackedParameter<bool>("loadFedCabling",false);
-  if(tkFed.isValid()==0 && enableFedProcessing){enableFedProcessing=false;std::cout << "ERROR:fed trackermap requested but no valid fedCabling is available!!!"<<std::endl;}
   nfeccrates=0;
   enableFecProcessing=tkmapPset.getUntrackedParameter<bool>("loadFecCabling",false);
-  if(tkFed.isValid()==0 && enableFecProcessing){enableFecProcessing=false;std::cout << "ERROR:fec trackermap requested but no valid fedCabling is available!!!"<<std::endl;} 
  // std::cout << "loadFecCabling " << enableFecProcessing << std::endl;
   npsuracks=0;
   enableLVProcessing=tkmapPset.getUntrackedParameter<bool>("loadLVCabling",false);
  // std::cout << "loadLVCabling " << enableLVProcessing << std::endl;
   enableHVProcessing=tkmapPset.getUntrackedParameter<bool>("loadHVCabling",false);
  // std::cout << "loadHVCabling " << enableHVProcessing << std::endl;
-  tkMapLog = tkmapPset.getUntrackedParameter<bool>("logScale",false);
   } else std::cout << "no parameters found" << std::endl;
 
  init();
@@ -219,30 +213,21 @@ TrackerMap::TrackerMap(const edm::ParameterSet & tkmapPset,const edm::ESHandle<S
    std::string channelstr1;
    short int channel;
    std::string psinfo;
-   std::string psIdinfo;
-   int rack_order[54]={0,1,0,2,0,3,0,
-                         4,0,5,6,0,7,
-                         8,0,9,10,0,11,
-                         12,0,13,14,0,15,
-                         0,0,0,0,0,0,
-                         16,0,17,18,0,19,
-                         20,0,21,0,22,0,
-                         23,0,24,25,0,26,
-                         27,0,28,0,29};
  //  ifstream *LVfile;
  //  ifstream *HVfile;
    
   
  
   std::string LVfilename=tkmapPset.getUntrackedParameter<std::string>("trackerdatPath","")+"psdcumap.dat";
-  //std::string HVfilename=tkmapPset.getUntrackedParameter<std::string>("trackerdatPath","")+"hvmap.dat";
+  std::string HVfilename=tkmapPset.getUntrackedParameter<std::string>("trackerdatPath","")+"hvmap.dat";
   
   ifstream LVfile(edm::FileInPath(LVfilename).fullPath().c_str(),std::ios::in);
   
-  std::cout<<LVfilename<<std::endl;
+  std::cout<<LVfilename<<" "<<HVfilename<<std::endl;
   
- /* 
+  
    if(enableHVProcessing){
+	   
 	    ifstream HVfile(edm::FileInPath(HVfilename).fullPath().c_str(),std::ios::in);
 	    while(!HVfile.eof()) {
 	    HVfile >> modId2 >> channelstr1;
@@ -255,27 +240,28 @@ TrackerMap::TrackerMap(const edm::ParameterSet & tkmapPset,const edm::ESHandle<S
 	      } 
            	
 	    }
-*/
 	
   
    while(!LVfile.eof()) {
-      LVfile >> modId1  >> dcuId >> psIdinfo >> psinfo;
+      LVfile >> modId1 >> dcuId >>  psinfo;
       
       int length=psinfo.length();
       std::string dcsinfo = psinfo.substr(39,1);
       std::string branchinfo = psinfo.substr(57,2);
       std::string crateinfo= psinfo.substr(69,1);
       std::string boardinfo = psinfo.substr(80,2);
-      std::string channelinfo = psinfo.substr(90,3);
+      std::string psIdinfo = psinfo.substr(83,length-83);
     
       dcs= atoi(dcsinfo.c_str());
       branch= atoi(branchinfo.c_str());
       crate= atoi(crateinfo.c_str())+1;
       board= atoi(boardinfo.c_str())+1;
-      rack = (branch+1)+(dcs-1)*6; 
-      rack = rack_order[rack]; 
-      channel = atoi(channelinfo.c_str());
- //     std::cout << dcs << " " << branch<< " " <<crate<< " " << board<<" " << rack << std::endl;
+   
+      if(dcs==1)rack=(branch+1)/2;
+      if(dcs==2)rack=(branch+1)/2 + 7;
+      if(dcs==3)rack=(branch+1)/2 + 15;
+      if(dcs==4)rack=(branch+1)/2 + 22;
+      
       int key = rack*1000+crate*100+board;
       
       TmPsu *psu = psuMap[key];
@@ -287,7 +273,7 @@ TrackerMap::TrackerMap(const edm::ParameterSet & tkmapPset,const edm::ESHandle<S
       }
    
       psuModuleMap.insert(std::make_pair(psu,imod));
-      if(imod!=0){imod->PsuId=psIdinfo;imod->psuIdex=psu->idex;imod->HVchannel=channel;}
+      if(imod!=0)imod->PsuId=psIdinfo;imod->psuIdex=psu->idex;
        
       }
       
@@ -639,37 +625,12 @@ if(!print_total)mod->value=mod->value*mod->count;//restore mod->value
  }
   
 }
-void TrackerMap::setRange(float min,float max){gminvalue=min;gmaxvalue=max;
-if(tkMapLog) {gminvalue=pow(10.,min);gmaxvalue=pow(10.,max);}
-}
-
-std::pair<float,float> TrackerMap::getAutomaticRange(){
-  float minvalue,maxvalue;
-  minvalue=9999999.;
-  maxvalue=-9999999.;
-  for (int layer=1; layer < 44; layer++){
-    for (int ring=firstRing[layer-1]; ring < ntotRing[layer-1]+firstRing[layer-1];ring++){
-      for (int module=1;module<200;module++) {
-        int key=layer*100000+ring*1000+module;
-        TmModule * mod = smoduleMap[key];
-        if(mod !=0 && !mod->notInUse()  && mod->count>0){
-          if (minvalue > mod->value)minvalue=mod->value;
-          if (maxvalue < mod->value)maxvalue=mod->value;
-        }
-      }
-    }
-  }
-if(tkMapLog) {minvalue=log(minvalue)/log(10);maxvalue=log(maxvalue)/log(10);}
- return std::make_pair(minvalue,maxvalue);
-
-}
 
 //export  tracker map
 //print_total = true represent in color the total stored in the module
 //print_total = false represent in color the average  
 void TrackerMap::save(bool print_total,float minval, float maxval,std::string s,int width, int height){
-  bool rangefound = true; 
-  if(saveGeoTrackerMap){ 
+  
   std::string filetype=s,outputfilename=s;
   std::vector<TPolyLine*> vp;
   TGaxis *axis = 0 ;
@@ -701,14 +662,12 @@ void TrackerMap::save(bool print_total,float minval, float maxval,std::string s,
   if(minvalue>=maxvalue){
   minvalue=9999999.;
   maxvalue=-9999999.;
-  rangefound=false;
   for (int layer=1; layer < 44; layer++){
     for (int ring=firstRing[layer-1]; ring < ntotRing[layer-1]+firstRing[layer-1];ring++){
       for (int module=1;module<200;module++) {
         int key=layer*100000+ring*1000+module;
         TmModule * mod = smoduleMap[key];
-        if(mod !=0 && !mod->notInUse()  && mod->count>0){
-          rangefound=true;
+        if(mod !=0 && !mod->notInUse()){
           if (minvalue > mod->value)minvalue=mod->value;
           if (maxvalue < mod->value)maxvalue=mod->value;
         }
@@ -716,7 +675,7 @@ void TrackerMap::save(bool print_total,float minval, float maxval,std::string s,
     }
   }
 }
-  if ((maxvalue == minvalue)||!rangefound) printflag = false;
+  if (maxvalue == minvalue) printflag = false;
   if(!temporary_file){
   *savefile << "<?xml version=\"1.0\"  standalone=\"no\" ?>"<<std::endl;
   *savefile << "<svg  xmlns=\"http://www.w3.org/2000/svg\""<<std::endl;
@@ -814,9 +773,7 @@ void TrackerMap::save(bool print_total,float minval, float maxval,std::string s,
       }
     }
     if (printflag) {
-      float lminvalue=minvalue; float lmaxvalue=maxvalue;
-      if(tkMapLog) {lminvalue=log(minvalue)/log(10);lmaxvalue=log(maxvalue)/log(10);}
-      axis = new TGaxis(3660,36,3660,1530,lminvalue,lmaxvalue,510,"+L");
+      axis = new TGaxis(3660,36,3660,1530,minvalue,maxvalue,510,"+L");
       axis->SetLabelSize(0.02);
       axis->Draw();
     }
@@ -884,7 +841,7 @@ void TrackerMap::save(bool print_total,float minval, float maxval,std::string s,
          delete (*pos1);}
     
   }
- }
+
   
 }
 void TrackerMap::drawApvPair(int crate, int numfed_incrate, bool print_total, TmApvPair* apvPair,std::ofstream * svgfile,bool useApvPairValue)
@@ -1068,7 +1025,7 @@ void TrackerMap::drawPsu(int rack,int numcrate_inrack , bool print_total, TmPsu*
   s.erase(s.begin()+s.find("connected"),s.end());
    
   if(psu->red < 0){ //use count to compute color
-    if(psu->count > 0){
+    if(psu->value > 0){
       color = getcolor(psu->value,palette);
       red=(color>>16)&0xFF;
       green=(color>>8)&0xFF;
@@ -1238,7 +1195,6 @@ void TrackerMap::save_as_fectrackermap(bool print_total,float minval, float maxv
  if(enableFecProcessing){
   std::string filetype=s,outputfilename=s;
   std::vector<TPolyLine*> vp;
-  TGaxis *axis = 0 ;
   size_t found=filetype.find_last_of(".");
   filetype=filetype.substr(found+1);
   found=outputfilename.find_last_of(".");
@@ -1312,7 +1268,7 @@ void TrackerMap::save_as_fectrackermap(bool print_total,float minval, float maxv
     maxvalue=-9999999.;
     for( i_ccu=ccuMap.begin();i_ccu !=ccuMap.end(); i_ccu++){
        TmCcu *  ccu= i_ccu->second;
-       if(ccu!=0 && ccu->count>0) {
+       if(ccu!=0) {
               if (minvalue > ccu->value)minvalue=ccu->value;
               if (maxvalue < ccu->value)maxvalue=ccu->value;
         }
@@ -1387,7 +1343,7 @@ void TrackerMap::save_as_fectrackermap(bool print_total,float minval, float maxv
 }
 }
  if(temporary_file){
- if(printflag&&!saveWebInterface)drawPalette(savefile);
+   // if(printflag)drawPalette(savefile);
   savefile->close();
 
   const char * command1;
@@ -1398,7 +1354,7 @@ void TrackerMap::save_as_fectrackermap(bool print_total,float minval, float maxv
     TCanvas *MyC = new TCanvas("MyC", "TrackerMap",width,height);
     gPad->SetFillColor(38);
 
-    if(saveWebInterface)gPad->Range(0,0,3700,1600); else gPad->Range(0,0,3800,1600);
+    gPad->Range(0,0,3700,1600);
 
     //First  build palette
     ncolor=0;
@@ -1447,19 +1403,6 @@ void TrackerMap::save_as_fectrackermap(bool print_total,float minval, float maxv
         pline->Draw("f");
       }
     }
-        if (printflag&&!saveWebInterface) {
-      float lminvalue=minvalue; float lmaxvalue=maxvalue;
-      if(tkMapLog) {lminvalue=log(minvalue)/log(10);lmaxvalue=log(maxvalue)/log(10);}
-      axis = new TGaxis(3660,36,3660,1530,lminvalue,lmaxvalue,510,"+L");
-      axis->SetLabelSize(0.02);
-      axis->Draw();
-    }
-
-    if(!saveWebInterface){
-    TLatex l;
-    l.SetTextSize(0.05);
-    l.DrawLatex(50,1530,title.c_str());
-       }
     MyC->Update();
     std::cout << "Filetype " << filetype << std::endl;
     if(filetype=="png"){
@@ -1480,7 +1423,6 @@ void TrackerMap::save_as_fectrackermap(bool print_total,float minval, float maxv
     system(command1);
     MyC->Clear();
     delete MyC;
-    if (printflag&&!saveWebInterface)delete axis;
     for(std::vector<TPolyLine*>::iterator pos1=vp.begin();pos1!=vp.end();pos1++){
          delete (*pos1);}
    
@@ -1495,7 +1437,7 @@ void TrackerMap::save_as_HVtrackermap(bool print_total,float minval, float maxva
  if(enableHVProcessing){
   std::string filetype=s,outputfilename=s;
   std::vector<TPolyLine*> vp;
-  TGaxis *axis = 0 ;
+  
   size_t found=filetype.find_last_of(".");
   filetype=filetype.substr(found+1);
   found=outputfilename.find_last_of(".");
@@ -1531,13 +1473,14 @@ void TrackerMap::save_as_HVtrackermap(bool print_total,float minval, float maxva
        TmPsu *  psu= ipsu->second;
        if(psu!=0) {
        ret = psuModuleMap.equal_range(psu);
-         int nconn1=0;int nconn2=0;
          for(it = ret.first; it != ret.second; ++it){
-           if((*it).second->HVchannel==2&&(*it).second->count>0){ nconn1++;psu->valueHV2=psu->valueHV2+(*it).second->value;}
-           if((*it).second->HVchannel==3&&(*it).second->count>0){ nconn2++;psu->valueHV3=psu->valueHV3+(*it).second->value;} 
+           if((*it).second->HVchannel==2){ psu->valueHV2=psu->valueHV2+(*it).second->value;}
+           if((*it).second->HVchannel==3){ psu->valueHV3=psu->valueHV3+(*it).second->value;} 
 	    }
-         if(psu->nmodHV2!=0 &&nconn1>0){psu->valueHV2=psu->valueHV2/psu->nmodHV2; psu->countHV2=1; }
-         if(psu->nmodHV3!=0 &&nconn2>0){psu->valueHV3=psu->valueHV3/psu->nmodHV3; psu->countHV3=1; }
+         if(psu->nmodHV2!=0){psu->valueHV2=psu->valueHV2/psu->nmodHV2;}
+         if(psu->nmodHV3!=0){psu->valueHV3=psu->valueHV3/psu->nmodHV3;}
+	 psu->countHV2=1;
+         psu->countHV3=1; 
 	  
 	   }
 	 
@@ -1586,8 +1529,7 @@ void TrackerMap::save_as_HVtrackermap(bool print_total,float minval, float maxva
     
     for( ipsu=psuMap.begin();ipsu !=psuMap.end(); ipsu++){
        TmPsu *  psu= ipsu->second;
-       if(psu!=0 && psu->countHV2>0 && psu->countHV3 >0) {
-
+       if(psu!=0) {
 	      if (minvalue > psu->valueHV2 || minvalue > psu->valueHV3)minvalue=std::min(psu->valueHV2,psu->valueHV3);
 	      if (maxvalue < psu->valueHV2 || maxvalue < psu->valueHV3)maxvalue=std::max(psu->valueHV2,psu->valueHV3);
 	      
@@ -1666,7 +1608,7 @@ void TrackerMap::save_as_HVtrackermap(bool print_total,float minval, float maxva
   
 
   if(temporary_file){
-  if(printflag&&!saveWebInterface)drawPalette(savefile);
+ //   if(printflag)drawPalette(savefile);
     savefile->close(); 
 
   const char * command1;
@@ -1677,7 +1619,7 @@ void TrackerMap::save_as_HVtrackermap(bool print_total,float minval, float maxva
     TCanvas *MyC = new TCanvas("MyC", "TrackerMap",width,height);
     gPad->SetFillColor(38);
     
-    if(saveWebInterface)gPad->Range(0,0,3700,1600); else gPad->Range(0,0,3800,1600);
+    gPad->Range(0,0,3700,1600);
     
     //First  build palette
     ncolor=0;
@@ -1726,20 +1668,6 @@ void TrackerMap::save_as_HVtrackermap(bool print_total,float minval, float maxva
         pline->Draw("f");
       }
     }
-        if (printflag&&!saveWebInterface) {
-      float lminvalue=minvalue; float lmaxvalue=maxvalue;
-      if(tkMapLog) {lminvalue=log(minvalue)/log(10);lmaxvalue=log(maxvalue)/log(10);}
-      axis = new TGaxis(3660,36,3660,1530,lminvalue,lmaxvalue,510,"+L");
-      axis->SetLabelSize(0.02);
-      axis->Draw();
-    }
-
-
-    if(!saveWebInterface){
-    TLatex l;
-    l.SetTextSize(0.05);
-    l.DrawLatex(50,1530,title.c_str());
-       }
     MyC->Update();
     std::cout << "Filetype " << filetype << std::endl;
     if(filetype=="png"){
@@ -1760,7 +1688,6 @@ void TrackerMap::save_as_HVtrackermap(bool print_total,float minval, float maxva
     system(command1);
     MyC->Clear();
     delete MyC;
-     if (printflag&&!saveWebInterface)delete axis;
     for(std::vector<TPolyLine*>::iterator pos1=vp.begin();pos1!=vp.end();pos1++){
          delete (*pos1);}
     
@@ -1776,7 +1703,6 @@ void TrackerMap::save_as_psutrackermap(bool print_total,float minval, float maxv
   
   std::string filetype=s,outputfilename=s;
   std::vector<TPolyLine*> vp;
-  TGaxis *axis = 0 ;
   
   size_t found=filetype.find_last_of(".");
   filetype=filetype.substr(found+1);
@@ -1788,7 +1714,7 @@ void TrackerMap::save_as_psutrackermap(bool print_total,float minval, float maxv
 
   
   if(filetype=="xml"||filetype=="svg")temporary_file=false;
-   
+  
   std::ostringstream outs;
   minvalue=minval; maxvalue=maxval;
   outs << outputfilename << ".coor";
@@ -1813,12 +1739,12 @@ void TrackerMap::save_as_psutrackermap(bool print_total,float minval, float maxv
        TmPsu *  psu= ipsu->second;
        if(psu!=0) {
          ret = psuModuleMap.equal_range(psu);
-         int nconn=0;
          for(it = ret.first; it != ret.second; ++it){
-            if((*it).second->count>0){nconn++;psu->value=psu->value+(*it).second->value;}
+            psu->value=psu->value+(*it).second->value;
             
 	    }
-         if(nconn>0){ psu->value=psu->value/psu->nmod; psu->count=1;}
+         psu->value=psu->value/psu->nmod;
+         psu->count=1;
      
 	 }
        }
@@ -1857,7 +1783,7 @@ void TrackerMap::save_as_psutrackermap(bool print_total,float minval, float maxv
     maxvalue=-9999999.;
     for( ipsu=psuMap.begin();ipsu !=psuMap.end(); ipsu++){
        TmPsu *  psu= ipsu->second;
-       if(psu!=0 && psu->count>0) {
+       if(psu!=0) {
 	      if (minvalue > psu->value)minvalue=psu->value;
 	      if (maxvalue < psu->value)maxvalue=psu->value;
 	}
@@ -1934,7 +1860,7 @@ void TrackerMap::save_as_psutrackermap(bool print_total,float minval, float maxv
   
   
   if(temporary_file){
-  if(printflag&&!saveWebInterface)drawPalette(savefile);
+  //  if(printflag)drawPalette(savefile);
     savefile->close(); 
 
   const char * command1;
@@ -1945,7 +1871,7 @@ void TrackerMap::save_as_psutrackermap(bool print_total,float minval, float maxv
     TCanvas *MyC = new TCanvas("MyC", "TrackerMap",width,height);
     gPad->SetFillColor(38);
     
-    if(saveWebInterface)gPad->Range(0,0,3700,1600); else gPad->Range(0,0,3800,1600);
+    gPad->Range(0,0,3700,1600);
     
     //First  build palette
     ncolor=0;
@@ -1994,19 +1920,6 @@ void TrackerMap::save_as_psutrackermap(bool print_total,float minval, float maxv
         pline->Draw("f");
       }
     }
-        if (printflag&&!saveWebInterface) {
-      float lminvalue=minvalue; float lmaxvalue=maxvalue;
-      if(tkMapLog) {lminvalue=log(minvalue)/log(10);lmaxvalue=log(maxvalue)/log(10);}
-      axis = new TGaxis(3660,36,3660,1530,lminvalue,lmaxvalue,510,"+L");
-      axis->SetLabelSize(0.02);
-      axis->Draw();
-    }
-
-    if(!saveWebInterface){
-    TLatex l;
-    l.SetTextSize(0.05);
-    l.DrawLatex(50,1530,title.c_str());
-       }
     MyC->Update();
     std::cout << "Filetype " << filetype << std::endl;
     if(filetype=="png"){
@@ -2027,7 +1940,6 @@ void TrackerMap::save_as_psutrackermap(bool print_total,float minval, float maxv
     system(command1);
     MyC->Clear();
     delete MyC;
-     if (printflag&&!saveWebInterface)delete axis;
     for(std::vector<TPolyLine*>::iterator pos1=vp.begin();pos1!=vp.end();pos1++){
          delete (*pos1);}
    
@@ -2039,7 +1951,6 @@ void TrackerMap::save_as_fedtrackermap(bool print_total,float minval, float maxv
  if(enableFedProcessing){
   std::string filetype=s,outputfilename=s;
   std::vector<TPolyLine*> vp;
-  TGaxis *axis = 0 ;
   
   size_t found=filetype.find_last_of(".");
   filetype=filetype.substr(found+1);
@@ -2070,9 +1981,9 @@ void TrackerMap::save_as_fedtrackermap(bool print_total,float minval, float maxv
       TmApvPair *  apvPair= i_apv->second;
       if(apvPair!=0) {
 	TmModule * apv_mod = apvPair->mod;
-	if(apv_mod !=0 && !apv_mod->notInUse() ){
+	if(apv_mod !=0 && !apv_mod->notInUse()){
 	  if(useApvPairValue) apvPair->value = apvPair->value / apvPair->count;
-	  else if(apvPair->mpos==0 && apv_mod->count>0)apv_mod->value = apv_mod->value / apv_mod->count; 
+	  else if(apvPair->mpos==0)apv_mod->value = apv_mod->value / apv_mod->count;
 	}
       }
     }
@@ -2083,16 +1994,15 @@ void TrackerMap::save_as_fedtrackermap(bool print_total,float minval, float maxv
     maxvalue=-9999999.;
     for(i_apv=apvMap.begin();i_apv !=apvMap.end(); i_apv++){
 	TmApvPair *  apvPair= i_apv->second;
-	if(apvPair!=0 ) {
+	if(apvPair!=0) {
 	  TmModule * apv_mod = apvPair->mod;
-	  if( apv_mod !=0 && !apv_mod->notInUse() ){
+	  if( apv_mod !=0 && !apv_mod->notInUse()){
 	    if(useApvPairValue){
 	      if (minvalue > apvPair->value)minvalue=apvPair->value;
 	      if (maxvalue < apvPair->value)maxvalue=apvPair->value;
 	    } else {
-              if(apv_mod->count>0){
 	      if (minvalue > apv_mod->value)minvalue=apv_mod->value;
-	      if (maxvalue < apv_mod->value)maxvalue=apv_mod->value;}
+	      if (maxvalue < apv_mod->value)maxvalue=apv_mod->value;
 	    }
 	  }
 	}
@@ -2174,7 +2084,7 @@ void TrackerMap::save_as_fedtrackermap(bool print_total,float minval, float maxv
 }
   
   if(temporary_file){
-  if(printflag&&!saveWebInterface)drawPalette(savefile);
+    //if(printflag)drawPalette(savefile);
   savefile->close(); delete savefile;
 
   const char * command1;
@@ -2185,7 +2095,7 @@ void TrackerMap::save_as_fedtrackermap(bool print_total,float minval, float maxv
     TCanvas *MyC = new TCanvas("MyC", "TrackerMap",width,height);
     gPad->SetFillColor(38);
     
-    if(saveWebInterface)gPad->Range(0,0,3750,1600); else gPad->Range(0,0,3800,1600);
+    gPad->Range(0,0,3750,1600);
     
     //First  build palette
     ncolor=0;
@@ -2234,19 +2144,6 @@ void TrackerMap::save_as_fedtrackermap(bool print_total,float minval, float maxv
         pline->Draw("f");
       }
     }
-        if (printflag&&!saveWebInterface) {
-      float lminvalue=minvalue; float lmaxvalue=maxvalue;
-      if(tkMapLog) {lminvalue=log(minvalue)/log(10);lmaxvalue=log(maxvalue)/log(10);}
-      axis = new TGaxis(3660,36,3660,1530,lminvalue,lmaxvalue,510,"+L");
-      axis->SetLabelSize(0.02);
-      axis->Draw();
-    }
-
-    if(!saveWebInterface){
-    TLatex l;
-    l.SetTextSize(0.05);
-    l.DrawLatex(50,1530,title.c_str());
-       }
     MyC->Update();
     std::cout << "Filetype " << filetype << std::endl;
     if(filetype=="png"){
@@ -2267,7 +2164,6 @@ void TrackerMap::save_as_fedtrackermap(bool print_total,float minval, float maxv
     system(command1);
     MyC->Clear();
     delete MyC;
-     if (printflag&&!saveWebInterface)delete axis;
     for(std::vector<TPolyLine*>::iterator pos1=vp.begin();pos1!=vp.end();pos1++){
          delete (*pos1);}
    
@@ -2383,7 +2279,6 @@ void TrackerMap::drawPalette(std::ofstream * svgfile){
   float val=minvalue;
   int paletteLength = 250;
   float dval = (maxvalue-minvalue)/(float)paletteLength;
-  bool rtkMapLog = tkMapLog; if (tkMapLog)tkMapLog=false; 
   for(int i=0;i<paletteLength;i++){
   color = getcolor(val,palette);
      red=(color>>16)&0xFF;
@@ -2411,7 +2306,6 @@ void TrackerMap::drawPalette(std::ofstream * svgfile){
        }
     val = val + dval;
    }
-  tkMapLog=rtkMapLog;
 } 
 void TrackerMap::fillc_fed_channel(int fedId,int fedCh, int red, int green, int blue  )
 {
@@ -2728,29 +2622,23 @@ void TrackerMap::build(){
 }
 int TrackerMap::getcolor(float value,int palette){
    int red,green,blue;
-   float lminvalue, lmaxvalue;
-   lminvalue=minvalue; lmaxvalue=maxvalue;
-   if(tkMapLog) {lminvalue=log(minvalue)/log(10);lmaxvalue=log(maxvalue)/log(10); value=log(value)/log(10);}
-
-   
    red=0;green=0;blue=0;
    if(palette==1){//palette1 1 - raibow
-   float delta=(lmaxvalue-lminvalue);
-   float x =(value-lminvalue);
-   if(value<lminvalue){red=0;green=0;blue=255;}
-   if(value>lmaxvalue){red=255;green=0;blue=0;}
-   if(value>=lminvalue&&value<=lmaxvalue){ 
+   float delta=(maxvalue-minvalue);
+   float x =(value-minvalue);
+   if(value<minvalue){red=0;green=0;blue=255;}
+   if(value>maxvalue){red=255;green=0;blue=0;}
+   if(value>=minvalue&&value<=maxvalue){ 
    red = (int) ( x<(delta/2) ? 0 : ( x > ((3./4.)*delta) ?  255 : 255/(delta/4) * (x-(2./4.)*delta)  ) );
    green= (int) ( x<delta/4 ? (x*255/(delta/4)) : ( x > ((3./4.)*delta) ?  255-255/(delta/4) *(x-(3./4.)*delta) : 255 ) );
    blue = (int) ( x<delta/4 ? 255 : ( x > ((1./2.)*delta) ?  0 : 255-255/(delta/4) * (x-(1./4.)*delta) ) );
      }
      }
      if (palette==2){//palette 2 yellow-green
-     green = (int)((value-lminvalue)/(lmaxvalue-lminvalue)*256.);
+     green = (int)((value-minvalue)/(maxvalue-minvalue)*256.);
          if (green > 255) green=255;
          red = 255; blue=0;green=255-green;  
         } 
-  // std::cout<<red<<" "<<green<<" "<<blue<<" "<<value <<" "<<lminvalue<<" "<< lmaxvalue<<std::endl;
    return(blue|(green<<8)|(red<<16));
 }
 void TrackerMap::printonline(){
@@ -3054,26 +2942,15 @@ save_as_HVtrackermap(true,gminvalue,gmaxvalue,outs6.str(),3000,1600);
  } 
  
 }
-void TrackerMap::printall(bool print_total, float minval1, float maxval1, std::string s,int width, int height){
+void TrackerMap::printall(bool print_total, float minval, float maxval, std::string outputfilename){
 //Copy interface
-  if(tkMapLog && (title.find("Log10 scale") == std::string::npos)) title += ": Log10 scale";
- float minval,maxval; minval=minval1; maxval=maxval1; 
-  if(tkMapLog && (minval<maxval)) {minval=pow(10.,minval1);maxval=pow(10.,maxval1);}
-  std::string filetype=s,outputfilename=s;
-  if(saveWebInterface){width=6000;height=3200;}
-  else{ 
-  size_t found=filetype.find_last_of(".");
-  filetype=filetype.substr(found+1);
-  found=outputfilename.find_last_of(".");
-  outputfilename=outputfilename.substr(0,found);
-  }
   std::ofstream * ofilename;
   std::ifstream * ifilename;
   std::ostringstream ofname;
   std::string ifname;
   std::string line;
   std::string command;
-  if(saveWebInterface){
+
   ifilename=findfile("viewerHeader.xhtml");
   ofname << outputfilename << "viewer.html";
   ofilename = new std::ofstream(ofname.str().c_str(),std::ios::out);
@@ -3149,15 +3026,11 @@ ifilename=findfile("jqviewer.js");
    command = "scp -r ../../CommonTools/TrackerMap/data/images/ .";
     std::cout << "Executing " << command << std::endl;
     system(command.c_str());
-}
  
+  
     std::ostringstream outs;
     outs << outputfilename<<".png";
-    if(saveWebInterface)save(true,minval,maxval,outs.str(),3000,1600);
-    else {if(saveGeoTrackerMap)save(true,minval,maxval,s,width,height);}
-  if(saveWebInterface){
-    std::ostringstream outs;
-    outs << outputfilename<<".png";
+save(true,minval,maxval,outs.str(),3000,1600);
 temporary_file=false;
 printlayers(true,minval,maxval,outputfilename);
 
@@ -3192,14 +3065,11 @@ for (int layer=1; layer < 44; layer++){
                 }
     *txtfile << "</body></html>" << std::endl;
     txtfile->close();delete txtfile;
-}
                 }
 if(enableFedProcessing){
   std::ostringstream outs1,outs2;
-    if(saveWebInterface)outs1 << outputfilename<<"fed.png";
-        else outs1 << outputfilename<<"fed."<<filetype;
-save_as_fedtrackermap(true,0.,0.,outs1.str(),width,height);
-  if(saveWebInterface){
+    outs1 << outputfilename<<"fed.png";
+save_as_fedtrackermap(true,0.,0.,outs1.str(),6000,3200);
     outs2 << outputfilename<<".xml";
 save_as_fedtrackermap(true,0.,0.,outs2.str(),3000,1600);
 //And a text file for each crate 
@@ -3230,14 +3100,11 @@ save_as_fedtrackermap(true,0.,0.,outs2.str(),3000,1600);
     *txtfile << "</body></html>" << std::endl;
     txtfile->close();delete txtfile;
                 }
-   }
   }
 if(enableFecProcessing){
   std::ostringstream outs1,outs2;
-    if(saveWebInterface)outs1 << outputfilename<<"fec.png";
-        else outs1 << outputfilename<<"fec."<<filetype;
-save_as_fectrackermap(true,0.,0.,outs1.str(),width,height);
-  if(saveWebInterface){
+    outs1 << outputfilename<<"fec.png";
+save_as_fectrackermap(true,0.,0.,outs1.str(),6000,3200);
     outs2 << outputfilename<<".xml";
 save_as_fectrackermap(true,0.,0.,outs2.str(),3000,1600);
 //And a text file for each crate
@@ -3274,13 +3141,11 @@ save_as_fectrackermap(true,0.,0.,outs2.str(),3000,1600);
     txtfile->close();
                 }//for int crate
   }
-  }
 if(enableLVProcessing){
   std::ostringstream outs3,outs4;
-    if(saveWebInterface)outs3 << outputfilename<<"psu.png";
-        else outs3 << outputfilename<<"psu."<<filetype;
-save_as_psutrackermap(true,0.,0.,outs3.str(),width,height);
-  if(saveWebInterface){
+    outs3 << outputfilename<<"psu.png";
+save_as_psutrackermap(true,0.,0.,outs3.str(),6000,3200);
+
     outs4 << outputfilename<<".xml";
 save_as_psutrackermap(true,0.,0.,outs4.str(),3000,1600);
 //And a text file for each rack 
@@ -3318,16 +3183,14 @@ save_as_psutrackermap(true,0.,0.,outs4.str(),3000,1600);
   *txtfile << "</body></html>" << std::endl;
    txtfile->close();
   }
-  }
  } 
 
 
 if(enableHVProcessing){
   std::ostringstream outs5,outs6;
-    if(saveWebInterface)outs5 << outputfilename<<"hv.png";
-        else outs5 << outputfilename<<"hv."<<filetype;
-save_as_HVtrackermap(true,0.,0.,outs5.str(),width,height);
-  if(saveWebInterface){
+    outs5 << outputfilename<<"hv.png";
+save_as_HVtrackermap(true,0.,0.,outs5.str(),6000,3200);
+
     outs6 << outputfilename<<".xml";
 save_as_HVtrackermap(true,0.,0.,outs6.str(),3000,1600);
 //And a text file for each rack 
@@ -3379,7 +3242,6 @@ save_as_HVtrackermap(true,0.,0.,outs6.str(),3000,1600);
   *txtfile << "</body></html>" << std::endl;
    txtfile->close();
   }
- } 
  } 
 
 

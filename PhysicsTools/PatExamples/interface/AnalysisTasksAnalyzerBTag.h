@@ -37,8 +37,6 @@ class AnalysisTasksAnalyzerBTag : public edm::BasicAnalyzer {
   unsigned int bins_;
   double lowerbin_;
   double upperbin_;
-  std::string softMuonTagInfoLabel_;
-  bool skip_;
   /// histograms
   std::map<std::string, TH1*> hists_;
 };
