@@ -1,5 +1,5 @@
 #include "CondFormats/SiPixelObjects/interface/PixelROC.h"
-
+#include "CondFormats/SiPixelObjects/interface/SiPixelDbItem.h"
 #include "CondFormats/SiPixelObjects/interface/SiPixelFedCablingMap.h"
 #include "CondFormats/SiPixelObjects/interface/SiPixelCPEGenericErrorParm.h"
 #include "CondFormats/SiPixelObjects/interface/SiPixelPedestals.h"
@@ -39,6 +39,7 @@ namespace {
  
     std::vector<SiPixelQuality::disabledModuleType>::iterator p9;
     std::vector<SiPixelQuality::disabledModuleType>::const_iterator p10;
+    std::vector<SiPixelDbItem> p11;
   };
 }
 
