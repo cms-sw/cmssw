@@ -191,7 +191,6 @@ public:
   int ievt_pre_; //-- copy of counter used for prescale purposes
   bool fedsListed_;
   
-  //edm::InputTag inputLabelGT_;
   edm::InputTag inputLabelRaw_;
   edm::InputTag inputLabelReport_;
   edm::InputTag inputLabelDigi_;
@@ -203,13 +202,10 @@ public:
   edm::InputTag inputLabelCastorBasicJets_ ; 
   edm::InputTag inputLabelCastorJetIDs_ ; 
 
-
-
   ////---- define  CastorTowerCollection
   // typedef std::vector<reco::CastorTower> CastorTowerCollection;
-
-  //edm::InputTag inputLabelCaloTower_;
-  //edm::InputTag inputLabelLaser_;
+  // edm::InputTag inputLabelCaloTower_;
+  // edm::InputTag inputLabelLaser_;
 
   ////---- Maps of readout hardware unit to calorimeter channel
   std::map<uint32_t, std::vector<HcalCastorDetId> > DCCtoCell;
@@ -226,7 +222,7 @@ public:
   MonitorElement* meLatency_;
   MonitorElement* meQuality_;
   MonitorElement* CastorEventProduct;
-  
+ 
 
   ////---- define monitors
   CastorMonitorSelector*    evtSel_;

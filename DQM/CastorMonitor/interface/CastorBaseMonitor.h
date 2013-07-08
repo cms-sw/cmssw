@@ -37,6 +37,7 @@ public:
 
   void setVerbosity(int verb) { fVerbosity = verb; }
   int getVerbosity() const { return fVerbosity; }
+  void caralho();
   
   void setDiagnostics(bool myval) { makeDiagnostics=myval;}
   bool getDiagnostics() const { return makeDiagnostics;}
