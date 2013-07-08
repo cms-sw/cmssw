@@ -48,7 +48,7 @@ namespace edm {
 
     void copyProduct(BranchDescription const& productdesc);
 
-    void setFrozen(bool initializeLookupInfo = true) const;
+    void setFrozen(bool initializeLookupInfo = true);
 
     std::string merge(ProductRegistry const& other,
         std::string const& fileName,
@@ -98,7 +98,7 @@ namespace edm {
 
     bool anyProducts(BranchType const brType) const;
 
-    ConstProductList& constProductList() const {
+    ConstProductList& constProductList() {
        //throwIfNotFrozen();
        return transient_.constProductList_;
     }
@@ -112,17 +112,21 @@ namespace edm {
     bool anyProductProduced() const {return transient_.anyProductProduced_;}
     BranchListIndex producedBranchListIndex() const {return transient_.producedBranchListIndex_;}
 
-    void setProducedBranchListIndex(BranchListIndex blix) const {
+    void setProducedBranchListIndex(BranchListIndex blix) {
       transient_.producedBranchListIndex_ = blix;
     }
 
-    std::vector<std::string>& missingDictionaries() const {
+    std::vector<std::string> const& missingDictionaries() const {
+      return transient_.missingDictionaries_;
+    }
+
+    std::vector<std::string>& missingDictionariesForUpdate() {
       return transient_.missingDictionaries_;
     }
 
     ProductHolderIndex const& getNextIndexValue(BranchType branchType) const;
 
-    void initializeTransients() const {transient_.reset();}
+    void initializeTransients() {transient_.reset();}
 
     struct Transients {
       Transients();
@@ -149,23 +153,24 @@ namespace edm {
     };
 
   private:
-    void setProductProduced(BranchType branchType) const {
+    void setProductProduced(BranchType branchType) {
       transient_.productProduced_[branchType] = true;
       transient_.anyProductProduced_ = true;
     }
 
-    bool& frozen() const {return transient_.frozen_;}
+    bool frozen() const {return transient_.frozen_;}
+    void freezeIt(bool frozen = true) {transient_.frozen_ = frozen;}
 
     void updateConstProductRegistry();
-    void initializeLookupTables() const;
+    void initializeLookupTables();
     virtual void addCalled(BranchDescription const&, bool iFromListener);
     void throwIfNotFrozen() const;
     void throwIfFrozen() const;
 
-    ProductHolderIndex& nextIndexValue(BranchType branchType) const;
+    ProductHolderIndex& nextIndexValue(BranchType branchType);
 
     ProductList productList_;
-    mutable Transients transient_;
+    Transients transient_;
   };
 
   inline

@@ -17,6 +17,7 @@
 
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "Mixing/Base/src/SecondaryEventProvider.h"
 #include "CondFormats/DataRecord/interface/MixingRcd.h"
 #include "CondFormats/RunInfo/interface/MixingModuleConfig.h"
 
@@ -45,6 +46,9 @@ namespace edm {
                                                                    )).release()),
     processConfiguration_(new ProcessConfiguration(std::string("@MIXING"), getReleaseVersion(), getPassID())),
     eventPrincipal_(),
+    lumiPrincipal_(),
+    runPrincipal_(),
+    provider_(),
     poissonDistribution_(),
     poissonDistr_OOT_(),
     playback_(playback),
@@ -57,7 +61,12 @@ namespace edm {
     emptyPSet.registerIt();
     processConfiguration_->setParameterSetID(emptyPSet.id());
 
-    input_->productRegistry()->setFrozen();
+    if(pset.existsAs<std::vector<ParameterSet> >("producers", true)) {
+      std::vector<ParameterSet> producers = pset.getParameter<std::vector<ParameterSet> >("producers");
+      provider_.reset(new SecondaryEventProvider(producers, *productRegistry_, ActionTable(), processConfiguration_));
+    }
+
+    productRegistry_->setFrozen();
 
     // A modified HistoryAppender must be used for unscheduled processing.
     eventPrincipal_.reset(new EventPrincipal(input_->productRegistry(),
@@ -146,6 +155,55 @@ namespace edm {
     }
     }
     
+  }
+  void PileUp::beginJob () {
+    input_->doBeginJob();
+    if (provider_.get() != nullptr) {
+      provider_->beginJob(*productRegistry_);
+    }
+  }
+
+  void PileUp::endJob () {
+    if (provider_.get() != nullptr) {
+      provider_->endJob();
+    }
+    input_->doEndJob();
+  }
+
+  void PileUp::beginRun(const edm::Run& run, const edm::EventSetup& setup) {
+    if (provider_.get() != nullptr) {
+      boost::shared_ptr<RunAuxiliary> aux(new RunAuxiliary(run.runAuxiliary()));
+      runPrincipal_.reset(new RunPrincipal(aux, productRegistry_, *processConfiguration_, nullptr));
+      provider_->beginRun(*runPrincipal_, setup);
+    }
+  }
+  void PileUp::beginLuminosityBlock(const edm::LuminosityBlock& lumi, const edm::EventSetup& setup) {
+    if (provider_.get() != nullptr) {
+      boost::shared_ptr<LuminosityBlockAuxiliary> aux(new LuminosityBlockAuxiliary(lumi.luminosityBlockAuxiliary()));
+      lumiPrincipal_.reset(new LuminosityBlockPrincipal(aux, productRegistry_, *processConfiguration_, nullptr));
+      lumiPrincipal_->setRunPrincipal(runPrincipal_);
+      provider_->beginLuminosityBlock(*lumiPrincipal_, setup);
+    }
+  }
+
+  void PileUp::endRun(const edm::Run& run, const edm::EventSetup& setup) {
+    if (provider_.get() != nullptr) {
+      provider_->endRun(*runPrincipal_, setup);
+    }
+  }
+  void PileUp::endLuminosityBlock(const edm::LuminosityBlock& lumi, const edm::EventSetup& setup) {
+    if (provider_.get() != nullptr) {
+      provider_->endLuminosityBlock(*lumiPrincipal_, setup);
+    }
+  }
+
+  void PileUp::setupPileUpEvent(const edm::EventSetup& setup) {
+    if (provider_.get() != nullptr) {
+      // note:  run and lumi numbers must be modified to match lumiPrincipal_
+      eventPrincipal_->setLuminosityBlockPrincipal(lumiPrincipal_);
+      eventPrincipal_->setRunAndLumiNumber(lumiPrincipal_->run(), lumiPrincipal_->luminosityBlock());
+      provider_->setupPileUpEvent(*eventPrincipal_, setup);
+    }
   }
 
   void PileUp::reload(const edm::EventSetup & setup){
