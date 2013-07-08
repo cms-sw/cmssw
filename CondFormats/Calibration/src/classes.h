@@ -4,7 +4,7 @@
 #include "CondFormats/Calibration/interface/BlobComplex.h"
 #include "CondFormats/Calibration/interface/mySiStripNoises.h"
 #include "CondFormats/Calibration/interface/CalibHistograms.h"
-#include<bitset>
+#include <bitset>
 #include "CondFormats/Calibration/interface/boostTypeObj.h"
 #include "CondFormats/Calibration/interface/mypt.h"
 #include "CondFormats/Calibration/interface/fakeMenu.h"
@@ -19,5 +19,8 @@ namespace {
   struct dictionary {
     fixedArray<unsigned short,2097> d;
     std::map<std::string, Algo> e;
+    std::pair<std::string, Algo> e1;
+    std::map<std::string, Algob> e2;
+    std::pair<std::string, Algob> e3;
   };
 }
