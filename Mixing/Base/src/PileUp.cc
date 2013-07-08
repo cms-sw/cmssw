@@ -173,14 +173,14 @@ namespace edm {
   void PileUp::beginRun(const edm::Run& run, const edm::EventSetup& setup) {
     if (provider_.get() != nullptr) {
       boost::shared_ptr<RunAuxiliary> aux(new RunAuxiliary(run.runAuxiliary()));
-      runPrincipal_.reset(new RunPrincipal(aux, productRegistry_, *processConfiguration_, nullptr));
+      runPrincipal_.reset(new RunPrincipal(aux, productRegistry_, *processConfiguration_, nullptr, 0));
       provider_->beginRun(*runPrincipal_, setup);
     }
   }
   void PileUp::beginLuminosityBlock(const edm::LuminosityBlock& lumi, const edm::EventSetup& setup) {
     if (provider_.get() != nullptr) {
       boost::shared_ptr<LuminosityBlockAuxiliary> aux(new LuminosityBlockAuxiliary(lumi.luminosityBlockAuxiliary()));
-      lumiPrincipal_.reset(new LuminosityBlockPrincipal(aux, productRegistry_, *processConfiguration_, nullptr));
+      lumiPrincipal_.reset(new LuminosityBlockPrincipal(aux, productRegistry_, *processConfiguration_, nullptr, 0));
       lumiPrincipal_->setRunPrincipal(runPrincipal_);
       provider_->beginLuminosityBlock(*lumiPrincipal_, setup);
     }
