@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-from DQMOffline.L1Trigger.L1TRateOfflineParams_cff import RateParams_2011
+from DQMOffline.L1Trigger.L1TRateOfflineParams_cff import RateParams
 
 l1tRate_Offline = cms.EDAnalyzer("L1TRate_Offline",
 
@@ -16,7 +16,7 @@ l1tRate_Offline = cms.EDAnalyzer("L1TRate_Offline",
   # set to 0 again.
   lsShiftGTRates             = cms.untracked.int32(-1),
 
-  verbose                    = cms.untracked.bool(True),
+  verbose                    = cms.untracked.bool(False),
   dqmStore                   = cms.untracked.bool(True),
   disableROOToutput          = cms.untracked.bool(True),
   inputTagScalersResults     = cms.InputTag("scalersRawToDigi"),
@@ -65,6 +65,6 @@ l1tRate_Offline = cms.EDAnalyzer("L1TRate_Offline",
   #pathCondDB = cms.string("/afs/cern.ch/cms/DB/conddb"), 
 
   # if srcAlgoXSecFit = 1 we need to define 
-  fitParameters = RateParams_2011
+  fitParameters = RateParams
 
 )
