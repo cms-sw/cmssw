@@ -75,7 +75,9 @@
   <class name="edm::reftobase::VectorHolder<reco::Candidate, reco::MuonRefVector>" />
   <class name="edm::reftobase::RefVectorHolder<reco::MuonRefVector>" />
 
-  <class name="edm::RefToBase<reco::Muon>" />
+  <class name="edm::RefToBase<reco::Muon>">
+    <field name="holder_" transient="true"/>
+  </class>
   <class name="edm::reftobase::IndirectHolder<reco::Muon>" />
   <class name="edm::RefToBaseProd<reco::Muon>" />
   <class name="edm::RefToBaseVector<reco::Muon>" />

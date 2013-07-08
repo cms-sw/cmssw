@@ -8,7 +8,9 @@
   <class name="edm::RefProd<std::vector<PSimHit> >"/>
   <class name="edm::Ref<std::vector<PSimHit>,PSimHit,edm::refhelper::FindUsingAdvance<std::vector<PSimHit>,PSimHit> >"/>
 
-  <class name="edm::RefToBase<PSimHit>"/>
+  <class name="edm::RefToBase<PSimHit>">
+    <field name="holder_" transient="true"/>
+  </class>
   <class name="std::vector<edm::RefToBase<PSimHit> >"/>
   <class name="edm::reftobase::Holder<PSimHit,edm::Ref<std::vector<PSimHit>,PSimHit,edm::refhelper::FindUsingAdvance<std::vector<PSimHit>,PSimHit> > >"/>
 
