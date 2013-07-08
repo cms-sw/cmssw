@@ -36,7 +36,7 @@ public:
     theX(aX), theP(aP),     
     theCharge(aCharge)
   {
-    cachedMagneticField = theField->inTesla(theX);
+    cachedMagneticField = theField ? theField->inTesla(theX) : GlobalVector(0, 0, 0);
   } // we must initialize cache to non-NAN to avoid FPE
 
   /** Constructing class from global position, direction (unit length) 
