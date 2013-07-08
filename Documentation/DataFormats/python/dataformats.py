@@ -78,7 +78,7 @@ def wrap_always(text, width):
 # END OF TABLE FORMATING
 
 # START of import
-import sys, pprint
+import sys
 imported_modules = []
 
 def importDF(path):
@@ -87,40 +87,37 @@ def importDF(path):
     modules_to_import = "RecoLocalTracker RecoLocalMuon RecoLocalCalo RecoEcal TrackingTools RecoTracker RecoJets RecoMET RecoMuon RecoBTau RecoBTag RecoTauTag RecoVertex RecoPixelVertexing RecoEgamma RecoParticleFlow L1Trigger".split()
   
 
-    for m in modules_to_import:
-        m = m + "_dataformats"
+    for module in modules_to_import:
+        m = module + "_dataformats"
         try:
             sys.path.append(path+"/src/Documentation/DataFormats/python/")
+#            sys.path.append(".")
             globals()[m] = __import__(m)
             imported_modules.append(m)
-	    print m
+            print "Searching in "+ module
         except ImportError:
-            print "skipping", m
+            print "skipping", module
         
 # END of import            
-        
+       
+
 def search(query):
     labels = ('Where(Package)', 'Instance', 'Container', 'Description')
     width = 20
-    
     data = ""
+    
     for module in imported_modules:
-        for dict_name in ["full", "reco", "aod"]:         # going through all dictionaries
-            #print module
-            dict = vars(globals()[module])[dict_name] 
-              
-            for key in sorted(dict.keys()):                        # going though all elements in dictionary
-                # TODO: IMPROVE
-                element = dict[key]
-                if query.lower() in element.__str__().lower():    # searching for query
-                    if not (("No documentation".lower()) in element.__str__().lower()):
-                        data+= module.replace("_dataformats", "")+" ("+ dict_name.replace("full", "FEVT") + ")||" + "||".join(element)+"\n"
-                    
+        dict = vars(globals()[module])["json"]
+        for type in ["full", "reco", "aod"]:
+            for data_items in dict[type]['data']:
+                if query.lower() in data_items.__str__().lower() and not (("No documentation".lower()) in data_items.__str__().lower()):
+                    data+= module.replace("_json", "")+" ("+ type.replace("full", "FEVT") + ")||" + "||".join(data_items.values())+"\n"
+    
     if (data != ""):
         rows = [row.strip().split('||')  for row in data.splitlines()]
         print indent([labels]+rows, hasHeader=True, separateRows=True, prefix='| ', postfix=' |',  wrapfunc=lambda x: wrap_always(x,width))
     else:
-        print "No documentation found"   
+        print "No documentation found" 
 
 def help():
     print "usage: dataformats pattern_to_search"
@@ -133,13 +130,11 @@ if __name__ == "__main__":
         help()
         sys.exit(0)	
 
-    print sys.argv[1]
-    print sys.argv[2]
-
     if (len(sys.argv) > 2):
-	importDF(sys.argv[1])
+        importDF(sys.argv[1])
         print "\nSearching for: "+sys.argv[2]+"\n" 
-        search(sys.argv[2]) 
+        search(sys.argv[2])
+
     else:
         help()
  

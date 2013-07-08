@@ -19,7 +19,7 @@ process.GlobalTag.globaltag = "GR_R_52_V2::All"
 
 #--- SiPixelRawToDigi ---#
 process.load("EventFilter.SiPixelRawToDigi.SiPixelRawToDigi_cfi")
-#process.siPixelDigis.InputLabel = "source"
+#process.siPixelDigis.InputLabel = "rawDataCollector"
 process.siPixelDigis.InputLabel = "rawDataCollector"
 process.siPixelDigis.Timing = True
 process.siPixelDigis.UseQualityInfo = False

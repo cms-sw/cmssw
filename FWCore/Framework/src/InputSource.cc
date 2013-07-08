@@ -286,7 +286,7 @@ namespace edm {
   boost::shared_ptr<RunPrincipal>
   InputSource::readAndCacheRun(HistoryAppender& historyAppender) {
     RunSourceSentry sentry(*this);
-    boost::shared_ptr<RunPrincipal> rp(new RunPrincipal(runAuxiliary(), productRegistry_, processConfiguration(), &historyAppender));
+    boost::shared_ptr<RunPrincipal> rp(new RunPrincipal(runAuxiliary(), productRegistry_, processConfiguration(), &historyAppender,0));
     callWithTryCatchAndPrint<boost::shared_ptr<RunPrincipal> >( [this,&rp](){ return readRun_(rp); }, "Calling InputSource::readRun_" );
     return rp;
   }
@@ -304,7 +304,7 @@ namespace edm {
       new LuminosityBlockPrincipal(luminosityBlockAuxiliary(),
                                    productRegistry_,
                                    processConfiguration(),
-                                   &historyAppender));
+                                   &historyAppender,0));
     callWithTryCatchAndPrint<boost::shared_ptr<LuminosityBlockPrincipal> >( [this,&lbp](){ return readLuminosityBlock_(lbp); },
                                                                             "Calling InputSource::readLuminosityBlock_" );
     if(remainingLumis_ > 0) {

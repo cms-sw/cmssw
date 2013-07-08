@@ -65,7 +65,7 @@ namespace edm {
     eventPrincipal_.reset(new EventPrincipal(secInput_->productRegistry(),
                                             secInput_->branchIDListHelper(),
                                             *processConfiguration_,
-                                            nullptr));
+                                             nullptr, StreamID::invalidStreamID()));
 
   }
 

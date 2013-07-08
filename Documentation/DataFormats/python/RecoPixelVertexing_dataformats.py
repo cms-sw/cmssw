@@ -1,20 +1,43 @@
+'''
+    Created on Jun 26, 2013 
+    @author:  Mantas Stankevicius
+    @contact: mantas.stankevicius@cern.ch
+    http://cmsdoxy.web.cern.ch/cmsdoxy/dataformats/
+    
+    @responsible: 
+    
+'''
 
-full_title = "RecoPixelVertexing collections (in RECO and AOD)"
+json = {
+  "full": {
+    "title": "RecoPixelVertexing collections (in RECO and AOD)",
+    "data": [
+     {
+      "instance": "pixelVertices",
+      "container": "reco::VertexCollection",
+      "desc": "primary vertices reconstructed from pixel tracks"
+     },
+     {
+      "instance": "pixelTracks",
+      "container": "reco::TrackCollection",
+      "desc": "(proto)tracks created from two or three hits in Pixel detector"
+     }
+    ]
+  },
+  "aod": {
+    "title": "RecoPixelVertexing collections (in AOD only)",
+    "data": [
 
-full = {
-    '0':['pixelTracks','reco::TrackCollection','(proto)tracks created from two or three hits in Pixel detector'],
-      # Correction needed, because not matched with Event Content
-    '1':['pixelVertices','reco::VertexCollection','primary vertices reconstructed from pixel tracks']
-}
-
-reco_title = "RecoPixelVertexing collections (in RECO only)"
-
-reco = {
-    '0':['pixelTracks', 'reco::TrackExtraCollection', 'No documentation'] 
-}
-
-aod_title = "RecoPixelVertexing collections (in AOD only)"
-
-aod = {
-
+    ]
+  },
+  "reco": {
+    "title": "RecoPixelVertexing collections (in RECO only)",
+    "data": [
+     {
+      "instance": "pixelTracks",
+      "container": "reco::TrackExtraCollection",
+      "desc": "No documentation"
+     }
+    ]
+  }
 }

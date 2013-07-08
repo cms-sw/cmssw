@@ -20,7 +20,7 @@ process.load('EventFilter.SiStripRawToDigi.ExcludedFEDListProducer_cfi')
 
 # process.myProducerLabel = cms.EDProducer(
 #     'SiStripExcludedFEDListProducer',
-#     ProductLabel = cms.InputTag("source")
+#     ProductLabel = cms.InputTag("rawDataCollector")
 # )
 
 process.out = cms.OutputModule("PoolOutputModule",

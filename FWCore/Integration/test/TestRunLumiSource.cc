@@ -107,19 +107,19 @@ namespace edm {
 
     boost::shared_ptr<RunAuxiliary> runAux(new RunAuxiliary(run, ts, Timestamp::invalidTimestamp()));
     boost::shared_ptr<RunPrincipal> rp2(
-                                        new RunPrincipal(runAux, productRegistry(), processConfiguration(), &historyAppender_));
+                                        new RunPrincipal(runAux, productRegistry(), processConfiguration(), &historyAppender_,0));
 
     boost::shared_ptr<LuminosityBlockAuxiliary> lumiAux(
 	new LuminosityBlockAuxiliary(rp2->run(), lumi, ts, Timestamp::invalidTimestamp()));
     boost::shared_ptr<LuminosityBlockPrincipal> lbp2(
-        new LuminosityBlockPrincipal(lumiAux, productRegistry(), processConfiguration(), &historyAppender_));
+        new LuminosityBlockPrincipal(lumiAux, productRegistry(), processConfiguration(), &historyAppender_,0));
     lbp2->setRunPrincipal(rp2);
 
     EventID id(run, lbp2->luminosityBlock(), event);
     currentIndex_ += 3;
     EventAuxiliary eventAux(id, processGUID(), ts, false);
     boost::shared_ptr<BranchIDListHelper> branchIDListHelper(new BranchIDListHelper());
-    EventPrincipal* result(new EventPrincipal(productRegistry(), branchIDListHelper, processConfiguration(), &historyAppender_));
+    EventPrincipal* result(new EventPrincipal(productRegistry(), branchIDListHelper, processConfiguration(), &historyAppender_,eventPrincipal.streamID()));
     result->fillEventPrincipal(eventAux);
     result->setLuminosityBlockPrincipal(lbp2);
     return result;
