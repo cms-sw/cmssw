@@ -3,8 +3,7 @@ import FWCore.ParameterSet.Config as cms
 # Ideal geometry, needed for transient ECAL alignement
 from Configuration.Geometry.GeometryExtended2019_cff import *
 
-import Geometry.HcalEventSetup.hcalSLHCTopologyConstants_cfi as hcalTopologyConstants_cfi
-hcalTopologyConstants = cms.PSet(hcalTopologyConstants_cfi.hcalTopologyConstants)
+from Geometry.HcalEventSetup.hcalSLHCTopologyConstants_cfi import *
 
 # Reconstruction geometry services
 #  Tracking Geometry
@@ -33,3 +32,6 @@ from Geometry.CaloEventSetup.EcalTrigTowerConstituents_cfi import *
 from Geometry.EcalMapping.EcalMapping_cfi import *
 from Geometry.EcalMapping.EcalMappingRecord_cfi import *
 
+hcalTopologyIdeal = Geometry.HcalEventSetup.hcalTopologyIdeal_cfi.hcalTopologyIdeal.clone()
+import Geometry.HcalEventSetup.hcalSLHCTopologyConstants_cfi as hcalTopologyConstants_cfi
+hcalTopologyIdeal.hcalTopologyConstants = cms.PSet(hcalTopologyConstants_cfi.hcalTopologyConstants)
