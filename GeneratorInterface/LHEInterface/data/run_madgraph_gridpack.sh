@@ -1,6 +1,7 @@
 #!/bin/bash
 
-set -o verbose
+#set -o verbose
+set -e
 
 echo "   ______________________________________     "
 echo "         Running Madgraph5....                "
@@ -40,10 +41,11 @@ echo "%MSG-MG5 number of events requested = $nevt"
 rnum=${12}
 echo "%MSG-MG5 random seed used for the run = $rnum"
 
-# retrieve the wanted gridpack from the official repository 
-fn-fileget -c `cmsGetFnConnect frontier://smallfiles` ${repo}/${name}_gridpack.tar.gz 
-# force the f77 compiler to be the CMS defined one
+# retrieve the wanted gridpack from the official repository
+## || true is a temporary workaround to work with option -e and overcome the fact that the exist code of fn-fileget is 1 even if it succeeds
+fn-fileget -c `cmsGetFnConnect frontier://smallfiles` ${repo}/${name}_gridpack.tar.gz || true
 
+# force the f77 compiler to be the CMS defined one
 ln -sf `which gfortran` f77
 ln -sf `which gfortran` g77
 PATH=`pwd`:${PATH}
@@ -51,25 +53,30 @@ PATH=`pwd`:${PATH}
 tar xzf ${name}_gridpack.tar.gz ; rm -f ${name}_gridpack.tar.gz ; cd madevent
 ## compile according to MG version 1.3.30 or 1.4.3 
 
-
 ########### BEGIN - REPLACE process ################
 # REPLACE script is runned automatically by run.sh if REPLACE dir is found ###
 # REPLACE will replace el with el/mu/taus by default, if you need something else you need to edit the replace_card1.dat
 if [ ${replace} == true ] ; then
-    cd ..
-    mkdir REPLACE
-    cat > replace_card1.dat <<EOF
-# Enter here any particles you want replaced in the event file after ME run
-# In the syntax PID : PID1 PID2 PID3 ...
-# End with "done" or <newline>
-11:11 13 15
--12: -12 -14 -16
--11:-11 -13 -15
-12: 12 14 16
-done
-EOF
-    cp  ./madevent/bin/replace.pl  ./replace_card1.dat  ./REPLACE/
-    cd -
+  echo "%MSG-MG5: REPLACE is not working on SLC6 nodes and had been disabled." 
+  echo "%MSG-MG5: Please produce your gridpack with explicit lepton flavours in the proc_card.dat"
+#########THE USE OF REPLACE HAS BEEN DISABLED!
+#########this is due to a clash between zlib in cmssw and Compress::Zlib in SLC6 nodes 
+#    cd ..
+#    mkdir REPLACE
+#    cat > replace_card1.dat <<EOF
+## Enter here any particles you want replaced in the event file after ME run
+## In the syntax PID : PID1 PID2 PID3 ...
+## End with "done" or <newline>
+#11:11 13 15
+#-12: -12 -14 -16
+#-11:-11 -13 -15
+#12: 12 14 16
+#done
+#EOF
+#    cp  ./madevent/bin/replace.pl  ./replace_card1.dat  ./REPLACE/
+#    chmod a+x ./REPLACE/replace.pl
+#    cd -
+  exit 1
 fi	
 ########## END - REPLACE #########################
 
@@ -81,6 +88,10 @@ fi
 
 if [ "${decay}" != true ] ; then
     rm -rf DECAY
+else
+  cd ..
+  cp  -r ./madevent/bin/internal/DECAY .
+  cd -
 fi
 
 ######END - DECAY #####
@@ -95,7 +106,7 @@ file="events"
 
 if [ ! -f ${file}.lhe.gz ]; then
         echo "%MSG-MG5 events.lhe.gz file is not in the same folder with run.sh script, abort  !!! "
-        exit
+        exit 1
 
 fi
 
