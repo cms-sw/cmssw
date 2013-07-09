@@ -47,7 +47,7 @@ void HcalHitRelabeller::process(std::vector<PCaloHit>& hcalHits) {
       if (layer == 0) {
 	hcalHits[ii].setEnergy(0);
 #ifdef DEBUG
-	std::cout << "Hit [" << ii << "] " << (HcalDetId)(hcalHits[ii]) << " Layer " << layer << " energy set to " << hcalhits[ii].energy() << '\n';
+	std::cout << "Hit [" << ii << "] " << (HcalDetId)(hcalHits[ii].id()) << " Layer " << layer << " energy set to " << hcalHits[ii].energy() << '\n';
 #endif
       }
     }
