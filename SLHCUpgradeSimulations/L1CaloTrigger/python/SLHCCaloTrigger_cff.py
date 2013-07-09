@@ -9,6 +9,8 @@ SLHCCaloTrigger  = cms.Sequence(#L1TestPatternCaloTowerProducer+
                                 L1CaloClusterProducer+
                                 L1CaloClusterFilter+
                                 L1CaloClusterIsolator+
+                                L1CaloClusterEGFilter+
+                                L1CaloClusterEGIsolator+
                                 L1CaloJetProducer+
                                 L1CaloJetFilter+
                                 L1TowerJetProducer+
@@ -21,11 +23,11 @@ SLHCCaloTrigger  = cms.Sequence(#L1TestPatternCaloTowerProducer+
                                 # L1TowerFwdJetProducer+
                                 # L1TowerFwdJetFilter1D+
                                 # L1TowerFwdJetFilter2D+
-
+                                L1CaloJetExpander+
                                 rawSLHCL1ExtraParticles+
-                                SLHCL1ExtraParticles+
-                                SLHCL1ExtraParticlesNewCalib+
-                                l1extraParticlesCalibrated
+                                SLHCL1ExtraParticles
+                             
+                                #l1extraParticlesCalibrated
 )
 
 #uncomment the lines below for verbose (Huge amount of printouts!)
