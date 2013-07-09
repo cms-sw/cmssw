@@ -23,7 +23,6 @@ private:
   int ievt_;
 
 
-
  ////--- CASTOR channels
  int module;
  int sector;
@@ -48,8 +47,6 @@ private:
 
  ////---- total energy deposited in the whole CASTOR  
  float EtotalCASTOR;
-
-
 
  
   ////---- define Monitoring elements
@@ -160,8 +157,6 @@ private:
  MonitorElement* meEtotalEMvsHAD;
 
 
-
-
 ////---- charge in sectors
  MonitorElement* meChargeSector1;  
  MonitorElement* meChargeSector2;  
@@ -263,22 +258,6 @@ private:
  MonitorElement* meChargeTotalHAD;
 ////--- total charge ratio EM/HAD per event 
  MonitorElement* meChargeTotalEMvsHAD;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 };
 

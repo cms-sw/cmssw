@@ -8,7 +8,7 @@
 //********** Date  : 23.09.2008 (first version) ******// 
 //***************************************************//
 ////---- energy and time of Castor RecHits 
-////---- last revision: 05.03.2010 
+////---- last revision: Pedro Cipriano 09.07.2013 
 
 //==================================================================//
 //======================= Constructor ==============================//
@@ -269,8 +269,8 @@ void CastorRecHitMonitor::processEvent(const CastorRecHitCollection& castorHits 
         castorHists.meRECHIT_N_event->Fill(iHit);
 
       ////---- do histograms per channel once per 100 events     
-      if( doPerChannel_) 
-         CastorRecHitPerChan::perChanHists<CastorRecHit>(*CASTORiter, castorHists.meRECHIT_E, castorHists.meRECHIT_T, m_dbe, baseFolder_); 
+      // if( doPerChannel_) 
+      //  CastorRecHitPerChan::perChanHists<CastorRecHit>(*CASTORiter, castorHists.meRECHIT_E, castorHists.meRECHIT_T, m_dbe, baseFolder_); 
      }///////////////////////////------------------- end of loop over all hits
 
       ////---- get the total energy deposited over all events
@@ -304,14 +304,8 @@ void CastorRecHitMonitor::processEvent(const CastorRecHitCollection& castorHits 
    }
 
   else { if(fVerbosity>0) std::cout<<"CastorRecHitMonitor::processEvent NO Castor RecHits !!!"<<std::endl; }
-
-  if (showTiming) { 
-      cpu_timer.stop(); std::cout << " TIMER::CastorRecHit -> " << cpu_timer.cpuTime() << std::endl; 
-      cpu_timer.reset(); cpu_timer.start();  
-    }
-    
  
-  if(fVerbosity>0) std::cout << "CastorRecHitMonitor::processEvent (begin)"<< std::endl;
+  if(fVerbosity>0) std::cout << "CastorRecHitMonitor::processEvent (end)"<< std::endl;
 
   return;
 }

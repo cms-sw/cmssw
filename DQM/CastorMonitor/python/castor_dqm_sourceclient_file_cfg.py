@@ -124,10 +124,10 @@ process.load("CondCore.DBCommon.CondDBSetup_cfi")
 # Castor DQM Source + SimpleReconstrctor
 #-----------------------------
 #process.load("DQM.CastorMonitor.CastorMonitorModule_cfi")
-process.load("EventFilter.CastorRawToDigi.CastorRawToDigi_cfi")
+#process.load("EventFilter.CastorRawToDigi.CastorRawToDigi_cfi")
 process.load("RecoLocalCalo.CastorReco.CastorSimpleReconstructor_cfi")
 
-process.castorreco.tsFromDB = cms.untracked.bool(False)
+process.castorreco.tsFromDB = cms.bool(False)
 
 process.castorDigis = cms.EDProducer("CastorRawToDigi",
     # Optional filter to remove any digi with "data valid" off, "error" on, 
@@ -173,7 +173,7 @@ process.castorMonitor = cms.EDAnalyzer("CastorMonitorModule",
                            rawLabel             = cms.InputTag("rawDataCollector"),
                            unpackerReportLabel  = cms.InputTag("castorDigis"),
                            CastorRecHitLabel    = cms.InputTag("castorreco"),
-                           CastorTowerLabel     = cms.InputTag("CastorTowerReco"),
+                           CastorTowerLabel     = cms.InputTag("recoCastorTowers"),
                            CastorBasicJetsLabel = cms.InputTag("ak7BasicJets"),
                            CastorJetIDLabel     = cms.InputTag("ak7CastorJetID"),
                           
@@ -196,7 +196,6 @@ process.castorMonitor = cms.EDAnalyzer("CastorMonitorModule",
                            PSMonitor= cms.untracked.bool(True),
                            numberSigma = cms.untracked.double(1.5),
                            thirdRegionThreshold =  cms.untracked.double(999999.0),        
-                           EDMonitor= cms.untracked.bool(True),
                            HIMonitor= cms.untracked.bool(True),
                                        
                            diagnosticPrescaleTime = cms.untracked.int32(-1),

@@ -74,7 +74,6 @@
 
 
 
-
 class CastorMonitorModule : public edm::EDAnalyzer{
 
 public:
@@ -231,7 +230,6 @@ public:
   CastorDigiMonitor*        DigiMon_;
   CastorLEDMonitor*         LedMon_;
   CastorPSMonitor*          PSMon_;
-  CastorEventDisplay*       EDMon_;
   CastorHIMonitor*          HIMon_;
   CastorDataIntegrityMonitor* DataIntMon_;
   CastorTowerJetMonitor*     TowerJetMon_;

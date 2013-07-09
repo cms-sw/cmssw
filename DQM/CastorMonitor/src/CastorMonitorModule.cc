@@ -23,14 +23,14 @@ CastorMonitorModule::CastorMonitorModule(const edm::ParameterSet& ps)
   if(fVerbosity>0) std::cout << "CastorMonitorModule Constructor (start)" << std::endl;
 
    ////---- get steerable variables
-  inputLabelRaw_ = ps.getParameter<edm::InputTag>("rawLabel");
-  inputLabelDigi_        = ps.getParameter<edm::InputTag>("digiLabel");
-  inputLabelRecHitCASTOR_  = ps.getParameter<edm::InputTag>("CastorRecHitLabel");
-  inputLabelCastorTowers_  = ps.getParameter<edm::InputTag>("CastorTowerLabel"); 
-  fVerbosity = ps.getUntrackedParameter<int>("debug", 0);                        //-- show debug 
-  showTiming_ = ps.getUntrackedParameter<bool>("showTiming", false);         //-- show CPU time 
-  dump2database_   = ps.getUntrackedParameter<bool>("dump2database",false);  //-- dumps output to database file
-  EDMonOn_=  ps.getUntrackedParameter<bool>("EDMonitor", false);
+  inputLabelRaw_ 			= ps.getParameter<edm::InputTag>("rawLabel");
+  inputLabelReport_        	= ps.getParameter<edm::InputTag>("unpackerReportLabel");
+  inputLabelDigi_ 			= ps.getParameter<edm::InputTag>("digiLabel");
+  inputLabelRecHitCASTOR_  		= ps.getParameter<edm::InputTag>("CastorRecHitLabel");
+  inputLabelCastorTowers_  		= ps.getParameter<edm::InputTag>("CastorTowerLabel"); 
+  fVerbosity 				= ps.getUntrackedParameter<int>("debug", 0);                        //-- show debug 
+  showTiming_ 				= ps.getUntrackedParameter<bool>("showTiming", false);         //-- show CPU time 
+  dump2database_   			= ps.getUntrackedParameter<bool>("dump2database",false);  //-- dumps output to database file
 
   ////---- initialize Run, LS, Event number and other parameters
   irun_=0; 
@@ -51,7 +51,6 @@ CastorMonitorModule::CastorMonitorModule(const edm::ParameterSet& ps)
   CQMon_ = NULL; 
   HIMon_ = NULL;  
   PSMon_ = NULL;
-  EDMon_ = NULL;
   //I think Event products is done by default  
   TowerJetMon_ = NULL;
   DataIntMon_ = NULL;
@@ -102,14 +101,6 @@ CastorMonitorModule::CastorMonitorModule(const edm::ParameterSet& ps)
     if(fVerbosity>0) std::cout << "CastorMonitorModule: PS monitor flag is on...." << std::endl;
     PSMon_ = new CastorPSMonitor();
     PSMon_->setup(ps, dbe_);
-  }
- //------------------------------------------------------------//
-
- //---------------------- EDMonitor ----------------------// 
-  if ( ps.getUntrackedParameter<bool>("EDMonitor", false) ) {
-    if(fVerbosity>0) std::cout << "CastorMonitorModule: ED monitor flag is on...." << std::endl;
-    EDMon_ = new CastorEventDisplay();
-    EDMon_->setup(ps, dbe_);
   }
  //------------------------------------------------------------//
 
@@ -274,7 +265,6 @@ void CastorMonitorModule::beginRun(const edm::Run& iRun, const edm::EventSetup& 
     if (CQMon_ != NULL) { CQMon_->beginRun(iRun, iSetup); }
     if (HIMon_ != NULL) { HIMon_->beginRun(iSetup); }
     if (PSMon_ != NULL) { PSMon_->beginRun(iRun, iSetup); }
-    if (EDMon_ != NULL) { EDMon_->beginRun(iSetup); }
     if (TowerJetMon_!= NULL) { TowerJetMon_->beginRun(iRun, iSetup); }
     if (DataIntMon_ != NULL) { DataIntMon_->beginRun(iSetup); }
 
@@ -472,7 +462,7 @@ void CastorMonitorModule::analyze(const edm::Event& iEvent, const edm::EventSetu
 
   
   edm::Handle<HcalUnpackerReport> report; 
-  iEvent.getByType(report);  
+  iEvent.getByLabel(inputLabelReport_,report);  
   if (!report.isValid()) {
     rawOK_=false;
     if (fVerbosity>0)  std::cout << "UNPACK REPORT HAS FAILED!" << std::endl;
@@ -595,20 +585,7 @@ void CastorMonitorModule::analyze(const edm::Event& iEvent, const edm::EventSetu
 
 //----------------- PS monitor task -------------------------//
 // if(rechitOK_ && digiOK_ ) PSMon_->processEvent(*CastorDigi, *conditions_, listEMap, ibunch_, fPedestalNSigmaAverage);
-
-
-
-  //---------------- EventDisplay monitor task ------------------------//
-  ////---- get calo geometry
-  edm::ESHandle<CaloGeometry> caloGeometry;
-  eventSetup.get<CaloGeometryRecord>().get(caloGeometry);
   
- if(rechitOK_ && EDMonOn_) EDMon_->processEvent(*CastorHits, *caloGeometry);
- if (showTiming_){
-      cpu_timer.stop();
-      if (EDMon_!=NULL) std::cout <<"TIMER:: EVENTDISPLAY MONITOR ->"<<cpu_timer.cpuTime()<<std::endl;
-      cpu_timer.reset(); cpu_timer.start();
-    }   
 
 //----------------- Tower Jet monitor task -------------------------//
 
