@@ -161,6 +161,7 @@ namespace edm {
           << "Could not read the initial product registry list\n";
     }
 
+    sd->initializeTransients();
     return sd;
   }
 
