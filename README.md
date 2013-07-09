@@ -92,17 +92,15 @@ Merge the changes
 git merge FETCH_HEAD
 </code></pre>
 
-Check if it is up-to-date with gem-sw/cmssw
-<pre><code>
-To be added here
-</code></pre>
-
 Compile:<pre><code>scram b -j 9</code></pre>
 
 3.3 Adding submodules
 
 Validation code
 <pre><code>git submodule add git://github.com/gem-sw/GEMCode.git</code></pre>
+
+L1TriggerDevelopment:
+<pre><code>git submodule add git://github.com/gem-sw/L1TriggerDPGUpgrade.git</code></pre>
 
 Website development
 <pre><code>git submodule add git://github.com/gem-sw/Website.git</code></pre>
