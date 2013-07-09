@@ -1086,7 +1086,7 @@ void PFEGammaAlgoNew::buildAndRefineEGObjects(const reco::PFBlockRef& block) {
   _recoveredlinks.clear();
   _refinableObjects.clear();
   _finalCandidates.clear();  
-  _splayedblock.resize(12); // make sure that we always have the SC ent ry
+  _splayedblock.resize(12); // make sure that we always have the SC entry
 
   _currentblock = block;
   _currentlinks = block->linkData();
@@ -1114,6 +1114,7 @@ void PFEGammaAlgoNew::buildAndRefineEGObjects(const reco::PFBlockRef& block) {
 #endif
 
   // precleaning of the ECAL clusters with respect to primary KF tracks
+  // we don't allow clusters in super clusters to be locked out this way
   removeOrLinkECALClustersToKFTracks();
 
   initializeProtoCands(_refinableObjects); 
@@ -1328,7 +1329,7 @@ unwrapSuperCluster(const PFSCElement* thesc,
   if( ecalbegin == ecalend ) {
     throw cms::Exception("PFEGammaAlgoNew::unwrapSuperCluster()")
       << "There are no ECAL elements in a block with imported SC!" 
-      << std::endl;
+      << std::endl << *_currentblock << std::endl;
   }
   reco::SuperClusterRef scref = thesc->superClusterRef();
   // this check needs to be done in a different way
@@ -1358,7 +1359,7 @@ unwrapSuperCluster(const PFSCElement* thesc,
   if( firstnotinsc == ecalbegin ) {
     throw cms::Exception("PFEGammaAlgo::unwrapSuperCluster()")
       << "No associated block elements to SuperCluster! Shouldn't happen!"
-      << std::endl;
+      << std::endl << *_currentblock << std::endl;
   }
   npfclusters = std::distance(ecalbegin,firstnotinsc);
   // ensure we have found the correct number of PF ecal clusters in the case
@@ -1583,6 +1584,15 @@ removeOrLinkECALClustersToKFTracks() {
 					      closestECAL.first->index(),
 					      _currentlinks,
 					      reco::PFBlock::LINKTEST_ALL);
+      bool inSC = false;
+      for( auto& sc : _splayedblock[reco::PFBlockElement::SC] ) {
+	float dist_sc = _currentblock->dist(sc.first->index(), 
+					    closestECAL.first->index(),
+					    _currentlinks,
+					    reco::PFBlock::LINKTEST_ALL);
+	if( dist_sc != -1.0f) { inSC = true; break; }
+      }
+      
       if( dist != -1.0 && closestECAL.second ) {
 	bool gsflinked = false;
 	// check that this cluster is not associated to a GSF track
@@ -1604,7 +1614,8 @@ removeOrLinkECALClustersToKFTracks() {
 	    }
 	  }			    
 	} // loop over primary GSF tracks
-	if( !gsflinked ) { // determine if we should remove the matched cluster
+	if( !gsflinked && !inSC) { 
+	  // determine if we should remove the matched cluster
 	  const reco::PFBlockElementTrack * kfEle = 
 	    docast(const reco::PFBlockElementTrack*,kftrack.first);
 	  const reco::TrackRef trackref = kfEle->trackRef();
