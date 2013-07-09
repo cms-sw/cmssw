@@ -3,8 +3,8 @@
 # https://twiki.cern.ch/twiki/bin/view/CMSPublic/RelMon
 #
 # $Author: anorkus $
-# $Date: 2013/06/05 14:30:03 $
-# $Revision: 1.8 $
+# $Date: 2013/07/05 09:45:01 $
+# $Revision: 1.9 $
 
 #
 #                                                                              
@@ -472,6 +472,8 @@ def directory2html(directory, hashing, standalone, depth=0):
     page_name="RelMonSummary"
   if hashing:
       if page_name != "RelMonSummary":
+          #print " ## oFile path: %s"%(join(directory.full_path))
+          #print " ## oFile hash: %s"%(hash_name(join(directory.full_path), hashing))
           ofilename = "%s.html" %(hash_name(join(directory.full_path), hashing)) #as links is generated: parentdi+subdir; we split and get the last parent dir
       else:
           ofilename = "RelMonSummary.html"
@@ -759,6 +761,8 @@ def make_summary_table(indir,aggregation_rules,aggregation_rules_twiki, hashing_
       all_subdirs.append(subdir_name)
   all_subdirs=sorted(list(set(all_subdirs)))
   
+  #print " $$ all_subdirs: %s" %(all_subdirs)
+  
   # Get The title
   page_html+= '<div class="span-20">'+\
               '<h2><a name="top" href="https://twiki.cern.ch/twiki/bin/view/CMSPublic/RelMon">RelMon</a> Global Report: %s</h2>'%title+\
@@ -883,8 +887,15 @@ def make_summary_table(indir,aggregation_rules,aggregation_rules_twiki, hashing_
       # Check if the directory is the top one
       if directory.name!="":
         # We did not run on the topdir
-        summary_page=join(sample,"%s.html"%(hash_name(directory.name+"_"+subdir_name,hashing_flag)))
+        #print "   ## summary_page: %s"%(directory.name+"_"+subdir_name)
+        #print "   ## summary_page hash: %s" %(hash_name(directory.name+"/"+subdir_name,hashing_flag))
+        if hashing_flag:
+          summary_page=join(sample,"%s.html"%(hash_name(directory.name+"/"+subdir_name,hashing_flag)))
+        else:
+          summary_page=join(sample,"%s.html"%(hash_name(directory.name+"_"+subdir_name,hashing_flag)))
       else:
+        #print "   ## summary_page: %s"%(directory.name+subdir_name)
+        #print "   ## summary_page hash: %s" %(hash_name(directory.name+subdir_name,hashing_flag))
         summary_page=join(sample,"%s.html"%(hash_name(directory.name+subdir_name,hashing_flag)))
       dir_is_there=subdirs_dict.has_key(subdir_name)
 

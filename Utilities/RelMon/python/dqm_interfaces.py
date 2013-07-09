@@ -2,9 +2,9 @@
 # RelMon: a tool for automatic Release Comparison                              
 # https://twiki.cern.ch/twiki/bin/view/CMSPublic/RelMon
 #
-# $Author: dpiparo $
-# $Date: 2013/03/06 09:50:18 $
-# $Revision: 1.6 $
+# $Author: anorkus $
+# $Date: 2013/06/05 14:30:03 $
+# $Revision: 1.7 $
 #
 #                                                                              
 # Danilo Piparo CERN - danilo.piparo@cern.ch                                   
@@ -592,10 +592,13 @@ class DirWalkerFile(object):
     """
     contents1=self.dqmrootfile1.ls(directory_name)
     contents2=self.dqmrootfile2.ls(directory_name)
+    #print "cont1: %s"%(contents1)
+    #print "cont2: %s"%(contents2)
     contents={}
     self.different_histograms['file1']= {}
     self.different_histograms['file2']= {}
     keys = filter(lambda key: contents1.has_key(key),contents2.keys()) #set of all possible contents from both files
+    #print " ## keys: %s" %(keys)
     for key in keys:  #iterate on all unique keys
       if contents1[key]!=contents2[key]:
         diff_file1 = set(contents1.keys()) - set(contents2.keys()) #set of contents that file1 is missing
@@ -632,7 +635,7 @@ class DirWalkerFile(object):
         
     # see if in black_list
     this_dir=DirID(dir_name,depth)
-    #print this_dir
+    print "  ## this_dir: %s"%(this_dir)
     if this_dir in self.black_list: 
       #print "Directory %s skipped because black-listed" %dir_name
       return 0        
@@ -640,7 +643,8 @@ class DirWalkerFile(object):
     depth+=1
     
     self.cd(dir_name)
-    #print self.ls()
+    #if dir_name == 'HLTJETMET':
+    #    print self.ls()
     
     #print "Test %s with thre %s" %(self.stat_test.name, self.stat_test.threshold)
     
