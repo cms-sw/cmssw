@@ -53,13 +53,10 @@ sven.dildick@cern.ch
 
 2. CMSSW-specific github setup<br>
 
-2.1 Setup a new CMSSW environment. See list of CMSSW tags on Git to get the latest version available (currently CMSSW_6_2_0_pre5).
+2.1 Setup a new CMSSW environment. See list of CMSSW tags on Git to get the latest version available (currently CMSSW_6_2_0_pre8).
 <pre><code>cmsrel CMSSW_X_Y_Z<br>cd CMSSW_X_Y_Z/src<br>cmsenv</code></pre>
  
-2.2 Check out latest version of ReleaseScripts. 
-You have to include it for CMSSW_6_2_0_pre5, but is should be included in CMSSW_6_2_0_pre6 and CMSSW_6_2_0_pre7.<pre><code>cvs co Utilities/ReleaseScripts<br>scram b -j 9</code></pre>
-
-2.3 Initialize and configure Git. In CMSSW_X_Y_Z/src, do<pre><code>git init<br>git config --list<br>git config --global remote.cmssw-main.url git@github.com:cms-sw/cmssw.git<br>git config --global remote.cmssw-main-ro.url https://github.com/cms-sw/cmssw.git<br>git config --global core.sparsecheckout true</code></pre>
+2.2 Initialize and configure Git. In CMSSW_X_Y_Z/src, do<pre><code>git init<br>git config --list<br>git config --global remote.cmssw-main.url git@github.com:cms-sw/cmssw.git<br>git config --global remote.cmssw-main-ro.url https://github.com/cms-sw/cmssw.git<br>git config --global core.sparsecheckout true</code></pre>
 
 If your user identity has not been set yet, do<pre><code>git config --global core.editor emacs<br>git config --global user.name FirstName LastName<br>git config --global user.email FirstName.LastName@cern.ch</code></pre>
 
@@ -68,7 +65,16 @@ If your user identity has not been set yet, do<pre><code>git config --global cor
 
 3.1 Get the private, customized CMSSW code
 
-<pre><code>git remote add cmssw-gem git@github.com:gem-sw/cmssw.git<br>git fetch cmssw-gem<br>git pull cmssw-gem master<br></code></pre>
+<pre><code>
+git cms-addpkg Geometry/GEMGeometry<br>
+git cms-addpkg Geometry/GEMGeometryBuilder<br>
+git cms-addpkg DataFormats/MuonDetId<br>
+git cms-addpkg DataFormats/GEMRecHit
+git cms-addpkg DataFormats/CSCDigi
+git cms-addpkg L1Trigger/CSCTriggerPrimitives
+git cms-addpkg L1Trigger/GlobalMuonTrigger
+git cms-addpkg L1Trigger/
+</code></pre>
 
 Check the available branches<pre><code>git branch</code></pre>
 
@@ -84,9 +90,6 @@ Compile:<pre><code>scram b -j 9</code></pre>
 
 Validation code
 <pre><code>git submodule add git://github.com/gem-sw/GEMCode.git</code></pre>
-
-Trigger code
-<pre><code>git submodule add git://github.com/gem-sw/SimMuL1.git</code></pre>
 
 Website development
 <pre><code>git submodule add git://github.com/gem-sw/Website.git</code></pre>
