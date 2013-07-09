@@ -31,76 +31,97 @@ void CastorEventDisplay::reset(){
 //========================= setup ==========================//
 //==========================================================//
 
-void CastorEventDisplay::setup(const edm::ParameterSet& ps, DQMStore* dbe){
-  
+void CastorEventDisplay::setup(const edm::ParameterSet& ps, DQMStore* dbe)
+  {
+  if(fVerbosity>0) std::cout << "CastorEventDisplay::setup (start)" << std::endl;  
+
   CastorBaseMonitor::setup(ps,dbe);
   baseFolder_ = rootFolder_+"CastorEventDisplay";
   
 
-  offline_             = ps.getUntrackedParameter<bool>("OfflineMode", false); 
-
-  if(fVerbosity>0) std::cout << "CastorEventDisplay::setup (start)" << std::endl;
+  offline_ = ps.getUntrackedParameter<bool>("OfflineMode", false); 
   
   ////--- initialize these here
   ievt_=0;  allEnergyEvent=0.; maxEnergyEvent=0.;
   X_pos=0.; Y_pos=0.; Z_pos=0.;
   X_pos_maxE=0.; Y_pos_maxE=0.; Z_pos_maxE=0.;
 
-  if ( m_dbe !=NULL ) {    
-  m_dbe->setCurrentFolder(baseFolder_);
-
-  ////---- book MonitorElements
-  meEVT_ = m_dbe->bookInt("EventDisplay Event Number"); // meEVT_->Fill(ievt_);
-  
-  ////---- cumulative event display
-  meCastor3Dhits = m_dbe->book3D("CASTOR 3D hits- cumulative", "CASTOR 3D hits - cumulative", 30, 1420, 1600, 35, -35, 35, 35, -35, 35);
-
-
-  if( offline_ ){
-  //-- swap z and y axis 
-  TH3F* Castor3Dhits = meCastor3Dhits->getTH3F();
-  Castor3Dhits->GetXaxis()->SetTitle("Z [cm]"); //-- also swap x and z
-  Castor3Dhits->GetYaxis()->SetTitle("X [cm]");
-  Castor3Dhits->GetZaxis()->SetTitle("Y [cm]");
-  }
-
-  ////---- event display of an event with the largest deposited energy
-  meCastor3DhitsMaxEnergy = m_dbe->book3D("CASTOR 3D hits- event with the largest deposited E", "CASTOR 3D hits- event with the largest deposited E",  30, 1420, 1600, 20, -30, 30, 20, -30, 30); //-- swap z and y axis
-
-  if( offline_ ){
-  TH3F* Castor3DhitsMaxEnergy = meCastor3DhitsMaxEnergy->getTH3F();
-  Castor3DhitsMaxEnergy->GetXaxis()->SetTitle("Z [cm]"); //-- also swap x and z
-  Castor3DhitsMaxEnergy->GetYaxis()->SetTitle("X [cm]");
-  Castor3DhitsMaxEnergy->GetZaxis()->SetTitle("Y [cm]");
-  Castor3DhitsMaxEnergy->SetDrawOption("LEGO2");
-  }
-
- } 
-
-  else{
-  if(fVerbosity>0) std::cout << "CastorEventDisplay::setup - NO DQMStore service" << std::endl; 
-  }
-
   if(fVerbosity>0) std::cout << "CastorEventDisplay::setup (end)" << std::endl;
   
   return;
+  }
+
+
+//==========================================================//
+//================== beginRun ==============================//
+//==========================================================//
+void CastorEventDisplay::beginRun(const edm::EventSetup& iSetup) {
+
+  if(fVerbosity>0) std::cout << "CastorEventDisplay::beginRun (start)" << std::endl;
+ 
+  if ( m_dbe !=NULL )
+	{    
+  	m_dbe->setCurrentFolder(baseFolder_);
+
+  	////---- book MonitorElements
+  	meEVT_ = m_dbe->bookInt("EventDisplay Event Number"); // meEVT_->Fill(ievt_);
+  
+  	////---- cumulative event display
+  	meCastor3Dhits = m_dbe->book3D("CASTOR 3D hits- cumulative", "CASTOR 3D hits - cumulative", 30, 1420, 1600, 35, -35, 35, 35, -35, 35);
+
+
+  	if( offline_ )
+		{
+  		//-- swap z and y axis 
+  		TH3F* Castor3Dhits = meCastor3Dhits->getTH3F();
+  		Castor3Dhits->GetXaxis()->SetTitle("Z [cm]"); //-- also swap x and z
+  		Castor3Dhits->GetYaxis()->SetTitle("X [cm]");
+  		Castor3Dhits->GetZaxis()->SetTitle("Y [cm]");
+  		}
+
+  	///---- event display of an event with the largest deposited energy
+  	meCastor3DhitsMaxEnergy = m_dbe->book3D("CASTOR 3D hits- event with the largest deposited E", "CASTOR 3D hits- event with the largest deposited E",  30, 1420, 1600, 20, -30, 30, 20, -30, 30); //-- swap z and y axis
+
+  	if( offline_ )
+		{
+  		TH3F* Castor3DhitsMaxEnergy = meCastor3DhitsMaxEnergy->getTH3F();
+  	Castor3DhitsMaxEnergy->GetXaxis()->SetTitle("Z [cm]"); //-- also swap x and z
+  	Castor3DhitsMaxEnergy->GetYaxis()->SetTitle("X [cm]");
+  	Castor3DhitsMaxEnergy->GetZaxis()->SetTitle("Y [cm]");
+  	Castor3DhitsMaxEnergy->SetDrawOption("LEGO2");
+  	}
+
+  } 
+  else
+	{
+  	if(fVerbosity>0) std::cout << "CastorEventDisplay::beginRun - NO DQMStore service" << std::endl; 
+  	}
+ 
+ 
+ if(fVerbosity>0) std::cout << "CastorEventDisplay::beginRun (end)" << std::endl;
+
+
+ return;
 }
+
+
 
 //==========================================================//
 //================== processEvent ==========================//
 //==========================================================//
 
-void CastorEventDisplay::processEvent(const CastorRecHitCollection& castorHits, const CaloGeometry& caloGeometry ){
-  
-  if(fVerbosity>0) std::cout << "==>CastorEventDisplay::processEvent !!!"<< std::endl;
+void CastorEventDisplay::processEvent(const CastorRecHitCollection& castorHits, const CaloGeometry& caloGeometry )
+  {
+  if(fVerbosity>0) std::cout << "CastorEventDisplay::processEvent (begin)"<< std::endl;
 
   ////---- fill the event number
    meEVT_->Fill(ievt_);
 
-  if(!m_dbe) { 
-    if(fVerbosity>0) std::cout <<"CastorEventDisplay::processEvent => DQMStore is not instantiated !!!"<<std::endl;  
-    return; 
-  }
+  if(!m_dbe)
+	{ 
+    	if(fVerbosity>0) std::cout <<"CastorEventDisplay::processEvent => DQMStore is not instantiated !!!"<<std::endl;  
+    	return; 
+  	}
 
    allEnergyEvent=0.;
 
@@ -110,7 +131,7 @@ void CastorEventDisplay::processEvent(const CastorRecHitCollection& castorHits, 
 
      if(castorHits.size()>0)
     {    
-       if(fVerbosity>0) std::cout << "==>CastorEventDisplay::processEvent: castorHits.size()>0 !!!" << std::endl; 
+       if(fVerbosity>1) std::cout << "==>CastorEventDisplay::processEvent: castorHits.size()>0 !!!" << std::endl; 
 
        ////---- loop over all hits
        for (CASTORiter=castorHits.begin(); CASTORiter!=castorHits.end(); ++CASTORiter) { 
@@ -138,11 +159,11 @@ void CastorEventDisplay::processEvent(const CastorRecHitCollection& castorHits, 
          meCastor3Dhits->Fill(std::abs(Z_pos),X_pos,Y_pos, energy);
 	}
 
-	if(fVerbosity>0)  std::cout<<"ENERGY="<< energy <<" X_pos="<< X_pos <<" Y_pos="<< Y_pos <<" Z_pos="<< Z_pos << std::endl;   
+	if(fVerbosity>1)  std::cout<<"ENERGY="<< energy <<" X_pos="<< X_pos <<" Y_pos="<< Y_pos <<" Z_pos="<< Z_pos << std::endl;   
       } //-- end of for loop
 
 
-    if(fVerbosity>0)  std::cout<<"TOTAL ENERGY in an event="<< allEnergyEvent << std::endl;
+    if(fVerbosity>1)  std::cout<<"TOTAL ENERGY in an event="<< allEnergyEvent << std::endl;
 
 
 
@@ -150,7 +171,7 @@ void CastorEventDisplay::processEvent(const CastorRecHitCollection& castorHits, 
     if (allEnergyEvent > maxEnergyEvent) { 
      maxEnergyEvent = allEnergyEvent;
      meCastor3DhitsMaxEnergy->Reset();
-     if(fVerbosity>0) std::cout<<"LARGEST ENERGY in an event="<< maxEnergyEvent << std::endl;
+     if(fVerbosity>1) std::cout<<"LARGEST ENERGY in an event="<< maxEnergyEvent << std::endl;
  
     ////---- loop over all hits
      for (CASTORiter=castorHits.begin(); CASTORiter!=castorHits.end(); ++CASTORiter){
@@ -176,6 +197,8 @@ void CastorEventDisplay::processEvent(const CastorRecHitCollection& castorHits, 
   ////---- increment here
   ievt_++; 
   
+  if(fVerbosity>0) std::cout << "CastorEventDisplay::processEvent (end)"<< std::endl;
+
   return;
 }
 
