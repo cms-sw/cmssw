@@ -69,11 +69,10 @@ If your user identity has not been set yet, do<pre><code>git config --global cor
 git cms-addpkg Geometry/GEMGeometry<br>
 git cms-addpkg Geometry/GEMGeometryBuilder<br>
 git cms-addpkg DataFormats/MuonDetId<br>
-git cms-addpkg DataFormats/GEMRecHit
-git cms-addpkg DataFormats/CSCDigi
-git cms-addpkg L1Trigger/CSCTriggerPrimitives
-git cms-addpkg L1Trigger/GlobalMuonTrigger
-git cms-addpkg L1Trigger/
+git cms-addpkg DataFormats/GEMRecHit<br>
+git cms-addpkg DataFormats/CSCDigi<br>
+git cms-addpkg L1Trigger/CSCTriggerPrimitives<br>
+git cms-addpkg L1Trigger/GlobalMuonTrigger<br>
 </code></pre>
 
 Check the available branches<pre><code>git branch</code></pre>
