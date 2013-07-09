@@ -55,7 +55,7 @@ const GeomDet* RPCGeometry::idToDet(DetId id) const{
   if (i != theMap.end())
     return i->second;
 
-  edm::LogError("RPCGeometry")<<"Invalid DetID: no GeomDet associated "<< RPCDetId(id);
+  LogDebug("RPCGeometry")<<"Invalid DetID: no GeomDet associated "<< RPCDetId(id);
   GeomDet* geom = 0;
   return geom;   
 }
