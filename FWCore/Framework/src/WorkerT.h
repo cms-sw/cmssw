@@ -40,9 +40,6 @@ namespace edm {
      module_->setModuleDescription(description());
      
   }
-
-    void setEventSelectionInfo(std::map<std::string, std::vector<std::pair<std::string, int> > > const& outputModulePathPositions,
-                               bool anyProductProduced);
     
     virtual Types moduleType() const override;
 
