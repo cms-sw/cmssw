@@ -9,8 +9,8 @@ BetaCalculatorRPC::BetaCalculatorRPC(const edm::ParameterSet& iConfig){
 
 }
 
-void BetaCalculatorRPC::algo(std::vector<susybsm::RPCHit4D> HSCPRPCRecHits){
-
+void BetaCalculatorRPC::algo(const std::vector<susybsm::RPCHit4D>& uHSCPRPCRecHits){
+  std::vector<susybsm::RPCHit4D> HSCPRPCRecHits = uHSCPRPCRecHits;
   int lastbx=-7;
   bool outOfTime = false;
   bool increasing = true;

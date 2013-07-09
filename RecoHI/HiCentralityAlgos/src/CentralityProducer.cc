@@ -13,7 +13,7 @@
 //
 // Original Author:  Yetkin Yilmaz, Young Soo Park
 //         Created:  Wed Jun 11 15:31:41 CEST 2008
-// $Id: CentralityProducer.cc,v 1.42 2013/01/23 08:22:41 yjlee Exp $
+// $Id: CentralityProducer.cc,v 1.30 2010/11/06 10:58:46 yilmaz Exp $
 //
 //
 
@@ -42,18 +42,14 @@
 #include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHitCollection.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHit.h"
-#include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/VertexReco/interface/Vertex.h"
-#include "DataFormats/VertexReco/interface/VertexFwd.h"
 
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
-
 
 using namespace std;
 
@@ -89,11 +85,10 @@ class CentralityProducer : public edm::EDFilter {
    bool producePixelTracks_;
 
   bool doPixelCut_;
-   bool pixelBarrelOnly_;
+
   double midRapidityRange_;
   double trackPtCut_;
   double trackEtaCut_;
-  double hfEtaCut_;
 
    edm::InputTag  srcHFhits_;	
    edm::InputTag  srcTowers_;
@@ -105,15 +100,14 @@ class CentralityProducer : public edm::EDFilter {
    edm::InputTag srcPixelhits_;
    edm::InputTag srcTracks_;
    edm::InputTag srcPixelTracks_;
-   vector<string> srcVertex_;
 
    edm::InputTag reuseTag_;
 
   bool useQuality_;
   reco::TrackBase::TrackQuality trackQuality_;
 
-  edm::ESHandle<TrackerGeometry> tGeo;
-  edm::ESHandle<CaloGeometry> cGeo;
+  const TrackerGeometry* trackGeo_;
+  const CaloGeometry* caloGeo_;
 
 };
 
@@ -129,7 +123,9 @@ class CentralityProducer : public edm::EDFilter {
 //
 // constructors and destructor
 //
-  CentralityProducer::CentralityProducer(const edm::ParameterSet& iConfig)
+  CentralityProducer::CentralityProducer(const edm::ParameterSet& iConfig) :
+    trackGeo_(0),
+    caloGeo_(0)
 {
    //register your products
    doFilter_ = iConfig.getParameter<bool>("doFilter");
@@ -147,8 +143,6 @@ class CentralityProducer : public edm::EDFilter {
    trackPtCut_ = iConfig.getParameter<double>("trackPtCut");
    trackEtaCut_ = iConfig.getParameter<double>("trackEtaCut");
 
-   hfEtaCut_ = iConfig.getParameter<double>("hfEtaCut");
-
    if(produceHFhits_)  srcHFhits_ = iConfig.getParameter<edm::InputTag>("srcHFhits");
    if(produceHFtowers_ || produceETmidRap_) srcTowers_ = iConfig.getParameter<edm::InputTag>("srcTowers");
 
@@ -164,16 +158,11 @@ class CentralityProducer : public edm::EDFilter {
    if(producePixelhits_){
      srcPixelhits_ = iConfig.getParameter<edm::InputTag>("srcPixelhits");
      doPixelCut_ = iConfig.getParameter<bool>("doPixelCut");
-     pixelBarrelOnly_  = iConfig.getParameter<bool>("pixelBarrelOnly");
-     srcVertex_ = iConfig.getParameter<vector<string> >("srcVertex");
    }
-   if(produceTracks_){
-     srcTracks_ = iConfig.getParameter<edm::InputTag>("srcTracks");
-     srcVertex_ = iConfig.getParameter<vector<string> >("srcVertex");
-   }
+   if(produceTracks_) srcTracks_ = iConfig.getParameter<edm::InputTag>("srcTracks");
    if(producePixelTracks_) srcPixelTracks_ = iConfig.getParameter<edm::InputTag>("srcPixelTracks");
    
-   reuseAny_ = iConfig.getParameter<bool>("reUseCentrality");
+   reuseAny_ = !produceHFhits_ || !produceHFtowers_ || !produceBasicClusters_ || !produceEcalhits_ || !produceZDChits_;
    if(reuseAny_) reuseTag_ = iConfig.getParameter<edm::InputTag>("srcReUse");
 
    useQuality_   = iConfig.getParameter<bool>("UseQuality");
@@ -204,71 +193,41 @@ CentralityProducer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   using namespace edm;
   using namespace reco;
 
-  if(producePixelhits_) iSetup.get<TrackerDigiGeometryRecord>().get(tGeo);
-  if(produceEcalhits_) iSetup.get<CaloGeometryRecord>().get(cGeo);
+  if(!trackGeo_ && doPixelCut_){
+    edm::ESHandle<TrackerGeometry> tGeo;
+    iSetup.get<TrackerDigiGeometryRecord>().get(tGeo);
+    trackGeo_ = tGeo.product();
+  }
+  
+  if(!caloGeo_ && 0){
+    edm::ESHandle<CaloGeometry> cGeo;
+    iSetup.get<CaloGeometryRecord>().get(cGeo);
+    caloGeo_ = cGeo.product();
+  }
 
   std::auto_ptr<Centrality> creco(new Centrality());
   Handle<Centrality> inputCentrality;
 
   if(reuseAny_) iEvent.getByLabel(reuseTag_,inputCentrality);
-
-
-  double vx=-999.;
-  double vy=-999.;
-  double vz=-999.;
-  double vxError=-999.;
-  double vyError=-999.;
-  double vzError=-999.;
-  math::XYZVector vtxPos(0,0,0);
-
-  if(produceTracks_ || producePixelhits_){
-
-    // only looks at the first vertex collection
-    const reco::VertexCollection * recoVertices;
-    edm::Handle<reco::VertexCollection> vertexCollection;
-    iEvent.getByLabel(srcVertex_[0],vertexCollection);
-    recoVertices = vertexCollection.product();
-    unsigned int daughter = 0;
-    int greatestvtx = 0;
-    
-    for (unsigned int i = 0 ; i< recoVertices->size(); ++i){
-      daughter = (*recoVertices)[i].tracksSize();
-      if( daughter > (*recoVertices)[greatestvtx].tracksSize()) greatestvtx = i;
-    }
-    
-    if(recoVertices->size()>0){
-      vx = (*recoVertices)[greatestvtx].position().x();
-      vy = (*recoVertices)[greatestvtx].position().y();
-      vz = (*recoVertices)[greatestvtx].position().z();
-      vxError = (*recoVertices)[greatestvtx].xError();
-      vyError = (*recoVertices)[greatestvtx].yError();
-      vzError = (*recoVertices)[greatestvtx].zError();
-    }
-    
-    vtxPos = math::XYZVector(vx,vy,vz);
-    
-  }
   
   if(produceHFhits_){
-    creco->etHFhitSumPlus_ = 0;
-    creco->etHFhitSumMinus_ = 0;
-    
-    Handle<HFRecHitCollection> hits;
-    iEvent.getByLabel(srcHFhits_,hits);
-    for( size_t ihit = 0; ihit<hits->size(); ++ ihit){
-      const HFRecHit & rechit = (*hits)[ ihit ];
-      if(rechit.id().ieta() > 0 )
-	creco->etHFhitSumPlus_ += rechit.energy();
-      if(rechit.id().ieta() < 0)
-	creco->etHFhitSumMinus_ += rechit.energy();
-    }       
+     creco->etHFhitSumPlus_ = 0;
+     creco->etHFhitSumMinus_ = 0;
+
+     Handle<HFRecHitCollection> hits;
+     iEvent.getByLabel(srcHFhits_,hits);
+     for( size_t ihit = 0; ihit<hits->size(); ++ ihit){
+	const HFRecHit & rechit = (*hits)[ ihit ];
+        if(rechit.id().ieta() > 0 )
+	   creco->etHFhitSumPlus_ += rechit.energy();
+        if(rechit.id().ieta() < 0)
+	   creco->etHFhitSumMinus_ += rechit.energy();
+     }       
   }else{
-    if(reuseAny_){
      creco->etHFhitSumMinus_ = inputCentrality->EtHFhitSumMinus();
      creco->etHFhitSumPlus_ = inputCentrality->EtHFhitSumPlus();
-    }
   }
-
+  
   if(produceHFtowers_ || produceETmidRap_){
      creco->etHFtowerSumPlus_ = 0;
      creco->etHFtowerSumMinus_ = 0;
@@ -285,64 +244,53 @@ CentralityProducer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	   if(produceHFtowers_){
 	      if(isHF && eta > 0){
 		 creco->etHFtowerSumPlus_ += tower.pt();
-		 if(eta > hfEtaCut_) creco->etHFtruncatedPlus_ += tower.pt();
 	      }
 	      if(isHF && eta < 0){
 		 creco->etHFtowerSumMinus_ += tower.pt();
-		 if(eta < -hfEtaCut_) creco->etHFtruncatedMinus_ += tower.pt();
 	      }
+	   }else{
+	      creco->etHFtowerSumMinus_ = inputCentrality->EtHFtowerSumMinus();
+	      creco->etHFtowerSumPlus_ = inputCentrality->EtHFtowerSumPlus();
 	   }
 	   if(produceETmidRap_){
 	      if(fabs(eta) < midRapidityRange_) creco->etMidRapiditySum_ += tower.pt()/(midRapidityRange_*2.);
-	   }
+	   }else creco->etMidRapiditySum_ = inputCentrality->EtMidRapiditySum();
 	}
   }else{
-     if(reuseAny_){
-	if(!produceHFtowers_){ 
-	   creco->etHFtowerSumMinus_ = inputCentrality->EtHFtowerSumMinus();
-	   creco->etHFtowerSumPlus_ = inputCentrality->EtHFtowerSumPlus();
-	   creco->etHFtruncatedMinus_ = inputCentrality->EtHFtruncatedMinus();
-	   creco->etHFtruncatedPlus_ = inputCentrality->EtHFtruncatedPlus();
-	}
-	if(!produceETmidRap_) creco->etMidRapiditySum_ = inputCentrality->EtMidRapiditySum();
-     }
+     creco->etHFtowerSumMinus_ = inputCentrality->EtHFtowerSumMinus();
+     creco->etHFtowerSumPlus_ = inputCentrality->EtHFtowerSumPlus();
+     creco->etMidRapiditySum_ = inputCentrality->EtMidRapiditySum();
   }
   
-  if(produceEcalhits_){
+  if(produceBasicClusters_){
      creco->etEESumPlus_ = 0;
      creco->etEESumMinus_ = 0;
      creco->etEBSum_ = 0;
-
-     Handle<EcalRecHitCollection> ebHits;
-     Handle<EcalRecHitCollection> eeHits;
-
-     iEvent.getByLabel(srcEBhits_,ebHits);
-     iEvent.getByLabel(srcEEhits_,eeHits);
-
-     for(unsigned int i = 0; i < ebHits->size(); ++i){
-	const EcalRecHit & hit= (*ebHits)[i];
-	const GlobalPoint& pos=cGeo->getPosition(hit.id());
-	double et = hit.energy()*sin(pos.theta());
+     
+     Handle<BasicClusterCollection> clusters;
+     iEvent.getByLabel(srcBasicClustersEE_, clusters);
+     for( size_t i = 0; i<clusters->size(); ++ i){
+	const BasicCluster & cluster = (*clusters)[ i ];
+	double eta = cluster.eta();
+	double tg = cluster.position().rho()/cluster.position().r();
+	double et = cluster.energy()*tg;
+	if(eta > 0)
+	   creco->etEESumPlus_ += et;
+	if(eta < 0)
+	   creco->etEESumMinus_ += et;
+     }
+     
+     iEvent.getByLabel(srcBasicClustersEB_, clusters);
+     for( size_t i = 0; i<clusters->size(); ++ i){
+	const BasicCluster & cluster = (*clusters)[ i ];
+	double tg = cluster.position().rho()/cluster.position().r();
+        double et = cluster.energy()*tg;
 	creco->etEBSum_ += et;
      }
-
-     for(unsigned int i = 0; i < eeHits->size(); ++i){
-        const EcalRecHit & hit= (*eeHits)[i];
-	const GlobalPoint& pos=cGeo->getPosition(hit.id());
-        double et = hit.energy()*sin(pos.theta());
-	double eta = pos.eta();
-	if(eta > 0){
-	   creco->etEESumPlus_ += et;
-	}else{
-	   creco->etEESumMinus_ += et;
-	}
-     }
   }else{
-    if(reuseAny_){
-      creco->etEESumMinus_ = inputCentrality->EtEESumMinus();
-      creco->etEESumPlus_ = inputCentrality->EtEESumPlus();
-      creco->etEBSum_ = inputCentrality->EtEBSum();
-    }
+     creco->etEESumMinus_ = inputCentrality->EtEESumMinus();
+     creco->etEESumPlus_ = inputCentrality->EtEESumPlus();
+     creco->etEBSum_ = inputCentrality->EtEBSum();
   }
   
   if(producePixelhits_){
@@ -352,27 +300,20 @@ CentralityProducer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
      iEvent.getByLabel(srcPixelhits_,rchts);
      rechits = rchts.product();
      int nPixel =0 ;
-
-
-
      for (SiPixelRecHitCollection::const_iterator it = rechits->begin(); it!=rechits->end();it++)
      {
         SiPixelRecHitCollection::DetSet hits = *it;
         DetId detId = DetId(hits.detId());
         SiPixelRecHitCollection::const_iterator recHitMatch = rechits->find(detId);
         const SiPixelRecHitCollection::DetSet recHitRange = *recHitMatch;
-	unsigned int detType=detId.det();    // det type, tracker=1
-	unsigned int subid=detId.subdetId(); //subdetector type, barrel=1, fpix=2
-	if (pixelBarrelOnly_ && (detType!=1||subid!=1)) continue;
         for ( SiPixelRecHitCollection::DetSet::const_iterator recHitIterator = recHitRange.begin(); 
 	      recHitIterator != recHitRange.end(); ++recHitIterator) {
 	  // add selection if needed, now all hits.
 	  if(doPixelCut_){
 	    const SiPixelRecHit * recHit = &(*recHitIterator);
-	    if(!recHit->isValid()) continue;
-	    const PixelGeomDetUnit* pixelLayer = dynamic_cast<const PixelGeomDetUnit*> (tGeo->idToDet(recHit->geographicalId()));
+	    const PixelGeomDetUnit* pixelLayer = dynamic_cast<const PixelGeomDetUnit*> (trackGeo_->idToDet(recHit->geographicalId()));
 	    GlobalPoint gpos = pixelLayer->toGlobal(recHit->localPosition());
-	    math::XYZVector rechitPos(gpos.x()-vtxPos.x(),gpos.y()-vtxPos.y(),gpos.z()-vtxPos.z());
+	    math::XYZVector rechitPos(gpos.x(),gpos.y(),gpos.z());
 	    double abeta = fabs(rechitPos.eta());
 	    int clusterSize = recHit->cluster()->size();
             if (                abeta < 0.5 && clusterSize < 1) continue;
@@ -387,53 +328,40 @@ CentralityProducer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
      }
      creco->pixelMultiplicity_ = nPixel;
   }else{
-    if(reuseAny_)creco->pixelMultiplicity_ = inputCentrality->multiplicityPixel();
+     creco->pixelMultiplicity_ = inputCentrality->multiplicityPixel();
   }
 
   if(produceTracks_){
      edm::Handle<reco::TrackCollection> tracks;
      iEvent.getByLabel(srcTracks_,tracks);
-
-
      int nTracks = 0;
+
      double trackCounter = 0;
      double trackCounterEta = 0;
      double trackCounterEtaPt = 0;
+
      for(unsigned int i = 0 ; i < tracks->size(); ++i){
        const Track& track = (*tracks)[i];
        if(useQuality_ && !track.quality(trackQuality_)) continue;
+       nTracks++;
 
        if( track.pt() > trackPtCut_)  trackCounter++;
        if(fabs(track.eta())<trackEtaCut_) {
 	 trackCounterEta++;
 	 if (track.pt() > trackPtCut_) trackCounterEtaPt++;
        }
-
-       math::XYZPoint v1(vx,vy, vz);    
-       double dz= track.dz(v1);
-       double dzsigma = sqrt(track.dzError()*track.dzError()+vzError*vzError);    
-       double dxy= track.dxy(v1);
-       double dxysigma = sqrt(track.dxyError()*track.dxyError()+vxError*vyError);
-       if( track.quality(trackQuality_) && track.pt()>0.4 && fabs(track.eta())<2.4 && track.ptError()/track.pt()<0.1 && fabs(dz/dzsigma)<3.0 && fabs(dxy/dxysigma)<3.0) nTracks++;
-
      }
 
      creco->trackMultiplicity_ = nTracks;
      creco->ntracksPtCut_ = trackCounter; 
      creco->ntracksEtaCut_ = trackCounterEta;
      creco->ntracksEtaPtCut_ = trackCounterEtaPt;
+
   }else{
-    if(reuseAny_){
-      creco->trackMultiplicity_ = inputCentrality->Ntracks();
-      creco->ntracksPtCut_= inputCentrality->NtracksPtCut();
-      creco->ntracksEtaCut_= inputCentrality->NtracksEtaCut();
-      creco->ntracksEtaPtCut_= inputCentrality->NtracksEtaPtCut();
-    }else{
-      creco->trackMultiplicity_ = 0;
-      creco->ntracksPtCut_= 0;
-      creco->ntracksEtaCut_= 0;
-      creco->ntracksEtaPtCut_= 0;
-    }
+     creco->trackMultiplicity_ = inputCentrality->Ntracks();
+     creco->ntracksPtCut_= inputCentrality->NtracksPtCut();
+     creco->ntracksEtaCut_= inputCentrality->NtracksEtaCut();
+     creco->ntracksEtaPtCut_= inputCentrality->NtracksEtaPtCut();
   }
 
   if(producePixelTracks_){
@@ -443,8 +371,7 @@ CentralityProducer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
     creco->nPixelTracks_ = nPixelTracks;
   }
   else{
-    if(reuseAny_) creco->nPixelTracks_ = inputCentrality->NpixelTracks();
-    else creco->nPixelTracks_ = 0;
+    creco->nPixelTracks_ = inputCentrality->NpixelTracks();
   }
 
   if(produceZDChits_){
@@ -466,10 +393,8 @@ CentralityProducer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	creco->zdcSumMinus_ = -9;
      }
   }else{
-    if(reuseAny_){
-      creco->zdcSumMinus_ = inputCentrality->zdcSumMinus();
-      creco->zdcSumPlus_ = inputCentrality->zdcSumPlus();
-    }
+     creco->zdcSumMinus_ = inputCentrality->zdcSumMinus();
+     creco->zdcSumPlus_ = inputCentrality->zdcSumPlus();
   }
   
   iEvent.put(creco);

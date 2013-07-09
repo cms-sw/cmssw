@@ -2,21 +2,6 @@ from CondCore.DBCommon.CondDBSetup_cfi import *
 
 # loading magnetic field and geometry
 process.load('Configuration.StandardSequences.GeometryExtended_cff')
-
-from Geometry.CommonDetUnit.globalTrackingGeometry_cfi import *
-
-#Tracker
-from RecoTracker.GeometryESProducer.TrackerRecoGeometryESProducer_cfi import *
-
-#Muon
-from Geometry.MuonNumbering.muonNumberingInitialization_cfi import *
-from RecoMuon.DetLayers.muonDetLayerGeometry_cfi import *
-
-#  Alignment
-from Geometry.TrackerGeometryBuilder.idealForDigiTrackerGeometry_cff import *
-from Geometry.CSCGeometryBuilder.idealForDigiCscGeometry_cff import *
-from Geometry.DTGeometryBuilder.idealForDigiDtGeometry_cff import *
-
 process.load("Configuration.StandardSequences.MagneticField_cff")
 
 # loading the alignment producer
@@ -28,7 +13,7 @@ process.load("Alignment.CommonAlignmentProducer.AlignmentProducer_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 
 if 'COSMICS'=='<FLAG>':
-   process.GlobalTag.globaltag='GR_P_V40::All'
+   process.GlobalTag.globaltag='GR_R_42_V21::All'
 else :
    process.GlobalTag.globaltag='GR_R_42_V21::All'
  
@@ -55,17 +40,19 @@ from CondCore.DBCommon.CondDBSetup_cfi import *
 ### end for ideal geometry
 
 ### for global tag geometry 
+process.trackerAlignment = cms.ESSource("PoolDBESSource",
+                                        CondDBSetup,
+                                        timetype = cms.string('runnumber'),
+                                        toGet = cms.VPSet(cms.PSet(
+                                                record = cms.string('TrackerAlignmentRcd'),
+                                                tag = cms.string('Alignments')
+                                                )),
 
-process.GlobalTag.toGet = cms.VPSet(
-   cms.PSet(record = cms.string('TrackerAlignmentRcd'),
-            tag = cms.string('Alignments'),
-            connect = cms.untracked.string('sqlite_file:/afs/cern.ch/cms/CAF/CMSALCA/ALCA_TRACKERALIGN2/HIP/yduh/CMSSW_5_3_2_patch4/src/Alignment/HIPAlignmentAlgorithm/GR_53.db')
-            ),
-   cms.PSet(record = cms.string('TrackerSurfaceDeformationRcd'),
-            tag = cms.string('TrackerSurfaceDeformations_v2_offline'),
-            connect = cms.untracked.string('frontier://FrontierProd/CMS_COND_310X_ALIGN')
-            )
-   )
+					connect = cms.string('sqlite_file:/afs/cern.ch/cms/CAF/CMSALCA/ALCA_TRACKERALIGN2/HIP/covarell/CMSSW_4_2_2/src/Alignment/HIPAlignmentAlgorithm/payloads/GR_42.db')
+                                        )
+
+process.es_prefer_trackerAlignment = cms.ESPrefer("PoolDBESSource", "trackerAlignment")
+
 
 ############ Load APE separately
 

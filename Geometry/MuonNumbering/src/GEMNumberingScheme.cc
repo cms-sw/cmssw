@@ -2,9 +2,9 @@
 #include "Geometry/MuonNumbering/interface/MuonBaseNumber.h"
 #include "Geometry/MuonNumbering/interface/MuonDDDConstants.h"
 #include "DataFormats/MuonDetId/interface/GEMDetId.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include <iostream>
 
-using namespace edm;
+//#define LOCAL_DEBUG
 
 GEMNumberingScheme::GEMNumberingScheme( const MuonDDDConstants& muonConstants ) {
   initMe(muonConstants);
@@ -22,29 +22,31 @@ void GEMNumberingScheme::initMe ( const MuonDDDConstants& muonConstants ) {
   theRingLevel    = muonConstants.getValue("mg_ring")/theLevelPart;
   theSectorLevel  = muonConstants.getValue("mg_sector")/theLevelPart;
   theRollLevel    = muonConstants.getValue("mg_roll")/theLevelPart;
-
-  LogDebug( "GEMNumbering" )
-      << "Initialize GEMNumberingScheme"
-      << "\ntheRegionLevel " << theRegionLevel
-      << "\ntheStationLevel "<< theStationLevel
-      << "\ntheRingLevel "   << theRingLevel
-      << "\ntheSectorLevel " << theSectorLevel
-      << "\ntheRollLevel "   << theRollLevel;
+#ifdef LOCAL_DEBUG
+  std::cout << "Initialize GEMNumberingScheme" <<std::endl;
+  std::cout << "theRegionLevel " << theRegionLevel <<std::endl;
+  std::cout << "theStationLevel "<< theStationLevel<<std::endl;
+  std::cout << "theRingLevel "   << theRingLevel   <<std::endl;
+  std::cout << "theSectorLevel " << theSectorLevel <<std::endl;
+  std::cout << "theRollLevel "   << theRollLevel   <<std::endl;
+#endif
 }
 
 int GEMNumberingScheme::baseNumberToUnitNumber(const MuonBaseNumber num) {
 
-  LogDebug( "GEMNumbering" ) << num.getLevels();
+#ifdef LOCAL_DEBUG
+  std::cout << "GEMNumbering "<<num.getLevels()<<std::endl;
   for (int level=1;level<=num.getLevels();level++) {
-    LogDebug( "GEMNumbering" ) << level << " " << num.getSuperNo(level)
-			       << " " << num.getBaseNo(level);
+    std::cout << level << " " << num.getSuperNo(level)
+	      << " " << num.getBaseNo(level) << std::endl;
   }
+#endif
 
   int maxLevel = theRollLevel;
   if (num.getLevels()!=maxLevel) {
-    LogDebug( "GEMNumbering" ) << "MuonGEMNS::BNToUN "
-			       << "BaseNumber has " << num.getLevels() << " levels,"
-			       << "need "<<maxLevel;
+    std::cout << "MuonGEMNS::BNToUN "
+	      << "BaseNumber has " << num.getLevels() << " levels,"
+	      << "need "<<maxLevel<<std::endl;
     return 0;
   }
 
@@ -78,15 +80,20 @@ int GEMNumberingScheme::baseNumberToUnitNumber(const MuonBaseNumber num) {
   }
 
   // collect all info
-
-  LogDebug( "GEMNumbering" ) << "GEMNumberingScheme: Region " << region << " Ring "
-			     << ring << " Station " << station << " Layer " << layer
-			     << " Chamber " << chamber << " Roll " << roll;
+  
+#ifdef LOCAL_DEBUG
+  std::cout << "GEMNumberingScheme: Region " << region << " Ring "
+	    << ring << " Station " << station << " Layer " << layer
+	    << " Chamber " << chamber << " Roll " << roll << std::endl;
+#endif
 
   // Build the actual numbering
   GEMDetId id(region,ring,station,layer,chamber, roll);
   
-  LogDebug( "GEMNumbering" ) << " DetId " << id;
+  
+#ifdef LOCAL_DEBUG
+  std::cout << " DetId " << id << std::endl;
+#endif
       
   return id.rawId();
 }

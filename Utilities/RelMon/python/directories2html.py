@@ -3,8 +3,8 @@
 # https://twiki.cern.ch/twiki/bin/view/CMSPublic/RelMon
 #
 # $Author: anorkus $
-# $Date: 2013/04/22 11:42:01 $
-# $Revision: 1.7 $
+# $Date: 2012/11/21 15:22:14 $
+# $Revision: 1.5 $
 
 #
 #                                                                              
@@ -57,10 +57,10 @@ def build_obj(run,sample,version,plot_path,tier):
   obj_url="obj=%s;" %build_obj_addr(run,sample,version,plot_path,tier)
   return encode_obj_url(obj_url)
 
-def fairy_url(run1,run2,sample,version1,version2,plot_path,tier1,tier2,draw_opts="",h=250,w=200):
+def fairy_url(run,sample,version1,version2,plot_path,tier1,tier2,draw_opts="",h=250,w=200):
   fairy_url = "%s/%s/plotfairy/overlay?" %(server,base_url)
-  fairy_url+= build_obj(run1,sample,version1,plot_path,tier1)
-  fairy_url+= build_obj(run2,sample,version2,plot_path,tier2)
+  fairy_url+= build_obj(run,sample,version1,plot_path,tier1)
+  fairy_url+= build_obj(run,sample,version2,plot_path,tier2)
   if len(draw_opts)>0:
     fairy_url+="drawopts=%s;" %draw_opts
   fairy_url+= plot_size(h,w)
@@ -76,10 +76,7 @@ def fairy_url_single(run,sample,version,plot_path,tier,draw_opts="",h=250,w=200)
  
 #-------------------------------------------------------------------------------
 style_location="/cms-service-reldqm"
-def get_page_header(directory=None, standalone=False, additional_header=""):
-  style_location="/cms-service-reldqm"
-  if standalone:
-    style_location = "http://cms-service-reldqm.web.cern.ch/" + style_location +"/"
+def get_page_header(directory=None,additional_header=""):
   javascripts=''
   style=''
   if directory!=None and len(directory.comparisons)>0:
@@ -120,11 +117,7 @@ def get_page_footer():
 
 #-------------------------------------------------------------------------------
 
-def get_title_section(directory, hashing_flag, standalone, depth=2):
-  if standalone:
-      cms_logo_url = "http://cms-service-reldqm.web.cern.ch/cms-service-reldqm/style/CMS.gif"
-  else:
-      cms_logo_url = "cms-service-reldqm/style/CMS.gif"
+def get_title_section(directory, hashing_flag, depth=2):
   mother_name=basename(directory.mother_dir)
   mother_file_name=""
   if depth==1:
@@ -132,15 +125,15 @@ def get_title_section(directory, hashing_flag, standalone, depth=2):
     if mother_name!="":
       mother_file_name="%s.html" %(hash_name(mother_name, hashing_flag))
   elif depth==2:
-    mother_file_name="RelMonSummary.html"
-    #mother_file_name="%s.html" %(hash_name("RelMonSummary", hashing_flag))
+    #mother_file_name="RelMonSummary.html"
+    mother_file_name="%s.html" %(hash_name("RelMonSummary", hashing_flag))
     if mother_name!="":
       mother_file_name="%s.html" %(hash_name(mother_name, hashing_flag))
   else:
       if hashing_flag:
           files = directory.mother_dir.split("/")
           if len(files) != 1:
-              dir_name = files[-2]+files[-1] ##return the mother directory name only as the html file name by it
+              dir_name = files[-2] ##return the mother directory name only as the html file name by it
           else:
               dir_name = files[-1]
           mother_file_name="%s.html" %(hash_name(dir_name, hashing_flag))
@@ -156,7 +149,7 @@ def get_title_section(directory, hashing_flag, standalone, depth=2):
         '<h1>%s</h1>'%link_to_mother+\
         '</div>'+\
         '<div class="span-3 last">'+\
-        '<img src="%s" class="top right" width="54" hight="54">'%cms_logo_url+\
+        '<img src="cms-service-reldqm/style/CMS.gif" class="top right" width="54" hight="54">'+\
         '</div>'+\
         '<hr>' 
   if len(mother_name)>0:
@@ -176,8 +169,6 @@ def get_dir_stats(directory):
     html+='<li><span class="caps">Fail: %.1f%% (%s)</span></li>'%(directory.get_fail_rate(),directory.n_fails)
   if directory.n_skiped>0:
     html+='<li><span class="caps">Skipped: %.1f%% (%s)</span></li>'%(directory.get_skiped_rate(),directory.n_skiped)
-  if directory.n_missing_objs>0:
-    html+='<li><span class="caps">Missing: %s</span></li>'%(directory.n_missing_objs)
   html+='</ul>'
   return html
 
@@ -196,7 +187,7 @@ def get_subdirs_section(directory, hashing_flag):
   for subdir in sorted_subdirs:
     name=subdir.name
     if hashing_flag:
-        link = "%s.html" %(hash_name(directory.name+name, hashing_flag)) #do hash with directory name + subdirname as single name hashing might get problems with same subdirs name in different parent dirs.
+        link = "%s.html" %(hash_name(name, hashing_flag))
     else:
         link="%s_%s_%s.html" %(directory.mother_dir.replace("/","_"),directory.name.replace("/","_"),name)
         link=link.strip("_")
@@ -314,7 +305,6 @@ def get_comparisons(category,directory):
                       '<a href="%s"><img src="%s" width="250" height="200" class="top center %s"></a></div>'%(png_link,png_link,cat_classes[category])
     else:
       big_fairy=fairy_url(directory.meta.run1,
-                        directory.meta.run2,
                         directory.meta.sample,
                         directory.meta.release1,
                         directory.meta.release2,
@@ -323,7 +313,6 @@ def get_comparisons(category,directory):
                         directory.meta.tier2,
                         "",600,600)
       small_fairy=fairy_url(directory.meta.run1,
-                        directory.meta.run2,
                         directory.meta.sample,
                         directory.meta.release1,
                         directory.meta.release2,
@@ -412,21 +401,7 @@ def get_rank_section(directory):
     
 #-------------------------------------------------------------------------------
 
-#-------------------------------------------------------------------------------
-def get_missing_objs_section(directory):
-    """Method to get missing objects from directory: in case histogram/directory was in one ROOT file but not in other
-    """
-    page_html = "Missing in %s</br>"%(directory.filename1)
-    for elem in directory.different_histograms['file1']:
-        page_html += "name: %s type:%s </br>"%(elem,directory.different_histograms['file1'][elem])
-    page_html +="</br>"
-    page_html += "Missing in %s</br>"%(directory.filename2)
-    for elem in directory.different_histograms['file2']:
-        page_html += "name: %s type:%s </br>"%(elem,directory.different_histograms['file2'][elem])
-    return page_html
-#-------------------------------------------------------------------------------
-
-def directory2html(directory, hashing, standalone, depth=0):
+def directory2html(directory, hashing, depth=0):
   """Converts a directory tree into html pages, very nice ones.
   """
   #print "d2html: depth", str(depth)," dir ",directory.name
@@ -439,10 +414,10 @@ def directory2html(directory, hashing, standalone, depth=0):
     #chdir(directory.name)
   
   for subdir in directory.subdirs:
-    directory2html(subdir,hashing,standalone, depth)
+    directory2html(subdir,hashing, depth)
   
-  page_html=get_page_header(directory, standalone)+\
-            get_title_section(directory,hashing, standalone, depth)+\
+  page_html=get_page_header(directory)+\
+            get_title_section(directory,hashing, depth)+\
             get_summary_section(directory)+\
             get_subdirs_section(directory, hashing)
 
@@ -453,9 +428,6 @@ def directory2html(directory, hashing, standalone, depth=0):
                      (directory.n_comp_skiped >0,SKIPED)):
     if do_cat:
       page_html+=get_comparisons(cat,directory)
-    
-  if (len(directory.different_histograms['file1']) >0) or (len(directory.different_histograms['file2']) >0):
-    page_html += get_missing_objs_section(directory)
 
   # Distribution of ranks
 
@@ -470,11 +442,7 @@ def directory2html(directory, hashing, standalone, depth=0):
   if len(page_name)==0:
     page_name="RelMonSummary"
   if hashing:
-      #print "  ##: "+ directory.mother_dir
-      if page_name != "RelMonSummary":
-          ofilename = "%s.html" %(hash_name(directory.mother_dir.split("/")[-1]+page_name, hashing)) #as links is generated: parentdi+subdir; we split and get the last parent dir
-      else:
-          ofilename = "RelMonSummary.html"
+      ofilename = "%s.html" %(hash_name(page_name, hashing))
   else:
       ofilename="%s_%s.html" %(directory.mother_dir.replace("/","_"),page_name)
       ofilename=ofilename.strip("_")
@@ -691,7 +659,7 @@ def make_barchart_summary(dir_dict,name="the_chart",title="DQM directory",the_ag
 
 #-------------------------------------------------------------------------------
 
-def make_summary_table(indir,aggregation_rules,aggregation_rules_twiki, hashing_flag, standalone_flag):
+def make_summary_table(indir,aggregation_rules,aggregation_rules_twiki, hashing_flag):
   """Create a table, with as rows the directories and as columns the samples.
   Each box in the table will contain a pie chart linking to the directory.
   """  
@@ -741,7 +709,7 @@ def make_summary_table(indir,aggregation_rules,aggregation_rules_twiki, hashing_
   directories_barchart=make_barchart_summary(dir_dict,'dir_chart',"DQM Directory")
   categories_barchart=make_barchart_summary(dir_dict,'cat_chart','Category',aggregation_rules)
   
-  page_html = get_page_header(standalone=standalone_flag, additional_header=directories_barchart+categories_barchart)
+  page_html = get_page_header(additional_header=directories_barchart+categories_barchart)
   rel1=""
   rel2=""
   try:
@@ -843,7 +811,7 @@ def make_summary_table(indir,aggregation_rules,aggregation_rules_twiki, hashing_
   for sample in sorted_samples:
     col=dir_dict[sample]
     # check if the directory was a top one or not
-    summary_page_name="RelMonSummary.html"
+    summary_page_name=hash_name("RelMonSummary", hashing_flag)+".html"
     if col.name!="":
       summary_page_name=hash_name(col.name, hashing_flag)+".html"
     img_link=col.get_summary_chart_ajax(55,55)
@@ -881,10 +849,10 @@ def make_summary_table(indir,aggregation_rules,aggregation_rules_twiki, hashing_
       subdirs_dict=directory.get_subdirs_dict()
 
       # Check if the directory is the top one
-      summary_page=join(sample,"%s.html"%(hash_name(directory.name+subdir_name, hashing_flag)))
+      summary_page=join(sample,"%s.html"%(hash_name(subdir_name, hashing_flag)))
       if directory.name!="":
-        # We did not run on the topdir
-        summary_page=join(sample,"%s.html"%(hash_name(directory.name+subdir_name,hashing_flag)))
+        # We did not run on the topdir     
+        summary_page=join(sample,"%s_%s.html"%(directory.name,hash_name(subdir_name,hashing_flag)))
       dir_is_there=subdirs_dict.has_key(subdir_name)
 
       img_link="https://chart.googleapis.com/chart?cht=p3&chco=C0C0C0&chs=50x50&chd=t:1"
@@ -918,7 +886,6 @@ def make_summary_table(indir,aggregation_rules,aggregation_rules_twiki, hashing_
 
 #-----------UPDATES------
 def hash_name(file_name, flag):
-    #print "     HashFILE name: "+file_name
     if flag: #if hashing flag is ON then return
         return hashlib.md5(file_name).hexdigest()[:10] #md5 hashed file name with length 10
     else:

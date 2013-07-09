@@ -10,9 +10,9 @@
  *          Florent Lacroix, University of Illinois at Chicago
  *          Christian Veelken, LLR
  *
- * \version $Revision: 1.4 $
+ * \version $Revision: 1.1 $
  *
- * $Id: PFCandMETcorrInputProducer.h,v 1.4 2013/05/13 16:29:20 veelken Exp $
+ * $Id: PFCandMETcorrInputProducer.h,v 1.1 2011/09/13 14:35:34 veelken Exp $
  *
  */
 
@@ -21,8 +21,6 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
-
-#include "CondFormats/JetMETObjects/interface/FactorizedJetCorrector.h"
 
 #include "DataFormats/METReco/interface/CorrMETData.h"
 
@@ -65,22 +63,6 @@ class PFCandMETcorrInputProducer : public edm::EDProducer
     CorrMETData binUnclEnergySum_;
   };
   std::vector<binningEntryType*> binning_;
-
-  std::string residualCorrLabel_;
-  double residualCorrEtaMax_;
-  double residualCorrOffset_;
-  double extraCorrFactor_;
-  FactorizedJetCorrector* residualCorrectorFromFile_;
-  bool isMC_;
-  edm::InputTag srcGenPileUpSummary_;
-  FactorizedJetCorrector* residualCorrectorVsNumPileUp_data_offset_;
-  FactorizedJetCorrector* residualCorrectorVsNumPileUp_data_slope_;
-  FactorizedJetCorrector* residualCorrectorVsNumPileUp_mc_offset_;
-  FactorizedJetCorrector* residualCorrectorVsNumPileUp_mc_slope_;  
-  enum { kResidualCorrFromDB, kResidualCorrFromFile, kResidualCorrVsNumPileUp };
-  int mode_;
-
-  int verbosity_;
 };
 
 #endif

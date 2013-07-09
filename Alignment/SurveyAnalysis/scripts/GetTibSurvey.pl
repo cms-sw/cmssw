@@ -1,4 +1,4 @@
-#!/usr/bin/env perl -s
+#!/usr/bin/perl -s
 #
 # Perl script to retrieve TIB/TID survey data
 #

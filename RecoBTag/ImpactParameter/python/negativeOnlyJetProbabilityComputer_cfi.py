@@ -1,10 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
-from RecoBTag.ImpactParameter.variableJTA_cfi import *
-
 # negativeOnlyJetProbability btag computer
 negativeOnlyJetProbability = cms.ESProducer("JetProbabilityESProducer",
-    variableJTAPars,
     impactParameterType = cms.int32(0), ## 0 = 3D, 1 = 2D
 
     deltaR = cms.double(0.3),
@@ -13,8 +10,7 @@ negativeOnlyJetProbability = cms.ESProducer("JetProbabilityESProducer",
 
     minimumProbability = cms.double(0.005),
     maximumDecayLength = cms.double(5.0),
-    trackQualityClass = cms.string("any"),
-    useVariableJTA = cms.bool(False)
+    trackQualityClass = cms.string("any")                                        
 )
 
 

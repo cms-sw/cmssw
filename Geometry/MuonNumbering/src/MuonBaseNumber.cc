@@ -1,5 +1,8 @@
 #include "Geometry/MuonNumbering/interface/MuonBaseNumber.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include <iostream>
+
+//#define LOCAL_DEBUG
 
 void MuonBaseNumber::addBase(LevelBaseNumber num){
   basenumber_type::iterator cur=sortedBaseNumber.begin();
@@ -9,17 +12,16 @@ void MuonBaseNumber::addBase(LevelBaseNumber num){
 
   while (cur!=end) {
     if (num.level()==(*cur).level()) {
-
-      LogDebug( "MuonNumbering" )
-	  << "MuonBaseNumber::addBase was asked to add "
-	  <<num.level()<<" "
-	  <<num.super()<<" "
-	  <<num.base()
-	  <<" to existing level "
-	  <<(*cur).level()<<" "
-	  <<(*cur).super()<<" "
-	  <<(*cur).base() << " but refused.";
-
+#ifdef LOCAL_DEBUG
+      std::cout << "MuonBaseNumber::addBase was asked to add "
+		<<num.level()<<" "
+		<<num.super()<<" "
+		<<num.base()
+		<<" to existing level "
+		<<(*cur).level()<<" "
+		<<(*cur).super()<<" "
+		<<(*cur).base() << " but refused.";
+#endif
       return; // don't overwrite current volume stored
     }
     cur++;
@@ -32,16 +34,20 @@ void MuonBaseNumber::addBase(LevelBaseNumber num){
   }
   sortedBaseNumber.insert(cur,num);
 
+#ifdef LOCAL_DEBUG
   cur=sortedBaseNumber.begin();
   end=sortedBaseNumber.end();
-  LogDebug( "MuonNumbering" ) << "MuonBaseNumber::AddBase ";
-  for (cur=sortedBaseNumber.begin(), end=sortedBaseNumber.end(); cur!=end; ++cur) {
-    LogDebug( "MuonNumbering" )
-	<<(*cur).level()<<" "
-	<<(*cur).super()<<" "
-	<<(*cur).base()
-	<<",";
+  std::cout << "MuonBaseNumber::AddBase ";
+  while (cur!=end) {
+    std::cout<<(*cur).level()<<" ";
+    std::cout<<(*cur).super()<<" ";
+    std::cout<<(*cur).base();
+    std::cout<<",";
+    cur++;
   }
+  std::cout <<std::endl;
+#endif
+
 }
 
 void MuonBaseNumber::addBase(const int level,const int super,const int base){

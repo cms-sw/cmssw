@@ -628,7 +628,6 @@ PFBlockAlgo::link( const reco::PFBlockElement* el1,
       PFClusterRef  clusterref = lowEl->clusterRef();
       assert( !clusterref.isNull() );
       const reco::PFBlockElementGsfTrack *  GsfEl =  dynamic_cast<const reco::PFBlockElementGsfTrack*>(highEl);
-
       const PFRecTrack * myTrack =  &(GsfEl->GsftrackPF());
       if ( myTrack->extrapolatedPoint( reco::PFTrajectoryPoint::ECALShowerMax ).isValid() )
 	dist = LinkByRecHit::testTrackAndClusterByRecHit( *myTrack, *clusterref, false, debug_ );

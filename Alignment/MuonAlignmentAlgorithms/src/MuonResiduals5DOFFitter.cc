@@ -96,7 +96,7 @@ void MuonResiduals5DOFFitter_FCN(int &npar, double *gin, double &fval, double *p
           fval += -weight * MuonResidualsFitter_logPureGaussian(residual, residpeak, residsigma);
           fval += -weight * MuonResidualsFitter_logPureGaussian(resslope, resslopepeak, resslopesigma);
 	}
-        else if (fitter->useRes() == MuonResidualsFitter::k1100 || fitter->useRes() == MuonResidualsFitter::k1000) {
+        else if (fitter->useRes() == MuonResidualsFitter::k1100) {
           fval += -weight * MuonResidualsFitter_logPureGaussian(residual, residpeak, residsigma);
         }
         else if (fitter->useRes() == MuonResidualsFitter::k0010) {
@@ -107,7 +107,7 @@ void MuonResiduals5DOFFitter_FCN(int &npar, double *gin, double &fval, double *p
         if (fitter->useRes() == MuonResidualsFitter::k1111 || fitter->useRes() == MuonResidualsFitter::k1110 || fitter->useRes() == MuonResidualsFitter::k1010) {
           fval += -weight * MuonResidualsFitter_logPureGaussian2D(residual, resslope, residpeak, resslopepeak, residsigma, resslopesigma, alpha);
         }
-        else if (fitter->useRes() == MuonResidualsFitter::k1100 || fitter->useRes() == MuonResidualsFitter::k1000) {
+        else if (fitter->useRes() == MuonResidualsFitter::k1100) {
           fval += -weight * MuonResidualsFitter_logPureGaussian(residual, residpeak, residsigma);
         }
         else if (fitter->useRes() == MuonResidualsFitter::k0010) {
@@ -181,16 +181,6 @@ bool MuonResiduals5DOFFitter::fit(Alignable *ali)
   double lows[10]       = {0., 0., 0., 0., 0.,    0., 0.,      -1.,   0., 0.};
   double highs[10]      = {0., 0., 0., 0., 0.,    10., 0.1,     1.,   0., 0.};
 
-  // adjust the default initial values with possible custom ones:
-  for (std::map<int, double>::iterator it = m_parNum2InitValue.begin(); it != m_parNum2InitValue.end(); ++it)
-  {
-    int parNum = it->first;
-    int idx = -1;
-    for (int i=0; i<10; ++i) if (nums[i]==parNum) {idx=i; break;}
-    assert(idx>=0);
-    starts[idx] = it->second;
-  }
-
   std::vector<int> num(nums, nums+5);
   std::vector<std::string> name(names, names+5);
   std::vector<double> start(starts, starts+5);
@@ -208,7 +198,7 @@ bool MuonResiduals5DOFFitter::fit(Alignable *ali)
     else if (add_gamma) for(; ni<4; ni++) idx[ni] = ni+6;
     if (!add_alpha) fix(kAlpha);
   }
-  else if (useRes() == k1100 || useRes() == k1000) {
+  else if (useRes() == k1100) {
     idx[ni++] = 5;
     if (add_gamma) idx[ni++] = 8;
     fix(kResSlopeSigma);

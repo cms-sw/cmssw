@@ -1,8 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 SiPixelDigiSource = cms.EDAnalyzer("SiPixelDigiSource",
-    ###src = cms.InputTag("siPixelDigis"),
-    src = cms.InputTag("simSiPixelDigis"),
+    src = cms.InputTag("siPixelDigis"),
     outputFile = cms.string('Pixel_DQM_Digi.root'),
     saveFile = cms.untracked.bool(False),
     isPIB = cms.untracked.bool(False),

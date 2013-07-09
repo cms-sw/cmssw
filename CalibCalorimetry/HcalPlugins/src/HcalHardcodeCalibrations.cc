@@ -1,6 +1,6 @@
 // -*- C++ -*-
 // Original Author:  Fedor Ratnikov
-// $Id: HcalHardcodeCalibrations.cc,v 1.43 2013/04/23 16:06:26 abdullin Exp $
+// $Id: HcalHardcodeCalibrations.cc,v 1.42 2013/04/23 15:41:27 abdullin Exp $
 //
 //
 
@@ -117,7 +117,7 @@ HcalHardcodeCalibrations::HcalHardcodeCalibrations ( const edm::ParameterSet& iC
   else  switchGainWidthsForTrigPrims = false;
        
 
-  // HE and HF recalibration preparation
+  // HE recalibration preparation
   iLumi = 0.;
   if ( iConfig.exists("iLumi") )
     iLumi=iConfig.getParameter<double>("iLumi");
@@ -125,10 +125,7 @@ HcalHardcodeCalibrations::HcalHardcodeCalibrations ( const edm::ParameterSet& iC
   if( iLumi > 0.0 ) {
     bool he_recalib = iConfig.getParameter<bool>("HERecalibration");
     bool hf_recalib = iConfig.getParameter<bool>("HFRecalibration");
-    if(he_recalib) {
-      double cutoff = iConfig.getParameter<double>("HEreCalibCutoff"); 
-      he_recalibration = new HERecalibration(iLumi,cutoff);
-    }
+    if(he_recalib)  he_recalibration = new HERecalibration(iLumi);
     if(hf_recalib)  hf_recalibration = new HFRecalibration();
     
     //     std::cout << " HcalHardcodeCalibrations:  iLumi = " <<  iLumi << std::endl;

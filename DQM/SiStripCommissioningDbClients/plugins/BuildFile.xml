@@ -8,7 +8,3 @@
   <use   name="boost"/>
   <flags   EDM_PLUGIN="1"/>
 </library>
-<!-- Do not build on ARMv7-A architecture -->
-<architecture name="armv7">
- <flags SKIP_FILES="%"/>
-</architecture>

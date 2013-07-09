@@ -2403,7 +2403,7 @@ c                               4 used for ine without table)
 c------------------------------------------------------------------------------
       dimension wk(3),wa(3),wb(3)
       include 'epos.inc'
-      common /psar33/ asect(7,4,8),asectn(7,8,8)
+      common /psar33/ asect(7,4,7),asectn(7,7,7)
       common /psar34/ rrr,rrrm
       common /psar35/ anorm,anormp
       common /psar41/ rrrp,rrrmp
@@ -2490,7 +2490,7 @@ c      p=sqrt(max(0.,egy**2-ampro**2))
 
         ya=matg
         ya=log(ya)/.69315+1.
-        ja=min(int(ya),6)
+        ja=min(int(ya),4)
         wa(2)=ya-ja
         wa(3)=wa(2)*(wa(2)-1.)*.5
         wa(1)=1.-wa(2)+wa(3)
@@ -2508,7 +2508,7 @@ c      p=sqrt(max(0.,egy**2-ampro**2))
 
           yb=mapr
           yb=log(yb)/.69315+1.
-          jb=min(int(yb),6)
+          jb=min(int(yb),4)
           wb(2)=yb-jb
           wb(3)=wb(2)*(wb(2)-1.)*.5
           wb(1)=1.-wb(2)+wb(3)
@@ -6061,9 +6061,9 @@ c-----------------------------------------------------------------------
       logical lcalc!,lcalc2
 c      double precision om5p,xh,yh,v3pom(4),om2p
       dimension gamhad0(nclha),r2had0(nclha),chad0(nclha)
-     *,alplea0(nclha),asect11(7,4,8),asect13(7,4,8),asect21(7,4,8)
-     *,asect23(7,4,8),asect31(7,8,8),asect33(7,8,8)
-     *,asect41(7,8,8),asect43(7,8,8)!,cgam(idxD)
+     *,alplea0(nclha),asect11(7,4,7),asect13(7,4,7),asect21(7,4,7)
+     *,asect23(7,4,7),asect31(7,7,7),asect33(7,7,7)
+     *,asect41(7,7,7),asect43(7,7,7)!,cgam(idxD)
       common /psar2/  edmax,epmax
       common /psar4/  fhgg(11,10,8),fhqg(11,10,80)
      *,fhgq(11,10,80),fhqq(11,10,80),fhgg0(11,10),fhgg1(11,10,4)
@@ -6080,7 +6080,7 @@ c      double precision om5p,xh,yh,v3pom(4),om2p
       common /psar23/ cschar(20,20,2)
       common /psar25/ csdsi(21,21,104)
       common /psar27/ csds(21,26,4),csdt(21,26,2),csdr(21,26,2)
-      common /psar33/ asect(7,4,8),asectn(7,8,8)
+      common /psar33/ asect(7,4,7),asectn(7,7,7)
       common /psar34/ rrr,rrrm
       common /psar35/ anorm,anormp
       common /psar41/ rrrp,rrrmp
@@ -7300,7 +7300,7 @@ c initialize random numbers
       do iclpro=1,4
        if(iclpro.lt.iclpro1.or.iclpro.gt.iclpro2)then
          do ie=1,7
-           do iia=1,8
+           do iia=1,7
              asect11(ie,iclpro,iia)=0.
              asect21(ie,iclpro,iia)=0.
              asect13(ie,iclpro,iia)=0.
@@ -7317,7 +7317,7 @@ c initialize random numbers
            write(ifmt,*)'  calcul.   ',ie,'  (',iclpro,')',engy
 
            sigine=0.
-           do iia=1,8
+           do iia=1,7
             matarg=2**(iia-1)
             if(matarg.eq.1)then !hadron-proton interaction
 c ine=cut+diff
@@ -7385,7 +7385,7 @@ c  non excited target
            write(ifmt,*)'  simul.   ',ie,'  (',iclpro,')',engy
            if(ish.ge.1)
      &     write(ifch,*)'  simul.   ',ie,'  (',iclpro,')',engy
-           do iia=1,8
+           do iia=1,7
             matarg=2**(iia-1)
             latarg=min(1,matarg/2)
 c            fctrmx=max(ftcrmxsave,float(matarg))          !to get stable pA and AA cross section, this number has to be large for large A
@@ -7398,8 +7398,7 @@ c            fctrmx=max(ftcrmxsave,float(matarg))          !to get stable pA and
             call conini
             call ainit
             nevent=50000
-            if(iia.gt.40)nevent=nevent/10
-c            if(matarg.eq.1)nevent=1
+            if(matarg.eq.1)nevent=1
             call epocrossc(nevent,sigt,sigi,sigc,sige,sigql,sigd)
 c do not count non-excited diffractive projectile in inelastic
             sigi3=sigi-sigql
@@ -7440,7 +7439,7 @@ c            endif
         enddo
         else
           do ie=1,7
-            do iia=1,8
+            do iia=1,7
               asect21(ie,iclpro,iia)=0.
               asect23(ie,iclpro,iia)=0.
             enddo
@@ -7460,10 +7459,10 @@ c            endif
      &  write(ifch,*)'  calcul. AB  ',ie,engy
         write(ifmt,*)'  calcul. AB  ',ie,engy
 
-        do iia=1,8
+        do iia=1,7
           maproj=2**(iia-1)
           laproj=max(1,maproj/2)
-        do iib=1,8
+        do iib=1,7
           matarg=2**(iib-1)
           latarg=max(1,matarg/2)
           sigine=0.
@@ -7587,10 +7586,10 @@ c  non excited target
         write(ifmt,*)'  AB xs   ',ie,engy
         if(ish.ge.1)
      &  write(ifch,*)'  AB xs   ',ie,engy
-        do iia=1,8
+        do iia=1,7
           maproj=2**(iia-1)
           laproj=max(1,maproj/2)
-        do iib=1,8
+        do iib=1,7
           matarg=2**(iib-1)
           latarg=max(1,matarg/2)
 c          fctrmx=max(ftcrmxsave,float(max(maproj,matarg))) !to get stable pA and AA cross section, this number has to be large for large A
@@ -7603,9 +7602,7 @@ c          fctrmx=max(ftcrmxsave,float(max(maproj,matarg))) !to get stable pA an
           call conini
           call ainit
           nevent=10000
-          if(iia.gt.40)nevent=nevent/5
-          if(iib.gt.40)nevent=nevent/5
-c          if(maproj+matarg.eq.2)nevent=1
+          if(maproj+matarg.eq.2)nevent=1
           call epocrossc(nevent,sigt,sigi,sigc,sige,sigql,sigd)
 c do not count non-excited diffractive projectile in inelastic
           sigi3=sigi-sigql
@@ -7647,8 +7644,8 @@ c          endif
       enddo
       else
         do ie=1,7
-          do iia=1,8
-            do iib=1,8
+          do iia=1,7
+            do iib=1,7
               asect41(ie,iia,iib)=0.
               asect43(ie,iia,iib)=0.
             enddo

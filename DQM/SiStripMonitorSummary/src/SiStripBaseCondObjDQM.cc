@@ -919,7 +919,7 @@ std::pair<std::string,uint32_t> SiStripBaseCondObjDQM::getLayerNameAndId(const u
       
       for( unsigned int i = 1; i < 4; i++ ){
 	if(tTopo->tidWheel(detId_)==i){ 
-	  layerName << "TID__MINUS__wheel__" << i;
+	  layerName << "TID__side__1__wheel__" << i;
 	  layerId_ = 410 + i;
 	}
       }
@@ -930,7 +930,7 @@ std::pair<std::string,uint32_t> SiStripBaseCondObjDQM::getLayerNameAndId(const u
       
       for( unsigned int i = 1; i < 4; i++ ) {
 	if(tTopo->tidWheel(detId_)==i){ 
-	  layerName << "TID__PLUS__wheel__" << i;
+	  layerName << "TID__side__2__wheel__" << i;
 	  layerId_ = 420 + i;
 	}
       }
@@ -957,7 +957,7 @@ std::pair<std::string,uint32_t> SiStripBaseCondObjDQM::getLayerNameAndId(const u
       
       for( unsigned int i = 1; i < 10; i++ ) {
 	if( tTopo->tecWheel( detId_ ) == i ) { 
-	  layerName << "TEC__MINUS__wheel__" << i;
+	  layerName << "TEC__side__1__wheel__" << i;
 	  layerId_ = 610 + i;
 	}
       }
@@ -968,7 +968,7 @@ std::pair<std::string,uint32_t> SiStripBaseCondObjDQM::getLayerNameAndId(const u
       
       for( unsigned int i = 1; i < 10; i++ ) {
 	if( tTopo->tecWheel( detId_ ) == i ) { 
-	  layerName << "TEC__PLUS__wheel__" << i;
+	  layerName << "TEC__side__2__wheel__" << i;
 	  layerId_ = 620 + i;
 	}
       }

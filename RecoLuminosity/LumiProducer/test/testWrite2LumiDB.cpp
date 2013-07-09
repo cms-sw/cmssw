@@ -66,12 +66,17 @@ int main(int argc, char** argv){
   }
   **/
   //fill trg data
+  try{
     std::cout<<"fill out trg data"<<std::endl;
     std::auto_ptr<lumi::DataPipe> trgptr(lumi::DataPipeFactory::get()->create("TRG2DB",con));
     trgptr->setAuthPath(authpath);
     //trgptr->setSource("oracle://cms_omds_lb/CMS_GT_MON");
     trgptr->setSource("oracle://cms_orcoff_prod/CMS_GT_MON");
     trgptr->retrieveData(runnumber);
+  }catch(...){
+    std::cout<<"problem in loading run "<<runnumber<<" skip "<<std::endl;
+    throw;
+  }
   //fill hlt scaler data
   /**
   try{

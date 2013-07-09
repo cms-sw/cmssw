@@ -239,7 +239,7 @@ def fillrunMap(schema,fillnum=None,runmin=None,runmax=None,startT=None,stopT=Non
     
 def runList(schema,datatagid,runmin=None,runmax=None,fillmin=None,fillmax=None,startT=None,stopT=None,l1keyPattern=None,hltkeyPattern=None,amodetag=None,nominalEnergy=None,energyFlut=0.2,requiretrg=True,requirehlt=True,preselectedruns=None,lumitype=None):
     '''
-    select r.runnum,l.starttime,l.stoptime,l.data_id,tag.trgdataid,tag.hltdataid from cmsrunsummary r,tagruns tag,lumidata l,trgdata t,hltdata h where l.runnum=tag.runnum and r.runnum=l.runnum (and l.runnum=t.runnum and t.runnum=h.runnum) and r.fillnum>=:fillmin and r.fillnum<=fillmax and r.runnum>:runmin and r.runnum<:runmax and r.amodetag=:amodetag (and regexp_like(r.l1key,:l1keypattern) and regexp_like(hltkey,:hltkeypattern) ) and l.nominalEnergy>=:nominalEnergy*(1-energyFlut) and l.nominalEnergy<=:nominalEnergy*(1+energyFlut) and tag.tagid<=:tagid and l.starttime is not null and l.stoptime is not null
+    select r.runnum,l.starttime,l.stoptime,l.data_id,t.data_id,h.data_id from cmsrunsummary r,tagruns tag,lumidata l,trgdata t,hltdata h where l.runnum=tag.runnum and r.runnum=l.runnum and l.runnum=t.runnum and t.runnum=h.runnum and r.fillnum>=:fillmin and r.fillnum<=fillmax and r.runnum>:runmin and r.runnum<:runmax and r.amodetag=:amodetag and regexp_like(r.l1key,:l1keypattern) and regexp_like(hltkey,:hltkeypattern) and l.nominalEnergy>=:nominalEnergy*(1-energyFlut) and l.nominalEnergy<=:nominalEnergy*(1+energyFlut) and tag.tagid<=:tagid and l.starttime is not null and l.stoptime is not null
     output: {runnum:[lumiid,trgid,hltid]}
     '''
     #print datatagid,runmin,runmax,fillmin,fillmax,preselectedruns
@@ -272,12 +272,12 @@ def runList(schema,datatagid,runmin=None,runmax=None,fillmin=None,fillmax=None,s
         qCondition=coral.AttributeList()
         qCondition.extend('tagid','unsigned long long')
         qCondition['tagid'].setData(datatagid)
-        #if requiretrg:
-        #    qHandle.addToTableList(t)
-        #    qConditionStr+=' and '+l+'.RUNNUM='+t+'.RUNNUM'
-        #if requirehlt:
-        #    qHandle.addToTableList(h)
-        #    qConditionStr+=' and '+l+'.RUNNUM='+h+'.RUNNUM'
+        if requiretrg:
+            qHandle.addToTableList(t)
+            qConditionStr+=' and '+l+'.RUNNUM='+t+'.RUNNUM'
+        if requirehlt:
+            qHandle.addToTableList(h)
+            qConditionStr+=' and '+l+'.RUNNUM='+h+'.RUNNUM'
         if runmin and runmax :
             if runmin==runmax:
                 qConditionStr+=' AND '+r+'.RUNNUM=:runmin'
@@ -319,13 +319,11 @@ def runList(schema,datatagid,runmin=None,runmax=None,fillmin=None,fillmax=None,s
             qCondition.extend('amodetag','string')
             qCondition['amodetag'].setData(amodetag)
         if l1keyPattern:
-            qHandle.addToTableList(t)
-            qConditionStr+=' AND regexp_like('+r+'.L1KEY,:l1keypattern )'+' AND '+l+'.RUNNUM='+t+'.RUNNUM'
+            qConditionStr+=' AND regexp_like('+r+'.L1KEY,:l1keypattern)'
             qCondition.extend('l1keypattern','string')
             qCondition['l1keypattern'].setData(l1keyPattern)
         if hltkeyPattern:
-            qHandle.addToTableList(h)
-            qConditionStr+=' AND regexp_like('+r+'.HLTKEY,:hltkeypattern)'+' AND '+l+'.RUNNUM='+h+'.RUNNUM'
+            qConditionStr+=' AND regexp_like('+r+'.HLTKEY,:hltkeypattern)'
             qCondition.extend('hltkeypattern','string')
             qCondition['hltkeypattern'].setData(hltkeyPattern)
         if nominalEnergy:
@@ -350,14 +348,10 @@ def runList(schema,datatagid,runmin=None,runmax=None,fillmin=None,fillmax=None,s
         qHandle.addToOutputList('TO_CHAR('+l+'.STARTTIME,\'MM/DD/YY HH24:MI:SS\')','starttime')
         qHandle.addToOutputList('TO_CHAR('+l+'.STOPTIME,\'MM/DD/YY HH24:MI:SS\')','stoptime')
         qHandle.addToOutputList(l+'.DATA_ID','lumiid')
-        #if requiretrg:
-        #    qHandle.addToOutputList(t+'.DATA_ID','trgid')
-        #if requirehlt:
-        #    qHandle.addToOutputList(h+'.DATA_ID','hltid')
         if requiretrg:
-            qHandle.addToOutputList(tag+'.TRGDATAID','trgid')
+            qHandle.addToOutputList(t+'.DATA_ID','trgid')
         if requirehlt:
-            qHandle.addToOutputList(tag+'.HLTDATAID','hltid')
+            qHandle.addToOutputList(h+'.DATA_ID','hltid')
         qHandle.defineOutput(qResult)
         cursor=qHandle.execute()
         lumiid=0
@@ -400,11 +394,8 @@ def runList(schema,datatagid,runmin=None,runmax=None,fillmin=None,fillmax=None,s
                         result[runnum][0]=lumiid
                 else:
                     result[runnum]=[lumiid,0,0]
-            if requiretrg :
-                if cursor.currentRow()['trgid'].isNull():
-                    trgid=0
-                else:
-                    trgid=cursor.currentRow()['trgid'].data()
+            if requiretrg and not cursor.currentRow()['trgid'].isNull():
+                trgid=cursor.currentRow()['trgid'].data()
                 if result.has_key(runnum):
                     if trgid>result[runnum][1]:
                         result[runnum][1]=trgid

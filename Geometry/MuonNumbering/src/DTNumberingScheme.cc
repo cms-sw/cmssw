@@ -2,9 +2,9 @@
 #include "DataFormats/MuonDetId/interface/DTWireId.h"
 #include "Geometry/MuonNumbering/interface/MuonBaseNumber.h"
 #include "Geometry/MuonNumbering/interface/MuonDDDConstants.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include <iostream>
 
-using namespace edm;
+//#define LOCAL_DEBUG
 
 DTNumberingScheme::DTNumberingScheme( const MuonDDDConstants& muonConstants ) {
   initMe(muonConstants);
@@ -23,31 +23,56 @@ void DTNumberingScheme::initMe ( const MuonDDDConstants& muonConstants ) {
   theSuperLayerLevel=muonConstants.getValue("mb_superlayer")/theLevelPart;
   theLayerLevel=muonConstants.getValue("mb_layer")/theLevelPart;
   theWireLevel=muonConstants.getValue("mb_wire")/theLevelPart;
+#ifdef LOCAL_DEBUG
+  std::cout << "Initialize DTNumberingScheme" << std::endl;
+  std::cout << "theRegionLevel " << theRegionLevel <<std::endl;
+  std::cout << "theWheelLevel " << theWheelLevel <<std::endl;
+  std::cout << "theStationLevel " << theStationLevel <<std::endl;
+  std::cout << "theSuperLayerLevel " << theSuperLayerLevel <<std::endl;
+  std::cout << "theLayerLevel " << theLayerLevel <<std::endl;
+  std::cout << "theWireLevel " << theWireLevel <<std::endl;
+#endif
 
-  LogDebug( "DTNumbering" )
-      << "Initialize DTNumberingScheme"
-      << "\ntheRegionLevel " << theRegionLevel
-      << "\ntheWheelLevel " << theWheelLevel
-      << "\ntheStationLevel " << theStationLevel
-      << "\ntheSuperLayerLevel " << theSuperLayerLevel
-      << "\ntheLayerLevel " << theLayerLevel
-      << "\ntheWireLevel " << theWireLevel;
 }
 
 int DTNumberingScheme::baseNumberToUnitNumber(const MuonBaseNumber num){
   
-  LogDebug( "DTNumbering" ) <<num.getLevels();
+#ifdef LOCAL_DEBUG
+  std::cout << "DTNumbering "<<num.getLevels()<<std::endl;
   for (int level=1;level<=num.getLevels();level++) {
-    LogDebug( "DTNumbering" ) << level << " " << num.getSuperNo(level)
-			      << " " << num.getBaseNo(level);
+    std::cout << level << " " << num.getSuperNo(level)
+	      << " " << num.getBaseNo(level) << std::endl;
   }
-
+#endif
   if (num.getLevels()!=theWireLevel) {
-    LogDebug( "DTNumbering" ) << "DTNS::BNToUN "
-			      << "BaseNumber has " << num.getLevels() << " levels,"
-			      << "need "<<theWireLevel;
+    std::cout << "DTNS::BNToUN "
+	      << "BaseNumber has " << num.getLevels() << " levels,"
+	      << "need "<<theWireLevel<<std::endl;
     return 0;
   }
+  
+
+//   // Meaningful ranges are enforced by DTWireId, (which
+//   // however allows for 0 in wire, layer, superlayer!!!)
+// 
+//   if ((wire_id < 1) || (wire_id > 100)) {
+//     std::cout << "DTNumberingScheme: ";
+//     std::cout << "wire id out of range: ";
+//     std::cout << wire_id <<std::endl;
+//   }
+    
+//   if ((layer_id < 1) || (layer_id > 4)) {
+//     std::cout << "DTNumberingScheme: ";
+//     std::cout << "layer id out of range: ";
+//     std::cout << layer_id <<std::endl;
+//   }
+    
+//   if ((superlayer_id < 1) || (superlayer_id > 3)) {
+//     std::cout << "DTNumberingScheme: ";
+//     std::cout << "super-layer id out of range: ";
+//     std::cout << superlayer_id <<std::endl;
+//   }
+
 
   return getDetId(num);
 }
@@ -70,9 +95,30 @@ int DTNumberingScheme::getDetId(const MuonBaseNumber num) const {
          station_id,
          wheel_id);
   
+// These ranges are enforced by DTWireId
+//   if ((sector_id < 1) || (sector_id > 14)) {
+//     std::cout << "DTNumberingScheme: ";
+//     std::cout << "sector id out of range: ";
+//     std::cout << sector_id <<std::endl;
+//   }
+    
+//   if ((station_id < 1) || (station_id > 4)) {
+//     std::cout << "DTNumberingScheme: ";
+//     std::cout << "station id out of range: ";
+//     std::cout << station_id <<std::endl;
+//   }
+    
+//   if ((wheel_id < -2) || (wheel_id > 2)) {
+//     std::cout << "DTNumberingScheme: ";
+//     std::cout << "wheel id out of range: ";
+//     std::cout << wheel_id <<std::endl;
+//   }
+    
   DTWireId id(wheel_id,station_id,sector_id,superlayer_id,layer_id,wire_id);
   
-  LogDebug( "DTNumbering" ) << "DTNumberingScheme: " << id;
+#ifdef LOCAL_DEBUG
+  std::cout << "DTNumberingScheme: " << id << std::endl;
+#endif
   
   return id.rawId();
 }

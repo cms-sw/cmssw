@@ -273,6 +273,7 @@ INITIALGEOM = sys.argv[3]
 INPUTFILES = sys.argv[4]
 
 options, args = parser.parse_args(sys.argv[5:])
+user_mail = options.user_mail
 mapplots_ingeneral = options.mapplots
 segdiffplots_ingeneral = options.segdiffplots
 curvatureplots_ingeneral = options.curvatureplots
@@ -313,9 +314,6 @@ peakNSigma = options.peakNSigma
 preFilter = not not options.preFilter
 extraPlots = options.extraPlots
 useResiduals = options.useResiduals
-
-user_mail_opt = ""
-if options.user_mail: user_mail_opt = "-u %s" % options.user_mail
 
 
 #print "check: ", allowTIDTEC, combineME11, preFilter
@@ -430,9 +428,9 @@ fi
 
 cp -f %(directory)sgather_cfg.py %(inputdbdir)s%(inputdb)s %(copytrackerdb)s $ALIGNMENT_CAFDIR/
 cd $ALIGNMENT_CAFDIR/
-/bin/ls -l
+ls -l
 cmsRun gather_cfg.py
-/bin/ls -l
+ls -l
 cp -f *.tmp %(copyplots)s $ALIGNMENT_AFSDIR/%(directory)s
 """ % my_vars)
 
@@ -482,11 +480,11 @@ export ALIGNMENT_USERESIDUALS=%(useResiduals)s
 
 cp -f %(directory)salign_cfg.py %(inputdbdir)s%(inputdb)s %(directory)s*.tmp  %(copytrackerdb)s $ALIGNMENT_CAFDIR/
 
-export ALIGNMENT_PLOTTINGTMP=`/bin/ls %(directory)splotting0*.root 2> /dev/null`
+export ALIGNMENT_PLOTTINGTMP=`ls %(directory)splotting0*.root 2> /dev/null`
 
 # if it's 1st or last iteration, combine _plotting.root files into one:
 if [ \"$ALIGNMENT_ITERATION\" != \"111\" ] || [ \"$ALIGNMENT_ITERATION\" == \"%(ITERATIONS)s\" ]; then
-  #nfiles=$(/bin/ls %(directory)splotting0*.root 2> /dev/null | wc -l)
+  #nfiles=$(ls %(directory)splotting0*.root 2> /dev/null | wc -l)
   if [ \"zzz$ALIGNMENT_PLOTTINGTMP\" != \"zzz\" ]; then
     hadd -f1 %(directory)s%(director)s_plotting.root %(directory)splotting0*.root
     #if [ $? == 0 ] && [ \"$ALIGNMENT_CLEANUP\" == \"True\" ]; then rm %(directory)splotting0*.root; fi
@@ -498,8 +496,8 @@ if [ \"$ALIGNMENT_CLEANUP\" == \"True\" ] && [ \"zzz$ALIGNMENT_PLOTTINGTMP\" != 
 fi
 
 cd $ALIGNMENT_CAFDIR/
-export ALIGNMENT_ALIGNMENTTMP=`/bin/ls alignment*.tmp 2> /dev/null`
-/bin/ls -l
+export ALIGNMENT_ALIGNMENTTMP=`ls alignment*.tmp 2> /dev/null`
+ls -l
 
 cmsRun align_cfg.py
 cp -f MuonAlignmentFromReference_report.py $ALIGNMENT_AFSDIR/%(directory)s%(director)s_report.py
@@ -509,7 +507,7 @@ cp -f MuonAlignmentFromReference_plotting.root $ALIGNMENT_AFSDIR/%(directory)s%(
 cd $ALIGNMENT_AFSDIR
 ./Alignment/MuonAlignmentAlgorithms/scripts/convertSQLiteXML.py %(directory)s%(director)s.db %(directory)s%(director)s.xml --noLayers --gprcdconnect $ALIGNMENT_GPRCDCONNECT --gprcd $ALIGNMENT_GPRCD
 
-export ALIGNMENT_ALIGNMENTTMP=`/bin/ls %(directory)salignment*.tmp 2> /dev/null`
+export ALIGNMENT_ALIGNMENTTMP=`ls %(directory)salignment*.tmp 2> /dev/null`
 if [ \"$ALIGNMENT_CLEANUP\" == \"True\" ] && [ \"zzz$ALIGNMENT_ALIGNMENTTMP\" != \"zzz\" ]; then
   rm $ALIGNMENT_ALIGNMENTTMP
   echo " "
@@ -639,7 +637,7 @@ fi
 timestamp=`date \"+%%y-%%m-%%d %%H:%%M:%%S\"`
 echo \"%(validationLabel)s.plots (${timestamp})\" > out/label.txt
 
-/bin/ls -l out/
+ls -l out/
 timestamp=`date +%%Y%%m%%d%%H%%M%%S`
 tar czf %(validationLabel)s_${timestamp}.tgz out
 cp -f %(validationLabel)s_${timestamp}.tgz $ALIGNMENT_AFSDIR/
@@ -705,7 +703,8 @@ for iteration in range(1, ITERATIONS+1):
             if options.big: queue = "cmscaf1nd"
             else: queue = "cmscaf1nh"
 
-            bsubfile.append("bsub -R \"type==SLC5_64\" -q %s -J \"%s_gather%03d\" %s %s gather%03d.sh" % (queue, director, jobnumber, user_mail_opt, waiter, jobnumber))
+            if user_mail: bsubfile.append("bsub -R \"type==SLC5_64\" -q %s -J \"%s_gather%03d\" -u %s %s gather%03d.sh" % (queue, director, jobnumber, user_mail, waiter, jobnumber))
+	    else: bsubfile.append("bsub -R \"type==SLC5_64\" -q %s -J \"%s_gather%03d\" %s gather%03d.sh" % (queue, director, jobnumber, waiter, jobnumber))
 
             bsubnames.append("ended(%s_gather%03d)" % (director, jobnumber))
 
@@ -713,22 +712,23 @@ for iteration in range(1, ITERATIONS+1):
     ### align.sh
     if SUPER_SPECIAL_XY_AND_DXDZ_ITERATIONS:
         if ( iteration == 1 or iteration == 3 or iteration == 5 or iteration == 7 or iteration == 9):
-            tmp = station123params, station4params, useResiduals 
-            station123params, station4params, useResiduals = "000010", "000010", "0010"
+            tmp = station123params, station123params, useResiduals 
+            station123params, station123params, useResiduals = "000010", "000010", "0010"
             writeAlignCfg("%salign.sh" % directory, vars())
-            station123params, station4params, useResiduals = tmp
+            station123params, station123params, useResiduals = tmp
         elif ( iteration == 2 or iteration == 4 or iteration == 6 or iteration == 8 or iteration == 10):
-            tmp = station123params, station4params, useResiduals 
-            station123params, station4params, useResiduals = "110001", "100001", "1100"
+            tmp = station123params, station123params, useResiduals 
+            station123params, station123params, useResiduals = "110001", "100001", "1100"
             writeAlignCfg("%salign.sh" % directory, vars())
-            station123params, station4params, useResiduals = tmp
+            station123params, station123params, useResiduals = tmp
     else:
         writeAlignCfg("%salign.sh" % directory, vars())
     
     os.system("chmod +x %salign.sh" % directory)
 
     bsubfile.append("echo %salign.sh" % directory)
-    bsubfile.append("bsub -R \"type==SLC5_64\" -q cmscaf1nd -J \"%s_align\" %s -w \"%s\" align.sh" % (director, user_mail_opt, " && ".join(bsubnames)))
+    if user_mail: bsubfile.append("bsub -R \"type==SLC5_64\" -q cmscaf1nd -J \"%s_align\" -u %s -w \"%s\" align.sh" % (director, user_mail, " && ".join(bsubnames)))
+    else: bsubfile.append("bsub -R \"type==SLC5_64\" -q cmscaf1nd -J \"%s_align\" -w \"%s\" align.sh" % (director, " && ".join(bsubnames)))
     
     #bsubfile.append("cd ..")
     bsubnames = []
@@ -745,7 +745,8 @@ for iteration in range(1, ITERATIONS+1):
         os.system("chmod +x %svalidation.sh" % directory)
         
         bsubfile.append("echo %svalidation.sh" % directory)
-        bsubfile.append("bsub -R \"type==SLC5_64\" -q cmscaf1nd -J \"%s_validation\" %s -w \"ended(%s)\" validation.sh" % (director, user_mail_opt, last_align))
+        if user_mail: bsubfile.append("bsub -R \"type==SLC5_64\" -q cmscaf1nd -J \"%s_validation\" -u %s -w \"ended(%s)\" validation.sh" % (director, user_mail, last_align))
+	else: bsubfile.append("bsub -R \"type==SLC5_64\" -q cmscaf1nd -J \"%s_validation\" -w \"ended(%s)\" validation.sh" % (director, last_align))
 
     bsubfile.append("cd ..")
     bsubfile.append("")

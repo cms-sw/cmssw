@@ -6,6 +6,9 @@ using namespace edm;
 using namespace reco;
 using namespace std;
 
+
+
+
 ShallowGainCalibration::ShallowGainCalibration(const edm::ParameterSet& iConfig)
   :  theTracksLabel( iConfig.getParameter<edm::InputTag>("Tracks") ),
      Suffix       ( iConfig.getParameter<std::string>("Suffix")    ),
@@ -16,11 +19,14 @@ ShallowGainCalibration::ShallowGainCalibration(const edm::ParameterSet& iConfig)
   produces <std::vector<float> >          ( Prefix + "localdirx"      + Suffix );
   produces <std::vector<float> >          ( Prefix + "localdiry"      + Suffix );
   produces <std::vector<float> >          ( Prefix + "localdirz"      + Suffix );
-  produces <std::vector<float> >          ( Prefix + "localposx"      + Suffix );
-  produces <std::vector<float> >          ( Prefix + "localposy"      + Suffix );
   produces <std::vector<unsigned short> > ( Prefix + "firststrip"     + Suffix );
   produces <std::vector<unsigned short> > ( Prefix + "nstrips"        + Suffix );
+  produces <std::vector<bool> >           ( Prefix + "saturation"     + Suffix );
+  produces <std::vector<bool> >           ( Prefix + "overlapping"    + Suffix );
+  produces <std::vector<bool> >           ( Prefix + "farfromedge"    + Suffix );
+  produces <std::vector<unsigned int> >   ( Prefix + "charge"         + Suffix );
   produces <std::vector<float> >          ( Prefix + "path"           + Suffix );
+  produces <std::vector<float> >          ( Prefix + "chargeoverpath" + Suffix );
   produces <std::vector<unsigned char> >  ( Prefix + "amplitude"      + Suffix );
   produces <std::vector<double> >         ( Prefix + "gainused"       + Suffix );
 }
@@ -32,11 +38,14 @@ produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   std::auto_ptr<std::vector<float>  >         localdirx     ( new std::vector<float>          );
   std::auto_ptr<std::vector<float>  >         localdiry     ( new std::vector<float>          );
   std::auto_ptr<std::vector<float>  >         localdirz     ( new std::vector<float>          );
-  std::auto_ptr<std::vector<float>  >         localposx     ( new std::vector<float>          );
-  std::auto_ptr<std::vector<float>  >         localposy     ( new std::vector<float>          );
   std::auto_ptr<std::vector<unsigned short> > firststrip    ( new std::vector<unsigned short> );
   std::auto_ptr<std::vector<unsigned short> > nstrips       ( new std::vector<unsigned short> );
+  std::auto_ptr<std::vector<bool> >           saturation    ( new std::vector<bool>           );
+  std::auto_ptr<std::vector<bool> >           overlapping   ( new std::vector<bool>           );
+  std::auto_ptr<std::vector<bool> >           farfromedge   ( new std::vector<bool>           );
+  std::auto_ptr<std::vector<unsigned int> >   charge        ( new std::vector<unsigned int>   );
   std::auto_ptr<std::vector<float>  >         path          ( new std::vector<float>          );
+  std::auto_ptr<std::vector<float>  >         chargeoverpath( new std::vector<float>          );
   std::auto_ptr<std::vector<unsigned char> >  amplitude     ( new std::vector<unsigned char>  );
   std::auto_ptr<std::vector<double>  >        gainused      ( new std::vector<double>          );
 
@@ -59,80 +68,88 @@ produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
           const SiStripRecHit1D*        sistripsimple1dhit  = dynamic_cast<const SiStripRecHit1D*>(hit);
           const SiStripRecHit2D*        sistripsimplehit    = dynamic_cast<const SiStripRecHit2D*>(hit);
           const SiStripMatchedRecHit2D* sistripmatchedhit   = dynamic_cast<const SiStripMatchedRecHit2D*>(hit);
-          const SiPixelRecHit*          pixelHit            = dynamic_cast<const SiPixelRecHit*>(hit);
 
-          LocalVector             trackDirection = trajState.localDirection();
-          double                  cosine         = trackDirection.z()/trackDirection.mag();
+          const SiStripCluster*   Cluster = NULL;
+          uint32_t                DetId = 0;
 
-          if(pixelHit){
-               uint32_t                DetId = pixelHit->geographicalId();
-               double                  Path  = (10.0*thickness(DetId))/fabs(cosine);
+          for(unsigned int h=0;h<2;h++){
+            if(!sistripmatchedhit && h==1){
+	       continue;
+            }else if(sistripmatchedhit  && h==0){
+               Cluster = &sistripmatchedhit->monoCluster();
+	       DetId = sistripmatchedhit->monoId();
+            }else if(sistripmatchedhit  && h==1){
+               Cluster = &sistripmatchedhit->stereoCluster();;
+	       DetId = sistripmatchedhit->stereoId();
+            }else if(sistripsimplehit){
+               Cluster = (sistripsimplehit->cluster()).get();
+	       DetId = sistripsimplehit->geographicalId().rawId();
+            }else if(sistripsimple1dhit){
+               Cluster = (sistripsimple1dhit->cluster()).get();
+	       DetId = sistripsimple1dhit->geographicalId().rawId();
+            }else{
+               continue;
+            }
 
-               trackindex    ->push_back( shallow::findTrackIndex(tracks, track) ); 
-               rawid         ->push_back( DetId );         
-               localdirx     ->push_back( trackDirection.x() );
-               localdiry     ->push_back( trackDirection.y() );
-               localdirz     ->push_back( trackDirection.z() );
-               localposx     ->push_back( (trajState.localPosition()).x() );
-               localposy     ->push_back( (trajState.localPosition()).y() );
-               firststrip    ->push_back( -1 );
-               nstrips       ->push_back( 1 );
-               path          ->push_back( Path );
-               gainused      ->push_back( 1.0 );  
-               amplitude     ->push_back( pixelHit->cluster()->charge() );
+            LocalVector             trackDirection = trajState.localDirection();
+            double                  cosine         = trackDirection.z()/trackDirection.mag();
+            const vector<uint8_t>&  Ampls          = Cluster->amplitudes();
+	    int                     FirstStrip     = Cluster->firstStrip();
+            int                     APVId          = FirstStrip/128;
+            bool                    Saturation     = false;
+            bool                    Overlapping    = false;
+            unsigned int            Charge         = 0;
+            double                  Path           = (10.0*thickness(DetId))/fabs(cosine);
+            double                  PrevGain       = -1;
 
-          }else{
-               const SiStripCluster*   Cluster = NULL;
-               uint32_t                DetId = 0;
+            if(gainHandle.isValid()){ 
+               SiStripApvGain::Range detGainRange = gainHandle->getRange(DetId);
+               PrevGain = *(detGainRange.first + APVId);
+            }
 
-             for(unsigned int h=0;h<2;h++){
-               if(!sistripmatchedhit && h==1){
-                  continue;
-               }else if(sistripmatchedhit  && h==0){
-                  Cluster = &sistripmatchedhit->monoCluster();
-                  DetId = sistripmatchedhit->monoId();
-               }else if(sistripmatchedhit  && h==1){
-                  Cluster = &sistripmatchedhit->stereoCluster();;
-                  DetId = sistripmatchedhit->stereoId();
-               }else if(sistripsimplehit){
-                  Cluster = (sistripsimplehit->cluster()).get();
-                  DetId = sistripsimplehit->geographicalId().rawId();
-               }else if(sistripsimple1dhit){
-                  Cluster = (sistripsimple1dhit->cluster()).get();
-                  DetId = sistripsimple1dhit->geographicalId().rawId();
-               }else{
-                  continue;
-               }
+            for(unsigned int a=0;a<Ampls.size();a++){               
+               Charge+=Ampls[a];
+               if(Ampls[a] >=254)Saturation =true;
+               amplitude->push_back( Ampls[a] );
+            }
+            double                   ChargeOverPath = (double)Charge / Path ;
 
-               const vector<uint8_t>&  Ampls          = Cluster->amplitudes();
-               int                     FirstStrip     = Cluster->firstStrip();
-               int                     APVId          = FirstStrip/128;
-               double                  Path           = (10.0*thickness(DetId))/fabs(cosine);
-               double                  PrevGain       = -1;
+            if(FirstStrip==0                                  )Overlapping=true;
+            if(FirstStrip==128                                )Overlapping=true;
+            if(FirstStrip==256                                )Overlapping=true;
+            if(FirstStrip==384                                )Overlapping=true;
+            if(FirstStrip==512                                )Overlapping=true;
+            if(FirstStrip==640                                )Overlapping=true;
 
-               if(gainHandle.isValid()){ 
-                  SiStripApvGain::Range detGainRange = gainHandle->getRange(DetId);
-                  PrevGain = *(detGainRange.first + APVId);
-               }
+            if(FirstStrip<=127 && FirstStrip+Ampls.size()>127)Overlapping=true;
+            if(FirstStrip<=255 && FirstStrip+Ampls.size()>255)Overlapping=true;
+            if(FirstStrip<=383 && FirstStrip+Ampls.size()>383)Overlapping=true;
+            if(FirstStrip<=511 && FirstStrip+Ampls.size()>511)Overlapping=true;
+            if(FirstStrip<=639 && FirstStrip+Ampls.size()>639)Overlapping=true;
 
-               for(unsigned int a=0;a<Ampls.size();a++){               
-                  amplitude->push_back( Ampls[a] );
-               }
+            if(FirstStrip+Ampls.size()==127                   )Overlapping=true;
+            if(FirstStrip+Ampls.size()==255                   )Overlapping=true;
+            if(FirstStrip+Ampls.size()==383                   )Overlapping=true;
+            if(FirstStrip+Ampls.size()==511                   )Overlapping=true;
+            if(FirstStrip+Ampls.size()==639                   )Overlapping=true;
+            if(FirstStrip+Ampls.size()==767                   )Overlapping=true;
 
-               trackindex    ->push_back( shallow::findTrackIndex(tracks, track) ); 
-               rawid         ->push_back( DetId );         
-               localdirx     ->push_back( trackDirection.x() );
-               localdiry     ->push_back( trackDirection.y() );
-               localdirz     ->push_back( trackDirection.z() );
-               localposx     ->push_back( (trajState.localPosition()).x() );
-               localposy     ->push_back( (trajState.localPosition()).y() );
-               firststrip    ->push_back( FirstStrip );
-               nstrips       ->push_back( Ampls.size() );
-               path          ->push_back( Path );
-               gainused      ->push_back( PrevGain );  
-             }
+            trackindex    ->push_back( shallow::findTrackIndex(tracks, track) ); 
+            rawid         ->push_back( DetId );         
+            localdirx     ->push_back( trackDirection.x() );
+            localdiry     ->push_back( trackDirection.y() );
+            localdirz     ->push_back( trackDirection.z() );
+            firststrip    ->push_back( FirstStrip );
+            nstrips       ->push_back( Ampls.size() );
+            saturation    ->push_back( Saturation );
+            overlapping   ->push_back( Overlapping );
+            farfromedge   ->push_back( IsFarFromBorder(&trajState,DetId, &iSetup) );
+            charge        ->push_back( Charge );
+            path          ->push_back( Path );
+            chargeoverpath->push_back( ChargeOverPath );
+            gainused      ->push_back( PrevGain );  
           }
-      }
+       }
   }
 
   iEvent.put(trackindex,    Prefix + "trackindex"    + Suffix );
@@ -140,17 +157,73 @@ produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   iEvent.put(localdirx ,    Prefix + "localdirx"     + Suffix );
   iEvent.put(localdiry ,    Prefix + "localdiry"     + Suffix );
   iEvent.put(localdirz ,    Prefix + "localdirz"     + Suffix );
-  iEvent.put(localposx ,    Prefix + "localposx"     + Suffix );
-  iEvent.put(localposy ,    Prefix + "localposy"     + Suffix );
   iEvent.put(firststrip,    Prefix + "firststrip"    + Suffix );
   iEvent.put(nstrips,       Prefix + "nstrips"       + Suffix );
+  iEvent.put(saturation,    Prefix + "saturation"    + Suffix );
+  iEvent.put(overlapping,   Prefix + "overlapping"   + Suffix );
+  iEvent.put(farfromedge,   Prefix + "farfromedge"   + Suffix );
+  iEvent.put(charge,        Prefix + "charge"        + Suffix );
   iEvent.put(path,          Prefix + "path"          + Suffix );
+  iEvent.put(chargeoverpath,Prefix + "chargeoverpath"+ Suffix );
   iEvent.put(amplitude,     Prefix + "amplitude"     + Suffix );
   iEvent.put(gainused,      Prefix + "gainused"      + Suffix );
 }
 
-
 /*
+void ShallowGainCalibration::beginJob(const edm::EventSetup& iSetup)
+{
+   printf("Befin JOB\n");
+
+   edm::ESHandle<TrackerGeometry> tkGeom;
+   iSetup.get<TrackerDigiGeometryRecord>().get( tkGeom );
+   vector<GeomDet*> Det = tkGeom->dets();
+
+   edm::ESHandle<SiStripGain> gainHandle;
+   iSetup.get<SiStripGainRcd>().get(gainHandle);
+   if(!gainHandle.isValid()){printf("\n#####################\n\nERROR --> gainHandle is not valid\n\n#####################\n\n");exit(0);}
+
+   for(unsigned int i=0;i<Det.size();i++){
+      DetId  Detid  = Det[i]->geographicalId();
+      int    SubDet = Detid.subdetId();
+
+      if( SubDet == StripSubdetector::TIB ||  SubDet == StripSubdetector::TID ||
+          SubDet == StripSubdetector::TOB ||  SubDet == StripSubdetector::TEC  ){
+
+          StripGeomDetUnit* DetUnit     = dynamic_cast<StripGeomDetUnit*> (Det[i]);
+          if(!DetUnit)continue;
+
+          const StripTopology& Topo     = DetUnit->specificTopology();
+          unsigned int         NAPV     = Topo.nstrips()/128;
+   
+          for(unsigned int j=0;j<NAPV;j++){
+                stAPVGain* APV = new stAPVGain;
+                APV->DetId         = Detid.rawId();
+                APV->APVId         = j;
+                APV->PreviousGain  = 1;
+
+                APVsCollOrdered.push_back(APV);
+                APVsColl[(APV->DetId<<3) | APV->APVId] = APV;
+          }
+      }
+   }
+}
+
+
+void ShallowGainCalibration::beginRun(edm::Run &, const edm::EventSetup &iSetup){
+    printf("BEFIN RUN\n");
+
+    edm::ESHandle<SiStripGain> gainHandle;
+    iSetup.get<SiStripGainRcd>().get(gainHandle);
+    if(!gainHandle.isValid()){printf("\n#####################\n\nERROR --> gainHandle is not valid\n\n#####################\n\n");exit(0);}
+
+    for(std::vector<stAPVGain*>::iterator it = APVsCollOrdered.begin();it!=APVsCollOrdered.end();it++){
+       stAPVGain* APV = *it;
+       SiStripApvGain::Range detGainRange = gainHandle->getRange(APV->DetId);
+       APV->PreviousGain = *(detGainRange.first + APV->APVId);
+    }
+}
+*/
+
 bool ShallowGainCalibration::IsFarFromBorder(TrajectoryStateOnSurface* trajState, const uint32_t detid, const edm::EventSetup* iSetup)
 { 
   edm::ESHandle<TrackerGeometry> tkGeom; iSetup->get<TrackerDigiGeometryRecord>().get( tkGeom );
@@ -173,7 +246,7 @@ bool ShallowGainCalibration::IsFarFromBorder(TrajectoryStateOnSurface* trajState
 
   if(trapezoidalBounds)
   {
-     std::vector<float> const & parameters = (*trapezoidalBounds).parameters();
+      std::array<const float, 4> const & parameters = (*trapezoidalBounds).parameters();
      HalfLength     = parameters[3];
   }else if(rectangularBounds){
      HalfLength     = it->surface().bounds().length() /2.0;
@@ -182,7 +255,7 @@ bool ShallowGainCalibration::IsFarFromBorder(TrajectoryStateOnSurface* trajState
   if (fabs(HitLocalPos.y())+HitLocalError.yy() >= (HalfLength - DistFromBorder) ) return false;
 
   return true;
-}*/
+}
 
 
 double ShallowGainCalibration::thickness(DetId id)
@@ -207,5 +280,6 @@ double ShallowGainCalibration::thickness(DetId id)
    m_thicknessMap[id]=detThickness;//computed value
    return detThickness;
  }
+
 }
 

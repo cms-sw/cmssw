@@ -38,16 +38,12 @@ class EcalLaserDbService {
   void setAPDPNData (const EcalLaserAPDPNRatios* fItem) {mAPDPNRatios_ = fItem;}
   void setLinearCorrectionsData (const EcalLinearCorrections* fItem) {mLinearCorrections_ = fItem;}
 
-  void errorReport () const;
-
  private:
 
   const EcalLaserAlphas* mAlphas_;
   const EcalLaserAPDPNRatiosRef* mAPDPNRatiosRef_;
   const EcalLaserAPDPNRatios* mAPDPNRatios_;  
   const EcalLinearCorrections* mLinearCorrections_;  
-
-  mutable std::map<uint32_t,int> channelsWithInvalidCorrection_;
 
 };
 

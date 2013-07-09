@@ -5,11 +5,12 @@
 
 namespace ecaldqm {
 
-  PresampleTask::PresampleTask(edm::ParameterSet const& _workerParams, edm::ParameterSet const& _commonParams) :
-    DQWorkerTask(_workerParams, _commonParams, "PresampleTask")
+  PresampleTask::PresampleTask(const edm::ParameterSet &_params, const edm::ParameterSet& _paths) :
+    DQWorkerTask(_params, _paths, "PresampleTask")
   {
-    collectionMask_[kEBDigi] = true;
-    collectionMask_[kEEDigi] = true;
+    collectionMask_ =
+      (0x1 << kEBDigi) |
+      (0x1 << kEEDigi);
   }
 
   PresampleTask::~PresampleTask()
@@ -34,33 +35,39 @@ namespace ecaldqm {
   void
   PresampleTask::runOnDigis(const EcalDigiCollection &_digis)
   {
-    MESet* mePedestal(MEs_["Pedestal"]);
-
     for(EcalDigiCollection::const_iterator digiItr(_digis.begin()); digiItr != _digis.end(); ++digiItr){
       DetId id(digiItr->id());
 
       // EcalDataFrame is not a derived class of edm::DataFrame, but can take edm::DataFrame in the constructor
       EcalDataFrame dataFrame(*digiItr);
 
+      float mean(0.);
       bool gainSwitch(false);
-      int iMax(-1);
-      int maxADC(0);
-      for(int iSample(0); iSample < 10; ++iSample){
-        int adc(dataFrame.sample(iSample).adc());
-        if(adc > maxADC){
-          iMax = iSample;
-          maxADC = adc;
-        }
-        if(iSample < 3 && dataFrame.sample(iSample).gainId() != 1){
-          gainSwitch = true;
-          break;
-        }
-      }
-      if(iMax != 5 || gainSwitch) continue;
 
-      for(int iSample(0); iSample < 3; ++iSample)
-	mePedestal->fill(id, double(dataFrame.sample(iSample).adc()));
+      for(int iSample(0); iSample < 3; iSample++){
+	if(dataFrame.sample(iSample).gainId() != 1){
+	  gainSwitch = true;
+	  break;
+	}
+
+	mean += dataFrame.sample(iSample).adc();
+      }
+      if(gainSwitch) continue;
+
+      mean /= 3.;
+
+      MEs_[kPedestal]->fill(id, mean);
     }
+  }
+
+  /*static*/
+  void
+  PresampleTask::setMEData(std::vector<MEData>& _data)
+  {
+    BinService::AxisSpecs axis;
+    axis.low = 160.;
+    axis.high = 240.;
+    _data[kPedestal] = MEData("Pedestal", BinService::kSM, BinService::kCrystal, MonitorElement::DQM_KIND_TPROFILE2D, 0, 0, &axis);
   }
 
   DEFINE_ECALDQM_WORKER(PresampleTask);

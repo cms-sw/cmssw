@@ -10,19 +10,6 @@ hltMuonOfflineAnalyzer = cms.EDAnalyzer("HLTMuonOfflineAnalyzer",
 
     ## HLT paths passing any one of these regular expressions will be included
     hltPathsToCheck = cms.vstring(
-      # New pPb triggers to check
-        "HLT_PADimuon0_NoVertexing_v",
-        "HLT_PAL1DoubleMu0_HighQ_v",
-        "HLT_PAL1DoubleMuOpen_v",
-        "HLT_PAL2DoubleMu3_v",
-        "HLT_PAMu3_v",
-        "HLT_PAMu7_v",
-        "HLT_PAMu12_v",
-        "HLT_PABTagMu_Jet20_Mu4_v",
-        "HLT_PAMu3PFJet20_v",
-        "HLT_PAMu3PFJet40_v",
-        "HLT_PAMu7PFJet20_v",
-      # Standard pp triggers to check
       "HLT_IsoMu20_eta2p1_v",
       "HLT_IsoMu24_eta2p1_v",
       "HLT_IsoMu24_v",

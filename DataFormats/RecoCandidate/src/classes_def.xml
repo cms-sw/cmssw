@@ -73,7 +73,8 @@
   <class name="reco::RecoToSimCollection" />
 
 
-  <class pattern="edm::ValueMap<*>" />
+  <class name="edm::ValueMap<reco::IsoDeposit>" />
+  <class name="edm::ValueMap<reco::FitQuality>" />
   <class pattern="edm::Wrapper<edm::ValueMap<*>" />
   <class pattern="edm::KeyVal<*>" />
   <class pattern="edm::Wrapper<edm::AssociationMap<*>" />

@@ -14,7 +14,6 @@ except:
     errorOnImport = True    
 
 cvsBaseUrl = "http://cmssw.cvs.cern.ch/cgi-bin/cmssw.cgi/CMSSW"     # NO SLASH IN THE END
-gitBaseUrl = "https://github.com/cms-sw/cmssw/tree"
 baseUrl = "http://cmssdt.cern.ch/SDT/doxygen/"
 refmanfiles = {}
 packageDocLinks = []
@@ -61,10 +60,8 @@ def preparePackageDocumentationLinks(DOC_DIR):
 
 ## Format CVS link
 def formatCVSLink(package, subpackage):
-    cvsLink = "[ <a target=\"_blank\" href=\""+cvsBaseUrl+"/"+package+"/"+subpackage+"\">cvs</a> ] "
-    gitLink = "[ <a target=\"_blank\" href=\""+gitBaseUrl+"/"+CMSSW_VERSION+"/"+package+"/"+subpackage+"\">git</a> ] "
-
-    return cvsLink+gitLink
+    cvsLink = "[ <a target=\"_blank\" href=\""+cvsBaseUrl+"/"+package+"/"+subpackage+"\">cvs</a> ]"
+    return cvsLink
 
 def formatPackageDocumentationLink(package, subpackage):    
     for link in packageDocLinks:

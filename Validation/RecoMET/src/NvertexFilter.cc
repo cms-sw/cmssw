@@ -22,7 +22,7 @@ class NvertexFilter : public edm::EDFilter{
 
     explicit NvertexFilter(const edm::ParameterSet & iConfig);
     ~NvertexFilter();
-    virtual bool filter(edm::Event&, const edm::EventSetup&);
+    virtual bool filter(edm::Event&, const edm::EventSetup&) override;
     virtual void beginJob();
     virtual void endJob();
 

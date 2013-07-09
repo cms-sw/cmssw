@@ -31,18 +31,18 @@ setenv CMSSWver1 6_2_0
 setenv CMSSWver2 6_2_0
 setenv OLDRELEASE 6_2_0
 setenv NEWRELEASE 6_2_0
-setenv OLDPRERELEASE pre6_patch1
-setenv NEWPRERELEASE pre7 
+setenv OLDPRERELEASE pre5
+setenv NEWPRERELEASE pre6_patch1
 setenv UPGRADEVER  UPG2017
 setenv LHCENERGY   14
 
 
 if ( $STARTUP == True &&  $FASTSIM == False) then
-setenv OLDGLOBALTAG PRE_ST62_V6-v1
-setenv NEWGLOBALTAG PRE_ST62_V7-v2
+setenv OLDGLOBALTAG PRE_ST61_V1-v1
+setenv NEWGLOBALTAG PRE_ST62_V6-v1
 else if (  $STARTUP == True  && $FASTSIM == True) then
-setenv OLDGLOBALTAG PRE_ST62_V6_FastSim-v1
-setenv NEWGLOBALTAG PRE_ST62_V7_FastSim-v3
+setenv OLDGLOBALTAG START61_V11_FastSim-v1
+setenv NEWGLOBALTAG PRE_ST61_V1_FastSim-v1
 endif
 
 

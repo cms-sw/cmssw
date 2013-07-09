@@ -108,28 +108,6 @@ SiPixelHitEfficiencySource_HeavyIons = SiPixelHitEfficiencySource.clone(
     trajectoryInput = hiTracks
     )
 
-
-# Phase1 Upgrade configuration
-SiPixelRawDataErrorSource_phase1 = SiPixelRawDataErrorSource.clone(
-    isUpgrade = cms.untracked.bool(True)
-    )
-SiPixelDigiSource_phase1 = SiPixelDigiSource.clone(
-    isUpgrade = cms.untracked.bool(True)
-    )
-SiPixelClusterSource_phase1 = SiPixelClusterSource.clone(
-    isUpgrade = cms.untracked.bool(True)
-    )
-SiPixelRecHitSource_phase1 = SiPixelRecHitSource.clone(
-    isUpgrade = cms.untracked.bool(True)
-    )
-SiPixelTrackResidualSource_phase1 = SiPixelTrackResidualSource.clone(
-    isUpgrade = cms.untracked.bool(True)
-    )
-SiPixelHitEfficiencySource_phase1 = SiPixelHitEfficiencySource.clone(
-    isUpgrade = cms.untracked.bool(True)
-    )
-
-
 #DQM service
 dqmInfo = cms.EDAnalyzer("DQMEventInfo",
     subSystemFolder = cms.untracked.string('Pixel')
@@ -145,5 +123,3 @@ siPixelOfflineDQM_cosmics_source = cms.Sequence(SiPixelHLTSource + SiPixelRawDat
 siPixelOfflineDQM_heavyions_source = cms.Sequence(SiPixelHLTSource + SiPixelRawDataErrorSource + SiPixelDigiSource + SiPixelRecHitSource + SiPixelClusterSource + SiPixelTrackResidualSource_HeavyIons + SiPixelHitEfficiencySource_HeavyIons + dqmInfo)
 
 siPixelOfflineDQM_source_woTrack = cms.Sequence(SiPixelHLTSource + SiPixelRawDataErrorSource + SiPixelDigiSource + SiPixelRecHitSource + SiPixelClusterSource + dqmInfo)
-
-siPixelOfflineDQM_phase1_source = cms.Sequence(SiPixelRawDataErrorSource_phase1 + SiPixelDigiSource_phase1 + SiPixelRecHitSource_phase1 + SiPixelClusterSource_phase1 + SiPixelTrackResidualSource_phase1 + SiPixelHitEfficiencySource_phase1 + dqmInfo)

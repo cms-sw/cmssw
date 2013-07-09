@@ -125,7 +125,7 @@ void CastorPSMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe){
 
 
     ////---- create Digi based reportSummaryMap
-    m_dbe->setCurrentFolder(rootFolder_+"EventInfo"); //this is saved in the EventInfo folder so it can appear in the main page of the DQM
+    m_dbe->setCurrentFolder(rootFolder_+"EventInfo");
     reportSummary    = m_dbe->bookFloat("reportSummary");
     reportSummaryMap = m_dbe->book2D("reportSummaryMap","CASTOR reportSummaryMap",14,0.0,14.0,16,0.0,16.0);
     if(offline_){
@@ -134,7 +134,7 @@ void CastorPSMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe){
       h_reportSummaryMap->GetXaxis()->SetTitle("module");
       h_reportSummaryMap->GetYaxis()->SetTitle("sector");
     }
-    m_dbe->setCurrentFolder(rootFolder_+"EventInfo/reportSummaryContents");  //this is saved in the EventInfo folder so it can appear in the main page of the DQM
+    m_dbe->setCurrentFolder(rootFolder_+"EventInfo/reportSummaryContents");
     overallStatus = m_dbe->bookFloat("fraction of good channels");
     overallStatus->Fill(fraction); reportSummary->Fill(fraction); 
   } 
@@ -264,9 +264,9 @@ void CastorPSMonitor::processEvent(const CastorDigiCollection& castorDigis, cons
 		  castorDigiHists.meDigi_pulseBX->Fill(static_cast<double>(bxTS),(bunch_it->tsfC[ts])/224.);
 		  ////---- fill pulse shape in sectors 
 
-		  // PK: do not normalize histograms - now it is normalized
-		  PSsector[bunch_it->detid.sector()-1]->Fill(10*(bunch_it->detid.module()-1)+ts, bunch_it->tsfC[ts]/double(ievt_)); 
-                  // PSsector[bunch_it->detid.sector()-1]->Fill(10*(bunch_it->detid.module()-1)+ts, bunch_it->tsfC[ts]);
+		  // PK: do not normalize histograms
+		  //  PSsector[bunch_it->detid.sector()-1]->Fill(10*(bunch_it->detid.module()-1)+ts, bunch_it->tsfC[ts]/double(ievt_)); 
+                  PSsector[bunch_it->detid.sector()-1]->Fill(10*(bunch_it->detid.module()-1)+ts, bunch_it->tsfC[ts]);
  
                   ////---- sum the signal over all TS in fC
                   sumDigi +=  bunch_it->tsfC[ts]; //std::cout<< " signal(fC) in TS:"<<ts << " =" << bunch_it->tsfC[ts] << std::endl; 	   
@@ -408,6 +408,8 @@ void CastorPSMonitor::processEvent(const CastorDigiCollection& castorDigis, cons
   
   return;
 }
+
+
 
 
 

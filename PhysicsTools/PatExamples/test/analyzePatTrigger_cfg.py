@@ -25,8 +25,6 @@ process.triggerAnalysis = cms.EDAnalyzer( "PatTriggerAnalyzer",
     triggerEvent = cms.InputTag( "patTriggerEvent" ),
     muons        = cms.InputTag( "selectedPatMuons" ),
     muonMatch    = cms.string( 'muonTriggerMatchHLTMuons' ),
-    nBins    = cms.uint32( 20 ),
-    binWidth = cms.double( 4. ),
     minID = cms.uint32( 81 ),
     maxID = cms.uint32( 96 )
 )

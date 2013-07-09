@@ -54,7 +54,7 @@ void PhysicsPerformanceDBWriterTFormula_fromfile_WPandPL::beginJob()
   // - formulas
   // - the limits
   //
-  std::cout << "WriterTFormula" << std::endl;
+
   std::ifstream in;
   in.open(inputTxtFile.c_str());
   std::string tagger;

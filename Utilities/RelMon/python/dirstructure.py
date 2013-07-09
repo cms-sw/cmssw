@@ -2,9 +2,9 @@
 # RelMon: a tool for automatic Release Comparison                              
 # https://twiki.cern.ch/twiki/bin/view/CMSPublic/RelMon
 #
-# $Author: anorkus $
-# $Date: 2012/11/21 15:22:14 $
-# $Revision: 1.3 $
+# $Author: dpiparo $
+# $Date: 2012/07/03 05:38:00 $
+# $Revision: 1.2 $
 #
 #                                                                              
 # Danilo Piparo CERN - danilo.piparo@cern.ch                                   
@@ -79,12 +79,6 @@ class Directory(Weighted):
     self.do_pngs=do_pngs
     self.rank_histo=TH1I("rh%s"%name,"",50,-0.01,1.001)
     self.rank_histo.SetDirectory(0)
-    self.different_histograms = {}
-    self.different_histograms['file1']= {}
-    self.different_histograms['file2']= {}
-    self.filename1 = ""
-    self.filename2 = ""
-    self.n_missing_objs = 0
 
   def is_empty(self):
     if len(self.subdirs)==0 and len(self.comparisons)==0:
@@ -108,10 +102,7 @@ class Directory(Weighted):
     
     self.n_skiped = 0
     self.n_comp_skiped = 0
-    self.n_missing_objs = len(self.different_histograms['file1'].keys())+len(self.different_histograms['file2'].keys())
-    if self.n_missing_objs != 0:
-      print "    [*] Missing in %s: %s" %(self.filename1, self.different_histograms['file1'])
-      print "    [*] Missing in %s: %s" %(self.filename2, self.different_histograms['file2'])
+    
     # clean from empty dirs    
     self.subdirs = filter(lambda subdir: not subdir.is_empty(),self.subdirs)    
     
@@ -143,7 +134,6 @@ class Directory(Weighted):
       self.n_nulls+=subdir.n_nulls
       
       self.n_skiped+=subdir.n_skiped
-      self.n_missing_objs += subdir.n_missing_objs
       
       self.rank_histo.Add(subdir.rank_histo)
 
@@ -196,7 +186,6 @@ class Directory(Weighted):
       print " o Nulls: %.2f%% (%s/%s) " %(self.get_null_rate(),self.n_nulls,self.weight)
       print " o Successes: %.2f%% (%s/%s) " %(self.get_success_rate(),self.n_successes,self.weight)
       print " o Skipped: %.2f%% (%s/%s) " %(self.get_skiped_rate(),self.n_skiped,self.weight)
-      print " o Missing objects: %s" %(self.n_missing_objs)
 
   def get_skiped_rate(self):
     if self.weight == 0: return 0

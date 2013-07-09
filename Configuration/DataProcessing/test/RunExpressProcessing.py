@@ -26,14 +26,13 @@ class RunExpressProcessing:
         self.noOutput = False
         self.globalTag = None
         self.inputLFN = None
-        self.alcaRecos = []
 
     def __call__(self):
         if self.scenario == None:
             msg = "No --scenario specified"
             raise RuntimeError, msg
         if self.globalTag == None:
-            msg = "No --global-tag specified"
+            msg = "No --globaltag specified"
             raise RuntimeError, msg
         if self.inputLFN == None:
             msg = "No --lfn specified"
@@ -67,15 +66,13 @@ class RunExpressProcessing:
             dataTiers.append("DQM")
             print "Configuring to Write out Dqm..."
 
-
         try:
             if self.noOutput:
                 # get config without any output
                 process = scenario.expressProcessing(globalTag = self.globalTag, writeTiers = [])
             elif len(dataTiers) > 0:
-
                 # get config with specified output
-                process = scenario.expressProcessing(globalTag = self.globalTag, writeTiers = dataTiers, skims = self.alcaRecos)
+                process = scenario.expressProcessing(globalTag = self.globalTag, writeTiers = dataTiers)
             else:
                 # use default output data tiers
                 process = scenario.expressProcessing(self.globalTag)
@@ -103,7 +100,7 @@ class RunExpressProcessing:
 
 if __name__ == '__main__':
     valid = ["scenario=", "raw", "reco", "fevt", "alca", "dqm", "no-output",
-             "global-tag=", "lfn=", "alcaRecos="]
+             "global-tag=", "lfn="]
     usage = \
 """
 RunExpressProcessing.py <options>
@@ -118,7 +115,7 @@ Where options are:
  --no-output (create config with no output, overrides other settings)
  --global-tag=GlobalTag
  --lfn=/store/input/lfn
- --alcaRecos=<list of alca skims> e.g. @allForExpress+SiStripPCLHistos
+
 
 Example:
 python RunExpressProcessing.py --scenario cosmics --global-tag GLOBALTAG::ALL --lfn /store/whatever --fevt --alca --dqm
@@ -153,8 +150,5 @@ python RunExpressProcessing.py --scenario cosmics --global-tag GLOBALTAG::ALL --
             expressinator.globalTag = arg
         if opt == "--lfn" :
             expressinator.inputLFN = arg
-        if opt =="--alcaRecos":
-            expressinator.alcaRecos = arg.split('+')
 
     expressinator()
-

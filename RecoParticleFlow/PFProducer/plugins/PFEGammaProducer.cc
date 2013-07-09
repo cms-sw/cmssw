@@ -23,11 +23,9 @@
 
 #include "TFile.h"
 
-
-
 using namespace std;
 
-//using namespace boost; // bad!
+using namespace boost;
 
 using namespace edm;
 
@@ -57,7 +55,7 @@ PFEGammaProducer::PFEGammaProducer(const edm::ParameterSet& iConfig) {
   calibPFSCEle_Fbrem_endcap = iConfig.getParameter<std::vector<double> >("calibPFSCEle_Fbrem_endcap");
   calibPFSCEle_barrel = iConfig.getParameter<std::vector<double> >("calibPFSCEle_barrel");
   calibPFSCEle_endcap = iConfig.getParameter<std::vector<double> >("calibPFSCEle_endcap");
-  std::shared_ptr<PFSCEnergyCalibration>  
+  boost::shared_ptr<PFSCEnergyCalibration>  
     thePFSCEnergyCalibration ( new PFSCEnergyCalibration(calibPFSCEle_Fbrem_barrel,calibPFSCEle_Fbrem_endcap,
                                                          calibPFSCEle_barrel,calibPFSCEle_endcap )); 
                                
@@ -142,7 +140,8 @@ PFEGammaProducer::PFEGammaProducer(const edm::ParameterSet& iConfig) {
   useCalibrationsFromDB_
     = iConfig.getParameter<bool>("useCalibrationsFromDB");    
 
-  std::shared_ptr<PFEnergyCalibration> calibration(new PFEnergyCalibration()); 
+  boost::shared_ptr<PFEnergyCalibration> 
+    calibration( new PFEnergyCalibration() ); 
 
   int algoType 
     = iConfig.getParameter<unsigned>("algoType");
@@ -569,8 +568,8 @@ void
 PFEGammaProducer::setPFEGParameters(double mvaEleCut,
                            string mvaWeightFileEleID,
                            bool usePFElectrons,
-                           const std::shared_ptr<PFSCEnergyCalibration>& thePFSCEnergyCalibration,
-                           const std::shared_ptr<PFEnergyCalibration>& thePFEnergyCalibration,
+                           const boost::shared_ptr<PFSCEnergyCalibration>& thePFSCEnergyCalibration,
+                           const boost::shared_ptr<PFEnergyCalibration>& thePFEnergyCalibration,
                            double sumEtEcalIsoForEgammaSC_barrel,
                            double sumEtEcalIsoForEgammaSC_endcap,
                            double coneEcalIsoForEgammaSC,

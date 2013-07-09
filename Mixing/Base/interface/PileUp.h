@@ -4,7 +4,7 @@
 #include <memory>
 #include <string>
 #include <vector>
-//#include <boost/bind.hpp>
+#include <boost/bind.hpp>
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Sources/interface/VectorInputSource.h"
 #include "DataFormats/Provenance/interface/EventID.h"
@@ -13,8 +13,6 @@
 
 #include "CLHEP/Random/RandPoissonQ.h"
 #include "CLHEP/Random/RandFlat.h"
-
-#include "boost/shared_ptr.hpp"
 
 #include "TRandom.h"
 #include "TFile.h"
@@ -31,8 +29,6 @@ namespace CLHEP {
 
 
 namespace edm {
-  class SecondaryEventProvider;
-
   class PileUp {
   public:
     explicit PileUp(ParameterSet const& pset, double averageNumber, TH1F* const histo, const bool playback);
@@ -50,16 +46,9 @@ namespace edm {
     void dropUnwantedBranches(std::vector<std::string> const& wantedBranches) {
       input_->dropUnwantedBranches(wantedBranches);
     }
-    void beginJob();
-    void endJob();
-
-    void beginRun(const edm::Run& run, const edm::EventSetup& setup);
-    void beginLuminosityBlock(const edm::LuminosityBlock& lumi, const edm::EventSetup& setup);
-
-    void endRun(const edm::Run& run, const edm::EventSetup& setup);
-    void endLuminosityBlock(const edm::LuminosityBlock& lumi, const edm::EventSetup& setup);
-
-    void setupPileUpEvent(const edm::EventSetup& setup);
+    void endJob () {
+      input_->doEndJob();
+    }
 
     void reload(const edm::EventSetup & setup);
 
@@ -93,13 +82,10 @@ namespace edm {
     int  intFixed_OOT_;
     int  intFixed_ITPU_;
 
-    boost::shared_ptr<ProductRegistry> productRegistry_;
+    std::unique_ptr<ProductRegistry> productRegistry_;
     std::unique_ptr<VectorInputSource> const input_;
-    boost::shared_ptr<ProcessConfiguration> processConfiguration_;
+    std::unique_ptr<ProcessConfiguration> processConfiguration_;
     std::unique_ptr<EventPrincipal> eventPrincipal_;
-    boost::shared_ptr<LuminosityBlockPrincipal> lumiPrincipal_;
-    boost::shared_ptr<RunPrincipal> runPrincipal_;
-    std::unique_ptr<SecondaryEventProvider> provider_;
     std::unique_ptr<CLHEP::RandPoissonQ> poissonDistribution_;
     std::unique_ptr<CLHEP::RandPoisson>  poissonDistr_OOT_;
 

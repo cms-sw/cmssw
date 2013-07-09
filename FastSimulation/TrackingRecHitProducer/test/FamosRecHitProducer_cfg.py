@@ -4,20 +4,15 @@ process = cms.Process("FamosRecHitProducer")
 # Include the RandomNumberGeneratorService definition
 process.load("IOMC.RandomEngine.IOMC_cff")
 
-# Famos sequences 
+# Famos sequences (Frontier conditions)
 process.load("FastSimulation/Configuration/CommonInputs_cff")
+process.GlobalTag.globaltag = "MC_31X_V1::All"
 process.load("FastSimulation/Configuration/FamosSequences_cff")
 
-# Frontier conditions
-process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-from HLTrigger.Configuration.AutoCondGlobalTag import AutoCondGlobalTag
-process.GlobalTag = AutoCondGlobalTag(process.GlobalTag,'auto:startup_GRun')
-# Pileup
-process.load('FastSimulation.PileUpProducer.PileUpSimulator_NoPileUp_cff')
 # Magnetic Field (new mapping, 3.8 and 4.0T)
 process.load("Configuration.StandardSequences.MagneticField_38T_cff")
-# Geometry
-process.load('FastSimulation.Configuration.Geometries_cff')
+
+# process.load("FastSimulation.TrackingRecHitProducer.test.FamosRecHitAnalysis_cfi")
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(50000)
@@ -57,8 +52,7 @@ process.p1 = cms.Path(process.generator*
                       process.FamosRecHitAnalysis)
 
 process.o1 = cms.OutputModule("PoolOutputModule",
-    outputCommands = cms.untracked.vstring('keep *',
-                                           'drop *_mix_*_*'),
+    outputCommands = cms.untracked.vstring('keep *'),
     fileName = cms.untracked.string('rechits.root')
 )
 

@@ -51,18 +51,6 @@ class ODTCCEEConfig : public IODConfig {
 
   void setParameters(std::map<std::string,std::string> my_keys_map);
 
-  inline void printout(){
-    std::cout <<"TCCEE >>" << "ID=" <<getId()<<std::endl;
-    std::cout <<"TCCEE >>" << "TCCConfigurationFile " <<  getTCCConfigurationFile()<< std::endl;
-    std::cout <<"TCCEE >>" << "LUTConfigurationFile " <<  getLUTConfigurationFile()<< std::endl;
-    std::cout <<"TCCEE >>" << "SLBConfigurationFile " <<  getSLBConfigurationFile()<< std::endl;
-    std::cout <<"TCCEE >>" << "TestPatternFileUrl " <<  getTestPatternFileUrl()<< std::endl;
-    std::cout <<"TCCEE >>" << "NTestPatternsToLoad " <<  getNTestPatternsToLoad()<< std::endl;
-    std::cout <<"TCCEE >>" << "SLBLatency " <<  getSLBLatency()<< std::endl;
-    std::cout <<"TCCEE >>" << "TrigPos " <<  getTrigPos()<< std::endl;
-
-  }
-
   
  private:
   void prepareWrite()  throw(std::runtime_error);

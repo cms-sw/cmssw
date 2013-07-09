@@ -2,9 +2,9 @@
 # RelMon: a tool for automatic Release Comparison                              
 # https://twiki.cern.ch/twiki/bin/view/CMSPublic/RelMon
 #
-# $Author: dpiparo $
-# $Date: 2013/03/06 09:50:18 $
-# $Revision: 1.6 $
+# $Author: anorkus $
+# $Date: 2012/11/21 15:22:14 $
+# $Revision: 1.5 $
 #
 #                                                                              
 # Danilo Piparo CERN - danilo.piparo@cern.ch                                   
@@ -13,7 +13,7 @@
 
 from copy import deepcopy
 from os import chdir,getcwd,makedirs
-from os.path import abspath,exists,join, basename
+from os.path import abspath,exists,join
 from re import sub,search
 from re import compile as recompile
 from sys import exit,stderr,version_info
@@ -554,9 +554,6 @@ class DirWalkerFile(object):
     self.directory.draw_success=draw_success
     self.directory.do_pngs=do_pngs
     self.black_list_histos = black_list_histos
-    self.different_histograms = {}
-    self.filename1 = basename(rootfilename2)
-    self.filename2 = basename(rootfilename1)
 
   def __del__(self):
     chdir(self.workdir)
@@ -593,31 +590,9 @@ class DirWalkerFile(object):
     contents1=self.dqmrootfile1.ls(directory_name)
     contents2=self.dqmrootfile2.ls(directory_name)
     contents={}
-    self.different_histograms['file1']= {}
-    self.different_histograms['file2']= {}
-    keys = filter(lambda key: contents1.has_key(key),contents2.keys()) #set of all possible contents from both files
-    for key in keys:  #iterate on all unique keys
-      if contents1[key]!=contents2[key]:
-        diff_file1 = set(contents1.keys()) - set(contents2.keys()) #set of contents that file1 is missing
-        diff_file2 = set(contents2.keys()) - set(contents1.keys()) #--'-- that file2 is missing
-        for key1 in diff_file1:
-            obj_type = contents1[key1]
-            if obj_type == "TDirectoryFile":
-              self.different_histograms['file1'][key1] = contents1[key1] #if direcory
-              #print "\n Missing inside a dir: ", self.ls(key1)
-              #contents[key] = contents1[key1]
-            if obj_type[:2]!="TH" and obj_type[:3]!="TPr" : #if histogram
-              continue
-            self.different_histograms['file1'][key1] = contents1[key1]
-        for key1 in diff_file2:
-            obj_type = contents2[key1]
-            if obj_type == "TDirectoryFile":
-              self.different_histograms['file2'][key1] = contents2[key1] #if direcory
-              #print "\n Missing inside a dir: ", self.ls(key1)
-              #contents[key] = contents2[key1]
-            if obj_type[:2]!="TH" and obj_type[:3]!="TPr" : #if histogram
-              continue
-            self.different_histograms['file2'][key1] = contents2[key1]
+    keys = filter(lambda key: contents1.has_key(key),contents2.keys())
+    for key in keys:
+      #if contents1[key]==contents2[key]:
       contents[key]=contents1[key]
     return contents
   
@@ -693,10 +668,6 @@ class DirWalkerFile(object):
                                 deepcopy(self.stat_test),
                                 draw_success=directory.draw_success,
                                 do_pngs=directory.do_pngs, skip=False))
-          directory.filename1 = self.filename1
-          directory.filename2 = self.filename2
-          directory.different_histograms['file1'] = self.different_histograms['file1']
-          directory.different_histograms['file2'] = self.different_histograms['file2']
 
     self.cd("..")
    

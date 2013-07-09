@@ -13,7 +13,7 @@ import FWCore.ParameterSet.Config as cms
 ## | |_| | (_| | || (_| | | (_) | |    | |  | | |___ 
 ## |____/ \__,_|\__\__,_|  \___/|_|    |_|  |_|\____|
             
-isMC = False
+isMC = True
 
 
 ##   ____             __ _                       _     _           
@@ -23,20 +23,13 @@ isMC = False
 ##  \____\___/|_| |_|_| |_|\__, |\__,_|_|  \__,_|_.__/|_|\___||___/
 ##                         |___/                                   
 
-## NJetsToKeep = 2
-## GLOBAL_TAG = 'GR_R_38X_V15::All'
-## inputFile = 'file:/uscms_data/d2/kalanand/dijet-Run2010A-JetMET-Nov4ReReco-9667events.root'
-## if isMC:
-##     GLOBAL_TAG = 'START38_V14::All'
-##     inputFile ='/store/mc/Fall10/QCD_Pt_80to120_TuneZ2_7TeV_pythia6/GEN-SIM-RECO/START38_V12-v1/0000/FEF4D100-4CCB-DF11-94CB-00E08178C12F.root'
-
-
 NJetsToKeep = 2
-GLOBAL_TAG = 'GR_R_42_V19::All'
-inputFile = '/store/data/Run2011A/SingleMu/AOD/PromptReco-v6/000/173/692/EE90CCE0-E9CF-E011-B4C7-BCAEC54DB5D6.root'
+GLOBAL_TAG = 'GR_R_38X_V15::All'
+inputFile = 'file:/uscms_data/d2/kalanand/dijet-Run2010A-JetMET-Nov4ReReco-9667events.root'
 if isMC:
-    GLOBAL_TAG = 'START42_V13::All'
-    inputFile ='/store/mc/Spring11/QCD_Pt-15_TuneZ2_7TeV-pythia6/AODSIM/PU_S2_START311_V2-v1/0007/0AD300BD-5659-E011-B47A-002618943836.root'
+    GLOBAL_TAG = 'START38_V14::All'
+    inputFile ='/store/mc/Fall10/QCD_Pt_80to120_TuneZ2_7TeV_pythia6/GEN-SIM-RECO/START38_V12-v1/0000/FEF4D100-4CCB-DF11-94CB-00E08178C12F.root'
+
 
 ##   _            _           _           
 ## (_)_ __   ___| |_   _  __| | ___  ___ 

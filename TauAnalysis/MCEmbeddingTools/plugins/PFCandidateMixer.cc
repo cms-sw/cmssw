@@ -13,7 +13,7 @@
 //
 // Original Author:  Tomasz Maciej Frueboes
 //         Created:  Wed Dec  9 16:14:56 CET 2009
-// $Id: PFCandidateMixer.cc,v 1.5 2011/06/24 13:52:42 aburgmei Exp $
+// $Id: PFCandidateMixer.cc,v 1.6 2012/05/17 23:35:04 aburgmei Exp $
 //
 //
 

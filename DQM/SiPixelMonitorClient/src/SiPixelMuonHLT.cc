@@ -14,7 +14,7 @@
 //
 // Original Author:  Dan Duggan
 //         Created:  
-// $Id: SiPixelMuonHLT.cc,v 1.10 2013/01/03 18:59:35 wmtan Exp $
+// $Id: SiPixelMuonHLT.cc,v 1.9 2012/12/26 21:05:53 wmtan Exp $
 //
 //////////////////////////////////////////////////////////
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
@@ -119,7 +119,7 @@ void SiPixelMuonHLT::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   if (GotClusters){
     if(!clusters.failedToGet ())
       {
-	int NBarrel[5] = {0,0,0,0,0};
+	int NBarrel[4] = {0,0,0,0};
 	int NEndcap[5] = {0,0,0,0,0};
 	for (size_t i = 0; i < clusters->size(); ++i){ 
 	  const SiPixelCluster* clust = clusters->data(i);
@@ -164,7 +164,7 @@ void SiPixelMuonHLT::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 	  
 	}
 	MEContainerAllBarrelN[0]->Fill(NBarrel[0]);
-	for (int lay = 1; lay < 5; ++lay)
+	for (int lay = 1; lay < 4; ++lay)
 	  MEContainerAllBarrelN[lay]->Fill(NBarrel[lay]);
 	MEContainerAllEndcapN[0]->Fill(NEndcap[0]);
 	for (int disk = 1; disk < 5; ++disk)
@@ -194,7 +194,7 @@ void SiPixelMuonHLT::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   if(GotL3Muons){
     if(!l3mucands.failedToGet ())
       {
-	int NBarrel[5] = {0,0,0,0,0};
+	int NBarrel[4] = {0,0,0,0};
 	int NEndcap[5] = {0,0,0,0,0};
 	for (cand = l3mucands->begin (); cand != l3mucands->end (); ++cand){
 	  reco::TrackRef l3tk = cand->get < reco::TrackRef > ();
@@ -246,7 +246,7 @@ void SiPixelMuonHLT::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 	  }//loop over RecHits
 	}//loop over l3mucands
 	MEContainerOnTrackBarrelN[0]->Fill(NBarrel[0]);
-	for (int lay = 1; lay < 5; ++lay)
+	for (int lay = 1; lay < 4; ++lay)
 	  MEContainerOnTrackBarrelN[lay]->Fill(NBarrel[lay]);
 	MEContainerOnTrackEndcapN[0]->Fill(NEndcap[0]);
 	for (int disk = 1; disk < 5; ++disk)
@@ -275,9 +275,8 @@ void SiPixelMuonHLT::Histo_init()
    std::string title;
 
    theDMBE->setCurrentFolder (monitorName_ + "/Barrel");   
-//   std::string layerLabel[4] = {"All_Layers", "Layer1", "Layer2", "Layer3"};
-   std::string layerLabel[5] = {"All_Layers", "Layer1", "Layer2", "Layer3", "Layer4"};
-   for (unsigned int i = 0; i < 5; i++)
+   std::string layerLabel[4] = {"All_Layers", "Layer1", "Layer2", "Layer3"};
+   for (unsigned int i = 0; i < 4; i++)
      {
        /////////////All Clusters  /////////////////
        ////Barrel//

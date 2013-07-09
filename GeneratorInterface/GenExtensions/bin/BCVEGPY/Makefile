@@ -1,6 +1,6 @@
 FFLAGS   = -O0 -ffixed-line-length-none -g
 
-FC       = gfortran
+FC       = f77
 LIBS     = -lm 
 INCLUDES = -I./
 SRCS     = $(wildcard *.F)

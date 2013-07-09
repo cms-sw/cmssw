@@ -52,6 +52,8 @@ namespace edm {
       /**Default destructor*/
       virtual ~MixingModule();
 
+      virtual void beginJob() {}
+
       virtual void beginRun(Run const& r1, EventSetup const& c) override;
 
       virtual void endRun(Run const& r1, EventSetup const& c) override;

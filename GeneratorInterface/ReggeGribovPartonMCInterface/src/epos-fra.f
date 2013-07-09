@@ -211,8 +211,7 @@ c          zzzz=sqrt(1.+zzzz)
 c          print *,zpaptl(2,nk1),zpaptl(2,nk2)
 c     &           ,1./cosh(0.007*max(0.,zpaptl(2,nk1)-50.))
 c reduce zz before fusion (make it proportionnal to b and E because at low energy not so many fragments are used and then if only one fragment is used all others particles are fragmented without particular effect 
-          if(iclu.eq.1)zz=zz/cosh(min(30.,
-     &                            0.0085*max(0.,zpaptl(2,nk1)-30.)))   
+          if(iclu.eq.1)zz=zz/cosh(0.0085*max(0.,zpaptl(2,nk1)-30.))   
           zzzz=zipinc*zz
           if(iLHC.eq.1)then
             zzz=min(fkamax,fkainc*zz)

@@ -75,8 +75,8 @@ void testmaker2::maker2Test()
 
   edm::ProductRegistry preg;
   boost::shared_ptr<ProcessConfiguration> pc(new ProcessConfiguration("PROD", edm::ParameterSetID(), edm::getReleaseVersion(), edm::getPassID()));
-  edm::WorkerParams params1(&p1, preg, pc, table);
-  edm::WorkerParams params2(&p2, preg, pc, table);
+  edm::WorkerParams params1(p1, &p1, preg, pc, table);
+  edm::WorkerParams params2(p2, &p2, preg, pc, table);
 
   signalslot::Signal<void(const ModuleDescription&)> aSignal;
   std::unique_ptr<Worker> w1 = f->makeWorker(params1,aSignal,aSignal);

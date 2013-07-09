@@ -5,9 +5,6 @@
 <use   name="DataFormats/Candidate"/>
 <use   name="DataFormats/JetReco"/>
 <use   name="DataFormats/METReco"/>
-<use   name="DataFormats/MuonReco"/>
-<use   name="DataFormats/EgammaCandidates"/>
-<use   name="DataFormats/PatCandidates"/>
 <use   name="CommonTools/CandUtils"/>
 <use   name="CommonTools/UtilAlgos"/>
 <use   name="CommonTools/RecoAlgos"/>

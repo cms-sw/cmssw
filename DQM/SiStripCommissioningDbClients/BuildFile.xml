@@ -20,7 +20,3 @@
 <export>
   <lib   name="1"/>
 </export>
-<!-- Do not build on ARMv7-A architecture -->
-<architecture name="armv7">
- <flags SKIP_FILES="%"/>
-</architecture>

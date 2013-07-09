@@ -14,8 +14,7 @@ from DQM.CSCMonitorModule.csc_dqm_sourceclient_offline_cff import *
 from DQM.EcalPreshowerMonitorModule.es_dqm_source_offline_cosmic_cff import *
 from DQM.CastorMonitor.castor_dqm_sourceclient_offline_cff import *
 
-DQMOfflineCosmicsPreDPG = cms.Sequence( dqmEnvCommon *
-                                        dqmDcsInfo *
+DQMOfflineCosmicsPreDPG = cms.Sequence( dqmDcsInfo *
                                         ecal_dqm_source_offline *
                                         hcalOfflineDQMSource *
                                         SiStripDQMTier0 *

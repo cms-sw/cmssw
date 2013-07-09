@@ -4,8 +4,8 @@
 /*
  * \file L1TRate_Offline.h
  *
- * $Date: 2012/11/26 14:56:56 $
- * $Revision: 1.2 $
+ * $Date: 2012/11/15 17:50:03 $
+ * $Revision: 1.1 $
  * \author J. Pela
  *
 */
@@ -65,10 +65,10 @@ protected:
   virtual void endLuminosityBlock  (edm::LuminosityBlock const& lumiBlock, edm::EventSetup const& c);
 
 // Private methods
-//private:
+private:
 
   //    bool getXSexFitsOMDS  (const edm::ParameterSet& ps);
-  //  bool getXSexFitsPython(const edm::ParameterSet& ps);
+  bool getXSexFitsPython(const edm::ParameterSet& ps);
 
 // Private variables
 private:
@@ -88,7 +88,6 @@ private:
   const std::vector< std::vector<int> >* m_listsPrescaleFactors; // Collection os all sets of prescales
 
   // Maps
-  //  std::map<int,double>                    m_lsDeadTime;             // Map of dead time for each LS
   std::map<int,int>                       m_lsPrescaleIndex;        // Map of precale index for each LS
   std::map<int,double>                    m_lsLuminosity;           // Map of luminosity recorded for each LS
   std::map<int,std::map<TString,double> > m_lsRates;                // Map of rates (by bit) recorded for each LS
@@ -102,7 +101,6 @@ private:
   std::map<TString,MonitorElement*>       m_CountsVsLS;         // Monitor Elements for 
   std::map<TString,MonitorElement*>       m_InstLumiVsLS;         // Monitor Elements for 
   std::map<TString,MonitorElement*>       m_PrescIndexVsLS;         // Monitor Elements for 
-  //  std::map<TString,MonitorElement*>       m_DeadTimeVsLS;         // Monitor Elements (Check Purpose)
 
   std::map<TString,TF1*>                  m_templateFunctions;      // For each trigger template f(InstLumi)=XSec
 

@@ -4,8 +4,6 @@
 #include "DataFormats/GeometrySurface/interface/LocalError.h"
 #include <cmath>
 
-
-
 TrapezoidalPlaneBounds::TrapezoidalPlaneBounds( float be, float te, 
 						float a, float t) : 
   hbotedge(be), htopedge(te), hapothem(a), hthickness(t) {
@@ -30,16 +28,9 @@ bool TrapezoidalPlaneBounds::inside( const Local2DPoint& p) const {
 }
 
 bool TrapezoidalPlaneBounds::inside( const Local3DPoint& p) const {
-  if(hbotedge==htopedge)
-    {
-      return fabs(p.y()) < hapothem && fabs(p.x())<htopedge && fabs(p.z()) < hthickness;
-    }
-  else
-    {
-      return fabs(p.y()) < hapothem &&
-	fabs(p.x())/fabs(p.y()+offset) < tan_a &&
-	fabs(p.z()) < hthickness;
-    }
+  return fabs(p.y()) < hapothem &&
+    fabs(p.x())/fabs(p.y()+offset) < tan_a &&
+    fabs(p.z()) < hthickness;
 }
 
 bool TrapezoidalPlaneBounds::inside( const Local3DPoint& p,

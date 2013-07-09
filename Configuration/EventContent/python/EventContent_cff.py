@@ -28,7 +28,7 @@ import FWCore.ParameterSet.Config as cms
 #
 #  FEVT (RAW+RECO), FEVTSIM (RAWSIM+RECOSIM), FEVTDEBUG (FEVTSIM+ALL_SIM_INFO), FEVTDEBUGHLT (FEVTDEBUG+HLTDEBUG)
 #
-#  $Id: EventContent_cff.py,v 1.55 2013/05/10 09:19:35 fabiocos Exp $
+#  $Id: EventContent_cff.py,v 1.54 2013/05/01 15:44:29 mikeh Exp $
 #
 #
 #
@@ -679,7 +679,6 @@ ALCARECOEventContent.outputCommands.extend(OutALCARECOSiStripCalZeroBias_noDrop.
 ALCARECOEventContent.outputCommands.extend(OutALCARECOSiStripCalMinBias_noDrop.outputCommands)
 ALCARECOEventContent.outputCommands.extend(OutALCARECOEcalCalPhiSym_noDrop.outputCommands)
 ALCARECOEventContent.outputCommands.extend(OutALCARECOEcalCalElectron_noDrop.outputCommands)
-ALCARECOEventContent.outputCommands.extend(OutALCARECOEcalUncalElectron_noDrop.outputCommands)
 ALCARECOEventContent.outputCommands.extend(OutALCARECOEcalCalPi0Calib_noDrop.outputCommands)
 ALCARECOEventContent.outputCommands.extend(OutALCARECOEcalCalEtaCalib_noDrop.outputCommands)
 ALCARECOEventContent.outputCommands.extend(OutALCARECOHcalCalDijets_noDrop.outputCommands)

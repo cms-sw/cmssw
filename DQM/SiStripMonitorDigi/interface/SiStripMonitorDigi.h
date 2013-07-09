@@ -8,7 +8,7 @@
 */
 // Original Author:  dkcira
 //         Created:  Sat Feb  4 20:49:51 CET 2006
-// $Id: SiStripMonitorDigi.h,v 1.32 2012/09/04 15:50:58 threus Exp $
+// $Id: SiStripMonitorDigi.h,v 1.30 2012/07/13 15:32:52 threus Exp $
 #include <memory>
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
@@ -124,7 +124,7 @@ class SiStripMonitorDigi : public edm::EDAnalyzer {
   DigiFailureMEs digiFailureMEs;
       
   TString name;
-  SiStripFolderOrganizer* folder_organizer;
+  SiStripFolderOrganizer folder_organizer;
   std::map<std::pair<std::string,int32_t>,bool> DetectedLayers;
   std::vector<const edm::DetSetVector<SiStripDigi> *> digi_detset_handles;
 
@@ -163,6 +163,7 @@ class SiStripMonitorDigi : public edm::EDAnalyzer {
   bool subdetswitchapvcycleprofon;
   bool subdetswitchapvcycleth2on;
 
+  bool subdetswitchtotdigiproflson;
   bool subdetswitchtotdigifailureon;
 
   bool subdetswitchnapvshotson;
@@ -178,17 +179,9 @@ class SiStripMonitorDigi : public edm::EDAnalyzer {
   bool globalswitchapvshotsApvon;
 
 
+  int xLumiProf;
   bool isStableBeams;
-  int ignoreFirstNLumisections_;
-  int integrateNLumisections_;
-  int SBDeclaredAt;
-  bool SBTransitionDone;
-  int nFedTIB;
-  int nFedTIDp;
-  int nFedTIDm;
-  int nFedTECp;
-  int nFedTECm;
-  int nFedTOB;
+  int nFEDConnected;
 
   bool Mod_On_;
 
@@ -199,7 +192,7 @@ class SiStripMonitorDigi : public edm::EDAnalyzer {
   
   bool createTrendMEs;
 
-  std::string topDir_;
+  std::string topDir;
   edm::InputTag historyProducer_;  
   edm::InputTag apvPhaseProducer_;
 

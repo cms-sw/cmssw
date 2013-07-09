@@ -13,7 +13,7 @@
 //
 // Original Author:  Brian Drell
 //         Created:  Wed Feb 18 17:21:04 MST 2009
-// $Id: V0Validator.cc,v 1.8 2010/03/26 22:04:49 drell Exp $
+// $Id: V0Validator.cc,v 1.9 2012/07/09 08:47:02 eulisse Exp $
 //
 //
 
@@ -475,7 +475,7 @@ void V0Validator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
   //simRecColl= *( simtorecoCollectionH.product() );
 
   edm::Handle<TrackingParticleCollection>  TPCollectionEff ;
-  iEvent.getByLabel("mergedtruth", "MergedTrackTruth", TPCollectionEff);
+  iEvent.getByLabel("mix", "MergedTrackTruth", TPCollectionEff);
   const TrackingParticleCollection tPCeff = *( TPCollectionEff.product() );
 
   edm::ESHandle<TrackAssociatorBase> associatorByHits;
@@ -502,7 +502,7 @@ void V0Validator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
   //Get tracking particles
   //  -->tracks
   edm::Handle<TrackingParticleCollection>  TPCollectionH ;
-  iEvent.getByLabel("mergedtruth", "MergedTrackTruth", TPCollectionH);
+  iEvent.getByLabel("mix", "MergedTrackTruth", TPCollectionH);
   const View<reco::Track>  tC = *( trackCollectionH.product() );
 
 //  edm::Handle<TrackingVertexCollection>  TVCollectionH ;

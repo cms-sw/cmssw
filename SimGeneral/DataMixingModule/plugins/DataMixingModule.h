@@ -1,5 +1,5 @@
-#ifndef SimGeneral_DataMixingModule_DataMixingModule_h
-#define SimGeneral_DataMixingModule_DataMixingModule_h
+#ifndef DataMixingModule_h
+#define SimDataMixingModule_h
 
 /** \class DataMixingModule
  *
@@ -52,6 +52,8 @@ namespace edm
 
       /**Default destructor*/
       virtual ~DataMixingModule();
+
+      virtual void beginJob() {}
 
       // copies, with EventSetup
       virtual void checkSignal(const edm::Event &e) {}

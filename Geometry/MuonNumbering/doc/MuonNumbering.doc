@@ -37,16 +37,8 @@ None.
 
 \subsection tests Unit tests and examples
 <!-- Describe cppunit tests and example configuration files -->
+None.
 
-To enable debug messages, please, check out the package and build it
-with the following flags:
-
- scram b USER_CXXFLAGS="-g\ -D=EDM_ML_DEBUG"
-
-then run the tests:
-
- cmsRun test/muonNumberingTest_cfg.py
- 
 \section status Status and planned development
 <!-- e.g. completed, stable, missing features -->
 Completed. 

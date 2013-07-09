@@ -130,6 +130,8 @@ pixelLessStepTracks = RecoTracker.TrackProducer.TrackProducer_cfi.TrackProducer.
 import RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi
 pixelLessStepSelector = RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.multiTrackSelector.clone(
     src='pixelLessStepTracks',
+    useAnyMVA = cms.bool(True),
+    GBRForestLabel = cms.string('MVASelectorIter5'),
     trackSelectors= cms.VPSet(
         RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.looseMTS.clone(
             name = 'pixelLessStepLoose',

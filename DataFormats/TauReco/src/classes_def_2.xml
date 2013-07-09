@@ -54,17 +54,6 @@
   <class name="edm::RefVector<std::vector<reco::RecoTauPiZero>,reco::RecoTauPiZero,edm::refhelper::FindUsingAdvance<std::vector<reco::RecoTauPiZero>,reco::RecoTauPiZero> >"/>
   <class name="edm::reftobase::Holder<reco::CompositePtrCandidate, edm::Ref<std::vector<reco::RecoTauPiZero>,reco::RecoTauPiZero,edm::refhelper::FindUsingAdvance<std::vector<reco::RecoTauPiZero>,reco::RecoTauPiZero> > >" />
   
-  <class name="reco::PFRecoTauChargedHadron" ClassVersion="10">
-   <version ClassVersion="10" checksum="465425628"/>
-  </class>
-  <class name="std::vector<reco::PFRecoTauChargedHadron>"/>
-     <class name="std::vector<std::vector<reco::PFRecoTauChargedHadron> >"/>
-  <class name="edm::Wrapper<std::vector<reco::PFRecoTauChargedHadron> >"/>
-  <class name="edm::Ref<std::vector<reco::PFRecoTauChargedHadron>,reco::PFRecoTauChargedHadron,edm::refhelper::FindUsingAdvance<std::vector<reco::PFRecoTauChargedHadron>,reco::PFRecoTauChargedHadron> >"/>
-  <class name="edm::RefProd<std::vector<reco::PFRecoTauChargedHadron> >"/>
-  <class name="edm::RefVector<std::vector<reco::PFRecoTauChargedHadron>,reco::PFRecoTauChargedHadron,edm::refhelper::FindUsingAdvance<std::vector<reco::PFRecoTauChargedHadron>,reco::PFRecoTauChargedHadron> >"/>
-  <!-- class name="edm::reftobase::Holder<reco::LeafCandidate, edm::Ref<std::vector<reco::PFRecoTauChargedHadron>,reco::PFRecoTauChargedHadron,edm::refhelper::FindUsingAdvance<std::vector<reco::PFRecoTauChargedHadron>,reco::PFRecoTauChargedHadron> > >" /-->
-
   <class name="reco::CaloTauDiscriminatorByIsolationBase">
     <field name="transientVector_" transient="true"/>
     <field name="fixed_" transient="true"/>

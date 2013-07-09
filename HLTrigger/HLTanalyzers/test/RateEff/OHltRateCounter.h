@@ -42,106 +42,106 @@ public:
    int getIDofRunLSCounter(int Run, int LumiBlock);
 
    // Helper functions
-   static inline double eff(int a, int b)
+   static inline float eff(int a, int b)
    {
       if (b==0.)
       {
          return -1.;
       }
-      double af = double(a), bf = double(b), effi = af/bf;
+      float af = float(a), bf = float(b), effi = af/bf;
       return effi;
    }
    
-   static inline double effErr(int a, int b)
+   static inline float effErr(int a, int b)
    {
       if (b==0.)
       {
          return -1.;
       }
-      double af = double(a), bf = double(b), r = af/bf;
-      double unc = sqrt(af + (r*r*bf))/bf;
+      float af = float(a), bf = float(b), r = af/bf;
+      float unc = sqrt(af + (r*r*bf))/bf;
       return unc;
    }
    
-   static inline double effErrb(int a, int b)
+   static inline float effErrb(int a, int b)
    {
       if (b==0.)
       {
          return -1.;
       }
-      double af = double(a), bf = double(b), r = af/bf;
-      double unc = sqrt(af - (r*r*bf))/bf;
+      float af = float(a), bf = float(b), r = af/bf;
+      float unc = sqrt(af - (r*r*bf))/bf;
       return unc;
    }
    
-   static inline double eff(double a, double b)
+   static inline float eff(float a, float b)
    {
       if (b==0.)
       {
          return -1.;
       }
-      double af = double(a), bf = double(b), effi = af/bf;
+      float af = float(a), bf = float(b), effi = af/bf;
       return effi;
    }
    
-   static inline double effErr(double a, double b)
+   static inline float effErr(float a, float b)
    {
       if (b==0.)
       {
          return -1.;
       }
-      double af = double(a), bf = double(b), r = af/bf;
-      double unc = sqrt(af + (r*r*bf))/bf;
+      float af = float(a), bf = float(b), r = af/bf;
+      float unc = sqrt(af + (r*r*bf))/bf;
       return unc;
    }
    
-   static inline double effErrb(double a, double b)
+   static inline float effErrb(float a, float b)
    {
       if (b==0.)
       {
          return -1.;
       }
-      double af = double(a), bf = double(b), r = af/bf;
-      double unc = sqrt(af - (r*r*bf))/bf;
+      float af = float(a), bf = float(b), r = af/bf;
+      float unc = sqrt(af - (r*r*bf))/bf;
       return unc;
    }
 
-   static inline double errRate2(double a, double b)
+   static inline float errRate2(float a, float b)
    {
       if (b==0.)
       {
          return -1.;
       }
-      double af = double(a), bf = double(b);
-      double unc = af/(bf*bf);
+      float af = float(a), bf = float(b);
+      float unc = af/(bf*bf);
 
-      //double unc = sqrt(af + (r*r*bf) )/bf;
-      return unc;
-   }
-   
-   static inline double errRate2(int a, int b)
-   {
-      if (b==0.)
-      {
-         return -1.;
-      }
-      double af = double(a), bf = double(b);
-      double unc = af/(bf*bf);
-
-      //double unc = sqrt(af + (r*r*bf) )/bf;
+      //float unc = sqrt(af + (r*r*bf) )/bf;
       return unc;
    }
    
-   static inline double errRate2(int a, double b)
+   static inline float errRate2(int a, int b)
    {
       if (b==0.)
       {
          return -1.;
       }
-      double af = double(a), bf = double(b);
-      double unc = af/(bf*bf);
+      float af = float(a), bf = float(b);
+      float unc = af/(bf*bf);
 
-      //double unc = sqrt(af + (r*r*bf) )/bf;
+      //float unc = sqrt(af + (r*r*bf) )/bf;
+      return unc;
+   }
+   
+   static inline float errRate2(int a, float b)
+   {
+      if (b==0.)
+      {
+         return -1.;
+      }
+      float af = float(a), bf = float(b);
+      float unc = af/(bf*bf);
+
+      //float unc = sqrt(af + (r*r*bf) )/bf;
       return unc;
    }
 

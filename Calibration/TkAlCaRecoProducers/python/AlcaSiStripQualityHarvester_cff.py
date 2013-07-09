@@ -4,9 +4,7 @@ from Calibration.TkAlCaRecoProducers.AlcaSiStripQualityHarvester_cfi import *
 from DQMServices.Components.EDMtoMEConverter_cfi import *
 
 EDMtoMEConvertSiStrip = EDMtoMEConverter.clone()
-EDMtoMEConvertSiStrip.lumiInputTag = cms.InputTag("MEtoEDMConvertSiStrip","MEtoEDMConverterLumi")
-EDMtoMEConvertSiStrip.runInputTag = cms.InputTag("MEtoEDMConvertSiStrip","MEtoEDMConverterRun")
-
+#EDMtoMEConvertSiStrip
 
 DQMStore = cms.Service("DQMStore")
 

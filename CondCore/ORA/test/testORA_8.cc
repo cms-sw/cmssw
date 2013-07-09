@@ -43,7 +43,7 @@ namespace ora {
     virtual ~Test8(){
     }
 
-    int execute( const std::string& connStr ){
+    void execute( const std::string& connStr ){
       ora::Database db;
       ReferenceHandler* refHandler = new ReferenceHandler( db );
       db.configuration().setReferenceHandler( refHandler );
@@ -125,13 +125,12 @@ namespace ora {
       db.drop();
       trans.commit();
       db.disconnect();
-      return 0;
     }
   };
 }
 
 int main( int argc, char** argv ){
   ora::Test8 test;
-  return test.run();
+  test.run();
 }
 

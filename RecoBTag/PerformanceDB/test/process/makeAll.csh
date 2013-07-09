@@ -25,15 +25,15 @@ rm -f tmp.py
 #For a set of measurements we want a unique name
 #set setName=btagTtbarWp
 set setName=btagTtbarDiscrim
-#set setName=btagMuJetsWpNoTtbar
-#set setName=btagMistagWinter13
+#set setName=btagMuJetsWp
+#set setName=btagMistagABCD
 #set setName=btagMistagAB
 #set setName=btagMistagC
 #set setName=btagMistagD
 
 
 #Unique version number for DB
-set version=v10
+set version=v9
 cat templates/Pool_pre.fragment | sed "s#SETNAME#$setName#g"  > Pool_$setName.py
 cat templates/Btag_pre.fragment > Btag_$setName.py
 
@@ -45,43 +45,17 @@ set tag=PerformancePayloadFromBinnedTFormula
 
 
 #Create a single measurement with ./makeSingle.csh <file path> <measurement name> <set name>
-#./makeSingle.csh BTAG/FromLocal/mujets_wp/ttbar/BTAGTTBARCSVL.txt       MUJETSWPBTAGTTBARCSVL $setName $version $tag
-#./makeSingle.csh BTAG/FromLocal/mujets_wp/ttbar/BTAGTTBARCSVM.txt       MUJETSWPBTAGTTBARCSVM $setName $version $tag
-#./makeSingle.csh BTAG/FromLocal/mujets_wp/ttbar/BTAGTTBARCSVT.txt       MUJETSWPBTAGTTBARCSVT $setName $version $tag
-#./makeSingle.csh BTAG/FromLocal/mujets_wp/ttbar/BTAGTTBARCSVV1L.txt     MUJETSWPBTAGTTBARCSVV1L $setName $version $tag
-#./makeSingle.csh BTAG/FromLocal/mujets_wp/ttbar/BTAGTTBARCSVV1M.txt     MUJETSWPBTAGTTBARCSVV1M $setName $version $tag
-#./makeSingle.csh BTAG/FromLocal/mujets_wp/ttbar/BTAGTTBARCSVV1T.txt     MUJETSWPBTAGTTBARCSVV1T $setName $version $tag
-#./makeSingle.csh BTAG/FromLocal/mujets_wp/ttbar/BTAGTTBARCSVSLV1L.txt   MUJETSWPBTAGTTBARCSVSLV1L $setName $version $tag
-#./makeSingle.csh BTAG/FromLocal/mujets_wp/ttbar/BTAGTTBARCSVSLV1M.txt   MUJETSWPBTAGTTBARCSVSLV1M $setName $version $tag
-#./makeSingle.csh BTAG/FromLocal/mujets_wp/ttbar/BTAGTTBARCSVSLV1T.txt   MUJETSWPBTAGTTBARCSVSLV1T $setName $version $tag
-#./makeSingle.csh BTAG/FromLocal/mujets_wp/ttbar/BTAGTTBARTCHPT.txt      MUJETSWPBTAGTTBARTCHPT $setName $version $tag
+# ./makeSingle.csh BTAG/mujets_wp/BTAGCSVL.txt MUJETSWPBTAGCSVL $setName $version $tag
+# ./makeSingle.csh BTAG/mujets_wp/BTAGCSVM.txt MUJETSWPBTAGCSVM $setName $version $tag
+# ./makeSingle.csh BTAG/mujets_wp/BTAGCSVT.txt MUJETSWPBTAGCSVT $setName $version $tag
+# ./makeSingle.csh BTAG/mujets_wp/BTAGJPL.txt MUJETSWPBTAGJPL $setName $version $tag
+# ./makeSingle.csh BTAG/mujets_wp/BTAGJPM.txt MUJETSWPBTAGJPM $setName $version $tag
+# ./makeSingle.csh BTAG/mujets_wp/BTAGJPT.txt MUJETSWPBTAGJPT $setName $version $tag
+# ./makeSingle.csh BTAG/mujets_wp/BTAGTCHPT.txt MUJETSWPBTAGTCHPT $setName $version $tag
 
-#./makeSingle.csh BTAG/FromLocal/mujets_wp/NOttbar/BTAGNOTTBARCSVL.txt       MUJETSWPBTAGNOTTBARCSVL $setName $version $tag
-#./makeSingle.csh BTAG/FromLocal/mujets_wp/NOttbar/BTAGNOTTBARCSVM.txt       MUJETSWPBTAGNOTTBARCSVM $setName $version $tag
-#./makeSingle.csh BTAG/FromLocal/mujets_wp/NOttbar/BTAGNOTTBARCSVT.txt       MUJETSWPBTAGNOTTBARCSVT $setName $version $tag
-#./makeSingle.csh BTAG/FromLocal/mujets_wp/NOttbar/BTAGNOTTBARCSVV1L.txt     MUJETSWPBTAGNOTTBARCSVV1L $setName $version $tag
-#./makeSingle.csh BTAG/FromLocal/mujets_wp/NOttbar/BTAGNOTTBARCSVV1M.txt     MUJETSWPBTAGNOTTBARCSVV1M $setName $version $tag
-#./makeSingle.csh BTAG/FromLocal/mujets_wp/NOttbar/BTAGNOTTBARCSVV1T.txt     MUJETSWPBTAGNOTTBARCSVV1T $setName $version $tag#
-#./makeSingle.csh BTAG/FromLocal/mujets_wp/NOttbar/BTAGNOTTBARCSVSLV1L.txt   MUJETSWPBTAGNOTTBARCSVSLV1L $setName $version $tag
-#./makeSingle.csh BTAG/FromLocal/mujets_wp/NOttbar/BTAGNOTTBARCSVSLV1M.txt   MUJETSWPBTAGNOTTBARCSVSLV1M $setName $version $tag
-#./makeSingle.csh BTAG/FromLocal/mujets_wp/NOttbar/BTAGNOTTBARCSVSLV1T.txt   MUJETSWPBTAGNOTTBARCSVSLV1T $setName $version $tag
-#./makeSingle.csh BTAG/FromLocal/mujets_wp/NOttbar/BTAGNOTTBARJPL.txt        MUJETSWPBTAGNOTTBARJPL $setName $version $tag
-#./makeSingle.csh BTAG/FromLocal/mujets_wp/NOttbar/BTAGNOTTBARJPM.txt        MUJETSWPBTAGNOTTBARJPM $setName $version $tag
-#./makeSingle.csh BTAG/FromLocal/mujets_wp/NOttbar/BTAGNOTTBARJPT.txt        MUJETSWPBTAGNOTTBARJPT $setName $version $tag
-#./makeSingle.csh BTAG/FromLocal/mujets_wp/NOttbar/BTAGNOTTBARTCHPT.txt      MUJETSWPBTAGNOTTBARTCHPT $setName $version $tag
-
-
-#./makeSingle.csh BTAG/FromLocal/mujets_wp/ttbar/BTAGCSVL.txt MUJETSWPBTAGCSVLTTBAR $setName $version $tag
-#./makeSingle.csh BTAG/FromLocal/mujets_wp/ttbar/BTAGCSVM.txt MUJETSWPBTAGCSVMTTBAR $setName $version $tag
-#./makeSingle.csh BTAG/FromLocal/mujets_wp/ttbar/BTAGCSVT.txt MUJETSWPBTAGCSVTTTBAR $setName $version $tag
-#./makeSingle.csh BTAG/FromLocal/mujets_wp/ttbar/BTAGJPL.txt MUJETSWPBTAGJPLTTBAR $setName $version $tag
-#./makeSingle.csh BTAG/FromLocal/mujets_wp/ttbar/BTAGJPM.txt MUJETSWPBTAGJPMTTBAR $setName $version $tag
-#./makeSingle.csh BTAG/FromLocal/mujets_wp/ttbar/BTAGJPT.txt MUJETSWPBTAGJPTTTBAR $setName $version $tag
-#./makeSingle.csh BTAG/FromLocal/mujets_wp/ttbar/BTAGTCHPT.txt MUJETSWPBTAGTCHPT $setName $version $tag
-
-./makeSingle.csh BTAG/FromLocal/TTbar/BTAGCSV.txt TTBARDISCRIMBTAGCSV $setName $version $tag
-./makeSingle.csh BTAG/FromLocal/TTbar/BTAGJP.txt TTBARDISCRIMBTAGJP $setName $version $tag
-./makeSingle.csh BTAG/FromLocal/TTbar/BTAGTCHP.txt TTBARDISCRIMBTAGTCHP $setName $version $tag
+ ./makeSingle.csh BTAG/ttbar/BTAGCSV.txt TTBARDISCRIMBTAGCSV $setName $version $tag
+ ./makeSingle.csh BTAG/ttbar/BTAGJP.txt TTBARDISCRIMBTAGJP $setName $version $tag
+ ./makeSingle.csh BTAG/ttbar/BTAGTCHP.txt TTBARDISCRIMBTAGTCHP $setName $version $tag
 
 
 ####################
@@ -90,27 +64,13 @@ set tag=PerformancePayloadFromBinnedTFormula
 ###
 ###################
 
-#./makeSingle.csh BTAG/FromLocal/SFLIGHT/MISTAGCSVL.txt MISTAGCSVL $setName $version $tag
-#./makeSingle.csh BTAG/FromLocal/SFLIGHT/MISTAGCSVM.txt MISTAGCSVM $setName $version $tag
-#./makeSingle.csh BTAG/FromLocal/SFLIGHT/MISTAGCSVT.txt MISTAGCSVT $setName $version $tag
-#./makeSingle.csh BTAG/FromLocal/SFLIGHT/MISTAGCSVSLV1L.txt MISTAGCSVSLV1L $setName $version $tag
-#./makeSingle.csh BTAG/FromLocal/SFLIGHT/MISTAGCSVSLV1M.txt MISTAGCSVSLV1M $setName $version $tag
-#./makeSingle.csh BTAG/FromLocal/SFLIGHT/MISTAGCSVSLV1T.txt MISTAGCSVSLV1T $setName $version $tag
-#./makeSingle.csh BTAG/FromLocal/SFLIGHT/MISTAGCSVV1L.txt MISTAGCSVV1L $setName $version $tag
-#./makeSingle.csh BTAG/FromLocal/SFLIGHT/MISTAGCSVV1M.txt MISTAGCSVV1M $setName $version $tag
-#./makeSingle.csh BTAG/FromLocal/SFLIGHT/MISTAGCSVV1T.txt MISTAGCSVV1T $setName $version $tag
-#./makeSingle.csh BTAG/FromLocal/SFLIGHT/MISTAGJPL.txt MISTAGJPL $setName $version $tag
-#./makeSingle.csh BTAG/FromLocal/SFLIGHT/MISTAGJPM.txt MISTAGJPM $setName $version $tag
-#./makeSingle.csh BTAG/FromLocal/SFLIGHT/MISTAGJPT.txt MISTAGJPT $setName $version $tag
-#./makeSingle.csh BTAG/FromLocal/SFLIGHT/MISTAGTCHPT.txt MISTAGTCHPT $setName $version $tag
-
-#./makeSingle.csh BTAG/FromLocal/TTbar/BTAGCSVL.txt TTBARWPBTAGCSVL $setName $version $tag
-#./makeSingle.csh BTAG/FromLocal/TTbar/BTAGCSVM.txt TTBARWPBTAGCSVM $setName $version $tag
-#./makeSingle.csh BTAG/FromLocal/TTbar/BTAGCSVT.txt TTBARWPBTAGCSVT $setName $version $tag
-#./makeSingle.csh BTAG/FromLocal/TTbar/BTAGJPL.txt TTBARWPBTAGJPL $setName $version $tag
-#./makeSingle.csh BTAG/FromLocal/TTbar/BTAGJPM.txt TTBARWPBTAGJPM $setName $version $tag
-#./makeSingle.csh BTAG/FromLocal/TTbar/BTAGJPT.txt TTBARWPBTAGJPT $setName $version $tag
-#./makeSingle.csh BTAG/FromLocal/TTbar/BTAGTCHPT.txt TTBARWPBTAGTCHPT $setName $version $tag
+# ./makeSingle.csh BTAG/ttbar_wp/BTAGCSVL.txt TTBARWPBTAGCSVL $setName $version $tag
+# ./makeSingle.csh BTAG/ttbar_wp/BTAGCSVM.txt TTBARWPBTAGCSVM $setName $version $tag
+# ./makeSingle.csh BTAG/ttbar_wp/BTAGCSVT.txt TTBARWPBTAGCSVT $setName $version $tag
+# ./makeSingle.csh BTAG/ttbar_wp/BTAGJPL.txt TTBARWPBTAGJPL $setName $version $tag
+# ./makeSingle.csh BTAG/ttbar_wp/BTAGJPM.txt TTBARWPBTAGJPM $setName $version $tag
+# ./makeSingle.csh BTAG/ttbar_wp/BTAGJPT.txt TTBARWPBTAGJPT $setName $version $tag
+# ./makeSingle.csh BTAG/ttbar_wp/BTAGTCHPT.txt TTBARWPBTAGTCHPT $setName $version $tag
 
 
 # cat templates/Pool_post.fragment | sed "s#SETNAME#$setName#g" >> Pool_$setName.py

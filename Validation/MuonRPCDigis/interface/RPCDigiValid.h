@@ -51,6 +51,13 @@ private:
   MonitorElement* BxDist;
   MonitorElement* StripProf;
 
+  MonitorElement* BxDist_whMin2;
+  MonitorElement* BxDist_whMin1;
+  MonitorElement* BxDist_wh0;
+  MonitorElement* BxDist_wh0_st1;
+  MonitorElement* BxDist_whPlu1;
+  MonitorElement* BxDist_whPlu2;
+
   //barrel layers residuals
   MonitorElement* ResLayer1_barrel;
   MonitorElement* ResLayer2_barrel;
@@ -82,10 +89,14 @@ private:
 
   //new member for cls
   MonitorElement* noiseCLS;
-  MonitorElement* noiseCLSBarrel;
-  MonitorElement* noiseCLSEndcaps;
 
   MonitorElement* clsBarrel;
+  MonitorElement* clsLayer1;
+  MonitorElement* clsLayer2;
+  MonitorElement* clsLayer3;
+  MonitorElement* clsLayer4;
+  MonitorElement* clsLayer5;
+  MonitorElement* clsLayer6;
 
   //CLS Validation
   //ring2, disc +- 1
@@ -103,16 +114,6 @@ private:
   MonitorElement* CLS_Endcap_123_Ring3_B;
   MonitorElement* CLS_Endcap_123_Ring3_C;
   //CLS Validation
-
-  //4 endcap
-
-  MonitorElement *ResDmin4;
-  MonitorElement *ResDplu4;
-  MonitorElement *BxDisc_4Plus;
-  MonitorElement *BxDisc_4Min;
-  MonitorElement *xyvDplu4;
-  MonitorElement *xyvDmin4;
-  MonitorElement *CLS_Endcap_4;
 
   //new members for the noise
   std::map<RPCDetId, double> mapRollCls;

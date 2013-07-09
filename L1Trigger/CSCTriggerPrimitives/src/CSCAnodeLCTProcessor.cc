@@ -20,7 +20,7 @@
 //                Porting from ORCA by S. Valuev (Slava.Valuev@cern.ch),
 //                May 2006.
 //
-//   $Id: CSCAnodeLCTProcessor.cc,v 1.43 2012/12/05 21:14:22 khotilov Exp $
+//   $Id: CSCAnodeLCTProcessor.cc,v 1.42.2.5 2012/10/18 04:50:36 khotilov Exp $
 //
 //   Modifications: 
 //
@@ -247,6 +247,7 @@ CSCAnodeLCTProcessor::CSCAnodeLCTProcessor(unsigned endcap, unsigned station,
     //std::cout<<"**** ALCT constructor parameters dump ****"<<std::endl;
     dumpConfigParams();
     config_dumped = true;
+    if (isSLHC) std::cout<<"disableME1a = "<<disableME1a<<std::endl;
   }
 
   numWireGroups = 0;  // Will be set later.
@@ -256,14 +257,6 @@ CSCAnodeLCTProcessor::CSCAnodeLCTProcessor(unsigned endcap, unsigned station,
 
   theChamber = CSCTriggerNumbering::chamberFromTriggerLabels(theSector, theSubsector,
                                                              theStation, theTrigChamber);
-
-  std::ostringstream strm;
-  strm << "ME" << ((theEndcap == 1) ? "+" : "-") << theStation << "/" << theRing;
-  theMEStr = strm.str();
-
-  strm.str("");
-  strm << "(trig. sector " << theSector << " subsector " << theSubsector << " id " << theTrigChamber << ")";
-  theTrigStr = strm.str();
 
   // trigger numbering doesn't distinguish between ME1a and ME1b chambers:
   isME11 = (theStation == 1 && theRing == 1);
@@ -515,7 +508,10 @@ CSCAnodeLCTProcessor::run(const CSCWireDigiCollection* wiredc) {
       if (numWireGroups > CSCConstants::MAX_NUM_WIRES) {
         if (infoV >= 0) edm::LogError("L1CSCTPEmulatorSetupError")
           << "+++ Number of wire groups, " << numWireGroups
-          << " found in " << theMEStr << " " << theTrigStr
+          << " found in ME" << ((theEndcap == 1) ? "+" : "-")
+          << theStation << "/" << theRing << "/" << theChamber
+          << " (sector " << theSector << " subsector " << theSubsector
+          << " trig id. " << theTrigChamber << ")"
           << " exceeds max expected, " << CSCConstants::MAX_NUM_WIRES
           << " +++\n" 
           << "+++ CSC geometry looks garbled; no emulation possible +++\n";
@@ -524,7 +520,10 @@ CSCAnodeLCTProcessor::run(const CSCWireDigiCollection* wiredc) {
     }
     else {
       if (infoV >= 0) edm::LogError("L1CSCTPEmulatorSetupError")
-        << "+++ " << theMEStr << " " << theTrigStr
+        << "+++ ME" << ((theEndcap == 1) ? "+" : "-")
+        << theStation << "/" << theRing << "/" << theChamber
+        << " (sector " << theSector << " subsector " << theSubsector
+        << " trig id. " << theTrigChamber << ")"
         << " is not defined in current geometry! +++\n"
         << "+++ CSC geometry looks garbled; no emulation possible +++\n";
       numWireGroups = -1;
@@ -533,8 +532,11 @@ CSCAnodeLCTProcessor::run(const CSCWireDigiCollection* wiredc) {
 
   if (numWireGroups < 0) {
     if (infoV >= 0) edm::LogError("L1CSCTPEmulatorSetupError")
-      << "+++ " << theMEStr << " " << theTrigStr
-      << ": numWireGroups = " << numWireGroups
+      << "+++ ME" << ((theEndcap == 1) ? "+" : "-")
+      << theStation << "/" << theRing << "/" << theChamber
+      << " (sector " << theSector << " subsector " << theSubsector
+      << " trig id. " << theTrigChamber << "):"
+      << " numWireGroups = " << numWireGroups
       << "; ALCT emulation skipped! +++";
     std::vector<CSCALCTDigi> emptyV;
     return emptyV;
@@ -644,7 +646,10 @@ bool CSCAnodeLCTProcessor::getDigis(const CSCWireDigiCollection* wiredc) {
       if (infoV > 1) {
         LogTrace("CSCAnodeLCTProcessor")
           << "found " << digiV[i_layer].size()
-          << " wire digi(s) in layer " << i_layer << " of " << theMEStr << " " << theTrigStr;
+          << " wire digi(s) in layer " << i_layer << " of ME"
+          << ((theEndcap == 1) ? "+" : "-") << theStation << "/" << theRing
+          << "/" << theChamber << " (trig. sector " << theSector
+          << " subsector " << theSubsector << " id " << theTrigChamber << ")";
         for (std::vector<CSCWireDigi>::iterator pld = digiV[i_layer].begin();
              pld != digiV[i_layer].end(); pld++) {
           LogTrace("CSCAnodeLCTProcessor") << "   " << (*pld);
@@ -1299,14 +1304,22 @@ void CSCAnodeLCTProcessor::lctSearch() {
       if (infoV > 0) {
         LogDebug("CSCAnodeLCTProcessor")
           << "\n" << bestALCT[bx] << " fullBX = "<<bestALCT[bx].getFullBX()
-          << " found in " << theMEStr << " " << theTrigStr << "\n";
+          << " found in ME"
+          << ((theEndcap == 1) ? "+" : "-")
+          << theStation << "/" << theRing << "/" << theChamber
+          << " (sector " << theSector << " subsector " << theSubsector
+          << " trig id. " << theTrigChamber << ")" << "\n";
       }
       if (secondALCT[bx].isValid()) {
         secondALCT[bx].setTrknmb(2);
         if (infoV > 0) {
           LogDebug("CSCAnodeLCTProcessor")
             << secondALCT[bx] << " fullBX = "<<secondALCT[bx].getFullBX()
-            << " found in " << theMEStr << " " << theTrigStr << "\n";
+            << " found in ME"
+            << ((theEndcap == 1) ? "+" : "-")
+            << theStation << "/" << theRing << "/" << theChamber
+            << " (sector " << theSector << " subsector " << theSubsector
+            << " trig id. " << theTrigChamber << ")" << "\n";
         }
       }
     }
@@ -1529,31 +1542,41 @@ void CSCAnodeLCTProcessor::accelMode(const int key_wire) {
 // Dump of configuration parameters.
 void CSCAnodeLCTProcessor::dumpConfigParams() const {
   std::ostringstream strm;
-  strm<<"\n";
-  strm<<"++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n";
-  strm<<"+                  ALCT configuration parameters:                  +\n";
-  strm<<"++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n";
-  strm<<" fifo_tbins   [total number of time bins in DAQ readout] = " << fifo_tbins << "\n";
-  strm<<" fifo_pretrig [start time of anode raw hits in DAQ readout] = " << fifo_pretrig << "\n";
-  strm<<" drift_delay  [drift delay after pre-trigger, in 25 ns bins] = " << drift_delay << "\n";
-  strm<<" nplanes_hit_pretrig [min. number of layers hit for pre-trigger] = " << nplanes_hit_pretrig << "\n";
-  strm<<" nplanes_hit_pattern [min. number of layers hit for trigger] = " << nplanes_hit_pattern << "\n";
-  strm<<" nplanes_hit_accel_pretrig [min. number of layers hit for accel. pre-trig.] = " << nplanes_hit_accel_pretrig << "\n";
-  strm<<" nplanes_hit_accel_pattern [min. number of layers hit for accel. trigger] = " << nplanes_hit_accel_pattern << "\n";
-  strm<<" trig_mode  [enabling/disabling collision/accelerator tracks] = " << trig_mode << "\n";
-  strm<<" accel_mode [preference to collision/accelerator tracks] = " << accel_mode << "\n";
-  strm<<" l1a_window_width [L1Accept window width, in 25 ns bins] = " << l1a_window_width << "\n";
-  strm<<" disableME1a = "<<disableME1a << "\n";
-  strm<<"++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n";
+  strm << "\n";
+  strm << "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n";
+  strm << "+                  ALCT configuration parameters:                  +\n";
+  strm << "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n";
+  strm << " fifo_tbins   [total number of time bins in DAQ readout] = "
+       << fifo_tbins << "\n";
+  strm << " fifo_pretrig [start time of anode raw hits in DAQ readout] = "
+       << fifo_pretrig << "\n";
+  strm << " drift_delay  [drift delay after pre-trigger, in 25 ns bins] = "
+       << drift_delay << "\n";
+  strm << " nplanes_hit_pretrig [min. number of layers hit for pre-trigger] = "
+       << nplanes_hit_pretrig << "\n";
+  strm << " nplanes_hit_pattern [min. number of layers hit for trigger] = "
+       << nplanes_hit_pattern << "\n";
+  strm << " nplanes_hit_accel_pretrig [min. number of layers hit for accel."
+       << " pre-trig.] = " << nplanes_hit_accel_pretrig << "\n";
+  strm << " nplanes_hit_accel_pattern [min. number of layers hit for accel."
+       << " trigger] = "   << nplanes_hit_accel_pattern << "\n";
+  strm << " trig_mode  [enabling/disabling collision/accelerator tracks] = "
+       << trig_mode << "\n";
+  strm << " accel_mode [preference to collision/accelerator tracks] = "
+       << accel_mode << "\n";
+  strm << " l1a_window_width [L1Accept window width, in 25 ns bins] = "
+       << l1a_window_width << "\n";
+  strm << "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n";
   LogDebug("CSCAnodeLCTProcessor") << strm.str();
   //std::cout<<strm.str()<<std::endl;
 }
 
 // Dump of digis on wire groups.
-void CSCAnodeLCTProcessor::dumpDigis(const std::vector<int> wire[CSCConstants::NUM_LAYERS][CSCConstants::MAX_NUM_WIRES]) const
-{
+void CSCAnodeLCTProcessor::dumpDigis(const std::vector<int> wire[CSCConstants::NUM_LAYERS][CSCConstants::MAX_NUM_WIRES]) const {
   LogDebug("CSCAnodeLCTProcessor")
-    << theMEStr << " " << theTrigStr << " nWiregroups " << numWireGroups;
+    << "ME" << ((theEndcap == 1) ? "+" : "-")
+    << theStation << "/" << theRing << "/" << theChamber
+    << " nWiregroups " << numWireGroups;
 
   std::ostringstream strstrm;
   for (int i_wire = 0; i_wire < numWireGroups; i_wire++) {

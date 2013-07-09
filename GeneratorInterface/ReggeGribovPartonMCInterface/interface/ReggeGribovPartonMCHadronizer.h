@@ -90,7 +90,7 @@ extern "C"
     int   jtpevt; // ........ number of absolute target proton spectators
     float xbjevt; // ........ bjorken x for dis
     float qsqevt; // ........ q**2 for dis
-    int   nglevt; // ........ number of collisions acc to Glauber
+    int   nglevt; // ........ number of collisions acc to  Glauber
     float zppevt; // ........ average Z-parton-proj
     float zptevt; // ........ average Z-parton-targ
     int   minfra; //
@@ -100,7 +100,7 @@ extern "C"
 
   extern struct
   {
-    int   ng1evt; // ........ number of collisions acc to Glauber
+    int   ng1evt; // ........ number of collisions acc to  Glauber
     int   ng2evt; // ........ number of Glauber participants with at least two IAs
     float rglevt; // ........
     float sglevt; // ........

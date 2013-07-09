@@ -14,8 +14,7 @@ from DQM.CSCMonitorModule.csc_dqm_sourceclient_offline_cff import *
 from DQM.EcalPreshowerMonitorModule.es_dqm_source_offline_cff import *
 from DQM.BeamMonitor.AlcaBeamMonitorHeavyIons_cff import *
 
-DQMOfflineHeavyIonsPreDPG = cms.Sequence( dqmEnvCommon *
-                                          dqmDcsInfo *
+DQMOfflineHeavyIonsPreDPG = cms.Sequence( dqmDcsInfo *
                                           ecal_dqm_source_offline *
                                           hcalOfflineDQMSource *
                                           SiStripDQMTier0_hi *

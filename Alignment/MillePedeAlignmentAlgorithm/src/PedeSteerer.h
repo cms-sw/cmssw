@@ -8,9 +8,9 @@
  *
  * \author    : Gero Flucke
  * date       : October 2006
- * $Date: 2013/06/18 09:52:33 $
- * $Revision: 1.28 $
- * (last update by $Author: jbehr $)
+ * $Date: 2010/09/10 13:31:54 $
+ * $Revision: 1.20 $
+ * (last update by $Author: mussgill $)
  */
 
 #include <vector>
@@ -28,7 +28,6 @@ class AlignableMuon;
 class AlignableExtras;
 class AlignmentParameterStore;
 class PedeLabelerBase;
-class PedeSteererWeakModeConstraints;
 
 /***************************************
 ****************************************/

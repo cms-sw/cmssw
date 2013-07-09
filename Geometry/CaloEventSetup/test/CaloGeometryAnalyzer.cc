@@ -625,14 +625,8 @@ CaloGeometryAnalyzer::buildHcal( const CaloGeometry& cg      ,
 				 unsigned int        histi     ) 
 {
     std::cout<<"Now checking detector "<<name<<std::endl ;
-    
-    const std::string oldnameCtr0 ( "Geometry/CaloEventSetup/test/nom/" + std::string( name ) + ".ctr" ) ;
-    const std::string oldnameCor0 ( "Geometry/CaloEventSetup/test/nom/" + std::string( name ) + ".cor" ) ;
-    edm::FileInPath fp1(oldnameCtr0);
-    edm::FileInPath fp2(oldnameCor0);
-    const std::string oldnameCtr = fp1.fullPath();
-    const std::string oldnameCor = fp2.fullPath();
-    std::cout << "Files " << oldnameCtr << "\n      " << oldnameCor << "\n";
+    const std::string oldnameCtr  ( "old" + std::string( name ) + ".ctr" ) ;
+    const std::string oldnameCor  ( "old" + std::string( name ) + ".cor" ) ;
     const std::string fnameCtr  ( std::string( name ) + ".ctr" ) ;
     const std::string fnameCor  ( std::string( name ) + ".cor" ) ;
     const std::string fnameOvr  ( std::string( name ) + ".ovr" ) ;
@@ -782,13 +776,8 @@ CaloGeometryAnalyzer::build( const CaloGeometry& cg      ,
 {
    std::cout<<"Now checking detector "<<name<<std::endl ;
 
-   const std::string oldnameCtr0 ( "Geometry/CaloEventSetup/test/nom/" + std::string( name ) + ".ctr" ) ;
-   const std::string oldnameCor0 ( "Geometry/CaloEventSetup/test/nom/" + std::string( name ) + ".cor" ) ;
-   edm::FileInPath fp1(oldnameCtr0);
-   edm::FileInPath fp2(oldnameCor0);
-   const std::string oldnameCtr = fp1.fullPath();
-   const std::string oldnameCor = fp2.fullPath();
-   std::cout << "Files " << oldnameCtr << "\n      " << oldnameCor << "\n";
+   const std::string oldnameCtr  ( "old" + std::string( name ) + ".ctr" ) ;
+   const std::string oldnameCor  ( "old" + std::string( name ) + ".cor" ) ;
    const std::string fnameCtr  ( std::string( name ) + ".ctr" ) ;
    const std::string fnameCor  ( std::string( name ) + ".cor" ) ;
    const std::string fnameOvr  ( std::string( name ) + ".ovr" ) ;

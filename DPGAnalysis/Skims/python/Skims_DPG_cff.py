@@ -368,17 +368,4 @@ SKIMStreamZHbb = cms.FilteredStream(
     dataTier = cms.untracked.string('RAW-RECO')
     )
 
-#####################
-
-from DPGAnalysis.Skims.HighLumiFilter_cfi import highLumiFilter
-HighLumiSkimPath = cms.Path(highLumiFilter)
-SKIMStreamHighLumi = cms.FilteredStream(
-    responsible = 'Tracking POG',
-    name = 'HighLumi',
-    paths = (HighLumiSkimPath),
-    content = skimContent.outputCommands,
-    selectEvents = cms.untracked.PSet(),
-    dataTier = cms.untracked.string('RAW-RECO')
-    )
-
 

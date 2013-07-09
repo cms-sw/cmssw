@@ -42,6 +42,7 @@ echo "%MSG-MG5 random seed used for the run = $rnum"
 
 # retrieve the wanted gridpack from the official repository 
 fn-fileget -c `cmsGetFnConnect frontier://smallfiles` ${repo}/${name}_gridpack.tar.gz 
+
 # force the f77 compiler to be the CMS defined one
 
 ln -sf `which gfortran` f77
@@ -85,8 +86,8 @@ fi
 
 ######END - DECAY #####
 
+
 # run the production stage
-cd ..
 ./run.sh ${nevt} ${rnum}
 
 ls -al

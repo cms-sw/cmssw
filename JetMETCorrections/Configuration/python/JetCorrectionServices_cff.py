@@ -27,8 +27,7 @@ ak5CaloL1Offset = cms.ESProducer(
     minVtxNdof = cms.int32(4)
     )
 
-ak5PFL1Offset = ak5CaloL1Offset.clone(algorithm = 'AK5PF')
-ak5PFchsL1Offset = ak5CaloL1Offset.clone(algorithm = 'AK5PFchs')
+ak5PFL1Offset = ak5CaloL1Offset.clone(algorithm = 'AK5PF') 
 ak5JPTL1Offset = ak5CaloL1Offset.clone(algorithm = 'AK5JPT')
 
 # L1 (JPT Offset) Correction Service
@@ -52,12 +51,6 @@ ak5PFL1Fastjet = cms.ESProducer(
     algorithm   = cms.string('AK5PF'),
     srcRho      = cms.InputTag('kt6PFJets','rho')
     )
-ak5PFchsL1Fastjet = cms.ESProducer(
-    'L1FastjetCorrectionESProducer',
-    level       = cms.string('L1FastJet'),
-    algorithm   = cms.string('AK5PFchs'),
-    srcRho      = cms.InputTag('kt6PFJets','rho')
-    )
 ak5JPTL1Fastjet = ak5CaloL1Fastjet.clone()
 
 # L2 (relative eta-conformity) Correction Services
@@ -67,7 +60,6 @@ ak5CaloL2Relative = cms.ESProducer(
     algorithm = cms.string('AK5Calo')
     )
 ak5PFL2Relative = ak5CaloL2Relative.clone( algorithm = 'AK5PF' )
-ak5PFchsL2Relative = ak5CaloL2Relative.clone( algorithm = 'AK5PFchs' )
 ak5JPTL2Relative = ak5CaloL2Relative.clone( algorithm = 'AK5JPT' )
 ak5TrackL2Relative = ak5CaloL2Relative.clone( algorithm = 'AK5TRK' )
 
@@ -77,10 +69,9 @@ ak5CaloL3Absolute = cms.ESProducer(
     level     = cms.string('L3Absolute'),
     algorithm = cms.string('AK5Calo')
     )
-ak5PFL3Absolute = ak5CaloL3Absolute.clone( algorithm = 'AK5PF' )
-ak5PFchsL3Absolute = ak5CaloL3Absolute.clone( algorithm = 'AK5PFchs' )
-ak5JPTL3Absolute = ak5CaloL3Absolute.clone( algorithm = 'AK5JPT' )
-ak5TrackL3Absolute = ak5CaloL3Absolute.clone( algorithm = 'AK5TRK' )
+ak5PFL3Absolute     = ak5CaloL3Absolute.clone( algorithm = 'AK5PF' )
+ak5JPTL3Absolute    = ak5CaloL3Absolute.clone( algorithm = 'AK5JPT' )
+ak5TrackL3Absolute  = ak5CaloL3Absolute.clone( algorithm = 'AK5TRK' )
 
 # Residual Correction Services
 ak5CaloResidual = cms.ESProducer(
@@ -88,8 +79,7 @@ ak5CaloResidual = cms.ESProducer(
     level     = cms.string('L2L3Residual'),
     algorithm = cms.string('AK5Calo')
     )
-ak5PFResidual = ak5CaloResidual.clone( algorithm = 'AK5PF' )
-ak5PFchsResidual = ak5CaloResidual.clone( algorithm = 'AK5PFchs' )
+ak5PFResidual  = ak5CaloResidual.clone( algorithm = 'AK5PF' )
 ak5JPTResidual = ak5CaloResidual.clone( algorithm = 'AK5JPT' )
 
 # L6 (semileptonically decaying b-jet) Correction Services
@@ -124,10 +114,6 @@ ak5PFL2L3 = cms.ESProducer(
     'JetCorrectionESChain',
     correctors = cms.vstring('ak5PFL2Relative','ak5PFL3Absolute')
     )
-ak5PFchsL2L3 = cms.ESProducer(
-    'JetCorrectionESChain',
-    correctors = cms.vstring('ak5PFchsL2Relative','ak5PFchsL3Absolute')
-    )
 #--- JPT needs the L1JPTOffset to account for the ZSP changes.
 #--- L1JPTOffset is NOT the same as L1Offset !!!!!
 ak5JPTL2L3 = cms.ESProducer(
@@ -148,10 +134,6 @@ ak5PFL2L3Residual = cms.ESProducer(
     'JetCorrectionESChain',
     correctors = cms.vstring('ak5PFL2Relative','ak5PFL3Absolute','ak5PFResidual')
     )
-ak5PFchsL2L3Residual = cms.ESProducer(
-    'JetCorrectionESChain',
-    correctors = cms.vstring('ak5PFchsL2Relative','ak5PFchsL3Absolute','ak5PFchsResidual')
-    )
 #--- JPT needs the L1JPTOffset to account for the ZSP changes.
 #--- L1JPTOffset is NOT the same as L1Offset !!!!!
 ak5JPTL2L3Residual = cms.ESProducer(
@@ -167,10 +149,6 @@ ak5CaloL1L2L3 = cms.ESProducer(
 ak5PFL1L2L3 = cms.ESProducer(
     'JetCorrectionESChain',
     correctors = cms.vstring('ak5PFL1Offset','ak5PFL2Relative','ak5PFL3Absolute')
-    )
-ak5PFchsL1L2L3 = cms.ESProducer(
-    'JetCorrectionESChain',
-    correctors = cms.vstring('ak5PFchsL1Offset','ak5PFchsL2Relative','ak5PFchsL3Absolute')
     )
 #--- JPT needs the L1JPTOffset to account for the ZSP changes.
 #--- L1JPTOffset is NOT the same as L1Offset !!!!!
@@ -188,10 +166,6 @@ ak5PFL1L2L3Residual = cms.ESProducer(
     'JetCorrectionESChain',
     correctors = cms.vstring('ak5PFL1Offset','ak5PFL2Relative','ak5PFL3Absolute','ak5PFResidual')
     )
-ak5PFchsL1L2L3Residual = cms.ESProducer(
-    'JetCorrectionESChain',
-    correctors = cms.vstring('ak5PFchsL1Offset','ak5PFchsL2Relative','ak5PFchsL3Absolute','ak5PFchsResidual')
-    )
 #--- JPT needs the L1JPTOffset to account for the ZSP changes.
 #--- L1JPTOffset is NOT the same as L1Offset !!!!!
 ak5JPTL1L2L3Residual = cms.ESProducer(
@@ -204,8 +178,6 @@ ak5CaloL1FastL2L3 = ak5CaloL2L3.clone()
 ak5CaloL1FastL2L3.correctors.insert(0,'ak5CaloL1Fastjet')
 ak5PFL1FastL2L3 = ak5PFL2L3.clone()
 ak5PFL1FastL2L3.correctors.insert(0,'ak5PFL1Fastjet')
-ak5PFchsL1FastL2L3 = ak5PFchsL2L3.clone()
-ak5PFchsL1FastL2L3.correctors.insert(0,'ak5PFchsL1Fastjet')
 #--- JPT needs the L1JPTOffset to account for the ZSP changes.
 #--- L1JPTOffset is NOT the same as L1Offset !!!!!
 ak5JPTL1FastL2L3 = cms.ESProducer(
@@ -221,10 +193,6 @@ ak5CaloL1FastL2L3Residual = cms.ESProducer(
 ak5PFL1FastL2L3Residual = cms.ESProducer(
     'JetCorrectionESChain',
     correctors = cms.vstring('ak5PFL1Fastjet','ak5PFL2Relative','ak5PFL3Absolute','ak5PFResidual')
-    )
-ak5PFchsL1FastL2L3Residual = cms.ESProducer(
-    'JetCorrectionESChain',
-    correctors = cms.vstring('ak5PFchsL1Fastjet','ak5PFchsL2Relative','ak5PFchsL3Absolute','ak5PFchsResidual')
     )
 #--- JPT needs the L1JPTOffset to account for the ZSP changes.
 #--- L1JPTOffset is NOT the same as L1Offset !!!!!

@@ -14,7 +14,6 @@ toGet = cms.untracked.vstring('GainWidths'),
     iLumi = cms.double(-1.),                 # for Upgrade: fb-1
     HcalReLabel =  HcalReLabel,              # for Upgrade
     HERecalibration = cms.bool(False),       # True for Upgrade   
-    HEreCalibCutoff = cms.double(20.),       # if above is True  
     HFRecalibration = cms.bool(False),       # True for Upgrade
     GainWidthsForTrigPrims = cms.bool(False) # True Upgrade    
 )

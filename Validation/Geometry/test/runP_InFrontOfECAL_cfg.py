@@ -23,8 +23,8 @@ process.load("Configuration.StandardSequences.MagneticField_38T_cff")
 process.load("SimG4Core.Application.g4SimHits_cfi")
 
 process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService",
-    g4SimHits = cms.PSet(
-        initialSeed = cms.untracked.uint32(9876)
+    moduleSeeds = cms.PSet(
+        g4SimHits = cms.untracked.uint32(9876)
     )
 )
 
@@ -50,11 +50,10 @@ process.maxEvents = cms.untracked.PSet(
 )
 
 process.p1 = cms.Path(process.g4SimHits)
-process.g4SimHits.UseMagneticField = cms.bool(False)
+process.g4SimHits.UseMagneticField = False
 process.g4SimHits.Physics.type = 'SimG4Core/Physics/DummyPhysics'
-process.g4SimHits.Physics.DummyEMPhysics = cms.bool(True)
-process.g4SimHits.Physics.CutsPerRegion = cms.bool(False)
-process.g4SimHits.StackingAction.TrackNeutrino = cms.bool(True)
+process.g4SimHits.Physics.DummyEMPhysics = True
+process.g4SimHits.Physics.CutsPerRegion = False
 process.g4SimHits.Watchers = cms.VPSet(cms.PSet(
     type = cms.string('MaterialBudgetAction'),
     MaterialBudgetAction = cms.PSet(

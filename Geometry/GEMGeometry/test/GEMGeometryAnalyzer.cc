@@ -82,8 +82,8 @@ GEMGeometryAnalyzer::analyze( const edm::Event& /*iEvent*/, const edm::EventSetu
     "  phi(0)  phi(s1)  phi(sN)    dphi    dphi'      ds     off"
     "       uR       uL       lR       lL" << std::endl;
 
-  const double dPi = 3.14159265358;
-  const double radToDeg = 180. / dPi; //@@ Where to get pi from?
+  //  const double dPi = 3.14159265358;
+  //   const double radToDeg = 180. / dPi; //@@ Where to get pi from?
 
   std::set<GEMDetId> sids;
   std::vector<LocalPoint> vlp;
@@ -96,164 +96,159 @@ GEMGeometryAnalyzer::analyze( const edm::Event& /*iEvent*/, const edm::EventSetu
   vlp.push_back(LocalPoint( 0, 0,-1));
   vlp.push_back(LocalPoint( 0, 0, 0));
   vlp.push_back(LocalPoint( 0, 0, 1));
-  
+  /*
   int iGEMCHcount = 0;
-  int icount = 0;
-  
+
   for(TrackingGeometry::DetContainer::const_iterator it = pDD->dets().begin(); it != pDD->dets().end(); it++){
-      std::cout << iGEMCHcount++ << "\n";
-  
-      //----------------------- GEMCHAMBER TEST -------------------------------------------------------
-      /*  
-	  if( dynamic_cast< GEMChamber* >( *it ) != 0 ){
-	  ++iGEMCHcount;
-	  GEMChamber* ch = dynamic_cast< GEMChamber* >( *it ); 
+
+    //----------------------- GEMCHAMBER TEST -------------------------------------------------------
+    
+    if( dynamic_cast< GEMChamber* >( *it ) != 0 ){
+      ++iGEMCHcount;
+      GEMChamber* ch = dynamic_cast< GEMChamber* >( *it ); 
 
        
-	  GEMDetId detId=ch->id();
-	  int idRaf = detId.rawId();
-	  //       const GEMEtaPartition* rollRaf = ch->roll(1);
-	  std::cout<<"Num = "<<iGEMCHcount<<"  "<<"GEMDet = "<<idRaf<<"  Num EtaPartitions =" <<ch->nrolls()<<std::endl;
-	  //       "  "<<"EtaPartition 1 = "<<(rollRaf->id()).rawId()<<std::endl;
+      GEMDetId detId=ch->id();
+      int idRaf = detId.rawId();
+      //       const GEMEtaPartition* rollRaf = ch->roll(1);
+      std::cout<<"Num = "<<iGEMCHcount<<"  "<<"GEMDet = "<<idRaf<<"  Num EtaPartitions =" <<ch->nrolls()<<std::endl;
+      //       "  "<<"EtaPartition 1 = "<<(rollRaf->id()).rawId()<<std::endl;
 
-	  std::vector< const GEMEtaPartition*> rollsRaf = (ch->rolls());
-	  for(std::vector<const GEMEtaPartition*>::iterator r = rollsRaf.begin();
-	  r != rollsRaf.end(); ++r){
+      std::vector< const GEMEtaPartition*> rollsRaf = (ch->rolls());
+      for(std::vector<const GEMEtaPartition*>::iterator r = rollsRaf.begin();
+	   r != rollsRaf.end(); ++r){
 
-	  if((*r)->id().region() == 0){
+	if((*r)->id().region() == 0){
 	  std::cout<<"GEMDetId = "<<(*r)->id().rawId()<<std::endl;
 	  std::cout<<"Region = "<<(*r)->id().region()<<"  Ring = "<<(*r)->id().ring()<<"  Station = "<<(*r)->id().station()<<"  Sector = "<<(*r)->id().sector()<<"  Layer = "<<(*r)->id().layer()<<"  Subsector = "<<(*r)->id().subsector()<<"  EtaPartition = "<<(*r)->id().roll()<<std::endl;
-	  }
-	  }
-	  }
-      */
-      //_______________________________________________________________________________________________
-
-
-      if( dynamic_cast< GEMEtaPartition* >( *it ) != 0 ){
-	  ++icount;
-
-          GEMEtaPartition* roll = dynamic_cast< GEMEtaPartition*>( *it );
-
-          GEMDetId detId=roll->id();
-          int id = detId(); // or detId.rawId()
-
-          const StripTopology* top_ = dynamic_cast<const StripTopology*>
-				      (&roll->topology());
-      
-          if (sids.find(detId) != sids.end())
-	      std::cout<<"VERYBAD ";
-	  std::cout << "GeomDetUnit is of type " << detId.det() << ", subdet " << detId.subdetId() << " and raw id = " << id;
-
-
-          int iw = std::cout.width(); // save current width
-	  //int ip = std::cout.precision(); // save current precision
-
-          std::cout << "\nParameters of roll# " << 
-	      std::setw( 4 ) << icount << std::endl;
-          std::cout<<std::setw(12) << id << std::dec << std::setw(12) << id << std::dec 
-		   << std::setw( iw ) << detId;
-       
-          const BoundSurface& bSurface = roll->surface();
-       
-       
-       
-          LocalPoint  lCentre( 0., 0., 0. );
-	  GlobalPoint gCentre = bSurface.toGlobal( lCentre );
-       
-          LocalPoint  lCentre1( 0., 0., -1.);
-          GlobalPoint gCentre1 = bSurface.toGlobal( lCentre1 );
-       
-	  LocalPoint  lCentre2( 0., 0., 1.);
-	  GlobalPoint gCentre2 = bSurface.toGlobal( lCentre2 );
-
-	  double gx  =  gCentre.x();
-	  double gy  =  gCentre.y();
-	  double gz  =  gCentre.z();
-	  double gz1 =  gCentre1.z();
-	  double gz2 =  gCentre2.z();
-	  if ( fabs( gx )  < 1.e-06 ) gx = 0.;
-	  if ( fabs( gy )  < 1.e-06 ) gy = 0.;
-	  if ( fabs( gz )  < 1.e-06 ) gz = 0.;
-	  if ( fabs( gz1 ) < 1.e-06 ) gz1 = 0.;
-	  if ( fabs( gz2 ) < 1.e-06 ) gz2 = 0.;
-
-	  int now = 9;
-	  int nop = 5;
-	  std::cout << 
-	      std::setw( now ) << std::setprecision( nop ) << gx <<  
-	      std::setw( now ) << std::setprecision( nop ) << gy << 
-	      std::setw( now ) << std::setprecision( nop ) << gz << 
-	      std::setw( now ) << std::setprecision( nop ) << gz1 << 
-	      std::setw( now ) << std::setprecision( nop ) << gz2<<std::endl;
-	 
-	  // Global Phi of centre of GEMEtaPartition
-
-	  double cphi = gCentre.phi();
-	  double cphiDeg = cphi * radToDeg;
-	  if( cphiDeg < 0. ) cphiDeg = cphiDeg + 360.;
-
-	  if ( fabs(cphiDeg) < 1.e-06 ) cphiDeg = 0.;
-	  int iphiDeg = static_cast<int>( cphiDeg );
-	  std::cout << "phi(0,0,0) = " << iphiDeg << " degrees" << std::endl;
-
-	  int nStrips = roll->nstrips();
-
-// 	  if ( (detId.region()!=0 //&& detId.sector() == 1 
-// 		//&& detId.subsector() == 1
-// 		&& detId.roll() == 1
-// 		&& detId.station() == 1
-// 		//&& detId.ring()==3
-// 		&& roll->type().name() == "REA1")
-// 	       ||
-// 	       (detId.region() == 0 //&& detId.sector() == 1
-// 		&& detId.station() == 1 && detId.layer() == 1
-// 		&& detId.roll() == 1 
-// 		&& detId.ring() == 0)
-// 	      )
-	  {
-	      std::cout <<"======================== Writing output file"<< std::endl;
-	      ofos<<"Forward Detector "<<roll->type().name()  <<" "<<detId.region()<<" z :"<<detId<<std::endl;
-	      for (unsigned int i=0;i<vlp.size();i++){
-		  ofos<< "lp="<<vlp[i]<<" gp="<<roll->toGlobal(vlp[i]) << " pitch="<<roll->localPitch(vlp[i]);
-		  if ( (i+1)%3 == 0 ) {
-		      ofos<<" "<<std::endl; 
-		  }
-	      }
-	      ofos<<"            Navigating "<<std::endl;
-	      LocalPoint edge1 = top_->localPosition(0.);
-	      LocalPoint edge2 = top_->localPosition((float)nStrips);
-	      float lsl1 = top_->localStripLength(edge1);
-	      float lsl2 = top_->localStripLength(edge2);
-	      ofos <<" Local Point edge1 = "<<edge1<<" StripLength="<<lsl1<<std::endl; 
-	      ofos <<" Local Point edge1 = "<<edge2<<" StripLength="<<lsl2<<std::endl; 
-	      float cslength = top_->localStripLength(lCentre);
-	      LocalPoint s1(0.,-cslength/2.,0.);
-	      LocalPoint s2(0.,cslength/2.,0.);
-	      float base1=top_->localPitch(s1)*nStrips;
-	      float base2=top_->localPitch(s2)*nStrips;
-	      LocalPoint  s11(-base1/2., -cslength/2,0.);
-	      LocalPoint  s12(base1/2., -cslength/2,0.);
-	      LocalPoint  s21(-base2/2., cslength/2,0.);
-	      LocalPoint  s22(base2/2.,  cslength/2,0.);
-	      ofos<<  "  First Base = "<<base1<<" Second Base ="<<base2<<std::endl;
-	  }
-	  std::cout << "\nStrips =  "<<std::setw( 4 ) << nStrips<<"\n";
-	  for(int is=0;is<nStrips;is++){
-	      std::cout <<"s="<<std::setw(3)<<is+1<<" pos="
-			<<roll->centreOfStrip(is+1);
-	      if ((is+1)%5==0){ 
-		  float str=is;
-		  std::cout <<"s="<<std::setw(6)<<str<<" pos="
-			    <<roll->centreOfStrip(str)<<" gpos="<<
-		      roll->toGlobal(roll->centreOfStrip(str));
-		  std::cout <<std::endl;
-	      }
-	  }
-	  std::cout <<std::endl;
+	}
       }
-  }
-  
+    }
+  */
+  //_______________________________________________________________________________________________
+
+
+  //      if( dynamic_cast< GEMEtaPartition* >( *it ) != 0 ){
+  //        ++icount;
+
+  //        GEMEtaPartition* roll = dynamic_cast< GEMEtaPartition*>( *it );
+
+  //        GEMDetId detId=roll->id();
+  //        int id = detId(); // or detId.rawId()
+
+  //        const StripTopology* top_ = dynamic_cast<const StripTopology*>
+  // 	 (&roll->topology());
+      
+  //        if (sids.find(detId) != sids.end())
+  // 	 std::cout<<"VERYBAD ";
+  //        std::cout << "GeomDetUnit is of type " << detId.det() << " and raw id = " << id;
+
+
+  //        int iw = std::cout.width(); // save current width
+  //       int ip = std::cout.precision(); // save current precision
+
+  //        std::cout << "Parameters of roll# " << 
+  // 	 std::setw( 4 ) << icount << std::endl;
+  //        std::cout<<std::setw(12) << id << std::dec << std::setw(12) << id << std::dec 
+  // 		 << std::setw( iw ) << detId;
+       
+  //        const BoundSurface& bSurface = roll->surface();
+       
+       
+       
+  //        LocalPoint  lCentre( 0., 0., 0. );
+  //        GlobalPoint gCentre = bSurface.toGlobal( lCentre );
+       
+  //        LocalPoint  lCentre1( 0., 0., -1.);
+  //        GlobalPoint gCentre1 = bSurface.toGlobal( lCentre1 );
+       
+  //        LocalPoint  lCentre2( 0., 0., 1.);
+  //        GlobalPoint gCentre2 = bSurface.toGlobal( lCentre2 );
+
+  //        double gx  =  gCentre.x();
+  //        double gy  =  gCentre.y();
+  //        double gz  =  gCentre.z();
+  //        double gz1 =  gCentre1.z();
+  //        double gz2 =  gCentre2.z();
+  //        if ( fabs( gx )  < 1.e-06 ) gx = 0.;
+  //        if ( fabs( gy )  < 1.e-06 ) gy = 0.;
+  //        if ( fabs( gz )  < 1.e-06 ) gz = 0.;
+  //        if ( fabs( gz1 ) < 1.e-06 ) gz1 = 0.;
+  //        if ( fabs( gz2 ) < 1.e-06 ) gz2 = 0.;
+
+  //        int now = 9;
+  //        int nop = 5;
+  //        std::cout << 
+  // 	 std::setw( now ) << std::setprecision( nop ) << gx <<  
+  // 	 std::setw( now ) << std::setprecision( nop ) << gy << 
+  // 	 std::setw( now ) << std::setprecision( nop ) << gz << 
+  // 	 std::setw( now ) << std::setprecision( nop ) << gz1 << 
+  // 	 std::setw( now ) << std::setprecision( nop ) << gz2<<std::endl;
+	 
+  // Global Phi of centre of GEMEtaPartition
+
+  //        double cphi = gCentre.phi();
+  //        double cphiDeg = cphi * radToDeg;
+  //        if( cphiDeg < 0. ) cphiDeg = cphiDeg + 360.;
+
+  //        if ( fabs(cphiDeg) < 1.e-06 ) cphiDeg = 0.;
+  //        int iphiDeg = static_cast<int>( cphiDeg );
+  //	std::cout << "phi(0,0,0) = " << iphiDeg << " degrees" << std::endl;
+
+  //        int nStrips = roll->nstrips();
+
+  //        if ( (detId.region()!=0 && detId.sector() == 1 
+  // 	     && detId.subsector() == 1
+  // 	     && detId.roll() == 1
+  // 	     && detId.station() == 1
+  // 	     //&& detId.ring()==3
+  // 	     && roll->type().name() == "REA1")
+  // 	    ||
+  // 	    (detId.region() == 0 && detId.sector() == 1
+  // 	     && detId.station() == 1 && detId.layer() == 1
+  // 	     && detId.roll() == 1 
+  // 	     && detId.ring() == 0)
+  // 	    ) {
+  // 	 std::cout <<"======================== Writing output file"<< std::endl;
+  // 	 ofos<<"Forward Detector "<<roll->type().name()  <<" "<<detId.region()<<" z :"<<detId<<std::endl;
+  // 	 for (unsigned int i=0;i<vlp.size();i++){
+  // 	   ofos<< "lp="<<vlp[i]<<" gp="<<roll->toGlobal(vlp[i]) << " pitch="<<roll->localPitch(vlp[i]);
+  // 	   if ( (i+1)%3 == 0 ) {
+  // 	     ofos<<" "<<std::endl; 
+  // 	   }
+  // 	 }
+  // 	 ofos<<"            Navigating "<<std::endl;
+  // 	 LocalPoint edge1 = top_->localPosition(0.);
+  // 	 LocalPoint edge2 = top_->localPosition((float)nStrips);
+  // 	 float lsl1 = top_->localStripLength(edge1);
+  // 	 float lsl2 = top_->localStripLength(edge2);
+  // 	 ofos <<" Local Point edge1 = "<<edge1<<" StripLength="<<lsl1<<std::endl; 
+  // 	 ofos <<" Local Point edge1 = "<<edge2<<" StripLength="<<lsl2<<std::endl; 
+  // 	 float cslength = top_->localStripLength(lCentre);
+  // 	 LocalPoint s1(0.,-cslength/2.,0.);
+  // 	 LocalPoint s2(0.,cslength/2.,0.);
+  // 	 float base1=top_->localPitch(s1)*nStrips;
+  // 	 float base2=top_->localPitch(s2)*nStrips;
+  //	 LocalPoint  s11(-base1/2., -cslength/2,0.);
+  //	 LocalPoint  s12(base1/2., -cslength/2,0.);
+  //	 LocalPoint  s21(-base2/2., cslength/2,0.);
+  //	 LocalPoint  s22(base2/2.,  cslength/2,0.);
+  // 	 ofos<<  "  First Base = "<<base1<<" Second Base ="<<base2<<std::endl;
+  //        }
+  //        std::cout << "\nStrips =  "<<std::setw( 4 ) << nStrips<<"\n";
+  //        for(int is=0;is<nStrips;is++){
+  // 	 std::cout <<"s="<<std::setw(3)<<is+1<<" pos="
+  // 		   <<roll->centreOfStrip(is+1);
+  // 	 if ((is+1)%5==0){ 
+  // 	   float str=is;
+  // 	   std::cout <<"s="<<std::setw(6)<<str<<" pos="
+  // 		     <<roll->centreOfStrip(str)<<" gpos="<<
+  // 	     roll->toGlobal(roll->centreOfStrip(str));
+  // 	   std::cout <<std::endl;
+  // 	 }
+  //}
+  //std::cout <<std::endl;
+       
   //       double cstrip1  = layer->centerOfStrip(1).phi();
   //       double cstripN  = layer->centerOfStrip(nStrips).phi();
 

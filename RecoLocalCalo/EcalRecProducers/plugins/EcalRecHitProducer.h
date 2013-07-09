@@ -4,9 +4,9 @@
 /** \class EcalRecHitProducer
  *   produce ECAL rechits from uncalibrated rechits
  *
- *  $Id: EcalRecHitProducer.h,v 1.4 2011/01/12 13:59:24 argiro Exp $
- *  $Date: 2011/01/12 13:59:24 $
- *  $Revision: 1.4 $
+ *  $Id: EcalRecHitProducer.h,v 1.3 2009/06/05 13:38:56 ferriff Exp $
+ *  $Date: 2009/06/05 13:38:56 $
+ *  $Revision: 1.3 $
  *  \author Shahram Rahatlou, University of Rome & INFN, March 2006
  *
  **/
@@ -28,8 +28,6 @@ class EcalRecHitProducer : public edm::EDProducer {
                 explicit EcalRecHitProducer(const edm::ParameterSet& ps);
                 ~EcalRecHitProducer();
                 virtual void produce(edm::Event& evt, const edm::EventSetup& es);
-		virtual void endLuminosityBlock(edm::LuminosityBlock const& lb, 
-						edm::EventSetup const& es);
 
         private:
 

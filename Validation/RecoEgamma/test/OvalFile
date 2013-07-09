@@ -1,16 +1,16 @@
 
 <var name="TEST_COMMENT" value="">
-<var name="TEST_NEW" value="CMSSW_6_2_0_pre6_patch1">
-<var name="TEST_REF" value="6_2_0_pre5">
+<var name="TEST_NEW" value="6_0_0_pre10">
+<var name="TEST_REF" value="6_0_0_pre7">
 
-<var name="TAG_STARTUP" value="PRE_ST62_V6">
+<var name="TAG_STARTUP" value="START60_V4">
 <var name="TAG_IDEAL" value="MC_53_V5">
 <var name="DATA_VERSION" value="v1">
 
 <var name="STORE_DIR" value="/afs/cern.ch/cms/Physics/egamma/www/validation/Electrons/Store/${TEST_NEW}">
 <var name="STORE_REF" value="/afs/cern.ch/cms/Physics/egamma/www/validation/Electrons/Store/${TEST_REF}">
 
-<var name="WEB_DIR" value="/afs/cern.ch/cms/Physics/egamma/www/validation/Electrons/Releases">
+<var name="WEB_DIR" value="/afs/cern.ch/cms/Physics/egamma/www/validation/Electrons/Test">
 <!--var name="WEB_DIR" value="/afs/cern.ch/user/c/chamont/www/validation"-->
 <!--var name="WEB_URL" value="https://chamont.web.cern.ch/chamont/validation"-->
 
@@ -91,14 +91,13 @@ FullSim
   The tags below are to be used when DBS seems not up-to-date,
   as compared to what you see within castor directories.
   <!--var name="DD_SOURCE" value="/castor/..."-->
-  <var name="DD_TIER" value="GEN-SIM-RECO">
+  <!--var name="DD_TIER" value="GEN-SIM-RECO"-->
   
   The tags below are to be used when you want to process some files
   made with a modified code, and generated locally, thanks to the
   targets RedoFrom% defined later on.
 
-
-  <var name="DD_SOURCE" value="/eos/cms/store/relval/${DD_RELEASE}">
+  <!--var name="DD_SOURCE" value="/eos/cms/store/relval/${DD_RELEASE}"-->
   <!--var name="DD_SOURCE" value="electronInputDataFiles.txt"-->
   <!--var name="DD_COND" value="STARTUP"-->
     
@@ -106,12 +105,12 @@ FullSim
   
     <var name="TEST_GLOBAL_TAG" value="${TAG_STARTUP}">
     <var name="TEST_GLOBAL_AUTOCOND" value="startup">
-    <var name="DD_COND" value="${TEST_GLOBAL_TAG}-${DATA_VERSION}">
+    <var name="DD_COND" value="-${TEST_GLOBAL_TAG}-${DATA_VERSION}">
+    
     <environment name="ValFullPt35Startup">
   
       <var name="DD_SAMPLE" value="RelValSingleElectronPt35">
       <!--var name="DD_SOURCE" value="/castor/cern.ch/cms/store/unmerged/dqm/${DD_SAMPLE}-${DD_RELEASE}-${DD_COND}-DQM-DQMHarvest-OfflineDQM"-->
-      <var name="DD_SOURCE" value="/eos/cms/store/relval/${DD_RELEASE}/${DD_SAMPLE}">
       
       <target name="dqm" cmd="electronDataDiscovery.py castor">
       <target name="wget" cmd="electronWget.py castor">
@@ -130,7 +129,6 @@ FullSim
     
       <var name="DD_SAMPLE" value="RelValQCD_Pt_80_120">
       <!--var name="DD_SOURCE" value="/castor/cern.ch/cms/store/unmerged/dqm/${DD_SAMPLE}-${DD_RELEASE}-${DD_COND}-DQM-DQMHarvest-OfflineDQM"-->
-      <var name="DD_SOURCE" value="/eos/cms/store/relval/${DD_RELEASE}/${DD_SAMPLE}">
       
       <var name="VAL_HISTOS" value="ElectronMcFakeHistos.txt">
       <var name="VAL_ANALYZER" value="ElectronMcFakeValidator">
@@ -155,7 +153,6 @@ FullSim
     
       <var name="DD_SAMPLE" value="RelValSingleElectronPt10">
       <!--var name="DD_SOURCE" value="/castor/cern.ch/cms/store/unmerged/dqm/${DD_SAMPLE}-${DD_RELEASE}-${DD_COND}-DQM-DQMHarvest-OfflineDQM"-->
-      <var name="DD_SOURCE" value="/eos/cms/store/relval/${DD_RELEASE}/${DD_SAMPLE}">
       
       <target name="dqm" cmd="electronDataDiscovery.py castor">
       <target name="wget" cmd="electronWget.py castor">
@@ -174,7 +171,6 @@ FullSim
   
       <var name="DD_SAMPLE" value="RelValTTbar">
       <!--var name="DD_SOURCE" value="/castor/cern.ch/cms/store/unmerged/dqm/${DD_SAMPLE}-${DD_RELEASE}-${DD_COND}-DQM-DQMHarvest-OfflineDQM"-->
-      <var name="DD_SOURCE" value="/eos/cms/store/relval/${DD_RELEASE}/${DD_SAMPLE}/${DD_TIER}/${DD_COND}">
       
       <target name="dqm" cmd="electronDataDiscovery.py castor">
       <target name="wget" cmd="electronWget.py castor">
@@ -193,7 +189,6 @@ FullSim
     
       <var name="DD_SAMPLE" value="RelValZEE">
       <!--var name="DD_SOURCE" value="/castor/cern.ch/cms/store/unmerged/dqm/${DD_SAMPLE}-${DD_RELEASE}-${DD_COND}-DQM-DQMHarvest-OfflineDQM"-->
-      <var name="DD_SOURCE" value="/eos/cms/store/relval/${DD_RELEASE}/${DD_SAMPLE}/${DD_TIER}/${DD_COND}">
       
       <target name="dqm" cmd="electronDataDiscovery.py castor">
       <target name="wget" cmd="electronWget.py castor">
@@ -212,7 +207,6 @@ FullSim
     
       <var name="DD_SAMPLE" value="RelValSingleElectronPt1000">
       <!--var name="DD_SOURCE" value="/castor/cern.ch/cms/store/unmerged/dqm/${DD_SAMPLE}-${DD_RELEASE}-${DD_COND}-DQM-DQMHarvest-OfflineDQM"-->
-      <var name="DD_SOURCE" value="/eos/cms/store/relval/${DD_RELEASE}/${DD_SAMPLE}">
       
       <target name="dqm" cmd="electronDataDiscovery.py castor">
       <target name="wget" cmd="electronWget.py castor">
@@ -234,14 +228,13 @@ FullSim
     <var name="TAG_STARTUP" value="PU_${TAG_STARTUP}">
     <var name="TEST_GLOBAL_TAG" value="${TAG_STARTUP}">
     <var name="TEST_GLOBAL_AUTOCOND" value="startup">
-    <var name="DD_COND" value="${TEST_GLOBAL_TAG}-${DATA_VERSION}">
+    <var name="DD_COND" value="-${TEST_GLOBAL_TAG}-${DATA_VERSION}">
 
       <environment name="ValPileUpTTbarStartup">
         
         <var name="DD_SAMPLE" value="RelValTTbar">
         <!--var name="DD_SOURCE" value="/castor/cern.ch/cms/store/unmerged/dqm/${DD_SAMPLE}-${DD_RELEASE}-${DD_COND}-DQM-DQMHarvest-OfflineDQM"-->
-        <var name="DD_SOURCE" value="/eos/cms/store/relval/${DD_RELEASE}/${DD_SAMPLE}">
-	
+      
         <target name="dqm" cmd="electronDataDiscovery.py castor">
         <target name="wget" cmd="electronWget.py castor">
       

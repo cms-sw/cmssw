@@ -503,22 +503,18 @@ HcalTimingParam HcalDbHardcode::makeTimingParam (HcalGenericDetId fId) {
 HcalGain HcalDbHardcode::makeGain (HcalGenericDetId fId, bool fSmear) {
   HcalGainWidth width = makeGainWidth (fId);
   float value0 = 0;
-
-  static float const hbhevalue = 1./90./10.;  //90 is pe/GeV 10 is fC/pe.
   if (fId.genericSubdet() == HcalGenericDetId::HcalGenBarrel) {
-    HcalDetId hid(fId);
-    if (hid.depth() == 1) value0 = hbhevalue;
-    else if (hid.depth() == 2) value0 = hbhevalue;
-    else if (hid.depth() == 3) value0 = hbhevalue;
-    else if (hid.depth() == 4) value0 = hbhevalue;
-    else value0 = hbhevalue; // GeV/fC
+    if (HcalDetId(fId).depth() == 1) value0 = 0.003333;
+    else if (HcalDetId(fId).depth() == 2) value0 = 0.003333;
+    else if (HcalDetId(fId).depth() == 3) value0 = 0.003333;
+    else if (HcalDetId(fId).depth() == 4) value0 = 0.003333;
+    else value0 = 0.003333; // GeV/fC
   } else if (fId.genericSubdet() == HcalGenericDetId::HcalGenEndcap) {
-    HcalDetId hid(fId);
-    if (hid.depth() == 1) value0 = hbhevalue;
-    else if (hid.depth() == 2) value0 = hbhevalue;
-    else if (hid.depth() == 3) value0 = hbhevalue;
-    else if (hid.depth() == 4) value0 = hbhevalue;
-    else value0 = hbhevalue; // GeV/fC
+    if (HcalDetId(fId).depth() == 1) value0 = 0.003333;
+    else if (HcalDetId(fId).depth() == 2) value0 = 0.003333;
+    else if (HcalDetId(fId).depth() == 3) value0 = 0.003333;
+    else if (HcalDetId(fId).depth() == 4) value0 = 0.003333;
+    else value0 = 0.003333; // GeV/fC
     // if (fId.genericSubdet() != HcalGenericDetId::HcalGenForward) value0 = 0.177;  // GeV/fC
   } else if (fId.genericSubdet() == HcalGenericDetId::HcalGenOuter) {
     HcalDetId hid(fId);
@@ -527,10 +523,9 @@ HcalGain HcalDbHardcode::makeGain (HcalGenericDetId fId, bool fSmear) {
     else
       value0 = 0.02083;  // GeV/fC
   } else if (fId.genericSubdet() == HcalGenericDetId::HcalGenForward) {
-    HcalDetId hid(fId);
-    if (hid.depth() == 1) value0 = 0.2146;
-    else if (hid.depth() == 2) value0 = 0.3375;
-  } else value0 = hbhevalue; // GeV/fC
+    if (HcalDetId(fId).depth() == 1) value0 = 0.2146;
+    else if (HcalDetId(fId).depth() == 2) value0 = 0.3375;
+  } else value0 = 0.003333; // GeV/fC
   float value [4] = {value0, value0, value0, value0};
   if (fSmear) for (int i = 0; i < 4; i++) value [i] = CLHEP::RandGauss::shoot (value0, width.getValue (i)); 
   HcalGain result (fId.rawId (), value[0], value[1], value[2], value[3]);

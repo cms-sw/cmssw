@@ -29,7 +29,6 @@ SiStripQualityHotStripIdentifierRoot::SiStripQualityHotStripIdentifierRoot(const
   tTopo(nullptr),
   filename(iConfig.getUntrackedParameter<std::string>("rootFilename","CondDB_TKCC_20X_v3_hlt_50822.root")),
   dirpath(iConfig.getUntrackedParameter<std::string>("rootDirPath","")),
-  TotNumberOfEvents(0),
   calibrationthreshold(iConfig.getUntrackedParameter<uint32_t>("CalibrationThreshold",10000))
 {
   reader = new SiStripDetInfoFileReader(fp_.fullPath());  
@@ -218,7 +217,7 @@ void SiStripQualityHotStripIdentifierRoot::bookHistos(){
   edm::LogInfo("SiStripQualityHotStripIdentifierRoot") <<" [SiStripQualityHotStripIdentifierRoot::bookHistos] " << dirpath << std::endl;
   std::vector<MonitorElement*> MEs = dqmStore_->getAllContents(dirpath);
 							       //"DQMData/Run 50908/SiStrip/MechanicalView");
-    //							       "/DQMData/Run 50908/SiStrip/Run summary/MechanicalView/TID/PLUS/wheel_3/ring_2/mono_modules/module_402676874");
+    //							       "/DQMData/Run 50908/SiStrip/Run summary/MechanicalView/TID/side_2/wheel_3/ring_2/mono_modules/module_402676874");
   edm::LogInfo("SiStripQualityHotStripIdentifierRoot") <<" [SiStripQualityHotStripIdentifierRoot::bookHistos] vector size " << MEs.size()<< std::endl;
 
   std::vector<MonitorElement*>::const_iterator iter=MEs.begin();

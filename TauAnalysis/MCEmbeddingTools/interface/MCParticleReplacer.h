@@ -34,9 +34,9 @@ public:
 	explicit MCParticleReplacer(const edm::ParameterSet&);
 	~MCParticleReplacer();
 
-	virtual void produce(edm::Event& iEvent, const edm::EventSetup& iSetup);
-	virtual void beginRun(edm::Run& iRun,const edm::EventSetup& iSetup);
-	virtual void endRun();
+	virtual void produce(edm::Event& iEvent, const edm::EventSetup& iSetup) override;
+	virtual void beginRun(const edm::Run& iRun,const edm::EventSetup& iSetup) override;
+	virtual void endRun(const edm::Run& iRun,const edm::EventSetup& iSetup) override;
 	virtual void beginJob();
 	virtual void endJob();
 	

@@ -27,17 +27,13 @@ namespace {
   typedef edm::PtrVector<reco::PFCluster> PFClusterPtrVector;
   typedef PFECALSuperClusterAlgo::CalibratedClusterPtr CalibClusterPtr;
   typedef PFECALSuperClusterAlgo::CalibratedClusterPtrVector CalibClusterPtrVector;
-  typedef std::pair<reco::CaloClusterPtr::key_type,reco::CaloClusterPtr> EEPSPair;
+
   typedef std::binary_function<const CalibClusterPtr&,
 			       const CalibClusterPtr&, 
 			       bool> ClusBinaryFunction;
   
   typedef std::unary_function<const CalibClusterPtr&, 
 			      bool> ClusUnaryFunction;  
-
-  bool sortByKey(const EEPSPair& a, const EEPSPair& b) {
-    return a.first < b.first;
-  }
 
   struct SumPSEnergy : public std::binary_function<double,
 						   const PFClusterPtr&,
@@ -117,11 +113,11 @@ namespace {
       the_seed(s), _type(ct), dynamic_dphi(dyn_dphi) {}
     bool operator()(const CalibClusterPtr& x) { 
       const double dphi = 
-	std::abs(TVector2::Phi_mpi_pi(the_seed->phi() - x->phi()));        
+	std::abs(TVector2::Phi_mpi_pi(the_seed->phi() - x->phi()));  
+      const bool isEB = ( PFLayer::ECAL_BARREL == x->the_ptr()->layer() );
       const bool passes_dphi = 
 	( (!dynamic_dphi && dphi < phiwidthSuperCluster_ ) || 
-	  (dynamic_dphi && MK::inDynamicDPhiWindow(the_seed->eta(),
-						   the_seed->phi(),
+	  (dynamic_dphi && MK::inDynamicDPhiWindow(isEB,the_seed->phi(),
 						   x->energy_nocalib(),
 						   x->eta(),
 						   x->phi()) ) );
@@ -187,7 +183,6 @@ loadAndSortPFClusters(const PFClusterView& clusters,
   superClustersEB_.reset(new reco::SuperClusterCollection);
   _clustersEB.clear();
   superClustersEE_.reset(new reco::SuperClusterCollection);  
-  EEtoPS_.reset(new reco::SuperCluster::EEtoPSAssociation);
   _clustersEE.clear();
   _psclustersforee.clear();
   
@@ -378,7 +373,6 @@ buildSuperCluster(CalibClusterPtr& seed,
   // now build the supercluster
   reco::SuperCluster new_sc(corrSCEnergy,math::XYZPoint(posX,posY,posZ)); 
   double ps1_energy(0.0), ps2_energy(0.0), ps_energy(0.0);
-  reco::SuperCluster::EEtoPSAssociation::value_type ps_assoc;
   new_sc.setSeed(clustered.front()->the_ptr());
   for( const auto& clus : clustered ) {
     new_sc.addCluster(clus->the_ptr());
@@ -389,29 +383,22 @@ buildSuperCluster(CalibClusterPtr& seed,
     const auto& cluspsassociation = _psclustersforee[clus->the_ptr()];     
     // EE rechits should be uniquely matched to sets of pre-shower
     // clusters at this point, so we throw an exception if otherwise
-    // now wrapped in EDM debug flags
     for( const auto& psclus : cluspsassociation ) {
-#ifdef EDM_ML_DEBUG
       auto found_pscluster = std::find(new_sc.preshowerClustersBegin(),
 				       new_sc.preshowerClustersEnd(),
 				       reco::CaloClusterPtr(psclus));
       if( found_pscluster == new_sc.preshowerClustersEnd() ) {
-#endif
 	const double psenergy = psclus->energy();
-	const PFLayer::Layer pslayer = psclus->layer();
-	ps_assoc.push_back(std::make_pair(clus->the_ptr().key(),psclus));
 	new_sc.addPreshowerCluster(psclus);
-	ps1_energy += (PFLayer::PS1 == pslayer)*psenergy;
-	ps2_energy += (PFLayer::PS2 == pslayer)*psenergy;
+	ps1_energy += (PFLayer::PS1 == psclus->layer())*psenergy;
+	ps2_energy += (PFLayer::PS2 == psclus->layer())*psenergy;
 	ps_energy  += psenergy;
-#ifdef EDM_ML_DEBUG
       } else {
 	throw cms::Exception("PFECALSuperClusterAlgo::buildSuperCluster")
 	  << "Found a PS cluster matched to more than one EE cluster!" 
 	  << std::endl << std::hex << psclus.get() << " == " 
 	  << found_pscluster->get() << std::dec << std::endl;
       }
-#endif
     }
   }
   new_sc.setPreshowerEnergy(ps_energy); 
@@ -426,9 +413,6 @@ buildSuperCluster(CalibClusterPtr& seed,
   // cache the value of the raw energy  
   new_sc.rawEnergy();
 
-  //sort the ps association
-  std::sort(ps_assoc.begin(),ps_assoc.end(),sortByKey);
-
   // save the super cluster to the appropriate list
   switch( seed->the_ptr()->layer() ) {
   case PFLayer::ECAL_BARREL:
@@ -436,7 +420,6 @@ buildSuperCluster(CalibClusterPtr& seed,
     break;
   case PFLayer::ECAL_ENDCAP:    
     superClustersEE_->push_back(new_sc);
-    EEtoPS_->push_back(ps_assoc);
     break;
   default:
     break;

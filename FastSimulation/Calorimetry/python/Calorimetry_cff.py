@@ -52,17 +52,14 @@ FamosCalorimetryBlock = cms.PSet(
             PreshowerLayer1_mipsPerGeV = cms.double(17.85),  # 50% decrease in mipsperGeV 
             PreshowerLayer2_mipsPerGeV = cms.double(59.5),
             ECALBarrel_LightCollection = cms.double(0.03),
-            HadronicCalorimeterProperties= cms.PSet( 
+            HadronicCalorimeterProperties= cms.PSet(
                   HCAL_Sampling = cms.double(0.0035),
                   # Watch out ! The following two values are defined wrt the electron shower simulation
                   # There are not directly related to the detector properties
                   HCAL_PiOverE = cms.double(0.2),
-                  # Functions to return atomic properties of the material
-                  # A_eff and Z_eff are computed as the A-weighted sums 
-                  # of the A's and the Z's of Cu and Zn (brass) - For now
-                  # assume it is all Copper, and it'll be good enough.
-                  HCALAeff= cms.double(63.546), 
-                  HCALZeff= cms.double(29.), 
+                  # HCAL_PiOverE = cms.double(0.4)
+                  HCALAeff= cms.double(63.546),
+                  HCALZeff= cms.double(29.),
                   HCALrho= cms.double(8.960),
                   
                   HCALradiationLengthIncm= cms.double(1.43),

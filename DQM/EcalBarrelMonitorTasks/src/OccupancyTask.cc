@@ -4,16 +4,22 @@
 
 namespace ecaldqm {
 
-  OccupancyTask::OccupancyTask(edm::ParameterSet const& _workerParams, edm::ParameterSet const& _commonParams) :
-    DQWorkerTask(_workerParams, _commonParams, "OccupancyTask"),
-    recHitThreshold_(_workerParams.getUntrackedParameter<double>("recHitThreshold")),
-    tpThreshold_(_workerParams.getUntrackedParameter<double>("tpThreshold"))
+  OccupancyTask::OccupancyTask(const edm::ParameterSet &_params, const edm::ParameterSet& _paths) :
+    DQWorkerTask(_params, _paths, "OccupancyTask"),
+    recHitThreshold_(0.),
+    tpThreshold_(0.)
   {
-    collectionMask_[kEBDigi] = true;
-    collectionMask_[kEEDigi] = true;
-    collectionMask_[kTrigPrimDigi] = true;
-    collectionMask_[kEBRecHit] = true;
-    collectionMask_[kEERecHit] = true;
+    collectionMask_ =
+      (0x1 << kEBDigi) |
+      (0x1 << kEEDigi) |
+      (0x1 << kTrigPrimDigi) |
+      (0x1 << kEBRecHit) |
+      (0x1 << kEERecHit);
+
+    edm::ParameterSet const& taskParams(_params.getUntrackedParameterSet(name_));
+
+    recHitThreshold_ = taskParams.getUntrackedParameter<double>("recHitThreshold");
+    tpThreshold_ = taskParams.getUntrackedParameter<double>("tpThreshold", 1.0);
   }
 
   OccupancyTask::~OccupancyTask()
@@ -36,99 +42,90 @@ namespace ecaldqm {
   }
 
   void
-  OccupancyTask::runOnDigis(const EcalDigiCollection &_digis, Collections _collection)
+  OccupancyTask::runOnDigis(const EcalDigiCollection &_digis)
   {
-    MESet* meDigi(MEs_["Digi"]);
-    MESet* meDigiProjEta(MEs_["DigiProjEta"]);
-    MESet* meDigiProjPhi(MEs_["DigiProjPhi"]);
-    MESet* meDigiAll(MEs_["DigiAll"]);
-    MESet* meDigiDCC(MEs_["DigiDCC"]);
-    MESet* meDigi1D(MEs_["Digi1D"]);
-    MESet* meTrendNDigi(online ? MEs_["TrendNDigi"] : 0);
-
     for(EcalDigiCollection::const_iterator digiItr(_digis.begin()); digiItr != _digis.end(); ++digiItr){
       DetId id(digiItr->id());
-      meDigi->fill(id);
-      meDigiProjEta->fill(id);
-      meDigiProjPhi->fill(id);
-      meDigiAll->fill(id);
-      meDigiDCC->fill(id);
+      MEs_[kDigi]->fill(id);
+      MEs_[kDigiProjEta]->fill(id);
+      MEs_[kDigiProjPhi]->fill(id);
+      MEs_[kDigiAll]->fill(id);
+      MEs_[kDigiDCC]->fill(id);
     }
-
-    unsigned iSubdet(_collection == kEBDigi ? BinService::kEB + 1 : BinService::kEE + 1);
-    meDigi1D->fill(iSubdet, double(_digis.size()));
-    if(online) meTrendNDigi->fill(iSubdet, double(iLumi), double(_digis.size()));
   }
 
   void
   OccupancyTask::runOnTPDigis(const EcalTrigPrimDigiCollection &_digis)
   {
-    //    MESet* meTPDigiAll(MEs_["TPDigiAll"]);
-    //    MESet* meTPDigiProjEta(MEs_["TPDigiProjEta"]);
-    //    MESet* meTPDigiProjPhi(MEs_["TPDigiProjPhi"]);
-    MESet* meTPDigiThrAll(MEs_["TPDigiThrAll"]);
-    MESet* meTPDigiThrProjEta(MEs_["TPDigiThrProjEta"]);
-    MESet* meTPDigiThrProjPhi(MEs_["TPDigiThrProjPhi"]);
-    MESet* meTrendNTPDigi(online ? MEs_["TrendNTPDigi"] : 0);
-
-    double nFilteredEB(0.);
-    double nFilteredEE(0.);
-
     for(EcalTrigPrimDigiCollection::const_iterator digiItr(_digis.begin()); digiItr != _digis.end(); ++digiItr){
       EcalTrigTowerDetId const& id(digiItr->id());
 
-//       meTPDigiProjEta->fill(id);
-//       meTPDigiProjPhi->fill(id);
-//       meTPDigiAll->fill(id);
+      MEs_[kTPDigi]->fill(id);
+      MEs_[kTPDigiProjEta]->fill(id);
+      MEs_[kTPDigiProjPhi]->fill(id);
 
       if(digiItr->compressedEt() > tpThreshold_){
-	meTPDigiThrProjEta->fill(id);
-	meTPDigiThrProjPhi->fill(id);
-	meTPDigiThrAll->fill(id);
-        if(id.subDet() == EcalBarrel) nFilteredEB += 1.;
-        else nFilteredEE += 1.;
+	MEs_[kTPDigiThr]->fill(id);
+	MEs_[kTPDigiThrProjEta]->fill(id);
+	MEs_[kTPDigiThrProjPhi]->fill(id);
+	MEs_[kTPDigiThrAll]->fill(id);
       }
-    }
-
-    if(online){
-      meTrendNTPDigi->fill(unsigned(BinService::kEB + 1), double(iLumi), nFilteredEB);
-      meTrendNTPDigi->fill(unsigned(BinService::kEE + 1), double(iLumi), nFilteredEE);
     }
   }
 
   void
   OccupancyTask::runOnRecHits(const EcalRecHitCollection &_hits, Collections _collection)
   {
-    MESet* meRecHitAll(MEs_["RecHitAll"]);
-    MESet* meRecHitProjEta(MEs_["RecHitProjEta"]);
-    MESet* meRecHitProjPhi(MEs_["RecHitProjPhi"]);
-    MESet* meRecHitThrAll(MEs_["RecHitThrAll"]);
-    MESet* meRecHitThrProjEta(MEs_["RecHitThrProjEta"]);
-    MESet* meRecHitThrProjPhi(MEs_["RecHitThrProjPhi"]);
-    MESet* meRecHitThr1D(MEs_["RecHitThr1D"]);
-    MESet* meTrendNRecHitThr(online ? MEs_["TrendNRecHitThr"] : 0);
-
     uint32_t mask(~(0x1 << EcalRecHit::kGood));
-    double nFiltered(0.);
 
     for(EcalRecHitCollection::const_iterator hitItr(_hits.begin()); hitItr != _hits.end(); ++hitItr){
       DetId id(hitItr->id());
 
-      meRecHitAll->fill(id);
-      meRecHitProjEta->fill(id);
-      meRecHitProjPhi->fill(id);
+//       MEs_[kRecHit]->fill(id);
+//       MEs_[kRecHitProjEta]->fill(id);
+//       MEs_[kRecHitProjPhi]->fill(id);
 
       if(!hitItr->checkFlagMask(mask) && hitItr->energy() > recHitThreshold_){
-	meRecHitThrProjEta->fill(id);
-	meRecHitThrProjPhi->fill(id);
-	meRecHitThrAll->fill(id);
-        nFiltered += 1.;
+	MEs_[kRecHitThr]->fill(id);
+	MEs_[kRecHitThrProjEta]->fill(id);
+	MEs_[kRecHitThrProjPhi]->fill(id);
+	MEs_[kRecHitThrAll]->fill(id);
       }
     }
 
-    unsigned iSubdet(_collection == kEBRecHit ? BinService::kEB + 1 : BinService::kEE + 1);
-    meRecHitThr1D->fill(iSubdet, nFiltered);
-    if(online) meTrendNRecHitThr->fill(iSubdet, double(iLumi), nFiltered);
+    if(_collection == kEBRecHit)
+      MEs_[kRecHit1D]->fill((unsigned)BinService::kEB + 1, float(_hits.size()));
+    else
+      MEs_[kRecHit1D]->fill((unsigned)BinService::kEE + 1, float(_hits.size()));
+  }
+
+  /*static*/
+  void
+  OccupancyTask::setMEData(std::vector<MEData>& _data)
+  {
+    BinService::AxisSpecs axis;
+
+    _data[kDigi] = MEData("Digi", BinService::kSM, BinService::kCrystal, MonitorElement::DQM_KIND_TH2F);
+    _data[kDigiProjEta] = MEData("Digi", BinService::kEcal3P, BinService::kProjEta, MonitorElement::DQM_KIND_TH1F);
+    _data[kDigiProjPhi] = MEData("Digi", BinService::kEcal3P, BinService::kProjPhi, MonitorElement::DQM_KIND_TH1F);
+    _data[kDigiAll] = MEData("Digi", BinService::kEcal3P, BinService::kSuperCrystal, MonitorElement::DQM_KIND_TH2F);
+    _data[kDigiDCC] = MEData("DigiDCC", BinService::kEcal2P, BinService::kDCC, MonitorElement::DQM_KIND_TH1F);
+
+    axis.nbins = 100;
+    axis.low = 0.;
+    axis.high = 6000.;
+    _data[kRecHit1D] = MEData("RecHit1D", BinService::kEcal2P, BinService::kUser, MonitorElement::DQM_KIND_TH1F, &axis);
+    _data[kRecHitThr] = MEData("RecHitThr", BinService::kSM, BinService::kCrystal, MonitorElement::DQM_KIND_TH2F);
+    _data[kRecHitThrProjEta] = MEData("RecHitThr", BinService::kEcal3P, BinService::kProjEta, MonitorElement::DQM_KIND_TH1F);
+    _data[kRecHitThrProjPhi] = MEData("RecHitThr", BinService::kEcal3P, BinService::kProjPhi, MonitorElement::DQM_KIND_TH1F);
+    _data[kRecHitThrAll] = MEData("RecHitThr", BinService::kEcal3P, BinService::kSuperCrystal, MonitorElement::DQM_KIND_TH2F);
+    _data[kTPDigi] = MEData("TPDigi", BinService::kSM, BinService::kTriggerTower, MonitorElement::DQM_KIND_TH2F);
+    _data[kTPDigiProjEta] = MEData("TPDigi", BinService::kEcal3P, BinService::kProjEta, MonitorElement::DQM_KIND_TH1F);
+    _data[kTPDigiProjPhi] = MEData("TPDigi", BinService::kEcal3P, BinService::kProjPhi, MonitorElement::DQM_KIND_TH1F);
+    _data[kTPDigiThr] = MEData("TPDigiThr", BinService::kSM, BinService::kTriggerTower, MonitorElement::DQM_KIND_TH2F);
+    _data[kTPDigiThrProjEta] = MEData("TPDigiThr", BinService::kEcal3P, BinService::kProjEta, MonitorElement::DQM_KIND_TH1F);
+    _data[kTPDigiThrProjPhi] = MEData("TPDigiThr", BinService::kEcal3P, BinService::kProjPhi, MonitorElement::DQM_KIND_TH1F);
+    _data[kTPDigiThrAll] = MEData("TPDigiThr", BinService::kEcal3P, BinService::kTriggerTower, MonitorElement::DQM_KIND_TH2F);
   }
 
   DEFINE_ECALDQM_WORKER(OccupancyTask);

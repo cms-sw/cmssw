@@ -1,9 +1,9 @@
 /** \class EcalRecHitProducer
  *   produce ECAL rechits from uncalibrated rechits
  *
- *  $Id: EcalRecHitProducer.cc,v 1.17 2011/05/20 13:14:32 argiro Exp $
- *  $Date: 2011/05/20 13:14:32 $
- *  $Revision: 1.17 $
+ *  $Id: EcalRecHitProducer.cc,v 1.16 2011/05/17 10:26:34 vlimant Exp $
+ *  $Date: 2011/05/17 10:26:34 $
+ *  $Revision: 1.16 $
  *  \author Shahram Rahatlou, University of Rome & INFN, March 2006
  *
  **/
@@ -24,8 +24,7 @@
 
 #include "CondFormats/DataRecord/interface/EcalChannelStatusRcd.h"
 #include "CondFormats/EcalObjects/interface/EcalChannelStatus.h"
-#include "CalibCalorimetry/EcalLaserCorrection/interface/EcalLaserDbService.h"
-#include "CalibCalorimetry/EcalLaserCorrection/interface/EcalLaserDbRecord.h"
+
 #include "RecoLocalCalo/EcalRecProducers/interface/EcalRecHitWorkerFactory.h"
 
 
@@ -283,23 +282,6 @@ EcalRecHitProducer::produce(edm::Event& evt, const edm::EventSetup& es)
         evt.put( ebRecHits, ebRechitCollection_ );
         evt.put( eeRecHits, eeRechitCollection_ );
 }
-
-
-void EcalRecHitProducer::endLuminosityBlock(edm::LuminosityBlock const& lb, 
-					    edm::EventSetup const& es){
-
-  edm::ESHandle<EcalLaserDbService> pLaser;
-  es.get<EcalLaserDbRecord>().get(pLaser);
-  
-  /// summary of errors in laser correction
-  pLaser->errorReport();
-
-}
-
-
-
-
-
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE( EcalRecHitProducer );

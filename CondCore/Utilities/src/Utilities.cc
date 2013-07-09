@@ -245,32 +245,23 @@ void cond::Utilities::initializeForDbConnection(){
   
 }
 
-cond::DbSession cond::Utilities::newDbSession( const std::string& connectionString, 
+cond::DbSession cond::Utilities::openDbSession( const std::string& connectionParameterName, 
+						const std::string& role, 
 						bool readOnly ){
   initializeForDbConnection();
-  cond::DbSession session = m_dbConnection->createSession();
-  session.open( connectionString, readOnly );
-  return session;
-}
-cond::DbSession cond::Utilities::newDbSession( const std::string& connectionString, 
-					       const std::string& role, 
-					       bool readOnly ){
-  initializeForDbConnection();
+  std::string connectionString = getOptionValue<std::string>( connectionParameterName );
   cond::DbSession session = m_dbConnection->createSession();
   session.open( connectionString, role, readOnly );
   return session;
 }
-cond::DbSession cond::Utilities::openDbSession( const std::string& connectionParameterName, 
-						const std::string& role, 
-						bool readOnly ){
-  std::string connectionString = getOptionValue<std::string>( connectionParameterName );
-  return newDbSession( connectionString, role, readOnly );
-}
 
 cond::DbSession cond::Utilities::openDbSession( const std::string& connectionParameterName, 
 						bool readOnly ){
+  initializeForDbConnection();
   std::string connectionString = getOptionValue<std::string>( connectionParameterName );
-  return newDbSession( connectionString, readOnly );
+  cond::DbSession session = m_dbConnection->createSession();
+  session.open( connectionString, readOnly );
+  return session;
 }
 
 std::string cond::Utilities::getValueIfExists(const std::string& fullName){

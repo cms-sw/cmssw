@@ -4,12 +4,5 @@
 <use   name="DetectorDescription/Core"/>
 <use   name="CoralBase"/>
 <flags   EDM_PLUGIN="1"/>
-
 <library   file="MuonNumberingTester.cc" name="testGeometryMuonNumbering">
-</library>
-<library   file="DTNumberingTester.cc" name="testDTGeometryNumbering">
-</library>
-<library   file="CSCNumberingTester.cc" name="testCSCGeometryNumbering">
-</library>
-<library   file="RPCNumberingTester.cc" name="testRPCGeometryNumbering">
 </library>

@@ -333,9 +333,6 @@ namespace edm
 
     LogDebug("DataMixingModule") <<"\n===============> adding pileups from event  "<<ep.id()<<" for bunchcrossing "<<bcr;
 
-    // Note:  setupPileUpEvent may modify the run and lumi numbers of the EventPrincipal to match that of the primary event.
-    setupPileUpEvent(ES);
-
     // fill in maps of hits; same code as addSignals, except now applied to the pileup events
 
     // Ecal

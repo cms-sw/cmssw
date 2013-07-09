@@ -12,9 +12,9 @@
  *
  * \author Christian Veelken, LLR
  *
- * \version $Revision: 1.5 $
+ * \version $Revision: 1.4 $
  *
- * $Id: JetCorrExtractorT.h,v 1.5 2012/04/19 17:55:52 veelken Exp $
+ * $Id: JetCorrExtractorT.h,v 1.4 2011/11/20 10:25:47 veelken Exp $
  *
  */
 
@@ -58,9 +58,6 @@ class JetCorrExtractorT
 					    double jetCorrEtaMax = 9.9, 
 					    const reco::Candidate::LorentzVector* rawJetP4_specified = 0)
   {
-    //std::cout << "<JetCorrExtractor::operator()>:" << std::endl;
-    //std::cout << " jetCorrLabel = " << jetCorrLabel << std::endl;
-
     // "general" implementation requires access to edm::Event and edm::EventSetup,
     // only specialization for pat::Jets doesn't
     assert(evt && es);
@@ -72,21 +69,7 @@ class JetCorrExtractorT
 
     double jetCorrFactor = 1.;
     if ( fabs(rawJetP4.eta()) < jetCorrEtaMax ) {      
-      if ( fabs(rawJetP4.E() - rawJet.energy()) > (1.e-3*rawJet.energy()) ) {
-	T modJet(rawJet);
-	modJet.setP4(rawJetP4);
-	//std::cout << "modJet: Pt = " << modJet.pt() << ", eta = " << modJet.eta() << ", phi = " << modJet.phi() 
-	//	    << " (Px = " << modJet.px() << ", Py = " << modJet.py() << ")" << std::endl;
-	
-	jetCorrFactor = getCorrection(modJet, jetCorrLabel, *evt, *es);
-	//std::cout << "--> jetCorrFactor(case 3) = " << jetCorrFactor << std::endl;
-      } else {
-	//std::cout << "rawJet: Pt = " << rawJet.pt() << ", eta = " << rawJet.eta() << ", phi = " << rawJet.phi() 
-	//	    << " (Px = " << rawJet.px() << ", Py = " << rawJet.py() << ")" << std::endl;
-	
-	jetCorrFactor = getCorrection(rawJet, jetCorrLabel, *evt, *es);
-	//std::cout << "--> jetCorrFactor(case 2) = " << jetCorrFactor << std::endl;
-      }
+      jetCorrFactor = getCorrection(rawJet, jetCorrLabel, *evt, *es);
     } else {
       reco::Candidate::PolarLorentzVector modJetPolarP4(rawJetP4);
       modJetPolarP4.SetEta(sign(rawJetP4.eta())*jetCorrEtaMax);
@@ -95,11 +78,8 @@ class JetCorrExtractorT
       
       T modJet(rawJet);
       modJet.setP4(modJetP4);
-      //std::cout << "modJet: Pt = " << modJet.pt() << ", eta = " << modJet.eta() << ", phi = " << modJet.phi() 
-      //          << " (Px = " << modJet.px() << ", Py = " << modJet.py() << ")" << std::endl;
       
       jetCorrFactor = getCorrection(modJet, jetCorrLabel, *evt, *es);
-      //std::cout << "--> jetCorrFactor(case 3) = " << jetCorrFactor << std::endl;
     }
 
     reco::Candidate::LorentzVector corrJetP4 = rawJetP4;

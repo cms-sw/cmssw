@@ -7,9 +7,6 @@
 <use   name="RecoTracker/Record"/>
 <use   name="RecoTracker/TkNavigation"/>
 <use   name="TrackingTools/DetLayers"/>
-<use   name="DataFormats/TrackerCommon"/>
-<use   name="Geometry/Records"/> 
-<use   name="Geometry/TrackerNumberingBuilder"/> 
 <library   file="*.cc" name="RecoTrackerTkNavigationTest">
   <flags   EDM_PLUGIN="1"/>
 </library>

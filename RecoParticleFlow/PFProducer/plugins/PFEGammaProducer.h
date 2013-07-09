@@ -25,7 +25,7 @@
 #include "DataFormats/CaloRecHit/interface/CaloClusterFwd.h"
 #include "DataFormats/CaloRecHit/interface/CaloCluster.h"
 
-#include <memory>
+
 
 class PFEGammaAlgo;
 class PFEnergyCalibrationHF;
@@ -57,8 +57,8 @@ class PFEGammaProducer : public edm::EDProducer {
   void setPFEGParameters(double mvaEleCut,
 			  std::string mvaWeightFileEleID,
 			  bool usePFElectrons,
-			  const std::shared_ptr<PFSCEnergyCalibration>& thePFSCEnergyCalibration,
-			  const std::shared_ptr<PFEnergyCalibration>& thePFEnergyCalibration,
+			  const boost::shared_ptr<PFSCEnergyCalibration>& thePFSCEnergyCalibration,
+			  const boost::shared_ptr<PFEnergyCalibration>& thePFEnergyCalibration,
 			  double sumEtEcalIsoForEgammaSC_barrel,
 			  double sumEtEcalIsoForEgammaSC_endcap,
 			  double coneEcalIsoForEgammaSC,
@@ -103,7 +103,7 @@ class PFEGammaProducer : public edm::EDProducer {
   // Use photon regression
   bool usePhotonReg_;
   bool useRegressionFromDB_;
-  const GBRForest* ReaderGC_;
+  const GBRForest * ReaderGC_;
   const GBRForest* ReaderLC_;
   const GBRForest* ReaderRes_;
   const GBRForest* ReaderLCEB_;
@@ -121,7 +121,7 @@ class PFEGammaProducer : public edm::EDProducer {
   // Take PF cluster calibrations from Global Tag ?
   bool useCalibrationsFromDB_;
 
-  std::shared_ptr<PFSCEnergyCalibration> thePFSCEnergyCalibration_;  
+  boost::shared_ptr<PFSCEnergyCalibration> thePFSCEnergyCalibration_;  
   
   /// Variables for PFEGamma
   std::string mvaWeightFileEleID_;

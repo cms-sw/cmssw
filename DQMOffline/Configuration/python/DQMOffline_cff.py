@@ -2,7 +2,6 @@ import FWCore.ParameterSet.Config as cms
 
 from DQMServices.Components.DQMMessageLogger_cfi import *
 from DQMServices.Components.DQMDcsInfo_cfi import *
-from DQMServices.Components.DQMEventInfo_cff import *
 from DQMServices.Components.DQMFastTimerService_cff import *
 
 from DQMOffline.Ecal.ecal_dqm_source_offline_cff import *
@@ -18,8 +17,7 @@ from DQM.CastorMonitor.castor_dqm_sourceclient_offline_cff import *
 from Validation.RecoTau.DQMSequences_cfi import *
 from DQMOffline.Hcal.HcalDQMOfflineSequence_cff import *
 
-DQMOfflinePreDPG = cms.Sequence( dqmEnvCommon *
-                                 dqmDcsInfo *
+DQMOfflinePreDPG = cms.Sequence( dqmDcsInfo *
                                  ecal_dqm_source_offline *
                                  hcalOfflineDQMSource *
                                  SiStripDQMTier0 *
@@ -76,8 +74,7 @@ DQMOfflinePOGMC = cms.Sequence( DQMOfflinePrePOGMC *
 DQMOfflinePhysics = cms.Sequence( dqmPhysics )
 
 
-DQMOfflineCommon = cms.Sequence( dqmEnvCommon *
-                                 dqmDcsInfo *
+DQMOfflineCommon = cms.Sequence( dqmDcsInfo *
                                  DQMMessageLogger *
                                  SiStripDQMTier0Common *
                                  siPixelOfflineDQM_source *
@@ -90,8 +87,7 @@ DQMOfflineCommon = cms.Sequence( dqmEnvCommon *
                                  produceDenoms *
                                  pfTauRunDQMValidation 
                                 )
-DQMOfflineCommonSiStripZeroBias = cms.Sequence( dqmEnvCommon *
-                                 dqmDcsInfo *
+DQMOfflineCommonSiStripZeroBias = cms.Sequence( dqmDcsInfo *
                                  DQMMessageLogger *
                                  SiStripDQMTier0MinBias *
                                  siPixelOfflineDQM_source *

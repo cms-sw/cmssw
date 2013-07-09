@@ -13,7 +13,7 @@
 //
 // Original Author:  Michael Case
 //         Created:  Thu Sep 28 16:40:29 PDT 2006
-// $Id: MuonNumberingInitialization.cc,v 1.5 2013/01/25 15:20:00 dlange Exp $
+// $Id: MuonNumberingInitialization.cc,v 1.3 2010/03/25 22:08:44 case Exp $
 //
 //
 
@@ -26,7 +26,7 @@
 #include <FWCore/Framework/interface/ModuleFactory.h>
 #include <FWCore/Framework/interface/ESProducer.h>
 #include <FWCore/Framework/interface/ESTransientHandle.h>
-#include <FWCore/MessageLogger/interface/MessageLogger.h>
+//#include <FWCore/MessageLogger/interface/MessageLogger.h>
 
 #include <DetectorDescription/Core/interface/DDFilter.h>
 #include <DetectorDescription/Core/interface/DDFilteredView.h>
@@ -34,7 +34,7 @@
 #include <Geometry/MuonNumbering/interface/MuonDDDConstants.h>
 #include <Geometry/Records/interface/MuonNumberingRecord.h>
 
-using namespace edm;
+#define LOCAL_DEBUG
 
 class MuonNumberingInitialization : public edm::ESProducer {
    public:
@@ -54,6 +54,7 @@ class MuonNumberingInitialization : public edm::ESProducer {
 
 MuonNumberingInitialization::MuonNumberingInitialization(const edm::ParameterSet& iConfig) : muonDDDConst_(0)
 {
+  //  std::cout <<"constructing MuonNumberingInitialization" << std::endl;
   setWhatProduced(this, dependsOn(&MuonNumberingInitialization::initializeMuonDDDConstants));
 }
 
@@ -66,12 +67,12 @@ MuonNumberingInitialization::~MuonNumberingInitialization()
 MuonNumberingInitialization::ReturnType
 MuonNumberingInitialization::produce(const MuonNumberingRecord& iRecord)
 {
-   LogDebug( "MuonNumbering" ) 
-       << "in MuonNumberingInitialization::produce";
-
+#ifdef LOCAL_DEBUG
+  std::cout << "in MuonNumberingInitialization::produce" << std::endl;
+#endif
    using namespace edm::es;
    if ( muonDDDConst_ == 0 ) {
-     LogError( "MuonNumbering" ) << "MuonNumberingInitialization::produceMuonDDDConstants has NOT been initialized!";
+     std::cerr << "MuonNumberingInitialization::produceMuonDDDConstants has NOT been initialized!" << std::endl;
      throw;
    }
    return std::auto_ptr<MuonDDDConstants> (muonDDDConst_) ;
@@ -81,15 +82,15 @@ void MuonNumberingInitialization::initializeMuonDDDConstants( const IdealGeometr
 
    edm::ESTransientHandle<DDCompactView> pDD;
    igr.get(label_, pDD );
-
-   LogDebug( "MuonNumbering" ) << "in MuonNumberingInitialization::initializeMuonDDDConstants";
-
+#ifdef LOCAL_DEBUG
+   std::cout << "in MuonNumberingInitialization::initializeMuonDDDConstants" << std::endl;
+#endif
    if ( muonDDDConst_ != 0 ) {
      delete muonDDDConst_;
    }
-
-   LogDebug( "MuonNumbering" ) << "about to make my new muonDDDConst_" << std::endl;
-
+#ifdef LOCAL_DEBUG
+   std::cout << "about to make my new muonDDDConst_" << std::endl;
+#endif
    muonDDDConst_ = new MuonDDDConstants( *pDD );
 }
 

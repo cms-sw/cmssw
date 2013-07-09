@@ -23,15 +23,15 @@ public:
    void fitForPileup(
 		     OHltConfig *thecfg, 
 		     OHltMenu *themenu,		     
-		     std::vector< std::vector<double> > RatePerLS,
-		     std::vector<double> tTotalRatePerLS,
+		     std::vector< std::vector<float> > RatePerLS,
+		     std::vector<float> tTotalRatePerLS,
 		     std::vector<double> tLumiPerLS,
 		     std::vector< std::vector<int> > tCountPerLS,
 		     std::vector<int> ttotalCountPerLS,
 		     TFile *histogramfile);
 
-   std::vector< std::vector<double> > RatePerLS;
-   std::vector<double> totalRatePerLS;
+   std::vector< std::vector<float> > RatePerLS;
+   std::vector<float> totalRatePerLS;
    std::vector<double> LumiPerLS;
    std::vector< std::vector<int> > CountPerLS;
    std::vector<int> totalCountPerLS;

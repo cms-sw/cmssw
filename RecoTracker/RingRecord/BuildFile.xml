@@ -1,8 +1,0 @@
-<use   name="FWCore/Framework"/>
-<use   name="FWCore/MessageLogger"/>
-<use   name="DataFormats/DetId"/>
-<use   name="DataFormats/SiStripDetId"/>
-<use   name="Geometry/Records"/>
-<export>
-  <lib   name="1"/>
-</export>

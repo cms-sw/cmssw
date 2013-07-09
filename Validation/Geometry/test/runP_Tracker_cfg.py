@@ -23,8 +23,8 @@ process.load("Configuration.StandardSequences.MagneticField_38T_cff")
 process.load("SimG4Core.Application.g4SimHits_cfi")
 
 process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService",
-    g4SimHits = cms.PSet(
-        initialSeed = cms.untracked.uint32(9876)
+    moduleSeeds = cms.PSet(
+        g4SimHits = cms.untracked.uint32(9876)
     )
 )
 

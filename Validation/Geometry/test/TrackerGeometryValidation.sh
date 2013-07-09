@@ -15,8 +15,14 @@ echo "------------------------------------------------------" | tee -a $reportFi
 echo "Working area:" $here | tee -a $reportFile
 eval `scramv1 runtime -sh`
 
+# OLD: from CMSSW_1_6_* no more updated:
+#export referenceDir=/afs/cern.ch/cms/data/CMSSW/Validation/Geometry/reference/Tracker
+
+# NEW: the reference files can be chosen
+#export referenceDir=/afs/cern.ch/cms/performance/tracker/activities/validation/ReferenceFiles/$Version/Geometry.tgz
+
 # from 31X, the reference files are on Castor
-export referenceDir=/user/mweber/matbdg
+export referenceDir=/castor/cern.ch/user/d/dldecker/ReferenceFiles/$Version/Geometry
 
 echo "Reference area:" $referenceDir | tee -a $reportFile
 
@@ -30,8 +36,8 @@ fi
 
 # Download the source file
 if [ ! -e single_neutrino.random.dat ]; then
-    echo "Copy the Monte Carlo source file..." | tee -a $reportFile
-    cp $referenceDir/single_neutrino_random.root .
+    echo "Download the Monte Carlo source file..." | tee -a $reportFile
+    wget `cat $CMSSW_RELEASE_BASE/src/Validation/Geometry/data/download.url`
     echo "...done" | tee -a $reportFile
 fi
 #
@@ -64,51 +70,51 @@ echo "Run all the scripts to produce the 'new' files..." | tee -a $reportFile
 #
 echo "Running Tracker Structure..." | tee -a $reportFile
 rm -rf TkStrct.txt
-cmsRun $CMSSW_BASE/src/Validation/Geometry/test/runP_TkStrct_cfg.py       > TkStrct.txt
+cmsRun $CMSSW_RELEASE_BASE/src/Validation/Geometry/test/runP_TkStrct_cfg.py       > TkStrct.txt
 echo "...done" | tee -a $reportFile
 echo "Running Pixel Barrel..." | tee -a $reportFile
 rm -rf PixBar.txt
-cmsRun $CMSSW_BASE/src/Validation/Geometry/test/runP_PixBar_cfg.py        > PixBar.txt
+cmsRun $CMSSW_RELEASE_BASE/src/Validation/Geometry/test/runP_PixBar_cfg.py        > PixBar.txt
 echo "...done" | tee -a $reportFile
 echo "Running Pixel Forward Plus..." | tee -a $reportFile
 rm -rf PixFwdPlus.txt
-cmsRun $CMSSW_BASE/src/Validation/Geometry/test/runP_PixFwdPlus_cfg.py    > PixFwdPlus.txt
+cmsRun $CMSSW_RELEASE_BASE/src/Validation/Geometry/test/runP_PixFwdPlus_cfg.py    > PixFwdPlus.txt
 echo "...done" | tee -a $reportFile
 echo "Running Pixel Forward Minus..." | tee -a $reportFile
 rm -rf  PixFwdMinus.txt
-cmsRun $CMSSW_BASE/src/Validation/Geometry/test/runP_PixFwdMinus_cfg.py   > PixFwdMinus.txt
+cmsRun $CMSSW_RELEASE_BASE/src/Validation/Geometry/test/runP_PixFwdMinus_cfg.py   > PixFwdMinus.txt
 echo "...done" | tee -a $reportFile
 echo "Running TIB..." | tee -a $reportFile
 rm -rf TIB.txt
-cmsRun $CMSSW_BASE/src/Validation/Geometry/test/runP_TIB_cfg.py           > TIB.txt
+cmsRun $CMSSW_RELEASE_BASE/src/Validation/Geometry/test/runP_TIB_cfg.py           > TIB.txt
 echo "...done" | tee -a $reportFile
 echo "Running TID+..." | tee -a $reportFile
 rm -rf TIDF.txt
-cmsRun $CMSSW_BASE/src/Validation/Geometry/test/runP_TIDF_cfg.py          > TIDF.txt
+cmsRun $CMSSW_RELEASE_BASE/src/Validation/Geometry/test/runP_TIDF_cfg.py          > TIDF.txt
 echo "...done" | tee -a $reportFile
 echo "Running TID-..." | tee -a $reportFile
 rm -rf TIDB.txt
-cmsRun $CMSSW_BASE/src/Validation/Geometry/test/runP_TIDB_cfg.py          > TIDB.txt
+cmsRun $CMSSW_RELEASE_BASE/src/Validation/Geometry/test/runP_TIDB_cfg.py          > TIDB.txt
 echo "...done" | tee -a $reportFile
 echo "Running Inner Tracker Services..." | tee -a $reportFile
 rm -rf InnerServices.txt
-cmsRun $CMSSW_BASE/src/Validation/Geometry/test/runP_InnerServices_cfg.py > InnerServices.txt
+cmsRun $CMSSW_RELEASE_BASE/src/Validation/Geometry/test/runP_InnerServices_cfg.py > InnerServices.txt
 echo "...done" | tee -a $reportFile
 echo "Running TOB..." | tee -a $reportFile
 rm -rf TOB.txt
-cmsRun $CMSSW_BASE/src/Validation/Geometry/test/runP_TOB_cfg.py           > TOB.txt
+cmsRun $CMSSW_RELEASE_BASE/src/Validation/Geometry/test/runP_TOB_cfg.py           > TOB.txt
 echo "...done" | tee -a $reportFile
 echo "Running TEC..." | tee -a $reportFile
 rm -rf TEC.txt
-cmsRun $CMSSW_BASE/src/Validation/Geometry/test/runP_TEC_cfg.py           > TEC.txt
+cmsRun $CMSSW_RELEASE_BASE/src/Validation/Geometry/test/runP_TEC_cfg.py           > TEC.txt
 echo "...done" | tee -a $reportFile
 echo "Running Tracker..." | tee -a $reportFile
 rm -rf Tracker.txt
-cmsRun $CMSSW_BASE/src/Validation/Geometry/test/runP_Tracker_cfg.py       > Tracker.txt
+cmsRun $CMSSW_RELEASE_BASE/src/Validation/Geometry/test/runP_Tracker_cfg.py       > Tracker.txt
 echo "...done" | tee -a $reportFile
 echo "Running BeamPipe..." | tee -a $reportFile
 rm -rf BeamPipe.txt
-cmsRun $CMSSW_BASE/src/Validation/Geometry/test/runP_BeamPipe_cfg.py      > BeamPipe.txt
+cmsRun $CMSSW_RELEASE_BASE/src/Validation/Geometry/test/runP_BeamPipe_cfg.py      > BeamPipe.txt
 #
 cp matbdg_TkStrct.root       matbdg_TkStrct_new.root 
 cp matbdg_PixBar.root        matbdg_PixBar_new.root 
@@ -168,7 +174,7 @@ echo "...done" | tee -a $reportFile
 
 # Run the Tracker ModuleInfo analyzer (to compare position/orientation of Tracker Modules)
 echo "Run the Tracker ModuleInfo analyzer to print Tracker Module info (position/orientation)..." | tee -a $reportFile
-cmsRun $CMSSW_BASE/src/Geometry/TrackerGeometryBuilder/python/trackerModuleInfo_cfg.py
+cmsRun $CMSSW_RELEASE_BASE/src/Geometry/TrackerGeometryBuilder/python/trackerModuleInfo_cfg.py
 echo "...done" | tee -a $reportFile
 #
 
@@ -189,7 +195,7 @@ echo "...done" | tee -a $reportFile
 
 # Run the Module Numbering (only Microstrip) check algorithm and print the tail
 echo "Run the Tracker ModuleNumbering analyzer to print Tracker Numbering check..." | tee -a $reportFile
-cmsRun $CMSSW_BASE/src/Geometry/TrackerNumberingBuilder/python/trackerModuleNumbering_cfg.py
+cmsRun $CMSSW_RELEASE_BASE/src/Geometry/TrackerNumberingBuilder/python/trackerModuleNumbering_cfg.py
 echo "TRACKER MICROSTRIP NUMBERING... LOOK AT THE RESULTS" | tee -a $reportFile
 tail -7 ModuleNumbering.log | tee -a $reportFile
 if [ -e num.log ]; then
@@ -231,17 +237,17 @@ echo "Run the Tracker Check Overlap test" | tee -a $reportFile
 if [ -e trackerOverlap.log ]; then
     rm -rf trackerOverlap.log
 fi
-cmsRun $CMSSW_BASE/src/Validation/CheckOverlap/test/python/runTracker_cfg.py > trackerOverlap.log
+cmsRun $CMSSW_RELEASE_BASE/src/Validation/CheckOverlap/test/python/runTracker_cfg.py > trackerOverlap.log
 grep -A4 'WARNING - ' trackerOverlap.log | tee -a $reportFile
 echo "...done" | tee -a $reportFile
 
 #
 echo "Run dddreport..." | tee -a $reportFile
-$CMSSW_BASE/src/DetectorDescription/RegressionTest/scripts/dddreport.sh > dddreport.log
+$CMSSW_RELEASE_BASE/src/DetectorDescription/RegressionTest/scripts/dddreport.sh > dddreport.log
 echo "...done" | tee -a $reportFile
 #
 echo "Run domcount..." | tee -a $reportFile
-$CMSSW_BASE/src/DetectorDescription/RegressionTest/scripts/domcount.sh > domcount.log
+$CMSSW_RELEASE_BASE/src/DetectorDescription/RegressionTest/scripts/domcount.sh > domcount.log
 echo "...done" | tee -a $reportFile
 #
 

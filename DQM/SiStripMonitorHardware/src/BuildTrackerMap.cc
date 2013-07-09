@@ -10,7 +10,7 @@
 */
 //
 //         Created:  2009/07/22
-// $Id: BuildTrackerMap.cc,v 1.2 2012/11/27 15:55:53 speer Exp $
+// $Id: BuildTrackerMap.cc,v 1.1 2012/10/15 09:02:08 threus Exp $
 //
 
 #include <sstream>
@@ -123,11 +123,11 @@ BuildTrackerMapPlugin::BuildTrackerMapPlugin(const edm::ParameterSet& iConfig)
 
 //   for (unsigned int i(0); i<34; i++){
 //     if (i<4) histName_[i] << "TIB/layer_" << i+1 << "/" << tkDetMapName_ << "_TIB_L" << i+1;
-//     else if (i<7)  histName_[i] << "TID/MINUS/wheel_" << i-3 << "/" << tkDetMapName_ << "_TIDM_D" << i-3;
-//     else if (i<10)  histName_[i] << "TID/PLUS/wheel_" << i-6 << "/" << tkDetMapName_ << "_TIDP_D" << i-6;
+//     else if (i<7)  histName_[i] << "TID/side_1/wheel_" << i-3 << "/" << tkDetMapName_ << "_TIDM_D" << i-3;
+//     else if (i<10)  histName_[i] << "TID/side_2/wheel_" << i-6 << "/" << tkDetMapName_ << "_TIDP_D" << i-6;
 //     else if (i<16) histName_[i] << "TOB/layer_" << i-9 << "/" << tkDetMapName_ << "_TOB_L" << i-9;
-//     else if (i<25) histName_[i] << "TEC/MINUS/wheel_" << i-15 << "/" << tkDetMapName_ << "_TECM_W" << i-15;
-//     else if (i<34) histName_[i] << "TEC/PLUS/wheel_" << i-24 << "/" << tkDetMapName_ << "_TECP_W" << i-24;
+//     else if (i<25) histName_[i] << "TEC/side_1/wheel_" << i-15 << "/" << tkDetMapName_ << "_TECM_W" << i-15;
+//     else if (i<34) histName_[i] << "TEC/side_2/wheel_" << i-24 << "/" << tkDetMapName_ << "_TECP_W" << i-24;
 
 //     std::cout << "histName[" << i << "] =" << histName_[i] << std::endl;
 

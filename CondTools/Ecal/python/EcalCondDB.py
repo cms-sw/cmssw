@@ -21,7 +21,7 @@ def usage():
     print "Specify short options as '-o foo', long options as '--option=foo'"
     print
     print "   -c, --connect= [connectstring]"
-    print "      specify database, default frontier://FrontierProd/CMS_COND_31X_ECAL"
+    print "      specify database, default oracle://cms_orcoff_prod/CMS_COND_31X_ECAL"
     print
     print "   -P, --authpath=  [authenticationpath], default /afs/cern.ch/cms/DB/conddb "
     print
@@ -39,7 +39,7 @@ def usage():
     print "                   Example EcalCondDB.py -t tag" 
     print
     print "   -d, --dump= [file] dump record to xml file"
-    print "         Example EcalCondDB.py -d file.xml -t tag -s since"
+    print "         Example EcalCondDB.py -d=file.xml -t tag -s since"
     print
     print "   -p, --plot= [file] plot record to file, extension specifies ",\
                     "format (.root,.png,.jpg,.gif,.svg)"
@@ -73,7 +73,7 @@ except getopt.GetoptError,ex:
     print ex," , use -h or --help for help"
     sys.exit(0)
 
-dbName =  "frontier://FrontierProd/CMS_COND_31X_ECAL"
+dbName =  "oracle://cms_orcoff_prod/CMS_COND_31X_ECAL"
 authpath= "/afs/cern.ch/cms/DB/conddb"
 
 tags=[]
@@ -148,7 +148,7 @@ from pluginCondDBPyInterface import *
 a = FWIncantation()
 
 rdbms = RDBMS(authpath)
-db = rdbms.getReadOnlyDB(dbName)
+db = rdbms.getDB(dbName)
 
 import EcalCondTools
 

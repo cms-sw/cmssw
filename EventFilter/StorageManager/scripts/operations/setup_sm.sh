@@ -1,9 +1,5 @@
 #!/bin/sh
-<<<<<<< setup_sm.sh
-# $Id: setup_sm.sh,v 1.58 2013/04/08 11:51:30 gbauer Exp $
-=======
-# $Id: setup_sm.sh,v 1.58 2013/04/08 11:51:30 gbauer Exp $
->>>>>>> 1.56
+# $Id: setup_sm.sh,v 1.55 2010/10/18 11:14:26 babar Exp $
 
 if test -e "/etc/profile.d/sm_env.sh"; then 
     source /etc/profile.d/sm_env.sh
@@ -58,7 +54,7 @@ PATH=$PATH:/usr/sbin
 checkSLCversion () {
     slc_release=$(cat /etc/redhat-release)
     case $slc_release in
-        *5.3* | *6.2*)
+        *5.3*)
             ;;
         *4.4*)
             echo "This host is running $slc_release, which is NO LONGER compatible with the current SLC5 CopyManager" >&2
@@ -68,8 +64,7 @@ checkSLCversion () {
         *)
             echo "This host is running $slc_release, which is UNKOWN" >&2
             echo "Therefore nothing will be started, but the disks will be mounted" >&2
-            echo "Only this time...."
-            #exit
+            exit
             ;;
     esac
 }
@@ -139,15 +134,7 @@ startcopyworker () {
     fi
     
     su - cmsprod -c "$t0control stop" >/dev/null 2>&1
-<<<<<<< setup_sm.sh
-    su - cmsprod -c "NCOPYWORKER=5 $t0control start"
-=======
-<<<<<<< setup_sm.sh
-    su - cmsprod -c "NCOPYWORKER=5 $t0control start"
-=======
     su - cmsprod -c "$t0control start"
->>>>>>> 1.56
->>>>>>> 1.57
 }
 
 startinjectworker () {
@@ -272,15 +259,15 @@ start () {
             echo "cmsdisk0 needs manual treatment"
             return 0
             ;;
-        srv-[sS]2[cC]17-01)
+        srv-S2C17-01)
             ;;
-        srv-[cC]2[dD]05-02)
+        srv-C2D05-02)
             nbmount=1
             ;;
         dvsrv-b1a02-30-01)
             nbmount=3
             ;;
-        srv-[cC]2[cC]07-* | srv-[cC]2[cC]06-* | dvsrv-[cC]2[fF]37-*)
+        srv-c2c07-* | srv-C2C07-* | srv-c2c06-* | srv-C2C06-* | dvsrv-C2F37-*)
             nbmount=4
             ;;
         *)

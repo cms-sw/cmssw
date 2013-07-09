@@ -5,8 +5,6 @@
 #include <TString.h>
 
 #include <string>
-#include <iostream>
-#include <iomanip>
 
 METCorrectionAlgorithm::METCorrectionAlgorithm(const edm::ParameterSet& cfg)
 {
@@ -46,9 +44,6 @@ METCorrectionAlgorithm::METCorrectionAlgorithm(const edm::ParameterSet& cfg)
       type0Cuncl_ = type2CorrParameter.getParameter<double>("A");
     }
   }
-
-  verbosity_ = ( cfg.exists("verbosity") ) ?
-    cfg.getParameter<int>("verbosity") : 0;
 }
 
 METCorrectionAlgorithm::~METCorrectionAlgorithm()
@@ -61,10 +56,6 @@ METCorrectionAlgorithm::~METCorrectionAlgorithm()
 
 CorrMETData METCorrectionAlgorithm::compMETCorrection(edm::Event& evt, const edm::EventSetup& es)
 {
-  if ( verbosity_ ) {
-    std::cout << "<METCorrectionAlgorithm::compMETCorrection>:" << std::endl;
-  }
-
   CorrMETData metCorr;
   metCorr.mex   = 0.;
   metCorr.mey   = 0.;
@@ -77,9 +68,9 @@ CorrMETData METCorrectionAlgorithm::compMETCorrection(edm::Event& evt, const edm
       edm::Handle<CorrMETData> chsSum;
       evt.getByLabel(*srcCHSSum, chsSum);
 
-      metCorr.mex   += type0Cuncl_*(1. - type0Rsoft_)*chsSum->mex;
-      metCorr.mey   += type0Cuncl_*(1. - type0Rsoft_)*chsSum->mey;
-      metCorr.sumet += type0Cuncl_*(1. - type0Rsoft_)*chsSum->sumet;
+      metCorr.mex   += type0Cuncl_*(1 - type0Rsoft_)*chsSum->mex;
+      metCorr.mey   += type0Cuncl_*(1 - type0Rsoft_)*chsSum->mey;
+      metCorr.sumet += type0Cuncl_*(1 - type0Rsoft_)*chsSum->sumet;
     }
   }
 
@@ -89,12 +80,6 @@ CorrMETData METCorrectionAlgorithm::compMETCorrection(edm::Event& evt, const edm
 	  srcType1Correction != srcType1Corrections_.end(); ++srcType1Correction ) {
       edm::Handle<CorrMETData> type1Correction;
       evt.getByLabel(*srcType1Correction, type1Correction);
-      if ( verbosity_ ) {
-	std::cout << "Type-1 correction (src = " << (*srcType1Correction) << "):" << std::endl;
-	std::cout << " mex   = " << type1Correction->mex << std::endl;
-	std::cout << " mey   = " << type1Correction->mey << std::endl;
-	std::cout << " sumet = " << type1Correction->sumet << std::endl;
-      }
 
       metCorr.mex   += type1Correction->mex;
       metCorr.mey   += type1Correction->mey;
@@ -115,13 +100,7 @@ CorrMETData METCorrectionAlgorithm::compMETCorrection(edm::Event& evt, const edm
 	    srcUnclEnergySum != (*type2BinningEntry)->srcUnclEnergySums_.end(); ++srcUnclEnergySum ) {
 	edm::Handle<CorrMETData> unclEnergySummand;
 	evt.getByLabel(*srcUnclEnergySum, unclEnergySummand);
-	if ( verbosity_ ) {
-	  std::cout << "Type-2 correction (src = " << (*srcUnclEnergySum) << "):" << std::endl;
-	  std::cout << " mex   = " << unclEnergySummand->mex << std::endl;
-	  std::cout << " mey   = " << unclEnergySummand->mey << std::endl;
-	  std::cout << " sumet = " << unclEnergySummand->sumet << std::endl;
-	}
-
+	
 	unclEnergySum.mex   += unclEnergySummand->mex;
 	unclEnergySum.mey   += unclEnergySummand->mey;
 	unclEnergySum.sumet += unclEnergySummand->sumet;
@@ -130,9 +109,6 @@ CorrMETData METCorrectionAlgorithm::compMETCorrection(edm::Event& evt, const edm
 //--- calibrate "unclustered energy"
       double unclEnergySumPt = sqrt(unclEnergySum.mex*unclEnergySum.mex + unclEnergySum.mey*unclEnergySum.mey);
       double unclEnergyScaleFactor = (*type2BinningEntry)->binCorrFormula_->Eval(unclEnergySumPt);
-      if ( verbosity_ ) {
-	std::cout << "unclEnergyScaleFactor = " << unclEnergyScaleFactor << std::endl;
-      }
 
 //--- MET balances momentum of reconstructed particles,
 //    hence correction to "unclustered energy" and corresponding Type 2 MET correction are of opposite sign

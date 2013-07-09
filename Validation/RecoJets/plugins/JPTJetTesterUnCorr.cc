@@ -1,7 +1,7 @@
 // Producer for validation histograms for CaloJet objects
 // F. Ratnikov, Sept. 7, 2006
 // Modified by J F Novak July 10, 2008
-// $Id: JPTJetTesterUnCorr.cc,v 1.9 2013/01/01 21:46:23 kovitang Exp $
+// $Id: JPTJetTesterUnCorr.cc,v 1.8 2012/12/02 23:38:40 kovitang Exp $
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -501,7 +501,7 @@ if (!mEvent.isRealData()){
 	*/
       }
     }
-  } catch (cms::Exception& e) {
+  } catch (...) {
     edm::LogInfo("OutputInfo") << " No HB/HE RecHits.";
   }
   
@@ -520,7 +520,7 @@ if (!mEvent.isRealData()){
 	*/
       }
     }
-  } catch (cms::Exception& e) {
+  } catch (...) {
     edm::LogInfo("OutputInfo") << " No HF RecHits.";
   }
 
@@ -538,7 +538,7 @@ if (!mEvent.isRealData()){
 	*/
       }
     }
-  } catch (cms::Exception& e) {
+  } catch (...) {
     edm::LogInfo("OutputInfo") << " No HO RecHits.";
   }
   try {
@@ -555,7 +555,7 @@ if (!mEvent.isRealData()){
         //      std::cout << j->id() << std::endl;
       }
     }
-  } catch (cms::Exception& e) {
+  } catch (...) {
     edm::LogInfo("OutputInfo") << " No EB RecHits.";
   }
 
@@ -572,7 +572,7 @@ if (!mEvent.isRealData()){
 	//      std::cout << *j << std::endl;
       }
     }
-  } catch (cms::Exception& e) {
+  } catch (...) {
     edm::LogInfo("OutputInfo") << " No EE RecHits.";
   }
 

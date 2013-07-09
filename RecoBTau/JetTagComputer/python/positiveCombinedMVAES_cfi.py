@@ -7,7 +7,7 @@ positiveCombinedMVA = cms.ESProducer("CombinedMVAJetTagESProducer",
 		cms.PSet(
 			discriminator = cms.bool(True),
 			variables = cms.bool(False),
-			jetTagComputer = cms.string('positiveOnlyJetProbability')
+			jetTagComputer = cms.string('positiveOnlyJetProbabilityJetTags')
 		),
 		cms.PSet(
 			discriminator = cms.bool(True),
@@ -17,39 +17,12 @@ positiveCombinedMVA = cms.ESProducer("CombinedMVAJetTagESProducer",
 		cms.PSet(
 			discriminator = cms.bool(True),
 			variables = cms.bool(False),
-			jetTagComputer = cms.string('positiveSoftPFMuon')
+			jetTagComputer = cms.string('positiveSoftMuon')
 		),
 		cms.PSet(
 			discriminator = cms.bool(True),
 			variables = cms.bool(False),
-			jetTagComputer = cms.string('positiveSoftPFElectron')
-		)
-	)
-)
-
-positiveCombinedSecondaryVertexSoftPFLeptonV1 = cms.ESProducer("CombinedMVAJetTagESProducer",
-	useCategories = cms.bool(False),
-	calibrationRecord = cms.string('CombinedCSVSL'),
-	jetTagComputers = cms.VPSet(
-		cms.PSet(
-			discriminator = cms.bool(True),
-			variables = cms.bool(False),
-			jetTagComputer = cms.string('positiveOnlyJetProbability')
-		),
-		cms.PSet(
-			discriminator = cms.bool(True),
-			variables = cms.bool(False),
-			jetTagComputer = cms.string('combinedSecondaryVertexV1Positive')
-		),
-		cms.PSet(
-			discriminator = cms.bool(True),
-			variables = cms.bool(False),
-			jetTagComputer = cms.string('positiveSoftPFMuon')
-		),
-		cms.PSet(
-			discriminator = cms.bool(True),
-			variables = cms.bool(False),
-			jetTagComputer = cms.string('positiveSoftPFElectron')
+			jetTagComputer = cms.string('positiveSoftElectron')
 		)
 	)
 )

@@ -35,21 +35,14 @@ MuonAlignmentFromReference = cms.PSet(
     residualsModel = cms.string("pureGaussian2D"),
     minAlignmentHits = cms.int32(30),
     weightAlignment = cms.bool(True),
-    useResiduals = cms.string("1100"),
-    
-    specialFitPatternDT6DOF = cms.string(""),
-    specialFitPatternDT5DOF = cms.string(""),
-    specialFitPatternCSC = cms.string(""),
+    useResiduals = cms.string("1110"),
 
     # where reporting will go
     reportFileName = cms.string("MuonAlignmentFromReference_report.py"),  # Python-formatted output
 
     maxResSlopeY = cms.double(10.),
     
-    checkTrackFiduciality = cms.bool(False),
-    
     createNtuple = cms.bool(False),
-    layersDebugDump = cms.bool(False),
     
     peakNSigma = cms.double(-1.),
     bFieldCorrection = cms.int32(1),

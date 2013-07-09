@@ -4,36 +4,51 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Common/interface/TriggerResultsByName.h"
 
-#include <iomanip>
+#include "Geometry/CaloTopology/interface/EcalTrigTowerConstituentsMap.h"
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
 
 namespace ecaldqm {
 
-  TrigPrimTask::TrigPrimTask(edm::ParameterSet const& _workerParams, edm::ParameterSet const& _commonParams) :
-    DQWorkerTask(_workerParams, _commonParams, "TrigPrimTask"),
+  TrigPrimTask::TrigPrimTask(const edm::ParameterSet &_params, const edm::ParameterSet& _paths) :
+    DQWorkerTask(_params, _paths, "TrigPrimTask"),
+    ttMap_(0),
     realTps_(0),
-    runOnEmul_(_workerParams.getUntrackedParameter<bool>("runOnEmul")),
-//     HLTCaloPath_(_workerParams.getUntrackedParameter<std::string>("HLTCaloPath")),
-//     HLTMuonPath_(_workerParams.getUntrackedParameter<std::string>("HLTMuonPath")),
-//     HLTCaloBit_(false),
-//     HLTMuonBit_(false),
+    runOnEmul_(true),
+    expectedTiming_(0),
+    HLTCaloPath_(""),
+    HLTMuonPath_(""),
+    HLTCaloBit_(false),
+    HLTMuonBit_(false),
     bxBin_(0.),
     towerReadouts_()
   {
-    collectionMask_[kRun] = true;
-    collectionMask_[kEBDigi] = true;
-    collectionMask_[kEEDigi] = true;
-    collectionMask_[kTrigPrimDigi] = true;
-    collectionMask_[kTrigPrimEmulDigi] = runOnEmul_;
+    collectionMask_ = 
+      (0x1 << kRun) |
+      (0x1 << kEBDigi) |
+      (0x1 << kEEDigi) |
+      (0x1 << kTrigPrimDigi) |
+      (0x1 << kTrigPrimEmulDigi);
+
+    dependencies_.push_back(std::pair<Collections, Collections>(kTrigPrimEmulDigi, kEBDigi));
+    dependencies_.push_back(std::pair<Collections, Collections>(kTrigPrimEmulDigi, kEEDigi));
+    dependencies_.push_back(std::pair<Collections, Collections>(kTrigPrimEmulDigi, kTrigPrimDigi));
+
+    edm::ParameterSet const& taskParams(_params.getUntrackedParameterSet(name_));
+
+    runOnEmul_ = taskParams.getUntrackedParameter<bool>("runOnEmul");
+    expectedTiming_ = taskParams.getUntrackedParameter<int>("expectedTiming");
+    HLTCaloPath_ = taskParams.getUntrackedParameter<std::string>("HLTCaloPath");
+    HLTMuonPath_ = taskParams.getUntrackedParameter<std::string>("HLTMuonPath");
 
     // binning in terms of bunch trains
     int binEdges[nBXBins + 1] = {1, 271, 541, 892, 1162, 1432, 1783, 2053, 2323, 2674, 2944, 3214, 3446, 3490, 3491, 3565};
     for(int i(0); i < nBXBins + 1; i++) bxBinEdges_[i] = binEdges[i];
+
+    if(!runOnEmul_) collectionMask_ &= ~(0x1 << kTrigPrimEmulDigi);
   }
 
-  void
-  TrigPrimTask::setDependencies(DependencySet& _dependencies)
+  TrigPrimTask::~TrigPrimTask()
   {
-    _dependencies.push_back(Dependency(kTrigPrimEmulDigi, kEBDigi, kEEDigi, kTrigPrimDigi));
   }
 
   void
@@ -43,19 +58,17 @@ namespace ecaldqm {
 
     if(runOnEmul_){
       DQWorker::bookMEs();
-      MEs_["EmulMaxIndex"]->setBinLabel(-1, 1, "no maximum", 1);
-      MEs_["MatchedIndex"]->setBinLabel(-1, 1, "no emul", 2);
+      MEs_[kEmulMaxIndex]->setBinLabel(-1, 1, "no emul", 1);
       for(int i(2); i <= 6; i++){
 	ss.str("");
 	ss << (i - 1);
-	MEs_["EmulMaxIndex"]->setBinLabel(-1, i, ss.str(), 1);
-	MEs_["MatchedIndex"]->setBinLabel(-1, i, ss.str(), 2);
+	MEs_[kEmulMaxIndex]->setBinLabel(-1, i, ss.str(), 1);
       }
     }
     else{
-      std::string bookList[] = {"EtReal", "EtRealMap", "EtSummary", "EtVsBx", "OccVsBx",
-			     "LowIntMap", "MedIntMap", "HighIntMap", "TTFlags", "TTFMismatch"};
-      for(unsigned iME(0); iME < sizeof(bookList) / sizeof(std::string); iME++)
+      unsigned bookList[] = {kEtReal, kEtRealMap, kEtSummary, kEtVsBx, kOccVsBx,
+			     kLowIntMap, kMedIntMap, kHighIntMap, kTTFlags, kTTFMismatch};
+      for(unsigned iME(0); iME < sizeof(bookList) / sizeof(unsigned); iME++)
 	MEs_[bookList[iME]]->book();
     }
 
@@ -64,16 +77,18 @@ namespace ecaldqm {
       ss.str("");
       if(bxBinEdges_[i] - bxBinEdges_[i - 1] == 1) ss << bxBinEdges_[i - 1];
       else ss << bxBinEdges_[i - 1] << " - " << (bxBinEdges_[i] - 1);
-      MEs_["EtVsBx"]->setBinLabel(-1, iBin, ss.str(), 1);
-      MEs_["OccVsBx"]->setBinLabel(-1, iBin, ss.str(), 1);
+      MEs_[kEtVsBx]->setBinLabel(-1, iBin, ss.str(), 1);
+      MEs_[kOccVsBx]->setBinLabel(-1, iBin, ss.str(), 1);
       iBin++;
     }
+  }
 
-    for(int iBin(1); iBin <= 8; ++iBin){
-      ss.str("");
-      ss << iBin - 1;
-      MEs_["TTFlags"]->setBinLabel(-1, iBin, ss.str(), 2);
-    }
+  void
+  TrigPrimTask::beginRun(const edm::Run &, const edm::EventSetup &_es)
+  {
+    edm::ESHandle<EcalTrigTowerConstituentsMap> ttMapHndl;
+    _es.get<IdealGeometryRecord>().get(ttMapHndl);
+    ttMap_ = ttMapHndl.product();
   }
 
   void
@@ -85,8 +100,8 @@ namespace ecaldqm {
 
     realTps_ = 0;
 
-//     HLTCaloBit_ = false;
-//     HLTMuonBit_ = false;
+    HLTCaloBit_ = false;
+    HLTMuonBit_ = false;
 
     int* pBin(std::upper_bound(bxBinEdges_, bxBinEdges_ + nBXBins + 1, _evt.bunchCrossing()));
     bxBin_ = static_cast<int>(pBin - bxBinEdges_) - 0.5;
@@ -153,7 +168,7 @@ namespace ecaldqm {
   TrigPrimTask::runOnDigis(const EcalDigiCollection &_digis)
   {
     for(EcalDigiCollection::const_iterator digiItr(_digis.begin()); digiItr != _digis.end(); ++digiItr){
-      EcalTrigTowerDetId ttid(getTrigTowerMap()->towerOf(digiItr->id()));
+      EcalTrigTowerDetId ttid(ttMap_->towerOf(digiItr->id()));
       towerReadouts_[ttid.rawId()]++;
     }
   }
@@ -161,81 +176,60 @@ namespace ecaldqm {
   void
   TrigPrimTask::runOnRealTPs(const EcalTrigPrimDigiCollection &_tps)
   {
-    MESet* meEtVsBx(MEs_["EtVsBx"]);
-    MESet* meEtReal(MEs_["EtReal"]);
-    MESet* meEtRealMap(MEs_["EtRealMap"]);
-    MESet* meEtSummary(MEs_["EtSummary"]);
-    MESet* meLowIntMap(MEs_["LowIntMap"]);
-    MESet* meMedIntMap(MEs_["MedIntMap"]);
-    MESet* meHighIntMap(MEs_["HighIntMap"]);
-    MESet* meTTFlags(MEs_["TTFlags"]);
-    MESet* meTTFMismatch(MEs_["TTFMismatch"]);
-    MESet* meOccVsBx(MEs_["OccVsBx"]);
-
     realTps_ = &_tps;
 
-    double nTP[] = {0., 0., 0.};
+    float nTP(0.);
 
     for(EcalTrigPrimDigiCollection::const_iterator tpItr(_tps.begin()); tpItr != _tps.end(); ++tpItr){
       EcalTrigTowerDetId ttid(tpItr->id());
       float et(tpItr->compressedEt());
 
       if(et > 0.){
-        if(ttid.subDet() == EcalBarrel)
-          nTP[0] += 1.;
-        else if(ttid.zside() < 0)
-          nTP[1] += 1.;
-        else
-          nTP[2] += 2.;
-	meEtVsBx->fill(ttid, bxBin_, et);
+	nTP += 1.;
+	MEs_[kEtVsBx]->fill(ttid, bxBin_, et);
       }
 
-      meEtReal->fill(ttid, et);
-      meEtRealMap->fill(ttid, et);
-      meEtSummary->fill(ttid, et);
+      MEs_[kEtReal]->fill(ttid, et);
+      MEs_[kEtRealMap]->fill(ttid, et);
+      MEs_[kEtSummary]->fill(ttid, et);
 
       int interest(tpItr->ttFlag() & 0x3);
 
       switch(interest){
       case 0:
-	meLowIntMap->fill(ttid);
+	MEs_[kLowIntMap]->fill(ttid);
 	break;
       case 1:
-	meMedIntMap->fill(ttid);
+	MEs_[kMedIntMap]->fill(ttid);
 	break;
       case 3:
-	meHighIntMap->fill(ttid);
+	MEs_[kHighIntMap]->fill(ttid);
 	break;
       default:
 	break;
       }
 
-      meTTFlags->fill(ttid, float(tpItr->ttFlag()));
+      MEs_[kTTFlags]->fill(ttid, float(tpItr->ttFlag()));
 
-      if((interest == 1 || interest == 3) && towerReadouts_[ttid.rawId()] != getTrigTowerMap()->constituentsOf(ttid).size())
-	meTTFMismatch->fill(ttid);
+      if((interest == 1 || interest == 3) && towerReadouts_[ttid.rawId()] != ttMap_->constituentsOf(ttid).size())
+	MEs_[kTTFMismatch]->fill(ttid);
     }
 
-    meOccVsBx->fill(unsigned(BinService::kEB + 1), bxBin_, nTP[0]);
-    meOccVsBx->fill(unsigned(BinService::kEEm + 1), bxBin_, nTP[1]);
-    meOccVsBx->fill(unsigned(BinService::kEEp + 1), bxBin_, nTP[2]);
+    MEs_[kOccVsBx]->fill(bxBin_, nTP);
   }
 
   void
   TrigPrimTask::runOnEmulTPs(const EcalTrigPrimDigiCollection &_tps)
   {
-    MESet* meEtMaxEmul(MEs_["EtMaxEmul"]);
-    MESet* meEmulMaxIndex(MEs_["EmulMaxIndex"]);
-    MESet* meMatchedIndex(MEs_["MatchedIndex"]);
-    MESet* meEtEmulError(MEs_["EtEmulError"]);
-    MESet* meFGEmulError(MEs_["FGEmulError"]);
-
     for(EcalTrigPrimDigiCollection::const_iterator tpItr(_tps.begin()); tpItr != _tps.end(); ++tpItr){
       EcalTrigTowerDetId ttid(tpItr->id());
-
       int et(tpItr->compressedEt());
 
-      float maxEt(0.);
+      //      MEs_[kEtEmul]->fill(ttid, et);
+
+      //      MEs_[kEtEmulMap]->fill(ttid, et);
+
+      float maxEt(0);
       int iMax(0);
       for(int iDigi(0); iDigi < 5; iDigi++){
 	float sampleEt((*tpItr)[iDigi].compressedEt());
@@ -246,9 +240,8 @@ namespace ecaldqm {
 	}
       }
 
-      meEtMaxEmul->fill(ttid, maxEt);
-      if(maxEt > 0.)
-        meEmulMaxIndex->fill(ttid, iMax + 0.5);
+      MEs_[kEtMaxEmul]->fill(ttid, maxEt);
+      MEs_[kEmulMaxIndex]->fill(ttid, iMax + 0.5);
 
       bool match(true);
       bool matchFG(true);
@@ -258,29 +251,30 @@ namespace ecaldqm {
 
 	int realEt(realItr->compressedEt());
 
-	if(realEt > 0){
+	if(realEt <= 0) continue;
 
-          int interest(realItr->ttFlag() & 0x3);
-          if((interest == 1 || interest == 3) && towerReadouts_[ttid.rawId()] == getTrigTowerMap()->constituentsOf(ttid).size()){
+	int interest(realItr->ttFlag() & 0x3);
+	if((interest == 1 || interest == 3) && towerReadouts_[ttid.rawId()] == ttMap_->constituentsOf(ttid).size()){
 
-            if(et != realEt) match = false;
-            if(tpItr->fineGrain() != realItr->fineGrain()) matchFG = false;
+	  if(et != realEt) match = false;
+	  if(tpItr->fineGrain() != realItr->fineGrain()) matchFG = false;
 
-            std::vector<int> matchedIndex(0);
-            for(int iDigi(0); iDigi < 5; iDigi++){
-              if((*tpItr)[iDigi].compressedEt() == realEt)
-                matchedIndex.push_back(iDigi + 1);
-            }
+	  std::vector<int> matchedIndex(0);
+	  for(int iDigi(0); iDigi < 5; iDigi++){
+	    if((*tpItr)[iDigi].compressedEt() == realEt)
+	      matchedIndex.push_back(iDigi + 1);
+	  }
 
-            if(!matchedIndex.size()) matchedIndex.push_back(0);
-            for(std::vector<int>::iterator matchItr(matchedIndex.begin()); matchItr != matchedIndex.end(); ++matchItr){
-              meMatchedIndex->fill(ttid, *matchItr + 0.5);
+	  if(!matchedIndex.size()) matchedIndex.push_back(0);
+	  for(std::vector<int>::iterator matchItr(matchedIndex.begin()); matchItr != matchedIndex.end(); ++matchItr){
+	    MEs_[kMatchedIndex]->fill(ttid, *matchItr + 0.5);
 
-              // timing information is only within emulated TPs (real TPs have one time sample)
-              // 	    if(HLTCaloBit_) MEs_[kTimingCalo]->fill(ttid, float(*matchItr));
-              // 	    if(HLTMuonBit_) MEs_[kTimingMuon]->fill(ttid, float(*matchItr));
-            }
-          }
+	    // timing information is only within emulated TPs (real TPs have one time sample)
+// 	    if(HLTCaloBit_) MEs_[kTimingCalo]->fill(ttid, float(*matchItr));
+// 	    if(HLTMuonBit_) MEs_[kTimingMuon]->fill(ttid, float(*matchItr));
+
+	    if(*matchItr != expectedTiming_) MEs_[kTimingError]->fill(ttid);
+	  }
 
 	}
       }
@@ -289,11 +283,60 @@ namespace ecaldqm {
 	matchFG = false;
       }
 
-      if(!match) meEtEmulError->fill(ttid);
-      if(!matchFG) meFGEmulError->fill(ttid);
+      if(!match) MEs_[kEtEmulError]->fill(ttid);
+      if(!matchFG) MEs_[kFGEmulError]->fill(ttid);
     }
+  }
+
+  /*static*/
+  void
+  TrigPrimTask::setMEData(std::vector<MEData>& _data)
+  {
+    BinService::AxisSpecs indexAxis;
+    indexAxis.nbins = 6;
+    indexAxis.low = 0.;
+    indexAxis.high = 6.;
+    indexAxis.title = "TP index";
+
+    BinService::AxisSpecs etAxis;
+    etAxis.nbins = 128;
+    etAxis.low = 0.;
+    etAxis.high = 256.;
+    etAxis.title = "TP Et";
+
+    BinService::AxisSpecs bxAxis;
+    bxAxis.nbins = 15;
+    bxAxis.low = 0.;
+    bxAxis.high = bxAxis.nbins;
+
+    BinService::AxisSpecs flagAxis;
+    flagAxis.nbins = 8;
+    flagAxis.low = 0.;
+    flagAxis.high = 8.;
+    flagAxis.title = "TT flag";
+
+    _data[kEtReal] = MEData("EtReal", BinService::kEcal2P, BinService::kUser, MonitorElement::DQM_KIND_TH1F, &etAxis);
+    _data[kEtMaxEmul] = MEData("EtMaxEmul", BinService::kEcal2P, BinService::kUser, MonitorElement::DQM_KIND_TH1F, &etAxis);
+    _data[kEtRealMap] = MEData("EtRealMap", BinService::kSM, BinService::kTriggerTower, MonitorElement::DQM_KIND_TPROFILE2D, 0, 0, &etAxis);
+    //    _data[kEtEmulMap] = MEData("EtEmulMap", BinService::kSM, BinService::kTriggerTower, MonitorElement::DQM_KIND_TPROFILE2D, 0, 0, &etAxis);
+    _data[kEtSummary] = MEData("EtRealMap", BinService::kEcal2P, BinService::kTriggerTower, MonitorElement::DQM_KIND_TPROFILE2D, 0, 0, &etAxis);
+    _data[kMatchedIndex] = MEData("MatchedIndex", BinService::kSM, BinService::kTriggerTower, MonitorElement::DQM_KIND_TH2F, 0, &indexAxis);
+    _data[kEmulMaxIndex] = MEData("EmulMaxIndex", BinService::kEcal2P, BinService::kUser, MonitorElement::DQM_KIND_TH1F, &indexAxis);
+    _data[kTimingError] = MEData("TimingError", BinService::kChannel, BinService::kTriggerTower, MonitorElement::DQM_KIND_TH1F);
+    _data[kEtVsBx] = MEData("EtVsBx", BinService::kEcal2P, BinService::kUser, MonitorElement::DQM_KIND_TPROFILE, &bxAxis);
+    _data[kOccVsBx] = MEData("OccVsBx", BinService::kEcal, BinService::kUser, MonitorElement::DQM_KIND_TPROFILE, &bxAxis);
+    _data[kLowIntMap] = MEData("LowIntMap", BinService::kEcal3P, BinService::kTriggerTower, MonitorElement::DQM_KIND_TH2F);
+    _data[kMedIntMap] = MEData("MedIntMap", BinService::kEcal3P, BinService::kTriggerTower, MonitorElement::DQM_KIND_TH2F);
+    _data[kHighIntMap] = MEData("HighIntMap", BinService::kEcal3P, BinService::kTriggerTower, MonitorElement::DQM_KIND_TH2F);
+    _data[kTTFlags] = MEData("TTFlags", BinService::kEcal2P, BinService::kDCC, MonitorElement::DQM_KIND_TH2F, 0, &flagAxis);
+    _data[kTTFMismatch] = MEData("TTFMismatch", BinService::kEcal2P, BinService::kTriggerTower, MonitorElement::DQM_KIND_TH2F);
+//     _data[kTimingCalo] = MEData("TimingCalo", BinService::kEcal2P, BinService::kTCC, MonitorElement::DQM_KIND_TH2F);
+//     _data[kTimingMuon] = MEData("TimingMuon", BinService::kEcal2P, BinService::kTCC, MonitorElement::DQM_KIND_TH2F);
+    _data[kEtEmulError] = MEData("EtEmulError", BinService::kChannel, BinService::kTriggerTower, MonitorElement::DQM_KIND_TH1F);
+    _data[kFGEmulError] = MEData("FGEmulError", BinService::kChannel, BinService::kTriggerTower, MonitorElement::DQM_KIND_TH1F);
   }
 
   DEFINE_ECALDQM_WORKER(TrigPrimTask);
 }
+
 

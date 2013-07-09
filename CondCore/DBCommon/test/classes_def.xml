@@ -1,6 +1,3 @@
 <lcgdict>
  <class name="testCondObj"/>
- <class name="PayObj">
-   <field name = "data" mapping = "blob"/>
- </class>
 </lcgdict>   

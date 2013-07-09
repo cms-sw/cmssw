@@ -1,7 +1,7 @@
 #!/bin/tcsh
 
 #Unique version number adn tag for the DB, should match makeAll.csh
-set version=v10
+set version=v9
 #set tag=PerformancePayloadFromTable
 set tag=PerformancePayloadFromBinnedTFormula
 

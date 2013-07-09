@@ -142,14 +142,10 @@ void PFSuperClusterTreeMaker::analyze(const edm::Event& e,
 void PFSuperClusterTreeMaker::
 processSuperClusterFillTree(const edm::Event& e, 
 			    const reco::SuperCluster& sc) {
-  const int N_ECAL = sc.clustersSize();
-  const int N_PS   = sc.preshowerClustersSize();
-  const double sc_eta = std::abs(sc.position().Eta());
-  const double sc_cosheta = std::cosh(sc_eta);
-  const double sc_pt = sc.rawEnergy()/sc_cosheta;
-  if( (sc_pt < 3.0 && sc_eta < 2.0) || 
-      (sc_pt < 4.0 && sc_eta < 2.5 && sc_eta > 2.0) ||
-      (sc_pt < 6.0 && sc_eta > 2.5) ) return;
+  const int N_ECAL = sc.clustersEnd() - sc.clustersBegin();
+  const int N_PS   = ( sc.preshowerClustersEnd() -  
+		       sc.preshowerClustersBegin() );
+  if( sc.rawEnergy()/std::cosh(sc.position().Eta()) < 4.0 ) return;
   N_ECALClusters = std::max(0,N_ECAL - 1); // minus 1 because of seed
   N_PSClusters = N_PS;
   reco::GenParticleRef genmatch;
@@ -162,13 +158,12 @@ processSuperClusterFillTree(const edm::Event& e,
       reco::GenParticleRef bestmatch;
       for(size_t i = 0; i < genp->size(); ++i) {
 	this_dr = reco::deltaR(genp->at(i),sc);
-	// oh hai, this is hard coded to photons for the time being
-	const int pdgid = std::abs(genp->at(i).pdgId());
-	if( this_dr < minDr && (pdgid == 22 || pdgid == 11) ) {
-	      minDr = this_dr;
-	      bestmatch = reco::GenParticleRef(genp,i);
+	  // oh hai, this is hard coded to photons for the time being
+	  if( this_dr < minDr && genp->at(i).pdgId() == 22) {
+	    minDr = this_dr;
+	    bestmatch = reco::GenParticleRef(genp,i);
+	  }
 	}
-      }
       if( bestmatch.isNonnull() ) {
 	genmatch = bestmatch;
 	genEnergy = bestmatch->energy();
@@ -238,7 +233,7 @@ processSuperClusterFillTree(const edm::Event& e,
 							     pclus->eta(),
 							     pclus->phi());
     clusterInDynDPhi.get()[iclus] = (Int_t)
-      MK::inDynamicDPhiWindow(theseed->eta(),
+      MK::inDynamicDPhiWindow(PFLayer::ECAL_BARREL == pclus->layer(),
 			      theseed->phi(),
 			      pclus->energy(),
 			      pclus->eta(),

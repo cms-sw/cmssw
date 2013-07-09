@@ -83,8 +83,8 @@ void setTDRStyle() {
   //gStyle->SetOptStat(0);
   gStyle->SetOptStat("mr");
   gStyle->SetStatColor(kWhite);
-  gStyle->SetStatFont(43);
-  gStyle->SetStatFontSize(20);///---> gStyle->SetStatFontSize(0.025);
+  gStyle->SetStatFont(42);
+  gStyle->SetStatFontSize(0.04);///---> gStyle->SetStatFontSize(0.025);
   gStyle->SetStatTextColor(1);
   gStyle->SetStatFormat("6.4g");
   gStyle->SetStatBorderSize(1);
@@ -104,11 +104,11 @@ void setTDRStyle() {
 // For the Global title:
 
   gStyle->SetOptTitle(0);
-  gStyle->SetTitleFont(43);
+  gStyle->SetTitleFont(42);
   gStyle->SetTitleColor(1);
   gStyle->SetTitleTextColor(1);
   gStyle->SetTitleFillColor(10);
-  gStyle->SetTitleFontSize(20);
+  gStyle->SetTitleFontSize(0.05);
   // gStyle->SetTitleH(0); // Set the height of the title box
   // gStyle->SetTitleW(0); // Set the width of the title box
   // gStyle->SetTitleX(0); // Set the position of the title box
@@ -121,12 +121,10 @@ void setTDRStyle() {
   gStyle->SetTitleColor(1, "XYZ");
   gStyle->SetTitleFont(42, "XYZ");
   gStyle->SetTitleSize(0.06, "XYZ");
-
   // gStyle->SetTitleXSize(Float_t size = 0.02); // Another way to set the size?
   // gStyle->SetTitleYSize(Float_t size = 0.02);
   gStyle->SetTitleXOffset(0.9);
   gStyle->SetTitleYOffset(1.25);
-
   // gStyle->SetTitleOffset(1.1, "Y"); // Another way to set the Offset
 
 // For the axis labels:

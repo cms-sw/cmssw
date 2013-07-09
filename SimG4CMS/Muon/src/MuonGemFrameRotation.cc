@@ -36,8 +36,7 @@ Local3DPoint MuonGemFrameRotation::transformPoint(const Local3DPoint & point,con
 	    << " Rotation " << rotated << std::endl;
 #endif
   if (rotated) {
-    //    return Local3DPoint(-point.x(),point.z(),point.y());
-    return Local3DPoint(point.x(),point.z(),-point.y());
+    return Local3DPoint(-point.x(),point.z(),point.y());
   } else {
     return Local3DPoint(point.x(),point.z(),-point.y());
   }

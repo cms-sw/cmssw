@@ -6,12 +6,6 @@ process.load("FWCore.MessageLogger.MessageLogger_cfi")
 
 process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
 
-process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.load("Configuration.StandardSequences.MagneticField_38T_cff")
-process.load("Configuration.StandardSequences.Geometry_cff")
-process.GlobalTag.globaltag= "START44_V4::All"
-
-
 # Offline primary vertex finding from both track types
 #include "RecoVertex/Configuration/data/RecoVertex.cff"
 process.load("Validation.RecoVertex.validationPrimaryVertex_cff")
@@ -19,7 +13,7 @@ process.load("Validation.RecoVertex.validationPrimaryVertex_cff")
 
 
 process.source = cms.Source("PoolSource",
-                            fileNames = cms.untracked.vstring('/store/relval/CMSSW_4_4_0_pre9/RelValQCD_FlatPt_15_3000_N30/GEN-SIM-RECO/DESIGN44_V4_PU_E7TeV_FIX_1_BX156_N30_special_110831-v1/0035/DEEF96F2-BFD3-E011-BEE1-003048679274.root')
+                            fileNames = cms.untracked.vstring('/store/mc/Summer09/MinBias/GEN-SIM-RECO/STARTUP3X_V8D_900GeV-v1/0005/E4B3A7BE-3AD7-DE11-9230-002618943939.root')
                             )
 
 process.maxEvents = cms.untracked.PSet(
@@ -30,7 +24,7 @@ process.simplePersistentVertexAnalysis = cms.EDAnalyzer("PrimaryVertexAnalyzer",
     outputFile = cms.untracked.string('validation.root'),
     verbose = cms.untracked.bool(True),
     vtxSample = cms.untracked.vstring('offlinePrimaryVertices', 
-        'offlinePrimaryVerticesWithBS'),
+        'offlinePrimaryVerticesBS'),
     recoTrackProducer = cms.untracked.string('generalTracks')
 )
 

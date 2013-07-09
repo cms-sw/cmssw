@@ -11,8 +11,4 @@
 <use   name="root"/>
 <use   name="RecoBTag/BTagTools"/>
 <use   name="TrackingTools/TransientTrack"/>
-<use   name="rootcore"/>
-<use   name="rootminuit2"/>
-<export>
-  <lib   name="1"/>
-</export>
+<flags   EDM_PLUGIN="1"/>

@@ -272,8 +272,10 @@ int main(int argc, char** argv){
     }catch(const coral::Exception& er){
       std::cout<<"\t Database error "<<er.what()<<std::endl;
       throw;
+    }catch(...){
+      std::cout<<"\tproblem in loading lumi  "<<runnumber<<" SKIP "<<std::endl;
+      throw;
     }
-    
     printf("\tElaspsed time %fs\n",difftime(t2,t1));
     elapsedTime=((double) (endClock - startClock)) / CLOCKS_PER_SEC;
     std::cout<<"\tCPU Time taken in seconds : "<<elapsedTime<<std::endl;
@@ -300,6 +302,9 @@ int main(int argc, char** argv){
      }catch(const coral::Exception& er){
 	std::cout<<"\t Database error "<<er.what()<<std::endl;
 	throw;
+     }catch(...){
+	std::cout<<"\tproblem in loading runsummary "<<runnumber<<" SKIP "<<std::endl;
+	throw;
      }
      printf("\tElaspsed time %fs\n",difftime(t2,t1));
      elapsedTime=((double) (endClock - startClock)) / CLOCKS_PER_SEC;
@@ -319,6 +324,9 @@ int main(int argc, char** argv){
       confptr.release();
     }catch(const coral::Exception& er){
       std::cout<<"\t Database error "<<er.what()<<std::endl;
+      throw;
+    }catch(...){
+      std::cout<<"\tproblem in loading hltconf "<<runnumber<<" SKIP "<<std::endl;
       throw;
     }
     printf("\tElaspsed time %fs\n",difftime(t2,t1));
@@ -356,6 +364,9 @@ int main(int argc, char** argv){
     }catch(const coral::Exception& er){
       std::cout<<"\t Database error "<<er.what()<<std::endl;
       throw;
+    }catch(...){
+      std::cout<<"\tproblem in loading trigger "<<runnumber<<" SKIP "<<std::endl;
+      throw;
     }
     printf("\tElaspsed time %fs\n",difftime(t2,t1));
     elapsedTime=((double) (endClock - startClock)) / CLOCKS_PER_SEC;
@@ -378,6 +389,9 @@ int main(int argc, char** argv){
       hltptr.release();
     }catch(const coral::Exception& er){
       std::cout<<"\t Database error "<<er.what()<<std::endl;
+      throw;
+    }catch(...){
+      std::cout<<"\tproblem in loading hlt "<<runnumber<<" SKIP "<<std::endl;
       throw;
     }
     printf("\tElaspsed time %fs\n",difftime(t2,t1));
@@ -410,6 +424,9 @@ int main(int argc, char** argv){
     return 0;
   }catch(const coral::Exception& er){
     std::cout<<"\t[ERROR] Database error "<<er.what()<<std::endl;
+    throw;
+  }catch(...){
+    std::cout<<"\t[ERROR] problem in registering run to tag "<<runnumber<<" SKIP "<<std::endl;
     throw;
   }
   transaction.commit();

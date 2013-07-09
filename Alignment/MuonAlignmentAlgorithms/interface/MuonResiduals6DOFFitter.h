@@ -3,7 +3,7 @@
 
 /** \class MuonResiduals6DOFFitter
  *  $Date: Thu Apr 16 14:20:58 CDT 2009
- *  $Revision: 1.6 $ 
+ *  $Revision: 1.5 $ 
  *  \author J. Pivarski - Texas A&M University <pivarski@physics.tamu.edu>
  */
 
@@ -68,13 +68,7 @@ public:
   int ndata() { return kNData; }
 
   double sumofweights();
-
   bool fit(Alignable *ali);
-
-  bool fitSpecial(const std::string &fit_type, Alignable *ali = 0);
-  bool fit_xphiz_y();
-  bool fit_xphiyphiz_y();
-
   double plot(std::string name, TFileDirectory *dir, Alignable *ali);
 
   void correctBField();

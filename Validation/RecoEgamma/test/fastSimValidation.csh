@@ -19,10 +19,10 @@
 setenv TYPE Photons
 setenv CMSSWver1 6_2_0
 setenv RELEASE 6_2_0
-setenv PRERELEASE pre7
+setenv PRERELEASE pre6_patch1 
 
-setenv FULLGLOBALTAG PRE_ST62_V7-v3
-setenv FASTGLOBALTAG PRE_ST62_V7_FastSim-v3
+setenv FULLGLOBALTAG PRE_ST62_V6-v1
+setenv FASTGLOBALTAG PRE_ST62_V6_FastSim-v1
 
 setenv RELEASE ${RELEASE}_${PRERELEASE}
 #setenv RELEASE ${RELEASE}

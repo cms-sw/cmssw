@@ -1,413 +1,303 @@
-// Original Author:  Loic Quertenmont
-
 #ifndef HSCP_ANALYSIS_SAMPLE
 #define HSCP_ANALYSIS_SAMPLE
 
-class stSample{
+#define SID_GL300     0
+#define SID_GL400     1
+#define SID_GL500     2
+#define SID_GL600     3
+#define SID_GL700     4
+#define SID_GL800     5
+#define SID_GL900     6
+#define SID_GL1000    7
+#define SID_GL1100    8
+#define SID_GL300N    9
+#define SID_GL400N    10
+#define SID_GL500N    11
+#define SID_GL600N    12
+#define SID_GL700N    13
+#define SID_GL800N    14
+#define SID_GL900N    15
+#define SID_GL1000N   16
+#define SID_GL1100N   17
+#define SID_ST130     18
+#define SID_ST200     19
+#define SID_ST300     20
+#define SID_ST400     21
+#define SID_ST500     22
+#define SID_ST600     23
+#define SID_ST700     24
+#define SID_ST800     25
+#define SID_ST130N    26
+#define SID_ST200N    27
+#define SID_ST300N    28
+#define SID_ST400N    29
+#define SID_ST500N    30
+#define SID_ST600N    31
+#define SID_ST700N    32
+#define SID_ST800N    33
+#define SID_GS100     34
+#define SID_GS126     35
+#define SID_GS156     36
+#define SID_GS200     37
+#define SID_GS247     38
+#define SID_GS308     39
+#define SID_GS370     40
+#define SID_GS432     41
+#define SID_GS494     42
+#define SID_PS100     43
+#define SID_PS126     44
+#define SID_PS156     45
+#define SID_PS200     46
+#define SID_PS247     47
+#define SID_PS308     48
+#define SID_D08K100   49
+#define SID_D08K121   50
+#define SID_D08K182   51
+#define SID_D08K242   52
+#define SID_D08K302   53
+#define SID_D08K350   54
+#define SID_D08K370   55
+#define SID_D08K390   56
+#define SID_D08K395   57
+#define SID_D08K400   58
+#define SID_D08K410   59
+#define SID_D08K420   60
+#define SID_D08K500   61
+#define SID_D12K100   62
+#define SID_D12K182   63
+#define SID_D12K302   64
+#define SID_D12K500   65
+#define SID_D12K530   66
+#define SID_D12K570   67
+#define SID_D12K590   68
+#define SID_D12K595   69
+#define SID_D12K600   70
+#define SID_D12K610   71
+#define SID_D12K620   72
+#define SID_D12K700   73
+#define SID_D16K100   74
+#define SID_D16K182   75
+#define SID_D16K302   76
+#define SID_D16K500   77
+#define SID_D16K700   78
+#define SID_D16K730   79
+#define SID_D16K770   80
+#define SID_D16K790   81
+#define SID_D16K795   82
+#define SID_D16K800   83
+#define SID_D16K820   84
+#define SID_D16K900   85
+
+
+int                  RunningPeriods = 2;
+double               IntegratedLuminosity = 4679; //3168; //2410;//2125; //2080; //1912; //1947; //1631; //976.204518023; //705.273820; //342.603275; //204.160928; //191.04;
+double               IntegratedLuminosityBeforeTriggerChange = 355.227; //353.494; // Total luminosity taken before RPC L1 trigger change (went into effect on run 165970)
+float                Event_Weight = 1;
+int                  MaxEntry = -1;
+
+
+class stSignal{
    public:
-   std::string CMSSW;
-   int         Type;
+   std::string Type;
    std::string Name;
    std::string FileName;
    std::string Legend;
-   std::string Pileup;
-   double      Mass;
-   double      XSec;
-   bool        MakePlot;
-   float       WNC0;//weight for signal event with 0 Charged HSCP
-   float       WNC1;//weight for signal event with 1 Charged HSCP
-   float       WNC2;//weight for signal event with 2 Charged HSCP
+   double Mass;
+   double XSec;
+   bool   MakePlot;
+   bool   IsS4PileUp;
 
-   //These weights are used to reweight the gluino samples for different scenario of gluinobll fraction (f).  
-   //The weights are independent on the mass and are computed as a reweighting factor w.r.t a f=10% gluino ball sample.
-   //Weights have been computed in 2010 to be : 
-   //for f=00% --> [0.2524 / 0.3029 , 0.4893 / 0.4955 , 0.2583 / 0.2015]
-   //for f=10% --> [0.3029 / 0.3029 , 0.4955 / 0.4955 , 0.2015 / 0.2015]
-   //for f=50% --> [0.5739 / 0.3029 , 0.3704 / 0.4955 , 0.0557 / 0.2015]
-
-   stSample(){};
-   stSample(std::string CMSSW_, int Type_, std::string Name_, std::string FileName_, std::string Legend_, std::string Pileup_, double Mass_, double XSec_, bool MakePlot_, float WNC0_, float WNC1_, float WNC2_){CMSSW=CMSSW_; Type=Type_; Name=Name_; FileName=FileName_; Legend=Legend_; Pileup=Pileup_; Mass=Mass_; XSec=XSec_; MakePlot=MakePlot_; WNC0=WNC0_; WNC1=WNC1_; WNC2=WNC2_;}
-
-   int readFromFile(FILE* pFile){ 
-      char line[4096];
-      char* toReturn = fgets(line, 4096, pFile);
-      if(!toReturn)return EOF;
-      char* pch=strtok(line,","); int Arg=0; string tmp; int temp;
-      while (pch!=NULL){
-         switch(Arg){
-            case  0: tmp = pch;  CMSSW    = tmp.substr(tmp.find("\"")+1,tmp.rfind("\"")-tmp.find("\"")-1); break;
-            case  1: sscanf(pch, "%d", &Type); break;
-            case  2: tmp = pch;  Name     = tmp.substr(tmp.find("\"")+1,tmp.rfind("\"")-tmp.find("\"")-1); break;
-            case  3: tmp = pch;  FileName = tmp.substr(tmp.find("\"")+1,tmp.rfind("\"")-tmp.find("\"")-1); break;
-            case  4: tmp = pch;  Legend   = tmp.substr(tmp.find("\"")+1,tmp.rfind("\"")-tmp.find("\"")-1); break;
-            case  5: tmp = pch;  Pileup   = tmp.substr(tmp.find("\"")+1,tmp.rfind("\"")-tmp.find("\"")-1); break;
-            case  6: sscanf(pch, "%lf", &Mass); break;
-            case  7: sscanf(pch, "%lf", &XSec); break;
-            case  8: sscanf(pch, "%d", &temp); MakePlot=(temp>0); break;
-            case  9: sscanf(pch, "%f", &WNC0); break;
-            case 10: sscanf(pch, "%f", &WNC1); break;
-            case 11: sscanf(pch, "%f", &WNC2); break;
-            default:return EOF;break;
-         }
-         pch=strtok(NULL,",");Arg++;
-      }
-      return 0;
-   }
-
-   void print(FILE* pFile=stdout){
-      fprintf(pFile, "%-9s, %1d, %-30s, %-40s, %-60s, %-8s, % 5g, %+12.10E, %1i, %5.3f, %5.3f, %5.3f\n", (string("\"")+CMSSW+"\"").c_str(), Type, (string("\"")+Name+"\"").c_str(), (string("\"")+FileName+"\"").c_str(), (string("\"")+Legend+"\"").c_str(), (string("\"")+Pileup+"\"").c_str(), Mass, XSec, MakePlot, WNC0, WNC1, WNC2);
-   }
-
-   std::string ModelName(){
-      char strMass[255];sprintf(strMass, "_M%.0f",Mass);
-      char str7TeV[]="_7TeV";
-      char str8TeV[]="_8TeV";
-      string toReturn=Name;
-      if(toReturn.find(strMass)!=string::npos)toReturn.erase(toReturn.find(strMass), string(strMass).length());
-      if(toReturn.find(str7TeV)!=string::npos)toReturn.erase(toReturn.find(str7TeV), string(str7TeV).length());
-      if(toReturn.find(str8TeV)!=string::npos)toReturn.erase(toReturn.find(str8TeV), string(str8TeV).length());
-      return toReturn;
-   }
-
-   std::string ModelLegend(){
-      char MassStr[255];sprintf(MassStr, "%.0f",Mass);
-      string toReturn=Legend; toReturn.erase(toReturn.find(MassStr), string(MassStr).length());
-      if(toReturn.find(" GeV/#font[12]{c}^{2}")!=string::npos)toReturn.erase(toReturn.find(" GeV/#font[12]{c}^{2}"), string(" GeV/#font[12]{c}^{2}").length());
-      return toReturn;
-   }
-
-   double GetFGluinoWeight(int NChargedHSCP){ 
-      if(Type!=2)return 1;
-      double Weight;
-      switch(NChargedHSCP){
-         case 0: Weight=WNC0; break;
-         case 1: Weight=WNC1; break;
-         case 2: Weight=WNC2; break;
-         default: return 1.0;
-      }
-      if(Weight<0)return 1.0;
-      return Weight;
-   }
-
+   stSignal(); 
+      stSignal(std::string Type_, std::string Name_, std::string FileName_, std::string Legend_, double Mass_, bool MakePlot_, bool IsS4PileUp_, double XSec_){Type=Type_; Name=Name_; FileName=FileName_; Legend=Legend_; Mass=Mass_; MakePlot=MakePlot_; IsS4PileUp=IsS4PileUp_;XSec=XSec_;}
 };
 
-void GetSampleDefinition(std::vector<stSample>& samples, std::string sampleTxtFile="Analysis_Samples.txt"){
-      FILE* pFile = fopen(sampleTxtFile.c_str(),"r");
-         if(!pFile){printf("Can't open %s\n","Analysis_Samples.txt"); return;}
-         stSample newSample;      
-         while(newSample.readFromFile(pFile)!=EOF){samples.push_back(newSample);}
-      fclose(pFile);
+
+void GetSignalDefinition(std::vector<stSignal>& signals){
+  signals.push_back(stSignal("Gluino", "Gluino300", "Gluino300"    , "#tilde{g} 300"                 , 300,  1, 1,  65.800000) ); //NLO
+  signals.push_back(stSignal("Gluino", "Gluino400", "Gluino400"    , "#tilde{g} 400"                 , 400,  1, 1,   11.20000) ); //NLO
+  signals.push_back(stSignal("Gluino", "Gluino500", "Gluino500"    , "#tilde{g} 500"                 , 500,  1, 1,   2.540000) ); //NLO
+  signals.push_back(stSignal("Gluino", "Gluino600", "Gluino600"    , "#tilde{g} 600"                 , 600,  1, 1,   0.693000) ); //NLO
+  signals.push_back(stSignal("Gluino", "Gluino700", "Gluino700"    , "#tilde{g} 700"                 , 700,  1, 1,   0.214000) ); //NLO
+  signals.push_back(stSignal("Gluino", "Gluino800", "Gluino800"    , "#tilde{g} 800"                 , 800,  1, 1,   0.072500) ); //NLO
+  signals.push_back(stSignal("Gluino", "Gluino900", "Gluino900"    , "#tilde{g} 900"                 , 900,  1, 1,   0.026200) ); //NLO
+  signals.push_back(stSignal("Gluino", "Gluino1000", "Gluino1000"  , "#tilde{g} 1000"                ,1000,  1, 1,   0.0098700) ); //NLO
+  signals.push_back(stSignal("Gluino", "Gluino1100", "Gluino1100"  , "#tilde{g} 1100"                ,1100,  1, 1,   0.0038600) ); //NLO 
+  //signals.push_back(stSignal("Gluino", "Gluino1200", "Gluino1200"   , "#tilde{g} 1200"                ,1200,  1, 1,   0.004300) ); //NLO
+
+  signals.push_back(stSignal("Gluino", "Gluino300N", "Gluinoneutralonly300"   , "#tilde{g} 300 CS"              , 300,  1, 1,  65.800000) ); //NLO
+  signals.push_back(stSignal("Gluino", "Gluino400N", "Gluinoneutralonly400"   , "#tilde{g} 400 CS"              , 400,  1, 1,   11.20000) ); //NLO
+  signals.push_back(stSignal("Gluino", "Gluino500N", "Gluinoneutralonly500"   , "#tilde{g} 500 CS"              , 500,  1, 1,   2.540000) ); //NLO
+  signals.push_back(stSignal("Gluino", "Gluino600N", "Gluinoneutralonly600"   , "#tilde{g} 600 CS"              , 600,  1, 1,   0.693000) ); //NLO
+  signals.push_back(stSignal("Gluino", "Gluino700N", "Gluinoneutralonly700"   , "#tilde{g} 700 CS"              , 700,  1, 1,   0.214000) ); //NLO
+  signals.push_back(stSignal("Gluino", "Gluino800N", "Gluinoneutralonly800"   , "#tilde{g} 800 CS"              , 800,  1, 1,   0.072500) ); //NLO
+  signals.push_back(stSignal("Gluino", "Gluino900N", "Gluinoneutralonly900"   , "#tilde{g} 900 CS"              , 900,  1, 1,   0.026200) ); //NLO
+  signals.push_back(stSignal("Gluino", "Gluino1000N", "Gluinoneutralonly1000"  , "#tilde{g} 1000 CS"             ,1000,  1, 1,   0.0098700) ); //NLO
+  signals.push_back(stSignal("Gluino", "Gluino1100N", "Gluinoneutralonly1100"  , "#tilde{g} 1100 CS"             ,1100,  1, 1,   0.0038600) ); //NLO
+  //signals.push_back(stSignal("Gluino", "Gluino1200N", "Gluinoneutralonly1200"  , "#tilde{g} 1200 CS"             ,1200,  1, 1,   ) ); //NLO
+
+   //signals.push_back(stSignal("Gluino", "Gluino600Z"   , "#tilde{g} 600 Z2"              , 600,  1, 1,   0.465000) ); //NLO
+   //signals.push_back(stSignal("Gluino", "Gluino700Z"   , "#tilde{g} 700 Z2"              , 700,  1, 1,   0.130000) ); //NLO
+   //signals.push_back(stSignal("Gluino", "Gluino800Z"   , "#tilde{g} 800 Z2"              , 800,  1, 1,   0.039600) ); //NLO
+
+  signals.push_back(stSignal("Stop"  , "Stop130", "stop_M-130"      , "#tilde{t}_{1} 130"             , 130,  1, 1, 120.000000) ); //NLO
+  signals.push_back(stSignal("Stop"  , "Stop200", "stop_M-200"      , "#tilde{t}_{1} 200"             , 200,  1, 1,  13.000000) ); //NLO
+  signals.push_back(stSignal("Stop"  , "Stop300", "stop_M-300"      , "#tilde{t}_{1} 300"             , 300,  1, 1,   1.310000) ); //NLO
+  signals.push_back(stSignal("Stop"  , "Stop400", "stop_M-400"      , "#tilde{t}_{1} 400"             , 400,  1, 1,   0.218000) ); //NLO
+  signals.push_back(stSignal("Stop"  , "Stop500", "stop_M-500"      , "#tilde{t}_{1} 500"             , 500,  0, 1,  0.047800) ); //NLO
+  signals.push_back(stSignal("Stop"  , "Stop600", "stop_M-600"      , "#tilde{t}_{1} 600"             , 600,  1, 1,   0.012500) ); //NLO
+  signals.push_back(stSignal("Stop"  , "Stop700", "stop_M-700"      , "#tilde{t}_{1} 700"             , 700,  1, 1,   0.003560) ); //NLO
+  signals.push_back(stSignal("Stop"  , "Stop800", "stop_M-800"      , "#tilde{t}_{1} 800"             , 800,  1, 1,   0.001140) ); //NLO
+
+  signals.push_back(stSignal("Stop"  , "Stop130N", "stoponlyneutral_M-130"      , "#tilde{t}_{1} 130 CS"          , 130,  1, 1, 120.000000) ); //NLO
+  signals.push_back(stSignal("Stop"  , "Stop200N", "stoponlyneutral_M-200"     , "#tilde{t}_{1} 200 CS"          , 200,  1, 1,  13.000000) ); //NLO
+  signals.push_back(stSignal("Stop"  , "Stop300N", "stoponlyneutral_M-300"     , "#tilde{t}_{1} 300 CS"          , 300,  1, 1,   1.310000) ); //NLO
+  signals.push_back(stSignal("Stop"  , "Stop400N", "stoponlyneutral_M-400"     , "#tilde{t}_{1} 400 CS"          , 400,  1, 1,   0.218000) ); //NLO
+  signals.push_back(stSignal("Stop"  , "Stop500N", "stoponlyneutral_M-500"     , "#tilde{t}_{1} 500 CS"          , 500,  0, 1,  0.047800) ); //NLO
+  signals.push_back(stSignal("Stop"  , "Stop600N", "stoponlyneutral_M-600"     , "#tilde{t}_{1} 600 CS"          , 600,  1, 1,   0.012500) ); //NLO
+  signals.push_back(stSignal("Stop"  , "Stop700N", "stoponlyneutral_M-700"     , "#tilde{t}_{1} 700 CS"          , 700,  1, 1,   0.003560) ); //NLO
+  signals.push_back(stSignal("Stop"  , "Stop800N", "stoponlyneutral_M-800"     , "#tilde{t}_{1} 800 CS"          , 800,  1, 1,   0.001140) ); //NLO
+
+  //signals.push_back(stSignal("Stop"  , "Stop300Z"     , "#tilde{t}_{1} 300 Z2"          , 300,  1, 1,   1.310000) ); //NLO
+  //signals.push_back(stSignal("Stop"  , "Stop400Z"     , "#tilde{t}_{1} 400 Z2"          , 400,  1, 1,   0.218000) ); //NLO
+  //signals.push_back(stSignal("Stop"  , "Stop500Z"     , "#tilde{t}_{1} 500 Z2"          , 500,  0,   0.047800) ); //NLO
+
+  signals.push_back(stSignal("Stau"  , "GMStau100", "stau_M-100"    , "GMSB #tilde{#tau}_{1} 100"     , 100,  1, 1,   1.3398) ); //NLO
+  signals.push_back(stSignal("Stau"  , "GMStau126", "stau_M-126"    , "GMSB #tilde{#tau}_{1} 126"     , 126,  1, 1,   0.274591) ); //NLO
+  signals.push_back(stSignal("Stau"  , "GMStau156", "stau_M-156"    , "GMSB #tilde{#tau}_{1} 156"     , 156,  0, 1,  0.0645953) ); //NLO
+  signals.push_back(stSignal("Stau"  , "GMStau200", "stau_M-200"    , "GMSB #tilde{#tau}_{1} 200"     , 200,  1, 1,   0.0118093) ); //NLO
+  signals.push_back(stSignal("Stau"  , "GMStau247", "stau_M-247"    , "GMSB #tilde{#tau}_{1} 247"     , 247,  0, 1,  0.00342512) ); //NLO
+  signals.push_back(stSignal("Stau"  , "GMStau308", "stau_M-308"    , "GMSB #tilde{#tau}_{1} 308"     , 308,  1, 1,  0.00098447 ) ); //NLO
+  signals.push_back(stSignal("Stau"  , "GMStau370", "stau_M-370"    , "GMSB #tilde{#tau}_{1} 370"     , 370,  1, 1,   0.000353388) ); //NLO
+  signals.push_back(stSignal("Stau"  , "GMStau432", "stau_M-432"    , "GMSB #tilde{#tau}_{1} 432"     , 432,  1, 1,   0.000141817) ); //NLO
+  signals.push_back(stSignal("Stau"  , "GMStau494", "stau_M-494"    , "GMSB #tilde{#tau}_{1} 494"     , 494,  1, 1,   0.00006177) ); //NLO
+
+  signals.push_back(stSignal("Stau"  , "PPStau100", "PPStau100", "Pair #tilde{#tau}_{1} 100"     , 100,  1, 1,   0.0382) ); //NLO
+  signals.push_back(stSignal("Stau"  , "PPStau126", "PPStau126", "Pair #tilde{#tau}_{1} 126"     , 126,  0, 1,  0.0161) ); //NLO
+  signals.push_back(stSignal("Stau"  , "PPStau156", "PPStau156", "Pair #tilde{#tau}_{1} 156"     , 156,  0, 1,  0.00704) ); //NLO
+  signals.push_back(stSignal("Stau"  , "PPStau200", "PPStau200", "Pair #tilde{#tau}_{1} 200"     , 200,  1, 1,   0.00247) ); //NLO
+  signals.push_back(stSignal("Stau"  , "PPStau247", "PPStau247", "Pair #tilde{#tau}_{1} 247"     , 247,  0, 1,  0.00101) ); //NLO
+  signals.push_back(stSignal("Stau"  , "PPStau308", "PPStau308", "Pair #tilde{#tau}_{1} 308"     , 308,  0, 1,  0.000353) ); //NLO  
+
+  signals.push_back(stSignal("DCRho08HyperK" , "DCRho08HyperK100" , "DCRho08HyperK100"    , "DICHAMP #tilde{K} 100"  , 100,  1, 1,   1.405000) ); //LO
+  signals.push_back(stSignal("DCRho08HyperK" , "DCRho08HyperK121" , "DCRho08HyperK121"    , "DICHAMP #tilde{K} 121"  , 121,  1, 1,   0.979000) ); //LO
+  signals.push_back(stSignal("DCRho08HyperK" , "DCRho08HyperK182" , "DCRho08HyperK182"    , "DICHAMP #tilde{K} 182"  , 182,  0, 1,   0.560000) ); //LO
+  signals.push_back(stSignal("DCRho08HyperK" , "DCRho08HyperK242" , "DCRho08HyperK242"    , "DICHAMP #tilde{K} 242"  , 242,  0, 1,   0.489000) ); //LO
+  signals.push_back(stSignal("DCRho08HyperK" , "DCRho08HyperK302" , "DCRho08HyperK302"    , "DICHAMP #tilde{K} 302"  , 302,  1, 1,   0.463000) ); //LO
+  signals.push_back(stSignal("DCRho08HyperK" , "DCRho08HyperK350" , "DCRho08HyperK350"    , "DICHAMP #tilde{K} 350"  , 350,  1, 1,   0.473000) ); //LO
+  signals.push_back(stSignal("DCRho08HyperK" , "DCRho08HyperK370" , "DCRho08HyperK370"    , "DICHAMP #tilde{K} 370"  , 370,  1, 1,   0.48288105) ); //LO
+  signals.push_back(stSignal("DCRho08HyperK" , "DCRho08HyperK390" , "DCRho08HyperK390"    , "DICHAMP #tilde{K} 390"  , 390,  1, 1,   0.47132496) ); //LO
+  signals.push_back(stSignal("DCRho08HyperK" , "DCRho08HyperK395" , "DCRho08HyperK395"    , "DICHAMP #tilde{K} 395"  , 395,  1, 1,   0.420000) ); //LO
+  signals.push_back(stSignal("DCRho08HyperK" , "DCRho08HyperK400" , "DCRho08HyperK400"    , "DICHAMP #tilde{K} 400"  , 400,  1, 1,   0.473000) ); //LO
+  signals.push_back(stSignal("DCRho08HyperK" , "DCRho08HyperK410" , "DCRho08HyperK410"    , "DICHAMP #tilde{K} 410"  , 410,  1, 1,   0.0060812129) ); //LO
+  signals.push_back(stSignal("DCRho08HyperK" , "DCRho08HyperK420" , "DCRho08HyperK420"    , "DICHAMP #tilde{K} 420"  , 420,  1, 1,   0.003500) ); //LO
+  signals.push_back(stSignal("DCRho08HyperK" , "DCRho08HyperK500" , "DCRho08HyperK500"    , "DICHAMP #tilde{K} 500"  , 500,  1, 1,   0.0002849) ); //LO
+  
+  signals.push_back(stSignal("DCRho12HyperK" , "DCRho12HyperK100" , "DCRho12HyperK100"  , "DICHAMP #tilde{K} 100"  , 100,  1, 1, 0.8339415992) ); //LO        
+  signals.push_back(stSignal("DCRho12HyperK" , "DCRho12HyperK182" , "DCRho12HyperK182"  , "DICHAMP #tilde{K} 182"  , 182,  1, 1, 0.168096952140) ); //LO 
+  signals.push_back(stSignal("DCRho12HyperK" , "DCRho12HyperK302" , "DCRho12HyperK302"  , "DICHAMP #tilde{K} 302"  , 302,  1, 1, 0.079554948387) ); //LO      
+  signals.push_back(stSignal("DCRho12HyperK" , "DCRho12HyperK500" , "DCRho12HyperK500"  , "DICHAMP #tilde{K} 500"  , 500,  1, 1, 0.063996737) ); //LO         
+  signals.push_back(stSignal("DCRho12HyperK" , "DCRho12HyperK530" , "DCRho12HyperK530"  , "DICHAMP #tilde{K} 530"  , 530,  1, 1, 0.064943882) ); //LO         
+  signals.push_back(stSignal("DCRho12HyperK" , "DCRho12HyperK570" , "DCRho12HyperK570"  , "DICHAMP #tilde{K} 570"  , 570,  1, 1, 0.0662920530) ); //LO        
+  signals.push_back(stSignal("DCRho12HyperK" , "DCRho12HyperK590" , "DCRho12HyperK590"  , "DICHAMP #tilde{K} 590"  , 590,  1, 1, 0.060748383) ); //LO         
+  signals.push_back(stSignal("DCRho12HyperK" , "DCRho12HyperK595" , "DCRho12HyperK595"  , "DICHAMP #tilde{K} 595"  , 595,  1, 1, 0.04968409) ); //LO          
+  signals.push_back(stSignal("DCRho12HyperK" , "DCRho12HyperK600" , "DCRho12HyperK600"  , "DICHAMP #tilde{K} 600"  , 600,  1, 1, 0.0026232721237) ); //LO     
+  signals.push_back(stSignal("DCRho12HyperK" , "DCRho12HyperK610" , "DCRho12HyperK610"  , "DICHAMP #tilde{K} 610"  , 610,  1, 1, 0.00127431) ); //LO          
+  signals.push_back(stSignal("DCRho12HyperK" , "DCRho12HyperK620" , "DCRho12HyperK620"  , "DICHAMP #tilde{K} 620"  , 620,  1, 1, 0.00056965104319) ); //LO    
+  signals.push_back(stSignal("DCRho12HyperK" , "DCRho12HyperK700" , "DCRho12HyperK700"  , "DICHAMP #tilde{K} 700"  , 700,  1, 1, 0.00006122886211) ); //LO     
+
+  signals.push_back(stSignal("DCRho16HyperK" , "DCRho16HyperK100" , "DCRho16HyperK100"  , "DICHAMP #tilde{K} 100"  , 100,  1, 1, 0.711518686800) ); //LO       
+  signals.push_back(stSignal("DCRho16HyperK" , "DCRho16HyperK182" , "DCRho16HyperK182"  , "DICHAMP #tilde{K} 182"  , 182,  1, 1, 0.089726059780) ); //LO       
+  signals.push_back(stSignal("DCRho16HyperK" , "DCRho16HyperK302" , "DCRho16HyperK302"  , "DICHAMP #tilde{K} 302"  , 302,  1, 1, 0.019769637301) ); //LO       
+  signals.push_back(stSignal("DCRho16HyperK" , "DCRho16HyperK500" , "DCRho16HyperK500"  , "DICHAMP #tilde{K} 500"  , 500,  1, 1, 0.0063302286576) ); //LO      
+  signals.push_back(stSignal("DCRho16HyperK" , "DCRho16HyperK700" , "DCRho16HyperK700"  , "DICHAMP #tilde{K} 700"  , 700,  1, 1, 0.002536779850) ); //LO       
+  signals.push_back(stSignal("DCRho16HyperK" , "DCRho16HyperK730" , "DCRho16HyperK730"  , "DICHAMP #tilde{K} 730"  , 730,  1, 1, 0.00213454921) ); //LO
+  signals.push_back(stSignal("DCRho16HyperK" , "DCRho16HyperK770" , "DCRho16HyperK770"  , "DICHAMP #tilde{K} 770"  , 770,  1, 1, 0.001737551) ); //LO 
+  signals.push_back(stSignal("DCRho16HyperK" , "DCRho16HyperK790" , "DCRho16HyperK790"  , "DICHAMP #tilde{K} 790"  , 790,  1, 1, 0.00161578593) ); //LO
+  signals.push_back(stSignal("DCRho16HyperK" , "DCRho16HyperK795" , "DCRho16HyperK795"  , "DICHAMP #tilde{K} 795"  , 795,  1, 1, 0.00153513713) ); //LO
+  signals.push_back(stSignal("DCRho16HyperK" , "DCRho16HyperK800" , "DCRho16HyperK800"  , "DICHAMP #tilde{K} 800"  , 800,  1, 1, 0.000256086965) ); //LO
+  signals.push_back(stSignal("DCRho16HyperK" , "DCRho16HyperK810" , "DCRho16HyperK810"  , "DICHAMP #tilde{K} 810"  , 810,  1, 1, 0.000140664) ); //LO 
+  signals.push_back(stSignal("DCRho16HyperK" , "DCRho16HyperK820" , "DCRho16HyperK820"  , "DICHAMP #tilde{K} 820"  , 820,  1, 1, 0.000097929923655) ); //LO 
+  signals.push_back(stSignal("DCRho16HyperK" , "DCRho16HyperK900" , "DCRho16HyperK900"  , "DICHAMP #tilde{K} 900"  , 900,  1, 1, 0.000013146066) ); //LO       
+
 }
 
-void GetInputFiles(stSample sample, std::string BaseDirectory_, std::vector<std::string>& inputFiles, int period=0){
-   std::vector<string> fileNames;
-   char* tmp = (char*)sample.FileName.c_str();
-   char* pch=strtok(tmp,";");
-   while (pch!=NULL){
-      fileNames.push_back(pch);
-      pch=strtok(NULL,",");
-   }
+struct stMC{
+   std::string Name;
+   double XSection;
+   double MaxPtHat;
+   double MaxEvent;
+   bool   IsS4PileUp;
 
-   for(unsigned int f=0;f<fileNames.size();f++){  
-      if(sample.Type>=2){ //MC Signal
-        if(fileNames[f].find("7TeV")<string::npos){ //7TeV
-           if (period==0) inputFiles.push_back(BaseDirectory_ + fileNames[f] + "_BX0.root");
-           if (period==1) inputFiles.push_back(BaseDirectory_ + fileNames[f] + "_BX1.root");
-         }else{ //8TeV
-	  inputFiles.push_back(BaseDirectory_ + fileNames[f] + ".root");
-         }
-      }else{ //Data or MC Background
-        inputFiles.push_back(BaseDirectory_ + fileNames[f] + ".root");
-      }
-   }
+   stMC();
+      stMC(std::string Name_, double XSection_, double MaxPtHat_, int MaxEvent_, bool IsS4PileUp_){Name = Name_; XSection = XSection_; MaxPtHat = MaxPtHat_; MaxEvent = MaxEvent_;IsS4PileUp = IsS4PileUp_;}
+};
+
+void GetMCDefinition(std::vector<stMC>& MC){
+
+   MC.push_back(stMC("MC_DYToTauTau"            ,     1.300E3  , -1, -1, 0));
+   MC.push_back(stMC("MC_DYToMuMu"              ,     1.300E3  , -1, -1, 0));
+   MC.push_back(stMC("MC_WJetsToLNu"            ,     2.777E4  , -1, -1, 1));
+   MC.push_back(stMC("MC_TTJets"                ,     9.400E1  , -1, -1, 1));
+   MC.push_back(stMC("MC_QCD_Pt-15to30"         ,     8.16E8  , -1, -1, 0));
+   MC.push_back(stMC("MC_QCD_Pt-30to50"         ,     5.310E7  , -1, -1, 0));
+   MC.push_back(stMC("MC_QCD_Pt-50to80"         ,     6.360E6  , -1, -1, 0));
+   MC.push_back(stMC("MC_QCD_Pt-80to120"        ,     7.840E5  , -1, -1, 0));
+   MC.push_back(stMC("MC_QCD_Pt-120to170"       ,     1.150E5  , -1, -1, 0));
+   MC.push_back(stMC("MC_QCD_Pt-170to300"       ,     2.430E4  , -1, -1, 0));
+   MC.push_back(stMC("MC_QCD_Pt-300to470"       ,     1.170E3  , -1, -1, 0));
+   MC.push_back(stMC("MC_QCD_Pt-470to600"       ,     7.020E1  , -1, -1, 0));
+   MC.push_back(stMC("MC_QCD_Pt-600to800"       ,     1.560E1  , -1, -1, 0));
+   MC.push_back(stMC("MC_QCD_Pt-800to1000"      ,     1.84     , -1, -1, 0));
+   MC.push_back(stMC("MC_QCD_Pt-1000to1400"     ,     3.320E-1 , -1, -1, 0));
+   MC.push_back(stMC("MC_QCD_Pt-1400to1800"     ,     1.090E-2 , -1, -1, 0));
+   MC.push_back(stMC("MC_QCD_Pt-1800"           ,     3.580E-4 , -1, -1, 0));
+   MC.push_back(stMC("MC_ZJetToMuMu_Pt-0to15"   ,     4.280E3  , -1, -1, 0));
+   MC.push_back(stMC("MC_ZJetToMuMu_Pt-15to20"  ,     1.450E2  , -1, -1, 0));
+   MC.push_back(stMC("MC_ZJetToMuMu_Pt-20to30"  ,     1.310E2  , -1, -1, 0));
+   MC.push_back(stMC("MC_ZJetToMuMu_Pt-30to50"  ,     8.400E1  , -1, -1, 0));
+   MC.push_back(stMC("MC_ZJetToMuMu_Pt-50to80"  ,     3.220E1  , -1, -1, 0));
+   MC.push_back(stMC("MC_ZJetToMuMu_Pt-80to120" ,     9.98     , -1, -1, 0));
+   MC.push_back(stMC("MC_ZJetToMuMu_Pt-120to170",     2.73     , -1, -1, 0));
+   MC.push_back(stMC("MC_ZJetToMuMu_Pt-170to230",     7.21E-1  , -1, -1, 0));
+   MC.push_back(stMC("MC_ZJetToMuMu_Pt-230to300",     1.94E-1  , -1, -1, 0));
+   MC.push_back(stMC("MC_ZJetToMuMu_Pt-300"     ,     7.59E-2  , -1, -1, 0));
+   MC.push_back(stMC("MC_ZZ"                    ,     4.287    , -1, -1, 1));
+   MC.push_back(stMC("MC_WW"                    ,     2.783E1  , -1, -1, 1));
+   MC.push_back(stMC("MC_WZ"                    ,     1.47E1   , -1, -1, 1));
 }
 
-int JobIdToIndex(string JobId, const std::vector<stSample>& samples){
-   for(unsigned int s=0;s<samples.size();s++){
-      if(samples[s].Name==JobId)return s;
-   }
-   return -1;
-
-   //if sample is not found, use the 7 or 8TeV sample instead...
-   //replace 7TeV by 8TeV or vice versa
-   if(     JobId.find("_7TeV")!=string::npos){JobId.replace(JobId.find("_7TeV"),5, "_8TeV");}
-   else if(JobId.find("_8TeV")!=string::npos){JobId.replace(JobId.find("_8TeV"),5, "_7TeV");}
-
-   for(unsigned int s=0;s<samples.size();s++){
-      if(samples[s].Name==JobId)return s;
-   }
-   return -1;
-}
-
-void keepOnlySamplesOfTypeX(std::vector<stSample>& samples, int TypeX){
-   for(unsigned int s=0;s<samples.size();s++){if(samples[s].Type!=TypeX){samples.erase(samples.begin()+s);s--;} }
-}
-
-void keepOnlyTheXtoYSamples(std::vector<stSample>& samples, unsigned int X, unsigned int Y){
-   std::vector<stSample> tmp; for(unsigned int s=X;s<=Y && s<samples.size();s++){tmp.push_back(samples[s]);} samples.clear();
-   for(unsigned int s=0;s<tmp.size();s++)samples.push_back(tmp[s]);
-}
-
-void keepOnlySamplesOfNameX(std::vector<stSample>& samples, string NameX){
-   for(unsigned int s=0;s<samples.size();s++){if(samples[s].Name!=NameX){samples.erase(samples.begin()+s);s--;} }
-}  
-
-void keepOnlySamplesOfNamesXtoY(std::vector<stSample>& samples, std::vector<string> NamesXtoY){
-    for(unsigned int s=0;s<samples.size();s++){
-      bool keep=false;
-      for(unsigned int i=0;i<NamesXtoY.size();i++){
-	if(samples[s].Name==NamesXtoY[i]) {keep=true; break;}
-      }
-      if(!keep) {samples.erase(samples.begin()+s);s--;}
-    }
-}
-
-void keepOnlySamplesAt7and8TeVX(std::vector<stSample>& samples, double SQRTS_){
-   if(SQRTS_==78 || SQRTS_==87){
-      std::vector<stSample> samples_tmp;
-      for(unsigned int s=0;s<samples.size();s++){
-         string tmpName = samples[s].Name;
-         if(     tmpName.find("_7TeV")!=string::npos){tmpName.replace(tmpName.find("_7TeV"),5, "_8TeV");}
-         else if(tmpName.find("_8TeV")!=string::npos){tmpName.replace(tmpName.find("_8TeV"),5, "_7TeV");}
-         for(unsigned int t=s;t<samples.size();t++){
-            if(samples[t].Name==tmpName){
-               samples_tmp.push_back(samples[s]);
-               samples_tmp.push_back(samples[t]);
-            } 
-         }
-      }
-      samples.clear();
-      for(unsigned int s=0;s<samples_tmp.size();s++){samples.push_back(samples_tmp[s]);}
+void GetInputFiles(std::vector<std::string>& inputFiles, std::string SampleName, int period=0){
+//  std::string BaseDirectory = "/storage/data/cms/users/quertenmont/HSCP/CMSSW_4_2_3/11_08_03/";
+//   std::string BaseDirectory = "dcache:/pnfs/cms/WAX/11/store/user/jchen/11_09_13_HSCP2011EDM/";
+  std::string BaseDirectory = "/uscmst1b_scratch/lpc1/lpcphys/jchen/HSCPEDM_11_01_11/";
+   if(SampleName=="Data"){
+     inputFiles.push_back(BaseDirectory + "Data_RunA_160404_163869.root");
+     inputFiles.push_back(BaseDirectory + "Data_RunA_165001_166033.root");
+     inputFiles.push_back(BaseDirectory + "Data_RunA_166034_166500.root");
+     inputFiles.push_back(BaseDirectory + "Data_RunA_166501_166893.root");
+     inputFiles.push_back(BaseDirectory + "Data_RunA_166894_167151.root");
+     inputFiles.push_back(BaseDirectory + "Data_RunA_167153_167913.root");
+     inputFiles.push_back(BaseDirectory + "Data_RunA_170826_171500.root");
+     inputFiles.push_back(BaseDirectory + "Data_RunA_171501_172619.root");
+     inputFiles.push_back(BaseDirectory + "Data_RunA_172620_172790.root");
+     inputFiles.push_back(BaseDirectory + "Data_RunA_172791_172802.root");
+     inputFiles.push_back(BaseDirectory + "Data_RunA_172803_172900.root");
+     inputFiles.push_back(BaseDirectory + "Data_RunA_172901_173243.root");
+     inputFiles.push_back(BaseDirectory + "Data_RunA_173244_173692.root");
+     inputFiles.push_back(BaseDirectory + "Data_RunA_175860_176099.root");
+     inputFiles.push_back(BaseDirectory + "Data_RunA_176100_176309.root");
+     inputFiles.push_back(BaseDirectory + "Data_RunA_176467_176800.root");
+     inputFiles.push_back(BaseDirectory + "Data_RunA_176801_177053.root");
+     inputFiles.push_back(BaseDirectory + "Data_RunA_177074_177783.root");
+     inputFiles.push_back(BaseDirectory + "Data_RunA_177788_178380.root");
+     inputFiles.push_back(BaseDirectory + "Data_RunA_178420_179411.root");
+     inputFiles.push_back(BaseDirectory + "Data_RunA_179434_180252.root");
+   }else if(SampleName.find("MC_",0)<std::string::npos){
+     inputFiles.push_back(BaseDirectory + SampleName + ".root");
    }else{
-      for(unsigned int s=0;s<samples.size();s++){
-         string tmpName = samples[s].Name;
-         if(     SQRTS_==7 && tmpName.find("_7TeV")==string::npos){samples.erase(samples.begin()+s);s--;}
-         if(     SQRTS_==8 && tmpName.find("_8TeV")==string::npos){samples.erase(samples.begin()+s);s--;}
-      }
+     if (period==0) inputFiles.push_back(BaseDirectory + SampleName + ".root");
+     if (period==1) inputFiles.push_back(BaseDirectory + SampleName + "BX1.root");
    }
 }
-
-
-
-
-//////////////////////////////////////////////////////////////////////////////////////////////////////////
-// Genertic code related to samples processing in FWLITE --> functions below will be loaded only if FWLITE compiler variable is defined
-
-#ifdef FWLITE
-
-unsigned long GetInitialNumberOfMCEvent(const vector<string>& fileNames);
-double GetSampleWeight  (const double& IntegratedLuminosityInPb=-1, const double& IntegratedLuminosityInPbBeforeTriggerChange=-1, const double& CrossSection=0, const double& MCEvents=0, int period=0);
-double GetSampleWeightMC(const double& IntegratedLuminosityInPb, const std::vector<string> fileNames, const double& XSection, const double& SampleSize, double MaxEvent);
-double GetPUWeight      (const fwlite::ChainEvent& ev, const std::string& pileup, double &PUSystFactor);
-
-// loop on all the lumi blocks for an EDM file in order to count the number of events that are in a sample
-// this is useful to determine how to normalize the events (compute weight)
-unsigned long GetInitialNumberOfMCEvent(const vector<string>& fileNames)
-{
-   unsigned long Total = 0;
-   for(unsigned int f=0;f<fileNames.size();f++){
-      TFile *file;
-      size_t place=fileNames[f].find("dcache");
-      if(place!=string::npos){
- 	 string name=fileNames[f];
-         //name.replace(place, 7, "dcap://cmsgridftp.fnal.gov:24125");
-         file = new TDCacheFile (name.c_str());
-      }else{
-         file = TFile::Open(fileNames[f].c_str());
-      }
-
-      fwlite::LuminosityBlock ls( file );
-      for(ls.toBegin(); !ls.atEnd(); ++ls){
-         fwlite::Handle<edm::MergeableCounter> nEventsTotalCounter;
-         nEventsTotalCounter.getByLabel(ls,"nEventsBefSkim");
-         if(!nEventsTotalCounter.isValid()){printf("Invalid nEventsTotalCounterH\n");continue;}
-         Total+= nEventsTotalCounter->value;
-      }
-   }
-   return Total;
-}
-
-// compute event weight for the signal samples based on number of events in the sample, cross section and intergated luminosity
-double GetSampleWeight(const double& IntegratedLuminosityInPb, const double& IntegratedLuminosityInPbBeforeTriggerChange, const double& CrossSection, const double& MCEvents, int period){
-  double Weight = 1.0;
-  if(IntegratedLuminosityInPb>=IntegratedLuminosityInPbBeforeTriggerChange && IntegratedLuminosityInPb>0){
-    double NMCEvents = MCEvents;
-    //if(MaxEntry>0)NMCEvents=std::min(MCEvents,(double)MaxEntry);
-    if      (period==0)Weight = (CrossSection * IntegratedLuminosityInPbBeforeTriggerChange) / NMCEvents;
-    else if (period==1)Weight = (CrossSection * (IntegratedLuminosityInPb-IntegratedLuminosityInPbBeforeTriggerChange)) / NMCEvents;
-  }
-  return Weight;
-}
-
-// compute event weight for the MC background samples based on number of events in the sample, cross section and intergated luminosity
-double GetSampleWeightMC(const double& IntegratedLuminosityInPb, const std::vector<string> fileNames, const double& XSection, const double& SampleSize, double MaxEvent){
-  double Weight = 1.0;
-   unsigned long InitNumberOfEvents = GetInitialNumberOfMCEvent(fileNames); 
-   double SampleEquivalentLumi = InitNumberOfEvents / XSection;
-   if(MaxEvent<0)MaxEvent=SampleSize;
-   printf("GetSampleWeight MC: IntLumi = %6.2E  SampleLumi = %6.2E --> EventWeight = %6.2E --> ",IntegratedLuminosityInPb,SampleEquivalentLumi, IntegratedLuminosityInPb/SampleEquivalentLumi);
-//   printf("Sample NEvent = %6.2E   SampleEventUsed = %6.2E --> Weight Rescale = %6.2E\n",SampleSize, MaxEvent, SampleSize/MaxEvent);
-   Weight = (IntegratedLuminosityInPb/SampleEquivalentLumi) * (SampleSize/MaxEvent);
-   printf("FinalWeight = %6.2f\n",Weight);
-   return Weight;
-}
-
-// compute a weight to make sure that the pileup distribution in Signal/Background MC is compatible to the pileup distribution in data
-double GetPUWeight(const fwlite::ChainEvent& ev, const std::string& pileup, double &PUSystFactor, edm::LumiReWeighting& LumiWeightsMC, reweight::PoissonMeanShifter& PShift){
-   fwlite::Handle<std::vector<PileupSummaryInfo> > PupInfo;
-   PupInfo.getByLabel(ev, "addPileupInfo");
-   if(!PupInfo.isValid()){printf("PileupSummaryInfo Collection NotFound\n");return 1.0;}
-   double PUWeight_thisevent=1;
-   std::vector<PileupSummaryInfo>::const_iterator PVI;
-   int npv = -1; float Tnpv = -1;
-
-   if(pileup=="S4"){
-      float sum_nvtx = 0;
-      for(PVI = PupInfo->begin(); PVI != PupInfo->end(); ++PVI) {
-         npv = PVI->getPU_NumInteractions();
-         sum_nvtx += float(npv);
-      }
-      float ave_nvtx = sum_nvtx/3.;
-      PUWeight_thisevent = LumiWeightsMC.weight( ave_nvtx );
-      PUSystFactor = PShift.ShiftWeight( ave_nvtx );
-   }else if(pileup=="S3"){
-      for(PVI = PupInfo->begin(); PVI != PupInfo->end(); ++PVI) {
-         int BX = PVI->getBunchCrossing();
-         if(BX == 0) {
-            npv = PVI->getPU_NumInteractions();
-            continue;
-         }
-      }
-      PUWeight_thisevent = LumiWeightsMC.weight( npv );
-      PUSystFactor = PShift.ShiftWeight( npv );
-   }else if(pileup=="S10"){
-     for(PVI = PupInfo->begin(); PVI != PupInfo->end(); ++PVI) {
-       int BX = PVI->getBunchCrossing();
-       if(BX == 0) {
-	 Tnpv = PVI->getTrueNumInteractions();
-	 continue;
-       }
-     }
-     PUWeight_thisevent = LumiWeightsMC.weight( Tnpv );
-     PUSystFactor = PShift.ShiftWeight( Tnpv );
-   }
-   else {
-     printf("Can not find pile up scenario");
-   }
-   return PUWeight_thisevent;
-}
-
-
-
-// compute a weight to make sure that the pileup distribution in Signal/Background MC is compatible to the pileup distribution in data
-double GetPUWeight(const fwlite::ChainEvent& ev, const std::string& pileup, double &PUSystFactor, edm::LumiReWeighting& LumiWeightsMC, edm::LumiReWeighting& LumiWeightsMCSyst){
-   fwlite::Handle<std::vector<PileupSummaryInfo> > PupInfo;
-   PupInfo.getByLabel(ev, "addPileupInfo");
-   if(!PupInfo.isValid()){printf("PileupSummaryInfo Collection NotFound\n");return 1.0;}
-   double PUWeight_thisevent=1;
-   std::vector<PileupSummaryInfo>::const_iterator PVI;
-   int npv = -1; float Tnpv = -1;
-
-   if(pileup=="S4"){
-      float sum_nvtx = 0;
-      for(PVI = PupInfo->begin(); PVI != PupInfo->end(); ++PVI) {
-         npv = PVI->getPU_NumInteractions();
-         sum_nvtx += float(npv);
-      }
-      float ave_nvtx = sum_nvtx/3.;
-      PUWeight_thisevent = LumiWeightsMC.weight( ave_nvtx );
-      if(PUWeight_thisevent==0) PUSystFactor=1;
-      else PUSystFactor = LumiWeightsMCSyst.weight( ave_nvtx ) / PUWeight_thisevent;
-   }else if(pileup=="S3"){
-      for(PVI = PupInfo->begin(); PVI != PupInfo->end(); ++PVI) {
-         int BX = PVI->getBunchCrossing();
-         if(BX == 0) {
-            npv = PVI->getPU_NumInteractions();
-            continue;
-         }
-      }
-      PUWeight_thisevent = LumiWeightsMC.weight( npv );
-      if(PUWeight_thisevent==0) PUSystFactor=1;
-      else PUSystFactor = LumiWeightsMCSyst.weight( npv ) / PUWeight_thisevent;
-   }else if(pileup=="S10"){
-     for(PVI = PupInfo->begin(); PVI != PupInfo->end(); ++PVI) {
-       int BX = PVI->getBunchCrossing();
-       if(BX == 0) {
-	 Tnpv = PVI->getTrueNumInteractions();
-	 continue;
-       }
-     }
-     PUWeight_thisevent = LumiWeightsMC.weight( Tnpv );
-     if(PUWeight_thisevent==0) PUSystFactor=1;
-     else PUSystFactor = LumiWeightsMCSyst.weight( Tnpv ) / PUWeight_thisevent;
-   }
-   else {
-     printf("Can not find pile up scenario");
-   }
-   return PUWeight_thisevent;
-}
-
-#endif //end FWLITE block
-
-
-
-//////////////////////////////////////////////////////////////////////////////////////////////////////////
-// Define Theoretical XSection and error band for 7TeVStops and 7TeVGluino
-
-//NLO Stop@7TeV
-double THXSEC7TeV_Stop_Mass [] = {100.0,120.0,140.0,160.0,180.0,200.0,220.0,240.0,260.0,280.0,300.0,320.0,340.0,360.0,380.0,400.0,420.0,440.0,460.0,480.0,500.0,520.0,540.0,560.0,580.0,600.0,620.0,640.0,660.0,680.0,700.0,720.0,740.0,760.0,780.0,800.0,820.0,840.0,860.0,880.0,900.0,920.0,940.0,960.0,980.0,1000.0};
-double THXSEC7TeV_Stop_Cen  [] = {390.0,165.0,76.8,38.8,21.1,12.1,7.21,4.46,2.84,1.86,1.24,0.844,0.585,0.412,0.294,0.212,0.155,0.114,0.0847,0.0634,0.0479,0.0365,0.0279,0.0215,0.0166,0.0129,0.0101,0.00796,0.0063,0.00499,0.00397,0.00317,0.00253,0.00203,0.00164,0.00132,0.00107,0.000864,0.000702,0.000572,0.000467,0.000381,0.000312,0.000255,0.00021,0.000173 };
-double THXSEC7TeV_Stop_Low  [] = {336.687212239,142.161704016,65.8513147385,33.1253989627,17.918668408,10.2276057109,6.06740619265,3.73576507352,2.36659235722,1.54221509094,1.02378918186,0.693358458913,0.478780586501,0.335646071783,0.238501707841,0.171183802392,0.124608032654,0.0912510120893,0.0674833984023,0.0502792202566,0.037816978755,0.0286883112529,0.0218301431028,0.0167475917045,0.012877462018,0.00995875547206,0.00775938400598,0.00608185167256,0.00479071471604,0.00377411064367,0.00298741802917,0.00237365916816,0.00188189555314,0.00150193564851,0.00120631066392,0.000965374807573,0.000778619696638,0.000624245761673,0.000504320503585,0.00040804137369,0.000330700238198,0.000267790633317,0.000217758112762,0.000176730791724,0.000144344874883,0.000117997311653 };
-double THXSEC7TeV_Stop_High [] = {455.337270601,192.484749389,89.6237634573,45.38,24.7104320442,14.2154509779,8.49882260582,5.27246023469,3.3687269963,2.21436345753,1.48113888098,1.01267602748,0.704377399955,0.497929290742,0.356909806888,0.258306503513,0.189623679693,0.14001964183,0.104443008835,0.0785510793723,0.059587810898,0.0455979172605,0.035030746117,0.0271154457368,0.021046423859,0.0164444810585,0.0129238101605,0.0102301624614,0.00812681856605,0.00646997801663,0.00517242916474,0.004153874823,0.00333274574668,0.00268995484779,0.00218320499759,0.00176632187855,0.00143974932708,0.00116964830458,0.000955623561151,0.000783143384745,0.000643472508176,0.000528336426727,0.000435441662818,0.000358165927707,0.000296784169801,0.000246047049368 };
-
-
-//NLO Stop@8TeV
-double THXSEC8TeV_Stop_Mass [] = {100.0,120.0,140.0,160.0,180.0,200.0,220.0,240.0,260.0,280.0,300.0,320.0,340.0,360.0,380.0,400.0,420.0,440.0,460.0,480.0,500.0,520.0,540.0,560.0,580.0,600.0,620.0,640.0,660.0,680.0,700.0,720.0,740.0,760.0,780.0,800.0,820.0,840.0,860.0,880.0,900.0,920.0,940.0,960.0,980.0,1000.0,1020.0,1040.0,1060.0,1080.0,1100.0,1120.0,1140.0,1160.0,1180.0,1200.0,1220.0,1240.0,1260.0,1280.0,1300.0,1320.0,1340.0,1360.0,1380.0,1400.0,1420.0,1440.0,1460.0,1480.0,1500.0,1520.0,1540.0,1560.0,1580.0,1600.0,1620.0,1640.0,1660.0,1680.0,1700.0,1720.0,1740.0,1760.0,1780.0,1800.0,1820.0,1840.0,1860.0,1880.0,1900.0,1920.0,1940.0,1960.0,1980.0};
-double THXSEC8TeV_Stop_Cen  [] = {526.0,226.0,107.0,55.0,30.3,17.7,10.7,6.69,4.32,2.85,1.93,1.33,0.935,0.666,0.48,0.351,0.259,0.194,0.146,0.111,0.0846,0.0652,0.0505,0.0394,0.0309,0.0244,0.0193,0.0153,0.0123,0.00985,0.00794,0.00642,0.0052,0.00423,0.00345,0.00282,0.00231,0.0019,0.00156,0.00129,0.00107,0.000888,0.000738,0.000614,0.000512,0.000427,0.000357,0.000298,0.00025,0.00021,0.000177,0.000149,0.000126,0.000106,8.95e-05,7.54e-05,6.37e-05,5.4e-05,4.58e-05,3.88e-05,3.29e-05,2.79e-05,2.37e-05,2.01e-05,1.71e-05,1.45e-05,1.24e-05,1.05e-05,8.98e-06,7.65e-06,6.51e-06,5.53e-06,4.7e-06,3.99e-06,3.38e-06,2.86e-06,2.4e-06,2.02e-06,1.73e-06,1.49e-06,1.29e-06,1.1e-06,9.35e-07,7.95e-07,6.77e-07,5.77e-07,4.92e-07,4.19e-07,3.57e-07,3.04e-07,2.58e-07,2.19e-07,1.87e-07,1.59e-07,1.35e-07};
-double THXSEC8TeV_Stop_Low [] = {456.40976717,195.648917903,92.2540349723,47.2865665445,25.9397832106,15.0956844963,9.08927760689,5.65777076356,3.6403946419,2.38881618792,1.61175270749,1.10604627471,0.775030543643,0.549718373166,0.394375877481,0.287159,0.211071455628,0.157614743299,0.118115158583,0.0896125182004,0.067981415327,0.0521458627606,0.0402437661268,0.0312470919086,0.0244182952548,0.019218893828,0.0151215196692,0.0119430303758,0.00956579804952,0.00763312081598,0.00613258287528,0.0049339106769,0.00397887414586,0.00321918065883,0.00261564964342,0.00212811380764,0.00173487125664,0.00142268794902,0.00116204134147,0.000956279372476,0.000788408712819,0.000650528932861,0.000538210968336,0.000445184820841,0.000368817901272,0.000305789996708,0.000254186271492,0.000210958143595,0.000175969661542,0.000146735307698,0.000123013224389,0.000102929880545,8.6402235565e-05,7.222995e-05,6.05164427274e-05,5.0580220783e-05,4.24247029546e-05,3.5715773314e-05,3.00635721872e-05,2.52451336458e-05,2.12193012116e-05,1.78446031904e-05,1.50354723785e-05,1.26276243982e-05,1.06536409697e-05,8.94732163468e-06,7.59026356243e-06,6.35376571526e-06,5.37945064143e-06,4.53447994822e-06,3.81776527832e-06,3.21539615667e-06,2.71447659044e-06,2.28387219518e-06,1.91493168116e-06,1.60622722428e-06,1.34502348655e-06,1.1253862558e-06,9.53375342241e-07,8.07186767383e-07,6.85400212545e-07,5.77264615054e-07,4.84520464268e-07,4.06967984563e-07,3.41287787427e-07,2.86338664102e-07,2.40809064183e-07,2.02382848192e-07,1.70268348502e-07,1.4267677199e-07,1.19072781243e-07,9.95434872399e-08,8.37672797081e-08,7.02461674403e-08,5.8546055207e-08};
-double THXSEC8TeV_Stop_High  [] = {612.151729265,262.612588103,124.288464259,63.9150906166,35.2825924691,20.6572041873,12.51422531,7.84901646422,5.08233985546,3.36513880209,2.28626927651,1.57937,1.11448052719,0.796049681797,0.575829786962,0.422291028968,0.312903555384,0.235042620074,0.177634138358,0.135439676246,0.103594494844,0.0801823918578,0.0623096661467,0.0488132526053,0.0384157751721,0.030457195299,0.02419270263,0.0192543023786,0.0155348683796,0.0124867180798,0.0101081955359,0.00820720230018,0.00667610315198,0.00545393409975,0.00446719444332,0.00366690218399,0.0030168136425,0.00249290452531,0.00205643855325,0.00170910492719,0.0014249051169,0.00118823222984,0.000992225516805,0.00082975230322,0.000695336835754,0.000582782847848,0.000489743672799,0.000410791069838,0.000346582593019,0.000292517320796,0.000247919343036,0.00020993472894,0.000178644320362,0.000151183052034,0.000128497606094,0.000108904879045,9.25617106816e-05,7.88942071601e-05,6.73641928454e-05,5.74235824351e-05,4.90287275026e-05,4.18712011298e-05,3.58244154887e-05,3.05926261591e-05,2.62141570875e-05,2.23830855768e-05,1.92778016416e-05,1.64463855993e-05,1.41720928606e-05,1.21588956729e-05,1.04173416472e-05,8.9066137467e-06,7.61913263458e-06,6.50912689733e-06,5.54723440685e-06,4.71830691087e-06,3.96587175902e-06,3.34925029375e-06,2.88869395402e-06,2.51958334975e-06,2.20968359995e-06,1.90103535042e-06,1.62823072952e-06,1.3949661943e-06,1.1975604273e-06,1.02928057305e-06,8.84816255638e-07,7.59765184201e-07,6.52949889306e-07,5.6101392013e-07,4.80393896187e-07,4.11598677578e-07,3.54793913074e-07,3.04265637883e-07,2.60687256456e-07};
-
-//NLO Gluino@7TeV
-double THXSEC7TeV_Gluino_Mass [] = {300.0,320.0,340.0,360.0,380.0,400.0,420.0,440.0,460.0,480.0,500.0,520.0,540.0,560.0,580.0,600.0,620.0,640.0,660.0,680.0,700.0,720.0,740.0,760.0,780.0,800.0,820.0,840.0,860.0,880.0,900.0,920.0,940.0,960.0,980.0,1000.0,1020.0,1040.0,1060.0,1080.0,1100.0,1120.0,1140.0,1160.0,1180.0,1200.0,1220.0,1240.0,1260.0,1280.0,1300.0,1320.0,1340.0,1360.0,1380.0,1400.0,1420.0,1440.0,1460.0,1480.0,1500.0,1520.0,1540.0,1560.0,1580.0,1600.0,1620.0,1640.0,1660.0,1680.0,1700.0,1720.0,1740.0,1760.0,1780.0,1800.0,1820.0,1840.0,1860.0,1880.0,1900.0,1920.0,1940.0,1960.0,1980.0 };
-double THXSEC7TeV_Gluino_Cen  [] = {65.8,44.8,31.0,21.7,15.5,11.2,8.15,6.01,4.47,3.36,2.54,1.93,1.48,1.14,0.888,0.693,0.543,0.428,0.339,0.269,0.214,0.172,0.137,0.111,0.0895,0.0725,0.0588,0.0479,0.0391,0.032,0.0262,0.0215,0.0176,0.0145,0.0119,0.00987,0.00815,0.00674,0.00559,0.00464,0.00386,0.0032,0.00266,0.00222,0.00185,0.00154,0.00128,0.00107,0.000893,0.000746,0.000623,0.00052,0.000435,0.000363,0.000304,0.000254,0.000212,0.000177,0.000148,0.000124,0.000103,8.64e-05,7.22e-05,6.02e-05,5.02e-05,4.18e-05,3.49e-05,2.9e-05,2.42e-05,2.02e-05,1.67e-05,1.39e-05,1.16e-05,9.59e-06,7.95e-06,6.59e-06,5.45e-06,4.51e-06,3.73e-06,3.08e-06,2.54e-06,2.09e-06,1.72e-06,1.42e-06,1.16e-06 };
-double THXSEC7TeV_Gluino_Low  [] = {53.9915787502,36.3679605186,25.04773106,17.5484531801,12.5029969909,8.9137230832,6.48814044136,4.71554753537,3.51079991399,2.63456118649,1.96607018967,1.50525499617,1.14834208312,0.886682415379,0.67892705475,0.528365261709,0.415476340911,0.322928423644,0.255343774802,0.202059219533,0.161164211822,0.127363153734,0.102023478594,0.0818182928751,0.065393518095,0.0529567854047,0.0430807023909,0.0345084584098,0.0280914623477,0.0229311955562,0.0184911518907,0.0152076608485,0.0124075251946,0.0102192110979,0.00832945628418,0.00686771000809,0.00568217384168,0.00462615538234,0.00382900127407,0.00313534410297,0.00259805136043,0.00215484050605,0.00180048617066,0.001467341696,0.00122061808,0.00100694617882,0.000838421855019,0.000684769467067,0.000571644050552,0.000476594263719,0.000392527368983,0.000326777849928,0.000268212922309,0.000224036696952,0.000184330609415,0.0001530784447,0.000126064184114,0.000105014721299,8.62123946791e-05,7.21482688124e-05,5.88983434237e-05,4.93030990383e-05,4.04422743416e-05,3.31101477016e-05,2.75456714875e-05,2.25762430633e-05,1.87694070612e-05,1.53040540155e-05,1.24350948334e-05,1.04092345492e-05,8.49269279945e-06,6.97519707277e-06,5.71827736139e-06,4.62718381962e-06,3.82358391349e-06,3.10935813704e-06,2.50561363539e-06,2.0258883204e-06,1.67348322755e-06,1.34494877209e-06,1.08865400522e-06,8.98317665716e-07,7.1490062492e-07,5.71185862116e-07,4.67630704264e-07 };
-double THXSEC7TeV_Gluino_High [] = {79.5668288977,54.2211352869,37.5922538006,26.5343616416,19.075,13.786,10.1121682798,7.45102358218,5.57973835763,4.22381192237,3.19868564961,2.44746309321,1.88138665258,1.45913982451,1.13478647663,0.892932349164,0.704893627141,0.556473798188,0.440065907012,0.352253724644,0.282471833163,0.226566443289,0.182846908818,0.147392902942,0.119981370949,0.0972614292036,0.0794933605454,0.0647760279165,0.0531432044804,0.0435131063759,0.0359897509829,0.0297064480657,0.0243363202323,0.0201945890666,0.0166888696477,0.013839213608,0.0115485526692,0.00955917250779,0.00797993717028,0.00667993235001,0.00555403311772,0.00464008175518,0.00388720169471,0.00326472742026,0.00273449708667,0.00230578041856,0.00191402087824,0.00161285546003,0.00135345358155,0.00113904856138,0.000958125352577,0.000805385272244,0.000678241538475,0.000570293065787,0.000481037075751,0.000404734213278,0.000340132555915,0.000285662391546,0.000240024886815,0.000203182671651,0.000169737973538,0.000143208791006,0.000120394572153,0.000101748910812,8.53401846951e-05,7.16178115223e-05,6.0214226498e-05,5.05737327547e-05,4.23835072134e-05,3.58341122051e-05,2.98807306886e-05,2.50681230531e-05,2.11198589408e-05,1.76419321064e-05,1.47213338727e-05,1.23406750758e-05,1.02636214127e-05,8.59048670095e-06,7.18944995696e-06,5.96042280205e-06,4.97224153032e-06,4.14424242035e-06,3.4282369471e-06,2.85290331058e-06,2.35628618585e-06 };
-
-
-
-
-//NLO Gluino@8TeV
-double THXSEC8TeV_Gluino_Mass [] = {300.0,320.0,340.0,360.0,380.0,400.0,420.0,440.0,460.0,480.0,500.0,520.0,540.0,560.0,580.0,600.0,620.0,640.0,660.0,680.0,700.0,720.0,740.0,760.0,780.0,800.0,820.0,840.0,860.0,880.0,900.0,920.0,940.0,960.0,980.0,1000.0,1020.0,1040.0,1060.0,1080.0,1100.0,1120.0,1140.0,1160.0,1180.0,1200.0,1220.0,1240.0,1260.0,1280.0,1300.0,1320.0,1340.0,1360.0,1380.0,1400.0,1420.0,1440.0,1460.0,1480.0,1500.0,1520.0,1540.0,1560.0,1580.0,1600.0,1620.0,1640.0,1660.0,1680.0,1700.0,1720.0,1740.0,1760.0,1780.0,1800.0,1820.0,1840.0,1860.0,1880.0,1900.0,1920.0,1940.0,1960.0,1980.0};
-double THXSEC8TeV_Gluino_Cen  [] = {103.0,70.6,49.3,35.1,25.3,18.5,13.6,10.2,7.66,5.82,4.46,3.44,2.66,2.08,1.63,1.29,1.02,0.816,0.653,0.525,0.424,0.344,0.279,0.228,0.186,0.153,0.126,0.104,0.0856,0.0709,0.0588,0.0489,0.0408,0.0341,0.0285,0.0239,0.02,0.0168,0.0141,0.0119,0.01,0.00845,0.00714,0.00605,0.00513,0.00435,0.00369,0.00314,0.00267,0.00227,0.00193,0.00164,0.0014,0.00119,0.00102,0.000866,0.000739,0.000631,0.000539,0.00046,0.000393,0.000336,0.000287,0.000245,0.000209,0.000179,0.000153,0.000131,0.000112,9.52e-05,8.13e-05,6.94e-05,5.93e-05,5.06e-05,4.31e-05,3.68e-05,3.14e-05,2.67e-05,2.28e-05,1.94e-05,1.65e-05,1.4e-05,1.19e-05,1.02e-05,8.63e-06};
-double THXSEC8TeV_Gluino_Low  [] = {85.4522933503,58.3024212534,40.5404072161,28.7311959371,20.6110330718,14.9981486143,10.9817116552,8.2045980396,6.13599856717,4.64639599616,3.54679219469,2.7264626978,2.09915349508,1.63562861604,1.27699308705,1.00685323305,0.792356354919,0.632441971506,0.503862668979,0.403411581822,0.324940255218,0.262909295502,0.212319587364,0.173005424976,0.140570743272,0.115316873907,0.0947326706086,0.0778816775066,0.0638144532538,0.0526220125758,0.0434789865444,0.0359951306958,0.029944567911,0.0249059836578,0.020754521583,0.0173207451689,0.0144267991917,0.0120799394065,0.0100863120603,0.00847183872318,0.00708717142879,0.00595886341748,0.00501035858415,0.00422415500896,0.00356494485684,0.00300727877119,0.00253860291188,0.00214977087027,0.00181901909611,0.00153605196417,0.00129944484705,0.00109821151599,0.000931476154739,0.000787499214937,0.000671494422707,0.000566354149908,0.000479894886148,0.000407420453834,0.000345671282251,0.000292733637163,0.000248262306276,0.000210814299455,0.000178718470665,0.000151342195875,0.000127869581852,0.000108804207517,9.23062817067e-05,7.82498615939e-05,6.63400478633e-05,5.58615231572e-05,4.72597016726e-05,3.99537211035e-05,3.38756321908e-05,2.86208917333e-05,2.41297344895e-05,2.0403820875e-05,1.72341338273e-05,1.44941525431e-05,1.22590511119e-05,1.03016340378e-05,8.66483254755e-06,7.26134469144e-06,6.10042739754e-06,5.16703392541e-06,4.32379602699e-06};
-double THXSEC8TeV_Gluino_High [] = {123.042915069,84.6204861909,59.3621530586,42.4270342231,30.720245281,22.5429742994,16.6400543991,12.521,9.44012836998,7.19888313862,5.53783839898,4.28718343406,3.32951446035,2.61303391779,2.0546626767,1.63189165427,1.29573309725,1.03959612686,0.835270344823,0.673688637441,0.546222752456,0.444771492296,0.362012997158,0.297010039438,0.243115317971,0.200703894146,0.165936031728,0.137421289844,0.113579295087,0.094359434471,0.0785768709139,0.0656067780802,0.054914187159,0.0460700308168,0.0386624800886,0.0325504144943,0.0273588316481,0.0230737980716,0.019440405649,0.0164822382849,0.0139146663585,0.0118012857472,0.0100182943312,0.00852079529061,0.00725778032384,0.00618194507243,0.00526737821502,0.00450197140212,0.00384501422077,0.00328618755105,0.00280677982274,0.00239852281744,0.00205691112089,0.00175754634874,0.00151421701532,0.00129260450299,0.00110862278184,0.000951522205324,0.000817402023602,0.000701118190558,0.000602322798422,0.000517825498222,0.000444861065588,0.000382177349458,0.000327902228753,0.00028253307733,0.000243007105712,0.00020936089293,0.000180051621273,0.000154016576997,0.000132434560814,0.000113806344946,9.78639305045e-05,8.40542824159e-05,7.21176753055e-05,6.20064018569e-05,5.32790981711e-05,4.56654057754e-05,3.92622063114e-05,3.3654042914e-05,2.88430383571e-05,2.46542444561e-05,2.11238854891e-05,1.82236973231e-05,1.55451905173e-05};
-
-
-
-//LO GMSB Stau@7TeV
-double THXSEC7TeV_GMStau_Mass [] = {100,126,156,200,247,308,370,432,494, 557};
-double THXSEC7TeV_GMStau_Cen  [] = {1.85875, 0.437087, 0.124238, 0.0271784, 0.00848349, 0.00238113, 0.000797847, 0.000300147, 0.000123075, 5.39018e-05};
-double THXSEC7TeV_GMStau_CenO  [] = {1.3398,0.274591,0.0645953,0.0118093,0.00342512,0.00098447,0.000353388,0.000141817,6.17749e-05, -1};
-double THXSEC7TeV_GMStau_Low  [] = {1.18163*THXSEC7TeV_GMStau_Cen[0]/THXSEC7TeV_GMStau_CenO[0],0.242982*THXSEC7TeV_GMStau_Cen[1]/THXSEC7TeV_GMStau_CenO[1],0.0581651*THXSEC7TeV_GMStau_Cen[2]/THXSEC7TeV_GMStau_CenO[2],0.0109992*THXSEC7TeV_GMStau_Cen[3]/THXSEC7TeV_GMStau_CenO[3],0.00324853*THXSEC7TeV_GMStau_Cen[4]/THXSEC7TeV_GMStau_CenO[4],0.00093519*THXSEC7TeV_GMStau_Cen[5]/THXSEC7TeV_GMStau_CenO[5],0.000335826*THXSEC7TeV_GMStau_Cen[6]/THXSEC7TeV_GMStau_CenO[6],0.000134024*THXSEC7TeV_GMStau_Cen[7]/THXSEC7TeV_GMStau_CenO[7],5.83501e-05*THXSEC7TeV_GMStau_Cen[8]/THXSEC7TeV_GMStau_CenO[8], 5.83501e-05*THXSEC7TeV_GMStau_Cen[9]/THXSEC7TeV_GMStau_CenO[8]};
-double THXSEC7TeV_GMStau_High [] = {1.48684*THXSEC7TeV_GMStau_Cen[0]/THXSEC7TeV_GMStau_CenO[0],0.304386*THXSEC7TeV_GMStau_Cen[1]/THXSEC7TeV_GMStau_CenO[1],0.0709262*THXSEC7TeV_GMStau_Cen[2]/THXSEC7TeV_GMStau_CenO[2],0.012632*THXSEC7TeV_GMStau_Cen[3]/THXSEC7TeV_GMStau_CenO[3],0.00358232*THXSEC7TeV_GMStau_Cen[4]/THXSEC7TeV_GMStau_CenO[4],0.00102099*THXSEC7TeV_GMStau_Cen[5]/THXSEC7TeV_GMStau_CenO[5],0.000366819*THXSEC7TeV_GMStau_Cen[6]/THXSEC7TeV_GMStau_CenO[6],0.000147665*THXSEC7TeV_GMStau_Cen[7]/THXSEC7TeV_GMStau_CenO[7],6.45963e-05*THXSEC7TeV_GMStau_Cen[8]/THXSEC7TeV_GMStau_CenO[8], 6.45963e-05*THXSEC7TeV_GMStau_Cen[9]/THXSEC7TeV_GMStau_CenO[8]};
-
-double THXSEC8TeV_GMStau_Mass [] = {100, 126, 156, 200, 247, 308, 370, 432, 494, 557 };
-double THXSEC8TeV_GMStau_Cen  [] = {2.95785, 0.715665, 0.204696, 0.0446997, 0.01391,  0.00400497, 0.0014057,  0.000555594,  0.000238697, 0.000109033};
-double THXSEC8TeV_GMStau_CenO [] = {2.2834, 0.495872, 0.120584, 0.0214979, 0.00575159, 0.00156062, 0.00056426, 0.000234305, 0.000105751, 5.07802e-05};
-double THXSEC8TeV_GMStau_Low  [] = {2.02025*THXSEC8TeV_GMStau_Cen[0]/THXSEC8TeV_GMStau_CenO[0], 0.437789*THXSEC8TeV_GMStau_Cen[1]/THXSEC8TeV_GMStau_CenO[1], 0.107208*THXSEC8TeV_GMStau_Cen[2]/THXSEC8TeV_GMStau_CenO[2], 0.019625*THXSEC8TeV_GMStau_Cen[3]/THXSEC8TeV_GMStau_CenO[3], 0.00540193*THXSEC8TeV_GMStau_Cen[4]/THXSEC8TeV_GMStau_CenO[4], 0.00148344*THXSEC8TeV_GMStau_Cen[5]/THXSEC8TeV_GMStau_CenO[5], 0.000535717*THXSEC8TeV_GMStau_Cen[6]/THXSEC8TeV_GMStau_CenO[6], 0.000222165*THXSEC8TeV_GMStau_Cen[7]/THXSEC8TeV_GMStau_CenO[7], 9.99954e-05*THXSEC8TeV_GMStau_Cen[8]/THXSEC8TeV_GMStau_CenO[8], 4.79772e-05*THXSEC8TeV_GMStau_Cen[9]/THXSEC8TeV_GMStau_CenO[9]};
-double THXSEC8TeV_GMStau_High [] = {2.52494*THXSEC8TeV_GMStau_Cen[0]/THXSEC8TeV_GMStau_CenO[0], 0.548973*THXSEC8TeV_GMStau_Cen[1]/THXSEC8TeV_GMStau_CenO[1], 0.133042*THXSEC8TeV_GMStau_Cen[2]/THXSEC8TeV_GMStau_CenO[2], 0.0233234*THXSEC8TeV_GMStau_Cen[3]/THXSEC8TeV_GMStau_CenO[3], 0.00609887*THXSEC8TeV_GMStau_Cen[4]/THXSEC8TeV_GMStau_CenO[4], 0.00162316*THXSEC8TeV_GMStau_Cen[5]/THXSEC8TeV_GMStau_CenO[5], 0.000585186*THXSEC8TeV_GMStau_Cen[6]/THXSEC8TeV_GMStau_CenO[6], 0.000243149*THXSEC8TeV_GMStau_Cen[7]/THXSEC8TeV_GMStau_CenO[7], 0.000109999*THXSEC8TeV_GMStau_Cen[8]/THXSEC8TeV_GMStau_CenO[8], 5.30139e-05*THXSEC8TeV_GMStau_Cen[9]/THXSEC8TeV_GMStau_CenO[9]};
-
-
-//LO PairProduced Stau@7TeV
-double THXSEC7TeV_PPStau_Mass [] = {100,126,156,200,247,308, 370, 432, 494, 557};
-double THXSEC7TeV_PPStau_Cen  [] = {0.038200,0.0161,0.007040,0.002470,0.001010,0.000353, 0.00014, 6.01e-05, 2.75e-05, 1.31E-05};
-double THXSEC7TeV_PPStau_Low  [] = {0.037076,0.0155927,0.0067891,0.00237277,0.00096927,0.000335308, 0.000132238,  5.62644e-05, 2.56415e-05, 1.31E-05*(2.10179e-05/2.24e-05)};
-double THXSEC7TeV_PPStau_High [] = {0.0391443,0.016527,0.00723151,0.00253477,0.00103844,0.000363699, 0.00014685, 6.31201e-05, 2.90217e-05, 1.31E-05*(2.32576e-05/2.24e-05)};
-
-double THXSEC8TeV_PPStau_Mass [] = {100, 126, 156, 200, 247, 308, 370, 432, 494, 557};
-double THXSEC8TeV_PPStau_Cen  [] = {0.047, 0.0202, 0.00902, 0.00327, 0.00137, 0.000503, 0.000208, 9.36e-05, 4.47e-05, 2.24e-05};
-double THXSEC8TeV_PPStau_Low  [] = {0.0456616, 0.0196246, 0.00873146, 0.00315596, 0.00130957, 0.000479108, 0.000197003, 8.85171e-05, 4.21191e-05, 2.10179e-05};
-double THXSEC8TeV_PPStau_High [] = {0.0481431, 0.0206482, 0.00924512, 0.00335015, 0.00140238, 0.000516666, 0.000214196, 9.66572e-05, 4.63125e-05, 2.32576e-05};
 
 #endif
-

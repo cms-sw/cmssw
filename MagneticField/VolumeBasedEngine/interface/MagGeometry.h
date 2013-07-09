@@ -4,8 +4,8 @@
 /** \class MagGeometry
  *  Entry point to the geometry of magnetic volumes.
  *
- *  $Date: 2010/10/13 15:40:20 $
- *  $Revision: 1.11 $
+ *  $Date: 2009/03/19 11:02:07 $
+ *  $Revision: 1.10 $
  *  \author N. Amapane - INFN Torino
  */
 
@@ -42,6 +42,9 @@ public:
 
   /// Find a volume
   MagVolume * findVolume(const GlobalPoint & gp, double tolerance=0.) const;
+
+  // Deprecated, will be removed
+  bool isZSymmetric() const {return false;}
 
   // FIXME: only for temporary tests, should be removed.
   const std::vector<MagVolume6Faces*> & barrelVolumes() const {return theBVolumes;}

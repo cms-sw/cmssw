@@ -13,7 +13,6 @@ CandidateSelector::CandidateSelector(const edm::ParameterSet& iConfig){
    isMuonSTA             = iConfig.getParameter<bool>   ("onlyConsiderMuonSTA"); 
    isMuonGB              = iConfig.getParameter<bool>   ("onlyConsiderMuonGB");
    isMuonTK              = iConfig.getParameter<bool>   ("onlyConsiderMuonTK");
-   isMTMuon              = iConfig.getParameter<bool>   ("onlyConsiderMTMuon");
    isRpc                 = iConfig.getParameter<bool>   ("onlyConsiderRpc");
    isEcal                = iConfig.getParameter<bool>   ("onlyConsiderEcal");
 
@@ -25,8 +24,6 @@ CandidateSelector::CandidateSelector(const edm::ParameterSet& iConfig){
 
    minMuonP              = iConfig.getParameter<double> ("minMuonP");
    minMuonPt             = iConfig.getParameter<double> ("minMuonPt");
-   minSAMuonPt           = iConfig.getParameter<double> ("minMTMuonPt");
-   minMTMuonPt           = iConfig.getParameter<double> ("minMTMuonPt");
 
    maxMuTimeDtBeta       = iConfig.getParameter<double> ("maxMuTimeDtBeta");
    minMuTimeDtNdof       = iConfig.getParameter<double> ("minMuTimeDtNdof");
@@ -47,7 +44,6 @@ bool CandidateSelector::isSelected(HSCParticle& candidate)
    if(isMuonSTA && (!candidate.hasMuonRef() || candidate.muonRef()->standAloneMuon().isNull()) ){return false;}
    if(isMuonGB  && (!candidate.hasMuonRef() || candidate.muonRef()->combinedMuon  ().isNull()) ){return false;}
    if(isMuonTK  && (!candidate.hasMuonRef() || candidate.muonRef()->innerTrack    ().isNull()) ){return false;}
-   if(isMTMuon  && !candidate.hasMTMuonRef() ){return false;}
    if(isRpc     && !candidate.hasRpcInfo() ){return false;}
    if(isEcal    && !candidate.hasCaloInfo()){return false;}
 
@@ -75,16 +71,6 @@ bool CandidateSelector::isSelected(HSCParticle& candidate)
    }
 
    if(candidate.hasRpcInfo()  && maxBetaRpc>=0  && candidate.rpc ().beta     > maxBetaRpc ){return false;}
-
-   if(candidate.hasMuonRef() && candidate.muonRef()->isStandAloneMuon()) {
-     if(candidate.muonRef()->standAloneMuon()->pt() < minSAMuonPt  ){return false;}
-   }
-
-   if(candidate.hasMTMuonRef()){
-     if(!candidate.MTMuonRef()->standAloneMuon().isNull()){
-       if(candidate.MTMuonRef()->standAloneMuon()->pt() < minMTMuonPt  ){return false;}
-     }
-   }
 
 //      Need to be implemented using external dE/dx object
 //   if(candidate.hasCaloInfo() && maxBetaEcal>=0 && candidate.calo().ecalBeta > maxBetaEcal){return false;}

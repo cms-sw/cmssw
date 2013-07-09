@@ -5,7 +5,6 @@
 #include <set>
 #include <string>
 #include <vector>
-#include <functional>
 
 namespace {
   struct dictionary {
@@ -26,10 +25,5 @@ namespace {
   std::random_access_iterator_tag randaccitertag;
   std::set<int> dummy19;
   std::set<std::basic_string<char> > dummy20;
-  __gnu_cxx::new_allocator<char> dummy21;
-  __gnu_cxx::new_allocator<double> dummy22;
-  __gnu_cxx::new_allocator<int> dummy23;
-  __gnu_cxx::new_allocator<short> dummy24;
-  std::binary_function<int,int,bool> dummy25;
   };
 }

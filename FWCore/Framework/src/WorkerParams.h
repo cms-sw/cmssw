@@ -20,18 +20,21 @@ namespace edm {
 
   struct WorkerParams {
     WorkerParams() :
-      pset_(nullptr), reg_(nullptr), processConfiguration_(), actions_(nullptr)
+      procPset_(nullptr), pset_(nullptr), reg_(nullptr), processConfiguration_(), actions_(nullptr)
       {}
 
-    WorkerParams(ParameterSet* pset,
+    WorkerParams(ParameterSet const& procPset,
+                 ParameterSet* pset,
                  ProductRegistry& reg,
                  boost::shared_ptr<ProcessConfiguration const> processConfiguration,
                  ActionTable const& actions) :
+      procPset_(&procPset),
       pset_(pset),
       reg_(&reg),
       processConfiguration_(processConfiguration),
       actions_(&actions) {}
 
+    ParameterSet const* procPset_;
     ParameterSet* pset_;
     ProductRegistry* reg_;
     boost::shared_ptr<ProcessConfiguration const> processConfiguration_;

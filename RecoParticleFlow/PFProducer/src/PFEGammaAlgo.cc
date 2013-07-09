@@ -1,3 +1,8 @@
+//
+// Original Authors: Fabian Stoeckli: fabian.stoeckli@cern.ch
+//                   Nicholas Wardle: nckw@cern.ch
+//                   Rishi Patel rpatel@cern.ch(ongoing developer and maintainer)
+//
 
 #include "RecoParticleFlow/PFProducer/interface/PFEGammaAlgo.h"
 #include "RecoParticleFlow/PFProducer/interface/PFMuonAlgo.h"
@@ -33,8 +38,8 @@ using namespace reco;
 
 PFEGammaAlgo::PFEGammaAlgo(const double mvaEleCut,
 			   std::string  mvaWeightFileEleID,
-			   const std::shared_ptr<PFSCEnergyCalibration>& thePFSCEnergyCalibration,
-			   const std::shared_ptr<PFEnergyCalibration>& thePFEnergyCalibration,
+			   const boost::shared_ptr<PFSCEnergyCalibration>& thePFSCEnergyCalibration,
+			   const boost::shared_ptr<PFEnergyCalibration>& thePFEnergyCalibration,
 			   bool applyCrackCorrections,
 			   bool usePFSCEleCalib,
 			   bool useEGElectrons,
@@ -1706,7 +1711,7 @@ bool PFEGammaAlgo::SetLinks(const reco::PFBlockRef&  blockRef,
 	    KfGsf_secondIndex = itkf->second;
 	  }
 	}
-      } // end loop on attaching KF
+      }
       
       // Find the closest Ecal clusters associated to this Gsf
       std::multimap<double, unsigned int> ecalGsfElems;

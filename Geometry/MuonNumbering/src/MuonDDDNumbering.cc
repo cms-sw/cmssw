@@ -1,12 +1,13 @@
 #include "Geometry/MuonNumbering/interface/MuonDDDNumbering.h"
 #include "Geometry/MuonNumbering/interface/MuonBaseNumber.h"
 #include "Geometry/MuonNumbering/interface/MuonDDDConstants.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-using namespace edm;
+#include <iostream>
 
-MuonDDDNumbering::MuonDDDNumbering( const MuonDDDConstants& muonConstants )
-{
+//#define LOCAL_DEBUG
+
+MuonDDDNumbering::MuonDDDNumbering( const MuonDDDConstants& muonConstants ){
+  //  MuonDDDConstants muonConstants;
   theLevelPart=muonConstants.getValue("level");
   theSuperPart=muonConstants.getValue("super");
   theBasePart=muonConstants.getValue("base");
@@ -14,47 +15,40 @@ MuonDDDNumbering::MuonDDDNumbering( const MuonDDDConstants& muonConstants )
 
   // some consistency checks
 
-  if( theBasePart != 1 )
-  {
-      LogWarning( "MuonNumbering" )
-	  << "MuonDDDNumbering finds unusual base constant: "
-	  << theBasePart;
+  if (theBasePart!=1) {
+    std::cout << "MuonDDDNumbering finds unusual base constant:"
+	 <<theBasePart<<std::endl;
   }
-  if( theSuperPart < 100 )
-  {
-      LogWarning( "MuonNumbering" )
-	  << "MuonDDDNumbering finds unusual super constant: "
-	  << theSuperPart;
+  if (theSuperPart<100) {
+    std::cout << "MuonDDDNumbering finds unusual super constant:"
+	 <<theSuperPart<<std::endl;
   }
-  if( theLevelPart < 10 * theSuperPart )
-  {
-      LogWarning( "MuonNumbering" )
-	  << "MuonDDDNumbering finds unusual level constant: "
-	  << theLevelPart;
+  if (theLevelPart<10*theSuperPart) {
+    std::cout << "MuonDDDNumbering finds unusual level constant:"
+	 <<theLevelPart<<std::endl;
   }
-  if(( theStartCopyNo != 0 ) && ( theStartCopyNo != 1 ))
-  {
-      LogWarning( "MuonNumbering" )
-	  << "MuonDDDNumbering finds unusual start value for copy numbers: "
-	  << theStartCopyNo;
+  if ((theStartCopyNo!=0)&&(theStartCopyNo!=1)) {
+    std::cout << "MuonDDDNumbering finds unusual start value for copy numbers:"
+	 <<theStartCopyNo<<std::endl;
   }
 
-  LogDebug( "MuonNumbering" ) 
-      << "MuonDDDNumbering configured with\n"
-      << "Level = " << theLevelPart
-      << " Super = " << theSuperPart
-      << " Base = " << theBasePart
-      << " StartCopyNo = " << theStartCopyNo;
+#ifdef LOCAL_DEBUG
+  std::cout << "MuonDDDNumbering configured with"<<std::endl;
+  std::cout << "Level = "<<theLevelPart<<" ";
+  std::cout << "Super = "<<theSuperPart<<" ";
+  std::cout << "Base = "<<theBasePart<<" ";
+  std::cout << "StartCopyNo = "<<theStartCopyNo<<std::endl;
+#endif
+
 }
 
-MuonBaseNumber
-MuonDDDNumbering::geoHistoryToBaseNumber(const DDGeoHistory & history)
-{
+MuonBaseNumber MuonDDDNumbering::geoHistoryToBaseNumber(const DDGeoHistory & history){
   MuonBaseNumber num;
 
-  LogDebug( "MuonNumbering" )
-      << "MuonDDDNumbering create MuonBaseNumber for\n"
-      << history;
+#ifdef LOCAL_DEBUG
+  std::cout << "MuonDDDNumbering create MuonBaseNumber for"<<std::endl;
+  std::cout << history <<std::endl;
+#endif
 
   //loop over all parents and check
   DDGeoHistory::const_iterator cur=history.begin();
@@ -71,18 +65,17 @@ MuonDDDNumbering::geoHistoryToBaseNumber(const DDGeoHistory & history)
     cur++;
   }
 
-  LogDebug( "MuonNumbering" )
-      << num.getLevels();
-  for( int i = 1; i <= num.getLevels(); i++ )
-  {
-      LogDebug( "MuonNumbering" ) << num.getSuperNo(i) << " " << num.getBaseNo(i);
+#ifdef LOCAL_DEBUG
+  std::cout << num.getLevels() <<std::endl;
+  for (int i=1;i<=num.getLevels();i++) {
+    std::cout << num.getSuperNo(i)<<" "<<num.getBaseNo(i)<<std::endl;
   }
-
+#endif
+ 
   return num;
 }
 
-int
-MuonDDDNumbering::getInt(const std::string & s, const DDLogicalPart & part)
+int MuonDDDNumbering::getInt(const std::string & s, const DDLogicalPart & part)
 {
     DDValue val(s);
     std::vector<const DDsvalues_type *> result = part.specifics();
@@ -98,8 +91,8 @@ MuonDDDNumbering::getInt(const std::string & s, const DDLogicalPart & part)
       std::vector<double> temp = val.doubles();
       if (temp.size() != 1)
       {
-	 LogError( "MuonNumbering" ) << " ERROR: I need only 1 " << s << " in DDLogicalPart " << part.name();
-	 throw cms::Exception("GeometryBuildFailure", "MuonDDDNumbering needs only one " + s );
+	std::cout << " ERROR: I need only 1 " << s << " in DDLogicalPart " << part.name() << std::endl;
+	 abort();
       }      
       return int(temp[0]);
     }

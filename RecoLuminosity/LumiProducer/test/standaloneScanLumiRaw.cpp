@@ -49,25 +49,23 @@ int main(int argc, char** argv){
   for(size_t i=0;i<hlxentries;++i){
     hlxTree->GetEntry(i);
     ncollidingbx=myLumiHeader->numBunches;
-    std::cout<<"lumi ls"<<myLumiHeader->sectionNumber<<std::endl;
     //std::cout<<"Lumi summary for run : "<<myLumiHeader->runNumber<<" : LS : "<<myLumiHeader->sectionNumber<<" "<<myLumiHeader->timestamp<<" "<<myLumiHeader->numBunches<<std::endl;
     
     //std::cout<<std::setw(20)<<"lumi details : "<<std::endl;
-//     unsigned int hlxls=myLumiHeader->sectionNumber;
-//     unsigned int ts=myLumiHeader->timestamp;
-    
-    //tmpbx.clear();
-    //for(size_t j=0;j<3564;++j){
+    unsigned int hlxls=myLumiHeader->sectionNumber;
+    unsigned int ts=myLumiHeader->timestamp;
+    tmpbx.clear();
+    for(size_t j=0;j<3564;++j){
       //std::cout<<std::setw(20)<<"    BX : "<<j<<" : OccLumi : "<<myLumiDetail->OccLumi[0][j]<<std::endl;
-    //  beaminfo b;
-    //  b.timestamp=ts;
-    //  b.bxidx=j;
-    //  b.lumival=myLumiDetail->OccLumi[0][j];
-    //  b.beam1_intensity=0.;
-    //  b.beam2_intensity=0.;
-    //  tmpbx.push_back(b);
-    //}
-    //bxlumis.insert(std::make_pair(hlxls,tmpbx));
+      beaminfo b;
+      b.timestamp=ts;
+      b.bxidx=j;
+      b.lumival=myLumiDetail->OccLumi[0][j];
+      b.beam1_intensity=0.;
+      b.beam2_intensity=0.;
+      tmpbx.push_back(b);
+    }
+    bxlumis.insert(std::make_pair(hlxls,tmpbx));
   }
 
   LumiCorrector corr;
@@ -97,16 +95,12 @@ int main(int argc, char** argv){
     std::auto_ptr<HCAL_HLX::DIP_COMBINED_DATA> dipdata(new HCAL_HLX::DIP_COMBINED_DATA);
     diptree->SetBranchAddress("DIPCombined.",&dipdata);
     size_t ndipentries=diptree->GetEntries();
-    std::cout<<ndipentries<<std::endl;
     unsigned int dipls=0;
     if(ndipentries>0){
-     
-      for(size_t i=0;i<ndipentries;++i){
-	//unsigned int fillnumber=dipdata->FillNumber;
+      for(size_t i=0;i<1;++i){
 	diptree->GetEntry(i);
+	//unsigned int fillnumber=dipdata->FillNumber;
 	dipls=dipdata->sectionNumber;
-	std::string beamstat(dipdata->beamMode);
-	std::cout<<"ls "<<dipls<<" beammode "<<beamstat<<std::endl;
 	std::map< unsigned int,std::vector<beaminfo> >::iterator dipIt=bxlumis.end();
 	if(bxlumis.find(dipls)!=dipIt){
 	  dipIt=bxlumis.find(dipls);

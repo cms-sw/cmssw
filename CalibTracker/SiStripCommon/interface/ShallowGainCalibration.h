@@ -67,7 +67,7 @@ private:
   void   produce( edm::Event &, const edm::EventSetup & );
 //  virtual void beginJob(EventSetup const&);
 //  virtual void beginRun(Run&, EventSetup const&);
-//  bool   IsFarFromBorder(TrajectoryStateOnSurface* trajState, const uint32_t detid, const edm::EventSetup* iSetup);
+  bool   IsFarFromBorder(TrajectoryStateOnSurface* trajState, const uint32_t detid, const edm::EventSetup* iSetup);
   double thickness    (DetId id);
 
   const TrackerGeometry* m_tracker;

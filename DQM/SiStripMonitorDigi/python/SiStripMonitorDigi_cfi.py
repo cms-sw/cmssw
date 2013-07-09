@@ -3,7 +3,6 @@ import FWCore.ParameterSet.Config as cms
 # SiStripMonitorDigi
 SiStripMonitorDigi = cms.EDAnalyzer("SiStripMonitorDigi",
                                   
-    digiTopDir = cms.string("SiStrip"),
     # add digi producers same way as Domenico in SiStripClusterizer
    
     DigiProducersList = cms.VInputTag(
@@ -166,12 +165,16 @@ SiStripMonitorDigi = cms.EDAnalyzer("SiStripMonitorDigi",
         subdetswitchon = cms.bool(False)
     ),
 
+    TProfTotalNumberOfDigisVsLS = cms.PSet(
+        subdetswitchon           = cms.bool(False)                
+    ),
+                                    
     TotalNumberOfDigisFailure = cms.PSet(
-        Nbins = cms.int32(2500),
-        ignoreFirstNLumisections = cms.int32(20),
-        integrateNLumisections = cms.int32(3),
+        Nbins = cms.int32(2000),
         subdetswitchon        = cms.bool(False)
     ),
+
+    xLumiProf = cms.int32(5),
 
     Mod_On = cms.bool(True),
 
