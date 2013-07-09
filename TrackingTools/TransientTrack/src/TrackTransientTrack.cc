@@ -8,14 +8,12 @@
 using namespace reco;
 
 TrackTransientTrack::TrackTransientTrack() : 
-  Track(), tkr_(), theField(0), initialTSOSAvailable(false),
-  initialTSCPAvailable(false), blStateAvailable(false)
+  Track(), tkr_(), theField(0), m_TSOS(kUnset), m_TSCP(kUnset), m_SCTBL(kUnset)
 {
 }
 
 TrackTransientTrack::TrackTransientTrack( const Track & tk , const MagneticField* field) : 
-  Track(tk), tkr_(), theField(field), initialTSOSAvailable(false),
-  initialTSCPAvailable(false), blStateAvailable(false)
+  Track(tk), tkr_(), theField(field), m_TSOS(kUnset), m_TSCP(kUnset), m_SCTBL(kUnset)
 {
   
   initialFTS = trajectoryStateTransform::initialFreeState(tk, field);
@@ -23,24 +21,21 @@ TrackTransientTrack::TrackTransientTrack( const Track & tk , const MagneticField
 
 
 TrackTransientTrack::TrackTransientTrack( const TrackRef & tk , const MagneticField* field) : 
-  Track(*tk), tkr_(tk), theField(field), initialTSOSAvailable(false),
-  initialTSCPAvailable(false), blStateAvailable(false)
+  Track(*tk), tkr_(tk), theField(field), m_TSOS(kUnset), m_TSCP(kUnset), m_SCTBL(kUnset)
 {
   
   initialFTS = trajectoryStateTransform::initialFreeState(*tk, field);
 }
 
 TrackTransientTrack::TrackTransientTrack( const Track & tk , const MagneticField* field, const edm::ESHandle<GlobalTrackingGeometry>& tg) :
-  Track(tk), tkr_(), theField(field), initialTSOSAvailable(false),
-  initialTSCPAvailable(false), blStateAvailable(false), theTrackingGeometry(tg)
+  Track(tk), tkr_(), theField(field), m_TSOS(kUnset), m_TSCP(kUnset), m_SCTBL(kUnset), theTrackingGeometry(tg)
 {
   
   initialFTS = trajectoryStateTransform::initialFreeState(tk, field);
 }
 
 TrackTransientTrack::TrackTransientTrack( const TrackRef & tk , const MagneticField* field, const edm::ESHandle<GlobalTrackingGeometry>& tg) :
-  Track(*tk), tkr_(tk), theField(field), initialTSOSAvailable(false),
-  initialTSCPAvailable(false), blStateAvailable(false), theTrackingGeometry(tg)
+  Track(*tk), tkr_(tk), theField(field), m_TSOS(kUnset), m_TSCP(kUnset), m_SCTBL(kUnset), theTrackingGeometry(tg)
 {
   
   initialFTS = trajectoryStateTransform::initialFreeState(*tk, field);
@@ -49,16 +44,15 @@ TrackTransientTrack::TrackTransientTrack( const TrackRef & tk , const MagneticFi
 
 TrackTransientTrack::TrackTransientTrack( const TrackTransientTrack & tt ) :
   Track(tt), tkr_(tt.persistentTrackRef()), theField(tt.field()), 
-  initialFTS(tt.initialFreeState()), initialTSOSAvailable(false),
-  initialTSCPAvailable(false)
+  initialFTS(tt.initialFreeState()), m_TSOS(kUnset), m_TSCP(kUnset)
 {
-  if (tt.initialTSOSAvailable) {
+  if (kSet == tt.m_TSOS.load()) {
     initialTSOS= tt.impactPointState();
-    initialTSOSAvailable = true;
+    m_TSOS.store(kSet);
   }
-  if (tt.initialTSCPAvailable) {
+  if (kSet == tt.m_TSCP.load()) {
     initialTSCP= tt.impactPointTSCP();
-    initialTSCPAvailable = true;
+    m_TSCP.store(kSet);
   }
 }
 
@@ -77,22 +71,34 @@ void TrackTransientTrack::setTrackingGeometry(const edm::ESHandle<GlobalTracking
 void TrackTransientTrack::setBeamSpot(const BeamSpot& beamSpot)
 {
   theBeamSpot = beamSpot;
-  blStateAvailable = false;
+  m_SCTBL = kUnset;
 }
 
 TrajectoryStateOnSurface TrackTransientTrack::impactPointState() const
 {
-  if (!initialTSOSAvailable) calculateTSOSAtVertex();
-  return initialTSOS;
+  if(kSet == m_TSOS.load()) return initialTSOS;
+  TransverseImpactPointExtrapolator tipe(theField);
+  auto tmp = tipe.extrapolate(initialFTS, initialFTS.position());
+  char expected = kUnset;
+  if(m_TSOS.compare_exchange_strong(expected, kSetting)) {
+    initialTSOS = tmp;
+    m_TSOS.store(kSet);
+    return initialTSOS;
+  }
+  return tmp;
 }
 
 TrajectoryStateClosestToPoint TrackTransientTrack::impactPointTSCP() const
 {
-  if (!initialTSCPAvailable) {
-    initialTSCP = builder(initialFTS, initialFTS.position());
-    initialTSCPAvailable = true;
+  if(kSet == m_TSCP.load()) return initialTSCP;
+  auto tmp = builder(initialFTS, initialFTS.position());
+  char expected = kUnset;
+  if(m_TSCP.compare_exchange_strong(expected, kSetting)) {
+    initialTSCP = tmp;
+    m_TSCP.store(kSet);
+    return initialTSCP;
   }
-  return initialTSCP;
+  return tmp;
 }
 
 TrajectoryStateOnSurface TrackTransientTrack::outermostMeasurementState() const
@@ -107,13 +113,6 @@ TrajectoryStateOnSurface TrackTransientTrack::innermostMeasurementState() const
     return trajectoryStateTransform::innerStateOnSurface((*this),*theTrackingGeometry,theField);
 }
 
-void TrackTransientTrack::calculateTSOSAtVertex() const
-{
-  TransverseImpactPointExtrapolator tipe(theField);
-  initialTSOS = tipe.extrapolate(initialFTS, initialFTS.position());
-  initialTSOSAvailable = true;
-}
-
 TrajectoryStateOnSurface 
 TrackTransientTrack::stateOnSurface(const GlobalPoint & point) const
 {
@@ -123,11 +122,15 @@ TrackTransientTrack::stateOnSurface(const GlobalPoint & point) const
 
 TrajectoryStateClosestToBeamLine TrackTransientTrack::stateAtBeamLine() const
 {
-  if (!blStateAvailable) {
-    TSCBLBuilderNoMaterial blsBuilder;
-    trajectoryStateClosestToBeamLine = blsBuilder(initialFTS, theBeamSpot);
-    blStateAvailable = true;
+  if(kSet == m_SCTBL.load()) return trajectoryStateClosestToBeamLine;
+  TSCBLBuilderNoMaterial blsBuilder;
+  const auto tmp = blsBuilder(initialFTS, theBeamSpot);
+  char expected = kUnset;
+  if(m_SCTBL.compare_exchange_strong(expected, kSetting)) {
+      trajectoryStateClosestToBeamLine = tmp;
+      m_SCTBL.store(kSet);
+      return trajectoryStateClosestToBeamLine;
   }
-  return trajectoryStateClosestToBeamLine;
+  return tmp;
 }
 

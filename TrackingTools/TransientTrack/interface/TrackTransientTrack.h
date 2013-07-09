@@ -1,14 +1,16 @@
 #ifndef TrackReco_TrackTransientTrack_h
 #define TrackReco_TrackTransientTrack_h
 
+#include <atomic>
+
   /**
    * Concrete implementation of the TransientTrack for a reco::Track
    */
 
 #include "TrackingTools/TransientTrack/interface/BasicTransientTrack.h"
-#include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h" 
+#include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h"
 #include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/TrackReco/interface/TrackFwd.h" 
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "TrackingTools/PatternTools/interface/TSCPBuilderNoMaterial.h"
 
 namespace reco {
@@ -17,16 +19,16 @@ namespace reco {
   public:
 
     // constructor from persistent track
-    TrackTransientTrack(); 
-    TrackTransientTrack( const Track & tk , const MagneticField* field); 
-    TrackTransientTrack( const TrackRef & tk , const MagneticField* field); 
+    TrackTransientTrack();
+    TrackTransientTrack( const Track & tk , const MagneticField* field);
+    TrackTransientTrack( const TrackRef & tk , const MagneticField* field);
 
     TrackTransientTrack( const TrackRef & tk , const MagneticField* field, const edm::ESHandle<GlobalTrackingGeometry>& trackingGeometry);
 
     TrackTransientTrack( const Track & tk , const MagneticField* field, const edm::ESHandle<GlobalTrackingGeometry>& trackingGeometry);
 
     TrackTransientTrack( const TrackTransientTrack & tt );
-    
+
     TrackTransientTrack& operator=(const TrackTransientTrack & tt);
 
     void setES(const edm::EventSetup& );
@@ -41,7 +43,7 @@ namespace reco {
 
     TrajectoryStateOnSurface innermostMeasurementState() const;
 
-    TrajectoryStateClosestToPoint 
+    TrajectoryStateClosestToPoint
       trajectoryStateClosestToPoint( const GlobalPoint & point ) const
       {return builder(initialFTS, point);}
 
@@ -54,13 +56,13 @@ namespace reco {
 
     TrajectoryStateOnSurface impactPointState() const;
 
-    bool impactPointStateAvailable() const {return  initialTSOSAvailable;}
+    bool impactPointStateAvailable() const {return (m_TSOS.load()==kSet ? true : false); }
 
   /**
    * access to original persistent track
    */
     TrackRef persistentTrackRef() const { return tkr_; }
-    
+
     TrackBaseRef trackBaseRef() const {return TrackBaseRef(tkr_);}
 
     TrackCharge charge() const {return Track::charge();}
@@ -73,19 +75,22 @@ namespace reco {
 
   private:
 
-    void calculateTSOSAtVertex() const;
-
     TrackRef tkr_;
     const MagneticField* theField;
 
     FreeTrajectoryState initialFTS;
-    mutable bool initialTSOSAvailable, initialTSCPAvailable, blStateAvailable;
     mutable TrajectoryStateOnSurface initialTSOS;
+    mutable std::atomic<char> m_TSOS;
     mutable TrajectoryStateClosestToPoint initialTSCP;
+    mutable std::atomic<char> m_TSCP;
+    mutable TrajectoryStateClosestToBeamLine trajectoryStateClosestToBeamLine;
+    mutable std::atomic<char> m_SCTBL;
+
     TSCPBuilderNoMaterial builder;
     edm::ESHandle<GlobalTrackingGeometry> theTrackingGeometry;
     reco::BeamSpot theBeamSpot;
-    mutable TrajectoryStateClosestToBeamLine trajectoryStateClosestToBeamLine;
+
+    enum KlassStates {kUnset, kSetting, kSet};
 
   };
 
