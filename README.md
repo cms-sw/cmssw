@@ -31,7 +31,8 @@ https://twiki.cern.ch/twiki/bin/view/MPGD/GEMTriggerRoadMap
 
 1.1 Get an account on GitHub. 
 
-Follow the instructions on<br>http://cms-sw.github.io/cmssw/faq.html#how_do_i_subscribe_to_github
+Follow the instructions on<br>
+http://cms-sw.github.io/cmssw/index.html
 
 1.2 Get an ssh key for each computer you would like to connect from (Lxplus, LPC,...)<pre><code>ssh-keygen -t rsa -C "john_doe@spameggs.com"</code></pre>
 
@@ -73,15 +74,28 @@ git cms-addpkg DataFormats/GEMRecHit
 git cms-addpkg DataFormats/CSCDigi
 git cms-addpkg L1Trigger/CSCTriggerPrimitives
 git cms-addpkg L1Trigger/GlobalMuonTrigger
+git cms-addpkg L1Trigger/CSCTrackFinder
+git cms-addpkg L1Trigger/CSCCommonTrigger
+git cms-addpkg DataFormats/L1CSCTrackFinder
 </code></pre>
 
-Check the available branches<pre><code>git branch</code></pre>
+The current branch should be from-CMSSW_6_2_0_pre8. 
 
-Check out your personal development branch<pre><code>git checkout -b mybranch/for/gemcode</code></pre>
+3.2 Checkout the latest GEM developments: 
 
-3.2 Check out the packages you want to modify
+<pre><code>
+git fetch cmssw-gem
+</code></pre>
 
-<pre><code>git addpkg L1Trigger/CSCTriggerPrimitives<br>git addpkg L1Trigger/GlobalMuonTrigger<br>git addpkg L1Trigger/CSCTrackFinder<br>git addpkg L1Trigger/CSCCommonTrigger<br>git addpkg DataFormats/L1CSCTrackFinder<br>git addpkg DataFormats/CSCDigi<br>git addpkg DataFormats/GEMDigi<br>git addpkg DataFormats/GEMRecHit</code></pre>
+Merge the changes
+<pre><code>
+git merge FETCH_HEAD
+</code></pre>
+
+Check if it is up-to-date with gem-sw/cmssw
+<pre><code>
+To be added here
+</code></pre>
 
 Compile:<pre><code>scram b -j 9</code></pre>
 
