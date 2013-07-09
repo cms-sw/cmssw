@@ -417,6 +417,7 @@ TFWLiteSelectorBasic::setupNewFile(TFile& iFile) {
            }
            edm::BranchDescription newBD(prod);
            newBD.updateFriendlyClassName();
+           newReg->copyProduct(newBD);
          }
          prod.init();
        }
