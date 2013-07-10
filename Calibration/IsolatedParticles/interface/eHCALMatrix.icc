@@ -1,3 +1,4 @@
+#include "Calibration/IsolatedParticles/interface/DebugInfo.h"
 #include "Calibration/IsolatedParticles/interface/FindCaloHit.h"
 #include "Calibration/IsolatedParticles/interface/FindEtaPhi.h"
 #include "Calibration/IsolatedParticles/interface/FindDistCone.h"
@@ -123,12 +124,45 @@ namespace spr{
     return energySum;
   }
 
+  template <typename T>
+  double eHCALmatrix(const CaloGeometry* geo, const HcalTopology* topology, const DetId& det0, edm::Handle<T>& hits, int ieta, int iphi, HcalDetId& hotCell, bool includeHO, bool debug) { 
+
+    HcalDetId hcid0(det0.rawId());
+    HcalDetId hcid(hcid0.subdet(),hcid0.ieta(),hcid0.iphi(),1);
+    hotCell = HcalDetId();
+    DetId det(hcid.rawId());
+
+    std::vector< typename T::const_iterator> hit;
+    spr::hitHCALmatrix(topology, det, hits, ieta, iphi, hit, includeHO, debug);
+    double energyMax(-99.), energySum(0);
+    int hottestIndex = -99;
+
+    for (unsigned int ihit=0; ihit<hit.size(); ihit++) {
+      // Sum energy getting hottest cell for later
+      double energy = getEnergy(hit.at(ihit));
+      if (energy>energyMax) {
+        energyMax = energy;
+        hottestIndex = ihit;
+      }
+      energySum += energy;
+    }
+
+    // Get hotCell ID
+    if (hottestIndex != -99)   hotCell = hit.at(hottestIndex)->id()	;
+    return energySum;
+  }
+
 
   template <typename T>
   double energyHCALmatrixNew(const HcalTopology* topology, const DetId& det, edm::Handle<T>& hits, int ieta, int iphi, bool includeHO, double hbThr, double heThr, double hfThr, double hoThr, double tMin, double tMax, bool debug) {
 
     std::vector<DetId> dets(1,det);
-    std::vector<DetId> vdets = spr::matrixHCALIds(dets, topology, ieta, iphi, includeHO, debug);
+    std::vector<DetId> vdets = spr::matrixHCALIds(dets, topology, ieta, iphi, includeHO, false);
+    if (debug) {
+      std::cout << "matrixHCALIds::Total number of cells found is " 
+		<< vdets.size() << std::endl;
+      spr::debugHcalDets(0, vdets);
+    }
     return spr::energyHCAL(vdets, hits, hbThr,heThr,hfThr,hoThr, tMin,tMax, debug);
   }
 
@@ -186,6 +220,43 @@ namespace spr{
     return energySum;
   }
 
+  template<typename T>
+  void energyHCALCell(HcalDetId detID, edm::Handle<T>& hits, std::vector<std::pair<double,int> >& energyCell, int maxDepth, double hbThr, double heThr, double hfThr, double hoThr, double tMin, double tMax, bool debug) {
+    energyCell.clear();
+    int    subdet  = detID.subdet();	
+    double eThr    = hbThr;
+    if      (subdet == (int)(HcalEndcap))  eThr = heThr;
+    else if (subdet == (int)(HcalForward)) eThr = hfThr;
+    else if (subdet == (int)(HcalOuter))   eThr = hoThr;
+    if (debug)
+      std::cout << "energyHCALCell: input ID " << detID << " MaxDepth " << maxDepth << " Threshold (E) " << eThr << " (T) " << tMin << ":" << tMax << std::endl;
+    for (int i=0; i<maxDepth; i++) {
+      HcalDetId hcid(detID.subdet(),detID.ieta(),detID.iphi(),i+1);
+      DetId det(hcid.rawId());
+      std::vector< typename T::const_iterator> hit = spr::findHit(hits, det);
+      double energy(0);
+      for (unsigned int ihit=0; ihit<hit.size(); ++ihit) {
+        if (hit[ihit]->time() > tMin && hit[ihit]->time() < tMax) 
+          energy += hit[ihit]->energy();
+        if (debug)
+          std::cout << "energyHCALCell:: Hit[" << ihit << "] " << hcid << " E " << hit[ihit]->energy() << " t " << hit[ihit]->time() << std::endl;
+      }
+      if (debug)
+         std::cout << "energyHCALCell:: Cell " << hcid << " E " << energy << " from " << hit.size() << " threshold " << eThr << std::endl;
+      if (energy>eThr && hit.size() > 0) {
+        energyCell.push_back(std::pair<double,int>(energy,i+1));
+      }
+    }
+    if (debug) {
+      std::cout << "energyHCALCell:: " << energyCell.size() << " entries from "
+                << maxDepth << " depths:";
+      for (unsigned int i=0; i<energyCell.size(); ++i) {
+        std::cout << " [" << i << "] (" << energyCell[i].first << ":"
+                  << energyCell[i].second << ")";
+      }
+      std::cout << std::endl;
+    }
+  }
 
   template <typename T>
   void hitsHCAL(std::vector<DetId>& vdets, edm::Handle<T>& hits, std::vector< typename T::const_iterator>& hitlist, bool debug) {

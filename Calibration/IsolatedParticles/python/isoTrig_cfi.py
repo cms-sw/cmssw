@@ -1,8 +1,9 @@
 import FWCore.ParameterSet.Config as cms
 
 IsoTrigHB = cms.EDAnalyzer("IsoTrig",
-                           Det           = cms.string("HB"),
-                           Verbosity     = cms.untracked.int32( 0 ),
+                           Triggers       = cms.untracked.vstring("HLT_IsoTrackHB"),
+                           DoL2L3          = cms.untracked.bool(True),
+                           Verbosity       = cms.untracked.int32( 0 ),
                          
                            TrackQuality    = cms.untracked.string("highPurity"),
                            MinTrackPt      = cms.untracked.double(10.0),

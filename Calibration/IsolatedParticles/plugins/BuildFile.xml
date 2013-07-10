@@ -7,10 +7,12 @@
 <use   name="DataFormats/EgammaReco"/>
 <use   name="DataFormats/L1GlobalTrigger"/>
 <use   name="DataFormats/L1Trigger"/>
+<use   name="DataFormats/Luminosity"/>
 <use   name="DataFormats/TrackReco"/>
 <use   name="DataFormats/VertexReco"/>
 <use   name="DataFormats/JetReco"/>
 <use   name="L1Trigger/GlobalTriggerAnalyzer"/>
+<use   name="HLTrigger/HLTcore"/>
 <use   name="SimGeneral/HepPDTRecord"/>
 <use   name="SimDataFormats/GeneratorProducts"/>
 <use   name="SimDataFormats/Vertex"/>
@@ -44,4 +46,8 @@
 <library   name="CalibrationIsolatedGenParticles" file="IsolatedGenParticles.cc">
 </library>
 <library   name="CalibrationElectronStudy" file="ElectronStudy.cc">
+</library>
+<library   name="CalibrationIsolatedParticlesIsoTrig" file="IsoTrig.cc">
+</library>
+<library   name="CalibrationIsolatedParticlesStudyHLT" file="StudyHLT.cc">
 </library>
