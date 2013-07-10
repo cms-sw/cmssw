@@ -32,7 +32,6 @@
 #include "DataFormats/HepMCCandidate/interface/GenParticleFwd.h"
 #include "TauSpinner/SimpleParticle.h"
 
-
 using namespace edm;
 using namespace std;
 using namespace TauSpinner;
@@ -68,5 +67,6 @@ class TauSpinnerCMS : public edm::EDProducer
   void GetLastSelf(const reco::GenParticle *Particle);
   void GetRecoDaughters(const reco::GenParticle *Particle,std::vector<SimpleParticle> &daughters,int parentpdgid);
   bool isFirst(const reco::GenParticle *Particle);
+  double roundOff_;
 }; 
 #endif
