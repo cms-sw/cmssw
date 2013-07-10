@@ -16,7 +16,7 @@ git and github.
 
 ### CMSSW_7_0_X
 
-On **June 24th**, in line with what should be `CMSSW_6_2_0_pre8`, `CMSSW_7_0_X`
+On **June 26th**, in line with what is `CMSSW_6_2_0_pre8`, `CMSSW_7_0_X`
 branch will open in GitHub.
 
 The current, test, [cms-sw/cmssw](http://github.com/cms-sw/cmssw) repository
@@ -25,7 +25,7 @@ forks!**
 
 ### CMSSW_6_2_X, CMSSW_5_3_X, CMSSW_4_4_X, CMSSW_4_1_X, SLHC releases.
 
-On the day `CMSSW_6_2_0` is released, tentatively July 1st, we will open
+On the day `CMSSW_6_2_0` is released, tentatively July 10th, we will open
 branches in git for all the required stable release queue. 
 
 CVS access to CMSSW repository will be shut down at that point.
