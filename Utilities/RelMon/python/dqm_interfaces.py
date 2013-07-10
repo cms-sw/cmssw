@@ -3,8 +3,8 @@
 # https://twiki.cern.ch/twiki/bin/view/CMSPublic/RelMon
 #
 # $Author: anorkus $
-# $Date: 2013/06/05 14:30:03 $
-# $Revision: 1.7 $
+# $Date: 2013/07/09 14:00:21 $
+# $Revision: 1.8 $
 #
 #                                                                              
 # Danilo Piparo CERN - danilo.piparo@cern.ch                                   
@@ -635,7 +635,7 @@ class DirWalkerFile(object):
         
     # see if in black_list
     this_dir=DirID(dir_name,depth)
-    print "  ## this_dir: %s"%(this_dir)
+    #print "  ## this_dir: %s"%(this_dir)
     if this_dir in self.black_list: 
       #print "Directory %s skipped because black-listed" %dir_name
       return 0        
