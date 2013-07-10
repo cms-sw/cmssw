@@ -101,10 +101,12 @@ namespace edm {
 
     EventNumber_t en = eventPrincipal.id().event();
     // Check that secondary source products are retrieved from the same event as the EventAuxiliary
+    ProductHolderIndex index;
     BasicHandle bhandle = eventPrincipal.getByLabel(PRODUCT_TYPE, TypeID(typeid(edmtest::IntProduct)),
                                                     "EventNumber",
                                                     "",
-                                                    "");
+                                                    "",
+                                                    index);
     assert(bhandle.isValid());
     Handle<edmtest::IntProduct> handle;
     convert_handle<edmtest::IntProduct>(bhandle, handle);
@@ -117,7 +119,8 @@ namespace edm {
     BasicHandle bh = eventPrincipal.getByLabel(PRODUCT_TYPE, TypeID(typeid(TC)),
                                                "Thing",
                                                "",
-                                               "");
+                                               "",
+                                               index);
     assert(bh.isValid());
     if(!(bh.interface()->dynamicTypeInfo() == typeid(TC))) {
       handleimpl::throwConvertTypeError(typeid(TC), bh.interface()->dynamicTypeInfo());

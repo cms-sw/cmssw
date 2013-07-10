@@ -420,9 +420,10 @@ namespace edm {
   BasicHandle
   Principal::getByLabel(KindOfType kindOfType,
                         TypeID const& typeID,
-                        InputTag const& inputTag) const {
+                        InputTag const& inputTag,
+                        ProductHolderIndex& oIndex) const {
 
-    ProductData const* result = findProductByLabel(kindOfType, typeID, inputTag);
+    ProductData const* result = findProductByLabel(kindOfType, typeID, inputTag, oIndex);
     if(result == 0) {
       boost::shared_ptr<cms::Exception> whyFailed =
         makeNotFoundException("getByLabel", kindOfType, typeID, inputTag.label(), inputTag.instance(), inputTag.process());
@@ -436,9 +437,10 @@ namespace edm {
                         TypeID const& typeID,
                         std::string const& label,
                         std::string const& instance,
-                        std::string const& process) const {
+                        std::string const& process,
+                        ProductHolderIndex& oIndex) const {
 
-    ProductData const* result = findProductByLabel(kindOfType, typeID, label, instance, process);
+    ProductData const* result = findProductByLabel(kindOfType, typeID, label, instance, process,oIndex);
     if(result == 0) {
       boost::shared_ptr<cms::Exception> whyFailed =
         makeNotFoundException("getByLabel", kindOfType, typeID, label, instance, process);
@@ -580,7 +582,8 @@ namespace edm {
   ProductData const*
   Principal::findProductByLabel(KindOfType kindOfType,
                                 TypeID const& typeID,
-                                InputTag const& inputTag) const {
+                                InputTag const& inputTag,
+                                ProductHolderIndex& oIndex) const {
 
     bool skipCurrentProcess = inputTag.willSkipCurrentProcess();
 
@@ -608,11 +611,12 @@ namespace edm {
         if (matches.numberOfMatches() == 0) {
           maybeThrowMissingDictionaryException(typeID, kindOfType == ELEMENT_TYPE, preg_->missingDictionaries());
         }
+        oIndex=index;
         return 0;
       }
       inputTag.tryToCacheIndex(index, typeID, branchType(), &productRegistry());
     }
-
+    oIndex = index;
     boost::shared_ptr<ProductHolderBase> const& productHolder = productHolders_[index];
 
     ProductHolderBase::ResolveStatus resolveStatus;
@@ -628,7 +632,8 @@ namespace edm {
                                 TypeID const& typeID,
                                 std::string const& label,
                                 std::string const& instance,
-                                std::string const& process) const {
+                                std::string const& process,
+                                ProductHolderIndex& oIndex) const {
 
     ProductHolderIndex index = productLookup().index(kindOfType,
                                                      typeID,
@@ -645,8 +650,10 @@ namespace edm {
       if (matches.numberOfMatches() == 0) {
         maybeThrowMissingDictionaryException(typeID, kindOfType == ELEMENT_TYPE, preg_->missingDictionaries());
       }
+      oIndex=index;
       return 0;
     }
+    oIndex=index;
     boost::shared_ptr<ProductHolderBase> const& productHolder = productHolders_[index];
 
     ProductHolderBase::ResolveStatus resolveStatus;
@@ -659,10 +666,12 @@ namespace edm {
 
   ProductData const*
   Principal::findProductByTag(TypeID const& typeID, InputTag const& tag) const {
+    ProductHolderIndex index;
     ProductData const* productData =
       findProductByLabel(PRODUCT_TYPE,
                          typeID,
-                         tag);
+                         tag,
+                         index);
     if(productData == nullptr) {
       throwNotFoundException("findProductByTag", typeID, tag);
     }
