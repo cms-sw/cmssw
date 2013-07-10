@@ -93,12 +93,14 @@ class PFTau3ProngReco : public EDProducer {
   int Algorithm_;
   DiscCutPairVec discriminators_;
   std::auto_ptr<StringCutObjectSelector<reco::PFTau> > cut_;
+  int ndfPVT_;
 };
 
 PFTau3ProngReco::PFTau3ProngReco(const edm::ParameterSet& iConfig):
   PFTauTag_(iConfig.getParameter<edm::InputTag>("PFTauTag")),
   PFTauTIPTag_(iConfig.getParameter<edm::InputTag>("PFTauTIPTag")),
-  Algorithm_(iConfig.getParameter<int>("Algorithm"))
+  Algorithm_(iConfig.getParameter<int>("Algorithm")),
+  ndfPVT_(iConfig.getUntrackedParameter("ndfPVT",(int)5))
 {
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   std::vector<edm::ParameterSet> discriminators =iConfig.getParameter<std::vector<edm::ParameterSet> >("discriminators");
@@ -164,7 +166,7 @@ void PFTau3ProngReco::produce(edm::Event& iEvent,const edm::EventSetup& iSetup){
 	// Now compute the 3 prong Tau 
 	bool SecondaryVtxOK(false);
 	LorentzVectorParticle a1;
-	if(theTIP->hasSecondaryVertex()){
+	if(theTIP->hasSecondaryVertex() && primaryVertex->ndof()>ndfPVT_){
 	  const VertexRef secVtx=theTIP->secondaryVertex();
           GlobalPoint sv(secVtx->position().x(),secVtx->position().y(),secVtx->position().z());
 	  reco::Vertex svtx=(*secVtx);
