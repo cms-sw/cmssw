@@ -281,6 +281,14 @@ EDConsumerBase::registeredToConsume(ProductHolderIndex iIndex, BranchType iBranc
       return true;
     }
   }
+  //TEMPORARY: Remember so we do not have to do this again
+  //non thread-safe
+  EDConsumerBase* nonConstThis = const_cast<EDConsumerBase*>(this);
+  nonConstThis->m_tokenInfo.emplace_back(TokenLookupInfo{TypeID{},iIndex,iBranch},
+                                         true,
+                                         LabelPlacement{0,0,0},
+                                         PRODUCT_TYPE);
+
   return false;
 }
 
@@ -297,6 +305,13 @@ EDConsumerBase::registeredToConsumeMany(TypeID const& iType, BranchType iBranch)
       return true;
     }
   }
+  //TEMPORARY: Remember so we do not have to do this again
+  //non thread-safe
+  EDConsumerBase* nonConstThis = const_cast<EDConsumerBase*>(this);
+  nonConstThis->m_tokenInfo.emplace_back(TokenLookupInfo{iType,ProductHolderIndexInvalid,iBranch},
+                           true,
+                           LabelPlacement{0,0,0},
+                           PRODUCT_TYPE);
   return false;
   
 }
