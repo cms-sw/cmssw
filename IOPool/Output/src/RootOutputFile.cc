@@ -134,7 +134,6 @@ namespace edm {
           it != itEnd; ++it) {
         it->product_ = 0;
         BranchDescription const& desc = *it->branchDescription_;
-        desc.init();
         theTree->addBranch(desc.branchName(),
                            desc.wrappedName(),
                            desc.getInterface(),

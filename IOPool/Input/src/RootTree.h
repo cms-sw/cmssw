@@ -75,7 +75,7 @@ namespace edm {
                    std::string const& oldBranchName);
     void dropBranch(std::string const& oldBranchName);
     void getEntry(TBranch *branch, EntryNumber entry) const;
-    void setPresence(BranchDescription const& prod,
+    void setPresence(BranchDescription& prod,
                    std::string const& oldBranchName);
 
     bool next() {return ++entryNumber_ < entries_;}

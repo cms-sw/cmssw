@@ -85,8 +85,10 @@ namespace edm {
       declareStreamers(descs);
       buildClassCache(descs);
       loadExtraClasses();
-      reg.updateFromInput(descs);
-      fillProductRegistryTransients(header.processConfigurations(), reg);
+      if(!reg.frozen()) {
+        reg.updateFromInput(descs);
+        fillProductRegistryTransients(header.processConfigurations(), reg);
+      }
       branchIDListHelper.updateFromInput(header.branchIDLists());
     }
   }
@@ -161,6 +163,7 @@ namespace edm {
           << "Could not read the initial product registry list\n";
     }
 
+    sd->initializeTransients();
     return sd;
   }
 

@@ -107,7 +107,7 @@ namespace edm {
   }
 
   void
-  BranchDescription::initBranchName() const {
+  BranchDescription::initBranchName() {
     if(!branchName().empty()) {
       return;  // already called
     }
@@ -155,7 +155,7 @@ namespace edm {
   }
 
   void
-  BranchDescription::initFromDictionary() const {
+  BranchDescription::initFromDictionary() {
     if(bool(wrappedType())) {
       return;  // already initialized;
     }
@@ -179,6 +179,8 @@ namespace edm {
       basketSize() = invalidBasketSize;
       return;
     }
+    wrappedType().invokeByName(wrapperInterfaceBase(), "getInterface");
+    assert(wrapperInterfaceBase() != 0);
     Reflex::PropertyList wp = Reflex::Type::ByTypeInfo(wrappedType().typeInfo()).Properties();
     transient() = (wp.HasProperty("persistent") ? wp.PropertyAsString("persistent") == std::string("false") : false);
     if(transient()) {
@@ -366,12 +368,6 @@ namespace edm {
 
   WrapperInterfaceBase const*
   BranchDescription::getInterface() const {
-    if(wrapperInterfaceBase() == 0) {
-      // This could be done in init(), but we only want to do it on demand, for performance reasons.
-      TypeWithDict type = TypeWithDict::byName(wrappedName());
-      type.invokeByName(wrapperInterfaceBase(), "getInterface");
-      assert(wrapperInterfaceBase() != 0);
-    }
-    return wrapperInterfaceBase();
+    return transient_.wrapperInterfaceBase_;
   }
 }
