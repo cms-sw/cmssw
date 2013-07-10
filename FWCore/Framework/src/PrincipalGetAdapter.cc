@@ -20,7 +20,9 @@ namespace edm {
 	ModuleDescription const& md)  :
     //putProducts_(),
     principal_(pcpl),
-    md_(md) {
+    md_(md),
+    consumer_(nullptr)
+  {
   }
 
   PrincipalGetAdapter::~PrincipalGetAdapter() {
@@ -99,6 +101,34 @@ namespace edm {
     << "() was called.\n"
     << "The index of the token was "<<token.index()<<".\n";
   }
+  
+  namespace {
+    void failedToRegisterConsumesMany(edm::TypeID const& iType) {
+      LogError("GetManyWithoutRegistration")<<"::getManyByType called for "<<iType<<" without a corresponding consumesMany being called for this module. \n";
+    }
+    
+    void failedToRegisterConsumes(TypeID const& productType,
+                                  std::string const& moduleLabel,
+                                  std::string const& productInstanceName,
+                                  std::string const& processName) {
+      LogError("GetByLabelWithoutRegistration")<<"::getByLabel without corresponding call to consumes or mayConsumes for this module.\n"
+      << "  type: "<<productType
+      <<"\n  module label: "<<moduleLabel
+      <<"\n  product instance name: '"<<productInstanceName
+      <<"'\n  process name: '"<<processName<<"'\n";
+    }
+
+    void failedToRegisterConsumesForView(TypeID const& productType,
+                                  std::string const& moduleLabel,
+                                  std::string const& productInstanceName,
+                                  std::string const& processName) {
+      LogError("GetByLabelWithoutRegistration")<<"::getByLabel without corresponding call to consumes or mayConsumes for this module.\n"
+      << "  type: edm::View<"<<productType
+      <<">\n  module label: "<<moduleLabel
+      <<"\n  product instance name: '"<<productInstanceName
+      <<"'\n  process name: '"<<processName<<"'\n";
+    }
+}
 
   BasicHandle
   PrincipalGetAdapter::makeFailToGetException(KindOfType kindOfType,
@@ -141,7 +171,12 @@ namespace edm {
   BasicHandle
   PrincipalGetAdapter::getByLabel_(TypeID const& typeID,
                                    InputTag const& tag) const {
-    return principal_.getByLabel(PRODUCT_TYPE, typeID, tag);
+    ProductHolderIndex index;
+    auto h =  principal_.getByLabel(PRODUCT_TYPE, typeID, tag,index);
+    if(unlikely( consumer_ and (not consumer_->registeredToConsume(index,principal_.branchType())))) {
+      failedToRegisterConsumes(typeID,tag.label(),tag.instance(),tag.process());
+    }
+    return h;
   }
 
   BasicHandle
@@ -149,7 +184,12 @@ namespace edm {
                                    std::string const& label,
   	                           std::string const& instance,
   	                           std::string const& process) const {
-    return principal_.getByLabel(PRODUCT_TYPE, typeID, label, instance, process);
+    ProductHolderIndex index;
+    auto h = principal_.getByLabel(PRODUCT_TYPE, typeID, label, instance, process,index);
+    if(unlikely( consumer_ and (not consumer_->registeredToConsume(index,principal_.branchType())))) {
+      failedToRegisterConsumes(typeID,label,instance,process);
+    }
+    return h;
   }
   
   BasicHandle
@@ -175,7 +215,12 @@ namespace edm {
   BasicHandle
   PrincipalGetAdapter::getMatchingSequenceByLabel_(TypeID const& typeID,
                                                    InputTag const& tag) const {
-    return principal_.getByLabel(ELEMENT_TYPE, typeID, tag);    
+    ProductHolderIndex index;
+    auto h = principal_.getByLabel(ELEMENT_TYPE, typeID, tag,index);
+    if(unlikely( consumer_ and (not consumer_->registeredToConsume(index,principal_.branchType())))) {
+      failedToRegisterConsumesForView(typeID,tag.label(),tag.instance(),tag.process());
+    }
+    return h;
   }
 
   BasicHandle
@@ -183,16 +228,26 @@ namespace edm {
                                                    std::string const& label,
                                                    std::string const& instance,
                                                    std::string const& process) const {
-    return principal_.getByLabel(ELEMENT_TYPE,
+    ProductHolderIndex index;
+    auto h= principal_.getByLabel(ELEMENT_TYPE,
                                  typeID,
                                  label,
                                  instance,
-                                 process);
+                                 process,
+                                 index);
+    if(unlikely( consumer_ and (not consumer_->registeredToConsume(index,principal_.branchType())))) {
+      failedToRegisterConsumesForView(typeID,label,instance,process);
+    }
+
+    return h;
   }
 
   void
   PrincipalGetAdapter::getManyByType_(TypeID const& tid,
 		  BasicHandleVec& results) const {
+    if(unlikely(consumer_ and (not consumer_->registeredToConsumeMany(tid,principal_.branchType())))) {
+      failedToRegisterConsumesMany(tid);
+    }
     principal_.getManyByType(tid, results);
   }
 

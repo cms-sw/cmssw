@@ -235,7 +235,8 @@ void test_ep::failgetbyLabelTest() {
 
   std::string label("this does not exist");
 
-  edm::BasicHandle h(pEvent_->getByLabel(edm::PRODUCT_TYPE, tid, label, std::string(), std::string()));
+  edm::ProductHolderIndex index;
+  edm::BasicHandle h(pEvent_->getByLabel(edm::PRODUCT_TYPE, tid, label, std::string(), std::string(),index));
   CPPUNIT_ASSERT(h.failedToGet());
 }
 

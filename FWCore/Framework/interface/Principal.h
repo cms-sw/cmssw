@@ -105,13 +105,15 @@ namespace edm {
 
     BasicHandle  getByLabel(KindOfType kindOfType,
                             TypeID const& typeID,
-                            InputTag const& inputTag) const;
+                            InputTag const& inputTag,
+                            ProductHolderIndex& oIndex) const;
 
     BasicHandle  getByLabel(KindOfType kindOfType,
                             TypeID const& typeID,
                             std::string const& label,
                             std::string const& instance,
-                            std::string const& process) const;
+                            std::string const& process,
+                            ProductHolderIndex& oIndex) const;
     
     BasicHandle getByToken(KindOfType kindOfType,
                            TypeID const& typeID,
@@ -202,13 +204,15 @@ namespace edm {
 
     ProductData const* findProductByLabel(KindOfType kindOfType,
                                           TypeID const& typeID,
-                                          InputTag const& inputTag) const;
+                                          InputTag const& inputTag,
+                                          ProductHolderIndex& oIndex) const;
 
     ProductData const* findProductByLabel(KindOfType kindOfType,
                                           TypeID const& typeID,
                                           std::string const& label,
                                           std::string const& instance,
-                                          std::string const& process) const;
+                                          std::string const& process,
+                                          ProductHolderIndex& oIndex) const;
 
     // defaults to no-op unless overridden in derived class.
     virtual void resolveProduct_(ProductHolderBase const&, bool /*fillOnDemand*/) const {}
