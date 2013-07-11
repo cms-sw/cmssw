@@ -116,18 +116,21 @@ FWCaloRecHitDigitSetProxyBuilder::scaleProduct(TEveElementList* parent, FWViewTy
    std::vector<float> scaledCorners(24);
    float scale = scaleFactor(vc);
 
+   assert(parent->NumChildren() == 1);
+   TEveBoxSet* boxSet = static_cast<TEveBoxSet*>(*parent->BeginChildren());
+
    for (int index = 0; index < static_cast<int>(size); ++index)
    {
       const CaloRecHit* hit = (const CaloRecHit*)item()->modelData(index);
       const float* corners = item()->getGeom()->getCorners(hit->detid());
       if (corners == 0)  continue;
 
-      FWDigitSetProxyBuilder::BFreeBox_t* b = (FWDigitSetProxyBuilder::BFreeBox_t*)getBoxSet()->GetPlex()->Atom(index);
+      FWDigitSetProxyBuilder::BFreeBox_t* b = (FWDigitSetProxyBuilder::BFreeBox_t*)boxSet->GetPlex()->Atom(index);
 
       viewContextBoxScale(corners, hit->energy()*scale, vc->getEnergyScale()->getPlotEt(), scaledCorners, hit);
       memcpy(b->fVertices, &scaledCorners[0], sizeof(b->fVertices));
    }
-   getBoxSet()->ElementChanged();
+   boxSet->ElementChanged();
 }
 //______________________________________________________________________________
 
