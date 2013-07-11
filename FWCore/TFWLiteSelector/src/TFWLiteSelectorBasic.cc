@@ -419,7 +419,6 @@ TFWLiteSelectorBasic::setupNewFile(TFile& iFile) {
            edm::BranchDescription newBD(prod);
            newBD.updateFriendlyClassName();
            newReg->copyProduct(newBD);
-           // Need to call init to get old branch name.
          }
          prod.init();
        }
