@@ -197,16 +197,6 @@ namespace edm {
     //   but the EventFilter needs it for now.
     ServiceToken getToken();
 
-    /// signal is emitted after the Event has been created by the
-    /// InputSource but before any modules have seen the Event
-    ActivityRegistry::PreProcessEvent&
-    preProcessEventSignal() {return preProcessEventSignal_;}
-
-    /// signal is emitted after all modules have finished processing
-    /// the Event
-    ActivityRegistry::PostProcessEvent&
-    postProcessEventSignal() {return postProcessEventSignal_;}
-
     //------------------------------------------------------------------
     //
     // Nested classes and structs below.
@@ -302,8 +292,6 @@ namespace edm {
 
     StatusCode waitForAsyncCompletion(unsigned int timeout_seconds);
 
-    void connectSigs(EventProcessor* ep);
-
     void changeState(event_processor::Msg);
     void errorState();
     void setupSignal();
@@ -322,8 +310,6 @@ namespace edm {
     // only during construction, and never again. If they aren't
     // really needed, we should remove them.
 
-    ActivityRegistry::PreProcessEvent             preProcessEventSignal_;
-    ActivityRegistry::PostProcessEvent            postProcessEventSignal_;
     boost::shared_ptr<ActivityRegistry>           actReg_;
     boost::shared_ptr<ProductRegistry const>      preg_;
     boost::shared_ptr<BranchIDListHelper>         branchIDListHelper_;
