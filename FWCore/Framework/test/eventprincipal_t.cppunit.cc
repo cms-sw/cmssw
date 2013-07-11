@@ -235,8 +235,7 @@ void test_ep::failgetbyLabelTest() {
 
   std::string label("this does not exist");
 
-  edm::ProductHolderIndex index;
-  edm::BasicHandle h(pEvent_->getByLabel(edm::PRODUCT_TYPE, tid, label, std::string(), std::string(),index));
+  edm::BasicHandle h(pEvent_->getByLabel(edm::PRODUCT_TYPE, tid, label, std::string(), std::string(),nullptr));
   CPPUNIT_ASSERT(h.failedToGet());
 }
 
@@ -245,7 +244,7 @@ void test_ep::failgetManybyTypeTest() {
   edm::TypeID tid(dummy);
   std::vector<edm::BasicHandle > handles;
 
-  pEvent_->getManyByType(tid, handles);
+  pEvent_->getManyByType(tid, handles,nullptr);
   CPPUNIT_ASSERT(handles.empty());
 }
 
