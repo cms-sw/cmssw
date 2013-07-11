@@ -665,8 +665,11 @@ hiDefaults={'--conditions':'auto:starthi_HIon',
 
 steps['HydjetQ_MinBias_2760GeV']=merge([{'-n':1},hiDefaults,genS('Hydjet_Quenched_MinBias_2760GeV_cfi',U500by1)])
 steps['HydjetQ_MinBias_2760GeVINPUT']={'INPUT':InputInfo(dataSet='/RelValHydjetQ_MinBias_2760GeV/%s/GEN-SIM'%(baseDataSetRelease[1],),location='STD',split=5)}
+
 steps['HydjetQ_B0_2760GeV']=merge([{'-n':1},hiDefaults,genS('Hydjet_Quenched_B0_2760GeV_cfi',U80by1)])
 steps['HydjetQ_B0_2760GeVINPUT']={'INPUT':InputInfo(dataSet='/RelValHydjetQ_B0_2760GeV/%s/GEN-SIM'%(baseDataSetRelease[1],),location='STD')}
+steps['HydjetQ_B3_2760GeV']=merge([{'-n':1},hiDefaults,genS('Hydjet_Quenched_B3_2760GeV_cfi',U80by1)])
+steps['HydjetQ_B3_2760GeVINPUT']={'INPUT':InputInfo(dataSet='/RelValHydjetQ_B3_2760GeV/%s/GEN-SIM'%(baseDataSetRelease[1],),location='STD')}
 steps['HydjetQ_B8_2760GeV']=merge([{'-n':1},hiDefaults,genS('Hydjet_Quenched_B8_2760GeV_cfi',U80by1)])
 steps['HydjetQ_B8_2760GeVINPUT']={'INPUT':InputInfo(dataSet='/RelValHydjetQ_B8_2760GeV/%s/GEN-SIM'%(baseDataSetRelease[1],),location='CAF')}
 
