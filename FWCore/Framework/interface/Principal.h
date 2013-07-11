@@ -44,6 +44,7 @@ namespace edm {
 
   class HistoryAppender;
   class ProductHolderIndexHelper;
+  class EDConsumerBase;
 
   struct FilledProductPtr {
     bool operator()(boost::shared_ptr<ProductHolderBase> const& iObj) { return bool(iObj);}
@@ -106,14 +107,14 @@ namespace edm {
     BasicHandle  getByLabel(KindOfType kindOfType,
                             TypeID const& typeID,
                             InputTag const& inputTag,
-                            ProductHolderIndex& oIndex) const;
+                            EDConsumerBase const* consumes) const;
 
     BasicHandle  getByLabel(KindOfType kindOfType,
                             TypeID const& typeID,
                             std::string const& label,
                             std::string const& instance,
                             std::string const& process,
-                            ProductHolderIndex& oIndex) const;
+                            EDConsumerBase const* consumes) const;
     
     BasicHandle getByToken(KindOfType kindOfType,
                            TypeID const& typeID,
@@ -122,7 +123,8 @@ namespace edm {
                            bool& ambiguous) const;
 
     void getManyByType(TypeID const& typeID,
-                       BasicHandleVec& results) const;
+                       BasicHandleVec& results,
+                       EDConsumerBase const* consumes) const;
 
     ProcessHistory const& processHistory() const {
       return *processHistoryPtr_;
@@ -205,14 +207,14 @@ namespace edm {
     ProductData const* findProductByLabel(KindOfType kindOfType,
                                           TypeID const& typeID,
                                           InputTag const& inputTag,
-                                          ProductHolderIndex& oIndex) const;
+                                          EDConsumerBase const* consumer) const;
 
     ProductData const* findProductByLabel(KindOfType kindOfType,
                                           TypeID const& typeID,
                                           std::string const& label,
                                           std::string const& instance,
                                           std::string const& process,
-                                          ProductHolderIndex& oIndex) const;
+                                          EDConsumerBase const* consumer) const;
 
     // defaults to no-op unless overridden in derived class.
     virtual void resolveProduct_(ProductHolderBase const&, bool /*fillOnDemand*/) const {}

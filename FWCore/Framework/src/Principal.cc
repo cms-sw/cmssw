@@ -9,12 +9,16 @@
 #include "FWCore/Framework/interface/DelayedReader.h"
 #include "FWCore/Framework/interface/HistoryAppender.h"
 #include "FWCore/Framework/interface/ProductDeletedException.h"
+#include "FWCore/Framework/interface/EDConsumerBase.h"
 #include "FWCore/Utilities/interface/Algorithms.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Utilities/interface/DictionaryTools.h"
 #include "FWCore/Utilities/interface/ProductHolderIndex.h"
 #include "FWCore/Utilities/interface/TypeID.h"
 #include "FWCore/Utilities/interface/WrappedClassName.h"
+
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
 
 #include <algorithm>
 #include <cstring>
@@ -98,7 +102,25 @@ namespace edm {
     boost::shared_ptr<cms::Exception> exception = makeNotFoundException(where, PRODUCT_TYPE, productType, tag.label(), tag.instance(), tag.process());
     throw *exception;
   }
-  
+
+  namespace {
+    void failedToRegisterConsumesMany(edm::TypeID const& iType) {
+      LogError("GetManyWithoutRegistration")<<"::getManyByType called for "<<iType<<" without a corresponding consumesMany being called for this module. \n";
+    }
+    
+    void failedToRegisterConsumes(KindOfType kindOfType,
+                                  TypeID const& productType,
+                                  std::string const& moduleLabel,
+                                  std::string const& productInstanceName,
+                                  std::string const& processName) {
+      LogError("GetByLabelWithoutRegistration")<<"::getByLabel without corresponding call to consumes or mayConsumes for this module.\n"
+      << (kindOfType == PRODUCT_TYPE ? "  type: " : " type: edm::Veiw<")<<productType
+      << (kindOfType == PRODUCT_TYPE ? "\n  module label: " : ">\n  module label: ")<<moduleLabel
+      <<"\n  product instance name: '"<<productInstanceName
+      <<"'\n  process name: '"<<processName<<"'\n";
+    }
+}
+
 
   Principal::Principal(boost::shared_ptr<ProductRegistry const> reg,
                        boost::shared_ptr<ProductHolderIndexHelper const> productLookup,
@@ -421,9 +443,9 @@ namespace edm {
   Principal::getByLabel(KindOfType kindOfType,
                         TypeID const& typeID,
                         InputTag const& inputTag,
-                        ProductHolderIndex& oIndex) const {
+                        EDConsumerBase const* consumer) const {
 
-    ProductData const* result = findProductByLabel(kindOfType, typeID, inputTag, oIndex);
+    ProductData const* result = findProductByLabel(kindOfType, typeID, inputTag, consumer);
     if(result == 0) {
       boost::shared_ptr<cms::Exception> whyFailed =
         makeNotFoundException("getByLabel", kindOfType, typeID, inputTag.label(), inputTag.instance(), inputTag.process());
@@ -438,9 +460,9 @@ namespace edm {
                         std::string const& label,
                         std::string const& instance,
                         std::string const& process,
-                        ProductHolderIndex& oIndex) const {
+                        EDConsumerBase const* consumer) const {
 
-    ProductData const* result = findProductByLabel(kindOfType, typeID, label, instance, process,oIndex);
+    ProductData const* result = findProductByLabel(kindOfType, typeID, label, instance, process,consumer);
     if(result == 0) {
       boost::shared_ptr<cms::Exception> whyFailed =
         makeNotFoundException("getByLabel", kindOfType, typeID, label, instance, process);
@@ -472,9 +494,14 @@ namespace edm {
 
   void
   Principal::getManyByType(TypeID const& typeID,
-                           BasicHandleVec& results) const {
+                           BasicHandleVec& results,
+                           EDConsumerBase const* consumer) const {
 
     assert(results.empty());
+
+    if(unlikely(consumer and (not consumer->registeredToConsumeMany(typeID,branchType())))) {
+      failedToRegisterConsumesMany(typeID);
+    }
 
     // This finds the indexes to all the ProductHolder's matching the type
     ProductHolderIndexHelper::Matches matches =
@@ -583,7 +610,7 @@ namespace edm {
   Principal::findProductByLabel(KindOfType kindOfType,
                                 TypeID const& typeID,
                                 InputTag const& inputTag,
-                                ProductHolderIndex& oIndex) const {
+                                EDConsumerBase const* consumer) const {
 
     bool skipCurrentProcess = inputTag.willSkipCurrentProcess();
 
@@ -611,12 +638,15 @@ namespace edm {
         if (matches.numberOfMatches() == 0) {
           maybeThrowMissingDictionaryException(typeID, kindOfType == ELEMENT_TYPE, preg_->missingDictionaries());
         }
-        oIndex=index;
         return 0;
       }
       inputTag.tryToCacheIndex(index, typeID, branchType(), &productRegistry());
     }
-    oIndex = index;
+    if(unlikely( consumer and (not consumer->registeredToConsume(index,branchType())))) {
+      failedToRegisterConsumes(kindOfType,typeID,inputTag.label(),inputTag.instance(),inputTag.process());
+    }
+
+    
     boost::shared_ptr<ProductHolderBase> const& productHolder = productHolders_[index];
 
     ProductHolderBase::ResolveStatus resolveStatus;
@@ -633,7 +663,7 @@ namespace edm {
                                 std::string const& label,
                                 std::string const& instance,
                                 std::string const& process,
-                                ProductHolderIndex& oIndex) const {
+                                EDConsumerBase const* consumer) const {
 
     ProductHolderIndex index = productLookup().index(kindOfType,
                                                      typeID,
@@ -650,10 +680,13 @@ namespace edm {
       if (matches.numberOfMatches() == 0) {
         maybeThrowMissingDictionaryException(typeID, kindOfType == ELEMENT_TYPE, preg_->missingDictionaries());
       }
-      oIndex=index;
       return 0;
     }
-    oIndex=index;
+    
+    if(unlikely( consumer and (not consumer->registeredToConsume(index,branchType())))) {
+      failedToRegisterConsumes(kindOfType,typeID,label,instance,process);
+    }
+    
     boost::shared_ptr<ProductHolderBase> const& productHolder = productHolders_[index];
 
     ProductHolderBase::ResolveStatus resolveStatus;
@@ -666,12 +699,11 @@ namespace edm {
 
   ProductData const*
   Principal::findProductByTag(TypeID const& typeID, InputTag const& tag) const {
-    ProductHolderIndex index;
     ProductData const* productData =
       findProductByLabel(PRODUCT_TYPE,
                          typeID,
                          tag,
-                         index);
+                         nullptr);
     if(productData == nullptr) {
       throwNotFoundException("findProductByTag", typeID, tag);
     }
