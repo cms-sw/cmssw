@@ -37,7 +37,6 @@ void doInit();
 class testeventprocessor: public CppUnit::TestFixture {
   CPPUNIT_TEST_SUITE(testeventprocessor);
   CPPUNIT_TEST(parseTest);
-  CPPUNIT_TEST(prepostTest);
   CPPUNIT_TEST(beginEndTest);
   CPPUNIT_TEST(cleanupJobTest);
   CPPUNIT_TEST(activityRegistryTest);
@@ -58,7 +57,6 @@ class testeventprocessor: public CppUnit::TestFixture {
 
   void tearDown() { m_handler.reset();}
   void parseTest();
-  void prepostTest();
   void beginEndTest();
   void cleanupJobTest();
   void activityRegistryTest();
@@ -275,59 +273,6 @@ void testeventprocessor::parseTest() {
   }
   catch (...) {
       CPPUNIT_ASSERT("Caught unknown exception " == 0);
-  }
-}
-
-static int g_pre = 0;
-static int g_post = 0;
-
-static
-void doPre(edm::EventID const&, edm::Timestamp const&) {
-  ++g_pre;
-}
-
-static
-void doPost(edm::Event const&, edm::EventSetup const&) {
-  CPPUNIT_ASSERT(g_pre == ++g_post);
-}
-
-void testeventprocessor::prepostTest() {
-  std::string configuration(
-      "import FWCore.ParameterSet.Config as cms\n"
-      "process = cms.Process('p')\n"
-      "process.maxEvents = cms.untracked.PSet(\n"
-      "  input = cms.untracked.int32(5))\n"
-      "process.source = cms.Source('EmptySource')\n"
-      "process.m1 = cms.EDProducer('TestMod',\n"
-      "   ivalue = cms.int32(-3))\n"
-      "process.p1 = cms.Path(process.m1)\n");
-
-  edm::EventProcessor proc(configuration, true);
-
-  proc.preProcessEventSignal().connect(&doPre);
-  proc.postProcessEventSignal().connect(&doPost);
-  proc.beginJob();
-  proc.run();
-  proc.endJob();
-  CPPUNIT_ASSERT(5 == g_pre);
-  CPPUNIT_ASSERT(5 == g_post);
-  {
-    edm::EventProcessor const& crProc(proc);
-    typedef std::vector<edm::ModuleDescription const*> ModuleDescs;
-    ModuleDescs  allModules = crProc.getAllModuleDescriptions();
-    CPPUNIT_ASSERT(2 == allModules.size()); // TestMod and TriggerResultsInserter
-    std::cout << "\nModuleDescriptions in testeventprocessor::prepostTest()---\n";
-    for (ModuleDescs::const_iterator i = allModules.begin(),
-            e = allModules.end() ;
-          i != e ;
-          ++i) {
-        CPPUNIT_ASSERT(*i != 0);
-        std::cout << **i << '\n';
-      }
-    std::cout << "--- end of ModuleDescriptions\n";
-
-    CPPUNIT_ASSERT(5 == crProc.totalEvents());
-    CPPUNIT_ASSERT(5 == crProc.totalEventsPassed());
   }
 }
 
@@ -583,12 +528,12 @@ void testeventprocessor::cleanupJobTest()
 namespace {
   struct Listener{
     Listener(edm::ActivityRegistry& iAR) :
-      postBeginJob_(false),
-      postEndJob_(false),
-      preEventProcessing_(false),
-      postEventProcessing_(false),
-      preModule_(false),
-      postModule_(false) {
+      postBeginJob_(0),
+      postEndJob_(0),
+      preEventProcessing_(0),
+      postEventProcessing_(0),
+      preModule_(0),
+      postModule_(0) {
         iAR.watchPostBeginJob(this, &Listener::postBeginJob);
         iAR.watchPostEndJob(this, &Listener::postEndJob);
 
@@ -599,33 +544,27 @@ namespace {
         iAR.watchPostModule(this, &Listener::postModule);
       }
 
-    void postBeginJob() {postBeginJob_ = true;}
-    void postEndJob() {postEndJob_ = true;}
+    void postBeginJob() {++postBeginJob_;}
+    void postEndJob() {++postEndJob_;}
 
     void preEventProcessing(edm::EventID const&, edm::Timestamp const&) {
-      preEventProcessing_ = true;}
+      ++preEventProcessing_;}
     void postEventProcessing(edm::Event const&, edm::EventSetup const&) {
-      postEventProcessing_ = true;}
+      ++postEventProcessing_;}
 
     void preModule(edm::ModuleDescription const&) {
-      preModule_ = true;
+      ++preModule_;
     }
     void postModule(edm::ModuleDescription const&) {
-      postModule_ = true;
+      ++postModule_;
     }
 
-    bool allCalled() const {
-      return postBeginJob_&&postEndJob_
-        &&preEventProcessing_&&postEventProcessing_
-        &&preModule_&&postModule_;
-    }
-
-    bool postBeginJob_;
-    bool postEndJob_;
-    bool preEventProcessing_;
-    bool postEventProcessing_;
-    bool preModule_;
-    bool postModule_;
+    unsigned int postBeginJob_;
+    unsigned int postEndJob_;
+    unsigned int preEventProcessing_;
+    unsigned int postEventProcessing_;
+    unsigned int preModule_;
+    unsigned int postModule_;
   };
 }
 
@@ -660,14 +599,27 @@ testeventprocessor::activityRegistryTest() {
   proc.run();
   proc.endJob();
 
-  CPPUNIT_ASSERT(listener.postBeginJob_);
-  CPPUNIT_ASSERT(listener.postEndJob_);
-  CPPUNIT_ASSERT(listener.preEventProcessing_);
-  CPPUNIT_ASSERT(listener.postEventProcessing_);
-  CPPUNIT_ASSERT(listener.preModule_);
-  CPPUNIT_ASSERT(listener.postModule_);
+  CPPUNIT_ASSERT(listener.postBeginJob_ == 1);
+  CPPUNIT_ASSERT(listener.postEndJob_ == 1);
+  CPPUNIT_ASSERT(listener.preEventProcessing_ == 5);
+  CPPUNIT_ASSERT(listener.postEventProcessing_ == 5);
+  CPPUNIT_ASSERT(listener.preModule_ == 10);
+  CPPUNIT_ASSERT(listener.postModule_ == 10);
 
-  CPPUNIT_ASSERT(listener.allCalled());
+  typedef std::vector<edm::ModuleDescription const*> ModuleDescs;
+  ModuleDescs allModules = proc.getAllModuleDescriptions();
+  CPPUNIT_ASSERT(2 == allModules.size()); // TestMod and TriggerResultsInserter
+  std::cout << "\nModuleDescriptions in testeventprocessor::activityRegistryTest()---\n";
+  for (ModuleDescs::const_iterator i = allModules.begin(), e = allModules.end();
+       i != e ;
+       ++i) {
+    CPPUNIT_ASSERT(*i != 0);
+    std::cout << **i << '\n';
+  }
+  std::cout << "--- end of ModuleDescriptions\n";
+
+  CPPUNIT_ASSERT(5 == proc.totalEvents());
+  CPPUNIT_ASSERT(5 == proc.totalEventsPassed());
 }
 
 static

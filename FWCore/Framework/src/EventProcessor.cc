@@ -373,8 +373,6 @@ namespace edm {
                                 serviceregistry::ServiceLegacy iLegacy,
                                 std::vector<std::string> const& defaultServices,
                                 std::vector<std::string> const& forcedServices) :
-    preProcessEventSignal_(),
-    postProcessEventSignal_(),
     actReg_(),
     preg_(),
     branchIDListHelper_(),
@@ -426,8 +424,6 @@ namespace edm {
   EventProcessor::EventProcessor(std::string const& config,
                                 std::vector<std::string> const& defaultServices,
                                 std::vector<std::string> const& forcedServices) :
-    preProcessEventSignal_(),
-    postProcessEventSignal_(),
     actReg_(),
     preg_(),
     branchIDListHelper_(),
@@ -479,8 +475,6 @@ namespace edm {
   EventProcessor::EventProcessor(boost::shared_ptr<ProcessDesc>& processDesc,
                  ServiceToken const& token,
                  serviceregistry::ServiceLegacy legacy) :
-    preProcessEventSignal_(),
-    postProcessEventSignal_(),
     actReg_(),
     preg_(),
     branchIDListHelper_(),
@@ -528,8 +522,6 @@ namespace edm {
 
 
   EventProcessor::EventProcessor(std::string const& config, bool isPython):
-    preProcessEventSignal_(),
-    postProcessEventSignal_(),
     actReg_(),
     preg_(),
     branchIDListHelper_(),
@@ -656,7 +648,6 @@ namespace edm {
     processConfiguration_ = items.processConfiguration_;
 
     FDEBUG(2) << parameterSet << std::endl;
-    connectSigs(this);
 
     // Reusable event principal
     boost::shared_ptr<EventPrincipal> ep(new EventPrincipal(preg_,
@@ -1303,15 +1294,6 @@ namespace edm {
       throw cms::Exception("ForkedParentFailed") << "hit select limit for number of fds";
     }
     return false;
-  }
-
-  void
-  EventProcessor::connectSigs(EventProcessor* ep) {
-    // When the FwkImpl signals are given, pass them to the
-    // appropriate EventProcessor signals so that the outside world
-    // can see the signal.
-    actReg_->preProcessEventSignal_.connect(std::cref(ep->preProcessEventSignal_));
-    actReg_->postProcessEventSignal_.connect(std::cref(ep->postProcessEventSignal_));
   }
 
   std::vector<ModuleDescription const*>
