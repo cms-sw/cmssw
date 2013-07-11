@@ -25,6 +25,35 @@ namespace edmtest
 {
 
   ViewAnalyzer::ViewAnalyzer(ParameterSet const&) {
+    consumes<edm::View<int>>(edm::InputTag{"intvec","","TEST"});
+    consumes<edm::View<int>>(edm::InputTag{"intvec",""});
+    consumes<std::vector<int>>(edm::InputTag{"intvec"});
+    consumes<edm::View<int>>(edm::InputTag{"intvec"});
+    consumes<std::list<int>>(edm::InputTag{"intlist"});
+    consumes<edm::View<int>>(edm::InputTag{"intlist"});
+    consumes<std::deque<int>>(edm::InputTag{"intdeque"});
+    consumes<edm::View<int>>(edm::InputTag{"intdeque"});
+    consumes<std::set<int>>(edm::InputTag{"intset"});
+    consumes<edm::View<int>>(edm::InputTag{"intset"});
+    consumes<SCSimpleProduct>(edm::InputTag{"simple"});
+    consumes<edm::View<SCSimpleProduct::value_type>>(edm::InputTag{"simple"});
+    consumes<OVSimpleProduct>(edm::InputTag{"ovsimple"});
+    consumes<edm::View<OVSimpleProduct::value_type>>(edm::InputTag{"ovsimple"});
+    consumes<edmtest::DSVSimpleProduct>(edm::InputTag{"dsvsimple"});
+    consumes<edm::View<edmtest::DSVSimpleProduct::value_type>>(edm::InputTag{"dsvsimple"});
+
+    consumes<OVSimpleDerivedProduct>(edm::InputTag{"ovsimple","derived"});
+    consumes<edm::View<Simple>>(edm::InputTag{"ovsimple","derived"});
+    
+    consumes<RefVector<std::vector<int>>>(edm::InputTag{"intvecrefvec"});
+    consumes<edm::View<int>>(edm::InputTag{"intvecrefvec"});
+    
+    consumes<RefToBaseVector<int>>(edm::InputTag{"intvecreftbvec"});
+    consumes<edm::View<int>>(edm::InputTag{"intvecreftbvec"});
+
+    consumes<PtrVector<int>>(edm::InputTag{"intvecptrvec"});
+    consumes<edm::View<int>>(edm::InputTag{"intvecptrvec"});
+    mayConsume<edm::View<int>>(edm::InputTag{"intvecptrvecdoesNotExist"});
   }
 
   ViewAnalyzer::~ViewAnalyzer() {

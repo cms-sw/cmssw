@@ -9,6 +9,7 @@
 namespace edmtest {
   ProdigalAnalyzer::ProdigalAnalyzer(edm::ParameterSet const& )
   {
+    consumes<Prodigal>(edm::InputTag{"maker"});
   }
 
   void ProdigalAnalyzer::analyze(edm::Event const& e, edm::EventSetup const&) {

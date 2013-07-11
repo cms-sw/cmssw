@@ -188,6 +188,78 @@ namespace edmtest {
     edm::Wrapper<edmtest::ThingWithIsEqual> w_thingWithIsEqual(ap_thingwithisequal);
     assert(!w_thingWithIsEqual.isMergeable());
     assert(w_thingWithIsEqual.hasIsProductEqual());
+    
+    if(expectedDroppedEvent_.size() > 0) {
+      consumes<edmtest::ThingWithIsEqual>(edm::InputTag{"makeThingToBeDropped", "event", "PROD"});
+      consumes<edmtest::ThingWithMerge>(edm::InputTag{"makeThingToBeDropped", "event", "PROD"});
+
+      consumes<edmtest::ThingWithIsEqual,edm::InRun>(edm::InputTag{"makeThingToBeDropped", "beginRun", "PROD"});
+    }
+    if(expectedDroppedEvent1_.size() > droppedIndex1_) {
+      consumes<edmtest::ThingWithIsEqual>(edm::InputTag{"makeThingToBeDropped1", "event", "PROD"});
+    }
+    consumes<edmtest::Thing>(edm::InputTag{"thingWithMergeProducer", "event", "PROD"});
+
+    if(testAlias_){
+      consumes<edmtest::Thing>(edm::InputTag{"aliasForThingToBeDropped2", "instance2"});
+      consumes<edmtest::Thing>(edm::InputTag{"aliasForThingToBeDropped2", "instance2","PROD"});
+    }
+
+    {
+      edm::InputTag tag("thingWithMergeProducer", "endRun", "PROD");
+      consumes<edmtest::Thing,edm::InRun>(tag);
+      consumes<edmtest::ThingWithMerge,edm::InRun>(tag);
+      consumes<edmtest::ThingWithIsEqual,edm::InRun>(tag);
+    }
+    
+    {
+      edm::InputTag tag("thingWithMergeProducer", "endRun");
+      consumes<edmtest::Thing,edm::InRun>(tag);
+      consumes<edmtest::ThingWithMerge,edm::InRun>(tag);
+      consumes<edmtest::ThingWithIsEqual,edm::InRun>(tag);
+    }
+    
+    if(expectedDroppedEvent_.size() > 2) {
+      edm::InputTag tag("makeThingToBeDropped", "endRun", "PROD");
+      consumes<edmtest::ThingWithMerge,edm::InRun>(tag);
+      consumes<edmtest::ThingWithIsEqual,edm::InRun>(tag);
+    }
+    
+    if (testAlias_) {
+      consumes<edmtest::Thing>(edm::InputTag{"aliasForThingToBeDropped2", "endRun2"});
+      edm::InputTag tag("aliasForThingToBeDropped2", "endRun2","PROD");
+      consumes<edmtest::Thing,edm::InRun>(tag);
+    }
+  
+    if(expectedDroppedEvent_.size() > 3) {
+      edm::InputTag tag("makeThingToBeDropped", "beginLumi", "PROD");
+      consumes<edmtest::ThingWithIsEqual,edm::InLumi>(tag);
+    }
+    {
+      edm::InputTag tag("thingWithMergeProducer", "endLumi", "PROD");
+      consumes<edmtest::Thing,edm::InLumi>(tag);
+      consumes<edmtest::ThingWithMerge,edm::InLumi>(tag);
+      consumes<edmtest::ThingWithIsEqual,edm::InLumi>(tag);
+    }
+    
+    {
+      edm::InputTag tag("thingWithMergeProducer", "endLumi");
+      consumes<edmtest::Thing,edm::InLumi>(tag);
+      consumes<edmtest::ThingWithMerge,edm::InLumi>(tag);
+      consumes<edmtest::ThingWithIsEqual,edm::InLumi>(tag);
+    }
+    
+    if(expectedDroppedEvent_.size() > 4) {
+      edm::InputTag tag("makeThingToBeDropped", "endLumi", "PROD");
+      consumes<edmtest::ThingWithIsEqual,edm::InLumi>(tag);
+      consumes<edmtest::ThingWithMerge,edm::InLumi>(tag);
+    }
+    
+    if (testAlias_) {
+      consumes<edmtest::Thing,edm::InLumi>(edm::InputTag{"aliasForThingToBeDropped2", "endLumi2"});
+      edm::InputTag tag("aliasForThingToBeDropped2", "endLumi2","PROD");
+      consumes<edmtest::Thing,edm::InLumi>(tag);
+    }
   }
 
   // -----------------------------------------------------------------
