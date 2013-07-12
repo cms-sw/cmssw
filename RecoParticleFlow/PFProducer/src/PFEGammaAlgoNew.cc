@@ -1436,13 +1436,13 @@ int PFEGammaAlgoNew::attachPSClusters(const PFSCElement* thesc,
 				      const ClusterElement* ecalclus,
 				      ClusterMap::mapped_type& eslist) {  
   if( ecalclus->clusterRef()->layer() == PFLayer::ECAL_BARREL ) return 0;
-  SuperClusterRef::key_type sc_key = thesc->superClusterRef().key();
+  SuperClusterRef::key_type sc_key = ecalclus->clusterRef().key();
   edm::Ptr<reco::CaloCluster> clusptr = refToPtr(ecalclus->clusterRef());
-  EEtoPSElement ecalkey = std::make_pair(clusptr.key(),clusptr);
-  const EEtoPSAssociation::value_type& psmap = eetops_->at(sc_key);
-  auto assc_ps = std::equal_range(psmap.cbegin(),
-				  psmap.cend(),
-				  ecalkey,comparePSMapByKey);
+  EEtoPSElement ecalkey = std::make_pair(clusptr.key(),clusptr);  
+  auto assc_ps = std::equal_range(eetops_->cbegin(),
+				  eetops_->cend(),
+				  ecalkey,
+				  comparePSMapByKey);
   for( const auto& ps1 : _splayedblock[reco::PFBlockElement::PS1] ) {
     edm::Ptr<reco::CaloCluster> temp = refToPtr(ps1.first->clusterRef());
     for( auto pscl = assc_ps.first; pscl != assc_ps.second; ++pscl ) {
