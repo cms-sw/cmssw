@@ -414,13 +414,6 @@ namespace edm {
 
     loadMissingDictionaries();
 
-    preg.setFrozen();
-
-    for (auto c : all_output_communicators_) {
-      c->setEventSelectionInfo(outputModulePathPositions, preg.anyProductProduced());
-      c->selectProducts(preg);
-    }
-
     // Sanity check: make sure nobody has added a worker after we've
     // already relied on the WorkerManager being full.
     assert (all_workers_count == allWorkers().size());
@@ -428,6 +421,14 @@ namespace edm {
     ProcessConfigurationRegistry::instance()->insertMapped(*processConfiguration);
     branchIDListHelper.updateRegistries(preg);
     fillProductRegistryTransients(*processConfiguration, preg);
+
+    preg.setFrozen();
+
+    for (auto c : all_output_communicators_) {
+      c->setEventSelectionInfo(outputModulePathPositions, preg.anyProductProduced());
+      c->selectProducts(preg);
+    }
+
   } // Schedule::Schedule
 
   

@@ -102,9 +102,8 @@ namespace edm {
   }  
 
   void
-  RootTree::setPresence(BranchDescription const& prod, std::string const& oldBranchName) {
+  RootTree::setPresence(BranchDescription& prod, std::string const& oldBranchName) {
       assert(isValid());
-      prod.init();
       if(tree_->GetBranch(oldBranchName.c_str()) == 0){
         prod.setDropped();
       }
@@ -115,7 +114,6 @@ namespace edm {
                       BranchDescription const& prod,
                       std::string const& oldBranchName) {
       assert(isValid());
-      prod.init();
       //use the translated branch name
       TBranch* branch = tree_->GetBranch(oldBranchName.c_str());
       roottree::BranchInfo info = roottree::BranchInfo(ConstBranchDescription(prod));
