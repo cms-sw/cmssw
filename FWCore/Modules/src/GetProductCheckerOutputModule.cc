@@ -90,12 +90,13 @@ namespace edm {
             if(0 != oh.desc() && oh.desc()->branchID() != branchID) {
                throw cms::Exception("BranchIDMissMatch") << "While processing " << id << " request for BranchID " << branchID << " returned BranchID " << oh.desc()->branchID() << "\n";
             }
-            
+           
             TypeID const& tid((*it)->branchDescription().unwrappedTypeID());
             BasicHandle bh = p.getByLabel(PRODUCT_TYPE, tid,
             (*it)->branchDescription().moduleLabel(),
             (*it)->branchDescription().productInstanceName(),
-            (*it)->branchDescription().processName());
+            (*it)->branchDescription().processName(),
+            nullptr);
             
             /*This doesn't appear to be an error, it just means the Product isn't available, which can be legitimate
             if(!bh.product()) {
