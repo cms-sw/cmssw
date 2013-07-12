@@ -96,6 +96,8 @@ void PerfStatService::postBeginJob() {
 
 void PerfStatService::postEndJob() {
   std::ostringstream out;
+  out.precision(5);
+  out.setf( std::ios::fixed, std:: ios::floatfield );
   out << "|module  ";
   PerfStat::header(out);
   for ( auto const & p : perfs) {
