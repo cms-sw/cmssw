@@ -4,8 +4,8 @@
 /*
  * \file L1TRate_Harvest.h
  *
- * $Date: 2012/11/28 13:36:55 $
- * $Revision: 1.1 $
+ * $Date: 2011/10/28 13:24:48 $
+ * $Revision: 1.4 $
  * \author J. Pela
  *
 */

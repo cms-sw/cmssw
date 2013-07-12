@@ -2,8 +2,8 @@
  *
  * Digi for ALCT trigger primitives.
  *
- * $Date: 2010/06/15 13:40:07 $
- * $Revision: 1.13 $
+ * $Date: 2009/03/25 13:14:51 $
+ * $Revision: 1.12 $
  *
  * \author N. Terentiev, CMU
  */

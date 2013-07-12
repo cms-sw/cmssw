@@ -6,8 +6,8 @@
  *  Class to select events depending on the trigger source
  *  (DT,CSC,RPC,DT+CSC,DT+RPC,CSC+RPC,DT+CSC+RPC,NoDT,NoCSC,NoRPC)
  *
- *  $Date: 2012/09/13 14:53:56 $
- *  $Revision: 1.3 $
+ *  $Date: 2006/11/15 17:45:40 $
+ *  $Revision: 1.2 $
  */
 
 #include "FWCore/Framework/interface/EDFilter.h"

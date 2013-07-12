@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Sep  7 13:42:29 EDT 2005
-// $Id: ServiceLegacy.h,v 1.1 2005/09/07 21:58:15 chrjones Exp $
+// $Id$
 //
 
 // system include files

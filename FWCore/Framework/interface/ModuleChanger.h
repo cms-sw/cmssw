@@ -17,7 +17,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Jul 15 15:05:17 EDT 2010
-// $Id: ModuleChanger.h,v 1.1 2010/07/22 15:00:27 chrjones Exp $
+// $Id$
 //
 
 // system include files

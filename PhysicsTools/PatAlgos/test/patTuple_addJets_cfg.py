@@ -37,14 +37,6 @@ addJetCollection(
    labelName = 'AK7Calo',
    jetSource = cms.InputTag('ak7CaloJets'),
    jetCorrections = ('AK7Calo', cms.vstring(['L1Offset', 'L2Relative', 'L3Absolute']), 'Type-2'),
-   btagDiscriminators = [
-   'combinedSecondaryVertexBJetTags',
-   'combinedSecondaryVertexMVABJetTags',
-   'jetBProbabilityBJetTags',
-   'jetProbabilityBJetTags',
-   'simpleSecondaryVertexHighEffBJetTags',
-   'simpleSecondaryVertexHighPurBJetTags',
-   ],
    )
 process.patJetsAK7Calo.addJetID=True
 process.patJetsAK7Calo.jetIDMap="ak7JetID"
@@ -58,13 +50,14 @@ addJetCollection(
    jetSource = cms.InputTag('ak5CaloJets'),
    jetCorrections = ('AK5Calo', cms.vstring(['L1Offset', 'L2Relative', 'L3Absolute']), 'Type-2'),
    btagDiscriminators = [
-   'combinedSecondaryVertexBJetTags',
-   'combinedSecondaryVertexMVABJetTags',
-   'jetBProbabilityBJetTags',
-   'jetProbabilityBJetTags',
-   'simpleSecondaryVertexHighEffBJetTags',
-   'simpleSecondaryVertexHighPurBJetTags',
-   ],
+       'jetBProbabilityBJetTags'
+     , 'jetProbabilityBJetTags'
+     , 'trackCountingHighPurBJetTags'
+     , 'trackCountingHighEffBJetTags'
+     , 'simpleSecondaryVertexHighEffBJetTags'
+     , 'simpleSecondaryVertexHighPurBJetTags'
+     , 'combinedSecondaryVertexBJetTags'
+     ],
    )
 getattr(process, 'patJetsAK5Calo' + postfixAK5Calo).addJetID=True
 getattr(process, 'patJetsAK5Calo' + postfixAK5Calo).jetIDMap="ak5JetID"
@@ -78,13 +71,14 @@ switchJetCollection(
    jetSource = cms.InputTag('ak5PFJets'),
    jetCorrections = ('AK5PF', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute']), 'Type-2'),
    btagDiscriminators = [
-   'combinedSecondaryVertexBJetTags',
-   'combinedSecondaryVertexMVABJetTags',
-   'jetBProbabilityBJetTags',
-   'jetProbabilityBJetTags',
-   'simpleSecondaryVertexHighEffBJetTags',
-   'simpleSecondaryVertexHighPurBJetTags',
-   ],
+       'jetBProbabilityBJetTags'
+     , 'jetProbabilityBJetTags'
+     , 'trackCountingHighPurBJetTags'
+     , 'trackCountingHighEffBJetTags'
+     , 'simpleSecondaryVertexHighEffBJetTags'
+     , 'simpleSecondaryVertexHighPurBJetTags'
+     , 'combinedSecondaryVertexBJetTags'
+     ],
    )
 
 ## let it run

@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea RIZZI
 //         Created:  Mon Jan 16 11:19:48 CET 2012
-// $Id: JetVertexChecker.cc,v 1.2 2013/02/26 21:19:31 chrjones Exp $
+// $Id: JetVertexChecker.cc,v 1.1 2012/02/01 16:24:02 arizzi Exp $
 //
 //
 

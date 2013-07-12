@@ -8,8 +8,8 @@
  *  \warning: should be revised, probably works only when local and global
  *  Z axis coincide
  *
- *  $Date: 2012/05/05 13:32:09 $
- *  $Revision: 1.2 $
+ *  $Date: 2007/01/17 20:58:44 $
+ *  $Revision: 1.1 $
  */
 
 #include "DataFormats/GeometryVector/interface/LocalPoint.h"

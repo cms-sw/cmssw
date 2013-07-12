@@ -1,9 +1,9 @@
 // \file AlignmentRcdScan.cpp
 //
 // \author    : Andreas Mussgiller
-// Revision   : $Revision: 1.2 $
-// last update: $Date: 2012/03/28 15:44:19 $
-// by         : $Author: flucke $
+// Revision   : $Revision: 1.1 $
+// last update: $Date: 2010/06/01 07:45:46 $
+// by         : $Author: mussgill $
 
 #include <string>
 #include <map>

@@ -9,6 +9,7 @@
 #include "G4StoppingPhysics.hh"
 #include "G4HadronElasticPhysics.hh"
 #include "G4NeutronTrackingCut.hh"
+#include "G4HadronicProcessStore.hh"
 
 #include "G4DataQuestionaire.hh"
 #include "HadronPhysicsQGSP_BERT.hh"
@@ -41,6 +42,8 @@ QGSPCMS_BERT_EML::QGSPCMS_BERT_EML(G4LogicalVolumeToDDLogicalPartMap& map,
   this->RegisterPhysics( new G4DecayPhysics(ver) );
 
   if (hadPhys) {
+    G4HadronicProcessStore::Instance()->SetVerbose(ver);
+
     // Hadron Elastic scattering
     RegisterPhysics( new G4HadronElasticPhysics(ver));
 

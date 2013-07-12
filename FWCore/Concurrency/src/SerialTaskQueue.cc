@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:31:52 CST 2013
-// $Id: SerialTaskQueue.cc,v 1.1 2013/02/21 22:14:11 chrjones Exp $
+// $Id$
 //
 
 // system include files

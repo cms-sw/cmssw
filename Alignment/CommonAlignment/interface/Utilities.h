@@ -5,8 +5,8 @@
  *
  *  Namespace for common calculations in alignment.
  *
- *  $Date: 2008/02/26 20:14:28 $
- *  $Revision: 1.12 $
+ *  $Date: 2007/10/08 15:22:08 $
+ *  $Revision: 1.10 $
  *  \author Chung Khim Lae
  */
 

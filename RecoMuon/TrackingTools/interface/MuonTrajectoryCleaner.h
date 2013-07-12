@@ -4,8 +4,8 @@
 /** \class MuonTrajectoryCleaner
  *  No description available.
  *
- *  $Date: 2010/03/24 19:52:41 $
- *  $Revision: 1.10 $
+ *  $Date: 2008/02/20 08:47:53 $
+ *  $Revision: 1.9 $
  *  \author R. Bellan - INFN Torino
  */
 

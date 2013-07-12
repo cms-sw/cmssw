@@ -16,7 +16,7 @@
 //
 // Author:      
 // Created:     Tue Jan 18 11:27:43 CET 2011
-// $Id: ConfObjectRcd.h,v 1.1 2011/01/18 11:33:54 vlimant Exp $
+// $Id$
 //
 
 #include "FWCore/Framework/interface/EventSetupRecordImplementation.h"

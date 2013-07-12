@@ -4,8 +4,8 @@
 /*
  * \file DTLocalTriggerBaseTask.h
  *
- * $Date: 2011/06/10 13:23:26 $
- * $Revision: 1.1 $
+ * $Date: 2010/03/15 09:42:52 $
+ * $Revision: 1.0 $
  * \author C. Battilana - CIEMAT
  *
 */

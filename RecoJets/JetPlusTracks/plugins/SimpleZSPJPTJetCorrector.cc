@@ -1,6 +1,6 @@
 //
 // Original Author:  Fedor Ratnikov Dec 27, 2006
-// $Id: SimpleZSPJPTJetCorrector.cc,v 1.1 2012/10/18 08:46:42 eulisse Exp $
+// $Id: SimpleZSPJPTJetCorrector.cc,v 1.8 2010/07/30 14:27:45 kodolova Exp $
 //
 // ZSP Jet Corrector
 //

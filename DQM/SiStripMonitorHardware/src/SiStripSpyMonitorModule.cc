@@ -1,6 +1,6 @@
 // Original Author:  Anne-Marie Magnan
 //         Created:  2010/01/11
-// $Id: SiStripSpyMonitorModule.cc,v 1.1 2012/10/15 09:02:48 threus Exp $
+// $Id: SiStripSpyMonitorModule.cc,v 1.4 2010/04/21 10:40:21 amagnan Exp $
 //
 
 #include <sstream>

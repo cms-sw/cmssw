@@ -5,7 +5,7 @@
  *  Factory of seal plugins for TTrig DB corrections.
  *  The plugins are concrete implementations of DTT0BaseCorrection case class.
  *
- *  $Date: 2012/03/02 19:47:31 $
+ *  $Date: 2008/12/11 16:34:34 $
  *  $Revision: 1.1 $
  *  \author A. Vilela Pereira
  */

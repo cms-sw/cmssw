@@ -20,33 +20,8 @@ process.load("Configuration.Generator.TTbar_cfi")
 
 # Note: the L1 conditions and menu now come from the GlobalTag !
 
-# --- This was for 2e30 :
-# process.load("Configuration.StandardSequences.L1TriggerDefaultMenu_cff")
-
-# --- This is for 8e29 :
-# process.load('L1Trigger/Configuration/L1StartupConfig_cff')
-# process.load('L1TriggerConfig/L1GtConfigProducers/Luminosity/startup/L1Menu_Commissioning2009_v0_L1T_Scales_20080926_startup_Imp0_Unprescaled_cff')
-
-# --- This is for 1e31 :
-# process.load('L1TriggerConfig/L1GtConfigProducers/Luminosity/lumi1031/L1Menu_MC2009_v0_L1T_Scales_20080922_Imp0_Unprescaled_cff')
-
-# Other choices are
-# L1 Menu 2008 2x10E30 - Prescale
-# process.load("L1TriggerConfig/L1GtConfigProducers/Luminosity/lumi1030/L1Menu2008_2E30_cff")
-# L1 Menu 2008 2x10E30 - No Prescale
-# process.load("L1TriggerConfig/L1GtConfigProducers/Luminosity/lumi1030/L1Menu2008_2E30_Unprescaled_cff")
-# L1 Menu 2008 2x10E31 - Prescale
-# process.load("L1TriggerConfig/L1GtConfigProducers/Luminosity/lumi1031/L1Menu2008_2E31_cff")
-# L1 Menu 2008 2x10E31 - No Prescale
-# process.load("L1TriggerConfig/L1GtConfigProducers/Luminosity/lumi1031/L1Menu2008_2E31_Unprescaled_cff")
-# L1 Menu 2008 10E32 - Prescale
-# process.load("L1TriggerConfig/L1GtConfigProducers/Luminosity/lumi1x1032/L1Menu2007_cff")
-# L1 Menu 2008 10E32 - No Prescale
-# process.load("L1TriggerConfig/L1GtConfigProducers/Luminosity/lumi1x1032/L1Menu2007_Unprescaled_cff")
-
 
 # Common inputs, with fake conditions (not fake ay more!)
-#process.load("FastSimulation.Configuration.CommonInputs_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 process.load('FastSimulation.Configuration.Geometries_cff')
 
@@ -72,8 +47,13 @@ process.load("FastSimulation.Configuration.HLT_GRun_cff")
 # Simulation sequence
 process.source = cms.Source("EmptySource")
 #process.simulation = cms.Sequence(process.ProductionFilterSequence*process.simulationWithFamos)
-process.simulation = cms.Sequence(process.generator*process.simulationWithFamos)
+#process.simulation = cms.Sequence(process.generator*process.simulationWithFamos)
+process.simulation = cms.Sequence( process.dummyModule )
 
+# Path and EndPath definitions
+process.generation_step = cms.Path(process.generator)
+process.simulation_step = cms.Path(process.simulationWithFamos)
+process.tracking_step = cms.Path(process.famosWithTracks)
 
 # You many not want to simulate everything
 process.famosSimHits.SimulateCalorimetry = True
@@ -86,7 +66,7 @@ process.load('FastSimulation.PileUpProducer.PileUpSimulator_2012_Startup_inTimeO
 # No reconstruction - only HLT
 #process.HLTEndSequence = cms.Sequence(process.dummyModule)
 # (... but tracking is needed for HLT, at least)
-process.HLTEndSequence = cms.Sequence(process.famosWithTracks)
+process.HLTEndSequence = cms.Sequence(process.simulation*process.famosWithTracks)
 
 # Schedule the HLT paths (and allows HLTAnalyzers for this test):
 from FastSimulation.HighLevelTrigger.HLTSetup_cff import hltL1GtTrigReport
@@ -95,7 +75,7 @@ process.hltTrigReport = cms.EDAnalyzer( "HLTrigReport",
 )
 process.HLTAnalyzerEndpath = cms.EndPath( hltL1GtTrigReport + process.hltTrigReport )
 process.HLTSchedule.append(process.HLTAnalyzerEndpath)
-process.schedule = cms.Schedule()
+process.schedule = cms.Schedule(process.generation_step,process.simulation_step,process.tracking_step)
 process.schedule.extend(process.HLTSchedule)
 
 # To write out events

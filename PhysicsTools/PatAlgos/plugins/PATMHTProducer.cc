@@ -1,5 +1,5 @@
 //
-// $Id: PATMHTProducer.cc,v 1.8 2013/02/27 23:26:56 wmtan Exp $
+// $Id: PATMHTProducer.cc,v 1.7 2010/01/11 13:36:48 hegner Exp $
 //
 
 #include "PhysicsTools/PatAlgos/plugins/PATMHTProducer.h"

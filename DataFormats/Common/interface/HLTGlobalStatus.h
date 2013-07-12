@@ -10,8 +10,8 @@
  *  If the user wants map-like indexing of HLT triggers through their
  *  names as key, s/he must use the TriggerNamesService.
  *
- *  $Date: 2007/12/21 22:46:50 $
- *  $Revision: 1.8 $
+ *  $Date: 2007/07/06 12:54:47 $
+ *  $Revision: 1.7 $
  *
  *  \author Martin Grunewald
  *

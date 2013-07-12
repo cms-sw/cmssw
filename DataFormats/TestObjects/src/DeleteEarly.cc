@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Feb  7 14:40:59 CST 2012
-// $Id: DeleteEarly.cc,v 1.1 2012/02/09 22:09:36 chrjones Exp $
+// $Id$
 //
 
 // system include files

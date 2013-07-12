@@ -4,9 +4,9 @@
  *
  *  Original author: Andreas Mussgiller, January 2011
  *
- *  $Date: 2012/08/10 09:01:11 $
- *  $Revision: 1.4 $
- *  (last update by $Author: flucke $)
+ *  $Date: 2011/02/23 16:58:34 $
+ *  $Revision: 1.3 $
+ *  (last update by $Author: mussgill $)
  */
 
 #include "Alignment/MillePedeAlignmentAlgorithm/interface/PedeLabelerBase.h"

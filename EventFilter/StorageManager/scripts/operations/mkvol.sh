@@ -1,5 +1,5 @@
 #!/bin/bash
-# $Id: mkvol.sh,v 1.9 2010/04/27 01:59:41 gbauer Exp $
+# $Id: mkvol.sh,v 1.8 2008/09/05 09:45:11 gbauer Exp $
 
 ## *** added security feature: 5th argument MUST BE 'makefilesys' 
 ## or else file system will NOT be made ***

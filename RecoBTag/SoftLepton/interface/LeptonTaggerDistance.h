@@ -7,8 +7,8 @@
  *
  *   Implementation of muon b-tagging returning 1 if a lepton is present in the jet, 0 otherwise
  *
- *   $Date: 2013/05/20 22:59:11 $
- *   $Revision: 1.5 $
+ *   $Date: 2008/04/22 12:55:51 $
+ *   $Revision: 1.3 $
  *
  *   \author Andrea 'fwyzard' Bocci, Scuola Normale Superiore, Pisa
  */

@@ -16,7 +16,7 @@
 //
 // Author:      
 // Created:     Thu Feb 14 20:27:08 CET 2008
-// $Id: SiPixelCalibConfigurationRcd.h,v 1.2 2008/02/14 19:28:55 fblekman Exp $
+// $Id$
 //
 
 #include "FWCore/Framework/interface/EventSetupRecordImplementation.h"

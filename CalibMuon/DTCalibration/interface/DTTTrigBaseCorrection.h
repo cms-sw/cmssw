@@ -4,8 +4,8 @@
 /** \class DTTTrigBaseCorrection
  *  Base class to define the tTrig corrections for entering in DB
  *
- *  $Date: 2012/03/02 19:47:32 $
- *  $Revision: 1.3 $
+ *  $Date: 2010/11/17 17:54:23 $
+ *  $Revision: 1.2 $
  *  \author A. Vilela Pereira
  */
 

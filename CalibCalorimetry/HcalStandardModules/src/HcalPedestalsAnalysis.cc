@@ -4,7 +4,7 @@
 // This code runs 1000x faster and produces all outputs from a single run
 // (ADC, fC in .txt plus an .xml file)
 //
-// $Id: HcalPedestalsAnalysis.cc,v 1.25 2012/11/13 03:30:20 dlange Exp $
+// $Id: HcalPedestalsAnalysis.cc,v 1.24 2012/11/02 14:40:26 dlange Exp $
 
 #include <memory>
 #include "CalibCalorimetry/HcalStandardModules/interface/HcalPedestalsAnalysis.h"

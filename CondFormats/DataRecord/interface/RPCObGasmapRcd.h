@@ -16,7 +16,7 @@
 //
 // Author:      
 // Created:     Thu Feb 26 10:36:36 CET 2009
-// $Id: RPCObGasmapRcd.h,v 1.1 2009/02/26 09:37:27 dpagano Exp $
+// $Id$
 //
 
 #include "FWCore/Framework/interface/EventSetupRecordImplementation.h"

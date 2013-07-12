@@ -2,9 +2,9 @@
  * \file MillePedeAlignmentAlgorithm.cc
  *
  *  \author    : Gero Flucke/Ivan Reid
- *  date       : February 2009 *  $Revision: 1.12 $
- *  $Date: 2013/01/07 20:56:25 $
- *  (last update by $Author: wmtan $)
+ *  date       : February 2009 *  $Revision: 1.11 $
+ *  $Date: 2011/03/22 09:49:50 $
+ *  (last update by $Author: innocent $)
  */
 /*
  *# Parameters:

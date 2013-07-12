@@ -16,7 +16,7 @@
 //
 // Original Author:  
 //         Created:  Fri Sep 23 17:05:48 CDT 2011
-// $Id: ContainerMaskTraits.h,v 1.1 2011/12/01 13:02:17 vlimant Exp $
+// $Id$
 //
 
 // system include files

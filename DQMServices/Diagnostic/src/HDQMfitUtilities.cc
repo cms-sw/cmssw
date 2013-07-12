@@ -266,7 +266,7 @@ double HDQMfitUtilities::doLanGaussFit(TH1F* htoFit){
       edm::LogInfo("fitUtility") << "langaupro:  max  " << sPeak << std::endl;
       edm::LogInfo("fitUtility") << "langaupro:  FWHM " << sFWHM << std::endl;
     }
-    catch(...){
+    catch(cms::Exception& iException){
       edm::LogError("fitUtility") << "problem in fitting " << htoFit->GetTitle() << " \n\tDefault values of the parameters will be used";
       pLanGausS[0]=-9999; pLanGausS[1]=-9999; pLanGausS[2]=-9999; pLanGausS[3]=-9999;
       epLanGausS[0]=-9999; epLanGausS[1]=-9999; epLanGausS[2]=-9999; epLanGausS[3]=-9999;
@@ -337,7 +337,7 @@ double HDQMfitUtilities::doGaussFit(TH1F* htoFit){
       chi2GausS =langausFit->GetChisquare(); // obtain chi^2
       nDofGausS = langausFit->GetNDF();// obtain ndf
     }
-    catch(...){
+    catch(cms::Exception& iException){
       edm::LogError("fitUtility") << "problem in fitting " << htoFit->GetTitle() << " \n\tDefault values of the parameters will be used";
       pGausS[0]=-9999; pGausS[1]=-9999; pGausS[2]=-9999;
       epGausS[0]=-9999; epGausS[1]=-9999; epGausS[2]=-9999;

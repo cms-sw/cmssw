@@ -1,5 +1,5 @@
 //
-// $Id: PATPhotonProducer.h,v 1.20 2013/02/27 23:26:56 wmtan Exp $
+// $Id: PATPhotonProducer.h,v 1.19 2009/06/25 23:49:35 gpetrucc Exp $
 //
 
 #ifndef PhysicsTools_PatAlgos_PATPhotonProducer_h
@@ -13,7 +13,7 @@
    a collection of objects of PhotonType.
 
   \author   Steven Lowette
-  \version  $Id: PATPhotonProducer.h,v 1.20 2013/02/27 23:26:56 wmtan Exp $
+  \version  $Id: PATPhotonProducer.h,v 1.19 2009/06/25 23:49:35 gpetrucc Exp $
 */
 
 

@@ -7,8 +7,8 @@
 
 /** \class ZDCRecHit
  *  
- * $Date: 2011/09/15 09:25:06 $
- * $Revision: 1.2 $
+ * $Date: 2006/06/26 18:52:00 $
+ * $Revision: 1.1 $
  *\author J. Mans - Minnesota
  */
 class ZDCRecHit : public CaloRecHit {

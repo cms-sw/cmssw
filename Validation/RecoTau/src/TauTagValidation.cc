@@ -15,7 +15,7 @@
 //
 // Original Author:  Ricardo Vasquez Sierra
 //         Created:  October 8, 2008
-// $Id: TauTagValidation.cc,v 1.38 2012/04/02 10:23:15 perchall Exp $
+// $Id: TauTagValidation.cc,v 1.37 2012/03/20 16:30:42 mverzett Exp $
 //
 //
 // user include files

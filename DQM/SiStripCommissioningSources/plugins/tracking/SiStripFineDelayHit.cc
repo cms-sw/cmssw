@@ -13,7 +13,7 @@
 //
 // Original Author:  Christophe DELAERE
 //         Created:  Fri Nov 17 10:52:42 CET 2006
-// $Id: SiStripFineDelayHit.cc,v 1.18 2013/02/27 15:07:58 davidlt Exp $
+// $Id: SiStripFineDelayHit.cc,v 1.17 2012/01/17 10:04:37 innocent Exp $
 //
 //
 

@@ -293,6 +293,7 @@ namespace edm {
     TrigResPtr               endpath_results_;
 
     WorkerPtr                results_inserter_;
+    AllWorkers               all_workers_;
     AllOutputModuleCommunicators         all_output_communicators_;
     TrigPaths                trig_paths_;
     TrigPaths                end_paths_;

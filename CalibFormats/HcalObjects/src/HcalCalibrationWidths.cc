@@ -5,8 +5,8 @@
     
     Container for retrieving uncertainties of calibration constants for HCAL
    $Author: ratnikov
-   $Date: 2011/10/13 09:44:45 $
-   $Revision: 1.3 $
+   $Date: 2005/10/04 18:05:54 $
+   $Revision: 1.2 $
 */
 
 HcalCalibrationWidths::HcalCalibrationWidths (const float fGain [4], const float fPedestal [4]) {

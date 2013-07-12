@@ -7,7 +7,7 @@
 // Package:    PatCandidates
 // Class:      pat::TriggerAlgorithm
 //
-// $Id: TriggerAlgorithm.h,v 1.5 2013/06/11 13:24:49 vadler Exp $
+// $Id: TriggerAlgorithm.h,v 1.4 2011/02/22 18:29:50 vadler Exp $
 //
 /**
   \class    pat::TriggerAlgorithm TriggerAlgorithm.h "DataFormats/PatCandidates/interface/TriggerAlgorithm.h"
@@ -18,7 +18,7 @@
    https://twiki.cern.ch/twiki/bin/view/CMS/SWGuidePATTrigger#TriggerAlgorithm
 
   \author   Volker Adler
-  \version  $Id: TriggerAlgorithm.h,v 1.5 2013/06/11 13:24:49 vadler Exp $
+  \version  $Id: TriggerAlgorithm.h,v 1.4 2011/02/22 18:29:50 vadler Exp $
 */
 
 

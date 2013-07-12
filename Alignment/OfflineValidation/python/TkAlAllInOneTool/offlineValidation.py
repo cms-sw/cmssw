@@ -9,7 +9,7 @@ from TkAlExceptions import AllInOneError
 class OfflineValidation(GenericValidationData):
     def __init__(self, valName, alignment,config):
         defaults = {
-            "DMRMethod":"median",
+            "DMRMethod":"median,rmsNorm",
             "DMRMinimum":"30",
             "DMROptions":"",
             "offlineModuleLevelHistsTransient":"False",
@@ -222,8 +222,9 @@ class OfflineValidationParallel(OfflineValidation):
                 
         mergedoutputfile = ("AlignmentValidation_" + self.name + "_"
                             + '%(name)s'%repMap + ".root")
-        validationsSoFar += ('hadd("'+parameters+'","'+mergedoutputfile+'");'
-                             + "\n")
+        validationsSoFar += ('root -x -b -q "TkAlOfflineJobsMerge.C(\\\"'
+                             +parameters+'\\\",\\\"'+mergedoutputfile+'\\\")"'
+                             +"\n")
         return validationsSoFar
 
     def createCrabCfg( self ):

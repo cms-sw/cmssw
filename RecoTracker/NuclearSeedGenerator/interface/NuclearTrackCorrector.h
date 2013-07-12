@@ -17,7 +17,7 @@
 //
 // Original Author:  Loic QUERTENMONT, Vincent ROBERFROID
 //         Created:  Tue Sep 18 14:22:48 CEST 2007
-// $Id: NuclearTrackCorrector.h,v 1.8 2013/02/27 13:28:32 muzaffar Exp $
+// $Id: NuclearTrackCorrector.h,v 1.7 2009/03/04 13:34:27 vlimant Exp $
 //
 //
 

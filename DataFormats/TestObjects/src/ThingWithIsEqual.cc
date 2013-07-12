@@ -1,5 +1,5 @@
 
-// $Id: ThingWithIsEqual.cc,v 1.2 2008/11/21 00:00:17 wmtan Exp $
+// $Id: ThingWithIsEqual.cc,v 1.1 2008/02/04 20:13:15 wdd Exp $
 
 #include "DataFormats/TestObjects/interface/ThingWithIsEqual.h"
 

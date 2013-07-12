@@ -4,8 +4,8 @@
  *
  * \author Giuseppe Cerati, INFN
  *
- *  $Date: 2013/06/24 12:25:14 $
- *  $Revision: 1.2 $
+ *  $Date: 2013/06/04 21:29:52 $
+ *  $Revision: 1.1.12.1 $
  *
  */
 #include "FWCore/Framework/interface/MakerMacros.h"
