@@ -7,7 +7,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: SuperCluster.h,v 1.26 2013/04/12 12:05:18 argiro Exp $
+ * \version $Id: SuperCluster.h,v 1.27 2013/06/14 14:27:52 lgray Exp $
  *
  */
 #include "DataFormats/Math/interface/Point3D.h"
@@ -19,7 +19,7 @@
 namespace reco {
   class SuperCluster : public CaloCluster {
   public:
-
+    typedef std::vector<std::vector<std::pair<CaloClusterPtr::key_type,CaloClusterPtr> > > EEtoPSAssociation;
     typedef math::XYZPoint Point;
 
     /// default constructor
@@ -67,6 +67,12 @@ namespace reco {
     /// seed BasicCluster
     const CaloClusterPtr & seed() const { return seed_; }
 
+    /// const access to the cluster list itself
+    const CaloClusterPtrVector& clusters() const { return clusters_; }
+
+    /// const access to the preshower cluster list itself
+    const CaloClusterPtrVector& preshowerClusters() const { return preshowerClusters_; }
+
     /// fist iterator over BasicCluster constituents
     CaloCluster_iterator clustersBegin() const { return clusters_.begin(); }
 
@@ -81,6 +87,9 @@ namespace reco {
 
     /// number of BasicCluster constituents
     size_t clustersSize() const { return clusters_.size(); }
+
+    /// number of BasicCluster PreShower constituents
+    size_t preshowerClustersSize() const { return preshowerClusters_.size(); }
 
     /// list of used xtals by DetId // now inherited by CaloCluster
     //std::vector<DetId> getHitsByDetId() const { return usedHits_; }
