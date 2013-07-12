@@ -1,0 +1,5 @@
+<use   name="PerfTools/PerfStat"/>
+<use   name="FWCore/ServiceRegistry"/>
+<library   file="*.cc" name="PerfToolsPerfStatPlugins">
+  <flags   EDM_PLUGIN="1"/>
+</library>
