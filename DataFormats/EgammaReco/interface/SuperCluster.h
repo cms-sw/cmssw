@@ -19,7 +19,9 @@
 namespace reco {
   class SuperCluster : public CaloCluster {
   public:
-    typedef std::vector<std::vector<std::pair<CaloClusterPtr::key_type,CaloClusterPtr> > > EEtoPSAssociation;
+    typedef std::vector<std::pair<CaloClusterPtr::key_type,CaloClusterPtr> > EEtoPSAssociation;
+    // cluster index to range in PS cluster vector
+    typedef std::vector<std::pair<CaloClusterPtr::key_type,std::pair<size_t,size_t> > > EEtoPSAssociationInternal;
     typedef math::XYZPoint Point;
 
     /// default constructor
@@ -151,6 +153,8 @@ namespace reco {
 
     double preshowerEnergy1_;
     double preshowerEnergy2_;
+
+    EEtoPSAssociationInternal ee2ps;
   };
 
 }

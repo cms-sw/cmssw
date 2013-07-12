@@ -27,13 +27,17 @@ namespace {
   typedef edm::PtrVector<reco::PFCluster> PFClusterPtrVector;
   typedef PFECALSuperClusterAlgo::CalibratedClusterPtr CalibClusterPtr;
   typedef PFECALSuperClusterAlgo::CalibratedClusterPtrVector CalibClusterPtrVector;
-
+  typedef std::pair<reco::CaloClusterPtr::key_type,reco::CaloClusterPtr> EEPSPair;
   typedef std::binary_function<const CalibClusterPtr&,
 			       const CalibClusterPtr&, 
 			       bool> ClusBinaryFunction;
   
   typedef std::unary_function<const CalibClusterPtr&, 
 			      bool> ClusUnaryFunction;  
+
+  bool sortByKey(const EEPSPair& a, const EEPSPair& b) {
+    return a.first < b.first;
+  } 
 
   struct SumPSEnergy : public std::binary_function<double,
 						   const PFClusterPtr&,
@@ -113,11 +117,11 @@ namespace {
       the_seed(s), _type(ct), dynamic_dphi(dyn_dphi) {}
     bool operator()(const CalibClusterPtr& x) { 
       const double dphi = 
-	std::abs(TVector2::Phi_mpi_pi(the_seed->phi() - x->phi()));  
-      const bool isEB = ( PFLayer::ECAL_BARREL == x->the_ptr()->layer() );
+	std::abs(TVector2::Phi_mpi_pi(the_seed->phi() - x->phi()));        
       const bool passes_dphi = 
 	( (!dynamic_dphi && dphi < phiwidthSuperCluster_ ) || 
-	  (dynamic_dphi && MK::inDynamicDPhiWindow(isEB,the_seed->phi(),
+	  (dynamic_dphi && MK::inDynamicDPhiWindow(the_seed->eta(),
+						   the_seed->phi(),
 						   x->energy_nocalib(),
 						   x->eta(),
 						   x->phi()) ) );
@@ -183,6 +187,7 @@ loadAndSortPFClusters(const PFClusterView& clusters,
   superClustersEB_.reset(new reco::SuperClusterCollection);
   _clustersEB.clear();
   superClustersEE_.reset(new reco::SuperClusterCollection);  
+  EEtoPS_.reset(new reco::SuperCluster::EEtoPSAssociation);
   _clustersEE.clear();
   _psclustersforee.clear();
   
@@ -238,14 +243,18 @@ loadAndSortPFClusters(const PFClusterView& clusters,
 	min_dist = dist;
       }
     } // loop on EE clusters      
-    if( eematch.isNonnull() ) _psclustersforee[eematch].push_back(psclus);
-  } // loop on PS clusters
+    if( eematch.isNonnull() ) {
+      EEtoPS_->push_back(std::make_pair(eematch.key(),psclus));
+    }
+  } // loop on PS clusters    
 
   // sort full cluster collections by their calibrated energy
   // this will put all the seeds first by construction
   GreaterByEt greater;
   std::sort(_clustersEB.begin(), _clustersEB.end(), greater);
   std::sort(_clustersEE.begin(), _clustersEE.end(), greater);  
+  //sort the ps association
+  std::sort(EEtoPS_->begin(),EEtoPS_->end(),sortByKey);
 }
 
 void PFECALSuperClusterAlgo::run() {  
@@ -339,12 +348,13 @@ buildSuperCluster(CalibClusterPtr& seed,
   std::vector<const reco::PFCluster*> bare_ptrs;
   // calculate necessary parameters and build the SC
   double posX(0), posY(0), posZ(0),
-    rawSCEnergy(0), corrSCEnergy(0), clusterCorrEE(0), 
+    rawSCEnergy(0), corrSCEnergy(0), corrPSEnergy(0), clusterCorrEE(0), 
     PS1_clus_sum(0), PS2_clus_sum(0);  
   for( auto& clus : clustered ) {
     bare_ptrs.push_back(clus->the_ptr().get());
       
     const double cluseraw = clus->energy_nocalib();
+    const double clusecalib_nops = clus->energy();
     const math::XYZPoint& cluspos = clus->the_ptr()->position();
     posX += cluseraw * cluspos.X();
     posY += cluseraw * cluspos.Y();
@@ -365,6 +375,7 @@ buildSuperCluster(CalibClusterPtr& seed,
 
     rawSCEnergy  += cluseraw;
     corrSCEnergy += clus->energy();    
+    corrPSEnergy += clus->energy() - clusecalib_nops;    
   }
   posX /= rawSCEnergy;
   posY /= rawSCEnergy;
@@ -372,36 +383,51 @@ buildSuperCluster(CalibClusterPtr& seed,
   
   // now build the supercluster
   reco::SuperCluster new_sc(corrSCEnergy,math::XYZPoint(posX,posY,posZ)); 
-  double ps1_energy(0.0), ps2_energy(0.0), ps_energy(0.0);
+  double ps1_energy(0.0), ps2_energy(0.0); 
   new_sc.setSeed(clustered.front()->the_ptr());
+  new_sc.setPreshowerEnergy(corrPSEnergy); 
   for( const auto& clus : clustered ) {
     new_sc.addCluster(clus->the_ptr());
+    
     auto& hits_and_fractions = clus->the_ptr()->hitsAndFractions();
     for( auto& hit_and_fraction : hits_and_fractions ) {
       new_sc.addHitAndFraction(hit_and_fraction.first,hit_and_fraction.second);
     }
-    const auto& cluspsassociation = _psclustersforee[clus->the_ptr()];     
+    if( isEE ) {
+      auto ee_key_val = 
+	std::make_pair(clus->the_ptr().key(),edm::Ptr<reco::PFCluster>());
+      const auto clustops = std::equal_range(EEtoPS_->begin(),
+					     EEtoPS_->end(),
+					     ee_key_val,
+					     sortByKey);
     // EE rechits should be uniquely matched to sets of pre-shower
     // clusters at this point, so we throw an exception if otherwise
-    for( const auto& psclus : cluspsassociation ) {
-      auto found_pscluster = std::find(new_sc.preshowerClustersBegin(),
-				       new_sc.preshowerClustersEnd(),
-				       reco::CaloClusterPtr(psclus));
-      if( found_pscluster == new_sc.preshowerClustersEnd() ) {
-	const double psenergy = psclus->energy();
-	new_sc.addPreshowerCluster(psclus);
-	ps1_energy += (PFLayer::PS1 == psclus->layer())*psenergy;
-	ps2_energy += (PFLayer::PS2 == psclus->layer())*psenergy;
-	ps_energy  += psenergy;
-      } else {
-	throw cms::Exception("PFECALSuperClusterAlgo::buildSuperCluster")
-	  << "Found a PS cluster matched to more than one EE cluster!" 
-	  << std::endl << std::hex << psclus.get() << " == " 
-	  << found_pscluster->get() << std::dec << std::endl;
+    // now wrapped in EDM debug flags
+      for( auto i_ps = clustops.first; i_ps != clustops.second; ++i_ps) {
+#ifdef EDM_ML_DEBUG
+	auto found_pscluster = std::find(new_sc.preshowerClustersBegin(),
+					 new_sc.preshowerClustersEnd(),
+					 i_ps->second);
+	if( found_pscluster == new_sc.preshowerClustersEnd() ) {
+#endif
+	  edm::Ptr<reco::PFCluster> psclus(i_ps->second);
+	  const double psenergy = psclus->energy();
+	  const PFLayer::Layer pslayer = psclus->layer();
+	  
+	  new_sc.addPreshowerCluster(psclus);
+	  ps1_energy += (PFLayer::PS1 == pslayer)*psenergy;
+	  ps2_energy += (PFLayer::PS2 == pslayer)*psenergy;	  
+#ifdef EDM_ML_DEBUG
+	} else {
+	  throw cms::Exception("PFECALSuperClusterAlgo::buildSuperCluster")
+	    << "Found a PS cluster matched to more than one EE cluster!" 
+	    << std::endl << std::hex << psclus.get() << " == " 
+	    << found_pscluster->get() << std::dec << std::endl;
+	}
+#endif
       }
     }
-  }
-  new_sc.setPreshowerEnergy(ps_energy); 
+  }  
   new_sc.setPreshowerEnergyPlane1(ps1_energy);
   new_sc.setPreshowerEnergyPlane2(ps2_energy);
   
@@ -419,7 +445,7 @@ buildSuperCluster(CalibClusterPtr& seed,
     superClustersEB_->push_back(new_sc);
     break;
   case PFLayer::ECAL_ENDCAP:    
-    superClustersEE_->push_back(new_sc);
+    superClustersEE_->push_back(new_sc);    
     break;
   default:
     break;

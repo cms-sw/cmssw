@@ -106,7 +106,9 @@ class PFECALSuperClusterAlgo {
   std::auto_ptr<reco::SuperClusterCollection>
     getEBOutputSCCollection() { return superClustersEB_; }
   std::auto_ptr<reco::SuperClusterCollection>
-    getEEOutputSCCollection() { return superClustersEE_; }  
+    getEEOutputSCCollection() { return superClustersEE_; } 
+  std::auto_ptr<reco::SuperCluster::EEtoPSAssociation>
+    getEEtoPSAssociation() { return EEtoPS_; } 
 
   void loadAndSortPFClusters(const edm::View<reco::PFCluster>& ecalclusters,
 			     const edm::View<reco::PFCluster>& psclusters);
@@ -121,6 +123,7 @@ class PFECALSuperClusterAlgo {
     edm::PtrVector<reco::PFCluster> > _psclustersforee;
   std::auto_ptr<reco::SuperClusterCollection> superClustersEB_;
   std::auto_ptr<reco::SuperClusterCollection> superClustersEE_;
+  std::auto_ptr<reco::SuperCluster::EEtoPSAssociation> EEtoPS_;
   std::shared_ptr<PFEnergyCalibration> _pfEnergyCalibration;
   clustering_type _clustype;
   void buildAllSuperClusters(CalibratedClusterPtrVector&,
