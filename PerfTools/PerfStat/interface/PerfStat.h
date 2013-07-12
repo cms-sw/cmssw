@@ -150,6 +150,16 @@ public:
 
 
   PerfStat() { init();}
+
+  // share file descriptors...
+
+  struct FD { int f0; int f1;};
+  FD fd() const { FD f{fds0,fds1}; return f;}
+  PerfStat(FD f) : fds0(f.f0), fds1(f.f1) {
+    ncalls=ncalls0=ncalls1=0;
+    times[0]=times[1]=0;
+    for	(int i=0; i!=METRIC_COUNT+METRIC_OFFSET+2; ++i) results0[i]=results1[i]=bias0[i]=bias1[i]=0;
+  }
     
 
   void init() {
@@ -337,6 +347,35 @@ public:
     }
   }
   
+
+  void startDelta() {
+   if(active) return;
+    long long results0c[METRIC_COUNT+METRIC_OFFSET];
+    long long results1c[METRIC_COUNT+METRIC_OFFSET];
+    auto err = ::read(fds0, results0c, (METRIC_OFFSET+METRIC_COUNT)*sizeof(long long));
+    err = std::min(err,::read(fds1, results1c, (METRIC_OFFSET+METRIC_COUNT)*sizeof(long long)));
+    if (err==-1) return;
+    for (int i=0; i!=METRIC_OFFSET+METRIC_COUNT; ++i) {
+      results0[i] -= results0c[i];
+      results1[i] -= results1c[i];
+    }
+    start();
+  }
+
+  void stopDelta() {
+   if(!active) return;
+    stop();
+    long long results0c[METRIC_COUNT+METRIC_OFFSET];
+    long long results1c[METRIC_COUNT+METRIC_OFFSET];
+    auto err = ::read(fds0, results0c, (METRIC_OFFSET+METRIC_COUNT)*sizeof(long long));
+    err = std::min(err,::read(fds1, results1c, (METRIC_OFFSET+METRIC_COUNT)*sizeof(long long)));
+    if (err==-1) return;
+    for (int i=0; i!=METRIC_OFFSET+METRIC_COUNT; ++i) {
+      results0[i] += results0c[i];
+      results1[i] += results1c[i];
+    }
+  }
+
 
 
  static void header(std::ostream & out) {

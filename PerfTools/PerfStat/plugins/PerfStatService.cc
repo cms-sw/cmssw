@@ -43,10 +43,10 @@ private:
   void postEventProcessing(edm::Event const&, edm::EventSetup const&){}
   
   void preModule(edm::ModuleDescription const& md) {
-    current = &find(md); current->start();
+    current = &find(md); current->startDelta();
   }
   void postModule(edm::ModuleDescription const& md) {
-    current->stop();
+    current->stopDelta();
   }
 
   // find or create
@@ -54,7 +54,7 @@ private:
     auto p = perfs.find(md.parameterSetID().compactForm());
     if (p==perfs.end()) {
       std::string name = md.moduleName()+'/'+md.moduleLabel();
-      p = perfs.insert(std::make_pair(md.parameterSetID().compactForm(),P())).first;
+      p = perfs.insert(std::make_pair(md.parameterSetID().compactForm(),P(name,master))).first;
     }
     return (*p).second.p;
   }
@@ -62,8 +62,9 @@ private:
   
 
 private:
-
+  PerfStat master;
   struct P {
+    P(std::string in, PerfStat const & im) : name(in), p(im.fd()){}
     std::string name;
     PerfStat p;
   };
