@@ -195,6 +195,9 @@ namespace edmtest {
 
       consumes<edmtest::ThingWithIsEqual,edm::InRun>(edm::InputTag{"makeThingToBeDropped", "beginRun", "PROD"});
     }
+    for(auto const& parent : expectedParents_) {
+      mayConsume<edmtest::Thing>(edm::InputTag{parent,"event","PROD"});
+    }
     if(expectedDroppedEvent1_.size() > droppedIndex1_) {
       consumes<edmtest::ThingWithIsEqual>(edm::InputTag{"makeThingToBeDropped1", "event", "PROD"});
     }
@@ -226,7 +229,7 @@ namespace edmtest {
     }
     
     if (testAlias_) {
-      consumes<edmtest::Thing>(edm::InputTag{"aliasForThingToBeDropped2", "endRun2"});
+      consumes<edmtest::Thing,edm::InRun>(edm::InputTag{"aliasForThingToBeDropped2", "endRun2"});
       edm::InputTag tag("aliasForThingToBeDropped2", "endRun2","PROD");
       consumes<edmtest::Thing,edm::InRun>(tag);
     }
