@@ -20,7 +20,9 @@ namespace edm {
 	ModuleDescription const& md)  :
     //putProducts_(),
     principal_(pcpl),
-    md_(md) {
+    md_(md),
+    consumer_(nullptr)
+  {
   }
 
   PrincipalGetAdapter::~PrincipalGetAdapter() {
@@ -99,7 +101,7 @@ namespace edm {
     << "() was called.\n"
     << "The index of the token was "<<token.index()<<".\n";
   }
-
+  
   BasicHandle
   PrincipalGetAdapter::makeFailToGetException(KindOfType kindOfType,
                                               TypeID const& productType,
@@ -141,7 +143,7 @@ namespace edm {
   BasicHandle
   PrincipalGetAdapter::getByLabel_(TypeID const& typeID,
                                    InputTag const& tag) const {
-    return principal_.getByLabel(PRODUCT_TYPE, typeID, tag);
+    return principal_.getByLabel(PRODUCT_TYPE, typeID, tag, consumer_);
   }
 
   BasicHandle
@@ -149,7 +151,7 @@ namespace edm {
                                    std::string const& label,
   	                           std::string const& instance,
   	                           std::string const& process) const {
-    return principal_.getByLabel(PRODUCT_TYPE, typeID, label, instance, process);
+    return principal_.getByLabel(PRODUCT_TYPE, typeID, label, instance, process, consumer_);
   }
   
   BasicHandle
@@ -175,7 +177,7 @@ namespace edm {
   BasicHandle
   PrincipalGetAdapter::getMatchingSequenceByLabel_(TypeID const& typeID,
                                                    InputTag const& tag) const {
-    return principal_.getByLabel(ELEMENT_TYPE, typeID, tag);    
+    return principal_.getByLabel(ELEMENT_TYPE, typeID, tag, consumer_);
   }
 
   BasicHandle
@@ -183,17 +185,19 @@ namespace edm {
                                                    std::string const& label,
                                                    std::string const& instance,
                                                    std::string const& process) const {
-    return principal_.getByLabel(ELEMENT_TYPE,
+    auto h= principal_.getByLabel(ELEMENT_TYPE,
                                  typeID,
                                  label,
                                  instance,
-                                 process);
+                                 process,
+                                 consumer_);
+    return h;
   }
 
   void
   PrincipalGetAdapter::getManyByType_(TypeID const& tid,
 		  BasicHandleVec& results) const {
-    principal_.getManyByType(tid, results);
+    principal_.getManyByType(tid, results, consumer_);
   }
 
   ProcessHistory const&

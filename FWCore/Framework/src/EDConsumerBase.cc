@@ -270,6 +270,52 @@ EDConsumerBase::labelsForToken(EDGetToken iToken, Labels& oLabels) const
   oLabels.process = oLabels.module+labels.m_deltaToProcessName;
 }
 
+bool
+EDConsumerBase::registeredToConsume(ProductHolderIndex iIndex, BranchType iBranch) const
+{
+  for(auto it = m_tokenInfo.begin<kLookupInfo>(),
+      itEnd = m_tokenInfo.end<kLookupInfo>();
+      it != itEnd; ++it) {
+    if(it->m_index == iIndex and
+       it->m_branchType == iBranch) {
+      return true;
+    }
+  }
+  //TEMPORARY: Remember so we do not have to do this again
+  //non thread-safe
+  EDConsumerBase* nonConstThis = const_cast<EDConsumerBase*>(this);
+  nonConstThis->m_tokenInfo.emplace_back(TokenLookupInfo{TypeID{},iIndex,iBranch},
+                                         true,
+                                         LabelPlacement{0,0,0},
+                                         PRODUCT_TYPE);
+
+  return false;
+}
+
+bool
+EDConsumerBase::registeredToConsumeMany(TypeID const& iType, BranchType iBranch) const
+{
+  for(auto it = m_tokenInfo.begin<kLookupInfo>(),
+      itEnd = m_tokenInfo.end<kLookupInfo>();
+      it != itEnd; ++it) {
+    //consumesMany entries do not have their index resolved
+    if(it->m_index == ProductHolderIndexInvalid and
+       it->m_type == iType and
+       it->m_branchType == iBranch) {
+      return true;
+    }
+  }
+  //TEMPORARY: Remember so we do not have to do this again
+  //non thread-safe
+  EDConsumerBase* nonConstThis = const_cast<EDConsumerBase*>(this);
+  nonConstThis->m_tokenInfo.emplace_back(TokenLookupInfo{iType,ProductHolderIndexInvalid,iBranch},
+                           true,
+                           LabelPlacement{0,0,0},
+                           PRODUCT_TYPE);
+  return false;
+  
+}
+
 
 void
 EDConsumerBase::throwTypeMismatch(edm::TypeID const& iType, EDGetToken iToken) const

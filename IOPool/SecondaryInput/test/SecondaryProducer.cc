@@ -104,7 +104,8 @@ namespace edm {
     BasicHandle bhandle = eventPrincipal.getByLabel(PRODUCT_TYPE, TypeID(typeid(edmtest::IntProduct)),
                                                     "EventNumber",
                                                     "",
-                                                    "");
+                                                    "",
+                                                    nullptr);
     assert(bhandle.isValid());
     Handle<edmtest::IntProduct> handle;
     convert_handle<edmtest::IntProduct>(bhandle, handle);
@@ -117,7 +118,8 @@ namespace edm {
     BasicHandle bh = eventPrincipal.getByLabel(PRODUCT_TYPE, TypeID(typeid(TC)),
                                                "Thing",
                                                "",
-                                               "");
+                                               "",
+                                               nullptr);
     assert(bh.isValid());
     if(!(bh.interface()->dynamicTypeInfo() == typeid(TC))) {
       handleimpl::throwConvertTypeError(typeid(TC), bh.interface()->dynamicTypeInfo());

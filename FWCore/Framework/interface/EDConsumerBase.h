@@ -52,6 +52,12 @@ namespace edm {
     void itemsToGet(BranchType, std::vector<ProductHolderIndex>&) const;
     void itemsMayGet(BranchType, std::vector<ProductHolderIndex>&) const;
     
+
+    ///\return true if the product corresponding to the index was registered via consumes or mayConsume call
+    bool registeredToConsume(ProductHolderIndex, BranchType) const;
+    
+    ///\return true of TypeID corresponds to a type specified in a consumesMany call
+    bool registeredToConsumeMany(TypeID const&, BranchType) const;
     // ---------- static member functions --------------------
     
     // ---------- member functions ---------------------------
