@@ -6,6 +6,9 @@
 #include "CondTools/Geometry/plugins/XMLGeometryBuilder.h"
 DEFINE_FWK_MODULE(XMLGeometryBuilder);
 
+#include "CondTools/Geometry/plugins/XMLMagneticFieldGeometryBuilder.h"
+DEFINE_FWK_MODULE(XMLMagneticFieldGeometryBuilder);
+
 #include "CondTools/Geometry/plugins/PGeometricDetBuilder.h"
 DEFINE_FWK_MODULE(PGeometricDetBuilder);
 
