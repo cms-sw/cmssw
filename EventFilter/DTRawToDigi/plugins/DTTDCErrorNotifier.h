@@ -3,8 +3,8 @@
 
 /** \class DTTDCErrorNotifier
  *
- *  $Date: 2007/05/07 16:16:40 $
- *  $Revision: 1.3 $
+ *  $Date: 2007/04/24 12:08:20 $
+ *  $Revision: 1.1 $
  *  \author M. Zanetti - INFN Padova
  */
 

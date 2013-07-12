@@ -18,7 +18,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 13:55:57 CST 2013
-// $Id: hardware_pause.h,v 1.1 2013/02/21 22:14:10 chrjones Exp $
+// $Id$
 //
 
 //NOTE: Taken from libdispatch shims/atomics.h

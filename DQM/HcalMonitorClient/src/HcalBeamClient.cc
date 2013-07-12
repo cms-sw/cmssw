@@ -11,8 +11,8 @@
 /*
  * \file HcalBeamClient.cc
  * 
- * $Date: 2012/06/18 08:23:10 $
- * $Revision: 1.20 $
+ * $Date: 2011/04/27 12:26:10 $
+ * $Revision: 1.19 $
  * \author J. Temple
  * \brief Hcal Beam Monitor Client class
  */

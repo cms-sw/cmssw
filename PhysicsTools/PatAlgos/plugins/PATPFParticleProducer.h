@@ -1,5 +1,5 @@
 //
-// $Id: PATPFParticleProducer.h,v 1.9 2013/02/27 23:26:56 wmtan Exp $
+// $Id: PATPFParticleProducer.h,v 1.8 2012/05/26 10:42:53 gpetrucc Exp $
 //
 
 #ifndef PhysicsTools_PatAlgos_PATPFParticleProducer_h
@@ -13,7 +13,7 @@
    a collection of objects of reco::PFCandidate.
 
   \author   Steven Lowette, Roger Wolf
-  \version  $Id: PATPFParticleProducer.h,v 1.9 2013/02/27 23:26:56 wmtan Exp $
+  \version  $Id: PATPFParticleProducer.h,v 1.8 2012/05/26 10:42:53 gpetrucc Exp $
 */
 
 

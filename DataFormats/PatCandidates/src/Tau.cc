@@ -1,5 +1,5 @@
 //
-// $Id: Tau.cc,v 1.22 2011/10/27 16:37:04 wmtan Exp $
+// $Id: Tau.cc,v 1.21 2011/09/29 16:34:57 veelken Exp $
 //
 
 #include "DataFormats/PatCandidates/interface/Tau.h"

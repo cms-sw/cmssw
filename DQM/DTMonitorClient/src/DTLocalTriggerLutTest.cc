@@ -153,7 +153,7 @@ void DTLocalTriggerLutTest::runClientDiagnostic() {
 		phiSlope = ffPhi->GetParameter(1);
 		phiCorr  = TrackPhitkvsPhitrig->GetCorrelationFactor();
 	      }
-	    } catch (...) {
+	    } catch (cms::Exception& iException) {
 	      edm::LogError(category()) << "[" << testName << "Test]: Error fitting PhitkvsPhitrig for Wheel " << wh 
 					<<" Sector " << sect << " Station " << stat;
 	    }
@@ -189,7 +189,7 @@ void DTLocalTriggerLutTest::runClientDiagnostic() {
 		phibSlope = ffPhib->GetParameter(1);
 		phibCorr  = TrackPhibtkvsPhibtrig->GetCorrelationFactor();
 	      }
-	    } catch (...) {
+	    } catch (cms::Exception& iException) {
 	      edm::LogError(category()) << "[" << testName << "Test]: Error fitting PhibtkvsPhibtrig for Wheel " << wh 
 					<<" Sector " << sect << " Station " << stat;
 	    }
@@ -225,7 +225,7 @@ void DTLocalTriggerLutTest::runClientDiagnostic() {
 	      phiMean = ffPhi->GetParameter(1);
 	      phiRMS  = ffPhi->GetParameter(2);
 	    }
-	  } catch (...) {
+	  } catch (cms::Exception& iException) {
 	    edm::LogError(category()) << "[" << testName << "Test]: Error fitting PhiResidual for Wheel " << wh 
 				      <<" Sector " << sect << " Station " << stat;
 	  }
@@ -261,7 +261,7 @@ void DTLocalTriggerLutTest::runClientDiagnostic() {
 	      phibMean = ffPhib->GetParameter(1);
 	      phibRMS  = ffPhib->GetParameter(2);
 	    }
-	  } catch (...) {
+	  } catch (cms::Exception& iException) {
 	    edm::LogError(category()) << "[" << testName << "Test]: Error fitting PhibResidual for Wheel " << wh 
 				      <<" Sector " << sect << " Station " << stat;
 	  }

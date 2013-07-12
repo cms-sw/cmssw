@@ -7,8 +7,8 @@ class CaloTPGTranscoder;
 
 /** \class HcalTPGCompressor
   *  
-  * $Date: 2006/09/14 16:24:10 $
-  * $Revision: 1.1 $
+  * $Date: $
+  * $Revision: $
   * \author J. Mans - Minnesota
   */
 class HcalTPGCompressor {

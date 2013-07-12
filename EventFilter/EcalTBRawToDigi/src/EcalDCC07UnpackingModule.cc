@@ -1,7 +1,7 @@
 /* \file EcalDCCTB07UnpackingModule.h
  *
- *  $Date: 2012/09/12 18:18:44 $
- *  $Revision: 1.13 $
+ *  $Date: 2009/12/14 22:22:37 $
+ *  $Revision: 1.12 $
  *  \author Y. Maravin
  *  \author G. Franzoni
  *  \author G. Della Ricca

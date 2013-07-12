@@ -1,8 +1,8 @@
 /**
  * \file CSCSegAlgoSK.cc
  *
- *  $Date: 2013/05/28 15:41:45 $
- *  $Revision: 1.16 $
+ *  $Date: 2009/12/16 02:00:54 $
+ *  $Revision: 1.15 $
  *  \author M. Sani
  */
  

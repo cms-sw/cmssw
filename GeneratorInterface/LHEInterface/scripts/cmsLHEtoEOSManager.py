@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-__version__ = "$Revision: 1.12 $"
+__version__ = "$Revision: 1.11 $"
 
 import os
 import subprocess

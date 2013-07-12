@@ -1,5 +1,5 @@
 /*
- * $Id: HydjetHadronizer.cc,v 1.14 2013/05/23 14:40:17 gartung Exp $
+ * $Id: HydjetHadronizer.cc,v 1.13 2012/03/10 09:27:19 mnguyen Exp $
  *
  * Interface to the HYDJET generator, produces HepMC events
  *

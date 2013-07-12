@@ -8,7 +8,7 @@
  * \author Michael A. Balazs, UVa
  * \author Luca Lista, INFN
  *
- * \version $Id: ClusterShape.h,v 1.11 2013/04/22 22:53:02 wmtan Exp $
+ * \version $Id: ClusterShape.h,v 1.10 2008/04/16 09:06:54 ferriff Exp $
  *
  */
 

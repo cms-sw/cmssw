@@ -1,7 +1,7 @@
 #
 # Define Ecal convenience functions
 # author Stefano Argiro
-# version $Id: EcalPyUtils.py,v 1.1 2009/07/09 22:56:14 argiro Exp $
+# version $Id$
 #
 
 from pluginEcalPyUtils import *

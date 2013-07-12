@@ -18,7 +18,7 @@
  *
  * \version   May 3, 2006, F.Ratnikov, include all different
  *            energy components separately
- * \version   $Id: CaloJet.h,v 1.39 2013/05/01 13:53:47 srappocc Exp $
+ * \version   $Id: CaloJet.h,v 1.38 2008/10/14 12:26:58 oehler Exp $
  ************************************************************/
 
 

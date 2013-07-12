@@ -16,7 +16,7 @@
 //
 // Author:      
 // Created:     Tue Oct  3 19:11:28 CEST 2006
-// $Id: SiPixelGainCalibrationRcd.h,v 1.1 2006/10/20 09:09:15 chiochia Exp $
+// $Id$
 //
 
 #include "FWCore/Framework/interface/EventSetupRecordImplementation.h"

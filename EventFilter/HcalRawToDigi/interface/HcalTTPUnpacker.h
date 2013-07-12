@@ -6,8 +6,8 @@
 
 /** \class HcalTTPUnpacker
   *  
-  * $Date: 2009/09/11 19:56:30 $
-  * $Revision: 1.1 $
+  * $Date: $
+  * $Revision: $
   * \author J. Mans - Minnesota
   */
 class HcalTTPUnpacker {

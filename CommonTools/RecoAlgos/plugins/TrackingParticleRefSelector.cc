@@ -4,8 +4,8 @@
  *
  *  \author Ian Tomalin, RAL
  *
- *  $Date: 2010/02/25 00:28:56 $
- *  $Revision: 1.2 $
+ *  $Date: 2009/10/13 12:07:49 $
+ *  $Revision: 1.1 $
  */
 
 #include "FWCore/Framework/interface/MakerMacros.h"

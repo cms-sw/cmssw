@@ -13,7 +13,7 @@
 //
 // Original Author:  Jeremy Andrea
 //         Created:  Wed Mar  5 19:17:38 CEST 2008
-// $Id: SumHistoCalibration.cc,v 1.9 2012/07/05 15:07:03 eulisse Exp $
+// $Id: SumHistoCalibration.cc,v 1.8 2010/02/11 00:13:31 wmtan Exp $
 //
 //
 // system include files

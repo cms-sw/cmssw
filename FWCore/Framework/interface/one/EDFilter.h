@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu, 09 May 2013 19:53:55 GMT
-// $Id: EDFilter.h,v 1.1 2013/05/17 14:49:43 chrjones Exp $
+// $Id$
 //
 
 // system include files

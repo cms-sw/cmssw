@@ -13,7 +13,7 @@
 //
 // Original Author:  Mauro Dinardo,28 S-020,+41227673777,
 //         Created:  Tue Feb 23 13:15:31 CET 2010
-// $Id: Vx3DHLTAnalyzer.cc,v 1.106 2012/12/07 10:03:22 eulisse Exp $
+// $Id: Vx3DHLTAnalyzer.cc,v 1.105 2012/09/14 07:50:15 davidlt Exp $
 
 
 #include "DQM/BeamMonitor/plugins/Vx3DHLTAnalyzer.h"

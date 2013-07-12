@@ -1,4 +1,4 @@
-// $Id: EOFRecordBuilder.cc,v 1.10 2009/02/06 00:31:27 elmer Exp $
+// $Id: EOFRecordBuilder.cc,v 1.9 2007/10/26 16:35:06 elmer Exp $
 #include "IOPool/Streamer/interface/EOFRecordBuilder.h"
 #include "IOPool/Streamer/interface/EOFRecord.h"
 #include "IOPool/Streamer/interface/MsgHeader.h"

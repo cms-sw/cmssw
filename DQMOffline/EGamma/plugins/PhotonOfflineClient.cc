@@ -329,6 +329,7 @@ void PhotonOfflineClient::runClient()
 void  PhotonOfflineClient::dividePlots(MonitorElement* dividend, MonitorElement* numerator, MonitorElement* denominator){
   double value,err;
 
+  dividend->setEfficiencyFlag(); 
   if(denominator->getEntries()==0) return;
 
   for (int j=1; j<=numerator->getNbinsX(); j++){
@@ -350,6 +351,7 @@ void  PhotonOfflineClient::dividePlots(MonitorElement* dividend, MonitorElement*
 void  PhotonOfflineClient::dividePlots(MonitorElement* dividend, MonitorElement* numerator, double denominator){
   double value,err;
 
+  dividend->setEfficiencyFlag(); 
   for (int j=1; j<=numerator->getNbinsX(); j++){
     if (denominator!=0){
       value = ((double) numerator->getBinContent(j))/denominator;

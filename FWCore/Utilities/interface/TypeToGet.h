@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Sat, 06 Apr 2013 14:45:01 GMT
-// $Id: TypeToGet.h,v 1.1 2013/04/14 19:01:14 chrjones Exp $
+// $Id$
 //
 
 // system include files

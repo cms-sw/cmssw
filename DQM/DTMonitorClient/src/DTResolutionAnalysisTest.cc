@@ -209,7 +209,7 @@ void DTResolutionAnalysisTest::endRun(Run const& run, EventSetup const& context)
           TF1 *gfit = new TF1("Gaussian","gaus",(statMean-(2*statSigma)),(statMean+(2*statSigma)));
           try {
             histo_root->Fit(gfit, "Q0", "", -0.1, 0.1);
-          } catch (...) {
+          } catch (cms::Exception& iException) {
             LogWarning ("DTDQM|DTMonitorModule|DTResolutionAnalysisTask")
               << "[DTResolutionAnalysisTask]: Exception when fitting SL : " << slID;
             // FIXME: the SL is set as OK in the summary

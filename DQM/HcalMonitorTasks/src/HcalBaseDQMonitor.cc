@@ -10,8 +10,8 @@
 /*
  * \file HcalBaseDQMonitor.cc
  *
- * $Date: 2012/11/12 20:52:12 $
- * $Revision: 1.9 $
+ * $Date: 2012/06/27 13:20:29 $
+ * $Revision: 1.8 $
  * \author J Temple
  *
  * Base class for all Hcal DQM analyzers

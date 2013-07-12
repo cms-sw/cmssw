@@ -4,7 +4,7 @@
 /** \class GEMDigiReader
  *  Dumps GEM-CSC trigger pad digis 
  *  
- *  $Id: GEMCSCPadDigiReader.cc,v 1.4 2013/01/30 12:12:45 khotilov Exp $
+ *  $Id: GEMCSCPadDigiReader.cc,v 1.2 2013/01/18 05:48:17 khotilov Exp $
  *  \authors: Vadim Khotilovich
  */
 

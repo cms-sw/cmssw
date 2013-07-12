@@ -7,9 +7,9 @@
  *
  *  Original author: Andreas Mussgiller, January 2011
  *
- *  $Date: 2012/08/10 09:01:11 $
- *  $Revision: 1.3 $
- *  (last update by $Author: flucke $)
+ *  $Date: 2011/02/18 17:08:13 $
+ *  $Revision: 1.2 $
+ *  (last update by $Author: mussgill $)
  */
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"

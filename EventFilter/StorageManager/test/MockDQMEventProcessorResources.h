@@ -1,5 +1,5 @@
 // -*- c++ -*-
-// $Id: MockDQMEventProcessorResources.h,v 1.2 2009/06/10 08:15:30 dshpakov Exp $
+// $Id$
 
 #ifndef MOCKDQMEVENTPROCESSORRESOURCES_H
 #define MOCKDQMEVENTPROCESSORRESOURCES_H

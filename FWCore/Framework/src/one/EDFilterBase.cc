@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu, 02 May 2013 21:56:04 GMT
-// $Id: EDFilterBase.cc,v 1.1 2013/05/17 14:49:45 chrjones Exp $
+// $Id$
 //
 
 // system include files

@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Apr  4 12:49:41 EDT 2007
-// $Id: PluginFactoryManager.h,v 1.3 2013/01/20 17:12:17 chrjones Exp $
+// $Id: PluginFactoryManager.h,v 1.2 2007/04/12 12:51:12 wmtan Exp $
 //
 
 // system include files

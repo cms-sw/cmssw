@@ -5,7 +5,7 @@
  * 
  * Implementation of muon chamber residuals for axial DT layers
  * 
- * $Id: MuonDT13ChamberResidual.h,v 1.3 2011/10/12 23:40:24 khotilov Exp $
+ * $Id: $
  */
 
 #include "Alignment/MuonAlignmentAlgorithms/interface/MuonHitsChamberResidual.h"

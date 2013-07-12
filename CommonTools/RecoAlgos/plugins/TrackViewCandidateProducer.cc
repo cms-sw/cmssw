@@ -6,9 +6,9 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Revision: 1.2 $
+ * \version $Revision: 1.1 $
  *
- * $Id: TrackViewCandidateProducer.cc,v 1.2 2013/02/28 00:17:19 wmtan Exp $
+ * $Id: TrackViewCandidateProducer.cc,v 1.1 2009/03/04 13:11:31 llista Exp $
  *
  */
 

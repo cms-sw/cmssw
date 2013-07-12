@@ -5,8 +5,8 @@
 //   Description: GMT Phi Projection Unit
 //
 //
-//   $Date: 2007/04/10 09:59:19 $
-//   $Revision: 1.3 $
+//   $Date: 2006/08/21 14:23:13 $
+//   $Revision: 1.2 $
 //
 //   Author :
 //   H. Sakulin                CERN EP 

@@ -13,7 +13,7 @@
 //
 // Original Author:  Domenico GIORDANO
 //         Created:  Mon Aug 10 10:42:04 CEST 2009
-// $Id: SiStripPlotGain.h,v 1.4 2013/01/03 18:59:37 wmtan Exp $
+// $Id: SiStripPlotGain.h,v 1.3 2013/01/02 17:23:49 wmtan Exp $
 //
 //
 

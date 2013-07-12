@@ -15,8 +15,8 @@
 
 /** \class HcalSimpleRealisticZS
 	
-$Date: 2012/10/31 15:34:25 $
-$Revision: 1.4 $
+$Date: 2011/05/20 17:17:34 $
+$Revision: 1.3 $
 \author J. Mans - Minnesota
 */
 class HcalRealisticZS : public edm::EDProducer {

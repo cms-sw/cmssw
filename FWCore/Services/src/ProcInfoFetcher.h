@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Sun May  6 11:14:28 CDT 2012
-// $Id: ProcInfoFetcher.h,v 1.1 2012/05/06 19:11:56 chrjones Exp $
+// $Id$
 //
 
 // system include files

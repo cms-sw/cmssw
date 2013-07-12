@@ -1,5 +1,5 @@
 #!/bin/bash
-# $Id: injbyhand.sh,v 1.2 2008/07/04 13:31:18 loizides Exp $
+# $Id: injbyhand.sh,v 1.1 2008/06/16 11:37:41 loizides Exp $
 #
 # Script that extracts necessary information for transfer from written file
 # and injects the file in to DB using the standalone script.

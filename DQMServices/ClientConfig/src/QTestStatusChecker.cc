@@ -2,8 +2,8 @@
  *
  *  Implementation of QTestStatusChecker
  *
- *  $Date: 2013/05/23 16:16:29 $
- *  $Revision: 1.9 $
+ *  $Date: 2008/02/22 23:52:24 $
+ *  $Revision: 1.8 $
  *  \author Ilaria Segoni
  */
 

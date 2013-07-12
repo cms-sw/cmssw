@@ -1,6 +1,6 @@
 /*
 
-  $Id: adler32.c,v 1.2 2011/08/23 11:29:31 eulisse Exp $
+  $Id: adler32.c,v 1.1 2011/08/11 23:12:52 gowdy Exp $
 
   Program to calculate adler32 checksum for every file given
   on the command line. Uses zlib's adler32 routine.

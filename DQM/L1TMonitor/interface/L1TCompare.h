@@ -5,14 +5,11 @@
 /*
  * \file L1TCompare.h
  *
- * $Date: 2009/11/19 14:31:34 $
- * $Revision: 1.4 $
+ * $Date: 2008/03/01 00:40:00 $
+ * $Revision: 1.3 $
  * \author P. Wittich
- * $Id: L1TCompare.h,v 1.4 2009/11/19 14:31:34 puigh Exp $
+ * $Id: L1TCompare.h,v 1.3 2008/03/01 00:40:00 lat Exp $
  * $Log: L1TCompare.h,v $
- * Revision 1.4  2009/11/19 14:31:34  puigh
- * modify beginJob
- *
  * Revision 1.3  2008/03/01 00:40:00  lat
  * DQM core migration.
  *

@@ -13,7 +13,7 @@ process.dumpRaw = cms.OutputModule( "DumpFEDRawDataProduct",
 
 # unpacker
 process.load( "EventFilter/GctRawToDigi/l1GctHwDigis_cfi" )
-process.l1GctHwDigis.inputLabel = cms.InputTag( "source" )
+process.l1GctHwDigis.inputLabel = cms.InputTag( "rawDataCollector" )
 process.l1GctHwDigis.hltMode = cms.bool( True )
 process.l1GctHwDigis.verbose = cms.untracked.bool( True )
 

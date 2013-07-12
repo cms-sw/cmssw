@@ -13,7 +13,7 @@
     <usage>
 
 */
-// $Id: EcalTBH4Trigger.h,v 1.1 2007/03/19 17:21:49 fabiocos Exp $
+// $Id: $
 //
 
 // system include files

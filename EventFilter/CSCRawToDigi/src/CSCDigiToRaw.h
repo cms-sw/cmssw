@@ -3,8 +3,8 @@
 
 /** \class CSCDigiToRaw
  *
- *  $Date: 2011/06/11 05:56:10 $
- *  $Revision: 1.12 $
+ *  $Date: 2010/05/04 02:36:24 $
+ *  $Revision: 1.11 $
  *  \author A. Tumanov - Rice
  */
 

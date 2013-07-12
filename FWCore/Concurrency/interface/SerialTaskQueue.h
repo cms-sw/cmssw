@@ -49,7 +49,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:14:39 CST 2013
-// $Id: SerialTaskQueue.h,v 1.1 2013/02/21 22:14:10 chrjones Exp $
+// $Id$
 //
 
 // system include files

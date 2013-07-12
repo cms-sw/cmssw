@@ -13,7 +13,7 @@
  *  Crystal identifier class for the ECAL barrel
  *
  *
- *  $Id: EBDetId.h,v 1.29 2012/11/02 13:07:52 innocent Exp $
+ *  $Id: EBDetId.h,v 1.28 2012/11/02 08:25:14 innocent Exp $
  */
 
 

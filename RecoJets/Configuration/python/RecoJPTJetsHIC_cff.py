@@ -1,4 +1,4 @@
-# $Id: RecoJPTJetsHIC_cff.py,v 1.1 2010/03/11 15:17:33 srappocc Exp $
+# $Id: RecoJPTJets_cff.py,v 1.1 2009/10/19 17:53:21 stadie Exp $
 from RecoJets.JetPlusTracks.JetPlusTrackCorrectionsAA_cff import *
 
 #define jetPlusTrackZSPCorJet sequences

@@ -16,7 +16,7 @@
 //
 // Author:      
 // Created:     Thu Jul 20 14:30:27 CEST 2006
-// $Id: InclinometersRcd.h,v 1.1 2006/08/01 12:00:10 kdziedzi Exp $
+// $Id$
 //
 
 #include "FWCore/Framework/interface/EventSetupRecordImplementation.h"

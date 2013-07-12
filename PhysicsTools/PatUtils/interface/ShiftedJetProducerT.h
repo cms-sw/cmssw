@@ -10,9 +10,9 @@
  *
  * \author Christian Veelken, LLR
  *
- * \version $Revision: 1.4 $
+ * \version $Revision: 1.3 $
  *
- * $Id: ShiftedJetProducerT.h,v 1.4 2012/08/31 09:59:15 veelken Exp $
+ * $Id: ShiftedJetProducerT.h,v 1.3 2012/02/13 14:12:12 veelken Exp $
  *
  */
 

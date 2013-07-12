@@ -13,7 +13,7 @@
 //
 // Original Author:  Kenneth Case Rossato
 //         Created:  Tue Aug 19 16:13:10 CEST 2008
-// $Id: HCALHighEnergyFilter.cc,v 1.5 2013/02/27 20:17:14 wmtan Exp $
+// $Id: HCALHighEnergyFilter.cc,v 1.4 2010/02/17 22:40:55 wdd Exp $
 //
 //
 

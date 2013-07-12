@@ -1,5 +1,5 @@
 //
-// $Id: Top_Decaykin.h,v 1.2 2013/05/28 17:55:59 gartung Exp $
+// $Id: Top_Decaykin.h,v 1.1 2011/05/26 09:46:53 mseidel Exp $
 //
 // File: hitfit/Top_Decaykin.h
 // Purpose: Calculate some kinematic quantities for ttbar events.
