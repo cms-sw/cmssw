@@ -13,7 +13,7 @@
 //
 // Original Author:  Martijn Gosselink,,,
 //         Created:  Thu Jan 19 18:40:35 CET 2012
-// $Id: TTbarSpinCorrHepMCAnalyzer.h,v 1.2 2012/10/12 15:15:20 wdd Exp $
+// $Id: TTbarSpinCorrHepMCAnalyzer.h,v 1.3 2012/10/16 15:08:10 inugent Exp $
 //
 //
 // Added to: Validation/EventGenerator by Ian M. Nugent Oct 9, 2012
