@@ -20,6 +20,12 @@ namespace edm {
     for_all(putProducts_, principal_get_adapter_detail::deleter());
   }
 
+  LuminosityBlockIndex
+  LuminosityBlock::index() const {
+    return luminosityBlockPrincipal().index();
+  }
+
+  
   LuminosityBlockPrincipal&
   LuminosityBlock::luminosityBlockPrincipal() {
     return dynamic_cast<LuminosityBlockPrincipal&>(provRecorder_.principal());

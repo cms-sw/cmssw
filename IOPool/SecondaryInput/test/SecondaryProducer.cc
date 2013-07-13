@@ -55,8 +55,8 @@ namespace edm {
     emptyPSet.registerIt();
     processConfiguration_->setParameterSetID(emptyPSet.id());
  
-    secInput_->productRegistry()->setFrozen();
- 
+    productRegistry_->setFrozen();
+
     produces<edmtest::ThingCollection>();
     produces<edmtest::OtherThingCollection>("testUserTag");
   }
@@ -65,7 +65,7 @@ namespace edm {
     eventPrincipal_.reset(new EventPrincipal(secInput_->productRegistry(),
                                             secInput_->branchIDListHelper(),
                                             *processConfiguration_,
-                                            nullptr));
+                                             nullptr, StreamID::invalidStreamID()));
 
   }
 

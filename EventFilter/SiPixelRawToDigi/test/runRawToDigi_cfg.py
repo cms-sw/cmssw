@@ -39,7 +39,7 @@ process.load("EventFilter.SiPixelRawToDigi.SiPixelRawToDigi_cfi")
 # for simultaions 
 # process.siPixelDigis.InputLabel = 'siPixelRawData'
 # fpr data
-process.siPixelDigis.InputLabel = 'source'
+process.siPixelDigis.InputLabel = 'rawDataCollector'
 process.siPixelDigis.IncludeErrors = True
 process.siPixelDigis.Timing = False 
 process.siPixelDigis.UseCablingTree = True 

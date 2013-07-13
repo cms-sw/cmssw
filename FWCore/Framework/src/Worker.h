@@ -37,12 +37,14 @@ the worker is reset().
 #include "FWCore/Framework/src/RunStopwatch.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 
+#include <memory>
 #include <sstream>
 
 namespace edm {
   class EventPrincipal;
   class EarlyDeleteHelper;
   class ProductHolderIndexHelper;
+  class OutputModuleCommunicator;
 
   class Worker {
   public:
@@ -73,6 +75,9 @@ namespace edm {
 
     void pathFinished(EventPrincipal&);
     void postDoEvent(EventPrincipal&);
+
+    ///\return nullptr if Worker is not wrapping an OutputModule
+    virtual std::unique_ptr<OutputModuleCommunicator> createOutputModuleCommunicator();
     
     ModuleDescription const& description() const {return md_;}
     ModuleDescription const* descPtr() const {return &md_; }

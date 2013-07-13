@@ -19,7 +19,9 @@ namespace edm {
       aux_(ep.aux()),
       luminosityBlock_(ep.luminosityBlockPrincipalPtrValid() ? new LuminosityBlock(ep.luminosityBlockPrincipal(), md) : 0),
       gotBranchIDs_(),
-      gotViews_() {
+      gotViews_(),
+      streamID_(ep.streamID())
+  {
   }
 
   Event::~Event() {

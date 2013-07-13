@@ -1,74 +1,312 @@
+'''
+    Created on Jun 26, 2013 
+    @author:  Mantas Stankevicius
+    @contact: mantas.stankevicius@cern.ch
+    http://cmsdoxy.web.cern.ch/cmsdoxy/dataformats/
+    
+    @responsible: 
+    
+'''
 
-full_title = "RecoMET collections (in RECO and AOD)"
-
-full = {
-    '0':['met', 'recoCaloMETs', 'MET in energy deposits in calorimeter towers in EB, EE, HB, HE, and HF'] ,
-    '1':['metNoHF', 'recoCaloMETs', 'MET in energy deposits in calorimeter towers in EB, EE, HB, and HE'] ,
-    '2':['metHO', 'recoCaloMETs', 'MET in energy deposits in calorimeter towers in EB, EE, HB, HE, HF, and HO'] ,
-    '3':['corMetGlobalMuons', 'recoCaloMETs', 'MET in energy deposits in calorimeter towers in EB, EE, HB, HE, and HF with corrections for muons'] ,
-    '4':['tcMet', 'recoMETs', 'Track Corrected MET using `met`, `muons`, `gsfElectrons` and `generalTracks`'] ,
-    '5':['tcMetWithPFclusters', 'recoMETs', 'Track Corrected MET using `particleFlowClusters`, `muons`, `gsfElectrons` and `generalTracks`'] ,
-    '6':['pfMet', 'recoPFMETs', 'MET in reconstructed particles in the particle flow algorithm'] ,
-    '7':['muonMETValueMapProducer', 'recoMuonMETCorrectionDataedmValueMap', 'Information on how muons were used to correct MET and what associated MIP deposits are used'] ,
-    '8':['muonTCMETValueMapProducer', 'recoMuonMETCorrectionDataedmValueMap', 'Information on how muons were used to correct tcMET and what associated calo deposits are if the muon is treated as a pion'] ,
-    '9':['hcalnoise', 'recoHcalNoiseRBXs', 'No documentation'] ,
-    '10':['hcalnoise', 'HcalNoiseSummary', 'No documentation'] ,
-    '11':['*', '*HaloData', 'No documentation'] ,
-    '12':['BeamHaloSummary', '*BeamHaloSummary', 'No documentation'],
-    '13':['genMetTrue', 'reco::GenMETCollection', 'MET in generated particles in simulation in their final states but excluding neutrinos, excited neutrinos, right-handed neutrinos, sneutrinos, neutralinos, gravitons, gravitinos'],
-    '14':['genMetCalo', 'reco::GenMETCollection', 'MET in generated particles in simulation in their final states but excluding neutrinos, excited neutrinos, right-handed neutrinos, sneutrinos, neutralinos, gravitons, gravitinos and also muons'],
-    '15':['genMetCaloAndNonPrompt', 'reco::GenMETCollection', 'MET in generated particles in simulation in their final states but excluding excited neutrinos, right-handed neutrinos, sneutrinos, neutralinos, gravitons, gravitinos and, additionally, excluding muons and neutrinos coming from the decay of gauge bosons and top quarks'],
-    # Correction needed, because not matched with Event Content
-    '16':['htMetAK5','reco::METCollection','Raw Missing Transverse Energy calculated using anti-KT5 CaloJets'],
-    '17':['htMetAK7','reco::METCollection','Raw Missing Transverse Energy calculated using anti-KT7 CaloJets'],
-    '18':['htMetKT4','reco::METCollection','Raw Missing Transverse Energy calculated using FastKt4 CaloJets'],
-    '19':['htMetKT6','reco::METCollection','Raw Missing Transverse Energy calculated using FastKt6 CaloJets'],
-    '20':['htMetIC5','reco::METCollection','Raw Missing Transverse Energy calculated using IC5 CaloJets'],
-    '21':['metNoHFHO','reco::CaloMETCollection','MET in energy deposits in calorimeter towers in EB, EE, HB, HE, and HO'],
-    '22':['metOpt','reco::CaloMETCollection','MET in energy deposits in calorimeter towers in EB, EE, HB, HE, and HF with optimized threshold parameters'],
-    '23':['metOptNoHF','reco::CaloMETCollection','MET in energy deposits in calorimeter towers in EB, EE, HB, and HE with optimized threshold parameters'],
-    '24':['metOptHO','reco::CaloMETCollection','MET in energy deposits in calorimeter towers in EB, EE, HB, HE, HF and HO with optimized threshold parameters'],
-    '25':['metOptNoHFHO','reco::CaloMETCollection','MET in energy deposits in calorimeter towers in EB, EE, HB, HE, and HO with optimized threshold parameters'] 
+json = {
+  "full": {
+    "title": "RecoMET collections (in RECO and AOD)",
+    "data": [
+     {
+      "instance": "metOptHO",
+      "container": "reco::CaloMETCollection",
+      "desc": "MET in energy deposits in calorimeter towers in EB, EE, HB, HE, HF and HO with optimized threshold parameters"
+     },
+     {
+      "instance": "metOptNoHFHO",
+      "container": "reco::CaloMETCollection",
+      "desc": "MET in energy deposits in calorimeter towers in EB, EE, HB, HE, and HO with optimized threshold parameters"
+     },
+     {
+      "instance": "htMetIC5",
+      "container": "reco::METCollection",
+      "desc": "Raw Missing Transverse Energy calculated using IC5 CaloJets"
+     },
+     {
+      "instance": "metNoHFHO",
+      "container": "reco::CaloMETCollection",
+      "desc": "MET in energy deposits in calorimeter towers in EB, EE, HB, HE, and HO"
+     },
+     {
+      "instance": "metOpt",
+      "container": "reco::CaloMETCollection",
+      "desc": "MET in energy deposits in calorimeter towers in EB, EE, HB, HE, and HF with optimized threshold parameters"
+     },
+     {
+      "instance": "metOptNoHF",
+      "container": "reco::CaloMETCollection",
+      "desc": "MET in energy deposits in calorimeter towers in EB, EE, HB, and HE with optimized threshold parameters"
+     },
+     {
+      "instance": "metNoHF",
+      "container": "recoCaloMETs",
+      "desc": "MET in energy deposits in calorimeter towers in EB, EE, HB, and HE"
+     },
+     {
+      "instance": "met",
+      "container": "recoCaloMETs",
+      "desc": "MET in energy deposits in calorimeter towers in EB, EE, HB, HE, and HF"
+     },
+     {
+      "instance": "corMetGlobalMuons",
+      "container": "recoCaloMETs",
+      "desc": "MET in energy deposits in calorimeter towers in EB, EE, HB, HE, and HF with corrections for muons"
+     },
+     {
+      "instance": "metHO",
+      "container": "recoCaloMETs",
+      "desc": "MET in energy deposits in calorimeter towers in EB, EE, HB, HE, HF, and HO"
+     },
+     {
+      "instance": "tcMetWithPFclusters",
+      "container": "recoMETs",
+      "desc": "Track Corrected MET using `particleFlowClusters`, `muons`, `gsfElectrons` and `generalTracks`"
+     },
+     {
+      "instance": "tcMet",
+      "container": "recoMETs",
+      "desc": "Track Corrected MET using `met`, `muons`, `gsfElectrons` and `generalTracks`"
+     },
+     {
+      "instance": "muonMETValueMapProducer",
+      "container": "recoMuonMETCorrectionDataedmValueMap",
+      "desc": "Information on how muons were used to correct MET and what associated MIP deposits are used"
+     },
+     {
+      "instance": "pfMet",
+      "container": "recoPFMETs",
+      "desc": "MET in reconstructed particles in the particle flow algorithm"
+     },
+     {
+      "instance": "hcalnoise",
+      "container": "recoHcalNoiseRBXs",
+      "desc": "No documentation"
+     },
+     {
+      "instance": "muonTCMETValueMapProducer",
+      "container": "recoMuonMETCorrectionDataedmValueMap",
+      "desc": "Information on how muons were used to correct tcMET and what associated calo deposits are if the muon is treated as a pion"
+     },
+     {
+      "instance": "*",
+      "container": "*HaloData",
+      "desc": "No documentation"
+     },
+     {
+      "instance": "hcalnoise",
+      "container": "HcalNoiseSummary",
+      "desc": "No documentation"
+     },
+     {
+      "instance": "genMetTrue",
+      "container": "reco::GenMETCollection",
+      "desc": "MET in generated particles in simulation in their final states but excluding neutrinos, excited neutrinos, right-handed neutrinos, sneutrinos, neutralinos, gravitons, gravitinos"
+     },
+     {
+      "instance": "BeamHaloSummary",
+      "container": "*BeamHaloSummary",
+      "desc": "No documentation"
+     },
+     {
+      "instance": "genMetCaloAndNonPrompt",
+      "container": "reco::GenMETCollection",
+      "desc": "MET in generated particles in simulation in their final states but excluding excited neutrinos, right-handed neutrinos, sneutrinos, neutralinos, gravitons, gravitinos and, additionally, excluding muons and neutrinos coming from the decay of gauge bosons and top quarks"
+     },
+     {
+      "instance": "genMetCalo",
+      "container": "reco::GenMETCollection",
+      "desc": "MET in generated particles in simulation in their final states but excluding neutrinos, excited neutrinos, right-handed neutrinos, sneutrinos, neutralinos, gravitons, gravitinos and also muons"
+     },
+     {
+      "instance": "htMetAK7",
+      "container": "reco::METCollection",
+      "desc": "Raw Missing Transverse Energy calculated using anti-KT7 CaloJets"
+     },
+     {
+      "instance": "htMetAK5",
+      "container": "reco::METCollection",
+      "desc": "Raw Missing Transverse Energy calculated using anti-KT5 CaloJets"
+     },
+     {
+      "instance": "htMetKT6",
+      "container": "reco::METCollection",
+      "desc": "Raw Missing Transverse Energy calculated using FastKt6 CaloJets"
+     },
+     {
+      "instance": "htMetKT4",
+      "container": "reco::METCollection",
+      "desc": "Raw Missing Transverse Energy calculated using FastKt4 CaloJets"
+     }
+    ]
+  },
+  "aod": {
+    "title": "RecoMET collections (in AOD only)",
+    "data": [
+     {
+      "instance": "BeamHaloSummary",
+      "container": "*BeamHaloSummary",
+      "desc": "No documentation"
+     },
+     {
+      "instance": "*",
+      "container": "*GlobalHaloData",
+      "desc": "No documentation"
+     },
+     {
+      "instance": "genMetCalo",
+      "container": "reco::GenMETCollection",
+      "desc": "MET in generated particles in simulation in their final states but excluding neutrinos, excited neutrinos, right-handed neutrinos, sneutrinos, neutralinos, gravitons, gravitinos and also muons"
+     },
+     {
+      "instance": "genMetTrue",
+      "container": "reco::GenMETCollection",
+      "desc": "MET in generated particles in simulation in their final states but excluding neutrinos, excited neutrinos, right-handed neutrinos, sneutrinos, neutralinos, gravitons, gravitinos"
+     },
+     {
+      "instance": "genMetCaloAndNonPrompt",
+      "container": "reco::GenMETCollection",
+      "desc": "MET in generated particles in simulation in their final states but excluding excited neutrinos, right-handed neutrinos, sneutrinos, neutralinos, gravitons, gravitinos and, additionally, excluding muons and neutrinos coming from the decay of gauge bosons and top quarks"
+     },
+     {
+      "instance": "metNoHF",
+      "container": "recoCaloMETs",
+      "desc": "MET in energy deposits in calorimeter towers in EB, EE, HB, and HE"
+     },
+     {
+      "instance": "met",
+      "container": "recoCaloMETs",
+      "desc": "MET in energy deposits in calorimeter towers in EB, EE, HB, HE, and HF"
+     },
+     {
+      "instance": "corMetGlobalMuons",
+      "container": "recoCaloMETs",
+      "desc": "MET in energy deposits in calorimeter towers in EB, EE, HB, HE, and HF with corrections for muons"
+     },
+     {
+      "instance": "metHO",
+      "container": "recoCaloMETs",
+      "desc": "MET in energy deposits in calorimeter towers in EB, EE, HB, HE, HF, and HO"
+     },
+     {
+      "instance": "tcMetWithPFclusters",
+      "container": "recoMETs",
+      "desc": "Track Corrected MET using `particleFlowClusters`, `muons`, `gsfElectrons` and `generalTracks`"
+     },
+     {
+      "instance": "tcMet",
+      "container": "recoMETs",
+      "desc": "Track Corrected MET using `met`, `muons`, `gsfElectrons` and `generalTracks`"
+     },
+     {
+      "instance": "muonMETValueMapProducer",
+      "container": "recoMuonMETCorrectionDataedmValueMap",
+      "desc": "Information on how muons were used to correct MET and what associated MIP deposits are used"
+     },
+     {
+      "instance": "pfMet",
+      "container": "recoPFMETs",
+      "desc": "MET in reconstructed particles in the particle flow algorithm"
+     },
+     {
+      "instance": "hcalnoise",
+      "container": "HcalNoiseSummary",
+      "desc": "No documentation"
+     },
+     {
+      "instance": "muonTCMETValueMapProducer",
+      "container": "recoMuonMETCorrectionDataedmValueMap",
+      "desc": "Information on how muons were used to correct tcMET and what associated calo deposits are if the muon is treated as a pion"
+     }
+    ]
+  },
+  "reco": {
+    "title": "RecoMET collections (in RECO only)",
+    "data": [
+     {
+      "instance": "*",
+      "container": "*HaloData",
+      "desc": "No documentation"
+     },
+     {
+      "instance": "hcalnoise",
+      "container": "HcalNoiseSummary",
+      "desc": "No documentation"
+     },
+     {
+      "instance": "genMetTrue",
+      "container": "reco::GenMETCollection",
+      "desc": "MET in generated particles in simulation in their final states but excluding neutrinos, excited neutrinos, right-handed neutrinos, sneutrinos, neutralinos, gravitons, gravitinos"
+     },
+     {
+      "instance": "BeamHaloSummary",
+      "container": "*BeamHaloSummary",
+      "desc": "No documentation"
+     },
+     {
+      "instance": "genMetCaloAndNonPrompt",
+      "container": "reco::GenMETCollection",
+      "desc": "MET in generated particles in simulation in their final states but excluding excited neutrinos, right-handed neutrinos, sneutrinos, neutralinos, gravitons, gravitinos and, additionally, excluding muons and neutrinos coming from the decay of gauge bosons and top quarks"
+     },
+     {
+      "instance": "genMetCalo",
+      "container": "reco::GenMETCollection",
+      "desc": "MET in generated particles in simulation in their final states but excluding neutrinos, excited neutrinos, right-handed neutrinos, sneutrinos, neutralinos, gravitons, gravitinos and also muons"
+     },
+     {
+      "instance": "metNoHF",
+      "container": "recoCaloMETs",
+      "desc": "MET in energy deposits in calorimeter towers in EB, EE, HB, and HE"
+     },
+     {
+      "instance": "met",
+      "container": "recoCaloMETs",
+      "desc": "MET in energy deposits in calorimeter towers in EB, EE, HB, HE, and HF"
+     },
+     {
+      "instance": "corMetGlobalMuons",
+      "container": "recoCaloMETs",
+      "desc": "MET in energy deposits in calorimeter towers in EB, EE, HB, HE, and HF with corrections for muons"
+     },
+     {
+      "instance": "metHO",
+      "container": "recoCaloMETs",
+      "desc": "MET in energy deposits in calorimeter towers in EB, EE, HB, HE, HF, and HO"
+     },
+     {
+      "instance": "tcMetWithPFclusters",
+      "container": "recoMETs",
+      "desc": "Track Corrected MET using `particleFlowClusters`, `muons`, `gsfElectrons` and `generalTracks`"
+     },
+     {
+      "instance": "tcMet",
+      "container": "recoMETs",
+      "desc": "Track Corrected MET using `met`, `muons`, `gsfElectrons` and `generalTracks`"
+     },
+     {
+      "instance": "muonMETValueMapProducer",
+      "container": "recoMuonMETCorrectionDataedmValueMap",
+      "desc": "Information on how muons were used to correct MET and what associated MIP deposits are used"
+     },
+     {
+      "instance": "pfMet",
+      "container": "recoPFMETs",
+      "desc": "MET in reconstructed particles in the particle flow algorithm"
+     },
+     {
+      "instance": "hcalnoise",
+      "container": "recoHcalNoiseRBXs",
+      "desc": "No documentation"
+     },
+     {
+      "instance": "muonTCMETValueMapProducer",
+      "container": "recoMuonMETCorrectionDataedmValueMap",
+      "desc": "Information on how muons were used to correct tcMET and what associated calo deposits are if the muon is treated as a pion"
+     }
+    ]
+  }
 }
-
-reco_title = "RecoMET collections (in RECO only)"
-
-reco = {
-    '0':['met', 'recoCaloMETs', 'MET in energy deposits in calorimeter towers in EB, EE, HB, HE, and HF'] ,
-    '1':['metNoHF', 'recoCaloMETs', 'MET in energy deposits in calorimeter towers in EB, EE, HB, and HE'] ,
-    '2':['metHO', 'recoCaloMETs', 'MET in energy deposits in calorimeter towers in EB, EE, HB, HE, HF, and HO'] ,
-    '3':['corMetGlobalMuons', 'recoCaloMETs', 'MET in energy deposits in calorimeter towers in EB, EE, HB, HE, and HF with corrections for muons'] ,
-    '4':['tcMet', 'recoMETs', 'Track Corrected MET using `met`, `muons`, `gsfElectrons` and `generalTracks`'] ,
-    '5':['tcMetWithPFclusters', 'recoMETs', 'Track Corrected MET using `particleFlowClusters`, `muons`, `gsfElectrons` and `generalTracks`'] ,
-    '6':['pfMet', 'recoPFMETs', 'MET in reconstructed particles in the particle flow algorithm'] ,
-    '7':['muonMETValueMapProducer', 'recoMuonMETCorrectionDataedmValueMap', 'Information on how muons were used to correct MET and what associated MIP deposits are used'] ,
-    '8':['muonTCMETValueMapProducer', 'recoMuonMETCorrectionDataedmValueMap', 'Information on how muons were used to correct tcMET and what associated calo deposits are if the muon is treated as a pion'] ,
-    '9':['hcalnoise', 'recoHcalNoiseRBXs', 'No documentation'] ,
-    '10':['hcalnoise', 'HcalNoiseSummary', 'No documentation'] ,
-    '11':['*', '*HaloData', 'No documentation'] ,
-    '12':['BeamHaloSummary', '*BeamHaloSummary', 'No documentation'],
-    '13':['genMetTrue', 'reco::GenMETCollection', 'MET in generated particles in simulation in their final states but excluding neutrinos, excited neutrinos, right-handed neutrinos, sneutrinos, neutralinos, gravitons, gravitinos'],
-    '14':['genMetCalo', 'reco::GenMETCollection', 'MET in generated particles in simulation in their final states but excluding neutrinos, excited neutrinos, right-handed neutrinos, sneutrinos, neutralinos, gravitons, gravitinos and also muons'],
-    '15':['genMetCaloAndNonPrompt', 'reco::GenMETCollection', 'MET in generated particles in simulation in their final states but excluding excited neutrinos, right-handed neutrinos, sneutrinos, neutralinos, gravitons, gravitinos and, additionally, excluding muons and neutrinos coming from the decay of gauge bosons and top quarks']
-}
-
-aod_title = "RecoMET collections (in AOD only)"
-
-aod = {
-    '0':['met', 'recoCaloMETs', 'MET in energy deposits in calorimeter towers in EB, EE, HB, HE, and HF'] ,
-    '1':['metNoHF', 'recoCaloMETs', 'MET in energy deposits in calorimeter towers in EB, EE, HB, and HE'] ,
-    '2':['metHO', 'recoCaloMETs', 'MET in energy deposits in calorimeter towers in EB, EE, HB, HE, HF, and HO'] ,
-    '3':['corMetGlobalMuons', 'recoCaloMETs', 'MET in energy deposits in calorimeter towers in EB, EE, HB, HE, and HF with corrections for muons'] ,
-    '4':['tcMet', 'recoMETs', 'Track Corrected MET using `met`, `muons`, `gsfElectrons` and `generalTracks`'] ,
-    '5':['tcMetWithPFclusters', 'recoMETs', 'Track Corrected MET using `particleFlowClusters`, `muons`, `gsfElectrons` and `generalTracks`'] ,
-    '6':['pfMet', 'recoPFMETs', 'MET in reconstructed particles in the particle flow algorithm'] ,
-    '7':['muonMETValueMapProducer', 'recoMuonMETCorrectionDataedmValueMap', 'Information on how muons were used to correct MET and what associated MIP deposits are used'] ,
-    '8':['muonTCMETValueMapProducer', 'recoMuonMETCorrectionDataedmValueMap', 'Information on how muons were used to correct tcMET and what associated calo deposits are if the muon is treated as a pion'] ,
-    '9':['hcalnoise', 'HcalNoiseSummary', 'No documentation'] ,
-    '10':['*', '*GlobalHaloData', 'No documentation'] ,
-    '11':['BeamHaloSummary', '*BeamHaloSummary', 'No documentation'],
-    '12':['genMetTrue', 'reco::GenMETCollection', 'MET in generated particles in simulation in their final states but excluding neutrinos, excited neutrinos, right-handed neutrinos, sneutrinos, neutralinos, gravitons, gravitinos'],
-    '13':['genMetCalo', 'reco::GenMETCollection', 'MET in generated particles in simulation in their final states but excluding neutrinos, excited neutrinos, right-handed neutrinos, sneutrinos, neutralinos, gravitons, gravitinos and also muons'],
-    '14':['genMetCaloAndNonPrompt', 'reco::GenMETCollection', 'MET in generated particles in simulation in their final states but excluding excited neutrinos, right-handed neutrinos, sneutrinos, neutralinos, gravitons, gravitinos and, additionally, excluding muons and neutrinos coming from the decay of gauge bosons and top quarks'] 
-}
-
