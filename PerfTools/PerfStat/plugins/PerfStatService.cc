@@ -40,7 +40,7 @@ private:
   void postEndJob();
   
   void preEventProcessing(edm::EventID const&, edm::Timestamp const&){}
-  void postEventProcessing(edm::Event const&, edm::EventSetup const&){}
+  void postEventProcessing(edm::Event const&, edm::EventSetup const&){ master.start();master.stop();}
   
   void preModule(edm::ModuleDescription const& md) {
     current = &find(md); current->startDelta();
@@ -96,12 +96,14 @@ void PerfStatService::postBeginJob() {
 
 void PerfStatService::postEndJob() {
   std::ostringstream out;
-  out.precision(5);
+  out.precision(3);
   out.setf( std::ios::fixed, std:: ios::floatfield );
   out << "|module  ";
   PerfStat::header(out);
+  master.read(); master.calib();
+  out << "|Total  "; master.summary(out,1.e-6,100.);
   for ( auto const & p : perfs) {
-    out << '|' << p.second.name << "  "; p.second.p.summary(out);
+    out << '|' << p.second.name << "  "; p.second.p.summary(out,1.e-6,100.);
   }
   std::cout << out.str() << std::endl;
 

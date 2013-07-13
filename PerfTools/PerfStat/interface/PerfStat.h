@@ -378,9 +378,11 @@ public:
 
 
 
- static void header(std::ostream & out) {
-    const char * sep = "|  "; 
-    out << sep << "clock"
+  static void header(std::ostream & out) {
+    const char * sepF = "|  *"; 
+    const char * sep = "*|  *"; 
+    const char * sepL = "*|"; 
+    out << sepF << "clock"
 	<< sep << "time"    
 	<< sep << "cycles" 
 	<< sep << "ipc"
@@ -393,21 +395,21 @@ public:
       //	<< sep << "dtlb-walk/cy"
       //	<< sep << "itlb-walk/cy"
       //	<< sep << "bus/cy"
-	<< sep << std::endl;
+	<< sepL << std::endl;
   }
   
-  void summary(std::ostream & out) const {
+  void summary(std::ostream & out, double mult=1.e-6, double percent=100.) const {
     const char * sep = "|  "; 
     out << sep << clock()  
-	<< sep << taskTime() 
-	<< sep << cycles() 
+	<< sep << mult*taskTime() 
+	<< sep << mult*cycles() 
 	<< sep << ipc()
-	<< sep << brfrac()
-	<< sep << mbpc()
-	<< sep << crpc()
-	<< sep << mrpc()
-	<< sep << divpc()
-	<< sep << il1mpc()
+	<< sep << percent*brfrac()
+	<< sep << percent*mbpc()
+	<< sep << percent*crpc()
+	<< sep << percent*mrpc()
+	<< sep << percent*divpc()
+	<< sep << percent*il1mpc()
       // 	<< sep << dtlbpc()
       // 	<< sep << itlbpc()
       // buspc()
