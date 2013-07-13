@@ -74,12 +74,12 @@ namespace edm {
       productInstanceName_(productInstanceName),
       branchAliases_(aliases),
       transient_() {
-    dropped() = false;
-    transient_.produced_ = produced,
-    onDemand() = false;
+    setDropped(false);
+    setProduced(produced);
+    setOnDemand(false);
     transient_.moduleName_ = moduleName;
     transient_.parameterSetID_ = parameterSetID;
-    unwrappedType() = theTypeWithDict;
+    setUnwrappedType(theTypeWithDict);
     init();
   }
 
@@ -97,12 +97,12 @@ namespace edm {
       branchAliases_(aliasForBranch.branchAliases()),
       aliasForBranchID_(aliasForBranch.branchID()),
       transient_() {
-    dropped() = false;
-    transient_.produced_ = aliasForBranch.produced(),
-    onDemand() = aliasForBranch.onDemand();
+    setDropped(false);
+    setProduced(aliasForBranch.produced());
+    setOnDemand(aliasForBranch.onDemand());
     transient_.moduleName_ = aliasForBranch.moduleName();
     transient_.parameterSetID_ = aliasForBranch.parameterSetID();
-    unwrappedType() = aliasForBranch.unwrappedType();
+    setUnwrappedType(aliasForBranch.unwrappedType());
     init();
   }
 
@@ -136,21 +136,22 @@ namespace edm {
       << "' contains an underscore ('_'), which is illegal in a process name.\n";
     }
 
-    branchName().reserve(friendlyClassName().size() +
-                         moduleLabel().size() +
-                         productInstanceName().size() +
-                         processName().size() + 4);
-    branchName() += friendlyClassName();
-    branchName() += underscore;
-    branchName() += moduleLabel();
-    branchName() += underscore;
-    branchName() += productInstanceName();
-    branchName() += underscore;
-    branchName() += processName();
-    branchName() += period;
+    std::string& brName = transient_.branchName_;
+    brName.reserve(friendlyClassName().size() +
+                   moduleLabel().size() +
+                   productInstanceName().size() +
+                   processName().size() + 4);
+    brName += friendlyClassName();
+    brName += underscore;
+    brName += moduleLabel();
+    brName += underscore;
+    brName += productInstanceName();
+    brName += underscore;
+    brName += processName();
+    brName += period;
 
     if(!branchID_.isValid()) {
-      branchID_.setID(branchName());
+      branchID_.setID(brName);
     }
   }
 
@@ -162,50 +163,50 @@ namespace edm {
 
     throwIfInvalid_();
 
-    wrappedName() = wrappedClassName(fullClassName());
+    setWrappedName(wrappedClassName(fullClassName()));
 
     // unwrapped type.
-    unwrappedType() = TypeWithDict::byName(fullClassName());
+    setUnwrappedType(TypeWithDict::byName(fullClassName()));
     if(!bool(unwrappedType())) {
-      splitLevel() = invalidSplitLevel;
-      basketSize() = invalidBasketSize;
-      transient() = false;
+      setSplitLevel(invalidSplitLevel);
+      setBasketSize(invalidBasketSize);
+      setTransient(false);
       return;
     }
 
-    wrappedType() = TypeWithDict::byName(wrappedName());
+    setWrappedType(TypeWithDict::byName(wrappedName()));
     if(!bool(wrappedType())) {
-      splitLevel() = invalidSplitLevel;
-      basketSize() = invalidBasketSize;
+      setSplitLevel(invalidSplitLevel);
+      setBasketSize(invalidBasketSize);
       return;
     }
     wrappedType().invokeByName(wrapperInterfaceBase(), "getInterface");
     assert(wrapperInterfaceBase() != 0);
     Reflex::PropertyList wp = Reflex::Type::ByTypeInfo(wrappedType().typeInfo()).Properties();
-    transient() = (wp.HasProperty("persistent") ? wp.PropertyAsString("persistent") == std::string("false") : false);
+    setTransient((wp.HasProperty("persistent") ? wp.PropertyAsString("persistent") == std::string("false") : false));
     if(transient()) {
-      splitLevel() = invalidSplitLevel;
-      basketSize() = invalidBasketSize;
+      setSplitLevel(invalidSplitLevel);
+      setBasketSize(invalidBasketSize);
       return;
     }
     if(wp.HasProperty("splitLevel")) {
-      splitLevel() = strtol(wp.PropertyAsString("splitLevel").c_str(), 0, 0);
+      setSplitLevel(strtol(wp.PropertyAsString("splitLevel").c_str(), 0, 0));
       if(splitLevel() < 0) {
         throw cms::Exception("IllegalSplitLevel") << "' An illegal ROOT split level of " <<
         splitLevel() << " is specified for class " << wrappedName() << ".'\n";
       }
-      ++splitLevel(); //Compensate for wrapper
+      setSplitLevel(splitLevel() + 1); //Compensate for wrapper
     } else {
-      splitLevel() = invalidSplitLevel;
+      setSplitLevel(invalidSplitLevel);
     }
     if(wp.HasProperty("basketSize")) {
-      basketSize() = strtol(wp.PropertyAsString("basketSize").c_str(), 0, 0);
+      setBasketSize(strtol(wp.PropertyAsString("basketSize").c_str(), 0, 0));
       if(basketSize() <= 0) {
         throw cms::Exception("IllegalBasketSize") << "' An illegal ROOT basket size of " <<
         basketSize() << " is specified for class " << wrappedName() << "'.\n";
       }
     } else {
-      basketSize() = invalidBasketSize;
+      setBasketSize(invalidBasketSize);
     }
   }
 
@@ -223,11 +224,11 @@ namespace edm {
 
   void
   BranchDescription::merge(BranchDescription const& other) {
-    parameterSetIDs().insert(other.parameterSetIDs().begin(), other.parameterSetIDs().end());
-    moduleNames().insert(other.moduleNames().begin(), other.moduleNames().end());
+    transient_.parameterSetIDs_.insert(other.parameterSetIDs().begin(), other.parameterSetIDs().end());
+    transient_.moduleNames_.insert(other.moduleNames().begin(), other.moduleNames().end());
     branchAliases_.insert(other.branchAliases().begin(), other.branchAliases().end());
-    if(splitLevel() == invalidSplitLevel) splitLevel() = other.splitLevel();
-    if(basketSize() == invalidBasketSize) basketSize() = other.basketSize();
+    if(splitLevel() == invalidSplitLevel) setSplitLevel(other.splitLevel());
+    if(basketSize() == invalidBasketSize) setBasketSize(other.basketSize());
   }
 
   void
@@ -273,7 +274,7 @@ namespace edm {
   void
   BranchDescription::updateFriendlyClassName() {
     friendlyClassName_ = friendlyname::friendlyName(fullClassName());
-    branchName().clear();
+    clearBranchName();
     initBranchName();
   }
 

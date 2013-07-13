@@ -105,7 +105,7 @@ namespace edm {
   RootTree::setPresence(BranchDescription& prod, std::string const& oldBranchName) {
       assert(isValid());
       if(tree_->GetBranch(oldBranchName.c_str()) == 0){
-        prod.setDropped();
+        prod.setDropped(true);
       }
   }
 

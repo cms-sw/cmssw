@@ -38,8 +38,8 @@ namespace edm {
 
     for(auto& item : preg_->productListUpdator()) {
       BranchDescription& prod = item.second;
-      prod.onDemand() = false;
-      prod.produced() = false;
+      prod.setOnDemand(false);
+      prod.setProduced(false);
     }
 
     // Mark dropped branches as dropped in the product registry.
@@ -59,7 +59,7 @@ namespace edm {
     for(auto& item : preg_->productListUpdator()) {
       BranchDescription& prod = item.second;
       if(keptBranches.find(prod.branchID()) == keptBranches.end()) {
-        prod.setDropped();
+        prod.setDropped(true);
       }
     }
   }

@@ -438,7 +438,7 @@ TFWLiteSelectorBasic::setupNewFile(TFile& iFile) {
       prod.init();
       //NEED to do this and check to see if branch exists
       if(m_->tree_->GetBranch(prod.branchName().c_str()) == 0) {
-        prod.setDropped();
+        prod.setDropped(true);
       }
 
       //std::cout << "id " << it->first << " branch " << it->second << std::endl;

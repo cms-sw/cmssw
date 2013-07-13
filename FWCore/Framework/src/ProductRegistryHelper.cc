@@ -39,7 +39,7 @@ namespace edm {
                               iDesc.moduleName(),
                               iDesc.parameterSetID(),
                               type);
-      if (!p->branchAlias_.empty()) pdesc.branchAliases().insert(p->branchAlias_);
+      if (!p->branchAlias_.empty()) pdesc.insertBranchAlias(p->branchAlias_);
       iReg.addProduct(pdesc, iIsListener);
     }//for
   }
