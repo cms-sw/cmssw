@@ -1007,6 +1007,62 @@ class SubProcess(_ConfigureComponent,_Unlabelable):
       subProcessPSet.addPSet(False,"process",topPSet)
       parameterSet.addPSet(False,self.nameInProcessDesc_("subProcess"), subProcessPSet)
 
+class _ParameterModifier(object):
+  """Helper class for Modifier which takes key/value pairs and uses them to reset parameters of the object"""
+  def __init__(self,args):
+    self.__args = args
+  def __call__(self,obj):
+    for k,v in self.__args.iteritems():
+      setattr(obj,k,v)
+
+class Modifier(object):
+  """This class is used to define standard modifications to a Process.
+  An instance of this class is declared to denote a specific modification,e.g. era2017 could
+  reconfigure items in a process to match our expectation of running in 2017. Once declared,
+  these Modifier instances are imported into a configuration and items which need to be modified
+  are then associated with the Modifier and with the action to do the modification.
+  The registered modifications will only occur if the modify() method is called.
+  """
+  def __init__(self):
+    self.__objectToModifiers = []
+    self.__processModifiers = []
+  def toModifyProcess(self,func):
+    """This is used to register actions to be performed on the process as a whole.
+    This takes as argument a callable object (e.g. function) which takes as its sole argument an instance of Process"""
+    self.__processModifiers.append(func)
+  def toModify(self,obj, func=None,**kw):
+    """This is used to register an action to be performed on the specific object. Two different forms are allowed
+    Form 1: A callable object (e.g. function) can be passed as the second. This callable object is expected to take one argument
+    which will be the object passed in as the first argument.
+    Form 2: A list of parameter name, value pairs can be passed
+       mod.toModify(foo, fred=cms.int32(7), barney = cms.double(3.14))
+    """
+    if func is not None and len(kw) != 0:
+      raise TypeError("toModify takes either two arguments or one argument and key/value pairs")
+    if func is not None:
+      self.__objectToModifiers.append( (obj,func))
+    else:
+      self.__objectToModifiers.append( (obj, _ParameterModifier(kw)))
+  def modify(self,process):
+    """This applies all the registered modifiers to the passed in process"""
+    for m in self.__processModifiers:
+      m(process)
+    for o,m in self.__objectToModifiers:
+      if isinstance(o,_Labelable):
+        if o.hasLabel_():
+          m(o)
+      else:
+        m(o)
+    return process
+  def __call__(self,process):
+    """Forwards to modify call. The presence of a __call__ allows Modifiers to be chained together.
+    E.g. Have bar inherit all modifiers of foo
+       foo = Modifier()
+       bar = Modifier()
+       foo.toModifyProcess(bar)
+    """
+    self.modify(process)
+  
 if __name__=="__main__":
     import unittest
     import copy
@@ -1698,5 +1754,44 @@ process.subProcess = cms.SubProcess( process = childProcess, SelectEvents = cms.
             self.assert_(hasattr(p, 'b'))
             self.assert_(hasattr(p, 's'))
             self.assert_(hasattr(p, 'pth'))
+        def testModifier(self):
+            m1 = Modifier()
+            p = Process("test")
+            p.a = EDAnalyzer("MyAnalyzer", fred = int32(1))
+            def _mod_fred(obj):
+              obj.fred = 2
+            m1.toModify(p.a,_mod_fred)
+            p.b = EDAnalyzer("YourAnalyzer", wilma = int32(1))
+            m1.toModify(p.b, wilma = 2)
+            self.assertEqual(p.a.fred.value(),1)
+            self.assertEqual(p.b.wilma.value(),1)
+            m1.modify(p)
+            self.assertEqual(p.a.fred.value(),2)
+            self.assertEqual(p.b.wilma.value(),2)
+            #check that items not attached to process are unchanged
+            m1 = Modifier()
+            p = Process("test")
+            p.a = EDAnalyzer("MyAnalyzer", fred = int32(1))
+            m1.toModify(p.a,_mod_fred)
+            b = EDAnalyzer("YourAnalyzer", wilma = int32(1))
+            m1.toModify(b, wilma = 2)
+            self.assertEqual(p.a.fred.value(),1)
+            self.assertEqual(b.wilma.value(),1)
+            m1.modify(p)
+            self.assertEqual(p.a.fred.value(),2)
+            self.assertEqual(b.wilma.value(),1)
+            #make sure chains of modifiers work
+            m1 = Modifier()
+            m2 = Modifier()
+            m2.toModifyProcess(m1)
+            p = Process("test")
+            p.a = EDAnalyzer("MyAnalyzer", fred = int32(1))
+            m1.toModify(p.a,_mod_fred)
+            p.b = EDAnalyzer("YourAnalyzer", wilma = int32(1))
+            m1.toModify(p.b, wilma = 2)
+            m2.toModify(p.b, wilma = 3)
+            m2.modify(p)
+            self.assertEqual(p.a.fred.value(),2)
+            self.assertEqual(p.b.wilma.value(),3)
 
     unittest.main()
