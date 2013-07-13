@@ -38,6 +38,7 @@
 namespace edm {
   class ProductHolderIndexHelper;
   class ConsumesCollector;
+  template<typename T> class WillGetIfMatch;
   
   class EDConsumerBase
   {
@@ -73,6 +74,7 @@ namespace edm {
     
   protected:
     friend class ConsumesCollector;
+    template<typename T> friend class WillGetIfMatch;
     ///Use a ConsumesCollector to gather consumes information from helper functions
     ConsumesCollector consumesCollector();
     

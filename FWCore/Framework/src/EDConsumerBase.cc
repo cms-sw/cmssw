@@ -123,13 +123,15 @@ EDConsumerBase::updateLookup(BranchType iBranchType,
     auto itLabels = m_tokenInfo.begin<kLabels>();
     for(auto itInfo = m_tokenInfo.begin<kLookupInfo>(),itEnd = m_tokenInfo.end<kLookupInfo>();
         itInfo != itEnd; ++itInfo,++itKind,++itLabels) {
-      const unsigned int labelStart = itLabels->m_startOfModuleLabel;
-      const char* moduleLabel = &(m_tokenLabels[labelStart]);
-      itInfo->m_index = iHelper.index(*itKind,
-                                      itInfo->m_type,
-                                      moduleLabel,
-                                      moduleLabel+itLabels->m_deltaToProductInstance,
-                                      moduleLabel+itLabels->m_deltaToProcessName);
+      if(itInfo->m_branchType == iBranchType) {
+        const unsigned int labelStart = itLabels->m_startOfModuleLabel;
+        const char* moduleLabel = &(m_tokenLabels[labelStart]);
+        itInfo->m_index = iHelper.index(*itKind,
+                                        itInfo->m_type,
+                                        moduleLabel,
+                                        moduleLabel+itLabels->m_deltaToProductInstance,
+                                        moduleLabel+itLabels->m_deltaToProcessName);
+      }
     }
   }
   

@@ -59,6 +59,7 @@ namespace edm {
 
     produces<edmtest::ThingCollection>();
     produces<edmtest::OtherThingCollection>("testUserTag");
+    consumes<edmtest::IntProduct>(edm::InputTag{"EventNumber"});
   }
 
   void SecondaryProducer::beginJob() {
