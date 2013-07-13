@@ -20,6 +20,7 @@ namespace edm {
   class ProductRegistry;
   class Schedule;
   class SignallingProductRegistry;
+  class StreamID;
 
   struct ScheduleItems {
     ScheduleItems();
@@ -44,7 +45,8 @@ namespace edm {
 
     std::auto_ptr<Schedule>
     initSchedule(ParameterSet& parameterSet,
-                 ParameterSet const* subProcessPSet);
+                 ParameterSet const* subProcessPSet,
+                 StreamID streamID);
 
     void
     clear();

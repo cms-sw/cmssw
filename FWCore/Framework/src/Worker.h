@@ -26,11 +26,13 @@ the worker is reset().
 #include "FWCore/Framework/src/WorkerParams.h"
 #include "FWCore/Framework/interface/Actions.h"
 #include "FWCore/Framework/interface/CurrentProcessingContext.h"
+#include "FWCore/Framework/interface/OccurrenceTraits.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/ConvertException.h"
 #include "FWCore/Utilities/interface/BranchType.h"
+#include "FWCore/Utilities/interface/StreamID.h"
 
 #include "boost/shared_ptr.hpp"
 
@@ -44,8 +46,12 @@ namespace edm {
   class EventPrincipal;
   class EarlyDeleteHelper;
   class ProductHolderIndexHelper;
+  class StreamID;
   class OutputModuleCommunicator;
 
+  namespace workerhelper {
+    template< typename O> class CallImpl;
+  }
   class Worker {
   public:
     enum State { Ready, Pass, Fail, Exception };
@@ -59,8 +65,9 @@ namespace edm {
 
     template <typename T>
     bool doWork(typename T::MyPrincipal&, EventSetup const& c,
-		CurrentProcessingContext const* cpc,
-                CPUTimer *const timer);
+		            CurrentProcessingContext const* cpc,
+                CPUTimer *const timer,
+                StreamID stream);
     void beginJob() ;
     void endJob();
     void respondToOpenInputFile(FileBlock const& fb) {implRespondToOpenInputFile(fb);}
@@ -114,19 +121,26 @@ namespace edm {
     int timesPass() const { return timesPassed(); } // for backward compatibility only - to be removed soon
 
   protected:
+    template<typename O> friend class workerhelper::CallImpl;
     virtual std::string workerType() const = 0;
-    virtual bool implDoBegin(EventPrincipal&, EventSetup const& c,
-			    CurrentProcessingContext const* cpc) = 0;
-    virtual bool implDoEnd(EventPrincipal&, EventSetup const& c,
+    virtual bool implDo(EventPrincipal&, EventSetup const& c,
 			    CurrentProcessingContext const* cpc) = 0;
     virtual bool implDoBegin(RunPrincipal& rp, EventSetup const& c,
 			    CurrentProcessingContext const* cpc) = 0;
+    virtual bool implDoStreamBegin(StreamID id, RunPrincipal& rp, EventSetup const& c,
+                                   CurrentProcessingContext const* cpc) = 0;
+    virtual bool implDoStreamEnd(StreamID id, RunPrincipal& rp, EventSetup const& c,
+                                 CurrentProcessingContext const* cpc) = 0;
     virtual bool implDoEnd(RunPrincipal& rp, EventSetup const& c,
-			    CurrentProcessingContext const* cpc) = 0;
+                           CurrentProcessingContext const* cpc) = 0;
     virtual bool implDoBegin(LuminosityBlockPrincipal& lbp, EventSetup const& c,
-			    CurrentProcessingContext const* cpc) = 0;
+                             CurrentProcessingContext const* cpc) = 0;
+    virtual bool implDoStreamBegin(StreamID id, LuminosityBlockPrincipal& lbp, EventSetup const& c,
+                                   CurrentProcessingContext const* cpc) = 0;
+    virtual bool implDoStreamEnd(StreamID id, LuminosityBlockPrincipal& lbp, EventSetup const& c,
+                                 CurrentProcessingContext const* cpc) = 0;
     virtual bool implDoEnd(LuminosityBlockPrincipal& lbp, EventSetup const& c,
-			    CurrentProcessingContext const* cpc) = 0;
+                           CurrentProcessingContext const* cpc) = 0;
     virtual void implBeginJob() = 0;
     virtual void implEndJob() = 0;
 
@@ -216,11 +230,90 @@ namespace edm {
     }
   }
 
+  namespace workerhelper {
+    template<>
+    class CallImpl<OccurrenceTraits<EventPrincipal, BranchActionStreamBegin>> {
+    public:
+      static bool call(Worker* iWorker, StreamID, EventPrincipal& ep, EventSetup const& es,
+                       CurrentProcessingContext const* cpc) {
+        return iWorker->implDo(ep,es,cpc);
+      }
+    };
+    
+    template<>
+    class CallImpl<OccurrenceTraits<RunPrincipal, BranchActionGlobalBegin>>{
+    public:
+      static bool call(Worker* iWorker,StreamID, RunPrincipal& ep, EventSetup const& es,
+                       CurrentProcessingContext const* cpc) {
+        return iWorker->implDoBegin(ep,es,cpc);
+      }
+    };
+    template<>
+    class CallImpl<OccurrenceTraits<RunPrincipal, BranchActionStreamBegin>>{
+    public:
+      static bool call(Worker* iWorker,StreamID id, RunPrincipal& ep, EventSetup const& es,
+                       CurrentProcessingContext const* cpc) {
+        return iWorker->implDoStreamBegin(id,ep,es,cpc);
+      }
+    };
+    template<>
+    class CallImpl<OccurrenceTraits<RunPrincipal, BranchActionGlobalEnd>>{
+    public:
+      static bool call(Worker* iWorker,StreamID, RunPrincipal& ep, EventSetup const& es,
+                       CurrentProcessingContext const* cpc) {
+        return iWorker->implDoEnd(ep,es,cpc);
+      }
+    };
+    template<>
+    class CallImpl<OccurrenceTraits<RunPrincipal, BranchActionStreamEnd>>{
+    public:
+      static bool call(Worker* iWorker,StreamID id, RunPrincipal& ep, EventSetup const& es,
+                       CurrentProcessingContext const* cpc) {
+        return iWorker->implDoStreamEnd(id,ep,es,cpc);
+      }
+    };
+    
+    template<>
+    class CallImpl<OccurrenceTraits<LuminosityBlockPrincipal, BranchActionGlobalBegin>>{
+    public:
+      static bool call(Worker* iWorker,StreamID, LuminosityBlockPrincipal& ep, EventSetup const& es,
+                       CurrentProcessingContext const* cpc) {
+        return iWorker->implDoBegin(ep,es,cpc);
+      }
+    };
+    template<>
+    class CallImpl<OccurrenceTraits<LuminosityBlockPrincipal, BranchActionStreamBegin>>{
+    public:
+      static bool call(Worker* iWorker,StreamID id, LuminosityBlockPrincipal& ep, EventSetup const& es,
+                       CurrentProcessingContext const* cpc) {
+        return iWorker->implDoStreamBegin(id,ep,es,cpc);
+      }
+    };
+    
+    template<>
+    class CallImpl<OccurrenceTraits<LuminosityBlockPrincipal, BranchActionGlobalEnd>>{
+    public:
+      static bool call(Worker* iWorker,StreamID, LuminosityBlockPrincipal& ep, EventSetup const& es,
+                       CurrentProcessingContext const* cpc) {
+        return iWorker->implDoEnd(ep,es,cpc);
+      }
+    };
+    template<>
+    class CallImpl<OccurrenceTraits<LuminosityBlockPrincipal, BranchActionStreamEnd>>{
+    public:
+      static bool call(Worker* iWorker,StreamID id, LuminosityBlockPrincipal& ep, EventSetup const& es,
+                       CurrentProcessingContext const* cpc) {
+        return iWorker->implDoStreamEnd(id,ep,es,cpc);
+      }
+    };
+  }
+  
   template <typename T>
   bool Worker::doWork(typename T::MyPrincipal& ep, 
                        EventSetup const& es,
                        CurrentProcessingContext const* cpc,
-                       CPUTimer* const iTimer) {
+                       CPUTimer* const iTimer,
+                       StreamID streamID) {
 
     // A RunStopwatch, but only if we are processing an event.
     RunDualStopwatches stopwatch(T::isEvent_ ? stopwatch_ : RunStopwatch::StopwatchPointer(),
@@ -245,20 +338,16 @@ namespace edm {
     try {
       try {
 
-	ModuleSignalSentry<T> cpp(actReg_.get(), md_);
-	if (T::begin_) {
-	  rc = implDoBegin(ep, es, cpc);
-	} else {
-	  rc = implDoEnd(ep, es, cpc);
-        }
+        ModuleSignalSentry<T> cpp(actReg_.get(), md_);
+        rc = workerhelper::CallImpl<T>::call(this,streamID,ep,es,cpc);
 
-	if (rc) {
-	  state_ = Pass;
-	  if (T::isEvent_) ++timesPassed_;
-	} else {
-	  state_ = Fail;
-	  if (T::isEvent_) ++timesFailed_;
-	}
+        if (rc) {
+          state_ = Pass;
+          if (T::isEvent_) ++timesPassed_;
+        } else {
+          state_ = Fail;
+          if (T::isEvent_) ++timesFailed_;
+        }
       }
       catch (cms::Exception& e) { throw; }
       catch(std::bad_alloc& bda) { convertException::badAllocToEDM(); }
