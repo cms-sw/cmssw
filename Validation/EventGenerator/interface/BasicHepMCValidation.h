@@ -5,8 +5,8 @@
  *  
  *  Class to fill Event Generator dqm monitor elements; works on HepMCProduct
  *
- *  $Date: 2010/05/25 16:50:50 $
- *  $Revision: 1.1 $
+ *  $Date: 2011/12/29 10:53:10 $
+ *  $Revision: 1.6 $
  *
  */
 
@@ -30,6 +30,7 @@
 
 #include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
 
+#include "Validation/EventGenerator/interface/WeightManager.h"
 
 class BasicHepMCValidation : public edm::EDAnalyzer
 {
@@ -43,6 +44,8 @@ class BasicHepMCValidation : public edm::EDAnalyzer
 	virtual void endRun(const edm::Run&, const edm::EventSetup&);
 
     private:
+
+        WeightManager _wmanager;
 
     edm::InputTag hepmcCollection_;
 
@@ -101,12 +104,21 @@ class BasicHepMCValidation : public edm::EDAnalyzer
 	MonitorElement *stablePtclCharge;
 	MonitorElement *stablePtclp;
 	MonitorElement *stablePtclpT;
+	MonitorElement *partonNumber;
+	MonitorElement *partonpT;
 	MonitorElement *outVrtxStablePtclNumber;
 	//
 	MonitorElement *vrtxZ;
 	MonitorElement *vrtxRadius;
 	//
 	MonitorElement *Bjorken_x;
+
+    MonitorElement *status1ShortLived;
+
+    MonitorElement *DeltaEcms;
+    MonitorElement *DeltaPx;
+    MonitorElement *DeltaPy;
+    MonitorElement *DeltaPz;
 
 };
 
