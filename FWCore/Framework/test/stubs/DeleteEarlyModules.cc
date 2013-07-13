@@ -44,7 +44,9 @@ namespace edmtest {
   public:
     DeleteEarlyReader(edm::ParameterSet const& pset):
     m_tag(pset.getUntrackedParameter<edm::InputTag>("tag"))
-    {}
+    {
+      consumes<DeleteEarly>(m_tag);
+    }
     
     virtual void analyze(edm::Event const& e, edm::EventSetup const& ) {
       edm::Handle<DeleteEarly> h;

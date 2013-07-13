@@ -43,6 +43,7 @@ namespace edmtest {
     explicit IntVecRefVectorProducer(edm::ParameterSet const& p) :
         target_(p.getParameter<std::string>("target")) {
       produces<product_type>();
+      consumes<std::vector<int>>(edm::InputTag{target_});
     }
     virtual ~IntVecRefVectorProducer() {}
     virtual void produce(edm::Event& e, edm::EventSetup const& c);
@@ -80,6 +81,7 @@ namespace edmtest {
     explicit IntVecRefToBaseVectorProducer(edm::ParameterSet const& p) :
         target_(p.getParameter<std::string>("target")) {
       produces<product_type>();
+      consumes<edm::View<int>>(edm::InputTag{target_});
     }
     virtual ~IntVecRefToBaseVectorProducer() {}
     virtual void produce(edm::Event& e, edm::EventSetup const& c);
@@ -112,6 +114,7 @@ namespace edmtest {
     explicit IntVecPtrVectorProducer(edm::ParameterSet const& p) :
         target_(p.getParameter<std::string>("target")) {
       produces<product_type>();
+      consumes<edm::View<int>>(edm::InputTag{target_});
     }
     virtual ~IntVecPtrVectorProducer() {}
     virtual void produce(edm::Event& e, edm::EventSetup const& c);
