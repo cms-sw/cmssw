@@ -1,6 +1,7 @@
 #include "Mixing/Base/src/SecondaryEventProvider.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/StreamID.h"
 
 namespace edm {
   SecondaryEventProvider::SecondaryEventProvider(std::vector<ParameterSet>& psets,
@@ -25,23 +26,25 @@ namespace edm {
     }
   } // SecondaryEventProvider::SecondaryEventProvider
   
+  //NOTE: When the Stream interfaces are propagated to the modules, this code must be updated
+  // to also send the stream based transitions
   void SecondaryEventProvider::beginRun(RunPrincipal& run, const EventSetup& setup) {
-    workerManager_.processOneOccurrence<OccurrenceTraits<RunPrincipal, BranchActionBegin> >(run, setup);
+    workerManager_.processOneOccurrence<OccurrenceTraits<RunPrincipal, BranchActionGlobalBegin> >(run, setup, StreamID::invalidStreamID());
   }
 
   void SecondaryEventProvider::beginLuminosityBlock(LuminosityBlockPrincipal& lumi, const EventSetup& setup) {
-    workerManager_.processOneOccurrence<OccurrenceTraits<LuminosityBlockPrincipal, BranchActionBegin> >(lumi, setup);
+    workerManager_.processOneOccurrence<OccurrenceTraits<LuminosityBlockPrincipal, BranchActionGlobalBegin> >(lumi, setup, StreamID::invalidStreamID());
   }
 
   void SecondaryEventProvider::endRun(RunPrincipal& run, const EventSetup& setup) {
-    workerManager_.processOneOccurrence<OccurrenceTraits<RunPrincipal, BranchActionEnd> >(run, setup);
+    workerManager_.processOneOccurrence<OccurrenceTraits<RunPrincipal, BranchActionGlobalEnd> >(run, setup, StreamID::invalidStreamID());
   }
 
   void SecondaryEventProvider::endLuminosityBlock(LuminosityBlockPrincipal& lumi, const EventSetup& setup) {
-    workerManager_.processOneOccurrence<OccurrenceTraits<LuminosityBlockPrincipal, BranchActionEnd> >(lumi, setup);
+    workerManager_.processOneOccurrence<OccurrenceTraits<LuminosityBlockPrincipal, BranchActionGlobalEnd> >(lumi, setup, StreamID::invalidStreamID());
   }
 
   void SecondaryEventProvider::setupPileUpEvent(EventPrincipal& ep, const EventSetup& setup) {
-    workerManager_.processOneOccurrence<OccurrenceTraits<EventPrincipal, BranchActionBegin> >(ep, setup);
+    workerManager_.processOneOccurrence<OccurrenceTraits<EventPrincipal, BranchActionStreamBegin> >(ep, setup, ep.streamID());
   }
 }

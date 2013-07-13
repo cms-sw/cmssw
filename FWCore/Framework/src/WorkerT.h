@@ -52,18 +52,24 @@ namespace edm {
     T const& module() const {return *module_;}
 
   private:
-    virtual bool implDoBegin(EventPrincipal& ep, EventSetup const& c,
-                            CurrentProcessingContext const* cpc) override;
-    virtual bool implDoEnd(EventPrincipal& ep, EventSetup const& c,
-                            CurrentProcessingContext const* cpc) override;
+    virtual bool implDo(EventPrincipal& ep, EventSetup const& c,
+                        CurrentProcessingContext const* cpc) override;
     virtual bool implDoBegin(RunPrincipal& rp, EventSetup const& c,
-                            CurrentProcessingContext const* cpc) override;
+                             CurrentProcessingContext const* cpc) override;
+    virtual bool implDoStreamBegin(StreamID id, RunPrincipal& rp, EventSetup const& c,
+                                   CurrentProcessingContext const* cpc) override;
+    virtual bool implDoStreamEnd(StreamID id, RunPrincipal& rp, EventSetup const& c,
+                                 CurrentProcessingContext const* cpc) override;
     virtual bool implDoEnd(RunPrincipal& rp, EventSetup const& c,
                             CurrentProcessingContext const* cpc) override;
     virtual bool implDoBegin(LuminosityBlockPrincipal& lbp, EventSetup const& c,
                             CurrentProcessingContext const* cpc) override;
+    virtual bool implDoStreamBegin(StreamID id, LuminosityBlockPrincipal& lbp, EventSetup const& c,
+                                   CurrentProcessingContext const* cpc) override;
+    virtual bool implDoStreamEnd(StreamID id, LuminosityBlockPrincipal& lbp, EventSetup const& c,
+                                 CurrentProcessingContext const* cpc) override;
     virtual bool implDoEnd(LuminosityBlockPrincipal& lbp, EventSetup const& c,
-                            CurrentProcessingContext const* cpc) override;
+                           CurrentProcessingContext const* cpc) override;
     virtual void implBeginJob() override;
     virtual void implEndJob() override;
     virtual void implRespondToOpenInputFile(FileBlock const& fb) override;
