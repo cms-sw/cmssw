@@ -13,7 +13,7 @@
 //
 // Original Author:  Martijn Gosselink,,,
 //         Created:  Thu Jan 19 18:40:35 CET 2012
-// $Id: TTbar_Kinematics.h,v 1.2 2012/07/30 19:34:44 inugent Exp $
+// $Id: TTbar_Kinematics.h,v 1.3 2012/08/24 21:47:01 wdd Exp $
 //
 //
 // Added to: Validation/EventGenerator by Ian M. Nugent June 28, 2012
