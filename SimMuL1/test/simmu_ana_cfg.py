@@ -269,10 +269,11 @@ process.load("SimMuon.CSCDigitizer.muonCSCDigis_cfi")
 
 
 process.load('L1Trigger.CSCTrackFinder.csctfTrackDigisUngangedME1a_cfi')
-process.simCsctfTrackDigis = process.csctfTrackDigisUngangedME1a
+process.simCsctfTrackDigis = process.csctfTrackDigisUngangedME1a.clone()
 process.simCsctfTrackDigis.DTproducer = cms.untracked.InputTag("simDtTriggerPrimitiveDigis")
 process.simCsctfTrackDigis.SectorReceiverInput = cms.untracked.InputTag("simCscTriggerPrimitiveDigis","MPCSORTED")
 process.simCsctfTrackDigis.SectorProcessor.isCoreVerbose = cms.bool(True)
+
 
 ################################################################################
 
@@ -355,7 +356,6 @@ from GEMCode.GEMValidation.simTrackMatching_cfi import SimTrackMatching
 #SimTrackMatching.discardEleHitsGEM = False
 
 
-
 process.SimMuL1StrictAll = cms.EDFilter("SimMuL1",
     doStrictSimHitToTrackMatch = cms.untracked.bool(True),
     matchAllTrigPrimitivesInChamber = cms.untracked.bool(True),
@@ -422,166 +422,6 @@ process.SimMuL1StrictAll = cms.EDFilter("SimMuL1",
     goodChambersOnly = cms.untracked.bool(False),
     strips = process.simMuonCSCDigis.strips
 )
-
-process.SimMuL1StrictAll0 = cms.EDFilter("SimMuL1",
-    doStrictSimHitToTrackMatch = cms.untracked.bool(True),
-    matchAllTrigPrimitivesInChamber = cms.untracked.bool(True),
-    
-    minBX = cms.untracked.int32(0),
-    maxBX = cms.untracked.int32(0),
-    #centralBxOnlyGMT = cms.untracked.bool(False),
-
-    minBxALCT = cms.untracked.int32(readout_windows[0][0]),
-    maxBxALCT = cms.untracked.int32(readout_windows[0][1]),
-    minBxCLCT = cms.untracked.int32(readout_windows[1][0]),
-    maxBxCLCT = cms.untracked.int32(readout_windows[1][1]),
-    minBxLCT = cms.untracked.int32(readout_windows[2][0]),
-    maxBxLCT = cms.untracked.int32(readout_windows[2][1]),
-    minBxMPLCT = cms.untracked.int32(readout_windows[3][0]),
-    maxBxMPLCT = cms.untracked.int32(readout_windows[3][1]),
-    
-    minSimTrPt = cms.untracked.double(2.),
-    minSimTrPhi = cms.untracked.double(-9.),
-    maxSimTrPhi = cms.untracked.double(9.),
-    minSimTrEta = cms.untracked.double(0.8),
-    maxSimTrEta = cms.untracked.double(2.5),
-    invertSimTrPhiEta = cms.untracked.bool(False),
-    
-    goodChambersOnly = cms.untracked.bool(False),
-    strips = process.simMuonCSCDigis.strips
-)
-
-process.SimMuL1StrictAllPLUS = cms.EDFilter("SimMuL1",
-    doStrictSimHitToTrackMatch = cms.untracked.bool(True),
-    matchAllTrigPrimitivesInChamber = cms.untracked.bool(True),
-
-    minBxALCT = cms.untracked.int32(readout_windows[0][0]),
-    maxBxALCT = cms.untracked.int32(readout_windows[0][1]),
-    minBxCLCT = cms.untracked.int32(readout_windows[1][0]),
-    maxBxCLCT = cms.untracked.int32(readout_windows[1][1]),
-    minBxLCT = cms.untracked.int32(readout_windows[2][0]),
-    maxBxLCT = cms.untracked.int32(readout_windows[2][1]),
-    minBxMPLCT = cms.untracked.int32(readout_windows[3][0]),
-    maxBxMPLCT = cms.untracked.int32(readout_windows[3][1]),
-    
-    minSimTrPt = cms.untracked.double(2.),
-    minSimTrPhi = cms.untracked.double(-9.),
-    maxSimTrPhi = cms.untracked.double(9.),
-    minSimTrEta = cms.untracked.double(0.8),
-    maxSimTrEta = cms.untracked.double(2.5),
-    invertSimTrPhiEta = cms.untracked.bool(False),
-
-    goodChambersOnly = cms.untracked.bool(False),
-    strips = process.simMuonCSCDigis.strips,
-
-    lookAtTrackCondition = cms.untracked.int32(1)
-)
-
-process.SimMuL1StrictAllMINUS = cms.EDFilter("SimMuL1",
-    doStrictSimHitToTrackMatch = cms.untracked.bool(True),
-    matchAllTrigPrimitivesInChamber = cms.untracked.bool(True),
-
-    minBxALCT = cms.untracked.int32(readout_windows[0][0]),
-    maxBxALCT = cms.untracked.int32(readout_windows[0][1]),
-    minBxCLCT = cms.untracked.int32(readout_windows[1][0]),
-    maxBxCLCT = cms.untracked.int32(readout_windows[1][1]),
-    minBxLCT = cms.untracked.int32(readout_windows[2][0]),
-    maxBxLCT = cms.untracked.int32(readout_windows[2][1]),
-    minBxMPLCT = cms.untracked.int32(readout_windows[3][0]),
-    maxBxMPLCT = cms.untracked.int32(readout_windows[3][1]),
-    
-    minSimTrPt = cms.untracked.double(2.),
-    minSimTrPhi = cms.untracked.double(-9.),
-    maxSimTrPhi = cms.untracked.double(9.),
-    minSimTrEta = cms.untracked.double(0.8),
-    maxSimTrEta = cms.untracked.double(2.5),
-    invertSimTrPhiEta = cms.untracked.bool(False),
-
-    goodChambersOnly = cms.untracked.bool(False),
-    strips = process.simMuonCSCDigis.strips,
-
-    lookAtTrackCondition = cms.untracked.int32(-1)
-)
-
-process.SimMuL1Strict = cms.EDFilter("SimMuL1",
-    doStrictSimHitToTrackMatch = cms.untracked.bool(True),
-    matchAllTrigPrimitivesInChamber = cms.untracked.bool(False),
-    
-    minDeltaWire = cms.untracked.int32(0),
-    maxDeltaWire = cms.untracked.int32(2),
-    minDeltaStrip = cms.untracked.int32(1),
-    
-    doME1a = cms.untracked.bool(True),
-    defaultME1a = cms.untracked.bool(defaultEmu),
-    gangedME1a = cms.untracked.bool(ganged),
-
-    minBxALCT = cms.untracked.int32(readout_windows[0][0]),
-    maxBxALCT = cms.untracked.int32(readout_windows[0][1]),
-    minBxCLCT = cms.untracked.int32(readout_windows[1][0]),
-    maxBxCLCT = cms.untracked.int32(readout_windows[1][1]),
-    minBxLCT = cms.untracked.int32(readout_windows[2][0]),
-    maxBxLCT = cms.untracked.int32(readout_windows[2][1]),
-    minBxMPLCT = cms.untracked.int32(readout_windows[3][0]),
-    maxBxMPLCT = cms.untracked.int32(readout_windows[3][1]),
-    
-    minSimTrPt = cms.untracked.double(2.),
-    minSimTrPhi = cms.untracked.double(-9.),
-    maxSimTrPhi = cms.untracked.double(9.),
-    minSimTrEta = cms.untracked.double(0.8),
-    maxSimTrEta = cms.untracked.double(2.5),
-    invertSimTrPhiEta = cms.untracked.bool(False),
-    
-    goodChambersOnly = cms.untracked.bool(False),
-    strips = process.simMuonCSCDigis.strips
-)
-
-process.SimMuL1 = cms.EDFilter("SimMuL1",
-    doStrictSimHitToTrackMatch = cms.untracked.bool(False),
-    matchAllTrigPrimitivesInChamber = cms.untracked.bool(False),
-    
-    minDeltaWire = cms.untracked.int32(0),
-    maxDeltaWire = cms.untracked.int32(2),
-    minDeltaStrip = cms.untracked.int32(1),
-    
-    doME1a = cms.untracked.bool(True),
-    defaultME1a = cms.untracked.bool(defaultEmu),
-    gangedME1a = cms.untracked.bool(ganged),
-
-    minBxALCT = cms.untracked.int32(readout_windows[0][0]),
-    maxBxALCT = cms.untracked.int32(readout_windows[0][1]),
-    minBxCLCT = cms.untracked.int32(readout_windows[1][0]),
-    maxBxCLCT = cms.untracked.int32(readout_windows[1][1]),
-    minBxLCT = cms.untracked.int32(readout_windows[2][0]),
-    maxBxLCT = cms.untracked.int32(readout_windows[2][1]),
-    minBxMPLCT = cms.untracked.int32(readout_windows[3][0]),
-    maxBxMPLCT = cms.untracked.int32(readout_windows[3][1]),
-    
-    minSimTrPt = cms.untracked.double(2.),
-    minSimTrPhi = cms.untracked.double(-9.),
-    maxSimTrPhi = cms.untracked.double(9.),
-    minSimTrEta = cms.untracked.double(0.8),
-    maxSimTrEta = cms.untracked.double(2.5),
-    invertSimTrPhiEta = cms.untracked.bool(False),
-    
-    goodChambersOnly = cms.untracked.bool(False),
-    strips = process.simMuonCSCDigis.strips
-)
-
-#process.SimMuL1NaturalAll = cms.EDFilter("SimMuL1",
-#    doStrictSimHitToTrackMatch = cms.untracked.bool(False),
-#    matchAllTrigPrimitivesInChamber = cms.untracked.bool(True),
-#
-#    minSimTrPt = cms.untracked.double(2.),
-#    minSimTrPhi = cms.untracked.double(-9.),
-#    maxSimTrPhi = cms.untracked.double(9.),
-#    minSimTrEta = cms.untracked.double(0.8),
-#    maxSimTrEta = cms.untracked.double(2.5),
-#    invertSimTrPhiEta = cms.untracked.bool(False),
-#    
-#    goodChambersOnly = cms.untracked.bool(False),
-#    strips = process.simMuonCSCDigis.strips
-#)
-#
 
 #process.output = cms.OutputModule("PoolOutputModule",
 #)
@@ -655,7 +495,7 @@ process.reader_seq = cms.Sequence(process.lctreader)
 process.cscdigi_seq = cms.Sequence(process.cscdigiana)
 
 
-process.l1extra_step        = cms.Path(process.L1Extra)
+process.l1extra_step    = cms.Path(process.L1Extra)
 process.ana_step        = cms.Path(process.ana_seq)
 process.reader_step     = cms.Path(process.reader_seq)
 process.cscdigi_step    = cms.Path(process.cscdigi_seq)
