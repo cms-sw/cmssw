@@ -3,6 +3,7 @@
 #include <memory>
 #include <vector>
 #include <functional>
+#include <tuple>
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -103,24 +104,6 @@ class QuadrupletSeedMerger {
   bool isValidQuadruplet( std::vector<TransientTrackingRecHit::ConstRecHitPointer> &quadruplet, const std::vector<SeedMergerPixelLayer>& layers ) const; 
 
     // bool isValidQuadruplet( const SeedingHitSet&, const std::vector<SeedMergerPixelLayer>& ) const;
-
-bool isTripletsShareHitsOnLayers( const SeedingHitSet& firstTriplet, const SeedingHitSet& secondTriplet, 
-				  const SeedMergerPixelLayer &share1, const SeedMergerPixelLayer &share2,
-				  std::pair<TransientTrackingRecHit::ConstRecHitPointer,TransientTrackingRecHit::ConstRecHitPointer>& hits ) const;
-
-//bool isTripletsShareHitsOnLayers( const SeedingHitSet&, const SeedingHitSet&, 
-//   const std::pair<SeedMergerPixelLayer, SeedMergerPixelLayer>&,
-//  std::pair<TransientTrackingRecHit::ConstRecHitPointer,TransientTrackingRecHit::ConstRecHitPointer>& ) const;
-//
-//  bool isMergeableHitsInTriplets( const SeedingHitSet&, const SeedingHitSet&, 
-//    const std::pair<SeedMergerPixelLayer, SeedMergerPixelLayer>&,
-//    std::pair<TransientTrackingRecHit::ConstRecHitPointer,TransientTrackingRecHit::ConstRecHitPointer>& ) const;
-
-bool isMergeableHitsInTriplets( const SeedingHitSet& firstTriplet, const SeedingHitSet& secondTriplet, 
-				const SeedMergerPixelLayer &nonShared1, const SeedMergerPixelLayer &nonShared2,
-				std::pair<TransientTrackingRecHit::ConstRecHitPointer,TransientTrackingRecHit::ConstRecHitPointer>& hits ) const;
-
-
 
   ctfseeding::SeedingLayerSets theLayerSets_;
   edm::ESHandle<TrackerGeometry> theTrackerGeometry_;
