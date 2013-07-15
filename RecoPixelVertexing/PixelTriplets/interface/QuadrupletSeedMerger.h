@@ -83,7 +83,6 @@ class QuadrupletSeedMerger {
   //const std::vector<SeedingHitSet> mergeTriplets( const OrderedSeedingHits&, const edm::EventSetup& );
   const OrderedSeedingHits& mergeTriplets( const OrderedSeedingHits&, const edm::EventSetup& );
   const TrajectorySeedCollection mergeTriplets( const TrajectorySeedCollection&, const TrackingRegion&, const edm::EventSetup&, const edm::ParameterSet& );
-  bool isEqual( const TrackingRecHit*, const TrackingRecHit* ) const;
   std::pair<double,double> calculatePhiEta( SeedingHitSet const& ) const;
   void printHit( const TrackingRecHit* ) const;
   void printHit( const  TransientTrackingRecHit::ConstRecHitPointer& ) const;
