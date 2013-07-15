@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2012/03/02 19:47:33 $
- *  $Revision: 1.12 $
+ *  $Date: 2010/11/19 14:02:08 $
+ *  $Revision: 1.11 $
  *  Author of original version: M. Giunta
  *  \author A. Vilela Pereira
  */

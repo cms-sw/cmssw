@@ -3,7 +3,7 @@
    and vice versa   
 
    \author 
-   \version $Id: EcalClusterEnergyCorrectionObjectSpecificXMLTranslator.h,v 1.1 2011/11/10 17:52:22 fay Exp $
+   \version $Id: EcalClusterEnergyCorrectionObjectSpecificXMLTranslator.h,v 1.0  $
    \date November 2011
 */
 

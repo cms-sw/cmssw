@@ -168,12 +168,12 @@ int OffHelper::getHandles(const edm::Event& event,const edm::EventSetup& setup)
     setup.get<CaloGeometryRecord>().get(caloGeom_);
     setup.get<CaloTopologyRecord>().get(caloTopology_);
     //setup.get<EcalSeverityLevelAlgoRcd>().get(ecalSeverityLevel_);
-  }catch(...){
+  }catch(cms::Exception& iException){
     return errCodes::Geom;
   }
   try {
     setup.get<IdealMagneticFieldRecord>().get(magField_);
-  }catch(...){
+  }catch(cms::Exception& iException){
     return errCodes::MagField;
   }
 

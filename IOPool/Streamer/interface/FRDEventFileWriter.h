@@ -1,7 +1,7 @@
 #ifndef IOPool_Streamer_FRDEventFileWriter_h
 #define IOPool_Streamer_FRDEventFileWriter_h 
 
-// $Id: FRDEventFileWriter.h,v 1.3 2010/02/18 09:19:02 mommsen Exp $
+// $Id: FRDEventFileWriter.h,v 1.2 2009/04/24 17:48:10 biery Exp $
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "IOPool/Streamer/interface/FRDEventMessage.h"

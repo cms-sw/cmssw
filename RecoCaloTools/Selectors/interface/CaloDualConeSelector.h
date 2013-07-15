@@ -7,8 +7,8 @@
 
 /** \class CaloDualConeSelector
   *  
-  * $Date: 2006/08/29 12:49:10 $
-  * $Revision: 1.1 $
+  * $Date: $
+  * $Revision: $
   * \author J. Mans - Minnesota
   */
 class CaloDualConeSelector {

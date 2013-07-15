@@ -9,8 +9,8 @@
 /// freedom introduced if larger structure and their components are aligned
 /// simultaneously.
 ///
-///  $Date: 2010/12/14 01:08:25 $
-///  $Revision: 1.2 $
+///  $Date: 2010/12/09 19:53:42 $
+///  $Revision: 1.1 $
 /// (last update by $Author: flucke $)
 
 #include "DataFormats/Math/interface/AlgebraicROOTObjects.h"

@@ -15,7 +15,7 @@
  */
 
 /*
- * $Id: StreamOutFormatTarget.h,v 1.1 2006/09/15 19:57:56 fedor Exp $
+ * $Id$
  */
 
 #ifndef StreamOutFormatTarget_HEADER_GUARD_

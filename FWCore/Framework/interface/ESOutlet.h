@@ -18,7 +18,7 @@ from the EDProducer to the object which needs the data.
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Sep 22 15:07:28 EDT 2006
-// $Id: ESOutlet.h,v 1.1 2006/09/22 19:54:49 chrjones Exp $
+// $Id$
 //
 
 // system include files

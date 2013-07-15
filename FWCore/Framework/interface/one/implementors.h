@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu, 09 May 2013 18:40:17 GMT
-// $Id: implementors.h,v 1.1 2013/05/17 14:49:44 chrjones Exp $
+// $Id$
 //
 
 // system include files

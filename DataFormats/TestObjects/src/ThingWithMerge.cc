@@ -1,5 +1,5 @@
 
-// $Id: ThingWithMerge.cc,v 1.1 2008/02/04 20:13:15 wdd Exp $
+// $Id$
 
 #include "DataFormats/TestObjects/interface/ThingWithMerge.h"
 

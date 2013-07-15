@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue, 07 May 2013 18:11:24 GMT
-// $Id: moduleAbilityEnums.h,v 1.1 2013/05/17 14:49:43 chrjones Exp $
+// $Id$
 //
 
 // system include files

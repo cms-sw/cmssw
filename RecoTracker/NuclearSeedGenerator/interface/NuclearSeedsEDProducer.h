@@ -15,7 +15,7 @@
 //
 // Original Author:  Vincent ROBERFROID
 //         Created:  Wed Feb 28 12:05:36 CET 2007
-// $Id: NuclearSeedsEDProducer.h,v 1.9 2013/02/27 13:28:32 muzaffar Exp $
+// $Id: NuclearSeedsEDProducer.h,v 1.8 2009/03/04 13:34:27 vlimant Exp $
 //
 //
 

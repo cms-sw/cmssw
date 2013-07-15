@@ -123,13 +123,15 @@ EDConsumerBase::updateLookup(BranchType iBranchType,
     auto itLabels = m_tokenInfo.begin<kLabels>();
     for(auto itInfo = m_tokenInfo.begin<kLookupInfo>(),itEnd = m_tokenInfo.end<kLookupInfo>();
         itInfo != itEnd; ++itInfo,++itKind,++itLabels) {
-      const unsigned int labelStart = itLabels->m_startOfModuleLabel;
-      const char* moduleLabel = &(m_tokenLabels[labelStart]);
-      itInfo->m_index = iHelper.index(*itKind,
-                                      itInfo->m_type,
-                                      moduleLabel,
-                                      moduleLabel+itLabels->m_deltaToProductInstance,
-                                      moduleLabel+itLabels->m_deltaToProcessName);
+      if(itInfo->m_branchType == iBranchType) {
+        const unsigned int labelStart = itLabels->m_startOfModuleLabel;
+        const char* moduleLabel = &(m_tokenLabels[labelStart]);
+        itInfo->m_index = iHelper.index(*itKind,
+                                        itInfo->m_type,
+                                        moduleLabel,
+                                        moduleLabel+itLabels->m_deltaToProductInstance,
+                                        moduleLabel+itLabels->m_deltaToProcessName);
+      }
     }
   }
   
@@ -268,6 +270,52 @@ EDConsumerBase::labelsForToken(EDGetToken iToken, Labels& oLabels) const
   oLabels.module = &(m_tokenLabels[start]);
   oLabels.productInstance = oLabels.module+labels.m_deltaToProductInstance;
   oLabels.process = oLabels.module+labels.m_deltaToProcessName;
+}
+
+bool
+EDConsumerBase::registeredToConsume(ProductHolderIndex iIndex, BranchType iBranch) const
+{
+  for(auto it = m_tokenInfo.begin<kLookupInfo>(),
+      itEnd = m_tokenInfo.end<kLookupInfo>();
+      it != itEnd; ++it) {
+    if(it->m_index == iIndex and
+       it->m_branchType == iBranch) {
+      return true;
+    }
+  }
+  //TEMPORARY: Remember so we do not have to do this again
+  //non thread-safe
+  EDConsumerBase* nonConstThis = const_cast<EDConsumerBase*>(this);
+  nonConstThis->m_tokenInfo.emplace_back(TokenLookupInfo{TypeID{},iIndex,iBranch},
+                                         true,
+                                         LabelPlacement{0,0,0},
+                                         PRODUCT_TYPE);
+
+  return false;
+}
+
+bool
+EDConsumerBase::registeredToConsumeMany(TypeID const& iType, BranchType iBranch) const
+{
+  for(auto it = m_tokenInfo.begin<kLookupInfo>(),
+      itEnd = m_tokenInfo.end<kLookupInfo>();
+      it != itEnd; ++it) {
+    //consumesMany entries do not have their index resolved
+    if(it->m_index == ProductHolderIndexInvalid and
+       it->m_type == iType and
+       it->m_branchType == iBranch) {
+      return true;
+    }
+  }
+  //TEMPORARY: Remember so we do not have to do this again
+  //non thread-safe
+  EDConsumerBase* nonConstThis = const_cast<EDConsumerBase*>(this);
+  nonConstThis->m_tokenInfo.emplace_back(TokenLookupInfo{iType,ProductHolderIndexInvalid,iBranch},
+                           true,
+                           LabelPlacement{0,0,0},
+                           PRODUCT_TYPE);
+  return false;
+  
 }
 
 

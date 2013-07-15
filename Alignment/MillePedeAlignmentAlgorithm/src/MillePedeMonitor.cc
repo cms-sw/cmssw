@@ -3,9 +3,9 @@
  *
  *  \author    : Gero Flucke
  *  date       : October 2006
- *  $Revision: 1.25 $
- *  $Date: 2013/01/07 20:21:32 $
- *  (last update by $Author: wmtan $)
+ *  $Revision: 1.24 $
+ *  $Date: 2011/02/16 13:11:57 $
+ *  (last update by $Author: mussgill $)
  */
 
 #include "DataFormats/GeometrySurface/interface/Surface.h" 

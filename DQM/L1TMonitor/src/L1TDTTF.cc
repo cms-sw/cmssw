@@ -628,7 +628,7 @@ void L1TDTTF::analyze(const edm::Event& event,
   edm::Handle<L1MuDTTrackContainer > myL1MuDTTrackContainer;
   try {
     event.getByLabel(trackInputTag_, myL1MuDTTrackContainer);
-  } catch (...) {
+  } catch (cms::Exception& iException) {
     edm::LogError("L1TDTTF::analyze::DataNotFound")
       << "can't getByLabel L1MuDTTrackContainer with label " 
       << dttpgSource_.label() << ":DATA:" << dttpgSource_.process();
@@ -698,7 +698,7 @@ void L1TDTTF::analyze(const edm::Event& event,
       }
 
 
-    } catch (...) {
+    } catch (cms::Exception& iException) {
       /// in case of problems accept all
       accept = true;
       edm::LogError("DataNotFound") << "Unable to getByLabel MuonCollection with label "
@@ -746,7 +746,7 @@ void L1TDTTF::analyze(const edm::Event& event,
       }
     }
 
-  } catch (...) {
+  } catch (cms::Exception& iException) {
     edm::LogError("DataNotFound") << "Unable to getByLabel L1MuGMTReadoutCollection with label "
 				  << gmtSource_.label() ;
   }

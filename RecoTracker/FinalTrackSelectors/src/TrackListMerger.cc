@@ -693,9 +693,7 @@ namespace cms
     statCount.end(outputTrks->size());
 
     edm::ProductID nPID = refTrks.id();
-    edm::Provenance trkProv = e.getProvenance(nPID);
-    edm::Handle<reco::TrackCollection> outHandle(outputTrks.get(),&trkProv);
-
+    edm::TestHandle<reco::TrackCollection> outHandle(outputTrks.get(),nPID);
     fillerMVA.insert(outHandle,mvaVec.begin(),mvaVec.end());
     fillerMVA.fill();
 

@@ -17,9 +17,9 @@
 /// to an Alignable, so it does not need to have implementations of the apply(..) method.
 /// It neither needs AlignmentUservariables attached. 
 ///
-///  $Date: 2008/09/02 15:18:19 $
-///  $Revision: 1.13 $
-/// (last update by $Author: flucke $)
+///  $Date: 2007/10/08 15:56:00 $
+///  $Revision: 1.12 $
+/// (last update by $Author: cklae $)
 
 class AlignableDet;
 class Alignable;

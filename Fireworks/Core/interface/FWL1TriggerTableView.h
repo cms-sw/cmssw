@@ -16,7 +16,7 @@
 //
 // Original Author:  
 //         Created:  Tue Jan 25 16:02:19 CET 2011
-// $Id: FWL1TriggerTableView.h,v 1.6 2011/01/26 11:47:06 amraktad Exp $
+// $Id$
 //
 
 #include "Fireworks/Core/interface/FWTriggerTableView.h"

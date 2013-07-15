@@ -3,8 +3,8 @@
 
 /** \class CSCTMBStatusDigiCollection
  *
- *  $Date: 2007/03/29 16:04:42 $
- *  $Revision: 1.1 $
+ *  $Date:$
+ *  $Revision:$
  */
 
 #include <DataFormats/MuonDetId/interface/CSCDetId.h>

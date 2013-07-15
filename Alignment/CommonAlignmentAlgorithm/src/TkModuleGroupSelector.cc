@@ -3,9 +3,9 @@
  *
  *  \author Joerg Behr
  *  \date May 2013
- *  $Revision: 1.2 $
- *  $Date: 2013/05/31 12:13:41 $
- *  (last update by $Author: flucke $)
+ *  $Revision: 1.4 $
+ *  $Date: 2013/05/31 14:50:52 $
+ *  (last update by $Author: jbehr $)
  */
 
 #include "Alignment/CommonAlignmentAlgorithm/interface/TkModuleGroupSelector.h"
@@ -104,6 +104,15 @@ bool TkModuleGroupSelector::createGroup(
     Id += range.size();
     nparameters_ += range.size();  
   }
+
+  if(refrun > 0 && range.front() > refrun) { //range.size() > 0 checked before
+    throw cms::Exception("BadConfig")
+      << "@SUB=TkModuleGroupSelector::createGroup:\n"
+      << "Invalid combination of reference run number and specified run dependence"
+      << "\n in module group " << firstId_.size() << "."
+      << "\n Reference run number (" << refrun << ") is smaller than starting run "
+      << "\n number (" << range.front() << ") of first IOV.";
+  }
   return modules_selected;
 }
 
@@ -163,7 +172,6 @@ void TkModuleGroupSelector::createModuleGroups(AlignableTracker *aliTracker,
       refrun = defaultReferenceRun;
     }
     
-
     AlignmentParameterSelector selector(aliTracker);
     selector.clear();
     selector.addSelections((*pset).getParameter<edm::ParameterSet> ("levels"));
@@ -266,7 +274,8 @@ int TkModuleGroupSelector::getParameterIndexFromDetId(unsigned int detId,
     if (runs[0] > run) {
       throw cms::Exception("BadConfig")
         << "@SUB=TkModuleGroupSelector::getParameterIndexFromDetId:\n"
-        << "Run " << run << " not foreseen for detid ('"<< detId <<"').";
+        << "Run " << run << " not foreseen for detid ('"<< detId <<"')"
+        << " in module group " << iAlignableGroup << ".";
     }
     unsigned int iovNum = 0;
     for ( ; iovNum < runs.size(); ++iovNum) {
@@ -281,7 +290,9 @@ int TkModuleGroupSelector::getParameterIndexFromDetId(unsigned int detId,
         if(refrun >= runs[iovNum] && refrun < runs[iovNum+1]) {
           return -1;
         }
-      } else if(run > refrun) {
+      } 
+      if(run > refrun) {
+        //iovNum > 0 due to checks in createGroup(...) and createModuleGroups(...)
         //remove IOV in which the reference run can be found
         iovNum -= 1;
       }

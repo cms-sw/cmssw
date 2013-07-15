@@ -7,8 +7,8 @@
  *  Fills the GsfElectron, Photon and Muon Ref into the PFCandidate
  *  Produces the ValueMap between GsfElectronRef/Photon/Mupns with PFCandidateRef
  *
- *  $Date: 2013/02/26 16:32:20 $
- *  $Revision: 1.7 $
+ *  $Date: 2011/07/20 09:57:25 $
+ *  $Revision: 1.6 $
  *  \author R. Bellan - UCSB <riccardo.bellan@cern.ch>, F. Beaudette - CERN <Florian.Beaudette@cern.ch>
  */
 

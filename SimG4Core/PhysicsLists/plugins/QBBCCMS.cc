@@ -6,6 +6,7 @@
 #include "G4DecayPhysics.hh"
 #include "G4EmExtraPhysics.hh"
 #include "G4StoppingPhysics.hh"
+#include "G4HadronicProcessStore.hh"
 
 #include "G4DataQuestionaire.hh"
 #include "G4HadronInelasticQBBC.hh"
@@ -42,6 +43,8 @@ QBBCCMS::QBBCCMS(G4LogicalVolumeToDDLogicalPartMap& map,
   RegisterPhysics(new G4DecayPhysics(ver));
 
   if (hadPhys) {
+    G4HadronicProcessStore::Instance()->SetVerbose(ver);
+
     // Hadron Elastic scattering
     RegisterPhysics(new G4HadronElasticPhysicsXS(ver));
 

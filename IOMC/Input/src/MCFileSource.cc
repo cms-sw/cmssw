@@ -2,8 +2,8 @@
 *  See header file for a description of this class.
 *
 *
-*  $Date: 2012/11/16 20:45:30 $
-*  $Revision: 1.18 $
+*  $Date: 2012/11/13 22:50:42 $
+*  $Revision: 1.17 $
 *  \author Jo. Weng  - CERN, Ph Division & Uni Karlsruhe
 *  \author F.Moortgat - CERN, Ph Division
 */

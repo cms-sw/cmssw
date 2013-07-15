@@ -25,10 +25,6 @@
 
 // forward declarations
 
-namespace Reflex {
-  class SharedLibrary;
-}
-
 namespace edmplugin {
 class SharedLibrary
 {
@@ -51,7 +47,7 @@ class SharedLibrary
       const SharedLibrary& operator=(const SharedLibrary&); // stop default
 
       // ---------- member data --------------------------------
-      mutable Reflex::SharedLibrary* library_;
+      void* libraryHandle_;
       boost::filesystem::path path_;
 };
 

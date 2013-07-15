@@ -1,8 +1,8 @@
 /** \file BeamSpotAlignmentDerivatives.cc
  *
- *  $Date: 2010/09/10 11:18:29 $
- *  $Revision: 1.1 $
- *  (last update by $Author: mussgill $)
+ *  $Date: 2007/05/02 21:01:53 $
+ *  $Revision: 1.7 $
+ *  (last update by $Author: cklae $)
  */
 
 #include "DataFormats/GeometrySurface/interface/Surface.h"

@@ -1,4 +1,4 @@
-// Last commit: $Id: testSiStripGainBuilderFromDb.h,v 1.1 2008/09/29 13:20:52 bainbrid Exp $
+// Last commit: $Id: $
 
 #ifndef OnlineDB_SiStripESSources_testSiStripGainBuilderFromDb_H
 #define OnlineDB_SiStripESSources_testSiStripGainBuilderFromDb_H

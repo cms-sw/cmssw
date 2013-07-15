@@ -10,7 +10,7 @@
 // Original Author: Shan-Huei Chuang
 //         Created: Fri Mar 23 18:41:42 CET 2007
 //         Updated by Lukas Wehrli (plots for clusters on/off track added)
-// $Id: SiPixelTrackResidualSource.cc,v 1.27 2013/01/03 23:50:05 wmtan Exp $
+// $Id: SiPixelTrackResidualSource.cc,v 1.26 2012/12/26 21:07:10 wmtan Exp $
 
 
 #include <iostream>

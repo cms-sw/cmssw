@@ -1,5 +1,5 @@
 #!/bin/bash
-# $Id: getwwpn.sh,v 1.5 2009/08/17 13:21:20 gbauer Exp $
+# $Id: getwwpn.sh,v 1.4 2009/02/06 16:51:55 gbauer Exp $
 #
 # run this script to get a mapping between hostname and wwpn
 # the mapping has the syntax of a perl hash and can be put

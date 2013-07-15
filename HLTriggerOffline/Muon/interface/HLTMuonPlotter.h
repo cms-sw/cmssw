@@ -6,8 +6,8 @@
  *  Documentation available on the CMS TWiki:
  *  https://twiki.cern.ch/twiki/bin/view/CMS/MuonHLTOfflinePerformance
  *
- *  $Date: 2013/04/19 23:22:27 $
- *  $Revision: 1.3 $
+ *  $Date: 2012/10/02 11:41:32 $
+ *  $Revision: 1.2 $
  *  \author  J. Klukas, M. Vander Donckt, J. Alcaraz
  */
 

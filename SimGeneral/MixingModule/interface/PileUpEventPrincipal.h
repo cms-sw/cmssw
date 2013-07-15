@@ -50,7 +50,7 @@ public:
     getByLabel(edm::InputTag const& tag, edm::Handle<T>& result) const {
     typedef typename T::value_type ItemType;
     typedef typename T::iterator iterator;
-    edm::BasicHandle bh = principal_.getByLabel(edm::PRODUCT_TYPE, edm::TypeID(typeid(T)), tag);
+    edm::BasicHandle bh = principal_.getByLabel(edm::PRODUCT_TYPE, edm::TypeID(typeid(T)), tag, nullptr);
     convert_handle(bh, result);
     if(result.isValid() && addLabel(edm::TypeID(typeid(T)), tag.label())) {
       T& product = const_cast<T&>(*result.product());

@@ -12,9 +12,9 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Revision: 1.3 $
+ * \version $Revision: 1.2 $
  *
- * $Id: Merger.h,v 1.3 2013/02/28 00:34:12 wmtan Exp $
+ * $Id: Merger.h,v 1.2 2010/02/20 20:55:21 wmtan Exp $
  *
  */
 #include "FWCore/Framework/interface/EDProducer.h"

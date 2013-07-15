@@ -9,7 +9,7 @@
 //
 // Author:	Christophe Saout <christophe.saout@cern.ch>
 // Created:     Sat Apr 24 15:18 CEST 2007
-// $Id: ProcessRegistry.h,v 1.10 2013/01/17 22:42:55 kukartse Exp $
+// $Id: ProcessRegistry.h,v 1.9 2011/04/15 17:07:13 wmtan Exp $
 //
 // Refactoring for gcc 4.7.0 and higher
 // by Gena Kukartsev following design and advice from Chris Jones

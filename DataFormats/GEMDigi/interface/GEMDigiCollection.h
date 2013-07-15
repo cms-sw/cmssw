@@ -3,7 +3,7 @@
 /** \class GEMDigiCollection
  *  
  *  \author Vadim Khotilovich
- *  \version $Id: GEMDigiCollection.h,v 1.1 2012/12/08 01:45:22 khotilov Exp $
+ *  \version $Id: GEMDigiCollection.h,v 1.2 2006/05/16 14:36:29 mmaggi Exp $
  *  \date 21 Apr 2005
  */
 

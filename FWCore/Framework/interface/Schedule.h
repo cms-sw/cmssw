@@ -79,6 +79,7 @@
 #include "FWCore/Utilities/interface/BranchType.h"
 #include "FWCore/Utilities/interface/ConvertException.h"
 #include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/Utilities/interface/StreamID.h"
 
 #include "boost/shared_ptr.hpp"
 
@@ -122,7 +123,8 @@ namespace edm {
              ActionTable const& actions,
              boost::shared_ptr<ActivityRegistry> areg,
              boost::shared_ptr<ProcessConfiguration> processConfiguration,
-             const ParameterSet* subProcPSet);
+             const ParameterSet* subProcPSet,
+             StreamID streamID);
 
     enum State { Ready = 0, Running, Latched };
 
@@ -293,6 +295,7 @@ namespace edm {
     TrigResPtr               endpath_results_;
 
     WorkerPtr                results_inserter_;
+    AllWorkers               all_workers_;
     AllOutputModuleCommunicators         all_output_communicators_;
     TrigPaths                trig_paths_;
     TrigPaths                end_paths_;
@@ -319,26 +322,8 @@ namespace edm {
     int                            total_passed_;
     RunStopwatch::StopwatchPointer stopwatch_;
 
+    StreamID                streamID_;
     volatile bool           endpathsAreActive_;
-  };
-
-  // -----------------------------
-  // ProcessOneOccurrence is a functor that has bound a specific
-  // Principal and Event Setup, and can be called with a Path, to
-  // execute Path::processOneOccurrence for that event
-
-  template <typename T>
-  class ProcessOneOccurrence {
-  public:
-    typedef void result_type;
-    ProcessOneOccurrence(typename T::MyPrincipal& principal, EventSetup const& setup) :
-      ep(principal), es(setup) {};
-
-      void operator()(Path& p) {p.processOneOccurrence<T>(ep, es);}
-
-  private:
-    typename T::MyPrincipal&   ep;
-    EventSetup const& es;
   };
 
   void
@@ -363,7 +348,7 @@ namespace edm {
     RunStopwatch stopwatch(T::isEvent_ ? stopwatch_ : RunStopwatch::StopwatchPointer());
 
     // This call takes care of the unscheduled processing.
-    workerManager_.processOneOccurrence<T>(ep, es, cleaningUpAfterException);
+    workerManager_.processOneOccurrence<T>(ep, es, streamID_, cleaningUpAfterException);
 
     if (T::isEvent_) {
       ++total_events_;
@@ -389,7 +374,7 @@ namespace edm {
 
         try {
           CPUTimer timer;
-          if (results_inserter_.get()) results_inserter_->doWork<T>(ep, es, nullptr, &timer);
+          if (results_inserter_.get()) results_inserter_->doWork<T>(ep, es, nullptr, &timer,streamID_);
         }
         catch (cms::Exception & ex) {
           if (T::isEvent_) {
@@ -427,7 +412,9 @@ namespace edm {
   template <typename T>
   bool
   Schedule::runTriggerPaths(typename T::MyPrincipal& ep, EventSetup const& es) {
-    for_all(trig_paths_, ProcessOneOccurrence<T>(ep, es));
+    for(auto& p : trig_paths_) {
+      p.processOneOccurrence<T>(ep, es, streamID_);
+    }
     return results_->accept();
   }
 
@@ -436,7 +423,9 @@ namespace edm {
   Schedule::runEndPaths(typename T::MyPrincipal& ep, EventSetup const& es) {
     // Note there is no state-checking safety controlling the
     // activation/deactivation of endpaths.
-    for_all(end_paths_, ProcessOneOccurrence<T>(ep, es));
+    for(auto& p : end_paths_) {
+      p.processOneOccurrence<T>(ep, es, streamID_);
+    }
 
     // We could get rid of the functor ProcessOneOccurrence if we used
     // boost::lambda, but the use of lambda with member functions

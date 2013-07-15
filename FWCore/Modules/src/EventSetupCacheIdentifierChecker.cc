@@ -13,7 +13,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed May 30 14:42:16 CDT 2012
-// $Id: EventSetupCacheIdentifierChecker.cc,v 1.1 2012/05/30 21:36:10 chrjones Exp $
+// $Id$
 //
 //
 

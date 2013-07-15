@@ -4,7 +4,7 @@
 /** \class CSCComparatorDigiCollection
  *  ED
  *
- *  $Date: 2005/11/18 10:59:01 $
+ *  $Date: 2005/11/17 13:04:59 $
  *  $Revision: 1.1 $
  *  \author Michael Schmitt, Northwestern
  */

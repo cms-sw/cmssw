@@ -9,7 +9,7 @@
  *  The individual channes are modelled by DTTopology.
  *
  *  $date   : 13/01/2006 16:43:17 CET $
- *  $Revision: 1.3 $
+ *  $Revision: 1.2 $
  *  \author : Stefano Lacaprara - INFN Padova <stefano.lacaprara@pd.infn.it>
  *
  */

@@ -26,8 +26,8 @@
    has the option of correcting the reconstructed time for energy-dependent
    time slew associated with the QIE.
     
-   $Date: 2013/04/26 15:49:44 $
-   $Revision: 1.18 $
+   $Date: 2011/11/23 13:53:17 $
+   $Revision: 1.17 $
    \author J. Mans - Minnesota
 */
 class HcalSimpleRecAlgo {

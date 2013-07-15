@@ -7,9 +7,9 @@
 ///
 ///  \author    : Gero Flucke
 ///  date       : October 2006
-///  $Revision: 1.15 $
-///  $Date: 2013/01/07 20:21:32 $
-///  (last update by $Author: wmtan $)
+///  $Revision: 1.14 $
+///  $Date: 2010/10/26 20:52:23 $
+///  (last update by $Author: flucke $)
 
 #include "DataFormats/CLHEP/interface/AlgebraicObjects.h"
 

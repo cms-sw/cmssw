@@ -17,8 +17,8 @@
  *  - implement the module in offline
  *  - check if there are user includes specific for offline/online that should be changed
  *
- * $Date: 2012/12/11 10:36:34 $
- * $Revision: 1.2 $
+ * $Date: 2012/11/27 14:56:17 $
+ * $Revision: 1.1 $
  *
  */
 

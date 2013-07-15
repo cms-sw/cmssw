@@ -17,7 +17,7 @@
 //
 // Original Author:  Vyacheslav Krutelyov
 //         Created:  Fri Mar  3 16:01:24 CST 2006
-// $Id: SteppingHelixPropagatorAnalyzer.cc,v 1.24 2012/09/19 20:31:29 wdd Exp $
+// $Id: SteppingHelixPropagatorAnalyzer.cc,v 1.23 2012/07/01 19:54:00 eulisse Exp $
 //
 //
 

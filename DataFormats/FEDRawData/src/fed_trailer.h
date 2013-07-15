@@ -2,7 +2,7 @@
  *
  * fed_trailer.h  
  *
- * $Header: /local/reps/CMSSW/CMSSW/DataFormats/FEDRawData/src/fed_trailer.h,v 1.2 2005/10/06 18:25:22 namapane Exp $
+ * $Header: /cvs_server/repositories/CMSSW/CMSSW/DataFormats/FEDRawData/src/fed_trailer.h,v 1.1 2005/09/30 08:13:36 namapane Exp $
  *
  * This file contains the struct definition of the FED-trailer.
  * The FED-trailer is inserted by the FED at the bottom of a data fragment

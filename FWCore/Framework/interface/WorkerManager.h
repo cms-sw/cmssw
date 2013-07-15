@@ -21,6 +21,8 @@
 
 namespace edm {
   class ExceptionCollector;
+  class StreamID;
+  
   class WorkerManager {
   public:
     typedef std::vector<Worker*> AllWorkers;
@@ -40,6 +42,7 @@ namespace edm {
     template <typename T>
     void processOneOccurrence(typename T::MyPrincipal& principal,
                               EventSetup const& eventSetup,
+                              StreamID streamID,
                               bool cleaningUpAfterException = false);
 
     void beginJob(ProductRegistry const& iRegistry);
@@ -75,6 +78,7 @@ namespace edm {
   void
   WorkerManager::processOneOccurrence(typename T::MyPrincipal& ep,
                                  EventSetup const& es,
+                                 StreamID streamID,
                                  bool cleaningUpAfterException) {
     this->resetAll();
 
@@ -85,7 +89,7 @@ namespace edm {
             setupOnDemandSystem(dynamic_cast<EventPrincipal&>(ep), es);
           } else {
             //make sure the unscheduled items see this run or lumi rtansition
-            unscheduled_->runNow<T>(ep, es);
+            unscheduled_->runNow<T>(ep, es,streamID);
           }
         }
         catch(cms::Exception& e) {

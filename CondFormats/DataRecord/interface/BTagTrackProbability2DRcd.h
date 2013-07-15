@@ -16,7 +16,7 @@
 //
 // Author:      
 // Created:     Thu Jan 11 09:36:33 CET 2007
-// $Id: BTagTrackProbability2DRcd.h,v 1.1 2007/01/22 17:02:41 arizzi Exp $
+// $Id$
 //
 
 #include "FWCore/Framework/interface/EventSetupRecordImplementation.h"

@@ -491,21 +491,20 @@ void MuonTrackValidator::analyze(const edm::Event& event, const edm::EventSetup&
  	  }
  	} // END for (unsigned int f=0; f<zposintervals[w].size()-1; f++){
 	
-#warning "This file has been modified just to get it to compile without any regard as to whether it still functions as intended"
-	int nHits = 0;
+	int nSimHits = 0;
 	if (usetracker && usemuon) {
-	  nHits= tpr.get()->numberOfHits();
+	  nSimHits= tpr.get()->numberOfHits();
 	} 
 	else if (!usetracker && usemuon) {
-	  nHits= tpr.get()->numberOfHits() - tpr.get()->numberOfTrackerHits();
+	  nSimHits= tpr.get()->numberOfHits() - tpr.get()->numberOfTrackerHits();
 	}
 	else if (usetracker && !usemuon) {
-	  nHits=tpr.get()->numberOfTrackerHits();
+	  nSimHits=tpr.get()->numberOfTrackerHits();
 	}
 
 	
-        int tmp = std::min(nHits,int(maxHit-1));
-	edm::LogVerbatim("MuonTrackValidator") << "\t N simhits = "<< nHits<<"\n";
+        int tmp = std::min(nSimHits,int(maxHit-1));
+	edm::LogVerbatim("MuonTrackValidator") << "\t N simhits = "<< nSimHits<<"\n";
 
 	totSIM_hit[w][tmp]++;
 	if (TP_is_matched) totASS_hit[w][tmp]++;
@@ -513,7 +512,7 @@ void MuonTrackValidator::analyze(const edm::Event& event, const edm::EventSetup&
 	if (TP_is_matched)	 
 	  {
 	    RefToBase<Track> assoctrack = rt.begin()->first; 
-	    nrecHit_vs_nsimHit_sim2rec[w]->Fill( assoctrack->numberOfValidHits(),nHits);
+	    nrecHit_vs_nsimHit_sim2rec[w]->Fill( assoctrack->numberOfValidHits(),nSimHits);
 	  }
       } // End  for (TrackingParticleCollection::size_type i=0; i<tPCeff.size(); i++){
       if (st!=0) h_tracksSIM[w]->Fill(st);
@@ -821,21 +820,18 @@ void MuonTrackValidator::analyze(const edm::Event& event, const edm::EventSetup&
 	  phipull_vs_phi[w]->Fill(phiRec,phiPull); 
 	  thetapull_vs_phi[w]->Fill(phiRec,thetaPull); 
 	  
-// 	  std::vector<PSimHit> simhits;
-	  
-#warning "This file has been modified just to get it to compile without any regard as to whether it still functions as intended"
-	  int nHits = 0;
+	  int nSimHits = 0;
 	  if (usetracker && usemuon) {
-	    nHits= tpr.get()->numberOfHits();
+	    nSimHits= tpr.get()->numberOfHits();
 	  } 
 	  else if (!usetracker && usemuon) {
-	    nHits= tpr.get()->numberOfHits() - tpr.get()->numberOfTrackerHits();
+	    nSimHits= tpr.get()->numberOfHits() - tpr.get()->numberOfTrackerHits();
 	  }
 	  else if (usetracker && !usemuon) {
-	    nHits=tpr.get()->numberOfTrackerHits();
+	    nSimHits=tpr.get()->numberOfTrackerHits();
 	  }
 	  
-	  nrecHit_vs_nsimHit_rec2sim[w]->Fill(track->numberOfValidHits(), nHits);
+	  nrecHit_vs_nsimHit_rec2sim[w]->Fill(track->numberOfValidHits(), nSimHits);
 	  
 	} // End of try{
 	catch (cms::Exception e){

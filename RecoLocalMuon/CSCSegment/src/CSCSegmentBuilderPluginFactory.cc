@@ -1,7 +1,7 @@
 /** \file CSCSegmentBuilderPluginFactory.cc
  *
- * $Date: 2007/04/18 23:32:56 $
- * $Revision: 1.3 $
+ * $Date: 2006/05/08 17:45:31 $
+ * $Revision: 1.2 $
  * \author M. Sani
  * 
  */

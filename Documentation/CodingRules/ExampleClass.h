@@ -9,8 +9,8 @@
  *  -doxygen-like member function documentation<br>
  *  -Few setters and getters
  *
- *  $Date: 2005/07/26 10:13:49 $
- *  $Revision: 1.1 $
+ *  $Date: $
+ *  $Revision: $
  *  \author W. Woodpecker - CERN
  */
 
