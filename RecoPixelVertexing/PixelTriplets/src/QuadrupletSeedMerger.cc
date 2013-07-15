@@ -1,6 +1,12 @@
-
 #include "RecoPixelVertexing/PixelTriplets/interface/QuadrupletSeedMerger.h"
+#include "RecoPixelVertexing/PixelTriplets/interface/KDTreeLinkerAlgo.h"
+#include "RecoPixelVertexing/PixelTriplets/interface/KDTreeLinkerTools.h"
+
+#include "DataFormats/GeometryVector/interface/Pi.h"
+
 #include <time.h>
+#include <cmath>
+#include <algorithm>
 
 /***
 
@@ -124,36 +130,49 @@ const OrderedSeedingHits& QuadrupletSeedMerger::mergeTriplets( const OrderedSeed
   std::pair<TransientTrackingRecHit::ConstRecHitPointer,TransientTrackingRecHit::ConstRecHitPointer> sharedHits;
   std::pair<TransientTrackingRecHit::ConstRecHitPointer,TransientTrackingRecHit::ConstRecHitPointer> nonSharedHits;
 
-  //std::vector<bool> phiEtaClose(nInputTriplets*nInputTriplets,true);
+  // k-d tree, indices are (th)eta, phi
+  // build the tree
+  std::vector<KDTreeNodeInfo<unsigned int> > nodes; // re-use for searching too
+  nodes.reserve(2*nInputTriplets);
+  KDTreeLinkerAlgo<unsigned int> kdtree;
+  double minEta=1e10, maxEta=-1e10;
+  for(unsigned int it=0; it < nInputTriplets; ++it) {
+    double phi = phiEtaCache[it].first;
+    double eta = phiEtaCache[it].second;
+    nodes.push_back(KDTreeNodeInfo<unsigned int>(it, eta, phi));
+    minEta = std::min(minEta, eta);
+    maxEta = std::max(maxEta, eta);
 
-  //  for (unsigned int t1=0; t1<nInputTriplets-1; t1++) {
-  //  for (unsigned int t2=t1+1; t2<nInputTriplets; t2++) {
-  //    if( fabs( phiEtaCache[t1].second - phiEtaCache[t2].second ) > 0.05 ) {
-  //	phiEtaClose[t1*nInputTriplets+t2]=false;
-  //	phiEtaClose[t2*nInputTriplets+t1]=false;
-  //	continue;
-  //   }
-  //   double temp = fabs( phiEtaCache[t1].first - phiEtaCache[t2].first );
-  //   if( (temp > 0.15) && (temp <6.133185) ) {
-  //phiEtaClose[t1*nInputTriplets+t2]=false;
-  //phiEtaClose[t2*nInputTriplets+t1]=false;
-  //  }
-  //}
-  //}
- 
+    // to wrap all points in phi
+    // if(phi < 0) phi += twoPi(); else phi -= twoPi();
+    double twoPi = std::copysign(Geom::twoPi(), phi);
+    nodes.push_back(KDTreeNodeInfo<unsigned int>(it, eta, phi-twoPi));
+  }
+  KDTreeBox kdEtaPhi(minEta-0.01, maxEta+0.01, -1*Geom::twoPi(), Geom::twoPi());
+  kdtree.build(nodes, kdEtaPhi);
+  nodes.clear();
+  
+  // loop over triplets, search for close-by triplets by using the k-d tree
   std::vector<unsigned int> t1List;
   std::vector<unsigned int> t2List;
-  for (unsigned int t1=0; t1<nInputTriplets-1; t1++) {
+  std::vector<unsigned int> t2Tmp; // temporary to sort t2's before insertion to t2List
+  for(unsigned int t1=0; t1<nInputTriplets; ++t1) {
+    double phi = phiEtaCache[t1].first;
+    double eta = phiEtaCache[t1].second;
+
+    KDTreeBox box(eta-0.05, eta+0.05, phi-0.15, phi+0.15);
+    nodes.clear();
+    kdtree.search(box, nodes);
+    if(nodes.empty())
+      continue;
+
     const SeedingHitSet& tr1 = tripletCache[t1];
     const TrackingRecHit *tr1h[3] = {tr1[0]->hit(), tr1[1]->hit(), tr1[2]->hit()};
 
-    for (unsigned int t2=t1+1; t2<nInputTriplets; t2++) {
-      if( fabs( phiEtaCache[t1].second - phiEtaCache[t2].second ) > 0.05 ) 
-  	continue;
-      double temp = fabs( phiEtaCache[t1].first - phiEtaCache[t2].first );
-      if( (temp > 0.15) && (temp <6.133185) ) {
-	continue;
-      }
+    for(size_t i=0; i<nodes.size(); ++i) {
+      unsigned int t2 = nodes[i].data;
+      if(t1 >= t2)
+        continue;
 
       // Ensure here that the triplet pairs share two hits.
       const SeedingHitSet& tr2 = tripletCache[t2];
@@ -185,10 +204,19 @@ const OrderedSeedingHits& QuadrupletSeedMerger::mergeTriplets( const OrderedSeed
           continue;
       }
 
+      t2Tmp.push_back(t2);
+    }
+
+    // Sort to increasing order in t2 in order to get exactly same result as before
+    std::sort(t2Tmp.begin(), t2Tmp.end());
+    for(unsigned int t2: t2Tmp) {
       t1List.push_back(t1);
       t2List.push_back(t2);
     }
+    t2Tmp.clear();
   }
+  nodes.clear();
+
 
   for( ctfseeding::SeedingLayerSets::const_iterator lsIt = theLayerSets_.begin(); lsIt < theLayerSets_.end(); ++lsIt ) {
 
