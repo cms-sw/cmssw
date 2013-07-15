@@ -13,8 +13,8 @@
 #include "MatchedHitRZCorrectionFromBending.h"
 //#include "RecoParticleFlow/PFProducer/interface/KDTreeLinkerAlgo.h"
 //#include "RecoParticleFlow/PFProducer/interface/KDTreeLinkerTools.h"
-#include "RecoPixelVertexing/PixelTriplets/plugins/KDTreeLinkerAlgo.h" //amend to point at your copy...
-#include "RecoPixelVertexing/PixelTriplets/plugins/KDTreeLinkerTools.h"
+#include "RecoPixelVertexing/PixelTriplets/interface/KDTreeLinkerAlgo.h" //amend to point at your copy...
+#include "RecoPixelVertexing/PixelTriplets/interface/KDTreeLinkerTools.h"
 
 #include <algorithm>
 #include <iostream>
