@@ -151,6 +151,9 @@ const OrderedSeedingHits& QuadrupletSeedMerger::mergeTriplets( const OrderedSeed
   std::vector<unsigned int> t1List;
   std::vector<unsigned int> t2List;
   for (unsigned int t1=0; t1<nInputTriplets-1; t1++) {
+    const SeedingHitSet& tr1 = tripletCache[t1];
+    const TrackingRecHit *tr1h[3] = {tr1[0]->hit(), tr1[1]->hit(), tr1[2]->hit()};
+
     for (unsigned int t2=t1+1; t2<nInputTriplets; t2++) {
       if( fabs( phiEtaCache[t1].second - phiEtaCache[t2].second ) > 0.05 ) 
   	continue;
@@ -158,6 +161,37 @@ const OrderedSeedingHits& QuadrupletSeedMerger::mergeTriplets( const OrderedSeed
       if( (temp > 0.15) && (temp <6.133185) ) {
 	continue;
       }
+
+      // Ensure here that the triplet pairs share two hits.
+      const SeedingHitSet& tr2 = tripletCache[t2];
+      const TrackingRecHit *tr2h[3] = {tr2[0]->hit(), tr2[1]->hit(), tr2[2]->hit()};
+
+      // If neither of first two hits in tr1 are found from tr2, this
+      // pair can be skipped
+      int equalHits=0;
+      for(unsigned int i=0; i<2; ++i) {
+        for(unsigned int j=0; j<3; ++j) {
+          if(isEqual(tr1h[i], tr2h[j])) {
+            ++equalHits;
+            break;
+          }
+        }
+      }
+      if(equalHits == 0)
+        continue;
+      // If, after including the third hit of tr1, number of equal
+      // hits is not 2, this pair can be skipped
+      if(equalHits != 2) {
+        for(unsigned int j=0; j<3; ++j) {
+          if(isEqual(tr1h[2], tr2h[j])) {
+            ++equalHits;
+            break;
+          }
+        }
+        if(equalHits != 2)
+          continue;
+      }
+
       t1List.push_back(t1);
       t2List.push_back(t2);
     }
@@ -400,7 +434,7 @@ std::pair<double,double> QuadrupletSeedMerger::calculatePhiEta( SeedingHitSet co
   const double z2 = p2.z();
 
   const double phi = atan2( x2 - x1, y2 -y1 );
-  const double eta = acos( (z2 - z1) / sqrt( pow( x2 - x1, 2. ) + pow( y2 - y1, 2. ) + pow( z2 - z1, 2. ) ) );
+  const double eta = acos( (z2 - z1) / sqrt( pow( x2 - x1, 2. ) + pow( y2 - y1, 2. ) + pow( z2 - z1, 2. ) ) ); // this is theta angle in reality
 
   std::pair<double,double> retVal;
   retVal=std::make_pair (phi,eta);
