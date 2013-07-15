@@ -190,6 +190,11 @@ checkout](http://www.kernel.org/pub/software/scm/git/docs/git-read-tree.html#_sp
 which will hide unneeded bits, in particular you can look at what we plan to do
 in in CMSSW, via [git-addpkg](http://cms-sw.github.io/cmssw/git-addpkg).
 
+If you start from a single repository and later want to split off a sub path of
+it in a separate repository, you can follow the instructions at:
+
+https://help.github.com/articles/splitting-a-subpath-out-into-a-new-repository
+
 ### How do I ask a question?
 
 If you have more questions about git and CMSSW on git, please use [this
