@@ -246,6 +246,31 @@ particular once you are familiar with the concept you might want to look at
 more flexibility when you want to do more that simply merge a set of commits
 into one.
 
+### I need to checkout a file from the old CVS HEAD / a release tag, how can I do it?
+
+The _CVS HEAD_ at the time of the migration is available in the git branch
+`imported-CVS-HEAD`. You can checkout files from the by simply fetching that
+branch in your local workarea and then using git checkout for it.
+
+For example lets assume you want to checkout the _HEAD_ of 
+`PhysicsTools/Configuration/test/SUSY_pattuple_cfg.py` in CMSSW_5_3_11, where
+it was never released. First you need to set up the area and fetch the branch:
+
+    scram project CMSSW_5_3_11
+    cd CMSSW_5_3_11/src
+    cmsenv
+    git fetch official-cmssw imported-CVS-HEAD:imported-CVS-HEAD
+
+this needs to be done only once per workarea. Then you do:
+
+    git cms-addpkg PhysicsTools/Configuration
+    git checkout imported-CVS-HEAD -- PhysicsTools/Configuration/test/SUSY_pattuple_cfg.py
+
+Notice the `git cms-addpkg` is needed to bring in the package (i.e. make the
+sparse checkout). Finally notice you can use the same recipe to checkout files
+in different release tags (e.g. CMSSW_5_3_11).
+
+
 ### I made a mess and I do not know what I've currently checked out!
 
 It can happen that due to wrong manipulations of the history, merging or
