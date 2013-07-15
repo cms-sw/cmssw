@@ -560,7 +560,7 @@ bool QuadrupletSeedMerger::isTripletsShareHitsOnLayers( const SeedingHitSet& fir
     { // first triplet
       if( ! firstTriplet[index]->isValid() ) return false; // catch invalid TTRH pointers (tbd: erase triplet)
       bool firsthit(false); // Don't look in second layer if found in first
-      DetId const& thisDetId = firstTriplet[index]->hit()->geographicalId();
+      DetId const& thisDetId = firstTriplet[index]->geographicalId();
       
       if( ! isSuccess1[0] ) { // first triplet on shared layer 1
 	if( shared1.isContainsDetector( thisDetId ) ) {
@@ -583,7 +583,7 @@ bool QuadrupletSeedMerger::isTripletsShareHitsOnLayers( const SeedingHitSet& fir
       { // second triplet
 	if( ! secondTriplet[index]->isValid() ) { return false; } // catch invalid TTRH pointers (tbd: erase triplet)
 	bool firsthit(false); // Don't look in second layer if found in first
-	DetId const& thisDetId = secondTriplet[index]->hit()->geographicalId();
+	DetId const& thisDetId = secondTriplet[index]->geographicalId();
 	
 	if( ! isSuccess2[0] ) { // second triplet on shared layer 1
 	  if( shared1.isContainsDetector( thisDetId ) ) {
@@ -633,13 +633,13 @@ bool QuadrupletSeedMerger::isMergeableHitsInTriplets( const SeedingHitSet& first
   for( unsigned int index1 = 0; index1 < 3; ++index1 ) {
     
     { // first triplet on non-shared layer 1
-      DetId const& aDetId = firstTriplet[index1]->hit()->geographicalId();
+      DetId const& aDetId = firstTriplet[index1]->geographicalId();
       if( nonShared1.isContainsDetector( aDetId ) ) {
 	
 	// look for hit in other (second) triplet on other layer
 	for( unsigned int index2 = 0; index2 < 3; ++index2 ) {
 	  
-	  DetId const& anotherDetId = secondTriplet[index2]->hit()->geographicalId();
+	  DetId const& anotherDetId = secondTriplet[index2]->geographicalId();
 	  if( nonShared2.isContainsDetector( anotherDetId ) ) {
 	    
 	    // ok!
@@ -655,13 +655,13 @@ bool QuadrupletSeedMerger::isMergeableHitsInTriplets( const SeedingHitSet& first
     // and vice versa..
 
     { // second triplet on non-shared layer 1
-      DetId const& aDetId = secondTriplet[index1]->hit()->geographicalId();
+      DetId const& aDetId = secondTriplet[index1]->geographicalId();
       if( nonShared1.isContainsDetector( aDetId ) ) {
 	
 	// look for hit in other (second) triplet on other layer
 	for( unsigned int index2 = 0; index2 < 3; ++index2 ) {
 	  
-	  DetId const& anotherDetId = firstTriplet[index2]->hit()->geographicalId();
+	  DetId const& anotherDetId = firstTriplet[index2]->geographicalId();
 	  if( nonShared2.isContainsDetector( anotherDetId ) ) {
 	    
 	    // ok!
