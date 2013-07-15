@@ -259,11 +259,11 @@ it was never released. First you need to set up the area and fetch the branch:
     scram project CMSSW_5_3_11
     cd CMSSW_5_3_11/src
     cmsenv
-    git fetch official-cmssw imported-CVS-HEAD:imported-CVS-HEAD
 
 this needs to be done only once per workarea. Then you do:
 
     git cms-addpkg PhysicsTools/Configuration
+    git fetch official-cmssw imported-CVS-HEAD:imported-CVS-HEAD
     git checkout imported-CVS-HEAD -- PhysicsTools/Configuration/test/SUSY_pattuple_cfg.py
 
 Notice the `git cms-addpkg` is needed to bring in the package (i.e. make the
