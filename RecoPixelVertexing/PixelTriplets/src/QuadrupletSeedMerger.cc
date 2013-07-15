@@ -273,7 +273,6 @@ const OrderedSeedingHits& QuadrupletSeedMerger::mergeTriplets( const OrderedSeed
   }
   nodes.clear();
 
-
   for( ctfseeding::SeedingLayerSets::const_iterator lsIt = theLayerSets_.begin(); lsIt < theLayerSets_.end(); ++lsIt ) {
 
     // fill a vector with the layers in this set
@@ -309,8 +308,6 @@ const OrderedSeedingHits& QuadrupletSeedMerger::mergeTriplets( const OrderedSeed
             sharedHits.first = firstTriplet[nonSharedToShared[t1NonShared][0]];
             sharedHits.second = firstTriplet[nonSharedToShared[t1NonShared][1]];
 
-	    //    if ( !phiEtaClose[t1*nInputTriplets+t2] ) continue;
-
             // are the shared hits on these two layers?
             if(areHitsOnLayers(currentLayers[s1], currentLayers[s2], sharedHits, tTopo)) {
               short t2NonShared = t2NonSharedHitList[t12];
@@ -320,10 +317,10 @@ const OrderedSeedingHits& QuadrupletSeedMerger::mergeTriplets( const OrderedSeed
 
 	      // are the remaining hits on different layers?
               if(areHitsOnLayers(currentLayers[nonSharedLayerNums[0]], currentLayers[nonSharedLayerNums[1]], nonSharedHits, tTopo)) {
-		std::vector<TransientTrackingRecHit::ConstRecHitPointer> unsortedHits=mySort(sharedHits.first,
-											     sharedHits.second,
-											     nonSharedHits.first,
-											     nonSharedHits.second);
+                QuadrupletHits unsortedHits{ {sharedHits.first, sharedHits.second,
+                      nonSharedHits.first, nonSharedHits.second} };
+
+                mySort(unsortedHits);
 
 		//start here with old addtoresult
 		if( isValidQuadruplet( unsortedHits, currentLayers, tTopo ) ) {
@@ -637,8 +634,7 @@ void QuadrupletSeedMerger::setAddRemainingTriplets( bool isAddTriplets ) {
 ///  1. after sorting, hits must be on layers according to the 
 ///     order given in PixelSeedMergerQuadruplets (from cfg)
 ///
-bool QuadrupletSeedMerger::isValidQuadruplet( std::vector<TransientTrackingRecHit::ConstRecHitPointer> &quadruplet, const std::vector<SeedMergerPixelLayer>& layers,
-					      const TrackerTopology *tTopo) const {
+bool QuadrupletSeedMerger::isValidQuadruplet(const QuadrupletHits &quadruplet, const std::vector<SeedMergerPixelLayer>& layers, const TrackerTopology *tTopo) const {
 
   const unsigned int quadrupletSize = quadruplet.size();
 
@@ -758,18 +754,7 @@ bool SeedMergerPixelLayer::isContainsDetector( const DetId& detId, const Tracker
 }
 
 
-std::vector<TransientTrackingRecHit::ConstRecHitPointer> QuadrupletSeedMerger::mySort(TransientTrackingRecHit::ConstRecHitPointer &h1,
-										      TransientTrackingRecHit::ConstRecHitPointer &h2,
-										      TransientTrackingRecHit::ConstRecHitPointer &h3,
-										      TransientTrackingRecHit::ConstRecHitPointer &h4) {
-  // create an intermediate vector with all hits
-  std::vector<TransientTrackingRecHit::ConstRecHitPointer> unsortedHits;
-  unsortedHits.reserve(4);
-  unsortedHits.push_back( h1);
-  unsortedHits.push_back( h2);
-  unsortedHits.push_back( h3);
-  unsortedHits.push_back( h4);
-  
+void QuadrupletSeedMerger::mySort(std::array<TransientTrackingRecHit::ConstRecHitPointer, 4>& unsortedHits) {
   float radiiSq[4];
   for ( unsigned int iR=0; iR<4; iR++){
     const GeomDet* geom1=theTrackerGeometry_->idToDet( unsortedHits[iR]->hit()->geographicalId() );
@@ -790,7 +775,6 @@ std::vector<TransientTrackingRecHit::ConstRecHitPointer> QuadrupletSeedMerger::m
       }
     }
   }
-  return unsortedHits;
 }
 
 

@@ -3,7 +3,7 @@
 #include <memory>
 #include <vector>
 #include <functional>
-#include <tuple>
+#include <array>
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -96,15 +96,10 @@ class QuadrupletSeedMerger {
   void setTTRHBuilderLabel( std::string );
 
  private:
+  typedef std::array<TransientTrackingRecHit::ConstRecHitPointer, 4> QuadrupletHits;
+  void mySort(QuadrupletHits& unsortedHits);
 
-  std::vector<TransientTrackingRecHit::ConstRecHitPointer> mySort(TransientTrackingRecHit::ConstRecHitPointer &h1,
-								  TransientTrackingRecHit::ConstRecHitPointer &h2,
-								  TransientTrackingRecHit::ConstRecHitPointer &h3,
-								  TransientTrackingRecHit::ConstRecHitPointer &h4);
-    
-
-  bool isValidQuadruplet( std::vector<TransientTrackingRecHit::ConstRecHitPointer> &quadruplet, const std::vector<SeedMergerPixelLayer>& layers,
-			  const TrackerTopology *tTopo) const; 
+  bool isValidQuadruplet(const QuadrupletHits& quadruplet, const std::vector<SeedMergerPixelLayer>& layers, const TrackerTopology *tTopo) const;
 
     // bool isValidQuadruplet( const SeedingHitSet&, const std::vector<SeedMergerPixelLayer>& ) const;
 
