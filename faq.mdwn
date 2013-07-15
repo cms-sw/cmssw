@@ -166,6 +166,15 @@ No. Per package tags will not be migrated. You can however have a look at the
 old tags which were not in any release. This will also be useful to import
 packages which did not end up in any release.
 
+### What is the policy for tagging?
+
+No tags other than "release tags" will be allowed inside the _official-cmssw_
+repository, so there is not a particular need for a convention for tags.
+
+In the git model, changes are proposed via private branches 
+which are made into Pull Requests. Given a Pull Request gets automatically assigned a unique ID (like for tagsets), we will not have a particular convention, treating them as private tags in the CVS model.
+
+The only recommendation so far has been use "use a somewhat descriptive names of the actual content".
 
 ### Do you have any more in-depth FAQs?
 
@@ -173,7 +182,7 @@ Yes, please look at the [Advanced Usage](advanced-usage) section.
 
 ### Do you have a nice tutorial on how to develop CMSSW on git?
 
-Yes, please have a look at the [CMSSW git tutorial page](tutorial.html).
+Yes, please have a look at the [CMSSW git tutorial pages](tutorial.html).
 
 ### How do I ask a question?
 
