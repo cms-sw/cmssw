@@ -46,7 +46,7 @@ namespace edm {
   }
 
   void WorkerManager::setOnDemandProducts(ProductRegistry& pregistry, std::set<std::string> const& unscheduledLabels) const {
-    for(auto& prod : pregistry.productList()) {
+    for(auto& prod : pregistry.productListUpdator()) {
       if(prod.second.produced() &&
           prod.second.branchType() == InEvent &&
           unscheduledLabels.end() != unscheduledLabels.find(prod.second.moduleLabel())) {

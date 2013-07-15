@@ -49,7 +49,6 @@ namespace edm {
     void allocateForReading();
     void setNewClassType();
     void clearClassType();
-    void initializeTransients();
 
    void clear() {
      prod_= 0;
@@ -92,7 +91,6 @@ namespace edm {
     EventSelectionIDVector const& eventSelectionIDs() const {return eventSelectionIDs_;}
     BranchListIndexes const& branchListIndexes() const {return branchListIndexes_;}
     SendProds& products() {return products_;}
-    void initializeTransients();
   private:
     EventAuxiliary aux_;
     ProcessHistory processHistory_;

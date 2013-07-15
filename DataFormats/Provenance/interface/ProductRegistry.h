@@ -128,6 +128,8 @@ namespace edm {
 
     void initializeTransients() {transient_.reset();}
 
+    bool frozen() const {return transient_.frozen_;}
+
     struct Transients {
       Transients();
       void reset();
@@ -158,7 +160,6 @@ namespace edm {
       transient_.anyProductProduced_ = true;
     }
 
-    bool frozen() const {return transient_.frozen_;}
     void freezeIt(bool frozen = true) {transient_.frozen_ = frozen;}
 
     void updateConstProductRegistry();

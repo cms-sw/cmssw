@@ -102,7 +102,6 @@ namespace fwlite {
         bReg = metaDataTree->GetBranch(edm::poolNames::productDescriptionBranchName().c_str());
         bReg->SetAddress(ppReg);
         bReg->GetEntry(0);
-        (*ppReg)->setFrozen(false);
       }
       return bReg;
     }
@@ -168,17 +167,19 @@ namespace fwlite {
       TBranch* br = getBranchRegistry(&pReg);
 
       if(0 != br) {
-        edm::ProductRegistry::ProductList const& prodList = reg.productList();
+        edm::ProductRegistry::ProductList& prodList = reg.productListUpdator();
 
-        for(edm::ProductRegistry::ProductList::const_iterator it = prodList.begin(), itEnd = prodList.end(); it != itEnd; ++it) {
-          if(edm::InEvent == it->second.branchType()) {
+        for(auto& item : prodList) {
+          edm::BranchDescription& prod = item.second;
+          if(edm::InEvent == prod.branchType()) {
             // call to regenerate branchName
-            it->second.init();
-            branchDescriptionMap_.insert(bidToDesc::value_type(it->second.branchID(), it->second));
+            prod.init();
+            branchDescriptionMap_.insert(bidToDesc::value_type(prod.branchID(), prod));
           }
         }
         mapperFilled_ = true;
       }
+      reg.setFrozen(false);
       return 0 != br;
     }
 
@@ -265,16 +266,18 @@ namespace fwlite {
       TBranch *br = getBranchRegistry(&pReg);
 
       if(0 != br) {
-        edm::ProductRegistry::ProductList const& prodList = reg.productList();
+        edm::ProductRegistry::ProductList& prodList = reg.productListUpdator();
 
-        for(edm::ProductRegistry::ProductList::const_iterator it = prodList.begin(), itEnd = prodList.end(); it != itEnd; ++it) {
-          if(edm::InEvent == it->second.branchType()) {
+        for(auto& item : prodList) {
+          edm::BranchDescription& prod = item.second;
+          if(edm::InEvent == prod.branchType()) {
             // call to regenerate branchName
-            it->second.init();
-            branchDescriptionMap_.insert(bidToDesc::value_type(it->second.branchID(), it->second));
+            prod.init();
+            branchDescriptionMap_.insert(bidToDesc::value_type(prod.branchID(), prod));
           }
         }
       }
+      reg.setFrozen(false);
       return 0 != br;
     }
 
@@ -375,17 +378,19 @@ namespace fwlite {
       TBranch *br = getBranchRegistry(&pReg);
 
       if(0 != br) {
-        edm::ProductRegistry::ProductList const& prodList = reg.productList();
+        edm::ProductRegistry::ProductList& prodList = reg.productListUpdator();
 
-        for(edm::ProductRegistry::ProductList::const_iterator it = prodList.begin(), itEnd = prodList.end(); it != itEnd; ++it) {
-          if(edm::InEvent == it->second.branchType()) {
+        for(auto& item : prodList) {
+          edm::BranchDescription& prod = item.second;
+          if(edm::InEvent == prod.branchType()) {
             // call to regenerate branchName
-            it->second.init();
-            branchDescriptionMap_.insert(bidToDesc::value_type(it->second.branchID(), it->second));
-//             std::cout << "v11 updatefile " << it->second.branchID() << std::endl;
+            prod.init();
+            branchDescriptionMap_.insert(bidToDesc::value_type(prod.branchID(), prod));
+//             std::cout << "v11 updatefile " << prod.branchID() << std::endl;
                 }
               }
       }
+      reg.setFrozen(false);
       return 0 != br;
     }
 
@@ -488,17 +493,19 @@ namespace fwlite {
       TBranch *br = getBranchRegistry(&pReg);
 
       if(0 != br) {
-        edm::ProductRegistry::ProductList const& prodList = reg.productList();
+        edm::ProductRegistry::ProductList& prodList = reg.productListUpdator();
 
-        for(edm::ProductRegistry::ProductList::const_iterator it = prodList.begin(), itEnd = prodList.end(); it != itEnd; ++it) {
-          if(edm::InEvent == it->second.branchType()) {
+        for(auto& item : prodList) {
+          edm::BranchDescription& prod = item.second;
+          if(edm::InEvent == prod.branchType()) {
             // call to regenerate branchName
-            it->second.init();
-            branchDescriptionMap_.insert(bidToDesc::value_type(it->second.branchID(), it->second));
-//             std::cout << "v11 updatefile " << it->second.branchID() << std::endl;
+            prod.init();
+            branchDescriptionMap_.insert(bidToDesc::value_type(prod.branchID(), prod));
+//             std::cout << "v11 updatefile " << prod.branchID() << std::endl;
                 }
               }
       }
+      reg.setFrozen(false);
       return 0 != br;
     }
 

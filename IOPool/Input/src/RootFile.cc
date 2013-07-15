@@ -362,7 +362,6 @@ namespace edm {
         // Save info from the old and new branch descriptions
         daqProvenanceHelper_->saveInfo(it->second, newBD);
         // Map the new branch name to the old branch name.
-        it->second.init();
         newBranchToOldBranch_.insert(std::make_pair(newBD.branchName(), it->second.branchName()));
         // Remove the old branch description from the product Registry.
         pList.erase(it);
@@ -400,9 +399,9 @@ namespace edm {
     eventProcessHistoryIter_ = eventProcessHistoryIDs_.begin();
 
     // Set product presence information in the product registry.
-    ProductRegistry::ProductList const& pList = inputProdDescReg.productList();
-    for(auto const& product : pList) {
-      BranchDescription const& prod = product.second;
+    ProductRegistry::ProductList& pList = inputProdDescReg.productListUpdator();
+    for(auto& product : pList) {
+      BranchDescription& prod = product.second;
       prod.init();
       treePointers_[prod.branchType()]->setPresence(prod, newBranchToOldBranch(prod.branchName()));
     }
