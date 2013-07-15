@@ -173,7 +173,7 @@ can use it by setting the `CMSSW_MIRROR` environment variable. E.g.:
 
 for CERN.
 
-`git addpkg` will then use it to fetch most of the data, and then switch to the
+`git cms-addpkg` will then use it to fetch most of the data, and then switch to the
 official repository for fetching the missing parts.
 
 If you happen to have a local copy of the reposiry on the machine you are working
