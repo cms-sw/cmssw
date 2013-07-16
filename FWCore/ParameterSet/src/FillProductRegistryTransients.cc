@@ -49,14 +49,14 @@ namespace edm {
         if(okToRegister && !moduleParameterSet.isRegistered()) {
           ParameterSet moduleParameterSetCopy = processParameterSet->getParameterSet(moduleLabel);
           moduleParameterSetCopy.registerIt();
-          bd.parameterSetIDs().insert(std::make_pair(pcid, moduleParameterSetCopy.id()));
+          bd.insertParameterSetID(std::make_pair(pcid, moduleParameterSetCopy.id()));
         } else {
-          bd.parameterSetIDs().insert(std::make_pair(pcid, moduleParameterSet.id()));
+          bd.insertParameterSetID(std::make_pair(pcid, moduleParameterSet.id()));
         }
         if(isTriggerResults) {
-          bd.moduleNames().insert(std::make_pair(pcid, triggerResultsInserter));
+          bd.insertModuleName(std::make_pair(pcid, triggerResultsInserter));
         } else {
-          bd.moduleNames().insert(std::make_pair(pcid, moduleParameterSet.getParameter<std::string>("@module_type")));
+          bd.insertModuleName(std::make_pair(pcid, moduleParameterSet.getParameter<std::string>("@module_type")));
         }
       }
     }

@@ -50,7 +50,7 @@ namespace edm {
       if(prod.second.produced() &&
           prod.second.branchType() == InEvent &&
           unscheduledLabels.end() != unscheduledLabels.find(prod.second.moduleLabel())) {
-        prod.second.setOnDemand();
+        prod.second.setOnDemand(true);
       }
     }
   }
