@@ -7,7 +7,7 @@
 # Update: 2005-10-27 14:25:38+0200
 # Revision: $Id: BootNightlyArea.pl,v 1.2 2013/05/24 10:33:16 muzaffar Exp $ 
 #
-# Copyright: 2005 (C) Shaun ASHBY
+# Shaun ASHBY
 #
 #--------------------------------------------------------------------
 use strict;

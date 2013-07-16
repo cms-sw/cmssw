@@ -7,7 +7,7 @@
 # Update: 2006-04-28 09:50:38+0200
 # Revision: $Id: CreateCVSPackage.pl,v 1.14 2010/02/24 15:51:33 andreasp Exp $ 
 #
-# Copyright: 2006 (C) Shaun ASHBY
+#  Shaun ASHBY
 #
 #--------------------------------------------------------------------
 use Cwd qw(cwd);

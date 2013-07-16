@@ -7,7 +7,7 @@
 # Update: 2006-04-11 14:46:41+0200
 # Revision: $Id: ProjectCVSStatus.pl,v 1.6 2013/01/24 14:16:44 muzaffar Exp $ 
 #
-# Copyright: 2006 (C) Shaun ASHBY
+# Shaun ASHBY
 #
 #--------------------------------------------------------------------
 use Cwd;

@@ -8,7 +8,7 @@
 # Update: 2006-04-10 16:15:32+0200
 # Revision: $Id: PackageManagement.pl,v 1.17 2013/01/24 14:16:44 muzaffar Exp $ 
 #
-# Copyright: 2006 (C) Shaun ASHBY
+# Shaun ASHBY
 #
 #--------------------------------------------------------------------
 use Cwd;
