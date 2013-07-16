@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 import sys
 
 infile_name = sys.argv[2]
-outfile_name = '/afs/cern.ch/user/l/lgray/work/public/CMSSW_6_2_0_pre7_ged/src/RecoParticleFlow/Configuration/test/%s/superClusterDump_%i.root'%(sys.argv[5],int(sys.argv[3]))
+outfile_name = '/afs/cern.ch/user/l/lgray/work/public/CMSSW_6_2_0_pre8_ged_git/src/RecoParticleFlow/Configuration/test/%s/superClusterDump_%i.root'%(sys.argv[5],int(sys.argv[3]))
 nevents = int(sys.argv[4])
 
 
@@ -55,11 +55,12 @@ process.TFileService = cms.Service(
     )
 
 process.pfEGAlgoNewSCTree = cms.EDAnalyzer(
-    "PFSuperClusterTreeMaker",
+    "PFEGCandidateTreeMaker",
     doGen = cms.untracked.bool(True),
     genSrc = cms.InputTag("genParticles"),
     primaryVertices = cms.InputTag("offlinePrimaryVertices"),
-    superClusterSrcEB = cms.InputTag('particleFlowEGammaNew')
+    pfEGammaCandSrc = cms.InputTag('particleFlowEGammaNew'),
+    pfCandSrc = cms.InputTag('particleFlow')
     )
 
 process.pfElectronSCTree = cms.EDAnalyzer(

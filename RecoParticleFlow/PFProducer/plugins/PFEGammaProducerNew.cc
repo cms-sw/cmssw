@@ -209,43 +209,6 @@ PFEGammaProducerNew::beginRun(const edm::Run & run,
                      const edm::EventSetup & es) 
 {
 
-
-  /*
-  static map<std::string, PerformanceResult::ResultType> functType;
-
-  functType["PFfa_BARREL"] = PerformanceResult::PFfa_BARREL;
-  functType["PFfa_ENDCAP"] = PerformanceResult::PFfa_ENDCAP;
-  functType["PFfb_BARREL"] = PerformanceResult::PFfb_BARREL;
-  functType["PFfb_ENDCAP"] = PerformanceResult::PFfb_ENDCAP;
-  functType["PFfc_BARREL"] = PerformanceResult::PFfc_BARREL;
-  functType["PFfc_ENDCAP"] = PerformanceResult::PFfc_ENDCAP;
-  functType["PFfaEta_BARREL"] = PerformanceResult::PFfaEta_BARREL;
-  functType["PFfaEta_ENDCAP"] = PerformanceResult::PFfaEta_ENDCAP;
-  functType["PFfbEta_BARREL"] = PerformanceResult::PFfbEta_BARREL;
-  functType["PFfbEta_ENDCAP"] = PerformanceResult::PFfbEta_ENDCAP;
-  */
-  
-  /*
-  for(std::vector<std::string>::const_iterator name = fToRead.begin(); name != fToRead.end(); ++name) {    
-    
-    cout << "Function: " << *name << std::endl;
-    PerformanceResult::ResultType fType = functType[*name];
-    pfCalibrations->printFormula(fType);
-    
-    // evaluate it @ 10 GeV
-    float energy = 10.;
-    
-    BinningPointByMap point;
-    point.insert(BinningVariables::JetEt, energy);
-    
-    if(pfCalibrations->isInPayload(fType, point)) {
-      float value = pfCalibrations->getResult(fType, point);
-      cout << "   Energy before:: " << energy << " after: " << value << std::endl;
-    } else cout <<  "outside limits!" << std::endl;
-    
-  }
-  */
-  
   if(useRegressionFromDB_) {
     edm::ESHandle<GBRForest> readerPFLCEB;
     edm::ESHandle<GBRForest> readerPFLCEE;    
@@ -367,6 +330,8 @@ PFEGammaProducerNew::produce(edm::Event& iEvent,
         ecalBlockRefs.push_back( blockref );
         singleEcalOrHcal = true;
 	break;
+      case reco::PFBlockElement::HFEM:
+      case reco::PFBlockElement::HFHAD:
       case reco::PFBlockElement::HCAL:
         hcalBlockRefs.push_back( blockref );
         singleEcalOrHcal = true;
@@ -404,6 +369,12 @@ PFEGammaProducerNew::produce(edm::Event& iEvent,
     
     pfeg_->RunPFEG(blockref,active);
     
+    edm::LogInfo("PFEGammaProducer")
+      << "Block with " << elements.size() 
+      << " elements produced " 
+      << pfeg_->getCandidates().size() 
+      << " e-g candidates!" << std::endl;
+
     const size_t egsize = egCandidates_->size();
     egCandidates_->resize(egsize + pfeg_->getCandidates().size());
     reco::PFCandidateCollection::iterator eginsertfrom = 
@@ -426,13 +397,14 @@ PFEGammaProducerNew::produce(edm::Event& iEvent,
       sClusters_->begin() + rscsize;
     std::move(pfeg_->getRefinedSCs().begin(),
 	      pfeg_->getRefinedSCs().end(),
-	      rscinsertfrom);
-
-    LOGDRESSED("PFEGammaProducerNew")
-      << "post algo: egCandidates size = " 
-      << egCandidates_->size() << std::endl;
+	      rscinsertfrom);    
   }
   
+  edm::LogInfo("PFEGammaProducer")
+      << "Running PFEGammaAlgo on all blocks produced = " 
+      << egCandidates_->size() << " e-g candidates!"
+      << std::endl;
+
   edm::RefProd<reco::SuperClusterCollection> sClusterProd = 
     iEvent.getRefBeforePut<reco::SuperClusterCollection>();
 

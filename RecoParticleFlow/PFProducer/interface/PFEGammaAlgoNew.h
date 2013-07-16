@@ -62,8 +62,8 @@ class PFEGammaAlgoNew {
   typedef std::pair<const PFKFElement*,bool> PFKFFlaggedElement;
   typedef std::pair<const PFClusterElement*,bool> PFClusterFlaggedElement;
   typedef std::unordered_map<unsigned int, std::vector<unsigned int> > AsscMap;
-  typedef std::unordered_multimap<const reco::PFBlockElement*,
-    const reco::PFBlockElement*> ElementMap;
+  typedef std::vector<std::pair<const reco::PFBlockElement*,
+    const reco::PFBlockElement*> > ElementMap;
   typedef std::unordered_map<const PFGSFElement*, 
     std::vector<PFKFFlaggedElement> > GSFToTrackMap;
   typedef std::unordered_map<const PFClusterElement*, 
@@ -230,7 +230,7 @@ private:
 
   // turn a supercluster into a map of ECAL cluster elements 
   // related to PS cluster elements
-  void unwrapSuperCluster(const reco::PFBlockElementSuperCluster*,
+  bool unwrapSuperCluster(const reco::PFBlockElementSuperCluster*,
 			  std::vector<PFClusterFlaggedElement>&,
 			  ClusterMap&);    
   

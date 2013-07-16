@@ -12,7 +12,7 @@ process.GlobalTag.globaltag = autoCond['startup']
 
 #process.Timing =cms.Service("Timing")
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(-1)
+    input = cms.untracked.int32(100)
 )
 
 process.source = cms.Source(
@@ -20,9 +20,9 @@ process.source = cms.Source(
     fileNames = cms.untracked.vstring(
     #'file:/tmp/lgray/FEDB497A-AB90-E211-BAEB-002590489DD0.root',
     #'file:/tmp/lgray/FE329242-9490-E211-BBD9-003048F01174.root',
-    '/store/relval/CMSSW_6_1_0/SingleGammaPt300ExtRelVal610/GEN-SIM-RECO/START61_V8_NoPuCustomEvC-v1/00000/20A36721-9490-E211-AE58-003048F1CAA8.root'
+    '/store/relval/CMSSW_6_1_0-PU_START61_V8/SingleElePt300ExtRelVal610/GEN-SIM-RECO/v1/00000/90DEE330-F769-E211-8EDA-002590494D9C.root'
     ),
-    eventsToProcess = cms.untracked.VEventRange('1:1000777'),
+    eventsToProcess = cms.untracked.VEventRange('1:852912'),
     #eventsToProcess = cms.untracked.VEventRange('1:1217421-1:1217421'),
     #                                             '1:1220344-1:1220344',
     #                                             '1:1655912-1:1655912',

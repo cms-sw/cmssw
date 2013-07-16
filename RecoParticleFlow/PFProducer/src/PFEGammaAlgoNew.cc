@@ -209,13 +209,13 @@ namespace {
       break;
     }	        
 
-    std::multimap<double, unsigned> dists_to_val; 
     const double dist = 
       block->dist(key,test,block->linkData(),reco::PFBlock::LINKTEST_ALL);
     if( dist == -1.0 ) return false; // don't associate non-linked elems
+    std::multimap<double, unsigned> dists_to_val; 
     block->associatedElements(test,block->linkData(),dists_to_val,keytype,
 			      reco::PFBlock::LINKTEST_ALL);   
-    for( auto& valdist : dists_to_val ) {
+    for( const auto& valdist : dists_to_val ) {
       const size_t idx = valdist.second;
       // check track types for conversion info
       switch( keytype ) {
@@ -224,7 +224,7 @@ namespace {
 	  const reco::PFBlockElementGsfTrack* elemasgsf  =  
 	    docast(const reco::PFBlockElementGsfTrack*,
 		   &(block->elements()[idx]));
-	  if( !useConvs && elemasgsf->trackType(ConvType) ) continue;
+	  if( !useConvs && elemasgsf->trackType(ConvType) ) return false;
 	  if( elemasgsf && valtype == PFBlockElement::ECAL ) {
 	    const ClusterElement* elemasclus =
 	      docast(const ClusterElement*,&(block->elements()[test]));
@@ -239,7 +239,7 @@ namespace {
 	  const reco::PFBlockElementTrack* elemaskf  = 
 	    docast(const reco::PFBlockElementTrack*,
 		   &(block->elements()[idx]));
-	  if( !useConvs && elemaskf->trackType(ConvType) ) continue;
+	  if( !useConvs && elemaskf->trackType(ConvType) ) return false;
 	  if( elemaskf && valtype == PFBlockElement::ECAL ) {
 	    const ClusterElement* elemasclus =
 	    reinterpret_cast<const ClusterElement*>(&(block->elements()[test]));
@@ -299,14 +299,16 @@ namespace {
 		     const float EoPcut=1.0e6): comp(e->first), 
 						block(b), 
 						links(l),
-						EoPin_cut(EoPcut) {}
+						EoPin_cut(EoPcut) { 
+    }
     NotCloserToOther(const reco::PFBlockRef& b,
 		     const reco::PFBlock::LinkData& l,
 		     const reco::PFBlockElement* e,
 		     const float EoPcut=1.0e6): comp(e), 
 						block(b), 
 						links(l),
-						EoPin_cut(EoPcut) {}
+						EoPin_cut(EoPcut) {
+    }
     bool operator () (const PFFlaggedElement& e) {        
       if( !e.second || valtype != e.first->type() ) return false;      
       return elementNotCloserToOther<useConv>(block,
@@ -1161,6 +1163,7 @@ void PFEGammaAlgoNew::buildAndRefineEGObjects(const reco::PFBlockRef& block) {
   for( auto& RO : _refinableObjects ) {    
     // look for conversion legs
     linkRefinableObjectECALToSingleLegConv(RO);
+    dumpCurrentRefinableObjects();
     // look for tracks that complement conversion legs
     linkRefinableObjectConvSecondaryKFsToSecondaryKFs(RO);
     // look again for ECAL clusters (this time with an e/p cut)
@@ -1213,8 +1216,9 @@ initializeProtoCands(std::list<PFEGammaAlgoNew::ProtoEGObject>& egobjs) {
     fromSC.parentBlock = _currentblock;
     fromSC.parentSC = docast(const PFSCElement*,element.first);
     // splay the supercluster so we can knock out used elements
-    unwrapSuperCluster(fromSC.parentSC,fromSC.ecalclusters,fromSC.ecal2ps);
-    _refinableObjects.push_back(fromSC);
+    bool sc_success = 
+      unwrapSuperCluster(fromSC.parentSC,fromSC.ecalclusters,fromSC.ecal2ps);
+    if( sc_success ) _refinableObjects.push_back(fromSC);
   }
   // step 2: build GSF-seed-based proto-candidates
   reco::GsfTrackRef gsfref_forextra;
@@ -1264,8 +1268,8 @@ initializeProtoCands(std::list<PFEGammaAlgoNew::ProtoEGObject>& egobjs) {
 	const PFBremElement* eAsBrem = 
 	  docast(const PFBremElement*,brem.first);
 	fromGSF.brems.push_back(std::make_pair(eAsBrem,true));
-	fromGSF.localMap.emplace(eAsBrem,elementAsGSF);
-	fromGSF.localMap.emplace(elementAsGSF,eAsBrem);
+	fromGSF.localMap.push_back( ElementMap::value_type(eAsBrem,elementAsGSF) );
+	fromGSF.localMap.push_back( ElementMap::value_type(elementAsGSF,eAsBrem) );
 	brem.second = false;
       }
     }
@@ -1314,7 +1318,7 @@ initializeProtoCands(std::list<PFEGammaAlgoNew::ProtoEGObject>& egobjs) {
   } // end loop on GSF elements of block
 }
 
-void PFEGammaAlgoNew::
+bool PFEGammaAlgoNew::
 unwrapSuperCluster(const PFSCElement* thesc,
 		   std::vector<PFClusterFlaggedElement>& ecalclusters,
 		   ClusterMap& ecal2ps) {
@@ -1327,9 +1331,11 @@ unwrapSuperCluster(const PFSCElement* thesc,
   auto ecalbegin = _splayedblock[reco::PFBlockElement::ECAL].begin();
   auto ecalend = _splayedblock[reco::PFBlockElement::ECAL].end();  
   if( ecalbegin == ecalend ) {
-    throw cms::Exception("PFEGammaAlgoNew::unwrapSuperCluster()")
+    LOGERR("PFEGammaAlgo::unwrapSuperCluster()")
       << "There are no ECAL elements in a block with imported SC!" 
-      << std::endl << *_currentblock << std::endl;
+      << " This is a bug we should fix this!" 
+      << std::endl;
+    return false;
   }
   reco::SuperClusterRef scref = thesc->superClusterRef();
   // this check needs to be done in a different way
@@ -1357,9 +1363,11 @@ unwrapSuperCluster(const PFSCElement* thesc,
   ecalbegin = _splayedblock[reco::PFBlockElement::ECAL].begin();
   ecalend = _splayedblock[reco::PFBlockElement::ECAL].end();  
   if( firstnotinsc == ecalbegin ) {
-    throw cms::Exception("PFEGammaAlgo::unwrapSuperCluster()")
-      << "No associated block elements to SuperCluster! Shouldn't happen!"
-      << std::endl << *_currentblock << std::endl;
+    LOGERR("PFEGammaAlgo::unwrapSuperCluster()")
+      << "No associated block elements to SuperCluster!" 
+      << " This is a bug we should fix!"
+      << std::endl;
+    return false;
   }
   npfclusters = std::distance(ecalbegin,firstnotinsc);
   // ensure we have found the correct number of PF ecal clusters in the case
@@ -1427,7 +1435,8 @@ unwrapSuperCluster(const PFSCElement* thesc,
   LOGDRESSED("PFEGammaAlgo")
     << " Unwrapped SC has " << npfclusters << " ECAL sub-clusters"
     << " and " << npfpsclusters << " PreShower layers 1 & 2 clusters!" 
-    << std::endl;  
+    << std::endl; 
+  return true;
 }
 
 
@@ -1634,8 +1643,8 @@ removeOrLinkECALClustersToKFTracks() {
 	  if( Algo < 9 && nexhits == 0 && fromprimaryvertex ) {
 	    closestECAL.second = false;
 	  } else { // otherwise associate the cluster and KF track
-	    _recoveredlinks.emplace(closestECAL.first,kftrack.first);
-	    _recoveredlinks.emplace(kftrack.first,closestECAL.first);
+	    _recoveredlinks.push_back( ElementMap::value_type(closestECAL.first,kftrack.first) );
+	    _recoveredlinks.push_back( ElementMap::value_type(kftrack.first,closestECAL.first) );
 	  }
 	}
       } // found a good closest ECAL match
@@ -1676,6 +1685,9 @@ mergeROsByAnyLink(std::list<PFEGammaAlgoNew::ProtoEGObject>& ROs) {
 	  thefront.primaryKFs.insert(thefront.primaryKFs.end(),
 				     roToMerge->primaryKFs.begin(),
 				     roToMerge->primaryKFs.end());
+	  thefront.brems.insert(thefront.brems.end(),
+				roToMerge->brems.begin(),
+				roToMerge->brems.end());
 	}
       }      
       ROs.erase(mergestart,nomerge);
@@ -1720,13 +1732,13 @@ linkRefinableObjectGSFTracksToKFs(ProtoEGObject& RO) {
 	  !elemaskf->trackType(convType)       ) {
 	kft->second = false;
 	RO.primaryKFs.push_back(std::make_pair(elemaskf,true));
-	RO.localMap.emplace(seedtk,elemaskf);
-	RO.localMap.emplace(elemaskf,seedtk);
+	RO.localMap.push_back( ElementMap::value_type(seedtk,elemaskf) );
+	RO.localMap.push_back( ElementMap::value_type(elemaskf,seedtk) );
       } else if ( elemaskf->trackType(convType) ) {
 	kft->second = false;
 	RO.secondaryKFs.push_back(std::make_pair(elemaskf,true));
-	RO.localMap.emplace(seedtk,elemaskf);
-	RO.localMap.emplace(elemaskf,seedtk);
+	RO.localMap.push_back( ElementMap::value_type(seedtk,elemaskf) );
+	RO.localMap.push_back( ElementMap::value_type(elemaskf,seedtk) );
       }
     }// loop on closest KFs not closer to other GSFs
   } // loop on GSF primaries on RO  
@@ -1747,7 +1759,7 @@ linkRefinableObjectPrimaryKFsToSecondaryKFs(ProtoEGObject& RO) {
 	<< "A KF track from conversion has been assigned as a primary!!"
 	<< std::endl;
     }
-    NotCloserToOther<reco::PFBlockElement::TRACK,reco::PFBlockElement::TRACK>
+    NotCloserToOther<reco::PFBlockElement::TRACK,reco::PFBlockElement::TRACK,true>
 	kfTrackToKFs(_currentblock,_currentlinks,primkf);
     // get KF tracks not closer to another and not already used
     auto notlinked = std::partition(KFbegin,KFend,kfTrackToKFs);
@@ -1760,8 +1772,8 @@ linkRefinableObjectPrimaryKFsToSecondaryKFs(ProtoEGObject& RO) {
       if( elemaskf->trackType(convType) ) {
 	kft->second = false;
 	RO.secondaryKFs.push_back(std::make_pair(elemaskf,true));
-	RO.localMap.emplace(primkf,elemaskf);
-	RO.localMap.emplace(elemaskf,primkf);
+	RO.localMap.push_back( ElementMap::value_type(primkf,elemaskf) );
+	RO.localMap.push_back( ElementMap::value_type(elemaskf,primkf) );
       } 
     }// loop on closest KFs not closer to other KFs
   } // loop on KF primaries on RO
@@ -1798,15 +1810,15 @@ linkRefinableObjectPrimaryGSFTrackToECAL(ProtoEGObject& RO) {
 	<< " at ECAL surface!" << std::endl;
       RO.ecalclusters.insert(RO.ecalclusters.begin(),temp);
       attachPSClusters(elemascluster,RO.ecal2ps[elemascluster]);      
-      RO.localMap.emplace(primgsf.first,temp.first);
-      RO.localMap.emplace(temp.first,primgsf.first);
+      RO.localMap.push_back( ElementMap::value_type(primgsf.first,temp.first) );
+      RO.localMap.push_back( ElementMap::value_type(temp.first,primgsf.first) );
       ECALbegin->second = false;
     } else {
       LOGDRESSED("PFEGammaAlgo::linkGSFTracktoECAL()") 
 	<< "Found a cluster already associated to GSF extrapolation"
 	<< " at ECAL surface!" << std::endl;
-      RO.localMap.emplace(primgsf.first,temp.first);
-      RO.localMap.emplace(temp.first,primgsf.first);
+      RO.localMap.push_back( ElementMap::value_type(primgsf.first,temp.first) );
+      RO.localMap.push_back( ElementMap::value_type(temp.first,primgsf.first) );
       std::swap(*RO.ecalclusters.begin(),*cluster);
     }
   }
@@ -1844,8 +1856,8 @@ void PFEGammaAlgoNew::linkKFTrackToECAL(const KFFlaggedElement& kfflagged,
       attachPSClusters(elemascluster,RO.ecal2ps[elemascluster]);	  
       ecalitr->second = false;
     }
-    RO.localMap.emplace(elemascluster,kfflagged.first);
-    RO.localMap.emplace(kfflagged.first,elemascluster);
+    RO.localMap.push_back( ElementMap::value_type(elemascluster,kfflagged.first) );
+    RO.localMap.push_back( ElementMap::value_type(kfflagged.first,elemascluster) );
   }
 }
 
@@ -1866,8 +1878,8 @@ linkRefinableObjectBremTangentsToECAL(ProtoEGObject& RO) {
 	  docast(const PFClusterElement*,ecal->first);    
 	RO.ecalclusters.push_back(std::make_pair(elemasclus,true));
 	attachPSClusters(elemasclus,RO.ecal2ps[elemasclus]);
-	RO.localMap.emplace(ecal->first,bremflagged.first);
-	RO.localMap.emplace(bremflagged.first,ecal->first);
+	RO.localMap.push_back( ElementMap::value_type(ecal->first,bremflagged.first) );
+	RO.localMap.push_back( ElementMap::value_type(bremflagged.first,ecal->first) );
 	LOGDRESSED("PFEGammaAlgo::linkBremToECAL()") 
 	  << "Found a cluster not already associated by brem extrapolation"
 	  << " at ECAL surface!" << std::endl;
@@ -1880,25 +1892,27 @@ void PFEGammaAlgoNew::
 linkRefinableObjectConvSecondaryKFsToSecondaryKFs(ProtoEGObject& RO) {
   IsConversionTrack<reco::PFBlockElementTrack> isConvKf; 
   auto KFbegin = _splayedblock[reco::PFBlockElement::TRACK].begin();
-  auto KFend = _splayedblock[reco::PFBlockElement::TRACK].end();
+  auto KFend   = _splayedblock[reco::PFBlockElement::TRACK].end();
   auto BeginROskfs = RO.secondaryKFs.begin();
-  auto EndROskfs   = RO.secondaryKFs.end();
+  auto EndROskfs   = RO.secondaryKFs.end();  
   auto ronotconv = std::partition(BeginROskfs,EndROskfs,isConvKf); 
-  for( auto& ro_skf = BeginROskfs; ro_skf != ronotconv; ++ro_skf ) {
+  size_t convkfs_end = std::distance(BeginROskfs,ronotconv);  
+  for( size_t idx = 0; idx < convkfs_end; ++idx ) { 
+    const PFKFFlaggedElement& ro_skf = RO.secondaryKFs[idx];
     NotCloserToOther<reco::PFBlockElement::TRACK,
                      reco::PFBlockElement::TRACK,
                      true>
-      TracksToTracks(_currentblock,_currentlinks,ro_skf->first); 
-    auto notmatched = std::partition(KFbegin,KFend,TracksToTracks);
-    notmatched = std::partition(KFbegin,notmatched,isConvKf);
+      TracksToTracks(_currentblock,_currentlinks, ro_skf.first); 
+    auto notmatched = std::partition(KFbegin,KFend,TracksToTracks);    
+    notmatched = std::partition(KFbegin,notmatched,isConvKf);    
     for( auto kf = KFbegin; kf != notmatched; ++kf ) {
       const reco::PFBlockElementTrack* elemaskf =
-	docast(const reco::PFBlockElementTrack*,kf->first);
+	docast(const reco::PFBlockElementTrack*,kf->first);      
       RO.secondaryKFs.push_back( std::make_pair(elemaskf,true) );
-      RO.localMap.emplace(ro_skf->first,elemaskf);
-      RO.localMap.emplace(elemaskf,ro_skf->first);
-      kf->second = false;
-    }
+      RO.localMap.push_back( ElementMap::value_type(ro_skf.first,kf->first) );
+      RO.localMap.push_back( ElementMap::value_type(kf->first,ro_skf.first) );
+      kf->second = false;      
+    }    
   }
 }
 
@@ -1919,8 +1933,8 @@ linkRefinableObjectECALToSingleLegConv(ProtoEGObject& RO) {
       const reco::PFBlockElementTrack* elemaskf =
 	docast(const reco::PFBlockElementTrack*,kf->first);
       RO.secondaryKFs.push_back( std::make_pair(elemaskf,true) );
-      RO.localMap.emplace(ecal.first,elemaskf);
-      RO.localMap.emplace(elemaskf,ecal.first);
+      RO.localMap.push_back( ElementMap::value_type(ecal.first,elemaskf) );
+      RO.localMap.push_back( ElementMap::value_type(elemaskf,ecal.first) );
       kf->second = false;
     }
     // go through non-conv-identified kfs and check MVA to add conversions
@@ -1930,8 +1944,8 @@ linkRefinableObjectECALToSingleLegConv(ProtoEGObject& RO) {
 	const reco::PFBlockElementTrack* elemaskf =
 	  docast(const reco::PFBlockElementTrack*,kf->first);
 	RO.secondaryKFs.push_back( std::make_pair(elemaskf,true) );
-	RO.localMap.emplace(ecal.first,elemaskf);
-	RO.localMap.emplace(elemaskf,ecal.first);
+	RO.localMap.push_back( ElementMap::value_type(ecal.first,elemaskf) );
+	RO.localMap.push_back( ElementMap::value_type(elemaskf,ecal.first) );
 	kf->second = false;
       }
     }    
@@ -1953,8 +1967,8 @@ linkRefinableObjectSecondaryKFsToECAL(ProtoEGObject& RO) {
 	docast(const reco::PFBlockElementCluster*,ecal->first);
       RO.ecalclusters.push_back( std::make_pair(elemascluster,true) );
       attachPSClusters(elemascluster,RO.ecal2ps[elemascluster]);
-      RO.localMap.emplace(skf.first,elemascluster);
-      RO.localMap.emplace(elemascluster,skf.first);
+      RO.localMap.push_back( ElementMap::value_type(skf.first,elemascluster) );
+      RO.localMap.push_back( ElementMap::value_type(elemascluster,skf.first) );
       ecal->second = false;
     }
   }
@@ -2000,7 +2014,7 @@ fillPFCandidates(const std::list<PFEGammaAlgoNew::ProtoEGObject>& ROs,
     }
     // add brems
     for( const auto& bremflagged : RO.brems ) {
-      const PFBremElement*  brem = bremflagged.first;
+      const PFBremElement* brem = bremflagged.first;
       cand.addElementInBlock(_currentblock,brem->index());      
     }
     // add clusters and ps clusters
@@ -2070,8 +2084,8 @@ buildRefinedSuperCluster(const PFEGammaAlgoNew::ProtoEGObject& RO) {
   std::vector<const reco::PFCluster*> bare_ptrs;
   // calculate necessary parameters and build the SC
   double posX(0), posY(0), posZ(0),
-    rawSCEnergy(0), corrSCEnergy(0); //clusterCorrEE(0), 
-  //PS1_clus_sum(0), PS2_clus_sum(0);  
+    rawSCEnergy(0), corrSCEnergy(0); //corrPSEnergy(0),
+    //clusterCorrEE(0), PS1_clus_sum(0), PS2_clus_sum(0);  
   for( auto& clus : RO.ecalclusters ) {
     clusptr = 
       edm::refToPtr<reco::PFClusterCollection>(clus.first->clusterRef());
@@ -2211,9 +2225,8 @@ unlinkRefinableObjectKFandECALWithBadEoverP(ProtoEGObject& RO) {
 		 ecal->first->clusterRef()->positionREP().Eta());
       
       ElementMap::value_type check_match(ecal->first,secd_kf->first);
-      auto secd_kfs_matched = RO.localMap.equal_range(ecal->first);
-      auto kf_matched = std::find(secd_kfs_matched.first,
-				  secd_kfs_matched.second,
+      auto kf_matched = std::find(RO.localMap.begin(),
+				  RO.localMap.end(),
 				  check_match);
       
       const float tkdist = _currentblock->dist(secd_kf->first->index(),
@@ -2224,7 +2237,7 @@ unlinkRefinableObjectKFandECALWithBadEoverP(ProtoEGObject& RO) {
       // do not reject this track if it is closer to a brem than the
       // secondary track, or if it lies in the delta-eta plane with the
       // gsf track or if it is in the dEta plane with the brems
-      if( Epin > 3 && kf_matched != secd_kfs_matched.second && 
+      if( Epin > 3 && kf_matched != RO.localMap.end() && 
 	  tkdist != -1.0f && tkdist < minbremdist &&
 	  detaGsf > 0.05 && detaBrem > 0.015) {
 	double res_with = std::abs((tot_ecal-Pin_gsf)/Pin_gsf);
@@ -2286,15 +2299,14 @@ unlinkRefinableObjectKFandECALMatchedToHCAL(ProtoEGObject& RO,
       }
 
       ElementMap::value_type check_match(ecal->first,secd_kf->first);
-      auto secd_kfs_matched = RO.localMap.equal_range(ecal->first);
-      auto kf_matched = std::find(secd_kfs_matched.first,
-				  secd_kfs_matched.second,
+      auto kf_matched = std::find(RO.localMap.begin(),
+				  RO.localMap.end(),
 				  check_match);
       // if we've found a secondary KF that matches this ecal cluster
       // now we see if it is matched to HCAL 
       // if it is matched to an HCAL cluster we take different 
       // actions if the cluster was in an SC or not
-      if( kf_matched != secd_kfs_matched.second ) {
+      if( kf_matched != RO.localMap.end() ) {
 	auto hcal_matched = std::partition(hcal_begin,hcal_end,tracksToHCALs);
 	for( auto hcalclus = hcal_begin; 
 	     hcalclus != hcal_matched; 
