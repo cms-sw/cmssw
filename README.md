@@ -54,13 +54,12 @@ sven.dildick@cern.ch
 
 2. CMSSW-specific github setup<br>
 
-2.1 Setup a new CMSSW environment. See list of CMSSW tags on Git to get the latest version available (currently CMSSW_6_2_0_pre8).
+2.1 Setup a new CMSSW environment. See list of CMSSW tags on Git to get the latest version available (currently CMSSW_6_2_0).
 <pre><code>cmsrel CMSSW_X_Y_Z<br>cd CMSSW_X_Y_Z/src<br>cmsenv</code></pre>
  
 2.2 Initialize and configure Git. In CMSSW_X_Y_Z/src, do
 
-<pre><code>
-git init
+<pre><code>git init
 git config --list
 git config --global remote.official-cmssw.url git@github.com:cms-sw/cmssw.git
 git config --global remote.gem-cmssw.url git@github.com:gem-sw/cmssw.git
@@ -91,8 +90,7 @@ The current branch should be from-CMSSW_6_2_0.
 
 3.2 Checkout the latest GEM developments, merge the changes and compile.
 
-<pre><code>
-git fetch cmssw-gem
+<pre><code>git fetch cmssw-gem
 git merge FETCH_HEAD
 scram b -j 9
 </code></pre>
