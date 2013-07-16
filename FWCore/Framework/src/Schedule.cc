@@ -295,7 +295,6 @@ namespace edm {
     results_(new HLTGlobalStatus(trig_name_list_.size())),
     endpath_results_(), // delay!
     results_inserter_(),
-    all_workers_(),
     all_output_communicators_(),
     trig_paths_(),
     end_paths_(),
@@ -401,9 +400,9 @@ namespace edm {
     
     // This is used for a little sanity-check to make sure no code
     // modifications alter the number of workers at a later date.
-    size_t all_workers_count = all_workers_.size();
+    size_t all_workers_count = allWorkers().size();
 
-    for (auto w : all_workers_) {
+    for (auto w : allWorkers()) {
 
       // All the workers should be in all_workers_ by this point. Thus
       // we can now fill all_output_communicators_.
@@ -455,7 +454,7 @@ namespace edm {
     unsigned int upperLimitOnReadingWorker =0;
     unsigned int upperLimitOnIndicies = 0;
     unsigned int nUniqueBranchesToDelete=branchToReadingWorker.size();
-    for (auto w :all_workers_) {
+    for (auto w :allWorkers()) {
       auto comm = w->createOutputModuleCommunicator();
       if (comm) {
         if(branchToReadingWorker.size()>0) {
