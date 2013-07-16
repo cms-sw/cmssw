@@ -45,7 +45,7 @@ simply becomes:
     <develop>
     git cms-checkdeps -a
 
-For the above example the `git addpkg` helper will simply create for you a
+For the above example the `git cms-addpkg` helper will simply create for you a
 `.git/info/sparse-checkout` folder which contains:
 
     FWCore/Framework
