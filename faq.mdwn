@@ -180,11 +180,11 @@ The only recommendation so far has been use "use a somewhat descriptive names of
 
 For a text based output, you can use either:
 
-   git show-branch <branch-1> <branch-2> ... <branch-n>
+    git show-branch <branch-1> <branch-2> ... <branch-n>
 
 or
 
-   git log --graph --abbrev-commit <branch-1> <branch-2> ... <branch-n>
+    git log --graph --abbrev-commit <branch-1> <branch-2> ... <branch-n>
 
 Moreover there are a number of graphical GUIs including
 gitk (Linux, Mac, Windows, included in git) or [SourceTree](http://www.sourcetreeapp.com)
