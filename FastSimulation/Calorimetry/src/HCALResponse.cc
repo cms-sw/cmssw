@@ -1,3 +1,4 @@
+//updated by Reza Goldouzian
 //FastSimulation headers
 #include "FastSimulation/Calorimetry/interface/HCALResponse.h"
 #include "FastSimulation/Utilities/interface/RandomEngine.h"
@@ -75,7 +76,7 @@ HCALResponse::HCALResponse(const edm::ParameterSet& pset, const RandomEngine* en
   parNames = pset.getParameter<std::vector<std::string> >("parNames");
   std::string detNames[] = {"_HB","_HE","_HF"};
   std::string mipNames[] = {"_mip","_nomip",""};
-  
+  std::string fraction="f";  
   //setup parameters (5D vector)
   parameters = vec5(nPar,vec4(3,vec3(3)));
   for(int p = 0; p < nPar; p++){ //loop over parameters
@@ -100,6 +101,24 @@ HCALResponse::HCALResponse(const edm::ParameterSet& pset, const RandomEngine* en
 	  }
 	}
   }
+
+//MIP fraction fill in 3d vector
+////--------------------------------------------------------------------
+  mipfraction = vec3(3);
+    for(int d = 0; d < 3; d++){ //loop over dets: HB, HE, HF
+       //get from python
+         std::string mipname = fraction + mipNames[0] + detNames[d] ;
+          vec1 tmp1 = pset.getParameter<vec1>(mipname);
+           mipfraction[d].resize(maxHDe[d]);
+           for(int i = 0; i < maxHDe[d]; i++){ //loop over energy for det d
+            //resize vector for eta range of det d
+            mipfraction[d][i].resize(maxHDetas[d]);
+                  for(int j = 0; j < maxHDetas[d]; j++){ //loop over eta for det d
+                   //fill in parameters vector from python
+                   mipfraction[d][i][j]= tmp1[i*maxHDetas[d] + j];
+                   }
+            }
+     }
 
 // MUON probability histos for bin size = 0.25 GeV (0-10 GeV, 40 bins)
 //--------------------------------------------------------------------
@@ -171,7 +190,33 @@ HCALResponse::HCALResponse(const edm::ParameterSet& pset, const RandomEngine* en
 
 }
 
- 
+double HCALResponse::getMIPfraction(double energy, double eta){
+  int ieta = abs((int)(eta / etaStep)) ;
+  int ie = -1;
+  //check eta and det
+  int det = getDet(ieta);
+  int deta = ieta - HDeta[det];
+  if(deta >= maxHDetas[det]) deta = maxHDetas[det] - 1;
+  else if(deta < 0 ) deta = 0;
+  //find energy range
+  for (int i = 0; i < maxHDe[det]; i++) {
+  if(energy < eGridHD[det][i])  {
+  if(i == 0) return mipfraction [det][0][deta]; // less than minimal - the first value is used instead of extrapolating
+  else ie = i-1;
+  break;
+  }
+  }
+                                                                                                                                                                         if(ie == -1) return mipfraction [det][maxHDe[det]][deta]; // more than maximal - the last value is used instead of extrapolating
+                                                                                                                                                                         double y1, y2;
+  double x1 = eGridHD[det][ie];
+  double x2 = eGridHD[det][ie+1];
+  y1=mipfraction[det][ie][deta];
+  y2=mipfraction[det][ie+1][deta];
+  double mean = 0;
+  mean=(y1*(x2-energy) + y2*(energy-x1))/(x2-x1);
+  return mean;
+  }
+
 double HCALResponse::responseHCAL(int _mip, double energy, double eta, int partype){
   int ieta = abs((int)(eta / etaStep)) ;
   int ie = -1;
@@ -316,6 +361,7 @@ double HCALResponse::interMU(double e, int ie, int ieta) {
 
 double HCALResponse::interHD(int mip, double e, int ie, int ieta, int det) {
   double y1, y2;
+  if(det==2) mip=2; //ignore mip status for HF 
 
   double x1 = eGridHD[det][ie];
   double x2 = eGridHD[det][ie+1];

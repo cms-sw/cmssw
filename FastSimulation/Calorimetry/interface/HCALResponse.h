@@ -37,6 +37,9 @@ public:
   // mip = 2 means "mean" response regardless actual mip
   double responseHCAL(int _mip, double energy, double eta, int partype);
 
+  //Get the energy and eta dependent mip fraction
+   double getMIPfraction(double energy, double eta);
+
   // legacy methods using simple formulae
   double getHCALEnergyResponse(double e, int hit);
   
@@ -101,6 +104,7 @@ private:
   // muon histos
   // indices: responseMU[energy][eta][bin]
   vec3 responseMU; 
+  vec3 mipfraction;
 
   // Famos random engine
   const RandomEngine* random;
