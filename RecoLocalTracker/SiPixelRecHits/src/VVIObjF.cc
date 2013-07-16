@@ -4,7 +4,7 @@
 //  Port of CERNLIB G116 Functions vviden/vvidis
 //
 // Created by Morris Swartz on 1/14/2010.
-// Copyright 2010 __TheJohnsHopkinsUniversity__. All rights reserved.
+// 2010 __TheJohnsHopkinsUniversity__. 
 //
 // V1.1 - make dzero call both fcns with a switch
 // V1.2 - remove inappriate initializers and add methods to return non-zero/normalized region
