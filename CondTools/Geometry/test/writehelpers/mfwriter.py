@@ -20,7 +20,7 @@ process.source = cms.Source("EmptyIOVSource",
 # somewhat duplicates the information read from the little
 # XML files, but there is no way to directly build the
 # DDCompactView from this.
-process.XMLMagneticFieldGeometryWriter = cms.EDAnalyzer("XMLMagneticFieldGeometryBuilder",
+process.XMLGeometryWriter = cms.EDAnalyzer("XMLGeometryBuilder",
                                            XMLFileName = cms.untracked.string("./mfSingleBigFile.xml"),
                                            ZIP = cms.untracked.bool(True)
                                            )
@@ -30,11 +30,11 @@ process.CondDBCommon.timetype = cms.untracked.string('runnumber')
 process.CondDBCommon.connect = cms.string('sqlite_file:myfile.db')
 process.PoolDBOutputService = cms.Service("PoolDBOutputService",
                                           process.CondDBCommon,
-                                          toPut = cms.VPSet(cms.PSet(record = cms.string('IdealMagneticFieldRecord'),tag = cms.string('XMLFILE_MagneticFieldGeometry_TagXX')))
+                                          toPut = cms.VPSet(cms.PSet(record = cms.string('GeometryFileRcd'),tag = cms.string('XMLFILE_MagneticFieldGeometry_TagXX')))
                                           )
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1)
     )
 
-process.p1 = cms.Path(process.XMLMagneticFieldGeometryWriter)
+process.p1 = cms.Path(process.XMLGeometryWriter)

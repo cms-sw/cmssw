@@ -2,7 +2,6 @@
 
 #include "CondFormats/Common/interface/FileBlob.h"
 #include "Geometry/Records/interface/GeometryFileRcd.h"
-#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 
 #include "CondFormats/GeometryObjects/interface/PGeometricDet.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h" 
@@ -29,7 +28,6 @@
 #include "Geometry/Records/interface/PGeometricDetExtraRcd.h"
 
 REGISTER_PLUGIN(GeometryFileRcd,FileBlob);
-REGISTER_PLUGIN(IdealMagneticFieldRecord,FileBlob);
 REGISTER_PLUGIN(IdealGeometryRecord,PGeometricDet);
 REGISTER_PLUGIN(PGeometricDetExtraRcd,PGeometricDetExtra);
 REGISTER_PLUGIN(PEcalBarrelRcd,PCaloGeometry);
