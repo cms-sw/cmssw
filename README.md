@@ -52,7 +52,7 @@ http://cms-sw.github.io/cmssw/advanced-usage
 1.4 Become a member of gem-sw. Send an email with your Git username to <br>
 sven.dildick@cern.ch
 
-2. CMSSW-specific github setup<br>
+2. CMSSW-specific github setup
 
 2.1 Setup a new CMSSW environment. See list of CMSSW tags on Git to get the latest version available (currently CMSSW_6_2_0).
 <pre><code>cmsrel CMSSW_X_Y_Z<br>cd CMSSW_X_Y_Z/src<br>cmsenv</code></pre>
@@ -67,7 +67,6 @@ git config --global core.sparsecheckout true
 </code></pre>
 
 If your user identity has not been set yet, do<pre><code>git config --global core.editor emacs<br>git config --global user.name FirstName LastName<br>git config --global user.email FirstName.LastName@cern.ch</code></pre>
-
 
 3. Project-specific setup
 
