@@ -90,7 +90,7 @@ The current branch should be from-CMSSW_6_2_0.
 
 3.2 Checkout the latest GEM developments, merge the changes and compile.
 
-<pre><code>git fetch cmssw-gem
+<pre><code>git fetch gem-cmssw
 git merge FETCH_HEAD
 scram b -j 9
 </code></pre>
