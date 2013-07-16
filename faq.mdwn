@@ -176,6 +176,20 @@ which are made into Pull Requests. Given a Pull Request gets automatically assig
 
 The only recommendation so far has been use "use a somewhat descriptive names of the actual content".
 
+### Is it possible to display a graphical view of my branches?
+
+For a text based output, you can use either:
+
+   git show-branch <branch-1> <branch-2> ... <branch-n>
+
+or
+
+   git log --graph --abbrev-commit <branch-1> <branch-2> ... <branch-n>
+
+Moreover there are a number of graphical GUIs including
+gitk (Linux, Mac, Windows, included in git) or [SourceTree](http://www.sourcetreeapp.com)
+(Mac, Windows).
+
 ### Do you have any more in-depth FAQs?
 
 Yes, please look at the [Advanced Usage](advanced-usage) section.
