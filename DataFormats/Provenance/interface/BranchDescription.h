@@ -82,24 +82,24 @@ namespace edm {
     std::string const& friendlyClassName() const {return friendlyClassName_;}
     std::string const& productInstanceName() const {return productInstanceName_;}
     bool produced() const {return transient_.produced_;}
-    bool& produced() {return transient_.produced_;}
+    void setProduced(bool isProduced) {transient_.produced_ = isProduced;}
     bool present() const {return !transient_.dropped_;}
     bool dropped() const {return transient_.dropped_;}
-    bool& dropped() {return transient_.dropped_;}
+    void setDropped(bool isDropped) {transient_.dropped_ = isDropped;}
     bool onDemand() const {return transient_.onDemand_;}
-    bool& onDemand() {return transient_.onDemand_;}
+    void setOnDemand(bool isOnDemand) {transient_.onDemand_ = isOnDemand;}
     bool transient() const {return transient_.transient_;}
-    bool& transient() {return transient_.transient_;}
+    void setTransient(bool isTransient) {transient_.transient_ = isTransient;}
     TypeWithDict const& wrappedType() const {return transient_.wrappedType_;}
-    TypeWithDict& wrappedType() {return transient_.wrappedType_;}
+    void setWrappedType(TypeWithDict const& type) {transient_.wrappedType_ = type;}
     TypeWithDict const& unwrappedType() const {return transient_.unwrappedType_;}
-    TypeWithDict& unwrappedType() {return transient_.unwrappedType_;}
+    void setUnwrappedType(TypeWithDict const& type) {transient_.unwrappedType_ = type;}
     TypeID wrappedTypeID() const {return TypeID(transient_.wrappedType_.typeInfo());}
     TypeID unwrappedTypeID() const {return TypeID(transient_.unwrappedType_.typeInfo());}
     int splitLevel() const {return transient_.splitLevel_;}
-    int& splitLevel() {return transient_.splitLevel_;}
+    void setSplitLevel(int level) {transient_.splitLevel_ = level;}
     int basketSize() const {return transient_.basketSize_;}
-    int& basketSize() {return transient_.basketSize_;}
+    void setBasketSize(int size) {transient_.basketSize_ = size;}
 
     ParameterSetID const& parameterSetID() const {return transient_.parameterSetID_;}
     std::string const& moduleName() const {return transient_.moduleName_;}
@@ -107,29 +107,29 @@ namespace edm {
     std::map<ProcessConfigurationID, ParameterSetID> const& parameterSetIDs() const {
       return transient_.parameterSetIDs_;
     }
-    std::map<ProcessConfigurationID, ParameterSetID>& parameterSetIDs() {
-      return transient_.parameterSetIDs_;
+    void insertParameterSetID(std::pair<ProcessConfigurationID, ParameterSetID> const& entry) {
+      transient_.parameterSetIDs_.insert(entry);
     }
     std::map<ProcessConfigurationID, std::string> const& moduleNames() const {
       return transient_.moduleNames_;
     }
-    std::map<ProcessConfigurationID, std::string>& moduleNames() {
-      return transient_.moduleNames_;
+    void insertModuleName(std::pair<ProcessConfigurationID, std::string> const& entry) {
+      transient_.moduleNames_.insert(entry);
     }
     ParameterSetID const& psetID() const;
     bool isPsetIDUnique() const {return parameterSetIDs().size() == 1;}
     std::set<std::string> const& branchAliases() const {return branchAliases_;}
-    std::set<std::string>& branchAliases() {return branchAliases_;}
+    void insertBranchAlias(std::string const& alias) {
+      branchAliases_.insert(alias);
+    }
     std::string const& branchName() const {return transient_.branchName_;}
-    std::string& branchName() {return transient_.branchName_;}
+    void clearBranchName() {transient_.branchName_.clear();}
     BranchType const& branchType() const {return branchType_;}
     std::string const& wrappedName() const {return transient_.wrappedName_;}
-    std::string& wrappedName() {return transient_.wrappedName_;}
+    void setWrappedName(std::string const& name) {transient_.wrappedName_ = name;}
     WrapperInterfaceBase*& wrapperInterfaceBase() {return transient_.wrapperInterfaceBase_;}
 
     WrapperInterfaceBase const* getInterface() const;
-    void setDropped() {dropped() = true;}
-    void setOnDemand() {onDemand() = true;}
     void updateFriendlyClassName();
 
     void initializeTransients() {transient_.reset();}

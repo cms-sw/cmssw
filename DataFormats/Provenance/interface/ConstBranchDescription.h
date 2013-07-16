@@ -41,17 +41,17 @@ namespace edm {
     std::string const& className() const {return ptr_->fullClassName();}
     std::string const& friendlyClassName() const {return ptr_->friendlyClassName();}
     std::string const& productInstanceName() const {return ptr_->productInstanceName();}
-    bool const& produced() const {return ptr_->produced();}
-    bool const& dropped() const {return ptr_->dropped();}
-    bool const& onDemand() const {return ptr_->onDemand();}
+    bool produced() const {return ptr_->produced();}
+    bool dropped() const {return ptr_->dropped();}
+    bool onDemand() const {return ptr_->onDemand();}
     bool present() const {return ptr_->present();}
-    bool const& transient() const {return ptr_->transient();}
+    bool transient() const {return ptr_->transient();}
     TypeWithDict const& wrappedType() const {return ptr_->wrappedType();}
     TypeWithDict const& unwrappedType() const {return ptr_->unwrappedType();}
     TypeID wrappedTypeID() const {return ptr_->wrappedTypeID();}
     TypeID unwrappedTypeID() const {return ptr_->unwrappedTypeID();}
-    int const& splitLevel() const {return ptr_->splitLevel();}
-    int const& basketSize() const {return ptr_->basketSize();}
+    int splitLevel() const {return ptr_->splitLevel();}
+    int basketSize() const {return ptr_->basketSize();}
 
     ParameterSetID const& parameterSetID() const {return ptr_->parameterSetID();}
     std::map<ProcessConfigurationID, ParameterSetID> const& parameterSetIDs() const {return ptr_->parameterSetIDs();}

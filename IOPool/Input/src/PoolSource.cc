@@ -77,7 +77,7 @@ namespace edm {
           //now make sure this is marked as not dropped else the product will not be 'get'table from the Event
           iterator itFound = fullList.find(it->first);
           if(itFound != fullList.end()) {
-            itFound->second.dropped()=false;
+            itFound->second.setDropped(false);
           }
         }
       }
