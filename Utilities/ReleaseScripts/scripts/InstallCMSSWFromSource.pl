@@ -7,7 +7,7 @@
 # Update: 2006-04-26 17:51:03+0200
 # Revision: $Id: InstallCMSSWFromSource.pl,v 1.6 2009/02/06 08:05:48 andreasp Exp $ 
 #
-# Copyright: 2006 (C) Shaun ASHBY
+# Shaun ASHBY
 #
 #--------------------------------------------------------------------
 use Cwd;
