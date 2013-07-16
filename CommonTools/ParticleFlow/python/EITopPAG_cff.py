@@ -80,7 +80,7 @@ pfIsolatedElectronsEI = cms.EDFilter(
     src = cms.InputTag("pfElectronsFromVertexEI"),
     cut = cms.string(" pt > 5 & gsfElectronRef.isAvailable() & gsfTrackRef.trackerExpectedHitsInner.numberOfLostHits<2 & "\
                      "gsfElectronRef.pfIsolationVariables().sumChargedHadronPt + "\
-                     "gsfElectronRef.pfIsolationVariables().sumNeutralHadronPt + "\
+                     "gsfElectronRef.pfIsolationVariables().sumNeutralHadronEt + "\
                      "gsfElectronRef.pfIsolationVariables().sumPhotonEt "\
                      " < 0.2 * pt "
         ),
