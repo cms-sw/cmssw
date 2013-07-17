@@ -79,12 +79,13 @@ git cms-addpkg DataFormats/GEMRecHit
 git cms-addpkg DataFormats/CSCDigi
 git cms-addpkg L1Trigger/CSCTriggerPrimitives
 git cms-addpkg L1Trigger/GlobalMuonTrigger
-<!--
+git cms-addpkg SimMuon/GEMDigitizer
 git cms-addpkg DataFormats/L1CSCTrackFinder
+<!--
 git cms-addpkg L1Trigger/CSCTrackFinder
 git cms-addpkg L1Trigger/CSCCommonTrigger
 -->
-git cms-addpkg SimMuon/GEMDigitizer
+
 </code></pre>
 
 The current branch should be from-CMSSW_6_2_0. 
