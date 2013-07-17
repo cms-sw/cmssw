@@ -412,8 +412,7 @@ buildSuperCluster(CalibClusterPtr& seed,
 #endif
 	  edm::Ptr<reco::PFCluster> psclus(i_ps->second);
 	  const double psenergy = psclus->energy();
-	  const PFLayer::Layer pslayer = psclus->layer();
-	  
+	  const PFLayer::Layer pslayer = psclus->layer();	  
 	  new_sc.addPreshowerCluster(psclus);
 	  ps1_energy += (PFLayer::PS1 == pslayer)*psenergy;
 	  ps2_energy += (PFLayer::PS2 == pslayer)*psenergy;	  

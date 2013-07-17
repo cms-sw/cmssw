@@ -74,6 +74,18 @@ namespace {
   typedef std::unary_function<PFFlaggedElement&, 
 			      ClusterFlaggedElement> ClusterElementConverter;
 
+  struct SumPSEnergy : public std::binary_function<double,
+						 const ClusterFlaggedElement&,
+						 double> {
+    reco::PFBlockElement::Type _thetype;
+    SumPSEnergy(reco::PFBlockElement::Type type) : _thetype(type) {}
+    double operator()(double a,
+		      const ClusterFlaggedElement& b) {
+
+      return a + (_thetype == b.first->type())*b.first->clusterRef()->energy();
+    }
+  };
+
   bool comparePSMapByKey(const EEtoPSElement& a,
 			 const EEtoPSElement& b) {
     return a.first < b.first;
@@ -2077,35 +2089,49 @@ buildRefinedSuperCluster(const PFEGammaAlgoNew::ProtoEGObject& RO) {
   if( !RO.ecalclusters.size() ) { 
     return reco::SuperCluster(0.0,math::XYZPoint(0,0,0));
   }
-							  
-  const bool isEE = false;
+	
+  SumPSEnergy sumps1(reco::PFBlockElement::PS1), 
+    sumps2(reco::PFBlockElement::PS2);  
+						  
+  bool isEE = false;
   edm::Ptr<reco::PFCluster> clusptr;
   // need the vector of raw pointers for a PF width class
   std::vector<const reco::PFCluster*> bare_ptrs;
   // calculate necessary parameters and build the SC
   double posX(0), posY(0), posZ(0),
-    rawSCEnergy(0), corrSCEnergy(0); //corrPSEnergy(0),
-    //clusterCorrEE(0), PS1_clus_sum(0), PS2_clus_sum(0);  
+    rawSCEnergy(0), corrSCEnergy(0), corrPSEnergy(0),
+    PS1_clus_sum(0), PS2_clus_sum(0);  
   for( auto& clus : RO.ecalclusters ) {
+    isEE = PFLayer::ECAL_ENDCAP == clus.first->clusterRef()->layer();
     clusptr = 
       edm::refToPtr<reco::PFClusterCollection>(clus.first->clusterRef());
-    bare_ptrs.push_back(clusptr.get());
-      
-    double cenergy = thePFEnergyCalibration_->energyEm(*clusptr,
-						       0.0,0.0,
-						       false);
+    bare_ptrs.push_back(clusptr.get());    
 
     const double cluseraw = clusptr->energy();
+    const double cluscalibe_nops = thePFEnergyCalibration_->energyEm(*clusptr,
+								     0.0,0.0,
+								     false);
+    double cluscalibe_ps = cluscalibe_nops;
     const math::XYZPoint& cluspos = clusptr->position();
     posX += cluseraw * cluspos.X();
     posY += cluseraw * cluspos.Y();
     posZ += cluseraw * cluspos.Z();
     // update EE calibrated super cluster energies
-    if( isEE ) { // bring this back in later      
+    if( isEE ) {
+      const auto& psclusters = RO.ecal2ps.at(clus.first);
+      PS1_clus_sum = std::accumulate(psclusters.begin(),psclusters.end(),
+				     0.0,sumps1);
+      PS2_clus_sum = std::accumulate(psclusters.begin(),psclusters.end(),
+				     0.0,sumps2);
+      cluscalibe_ps = 
+	thePFEnergyCalibration_->energyEm(*clusptr,
+					  PS1_clus_sum,PS2_clus_sum,
+					  applyCrackCorrections_);
     }
 
     rawSCEnergy  += cluseraw;
-    corrSCEnergy += cenergy;    
+    corrSCEnergy += cluscalibe_ps;    
+    corrPSEnergy += cluscalibe_ps - cluscalibe_nops;    
   }
   posX /= rawSCEnergy;
   posY /= rawSCEnergy;
@@ -2113,11 +2139,12 @@ buildRefinedSuperCluster(const PFEGammaAlgoNew::ProtoEGObject& RO) {
 
   // now build the supercluster
   reco::SuperCluster new_sc(corrSCEnergy,math::XYZPoint(posX,posY,posZ)); 
-  double ps1_energy(0.0), ps2_energy(0.0), ps_energy(0.0);
+  double ps1_energy(0.0), ps2_energy(0.0);
   clusptr = 
     edm::refToPtr<reco::PFClusterCollection>(RO.ecalclusters.front().
 					     first->clusterRef());
   new_sc.setSeed(clusptr);
+  new_sc.setPreshowerEnergy(corrPSEnergy); 
   for( const auto& clus : RO.ecalclusters ) {
     clusptr = 
       edm::refToPtr<reco::PFClusterCollection>(clus.first->clusterRef());
@@ -2126,26 +2153,27 @@ buildRefinedSuperCluster(const PFEGammaAlgoNew::ProtoEGObject& RO) {
     for( auto& hit_and_fraction : hits_and_fractions ) {
       new_sc.addHitAndFraction(hit_and_fraction.first,hit_and_fraction.second);
     }
-    /* // put the preshower stuff back in later
-    const auto& cluspsassociation = _psclustersforee[clus->the_ptr()];     
+     // put the preshower stuff back in later
+    const auto& cluspsassociation = RO.ecal2ps.at(clus.first);
     // EE rechits should be uniquely matched to sets of pre-shower
     // clusters at this point, so we throw an exception if otherwise
     // now wrapped in EDM debug flags
-    for( const auto& psclus : cluspsassociation ) {
-#ifdef EDM_ML_DEBUG
+    for( const auto& pscluselem : cluspsassociation ) {    
+      edm::Ptr<reco::PFCluster> psclus = 
+	  edm::refToPtr<reco::PFClusterCollection>(pscluselem.first->
+						   clusterRef());
+#ifdef PFFLOW_DEBUG
       auto found_pscluster = std::find(new_sc.preshowerClustersBegin(),
 				       new_sc.preshowerClustersEnd(),
 				       reco::CaloClusterPtr(psclus));
       if( found_pscluster == new_sc.preshowerClustersEnd() ) {
-#endif
+#endif		  
 	const double psenergy = psclus->energy();
 	const PFLayer::Layer pslayer = psclus->layer();
-	ps_assoc.push_back(std::make_pair(clus->the_ptr().key(),psclus));
 	new_sc.addPreshowerCluster(psclus);
 	ps1_energy += (PFLayer::PS1 == pslayer)*psenergy;
 	ps2_energy += (PFLayer::PS2 == pslayer)*psenergy;
-	ps_energy  += psenergy;
-#ifdef EDM_ML_DEBUG
+#ifdef PFFLOW_DEBUG
       } else {
 	throw cms::Exception("PFECALSuperClusterAlgo::buildSuperCluster")
 	  << "Found a PS cluster matched to more than one EE cluster!" 
@@ -2153,10 +2181,8 @@ buildRefinedSuperCluster(const PFEGammaAlgoNew::ProtoEGObject& RO) {
 	  << found_pscluster->get() << std::dec << std::endl;
       }
 #endif
-    }
-    */
+    }    
   }
-  new_sc.setPreshowerEnergy(ps_energy); 
   new_sc.setPreshowerEnergyPlane1(ps1_energy);
   new_sc.setPreshowerEnergyPlane2(ps2_energy);
   
@@ -2402,786 +2428,4 @@ bool PFEGammaAlgoNew::isPrimaryTrack(const reco::PFBlockElementTrack& KfEl,
   }
 
   return isPrimary;
-}
-
-void PFEGammaAlgoNew::AddElectronElements(unsigned int gsf_index,
-			             std::vector<unsigned int> &elemsToLock,
-				     const reco::PFBlockRef&  blockRef,
-				     AsscMap& associatedToGsf_,
-				     AsscMap& associatedToBrems_,
-				     AsscMap& associatedToEcal_){
-  const reco::PFBlock& block = *blockRef;
-  PFBlock::LinkData linkData =  block.linkData();  
-   
-  const edm::OwnVector< reco::PFBlockElement >&  elements = block.elements();
-  
-  const reco::PFBlockElementGsfTrack * GsfEl  =  
-    docast(const reco::PFBlockElementGsfTrack*,(&elements[gsf_index]));
-  reco::GsfTrackRef RefGSF = GsfEl->GsftrackRef();
-
-  // lock only the elements that pass the BDT cut
-//   bool bypassmva=false;
-//   if(useEGElectrons_) {
-//     GsfElectronEqual myEqual(RefGSF);
-//     std::vector<reco::GsfElectron>::const_iterator itcheck=find_if(theGsfElectrons_->begin(),theGsfElectrons_->end(),myEqual);
-//     if(itcheck!=theGsfElectrons_->end()) {
-//       if(BDToutput_[cgsf] >= -1.) 
-// 	bypassmva=true;
-//     }
-//   }
-
-  //if(BDToutput_[cgsf] < mvaEleCut_ && bypassmva == false) continue;
-
-  
-  elemsToLock.push_back(gsf_index);
-  vector<unsigned int> &assogsf_index = associatedToGsf_[gsf_index];
-  for  (unsigned int ielegsf=0;ielegsf<assogsf_index.size();ielegsf++) {
-    PFBlockElement::Type assoele_type = elements[(assogsf_index[ielegsf])].type();
-    // lock the elements associated to the gsf: ECAL, Brems
-    elemsToLock.push_back((assogsf_index[ielegsf]));
-    if (assoele_type == reco::PFBlockElement::ECAL) {
-      unsigned int keyecalgsf = assogsf_index[ielegsf];
-
-      // added protection against fifth step
-      if(fifthStepKfTrack_.size() > 0) {
-	for(unsigned int itr = 0; itr < fifthStepKfTrack_.size(); itr++) {
-	  if(fifthStepKfTrack_[itr].first == keyecalgsf) {
-	    elemsToLock.push_back((fifthStepKfTrack_[itr].second));
-	  }
-	}
-      }
-
-      // added locking for conv gsf tracks and kf tracks
-      if(convGsfTrack_.size() > 0) {
-	for(unsigned int iconv = 0; iconv < convGsfTrack_.size(); iconv++) {
-	  if(convGsfTrack_[iconv].first == keyecalgsf) {
-	    // lock the GSF track
-	    elemsToLock.push_back(convGsfTrack_[iconv].second);
-	    // lock also the KF track associated
-	    std::multimap<double, unsigned> convKf;
-	    block.associatedElements( convGsfTrack_[iconv].second,
-				      linkData,
-				      convKf,
-				      reco::PFBlockElement::TRACK,
-				      reco::PFBlock::LINKTEST_ALL );
-	    if(convKf.size() > 0) {
-	      elemsToLock.push_back(convKf.begin()->second);
-	    }
-	  }
-	}
-      }
-
-
-      vector<unsigned int> assoecalgsf_index = associatedToEcal_.find(keyecalgsf)->second;
-      for(unsigned int ips =0; ips<assoecalgsf_index.size();ips++) {
-	// lock the elements associated to ECAL: PS1,PS2, for the moment not HCAL
-	if  (elements[(assoecalgsf_index[ips])].type() == reco::PFBlockElement::PS1) 
-	  elemsToLock.push_back((assoecalgsf_index[ips]));
-	if  (elements[(assoecalgsf_index[ips])].type() == reco::PFBlockElement::PS2) 
-	  elemsToLock.push_back(assoecalgsf_index[ips]);
-	if  (elements[(assoecalgsf_index[ips])].type() == reco::PFBlockElement::TRACK) {
-	  //FIXME: some extra input needed here which is not available yet
-// 	  if(lockExtraKf_[cgsf] == true) {	      
-// 	    elemsToLock.push_back(assoecalgsf_index[ips])
-// 	  }
-	}
-      }
-    } // End if ECAL
-    if (assoele_type == reco::PFBlockElement::BREM) {
-      unsigned int brem_index = assogsf_index[ielegsf];
-      vector<unsigned int> assobrem_index = associatedToBrems_.find(brem_index)->second;
-      for (unsigned int ibrem = 0; ibrem < assobrem_index.size(); ibrem++){
-	if (elements[(assobrem_index[ibrem])].type() == reco::PFBlockElement::ECAL) {
-	  unsigned int keyecalbrem = assobrem_index[ibrem];
-	  // lock the ecal cluster associated to the brem
-	  elemsToLock.push_back(assobrem_index[ibrem]);
-
-	  // add protection against fifth step
-	  if(fifthStepKfTrack_.size() > 0) {
-	    for(unsigned int itr = 0; itr < fifthStepKfTrack_.size(); itr++) {
-	      if(fifthStepKfTrack_[itr].first == keyecalbrem) {
-		elemsToLock.push_back(fifthStepKfTrack_[itr].second);
-	      }
-	    }
-	  }
-
-	  vector<unsigned int> assoelebrem_index = associatedToEcal_.find(keyecalbrem)->second;
-	  // lock the elements associated to ECAL: PS1,PS2, for the moment not HCAL
-	  for (unsigned int ielebrem=0; ielebrem<assoelebrem_index.size();ielebrem++) {
-	    if (elements[(assoelebrem_index[ielebrem])].type() == reco::PFBlockElement::PS1) 
-	      elemsToLock.push_back(assoelebrem_index[ielebrem]);
-	    if (elements[(assoelebrem_index[ielebrem])].type() == reco::PFBlockElement::PS2) 
-	      elemsToLock.push_back(assoelebrem_index[ielebrem]);
-	  }
-	}
-      }
-    } // End if BREM	  
-  } // End loop on elements from gsf track
-  return;
-}
-
-// This function get the associatedToGsf and associatedToBrems maps and  
-// compute the electron 4-mom and set the pf candidate, for
-// the gsf track with a BDTcut > mvaEleCut_
-bool PFEGammaAlgoNew::AddElectronCandidate(unsigned int gsf_index,
-					reco::SuperClusterRef scref,
-					 std::vector<unsigned int> &elemsToLock,
-					 const reco::PFBlockRef&  blockRef,
-					 AsscMap& associatedToGsf_,
-					 AsscMap& associatedToBrems_,
-					 AsscMap& associatedToEcal_,
-					 std::vector<bool>& active) {
-  
-  const reco::PFBlock& block = *blockRef;
-  PFBlock::LinkData linkData =  block.linkData();     
-  const edm::OwnVector< reco::PFBlockElement >&  elements = block.elements();
-  PFEnergyResolution pfresol_;
-  //PFEnergyCalibration pfcalib_;
-
-  bool DebugIDCandidates = false;
-//   vector<reco::PFCluster> pfClust_vec(0);
-//   pfClust_vec.clear();
-
-	  
-  // They should be reset for each gsf track
-  int eecal=0;
-  int hcal=0;
-  int charge =0; 
-  // bool goodphi=true;
-  math::XYZTLorentzVector momentum_kf,momentum_gsf,momentum,momentum_mean;
-  float dpt=0; float dpt_gsf=0;
-  float Eene=0; float dene=0; float Hene=0.;
-  float RawEene = 0.;
-  double posX=0.;
-  double posY=0.;
-  double posZ=0.;
-  std::vector<float> bremEnergyVec;
-
-  std::vector<const PFCluster*> pfSC_Clust_vec; 
-
-  float de_gs = 0., de_me = 0., de_kf = 0.; 
-  float m_el=0.00051;
-  int nhit_kf=0; int nhit_gsf=0;
-  bool has_gsf=false;
-  bool has_kf=false;
-  math::XYZTLorentzVector newmomentum;
-  float ps1TotEne = 0;
-  float ps2TotEne = 0;
-  vector<unsigned int> elementsToAdd(0);
-  reco::TrackRef RefKF;  
-
-
-
-  elementsToAdd.push_back(gsf_index);
-  const reco::PFBlockElementGsfTrack * GsfEl  =  
-    docast(const reco::PFBlockElementGsfTrack*,(&elements[gsf_index]));
-  const math::XYZPointF& posGsfEcalEntrance = GsfEl->positionAtECALEntrance();
-  reco::GsfTrackRef RefGSF = GsfEl->GsftrackRef();
-  if (RefGSF.isNonnull()) {
-    
-    has_gsf=true;
-    
-    charge= RefGSF->chargeMode();
-    nhit_gsf= RefGSF->hitPattern().trackerLayersWithMeasurement();
-    
-    momentum_gsf.SetPx(RefGSF->pxMode());
-    momentum_gsf.SetPy(RefGSF->pyMode());
-    momentum_gsf.SetPz(RefGSF->pzMode());
-    float ENE=sqrt(RefGSF->pMode()*
-		    RefGSF->pMode()+m_el*m_el);
-    
-    if( DebugIDCandidates ) 
-      cout << "SetCandidates:: GsfTrackRef: Ene " << ENE 
-	    << " charge " << charge << " nhits " << nhit_gsf <<endl;
-    
-    momentum_gsf.SetE(ENE);       
-    dpt_gsf=RefGSF->ptModeError()*
-      (RefGSF->pMode()/RefGSF->ptMode());
-    
-    momentum_mean.SetPx(RefGSF->px());
-    momentum_mean.SetPy(RefGSF->py());
-    momentum_mean.SetPz(RefGSF->pz());
-    float ENEm=sqrt(RefGSF->p()*
-		    RefGSF->p()+m_el*m_el);
-    momentum_mean.SetE(ENEm);       
-    //       dpt_mean=RefGSF->ptError()*
-    // 	(RefGSF->p()/RefGSF->pt());  
-  }
-  else {
-    if( DebugIDCandidates ) 
-      cout <<  "SetCandidates:: !!!!  NULL GSF Track Ref " << endl;	
-  } 
-
-  //    vector<unsigned int> assogsf_index =  associatedToGsf_[igsf].second;
-  vector<unsigned int> &assogsf_index = associatedToGsf_[gsf_index];
-  unsigned int ecalGsf_index = 100000;
-  bool FirstEcalGsf = true;
-  for  (unsigned int ielegsf=0;ielegsf<assogsf_index.size();ielegsf++) {
-    PFBlockElement::Type assoele_type = elements[(assogsf_index[ielegsf])].type();
-    if  (assoele_type == reco::PFBlockElement::TRACK) {
-      elementsToAdd.push_back((assogsf_index[ielegsf])); // Daniele
-      const reco::PFBlockElementTrack * KfTk =  
-	docast(const reco::PFBlockElementTrack*,
-	       (&elements[(assogsf_index[ielegsf])]));
-      // 19 Mar 2010 do not consider here track from gamam conv
-      bool isPrim = isPrimaryTrack(*KfTk,*GsfEl);
-      if(!isPrim) continue;
-      
-      RefKF = KfTk->trackRef();
-      if (RefKF.isNonnull()) {
-	has_kf = true;
-	// dpt_kf=(RefKF->ptError()*RefKF->ptError());
-	nhit_kf=RefKF->hitPattern().trackerLayersWithMeasurement();
-	momentum_kf.SetPx(RefKF->px());
-	momentum_kf.SetPy(RefKF->py());
-	momentum_kf.SetPz(RefKF->pz());
-	float ENE=sqrt(RefKF->p()*RefKF->p()+m_el*m_el);
-	if( DebugIDCandidates ) 
-	  cout << "SetCandidates:: KFTrackRef: Ene " << ENE << " nhits " << nhit_kf << endl;
-	
-	momentum_kf.SetE(ENE);
-      }
-      else {
-	if( DebugIDCandidates ) 
-	  cout <<  "SetCandidates:: !!!! NULL KF Track Ref " << endl;
-      }
-    } 
-
-    if  (assoele_type == reco::PFBlockElement::ECAL) {
-      unsigned int keyecalgsf = assogsf_index[ielegsf];
-      vector<unsigned int> assoecalgsf_index = associatedToEcal_.find(keyecalgsf)->second;
-      vector<double> ps1Ene(0);
-      vector<double> ps2Ene(0);
-      // Important is the PS clusters are not saved before the ecal one, these
-      // energy are not correctly assigned 
-      // For the moment I get only the closest PS clusters: this has to be changed
-      for(unsigned int ips =0; ips<assoecalgsf_index.size();ips++) {
-	PFBlockElement::Type typeassoecal = elements[(assoecalgsf_index[ips])].type();
-	if  (typeassoecal == reco::PFBlockElement::PS1) {  
-	  PFClusterRef  psref = elements[(assoecalgsf_index[ips])].clusterRef();
-	  ps1Ene.push_back(psref->energy());
-	  elementsToAdd.push_back((assoecalgsf_index[ips]));
-	}
-	if  (typeassoecal == reco::PFBlockElement::PS2) {  
-	  PFClusterRef  psref = elements[(assoecalgsf_index[ips])].clusterRef();
-	  ps2Ene.push_back(psref->energy());
-	  elementsToAdd.push_back((assoecalgsf_index[ips]));
-	}
-	if  (typeassoecal == reco::PFBlockElement::HCAL) {
-	  const reco::PFBlockElementCluster * clust =  
-	    docast(const reco::PFBlockElementCluster*,
-		   (&elements[(assoecalgsf_index[ips])])); 
-	  elementsToAdd.push_back((assoecalgsf_index[ips])); 
-	  Hene+=clust->clusterRef()->energy();
-	  hcal++;
-	}
-      }
-      elementsToAdd.push_back((assogsf_index[ielegsf]));
-
-
-      const reco::PFBlockElementCluster * clust =  
-	docast(const reco::PFBlockElementCluster*,
-	       (&elements[(assogsf_index[ielegsf])]));
-      
-      eecal++;
-      
-      const reco::PFCluster& cl(*clust->clusterRef());
-      //pfClust_vec.push_back((*clust->clusterRef()));
-
-      // The electron RAW energy is the energy of the corrected GSF cluster	
-      double ps1,ps2;
-      ps1=ps2=0.;
-      //	float EE=pfcalib_.energyEm(cl,ps1Ene,ps2Ene);
-      float EE = thePFEnergyCalibration_->energyEm(cl,ps1Ene,ps2Ene,ps1,ps2,applyCrackCorrections_);	  
-      //	float RawEE = cl.energy();
-
-      float ceta=cl.position().eta();
-      float cphi=cl.position().phi();
-      
-      /*
-	float mphi=-2.97025;
-	if (ceta<0) mphi+=0.00638;
-	
-	for (int ip=1; ip<19; ip++){
-	float df= cphi - (mphi+(ip*6.283185/18));
-	if (fabs(df)<0.01) goodphi=false;
-	}
-      */
-
-      float dE=pfresol_.getEnergyResolutionEm(EE,cl.position().eta());
-      if( DebugIDCandidates ) 
-	cout << "SetCandidates:: EcalCluster: EneNoCalib " << clust->clusterRef()->energy()  
-	      << " eta,phi " << ceta << "," << cphi << " Calib " <<  EE << " dE " <<  dE <<endl;
-
-      bool elecCluster=false;
-      if (FirstEcalGsf) {
-	FirstEcalGsf = false;
-	elecCluster=true;
-	ecalGsf_index = assogsf_index[ielegsf];
-	//	  std::cout << " PFElectronAlgo / Seed " << EE << std::endl;
-	RawEene += EE;
-      }
-      
-      // create a photon/electron candidate
-      math::XYZTLorentzVector clusterMomentum;
-      math::XYZPoint direction=cl.position()/cl.position().R();
-      clusterMomentum.SetPxPyPzE(EE*direction.x(),
-				 EE*direction.y(),
-				 EE*direction.z(),
-				 EE);
-      reco::PFCandidate cluster_Candidate((elecCluster)?charge:0,
-					  clusterMomentum, 
-					  (elecCluster)? reco::PFCandidate::e : reco::PFCandidate::gamma);
-      
-      cluster_Candidate.setPs1Energy(ps1);
-      cluster_Candidate.setPs2Energy(ps2);
-      // The Raw Ecal energy will be the energy of the basic cluster. 
-      // It will be the corrected energy without the preshower
-      cluster_Candidate.setEcalEnergy(EE-ps1-ps2,EE);
-      //	      std::cout << " PFElectronAlgo, adding Brem (1) " << EE << std::endl;
-      cluster_Candidate.setPositionAtECALEntrance(math::XYZPointF(cl.position()));
-      cluster_Candidate.addElementInBlock(blockRef,assogsf_index[ielegsf]);
-      // store the photon candidate
-//       std::map<unsigned int,std::vector<reco::PFCandidate> >::iterator itcheck=
-// 	electronConstituents_.find(cgsf);
-//       if(itcheck==electronConstituents_.end())
-// 	{		  
-// 	  // beurk
-// 	  std::vector<reco::PFCandidate> tmpVec;
-// 	  tmpVec.push_back(cluster_Candidate);
-// 	  electronConstituents_.insert(std::pair<unsigned int, std::vector<reco::PFCandidate> >
-// 					(cgsf,tmpVec));
-// 	}
-//       else
-// 	{
-// 	  itcheck->second.push_back(cluster_Candidate);
-// 	}
-      
-      Eene+=EE;
-      posX +=  EE * cl.position().X();
-      posY +=  EE * cl.position().Y();
-      posZ +=  EE * cl.position().Z();	  
-      ps1TotEne+=ps1;
-      ps2TotEne+=ps2;
-      dene+=dE*dE;
-      
-      //MM Add cluster to the vector pfSC_Clust_vec needed for brem corrections
-      pfSC_Clust_vec.push_back( &cl );
-
-    }
-    
-
-
-    // Important: Add energy from the brems
-    if  (assoele_type == reco::PFBlockElement::BREM) {
-      unsigned int brem_index = assogsf_index[ielegsf];
-      vector<unsigned int> assobrem_index = associatedToBrems_.find(brem_index)->second;
-      elementsToAdd.push_back(brem_index);
-      for (unsigned int ibrem = 0; ibrem < assobrem_index.size(); ibrem++){
-	if (elements[(assobrem_index[ibrem])].type() == reco::PFBlockElement::ECAL) {
-	  // brem emission is from the considered gsf track
-	  if( assobrem_index[ibrem] !=  ecalGsf_index) {
-	    unsigned int keyecalbrem = assobrem_index[ibrem];
-	    const vector<unsigned int>& assoelebrem_index = associatedToEcal_.find(keyecalbrem)->second;
-	    vector<double> ps1EneFromBrem(0);
-	    vector<double> ps2EneFromBrem(0);
-	    for (unsigned int ielebrem=0; ielebrem<assoelebrem_index.size();ielebrem++) {
-	      if (elements[(assoelebrem_index[ielebrem])].type() == reco::PFBlockElement::PS1) {
-		PFClusterRef  psref = elements[(assoelebrem_index[ielebrem])].clusterRef();
-		ps1EneFromBrem.push_back(psref->energy());
-		elementsToAdd.push_back(assoelebrem_index[ielebrem]);
-	      }
-	      if (elements[(assoelebrem_index[ielebrem])].type() == reco::PFBlockElement::PS2) {
-		PFClusterRef  psref = elements[(assoelebrem_index[ielebrem])].clusterRef();
-		ps2EneFromBrem.push_back(psref->energy());
-		elementsToAdd.push_back(assoelebrem_index[ielebrem]);
-	      }	  
-	    }
-	    elementsToAdd.push_back(assobrem_index[ibrem]);
-	    reco::PFClusterRef clusterRef = elements[(assobrem_index[ibrem])].clusterRef();
-	    //pfClust_vec.push_back(*clusterRef);
-	    // to get a calibrated PS energy 
-	    double ps1=0;
-	    double ps2=0;
-	    float EE = thePFEnergyCalibration_->energyEm(*clusterRef,ps1EneFromBrem,ps2EneFromBrem,ps1,ps2,applyCrackCorrections_);
-	    bremEnergyVec.push_back(EE);
-	    // float RawEE  = clusterRef->energy();
-	    float ceta = clusterRef->position().eta();
-	    // float cphi = clusterRef->position().phi();
-	    float dE=pfresol_.getEnergyResolutionEm(EE,ceta);
-	    if( DebugIDCandidates ) 
-	      cout << "SetCandidates:: BremCluster: Ene " << EE << " dE " <<  dE <<endl;	  
-
-	    Eene+=EE;
-	    posX +=  EE * clusterRef->position().X();
-	    posY +=  EE * clusterRef->position().Y();
-	    posZ +=  EE * clusterRef->position().Z();	  
-	    ps1TotEne+=ps1;
-	    ps2TotEne+=ps2;
-	    // Removed 4 March 2009. Florian. The Raw energy is the (corrected) one of the GSF cluster only
-	    //	      RawEene += RawEE;
-	    dene+=dE*dE;
-
-	    //MM Add cluster to the vector pfSC_Clust_vec needed for brem corrections
-	    pfSC_Clust_vec.push_back( clusterRef.get() );
-
-	    // create a PFCandidate out of it. Watch out, it is for the e/gamma and tau only
-	    // not to be used by the PFAlgo
-	    math::XYZTLorentzVector photonMomentum;
-	    math::XYZPoint direction=clusterRef->position()/clusterRef->position().R();
-	    
-	    photonMomentum.SetPxPyPzE(EE*direction.x(),
-				      EE*direction.y(),
-				      EE*direction.z(),
-				      EE);
-	    reco::PFCandidate photon_Candidate(0,photonMomentum, reco::PFCandidate::gamma);
-	    
-	    photon_Candidate.setPs1Energy(ps1);
-	    photon_Candidate.setPs2Energy(ps2);
-	    // yes, EE, we want the raw ecal energy of the daugther to have the same definition
-	    // as the GSF cluster
-	    photon_Candidate.setEcalEnergy(EE-ps1-ps2,EE);
-	    //	      std::cout << " PFElectronAlgo, adding Brem " << EE << std::endl;
-	    photon_Candidate.setPositionAtECALEntrance(math::XYZPointF(clusterRef->position()));
-	    photon_Candidate.addElementInBlock(blockRef,assobrem_index[ibrem]);
-
-	    // store the photon candidate
-	    //FIXME: constituents needed?
-// 	    std::map<unsigned int,std::vector<reco::PFCandidate> >::iterator itcheck=
-// 	      electronConstituents_.find(cgsf);
-// 	    if(itcheck==electronConstituents_.end())
-// 	      {		  
-// 		// beurk
-// 		std::vector<reco::PFCandidate> tmpVec;
-// 		tmpVec.push_back(photon_Candidate);
-// 		electronConstituents_.insert(std::pair<unsigned int, std::vector<reco::PFCandidate> >
-// 					  (cgsf,tmpVec));
-// 	      }
-// 	    else
-// 	      {
-// 		itcheck->second.push_back(photon_Candidate);
-// 	      }
-	  }
-	} 
-      }
-    }
-  } // End Loop On element associated to the GSF tracks
-  if (has_gsf) {
-    
-    // SuperCluster energy corrections
-    double unCorrEene = Eene;
-    double absEta = fabs(momentum_gsf.Eta());
-    double emTheta = momentum_gsf.Theta();
-    PFClusterWidthAlgo pfSCwidth(pfSC_Clust_vec); 
-    double brLinear = pfSCwidth.pflowPhiWidth()/pfSCwidth.pflowEtaWidth(); 
-    pfSC_Clust_vec.clear();
-    
-    if( DebugIDCandidates ) 
-      cout << "PFEelectronAlgo:: absEta " << absEta  << " theta " << emTheta 
-	    << " EneRaw " << Eene << " Err " << dene;
-    
-    // The calibrations are provided till ET = 200 GeV //No longer a such cut MM
-    // Protection on at least 1 GeV energy...avoid possible divergencies at very low energy.
-    if(usePFSCEleCalib_ && unCorrEene > 0.) { 
-      if( absEta < 1.5) {
-	double Etene = Eene*sin(emTheta);
-	double emBR_e = thePFSCEnergyCalibration_->SCCorrFBremBarrel(Eene, Etene, brLinear); 
-	double emBR_et = emBR_e*sin(emTheta); 
-	double emCorrFull_et = thePFSCEnergyCalibration_->SCCorrEtEtaBarrel(emBR_et, absEta); 
-	Eene = emCorrFull_et/sin(emTheta);
-      }
-      else {
-	//  double Etene = Eene*sin(emTheta); //not needed anymore for endcaps MM
-	double emBR_e = thePFSCEnergyCalibration_->SCCorrFBremEndcap(Eene, absEta, brLinear); 
-	double emBR_et = emBR_e*sin(emTheta); 
-	double emCorrFull_et = thePFSCEnergyCalibration_->SCCorrEtEtaEndcap(emBR_et, absEta); 
-	Eene = emCorrFull_et/sin(emTheta);
-      }
-      dene = sqrt(dene)*(Eene/unCorrEene);
-      dene = dene*dene;
-    }
-
-    if( DebugIDCandidates ) 
-      cout << " EneCorrected " << Eene << " Err " << dene  << endl;
-
-    // charge determination with the majority method
-    // if the kf track exists: 2 among 3 of supercluster barycenter position
-    // gsf track and kf track
-    if(has_kf && unCorrEene > 0.) {
-      posX /=unCorrEene;
-      posY /=unCorrEene;
-      posZ /=unCorrEene;
-      math::XYZPoint sc_pflow(posX,posY,posZ);
-
-      std::multimap<double, unsigned int> bremElems;
-      block.associatedElements( gsf_index,linkData,
-				bremElems,
-				reco::PFBlockElement::BREM,
-				reco::PFBlock::LINKTEST_ALL );
-
-      double phiTrack = RefGSF->phiMode();
-      if(bremElems.size()>0) {
-	unsigned int brem_index =  bremElems.begin()->second;
-	const reco::PFBlockElementBrem * BremEl  =  
-	  docast(const reco::PFBlockElementBrem*,(&elements[brem_index]));
-	phiTrack = BremEl->positionAtECALEntrance().phi();
-      }
-
-      double dphi_normalsc = sc_pflow.Phi() - phiTrack;
-      if ( dphi_normalsc < -M_PI ) 
-	dphi_normalsc = dphi_normalsc + 2.*M_PI;
-      else if ( dphi_normalsc > M_PI ) 
-	dphi_normalsc = dphi_normalsc - 2.*M_PI;
-      
-      int chargeGsf = RefGSF->chargeMode();
-      int chargeKf = RefKF->charge();
-
-      int chargeSC = 0;
-      if(dphi_normalsc < 0.) 
-	chargeSC = 1;
-      else 
-	chargeSC = -1;
-      
-      if(chargeKf == chargeGsf) 
-	charge = chargeGsf;
-      else if(chargeGsf == chargeSC)
-	charge = chargeGsf;
-      else 
-	charge = chargeKf;
-
-      if( DebugIDCandidates ) 
-	cout << "PFElectronAlgo:: charge determination " 
-	      << " charge GSF " << chargeGsf 
-	      << " charge KF " << chargeKf 
-	      << " charge SC " << chargeSC
-	      << " Final Charge " << charge << endl;
-      
-    }
-      
-    // Think about this... 
-    if ((nhit_gsf<8) && (has_kf)){
-      
-      // Use Hene if some condition.... 
-      
-      momentum=momentum_kf;
-      float Fe=Eene;
-      float scale= Fe/momentum.E();
-      
-      // Daniele Changed
-      if (Eene < 0.0001) {
-	Fe = momentum.E();
-	scale = 1.;
-      }
-
-
-      newmomentum.SetPxPyPzE(scale*momentum.Px(),
-			      scale*momentum.Py(),
-			      scale*momentum.Pz(),Fe);
-      if( DebugIDCandidates ) 
-	cout << "SetCandidates:: (nhit_gsf<8) && (has_kf):: pt " << newmomentum.pt() << " Ene " <<  Fe <<endl;
-
-      
-    } 
-    if ((nhit_gsf>7) || (has_kf==false)){
-      if(Eene > 0.0001) {
-	de_gs=1-momentum_gsf.E()/Eene;
-	de_me=1-momentum_mean.E()/Eene;
-	de_kf=1-momentum_kf.E()/Eene;
-      }
-
-      momentum=momentum_gsf;
-      dpt=1/(dpt_gsf*dpt_gsf);
-      
-      if(dene > 0.)
-	dene= 1./dene;
-      
-      float Fe = 0.;
-      if(Eene > 0.0001) {
-	Fe =((dene*Eene) +(dpt*momentum.E()))/(dene+dpt);
-      }
-      else {
-	Fe=momentum.E();
-      }
-      
-      if ((de_gs>0.05)&&(de_kf>0.05)){
-	Fe=Eene;
-      }
-      if ((de_gs<-0.1)&&(de_me<-0.1) &&(de_kf<0.) && 
-	  (momentum.E()/dpt_gsf) > 5. && momentum_gsf.pt() < 30.){
-	Fe=momentum.E();
-      }
-      float scale= Fe/momentum.E();
-      
-      newmomentum.SetPxPyPzE(scale*momentum.Px(),
-			      scale*momentum.Py(),
-			      scale*momentum.Pz(),Fe);
-      if( DebugIDCandidates ) 
-	cout << "SetCandidates::(nhit_gsf>7) || (has_kf==false)  " << newmomentum.pt() << " Ene " <<  Fe <<endl;
-      
-      
-    }
-    if (newmomentum.pt()>0.5){
-      
-      // the pf candidate are created: we need to set something more? 
-      // IMPORTANT -> We need the gsftrackRef, not only the TrackRef??
-
-      if( DebugIDCandidates )
-	cout << "SetCandidates:: I am before doing candidate " <<endl;
-      
-      //vector with the cluster energies (for the extra)
-      std::vector<float> clusterEnergyVec;
-      clusterEnergyVec.push_back(RawEene);
-      clusterEnergyVec.insert(clusterEnergyVec.end(),bremEnergyVec.begin(),bremEnergyVec.end());
-
-      // add the information in the extra
-      //std::vector<reco::PFCandidateElectronExtra>::iterator itextra;
-      //PFElectronExtraEqual myExtraEqual(RefGSF);
-      PFCandidateEGammaExtra myExtraEqual(RefGSF);
-      //myExtraEqual.setSuperClusterRef(scref);
-      myExtraEqual.setSuperClusterBoxRef(scref);
-      myExtraEqual.setClusterEnergies(clusterEnergyVec);
-      //itextra=find_if(electronExtra_.begin(),electronExtra_.end(),myExtraEqual);
-      //if(itextra!=electronExtra_.end()) {
-	//itextra->setClusterEnergies(clusterEnergyVec);
-//       else {
-// 	if(RawEene>0.) 
-// 	  std::cout << " There is a big problem with the electron extra, PFElectronAlgo should crash soon " << RawEene << std::endl;
-//       }
-
-      reco::PFCandidate::ParticleType particleType 
-	= reco::PFCandidate::e;
-      //reco::PFCandidate temp_Candidate;
-      reco::PFCandidate temp_Candidate(charge,newmomentum,particleType);
-      //FIXME: need bdt output
-      //temp_Candidate.set_mva_e_pi(BDToutput_[cgsf]);
-      temp_Candidate.setEcalEnergy(RawEene,Eene);
-      // Note the Hcal energy is set but the element is never locked 
-      temp_Candidate.setHcalEnergy(Hene,Hene);  
-      temp_Candidate.setPs1Energy(ps1TotEne);
-      temp_Candidate.setPs2Energy(ps2TotEne);
-      temp_Candidate.setTrackRef(RefKF);   
-      // This reference could be NULL it is needed a protection? 
-      temp_Candidate.setGsfTrackRef(RefGSF);
-      temp_Candidate.setPositionAtECALEntrance(posGsfEcalEntrance);
-      // Add Vertex
-      temp_Candidate.setVertexSource(PFCandidate::kGSFVertex);
-      
-      //supercluster ref is always available now and points to ecal-drive box/mustache supercluster
-      temp_Candidate.setSuperClusterRef(scref);
-      
-      // save the superclusterRef when available
-      //FIXME: Point back to ecal-driven supercluster ref, which is now always available
-//       if(RefGSF->extra().isAvailable() && RefGSF->extra()->seedRef().isAvailable()) {
-// 	reco::ElectronSeedRef seedRef=  RefGSF->extra()->seedRef().castTo<reco::ElectronSeedRef>();
-// 	if(seedRef.isAvailable() && seedRef->isEcalDriven()) {
-// 	  reco::SuperClusterRef scRef = seedRef->caloCluster().castTo<reco::SuperClusterRef>();
-// 	  if(scRef.isNonnull())  
-// 	    temp_Candidate.setSuperClusterRef(scRef);
-// 	}
-//       }
-
-      if( DebugIDCandidates ) 
-	cout << "SetCandidates:: I am after doing candidate " <<endl;
-      
-//       for (unsigned int elad=0; elad<elementsToAdd.size();elad++){
-// 	temp_Candidate.addElementInBlock(blockRef,elementsToAdd[elad]);
-//       }
-// 
-//       // now add the photons to this candidate
-//       std::map<unsigned int, std::vector<reco::PFCandidate> >::const_iterator itcluster=
-// 	electronConstituents_.find(cgsf);
-//       if(itcluster!=electronConstituents_.end())
-// 	{
-// 	  const std::vector<reco::PFCandidate> & theClusters=itcluster->second;
-// 	  unsigned nclus=theClusters.size();
-// 	  //	    std::cout << " PFElectronAlgo " << nclus << " daugthers to add" << std::endl;
-// 	  for(unsigned iclus=0;iclus<nclus;++iclus)
-// 	    {
-// 	      temp_Candidate.addDaughter(theClusters[iclus]);
-// 	    }
-// 	}
-
-      // By-pass the mva is the electron has been pre-selected 
-//       bool bypassmva=false;
-//       if(useEGElectrons_) {
-// 	GsfElectronEqual myEqual(RefGSF);
-// 	std::vector<reco::GsfElectron>::const_iterator itcheck=find_if(theGsfElectrons_->begin(),theGsfElectrons_->end(),myEqual);
-// 	if(itcheck!=theGsfElectrons_->end()) {
-// 	  if(BDToutput_[cgsf] >= -1.)  {
-// 	    // bypass the mva only if the reconstruction went fine
-// 	    bypassmva=true;
-// 
-// 	    if( DebugIDCandidates ) {
-// 	      if(BDToutput_[cgsf] < -0.1) {
-// 		float esceg = itcheck->caloEnergy();		
-// 		cout << " Attention By pass the mva " << BDToutput_[cgsf] 
-// 		      << " SuperClusterEnergy " << esceg
-// 		      << " PF Energy " << Eene << endl;
-// 		
-// 		cout << " hoe " << itcheck->hcalOverEcal()
-// 		      << " tkiso04 " << itcheck->dr04TkSumPt()
-// 		      << " ecaliso04 " << itcheck->dr04EcalRecHitSumEt()
-// 		      << " hcaliso04 " << itcheck->dr04HcalTowerSumEt()
-// 		      << " tkiso03 " << itcheck->dr03TkSumPt()
-// 		      << " ecaliso03 " << itcheck->dr03EcalRecHitSumEt()
-// 		      << " hcaliso03 " << itcheck->dr03HcalTowerSumEt() << endl;
-// 	      }
-// 	    } // end DebugIDCandidates
-// 	  }
-// 	}
-//       }
-      
-      myExtraEqual.setStatus(PFCandidateEGammaExtra::Selected,true);
-      
-      // ... and lock all elemts used
-      for(std::vector<unsigned int>::const_iterator it = elemsToLock.begin();
-	  it != elemsToLock.end(); ++it)
-	{
-	  if(active[*it])
-	    {
-	      temp_Candidate.addElementInBlock(blockRef,*it);
-	    }
-	  active[*it] = false;	
-	}      
-      
-      egCandidate_.push_back(temp_Candidate);
-      egExtra_.push_back(myExtraEqual);
-      
-      return true;
-      
-//       bool mvaSelected = (BDToutput_[cgsf] >=  mvaEleCut_);
-//       if( mvaSelected || bypassmva ) 	  {
-// 	  elCandidate_.push_back(temp_Candidate);
-// 	  if(itextra!=electronExtra_.end()) 
-// 	    itextra->setStatus(PFCandidateElectronExtra::Selected,true);
-// 	}
-//       else 	  {
-// 	if(itextra!=electronExtra_.end()) 
-// 	  itextra->setStatus(PFCandidateElectronExtra::Rejected,true);
-//       }
-//       allElCandidate_.push_back(temp_Candidate);
-//       
-//       // save the status information
-//       if(itextra!=electronExtra_.end()) {
-// 	itextra->setStatus(PFCandidateElectronExtra::ECALDrivenPreselected,bypassmva);
-// 	itextra->setStatus(PFCandidateElectronExtra::MVASelected,mvaSelected);
-//       }
-      
-
-    }
-    else {
-      //BDToutput_[cgsf] = -1.;   // if the momentum is < 0.5 ID = false, but not sure
-      // it could be misleading. 
-      if( DebugIDCandidates ) 
-	cout << "SetCandidates:: No Candidate Produced because of Pt cut: 0.5 " <<endl;
-      return false;
-    }
-  } 
-  else {
-    //BDToutput_[cgsf] = -1.;  // if gsf ref does not exist
-    if( DebugIDCandidates ) 
-      cout << "SetCandidates:: No Candidate Produced because of No GSF Track Ref " <<endl;
-    return false;
-  }
-  return false;
 }

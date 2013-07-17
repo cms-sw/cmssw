@@ -290,41 +290,14 @@ private:
 
   
   // ------ end of new stuff 
-
-
-  // NB:
-  // associatedToGsf = SC linked to primary GSF track by matched cluster
-  // associatedToBrem = SC associated to secondary GSF track by matched cluster
-  //                  - care is taken to make sure there is not a closer
-  //                  - primary gsf track.
-  // associatedToEcal = HCAL/GSF/Brems/Tracks associated to ECAL pieces
+  
   
   unsigned int whichTrackAlgo(const reco::TrackRef& trackRef);
 
   bool isPrimaryTrack(const reco::PFBlockElementTrack& KfEl,
 		      const reco::PFBlockElementGsfTrack& GsfEl);  
   
-  void AddElectronElements(unsigned int gsf_index,
-			   std::vector<unsigned int> &elemsToLock,
-			   const reco::PFBlockRef&  blockRef,
-			   AsscMap& associatedToGsf_,
-			   AsscMap& associatedToBrems_,
-			   AsscMap& associatedToEcal_);
-  
-
-  bool AddElectronCandidate(unsigned int gsf_index,
-			    reco::SuperClusterRef scref,
-			    std::vector<unsigned int> &elemsToLock,
-			    const reco::PFBlockRef&  blockRef,
-			    AsscMap& associatedToGsf_,
-			    AsscMap& associatedToBrems_,
-			    AsscMap& associatedToEcal_,
-			    std::vector<bool>& active); 
-  
- //Data members from PFElectronAlgo
-//   std::vector<reco::PFCandidate> elCandidate_;
-//   std::vector<reco::PFCandidate> allElCandidate_;
-  //std::map<unsigned int,std::vector<reco::PFCandidate> > electronConstituents_;
+ 
   //std::vector<double> BDToutput_;
   //std::vector<reco::PFCandidateElectronExtra > electronExtra_;
   std::vector<bool> lockExtraKf_;

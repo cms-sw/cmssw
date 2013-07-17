@@ -12,7 +12,7 @@ process.GlobalTag.globaltag = autoCond['startup']
 
 #process.Timing =cms.Service("Timing")
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(100)
+    input = cms.untracked.int32(1000)
 )
 
 process.source = cms.Source(
@@ -22,7 +22,7 @@ process.source = cms.Source(
     #'file:/tmp/lgray/FE329242-9490-E211-BBD9-003048F01174.root',
     '/store/relval/CMSSW_6_1_0-PU_START61_V8/SingleElePt300ExtRelVal610/GEN-SIM-RECO/v1/00000/90DEE330-F769-E211-8EDA-002590494D9C.root'
     ),
-    eventsToProcess = cms.untracked.VEventRange('1:852912'),
+    #eventsToProcess = cms.untracked.VEventRange('1:852912'),
     #eventsToProcess = cms.untracked.VEventRange('1:1217421-1:1217421'),
     #                                             '1:1220344-1:1220344',
     #                                             '1:1655912-1:1655912',
@@ -138,9 +138,9 @@ process.outpath = cms.EndPath(
 
 # And the logger
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
-process.MessageLogger.cout = cms.untracked.PSet(
-    threshold = cms.untracked.string('INFO')
-    )
+#process.MessageLogger.cout = cms.untracked.PSet(
+#    threshold = cms.untracked.string('INFO')
+#    )
 process.options = cms.untracked.PSet(
     makeTriggerResults = cms.untracked.bool(True),
     #wantSummary = cms.untracked.bool(True),
