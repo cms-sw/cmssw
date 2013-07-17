@@ -54,7 +54,7 @@ sven.dildick@cern.ch
 
 2. CMSSW-specific github setup
 
-2.1 Setup a new CMSSW environment. See list of CMSSW tags on Git to get the latest version available (currently CMSSW_6_2_0).
+2.1 Setup a new CMSSW environment. See list of CMSSW tags on Git to get the latest version available (currently CMSSW_6_1_2_SLHC6_patch1).
 <pre><code>cmsrel CMSSW_X_Y_Z<br>cd CMSSW_X_Y_Z/src<br>cmsenv</code></pre>
  
 2.2 Initialize and configure Git. In CMSSW_X_Y_Z/src, do
@@ -88,7 +88,7 @@ git cms-addpkg L1Trigger/CSCTrackFinder
 git cms-addpkg L1Trigger/CSCCommonTrigger
 -->
 
-The current branch should be from-CMSSW_6_2_0. 
+The current branch should be from-CMSSW_6_1_2_SLHC6_patch1. 
 
 3.2 Checkout the latest GEM developments, merge the changes and compile.
 
