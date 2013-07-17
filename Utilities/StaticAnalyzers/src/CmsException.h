@@ -8,7 +8,7 @@
 #define LLVM_CLANG_STATICANALYZER_CMS_CMSEXCEPTION_H
 
 #include <llvm/Support/Regex.h>
-
+#include <llvm/Support/raw_ostream.h>
 #include "clang/AST/Type.h"
 #include "clang/Basic/SourceManager.h"
 #include "clang/StaticAnalyzer/Core/BugReporter/BugReporter.h"
