@@ -1,5 +1,5 @@
 // F. Cossutti 
-// $Date: 2010/11/11 16:28:30 $
+// $Date: 2012/02/10 15:11:41 $
 // $Revision: 1.1 $
 //
 // ROOT macro for graphical compariosn of Monitor Elements in a user
