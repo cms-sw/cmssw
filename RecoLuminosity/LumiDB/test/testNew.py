@@ -47,4 +47,4 @@ if __name__=='__main__':
                 print 'pathname, hltprescales ',pathname,hltprescales[pidx]
     session.transaction().commit()
     del session
-    
+    print ''    

@@ -167,6 +167,8 @@ if __name__ == '__main__':
     reqHlt=False
     if options.action=='overview' or options.action=='lumibyls':
         reqTrg=True
+        if options.action=='lumibyls' and options.hltpath:
+            reqHlt=True
     if options.action=='recorded':
         reqTrg=True
         reqHlt=True
@@ -259,9 +261,9 @@ if __name__ == '__main__':
     # #############################################################
     datatagname=options.datatag
     if not datatagname:
-        (datatagid,datatagname)=revisionDML.currentDataTag(session.nominalSchema())
+        (datatagid,datatagname)=revisionDML.currentDataTag(session.nominalSchema(),lumitype='PIXEL')
     else:
-        datatagid=revisionDML.getDataTagId(session.nominalSchema(),datatagname)
+        datatagid=revisionDML.getDataTagId(session.nominalSchema(),datatagname,lumitype='PIXEL')
 
     dataidmap=lumiCalcAPI.runList(session.nominalSchema(),datatagid,runmin=reqrunmin,runmax=reqrunmax,fillmin=reqfillmin,fillmax=reqfillmax,startT=reqtimemin,stopT=reqtimemax,l1keyPattern=None,hltkeyPattern=None,amodetag=None,nominalEnergy=None,energyFlut=None,requiretrg=reqTrg,requirehlt=reqHlt,preselectedruns=filerunlist,lumitype='PIXEL')
     if not dataidmap:
@@ -273,10 +275,10 @@ if __name__ == '__main__':
             print '[INFO] No qualified lumi data found for run, ',irun
         if reqTrg and not tid:
             print '[INFO] No qualified trg data found for run ',irun
-            continue
+        #    continue
         if reqHlt and not hid:
             print '[INFO] No qualified hlt data found for run ',irun
-            continue
+        #    continue
         rruns.append(irun)
     if not irunlsdict: #no file
         irunlsdict=dict(zip(rruns,[None]*len(rruns)))
