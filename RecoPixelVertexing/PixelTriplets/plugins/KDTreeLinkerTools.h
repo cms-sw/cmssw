@@ -1,6 +1,9 @@
 #ifndef KDTreeLinkerToolsTemplated_h
 #define KDTreeLinkerToolsTemplated_h
 
+#include <assert.h>
+#include <algorithm>
+
 // Box structure used to define 2D field.
 // It's used in KDTree building step to divide the detector
 // space (ECAL, HCAL...) and in searching step to create a bounding
@@ -32,8 +35,8 @@ template <typename DATA>
 struct KDTreeNodeInfo 
 {
   DATA data;
-  float dim1;
-  float dim2;
+  float dim[2];
+  enum {kDim1=0, kDim2=1};
 
   public:
   KDTreeNodeInfo()
@@ -42,7 +45,7 @@ struct KDTreeNodeInfo
   KDTreeNodeInfo(const DATA&	d,
 		 float		dim_1,
 		 float		dim_2)
-    : data(d), dim1(dim_1), dim2(dim_2)
+    : data(d), dim{dim_1, dim_2}
   {}
 };
 
@@ -74,6 +77,54 @@ struct KDTreeNode
   void setAttributs(const KDTreeBox&   regionBox) 
   {
     region = regionBox;
+  }
+};
+
+template <typename DATA>
+struct KDTreeNodes {
+  struct Node {
+    Node(): median(0.0f), right(0) {}
+    float median;
+    int right;
+  };
+  std::vector<Node> nodes;
+  std::vector<KDTreeNodeInfo<DATA>> info;
+
+  int poolSize;
+  int poolPos;
+
+  constexpr KDTreeNodes(): poolSize(-1), poolPos(-1) {}
+
+  bool empty() const { return poolPos == -1; }
+  int size() const { return poolPos + 1; }
+
+  void clear() {
+    nodes.clear();
+    info.clear();
+    poolSize = -1;
+    poolPos = -1;
+  }
+
+  int getNextNode() {
+    ++poolPos;
+    // The tree size is exactly 2 * nbrElts - 1 and this is the total allocated memory.
+    // If we have used more than that....there is a big problem.
+    //assert(poolPos < poolSize);
+    return poolPos;
+  }
+
+  void build(int sizeData) {
+    poolSize = sizeData*2-1;
+    nodes.resize(poolSize);
+    info.resize(poolSize);
+  };
+
+  bool isLeaf(int index) const {
+    // Valid values of right are always >= 2
+    // index 0 is the root, and 1 is the first left node
+    // Exploit index values 0 and 1 to mark which of dim1/dim2 is the
+    // current one in recSearch() at the depth of the leaf.
+    return nodes[index].right < 2;
   }
 };
 
