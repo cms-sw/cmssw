@@ -39,6 +39,11 @@ namespace {
     return a.first < b.first;
   } 
 
+  double getPFClusterEnergy(const PFClusterPtr& p) {
+    return p->energy();
+  }
+
+
   struct SumPSEnergy : public std::binary_function<double,
 						   const PFClusterPtr&,
 						   double> {
@@ -348,44 +353,60 @@ buildSuperCluster(CalibClusterPtr& seed,
   std::vector<const reco::PFCluster*> bare_ptrs;
   // calculate necessary parameters and build the SC
   double posX(0), posY(0), posZ(0),
-    rawSCEnergy(0), corrSCEnergy(0), corrPSEnergy(0), clusterCorrEE(0), 
-    PS1_clus_sum(0), PS2_clus_sum(0);  
-  for( auto& clus : clustered ) {
+    rawSCEnergy(0), corrSCEnergy(0), clusterCorrEE(0), 
+    corrPS1Energy(0), corrPS2Energy(0), 
+    ePS1(0), ePS2(0);
+  std::vector<double> ps1_energies, ps2_energies;
+  for( auto& clus : clustered ) {    
+    ePS1 = ePS2 = 0;
     bare_ptrs.push_back(clus->the_ptr().get());
       
-    const double cluseraw = clus->energy_nocalib();
-    const double clusecalib_nops = clus->energy();
+    double cluseraw = clus->energy_nocalib();
     const math::XYZPoint& cluspos = clus->the_ptr()->position();
     posX += cluseraw * cluspos.X();
     posY += cluseraw * cluspos.Y();
     posZ += cluseraw * cluspos.Z();
     // update EE calibrated super cluster energies
     if( isEE ) {
+      ps1_energies.clear();
+      ps2_energies.clear();      
       const auto& psclusters = _psclustersforee[clus->the_ptr()];
-      PS1_clus_sum = std::accumulate(psclusters.begin(),psclusters.end(),
-				     0.0,sumps1);
-      PS2_clus_sum = std::accumulate(psclusters.begin(),psclusters.end(),
-				     0.0,sumps2);
+      for( const auto& psclus : psclusters ) {
+	switch( psclus->layer() ) {
+	case PFLayer::PS1:
+	  ps1_energies.push_back(psclus->energy());
+	  break;
+	case PFLayer::PS2:
+	  ps2_energies.push_back(psclus->energy());
+	  break;
+	default:
+	  break;
+	}
+      }      
       clusterCorrEE = 
 	_pfEnergyCalibration->energyEm(*(clus->the_ptr()),
-				       PS1_clus_sum,PS2_clus_sum,
+				       ps1_energies,ps2_energies,
+				       ePS1,ePS2,
 				       applyCrackCorrections_);
-      clus->resetCalibratedEnergy(clusterCorrEE);
+      cluseraw = clusterCorrEE - ePS1 - ePS2;
+      clus->resetCalibratedEnergy(clusterCorrEE);      
     }
 
-    rawSCEnergy  += cluseraw;
-    corrSCEnergy += clus->energy();    
-    corrPSEnergy += clus->energy() - clusecalib_nops;    
+    rawSCEnergy   += cluseraw;
+    corrSCEnergy  += clus->energy();    
+    corrPS1Energy += ePS1;
+    corrPS2Energy += ePS2;
   }
   posX /= rawSCEnergy;
   posY /= rawSCEnergy;
   posZ /= rawSCEnergy;    
   
   // now build the supercluster
-  reco::SuperCluster new_sc(corrSCEnergy,math::XYZPoint(posX,posY,posZ)); 
-  double ps1_energy(0.0), ps2_energy(0.0); 
+  reco::SuperCluster new_sc(corrSCEnergy,math::XYZPoint(posX,posY,posZ));   
   new_sc.setSeed(clustered.front()->the_ptr());
-  new_sc.setPreshowerEnergy(corrPSEnergy); 
+  new_sc.setPreshowerEnergy(corrPS1Energy+corrPS2Energy);
+  new_sc.setPreshowerEnergyPlane1(corrPS1Energy);
+  new_sc.setPreshowerEnergyPlane2(corrPS2Energy);
   for( const auto& clus : clustered ) {
     new_sc.addCluster(clus->the_ptr());
     
@@ -400,22 +421,18 @@ buildSuperCluster(CalibClusterPtr& seed,
 					     EEtoPS_->end(),
 					     ee_key_val,
 					     sortByKey);
-    // EE rechits should be uniquely matched to sets of pre-shower
-    // clusters at this point, so we throw an exception if otherwise
-    // now wrapped in EDM debug flags
+      // EE rechits should be uniquely matched to sets of pre-shower
+      // clusters at this point, so we throw an exception if otherwise
+      // now wrapped in EDM debug flags
       for( auto i_ps = clustops.first; i_ps != clustops.second; ++i_ps) {
+	edm::Ptr<reco::PFCluster> psclus(i_ps->second);
 #ifdef EDM_ML_DEBUG
 	auto found_pscluster = std::find(new_sc.preshowerClustersBegin(),
 					 new_sc.preshowerClustersEnd(),
 					 i_ps->second);
 	if( found_pscluster == new_sc.preshowerClustersEnd() ) {
-#endif
-	  edm::Ptr<reco::PFCluster> psclus(i_ps->second);
-	  const double psenergy = psclus->energy();
-	  const PFLayer::Layer pslayer = psclus->layer();	  
-	  new_sc.addPreshowerCluster(psclus);
-	  ps1_energy += (PFLayer::PS1 == pslayer)*psenergy;
-	  ps2_energy += (PFLayer::PS2 == pslayer)*psenergy;	  
+#endif	  
+	  new_sc.addPreshowerCluster(psclus);	  	  
 #ifdef EDM_ML_DEBUG
 	} else {
 	  throw cms::Exception("PFECALSuperClusterAlgo::buildSuperCluster")
@@ -427,8 +444,7 @@ buildSuperCluster(CalibClusterPtr& seed,
       }
     }
   }  
-  new_sc.setPreshowerEnergyPlane1(ps1_energy);
-  new_sc.setPreshowerEnergyPlane2(ps2_energy);
+  
   
   // calculate linearly weighted cluster widths
   PFClusterWidthAlgo pfwidth(bare_ptrs);
