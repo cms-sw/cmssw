@@ -147,7 +147,10 @@ template <class T> T FWProxyBuilderConfiguration::value(const std::string& pname
 template bool FWProxyBuilderConfiguration::value<bool>(const std::string& name);
 template long FWProxyBuilderConfiguration::value<long>(const std::string& name);
 template double FWProxyBuilderConfiguration::value<double>(const std::string& name);
+template std::string FWProxyBuilderConfiguration::value<std::string>(const std::string& name);
 
 template FWGenericParameter<bool>* FWProxyBuilderConfiguration::assertParam(const std::string& name, bool def);
 template FWGenericParameterWithRange<long>* FWProxyBuilderConfiguration::assertParam(const std::string& name, long def,long min, long max);
 template FWGenericParameterWithRange<double>* FWProxyBuilderConfiguration::assertParam(const std::string& name, double def,double min, double max);
+template FWGenericParameter<std::string>* FWProxyBuilderConfiguration::assertParam(const std::string& name, std::string def);
+
