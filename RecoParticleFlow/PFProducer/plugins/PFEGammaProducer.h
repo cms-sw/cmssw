@@ -25,7 +25,7 @@
 #include "DataFormats/CaloRecHit/interface/CaloClusterFwd.h"
 #include "DataFormats/CaloRecHit/interface/CaloCluster.h"
 
-
+#include <memory>
 
 class PFEGammaAlgo;
 class PFEnergyCalibrationHF;
@@ -52,13 +52,13 @@ class PFEGammaProducer : public edm::EDProducer {
   virtual void produce(edm::Event&, const edm::EventSetup&) override;
   virtual void beginRun(const edm::Run &, const edm::EventSetup &) override;
 
- private:
-   
+ private:  
+
   void setPFEGParameters(double mvaEleCut,
 			  std::string mvaWeightFileEleID,
 			  bool usePFElectrons,
-			  const boost::shared_ptr<PFSCEnergyCalibration>& thePFSCEnergyCalibration,
-			  const boost::shared_ptr<PFEnergyCalibration>& thePFEnergyCalibration,
+			  const std::shared_ptr<PFSCEnergyCalibration>& thePFSCEnergyCalibration,
+			  const std::shared_ptr<PFEnergyCalibration>& thePFEnergyCalibration,
 			  double sumEtEcalIsoForEgammaSC_barrel,
 			  double sumEtEcalIsoForEgammaSC_endcap,
 			  double coneEcalIsoForEgammaSC,
@@ -92,6 +92,7 @@ class PFEGammaProducer : public edm::EDProducer {
 			     );   
   
   edm::InputTag  inputTagBlocks_;
+  edm::InputTag eetopsSrc_;
   edm::InputTag  vertices_;
   edm::InputTag  inputTagEgammaElectrons_;
 
@@ -103,7 +104,7 @@ class PFEGammaProducer : public edm::EDProducer {
   // Use photon regression
   bool usePhotonReg_;
   bool useRegressionFromDB_;
-  const GBRForest * ReaderGC_;
+  const GBRForest* ReaderGC_;
   const GBRForest* ReaderLC_;
   const GBRForest* ReaderRes_;
   const GBRForest* ReaderLCEB_;
@@ -121,7 +122,7 @@ class PFEGammaProducer : public edm::EDProducer {
   // Take PF cluster calibrations from Global Tag ?
   bool useCalibrationsFromDB_;
 
-  boost::shared_ptr<PFSCEnergyCalibration> thePFSCEnergyCalibration_;  
+  std::shared_ptr<PFSCEnergyCalibration> thePFSCEnergyCalibration_;  
   
   /// Variables for PFEGamma
   std::string mvaWeightFileEleID_;
@@ -144,19 +145,18 @@ class PFEGammaProducer : public edm::EDProducer {
   reco::Vertex       primaryVertex_;
   bool               useVertices_;   
   
-  std::auto_ptr< reco::PFCandidateCollection >    egCandidates_;
-  std::auto_ptr< reco::CaloClusterCollection >    ebeeClusters_;
-  std::auto_ptr< reco::CaloClusterCollection >    esClusters_;
-  std::auto_ptr< reco::SuperClusterCollection >    sClusters_;
+  std::auto_ptr< reco::PFCandidateCollection >          egCandidates_;
+  std::auto_ptr<reco::PFCandidateEGammaExtraCollection> egExtra_;
+  std::auto_ptr< reco::SuperClusterCollection >         sClusters_;  
 
   /// the unfiltered electron collection 
-  std::auto_ptr<reco::PFCandidateEGammaExtraCollection>    egExtra_;  
+    
   
   // Name of the calibration functions to read from the database
   // std::vector<std::string> fToRead;
   
   /// particle flow algorithm
-  std::auto_ptr<PFEGammaAlgo>      pfeg_;
+  std::unique_ptr<PFEGammaAlgo>      pfeg_;
 
 };
 

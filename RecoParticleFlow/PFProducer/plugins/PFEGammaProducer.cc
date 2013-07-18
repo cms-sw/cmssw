@@ -23,20 +23,33 @@
 
 #include "TFile.h"
 
-using namespace std;
+//#define PFLOW_DEBUG
 
-using namespace boost;
+#ifdef PFLOW_DEBUG
+#define docast(x,y) dynamic_cast<x>(y)
+#define LOGVERB(x) edm::LogVerbatim(x)
+#define LOGWARN(x) edm::LogWarning(x)
+#define LOGERR(x) edm::LogError(x)
+#define LOGDRESSED(x)  edm::LogInfo(x)
+#else
+#define docast(x,y) reinterpret_cast<x>(y)
+#define LOGVERB(x) LogTrace(x)
+#define LOGWARN(x) edm::LogWarning(x)
+#define LOGERR(x) edm::LogError(x)
+#define LOGDRESSED(x) LogDebug(x)
+#endif
 
-using namespace edm;
-
-typedef std::list< reco::PFBlockRef >::iterator IBR;
-
+namespace {
+  typedef std::list< reco::PFBlockRef >::iterator IBR;
+}
 
 PFEGammaProducer::PFEGammaProducer(const edm::ParameterSet& iConfig) {
   
 
   inputTagBlocks_ 
-    = iConfig.getParameter<InputTag>("blocks");
+    = iConfig.getParameter<edm::InputTag>("blocks");
+
+  eetopsSrc_ = iConfig.getParameter<edm::InputTag>("EEtoPS_source");
 
   usePhotonReg_
     =  iConfig.getParameter<bool>("usePhotonReg");
@@ -55,7 +68,7 @@ PFEGammaProducer::PFEGammaProducer(const edm::ParameterSet& iConfig) {
   calibPFSCEle_Fbrem_endcap = iConfig.getParameter<std::vector<double> >("calibPFSCEle_Fbrem_endcap");
   calibPFSCEle_barrel = iConfig.getParameter<std::vector<double> >("calibPFSCEle_barrel");
   calibPFSCEle_endcap = iConfig.getParameter<std::vector<double> >("calibPFSCEle_endcap");
-  boost::shared_ptr<PFSCEnergyCalibration>  
+  std::shared_ptr<PFSCEnergyCalibration>  
     thePFSCEnergyCalibration ( new PFSCEnergyCalibration(calibPFSCEle_Fbrem_barrel,calibPFSCEle_Fbrem_endcap,
                                                          calibPFSCEle_barrel,calibPFSCEle_endcap )); 
                                
@@ -71,9 +84,7 @@ PFEGammaProducer::PFEGammaProducer(const edm::ParameterSet& iConfig) {
 
   // register products
   produces<reco::PFCandidateCollection>();
-  produces<reco::PFCandidateEGammaExtraCollection>();
-  produces<reco::CaloClusterCollection>("EBEEClusters");
-  produces<reco::CaloClusterCollection>("ESClusters");
+  produces<reco::PFCandidateEGammaExtraCollection>();  
   produces<reco::SuperClusterCollection>();
   
   //PFElectrons Configuration
@@ -81,45 +92,45 @@ PFEGammaProducer::PFEGammaProducer(const edm::ParameterSet& iConfig) {
     = iConfig.getParameter<double>("pf_electron_mvaCut");
 
   
-  string mvaWeightFileEleID
-    = iConfig.getParameter<string>("pf_electronID_mvaWeightFile");
+  std::string mvaWeightFileEleID
+    = iConfig.getParameter<std::string>("pf_electronID_mvaWeightFile");
 
   bool applyCrackCorrectionsForElectrons
     = iConfig.getParameter<bool>("pf_electronID_crackCorrection");
   
-  string path_mvaWeightFileEleID;
+  std::string path_mvaWeightFileEleID;
 
   path_mvaWeightFileEleID = edm::FileInPath ( mvaWeightFileEleID.c_str() ).fullPath();
      
 
   //PFPhoton Configuration
 
-  string path_mvaWeightFileConvID;
-  string mvaWeightFileConvID;
-  string path_mvaWeightFileGCorr;
-  string path_mvaWeightFileLCorr;
-  string path_X0_Map;
-  string path_mvaWeightFileRes;
+  std::string path_mvaWeightFileConvID;
+  std::string mvaWeightFileConvID;
+  std::string path_mvaWeightFileGCorr;
+  std::string path_mvaWeightFileLCorr;
+  std::string path_X0_Map;
+  std::string path_mvaWeightFileRes;
   double mvaConvCut=-99.;
   double sumPtTrackIsoForPhoton = 99.;
   double sumPtTrackIsoSlopeForPhoton = 99.;
 
 
-  mvaWeightFileConvID =iConfig.getParameter<string>("pf_convID_mvaWeightFile");
+  mvaWeightFileConvID =iConfig.getParameter<std::string>("pf_convID_mvaWeightFile");
   mvaConvCut = iConfig.getParameter<double>("pf_conv_mvaCut");
   path_mvaWeightFileConvID = edm::FileInPath ( mvaWeightFileConvID.c_str() ).fullPath();  
   sumPtTrackIsoForPhoton = iConfig.getParameter<double>("sumPtTrackIsoForPhoton");
   sumPtTrackIsoSlopeForPhoton = iConfig.getParameter<double>("sumPtTrackIsoSlopeForPhoton");
 
-  string X0_Map=iConfig.getParameter<string>("X0_Map");
+  std::string X0_Map=iConfig.getParameter<std::string>("X0_Map");
   path_X0_Map = edm::FileInPath( X0_Map.c_str() ).fullPath();
 
   if(!useRegressionFromDB_) {
-    string mvaWeightFileLCorr=iConfig.getParameter<string>("pf_locC_mvaWeightFile");
+    std::string mvaWeightFileLCorr=iConfig.getParameter<std::string>("pf_locC_mvaWeightFile");
     path_mvaWeightFileLCorr = edm::FileInPath( mvaWeightFileLCorr.c_str() ).fullPath();
-    string mvaWeightFileGCorr=iConfig.getParameter<string>("pf_GlobC_mvaWeightFile");
+    std::string mvaWeightFileGCorr=iConfig.getParameter<std::string>("pf_GlobC_mvaWeightFile");
     path_mvaWeightFileGCorr = edm::FileInPath( mvaWeightFileGCorr.c_str() ).fullPath();
-    string mvaWeightFileRes=iConfig.getParameter<string>("pf_Res_mvaWeightFile");
+    std::string mvaWeightFileRes=iConfig.getParameter<std::string>("pf_Res_mvaWeightFile");
     path_mvaWeightFileRes=edm::FileInPath(mvaWeightFileRes.c_str()).fullPath();
 
     TFile *fgbr = new TFile(path_mvaWeightFileGCorr.c_str(),"READ");
@@ -128,20 +139,19 @@ PFEGammaProducer::PFEGammaProducer(const edm::ParameterSet& iConfig) {
     ReaderLC_  = (const GBRForest*)fgbr2->Get("GBRForest");
     TFile *fgbr3 = new TFile(path_mvaWeightFileRes.c_str(),"READ");
     ReaderRes_  = (const GBRForest*)fgbr3->Get("GBRForest");
-    LogDebug("PFEGammaProducer")<<"Will set regressions from binary files " <<endl;
+    LogDebug("PFEGammaProducer")<<"Will set regressions from binary files " <<std::endl;
   }
 
   edm::ParameterSet iCfgCandConnector 
     = iConfig.getParameter<edm::ParameterSet>("iCfgCandConnector");
 
 
-  // fToRead =  iConfig.getUntrackedParameter<vector<string> >("toRead");
+  // fToRead =  iConfig.getUntrackedParameter<std::vector<std::string> >("toRead");
 
   useCalibrationsFromDB_
     = iConfig.getParameter<bool>("useCalibrationsFromDB");    
 
-  boost::shared_ptr<PFEnergyCalibration> 
-    calibration( new PFEnergyCalibration() ); 
+  std::shared_ptr<PFEnergyCalibration> calibration(new PFEnergyCalibration()); 
 
   int algoType 
     = iConfig.getParameter<unsigned>("algoType");
@@ -156,29 +166,28 @@ PFEGammaProducer::PFEGammaProducer(const edm::ParameterSet& iConfig) {
   
   //PFEGamma
   setPFEGParameters(mvaEleCut,
-                              path_mvaWeightFileEleID,
-                              true,
-                              thePFSCEnergyCalibration,
-                              calibration,
-                              sumEtEcalIsoForEgammaSC_barrel,
-                              sumEtEcalIsoForEgammaSC_endcap,
-                              coneEcalIsoForEgammaSC,
-                              sumPtTrackIsoForEgammaSC_barrel,
-                              sumPtTrackIsoForEgammaSC_endcap,
-                              nTrackIsoForEgammaSC,
-                              coneTrackIsoForEgammaSC,
-                              applyCrackCorrectionsForElectrons,
-                              usePFSCEleCalib,
-                              useEGammaElectrons_,
-                              useEGammaSupercluster,
-                              true,
-                              path_mvaWeightFileConvID,
-                              mvaConvCut,
-                              usePhotonReg_,
-                              path_X0_Map,
-                              sumPtTrackIsoForPhoton,
-                              sumPtTrackIsoSlopeForPhoton                             
-                            );  
+		    path_mvaWeightFileEleID,
+		    true,
+		    thePFSCEnergyCalibration,
+		    calibration,
+		    sumEtEcalIsoForEgammaSC_barrel,
+		    sumEtEcalIsoForEgammaSC_endcap,
+		    coneEcalIsoForEgammaSC,
+		    sumPtTrackIsoForEgammaSC_barrel,
+		    sumPtTrackIsoForEgammaSC_endcap,
+		    nTrackIsoForEgammaSC,
+		    coneTrackIsoForEgammaSC,
+		    applyCrackCorrectionsForElectrons,
+		    usePFSCEleCalib,
+		    useEGammaElectrons_,
+		    useEGammaSupercluster,
+		    true,
+		    path_mvaWeightFileConvID,
+		    mvaConvCut,
+		    usePhotonReg_,
+		    path_X0_Map,
+		    sumPtTrackIsoForPhoton,
+		    sumPtTrackIsoSlopeForPhoton);  
 
   //MIKE: Vertex Parameters
   vertices_ = iConfig.getParameter<edm::InputTag>("vertexCollection");
@@ -200,43 +209,6 @@ PFEGammaProducer::beginRun(const edm::Run & run,
                      const edm::EventSetup & es) 
 {
 
-
-  /*
-  static map<string, PerformanceResult::ResultType> functType;
-
-  functType["PFfa_BARREL"] = PerformanceResult::PFfa_BARREL;
-  functType["PFfa_ENDCAP"] = PerformanceResult::PFfa_ENDCAP;
-  functType["PFfb_BARREL"] = PerformanceResult::PFfb_BARREL;
-  functType["PFfb_ENDCAP"] = PerformanceResult::PFfb_ENDCAP;
-  functType["PFfc_BARREL"] = PerformanceResult::PFfc_BARREL;
-  functType["PFfc_ENDCAP"] = PerformanceResult::PFfc_ENDCAP;
-  functType["PFfaEta_BARREL"] = PerformanceResult::PFfaEta_BARREL;
-  functType["PFfaEta_ENDCAP"] = PerformanceResult::PFfaEta_ENDCAP;
-  functType["PFfbEta_BARREL"] = PerformanceResult::PFfbEta_BARREL;
-  functType["PFfbEta_ENDCAP"] = PerformanceResult::PFfbEta_ENDCAP;
-  */
-  
-  /*
-  for(vector<string>::const_iterator name = fToRead.begin(); name != fToRead.end(); ++name) {    
-    
-    cout << "Function: " << *name << endl;
-    PerformanceResult::ResultType fType = functType[*name];
-    pfCalibrations->printFormula(fType);
-    
-    // evaluate it @ 10 GeV
-    float energy = 10.;
-    
-    BinningPointByMap point;
-    point.insert(BinningVariables::JetEt, energy);
-    
-    if(pfCalibrations->isInPayload(fType, point)) {
-      float value = pfCalibrations->getResult(fType, point);
-      cout << "   Energy before:: " << energy << " after: " << value << endl;
-    } else cout <<  "outside limits!" << endl;
-    
-  }
-  */
-  
   if(useRegressionFromDB_) {
     edm::ESHandle<GBRForest> readerPFLCEB;
     edm::ESHandle<GBRForest> readerPFLCEE;    
@@ -258,7 +230,7 @@ PFEGammaProducer::beginRun(const edm::Run & run,
     ReaderEcalRes_=readerPFRes.product();
     
     /*
-    LogDebug("PFEGammaProducer")<<"setting regressions from DB "<<endl;
+    LogDebug("PFEGammaProducer")<<"setting regressions from DB "<<std::endl;
     */
   } 
 
@@ -270,50 +242,32 @@ PFEGammaProducer::beginRun(const edm::Run & run,
 
 
 void 
-PFEGammaProducer::produce(Event& iEvent, 
-                    const EventSetup& iSetup) {
+PFEGammaProducer::produce(edm::Event& iEvent, 
+			     const edm::EventSetup& iSetup) {
   
-  LogDebug("PFEGammaProducer")<<"START event: "
-                        <<iEvent.id().event()
-                        <<" in run "<<iEvent.id().run()<<endl;
+  LOGDRESSED("PFEGammaProducer")
+    <<"START event: "
+    <<iEvent.id().event()
+    <<" in run "<<iEvent.id().run()<<std::endl;
   
 
-  // reset output collection
-  if(egCandidates_.get() )
-    egCandidates_->clear();
-  else 
-    egCandidates_.reset( new reco::PFCandidateCollection );                        
+  // reset output collection  
+  egCandidates_.reset( new reco::PFCandidateCollection );   
+  egExtra_.reset( new reco::PFCandidateEGammaExtraCollection ); 
+  sClusters_.reset( new reco::SuperClusterCollection );      
+    
+  // Get the EE-PS associations
+  edm::Handle<reco::SuperCluster::EEtoPSAssociation> eetops;
+  iEvent.getByLabel(eetopsSrc_,eetops);
 
-  if(ebeeClusters_.get() )
-    ebeeClusters_->clear();
-  else 
-    ebeeClusters_.reset( new reco::CaloClusterCollection );  
-
-  //printf("ebeeclusters->size() = %i\n",int(ebeeClusters_->size()));
-  
-  if(esClusters_.get() )
-    esClusters_->clear();
-  else 
-    esClusters_.reset( new reco::CaloClusterCollection );    
-  
-  if(sClusters_.get() )
-    sClusters_->clear();
-  else 
-    sClusters_.reset( new reco::SuperClusterCollection );   
-  
-  if(egExtra_.get() )
-    egExtra_->clear();
-  else 
-    egExtra_.reset( new reco::PFCandidateEGammaExtraCollection );  
-  
   // Get The vertices from the event
   // and assign dynamic vertex parameters
   edm::Handle<reco::VertexCollection> vertices;
   bool gotVertices = iEvent.getByLabel(vertices_,vertices);
   if(!gotVertices) {
-    ostringstream err;
+    std::ostringstream err;
     err<<"Cannot find vertices for this event.Continuing Without them ";
-    LogError("PFEGammaProducer")<<err.str()<<endl;
+    edm::LogError("PFEGammaProducer")<<err.str()<<std::endl;
   }
 
   //Assign the PFAlgo Parameters
@@ -321,34 +275,30 @@ PFEGammaProducer::produce(Event& iEvent,
 
   // get the collection of blocks 
 
-  Handle< reco::PFBlockCollection > blocks;
+  edm::Handle< reco::PFBlockCollection > blocks;
 
-  LogDebug("PFEGammaProducer")<<"getting blocks"<<endl;
+  LOGDRESSED("PFEGammaProducer")<<"getting blocks"<<std::endl;
   bool found = iEvent.getByLabel( inputTagBlocks_, blocks );  
 
   if(!found ) {
 
-    ostringstream err;
+    std::ostringstream err;
     err<<"cannot find blocks: "<<inputTagBlocks_;
-    LogError("PFEGammaProducer")<<err.str()<<endl;
+    edm::LogError("PFEGammaProducer")<<err.str()<<std::endl;
     
     throw cms::Exception( "MissingProduct", err.str());
   }
-
-
   
-  LogDebug("PFEGammaProducer")<<"particle flow is starting"<<endl;
+  LOGDRESSED("PFEGammaProducer")
+    <<"EGPFlow is starting..."<<std::endl;
 
-  assert( blocks.isValid() );
-
-  //pfAlgo_->reconstructParticles( blocks );
-  
-  if(verbose_) {
-    ostringstream  str;
-    //str<<(*pfAlgo_)<<endl;
-    //    cout << (*pfAlgo_) << endl;
-    LogInfo("PFEGammaProducer") <<str.str()<<endl;
-  }  
+#ifdef PFLOW_DEBUG
+  assert( blocks.isValid() && "edm::Handle to blocks was null!");
+  std::ostringstream  str;
+  //str<<(*pfAlgo_)<<std::endl;
+  //    cout << (*pfAlgo_) << std::endl;
+  LOGDRESSED("PFEGammaProducer") <<str.str()<<std::endl;
+#endif  
 
   // sort elements in three lists:
   std::list< reco::PFBlockRef > hcalBlockRefs;
@@ -359,26 +309,40 @@ PFEGammaProducer::produce(Event& iEvent,
   for( unsigned i=0; i<blocks->size(); ++i ) {
     // reco::PFBlockRef blockref( blockh,i );
     //reco::PFBlockRef blockref = createBlockRef( *blocks, i);
-    reco::PFBlockRef blockref(blocks, i);
+    reco::PFBlockRef blockref(blocks, i);    
     
-    const reco::PFBlock& block = *blockref;
     const edm::OwnVector< reco::PFBlockElement >& 
-      elements = block.elements();
+      elements = blockref->elements();
    
+    LOGDRESSED("PFEGammaProducer") 
+      << "Found " << elements.size() 
+      << " PFBlockElements in block: " << i << std::endl;
+    
     bool singleEcalOrHcal = false;
     if( elements.size() == 1 ){
-      if( elements[0].type() == reco::PFBlockElement::ECAL ){
+      switch( elements[0].type() ) {
+      case reco::PFBlockElement::SC:
+	edm::LogError("PFEGammaProducer")
+	  << "PFBLOCKALGO BUG!!!! Found a SuperCluster in a block by itself!";
+      case reco::PFBlockElement::PS1:
+      case reco::PFBlockElement::PS2:
+      case reco::PFBlockElement::ECAL:
         ecalBlockRefs.push_back( blockref );
         singleEcalOrHcal = true;
-      }
-      if( elements[0].type() == reco::PFBlockElement::HCAL ){
+	break;
+      case reco::PFBlockElement::HFEM:
+      case reco::PFBlockElement::HFHAD:
+      case reco::PFBlockElement::HCAL:
         hcalBlockRefs.push_back( blockref );
         singleEcalOrHcal = true;
-      }
-      if( elements[0].type() == reco::PFBlockElement::HO ){
+	break;
+      case reco::PFBlockElement::HO:
         // Single HO elements are likely to be noise. Not considered for now.
         hoBlockRefs.push_back( blockref );
         singleEcalOrHcal = true;
+	break;
+      default:
+	break;
       }
     }
     
@@ -387,189 +351,99 @@ PFEGammaProducer::produce(Event& iEvent,
     }
   }//loop blocks
   
-
-
-  // loop on blocks that are not single ecal, 
-  // and not single hcal and produce unbiased collection of EGamma Candidates
+  // loop on blocks that are not single ecal, single ps1, single ps2 , or
+  // single hcal and produce unbiased collection of EGamma Candidates
 
   //printf("loop over blocks\n");
   //unsigned nblcks = 0;
-  for( IBR io = otherBlockRefs.begin(); io!=otherBlockRefs.end(); ++io) {
-      const reco::PFBlockRef& blockref = *io;
-      const reco::PFBlock& block = **io;
-      const edm::OwnVector< reco::PFBlockElement >& elements = block.elements();
-      // make a copy of the link data, which will be edited.
-      //PFBlock::LinkData linkData =  block.linkData();
-      
-      // keep track of the elements which are still active.
-      vector<bool>   active( elements.size(), true );  
+
+  // this auto is a const reco::PFBlockRef&
+  for( const auto& blockref : otherBlockRefs ) {   
+    // this auto is a: const edm::OwnVector< reco::PFBlockElement >&
+    const auto& elements = blockref->elements();
+    // make a copy of the link data, which will be edited.
+    //PFBlock::LinkData linkData =  block.linkData();
     
-      //printf("pre  algo: egCandidates size = %i\n",int(egCandidates_->size()));
-      if (pfeg_->isEGValidCandidate(blockref,active)){        
-        //printf("getCandidates size = %i\n",int(pfeg_->getCandidates().size()));
-        egCandidates_->insert(egCandidates_->end(),pfeg_->getCandidates().begin(), pfeg_->getCandidates().end());
-        egExtra_->insert(egExtra_->end(), pfeg_->getEGExtra().begin(), pfeg_->getEGExtra().end());   
-      }
-     // printf("post algo: egCandidates size = %i\n",int(egCandidates_->size()));
-     
-     
+    // keep track of the elements which are still active.
+    std::vector<bool> active( elements.size(), true );      
     
+    pfeg_->RunPFEG(blockref,active);
+    
+    edm::LogInfo("PFEGammaProducer")
+      << "Block with " << elements.size() 
+      << " elements produced " 
+      << pfeg_->getCandidates().size() 
+      << " e-g candidates!" << std::endl;
+
+    const size_t egsize = egCandidates_->size();
+    egCandidates_->resize(egsize + pfeg_->getCandidates().size());
+    reco::PFCandidateCollection::iterator eginsertfrom = 
+      egCandidates_->begin() + egsize;
+    std::move(pfeg_->getCandidates().begin(),
+	      pfeg_->getCandidates().end(),
+	      eginsertfrom);
+    
+    const size_t egxsize = egExtra_->size();
+    egExtra_->resize(egxsize + pfeg_->getEGExtra().size());
+    reco::PFCandidateEGammaExtraCollection::iterator egxinsertfrom = 
+      egExtra_->begin() + egxsize;
+    std::move(pfeg_->getEGExtra().begin(),
+	      pfeg_->getEGExtra().end(),
+	      egxinsertfrom);
+
+    const size_t rscsize = sClusters_->size();
+    sClusters_->resize(rscsize + pfeg_->getRefinedSCs().size());
+    reco::SuperClusterCollection::iterator rscinsertfrom = 
+      sClusters_->begin() + rscsize;
+    std::move(pfeg_->getRefinedSCs().begin(),
+	      pfeg_->getRefinedSCs().end(),
+	      rscinsertfrom);    
   }
   
-//   edm::RefProd<reco::CaloClusterCollection> ebeeClusterProd = iEvent.getRefBeforePut<reco::CaloClusterCollection>("EBEEClusters");
-//   edm::RefProd<reco::CaloClusterCollection> esClusterProd = iEvent.getRefBeforePut<reco::CaloClusterCollection>("ESClusters");
-   edm::RefProd<reco::SuperClusterCollection> sClusterProd = iEvent.getRefBeforePut<reco::SuperClusterCollection>();
+  edm::LogInfo("PFEGammaProducer")
+      << "Running PFEGammaAlgo on all blocks produced = " 
+      << egCandidates_->size() << " e-g candidates!"
+      << std::endl;
+
+  edm::RefProd<reco::SuperClusterCollection> sClusterProd = 
+    iEvent.getRefBeforePut<reco::SuperClusterCollection>();
+
+  edm::RefProd<reco::PFCandidateEGammaExtraCollection> egXtraProd = 
+    iEvent.getRefBeforePut<reco::PFCandidateEGammaExtraCollection>();
   
-  //printf("loop over candidates\n");
-  //make CaloClusters for Refined SuperClusters
-  std::vector<std::vector<int> > ebeeidxs(egCandidates_->size());
-  std::vector<std::vector<int> > esidxs(egCandidates_->size());;
-  for (unsigned int icand=0; icand<egCandidates_->size(); ++icand) {
-    reco::PFCandidate &cand = egCandidates_->at(icand);
-    //reco::PFCandidateEGammaExtra &extra = egExtra_->at(icand);
-
-    //loop over blockelements
-   // printf("loop over blockelements\n");
-    for (reco::PFCandidate::ElementsInBlocks::const_iterator it=cand.elementsInBlocks().begin(); it!=cand.elementsInBlocks().end(); ++it) {
-      const reco::PFBlockElement &element = it->first->elements()[it->second];
-      if (element.type()==reco::PFBlockElement::ECAL) {    
-        reco::CaloCluster cluster(*element.clusterRef().get());
-        ebeeClusters_->push_back(cluster);
-                
-        ebeeidxs[icand].push_back(ebeeClusters_->size()-1);         
-      }
-      else if (element.type()==reco::PFBlockElement::PS1 || element.type()==reco::PFBlockElement::PS2) {
-        reco::CaloCluster cluster(*element.clusterRef().get());
-        esClusters_->push_back(cluster);
-        
-        esidxs[icand].push_back(esClusters_->size()-1);
-      }
+  size_t non_zero_sc_idx = 0; 
+  
+  //set the correct references to refined SC and EG extra using the refprods
+  for (unsigned int i=0; i < egCandidates_->size(); ++i) {
+    reco::PFCandidate &cand = egCandidates_->at(i);
+    reco::PFCandidateEGammaExtra &xtra = egExtra_->at(i);
+    reco::SuperCluster& rsc = sClusters_->at(non_zero_sc_idx);
+    
+    reco::PFCandidateEGammaExtraRef extraref(egXtraProd,i);
+    reco::SuperClusterRef refinedSCRef;
+    // only set refined SC refs where the is valid!
+    if( rsc.energy() != 0.0 ) {      
+      refinedSCRef = reco::SuperClusterRef(sClusterProd,non_zero_sc_idx++);
+    } else {
+      sClusters_->erase(sClusters_->begin() + non_zero_sc_idx);
     }
-    
-  }
-    
-  //put cluster products
-  auto_ptr< reco::CaloClusterCollection >
-    pOutputEBEEClusters( ebeeClusters_ ); 
-  edm::OrphanHandle<reco::CaloClusterCollection > ebeeClusterProd=
-    iEvent.put(pOutputEBEEClusters,"EBEEClusters");        
-    
-  auto_ptr< reco::CaloClusterCollection >
-    pOutputESClusters( esClusters_ ); 
-  edm::OrphanHandle<reco::CaloClusterCollection > esClusterProd=
-    iEvent.put(pOutputESClusters,"ESClusters");         
-    
-  //loop over sets of clusters to make superclusters
-  for (unsigned int iclus=0; iclus<egCandidates_->size(); ++iclus) {
-    reco::PFCandidate &cand = egCandidates_->at(iclus);
-    reco::PFCandidateEGammaExtra &extra = egExtra_->at(iclus);    
-
-    const std::vector<int> &ebeeidx = ebeeidxs[iclus];
-    const std::vector<int> &esidx = esidxs[iclus];
-    reco::CaloClusterPtr seed;
-    
-    reco::CaloClusterPtrVector ebeeclusters;
-    reco::CaloClusterPtrVector esclusters;
-    
-    double maxenergy = 0.;
-    double rawenergy = 0.;
-    double energy = 0.;
-
-    double posX = 0.;
-    double posY = 0.;
-    double posZ = 0.;
-    for (unsigned int icaloclus=0; icaloclus<ebeeidx.size(); ++icaloclus) {
-      const reco::CaloCluster &cluster = ebeeClusterProd->at(ebeeidx[icaloclus]);
-      reco::CaloClusterPtr caloptr(ebeeClusterProd,ebeeidx[icaloclus]);
-      ebeeclusters.push_back(caloptr);
-            
-      rawenergy += cluster.energy();        
-      energy += cluster.energy();   
-      
-      posX += cluster.energy()*cluster.position().x();
-      posY += cluster.energy()*cluster.position().y();
-      posZ += cluster.energy()*cluster.position().z();
-      
-      if (cluster.energy()>maxenergy) {
-        maxenergy = cluster.energy();
-        seed = caloptr;
-      }
-      
-
-      
-    }
-    
-    for (unsigned int icaloclus=0; icaloclus<esidx.size(); ++icaloclus) {
-      const reco::CaloCluster &cluster = esClusterProd->at(esidx[icaloclus]);
-      
-      reco::CaloClusterPtr caloptr(esClusterProd,esidx[icaloclus]);
-      esclusters.push_back(caloptr);
-      
-      energy += cluster.energy();        
-    } 
-        
-    posX /= rawenergy;
-    posY /= rawenergy;
-    posZ /= rawenergy;
-    
-    math::XYZPoint scposition(posX,posY,posZ);
-    
-    reco::SuperCluster refinedSC(rawenergy,scposition,seed,ebeeclusters,esclusters);
-    sClusters_->push_back(refinedSC);
-    
-    reco::SuperClusterRef scref(sClusterProd,sClusters_->size()-1);
-    cand.setSuperClusterRef(scref);
-    extra.setSuperClusterRef(scref);
-  }
-    
-// Save the PFEGamma Extra Collection First as to be able to create valid References  
-  auto_ptr< reco::PFCandidateEGammaExtraCollection >
-    pOutputEGammaCandidateExtraCollection( egExtra_ );    
-  const edm::OrphanHandle<reco::PFCandidateEGammaExtraCollection > egammaExtraProd=
-    iEvent.put(pOutputEGammaCandidateExtraCollection);      
-  //pfAlgo_->setEGammaExtraRef(egammaExtraProd);
-   
-  //final loop over Candidates to set PFCandidateEGammaExtra references
-  for (unsigned int icand=0; icand<egCandidates_->size(); ++icand) {
-    reco::PFCandidate &cand = egCandidates_->at(icand);
-    
-    reco::PFCandidateEGammaExtraRef extraref(egammaExtraProd,icand);
+    xtra.setSuperClusterRef(refinedSCRef); 
+    cand.setSuperClusterRef(refinedSCRef);
     cand.setPFEGammaExtraRef(extraref);    
   }
-     
-    
-  auto_ptr< reco::SuperClusterCollection >
-    pOutputSClusters( sClusters_ ); 
-  //edm::OrphanHandle<reco::SuperClusterCollection > sClusterProd=
-    iEvent.put(pOutputSClusters);    
-    
-  // Save the final PFCandidate collection
-  auto_ptr< reco::PFCandidateCollection > 
-    pOutputCandidateCollection( egCandidates_ ); 
-  
-
-  
-//   LogDebug("PFEGammaProducer")<<"particle flow: putting products in the event"<<endl;
-//   if ( verbose_ ) std::cout <<"particle flow: putting products in the event. Here the full list"<<endl;
-//   int nC=0;
-//   for( reco::PFCandidateCollection::const_iterator  itCand =  (*pOutputCandidateCollection).begin(); itCand !=  (*pOutputCandidateCollection).end(); itCand++) {
-//     nC++;
-//       if (verbose_ ) std::cout << nC << ")" << (*itCand).particleId() << std::endl;
-// 
-//   }
-// 
-//   // Write in the event
-   iEvent.put(pOutputCandidateCollection);
- 
+  // release our demonspawn into the wild to cause havoc
+  iEvent.put(sClusters_);
+  iEvent.put(egExtra_);  
+  iEvent.put(egCandidates_); 
 }
 
 //PFEGammaAlgo: a new method added to set the parameters for electron and photon reconstruction. 
 void 
 PFEGammaProducer::setPFEGParameters(double mvaEleCut,
-                           string mvaWeightFileEleID,
+				       std::string mvaWeightFileEleID,
                            bool usePFElectrons,
-                           const boost::shared_ptr<PFSCEnergyCalibration>& thePFSCEnergyCalibration,
-                           const boost::shared_ptr<PFEnergyCalibration>& thePFEnergyCalibration,
+                           const std::shared_ptr<PFSCEnergyCalibration>& thePFSCEnergyCalibration,
+                           const std::shared_ptr<PFEnergyCalibration>& thePFEnergyCalibration,
                            double sumEtEcalIsoForEgammaSC_barrel,
                            double sumEtEcalIsoForEgammaSC_endcap,
                            double coneEcalIsoForEgammaSC,
@@ -613,10 +487,10 @@ PFEGammaProducer::setPFEGParameters(double mvaEleCut,
     fclose(fileEleID);
   }
   else {
-    string err = "PFAlgo: cannot open weight file '";
+    std::string err = "PFAlgo: cannot open weight file '";
     err += mvaWeightFileEleID;
     err += "'";
-    throw invalid_argument( err );
+    throw std::invalid_argument( err );
   }
   
   usePFPhotons_ = usePFPhotons;
@@ -642,50 +516,34 @@ PFEGammaProducer::setPFEGParameters(double mvaEleCut,
     fclose(filePhotonConvID);  
   }  
   else {  
-    string err = "PFAlgo: cannot open weight file '";  
+    std::string err = "PFAlgo: cannot open weight file '";  
     err += mvaWeightFileConvID;  
     err += "'";  
-    throw invalid_argument( err );  
+    throw std::invalid_argument( err );  
   }  
   const reco::Vertex* pv=&dummy;  
   pfeg_.reset(new PFEGammaAlgo(mvaEleCut_,mvaWeightFileEleID_,
-                             thePFSCEnergyCalibration_,
-                             thePFEnergyCalibration,
-                             applyCrackCorrectionsElectrons_,
-                             usePFSCEleCalib_,
-                             useEGElectrons_,
-                             useEGammaSupercluster_,
-                             sumEtEcalIsoForEgammaSC_barrel_,
-                             sumEtEcalIsoForEgammaSC_endcap_,
-                             coneEcalIsoForEgammaSC_,
-                             sumPtTrackIsoForEgammaSC_barrel_,
-                             sumPtTrackIsoForEgammaSC_endcap_,
-                             nTrackIsoForEgammaSC_,
-                             coneTrackIsoForEgammaSC_,
-                            mvaWeightFileConvID, 
-                            mvaConvCut, 
-                            useReg,
-                            X0_Map,  
-                            *pv,
-                            sumPtTrackIsoForPhoton,
-                            sumPtTrackIsoSlopeForPhoton
-                            ));
-  return;  
-  
-//   pfele_= new PFElectronAlgo(mvaEleCut_,mvaWeightFileEleID_,
-//                           thePFSCEnergyCalibration_,
-//                           thePFEnergyCalibration,
-//                           applyCrackCorrectionsElectrons_,
-//                           usePFSCEleCalib_,
-//                           useEGElectrons_,
-//                           useEGammaSupercluster_,
-//                           sumEtEcalIsoForEgammaSC_barrel_,
-//                           sumEtEcalIsoForEgammaSC_endcap_,
-//                           coneEcalIsoForEgammaSC_,
-//                           sumPtTrackIsoForEgammaSC_barrel_,
-//                           sumPtTrackIsoForEgammaSC_endcap_,
-//                           nTrackIsoForEgammaSC_,
-//                           coneTrackIsoForEgammaSC_);
+				  thePFSCEnergyCalibration_,
+				  thePFEnergyCalibration,
+				  applyCrackCorrectionsElectrons_,
+				  usePFSCEleCalib_,
+				  useEGElectrons_,
+				  useEGammaSupercluster_,
+				  sumEtEcalIsoForEgammaSC_barrel_,
+				  sumEtEcalIsoForEgammaSC_endcap_,
+				  coneEcalIsoForEgammaSC_,
+				  sumPtTrackIsoForEgammaSC_barrel_,
+				  sumPtTrackIsoForEgammaSC_endcap_,
+				  nTrackIsoForEgammaSC_,
+				  coneTrackIsoForEgammaSC_,
+				  mvaWeightFileConvID, 
+				  mvaConvCut, 
+				  useReg,
+				  X0_Map,  
+				  *pv,
+				  sumPtTrackIsoForPhoton,
+				  sumPtTrackIsoSlopeForPhoton
+				  ));
 }
 
 /*
