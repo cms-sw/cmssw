@@ -144,7 +144,7 @@ EOF
 cd POWHEG-BOX/${process}
 
 mv Makefile Makefile.orig
-cat Makefile.orig | sed -e "s#STATIC[ \t]*=[ \t]*-static#STATIC=-dynamic#g" | sed -e "s#PDF[ \t]*=[ \t]*native#PDF=lhapdf#g"> Makefile
+cat Makefile.orig | sed -e "s#[#]*STATIC[ \t]*=[ \t]*-[a-z]*#STATIC=-dynamic#g" | sed -e "s#^PDF[ \t]*=[ \t]*[a-z]*#PDF=lhapdf#g">Makefile
 echo "LIBS+=-lz -lstdc++" >> Makefile
 
 
