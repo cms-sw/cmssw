@@ -1,0 +1,5 @@
+Add tau goodies in CMSSW_5_3_9:
+
+cmsrel CMSSW_5_3_9
+cd CMSSW_5_3_9/src
+git clone git@github.com:cms-tau-developers/CMSSW53x.git
