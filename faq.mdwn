@@ -191,6 +191,85 @@ Moreover there are a number of graphical GUIs including
 gitk (Linux, Mac, Windows, included in git) or [SourceTree](http://www.sourcetreeapp.com)
 (Mac, Windows).
 
+### How can I do showtags?
+
+`showtags` is _CVS_ centric in the sense in git we have no per package tags
+anymore. 
+
+To replace it, you can get the modified files with raw git commands by doing:
+
+     git diff --name-only $CMSSW_VERSION
+
+(of course, drop --name-only if you want the full diff).
+
+A slightly more elaborate way of getting the modified packages is:
+
+     git diff --name-only $CMSSW_VERSION | cut -f1,2 -d/ | sort -u
+
+However in git what makes more sense is to find out the topic branches which 
+are on top of some base release. You can get these of with:
+
+     git log --graph --merges --oneline $CMSSW_VERSION..
+
+For example:
+
+     git log --graph --oneline --merges CMSSW_7_0_X_2013-07-17-0200..
+
+gives:
+
+     * ef036dd Merge pull request #119 from ktf/remove-broken-file
+     * ec831ca Merge pull request #103 from xiezhen/CMSSW_7_0_X
+     * d057e80 Merge pull request #97 from inugent/ValidationforMcM53X
+     * 085470d Merge pull request #89 from ianna/mf-geometry-payload
+     * 1b87cbc Merge pull request #94 from inugent/TauolappandTauSpinner
+     * 4ecd70d Merge pull request #124 from gartung/fix-for-llvm-3.3
+
+which shows the importance of good naming for the branches.
+
+If you drop `--merges` you can also get the single commits that people had in
+one branch:
+
+     git log --graph --oneline CMSSW_7_0_X_2013-07-17-0200..
+
+will give you:
+
+     *   ef036dd Merge pull request #119 from ktf/remove-broken-file
+     |\
+     | * 1219f84 Remove completely broken file.
+     *   ec831ca Merge pull request #103 from xiezhen/CMSSW_7_0_X
+     |\
+     | * 0696b0b add testline
+     | * 3ae6ab3 added
+     | * c2fe08f align with V04-02-08 and fix head report
+     | * de3794e align with V04-02-08 and fix head report
+     | * e1f8dc2 align with V04-02-08 and fix head report
+     | * bac83ea align with V04-02-08
+     | * 8cfd791 align with V04-02-08
+     | * fd3c705 align with V04-02-08
+     | * d7c1596 adopt to schema change
+     *   d057e80 Merge pull request #97 from inugent/ValidationforMcM53X
+     |\
+     | * f6bd948 Updating to cvs head-V00-02-30
+     *   085470d Merge pull request #89 from ianna/mf-geometry-payload
+     |\
+     | * 16f2ebf Use standard geometry file record for magnetic field payload.
+     | * 62db3c5 Add Magnetic Field geometry readers from DB payload.
+     | * f1fd7e6 Magnetic field payload producers including job configurations.
+     | * 0f4acaa Magnetic field payload producers including job configurations.
+     | * 526b4f1 Remove GEM from Extended scenario.
+     | * bea321c Scripts, configurations and metadata to produce Extended 2019 scenario payloads including GEM.
+     | * 87e94e5 Add GEM reco geometry record.
+     *   1b87cbc Merge pull request #94 from inugent/TauolappandTauSpinner
+     |\
+     | * b8cc783 Delete TauSpinnerCMS.cc.~1.2.~
+     | * ce66597 adding Tauola 1.1.3 with TauSpinner interface
+     | * ec56829 adding Tauola 1.1.3 with TauSpinner interface
+     | * 865866a adding Tauola 1.1.3 with TauSpinner interface
+     * 4ecd70d Merge pull request #124 from gartung/fix-for-llvm-3.3
+     * 2b11a9d fix for api changes in llvm 3.3
+
+which once again shows the importance of good comments.
+
 ### Do you have any more in-depth FAQs?
 
 Yes, please look at the [Advanced Usage](advanced-usage) section.
