@@ -274,6 +274,14 @@ which once again shows the importance of good comments.
 
 Simply close it using the standard GitHub GUI when looking at it.
 
+* Go to the Pull Request page, either by clinking on the list on GitHub, or by
+  clicking on it on the Topic Collector.
+* Scroll down to the bottom of the discussion related to your pull request.
+* Click on "Close"
+
+The pull request will disappear from the list of open pull requests in both
+GitHub and the Topic Collector.
+
 ### Do you have any more in-depth FAQs?
 
 Yes, please look at the [Advanced Usage](advanced-usage) section.
