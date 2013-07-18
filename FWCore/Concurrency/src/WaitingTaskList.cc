@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 13:46:45 CST 2013
-// $Id: WaitingTaskList.cc,v 1.1 2013/02/21 22:14:11 chrjones Exp $
+// $Id$
 //
 
 // system include files

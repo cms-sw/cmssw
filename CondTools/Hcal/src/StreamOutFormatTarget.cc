@@ -15,7 +15,7 @@
  */
 
 /*
- * $Id: StreamOutFormatTarget.cc,v 1.1 2006/09/15 19:57:57 fedor Exp $
+ * $Id$
  */
 
 #include "CondTools/Hcal/interface/StreamOutFormatTarget.h"

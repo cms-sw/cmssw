@@ -5,7 +5,7 @@
  *
  * \author Steven Lowette
  *
- * $Id: PFClusterCandidateProducer.cc,v 1.2 2013/02/28 00:17:19 wmtan Exp $
+ * $Id: PFClusterCandidateProducer.cc,v 1.1 2011/01/26 16:00:11 srappocc Exp $
  *
  */
 

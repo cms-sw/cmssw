@@ -17,7 +17,7 @@
 
 namespace edm {
   void
-  fillProductRegistryTransients(ProcessConfiguration const& pc, ProductRegistry const& preg, bool okToRegister) {
+  fillProductRegistryTransients(ProcessConfiguration const& pc, ProductRegistry& preg, bool okToRegister) {
     std::string const triggerResults = std::string("TriggerResults");
     std::string const triggerResultsInserter = std::string("TriggerResultsInserter");
     std::string const triggerPaths = std::string("@trigger_paths");
@@ -30,10 +30,10 @@ namespace edm {
     if(0 == processParameterSet || processParameterSet->empty()) {
       return;
     }
-    for(ProductRegistry::ProductList::const_iterator it = preg.productList().begin(),
-        itEnd = preg.productList().end();
+    for(ProductRegistry::ProductList::iterator it = preg.productListUpdator().begin(),
+        itEnd = preg.productListUpdator().end();
         it != itEnd; ++it) {
-      BranchDescription const& bd = it->second;
+      BranchDescription& bd = it->second;
       if(processName != bd.processName()) {
         continue;
       }
@@ -49,21 +49,21 @@ namespace edm {
         if(okToRegister && !moduleParameterSet.isRegistered()) {
           ParameterSet moduleParameterSetCopy = processParameterSet->getParameterSet(moduleLabel);
           moduleParameterSetCopy.registerIt();
-          bd.parameterSetIDs().insert(std::make_pair(pcid, moduleParameterSetCopy.id()));
+          bd.insertParameterSetID(std::make_pair(pcid, moduleParameterSetCopy.id()));
         } else {
-          bd.parameterSetIDs().insert(std::make_pair(pcid, moduleParameterSet.id()));
+          bd.insertParameterSetID(std::make_pair(pcid, moduleParameterSet.id()));
         }
         if(isTriggerResults) {
-          bd.moduleNames().insert(std::make_pair(pcid, triggerResultsInserter));
+          bd.insertModuleName(std::make_pair(pcid, triggerResultsInserter));
         } else {
-          bd.moduleNames().insert(std::make_pair(pcid, moduleParameterSet.getParameter<std::string>("@module_type")));
+          bd.insertModuleName(std::make_pair(pcid, moduleParameterSet.getParameter<std::string>("@module_type")));
         }
       }
     }
   }
 
   void
-  fillProductRegistryTransients(std::vector<ProcessConfiguration> const& pcVec, ProductRegistry const& preg, bool okToRegister) {
+  fillProductRegistryTransients(std::vector<ProcessConfiguration> const& pcVec, ProductRegistry& preg, bool okToRegister) {
     typedef std::vector<ProcessConfiguration>::const_iterator PCIter;
     for(PCIter i = pcVec.begin(), iEnd = pcVec.end(); i != iEnd; ++i) {
       fillProductRegistryTransients(*i, preg, okToRegister);

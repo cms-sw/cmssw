@@ -11,8 +11,8 @@
  *  User gets a counter using its structure type via Counters::get(type).
  *  Each sub-system has its own concrete counter class implementation.
  *  
- *  $Date: 2013/01/07 19:28:55 $
- *  $Revision: 1.3 $
+ *  $Date: 2007/10/18 09:41:07 $
+ *  $Revision: 1.2 $
  *  \author Chung Khim Lae
  */
 

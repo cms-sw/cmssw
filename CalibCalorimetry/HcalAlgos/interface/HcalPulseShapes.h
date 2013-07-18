@@ -8,8 +8,8 @@
 
 /** \class HcalPulseShapes
   *  
-  * $Date: 2012/11/12 20:40:39 $
-  * $Revision: 1.7 $
+  * $Date: 2011/11/23 13:48:27 $
+  * $Revision: 1.6 $
   * \author J. Mans - Minnesota
   */
 class HcalMCParams;

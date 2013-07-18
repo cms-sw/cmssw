@@ -1,5 +1,5 @@
 #!/bin/bash
-# $Id: makeall.sh,v 1.6 2010/01/29 16:15:35 babar Exp $ 
+# $Id: makeall.sh,v 1.5 2009/08/17 13:24:41 gbauer Exp $ 
 
 ## *** added security feature: MUST give argument "makefilesys"
 ## or else file system will NOT be re-made ***

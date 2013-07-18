@@ -4,8 +4,8 @@
 /**
  * Author     : Gero Flucke (based on code by Edmund Widl replacing ORCA's TkReferenceTrack)
  * date       : 2006/09/17
- * last update: $Date: 2012/12/25 16:42:04 $
- * by         : $Author: innocent $
+ * last update: $Date: 2012/06/20 12:07:28 $
+ * by         : $Author: flucke $
  *
  *  Class implementing the reference trajectory of a single charged
  *  particle, i.e. a helix with 5 parameters. Given the

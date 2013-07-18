@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones, Alja Mrak-Tadel
 //         Created:  Thu Mar 18 14:11:32 CET 2010
-// $Id: FWEveViewManager.cc,v 1.46 2013/01/21 20:33:28 chrjones Exp $
+// $Id: FWEveViewManager.cc,v 1.45 2011/03/14 17:57:29 amraktad Exp $
 //
 
 // system include files

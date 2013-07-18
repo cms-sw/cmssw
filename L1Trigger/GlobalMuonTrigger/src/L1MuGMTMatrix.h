@@ -6,8 +6,8 @@
  *  general matrix
 */
 //
-//   $Date: 2007/03/23 18:51:35 $
-//   $Revision: 1.4 $
+//   $Date: 2006/11/17 08:25:34 $
+//   $Revision: 1.3 $
 //
 //   Author :
 //   N. Neumeister            CERN EP 

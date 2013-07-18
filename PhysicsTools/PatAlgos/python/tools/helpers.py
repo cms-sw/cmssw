@@ -3,6 +3,18 @@ import sys
 
 ## Helpers to perform some technically boring tasks like looking for all modules with a given parameter
 ## and replacing that to a given value
+
+def addESProducers(process,config):
+	config = config.replace("/",".")
+	#import RecoBTag.Configuration.RecoBTag_cff as btag
+	#print btag
+	module = __import__(config)
+	for name in dir(sys.modules[config]):
+		item = getattr(sys.modules[config],name)
+		if isinstance(item,_Labelable) and not isinstance(item,_ModuleSequenceType) and not name.startswith('_') and not (name == "source" or name == "looper" or name == "subProcess") and not type(item) is cms.PSet:
+			if 'ESProducer' in item.type_():
+				setattr(process,name,item)
+
 def loadWithPostfix(process,moduleName,postfix=''):
 	moduleName = moduleName.replace("/",".")
         module = __import__(moduleName)
@@ -25,19 +37,18 @@ def extendWithPostfix(process,other,postfix,items=()):
             	item = getattr(other,name)
             	if name == "source" or name == "looper" or name == "subProcess":
 			continue
-
             	elif isinstance(item,cms._ModuleSequenceType):
-
+			continue
+            	elif isinstance(item,cms.Schedule):
+			continue
+            	elif isinstance(item,cms.VPSet) or isinstance(item,cms.PSet):
 			continue
             	elif isinstance(item,cms._Labelable):
                 	if not item.hasLabel_():
                    		item.setLabel(name)
 			if postfix != '':
 				newModule = item.clone()
-
-				#if 'ESProducer' in name or isinstance(item,ESProducer):
 				if isinstance(item,cms.ESProducer):
-
 					newLabel = item.label()
 					newName =name
 				else:
@@ -51,11 +62,6 @@ def extendWithPostfix(process,other,postfix,items=()):
 					sequence._moduleLabels.append(item.label())
 			else:
 				process.__setattr__(name,item)
-
-
-            	elif isinstance(item,cms.Schedule):
-			continue
-
 
 	if postfix != '':
 		for label in sequence._moduleLabels:

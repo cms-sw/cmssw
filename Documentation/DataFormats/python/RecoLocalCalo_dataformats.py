@@ -1,47 +1,177 @@
-
-full_title = "RecoLocalCalo collections (in RECO and AOD)"
-
-full = {
-    '0':['hbhereco', '*', 'No documentation'] ,
-    '1':['hbheprereco', '*', 'No documentation'] ,
-    '2':['hfreco', '*', 'No documentation'] ,
-    '3':['horeco', '*', 'No documentation'] ,
-    '4':['hbherecoMB', 'HBHERecHitsSorted', 'No documentation'] ,
-    '5':['hbheprerecoMB', 'HBHERecHitsSorted', 'No documentation'] ,
-    '6':['horecoMB', 'HORecHitsSorted', 'No documentation'] ,
-    '7':['hfrecoMB', 'HFRecHitsSorted', 'No documentation'] ,
-    '8':['*Digis', 'ZDCDataFramesSorted', 'No documentation'] ,
-    '9':['*', 'ZDCRecHitsSorted', 'No documentation'] ,
-    '10':['reducedHcalRecHits', '*', 'No documentation'] ,
-    '11':['castorreco', '*', 'No documentation'] ,
-    '12':['*', 'HcalUnpackerReport', 'No documentation'] 
-}
-
-reco_title = "RecoLocalCalo collections (in RECO only)"
-
-reco = {
-    '0':['hbhereco', 'edm::SortedCollection<HBHERecHit>', 'Joint HCAL barrel+endcap RecHits collection'] ,
-    '1':['hfreco', 'edm::SortedCollection<HFRecHit>', 'Very Forward calorimeter RecHits collection'] ,
-    '2':['horeco', 'edm::SortedCollection<HORecHit>', 'Outer clorimeter RecHits collection'] ,
-    '3':['hbherecoMB', 'HBHERecHitsSorted', 'No documentation'] ,
-    '4':['horecoMB', 'HORecHitsSorted', 'No documentation'] ,
-    '5':['hfrecoMB', 'HFRecHitsSorted', 'No documentation'] ,
-    '6':['*Digis', 'ZDCDataFramesSorted', 'No documentation'] ,
-    '7':['zdcreco', 'ZDCRecHitsSorted', 'Zero-degree calorimeter RecHits collection'] ,
-    '8':['reducedHcalRecHits', '*', 'No documentation'] ,
-    '9':['castorreco', 'edm::SortedCollection<CastorRecHit>', 'Collection of CastorRecHits containing energy deposits for all channels'] ,
-    '10':['*', 'HcalUnpackerReport', 'No documentation'],
+'''
+    Created on Jun 26, 2013 
+    @author:  Mantas Stankevicius
+    @contact: mantas.stankevicius@cern.ch
+    http://cmsdoxy.web.cern.ch/cmsdoxy/dataformats/
     
-    # Correction needed, because not matched with Event Content
-    '11':['ecalRecHit,EcalRecHitsEB', 'edm::SortedCollection<EcalRecHit>', 'Collection of Ecal Hits in EB'],
-    '12':['ecalRecHit,EcalRecHitsEE', 'edm::SortedCollection<EcalRecHit>', 'Collection of Ecal Hits in EE'],
-    '13':['ecalPreshowerRecHit,EcalRecHitsES', 'edm::SortedCollection<EcalRecHit>', 'Collection of Ecal Hits in ES'] 
-}
+    @responsible: 
+    
+'''
 
-aod_title = "RecoLocalCalo collections (in AOD only)"
-
-aod = {
-    '0':['castorreco', '*', 'No documentation'] ,
-    '1':['reducedHcalRecHits', '*', 'No documentation'] ,
-    '2':['*', 'HcalUnpackerReport', 'No documentation'] 
+json = {
+  "full": {
+    "title": "RecoLocalCalo collections (in RECO and AOD)",
+    "data": [
+     {
+      "instance": "castorreco",
+      "container": "*",
+      "desc": "No documentation"
+     },
+     {
+      "instance": "reducedHcalRecHits",
+      "container": "*",
+      "desc": "No documentation"
+     },
+     {
+      "instance": "*",
+      "container": "HcalUnpackerReport",
+      "desc": "No documentation"
+     },
+     {
+      "instance": "hbheprereco",
+      "container": "*",
+      "desc": "No documentation"
+     },
+     {
+      "instance": "hbhereco",
+      "container": "*",
+      "desc": "No documentation"
+     },
+     {
+      "instance": "horeco",
+      "container": "*",
+      "desc": "No documentation"
+     },
+     {
+      "instance": "hfreco",
+      "container": "*",
+      "desc": "No documentation"
+     },
+     {
+      "instance": "hbheprerecoMB",
+      "container": "HBHERecHitsSorted",
+      "desc": "No documentation"
+     },
+     {
+      "instance": "hbherecoMB",
+      "container": "HBHERecHitsSorted",
+      "desc": "No documentation"
+     },
+     {
+      "instance": "hfrecoMB",
+      "container": "HFRecHitsSorted",
+      "desc": "No documentation"
+     },
+     {
+      "instance": "horecoMB",
+      "container": "HORecHitsSorted",
+      "desc": "No documentation"
+     },
+     {
+      "instance": "*",
+      "container": "ZDCRecHitsSorted",
+      "desc": "No documentation"
+     },
+     {
+      "instance": "*Digis",
+      "container": "ZDCDataFramesSorted",
+      "desc": "No documentation"
+     }
+    ]
+  },
+  "aod": {
+    "title": "RecoLocalCalo collections (in AOD only)",
+    "data": [
+     {
+      "instance": "reducedHcalRecHits",
+      "container": "*",
+      "desc": "No documentation"
+     },
+     {
+      "instance": "castorreco",
+      "container": "*",
+      "desc": "No documentation"
+     },
+     {
+      "instance": "*",
+      "container": "HcalUnpackerReport",
+      "desc": "No documentation"
+     }
+    ]
+  },
+  "reco": {
+    "title": "RecoLocalCalo collections (in RECO only)",
+    "data": [
+     {
+      "instance": "ecalRecHit,EcalRecHitsEB",
+      "container": "edm::SortedCollection<EcalRecHit>",
+      "desc": "Collection of Ecal Hits in EB"
+     },
+     {
+      "instance": "*",
+      "container": "HcalUnpackerReport",
+      "desc": "No documentation"
+     },
+     {
+      "instance": "ecalPreshowerRecHit,EcalRecHitsES",
+      "container": "edm::SortedCollection<EcalRecHit>",
+      "desc": "Collection of Ecal Hits in ES"
+     },
+     {
+      "instance": "ecalRecHit,EcalRecHitsEE",
+      "container": "edm::SortedCollection<EcalRecHit>",
+      "desc": "Collection of Ecal Hits in EE"
+     },
+     {
+      "instance": "hfreco",
+      "container": "edm::SortedCollection<HFRecHit>",
+      "desc": "Very Forward calorimeter RecHits collection"
+     },
+     {
+      "instance": "hbhereco",
+      "container": "edm::SortedCollection<HBHERecHit>",
+      "desc": "Joint HCAL barrel+endcap RecHits collection"
+     },
+     {
+      "instance": "hbherecoMB",
+      "container": "HBHERecHitsSorted",
+      "desc": "No documentation"
+     },
+     {
+      "instance": "horeco",
+      "container": "edm::SortedCollection<HORecHit>",
+      "desc": "Outer clorimeter RecHits collection"
+     },
+     {
+      "instance": "hfrecoMB",
+      "container": "HFRecHitsSorted",
+      "desc": "No documentation"
+     },
+     {
+      "instance": "horecoMB",
+      "container": "HORecHitsSorted",
+      "desc": "No documentation"
+     },
+     {
+      "instance": "zdcreco",
+      "container": "ZDCRecHitsSorted",
+      "desc": "Zero-degree calorimeter RecHits collection"
+     },
+     {
+      "instance": "*Digis",
+      "container": "ZDCDataFramesSorted",
+      "desc": "No documentation"
+     },
+     {
+      "instance": "castorreco",
+      "container": "edm::SortedCollection<CastorRecHit>",
+      "desc": "Collection of CastorRecHits containing energy deposits for all channels"
+     },
+     {
+      "instance": "reducedHcalRecHits",
+      "container": "*",
+      "desc": "No documentation"
+     }
+    ]
+  }
 }

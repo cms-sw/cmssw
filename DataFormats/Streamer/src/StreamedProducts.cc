@@ -9,10 +9,15 @@ namespace edm {
 		    std::vector<BranchID> const* parents) :
       desc_(&desc), present_(present), parents_(parents), prod_(const_cast<void*>(prod)), classRef_() {
       if(present_ && prod == 0) {
-	desc.init();
+        std::string branchName = desc.branchName();
+        if(branchName.empty()) {
+          BranchDescription localCopy(desc);
+          localCopy.initBranchName();
+          branchName = localCopy.branchName();
+        }
         throw edm::Exception(edm::errors::LogicError, "StreamedProduct::StreamedProduct\n")
            << "A product with a status of 'present' is not actually present.\n"
-           << "The branch name is " << desc.branchName() << "\n"
+           << "The branch name is " << branchName << "\n"
            << "Contact a framework developer.\n";
       }
     }
@@ -33,6 +38,13 @@ namespace edm {
       if(prod_ != 0) {
         classRef_->Destructor(prod_);
         prod_ = 0;
+      }
+    }
+
+    void
+    SendJobHeader::initializeTransients() {
+      for(BranchDescription& desc : descs_) {
+        desc.init();
       }
     }
 }

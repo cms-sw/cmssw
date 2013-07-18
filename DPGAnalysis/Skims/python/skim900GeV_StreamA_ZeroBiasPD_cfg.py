@@ -40,7 +40,7 @@ process.hltHighLevelDev2.HLTPathsPrescales  = cms.vuint32(
 process.hltHighLevelDev2.HLTOverallPrescale = cms.uint32 (10)
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.2 $'),
+    version = cms.untracked.string('$Revision: 1.1 $'),
     annotation = cms.untracked.string('skim'),
     name = cms.untracked.string('skim')
 )

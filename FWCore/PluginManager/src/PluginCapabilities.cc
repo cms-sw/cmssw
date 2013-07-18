@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Apr  6 12:36:24 EDT 2007
-// $Id: PluginCapabilities.cc,v 1.6 2011/08/24 12:28:53 eulisse Exp $
+// $Id: PluginCapabilities.cc,v 1.5 2009/02/25 23:44:07 wmtan Exp $
 //
 
 // system include files

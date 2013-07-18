@@ -6,9 +6,9 @@
  * 
  * \author Paolo Azzurri, Giovanni Petrucciani 
  *
- * \version $Revision: 1.22 $
+ * \version $Revision: 1.21 $
  *
- * $Id: AnalyticalTrackSelector.h,v 1.22 2013/02/28 09:57:34 muzaffar Exp $
+ * $Id: AnalyticalTrackSelector.h,v 1.21 2012/03/19 12:44:20 dmytro Exp $
  *
  */
 

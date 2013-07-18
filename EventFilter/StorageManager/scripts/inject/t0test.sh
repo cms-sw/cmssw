@@ -1,5 +1,5 @@
 #!/bin/sh
-#$Id: t0test.sh,v 1.6 2008/06/12 13:56:05 loizides Exp $
+#$Id: t0test.sh,v 1.5 2008/05/14 12:53:14 loizides Exp $
 
 . /etc/init.d/functions
 

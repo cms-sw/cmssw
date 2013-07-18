@@ -5,8 +5,8 @@
 //   Description: Look-up tables for pt assignment 
 //
 //
-//   $Date: 2012/08/05 12:48:33 $
-//   $Revision: 1.8 $
+//   $Date: 2010/05/12 23:03:43 $
+//   $Revision: 1.7 $
 //
 //   Author :
 //   N. Neumeister            CERN EP

@@ -1,6 +1,6 @@
 
 //
-// $Id: MuonReSeeder.cc,v 1.3 2013/02/27 14:58:17 muzaffar Exp $
+// $Id: MuonReSeeder.cc,v 1.2 2013/01/02 21:13:59 dlange Exp $
 //
 
 /**
@@ -8,7 +8,7 @@
   \brief    Matcher of reconstructed objects to other reconstructed objects using the tracks inside them 
             
   \author   Giovanni Petrucciani
-  \version  $Id: MuonReSeeder.cc,v 1.3 2013/02/27 14:58:17 muzaffar Exp $
+  \version  $Id: MuonReSeeder.cc,v 1.2 2013/01/02 21:13:59 dlange Exp $
 */
 
 

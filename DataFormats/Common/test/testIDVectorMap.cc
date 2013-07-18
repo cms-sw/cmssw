@@ -1,4 +1,4 @@
-// $Id: testIDVectorMap.cc,v 1.4 2008/12/18 04:53:08 wmtan Exp $
+// $Id: testIDVectorMap.cc,v 1.2.8.1 2008/12/10 19:49:22 wmtan Exp $
 #include <cppunit/extensions/HelperMacros.h>
 #include "DataFormats/Common/interface/IDVectorMap.h"
 #include "DataFormats/Common/interface/CopyPolicy.h"

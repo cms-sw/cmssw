@@ -5,6 +5,7 @@
 
 #include <Geometry/RPCGeometry/interface/RPCGeometry.h>
 #include <Geometry/CommonDetUnit/interface/GeomDetUnit.h>
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 RPCGeometry::RPCGeometry(){}
 
@@ -51,8 +52,12 @@ const GeomDetUnit* RPCGeometry::idToDetUnit(DetId id) const{
 
 const GeomDet* RPCGeometry::idToDet(DetId id) const{
   mapIdToDet::const_iterator i = theMap.find(id);
-  return (i != theMap.end()) ?
-    i->second : 0 ;
+  if (i != theMap.end())
+    return i->second;
+
+  LogDebug("RPCGeometry")<<"Invalid DetID: no GeomDet associated "<< RPCDetId(id);
+  GeomDet* geom = 0;
+  return geom;   
 }
 
 const std::vector<RPCChamber*>& RPCGeometry::chambers() const {

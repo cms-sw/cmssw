@@ -1,4 +1,4 @@
-// $Id: TTUBoardSpecs.h,v 1.1 2009/01/28 12:54:41 aosorio Exp $
+// $Id: $
 #ifndef CONFIGCODE_TTUBOARDSPECS_H 
 #define CONFIGCODE_TTUBOARDSPECS_H 1
 

@@ -6,7 +6,7 @@
    Declaration
 
    \author Stefano ARGIRO
-   \version $Id: UnknownModuleException.h,v 1.8 2010/07/24 14:15:27 wmtan Exp $
+   \version $Id: UnknownModuleException.h,v 1.7 2007/06/14 17:52:16 wmtan Exp $
    \date 02 Jun 2005
 */
 

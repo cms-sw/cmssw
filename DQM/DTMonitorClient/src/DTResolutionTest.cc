@@ -260,7 +260,7 @@ void DTResolutionTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, EventS
 	  //prof->Fit("pol1","Q0");
 	  try {
 	    prof->Fit("pol1","Q0");
-	  } catch (...) {
+	  } catch (cms::Exception& iException) {
 	    edm::LogError ("resolution") << "[DTResolutionTest]: Exception when fitting..."
 					 << "SuperLayer : " << slID << "\n"
 					 << "                    STEP : " << parameters.getUntrackedParameter<string>("STEP", "STEP3") << "\n"		

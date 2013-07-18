@@ -35,6 +35,7 @@ namespace edm {
   class RunPrincipal;
   class LuminosityBlockPrincipal;
   class EarlyDeleteHelper;
+  class StreamID;
 
   class Path {
   public:
@@ -52,7 +53,7 @@ namespace edm {
          bool isEndPath);
 
     template <typename T>
-    void processOneOccurrence(typename T::MyPrincipal&, EventSetup const&);
+    void processOneOccurrence(typename T::MyPrincipal&, EventSetup const&, StreamID const&);
 
     int bitPosition() const { return bitpos_; }
     std::string const& name() const { return name_; }
@@ -154,7 +155,7 @@ namespace edm {
   }
 
   template <typename T>
-  void Path::processOneOccurrence(typename T::MyPrincipal& ep, EventSetup const& es) {
+  void Path::processOneOccurrence(typename T::MyPrincipal& ep, EventSetup const& es, StreamID const& streamID) {
 
     //Create the PathSignalSentry before the RunStopwatch so that
     // we only record the time spent in the path not from the signal
@@ -184,7 +185,7 @@ namespace edm {
       try {
         try {
           cpc.activate(idx, i->getWorker()->descPtr());
-          should_continue = i->runWorker<T>(ep, es, &cpc);
+          should_continue = i->runWorker<T>(ep, es, &cpc, streamID);
         }
         catch (cms::Exception& e) { throw; }
         catch(std::bad_alloc& bda) { convertException::badAllocToEDM(); }

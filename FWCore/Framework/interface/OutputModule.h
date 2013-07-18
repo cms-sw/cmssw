@@ -36,7 +36,7 @@ namespace edm {
   class OutputModule : public EDConsumerBase {
   public:
     template <typename T> friend class WorkerT;
-    friend class OutputWorker;
+    friend class ClassicOutputModuleCommunicator;
     typedef OutputModule ModuleType;
     typedef OutputWorker WorkerType;
 

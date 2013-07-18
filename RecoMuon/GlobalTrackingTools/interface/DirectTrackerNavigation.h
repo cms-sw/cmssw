@@ -7,8 +7,8 @@
  *  Free Trajectory State by checking the eta range
  *
  *
- *  $Date: 2013/01/08 12:24:22 $
- *  $Revision: 1.3 $
+ *  $Date: 2008/03/19 21:43:54 $
+ *  $Revision: 1.2 $
  *
  *  \author Chang Liu  -  Purdue University
  */

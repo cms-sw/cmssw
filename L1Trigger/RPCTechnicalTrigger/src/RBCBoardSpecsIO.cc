@@ -1,4 +1,4 @@
-// $Id: RBCBoardSpecsIO.cc,v 1.1 2009/06/04 11:52:59 aosorio Exp $
+// $Id: $
 // Include files 
 
 

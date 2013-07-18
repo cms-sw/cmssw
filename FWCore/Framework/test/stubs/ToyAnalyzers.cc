@@ -51,6 +51,7 @@ namespace edmtest {
     IntTestAnalyzer(edm::ParameterSet const& iPSet) :
       value_(iPSet.getUntrackedParameter<int>("valueMustMatch")),
       moduleLabel_(iPSet.getUntrackedParameter<std::string>("moduleLabel"), "") {
+      consumes<IntProduct>(moduleLabel_);
     }
 
     void analyze(edm::Event const& iEvent, edm::EventSetup const&) {

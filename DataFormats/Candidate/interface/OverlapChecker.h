@@ -8,7 +8,7 @@
  *
  * \version $Revision: 1.2 $
  *
- * $Id: OverlapChecker.h,v 1.2 2006/03/08 12:57:07 llista Exp $
+ * $Id: MuonCandidateProducer.h,v 1.2 2006/03/03 13:40:21 llista Exp $
  *
  */
 

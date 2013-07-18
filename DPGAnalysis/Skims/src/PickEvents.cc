@@ -13,7 +13,7 @@
 //
 // Original Author:  Michael Henry Schmitt
 //         Created:  Mon Sep 15 19:36:37 CEST 2008
-// $Id: PickEvents.cc,v 1.5 2013/02/27 20:17:14 wmtan Exp $
+// $Id: PickEvents.cc,v 1.4 2010/08/07 14:55:55 wmtan Exp $
 //         Modified: 27/03/2009 Luca Malgeri
 //                   reading external file, defining selection syntax
 //

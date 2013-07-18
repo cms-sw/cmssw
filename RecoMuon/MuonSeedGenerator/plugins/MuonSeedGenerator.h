@@ -4,8 +4,8 @@
 /** \class MuonSeedGenerator
  *  No description available.
  *
- *  $Date: 2010/11/28 23:20:26 $
- *  $Revision: 1.2 $
+ *  $Date: 2008/10/17 22:14:56 $
+ *  $Revision: 1.1 $
  *  \author R. Bellan - INFN Torino
  */
 

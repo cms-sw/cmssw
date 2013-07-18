@@ -3,7 +3,7 @@
 // Author:  Jan Heyninck
 // Created: Tue Apr  3 17:33:23 PDT 2007
 //
-// $Id: LRHelpFunctions.h,v 1.11 2013/05/30 20:47:31 gartung Exp $
+// $Id: LRHelpFunctions.h,v 1.10 2008/06/19 12:28:27 rwolf Exp $
 //
 
 #ifndef LRHelpFunctions_h
@@ -14,7 +14,7 @@
   \brief    Help functionalities to implement and evaluate LR ratio method
 
   \author   Jan Heyninck
-  \version  $Id: LRHelpFunctions.h,v 1.11 2013/05/30 20:47:31 gartung Exp $
+  \version  $Id: LRHelpFunctions.h,v 1.10 2008/06/19 12:28:27 rwolf Exp $
 */
 
 #include <cmath>

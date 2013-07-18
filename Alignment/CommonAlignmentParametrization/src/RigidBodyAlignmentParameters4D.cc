@@ -1,8 +1,8 @@
 /** \file RigidBodyAlignmentParameters.cc
  *
- *  Version    : $Revision: 1.1 $
- *  last update: $Date: 2008/12/12 15:58:07 $
- *  by         : $Author: pablom $
+ *  Version    : $Revision: 1.14 $
+ *  last update: $Date: 2008/09/02 15:08:12 $
+ *  by         : $Author: flucke $
  */
 
 #include "FWCore/Utilities/interface/Exception.h"

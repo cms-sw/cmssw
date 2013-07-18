@@ -10,10 +10,14 @@
 
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Common/interface/Wrapper.h"
+#include "DataFormats/Provenance/interface/BranchID.h"
+#include "DataFormats/Provenance/interface/ConstBranchDescription.h"
 #include "DataFormats/Provenance/interface/ProcessHistory.h"
+#include "DataFormats/Provenance/interface/Provenance.h"
 #include "DataFormats/TestObjects/interface/Thing.h"
 #include "DataFormats/TestObjects/interface/ThingWithIsEqual.h"
 #include "DataFormats/TestObjects/interface/ThingWithMerge.h"
+#include "FWCore/Framework/interface/ConstProductRegistry.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/FileBlock.h"
@@ -22,6 +26,7 @@
 #include "FWCore/Framework/interface/Run.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
 #include <cassert>
@@ -183,6 +188,81 @@ namespace edmtest {
     edm::Wrapper<edmtest::ThingWithIsEqual> w_thingWithIsEqual(ap_thingwithisequal);
     assert(!w_thingWithIsEqual.isMergeable());
     assert(w_thingWithIsEqual.hasIsProductEqual());
+    
+    if(expectedDroppedEvent_.size() > 0) {
+      consumes<edmtest::ThingWithIsEqual>(edm::InputTag{"makeThingToBeDropped", "event", "PROD"});
+      consumes<edmtest::ThingWithMerge>(edm::InputTag{"makeThingToBeDropped", "event", "PROD"});
+
+      consumes<edmtest::ThingWithIsEqual,edm::InRun>(edm::InputTag{"makeThingToBeDropped", "beginRun", "PROD"});
+    }
+    for(auto const& parent : expectedParents_) {
+      mayConsume<edmtest::Thing>(edm::InputTag{parent,"event","PROD"});
+    }
+    if(expectedDroppedEvent1_.size() > droppedIndex1_) {
+      consumes<edmtest::ThingWithIsEqual>(edm::InputTag{"makeThingToBeDropped1", "event", "PROD"});
+    }
+    consumes<edmtest::Thing>(edm::InputTag{"thingWithMergeProducer", "event", "PROD"});
+
+    if(testAlias_){
+      consumes<edmtest::Thing>(edm::InputTag{"aliasForThingToBeDropped2", "instance2"});
+      consumes<edmtest::Thing>(edm::InputTag{"aliasForThingToBeDropped2", "instance2","PROD"});
+    }
+
+    {
+      edm::InputTag tag("thingWithMergeProducer", "endRun", "PROD");
+      consumes<edmtest::Thing,edm::InRun>(tag);
+      consumes<edmtest::ThingWithMerge,edm::InRun>(tag);
+      consumes<edmtest::ThingWithIsEqual,edm::InRun>(tag);
+    }
+    
+    {
+      edm::InputTag tag("thingWithMergeProducer", "endRun");
+      consumes<edmtest::Thing,edm::InRun>(tag);
+      consumes<edmtest::ThingWithMerge,edm::InRun>(tag);
+      consumes<edmtest::ThingWithIsEqual,edm::InRun>(tag);
+    }
+    
+    if(expectedDroppedEvent_.size() > 2) {
+      edm::InputTag tag("makeThingToBeDropped", "endRun", "PROD");
+      consumes<edmtest::ThingWithMerge,edm::InRun>(tag);
+      consumes<edmtest::ThingWithIsEqual,edm::InRun>(tag);
+    }
+    
+    if (testAlias_) {
+      consumes<edmtest::Thing,edm::InRun>(edm::InputTag{"aliasForThingToBeDropped2", "endRun2"});
+      edm::InputTag tag("aliasForThingToBeDropped2", "endRun2","PROD");
+      consumes<edmtest::Thing,edm::InRun>(tag);
+    }
+  
+    if(expectedDroppedEvent_.size() > 3) {
+      edm::InputTag tag("makeThingToBeDropped", "beginLumi", "PROD");
+      consumes<edmtest::ThingWithIsEqual,edm::InLumi>(tag);
+    }
+    {
+      edm::InputTag tag("thingWithMergeProducer", "endLumi", "PROD");
+      consumes<edmtest::Thing,edm::InLumi>(tag);
+      consumes<edmtest::ThingWithMerge,edm::InLumi>(tag);
+      consumes<edmtest::ThingWithIsEqual,edm::InLumi>(tag);
+    }
+    
+    {
+      edm::InputTag tag("thingWithMergeProducer", "endLumi");
+      consumes<edmtest::Thing,edm::InLumi>(tag);
+      consumes<edmtest::ThingWithMerge,edm::InLumi>(tag);
+      consumes<edmtest::ThingWithIsEqual,edm::InLumi>(tag);
+    }
+    
+    if(expectedDroppedEvent_.size() > 4) {
+      edm::InputTag tag("makeThingToBeDropped", "endLumi", "PROD");
+      consumes<edmtest::ThingWithIsEqual,edm::InLumi>(tag);
+      consumes<edmtest::ThingWithMerge,edm::InLumi>(tag);
+    }
+    
+    if (testAlias_) {
+      consumes<edmtest::Thing,edm::InLumi>(edm::InputTag{"aliasForThingToBeDropped2", "endLumi2"});
+      edm::InputTag tag("aliasForThingToBeDropped2", "endLumi2","PROD");
+      consumes<edmtest::Thing,edm::InLumi>(tag);
+    }
   }
 
   // -----------------------------------------------------------------
@@ -253,6 +333,20 @@ namespace edmtest {
       edm::InputTag inputTag("aliasForThingToBeDropped2", "instance2","PROD");
       e.getByLabel(inputTag, h_thing);
       assert(h_thing->a == 11);
+
+      edm::BranchID const& originalBranchID = h_thing.provenance()->constBranchDescription().originalBranchID();
+      bool foundOriginalInRegistry = false;
+      edm::Service<edm::ConstProductRegistry> reg;
+      // Loop over provenance of products in registry.
+      for (edm::ProductRegistry::ProductList::const_iterator it =  reg->productList().begin();
+           it != reg->productList().end(); ++it) {
+        edm::BranchDescription const& desc = it->second;
+        if (desc.branchID() == originalBranchID) {
+          foundOriginalInRegistry = true;
+          break;
+        }
+      }
+      assert(foundOriginalInRegistry);
     }
   }
 
@@ -318,6 +412,20 @@ namespace edmtest {
       edm::InputTag inputTag("aliasForThingToBeDropped2", "endRun2","PROD");
       run.getByLabel(inputTag, h_thing);
       assert(h_thing->a == 100001);
+
+      edm::BranchID const& originalBranchID = h_thing.provenance()->constBranchDescription().originalBranchID();
+      bool foundOriginalInRegistry = false;
+      edm::Service<edm::ConstProductRegistry> reg;
+      // Loop over provenance of products in registry.
+      for (edm::ProductRegistry::ProductList::const_iterator it =  reg->productList().begin();
+           it != reg->productList().end(); ++it) {
+        edm::BranchDescription const& desc = it->second;
+        if (desc.branchID() == originalBranchID) {
+          foundOriginalInRegistry = true;
+          break;
+        }
+      }
+      assert(foundOriginalInRegistry);
     }
   }
 
@@ -373,6 +481,20 @@ namespace edmtest {
       edm::InputTag inputTag("aliasForThingToBeDropped2", "endLumi2","PROD");
       lumi.getByLabel(inputTag, h_thing);
       assert(h_thing->a == 1001);
+
+      edm::BranchID const& originalBranchID = h_thing.provenance()->constBranchDescription().originalBranchID();
+      bool foundOriginalInRegistry = false;
+      edm::Service<edm::ConstProductRegistry> reg;
+      // Loop over provenance of products in registry.
+      for (edm::ProductRegistry::ProductList::const_iterator it =  reg->productList().begin();
+           it != reg->productList().end(); ++it) {
+        edm::BranchDescription const& desc = it->second;
+        if (desc.branchID() == originalBranchID) {
+          foundOriginalInRegistry = true;
+          break;
+        }
+      }
+      assert(foundOriginalInRegistry);
     }
   }
 

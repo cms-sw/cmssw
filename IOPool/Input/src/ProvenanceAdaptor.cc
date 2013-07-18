@@ -91,19 +91,19 @@ namespace edm {
     }
 
     void
-    fillListsAndIndexes(ProductRegistry const& productRegistry,
+    fillListsAndIndexes(ProductRegistry& productRegistry,
 			ProcessHistoryMap const& pHistMap,
 			boost::shared_ptr<BranchIDLists const>& branchIDLists,
 			std::vector<BranchListIndex>& branchListIndexes) {
       OrderedProducts orderedProducts;
       std::set<std::string> processNamesThatProduced;
-      ProductRegistry::ProductList const& prodList = productRegistry.productList();
-      for (ProductRegistry::ProductList::const_iterator it = prodList.begin(), itEnd = prodList.end();
-	  it != itEnd; ++it) {
-        if (it->second.branchType() == InEvent) {
-	  it->second.init();
-	  processNamesThatProduced.insert(it->second.processName());
-	  orderedProducts.emplace_back(it->second.processName(), it->second.branchID());
+      ProductRegistry::ProductList& prodList = productRegistry.productListUpdator();
+      for (auto& item : prodList) {
+        BranchDescription& prod = item.second;
+        if (prod.branchType() == InEvent) {
+	  prod.init();
+	  processNamesThatProduced.insert(prod.processName());
+	  orderedProducts.emplace_back(prod.processName(), prod.branchID());
         }
       }
       assert (!orderedProducts.empty());

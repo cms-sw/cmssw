@@ -16,8 +16,8 @@ namespace cms {
 
   /** \class HcalTBObjectDump
       
-  $Date: 2012/09/20 20:16:10 $
-  $Revision: 1.9 $
+  $Date: 2012/07/20 20:59:13 $
+  $Revision: 1.8 $
   \author J. Mans - Minnesota
   */
   class HcalTBObjectDump : public edm::EDAnalyzer {

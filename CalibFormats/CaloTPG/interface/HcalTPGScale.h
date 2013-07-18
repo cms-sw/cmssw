@@ -12,8 +12,8 @@ namespace edm {
  *
  *  To be stored in the CaloTPGRecord
  *  
- * $Date: 2007/02/19 16:24:20 $
- * $Revision: 1.1 $
+ * $Date: $
+ * $Revision: $
  * \author J. Mans - Minnesota
  */
 class HcalTPGScale {

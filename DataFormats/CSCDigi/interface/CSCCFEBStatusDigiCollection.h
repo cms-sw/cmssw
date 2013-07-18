@@ -3,8 +3,8 @@
 
 /** \class CSCCFEBStatusDigiCollection
  *
- *  $Date: 2006/09/06 14:04:19 $
- *  $Revision: 1.1 $
+ *  $Date:$
+ *  $Revision:$
  *  \author N. Terentiev, CMU
  */
 

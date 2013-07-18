@@ -2,7 +2,7 @@
 // Author:  Jan Heyninck
 // Created: Tue Apr  3 17:33:23 PDT 2007
 //
-// $Id: TtSemiLRSignalSelCalc.h,v 1.3 2013/05/28 17:54:36 gartung Exp $
+// $Id: TtSemiLRSignalSelCalc.h,v 1.2 2008/02/17 11:18:54 rwolf Exp $
 //
 
 #ifndef TtSemiLRSignalSelCalc_h
@@ -13,7 +13,7 @@
   \brief    Class to calculate the jet combination LR value and purity from a root-file with fit functions
 
   \author   Jan Heyninck
-  \version  $Id: TtSemiLRSignalSelCalc.h,v 1.3 2013/05/28 17:54:36 gartung Exp $
+  \version  $Id: TtSemiLRSignalSelCalc.h,v 1.2 2008/02/17 11:18:54 rwolf Exp $
 */
 
 #include "FWCore/Framework/interface/EventSetup.h"

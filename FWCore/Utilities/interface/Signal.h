@@ -19,7 +19,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Jan 17 16:03:51 CST 2013
-// $Id: Signal.h,v 1.1 2013/01/20 16:56:21 chrjones Exp $
+// $Id$
 //
 
 // system include files

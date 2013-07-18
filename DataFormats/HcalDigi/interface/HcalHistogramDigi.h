@@ -7,8 +7,8 @@
 
 /** \class HcalHistogramDigi
   *  
-  * $Date: 2005/11/14 22:46:50 $
-  * $Revision: 1.1 $
+  * $Date: $
+  * $Revision: $
   * \author J. Mans - Minnesota
   */
 class HcalHistogramDigi {

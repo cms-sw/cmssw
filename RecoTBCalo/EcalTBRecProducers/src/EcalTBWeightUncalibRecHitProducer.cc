@@ -1,13 +1,13 @@
 /** \class EcalTBWeightUncalibRecHitProducer
  *   produce ECAL uncalibrated rechits from dataframes
  *
-  *  $Id: EcalTBWeightUncalibRecHitProducer.cc,v 1.15 2012/01/28 15:53:10 eulisse Exp $
-  *  $Date: 2012/01/28 15:53:10 $
-  *  $Revision: 1.15 $
+  *  $Id: EcalTBWeightUncalibRecHitProducer.cc,v 1.14 2009/10/19 19:35:23 theofil Exp $
+  *  $Date: 2009/10/19 19:35:23 $
+  *  $Revision: 1.14 $
   *
   *  $Alex Zabi$
-  *  $Date: 2012/01/28 15:53:10 $
-  *  $Revision: 1.15 $
+  *  $Date: 2009/10/19 19:35:23 $
+  *  $Revision: 1.14 $
   *  Modification to detect first sample to switch gain.
   *  used for amplitude recontruction at high energy
   *  Add TDC convention option (P. Meridiani)

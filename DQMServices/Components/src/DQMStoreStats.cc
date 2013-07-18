@@ -2,8 +2,8 @@
  * \file DQMStoreStats.cc
  * \author Andreas Meyer
  * Last Update:
- * $Date: 2012/08/17 15:44:22 $
- * $Revision: 1.17 $
+ * $Date: 2011/06/08 22:32:43 $
+ * $Revision: 1.16 $
  * $Author: rovere $
  *
  * Description: Print out statistics of histograms in DQMStore

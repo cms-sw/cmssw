@@ -13,7 +13,7 @@ v Description: [one line class summary]
 //
 // Original Author:  Ruchi Gupta
 //         Created:  Fri May 25 12:02:48 CDT 2012
-// $Id: IsoTrig.cc,v 1.1 2012/10/10 15:04:59 sunanda Exp $
+// $Id$
 //
 //
 #include "IsoTrig.h"

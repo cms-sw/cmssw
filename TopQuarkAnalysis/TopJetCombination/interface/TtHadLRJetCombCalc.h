@@ -1,6 +1,6 @@
 #ifndef TtHadLRJetCombCalc_h
 #define TtHadLRJetCombCalc_h
-// $Id: TtHadLRJetCombCalc.h,v 1.3 2013/05/28 17:57:05 gartung Exp $
+// $Id: TtHadLRJetCombCalc.h,v 1.2 2008/02/17 11:27:11 rwolf Exp $
 // copied TtSemiLRJetCombCalc.h,v 1.3 2007/06/15 08:53:52 by heyninck
 
 #include "FWCore/Framework/interface/EventSetup.h"

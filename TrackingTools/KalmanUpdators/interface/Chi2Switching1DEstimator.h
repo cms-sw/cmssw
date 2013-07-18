@@ -6,8 +6,8 @@
  *  pixel and matched strip hits, and Chi2Strip1DEstimator for
  *  simple strip hits. Ported from ORCA.
  *
- *  $Date: 2013/01/10 12:12:18 $
- *  $Revision: 1.6 $
+ *  $Date: 2012/05/29 08:23:57 $
+ *  $Revision: 1.5 $
  *  \author todorov, cerati
  */
 

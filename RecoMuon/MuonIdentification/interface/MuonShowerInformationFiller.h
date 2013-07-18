@@ -4,8 +4,8 @@
  *
  *  Description: class for muon shower identification
  *
- *  $Date: 2012/12/26 10:17:17 $
- *  $Revision: 1.4 $
+ *  $Date: 2011/03/21 22:41:25 $
+ *  $Revision: 1.3 $
  *
  *  \author: A. Svyatkovskiy, Purdue University
  *

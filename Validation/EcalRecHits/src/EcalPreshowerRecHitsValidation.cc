@@ -1,7 +1,7 @@
 /*
  * \file EcalPreshowerRecHitsValidation.cc
  *
- * $Date: 2010/05/20 11:27:43 $
+ * $Date: 2009/12/14 22:24:45 $
  * \author C. Rovelli
  *
  */

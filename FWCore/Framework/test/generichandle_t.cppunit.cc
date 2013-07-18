@@ -67,13 +67,13 @@ void testGenericHandle::failWrongType() {
    try {
       //intentionally misspelled type
       edm::GenericHandle h("edmtest::DmmyProduct");
-      CPPUNIT_ASSERT("Failed to thow"==0);
+      CPPUNIT_ASSERT("Failed to throw" == nullptr);
    }
    catch (cms::Exception& x) {
       // nothing to do
    }
    catch (...) {
-      CPPUNIT_ASSERT("Threw wrong kind of exception" == 0);
+      CPPUNIT_ASSERT("Threw wrong kind of exception" == nullptr);
    }
 }
 void testGenericHandle::failgetbyLabelTest() {
@@ -82,17 +82,17 @@ void testGenericHandle::failgetbyLabelTest() {
   edm::Timestamp time;
   std::string uuid = edm::createGlobalIdentifier();
   edm::ProcessConfiguration pc("PROD", edm::ParameterSetID(), edm::getReleaseVersion(), edm::getPassID());
-  boost::shared_ptr<edm::ProductRegistry const> preg(new edm::ProductRegistry);
+  boost::shared_ptr<edm::ProductRegistry> preg(new edm::ProductRegistry);
   preg->setFrozen();
   boost::shared_ptr<edm::RunAuxiliary> runAux(new edm::RunAuxiliary(id.run(), time, time));
-  boost::shared_ptr<edm::RunPrincipal> rp(new edm::RunPrincipal(runAux, preg, pc, &historyAppender_));
+  boost::shared_ptr<edm::RunPrincipal> rp(new edm::RunPrincipal(runAux, preg, pc, &historyAppender_,0));
   boost::shared_ptr<edm::LuminosityBlockAuxiliary> lumiAux(new edm::LuminosityBlockAuxiliary(rp->run(), 1, time, time));
-  boost::shared_ptr<edm::LuminosityBlockPrincipal>lbp(new edm::LuminosityBlockPrincipal(lumiAux, preg, pc, &historyAppender_));
+  boost::shared_ptr<edm::LuminosityBlockPrincipal>lbp(new edm::LuminosityBlockPrincipal(lumiAux, preg, pc, &historyAppender_,0));
   lbp->setRunPrincipal(rp);
   boost::shared_ptr<edm::BranchIDListHelper> branchIDListHelper(new edm::BranchIDListHelper());
   branchIDListHelper->updateRegistries(*preg);
   edm::EventAuxiliary eventAux(id, uuid, time, true);
-  edm::EventPrincipal ep(preg, branchIDListHelper, pc, &historyAppender_);
+  edm::EventPrincipal ep(preg, branchIDListHelper, pc, &historyAppender_,edm::StreamID::invalidStreamID());
   ep.fillEventPrincipal(eventAux);
   ep.setLuminosityBlockPrincipal(lbp);
   edm::GenericHandle h("edmtest::DummyProduct");
@@ -113,13 +113,13 @@ void testGenericHandle::failgetbyLabelTest() {
   }
   catch (std::exception& x) {
     std::cout <<"caught std exception "<<x.what()<<std::endl;
-    CPPUNIT_ASSERT("Threw std::exception!"==0);
+    CPPUNIT_ASSERT("Threw std::exception!" == nullptr);
   }
   catch (...) {
-    CPPUNIT_ASSERT("Threw wrong kind of exception" == 0);
+    CPPUNIT_ASSERT("Threw wrong kind of exception" == nullptr);
   }
   if (!didThrow) {
-    CPPUNIT_ASSERT("Failed to throw required exception" == 0);
+    CPPUNIT_ASSERT("Failed to throw required exception" == nullptr);
   }
 
 }
@@ -160,7 +160,7 @@ void testGenericHandle::getbyLabelTest() {
 
   product.init();
 
-  std::auto_ptr<edm::ProductRegistry> preg(new edm::ProductRegistry);
+  std::unique_ptr<edm::ProductRegistry> preg(new edm::ProductRegistry);
   preg->addProduct(product);
   preg->setFrozen();
   boost::shared_ptr<edm::BranchIDListHelper> branchIDListHelper(new edm::BranchIDListHelper());
@@ -176,12 +176,12 @@ void testGenericHandle::getbyLabelTest() {
   edm::ProcessConfiguration pc("PROD", dummyProcessPset.id(), edm::getReleaseVersion(), edm::getPassID());
   boost::shared_ptr<edm::ProductRegistry const> pregc(preg.release());
   boost::shared_ptr<edm::RunAuxiliary> runAux(new edm::RunAuxiliary(col.run(), fakeTime, fakeTime));
-  boost::shared_ptr<edm::RunPrincipal> rp(new edm::RunPrincipal(runAux, pregc, pc, &historyAppender_));
+  boost::shared_ptr<edm::RunPrincipal> rp(new edm::RunPrincipal(runAux, pregc, pc, &historyAppender_,0));
   boost::shared_ptr<edm::LuminosityBlockAuxiliary> lumiAux(new edm::LuminosityBlockAuxiliary(rp->run(), 1, fakeTime, fakeTime));
-  boost::shared_ptr<edm::LuminosityBlockPrincipal>lbp(new edm::LuminosityBlockPrincipal(lumiAux, pregc, pc, &historyAppender_));
+  boost::shared_ptr<edm::LuminosityBlockPrincipal>lbp(new edm::LuminosityBlockPrincipal(lumiAux, pregc, pc, &historyAppender_,0));
   lbp->setRunPrincipal(rp);
   edm::EventAuxiliary eventAux(col, uuid, fakeTime, true);
-  edm::EventPrincipal ep(pregc, branchIDListHelper, pc, &historyAppender_);
+  edm::EventPrincipal ep(pregc, branchIDListHelper, pc, &historyAppender_,edm::StreamID::invalidStreamID());
   ep.fillEventPrincipal(eventAux);
   ep.setLuminosityBlockPrincipal(lbp);
   edm::BranchDescription const& branchFromRegistry = it->second;
@@ -207,15 +207,15 @@ void testGenericHandle::getbyLabelTest() {
   }
   catch (cms::Exception& x) {
     std::cerr << x.explainSelf()<< std::endl;
-    CPPUNIT_ASSERT("Threw cms::Exception unexpectedly" == 0);
+    CPPUNIT_ASSERT("Threw cms::Exception unexpectedly" == nullptr);
   }
   catch(std::exception& x){
      std::cerr <<x.what()<<std::endl;
-     CPPUNIT_ASSERT("threw std::exception"==0);
+     CPPUNIT_ASSERT("threw std::exception" == nullptr);
   }
   catch (...) {
     std::cerr << "Unknown exception type\n";
-    CPPUNIT_ASSERT("Threw exception unexpectedly" == 0);
+    CPPUNIT_ASSERT("Threw exception unexpectedly" == nullptr);
   }
   CPPUNIT_ASSERT(h.isValid());
   CPPUNIT_ASSERT(h.provenance()->moduleLabel() == label);

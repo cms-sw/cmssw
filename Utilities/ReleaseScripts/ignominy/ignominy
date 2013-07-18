@@ -1008,13 +1008,18 @@ sub convert_binary_symbol_deps {
 		       && $sym =~ /$_->[1]/, @symno));
 
 	if (defined $symbols{$sym}) {
+	    my @syms_def=();
+	    foreach my $l (@{$symbols{$sym}->{DEFS}}){
+		if (exists $binaries{$binary}->{DYNAMIC_DEPS}{$l}){push @syms_def,$l;}
+	    }
+	    if (scalar(@syms_def)==0){push @syms_def,@{$symbols{$sym}->{DEFS}};}
 	    print STDERR ("$binary: $sym: resolved from ",
-			  join(", ", @{$symbols{$sym}->{DEFS}}),
+			  join(", ", @syms_def),
 			  "\n")
 		if $verbose;
 
 	    map { $binaries{$binary}->{SYMBOL_DEPS}->{$_} = 1 }
-		@{$symbols{$sym}->{DEFS}};
+		@syms_def;
 	} elsif ($weak{$sym}) {
 	    # ignore weak symbols, we never want them
 	    # print STDERR ("$binary: $sym: resolved weakly from ",

@@ -1,7 +1,7 @@
 /* 
  *  \class TShapeAnalysis
  *
- *  $Date: 2012/02/09 10:08:10 $
+ *  $Date: 2010/10/21 22:54:32 $
  *  original author: Patrice Verrecchia 
  *   modified by Julie Malcles - CEA/Saclay
  */

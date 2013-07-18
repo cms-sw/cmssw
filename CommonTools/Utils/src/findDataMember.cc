@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Aug 13 10:07:46 EDT 2008
-// $Id: findDataMember.cc,v 1.4 2013/02/10 22:15:06 wmtan Exp $
+// $Id: findDataMember.cc,v 1.3 2012/08/03 18:08:11 wmtan Exp $
 //
 
 // system include files

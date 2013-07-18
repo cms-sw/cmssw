@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 #
 # module to produce pixel seeds for electrons from super clusters
-# $Id: ecalDrivenElectronSeeds_cfi.py,v 1.1 2009/02/18 13:43:40 beaudett Exp $
+# $Id: fastElectronSeeds_cfi.py,v 1.1 2009/02/04 11:05:16 chamont Exp $
 # Author:  Ursula Berthon, Claude Charlot
 #
 from RecoEgamma.EgammaElectronProducers.ecalDrivenElectronSeedsParameters_cff import *

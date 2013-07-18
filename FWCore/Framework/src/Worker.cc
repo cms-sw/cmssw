@@ -4,6 +4,7 @@
 
 #include "FWCore/Framework/src/Worker.h"
 #include "FWCore/Framework/src/EarlyDeleteHelper.h"
+#include "FWCore/Framework/src/OutputModuleCommunicator.h"
 
 namespace edm {
   namespace {
@@ -59,6 +60,11 @@ private:
   }
 
   Worker::~Worker() {
+  }
+
+  std::unique_ptr<OutputModuleCommunicator>
+  Worker::createOutputModuleCommunicator() {
+    return std::move(std::unique_ptr<OutputModuleCommunicator>{});
   }
 
   void Worker::setActivityRegistry(boost::shared_ptr<ActivityRegistry> areg) {

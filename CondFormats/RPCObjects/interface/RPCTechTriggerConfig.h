@@ -1,4 +1,4 @@
-// $Id: RPCTechTriggerConfig.h,v 1.1 2009/01/28 12:54:41 aosorio Exp $
+// $Id: $
 #ifndef RPCTECHTRIGGERCONFIG_H 
 #define RPCTECHTRIGGERCONFIG_H 1
 

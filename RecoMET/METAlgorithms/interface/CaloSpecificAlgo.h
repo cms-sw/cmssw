@@ -13,7 +13,7 @@
 //
 // Original Author:  R. Cavanaugh (taken from F.Ratnikov, UMd)
 //         Created:  June 6, 2006
-// $Id: CaloSpecificAlgo.h,v 1.10 2012/06/09 21:19:30 sakuma Exp $
+// $Id: CaloSpecificAlgo.h,v 1.9 2012/06/09 00:52:37 sakuma Exp $
 //
 //
 #ifndef METProducers_CaloMETInfo_h

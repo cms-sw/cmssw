@@ -12,9 +12,10 @@ namespace edm {
     boost::shared_ptr<RunAuxiliary> aux,
     boost::shared_ptr<ProductRegistry const> reg,
     ProcessConfiguration const& pc,
-    HistoryAppender* historyAppender) :
+    HistoryAppender* historyAppender,
+    unsigned int iRunIndex) :
     Base(reg, reg->productLookup(InRun), pc, InRun, historyAppender),
-      aux_(aux), complete_(false) {
+      aux_(aux), index_(iRunIndex), complete_(false) {
   }
 
   void

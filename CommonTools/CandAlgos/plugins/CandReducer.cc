@@ -11,9 +11,9 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Revision: 1.4 $
+ * \version $Revision: 1.3 $
  *
- * $Id: CandReducer.cc,v 1.4 2010/07/20 02:58:21 wmtan Exp $
+ * $Id: CandReducer.cc,v 1.3 2009/09/27 22:26:55 hegner Exp $
  *
  */
 #include "FWCore/Framework/interface/EDProducer.h"
