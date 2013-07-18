@@ -221,7 +221,7 @@ namespace edm {
 
     virtual bool isFileOpen() const { return true; }
 
-    virtual void doOpenFile() { }
+    virtual void reallyOpenFile() {}
 
     void setModuleDescription(ModuleDescription const& md) {
       moduleDescription_ = md;

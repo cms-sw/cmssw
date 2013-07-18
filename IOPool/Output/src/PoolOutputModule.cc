@@ -201,7 +201,7 @@ namespace edm {
 
   void PoolOutputModule::openFile(FileBlock const& fb) {
     if(!isFileOpen()) {
-      doOpenFile();
+      reallyOpenFile();
       beginInputFile(fb);
     }
   }
@@ -278,7 +278,7 @@ namespace edm {
   bool PoolOutputModule::isFileOpen() const { return rootOutputFile_.get() != 0; }
   bool PoolOutputModule::shouldWeCloseFile() const { return rootOutputFile_->shouldWeCloseFile(); }
 
-  void PoolOutputModule::doOpenFile() {
+  void PoolOutputModule::reallyOpenFile() {
       if(inputFileCount_ == 0) {
         throw edm::Exception(errors::LogicError)
           << "Attempt to open output file before input file. "
