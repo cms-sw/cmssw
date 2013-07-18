@@ -3,8 +3,8 @@
  *
  *  \author Joerg Behr
  *  \date May 2013
- *  $Revision: 1.4 $
- *  $Date: 2013/05/31 14:50:52 $
+ *  $Revision: 1.5 $
+ *  $Date: 2013/06/19 08:33:03 $
  *  (last update by $Author: jbehr $)
  */
 
@@ -270,17 +270,20 @@ int TkModuleGroupSelector::getParameterIndexFromDetId(unsigned int detId,
     const std::vector<edm::RunNumber_t> &runs = runRange_.at(iAlignableGroup);
     const unsigned int id0 = firstId_.at(iAlignableGroup);
     const edm::RunNumber_t refrun = referenceRun_.at(iAlignableGroup);
-    // assuming runs is never empty (checked in createModuleGroups(..))
-    if (runs[0] > run) {
-      throw cms::Exception("BadConfig")
-        << "@SUB=TkModuleGroupSelector::getParameterIndexFromDetId:\n"
-        << "Run " << run << " not foreseen for detid ('"<< detId <<"')"
-        << " in module group " << iAlignableGroup << ".";
-    }
+
+
     unsigned int iovNum = 0;
     for ( ; iovNum < runs.size(); ++iovNum) {
-      if (run >= runs[iovNum]) break;
+      if (runs[iovNum] > run) break;
     }
+    if (iovNum == 0) {
+      throw cms::Exception("BadConfig") << "@SUB=TkModuleGroupSelector::getParameterIndexFromDetId:\n"
+              << "Run " << run << " not foreseen for detid ('"<< detId <<"')."
+              << std::endl;
+    } else {
+      --iovNum;
+    }
+
     //test whether the iov contains the reference run
     if(refrun > 0) { //if > 0 a reference run number has been provided
       if(iovNum+1 == runs.size()) {
