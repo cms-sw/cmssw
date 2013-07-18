@@ -270,6 +270,10 @@ will give you:
 
 which once again shows the importance of good comments.
 
+### How to I retract my own pull request?
+
+Simply close it using the standard GitHub GUI when looking at it.
+
 ### Do you have any more in-depth FAQs?
 
 Yes, please look at the [Advanced Usage](advanced-usage) section.
