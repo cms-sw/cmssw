@@ -12,17 +12,17 @@ process.GlobalTag.globaltag = autoCond['startup']
 
 #process.Timing =cms.Service("Timing")
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(100)
+    input = cms.untracked.int32(1000)
 )
 
 process.source = cms.Source(
     "PoolSource",
-    fileNames = cms.untracked.vstring(    
-    #'root://eoscms//eos/cms/store/relval/CMSSW_5_2_0_pre5/RelValQCD_FlatPt_15_3000/GEN-SIM-RECO/START52_V1-v1/0105/2AAA5F86-8D57-E111-B6E8-003048678B84.root',
-    #'root://eoscms//eos/cms/store/relval/CMSSW_5_2_0_pre5/RelValQCD_FlatPt_15_3000/GEN-SIM-RECO/START52_V1-v1/0105/38D32839-8A57-E111-849D-0026189438E4.root'
-    '/store/relval/CMSSW_6_1_0/SingleGammaPt300ExtRelVal610/GEN-SIM-RECO/START61_V8_NoPuCustomEvC-v1/00000/20A36721-9490-E211-AE58-003048F1CAA8.root'
+    fileNames = cms.untracked.vstring(
+    #'file:/tmp/lgray/FEDB497A-AB90-E211-BAEB-002590489DD0.root',
+    #'file:/tmp/lgray/FE329242-9490-E211-BBD9-003048F01174.root',
+    '/store/relval/CMSSW_6_1_0-PU_START61_V8/SingleElePt300ExtRelVal610/GEN-SIM-RECO/v1/00000/90DEE330-F769-E211-8EDA-002590494D9C.root'
     ),
-    eventsToProcess = cms.untracked.VEventRange(),
+    #eventsToProcess = cms.untracked.VEventRange('1:852912'),
     #eventsToProcess = cms.untracked.VEventRange('1:1217421-1:1217421'),
     #                                             '1:1220344-1:1220344',
     #                                             '1:1655912-1:1655912',
@@ -53,6 +53,7 @@ process.reco = cms.OutputModule("PoolOutputModule",
     fileName = cms.untracked.string('reco.root')
 )
 
+process.reco.outputCommands.append('keep *_particleFlowEGammaNew_*_*')
 # modify reconstruction sequence
 #process.hbhereflag = process.hbhereco.clone()
 #process.hbhereflag.hbheInput = 'hbhereco'
@@ -90,7 +91,7 @@ process.pfReReco = cms.Sequence(process.particleFlowReco+
                                 process.recoPFJets+
                                 process.recoPFMET+
                                 process.PFTau)
-                                
+                               
 # Gen Info re-processing
 process.load("PhysicsTools.HepMCCandAlgos.genParticles_cfi")
 process.load("RecoJets.Configuration.GenJetParticles_cff")
@@ -127,19 +128,22 @@ process.outpath = cms.EndPath(
 )
 
 # And the monitoring
-process.SimpleMemoryCheck = cms.Service("SimpleMemoryCheck",
-                                        ignoreTotal=cms.untracked.int32(1),
-                                        jobReportOutputOnly = cms.untracked.bool(True)
-                                        )
-process.Timing = cms.Service("Timing",
-                             summaryOnly = cms.untracked.bool(True)
-                             )
+#process.SimpleMemoryCheck = cms.Service("SimpleMemoryCheck",
+#                                        ignoreTotal=cms.untracked.int32(1),
+#                                        jobReportOutputOnly = cms.untracked.bool(True)
+#                                        )
+#process.Timing = cms.Service("Timing",
+#                             summaryOnly = cms.untracked.bool(True)
+#                             )
 
 # And the logger
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
+#process.MessageLogger.cout = cms.untracked.PSet(
+#    threshold = cms.untracked.string('INFO')
+#    )
 process.options = cms.untracked.PSet(
     makeTriggerResults = cms.untracked.bool(True),
-    wantSummary = cms.untracked.bool(True),
+    #wantSummary = cms.untracked.bool(True),
     Rethrow = cms.untracked.vstring('Unknown', 
         'ProductNotFound', 
         'DictionaryNotFound', 

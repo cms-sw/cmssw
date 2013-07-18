@@ -1,7 +1,9 @@
 //
-// Class: PFSuperClusterTreeMaker.cc
+// Class: PFEGCandidateTreeMaker.cc
 //
-// Info: Processes a track into histograms of delta-phis and such
+// Info: Outputs a tree with PF-EGamma information, mostly SC info.
+//       Checks to see if the input EG candidates are matched to 
+//       some existing PF reco (PF-Photons and PF-Electrons).
 //
 // Author: L. Gray (FNAL)
 //
@@ -14,6 +16,27 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
+
+#include "DataFormats/EgammaCandidates/interface/Photon.h"
+#include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"
+
+#include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
+#include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
+
+#include "DataFormats/ParticleFlowCandidate/interface/PFCandidatePhotonExtra.h"
+#include "DataFormats/ParticleFlowCandidate/interface/PFCandidatePhotonExtraFwd.h"
+
+#include "DataFormats/ParticleFlowCandidate/interface/PFCandidateEGammaExtra.h"
+#include "DataFormats/ParticleFlowCandidate/interface/PFCandidateEGammaExtraFwd.h"
+
+#include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
+#include "DataFormats/GsfTrackReco/interface/GsfTrackFwd.h"
+
+#include "DataFormats/GsfTrackReco/interface/GsfTrackExtra.h"
+#include "DataFormats/GsfTrackReco/interface/GsfTrackExtraFwd.h"
+
+#include "DataFormats/EgammaReco/interface/ElectronSeed.h"
+#include "DataFormats/EgammaReco/interface/ElectronSeedFwd.h"
 
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
@@ -53,11 +76,11 @@ namespace {
 			      double> ClusUnaryFunction;  
 
   struct GetSharedRecHitFraction : public ClusUnaryFunction {
-    const edm::Ptr<reco::CaloCluster> the_seed;    
+    const edm::Ptr<reco::PFCluster> the_seed;    
     double x_rechits_tot, x_rechits_match;
-    GetSharedRecHitFraction(const edm::Ptr<reco::CaloCluster>& s) : 
+    GetSharedRecHitFraction(const edm::Ptr<reco::PFCluster>& s) : 
       the_seed(s) {}
-    double operator()(const edm::Ptr<reco::CaloCluster>& x) {      
+    double operator()(const edm::Ptr<reco::PFCluster>& x) {      
       // now see if the clusters overlap in rechits
       const auto& seedHitsAndFractions = 
 	the_seed->hitsAndFractions();
@@ -77,11 +100,11 @@ namespace {
   };
 }
 
-class PFSuperClusterTreeMaker : public edm::EDAnalyzer {
+class PFEGCandidateTreeMaker : public edm::EDAnalyzer {
   typedef TTree* treeptr;  
 public:
-  PFSuperClusterTreeMaker(const PSet&);
-  ~PFSuperClusterTreeMaker() {}
+  PFEGCandidateTreeMaker(const PSet&);
+  ~PFEGCandidateTreeMaker() {}
 
   void analyze(const edm::Event&, const edm::EventSetup&);
 private:    
@@ -89,14 +112,18 @@ private:
   bool _dogen;
   edm::InputTag _geninput;
   edm::InputTag _vtxsrc;
-  bool _readEB, _readEE;
-  edm::InputTag _scInputEB,_scInputEE;
+  edm::InputTag _pfEGInput;
+  edm::InputTag _pfInput;
   std::shared_ptr<PFEnergyCalibration> _calib;
-  std::map<reco::SuperClusterRef,reco::GenParticleRef> _genmatched;
+  std::map<reco::PFCandidateRef,reco::GenParticleRef> _genmatched;
   void findBestGenMatches(const edm::Event& e, 
-			  const edm::Handle<reco::SuperClusterCollection>& scs);
-  void processSuperClusterFillTree(const edm::Event&,
-				   const reco::SuperClusterRef&);
+			  const edm::Handle<reco::PFCandidateCollection>&);
+  void processEGCandidateFillTree(const edm::Event&,
+			     const reco::PFCandidateRef&,
+			     const edm::Handle<reco::PFCandidateCollection>&);
+  bool getPFCandMatch(const reco::PFCandidate&,
+		      const edm::Handle<reco::PFCandidateCollection>&,
+		      const int );
   // the tree  
   void setTreeArraysForSize(const size_t N_ECAL,const size_t N_PS);
   treeptr _tree;
@@ -104,6 +131,7 @@ private:
   Float_t scRawEnergy, scCalibratedEnergy, scPreshowerEnergy,
     scEta, scPhi, scR, scPhiWidth, scEtaWidth, scSeedRawEnergy, 
     scSeedCalibratedEnergy, scSeedEta, scSeedPhi;
+  Int_t hasParentSC, pfPhotonMatch, pfElectronMatch;
   Float_t genEnergy, genEta, genPhi, genDRToCentroid, genDRToSeed;
   Int_t N_ECALClusters;
   std::shared_ptr<Float_t> clusterRawEnergy, clusterCalibEnergy, 
@@ -115,37 +143,33 @@ private:
   std::shared_ptr<Float_t> psClusterRawEnergy, psClusterEta, psClusterPhi;
 };
 
-void PFSuperClusterTreeMaker::analyze(const edm::Event& e, 
-				      const edm::EventSetup& es) {
+void PFEGCandidateTreeMaker::analyze(const edm::Event& e, 
+				     const edm::EventSetup& es) {
   edm::Handle<reco::VertexCollection> vtcs;
   e.getByLabel(_vtxsrc,vtcs);
   if( vtcs.isValid() ) nVtx = vtcs->size();
   else nVtx = -1;
 
-  edm::Handle<reco::SuperClusterCollection> ebSCs, eeSCs;
-  if( _readEB )
-    e.getByLabel(_scInputEB, ebSCs);  
-  if( _readEE )
-    e.getByLabel(_scInputEE, eeSCs);  
+  edm::Handle<reco::PFCandidateCollection> pfEG;
+  edm::Handle<reco::PFCandidateCollection> pfCands;
+  e.getByLabel(_pfEGInput, pfEG);  
+  e.getByLabel(_pfInput, pfCands);  
  
-  if( ebSCs.isValid() ) {   
-    findBestGenMatches(e, ebSCs);
-    for( size_t i = 0; i < ebSCs->size(); ++i ) {
-      processSuperClusterFillTree(e,reco::SuperClusterRef(ebSCs,i));
+  if( pfEG.isValid() ) {
+    findBestGenMatches(e, pfEG);
+    for( size_t i = 0; i < pfEG->size(); ++i ) {
+      processEGCandidateFillTree(e, reco::PFCandidateRef(pfEG,i), pfCands);
     }
-  } 
-
-  if( eeSCs.isValid() ) {
-    findBestGenMatches(e, eeSCs);
-    for( size_t i = 0; i < eeSCs->size(); ++i ) {       
-      processSuperClusterFillTree(e,reco::SuperClusterRef(eeSCs,i));
-    }
-  }
+  } else {
+    throw cms::Exception("PFEGCandidateTreeMaker")
+      << "Product ID for the EB SuperCluster collection was invalid!"
+      << std::endl;
+  }  
 }
 
-void PFSuperClusterTreeMaker::
+void PFEGCandidateTreeMaker::
 findBestGenMatches(const edm::Event& e, 
-		   const edm::Handle<reco::SuperClusterCollection>& scs) {
+		   const edm::Handle<reco::PFCandidateCollection>& pfs) {
   _genmatched.clear();
   reco::GenParticleRef genmatch;
   // gen information (if needed)
@@ -163,17 +187,19 @@ findBestGenMatches(const edm::Event& e,
       }
       for( size_t i = 0; i < elesandphos.size(); ++i ) {
 	double dE_min = -1;
-	reco::SuperClusterRef bestmatch;
-	for( size_t k = 0; k < scs->size(); ++k ) {
-	  if( reco::deltaR(scs->at(k),*elesandphos[i]) < 0.3 ) {
-	    double dE = std::abs(scs->at(k).energy()-elesandphos[i]->energy());
+	reco::PFCandidateRef bestmatch;
+	for( size_t k = 0; k < pfs->size(); ++k ) {	  
+	  reco::SuperClusterRef scref = pfs->at(k).superClusterRef();
+	  if( scref.isAvailable() && scref.isNonnull() && 
+	      reco::deltaR(*scref,*elesandphos[i]) < 0.3 ) {
+	    double dE = std::abs(scref->energy()-elesandphos[i]->energy());
 	    if( dE_min == -1 || dE < dE_min ) {
 	      dE_min = dE;
-	      bestmatch = reco::SuperClusterRef(scs,k);
+	      bestmatch = reco::PFCandidateRef(pfs,k);
 	    }
 	  }
 	}
-	_genmatched[bestmatch] = elesandphos[i];
+      	_genmatched[bestmatch] = elesandphos[i];
       }
     } else {
       throw cms::Exception("PFSuperClusterTreeMaker")
@@ -183,31 +209,44 @@ findBestGenMatches(const edm::Event& e,
   }
 }
 
-void PFSuperClusterTreeMaker::
-processSuperClusterFillTree(const edm::Event& e, 
-			    const reco::SuperClusterRef& sc) {
-  const int N_ECAL = sc->clustersSize();
-  const int N_PS   = sc->preshowerClustersSize();
-  const double sc_eta = std::abs(sc->position().Eta());
+void PFEGCandidateTreeMaker::
+processEGCandidateFillTree(const edm::Event& e, 
+		      const reco::PFCandidateRef& pf,
+		      const edm::Handle<reco::PFCandidateCollection>& pfCands) {
+  if( pf->superClusterRef().isNull() || !pf->superClusterRef().isAvailable() ) {
+    return;
+  }
+  if( pf->egammaExtraRef().isNull() || !pf->egammaExtraRef().isAvailable() ) {
+    return;
+  }
+  const reco::SuperCluster& sc = *(pf->superClusterRef());
+  reco::SuperClusterRef egsc = pf->egammaExtraRef()->superClusterBoxRef();
+  bool eleMatch(getPFCandMatch(*pf,pfCands,11));
+  bool phoMatch(getPFCandMatch(*pf,pfCands,22));
+
+
+  const int N_ECAL = sc.clustersSize();
+  const int N_PS   = sc.preshowerClustersSize();
+  const double sc_eta = std::abs(sc.position().Eta());
   const double sc_cosheta = std::cosh(sc_eta);
-  const double sc_pt = sc->rawEnergy()/sc_cosheta;
-  if( !std::distance(sc->clustersBegin(),sc->clustersEnd()) ) return;
+  const double sc_pt = sc.rawEnergy()/sc_cosheta;
+  if( !N_ECAL ) return;
   if( (sc_pt < 3.0 && sc_eta < 2.0) || 
       (sc_pt < 4.0 && sc_eta < 2.5 && sc_eta > 2.0) ||
       (sc_pt < 6.0 && sc_eta > 2.5) ) return;
   N_ECALClusters = std::max(0,N_ECAL - 1); // minus 1 because of seed
-  N_PSClusters = N_PS;  
-  // gen information (if needed)
+  N_PSClusters = N_PS;
   reco::GenParticleRef genmatch;
+  // gen information (if needed)
   if( _dogen ) {    
-    std::map<reco::SuperClusterRef,reco::GenParticleRef>::iterator itrmatch;
-      if(  (itrmatch = _genmatched.find(sc)) != _genmatched.end() ) {
+    std::map<reco::PFCandidateRef,reco::GenParticleRef>::iterator itrmatch;
+    if(  (itrmatch = _genmatched.find(pf)) != _genmatched.end() ) {
       genmatch  = itrmatch->second;           
       genEnergy = genmatch->energy();
       genEta    = genmatch->eta();
       genPhi    = genmatch->phi();
-      genDRToCentroid = reco::deltaR(*sc,*genmatch);
-      genDRToSeed = reco::deltaR(*genmatch,**(sc->clustersBegin()));
+      genDRToCentroid = reco::deltaR(sc,*genmatch);
+      genDRToSeed = reco::deltaR(*genmatch,**(sc.clustersBegin()));
     } else {
       genEnergy = -1.0;
       genEta    = 999.0;
@@ -215,86 +254,73 @@ processSuperClusterFillTree(const edm::Event& e,
       genDRToCentroid = 999.0;
       genDRToSeed = 999.0;
     }    
-  }
+  }  
   // supercluster information
   setTreeArraysForSize(N_ECALClusters,N_PSClusters);
-  scRawEnergy = sc->rawEnergy();
-  scCalibratedEnergy = sc->energy();
-  scPreshowerEnergy = sc->preshowerEnergy();
-  scEta = sc->position().Eta();
-  scPhi = sc->position().Phi();
-  scR   = sc->position().R();
-  scPhiWidth = sc->phiWidth();
-  scEtaWidth = sc->etaWidth();
+  hasParentSC = (Int_t)(egsc.isAvailable() && egsc.isNonnull());
+  pfElectronMatch = (Int_t)eleMatch;
+  pfPhotonMatch = (Int_t)phoMatch;
+  scRawEnergy = sc.rawEnergy();
+  scCalibratedEnergy = sc.energy();
+  scPreshowerEnergy = sc.preshowerEnergy();
+  scEta = sc.position().Eta();
+  scPhi = sc.position().Phi();
+  scR   = sc.position().R();
+  scPhiWidth = sc.phiWidth();
+  scEtaWidth = sc.etaWidth();
   // sc seed information
-  bool sc_is_pf = false;
-  edm::Ptr<reco::CaloCluster> theseed = sc->seed();  
-  reco::CaloCluster_iterator startCluster = sc->clustersBegin();
-  if( theseed.isNull() || !theseed.isAvailable() ) {
-    edm::Ptr<reco::CaloCluster> theseed = *(startCluster++);  
-  }
-  edm::Ptr<reco::PFCluster> seedasPF = edm::Ptr<reco::PFCluster>(theseed);
-  if( seedasPF.isNonnull() && seedasPF.isAvailable() ) sc_is_pf = true;
+  edm::Ptr<reco::PFCluster> theseed = edm::Ptr<reco::PFCluster>(sc.seed());
   GetSharedRecHitFraction fractionOfSeed(theseed);
   scSeedRawEnergy = theseed->energy();
-  if( sc_is_pf ) {
-    scSeedCalibratedEnergy = _calib->energyEm(*seedasPF,0.0,0.0,false);
-  } else {
-    scSeedCalibratedEnergy = theseed->energy();
-  }
+  scSeedCalibratedEnergy = _calib->energyEm(*theseed,0.0,0.0,false);
   scSeedEta = theseed->eta();
   scSeedPhi = theseed->phi();
   // loop over all clusters that aren't the seed
-  auto clusend = sc->clustersEnd();
+  auto clusend = sc.clustersEnd();
   size_t iclus = 0;
   edm::Ptr<reco::PFCluster> pclus;
-  for( auto clus = startCluster; clus != clusend; ++clus ) {    
-    if( theseed == *clus ) continue;
-    clusterRawEnergy.get()[iclus] = (*clus)->energy();
-    if( sc_is_pf ) {
-      pclus = edm::Ptr<reco::PFCluster>(*clus);
-      clusterCalibEnergy.get()[iclus] = _calib->energyEm(*pclus,0.0,0.0,false);
-    } else {
-      clusterCalibEnergy.get()[iclus] = (*clus)->energy();
-    }
-    clusterEta.get()[iclus] = (*clus)->eta();
-    clusterPhi.get()[iclus] = (*clus)->phi();
+  for( auto clus = sc.clustersBegin(); clus != clusend; ++clus ) {
+    pclus = edm::Ptr<reco::PFCluster>(*clus);
+    if( theseed == pclus ) continue;
+    clusterRawEnergy.get()[iclus] = pclus->energy();
+    clusterCalibEnergy.get()[iclus] = _calib->energyEm(*pclus,0.0,0.0,false);
+    clusterEta.get()[iclus] = pclus->eta();
+    clusterPhi.get()[iclus] = pclus->phi();
     clusterDPhiToSeed.get()[iclus] = 
-      TVector2::Phi_mpi_pi((*clus)->phi() - theseed->phi());
-    clusterDEtaToSeed.get()[iclus] = (*clus)->eta() - theseed->eta();
+      TVector2::Phi_mpi_pi(pclus->phi() - theseed->phi());
+    clusterDEtaToSeed.get()[iclus] = pclus->eta() - theseed->eta();
     clusterDPhiToCentroid.get()[iclus] = 
-      TVector2::Phi_mpi_pi((*clus)->phi() - sc->phi());
-    clusterDEtaToCentroid.get()[iclus] = (*clus)->eta() - sc->eta();
+      TVector2::Phi_mpi_pi(pclus->phi() - sc.phi());
+    clusterDEtaToCentroid.get()[iclus] = pclus->eta() - sc.eta();
     clusterDPhiToCentroid.get()[iclus] = 
-      TVector2::Phi_mpi_pi((*clus)->phi() - sc->phi());
-    clusterDEtaToCentroid.get()[iclus] = (*clus)->eta() - sc->eta();    
-    clusterHitFractionSharedWithSeed.get()[iclus] = fractionOfSeed(*clus);
+      TVector2::Phi_mpi_pi(pclus->phi() - sc.phi());
+    clusterDEtaToCentroid.get()[iclus] = pclus->eta() - sc.eta();
+    clusterHitFractionSharedWithSeed.get()[iclus] = fractionOfSeed(pclus);
     if( _dogen && genmatch.isNonnull() ) {
       clusterDPhiToGen.get()[iclus] = 
-	TVector2::Phi_mpi_pi((*clus)->phi() - genmatch->phi());
-      clusterDEtaToGen.get()[iclus] = (*clus)->eta() - genmatch->eta();
+	TVector2::Phi_mpi_pi(pclus->phi() - genmatch->phi());
+      clusterDEtaToGen.get()[iclus] = pclus->eta() - genmatch->eta();
     }
     clusterInMustache.get()[iclus] = (Int_t) MK::inMustache(theseed->eta(),
-							    theseed->phi(),
-							    (*clus)->energy(),
-							    (*clus)->eta(),
-							    (*clus)->phi());
-
+							     theseed->phi(),
+							     pclus->energy(),
+							     pclus->eta(),
+							     pclus->phi());
     clusterInDynDPhi.get()[iclus] = (Int_t)
-      MK::inDynamicDPhiWindow(theseed->eta(),
+      MK::inDynamicDPhiWindow(PFLayer::ECAL_BARREL == pclus->layer(),
 			      theseed->phi(),
-			      (*clus)->energy(),
-			      (*clus)->eta(),
-			      (*clus)->phi());   
+			      pclus->energy(),
+			      pclus->eta(),
+			      pclus->phi());      
     ++iclus;
   }
   // loop over all preshower clusters 
-  auto psclusend = sc->preshowerClustersEnd();
+  auto psclusend = sc.preshowerClustersEnd();
   size_t ipsclus = 0;
-  edm::Ptr<reco::CaloCluster> ppsclus;
-  for( auto psclus = sc->preshowerClustersBegin(); psclus != psclusend; 
+  edm::Ptr<reco::PFCluster> ppsclus;
+  for( auto psclus = sc.preshowerClustersBegin(); psclus != psclusend; 
        ++psclus ) {
-    ppsclus = edm::Ptr<reco::CaloCluster>(*psclus);
+    ppsclus = edm::Ptr<reco::PFCluster>(*psclus);
     psClusterRawEnergy.get()[ipsclus] = ppsclus->energy();    
     psClusterEta.get()[ipsclus] = ppsclus->eta();    
     psClusterPhi.get()[ipsclus] = ppsclus->phi();
@@ -303,7 +329,41 @@ processSuperClusterFillTree(const edm::Event& e,
   _tree->Fill();
 }
 
-PFSuperClusterTreeMaker::PFSuperClusterTreeMaker(const PSet& p) {
+
+
+bool PFEGCandidateTreeMaker::
+getPFCandMatch(const reco::PFCandidate& cand,
+	       const edm::Handle<reco::PFCandidateCollection>& pf,
+	       const int pdgid_search) {
+  reco::PFCandidateEGammaExtraRef egxtra = cand.egammaExtraRef();
+  if( egxtra.isAvailable() && egxtra.isNonnull() ) {
+    reco::SuperClusterRef scref = egxtra->superClusterBoxRef();
+    if( scref.isAvailable() && scref.isNonnull() ) {
+      for( auto ipf = pf->begin(); ipf != pf->end(); ++ipf ) {
+	if( std::abs(ipf->pdgId()) == pdgid_search  && pdgid_search == 11) {
+	  reco::GsfTrackRef gsfref = ipf->gsfTrackRef();	    
+	  reco::ElectronSeedRef sRef = gsfref->seedRef().castTo<reco::ElectronSeedRef>();
+	  if( sRef.isNonnull() && sRef.isAvailable() && sRef->isEcalDriven() ) {
+	    reco::SuperClusterRef temp(sRef->caloCluster().castTo<reco::SuperClusterRef>());
+	    if( scref == temp ) {
+	      return true;
+	    }
+	  }
+	} else if ( std::abs(ipf->pdgId()) == 22 && pdgid_search == 22) {
+	  reco::SuperClusterRef temp(ipf->superClusterRef());
+	  if( scref == temp ) {
+	    return true;
+	  }
+	}
+      }
+    }
+  }
+  return false;
+}
+
+
+
+PFEGCandidateTreeMaker::PFEGCandidateTreeMaker(const PSet& p) {
   _calib.reset(new PFEnergyCalibration());
   N_ECALClusters = 1;
   N_PSClusters   = 1;
@@ -311,6 +371,9 @@ PFSuperClusterTreeMaker::PFSuperClusterTreeMaker(const PSet& p) {
   _tree->Branch("N_ECALClusters",&N_ECALClusters,"N_ECALClusters/I");
   _tree->Branch("N_PSClusters",&N_PSClusters,"N_PSClusters/I");
   _tree->Branch("nVtx",&nVtx,"nVtx/I");
+  _tree->Branch("hasParentSC",&hasParentSC,"hasParentSC/I");
+  _tree->Branch("pfPhotonMatch",&pfPhotonMatch,"pfPhotonMatch/I");
+  _tree->Branch("pfElectronMatch",&pfElectronMatch,"pfElectronMatch/I");
   _tree->Branch("scRawEnergy",&scRawEnergy,"scRawEnergy/F");
   _tree->Branch("scCalibratedEnergy",&scCalibratedEnergy,
 		"scCalibratedEnergy/F");
@@ -389,20 +452,13 @@ PFSuperClusterTreeMaker::PFSuperClusterTreeMaker(const PSet& p) {
 		  "clusterDPhiToGen[N_ECALClusters]/F");
   }
   _vtxsrc    = p.getParameter<edm::InputTag>("primaryVertices");
+  _pfEGInput  = p.getParameter<edm::InputTag>("pfEGammaCandSrc");
+  _pfInput = p.getParameter<edm::InputTag>("pfCandSrc"); 
 
-  _readEB = _readEE = false;
-  if( p.existsAs<edm::InputTag>("superClusterSrcEB") ) {
-    _readEB = true;
-    _scInputEB = p.getParameter<edm::InputTag>("superClusterSrcEB");
-  } 
-  if( p.existsAs<edm::InputTag>("superClusterSrcEE") ) {
-    _readEE = true;
-    _scInputEE = p.getParameter<edm::InputTag>("superClusterSrcEE"); 
-  }
 }
 
 
-void PFSuperClusterTreeMaker::setTreeArraysForSize(const size_t N_ECAL,
+void PFEGCandidateTreeMaker::setTreeArraysForSize(const size_t N_ECAL,
 						   const size_t N_PS) {
   Float_t* cRE_new = new Float_t[N_ECAL];
   clusterRawEnergy.reset(cRE_new,array_deleter<Float_t>());
@@ -459,4 +515,4 @@ void PFSuperClusterTreeMaker::setTreeArraysForSize(const size_t N_ECAL,
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"
-DEFINE_FWK_MODULE(PFSuperClusterTreeMaker);
+DEFINE_FWK_MODULE(PFEGCandidateTreeMaker);

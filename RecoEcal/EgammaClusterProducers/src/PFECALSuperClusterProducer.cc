@@ -116,8 +116,9 @@ PFECALSuperClusterProducer::PFECALSuperClusterProducer(const edm::ParameterSet& 
   PFBasicClusterCollectionPreshower_ = iConfig.getParameter<string>("PFBasicClusterCollectionPreshower");
   PFSuperClusterCollectionEndcapWithPreshower_ = iConfig.getParameter<string>("PFSuperClusterCollectionEndcapWithPreshower");
 
-  produces<reco::SuperClusterCollection>(PFSuperClusterCollectionBarrel_);
+  produces<reco::SuperClusterCollection>(PFSuperClusterCollectionBarrel_);  
   produces<reco::SuperClusterCollection>(PFSuperClusterCollectionEndcapWithPreshower_);   
+  produces<reco::SuperCluster::EEtoPSAssociation>("eetops");
 }
 
 
@@ -149,6 +150,8 @@ void PFECALSuperClusterProducer::produce(edm::Event& iEvent,
 	     PFSuperClusterCollectionBarrel_);
   iEvent.put(superClusterAlgo_.getEEOutputSCCollection(), 
 	     PFSuperClusterCollectionEndcapWithPreshower_);
+  iEvent.put(superClusterAlgo_.getEEtoPSAssociation(), 
+	     "eetops");
 }
   
 

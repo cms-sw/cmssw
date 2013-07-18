@@ -39,7 +39,16 @@
   <class name="edm::Wrapper<edm::RefVector<std::vector<reco::BasicCluster>,reco::BasicCluster,edm::refhelper::FindUsingAdvance<std::vector<reco::BasicCluster>,reco::BasicCluster> > >"/>
   <class name="std::vector<edm::Ref<std::vector<reco::BasicCluster>,reco::BasicCluster,edm::refhelper::FindUsingAdvance<std::vector<reco::BasicCluster>,reco::BasicCluster> > >"/>
 
-  <class name="reco::SuperCluster" ClassVersion="11">
+
+  
+  <class name="std::pair<unsigned long,std::pair<unsigned long,unsigned long> >"/>
+  <class name="reco::SuperCluster::EEtoPSAssociationInternal"/>
+  <class name="edm::Wrapper<reco::SuperCluster::EEtoPSAssociationInternal>"/>
+  <class name="std::pair<edm::Ptr<reco::CaloCluster>::key_type,edm::Ptr<reco::CaloCluster> >"/>
+  <class name="reco::SuperCluster::EEtoPSAssociation"/>
+  <class name="edm::Wrapper<reco::SuperCluster::EEtoPSAssociation>"/>
+  <class name="reco::SuperCluster" ClassVersion="12">
+   <version ClassVersion="12" checksum="867516161"/>
    <version ClassVersion="11" checksum="83023066"/>
    <version ClassVersion="10" checksum="3131732439"/>
     <field name="rawEnergy_" iotype="Double32_t"/>

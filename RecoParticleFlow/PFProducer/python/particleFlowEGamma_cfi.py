@@ -5,6 +5,9 @@ particleFlowEGamma = cms.EDProducer("PFEGammaProducer",
     # PF Blocks label
     blocks = cms.InputTag("particleFlowBlock"),
 
+    #EE to PS association
+    EEtoPS_source = cms.InputTag("particleFlowSuperClusterECAL","eetops"),
+
     # reco::muons label and Post Muon cleaning
     muons = cms.InputTag("muons1stStep"),
     postMuonCleaning = cms.bool(True),
@@ -17,8 +20,8 @@ particleFlowEGamma = cms.EDProducer("PFEGammaProducer",
     algoType = cms.uint32(0),
 
     # Verbose and debug flags
-    verbose = cms.untracked.bool(False),
-    debug = cms.untracked.bool(False),
+    verbose = cms.untracked.bool(True),
+    debug = cms.untracked.bool(True),
 
     # Use HO clusters in PF hadron reconstruction
     useHO = cms.bool(True),                                 
