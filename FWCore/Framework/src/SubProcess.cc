@@ -148,10 +148,10 @@ namespace edm {
     ServiceRegistry::Operate operate(serviceToken_);
     ExceptionCollector c("Multiple exceptions were thrown while executing endJob. An exception message follows for each.");
     schedule_->endJob(c);
+    if(subProcess_.get()) c.call([this](){ this->subProcess_->doEndJob();});
     if(c.hasThrown()) {
       c.rethrow();
     }
-    if(subProcess_.get()) subProcess_->doEndJob();
   }
 
   void
@@ -334,6 +334,36 @@ namespace edm {
     principalCache_.deleteLumi(it->second, runNumber, lumiNumber);
       if(subProcess_.get()) subProcess_->deleteLumiFromCache(it->second, runNumber, lumiNumber);
   }
+  
+  void
+  SubProcess::doBeginStream(StreamID iID) {
+    ServiceRegistry::Operate operate(serviceToken_);
+    assert(iID == schedule_->streamID());
+    schedule_->beginStream();
+    if(subProcess_.get()) subProcess_->doBeginStream(iID);
+  }
+
+  void
+  SubProcess::doEndStream(StreamID iID) {
+    ServiceRegistry::Operate operate(serviceToken_);
+    assert(iID == schedule_->streamID());
+    schedule_->endStream();
+    if(subProcess_.get()) subProcess_->doEndStream(iID);
+  }
+
+  //Dummies until SubProcess inherits from new interface
+  void
+  SubProcess::doStreamBeginRun(StreamID, RunPrincipal const& principal, IOVSyncValue const& ts) {}
+  
+  void
+  SubProcess::doStreamEndRun(StreamID, RunPrincipal const& principal, IOVSyncValue const& ts, bool cleaningUpAfterException) {}
+  
+  void
+  SubProcess::doStreamBeginLuminosityBlock(StreamID, LuminosityBlockPrincipal const& principal, IOVSyncValue const& ts) {}
+  
+  void
+  SubProcess::doStreamEndLuminosityBlock(StreamID, LuminosityBlockPrincipal const& principal, IOVSyncValue const& ts, bool cleaningUpAfterException) {}
+
 
   void
   SubProcess::propagateProducts(BranchType type, Principal const& parentPrincipal, Principal& principal) const {
