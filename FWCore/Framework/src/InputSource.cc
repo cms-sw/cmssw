@@ -62,7 +62,7 @@ namespace edm {
       readCount_(0),
       processingMode_(RunsLumisAndEvents),
       moduleDescription_(desc.moduleDescription_),
-      productRegistry_(createSharedPtrToStatic<ProductRegistry const>(desc.productRegistry_)),
+      productRegistry_(createSharedPtrToStatic<ProductRegistry>(desc.productRegistry_)),
       branchIDListHelper_(desc.branchIDListHelper_),
       primary_(pset.getParameter<std::string>("@module_label") == std::string("@main_input")),
       processGUID_(primary_ ? createGlobalIdentifier() : std::string()),

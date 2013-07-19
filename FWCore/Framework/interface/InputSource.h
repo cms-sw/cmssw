@@ -313,7 +313,7 @@ namespace edm {
     /// To set the current time, as seen by the input source
     void setTimestamp(Timestamp const& theTime) {time_ = theTime;}
 
-    ProductRegistry& productRegistryUpdate() const {return const_cast<ProductRegistry&>(*productRegistry_);}
+    ProductRegistry& productRegistryUpdate() const {return *productRegistry_;}
     ItemType state() const{return state_;}
     void setRunAuxiliary(RunAuxiliary* rp) {
       runAuxiliary_.reset(rp);
@@ -395,7 +395,7 @@ namespace edm {
     int readCount_;
     ProcessingMode processingMode_;
     ModuleDescription const moduleDescription_;
-    boost::shared_ptr<ProductRegistry const> productRegistry_;
+    boost::shared_ptr<ProductRegistry> productRegistry_;
     boost::shared_ptr<BranchIDListHelper> branchIDListHelper_;
     bool const primary_;
     std::string processGUID_;
