@@ -1598,13 +1598,13 @@ removeOrLinkECALClustersToKFTracks() {
 					  &kftrack);      
       auto ecalbegin = _splayedblock[reco::PFBlockElement::ECAL].begin();
       auto ecalend   = _splayedblock[reco::PFBlockElement::ECAL].end();
-      std::sort(ecalbegin,ecalend,closestTrackToECAL);
+      std::partial_sort(ecalbegin,ecalbegin+1,ecalend,closestTrackToECAL);
       PFFlaggedElement& closestECAL = 
 	_splayedblock[reco::PFBlockElement::ECAL].front();
-      const double dist = _currentblock->dist(kftrack.first->index(), 
-					      closestECAL.first->index(),
-					      _currentlinks,
-					      reco::PFBlock::LINKTEST_ALL);
+      const float dist = _currentblock->dist(kftrack.first->index(), 
+					     closestECAL.first->index(),
+					     _currentlinks,
+					     reco::PFBlock::LINKTEST_ALL);
       bool inSC = false;
       for( auto& sc : _splayedblock[reco::PFBlockElement::SC] ) {
 	float dist_sc = _currentblock->dist(sc.first->index(), 
@@ -1614,7 +1614,7 @@ removeOrLinkECALClustersToKFTracks() {
 	if( dist_sc != -1.0f) { inSC = true; break; }
       }
       
-      if( dist != -1.0 && closestECAL.second ) {
+      if( dist != -1.0f && closestECAL.second ) {
 	bool gsflinked = false;
 	// check that this cluster is not associated to a GSF track
 	for(const auto& gsfflag : _splayedblock[reco::PFBlockElement::GSF]) {
