@@ -278,8 +278,8 @@ int TkModuleGroupSelector::getParameterIndexFromDetId(unsigned int detId,
     }
     if (iovNum == 0) {
       throw cms::Exception("BadConfig") << "@SUB=TkModuleGroupSelector::getParameterIndexFromDetId:\n"
-              << "Run " << run << " not foreseen for detid ('"<< detId <<"')."
-              << std::endl;
+                                        << "Run " << run << " not foreseen for detid '"<< detId <<"'"
+                                        << " in module group " << iAlignableGroup << ".";        
     } else {
       --iovNum;
     }
