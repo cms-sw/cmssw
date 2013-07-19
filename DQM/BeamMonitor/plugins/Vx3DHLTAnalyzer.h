@@ -16,7 +16,7 @@
 //
 // Original Author:  Mauro Dinardo,28 S-020,+41227673777,
 //         Created:  Tue Feb 23 13:15:31 CET 2010
-// $Id: Vx3DHLTAnalyzer.h,v 1.13 2010/08/05 14:06:48 dinardo Exp $
+// $Id: Vx3DHLTAnalyzer.h,v 1.15 2013/07/04 16:20:11 dinardo Exp $
 //
 //
 
@@ -91,6 +91,7 @@ class Vx3DHLTAnalyzer : public edm::EDAnalyzer {
       virtual void endLuminosityBlock(const edm::LuminosityBlock& lumiBlock,
 				      const edm::EventSetup& iSetup);
       virtual void endJob();
+      virtual void beginRun();
 
 
       // #######################
