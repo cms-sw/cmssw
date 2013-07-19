@@ -118,7 +118,51 @@ private:
       throw;
     }
   }
+
+  void Worker::beginStream(StreamID id) {
+    try {
+      try {
+        //ModuleBeginStreamSignalSentry cpp(actReg_.get(), md_);
+        implBeginStream(id);
+      }
+      catch (cms::Exception& e) { throw; }
+      catch(std::bad_alloc& bda) { convertException::badAllocToEDM(); }
+      catch (std::exception& e) { convertException::stdToEDM(e); }
+      catch(std::string& s) { convertException::stringToEDM(s); }
+      catch(char const* c) { convertException::charPtrToEDM(c); }
+      catch (...) { convertException::unknownToEDM(); }
+    }
+    catch(cms::Exception& ex) {
+      state_ = Exception;
+      std::ostringstream ost;
+      ost << "Calling beginStream for module " << md_.moduleName() << "/'" << md_.moduleLabel() << "'";
+      ex.addContext(ost.str());
+      throw;
+    }
+  }
   
+  void Worker::endStream(StreamID id) {
+    try {
+      try {
+        //ModuleEndStreamSignalSentry cpp(actReg_.get(), md_);
+        implEndStream(id);
+      }
+      catch (cms::Exception& e) { throw; }
+      catch(std::bad_alloc& bda) { convertException::badAllocToEDM(); }
+      catch (std::exception& e) { convertException::stdToEDM(e); }
+      catch(std::string& s) { convertException::stringToEDM(s); }
+      catch(char const* c) { convertException::charPtrToEDM(c); }
+      catch (...) { convertException::unknownToEDM(); }
+    }
+    catch(cms::Exception& ex) {
+      state_ = Exception;
+      std::ostringstream ost;
+      ost << "Calling endStream for module " << md_.moduleName() << "/'" << md_.moduleLabel() << "'";
+      ex.addContext(ost.str());
+      throw;
+    }
+  }
+
   void Worker::useStopwatch(){
     stopwatch_.reset(new RunStopwatch::StopwatchPointer::element_type);
   }

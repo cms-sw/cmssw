@@ -49,6 +49,9 @@ namespace edm {
     void endJob();
     void endJob(ExceptionCollector& collector);
 
+    void beginStream(StreamID iID);
+    void endStream(StreamID iID);
+    
     AllWorkers const& allWorkers() const {return allWorkers_;}
 
     void addToAllWorkers(Worker* w, bool useStopwatch);
