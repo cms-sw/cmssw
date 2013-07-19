@@ -2,7 +2,7 @@
 #define LMFUNIQUE_H
 
 /*
- Copyright (c) Giovanni.Organtini@roma1.infn.it 2010
+ Giovanni.Organtini@roma1.infn.it 2010
  */
 
 #include <stdexcept>

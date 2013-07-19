@@ -4,7 +4,7 @@
 //  Full 2-D templates for cluster splitting, simulated cluster reweighting, and improved cluster probability
 //
 // Created by Morris Swartz on 12/01/09.
-// Copyright 2009 __TheJohnsHopkinsUniversity__. All rights reserved.
+// 2009 __TheJohnsHopkinsUniversity__. 
 //
 // V1.01 - fix qavg_ filling
 // V1.02 - Add locBz to test if FPix use is out of range

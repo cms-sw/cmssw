@@ -2,8 +2,6 @@
 
 #########################################################################
 # XDAQ Components for Distributed Data Acquisition                      #
-# Copyright (C) 2007, Cornell U.  			                #
-# All rights reserved.                                                  #
 # Authors: A. Ryd                					#
 #                                                                       #
 #########################################################################

@@ -2,7 +2,7 @@
 //  SiPixelTemplateDefs.h (v1.10)
 //
 // Created by Morris Swartz on 12/01/09.
-// Copyright 2009 __TheJohnsHopkinsUniversity__. All rights reserved.
+// 2009 __TheJohnsHopkinsUniversity__. 
 //
 //
  
