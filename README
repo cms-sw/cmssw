@@ -3,7 +3,7 @@
 cmsrel CMSSW_5_3_9
 cd CMSSW_5_3_9/src
 # the dot is important!
-git clone git@github.com:cms-tau-developers/CMSSW53x.git .
+git clone git@github.com:cms-tau-pog/HighPtTau_539.git .
 scram b -j 9
 cmsenv
 # use basic config provided with the package
@@ -11,8 +11,7 @@ cmsRun patTuple_standard_cfg.py
 
 
 #Developing
-#1) People included as "collaborators" can directly push to
-#cms-tau-developers repository
+#1) People can be included in developer team with push privileges
 
 #2) Anybody else can fork the code, do the development, push to
 #    his/her github account and ask for "pull request". After careful
