@@ -16,7 +16,7 @@
 //
 // Original Author:  Alja Mrak-Tadel
 //         Created:  Tue Oct 19 12:00:57 CEST 2010
-// $Id: FWDigitSetProxyBuilder.h,v 1.2 2010/11/09 18:37:30 amraktad Exp $
+// $Id: FWDigitSetProxyBuilder.h,v 1.3 2010/12/03 20:38:57 amraktad Exp $
 //
 
 // system include files
@@ -59,7 +59,6 @@ protected:
 
    TEveBoxSet* addBoxSetToProduct(TEveElementList* product);
    void addBox(TEveBoxSet* set, const float* pnts, const FWDisplayProperties& dp);
-   TEveBoxSet* getBoxSet() const { return m_boxSet; } 
 
 private:
    FWDigitSetProxyBuilder(const FWDigitSetProxyBuilder&); // stop default
@@ -74,7 +73,6 @@ private:
 
    TEveDigitSet* digitSet(TEveElement* product);
 
-   TEveBoxSet* m_boxSet;	
 };
 
 
