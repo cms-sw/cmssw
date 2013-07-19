@@ -105,7 +105,7 @@ namespace edm {
 
   namespace {
     void failedToRegisterConsumesMany(edm::TypeID const& iType) {
-      LogError("GetManyWithoutRegistration")<<"::getManyByType called for "<<iType<<" without a corresponding consumesMany being called for this module. \n";
+      LogInfo("GetManyWithoutRegistration")<<"::getManyByType called for "<<iType<<" without a corresponding consumesMany being called for this module. \n";
     }
     
     void failedToRegisterConsumes(KindOfType kindOfType,
@@ -113,7 +113,7 @@ namespace edm {
                                   std::string const& moduleLabel,
                                   std::string const& productInstanceName,
                                   std::string const& processName) {
-      LogError("GetByLabelWithoutRegistration")<<"::getByLabel without corresponding call to consumes or mayConsumes for this module.\n"
+      LogInfo("GetByLabelWithoutRegistration")<<"::getByLabel without corresponding call to consumes or mayConsumes for this module.\n"
       << (kindOfType == PRODUCT_TYPE ? "  type: " : " type: edm::Veiw<")<<productType
       << (kindOfType == PRODUCT_TYPE ? "\n  module label: " : ">\n  module label: ")<<moduleLabel
       <<"\n  product instance name: '"<<productInstanceName
