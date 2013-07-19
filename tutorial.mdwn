@@ -23,8 +23,8 @@ the [FAQ](faq.html).
 
 Set up the work area just like you used to.
 
-    > scram project CMSSW_6_2_0_pre8
-    > cd CMSSW_6_2_0_pre8/src
+    > scram project CMSSW_7_0_0_pre0
+    > cd CMSSW_7_0_0_pre0/src
     > cmsenv
 
 ### Checkout a few packages using git cms-addpkg
@@ -33,16 +33,16 @@ Set up the work area just like you used to.
 The src directory is populated with just what we asked for (here
 `Tutorial/Test`).
 
-    > git cms-addpkg Tutorial/Test
-    > ls Tutorial/Test/bin
+    > git cms-addpkg DataFormats/TestObjects
+    > ls DataFormats/TestObjects
     BuildFile.xml
 
 By default it would simply use the current release tag (e.g.
-CMSSW_6_2_0_pre8). At any point you can list the available branches via `git
+CMSSW_7_0_0_pre0). At any point you can list the available branches via `git
 branch`.
 
     > git branch
-    * from-CMSSW_6_2_0_pre8
+    * from-CMSSW_7_0_0_pre0
 
 the `*` next to the branch name will tell you which one is the current one.
 The name of the branch is meant to show you the tag which was used as a base
@@ -66,9 +66,9 @@ The `-b` option is needed to create the branch if it does not exists.
 
 ### Modify sources and commit.
 
-    > cd Tutorial/Test
-    > nedit bin/BuildFile.xml
-    > git commit -m "Test feature" bin/BuildFile.xml
+    > cd DataFormats/TestObjects
+    > nedit BuildFile.xml
+    > git commit -m "Test feature" BuildFile.xml
     [my-new-feature 8135042] Test feature
      1 file changed, 1 insertion(+)
 
