@@ -41,10 +41,13 @@ BTagPerformanceAnalyzerOnData::BTagPerformanceAnalyzerOnData(const edm::Paramete
   mcPlots_(pSet.getParameter< unsigned int >("mcPlots"))
 {
   if(!finalizeOnly) mcPlots_ = 0; //analyzer not designed to produce flavour histograms but could be used for harvesting 
-  bookHistos(pSet);
 }
 
-void BTagPerformanceAnalyzerOnData::bookHistos(const edm::ParameterSet& pSet)
+void BTagPerformanceAnalyzerOnData::beginRun(const edm::Run & run, const edm::EventSetup & es){
+  bookHistos();
+}
+
+void BTagPerformanceAnalyzerOnData::bookHistos()
 {
   //
   // Book all histograms.
