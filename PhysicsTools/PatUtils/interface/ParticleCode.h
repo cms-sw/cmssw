@@ -8,7 +8,7 @@
    Inspired from the MrParticle ID flags.
 
    \author F.J. Ronga (ETH Zurich)
-   \version $Id: $
+   \version $Id: ParticleCode.h,v 1.2 2008/02/14 10:50:43 fronga Exp $
 **/
 
 

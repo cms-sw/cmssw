@@ -11,8 +11,8 @@
 This class contains timing information unpacked from the
 Time-to-Digital Converter (TDC).
       
-  $Date: 2006/08/25 17:25:30 $
-  $Revision: 1.8 $
+  $Date: 2006/08/28 16:40:39 $
+  $Revision: 1.9 $
   \author P. Dudero - Minnesota
   */
   class HcalTBTiming {

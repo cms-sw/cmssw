@@ -5,8 +5,8 @@
  *
  *  Class to create Survey[Error]Rcd for alignment with survey constraint
  *
- *  $Date: 2008/10/10 08:41:47 $
- *  $Revision: 1.1 $
+ *  $Date: 2010/01/07 14:36:22 $
+ *  $Revision: 1.2 $
  *  \author Chung Khim Lae
  */
 // user include files

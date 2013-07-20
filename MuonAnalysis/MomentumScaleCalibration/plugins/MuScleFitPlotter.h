@@ -4,8 +4,8 @@
 /** \class MuScleFitPlotter
  *  Plotter of the muon info (sim,gen,rec)
  *
- *  $Date: 2012/05/07 10:03:36 $
- *  $Revision: 1.15 $
+ *  $Date: 2012/12/20 16:09:28 $
+ *  $Revision: 1.6 $
  *  \author C.Mariotti, S.Bolognesi - INFN Torino / T.Dorigo - INFN Padova
  */
 

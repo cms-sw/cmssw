@@ -8,7 +8,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: CompositeRefCandidateT.h,v 1.14 2012/04/06 22:22:54 davidlt Exp $
+ * \version $Id: CompositeRefCandidateT.h,v 1.15 2012/04/07 05:54:55 davidlt Exp $
  *
  */
 #include "DataFormats/Candidate/interface/LeafCandidate.h"

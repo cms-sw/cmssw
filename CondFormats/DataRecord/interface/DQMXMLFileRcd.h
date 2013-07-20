@@ -16,7 +16,7 @@
 //
 // Author:      
 // Created:     Tue Jul  7 20:29:25 CEST 2009
-// $Id: DQMReferenceHistogramRootFileRcd.h,v 1.1 2009/07/20 17:08:07 diguida Exp $
+// $Id: DQMXMLFileRcd.h,v 1.1 2010/01/26 15:51:43 diguida Exp $
 //
 
 #include "FWCore/Framework/interface/EventSetupRecordImplementation.h"

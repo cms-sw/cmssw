@@ -1,7 +1,7 @@
 /* \file testDaqSource.cc
  *
- *  $Date: 2008/10/03 18:22:19 $
- *  $Revision: 1.6 $
+ *  $Date: 2008/11/01 22:20:20 $
+ *  $Revision: 1.7 $
  *  \author S. Argiro, N. Amapane - CERN
  */
 

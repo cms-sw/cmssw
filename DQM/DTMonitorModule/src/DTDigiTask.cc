@@ -1,8 +1,8 @@
 /*
  * \file DTDigiTask.cc
  * 
- * $Date: 2011/11/12 09:18:41 $
- * $Revision: 1.68 $
+ * $Date: 2011/11/23 14:23:15 $
+ * $Revision: 1.69 $
  * \author M. Zanetti - INFN Padova
  *
  */

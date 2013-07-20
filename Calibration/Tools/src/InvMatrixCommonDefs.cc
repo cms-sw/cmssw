@@ -1,8 +1,8 @@
 /**   
-    $Date: 2008/01/23 10:59:54 $
-    $Revision: 1.1.2.1 $
-    $Id: InvMatrixCommonDefs.cc,v 1.1.2.1 2008/01/23 10:59:54 govoni Exp $ 
-    \author $Author: govoni $
+    $Date: 2008/02/25 17:42:31 $
+    $Revision: 1.2 $
+    $Id: InvMatrixCommonDefs.cc,v 1.2 2008/02/25 17:42:31 malberti Exp $ 
+    \author $Author: malberti $
 */
 
 #include "Calibration/Tools/interface/InvMatrixCommonDefs.h"

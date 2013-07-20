@@ -6,7 +6,7 @@
 OutputModuleDescription : the stuff that is needed to configure an
 output module that does not come in through the ParameterSet  
 
-$Id: OutputModuleDescription.h,v 1.1 2007/11/30 07:06:55 wmtan Exp $
+$Id: OutputModuleDescription.h,v 1.2 2008/02/21 22:47:51 wdd Exp $
 ----------------------------------------------------------------------*/
 namespace edm {
 

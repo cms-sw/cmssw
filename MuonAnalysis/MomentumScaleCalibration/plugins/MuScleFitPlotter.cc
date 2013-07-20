@@ -1,8 +1,8 @@
 //  \class MuScleFitPlotter
 //  Plotter for simulated,generated and reco info of muons
 //
-//  $Date: 2012/05/07 10:03:34 $
-//  $Revision: 1.23 $
+//  $Date: 2012/12/20 16:09:22 $
+//  $Revision: 1.6 $
 //  \author  C.Mariotti, S.Bolognesi - INFN Torino / T.Dorigo, M.De Mattia - INFN Padova
 //
 // ----------------------------------------------------------------------------------

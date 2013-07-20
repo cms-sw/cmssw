@@ -1,4 +1,4 @@
-// Last commit: $Id: testSiStripConfigDb.cc,v 1.17 2009/04/06 16:57:28 lowette Exp $
+// Last commit: $Id: testSiStripConfigDb.cc,v 1.18 2010/01/07 11:26:05 lowette Exp $
 
 #include "OnlineDB/SiStripConfigDb/test/plugins/testSiStripConfigDb.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"

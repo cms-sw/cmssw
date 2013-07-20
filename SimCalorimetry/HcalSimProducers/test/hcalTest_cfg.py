@@ -25,7 +25,7 @@ process.load('Configuration/StandardSequences/Digi_cff')
 process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.125 $'),
+    version = cms.untracked.string('$Revision: 1.2 $'),
     annotation = cms.untracked.string('SinglePiPt100.cfi nevts:10'),
     name = cms.untracked.string('PyReleaseValidation')
 )

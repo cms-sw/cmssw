@@ -1,4 +1,4 @@
-// $Id: EventStreamHttpReader.cc,v 1.51 2011/07/05 12:06:04 mommsen Exp $
+// $Id: EventStreamHttpReader.cc,v 1.52 2011/09/02 08:13:31 mommsen Exp $
 /// @file: EventStreamHttpReader.cc
 
 #include "DQMServices/Core/interface/MonitorElement.h"

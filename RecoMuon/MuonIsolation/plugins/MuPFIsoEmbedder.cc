@@ -13,7 +13,7 @@
 //
 // Original Author:  Michail Bachtis,32 3-B16,+41227675567,
 //         Created:  Thu Jun  9 01:36:17 CEST 2011
-// $Id$
+// $Id: MuPFIsoEmbedder.cc,v 1.1 2011/06/15 00:33:01 bachtis Exp $
 //
 //
 

@@ -2,8 +2,8 @@
  *  
  *  See header file for description of class
  *
- *  $Date: 2009/12/18 20:45:12 $
- *  $Revision: 1.7 $
+ *  $Date: 2011/08/09 08:25:25 $
+ *  $Revision: 1.8 $
  *  \author M. Strang SUNY-Buffalo
  *  Testing by Ken Smith
  */

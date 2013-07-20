@@ -1,4 +1,4 @@
-// $Id: RecoChargedCandidate.cc,v 1.5 2006/05/31 12:45:46 llista Exp $
+// $Id: RecoChargedCandidate.cc,v 1.6 2007/12/14 12:25:33 llista Exp $
 #include "DataFormats/RecoCandidate/interface/RecoChargedCandidate.h"
 
 using namespace reco;

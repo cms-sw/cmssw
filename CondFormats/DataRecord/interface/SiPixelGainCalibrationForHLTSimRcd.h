@@ -16,7 +16,7 @@
 //
 // Author:      
 // Created:     Fri Mar 13 12:13:06 CET 2009
-// $Id$
+// $Id: SiPixelGainCalibrationForHLTSimRcd.h,v 1.1 2009/03/19 15:54:43 fblekman Exp $
 //
 
 #include "FWCore/Framework/interface/EventSetupRecordImplementation.h"

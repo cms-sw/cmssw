@@ -8,7 +8,7 @@
 
  author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
 
- version $Id: JetCombinatorics.h,v 1.3 2009/07/30 06:02:19 jengbou Exp $
+ version $Id: JetCombinatorics.h,v 1.4 2010/02/05 22:01:38 yumiceva Exp $
 
 ________________________________________________________________**/
 

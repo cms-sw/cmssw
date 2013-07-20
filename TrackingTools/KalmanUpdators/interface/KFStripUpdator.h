@@ -5,8 +5,8 @@
  *  A Kalman Updator that works in the measurement frame and uses
  *  both hit coordinates. Ported from ORCA.
  *
- *  $Date: 2007/05/09 13:11:43 $
- *  $Revision: 1.2.2.1 $
+ *  $Date: 2007/05/09 13:50:25 $
+ *  $Revision: 1.3 $
  *  \author todorov, cerati
  */
 

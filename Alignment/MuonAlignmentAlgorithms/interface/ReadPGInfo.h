@@ -2,8 +2,8 @@
 #define Alignment_MuonAlignmentAlgorithms_ReadPGInfo_H
 
 /** \class ReadPGInfo
- *  $Date: 2010/02/25 11:33:32 $
- *  $Revision: 1.3 $
+ *  $Date: 2010/03/29 13:18:43 $
+ *  $Revision: 1.4 $
  *  \author Luca Scodellaro <Luca.Scodellaro@cern.ch>
  */
 

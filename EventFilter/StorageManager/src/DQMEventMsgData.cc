@@ -1,4 +1,4 @@
-// $Id: DQMEventMsgData.cc,v 1.10.6.2 2011/03/28 13:46:31 mommsen Exp $
+// $Id: DQMEventMsgData.cc,v 1.12 2011/03/28 13:49:04 mommsen Exp $
 /// @file: DQMEventMsgData.cc
 
 #include "EventFilter/StorageManager/src/ChainData.h"

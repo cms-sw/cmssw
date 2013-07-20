@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Carlo Battilana
 //         Created:  Tue Jan 22 13:55:00 CET 2008
-// $Id: HLTCSCActivityFilter.cc,v 1.14 2010/06/15 22:16:10 fwyzard Exp $
+// $Id: HLTCSCActivityFilter.cc,v 1.15 2012/01/21 15:00:15 fwyzard Exp $
 //
 //
 

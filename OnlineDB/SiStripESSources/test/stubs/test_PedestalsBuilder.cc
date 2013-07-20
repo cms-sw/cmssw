@@ -1,6 +1,6 @@
-// Last commit: $Id: test_PedestalsBuilder.cc,v 1.3 2008/05/26 13:37:26 giordano Exp $
-// Latest tag:  $Name: HEAD $
-// Location:    $Source: /cvs_server/repositories/CMSSW/CMSSW/OnlineDB/SiStripESSources/test/stubs/test_PedestalsBuilder.cc,v $
+// Last commit: $Id: test_PedestalsBuilder.cc,v 1.4 2010/01/08 10:19:55 alinn Exp $
+// Latest tag:  $Name: CMSSW_5_3_11_patch3 $
+// Location:    $Source: /local/reps/CMSSW/CMSSW/OnlineDB/SiStripESSources/test/stubs/test_PedestalsBuilder.cc,v $
 
 #include "OnlineDB/SiStripESSources/test/stubs/test_PedestalsBuilder.h"
 #include "FWCore/Framework/interface/ESHandle.h"

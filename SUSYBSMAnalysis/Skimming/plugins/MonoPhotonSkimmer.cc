@@ -13,7 +13,7 @@
 //
 // Original Author:  Jie Chen
 //         Created:  Wed Nov 17 14:33:08 CST 2010
-// $Id$
+// $Id: MonoPhotonSkimmer.cc,v 1.1 2010/12/13 20:32:22 jiechen Exp $
 //
 //
 

@@ -1,5 +1,5 @@
 /*  
- *  $Id: SealModule.cc,v 1.6 2010/02/25 00:33:46 wmtan Exp $
+ *  $Id: SealModule.cc,v 1.7 2011/12/29 20:13:43 wmtan Exp $
  */
 
 #include "FWCore/Framework/interface/MakerMacros.h"

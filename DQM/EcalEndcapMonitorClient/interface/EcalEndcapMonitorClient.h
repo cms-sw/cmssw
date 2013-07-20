@@ -4,8 +4,8 @@
 /*
  * \file EcalEndcapMonitorClient.h
  *
- * $Date: 2012/03/16 14:46:38 $
- * $Revision: 1.61.6.2 $
+ * $Date: 2012/04/27 13:46:05 $
+ * $Revision: 1.64 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *

@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Wed Feb 10 11:15:18 CST 2010
-// $Id: HistoryGetterBase.cc,v 1.1 2010/02/11 17:21:39 ewv Exp $
+// $Id: HistoryGetterBase.cc,v 1.2 2010/07/24 14:14:47 wmtan Exp $
 //
 
 // system include files

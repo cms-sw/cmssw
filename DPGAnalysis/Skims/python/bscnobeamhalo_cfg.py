@@ -36,7 +36,7 @@ process.source = cms.Source("PoolSource",
 
 process.configurationMetadata = cms.untracked.PSet(
     version = cms.untracked.string('$Revision: 1.1 $'),
-    name = cms.untracked.string('$Source: /cvs_server/repositories/CMSSW/CMSSW/DPGAnalysis/Skims/python/bsc_activity_cfg.py,v $'),
+    name = cms.untracked.string('$Source: /local/reps/CMSSW/CMSSW/DPGAnalysis/Skims/python/bscnobeamhalo_cfg.py,v $'),
     annotation = cms.untracked.string('BSC skim')
 )
 

@@ -1,5 +1,5 @@
 // -*- Mode: C++; c-basic-offset: 2; indent-tabs-mode: t; tab-width: 8; -*-
-//$Id: EcalMatacqDigi.h,v 1.5 2009/02/25 14:49:51 pgras Exp $
+//$Id: EcalMatacqDigi.h,v 1.6 2011/08/30 18:42:57 wmtan Exp $
 
 #ifndef ECALMATACQDIGI_H
 #define ECALMATACQDIGI_H 1

@@ -6,8 +6,8 @@
  *  of ORCA MuBarDigiParameters (see DTCalibrationMap for details)
  *  into a DB. At the moment only the ttrig info is handled.
  *
- *  $Date: 2007/01/24 16:04:21 $
- *  $Revision: 1.4 $
+ *  $Date: 2010/05/25 18:34:19 $
+ *  $Revision: 1.5 $
  *  \author G. Cerminara - INFN Torino
  */
 

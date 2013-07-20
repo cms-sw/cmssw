@@ -1,4 +1,4 @@
-// $Id: ApplyEnergyCorrection.cc,v 1.2 2006/07/26 08:48:06 llista Exp $
+// $Id: ApplyEnergyCorrection.cc,v 1.1 2009/02/26 09:17:34 llista Exp $
 #include "CommonTools/CandUtils/interface/ApplyEnergyCorrection.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
 

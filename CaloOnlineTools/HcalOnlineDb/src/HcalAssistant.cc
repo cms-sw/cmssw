@@ -8,7 +8,7 @@
 //
 // Original Author:  Gena Kukartsev, kukarzev@fnal.gov
 //         Created:  Thu Jul 16 11:39:22 CEST 2009
-// $Id: HcalAssistant.cc,v 1.8 2009/11/18 23:02:26 lsexton Exp $
+// $Id: HcalAssistant.cc,v 1.9 2010/08/06 20:24:11 wmtan Exp $
 //
 
 

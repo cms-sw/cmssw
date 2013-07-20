@@ -6,8 +6,8 @@
  * *
  *  DQM Client for global summary
  *
- *  $Date: 2008/05/27 16:25:09 $
- *  $Revision: 1.2 $
+ *  $Date: 2008/07/02 14:33:56 $
+ *  $Revision: 1.3 $
  *  \author  G. Mila - INFN Torino
  *   
  */

@@ -1,8 +1,8 @@
 /*
  * \file EBTriggerTowerClient.cc
  *
- * $Date: 2011/09/02 13:55:01 $
- * $Revision: 1.128 $
+ * $Date: 2012/04/27 13:45:59 $
+ * $Revision: 1.131 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *

@@ -1,6 +1,6 @@
 //emacs settings:-*- mode: c++; c-basic-offset: 2; indent-tabs-mode: nil -*-
 /*
- * $Id: EcalSRCondTools.cc,v 1.2 2010/06/14 10:45:17 pgras Exp $
+ * $Id: EcalSRCondTools.cc,v 1.3 2010/09/13 20:04:28 pgras Exp $
  *
  * author: Ph Gras. June, 2010
  */

@@ -4,7 +4,7 @@
 /** \class HcalGenericDetId
     \author F.Ratnikov, UMd
    Generic HCAL detector ID suitable for all Hcal subdetectors
-   $Id: HcalGenericDetId.h,v 1.7 2008/07/15 20:14:11 rofierzy Exp $
+   $Id: HcalGenericDetId.h,v 1.8 2009/03/24 16:05:36 rofierzy Exp $
    
    R.Ofierzynski, 22.02.2008, added hashedId
 */

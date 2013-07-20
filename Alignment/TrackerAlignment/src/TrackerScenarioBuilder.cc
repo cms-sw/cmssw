@@ -1,9 +1,9 @@
 /// \file
 ///
-/// $Date: 2007/12/06 01:55:18 $
-/// $Revision: 1.2 $
+/// $Date: 2009/03/15 17:39:58 $
+/// $Revision: 1.3 $
 ///
-/// $Author: ratnik $
+/// $Author: flucke $
 /// \author Frederic Ronga - CERN-PH-CMG
 
 #include <string>

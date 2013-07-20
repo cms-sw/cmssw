@@ -16,7 +16,7 @@
 //
 // Author:      
 // Created:     Mon Feb 11 12:16:54 CET 2008
-// $Id: CastorGainsRcd.h,v 1.1 2008/02/15 15:53:04 mccauley Exp $
+// $Id: CastorGainsRcd.h,v 1.1 2008/03/04 10:38:54 katsas Exp $
 //
 
 #include "FWCore/Framework/interface/EventSetupRecordImplementation.h"

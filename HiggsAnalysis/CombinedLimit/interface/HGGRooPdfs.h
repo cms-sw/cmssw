@@ -1,7 +1,7 @@
 /*****************************************************************************
  * Project: RooFit                                                           *
  * Package: RooFitModels                                                     *
- *    File: $Id: RooPower.h,v 1.10 2007/07/12 20:30:49 wouter Exp $
+ *    File: $Id: HGGRooPdfs.h,v 1.1 2012/02/10 15:10:48 gpetrucc Exp $
  * Authors:                                                                  *
  *   WV, Wouter Verkerke, UC Santa Barbara, verkerke@slac.stanford.edu       *
  *   DK, David Kirkby,    UC Irvine,         dkirkby@uci.edu                 *

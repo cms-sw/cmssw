@@ -7,7 +7,7 @@
 
   Description: Example DQM Event Consumer Client 
 
-  $Id: SMHttpConsumerExample.cc,v 1.1 2007/09/14 13:18:32 hcheung Exp $
+  $Id: SMHttpConsumerExample.cc,v 1.2 2008/01/22 19:28:37 muzaffar Exp $
 
 */
 

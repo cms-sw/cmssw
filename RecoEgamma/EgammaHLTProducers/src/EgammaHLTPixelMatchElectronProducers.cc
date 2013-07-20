@@ -10,7 +10,7 @@
 */
 //
 // Original Author: Monica Vazquez Acosta (CERN)
-// $Id: EgammaHLTPixelMatchElectronProducers.cc,v 1.3 2009/01/28 17:07:00 ghezzi Exp $
+// $Id: EgammaHLTPixelMatchElectronProducers.cc,v 1.4 2009/10/14 14:32:24 covarell Exp $
 //
 //
 

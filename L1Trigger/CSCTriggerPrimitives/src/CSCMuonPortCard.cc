@@ -11,8 +11,8 @@
 //   Author List: Benn Tannenbaum 30 August 1999.
 //                Based on code by Nick Wisniewski.
 //
-//   $Date: 2007/06/13 14:45:02 $
-//   $Revision: 1.5 $
+//   $Date: 2009/02/09 21:33:37 $
+//   $Revision: 1.6 $
 //
 //   Modifications: Numerous later improvements by Jason Mumford and
 //                  Slava Valuev (see cvs in ORCA).

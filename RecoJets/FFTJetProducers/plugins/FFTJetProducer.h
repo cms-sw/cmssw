@@ -21,7 +21,7 @@
 //
 // Original Author:  Igor Volobouev
 //         Created:  Sun Jun 20 14:32:36 CDT 2010
-// $Id: FFTJetProducer.h,v 1.7 2011/07/11 19:45:59 igv Exp $
+// $Id: FFTJetProducer.h,v 1.8 2011/10/25 00:23:52 igv Exp $
 //
 //
 

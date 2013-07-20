@@ -4,9 +4,9 @@
 /** \class EcalRecHitWorkerRecover
   *  Algorithms to recover dead channels
   *
-  *  $Id: EcalRecHitWorkerRecover.h,v 1.10 2011/07/21 13:43:34 argiro Exp $
-  *  $Date: 2011/07/21 13:43:34 $
-  *  $Revision: 1.10 $
+  *  $Id: EcalRecHitWorkerRecover.h,v 1.11 2012/02/15 14:32:05 vieri Exp $
+  *  $Date: 2012/02/15 14:32:05 $
+  *  $Revision: 1.11 $
   */
 
 #include "RecoLocalCalo/EcalRecProducers/interface/EcalRecHitWorkerBaseClass.h"

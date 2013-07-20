@@ -9,8 +9,8 @@
  *  DTRecHit1DPair). The coordiante measured is always the x (in Det frame)
  *
  *
- *  $Date: 2007/01/17 22:58:00 $
- *  $Revision: 1.6 $
+ *  $Date: 2007/08/02 05:35:46 $
+ *  $Revision: 1.7 $
  *  \author S. Lacaprara, G. Cerminara
  */
 

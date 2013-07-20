@@ -14,8 +14,8 @@
 /*
  * \file HcalDetDiagLEDClient.cc
  * 
- * $Date: 2010/05/13 14:21:11 $
- * $Revision: 1.8 $
+ * $Date: 2012/06/18 08:23:10 $
+ * $Revision: 1.9 $
  * \author J. Temple
  * \brief Hcal DetDiagLED Client class
  */

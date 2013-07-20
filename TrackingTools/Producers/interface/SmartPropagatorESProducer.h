@@ -4,7 +4,7 @@
 /** \class SmartPropagatorESProducer
  *  ES producer needed to put the SmartPropagator inside the EventSetup
  *
- *  $Date: 2006/11/23 11:48:36 $
+ *  $Date: 2007/01/17 19:28:40 $
  *  $Revision: 1.1 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */

@@ -8,9 +8,9 @@
 // Original Author: Oliver Gutsche, gutsche@fnal.gov
 // Created:         Tue Oct  3 23:51:34 UTC 2006
 //
-// $Author: gutsche $
-// $Date: 2007/03/30 02:49:36 $
-// $Revision: 1.4 $
+// $Author: elmer $
+// $Date: 2007/06/07 23:21:02 $
+// $Revision: 1.5 $
 //
 
 #include "RecoTracker/RingMakerESProducer/interface/RingMakerESProducer.h"

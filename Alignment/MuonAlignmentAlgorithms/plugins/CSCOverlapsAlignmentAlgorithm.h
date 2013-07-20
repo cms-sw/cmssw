@@ -13,7 +13,7 @@
 //
 // Original Author:  Jim Pivarski,,,
 //         Created:  Tue Oct  7 14:56:49 CDT 2008
-// $Id: CSCOverlapsAlignmentAlgorithm.h,v 1.5 2010/05/28 23:51:13 mussgill Exp $
+// $Id: CSCOverlapsAlignmentAlgorithm.h,v 1.6 2010/09/10 11:56:11 mussgill Exp $
 //
 //
 

@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Jan 18 14:40:51 EST 2008
-// $Id: FWSelectionManager.cc,v 1.10 2009/08/12 18:12:45 chrjones Exp $
+// $Id: FWSelectionManager.cc,v 1.11 2009/11/20 17:53:59 chrjones Exp $
 //
 
 // system include files

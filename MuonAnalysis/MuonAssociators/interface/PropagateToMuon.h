@@ -1,7 +1,7 @@
 #ifndef MuonAnalysis_MuonAssociators_interface_PropagateToMuon_h
 #define MuonAnalysis_MuonAssociators_interface_PropagateToMuon_h
 //
-// $Id: PropagateToMuon.h,v 1.3 2010/07/01 07:41:09 gpetrucc Exp $
+// $Id: PropagateToMuon.h,v 1.4 2011/02/10 00:37:34 gpetrucc Exp $
 //
 
 /**
@@ -10,7 +10,7 @@
             Support for other muon stations will be added on request.
             
   \author   Giovanni Petrucciani
-  \version  $Id: PropagateToMuon.h,v 1.3 2010/07/01 07:41:09 gpetrucc Exp $
+  \version  $Id: PropagateToMuon.h,v 1.4 2011/02/10 00:37:34 gpetrucc Exp $
 */
 
 

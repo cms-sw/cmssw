@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-# $Id: CaloTowersES_cfi.py,v 1.5 2008/07/11 14:35:26 rahatlou Exp $
+# $Id: CaloTowersES_cfi.py,v 1.6 2008/07/17 14:28:36 rahatlou Exp $
 #
 # Event Setup necessary for CaloTowers reconstruction
 #

@@ -13,7 +13,7 @@
 //
 // Original Author:  Muriel VANDER DONCKT *:0
 //         Created:  Fri Apr 27 17:05:15 CEST 2007
-// $Id: MuEnrichType1Filter.cc,v 1.3 2008/12/08 08:30:40 gruen Exp $
+// $Id: MuEnrichType1Filter.cc,v 1.4 2009/10/15 11:50:20 fwyzard Exp $
 //
 //
 

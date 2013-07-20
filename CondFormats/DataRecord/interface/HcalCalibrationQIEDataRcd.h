@@ -16,7 +16,7 @@
 //
 // Author:      
 // Created:     Sat Mar  1 15:49:07 CET 2008
-// $Id$
+// $Id: HcalCalibrationQIEDataRcd.h,v 1.1 2008/03/03 16:56:47 rofierzy Exp $
 //
 
 #include "FWCore/Framework/interface/EventSetupRecordImplementation.h"

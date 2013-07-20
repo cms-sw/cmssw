@@ -6,8 +6,8 @@
 //                a GMT ascii HW testfile into the Event   
 //
 //
-//   $Date: 2006/05/15 13:56:02 $
-//   $Revision: 1.1 $
+//   $Date: 2007/05/02 10:15:06 $
+//   $Revision: 1.2 $
 //
 //   Author :
 //   Tobias Noebauer                 HEPHY Vienna

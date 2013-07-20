@@ -17,7 +17,7 @@
  * Author: Dmitry Zaborov
  */
 
-// Version: $Id: AcceptanceTableHelper.h,v 1.1 2007/09/28 08:39:53 dzaborov Exp $
+// Version: $Id: AcceptanceTableHelper.h,v 1.1 2008/11/25 17:34:15 beaudett Exp $
 
 #include "TFile.h"
 #include "TH3F.h"

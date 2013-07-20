@@ -1,4 +1,4 @@
-// $Id: RegistrationInfoBase.h,v 1.6.4.1 2011/03/07 11:33:04 mommsen Exp $
+// $Id: RegistrationInfoBase.h,v 1.7 2011/03/07 15:31:32 mommsen Exp $
 /// @file: RegistrationInfoBase.h 
 
 #ifndef EventFilter_StorageManager_RegistrationInfoBase_h
@@ -25,8 +25,8 @@ namespace stor {
    * registration info objects.
    *
    * $Author: mommsen $
-   * $Revision: 1.6.4.1 $
-   * $Date: 2011/03/07 11:33:04 $
+   * $Revision: 1.7 $
+   * $Date: 2011/03/07 15:31:32 $
    */
 
   class RegistrationInfoBase

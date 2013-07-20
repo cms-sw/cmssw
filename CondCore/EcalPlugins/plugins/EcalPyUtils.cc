@@ -2,7 +2,7 @@
  * Make some convenient Ecal function available in python
  * 
  * \author Stefano Argiro
- * \version $Id: EcalPyUtils.cc,v 1.4 2010/08/31 13:04:16 argiro Exp $
+ * \version $Id: EcalPyUtils.cc,v 1.5 2011/05/04 12:38:14 argiro Exp $
  */
 
 

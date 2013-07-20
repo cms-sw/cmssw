@@ -1,8 +1,8 @@
 /*
  * \file EESelectiveReadoutTask.cc
  *
- * $Date: 2011/10/28 14:15:47 $
- * $Revision: 1.62 $
+ * $Date: 2012/04/27 13:46:16 $
+ * $Revision: 1.66 $
  * \author P. Gras
  * \author E. Di Marco
  *

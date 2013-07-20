@@ -4,7 +4,7 @@
  *
  * \author Luca Lista, INFN
  *
- * $Id: StringCutObjectSelector.h,v 1.2 2009/07/09 10:47:23 gpetrucc Exp $
+ * $Id: StringCutObjectSelector.h,v 1.3 2011/12/05 16:02:30 eulisse Exp $
  */
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "CommonTools/Utils/src/SelectorPtr.h"

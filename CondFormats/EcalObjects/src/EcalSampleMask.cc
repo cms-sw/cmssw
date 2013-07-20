@@ -1,7 +1,7 @@
 /**
  * Author: Giovanni Franzoni, UMN
  * Created: 08 May 2012
- * $Id: EcalSampleMask.cc,v 1.1 2012/05/10 08:22:09 argiro Exp $
+ * $Id: EcalSampleMask.cc,v 1.2 2012/05/10 14:59:38 argiro Exp $
  **/
 
 #include <assert.h>

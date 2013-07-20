@@ -2,9 +2,9 @@
  * \file DQMSourceExample.cc
  * \author C.Leonidopoulos
  * Last Update:
- * $Date: 2009/10/13 18:20:26 $
- * $Revision: 1.25 $
- * $Author: ameyer $
+ * $Date: 2009/12/14 22:22:23 $
+ * $Revision: 1.26 $
+ * $Author: wmtan $
  *
  * Description: Simple example showing how to create a DQM source creating and filling
  * monitoring elements

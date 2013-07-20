@@ -6,7 +6,7 @@
 //     Tools to identify cosmics muons in collisions
 //  
 // Original Author:  Dmytro Kovalskyi
-// $Id: MuonCosmicsId.h,v 1.1 2010/06/22 13:19:56 dmytro Exp $
+// $Id: MuonCosmicsId.h,v 1.2 2010/06/22 20:38:18 dmytro Exp $
 //
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/Common/interface/Handle.h"

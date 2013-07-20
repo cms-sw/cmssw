@@ -7,7 +7,7 @@
 //
 // Original Author:  Dong Ho Moon
 //         Created:  Wed May  9 06:22:36 CEST 2007
-// $Id: HLTHIMuL1L2L3Filter.cc,v 1.2 2010/01/22 13:32:02 kodolova Exp $
+// $Id: HLTHIMuL1L2L3Filter.cc,v 1.3 2012/01/21 14:57:06 fwyzard Exp $
 //
 //
 // Comment: Dimuon reconstruction need primary vertex

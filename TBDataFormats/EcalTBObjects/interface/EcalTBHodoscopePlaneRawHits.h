@@ -10,7 +10,7 @@
  *  Simple container for rawHits 
  *
  *
- *  $Id: EcalTBHodoscopePlaneRawHits.h,v 1.2 2006/04/21 09:31:23 meridian Exp $
+ *  $Id: EcalTBHodoscopePlaneRawHits.h,v 1.3 2006/06/06 15:37:00 meridian Exp $
  */
 
 class EcalTBHodoscopePlaneRawHits {

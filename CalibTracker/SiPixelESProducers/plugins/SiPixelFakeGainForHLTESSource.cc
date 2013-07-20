@@ -13,7 +13,7 @@
 //
 // Original Author:  Vincenzo Chiochia
 //         Created:  Fri Apr 27 12:31:25 CEST 2007
-// $Id: SiPixelFakeGainForHLTESSource.cc,v 1.2 2008/04/21 19:46:03 fblekman Exp $
+// $Id: SiPixelFakeGainForHLTESSource.cc,v 1.3 2008/04/22 12:36:49 friis Exp $
 //
 //
 

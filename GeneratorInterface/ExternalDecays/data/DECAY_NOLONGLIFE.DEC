@@ -1,4 +1,4 @@
-# $Id: DECAY_NOLONGLIFE.DEC,v 1.2 2009/02/20 10:38:04 covarell Exp $ 
+# $Id: DECAY_NOLONGLIFE.DEC,v 1.1 2009/04/27 19:06:48 yarba Exp $ 
 #Define the B0B0bar mass difference
 Define dm 0.502e12
 Define dgamma 0

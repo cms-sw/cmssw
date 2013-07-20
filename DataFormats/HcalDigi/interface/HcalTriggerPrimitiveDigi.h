@@ -8,8 +8,8 @@
 
 /** \class HcalTriggerPrimitiveDigi
     
-$Date: 2009/02/10 15:46:37 $
-$Revision: 1.9 $
+$Date: 2009/06/09 13:15:56 $
+$Revision: 1.10 $
 \author J. Mans - Minnesota
 */
 class HcalTriggerPrimitiveDigi {

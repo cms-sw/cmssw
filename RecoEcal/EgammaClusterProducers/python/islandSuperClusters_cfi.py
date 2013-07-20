@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 #
-# $Id: islandSuperClusters_cfi.py,v 1.2 2008/04/21 03:24:12 rpw Exp $
+# $Id: islandSuperClusters_cfi.py,v 1.3 2010/11/16 16:02:09 argiro Exp $
 #
 # Island SuperCluster producer
 islandSuperClusters = cms.EDProducer("SuperClusterProducer",

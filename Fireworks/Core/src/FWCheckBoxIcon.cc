@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 19 16:25:17 CST 2009
-// $Id: FWCheckBoxIcon.cc,v 1.4 2010/03/17 13:02:37 matevz Exp $
+// $Id: FWCheckBoxIcon.cc,v 1.5 2010/06/18 10:17:14 yana Exp $
 //
 
 // system include files

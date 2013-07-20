@@ -1,16 +1,16 @@
 /** \class MuScleFit
  *  Analyzer of the Global muon tracks
  *
- *  $Date: 2012/12/19 11:29:15 $
- *  $Revision: 1.111 $
+ *  $Date: 2012/12/20 16:09:21 $
+ *  $Revision: 1.112 $
  *  \author C.Mariotti, S.Bolognesi - INFN Torino / T.Dorigo - INFN Padova
  */
 
 //  \class MuScleFit
 //  Fitter of momentum scale and resolution from resonance decays to muon track pairs
 //
-//  $Date: 2012/12/19 11:29:15 $
-//  $Revision: 1.111 $
+//  $Date: 2012/12/20 16:09:21 $
+//  $Revision: 1.112 $
 //  \author R. Bellan, C.Mariotti, S.Bolognesi - INFN Torino / T.Dorigo, M.De Mattia - INFN Padova
 //
 //  Recent additions:

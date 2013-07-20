@@ -6,7 +6,7 @@
  author: Victor Bazterra, UIC
          Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
 
- version $Id: BTagValidator.cc,v 1.15 2008/02/29 20:49:02 ksmith Exp $
+ version $Id: BTagValidator.cc,v 1.16 2010/07/20 02:58:37 wmtan Exp $
 
 ________________________________________________________________**/
 

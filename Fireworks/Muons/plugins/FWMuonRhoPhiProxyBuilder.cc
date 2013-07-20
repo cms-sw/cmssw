@@ -3,7 +3,7 @@
 // Package:     Muons
 // Class  :     FWMuonRhoPhiProxyBuilder
 //
-// $Id: FWMuonRhoPhiProxyBuilder.cc,v 1.1 2010/07/30 08:36:01 yana Exp $
+// $Id: FWMuonRhoPhiProxyBuilder.cc,v 1.2 2010/11/11 20:25:28 amraktad Exp $
 //
 
 #include "Fireworks/Core/interface/FWSimpleProxyBuilderTemplate.h"

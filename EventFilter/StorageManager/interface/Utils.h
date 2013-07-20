@@ -1,4 +1,4 @@
-// $Id: Utils.h,v 1.14 2011/03/07 15:31:32 mommsen Exp $
+// $Id: Utils.h,v 1.15 2011/03/31 13:04:20 mommsen Exp $
 /// @file: Utils.h 
 
 #ifndef EventFilter_StorageManager_Utils_h
@@ -25,8 +25,8 @@ namespace stor {
      * Collection of utility functions used in the storage manager
      *
      * $Author: mommsen $
-     * $Revision: 1.14 $
-     * $Date: 2011/03/07 15:31:32 $
+     * $Revision: 1.15 $
+     * $Date: 2011/03/31 13:04:20 $
      */
 
     /**

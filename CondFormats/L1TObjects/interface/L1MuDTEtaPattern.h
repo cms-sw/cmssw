@@ -12,8 +12,8 @@
  *       (wheel: -2, -1, 0, +1, +2, position : [1,7])
  * 
  *
- *   $Date: 2008/04/09 15:22:31 $
- *   $Revision: 1.2 $
+ *   $Date: 2010/01/19 18:39:54 $
+ *   $Revision: 1.3 $
  *
  *   N. Neumeister            CERN EP
  */

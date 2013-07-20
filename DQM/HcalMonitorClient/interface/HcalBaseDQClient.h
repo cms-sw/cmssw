@@ -12,8 +12,8 @@
 /*
  * \file HcalBaseDQClient.h
  * 
- * $Date: 2012/06/11 22:12:08 $
- * $Revision: 1.7 $
+ * $Date: 2012/06/18 08:23:09 $
+ * $Revision: 1.8 $
  * \author J. Temple
  * \brief Hcal Monitor Client base class
  * based on code in EcalBarrelMonitorClient/interface/EBClient.h

@@ -4,7 +4,7 @@
  *
  * \author Luca Lista, INFN
  *
- * $Id: MinNumberSelector.h,v 1.5 2007/11/30 13:33:43 llista Exp $
+ * $Id: MinNumberSelector.h,v 1.1 2009/02/24 14:40:26 llista Exp $
  */
 
 struct MinNumberSelector {

@@ -13,8 +13,8 @@
   *
   * Appropriate class for subcollections produced by selection algorithms.
   *
-  * $Date: $
-  * $Revision: $
+  * $Date: 2006/01/17 15:57:11 $
+  * $Revision: 1.1 $
   * \author J. Mans - Minnesota
   */
 class CaloRecHitMetaCollectionFast : public CaloRecHitMetaCollectionV {

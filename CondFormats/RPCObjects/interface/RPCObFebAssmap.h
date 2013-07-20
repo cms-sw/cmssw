@@ -1,8 +1,8 @@
 /*
  * Payload definition(s): Feb Map (RPCObFebAssmap)
  *
- *  $Date: 2009/11/16 12:53:47 $
- *  $Revision: 1.3 $
+ *  $Date: 2009/11/16 12:56:29 $
+ *  $Revision: 1.2 $
  *  \author D. Pagano - Dip. Fis. Nucl. e Teo. & INFN Pavia
  */
 

@@ -16,7 +16,7 @@
 //
 // Original Author:  Vincenzo Chiochia
 //         Created:  
-// $Id: SiPixelDigiSource.h,v 1.25 2012/01/18 12:50:15 merkelp Exp $
+// $Id: SiPixelDigiSource.h,v 1.26 2012/06/26 14:06:43 duggan Exp $
 //
 
 #include <memory>

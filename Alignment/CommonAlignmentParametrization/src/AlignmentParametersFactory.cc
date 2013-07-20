@@ -1,6 +1,6 @@
-///  $Date: 2010/09/10 11:19:37 $
-///  $Revision: 1.3 $
-/// (last update by $Author: mussgill $)
+///  $Date: 2010/10/26 20:41:08 $
+///  $Revision: 1.4 $
+/// (last update by $Author: flucke $)
 
 #include "Alignment/CommonAlignmentParametrization/interface/AlignmentParametersFactory.h"
 #include "Alignment/CommonAlignmentParametrization/interface/RigidBodyAlignmentParameters.h"

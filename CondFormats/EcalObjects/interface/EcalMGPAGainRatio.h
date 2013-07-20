@@ -3,7 +3,7 @@
 /**
  * Author: Shahram Rahatlou, University of Rome & INFN
  * Created: 22 Feb 2006
- * $Id: $
+ * $Id: EcalMGPAGainRatio.h,v 1.3 2006/02/23 16:56:34 rahatlou Exp $
  **/
 
 

@@ -1,8 +1,8 @@
 /** \file LaserTrackingAction.cc
  *  
  *
- *  $Date: Mon Mar 19 12:21:52 CET 2007 $
- *  $Revision: 1.1 $
+ *  $Date: 2007/03/20 12:01:01 $
+ *  $Revision: 1.2 $
  *  \author Maarten Thomas
  */
 

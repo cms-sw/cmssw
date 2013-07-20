@@ -1,6 +1,9 @@
-// $Id: HLTScalersClient.cc,v 1.18 2010/04/02 20:48:12 wittich Exp $
+// $Id: HLTScalersClient.cc,v 1.19 2010/07/20 02:58:27 wmtan Exp $
 // 
 // $Log: HLTScalersClient.cc,v $
+// Revision 1.19  2010/07/20 02:58:27  wmtan
+// Add missing #include files
+//
 // Revision 1.18  2010/04/02 20:48:12  wittich
 // updates to scale entries by received number of FU's
 //

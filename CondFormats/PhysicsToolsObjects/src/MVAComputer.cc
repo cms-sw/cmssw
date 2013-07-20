@@ -18,7 +18,7 @@
 //
 // Author:      Christophe Saout
 // Created:     Sat Apr 24 15:18 CEST 2007
-// $Id: MVAComputer.cc,v 1.9 2009/01/15 20:42:28 saout Exp $
+// $Id: MVAComputer.cc,v 1.10 2010/01/26 19:40:03 saout Exp $
 //
 #include <functional>
 #include <algorithm>

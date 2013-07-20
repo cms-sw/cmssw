@@ -12,8 +12,8 @@
  *   station: 1-5 (station 5=ME13)
  *
  *
- *   $Date: 2006/06/26 16:11:13 $
- *   $Revision: 1.1 $
+ *   $Date: 2007/02/27 11:44:00 $
+ *   $Revision: 1.2 $
  *
  *   N. Neumeister            CERN EP 
  */

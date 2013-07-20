@@ -4,8 +4,8 @@
 /** \class GlobalMuonToMuonProducer
  *  No description available.
  *
- *  $Date: 2010/02/11 00:14:29 $
- *  $Revision: 1.2 $
+ *  $Date: 2011/05/31 14:44:35 $
+ *  $Revision: 1.1 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
 

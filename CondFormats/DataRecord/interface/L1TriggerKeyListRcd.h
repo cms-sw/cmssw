@@ -16,7 +16,7 @@
 //
 // Original Author:  Werner Sun
 //         Created:  Fri Feb 29 21:48:40 CET 2008
-// $Id$
+// $Id: L1TriggerKeyListRcd.h,v 1.1 2008/03/03 07:07:22 wsun Exp $
 //
 
 #include "FWCore/Framework/interface/EventSetupRecordImplementation.h"

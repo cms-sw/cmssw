@@ -7,7 +7,7 @@
 #
 #   @date Mon Aug 30 14:39:33 CEST 2010
 #
-#   $Id: RunHitFitConfiguration.txt,v 1.2 2011/03/10 22:25:31 haryo Exp $
+#   $Id: RunHitFitConfiguration.txt,v 1.1 2011/05/26 09:46:52 mseidel Exp $
 
 #########################################################################
 # Top_Fit parameters

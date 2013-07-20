@@ -1,6 +1,6 @@
 // -*- C++ -*-
 // Original Author:  Fedor Ratnikov
-// $Id: HcalTextCalibrations.cc,v 1.20 2011/06/24 22:15:53 temple Exp $
+// $Id: HcalTextCalibrations.cc,v 1.21 2011/10/26 14:00:29 xiezhen Exp $
 //
 //
 

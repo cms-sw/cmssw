@@ -6,7 +6,7 @@
 //     <Notes on implementation>
 // Original Author:  M. De Mattia
 //         Created:  26/10/2010
-// $Id: SiStripDelay.cc,v 1.1 2010/10/26 14:52:43 demattia Exp $
+// $Id: SiStripDelay.cc,v 1.2 2010/11/04 14:31:55 demattia Exp $
 
 #include "FWCore/Utilities/interface/typelookup.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripDelay.h"

@@ -13,7 +13,7 @@
 //
 // Original Author:  Jie Chen
 //         Created:  Thu Apr 29 16:32:10 CDT 2010
-// $Id: HSCPEventFilter.cc,v 1.4 2011/05/10 22:07:21 jiechen Exp $
+// $Id: HSCPEventFilter.cc,v 1.1 2012/04/24 10:03:43 querten Exp $
 // modified by Loic Quertenmont Apr 24 2012
 //
 //

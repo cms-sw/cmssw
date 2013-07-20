@@ -11,7 +11,7 @@
 //
 // Original Author:  Traczyk Piotr
 //         Created:  Thu Oct 11 15:01:28 CEST 2007
-// $Id: CSCTimingExtractor.cc,v 1.9 2011/03/07 23:34:22 slava77 Exp $
+// $Id: CSCTimingExtractor.cc,v 1.10 2011/04/16 20:30:57 ptraczyk Exp $
 //
 //
 

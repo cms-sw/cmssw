@@ -4,8 +4,8 @@
 /** \class OrderedLaserHitPairs
  *  ordered pairs of laser hits; used for seedgenerator
  *
- *  $Date: Thu May 10 13:53:49 CEST 2007 $
- *  $Revision: 1.1 $
+ *  $Date: 2007/05/10 12:00:32 $
+ *  $Revision: 1.2 $
  *  \author Maarten Thomas
  */
 

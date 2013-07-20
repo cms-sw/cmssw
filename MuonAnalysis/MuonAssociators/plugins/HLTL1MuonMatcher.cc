@@ -1,5 +1,5 @@
 //
-// $Id: HLTL1MuonMatcher.cc,v 1.2 2010/04/20 10:51:30 gpetrucc Exp $
+// $Id: HLTL1MuonMatcher.cc,v 1.3 2010/07/12 20:56:11 gpetrucc Exp $
 //
 
 /**
@@ -7,7 +7,7 @@
   \brief    Matcher of reconstructed objects to L1 Muons 
             
   \author   Giovanni Petrucciani
-  \version  $Id: HLTL1MuonMatcher.cc,v 1.2 2010/04/20 10:51:30 gpetrucc Exp $
+  \version  $Id: HLTL1MuonMatcher.cc,v 1.3 2010/07/12 20:56:11 gpetrucc Exp $
 */
 
 

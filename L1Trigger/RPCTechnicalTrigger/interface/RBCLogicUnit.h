@@ -1,4 +1,4 @@
-// $Id: RBCLogicUnit.h,v 1.3 2009/05/16 19:43:30 aosorio Exp $
+// $Id: RBCLogicUnit.h,v 1.4 2009/06/07 21:18:50 aosorio Exp $
 #ifndef RBCLOGICUNIT_H 
 #define RBCLOGICUNIT_H 1
 

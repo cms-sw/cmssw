@@ -18,7 +18,7 @@
     XMLCh * aCh = fromNative(std::string str).c_str();
     
     \author Stefano Argiro' (seen somehwere on the internet)
-    $Id: XercesString.h,v 1.4 2008/11/05 15:17:40 argiro Exp $
+    $Id: XercesString.h,v 1.1 2008/11/14 15:46:05 argiro Exp $
 
  */
 

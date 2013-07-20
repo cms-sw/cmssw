@@ -1,11 +1,11 @@
-// $Id: MCFileSource.cc,v 1.9.2.1 2009/01/09 10:34:32 saout Exp $
+// $Id: MCFileSource.cc,v 1.16 2009/12/01 19:23:11 fabstoec Exp $
 
 /**  
 *  See header file for a description of this class.
 *
 *
-*  $Date: 2009/01/09 10:34:32 $
-*  $Revision: 1.9.2.1 $
+*  $Date: 2009/12/01 19:23:11 $
+*  $Revision: 1.16 $
 *  \author Jo. Weng  - CERN, Ph Division & Uni Karlsruhe
 *  \author F.Moortgat - CERN, Ph Division
 */

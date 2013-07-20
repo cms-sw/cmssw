@@ -4,7 +4,7 @@
  *
  * \author Luca Lista, INFN
  *
- * $Id: PdgIdSelector.h,v 1.4 2007/11/14 10:14:21 llista Exp $
+ * $Id: PdgIdSelector.h,v 1.1 2009/02/24 14:40:26 llista Exp $
  */
 #include <vector>
 #include <algorithm>

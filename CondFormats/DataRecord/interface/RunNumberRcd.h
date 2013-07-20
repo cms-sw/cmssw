@@ -16,7 +16,7 @@
 //
 // Author:      
 // Created:     Wed May 28 11:20:27 CEST 2008
-// $Id$
+// $Id: RunNumberRcd.h,v 1.1 2008/06/17 17:01:00 degrutto Exp $
 //
 
 #include "FWCore/Framework/interface/EventSetupRecordImplementation.h"

@@ -1,6 +1,6 @@
 //
 // F.Ratnikov (UMd), Dec 14, 2005
-// $Id: HcalDbHardcode.cc,v 1.26 2011/11/14 13:52:46 abdullin Exp $
+// $Id: HcalDbHardcode.cc,v 1.27 2011/11/23 13:48:27 abdullin Exp $
 //
 #include <vector>
 #include <string>

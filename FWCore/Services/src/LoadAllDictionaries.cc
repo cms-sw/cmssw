@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Sep 15 09:47:48 EDT 2005
-// $Id: LoadAllDictionaries.cc,v 1.9 2010/03/09 16:24:55 wdd Exp $
+// $Id: LoadAllDictionaries.cc,v 1.10 2010/07/20 22:13:22 chrjones Exp $
 //
 
 // system include files

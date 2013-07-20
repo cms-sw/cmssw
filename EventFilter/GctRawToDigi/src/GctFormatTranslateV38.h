@@ -8,8 +8,8 @@
 * \brief Unpacks/packs the V38 raw format
 *
 * \author Robert Frazier
-* $Revision: 1.3 $
-* $Date: 2009/04/21 15:33:17 $
+* $Revision: 1.4 $
+* $Date: 2009/11/16 20:57:13 $
 */ 
 
 // ************************************************************************

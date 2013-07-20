@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Jun  5 15:31:20 EDT 2008
-// $Id: register_dataproxybuilder_macro.h,v 1.6 2010/04/06 20:00:35 amraktad Exp $
+// $Id: register_dataproxybuilder_macro.h,v 1.7 2012/06/26 22:13:03 wmtan Exp $
 //
 
 // system include files

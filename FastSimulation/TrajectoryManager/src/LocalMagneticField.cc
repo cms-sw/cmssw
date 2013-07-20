@@ -1,6 +1,6 @@
 /** \file
  *
- *  $Revision: 1.1 $
+ *  $Revision: 1.2 $
  *  \author P. Janot, copied from N. Amapane, UniformMagneticField - CERN
  */
 

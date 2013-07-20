@@ -3,9 +3,9 @@
 ///
 ///  \author    : Gero Flucke
 ///  date       : October 2008
-///  $Revision: 1.5 $
-///  $Date: 2010/01/14 16:14:04 $
-///  (last update by $Author: flucke $)
+///  $Revision: 1.6 $
+///  $Date: 2010/09/10 13:09:00 $
+///  (last update by $Author: mussgill $)
  
 #include "Alignment/ReferenceTrajectories/interface/DualKalmanTrajectory.h"
 

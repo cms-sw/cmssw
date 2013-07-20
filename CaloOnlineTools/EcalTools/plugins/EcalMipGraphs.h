@@ -13,7 +13,7 @@
 //
 // Original Author:  Seth COOPER
 //         Created:  Th Nov 22 5:46:22 CEST 2007
-// $Id: EcalMipGraphs.h,v 1.8 2010/01/04 15:07:40 ferriff Exp $
+// $Id: EcalMipGraphs.h,v 1.9 2010/01/16 14:46:16 hegner Exp $
 //
 //
 
