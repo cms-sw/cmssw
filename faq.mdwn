@@ -76,38 +76,8 @@ You can also find a complete tutorial [here](tutorial.html).
 
 ### How do I develop a new feature using git?
 
-First of all you need to fork cmssw to your own personal repository. This
-repository will be used to hold all your incomplete developments. 
-
-In your working area checkout a few packages you want to modify via `git
-cms-addpkg`. When you are ready to start developing create a new topic branch
-to hold your developments, e.g.:
-
-    git checkout -b my-new-feature
-
-Notice you'll be able to add more packages afterwards, so do not worry if you
-don't have all of them right ahead.
-
-Once you are happy with your changes, push them to your private repository on
-github, e.g.:
-
-    git push my-cmssw
-
-You can do the above multiple times, whenever you have updated your
-development.  Whenever you are happy, open a pull request to merge your topic
-branch into the official repository.
-
-This can be done by going to [CMS Topic Collector][cms-topic-collector] and by
-clicking on the "Create new pull request for ...".
-
-![Create pull request](images/create-pull-request.png) 
-
-This will redirect you to the github equivalent of the "tagset publishing"
-page in the old tag collector ("pull request creation" in git jargon):
-
-![Publish pull request](images/publish-branch.png) 
-
-there you can select your release queue (or "release branch") and your source branch.
+Please have a look at the [full blown tutorial about proposing new
+changes in CMSSW](tutorial.html).
 
 ### How do I check the status of my pull request(s).
 
