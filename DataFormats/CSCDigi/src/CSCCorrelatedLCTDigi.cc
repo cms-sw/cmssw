@@ -2,9 +2,6 @@
  *
  * Digi for Correlated LCT trigger primitives.
  *
- * $Date: 2010/07/07 10:53:22 $
- * $Revision: 1.14 $
- *
  * \author L.Gray, UF
  */
 
@@ -32,7 +29,8 @@ CSCCorrelatedLCTDigi::CSCCorrelatedLCTDigi(const int itrknmb, const int ivalid,
   mpclink(impclink),
   bx0(ibx0),
   syncErr(isyncErr),
-  cscID(icscID)
+  cscID(icscID),
+  gemDPhi(-99.)
 {}
 
 /// Default
@@ -54,6 +52,7 @@ void CSCCorrelatedLCTDigi::clear() {
   bx0     = 0; 
   syncErr = 0;
   cscID   = 0;
+  gemDPhi = -99.;
 }
 
 /// Comparison
@@ -61,7 +60,8 @@ bool CSCCorrelatedLCTDigi::operator==(const CSCCorrelatedLCTDigi &rhs) const {
   return ((trknmb == rhs.trknmb)   && (quality == rhs.quality) &&
 	  (keywire == rhs.keywire) && (strip == rhs.strip)     &&
 	  (pattern == rhs.pattern) && (bend == rhs.bend)       &&
-	  (bx == rhs.bx)           && (valid == rhs.valid) && (mpclink == rhs.mpclink) );
+	  (bx == rhs.bx)           && (valid == rhs.valid) && (mpclink == rhs.mpclink) &&
+    (gemDPhi == rhs.gemDPhi) );
 }
 
 /// Debug
@@ -75,7 +75,8 @@ void CSCCorrelatedLCTDigi::print() const {
               << " Pattern = "      << getPattern()
 	      << " Bend = "         << ( (getBend() == 0) ? 'L' : 'R' )
 	      << " BX = "           << getBX() 
-	      << " MPC Link = "     << getMPCLink() << std::endl;
+	      << " MPC Link = "     << getMPCLink() 
+        << " GEMDphi = "      << getGEMDPhi() << std::endl;
   }
   else {
     std::cout << "Not a valid correlated LCT." << std::endl;
@@ -88,9 +89,10 @@ std::ostream & operator<<(std::ostream & o,
            << ": Valid = "  << digi.isValid()
            << " Quality = " << digi.getQuality()
            << " MPC Link = " << digi.getMPCLink()
-	   << " cscID = "   << digi.getCSCID() << "\n"
+           << " cscID = "   << digi.getCSCID() 
+           << " GEMDphi = " << digi.getGEMDPhi() << "\n"
            <<"  cathode info: Strip = "    << digi.getStrip()
-	   << " Pattern = " << digi.getPattern()
+           << " Pattern = " << digi.getPattern()
            << " Bend = "    << ((digi.getBend() == 0) ? 'L' : 'R') << "\n"
            <<"    anode info: Key wire = " << digi.getKeyWG()
            << " BX = "      << digi.getBX()
