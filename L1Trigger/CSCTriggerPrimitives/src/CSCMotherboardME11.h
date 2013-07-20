@@ -10,13 +10,15 @@
  *
  * Based on CSCMotherboard code
  *
- * $Date: 2012/12/05 21:14:22 $
- * $Revision: 1.2 $
- *
  */
 
 #include <L1Trigger/CSCTriggerPrimitives/src/CSCMotherboard.h>
 #include <DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigi.h>
+#include <DataFormats/GEMDigi/interface/GEMCSCPadDigiCollection.h>
+
+class CSCGeometry;
+class GEMGeometry;
+class CSCChamber;
 
 class CSCMotherboardME11 : public CSCMotherboard
 {
@@ -35,7 +37,8 @@ class CSCMotherboardME11 : public CSCMotherboard
   /** Run function for normal usage.  Runs cathode and anode LCT processors,
       takes results and correlates into CorrelatedLCT. */
   void run(const CSCWireDigiCollection* wiredc,
-	   const CSCComparatorDigiCollection* compdc);
+	   const CSCComparatorDigiCollection* compdc,
+	   const GEMCSCPadDigiCollection* gemPads);
 
   /** Returns vectors of found correlated LCTs in ME1a and ME1b, if any. */
   std::vector<CSCCorrelatedLCTDigi> getLCTs1a();
@@ -61,6 +64,10 @@ class CSCMotherboardME11 : public CSCMotherboard
   std::vector<CSCCorrelatedLCTDigi> readoutLCTs1a();
   std::vector<CSCCorrelatedLCTDigi> readoutLCTs1b();
   std::vector<CSCCorrelatedLCTDigi> readoutLCTs(int me1ab);
+
+  /// set CSC and GEM geometries for the matching needs
+  void setCSCGeometry(const CSCGeometry *g) { csc_g = g; }
+  void setGEMGeometry(const GEMGeometry *g) { gem_g = g; }
 
  private:
 
@@ -95,6 +102,8 @@ class CSCMotherboardME11 : public CSCMotherboard
 		     CSCCLCTDigi bestCLCT, CSCCLCTDigi secondCLCT,
 		     CSCCorrelatedLCTDigi& lct1, CSCCorrelatedLCTDigi& lct2, int me);
 
+  void matchGEMPads(const GEMCSCPadDigiCollection* gemPads);
+
   std::vector<CSCALCTDigi> alctV;
   std::vector<CSCCLCTDigi> clctV1b;
   std::vector<CSCCLCTDigi> clctV1a;
@@ -117,5 +126,24 @@ class CSCMotherboardME11 : public CSCMotherboard
 
   /** maximum lcts per BX in ME11: 2, 3, 4 or 999 */
   unsigned int max_me11_lcts;
+
+
+  /// GEM matching dphi and deta
+  double gem_match_delta_phi_odd;
+  double gem_match_delta_phi_even;
+  double gem_match_delta_eta;
+
+  /// delta BX for GEM pads matching
+  int gem_match_delta_bx;
+
+  /// min eta of LCT for which we require GEM match (we don't throw out LCTs below this min eta) 
+  double gem_match_min_eta;
+
+  /// whether to throw out GEM-fiducial LCTs that have no gem match
+  bool gem_clear_nomatch_lcts;
+
+  const CSCGeometry* csc_g;
+  const GEMGeometry* gem_g;
+  //CSCChamber* cscChamber;
 };
 #endif
