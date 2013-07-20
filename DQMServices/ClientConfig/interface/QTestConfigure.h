@@ -7,8 +7,8 @@
  *  the xml configuration file parsed by QTestConfigurationParser.
  *
  * 
- *  $Date: 2013/05/23 16:16:28 $
- *  $Revision: 1.13 $
+ *  $Date: 2013/05/30 15:29:53 $
+ *  $Revision: 1.14 $
  *  \author Ilaria Segoni
   */
 

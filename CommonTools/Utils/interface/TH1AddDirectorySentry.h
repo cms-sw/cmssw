@@ -18,7 +18,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Nov  8 12:16:13 EST 2007
-// $Id: TH1AddDirectorySentry.h,v 1.1 2009/03/03 13:07:28 llista Exp $
+// $Id: TH1AddDirectorySentry.h,v 1.1 2010/01/05 14:21:14 hegner Exp $
 //
 
 class TH1AddDirectorySentry

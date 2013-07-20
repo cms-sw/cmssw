@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Oct 28 11:44:11 CET 2009
-// $Id$
+// $Id: FWModelIdFromEveSelector.h,v 1.1 2009/10/28 14:36:58 chrjones Exp $
 //
 
 // system include files

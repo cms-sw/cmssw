@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Sun Feb 22 10:13:39 CST 2009
-// $Id: FWCollectionSummaryTableManager.cc,v 1.13 2012/06/26 22:13:03 wmtan Exp $
+// $Id: FWCollectionSummaryTableManager.cc,v 1.14 2012/08/03 18:20:28 wmtan Exp $
 //
 
 // system include files

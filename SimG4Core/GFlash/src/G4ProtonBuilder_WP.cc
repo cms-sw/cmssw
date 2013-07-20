@@ -23,8 +23,8 @@
 // * acceptance of all terms of the Geant4 Software license.          *
 // ********************************************************************
 //
-// $Id: G4ProtonBuilder_WP.cc,v 1.2 2009/10/16 07:55:51 fabiocos Exp $
-// GEANT4 tag $Name: V04-05-01 $
+// $Id: G4ProtonBuilder_WP.cc,v 1.3 2013/05/30 21:10:49 gartung Exp $
+// GEANT4 tag $Name: CMSSW_6_2_0 $
 //
 //---------------------------------------------------------------------------
 //

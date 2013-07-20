@@ -5,8 +5,8 @@
  *   DTTF Parameters from OMDS
  *
  *
- *   $Date: 2009/05/04 09:20:57 $
- *   $Revision: 1.2 $
+ *   $Date: 2009/05/12 09:15:56 $
+ *   $Revision: 1.3 $
  *
  *   J. Troconiz            UAM Madrid
  */

@@ -16,7 +16,7 @@
 //
 // Author:      
 // Created:     Thu Aug 21 11:41:10 CEST 2008
-// $Id$
+// $Id: L1TriggerScalerRcd.h,v 1.1 2008/09/01 10:45:04 degrutto Exp $
 //
 
 

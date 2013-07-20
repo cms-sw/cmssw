@@ -13,7 +13,7 @@
 //
 // Original Author:  local user
 //         Created:  Thu Apr 21 11:36:52 CEST 2011
-// $Id: CastorInvalidDataFilter.cc,v 1.1 2011/04/21 13:20:58 hvanhaev Exp $
+// $Id: CastorInvalidDataFilter.cc,v 1.2 2013/02/27 23:02:53 eulisse Exp $
 //
 //
 

@@ -5,8 +5,8 @@
  *
  *  A class to build alignable composites.
  *
- *  $Date: 2007/10/18 09:41:07 $
- *  $Revision: 1.2 $
+ *  $Date: 2013/01/07 19:28:55 $
+ *  $Revision: 1.3 $
  *  \author Chung Khim Lae
  */
 

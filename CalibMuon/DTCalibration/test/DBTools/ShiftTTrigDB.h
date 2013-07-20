@@ -5,8 +5,8 @@
  *  Class which read a ttrig DB and modifies it introducing
  *  shifts with chamber granularity
  *
- *  $Date: 2010/01/19 09:51:31 $
- *  $Revision: 1.2 $
+ *  $Date: 2010/02/15 16:45:47 $
+ *  $Revision: 1.3 $
  *  \author S. Bolognesi - INFN Torino
  */
 

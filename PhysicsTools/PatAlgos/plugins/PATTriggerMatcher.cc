@@ -1,5 +1,5 @@
 //
-// $Id: PATTriggerMatcher.cc,v 1.7 2010/06/16 15:40:59 vadler Exp $
+// $Id: PATTriggerMatcher.cc,v 1.8 2010/06/26 17:53:57 vadler Exp $
 //
 #include "PhysicsTools/PatAlgos/plugins/PATTriggerMatchSelector.h"
 #include "CommonTools/UtilAlgos/interface/PhysObjectMatcher.h"

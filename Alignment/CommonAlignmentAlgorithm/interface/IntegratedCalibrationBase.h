@@ -6,9 +6,9 @@
  *
  *  \author Gero Flucke
  *  \date August 2012
- *  $Revision: 1.2.2.1 $
- *  $Date: 2013/04/23 08:13:27 $
- *  (last update by $Author: jbehr $)
+ *  $Revision: 1.3 $
+ *  $Date: 2013/05/31 12:13:40 $
+ *  (last update by $Author: flucke $)
  *
  *  Base class for the calibrations that are integrated
  *  into the alignment algorithms.

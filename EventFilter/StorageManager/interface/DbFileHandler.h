@@ -1,4 +1,4 @@
-// $Id: DbFileHandler.h,v 1.5 2011/03/07 15:31:31 mommsen Exp $
+// $Id: DbFileHandler.h,v 1.6 2012/04/04 12:16:26 mommsen Exp $
 /// @file: DbFileHandler.h 
 
 #ifndef EventFilter_StorageManager_DbFileHandler_h
@@ -19,8 +19,8 @@ namespace stor {
    * Handle the file used to pass information into SM database
    *
    * $Author: mommsen $
-   * $Revision: 1.5 $
-   * $Date: 2011/03/07 15:31:31 $
+   * $Revision: 1.6 $
+   * $Date: 2012/04/04 12:16:26 $
    */
 
   class DbFileHandler

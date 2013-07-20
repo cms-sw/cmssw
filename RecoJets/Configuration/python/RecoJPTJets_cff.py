@@ -1,4 +1,4 @@
-# $Id: RecoJPTJets_cff.py,v 1.8 2013/05/05 08:57:35 kodolova Exp $
+# $Id: RecoJPTJets_cff.py,v 1.9 2013/05/21 11:16:38 speer Exp $
 
 from RecoJets.JetPlusTracks.JetPlusTrackCorrections_cff import *
 JetPlusTrackZSPCorJetAntiKt5.ptCUT = 15.

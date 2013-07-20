@@ -13,7 +13,7 @@
 //
 // Original Author:  Philip Hebda
 //         Created:  Thu Jun 25 09:34:50 CEST 2009
-// $Id: MuonAnalyzer.cc,v 1.4 2011/10/31 12:32:29 olzem Exp $
+// $Id: MuonAnalyzer.cc,v 1.5 2013/04/22 16:36:52 wmtan Exp $
 //
 //
 #include "HLTriggerOffline/SUSYBSM/interface/MuonAnalyzer.h"

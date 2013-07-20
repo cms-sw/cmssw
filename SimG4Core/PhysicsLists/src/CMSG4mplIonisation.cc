@@ -23,8 +23,8 @@
 // * acceptance of all terms of the Geant4 Software license.          *
 // ********************************************************************
 //
-// $Id: G4mplIonisation.cc,v 1.10 2010/03/28 16:45:38 vnivanch Exp $
-// GEANT4 tag $Name:  $
+// $Id: CMSG4mplIonisation.cc,v 1.1 2010/04/02 14:35:10 sunanda Exp $
+// GEANT4 tag $Name: CMSSW_6_2_0 $
 //
 // -------------------------------------------------------------------
 //

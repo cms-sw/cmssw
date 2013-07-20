@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorDbModule.cc
  *
- * $Date: 2010/08/08 08:46:03 $
- * $Revision: 1.21 $
+ * $Date: 2012/02/28 16:38:09 $
+ * $Revision: 1.22 $
  * \author G. Della Ricca
  *
 */

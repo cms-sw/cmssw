@@ -16,7 +16,7 @@
 //         Created:  Wed Jul 30 11:37:24 CET 2007
 //         Working:  Fri Nov  9 09:39:33 CST 2007
 //
-// $Id: MuonSimHitProducer.cc,v 1.36 2011/10/07 08:25:42 aperrott Exp $
+// $Id: MuonSimHitProducer.cc,v 1.37 2013/02/27 22:22:54 wdd Exp $
 //
 //
 

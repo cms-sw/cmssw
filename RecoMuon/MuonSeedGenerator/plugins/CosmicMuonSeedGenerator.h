@@ -4,8 +4,8 @@
 /** \class CosmicMuonSeedGenerator
  *  SeedGenerator for Cosmic Muon
  *
- *  $Date: 2009/01/16 03:02:45 $
- *  $Revision: 1.2 $
+ *  $Date: 2010/02/16 17:08:39 $
+ *  $Revision: 1.3 $
  *  \author Chang Liu - Purdue University 
  */
 

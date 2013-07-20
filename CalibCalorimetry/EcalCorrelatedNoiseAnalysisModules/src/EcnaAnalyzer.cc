@@ -14,7 +14,7 @@
 //
 // Original Author:  Bernard Fabbro
 //         Created:  Fri Jun  2 10:27:01 CEST 2006
-// $Id: EcnaAnalyzer.cc,v 1.3 2011/10/13 09:02:06 eulisse Exp $
+// $Id: EcnaAnalyzer.cc,v 1.4 2013/04/05 20:17:20 wmtan Exp $
 //
 //          Update: 02/03/2011  
 

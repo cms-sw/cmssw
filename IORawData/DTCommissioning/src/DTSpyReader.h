@@ -4,8 +4,8 @@
 /** \class DTSpyReader
  *  Read DT ROS8 raw data files
  *
- *  $Date: 2007/08/21 13:22:11 $
- *  $Revision: 1.3 $
+ *  $Date: 2010/02/03 16:58:24 $
+ *  $Revision: 1.4 $
  *  \author M. Zanetti - INFN Padova
  */
 

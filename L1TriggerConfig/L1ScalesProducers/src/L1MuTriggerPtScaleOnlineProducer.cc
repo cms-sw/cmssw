@@ -4,7 +4,7 @@
 //
 //   Description:  A class to produce the L1 mu emulator scales record in the event setup
 //
-//   $Date: 2008/04/17 23:33:09 $
+//   $Date: 2008/11/24 18:59:59 $
 //   $Revision: 1.1 $
 //
 //   Author :

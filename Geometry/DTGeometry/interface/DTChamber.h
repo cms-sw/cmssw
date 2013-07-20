@@ -10,8 +10,8 @@
  *  The chamber is composed by 2 or three DTSuperLayer, which in turn are 
  *  composed by four DTLayer each.
  *
- *  $Date: 2006/07/25 09:54:11 $
- *  $Revision: 1.6 $
+ *  $Date: 2010/04/09 12:17:26 $
+ *  $Revision: 1.7 $
  *  \author S. Lacaprara, N. Amapane
  */
 

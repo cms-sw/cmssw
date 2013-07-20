@@ -1,5 +1,5 @@
 //
-// $Id: ObjectResolutionCalc.h,v 1.5 2008/10/08 19:19:25 gpetrucc Exp $
+// $Id: ObjectResolutionCalc.h,v 1.6 2013/02/23 10:14:19 eulisse Exp $
 //
 
 #ifndef PhysicsTools_PatUtils_ObjectResolutionCalc_h
@@ -10,7 +10,7 @@
   \brief    Class to calculate MC resolutions for pat objects
 
   \author   Jan Heyninck, Petra Van Mulders, Christophe Delaere
-  \version  $Id: ObjectResolutionCalc.h,v 1.5 2008/10/08 19:19:25 gpetrucc Exp $
+  \version  $Id: ObjectResolutionCalc.h,v 1.6 2013/02/23 10:14:19 eulisse Exp $
 */
 
 

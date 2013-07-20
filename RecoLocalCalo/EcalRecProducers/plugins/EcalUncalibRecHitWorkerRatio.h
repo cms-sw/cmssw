@@ -5,9 +5,9 @@
   *  Template used to compute amplitude, pedestal, time jitter, chi2 of a pulse
   *  using a weights method
   *
-  *  $Id: EcalUncalibRecHitWorkerRatio.h,v 1.3 2010/06/21 16:49:16 franzoni Exp $
-  *  $Date: 2010/06/21 16:49:16 $
-  *  $Revision: 1.3 $
+  *  $Id: EcalUncalibRecHitWorkerRatio.h,v 1.4 2012/05/10 12:45:18 franzoni Exp $
+  *  $Date: 2012/05/10 12:45:18 $
+  *  $Revision: 1.4 $
   *  \author A. Ledovskoy (Design) - M. Balazs (Implementation)
   */
 

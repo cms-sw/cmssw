@@ -9,8 +9,8 @@
  *  are implemented in this class,
  *  but some methods are left abstract.
  *
- *  $Date: 2012/05/05 13:49:41 $
- *  $Revision: 1.9 $
+ *  $Date: 2012/12/14 08:16:36 $
+ *  $Revision: 1.10 $
  */
 
 #include "TrackingTools/DetLayers/interface/DetLayer.h"

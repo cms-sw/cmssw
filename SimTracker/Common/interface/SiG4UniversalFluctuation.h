@@ -20,8 +20,8 @@
 // * statement, and all its terms.                                    *
 // ********************************************************************
 //
-// $Id: SiG4UniversalFluctuation.h,v 1.3 2007/05/10 08:55:09 fambrogl Exp $
-// GEANT4 tag $Name: CMSSW_4_2_3 $
+// $Id: SiG4UniversalFluctuation.h,v 1.4 2011/06/13 07:18:21 innocent Exp $
+// GEANT4 tag $Name: CMSSW_6_2_0 $
 //
 // -------------------------------------------------------------------
 //

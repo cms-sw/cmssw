@@ -1,4 +1,4 @@
-// $Id: SMWebPageHelper.cc,v 1.7 2011/11/18 14:48:25 mommsen Exp $
+// $Id: SMWebPageHelper.cc,v 1.8 2012/04/23 08:37:24 mommsen Exp $
 /// @file: SMWebPageHelper.cc
 
 #include <iomanip>
@@ -32,9 +32,9 @@ namespace stor
     xdaq::ApplicationDescriptor* appDesc,
     SharedResourcesPtr sharedResources
   ) :
-  WebPageHelper<SMWebPageHelper>(appDesc, "$Name:  $", this, &stor::SMWebPageHelper::addDOMforHyperLinks),
+  WebPageHelper<SMWebPageHelper>(appDesc, "$Name: CMSSW_6_2_0 $", this, &stor::SMWebPageHelper::addDOMforHyperLinks),
   sharedResources_(sharedResources),
-  consumerWebPageHelper_(appDesc, "$Name:  $", this, &stor::SMWebPageHelper::addDOMforHyperLinks)
+  consumerWebPageHelper_(appDesc, "$Name: CMSSW_6_2_0 $", this, &stor::SMWebPageHelper::addDOMforHyperLinks)
   {}
 
 

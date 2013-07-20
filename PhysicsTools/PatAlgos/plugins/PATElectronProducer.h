@@ -1,4 +1,4 @@
-// $Id: PATElectronProducer.h,v 1.31 2013/02/27 23:26:56 wmtan Exp $
+// $Id: PATElectronProducer.h,v 1.32 2013/04/09 18:39:29 tjkim Exp $
 //
 
 #ifndef PhysicsTools_PatAlgos_PATElectronProducer_h
@@ -12,7 +12,7 @@
    a collection of objects of reco::GsfElectron.
 
   \author   Steven Lowette, James Lamb\
-  \version  $Id: PATElectronProducer.h,v 1.31 2013/02/27 23:26:56 wmtan Exp $
+  \version  $Id: PATElectronProducer.h,v 1.32 2013/04/09 18:39:29 tjkim Exp $
 */
 
 

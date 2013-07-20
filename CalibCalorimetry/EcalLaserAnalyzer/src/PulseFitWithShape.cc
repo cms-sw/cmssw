@@ -1,7 +1,7 @@
 /* 
  *  \class PulseFitWithShape
  *
- *  $Date: 2012/02/09 10:08:09 $
+ *  $Date: 2013/04/19 22:19:23 $
  *  \author: Julie Malcles - CEA/Saclay
  */
 

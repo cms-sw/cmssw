@@ -15,7 +15,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: BarrelMeasurementEstimator.h,v 1.13 2010/07/28 10:52:45 chamont Exp $
+// $Id: BarrelMeasurementEstimator.h,v 1.14 2012/05/29 08:23:53 muzaffar Exp $
 //
 //
 

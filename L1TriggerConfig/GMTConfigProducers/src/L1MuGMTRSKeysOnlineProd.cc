@@ -9,8 +9,8 @@
  *
  * \author: Ivan Mikulec
  *
- * $Date$
- * $Revision$
+ * $Date: 2009/03/25 20:51:08 $
+ * $Revision: 1.1 $
  *
  */
 

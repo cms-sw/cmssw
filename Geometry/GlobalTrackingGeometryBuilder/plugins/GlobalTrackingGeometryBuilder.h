@@ -5,8 +5,8 @@
  *
  *  Build the GlobalTrackingGeometry.
  *
- *  $Date: 2011/08/16 14:54:34 $
- *  $Revision: 1.1 $
+ *  $Date: 2013/05/24 07:44:00 $
+ *  $Revision: 1.2 $
  *  \author Matteo Sani
  */
 

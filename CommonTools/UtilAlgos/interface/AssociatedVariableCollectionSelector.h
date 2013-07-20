@@ -4,7 +4,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: AssociatedVariableCollectionSelector.h,v 1.2 2010/02/20 20:55:13 wmtan Exp $
+ * \version $Id: AssociatedVariableCollectionSelector.h,v 1.3 2013/02/28 00:34:26 wmtan Exp $
  *
  */
 #include "FWCore/Utilities/interface/InputTag.h"

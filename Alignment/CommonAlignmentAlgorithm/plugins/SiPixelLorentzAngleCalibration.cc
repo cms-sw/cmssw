@@ -7,8 +7,8 @@
 ///
 ///  \author    : Gero Flucke
 ///  date       : September 2012
-///  $Revision: 1.4.2.21 $
-///  $Date: 2013/05/31 08:37:12 $
+///  $Revision: 1.6 $
+///  $Date: 2013/05/31 12:13:40 $
 ///  (last update by $Author: flucke $)
 
 #include "Alignment/CommonAlignmentAlgorithm/interface/IntegratedCalibrationBase.h"

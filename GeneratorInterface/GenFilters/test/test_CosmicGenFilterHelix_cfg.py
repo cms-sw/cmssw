@@ -1,7 +1,7 @@
 #
 # Original Author:  Gero Flucke
 #         Created:  15.8.2008
-#             $Id$
+#             $Id: test_CosmicGenFilterHelix_cfg.py,v 1.1 2008/08/15 20:25:04 flucke Exp $
 #
 
 import FWCore.ParameterSet.Config as cms

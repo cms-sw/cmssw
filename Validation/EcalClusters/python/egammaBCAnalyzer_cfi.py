@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 #
 #  Author: Michael A. Balazs, University of Virginia
-#  $Id: egammaBCAnalyzer_cfi.py,v 1.6 2010/02/16 17:10:30 wmtan Exp $
+#  $Id: egammaBCAnalyzer_cfi.py,v 1.7 2011/05/25 19:24:17 argiro Exp $
 #
 from Validation.EcalClusters.VerificationCommonParameters_cfi import *
 egammaBasicClusterAnalyzer = cms.EDAnalyzer("EgammaBasicClusters",

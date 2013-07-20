@@ -4,8 +4,8 @@
 /*
  * \file EBOccupancyClient.h
  *
- * $Date: 2009/10/28 08:18:21 $
- * $Revision: 1.19 $
+ * $Date: 2010/01/25 21:12:23 $
+ * $Revision: 1.20 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *

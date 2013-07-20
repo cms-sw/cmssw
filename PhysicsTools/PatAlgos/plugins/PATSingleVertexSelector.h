@@ -1,7 +1,7 @@
 #ifndef PhysicsTools_PatAlgos_PATSingleVertexSelector_h
 #define PhysicsTools_PatAlgos_PATSingleVertexSelector_h
 //
-// $Id: PATSingleVertexSelector.h,v 1.5 2011/06/15 11:47:25 friis Exp $
+// $Id: PATSingleVertexSelector.h,v 1.6 2013/02/27 23:26:56 wmtan Exp $
 //
 
 /**
@@ -10,7 +10,7 @@
 
 
   \author   Giovanni Petrucciani
-  \version  $Id: PATSingleVertexSelector.h,v 1.5 2011/06/15 11:47:25 friis Exp $
+  \version  $Id: PATSingleVertexSelector.h,v 1.6 2013/02/27 23:26:56 wmtan Exp $
 */
 
 #include "FWCore/Framework/interface/EDFilter.h"

@@ -7,8 +7,8 @@
  *
  *  Implementation of QTestConfigurationParser
  *
- *  $Date: 2011/06/16 03:07:28 $
- *  $Revision: 1.6 $
+ *  $Date: 2013/04/01 09:47:14 $
+ *  $Revision: 1.7 $
  *  \author Ilaria Segoni
  */
 using namespace xercesc;

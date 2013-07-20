@@ -1,8 +1,8 @@
 /** \class MuonDTDigis
  *  Analyse the the muon-drift-tubes digitizer. 
  *  
- *  $Date: 2009/06/15 11:49:19 $
- *  $Revision: 1.9 $
+ *  $Date: 2012/01/02 16:29:21 $
+ *  $Revision: 1.10 $
  *  \authors: R. Bellan
  */
 

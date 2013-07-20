@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-# $Id: multi5x5PreshowerClusterShape_cfi.py,v 1.1 2008/05/22 11:13:25 hegner Exp $
+# $Id: multi5x5PreshowerClusterShape_cfi.py,v 1.2 2011/06/08 13:05:15 argiro Exp $
 # Preshower cluster producer
 multi5x5PreshowerClusterShape = cms.EDProducer("PreshowerClusterShapeProducer",
     preshStripEnergyCut = cms.double(0.0),

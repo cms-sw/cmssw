@@ -2,7 +2,7 @@
  *
  * \author Luca Lista, INFN
  *
- * $Id: DoubleProducer.cc,v 1.1 2009/03/03 13:07:29 llista Exp $
+ * $Id: DoubleProducer.cc,v 1.2 2013/02/28 00:37:01 wmtan Exp $
  *
  */
 

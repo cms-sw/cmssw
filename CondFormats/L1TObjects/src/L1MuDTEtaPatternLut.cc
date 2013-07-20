@@ -5,8 +5,8 @@
 //   Description: Look-up table for eta track finder
 //
 //
-//   $Date: 2007/03/30 07:48:02 $
-//   $Revision: 1.1 $
+//   $Date: 2008/02/25 15:26:57 $
+//   $Revision: 1.2 $
 //
 //   Author :
 //   N. Neumeister            CERN EP

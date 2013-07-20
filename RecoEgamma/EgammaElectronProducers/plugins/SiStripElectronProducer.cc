@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Fri May 26 16:11:30 EDT 2006
-// $Id: SiStripElectronProducer.cc,v 1.3 2013/01/02 18:59:45 dlange Exp $
+// $Id: SiStripElectronProducer.cc,v 1.4 2013/01/14 21:33:02 dlange Exp $
 //
 
 // system include files

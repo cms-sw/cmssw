@@ -13,7 +13,7 @@
 //
 // Original Author:  Jie Chen
 //         Created:  Thu Apr 29 16:32:10 CDT 2010
-// $Id: HSCPFilter.cc,v 1.4 2011/05/10 22:07:21 jiechen Exp $
+// $Id: HSCPFilter.cc,v 1.5 2013/02/27 22:47:59 wmtan Exp $
 //
 //
 

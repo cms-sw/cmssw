@@ -5,7 +5,7 @@
  *
  * \author Steven Lowette
  *
- * $Id: ChargedCandidateProducer.cc,v 1.1 2009/11/17 12:01:31 lowette Exp $
+ * $Id: ChargedCandidateProducer.cc,v 1.2 2009/11/18 09:12:49 hegner Exp $
  *
  */
 

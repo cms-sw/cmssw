@@ -5,8 +5,8 @@
  *  Description: Class to convert data types from/to DB types
  *
  *
- *  $Date: 2007/11/24 12:29:51 $
- *  $Revision: 1.1.2.1 $
+ *  $Date: 2007/12/07 15:12:16 $
+ *  $Revision: 1.2 $
  *  \author Paolo Ronchese INFN Padova
  *
  */

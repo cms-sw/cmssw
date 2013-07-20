@@ -4,8 +4,8 @@
 /** \class MuRingForwardDoubleLayer
  *  A plane composed two layers of disks. Represents forward muon CSC stations.
  *
- *  $Date: 2007/06/14 23:41:07 $
- *  $Revision: 1.1 $
+ *  $Date: 2007/12/19 09:48:34 $
+ *  $Revision: 1.2 $
  *  \author R. Wilkinson
  *
  */

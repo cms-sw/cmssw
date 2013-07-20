@@ -3,7 +3,7 @@
    
 
    \author Stefano Argiro
-   \version $Id$
+   \version $Id: EcalSeverityLevel.h,v 1.1 2011/04/11 14:51:51 argiro Exp $
    \date 11 Apr 2011
 */
 

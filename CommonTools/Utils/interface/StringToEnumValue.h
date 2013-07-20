@@ -17,7 +17,7 @@
    </code>
 
    \author Stefano Argiro
-   \version $Id: StringToEnumValue.h,v 1.5 2012/08/28 22:28:38 wmtan Exp $
+   \version $Id: StringToEnumValue.h,v 1.6 2013/01/25 23:27:41 wmtan Exp $
    \date 04 Mar 2011
 */
 

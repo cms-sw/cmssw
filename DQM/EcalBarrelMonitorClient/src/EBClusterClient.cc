@@ -1,8 +1,8 @@
 /*
  * \file EBClusterClient.cc
  *
- * $Date: 2011/09/02 13:55:01 $
- * $Revision: 1.77 $
+ * $Date: 2012/04/27 13:45:58 $
+ * $Revision: 1.80 $
  * \author G. Della Ricca
  * \author F. Cossutti
  * \author E. Di Marco

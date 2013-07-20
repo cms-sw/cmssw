@@ -16,7 +16,7 @@
 //
 // Original Author:  Piotr Traczyk, CERN
 //         Created:  Mon Mar 16 12:27:22 CET 2009
-// $Id: MuonTimingFiller.h,v 1.7 2011/02/24 15:41:53 farrell3 Exp $
+// $Id: MuonTimingFiller.h,v 1.8 2013/05/28 16:31:01 gartung Exp $
 //
 //
 

@@ -4,8 +4,8 @@
 /** \class SiStripAnalyser
  * *
  *  SiStrip SiStripAnalyser
- *  $Date: 2011/05/03 06:55:39 $
- *  $Revision: 1.1 $
+ *  $Date: 2012/10/15 09:10:40 $
+ *  $Revision: 1.33 $
  *  \author  S. Dutta INFN-Pisa
  *   
  */

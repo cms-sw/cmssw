@@ -8,7 +8,7 @@
 //
 // Original Author:  Gena Kukartsev, kukarzev@fnal.gov
 //         Created:  Tue Mar 18 14:30:20 CDT 2008
-// $Id: LutXml.cc,v 1.6 2010/08/06 20:24:03 wmtan Exp $
+// $Id: LutXml.cc,v 1.7 2013/04/19 22:21:02 wmtan Exp $
 //
 
 #include <iostream>

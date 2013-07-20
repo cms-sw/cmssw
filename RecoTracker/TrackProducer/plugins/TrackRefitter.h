@@ -4,8 +4,8 @@
 /** \class TrackRefitter
  *  Refit Tracks: Produce Tracks from TrackCollection. It performs a new final fit on a TrackCollection.
  *
- *  $Date: 2011/08/01 09:37:29 $
- *  $Revision: 1.4 $
+ *  $Date: 2013/02/27 13:28:56 $
+ *  $Revision: 1.5 $
  *  \author cerati
  */
 

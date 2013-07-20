@@ -8,7 +8,7 @@
 
 /** \class CastorCtdcPacker
   *  
-  * $Date: 2008/06/19 09:03:17 $
+  * $Date: 2009/02/20 17:46:27 $
   * $Revision: 1.1 $
   * \author A. Campbell - DESY
   */

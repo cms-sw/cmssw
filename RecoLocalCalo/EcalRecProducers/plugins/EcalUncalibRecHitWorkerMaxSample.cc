@@ -1,9 +1,9 @@
 /** \class EcalMaxSampleUncalibRecHitProducer
  *   produce ECAL uncalibrated rechits from dataframes 
  *
- *  $Id: EcalMaxSampleUncalibRecHitProducer.cc,v 1.2 2007/12/21 15:35:40 ferriff Exp $
- *  $Date: 2007/12/21 15:35:40 $
- *  $Revision: 1.2 $
+ *  $Id: EcalUncalibRecHitWorkerMaxSample.cc,v 1.1 2008/12/10 01:52:42 ferriff Exp $
+ *  $Date: 2008/12/10 01:52:42 $
+ *  $Revision: 1.1 $
  *  \author G. Franzoni, E. Di Marco
  *
  */

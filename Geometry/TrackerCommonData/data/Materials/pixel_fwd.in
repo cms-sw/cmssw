@@ -1,0 +1,234 @@
+PIXEL forward detector
+============
+
+ @version October 17, 2007
+ @created Vesna Cuplov (2006)
+ @modified Vesna Cuplov (2007)
+  - Forward pixel Disks and Service cylinder mixtures definitions.
+  - All mixtures for FPix disks were updated in october 2007.
+    (added capacitors, resistors, solders  in the HDI and VHDI mixtures..... )
+  - Mixtures for Service cylinder were fully implemented in october 2007.
+ @modified Vesna Cuplov (2008)
+  New Aluminium density for the Outer Ring volume in order to take into account
+  the non-implemented holes in the Outer Ring. We used the real volume (this volume takes 
+  into account the holes in the ring) of the outer ring calculated by G. Derylo. 
+  The inner ring material was not implemented with the mixture program because 
+  this ring was modified (more holes in it) in order to remove more material. So, to
+  implement the new aluminium density to be used in the simulation, we used the  
+  inner ring mass value from the lab measurements and computed the denisty needed 
+  to reproduce this mass with a simulated inner ring volume without implemented holes. 
+
+.....................................................................................
+.....................................................................................
+
+Input file for mixture.f
+Start new mixtures with a '#' in the first column
+Start the components with a '*' in the first column
+You can type any kind of comment in as long as you don't start it
+with '#' or '*' !
+.....................................................................
+For mixture declaration: Name of Mixture, Name of GMIX for title file, 
+                         Monte Carlo Volume, MC Area
+For items in a compound: Item number, Comment, Material (has to be 
+                 written exactly as in material.input file), 
+                 Volume, Multiplicity, Type
+      Type is one of the following:  SUP for support
+                                     SEN for sensitive volumes
+                                     CAB for cables
+                                     COL for cooling
+                                     ELE for electronics
+..................................................................... 
+
+
+1) BumpBonds+Air layer per ROC area
+   ============================================
+ROC dimensions: Length=0.994cm, Width=0.801cm and Thickness=0.0190cm
+
+An average of 4160 Bump Bonds (63% Tin and 37% Lead) per ROC
+Bump Bond size: Length= 0.003cm, Width=0.003cm and Thickness=0.0025cm
+Volume will be approximatively: V = 0.0000000225 cm^3 
+
+The bump bond is made of a material named Bump_Bond. 
+.....................................................................
+# "Pixel Forward BumpBond layer per ROC" "Pix_Fwd_Bump" 0.00199  1
+* 1 "Bump Bonds" "FPix_TinLeadSolder" 0.0000936 1 ELE
+
+
+2) VHDI
+   ================================
+The total area of VHDI on a blade is 60.5326 cm2 
+We have one layer of Kapton on 60.5326 cm2 area and thickness of 0.009cm
+We have Copper only 60% of the volume made by 60.5326 cm2 area and thickness of 0.004cm
+
+So the Kapton Volume is 0.5448 cm3 and the Copper Volume is 0.1453 cm3.
+
+The total volume of VHDI on a blade is 60.5326 cm2 * 0.009 + 60% * 60.5326* 0.004 = 0.6901 cm3
+
+There are 135 capacitors made of Marium_Titanate. (L=1mm, W=0.5mm and Thickness=0.25mm)
+There are Solders made of Tin/Lead in proportion of 63/37: Total volume of Solder is: 0.0054 cm3
+
+.....................................................................
+# "Pixel Forward VHDI" "Pix_Fwd_VHDI"  0.7124  60.5326
+* 1 "VHDI: Kapton" "FPix_Kapton" 0.5448 1 ELE
+* 2 "VHDI: Copper" "Copper" 0.1453 1 ELE
+* 3 "Capacitors" "Barium_Titanate" 0.000125 135 ELE
+* 4 "Solders" "FPix_TinLeadSolder" 0.0054 1 ELE
+
+
+
+3) AgEpoxy (also called ChoTherm1680)
+   ============================================
+
+There are 2 places where we put this material: Between VHDI and ROC and Between Plaquette and HDI prom panel. 
+The last bottom layer of a plaquette is made of AgEpoxy and will then be touching the HDI layer of a panel.
+
+Greg Derylo called this ChoTherm (the XML file call this Pix_Fwd_AgEpoxy. 
+
+Description of the layer between VHDI and ROC : Acrylic (Epoxy assumed) V = 0.0895 cm3
+                                                BN powder V = 0.0895 cm3
+                                                (Boron Nitride powder ~ ceramic)
+                                                Silicone  V = 0.3579 cm3
+                                                Polyimide  V = 0.0895 cm3
+.....................................................................
+# "Pixel Forward AgEpoxy VHDI-ROC" "Pix_Fwd_AgEpoxy"  0.6264  1
+* 1 "Acrylic is epoxy" "FPix_Epoxy" 0.0895 1 SUP
+* 2 "BN powder" "FPix_BNPowder" 0.0895 1 SUP
+* 3 "Silicone" "FPix_Silicone" 0.3579 1 SUP
+* 4 "Polyimide is kapton" "FPix_Kapton" 0.0895 1 ELE
+
+
+4) Adhesive Film: 3M 9882 tape 
+   ==========================
+This tape is made of Acrylic (Epoxy assumed) V = 0.2421cm3 and Ceramic (BN powder) V = 0.0605 cm3
+.....................................................................
+# "Pixel Forward AdhFilm 3M 9882" "Pix_Fwd_AdhFilm"  0.3026  1
+* 1 "Acrylic is epoxy" "FPix_Epoxy" 0.2421 1 SUP
+* 2 "Ceramic" "FPix_BNPowder" 0.0605 1  SUP
+
+
+5) HDI + other components per blade
+   ===============================
+HDI on a BLADE (2 panels) is made of: Kapton (0.4278 * 2 cm3), an internal flex adhesive(~epoxy) (0.2139 * 2 cm3), Copper (0.0675 * 2 cm3).
+There are 8 capacitors made of BaTiO3: V = 0.0019 cm3
+There are 9 resistors made of Alumina: V = 0.0022 cm3
+There are Solders made of Tin/Lead in proportion of 63/37: Total volume of Solder is: 0.0085 cm3
+We also have Bias and Ground Wires: Copper V = 0.0362 cm3
+                                    Kapton V = 0.1087 cm3
+                                    Solder Tin/Lead (63/37) V = 0.012 cm3
+                                    Epoxy V = 0.030 cm3
+                                    Indium solders In/Sn (52/48) V = 0.006 cm3 
+
+.....................................................................
+# "Pixel Forward HDI" "Pix_Fwd_HDI" 1.6232   1
+* 1 "Kapton" "FPix_Kapton" 0.8556 1 ELE
+* 2 "Internal flex adhesive is like epoxy" "FPix_Epoxy" 0.4278 1 SUP
+* 3 "Copper" "Copper" 0.1349 1 ELE
+* 4 "Capacitors" "Barium_Titanate" 0.0019 1 ELE
+* 5 "Resistors" "FPix_Alumina" 0.0022 1 ELE
+* 6 "Solders"  "FPix_TinLeadSolder" 0.0085 1 ELE
+* 7 "Copper" "Copper" 0.0362 1 ELE
+* 8 "Kapton" "FPix_Kapton" 0.1087 1 ELE
+* 9 "Solders"  "FPix_TinLeadSolder" 0.012 1 ELE
+* 10 "Epoxy" "FPix_Epoxy" 0.030 1 SUP
+* 11 "Solders Indium" "Indium" 0.006 1 ELE
+
+
+6) Aluminium for inner ring (NO EDGES)
+   ===================================
+   We want a new aluminium density that is used for the inner Ring in order to take
+   into account the holes that are not implemented in the simulation.
+   18.78 cm3 is the volume of an inner-ring without holes as it is in the simulation.
+   G. Derylo calulated the inner-ring REAL volume (there are many holes in the ring):
+   13.944 cm3 - 0.624 cm3 (2 x 0.312cm3 = 2 x one inner edge volume)
+   G. Derylo used docDB 506 to get inner and outer ring drawing numbers and then pulled 
+   the 3D part models out of the library and used the CAD software to calculate the 
+   volumes.
+
+# "Aluminium for inner ring" "Aluminium_InnerRing"  18.78  1
+* 1 "Aluminium" "Aluminium"  13.32 1 SUP
+
+
+7) Aluminium for outer ring (NO EDGES)
+   ===================================
+   We want a new aluminium density that is used for the outer Ring in order to take
+   into account the holes in the outer ring that are not implemented in the
+   simulation.
+   58.572 cm3 is the volume of an outer-ring without holes as it is in the simulation.
+   G. Derylo calulated the outer-ring REAL volume (there are many holes in the ring):
+   41.446 cm3 - 2 cm3 (2 x 1cm3 = 2 x one outer edge volume )
+
+# "Aluminium for outer ring" "Aluminium_OuterRing"  58.572  1
+* 1 "Aluminium" "Aluminium"  39.446 1 SUP
+
+
+SERVICE CYLINDER MATERIAL (V. Cuplov)
+=============================================
+The following description has been done by B. Gobbi and E. Spencer.
+See FPix DOC DB: 1628-v2
+https://docdb.fnal.gov/CMS-private/DocDB/DocumentDatabase 
+
+# "Volume 1 " "Pix_Fwd_Servi_Cylind" 8957 1
+* 1 "Carbon Fiber" "FPix_Cylind_CF" 1162 1 SUP
+* 2 "G10" "FPix_Cylind_G10" 26 1 CAB
+* 3 "Aluminium" "Aluminium" 6 1 SUP
+* 4 "Ceramic" "Ceramic" 1 1 SUP
+
+# "Volume 2 " "Pix_Fwd_End_Flange" 412 1
+* 1 "Aluminium for End Flange" "Aluminium" 187 1 SUP
+* 2 "Aluminium for cooling lines" "Aluminium" 4 1 COL
+* 3 "SnCu" "FPix_Cylind_SnCu" 11 1 CAB
+* 4 "Poliax" "FPix_Cylind_POLIAX" 35 1 CAB
+* 5 "C6F14" "FPix_Cylind_C6F14" 16 1 COL
+
+# "Volume 3 " "Pix_Fwd_End_Electro_1" 1139 1
+* 1 "SnCu" "FPix_Cylind_SnCu" 13 1 CAB
+* 2 "G10" "FPix_Cylind_G10" 65 1 CAB
+* 3 "Poliax" "FPix_Cylind_POLIAX" 39 1 CAB
+* 4 "Carbon Fiber" "FPix_Cylind_CF" 23 1 SUP
+* 5 "Copper" "Copper" 2 1 ELE
+* 6 "Polyester" "FPix_Cylind_Polyester" 5 1 CAB
+
+# "Volume 4 " "Pix_Fwd_End_Electro_2" 980 1
+* 1 "SnCu" "FPix_Cylind_SnCu" 11 1 CAB
+* 2 "G10" "FPix_Cylind_G10" 54 1 CAB
+* 3 "Poliax" "FPix_Cylind_POLIAX" 31 1 CAB
+* 4 "Carbon Fiber" "FPix_Cylind_CF" 19 1 SUP
+* 5 "Copper" "Copper" 1 1 ELE
+* 6 "Polyester" "FPix_Cylind_Polyester" 4 1 CAB
+
+# "Volume 5 " "Pix_Fwd_End_Coil_Fiber" 2833 1
+* 1 "Polyester" "FPix_Cylind_Polyester" 225 1 CAB
+* 2 "Poliax" "FPix_Cylind_POLIAX" 122 1 CAB
+* 3 "G10" "FPix_Cylind_G10" 33 1 SUP
+* 4 "Noryl" "FPix_Cylind_Noryl" 26 1 SUP
+* 5 "PMMA" "FPix_Cylind_PMMA" 10 1 CAB
+
+# "Volume 6 " "Pix_Fwd_Port_Cards" 332 1
+* 1 "G10" "FPix_Cylind_G10" 103 1 ELE
+* 2 "Copper" "Copper" 11 1 ELE
+* 3 "Polyimide (extension cable)" "FPix_Kapton" 33 1 CAB
+* 4 "Port card/ CCU connectors" "FPix_Cylind_Polyester" 12 1 CAB
+* 5 "Solder" "FPix_TinLeadSolder" 1 1 ELE
+* 6 "Resistors" "FPix_Alumina" 2 1 ELE
+* 7 "Capacitors" "Barium_Titanate" 1 1 ELE
+* 8 "Chips" "Silicon" 1 1 ELE
+* 9 "OH parts (mostly G10)" "FPix_Cylind_G10" 27 1 ELE
+
+# "Volume 7: FRONT " "Pix_Fwd_End_Pipe_1"  477 1
+* 1 "SnCu" "FPix_Cylind_SnCu" 74 1 CAB
+* 2 "C6F14" "FPix_Cylind_C6F14" 214 1 COL
+* 3 "Aluminium (cooling tube)" "Aluminium" 81 1 COL
+* 4 "Poliax" "FPix_Cylind_POLIAX" 88 1 CAB 
+
+# "Volume 8: BACK " "Pix_Fwd_End_Pipe_2"  396 1
+* 1 "SnCu" "FPix_Cylind_SnCu" 66 1 CAB
+* 2 "C6F14" "FPix_Cylind_C6F14" 170 1 COL
+* 3 "Aluminium (cooling tube)" "Aluminium" 82 1 COL
+* 4 "Poliax" "FPix_Cylind_POLIAX" 78 1 CAB 
+
+# "END"  "END"  0.  0.   
+this has to be the last line !
+
+
+
+

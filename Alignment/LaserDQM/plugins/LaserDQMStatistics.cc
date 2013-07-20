@@ -1,8 +1,8 @@
 /** \file LaserDQMStatistics.cc
  *  Fill the DQM Monitors
  *
- *  $Date: 2012/12/26 20:38:59 $
- *  $Revision: 1.6 $
+ *  $Date: 2013/01/03 23:50:05 $
+ *  $Revision: 1.7 $
  *  \author Maarten Thomas
  */
 

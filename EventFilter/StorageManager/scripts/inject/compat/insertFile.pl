@@ -1,5 +1,5 @@
 #!/usr/bin/env perl
-# $Id: insertFile.pl,v 1.3 2008/05/19 11:11:55 loizides Exp $
+# $Id: insertFile.pl,v 1.4 2008/05/20 08:59:06 loizides Exp $
 ################################################################################
 
 use strict;

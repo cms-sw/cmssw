@@ -1,5 +1,5 @@
 // -*- C++ -*-
-// $Id: T_EventSetup_HcalQIEShape.cc,v 1.1 2005/10/20 05:47:37 fedor Exp $
+// $Id: T_EventSetup_HcalQIEShape.cc,v 1.2 2010/02/20 20:57:28 wmtan Exp $
 
 #include "CondFormats/HcalObjects/interface/HcalQIEShape.h"
 #include "FWCore/Utilities/interface/typelookup.h"

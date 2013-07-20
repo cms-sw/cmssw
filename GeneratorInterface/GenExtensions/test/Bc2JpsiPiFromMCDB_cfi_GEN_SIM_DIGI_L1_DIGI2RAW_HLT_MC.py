@@ -27,7 +27,7 @@ process.load('Configuration/EventContent/EventContent_cff')
 process.MessageLogger.cerr.threshold = 'INFO'
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.2 $'),
+    version = cms.untracked.string('$Revision: 1.3 $'),
     annotation = cms.untracked.string('Bc2JpsiPiFromMCDB_cfi nevts:10'),
     name = cms.untracked.string('PyReleaseValidation')
 )

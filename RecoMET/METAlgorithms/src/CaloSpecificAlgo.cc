@@ -5,7 +5,7 @@
 // 
 // Original Author:  R. Cavanaugh (taken from F.Ratnikov, UMd)
 //         Created:  June 6, 2006
-// $Id: CaloSpecificAlgo.cc,v 1.31 2012/06/09 01:20:48 sakuma Exp $
+// $Id: CaloSpecificAlgo.cc,v 1.32 2012/06/09 21:19:30 sakuma Exp $
 //
 //
 #include "RecoMET/METAlgorithms/interface/CaloSpecificAlgo.h"

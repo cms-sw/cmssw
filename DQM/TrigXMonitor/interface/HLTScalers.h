@@ -1,12 +1,15 @@
 // -*-c++-*-
 // 
 //
-// $Id: HLTScalers.h,v 1.19 2011/03/29 09:46:03 rekovic Exp $
+// $Id: HLTScalers.h,v 1.20 2011/03/30 21:35:40 fwyzard Exp $
 // Class to collect HLT scaler information 
 // for Trigger Cross Section Monitor
 // [wittich 11/07] 
 
 // $Log: HLTScalers.h,v $
+// Revision 1.20  2011/03/30 21:35:40  fwyzard
+// make sure all members are initialized
+//
 // Revision 1.19  2011/03/29 09:46:03  rekovic
 // clean vector pairPDPaths in beginRun and tidy up
 //

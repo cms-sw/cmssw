@@ -16,7 +16,7 @@
 //
 // Original Author:  Alja Mrak-Tadel 
 //         Created:  Tue Sep 14 13:28:39 CEST 2010
-// $Id: FWViewGeometryList.h,v 1.3 2010/09/17 16:18:55 amraktad Exp $
+// $Id: FWViewGeometryList.h,v 1.4 2010/09/28 11:39:50 amraktad Exp $
 //
 
 #include "sigc++/connection.h"

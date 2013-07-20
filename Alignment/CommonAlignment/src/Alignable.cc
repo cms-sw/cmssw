@@ -1,7 +1,7 @@
 /** \file Alignable.cc
  *
- *  $Date: 2012/12/11 19:11:02 $
- *  $Revision: 1.23 $
+ *  $Date: 2013/05/08 10:25:43 $
+ *  $Revision: 1.25 $
  *  (last update by $Author: flucke $)
  */
 

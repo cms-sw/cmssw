@@ -5,8 +5,8 @@
  *  A Kalman Updator that uses a KFUpdator for pixel and matched hits,
  *  and a KFStrip1DUpdator for simple strip hits. Ported from ORCA.
  *
- *  $Date: 2010/08/16 12:22:16 $
- *  $Revision: 1.5 $
+ *  $Date: 2013/01/10 11:55:10 $
+ *  $Revision: 1.6 $
  *  \author todorov, cerati
  */
 

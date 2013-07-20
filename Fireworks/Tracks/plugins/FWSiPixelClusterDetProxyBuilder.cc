@@ -6,7 +6,7 @@
 //
 // Original Author:
 //         Created:  Thu Dec  6 18:01:21 PST 2007
-// $Id: FWSiPixelClusterDetProxyBuilder.cc,v 1.4 2010/08/31 15:30:21 yana Exp $
+// $Id: FWSiPixelClusterDetProxyBuilder.cc,v 1.5 2010/09/07 15:46:48 yana Exp $
 //
 
 #include "TEveGeoNode.h"

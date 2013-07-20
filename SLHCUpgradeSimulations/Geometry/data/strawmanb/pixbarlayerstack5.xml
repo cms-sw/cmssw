@@ -1,0 +1,37 @@
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
+
+<ConstantsSection label="pixbarlayerstack5.xml" eval="true">
+ <Constant name="Ladders"           value="[pixbar:LaddersStack5]"/>
+ <Constant name="ModuleRadius"      value="[pixbar:RadiusStack5]"/>
+ <Constant name="LayerDz"           value="[pixbar:LayerDzStack5]"/>
+ <Constant name="PhiOffset"         value="[pixbar:PhiOffsetStack5]"/>
+ <Constant name="Layout"            value="[pixbar:LayoutStack5]"/>     
+ <Constant name="CoolDz"            value="[pixbar:LayerDzStack5]"/>
+ <Constant name="CoolSide"          value="[pixbarladderstack5:LadderWidth]/2-[pixbarladderstack5:HybridWidth]/2-[pixbarladderstack5:HybridOffset]"/>
+ <Constant name="CoolThick"         value="0.05*mm"/>
+ <Constant name="CoolWidth"         value="[pixbarladderstack5:ModuleThick]*2"/>
+</ConstantsSection>
+
+<Algorithm name="track:DDPixBarStackLayerAlgo">
+  <rParent name="pixbarlayerstack5:PixelBarrelLayerStack5"/>
+  <String name="VolumeMaterial"    value="materials:Air"/>
+  <Numeric name="Ladders"          value="[pixbarlayerstack5:Ladders]"/>
+  <Numeric name="LayerDz"          value="[pixbarlayerstack5:LayerDz]"/>
+  <Numeric name="SensorEdge"       value="[pixbarladderstack5:SensorEdge]"/>
+  <Numeric name="CoolDz"           value="[pixbarlayerstack5:CoolDz]"/>
+  <Numeric name="CoolWidth"        value="[pixbarlayerstack5:CoolWidth]"/>
+  <Numeric name="CoolSide"         value="[pixbarlayerstack5:CoolSide]"/>
+  <Numeric name="CoolThick"        value="[pixbarlayerstack5:CoolThick]"/>
+  <Numeric name="ModuleRadius"     value="[pixbarlayerstack5:ModuleRadius]"/>
+  <String name="CoolMaterial"      value="pixbarmaterial:Pix_Bar_Cool"/>
+  <String name="CoolTubeMaterial"  value="materials:Aluminium"/>
+  <String name="LadderNameUp"      value="pixbarladderstack5:PixelBarrelLadderUpStack5"/>
+  <String name="LadderNameDown"    value="pixbarladderstack5:PixelBarrelLadderDownStack5"/>
+  <Numeric name="LadderWidth"      value="[pixbarladderstack5:LadderWidth]"/>
+  <Numeric name="LadderThick"      value="[pixbarladderstack5:LadderThick]"/>
+  <Numeric name="ModuleOffset"     value="[pixbarlayerstack5:PhiOffset]"/>
+  <Numeric name="LayoutType"       value="[pixbarlayerstack5:Layout]"/>
+</Algorithm>
+
+</DDDefinition>

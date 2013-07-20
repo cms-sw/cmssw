@@ -1,5 +1,5 @@
 // Original author: A. Ulyanov
-// $Id: CMSIterativeConeAlgorithm.cc,v 1.14 2008/02/29 01:02:30 fedor Exp $
+// $Id: CMSIterativeConeAlgorithm.cc,v 1.1 2009/08/24 14:35:59 srappocc Exp $
 
 #include "RecoParticleFlow/PFRootEvent/interface/CMSIterativeConeAlgorithm.h"
 

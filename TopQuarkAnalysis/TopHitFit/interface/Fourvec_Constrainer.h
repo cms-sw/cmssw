@@ -1,5 +1,5 @@
 //
-// $Id: Fourvec_Constrainer.h,v 1.6 2011/04/29 15:04:48 haryo Exp $
+// $Id: Fourvec_Constrainer.h,v 1.1 2011/05/26 09:46:53 mseidel Exp $
 //
 // File: hitfit/Fourvec_Constrainer.h
 // Purpose: Do a kinematic fit for a set of 4-vectors, given a set

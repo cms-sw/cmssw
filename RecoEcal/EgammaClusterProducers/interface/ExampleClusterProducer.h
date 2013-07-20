@@ -3,9 +3,9 @@
 /** \class ExampleClusterProducer
  **   example of producer for BasicCluster from recHits
  **
- **  $Id: $
- **  $Date: $
- **  $Revision:  $
+ **  $Id: ExampleClusterProducer.h,v 1.1 2006/04/13 14:40:05 rahatlou Exp $
+ **  $Date: 2006/04/13 14:40:05 $
+ **  $Revision: 1.1 $
  **  \author Shahram Rahatlou, University of Rome & INFN, April 2006
  **
  ***/

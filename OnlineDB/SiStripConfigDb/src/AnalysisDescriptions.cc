@@ -1,6 +1,6 @@
-// Last commit: $Id: AnalysisDescriptions.cc,v 1.12 2008/06/06 14:48:53 bainbrid Exp $
-// Latest tag:  $Name: V05-00-04 $
-// Location:    $Source: /cvs_server/repositories/CMSSW/CMSSW/OnlineDB/SiStripConfigDb/src/AnalysisDescriptions.cc,v $
+// Last commit: $Id: AnalysisDescriptions.cc,v 1.13 2009/04/06 16:57:28 lowette Exp $
+// Latest tag:  $Name: CMSSW_6_2_0 $
+// Location:    $Source: /local/reps/CMSSW/CMSSW/OnlineDB/SiStripConfigDb/src/AnalysisDescriptions.cc,v $
 
 #include "OnlineDB/SiStripConfigDb/interface/SiStripConfigDb.h"
 #include "DataFormats/SiStripCommon/interface/SiStripEnumsAndStrings.h"

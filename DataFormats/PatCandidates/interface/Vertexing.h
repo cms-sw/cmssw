@@ -19,7 +19,7 @@
   The original proposal is at https://hypernews.cern.ch/HyperNews/CMS/get/physTools/587.html 
 
   \author   Giovanni Petrucciani
-  \version  $Id: VertexAssociation.h,v 1.23 2008/07/21 11:10:51 gpetrucc Exp $
+  \version  $Id: Vertexing.h,v 1.1 2008/07/22 12:44:19 gpetrucc Exp $
 */
 
 

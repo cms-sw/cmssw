@@ -8,8 +8,8 @@
  *
  * \file DCCEETCCBlock.h
  *
- * $Date: 2009/01/08 12:05:56 $
- * $Revision: 1.3 $
+ * $Date: 2010/09/15 21:51:33 $
+ * $Revision: 1.4 $
  *
  * \author N. Almeida
  *

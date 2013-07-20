@@ -9,8 +9,8 @@
  *  inside() is implemented by checking that the given point is on the 
  *  correct side of each of the surfaces sides.
  *
- *  $Date: 2009/01/16 16:48:38 $
- *  $Revision: 1.5 $
+ *  $Date: 2013/05/03 20:03:24 $
+ *  $Revision: 1.6 $
  *  \author T. Todorov, N. Amapane
  */
 

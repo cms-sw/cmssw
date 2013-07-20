@@ -4,8 +4,8 @@
 /*
  * \file DTNoiseComputation.h
  *
- * $Date: 2008/02/06 10:31:21 $
- * $Revision: 1.3 $
+ * $Date: 2010/01/19 09:51:31 $
+ * $Revision: 1.4 $
  * \author G. Mila - INFN Torino
  *
 */

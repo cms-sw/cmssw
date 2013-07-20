@@ -1,4 +1,4 @@
-// $Id: I2OChain.h,v 1.15 2011/08/31 20:11:59 wmtan Exp $
+// $Id: I2OChain.h,v 1.16 2012/04/20 10:48:18 mommsen Exp $
 /// @file: I2OChain.h 
 
 #ifndef EventFilter_StorageManager_I2OChain_h
@@ -28,9 +28,9 @@ namespace stor {
    * assures that the corresponding release methods are called when 
    * the last instance of I2OChain goes out of scope.
    *
-   * $Author: wmtan $
-   * $Revision: 1.15 $
-   * $Date: 2011/08/31 20:11:59 $
+   * $Author: mommsen $
+   * $Revision: 1.16 $
+   * $Date: 2012/04/20 10:48:18 $
    */
 
 

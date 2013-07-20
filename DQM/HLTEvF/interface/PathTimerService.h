@@ -7,7 +7,7 @@
 // 
 //
 // Original Author:  David Lange
-// $Id: PathTimerService.h,v 1.6 2007/09/14 17:33:32 bdahmes Exp $
+// $Id: PathTimerService.h,v 1.7 2013/06/11 10:29:54 fwyzard Exp $
 //
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"

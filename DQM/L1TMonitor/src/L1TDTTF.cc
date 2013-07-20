@@ -1,11 +1,14 @@
 /*
  * \file L1TDTTF.cc
  *
- * $Date: 2010/11/02 13:58:20 $
- * $Revision: 1.28 $
+ * $Date: 2013/05/22 17:25:02 $
+ * $Revision: 1.29 $
  * \author J. Berryhill
  *
  * $Log: L1TDTTF.cc,v $
+ * Revision 1.29  2013/05/22 17:25:02  deguio
+ * removing the use of catch(...)
+ *
  * Revision 1.28  2010/11/02 13:58:20  gcodispo
  * Added protection against missing products
  *
@@ -75,6 +78,9 @@
  * DQM core migration.
  *
  * $Log: L1TDTTF.cc,v $
+ * Revision 1.29  2013/05/22 17:25:02  deguio
+ * removing the use of catch(...)
+ *
  * Revision 1.28  2010/11/02 13:58:20  gcodispo
  * Added protection against missing products
  *

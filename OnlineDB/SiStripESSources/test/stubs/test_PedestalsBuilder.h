@@ -1,5 +1,5 @@
-// Last commit: $Id: test_PedestalsBuilder.h,v 1.4 2010/01/08 10:19:55 alinn Exp $
-// Latest tag:  $Name: V05-01-05 $
+// Last commit: $Id: test_PedestalsBuilder.h,v 1.5 2013/05/30 21:52:09 gartung Exp $
+// Latest tag:  $Name: CMSSW_6_2_0 $
 // Location:    $Source: /local/reps/CMSSW/CMSSW/OnlineDB/SiStripESSources/test/stubs/test_PedestalsBuilder.h,v $
 
 #ifndef OnlineDB_SiStripESSources_test_PedestalsBuilder_H

@@ -5,8 +5,8 @@
  *
  *  A class to hold a surface with width and length for alignment purposes.
  *
- *  $Date: 2007/04/25 18:37:59 $
- *  $Revision: 1.8 $
+ *  $Date: 2012/12/30 12:18:35 $
+ *  $Revision: 1.9 $
  *  \author Chung Khim Lae
  */
 

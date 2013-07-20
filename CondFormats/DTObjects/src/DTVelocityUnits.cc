@@ -1,7 +1,7 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2006/05/04 06:54:26 $
+ *  $Date: 2008/09/29 13:16:24 $
  *  $Revision: 1.1 $
  *  \author Paolo Ronchese INFN Padova
  *

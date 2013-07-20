@@ -4,8 +4,8 @@
 /** \class DTSegmentsTask
  *  DQM Analysis of 4D DT segments
  *
- *  $Date: 2008/10/06 08:55:14 $
- *  $Revision: 1.1 $
+ *  $Date: 2009/12/22 17:44:52 $
+ *  $Revision: 1.2 $
  *  \author G. Mila - INFN Torino
  */
 

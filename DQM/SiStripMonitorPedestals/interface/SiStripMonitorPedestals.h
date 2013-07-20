@@ -16,7 +16,7 @@
 //
 // Original Author:  gennai, dutta
 //         Created:  Sat Feb  4 20:49:51 CET 2006
-// $Id: SiStripMonitorPedestals.h,v 1.16 2009/11/05 21:08:28 dutta Exp $
+// $Id: SiStripMonitorPedestals.h,v 1.17 2013/01/02 14:17:44 wmtan Exp $
 //
 
 // system include files

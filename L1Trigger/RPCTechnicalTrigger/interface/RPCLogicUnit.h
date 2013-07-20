@@ -1,4 +1,4 @@
-// $Id: RPCLogicUnit.h,v 1.1 2009/01/30 15:42:47 aosorio Exp $
+// $Id: RPCLogicUnit.h,v 1.2 2009/08/09 11:11:36 aosorio Exp $
 #ifndef INTERFACE_RPCLOGICUNIT_H 
 #define INTERFACE_RPCLOGICUNIT_H 1
 

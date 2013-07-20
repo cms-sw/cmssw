@@ -1,8 +1,8 @@
 /*
  * \file EcalEndcapMonitorClient.cc
  *
- * $Date: 2012/09/04 08:01:37 $
- * $Revision: 1.273 $
+ * $Date: 2013/04/02 09:03:29 $
+ * $Revision: 1.274 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *

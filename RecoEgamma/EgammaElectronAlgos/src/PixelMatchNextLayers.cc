@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: PixelMatchNextLayers.cc,v 1.17 2011/04/08 08:54:09 innocent Exp $
+// $Id: PixelMatchNextLayers.cc,v 1.18 2013/01/02 18:59:12 dlange Exp $
 //
 //
 

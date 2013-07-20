@@ -11,9 +11,12 @@ import java.util.ArrayList;
  */
 
 /*
-  $Date: 2007/01/18 17:04:45 $
+  $Date: 2007/03/22 20:46:49 $
   
   $Log: TECAnalyzer.java,v $
+  Revision 1.3  2007/03/22 20:46:49  gbaulieu
+  New numbering of Det ID
+
   Revision 1.2  2007/01/18 17:04:45  gbaulieu
   Use an external library for database connections
   Use preparedStatements to speed up the queries

@@ -20,8 +20,8 @@
 // * statement, and all its terms.                                    *
 // ********************************************************************
 //
-// $Id: SiG4UniversalFluctuation.cc,v 1.8 2011/06/13 07:18:22 innocent Exp $
-// GEANT4 tag $Name:  $
+// $Id: SiG4UniversalFluctuation.cc,v 1.9 2013/04/25 18:17:07 civanch Exp $
+// GEANT4 tag $Name: CMSSW_6_2_0 $
 //
 // -------------------------------------------------------------------
 //

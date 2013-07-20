@@ -12,7 +12,7 @@ Implementation:
 */
 //
 // Original Author:  "Paolo Meridiani CERN CMG"
-// $Id: testEcalClusterSeverityAlgo.cc,v 1.5 2011/01/16 08:39:54 argiro Exp $
+// $Id: testEcalClusterSeverityAlgo.cc,v 1.6 2011/11/12 11:05:33 sani Exp $
 
 
 

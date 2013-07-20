@@ -8,7 +8,7 @@
 //
 // Original Author:  Monica Vazquez Acosta
 //         Created:  Tue Jun 13 12:16:00 CEST 2006
-// $Id: EgammaHLTEcalIsolation.cc,v 1.5 2009/03/27 09:09:38 ghezzi Exp $
+// $Id: EgammaHLTEcalIsolation.cc,v 1.6 2013/05/30 21:48:56 gartung Exp $
 //
 
 // system include files

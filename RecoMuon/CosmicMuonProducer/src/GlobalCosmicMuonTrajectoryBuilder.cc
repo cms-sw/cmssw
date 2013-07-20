@@ -1,8 +1,8 @@
 /**
  *  Class: GlobalCosmicMuonTrajectoryBuilder
  *
- *  $Date: 2009/10/20 04:22:32 $
- *  $Revision: 1.25 $
+ *  $Date: 2011/12/22 20:56:09 $
+ *  $Revision: 1.26 $
  *  \author Chang Liu  -  Purdue University <Chang.Liu@cern.ch>
  *
  **/

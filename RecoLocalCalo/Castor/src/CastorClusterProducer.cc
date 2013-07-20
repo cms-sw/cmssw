@@ -12,7 +12,7 @@
 //
 // Original Author:  Hans Van Haevermaet, Benoit Roland
 //         Created:  Wed Jul  9 14:00:40 CEST 2008
-// $Id: CastorClusterProducer.cc,v 1.9 2010/10/26 04:16:21 wmtan Exp $
+// $Id: CastorClusterProducer.cc,v 1.10 2011/02/24 09:36:46 hvanhaev Exp $
 //
 //
 

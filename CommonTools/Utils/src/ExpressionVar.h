@@ -7,7 +7,7 @@
  * \author original version: Chris Jones, Cornell, 
  *         adapted by Luca Lista, INFN
  *
- * \version $Revision: 1.6 $
+ * \version $Revision: 1.7 $
  *
  */
 #include "CommonTools/Utils/src/ExpressionBase.h"

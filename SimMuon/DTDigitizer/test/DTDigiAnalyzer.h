@@ -4,8 +4,8 @@
 /** \class DTDigiAnalyzer
  *  Analyse the the muon-drift-tubes digitizer. 
  *  
- *  $Date: 2006/08/07 15:47:36 $
- *  $Revision: 1.3 $
+ *  $Date: 2007/05/11 14:44:38 $
+ *  $Revision: 1.4 $
  *  \authors: R. Bellan
  */
 

@@ -1,0 +1,541 @@
+TID Structure (anything but modules)
+====================================
+Input file for mixture.f
+Start new mixtures with a '#' in the first column
+Start the components with a '*' in the first column
+You can type any kind of comment in as long as you don't start it
+with '#' or '*' !
+.....................................................................
+For mixture declaration: Name of Mixture, Name of GMIX for title file, 
+                         Monte Carlo Volume, MC Area
+For items in a compound: Item number, Comment, Material (has to be 
+                 written exactly as in material.input file), 
+                 Volume, Multiplicity, Type
+      Type is one of the following:  SUP for support
+                                     SEN for sensitive volumes
+                                     CAB for cables
+                                     COL for cooling
+                                     ELE for electronics
+..................................................................... 
+
+o TID support disks
+
+  -----------------
+
+These are the disks that hold the sensor rings. They are 8 mm thick,
+Nomex core of 7 mm and 0.5 mm CF skin each side
+
+20071019 EM
+
+[WAS: "TID_Nomex" -> "Nomex" ]
+
+20080125 EM  
+
+Add fixation inserts. 
+
+Values for 1 ring:
+
+- Inserts for "distanziali": inner 4+4
+                             outer 5+5
+  Each insert: Al     0.92 g (measured)
+               Epoxy  1.07 g (from drawings and assuming a 0.15 mm clearance on the hole diameter)
+
+- Inserts for DOHMs         : 4x2 (from drawings)
+  Inserts for Mother Cables : 8x8 (guess...)
+
+  Each insert: Al     0.16 g  values obtained scaling those for "module inserts" times the ratio of the volumes (about 1/3)
+               Epoxy  0.16 g 
+
+
+Total per ring: Al     0.92 x 18 + 0.16 x (8+64) = 28 g -> volume per ring V_al = 10.37 cm^3
+                Epoxy  1.07 x 18 + 0.16 x (8+64) = 31 g -> volume per ring V_epoxy = 23.85 cm^3                          
+
+
+MCVolume: 1.0x1.0x0.8 cm^3 
+
+          XML surface of 1 ring: pi*(50.9**2-22.5**2)= 6549 cm^2
+
+          Al     10.37/6549 * 1/0.8 = 1.98E-3 cm^3 per MCVolume
+          Epoxy  23.85/6549 * 1/0.8 = 4.55E-3 cm^3 per MCVolume
+           
+          MCVolume w/o the inserts: 0.800-(0.0020+0.0045)=0.7935 cm^3
+          
+          Nomex and CF skins rescaled according to their thickness (0.7 cm and 0.1 cm) 
+
+          Nomex = 7/8 * 0.7395 = 0.6943 cm^3 per MCVolume
+          CF    = 1/8 * 0.7395 = 0.0992 cm^3 per MCVolume
+                     
+Numbers per unit area
+.....................................................................
+# "TID support disk"        "TID_Mech"            0.8    -1.   
+* 1 "Nomex core"            "Nomex"             694.3E-3  1    SUP
+* 2 "CF skins"              "Carbon fibre str."  99.2E-3  1    SUP
+* 3 "Inserts (Al)"          "Aluminium"           2.0E-3  1    SUP
+* 4 "Inserts (Glue)"        "Epoxy"               4.5E-3  1    SUP
+....................................................................
+=====================================================================
+ 
+o Cooling pipes per cm (circular section) 
+  --------------------
+
+20070919 EM
+
+[WAS: mixture name="TID_Cool_ring"]
+
+MC Volume: OD = 0.35 cm, dz = 1 cm => 0.0962 cm^3
+
+(1) Cooling pipes: material Al 3.5 mm OD, 2.8 mm ID [WAS: 3mm OD, 2.7 mm ID] 
+(2) Coolant: C6F14_F2_-30C
+
+Volumes per cm
+.....................................................................
+# "TID Cooling Pipe per cm" "TID_CoolPipe"      0.0962   -1.
+* 1 "Al pipe"               "Aluminium"         0.0346    1   COL
+* 2 "Coolant"               "C6F14_F2_-30C"     0.0616    1   COL
+.....................................................................
+=====================================================================
+
+o Cooling manifolds
+  -----------------
+There are two of these per ring.
+
+
+20070924 EM 
+
+MC Volume: Value per 1 cm length 
+           1.0 x 0.8 x 1.0 cm^3  = 0.80 cm^3
+           [WAS: r = 46-49 cm, dz = 0.7 cm, dphi = 18.5 deg ==> 32.2 cm^3]
+
+
+(2) Coolant : 0.6 x 0.8 x 1.0 = 0.48 cm^3
+
+    [WAS: 14 x 3 x 1.5 cm ==> 63 cm^3]
+
+(1) Aluminium walls:  0.2 cm thick -> V_Al = 0.80 - 0.48 = 0.32 cm^3
+
+    [WAS: (0.05 cm thick): (16 x 1.6 x 0.05) x 2.5 
+                          + 15 x 3 x 0.05    ==> 5.45 cm^3]
+
+......................................................................
+# "TID cooling manifolds per cm"  "TID_CoolManifold" 0.80      -1.
+* 1 "Aluminium walls"      "Aluminium"         0.32       1   COL
+* 2 "Coolant"              "C6F14_F2_-30C"     0.48       1   COL
+......................................................................
+======================================================================
+
+o TID support disk fixation
+  -------------------------
+
+20070926 EM
+
+The central disk/wheel (carrying ring 1) is fixed with Aluminium 
+fixations to the service cylinder in 3 points
+
+MC Volume: 10.46 cm^3 
+	   [WAS: r = 46.2 - 51.2 cm, dz = 0.7 cm, dphi = 6.25 ==> 18.6 cm^3]
+
+Material: "L" shaped CF piece with inserts in Aluminium.
+          Values estimated from sketch from M.Massa 
+
+(1) Carbon fiber structure:  22 g (V=13 cm^3)
+(2) Aluminium inserts:       30 g (V=11 cm^3) 
+
+[WAS: Aluminium, approx. volume: 5*4*0.4 (in wheel) +
+                                     5*4*0.4 + 3.6*4*0.4 (on cyl.) 
+                                     ==> 21.76 cm^3]
+.......................................................................
+# "TID wheel fixations"       "TID_WheelFixation"    10.46     -1
+* 1 "CF L-shaped piece"       "Carbon fibre str."    13.1     1    SUP
+* 2 "Aluminium inserts"        "Aluminium"           11.0     1    SUP
+.......................................................................
+=======================================================================
+
+
+o TID ICB1
+  --------
+
+1) Kapton: 
+
+2) Copper: 
+
+3) LVDSBUFF: 7 (r1a) + 6 (r1b) I.C. 8 pin SOIC 4x5x1.5 mm3 
+
+4) Connectors:
+
+
+     ... but it is better to calculate the fraction of plastic/bronze per connector
+     Module HV   6 x SAMTEC CLP-105 10 pin                             0.041 g Plastic, 0.046 g Bronze = 0.246 g Plastic + 0.276  g Bronze                            
+     Module LV   6 x SAMTEC CLP-110 20 pin                             0.081 g Plastic, 0.092 g Bronze = 0.486 g Plastic + 0.552  g Bronze
+     CCU socket  2 x SAMTEC 20 pin [0.56 g, 65% Plastic + 35% Bronze]  0.364 g Plastic, 0.196 g Bronze = 0.728 g Plastic + 0.392  g Bronze
+     To DOHM     1 x ERNI 054595-26  26 pin [missing info on material] 0.273 g Plastic, 0.100 g Bronze = 0.273 g Plastic + 0.100  g Bronze 
+     MC LV       1 x MOLEX 87438-0432   3 pin      missing info                         0.105 g Bronze  ??     
+     MC HV       1 x MOLEX 87438-1532  15 pin      missing info                         0.524 g Bronze  ??
+
+    TOTAL Plastic: 1.733  g => 1.240 cm3 Kapton  x2 (r1a+r1b)
+    TOTAL Bronze:  1.320  g => 0.149 cm3 Bronze  x2 (r1a+r1b)
+
+6) Resistors:  13 (r1a) + 11 (r1b)      x size 0805 [2x1.25x0.45 mm3, 4.8 mg]  Volume=1.125E-3 cm3
+
+7-8) Capacitors: 13 (r1a) + 12 (r1b)    x size 0805 [2x1.25x0.94 mm3, 16.8 mg] Volume=2.35E-3 cm3
+     Use values from  Magazzu's page: Ni 0.7mg / BaTiO3  15.8 mg
+
+9-10) Capacitors:  2 (r1a)0 + 2 (r1b)   x size 1812 [4.5x3.2x2.5 mm3, 257 mg] Volume=36E-3 cm3
+      Use values from  Magazzu's page: Ni 89.5mg / BaTiO3  166.4 mg
+ 
+Values for R1A+R1B (180 deg sector)
+
+......................................................................
+# "TID MotherCable R1"     "TID_ICB1"         45.250    -1
+* 1 "Kapton"               "T_Kapton"         17.131     2   ELE
+* 2 "Cu traces"            "Copper"            2.455     2   ELE
+* 3 "IC Chips"             "T_Kapton"          0.030    13   ELE
+* 4 "Connector"            "T_Kapton"          1.240     2   ELE   
+* 5 "Connector pins"       "T_Bronze"          0.149     2   ELE
+* 6 "Resistors (0805)"     "Ceramic"          1.125E-3  24   ELE
+* 7 "Capacitors (0805)"    "Barium_Titanate"  1.86E-3   25   ELE
+* 8 "Capacitors (0805)"    "Nickel"           0.54E-3   25   ELE
+* 9 "Capacitors (1812)"    "Barium_Titanate"  27.6E-3    4   ELE
+* 10 "Capacitors (1812)"   "Nickel"           10.1E-3    4   ELE
+......................................................................
+======================================================================
+
+o TID ICB2
+  --------
+
+1) Kapton: 
+
+2) Copper: 
+
+3) LVDSBUFF: 7 (r2) + 7 (r2) I.C. 8 pin SOIC 4x5x1.5 mm3 
+
+4) Connectors:
+
+
+     ... but it is better to calculate the fraction of plastic/bronze per connector
+     Module HV   6 x SAMTEC CLP-105 10 pin                             0.041 g Plastic, 0.046 g Bronze = 0.246 g Plastic + 0.276  g Bronze                            
+     Module LV   6 x SAMTEC CLP-110 20 pin                             0.081 g Plastic, 0.092 g Bronze = 0.486 g Plastic + 0.552  g Bronze
+     CCU socket  2 x SAMTEC 20 pin [0.56 g, 65% Plastic + 35% Bronze]  0.364 g Plastic, 0.196 g Bronze = 0.728 g Plastic + 0.392  g Bronze
+     To DOHM     1 x ERNI 054595-26  26 pin [missing info on material] 0.273 g Plastic, 0.100 g Bronze = 0.273 g Plastic + 0.100  g Bronze 
+     MC LV       1 x MOLEX 87438-0432   3 pin      missing info                         0.105 g Bronze  ??     
+     MC HV       1 x MOLEX 87438-1532  15 pin      missing info                         0.524 g Bronze  ??
+
+    TOTAL Plastic: 1.733  g => 1.240 cm3 Kapton  x2 (r2+r2)
+    TOTAL Bronze:  1.320  g => 0.149 cm3 Bronze  x2 (r2+r2)
+
+6) Resistors:  13 (r2) + 13 (r2)      x size 0805 [2x1.25x0.45 mm3, 4.8 mg]  Volume=1.125E-3 cm3
+
+7-8) Capacitors: 13 (r2) + 13 (r2)    x size 0805 [2x1.25x0.94 mm3, 16.8 mg] Volume=2.35E-3 cm3
+     Use values from  Magazzu's page: Ni 0.7mg / BaTiO3  15.8 mg
+
+9-10) Capacitors:  2 (r2)0 + 2 (r2)   x size 1812 [4.5x3.2x2.5 mm3, 257 mg] Volume=36E-3 cm3
+      Use values from  Magazzu's page: Ni 89.5mg / BaTiO3  166.4 mg
+ 
+Values for R2+R2 (180 deg sector)
+
+......................................................................
+# "TID MotherCable R2"     "TID_ICB2"          49.073   -1
+* 1 "Kapton"               "T_Kapton"          18.391    2   ELE
+* 2 "Cu traces"            "Copper"            2.636     2   ELE
+* 3 "IC Chips"             "T_Kapton"          0.030    14   ELE
+* 4 "Connector"            "T_Kapton"          1.240     2   ELE   
+* 5 "Connector pins"       "T_Bronze"          0.149     2   ELE
+* 6 "Resistors (0805)"     "Ceramic"          1.125E-3  26   ELE
+* 7 "Capacitors (0805)"    "Barium_Titanate"  1.86E-3   26   ELE
+* 8 "Capacitors (0805)"    "Nickel"           0.54E-3   26   ELE
+* 9 "Capacitors (1812)"    "Barium_Titanate"  27.6E-3    4   ELE
+* 10 "Capacitors (1812)"   "Nickel"           10.1E-3    4   ELE
+......................................................................
+
+======================================================================
+
+o TID ICB3
+  --------
+
+1) Kapton: 
+
+2) Copper: 
+
+3) LVDSBUFF: 5 (r3a) + 6 (r3b) I.C. 8 pin SOIC 4x5x1.5 mm3 
+
+4) Connectors:
+
+    ... but it is better to calculate the fraction of plastic/bronze per connector
+     Module HV   5 x SAMTEC CLP-105 10 pin                             0.041 g Plastic, 0.046 g Bronze = 0.205 g Plastic + 0.230  g Bronze                            
+     Module LV   5 x SAMTEC CLP-110 20 pin                             0.081 g Plastic, 0.092 g Bronze = 0.405 g Plastic + 0.460  g Bronze
+     CCU socket  2 x SAMTEC 20 pin [0.56 g, 65% Plastic + 35% Bronze]  0.364 g Plastic, 0.196 g Bronze = 0.728 g Plastic + 0.392  g Bronze
+     To DOHM     1 x ERNI 054595-26  26 pin [missing info on material] 0.273 g Plastic, 0.100 g Bronze = 0.273 g Plastic + 0.100  g Bronze 
+     MC LV       1 x MOLEX 87438-0432   3 pin      missing info                         0.105 g Bronze  ??     
+     MC HV       1 x MOLEX 87438-1532  15 pin      missing info                         0.524 g Bronze  ??
+
+    TOTAL Plastic: 1.611  g => 1.153 cm3 Kapton
+    TOTAL Bronze:  1.182  g => 0.133 cm3 Bronze
+
+6) Resistors:  10 (r3a) + 11 (r3b) x size 0805 [2x1.25x0.45 mm3, 4.8 mg]  Volume=1.125E-3 cm3
+
+7-8) Capacitors: 15 (r3a) + 16 (r3b) x size 0805 [2x1.25x0.94 mm3, 16.8 mg] Volume=2.35E-3 cm3
+     Use values from  Magazzu's page: Ni 0.7mg / BaTiO3  15.8 mg
+
+9-10) Capacitors:  1 (r3a) + 1 (r3b) x size 1812 [4.5x3.2x2.5 mm3, 257 mg] Volume=36E-3 cm3
+      Use values from  Magazzu's page: Ni 89.5mg / BaTiO3  166.4 mg
+
+Values for R3A+R3B (180 deg sector)
+ 
+......................................................................
+# "TID MotherCable R3"     "TID_ICB3"          44.146   -1
+* 1 "Kapton"               "T_Kapton"         21.998     2   ELE
+* 2 "Cu traces"            "Copper"            3.152     2   ELE
+* 3 "IC Chips"             "T_Kapton"          0.030    11   ELE
+* 4 "Connector"            "T_Kapton"          1.153     2   ELE   
+* 5 "Connector pins"       "T_Bronze"          0.133     2   ELE
+* 6 "Resistors (0805)"     "Ceramic"          1.125E-3  21   ELE
+* 7 "Capacitors (0805)"    "Barium_Titanate"  1.86E-3   31   ELE
+* 8 "Capacitors (0805)"    "Nickel"           0.54E-3   31   ELE
+* 9 "Capacitors (1812)"    "Barium_Titanate"  27.6E-3    2   ELE
+* 10 "Capacitors (1812)"   "Nickel"           10.1E-3    2   ELE
+......................................................................
+
+======================================================================
+
+o TID DOHM (Ring1/Ring2) 
+  ----------------------
+
+MC Volume (18 deg wedge): 1/2 x (18*deg2rad) x (50.5**2-44.5**2)  x 0.22 cm (19.698 cm3)
+
+Contains:
+1) DOHM PRIM Board: MC Volume - V_traces
+
+2) traces:  Cu   Area                       Thickness   Volume [mm3]
+           Top         sq.in =   958.0   mm2   35 um          33.53
+           GND         sq.in =  8953.6   mm2   35 um         313.38
+           SIG1        sq.in =   385.0   mm2   35 um          13.48
+           SIG2        sq.in =   993.8   mm2   35 um          34.78
+           PWR         sq.in =  8953.6   mm2   35 um         313.38 
+           Bot         sq.in =   698.4   mm2   35 um          24.44 
+           TOTAL VOLUME =  732.99  mm3
+ 
+           Missing infos: 
+ 		- for GND and PWR layers assume 100% filled area 
+                - for the remaining layers assume the same fraction of surface coverd by traces as in the TIB DOHMs
+
+3) LVDSBUFF: 6 I.C. 8 pin SOIC 4x5x1.5 mm3 
+
+4-5) Connectors:
+
+    ... but it is better to calculate the fraction of plastic/bronze per connector
+      To MC      4 x ERNI   26 pin [missing info on material]         0.273 g Plastic, 0.1001 g Bronze = 1.092 g Plastic + 0.4004 g Bronze  (actually 2 par + 2 perp)
+      PTC        1 x ERNI   12 pin [missing info on material]         0.126 g Plastic, 0.0462 g Bronze = 0.126 g Plastic + 0.0462 g Bronze
+      CCU socket 2 x SAMTEC 20 pin [0.56 g, 65% Plastic + 35% Bronze] 0.364 g Plastic, 0.196  g Bronze = 0.728 g Plastic + 0.392  g Bronze
+      DOH        2 x NAIS   26 PIN                                    0.129 g Plastic, 0.075  g Bronze = 0.258 g Plastic + 0.150  g Bronze  (actually Cu)
+      PWR        1 x MOLEX  20 pin [measured]                         1.72  g Plastic, 1.24   g Bronze = 1.72  g Plastic + 1.24   g Bronze
+                            [WAS:   missing info on material          0.210 g Plastic, 0.077  g Bronze = 0.210 g Plastic + 0.077  g Bronze]
+
+
+    TOTAL Plastic: 4.134  g => 2.953 cm3 Kapton [20080118 EM WAS: Plastic: 3.924  g => 2.807 cm3 Kapton]
+                                                [WAS: Plastic: 2.414  g => 1.727 cm3 Kapton]
+    TOTAL Bronze:  2.306  g => 0.259 cm3 Bronze [20080118 EM WAS: Bronze:  2.229  g => 0.251 cm3 Bronze]
+                                                [WAS: Bronze:  1.066  g => 0.120 cm3 Bronze]
+
+
+6) Resistors:  14 x size 0805 [2x1.25x0.45 mm3, 4.8 mg]  Volume=1.125E-3 cm3
+
+7-8) Capacitors: 18 x size 0805 [2x1.25x0.94 mm3, 16.8 mg] Volume=2.35E-3 cm3
+     Use values from  Magazzu's page: Ni 0.7mg / BaTiO3  15.8 mg
+
+9-10) Capacitors:  1 x size 1210 [3.2x2.5x1.5 mm3, 93.6 mg] Volume=12E-3 cm3
+     Use values from  Magazzu's page: Ni 4.6mg / BaTiO3  88.1 mg
+
+11) CCU  from tibtid_common.in: volume = 6.0 cm3, material = "TIBTID_CCUM"
+         [WAS: from tibtid_common.in: volume = 4.949 cm3, material = "TIBTID_CCUM"]
+
+12-18) Optohybrid (two copies per primary DOHM, taken from tib_module.in TIB_ICC1 and TIB_ICC2)
+    FR4 22 x 30 mm, 400 um 
+    Cu: 35 um, 2 layer with 50 % occ, 2 layers with 30 % occ
+    Capacitors (0603) 1.6 x .8 x .9 mm
+    Resistors  (0603) 1.6 x .8 x .9 mm
+    Laser diode: 0.02 cm^3 Si     (1 for 2 APVs)
+    Laser driver: 0.0025 cm^3 Si  (1 for 3 APVs ??)
+    Fiber clamps: 1.4 x 0.3 x 0.15 cm Kapton
+
+.......................................................................
+# "TID DOHM Ring0/1 Board"    "TID_DOHM1"       19.698    -1.
+* 1 "DOHM PRIM Board"         "T_FR4"           18.965     1      ELE
+* 2 "Copper traces"           "Copper"           0.733     1      ELE    
+* 3 "IC Chips"                "T_Kapton"         0.030     6      ELE
+* 4 "Connector cases"         "T_Kapton"         2.953     1      ELE   
+* 5 "Connector pins"          "T_Bronze"         0.259     1      ELE
+* 6 "Resistors (0805)"        "Ceramic"          1.125E-3 14      ELE
+* 7 "Capacitors (0805)"       "Barium_Titanate"  1.86E-3  18      ELE
+* 8 "Capacitors (0805)"       "Nickel"           0.54E-3  18      ELE
+* 9 "Capacitors (1210)"       "Barium_Titanate"  7.2E-3    1      ELE
+* 10 "Capacitors (1210)"      "Nickel"           4.8E-3    1      ELE
+* 11 "CCU"                    "TIBTID_CCUM"      6.000     1      ELE
+* 12 "Optohybrid Substrate"   "T_FR4"            0.264     2      ELE
+* 13 "Optohybrid copper"      "Copper"           0.037     2      ELE
+* 14 "OH capacitors (0603)"   "Alumina"          1.15E-3  34      ELE
+* 15 "OH resistors (0603)"    "Carbon"           1.15E-3  16      ELE
+* 16 "OH C/R solder"          "SMD_metal"        2.E-4    50      ELE
+* 17 "OH Laser diode"         "Silicon"          0.02      6      ELE
+* 18 "OH Laser driver"        "Silicon"          0.0025    4      ELE
+* 19 "OH fiber clamp"         "T_Kapton"         0.063     2      ELE
+.......................................................................
+=======================================================================
+
+
+o TID DOHM (Ring3)     
+  ----------------
+
+MC Volume (55 deg wedge ext+37 deg wedge int): 1/2 x (55*deg2rad) x (29.5**2-26.5**2)  x 0.22 cm    80.6342 cm2  )
+                                               1/2 x (37*deg2rad) x (26.5**2-22.8**2)  x 0.22 cm    58.8976 cm2   )
+ 
+Contains (same component as DOHM Ring1/Ring2):
+1) DOHM PRIM Board: FR4 (27.508x5.207+1.003x3.607) cm2 Area=22.2 sq.in. ==> 28.5 cm x 5.0 cm thickness=0.22 cm
+
+2) traces:  Cu   Area                       Thickness   Volume [mm3]
+           Top         sq.in =  1493.0   mm2   35 um               
+           GND         sq.in = 13953.2   mm2   35 um               
+           SIG1        sq.in =   600.0   mm2   35 um               
+           SIG2        sq.in =  1534.9   mm2   35 um               
+           PWR         sq.in = 13953.2   mm2   35 um                
+           Bot         sq.in =  1088.3   mm2   35 um                
+           TOTAL VOLUME = 1141.79  mm3
+
+           Missing infos: 
+ 		- for GND and PWR layers assume 100% filled area 
+                - for the remaining layers assume the same fraction of surface coverd by traces as in the TIB DOHMs
+
+3) LVDSBUFF: 6 I.C. 8 pin SOIC 4x5x1.5 mm3 
+
+4-5) Connectors: 
+
+    ... but it is better to calculate the fraction of plastic/bronze per connector
+    To MC        4 x ERNI   26 pin [missing info on material]         0.273 g Plastic, 0.1001 g Bronze = 1.092 g Plastic + 0.4004 g Bronze  (actually 2 par + 2 perp)
+    PTC          1 x ERNI   12 pin [missing info on material]         0.126 g Plastic, 0.0462 g Bronze = 0.126 g Plastic + 0.0462 g Bronze
+    CCU          2 x SAMTEC 20 pin [0.56 g, 65% Plastic + 35% Bronze] 0.364 g Plastic, 0.196  g Bronze = 0.728 g Plastic + 0.392  g Bronze
+    DOHs         2 x NAIS   26 PIN                                    0.129 g Plastic, 0.075  g Bronze = 0.258 g Plastic + 0.150  g Bronze  (actually Cu)
+    PWR          1 x MOLEX  20 pin [measured]                         1.72  g Plastic, 1.24   g Bronze = 1.72  g Plastic + 1.24   g Bronze
+                            [WAS:   missing info on material          0.210 g Plastic, 0.077  g Bronze = 0.210 g Plastic + 0.077  g Bronze]
+
+    TOTAL Plastic: 4.134  g => 2.953 cm3 Kapton [20080118 EM WAS: Plastic: 3.924  g => 2.807 cm3 Kapton] 
+                                                [WAS: Plastic: 2.414  g => 1.727 cm3 Kapton]
+    TOTAL Bronze:  2.306  g => 0.259 cm3 Bronze [20080118 EM WAS: Bronze:  2.229  g => 0.251 cm3 Bronze]
+                                                [WAS: Bronze:  1.066  g => 0.120 cm3 Bronze]
+
+6) Resistors:  14 x size 0805 [2x1.25x0.45 mm3, 4.8 mg]  Volume=1.125E-3 cm3
+
+7-8) Capacitors: 18 x size 0805 [2x1.25x0.94 mm3, 16.8 mg] Volume=2.35E-3 cm3
+     Use values from  Magazzu's page: Ni 0.7mg / BaTiO3  15.8 mg
+
+9-10) Capacitors:  1 x size 1210 [3.2x2.5x1.5 mm3, 93.6 mg] Volume=12E-3 cm3
+     Use values from  Magazzu's page: Ni 4.6mg / BaTiO3  88.1 mg
+
+11) CCU from tibtid_common.in: volume = 6.0 cm3, material = "TIBTID_CCUM"]
+        [WAS: from tibtid_common.in: volume = 4.949 cm3, material = "TIBTID_CCUM"]
+
+12-17) Optohybrid (two copies per primary DOHM, taken from tib_module.in TIB_ICC1 and TIB_ICC2)
+    FR4 22 x 30 mm, 400 um 
+    Cu: 35 um, 2 layer with 50 % occ, 2 layers with 30 % occ
+    Capacitors (0603) 1.6 x .8 x .9 mm
+    Resistors  (0603) 1.6 x .8 x .9 mm
+    Laser diode: 0.02 cm^3 Si     (1 for 2 APVs)
+    Laser driver: 0.0025 cm^3 Si  (1 for 3 APVs ??)
+    Fiber clamps: 1.4 x 0.3 x 0.15 cm Kapton
+
+.......................................................................
+# "TID DOHM Ring2 Board"      "TID_DOHM2"       30.697    -1
+* 1 "DOHM PRIM Board"         "T_FR4"           29.555     1      ELE
+* 2 "Copper traces"           "Copper"           1.142     1      ELE    
+* 3 "IC Chips"                "T_Kapton"         0.030     6      ELE
+* 4 "Connector cases"         "T_Kapton"         2.953     1      ELE   
+* 5 "Connector pins"          "T_Bronze"         0.259     1      ELE
+* 6 "Resistors (0805)"        "Ceramic"          1.125E-3 14      ELE
+* 7 "Capacitors (0805)"       "Barium_Titanate"  1.86E-3  18      ELE
+* 8 "Capacitors (0805)"       "Nickel"           0.54E-3  18      ELE
+* 9 "Capacitors (1210)"       "Barium_Titanate"  7.2E-3    1      ELE
+* 10 "Capacitors (1210)"      "Nickel"           4.8E-3    1      ELE
+* 11 "CCU"                    "TIBTID_CCUM"      6.000     1      ELE
+* 12 "Optohybrid Substrate"   "T_FR4"            0.264     2      ELE
+* 13 "Optohybrid copper"      "Copper"           0.037     2      ELE
+* 14 "OH capacitors (0603)"   "Alumina"          1.15E-3  34      ELE
+* 15 "OH resistors (0603)"    "Carbon"           1.15E-3  16      ELE
+* 16 "OH C/R solder"          "SMD_metal"        2.E-4    50      ELE
+* 17 "OH Laser diode"         "Silicon"          0.02      6      ELE
+* 18 "OH Laser driver"        "Silicon"          0.0025    4      ELE
+* 19 "OH fiber clamp"         "T_Kapton"         0.063     2      ELE
+.......................................................................
+=======================================================================
+
+
+o TID LAYER OF FIBER PIGTAILS 
+  ---------------------------
+
+The logical volumes for the fiber pigtails just sit on top of those 
+for the MotherCables arcs (ie. not the ICBTails). 
+
+(1) Fiber pigtails
+Total length of MotherC on 1 disk/front       = 2*pi*(40.3+47.3+33.4)  =  760 cm
+Total length of fiber pigtails on 1 disk/front = 0.5*(5760+6520+5000)  = 8640 cm
+
+-> 11.38 cm of pigtails per 1 cm of MC 
+
+MC width = 2.5 cm
+
+20080118 EM
+
+(2) Add the kapton "dime" used to hold fibers in position
+   Measured surface density of the kapton holders: 0.058 g/cm^2
+   Per 1 cm of MC: M(kapton)= 1 x 2.5 cm^2 x 0.058 g/cm^2 = 0.045 g
+   V(kapton)=M(kapton)/rho(kapton)=0.045/1.4=3.2E-2 cm^3
+
+MCVolume = 1.0 x 2.5 x 0.05 cm^3 = 0.125 cm^3  
+
+.......................................................................
+# "TID fiber layer"        "TID_FiberLayer "      0.125     -1
+* 1 "Fiber pigtails"       "T_FiberPigtail"       0.7854E-2  11.38  CAB
+* 2 "Dime kapton"          "T_Kapton"             3.201E-2   1      CAB
+.......................................................................
+=======================================================================
+
+o TID INSERTS FOR FIXATION OF THE MODULES
+  ---------------------------------------
+
+20080125 EM
+
+MCVolume =  8.0*pi*(5.15**2 - 1.60**2)=602 mm^3 
+
+(1) Al insert: material Aluminium
+    Volumes matched those from drawings 187 mm^3
+    mass: computed 0.51 g
+(2) Glue (Epoxy?): 
+    Volume filling the cylindrical envelope of the inserts
+	from drawings                                     : 367 mm^3
+    Extra volume from assuming a 0.15 mm clearance on the radius of the hole
+    in which the insert fits         
+                                                          :  12 mm^3
+.......................................................................
+# "TID module inserts"     "TID_ModuleFix"        0.602     -1
+* 1 "Al insert"            "Aluminium"            0.187      1  SUP
+* 2 "Glue"                 "Epoxy"                0.379      1  SUP
+.......................................................................
+=======================================================================
+
+
+# "END"  "END"  0.  0.   
+this has to be the last line !
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -13,7 +13,7 @@
 //
 // Original Author:  Filippo Ambroglini
 //         Created:  Tue Jul 26 08:47:57 CEST 2005
-// $Id: TrackerDigiGeometryAnalyzer.cc,v 1.11 2012/08/03 16:07:42 yana Exp $
+// $Id: TrackerDigiGeometryAnalyzer.cc,v 1.12 2012/12/24 14:12:55 innocent Exp $
 //
 //
 

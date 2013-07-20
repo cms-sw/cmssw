@@ -1,5 +1,5 @@
-// Last commit: $Id: SiStripPedestalsBuilderFromDb.cc,v 1.10 2008/07/17 10:27:59 giordano Exp $
-// Latest tag:  $Name: V05-01-05 $
+// Last commit: $Id: SiStripPedestalsBuilderFromDb.cc,v 1.11 2013/05/30 21:52:09 gartung Exp $
+// Latest tag:  $Name: CMSSW_6_2_0 $
 // Location:    $Source: /local/reps/CMSSW/CMSSW/OnlineDB/SiStripESSources/src/SiStripPedestalsBuilderFromDb.cc,v $
 
 #include "OnlineDB/SiStripESSources/interface/SiStripPedestalsBuilderFromDb.h"

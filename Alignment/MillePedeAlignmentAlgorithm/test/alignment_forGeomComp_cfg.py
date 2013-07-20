@@ -2,7 +2,7 @@
 # .../CMSSW/Alignment/MillePedeAlignmentAlgorithm/macros/CompareMillePede.h
 # to compare two different geometries.
 #
-# last update on $Date: 2010/12/14 01:36:38 $ by $Author: flucke $
+# last update on $Date: 2011/10/20 16:37:13 $ by $Author: flucke $
 
 import FWCore.ParameterSet.Config as cms
 

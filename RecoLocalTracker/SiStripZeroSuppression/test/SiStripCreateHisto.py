@@ -23,7 +23,7 @@ process.load('Configuration.EventContent.EventContentHeavyIons_cff')
 process.load('RecoLocalTracker.SiStripZeroSuppression.SiStripBaselineAnalyzer_cfi')
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.1 $'),
+    version = cms.untracked.string('$Revision: 1.2 $'),
     annotation = cms.untracked.string('hiRecoDM nevts:10'),
     name = cms.untracked.string('PyReleaseValidation')
 )

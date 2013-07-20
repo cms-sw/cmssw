@@ -5,9 +5,9 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Revision: 1.1 $
+ * \version $Revision: 1.2 $
  *
- * $Id: ConcreteChargedRefCandidateProducer.cc,v 1.1 2009/11/24 03:47:26 srappocc Exp $
+ * $Id: ConcreteChargedRefCandidateProducer.cc,v 1.2 2013/02/28 00:17:18 wmtan Exp $
  *
  */
 

@@ -1,8 +1,8 @@
 /** \file LaserOpticalPhysicsList.cc
  *  
  *
- *  $Date: 2008/03/10 12:52:52 $
- *  $Revision: 1.5 $
+ *  $Date: 2012/11/21 16:38:47 $
+ *  $Revision: 1.6 $
  *  \author Maarten Thomas
  */
 

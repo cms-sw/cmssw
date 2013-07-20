@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2012/06/28 12:14:27 $
- * $Revision: 1.508 $
+ * $Date: 2013/04/02 09:07:29 $
+ * $Revision: 1.508.2.1 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *

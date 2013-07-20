@@ -1,4 +1,4 @@
-// $Id: TransitionRecord.h,v 1.4.12.1 2011/03/07 11:33:04 mommsen Exp $
+// $Id: TransitionRecord.h,v 1.5 2011/03/07 15:31:32 mommsen Exp $
 /// @file: TransitionRecord.h 
 
 #ifndef EventFilter_StorageManager_TransitionRecord_h
@@ -14,8 +14,8 @@ namespace stor {
    * A record of state machine transitions
    *
    * $Author: mommsen $
-   * $Revision: 1.4.12.1 $
-   * $Date: 2011/03/07 11:33:04 $
+   * $Revision: 1.5 $
+   * $Date: 2011/03/07 15:31:32 $
    */
   
   class TransitionRecord

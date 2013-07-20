@@ -8,7 +8,7 @@
 //
 // Original Author:  Alja Mrak-Tadel 
 //         Created:  Fri Sep 24 18:52:19 CEST 2010
-// $Id: FWViewEnergyScaleEditor.cc,v 1.2 2010/11/27 22:08:24 amraktad Exp $
+// $Id: FWViewEnergyScaleEditor.cc,v 1.3 2012/08/01 00:41:36 amraktad Exp $
 //
 
 // system include files

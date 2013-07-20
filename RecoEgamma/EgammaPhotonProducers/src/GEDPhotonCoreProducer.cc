@@ -4,9 +4,9 @@
 /** \class GEDPhotonCoreProducer
  **  
  **
- **  $Id: $ 
- **  $Date: $ 
- **  $Revision: $
+ **  $Id: GEDPhotonCoreProducer.cc,v 1.1 2013/05/07 12:33:37 nancy Exp $ 
+ **  $Date: 2013/05/07 12:33:37 $ 
+ **  $Revision: 1.1 $
  **  \author Nancy Marinelli, U. of Notre Dame, US
  **
  ***/

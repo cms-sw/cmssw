@@ -13,7 +13,7 @@
 //
 // Original Author:  Igor Volobouev
 //         Created:  Thu Apr 21 15:52:11 CDT 2011
-// $Id: FFTJetPileupAnalyzer.cc,v 1.11 2011/07/05 07:51:28 igv Exp $
+// $Id: FFTJetPileupAnalyzer.cc,v 1.12 2011/07/18 17:40:54 igv Exp $
 //
 //
 

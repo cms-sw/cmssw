@@ -8,9 +8,9 @@
  *  additional constraints on eta, phi, r, x, y or z are possible.
  *  Furthermore stores the 'selection' of selected AlignmentParameters.
  *
- *  $Date: 2010/11/22 08:40:08 $
- *  $Revision: 1.10 $
- *  (last update by $Author: mussgill $)
+ *  $Date: 2013/01/07 20:56:25 $
+ *  $Revision: 1.11 $
+ *  (last update by $Author: wmtan $)
  */
 
 #include "Alignment/CommonAlignment/interface/Utilities.h"

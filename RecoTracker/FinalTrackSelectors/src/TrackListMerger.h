@@ -10,9 +10,9 @@
 // Original Author: Steve Wagner, stevew@pizero.colorado.edu
 // Created:         Sat Jan 14 22:00:00 UTC 2006
 //
-// $Author: muzaffar $
-// $Date: 2013/02/27 13:28:31 $
-// $Revision: 1.10 $
+// $Author: mwalker $
+// $Date: 2013/04/16 16:23:54 $
+// $Revision: 1.11 $
 //
 
 #include "FWCore/Framework/interface/EDProducer.h"

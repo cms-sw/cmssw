@@ -4,7 +4,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: AssociationVector2ValueMap.h,v 1.2 2010/02/20 20:55:15 wmtan Exp $
+ * \version $Id: AssociationVector2ValueMap.h,v 1.3 2013/02/28 00:34:12 wmtan Exp $
  */
 
 #include "DataFormats/Common/interface/AssociationVector.h"

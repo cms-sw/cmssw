@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Dec  3 16:10:46 CST 2009
-// $Id$
+// $Id: ESRecordAuxiliary.h,v 1.1 2009/12/16 17:40:01 chrjones Exp $
 //
 
 // system include files

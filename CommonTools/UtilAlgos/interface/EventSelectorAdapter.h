@@ -7,9 +7,9 @@
  * 
  * \author Christian Veelken, UC Davis
  *
- * \version $Revision: 1.1 $
+ * \version $Revision: 1.2 $
  *
- * $Id: EventSelectorAdapter.h,v 1.1 2009/03/03 13:07:26 llista Exp $
+ * $Id: EventSelectorAdapter.h,v 1.2 2013/02/28 00:34:12 wmtan Exp $
  *
  */
 

@@ -13,7 +13,7 @@
 //
 // Original Author:  "Nathaniel Odell"
 //         Created:  Thu Aug 12 09:24:46 CDT 2010
-// $Id: FourJetMC.cc,v 1.1 2011/03/10 17:02:32 rofierzy Exp $
+// $Id: NJetsMC.cc,v 1.1 2011/03/23 14:46:46 mucib Exp $
 // then moved to more general N-jets purpose in GeneratorInterface/GenFilters
 //
 

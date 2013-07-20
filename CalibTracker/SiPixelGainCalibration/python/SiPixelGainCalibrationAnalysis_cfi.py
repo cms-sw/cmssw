@@ -22,7 +22,7 @@ from CondTools.SiPixel.SiPixelGainCalibrationService_cfi import *
 #  CMSSW configuration init file for pixel gain calibrations in CMSSW>=180
 #  Original Author:  Freya Blekman
 #          Created:  November 15 2007  
-#  $Id: SiPixelGainCalibrationAnalysis_cfi.py,v 1.8 2008/09/16 14:46:01 fblekman Exp $
+#  $Id: SiPixelGainCalibrationAnalysis_cfi.py,v 1.9 2008/10/15 14:56:35 fblekman Exp $
 #
 #
 siPixelGainCalibrationAnalysis = cms.EDFilter("SiPixelGainCalibrationAnalysis",

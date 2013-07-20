@@ -3,7 +3,7 @@
 // Package:    TriggerUtils
 // Class:      GenericTriggerEventFlagTest
 //
-// $Id: GenericTriggerEventFlagTest.cc,v 1.2 2012/01/19 20:17:34 vadler Exp $
+// $Id: GenericTriggerEventFlagTest.cc,v 1.3 2013/02/28 00:22:50 wmtan Exp $
 //
 /**
   \class    GenericTriggerEventFlagTest
@@ -12,7 +12,7 @@
    This unit test ...
 
   \author   Volker Adler
-  \version  $Id: GenericTriggerEventFlagTest.cc,v 1.2 2012/01/19 20:17:34 vadler Exp $
+  \version  $Id: GenericTriggerEventFlagTest.cc,v 1.3 2013/02/28 00:22:50 wmtan Exp $
 */
 
 

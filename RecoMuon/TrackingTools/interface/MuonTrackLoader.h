@@ -5,8 +5,8 @@
  *  Class to load the tracks in the event, it provide some common functionalities
  *  both for all the RecoMuon producers.
  *
- *  $Date: 2012/08/16 16:25:56 $
- *  $Revision: 1.30 $
+ *  $Date: 2013/05/30 21:33:01 $
+ *  $Revision: 1.31 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
 

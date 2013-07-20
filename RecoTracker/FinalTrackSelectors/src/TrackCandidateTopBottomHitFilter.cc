@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Giuseppe Cerati
 //         Created:  Tue Sep  9 09:47:01 CEST 2008
-// $Id: TrackCandidateTopBottomHitFilter.cc,v 1.3 2010/02/20 21:01:23 wmtan Exp $
+// $Id: TrackCandidateTopBottomHitFilter.cc,v 1.4 2013/02/27 14:58:17 muzaffar Exp $
 //
 //
 

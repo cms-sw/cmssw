@@ -4,8 +4,8 @@
 /** \class GEMRecHitStandardAlgo
  *  Concrete implementation of GEMRecHitBaseAlgo.
  *
- *  $Date: 2013/04/04 13:35:56 $
- *  $Revision: 1.2 $
+ *  $Date: 2013/04/24 17:16:36 $
+ *  $Revision: 1.1 $
  *  \author M. Maggi -- INFN Bari
  */
 

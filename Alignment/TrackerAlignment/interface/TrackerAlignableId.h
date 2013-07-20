@@ -10,9 +10,9 @@
 /// A mapping between the AlignableObjectId and the string name
 /// is also provided.
 ///
-///  $Revision: 1.11 $
-///  $Date: 2007/10/08 13:49:05 $
-///  (last update by $Author: cklae $)
+///  $Revision: 1.12 $
+///  $Date: 2013/01/07 19:44:30 $
+///  (last update by $Author: wmtan $)
 
 #include <utility>
 

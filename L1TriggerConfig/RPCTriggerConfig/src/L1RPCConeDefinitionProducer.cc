@@ -13,7 +13,7 @@
 //
 // Original Author:  Tomasz Maciej Frueboes
 //         Created:  Mon Feb 23 12:09:06 CET 2009
-// $Id: L1RPCConeDefinitionProducer.cc,v 1.4 2009/03/20 10:28:30 fruboes Exp $
+// $Id: L1RPCConeDefinitionProducer.cc,v 1.5 2009/03/20 15:25:15 michals Exp $
 //
 //
 

@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea RIZZI
 //         Created:  Mon Dec  7 18:02:10 CET 2009
-// $Id: BVertexFilter.cc,v 1.4 2010/02/28 20:10:01 wmtan Exp $
+// $Id: BVertexFilter.cc,v 1.1 2010/06/04 11:36:57 arizzi Exp $
 //
 //
 

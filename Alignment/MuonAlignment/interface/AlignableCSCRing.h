@@ -4,8 +4,8 @@
 /** \class AlignableCSCRing 
  *  The alignable muon CSC ring.
  *
- *  $Date: 2008/04/15 16:05:53 $
- *  $Revision: 1.3 $
+ *  $Date: 2011/09/15 10:07:07 $
+ *  $Revision: 1.4 $
  *  \author Jim Pivarski - Texas A&M University
  */
 

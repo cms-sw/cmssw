@@ -13,7 +13,7 @@
 //
 // Original Author:  Igor Volobouev
 //         Created:  Thu Jun 21 19:19:40 CDT 2012
-// $Id: FFTJetVertexAdder.cc,v 1.1 2012/06/21 19:19:40 igv Exp $
+// $Id: FFTJetVertexAdder.cc,v 1.1 2012/06/22 07:23:21 igv Exp $
 //
 //
 

@@ -1,9 +1,9 @@
 /// \file AlignmentProducer.cc
 ///
 ///  \author    : Frederic Ronga
-///  Revision   : $Revision: 1.68 $
-///  last update: $Date: 2012/08/10 09:25:23 $
-///  by         : $Author: flucke $
+///  Revision   : $Revision: 1.69 $
+///  last update: $Date: 2013/01/07 21:03:58 $
+///  by         : $Author: wmtan $
 
 #include "AlignmentProducer.h"
 #include "FWCore/Framework/interface/LooperFactory.h" 

@@ -4,7 +4,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: GenJetParticleSelector.h,v 1.1 2008/02/07 14:37:04 llista Exp $
+ * \version $Id: GenJetParticleSelector.h,v 1.1 2009/03/03 13:50:54 llista Exp $
  *
  */
 #include "SimGeneral/HepPDTRecord/interface/PdtEntry.h"

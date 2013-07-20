@@ -4,8 +4,8 @@
 /** \class GEMRecHitProducer
  *  Module for GEMRecHit production. 
  *  
- *  $Date: 2013/04/24 17:16:35 $
- *  $Revision: 1.1 $
+ *  $Date: 2013/06/10 15:53:23 $
+ *  $Revision: 1.2 $
  *  \author M. Maggim -- INFN Bari
  */
 

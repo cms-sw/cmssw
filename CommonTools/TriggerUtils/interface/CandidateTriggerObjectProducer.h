@@ -6,8 +6,8 @@
  *  
  *  This class creates a list of candidates based on the last accepted filter 
  *
- *  $Date: 2011/04/30 16:04:26 $
- *  $Revision: 1.1 $
+ *  $Date: 2013/02/28 00:22:50 $
+ *  $Revision: 1.2 $
  *
  *  \author Paolo Meridiani
  *

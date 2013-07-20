@@ -4,8 +4,8 @@
 /*
  * \file HcalPedestalAnalyzer.h
  *
- * $Date: 2012/10/09 14:57:58 $
- * $Revision: 1.4 $
+ * $Date: 2012/11/13 03:30:20 $
+ * $Revision: 1.5 $
  * \author S. Stoynev / W. Fisher
  *
 */

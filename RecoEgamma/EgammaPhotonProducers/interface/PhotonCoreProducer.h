@@ -3,9 +3,9 @@
 /** \class PhotonCoreProducer
  **  
  **
- **  $Id: PhotonCoreProducer.h,v 1.3 2010/02/22 19:30:49 nancy Exp $ 
- **  $Date: 2010/02/22 19:30:49 $ 
- **  $Revision: 1.3 $
+ **  $Id: PhotonCoreProducer.h,v 1.4 2013/02/27 20:33:00 eulisse Exp $ 
+ **  $Date: 2013/02/27 20:33:00 $ 
+ **  $Revision: 1.4 $
  **  \author Nancy Marinelli, U. of Notre Dame, US
  **
  ***/

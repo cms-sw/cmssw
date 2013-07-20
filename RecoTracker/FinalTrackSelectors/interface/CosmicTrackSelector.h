@@ -6,9 +6,9 @@
  * 
  * \author Paolo Azzurri, Giovanni Petrucciani 
  *
- * \version $Revision: 1.2 $
+ * \version $Revision: 1.3 $
  *
- * $Id: CosmicTrackSelector.h,v 1.2 2010/02/20 21:01:19 wmtan Exp $
+ * $Id: CosmicTrackSelector.h,v 1.3 2013/02/27 13:28:30 muzaffar Exp $
  *
  */
 

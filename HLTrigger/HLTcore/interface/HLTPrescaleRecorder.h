@@ -6,8 +6,8 @@
  *  
  *  This class is an EDProducer making the HLTPrescaleTable object
  *
- *  $Date: 2013/02/28 09:07:06 $
- *  $Revision: 1.5 $
+ *  $Date: 2013/05/17 20:33:54 $
+ *  $Revision: 1.6 $
  *
  *  \author Martin Grunewald
  *

@@ -6,7 +6,7 @@
 
  author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
 
- version $Id: MEzCalculator.h,v 1.4 2009/02/18 21:31:15 yumiceva Exp $
+ version $Id: MEzCalculator.h,v 1.5 2013/05/30 20:47:31 gartung Exp $
 
 ________________________________________________________________**/
 

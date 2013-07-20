@@ -1,4 +1,4 @@
-// Last commit: $Id: DcuDetIds.cc,v 1.6 2008/06/06 14:48:53 bainbrid Exp $
+// Last commit: $Id: DcuDetIds.cc,v 1.7 2009/04/06 16:57:28 lowette Exp $
 
 #include "OnlineDB/SiStripConfigDb/interface/SiStripConfigDb.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"

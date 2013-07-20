@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Sep 22 12:38:58 EDT 2006
-// $Id$
+// $Id: ExtensionCord.h,v 1.1 2006/09/22 18:42:58 chrjones Exp $
 //
 
 // system include files

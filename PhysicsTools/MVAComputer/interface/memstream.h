@@ -8,7 +8,7 @@
 //
 // Author:	Christophe Saout <christophe.saout@cern.ch>
 // Created:     Sat Apr 24 15:18 CEST 2007
-// $Id: memstream.h,v 1.3 2007/07/15 22:31:46 saout Exp $
+// $Id: memstream.h,v 1.4 2011/05/23 13:41:03 eulisse Exp $
 //
 
 #include <iostream>

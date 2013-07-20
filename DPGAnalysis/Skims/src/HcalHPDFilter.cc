@@ -13,7 +13,7 @@
 //
 // Original Author:  Efe Yazgan
 //         Created:  Thu Jul 24 10:31:07 CEST 2008
-// $Id: HcalHPDFilter.cc,v 1.2 2009/12/18 00:03:10 wmtan Exp $
+// $Id: HcalHPDFilter.cc,v 1.3 2013/02/27 20:17:14 wmtan Exp $
 //
 //
 

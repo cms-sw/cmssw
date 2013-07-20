@@ -5,9 +5,9 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Revision: 1.1 $
+ * \version $Revision: 1.2 $
  *
- * $Id: ConcreteStandAloneMuonCandidateProducer.cc,v 1.1 2009/03/04 13:11:29 llista Exp $
+ * $Id: ConcreteStandAloneMuonCandidateProducer.cc,v 1.2 2013/02/28 00:17:18 wmtan Exp $
  *
  */
 

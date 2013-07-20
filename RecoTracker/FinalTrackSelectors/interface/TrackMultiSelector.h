@@ -6,9 +6,9 @@
  * 
  * \author Giovanni Petrucciani 
  *
- * \version $Revision: 1.6 $
+ * \version $Revision: 1.7 $
  *
- * $Id: TrackMultiSelector.h,v 1.6 2010/02/20 21:01:20 wmtan Exp $
+ * $Id: TrackMultiSelector.h,v 1.7 2013/02/27 13:28:30 muzaffar Exp $
  *
  */
 

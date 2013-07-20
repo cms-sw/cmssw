@@ -1,4 +1,4 @@
-// $Id: SMPSWebPageHelper.cc,v 1.2 2011/03/07 15:41:55 mommsen Exp $
+// $Id: SMPSWebPageHelper.cc,v 1.3 2011/05/09 11:03:34 mommsen Exp $
 /// @file: SMPSWebPageHelper.cc
 
 #include "EventFilter/SMProxyServer/interface/SMPSWebPageHelper.h"
@@ -17,9 +17,9 @@ namespace smproxy
     xdaq::ApplicationDescriptor* appDesc,
     StateMachinePtr stateMachine
   ) :
-  stor::WebPageHelper<SMPSWebPageHelper>(appDesc, "$Name:  $", this, &smproxy::SMPSWebPageHelper::addDOMforHyperLinks),
+  stor::WebPageHelper<SMPSWebPageHelper>(appDesc, "$Name: CMSSW_6_2_0 $", this, &smproxy::SMPSWebPageHelper::addDOMforHyperLinks),
   stateMachine_(stateMachine),
-  consumerWebPageHelper_(appDesc, "$Name:  $", this, &smproxy::SMPSWebPageHelper::addDOMforHyperLinks)
+  consumerWebPageHelper_(appDesc, "$Name: CMSSW_6_2_0 $", this, &smproxy::SMPSWebPageHelper::addDOMforHyperLinks)
   { }
   
   

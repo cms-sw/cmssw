@@ -1,6 +1,6 @@
 // Original Author:  Anne-Marie Magnan
 //         Created:  2010/01/21
-// $Id: SiStripFEDEmulatorModule.cc,v 1.1 2012/10/15 09:02:47 threus Exp $
+// $Id: SiStripFEDEmulatorModule.cc,v 1.2 2013/03/04 07:53:45 davidlt Exp $
 //
 
 #include <sstream>

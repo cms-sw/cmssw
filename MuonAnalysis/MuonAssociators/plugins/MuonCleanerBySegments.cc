@@ -1,6 +1,6 @@
 
 //
-// $Id: MuonCleanerBySegments.cc,v 1.1 2012/08/11 13:00:50 gpetrucc Exp $
+// $Id: MuonCleanerBySegments.cc,v 1.2 2013/02/27 20:42:45 wmtan Exp $
 //
 
 /**
@@ -18,7 +18,7 @@
             are saved in the output.
             
   \author   Giovanni Petrucciani
-  \version  $Id: MuonCleanerBySegments.cc,v 1.1 2012/08/11 13:00:50 gpetrucc Exp $
+  \version  $Id: MuonCleanerBySegments.cc,v 1.2 2013/02/27 20:42:45 wmtan Exp $
 */
 
 

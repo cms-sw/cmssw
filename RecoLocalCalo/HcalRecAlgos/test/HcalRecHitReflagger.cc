@@ -11,7 +11,7 @@
 //
 // Original Author:  Dinko Ferencek,8 R-004,+41227676479,  Jeff Temple, 6-1-027
 //         Created:  Thu Mar 11 13:42:11 CET 2010
-// $Id: HcalRecHitReflagger.cc,v 1.7 2010/11/02 08:45:18 eulisse Exp $
+// $Id: HcalRecHitReflagger.cc,v 1.8 2013/02/28 21:06:50 chrjones Exp $
 //
 //
 

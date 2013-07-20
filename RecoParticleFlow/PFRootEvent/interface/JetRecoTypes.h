@@ -3,7 +3,7 @@
 
 // Types used in Jet Reconstruction
 // F.Ratnikov, UMd
-// $Id: JetRecoTypes.h,v 1.7 2008/09/20 17:44:21 oehler Exp $
+// $Id: JetRecoTypes.h,v 1.1 2009/08/24 14:35:59 srappocc Exp $
 
 #include "DataFormats/Candidate/interface/CandidateFwd.h"
 class ProtoJet;

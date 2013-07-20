@@ -10,7 +10,7 @@
  author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
          Geng-Yuan Jeng, UC Riverside (Geng-Yuan.Jeng@cern.ch)
 
- version $Id: BeamFitter.h,v 1.49 2011/05/12 12:03:51 schauhan Exp $
+ version $Id: BeamFitter.h,v 1.50 2013/04/11 23:08:42 wmtan Exp $
 
  ________________________________________________________________**/
 

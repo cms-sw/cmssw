@@ -7,8 +7,8 @@
  *  Plane. The TrajectoryState must have errors.
  *  Works for any RecHit dimension. Ported from ORCA.
  *
- *  $Date: 2012/12/25 14:24:26 $
- *  $Revision: 1.2 $
+ *  $Date: 2013/01/10 12:12:19 $
+ *  $Revision: 1.3 $
  *  tschudi
  */
 

@@ -4,7 +4,7 @@
  *
  * \author Luca Lista, INFN
  *
- * $Id: DeltaPhiMinPairSelector.h,v 1.1 2007/06/19 15:39:08 llista Exp $
+ * $Id: DeltaPhiMinPairSelector.h,v 1.1 2009/02/24 14:40:26 llista Exp $
  */
 #include "DataFormats/Math/interface/deltaPhi.h"
 

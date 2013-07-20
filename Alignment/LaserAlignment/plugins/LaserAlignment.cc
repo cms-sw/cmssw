@@ -1,8 +1,8 @@
 /** \file LaserAlignment.cc
  *  LAS reconstruction module
  *
- *  $Date: 2013/01/07 20:26:37 $
- *  $Revision: 1.47 $
+ *  $Date: 2013/05/25 14:31:03 $
+ *  $Revision: 1.48 $
  *  \author Maarten Thomas
  *  \author Jan Olzem
  */

@@ -1,5 +1,5 @@
 // F.R.
-// $Id: CaloJetCollection.h,v 1.7.6.2 2010/02/08 21:09:29 srappocc Exp $
+// $Id: CaloJetCollection.h,v 1.8 2010/04/13 20:29:52 srappocc Exp $
 #ifndef JetReco_CaloJetCollection_h
 #define JetReco_CaloJetCollection_h
 

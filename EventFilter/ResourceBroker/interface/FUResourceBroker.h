@@ -43,7 +43,7 @@ class EvffedFillerRB;
 /**
  * Main class of the Resource Broker XDAQ application.
  *
- * $Author: aspataru $
+ * $Author: eulisse $
  *
  */
 

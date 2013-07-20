@@ -4,8 +4,8 @@
  *
  * \author Giuseppe Cerati, INFN
  *
- *  $Date: 2013/05/14 15:46:46 $
- *  $Revision: 1.5.4.2 $
+ *  $Date: 2013/06/24 12:25:14 $
+ *  $Revision: 1.7 $
  *
  */
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"

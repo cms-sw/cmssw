@@ -13,7 +13,7 @@
 //
 // Original Author:  
 //         Created:  Wed Sep 22 17:02:51 CEST 2010
-// $Id: InterestingTrackEcalDetIdProducer.cc,v 1.1 2011/01/21 09:03:21 argiro Exp $
+// $Id: InterestingTrackEcalDetIdProducer.cc,v 1.2 2013/02/27 19:33:31 eulisse Exp $
 //
 //
 

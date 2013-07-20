@@ -13,9 +13,9 @@ process.load('Configuration.EventContent.EventContentHeavyIons_cff')
 
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.4 $'),
+    version = cms.untracked.string('$Revision: 1.2 $'),
     annotation = cms.untracked.string('SD and central skims'),
-    name = cms.untracked.string('$Source: /cvs/CMSSW/UserCode/icali/SkimsCfg/SDmaker_3SD_1CS_PDHIAllPhysicsZSv2_cfg.py,v $')
+    name = cms.untracked.string('$Source: /local/reps/CMSSW/CMSSW/HeavyIonsAnalysis/Configuration/test/SDmaker_3SD_1CS_PDHIAllPhysicsZSv2_cfg.py,v $')
 )
 
 process.maxEvents = cms.untracked.PSet(

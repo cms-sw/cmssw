@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Jan 18 10:19:07 EST 2008
-// $Id: unittest_selectionmanager.cc,v 1.5 2012/06/26 22:13:04 wmtan Exp $
+// $Id: unittest_selectionmanager.cc,v 1.6 2012/08/03 18:20:29 wmtan Exp $
 //
 
 // system include files

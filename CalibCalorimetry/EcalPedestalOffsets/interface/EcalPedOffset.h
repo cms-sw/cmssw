@@ -5,8 +5,8 @@
  * \file EcalPedOffset.h
  * \class EcalPedOffset
  * \brief calculate the best DAC value to obtain a pedestal = 200
- * $Date: 2010/01/04 15:06:29 $
- * $Revision: 1.4 $
+ * $Date: 2013/05/30 22:33:07 $
+ * $Revision: 1.5 $
  * \author P. Govoni (pietro.govoni@cernNOSPAM.ch)
  *
 */

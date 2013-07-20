@@ -1,6 +1,6 @@
 //
 // Original Author:  Fedor Ratnikov Feb. 16, 2007
-// $Id: ChainedJetCorrector.cc,v 1.2.2.2 2011/04/07 11:17:09 kkousour Exp $
+// $Id: ChainedJetCorrector.cc,v 1.3 2011/04/28 14:05:22 kkousour Exp $
 //
 // Correction which chains other corrections
 //

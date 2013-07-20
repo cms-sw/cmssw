@@ -38,7 +38,7 @@ bctoefilter = cms.EDFilter("BCToEFilter",
 # enter below the configuration metadata (only a description is needed, the rest is filled in by cvs)
 configurationMetadata = cms.untracked.PSet(
     version = cms.untracked.string('$Revision: 1.1 $'),
-    name = cms.untracked.string('$Source: /local/reps/CMSSW/CMSSW/Configuration/GenProduction/python/EightTeV/QCD_Pt_80_170_BCtoE_TuneZ2star_8TeV_pythia6_cff.py,v $'),
+    name = cms.untracked.string('$Source: /local/reps/CMSSW/CMSSW/Configuration/Generator/python/QCD_Pt_80_170_BCtoE_8TeV.py,v $'),
     annotation = cms.untracked.string('b/c->e filtered QCD pthat 80-170, 8 TeV')
 )
 

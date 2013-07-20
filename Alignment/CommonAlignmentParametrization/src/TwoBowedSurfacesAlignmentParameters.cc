@@ -1,7 +1,7 @@
 /** \file TwoBowedSurfacesAlignmentParameters.cc
  *
- *  Version    : $Revision: 1.2 $
- *  last update: $Date: 2010/11/23 13:50:50 $
+ *  Version    : $Revision: 1.3 $
+ *  last update: $Date: 2011/02/11 11:48:06 $
  *  by         : $Author: flucke $
  */
 

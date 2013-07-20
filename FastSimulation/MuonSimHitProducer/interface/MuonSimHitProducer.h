@@ -15,7 +15,7 @@
 //
 //  Author:  Martijn Mulders
 // Created:  Wed July 11 12:37:24 CET 2007
-// $Id: MuonSimHitProducer.h,v 1.10 2010/05/13 15:23:21 aperrott Exp $
+// $Id: MuonSimHitProducer.h,v 1.11 2013/02/27 22:22:53 wdd Exp $
 //
 
 

@@ -1,7 +1,7 @@
 /**
  * Author: Shahram Rahatlou, University of Rome & INFN
  * Created: 22 Feb 2006
- * $Id: EcalADCToGeVConstant.cc,v 1.2 2006/02/23 16:56:35 rahatlou Exp $
+ * $Id: EcalADCToGeVConstant.cc,v 1.3 2006/05/15 12:43:57 meridian Exp $
  **/
 
 #include "CondFormats/EcalObjects/interface/EcalADCToGeVConstant.h"

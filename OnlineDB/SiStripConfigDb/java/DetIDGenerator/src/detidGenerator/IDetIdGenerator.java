@@ -7,9 +7,13 @@ import java.util.ArrayList;
  **/
 
 /*
-  $Date: 2006/06/28 11:42:24 $
+  $Date: 2007/01/18 17:04:45 $
   
   $Log: IDetIdGenerator.java,v $
+  Revision 1.2  2007/01/18 17:04:45  gbaulieu
+  Use an external library for database connections
+  Use preparedStatements to speed up the queries
+
   Revision 1.1  2006/06/28 11:42:24  gbaulieu
   First import of the sources
 
