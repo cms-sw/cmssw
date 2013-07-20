@@ -17,9 +17,9 @@ namespace smproxy
     xdaq::ApplicationDescriptor* appDesc,
     StateMachinePtr stateMachine
   ) :
-  stor::WebPageHelper<SMPSWebPageHelper>(appDesc, "$Name: CMSSW_6_1_2_SLHC6 $", this, &smproxy::SMPSWebPageHelper::addDOMforHyperLinks),
+  stor::WebPageHelper<SMPSWebPageHelper>(appDesc, "$Name: CMSSW_6_1_2_SLHC6_patch1 $", this, &smproxy::SMPSWebPageHelper::addDOMforHyperLinks),
   stateMachine_(stateMachine),
-  consumerWebPageHelper_(appDesc, "$Name: CMSSW_6_1_2_SLHC6 $", this, &smproxy::SMPSWebPageHelper::addDOMforHyperLinks)
+  consumerWebPageHelper_(appDesc, "$Name: CMSSW_6_1_2_SLHC6_patch1 $", this, &smproxy::SMPSWebPageHelper::addDOMforHyperLinks)
   { }
   
   

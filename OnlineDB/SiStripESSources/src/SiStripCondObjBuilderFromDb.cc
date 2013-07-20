@@ -1,5 +1,5 @@
 // Last commit: $Id: SiStripCondObjBuilderFromDb.cc,v 1.25 2011/10/24 12:38:52 eulisse Exp $
-// Latest tag:  $Name: CMSSW_6_1_2_SLHC6 $
+// Latest tag:  $Name: CMSSW_6_1_2_SLHC6_patch1 $
 
 #include "OnlineDB/SiStripESSources/interface/SiStripCondObjBuilderFromDb.h"
 #include "OnlineDB/SiStripESSources/interface/SiStripFedCablingBuilderFromDb.h"

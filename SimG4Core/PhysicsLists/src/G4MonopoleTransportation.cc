@@ -24,7 +24,7 @@
 // ********************************************************************
 //
 // $Id: G4MonopoleTransportation.cc,v 1.1 2010/07/29 23:05:19 sunanda Exp $
-// GEANT4 tag $Name: CMSSW_6_1_2_SLHC6 $
+// GEANT4 tag $Name: CMSSW_6_1_2_SLHC6_patch1 $
 //
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

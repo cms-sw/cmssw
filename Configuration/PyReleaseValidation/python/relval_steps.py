@@ -2460,7 +2460,7 @@ step3Up2019_300_Defaults = {'-s':'RAW2DIGI,L1Reco,RECO,VALIDATION,DQM',
                  '-n':'10',
                  '--eventcontent':'FEVTDEBUGHLT,DQM',
                  '--magField' : '38T_PostLS1',
-                 '--customise' : 'SLHCUpgradeSimulations/Configuration/combinedCustoms.cust_2019,SLHCUpgradeSimulations/Configuration/combinedCustoms.fixEcalConditions_300',
+                 '--customise' : 'SLHCUpgradeSimulations/Configuration/combinedCustoms.cust_2019,SLHCUpgradeSimulations/Configuration/combinedCustoms.fixEcalConditions_300,SLHCUpgradeSimulations/Configuration/aging.customise_aging_300',
                  '--geometry' : 'Extended2019'
                  }
                              
@@ -2473,7 +2473,7 @@ step3Up2019pu_300_Defaults = {'-s':'RAW2DIGI,L1Reco,RECO,VALIDATION,DQM',
                  '--eventcontent':'FEVTDEBUGHLT,DQM',
                  '--magField' : '38T_PostLS1',
 		 '--pileup': 'AVE_20_BX_25ns',
-                 '--customise' : 'SLHCUpgradeSimulations/Configuration/combinedCustoms.cust_2019,SLHCUpgradeSimulations/Configuration/combinedCustoms.fixEcalConditions_300',
+                 '--customise' : 'SLHCUpgradeSimulations/Configuration/combinedCustoms.cust_2019,SLHCUpgradeSimulations/Configuration/combinedCustoms.fixEcalConditions_300,SLHCUpgradeSimulations/Configuration/aging.customise_aging_300',
                  '--geometry' : 'Extended2019',
 		 '--pileup_input':'dbs:/RelValMinBias_TuneZ2star_14TeV/CMSSW_6_1_2_SLHC6-DES19_61_V5_UPG2019-v1/GEN-SIM'
                  }
@@ -2490,7 +2490,7 @@ step3Up2019_300comp_Defaults = {'-s':'RAW2DIGI,L1Reco,RECO,VALIDATION,DQM',
                  '--magField' : '38T_PostLS1',
                  '-n':'10',
                  '--eventcontent':'FEVTDEBUGHLT,DQM',
-                 '--customise' : 'SLHCUpgradeSimulations/Configuration/combinedCustoms.cust_2019,SLHCUpgradeSimulations/Configuration/combinedCustoms.ecal_complete_aging_300,SLHCUpgradeSimulations/Configuration/combinedCustoms.fixEcalConditions_300',
+                 '--customise' : 'SLHCUpgradeSimulations/Configuration/combinedCustoms.cust_2019,SLHCUpgradeSimulations/Configuration/combinedCustoms.ecal_complete_aging_300,SLHCUpgradeSimulations/Configuration/combinedCustoms.fixEcalConditions_300,SLHCUpgradeSimulations/Configuration/aging.customise_aging_300',
                  '--geometry' : 'Extended2019'
                  }
                              
@@ -2506,7 +2506,7 @@ step3Up2019_500_Defaults = {'-s':'RAW2DIGI,L1Reco,RECO,VALIDATION,DQM',
                  '-n':'10',
                  '--magField' : '38T_PostLS1',
                  '--eventcontent':'FEVTDEBUGHLT,DQM',
-                 '--customise' : 'SLHCUpgradeSimulations/Configuration/combinedCustoms.cust_2019,SLHCUpgradeSimulations/Configuration/combinedCustoms.fixEcalConditions_500',
+                 '--customise' : 'SLHCUpgradeSimulations/Configuration/combinedCustoms.cust_2019,SLHCUpgradeSimulations/Configuration/combinedCustoms.fixEcalConditions_500,SLHCUpgradeSimulations/Configuration/aging.customise_aging_500',
                  '--geometry' : 'Extended2019'
                  }
                              
@@ -2519,7 +2519,7 @@ step3Up2019pu_500_Defaults = {'-s':'RAW2DIGI,L1Reco,RECO,VALIDATION,DQM',
                  '--eventcontent':'FEVTDEBUGHLT,DQM',
 		 '--pileup': 'AVE_20_BX_25ns',
                  '--magField' : '38T_PostLS1',
-                 '--customise' : 'SLHCUpgradeSimulations/Configuration/combinedCustoms.cust_2019,SLHCUpgradeSimulations/Configuration/combinedCustoms.fixEcalConditions_500',
+                 '--customise' : 'SLHCUpgradeSimulations/Configuration/combinedCustoms.cust_2019,SLHCUpgradeSimulations/Configuration/combinedCustoms.fixEcalConditions_500,SLHCUpgradeSimulations/Configuration/aging.customise_aging_500',
                  '--geometry' : 'Extended2019',
 		 '--pileup_input':'dbs:/RelValMinBias_TuneZ2star_14TeV/CMSSW_6_1_2_SLHC6-DES19_61_V5_UPG2019-v1/GEN-SIM'
                  }
@@ -2538,7 +2538,7 @@ step3Up2019_1000_Defaults = {'-s':'RAW2DIGI,L1Reco,RECO,VALIDATION,DQM',
                  '-n':'10',
                  '--magField' : '38T_PostLS1',
                  '--eventcontent':'FEVTDEBUGHLT,DQM',
-                 '--customise' : 'SLHCUpgradeSimulations/Configuration/combinedCustoms.cust_2019,SLHCUpgradeSimulations/Configuration/combinedCustoms.fixEcalConditions_1000',
+                 '--customise' : 'SLHCUpgradeSimulations/Configuration/combinedCustoms.cust_2019,SLHCUpgradeSimulations/Configuration/combinedCustoms.fixEcalConditions_1000,SLHCUpgradeSimulations/Configuration/aging.customise_aging_1000',
                  '--geometry' : 'Extended2019'
                  }
                              
@@ -2551,7 +2551,7 @@ step3Up2019pu_1000_Defaults = {'-s':'RAW2DIGI,L1Reco,RECO,VALIDATION,DQM',
                  '--magField' : '38T_PostLS1',
                  '--eventcontent':'FEVTDEBUGHLT,DQM',
 		 '--pileup': 'AVE_20_BX_25ns',
-                 '--customise' : 'SLHCUpgradeSimulations/Configuration/combinedCustoms.cust_2019,SLHCUpgradeSimulations/Configuration/combinedCustoms.fixEcalConditions_1000',
+                 '--customise' : 'SLHCUpgradeSimulations/Configuration/combinedCustoms.cust_2019,SLHCUpgradeSimulations/Configuration/combinedCustoms.fixEcalConditions_1000,SLHCUpgradeSimulations/Configuration/aging.customise_aging_1000',
                  '--geometry' : 'Extended2019',
 		 '--pileup_input':'dbs:/RelValMinBias_TuneZ2star_14TeV/CMSSW_6_1_2_SLHC6-DES19_61_V5_UPG2019-v1/GEN-SIM'
                  }
@@ -2566,7 +2566,7 @@ step3Up2019_1000comp_Defaults = {'-s':'RAW2DIGI,L1Reco,RECO,VALIDATION,DQM',
                  '-n':'10',
                  '--magField' : '38T_PostLS1',
                  '--eventcontent':'FEVTDEBUGHLT,DQM',
-                 '--customise' : 'SLHCUpgradeSimulations/Configuration/combinedCustoms.cust_2019,SLHCUpgradeSimulations/Configuration/combinedCustoms.ecal_complete_aging_1000,SLHCUpgradeSimulations/Configuration/combinedCustoms.fixEcalConditions_1000',
+                 '--customise' : 'SLHCUpgradeSimulations/Configuration/combinedCustoms.cust_2019,SLHCUpgradeSimulations/Configuration/combinedCustoms.ecal_complete_aging_1000,SLHCUpgradeSimulations/Configuration/combinedCustoms.fixEcalConditions_1000,SLHCUpgradeSimulations/Configuration/aging.customise_aging_1000',
                  '--geometry' : 'Extended2019'
                  }
                              
@@ -2580,7 +2580,7 @@ step3Up2019_1000_TkId_Defaults = {'-s':'RAW2DIGI,L1Reco,RECO,VALIDATION,DQM',
                  '-n':'10',
                  '--magField' : '38T_PostLS1',
                  '--eventcontent':'FEVTDEBUGHLT,DQM',
-                 '--customise' : 'SLHCUpgradeSimulations/Configuration/combinedCustoms.cust_2019,SLHCUpgradeSimulations/Configuration/combinedCustoms.fixEcalConditions_1000',
+                 '--customise' : 'SLHCUpgradeSimulations/Configuration/combinedCustoms.cust_2019,SLHCUpgradeSimulations/Configuration/combinedCustoms.fixEcalConditions_1000,SLHCUpgradeSimulations/Configuration/aging.customise_aging_1000',
                  '--geometry' : 'Extended2019'
                  }
                              
@@ -2594,7 +2594,7 @@ step3Up2019_1000comp_TkId_Defaults = {'-s':'RAW2DIGI,L1Reco,RECO,VALIDATION,DQM'
                  '-n':'10',
                  '--eventcontent':'FEVTDEBUGHLT,DQM',
                  '--magField' : '38T_PostLS1',
-                 '--customise' : 'SLHCUpgradeSimulations/Configuration/combinedCustoms.cust_2019,SLHCUpgradeSimulations/Configuration/combinedCustoms.ecal_complete_aging_1000,SLHCUpgradeSimulations/Configuration/combinedCustoms.fixEcalConditions_1000',
+                 '--customise' : 'SLHCUpgradeSimulations/Configuration/combinedCustoms.cust_2019,SLHCUpgradeSimulations/Configuration/combinedCustoms.ecal_complete_aging_1000,SLHCUpgradeSimulations/Configuration/combinedCustoms.fixEcalConditions_1000,SLHCUpgradeSimulations/Configuration/aging.customise_aging_1000',
                  '--geometry' : 'Extended2019'
                  }
                              
@@ -2609,7 +2609,7 @@ step3Up2019_3000_Defaults = {'-s':'RAW2DIGI,L1Reco,RECO,VALIDATION,DQM',
                  '-n':'10',
                  '--magField' : '38T_PostLS1',
                  '--eventcontent':'FEVTDEBUGHLT,DQM',
-                 '--customise' : 'SLHCUpgradeSimulations/Configuration/combinedCustoms.cust_2019,SLHCUpgradeSimulations/Configuration/combinedCustoms.fixEcalConditions_3000',
+                 '--customise' : 'SLHCUpgradeSimulations/Configuration/combinedCustoms.cust_2019,SLHCUpgradeSimulations/Configuration/combinedCustoms.fixEcalConditions_3000,SLHCUpgradeSimulations/Configuration/aging.customise_aging_3000',
                  '--geometry' : 'Extended2019'
                  }
                              
@@ -2624,7 +2624,7 @@ step3Up2019_3000comp_Defaults = {'-s':'RAW2DIGI,L1Reco,RECO,VALIDATION,DQM',
                  '-n':'10',
                  '--magField' : '38T_PostLS1',
                  '--eventcontent':'FEVTDEBUGHLT,DQM',
-                 '--customise' : 'SLHCUpgradeSimulations/Configuration/combinedCustoms.cust_2019,SLHCUpgradeSimulations/Configuration/combinedCustoms.ecal_complete_aging_3000,SLHCUpgradeSimulations/Configuration/combinedCustoms.fixEcalConditions_3000',
+                 '--customise' : 'SLHCUpgradeSimulations/Configuration/combinedCustoms.cust_2019,SLHCUpgradeSimulations/Configuration/combinedCustoms.ecal_complete_aging_3000,SLHCUpgradeSimulations/Configuration/combinedCustoms.fixEcalConditions_3000,SLHCUpgradeSimulations/Configuration/aging.customise_aging_3000',
                  '--geometry' : 'Extended2019'
                  }
                              

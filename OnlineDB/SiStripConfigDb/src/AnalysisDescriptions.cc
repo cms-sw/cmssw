@@ -1,5 +1,5 @@
 // Last commit: $Id: AnalysisDescriptions.cc,v 1.13 2009/04/06 16:57:28 lowette Exp $
-// Latest tag:  $Name: CMSSW_6_1_2_SLHC6 $
+// Latest tag:  $Name: CMSSW_6_1_2_SLHC6_patch1 $
 // Location:    $Source: /local/reps/CMSSW/CMSSW/OnlineDB/SiStripConfigDb/src/AnalysisDescriptions.cc,v $
 
 #include "OnlineDB/SiStripConfigDb/interface/SiStripConfigDb.h"

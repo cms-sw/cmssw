@@ -25,7 +25,7 @@
 //
 //
 // $Id: GflashEMShowerModel.h,v 1.11 2012/08/02 12:26:15 civanch Exp $
-// GEANT4 tag $Name: CMSSW_6_1_2_SLHC6 $
+// GEANT4 tag $Name: CMSSW_6_1_2_SLHC6_patch1 $
 //
 //
 //---------------------------------------------------------------

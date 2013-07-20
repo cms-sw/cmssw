@@ -23,7 +23,7 @@
 // * acceptance of all terms of the Geant4 Software license.          *
 // ********************************************************************
 //
-// GEANT4 tag $Name: CMSSW_6_1_2_SLHC6 $
+// GEANT4 tag $Name: CMSSW_6_1_2_SLHC6_patch1 $
 //
 //---------------------------------------------------------------------------
 //

@@ -32,7 +32,38 @@ HcalPedestal HcalDbHardcode::makePedestal (HcalGenericDetId fId, bool fSmear, do
   // Temporary disabling of lumi-dependent pedestal to avoid it being too big
   // for TDC evaluations...
   //  float value0 = 4.* width.getWidth(0);  // to be far enough from 0
-  float value0 = fId.genericSubdet() == HcalGenericDetId::HcalGenForward ? 11. : 18.;  // fC
+
+  float value0(11.);
+  if  (fId.genericSubdet() == HcalGenericDetId::HcalGenForward)
+    value0 = 11.;
+  else if (fId.genericSubdet() == HcalGenericDetId::HcalGenOuter)
+    value0 = 10.;
+  else if ((fId.genericSubdet() == HcalGenericDetId::HcalGenBarrel) ||
+	   (fId.genericSubdet()  == HcalGenericDetId::HcalGenEndcap)) {
+
+    double eff_lumi = (lumi>200) ? lumi - 200. : 0.;
+    
+    float const darkCurrentPerArea(35.); // uA/mm^2 MPPC after 7*10^11 n/cm^2
+    float const sensorArea(6.16); // mm^2 for 2.8mm diameter SiPM device
+  
+    float darkCurrent(darkCurrentPerArea*sensorArea*eff_lumi/3000.);
+
+    float const currentFractionToQIE(1/5.);
+    float chargeToQIE(darkCurrent*25.*currentFractionToQIE); // uA*ns = fC
+
+    //end cap gets 1/7th the dose so we need to scale down the calculation
+    if (fId.genericSubdet() == HcalGenericDetId::HcalGenEndcap)
+      chargeToQIE *= 0.143;
+    else {
+      // in the HB depth 3 is actually two sensors which are bigger.
+      HcalDetId hid(fId);
+      if (hid.depth() == 3)
+	chargeToQIE *= 2*1.148;
+    }
+    
+    value0 = 18. + chargeToQIE;
+  }
+  
 
   float value [4] = {value0, value0, value0, value0};
   if (fSmear) {

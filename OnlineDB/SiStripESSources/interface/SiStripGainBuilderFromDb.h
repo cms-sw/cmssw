@@ -1,5 +1,5 @@
 // Last commit: $Id: SiStripGainBuilderFromDb.h,v 1.2 2008/09/29 13:20:28 bainbrid Exp $
-// Latest tag:  $Name: CMSSW_6_1_2_SLHC6 $
+// Latest tag:  $Name: CMSSW_6_1_2_SLHC6_patch1 $
 // Location:    $Source: /local/reps/CMSSW/CMSSW/OnlineDB/SiStripESSources/interface/SiStripGainBuilderFromDb.h,v $
 
 #ifndef OnlineDB_SiStripESSources_SiStripGainBuilderFromDb_H

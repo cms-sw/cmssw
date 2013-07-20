@@ -1,5 +1,5 @@
 // Last commit: $Id: test_PedestalsBuilder.cc,v 1.4 2010/01/08 10:19:55 alinn Exp $
-// Latest tag:  $Name: CMSSW_6_1_2_SLHC6 $
+// Latest tag:  $Name: CMSSW_6_1_2_SLHC6_patch1 $
 // Location:    $Source: /local/reps/CMSSW/CMSSW/OnlineDB/SiStripESSources/test/stubs/test_PedestalsBuilder.cc,v $
 
 #include "OnlineDB/SiStripESSources/test/stubs/test_PedestalsBuilder.h"

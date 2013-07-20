@@ -24,7 +24,7 @@
 // ********************************************************************
 //
 // $Id: G4MonopoleEquation.hh,v 1.1 2010/07/29 22:46:28 sunanda Exp $
-// GEANT4 tag $Name: CMSSW_6_1_2_SLHC6 $
+// GEANT4 tag $Name: CMSSW_6_1_2_SLHC6_patch1 $
 //
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

@@ -25,7 +25,7 @@
 //
 //
 // $Id: HadronPhysicsQGSP_WP.cc,v 1.4 2009/03/24 03:52:27 syjun Exp $
-// GEANT4 tag $Name: CMSSW_6_1_2_SLHC6 $
+// GEANT4 tag $Name: CMSSW_6_1_2_SLHC6_patch1 $
 //
 //---------------------------------------------------------------------------
 //
