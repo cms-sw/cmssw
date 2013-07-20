@@ -1,4 +1,4 @@
-// $Id: DQMEventMsg.cc,v 1.1.4.2 2011/03/07 12:01:12 mommsen Exp $
+// $Id: DQMEventMsg.cc,v 1.2 2011/03/07 15:41:54 mommsen Exp $
 /// @file: DQMEventMsg.cc
 
 #include "EventFilter/SMProxyServer/interface/DQMEventMsg.h"

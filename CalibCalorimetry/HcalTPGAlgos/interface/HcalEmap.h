@@ -20,7 +20,7 @@
 //
 // Original Author:  Gena Kukartsev, kukarzev@fnal.gov
 //         Created:  Tue Oct 14 14:30:20 CDT 2009
-// $Id: HcalEmap.h,v 1.1 2009/04/14 22:49:05 kukartse Exp $
+// $Id: HcalEmap.h,v 1.2 2010/08/06 20:24:02 wmtan Exp $
 //
 
 // system include files

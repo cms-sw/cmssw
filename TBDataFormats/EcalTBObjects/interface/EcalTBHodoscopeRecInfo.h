@@ -7,7 +7,7 @@
  *  Simple container for Hodoscope reconstructed informations 
  *
  *
- *  $Id: $
+ *  $Id: EcalTBHodoscopeRecInfo.h,v 1.1 2006/04/21 09:26:34 meridian Exp $
  */
 
 

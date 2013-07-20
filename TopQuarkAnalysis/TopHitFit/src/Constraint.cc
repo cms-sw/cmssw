@@ -1,5 +1,5 @@
 //
-// $Id: Constraint.cc,v 1.7 2010/08/05 02:25:11 haryo Exp $
+// $Id: Constraint.cc,v 1.1 2011/05/26 09:46:59 mseidel Exp $
 //
 // File: src/Constraint.cc
 // Purpose: Represent a mass constraint equation.

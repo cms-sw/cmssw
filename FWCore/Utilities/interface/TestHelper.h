@@ -22,7 +22,7 @@
 //   RunThis /bin/bash some_script.sh a b c
 //
 //
-// $Id: TestHelper.h,v 1.1 2005/11/21 15:39:02 paterno Exp $
+// $Id: TestHelper.h,v 1.2 2008/11/11 15:57:35 dsr Exp $
 //------------------------------------------------------------
 
 int ptomaine(int argc, char* argv[], char** env);

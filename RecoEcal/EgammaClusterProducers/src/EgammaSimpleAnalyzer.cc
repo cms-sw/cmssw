@@ -8,7 +8,7 @@
 //
 // Original Author:  Shahram Rahatlou
 //         Created:  10 May 2006
-// $Id: EgammaSimpleAnalyzer.cc,v 1.13 2009/03/25 17:50:24 ferriff Exp $
+// $Id: EgammaSimpleAnalyzer.cc,v 1.14 2009/12/18 20:45:01 wmtan Exp $
 //
 
 #include "RecoEcal/EgammaClusterProducers/interface/EgammaSimpleAnalyzer.h"

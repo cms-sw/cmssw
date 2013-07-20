@@ -1,0 +1,380 @@
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../../DetectorDescription/Schema/DDLSchema.xsd">
+  <MaterialSection label="PixelForwardMaterial.xml">
+    <CompositeMaterial name="FPix_Alumina" density="4.158*g/cm3" method="mixture by weight" pork="true" symbol=" ">
+      <MaterialFraction fraction="0.52924272">
+        <rMaterial name="trackermaterial:T_Aluminium"/>
+      </MaterialFraction>
+      <MaterialFraction fraction="0.47075728">
+        <rMaterial name="materials:Oxygen"/>
+      </MaterialFraction>
+    </CompositeMaterial>
+    <CompositeMaterial name="FPix_TinLeadSolder" density="9.68*g/cm3" method="mixture by weight" pork="true" symbol=" ">
+      <MaterialFraction fraction="0.49377422">
+        <rMaterial name="materials:Tin"/>
+      </MaterialFraction>
+      <MaterialFraction fraction="0.50622577">
+        <rMaterial name="materials:Lead"/>
+      </MaterialFraction>
+    </CompositeMaterial>
+    <CompositeMaterial name="FPix_Epoxy" density="0.88*g/cm3" method="mixture by weight" pork="true" symbol=" ">
+      <MaterialFraction fraction="0.7367217">
+        <rMaterial name="materials:Carbon"/>
+      </MaterialFraction>
+      <MaterialFraction fraction="0.0529922">
+        <rMaterial name="materials:Hydrogen"/>
+      </MaterialFraction>
+      <MaterialFraction fraction="0.21028601">
+        <rMaterial name="materials:Oxygen"/>
+      </MaterialFraction>
+    </CompositeMaterial>
+    <CompositeMaterial name="FPix_BNPowder" density="3.675*g/cm3" method="mixture by weight" pork="true" symbol=" ">
+      <MaterialFraction fraction="0.4356165">
+        <rMaterial name="materials:Bor 11"/>
+      </MaterialFraction>
+      <MaterialFraction fraction="0.564383">
+        <rMaterial name="materials:Nitrogen"/>
+      </MaterialFraction>
+    </CompositeMaterial>
+    <CompositeMaterial name="FPix_Silicone" density="1.04*g/cm3" method="mixture by weight" pork="true" symbol=" ">
+      <MaterialFraction fraction="0.3787448">
+        <rMaterial name="materials:Silicon"/>
+      </MaterialFraction>
+      <MaterialFraction fraction="0.21575329">
+        <rMaterial name="materials:Oxygen"/>
+      </MaterialFraction>
+      <MaterialFraction fraction="0.3239468">
+        <rMaterial name="materials:Carbon"/>
+      </MaterialFraction>
+      <MaterialFraction fraction="0.08155498">
+        <rMaterial name="materials:Hydrogen"/>
+      </MaterialFraction>
+    </CompositeMaterial>
+    <CompositeMaterial name="FPix_Kapton" density="1.61*g/cm3" method="mixture by weight" pork="true" symbol=" ">
+      <MaterialFraction fraction="0.6911352">
+        <rMaterial name="materials:Carbon"/>
+      </MaterialFraction>
+      <MaterialFraction fraction="0.026363">
+        <rMaterial name="materials:Hydrogen"/>
+      </MaterialFraction>
+      <MaterialFraction fraction="0.20923002">
+        <rMaterial name="materials:Oxygen"/>
+      </MaterialFraction>
+      <MaterialFraction fraction="0.0732717">
+        <rMaterial name="materials:Nitrogen"/>
+      </MaterialFraction>
+    </CompositeMaterial>
+    <CompositeMaterial name="FPix_Cylind_CF" density="1.505465*g/cm3" method="mixture by weight" pork="true" symbol=" ">
+      <MaterialFraction fraction="0.7498836">
+        <rMaterial name="materials:Carbon"/>
+      </MaterialFraction>
+      <MaterialFraction fraction="0.05034303">
+        <rMaterial name="materials:Hydrogen"/>
+      </MaterialFraction>
+      <MaterialFraction fraction="0.1997733">
+        <rMaterial name="materials:Oxygen"/>
+      </MaterialFraction>
+    </CompositeMaterial>
+    <CompositeMaterial name="FPix_Cylind_G10" density="1.7221*g/cm3" method="mixture by weight" pork="true" symbol=" ">
+      <MaterialFraction fraction="0.58320025">
+        <rMaterial name="materials:Carbon"/>
+      </MaterialFraction>
+      <MaterialFraction fraction="0.04194946">
+        <rMaterial name="materials:Hydrogen"/>
+      </MaterialFraction>
+      <MaterialFraction fraction="0.27744272">
+        <rMaterial name="materials:Oxygen"/>
+      </MaterialFraction>
+      <MaterialFraction fraction="0.09740755">
+        <rMaterial name="materials:Silicon"/>
+      </MaterialFraction>
+    </CompositeMaterial>
+    <CompositeMaterial name="FPix_Cylind_SnCu" density="9.303*g/cm3" method="mixture by weight" pork="true" symbol=" ">
+      <MaterialFraction fraction="0.08950548">
+        <rMaterial name="materials:Tin"/>
+      </MaterialFraction>
+      <MaterialFraction fraction="0.91049451">
+        <rMaterial name="trackermaterial:T_Copper"/>
+      </MaterialFraction>
+    </CompositeMaterial>
+    <CompositeMaterial name="FPix_Cylind_POLIAX" density="1.4605*g/cm3" method="mixture by weight" pork="true" symbol=" ">
+      <MaterialFraction fraction="0.74992040">
+        <rMaterial name="materials:Carbon"/>
+      </MaterialFraction>
+      <MaterialFraction fraction="0.04082067">
+        <rMaterial name="materials:Hydrogen"/>
+      </MaterialFraction>
+      <MaterialFraction fraction="0.16198633">
+        <rMaterial name="materials:Oxygen"/>
+      </MaterialFraction>
+      <MaterialFraction fraction="0.04727259">
+        <rMaterial name="materials:Nitrogen"/>
+      </MaterialFraction>
+    </CompositeMaterial>
+    <CompositeMaterial name="FPix_Cylind_Polyester" density="1.61*g/cm3" method="mixture by weight" pork="true" symbol=" ">
+      <MaterialFraction fraction="0.492">
+        <rMaterial name="materials:Carbon"/>
+      </MaterialFraction>
+      <MaterialFraction fraction="0.065">
+        <rMaterial name="materials:Hydrogen"/>
+      </MaterialFraction>
+      <MaterialFraction fraction="0.263">
+        <rMaterial name="materials:Oxygen"/>
+      </MaterialFraction>
+      <MaterialFraction fraction="0.091">
+        <rMaterial name="materials:Chlorine"/>
+      </MaterialFraction>
+      <MaterialFraction fraction="0.089">
+        <rMaterial name="materials:Antimony"/>
+      </MaterialFraction>
+    </CompositeMaterial>
+    <CompositeMaterial name="FPix_Cylind_Noryl" density="1.242*g/cm3" method="mixture by weight" pork="true" symbol=" ">
+      <MaterialFraction fraction="0.7997302">
+        <rMaterial name="materials:Carbon"/>
+      </MaterialFraction>
+      <MaterialFraction fraction="0.06711181">
+        <rMaterial name="materials:Hydrogen"/>
+      </MaterialFraction>
+      <MaterialFraction fraction="0.1331579">
+        <rMaterial name="materials:Oxygen"/>
+      </MaterialFraction>
+    </CompositeMaterial>
+    <CompositeMaterial name="FPix_Cylind_PMMA" density="1.38*g/cm3" method="mixture by weight" pork="true" symbol=" ">
+      <MaterialFraction fraction="0.59985105">
+        <rMaterial name="materials:Carbon"/>
+      </MaterialFraction>
+      <MaterialFraction fraction="0.080541353">
+        <rMaterial name="materials:Hydrogen"/>
+      </MaterialFraction>
+      <MaterialFraction fraction="0.31960759">
+        <rMaterial name="materials:Oxygen"/>
+      </MaterialFraction>
+    </CompositeMaterial>
+    <CompositeMaterial name="Pix_Fwd_Bump" density="0.455301*g/cm3" method="mixture by weight" pork="true" symbol=" ">
+      <MaterialFraction fraction="1">
+        <rMaterial name="pixfwdMaterials:FPix_TinLeadSolder"/>
+      </MaterialFraction>
+    </CompositeMaterial>
+    <CompositeMaterial name="Pix_Fwd_AgEpoxy" density="1.475086095*g/cm3" method="mixture by weight" pork="true" symbol=" ">
+      <MaterialFraction fraction="0.0852413493871353">
+        <rMaterial name="pixfwdMaterials:FPix_Epoxy"/>
+      </MaterialFraction>
+      <MaterialFraction fraction="0.355968109339408">
+        <rMaterial name="pixfwdMaterials:FPix_BNPowder"/>
+      </MaterialFraction>
+      <MaterialFraction fraction="0.402837617962903">
+        <rMaterial name="pixfwdMaterials:FPix_Silicone"/>
+      </MaterialFraction>
+      <MaterialFraction fraction="0.155952923310554">
+        <rMaterial name="pixfwdMaterials:FPix_Kapton"/>
+      </MaterialFraction>
+    </CompositeMaterial>
+    <CompositeMaterial name="Pix_Fwd_AdhFilm" density="1.4388155824*g/cm3" method="mixture by weight" pork="true" symbol=" ">
+      <MaterialFraction fraction="0.489327850582222">
+        <rMaterial name="pixfwdMaterials:FPix_Epoxy"/>
+      </MaterialFraction>
+      <MaterialFraction fraction="0.510672149417778">
+        <rMaterial name="pixfwdMaterials:FPix_BNPowder"/>
+      </MaterialFraction>
+    </CompositeMaterial>
+    <CompositeMaterial name="Pix_Fwd_VHDI" density="3.38030896102*g/cm3" method="mixture by weight" pork="true" symbol=" ">
+      <MaterialFraction fraction="0.364233302874919">
+        <rMaterial name="pixfwdMaterials:FPix_Kapton"/>
+      </MaterialFraction>
+      <MaterialFraction fraction="0.567652612283995">
+        <rMaterial name="trackermaterial:T_Copper"/>
+      </MaterialFraction>
+      <MaterialFraction fraction="0.0464037314928361">
+        <rMaterial name="trackermaterial:T_Barium_Titanate"/>
+      </MaterialFraction>
+      <MaterialFraction fraction="0.0217103533482499">
+        <rMaterial name="pixfwdMaterials:FPix_TinLeadSolder"/>
+      </MaterialFraction>
+    </CompositeMaterial>
+    <CompositeMaterial name="Pix_Fwd_ROChip" density="2.563*g/cm3" method="mixture by weight" pork="true" symbol=" ">
+      <MaterialFraction fraction="1">
+        <rMaterial name="materials:Silicon"/>
+      </MaterialFraction>
+    </CompositeMaterial>
+    <CompositeMaterial name="Pix_Fwd_HDI" density="2.36163039101*g/cm3" method="mixture by weight" pork="true" symbol=" ">
+      <MaterialFraction fraction="0.404994972727699">
+        <rMaterial name="pixfwdMaterials:FPix_Kapton"/>
+      </MaterialFraction>
+      <MaterialFraction fraction="0.105093907931061">
+        <rMaterial name="pixfwdMaterials:FPix_Epoxy"/>
+      </MaterialFraction>
+      <MaterialFraction fraction="0.419913870961784">
+        <rMaterial name="trackermaterial:T_Copper"/>
+      </MaterialFraction>
+      <MaterialFraction fraction="0.0032820534193266">
+        <rMaterial name="trackermaterial:T_Barium_Titanate"/>
+      </MaterialFraction>
+      <MaterialFraction fraction="0.00238694794132845">
+        <rMaterial name="pixfwdMaterials:FPix_Alumina"/>
+      </MaterialFraction>
+      <MaterialFraction fraction="0.0517626710705226">
+        <rMaterial name="pixfwdMaterials:FPix_TinLeadSolder"/>
+      </MaterialFraction>
+      <MaterialFraction fraction="0.012565575948279">
+        <rMaterial name="materials:Indium"/>
+      </MaterialFraction>
+    </CompositeMaterial>
+    <CompositeMaterial name="PixelForwardCoolant" density="1.969*g/cm3" method="mixture by weight" pork="true" symbol=" ">
+      <MaterialFraction fraction="0.213189">
+        <rMaterial name="materials:Carbon"/>
+      </MaterialFraction>
+      <MaterialFraction fraction="0.7868109">
+        <rMaterial name="materials:Fluorine"/>
+      </MaterialFraction>
+    </CompositeMaterial>
+    <CompositeMaterial name="Aluminium_OuterRing" density="1.911*g/cm3" method="mixture by weight" pork="true" symbol=" ">
+      <MaterialFraction fraction="1">
+        <rMaterial name="trackermaterial:T_Aluminium"/>
+      </MaterialFraction>
+    </CompositeMaterial>
+    <CompositeMaterial name="Aluminium_InnerRing" density="2.016*g/cm3" method="mixture by weight" pork="true" symbol=" ">
+      <MaterialFraction fraction="1">
+        <rMaterial name="trackermaterial:T_Aluminium"/>
+      </MaterialFraction>
+    </CompositeMaterial>
+    <CompositeMaterial name="Pix_Fwd_Servi_Cylind" density="0.2026622646564*g/cm3" method="mixture by weight" pork="true" symbol=" ">
+      <MaterialFraction fraction="0.963678318737925">
+        <rMaterial name="pixfwdMaterials:FPix_Cylind_CF"/>
+      </MaterialFraction>
+      <MaterialFraction fraction="0.0246610154789968">
+        <rMaterial name="pixfwdMaterials:FPix_Cylind_G10"/>
+      </MaterialFraction>
+      <MaterialFraction fraction="0.00936813095530581">
+        <rMaterial name="trackermaterial:T_Aluminium"/>
+      </MaterialFraction>
+      <MaterialFraction fraction="0.00229253482777227">
+        <rMaterial name="materials:Ceramic"/>
+      </MaterialFraction>
+    </CompositeMaterial>
+    <CompositeMaterial name="Pix_Fwd_End_Flange" density="1.76320687941*g/cm3" method="mixture by weight" pork="true" symbol=" ">
+      <MaterialFraction fraction="0.745400724661297">
+        <rMaterial name="trackermaterial:T_Aluminium"/>
+      </MaterialFraction>
+      <MaterialFraction fraction="0.140871095593227">
+        <rMaterial name="pixfwdMaterials:FPix_Cylind_SnCu"/>
+      </MaterialFraction>
+      <MaterialFraction fraction="0.0703646970635205">
+        <rMaterial name="pixfwdMaterials:FPix_Cylind_POLIAX"/>
+      </MaterialFraction>
+      <MaterialFraction fraction="0.0433634826819553">
+        <rMaterial name="pixfwdMaterials:PixelForwardCoolant"/>
+      </MaterialFraction>
+    </CompositeMaterial>
+    <CompositeMaterial name="Pix_Fwd_End_Electro_1" density="0.3084533029008*g/cm3" method="mixture by weight" pork="true" symbol=" ">
+      <MaterialFraction fraction="0.344232033962521">
+        <rMaterial name="pixfwdMaterials:FPix_Cylind_SnCu"/>
+      </MaterialFraction>
+      <MaterialFraction fraction="0.318608381903779">
+        <rMaterial name="pixfwdMaterials:FPix_Cylind_G10"/>
+      </MaterialFraction>
+      <MaterialFraction fraction="0.162130473477482">
+        <rMaterial name="pixfwdMaterials:FPix_Cylind_POLIAX"/>
+      </MaterialFraction>
+      <MaterialFraction fraction="0.0985553196539336">
+        <rMaterial name="pixfwdMaterials:FPix_Cylind_CF"/>
+      </MaterialFraction>
+      <MaterialFraction fraction="0.0535563140664856">
+        <rMaterial name="trackermaterial:T_Copper"/>
+      </MaterialFraction>
+      <MaterialFraction fraction="0.0229174769357987">
+        <rMaterial name="pixfwdMaterials:FPix_Cylind_Polyester"/>
+      </MaterialFraction>
+    </CompositeMaterial>
+    <CompositeMaterial name="Pix_Fwd_End_Electro_2" density="0.2908735701582*g/cm3" method="mixture by weight" pork="true" symbol=" ">
+      <MaterialFraction fraction="0.358992270845397">
+        <rMaterial name="pixfwdMaterials:FPix_Cylind_SnCu"/>
+      </MaterialFraction>
+      <MaterialFraction fraction="0.32622789725581">
+        <rMaterial name="pixfwdMaterials:FPix_Cylind_G10"/>
+      </MaterialFraction>
+      <MaterialFraction fraction="0.158833085229684">
+        <rMaterial name="pixfwdMaterials:FPix_Cylind_POLIAX"/>
+      </MaterialFraction>
+      <MaterialFraction fraction="0.100349354849685">
+        <rMaterial name="pixfwdMaterials:FPix_Cylind_CF"/>
+      </MaterialFraction>
+      <MaterialFraction fraction="0.0330039990390972">
+        <rMaterial name="trackermaterial:T_Copper"/>
+      </MaterialFraction>
+      <MaterialFraction fraction="0.0225933927803263">
+        <rMaterial name="pixfwdMaterials:FPix_Cylind_Polyester"/>
+      </MaterialFraction>
+    </CompositeMaterial>
+    <CompositeMaterial name="Pix_Fwd_End_Coil_Fiber" density="0.227093766084*g/cm3" method="mixture by weight" pork="true" symbol=" ">
+      <MaterialFraction fraction="0.563061778819164">
+        <rMaterial name="pixfwdMaterials:FPix_Cylind_Polyester"/>
+      </MaterialFraction>
+      <MaterialFraction fraction="0.276956935848849">
+        <rMaterial name="pixfwdMaterials:FPix_Cylind_POLIAX"/>
+      </MaterialFraction>
+      <MaterialFraction fraction="0.0883361720355624">
+        <rMaterial name="pixfwdMaterials:FPix_Cylind_G10"/>
+      </MaterialFraction>
+      <MaterialFraction fraction="0.0501920567726367">
+        <rMaterial name="pixfwdMaterials:FPix_Cylind_Noryl"/>
+      </MaterialFraction>
+      <MaterialFraction fraction="0.0214530565237883">
+        <rMaterial name="pixfwdMaterials:FPix_Cylind_PMMA"/>
+      </MaterialFraction>
+    </CompositeMaterial>
+    <CompositeMaterial name="Pix_Fwd_End_Pipe_1" density="3.07746221472*g/cm3" method="mixture by weight" pork="true" symbol=" ">
+      <MaterialFraction fraction="0.468966154052784">
+        <rMaterial name="pixfwdMaterials:FPix_Cylind_SnCu"/>
+      </MaterialFraction>
+      <MaterialFraction fraction="0.287046985875137">
+        <rMaterial name="pixfwdMaterials:PixelForwardCoolant"/>
+      </MaterialFraction>
+      <MaterialFraction fraction="0.156429778613481">
+        <rMaterial name="trackermaterial:T_Aluminium"/>
+      </MaterialFraction>
+      <MaterialFraction fraction="0.0875570814585991">
+        <rMaterial name="pixfwdMaterials:FPix_Cylind_POLIAX"/>
+      </MaterialFraction>
+    </CompositeMaterial>
+    <CompositeMaterial name="Pix_Fwd_End_Pipe_2" density="3.27049411463*g/cm3" method="mixture by weight" pork="true" symbol=" ">
+      <MaterialFraction fraction="0.474082423901689">
+        <rMaterial name="pixfwdMaterials:FPix_Cylind_SnCu"/>
+      </MaterialFraction>
+      <MaterialFraction fraction="0.258458052830231">
+        <rMaterial name="pixfwdMaterials:PixelForwardCoolant"/>
+      </MaterialFraction>
+      <MaterialFraction fraction="0.179499416074141">
+        <rMaterial name="trackermaterial:T_Aluminium"/>
+      </MaterialFraction>
+      <MaterialFraction fraction="0.0879601071939385">
+        <rMaterial name="pixfwdMaterials:FPix_Cylind_POLIAX"/>
+      </MaterialFraction>
+    </CompositeMaterial>
+    <CompositeMaterial name="Pix_Fwd_Port_Cards" density="1.286132262324*g/cm3" method="mixture by weight" pork="true" symbol=" ">
+      <MaterialFraction fraction="0.524298861304925">
+        <rMaterial name="pixfwdMaterials:FPix_Cylind_G10"/>
+      </MaterialFraction>
+      <MaterialFraction fraction="0.24236484787089">
+        <rMaterial name="trackermaterial:T_Copper"/>
+      </MaterialFraction>
+      <MaterialFraction fraction="0.124429410946294">
+        <rMaterial name="pixfwdMaterials:FPix_Kapton"/>
+      </MaterialFraction>
+      <MaterialFraction fraction="0.0452420683350697">
+        <rMaterial name="pixfwdMaterials:FPix_Cylind_Polyester"/>
+      </MaterialFraction>
+      <MaterialFraction fraction="0.022671869024816">
+        <rMaterial name="pixfwdMaterials:FPix_TinLeadSolder"/>
+      </MaterialFraction>
+      <MaterialFraction fraction="0.0194761941938517">
+        <rMaterial name="trackermaterial:T_Aluminium"/>
+      </MaterialFraction>
+      <MaterialFraction fraction="0.0155101206807102">
+        <rMaterial name="trackermaterial:T_Barium_Titanate"/>
+      </MaterialFraction>
+      <MaterialFraction fraction="0.00600662764344361">
+        <rMaterial name="materials:Silicon"/>
+      </MaterialFraction>
+    </CompositeMaterial>
+  </MaterialSection>
+</DDDefinition>

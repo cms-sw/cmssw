@@ -1,5 +1,5 @@
 import FWCore.ParameterSet.Config as cms
-# $Id: RecoMET_Cosmics_cff.py,v 1.12 2012/11/06 00:26:10 sakuma Exp $
+# $Id: RecoMET_Cosmics_cff.py,v 1.13 2012/11/06 02:33:52 sakuma Exp $
 
 ##____________________________________________________________________________||
 from RecoMET.Configuration.RecoMET_cff import *

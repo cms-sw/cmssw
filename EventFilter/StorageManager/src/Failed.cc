@@ -1,4 +1,4 @@
-// $Id: Failed.cc,v 1.15.6.1 2011/03/07 11:33:05 mommsen Exp $
+// $Id: Failed.cc,v 1.16 2011/03/07 15:31:32 mommsen Exp $
 /// @file: Failed.cc
 
 #include "EventFilter/StorageManager/interface/Exception.h"

@@ -15,7 +15,7 @@ Implementation:
 //
 // Original Author:  Bryan DAHMES
 //         Created:  Tue Jan 22 13:55:00 CET 2008
-// $Id: HLTHcalNZSFilter.h,v 1.3 2009/08/27 13:33:46 gruen Exp $
+// $Id: HLTHcalNZSFilter.h,v 1.4 2012/01/21 15:00:14 fwyzard Exp $
 //
 //
 

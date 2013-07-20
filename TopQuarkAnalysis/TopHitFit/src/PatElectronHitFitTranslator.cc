@@ -1,5 +1,5 @@
  //
-// $Id: PatElectronHitFitTranslator.cc,v 1.8 2010/08/06 22:02:52 haryo Exp $
+// $Id: PatElectronHitFitTranslator.cc,v 1.1 2011/05/26 09:47:00 mseidel Exp $
 //
 
 /**
@@ -13,7 +13,7 @@
     @par Created
     Sat Jun 27 17:49:06 2009 UTC
 
-    @version $Id: PatElectronHitFitTranslator.cc,v 1.8 2010/08/06 22:02:52 haryo Exp $
+    @version $Id: PatElectronHitFitTranslator.cc,v 1.1 2011/05/26 09:47:00 mseidel Exp $
  */
 
 

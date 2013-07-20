@@ -4,8 +4,8 @@
  *
  * \author Yanyan Gao, FNAL
  *
- *  $Date: 2010/02/11 00:10:48 $
- *  $Revision: 1.2 $
+ *  $Date: 2011/10/27 12:52:48 $
+ *  $Revision: 1.3 $
  *
  */
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"

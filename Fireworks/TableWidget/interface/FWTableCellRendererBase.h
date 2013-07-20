@@ -32,7 +32,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb  2 16:40:18 EST 2009
-// $Id$
+// $Id: FWTableCellRendererBase.h,v 1.1 2009/02/03 20:33:03 chrjones Exp $
 //
 
 // system include files

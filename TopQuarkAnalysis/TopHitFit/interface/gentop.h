@@ -1,5 +1,5 @@
 //
-// $Id: gentop.h,v 1.4 2009/11/20 10:39:18 haryo Exp $
+// $Id: gentop.h,v 1.1 2011/05/26 09:46:53 mseidel Exp $
 //
 // File: hitfit/gentop.h
 // Purpose: Toy ttbar event generator for testing.

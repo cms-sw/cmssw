@@ -1,4 +1,4 @@
-// $Id: SMProxyServer.h,v 1.22.4.1 2011/03/07 12:01:12 mommsen Exp $
+// $Id: SMProxyServer.h,v 1.23 2011/03/07 15:41:54 mommsen Exp $
 /// @file: SMProxyServer.h 
 
 #ifndef EventFilter_SMProxyServer_SMProxyServer_h
@@ -24,8 +24,8 @@ namespace smproxy {
    * Main class of the SMProxyServer XDAQ application
    *
    * $Author: mommsen $
-   * $Revision: 1.22.4.1 $
-   * $Date: 2011/03/07 12:01:12 $
+   * $Revision: 1.23 $
+   * $Date: 2011/03/07 15:41:54 $
    */
 
   class SMProxyServer: public xdaq::Application

@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Nov 25 10:54:28 EST 2008
-// $Id: FWSimpleRepresentationChecker.cc,v 1.7 2012/06/26 22:13:04 wmtan Exp $
+// $Id: FWSimpleRepresentationChecker.cc,v 1.8 2012/08/03 18:20:28 wmtan Exp $
 //
 
 // system include files

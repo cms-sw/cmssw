@@ -7,7 +7,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: ParticleBase.h,v 1.3 2008/11/26 17:46:46 bazterra Exp $
+ * \version $Id: ParticleBase.h,v 1.4 2011/10/27 16:31:44 wmtan Exp $
  *
  */
 #include "DataFormats/Math/interface/Point3D.h"

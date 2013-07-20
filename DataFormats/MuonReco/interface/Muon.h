@@ -10,7 +10,7 @@
  *
  * \author Luca Lista, Claudio Campagnari, Dmytro Kovalskyi, Jake Ribnik, Riccardo Bellan, Michalis Bachtis
  *
- * \version $Id: Muon.h,v 1.74 2012/08/21 21:28:00 mskim Exp $
+ * \version $Id: Muon.h,v 1.75 2012/09/21 08:37:40 mskim Exp $
  *
  */
 #include "DataFormats/RecoCandidate/interface/RecoCandidate.h"

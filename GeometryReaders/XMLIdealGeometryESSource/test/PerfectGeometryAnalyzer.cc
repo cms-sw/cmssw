@@ -13,7 +13,7 @@
 //
 // Original Author:  Tommaso Boccali
 //         Created:  Tue Jul 26 08:47:57 CEST 2005
-// $Id: PerfectGeometryAnalyzer.cc,v 1.18 2010/03/25 22:08:45 case Exp $
+// $Id: PerfectGeometryAnalyzer.cc,v 1.19 2010/07/19 16:16:15 case Exp $
 //
 //
 

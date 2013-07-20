@@ -23,8 +23,8 @@
 // * acceptance of all terms of the Geant4 Software license.          *
 // ********************************************************************
 //
-// $Id: G4mplIonisationWithDeltaModel.hh,v 1.7 2009/02/20 16:38:33 vnivanch Exp $
-// GEANT4 tag $Name: geant4-09-03-ref-00 $
+// $Id: G4mplIonisationWithDeltaModel.hh,v 1.1 2010/07/29 23:05:19 sunanda Exp $
+// GEANT4 tag $Name: CMSSW_6_1_2_SLHC6 $
 //
 // -------------------------------------------------------------------
 //

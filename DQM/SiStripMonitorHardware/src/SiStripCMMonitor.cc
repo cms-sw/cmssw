@@ -10,7 +10,7 @@
 */
 //
 //         Created:  2009/07/22
-// $Id: SiStripCMMonitor.cc,v 1.20 2011/10/04 17:25:59 amagnan Exp $
+// $Id: SiStripCMMonitor.cc,v 1.1 2012/10/15 09:02:47 threus Exp $
 //
 
 #include <sstream>

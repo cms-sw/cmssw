@@ -4,8 +4,8 @@
 /** \class SeedLayerPairs
  *  interface to access pairs of layers; used for seedgenerator
  *
- *  $Date: 2007/05/10 12:00:32 $
- *  $Revision: 1.2 $
+ *  $Date: 2007/12/04 23:51:42 $
+ *  $Revision: 1.3 $
  *  \author Maarten Thomas
  */
  

@@ -1,8 +1,8 @@
 #!/usr/bin/env perl
 #     R. Mankel, DESY Hamburg     07-Jul-2007
 #     A. Parenti, DESY Hamburg    16-Apr-2008
-#     $Revision: 1.3 $
-#     $Date: 2009/01/07 18:25:14 $
+#     $Revision: 1.4 $
+#     $Date: 2012/09/10 15:11:04 $
 #
 #  Fetch jobs that have DONE status
 #  This step is mainly foreseen in case job result files need 

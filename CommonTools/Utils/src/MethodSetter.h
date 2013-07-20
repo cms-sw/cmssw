@@ -4,7 +4,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: MethodSetter.h,v 1.3 2010/02/20 00:44:40 gpetrucc Exp $
+ * \version $Id: MethodSetter.h,v 1.4 2012/06/26 21:13:13 wmtan Exp $
  */
 #include "CommonTools/Utils/src/MethodStack.h"
 #include "CommonTools/Utils/src/TypeStack.h"

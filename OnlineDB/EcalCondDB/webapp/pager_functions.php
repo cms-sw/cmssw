@@ -6,7 +6,7 @@
  * Credit:  Inspired by Harry Fuecks article
  * http://www.oracle.com/technology/pub/articles/oracle_php_cookbook/fuecks_paged.html
  *
- * $Id$
+ * $Id: pager_functions.php,v 1.3 2006/07/23 16:47:58 egeland Exp $
  */
 
 include('Net/URL.php');

@@ -6,8 +6,8 @@
  *  inner layer of the tracker detector, no RecHit is required on the TrajectorySeed.
  *  Combinatorics between RecHits is made. RecHits are accessed via the MeasurementTracker
  *  
- *  $Date: 2010/09/10 21:44:37 $
- *  $Revision: 1.4 $
+ *  $Date: 2011/12/22 18:07:01 $
+ *  $Revision: 1.5 $
  *  \author Adam Evertt, Jean-Roch Vlimant
  */
 

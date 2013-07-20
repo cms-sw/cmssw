@@ -1,5 +1,5 @@
 //
-// $Id: Refcount.cc,v 1.2 2009/11/18 20:59:12 haryo Exp $
+// $Id: Refcount.cc,v 1.1 2011/05/26 09:47:00 mseidel Exp $
 //
 // File: Refcount.cc
 // Purpose: Reference count implementation.

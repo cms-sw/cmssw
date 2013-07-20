@@ -5,7 +5,6 @@
 #include "DataFormats/Common/interface/ValueMap.h"
 
 #include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
-#include "DataFormats/ParticleFlowReco/interface/PFSuperCluster.h"
 #include "Math/Cartesian3D.h"
 #include "DataFormats/ParticleFlowReco/interface/PFRecHit.h"
 #include "Math/Polar3D.h"
@@ -69,14 +68,6 @@ namespace {
 
     std::vector<reco::PFCluster>                         dummy1;
     edm::Wrapper< std::vector<reco::PFCluster> >         dummy2;
-
-    std::vector<reco::PFSuperCluster>                    dummy1a;
-    edm::Wrapper< std::vector<reco::PFSuperCluster> >    dummy2a;
-
-    edm::PtrVector<reco::PFCluster>                         dummy1b;
-   
-
-    edm::PtrVector<reco::PFSuperCluster>                    dummy1c;
 
     std::vector<reco::PFRecHit>                          dummy3;
     edm::Ref< std::vector<reco::PFRecHit> >              dummy4;

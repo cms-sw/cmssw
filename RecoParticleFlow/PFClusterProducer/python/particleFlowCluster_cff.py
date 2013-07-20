@@ -15,8 +15,6 @@ from RecoParticleFlow.PFClusterProducer.particleFlowClusterHO_cfi import *
 from RecoParticleFlow.PFClusterProducer.particleFlowClusterPS_cfi import *
 from RecoParticleFlow.PFClusterProducer.particleFlowClusterHFEM_cfi import *
 from RecoParticleFlow.PFClusterProducer.particleFlowClusterHFHAD_cfi import *
-from RecoParticleFlow.PFClusterProducer.particleFlowHCALSuperClusterDualTime_cfi import *
-
 
 pfClusteringECAL = cms.Sequence(particleFlowRecHitECAL*particleFlowClusterECAL)
 #pfClusteringHCAL = cms.Sequence(particleFlowRecHitHCAL*particleFlowClusterHCAL)
@@ -26,7 +24,7 @@ pfClusteringHO = cms.Sequence(particleFlowRecHitHO*particleFlowClusterHO)
 
 #pfClusteringHCAL = cms.Sequence(particleFlowRecHitHCAL*particleFlowClusterHCAL*particleFlowClusterHFHAD*particleFlowClusterHFEM)
 pfClusteringPS = cms.Sequence(particleFlowRecHitPS*particleFlowClusterPS)
-pfClusteringSC = cms.Sequence(particleFlowRecHitHCAL*particleFlowHCALSuperClusterDualTime)
+
 
 towerMakerPF = calotowermaker.clone()
 
@@ -94,8 +92,7 @@ particleFlowCluster = cms.Sequence(
     pfClusteringECAL*
     pfClusteringHCAL*
     pfClusteringHO*
-    pfClusteringPS*
-    pfClusteringSC
+    pfClusteringPS
 )
 
 

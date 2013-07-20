@@ -12,7 +12,7 @@
 //
 // Author:      Christophe Saout
 // Created:     Sat Apr 24 15:18 CEST 2007
-// $Id: ProcClassed.cc,v 1.3 2007/07/15 22:31:46 saout Exp $
+// $Id: ProcClassed.cc,v 1.4 2010/02/20 12:16:20 saout Exp $
 //
 
 #include "PhysicsTools/MVAComputer/interface/VarProcessor.h"

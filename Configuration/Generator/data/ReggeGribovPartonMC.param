@@ -1,0 +1,37 @@
+!!input file for GribovReggeMCPartonInterface
+!! a line starting with "!" is not read by the program
+
+switch fusion on      !nuclear effects due to high density
+                      !more realistic but slow (can be switched off)
+
+!set istmax 0          !uncomment to get only final particles with EPOS
+
+
+!!Set up particle Decays
+!switch decay off     !no decay at all
+
+!nodecay  14    !uncomment not to decay mu- (PDG id =  13)
+!nodecay -14    !uncomment not to decay mu+ (PDG id = -13)
+!nodecay  1220  !uncomment not to decay neutron  (PDG id =  2112)
+!nodecay -1220  !uncomment not to decay aneutron (PDG id = -2112)
+!nodecay  120   !uncomment not to decay pi+ (PDG id =  211)
+!nodecay -120   !uncomment not to decay pi- (PDG id = -211)
+!nodecay  130   !uncomment not to decay k+ (PDG id =  321)
+!nodecay -130   !uncomment not to decay k- (PDG id = -321)
+!nodecay -20    !uncomment not to decay k0L (PDG id = -130)
+!... more possible (with EPOS id (not PDG))
+!for other particles, please ask me ... or minimum ctau (cm) :
+
+MinDecayLength  1.0    !minimum c.Tau to define stable particles (cm)
+
+fname check  none
+
+!!ImpactParameter
+!set bminim 0 !works with epos
+!set bmaxim 2
+
+!!Debug Output
+!print * 4
+!printcheck screen
+
+EndEposInput

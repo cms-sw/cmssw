@@ -5,7 +5,7 @@
 import FWCore.ParameterSet.Config as cms
 
 #
-# $Id: MonitorAlCaHcalPhisym_cfi.py,v 1.6 2012/07/25 11:52:24 safronov Exp $
+# $Id: MonitorAlCaHcalPhisym_cfi.py,v 1.7 2012/10/16 17:18:50 safronov Exp $
 #
 # \author Stefano Argiro
 #

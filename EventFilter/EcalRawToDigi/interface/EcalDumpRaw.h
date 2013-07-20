@@ -1,5 +1,5 @@
 /*
- * $Id: EcalDumpRaw.h,v 1.4 2012/01/11 20:52:35 davidlt Exp $
+ * $Id: EcalDumpRaw.h,v 1.5 2012/09/11 20:47:03 wdd Exp $
  *
  * Author: Ph Gras. CEA/IRFU - Saclay
  */

@@ -1,5 +1,5 @@
 /*
- * $Id: CollHandle.h,v 1.5 2009/08/03 11:22:10 pgras Exp $
+ * $Id: CollHandle.h,v 1.6 2010/02/11 00:15:21 wmtan Exp $
  */
 
 #ifndef EcalDigis_CollHandle_h

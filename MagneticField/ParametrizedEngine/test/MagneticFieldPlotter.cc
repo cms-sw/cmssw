@@ -14,7 +14,7 @@
 //
 // Original Author:  Massimiliano Chiorboli
 //         Created:  Mon Jun 11 17:20:15 CEST 2007
-// $Id: MagneticFieldPlotter.cc,v 1.3 2008/03/28 16:49:25 namapane Exp $
+// $Id: MagneticFieldPlotter.cc,v 1.4 2009/12/14 22:23:22 wmtan Exp $
 //
 //
 

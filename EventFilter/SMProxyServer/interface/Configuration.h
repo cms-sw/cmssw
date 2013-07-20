@@ -1,4 +1,4 @@
-// $Id: Configuration.h,v 1.2 2011/03/07 15:41:54 mommsen Exp $
+// $Id: Configuration.h,v 1.3 2011/05/09 11:03:25 mommsen Exp $
 /// @file: Configuration.h 
 
 #ifndef EventFilter_SMProxyServer_Configuration_h
@@ -83,8 +83,8 @@ namespace smproxy
    * only at requested times.
    *
    * $Author: mommsen $
-   * $Revision: 1.2 $
-   * $Date: 2011/03/07 15:41:54 $
+   * $Revision: 1.3 $
+   * $Date: 2011/05/09 11:03:25 $
    */
 
   class Configuration : public xdata::ActionListener

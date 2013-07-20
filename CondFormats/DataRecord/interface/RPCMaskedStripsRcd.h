@@ -16,7 +16,7 @@
 //
 // Author:      
 // Created:     Wed Nov 03 15:48:55 CEST 2008
-// $Id: RPCMaskedStripsRcd.h,v 1.3 2008/11/03 18:55:37 sanabria Exp $
+// $Id: RPCMaskedStripsRcd.h,v 1.1 2008/12/04 12:50:24 sanabria Exp $
 //
 
 

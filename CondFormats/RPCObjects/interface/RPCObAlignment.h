@@ -1,8 +1,8 @@
 /*
  * Payload definition(s): Chamber Alignment (RPCObAlignment)
  *
- *  $Date: 2009/11/16 12:53:47 $
- *  $Revision: 1.3 $
+ *  $Date: 2009/11/16 12:55:34 $
+ *  $Revision: 1.4 $
  *  \author D. Pagano - Dip. Fis. Nucl. e Teo. & INFN Pavia
  */
 

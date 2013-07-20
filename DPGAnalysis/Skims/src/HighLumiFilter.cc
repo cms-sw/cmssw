@@ -13,7 +13,7 @@
 //
 // Original Author:  Giuseppe Cerati,28 S-012,+41227678302,
 //         Created:  Tue Jan 15 12:46:40 CET 2013
-// $Id$
+// $Id: HighLumiFilter.cc,v 1.1 2013/01/15 15:54:55 cerati Exp $
 //
 //
 

@@ -4,8 +4,8 @@
  *  This class is an HLTFilter (-> EDFilter) implementing a
  *  single CaloTower requirement with an emEnergy threshold (not Et!)
  *
- *  $Date: 2011/05/01 14:38:24 $
- *  $Revision: 1.5 $
+ *  $Date: 2012/01/21 15:00:16 $
+ *  $Revision: 1.6 $
  *
  *  \author Seth Cooper
  *

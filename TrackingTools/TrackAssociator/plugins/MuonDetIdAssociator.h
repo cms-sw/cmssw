@@ -15,7 +15,7 @@
 //
 // Original Author:  Dmytro Kovalskyi
 //         Created:  Fri Apr 21 10:59:41 PDT 2006
-// $Id: MuonDetIdAssociator.h,v 1.10 2010/02/18 14:35:48 dmytro Exp $
+// $Id: MuonDetIdAssociator.h,v 1.1 2011/04/07 09:12:02 innocent Exp $
 //
 //
 

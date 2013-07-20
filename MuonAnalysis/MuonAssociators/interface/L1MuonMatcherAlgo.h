@@ -1,7 +1,7 @@
 #ifndef MuonAnalysis_MuonAssociators_interface_L1MuonMatcherAlgo_h
 #define MuonAnalysis_MuonAssociators_interface_L1MuonMatcherAlgo_h
 //
-// $Id: L1MuonMatcherAlgo.h,v 1.8 2010/07/01 07:40:52 gpetrucc Exp $
+// $Id: L1MuonMatcherAlgo.h,v 1.9 2011/04/27 23:13:21 gpetrucc Exp $
 //
 
 /**
@@ -9,7 +9,7 @@
   \brief    Matcher of reconstructed objects to L1 Muons 
             
   \author   Giovanni Petrucciani
-  \version  $Id: L1MuonMatcherAlgo.h,v 1.8 2010/07/01 07:40:52 gpetrucc Exp $
+  \version  $Id: L1MuonMatcherAlgo.h,v 1.9 2011/04/27 23:13:21 gpetrucc Exp $
 */
 
 

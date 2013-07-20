@@ -8,12 +8,12 @@ particleFlowBlock = cms.EDProducer("PFBlockProducer",
     debug = cms.untracked.bool(False),
 
     # Link tracks and HCAL clusters to HO clusters
-    useHO = cms.bool(False), # deprecated if we use superclustering at the HCAL
+    useHO = cms.bool(True),
 
     # input clusters
     PFClustersECAL = cms.InputTag("particleFlowClusterECAL"),
-    PFClustersHCAL = cms.InputTag("particleFlowHCALSuperClusterDualTime"),
-    PFClustersHO = cms.InputTag("particleFlowHCALSuperClusterDualTime"), # should not be used. 	
+    PFClustersHCAL = cms.InputTag("particleFlowClusterHCAL"),
+    PFClustersHO = cms.InputTag("particleFlowClusterHO"),	
     # For upgrade studies:
 #    PFClustersHCAL = cms.InputTag("particleFlowHCALSuperClusterDualTime"),
     PFClustersHFEM = cms.InputTag("particleFlowClusterHFEM"),

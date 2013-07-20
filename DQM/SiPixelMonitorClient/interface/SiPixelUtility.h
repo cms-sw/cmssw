@@ -5,8 +5,8 @@
  * *
  *  Class that handles the SiPixel Quality Tests
  * 
- *  $Date: 2007/10/18 19:49:58 $
- *  $Revision: 1.4 $
+ *  $Date: 2008/03/01 20:19:46 $
+ *  $Revision: 1.5 $
  *  \author Petra Merkel
   */
 

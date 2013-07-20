@@ -10,10 +10,10 @@
    .
 
   \author   Volker Adler
-  \version  $Id: PATTriggerMatchEmbedder.cc,v 1.7 2010/09/01 18:56:48 vadler Exp $
+  \version  $Id: PATTriggerMatchEmbedder.cc,v 1.6 2010/09/02 17:52:47 vadler Exp $
 */
 //
-// $Id: PATTriggerMatchEmbedder.cc,v 1.7 2010/09/01 18:56:48 vadler Exp $
+// $Id: PATTriggerMatchEmbedder.cc,v 1.6 2010/09/02 17:52:47 vadler Exp $
 //
 
 

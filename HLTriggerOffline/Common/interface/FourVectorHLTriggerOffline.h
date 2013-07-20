@@ -18,7 +18,7 @@
 //         Created:  June 2008
 // Rewritten by: Vladimir Rekovic
 //         Date:  May 2009
-// $Id: FourVectorHLTriggerOffline.h,v 1.30 2013/01/07 10:58:35 eulisse Exp $
+// $Id: FourVectorHLTriggerOffline.h,v 1.31 2013/01/07 11:02:43 eulisse Exp $
 //
 //
 

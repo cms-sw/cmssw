@@ -19,8 +19,8 @@ process.source = cms.Source("PoolSource",
 )                            
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.2 $'),
-    name = cms.untracked.string('$Source: /cvs_server/repositories/CMSSW/CMSSW/DPGAnalysis/Skims/python/PtMinSelectorNoSAMu_cfg.py,v $'),
+    version = cms.untracked.string('$Revision: 1.3 $'),
+    name = cms.untracked.string('$Source: /local/reps/CMSSW/CMSSW/DPGAnalysis/Skims/python/PtMinSelectorNoSAMu_cfg.py,v $'),
     annotation = cms.untracked.string('CRAFT tk and global Muon Pt 50 skim')
 )
 

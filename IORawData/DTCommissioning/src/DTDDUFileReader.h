@@ -4,8 +4,8 @@
 /** \class DTDDUFileReader
  *  Read DT ROS8 raw data files
  *
- *  $Date: 2008/05/27 12:45:38 $
- *  $Revision: 1.10 $
+ *  $Date: 2010/02/03 16:58:24 $
+ *  $Revision: 1.11 $
  *  \author M. Zanetti - INFN Padova
  */
 

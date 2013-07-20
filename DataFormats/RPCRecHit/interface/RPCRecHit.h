@@ -5,8 +5,8 @@
  *
  *  RecHit for RPC 
  *
- *  $Date: 2007/03/30 06:08:33 $
- *  $Revision: 1.7 $
+ *  $Date: 2007/08/02 05:20:41 $
+ *  $Revision: 1.8 $
  *  \author M. Maggi -- INFN Bari 
  */
 

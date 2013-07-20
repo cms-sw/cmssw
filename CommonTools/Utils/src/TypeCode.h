@@ -4,7 +4,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: TypeCode.h,v 1.1 2009/02/24 14:10:22 llista Exp $
+ * \version $Id: TypeCode.h,v 1.2 2009/12/04 13:29:43 gpetrucc Exp $
  *
  */
 

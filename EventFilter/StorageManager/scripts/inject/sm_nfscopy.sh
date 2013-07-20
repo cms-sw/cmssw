@@ -1,5 +1,5 @@
 #!/bin/bash
-# $Id: sm_nfscopy.sh,v 1.9 2010/09/03 06:33:01 babar Exp $
+# $Id: sm_nfscopy.sh,v 1.10 2012/03/16 19:11:28 babar Exp $
 
 nfsserver=$1
 filename=$2

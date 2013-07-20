@@ -1,6 +1,6 @@
 package Mpslib;  # assumes Some/Module.pm
 
-# $Revision: 1.8 $ by $Author: flucke $
+# $Revision: 1.9 $ by $Author: jbehr $
 #
 # Meaning of the database variables:
 #

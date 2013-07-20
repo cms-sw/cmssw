@@ -1,4 +1,4 @@
-// $Id: FourVectorHLTriggerOffline.cc,v 1.37.2.2 2010/08/03 16:08:23 wmtan Exp $
+// $Id: FourVectorHLTriggerOffline.cc,v 1.40 2011/10/28 16:34:34 olzem Exp $
 // See header file for information. 
 #include "TMath.h"
 #include "HLTriggerOffline/Common/interface/FourVectorHLTriggerOffline.h"

@@ -13,7 +13,7 @@ generator = cms.EDFilter("ReggeGribovPartonMCGeneratorFilter",
 
 
 configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.1 $'),
+    version = cms.untracked.string('$Revision: 1.2 $'),
     name = cms.untracked.string('$Source: /local/reps/CMSSW/CMSSW/GeneratorInterface/ReggeGribovPartonMCInterface/python/ReggeGribovPartonMC_QGSJetII_2760GeV_pp_cfi.py,v $'),
     annotation = cms.untracked.string('ReggeGribovMC generator')
     )

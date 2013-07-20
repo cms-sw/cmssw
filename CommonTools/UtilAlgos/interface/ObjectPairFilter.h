@@ -6,9 +6,9 @@
  * 
  * \author Luca Lista, INFN
  *
- * \version $Revision: 1.2 $
+ * \version $Revision: 1.3 $
  *
- * $Id: ObjectPairFilter.h,v 1.2 2009/08/21 16:25:47 wmtan Exp $
+ * $Id: ObjectPairFilter.h,v 1.3 2010/02/20 20:55:26 wmtan Exp $
  *
  */
 

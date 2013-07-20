@@ -123,13 +123,6 @@ def customise_Digi(process):
         process.HcalTPGCoderULUT.hcalTopologyConstants.maxDepthHB=cms.int32(3)
         process.HcalTPGCoderULUT.hcalTopologyConstants.maxDepthHE=cms.int32(5)
 
-    if hasattr(process,'simHcalDigis'):
-        process.simHcalDigis.useConfigZSvalues=cms.int32(1)
-        process.simHcalDigis.HBlevel=cms.int32(16)
-        process.simHcalDigis.HElevel=cms.int32(16)
-        process.simHcalDigis.HOlevel=cms.int32(16)
-        process.simHcalDigis.HFlevel=cms.int32(16)
-
     process.digitisation_step.remove(process.simHcalTriggerPrimitiveDigis)
     process.digitisation_step.remove(process.simHcalTTPDigis)
     
@@ -201,12 +194,9 @@ def customise_Reco(process):
     process.reconstruction_step.remove(process.hbhereco)
     process.reconstruction_step.replace(process.hbheprereco,process.hbheUpgradeReco)
 
-    process.horeco.digiLabel = "simHcalDigis" 
-    process.hbhereco.digiLabel = cms.InputTag("simHcalDigis","HBHEUpgradeDigiCollection")
-    process.hfreco.digiLabel = cms.InputTag("simHcalDigis","HBHEUpgradeDigiCollection")
-
-    process.zdcreco.digiLabel = "simHcalUnsuppressedDigis"
-    process.hcalnoise.digiCollName=cms.string('simHcalDigis')
+    process.horeco.digiLabel = "simHcalUnsuppressedDigis" 
+    process.zdcreco.digiLabel = "simHcalUnsuppressedDigis" 
+    process.hcalnoise.digiCollName=cms.string('simHcalUnsuppressedDigis')
 
     # not sure why these are missing - but need to investigate later
     process.reconstruction_step.remove(process.castorreco)

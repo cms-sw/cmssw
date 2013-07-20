@@ -3,7 +3,7 @@
 //
 // Original Author:  Filippo Ambroglini
 //         Created:  Fri Sep 29 17:10:41 CEST 2006
-// $Id: MinimumBiasFilter.h,v 1.1 2006/10/06 08:10:42 fambrogl Exp $
+// $Id: MinimumBiasFilter.h,v 1.1 2007/03/28 14:04:44 fabstoec Exp $
 //
 // system include files
 #include <memory>

@@ -1,5 +1,5 @@
 //
-// $Id: Constraint_Intermed.h,v 1.5 2009/11/18 11:12:28 haryo Exp $
+// $Id: Constraint_Intermed.h,v 1.1 2011/05/26 09:46:53 mseidel Exp $
 //
 // File: hitfit/private/Constraint_Intermed.h
 // Purpose: Represent one side of a mass constraint equation.

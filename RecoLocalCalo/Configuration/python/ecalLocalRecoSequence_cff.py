@@ -16,17 +16,6 @@ from RecoLocalCalo.EcalRecProducers.ecalPreshowerRecHit_cfi import *
 from RecoLocalCalo.EcalRecProducers.ecalDetIdToBeRecovered_cfi import *
 from RecoLocalCalo.EcalRecProducers.ecalCompactTrigPrim_cfi import *
 from RecoLocalCalo.EcalRecProducers.ecalTPSkim_cfi import *
-
-
-ecalUncalibRecHitSequence = cms.Sequence(ecalGlobalUncalibRecHit*
-                                         ecalDetIdToBeRecovered)
-
-ecalRecHitSequence        = cms.Sequence(ecalRecHit*
-                                         ecalCompactTrigPrim*
-                                         ecalTPSkim+
-                                         ecalPreshowerRecHit)
-
-ecalLocalRecoSequence     = cms.Sequence(ecalUncalibRecHitSequence*
-                                         ecalRecHitSequence)
-
+ecalLocalRecoSequence = cms.Sequence(ecalGlobalUncalibRecHit*ecalDetIdToBeRecovered*ecalRecHit*ecalCompactTrigPrim*ecalTPSkim+ecalPreshowerRecHit)
+ecalLocalRecoSequence_nopreshower = cms.Sequence(ecalGlobalUncalibRecHit*ecalRecHit)
 ecalRecHit.ChannelStatusToBeExcluded = [ 3, 4, 8, 9, 10, 11, 12, 13, 14 ]

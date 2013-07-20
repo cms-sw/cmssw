@@ -5,8 +5,8 @@
 //   Description: Logical location of a Track Segment
 //
 //
-//   $Date: 2007/02/27 11:44:00 $
-//   $Revision: 1.2 $
+//   $Date: 2008/10/13 07:44:43 $
+//   $Revision: 1.3 $
 //
 //   Author :
 //   N. Neumeister             CERN EP

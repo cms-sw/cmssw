@@ -1,4 +1,4 @@
-// Last commit: $Id: FedDescriptions.cc,v 1.32 2009/04/06 16:57:28 lowette Exp $
+// Last commit: $Id: FedDescriptions.cc,v 1.33 2011/09/02 11:25:25 eulisse Exp $
 
 #include "OnlineDB/SiStripConfigDb/interface/SiStripConfigDb.h"
 #include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"

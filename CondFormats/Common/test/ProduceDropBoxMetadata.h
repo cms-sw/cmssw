@@ -4,7 +4,7 @@
 /** \class ProduceDropBoxMetadata
  *  No description available.
  *
- *  $Date: 2011/02/22 11:05:16 $
+ *  $Date: 2011/02/23 16:55:18 $
  *  $Revision: 1.1 $
  *  \author G. Cerminara - CERN
  */

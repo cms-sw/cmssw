@@ -17,8 +17,8 @@
  * \author: Vasile Mihai Ghete - HEPHY Vienna
  * \author: W. David Dagenhart
  * 
- * $Date$
- * $Revision$
+ * $Date: 2012/03/02 22:03:25 $
+ * $Revision: 1.1 $
  *
  */
 

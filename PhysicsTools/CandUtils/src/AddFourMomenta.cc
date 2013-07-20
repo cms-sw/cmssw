@@ -1,4 +1,4 @@
-// $Id: AddFourMomenta.cc,v 1.7 2006/09/19 07:47:15 llista Exp $
+// $Id: AddFourMomenta.cc,v 1.8 2007/09/27 13:55:04 llista Exp $
 #include "PhysicsTools/CandUtils/interface/AddFourMomenta.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
 

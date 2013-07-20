@@ -1,4 +1,4 @@
-// $Id: DQMEventProcessor.h,v 1.8 2011/11/08 10:48:40 mommsen Exp $
+// $Id: DQMEventProcessor.h,v 1.9 2012/04/20 10:48:18 mommsen Exp $
 /// @file: DQMEventProcessor.h 
 
 #ifndef EventFilter_StorageManager_DQMEventProcessor_h
@@ -32,8 +32,8 @@ namespace stor {
    * to disk every N lumi-sections.
    *
    * $Author: mommsen $
-   * $Revision: 1.8 $
-   * $Date: 2011/11/08 10:48:40 $
+   * $Revision: 1.9 $
+   * $Date: 2012/04/20 10:48:18 $
    */
   
   class DQMEventProcessor : public toolbox::lang::Class

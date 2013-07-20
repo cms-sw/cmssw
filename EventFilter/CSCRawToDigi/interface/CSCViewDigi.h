@@ -15,7 +15,7 @@ Description: <one line class summary>
 //
 // Original Author:  Alexandre Sakharov
 //         Created:  Sun May 10 15:43:28 CEST 2009
-// $Id: CSCViewDigi.h,v 1.4 2010/06/11 15:50:27 asakharo Exp $
+// $Id: CSCViewDigi.h,v 1.5 2010/07/21 04:23:23 wmtan Exp $
 //
 //
 

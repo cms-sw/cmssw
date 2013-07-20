@@ -1,5 +1,5 @@
 //
-// $Id: $
+// $Id: EcalTrivialObjectAnalyzer.h,v 1.1 2006/03/02 17:03:43 rahatlou Exp $
 // Created: 2 Mar 2006
 //          Shahram Rahatlou, University of Rome & INFN
 //

@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea Venturi
 //         Created:  Tue Dec  9 18:33:42 CET 2008
-// $Id: EventWithHistoryEDFilter.cc,v 1.2 2009/09/25 12:03:27 venturia Exp $
+// $Id: EventWithHistoryEDFilter.cc,v 1.3 2010/01/12 09:13:04 venturia Exp $
 //
 //
 

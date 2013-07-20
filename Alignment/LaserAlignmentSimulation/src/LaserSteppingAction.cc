@@ -1,8 +1,8 @@
 /** \file LaserSteppingAction.cc
  *  
  *
- *  $Date: 2007/06/11 14:44:29 $
- *  $Revision: 1.3 $
+ *  $Date: 2009/09/30 18:33:55 $
+ *  $Revision: 1.4 $
  *  \author Maarten Thomas
  */
 

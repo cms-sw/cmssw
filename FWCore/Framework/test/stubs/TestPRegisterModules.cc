@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Sat Sep 24 10:58:40 CEST 2005
-// $Id: TestPRegisterModules.cc,v 1.5 2007/04/12 12:00:33 wmtan Exp $
+// $Id: TestPRegisterModules.cc,v 1.1 2007/05/08 03:15:18 wmtan Exp $
 //
 
 // system include files

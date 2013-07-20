@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2011/08/16 11:05:23 $
- *  $Revision: 1.17 $
+ *  $Date: 2011/08/21 18:33:39 $
+ *  $Revision: 1.18 $
  *  \author G. Mila - INFN Torino
  *          A. Vilela Pereira - INFN Torino 
  */

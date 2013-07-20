@@ -13,7 +13,7 @@
 //
 // Original Author:  Piet Verwilligen,161 R-006,+41227676292,
 //         Created:  Wed Oct 24 17:28:30 CEST 2012
-// $Id: TestGEMRecHitAnalyzer.cc,v 1.3 2013/04/17 16:04:44 piet Exp $
+// $Id: TestGEMRecHitAnalyzer.cc,v 1.1 2013/04/24 17:16:36 piet Exp $
 //
 //
 

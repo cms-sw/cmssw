@@ -5,8 +5,8 @@
  *
  *  Class to dump Pixel DCS object from database to ROOT file.
  *
- *  $Date: 2009/05/09 22:21:34 $
- *  $Revision: 1.1 $
+ *  $Date: 2010/01/13 18:25:34 $
+ *  $Revision: 1.2 $
  *  \author Chung Khim Lae
  */
 

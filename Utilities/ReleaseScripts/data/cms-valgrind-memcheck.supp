@@ -1,6 +1,6 @@
 #############################################################################
 #
-# $Id: cms-valgrind-memcheck.supp,v 1.8 2012/02/08 08:08:16 eulisse Exp $
+# $Id: cms-valgrind-memcheck.supp,v 1.10 2012/03/20 09:28:40 eulisse Exp $
 #
 # Valgrind memcheck suppression file for CMS. This is meant primarily for
 # suppressing problems reported for external packages which are known to

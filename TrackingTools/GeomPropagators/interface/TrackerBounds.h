@@ -19,8 +19,8 @@ class BoundDisk;
  *  Outside of this volume use some kind of geane.
 
  *  Ported from ORCA
- *  $Date: 2007/03/06 14:34:32 $
- *  $Revision: 1.3 $
+ *  $Date: 2007/03/07 16:28:40 $
+ *  $Revision: 1.4 $
  */
 
 class TrackerBounds {

@@ -7,7 +7,7 @@
  author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
          Geng-Yuan Jeng, UC Riverside (Geng-Yuan.Jeng@cern.ch)
 
- version $Id: BeamSpotAnalyzer.cc,v 1.31 2010/07/20 18:52:06 wmtan Exp $
+ version $Id: BeamSpotAnalyzer.cc,v 1.32 2011/02/22 17:52:25 friis Exp $
 
 ________________________________________________________________**/
 

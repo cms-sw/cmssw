@@ -1,8 +1,8 @@
 
 /** \file GenericMinL3Algorithm.cc
  *
- * $Date: 2009/02/26 13:48:09 $
- * $Revision: 1.2 $
+ * $Date: 2010/08/06 20:24:08 $
+ * $Revision: 1.3 $
  *
  * \author R.Ofierzynski, CERN
  */

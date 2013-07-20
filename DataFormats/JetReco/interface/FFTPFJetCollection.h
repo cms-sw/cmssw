@@ -1,4 +1,4 @@
-// $Id: FFTPFJetCollection.h,v 1.0 2010/11/11 20:29:52 igv Exp $
+// $Id: FFTPFJetCollection.h,v 1.1 2010/11/22 23:27:56 igv Exp $
 
 #ifndef DataFormats_JetReco_FFTPFJetCollection_h
 #define DataFormats_JetReco_FFTPFJetCollection_h

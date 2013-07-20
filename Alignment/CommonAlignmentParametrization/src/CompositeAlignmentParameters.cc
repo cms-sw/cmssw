@@ -1,6 +1,6 @@
-///  $Date: 2007/10/08 15:56:00 $
-///  $Revision: 1.12 $
-/// (last update by $Author: cklae $)
+///  $Date: 2008/09/02 15:18:19 $
+///  $Revision: 1.13 $
+/// (last update by $Author: flucke $)
 
 #include "Alignment/CommonAlignmentParametrization/interface/CompositeAlignmentParameters.h"
 

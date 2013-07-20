@@ -7,8 +7,8 @@
  * It can be initialized/set with a time in ns or a TDC count in 25/32 ns 
  * units.
  *  
- *  $Date: 2010/03/03 11:18:59 $
- *  $Revision: 1.8 $
+ *  $Date: 2010/03/03 15:53:20 $
+ *  $Revision: 1.9 $
  *
  * \author N. Amapane, G. Cerminara, M. Pelliccioni - INFN Torino
  *

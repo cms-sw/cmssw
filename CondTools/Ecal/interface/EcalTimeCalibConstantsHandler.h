@@ -3,7 +3,7 @@
    Declaration of class EcalTimeCalibConstantsHandler
 
    \author Seth COOPER
-   \version $Id: EcalTimeCalibConstantsHandler.h,v 1.1 2009/10/26 14:14:11 scooper Exp $
+   \version $Id: EcalTimeCalibConstantsHandler.h,v 1.1 2010/01/19 10:31:56 scooper Exp $
    \date 09 Sep 2008
 */
 

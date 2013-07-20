@@ -1,5 +1,5 @@
 //
-// $Id: Refcount.h,v 1.2 2009/11/18 20:59:25 haryo Exp $
+// $Id: Refcount.h,v 1.1 2011/05/26 09:46:53 mseidel Exp $
 //
 // File: Refcount.h
 // Purpose: A base class for a simple reference-counted object.

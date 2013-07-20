@@ -3,8 +3,8 @@
  *  an empty MCHepEvent will be generated (needed by OscarProducer). The actual simulation of 
  *  the laser beams is done in the SimWatcher attached to OscarProducer
  *
- *  $Date: 2011/09/16 06:23:27 $
- *  $Revision: 1.6 $
+ *  $Date: 2012/11/02 19:05:24 $
+ *  $Revision: 1.1 $
  *  \author Maarten Thomas
  */
 // system include files

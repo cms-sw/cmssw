@@ -1,4 +1,4 @@
-// $Id: EventConsumerMonitorCollection.cc,v 1.2.14.1 2011/03/07 11:33:05 mommsen Exp $
+// $Id: EventConsumerMonitorCollection.cc,v 1.3 2011/03/07 15:31:32 mommsen Exp $
 /// @file: EventConsumerMonitorCollection.cc
 
 #include "EventFilter/StorageManager/interface/EventConsumerMonitorCollection.h"

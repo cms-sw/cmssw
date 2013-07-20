@@ -13,7 +13,7 @@
 //
 // Original Author:  Jean-Roch Vlimant,40 3-A28,+41227671209,
 //         Created:  Fri Feb 17 12:03:11 CET 2012
-// $Id$
+// $Id: ExtraFromSeeds.cc,v 1.1 2012/02/27 18:55:54 vlimant Exp $
 //
 //
 

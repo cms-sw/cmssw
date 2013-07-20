@@ -16,7 +16,7 @@
                PhysicsTools/UtilsAlgos/interface/EDFilterWrapper.h
 
   \author Salvatore Rappoccio
-  \version  $Id: FWLiteFilterWrapper.h,v 1.2 2010/10/14 09:53:48 snaumann Exp $
+  \version  $Id: FWLiteFilterWrapper.h,v 1.3 2011/04/14 10:52:20 rwolf Exp $
 */
 
 

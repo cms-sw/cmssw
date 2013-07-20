@@ -8,7 +8,7 @@
 //
 // Original Author:  Monica Vazquez Acosta
 //         Created:  Tue Jun 13 12:17:19 CEST 2006
-// $Id: EgammaHLTTrackIsolation.cc,v 1.5 2009/01/28 15:40:43 covarell Exp $
+// $Id: EgammaHLTTrackIsolation.cc,v 1.6 2010/08/12 15:25:02 sharper Exp $
 //
 
 // system include files

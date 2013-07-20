@@ -1,4 +1,4 @@
-// $Id: $
+// $Id: TTUPointingLogic.h,v 1.1 2009/08/09 11:11:36 aosorio Exp $
 #ifndef TTUPOINTINGLOGIC_H 
 #define TTUPOINTINGLOGIC_H 1
 

@@ -4,7 +4,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: returnType.h,v 1.3 2012/08/03 18:08:11 wmtan Exp $
+ * \version $Id: returnType.h,v 1.4 2012/08/28 22:28:39 wmtan Exp $
  */
 
 #include "CommonTools/Utils/src/TypeCode.h"

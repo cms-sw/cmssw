@@ -1,5 +1,5 @@
 //
-// $Id: Objpair.cc,v 1.4 2011/04/26 13:35:49 haryo Exp $
+// $Id: Objpair.cc,v 1.1 2011/05/26 09:47:00 mseidel Exp $
 //
 // File: src/Objpair.cc
 // Purpose: Helper class for Pair_Table.

@@ -4,7 +4,7 @@
  *
  * \author Igor Volobouev, TTU
  *
- * \version   $Id: FFTAnyJet.h,v 1.1 2010/11/22 23:27:55 igv Exp $
+ * \version   $Id: FFTAnyJet.h,v 1.2 2011/11/14 20:13:21 igv Exp $
  ************************************************************/
 
 #ifndef DataFormats_JetReco_FFTAnyJet_h

@@ -1,7 +1,7 @@
 /**
  * Author: Shahram Rahatlou, University of Rome & INFN
  * Created: 22 Feb 2006
- * $Id: EcalWeightSet.cc,v 1.3 2006/02/23 16:56:35 rahatlou Exp $
+ * $Id: EcalWeightSet.cc,v 1.4 2008/01/22 19:12:50 muzaffar Exp $
  **/
 
 #include "CondFormats/EcalObjects/interface/EcalWeightSet.h"

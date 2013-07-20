@@ -16,7 +16,7 @@
 //
 // Author:      
 // Created:     Thu Feb 25 15:41:50 CET 2010
-// $Id$
+// $Id: HLTPrescaleTableRcd.h,v 1.1 2010/02/26 16:27:37 gruen Exp $
 //
 
 #include "FWCore/Framework/interface/EventSetupRecordImplementation.h"

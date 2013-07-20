@@ -1,4 +1,4 @@
-// $Id: QueueCollection.h,v 1.11.2.1 2011/03/07 11:33:04 mommsen Exp $
+// $Id: QueueCollection.h,v 1.12 2011/03/07 15:31:32 mommsen Exp $
 /// @file: QueueCollection.h 
 
 #ifndef EventFilter_StorageManager_QueueCollection_h
@@ -36,8 +36,8 @@ namespace stor {
    * of QueueIDs of queues the class should be added.
    *
    * $Author: mommsen $
-   * $Revision: 1.11.2.1 $
-   * $Date: 2011/03/07 11:33:04 $
+   * $Revision: 1.12 $
+   * $Date: 2011/03/07 15:31:32 $
    */
 
   template <class T>

@@ -6,8 +6,8 @@
  *  A single trigger object (e.g., an isolated muon, or MET)
  *  - described by its 4-momentum and physics type
  *
- *  $Date: 2008/09/22 16:28:40 $
- *  $Revision: 1.6 $
+ *  $Date: 2010/10/14 23:00:36 $
+ *  $Revision: 1.7 $
  *
  *  \author Martin Grunewald
  *

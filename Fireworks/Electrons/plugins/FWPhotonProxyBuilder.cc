@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Nov 26 14:52:01 EST 2008
-// $Id: FWPhotonProxyBuilder.cc,v 1.19 2010/10/20 19:26:58 amraktad Exp $
+// $Id: FWPhotonProxyBuilder.cc,v 1.20 2010/11/11 20:25:28 amraktad Exp $
 //
 
 #include "TEveBoxSet.h"

@@ -6,8 +6,8 @@
  *
  *  \author Gero Flucke
  *  \date August 2012
- *  $Revision: 1.1 $
- *  $Date: 2012/08/10 09:07:20 $
+ *  $Revision: 1.2 $
+ *  $Date: 2012/08/28 19:19:38 $
  *  (last update by $Author: flucke $)
  *
  *  Base class for the calibrations that are integrated

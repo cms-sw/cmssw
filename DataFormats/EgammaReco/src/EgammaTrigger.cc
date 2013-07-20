@@ -1,4 +1,4 @@
-// $Id: EgammaTrigger.cc,v 1.2 2005/12/07 09:26:49 llista Exp $
+// $Id: EgammaTrigger.cc,v 1.1 2006/04/09 15:40:41 rahatlou Exp $
 #include "DataFormats/EgammaReco/interface/EgammaTrigger.h"
 using namespace reco;
 

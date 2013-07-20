@@ -13,7 +13,7 @@
 //
 // Original Author:  Ka Vang TSANG
 //         Created:  Fri Jul 31 15:18:53 CEST 2009
-// $Id: WriteL1TriggerObjetsXml.cc,v 1.1 2009/09/23 22:06:28 kukartse Exp $
+// $Id: WriteL1TriggerObjetsXml.cc,v 1.2 2012/11/12 20:49:45 dlange Exp $
 //
 //
 

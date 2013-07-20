@@ -14,9 +14,9 @@
 // Original Author: Oliver Gutsche, gutsche@fnal.gov
 // Created:         Sat Jan 14 22:00:00 UTC 2006
 //
-// $Author: vlimant $
-// $Date: 2009/01/26 10:15:10 $
-// $Revision: 1.22 $
+// $Author: eulisse $
+// $Date: 2012/10/24 08:32:20 $
+// $Revision: 1.1 $
 //
 
 #include <string>

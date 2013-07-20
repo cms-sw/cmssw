@@ -25,7 +25,7 @@
 //
 // Original Author:  William Badgett
 //         Created:  Mon May 24 14:45:17 CEST 2010
-// $Id: ScalersRecover.cc,v 1.3 2010/05/25 16:26:00 badgett Exp $
+// $Id: ScalersRecover.cc,v 1.4 2010/05/25 16:38:51 badgett Exp $
 //
 //
 

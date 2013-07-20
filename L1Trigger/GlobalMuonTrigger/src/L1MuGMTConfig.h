@@ -4,8 +4,8 @@
  *  Configuration parameters for L1GlobalMuonTrigger.
 */
 //
-//   $Date: 2009/12/04 04:11:48 $
-//   $Revision: 1.13 $
+//   $Date: 2012/02/10 14:19:28 $
+//   $Revision: 1.14 $
 //
 //   Author :
 //   N. Neumeister             CERN EP

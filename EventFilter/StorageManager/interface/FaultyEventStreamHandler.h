@@ -1,4 +1,4 @@
-// $Id: FaultyEventStreamHandler.h,v 1.1.6.1 2011/03/07 11:33:04 mommsen Exp $
+// $Id: FaultyEventStreamHandler.h,v 1.2 2011/03/07 15:31:31 mommsen Exp $
 /// @file: FaultyEventStreamHandler.h 
 
 #ifndef EventFilter_StorageManager_FaultyEventStreamHandler_h
@@ -19,8 +19,8 @@ namespace stor {
    * Handle the faulty event stream written to disk.
    *
    * $Author: mommsen $
-   * $Revision: 1.1.6.1 $
-   * $Date: 2011/03/07 11:33:04 $
+   * $Revision: 1.2 $
+   * $Date: 2011/03/07 15:31:31 $
    */
   
   class FaultyEventStreamHandler : public StreamHandler

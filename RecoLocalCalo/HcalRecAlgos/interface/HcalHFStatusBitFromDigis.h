@@ -12,8 +12,8 @@
     
    This class sets status bit in the status words for the revised CaloRecHit objets according to informatino from the digi associated to the hit.
     
-   $Date: 2011/05/15 23:58:17 $
-   $Revision: 1.14 $
+   $Date: 2011/07/22 22:12:16 $
+   $Revision: 1.15 $
    \author J. Temple -- University of Maryland and E. Yazgan
 */
 

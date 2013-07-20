@@ -2,8 +2,8 @@
 
 /** \file Template.cc
  *
- *  $Date: $
- *  $Revision: $
+ *  $Date: 2005/07/26 10:13:49 $
+ *  $Revision: 1.1 $
  *  \author Unknown
  */
 

@@ -1,5 +1,5 @@
 //
-// $Id: matutil.cc,v 1.5 2009/11/20 10:49:27 haryo Exp $
+// $Id: matutil.cc,v 1.1 2011/05/26 09:47:00 mseidel Exp $
 //
 // File: src/matutil.cc
 // Purpose: Define matrix types for the hitfit package, and supply a few

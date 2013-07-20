@@ -21,7 +21,7 @@
  * Author: Dmitry Zaborov
  */
 
-// Version: $Id: ProtonTaggerFilter.h,v 1.1 2008/11/25 17:34:15 beaudett Exp $
+// Version: $Id: ProtonTaggerFilter.h,v 1.2 2009/03/03 14:02:39 abdullin Exp $
 
 #include "FWCore/Framework/interface/EDFilter.h"
 

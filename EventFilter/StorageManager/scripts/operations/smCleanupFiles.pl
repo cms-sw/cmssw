@@ -1,5 +1,5 @@
 #!/usr/bin/env perl
-# $Id: smCleanupFiles.pl,v 1.11 2010/11/18 10:32:48 gbauer Exp $
+# $Id: smCleanupFiles.pl,v 1.14 2012/02/07 10:38:49 gbauer Exp $
 
 use strict;
 use warnings;

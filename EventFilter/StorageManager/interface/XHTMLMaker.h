@@ -1,4 +1,4 @@
-// $Id: XHTMLMaker.h,v 1.11 2011/03/07 15:31:32 mommsen Exp $
+// $Id: XHTMLMaker.h,v 1.12 2011/07/07 09:22:44 mommsen Exp $
 /// @file: XHTMLMaker.h 
 
 #ifndef EventFilter_StorageManager_XHTMLMaker_h
@@ -20,8 +20,8 @@ namespace stor {
     Helper class to build XHTML pages
 
     $Author: mommsen $
-    $Revision: 1.11 $
-    $Date: 2011/03/07 15:31:32 $
+    $Revision: 1.12 $
+    $Date: 2011/07/07 09:22:44 $
   */
 
   class XHTMLMaker

@@ -11,8 +11,8 @@
   This class contains data associated with a run, such as character
   strings describing the run type, beam mode, and also the beam energy.
 
-  $Date: 2005/10/06 22:21:33 $
-  $Revision: 1.2 $
+  $Date: 2006/04/12 21:46:00 $
+  $Revision: 1.3 $
   \author P. Dudero - Minnesota
   */
   class HcalTBRunData {

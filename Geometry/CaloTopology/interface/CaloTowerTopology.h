@@ -5,8 +5,8 @@
 
 /** \class CaloTowerTopology
   *  
-  * $Date: 2006/08/29 12:33:05 $
-  * $Revision: 1.4 $
+  * $Date: 2012/12/15 17:18:10 $
+  * $Revision: 1.5 $
   * \author J. Mans - Minnesota
   */
 class CaloTowerTopology GCC11_FINAL : public CaloSubdetectorTopology {

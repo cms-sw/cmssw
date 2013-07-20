@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Oct 23 10:50:31 CDT 2009
-// $Id$
+// $Id: FWFromEveSelectorBase.cc,v 1.1 2009/10/23 22:05:58 chrjones Exp $
 //
 
 // system include files

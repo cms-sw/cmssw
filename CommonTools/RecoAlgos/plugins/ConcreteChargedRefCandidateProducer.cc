@@ -7,7 +7,7 @@
  *
  * \version $Revision: 1.1 $
  *
- * $Id: ConcreteChargedCandidateProducer.cc,v 1.1 2009/03/04 13:11:29 llista Exp $
+ * $Id: ConcreteChargedRefCandidateProducer.cc,v 1.1 2009/11/24 03:47:26 srappocc Exp $
  *
  */
 

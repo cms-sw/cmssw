@@ -16,7 +16,7 @@
 //
 // Author:      
 // Created:     Sat Nov 24 16:42:00 CET 2007
-// $Id: HcalZSThresholdsRcd.h,v 1.1 2007/11/24 16:54:13 rofierzy Exp $
+// $Id: HcalZSThresholdsRcd.h,v 1.2 2012/11/12 21:13:55 dlange Exp $
 //
 
 #include "FWCore/Framework/interface/DependentRecordImplementation.h"

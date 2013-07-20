@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripEnumsAndStrings.h,v 1.3 2007/06/19 12:16:52 bainbrid Exp $
+// Last commit: $Id: SiStripEnumsAndStrings.h,v 1.4 2007/11/29 17:08:03 bainbrid Exp $
 
 #ifndef DataFormats_SiStripCommon_SiStripEnumsAndStrings_H
 #define DataFormats_SiStripCommon_SiStripEnumsAndStrings_H

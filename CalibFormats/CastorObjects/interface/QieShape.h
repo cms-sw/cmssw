@@ -5,8 +5,8 @@
     
     basic linearization function for HCAL/castor QIE
    $Author: ratnikov
-   $Date: 2008/03/04 10:04:16 $
-   $Revision: 1.1 $
+   $Date: 2010/07/20 04:22:55 $
+   $Revision: 1.2 $
 */
 
 namespace reco {

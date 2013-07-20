@@ -2,7 +2,7 @@
 // Author:  Jan Heyninck
 // Created: Tue Apr  3 17:33:23 PDT 2007
 //
-// $Id: TtSemiLRJetCombObservables.h,v 1.6 2008/04/15 10:13:43 rwolf Exp $
+// $Id: TtSemiLRJetCombObservables.h,v 1.7 2010/03/25 09:22:18 snaumann Exp $
 //
 
 #ifndef TtSemiLRJetCombObservables_h
@@ -20,7 +20,7 @@
   // ...
   
   \author   Jan Heyninck
-  \version  $Id: TtSemiLRJetCombObservables.h,v 1.6 2008/04/15 10:13:43 rwolf Exp $
+  \version  $Id: TtSemiLRJetCombObservables.h,v 1.7 2010/03/25 09:22:18 snaumann Exp $
 */
 
 
