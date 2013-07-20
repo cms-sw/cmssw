@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Wed Jul 27 00:58:43 CEST 2011
-// $Id: FWProxyBuilderConfiguration.cc,v 1.7 2011/08/16 01:16:05 amraktad Exp $
+// $Id: FWProxyBuilderConfiguration.cc,v 1.8 2011/08/20 03:39:20 amraktad Exp $
 //
 
 // system include files
@@ -147,7 +147,9 @@ template <class T> T FWProxyBuilderConfiguration::value(const std::string& pname
 template bool FWProxyBuilderConfiguration::value<bool>(const std::string& name);
 template long FWProxyBuilderConfiguration::value<long>(const std::string& name);
 template double FWProxyBuilderConfiguration::value<double>(const std::string& name);
+template std::string FWProxyBuilderConfiguration::value<std::string>(const std::string& name);
 
 template FWGenericParameter<bool>* FWProxyBuilderConfiguration::assertParam(const std::string& name, bool def);
 template FWGenericParameterWithRange<long>* FWProxyBuilderConfiguration::assertParam(const std::string& name, long def,long min, long max);
 template FWGenericParameterWithRange<double>* FWProxyBuilderConfiguration::assertParam(const std::string& name, double def,double min, double max);
+template FWGenericParameter<std::string>* FWProxyBuilderConfiguration::assertParam(const std::string& name, std::string def);
