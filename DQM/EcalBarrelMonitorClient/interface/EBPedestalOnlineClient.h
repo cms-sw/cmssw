@@ -4,8 +4,8 @@
 /*
  * \file EBPedestalOnlineClient.h
  *
- * $Date: 2011/05/23 12:10:04 $
- * $Revision: 1.56.10.1 $
+ * $Date: 2011/05/23 13:27:26 $
+ * $Revision: 1.57 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *

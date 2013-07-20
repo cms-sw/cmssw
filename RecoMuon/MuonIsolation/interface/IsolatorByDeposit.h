@@ -6,8 +6,8 @@
  *  This is the simplest definition possible, for isolation algorithms
  *  where the cut is directly on, e.g., the deposited energy.
  *
- *  $Date: 2007/03/30 08:44:34 $
- *  $Revision: 1.1 $
+ *  $Date: 2007/11/14 02:11:20 $
+ *  $Revision: 1.2 $
  *  \author M. Konecki, N. Amapane
  */
 

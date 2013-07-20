@@ -1,4 +1,4 @@
-// $Id: Ready.cc,v 1.17 2011/03/07 15:31:32 mommsen Exp $
+// $Id: Ready.cc,v 1.18 2011/11/08 10:48:41 mommsen Exp $
 /// @file: Ready.cc
 
 #include "EventFilter/StorageManager/interface/AlarmHandler.h"

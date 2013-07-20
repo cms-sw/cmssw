@@ -1,4 +1,4 @@
-// $Id: ResourceMonitorCollection.cc,v 1.44 2011/04/26 09:25:26 mommsen Exp $
+// $Id: ResourceMonitorCollection.cc,v 1.45 2011/11/08 10:48:41 mommsen Exp $
 /// @file: ResourceMonitorCollection.cc
 
 #include <stdio.h>

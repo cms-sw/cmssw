@@ -2,7 +2,7 @@
  * Impl of RPCDetId
  *
  * \author Ilaria Segoni
- * \version $Id: RPCDetId.cc,v 1.24 2009/05/31 15:32:35 mmaggi Exp $
+ * \version $Id: RPCDetId.cc,v 1.25 2010/03/05 15:53:15 sunanda Exp $
  * \date 02 Aug 2005
  */
 

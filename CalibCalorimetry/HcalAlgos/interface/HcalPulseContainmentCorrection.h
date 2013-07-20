@@ -8,8 +8,8 @@
   * Amplitude correction for pulse containment in time.
   * Currently only for HPD pulse shape.
   *  
-  * $Date: $
-  * $Revision: $
+  * $Date: 2006/11/08 16:53:17 $
+  * $Revision: 1.1 $
   * \author P. Dudero - Minnesota
   */
 class HcalPulseContainmentCorrection {

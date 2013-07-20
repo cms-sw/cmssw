@@ -5,8 +5,8 @@
 //   Description: Pipelined Synchronising Buffer module 
 //
 //
-//   $Date: 2009/03/29 19:52:24 $
-//   $Revision: 1.15 $
+//   $Date: 2009/03/30 09:46:14 $
+//   $Revision: 1.16 $
 //
 //   Author :
 //   N. Neumeister            CERN EP 

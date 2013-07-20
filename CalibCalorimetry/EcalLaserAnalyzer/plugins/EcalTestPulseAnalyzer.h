@@ -1,4 +1,4 @@
-// $Id: EcalTestPulseAnalyzer.h,v 1.2 2010/01/18 17:28:45 ferriff Exp $
+// $Id: EcalTestPulseAnalyzer.h,v 1.4 2010/10/21 22:03:33 wmtan Exp $
 
 #include <memory>
 #include <FWCore/Framework/interface/EDAnalyzer.h>

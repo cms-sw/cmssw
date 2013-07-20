@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Thu Mar 18 04:09:12 CDT 2010
-// $Id$
+// $Id: DisplayPluginFactory.cc,v 1.1 2010/04/01 21:58:00 chrjones Exp $
 //
 
 // system include files

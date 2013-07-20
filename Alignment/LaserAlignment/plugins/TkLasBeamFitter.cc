@@ -2,7 +2,7 @@
 
   Original Authors:  Gero Flucke/Kolja Kaschube
            Created:  Wed May  6 08:43:02 CEST 2009
-           $Id: TkLasBeamFitter.cc,v 1.9 2010/06/02 13:11:55 kaschube Exp $
+           $Id: TkLasBeamFitter.cc,v 1.10 2010/07/20 02:58:17 wmtan Exp $
 
  Description: Fitting LAS beams with track model and providing TrajectoryStateOnSurface for hits.
 

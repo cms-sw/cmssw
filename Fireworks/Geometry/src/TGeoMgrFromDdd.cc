@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Fri Jul  2 16:11:42 CEST 2010
-// $Id: TGeoMgrFromDdd.cc,v 1.9 2010/12/13 15:20:34 yana Exp $
+// $Id: TGeoMgrFromDdd.cc,v 1.10 2010/12/15 13:47:58 yana Exp $
 //
 
 #include "Fireworks/Geometry/interface/TGeoMgrFromDdd.h"

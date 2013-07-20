@@ -1,0 +1,45 @@
+<TESTSCONFIGURATION>
+<QTEST name="DeadChannels">
+         <TYPE>DeadChannel</TYPE>
+         <PARAM name="error">0.99</PARAM>
+         <PARAM name="warning">0.50</PARAM>
+         <PARAM name="threshold">3</PARAM>
+</QTEST>
+<QTEST name="PhiFlatness">
+	<TYPE>ContentsYRange</TYPE>	
+	<PARAM name="ymin">0</PARAM>
+	<PARAM name="ymax">0.014</PARAM>
+        <PARAM name="useEmptyBins">1</PARAM>
+	<PARAM name="error">0.30</PARAM>
+	<PARAM name="warning">0.70</PARAM>
+</QTEST>
+<QTEST name="KSComparison">
+	<TYPE>Comp2RefKolmogorov</TYPE>	
+	<PARAM name="testparam">0</PARAM>
+	<PARAM name="error">0.30</PARAM>
+	<PARAM name="warning">0.70</PARAM>
+</QTEST>
+<QTEST name="ResidualFit">
+	<TYPE>ContentsWithinExpected</TYPE>	
+	<PARAM name="minMean">-4</PARAM>
+	<PARAM name="maxMean">4</PARAM>
+	<PARAM name="minRMS">0</PARAM>
+	<PARAM name="maxRMS">4</PARAM>
+	<PARAM name="toleranceMean">5</PARAM>
+	<PARAM name="minEntries">20</PARAM>
+	<PARAM name="useEmptyBins">1</PARAM>
+	<PARAM name="error">0.30</PARAM>
+	<PARAM name="warning">0.70</PARAM>
+</QTEST>
+<LINK name="*/JetMET/All/HLT*/*_Eta"> 
+	<TestName activate="true">KSComparison</TestName>
+</LINK>
+<LINK name="*/JetMET/All/HLT*/*_Phi"> 
+	<TestName activate="true">PhiFlatness</TestName>
+</LINK>
+<LINK name="*/JetMET/All/HLT*/*_Et">
+        <TestName activate="true">KSComparison</TestName>
+</LINK>
+</TESTSCONFIGURATION>
+
+

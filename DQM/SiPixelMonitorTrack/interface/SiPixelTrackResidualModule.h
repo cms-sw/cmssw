@@ -10,7 +10,7 @@
 // Original Author: Shan-Huei Chuang
 //         Created: Fri Mar 23 18:41:42 CET 2007
 //         Updated by Lukas Wehrli (plots for clusters on/off track added)
-// $Id: SiPixelTrackResidualModule.h,v 1.3 2009/03/24 13:43:09 wehrlilu Exp $
+// $Id: SiPixelTrackResidualModule.h,v 1.4 2010/06/09 01:16:03 merkelp Exp $
 
 
 #ifndef SiPixelMonitorTrack_SiPixelTrackResidualModule_h

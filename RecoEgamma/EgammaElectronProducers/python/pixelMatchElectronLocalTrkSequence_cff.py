@@ -4,7 +4,7 @@ import FWCore.ParameterSet.Config as cms
 # create a sequence with all required modules and sources needed to make
 # pixel based electrons
 #
-# $Id: pixelMatchElectronLocalTrkSequence_cff.py,v 1.5 2008/07/11 14:35:16 rahatlou Exp $
+# $Id: pixelMatchElectronLocalTrkSequence_cff.py,v 1.6 2009/02/09 17:30:06 chamont Exp $
 #
 
 # SiliconStrip Clusterizer and RecHit producer modules

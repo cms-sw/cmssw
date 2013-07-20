@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Apr  4 13:38:29 EDT 2007
-// $Id: pluginmanager_t.cc,v 1.5 2008/01/22 22:10:38 wmtan Exp $
+// $Id: pluginmanager_t.cc,v 1.6 2008/10/21 15:45:04 eulisse Exp $
 //
 
 // system include files

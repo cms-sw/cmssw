@@ -1,7 +1,7 @@
 #ifndef TopSkimming_TopDiLeptonFilter_h
 #define TopSkimming_TopDiLeptonFilter_h
 // Original Author:  Dmytro Kovalskyi, UCSB
-// $Id$
+// $Id: TopDiLeptonFilter.h,v 1.1 2007/07/31 03:25:14 dmytro Exp $
 #include "FWCore/Framework/interface/EDFilter.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 class TopDiLeptonFilter : public edm::EDFilter {

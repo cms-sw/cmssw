@@ -4,8 +4,8 @@
 /*
  * \file DTDigiForNoiseTask.h
  *
- * $Date: 2008/03/01 00:39:54 $
- * $Revision: 1.5 $
+ * $Date: 2010/01/05 10:14:40 $
+ * $Revision: 1.6 $
  * \author G. Mila - INFN Torino
  *
 */

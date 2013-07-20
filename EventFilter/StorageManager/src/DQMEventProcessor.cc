@@ -1,4 +1,4 @@
-// $Id: DQMEventProcessor.cc,v 1.17 2011/04/21 09:48:30 mommsen Exp $
+// $Id: DQMEventProcessor.cc,v 1.18 2011/11/08 10:48:40 mommsen Exp $
 /// @file: DQMEventProcessor.cc
 
 #include "toolbox/task/WorkLoopFactory.h"

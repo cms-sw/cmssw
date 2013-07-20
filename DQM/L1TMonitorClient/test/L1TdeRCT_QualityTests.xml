@@ -1,0 +1,75 @@
+<TESTSCONFIGURATION>
+
+<QTEST name="Eff2DTest">
+         <TYPE>ContentsWithinExpectedTH2FAS</TYPE>
+         <PARAM name="minCont">0.99</PARAM>
+         <PARAM name="maxCont">1.01</PARAM>
+         <PARAM name="error">.995</PARAM>
+         <PARAM name="warning">.995</PARAM>
+</QTEST>
+                                                                                
+<QTEST name="Eff1DTest">
+	<TYPE>ContentsYRangeAS</TYPE>	
+	<PARAM name="ymin">.99</PARAM>
+	<PARAM name="ymax">1.01</PARAM>
+	<PARAM name="error">0.995</PARAM>
+	<PARAM name="warning">0.995</PARAM>
+</QTEST>
+
+<QTEST name="Ineff2DTest">
+         <TYPE>ContentsWithinExpectedTH2FAS</TYPE>
+         <PARAM name="minCont">0.0</PARAM>
+         <PARAM name="maxCont">.01</PARAM>
+         <PARAM name="error">.995</PARAM>
+         <PARAM name="warning">.995</PARAM>
+</QTEST>
+                                                                                
+<QTEST name="Ineff1DTest">
+	<TYPE>ContentsYRangeAS</TYPE>	
+	<PARAM name="ymin">0.0</PARAM>
+	<PARAM name="ymax">0.01</PARAM>
+	<PARAM name="error">0.995</PARAM>
+	<PARAM name="warning">0.995</PARAM>
+</QTEST>
+
+<QTEST name="ChannelTest">
+	<TYPE>ContentsXRangeAS</TYPE>	
+	<PARAM name="xmin">-0.5</PARAM>
+	<PARAM name="xmax">0.5</PARAM>
+	<PARAM name="error">0.99</PARAM>
+	<PARAM name="warning">0.99</PARAM>
+</QTEST>
+
+<LINK name="*Eff1">
+	<TestName activate="true">Eff2DTest</TestName>
+</LINK>
+
+<LINK name="*Eff2">
+	<TestName activate="true">Eff2DTest</TestName>
+</LINK>
+
+<LINK name="*oneD">
+	<TestName activate="true">Eff1DTest</TestName>
+</LINK>
+
+<LINK name="*Ineff">
+	<TestName activate="true">Ineff2DTest</TestName>
+</LINK>
+
+<LINK name="*Ineff1D">
+	<TestName activate="true">Ineff1DTest</TestName>
+</LINK>
+
+<LINK name="*Overeff">
+	<TestName activate="true">Ineff2DTest</TestName>
+</LINK>
+
+<LINK name="*Overeff1D">
+	<TestName activate="true">Ineff1DTest</TestName>
+</LINK>
+
+<LINK name="*Chnl*">
+	<TestName activate="true">ChannelTest</TestName>
+</LINK>
+
+</TESTSCONFIGURATION>

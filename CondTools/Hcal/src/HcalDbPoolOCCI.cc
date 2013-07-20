@@ -1,7 +1,7 @@
 
 //
 // F.Ratnikov (UMd), Dec 14, 2005
-// $Id: HcalDbPoolOCCI.cc,v 1.6 2009/12/04 03:42:53 elmer Exp $
+// $Id: HcalDbPoolOCCI.cc,v 1.7 2010/11/29 20:41:57 wmtan Exp $
 //
 #include <string>
 #include <iostream>

@@ -1,4 +1,4 @@
-// $Id: StreamHandler.cc,v 1.22 2011/06/20 16:38:51 mommsen Exp $
+// $Id: StreamHandler.cc,v 1.23 2011/11/08 10:48:41 mommsen Exp $
 /// @file: StreamHandler.cc
 
 #include <sstream>

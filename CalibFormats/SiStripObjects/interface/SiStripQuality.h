@@ -17,7 +17,7 @@
 //
 // Author:      Domenico Giordano
 // Created:     Wed Sep 26 17:42:12 CEST 2007
-// $Id: SiStripQuality.h,v 1.13 2009/07/27 16:51:46 demattia Exp $
+// $Id: SiStripQuality.h,v 1.14 2009/07/28 08:39:55 demattia Exp $
 //
 
 

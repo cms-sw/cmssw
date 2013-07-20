@@ -5,11 +5,14 @@
 /*
  * \file L1TECALTPG.h
  *
- * $Date: 2008/03/18 20:31:19 $
- * $Revision: 1.7 $
+ * $Date: 2009/11/19 14:32:20 $
+ * $Revision: 1.8 $
  * \author J. Berryhill
  *
  * $Log: L1TECALTPG.h,v $
+ * Revision 1.8  2009/11/19 14:32:20  puigh
+ * modify beginJob
+ *
  * Revision 1.7  2008/03/18 20:31:19  berryhil
  *
  *

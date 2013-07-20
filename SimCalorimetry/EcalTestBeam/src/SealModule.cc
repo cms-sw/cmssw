@@ -1,5 +1,5 @@
 /*  
- *  $Id: SealModule.cc,v 1.5 2009/10/15 21:34:01 heltsley Exp $
+ *  $Id: SealModule.cc,v 1.6 2010/02/25 00:33:46 wmtan Exp $
  */
 
 #include "FWCore/PluginManager/interface/ModuleDef.h"

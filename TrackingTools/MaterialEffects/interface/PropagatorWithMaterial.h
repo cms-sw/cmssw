@@ -12,8 +12,8 @@
  *  only be included when propagating from a TrajectoryStateOnSurface.
  *  Ported from ORCA.
  *
- *  $Date: 2010/12/07 13:56:03 $
- *  $Revision: 1.11 $
+ *  $Date: 2011/03/28 13:20:25 $
+ *  $Revision: 1.12 $
  *  \author todorov, cerati
  */
 

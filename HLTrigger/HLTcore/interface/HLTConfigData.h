@@ -6,8 +6,8 @@
  *  
  *  This class provides access routines to get hold of the HLT Configuration
  *
- *  $Date: 2011/05/01 10:32:13 $
- *  $Revision: 1.13 $
+ *  $Date: 2011/09/06 13:54:33 $
+ *  $Revision: 1.14 $
  *
  *  \author Martin Grunewald
  *

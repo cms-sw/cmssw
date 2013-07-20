@@ -1,8 +1,8 @@
 /*
  * \file EBBeamHodoTask.cc
  *
- * $Date: 2011/08/23 00:25:30 $
- * $Revision: 1.64.4.1 $
+ * $Date: 2011/08/30 09:30:32 $
+ * $Revision: 1.65 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *

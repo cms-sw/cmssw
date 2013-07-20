@@ -4,8 +4,8 @@
 /** \class RPCRecHitProducer
  *  Module for RPCRecHit production. 
  *  
- *  $Date: 2010/02/20 21:01:00 $
- *  $Revision: 1.5 $
+ *  $Date: 2010/10/19 19:18:52 $
+ *  $Revision: 1.6 $
  *  \author M. Maggim -- INFN Bari
  */
 

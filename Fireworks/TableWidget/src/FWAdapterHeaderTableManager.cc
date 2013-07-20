@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb  2 16:44:45 EST 2009
-// $Id: FWAdapterHeaderTableManager.cc,v 1.1 2009/02/03 20:33:03 chrjones Exp $
+// $Id: FWAdapterHeaderTableManager.cc,v 1.2 2009/03/04 15:34:41 chrjones Exp $
 //
 
 // system include files

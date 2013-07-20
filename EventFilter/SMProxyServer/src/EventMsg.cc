@@ -1,4 +1,4 @@
-// $Id: EventMsg.cc,v 1.1.2.6 2011/03/08 18:34:19 mommsen Exp $
+// $Id: EventMsg.cc,v 1.3 2011/03/08 18:44:55 mommsen Exp $
 /// @file: EventMsg.cc
 
 #include "EventFilter/SMProxyServer/interface/EventMsg.h"

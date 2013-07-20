@@ -7,7 +7,7 @@
 //
 // Original Author:  Giulio Eulisse
 //         Created:  Thu Feb 18 15:19:44 EDT 2008
-// $Id: FWItemRandomAccessor.h,v 1.7 2010/06/09 13:21:00 mccauley Exp $
+// $Id: FWItemRandomAccessor.h,v 1.8 2010/07/23 16:02:54 eulisse Exp $
 //
 
 // system include files

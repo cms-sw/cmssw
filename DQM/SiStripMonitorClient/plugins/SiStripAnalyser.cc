@@ -3,8 +3,8 @@
 /*
  * \file SiStripAnalyser.cc
  * 
- * $Date: 2011/05/04 12:07:49 $
- * $Revision: 1.2 $
+ * $Date: 2011/09/07 10:35:18 $
+ * $Revision: 1.3 $
  * \author  S. Dutta INFN-Pisa
  *
  */

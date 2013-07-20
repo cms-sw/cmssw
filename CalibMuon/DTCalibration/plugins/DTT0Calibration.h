@@ -8,8 +8,8 @@
  *  The t0 of wires in odd layers are corrected for the relative difference between 
  *  odd and even layers 
  *
- *  $Date: 2008/02/19 15:13:01 $
- *  $Revision: 1.4 $
+ *  $Date: 2009/06/11 14:01:57 $
+ *  $Revision: 1.5 $
  *  \author S. Bolognesi - INFN Torino
  */
 

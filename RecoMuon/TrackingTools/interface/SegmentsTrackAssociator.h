@@ -7,8 +7,8 @@
  *  tool which take as input a muon track and return a vector 
  *  with the segments used to fit it
  *
- *  $Date: 2009/01/29 14:50:46 $
- *  $Revision: 1.1 $
+ *  $Date: 2010/02/11 00:14:33 $
+ *  $Revision: 1.2 $
  *  \author C. Botta, G. Mila - INFN Torino
  */
 

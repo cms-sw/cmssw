@@ -1,6 +1,6 @@
 /** \class HLTElectronGenericFilter
  *
- * $Id: HLTElectronGenericFilter.cc,v 1.2 2009/09/16 09:23:20 covarell Exp $
+ * $Id: HLTElectronGenericFilter.cc,v 1.3 2011/05/01 08:14:08 gruen Exp $
  *
  *  \author Roberto Covarelli (CERN)
  *

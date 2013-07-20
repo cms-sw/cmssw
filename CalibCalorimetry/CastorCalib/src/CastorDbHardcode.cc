@@ -1,6 +1,6 @@
 //
 // F.Ratnikov (UMd), Dec 14, 2005
-// $Id: CastorDbHardcode.cc,v 1.3 2009/05/27 11:15:55 fabiocos Exp $
+// $Id: CastorDbHardcode.cc,v 1.4 2011/05/09 19:35:15 mundim Exp $
 // Adapted for Castor by L. Mundim
 //
 #include <vector>

@@ -6,8 +6,8 @@
  * implementation of MuonNumberingScheme for muon rpc,
  * converts the MuonBaseNumber to a unit id
  *  
- *  $Date: 2006/03/22 18:46:23 $
- *  $Revision: 1.3 $
+ *  $Date: 2006/10/12 19:54:05 $
+ *  $Revision: 1.4 $
  * \author Arno Straessner, CERN <arno.straessner@cern.ch>
  *
  */

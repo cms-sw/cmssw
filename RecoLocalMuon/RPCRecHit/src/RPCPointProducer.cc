@@ -13,7 +13,7 @@
 //
 // Original Author:  Camilo Andres Carrillo Montoya
 //         Created:  Wed Sep 16 14:56:18 CEST 2009
-// $Id: RPCPointProducer.cc,v 1.4 2010/04/12 09:59:46 carrillo Exp $
+// $Id: RPCPointProducer.cc,v 1.9 2010/10/19 19:18:22 wmtan Exp $
 //
 //
 

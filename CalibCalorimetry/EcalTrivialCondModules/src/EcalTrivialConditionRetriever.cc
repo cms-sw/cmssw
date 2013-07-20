@@ -1,5 +1,5 @@
 //
-// $Id: EcalTrivialConditionRetriever.cc,v 1.49 2010/07/07 09:07:02 depasse Exp $
+// $Id: EcalTrivialConditionRetriever.cc,v 1.50 2011/03/28 20:04:52 depasse Exp $
 // Created: 2 Mar 2006
 //          Shahram Rahatlou, University of Rome & INFN
 //

@@ -1,4 +1,4 @@
-// $Id: TriggerSelector.cc,v 1.8.4.1 2011/03/07 11:33:05 mommsen Exp $
+// $Id: TriggerSelector.cc,v 1.9 2011/03/07 15:31:32 mommsen Exp $
 /// @file: TriggerSelector.cc
 
 #include "EventFilter/StorageManager/interface/TriggerSelector.h"

@@ -4,8 +4,8 @@
 /** \class AlignableDTChamber
  *  The alignable muon DT chamber.
  *
- *  $Date: 2008/02/14 09:39:20 $
- *  $Revision: 1.12 $
+ *  $Date: 2008/03/26 21:58:55 $
+ *  $Revision: 1.13 $
  *  \author Andre Sznajder - UERJ(Brazil)
  */
 

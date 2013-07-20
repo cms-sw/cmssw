@@ -1,6 +1,6 @@
 /** \class HLTJetVBFFilter
  *
- * $Id: HLTJetVBFFilter.cc,v 1.10 2011/05/01 08:40:25 gruen Exp $
+ * $Id: HLTJetVBFFilter.cc,v 1.11 2011/05/01 14:35:45 gruen Exp $
  *
  *  \author Monica Vazquez Acosta (CERN)
  *

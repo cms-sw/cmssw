@@ -8,7 +8,7 @@
 //
 // Author:      Chris Jones
 // Created:     Mon Apr 18 16:42:52 EDT 2005
-// $Id: T_EventSetup_Alignment.cc,v 1.1 2005/07/22 14:26:16 xiezhen Exp $
+// $Id: T_EventSetup_Alignment.cc,v 1.2 2010/02/20 20:55:32 wmtan Exp $
 //
 
 // system include files

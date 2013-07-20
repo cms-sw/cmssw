@@ -1,6 +1,6 @@
 // -*- C++ -*-
 // Original Author:  Fedor Ratnikov
-// $Id: HcalHardcodeCalibrations.cc,v 1.26 2011/06/24 22:15:53 temple Exp $
+// $Id: HcalHardcodeCalibrations.cc,v 1.27 2011/07/21 16:58:17 temple Exp $
 //
 //
 

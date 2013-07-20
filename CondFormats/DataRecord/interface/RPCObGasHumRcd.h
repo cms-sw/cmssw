@@ -16,7 +16,7 @@
 //
 // Author:      
 // Created:     Fri Oct 10 09:56:32 CEST 2008
-// $Id: RPCObGasMixRcd.h,v 1.1 2009/12/13 10:05:23 dpagano Exp $
+// $Id: RPCObGasHumRcd.h,v 1.1 2009/12/14 16:48:38 dpagano Exp $
 //
 
 #include "FWCore/Framework/interface/EventSetupRecordImplementation.h"

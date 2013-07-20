@@ -7,8 +7,8 @@
  *  This class is an HLTFilter (-> EDFilter) implementing filtering on
  *  HLT bits
  *
- *  $Date: 2010/02/11 00:12:11 $
- *  $Revision: 1.7 $
+ *  $Date: 2010/02/16 22:31:04 $
+ *  $Revision: 1.8 $
  *
  *  \author Martin Grunewald
  *

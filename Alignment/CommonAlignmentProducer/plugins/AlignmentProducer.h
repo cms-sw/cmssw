@@ -7,8 +7,8 @@
 /// Description : calls alignment algorithms
 ///
 ///  \author    : Frederic Ronga
-///  Revision   : $Revision: 1.22 $
-///  last update: $Date: 2011/03/02 20:10:29 $
+///  Revision   : $Revision: 1.23 $
+///  last update: $Date: 2011/05/23 21:01:48 $
 ///  by         : $Author: mussgill $
 
 #include <vector>

@@ -12,7 +12,7 @@
 //
 // Author:      Christophe Saout
 // Created:     Sat Apr 24 15:18 CEST 2007
-// $Id: ProcNormalize.cc,v 1.8 2007/10/08 11:22:09 saout Exp $
+// $Id: ProcNormalize.cc,v 1.9 2009/06/03 09:50:14 saout Exp $
 //
 
 #include <vector>

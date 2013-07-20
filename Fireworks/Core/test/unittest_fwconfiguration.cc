@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Jan 18 10:19:07 EST 2008
-// $Id: unittest_fwconfiguration.cc,v 1.1 2009/03/05 22:01:53 chrjones Exp $
+// $Id: unittest_fwconfiguration.cc,v 1.2 2010/04/26 09:06:57 eulisse Exp $
 //
 
 // system include files

@@ -1,4 +1,4 @@
-// $Id: EcalCondDBInterface.cc,v 1.30 2011/02/07 10:23:33 organtin Exp $
+// $Id: EcalCondDBInterface.cc,v 1.31 2011/04/06 11:59:09 organtin Exp $
 
 #include <iostream>
 #include <string>

@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: DQMAnalyzer.cc,v 1.4 2010/02/26 18:47:24 wdd Exp $
+// $Id: DQMAnalyzer.cc,v 1.5 2010/10/19 17:34:56 wmtan Exp $
 //
 //
 

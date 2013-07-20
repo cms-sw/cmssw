@@ -6,7 +6,7 @@
  * Alessandro Palma 19/03/2008
  ********************************************/
 
-// $Id: $
+// $Id: EcalIndexingTools.h,v 1.1 2008/04/28 16:59:17 palmale Exp $
 
 class EcalIndexingTools
 {

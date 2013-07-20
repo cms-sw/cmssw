@@ -13,7 +13,7 @@
 //
 // Original Author:  Werner Man-Li Sun
 //         Created:  Tue Sep 16 22:43:22 CEST 2008
-// $Id: L1CaloEcalScaleConfigOnlineProd.cc,v 1.3 2009/10/25 19:30:36 efron Exp $
+// $Id: L1CaloEcalScaleConfigOnlineProd.cc,v 1.4 2010/12/21 04:08:28 efron Exp $
 //
 //
 

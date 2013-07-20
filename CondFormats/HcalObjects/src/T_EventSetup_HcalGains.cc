@@ -1,5 +1,5 @@
 //
-// $Id: T_EventSetup_HcalGains.cc,v 1.2 2005/09/27 19:01:19 fedor Exp $
+// $Id: T_EventSetup_HcalGains.cc,v 1.3 2010/02/20 20:57:20 wmtan Exp $
 //
 
 // system include files

@@ -5,7 +5,7 @@
 //
 //
 // Original Author:  Adam Everett
-// $Id: GlobalTrackQualityProducer.cc,v 1.5 2010/05/17 09:44:30 aeverett Exp $
+// $Id: GlobalTrackQualityProducer.cc,v 1.6 2010/06/08 19:27:08 aeverett Exp $
 //
 //
 

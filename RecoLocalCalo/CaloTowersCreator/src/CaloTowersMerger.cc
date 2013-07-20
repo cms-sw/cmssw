@@ -13,7 +13,7 @@
 //
 // Original Author:  Jean-Roch Vlimant,40 3-A28,+41227671209,
 //         Created:  Thu Nov  4 16:36:30 CET 2010
-// $Id: CaloTowersMerger.cc,v 1.1 2010/11/04 17:42:53 vlimant Exp $
+// $Id: CaloTowersMerger.cc,v 1.2 2010/11/24 19:52:16 anastass Exp $
 //
 //
 

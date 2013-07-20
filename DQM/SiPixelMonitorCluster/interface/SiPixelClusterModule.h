@@ -15,7 +15,7 @@
 //
 // Original Author:  Vincenzo Chiochia & Andrew York
 //         Created:  
-// $Id: SiPixelClusterModule.h,v 1.15 2010/04/19 20:36:53 merkelp Exp $
+// $Id: SiPixelClusterModule.h,v 1.16 2010/12/13 14:18:23 merkelp Exp $
 //
 //
 //  Updated by: Lukas Wehrli

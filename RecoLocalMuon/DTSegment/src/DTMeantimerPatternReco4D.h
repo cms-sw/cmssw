@@ -5,8 +5,8 @@
  *
  * Algo for reconstructing 4d segment in DT using a Meantimer approach
  *  
- * $Date: 2008/03/10 11:18:20 $
- * $Revision: 1.2 $
+ * $Date: 2008/12/03 12:52:22 $
+ * $Revision: 1.3 $
  * \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  * \author Riccardo Bellan - INFN TO <riccardo.bellan@cern.ch>
  *

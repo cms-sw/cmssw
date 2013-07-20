@@ -2,8 +2,8 @@
 #define Alignment_MuonAlignmentAlgorithms_MuonResidualsTwoBin_H
 
 /** \class MuonResidualsTwoBin
- *  $Date: 2009/10/08 02:20:59 $
- *  $Revision: 1.8 $
+ *  $Date: 2009/10/26 02:06:13 $
+ *  $Revision: 1.9 $
  *  \author J. Pivarski - Texas A&M University <pivarski@physics.tamu.edu>
  */
 

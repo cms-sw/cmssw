@@ -8,8 +8,8 @@
  *  trigger for single objects of the same physics type, cutting on
  *  variables relating to their 4-momentum representation
  *
- *  $Date: 2011/05/01 08:19:55 $
- *  $Revision: 1.4 $
+ *  $Date: 2011/07/12 17:35:52 $
+ *  $Revision: 1.5 $
  *
  *  \author Martin Grunewald
  *

@@ -9,7 +9,7 @@
 // Author:      Chris Jones
 // Created:     Thu May 26 11:01:19 EDT 2005
 // Changed:     Viji Sundararajan 28-Jun-2005
-// $Id: eventsetupplugin_t.cppunit.cc,v 1.9 2008/10/31 20:37:39 wmtan Exp $
+// $Id: eventsetupplugin_t.cppunit.cc,v 1.10 2009/01/07 00:37:28 wmtan Exp $
 //
 
 // system include files

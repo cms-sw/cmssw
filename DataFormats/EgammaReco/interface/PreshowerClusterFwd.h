@@ -1,7 +1,7 @@
 #ifndef EgammaReco_PreshowerClusterFwd_h
 #define EgammaReco_PreshowerClusterFwd_h
 //
-// $Id: $
+// $Id: PreshowerClusterFwd.h,v 1.4 2006/06/11 17:59:41 rahatlou Exp $
 //
 #include <vector>
 #include "DataFormats/Common/interface/Ref.h"

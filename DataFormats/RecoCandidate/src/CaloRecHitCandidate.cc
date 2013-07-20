@@ -1,4 +1,4 @@
-// $Id: CaloRecHitCandidate.cc,v 1.5 2006/05/31 12:45:46 llista Exp $
+// $Id: CaloRecHitCandidate.cc,v 1.1 2006/11/14 10:38:07 llista Exp $
 #include "DataFormats/RecoCandidate/interface/CaloRecHitCandidate.h"
 
 using namespace reco;

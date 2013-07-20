@@ -4,7 +4,7 @@
 /** \class MuonGeometryRecord
  *  The Muon DetUnit geometry.
  *
- *  $Date: 2005/10/25 14:10:07 $
+ *  $Date: 2006/05/10 12:57:36 $
  *  $Revision: 1.1 $
  *  \author Matteo Sani
  */

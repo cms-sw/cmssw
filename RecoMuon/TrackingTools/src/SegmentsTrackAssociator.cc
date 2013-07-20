@@ -3,8 +3,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009/01/30 11:12:13 $
- *  $Revision: 1.2 $
+ *  $Date: 2009/06/26 15:18:25 $
+ *  $Revision: 1.3 $
  *  \author C. Botta, G. Mila - INFN Torino
  */
 

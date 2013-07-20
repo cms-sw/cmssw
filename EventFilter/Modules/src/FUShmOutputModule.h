@@ -6,7 +6,7 @@
      Header file shared memory to be used with FUShmOutputModule.
      See CMS EvF Storage Manager wiki page for further notes.
 
-   $Id: FUShmOutputModule.h,v 1.7 2011/04/14 15:24:51 mommsen Exp $
+   $Id: FUShmOutputModule.h,v 1.8 2011/08/17 15:30:01 meschi Exp $
 */
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"

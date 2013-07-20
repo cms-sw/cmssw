@@ -5,8 +5,8 @@
 
 /** \class HcalPulseShapes
   *  
-  * $Date: 2006/10/27 19:46:53 $
-  * $Revision: 1.2 $
+  * $Date: 2011/06/23 01:29:25 $
+  * $Revision: 1.3 $
   * \author J. Mans - Minnesota
   */
 class HcalPulseShapes {

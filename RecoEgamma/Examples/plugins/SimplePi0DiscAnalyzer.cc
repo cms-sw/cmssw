@@ -13,7 +13,7 @@
 //
 // Original Author:  Aristotelis Kyriakis
 //         Created:  May 26 13:22:06 CEST 2009
-// $Id: SimplePi0DiscAnalyzer.cc,v 1.9 2010/09/28 07:24:45 akyriaki Exp $
+// $Id: SimplePi0DiscAnalyzer.cc,v 1.11 2010/10/19 17:39:21 wmtan Exp $
 //
 //
 

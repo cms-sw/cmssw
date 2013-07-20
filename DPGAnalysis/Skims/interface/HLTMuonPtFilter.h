@@ -5,7 +5,7 @@
  *
  * HLTFilter to select muons above certain Pt
  *
- * $Date: 2009/13/02 16:21:14 $
+ * $Date: 2009/02/13 15:37:48 $
  * $Revision: 1.1 $
  * \author Silvia Goy Lopez - CERN <silvia.goy.lopez@cern.ch>
  *

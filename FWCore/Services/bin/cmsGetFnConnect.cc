@@ -8,7 +8,7 @@
 //
 // Original Author:  Dave Dykstra
 //         Created:  Tue Feb 22 16:54:06 CST 2011
-// $Id: cmsGetFnConnect.cc,v 1.2 2008/10/31 20:37:39 wmtan Exp $
+// $Id: cmsGetFnConnect.cc,v 1.1 2011/02/24 22:37:12 dwd Exp $
 //
 
 #include "FWCore/Catalog/interface/SiteLocalConfig.h"

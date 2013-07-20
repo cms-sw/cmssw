@@ -16,7 +16,7 @@
 //
 // Original Author:  Lorenzo AGOSTINO, Radek Ofierzynski
 //         Created:  Tue Jul 18 12:17:01 CEST 2006
-// $Id: ZeeRescaleFactorPlots.h,v 1.2 2008/04/30 09:37:42 palmale Exp $
+// $Id: ZeeRescaleFactorPlots.h,v 1.4 2009/01/09 10:23:04 saout Exp $
 //
 //
 

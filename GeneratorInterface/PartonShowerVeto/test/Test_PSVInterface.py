@@ -33,9 +33,9 @@ process.VtxSmeared = cms.EDProducer("BetafuncEvtVtxGenerator",
                                   )
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.1 $'),
+    version = cms.untracked.string('$Revision: 1.2 $'),
     annotation = cms.untracked.string('PYTHIA6-MinBias at 900GeV'),
-    name = cms.untracked.string('$Source: /cvs_server/repositories/CMSSW/CMSSW/GeneratorInterface/PartonShowerVeto/test/Test_PSVInterface.py,v $')
+    name = cms.untracked.string('$Source: /local/reps/CMSSW/CMSSW/GeneratorInterface/PartonShowerVeto/test/Test_PSVInterface.py,v $')
 )
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(-1)

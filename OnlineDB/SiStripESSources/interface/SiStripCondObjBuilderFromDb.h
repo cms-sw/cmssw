@@ -1,6 +1,6 @@
-// Last commit: $Id: SiStripCondObjBuilderFromDb.h,v 1.7 2009/07/02 13:55:44 alinn Exp $
-// Latest tag:  $Name: HEAD $
-// Location:    $Source: /cvs_server/repositories/CMSSW/CMSSW/OnlineDB/SiStripESSources/interface/SiStripCondObjBuilderFromDb.h,v $
+// Last commit: $Id: SiStripCondObjBuilderFromDb.h,v 1.8 2009/12/10 10:18:55 alinn Exp $
+// Latest tag:  $Name: CMSSW_4_4_5_patch3 $
+// Location:    $Source: /local/reps/CMSSW/CMSSW/OnlineDB/SiStripESSources/interface/SiStripCondObjBuilderFromDb.h,v $
 
 #ifndef OnlineDB_SiStripESSources_SiStripCondObjBuilderFromDb_H
 #define OnlineDB_SiStripESSources_SiStripCondObjBuilderFromDb_H

@@ -1,4 +1,4 @@
-// $Id: Configuration.h,v 1.30 2011/06/01 13:47:01 mommsen Exp $
+// $Id: Configuration.h,v 1.31 2011/07/05 13:25:43 mommsen Exp $
 /// @file: Configuration.h 
 
 
@@ -160,8 +160,8 @@ namespace stor
    * only at requested times.
    *
    * $Author: mommsen $
-   * $Revision: 1.30 $
-   * $Date: 2011/06/01 13:47:01 $
+   * $Revision: 1.31 $
+   * $Date: 2011/07/05 13:25:43 $
    */
 
   class Configuration : public xdata::ActionListener

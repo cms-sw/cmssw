@@ -5,8 +5,8 @@
  *   Look-up tables for pt-assignment
  *
  *
- *   $Date: 2007/03/30 07:48:02 $
- *   $Revision: 1.1 $
+ *   $Date: 2008/04/09 15:22:31 $
+ *   $Revision: 1.3 $
  *
  *   N. Neumeister            CERN EP
  */

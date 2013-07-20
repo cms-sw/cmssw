@@ -2,7 +2,7 @@
 #define Framework_GeneratedInputSource_h
 
 /*----------------------------------------------------------------------
-$Id: GeneratedInputSource.h,v 1.1 2005/12/28 00:30:09 wmtan Exp $
+$Id: GeneratedInputSource.h,v 1.2 2006/01/18 00:38:44 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include <memory>

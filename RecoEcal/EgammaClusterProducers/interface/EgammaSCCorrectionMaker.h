@@ -14,7 +14,7 @@
 //
 // Original Author:  Dave Evans
 //         Created:  Thu Apr 13 15:50:17 CEST 2006
-// $Id: EgammaSCCorrectionMaker.h,v 1.11 2011/02/17 22:48:59 argiro Exp $
+// $Id: EgammaSCCorrectionMaker.h,v 1.12 2011/07/18 18:05:40 argiro Exp $
 //
 //
 

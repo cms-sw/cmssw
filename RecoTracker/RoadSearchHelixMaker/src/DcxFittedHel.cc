@@ -1,6 +1,6 @@
 // -------------------------------------------------------------------------
 // File and Version Information:
-// 	$Id: DcxFittedHel.cc,v 1.4 2006/04/10 22:06:41 stevew Exp $
+// 	$Id: DcxFittedHel.cc,v 1.5 2011/04/07 21:47:06 stevew Exp $
 //
 // Description:
 //	Class Implementation for |DcxFittedHel|

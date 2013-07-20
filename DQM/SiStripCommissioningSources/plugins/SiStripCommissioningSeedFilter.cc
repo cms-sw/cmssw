@@ -13,7 +13,7 @@
 //
 // Original Author:  Christophe DELAERE
 //         Created:  Fri Jan 18 12:17:46 CET 2008
-// $Id: SiStripCommissioningSeedFilter.cc,v 1.2 2008/04/12 20:06:27 delaer Exp $
+// $Id: SiStripCommissioningSeedFilter.cc,v 1.1 2008/07/07 16:24:08 delaer Exp $
 //
 //
 

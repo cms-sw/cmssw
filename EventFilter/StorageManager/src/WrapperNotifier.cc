@@ -1,4 +1,4 @@
-// $Id: WrapperNotifier.cc,v 1.4.16.1 2011/03/07 11:33:06 mommsen Exp $
+// $Id: WrapperNotifier.cc,v 1.5 2011/03/07 15:31:32 mommsen Exp $
 /// @file: WrapperNotifier.cc
 
 #include "EventFilter/StorageManager/interface/WrapperNotifier.h"

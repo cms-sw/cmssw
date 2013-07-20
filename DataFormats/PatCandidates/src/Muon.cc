@@ -1,5 +1,5 @@
 //
-// $Id: Muon.cc,v 1.29 2011/06/08 20:40:19 rwolf Exp $
+// $Id: Muon.cc,v 1.30 2011/09/21 03:40:18 tucker Exp $
 //
 
 #include "DataFormats/PatCandidates/interface/Muon.h"

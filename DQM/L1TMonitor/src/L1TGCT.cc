@@ -1,11 +1,14 @@
 /*
  * \file L1TGCT.cc
  *
- * $Date: 2010/06/28 06:40:46 $
- * $Revision: 1.54 $
+ * $Date: 2010/06/28 09:29:30 $
+ * $Revision: 1.55 $
  * \author J. Berryhill
  *
  * $Log: L1TGCT.cc,v $
+ * Revision 1.55  2010/06/28 09:29:30  tapper
+ * Reduced number of bins.
+ *
  * Revision 1.54  2010/06/28 06:40:46  tapper
  * Reduced numbers of bins in correlation plots (MET vs MHT and SumET vs HT).
  *

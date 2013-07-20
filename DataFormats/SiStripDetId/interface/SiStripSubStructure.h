@@ -16,7 +16,7 @@
 //
 // Original Author:  dkcira
 //         Created:  Wed Jan 25 07:18:21 CET 2006
-// $Id: SiStripSubStructure.h,v 1.4 2007/07/31 15:20:26 ratnik Exp $
+// $Id: SiStripSubStructure.h,v 1.5 2009/02/05 22:26:20 elmer Exp $
 //
 
 #include <vector>

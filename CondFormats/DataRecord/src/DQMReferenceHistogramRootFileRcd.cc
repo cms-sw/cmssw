@@ -8,7 +8,7 @@
 //
 // Author:      
 // Created:     Tue Jul  7 20:29:25 CEST 2009
-// $Id$
+// $Id: DQMReferenceHistogramRootFileRcd.cc,v 1.1 2009/07/20 17:08:17 diguida Exp $
 
 #include "CondFormats/DataRecord/interface/DQMReferenceHistogramRootFileRcd.h"
 #include "FWCore/Framework/interface/eventsetuprecord_registration_macro.h"

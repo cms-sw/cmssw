@@ -7,7 +7,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: SuperCluster.h,v 1.23 2011/02/17 22:42:03 argiro Exp $
+ * \version $Id: SuperCluster.h,v 1.24 2011/02/18 09:47:04 argiro Exp $
  *
  */
 #include "DataFormats/Math/interface/Point3D.h"

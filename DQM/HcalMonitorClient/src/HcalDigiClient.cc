@@ -11,8 +11,8 @@
 /*
  * \file HcalDigiClient.cc
  * 
- * $Date: 2010/11/17 19:22:16 $
- * $Revision: 1.68 $
+ * $Date: 2011/04/12 18:25:42 $
+ * $Revision: 1.69 $
  * \author J. Temple
  * \brief DigiClient class
  */

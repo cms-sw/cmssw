@@ -1,8 +1,8 @@
 /*
  * \file DTLocalTriggerTask.cc
  * 
- * $Date: 2010/01/05 10:14:40 $
- * $Revision: 1.37 $
+ * $Date: 2010/03/15 09:42:52 $
+ * $Revision: 1.38 $
  * \author M. Zanetti - INFN Padova
  *
 */

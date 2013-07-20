@@ -4,8 +4,8 @@
 /*
  * \file EECosmicClient.h
  *
- * $Date: 2009/10/28 08:18:22 $
- * $Revision: 1.28 $
+ * $Date: 2010/01/25 21:12:25 $
+ * $Revision: 1.29 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *

@@ -1,5 +1,5 @@
 
-$Id$
+$Id: testPhiSymValidation.txt,v 1.1 2009/01/19 17:15:04 argiro Exp $
 Author: Stefano Argiro
 
 Purpose: Instructions to test the monitoring/validation of the Phi Symmetry HLT filter

@@ -1,4 +1,4 @@
-// $Id: EventServerProxy.icc,v 1.2 2011/03/07 15:31:32 mommsen Exp $
+// $Id: EventServerProxy.icc,v 1.3 2011/04/05 09:19:01 mommsen Exp $
 /// @file: EventServerProxy.icc
 
 #include "EventFilter/StorageManager/interface/CurlInterface.h"

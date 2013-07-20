@@ -1,4 +1,4 @@
-// $Id: TTULogic.h,v 1.2 2009/06/04 11:52:58 aosorio Exp $
+// $Id: TTULogic.h,v 1.3 2009/08/09 11:11:36 aosorio Exp $
 #ifndef INTERFACE_TTULOGIC_H 
 #define INTERFACE_TTULOGIC_H 1
 

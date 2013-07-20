@@ -13,7 +13,7 @@
 //
 // Original Author:  Oct 12 08:23
 //         Created:  Wed Oct 12 12:16:04 CDT 2005
-// $Id: Type1MET.cc,v 1.26 2011/08/23 19:43:46 lacroix Exp $
+// $Id: Type1MET.cc,v 1.27 2011/09/02 13:19:11 lacroix Exp $
 //
 //
 

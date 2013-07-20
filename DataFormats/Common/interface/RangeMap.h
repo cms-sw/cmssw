@@ -16,9 +16,9 @@
  *
  * \author Tommaso Boccali, Luca Lista INFN
  *
- * \version $Revision: 1.37 $
+ * \version $Revision: 1.38 $
  *
- * $Id: RangeMap.h,v 1.37 2009/11/04 15:30:20 wmtan Exp $
+ * $Id: RangeMap.h,v 1.38 2011/03/08 18:47:15 chrjones Exp $
  *
  */
 #include <map>

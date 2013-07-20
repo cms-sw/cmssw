@@ -15,7 +15,7 @@
 //
 // Author:      Valentin Kuznetsov
 // Created:     Wed Jul  5 11:42:17 EDT 2006
-// $Id: EDLooper.h,v 1.13 2010/07/22 15:00:27 chrjones Exp $
+// $Id: EDLooper.h,v 1.14 2010/08/09 21:04:54 chrjones Exp $
 //
 
 #include "FWCore/Framework/interface/EDLooperBase.h"

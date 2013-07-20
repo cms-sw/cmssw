@@ -2,8 +2,8 @@
 #     R. Mankel, DESY Hamburg     03-Jul-2007
 #     A. Parenti, DESY Hamburg    24-Apr-2008
 #
-#     $Revision: 1.24 $
-#     $Date: 2010/08/03 12:15:26 $
+#     $Revision: 1.25 $
+#     $Date: 2011/06/15 14:24:52 $
 #
 #  produce cfg file for merging run
 #

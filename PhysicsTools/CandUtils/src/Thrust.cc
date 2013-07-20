@@ -1,4 +1,4 @@
-// $Id: Thrust.cc,v 1.13 2006/05/03 06:56:00 llista Exp $
+// $Id: Thrust.cc,v 1.14 2008/03/13 13:28:00 llista Exp $
 #include "PhysicsTools/CandUtils/interface/Thrust.h"
 #include <cmath>
 using namespace reco;

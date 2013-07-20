@@ -3,7 +3,7 @@
    and vice versa   
 
    \author Stefano ARGIRO
-   \version $Id: EcalFloatCondObjectContainerXMLTranslator.h,v 1.2 2009/07/09 10:23:31 argiro Exp $
+   \version $Id: EcalFloatCondObjectContainerXMLTranslator.h,v 1.3 2009/07/09 22:56:14 argiro Exp $
    \date 20 Jun 2008
 */
 

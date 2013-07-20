@@ -5,7 +5,7 @@
 # final XML are the same
 #
 # author: Stefano Argiro'
-# $Id: testEcalConditionsPopCon.sh,v 1.1 2008/11/14 15:47:01 argiro Exp $
+# $Id: testEcalConditionsPopCon.sh,v 1.1 2010/04/16 08:29:51 depasse Exp $
 #
 
 

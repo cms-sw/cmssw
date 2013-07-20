@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2010/07/12 10:04:34 $
- *  $Revision: 1.13 $
+ *  $Date: 2010/07/12 12:25:34 $
+ *  $Revision: 1.14 $
  *
  *  Authors: Martin Grunewald, Andrea Bocci
  *

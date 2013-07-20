@@ -1,7 +1,7 @@
 #ifndef IOMC_BetafuncEvtVtxGenerator_H
 #define IOMC_BetafuncEvtVtxGenerator_H
 
-// $Id: BetafuncEvtVtxGenerator.h,v 1.5 2007/09/14 08:31:56 fabiocos Exp $
+// $Id: BetafuncEvtVtxGenerator.h,v 1.6 2008/04/04 21:38:24 yumiceva Exp $
 /*
 ________________________________________________________________________
 

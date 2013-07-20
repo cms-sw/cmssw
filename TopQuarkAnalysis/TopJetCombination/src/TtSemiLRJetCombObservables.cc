@@ -2,7 +2,7 @@
 // Author:  Jan Heyninck
 // Created: Tue Apr  3 17:33:23 PDT 2007
 //
-// $Id: TtSemiLRJetCombObservables.cc,v 1.14 2009/07/03 12:27:53 snaumann Exp $
+// $Id: TtSemiLRJetCombObservables.cc,v 1.15 2010/03/25 09:22:18 snaumann Exp $
 //
 #include "TopQuarkAnalysis/TopJetCombination/interface/TtSemiLRJetCombObservables.h"
 #include "DataFormats/PatCandidates/interface/Jet.h"

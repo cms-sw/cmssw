@@ -2,7 +2,7 @@
 #define Framework_EPStates_h
 
 /*
-$Id: EPStates.h,v 1.9 2010/06/28 18:16:17 wmtan Exp $
+$Id: EPStates.h,v 1.10 2010/08/05 16:05:49 wdd Exp $
 
 The state machine that controls the processing of runs, luminosity
 blocks, events, and loops is implemented using the boost statechart

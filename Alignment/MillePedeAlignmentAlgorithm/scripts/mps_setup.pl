@@ -1,8 +1,8 @@
 #!/usr/bin/env perl
 #     R. Mankel, DESY Hamburg     08-Oct-2007
 #     A. Parenti, DESY Hamburg    16-Apr-2008
-#     $Revision: 1.22 $
-#     $Date: 2009/07/15 15:05:47 $
+#     $Revision: 1.23 $
+#     $Date: 2010/03/23 16:09:33 $
 #
 #  Setup local mps database
 #  

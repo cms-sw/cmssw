@@ -17,7 +17,7 @@
 // part of the code was inspired by http://cmssw.cvs.cern.ch/cgi-bin/cmssw.cgi/UserCode/YGao/LhcTrackAnalyzer/
 // part of the code was inspired by 
 // other inputs from Andrea Giammanco, Gaelle Boudoul, Andrea Venturi, Steven Lowette, Gavril Giurgiu
-// $Id: TrackerDpgAnalysis.cc,v 1.11 2011/05/20 18:43:38 wmtan Exp $
+// $Id: TrackerDpgAnalysis.cc,v 1.12 2011/07/21 21:15:03 venturia Exp $
 //
 //
 

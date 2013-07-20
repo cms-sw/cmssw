@@ -5,7 +5,7 @@
 
 /** \class EcalRecHit
  *  
- * $Id: EcalRecHit.h,v 1.22 2011/02/06 09:48:56 innocent Exp $
+ * $Id: EcalRecHit.h,v 1.23 2011/02/15 20:11:48 argiro Exp $
  * \author P. Meridiani INFN Roma1
  */
 

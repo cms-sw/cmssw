@@ -16,7 +16,7 @@
 //
 // Original Author:  Werner Sun
 //         Created:  Mon Oct 23 23:08:26 EDT 2006
-// $Id: L1CaloGeometryRecord.h,v 1.1 2006/12/21 01:55:34 wsun Exp $
+// $Id: L1CaloGeometryRecord.h,v 1.1 2008/04/16 23:06:56 wsun Exp $
 //
 
 //#include "FWCore/Framework/interface/EventSetupRecordImplementation.h"

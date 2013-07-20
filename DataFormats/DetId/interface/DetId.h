@@ -14,8 +14,8 @@ the large-scale detector (e.g. Tracker or Ecal) while the next three
 bits ([27:25]) identify a part of the detector (such as HcalBarrel
 (HB) for Hcal).
 
-$Date: 2007/07/31 15:20:00 $
-$Revision: 1.9 $
+$Date: 2009/05/07 19:19:28 $
+$Revision: 1.10 $
 */
 class DetId {
 public:

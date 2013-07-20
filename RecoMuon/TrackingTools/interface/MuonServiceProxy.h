@@ -7,8 +7,8 @@
  *  The update method is called each event in order to update the
  *  pointers.
  *
- *  $Date: 2007/06/15 12:30:45 $
- *  $Revision: 1.9 $
+ *  $Date: 2008/02/13 13:53:54 $
+ *  $Revision: 1.10 $
  *  \author N. Amapane - CERN <nicola.amapane@cern.ch>
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */

@@ -1,5 +1,5 @@
 //
-// $Id: Muon.h,v 1.36 2011/06/08 20:40:18 rwolf Exp $
+// $Id: Muon.h,v 1.37 2011/09/21 03:40:17 tucker Exp $
 //
 
 #ifndef DataFormats_PatCandidates_Muon_h
@@ -17,7 +17,7 @@
 
   \author   Steven Lowette, Giovanni Petrucciani, Frederic Ronga, Colin Bernet
 
-  \version  $Id: Muon.h,v 1.36 2011/06/08 20:40:18 rwolf Exp $
+  \version  $Id: Muon.h,v 1.37 2011/09/21 03:40:17 tucker Exp $
 */
 
 #include "DataFormats/MuonReco/interface/Muon.h"

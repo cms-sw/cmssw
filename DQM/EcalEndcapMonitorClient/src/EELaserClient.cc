@@ -1,8 +1,8 @@
 /*
  * \file EELaserClient.cc
  *
- * $Date: 2011/08/30 09:29:44 $
- * $Revision: 1.141 $
+ * $Date: 2011/09/02 13:55:02 $
+ * $Revision: 1.142 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *

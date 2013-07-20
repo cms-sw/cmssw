@@ -13,7 +13,7 @@
 //
 // Original Author:  Vieri Candelise
 //         Created:  Wed May 11 14:53:26 CEST 2011
-// $Id: EcalZmassTask.cc,v 1.1 2011/07/25 14:34:56 vieri Exp $
+// $Id: EcalZmassTask.cc,v 1.2 2011/07/28 10:03:01 vieri Exp $
 //
 //
 

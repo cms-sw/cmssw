@@ -1,4 +1,4 @@
-// $Id: FWTriggerTableViewTableManager.cc,v 1.3 2010/06/18 10:17:16 yana Exp $
+// $Id: FWTriggerTableViewTableManager.cc,v 1.4 2011/01/26 11:47:07 amraktad Exp $
 
 #include "TGClient.h"
 #include "Fireworks/Core/interface/FWTriggerTableViewTableManager.h"

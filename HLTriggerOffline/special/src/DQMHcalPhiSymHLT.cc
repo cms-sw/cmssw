@@ -9,7 +9,7 @@
 //
 // Original Author:  Grigory Safronov
 //         Created:  Thu Sep 10 08:28:14 CEST 2009
-// $Id$
+// $Id: DQMHcalPhiSymHLT.cc,v 1.1 2009/09/10 10:18:14 safronov Exp $
 //
 //
 

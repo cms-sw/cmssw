@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripConstants.h,v 1.22 2007/06/05 13:55:18 bainbrid Exp $
+// Last commit: $Id: SiStripConstants.h,v 1.23 2007/06/19 12:16:52 bainbrid Exp $
 
 #ifndef DataFormats_SiStripCommon_SiStripConstants_H
 #define DataFormats_SiStripCommon_SiStripConstants_H

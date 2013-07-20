@@ -1,8 +1,8 @@
 /** \file
  *  A simple example of ho to access the magnetic field.
  *
- *  $Date: 2008/04/23 12:05:05 $
- *  $Revision: 1.14 $
+ *  $Date: 2010/10/13 14:30:34 $
+ *  $Revision: 1.15 $
  *  \author N. Amapane - CERN
  */
 

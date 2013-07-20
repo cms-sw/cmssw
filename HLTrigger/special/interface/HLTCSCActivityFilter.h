@@ -15,7 +15,7 @@ Implementation:
 //
 // Original Author:  Carlo Battilana
 //         Created:  Tue Jan 22 13:55:00 CET 2008
-// $Id: HLTCSCActivityFilter.h,v 1.2 2010/06/15 16:09:56 fwyzard Exp $
+// $Id: HLTCSCActivityFilter.h,v 1.3 2010/06/15 16:23:59 fwyzard Exp $
 //
 //
 

@@ -14,7 +14,7 @@
 // Original Authors: Andrey Pozdnyakov, Sergey Petrushanko,
 //                   Grigory Safronov, Olga Kodolova
 //         Created:  Thu Jul 12 18:12:19 CEST 2007
-// $Id: HcalIsoTrkAnalyzer.cc,v 1.23 2010/03/16 23:25:49 andrey Exp $
+// $Id: HcalIsoTrkAnalyzer.cc,v 1.25 2010/03/17 19:43:12 wmtan Exp $
 //
 //
 

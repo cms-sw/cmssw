@@ -8,7 +8,7 @@
 //
 // Original Author:  Alja Mrak-Tadel
 //         Created:  Thu Oct 21 20:40:28 CEST 2010
-// $Id: FWTauProxyBuilderBase.cc,v 1.3 2010/11/26 20:24:46 amraktad Exp $
+// $Id: FWTauProxyBuilderBase.cc,v 1.4 2011/02/23 11:34:52 amraktad Exp $
 //
 
 // system include files

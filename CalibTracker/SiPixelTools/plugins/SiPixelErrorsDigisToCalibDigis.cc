@@ -13,7 +13,7 @@
 //
 // Original Author:  Ricardo Vasquez Sierra
 //         Created:  Wed Apr  9 12:43:02 CEST 2008
-// $Id: SiPixelErrorsDigisToCalibDigis.cc,v 1.9 2010/08/10 08:57:54 ursl Exp $
+// $Id: SiPixelErrorsDigisToCalibDigis.cc,v 1.10 2010/08/10 09:06:13 ursl Exp $
 //
 //
 

@@ -3,7 +3,7 @@
  */
 // Original Author:  Dorian Kcira
 //         Created:  Sat Feb  4 20:49:10 CET 2006
-// $Id: SiStripMonitorDigi.cc,v 1.65 2011/10/27 09:30:14 fiori Exp $
+// $Id: SiStripMonitorDigi.cc,v 1.66 2011/10/27 19:49:20 fiori Exp $
 #include<fstream>
 #include "TNamed.h"
 #include "FWCore/Framework/interface/ESHandle.h"

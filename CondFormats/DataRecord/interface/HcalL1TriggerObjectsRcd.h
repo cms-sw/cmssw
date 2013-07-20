@@ -16,7 +16,7 @@
 //
 // Author:      
 // Created:     Fri Nov  7 18:37:16 CET 2008
-// $Id$
+// $Id: HcalL1TriggerObjectsRcd.h,v 1.1 2008/11/08 21:19:31 rofierzy Exp $
 //
 
 #include "FWCore/Framework/interface/EventSetupRecordImplementation.h"

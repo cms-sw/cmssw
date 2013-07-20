@@ -2,8 +2,8 @@
 #define Alignment_CommonAlignmentMonitor_MuonSystemMapPlot1D_H
 
 /** \class MuonSystemMapPlot1D
- *  $Date: 2009/08/29 18:18:07 $
- *  $Revision: 1.2 $
+ *  $Date: 2010/01/06 15:23:09 $
+ *  $Revision: 1.3 $
  *  \author J. Pivarski - Texas A&M University <pivarski@physics.tamu.edu>
  */
 

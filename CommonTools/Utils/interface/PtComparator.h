@@ -7,9 +7,9 @@
  * \author Luca Lista, INFN
  *         numeric safe implementation by Fedor Ratnikov, FNAL
  *
- * \version $Revision: 1.4 $
+ * \version $Revision: 1.1 $
  *
- * $Id: PtComparator.h,v 1.4 2007/04/23 20:54:26 llista Exp $
+ * $Id: PtComparator.h,v 1.1 2009/02/24 14:52:46 llista Exp $
  *
  */
 

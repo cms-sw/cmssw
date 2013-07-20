@@ -7,7 +7,7 @@
  *  Description:
  *  utility classes for the dynamical truncation algorithm
  *
- *  $Date: 2010/05/10 14:23:50 $
+ *  $Date: 2010/06/14 11:01:53 $
  *  $Revision: 1.1 $
  *
  *  Authors :

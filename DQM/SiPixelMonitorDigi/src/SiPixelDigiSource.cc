@@ -13,7 +13,7 @@
 //
 // Original Author:  Vincenzo Chiochia
 //         Created:  
-// $Id: SiPixelDigiSource.cc,v 1.47 2010/11/03 21:38:38 merkelp Exp $
+// $Id: SiPixelDigiSource.cc,v 1.48 2010/11/08 11:45:33 merkelp Exp $
 //
 //
 #include "DQM/SiPixelMonitorDigi/interface/SiPixelDigiSource.h"

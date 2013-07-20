@@ -8,8 +8,8 @@
  * default eta thresholds (lepton and jets) set to 3
  * At least two leptons and two jets present for each channel
  *
- * $Date: 2007/08/07 10:50:13 $
- * $Revision: 1.1 $
+ * $Date: 2010/02/11 00:15:15 $
+ * $Revision: 1.2 $
  *
  * \author Michele Gallinaro and Nuno Almeida - LIP
  *

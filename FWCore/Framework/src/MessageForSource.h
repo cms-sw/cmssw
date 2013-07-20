@@ -22,7 +22,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Dec 30 10:08:24 CST 2010
-// $Id$
+// $Id: MessageForSource.h,v 1.1 2011/01/02 19:50:58 chrjones Exp $
 //
 
 // system include files

@@ -1,5 +1,5 @@
 
-// $Id: LumiSummary.cc,v 1.20 2010/10/12 10:45:49 xiezhen Exp $
+// $Id: LumiSummary.cc,v 1.21 2010/10/12 10:54:59 xiezhen Exp $
 
 #include "DataFormats/Luminosity/interface/LumiSummary.h"
 

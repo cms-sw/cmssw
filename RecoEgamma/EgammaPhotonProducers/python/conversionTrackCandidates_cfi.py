@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 #
 #  configuration for producer of converted photons
-#  $Id: conversionTrackCandidates_cfi.py,v 1.31 2011/07/22 02:13:03 nancy Exp $
+#  $Id: conversionTrackCandidates_cfi.py,v 1.32 2011/07/22 02:39:25 nancy Exp $
 #
 # stripCPE
 from RecoLocalTracker.SiStripRecHitConverter.StripCPEfromTrackAngle_cfi import *

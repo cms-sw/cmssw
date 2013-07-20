@@ -13,7 +13,7 @@
 //
 // Original Author:  Bryan DAHMES
 //         Created:  Wed Sep 19 16:21:29 CEST 2007
-// $Id: HLTFEDSizeFilter.cc,v 1.7 2009/05/16 13:40:34 fwyzard Exp $
+// $Id: HLTFEDSizeFilter.cc,v 1.8 2009/05/16 13:58:31 fwyzard Exp $
 //
 //
 

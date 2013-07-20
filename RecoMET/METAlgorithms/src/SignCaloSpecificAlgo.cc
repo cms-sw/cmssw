@@ -35,7 +35,7 @@ using namespace std;
 //
 // Original Author:  Kyle Story, Freya Blekman (Cornell University)
 //         Created:  Fri Apr 18 11:58:33 CEST 2008
-// $Id: SignCaloSpecificAlgo.cc,v 1.8 2009/10/22 16:50:45 fblekman Exp $
+// $Id: SignCaloSpecificAlgo.cc,v 1.9 2010/02/22 23:43:47 dlange Exp $
 //
 //
 

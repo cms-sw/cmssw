@@ -4,8 +4,8 @@
 /** \class DTDataErrorFilter
  *  No description available.
  *
- *  $Date: $
- *  $Revision: $
+ *  $Date: 2008/06/10 14:56:27 $
+ *  $Revision: 1.1 $
  *  \author G. Cerminara - INFN Torino
  */
 

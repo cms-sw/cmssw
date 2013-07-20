@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Tue May 16 10:14:34 CEST 2006
-// $Id: HcalTB06Analysis.cc,v 1.6 2009/04/01 22:55:21 sunanda Exp $
+// $Id: HcalTB06Analysis.cc,v 1.7 2009/05/24 15:31:15 fabiocos Exp $
 //
   
 // system include files

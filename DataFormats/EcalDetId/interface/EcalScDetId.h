@@ -1,5 +1,5 @@
 // -*- Mode: C++; c-basic-offset: 2; indent-tabs-mode: t; tab-width: 8; -*-
-//$Id: EcalScDetId.h,v 1.6 2010/02/08 15:23:02 pgras Exp $
+//$Id: EcalScDetId.h,v 1.7 2010/02/09 17:31:15 pgras Exp $
 //
 // \author Philippe Gras (CEA/Saclay). Code adapted from EEDetId.
 //

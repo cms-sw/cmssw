@@ -1,8 +1,8 @@
 /*
  * \file EEPedestalOnlineClient.cc
  *
- * $Date: 2011/08/30 09:29:45 $
- * $Revision: 1.113 $
+ * $Date: 2011/09/02 13:55:02 $
+ * $Revision: 1.114 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *

@@ -13,7 +13,7 @@
 //
 // Original Author:  James Jackson
 //         Created:  Mon Jan 11 09:57:58 CET 2010
-// $Id$
+// $Id: RecHitEnergyFilter.cc,v 1.1 2010/03/06 22:12:30 malgeri Exp $
 //
 //
 

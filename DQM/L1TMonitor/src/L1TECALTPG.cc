@@ -1,13 +1,16 @@
 /*
  * \file L1TECALTPG.cc
  *
- * $Date: 2008/03/20 19:38:25 $
- * $Revision: 1.13 $
+ * $Date: 2009/11/19 14:38:47 $
+ * $Revision: 1.14 $
  * \author J. Berryhill
  *
  * - initial version stolen from GCTMonnitor (thanks!) (wittich 02/07)
  *
  * $Log: L1TECALTPG.cc,v $
+ * Revision 1.14  2009/11/19 14:38:47  puigh
+ * modify beginJob
+ *
  * Revision 1.13  2008/03/20 19:38:25  berryhil
  *
  *

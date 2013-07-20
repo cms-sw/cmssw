@@ -1,8 +1,8 @@
 /** \file LaserDQM.cc
  *  DQM Monitors for Laser Alignment System
  *
- *  $Date: 2008/03/01 13:22:57 $
- *  $Revision: 1.6 $
+ *  $Date: 2009/12/14 22:21:46 $
+ *  $Revision: 1.7 $
  *  \author Maarten Thomas
  */
 

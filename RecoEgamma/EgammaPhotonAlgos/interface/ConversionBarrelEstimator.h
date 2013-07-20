@@ -4,8 +4,8 @@
  * \class ConversionBarrelEstimator
  *  Defines the search area in the barrel 
  *
- *   $Date: 2007/02/25 16:37:27 $
- *   $Revision: 1.3 $
+ *   $Date: 2007/03/07 16:48:42 $
+ *   $Revision: 1.4 $
  *   \author Nancy Marinelli, U. of Notre Dame, US
  */
 
