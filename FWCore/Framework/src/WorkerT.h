@@ -72,6 +72,8 @@ namespace edm {
                            CurrentProcessingContext const* cpc) override;
     virtual void implBeginJob() override;
     virtual void implEndJob() override;
+    virtual void implBeginStream(StreamID) override;
+    virtual void implEndStream(StreamID) override;
     virtual void implRespondToOpenInputFile(FileBlock const& fb) override;
     virtual void implRespondToCloseInputFile(FileBlock const& fb) override;
     virtual void implRespondToOpenOutputFiles(FileBlock const& fb) override;

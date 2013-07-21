@@ -738,6 +738,9 @@ namespace edm {
     // toerror.succeeded(); // should we add this?
     if(hasSubProcess()) subProcess_->doBeginJob();
     actReg_->postBeginJobSignal_();
+    
+    schedule_->beginStream();
+    if(hasSubProcess()) subProcess_->doBeginStream(schedule_->streamID());
   }
 
   void
@@ -751,6 +754,12 @@ namespace edm {
     //make the services available
     ServiceRegistry::Operate operate(serviceToken_);
 
+    //NOTE: this really should go elsewhere in the future
+    c.call([this](){this->schedule_->endStream();});
+    if(hasSubProcess()) {
+      c.call([this](){ this->subProcess_->doEndStream(this->schedule_->streamID()); } );
+    }
+    
     schedule_->endJob(c);
     if(hasSubProcess()) {
       c.call(boost::bind(&SubProcess::doEndJob, subProcess_.get()));
@@ -1987,12 +1996,12 @@ namespace edm {
       ScheduleSignalSentry<Traits> sentry(actReg_.get(), &runPrincipal, &es);
       schedule_->processOneOccurrence<Traits>(runPrincipal, es);
       if(hasSubProcess()) {
-        //subProcess_->doStreamBeginRun(StreamID{0}, runPrincipal, ts);
+        subProcess_->doStreamBeginRun(schedule_->streamID(), runPrincipal, ts);
       }
     }
     FDEBUG(1) << "\tstreamBeginRun " << run.runNumber() << "\n";
     if(looper_) {
-      //looper_->doStreamBeginRun(StreamID{0},runPrincipal, es);
+      //looper_->doStreamBeginRun(schedule_->streamID(),runPrincipal, es);
     }
   }
 
@@ -2008,12 +2017,12 @@ namespace edm {
       ScheduleSignalSentry<Traits> sentry(actReg_.get(), &runPrincipal, &es);
       schedule_->processOneOccurrence<Traits>(runPrincipal, es, cleaningUpAfterException);
       if(hasSubProcess()) {
-        //subProcess_->doStreamEndRun(runPrincipal, ts, cleaningUpAfterException);
+        subProcess_->doStreamEndRun(schedule_->streamID(),runPrincipal, ts, cleaningUpAfterException);
       }
     }
     FDEBUG(1) << "\tstreamEndRun " << run.runNumber() << "\n";
     if(looper_) {
-      //looper_->doStreamEndRun(runPrincipal, es);
+      //looper_->doStreamEndRun(schedule_->streamID(),runPrincipal, es);
     }
     {
       typedef OccurrenceTraits<RunPrincipal, BranchActionGlobalEnd> Traits;
@@ -2061,12 +2070,12 @@ namespace edm {
       ScheduleSignalSentry<Traits> sentry(actReg_.get(), &lumiPrincipal, &es);
       schedule_->processOneOccurrence<Traits>(lumiPrincipal, es);
       if(hasSubProcess()) {
-        //subProcess_->doStreamBeginLuminosityBlock(lumiPrincipal, ts);
+        subProcess_->doStreamBeginLuminosityBlock(schedule_->streamID(),lumiPrincipal, ts);
       }
     }
     FDEBUG(1) << "\tstreamBeginLumi " << run << "/" << lumi << "\n";
     if(looper_) {
-      //looper_->doStreamBeginLuminosityBlock(lumiPrincipal, es);
+      //looper_->doStreamBeginLuminosityBlock(schedule_->streamID(),lumiPrincipal, es);
     }
   }
 
@@ -2084,12 +2093,12 @@ namespace edm {
       ScheduleSignalSentry<Traits> sentry(actReg_.get(), &lumiPrincipal, &es);
       schedule_->processOneOccurrence<Traits>(lumiPrincipal, es, cleaningUpAfterException);
       if(hasSubProcess()) {
-        //subProcess_->doStreamEndLuminosityBlock(lumiPrincipal, ts, cleaningUpAfterException);
+        subProcess_->doStreamEndLuminosityBlock(schedule_->streamID(),lumiPrincipal, ts, cleaningUpAfterException);
       }
     }
     FDEBUG(1) << "\tendLumi " << run << "/" << lumi << "\n";
     if(looper_) {
-      //looper_->doStreamEndLuminosityBlock(lumiPrincipal, es);
+      //looper_->doStreamEndLuminosityBlock(schedule_->streamID(),lumiPrincipal, es);
     }
     {
       typedef OccurrenceTraits<LuminosityBlockPrincipal, BranchActionGlobalEnd> Traits;
