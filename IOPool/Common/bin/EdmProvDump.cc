@@ -879,7 +879,7 @@ ProvenanceDumper::work_() {
        it != itEnd;
        ++it) {
     //force it to rebuild the branch name
-    const_cast<edm::BranchDescription&>(it->second).init();
+    it->second.init();
 
     if(showDependencies_ || extendedAncestors_ || extendedDescendants_) {
       branchIDToBranchName[it->second.branchID()] = it->second.branchName();
