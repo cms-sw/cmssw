@@ -96,6 +96,20 @@ namespace edm {
   }
 
   void
+  WorkerManager::beginStream(StreamID iID) {
+    for(auto& worker: allWorkers_) {
+      worker->beginStream(iID);
+    }
+  }
+
+  void
+  WorkerManager::endStream(StreamID iID) {
+    for(auto& worker: allWorkers_) {
+      worker->endStream(iID);
+    }
+  }
+
+  void
   WorkerManager::resetAll() {
     for_all(allWorkers_, boost::bind(&Worker::reset, _1));
   }

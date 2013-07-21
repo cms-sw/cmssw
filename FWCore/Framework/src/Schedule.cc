@@ -1258,6 +1258,14 @@ namespace edm {
   void Schedule::beginJob(ProductRegistry const& iRegistry) {
     workerManager_.beginJob(iRegistry);
   }
+  
+  void Schedule::beginStream() {
+    workerManager_.beginStream(streamID_);
+  }
+  
+  void Schedule::endStream() {
+    workerManager_.endStream(streamID_);
+  }
 
   void Schedule::preForkReleaseResources() {
     for_all(allWorkers(), boost::bind(&Worker::preForkReleaseResources, _1));
