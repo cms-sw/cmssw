@@ -252,6 +252,7 @@ void PhotonPostprocessing::endLuminosityBlock(const edm::LuminosityBlock& lumi, 
 void  PhotonPostprocessing::dividePlots(MonitorElement* dividend, MonitorElement* numerator, MonitorElement* denominator, std::string type ){
   double value,err;
   for (int j=1; j<=numerator->getNbinsX(); j++){
+    dividend->setEfficiencyFlag();
 
     if (denominator->getBinContent(j)!=0){
       if (type=="effic")
