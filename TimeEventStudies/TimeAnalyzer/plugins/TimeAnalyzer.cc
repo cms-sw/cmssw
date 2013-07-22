@@ -111,11 +111,14 @@ class TimeAnalyzer : public edm::EDAnalyzer {
   TH1F* h_energies_;
   THStack* h_ecstack_;
   TH1F* h_massofmother_;
+  TH1F* h_mothertype_;
 
 
   // list of particle tipe(s) which are used for the study and matched to clusters/recHits
   std::vector<int> acceptedParticleTypes_;
   double lowestenergy_;
+  std::vector<int> acceptedParentTypes_;
+  float inv_nofproducts_;
 
 };
 
@@ -138,6 +141,8 @@ TimeAnalyzer::TimeAnalyzer(const edm::ParameterSet& iConfig)
   // list of particle tipe(s) which are used for the study and matched to clusters/recHits
   acceptedParticleTypes_ = iConfig.getParameter< std::vector<int> >("acceptedParticleTypes");
   lowestenergy_ = iConfig.getParameter<double>("lowestenergy");
+  acceptedParentTypes_= iConfig.getParameter<std::vector<int>>("acceptedParentTypes");
+  inv_nofproducts_=1.0/acceptedParticleTypes_.size();
 }
 
 
@@ -187,7 +192,6 @@ float squaremomenta=0.;
 //   h_nVtx_ -> Fill( vertexCollection->size() );
    math::XYZPoint recoVtx(0.,0.,0.);
    if (vertexCollection->size()>0) { recoVtx = vertexCollection->begin()->position();  }
-   
 
 
    // get hold of the MC product and loop over truth-level particles 
@@ -209,6 +213,15 @@ float squaremomenta=0.;
        // match only to truth of desired particle types
        if (std::find(acceptedParticleTypes_.begin(), acceptedParticleTypes_.end(), (*p)->pdg_id())==acceptedParticleTypes_.end() )  continue;
        if(lowestenergy_>(*p)->momentum().e()) continue;
+       HepMC::GenParticle* mother=0;
+       HepMC::GenParticle* motheraux=0;
+       if ( (*p)->production_vertex()&&(*p)->production_vertex()->particles_begin(HepMC::parents)!=(*p)->production_vertex()->particles_end(HepMC::parents) ) {
+	motheraux=*((*p)->production_vertex()->particles_begin(HepMC::parents));
+	mother=*(motheraux->production_vertex()->particles_begin(HepMC::parents));
+       }
+       if(std::find(acceptedParentTypes_.begin(), acceptedParentTypes_.end(), mother->pdg_id())==acceptedParentTypes_.end() ) continue;
+//Here I assume that if a parent produces one relevant particle, it will also parent the rest. Could be done in other ways, this one seems simplest for now.
+       h_mothertype_-> Fill(mother->pdg_id(),inv_nofproducts_);
 
 	for(unsigned int broj=0;broj<acceptedParticleTypes_.size();broj++) if((*p)->pdg_id()==acceptedParticleTypes_[broj]) {
 		if(particlemomenta[3][broj]<(*p)->momentum().e()) {
@@ -354,7 +367,7 @@ TimeAnalyzer::beginJob()
   h_energies_ = fs->make<TH1F>("h_enegies","energies",100,0.,500.);
   h_ecstack_  = fs->make<THStack>("h_ecstack","E&B energy stack");
   h_massofmother_ = fs->make<TH1F>("h_massofmother","e+e- particle energy",100,0.,160.);
-
+  h_mothertype_ = fs->make<TH1F>("h_mothertype_","type of mother",80,-40.,40.);
 
 }
 
