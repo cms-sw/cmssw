@@ -37,6 +37,7 @@ http://cms-sw.github.io/cmssw/index.html
 <pre><code>cmsrel CMSSW_6_1_2_SLHC6_patch1
 cd CMSSW_6_1_2_SLHC6_patch1/src
 cmsenv
+git init
 </code></pre>
 
 3. Project-specific setup
