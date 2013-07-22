@@ -1,0 +1,66 @@
+~T0 # neutron # ~T0 # neutron 
+~T0 # neutron # ~T0 # neutron # pi0
+~T0 # neutron # ~T0 # proton # pi-
+~T0 # neutron # ~T+ # neutron # pi-
+~T0 # neutron # ~T_ud0+ # pi-
+~T0 # neutron # ~T_ud0+ # pi- # pi0
+~T0 # proton # ~T0 # neutron # pi+
+~T0 # proton # ~T0 # proton 
+~T0 # proton # ~T0 # proton # pi0
+~T0 # proton # ~T+ # neutron 
+~T0 # proton # ~T+ # neutron # pi0
+~T0 # proton # ~T+ # proton # pi-
+~T0 # proton # ~T_ud0+ # pi0
+~T0 # proton # ~T_ud0+ # pi0 # pi0
+~T0 # proton # ~T_ud0+ # pi- # pi+
+~Tbar0 # neutron # ~Tbar0 # neutron
+~Tbar0 # neutron # ~Tbar0 # neutron # pi0
+~Tbar0 # neutron # ~Tbar0 # proton # pi-
+~Tbar0 # neutron # ~Tbar- # neutron # pi+
+~Tbar0 # neutron # ~Tbar- # proton
+~Tbar0 # neutron # ~Tbar- # proton # pi0
+~Tbar0 # proton # ~Tbar0 # neutron # pi+
+~Tbar0 # proton # ~Tbar0 # proton
+~Tbar0 # proton # ~Tbar0 # proton # pi0
+~Tbar0 # proton # ~Tbar- # proton # pi+
+~Tbar- # neutron # ~Tbar0 # neutron # pi-
+~Tbar- # neutron # ~Tbar- # neutron
+~Tbar- # neutron # ~Tbar- # neutron # pi0
+~Tbar- # neutron # ~Tbar- # proton # pi- 
+~Tbar- # proton # ~Tbar0 # neutron 
+~Tbar- # proton # ~Tbar0 # neutron # pi0
+~Tbar- # proton # ~Tbar0 # proton # pi-
+~Tbar- # proton # ~Tbar- # neutron # pi+
+~Tbar- # proton # ~Tbar- # proton
+~Tbar- # proton # ~Tbar- # proton # pi0
+~Tbar_ud0- # neutron # ~Tbar0 # pi-
+~Tbar_ud0- # neutron # ~Tbar- # pi0
+~Tbar_ud0- # neutron # ~Tbar_ud0- # neutron 
+~Tbar_ud0- # neutron # ~Tbar_ud0- # neutron # pi0 
+~Tbar_ud0- # neutron # ~Tbar_ud0- # proton # pi-
+~Tbar_ud0- # proton # ~Tbar0 # pi0
+~Tbar_ud0- # proton # ~Tbar- # pi+
+~Tbar_ud0- # proton # ~Tbar_ud0- # neutron # pi+
+~Tbar_ud0- # proton # ~Tbar_ud0- # proton 
+~Tbar_ud0- # proton # ~Tbar_ud0- # proton # pi0 
+~T+ # neutron # ~T0 # neutron # pi-
+~T+ # neutron # ~T0 # proton 
+~T+ # neutron # ~T0 # proton # pi0
+~T+ # neutron # ~T+ # neutron 
+~T+ # neutron # ~T+ # neutron # pi0
+~T+ # neutron # ~T+ # proton # pi-
+~T+ # neutron # ~T_ud0+ # pi0
+~T+ # neutron # ~T_ud0+ # pi0 # pi0
+~T+ # neutron # ~T_ud0+ # pi- # pi+
+~T+ # proton # ~T0 # proton # pi+
+~T+ # proton # ~T+ # neutron # pi+
+~T+ # proton # ~T+ # proton 
+~T+ # proton # ~T+ # proton # pi0
+~T+ # proton # ~T_ud0+ # pi+
+~T+ # proton # ~T_ud0+ # pi+ # pi0
+~T_ud0+ # neutron # ~T_ud0+ # neutron
+~T_ud0+ # neutron # ~T_ud0+ # neutron # pi0
+~T_ud0+ # neutron # ~T_ud0+ # proton # pi-
+~T_ud0+ # proton # ~T_ud0+ # neutron # pi+
+~T_ud0+ # proton # ~T_ud0+ # proton
+~T_ud0+ # proton # ~T_ud0+ # proton # pi0
