@@ -61,8 +61,7 @@ git cms-addpkg SimMuon/GEMDigitizer
 
 <pre><code>git cms-merge-topic dildick:bugfix-for-gemgeometry
 git cms-merge-topic dildick:feature-for-gemgeometry
-git cherry-pick e0034b587caaaa88fab21c9e82051d624bfca5b0
-git cherry-pick 19838a72e90211ffb343e5fc04cb8442bb13294e
+git cms-merge-topic dildick:feature-for-gemcsctrigger
 </code></pre>
 
 <!--
