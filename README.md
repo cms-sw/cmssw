@@ -3,8 +3,6 @@
 ##Introduction##
 
 This is the repository for code development of GEM the validation analyzer and the GEM-CSC integrated local trigger analyzer.<br><br>
-This README.md file can is encoded in MarkDown, see<br>
-http://daringfireball.net/projects/markdown/syntax
 
 ##Documentation##
 
