@@ -180,8 +180,9 @@ TimeAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 
 unsigned int brojrazl=0;
-std::vector< std::vector<float>> particlemomenta(4, std::vector<float> (acceptedParticleTypes_.size()+1,0.));
+std::vector< std::vector<float>> particlemomenta(5, std::vector<float> (acceptedParticleTypes_.size()+1,0.));
 float squaremomenta=0.;
+unsigned int motherid=0;
 
 
    // reconstructed vertex in the event
@@ -213,24 +214,27 @@ float squaremomenta=0.;
        // match only to truth of desired particle types
        if (std::find(acceptedParticleTypes_.begin(), acceptedParticleTypes_.end(), (*p)->pdg_id())==acceptedParticleTypes_.end() )  continue;
        if(lowestenergy_>(*p)->momentum().e()) continue;
+       
+       motherid=0;
        HepMC::GenParticle* mother=0;
        HepMC::GenParticle* motheraux=0;
-       if ( (*p)->production_vertex()&&(*p)->production_vertex()->particles_begin(HepMC::parents)!=(*p)->production_vertex()->particles_end(HepMC::parents) ) {
-	motheraux=*((*p)->production_vertex()->particles_begin(HepMC::parents));
-	mother=*(motheraux->production_vertex()->particles_begin(HepMC::parents));
-       }
-       if(std::find(acceptedParentTypes_.begin(), acceptedParentTypes_.end(), mother->pdg_id())==acceptedParentTypes_.end() ) continue;
-//Here I assume that if a parent produces one relevant particle, it will also parent the rest. Could be done in other ways, this one seems simplest for now.
-       h_mothertype_-> Fill(mother->pdg_id(),inv_nofproducts_);
+       if((*p)->production_vertex() && (*p)->production_vertex()->particles_begin(HepMC::parents)!=(*p)->production_vertex()->particles_end(HepMC::parents)){
+                        motheraux=*((*p)->production_vertex()->particles_begin(HepMC::parents));
+                        mother=*(motheraux->production_vertex()->particles_begin(HepMC::parents));
+	}
+       motherid=mother->pdg_id();
+       if(std::find(acceptedParentTypes_.begin(), acceptedParentTypes_.end(), motherid)==acceptedParentTypes_.end() ) continue;
 
 	for(unsigned int broj=0;broj<acceptedParticleTypes_.size();broj++) if((*p)->pdg_id()==acceptedParticleTypes_[broj]) {
-		if(particlemomenta[3][broj]<(*p)->momentum().e()) {
+		if(particlemomenta[3][broj]<(*p)->momentum().e() ) {
 			particlemomenta[3][broj]=(*p)->momentum().e();
 			particlemomenta[0][broj]=(*p)->momentum().px();
 			particlemomenta[1][broj]=(*p)->momentum().py();
 			particlemomenta[2][broj]=(*p)->momentum().pz();
-			}
+			particlemomenta[4][broj]=motherid;
 		}
+	}
+
 
 //       h_pTypeSel_ ->  Fill((*p)->pdg_id()); 
 
@@ -283,19 +287,24 @@ float squaremomenta=0.;
    }
 
 
+	int goodparent=1;
+	int likelyid=particlemomenta[4][0];
 	for(unsigned int brojac=0;brojac<acceptedParticleTypes_.size();brojac++) {
 		if(particlemomenta[3][brojac]!=0.0) brojrazl++;
+		//Here I assume that if a parent produces one relevant particle, it will also parent the rest.
+		//Could be done in other ways, this one seems simplest for now.
+	        if(likelyid!=particlemomenta[4][brojac]) goodparent=-1;
 		}
-	if(brojrazl==acceptedParticleTypes_.size()) {
+	if(goodparent==1 && likelyid!=0 && brojrazl==acceptedParticleTypes_.size()) {
+		h_mothertype_ -> Fill(likelyid);
 		for(unsigned int bro=0;bro<acceptedParticleTypes_.size();bro++) {
 			for(unsigned int tt=0;tt<3;tt++) particlemomenta[tt][brojrazl]+=particlemomenta[tt][bro];
 			particlemomenta[3][brojrazl]+=particlemomenta[3][bro];
-			}
 		}
-	for(unsigned int ff=0;ff<3;ff++) squaremomenta+=particlemomenta[ff][brojrazl]*particlemomenta[ff][brojrazl];
-	float ugh=sqrt(particlemomenta[3][brojrazl]*particlemomenta[3][brojrazl]-squaremomenta);
-	if(particlemomenta[3][brojrazl]>2.) h_massofmother_ -> Fill( ugh );
-
+		for(unsigned int ff=0;ff<3;ff++) squaremomenta+=particlemomenta[ff][brojrazl]*particlemomenta[ff][brojrazl];
+		float ugh=sqrt(particlemomenta[3][brojrazl]*particlemomenta[3][brojrazl]-squaremomenta);
+		if(particlemomenta[3][brojrazl]>2.) h_massofmother_ -> Fill( ugh );
+	}
 
 
    // superclusters are groups of neighboring Electromagnetic Calorimeter (ECAL) recHits
