@@ -119,7 +119,7 @@ class TimeAnalyzer : public edm::EDAnalyzer {
   double lowestenergy_;
   std::vector<int> acceptedParentTypes_;
   float inv_nofproducts_;
-
+  double lowestenergyparent_;
 };
 
 //
@@ -143,6 +143,7 @@ TimeAnalyzer::TimeAnalyzer(const edm::ParameterSet& iConfig)
   lowestenergy_ = iConfig.getParameter<double>("lowestenergy");
   acceptedParentTypes_= iConfig.getParameter<std::vector<int>>("acceptedParentTypes");
   inv_nofproducts_=1.0/acceptedParticleTypes_.size();
+  lowestenergyparent_ = iConfig.getParameter<double>("lowestenergyparent");
 }
 
 
@@ -303,7 +304,7 @@ unsigned int motherid=0;
 		}
 		for(unsigned int ff=0;ff<3;ff++) squaremomenta+=particlemomenta[ff][brojrazl]*particlemomenta[ff][brojrazl];
 		float ugh=sqrt(particlemomenta[3][brojrazl]*particlemomenta[3][brojrazl]-squaremomenta);
-		if(particlemomenta[3][brojrazl]>2.) h_massofmother_ -> Fill( ugh );
+		if(particlemomenta[3][brojrazl]>lowestenergy_ && ugh>lowestenergyparent_) h_massofmother_ -> Fill( ugh );
 	}
 
 
