@@ -25,15 +25,16 @@ forks!**
 
 ### CMSSW_6_2_X, CMSSW_5_3_X, CMSSW_4_4_X, CMSSW_4_1_X, SLHC releases.
 
-On the day `CMSSW_6_2_0` is released, tentatively July 10th, we will open
-branches in git for all the required stable release queue. 
+On the day `CMSSW_6_2_0` is released, we opened branches in git for all the
+required stable release queue.
 
-CVS access to CMSSW repository will be shut down at that point.
+CVS access to CMSSW repository became read only at that point and all the
+development moved to git.
 
 ### UserCode
 
-You will be able to commit to the UserCode repository until the end of July, in
-order to avoid disruption for the summer conferences.
+You will be able to commit to the UserCode repository until the end of August,
+in order to avoid disruption for the summer conferences.
 
 Instructions on how to migrate CMSSW releases can be found
 [here](http://cms-sw.github.io/cmssw/usercode-faq.html).
