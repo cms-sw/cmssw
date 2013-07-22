@@ -58,23 +58,17 @@ git cms-addpkg DataFormats/L1CSCTrackFinder
 git cms-addpkg SimMuon/GEMDigitizer
 </code></pre>
 
-3.2 Checkout the latest GEM developments: 
+3.2 Checkout the latest GEM developments and merge them:
 
+<!--
 <pre><code>git cms-merge-topic dildick:bugfix-for-gemgeometry
 git cms-merge-topic dildick:feature-for-gemgeometry
 git cms-merge-topic dildick:feature-for-gemcsctrigger
 </code></pre>
-
-<!--
-git cms-merge-topic dildick:feature-for-gemcsctrigger
+-->
 <pre><code>git fetch cmssw-gem
-</code></pre>
-
-Merge the changes
-<pre><code>
 git merge FETCH_HEAD
 </code></pre>
--->
 
 Compile:<pre><code>scram b -j 9</code></pre>
 
