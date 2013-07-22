@@ -61,12 +61,14 @@ git cms-addpkg SimMuon/GEMDigitizer
 
 3.2 Checkout the latest GEM developments: 
 
-<pre><code>cms-merge-topic dildick:feature-for-gemcsctrigger
-git cms-merge-topic dildick:bugfix-for-gemgeometry
+<pre><code>git cms-merge-topic dildick:bugfix-for-gemgeometry
 git cms-merge-topic dildick:feature-for-gemgeometry
+git cherry-pick e0034b587caaaa88fab21c9e82051d624bfca5b0
+git cherry-pick 19838a72e90211ffb343e5fc04cb8442bb13294e
 </code></pre>
 
 <!--
+git cms-merge-topic dildick:feature-for-gemcsctrigger
 <pre><code>git fetch cmssw-gem
 </code></pre>
 
