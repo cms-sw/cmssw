@@ -56,6 +56,13 @@ class TrackingAlgorithm_exactBarrelEndcap : public TrackingAlgorithm< T >
     std::vector< std::vector< double > > tableRPhiEE;
     std::vector< std::vector< double > > tableZEE;
 
+    std::vector< std::vector< double > > tableRPhiBE_PS;
+    std::vector< std::vector< double > > tableZBE_PS;
+    std::vector< std::vector< double > > tableRPhiEB_PS;
+    std::vector< std::vector< double > > tableZEB_PS;
+    std::vector< std::vector< double > > tableRPhiEE_PS;
+    std::vector< std::vector< double > > tableZEE_PS;
+
   public:
     /// Constructors
     TrackingAlgorithm_exactBarrelEndcap( const StackedTrackerGeometry *aStackedGeom,
@@ -64,10 +71,16 @@ class TrackingAlgorithm_exactBarrelEndcap : public TrackingAlgorithm< T >
                                          std::vector< std::vector< double > > aTableZBB,
                                          std::vector< std::vector< double > > aTableRPhiBE,
                                          std::vector< std::vector< double > > aTableZBE,
+                                            std::vector< std::vector< double > > aTableRPhiBE_PS, 
+                                            std::vector< std::vector< double > > aTableZBE_PS, 
                                          std::vector< std::vector< double > > aTableRPhiEB,
                                          std::vector< std::vector< double > > aTableZEB,
+                                            std::vector< std::vector< double > > aTableRPhiEB_PS,
+                                            std::vector< std::vector< double > > aTableZEB_PS,
                                          std::vector< std::vector< double > > aTableRPhiEE,
-                                         std::vector< std::vector< double > > aTableZEE )
+                                         std::vector< std::vector< double > > aTableZEE,
+                                            std::vector< std::vector< double > > aTableRPhiEE_PS,
+                                            std::vector< std::vector< double > > aTableZEE_PS )
       : TrackingAlgorithm< T > ( aStackedGeom, __func__ )
     {
       mMagneticField = aMagneticField;
@@ -82,6 +95,13 @@ class TrackingAlgorithm_exactBarrelEndcap : public TrackingAlgorithm< T >
       tableZEB = aTableZEB;
       tableRPhiEE = aTableRPhiEE;
       tableZEE = aTableZEE;
+
+      tableRPhiBE_PS = aTableRPhiBE_PS;
+      tableZBE_PS = aTableZBE_PS;
+      tableRPhiEB_PS = aTableRPhiEB_PS;
+      tableZEB_PS = aTableZEB_PS;
+      tableRPhiEE_PS = aTableRPhiEE_PS;
+      tableZEE_PS = aTableZEE_PS;
     }
 
     /// Destructor
@@ -247,6 +267,13 @@ void TrackingAlgorithm_exactBarrelEndcap< T >::CreateSeeds( std::vector< L1TkTra
         if (( detId2.iLayer() != detId1.iLayer() + 1 ) && ( detId1.iLayer() != detId2.iLayer() + 1 ))
           continue;
 
+        /// Alert
+        if ( pos1.perp() > pos2.perp() )
+        {
+          std::cerr << "TrackingAlgorithm_exactBarrelEndcap::CreateSeeds()" << std::endl;
+          std::cerr << "   A L E R T ! pos1.perp() > pos2.perp() in Barrel-Barrel tracklet" << std::endl;
+        }
+
         /// In the Barrel
         /// 1/RCurv = 0.003 * B * 1/Pt
 
@@ -271,13 +298,30 @@ void TrackingAlgorithm_exactBarrelEndcap< T >::CreateSeeds( std::vector< L1TkTra
         double rhoPsi1 = asin( pos1.perp()*rInvOver2 )/rInvOver2;
         double rhoPsi2 = asin( pos2.perp()*rInvOver2 )/rInvOver2;
         double cotTheta0 = ( pos1.z() - pos2.z() ) / ( rhoPsi1 - rhoPsi2 );
-        double z0 = pos2.z() - rhoPsi2 * cotTheta0;
+        double z0 = pos1.z() - rhoPsi1 * cotTheta0;
+
+        const GeomDetUnit* det1_0 = TrackingAlgorithm< T >::theStackedTracker->idToDetUnit( detId1, 0 );
+        const GeomDetUnit* det1_1 = TrackingAlgorithm< T >::theStackedTracker->idToDetUnit( detId1, 1 );
+        const PixelGeomDetUnit* pix1_0 = dynamic_cast< const PixelGeomDetUnit* >( det1_0 );
+        const PixelGeomDetUnit* pix1_1 = dynamic_cast< const PixelGeomDetUnit* >( det1_1 );
+        const PixelTopology* top1_0 = dynamic_cast< const PixelTopology* >( &(pix1_0->specificTopology()) );
+        const PixelTopology* top1_1 = dynamic_cast< const PixelTopology* >( &(pix1_1->specificTopology()) );
+        int ratio1 = top1_0->ncolumns() / top1_1->ncolumns();
+        bool barrelSeed2S = ( ratio1 == 1 );
+  
+        if ( barrelSeed2S )
+        {
+          z0 = 0;
+          cotTheta0 = pos1.z() / rhoPsi1;
+        }
+
+        //if ( barrelSeed2S ) continue;
 
         /// Perform projected vertex cut
         if ( fabs(z0) > 30.0 ) continue;
 
         /// Calculate direction at vertex
-        double phi0 = pos2.phi() + asin( pos2.perp() * rInvOver2 );
+        double phi0 = pos1.phi() + asin( pos1.perp() * rInvOver2 );
 
         /// Calculate Pt
         double roughPt = fabs( mMagneticField*0.0015 / rInvOver2 );
@@ -319,14 +363,29 @@ void TrackingAlgorithm_exactBarrelEndcap< T >::CreateSeeds( std::vector< L1TkTra
         GlobalPoint pos2 = TrackingAlgorithm< T >::theStackedTracker->findAverageGlobalPosition( tempStubVec.at(k)->getClusterPtr(0).get() );
 
         /// Skip same disk pairs
+        if ( detId2.iSide() != detId1.iSide() )
+          continue;
+
         /// Skip pairs with distance larger than 1 disk
-        //if ( detId1.iDisk() == detId2.iDisk() ) continue;
         if (( detId2.iDisk() != detId1.iDisk() + 1 ) && ( detId1.iDisk() != detId2.iDisk() + 1 ))
           continue;
+
+        /// Alert
+        if ( fabs(pos1.z()) > fabs(pos2.z()) )
+        {
+          std::cerr << "TrackingAlgorithm_exactBarrelEndcap::CreateSeeds()" << std::endl;
+          std::cerr << "   A L E R T ! fabs(pos1.z()) > fabs(pos2.z()) in Endcap-Endcap tracklet" << std::endl;
+        }
 
         /// In the Endcap
         /// DPhi/Dz = 0.003 / 2 * B * 1/Pz
         /// ANYWAY find seed as in the Barrel!
+
+        //if ( pos1.perp() > 60 || pos2.perp() > 60 ) continue;
+
+        /// Robustness exit strategy
+        if ( fabs(pos1.perp() - pos2.perp()) / fabs(pos1.z() - pos2.z()) < 0.1 )
+          continue;
 
         /// Perform standard trigonometric operations
         double deltaPhi = pos1.phi() - pos2.phi();
@@ -351,13 +410,13 @@ void TrackingAlgorithm_exactBarrelEndcap< T >::CreateSeeds( std::vector< L1TkTra
         double rhoPsi1 = asin( pos1.perp()*rInvOver2 )/rInvOver2;
         double rhoPsi2 = asin( pos2.perp()*rInvOver2 )/rInvOver2;
         double cotTheta0 = ( pos1.z() - pos2.z() ) / ( rhoPsi1 - rhoPsi2 );
-        double z0 = pos2.z() - rhoPsi2 * cotTheta0;
+        double z0 = pos1.z() - rhoPsi1 * cotTheta0;
 
         /// Perform projected vertex cut
         if ( fabs(z0) > 30.0 ) continue;
 
         /// Calculate direction at vertex
-        double phi0 = pos2.phi() + asin( pos2.perp() * rInvOver2 );
+        double phi0 = pos1.phi() + asin( pos1.perp() * rInvOver2 );
 
         /// Calculate Pt
         double roughPt = fabs( mMagneticField*0.0015 / rInvOver2 );
@@ -399,18 +458,38 @@ void TrackingAlgorithm_exactBarrelEndcap< T >::AttachStubToSeed( L1TkTrack< T > 
   StackedTrackerDetId stDetId1( theStubs.at(1)->getDetId() );
   StackedTrackerDetId stDetIdCand( candidate->getDetId() );
 
+  bool endcapCandPS = false;
+if (endcapCandPS){}
+
   if ( stDetId0.isBarrel() && stDetIdCand.isBarrel() )
   {
     if ( stDetId0.iLayer() == stDetIdCand.iLayer() || stDetId1.iLayer() == stDetIdCand.iLayer() )
       return;
   }
-  else if ( stDetId0.isEndcap() && stDetIdCand.isEndcap() )
+  else
   {
-    if ( stDetId0.iSide() && stDetIdCand.iSide() )
+    if ( stDetId0.isEndcap() && stDetIdCand.isEndcap() )
+  {
+      if ( stDetId0.iSide() == stDetIdCand.iSide() )
     {
       if ( stDetId0.iDisk() == stDetIdCand.iDisk() || stDetId1.iDisk() == stDetIdCand.iDisk() )
         return;
     }
+  }
+
+    /// Check if there are PS modules in seed or candidate
+    const GeomDetUnit* detCand_0 = TrackingAlgorithm< T >::theStackedTracker->idToDetUnit( stDetIdCand, 0 );
+    const GeomDetUnit* detCand_1 = TrackingAlgorithm< T >::theStackedTracker->idToDetUnit( stDetIdCand, 1 );
+    /// Find pixel pitch and topology related information
+    const PixelGeomDetUnit* pixCand_0 = dynamic_cast< const PixelGeomDetUnit* >( detCand_0 );
+    const PixelGeomDetUnit* pixCand_1 = dynamic_cast< const PixelGeomDetUnit* >( detCand_1 );
+    const PixelTopology* topCand_0 = dynamic_cast< const PixelTopology* >( &(pixCand_0->specificTopology()) );
+    const PixelTopology* topCand_1 = dynamic_cast< const PixelTopology* >( &(pixCand_1->specificTopology()) );
+    int ratioCand = topCand_0->ncolumns() / topCand_1->ncolumns();
+
+    /// Endcap only!
+    if ( stDetIdCand.isBarrel() ) ratioCand = 1;
+    endcapCandPS =  (ratioCand !=1);
   }
 
   /// Here we have either Barrel-Barrel with different Layer,
@@ -432,6 +511,7 @@ void TrackingAlgorithm_exactBarrelEndcap< T >::AttachStubToSeed( L1TkTrack< T > 
     double propPhi = curMomentum.phi() - propPsi;
     double propRhoPsi = 2 * propPsi / curRInv;
     double propZ = curVertex.z() + propRhoPsi * tan( M_PI_2 - curMomentum.theta() );
+    //propZ = curVertex.z() + propRhoPsi * curMomentum.z() / curMomentum.perp();
 
     /// Calculate displacement
     double deltaPhi = candPos.phi() - propPhi;
@@ -459,14 +539,25 @@ void TrackingAlgorithm_exactBarrelEndcap< T >::AttachStubToSeed( L1TkTrack< T > 
     }
     else if ( stDetId0.isEndcap() )
     {
+      if ( endcapCandPS )
+      {
+        if ( deltaRPhi < 2*(tableRPhiEB_PS.at(stDetId0.iDisk())).at(stDetIdCand.iLayer()) && 
+             deltaZ < 2*(tableZEB_PS.at(stDetId0.iDisk())).at(stDetIdCand.iLayer()) )
+        {
+          seed.addStubPtr( candidate );
+        }
+      }
+      else
+      {
       if ( deltaRPhi < (tableRPhiEB.at(stDetId0.iDisk())).at(stDetIdCand.iLayer()) && 
            deltaZ < (tableZEB.at(stDetId0.iDisk())).at(stDetIdCand.iLayer()) )
       {
         seed.addStubPtr( candidate );
       }
     }
+    }
 /*
-    if ( deltaRPhi < 5 && deltaZ < 8 )
+    if ( deltaRPhi < 5 && deltaZ < 12 )
     {
       seed.addStubPtr( candidate );
     }
@@ -476,6 +567,8 @@ void TrackingAlgorithm_exactBarrelEndcap< T >::AttachStubToSeed( L1TkTrack< T > 
   else if ( stDetIdCand.isEndcap() )
   {
     double propPsi = 0.5*( candPos.z() - curVertex.z() ) * curRInv / tan( M_PI_2 - curMomentum.theta() );
+    //propPsi = 0.5*( candPos.z() - curVertex.z() ) * curRInv / ( curMomentum.z() / curMomentum.perp() );
+
     double propPhi = curMomentum.phi() - propPsi; 
     double propRho = 2 * sin( propPsi ) / curRInv;
     double deltaPhi = candPos.phi() - propPhi;
@@ -488,27 +581,82 @@ void TrackingAlgorithm_exactBarrelEndcap< T >::AttachStubToSeed( L1TkTrack< T > 
       else
         deltaPhi = 2*M_PI + deltaPhi;
     }
-    double deltaRPhi = fabs( deltaPhi * candPos.perp() );
+    double deltaRPhi = fabs( deltaPhi * candPos.perp() ); /// OLD VERSION (updated few lines below)
     double deltaR = fabs( candPos.perp() - propRho );
+
+    /// NEW VERSION - non-pointing strips correction
+    double rhoTrack = 2.0 * sin( 0.5 * curRInv * ( candPos.z() - curVertex.z() ) / tan( M_PI_2 - curMomentum.theta() ) ) / curRInv;
+    double phiTrack = curMomentum.phi() - 0.5 * curRInv * ( candPos.z() - curVertex.z() ) / tan( M_PI_2 - curMomentum.theta() );
+    //rhoTrack = 2.0 * sin( 0.5 * curRInv * ( candPos.z() - curVertex.z() ) / ( curMomentum.z() / curMomentum.perp() ) ) / curRInv;
+    //phiTrack = curMomentum.phi() - 0.5 * curRInv * ( candPos.z() - curVertex.z() ) / ( curMomentum.z() / curMomentum.perp() );
+
+    /// Calculate a correction for non-pointing-strips in square modules
+    /// Relevant angle is the one between hit and module center, with
+    /// vertex at (0, 0). Take snippet from HitMatchingAlgorithm_window201*
+    /// POSITION IN TERMS OF PITCH MULTIPLES:
+    ///       0 1 2 3 4 5 5 6 8 9 ...
+    /// COORD: 0 1 2 3 4 5 6 7 8 9 ...
+    /// OUT   | | | | | |x| | | | | | | | | |
+    ///
+    /// IN    | | | |x|x| | | | | | | | | | |
+    ///             THIS is 3.5 (COORD) and 4.0 (POS)
+    /// The center of the module is at NROWS/2 (position) and NROWS-0.5 (coordinates)
+    StackedTrackerDetId stDetId( candidate->getClusterPtr(0)->getDetId() );
+    const GeomDetUnit* det0 = TrackingAlgorithm< T >::theStackedTracker->idToDetUnit( stDetId, 0 );
+    const PixelGeomDetUnit* pix0 = dynamic_cast< const PixelGeomDetUnit* >( det0 );
+    const PixelTopology* top0 = dynamic_cast< const PixelTopology* >( &(pix0->specificTopology()) );
+    std::pair< float, float > pitch0 = top0->pitch();
+    MeasurementPoint stubCoord = candidate->getClusterPtr(0)->findAverageLocalCoordinates();
+    double stubTransvDispl = pitch0.first * ( stubCoord.x() - (top0->nrows()/2 - 0.5) ); /// Difference in coordinates is the same as difference in position
+    if ( candPos.z() > 0 )
+    {
+      stubTransvDispl = - stubTransvDispl;
+    }
+    double stubPhiCorr = asin( stubTransvDispl / candPos.perp() );
+    deltaRPhi = stubTransvDispl - rhoTrack * sin( stubPhiCorr - phiTrack + candPos.phi() );
+
+    //endcapCandPS = false;
 
     if ( stDetId0.isBarrel() )
     {
+      if ( endcapCandPS )
+      {
+        if ( deltaRPhi < (tableRPhiBE_PS.at(stDetId0.iLayer())).at(stDetIdCand.iDisk()) &&
+             deltaR < (tableZBE_PS.at(stDetId0.iLayer())).at(stDetIdCand.iDisk()) )
+        {
+          seed.addStubPtr( candidate );
+        }
+      }
+      else
+      {
       if ( deltaRPhi < (tableRPhiBE.at(stDetId0.iLayer())).at(stDetIdCand.iDisk()) && 
            deltaR < (tableZBE.at(stDetId0.iLayer())).at(stDetIdCand.iDisk()) )
       {
         seed.addStubPtr( candidate );
       }
     }
+    }
     else if ( stDetId0.isEndcap() )
     {
+      if ( endcapCandPS )
+      {
+        if ( deltaRPhi < (tableRPhiEE_PS.at(stDetId0.iDisk())).at(stDetIdCand.iDisk()) &&
+             deltaR < (tableZEE_PS.at(stDetId0.iDisk())).at(stDetIdCand.iDisk()) )
+        {
+          seed.addStubPtr( candidate );
+        }
+      }
+      else
+      {
       if ( deltaRPhi < (tableRPhiEE.at(stDetId0.iDisk())).at(stDetIdCand.iDisk()) && 
            deltaR < (tableZEE.at(stDetId0.iDisk())).at(stDetIdCand.iDisk()) )
       {
         seed.addStubPtr( candidate );
       }
     }
+    }
 /*
-    if ( deltaRPhi < 5 && deltaR < 8 )
+    if ( deltaRPhi < 5 && deltaR < 12 )
     {
       seed.addStubPtr( candidate );
     }
@@ -536,7 +684,7 @@ class ES_TrackingAlgorithm_exactBarrelEndcap : public edm::ESProducer
     unsigned int  mSectors;
     unsigned int  mWedges;
 
-    /// projection windows
+    /// Projection windows
     std::vector< std::vector< double > > setRhoPhiWinBB;
     std::vector< std::vector< double > > setZWinBB;
     std::vector< std::vector< double > > setRhoPhiWinBE;
@@ -545,6 +693,15 @@ class ES_TrackingAlgorithm_exactBarrelEndcap : public edm::ESProducer
     std::vector< std::vector< double > > setZWinEB;
     std::vector< std::vector< double > > setRhoPhiWinEE;
     std::vector< std::vector< double > > setZWinEE;
+
+    /// PS Modules variants
+    /// NOTE these are not needed for the Barrel-Barrel case
+    std::vector< std::vector< double > > setRhoPhiWinBE_PS;
+    std::vector< std::vector< double > > setZWinBE_PS;
+    std::vector< std::vector< double > > setRhoPhiWinEB_PS;
+    std::vector< std::vector< double > > setZWinEB_PS;
+    std::vector< std::vector< double > > setRhoPhiWinEE_PS;
+    std::vector< std::vector< double > > setZWinEE_PS;
 
   public:
     /// Constructor
@@ -566,6 +723,8 @@ class ES_TrackingAlgorithm_exactBarrelEndcap : public edm::ESProducer
       {
         setRhoPhiWinBE.push_back( iPSet->getParameter< std::vector< double > >("RhoPhiWin") );
         setZWinBE.push_back( iPSet->getParameter< std::vector< double > >("ZWin") );
+        setRhoPhiWinBE_PS.push_back( iPSet->getParameter< std::vector< double > >("RhoPhiWinPS") );
+        setZWinBE_PS.push_back( iPSet->getParameter< std::vector< double > >("ZWinPS") );
       }
 
       vPSet = p.getParameter< std::vector< edm::ParameterSet > >("ProjectionWindowsEndcapBarrel");
@@ -573,6 +732,8 @@ class ES_TrackingAlgorithm_exactBarrelEndcap : public edm::ESProducer
       {
         setRhoPhiWinEB.push_back( iPSet->getParameter< std::vector< double > >("RhoPhiWin") );
         setZWinEB.push_back( iPSet->getParameter< std::vector< double > >("ZWin") );
+        setRhoPhiWinEB_PS.push_back( iPSet->getParameter< std::vector< double > >("RhoPhiWinPS") );
+        setZWinEB_PS.push_back( iPSet->getParameter< std::vector< double > >("ZWinPS") );
       }
 
       vPSet = p.getParameter< std::vector< edm::ParameterSet > >("ProjectionWindowsEndcapEndcap");
@@ -580,6 +741,8 @@ class ES_TrackingAlgorithm_exactBarrelEndcap : public edm::ESProducer
       {
         setRhoPhiWinEE.push_back( iPSet->getParameter< std::vector< double > >("RhoPhiWin") );
         setZWinEE.push_back( iPSet->getParameter< std::vector< double > >("ZWin") );
+        setRhoPhiWinEE_PS.push_back( iPSet->getParameter< std::vector< double > >("RhoPhiWinPS") );
+        setZWinEE_PS.push_back( iPSet->getParameter< std::vector< double > >("ZWinPS") );
       }
 
       setWhatProduced( this );
@@ -605,8 +768,11 @@ class ES_TrackingAlgorithm_exactBarrelEndcap : public edm::ESProducer
                                                     mMagneticFieldRounded, mSectors, mWedges,
                                                     setRhoPhiWinBB, setZWinBB,
                                                     setRhoPhiWinBE, setZWinBE,
+                                                       setRhoPhiWinBE_PS, setZWinBE_PS,
                                                     setRhoPhiWinEB, setZWinEB,
-                                                    setRhoPhiWinEE, setZWinEE );
+                                                       setRhoPhiWinEB_PS, setZWinEB_PS,
+                                                    setRhoPhiWinEE, setZWinEE,
+                                                       setRhoPhiWinEE_PS, setZWinEE_PS );
 
       _theAlgo = boost::shared_ptr< TrackingAlgorithm< T > >( TrackingAlgo );
       return _theAlgo;

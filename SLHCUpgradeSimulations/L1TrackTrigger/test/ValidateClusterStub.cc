@@ -679,9 +679,24 @@ void ValidateClusterStub::analyze(const edm::Event& iEvent, const edm::EventSetu
       hCluster_W->Fill( widClu, memberClu );
 
       /// Store Track information in maps, skip if the Cluster is not good
-      if ( !genuineClu ) continue;
+      if ( !genuineClu && !combinClu ) continue;
 
-      edm::Ptr< SimTrack > simTrackPtr = iterL1TkCluster->getSimTrackPtrs().at(0);
+      for ( unsigned int i = 0; i < iterL1TkCluster->getSimTrackPtrs().size(); i++ )
+      {
+        edm::Ptr< SimTrack > simTrackPtr = iterL1TkCluster->getSimTrackPtrs().at(i);
+
+        if ( simTrackPtr.isNull() )
+          continue;
+
+        /// Get the corresponding vertex and reject the track
+        /// if its vertex is outside the beampipe
+        int vertexIndex = simTrackPtr->vertIndex();
+        const SimVertex& theSimVertex = (*SimVtxHandle)[vertexIndex];
+        math::XYZTLorentzVectorD trkVtxPos = theSimVertex.position();
+
+        if ( trkVtxPos.rho() >= 2 )
+          continue;
+{}
 
       if ( detIdClu.isBarrel() )
       {
@@ -700,6 +715,7 @@ void ValidateClusterStub::analyze(const edm::Event& iEvent, const edm::EventSetu
           simTrackPerDisk.insert( make_pair( detIdClu.iDisk(), tempVec ) );
         }
         simTrackPerDisk[detIdClu.iDisk()].push_back( simTrackPtr );
+      }
       }
     } /// End of Loop over L1TkClusters
   } /// End of if ( PixelDigiL1TkClusterHandle->size() > 0 )
@@ -837,11 +853,132 @@ void ValidateClusterStub::analyze(const edm::Event& iEvent, const edm::EventSetu
       }
 
       hStub_PID->Fill( partStub );
+/*
+if ( iterL1TkStub->isCombinatoric() )
+{
+std::cerr<< "CLUSTERS ARE"<<std::endl;
+std::cerr<< iterL1TkStub->getClusterPtr(0)->isUnknown() << " " << iterL1TkStub->getClusterPtr(1)->isUnknown() << std::endl;
+std::cerr<< iterL1TkStub->getClusterPtr(0)->isCombinatoric() << " " << iterL1TkStub->getClusterPtr(1)->isCombinatoric() << std::endl;
+std::cerr<< iterL1TkStub->getClusterPtr(0)->isGenuine() << " " << iterL1TkStub->getClusterPtr(1)->isGenuine() << std::endl;
 
+for (unsigned int iclu = 0; iclu<2; iclu++)
+{
+for (unsigned int ist = 0; ist < iterL1TkStub->getClusterPtr(iclu)->getSimTrackPtrs().size(); ist++ )
+{
+  int a, b;
+  if (iterL1TkStub->getClusterPtr(iclu)->getSimTrackPtrs().at(ist).isNull())
+  { a=9999; b=0 ;}
+  else
+  { a = iterL1TkStub->getClusterPtr(iclu)->getSimTrackPtrs().at(ist)->type();
+    b = iterL1TkStub->getClusterPtr(iclu)->getSimTrackPtrs().at(ist)->trackId();
+  }
+  std::cerr << iclu << ">> " << a;
+  std::cerr << " (";
+  std::cerr << iclu << ">> " << b;
+  std::cerr << ") ";
+}
+std::cerr << std::endl;
+}
+
+}
+*/
       /// Store Track information in maps, skip if the Cluster is not good
       if ( !genuineStub ) continue;
+/*
+{
+
+std::cerr<< "CLUSTERS ARE"<<std::endl;
+std::cerr<< iterL1TkStub->getClusterPtr(0)->isUnknown() << " " << iterL1TkStub->getClusterPtr(1)->isUnknown() << std::endl;
+std::cerr<< iterL1TkStub->getClusterPtr(0)->isCombinatoric() << " " << iterL1TkStub->getClusterPtr(1)->isCombinatoric() << std::endl;
+std::cerr<< iterL1TkStub->getClusterPtr(0)->isGenuine() << " " << iterL1TkStub->getClusterPtr(1)->isGenuine() << std::endl;
+
+
+
+        int prevTrack = -99999; // SimTrackId storage
+        unsigned int whichSimTrack = 0;
+        std::vector< edm::Ptr< SimTrack > > innerSimTracks = iterL1TkStub->getClusterPtr(0)->getSimTrackPtrs();
+        std::vector< edm::Ptr< SimTrack > > outerSimTracks = iterL1TkStub->getClusterPtr(1)->getSimTrackPtrs();
+        std::vector< uint32_t >             innerEventIds = iterL1TkStub->getClusterPtr(0)->getEventIds();
+        std::vector< uint32_t >             outerEventIds = iterL1TkStub->getClusterPtr(1)->getEventIds();
+std::cerr<<"ready?"<<std::endl;
+
+        for ( unsigned int i = 0; i < iterL1TkStub->getClusterPtr(0)->getSimTrackPtrs().size(); i++ )
+        {
+std::cerr<<"- "<< iterL1TkStub->getClusterPtr(0)->getSimTrackPtrs().at(i).isNull() << std::endl;
+
+          /// Skip NULL pointers
+          if ( iterL1TkStub->getClusterPtr(0)->getSimTrackPtrs().at(i).isNull() )
+            continue;
+std::cerr<<"a"<<std::endl;
+          for ( unsigned int j = 0; j < iterL1TkStub->getClusterPtr(1)->getSimTrackPtrs().size(); j++ )
+          {
+std::cerr<<"a1 "<< iterL1TkStub->getClusterPtr(1)->getSimTrackPtrs().at(j).isNull() <<std::endl;
+
+            /// Skip NULL pointers
+            if ( iterL1TkStub->getClusterPtr(1)->getSimTrackPtrs().at(j).isNull() )
+              continue;
+std::cerr<<"b"<<std::endl;
+
+            /// Skip pairs from different EventId
+            if ( innerEventIds.at(i) != outerEventIds.at(j) )
+              continue;
+std::cerr<<"c"<<std::endl;
+
+            if ( iterL1TkStub->getClusterPtr(0)->getSimTrackPtrs().at(i)->trackId() == iterL1TkStub->getClusterPtr(1)->getSimTrackPtrs().at(j)->trackId() )
+            {
+std::cerr<<"d"<<std::endl;
+              /// Same SimTrack is present in both clusters
+              if ( prevTrack < 0 )
+              {
+std::cerr<<"e"<<std::endl;
+                prevTrack = iterL1TkStub->getClusterPtr(0)->getSimTrackPtrs().at(j)->trackId();
+                whichSimTrack = j;
+              }
+std::cerr<<"f"<<std::endl;
+
+            }
+          }
+        }
+
+std::cerr<< " ---------- " << prevTrack << " " << whichSimTrack << std::endl;
+
+
+for (unsigned int iclu = 0; iclu<2; iclu++)
+{
+
+for (unsigned int ist = 0; ist < iterL1TkStub->getClusterPtr(iclu)->getSimTrackPtrs().size(); ist++ )
+{
+
+  int a, b;
+  if (iterL1TkStub->getClusterPtr(iclu)->getSimTrackPtrs().at(ist).isNull())
+  { a=9999; b=0 ;}
+  else
+  { a = iterL1TkStub->getClusterPtr(iclu)->getSimTrackPtrs().at(ist)->type();
+    b = iterL1TkStub->getClusterPtr(iclu)->getSimTrackPtrs().at(ist)->trackId();
+  }
+  std::cerr << iclu << ">> " << a;
+  std::cerr << " (";
+  std::cerr << iclu << ">> " << b;
+  std::cerr << ") ";
+}
+std::cerr << std::endl;
+}
+
+continue;
+}
+*/
 
       edm::Ptr< SimTrack > simTrackPtr = iterL1TkStub->getSimTrackPtr();
+
+      /// Get the corresponding vertex and reject the track
+      /// if its vertex is outside the beampipe
+      int vertexIndex = simTrackPtr->vertIndex();
+      const SimVertex& theSimVertex = (*SimVtxHandle)[vertexIndex];
+      math::XYZTLorentzVectorD trkVtxPos = theSimVertex.position();
+
+      if ( trkVtxPos.rho() >= 2 )
+        continue;
+{}
 
       if ( detIdStub.isBarrel() )
       {
@@ -998,6 +1135,10 @@ void ValidateClusterStub::analyze(const edm::Event& iEvent, const edm::EventSetu
       /// Assume perfectly round beamspot
       /// Correct and get the correct SimTrack Vertex position wrt beam center
       math::XYZTLorentzVectorD trkVtxPos = theSimVertex.position();
+
+      if ( trkVtxPos.rho() >= 2 )
+        continue;
+{}
 
       /// First of all, check beamspot and correction
       hSimVtx_XY->Fill( trkVtxPos.x(), trkVtxPos.y() );

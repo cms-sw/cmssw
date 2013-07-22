@@ -313,6 +313,7 @@ void StackedTrackerGeometry::checkSimTrack( L1TkCluster< T > *cluster,
 		  foundSimTrack = true;
 		  edm::Ptr< SimTrack > testSimTrack( simTrackHandle, j );
 		  cluster->addSimTrack( testSimTrack );
+                  cluster->addEventId( iterSimLink->eventId().rawId() );
 		}
 	    }
 
@@ -320,6 +321,7 @@ void StackedTrackerGeometry::checkSimTrack( L1TkCluster< T > *cluster,
 	    {
 	      edm::Ptr< SimTrack > testSimTrack;
 	      cluster->addSimTrack( testSimTrack );
+              cluster->addEventId( iterSimLink->eventId().rawId() );
 	    }
 	}
     } /// End of Loop over all the hits composing the L1TkCluster

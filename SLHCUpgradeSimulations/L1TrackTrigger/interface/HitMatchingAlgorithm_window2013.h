@@ -41,17 +41,19 @@
     private:
       /// Data members
       double                       mPtScalingFactor;
-      bool                         mPerformZMatching;
+      bool                         mPerformZMatchingPS;
+      bool                         mPerformZMatching2S;
       std::string                  className_;
 
     public:
       /// Constructor
       HitMatchingAlgorithm_window2013( const StackedTrackerGeometry *aStackedTracker,
-                                       double aPtScalingFactor, bool aPerformZMatching )
+                                       double aPtScalingFactor, bool aPerformZMatchingPS, bool aPerformZMatching2S )
         : HitMatchingAlgorithm< T >( aStackedTracker,__func__ )
       {
         mPtScalingFactor = aPtScalingFactor;
-        mPerformZMatching = aPerformZMatching;
+        mPerformZMatchingPS = aPerformZMatchingPS;
+        mPerformZMatching2S = aPerformZMatching2S;
       }
 
       /// Destructor
@@ -99,8 +101,17 @@ void HitMatchingAlgorithm_window2013< T >::CheckTwoMemberHitsForCompatibility( b
   int cols1 = top1->ncolumns();
   int ratio = cols0/cols1; /// This assumes the ratio is integer!
   int segment0 = floor( mp0.y() / ratio );
-  if ( mPerformZMatching && ( segment0 != floor( mp1.y() ) ) )
+
+  if ( ratio == 1 ) /// 2S Modules
+  {
+    if ( mPerformZMatching2S && ( segment0 != floor( mp1.y() ) ) )
+      return;
+  }
+  else /// PS Modules
+  {
+    if ( mPerformZMatchingPS && ( segment0 != floor( mp1.y() ) ) )
     return;
+  }
 
   /// Get the Stack radius and z and displacements
   double R0 = det0->position().perp();
@@ -221,14 +232,16 @@ class ES_HitMatchingAlgorithm_window2013 : public edm::ESProducer
     /// Data members
     boost::shared_ptr< HitMatchingAlgorithm< T > > _theAlgo;
     double mPtThreshold;
-    bool   mPerformZMatching;
+    bool   mPerformZMatchingPS;
+    bool   mPerformZMatching2S;
     double mIPWidth;
 
   public:
     /// Constructor
     ES_HitMatchingAlgorithm_window2013( const edm::ParameterSet & p )
       : mPtThreshold( p.getParameter< double >("minPtThreshold") ),
-        mPerformZMatching( p.getParameter< bool >("zMatching") )
+        mPerformZMatchingPS( p.getParameter< bool >("zMatchingPS") ),
+        mPerformZMatching2S( p.getParameter< bool >("zMatching2S") )
     {
       setWhatProduced( this );
     }
@@ -254,7 +267,7 @@ class ES_HitMatchingAlgorithm_window2013 : public edm::ESProducer
   
       HitMatchingAlgorithm< T >* HitMatchingAlgo =
         new HitMatchingAlgorithm_window2013< T >( &(*StackedTrackerGeomHandle),
-                                                  mPtScalingFactor, mPerformZMatching );
+                                                  mPtScalingFactor, mPerformZMatchingPS, mPerformZMatching2S );
 
       _theAlgo = boost::shared_ptr< HitMatchingAlgorithm< T > >( HitMatchingAlgo );
       return _theAlgo;

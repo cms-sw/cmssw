@@ -14,5 +14,17 @@ L1TkClustersFromPixelDigis.rawHits = cms.VInputTag(cms.InputTag("simSiPixelDigis
 L1TkStubsFromPixelDigis.L1TkClusters = cms.InputTag("L1TkClustersFromPixelDigis")
 HitMatchingAlgorithm_window2012_PixelDigi_.minPtThreshold = cms.double(2.0)
 
+
+
+
+from SLHCUpgradeSimulations.L1TrackTrigger.TrackingAlgorithmRegister_cfi import *
+from SLHCUpgradeSimulations.L1TrackTrigger.Track_cfi import *
+TrackingAlgorithm_PixelDigi_ = cms.ESPrefer('TrackingAlgorithm_exactBarrelEndcap_PixelDigi_')
+#TrackingAlgorithm_PixelDigi_ = cms.ESPrefer('TrackingAlgorithm_exactLongBarrel_PixelDigi_')
+
 #and the sequence to run
 L1TrackTrigger = cms.Sequence(L1TkClustersFromPixelDigis*L1TkStubsFromPixelDigis)
+#L1TrackTrigger = cms.Sequence(L1TkClustersFromPixelDigis*L1TkStubsFromPixelDigis*L1TkTracksFromPixelDigis)
+#L1TrackTrigger = cms.Sequence(L1TkTracksFromPixelDigis)
+
+
