@@ -6,7 +6,6 @@ related:
  - { name: Topic Collector, link: https://cern.ch/cmsgit/cmsgit }
  - { name: Feedback, link: https://github.com/cms-sw/cmssw/issues/new }
 ---
-
 # Welcome to CMSSW on GitHub pages
 
 CMS is migrating the repository of its Offline Experiment Software (CMSSW) to
@@ -33,8 +32,8 @@ development moved to git.
 
 ### UserCode
 
-You will be able to commit to the UserCode repository until the end of August,
-in order to avoid disruption for the summer conferences.
+You will be able to commit to the UserCode repository until the beginning of
+September, in order to avoid disruption for the summer conferences.
 
 Instructions on how to migrate CMSSW releases can be found
 [here](http://cms-sw.github.io/cmssw/usercode-faq.html).
