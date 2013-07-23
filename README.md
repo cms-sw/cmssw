@@ -1,7 +1,7 @@
 GEMCode
 =======
 
-[TOC]
+[[_TOC_]]
 
 Introduction
 ------------
