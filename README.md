@@ -1,6 +1,6 @@
-#GEMCode#
-
 [TOC]
+
+#GEMCode#
 
 ##Introduction##
 
