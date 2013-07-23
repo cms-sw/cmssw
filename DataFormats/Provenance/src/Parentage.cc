@@ -8,35 +8,24 @@
 ----------------------------------------------------------------------*/
 
 namespace edm {
-  Parentage::Parentage() :
-    parents_()
-  {}
+  Parentage::Parentage() : parents_() {
+  }
 
   Parentage::Parentage(std::vector<BranchID> const& parents) :
-    parents_(parents)
-  {}
+    parents_(parents) {
+  }
 
   ParentageID
   Parentage::id() const {
-    // This implementation is ripe for optimization.
-    if(parentageID().isValid()) {
-      return parentageID();
-    }
     std::ostringstream oss;
-    for (std::vector<BranchID>::const_iterator 
-	   i = parents_.begin(),
-	   e = parents_.end();
-	 i != e;
-	 ++i)
-      {
-	oss << *i << ' ';
-      }
+    for (auto const& parent : parents_) {
+      oss << parent << ' ';
+    }
     
     std::string stringrep = oss.str();
     cms::Digest md5alg(stringrep);
-    ParentageID tmp(md5alg.digest().toString());
-    parentageID().swap(tmp);
-    return parentageID();
+    ParentageID id(md5alg.digest().toString());
+    return id;
   }
 
   void
@@ -47,7 +36,6 @@ namespace edm {
     
   bool
   operator==(Parentage const& a, Parentage const& b) {
-    return
-      a.parents() == b.parents();
+    return a.parents() == b.parents();
   }
 }
