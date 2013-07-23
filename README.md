@@ -1,9 +1,5 @@
-[[_TOC_]]
-
 GEMCode
 =======
-
-[[_TOC_]]
 
 Introduction
 ------------
@@ -32,7 +28,8 @@ http://cms-project-gem-validation.web.cern.ch/cms-project-gem-validation/<br>
 https://twiki.cern.ch/twiki/bin/view/MPGD/GEMTriggerRoadMap
 
 
-##Instructions to get the code##
+Instructions to get the code
+----------------------------
 
 ###General GitHub setup
 
