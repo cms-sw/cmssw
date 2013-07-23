@@ -4,11 +4,6 @@ def customiseG4(process):
 
     process.g4SimHits.Physics.type = cms.string('SimG4Core/Physics/QGSP_FTFP_BERT_EML_New')
 
-    # extended geometric acceptance (full CASTOR acceptance)
-
-    process.g4SimHits.Generator.MinEtaCut = cms.double(-6.7)
-    process.g4SimHits.Generator.MaxEtaCut = cms.double(6.7)
-
     # use HF shower library instead of GFlash parameterization
 
     process.g4SimHits.HCalSD.UseShowerLibrary = cms.bool(True)
