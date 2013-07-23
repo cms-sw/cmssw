@@ -29,12 +29,12 @@ https://twiki.cern.ch/twiki/bin/view/MPGD/GEMTriggerRoadMap
 
 ##Instructions to get the code##
 
-1. General GitHub setup
+###General GitHub setup
 
 Follow the instructions on<br>
 http://cms-sw.github.io/cmssw/index.html
 
-2. CMSSW-specific github setup
+###CMSSW-specific github setup
 
 <pre><code>cmsrel CMSSW_6_1_2_SLHC6_patch1
 cd CMSSW_6_1_2_SLHC6_patch1/src
@@ -42,12 +42,12 @@ cmsenv
 git init
 </code></pre>
 
-3. Project-specific setup
+###Project-specific setup
 
 After having followed all instructions on the official CMSSW FAQ pages, this should run out of the box
 
 
-3.1 Get the official CMSSW code
+###Get the official CMSSW code
 
 <pre><code>git cms-addpkg Geometry/GEMGeometry
 git cms-addpkg Geometry/GEMGeometryBuilder
@@ -60,7 +60,7 @@ git cms-addpkg DataFormats/L1CSCTrackFinder
 git cms-addpkg SimMuon/GEMDigitizer
 </code></pre>
 
-3.2 Checkout the latest GEM developments and merge them:
+###Checkout the latest GEM developments and merge them:
 
 <!--
 <pre><code>git cms-merge-topic dildick:bugfix-for-gemgeometry
@@ -74,7 +74,7 @@ git merge FETCH_HEAD
 
 Compile:<pre><code>scram b -j 9</code></pre>
 
-3.3 Adding submodules
+###Adding submodules
 
 Validation code
 <pre><code>git submodule add git://github.com/gem-sw/GEMCode.git</code></pre>
