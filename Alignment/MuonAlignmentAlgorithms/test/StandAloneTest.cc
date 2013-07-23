@@ -13,7 +13,7 @@
 //
 // Original Author:  Jim Pivarski
 //         Created:  Sat Sep 26 02:50:24 CEST 2009
-// $Id: StandAloneTest.cc,v 1.2 2010/01/06 15:38:44 mussgill Exp $
+// $Id: StandAloneTest.cc,v 1.3 2011/10/12 23:05:21 khotilov Exp $
 //
 //
 

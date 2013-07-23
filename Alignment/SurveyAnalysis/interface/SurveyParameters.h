@@ -7,8 +7,8 @@
  *  Inheriting from AlignmentParameters is fake, just to attach it to an Alignable,
  *  re-using the AlignmentParameters data member. (Should look for another solution...)
  *
- *  $Date: 2007/05/09 12:42:03 $
- *  $Revision: 1.2 $
+ *  $Date: 2008/09/02 16:18:26 $
+ *  $Revision: 1.3 $
  *  \author Chung Khim Lae
  */
 

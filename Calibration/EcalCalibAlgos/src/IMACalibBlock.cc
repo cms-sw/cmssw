@@ -1,8 +1,8 @@
 /**
-    $Date: 2010/09/07 16:53:35 $
-    $Revision: 1.10 $
-    $Id: IMACalibBlock.cc,v 1.10 2010/09/07 16:53:35 govoni Exp $ 
-    \author $Author: govoni $
+    $Date: 2011/06/30 10:10:52 $
+    $Revision: 1.11 $
+    $Id: IMACalibBlock.cc,v 1.11 2011/06/30 10:10:52 muzaffar Exp $ 
+    \author $Author: muzaffar $
 */
 
 #include "Calibration/EcalCalibAlgos/interface/IMACalibBlock.h"

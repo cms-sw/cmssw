@@ -3,7 +3,7 @@
    and vice versa   
 
    \author Stefano ARGIRO
-   \version $Id: EcalWeightSetXMLTranslator.h,v 1.1 2008/11/14 15:46:05 argiro Exp $
+   \version $Id: EcalWeightSetXMLTranslator.h,v 1.2 2009/06/30 14:40:11 argiro Exp $
    \date 20 Jun 2008
 */
 
@@ -20,7 +20,7 @@
 
 
 static const char CVSId__EcalWeightSetXMLTranslator[] = 
-"$Id: EcalWeightSetXMLTranslator.h,v 1.1 2008/11/14 15:46:05 argiro Exp $";
+"$Id: EcalWeightSetXMLTranslator.h,v 1.2 2009/06/30 14:40:11 argiro Exp $";
 
 
 

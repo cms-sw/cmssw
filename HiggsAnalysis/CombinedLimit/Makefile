@@ -1,7 +1,7 @@
 ################################################################################
 # HiggsAnalysis/Combined Limit Makefile                                        #
 #                                                                              #
-# $Author: dpiparo $ - $Date: 2011/06/16 14:29:29 $                                                            #
+# $Author: gpetrucc $ - $Date: 2011/11/02 17:33:03 $                                                            #
 #                                                                              #
 # o Automatic compilation of new programs and classes*.                        #
 # o Automatic generation of CINT dictionaries via rootcint.                    #

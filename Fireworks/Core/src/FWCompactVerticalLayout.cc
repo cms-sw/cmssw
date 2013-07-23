@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Mar 17 12:10:42 CDT 2009
-// $Id: FWCompactVerticalLayout.cc,v 1.2 2010/06/18 10:17:15 yana Exp $
+// $Id: FWCompactVerticalLayout.cc,v 1.3 2012/07/30 22:34:52 amraktad Exp $
 //
 
 // system include files

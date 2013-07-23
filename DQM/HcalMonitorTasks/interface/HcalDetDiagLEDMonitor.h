@@ -16,8 +16,8 @@
 
 /** \class HcalDetDiagLEDMonitor
   *  
-  * $Date: 2010/03/10 13:44:03 $
-  * $Revision: 1.5.4.1 $
+  * $Date: 2010/03/25 11:00:57 $
+  * $Revision: 1.6 $
   * \author D. Vishnevskiy
   */
 

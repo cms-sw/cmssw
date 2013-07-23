@@ -1,4 +1,4 @@
-// $Id: ConnectionID.h,v 1.1.4.2 2011/03/07 12:01:12 mommsen Exp $
+// $Id: ConnectionID.h,v 1.2 2011/03/07 15:41:54 mommsen Exp $
 /// @file: ConnectionID.h 
 
 #ifndef EventFilter_StorageManager_ConnectionID_h
@@ -13,8 +13,8 @@ namespace smproxy {
    * Uniquely identifies an event server connection.
    *
    * $Author: mommsen $
-   * $Revision: 1.1.4.2 $
-   * $Date: 2011/03/07 12:01:12 $
+   * $Revision: 1.2 $
+   * $Date: 2011/03/07 15:41:54 $
    */
 
   struct ConnectionID

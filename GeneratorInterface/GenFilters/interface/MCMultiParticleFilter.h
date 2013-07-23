@@ -15,7 +15,7 @@
 //
 // Original Author:  Paul Lujan
 //         Created:  Wed Feb 29 04:22:16 CST 2012
-// $Id$
+// $Id: MCMultiParticleFilter.h,v 1.1 2012/03/18 10:50:20 lenzip Exp $
 //
 //
 

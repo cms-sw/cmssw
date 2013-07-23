@@ -1,6 +1,6 @@
 #ifndef EgammaReco_EgammaTriggerFwd_h
 #define EgammaReco_EgammaTriggerFwd_h
-// $Id: $
+// $Id: EgammaTriggerFwd.h,v 1.1 2006/04/09 15:40:40 rahatlou Exp $
 #include <vector>
 #include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/Common/interface/RefProd.h"

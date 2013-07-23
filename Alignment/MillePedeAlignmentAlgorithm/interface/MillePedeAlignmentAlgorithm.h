@@ -7,9 +7,9 @@
 ///
 ///  \author    : Gero Flucke
 ///  date       : October 2006
-///  $Revision: 1.34 $
-///  $Date: 2011/08/08 21:52:31 $
-///  (last update by $Author: flucke $)
+///  $Revision: 1.35 $
+///  $Date: 2011/09/06 13:46:07 $
+///  (last update by $Author: mussgill $)
 
 #include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentAlgorithmBase.h"
 

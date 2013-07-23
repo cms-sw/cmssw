@@ -5,7 +5,7 @@
 //
 // Author:      Chris Jones
 // Created:     Mon Apr 18 16:42:52 EDT 2005
-// $Id: T_EventSetup_EcalTPGFineGrainEBGroup.cc,v 1.1 2007/08/07 09:08:59 paganini Exp $
+// $Id: T_EventSetup_EcalTPGFineGrainEBGroup.cc,v 1.2 2010/02/20 20:56:54 wmtan Exp $
 //
 
 // user include files

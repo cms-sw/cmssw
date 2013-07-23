@@ -9,8 +9,8 @@
 Class which represents the charge/voltage measurements of an event/channel
 with the ADC decoding performed.
 
-$Date: 2010/03/26 05:50:23 $
-$Revision: 1.4 $
+$Date: 2011/06/02 00:31:13 $
+$Revision: 1.5 $
 */
 class CaloSamples {
 public:

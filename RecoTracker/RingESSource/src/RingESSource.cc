@@ -9,8 +9,8 @@
 // Created:         Thu Oct  5 01:35:14 UTC 2006
 //
 // $Author: gutsche $
-// $Date: 2007/03/15 20:16:48 $
-// $Revision: 1.3 $
+// $Date: 2007/03/30 02:49:35 $
+// $Revision: 1.4 $
 //
 
 #include "RecoTracker/RingESSource/interface/RingESSource.h"

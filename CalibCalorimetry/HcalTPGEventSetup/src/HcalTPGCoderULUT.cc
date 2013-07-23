@@ -13,7 +13,7 @@
 //
 // Original Author:  Jeremiah Mans
 //         Created:  Fri Sep 15 11:49:44 CDT 2006
-// $Id: HcalTPGCoderULUT.cc,v 1.8 2009/06/04 12:09:45 tulika Exp $
+// $Id: HcalTPGCoderULUT.cc,v 1.10 2009/10/27 12:06:34 kvtsang Exp $
 //
 //
 

@@ -7,9 +7,9 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Revision: 1.2 $
+ * \version $Revision: 1.3 $
  *
- * $Id: CandCombiner.h,v 1.2 2009/04/22 17:51:05 kaulmer Exp $
+ * $Id: CandCombiner.h,v 1.3 2010/10/25 14:07:17 gpetrucc Exp $
  *
  */
 #include "FWCore/Framework/interface/EDProducer.h"

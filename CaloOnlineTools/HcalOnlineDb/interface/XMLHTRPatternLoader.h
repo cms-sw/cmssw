@@ -16,7 +16,7 @@
 //
 // Original Author:  Gena Kukartsev, kukarzev@fnal.gov
 //         Created:  Tue Oct 23 14:30:33 CDT 2007
-// $Id: XMLHTRPatternLoader.h,v 1.2 2009/04/14 22:53:05 kukartse Exp $
+// $Id: XMLHTRPatternLoader.h,v 1.3 2010/08/06 20:24:10 wmtan Exp $
 //
 
 // system include files

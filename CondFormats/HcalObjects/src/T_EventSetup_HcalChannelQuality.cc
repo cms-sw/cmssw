@@ -1,5 +1,5 @@
 //
-// $Id: T_EventSetup_HcalChannelQuality.cc,v 1.1 2005/10/28 01:37:10 fedor Exp $
+// $Id: T_EventSetup_HcalChannelQuality.cc,v 1.2 2010/02/20 20:57:16 wmtan Exp $
 //
 
 // system include files

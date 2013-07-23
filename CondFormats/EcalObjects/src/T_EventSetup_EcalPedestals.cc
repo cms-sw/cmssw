@@ -8,7 +8,7 @@
 //
 // Author:      Chris Jones
 // Created:     Mon Apr 18 16:42:52 EDT 2005
-// $Id: T_EventSetup_EcalPedestals.cc,v 1.1 2005/08/29 17:59:30 xiezhen Exp $
+// $Id: T_EventSetup_EcalPedestals.cc,v 1.2 2010/02/20 20:56:51 wmtan Exp $
 //
 
 // system include files

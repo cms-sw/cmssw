@@ -1,7 +1,7 @@
 #ifndef PhysicsTools_PatAlgos_plugins_PATCleaner_h
 #define PhysicsTools_PatAlgos_plugins_PATCleaner_h
 //
-// $Id: PATCleaner.h,v 1.2 2010/02/20 21:00:20 wmtan Exp $
+// $Id: PATCleaner.h,v 1.3 2010/10/20 23:08:30 wmtan Exp $
 //
 
 /**
@@ -11,7 +11,7 @@
             The same module is used for all collections.
 
   \author   Giovanni Petrucciani
-  \version  $Id: PATCleaner.h,v 1.2 2010/02/20 21:00:20 wmtan Exp $
+  \version  $Id: PATCleaner.h,v 1.3 2010/10/20 23:08:30 wmtan Exp $
 */
 
 

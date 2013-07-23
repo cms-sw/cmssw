@@ -6,8 +6,8 @@
 \author Fedor Ratnikov (UMd)
 POOL object to store raw Gain values
 $Author: ratnikov
-$Date: 2007/12/10 18:38:20 $
-$Revision: 1.4 $
+$Date: 2007/12/14 13:32:31 $
+$Revision: 1.5 $
 */
 #include <boost/cstdint.hpp>
 

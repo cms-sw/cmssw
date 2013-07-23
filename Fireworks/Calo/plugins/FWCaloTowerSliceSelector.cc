@@ -8,7 +8,7 @@
 //
 // Original Author:  Alja Mrak-Tadel
 //         Created:  Wed Jun  2 17:36:23 CEST 2010
-// $Id: FWCaloTowerSliceSelector.cc,v 1.2 2010/06/07 17:54:00 amraktad Exp $
+// $Id: FWCaloTowerSliceSelector.cc,v 1.3 2010/12/01 21:40:31 amraktad Exp $
 //
 
 // system include files

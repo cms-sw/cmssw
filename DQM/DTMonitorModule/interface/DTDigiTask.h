@@ -4,8 +4,8 @@
 /*
  * \file DTDigiTask.h
  *
- * $Date: 2011/10/21 18:29:20 $
- * $Revision: 1.34 $
+ * $Date: 2011/10/31 17:11:20 $
+ * $Revision: 1.35 $
  * \author M. Zanetti - INFN Padova
  *
 */

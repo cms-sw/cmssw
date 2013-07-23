@@ -1,8 +1,8 @@
 #!/usr/bin/env perl
 #     R. Mankel, DESY Hamburg     06-Jul-2007
 #     A. Parenti, DESY Hamburg    27-Mar-2008
-#     $Revision: 1.3 $ by $Author$
-#     $Date: 2009/01/07 18:27:49 $
+#     $Revision: 1.4 $ by $Author: flucke $
+#     $Date: 2010/04/19 15:03:20 $
 #
 #  Extract INFI directives from input file
 #  and write chunk to standard output according to

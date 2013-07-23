@@ -1,4 +1,4 @@
-// $Id: RegistrationInfoBase.cc,v 1.3.4.2 2011/03/07 11:33:05 mommsen Exp $
+// $Id: RegistrationInfoBase.cc,v 1.4 2011/03/07 15:31:32 mommsen Exp $
 /// @file: RegistrationInfoBase.cc
 
 #include "EventFilter/StorageManager/interface/RegistrationInfoBase.h"

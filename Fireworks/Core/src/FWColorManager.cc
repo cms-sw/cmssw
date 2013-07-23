@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Mar 24 10:10:01 CET 2009
-// $Id: FWColorManager.cc,v 1.38 2012/07/31 00:18:43 amraktad Exp $
+// $Id: FWColorManager.cc,v 1.39 2012/07/31 22:11:39 amraktad Exp $
 //
 
 // system include files

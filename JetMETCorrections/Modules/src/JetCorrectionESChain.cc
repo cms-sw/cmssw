@@ -1,7 +1,7 @@
 //
 // Original Author:  Fedor Ratnikov
 //         Created:  Dec. 28, 2006
-// $Id: JetCorrectionESChain.cc,v 1.1.2.1 2011/10/17 20:54:22 wdd Exp $
+// $Id: JetCorrectionESChain.cc,v 1.2 2011/11/08 19:36:22 srappocc Exp $
 //
 //
 

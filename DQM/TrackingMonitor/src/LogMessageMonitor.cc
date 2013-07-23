@@ -49,7 +49,7 @@
 //
 // Original Author:  Mia Tosi,40 3-B32,+41227671609,
 //         Created:  Thu Mar  8 14:34:13 CET 2012
-// $Id: LogMessageMonitor.cc,v 1.3 2012/10/16 10:07:41 threus Exp $
+// $Id: LogMessageMonitor.cc,v 1.4 2012/10/27 20:40:08 tosi Exp $
 //
 //
 

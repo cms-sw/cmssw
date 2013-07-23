@@ -1,7 +1,7 @@
 /** Declaration of the analyzer class for EcalMappingElectronics
     
     \author Stefano Argiro
-    $Id: EcalMappingElectronicsAnalyzer.cc,v 1.1 2008/11/14 15:46:04 argiro Exp $
+    $Id: EcalMappingElectronicsAnalyzer.cc,v 1.1 2009/01/12 19:52:26 meridian Exp $
  */
 
 #include "CondCore/PopCon/interface/PopConAnalyzer.h"

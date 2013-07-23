@@ -18,8 +18,8 @@
  *
  * Ported to CMSSW 2006-04-03: Matteo.Sani@cern.ch <BR>
  *
- * $Date: 2006/11/22 22:59:10 $
- * $Revision: 1.6 $
+ * $Date: 2009/05/27 11:03:40 $
+ * $Revision: 1.7 $
  * \author M. Sani
  * 
  */

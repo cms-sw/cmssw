@@ -1,4 +1,4 @@
-// $Id: DQMEventMonitorCollection.h,v 1.8 2011/03/07 15:31:31 mommsen Exp $
+// $Id: DQMEventMonitorCollection.h,v 1.9 2011/04/04 12:03:30 mommsen Exp $
 /// @file: DQMEventMonitorCollection.h 
 
 #ifndef EventFilter_StorageManager_DQMEventMonitorCollection_h
@@ -16,8 +16,8 @@ namespace stor {
    * A collection of MonitoredQuantities related to fragments
    *
    * $Author: mommsen $
-   * $Revision: 1.8 $
-   * $Date: 2011/03/07 15:31:31 $
+   * $Revision: 1.9 $
+   * $Date: 2011/04/04 12:03:30 $
    */
   
   class DQMEventMonitorCollection : public MonitorCollection

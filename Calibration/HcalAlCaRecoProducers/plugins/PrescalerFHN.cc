@@ -13,7 +13,7 @@
 //
 // Original Author:  Kenneth Case Rossato
 //         Created:  Wed Mar 25 13:05:10 CET 2008
-// $Id: PrescalerFHN.cc,v 1.3 2010/02/11 00:10:37 wmtan Exp $
+// $Id: PrescalerFHN.cc,v 1.4 2010/02/16 22:24:16 wdd Exp $
 //
 //
 // modified to PrecalerFHN by Grigory Safronov 27/03/09

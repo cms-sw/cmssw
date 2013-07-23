@@ -1,4 +1,4 @@
-// $Id: RBCProcessRPCSimDigis.h,v 1.1 2009/09/20 22:06:49 aosorio Exp $
+// $Id: RBCProcessRPCSimDigis.h,v 1.2 2009/12/25 07:05:21 elmer Exp $
 #ifndef INTERFACE_RBCPROCESSRPCSIMDIGIS_H 
 #define INTERFACE_RBCPROCESSRPCSIMDIGIS_H 1
 

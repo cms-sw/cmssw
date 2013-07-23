@@ -3,8 +3,8 @@
 \author Gena Kukartsev
 POOL object to store conditions associated with HCAL trigger primitive LUT 
 $Author: kukartse
-$Date: 2008/01/22 18:58:47 $
-$Revision: 1.23 $
+$Date: 2009/09/18 14:24:16 $
+$Revision: 1.1 $
 */
 
 #include "CondFormats/HcalObjects/interface/HcalLutMetadata.h"

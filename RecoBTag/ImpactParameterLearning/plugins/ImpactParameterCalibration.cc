@@ -13,7 +13,7 @@
 //
 // Original Author:  Jeremy Andrea/Andrea Rizzi
 //         Created:  Mon Aug  6 16:10:38 CEST 2007
-// $Id: ImpactParameterCalibration.cc,v 1.13 2010/01/22 08:56:41 arizzi Exp $
+// $Id: ImpactParameterCalibration.cc,v 1.14 2010/02/11 00:13:30 wmtan Exp $
 //
 //
 // system include files

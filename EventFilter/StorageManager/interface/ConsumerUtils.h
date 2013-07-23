@@ -1,4 +1,4 @@
-// $Id: ConsumerUtils.h,v 1.9 2011/03/07 15:31:31 mommsen Exp $
+// $Id: ConsumerUtils.h,v 1.10 2011/08/22 14:20:16 mommsen Exp $
 /// @file: ConsumerUtils.h 
 
 #ifndef EventFilter_StorageManager_ConsumerUtils_h
@@ -37,8 +37,8 @@ namespace stor
      Handles consumer requests and responses
 
      $Author: mommsen $
-     $Revision: 1.9 $
-     $Date: 2011/03/07 15:31:31 $
+     $Revision: 1.10 $
+     $Date: 2011/08/22 14:20:16 $
   */
 
   template<typename Configuration_t, typename EventQueueCollection_t>

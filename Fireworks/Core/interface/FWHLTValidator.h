@@ -4,7 +4,7 @@
 //
 // Package:     Core
 // Class  :     FWHLTValidator
-// $Id: FWHLTValidator.h,v 1.3 2009/12/13 12:28:05 amraktad Exp $
+// $Id: FWHLTValidator.h,v 1.4 2011/02/18 17:38:42 amraktad Exp $
 //
 
 #include "Fireworks/Core/src/FWValidatorBase.h"

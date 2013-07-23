@@ -4,8 +4,8 @@
 /*
  * \file EETimingClient.h
  *
- * $Date: 2012/04/13 17:59:44 $
- * $Revision: 1.32.2.1 $
+ * $Date: 2012/04/27 13:46:04 $
+ * $Revision: 1.35 $
  * \author G. Della Ricca
  *
 */

@@ -5,7 +5,7 @@
 // 
 //
 // Original Author:  Dmytro Kovalskyi
-// $Id: MuonIdProducer.cc,v 1.68 2011/11/01 16:01:49 bellan Exp $
+// $Id: MuonIdProducer.cc,v 1.69 2012/07/19 13:23:21 slava77 Exp $
 //
 //
 

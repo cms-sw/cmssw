@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Thu Jan  3 17:05:44 EST 2008
-// $Id: FWDisplayProperties.cc,v 1.11 2010/06/17 14:02:37 matevz Exp $
+// $Id: FWDisplayProperties.cc,v 1.12 2010/06/18 10:17:15 yana Exp $
 //
 
 // system include files

@@ -2,7 +2,7 @@
  *
  * Generates PYQUEN HepMC events
  *
- * $Id: PyquenHadronizer.cc,v 1.14 2012/09/18 17:19:35 yilmaz Exp $
+ * $Id: PyquenHadronizer.cc,v 1.15 2013/01/20 23:55:21 mnguyen Exp $
 */
 
 #include <iostream>

@@ -1,6 +1,6 @@
 #!/usr/bin/env perl
 #
-# $Id: git-checkdeps,v 1.7 2013/03/25 12:55:10 eulisse Exp $
+# $Id: git-checkdeps,v 1.8 2013/03/25 13:26:43 eulisse Exp $
 #
 # Created by: David Lange
 #             LLNL

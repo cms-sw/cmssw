@@ -4,8 +4,8 @@
 /*
  * \file EETriggerTowerClient.h
  *
- * $Date: 2010/01/25 21:12:25 $
- * $Revision: 1.36 $
+ * $Date: 2012/04/27 13:46:05 $
+ * $Revision: 1.39 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *

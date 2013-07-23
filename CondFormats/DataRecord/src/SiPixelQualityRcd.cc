@@ -8,7 +8,7 @@
 //
 // Author:     
 // Created:     Fri Oct 17 11:53:51 CEST 2008
-// $Id: SiPixelQualityRcd.cc,v 1.1 2008/10/17 09:55:15 fblekman Exp $
+// $Id: SiPixelQualityRcd.cc,v 1.2 2011/06/23 17:41:13 tinti Exp $
 
 #include "CondFormats/DataRecord/interface/SiPixelQualityRcd.h"
 #include "FWCore/Framework/interface/eventsetuprecord_registration_macro.h"

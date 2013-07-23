@@ -17,7 +17,7 @@ the signal the class must override the 'void update(T)' method (e.g., void updat
 
 */
 //
-// $Id: Observer.h,v 1.7 2005/11/21 20:10:03 chrjones Exp $
+// $Id: Observer.h,v 1.8 2007/12/02 05:17:47 chrjones Exp $
 //
 
 

@@ -10,9 +10,9 @@
  *
  * \author Christian Veelken, LLR
  *
- * \version $Revision: 1.1 $
+ * \version $Revision: 1.2 $
  *
- * $Id: ShiftedParticleProducerT.h,v 1.1 2011/10/14 11:18:24 veelken Exp $
+ * $Id: ShiftedParticleProducerT.h,v 1.2 2011/11/02 14:03:07 veelken Exp $
  *
  */
 

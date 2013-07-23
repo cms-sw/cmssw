@@ -4,8 +4,8 @@
 /** \class L2MuonTrajectorySeedCollection
  *  No description available.
  *
- *  $Date: $
- *  $Revision: $
+ *  $Date: 2007/12/17 14:51:19 $
+ *  $Revision: 1.1 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
 

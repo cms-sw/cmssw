@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea RIZZI
 //         Created:  Mon Dec  7 18:02:10 CET 2009
-// $Id: SecondaryVertexFilter.cc,v 1.1 2009/12/12 14:53:29 arizzi Exp $
+// $Id: SecondaryVertexFilter.cc,v 1.2 2010/02/17 23:39:10 wmtan Exp $
 //
 //
 

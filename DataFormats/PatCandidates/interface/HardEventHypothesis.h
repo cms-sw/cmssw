@@ -86,7 +86,7 @@
 //
 // Original Author:  Salvatore Rappoccio
 //         Created:  Tue Feb 12 14:42:17 CST 2008
-// $Id: HardEventHypothesis.h,v 1.2 2008/02/16 15:27:58 srappocc Exp $
+// $Id: HardEventHypothesis.h,v 1.3 2008/03/05 14:47:33 fronga Exp $
 //
 // Revision History:
 //

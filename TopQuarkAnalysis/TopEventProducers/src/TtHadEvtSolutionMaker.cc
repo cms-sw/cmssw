@@ -1,4 +1,4 @@
-// $Id: TtHadEvtSolutionMaker.cc,v 1.20 2009/11/16 16:29:30 eschliec Exp $
+// $Id: TtHadEvtSolutionMaker.cc,v 1.21 2010/03/30 14:04:44 snaumann Exp $
 
 #include "TopQuarkAnalysis/TopEventProducers/interface/TtHadEvtSolutionMaker.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"

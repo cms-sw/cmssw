@@ -7,9 +7,9 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Revision: 1.1 $
+ * \version $Revision: 1.2 $
  *
- * $Id: ApplyEnergyCorrection.h,v 1.1 2006/07/24 06:44:17 llista Exp $
+ * $Id: ApplyEnergyCorrection.h,v 1.2 2006/07/26 08:48:05 llista Exp $
  *
  */
 #include "DataFormats/Candidate/interface/CandidateFwd.h"

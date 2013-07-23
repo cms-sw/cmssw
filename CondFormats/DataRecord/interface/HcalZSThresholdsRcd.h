@@ -16,7 +16,7 @@
 //
 // Author:      
 // Created:     Sat Nov 24 16:42:00 CET 2007
-// $Id$
+// $Id: HcalZSThresholdsRcd.h,v 1.1 2007/11/24 16:54:13 rofierzy Exp $
 //
 
 #include "FWCore/Framework/interface/EventSetupRecordImplementation.h"

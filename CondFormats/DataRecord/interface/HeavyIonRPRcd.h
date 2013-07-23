@@ -16,7 +16,7 @@
 //
 // Author:      
 // Created:     Tue Jul 10 05:49:16 EDT 2007
-// $Id: HeavyIonRPRcd.h,v 1.1 2011/09/20 14:08:53 yilmaz Exp $
+// $Id: HeavyIonRPRcd.h,v 1.2 2011/09/20 19:01:31 yilmaz Exp $
 //
 
 #include "FWCore/Framework/interface/EventSetupRecordImplementation.h"

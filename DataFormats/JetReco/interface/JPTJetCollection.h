@@ -1,5 +1,5 @@
 // F.R.
-// $Id: JPTJetCollection.h,v 1.7 2007/08/24 17:35:23 fedor Exp $
+// $Id: JPTJetCollection.h,v 1.1 2010/03/04 13:16:25 kodolova Exp $
 #ifndef JetReco_JPTJetCollection_h
 #define JetReco_JPTJetCollection_h
 

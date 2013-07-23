@@ -13,7 +13,7 @@
 //
 // Original Author:  Tomasz Maciej Frueboes
 //         Created:  Wed Apr  9 13:57:29 CEST 2008
-// $Id: RPCTriggerHsbConfig.cc,v 1.2 2010/03/02 13:37:10 fruboes Exp $
+// $Id: RPCTriggerHsbConfig.cc,v 1.3 2010/03/02 14:02:57 fruboes Exp $
 //
 //
 

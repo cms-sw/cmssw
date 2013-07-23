@@ -1,5 +1,5 @@
 //
-// $Id: Vector_Resolution.cc,v 1.7 2010/04/13 19:23:13 haryo Exp $
+// $Id: Vector_Resolution.cc,v 1.1 2011/05/26 09:47:00 mseidel Exp $
 //
 // File: src/Vector_Resolution.cc
 // Purpose: Calculate resolutions in p, phi, eta.

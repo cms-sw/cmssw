@@ -4,9 +4,9 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("test")
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.1 $'),
+    version = cms.untracked.string('$Revision: 1.2 $'),
     annotation = cms.untracked.string('Tau central skim'),
-    name = cms.untracked.string('$Source: /cvs/CMSSW/CMSSW/Configuration/Skimming/test/test_tauSkim.py,v $')
+    name = cms.untracked.string('$Source: /local/reps/CMSSW/CMSSW/Configuration/Skimming/test/test_tauSkim.py,v $')
 )
 
 

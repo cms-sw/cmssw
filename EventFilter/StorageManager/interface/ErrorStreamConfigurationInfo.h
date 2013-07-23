@@ -1,4 +1,4 @@
-// $Id: ErrorStreamConfigurationInfo.h,v 1.5.4.1 2011/03/07 11:33:04 mommsen Exp $
+// $Id: ErrorStreamConfigurationInfo.h,v 1.6 2011/03/07 15:31:31 mommsen Exp $
 /// @file: ErrorStreamConfigurationInfo.h 
 
 #ifndef EventFilter_StorageManager_ErrorStreamConfigurationInfo_h
@@ -19,8 +19,8 @@ namespace stor
      Configuration information for the error stream
 
      $Author: mommsen $
-     $Revision: 1.5.4.1 $
-     $Date: 2011/03/07 11:33:04 $
+     $Revision: 1.6 $
+     $Date: 2011/03/07 15:31:31 $
   */
 
   class ErrorStreamConfigurationInfo

@@ -8,7 +8,7 @@
 //
 // Author:      Chris Jones
 // Created:     Wed May 25 19:27:37 EDT 2005
-// $Id: SourceFactory.cc,v 1.6 2007/06/29 03:43:22 wmtan Exp $
+// $Id: SourceFactory.cc,v 1.7 2012/04/16 15:43:50 wdd Exp $
 //
 
 // system include files

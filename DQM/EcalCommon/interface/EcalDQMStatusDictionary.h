@@ -5,8 +5,8 @@
   \file Status.h
   \brief dictionary for Ecal DQM status codes
   \author G. Della Ricca
-  \version $Revision: 1.14 $
-  \date $Date: 2010/08/17 13:50:18 $
+  \version $Revision: 1.15 $
+  \date $Date: 2011/09/14 13:51:23 $
 */
 
 #include <boost/cstdint.hpp>

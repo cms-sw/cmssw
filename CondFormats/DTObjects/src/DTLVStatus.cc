@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009/03/26 14:11:00 $
- *  $Revision: 1.1 $
+ *  $Date: 2010/01/20 18:20:08 $
+ *  $Revision: 1.2 $
  *  \author Paolo Ronchese INFN Padova
  *
  */

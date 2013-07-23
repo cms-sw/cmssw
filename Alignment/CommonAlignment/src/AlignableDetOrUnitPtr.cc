@@ -2,9 +2,9 @@
  *
  *  Original author: Gero Flucke, April 2007
  *
- *  $Date: 2009/02/28 21:05:00 $
- *  $Revision: 1.3 $
- *  (last update by $Author: flucke $)
+ *  $Date: 2010/09/10 10:29:18 $
+ *  $Revision: 1.4 $
+ *  (last update by $Author: mussgill $)
  */
 
 #include "Alignment/CommonAlignment/interface/AlignableDetOrUnitPtr.h"

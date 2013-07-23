@@ -14,8 +14,8 @@ class HcalDetId;
  *
  * \note The Geometry as loaded from DDD
  *   
- * $Date: 2010/04/12 23:35:37 $
- * $Revision: 1.5 $
+ * $Date: 2011/06/04 19:07:17 $
+ * $Revision: 1.6 $
  * \author S. Banerjee
 */
 

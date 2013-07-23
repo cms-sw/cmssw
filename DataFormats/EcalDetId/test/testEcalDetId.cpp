@@ -2,12 +2,12 @@
    \file
    Test suit for EcalDetId
 
-   \version $Id: testEcalDetId.cpp,v 1.15 2008/06/25 22:11:15 heltsley Exp $
+   \version $Id: testEcalDetId.cpp,v 1.16 2011/01/12 20:38:57 heltsley Exp $
 
    \note This test is not exaustive     
 */
 
-static const char CVSId[] = "$Id: testEcalDetId.cpp,v 1.15 2008/06/25 22:11:15 heltsley Exp $";
+static const char CVSId[] = "$Id: testEcalDetId.cpp,v 1.16 2011/01/12 20:38:57 heltsley Exp $";
 
 #include <Utilities/Testing/interface/CppUnit_testdriver.icpp>
 #include <cppunit/extensions/HelperMacros.h>

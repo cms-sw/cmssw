@@ -1,4 +1,4 @@
-// $Id: WrapperNotifier.h,v 1.9.12.1 2011/03/07 11:33:04 mommsen Exp $
+// $Id: WrapperNotifier.h,v 1.10 2011/03/07 15:31:32 mommsen Exp $
 /// @file: WrapperNotifier.h 
 
 #ifndef EventFilter_StorageManager_WrapperNotifier_h
@@ -17,8 +17,8 @@ namespace stor
      Notifier implementation used by StorageManager
 
      $Author: mommsen $
-     $Revision: 1.9.12.1 $
-     $Date: 2011/03/07 11:33:04 $
+     $Revision: 1.10 $
+     $Date: 2011/03/07 15:31:32 $
   */
   class WrapperNotifier: public Notifier
   {

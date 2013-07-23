@@ -80,7 +80,7 @@ process.generator = cms.EDFilter("Herwig6HadronizerFilter",
 
 # Production Info
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.381.2.11 $'),
+    version = cms.untracked.string('$Revision: 1.1 $'),
     annotation = cms.untracked.string('Hadronizer_WWTo2L2Nu_mcatnlo_herwig6_8TeV_cff.py nevts:1'),
     name = cms.untracked.string('PyReleaseValidation')
 )

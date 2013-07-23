@@ -17,7 +17,7 @@
 //
 // Original Author:  Giuseppe Cerati
 //         Created:  Tue Feb 13 17:29:10 CET 2007
-// $Id: TestSmoothHits.h,v 1.3 2009/03/04 13:34:24 vlimant Exp $
+// $Id: TestSmoothHits.h,v 1.4 2010/02/11 00:14:36 wmtan Exp $
 //
 //
 #include <memory>

@@ -18,7 +18,7 @@
 //         Created:  June 2008
 // Rewritten by: Vladimir Rekovic
 //         Date:  May 2009
-// $Id: FourVectorHLTriggerOffline.h,v 1.28 2010/02/25 19:45:23 wdd Exp $
+// $Id: FourVectorHLTriggerOffline.h,v 1.27.2.1 2010/08/03 16:08:23 wmtan Exp $
 //
 //
 

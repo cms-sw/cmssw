@@ -5,7 +5,7 @@
  *  Concrete implementation of a DTVDriftBaseAlgo.
  *  Computes vDrift using fit result segment by segment.
  *
- *  $Revision: 1.2 $
+ *  $Revision: 1.3 $
  *  \author A. Vilela Pereira
  */
 

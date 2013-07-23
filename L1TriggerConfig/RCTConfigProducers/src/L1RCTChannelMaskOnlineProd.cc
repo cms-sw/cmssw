@@ -14,7 +14,7 @@
 //
 // Original Author:  Werner Man-Li Sun
 //         Created:  Tue Sep 16 22:43:22 CEST 2008
-// $Id: L1RCTChannelMaskOnlineProd.cc,v 1.2 2009/08/18 17:18:22 efron Exp $
+// $Id: L1RCTChannelMaskOnlineProd.cc,v 1.3 2012/06/11 18:21:04 wmtan Exp $
 //
 //
 

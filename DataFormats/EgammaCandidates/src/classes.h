@@ -1,5 +1,5 @@
 //
-// $Id: classes.h,v 1.40 2011/10/27 12:50:19 chamont Exp $
+// $Id: classes.h,v 1.41 2011/11/02 17:39:54 nancy Exp $
 //
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/EgammaCandidates/interface/Photon.h"

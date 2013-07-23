@@ -1,7 +1,7 @@
 /** \file GlobalTrackingGeometry.cc
  *
- *  $Date: 2006/07/12 11:00:59 $
- *  $Revision: 1.6 $
+ *  $Date: 2006/12/20 16:50:22 $
+ *  $Revision: 1.7 $
  *  \author M. Sani
  */
 

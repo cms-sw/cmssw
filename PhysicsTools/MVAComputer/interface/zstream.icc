@@ -8,7 +8,7 @@
 //
 // Author:	Christophe Saout <christophe.saout@cern.ch>
 // Created:     Sat Apr 24 15:18 CEST 2007
-// $Id: zstream.icc,v 1.4 2011/05/23 13:41:03 eulisse Exp $
+// $Id: zstream.icc,v 1.5 2012/04/02 12:37:11 davidlt Exp $
 //
 
 #include <iostream>

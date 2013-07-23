@@ -9,10 +9,10 @@
 /** \class VEcalCalibBlock
  
     \brief element for the single ECAL block intercalibration  
-    $Date: 2008/09/05 08:55:42 $
-    $Revision: 1.3 $
-    $Id: VEcalCalibBlock.h,v 1.3 2008/09/05 08:55:42 govoni Exp $ 
-    \author $Author: govoni $
+    $Date: 2008/11/14 11:38:45 $
+    $Revision: 1.4 $
+    $Id: VEcalCalibBlock.h,v 1.4 2008/11/14 11:38:45 presotto Exp $ 
+    \author $Author: presotto $
 */
 class VEcalCalibBlock
 {

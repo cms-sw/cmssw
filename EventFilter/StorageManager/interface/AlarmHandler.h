@@ -1,4 +1,4 @@
-// $Id: AlarmHandler.h,v 1.9 2011/04/18 15:18:57 mommsen Exp $
+// $Id: AlarmHandler.h,v 1.10 2011/11/08 10:48:39 mommsen Exp $
 /// @file: AlarmHandler.h 
 
 #ifndef EventFilter_StorageManager_AlarmHandler_h
@@ -23,8 +23,8 @@ namespace stor {
    * Helper class to handle sentinel alarming
    *
    * $Author: mommsen $
-   * $Revision: 1.9 $
-   * $Date: 2011/04/18 15:18:57 $
+   * $Revision: 1.10 $
+   * $Date: 2011/11/08 10:48:39 $
    */
 
   class AlarmHandler

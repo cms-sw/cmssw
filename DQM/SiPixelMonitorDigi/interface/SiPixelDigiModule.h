@@ -15,7 +15,7 @@
 //
 // Original Author:  Vincenzo Chiochia
 //         Created:  
-// $Id: SiPixelDigiModule.h,v 1.19 2011/11/23 17:11:06 duggan Exp $
+// $Id: SiPixelDigiModule.h,v 1.20 2012/07/29 13:53:40 duggan Exp $
 //
 //
 //  Updated by: Lukas Wehrli

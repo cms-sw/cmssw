@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea Venturi
 //         Created:  Mon Oct 27 17:37:53 CET 2008
-// $Id: MultiplicityInvestigator.cc,v 1.4 2011/12/11 09:59:11 venturia Exp $
+// $Id: MultiplicityInvestigator.cc,v 1.5 2012/02/15 11:13:25 venturia Exp $
 //
 //
 

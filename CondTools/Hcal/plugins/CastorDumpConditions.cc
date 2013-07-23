@@ -13,7 +13,7 @@
 //
 // Original Author:  Luiz Mundim Filho
 //         Created:  Thu Mar 12 14:45:44 CET 2009
-// $Id: CastorDumpConditions.cc,v 1.1 2011/05/09 19:38:47 mundim Exp $
+// $Id: CastorDumpConditions.cc,v 1.2 2012/11/14 13:55:13 mundim Exp $
 //
 //
 

@@ -1,4 +1,4 @@
-// $Id: StreamsMonitorCollection.cc,v 1.21 2011/06/20 16:38:51 mommsen Exp $
+// $Id: StreamsMonitorCollection.cc,v 1.22 2011/11/17 17:35:40 mommsen Exp $
 /// @file: StreamsMonitorCollection.cc
 
 #include <string>

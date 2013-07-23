@@ -4,6 +4,6 @@
 //
 // Package:     Core
 // Class  :     FWDoubleParameter
-// $Id: FWDoubleParameter.h,v 1.1 2009/10/07 12:46:47 dmytro Exp $
+// $Id: FWDoubleParameter.h,v 1.4 2010/02/12 15:36:46 eulisse Exp $
 #include "Fireworks/Core/interface/FWParameters.h"
 #endif

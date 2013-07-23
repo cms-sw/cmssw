@@ -18,7 +18,7 @@
 //
 // Original Author:  Dmytro Kovalskyi
 //         Created:  Fri Apr 21 10:59:41 PDT 2006
-// $Id: CachedTrajectory.h,v 1.19 2011/04/21 06:42:45 innocent Exp $
+// $Id: CachedTrajectory.h,v 1.20 2011/04/21 06:58:12 innocent Exp $
 //
 //
 

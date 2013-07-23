@@ -13,7 +13,7 @@
 //
 // Original Author:  Grigory SAFRONOV, Sergey PETRUSHANKO
 //         Created:  Tue Oct  14 16:10:31 CEST 2008
-// $Id: ValidationHcalIsoTrackAlCaReco.cc,v 1.2 2010/01/11 16:40:13 kodolova Exp $
+// $Id: ValidationHcalIsoTrackAlCaReco.cc,v 1.3 2010/01/22 19:34:19 argiro Exp $
 //
 //
 

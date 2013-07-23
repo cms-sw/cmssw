@@ -6,8 +6,8 @@
  *  compatibility degree between the extrapolated track
  *  state and the reconstructed segment in the muon chambers
  *
- *  $Date: 2011/11/02 06:38:03 $
- *  $Revision: 1.10 $
+ *  $Date: 2011/11/29 07:50:12 $
+ *  $Revision: 1.11 $
  *
  *  Authors :
  *  D. Pagano & G. Bruno - UCL Louvain

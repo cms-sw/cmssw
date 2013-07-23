@@ -13,7 +13,7 @@
 //
 // Original Author:  Jean-Roch Vlimant
 //         Created:  Fri Oct 12 03:46:09 CEST 2007
-// $Id: TrajectoryCleanerAnalyzer.cc,v 1.2 2009/12/14 22:24:27 wmtan Exp $
+// $Id: TrajectoryCleanerAnalyzer.cc,v 1.3 2010/10/03 17:28:59 elmer Exp $
 //
 //
 

@@ -4,7 +4,7 @@
  *
  * \author Luca Lista, INFN
  *
- * $Id: AnyPairSelector.h,v 1.3 2007/06/18 18:33:53 llista Exp $
+ * $Id: AnyPairSelector.h,v 1.1 2009/02/24 14:10:18 llista Exp $
  */
 
 struct AnyPairSelector {

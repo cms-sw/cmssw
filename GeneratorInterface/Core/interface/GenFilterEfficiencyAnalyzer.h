@@ -2,7 +2,7 @@
 #define GENFILTEREFFICIENCYANALYZER_H
 
 // F. Cossutti
-// $Date:$
+// $Date: 2010/11/25 08:20:33 $
 // $Revision://
 
 // analyzer of a summary information product on filter efficiency for a user specified path

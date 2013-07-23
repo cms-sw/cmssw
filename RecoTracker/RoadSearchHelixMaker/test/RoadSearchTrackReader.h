@@ -8,9 +8,9 @@
 // Original Author: Oliver Gutsche, gutsche@fnal.gov
 // Created:         Wed Mar 29 20:00:00 UTC 2006
 //
-// $Author: gutsche $
-// $Date: 2007/03/07 22:04:03 $
-// $Revision: 1.2 $
+// $Author: wmtan $
+// $Date: 2011/05/20 17:17:32 $
+// $Revision: 1.3 $
 //
 
 #ifndef RoadSearchTrackReader_h

@@ -1,5 +1,5 @@
 //
-// $Id: Refcount.i,v 1.2 2009/11/18 20:59:51 haryo Exp $
+// $Id: Refcount.i,v 1.1 2011/05/26 09:46:53 mseidel Exp $
 //
 // File: private/Refcount.i
 // Purpose: Inline implementations for Refcount.

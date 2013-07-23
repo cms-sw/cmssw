@@ -1,6 +1,6 @@
 /** \class HLTEgammaGenericFilter
  *
- * $Id: HLTEgammaGenericFilter.cc,v 1.5 2011/05/01 08:14:08 gruen Exp $
+ * $Id: HLTEgammaGenericFilter.cc,v 1.6 2012/01/21 14:56:57 fwyzard Exp $
  *
  *  \author Roberto Covarelli (CERN)
  *

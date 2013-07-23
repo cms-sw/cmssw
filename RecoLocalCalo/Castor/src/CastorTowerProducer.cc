@@ -13,7 +13,7 @@
 //
 // Original Author:  Hans Van Haevermaet, Benoit Roland
 //         Created:  Wed Jul  9 14:00:40 CEST 2008
-// $Id: CastorTowerProducer.cc,v 1.10 2012/07/10 14:53:03 hvanhaev Exp $
+// $Id: CastorTowerProducer.cc,v 1.11 2012/07/18 00:31:00 slava77 Exp $
 //
 //
 

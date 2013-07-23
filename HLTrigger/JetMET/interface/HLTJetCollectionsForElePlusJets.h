@@ -11,8 +11,8 @@
  *  combination of one electron + jets cleaned against this electrons satisfy the cuts.
  *  These jets are then added to a cleaned jet collection which is put into the event.
  *
- *  $Date: 2011/06/23 08:39:12 $
- *  $Revision: 1.1 $
+ *  $Date: 2012/02/12 10:24:17 $
+ *  $Revision: 1.2 $
  *
  *  \author Lukasz Kreczko
  *

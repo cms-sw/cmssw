@@ -4,8 +4,8 @@
 /*
  * \file L1TLTC.h
  *
- * $Date: 2008/03/01 00:40:00 $
- * $Revision: 1.3 $
+ * $Date: 2009/11/19 14:34:00 $
+ * $Revision: 1.4 $
  * \author J. Berryhill
  *
 */

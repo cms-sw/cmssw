@@ -1,4 +1,4 @@
-// $Id: DataManager.h,v 1.1.4.2 2011/03/07 12:01:12 mommsen Exp $
+// $Id: DataManager.h,v 1.2 2011/03/07 15:41:54 mommsen Exp $
 /// @file: DataManager.h 
 
 #ifndef EventFilter_SMProxyServer_DataManager_h
@@ -29,8 +29,8 @@ namespace smproxy {
    * Manages the data retrieval
    *
    * $Author: mommsen $
-   * $Revision: 1.1.4.2 $
-   * $Date: 2011/03/07 12:01:12 $
+   * $Revision: 1.2 $
+   * $Date: 2011/03/07 15:41:54 $
    */
   
   class DataManager

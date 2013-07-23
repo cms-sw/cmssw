@@ -16,9 +16,9 @@
 ///
 ///  \author    : Gero Flucke
 ///  date       : October 2008
-///  $Revision: 1.4 $
-///  $Date: 2010/01/14 16:14:03 $
-///  (last update by $Author: flucke $)
+///  $Revision: 1.5 $
+///  $Date: 2010/09/10 13:08:05 $
+///  (last update by $Author: mussgill $)
 
 
 #include "Alignment/ReferenceTrajectories/interface/ReferenceTrajectoryBase.h"

@@ -4,8 +4,8 @@
 /** \class GlobalMuonRefitter
  *  class to build muon trajectory
  *
- *  $Date: 2011/06/15 10:16:44 $
- *  $Revision: 1.13 $
+ *  $Date: 2011/11/02 02:22:15 $
+ *  $Revision: 1.14 $
  *
  *  \author N. Neumeister 	 Purdue University
  *  \author C. Liu 		 Purdue University

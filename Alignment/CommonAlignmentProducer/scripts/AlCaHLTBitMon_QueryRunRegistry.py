@@ -2,9 +2,9 @@
 
 #-----------------------------------------------------
 # original author: Andrea Lucaroni
-# Revision:        $Revision: 1.1 $
-# Last update:     $Date: 2011/06/28 19:34:22 $
-# by:              $Author: mussgill $
+# Revision:        $Revision: 1.2 $
+# Last update:     $Date: 2011/12/14 17:04:53 $
+# by:              $Author: taroni $
 #-----------------------------------------------------
 
 from xml.dom import minidom

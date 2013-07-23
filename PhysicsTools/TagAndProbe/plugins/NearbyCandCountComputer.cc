@@ -1,5 +1,5 @@
 //
-// $Id: NearbyCandCountComputer.cc,v 1.2 2010/07/09 14:03:51 gpetrucc Exp $
+// $Id: NearbyCandCountComputer.cc,v 1.3 2010/10/05 15:05:10 gpetrucc Exp $
 //
 
 /**
@@ -9,7 +9,7 @@
             Implementation notice: not templated, because we want to allow cuts on the pair through PATDiObjectProxy
             
   \author   Giovanni Petrucciani
-  \version  $Id: NearbyCandCountComputer.cc,v 1.2 2010/07/09 14:03:51 gpetrucc Exp $
+  \version  $Id: NearbyCandCountComputer.cc,v 1.3 2010/10/05 15:05:10 gpetrucc Exp $
 */
 
 

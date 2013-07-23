@@ -5,8 +5,8 @@
  *   Configuration parameters for L1MuDTTrackFinder
  *
  *
- *   $Date: 2010/02/11 00:12:32 $
- *   $Revision: 1.5 $
+ *   $Date: 2012/07/05 11:06:57 $
+ *   $Revision: 1.6 $
  *
  *   N. Neumeister            CERN EP
  */

@@ -1,5 +1,5 @@
 /* 
- * $Id: MuonTrackCSCChamberResidual.cc,v 1.1 2011/10/12 23:32:08 khotilov Exp $
+ * $Id: MuonTrackCSCChamberResidual.cc,v 1.2 2011/11/02 07:38:30 mussgill Exp $
  */
 
 #include "Alignment/MuonAlignmentAlgorithms/interface/MuonTrackCSCChamberResidual.h"

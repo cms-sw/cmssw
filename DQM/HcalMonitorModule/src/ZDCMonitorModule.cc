@@ -41,8 +41,8 @@
 /*
  * \file ZDCMonitorModule.cc
  *
- * $Date: 2012/05/27 11:31:22 $
- * $Revision: 1.166 $
+ * $Date: 2013/01/05 19:47:01 $
+ * $Revision: 1.7 $
  * \author J Temple
  *
  *  JAIME!  UPDATE THIS INFO FOR ZDC!

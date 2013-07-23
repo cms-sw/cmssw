@@ -3,7 +3,7 @@
    test file for DTChamberId, DTSuperLayerId, DTLayerId and DTWireId
 
    \author S. Argiro' & G. Cerminara
-   \version $Id: testDTDetIds.cc,v 1.5 2007/06/05 19:07:16 namapane Exp $
+   \version $Id: testDTDetIds.cc,v 1.6 2007/06/05 21:19:33 namapane Exp $
    \date 27 Jul 2005
 */
 

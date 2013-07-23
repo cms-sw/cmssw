@@ -12,7 +12,7 @@
 */
 // Original Author:  Keti Kaadze
 //         Created:  Thu Jun 21 08:59:42 CDT 2007
-// $Id: EnergyScaleAnalyzer.cc,v 1.6 2009/02/09 08:02:07 benigno Exp $
+// $Id: EnergyScaleAnalyzer.cc,v 1.7 2009/12/14 22:24:36 wmtan Exp $
 //
 
 //#include "RecoEcal/EnergyScaleAnalyzer/interface/EnergyScaleAnalyzer.h"

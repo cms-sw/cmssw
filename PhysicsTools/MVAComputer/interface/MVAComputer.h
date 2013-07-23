@@ -9,7 +9,7 @@
 //
 // Author:	Christophe Saout <christophe.saout@cern.ch>
 // Created:     Sat Apr 24 15:18 CEST 2007
-// $Id: MVAComputer.h,v 1.6 2009/01/12 14:18:41 hegner Exp $
+// $Id: MVAComputer.h,v 1.7 2009/06/03 09:50:14 saout Exp $
 //
 
 #include <iostream>

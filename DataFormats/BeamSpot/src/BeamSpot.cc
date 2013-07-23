@@ -7,7 +7,7 @@
 
  author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
 
- version $Id: BeamSpot.cc,v 1.11 2009/03/26 19:54:21 yumiceva Exp $
+ version $Id: BeamSpot.cc,v 1.12 2011/04/06 20:31:35 venturia Exp $
 
  ________________________________________________________________**/
 

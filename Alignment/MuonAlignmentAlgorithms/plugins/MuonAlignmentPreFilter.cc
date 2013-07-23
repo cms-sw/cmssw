@@ -7,7 +7,7 @@
 
  Description: pre-select events that are worth considering in muon alignment 
 
- $Id:$
+ $Id: MuonAlignmentPreFilter.cc,v 1.1 2011/04/15 21:59:00 khotilov Exp $
 */
 
 #include <memory>

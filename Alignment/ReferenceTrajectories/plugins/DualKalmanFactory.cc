@@ -9,8 +9,8 @@
 ///
 ///  \author    : Gero Flucke
 ///  date       : October 2008
-///  $Revision: 1.3 $
-///  $Date: 2010/09/10 13:25:45 $
+///  $Revision: 1.4 $
+///  $Date: 2011/12/19 14:40:01 $
 ///  (last update by $Author: mussgill $)
 
 #include "Alignment/ReferenceTrajectories/interface/TrajectoryFactoryBase.h"

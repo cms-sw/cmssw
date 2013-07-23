@@ -3,7 +3,7 @@
    and vice versa   
 
    \author Stefano ARGIRO
-   \version $Id: EcalIntercalibErrorsXMLTranslator.h,v 1.3 2009/06/30 16:15:16 argiro Exp $
+   \version $Id: EcalIntercalibErrorsXMLTranslator.h,v 1.2 2009/07/01 08:26:02 argiro Exp $
    \date 20 Jun 2008
 */
 

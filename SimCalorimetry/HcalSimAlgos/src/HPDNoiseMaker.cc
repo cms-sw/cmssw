@@ -2,7 +2,7 @@
 // Engine to store HPD noise events in the library
 // Project: HPD noise library
 // Author: F.Ratnikov UMd, Jan. 15, 2008
-// $Id: HPDNoiseMaker.cc,v 1.4 2008/07/21 18:30:03 tyetkin Exp $
+// $Id: HPDNoiseMaker.cc,v 1.5 2008/08/04 22:07:08 fedor Exp $
 // --------------------------------------------------------
 
 #include "SimCalorimetry/HcalSimAlgos/interface/HPDNoiseMaker.h"

@@ -7,7 +7,7 @@
 // Package:    PatUtils
 // Class:      pat::helper::TriggerHelper
 //
-// $Id: TriggerHelper.h,v 1.6 2010/12/20 11:55:48 vadler Exp $
+// $Id: TriggerHelper.h,v 1.7 2011/04/05 19:41:33 vadler Exp $
 //
 /**
   \class    pat::helper::TriggerHelper TriggerHelper.h "PhysicsTools/PatUtils/interface/TriggerHelper.h"
@@ -18,7 +18,7 @@
               + provides the usage of functions which need the edm::AssociativeIterator;
 
   \author   Volker Adler
-  \version  $Id: TriggerHelper.h,v 1.6 2010/12/20 11:55:48 vadler Exp $
+  \version  $Id: TriggerHelper.h,v 1.7 2011/04/05 19:41:33 vadler Exp $
 */
 
 

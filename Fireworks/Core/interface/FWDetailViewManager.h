@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Mar  5 09:13:43 EST 2008
-// $Id: FWDetailViewManager.h,v 1.24 2011/02/10 14:58:05 amraktad Exp $
+// $Id: FWDetailViewManager.h,v 1.25 2011/05/27 04:03:42 amraktad Exp $
 //
 #include <map>
 #include <string>

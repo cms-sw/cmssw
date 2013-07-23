@@ -15,7 +15,7 @@
 //
 // Original Author:  Fabian Stoeckli
 //         Created:  Mon Sept 11 10:57:54 CET 2006
-// $Id: MCParticlePairFilter.h,v 1.2 2009/10/13 20:49:14 zgecse Exp $
+// $Id: MCParticlePairFilter.h,v 1.3 2010/07/21 04:23:23 wmtan Exp $
 //
 //
 

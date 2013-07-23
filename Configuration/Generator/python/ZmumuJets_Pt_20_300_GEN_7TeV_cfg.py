@@ -45,7 +45,7 @@ generator = cms.EDFilter("Pythia6GeneratorFilter",
 )
 
 configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.5 $'),
-    name = cms.untracked.string('$Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/Generator/python/ZmumuJets_Pt_20_300_GEN_cfg.py,v $'),
+    version = cms.untracked.string('$Revision: 1.1 $'),
+    name = cms.untracked.string('$Source: /local/reps/CMSSW/CMSSW/Configuration/Generator/python/ZmumuJets_Pt_20_300_GEN_7TeV_cfg.py,v $'),
     annotation = cms.untracked.string('ZmumuJets pt hat 20-300')
 )

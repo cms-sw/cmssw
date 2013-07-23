@@ -13,7 +13,7 @@
 //
 // Original Author:  Yousi Ma
 //         Created:  Tue Jun 19 23:06:36 CEST 2007
-// $Id: EcalLaserAnalyzerYousi.cc,v 1.2 2010/01/18 17:28:44 ferriff Exp $
+// $Id: EcalLaserAnalyzerYousi.cc,v 1.4 2012/02/09 10:07:36 eulisse Exp $
 //
 //
 

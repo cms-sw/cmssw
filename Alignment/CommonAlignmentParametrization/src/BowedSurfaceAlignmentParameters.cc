@@ -1,7 +1,7 @@
 /** \file BowedSurfaceAlignmentParameters.cc
  *
- *  Version    : $Revision: 1.14 $
- *  last update: $Date: 2008/09/02 15:08:12 $
+ *  Version    : $Revision: 1.1 $
+ *  last update: $Date: 2010/10/26 20:41:08 $
  *  by         : $Author: flucke $
  */
 

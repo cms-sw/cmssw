@@ -6,7 +6,7 @@
  * A simulated Vertex with links to TrackingParticles
  * for analysis of track and vertex reconstruction
  *
- * \version $Id: TrackingVertex.h,v 1.25 2008/11/26 17:46:46 bazterra Exp $
+ * \version $Id: TrackingVertex.h,v 1.26 2008/12/11 23:03:08 bazterra Exp $
  *
  */
 

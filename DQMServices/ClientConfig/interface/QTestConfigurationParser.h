@@ -6,8 +6,8 @@
  *  Parses the xml file with the configuration of quality tests
  *  and the map between quality tests and MonitorElement
  * 
- *  $Date: 2008/04/14 14:40:37 $
- *  $Revision: 1.3.10.3 $
+ *  $Date: 2008/05/14 12:38:46 $
+ *  $Revision: 1.4 $
  *  \author Ilaria Segoni
   */
 

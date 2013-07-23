@@ -4,9 +4,9 @@
 /** \class EcalRecHitAbsAlgo
   *  Template algorithm to make rechits from uncalibrated rechits
   *
-  *  $Id: EcalRecHitAbsAlgo.h,v 1.3 2009/04/09 13:37:59 ferriff Exp $
-  *  $Date: 2009/04/09 13:37:59 $
-  *  $Revision: 1.3 $
+  *  $Id: EcalRecHitAbsAlgo.h,v 1.4 2012/05/14 12:50:48 eulisse Exp $
+  *  $Date: 2012/05/14 12:50:48 $
+  *  $Revision: 1.4 $
   *  \author Shahram Rahatlou, University of Rome & INFN, March 2006
   */
 

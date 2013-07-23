@@ -16,7 +16,7 @@
 // Original Author:  Alexandre Spiridonov
 //         Created:  Fri Oct 16 15:59:05 CEST 2009
 //
-// $Id: GlobalTrackerMuonAlignment.cc,v 1.8 2011/10/31 07:49:49 mussgill Exp $
+// $Id: GlobalTrackerMuonAlignment.cc,v 1.9 2011/12/22 20:02:51 innocent Exp $
 //
 
 // system include files

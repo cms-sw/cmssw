@@ -4,7 +4,7 @@
  *
  * \author Luca Lista, INFN
  *
- * $Id: MassMinSelector.h,v 1.1 2007/07/12 08:30:40 llista Exp $
+ * $Id: MassMinSelector.h,v 1.1 2009/02/24 14:40:26 llista Exp $
  */
 
 struct MassMinSelector {

@@ -1,7 +1,7 @@
 /* 
  *  \class PulseFitWithFunction
  *
- *  $Date: 2009/06/02 12:55:20 $
+ *  $Date: 2012/02/09 10:08:09 $
  *  \author: Patrick Jarry - CEA/Saclay
  */
 

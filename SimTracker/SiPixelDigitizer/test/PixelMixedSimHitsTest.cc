@@ -14,7 +14,7 @@
 //
 // Original Author:  V.Chiochia
 //         Created:   CET 2006
-// $Id: PixelMixedSimHitsTest.cc,v 1.5 2009/11/13 14:14:23 fambrogl Exp $
+// $Id: PixelMixedSimHitsTest.cc,v 1.6 2010/02/11 00:15:07 wmtan Exp $
 //
 //
 // system include files

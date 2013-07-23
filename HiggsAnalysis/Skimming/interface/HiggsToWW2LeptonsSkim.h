@@ -6,8 +6,8 @@
  *  
  *  This class is an EDFilter choosing reconstructed di-tracks
  *
- *  $Date: 2007/12/12 16:08:48 $
- *  $Revision: 1.3 $
+ *  $Date: 2010/10/21 16:42:33 $
+ *  $Revision: 1.9 $
  *
  *  \author Ezio Torassa  -  INFN Padova
  *

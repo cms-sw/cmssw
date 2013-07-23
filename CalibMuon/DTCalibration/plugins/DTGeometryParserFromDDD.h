@@ -4,8 +4,8 @@
 /** \class DTGeometryParserFromDDD
  *  Class which read the geometry from DDD to provide a map between 
  *  layerId and pairs with first wire number, total number of wires.
- *  $Date: 2007/07/11 12:21:00 $
- *  $Revision: 1.0 $
+ *  $Date: 2007/11/02 10:47:48 $
+ *  $Revision: 1.1 $
  *  \author S. Bolognesi - INFN Torino
  */
 #include <DetectorDescription/Core/interface/DDFilter.h>

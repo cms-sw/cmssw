@@ -10,9 +10,9 @@
  *
  * \author Christian Veelken, LLR
  *
- * \version $Revision: 1.8 $
+ * \version $Revision: 1.1 $
  *
- * $Id: MinMETProducerT.h,v 1.8 2012/04/19 17:56:29 veelken Exp $
+ * $Id: MinMETProducerT.h,v 1.1 2012/09/15 16:45:33 veelken Exp $
  *
  */
 

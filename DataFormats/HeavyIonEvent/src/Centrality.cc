@@ -1,5 +1,5 @@
 //
-// $Id: Centrality.cc,v 1.13 2010/08/31 18:07:51 edwenger Exp $
+// $Id: Centrality.cc,v 1.14 2010/10/16 17:09:34 yilmaz Exp $
 //
 
 #include "DataFormats/HeavyIonEvent/interface/Centrality.h"

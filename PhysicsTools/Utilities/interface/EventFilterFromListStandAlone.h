@@ -6,7 +6,7 @@
 // Package:    PhysicsTools
 // Class:      EventFilterFromListStandAlone
 //
-// $Id: EventFilterFromListStandAlone.h,v 1.3 2013/01/16 16:42:48 vadler Exp $
+// $Id: EventFilterFromListStandAlone.h,v 1.4 2013/01/16 17:19:24 vadler Exp $
 //
 /**
   \class    EventFilterFromListStandAlone EventFilterFromListStandAlone.h "physicsTools/utilities/interface/EventFilterFromListStandAlone.h"
@@ -106,7 +106,7 @@
      which results in the executable '$CMSSW_BASE/bin/$SCRAM_ARCH/test'.
 
   \author   Thomas Speer
-  \version  $Id: EventFilterFromListStandAlone.h,v 1.3 2013/01/16 16:42:48 vadler Exp $
+  \version  $Id: EventFilterFromListStandAlone.h,v 1.4 2013/01/16 17:19:24 vadler Exp $
 */
 
 #include <vector>

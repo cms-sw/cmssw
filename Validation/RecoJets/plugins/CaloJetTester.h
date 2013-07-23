@@ -4,7 +4,7 @@
 // Producer for validation histograms for CaloJet objects
 // F. Ratnikov, Sept. 7, 2006
 // Modified by J F Novak July 10, 2008
-// $Id: CaloJetTester.h,v 1.25 2012/02/15 21:41:52 kovitang Exp $
+// $Id: CaloJetTester.h,v 1.26 2013/04/06 06:50:11 kovitang Exp $
 
 #include <string>
 

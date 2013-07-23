@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/12/09 22:44:10 $
- *  $Revision: 1.5 $
+ *  $Date: 2011/09/21 08:03:43 $
+ *  $Revision: 1.6 $
  *  \author G. Cerminara - INFN Torino
  */
 #include "CalibMuon/DTCalibration/plugins/DTTTrigCalibration.h"
