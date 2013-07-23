@@ -272,26 +272,13 @@ SimMuL1_Eff::SimMuL1_Eff(const edm::ParameterSet& iConfig):
   double ETA_START=-2.4999;
   double ETA_END = ETA_START + ETA_BIN*N_ETA_BINS;
   
-  int   N_ETA_BINS_CSC = 32;
-  double ETA_START_CSC = 0.9;
-  double ETA_END_CSC   = 2.5;
+//   int   N_ETA_BINS_CSC = 32;
+//   double ETA_START_CSC = 0.9;
+//   double ETA_END_CSC   = 2.5;
 
-  int   N_ETA_BINS_DT = 32;
-  double ETA_START_DT = 0.;
-  double ETA_END_DT   = 1.2;
-
-  const int N_ETA_BINS_RPC = 17;
-  double ETA_BINS_RPC[N_ETA_BINS_RPC+1] =
-    {0, 0.07, 0.27, 0.44, 0.58, 0.72, 0.83, 0.93, 1.04, 1.14,
-     1.24, 1.36, 1.48, 1.61, 1.73, 1.85, 1.97, 2.1};
-
-  const int N_ETA_BINS_GMT = 32;
-  double ETA_BINS_GMT[N_ETA_BINS_GMT+1] =
-    {0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9,
-     1, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.75, 1.8,
-     1.85, 1.9, 1.95, 2, 2.05, 2.1, 2.15, 2.2, 2.25, 2.3,
-     2.35, 2.4, 2.45};
-
+//   int   N_ETA_BINS_DT = 32;
+//   double ETA_START_DT = 0.;
+//   double ETA_END_DT   = 1.2;
 
   h_N_mctr  = fs->make<TH1D>("h_N_mctr","No of MC muons",16,-0.5,15.5);
   h_N_simtr = fs->make<TH1D>("h_N_simtr","No of SimTrack muons",16,-0.5,15.5);
@@ -1011,9 +998,9 @@ bool SimMuL1_Eff::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   const CSCCorrelatedLCTDigiCollection* mplcts = lcts_mpc.product();
   
   // DT primitives for input to TF
-  Handle<L1MuDTChambPhContainer> dttrig;
-  iEvent.getByLabel("simDtTriggerPrimitiveDigis", dttrig);
-  const L1MuDTChambPhContainer* dttrigs = dttrig.product();
+//   Handle<L1MuDTChambPhContainer> dttrig;
+//   iEvent.getByLabel("simDtTriggerPrimitiveDigis", dttrig);
+//   const L1MuDTChambPhContainer* dttrigs = dttrig.product();
 
   // tracks produced by TF
   Handle< L1CSCTrackCollection > hl1Tracks;
@@ -1113,13 +1100,13 @@ bool SimMuL1_Eff::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
     }
 
 
-  // simple trigger muons from L1Extra
-  Handle< l1extra::L1MuonParticleCollection > hl1Muons;
-  const l1extra::L1MuonParticleCollection* l1Muons = 0;
-  if (!lightRun) {
-    iEvent.getByLabel("l1extraParticles", hl1Muons);
-    l1Muons  = hl1Muons.product();
-  }
+//   // simple trigger muons from L1Extra
+//   Handle< l1extra::L1MuonParticleCollection > hl1Muons;
+//   const l1extra::L1MuonParticleCollection* l1Muons = 0;
+//   if (!lightRun) {
+//     iEvent.getByLabel("l1extraParticles", hl1Muons);
+//     l1Muons  = hl1Muons.product();
+//   }
 
 
   double mcpt, mceta, mcphi, stpt, steta, stphi ;
@@ -1459,7 +1446,7 @@ bool SimMuL1_Eff::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 
   
-  unsigned inefTF = 0;
+//   unsigned inefTF = 0;
   
   for (unsigned int im=0; im<matches.size(); im++) 
     {
@@ -1590,7 +1577,7 @@ bool SimMuL1_Eff::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
       bool tffidAll_ok = false;
       if ( tfcAll ) tffidAll_ok = ( eta_ok && tfcAll->l1cand->quality_packed() > 1 );
 
-      MatchCSCMuL1::TFTRACK * tft = match->bestTFTRACK(match->TFTRACKs, bestPtMatch_);
+//       MatchCSCMuL1::TFTRACK * tft = match->bestTFTRACK(match->TFTRACKs, bestPtMatch_);
       MatchCSCMuL1::TFTRACK * tftAll = match->bestTFTRACK(match->TFTRACKsAll, bestPtMatch_);
       int nokeey=0;
 
@@ -2042,7 +2029,8 @@ bool SimMuL1_Eff::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
       //============ MPC LCTs ==================
 
-      int nmplct_per_st[4]={0}, nmplct_per_st_good[4]={0}, nsimh_per_st_good[4]={0};
+      int nmplct_per_st[4]={0}, nmplct_per_st_good[4]={0};
+      //, nsimh_per_st_good[4]={0};
 
 
       vector<MatchCSCMuL1::MPLCT> ME1MPLCTsOk;
@@ -4553,3 +4541,5 @@ SimMuL1_Eff::endJob() {}
 
 //define this as a plug-in
 DEFINE_FWK_MODULE(SimMuL1_Eff);
+
+
