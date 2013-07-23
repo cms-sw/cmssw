@@ -112,7 +112,7 @@ conditions_HLT_JECs = (
 
 
 # dedicated GlobalTags for MC production with the frozen HLT menus
-autoCond['startup_2011']   = ( "START53_LV2:All", )
+autoCond['startup_2011']   = ( "START53_LV2::All", )
 
 autoCond['startup_5E33v4']   = ( autoCond['startup'], ) \
                              + conditions_L1_Run2012A
