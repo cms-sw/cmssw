@@ -47,75 +47,10 @@ theMaxSimTrEta = 2.5
 need2StWith4Hits = True
 needME1With4Hits = False
 
-
-suffix=''
-#suffix='_rpc'
-suffix='_cor2'
-suffix='_pat2'
-
-suffix='_pat2'; inputDir = '/pnfs/cms/WAX/11/store/user/lpcgem/khotilov/NuGun_PU100_L1_pat2/'
-#suffix='_pat6'; inputDir = '/pnfs/cms/WAX/11/store/user/lpcgem/khotilov/NuGun_PU100_L1_pat6/'
-suffix='_pat8'; inputDir = '/pnfs/cms/WAX/11/store/user/lpcgem/khotilov/NuGun_PU100_L1_pat8/'
-
-suffix='_gem_pat2'; inputDir = '/pnfs/cms/WAX/11/store/user/lpcgem/khotilov/GEM_NuGun_PU100_L1_pat2/'
-#suffix='_gem_pat6'; inputDir = '/pnfs/cms/WAX/11/store/user/lpcgem/khotilov/GEM_NuGun_PU100_L1_pat6/'
-#suffix='_gem_pat8'; inputDir = '/pnfs/cms/WAX/11/store/user/lpcgem/khotilov/GEM_NuGun_PU100_L1_pat8/'
-
-#suffix='_gemOld_pt20_pat2'; inputDir = '/pnfs/cms/WAX/11/store/user/lpcgem/khotilov/GEM_NuGun_PU100_L1_pat2/'
-
-
-suffix='_def_pat2'; inputDir = ['/pnfs/cms/WAX/11/store/user/lpcgem/khotilov/khotilov/GEN-SIM-NeutrinoGun_v3/GEM_NeutrinoGun_110K_pu100_DIGI_L1/2d6d66b06450f6f4eca385bc78cbc39a/','/pnfs/cms/WAX/11/store/user/lpcgem/khotilov/khotilov/GEN-SIM-NeutrinoGun_v3/GEM_NeutrinoGun_pu100_DIGI_L1/2d6d66b06450f6f4eca385bc78cbc39a/']
-#suffix='_gem98_pt05_pat2'; inputDir = ['/pnfs/cms/WAX/11/store/user/lpcgem/khotilov/GEM98_NuGun_PU100_L1_pt05_pat2_110K/','/pnfs/cms/WAX/11/store/user/lpcgem/khotilov/GEM98_NuGun_PU100_L1_pt05_pat2_128K/']
-#suffix='_gem98_pt06_pat2'; inputDir = ['/pnfs/cms/WAX/11/store/user/lpcgem/khotilov/GEM98_NuGun_PU100_L1_pt06_pat2_110K/','/pnfs/cms/WAX/11/store/user/lpcgem/khotilov/GEM98_NuGun_PU100_L1_pt06_pat2_128K/']
-#suffix='_gem98_pt10_pat2'; inputDir = ['/pnfs/cms/WAX/11/store/user/lpcgem/khotilov/GEM98_NuGun_PU100_L1_pt10_pat2_110K/','/pnfs/cms/WAX/11/store/user/lpcgem/khotilov/GEM98_NuGun_PU100_L1_pt10_pat2_128K/']
-#suffix='_gem98_pt15_pat2'; inputDir = ['/pnfs/cms/WAX/11/store/user/lpcgem/khotilov/GEM98_NuGun_PU100_L1_pt15_pat2_110K/','/pnfs/cms/WAX/11/store/user/lpcgem/khotilov/GEM98_NuGun_PU100_L1_pt15_pat2_128K/']
-#suffix='_gem98_pt20_pat2'; inputDir = ['/pnfs/cms/WAX/11/store/user/lpcgem/khotilov/GEM98_NuGun_PU100_L1_pt20_pat2_110K/','/pnfs/cms/WAX/11/store/user/lpcgem/khotilov/GEM98_NuGun_PU100_L1_pt20_pat2_128K/']
-#suffix='_gem98_pt30_pat2'; inputDir = ['/pnfs/cms/WAX/11/store/user/lpcgem/khotilov/GEM98_NuGun_PU100_L1_pt30_pat2_110K/','/pnfs/cms/WAX/11/store/user/lpcgem/khotilov/GEM98_NuGun_PU100_L1_pt30_pat2_128K/']
-#suffix='_gem98_pt40_pat2'; inputDir = ['/pnfs/cms/WAX/11/store/user/lpcgem/khotilov/GEM98_NuGun_PU100_L1_pt40_pat2_110K/','/pnfs/cms/WAX/11/store/user/lpcgem/khotilov/GEM98_NuGun_PU100_L1_pt40_pat2_128K/']
-
-#suffix='_gem95_pt05_pat2'; inputDir = ['/pnfs/cms/WAX/11/store/user/lpcgem/khotilov/GEM95_NuGun_PU100_L1_pt05_pat2_110K/','/pnfs/cms/WAX/11/store/user/lpcgem/khotilov/GEM95_NuGun_PU100_L1_pt05_pat2_128K/']
-#suffix='_gem95_pt10_pat2'; inputDir = ['/pnfs/cms/WAX/11/store/user/lpcgem/khotilov/GEM95_NuGun_PU100_L1_pt10_pat2_110K/','/pnfs/cms/WAX/11/store/user/lpcgem/khotilov/GEM95_NuGun_PU100_L1_pt10_pat2_128K/']
-#suffix='_gem95_pt15_pat2'; inputDir = ['/pnfs/cms/WAX/11/store/user/lpcgem/khotilov/GEM95_NuGun_PU100_L1_pt15_pat2_110K/','/pnfs/cms/WAX/11/store/user/lpcgem/khotilov/GEM95_NuGun_PU100_L1_pt15_pat2_128K/']
-#suffix='_gem95_pt20_pat2'; inputDir = ['/pnfs/cms/WAX/11/store/user/lpcgem/khotilov/GEM95_NuGun_PU100_L1_pt20_pat2_110K/','/pnfs/cms/WAX/11/store/user/lpcgem/khotilov/GEM95_NuGun_PU100_L1_pt20_pat2_128K/']
-#suffix='_gem95_pt30_pat2'; inputDir = ['/pnfs/cms/WAX/11/store/user/lpcgem/khotilov/GEM95_NuGun_PU100_L1_pt30_pat2_110K/','/pnfs/cms/WAX/11/store/user/lpcgem/khotilov/GEM95_NuGun_PU100_L1_pt30_pat2_128K/']
-#suffix='_gem95_pt40_pat2'; inputDir = ['/pnfs/cms/WAX/11/store/user/lpcgem/khotilov/GEM95_NuGun_PU100_L1_pt40_pat2_110K/','/pnfs/cms/WAX/11/store/user/lpcgem/khotilov/GEM95_NuGun_PU100_L1_pt40_pat2_128K/']
-
-
-suffix='_def_pat8'; inputDir = ['/pnfs/cms/WAX/11/store/user/lpcgem/khotilov/GEM_NuGun_PU100_L1_def_pat8_110K/','/pnfs/cms/WAX/11/store/user/lpcgem/khotilov/GEM_NuGun_PU100_L1_def_pat8/']
-#suffix='_gem98_pt05_pat8'; inputDir = ['/pnfs/cms/WAX/11/store/user/lpcgem/khotilov/GEM98_NuGun_PU100_L1_pt05_pat8_110K/','/pnfs/cms/WAX/11/store/user/lpcgem/khotilov/GEM98_NuGun_PU100_L1_pt05_pat8_128K/']
-suffix='_gem98_pt06_pat8'; inputDir = ['/pnfs/cms/WAX/11/store/user/lpcgem/khotilov/GEM98_NuGun_PU100_L1_pt06_pat8_110K/','/pnfs/cms/WAX/11/store/user/lpcgem/khotilov/GEM98_NuGun_PU100_L1_pt06_pat8_128K/']
-suffix='_gem98_pt10_pat8'; inputDir = ['/pnfs/cms/WAX/11/store/user/lpcgem/khotilov/GEM98_NuGun_PU100_L1_pt10_pat8_110K/','/pnfs/cms/WAX/11/store/user/lpcgem/khotilov/GEM98_NuGun_PU100_L1_pt10_pat8_128K/']
-suffix='_gem98_pt15_pat8'; inputDir = ['/pnfs/cms/WAX/11/store/user/lpcgem/khotilov/GEM98_NuGun_PU100_L1_pt15_pat8_110K/','/pnfs/cms/WAX/11/store/user/lpcgem/khotilov/GEM98_NuGun_PU100_L1_pt15_pat8_128K/']
-suffix='_gem98_pt20_pat8'; inputDir = ['/pnfs/cms/WAX/11/store/user/lpcgem/khotilov/GEM98_NuGun_PU100_L1_pt20_pat8_110K/','/pnfs/cms/WAX/11/store/user/lpcgem/khotilov/GEM98_NuGun_PU100_L1_pt20_pat8_128K/']
-suffix='_gem98_pt30_pat8'; inputDir = ['/pnfs/cms/WAX/11/store/user/lpcgem/khotilov/GEM98_NuGun_PU100_L1_pt30_pat8_110K/','/pnfs/cms/WAX/11/store/user/lpcgem/khotilov/GEM98_NuGun_PU100_L1_pt30_pat8_128K/']
-suffix='_gem98_pt40_pat8'; inputDir = ['/pnfs/cms/WAX/11/store/user/lpcgem/khotilov/GEM98_NuGun_PU100_L1_pt40_pat8_110K/','/pnfs/cms/WAX/11/store/user/lpcgem/khotilov/GEM98_NuGun_PU100_L1_pt40_pat8_128K/']
-
-#suffix='_gem95_pt05_pat8'; inputDir = ['/pnfs/cms/WAX/11/store/user/lpcgem/khotilov/GEM95_NuGun_PU100_L1_pt05_pat8_110K/','/pnfs/cms/WAX/11/store/user/lpcgem/khotilov/GEM95_NuGun_PU100_L1_pt05_pat8_128K/']
-#suffix='_gem95_pt10_pat8'; inputDir = ['/pnfs/cms/WAX/11/store/user/lpcgem/khotilov/GEM95_NuGun_PU100_L1_pt10_pat8_110K/','/pnfs/cms/WAX/11/store/user/lpcgem/khotilov/GEM95_NuGun_PU100_L1_pt10_pat8_128K/']
-#suffix='_gem95_pt15_pat8'; inputDir = ['/pnfs/cms/WAX/11/store/user/lpcgem/khotilov/GEM95_NuGun_PU100_L1_pt15_pat8_110K/','/pnfs/cms/WAX/11/store/user/lpcgem/khotilov/GEM95_NuGun_PU100_L1_pt15_pat8_128K/']
-#suffix='_gem95_pt20_pat8'; inputDir = ['/pnfs/cms/WAX/11/store/user/lpcgem/khotilov/GEM95_NuGun_PU100_L1_pt20_pat8_110K/','/pnfs/cms/WAX/11/store/user/lpcgem/khotilov/GEM95_NuGun_PU100_L1_pt20_pat8_128K/']
-#suffix='_gem95_pt30_pat8'; inputDir = ['/pnfs/cms/WAX/11/store/user/lpcgem/khotilov/GEM95_NuGun_PU100_L1_pt30_pat8_110K/','/pnfs/cms/WAX/11/store/user/lpcgem/khotilov/GEM95_NuGun_PU100_L1_pt30_pat8_128K/']
-#suffix='_gem95_pt40_pat8'; inputDir = ['/pnfs/cms/WAX/11/store/user/lpcgem/khotilov/GEM95_NuGun_PU100_L1_pt40_pat8_110K/','/pnfs/cms/WAX/11/store/user/lpcgem/khotilov/GEM95_NuGun_PU100_L1_pt40_pat8_128K/']
-
-
-#suffix='_def_pat2'; inputDir = '/pnfs/cms/WAX/11/store/user/lpcgem/khotilov/khotilov/MuomGUN_SIM_Pt2-50_100k/MuonGun_DIGI_L1_Pt2-50_100k/29891ddb18281fff4c42a6e5f5d4bc55/'
-#suffix='_gem98_pt10_pat2'; inputDir = '/pnfs/cms/WAX/11/store/user/lpcgem/khotilov/GEM98_MuGun_PU0_L1_pt10_pat2/'
-#suffix='_gem98_pt15_pat2'; inputDir = '/pnfs/cms/WAX/11/store/user/lpcgem/khotilov/GEM98_MuGun_PU0_L1_pt15_pat2/'
-#suffix='_gem98_pt20_pat2'; inputDir = '/pnfs/cms/WAX/11/store/user/lpcgem/khotilov/GEM98_MuGun_PU0_L1_pt20_pat2/'
-#suffix='_gem98_pt30_pat2'; inputDir = '/pnfs/cms/WAX/11/store/user/lpcgem/khotilov/GEM98_MuGun_PU0_L1_pt30_pat2/'
-#suffix='_gem98_pt40_pat2'; inputDir = '/pnfs/cms/WAX/11/store/user/lpcgem/khotilov/GEM98_MuGun_PU0_L1_pt40_pat2/'
-#suffix='_gem95_pt10_pat2'; inputDir = '/pnfs/cms/WAX/11/store/user/lpcgem/khotilov/GEM95_MuGun_PU0_L1_pt10_pat2/'
-#suffix='_gem95_pt20_pat2'; inputDir = '/pnfs/cms/WAX/11/store/user/lpcgem/khotilov/GEM95_MuGun_PU0_L1_pt20_pat2/'
-#suffix='_gem95_pt30_pat2'; inputDir = '/pnfs/cms/WAX/11/store/user/lpcgem/khotilov/GEM95_MuGun_PU0_L1_pt30_pat2/'
-#suffix='_gem95_pt40_pat2'; inputDir = '/pnfs/cms/WAX/11/store/user/lpcgem/khotilov/GEM95_MuGun_PU0_L1_pt40_pat2/'
-
-#suffix='_ntup_pt40_pat2'; inputDir = '/pnfs/cms/WAX/11/store/user/lpcgem/yasser1/yasser/muonGun_50k_pT40_lpcgem/MuomGunPt40L1CSC50k_digi/82325e40d6202e6fec2dd983c477f3ca/'
-
-
-
-#suffix='_gem_dphi_pat2'; inputDir = ['/pnfs/cms/WAX/11/store/user/lpcgem/khotilov/GEM_NuGun_PU100_L1_dphi_pat2_110K/','/pnfs/cms/WAX/11/store/user/lpcgem/khotilov/GEM_NuGun_PU100_L1_dphi_pat2_128K/']
-suffix='_gem_dphi0xx_pat2'; inputDir = '/pnfs/cms/WAX/11/store/user/lpcgem/khotilov/GEM_MuGun_PU0_L1_dphi_pat2/'
-
+## include library of trigger samples
+from GEMCode.SimMuL1.GEMCSCTriggerSamplesLib import files
+suffix = '_gem_dphi_pat2_PU0'
+inputDir = files[suffix]
 
 ##### end parameters #####
 
@@ -293,15 +228,21 @@ process.options = cms.untracked.PSet(
     wantSummary = cms.untracked.bool(True)
 )
 
-if type(inputDir) != list: 
-    inputDir = [inputDir]
-
-theInputNames = []
+theInputFiles = []
 import os
-for d in inputDir:
-  ls = os.listdir(d)
-  theInputNames.extend([d[16:] + x for x in ls if x.endswith('root')])
-
+for d in range(len(inputDir)):
+  my_dir = inputDir[d]
+  if not os.path.isdir(my_dir):
+    print "ERROR: This is not a valid directory: ", my_dir
+    if d==len(inputDir)-1:
+      print "ERROR: No input files were selected"
+      exit()
+    continue
+  print "Proceed to next directory"
+  ls = os.listdir(my_dir)
+  theInputFiles.extend([my_dir[16:] + x for x in ls if x.endswith('root')])
+    
+print theInputFiles
 process.source = cms.Source("PoolSource",
     duplicateCheckMode = cms.untracked.string('noDuplicateCheck'),
 #    inputCommands = cms.untracked.vstring(
@@ -309,35 +250,9 @@ process.source = cms.Source("PoolSource",
 #      'drop *_simDtTriggerPrimitiveDigis_*_MUTRG'
 #    ),
     fileNames = cms.untracked.vstring(
-#    "file:/uscmst1b_scratch/lpc1/lpctau/khotilov/slhc/CMSSW_2_2_3/src/out_dimu.root"
-#    "file:/uscmst1b_scratch/lpc1/lpctau/khotilov/condor/dimu_2_2_3/out_100_1000evt.root",
-#    "dcache:/pnfs/cms/WAX/resilient/khotilov/CMSSW_2_2_3/dimu_me42_nopu_2pi/concat_20000evt.root"
-#    "file:/uscmst1b_scratch/lpc1/lpctau/khotilov/slhc/CMSSW_2_2_3/src/out.root"
-#    "file:/uscmst1b_scratch/lpc1/lpctau/khotilov/condor/dimu_2_2_3/concat_me42_v11_20000evt.root"
-#    "file:/uscmst1b_scratch/lpc1/lpctau/khotilov/condor/dimu_2_2_3/concat_me42_v11_20000evt_100.root"
-#      "file:/tmp/out_5k.root"
-      #theInputName
-      *theInputNames
-      #[inputDir[16:] + x for x in ls if x.endswith('root')]
+      *theInputFiles
     )
 )
-
-'''
-ff = open(theFileList, "r")
-files = ff.read().split('\n')
-ff.close()
-
-vstri=[]
-for i in range (0,len(files)):
-    if len(files[i])==0: continue
-    if files[i].find('pnfs') > -1:
-	vstri.append('dcap:'+ files[i])
-    else:
-	vstri.append('file:'+ files[i])
-
-process.source.fileNames = vstri
-'''
-
 
 process.TFileService = cms.Service("TFileService",
     fileName = cms.string(theHistoFileName)
