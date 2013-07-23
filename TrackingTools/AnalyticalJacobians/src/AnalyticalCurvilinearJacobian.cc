@@ -11,8 +11,9 @@ AnalyticalCurvilinearJacobian::AnalyticalCurvilinearJacobian
   // helix: calculate full jacobian
   //
   if ( s*s*fabs(globalParameters.transverseCurvature())>1.e-5 ) { 
-    GlobalPoint xStart = globalParameters.position();
-    GlobalVector h  = globalParameters.magneticFieldInInverseGeV(xStart);
+    // GlobalPoint xStart = globalParameters.position();
+    // GlobalVector h  = globalParameters.magneticFieldInInverseGeV(xStart);
+    GlobalVector h  = globalParameters.magneticFieldInInverseGeV();
     computeFullJacobian(globalParameters,x,p,h,s);
   }
   //
