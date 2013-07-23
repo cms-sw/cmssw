@@ -783,35 +783,35 @@ bool SimMuL1_Rate::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 
   // get MC
-  Handle< GenParticleCollection > hMCCand;
-  iEvent.getByLabel("genParticles", hMCCand);
-  const GenParticleCollection & cands  = *(hMCCand.product()); 
+//   Handle< GenParticleCollection > hMCCand;
+//   iEvent.getByLabel("genParticles", hMCCand);
+//   const GenParticleCollection & cands  = *(hMCCand.product()); 
   
   // get SimTracks
-  Handle< SimTrackContainer > hSimTracks;
-  iEvent.getByLabel("g4SimHits", hSimTracks);
-  const SimTrackContainer & simTracks = *(hSimTracks.product());
+//   Handle< SimTrackContainer > hSimTracks;
+//   iEvent.getByLabel("g4SimHits", hSimTracks);
+//   const SimTrackContainer & simTracks = *(hSimTracks.product());
 
   // get simVertices
-  Handle< SimVertexContainer > hSimVertices;
-  //iEvent.getByType<SimVertexContainer>(hSimVertices);
-  iEvent.getByLabel("g4SimHits", hSimVertices);
-  const SimVertexContainer & simVertices = *(hSimVertices.product());
+//   Handle< SimVertexContainer > hSimVertices;
+//   //iEvent.getByType<SimVertexContainer>(hSimVertices);
+//   iEvent.getByLabel("g4SimHits", hSimVertices);
+//   const SimVertexContainer & simVertices = *(hSimVertices.product());
 
   // get SimHits
   theCSCSimHitMap.fill(iEvent);
 
-  edm::Handle< PSimHitContainer > MuonCSCHits;
-  iEvent.getByLabel("g4SimHits", "MuonCSCHits", MuonCSCHits);
-  const PSimHitContainer* allCSCSimHits = MuonCSCHits.product();
+//   edm::Handle< PSimHitContainer > MuonCSCHits;
+//   iEvent.getByLabel("g4SimHits", "MuonCSCHits", MuonCSCHits);
+//   const PSimHitContainer* allCSCSimHits = MuonCSCHits.product();
 
   // strip and wire digis
-  Handle< CSCWireDigiCollection >       wireDigis;
-  Handle< CSCComparatorDigiCollection > compDigis;
-  iEvent.getByLabel("simMuonCSCDigis","MuonCSCWireDigi",       wireDigis);
-  iEvent.getByLabel("simMuonCSCDigis","MuonCSCComparatorDigi", compDigis);
-  const CSCWireDigiCollection* wiredc = wireDigis.product();
-  const CSCComparatorDigiCollection* compdc = compDigis.product();
+//   Handle< CSCWireDigiCollection >       wireDigis;
+//   Handle< CSCComparatorDigiCollection > compDigis;
+//   iEvent.getByLabel("simMuonCSCDigis","MuonCSCWireDigi",       wireDigis);
+//   iEvent.getByLabel("simMuonCSCDigis","MuonCSCComparatorDigi", compDigis);
+//   const CSCWireDigiCollection* wiredc = wireDigis.product();
+//   const CSCComparatorDigiCollection* compdc = compDigis.product();
 
   // ALCTs and CLCTs
   Handle< CSCALCTDigiCollection > halcts;
@@ -1564,11 +1564,11 @@ bool SimMuL1_Rate::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 
   float max_pt_3s_3s1ab = -1,      max_pt_3s_3s1ab_eta = -111;
-  float max_pt_3s_3s1ab_no1a = -1, max_pt_3s_3s1ab_eta_no1a = -111;
-  float max_pt_3s_3s1ab_1b = -1,   max_pt_3s_3s1ab_eta_1b = -111;
+  float max_pt_3s_3s1ab_no1a = -1;//, max_pt_3s_3s1ab_eta_no1a = -111;
+  float max_pt_3s_3s1ab_1b = -1;//,   max_pt_3s_3s1ab_eta_1b = -111;
 
   MatchCSCMuL1::TFTRACK *trk__max_pt_3s_3s1b_eta = nullptr;
-  MatchCSCMuL1::TFTRACK *trk__max_pt_3s_3s1ab_eta = nullptr;
+  //  MatchCSCMuL1::TFTRACK *trk__max_pt_3s_3s1ab_eta = nullptr;
   MatchCSCMuL1::TFTRACK *trk__max_pt_2s1b_1b = nullptr;
   const CSCCorrelatedLCTDigi * the_me1_stub = nullptr;
   CSCDetId the_me1_id;
@@ -1720,9 +1720,14 @@ bool SimMuL1_Rate::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   	  if (n_stubs >=3 && ( (eta_me1a && has_1a_stub) || (eta_me1b && has_1b_stub) || (!has_1a_stub && !has_1b_stub && !eta_me1ab) ) )
   	    {
   	      if (            gpt > max_pt_3s_3s1ab      ) { max_pt_3s_3s1ab = gpt; max_pt_3s_3s1ab_eta = geta;
-  		trk__max_pt_3s_3s1ab_eta = myGMTREGCand.tfcand->tftrack; }
-  	      if (eta_me1b && gpt > max_pt_3s_3s1ab_1b   ) { max_pt_3s_3s1ab_1b = gpt; max_pt_3s_3s1ab_eta_1b = geta; }
-  	      if (eta_no1a && gpt > max_pt_3s_3s1ab_no1a ) { max_pt_3s_3s1ab_no1a = gpt; max_pt_3s_3s1ab_eta_no1a = geta; }
+  		//trk__max_pt_3s_3s1ab_eta = myGMTREGCand.tfcand->tftrack; 
+	      }
+  	      if (eta_me1b && gpt > max_pt_3s_3s1ab_1b   ) { max_pt_3s_3s1ab_1b = gpt; 
+		//max_pt_3s_3s1ab_eta_1b = geta; 
+	      }
+  	      if (eta_no1a && gpt > max_pt_3s_3s1ab_no1a ) { max_pt_3s_3s1ab_no1a = gpt; 
+		//max_pt_3s_3s1ab_eta_no1a = geta; 
+	      }
   	    }
 
 
