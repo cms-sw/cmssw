@@ -74,13 +74,13 @@ Compile:<pre><code>scram b -j 9</code></pre>
 ###Adding submodules
 
 Validation code
-<pre><code>git clone git://github.com/gem-sw/GEMCode.git</code></pre>
+<pre><code>git submodule add git://github.com/gem-sw/GEMCode.git</code></pre>
 
 L1TriggerDevelopment:
-<pre><code>git clone git://github.com/gem-sw/L1TriggerDPGUpgrade.git</code></pre>
+<pre><code>git submodule add git://github.com/gem-sw/L1TriggerDPGUpgrade.git</code></pre>
 
 Website development
-<pre><code>git clone git://github.com/gem-sw/Website.git</code></pre>
+<pre><code>git submodule add git://github.com/gem-sw/Website.git</code></pre>
 
 Check that you are on the master branch in each submodule. Create a new branch for each development.
 
