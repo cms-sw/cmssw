@@ -1190,7 +1190,6 @@ private:
   TH1D * h_rt_gmt_ptmax_2q42r_sing;
   TH1D * h_rt_gmt_ptmax_3q42r_sing;
 
-
   TH1D * h_rt_gmt_csc_eta;
   TH1D * h_rt_gmt_csc_ptmax10_eta_2s;
   TH1D * h_rt_gmt_csc_ptmax10_eta_2s_2s1b;
@@ -1214,6 +1213,7 @@ private:
   TH1D * h_rt_gmt_csc_ptmax20_eta_2s_2s1b;
   TH1D * h_rt_gmt_csc_ptmax20_eta_3s;
   TH1D * h_rt_gmt_csc_ptmax20_eta_3s_1b;
+  TH1D * h_rt_gmt_csc_ptmax20_eta_3s_1ab;
   TH1D * h_rt_gmt_csc_ptmax20_eta_3s_no1a;
   TH1D * h_rt_gmt_csc_ptmax20_eta_3s_2s1b;
   TH1D * h_rt_gmt_csc_ptmax20_eta_3s_2s1b_1b;
@@ -1225,6 +1225,7 @@ private:
   TH1D * h_rt_gmt_csc_ptmax20_eta_3s_3s1b;
   TH1D * h_rt_gmt_csc_ptmax20_eta_3s_3s1b_1b;
   TH1D * h_rt_gmt_csc_ptmax20_eta_3s_3s1b_no1a;
+  TH1D * h_rt_gmt_csc_ptmax20_eta_3s_3s1ab;
   TH1D * h_rt_gmt_csc_ptmax20_eta_2q;
   TH1D * h_rt_gmt_csc_ptmax20_eta_3q;
 
@@ -1232,6 +1233,7 @@ private:
   TH1D * h_rt_gmt_csc_ptmax30_eta_2s_2s1b;
   TH1D * h_rt_gmt_csc_ptmax30_eta_3s;
   TH1D * h_rt_gmt_csc_ptmax30_eta_3s_1b;
+  TH1D * h_rt_gmt_csc_ptmax30_eta_3s_1ab;
   TH1D * h_rt_gmt_csc_ptmax30_eta_3s_no1a;
   TH1D * h_rt_gmt_csc_ptmax30_eta_3s_2s1b;
   TH1D * h_rt_gmt_csc_ptmax30_eta_3s_2s1b_1b;
@@ -1243,6 +1245,7 @@ private:
   TH1D * h_rt_gmt_csc_ptmax30_eta_3s_3s1b;
   TH1D * h_rt_gmt_csc_ptmax30_eta_3s_3s1b_1b;
   TH1D * h_rt_gmt_csc_ptmax30_eta_3s_3s1b_no1a;
+  TH1D * h_rt_gmt_csc_ptmax30_eta_3s_3s1ab;
   TH1D * h_rt_gmt_csc_ptmax30_eta_2q;
   TH1D * h_rt_gmt_csc_ptmax30_eta_3q;
 
