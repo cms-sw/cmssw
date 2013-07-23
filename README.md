@@ -1,6 +1,9 @@
 GEMCode
 =======
 
+* auto-gen TOC:
+{:toc}
+
 Introduction
 ------------
 
