@@ -91,6 +91,7 @@ class Vx3DHLTAnalyzer : public edm::EDAnalyzer {
       virtual void endLuminosityBlock(const edm::LuminosityBlock& lumiBlock,
 				      const edm::EventSetup& iSetup);
       virtual void endJob();
+      virtual void beginRun();
 
 
       // #######################
