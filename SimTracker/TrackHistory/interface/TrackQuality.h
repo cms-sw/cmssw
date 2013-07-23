@@ -2,7 +2,7 @@
  *  TrackQuality.h
  *
  *  Created by Christophe Saout on 9/25/08.
- *  Copyright 2007 __MyCompanyName__. All rights reserved.
+ *  2007 __MyCompanyName__. 
  *
  */
 

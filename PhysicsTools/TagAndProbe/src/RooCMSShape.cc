@@ -18,7 +18,6 @@
  * History:
  *   
  *
- * Copyright (C) 2008 FNAL 
  *****************************************************************************/
 
 #include "PhysicsTools/TagAndProbe/interface/RooCMSShape.h"
