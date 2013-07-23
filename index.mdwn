@@ -6,6 +6,8 @@ related:
  - { name: Topic Collector, link: https://cern.ch/cmsgit/cmsgit }
  - { name: Feedback, link: https://github.com/cms-sw/cmssw/issues/new }
 ---
+
+[We are experiencing some troubles with these pages, you can find a mirror here](https://cmssdt.cern.ch/SDT/github)
 # Welcome to CMSSW on GitHub pages
 
 CMS is migrating the repository of its Offline Experiment Software (CMSSW) to
