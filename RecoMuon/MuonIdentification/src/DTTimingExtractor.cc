@@ -11,7 +11,7 @@
 //
 // Original Author:  Traczyk Piotr
 //         Created:  Thu Oct 11 15:01:28 CEST 2007
-// $Id: DTTimingExtractor.cc,v 1.16 2013/05/28 16:31:01 gartung Exp $
+// $Id: DTTimingExtractor.cc,v 1.15 2011/02/24 15:41:53 farrell3 Exp $
 //
 //
 

@@ -16,7 +16,7 @@
 //
 // Author:      
 // Created:     Tue Mar 24 11:26:21 CET 2009
-// $Id: RPCObAlignmentRcd.h,v 1.1 2009/03/24 10:27:53 dpagano Exp $
+// $Id$
 //
 
 #include "FWCore/Framework/interface/EventSetupRecordImplementation.h"

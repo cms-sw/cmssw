@@ -12,6 +12,7 @@ appear in one worker.
 
 #include <memory>
 
+#include "FWCore/Framework/interface/OutputModule.h"
 #include "FWCore/Framework/src/WorkerT.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 
@@ -25,29 +26,8 @@ namespace edm {
 
     virtual ~OutputWorker();
 
-    // Call closeFile() on the controlled OutputModule.
-    void closeFile();
-
-    // Call shouldWeCloseFile() on the controlled OutputModule.
-    bool shouldWeCloseFile() const;
-
-    void openNewFileIfNeeded();
-
-    bool wantAllEvents() const;
-
-    void openFile(FileBlock const& fb);
-
-    void writeRun(RunPrincipal const& rp);
-
-    void writeLumi(LuminosityBlockPrincipal const& lbp);
-
-    bool limitReached() const;
-
-    void configure(OutputModuleDescription const& desc);
+    std::unique_ptr<OutputModuleCommunicator> createOutputModuleCommunicator() override;
     
-    SelectionsArray const& keptProducts() const;
-
-    void selectProducts(ProductRegistry const& preg);
   };
 
 }

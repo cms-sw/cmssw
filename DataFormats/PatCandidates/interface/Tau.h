@@ -1,5 +1,5 @@
 //
-// $Id: Tau.h,v 1.34 2012/04/25 07:32:20 cbern Exp $
+// $Id: Tau.h,v 1.33 2011/10/27 16:35:27 wmtan Exp $
 //
 
 #ifndef DataFormats_PatCandidates_Tau_h
@@ -17,7 +17,7 @@
    https://hypernews.cern.ch/HyperNews/CMS/get/physTools.html
 
   \author   Steven Lowette, Christophe Delaere, Giovanni Petrucciani, Frederic Ronga, Colin Bernet
-  \version  $Id: Tau.h,v 1.34 2012/04/25 07:32:20 cbern Exp $
+  \version  $Id: Tau.h,v 1.33 2011/10/27 16:35:27 wmtan Exp $
 */
 
 

@@ -4,8 +4,8 @@
 /** \class Template
  *  To be documented here.
  *
- *  $Date: 2005/07/26 10:13:49 $
- *  $Revision: 1.1 $
+ *  $Date: $
+ *  $Revision: $
  *  \author Unknown
  */
 

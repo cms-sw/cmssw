@@ -13,7 +13,7 @@
 //
 // Original Author:  James Jackson
 //         Created:  Mon Jan 11 09:57:58 CET 2010
-// $Id: RecHitEnergyFilter.cc,v 1.2 2013/02/27 20:17:14 wmtan Exp $
+// $Id: RecHitEnergyFilter.cc,v 1.1 2010/03/06 22:12:30 malgeri Exp $
 //
 //
 

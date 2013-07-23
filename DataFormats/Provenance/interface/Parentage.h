@@ -39,12 +39,12 @@ namespace edm {
     std::vector<BranchID> & parents() {return parents_;}
     void swap(Parentage& other) {parents_.swap(other.parents_); parentageID().swap(other.parentageID());}
 
-    void initializeTransients() const {transient_.reset();}
+    void initializeTransients() {transient_.reset();}
 
     struct Transients {
       Transients() : parentageID_() {}
       void reset() {parentageID_.reset();}
-      ParentageID parentageID_;
+      mutable ParentageID parentageID_;
     };
 
 
@@ -52,7 +52,7 @@ namespace edm {
     ParentageID& parentageID() const {return transient_.parentageID_;}
     // The Branch IDs of the parents
     std::vector<BranchID> parents_;
-    mutable Transients transient_;
+    Transients transient_;
 
   };
 

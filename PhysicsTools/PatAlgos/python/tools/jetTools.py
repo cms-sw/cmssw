@@ -3,20 +3,8 @@ from FWCore.ParameterSet.Mixins import PrintOptions,_ParameterTypeBase,_SimplePa
 from FWCore.ParameterSet.SequenceTypes import _ModuleSequenceType, _Sequenceable
 from FWCore.ParameterSet.SequenceTypes import *
 from PhysicsTools.PatAlgos.tools.helpers import *
-## import a list of all supported btag infos
 from PhysicsTools.PatAlgos.recoLayer0.bTagging_cff import *
 import sys
-def addESProducers(process,config):
-	config = config.replace("/",".")
-	#import RecoBTag.Configuration.RecoBTag_cff as btag
-	#print btag
-	module = __import__(config)
-	for name in dir(sys.modules[config]):
-		item = getattr(sys.modules[config],name)
-		if isinstance(item,_Labelable) and not isinstance(item,_ModuleSequenceType) and not name.startswith('_') and not (name == "source" or name == "looper" or name == "subProcess") and not type(item) is cms.PSet:
-
-			if 'ESProducer' in item.type_():
-				setattr(process,name,item)
 
 
 class AddJetCollection(ConfigToolBase):
@@ -189,7 +177,7 @@ class AddJetCollection(ConfigToolBase):
         ## add new patJetPartonAssociation to process
         from PhysicsTools.PatAlgos.mcMatchLayer0.jetFlavourId_cff import patJetPartonAssociation
         if 'patJetPartonAssociation'+_labelName+postfix in knownModules :
-            _newPatJetPartonAssociation=getattr(process, 'patJetPartonAssociation'+_labelName+postfix, patJetPartonAssociation.clone(jets=jetSource))
+            _newPatJetPartonAssociation=getattr(process, 'patJetPartonAssociation'+_labelName+postfix)
             _newPatJetPartonAssociation.jets=jetSource
         else :
             setattr(process, 'patJetPartonAssociation'+_labelName+postfix, patJetPartonAssociation.clone(jets=jetSource))
@@ -197,7 +185,7 @@ class AddJetCollection(ConfigToolBase):
         ## add new patJetPartonAssociation to process
         from PhysicsTools.PatAlgos.mcMatchLayer0.jetFlavourId_cff import patJetFlavourAssociation
         if 'patJetFlavourAssociation'+_labelName+postfix in knownModules :
-            _newPatJetFlavourAssociation=getattr(process, 'patJetFlavourAssociation'+_labelName+postfix, patJetFlavourAssociation.clone(srcByReference='patJetPartonAssociation'+_labelName+postfix))
+            _newPatJetFlavourAssociation=getattr(process, 'patJetFlavourAssociation'+_labelName+postfix)
             _newPatJetFlavourAssociation.srcByReference='patJetPartonAssociation'+_labelName+postfix
         else:
             setattr(process, 'patJetFlavourAssociation'+_labelName+postfix, patJetFlavourAssociation.clone(srcByReference='patJetPartonAssociation'+_labelName+postfix))
@@ -264,23 +252,49 @@ class AddJetCollection(ConfigToolBase):
             ## setup all required btagInfos : we give a dedicated treatment for all five different
             ## types of tagINfos here. A common treatment is possible but might require a more
             ## general approach anyway in coordination with the btaggin POG.
-            for btagInfo in requiredTagInfos :
-                if 'impactParameterTagInfos' in btagInfo :
-                    setattr(process, btagInfo+_labelName+postfix, btag.impactParameterTagInfos.clone(jetTracks = cms.InputTag('jetTracksAssociatorAtVertex'+_labelName+postfix)))
-                if 'secondaryVertexTagInfos' in btagInfo :
-                    setattr(process, btagInfo+_labelName+postfix, btag.secondaryVertexTagInfos.clone(trackIPTagInfos = cms.InputTag('impactParameterTagInfos'+_labelName+postfix)))
-                if 'secondaryVertexNegativeTagInfos' in btagInfo :
-                    setattr(process, btagInfo+_labelName+postfix, btag.secondaryVertexNegativeTagInfos.clone(trackIPTagInfos = cms.InputTag('impactParameterTagInfos'+_labelName+postfix)))
-                if 'softElectronTagInfos' in btagInfo :
-                    setattr(process, btagInfo+_labelName+postfix, btag.softElectronTagInfos.clone(jets = cms.InputTag(_newJetCollection)))
-                if 'softMuonTagInfos' in btagInfo :
-                    setattr(process, btagInfo+_labelName+postfix, btag.softMuonTagInfos.clone(jets = cms.InputTag(_newJetCollection)))
+            acceptedTagInfos = list()
+            for btagInfo in requiredTagInfos:
+                if hasattr(btag,btagInfo):
+                    if btagInfo == 'impactParameterTagInfos':
+                        setattr(process, btagInfo+_labelName+postfix, btag.impactParameterTagInfos.clone(jetTracks = cms.InputTag('jetTracksAssociatorAtVertex'+_labelName+postfix)))
+                    if btagInfo == 'secondaryVertexTagInfos':
+                        setattr(process, btagInfo+_labelName+postfix, btag.secondaryVertexTagInfos.clone(trackIPTagInfos = cms.InputTag('impactParameterTagInfos'+_labelName+postfix)))
+                    if btagInfo == 'inclusiveSecondaryVertexFinderTagInfos':
+                        setattr(process, btagInfo+_labelName+postfix, btag.inclusiveSecondaryVertexFinderTagInfos.clone(trackIPTagInfos = cms.InputTag('impactParameterTagInfos'+_labelName+postfix)))
+                    if btagInfo == 'inclusiveSecondaryVertexFinderFilteredTagInfos':
+                        setattr(process, btagInfo+_labelName+postfix, btag.inclusiveSecondaryVertexFinderFilteredTagInfos.clone(trackIPTagInfos = cms.InputTag('impactParameterTagInfos'+_labelName+postfix)))
+                    if btagInfo == 'secondaryVertexNegativeTagInfos':
+                        setattr(process, btagInfo+_labelName+postfix, btag.secondaryVertexNegativeTagInfos.clone(trackIPTagInfos = cms.InputTag('impactParameterTagInfos'+_labelName+postfix)))
+                    if btagInfo == 'softMuonTagInfos':
+                        setattr(process, btagInfo+_labelName+postfix, btag.softMuonTagInfos.clone(jets = jetSource))
+                    if btagInfo == 'softPFMuonsTagInfos':
+                        setattr(process, btagInfo+_labelName+postfix, btag.softPFMuonsTagInfos.clone(jets = jetSource))
+                    if btagInfo == 'softPFElectronsTagInfos':
+                        setattr(process, btagInfo+_labelName+postfix, btag.softPFElectronsTagInfos.clone(jets = jetSource))
+                    acceptedTagInfos.append(btagInfo)
+                else:
+                    print '  --> %s ignored, since not available via RecoBTag.Configuration.RecoBTag_cff!'%(btagInfo)
             ## setup all required btagDiscriminators
+            acceptedBtagDiscriminators = list()
             for btagDiscr in btagDiscriminators :
-                setattr(process, btagDiscr+_labelName+postfix, getattr(btag, btagDiscr).clone(tagInfos = cms.VInputTag( *[ cms.InputTag(x+_labelName+postfix) for x in supportedBtagDiscr[btagDiscr] ] )))
+                if hasattr(btag,btagDiscr):
+                    setattr(process, btagDiscr+_labelName+postfix, getattr(btag, btagDiscr).clone(tagInfos = cms.VInputTag( *[ cms.InputTag(x+_labelName+postfix) for x in supportedBtagDiscr[btagDiscr] ] )))
+                    acceptedBtagDiscriminators.append(btagDiscr)
+                else:
+                    print '  --> %s ignored, since not available via RecoBTag.Configuration.RecoBTag_cff!'%(btagDiscr)
             ## replace corresponding tags for pat jet production
-            _newPatJets.tagInfoSources = cms.VInputTag( *[ cms.InputTag(x+_labelName+postfix) for x in btagInfos ] )
-            _newPatJets.discriminatorSources = cms.VInputTag( *[ cms.InputTag(x+_labelName+postfix) for x in btagDiscriminators ] )
+            _newPatJets.tagInfoSources = cms.VInputTag( *[ cms.InputTag(x+_labelName+postfix) for x in acceptedTagInfos ] )
+            _newPatJets.discriminatorSources = cms.VInputTag( *[ cms.InputTag(x+_labelName+postfix) for x in acceptedBtagDiscriminators ] )
+            if 'inclusiveSecondaryVertexFinderTagInfos' in acceptedTagInfos:
+                if not hasattr( process, 'inclusiveVertexing' ):
+                    process.load( 'RecoVertex.AdaptiveVertexFinder.inclusiveVertexing_cff' )
+            if 'inclusiveSecondaryVertexFinderFilteredTagInfos' in acceptedTagInfos:
+                if not hasattr( process, 'inclusiveVertexing' ):
+                    process.load( 'RecoVertex.AdaptiveVertexFinder.inclusiveVertexing_cff' )
+                if not hasattr( process, 'inclusiveMergedVerticesFiltered' ):
+                    process.load( 'RecoBTag.SecondaryVertex.secondaryVertex_cff' )
+                if not hasattr( process, 'bToCharmDecayVertexMerged' ):
+                    process.load( 'RecoBTag.SecondaryVertex.bToCharmDecayVertexMerger_cfi' )
         else:
             _newPatJets.addBTagInfo = False
             ## adjust output module; these collections will be empty anyhow, but we do it to stay clean
@@ -368,8 +382,7 @@ class AddJetCollection(ConfigToolBase):
                 setattr(process, jetCorrections[0]+'CombinedCorrector', cms.ESProducer( 'JetCorrectionESChain', correctors = cms.vstring()))
                 for x in jetCorrections[1]:
                     if x != 'L1FastJet' and x != 'L1Offset' and x != 'L2Relative' and x != 'L3Absolute' and x != 'L2L3Residual':
-                        raise ValueError, 'In addJetCollection: Unsupported JEC for MET(Type1). Currently supported jet correction levels are L1FastJet, L1Offset, L2Relative, \
-                        L3Asolute, L2L3Residual. Requested was:', x
+                        raise ValueError, 'In addJetCollection: Unsupported JEC for MET(Type1). Currently supported jet correction levels are L1FastJet, L1Offset, L2Relative, L3Asolute, L2L3Residual. Requested was: %s'%(x)
                     else:
                         getattr(process, jetCorrections[0]+'CombinedCorrector').correctors.append(jetCorrections[0]+x)
 

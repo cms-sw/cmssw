@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb  6 16:17:10 CST 2012
-// $Id: EarlyDeleteHelper.cc,v 1.1 2012/02/09 22:12:56 chrjones Exp $
+// $Id$
 //
 
 // system include files

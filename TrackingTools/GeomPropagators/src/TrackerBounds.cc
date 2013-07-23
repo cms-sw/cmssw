@@ -6,8 +6,8 @@
 #include "DataFormats/GeometrySurface/interface/SimpleDiskBounds.h"
 
 //Ported from ORCA
-//  $Date: 2012/12/25 14:24:26 $
-//  $Revision: 1.4 $
+//  $Date: 2007/03/07 16:28:42 $
+//  $Revision: 1.3 $
 
 void TrackerBounds::initialize() 
 {

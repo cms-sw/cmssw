@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: ForwardMeasurementEstimator.cc,v 1.22 2012/05/25 15:09:18 muzaffar Exp $
+// $Id: ForwardMeasurementEstimator.cc,v 1.21 2010/09/21 17:06:14 chamont Exp $
 //
 //
 #include "RecoEgamma/EgammaElectronAlgos/interface/ForwardMeasurementEstimator.h"

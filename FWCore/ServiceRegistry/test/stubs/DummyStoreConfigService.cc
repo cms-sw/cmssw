@@ -14,7 +14,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Mar 12 15:41:10 CST 2010
-// $Id: DummyStoreConfigService.cc,v 1.1 2010/03/12 22:48:22 chrjones Exp $
+// $Id$
 //
 
 // system include files

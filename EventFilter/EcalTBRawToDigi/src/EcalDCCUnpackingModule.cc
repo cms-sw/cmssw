@@ -1,7 +1,7 @@
 /* \file EcalDCCUnpackingModule.h
  *
- *  $Date: 2012/09/12 18:18:44 $
- *  $Revision: 1.45 $
+ *  $Date: 2009/12/14 22:22:37 $
+ *  $Revision: 1.44 $
  *  \author N. Marinelli
  *  \author G. Della Ricca
  *  \author G. Franzoni

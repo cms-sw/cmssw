@@ -107,12 +107,15 @@ void SiStripDigitizer::accumulateStripHits(edm::Handle<std::vector<PSimHit> > hS
       unsigned int detId = (*it).detUnitId();
       if(detIds.insert(detId).second) {
         // The insert succeeded, so this detector element has not yet been processed.
-        StripGeomDetUnit* stripdet = detectorUnits[detId];
-        //access to magnetic field in global coordinates
-        GlobalVector bfield = pSetup->inTesla(stripdet->surface().position());
-        LogDebug ("Digitizer ") << "B-field(T) at " << stripdet->surface().position() << "(cm): "
-                                << pSetup->inTesla(stripdet->surface().position());
-        theDigiAlgo->accumulateSimHits(it, itEnd, globalSimHitIndex, stripdet, bfield, tTopo);
+	unsigned int isub = DetId(detId).subdetId();
+        if((isub == StripSubdetector::TIB) || (isub == StripSubdetector::TID) || (isub == StripSubdetector::TOB) || (isub == StripSubdetector::TEC)) {
+	  StripGeomDetUnit* stripdet = detectorUnits[detId];
+	  //access to magnetic field in global coordinates
+	  GlobalVector bfield = pSetup->inTesla(stripdet->surface().position());
+	  LogDebug ("Digitizer ") << "B-field(T) at " << stripdet->surface().position() << "(cm): "
+				  << pSetup->inTesla(stripdet->surface().position());
+	  theDigiAlgo->accumulateSimHits(it, itEnd, globalSimHitIndex, stripdet, bfield, tTopo);
+	}
       }
     } // end of loop over sim hits
   }

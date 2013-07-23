@@ -1,5 +1,5 @@
 //
-// $Id: Top_Decaykin.cc,v 1.2 2013/05/28 17:55:59 gartung Exp $
+// $Id: Top_Decaykin.cc,v 1.1 2011/05/26 09:47:00 mseidel Exp $
 //
 // File: src/Top_Decaykin.cc
 // Purpose: Calculate some kinematic quantities for ttbar events.

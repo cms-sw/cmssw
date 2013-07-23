@@ -31,7 +31,7 @@
  * in ORCA).
  * Porting from ORCA by S. Valuev (Slava.Valuev@cern.ch), May 2006.
  *
- * $Id: CSCMotherboard.h,v 1.16 2012/12/05 21:14:22 khotilov Exp $
+ * $Id: CSCMotherboard.h,v 1.15.2.2 2012/10/18 04:59:25 khotilov Exp $
  *
  */
 

@@ -3,7 +3,7 @@
 
 /** \class CSCDCCStatusDigiCollection
  *
- *  $Date: 2007/05/21 20:06:55 $
+ *  $Date: 2007/03/29 16:04:42 $
  *  $Revision: 1.1 $
  */
 

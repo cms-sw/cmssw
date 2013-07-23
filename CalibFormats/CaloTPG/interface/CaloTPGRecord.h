@@ -16,7 +16,7 @@
 //
 // Author:      
 // Created:     Wed Sep 13 19:20:14 CDT 2006
-// $Id: CaloTPGRecord.h,v 1.1 2006/09/14 16:24:10 mansj Exp $
+// $Id$
 //
 
 #include "FWCore/Framework/interface/EventSetupRecordImplementation.h"

@@ -1,4 +1,4 @@
-// $Id: FastPrunePlugin.hh,v 1.1 2011/04/25 04:19:54 srappocc Exp $
+// $Id: FastPrunePlugin.hh 984 2010-12-20 22:35:41Z verm $
 ///////////////////////////////////////////////////////////////////////////////
 //
 // Defines the FastPrune Plugin to FastJet.  This is the "pruned" version of

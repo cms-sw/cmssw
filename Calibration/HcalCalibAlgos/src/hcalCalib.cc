@@ -6,7 +6,7 @@
 //  Anton Anastassov (Northwestern)
 //  Email: aa@fnal.gov
 //
-// $Id: hcalCalib.cc,v 1.9 2012/11/12 21:08:18 dlange Exp $
+// $Id: hcalCalib.cc,v 1.8 2010/10/03 20:38:58 elmer Exp $
 //
 
 #include "Calibration/HcalCalibAlgos/interface/hcalCalib.h"

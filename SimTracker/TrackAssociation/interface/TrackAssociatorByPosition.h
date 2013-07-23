@@ -4,8 +4,8 @@
 /** \class TrackAssociatorByPosition
  *  Class that performs the association of reco::Tracks and TrackingParticles based on position in muon detector
  *
- *  $Date: 2010/10/12 12:10:00 $
- *  $Revision: 1.11 $
+ *  $Date: 2010/05/18 15:40:39 $
+ *  $Revision: 1.10 $
  *  \author vlimant
  */
 

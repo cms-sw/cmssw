@@ -3,8 +3,8 @@
 \author Fedor Ratnikov (UMd)
 POOL object to store pedestal values 4xCapId
 $Author: ratnikov
-$Date: 2013/03/25 16:23:33 $
-$Revision: 1.8 $
+$Date: 2012/11/03 15:54:18 $
+$Revision: 1.7 $
 */
 #include "CondFormats/HcalObjects/interface/HcalQIEShape.h"
 

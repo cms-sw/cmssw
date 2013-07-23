@@ -1,5 +1,5 @@
 import FWCore.ParameterSet.Config as cms
-# $Id: pfChargedMET_cfi.py,v 1.2 2013/03/27 22:50:50 sakuma Exp $
+# $Id: $
 
 ##____________________________________________________________________________||
 particleFlowForChargedMET = cms.EDProducer(

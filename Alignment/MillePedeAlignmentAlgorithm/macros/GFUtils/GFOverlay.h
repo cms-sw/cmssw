@@ -7,7 +7,7 @@
 
 //   Author:      Gero Flucke
 //   Date:        October 2007
-//   last update: $Date: 2013/04/12 07:06:17 $  
+//   last update: $Date: 2012/03/29 08:48:50 $  
 //   by:          $Author: flucke $
 //
 // Class to overlay hists with same names from (several) different files.

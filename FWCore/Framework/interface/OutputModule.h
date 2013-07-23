@@ -36,7 +36,7 @@ namespace edm {
   class OutputModule : public EDConsumerBase {
   public:
     template <typename T> friend class WorkerT;
-    friend class OutputWorker;
+    friend class ClassicOutputModuleCommunicator;
     typedef OutputModule ModuleType;
     typedef OutputWorker WorkerType;
 
@@ -221,7 +221,7 @@ namespace edm {
 
     virtual bool isFileOpen() const { return true; }
 
-    virtual void doOpenFile() { }
+    virtual void reallyOpenFile() {}
 
     void setModuleDescription(ModuleDescription const& md) {
       moduleDescription_ = md;

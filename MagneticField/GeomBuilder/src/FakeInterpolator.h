@@ -5,8 +5,8 @@
  *
  *  Fake field interpolator, that always return B=0.
  *
- *  $Date: 2009/03/03 12:57:19 $
- *  $Revision: 1.1 $
+ *  $Date: $
+ *  $Revision: $
  *  \author N. Amapane - CERN
  */
 

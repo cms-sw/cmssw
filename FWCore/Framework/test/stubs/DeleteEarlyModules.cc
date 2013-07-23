@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Feb  7 15:36:37 CST 2012
-// $Id: DeleteEarlyModules.cc,v 1.1 2012/02/09 22:12:57 chrjones Exp $
+// $Id$
 //
 
 // system include files
@@ -44,7 +44,9 @@ namespace edmtest {
   public:
     DeleteEarlyReader(edm::ParameterSet const& pset):
     m_tag(pset.getUntrackedParameter<edm::InputTag>("tag"))
-    {}
+    {
+      consumes<DeleteEarly>(m_tag);
+    }
     
     virtual void analyze(edm::Event const& e, edm::EventSetup const& ) {
       edm::Handle<DeleteEarly> h;

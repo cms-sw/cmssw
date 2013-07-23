@@ -1,5 +1,5 @@
 //
-// $Id: PATUserDataMerger.h,v 1.11 2013/02/27 23:26:56 wmtan Exp $
+// $Id: PATUserDataMerger.h,v 1.10 2011/10/26 17:01:25 vadler Exp $
 //
 
 #ifndef PhysicsTools_PatAlgos_PATUserDataMerger_h
@@ -18,7 +18,7 @@
 		cases.
 
   \author   Salvatore Rappoccio
-  \version  $Id: PATUserDataMerger.h,v 1.11 2013/02/27 23:26:56 wmtan Exp $
+  \version  $Id: PATUserDataMerger.h,v 1.10 2011/10/26 17:01:25 vadler Exp $
 */
 
 #include "FWCore/Framework/interface/EDProducer.h"

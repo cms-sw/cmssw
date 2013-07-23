@@ -5,7 +5,7 @@
  *
  *  Original Authors: Jim Kowalkowski 13-01-06
  *                    Martin Grunewald
- *  $Id: TriggerResults.h,v 1.12 2008/09/05 20:02:40 wdd Exp $
+ *  $Id: TriggerResults.h,v 1.10 2008/05/16 00:29:10 paterno Exp $
  *
  *  The trigger path results are maintained here as a sequence of
  *  entries, one per trigger path.  They are assigned in the order

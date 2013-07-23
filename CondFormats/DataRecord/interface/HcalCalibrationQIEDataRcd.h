@@ -16,7 +16,7 @@
 //
 // Author:      
 // Created:     Sat Mar  1 15:49:07 CET 2008
-// $Id: HcalCalibrationQIEDataRcd.h,v 1.2 2012/11/12 21:13:54 dlange Exp $
+// $Id: HcalCalibrationQIEDataRcd.h,v 1.1 2008/03/03 16:56:47 rofierzy Exp $
 //
 
 #include "FWCore/Framework/interface/DependentRecordImplementation.h"

@@ -6,8 +6,8 @@
  *  
  *  This class is an EDProducer making the HLT summary object for AOD
  *
- *  $Date: 2012/08/09 20:00:18 $
- *  $Revision: 1.17 $
+ *  $Date: 2010/11/09 13:58:42 $
+ *  $Revision: 1.16 $
  *
  *  \author Martin Grunewald
  *

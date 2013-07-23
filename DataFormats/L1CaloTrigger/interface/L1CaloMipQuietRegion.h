@@ -10,8 +10,8 @@
 * \brief Miniumum Ionising Particle (MIP) and Quiet bits for a calorimeter trigger region.
 * 
 * \author Robert Frazier
-* $Revision: 1.2 $
-* $Date: 2008/02/22 14:33:54 $
+* $Revision: 1.1 $
+* $Date: 2008/02/22 13:54:32 $
 */ 
 
 class L1CaloMipQuietRegion

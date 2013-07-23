@@ -8,14 +8,16 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue, 02 Apr 2013 21:36:06 GMT
-// $Id: EDConsumerBase.cc,v 1.5 2013/06/04 14:59:02 wdd Exp $
+// $Id: EDConsumerBase.cc,v 1.6 2013/06/07 17:58:32 chrjones Exp $
 //
 
 // system include files
 #include <cassert>
+#include <utility>
 
 // user include files
 #include "FWCore/Framework/interface/EDConsumerBase.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Utilities/interface/Likely.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "DataFormats/Provenance/interface/ProductHolderIndexHelper.h"
@@ -61,6 +63,12 @@ EDConsumerBase::~EDConsumerBase()
 //
 // member functions
 //
+ConsumesCollector
+EDConsumerBase::consumesCollector() {
+  ConsumesCollector c{this};
+  return std::move(c);
+}
+
 
 unsigned int
 EDConsumerBase::recordConsumes(BranchType iBranch, TypeToGet const& iType, edm::InputTag const& iTag, bool iAlwaysGets) {
@@ -115,13 +123,15 @@ EDConsumerBase::updateLookup(BranchType iBranchType,
     auto itLabels = m_tokenInfo.begin<kLabels>();
     for(auto itInfo = m_tokenInfo.begin<kLookupInfo>(),itEnd = m_tokenInfo.end<kLookupInfo>();
         itInfo != itEnd; ++itInfo,++itKind,++itLabels) {
-      const unsigned int labelStart = itLabels->m_startOfModuleLabel;
-      const char* moduleLabel = &(m_tokenLabels[labelStart]);
-      itInfo->m_index = iHelper.index(*itKind,
-                                      itInfo->m_type,
-                                      moduleLabel,
-                                      moduleLabel+itLabels->m_deltaToProductInstance,
-                                      moduleLabel+itLabels->m_deltaToProcessName);
+      if(itInfo->m_branchType == iBranchType) {
+        const unsigned int labelStart = itLabels->m_startOfModuleLabel;
+        const char* moduleLabel = &(m_tokenLabels[labelStart]);
+        itInfo->m_index = iHelper.index(*itKind,
+                                        itInfo->m_type,
+                                        moduleLabel,
+                                        moduleLabel+itLabels->m_deltaToProductInstance,
+                                        moduleLabel+itLabels->m_deltaToProcessName);
+      }
     }
   }
   
@@ -260,6 +270,52 @@ EDConsumerBase::labelsForToken(EDGetToken iToken, Labels& oLabels) const
   oLabels.module = &(m_tokenLabels[start]);
   oLabels.productInstance = oLabels.module+labels.m_deltaToProductInstance;
   oLabels.process = oLabels.module+labels.m_deltaToProcessName;
+}
+
+bool
+EDConsumerBase::registeredToConsume(ProductHolderIndex iIndex, BranchType iBranch) const
+{
+  for(auto it = m_tokenInfo.begin<kLookupInfo>(),
+      itEnd = m_tokenInfo.end<kLookupInfo>();
+      it != itEnd; ++it) {
+    if(it->m_index == iIndex and
+       it->m_branchType == iBranch) {
+      return true;
+    }
+  }
+  //TEMPORARY: Remember so we do not have to do this again
+  //non thread-safe
+  EDConsumerBase* nonConstThis = const_cast<EDConsumerBase*>(this);
+  nonConstThis->m_tokenInfo.emplace_back(TokenLookupInfo{TypeID{},iIndex,iBranch},
+                                         true,
+                                         LabelPlacement{0,0,0},
+                                         PRODUCT_TYPE);
+
+  return false;
+}
+
+bool
+EDConsumerBase::registeredToConsumeMany(TypeID const& iType, BranchType iBranch) const
+{
+  for(auto it = m_tokenInfo.begin<kLookupInfo>(),
+      itEnd = m_tokenInfo.end<kLookupInfo>();
+      it != itEnd; ++it) {
+    //consumesMany entries do not have their index resolved
+    if(it->m_index == ProductHolderIndexInvalid and
+       it->m_type == iType and
+       it->m_branchType == iBranch) {
+      return true;
+    }
+  }
+  //TEMPORARY: Remember so we do not have to do this again
+  //non thread-safe
+  EDConsumerBase* nonConstThis = const_cast<EDConsumerBase*>(this);
+  nonConstThis->m_tokenInfo.emplace_back(TokenLookupInfo{iType,ProductHolderIndexInvalid,iBranch},
+                           true,
+                           LabelPlacement{0,0,0},
+                           PRODUCT_TYPE);
+  return false;
+  
 }
 
 

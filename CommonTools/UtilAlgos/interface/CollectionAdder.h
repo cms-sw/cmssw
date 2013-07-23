@@ -4,7 +4,7 @@
  * 
  * \author Luca Lista, INFN
  * 
- * \version $Id: CollectionAdder.h,v 1.4 2013/02/28 00:34:12 wmtan Exp $
+ * \version $Id: CollectionAdder.h,v 1.3 2010/02/20 20:55:17 wmtan Exp $
  */
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"

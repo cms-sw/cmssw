@@ -1,5 +1,5 @@
 //
-// $Id: PATCompositeCandidateProducer.h,v 1.4 2013/02/27 23:26:56 wmtan Exp $
+// $Id: PATCompositeCandidateProducer.h,v 1.3 2009/06/25 23:49:35 gpetrucc Exp $
 //
 
 #ifndef PhysicsTools_PatAlgos_PATCompositeCandidateProducer_h
@@ -13,7 +13,7 @@
    any collection of Candidates
 
   \author   Salvatore Rappoccio
-  \version  $Id: PATCompositeCandidateProducer.h,v 1.4 2013/02/27 23:26:56 wmtan Exp $
+  \version  $Id: PATCompositeCandidateProducer.h,v 1.3 2009/06/25 23:49:35 gpetrucc Exp $
 */
 
 

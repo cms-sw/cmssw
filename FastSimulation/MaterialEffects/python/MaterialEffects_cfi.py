@@ -188,6 +188,8 @@ MaterialEffectsForMuonsBlock = cms.PSet(
 MaterialEffectsForMuonsInECALBlock = cms.PSet(
     MaterialEffectsForMuonsInECAL = cms.PSet(
 
+        use_hardcoded_geometry = cms.bool(True),
+
 	# Material Properties (PbW04 - this is for muons)
 	# A
         A = cms.double(55.8455),
@@ -224,6 +226,8 @@ MaterialEffectsForMuonsInECALBlock = cms.PSet(
 
 MaterialEffectsForMuonsInHCALBlock = cms.PSet(
     MaterialEffectsForMuonsInHCAL = cms.PSet(
+
+        use_hardcoded_geometry = cms.bool(True),
 
 	# Material Properties (BRASS - this is for muons)
 	# A

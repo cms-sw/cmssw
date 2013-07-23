@@ -87,6 +87,7 @@ namespace edmtest
     expected_pathname_(ps.getUntrackedParameter<std::string>("pathname", "")),
     expected_modulelabel_(ps.getUntrackedParameter<std::string>("modlabel", ""))
   {
+    consumesMany<edm::TriggerResults>();
   }
     
   TestResultAnalyzer::~TestResultAnalyzer()

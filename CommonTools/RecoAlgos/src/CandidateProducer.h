@@ -7,9 +7,9 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Revision: 1.5 $
+ * \version $Revision: 1.4 $
  *
- * $Id: CandidateProducer.h,v 1.5 2013/02/28 00:15:23 wmtan Exp $
+ * $Id: CandidateProducer.h,v 1.4 2010/02/11 00:10:53 wmtan Exp $
  *
  */
 #include "FWCore/Utilities/interface/InputTag.h"

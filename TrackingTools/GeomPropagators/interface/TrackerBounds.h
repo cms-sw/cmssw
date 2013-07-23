@@ -19,8 +19,8 @@ class Disk;
  *  Outside of this volume use some kind of geane.
 
  *  Ported from ORCA
- *  $Date: 2012/12/25 14:24:26 $
- *  $Revision: 1.5 $
+ *  $Date: 2007/03/07 16:28:40 $
+ *  $Revision: 1.4 $
  */
 
 class TrackerBounds {

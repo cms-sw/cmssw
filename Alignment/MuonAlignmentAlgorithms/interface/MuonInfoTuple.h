@@ -1,8 +1,8 @@
 #ifndef Alignment_MuonAlignmentAlgorithms_MuonInfoTuple_H
 #define Alignment_MuonAlignmentAlgorithms_MuonInfoTuple_H
 
-/*  $Date: 2010/02/25 11:33:32 $
- *  $Revision: 1.2 $
+/*  $Date$
+ *  $Revision: 1.3 $
  *  \author Luca Scodellaro <Luca.Scodellaro@cern.ch>
  */
 

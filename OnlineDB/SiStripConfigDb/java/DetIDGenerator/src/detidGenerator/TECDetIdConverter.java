@@ -7,12 +7,9 @@ package detidGenerator;
 **/
 
 /*
-  $Date: 2007/03/22 20:46:49 $
+  $Date: 2006/08/30 15:21:12 $
   
   $Log: TECDetIdConverter.java,v $
-  Revision 1.3  2007/03/22 20:46:49  gbaulieu
-  New numbering of Det ID
-
   Revision 1.2  2006/08/30 15:21:12  gbaulieu
   Add the TOB analyzer
 

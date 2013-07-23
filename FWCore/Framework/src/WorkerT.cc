@@ -31,7 +31,7 @@ namespace edm{
   template<typename T>
   inline
   bool
-  WorkerT<T>::implDoBegin(EventPrincipal& ep, EventSetup const& c, CurrentProcessingContext const* cpc) {
+  WorkerT<T>::implDo(EventPrincipal& ep, EventSetup const& c, CurrentProcessingContext const* cpc) {
     UnscheduledHandlerSentry s(getUnscheduledHandler(ep), cpc);
     boost::shared_ptr<Worker> sentry(this,[&ep](Worker* obj) {obj->postDoEvent(ep);});
     return module_->doEvent(ep, c, cpc);
@@ -40,15 +40,24 @@ namespace edm{
   template<typename T>
   inline
   bool
-  WorkerT<T>::implDoEnd(EventPrincipal&, EventSetup const&, CurrentProcessingContext const*) {
-    return false;
+  WorkerT<T>::implDoBegin(RunPrincipal& rp, EventSetup const& c, CurrentProcessingContext const* cpc) {
+    module_->doBeginRun(rp, c, cpc);
+    return true;
   }
   
   template<typename T>
   inline
   bool
-  WorkerT<T>::implDoBegin(RunPrincipal& rp, EventSetup const& c, CurrentProcessingContext const* cpc) {
-    module_->doBeginRun(rp, c, cpc);
+  WorkerT<T>::implDoStreamBegin(StreamID id, RunPrincipal& rp, EventSetup const& c, CurrentProcessingContext const* cpc) {
+    //module_->doStreamBeginRun(id, rp, c, cpc);
+    return true;
+  }
+  
+  template<typename T>
+  inline
+  bool
+  WorkerT<T>::implDoStreamEnd(StreamID id, RunPrincipal& rp, EventSetup const& c, CurrentProcessingContext const* cpc) {
+    //module_->doStreamEndRun(id, rp, c, cpc);
     return true;
   }
   
@@ -65,6 +74,22 @@ namespace edm{
   bool
   WorkerT<T>::implDoBegin(LuminosityBlockPrincipal& lbp, EventSetup const& c, CurrentProcessingContext const* cpc) {
     module_->doBeginLuminosityBlock(lbp, c, cpc);
+    return true;
+  }
+  
+  template<typename T>
+  inline
+  bool
+  WorkerT<T>::implDoStreamBegin(StreamID id, LuminosityBlockPrincipal& lbp, EventSetup const& c, CurrentProcessingContext const* cpc) {
+    //module_->doStreamBeginLuminosityBlock(id, lbp, c, cpc);
+    return true;
+  }
+  
+  template<typename T>
+  inline
+  bool
+  WorkerT<T>::implDoStreamEnd(StreamID id, LuminosityBlockPrincipal& lbp, EventSetup const& c, CurrentProcessingContext const* cpc) {
+    //module_->doStreamEndLuminosityBlock(id, lbp, c, cpc);
     return true;
   }
   
@@ -97,6 +122,20 @@ namespace edm{
     module_->doEndJob();
   }
   
+  template<typename T>
+  inline
+  void
+  WorkerT<T>::implBeginStream(StreamID id) {
+    //module_->doBeginStream(id);
+  }
+  
+  template<typename T>
+  inline
+  void
+  WorkerT<T>::implEndStream(StreamID id) {
+    //module_->doEndStream(id);
+  }
+
   template<typename T>
   inline
   void
@@ -144,19 +183,6 @@ namespace edm{
   void WorkerT<T>::updateLookup(BranchType iBranchType,
                                 ProductHolderIndexHelper const& iHelper) {
     module_->updateLookup(iBranchType,iHelper);
-  }
-
-  template<typename T>
-  void WorkerT<T>::setEventSelectionInfo(std::map<std::string, std::vector<std::pair<std::string, int> > > const& outputModulePathPositions,
-                             bool anyProductProduced) {
-    //do nothing for the regular case
-  }
-
-
-  template<>
-  void WorkerT<OutputModule>::setEventSelectionInfo(std::map<std::string, std::vector<std::pair<std::string, int> > > const& outputModulePathPositions,
-                             bool anyProductProduced) {
-    module_->setEventSelectionInfo(outputModulePathPositions, anyProductProduced);
   }
 
   template<>

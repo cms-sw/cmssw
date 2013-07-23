@@ -4,8 +4,8 @@
 /*
  * \file EEClusterClient.h
  *
- * $Date: 2010/01/25 21:12:25 $
- * $Revision: 1.31 $
+ * $Date: 2009/12/12 10:30:23 $
+ * $Revision: 1.30 $
  * \author G. Della Ricca
  * \author F. Cossutti
  * \author E. Di Marco

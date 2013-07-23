@@ -420,7 +420,7 @@ namespace edm {
   }
 
   void OutputModule::maybeOpenFile() {
-    if(!isFileOpen()) doOpenFile();
+    if(!isFileOpen()) reallyOpenFile();
   }
 
   void OutputModule::doCloseFile() {

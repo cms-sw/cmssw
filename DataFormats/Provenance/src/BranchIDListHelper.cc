@@ -35,7 +35,7 @@ namespace edm {
   }
 
   void
-  BranchIDListHelper::updateRegistries(ProductRegistry const& preg) {
+  BranchIDListHelper::updateRegistries(ProductRegistry& preg) {
     BranchIDList bidlist;
     // Add entries for current process for ProductID to BranchID mapping.
     for(ProductRegistry::ProductList::const_iterator it = preg.productList().begin(), itEnd = preg.productList().end();

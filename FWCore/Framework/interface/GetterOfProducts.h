@@ -125,7 +125,7 @@ namespace edm {
 
       template <typename U, typename M>
       GetterOfProducts(U const& match, M* module, edm::BranchType branchType = edm::InEvent) : 
-        matcher_(WillGetIfMatch<T, M>(match, module)),
+        matcher_(WillGetIfMatch<T>(match, module)),
         inputTags_(new std::vector<edm::InputTag>),
         branchType_(branchType) {
       }

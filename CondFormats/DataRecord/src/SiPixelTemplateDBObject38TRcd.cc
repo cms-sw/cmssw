@@ -8,7 +8,7 @@
 //
 // Author:      
 // Created:     Mon Sep 28 15:40:47 CEST 2009
-// $Id: SiPixelTemplateDBObject38TRcd.cc,v 1.1 2009/10/19 15:22:58 dfehling Exp $
+// $Id$
 
 #include "CondFormats/DataRecord/interface/SiPixelTemplateDBObject38TRcd.h"
 #include "FWCore/Framework/interface/eventsetuprecord_registration_macro.h"

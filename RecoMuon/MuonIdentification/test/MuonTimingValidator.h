@@ -4,8 +4,8 @@
 /** \class MuonTimingValidator
  *  Analyzer of the timing information in the reco::Muon object
  *
- *  $Date: 2010/03/25 14:08:50 $
- *  $Revision: 1.6 $
+ *  $Date: 2010/01/15 14:07:32 $
+ *  $Revision: 1.5 $
  *  \author P. Traczyk    CERN
  */
 

@@ -1,9 +1,9 @@
 /** \file AlignmentParameterSelector.cc
  *  \author Gero Flucke, Nov. 2006
  *
- *  $Date: 2013/01/07 20:56:25 $
- *  $Revision: 1.21 $
- *  (last update by $Author: wmtan $)
+ *  $Date: 2010/11/22 08:40:09 $
+ *  $Revision: 1.20 $
+ *  (last update by $Author: mussgill $)
  */
 
 #include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentParameterSelector.h"

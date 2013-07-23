@@ -16,7 +16,7 @@
 //
 // Author:      
 // Created:     Fri Aug 17 08:18:51 CDT 2007
-// $Id: PixelCPEParmErrorsRcd.h,v 1.1 2007/08/20 08:40:35 chiochia Exp $
+// $Id$
 //
 
 #include "FWCore/Framework/interface/EventSetupRecordImplementation.h"

@@ -38,6 +38,7 @@ class HDShower
 	   HcalHitMaker* myHcalHitMaker,
 	   int onECAL, 
 	   double epart,
+	   double pmip,
            DQMStore * const dbeIn);
 
   int getmip() {return mip;}

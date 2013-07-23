@@ -13,7 +13,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Jun 24 14:33:04 EDT 2005
-// $Id: WhatsItESProducer.cc,v 1.12 2011/01/13 21:10:07 wdd Exp $
+// $Id: WhatsItESProducer.cc,v 1.11 2007/08/08 16:44:49 wmtan Exp $
 //
 //
 

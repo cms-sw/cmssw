@@ -23,8 +23,8 @@
 // * acceptance of all terms of the Geant4 Software license.          *
 // ********************************************************************
 //
-// $Id: HadronPhysicsQGSP_WP.h,v 1.5 2013/05/30 21:10:49 gartung Exp $
-// GEANT4 tag $Name: V04-05-02 $
+// $Id: HadronPhysicsQGSP_WP.h,v 1.4 2009/03/24 03:52:55 syjun Exp $
+// GEANT4 tag $Name: V04-05-01 $
 //
 //---------------------------------------------------------------------------
 //

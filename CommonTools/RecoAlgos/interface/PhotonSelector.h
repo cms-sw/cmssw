@@ -7,9 +7,9 @@
  * 
  * \author Luca Lista, INFN
  *
- * \version $Revision: 1.2 $
+ * \version $Revision: 1.1 $
  *
- * $Id: PhotonSelector.h,v 1.2 2013/02/28 00:14:22 wmtan Exp $
+ * $Id: PhotonSelector.h,v 1.1 2009/03/04 13:11:28 llista Exp $
  *
  */
 

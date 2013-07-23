@@ -3,7 +3,7 @@
    Test Modules for ScheduleBuilder
 
    \author Stefano ARGIRO
-   \version $Id: TestSchedulerModule1.cc,v 1.13 2007/08/07 22:34:20 wmtan Exp $
+   \version $Id: TestSchedulerModule1.cc,v 1.12 2007/01/12 21:07:59 wmtan Exp $
    \date 19 May 2005
 */
 
@@ -19,7 +19,7 @@
 
 using namespace edm;
 
-static const char CVSId[] = "$Id: TestSchedulerModule1.cc,v 1.13 2007/08/07 22:34:20 wmtan Exp $";
+static const char CVSId[] = "$Id: TestSchedulerModule1.cc,v 1.12 2007/01/12 21:07:59 wmtan Exp $";
 
 class TestSchedulerModule1 : public EDProducer
 {

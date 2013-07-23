@@ -6,7 +6,7 @@
    \brief    Selects PFCandidates basing on their compatibility with vertex
 
    \author   Giovanni Petrucciani
-   \version  $Id: IPCutPFCandidateSelectorDefinition.h,v 1.3 2013/05/24 01:49:49 srappocc Exp $
+   \version  $Id: IPCutPFCandidateSelectorDefinition.h,v 1.2 2011/04/06 12:12:38 rwolf Exp $
 */
 
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"

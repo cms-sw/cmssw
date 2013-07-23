@@ -15,6 +15,7 @@ is the DataBlock.
 
 #include "DataFormats/Provenance/interface/LuminosityBlockAuxiliary.h"
 #include "DataFormats/Provenance/interface/RunID.h"
+#include "FWCore/Utilities/interface/LuminosityBlockIndex.h"
 #include "FWCore/Framework/interface/Principal.h"
 
 #include "boost/shared_ptr.hpp"
@@ -35,7 +36,8 @@ namespace edm {
         boost::shared_ptr<LuminosityBlockAuxiliary> aux,
         boost::shared_ptr<ProductRegistry const> reg,
         ProcessConfiguration const& pc,
-        HistoryAppender* historyAppender);
+        HistoryAppender* historyAppender,
+        unsigned int index);
 
     ~LuminosityBlockPrincipal() {}
 
@@ -53,6 +55,10 @@ namespace edm {
       runPrincipal_ = rp;
     }
 
+    LuminosityBlockIndex index() const {
+      return index_;
+    }
+    
     LuminosityBlockID id() const {
       return aux().id();
     }
@@ -109,6 +115,8 @@ namespace edm {
 
     boost::shared_ptr<LuminosityBlockAuxiliary> aux_;
 
+    LuminosityBlockIndex index_;
+    
     bool complete_;
   };
 }

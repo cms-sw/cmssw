@@ -14,7 +14,6 @@
 <use   name="Geometry/CaloTopology"/>
 <use   name="RecoEcal/EgammaCoreTools"/>
 <use   name="HLTrigger/HLTcore"/>
-<use   name="sigcpp"/>
 <use   name="rootcore"/>
 <export>
   <lib   name="1"/>

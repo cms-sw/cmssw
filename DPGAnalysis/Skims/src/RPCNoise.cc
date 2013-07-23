@@ -13,7 +13,7 @@
 //
 // Original Author:  Michael Henry Schmitt
 //         Created:  Thu Oct 30 21:31:44 CET 2008
-// $Id: RPCNoise.cc,v 1.4 2013/02/27 20:17:14 wmtan Exp $
+// $Id: RPCNoise.cc,v 1.3 2010/08/07 14:55:55 wmtan Exp $
 //
 //
 // system include files

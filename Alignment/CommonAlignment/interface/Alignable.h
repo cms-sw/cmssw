@@ -18,9 +18,9 @@ class SurfaceDeformation;
  * Any Alignable object can be moved and rotated.
  * Also an alignment uncertainty can be set.
  *
- *  $Date: 2012/12/11 19:11:02 $
- *  $Revision: 1.37 $
- *  (last update by $Author: flucke $)
+ *  $Date: 2011/09/19 11:42:35 $
+ *  $Revision: 1.36 $
+ *  (last update by $Author: mussgill $)
  */
 
 class AlignmentParameters;

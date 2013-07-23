@@ -5,7 +5,7 @@
 // 
 // Original Authors:  R. Cavanaugh (taken from F.Ratnikov, UMd)
 //          Created:  June 6, 2006
-// $Id: GenSpecificAlgo.cc,v 1.11 2013/05/03 18:53:44 salee Exp $
+// $Id: GenSpecificAlgo.cc,v 1.10 2012/06/10 21:54:10 sakuma Exp $
 //
 //
 //____________________________________________________________________________||

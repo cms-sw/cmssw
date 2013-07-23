@@ -6,9 +6,9 @@
 ///
 ///  \author G. Flucke - DESY
 ///  date: July 2012
-///  $Revision: 1.1 $
-///  $Date: 2012/08/10 09:07:21 $
-///  (last update by $Author: flucke $)
+///  $Revision: 1.35 $
+///  $Date: 2011/09/06 13:46:07 $
+///  (last update by $Author: mussgill $)
 
 #include "FWCore/PluginManager/interface/PluginFactory.h"
 #include "Alignment/CommonAlignmentAlgorithm/interface/IntegratedCalibrationBase.h"

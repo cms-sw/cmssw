@@ -1154,9 +1154,6 @@ namespace // Unnamed namespace for things only used in this file
 					for( const auto& trackSegment : newTrackingParticle.g4Tracks() )
 					{
 						pBremParentTrackingParticle->addG4Track( trackSegment );
-						pBremParentTrackingParticle->setNumberOfHits(pBremParentTrackingParticle->numberOfHits()+newTrackingParticle.numberOfHits());
-						pBremParentTrackingParticle->setNumberOfTrackerHits(pBremParentTrackingParticle->numberOfTrackerHits()+newTrackingParticle.numberOfTrackerHits());
-						pBremParentTrackingParticle->setNumberOfTrackerLayers(pBremParentTrackingParticle->numberOfTrackerLayers()+newTrackingParticle.numberOfTrackerLayers());
 					}
 
 					// Also copy the generator particle references
@@ -1164,6 +1161,10 @@ namespace // Unnamed namespace for things only used in this file
 					{
 						pBremParentTrackingParticle->addGenParticle( genParticleRef );
 					}
+
+					pBremParentTrackingParticle->setNumberOfHits(pBremParentTrackingParticle->numberOfHits()+newTrackingParticle.numberOfHits());
+					pBremParentTrackingParticle->setNumberOfTrackerHits(pBremParentTrackingParticle->numberOfTrackerHits()+newTrackingParticle.numberOfTrackerHits());
+					pBremParentTrackingParticle->setNumberOfTrackerLayers(pBremParentTrackingParticle->numberOfTrackerLayers()+newTrackingParticle.numberOfTrackerLayers());
 
 					// Set a proxy in the output collection wrapper so that any attempt to get objects for
 					// this DecayChainTrack again get redirected to the brem parent.

@@ -81,7 +81,6 @@ HLTMuonMatchAndPlot::HLTMuonMatchAndPlot(const ParameterSet & pset,
   TPRegexp levelRegexp("L[1-3]");
   size_t nModules = moduleLabels_.size();
   TObjArray * levelArray = levelRegexp.MatchS(moduleLabels_[nModules - 1]);
-  std::cout << moduleLabels_[nModules - 1] << std::endl;
   if (levelArray->GetEntriesFast() > 0) {
     triggerLevel_ = ((TObjString *)levelArray->At(0))->GetString();
   }
