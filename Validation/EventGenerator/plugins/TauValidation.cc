@@ -2,7 +2,7 @@
  *  
  *  Class to fill dqm monitor elements from existing EDM file
  *
- 
+ */
 #include "Validation/EventGenerator/interface/TauValidation.h"
 
 #include "CLHEP/Units/defs.h"
