@@ -1,8 +1,7 @@
-
-
 GEMCode
 =======
 
+[TOC]
 
 Introduction
 ------------
