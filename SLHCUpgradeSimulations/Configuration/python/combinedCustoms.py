@@ -11,6 +11,7 @@ from SLHCUpgradeSimulations.Configuration.phase2TkCustoms_LB_4LPS_2L2S import l1
 from SLHCUpgradeSimulations.Configuration.customise_mixing import customise_NoCrossing
 from SLHCUpgradeSimulations.Configuration.phase1TkCustoms import customise as customisePhase1Tk
 from SLHCUpgradeSimulations.Configuration.HCalCustoms import customise_HcalPhase1, customise_HcalPhase0
+from SLHCUpgradeSimulations.Configuration.gemCustoms import customise as customise_gem
 
 import SLHCUpgradeSimulations.Configuration.aging as aging
 
@@ -52,6 +53,11 @@ def cust_2019(process):
     process=customisePhase1Tk(process)
     process=customise_HcalPhase1(process)
     process=fixRPCConditions(process)
+    return process
+
+def cust_2019WithGem(process):
+    process=cust_2019(process)
+    process=customise_gem(process)
     return process
 
 def noCrossing(process):
