@@ -90,29 +90,50 @@ PixelBarrelLayer::groupedCompatibleDetsV( const TrajectoryStateOnSurface& tsos,
 					   const MeasurementEstimator& est,
 					   std::vector<DetGroup> & result) const {
   vector<DetGroup> closestResult;
+  vector<DetGroup> otherResult;
+  vector<DetGroup> nextResult1;
+  vector<DetGroup> nextResult2;
+  vector<DetGroup> result1;
+  vector<DetGroup> result2;
+
   SubLayerCrossings  crossings;
   crossings = computeCrossings( tsos, prop.propagationDirection());
   if(! crossings.isValid()) return;  
   
   addClosest( tsos, prop, est, crossings.closest(), closestResult);
-  if (closestResult.empty()) {
-    addClosest( tsos, prop, est, crossings.other(), result);
-    return;
+  addClosest( tsos, prop, est, crossings.other(), otherResult);
+
+  // Fix for LongBarrel
+  //if (closestResult.empty()) {
+  //  addClosest( tsos, prop, est, crossings.other(), result);
+  //  return;
+  //}
+  if (closestResult.empty() && otherResult.empty()) {
+     return;
   }
+  // added to avoid seg fault when closestResult is empty:
+  if(closestResult.empty()) {
+     closestResult = otherResult;
+     otherResult.clear();
+  }
+  // End Fix for LongBarrel
 
   DetGroupElement closestGel( closestResult.front().front());
   float window = computeWindowSize( closestGel.det(), closestGel.trajectoryState(), est);
   
   searchNeighbors( tsos, prop, est, crossings.closest(), window,
-		   closestResult, false);
+		   nextResult1, false);
   
-  vector<DetGroup> nextResult;
   searchNeighbors( tsos, prop, est, crossings.other(), window,
-		   nextResult, true);
+		   nextResult2, true);
   
   int crossingSide = LayerCrossingSide().barrelSide( closestGel.trajectoryState(), prop);
-  DetGroupMerger::orderAndMergeTwoLevels( std::move(closestResult), std::move(nextResult), result, 
-					  crossings.closestIndex(), crossingSide);
+  DetGroupMerger::orderAndMergeTwoLevels(  std::move(closestResult),  std::move(otherResult), result1,
+                                          crossings.closestIndex(), crossingSide);
+  DetGroupMerger::orderAndMergeTwoLevels(  std::move(nextResult1),  std::move(result1), result2,
+                                          crossings.closestIndex(), crossingSide);
+  DetGroupMerger::orderAndMergeTwoLevels(  std::move(nextResult2),  std::move(result2), result,
+                                          crossings.closestIndex(), crossingSide);
 }
 
 
@@ -223,14 +244,16 @@ void PixelBarrelLayer::searchNeighbors( const TrajectoryStateOnSurface& tsos,
   int negStartIndex = closestIndex-1;
   int posStartIndex = closestIndex+1;
 
-  if (checkClosest) { // must decide if the closest is on the neg or pos side
-    if ( PhiLess()( gCrossingPos.phi(), sLayer[closestIndex]->position().phi())) {
-      posStartIndex = closestIndex;
-    }
-    else {
-      negStartIndex = closestIndex;
-    }
-  }
+  // Fix for LongBarrel
+  //if (checkClosest) { // must decide if the closest is on the neg or pos side
+  //  if ( PhiLess()( gCrossingPos.phi(), sLayer[closestIndex]->position().phi())) {
+  //    posStartIndex = closestIndex;
+  //  }
+  //  else {
+  //    negStartIndex = closestIndex;
+  //  }
+  //}
+  // End Fix for LongBarrel
 
   const BinFinderType& binFinder = (crossing.subLayerIndex()==0 ? theInnerBinFinder : theOuterBinFinder);
 

@@ -27,11 +27,11 @@ PixelBarrelLayer* PixelBarrelLayerBuilder::build(const GeometricDet* aPixelBarre
     meanR/=(double) theGeometricDetRods.size();
   
   for(unsigned int index=0; index!=theGeometricDetRods.size(); index++){    
-    if(theGeometricDetRods[index]->positionBounds().perp() < meanR)
+//    if(theGeometricDetRods[index]->positionBounds().perp() < meanR)
       theInnerRods.push_back(myPixelRodBuilder.build(theGeometricDetRods[index],
 						     theGeomDetGeometry)    );       
 
-    if(theGeometricDetRods[index]->positionBounds().perp() > meanR)
+//    if(theGeometricDetRods[index]->positionBounds().perp() > meanR)
       theOuterRods.push_back(myPixelRodBuilder.build(theGeometricDetRods[index],
 						     theGeomDetGeometry)    );       
 
