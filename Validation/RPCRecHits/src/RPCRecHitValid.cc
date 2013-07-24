@@ -20,6 +20,8 @@
 #include "Geometry/RPCGeometry/interface/RPCGeomServ.h"
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
 
+#include <boost/foreach.hpp>
+
 using namespace std;
 
 typedef MonitorElement* MEP;
@@ -28,7 +30,7 @@ RPCRecHitValid::RPCRecHitValid(const edm::ParameterSet& pset)
 {
   simHitLabel_ = pset.getParameter<edm::InputTag>("simHit");
   recHitLabel_ = pset.getParameter<edm::InputTag>("recHit");
-  simParticleLabel_ = pset.getParameter<edm::InputTag>("simParticle");
+  simParticleLabel_ = pset.getParameter<edm::InputTag>("simTrack");
   muonLabel_ = pset.getParameter<edm::InputTag>("muon");
   dbe_ = edm::Service<DQMStore>().operator->();
   if ( !dbe_ )
@@ -246,17 +248,14 @@ void RPCRecHitValid::beginRun(const edm::Run& run, const edm::EventSetup& eventS
   int nRPCRollBarrel = 0, nRPCRollEndcap = 0;
 
   TrackingGeometry::DetContainer rpcDets = rpcGeom->dets();
-  for ( TrackingGeometry::DetContainer::const_iterator detIter = rpcDets.begin();
-        detIter != rpcDets.end(); ++detIter )
+  BOOST_FOREACH ( TrackingGeometry::DetContainer::value_type det, rpcDets )
   {
-    RPCChamber* rpcCh = dynamic_cast<RPCChamber*>(*detIter);
+    RPCChamber* rpcCh = dynamic_cast<RPCChamber*>(det);
     if ( !rpcCh ) continue;
 
     std::vector<const RPCRoll*> rolls = rpcCh->rolls();
-    for ( std::vector<const RPCRoll*>::const_iterator rollIter = rolls.begin();
-          rollIter != rolls.end(); ++rollIter )
+    BOOST_FOREACH ( const RPCRoll* roll, rolls )
     {
-      const RPCRoll* roll = *rollIter;
       if ( !roll ) continue;
 
       //RPCGeomServ rpcSrv(roll->id());
@@ -365,7 +364,7 @@ void RPCRecHitValid::analyze(const edm::Event& event, const edm::EventSetup& eve
   }
 
   // Get SimParticles
-  edm::Handle<edm::View<TrackingParticle> > simPartricleHandle;
+  edm::Handle<edm::View<TrackingParticle> > simParticleHandle;
   if ( !event.getByLabel(simParticleLabel_, simParticleHandle) )
   {
     edm::LogInfo("RPCRecHitValid") << "Cannot find TrackingParticle collection\n";
@@ -383,39 +382,55 @@ void RPCRecHitValid::analyze(const edm::Event& event, const edm::EventSetup& eve
   typedef edm::PSimHitContainer::const_iterator SimHitIter;
   typedef RPCRecHitCollection::const_iterator RecHitIter;
 
-  std::vector<const PSimHit*> muonSimHits;
-  std::vector<const PSimHit*> pthrSimHits;
+  // Build G4 track ID to SimHit map
+  typedef std::vector<const PSimHit*> SimHitPtrs;
+  typedef std::map<unsigned int, SimHitPtrs> IndexToSimHit;
+  IndexToSimHit simTrackIdToSimHit;
+  for ( SimHitIter simHit = simHitHandle->begin(); simHit != simHitHandle->end(); ++simHit )
+  {
+    const unsigned int simTrackId = simHit->trackId();
+    SimHitPtrs& simHitsFromTrack = simTrackIdToSimHit[simTrackId];
+    simHitsFromTrack.push_back(&*simHit);
+  }
+
+  // TrackingParticles with (and without) RPC simHits
+  SimHitPtrs muonSimHits, pthrSimHits;
   for ( edm::View<TrackingParticle>::const_iterator simParticle = simParticleHandle->begin();
         simParticle != simParticleHandle->end(); ++simParticle )
   {
     if ( simParticle->pt() < 1.0 or simParticle->p() < 2.5 ) continue; // globalMuon acceptance
 
-    bool hasRPCHit = false;
+    // Collect SimHits from this Tracking Particle
+    SimHitPtrs simHitsFromParticle;
+    BOOST_FOREACH ( const SimTrack& simTrack, simParticle->g4Tracks() )
+    {
+      const unsigned int simTrackId = simTrack.trackId();
+      const SimHitPtrs& simHitsFromTrack = simTrackIdToSimHit[simTrackId];
+      simHitsFromParticle.insert(simHitsFromParticle.end(), simHitsFromTrack.begin(), simHitsFromTrack.end());
+    }
+    const int nRPCHit = simHitsFromParticle.size();
+    const bool hasRPCHit = nRPCHit > 0;
+
     if ( abs(simParticle->pdgId()) == 13 )
     {
+      muonSimHits.insert(muonSimHits.end(), simHitsFromParticle.begin(), simHitsFromParticle.end());
+
+      // Count number of Barrel hits and Endcap hits
       int nRPCHitBarrel = 0;
       int nRPCHitEndcap = 0;
-
-#warning "This file has been modified just to get it to compile without any regard as to whether it still functions as intended"
-#ifdef REMOVED_JUST_TO_GET_IT_TO_COMPILE__THIS_CODE_NEEDS_TO_BE_CHECKED
-      for ( SimHitIter simHit = simParticle->pSimHit_begin();
-            simHit != simParticle->pSimHit_end(); ++simHit )
+      BOOST_FOREACH ( const PSimHit* simHit, simHitsFromParticle )
       {
         const DetId detId(simHit->detUnitId());
-        if ( detId.det() != DetId::Muon or detId.subdetId() != MuonSubdetId::RPC ) continue;
+        //if ( detId.det() != DetId::Muon or detId.subdetId() != MuonSubdetId::RPC ) continue;
         const RPCDetId rpcDetId = static_cast<const RPCDetId>(simHit->detUnitId());
         const RPCRoll* roll = dynamic_cast<const RPCRoll*>(rpcGeom->roll(rpcDetId));
         if ( !roll ) continue;
 
         if ( rpcDetId.region() == 0 ) ++nRPCHitBarrel;
         else ++nRPCHitEndcap;
-
-        muonSimHits.push_back(&*simHit);
       }
-#endif
 
-      const int nRPCHit = nRPCHitBarrel+nRPCHitEndcap;
-      hasRPCHit = nRPCHit > 0;
+      // Fill TrackingParticle related histograms
       h_nRPCHitPerSimMuon->Fill(nRPCHit);
       if ( nRPCHitBarrel and nRPCHitEndcap )
       {
@@ -447,23 +462,7 @@ void RPCRecHitValid::analyze(const edm::Event& event, const edm::EventSetup& eve
     }
     else
     {
-      int nRPCHit = 0;
-#warning "This file has been modified just to get it to compile without any regard as to whether it still functions as intended"
-#ifdef REMOVED_JUST_TO_GET_IT_TO_COMPILE__THIS_CODE_NEEDS_TO_BE_CHECKED
-      for ( SimHitIter simHit = simParticle->pSimHit_begin();
-            simHit != simParticle->pSimHit_end(); ++simHit )
-      {
-        const DetId detId(simHit->detUnitId());
-        if ( detId.det() != DetId::Muon or detId.subdetId() != MuonSubdetId::RPC ) continue;
-        const RPCDetId rpcDetId = static_cast<const RPCDetId>(simHit->detUnitId());
-        const RPCRoll* roll = dynamic_cast<const RPCRoll*>(rpcGeom->roll(rpcDetId()));
-        if ( !roll ) continue;
-
-        ++nRPCHit;
-        pthrSimHits.push_back(&*simHit);
-      }
-#endif
-      hasRPCHit = nRPCHit > 0;
+      pthrSimHits.insert(pthrSimHits.end(), simHitsFromParticle.begin(), simHitsFromParticle.end());
     }
 
     if ( hasRPCHit )
@@ -487,10 +486,8 @@ void RPCRecHitValid::analyze(const edm::Event& event, const edm::EventSetup& eve
 
   // Loop over muon simHits, fill histograms which does not need associations
   int nRefHitBarrel = 0, nRefHitEndcap = 0;
-  for ( std::vector<const PSimHit*>::const_iterator simHitP = muonSimHits.begin();
-        simHitP != muonSimHits.end(); ++simHitP )
+  BOOST_FOREACH ( const PSimHit* simHit, muonSimHits )
   {
-    const PSimHit* simHit = *simHitP;
     const RPCDetId detId = static_cast<const RPCDetId>(simHit->detUnitId());
     const RPCRoll* roll = dynamic_cast<const RPCRoll*>(rpcGeom->roll(detId));
 
@@ -521,10 +518,8 @@ void RPCRecHitValid::analyze(const edm::Event& event, const edm::EventSetup& eve
   }
 
   // Loop over punch-through simHits, fill histograms which does not need associations
-  for ( std::vector<const PSimHit*>::const_iterator simHitP = pthrSimHits.begin();
-        simHitP != pthrSimHits.end(); ++simHitP )
+  BOOST_FOREACH ( const PSimHit* simHit, pthrSimHits )
   {
-    const PSimHit* simHit = *simHitP;
     const RPCDetId detId = static_cast<const RPCDetId>(simHit->detUnitId());
     const RPCRoll* roll = dynamic_cast<const RPCRoll*>(rpcGeom->roll(detId()));
 
@@ -616,10 +611,8 @@ void RPCRecHitValid::analyze(const edm::Event& event, const edm::EventSetup& eve
   typedef std::map<const PSimHit*, RecHitIter> SimToRecHitMap;
   SimToRecHitMap simToRecHitMap;
 
-  for ( std::vector<const PSimHit*>::const_iterator simHitP = muonSimHits.begin();
-        simHitP != muonSimHits.end(); ++simHitP )
+  BOOST_FOREACH ( const PSimHit* simHit, muonSimHits )
   {
-    const PSimHit* simHit = *simHitP;
     const RPCDetId simDetId = static_cast<const RPCDetId>(simHit->detUnitId());
     //const RPCRoll* simRoll = dynamic_cast<const RPCRoll*>(rpcGeom->roll(simDetId));
 
