@@ -268,7 +268,7 @@ steps['TTbar_ID']=identitySim(steps['TTbar'])
 baseDataSetRelease=[
     'CMSSW_6_2_0_pre8-PRE_ST62_V8-v1',
     'CMSSW_6_2_0_pre8-PRE_SH62_V15-v1',
-    'CMSSW_6_1_0_pre6-START61_V5_FastSim-v1',#'CMSSW_6_0_0-START60_V4_FastSim-v1'
+    'CMSSW_6_2_0_pre8-PRE_ST62_V8_FastSim-v1'
     ]
 
 steps['MinBiasINPUT']={'INPUT':InputInfo(dataSet='/RelValMinBias/%s/GEN-SIM'%(baseDataSetRelease[0],),location='STD')}
