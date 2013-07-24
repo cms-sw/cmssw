@@ -237,7 +237,7 @@ from GEMCode.GEMValidation.simTrackMatching_cfi import SimTrackMatching
 
 
 
-process.SimMuL1StrictAll = cms.EDFilter("SimMuL1_Eff",
+process.SimMuL1StrictAll = cms.EDFilter("GEMCSCTriggerEfficiency",
     doStrictSimHitToTrackMatch = cms.untracked.bool(True),
     matchAllTrigPrimitivesInChamber = cms.untracked.bool(True),
     
