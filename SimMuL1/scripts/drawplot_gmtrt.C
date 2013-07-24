@@ -582,7 +582,7 @@ TString h3s1b = "h_pt_after_tfcand_eta1b_3s1b";
 float miny = 0.01, maxy;
 
 TString vs_eta_minpt = "20";
-TString ttl = "CSC L1 trigger rates for p_{T}^{TF}>" + vs_eta_minpt + " GeV/c;track #eta;rate/bin, kHz";
+TString ttl = "CSC L1 trigger rates for p_{T}^{TF}>" + vs_eta_minpt + " GeV/c;track #eta;rate/bin [kHz]";
 
 
  TH1D* h_rt_tf20_2s   = setHistoEta(f_def, "h_rt_gmt_csc_ptmax" + vs_eta_minpt + "_eta_2s", "_hAll100", ttl, kAzure+2, 1, 2);
@@ -721,7 +721,7 @@ TString ttl = "CSC L1 trigger rates for p_{T}^{TF}>" + vs_eta_minpt + " GeV/c;tr
 
 
  vs_eta_minpt = "30";
- ttl = "CSC L1 trigger rates for p_{T}^{TF}>" + vs_eta_minpt + " GeV/c;track #eta;rate/bin, kHz";
+ ttl = "CSC L1 trigger rates for p_{T}^{TF}>" + vs_eta_minpt + " GeV/c;track #eta;rate/bin [kHz]";
 
 
 // TH1D* h_rt_tf30_2s   = setHistoEta(f_def, "h_rt_gmt_csc_ptmax" + vs_eta_minpt + "_eta_2s", "_hAll100", ttl, kAzure+2, 1, 2);
@@ -1069,7 +1069,7 @@ if (vs_eta)
 gdy[0]=0; gdy[1]=7.;
 if (vs_eta_minpt=="20") gdy[1]=10.;
 
-TString ttl = "CSC L1 trigger rates for p_{T}^{TF}>" + vs_eta_minpt + " GeV/c;track #eta;rate/bin, kHz";
+TString ttl = "CSC L1 trigger rates for p_{T}^{TF}>" + vs_eta_minpt + " GeV/c;track #eta;rate/bin [kHz]";
 hAll100    = setHistoEta(f_pu100_pat8,     "h_rt_gmt_csc_ptmax" + vs_eta_minpt + "_eta_3s_2s1b", "_hAll100", ttl, kAzure+9, 1, 2);
 hAll100gem = setHistoEta(f_pu100_pat8_gem, "h_rt_gmt_csc_ptmax" + vs_eta_minpt + "_eta_3s_2s1b", "_hAll100gem", ttl, kGreen+3, 1, 2);
 
@@ -1108,7 +1108,7 @@ if (vs_eta)
 gdy[0]=0; gdy[1]=7.;
 if (vs_eta_minpt=="20") gdy[1]=10.;
 
-TString ttl = "CSC L1 trigger rates for p_{T}^{TF}>" + vs_eta_minpt + " GeV/c;track #eta;rate/bin, kHz";
+TString ttl = "CSC L1 trigger rates for p_{T}^{TF}>" + vs_eta_minpt + " GeV/c;track #eta;rate/bin [kHz]";
 hAll100    = setHistoEta(f_pu100_pat8,     "h_rt_gmt_csc_ptmax" + vs_eta_minpt + "_eta_3s_3s1b", "_hAll100", ttl, kAzure+9, 1, 2);
 hAll100gem = setHistoEta(f_pu100_pat8_gem, "h_rt_gmt_csc_ptmax" + vs_eta_minpt + "_eta_3s_3s1b", "_hAll100gem", ttl, kGreen+3, 1, 2);
 
@@ -1145,7 +1145,7 @@ if (vs_eta)
 gdy[0]=0; gdy[1]=7.;
 if (vs_eta_minpt=="20") gdy[1]=10.;
 
-TString ttl = "CSC L1 trigger rates for p_{T}^{TF}>" + vs_eta_minpt + " GeV/c;track #eta;rate/bin, kHz";
+TString ttl = "CSC L1 trigger rates for p_{T}^{TF}>" + vs_eta_minpt + " GeV/c;track #eta;rate/bin [kHz]";
 hAll100    = setHistoEta(f_pu100_pat8,     "h_rt_gmt_csc_ptmax" + vs_eta_minpt + "_eta_3s", "_hAll100", ttl, kAzure+9, 1, 2);
 hAll100gem = setHistoEta(f_pu100_pat8_gem, "h_rt_gmt_csc_ptmax" + vs_eta_minpt + "_eta_3s_2s1b", "_hAll100gem", ttl, kGreen+3, 1, 2);
 
@@ -1183,7 +1183,7 @@ if (vs_eta)
 gdy[0]=0; gdy[1]=7.;
 if (vs_eta_minpt=="20") gdy[1]=10.;
 
-TString ttl = "CSC L1 trigger rates for p_{T}^{TF}>" + vs_eta_minpt + " GeV/c;track #eta;rate/bin, kHz";
+TString ttl = "CSC L1 trigger rates for p_{T}^{TF}>" + vs_eta_minpt + " GeV/c;track #eta;rate/bin [kHz]";
 hAll100    = setHistoEta(f_pu100_pat8,     "h_rt_gmt_csc_ptmax" + vs_eta_minpt + "_eta_3s", "_hAll100", ttl, kAzure+9, 1, 2);
 hAll100gem = setHistoEta(f_pu100_pat8_gem, "h_rt_gmt_csc_ptmax" + vs_eta_minpt + "_eta_3s_3s1b", "_hAll100gem", ttl, kGreen+3, 1, 2);
 
@@ -1224,8 +1224,8 @@ if (1)
 {
 gdy[0]=2; gdy[1]=2000.;
 
-hAll100    = setHisto(f_pu100_pat8,     "h_rt_gmt_csc_ptmax_3s_2s1b", "_hAll100", "CSC L1 trigger rates;p_{T}^{cut}, GeV/c;rate, kHz", kAzure+9, 1, 1);
-hAll100gem = setHisto(f_pu100_pat8_gem, "h_rt_gmt_csc_ptmax_3s_2s1b", "_hAll100gem", "CSC L1 trigger rates;p_{T}^{cut}, GeV/c;rate, kHz", kGreen+3, 1, 1);
+hAll100    = setHisto(f_pu100_pat8,     "h_rt_gmt_csc_ptmax_3s_2s1b", "_hAll100", "CSC L1 trigger rates;p_{T}^{cut} [GeV/c];rate [kHz]", kAzure+9, 1, 1);
+hAll100gem = setHisto(f_pu100_pat8_gem, "h_rt_gmt_csc_ptmax_3s_2s1b", "_hAll100gem", "CSC L1 trigger rates;p_{T}^{cut} [GeV/c];rate [kHz]", kGreen+3, 1, 1);
 
 TCanvas* cAll100 = new TCanvas("cAll100","cAll100",800,600) ;
 gPad->SetLogx(1);gPad->SetLogy(1);
@@ -1271,8 +1271,8 @@ if (1)
 {
 gdy[0]=2; gdy[1]=2000.;
 
-hAll100    = setHisto(f_pu100_pat8,     "h_rt_gmt_csc_ptmax_3s", "_hAll100s3", "CSC L1 trigger rates;p_{T}^{cut}, GeV/c;rate, kHz", kAzure+9, 1, 1);
-hAll100gem = setHisto(f_pu100_pat8_gem, "h_rt_gmt_csc_ptmax_3s_2s1b", "_hAll100gem", "CSC L1 trigger rates;p_{T}^{cut}, GeV/c;rate, kHz", kGreen+3, 1, 1);
+hAll100    = setHisto(f_pu100_pat8,     "h_rt_gmt_csc_ptmax_3s", "_hAll100s3", "CSC L1 trigger rates;p_{T}^{cut} [GeV/c];rate [kHz]", kAzure+9, 1, 1);
+hAll100gem = setHisto(f_pu100_pat8_gem, "h_rt_gmt_csc_ptmax_3s_2s1b", "_hAll100gem", "CSC L1 trigger rates;p_{T}^{cut} [GeV/c];rate [kHz]", kGreen+3, 1, 1);
 
 TCanvas* cAll100 = new TCanvas("cAll100","cAll100",800,600) ;
 gPad->SetLogx(1);gPad->SetLogy(1);
@@ -1317,8 +1317,8 @@ if (1)
 {
 gdy[0]=2; gdy[1]=2000.;
 
-hAll100    = setHisto(f_pu100_pat8,     "h_rt_gmt_csc_ptmax_3s_no1a", "_hAll100s3", "CSC L1 trigger rates;p_{T}^{cut}, GeV/c;rate, kHz", kAzure+9, 1, 1);
-hAll100gem = setHisto(f_pu100_pat8_gem, "h_rt_gmt_csc_ptmax_3s_3s1b_no1a", "_hAll100gem", "CSC L1 trigger rates;p_{T}^{cut}, GeV/c;rate, kHz", kGreen+3, 1, 1);
+hAll100    = setHisto(f_pu100_pat8,     "h_rt_gmt_csc_ptmax_3s_no1a", "_hAll100s3", "CSC L1 trigger rates;p_{T}^{cut} [GeV/c];rate [kHz]", kAzure+9, 1, 1);
+hAll100gem = setHisto(f_pu100_pat8_gem, "h_rt_gmt_csc_ptmax_3s_3s1b_no1a", "_hAll100gem", "CSC L1 trigger rates;p_{T}^{cut} [GeV/c];rate [kHz]", kGreen+3, 1, 1);
 
 TCanvas* cAll100 = new TCanvas("cAll100","cAll100",800,600) ;
 gPad->SetLogx(1);gPad->SetLogy(1);
@@ -1366,8 +1366,8 @@ if (1)
 {
 gdy[0]=2; gdy[1]=2000.;
 
-hAll100    = setHisto(f_pu100_pat8,     "h_rt_gmt_csc_ptmax_3s_3s1b_no1a", "_hAll100s3", "CSC L1 trigger rates;p_{T}^{cut}, GeV/c;rate, kHz", kAzure+9, 1, 1);
-hAll100gem = setHisto(f_pu100_pat8_gem, "h_rt_gmt_csc_ptmax_3s_3s1b_no1a", "_hAll100gem", "CSC L1 trigger rates;p_{T}^{cut}, GeV/c;rate, kHz", kGreen+3, 1, 1);
+hAll100    = setHisto(f_pu100_pat8,     "h_rt_gmt_csc_ptmax_3s_3s1b_no1a", "_hAll100s3", "CSC L1 trigger rates;p_{T}^{cut} [GeV/c];rate [kHz]", kAzure+9, 1, 1);
+hAll100gem = setHisto(f_pu100_pat8_gem, "h_rt_gmt_csc_ptmax_3s_3s1b_no1a", "_hAll100gem", "CSC L1 trigger rates;p_{T}^{cut} [GeV/c];rate [kHz]", kGreen+3, 1, 1);
 
 TCanvas* cAll100 = new TCanvas("cAll100","cAll100",800,600) ;
 gPad->SetLogx(1);gPad->SetLogy(1);
@@ -1414,8 +1414,8 @@ if (1)
 {
 gdy[0]=2; gdy[1]=2000.;
 
-hAll100    = setHisto(f_pu100_pat8,     "h_rt_gmt_csc_ptmax_3s", "_hAll100s3", "CSC L1 trigger rates;p_{T}^{cut}, GeV/c;rate, kHz", kAzure+9, 1, 1);
-hAll100gem = setHisto(f_pu100_pat8_gem, "h_rt_gmt_csc_ptmax_3s_3s1b", "_hAll100gem", "CSC L1 trigger rates;p_{T}^{cut}, GeV/c;rate, kHz", kGreen+3, 1, 1);
+hAll100    = setHisto(f_pu100_pat8,     "h_rt_gmt_csc_ptmax_3s", "_hAll100s3", "CSC L1 trigger rates;p_{T}^{cut} [GeV/c];rate [kHz]", kAzure+9, 1, 1);
+hAll100gem = setHisto(f_pu100_pat8_gem, "h_rt_gmt_csc_ptmax_3s_3s1b", "_hAll100gem", "CSC L1 trigger rates;p_{T}^{cut} [GeV/c];rate [kHz]", kGreen+3, 1, 1);
 
 TCanvas* cAll100 = new TCanvas("cAll100","cAll100",800,600) ;
 gPad->SetLogx(1);gPad->SetLogy(1);
@@ -1463,8 +1463,8 @@ if (1)
 {
 gdy[0]=2; gdy[1]=2000.;
 
-hAll100    = setHisto(f_pu100_pat8,     "h_rt_gmt_csc_ptmax_3s_3s1b", "_hAll100s3", "CSC L1 trigger rates;p_{T}^{cut}, GeV/c;rate, kHz", kAzure+9, 1, 1);
-hAll100gem = setHisto(f_pu100_pat8_gem, "h_rt_gmt_csc_ptmax_3s_3s1b", "_hAll100gem", "CSC L1 trigger rates;p_{T}^{cut}, GeV/c;rate, kHz", kGreen+3, 1, 1);
+hAll100    = setHisto(f_pu100_pat8,     "h_rt_gmt_csc_ptmax_3s_3s1b", "_hAll100s3", "CSC L1 trigger rates;p_{T}^{cut} [GeV/c];rate [kHz]", kAzure+9, 1, 1);
+hAll100gem = setHisto(f_pu100_pat8_gem, "h_rt_gmt_csc_ptmax_3s_3s1b", "_hAll100gem", "CSC L1 trigger rates;p_{T}^{cut} [GeV/c];rate [kHz]", kGreen+3, 1, 1);
 
 TCanvas* cAll100 = new TCanvas("cAll100","cAll100",800,600) ;
 gPad->SetLogx(1);gPad->SetLogy(1);
@@ -1512,8 +1512,8 @@ if (1)
 {
 gdy[0]=0.02; gdy[1]=1000.;
 
-hAll100    = setHisto(f_pu100_pat8,     "h_rt_gmt_csc_ptmax_3s_3s1b_1b", "_hAll100s3", "CSC L1 trigger rates in ME1/b eta region;p_{T}^{cut}, GeV/c;rate, kHz", kAzure+9, 1, 1);
-hAll100gem = setHisto(f_pu100_pat8_gem, "h_rt_gmt_csc_ptmax_3s_3s1b_1b", "_hAll100gem", "CSC L1 trigger rates in ME1/b eta region;p_{T}^{cut}, GeV/c;rate, kHz", kGreen+3, 1, 1);
+hAll100    = setHisto(f_pu100_pat8,     "h_rt_gmt_csc_ptmax_3s_3s1b_1b", "_hAll100s3", "CSC L1 trigger rates in ME1/b eta region;p_{T}^{cut} [GeV/c];rate [kHz]", kAzure+9, 1, 1);
+hAll100gem = setHisto(f_pu100_pat8_gem, "h_rt_gmt_csc_ptmax_3s_3s1b_1b", "_hAll100gem", "CSC L1 trigger rates in ME1/b eta region;p_{T}^{cut} [GeV/c];rate [kHz]", kGreen+3, 1, 1);
 
 TCanvas* cAll100 = new TCanvas("cAll100","cAll100",800,600) ;
 gPad->SetLogx(1);gPad->SetLogy(1);
@@ -1561,8 +1561,8 @@ if (1)
 {
 gdy[0]=0.02; gdy[1]=1000.;
 
-hAll100    = setHisto(f_pu100_pat8,     "h_rt_gmt_csc_ptmax_3s_1b", "_hAll100s3", "CSC L1 trigger rates in ME1/b eta region;p_{T}^{cut}, GeV/c;rate, kHz", kAzure+9, 1, 1);
-hAll100gem = setHisto(f_pu100_pat8_gem, "h_rt_gmt_csc_ptmax_3s_3s1b_1b", "_hAll100gem", "CSC L1 trigger rates in ME1/b eta region;p_{T}^{cut}, GeV/c;rate, kHz", kGreen+3, 1, 1);
+hAll100    = setHisto(f_pu100_pat8,     "h_rt_gmt_csc_ptmax_3s_1b", "_hAll100s3", "CSC L1 trigger rates in ME1/b eta region;p_{T}^{cut} [GeV/c];rate [kHz]", kAzure+9, 1, 1);
+hAll100gem = setHisto(f_pu100_pat8_gem, "h_rt_gmt_csc_ptmax_3s_3s1b_1b", "_hAll100gem", "CSC L1 trigger rates in ME1/b eta region;p_{T}^{cut} [GeV/c];rate [kHz]", kGreen+3, 1, 1);
 
 TCanvas* cAll100 = new TCanvas("cAll100","cAll100",800,600) ;
 gPad->SetLogx(1);gPad->SetLogy(1);
@@ -1599,10 +1599,10 @@ Print(cAll100r, "rates__1.6-2.1_PU100__def-3s__gem-3s-3s1b__ratio.png");
 //result_gem = hAll100gem;
 result_def = hAll100;
 
-hAll100    = setHisto(f_pu100_pat8,     "h_rt_gmt_csc_ptmax_2s_1b", "_hAll100s2", "CSC L1 trigger rates in ME1/b eta region;p_{T}^{cut}, GeV/c;rate, kHz", kAzure+9, 1, 1);
+hAll100    = setHisto(f_pu100_pat8,     "h_rt_gmt_csc_ptmax_2s_1b", "_hAll100s2", "CSC L1 trigger rates in ME1/b eta region;p_{T}^{cut} [GeV/c];rate [kHz]", kAzure+9, 1, 1);
 result_def_2s = hAll100;
 
-hAll100    = setHisto(f_pu100_pat8,     "h_rt_gmt_csc_ptmax_2s_1b", "_hAll100s2", "CSC L1 trigger rates in ME1/b eta region;p_{T}^{cut}, GeV/c;rate, kHz", kAzure+9, 1, 1);
+hAll100    = setHisto(f_pu100_pat8,     "h_rt_gmt_csc_ptmax_2s_1b", "_hAll100s2", "CSC L1 trigger rates in ME1/b eta region;p_{T}^{cut} [GeV/c];rate [kHz]", kAzure+9, 1, 1);
 result_def_2s = hAll100;
 
 if (do_return) return;
@@ -1615,8 +1615,8 @@ if (1)
 {
 gdy[0]=0.02; gdy[1]=1000.;
 
-hAll100    = setHisto(f_pu100_pat8,     "h_rt_gmt_csc_ptmax_3s_1b", "_hAll100s3", "CSC L1 trigger rates in ME1/b eta region;p_{T}^{cut}, GeV/c;rate, kHz", kAzure+9, 1, 1);
-hAll100gem = setHisto(f_pu100_pat8_gem, "h_rt_gmt_ptmax_sing_1b", "_hAll100gem", "CSC L1 trigger rates in ME1/b eta region;p_{T}^{cut}, GeV/c;rate, kHz", kAzure+1, 1, 1);
+hAll100    = setHisto(f_pu100_pat8,     "h_rt_gmt_csc_ptmax_3s_1b", "_hAll100s3", "CSC L1 trigger rates in ME1/b eta region;p_{T}^{cut} [GeV/c];rate [kHz]", kAzure+9, 1, 1);
+hAll100gem = setHisto(f_pu100_pat8_gem, "h_rt_gmt_ptmax_sing_1b", "_hAll100gem", "CSC L1 trigger rates in ME1/b eta region;p_{T}^{cut} [GeV/c];rate [kHz]", kAzure+1, 1, 1);
 
 TCanvas* cAll100 = new TCanvas("cAll100","cAll100",800,600) ;
 gPad->SetLogx(1);gPad->SetLogy(1);
@@ -1649,8 +1649,8 @@ if (1)
 {
 gdy[0]=0.02; gdy[1]=1000.;
 
-hAll100    = setHisto(f_pu100_pat8,     "h_rt_gmt_csc_ptmax_3s_2s1b_1b", "_hAll100s3", "CSC L1 trigger rates in ME1/b eta region;p_{T}^{cut}, GeV/c;rate, kHz", kAzure+9, 1, 1);
-hAll100gem = setHisto(f_pu100_pat8_gem, "h_rt_gmt_csc_ptmax_3s_2s1b_1b", "_hAll100gem", "CSC L1 trigger rates in ME1/b eta region;p_{T}^{cut}, GeV/c;rate, kHz", kGreen+3, 1, 1);
+hAll100    = setHisto(f_pu100_pat8,     "h_rt_gmt_csc_ptmax_3s_2s1b_1b", "_hAll100s3", "CSC L1 trigger rates in ME1/b eta region;p_{T}^{cut} [GeV/c];rate [kHz]", kAzure+9, 1, 1);
+hAll100gem = setHisto(f_pu100_pat8_gem, "h_rt_gmt_csc_ptmax_3s_2s1b_1b", "_hAll100gem", "CSC L1 trigger rates in ME1/b eta region;p_{T}^{cut} [GeV/c];rate [kHz]", kGreen+3, 1, 1);
 
 TCanvas* cAll100 = new TCanvas("cAll100","cAll100",800,600) ;
 gPad->SetLogx(1);gPad->SetLogy(1);
@@ -1700,8 +1700,8 @@ if (1)
 {
 gdy[0]=0.02; gdy[1]=1000.;
 
-hAll100    = setHisto(f_pu100_pat8,     "h_rt_gmt_csc_ptmax_3s_1b", "_hAll100s3", "CSC L1 trigger rates in ME1/b eta region;p_{T}^{cut}, GeV/c;rate, kHz", kAzure+9, 1, 1);
-hAll100gem = setHisto(f_pu100_pat8_gem, "h_rt_gmt_csc_ptmax_3s_2s1b_1b", "_hAll100gem", "CSC L1 trigger rates in ME1/b eta region;p_{T}^{cut}, GeV/c;rate, kHz", kGreen+3, 1, 1);
+hAll100    = setHisto(f_pu100_pat8,     "h_rt_gmt_csc_ptmax_3s_1b", "_hAll100s3", "CSC L1 trigger rates in ME1/b eta region;p_{T}^{cut} [GeV/c];rate [kHz]", kAzure+9, 1, 1);
+hAll100gem = setHisto(f_pu100_pat8_gem, "h_rt_gmt_csc_ptmax_3s_2s1b_1b", "_hAll100gem", "CSC L1 trigger rates in ME1/b eta region;p_{T}^{cut} [GeV/c];rate [kHz]", kGreen+3, 1, 1);
 
 TCanvas* cAll100 = new TCanvas("cAll100","cAll100",800,600) ;
 gPad->SetLogx(1);gPad->SetLogy(1);
