@@ -47,7 +47,7 @@ result_gem_eta_no1a = getPTHisto(f_gem, dir, "h_rt_gmt_csc_ptmax_3s_3s1b_no1a", 
 
 void drawplot_frankenstein()
 {
-gem_dir = "gem/"; gem_label = "gem98";
+gem_dir = "gem_vadim/"; gem_label = "gem98";
 
 //gem_dir = "gem95/"; gem_label = "gem95";
 
