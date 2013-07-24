@@ -96,7 +96,7 @@ class HitPixelLayersTPSelector
     std::vector<bool> pixelHitPattern( const TrackingParticleRef& simTrack, const TrackerTopology *tTopo )
       {
 	std::vector<bool> hitpattern(5,false); // PXB 0,1,2  PXF 0,1
-	
+	/*	
 #warning "This file has been modified just to get it to compile without any regard as to whether it still functions as intended"
 #ifdef REMOVED_JUST_TO_GET_IT_TO_COMPILE__THIS_CODE_NEEDS_TO_BE_CHECKED
 	for(std::vector<PSimHit>::const_iterator simHit = simTrack->pSimHit_begin();simHit!= simTrack->pSimHit_end();simHit++){
@@ -114,7 +114,9 @@ class HitPixelLayersTPSelector
 	  
 	}// end simhit loop
 #endif
-	
+	*/
+	// Indeed this no longer functions as intended, but this code should no longer be accessed, since tripletSeedOnly_ has been changed to False.  We will clean up when we figure out how to do this properly - Matt Nguyen, 24/7/2013
+
 	return hitpattern;
       }
     
