@@ -1,7 +1,7 @@
 /**\class PhotonSimpleAnalyzer
  **
- ** $Date: 2010/10/19 17:34:56 $
- ** $Revision: 1.24 $
+ ** $Date: 2012/01/28 10:29:35 $
+ ** $Revision: 1.25 $
  ** \author Nancy Marinelli, U. of Notre Dame, US
 */
 

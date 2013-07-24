@@ -12,7 +12,7 @@ Implementation:
 //
 // Original Author:  Jason Michael Slaunwhite,512 1-008,`+41227670494,
 //         Created:  Fri Aug  5 10:34:47 CEST 2011
-// $Id: GeneralHLTOffline.cc,v 1.11 2013/02/02 16:24:44 rovere Exp $
+// $Id: GeneralHLTOffline.cc,v 1.12 2013/03/06 11:34:04 deguio Exp $
 //
 //
 

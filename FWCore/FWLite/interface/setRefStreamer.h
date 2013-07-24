@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue May 15 11:25:51 EDT 2007
-// $Id$
+// $Id: setRefStreamer.h,v 1.1 2007/05/16 14:32:31 chrjones Exp $
 //
 
 // system include files

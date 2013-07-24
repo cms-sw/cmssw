@@ -8,9 +8,9 @@
  *  All work is done by TrackDetectorAssociator. Because of the heavy
  *  weight of the tool, all extractions can (should?) be placed in a single place.
  *  
- *  $Date: 2009/05/12 10:13:53 $
- *  $Revision: 1.5 $
- *  $Id: CaloExtractorByAssociator.h,v 1.5 2009/05/12 10:13:53 slava77 Exp $
+ *  $Date: 2009/06/18 07:27:42 $
+ *  $Revision: 1.6 $
+ *  $Id: CaloExtractorByAssociator.h,v 1.6 2009/06/18 07:27:42 slava77 Exp $
  *  \author S. Krutelyov
  */
 

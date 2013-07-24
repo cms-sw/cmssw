@@ -1,6 +1,6 @@
 			EcalCondDB README
 				   
-$Id: README,v 1.4 2005/10/07 20:35:38 egeland Exp $
+$Id: README,v 1.1 2006/03/01 23:39:50 egeland Exp $
 
 This code provides an interface to the Ecal Databases, using OCCI.
 For the moment see the header files and the examples in the test/

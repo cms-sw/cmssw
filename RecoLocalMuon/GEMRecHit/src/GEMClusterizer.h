@@ -1,8 +1,8 @@
 #ifndef RecoLocalMuon_GEMClusterizer_h
 #define RecoLocalMuon_GEMClusterizer_h
 /** \class GEMClusterizer
- *  $Date: 2013/04/04 13:35:54 $
- *  $Revision: 1.2 $
+ *  $Date: 2013/04/24 17:16:34 $
+ *  $Revision: 1.1 $
  *  \author M. Maggi -- INFN Bari
  */
 

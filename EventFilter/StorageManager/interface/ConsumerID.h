@@ -1,5 +1,5 @@
 
-// $Id: ConsumerID.h,v 1.3.16.1 2011/03/07 11:33:04 mommsen Exp $
+// $Id: ConsumerID.h,v 1.4 2011/03/07 15:31:31 mommsen Exp $
 /// @file: ConsumerID.h 
 
 #ifndef EventFilter_StorageManager_ConsumerID_h
@@ -16,8 +16,8 @@ namespace stor {
    * Uniquely identifies a consumer.
    *
    * $Author: mommsen $
-   * $Revision: 1.3.16.1 $
-   * $Date: 2011/03/07 11:33:04 $
+   * $Revision: 1.4 $
+   * $Date: 2011/03/07 15:31:31 $
    */
 
   struct ConsumerID

@@ -5,8 +5,8 @@
  *
  *  Write variables to ntuple for survey analysis.
  *
- *  $Date: 2007/01/09 $
- *  $Revision: 1 $
+ *  $Date: 2007/03/14 18:05:35 $
+ *  $Revision: 1.1 $
  *  \author Chung Khim Lae
  */
 

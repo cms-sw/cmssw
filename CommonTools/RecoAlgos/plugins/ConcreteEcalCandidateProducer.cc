@@ -7,7 +7,7 @@
  *
  * \version $Revision: 1.1 $
  *
- * $Id: ConcreteEcalCandidateProducer.cc,v 1.1 2007/10/31 15:27:46 llista Exp $
+ * $Id: ConcreteEcalCandidateProducer.cc,v 1.1 2009/03/04 13:11:29 llista Exp $
  *
  */
 

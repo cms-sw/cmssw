@@ -12,7 +12,7 @@
 //
 // Author:      Christophe Saout
 // Created:     Sat Apr 24 15:18 CEST 2007
-// $Id: ProcLikelihood.cc,v 1.15 2010/01/26 19:40:04 saout Exp $
+// $Id: ProcLikelihood.cc,v 1.16 2012/11/27 12:15:46 eulisse Exp $
 //
 
 #include <vector>

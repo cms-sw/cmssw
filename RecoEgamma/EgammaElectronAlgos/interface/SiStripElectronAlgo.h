@@ -16,7 +16,7 @@
 //
 // Original Author:  Jim Pivarski
 //         Created:  Fri May 26 16:11:58 EDT 2006
-// $Id: SiStripElectronAlgo.h,v 1.16 2008/10/31 15:54:17 nancy Exp $
+// $Id: SiStripElectronAlgo.h,v 1.17 2011/03/21 17:10:32 innocent Exp $
 //
 
 // system include files

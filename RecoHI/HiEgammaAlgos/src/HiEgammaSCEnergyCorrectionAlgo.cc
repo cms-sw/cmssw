@@ -1,5 +1,5 @@
 //
-// $Id: HiEgammaSCEnergyCorrectionAlgo.cc,v 1.8 2010/11/14 14:22:01 innocent Exp $
+// $Id: HiEgammaSCEnergyCorrectionAlgo.cc,v 1.9 2011/04/25 15:17:04 yjlee Exp $
 // Author: David Evans, Bristol
 //
 #include "RecoHI/HiEgammaAlgos/interface/HiEgammaSCEnergyCorrectionAlgo.h"

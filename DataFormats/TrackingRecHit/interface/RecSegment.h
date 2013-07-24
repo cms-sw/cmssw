@@ -7,8 +7,8 @@
  *  
  * In addition to RecHit, it has direction, chi2 and other stuff
  *
- * $Date: 2007/07/25 10:22:23 $
- * $Revision: 1.5 $
+ * $Date: 2007/07/25 10:35:48 $
+ * $Revision: 1.6 $
  * \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  *
  */

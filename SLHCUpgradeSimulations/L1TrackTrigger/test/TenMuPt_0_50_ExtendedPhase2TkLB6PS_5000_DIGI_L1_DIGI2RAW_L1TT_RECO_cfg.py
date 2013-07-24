@@ -39,7 +39,7 @@ process.options = cms.untracked.PSet(
 
 # Production Info
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.14 $'),
+    version = cms.untracked.string('$Revision: 1.1 $'),
     annotation = cms.untracked.string('TenMuPt_0_50_ExtendedPhase2TkLB6PS_5000_TrackTrigger nevts:-1'),
     name = cms.untracked.string('Applications')
 )

@@ -16,7 +16,7 @@
 //
 // Original Author:  Marco De Mattia
 //         Created:  Thu Sep 11 12:16:00 CEST 2008
-// $Id: TestResolution.h,v 1.4 2010/03/29 18:15:57 demattia Exp $
+// $Id: TestResolution.h,v 1.6 2010/10/22 17:48:08 wmtan Exp $
 //
 //
 

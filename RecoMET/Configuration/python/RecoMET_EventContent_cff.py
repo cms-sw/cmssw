@@ -1,5 +1,5 @@
 import FWCore.ParameterSet.Config as cms
-# $Id: RecoMET_EventContent_cff.py,v 1.15 2012/09/04 21:18:33 sakuma Exp $
+# $Id: RecoMET_EventContent_cff.py,v 1.16 2012/11/06 02:33:52 sakuma Exp $
 
 ##______________________________________________________ Full Event content __||
 RecoMETFEVT = cms.PSet(

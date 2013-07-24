@@ -5,7 +5,7 @@
  * 
  * Abstract base class for muon chamber residulas
  * 
- *  $Id: $
+ *  $Id: MuonChamberResidual.h,v 1.7 2011/10/12 23:40:24 khotilov Exp $
  *  \author J. Pivarski - Texas A&M University <pivarski@physics.tamu.edu>
  */
 

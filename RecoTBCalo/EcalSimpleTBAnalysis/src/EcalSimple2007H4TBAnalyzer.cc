@@ -6,7 +6,7 @@
      <Notes on implementation>
 */
 //
-// $Id: EcalSimple2007H4TBAnalyzer.cc,v 1.3 2010/01/04 15:09:12 ferriff Exp $
+// $Id: EcalSimple2007H4TBAnalyzer.cc,v 1.4 2012/02/01 19:41:58 vskarupe Exp $
 //
 //
 

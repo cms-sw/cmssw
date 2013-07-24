@@ -15,7 +15,7 @@
 //
 // Original Author:  Filip Moortgat
 //         Created:  Mon Jan 23 14:57:54 CET 2006
-// $Id: PythiaHLTSoupFilter.h,v 1.1 2007/03/20 11:07:13 fmoortga Exp $
+// $Id: PythiaHLTSoupFilter.h,v 1.2 2010/07/21 04:23:25 wmtan Exp $
 //
 //
 

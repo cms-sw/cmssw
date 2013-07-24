@@ -5,7 +5,7 @@
  * 
  * Implementation of tracker muon chamber residuals for CSC
  * 
- * $Id: $
+ * $Id: MuonTrackCSCChamberResidual.h,v 1.1 2011/10/12 23:32:07 khotilov Exp $
  */
 
 #include "Alignment/MuonAlignmentAlgorithms/interface/MuonChamberResidual.h"

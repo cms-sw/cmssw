@@ -6,7 +6,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: RecoStandAloneMuonCandidate.h,v 1.8 2007/10/22 09:38:13 llista Exp $
+ * \version $Id: RecoStandAloneMuonCandidate.h,v 1.1 2007/12/14 12:38:59 llista Exp $
  *
  */
 #include "DataFormats/RecoCandidate/interface/RecoCandidate.h"

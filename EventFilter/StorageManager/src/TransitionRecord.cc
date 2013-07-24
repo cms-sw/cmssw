@@ -1,4 +1,4 @@
-// $Id: TransitionRecord.cc,v 1.4.12.1 2011/03/07 11:33:05 mommsen Exp $
+// $Id: TransitionRecord.cc,v 1.5 2011/03/07 15:31:32 mommsen Exp $
 /// @file: TransitionRecord.cc
 
 #include "EventFilter/StorageManager/interface/TransitionRecord.h"

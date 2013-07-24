@@ -1,5 +1,5 @@
 //
-// $Id: Jet.h,v 1.55 2011/08/01 17:15:21 eschliec Exp $
+// $Id: Jet.h,v 1.56 2011/08/10 13:50:38 eschliec Exp $
 //
 
 #ifndef DataFormats_PatCandidates_Jet_h
@@ -13,7 +13,7 @@
    'pat' namespace
 
   \author   Steven Lowette, Giovanni Petrucciani, Roger Wolf, Christian Autermann
-  \version  $Id: Jet.h,v 1.55 2011/08/01 17:15:21 eschliec Exp $
+  \version  $Id: Jet.h,v 1.56 2011/08/10 13:50:38 eschliec Exp $
 */
 
 

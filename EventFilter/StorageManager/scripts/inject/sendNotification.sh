@@ -1,5 +1,5 @@
 #!/bin/sh
-# $Id: sendNotification.sh,v 1.9 2010/02/11 17:17:50 babar Exp $
+# $Id: sendNotification.sh,v 1.10 2012/10/07 21:56:25 babar Exp $
 
 # error dir and file
 errordir=/tmp

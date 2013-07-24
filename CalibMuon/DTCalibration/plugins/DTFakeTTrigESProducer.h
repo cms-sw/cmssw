@@ -4,8 +4,8 @@
 /** \class DTFakeTTrigESProducer
  *  ESProducer to store in the EventSetup fake ttrig value read from cfg  
  *
- *  $Date: 2007/07/11 12:20:59 $
- *  $Revision: 1.1 $
+ *  $Date: 2008/12/09 22:44:10 $
+ *  $Revision: 1.2 $
  *  \author S. Bolognesi - INFN Torino
  */
 

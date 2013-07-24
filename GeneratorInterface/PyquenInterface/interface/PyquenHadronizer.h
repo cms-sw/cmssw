@@ -4,7 +4,7 @@
 /** \class PyquenHadronizer
  *
  * Generates PYTHIA+PYQUEN ==> HepMC events
- * $Id: PyquenHadronizer.h,v 1.11 2011/02/17 20:53:49 yarba Exp $
+ * $Id: PyquenHadronizer.h,v 1.12 2011/03/02 10:35:17 yilmaz Exp $
  *
  * Camelia Mironov                                  
  *   for the Generator Interface. March 2007

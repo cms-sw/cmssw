@@ -3,8 +3,8 @@
  *  Implements a chamber in the context of Drift Tube Survey Measurements  
  *  and calculates displacements and rotations for it.
  *
- *  $Date: 2008/04/11 05:08:01 $
- *  $Revision: 1.5 $
+ *  $Date: 2011/09/14 15:03:57 $
+ *  $Revision: 1.6 $
  *  \author Pablo Martinez Ruiz del Arbol
  */
 

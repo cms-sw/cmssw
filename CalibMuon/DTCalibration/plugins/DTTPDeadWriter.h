@@ -4,8 +4,8 @@
 /* Class to find test-pulse dead channels from a t0 databases:
  * wires without t0 value are tp-dead.
  
- *  $Date: 2008/02/19 15:15:00 $
- *  $Revision: 1.1 $
+ *  $Date: 2008/10/03 08:34:49 $
+ *  $Revision: 1.2 $
  *  \author S. Bolognesi
  */
 

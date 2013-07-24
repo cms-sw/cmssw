@@ -3,7 +3,7 @@
 /**
  * Author: Giovanni Franzoni, UMN
  * Created: 09 Apr 2012
- * $Id: EcalSampleMask.h,v 1.1 2012/05/10 08:22:10 argiro Exp $
+ * $Id: EcalSampleMask.h,v 1.2 2012/05/10 14:59:40 argiro Exp $
  **/
 
 #include <iostream>

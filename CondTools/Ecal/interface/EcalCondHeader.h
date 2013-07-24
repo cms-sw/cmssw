@@ -8,7 +8,7 @@
  *  \author S. Argiro
  *  \todo Strong types instead of strings
  *
- * $Id: EcalCondHeader.h,v 1.2 2008/10/22 08:41:31 argiro Exp $
+ * $Id: EcalCondHeader.h,v 1.1 2008/11/14 15:46:05 argiro Exp $
  */   
 
 #include "CondCore/DBCommon/interface/Time.h"

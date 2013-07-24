@@ -1,4 +1,4 @@
-// Last commit: $Id: PedsOnlyHistosUsingDb.cc,v 1.7 2009/11/10 14:49:02 lowette Exp $
+// Last commit: $Id: PedsOnlyHistosUsingDb.cc,v 1.8 2012/08/09 17:19:21 eulisse Exp $
 
 #include "DQM/SiStripCommissioningDbClients/interface/PedsOnlyHistosUsingDb.h"
 #include "CondFormats/SiStripObjects/interface/PedsOnlyAnalysis.h"

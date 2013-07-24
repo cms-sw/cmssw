@@ -3,7 +3,7 @@
 /**
  * Author: Shahram Rahatlou, University of Rome & INFN
  * Created: 22 Feb 2006
- * $Id: $
+ * $Id: EcalTBWeights.h,v 1.2 2006/02/23 16:56:34 rahatlou Exp $
  **/
 
 

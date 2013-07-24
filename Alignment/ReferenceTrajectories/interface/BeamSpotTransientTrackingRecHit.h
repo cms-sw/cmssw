@@ -8,8 +8,8 @@
  *
  * Author     : Andreas Mussgiller
  * date       : 2010/08/30
- * last update: $Date: 2011/05/18 10:19:12 $
- * by         : $Author: mussgill $
+ * last update: $Date: 2012/02/04 15:02:59 $
+ * by         : $Author: innocent $
  */
 
 #include <cmath>

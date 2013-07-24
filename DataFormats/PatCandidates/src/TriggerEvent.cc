@@ -1,5 +1,5 @@
 //
-// $Id: TriggerEvent.cc,v 1.19 2011/11/30 13:42:16 vadler Exp $
+// $Id: TriggerEvent.cc,v 1.20 2013/06/11 13:24:50 vadler Exp $
 //
 
 

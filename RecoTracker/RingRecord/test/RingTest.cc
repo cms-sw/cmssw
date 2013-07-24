@@ -8,8 +8,8 @@
 // Created:         Fri Dec  8 10:15:02 UTC 2006
 //
 // $Author: gutsche $
-// $Date: 2007/02/05 19:10:04 $
-// $Revision: 1.1 $
+// $Date: 2007/03/01 07:45:12 $
+// $Revision: 1.2 $
 //
 
 #include "RecoTracker/RingRecord/test/RingTest.h"

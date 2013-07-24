@@ -5,8 +5,8 @@
  *  Description: Class to copy HV status via PopCon
  *
  *
- *  $Date: 2010/07/21 16:06:52 $
- *  $Revision: 1.6 $
+ *  $Date: 2010/09/14 13:54:04 $
+ *  $Revision: 1.7 $
  *  \author Paolo Ronchese INFN Padova
  *
  */

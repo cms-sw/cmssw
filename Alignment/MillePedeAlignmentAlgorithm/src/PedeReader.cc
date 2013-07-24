@@ -3,9 +3,9 @@
  *
  *  \author    : Gero Flucke
  *  date       : November 2006
- *  $Revision: 1.13 $
- *  $Date: 2011/02/16 13:11:57 $
- *  (last update by $Author: mussgill $)
+ *  $Revision: 1.14 $
+ *  $Date: 2012/08/10 09:01:11 $
+ *  (last update by $Author: flucke $)
  */
 
 #include "PedeReader.h"

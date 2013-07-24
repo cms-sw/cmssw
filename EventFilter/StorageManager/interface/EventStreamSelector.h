@@ -1,4 +1,4 @@
-// $Id: EventStreamSelector.h,v 1.7.4.1 2011/03/07 11:33:04 mommsen Exp $
+// $Id: EventStreamSelector.h,v 1.8 2011/03/07 15:31:31 mommsen Exp $
 /// @file: EventStreamSelector.h 
 
 #ifndef EventFilter_StorageManager_EventStreamSelector_h
@@ -18,8 +18,8 @@ namespace stor {
      EventStreamConfigurationInfo
 
      $Author: mommsen $
-     $Revision: 1.7.4.1 $
-     $Date: 2011/03/07 11:33:04 $
+     $Revision: 1.8 $
+     $Date: 2011/03/07 15:31:31 $
   */
 
   class EventStreamSelector

@@ -8,7 +8,7 @@
 //
 // Original Author:  Jim Pivarski
 //         Created:  Thu Mar  6 14:25:07 CST 2008
-// $Id: MuonAlignmentInputMethod.cc,v 1.3 2009/01/19 11:07:37 flucke Exp $
+// $Id: MuonAlignmentInputMethod.cc,v 1.4 2010/05/14 21:07:59 pivarski Exp $
 //
 
 // system include files

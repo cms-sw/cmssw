@@ -1,4 +1,4 @@
-# last update on $Date: 2010/02/25 18:44:14 $ by $Author: frmeier $
+# last update on $Date: 2010/02/26 12:14:59 $ by $Author: frmeier $
 
 import FWCore.ParameterSet.Config as cms
 

@@ -1,7 +1,7 @@
 #
 # Misc functions to manipulate Ecal records
 # author: Stefano Argiro
-# id: $Id: EcalCondTools.py,v 1.12 2009/11/03 17:40:07 yma Exp $
+# id: $Id: EcalCondTools.py,v 1.13 2011/10/10 09:02:27 fay Exp $
 #
 #
 # WARNING: we assume that the list of iovs for a given tag

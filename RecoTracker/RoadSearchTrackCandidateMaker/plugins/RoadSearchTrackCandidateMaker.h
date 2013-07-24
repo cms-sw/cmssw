@@ -13,9 +13,9 @@
 // Original Author: Oliver Gutsche, gutsche@fnal.gov
 // Created:         Wed Mar 15 13:00:00 UTC 2006
 //
-// $Author: wmtan $
-// $Date: 2011/05/20 17:17:32 $
-// $Revision: 1.6 $
+// $Author: eulisse $
+// $Date: 2012/10/18 09:04:57 $
+// $Revision: 1.1 $
 //
 
 #include "FWCore/Framework/interface/EDProducer.h"

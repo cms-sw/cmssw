@@ -20,8 +20,8 @@ generator = cms.EDFilter("HydjetGeneratorFilter",
                          )
 
 configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.2 $'),
-    name = cms.untracked.string('$Source: /cvs_server/repositories/CMSSW/CMSSW/GeneratorInterface/HydjetInterface/python/hydjetDefault_cfi.py,v $'),
+    version = cms.untracked.string('$Revision: 1.3 $'),
+    name = cms.untracked.string('$Source: /local/reps/CMSSW/CMSSW/GeneratorInterface/HydjetInterface/python/hydjetDefault_cfi.py,v $'),
     annotation = cms.untracked.string('Hydjet-B0 at 4TeV')
     )
 

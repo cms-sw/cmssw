@@ -11,7 +11,7 @@
  * 
  * \version $Revision: 1.1 $
  *
- * $Id: TrackSelector.h,v 1.1 2009/03/04 13:11:28 llista Exp $
+ * $Id: ClusterStorer.h,v 1.1 2009/12/09 15:58:42 flucke Exp $
  *
  */
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHitFwd.h"

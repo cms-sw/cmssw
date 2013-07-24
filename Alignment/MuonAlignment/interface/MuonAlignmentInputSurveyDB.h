@@ -16,7 +16,7 @@
 //
 // Original Author:  Jim Pivarski
 //         Created:  Fri Mar  7 16:13:19 CST 2008
-// $Id$
+// $Id: MuonAlignmentInputSurveyDB.h,v 1.1 2008/03/15 20:26:46 pivarski Exp $
 //
 
 // system include files

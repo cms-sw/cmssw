@@ -5,9 +5,9 @@
  *
  *  Build Alignment Parameter Structure 
  *
- *  $Date: 2010/09/10 11:36:58 $
- *  $Revision: 1.10 $
- *  (last update by $Author: mussgill $)
+ *  $Date: 2010/10/26 20:01:51 $
+ *  $Revision: 1.11 $
+ *  (last update by $Author: flucke $)
  */
 
 #include "Alignment/CommonAlignment/interface/Utilities.h"

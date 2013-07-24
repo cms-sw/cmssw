@@ -16,7 +16,7 @@
 //
 // Author:      
 // Created:     Wed Oct 15 21:38:05 CEST 2008
-// $Id$
+// $Id: RPCObPVSSmapRcd.h,v 1.2 2008/12/12 17:30:45 dpagano Exp $
 //
 
 #include "FWCore/Framework/interface/EventSetupRecordImplementation.h"

@@ -6,8 +6,8 @@
 \author Fedor Ratnikov (UMd)
 POOL object to store map between detector ID, electronics ID and trigger ID
 $Author: ratnikov
-$Date: 2007/12/10 18:36:43 $
-$Revision: 1.16 $
+$Date: 2007/12/14 13:31:21 $
+$Revision: 1.17 $
 */
 
 #include <vector>

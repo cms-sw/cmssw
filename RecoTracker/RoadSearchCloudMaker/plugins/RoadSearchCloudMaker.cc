@@ -8,9 +8,9 @@
 // Original Author: Oliver Gutsche, gutsche@fnal.gov
 // Created:         Sat Jan 14 22:00:00 UTC 2006
 //
-// $Author: noeding $
-// $Date: 2008/04/15 13:21:26 $
-// $Revision: 1.20 $
+// $Author: eulisse $
+// $Date: 2012/10/24 08:10:40 $
+// $Revision: 1.1 $
 //
 
 #include <memory>

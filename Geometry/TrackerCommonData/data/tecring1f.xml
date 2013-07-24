@@ -1,0 +1,43 @@
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
+	<ConstantsSection label="tecring1f.xml" eval="true">
+		<Constant name="Modules" value="2"/>
+		<Constant name="DPhi" value="360*deg/[tecring1:NPhi]"/>
+		<Constant name="Phi" value="([Modules]-1)*[DPhi]"/>
+		<Constant name="Phi0" value="-[Phi]/2"/>
+		<Constant name="Bridges" value="1"/>
+		<Constant name="PhiBridge" value="[Phi0]+[DPhi]"/>
+		<Constant name="CoolIns0" value="3333"/>
+		<Constant name="CoolIns1" value="4440"/>
+	</ConstantsSection>
+	<LogicalPartSection label="tecring1f.xml">
+		<LogicalPart name="TECRing1F" category="unspecified">
+			<rSolid name="tecring1:TECRing1"/>
+			<rMaterial name="materials:Air"/>
+		</LogicalPart>
+	</LogicalPartSection>
+	<Algorithm name="track:DDTECPhiAlgo">
+		<rParent name="tecring1f:TECRing1F"/>
+		<String name="ChildName" value="tecmodule1:TECModule1"/>
+		<Numeric name="StartAngle" value="[Phi0]"/>
+		<Numeric name="IncrAngle" value="[DPhi]"/>
+		<Numeric name="Radius" value="[tecring1:RPos]"/>
+		<Numeric name="ZIn" value="[tecring1:ModuleZ]"/>
+		<Numeric name="ZOut" value="-[tecring1:ModuleZ]"/>
+		<Numeric name="Number" value="[Modules]"/>
+		<Numeric name="StartCopyNo" value="1"/>
+		<Numeric name="IncrCopyNo" value="1"/>
+	</Algorithm>
+	<Algorithm name="track:DDTECPhiAltAlgo">
+		<rParent name="tecring1f:TECRing1F"/>
+		<String name="ChildName" value="tecmodule1r:TECModule1Bridge"/>
+		<Numeric name="StartAngle" value="[PhiBridge]"/>
+		<Numeric name="IncrAngle" value="2*[DPhi]"/>
+		<Numeric name="Radius" value="[tecring1:BridgeR]"/>
+		<Numeric name="ZIn" value="[tecring1:BridgeZ]"/>
+		<Numeric name="ZOut" value="[tecring1:BridgeZ]"/>
+		<Numeric name="Number" value="[Bridges]"/>
+		<Numeric name="StartCopyNo" value="1"/>
+		<Numeric name="IncrCopyNo" value="1"/>
+	</Algorithm>
+</DDDefinition>

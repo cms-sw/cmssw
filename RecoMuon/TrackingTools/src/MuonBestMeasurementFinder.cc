@@ -7,8 +7,8 @@
  *  The evaluation is made (in hard-code way) with the granularity = 1. Where
  *  the granularity is the one defined in the MuonTrajectoyUpdatorClass.
  *
- *  $Date: 2008/12/12 18:38:19 $
- *  $Revision: 1.15 $
+ *  $Date: 2009/10/31 02:05:11 $
+ *  $Revision: 1.16 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  *  \author S. Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  */

@@ -2,8 +2,8 @@
  *
  *  Original author: Andreas Mussgiller, August 2010
  *
- *  $Date: 2010/09/10 10:26:20 $
- *  $Revision: 1.1 $
+ *  $Date: 2011/09/19 11:46:29 $
+ *  $Revision: 1.2 $
  *  (last update by $Author: mussgill $)
  */
 

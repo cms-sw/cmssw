@@ -7,7 +7,7 @@
  * Attention: All values are assumed to be cm for spatial coordinates
  * and ns for time.
  *
- * $Id: $
+ * $Id: HLLHCEvtVtxGenerator.h,v 1.1 2013/02/08 23:04:38 aryd Exp $
  */
 
 #include "IOMC/EventVertexGenerators/interface/BaseEvtVtxGenerator.h"

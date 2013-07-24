@@ -1,8 +1,8 @@
 /** \file LaserSteppingVerbose.cc
  *  
  *
- *  $Date: 2007/03/20 12:01:01 $
- *  $Revision: 1.2 $
+ *  $Date: 2007/06/11 14:44:29 $
+ *  $Revision: 1.3 $
  *  \author Maarten Thomas
  */
 

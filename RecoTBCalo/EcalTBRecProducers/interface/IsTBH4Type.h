@@ -13,7 +13,7 @@
 //
 // Original Author:  Pietro Govoni
 //         Created:  Thu Aug 10 16:21:22 CEST 2006
-// $Id$
+// $Id: IsTBH4Type.h,v 1.1 2006/08/15 09:32:34 govoni Exp $
 //
 //
 

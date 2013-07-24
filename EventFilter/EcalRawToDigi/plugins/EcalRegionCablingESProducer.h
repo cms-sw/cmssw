@@ -15,7 +15,7 @@
 //
 // Original Author:  Jean-Roch Vlimant
 //         Created:  Sun Oct  7 00:37:06 CEST 2007
-// $Id$
+// $Id: EcalRegionCablingESProducer.h,v 1.1 2007/12/06 20:01:11 vlimant Exp $
 //
 //
 

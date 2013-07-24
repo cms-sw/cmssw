@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2010/11/18 20:58:24 $
- *  $Revision: 1.2 $
+ *  $Date: 2012/03/02 19:47:33 $
+ *  $Revision: 1.3 $
  *  \author A. Vilela Pereira
  */
 

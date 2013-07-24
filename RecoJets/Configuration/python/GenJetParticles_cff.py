@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 #
-# $Id: GenJetParticles_cff.py,v 1.5 2009/11/11 21:02:37 srappocc Exp $
+# $Id: GenJetParticles_cff.py,v 1.6 2010/03/01 21:25:51 wmtan Exp $
 #
 # ShR 27 Mar 07: move modules producing candidates for Jets from RecoGenJets.cff
 # 

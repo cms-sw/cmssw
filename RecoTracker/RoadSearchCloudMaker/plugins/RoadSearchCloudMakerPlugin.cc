@@ -7,9 +7,9 @@
 // Original Author: Oliver Gutsche, gutsche@fnal.gov
 // Created:         Wed May 23 19:20:34 UTC 2007
 //
-// $Author: wmtan $
-// $Date: 2010/02/25 00:33:22 $
-// $Revision: 1.2 $
+// $Author: eulisse $
+// $Date: 2012/10/24 08:10:40 $
+// $Revision: 1.3 $
 //
 
 #include "FWCore/PluginManager/interface/ModuleDef.h"

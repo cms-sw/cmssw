@@ -13,7 +13,7 @@
 //
 // Original Author:  Oct 12 08:23
 //         Created:  Wed Oct 12 12:16:04 CDT 2005
-// $Id: Type1MET.cc,v 1.28 2011/09/07 18:16:15 sakuma Exp $
+// $Id: Type1MET.cc,v 1.3 2011/09/13 14:35:35 veelken Exp $
 //
 //
 

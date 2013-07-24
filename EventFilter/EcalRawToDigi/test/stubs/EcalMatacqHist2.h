@@ -1,7 +1,7 @@
 // -*- Mode: C++; c-basic-offset: 2; indent-tabs-mode: t; tab-width: 8; -*-
 
 /**
- * $Id: EcalMatacqHist2.h,v 1.2 2006/09/21 12:16:44 pgras Exp $
+ * $Id: EcalMatacqHist2.h,v 1.1 2009/02/25 14:44:26 pgras Exp $
  *
  * Test module for matacq data producing some histograms.
  *

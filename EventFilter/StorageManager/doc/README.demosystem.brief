@@ -1,0 +1,5 @@
+cd <CMSSW_TOP>/src/EventFilter/StorageManager/test
+./configureHosts.sh 51000
+. testSetup.sh
+startEverything
+killEverything

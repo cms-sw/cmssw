@@ -22,8 +22,8 @@
 //
 // Original Author:  David Futyan
 // HLT Port       :  Stefano Argiro
-//         Created:  $Date: 2012/01/21 15:00:13 $
-// $Id: HLTEcalPhiSymFilter.h,v 1.4 2012/01/21 15:00:13 fwyzard Exp $
+//         Created:  $Date: 2012/01/23 00:36:40 $
+// $Id: HLTEcalPhiSymFilter.h,v 1.5 2012/01/23 00:36:40 fwyzard Exp $
 //
 //
 

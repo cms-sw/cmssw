@@ -5,7 +5,7 @@
  *
  * Digi for GEM-CSC trigger pads
  *  
- *  $Date: 2012/12/08 01:45:22 $
+ *  $Date: 2013/01/18 04:21:50 $
  *  $Revision: 1.1 $
  *
  * \author Vadim Khotilovich

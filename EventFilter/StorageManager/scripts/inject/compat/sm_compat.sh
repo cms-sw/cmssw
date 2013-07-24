@@ -1,5 +1,5 @@
 #!/bin/sh
-# $Id: sm_compat.sh,v 1.2 2008/04/28 13:33:50 loizides Exp $
+# $Id: sm_compat.sh,v 1.3 2008/05/02 12:36:15 loizides Exp $
 
 if test -e "/etc/profile.d/sm_env.sh"; then 
     source /etc/profile.d/sm_env.sh;

@@ -4,8 +4,8 @@
 /** \class MuScleFit
  *  Analyzer of the Global muon tracks
  *
- *  $Date: 2010/10/22 17:48:07 $
- *  $Revision: 1.42 $
+ *  $Date: 2012/12/20 16:09:21 $
+ *  $Revision: 1.43 $
  *  \author C.Mariotti, S.Bolognesi - INFN Torino / T.Dorigo - INFN Padova
  */
 

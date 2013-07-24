@@ -3,7 +3,7 @@
 /**
  *Author: Vladlen Timciuc, Caltech
  * Created: 10 July 2007
- * $Id: EcalLaserAPDPNRatios.h,v 1.6 2009/06/24 09:42:27 fra Exp $
+ * $Id: EcalTimeDependentCorrections.h,v 1.1 2012/12/06 08:34:40 ferriff Exp $
  **/
 #include "CondFormats/EcalObjects/interface/EcalCondObjectContainer.h"
 #include "DataFormats/Provenance/interface/Timestamp.h"

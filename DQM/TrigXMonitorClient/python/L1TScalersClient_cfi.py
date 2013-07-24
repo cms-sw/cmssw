@@ -1,4 +1,4 @@
-# $Id: L1TScalersClient_cfi.py,v 1.2 2008/09/07 03:17:10 wittich Exp $
+# $Id: L1TScalersClient_cfi.py,v 1.3 2010/02/16 17:04:32 wmtan Exp $
 import FWCore.ParameterSet.Config as cms
 
 l1tsClient = cms.EDAnalyzer("L1ScalersClient",

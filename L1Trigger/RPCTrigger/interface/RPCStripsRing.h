@@ -16,7 +16,7 @@
 //
 // Original Author:  Tomasz Fruboes
 //         Created:  Tue Feb 26 15:13:17 CET 2008
-// $Id: RPCStripsRing.h,v 1.4 2009/04/10 15:36:35 fruboes Exp $
+// $Id: RPCStripsRing.h,v 1.1 2009/06/01 13:58:16 fruboes Exp $
 //
 
 #include <map>

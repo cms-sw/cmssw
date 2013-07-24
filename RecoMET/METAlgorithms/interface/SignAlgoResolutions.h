@@ -16,7 +16,7 @@
 //
 // Original Author:  Kyle Story, Freya Blekman (Cornell University)
 //         Created:  Fri Apr 18 11:58:33 CEST 2008
-// $Id: SignAlgoResolutions.h,v 1.5 2011/08/15 12:31:49 akhukhun Exp $
+// $Id: SignAlgoResolutions.h,v 1.6 2012/09/11 11:21:22 veelken Exp $
 //
 //
 

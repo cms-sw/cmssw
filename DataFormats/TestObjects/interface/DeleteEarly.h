@@ -15,7 +15,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Feb  7 14:40:52 CST 2012
-// $Id$
+// $Id: DeleteEarly.h,v 1.1 2012/02/09 22:09:35 chrjones Exp $
 //
 
 // system include files

@@ -15,7 +15,7 @@ Implementation:
 //
 // Original Author:  Bryan DAHMES
 //         Created:  Tue Jan 22 13:55:00 CET 2008
-// $Id: HLTHcalCalibTypeFilter.h,v 1.6 2012/01/21 15:00:14 fwyzard Exp $
+// $Id: HLTHcalCalibTypeFilter.h,v 1.7 2012/01/23 00:02:22 fwyzard Exp $
 //
 //
 

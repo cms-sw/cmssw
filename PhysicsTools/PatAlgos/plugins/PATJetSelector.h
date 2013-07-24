@@ -1,5 +1,5 @@
 //
-// $Id: PATJetSelector.h,v 1.5 2010/07/27 13:33:58 srappocc Exp $
+// $Id: PATJetSelector.h,v 1.6 2010/08/10 01:54:55 srappocc Exp $
 //
 
 #ifndef PhysicsTools_PatAlgos_PATJetSelector_h

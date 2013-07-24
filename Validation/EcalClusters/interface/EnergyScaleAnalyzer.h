@@ -8,7 +8,7 @@
      \\\author: Keti Kaadze, June 2007
 */
 //
-// $Id: EnergyScaleAnalyzer.h,v 1.4 2009/03/27 23:20:15 ferriff Exp $
+// $Id: EnergyScaleAnalyzer.h,v 1.5 2009/12/14 22:24:33 wmtan Exp $
 //
 
 

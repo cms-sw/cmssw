@@ -11,8 +11,8 @@
 /*
  * \file HcalDetDiagNoiseMonitorClient.cc
  * 
- * $Date: 2012/01/12 17:08:39 $
- * $Revision: 1.5 $
+ * $Date: 2012/06/18 08:23:10 $
+ * $Revision: 1.6 $
  * \author J. Temple
  * \brief Hcal DetDiagNoiseMonitor Client class
  */

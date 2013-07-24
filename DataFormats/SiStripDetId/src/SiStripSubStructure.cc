@@ -8,7 +8,7 @@
 //
 // Original Author:  dkcira
 //         Created:  Wed Jan 25 07:19:38 CET 2006
-// $Id: SiStripSubStructure.cc,v 1.4 2006/04/11 10:13:12 dkcira Exp $
+// $Id: SiStripSubStructure.cc,v 1.5 2007/03/16 09:57:09 dkcira Exp $
 //
 
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"

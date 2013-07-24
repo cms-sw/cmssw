@@ -14,7 +14,7 @@
 //
 // Original Author:  Dan Duggan
 //         Created:  
-// $Id: SiPixelMuonHLT.cc,v 1.10 2013/01/03 18:59:35 wmtan Exp $
+// $Id: SiPixelMuonHLT.cc,v 1.11 2013/02/04 13:51:03 merkelp Exp $
 //
 //////////////////////////////////////////////////////////
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"

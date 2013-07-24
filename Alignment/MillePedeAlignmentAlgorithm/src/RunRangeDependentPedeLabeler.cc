@@ -3,9 +3,9 @@
  *
  *  \author    : Gero Flucke
  *  date       : October 2006
- *  $Revision: 1.3 $
- *  $Date: 2011/08/10 12:51:00 $
- *  (last update by $Author: mussgill $)
+ *  $Revision: 1.4 $
+ *  $Date: 2012/08/10 09:01:11 $
+ *  (last update by $Author: flucke $)
  */
 
 #include <algorithm>

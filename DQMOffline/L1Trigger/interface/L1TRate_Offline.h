@@ -4,8 +4,8 @@
 /*
  * \file L1TRate_Offline.h
  *
- * $Date: 2012/11/15 17:50:03 $
- * $Revision: 1.1 $
+ * $Date: 2012/11/26 14:56:56 $
+ * $Revision: 1.2 $
  * \author J. Pela
  *
 */

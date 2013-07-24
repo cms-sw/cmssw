@@ -5,8 +5,8 @@
 //   Description: L1 Global Muon Trigger Candidate
 //
 //
-//   $Date: 2007/04/02 15:44:09 $
-//   $Revision: 1.5 $
+//   $Date: 2007/09/06 13:48:48 $
+//   $Revision: 1.6 $
 //
 //   Author :
 //   N. Neumeister            CERN EP 

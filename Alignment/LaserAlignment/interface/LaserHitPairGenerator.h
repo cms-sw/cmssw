@@ -4,8 +4,8 @@
 /** \class LaserHitPairGenerator
  *  generate hit pairs from hits on consecutive discs in the endcaps used by the LaserSeedGenerator
  *
- *  $Date: 2007/05/10 12:00:32 $
- *  $Revision: 1.5 $
+ *  $Date: 2007/12/04 23:51:42 $
+ *  $Revision: 1.6 $
  *  \author Maarten Thomas
  */
 

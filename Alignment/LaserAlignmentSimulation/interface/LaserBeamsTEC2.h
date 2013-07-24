@@ -4,8 +4,8 @@
 /** \class LaserBeamsTEC2
  *  Laser Beams in the left Endcap
  *
- *  $Date: 2007/06/11 14:44:28 $
- *  $Revision: 1.3 $
+ *  $Date: 2009/05/26 07:12:23 $
+ *  $Revision: 1.4 $
  *  \author Maarten Thomas
  */
 

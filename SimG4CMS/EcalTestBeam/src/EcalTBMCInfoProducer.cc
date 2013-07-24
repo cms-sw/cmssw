@@ -1,7 +1,7 @@
 /*
  * \file EcalTBMCInfoProducer.cc
  *
- * $Id: EcalTBMCInfoProducer.cc,v 1.11 2007/11/21 15:39:16 fabiocos Exp $
+ * $Id: EcalTBMCInfoProducer.cc,v 1.12 2009/04/03 09:38:15 fabiocos Exp $
  *
 */
 

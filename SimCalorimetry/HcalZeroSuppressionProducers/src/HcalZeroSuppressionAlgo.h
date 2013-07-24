@@ -7,8 +7,8 @@
 
 /** \class HcalZeroSuppessionAlgo
   *  
-  * $Date: 2012/10/31 15:34:25 $
-  * $Revision: 1.1 $
+  * $Date: 2013/04/24 10:22:20 $
+  * $Revision: 1.2 $
   * \author J. Mans - Minnesota
   */
 

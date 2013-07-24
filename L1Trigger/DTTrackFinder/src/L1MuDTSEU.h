@@ -9,8 +9,8 @@
  *   to all possible target track segments (12 or 6)
  *
  *
- *   $Date: 2007/03/30 09:05:32 $
- *   $Revision: 1.3 $
+ *   $Date: 2008/02/18 17:38:04 $
+ *   $Revision: 1.4 $
  *
  *   N. Neumeister            CERN EP
  */

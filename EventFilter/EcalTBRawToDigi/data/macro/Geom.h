@@ -2,8 +2,8 @@
 //
 // Class which manages geometry information of the super-module
 //
-// last change : $Date: 2007/06/26 21:06:15 $
-// by          : $Author: franzoni $
+// last change : $Date: 2010/10/21 17:33:47 $
+// by          : $Author: wmtan $
 //
 
 #ifndef H4Geom_H

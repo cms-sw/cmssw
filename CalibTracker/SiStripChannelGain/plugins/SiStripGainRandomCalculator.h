@@ -15,7 +15,7 @@
 //
 // Original Author:  Dorian Kcira, Pierre Rodeghiero
 //         Created:  Mon Nov 20 10:04:31 CET 2006
-// $Id: SiStripGainRandomCalculator.h,v 1.3 2007/05/09 16:10:13 gbruno Exp $
+// $Id: SiStripGainRandomCalculator.h,v 1.1 2007/06/13 14:03:35 gbruno Exp $
 //
 //
 

@@ -22,8 +22,8 @@
   *     [10:7] ieta
   *     [6:0] Iphi
   *
-  * $Date: 2007/07/31 15:20:09 $
-  * $Revision: 1.5 $
+  * $Date: 2008/07/22 11:41:11 $
+  * $Revision: 1.6 $
   * \author J. Mans - Minnesota
   */
 class HcalCalibDetId : public HcalOtherDetId {

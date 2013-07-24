@@ -5,8 +5,8 @@
  *
  *  Abstract base class to read survey raw measurements.
  *
- *  $Date: 2007/05/15 18:14:04 $
- *  $Revision: 1.2 $
+ *  $Date: 2010/01/07 14:36:22 $
+ *  $Revision: 1.3 $
  *  \author Chung Khim Lae
  */
 

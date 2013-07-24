@@ -6,7 +6,7 @@
  *
  * \author  Luca Lista, INFN
  *
- * \version $Revision: 1.3 $
+ * \version $Revision: 1.4 $
  *
  */
 #include "CommonTools/Utils/src/MethodInvoker.h"

@@ -4,8 +4,8 @@
 /*
  * \file EBTrendClient.h
  *
- * $Date: 2010/03/02 00:01:55 $
- * $Revision: 1.2 $
+ * $Date: 2010/03/28 09:05:23 $
+ * $Revision: 1.3 $
  * \author Dongwook Jang, Soon Yung Jun
  *
  */

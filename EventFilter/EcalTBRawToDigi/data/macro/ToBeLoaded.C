@@ -20,8 +20,8 @@ std::string IntToString(int num)
 /*! \class H4Geom
  * \brief A helper class with geometry information of the super module
  *
- * $Date: 2007/06/26 21:06:15 $
- * $Author: franzoni $
+ * $Date: 2010/10/21 17:33:47 $
+ * $Author: wmtan $
  *
  * Crystal numbering schemes during automn 2004 (SM10):
  * - <b>Conventions</b>

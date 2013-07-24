@@ -1,4 +1,4 @@
-// $Id: InitMsgData.cc,v 1.8 2011/03/07 15:31:32 mommsen Exp $
+// $Id: InitMsgData.cc,v 1.9 2012/04/20 10:48:02 mommsen Exp $
 /// @file: InitMsgData.cc
 
 #include "EventFilter/StorageManager/src/ChainData.h"

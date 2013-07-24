@@ -13,7 +13,7 @@
 //
 // Original Author:  Georgios Daskalakis
 //         Created:  Tue Apr 24 17:21:31 CEST 2007
-// $Id: EcalChannelKiller.cc,v 1.7 2010/08/06 20:24:49 wmtan Exp $
+// $Id: EcalChannelKiller.cc,v 1.8 2012/01/10 18:22:10 eulisse Exp $
 //
 //
 

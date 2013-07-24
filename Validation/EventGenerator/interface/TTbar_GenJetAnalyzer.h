@@ -13,7 +13,7 @@
 //
 // Original Author:  Martijn Gosselink,,,
 //         Created:  Thu May 10 17:15:16 CEST 2012
-// $Id: TTbar_GenJetAnalyzer.h,v 1.1 2012/07/04 18:24:21 inugent Exp $
+// $Id: TTbar_GenJetAnalyzer.h,v 1.2 2012/08/24 21:47:01 wdd Exp $
 //
 //
 // Added to: Validation/EventGenerator by Ian M. Nugent June 28, 2012

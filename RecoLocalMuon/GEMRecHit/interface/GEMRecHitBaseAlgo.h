@@ -5,8 +5,8 @@
  *  Abstract algorithmic class to compute Rec Hit
  *  form a GEM digi
  *
- *  $Date: 2013/04/04 13:31:57 $
- *  $Revision: 1.2 $
+ *  $Date: 2013/04/24 17:16:32 $
+ *  $Revision: 1.1 $
  *  \author M. Maggi -- INFN Bari
  */
 

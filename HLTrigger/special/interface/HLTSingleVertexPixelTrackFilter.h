@@ -1,4 +1,4 @@
-// $Id: HLTSingleVertexPixelTrackFilter.h,v 1.2 2009/11/01 19:35:03 davidlw Exp $
+// $Id: HLTSingleVertexPixelTrackFilter.h,v 1.3 2012/01/21 15:00:14 fwyzard Exp $
 
 #ifndef HLTSingleVertexPixelTrackFilter_h
 #define HLTSingleVertexPixelTrackFilter_h

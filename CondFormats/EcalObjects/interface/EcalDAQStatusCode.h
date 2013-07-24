@@ -3,7 +3,7 @@
 /**
  * Author: Paolo Meridiani
  * Created: 14 Nov 2006
- * $Id: EcalDAQStatusCode.h,v 1.2 2008/02/18 10:49:28 ferriff Exp $
+ * $Id: EcalDAQStatusCode.h,v 1.1 2010/01/29 10:48:37 fra Exp $
  **/
 
 

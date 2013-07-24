@@ -2,7 +2,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: MCTrackMatcher.cc,v 1.5 2007/12/18 16:15:33 cerati Exp $
+ * \version $Id: MCTrackMatcher.cc,v 1.6 2010/02/11 00:15:09 wmtan Exp $
  *
  */
 #include "FWCore/Framework/interface/EDProducer.h"

@@ -6,8 +6,8 @@
  *  Compute drift distance using constant drift velocity
  *  as defined in the "driftVelocity" parameter.
  *
- *  $Date: 2007/03/28 13:48:46 $
- *  $Revision: 1.7 $
+ *  $Date: 2007/04/19 11:08:17 $
+ *  $Revision: 1.1 $
  *  \author G. Cerminara - INFN Torino
  */
 

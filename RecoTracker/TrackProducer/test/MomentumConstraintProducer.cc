@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Giuseppe Cerati
 //         Created:  Tue Jul 10 15:05:02 CEST 2007
-// $Id: MomentumConstraintProducer.cc,v 1.6 2009/04/17 08:44:27 cerati Exp $
+// $Id: MomentumConstraintProducer.cc,v 1.7 2010/02/16 17:09:47 wmtan Exp $
 //
 //
 

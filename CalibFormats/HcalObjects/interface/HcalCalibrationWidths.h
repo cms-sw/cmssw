@@ -5,8 +5,8 @@
     
     Container for retrieving uncertainties of calibration constants for HCAL
    $Author: ratnikov
-   $Date: 2006/04/13 22:40:40 $
-   $Revision: 1.5 $
+   $Date: 2008/11/08 21:16:38 $
+   $Revision: 1.6 $
 */
 class HcalCalibrationWidths {
  public:

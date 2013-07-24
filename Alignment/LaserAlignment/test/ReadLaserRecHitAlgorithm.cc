@@ -1,8 +1,8 @@
 /** \file ReadLaserRecHitAlgorithm.cc
  *  Algorithm to read RecHits from the LaserBeams
  *
- *  $Date: 2007/12/04 23:51:47 $
- *  $Revision: 1.3 $
+ *  $Date: 2008/11/07 11:04:19 $
+ *  $Revision: 1.4 $
  *  \author Maarten Thomas
  */
 

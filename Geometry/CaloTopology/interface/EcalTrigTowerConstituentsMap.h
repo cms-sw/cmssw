@@ -13,7 +13,7 @@
 
 /** \class EcalTrigTowerConstituentsMap
   *  
-  * $Id: EcalTrigTowerConstituentsMap.h,v 1.1 2006/05/25 15:44:47 meridian Exp $
+  * $Id: EcalTrigTowerConstituentsMap.h,v 1.2 2010/03/26 19:40:54 sunanda Exp $
   * \author P.Meridiani
   */
 

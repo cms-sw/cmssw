@@ -5,8 +5,8 @@
  *
  *  Linear interpolation in a regular 3D grid.
  *
- *  $Date: 2010/10/22 18:24:02 $
- *  $Revision: 1.12 $
+ *  $Date: 2011/04/16 12:47:37 $
+ *  $Revision: 1.13 $
  *  \author T. Todorov 
  */
 

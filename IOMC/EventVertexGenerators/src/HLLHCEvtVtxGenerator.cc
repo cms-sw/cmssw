@@ -1,4 +1,4 @@
-// $Id: HLLHCEvtVtxGenerator.cc,v 1.3 2013/05/01 12:41:54 aryd Exp $
+// $Id: HLLHCEvtVtxGenerator.cc,v 1.4 2013/05/05 17:12:11 dlange Exp $
 
 #include "IOMC/EventVertexGenerators/interface/HLLHCEvtVtxGenerator.h"
 #include "FWCore/Utilities/interface/Exception.h"

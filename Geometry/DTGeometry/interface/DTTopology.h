@@ -17,8 +17,8 @@
  * The Topology interface is extended with methods relevant for
  * the DT detectors, e.g. wirePosition(int), etc.
  *  
- *  $Date: 2011/09/29 09:47:53 $
- *  $Revision: 1.7 $
+ *  $Date: 2011/11/02 09:22:44 $
+ *  $Revision: 1.8 $
  *
  * \author R. Bellan - INFN Torino
  *

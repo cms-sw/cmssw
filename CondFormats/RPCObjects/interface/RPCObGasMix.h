@@ -1,8 +1,8 @@
 /*
  * Payload definition(s): Chamber Gas Mix (RPCObGasMix)
  *
- *  $Date: 2009/12/13 09:56:28 $
- *  $Revision: 1.1 $
+ *  $Date: 2009/12/14 16:00:11 $
+ *  $Revision: 1.2 $
  *  \author D. Pagano - Dip. Fis. Nucl. e Teo. & INFN Pavia
  */
 

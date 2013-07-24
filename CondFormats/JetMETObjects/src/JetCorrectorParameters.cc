@@ -1,6 +1,6 @@
 //
 // Original Author:  Fedor Ratnikov Nov 9, 2007
-// $Id: JetCorrectorParameters.cc,v 1.20 2012/03/01 18:24:53 srappocc Exp $
+// $Id: JetCorrectorParameters.cc,v 1.21 2012/05/24 19:28:01 srappocc Exp $
 //
 // Generic parameters for Jet corrections
 //

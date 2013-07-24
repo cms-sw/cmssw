@@ -5,8 +5,8 @@
  *  
  *  Class to load DQM monitoring elements from ROOT files into DQMStore --> hanged name to avoid conflict with TauAnalysis package
  *
- *  $Date: 2011/04/08 14:33:13 $
- *  $Revision: 1.2 $
+ *  $Date: 2012/04/20 13:26:02 $
+ *  $Revision: 1.3 $
  *  \author Christian Veelken, UC Davis
  */
 

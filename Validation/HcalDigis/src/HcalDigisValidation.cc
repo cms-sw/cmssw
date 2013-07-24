@@ -13,7 +13,7 @@
 //
 // Original Author:  Ali Fahim,22 R-013,+41227672649,
 //         Created:  Wed Mar 23 11:42:34 CET 2011
-// $Id: HcalDigisValidation.cc,v 1.5 2012/11/08 05:47:19 lhx Exp $
+// $Id: HcalDigisValidation.cc,v 1.6 2012/11/12 03:39:19 lhx Exp $
 //
 //
 

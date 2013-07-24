@@ -6,8 +6,8 @@
  *  This is necessary e.g. when the seed introduced a bias (by using
  *  a beam contraint etc.). Ported from ORCA
  *
- *  $Date: 2012/09/01 11:08:33 $
- *  $Revision: 1.17 $
+ *  $Date: 2012/09/14 12:39:32 $
+ *  $Revision: 1.18 $
  *  \author todorov, cerati
  */
 

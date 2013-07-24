@@ -10,9 +10,9 @@
  * \authors Lauri Andreas Wendland,
  *          Christian Veelken
  *
- * \version $Revision: 1.1 $
+ * \version $Revision: 1.2 $
  *
- * $Id: PFRecoTauDiscriminationAgainstElectronDeadECAL.cc,v 1.1 2012/11/22 18:02:15 veelken Exp $
+ * $Id: PFRecoTauDiscriminationAgainstElectronDeadECAL.cc,v 1.2 2012/12/07 12:24:06 speer Exp $
  *
  */
 

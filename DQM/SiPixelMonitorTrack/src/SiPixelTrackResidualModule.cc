@@ -9,7 +9,7 @@
 //
 // Original Author: Shan-Huei Chuang
 //         Created: Fri Mar 23 18:41:42 CET 2007
-// $Id: SiPixelTrackResidualModule.cc,v 1.11 2013/02/04 13:45:51 merkelp Exp $
+// $Id: SiPixelTrackResidualModule.cc,v 1.12 2013/04/17 09:48:50 itopsisg Exp $
 
 
 #include <string>

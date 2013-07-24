@@ -16,7 +16,7 @@
 //
 // Original Author:  Gena Kukartsev, kukarzev@fnal.gov
 //         Created:  Tue Mar 18 14:30:33 CDT 2008
-// $Id: LutXml.h,v 1.4 2009/07/16 16:36:11 kukartse Exp $
+// $Id: LutXml.h,v 1.5 2010/08/06 20:24:02 wmtan Exp $
 //
 
 #include <vector>

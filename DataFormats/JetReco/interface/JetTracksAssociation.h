@@ -7,7 +7,7 @@
  *
  * \author Fedor Ratnikov, July 27, 2007
  *
- * \version   $Id: JetTracksAssociation.h,v 1.2 2007/10/05 23:23:09 fedor Exp $
+ * \version   $Id: JetTracksAssociation.h,v 1.3 2008/05/21 00:27:45 fedor Exp $
  ************************************************************/
 
 #include "DataFormats/Common/interface/AssociationVector.h"

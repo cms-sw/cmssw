@@ -8,7 +8,7 @@
 //
 // Original Author:  Werner Sun
 //         Created:  Tue Oct 24 00:03:09 EDT 2006
-// $Id: T_EventSetup_L1CaloGeometry.cc,v 1.1 2008/04/16 23:20:48 wsun Exp $
+// $Id: T_EventSetup_L1CaloGeometry.cc,v 1.2 2010/02/20 20:57:35 wmtan Exp $
 //
 
 // system include files

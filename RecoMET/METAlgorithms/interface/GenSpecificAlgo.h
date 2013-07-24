@@ -13,7 +13,7 @@
 //
 // Original Authors:  R. Cavanaugh (taken from F.Ratnikov, UMd)
 //          Created:  June 6, 2006
-// $Id: PFSpecificAlgo.h,v 1.6 2012/06/10 16:37:16 sakuma Exp $
+// $Id: GenSpecificAlgo.h,v 1.5 2012/06/10 21:54:11 sakuma Exp $
 //
 //
 #ifndef METProducers_GenMETInfo_h

@@ -4,8 +4,8 @@
 /** \class TrackAssociatorBase
  *  Base class for TrackAssociators. Methods take as input the handle of Track and TrackingPArticle collections and return an AssociationMap (oneToManyWithQuality)
  *
- *  $Date: 2009/07/27 16:45:51 $
- *  $Revision: 1.16 $
+ *  $Date: 2010/05/18 15:40:39 $
+ *  $Revision: 1.17 $
  *  \author magni, cerati
  */
 

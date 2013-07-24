@@ -9,7 +9,7 @@
 //
 // Author:	Christophe Saout <christophe.saout@cern.ch>
 // Created:     Sat Apr 24 15:18 CEST 2007
-// $Id: MVAModuleHelper.h,v 1.2 2010/10/20 20:39:10 wmtan Exp $
+// $Id: MVAModuleHelper.h,v 1.3 2011/04/20 07:07:37 kukartse Exp $
 //
 
 #include <functional>

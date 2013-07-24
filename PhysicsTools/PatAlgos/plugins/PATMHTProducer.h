@@ -13,7 +13,7 @@
 //
 // Original Author:  Xin Shi & Freya Blekman, Cornell University
 //         Created:  Fri Sep 12 17:58:29 CEST 2008
-// $Id: PATMHTProducer.h,v 1.5 2010/02/20 21:00:24 wmtan Exp $
+// $Id: PATMHTProducer.h,v 1.6 2012/09/11 14:42:23 veelken Exp $
 //
 //
 

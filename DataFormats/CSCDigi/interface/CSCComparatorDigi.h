@@ -5,8 +5,8 @@
  *
  * Digi for CSC Comparators.
  *  
- *  $Date: 2007/07/23 12:08:19 $
- *  $Revision: 1.11 $
+ *  $Date: 2009/05/09 20:23:33 $
+ *  $Revision: 1.12 $
  *
  * \author M. Schmitt, Northwestern
  *

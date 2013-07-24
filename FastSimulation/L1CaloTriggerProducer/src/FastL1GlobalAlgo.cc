@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Chi Nhan Nguyen
 //         Created:  Mon Feb 19 13:25:24 CST 2007
-// $Id: FastL1GlobalAlgo.cc,v 1.42 2009/10/22 11:51:03 abdullin Exp $
+// $Id: FastL1GlobalAlgo.cc,v 1.43 2011/10/04 21:28:04 aperrott Exp $
 //
 
 // No BitInfos for release versions

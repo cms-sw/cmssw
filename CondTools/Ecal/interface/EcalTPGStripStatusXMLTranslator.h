@@ -1,6 +1,6 @@
 /**
    Translates a Ecal record to XML
-   \version $Id: EcalDAQStripStatusXMLTranslator.h,v 1.1 2011/06/14 fay Exp $
+   \version $Id: EcalTPGStripStatusXMLTranslator.h,v 1.1 2011/06/22 12:52:05 fay Exp $
    \date 14 Jun 2011
 */
 
@@ -15,7 +15,7 @@
 #include <xercesc/dom/DOMNode.hpp>
 
 static const char CVSId__EcalTPGStripStatusXMLTranslator[] = 
-"$Id: EcalTPGStripStatusXMLTranslator.h,v 1.1 2011/04/04 fay Exp $";
+"$Id: EcalTPGStripStatusXMLTranslator.h,v 1.1 2011/06/22 12:52:05 fay Exp $";
 
 
 //class EcalTPGStripStatus;

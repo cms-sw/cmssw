@@ -16,7 +16,7 @@
 //
 // Author:      
 // Created:     Mon Sep 28 15:40:50 CEST 2009
-// $Id$
+// $Id: SiPixelTemplateDBObject4TRcd.h,v 1.1 2009/10/19 15:22:46 dfehling Exp $
 //
 
 #include "FWCore/Framework/interface/EventSetupRecordImplementation.h"

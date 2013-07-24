@@ -14,7 +14,7 @@
 // Original Author:  Fedor Ratnikov
 //         Created:  Tue Aug  9 19:10:10 CDT 2005
 //         Adapted for CASTOR by L. Mundim
-// $Id: CastorDbProducer.cc,v 1.3 2009/03/26 17:49:44 mundim Exp $
+// $Id: CastorDbProducer.cc,v 1.4 2012/11/12 21:06:22 dlange Exp $
 //
 //
 

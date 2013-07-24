@@ -10,8 +10,8 @@
  *  the granularity of the updating (i.e.: segment position or 1D rechit position), which can be set via
  *  parameter set, and the propagation direction which is embeded in the propagator set in the c'tor.
  *
- *  $Date: 2009/05/15 14:51:48 $
- *  $Revision: 1.19 $
+ *  $Date: 2010/11/17 09:25:17 $
+ *  $Revision: 1.20 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  *  \author S. Lacaprara - INFN Legnaro
  */

@@ -8,9 +8,9 @@
 // Original Author: Oliver Gutsche, gutsche@fnal.gov
 // Created:         Mon Jan 22 21:42:35 UTC 2007
 //
-// $Author: mkirn $
-// $Date: 2007/09/07 16:28:52 $
-// $Revision: 1.6 $
+// $Author: eulisse $
+// $Date: 2012/10/24 08:32:20 $
+// $Revision: 1.1 $
 //
 
 #include <cmath>

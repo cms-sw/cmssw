@@ -1,7 +1,7 @@
 ///  \author    : Gero Flucke
 ///  date       : October 2010
-///  $Revision: 1.1 $
-///  $Date: 2010/10/26 19:00:00 $
+///  $Revision: 1.2 $
+///  $Date: 2011/02/11 10:57:40 $
 ///  (last update by $Author: flucke $)
 
 #include "FWCore/Utilities/interface/Exception.h"

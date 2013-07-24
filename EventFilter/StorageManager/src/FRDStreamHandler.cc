@@ -1,4 +1,4 @@
-// $Id: FRDStreamHandler.cc,v 1.8 2012/04/04 12:17:02 mommsen Exp $
+// $Id: FRDStreamHandler.cc,v 1.9 2012/10/17 10:13:25 mommsen Exp $
 /// @file: FRDStreamHandler.cc
 
 #include "EventFilter/StorageManager/interface/ErrorStreamConfigurationInfo.h"

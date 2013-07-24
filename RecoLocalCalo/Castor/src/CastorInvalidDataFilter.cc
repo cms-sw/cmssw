@@ -13,7 +13,7 @@
 //
 // Original Author:  local user
 //         Created:  Thu Apr 21 11:36:52 CEST 2011
-// $Id$
+// $Id: CastorInvalidDataFilter.cc,v 1.1 2011/04/21 13:20:58 hvanhaev Exp $
 //
 //
 

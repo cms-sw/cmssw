@@ -2,8 +2,8 @@
 #define Alignment_MuonAlignmentAlgorithms_DTMuonMillepede_H
 
 /** \class DTMuonMillepede
- *  $Date: 2010/02/25 11:33:32 $
- *  $Revision: 1.2 $
+ *  $Date: 2011/09/15 08:52:14 $
+ *  $Revision: 1.3 $
  *  \author Luca Scodellaro <Luca.Scodellaro@cern.ch>
  */
 

@@ -10,9 +10,9 @@
  *          Florent Lacroix, University of Illinois at Chicago
  *          Christian Veelken, LLR
  *
- * \version $Revision: 1.4 $
+ * \version $Revision: 1.5 $
  *
- * $Id: CaloJetMETcorrInputProducerT.h,v 1.4 2011/11/20 10:25:47 veelken Exp $
+ * $Id: CaloJetMETcorrInputProducerT.h,v 1.5 2012/02/13 14:18:39 veelken Exp $
  *
  */
 

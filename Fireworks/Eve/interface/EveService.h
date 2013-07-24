@@ -16,7 +16,7 @@
 //
 // Original Author:  Matevz Tadel
 //         Created:  Fri Jun 25 18:56:52 CEST 2010
-// $Id: EveService.h,v 1.4 2010/07/13 19:59:04 matevz Exp $
+// $Id: EveService.h,v 1.5 2010/07/15 13:02:02 matevz Exp $
 //
 
 #include <string>

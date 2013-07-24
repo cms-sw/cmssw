@@ -16,7 +16,7 @@
 //
 // Author:      
 // Created:     Tue Aug  9 19:10:36 CDT 2005
-// $Id: HcalDbRecord.h,v 1.11 2009/10/23 13:33:56 rofierzy Exp $
+// $Id: HcalDbRecord.h,v 1.12 2012/11/12 20:47:04 dlange Exp $
 //
 #include "boost/mpl/vector.hpp"
 #include "FWCore/Framework/interface/DependentRecordImplementation.h"

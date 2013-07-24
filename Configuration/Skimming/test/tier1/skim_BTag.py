@@ -33,7 +33,7 @@ process.options = cms.untracked.PSet(
 
 # Production Info
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.372.2.4 $'),
+    version = cms.untracked.string('$Revision: 1.2 $'),
     annotation = cms.untracked.string('skims nevts:1000'),
     name = cms.untracked.string('PyReleaseValidation')
 )

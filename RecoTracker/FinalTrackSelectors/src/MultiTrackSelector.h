@@ -6,9 +6,9 @@
  * 
  * \author David Lange
  *
- * \version $Revision: 1.6 $
+ * \version $Revision: 1.7 $
  *
- * $Id: MultiTrackSelector.h,v 1.6 2012/02/19 20:21:33 stenson Exp $
+ * $Id: MultiTrackSelector.h,v 1.7 2012/09/23 13:09:33 stenson Exp $
  *
  */
 

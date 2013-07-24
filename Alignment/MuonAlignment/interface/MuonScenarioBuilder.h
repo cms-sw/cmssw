@@ -4,8 +4,8 @@
 /** \class MuonScenarioBuilder
  *  The misalignment scenario builder.
  *
- *  $Date: 2009/09/15 17:09:58 $
- *  $Revision: 1.5 $
+ *  $Date: 2011/06/07 19:28:47 $
+ *  $Revision: 1.6 $
  *  \author Andre Sznajder - UERJ(Brazil)
  */
 

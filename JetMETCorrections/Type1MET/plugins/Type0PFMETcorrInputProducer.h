@@ -10,7 +10,7 @@
  *
  * \version $Revision: 1.1 $
  *
- * $Id: Type0(PF)METcorrInputProducer.h,v 1.1 2011/09/16 08:03:38 veelken Exp $
+ * $Id: Type0PFMETcorrInputProducer.h,v 1.1 2012/04/19 17:59:40 veelken Exp $
  *
  */
 

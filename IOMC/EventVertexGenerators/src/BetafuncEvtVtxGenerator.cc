@@ -1,5 +1,5 @@
 
-// $Id: BetafuncEvtVtxGenerator.cc,v 1.13 2012/01/17 11:58:52 vlimant Exp $
+// $Id: BetafuncEvtVtxGenerator.cc,v 1.14 2012/01/18 16:22:25 vlimant Exp $
 /*
 ________________________________________________________________________
 

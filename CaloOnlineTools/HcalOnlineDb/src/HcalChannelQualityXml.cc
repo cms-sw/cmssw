@@ -8,7 +8,7 @@
 //
 // Original Author:  Gena Kukartsev, kukarzev@fnal.gov
 //         Created:  Wed Jul 01 06:30:00 CDT 2009
-// $Id: HcalChannelQualityXml.cc,v 1.11 2009/11/18 23:02:26 lsexton Exp $
+// $Id: HcalChannelQualityXml.cc,v 1.12 2010/08/06 20:24:12 wmtan Exp $
 //
 
 #include <iostream>

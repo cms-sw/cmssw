@@ -4,7 +4,7 @@
 // Creation Date:  MHS May 31, 2005 Initial version.
 //
 //--------------------------------------------
-// $Id: Type1METAlgo.cc,v 1.28 2011/09/07 20:07:35 sakuma Exp $
+// $Id: Type1METAlgo.cc,v 1.29 2011/09/13 14:35:35 veelken Exp $
 
 #include <math.h>
 #include <vector>
