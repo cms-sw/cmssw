@@ -39,7 +39,7 @@ namespace edm {
     checkProcessHistory(newProcessHistory, pc);
     newProcessHistory.push_back(pc);
     registry->insertMapped(newProcessHistory);
-    ProcessHistoryID newProcessHistoryID = newProcessHistory.id();
+    ProcessHistoryID newProcessHistoryID = newProcessHistory.setProcessHistoryID();
     CachedHistory newValue(inputProcessHistory,
                            registry->getMapped(newProcessHistoryID),
                            newProcessHistoryID);

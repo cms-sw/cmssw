@@ -395,6 +395,7 @@ namespace edm {
     proc_pset.registerIt();
     pset::Registry::instance()->extra().setID(proc_pset.id());
     processConfiguration->setParameterSetID(proc_pset.id());
+    processConfiguration->setProcessConfigurationID();
 
     initializeEarlyDelete(opts,preg,subProcPSet);
     

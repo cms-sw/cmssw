@@ -27,7 +27,7 @@ namespace edm {
     std::string const& processName = pc.processName();
     ParameterSetID const& processParameterSetID = pc.parameterSetID();
     ParameterSet const* processParameterSet = pset::Registry::instance()->getMapped(processParameterSetID);
-    if(0 == processParameterSet || processParameterSet->empty()) {
+    if(nullptr == processParameterSet || processParameterSet->empty()) {
       return;
     }
     for(ProductRegistry::ProductList::iterator it = preg.productListUpdator().begin(),

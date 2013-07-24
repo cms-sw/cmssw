@@ -52,23 +52,30 @@ namespace edm {
 
   ProcessConfigurationID
   ProcessConfiguration::id() const {
-    if(pcid().isValid()) {
-      return pcid();
+    if(transient_.pcid_.isValid()) {
+      return transient_.pcid_; 
     }
     // This implementation is ripe for optimization.
     std::ostringstream oss;
     oss << *this;
     std::string stringrep = oss.str();
     cms::Digest md5alg(stringrep);
-    ProcessConfigurationID tmp(md5alg.digest().toString());
-    transient_.pcid_.swap(tmp);
-    return pcid();
+    ProcessConfigurationID pcid(md5alg.digest().toString());
+    return pcid;
   }
 
   void
   ProcessConfiguration::setParameterSetID(ParameterSetID const& pSetID) {
     assert(parameterSetID_ == ParameterSetID());
     parameterSetID_ = pSetID;
+  }
+
+  ProcessConfigurationID
+  ProcessConfiguration::setProcessConfigurationID() {
+    if(!transient_.pcid_.isValid()) {
+      transient_.pcid_ = id();
+    }
+    return transient_.pcid_;
   }
 
   void
@@ -82,7 +89,7 @@ namespace edm {
     while(iter != iEnd && isdigit(*iter) == 0) ++iter;
     while(iter != iEnd && isdigit(*iter) != 0) ++iter;
     if (iter == iEnd) return;
-    setPCID(ProcessConfigurationID());
+    transient_.pcid_ = ProcessConfigurationID();
     releaseVersion_.erase(iter,iEnd);
   }
 
