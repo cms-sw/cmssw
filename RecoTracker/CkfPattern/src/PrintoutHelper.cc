@@ -97,17 +97,19 @@ std::string PrintoutHelper::regressionTest(const TrackerGeometry & tracker,
   for (std::vector<Trajectory>::const_iterator it = unsmoothedResult.begin();
        it != unsmoothedResult.end(); it++) {
     if (it->lastMeasurement().updatedState().isValid()) {
-      buffer<< "candidate's n valid and invalid hit, chi2, pt : " 
+      buffer<< "candidate's n valid and invalid hit, chi2, pt, eta : " 
 	 << it->foundHits() << " , " 
 	 << it->lostHits() <<" , " 
 	 << it->chiSquared() << " , "
-	 << it->lastMeasurement().updatedState().globalMomentum().perp()<<std::endl;
+	 << it->lastMeasurement().updatedState().globalMomentum().perp() << " , "
+         << it->lastMeasurement().updatedState().globalMomentum().eta()<<std::endl;
     } else if (it->lastMeasurement().predictedState().isValid()) {
-      buffer<< "candidate's n valid and invalid hit, chi2, pt : " 
+      buffer<< "candidate's n valid and invalid hit, chi2, pt, eta : " 
 	 << it->foundHits() << " , " 
 	 << it->lostHits() <<" , " 
 	 << it->chiSquared() << " , "
-	 << it->lastMeasurement().predictedState().globalMomentum().perp()<<std::endl;
+	 << it->lastMeasurement().predictedState().globalMomentum().perp() << " , "
+	 << it->lastMeasurement().predictedState().globalMomentum().eta()<<std::endl;
     } else buffer<< "candidate with invalid last measurement state!"<<std::endl;
   }
   buffer<<"=================================================";
