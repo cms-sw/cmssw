@@ -31,7 +31,7 @@ process.source = cms.Source("PoolSource",
 
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(1)
+    input = cms.untracked.int32(-1)
 )
 
 
@@ -73,7 +73,7 @@ process.load("FWCore.MessageLogger.MessageLogger_cfi")
 
 #get from global tag
 #from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag.globaltag = 'GR_R_52_V10::All'
+process.GlobalTag.globaltag = 'GR_R_61_V7::All'
 
 
 #get explicit from db
@@ -158,7 +158,7 @@ process.castorDigis = cms.EDProducer("CastorRawToDigi",
 
 process.castorMonitor = cms.EDAnalyzer("CastorMonitorModule",
                            ### GLOBAL VARIABLES
-                           debug = cms.untracked.int32(1), # make debug an int so that different
+                           debug = cms.untracked.int32(0), # make debug an int so that different
                                                            # values can trigger different levels of messaging
 							   # 0 - no debug infomration
 							   # 1 - Program flow in/out
@@ -170,13 +170,13 @@ process.castorMonitor = cms.EDAnalyzer("CastorMonitorModule",
 
 			   # Define Labels
                            digiLabel            = cms.InputTag("castorDigis"),
-                           rawLabel             = cms.InputTag("rawDataCollector"),
+                           rawLabel 		= cms.InputTag("rawDataCollector"),
                            unpackerReportLabel  = cms.InputTag("castorDigis"),
                            CastorRecHitLabel    = cms.InputTag("castorreco"),
-                           CastorTowerLabel     = cms.InputTag("recoCastorTowers"),
+                           CastorTowerLabel     = cms.InputTag("CastorTowerReco"),
                            CastorBasicJetsLabel = cms.InputTag("ak7BasicJets"),
                            CastorJetIDLabel     = cms.InputTag("ak7CastorJetID"),
-                          
+                                                    
 			   DataIntMonitor= cms.untracked.bool(True),
 			   TowerJetMonitor= cms.untracked.bool(True),
 
