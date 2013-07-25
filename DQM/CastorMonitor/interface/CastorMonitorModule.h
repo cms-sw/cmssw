@@ -53,7 +53,6 @@
 #include "DQM/CastorMonitor/interface/CastorChannelQualityMonitor.h"
 #include "DQM/CastorMonitor/interface/CastorLEDMonitor.h"
 #include "DQM/CastorMonitor/interface/CastorPSMonitor.h"
-#include "DQM/CastorMonitor/interface/CastorEventDisplay.h"
 #include "DQM/CastorMonitor/interface/CastorHIMonitor.h"
 #include "DQM/CastorMonitor/interface/CastorDataIntegrityMonitor.h"
 #include "DQM/CastorMonitor/interface/CastorTowerJetMonitor.h"
