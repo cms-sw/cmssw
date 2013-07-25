@@ -289,20 +289,6 @@ SeedingLayerSets SeedingLayerSetsBuilder::layers(const edm::EventSetup& es) cons
           extractor = new HitExtractorPIX(side,idLayer,layer.pixelHitProducer);
         } else {
           HitExtractorSTRP extSTRP(detLayer,side,idLayer);
-	  /*
-	  if (layer.useMatchedRecHits) {//fixme
-	    if (idLayer<3 || (detLayer->subDetector() != GeomDetEnumerators::TIB && detLayer->subDetector() != GeomDetEnumerators::TOB) ) {
-	      //cout << "useMatchedRecHits for this layer: " << detLayer->subDetector() << " " << idLayer << endl;
-	      extSTRP.useMatchedHits(layer.matchedRecHits);
-	    }
-	  }
-	  if (layer.useRPhiRecHits)    {
-	    if (idLayer>=3 || (detLayer->subDetector() != GeomDetEnumerators::TIB && detLayer->subDetector() != GeomDetEnumerators::TOB) ) {
-	      //cout << "useRPhiRecHits for this layer: " << detLayer->subDetector() << " " << idLayer << endl;
-	      extSTRP.useRPhiHits(layer.rphiRecHits);
-	    }
-	  }
-	  */
 	  if (layer.useMatchedRecHits) extSTRP.useMatchedHits(layer.matchedRecHits);
 	  if (layer.useRPhiRecHits)    extSTRP.useRPhiHits(layer.rphiRecHits);
           if (layer.useStereoRecHits)  extSTRP.useStereoHits(layer.stereoRecHits);
