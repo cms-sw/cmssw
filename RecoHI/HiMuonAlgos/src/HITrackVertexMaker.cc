@@ -7,7 +7,7 @@
 //
 // Original Author:  Dong Ho Moon
 //         Created:  Wed May  9 06:22:36 CEST 2007
-// $Id: HITrackVertexMaker.cc,v 1.6 2009/12/18 11:38:23 kodolova Exp $
+// $Id: HITrackVertexMaker.cc,v 1.7 2011/01/10 00:19:47 dlange Exp $
 //
 // added CAIR error cut
  

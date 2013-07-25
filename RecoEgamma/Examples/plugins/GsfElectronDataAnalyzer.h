@@ -9,7 +9,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: GsfElectronDataAnalyzer.h,v 1.20 2010/02/26 18:47:24 wdd Exp $
+// $Id: GsfElectronDataAnalyzer.h,v 1.21 2011/05/20 17:17:28 wmtan Exp $
 //
 //
 

@@ -10,7 +10,7 @@
 //
 // Original Author:  Giulio Eulisse
 //         Created:  Thu Feb 18 15:19:44 EDT 2008
-// $Id: FWItemRandomAccessor.cc,v 1.2 2010/06/18 10:17:15 yana Exp $
+// $Id: FWItemRandomAccessor.cc,v 1.3 2010/07/23 16:02:54 eulisse Exp $
 //
 
 // system include files

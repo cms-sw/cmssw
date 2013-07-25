@@ -6,7 +6,7 @@
      <Notes on implementation>
 */
 //
-// $Id: EcalSimpleTBAnalyzer.cc,v 1.8 2007/12/21 16:10:55 ferriff Exp $
+// $Id: EcalSimpleTBAnalyzer.cc,v 1.9 2010/01/04 15:09:12 ferriff Exp $
 //
 //
 

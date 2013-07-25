@@ -1,4 +1,4 @@
-// $Id: MonitoredQuantity.h,v 1.9.4.1 2011/03/07 11:33:04 mommsen Exp $
+// $Id: MonitoredQuantity.h,v 1.10 2011/03/07 15:31:32 mommsen Exp $
 /// @file: MonitoredQuantity.h 
 
 #ifndef EventFilter_StorageManager_MonitoredQuantity_h
@@ -22,8 +22,8 @@ namespace stor
    * and provides timing information on the samples.
    *
    * $Author: mommsen $
-   * $Revision: 1.9.4.1 $
-   * $Date: 2011/03/07 11:33:04 $
+   * $Revision: 1.10 $
+   * $Date: 2011/03/07 15:31:32 $
    */
 
   class MonitoredQuantity

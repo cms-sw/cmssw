@@ -1,8 +1,8 @@
 #ifndef IOMC_BaseEvtVtxGenerator_H
 #define IOMC_BaseEvtVtxGenerator_H
 /*
-*   $Date: 2008/05/28 16:40:45 $
-*   $Revision: 1.7 $
+*   $Date: 2010/02/11 00:12:31 $
+*   $Revision: 1.8 $
 */
 
 #include "FWCore/Framework/interface/EDProducer.h"

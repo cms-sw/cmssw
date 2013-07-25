@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Jun 24 14:39:39 EDT 2005
-// $Id: DoodadESSource.cc,v 1.12 2009/09/23 23:32:07 wmtan Exp $
+// $Id: DoodadESSource.cc,v 1.13 2011/01/13 21:10:07 wdd Exp $
 //
 
 // system include files

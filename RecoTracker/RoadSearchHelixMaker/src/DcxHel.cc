@@ -1,6 +1,6 @@
 // -------------------------------------------------------------------------
 // File and Version Information:
-// 	$Id: DcxHel.cc,v 1.5 2009/05/27 07:17:25 fabiocos Exp $
+// 	$Id: DcxHel.cc,v 1.6 2011/04/07 21:47:06 stevew Exp $
 //
 // Description:
 //	Class Implementation for |DcxHel|

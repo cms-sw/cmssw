@@ -6,8 +6,8 @@
  *       Class to hold drift tubes TTrigs
  *             ( SL by SL time offsets )
  *
- *  $Date: 2008/12/11 09:44:53 $
- *  $Revision: 1.8 $
+ *  $Date: 2010/01/20 18:20:08 $
+ *  $Revision: 1.9 $
  *  \author Paolo Ronchese INFN Padova
  *
  */

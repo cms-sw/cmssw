@@ -3,7 +3,7 @@
 /**
  * Author: Shahram Rahatlou, University of Rome & INFN
  * Created: 22 Feb 2006
- * $Id: EcalWeightXtalGroups.h,v 1.3 2007/06/29 07:04:30 innocent Exp $
+ * $Id: EcalWeightXtalGroups.h,v 1.4 2007/09/27 09:42:55 ferriff Exp $
  **/
 
 #include "CondFormats/EcalObjects/interface/EcalCondObjectContainer.h"

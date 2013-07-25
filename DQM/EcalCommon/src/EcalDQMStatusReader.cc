@@ -1,8 +1,8 @@
 /*
  * \file EcalDQMStatusReader.cc
  *
- * $Date: 2010/08/09 09:00:12 $
- * $Revision: 1.10 $
+ * $Date: 2010/08/09 17:47:32 $
+ * $Revision: 1.11 $
  * \author G. Della Ricca
  *
 */

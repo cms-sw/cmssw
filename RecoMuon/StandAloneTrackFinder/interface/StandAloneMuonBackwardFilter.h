@@ -4,8 +4,8 @@
 /** \class StandAloneMuonBackwardFilter
  *  The outward-inward fitter (starts from StandAloneMuonFilter outermost state).
  *
- *  $Date: 2006/08/31 18:28:04 $
- *  $Revision: 1.6 $
+ *  $Date: 2008/04/23 16:56:34 $
+ *  $Revision: 1.7 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
 

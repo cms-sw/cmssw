@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 #
-# $Id: getRunInfo.py,v 1.6 2008/11/27 17:18:38 vadler Exp $
+# $Id: getRunInfo.py,v 1.7 2008/11/27 17:36:56 vadler Exp $
 #
 
 ## CMSSW/DQM/SiStripMonitorClient/scripts/getRunInfo.py

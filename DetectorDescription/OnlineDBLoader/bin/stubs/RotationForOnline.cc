@@ -1,7 +1,7 @@
 //
 // Original Author:  Jie Chen
 //         Created:  Mon Apr  9 11:36:53 CDT 2007
-// $Id: RotationForOnline.cc,v 1.6 2009/12/21 23:29:28 case Exp $
+// $Id: RotationForOnline.cc,v 1.7 2010/03/25 21:55:36 case Exp $
 //
 //
 

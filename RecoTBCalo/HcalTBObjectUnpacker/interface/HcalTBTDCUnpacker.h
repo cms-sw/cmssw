@@ -7,8 +7,8 @@
 namespace hcaltb {
 /** \class HcalTBTDCUnpacker
     
-   $Date: 2006/08/28 16:39:16 $
-   $Revision: 1.6 $
+   $Date: 2010/10/19 18:29:26 $
+   $Revision: 1.7 $
    \author J. Mans, P. Dudero - Minnesota
 */
 class HcalTBTDCUnpacker {

@@ -13,7 +13,7 @@
 //
 // Original Author:  Freya BLEKMAN
 //         Created:  Tue Aug  5 16:22:46 CEST 2008
-// $Id: SiPixelGainCalibrationReadDQMFile.h,v 1.2 2009/05/28 22:12:55 dlange Exp $
+// $Id: SiPixelGainCalibrationReadDQMFile.h,v 1.3 2010/01/12 11:29:54 rougny Exp $
 //
 //
 

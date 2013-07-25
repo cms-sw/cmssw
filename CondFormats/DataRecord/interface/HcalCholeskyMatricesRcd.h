@@ -16,7 +16,7 @@
 //
 // Author:      
 // Created:     Sat Mar  1 15:49:28 CET 2008
-// $Id: HcalCholeskyMatricesRcd.h,v 1.1 2008/03/03 16:57:14 rofierzy Exp $
+// $Id: HcalCholeskyMatricesRcd.h,v 1.1 2010/04/26 22:13:33 kukartse Exp $
 //
 
 #include "FWCore/Framework/interface/EventSetupRecordImplementation.h"

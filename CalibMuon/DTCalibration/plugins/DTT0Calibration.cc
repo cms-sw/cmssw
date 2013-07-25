@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/10/03 08:34:49 $
- *  $Revision: 1.10 $
+ *  $Date: 2009/06/11 14:01:57 $
+ *  $Revision: 1.11 $
  *  \author S. Bolognesi - INFN Torino
  */
 #include "CalibMuon/DTCalibration/plugins/DTT0Calibration.h"

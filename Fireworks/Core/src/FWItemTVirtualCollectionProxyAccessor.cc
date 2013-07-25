@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Sat Oct 18 08:43:47 EDT 2008
-// $Id: FWItemTVirtualCollectionProxyAccessor.cc,v 1.6 2010/07/23 16:02:54 eulisse Exp $
+// $Id: FWItemTVirtualCollectionProxyAccessor.cc,v 1.7 2010/11/01 14:48:19 matevz Exp $
 //
 
 // system include files

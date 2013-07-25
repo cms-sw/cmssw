@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: $
- *  $Revision: $
+ *  $Date: 2006/07/25 09:44:54 $
+ *  $Revision: 1.1 $
  */
 
 #include "Geometry/CommonDetUnit/interface/GeomDetEnumerators.h"

@@ -8,7 +8,7 @@
 //
 // Original Author:  dkcira
 //         Created:  Wed Feb 22 16:07:58 CET 2006
-// $Id: SiStripHistoId.cc,v 1.15 2010/03/27 11:03:34 dutta Exp $
+// $Id: SiStripHistoId.cc,v 1.16 2011/05/31 10:38:46 eulisse Exp $
 //
 
 #include<iostream>

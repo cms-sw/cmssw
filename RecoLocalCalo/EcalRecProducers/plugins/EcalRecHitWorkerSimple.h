@@ -4,9 +4,9 @@
 /** \class EcalRecHitSimpleAlgo
   *  Simple algoritm to make rechits from uncalibrated rechits
   *
-  *  $Id: EcalRecHitWorkerSimple.h,v 1.5 2009/10/12 13:10:46 ferriff Exp $
-  *  $Date: 2009/10/12 13:10:46 $
-  *  $Revision: 1.5 $
+  *  $Id: EcalRecHitWorkerSimple.h,v 1.6 2011/05/16 14:18:29 franzoni Exp $
+  *  $Date: 2011/05/16 14:18:29 $
+  *  $Revision: 1.6 $
   *  \author Shahram Rahatlou, University of Rome & INFN, March 2006
   */
 

@@ -16,7 +16,7 @@
 //
 // Original Author:  matevz
 //         Created:  Fri Apr 30 15:16:55 CEST 2010
-// $Id$
+// $Id: FWEnumParameter.h,v 1.1 2010/04/30 15:29:44 matevz Exp $
 //
 
 // system include files

@@ -1,4 +1,4 @@
-// $Id: L1Scalers.cc,v 1.24 2010/05/31 15:43:06 wteo Exp $
+// $Id: L1Scalers.cc,v 1.26 2010/07/20 19:55:57 wmtan Exp $
 #include <iostream>
 
 

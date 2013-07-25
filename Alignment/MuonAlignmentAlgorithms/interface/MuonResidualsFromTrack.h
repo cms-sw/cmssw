@@ -2,8 +2,8 @@
 #define Alignment_MuonAlignmentAlgorithms_MuonResidualsFromTrack_H
 
 /** \class MuonResidualsFromTrack
- *  $Date: 2009/02/27 18:58:29 $
- *  $Revision: 1.2 $
+ *  $Date: 2009/04/23 05:06:01 $
+ *  $Revision: 1.3 $
  *  \author J. Pivarski - Texas A&M University <pivarski@physics.tamu.edu>
  */
 

@@ -1,4 +1,4 @@
-# $Id: loadConditions.py,v 1.4 2008/12/19 11:02:21 argiro Exp $
+# $Id: loadConditions.py,v 1.5 2009/05/13 13:48:05 argiro Exp $
 #
 # Author: Stefano Argiro'
 #

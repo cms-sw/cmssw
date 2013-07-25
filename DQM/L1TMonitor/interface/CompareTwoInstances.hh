@@ -17,8 +17,12 @@
 //
 // Original Author:  Peter Wittich
 //         Created:  Mon Jan  8 21:11:04 CET 2007
-// $Id$
-// $Log$
+// $Id: CompareTwoInstances.hh,v 1.1 2007/02/20 22:49:54 wittich Exp $
+// $Log: CompareTwoInstances.hh,v $
+// Revision 1.1  2007/02/20 22:49:54  wittich
+// - templated class to facilitate comparison between data and emulation.
+//   see file for caveats.
+//
 //
 
 

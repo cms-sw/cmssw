@@ -17,7 +17,7 @@
 //
 // Original Author:  
 //         Created:  Tue Nov 29 12:26:39 EST 2005
-// $Id$
+// $Id: BeginOfTrackCounter.h,v 1.1 2005/11/29 18:42:56 chrjones Exp $
 //
 
 // system include files

@@ -11,8 +11,8 @@
   * pedestal, and compare with digital threshold (in ADC counts).  The algorithm
   * can keep both positive and negative side fluctuations if "two sided" is enabled.
   *
-  * $Date: 2007/07/12 19:33:49 $
-  * $Revision: 1.2 $
+  * $Date: 2009/10/31 00:02:39 $
+  * $Revision: 1.3 $
   * \author J. Mans - Minnesota
   */
 class HcalZSAlgoEnergy : public HcalZeroSuppressionAlgo {

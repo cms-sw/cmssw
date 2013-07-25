@@ -1,6 +1,6 @@
 /** \class HLTEgammaL1MatchFilterPairs
  *
- * $Id: HLTEgammaL1MatchFilterPairs.cc,v 1.8 2008/04/21 04:59:38 wsun Exp $
+ * $Id: HLTEgammaL1MatchFilterPairs.cc,v 1.1 2008/10/14 14:52:56 ghezzi Exp $
  *
  *  \author Monica Vazquez Acosta (CERN)
  *

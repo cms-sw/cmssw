@@ -8,7 +8,7 @@
 //
 // Original Author:  Giulio Eulisse 
 //         Created:  Fri Feb 18 :51:44 EDT 2010
-// $Id$
+// $Id: FWItemAccessorRegistry.cc,v 1.1 2010/02/26 09:41:04 eulisse Exp $
 //
 
 // system include files

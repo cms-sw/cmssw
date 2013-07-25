@@ -1,0 +1,64 @@
+03-Mar-2009, from Marc
+
+As a step toward making rule #1 be enforced by the code, we could make
+the constructors and destructor for XHTMLMaker private, and make 
+WebPageHelper a friend. Then only code within WebPageHelper could create 
+an XHTMLMaker.
+
+This makes the testing of XHTMLMaker harder, which could be alleviated 
+by also making the class that runs the tests be a friend.
+
+
+02-Mar-2009, KAB
+
+We have found that accessing XHTMLMaker instances from multiple
+threads is unstable (see the try_run_many_threads function in the
+xhtmlmaker_t.ccp unit test).  The problem is with the underlying 
+Xerces-C++ library.  
+
+Given this, we have decided to wrap the use of XHTMLMaker in the 
+StorageManager code with the WebPageHelper class.  Here are the
+boundary conditions for using XHTMLMaker in the SM going forward:
+ 1) No code outside of WebPageHelper should create, access, or use
+    an instance of XHTMLMaker.  All uses of XHTMLMaker must be
+    controlled by a public method of WebPageHelper.
+ 2) Each public method of WebPageHelper must obtain a lock on a
+    static mutex that prevents any other thread from using an
+    instance of XHTMLMaker at the same time.
+ 3) Private methods of WebPageHelper do *not* need to obtain a lock
+    on that static mutex.  They should assume that the public method
+    that calls them has obtained the lock.
+ 4) Each public method in WebPageHelper should use an instance of
+    XHTMLMonitor to ensure that XMLPlatformUtils::Initialize and
+    XMLPlatformUtils::Terminate are called appropriately before
+    and after the use of Xerces-C++ library functions by XHTMLMaker.
+ 5) Any new public methods in WebPageHelper that use an XHTMLMaker
+    instance must follow the pattern shown in the defaultWebPage
+    method - first a lock is obtained for the static mutex, then
+    an XHTMLMonitor instance is created, then an XHTMLMaker instance
+    can be created.
+
+Once we move to Boost version 1.38, a possible enhancement might be
+to move the static mutex into the XHTMLMonitor class. If we are able
+to lock that mutex in XHTMLMonitor as the first operation in its
+constructor and unlock the mutex as the last operation in its destructor,
+then we should be able to remove the scoped_locks from the public methods
+in WebPageHelper. This would have the advantage of putting both the 
+locking and the management of the Initialize/Terminate calls in one
+location.
+
+
+The following changes were made on 02-Mar-2009 to support the model
+outlined above:
+ - A static mutex was added to the WebPageHelper class to control
+   access to all XHTMLMaker instances.
+ - The instance methods of WebPageHelper were converted to static
+   methods. The xdaq::ApplicationDescriptor data member of WebPageHelper
+   is now passed in as an argument to the methods that need it.
+ - Code to obtain a scoped_lock on the static mutex in WebPageHelper
+   was added to the defaultWebPage method to control access to the
+   XHTMLMaker instance used in that method.
+ - The methods in FragmentMonitorCollection and RunMonitorCollection that
+   used an XHTMLMaker instance to create HTML markup were moved into the
+   WebPageHelper class as private methods. With this change, only the
+   WebPageHelper class knows about XHTMLMaker instances.

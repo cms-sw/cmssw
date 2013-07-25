@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Apr 20 16:51:38 CDT 2010
-// $Id$
+// $Id: SiteLocalConfigServiceTester.cc,v 1.1 2010/04/23 18:29:58 chrjones Exp $
 //
 
 // system include files

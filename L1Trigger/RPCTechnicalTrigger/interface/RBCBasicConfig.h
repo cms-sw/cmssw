@@ -1,4 +1,4 @@
-// $Id: RBCBasicConfig.h,v 1.2 2009/05/08 10:24:05 aosorio Exp $
+// $Id: RBCBasicConfig.h,v 1.1 2009/05/16 19:43:30 aosorio Exp $
 #ifndef INTERFACE_RBCBASICCONFIG_H 
 #define INTERFACE_RBCBASICCONFIG_H 1
 

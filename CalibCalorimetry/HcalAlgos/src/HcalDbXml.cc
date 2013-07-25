@@ -1,6 +1,6 @@
 // F.Ratnikov (UMd), Oct 28, 2005
 // Modified by S. Won 6 May 2008
-// $Id: HcalDbXml.cc,v 1.16 2008/11/08 21:16:20 rofierzy Exp $
+// $Id: HcalDbXml.cc,v 1.17 2009/11/26 17:59:59 elmer Exp $
 //
 #include <vector>
 #include <string>

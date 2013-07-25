@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripKey.h,v 1.5 2007/07/31 15:20:24 ratnik Exp $
+// Last commit: $Id: SiStripKey.h,v 1.6 2008/02/06 14:32:48 bainbrid Exp $
 
 #ifndef DataFormats_SiStripCommon_SiStripKey_H
 #define DataFormats_SiStripCommon_SiStripKey_H

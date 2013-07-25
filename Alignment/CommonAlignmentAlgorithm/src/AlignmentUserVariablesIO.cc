@@ -1,9 +1,9 @@
 /**
  * \file AlignmentUserVariablesIO
  *
- *  $Revision: 1.3 $
- *  $Date: 2006/12/12 08:55:45 $
- *  $Author: flucke $ (at least last update...)
+ *  $Revision: 1.4 $
+ *  $Date: 2007/10/08 14:38:16 $
+ *  $Author: cklae $ (at least last update...)
  */
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"

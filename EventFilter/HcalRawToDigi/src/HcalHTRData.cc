@@ -1,7 +1,7 @@
 //#include "Utilities/Configuration/interface/Architecture.h"
 /*  
- *  $Date: 2010/06/01 05:45:29 $
- *  $Revision: 1.17 $
+ *  $Date: 2011/08/04 01:10:50 $
+ *  $Revision: 1.18 $
  *  \author J. Mans -- UMD
  */
 #ifndef HTBDAQ_DATA_STANDALONE

@@ -6,9 +6,9 @@
 /// Factory interface to create AlignmentParameters for the known types,
 /// defined by the enum AlignmentParametersFactory::ParametersType.
 ///
-///  $Date: 2010/09/10 11:19:23 $
-///  $Revision: 1.4 $
-/// (last update by $Author: mussgill $)
+///  $Date: 2010/10/26 20:41:08 $
+///  $Revision: 1.5 $
+/// (last update by $Author: flucke $)
 
 #include <vector>
 #include <string>

@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripCcu.cc,v 1.6 2007/03/28 09:13:33 bainbrid Exp $
+// Last commit: $Id: SiStripCcu.cc,v 1.7 2008/01/22 18:44:27 muzaffar Exp $
 
 #include "CalibFormats/SiStripObjects/interface/SiStripCcu.h"
 #include <iostream>

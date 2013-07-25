@@ -5,7 +5,7 @@
 // 
 //
 // Original Author:  Jake Ribnik, Dmytro Kovalskyi
-// $Id: MuonSelectors.h,v 1.12 2010/04/26 00:36:16 dmytro Exp $
+// $Id: MuonSelectors.h,v 1.13 2010/06/28 08:06:37 dmytro Exp $
 
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "TMath.h"

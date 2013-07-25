@@ -25,7 +25,7 @@
 
 /** \class EcalElectronicsMapping
   *  
-  * $Id: EcalElectronicsMapping.h,v 1.6 2007/12/07 19:08:12 eperez Exp $
+  * $Id: EcalElectronicsMapping.h,v 1.7 2009/09/11 17:35:47 pgras Exp $
   * \author P.Meridiani (INFN Roma1),  E. Perez (CERN)  
   */
 

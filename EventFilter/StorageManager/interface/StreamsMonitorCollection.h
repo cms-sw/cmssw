@@ -1,4 +1,4 @@
-// $Id: StreamsMonitorCollection.h,v 1.15 2011/06/20 15:55:52 mommsen Exp $
+// $Id: StreamsMonitorCollection.h,v 1.16 2011/06/20 16:38:51 mommsen Exp $
 /// @file: StreamsMonitorCollection.h 
 
 #ifndef EventFilter_StorageManager_StreamsMonitorCollection_h
@@ -28,8 +28,8 @@ namespace stor {
    * A collection of MonitoredQuantities of output streams
    *
    * $Author: mommsen $
-   * $Revision: 1.15 $
-   * $Date: 2011/06/20 15:55:52 $
+   * $Revision: 1.16 $
+   * $Date: 2011/06/20 16:38:51 $
    */
   
   class StreamsMonitorCollection : public MonitorCollection

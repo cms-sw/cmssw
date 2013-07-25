@@ -3,7 +3,7 @@
 // Class  :     SiStripDetCabling
 // Original Author:  dkcira
 //         Created:  Wed Mar 22 12:24:33 CET 2006
-// $Id: SiStripDetCabling.cc,v 1.22 2010/02/20 20:55:04 wmtan Exp $
+// $Id: SiStripDetCabling.cc,v 1.23 2010/03/29 12:32:37 demattia Exp $
 #include "FWCore/Utilities/interface/typelookup.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripDetCabling.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"

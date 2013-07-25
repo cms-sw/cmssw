@@ -3,7 +3,7 @@
  * list_runs.php
  *
  * List a page of runs and subtables for various data categories
- * $Id: list_runs.php,v 1.4 2006/09/27 20:37:57 egeland Exp $
+ * $Id: list_runs.php,v 1.7 2007/04/12 11:04:42 fra Exp $
  */
 
 require_once 'common.php';

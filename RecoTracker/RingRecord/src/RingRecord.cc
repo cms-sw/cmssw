@@ -8,8 +8,8 @@
 // Created:         Sun Feb  4 19:15:56 UTC 2007
 //
 // $Author: gutsche $
-// $Date: 2006/03/03 22:23:12 $
-// $Revision: 1.3 $
+// $Date: 2007/02/05 19:10:04 $
+// $Revision: 1.1 $
 //
 
 #include "RecoTracker/RingRecord/interface/RingRecord.h"

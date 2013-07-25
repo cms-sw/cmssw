@@ -5,8 +5,8 @@
  *   Abstract Base Class for L1 Trigger Devices with EventSetup
 */
 //
-//   $Date: 2007/03/30 08:51:21 $
-//   $Revision: 1.1 $
+//   $Date: 2008/02/18 17:38:01 $
+//   $Revision: 1.2 $
 //
 //   Author :
 //   N. Neumeister            CERN EP

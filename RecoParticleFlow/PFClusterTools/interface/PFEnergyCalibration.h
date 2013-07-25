@@ -29,7 +29,7 @@ class TF1;
 //
 // Original Author:  Christian Veelken
 //         Created:  Tue Aug  8 16:26:18 CDT 2006
-// $Id: PFEnergyCalibration.h,v 1.11 2009/10/27 17:13:26 beaudett Exp $
+// $Id: PFEnergyCalibration.h,v 1.12 2011/02/24 14:16:30 pjanot Exp $
 //
 //
 

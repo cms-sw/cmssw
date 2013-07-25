@@ -15,7 +15,7 @@ Description: Filter to select events with activity in the muon barrel system
 //
 // Original Author:  Carlo Battilana
 //         Created:  Tue Jan 22 13:55:00 CET 2008
-// $Id: HLTDTActivityFilter.cc,v 1.5 2010/03/08 10:53:31 goys Exp $
+// $Id: HLTDTActivityFilter.cc,v 1.6 2010/07/30 16:41:11 goys Exp $
 //
 //
 

@@ -11,8 +11,8 @@
 /*
  * \file HcalDetDiagTimingClient.cc
  * 
- * $Date: 2010/03/25 21:24:52 $
- * $Revision: 1.3 $
+ * $Date: 2011/04/12 18:25:42 $
+ * $Revision: 1.4 $
  * \author J. Temple
  * \brief Hcal DetDiagTiming Client class
  */

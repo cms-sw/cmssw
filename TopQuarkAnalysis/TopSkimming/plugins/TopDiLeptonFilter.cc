@@ -1,5 +1,5 @@
 // Original Author:  Dmytro Kovalskyi, UCSB
-// $Id: TopDiLeptonFilter.cc,v 1.4 2007/12/10 12:40:00 lowette Exp $
+// $Id: TopDiLeptonFilter.cc,v 1.5 2010/03/09 13:18:20 snaumann Exp $
 #include "TopQuarkAnalysis/TopSkimming/plugins/TopDiLeptonFilter.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
 #include "DataFormats/MuonReco/interface/Muon.h"

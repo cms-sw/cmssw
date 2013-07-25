@@ -5,8 +5,8 @@
  *  Implementation of the L3 Collaboration algorithm to solve a system Ax = B
  *  by minimization of |Ax-B| using an iterative linear approach
  *
- * $Date: 2006/10/13 14:33:26 $
- * $Revision: 1.1 $
+ * $Date: 2010/08/06 20:24:06 $
+ * $Revision: 1.2 $
  * \author R.Ofierzynski, CERN
  */
 

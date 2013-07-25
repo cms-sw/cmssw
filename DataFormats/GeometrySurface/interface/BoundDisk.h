@@ -13,8 +13,8 @@
  *  using the static build() method. 
  *  (The normal constructor will become private in the future).
  *
- *  $Date: 2006/08/18 11:02:36 $
- *  $Revision: 1.4 $
+ *  $Date: 2007/01/17 20:58:43 $
+ *  $Revision: 1.1 $
  */
 
 class BoundDisk : public BoundPlane {

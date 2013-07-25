@@ -4,8 +4,8 @@
 /** \class KFFittingSmootherESProducer
  *  ESProducer for the KFFittingSmoother
  *
- *  $Date: 2007/05/09 14:17:58 $
- *  $Revision: 1.2 $
+ *  $Date: 2009/07/03 01:10:26 $
+ *  $Revision: 1.3 $
  *  \author cerati
  */
 

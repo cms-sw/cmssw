@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Martin Grunewald
 //         Created:  Tue Jan 22 13:55:00 CET 2008
-// $Id: HLTL1NumberFilter.cc,v 1.2 2009/06/24 14:49:57 gruen Exp $
+// $Id: HLTL1NumberFilter.cc,v 1.1 2009/08/21 08:11:23 bdahmes Exp $
 //
 //
 

@@ -41,8 +41,8 @@
 /*
  * \file HcalMonitorModule.cc
  *
- * $Date: 2010/03/25 11:17:15 $
- * $Revision: 1.164 $
+ * $Date: 2010/07/20 02:58:25 $
+ * $Revision: 1.165 $
  * \author J Temple
  *
  * New version of HcalMonitorModule stores only a few necessary variables that other tasks need to grab

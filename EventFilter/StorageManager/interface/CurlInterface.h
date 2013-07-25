@@ -1,4 +1,4 @@
-// $Id: CurlInterface.h,v 1.2.6.1 2011/03/07 11:33:04 mommsen Exp $
+// $Id: CurlInterface.h,v 1.3 2011/03/07 15:31:31 mommsen Exp $
 /// @file: CurlInterface.h
 
 #ifndef EventFilter_StorageManager_CurlInterface_h
@@ -15,8 +15,8 @@ namespace stor {
    * Helper class to interact with curl
    *
    * $Author: mommsen $
-   * $Revision: 1.2.6.1 $
-   * $Date: 2011/03/07 11:33:04 $
+   * $Revision: 1.3 $
+   * $Date: 2011/03/07 15:31:31 $
    */
  
   class CurlInterface

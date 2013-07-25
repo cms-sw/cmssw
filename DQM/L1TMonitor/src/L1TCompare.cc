@@ -1,9 +1,12 @@
 /*
  * \file L1TCompare.cc
- * $Id: L1TCompare.cc,v 1.13 2008/03/20 19:38:25 berryhil Exp $
+ * $Id: L1TCompare.cc,v 1.14 2009/11/19 14:36:48 puigh Exp $
  * \author P. Wittich
  * \brief Compare different parts of the trigger chain (e.g., RCT-GCT )
  * $Log: L1TCompare.cc,v $
+ * Revision 1.14  2009/11/19 14:36:48  puigh
+ * modify beginJob
+ *
  * Revision 1.13  2008/03/20 19:38:25  berryhil
  *
  *

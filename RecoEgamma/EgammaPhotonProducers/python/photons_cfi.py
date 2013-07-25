@@ -6,7 +6,7 @@ from RecoEgamma.PhotonIdentification.mipVariable_cfi import *
 
 #
 # producer for photons
-# $Id: photons_cfi.py,v 1.37 2011/07/22 00:02:41 nancy Exp $
+# $Id: photons_cfi.py,v 1.38 2011/07/22 14:40:14 nancy Exp $
 #
 photons = cms.EDProducer("PhotonProducer",
     photonCoreProducer = cms.InputTag("photonCore"),

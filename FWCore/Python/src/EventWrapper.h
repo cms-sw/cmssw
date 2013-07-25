@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Jun 28 10:57:11 CDT 2006
-// $Id$
+// $Id: EventWrapper.h,v 1.1 2006/07/18 12:17:07 chrjones Exp $
 //
 
 // system include files

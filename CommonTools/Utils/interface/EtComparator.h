@@ -6,9 +6,9 @@
  * 
  * \author Luca Lista, INFN
  *
- * \version $Revision: 1.2 $
+ * \version $Revision: 1.1 $
  *
- * $Id: EtComparator.h,v 1.2 2007/04/23 20:41:01 llista Exp $
+ * $Id: EtComparator.h,v 1.1 2009/02/24 14:52:46 llista Exp $
  *
  */
 

@@ -4,8 +4,8 @@
 /** \class GeomDet
  *  Base class for GeomDetUnit and for composite GeomDet s. 
  *
- *  $Date: 2007/03/09 00:40:39 $
- *  $Revision: 1.11 $
+ *  $Date: 2010/04/09 12:17:26 $
+ *  $Revision: 1.12 $
  */
 
 

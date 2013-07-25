@@ -8,8 +8,8 @@
  *    - use or ignore the L1 trigger mask
  *    - only look at a subset of the L1 bits
  * 
- *  $Date: 2011/02/23 17:03:00 $
- *  $Revision: 1.11 $
+ *  $Date: 2011/02/23 17:10:54 $
+ *  $Revision: 1.12 $
  *
  *  \author Andrea Bocci
  *

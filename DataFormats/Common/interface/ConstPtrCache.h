@@ -17,7 +17,7 @@ is always reset to 0 when ever a new instance of this class is read from a file
 //
 // Original Author:  Chris Jones
 //         Created:  Sat Aug 18 17:30:04 EDT 2007
-// $Id$
+// $Id: ConstPtrCache.h,v 1.1 2007/08/20 13:55:58 chrjones Exp $
 //
 
 // system include files

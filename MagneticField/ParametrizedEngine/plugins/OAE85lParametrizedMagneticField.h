@@ -7,8 +7,8 @@
  *  of the TOSCA field version 85l_030919 (4 T)
  *  valid in the region r<1.2 m and |z|<3.0 m 
  *
- *  $Date: 2008/05/06 12:09:19 $
- *  $Revision: 1.3 $
+ *  $Date: 2011/04/16 10:20:40 $
+ *  $Revision: 1.1 $
  *  \author N. Amapane - CERN
  */
 

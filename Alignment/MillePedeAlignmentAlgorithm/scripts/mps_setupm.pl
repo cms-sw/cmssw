@@ -1,7 +1,7 @@
 #!/usr/bin/env perl
 #     G. Fluck, Uni Hamburg    13-May-2009
-#     $Revision: 1.1 $ by $Author: flucke $
-#     $Date: 2009/06/24 10:37:45 $
+#     $Revision: 1.2 $ by $Author: jbehr $
+#     $Date: 2011/06/15 14:24:52 $
 #
 #  Setup an extra pede
 #

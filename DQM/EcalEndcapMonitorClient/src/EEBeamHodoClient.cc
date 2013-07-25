@@ -1,8 +1,8 @@
 /*
  * \file EEBeamHodoClient.cc
  *
- * $Date: 2011/08/30 09:29:44 $
- * $Revision: 1.43 $
+ * $Date: 2011/09/02 13:55:02 $
+ * $Revision: 1.44 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *

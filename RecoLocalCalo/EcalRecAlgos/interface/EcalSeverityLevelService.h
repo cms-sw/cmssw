@@ -3,7 +3,7 @@
    Implementation of class EcalSeverityLevelService
 
    \author Stefano Argiro
-   \version $Id$
+   \version $Id: EcalSeverityLevelService.h,v 1.1 2011/01/12 21:55:53 argiro Exp $
    \date 11 Jan 2011
 */
 

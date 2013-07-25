@@ -1,5 +1,5 @@
 // Original Author: Gero Flucke
-// last change    : $Date: 2010/08/12 09:15:30 $
+// last change    : $Date: 2010/10/26 21:34:25 $
 // by             : $Author: flucke $
 #ifndef COMPAREMILLEPEDE_H
 #define COMPAREMILLEPEDE_H

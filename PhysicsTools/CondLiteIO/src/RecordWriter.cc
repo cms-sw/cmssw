@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Wed Dec  9 17:01:03 CST 2009
-// $Id: RecordWriter.cc,v 1.2 2010/02/19 20:59:02 chrjones Exp $
+// $Id: RecordWriter.cc,v 1.3 2010/02/19 21:13:46 chrjones Exp $
 //
 
 // system include files

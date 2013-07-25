@@ -10,8 +10,8 @@
  *  Since this class requires external specification of the length of the data, it is implemented
  *  as an interpreter, rather than a cast-able header class.
  *
- *  $Date: 2009/09/14 15:14:52 $
- *  $Revision: 1.15 $
+ *  $Date: 2009/11/05 21:51:15 $
+ *  $Revision: 1.16 $
  *  \author J. Mans - UMD
  */
 

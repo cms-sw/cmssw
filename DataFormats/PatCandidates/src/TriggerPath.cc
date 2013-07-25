@@ -1,5 +1,5 @@
 //
-// $Id: TriggerPath.cc,v 1.6 2010/12/16 18:39:17 vadler Exp $
+// $Id: TriggerPath.cc,v 1.7 2011/05/24 15:56:25 vadler Exp $
 //
 
 

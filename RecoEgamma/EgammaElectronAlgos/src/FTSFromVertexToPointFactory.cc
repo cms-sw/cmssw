@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: FTSFromVertexToPointFactory.cc,v 1.5 2008/02/27 12:54:58 uberthon Exp $
+// $Id: FTSFromVertexToPointFactory.cc,v 1.6 2011/03/21 17:10:32 innocent Exp $
 //
 //
 #include "RecoEgamma/EgammaElectronAlgos/interface/FTSFromVertexToPointFactory.h"

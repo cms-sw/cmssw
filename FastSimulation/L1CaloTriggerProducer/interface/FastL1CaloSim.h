@@ -15,7 +15,7 @@
 //
 // Original Author:  Chi Nhan Nguyen
 //         Created:  Mon Feb 19 13:25:24 CST 2007
-// $Id: FastL1CaloSim.h,v 1.2 2008/07/24 10:20:30 chinhan Exp $
+// $Id: FastL1CaloSim.h,v 1.7 2009/03/23 11:41:27 chinhan Exp $
 //
 //
 

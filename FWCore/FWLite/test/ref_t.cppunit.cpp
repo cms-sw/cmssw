@@ -2,7 +2,7 @@
 
 Test program for edm::Ref use in ROOT.
 
-$Id: ref_t.cppunit.cpp,v 1.19 2009/03/02 20:34:34 wmtan Exp $
+$Id: ref_t.cppunit.cpp,v 1.20 2010/04/15 20:16:57 chrjones Exp $
  ----------------------------------------------------------------------*/
 
 #include <iostream>

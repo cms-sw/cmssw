@@ -4,8 +4,8 @@
 /** \class MagGeometry
  *  Entry point to the geometry of magnetic volumes.
  *
- *  $Date: 2008/04/20 23:22:04 $
- *  $Revision: 1.9 $
+ *  $Date: 2009/03/19 11:02:07 $
+ *  $Revision: 1.10 $
  *  \author N. Amapane - INFN Torino
  */
 

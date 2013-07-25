@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripEnumsAndStrings.cc,v 1.21 2010/02/03 18:28:43 dstrom Exp $
+// Last commit: $Id: SiStripEnumsAndStrings.cc,v 1.22 2010/02/22 14:10:23 wto Exp $
 
 #include "DataFormats/SiStripCommon/interface/SiStripEnumsAndStrings.h"
 

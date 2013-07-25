@@ -1,4 +1,4 @@
-// $Id: RBCLogic.h,v 1.1 2009/01/30 15:42:47 aosorio Exp $
+// $Id: RBCLogic.h,v 1.2 2009/06/07 21:18:50 aosorio Exp $
 #ifndef RBCLOGIC_H 
 #define RBCLOGIC_H 1
 

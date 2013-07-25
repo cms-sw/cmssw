@@ -1,5 +1,5 @@
 //
-// $Id: PATTriggerEventProducer.cc,v 1.14 2010/11/27 15:16:20 vadler Exp $
+// $Id: PATTriggerEventProducer.cc,v 1.15 2011/02/22 18:29:50 vadler Exp $
 //
 
 

@@ -4,8 +4,8 @@
 /** \class MuonAlignment
  *  The MuonAlignment helper class for alignment jobs
  *
- *  $Date: 2008/03/22 01:07:32 $
- *  $Revision: 1.12 $
+ *  $Date: 2008/03/26 22:02:51 $
+ *  $Revision: 1.13 $
  *  \author Andre Sznajder - UERJ(Brazil)
  */
 

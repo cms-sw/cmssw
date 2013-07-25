@@ -3,8 +3,8 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("SKIM")
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.3 $'),
-    name = cms.untracked.string('$Source: /cvs_server/repositories/CMSSW/CMSSW/DPGAnalysis/Skims/python/GOODCOLL_filter_cfg.py,v $'),
+    version = cms.untracked.string('$Revision: 1.4 $'),
+    name = cms.untracked.string('$Source: /local/reps/CMSSW/CMSSW/DPGAnalysis/Skims/python/GOODCOLL_filter_cfg.py,v $'),
     annotation = cms.untracked.string('Combined MinBias skim')
 )
 

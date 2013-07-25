@@ -9,7 +9,7 @@
 
  author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
 
- version $Id: BSTrkParameters.h,v 1.2 2007/03/29 16:33:36 yumiceva Exp $
+ version $Id: BSTrkParameters.h,v 1.3 2009/09/14 17:52:27 yumiceva Exp $
 
 ________________________________________________________________**/
 

@@ -10,8 +10,8 @@
  *  variables relating to both the base class T and the derived actual
  *  class
  *
- *  $Date: 2010/01/13 12:59:57 $
- *  $Revision: 1.6 $
+ *  $Date: 2011/05/01 08:19:55 $
+ *  $Revision: 1.7 $
  *
  *  \author Martin Grunewald
  *

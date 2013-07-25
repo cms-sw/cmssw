@@ -1,6 +1,6 @@
 /** \class HLTEgammaEtFilter
  *
- * $Id: HLTEgammaEtFilter.cc,v 1.10 2009/01/27 13:57:07 ghezzi Exp $
+ * $Id: HLTEgammaEtFilter.cc,v 1.11 2011/05/01 08:14:08 gruen Exp $
  *
  *  \author Monica Vazquez Acosta (CERN)
  *

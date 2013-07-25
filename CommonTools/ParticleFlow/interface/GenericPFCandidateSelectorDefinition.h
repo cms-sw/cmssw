@@ -6,7 +6,7 @@
    \brief    Selects PFCandidates basing on cuts provided with string cut parser
 
    \author   Giovanni Petrucciani
-   \version  $Id: GenericPFCandidateSelectorDefinition.h,v 1.1 2011/01/28 20:56:44 srappocc Exp $
+   \version  $Id: GenericPFCandidateSelectorDefinition.h,v 1.2 2011/04/06 12:12:38 rwolf Exp $
 */
 
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"

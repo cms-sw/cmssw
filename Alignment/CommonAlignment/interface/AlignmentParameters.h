@@ -21,8 +21,8 @@
 /// parameters/derivatives/covariance as subvector/submatrix
 /// of reduced size.
 ///
-///  $Date: 2008/09/02 14:55:34 $
-///  $Revision: 1.8 $
+///  $Date: 2010/10/26 19:50:21 $
+///  $Revision: 1.9 $
 /// (last update by $Author: flucke $)
 
 // include and not forward declare to ensure automatic conversion from AlignableDet(Unit): 

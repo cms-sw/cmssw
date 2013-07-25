@@ -1,7 +1,7 @@
 //
 // Author:      Domenico Giordano
 // Created:     Wed Sep 26 17:42:12 CEST 2007
-// $Id: SiStripQuality.cc,v 1.20 2009/11/30 13:32:32 giordano Exp $
+// $Id: SiStripQuality.cc,v 1.21 2010/02/20 20:55:07 wmtan Exp $
 //
 #include "FWCore/Utilities/interface/typelookup.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripQuality.h"

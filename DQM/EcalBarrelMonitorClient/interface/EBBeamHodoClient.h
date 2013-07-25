@@ -4,8 +4,8 @@
 /*
  * \file EBBeamHodoClient.h
  *
- * $Date: 2009/10/28 08:18:20 $
- * $Revision: 1.39 $
+ * $Date: 2010/01/25 21:12:23 $
+ * $Revision: 1.40 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *

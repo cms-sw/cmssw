@@ -1,7 +1,7 @@
 #! /usr/bin/env python
 
-__version__ = "$Revision: 1.341.2.1 $"
-__source__ = "$Source: /cvs/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
+__version__ = "$Revision: 1.341.2.2 $"
+__source__ = "$Source: /local/reps/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
 from FWCore.ParameterSet.Modules import _Module
@@ -1602,7 +1602,7 @@ class ConfigBuilder(object):
     def build_production_info(self, evt_type, evtnumber):
         """ Add useful info for the production. """
         self.process.configurationMetadata=cms.untracked.PSet\
-                                            (version=cms.untracked.string("$Revision: 1.341.2.1 $"),
+                                            (version=cms.untracked.string("$Revision: 1.341.2.2 $"),
                                              name=cms.untracked.string("PyReleaseValidation"),
                                              annotation=cms.untracked.string(evt_type+ " nevts:"+str(evtnumber))
                                              )

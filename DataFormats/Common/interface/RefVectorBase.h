@@ -5,7 +5,7 @@
   
 RefVectorBase: Base class for a vector of interproduct references.
 
-$Id: RefVectorBase.h,v 1.17 2011/03/03 22:04:46 chrjones Exp $
+$Id: RefVectorBase.h,v 1.18 2011/05/06 12:44:42 innocent Exp $
 
 ----------------------------------------------------------------------*/
 

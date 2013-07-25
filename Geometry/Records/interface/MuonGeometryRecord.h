@@ -4,8 +4,8 @@
 /** \class MuonGeometryRecord
  *  The Muon DetUnit geometry.
  *
- *  $Date: 2008/02/19 13:54:58 $
- *  $Revision: 1.5 $
+ *  $Date: 2009/03/16 17:06:53 $
+ *  $Revision: 1.6 $
  *  \author N. Amapane - CERN
  */
 

@@ -7,7 +7,7 @@
   
 RefItem: Index and pointer to a referenced item.
 
-$Id: RefItem.h,v 1.11.6.1 2011/02/17 03:08:31 chrjones Exp $
+$Id: RefItem.h,v 1.12 2011/02/24 20:20:48 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 #include "DataFormats/Common/interface/traits.h"

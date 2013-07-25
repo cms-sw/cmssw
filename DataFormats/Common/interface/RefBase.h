@@ -6,7 +6,7 @@
   
 RefBase: Base class for a single interproduct reference.
 
-$Id: RefBase.h,v 1.11.6.2 2011/02/17 03:08:03 chrjones Exp $
+$Id: RefBase.h,v 1.12 2011/02/24 20:20:48 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 

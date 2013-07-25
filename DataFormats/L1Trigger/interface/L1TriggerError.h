@@ -14,7 +14,7 @@
 //
 // Original Author:  Jim Brooke
 //         Created:  
-// $Id: L1TriggerError.h,v 1.2 2009/04/07 10:42:00 jbrooke Exp $
+// $Id: L1TriggerError.h,v 1.3 2009/09/18 15:08:26 jbrooke Exp $
 //
 
 

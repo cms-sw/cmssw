@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2010/11/12 11:04:40 $
- *  $Revision: 1.1 $
+ *  $Date: 2011/02/17 14:42:44 $
+ *  $Revision: 1.2 $
  *  \author C. Battilana CIEMAT
  */
 

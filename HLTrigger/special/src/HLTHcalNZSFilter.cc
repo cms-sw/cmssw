@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Bryan DAHMES
 //         Created:  Tue Jan 22 13:55:00 CET 2008
-// $Id: HLTHcalNZSFilter.cc,v 1.8 2009/10/06 14:00:01 fwyzard Exp $
+// $Id: HLTHcalNZSFilter.cc,v 1.9 2009/10/06 14:05:56 fwyzard Exp $
 //
 //
 

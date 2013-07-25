@@ -2,8 +2,8 @@
 #define Alignment_MuonAlignmentAlgorithms_MuonResidualsPositionFitter_H
 
 /** \class MuonResidualsPositionFitter
- *  $Date: 2009/10/08 03:44:24 $
- *  $Revision: 1.7 $
+ *  $Date: 2010/03/12 22:23:34 $
+ *  $Revision: 1.8 $
  *  \author J. Pivarski - Texas A&M University <pivarski@physics.tamu.edu>
  */
 

@@ -7,7 +7,7 @@
    author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
            Geng-Yuan Jeng, UC Riverside (Geng-Yuan.Jeng@cern.ch)
 
-   version $Id: PVFitter.cc,v 1.17.4.1 2011/05/24 19:03:53 burkett Exp $
+   version $Id: PVFitter.cc,v 1.18 2011/05/24 19:13:17 burkett Exp $
 
 ________________________________________________________________**/
 

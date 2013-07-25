@@ -16,7 +16,7 @@
 //
 // Author:      
 // Created:     Sat Mar  1 15:49:28 CET 2008
-// $Id: HcalPFCorrsRcd.h,v 1.1 2009/05/19 16:05:39 rofierzy Exp $
+// $Id: HcalPFCorrsRcd.h,v 1.1 2009/05/20 15:54:02 rofierzy Exp $
 //
 
 #include "FWCore/Framework/interface/EventSetupRecordImplementation.h"

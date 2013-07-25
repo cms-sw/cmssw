@@ -7,8 +7,8 @@
  *  tagged multi-jet trigger for b and tau. 
  *  It should be run after the normal multi-jet trigger.
  *
- *  $Date: 2010/02/11 00:12:20 $
- *  $Revision: 1.3 $
+ *  $Date: 2011/05/01 08:24:58 $
+ *  $Revision: 1.4 $
  *
  *  \author Arnaud Gay, Ian Tomalin
  *  \maintainer Andrea Bocci

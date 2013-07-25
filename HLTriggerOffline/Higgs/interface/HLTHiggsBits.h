@@ -7,8 +7,8 @@
  *  This class is an EDAnalyzer implementing TrigReport (statistics
  *  printed to log file) for HL triggers
  *
- *  $Date: 2010/02/16 22:33:12 $
- *  $Revision: 1.6 $
+ *  $Date: 2010/07/30 16:01:22 $
+ *  $Revision: 1.7 $
  *
  *  \author Martin Grunewald
  *

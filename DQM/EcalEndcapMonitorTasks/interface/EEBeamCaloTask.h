@@ -4,8 +4,8 @@
 /*
  * \file EEBeamCaloTask.h
  *
- * $Date: 2008/05/11 09:35:11 $
- * $Revision: 1.10 $
+ * $Date: 2009/10/26 17:33:50 $
+ * $Revision: 1.11 $
  * \author A. Ghezzi
  *
 */

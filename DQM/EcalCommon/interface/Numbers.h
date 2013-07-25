@@ -5,8 +5,8 @@
   \file Numbers.h
   \brief Some "id" conversions
   \author B. Gobbo 
-  \version $Revision: 1.38 $
-  \date $Date: 2011/08/05 10:34:43 $
+  \version $Revision: 1.39 $
+  \date $Date: 2011/08/30 09:06:12 $
 */
 
 #include <string>

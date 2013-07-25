@@ -3,7 +3,7 @@
 // GFHistManager
 //   Author:      Gero Flucke
 //   Date:        Feb. 10th, 2002
-//   last update: $Date: 2010/08/12 09:17:10 $  
+//   last update: $Date: 2010/08/12 09:26:31 $  
 //   by:          $Author: flucke $
 //
 

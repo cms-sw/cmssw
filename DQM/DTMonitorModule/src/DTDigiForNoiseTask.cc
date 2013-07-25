@@ -1,8 +1,8 @@
  /*
  * \file DTDigiForNoiseTask.cc
  * 
- * $Date: 2010/01/05 10:14:40 $
- * $Revision: 1.9 $
+ * $Date: 2011/06/14 08:53:04 $
+ * $Revision: 1.10 $
  * \author G. Mila - INFN Torino
  *
  */

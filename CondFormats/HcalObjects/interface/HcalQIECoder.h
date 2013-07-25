@@ -6,8 +6,8 @@
 \author Fedor Ratnikov (UMd)
 POOL object to store QIE coder parameters for one channel
 $Author: ratnikov
-$Date: 2007/12/14 13:59:46 $
-$Revision: 1.8 $
+$Date: 2008/03/05 10:38:03 $
+$Revision: 1.9 $
 */
 #include <boost/cstdint.hpp>
 

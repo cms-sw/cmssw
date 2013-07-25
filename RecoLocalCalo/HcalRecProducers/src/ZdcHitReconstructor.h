@@ -25,8 +25,8 @@
 
     /** \class ZdcHitReconstructor
 	
-    $Date: 2011/05/20 17:17:30 $
-    $Revision: 1.4 $
+    $Date: 2011/11/09 08:53:16 $
+    $Revision: 1.4.2.1 $
     \author E. Garcia - CSU
     ** Based on HcalSimpleReconstructor.h by J. Mans
     */

@@ -5,8 +5,8 @@
  * *
  *  DQM Test Client
  *
- *  $Date: 2010/04/27 23:26:25 $
- *  $Revision: 1.20 $
+ *  $Date: 2011/03/20 11:13:57 $
+ *  $Revision: 1.22 $
  *  \author  M. Vander Donckt CERN
  *   
  */

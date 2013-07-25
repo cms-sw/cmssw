@@ -8,8 +8,8 @@
  *  items. Any and all HLT filters must derive from the HLTFilter
  *  class!
  *
- *  $Date: 2006/08/14 14:52:51 $
- *  $Revision: 1.5 $
+ *  $Date: 2006/08/14 15:26:42 $
+ *  $Revision: 1.7 $
  *
  *  \author Martin Grunewald
  *

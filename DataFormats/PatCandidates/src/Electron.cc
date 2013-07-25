@@ -1,5 +1,5 @@
 //
-// $Id: Electron.cc,v 1.27 2011/10/22 10:30:41 sprenger Exp $
+// $Id: Electron.cc,v 1.28 2012/01/30 22:25:48 rwolf Exp $
 //
 
 #include "DataFormats/PatCandidates/interface/Electron.h"

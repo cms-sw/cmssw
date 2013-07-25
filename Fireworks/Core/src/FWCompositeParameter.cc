@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Mar  7 14:36:57 EST 2008
-// $Id: FWCompositeParameter.cc,v 1.3 2009/01/23 21:35:42 amraktad Exp $
+// $Id: FWCompositeParameter.cc,v 1.4 2010/06/18 10:17:15 yana Exp $
 //
 
 // system include files

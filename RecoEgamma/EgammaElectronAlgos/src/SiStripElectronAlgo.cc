@@ -8,7 +8,7 @@
 //
 // Original Author:  Jim Pivarski
 //         Created:  Fri May 26 16:12:04 EDT 2006
-// $Id: SiStripElectronAlgo.cc,v 1.36 2011/04/08 08:09:29 innocent Exp $
+// $Id: SiStripElectronAlgo.cc,v 1.37 2011/04/08 08:54:09 innocent Exp $
 //
 
 // system include files

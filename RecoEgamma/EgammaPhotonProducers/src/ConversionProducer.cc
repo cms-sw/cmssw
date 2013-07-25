@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Authors:  Hongliang Liu
 //         Created:  Thu Mar 13 17:40:48 CDT 2008
-// $Id: ConversionProducer.cc,v 1.12 2011/08/17 16:41:24 nancy Exp $
+// $Id: ConversionProducer.cc,v 1.13 2011/08/17 16:59:16 nancy Exp $
 //
 //
 

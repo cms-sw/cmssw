@@ -6,8 +6,8 @@
  * *
  *  DQM Client for global summary
  *
- *  $Date: 2009/03/02 16:55:19 $
- *  $Revision: 1.3 $
+ *  $Date: 2010/01/22 15:32:04 $
+ *  $Revision: 1.4 $
  *  \author  M. Pelliccioni - INFN Torino
  *   
  */

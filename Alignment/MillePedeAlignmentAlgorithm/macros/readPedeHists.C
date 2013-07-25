@@ -7,7 +7,7 @@
 //
 // Author     : Gero Flucke
 // Date       : July 2007
-// Last update: $Date: 2007/08/28 18:44:00 $ by $Author: flucke $
+// Last update: $Date: 2009/01/20 20:22:27 $ by $Author: flucke $
 //
 //
 // Usage:

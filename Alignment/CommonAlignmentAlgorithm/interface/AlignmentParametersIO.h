@@ -7,9 +7,9 @@
 ///
 /// abstract base class for I/O of AlignmentParameters 
 ///
-///  $Date: 2007/01/23 16:07:08 $
-///  $Revision: 1.4 $
-/// (last update by $Author: fronga $)
+///  $Date: 2007/10/08 14:38:15 $
+///  $Revision: 1.5 $
+/// (last update by $Author: cklae $)
 
 class AlignmentParametersIO 
 {

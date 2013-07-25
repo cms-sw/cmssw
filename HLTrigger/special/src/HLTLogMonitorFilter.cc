@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea Bocci
 //         Created:  Thu Nov  5 15:16:46 CET 2009
-// $Id: HLTLogMonitorFilter.cc,v 1.7 2009/11/17 10:43:11 fwyzard Exp $
+// $Id: HLTLogMonitorFilter.cc,v 1.8 2009/11/18 15:23:20 fwyzard Exp $
 //
 
 

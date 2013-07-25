@@ -2,8 +2,8 @@
  * \file DQMProvInfo.cc
  * \author A.Raval / A.Meyer - DESY
  * Last Update:
- * $Date: 2010/09/20 15:25:20 $
- * $Revision: 1.29 $
+ * $Date: 2011/11/23 14:24:50 $
+ * $Revision: 1.30 $
  * $Author: lilopera $
  *
  */

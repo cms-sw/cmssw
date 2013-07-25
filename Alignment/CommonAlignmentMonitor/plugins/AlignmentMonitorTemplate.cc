@@ -8,7 +8,7 @@
 //
 // Original Author:  Jim Pivarski
 //         Created:  Thu Mar 29 13:59:56 CDT 2007
-// $Id: AlignmentMonitorTemplate.cc,v 1.5 2008/08/11 20:24:19 pivarski Exp $
+// $Id: AlignmentMonitorTemplate.cc,v 1.6 2010/02/25 00:27:56 wmtan Exp $
 //
 
 // system include files

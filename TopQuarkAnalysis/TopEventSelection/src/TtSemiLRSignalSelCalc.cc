@@ -2,7 +2,7 @@
 // Author:  Jan Heyninck
 // Created: Tue Apr  3 17:33:23 PDT 2007
 //
-// $Id: TtSemiLRSignalSelCalc.cc,v 1.2 2007/06/18 14:12:18 heyninck Exp $
+// $Id: TtSemiLRSignalSelCalc.cc,v 1.3 2008/02/17 11:18:10 rwolf Exp $
 //
 #include "TopQuarkAnalysis/TopEventSelection/interface/TtSemiLRSignalSelCalc.h"
 

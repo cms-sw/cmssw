@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Jan 12 14:30:44 CST 2011
-// $Id$
+// $Id: EventSetupsController.cc,v 1.1 2011/01/13 00:33:11 chrjones Exp $
 //
 
 // system include files

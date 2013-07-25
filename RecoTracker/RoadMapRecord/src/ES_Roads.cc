@@ -12,9 +12,9 @@
 // Original Author: Oliver Gutsche, gutsche@fnal.gov
 // Created:         Thu Jan 12 21:00:00 UTC 2006
 //
-// $Author: gutsche $
-// $Date: 2006/01/15 01:01:25 $
-// $Revision: 1.2 $
+// $Author: wmtan $
+// $Date: 2010/02/16 17:09:17 $
+// $Revision: 1.3 $
 //
 
 #include "RecoTracker/RoadMapRecord/interface/Roads.h"

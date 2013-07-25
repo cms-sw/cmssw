@@ -7,7 +7,7 @@
  *
  * \author Luca Lista, INFN
  *
- * $Id: TrackTSelector.h,v 1.3 2006/10/19 10:02:40 llista Exp $
+ * $Id: TrackTSelector.h,v 1.4 2011/03/03 22:30:42 chrjones Exp $
  */
 #include "DataFormats/TrackReco/interface/Track.h"
 // needed because missing in TFWLiteSelector.h

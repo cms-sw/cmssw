@@ -16,8 +16,8 @@
 /*
  * \file HcalRawDataClient.cc
  * 
- * $Date: 2011/04/12 18:25:42 $
- * $Revision: 1.11 $
+ * $Date: 2011/06/08 21:18:47 $
+ * $Revision: 1.12 $
  * \author J. St. John
  * \brief Hcal Raw Data Client class
  */

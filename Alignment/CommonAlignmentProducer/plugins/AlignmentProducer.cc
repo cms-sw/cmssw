@@ -1,8 +1,8 @@
 /// \file AlignmentProducer.cc
 ///
 ///  \author    : Frederic Ronga
-///  Revision   : $Revision: 1.52 $
-///  last update: $Date: 2011/05/23 21:01:48 $
+///  Revision   : $Revision: 1.53 $
+///  last update: $Date: 2011/06/28 19:01:36 $
 ///  by         : $Author: mussgill $
 
 #include "AlignmentProducer.h"

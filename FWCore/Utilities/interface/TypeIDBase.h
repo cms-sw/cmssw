@@ -17,7 +17,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Nov 10 14:59:35 EST 2005
-// $Id: TypeIDBase.h,v 1.2 2007/06/14 02:00:58 wmtan Exp $
+// $Id: TypeIDBase.h,v 1.3 2007/06/28 23:28:57 wmtan Exp $
 //
 
 // system include files

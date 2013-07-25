@@ -1,4 +1,4 @@
-// $Id: FileHandler.h,v 1.19 2011/07/05 13:25:43 mommsen Exp $
+// $Id: FileHandler.h,v 1.20 2011/07/07 09:22:44 mommsen Exp $
 /// @file: FileHandler.h 
 
 #ifndef EventFilter_StorageManager_FileHandler_h
@@ -25,8 +25,8 @@ namespace stor {
    * Abstract representation of a physical file
    *
    * $Author: mommsen $
-   * $Revision: 1.19 $
-   * $Date: 2011/07/05 13:25:43 $
+   * $Revision: 1.20 $
+   * $Date: 2011/07/07 09:22:44 $
    */
 
   class FileHandler

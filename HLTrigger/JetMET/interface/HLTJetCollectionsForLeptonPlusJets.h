@@ -11,8 +11,8 @@
  *  combination of one lepton + jets cleaned against this leptons satisfy the cuts.
  *  These jets are then added to a cleaned jet collection which is put into the event.
  *
- *  $Date: 2011/08/30 15:18:22 $
- *  $Revision: 1.1 $
+ *  $Date: 2011/08/31 09:14:38 $
+ *  $Revision: 1.2 $
  *
  *  \author Lukasz Kreczko
  *

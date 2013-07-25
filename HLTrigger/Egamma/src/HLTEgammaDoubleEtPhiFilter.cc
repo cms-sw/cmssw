@@ -1,6 +1,6 @@
 /** \class HLTEgammaDoubleEtPhiFilter
  *
- * $Id: HLTEgammaDoubleEtPhiFilter.cc,v 1.3 2007/12/07 09:32:56 ghezzi Exp $
+ * $Id: HLTEgammaDoubleEtPhiFilter.cc,v 1.4 2007/12/07 14:41:33 ghezzi Exp $
  *
  *  \author Jonathan Hollar (LLNL)
  *

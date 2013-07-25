@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 19 13:01:56 CST 2009
-// $Id$
+// $Id: ESInputTag.cc,v 1.1 2009/02/21 22:20:41 chrjones Exp $
 //
 
 // system include files

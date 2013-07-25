@@ -18,7 +18,7 @@
 //
 // Original Author:  M. Fischler and Jim Kowalkowski
 //         Created:  Tues Feb 14 16:38:19 CST 2006
-// $Id: MessageDrop.h,v 1.15 2010/11/30 23:12:52 fischler Exp $
+// $Id: MessageDrop.h,v 1.16 2011/06/07 22:24:31 fwyzard Exp $
 //
 
 // Framework include files

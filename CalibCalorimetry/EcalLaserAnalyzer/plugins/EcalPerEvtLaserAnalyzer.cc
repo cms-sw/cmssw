@@ -1,7 +1,7 @@
 /* 
  *  \class EcalPerEvtLaserAnalyzer
  *
- *  $Date: 2009/06/02 12:55:19 $
+ *  $Date: 2010/01/18 17:28:45 $
  *  primary author: Julie Malcles - CEA/Saclay
  *  author: Gautier Hamel De Monchenault - CEA/Saclay
  */

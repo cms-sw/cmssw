@@ -5,8 +5,8 @@
 //   Description: DTTrackFinder parameters for L1MuDTTrackFinder
 //
 //
-//   $Date: 2008/02/25 16:35:32 $
-//   $Revision: 1.7 $
+//   $Date: 2008/05/09 15:02:00 $
+//   $Revision: 1.8 $
 //
 //   Author :
 //   N. Neumeister            CERN EP

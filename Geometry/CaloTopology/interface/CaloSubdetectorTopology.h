@@ -9,8 +9,8 @@
 #include <vector>
 /** \class CaloSubdetectorTopology
       
-$Date: 2006/09/07 09:43:39 $
-$Revision: 1.2 $
+$Date: 2010/03/22 18:43:28 $
+$Revision: 1.3 $
 \author P.Meridiani INFN Roma1
 \author J. Mans - Minnesota
 */

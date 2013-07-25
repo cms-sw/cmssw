@@ -74,9 +74,12 @@ namespace reco
 // \author David Chamont  - Laboratoire Leprince-Ringuet - École polytechnique, CNRS/IN2P3
 // \author Claude Charlot - Laboratoire Leprince-Ringuet - École polytechnique, CNRS/IN2P3
 //
-// \version $Id: GsfElectronCore.h,v 1.11.2.1 2011/03/04 18:22:31 chamont Exp $
+// \version $Id: GsfElectronCore.h,v 1.12 2011/03/29 16:57:24 chamont Exp $
 //
 // $Log: GsfElectronCore.h,v $
+// Revision 1.12  2011/03/29 16:57:24  chamont
+// merge back in trunk non-data-backward-compatible changes
+//
 // Revision 1.11.2.1  2011/03/04 18:22:31  chamont
 // backward incompatible cleaning
 //

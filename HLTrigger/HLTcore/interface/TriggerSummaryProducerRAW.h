@@ -6,8 +6,8 @@
  *  
  *  This class is an EDProducer making the HLT summary object for RAW
  *
- *  $Date: 2007/08/07 18:42:18 $
- *  $Revision: 1.13 $
+ *  $Date: 2007/12/06 08:27:31 $
+ *  $Revision: 1.1 $
  *
  *  \author Martin Grunewald
  *

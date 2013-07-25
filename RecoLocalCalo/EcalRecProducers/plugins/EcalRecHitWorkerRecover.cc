@@ -19,7 +19,7 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-//$Id: EcalRecHitWorkerRecover.cc,v 1.29 2011/07/21 13:43:34 argiro Exp $
+//$Id: EcalRecHitWorkerRecover.cc,v 1.30 2011/08/03 21:37:38 argiro Exp $
 
 EcalRecHitWorkerRecover::EcalRecHitWorkerRecover(const edm::ParameterSet&ps) :
         EcalRecHitWorkerBaseClass(ps)

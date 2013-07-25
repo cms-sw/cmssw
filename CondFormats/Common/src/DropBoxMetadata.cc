@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2011/02/23 16:55:18 $
- *  $Revision: 1.1 $
+ *  $Date: 2011/03/02 17:09:28 $
+ *  $Revision: 1.2 $
  *  \author G. Cerminara - CERN
  */
 

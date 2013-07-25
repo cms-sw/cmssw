@@ -1,8 +1,8 @@
 /*
  * \file EERawDataTask.cc
  *
- * $Date: 2010/08/11 14:57:35 $
- * $Revision: 1.37 $
+ * $Date: 2011/08/30 09:28:42 $
+ * $Revision: 1.38 $
  * \author E. Di Marco
  *
 */

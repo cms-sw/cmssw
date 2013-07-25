@@ -2,8 +2,8 @@
 #define Alignment_MuonAlignmentAlgorithms_MuonChamberResidual_H
 
 /** \class MuonChamberResidual
- *  $Date: 2009/04/23 05:06:01 $
- *  $Revision: 1.5 $
+ *  $Date: 2010/03/07 22:58:34 $
+ *  $Revision: 1.6 $
  *  \author J. Pivarski - Texas A&M University <pivarski@physics.tamu.edu>
  */
 

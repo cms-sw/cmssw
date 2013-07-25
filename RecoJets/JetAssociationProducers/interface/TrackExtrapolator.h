@@ -18,7 +18,7 @@
 //
 // Original Author:  Salvatore Rappoccio (salvatore.rappoccio@cern.ch)
 //         Created:  Mon Feb 22 11:54:41 CET 2010
-// $Id: TrackExtrapolator.h,v 1.2 2010/09/01 01:23:35 johnpaul Exp $
+// $Id: TrackExtrapolator.h,v 1.3 2011/02/16 17:02:13 stadie Exp $
 //
 // Revision by: John Paul Chou (chou@hep.brown.edu)
 //              Modified algorithm to extrapolate correctly to the endcap front face.

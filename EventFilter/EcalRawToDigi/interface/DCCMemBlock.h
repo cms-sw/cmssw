@@ -8,8 +8,8 @@
  *
  * \file DCCTCCBlock.h
  *
- * $Date: 2008/12/11 18:05:56 $
- * $Revision: 1.1 $
+ * $Date: 2010/09/15 21:51:33 $
+ * $Revision: 1.2 $
  *
  * \author N. Almeida
  * \author G. Franzoni

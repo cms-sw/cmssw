@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea Venturi
 //         Created:  Mon Oct 27 17:37:53 CET 2008
-// $Id: MultiplicityCorrelator.cc,v 1.1 2010/05/04 08:33:47 venturia Exp $
+// $Id: MultiplicityCorrelator.cc,v 1.1 2011/03/10 16:15:13 venturia Exp $
 //
 //
 

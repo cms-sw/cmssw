@@ -13,7 +13,7 @@
 //
 // Original Author:  Seth Cooper,27 1-024,+41227672342,
 //         Created:  Wed Apr 14 14:27:52 CEST 2010
-// $Id: HSCPValidator.h,v 1.3 2011/02/22 06:50:06 querten Exp $
+// $Id: HSCPValidator.h,v 1.4 2011/03/15 16:01:46 querten Exp $
 //
 //
 #include "FWCore/Framework/interface/Frameworkfwd.h"

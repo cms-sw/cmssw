@@ -1,8 +1,8 @@
 /*
  * \file EBSummaryClient.cc
  *
- * $Date: 2011/09/02 13:55:01 $
- * $Revision: 1.222 $
+ * $Date: 2011/09/02 14:02:36 $
+ * $Revision: 1.223 $
  * \author G. Della Ricca
  *
 */

@@ -6,7 +6,7 @@
  *  Class to add DQM monitoring elements stored in separate directories in DQMStore
  *  (in order to e.g. compute the total Standard Model expectation)
  *
- *  $Date: 2008/11/18 16:41:39 $
+ *  $Date: 2008/12/19 19:05:50 $
  *  $Revision: 1.1 $
  *  \author Christian Veelken, UC Davis
  */

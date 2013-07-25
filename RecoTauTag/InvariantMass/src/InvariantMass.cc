@@ -13,7 +13,7 @@
 //
 // Original Author:  Suchandra Dutta
 //      Created:  Thu Oct 19 09:02:32 CEST 2006
-// $Id: InvariantMass.cc,v 1.12 2007/10/08 10:49:25 fwyzard Exp $
+// $Id: InvariantMass.cc,v 1.13 2009/03/02 18:52:28 friis Exp $
 //
 //
 

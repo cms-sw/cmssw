@@ -4,9 +4,9 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("makeSD")
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.2 $'),
+    version = cms.untracked.string('$Revision: 1.1 $'),
     annotation = cms.untracked.string('Tau central skim'),
-    name = cms.untracked.string('$Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/Skimming/test/CSmaker_Tau_PDTau_35e29_cfg.py,v $')
+    name = cms.untracked.string('$Source: /local/reps/CMSSW/CMSSW/Configuration/Skimming/test/CSmaker_Tau_PDTau_35e29_cfg.py,v $')
 )
 
 

@@ -6,8 +6,8 @@
  *  
  *  This filter cuts on MinPt and Quality in specified eta regions
  *
- *  $Date: 2010/03/31 12:01:10 $
- *  $Revision: 1.2 $
+ *  $Date: 2011/05/01 08:22:48 $
+ *  $Revision: 1.3 $
  *
  *  \author Cristina Botta, Zoltan Gecse
  *

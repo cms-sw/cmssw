@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2009/04/01 07:32:50 $
- *  $Revision: 1.1 $
+ *  $Date: 2009/08/06 11:23:34 $
+ *  $Revision: 1.2 $
  *
  *  \author:  Giovanni FRANZONI
  *

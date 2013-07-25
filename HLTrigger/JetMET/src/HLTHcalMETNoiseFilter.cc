@@ -12,7 +12,7 @@
 //
 // Original Author:  Leonard Apanasevich
 //         Created:  Wed Mar 25 16:01:27 CDT 2009
-// $Id: HLTHcalMETNoiseFilter.cc,v 1.14 2011/04/12 18:25:58 johnpaul Exp $
+// $Id: HLTHcalMETNoiseFilter.cc,v 1.15 2011/04/12 21:47:29 johnpaul Exp $
 //
 //
 

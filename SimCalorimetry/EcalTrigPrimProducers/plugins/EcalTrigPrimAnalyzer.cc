@@ -11,7 +11,7 @@
 //
 // Original Author:  Ursula Berthon, Stephanie Baffioni, Pascal Paganini
 //         Created:  Thu Jul 4 11:38:38 CEST 2005
-// $Id: EcalTrigPrimAnalyzer.cc,v 1.16 2008/06/20 13:21:54 uberthon Exp $
+// $Id: EcalTrigPrimAnalyzer.cc,v 1.18 2008/06/24 13:03:14 uberthon Exp $
 //
 //
 

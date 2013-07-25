@@ -13,7 +13,7 @@
 //
 // Original Author:  Giovanni FRANZONI
 //         Created:  Wed Sep 19 16:21:29 CEST 2007
-// $Id: EcalMIPRecHitFilter.cc,v 1.5 2008/06/09 05:36:23 haupt Exp $
+// $Id: EcalMIPRecHitFilter.cc,v 1.6 2010/02/03 03:12:45 wmtan Exp $
 //
 //
 

@@ -9,8 +9,8 @@
  *
  * \file DCCSRPBlock.h
  *
- * $Date: 2010/09/15 21:51:33 $
- * $Revision: 1.2 $
+ * $Date: 2010/10/13 16:03:34 $
+ * $Revision: 1.3 $
  *
  * \author N. Almeida
  *

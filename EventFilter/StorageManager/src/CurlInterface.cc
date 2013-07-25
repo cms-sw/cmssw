@@ -1,4 +1,4 @@
-// $Id: CurlInterface.cc,v 1.2.6.1 2011/03/07 11:33:04 mommsen Exp $
+// $Id: CurlInterface.cc,v 1.3 2011/03/07 15:31:32 mommsen Exp $
 /// @file: CurlInterface.cc
 
 #include "EventFilter/StorageManager/interface/CurlInterface.h"

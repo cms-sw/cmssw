@@ -11,7 +11,7 @@
 //
 // Project: HPD noise library reader
 // Author: T.Yetkin University of Iowa, Feb. 7, 2008
-// $Id: HPDNoiseLibraryReader.cc,v 1.3 2008/09/19 17:03:50 tyetkin Exp $
+// $Id: HPDNoiseLibraryReader.cc,v 1.4 2011/06/17 12:34:22 abdullin Exp $
 // --------------------------------------------------------
 
 #include "SimCalorimetry/HcalSimAlgos/interface/HPDNoiseLibraryReader.h"

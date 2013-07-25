@@ -4,8 +4,8 @@
 /*
  * \file EEIntegrityClient.h
  *
- * $Date: 2010/02/14 14:35:46 $
- * $Revision: 1.29 $
+ * $Date: 2010/02/14 20:56:24 $
+ * $Revision: 1.30 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *

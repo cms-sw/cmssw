@@ -7,7 +7,7 @@ from RecoLocalCalo.EcalRecAlgos.EcalSeverityLevelESProducer_cfi import *
 import HLTrigger.HLTfilters.hltHighLevel_cfi 
 
 #
-# The current (as of $Date: 2010/03/04 05:42:57 $) ALCA stream for single and double electron
+# The current (as of $Date: 2011/02/01 12:49:13 $) ALCA stream for single and double electron
 # calibration
 #
 

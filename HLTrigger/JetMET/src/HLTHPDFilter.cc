@@ -1,6 +1,6 @@
 /* \class HLTHPDFilter
  *
- * $Id: HLTHPDFilter.cc,v 1.4 2010/01/12 06:28:35 hegner Exp $
+ * $Id: HLTHPDFilter.cc,v 1.5 2011/02/11 20:55:24 wdd Exp $
  *
  * Fedor Ratnikov (UMd) May 19, 2008
  */

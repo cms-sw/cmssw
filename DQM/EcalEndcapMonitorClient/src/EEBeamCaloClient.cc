@@ -1,8 +1,8 @@
 /*
  * \file EEBeamCaloClient.cc
  *
- * $Date: 2011/08/30 09:29:44 $
- * $Revision: 1.66 $
+ * $Date: 2011/09/02 13:55:02 $
+ * $Revision: 1.67 $
  * \author G. Della Ricca
  * \author A. Ghezzi
  *

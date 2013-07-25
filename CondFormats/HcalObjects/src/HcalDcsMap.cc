@@ -4,8 +4,8 @@
 POOL object to store map between detector ID and DCS ID
 Inspired by HcalElectronicsMap
 $Author: kukartse
-$Date: 2010/02/22 21:08:07 $
-$Revision: 1.1 $
+$Date: 2010/02/23 00:48:25 $
+$Revision: 1.2 $
 */
 
 #include <iostream>

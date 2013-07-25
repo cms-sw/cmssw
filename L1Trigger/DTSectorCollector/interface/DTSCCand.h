@@ -5,7 +5,7 @@
  *   Implementation of Sector Collector trigger algorithm
  *
  *
- *   $Date: 2006/07/19 10:44:41 $
+ *   $Date: 2007/02/09 11:24:32 $
  *
  *   \author D. Bonacorsi, S. Marcellini
  */

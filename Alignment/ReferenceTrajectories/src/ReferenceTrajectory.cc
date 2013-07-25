@@ -1,6 +1,6 @@
 //  Author     : Gero Flucke (based on code by Edmund Widl replacing ORCA's TkReferenceTrack)
 //  date       : 2006/09/17
-//  last update: $Date: 2010/11/26 07:54:53 $
+//  last update: $Date: 2011/05/18 10:19:48 $
 //  by         : $Author: mussgill $
 
 #include <memory>

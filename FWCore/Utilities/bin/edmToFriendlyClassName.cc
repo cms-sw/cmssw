@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Oct  4 14:30:17 EDT 2007
-// $Id: edmToFriendlyClassName.cc,v 1.1 2007/10/04 19:23:34 chrjones Exp $
+// $Id: edmToFriendlyClassName.cc,v 1.2 2008/10/31 20:37:39 wmtan Exp $
 //
 
 // system include files

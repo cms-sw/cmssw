@@ -13,7 +13,7 @@
  *  Crystal identifier class for the ECAL barrel
  *
  *
- *  $Id: EBDetId.h,v 1.26 2010/03/03 18:52:39 ferriff Exp $
+ *  $Id: EBDetId.h,v 1.27 2010/03/10 00:26:45 ferriff Exp $
  */
 
 

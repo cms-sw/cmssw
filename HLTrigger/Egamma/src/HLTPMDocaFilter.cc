@@ -3,7 +3,7 @@
  *  Original Author: Jeremy Werner                          
  *  Institution: Princeton University, USA                                                                 *  Contact: Jeremy.Werner@cern.ch 
  *  Date: February 21, 2007     
- * $Id: HLTPMDocaFilter.cc,v 1.7 2007/12/07 09:32:56 ghezzi Exp $
+ * $Id: HLTPMDocaFilter.cc,v 1.8 2011/10/12 09:00:40 fwyzard Exp $
  *
  */
 

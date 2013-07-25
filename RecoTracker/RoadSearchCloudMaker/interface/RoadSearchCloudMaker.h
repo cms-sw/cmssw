@@ -12,8 +12,8 @@
 // Created:         Sat Jan 14 22:00:00 UTC 2006
 //
 // $Author: wmtan $
-// $Date: 2010/02/11 00:14:42 $
-// $Revision: 1.7 $
+// $Date: 2011/05/20 17:17:32 $
+// $Revision: 1.8 $
 //
 
 #include "FWCore/Framework/interface/EDProducer.h"

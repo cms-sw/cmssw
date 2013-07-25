@@ -13,7 +13,7 @@
 //
 // Original Author:  Vieri Candelise
 //         Created:  Mon Jun 13 09:49:08 CEST 2011
-// $Id$
+// $Id: EcalZmassClient.cc,v 1.1 2011/07/25 14:34:56 vieri Exp $
 //
 //
 

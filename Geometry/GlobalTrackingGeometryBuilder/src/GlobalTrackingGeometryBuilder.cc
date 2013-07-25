@@ -1,7 +1,7 @@
 /** \file GlobalTrackingGeometryBuilder.cc
  * 
- *  $Date: 2006/05/10 18:05:03 $
- *  $Revision: 1.3 $
+ *  $Date: 2008/01/22 21:32:37 $
+ *  $Revision: 1.4 $
  *  \author Matteo Sani
  */
  

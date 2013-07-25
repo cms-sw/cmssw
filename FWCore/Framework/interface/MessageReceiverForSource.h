@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Dec 30 10:09:44 CST 2010
-// $Id: MessageReceiverForSource.h,v 1.1 2011/01/02 19:50:59 chrjones Exp $
+// $Id: MessageReceiverForSource.h,v 1.2 2011/01/03 21:05:00 chrjones Exp $
 //
 
 // system include files

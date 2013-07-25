@@ -1,0 +1,1 @@
+0 * * * * lxplus.cern.ch /afs/cern.ch/cms/tracker/sistrcalib/MonitorConditionDB/cronjob.sh > /afs/cern.ch/cms/tracker/sistrcalib/MonitorConditionDB/cronlog/cronjob_`date +\%Y-\%m-\%d_\%H-\%M-\%S`.log 2>&1

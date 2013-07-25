@@ -1,7 +1,7 @@
 /* 
  *  \class TMatacq
  *
- *  $Date: 2009/06/02 12:55:21 $
+ *  $Date: 2010/10/21 22:54:32 $
  *  \author: Patrice Verrecchia - CEA/Saclay
  */
 #include <CalibCalorimetry/EcalLaserAnalyzer/interface/TMatacq.h>

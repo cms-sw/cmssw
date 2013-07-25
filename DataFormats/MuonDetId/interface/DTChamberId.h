@@ -4,8 +4,8 @@
 /** \class DTChamberId
  *  DetUnit identifier for DT chambers.
  *  
- *  $Date: 2007/08/07 22:41:15 $
- *  $Revision: 1.9 $
+ *  $Date: 2008/11/06 10:34:55 $
+ *  $Revision: 1.10 $
  *  \author Stefano ARGIRO & G. Cerminara
  */
 

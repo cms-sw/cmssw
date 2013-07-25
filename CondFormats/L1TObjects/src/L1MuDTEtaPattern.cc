@@ -5,8 +5,8 @@
 //   Description: Pattern for Eta for Eta Track Finder
 //
 //
-//   $Date: 2009/02/03 23:33:45 $
-//   $Revision: 1.3 $
+//   $Date: 2010/01/19 18:39:54 $
+//   $Revision: 1.4 $
 //
 //   Author :
 //   N. Neumeister             CERN EP

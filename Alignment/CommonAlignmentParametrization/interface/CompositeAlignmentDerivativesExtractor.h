@@ -7,9 +7,9 @@
 ///
 /// A helper class to extract derivatives from composite alignable objects
 ///
-///  $Date: 2007/05/02 21:01:52 $
-///  $Revision: 1.7 $
-/// (last update by $Author: fronga $)
+///  $Date: 2007/10/08 15:55:59 $
+///  $Revision: 1.8 $
+/// (last update by $Author: cklae $)
 
 class Alignable;
 class AlignableDet;

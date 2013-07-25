@@ -1,4 +1,4 @@
-// $Id: TriggerSelector_t.cpp,v 1.1 2009/12/01 13:58:09 mommsen Exp $
+// $Id: TriggerSelector_t.cpp,v 1.2 2010/08/06 20:24:33 wmtan Exp $
 
 #include "EventFilter/StorageManager/interface/TriggerSelector.h"
 #include <iostream>

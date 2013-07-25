@@ -7,7 +7,7 @@
 // Package:    CommonTools/TriggerUtils
 // Class:      GenericTriggerEventFlag
 //
-// $Id: GenericTriggerEventFlag.h,v 1.3 2010/07/19 14:43:33 vadler Exp $
+// $Id: GenericTriggerEventFlag.h,v 1.4 2011/08/08 14:49:34 vadler Exp $
 //
 /**
   \class    GenericTriggerEventFlag GenericTriggerEventFlag.h "CommonTools/TriggerUtils/interface/GenericTriggerEventFlag.h"
@@ -16,7 +16,7 @@
    [...]
 
   \author   Volker Adler
-  \version  $Id: GenericTriggerEventFlag.h,v 1.3 2010/07/19 14:43:33 vadler Exp $
+  \version  $Id: GenericTriggerEventFlag.h,v 1.4 2011/08/08 14:49:34 vadler Exp $
 */
 
 

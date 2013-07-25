@@ -1,4 +1,4 @@
-// $Id: DataSenderMonitorCollection.h,v 1.17.4.1 2011/03/07 11:33:04 mommsen Exp $
+// $Id: DataSenderMonitorCollection.h,v 1.18 2011/03/07 15:31:31 mommsen Exp $
 /// @file: DataSenderMonitorCollection.h 
 
 #ifndef EventFilter_StorageManager_DataSenderMonitorCollection_h
@@ -24,8 +24,8 @@ namespace stor {
    * and events by their source (resource broker, filter unit, etc.)
    *
    * $Author: mommsen $
-   * $Revision: 1.17.4.1 $
-   * $Date: 2011/03/07 11:33:04 $
+   * $Revision: 1.18 $
+   * $Date: 2011/03/07 15:31:31 $
    */
   
   class DataSenderMonitorCollection : public MonitorCollection

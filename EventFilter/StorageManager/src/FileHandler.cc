@@ -1,4 +1,4 @@
-// $Id: FileHandler.cc,v 1.29 2011/07/05 13:25:43 mommsen Exp $
+// $Id: FileHandler.cc,v 1.30 2011/07/07 09:22:44 mommsen Exp $
 /// @file: FileHandler.cc
 
 #include <EventFilter/StorageManager/interface/Exception.h>

@@ -4,8 +4,8 @@
 /*
  * \file EBBeamHodoTask.h
  *
- * $Date: 2008/05/11 09:35:07 $
- * $Revision: 1.20 $
+ * $Date: 2009/10/26 17:33:47 $
+ * $Revision: 1.21 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *

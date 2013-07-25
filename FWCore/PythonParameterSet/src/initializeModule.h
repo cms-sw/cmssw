@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Jan 11 11:05:56 CST 2011
-// $Id$
+// $Id: initializeModule.h,v 1.1 2011/01/11 19:25:55 chrjones Exp $
 //
 
 // system include files

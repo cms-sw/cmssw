@@ -1,4 +1,4 @@
-// Last commit: $Id: test_SiStripFecKey.h,v 1.4 2008/05/20 13:56:29 bainbrid Exp $
+// Last commit: $Id: test_SiStripFecKey.h,v 1.5 2010/01/07 11:20:57 lowette Exp $
 
 #ifndef DataFormats_SiStripCommon_testSiStripFecKey_H
 #define DataFormats_SiStripCommon_testSiStripFecKey_H

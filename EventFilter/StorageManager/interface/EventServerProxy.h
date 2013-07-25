@@ -1,4 +1,4 @@
-// $Id: EventServerProxy.h,v 1.4 2011/04/04 17:29:26 mommsen Exp $
+// $Id: EventServerProxy.h,v 1.5 2011/04/05 09:19:01 mommsen Exp $
 /// @file: EventServerProxy.h
 
 #ifndef EventFilter_StorageManager_EventServerProxy_h
@@ -27,8 +27,8 @@ namespace stor {
    * is also obtained through a HTTP get.
    *
    * $Author: mommsen $
-   * $Revision: 1.4 $
-   * $Date: 2011/04/04 17:29:26 $
+   * $Revision: 1.5 $
+   * $Date: 2011/04/05 09:19:01 $
    */
 
   template<typename RegInfo>

@@ -10,8 +10,8 @@
  *  The slave geometries (TrackerGeometry, DTGeometry, CSCGeometry, RPCGeometry) are accessible with the method
  *  slaveGeometry(DetId).
  *
- *  $Date: 2006/05/12 09:51:12 $
- *  $Revision: 1.5 $
+ *  $Date: 2006/06/14 18:18:14 $
+ *  $Revision: 1.6 $
  *  \author M. Sani
  */
 

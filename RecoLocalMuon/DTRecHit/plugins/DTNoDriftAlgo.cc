@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2007/04/19 11:08:17 $
- *  $Revision: 1.1 $
+ *  $Date: 2009/04/30 09:30:06 $
+ *  $Revision: 1.2 $
  *  \author Martijn Mulders - CERN (martijn.mulders@cern.ch)
  *  based on DTLinearDriftAlgo
  */

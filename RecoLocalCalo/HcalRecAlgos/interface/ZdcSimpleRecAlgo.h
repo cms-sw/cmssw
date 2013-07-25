@@ -29,8 +29,8 @@
    implelented. signal = (S4 + S5 - 2*(S1+S2+S3 + S7+S8+S9+S10))*(ft-Gev constant)
    where SN is the signal in the nth time slice
     
-   $Date: 2011/02/23 22:51:18 $
-   $Revision: 1.3 $
+   $Date: 2011/11/09 08:53:53 $
+   $Revision: 1.3.14.1 $
    \author E. Garcia CSU &  J. Gomez UMD
 */
 

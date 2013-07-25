@@ -4,8 +4,8 @@
 /** \class AlignableCSCStation 
  *  The alignable muon CSC station.
  *
- *  $Date: 2008/04/10 16:36:41 $
- *  $Revision: 1.11 $
+ *  $Date: 2008/04/15 16:05:53 $
+ *  $Revision: 1.12 $
  *  \author Andre Sznajder - UERJ(Brazil)
  */
 

@@ -1,4 +1,4 @@
-// $Id: ChainData.h,v 1.17 2011/03/08 16:01:50 mommsen Exp $
+// $Id: ChainData.h,v 1.18 2011/03/08 18:34:11 mommsen Exp $
 /// @file: ChainData.h
 
 #ifndef CHAINDATA_H

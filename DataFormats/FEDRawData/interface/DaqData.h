@@ -40,8 +40,8 @@
  *           of accomplishing the task. In a future version of DaqData, 
  *           more efficient methods will be made available.
  *
- *  $Date: 2005/07/06 16:37:54 $
- *  $Revision: 1.1 $
+ *  $Date: 2005/10/06 18:25:22 $
+ *  $Revision: 1.2 $
  *  \author G. Bruno  - CERN, EP Division
  */
 

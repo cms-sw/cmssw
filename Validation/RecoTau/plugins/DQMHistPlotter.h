@@ -5,8 +5,8 @@
  *  
  *  Class to plot histograms and create a postscript file
  *
- *  $Date: 2008/12/19 19:05:50 $
- *  $Revision: 1.1 $
+ *  $Date: 2011/04/06 12:22:36 $
+ *  $Revision: 1.2 $
  *  \author Christian Veelken, UC Davis
  */
 

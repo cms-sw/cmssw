@@ -9,8 +9,8 @@
 ///
 ///  \author    : Gero Flucke
 ///  date       : October 2010
-///  $Revision: 1.2 $
-///  $Date: 2010/11/17 15:55:09 $
+///  $Revision: 1.3 $
+///  $Date: 2010/11/22 21:55:10 $
 ///  (last update by $Author: flucke $)
 
 #include "DataFormats/GeometryVector/interface/Vector2DBase.h"

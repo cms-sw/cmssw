@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue May  3 11:13:47 CDT 2011
-// $Id: DQMRootSource.cc,v 1.24 2011/10/11 17:39:28 chrjones Exp $
+// $Id: DQMRootSource.cc,v 1.25 2011/10/23 22:39:49 chrjones Exp $
 //
 
 // system include files

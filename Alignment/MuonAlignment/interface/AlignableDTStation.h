@@ -4,8 +4,8 @@
 /** \class AlignableDTStation
  *  The alignable muon DT station.
  *
- *  $Date: 2008/04/10 16:36:41 $
- *  $Revision: 1.9 $
+ *  $Date: 2008/04/15 16:05:53 $
+ *  $Revision: 1.10 $
  *  \author Andre Sznajder - UERJ(Brazil)
  */
 

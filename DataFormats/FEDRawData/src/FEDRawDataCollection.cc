@@ -1,8 +1,8 @@
 /** \file
  *  implementation of DaqRawDataCollection
  *
- *  $Date: 2005/10/18 13:29:53 $
- *  $Revision: 1.5 $
+ *  $Date: 2007/07/31 15:20:06 $
+ *  $Revision: 1.6 $
  *  \author N. Amapane - S. Argiro'
  */
 

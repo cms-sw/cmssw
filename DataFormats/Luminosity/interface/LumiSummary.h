@@ -11,7 +11,7 @@
  *         David Dagenhart
  *         Zhen Xie
  * \version   1st Version June 7 2007
- * $Id: LumiSummary.h,v 1.17 2010/10/12 10:45:49 xiezhen Exp $
+ * $Id: LumiSummary.h,v 1.18 2010/10/12 10:54:59 xiezhen Exp $
  *
  ************************************************************/
  

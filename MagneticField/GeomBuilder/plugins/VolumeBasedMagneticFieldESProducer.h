@@ -5,7 +5,7 @@
  *
  *  Producer for the VolumeBasedMagneticField.
  *
- *  $Date: 2006/05/31 13:52:10 $
+ *  $Date: 2008/11/14 10:42:41 $
  *  $Revision: 1.1 $
  */
 

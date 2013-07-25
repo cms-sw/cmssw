@@ -1,5 +1,5 @@
 // -*- Mode: C++; c-basic-offset: 2; indent-tabs-mode: t; tab-width: 8; -*-
-// $Id: EcalMatacqDigi.cc,v 1.4 2008/01/22 18:52:23 muzaffar Exp $
+// $Id: EcalMatacqDigi.cc,v 1.5 2009/02/25 14:49:51 pgras Exp $
 #include "DataFormats/EcalDigi/interface/EcalMatacqDigi.h"
 
 using namespace std;

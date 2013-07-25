@@ -1,4 +1,4 @@
-// $Id: EventFileHandler.cc,v 1.17 2011/06/01 13:49:02 mommsen Exp $
+// $Id: EventFileHandler.cc,v 1.18 2011/07/07 09:22:44 mommsen Exp $
 /// @file: EventFileHandler.cc
 
 #include <EventFilter/StorageManager/interface/EventFileHandler.h>

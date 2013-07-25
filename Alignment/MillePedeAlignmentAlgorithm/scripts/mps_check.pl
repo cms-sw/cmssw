@@ -1,8 +1,8 @@
 #!/usr/bin/env perl
 #     R. Mankel, DESY Hamburg     09-Jul-2007
 #     A. Parenti, DESY Hamburg    24-Apr-2008
-#     $Revision: 1.24 $ by $Author: flucke $
-#     $Date: 2010/09/20 17:18:34 $
+#     $Revision: 1.25 $ by $Author: flucke $
+#     $Date: 2010/10/26 20:53:55 $
 #
 #  Check output from jobs that have FETCH status
 #  

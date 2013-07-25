@@ -4,8 +4,8 @@
 /*
  * \file DTTriggerEfficiencyTask.h
  *
- * $Date: 2009/07/29 10:30:30 $
- * $Revision: 1.1 $
+ * $Date: 2010/01/05 10:14:40 $
+ * $Revision: 1.2 $
  * \author C. Battilana - CIEMAT
  *
 */

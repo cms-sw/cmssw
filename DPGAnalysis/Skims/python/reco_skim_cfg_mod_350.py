@@ -78,7 +78,7 @@ process.physdecl = cms.EDFilter("PhysDecl",
 
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.1 $'),
+    version = cms.untracked.string('$Revision: 1.2 $'),
     annotation = cms.untracked.string('promptReco nevts:1'),
     name = cms.untracked.string('PyReleaseValidation')
 )

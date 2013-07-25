@@ -15,7 +15,7 @@
 //         Created:  Thu May 31 14:09:02 CEST 2007
 //    Code Updates:  loic Quertenmont (querten)
 //         Created:  Thu May 10 14:09:02 CEST 2008
-// $Id: DeDxEstimatorProducer.cc,v 1.31 2011/05/06 06:51:52 querten Exp $
+// $Id: DeDxEstimatorProducer.cc,v 1.32 2011/07/28 14:22:55 vlimant Exp $
 //
 //
 

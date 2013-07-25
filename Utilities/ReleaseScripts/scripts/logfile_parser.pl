@@ -5,7 +5,7 @@
 #  
 # Author: Shaun ASHBY <Shaun.Ashby@cern.ch>
 # Update: 2005-11-16 11:45:09+0100
-# Revision: $Id: logfile_parser.pl,v 1.1 2007/05/07 12:54:49 sashby Exp $ 
+# Revision: $Id: logfile_parser.pl,v 1.2 2007/07/30 19:08:01 dlange Exp $ 
 #
 # Copyright: 2005 (C) Shaun ASHBY
 #

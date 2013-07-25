@@ -1,4 +1,4 @@
-# $Id: makefile.standalone,v 1.2 2005/10/07 20:48:06 egeland Exp $
+# $Id: makefile.standalone,v 1.1 2006/03/01 23:39:50 egeland Exp $
 #
 # Builds the EcalCondDB project.  Requires your $ORACLE_HOME be set and correct
 

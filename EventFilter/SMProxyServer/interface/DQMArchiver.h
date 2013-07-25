@@ -1,4 +1,4 @@
-// $Id: DQMArchiver.h,v 1.1.4.2 2011/03/07 12:01:12 mommsen Exp $
+// $Id: DQMArchiver.h,v 1.2 2011/03/07 15:41:54 mommsen Exp $
 /// @file: DQMArchiver.h 
 
 #ifndef EventFilter_SMProxyServer_DQMArchiver_h
@@ -23,8 +23,8 @@ namespace smproxy {
    * Archive DQM histograms
    *
    * $Author: mommsen $
-   * $Revision: 1.1.4.2 $
-   * $Date: 2011/03/07 12:01:12 $
+   * $Revision: 1.2 $
+   * $Date: 2011/03/07 15:41:54 $
    */
   
   class DQMArchiver

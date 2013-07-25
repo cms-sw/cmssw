@@ -6,8 +6,8 @@
  *  Set of functions that select among the different track refits
  *  based on the fit quality, in order to achieve optimal resolution.
  *
- *  $Date: 2008/06/13 10:09:41 $
- *  $Revision: 1.1 $
+ *  $Date: 2011/09/21 01:02:50 $
+ *  $Revision: 1.2 $
  *  \author Piotr Traczyk
  */
 

@@ -3,7 +3,7 @@
 
 /** \class MuonResiduals1DOFFitter
  *  $Date: Fri Apr 17 16:09:40 CDT 2009
- *  $Revision: 1.3 $ 
+ *  $Revision: 1.4 $ 
  *  \author J. Pivarski - Texas A&M University <pivarski@physics.tamu.edu>
  */
 

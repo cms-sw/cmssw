@@ -10,8 +10,8 @@
  *  It has been written as an extension of the HLTHighLevel and HLTHighLevelDev 
  *  filters.
  *
- *  $Date: 2010/07/06 13:40:41 $
- *  $Revision: 1.9 $
+ *  $Date: 2010/07/12 12:25:34 $
+ *  $Revision: 1.10 $
  *
  *  Authors: Martin Grunewald, Andrea Bocci
  *

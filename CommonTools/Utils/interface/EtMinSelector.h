@@ -4,7 +4,7 @@
  *
  * \author Luca Lista, INFN
  *
- * $Id: EtMinSelector.h,v 1.5 2007/06/18 18:33:53 llista Exp $
+ * $Id: EtMinSelector.h,v 1.1 2009/02/24 14:40:26 llista Exp $
  */
 
 struct EtMinSelector {

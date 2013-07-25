@@ -6,8 +6,8 @@
 /** \class TrackAssociatorByHitsESProducer
  *  ESProducer for TrackAssociatorByHits
  *
- *  $Date: 2007/03/26 10:13:49 $
- *  $Revision: 1.1 $
+ *  $Date: 2007/03/26 15:48:38 $
+ *  $Revision: 1.2 $
  *  \author magni
  */
 

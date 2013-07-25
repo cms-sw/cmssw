@@ -12,7 +12,7 @@
 //
 // Original Author:  Camilo Andres Carrillo Montoya
 //         Created:  Thu Oct 29 11:04:22 CET 2009
-// $Id: HLTRPCFilter.cc,v 1.1 2010/01/26 15:05:35 carrillo Exp $
+// $Id: HLTRPCFilter.cc,v 1.2 2010/02/23 10:20:56 carrillo Exp $
 //
 //
 

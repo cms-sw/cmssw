@@ -15,7 +15,7 @@
 //
 // Original Author: 
 //         Created:  Fri May 29 17:00:00 CEST 2009
-// $Id:$
+// $Id: LHCTransportLink.h,v 1.1 2009/06/10 08:10:26 fabiocos Exp $
 //
  
 // system include files

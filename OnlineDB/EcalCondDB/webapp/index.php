@@ -3,7 +3,7 @@
  * index.php
  *
  * Run selection page
- * $Id: index.php,v 1.3 2006/08/25 19:46:46 egeland Exp $
+ * $Id: index.php,v 1.6 2007/04/12 11:04:42 fra Exp $
  */
 
 require_once 'common.php';

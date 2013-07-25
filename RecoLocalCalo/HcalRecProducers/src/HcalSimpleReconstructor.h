@@ -14,8 +14,8 @@
 
     /** \class HcalSimpleReconstructor
 	
-    $Date: 2011/02/25 10:29:33 $
-    $Revision: 1.5 $
+    $Date: 2011/05/20 17:17:30 $
+    $Revision: 1.6 $
     \author J. Mans - Minnesota
     */
     class HcalSimpleReconstructor : public edm::EDProducer {

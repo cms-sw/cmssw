@@ -1,6 +1,6 @@
 #ifndef DataFormats_Common_Vector_h
 #define DataFormats_Common_Vector_h
-// $Id: Vector.h,v 1.3 2008/03/31 21:12:11 wmtan Exp $
+// $Id: Vector.h,v 1.4 2010/07/24 14:14:45 wmtan Exp $
 
 #include <algorithm>
 #include <functional>

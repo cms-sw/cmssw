@@ -1,6 +1,6 @@
 // Jet.cc
 // Fedor Ratnikov, UMd
-// $Id: Jet.cc,v 1.24 2008/12/14 23:09:48 hegner Exp $
+// $Id: Jet.cc,v 1.25 2010/10/14 23:01:45 wmtan Exp $
 
 #include <sstream>
 #include <cmath>

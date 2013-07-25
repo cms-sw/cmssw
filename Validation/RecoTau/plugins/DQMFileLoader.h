@@ -5,8 +5,8 @@
  *  
  *  Class to load DQM monitoring elements from ROOT files into DQMStore
  *
- *  $Date: 2008/12/19 19:05:50 $
- *  $Revision: 1.1 $
+ *  $Date: 2011/04/08 14:33:13 $
+ *  $Revision: 1.2 $
  *  \author Christian Veelken, UC Davis
  */
 

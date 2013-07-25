@@ -13,7 +13,7 @@
 //
 // Original Author:  Sridhara Dasu
 //         Created:  Mon Jul 16 23:48:35 CEST 2007
-// $Id: L1RCTChannelMaskTester.cc,v 1.4 2010/06/16 15:31:25 bachtis Exp $
+// $Id: L1RCTChannelMaskTester.cc,v 1.5 2010/06/16 19:27:54 ghete Exp $
 //
 //
 // user include files

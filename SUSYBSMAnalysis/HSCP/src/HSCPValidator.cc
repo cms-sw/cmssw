@@ -13,7 +13,7 @@
 //
 // Original Author:  Seth Cooper,27 1-024,+41227672342,
 //         Created:  Wed Apr 14 14:27:52 CEST 2010
-// $Id: HSCPValidator.cc,v 1.6 2011/03/15 16:01:46 querten Exp $
+// $Id: HSCPValidator.cc,v 1.7 2011/04/08 23:20:41 gowdy Exp $
 //
 //
 

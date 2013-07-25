@@ -12,7 +12,7 @@
  *
  * \version   Original: April 22, 2005 by Fernando Varela Rodriguez.
  * \version   May 23, 2006 by F.R.
- * \version   $Id: Jet.h,v 1.28 2008/10/14 12:26:58 oehler Exp $
+ * \version   $Id: Jet.h,v 1.29 2008/12/14 23:09:47 hegner Exp $
  ************************************************************/
 #include <string>
 #include "DataFormats/Candidate/interface/CompositePtrCandidate.h"

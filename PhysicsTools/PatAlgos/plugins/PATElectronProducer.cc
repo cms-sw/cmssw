@@ -1,5 +1,5 @@
 //
-// $Id: PATElectronProducer.cc,v 1.53 2012/01/19 02:50:19 tjkim Exp $
+// $Id: PATElectronProducer.cc,v 1.51.2.2 2012/01/19 03:05:00 tjkim Exp $
 //
 
 #include "PhysicsTools/PatAlgos/plugins/PATElectronProducer.h"

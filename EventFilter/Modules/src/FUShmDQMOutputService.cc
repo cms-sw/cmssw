@@ -18,7 +18,7 @@
  * - DQMServices/NodeROOT/src/SenderBase.cc
  * - DQMServices/NodeROOT/src/ReceiverBase.cc
  *
- * $Id: FUShmDQMOutputService.cc,v 1.21 2011/04/14 15:24:51 mommsen Exp $
+ * $Id: FUShmDQMOutputService.cc,v 1.23 2011/06/08 13:26:35 meschi Exp $
  */
 
 #include "EventFilter/Modules/interface/FUShmDQMOutputService.h"

@@ -13,7 +13,7 @@
 //
 // Original Author:  Jean-Roch Vlimant
 //         Created:  Thu Oct  4 21:42:40 CEST 2007
-// $Id: TrajectoryFilterAnalyzer.cc,v 1.2 2009/12/14 22:24:29 wmtan Exp $
+// $Id: TrajectoryFilterAnalyzer.cc,v 1.3 2010/10/03 17:30:57 elmer Exp $
 //
 //
 

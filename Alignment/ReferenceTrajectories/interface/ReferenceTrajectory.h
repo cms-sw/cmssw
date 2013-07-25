@@ -4,7 +4,7 @@
 /**
  * Author     : Gero Flucke (based on code by Edmund Widl replacing ORCA's TkReferenceTrack)
  * date       : 2006/09/17
- * last update: $Date: 2010/09/10 13:08:05 $
+ * last update: $Date: 2010/11/26 07:54:53 $
  * by         : $Author: mussgill $
  *
  *  Class implementing the reference trajectory of a single charged

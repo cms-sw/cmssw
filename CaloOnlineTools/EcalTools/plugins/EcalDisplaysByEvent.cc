@@ -13,7 +13,7 @@
 //
 // Original Author:  Seth COOPER
 //         Created:  Th Aug 28 5:46:22 CEST 2007
-// $Id: EcalDisplaysByEvent.cc,v 1.4 2010/10/15 12:18:41 elmer Exp $
+// $Id: EcalDisplaysByEvent.cc,v 1.5 2010/10/20 10:01:59 elmer Exp $
 //
 //
 

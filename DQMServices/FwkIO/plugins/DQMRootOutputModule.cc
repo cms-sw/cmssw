@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Apr 29 13:26:29 CDT 2011
-// $Id: DQMRootOutputModule.cc,v 1.10 2011/06/22 16:08:13 chrjones Exp $
+// $Id: DQMRootOutputModule.cc,v 1.11 2011/07/11 07:43:46 chrjones Exp $
 //
 
 // system include files

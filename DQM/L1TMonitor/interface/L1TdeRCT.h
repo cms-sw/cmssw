@@ -7,11 +7,14 @@
  *
  * Version 0.0. A.Savin 2008/04/26
  *
- * $Date: 2010/03/25 13:46:02 $
- * $Revision: 1.12 $
+ * $Date: 2010/09/30 22:26:45 $
+ * $Revision: 1.13 $
  * \author P. Wittich
- * $Id: L1TdeRCT.h,v 1.12 2010/03/25 13:46:02 weinberg Exp $
+ * $Id: L1TdeRCT.h,v 1.13 2010/09/30 22:26:45 bachtis Exp $
  * $Log: L1TdeRCT.h,v $
+ * Revision 1.13  2010/09/30 22:26:45  bachtis
+ * Add RCT FED vector monitoring
+ *
  * Revision 1.12  2010/03/25 13:46:02  weinberg
  * removed quiet bit information
  *

@@ -17,7 +17,7 @@
 //
 // Original Author:  Lorenzo AGOSTINO
 //         Created:  Mon Jul 17 18:07:01 CEST 2006
-// $Id: AlCaElectronsProducer.h,v 1.12 2010/01/06 17:46:42 presotto Exp $
+// $Id: AlCaElectronsProducer.h,v 1.13 2010/02/11 00:10:34 wmtan Exp $
 //
 //
 

@@ -7,7 +7,7 @@
 // Package:    PatCandidates
 // Class:      pat::TriggerPath
 //
-// $Id: TriggerPath.h,v 1.10 2011/05/24 15:56:25 vadler Exp $
+// $Id: TriggerPath.h,v 1.11 2011/05/28 13:40:57 vadler Exp $
 //
 /**
   \class    pat::TriggerPath TriggerPath.h "DataFormats/PatCandidates/interface/TriggerPath.h"
@@ -18,7 +18,7 @@
    https://twiki.cern.ch/twiki/bin/view/CMS/SWGuidePATTrigger#TriggerPath
 
   \author   Volker Adler
-  \version  $Id: TriggerPath.h,v 1.10 2011/05/24 15:56:25 vadler Exp $
+  \version  $Id: TriggerPath.h,v 1.11 2011/05/28 13:40:57 vadler Exp $
 */
 
 

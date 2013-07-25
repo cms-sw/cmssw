@@ -20,7 +20,7 @@
 //
 // Original Author:  Christian Veelken
 //         Created:  Tue Aug  8 16:26:18 CDT 2006
-// $Id: PFEnergyResolution.h,v 1.2 2007/03/29 14:32:44 veelken Exp $
+// $Id: PFEnergyResolution.h,v 1.3 2008/09/04 09:29:43 benedet Exp $
 //
 //
 

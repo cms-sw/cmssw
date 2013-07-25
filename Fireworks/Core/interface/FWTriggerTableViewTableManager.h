@@ -11,7 +11,7 @@
 //
 // Original Author:
 //         Created:  Mon Feb  2 16:40:52 EST 2009
-// $Id: FWTriggerTableViewTableManager.h,v 1.1 2009/10/06 18:56:06 dmytro Exp $
+// $Id: FWTriggerTableViewTableManager.h,v 1.2 2011/01/26 11:47:06 amraktad Exp $
 //
 
 // system include files

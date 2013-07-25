@@ -9,7 +9,7 @@
 
  author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
 
- version $Id: BeamSpotAnalyzer.h,v 1.13 2010/05/03 21:50:44 yumiceva Exp $
+ version $Id: BeamSpotAnalyzer.h,v 1.14 2010/06/18 19:35:59 yumiceva Exp $
 
 ________________________________________________________________**/
 

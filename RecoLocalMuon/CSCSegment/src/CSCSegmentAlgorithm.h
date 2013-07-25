@@ -9,8 +9,8 @@
  * For example, CSCSegmentizerSK inherits from this class,
  * and classes ported from ORCA local reco inherit from that.
  *
- * $Date: 2006/05/17 16:06:23 $
- * $Revision: 1.5 $
+ * $Date: 2006/09/26 09:00:33 $
+ * $Revision: 1.6 $
  * \author M. Sani
  *
  */

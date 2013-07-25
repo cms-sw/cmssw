@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 # produce electrons based on matched pixel hits
-# $Id: pixelMatchElectronsForHLT_cfi.py,v 1.3 2008/07/02 16:12:04 ghezzi Exp $
+# $Id: pixelMatchElectronsForHLT_cfi.py,v 1.4 2010/02/16 17:08:04 wmtan Exp $
 #
 pixelMatchElectronsForHLT = cms.EDProducer("EgammaHLTPixelMatchElectronProducers",
     # needed for CkfTrajectoryBuilder

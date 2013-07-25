@@ -1,5 +1,5 @@
 //
-// $Id: PATMuonProducer.cc,v 1.47 2012/01/19 02:50:19 tjkim Exp $
+// $Id: PATMuonProducer.cc,v 1.46.2.1 2012/01/19 03:05:00 tjkim Exp $
 //
 
 #include "PhysicsTools/PatAlgos/plugins/PATMuonProducer.h"

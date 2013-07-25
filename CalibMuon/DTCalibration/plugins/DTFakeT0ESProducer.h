@@ -4,7 +4,7 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2007/07/11 12:20:59 $
+ *  $Date: 2007/11/02 10:47:03 $
  *  $Revision: 1.1 $
  *  \author S. Bolognesi - INFN Torino
  */

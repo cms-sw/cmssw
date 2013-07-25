@@ -1,8 +1,8 @@
 /*
  * \file EcalEndcapMonitorDbModule.cc
  *
- * $Date: 2009/10/26 17:33:49 $
- * $Revision: 1.14 $
+ * $Date: 2010/08/08 08:46:08 $
+ * $Revision: 1.15 $
  * \author G. Della Ricca
  *
 */

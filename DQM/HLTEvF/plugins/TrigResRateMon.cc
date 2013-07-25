@@ -1,4 +1,4 @@
-// $Id: TrigResRateMon.cc,v 1.11 2010/07/26 12:32:21 rekovic Exp $
+// $Id: TrigResRateMon.cc,v 1.12 2010/09/29 23:07:08 rekovic Exp $
 // See header file for information. 
 #include "TMath.h"
 #include "DQM/HLTEvF/interface/TrigResRateMon.h"

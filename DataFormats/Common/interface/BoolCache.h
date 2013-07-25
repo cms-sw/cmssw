@@ -17,7 +17,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Sat Aug 18 17:30:08 EDT 2007
-// $Id: BoolCache.h,v 1.1 2007/08/20 13:55:58 chrjones Exp $
+// $Id: BoolCache.h,v 1.2 2007/09/14 09:44:47 llista Exp $
 //
 
 // system include files

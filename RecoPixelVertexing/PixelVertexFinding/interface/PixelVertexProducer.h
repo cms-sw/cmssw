@@ -20,7 +20,7 @@
 //
 // Original Author:  Aaron Dominguez (UNL)
 //         Created:  Thu May 25 10:17:32 CDT 2006
-// $Id: PixelVertexProducer.h,v 1.1 2006/05/26 02:29:26 aarond Exp $
+// $Id: PixelVertexProducer.h,v 1.2 2006/06/05 23:23:34 aarond Exp $
 //
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"

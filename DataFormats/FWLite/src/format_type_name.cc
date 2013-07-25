@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Thu Dec  3 16:52:50 CST 2009
-// $Id$
+// $Id: format_type_name.cc,v 1.1 2009/12/16 17:42:32 chrjones Exp $
 //
 
 // system include files

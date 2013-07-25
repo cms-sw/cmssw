@@ -8,7 +8,7 @@
 //
 // Original Author:  Alja Mrak-Tadel
 //         Created:  Fri Mar 26 12:25:02 CET 2010
-// $Id: FWViewType.cc,v 1.21 2011/06/03 04:44:30 amraktad Exp $
+// $Id: FWViewType.cc,v 1.22 2011/07/08 04:40:00 amraktad Exp $
 //
 
 // system include files

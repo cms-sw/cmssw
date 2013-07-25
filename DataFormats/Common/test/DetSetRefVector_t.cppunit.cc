@@ -1,4 +1,4 @@
-// $Id: DetSetRefVector_t.cppunit.cc,v 1.6.4.1 2008/11/04 19:24:08 wmtan Exp $
+// $Id: DetSetRefVector_t.cppunit.cc,v 1.7 2008/12/18 04:53:08 wmtan Exp $
 #include <cppunit/extensions/HelperMacros.h>
 #include "DataFormats/Provenance/interface/ProductID.h"
 #include "DataFormats/Common/interface/DetSetRefVector.h"

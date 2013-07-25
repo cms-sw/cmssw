@@ -14,7 +14,7 @@
 //
 // Original Author:  Adam Hunt
 //         Created:  Sun May 11 14:21:30 EDT 2008
-// $Id: LumiFileWriter.cc,v 1.10 2009/04/08 14:37:33 ahunt Exp $
+// $Id: LumiFileWriter.cc,v 1.11 2009/12/14 22:24:02 wmtan Exp $
 //
 //
 

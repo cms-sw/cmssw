@@ -1,5 +1,5 @@
 //
-// $Id: PATPFParticleProducer.cc,v 1.4 2009/03/26 05:02:42 hegner Exp $
+// $Id: PATPFParticleProducer.cc,v 1.5 2009/06/25 23:49:35 gpetrucc Exp $
 //
 
 #include "PhysicsTools/PatAlgos/plugins/PATPFParticleProducer.h"

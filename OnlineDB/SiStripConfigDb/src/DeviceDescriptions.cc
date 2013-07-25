@@ -1,4 +1,4 @@
-// Last commit: $Id: DeviceDescriptions.cc,v 1.35 2009/04/03 16:11:53 lowette Exp $
+// Last commit: $Id: DeviceDescriptions.cc,v 1.36 2009/04/06 16:57:28 lowette Exp $
 
 #include "OnlineDB/SiStripConfigDb/interface/SiStripConfigDb.h"
 #include "DataFormats/SiStripCommon/interface/SiStripFecKey.h"

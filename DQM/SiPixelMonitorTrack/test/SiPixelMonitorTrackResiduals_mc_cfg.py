@@ -54,8 +54,8 @@ process.FEVT.outputCommands.append('keep recoCandidatesOwned_caloTowersOpt_*_*')
 process.FEVT.outputCommands.append('keep RPCDetIdRPCDigiMuonDigiCollection_muonRPCDigis_*_*')
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.2 $'),
-    name = cms.untracked.string('$Source: /cvs_server/repositories/CMSSW/CMSSW/DQM/SiPixelMonitorTrack/test/SiPixelMonitorTrackResiduals_mc_cfg.py,v $'),
+    version = cms.untracked.string('$Revision: 1.3 $'),
+    name = cms.untracked.string('$Source: /local/reps/CMSSW/CMSSW/DQM/SiPixelMonitorTrack/test/SiPixelMonitorTrackResiduals_mc_cfg.py,v $'),
     annotation = cms.untracked.string('CRUZET Prompt Reco with DQM with Mag field at 0T')
 )
 process.options = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) ) ## default is false

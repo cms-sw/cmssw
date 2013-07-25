@@ -16,7 +16,7 @@
 //
 // Original Author:  
 //         Created:  Mon Feb 25 12:06:44 CET 2008
-// $Id: RPCConeBuilder.h,v 1.1 2009/06/01 13:58:16 fruboes Exp $
+// $Id: RPCConeBuilder.h,v 1.2 2009/09/15 13:49:41 fruboes Exp $
 //
 #include <memory>
 #include "boost/shared_ptr.hpp"

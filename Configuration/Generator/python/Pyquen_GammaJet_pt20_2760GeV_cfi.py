@@ -26,7 +26,7 @@ hiSignal.embeddingMode = True
 
 configurationMetadata = cms.untracked.PSet(
     version = cms.untracked.string('$Revision: 1.3 $'),
-    name = cms.untracked.string('$Source: /local/projects/CMSSW/rep/CMSSW/Configuration/Generator/python/Pyquen_GammaJet_pt20_2760GeV_cfi.py,v $'),
+    name = cms.untracked.string('$Source: /local/reps/CMSSW/CMSSW/Configuration/Generator/python/Pyquen_GammaJet_pt20_2760GeV_cfi.py,v $'),
     annotation = cms.untracked.string('PYQUEN quenched gamma-jets (pt-hat > 20 GeV) at sqrt(s) = 2.76TeV')
     )
 
