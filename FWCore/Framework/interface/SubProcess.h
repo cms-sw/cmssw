@@ -56,6 +56,18 @@ namespace edm {
 
     void doEndLuminosityBlock(LuminosityBlockPrincipal const& principal, IOVSyncValue const& ts, bool cleaningUpAfterException);
 
+    
+    void doBeginStream(StreamID);
+    void doEndStream(StreamID);
+    void doStreamBeginRun(StreamID, RunPrincipal const& principal, IOVSyncValue const& ts);
+    
+    void doStreamEndRun(StreamID, RunPrincipal const& principal, IOVSyncValue const& ts, bool cleaningUpAfterException);
+    
+    void doStreamBeginLuminosityBlock(StreamID, LuminosityBlockPrincipal const& principal, IOVSyncValue const& ts);
+    
+    void doStreamEndLuminosityBlock(StreamID, LuminosityBlockPrincipal const& principal, IOVSyncValue const& ts, bool cleaningUpAfterException);
+
+    
     // Write the luminosity block
     void writeLumi(ProcessHistoryID const& parentPhID, int runNumber, int lumiNumber);
 

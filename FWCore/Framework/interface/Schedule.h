@@ -135,6 +135,9 @@ namespace edm {
 
     void beginJob(ProductRegistry const&);
     void endJob(ExceptionCollector & collector);
+    
+    void beginStream();
+    void endStream();
 
     // Write the luminosity block
     void writeLumi(LuminosityBlockPrincipal const& lbp);
@@ -169,6 +172,8 @@ namespace edm {
     void preForkReleaseResources();
     void postForkReacquireResources(unsigned int iChildIndex, unsigned int iNumberOfChildren);
 
+    StreamID streamID() const { return streamID_; }
+    
     std::pair<double, double> timeCpuReal() const {
       return std::pair<double, double>(stopwatch_->cpuTime(), stopwatch_->realTime());
     }

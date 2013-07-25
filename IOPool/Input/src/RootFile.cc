@@ -502,10 +502,10 @@ namespace edm {
       }
       oldregistry.insertMapped(entryDescriptionBuffer);
       Parentage parents;
-      parents.parents() = entryDescriptionBuffer.parents();
+      parents.setParents(entryDescriptionBuffer.parents());
       if(daqProvenanceHelper_) {
         ParentageID const oldID = parents.id();
-        daqProvenanceHelper_->fixMetaData(parents.parents());
+        daqProvenanceHelper_->fixMetaData(parents.parentsForUpdate());
         ParentageID newID = parents.id();
         if(newID != oldID) {
           daqProvenanceHelper_->parentageIDMap_.insert(std::make_pair(oldID, newID));
@@ -543,7 +543,7 @@ namespace edm {
       roottree::getEntry(parentageTree.get(), i);
       if(daqProvenanceHelper_) {
         ParentageID const oldID = parents.id();
-        daqProvenanceHelper_->fixMetaData(parents.parents());
+        daqProvenanceHelper_->fixMetaData(parents.parentsForUpdate());
         ParentageID newID = parents.id();
         if(newID != oldID) {
           daqProvenanceHelper_->parentageIDMap_.insert(std::make_pair(oldID, newID));

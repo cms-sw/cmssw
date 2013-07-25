@@ -65,10 +65,14 @@ BTagPerformanceAnalyzerMC::BTagPerformanceAnalyzerMC(const edm::ParameterSet& pS
     case 15: tauPlots = true; electronPlots = false; tauPlots = false; break;
     default: electronPlots = false; muonPlots = false; tauPlots = false;
   }
-  bookHistos(pSet);
 }
 
-void BTagPerformanceAnalyzerMC::bookHistos(const edm::ParameterSet& pSet)
+void BTagPerformanceAnalyzerMC::beginRun(const edm::Run & run, const edm::EventSetup & es)
+{
+  bookHistos();
+}
+
+void BTagPerformanceAnalyzerMC::bookHistos()
 {
   //
   // Book all histograms.

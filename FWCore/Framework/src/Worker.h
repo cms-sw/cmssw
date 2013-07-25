@@ -70,6 +70,8 @@ namespace edm {
                 StreamID stream);
     void beginJob() ;
     void endJob();
+    void beginStream(StreamID id);
+    void endStream(StreamID id);
     void respondToOpenInputFile(FileBlock const& fb) {implRespondToOpenInputFile(fb);}
     void respondToCloseInputFile(FileBlock const& fb) {implRespondToCloseInputFile(fb);}
     void respondToOpenOutputFiles(FileBlock const& fb) {implRespondToOpenOutputFiles(fb);}
@@ -143,7 +145,9 @@ namespace edm {
                            CurrentProcessingContext const* cpc) = 0;
     virtual void implBeginJob() = 0;
     virtual void implEndJob() = 0;
-
+    virtual void implBeginStream(StreamID) = 0;
+    virtual void implEndStream(StreamID) = 0;
+    
   private:
     virtual void implRespondToOpenInputFile(FileBlock const& fb) = 0;
     virtual void implRespondToCloseInputFile(FileBlock const& fb) = 0;

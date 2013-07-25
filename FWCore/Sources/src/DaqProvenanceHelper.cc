@@ -89,7 +89,7 @@ namespace edm {
     ProcessConfigurationRegistry::instance()->insertMapped(pc);
 
     // Save the process history ID for use every event.
-    return ph.id();
+    return ph.setProcessHistoryID();
   }
 
   bool

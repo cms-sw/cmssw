@@ -54,6 +54,7 @@ namespace edm {
     ParameterSet emptyPSet;
     emptyPSet.registerIt();
     processConfiguration_->setParameterSetID(emptyPSet.id());
+    processConfiguration_->setProcessConfigurationID();
  
     productRegistry_->setFrozen();
 

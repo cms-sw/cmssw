@@ -36,8 +36,9 @@ JacobianCurvilinearToLocal(const Surface& surface,
 			   const GlobalTrajectoryParameters& globalParameters,
 			   const MagneticField& magField) : theJacobian() {
  
-  GlobalPoint  x =  globalParameters.position();
-  GlobalVector h  = magField.inInverseGeV(x);
+  // GlobalPoint  x =  globalParameters.position();
+  // GlobalVector h  = magField.inInverseGeV(x);
+  GlobalVector h  = globalParameters.magneticFieldInInverseGeV();
   GlobalVector qh = h*localParameters.signedInverseMomentum();  // changed sign
 
   //GlobalVector  hdir =  h.unit();

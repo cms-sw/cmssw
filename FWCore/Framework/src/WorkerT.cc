@@ -125,6 +125,20 @@ namespace edm{
   template<typename T>
   inline
   void
+  WorkerT<T>::implBeginStream(StreamID id) {
+    //module_->doBeginStream(id);
+  }
+  
+  template<typename T>
+  inline
+  void
+  WorkerT<T>::implEndStream(StreamID id) {
+    //module_->doEndStream(id);
+  }
+
+  template<typename T>
+  inline
+  void
   WorkerT<T>::implRespondToOpenInputFile(FileBlock const& fb) {
     module_->doRespondToOpenInputFile(fb);
   }

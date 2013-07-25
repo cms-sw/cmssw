@@ -395,6 +395,7 @@ namespace edm {
     proc_pset.registerIt();
     pset::Registry::instance()->extra().setID(proc_pset.id());
     processConfiguration->setParameterSetID(proc_pset.id());
+    processConfiguration->setProcessConfigurationID();
 
     initializeEarlyDelete(opts,preg,subProcPSet);
     
@@ -1257,6 +1258,14 @@ namespace edm {
 
   void Schedule::beginJob(ProductRegistry const& iRegistry) {
     workerManager_.beginJob(iRegistry);
+  }
+  
+  void Schedule::beginStream() {
+    workerManager_.beginStream(streamID_);
+  }
+  
+  void Schedule::endStream() {
+    workerManager_.endStream(streamID_);
   }
 
   void Schedule::preForkReleaseResources() {
