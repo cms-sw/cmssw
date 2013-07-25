@@ -517,8 +517,9 @@ class GsfElectron : public RecoCandidate
        float chargedHadronIso ;
        float neutralHadronIso ;
        float photonIso ;
+       float puIso;
        PflowIsolationVariables()
-        : chargedHadronIso(0.), neutralHadronIso(0.), photonIso(0.)
+        : chargedHadronIso(0.), neutralHadronIso(0.), photonIso(0.), puIso(0.)
         {}
       } ;
 
