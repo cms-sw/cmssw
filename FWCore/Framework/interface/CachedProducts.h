@@ -76,10 +76,6 @@ namespace edm
 
       bool wantEvent(Event const& e);
 
-      // Get all TriggerResults objects for the process names we're
-      // interested in.
-      size_type fill(Event const& ev);
-      
       handle_t getOneTriggerResults(Event const& e);
 
       // Clear the cache
@@ -88,9 +84,10 @@ namespace edm
     private:
       typedef selectors_t::iterator iter;
 
-      // Return the number of cached TriggerResult handles
-      //size_type size() const { return numberFound_; }
-
+      // Get all TriggerResults objects for the process names we're
+      // interested in.
+      size_type fill(Event const& ev);
+      
       // If we have only one handle cached, return it; otherwise throw.
       handle_t returnOneHandleOrThrow();
 
