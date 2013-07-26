@@ -1,9 +1,9 @@
-#ifndef Framework_CachedProducts_h
-#define Framework_CachedProducts_h
+#ifndef FWCore_Framework_TriggerResultsBasedEventSelector_h
+#define FWCore_Framework_TriggerResultsBasedEventSelector_h
 
 // -------------------------------------------------------------------
 //
-// CachedProducts: This class is used by OutputModule to interact with
+// TriggerResultsBasedEventSelector: This class is used by OutputModule to interact with
 // the TriggerResults objects upon which the decision to write out an
 // event is made.
 //
@@ -59,10 +59,10 @@ namespace edm
     };
 
 
-    class CachedProducts
+    class TriggerResultsBasedEventSelector
     {
     public:
-      CachedProducts();
+      TriggerResultsBasedEventSelector();
       typedef detail::handle_t                    handle_t;
       typedef std::vector<NamedEventSelector>     selectors_t;
       typedef selectors_t::size_type              size_type;

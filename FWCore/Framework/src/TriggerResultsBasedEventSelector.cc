@@ -2,7 +2,7 @@
 
 #include "boost/bind.hpp"
 
-#include "FWCore/Framework/interface/CachedProducts.h"
+#include "FWCore/Framework/interface/TriggerResultsBasedEventSelector.h"
 #include "FWCore/Utilities/interface/Algorithms.h"
 
 namespace edm 
@@ -12,14 +12,14 @@ namespace edm
     typedef detail::NamedEventSelector NES;
 
 
-    CachedProducts::CachedProducts() :
+    TriggerResultsBasedEventSelector::TriggerResultsBasedEventSelector() :
       fillDone_(false),
       numberFound_(0),
       selectors_()
     { }
 
     void
-    CachedProducts::setupDefault(std::vector<std::string> const& triggernames)
+    TriggerResultsBasedEventSelector::setupDefault(std::vector<std::string> const& triggernames)
     {
 
       // Set up one NamedEventSelector, with default configuration
@@ -30,7 +30,7 @@ namespace edm
     }
 
     void
-    CachedProducts::setup(std::vector<parsed_path_spec_t> const& path_specs,
+    TriggerResultsBasedEventSelector::setup(std::vector<parsed_path_spec_t> const& path_specs,
 			  std::vector<std::string> const& triggernames,
                           const std::string& process_name)
     {
@@ -74,15 +74,15 @@ namespace edm
 	}
     }
 
-    CachedProducts::handle_t
-    CachedProducts::getOneTriggerResults(Event const& ev)
+    TriggerResultsBasedEventSelector::handle_t
+    TriggerResultsBasedEventSelector::getOneTriggerResults(Event const& ev)
     {
       fill(ev);
       return returnOneHandleOrThrow();
     }
 
     bool
-    CachedProducts::wantEvent(Event const& ev)
+    TriggerResultsBasedEventSelector::wantEvent(Event const& ev)
     {
       // We have to get all the TriggerResults objects before we test
       // any for a match, because we have to deal with the possibility
@@ -106,15 +106,15 @@ namespace edm
       return match_found;
     }
     
-    CachedProducts::handle_t
-    CachedProducts::returnOneHandleOrThrow()
+    TriggerResultsBasedEventSelector::handle_t
+    TriggerResultsBasedEventSelector::returnOneHandleOrThrow()
     {
       switch (numberFound_)
 	{
 	case 0:
 	  throw edm::Exception(edm::errors::ProductNotFound,
 			       "TooFewProducts")
-	    << "CachedProducts::returnOneHandleOrThrow: "
+	    << "TriggerResultsBasedEventSelector::returnOneHandleOrThrow: "
 	    << " too few products found, "
 	    << "exepcted one, got zero\n";
 	case 1:
@@ -123,15 +123,15 @@ namespace edm
 	default:
 	  throw edm::Exception(edm::errors::ProductNotFound,
 			       "TooManyMatches")
-	    << "CachedProducts::returnOneHandleOrThrow: "
+	    << "TriggerResultsBasedEventSelector::returnOneHandleOrThrow: "
 	    << "too many products found, "
 	    << "expected one, got " << numberFound_ << '\n';
 	}
       return selectors_[0].product();
     }
 
-    CachedProducts::size_type
-    CachedProducts::fill(Event const& ev)
+    TriggerResultsBasedEventSelector::size_type
+    TriggerResultsBasedEventSelector::fill(Event const& ev)
     {
       if (!fillDone_)
 	{
@@ -147,7 +147,7 @@ namespace edm
     }
 
     void
-    CachedProducts::clear()
+    TriggerResultsBasedEventSelector::clear()
     { 
       for_all(selectors_, boost::bind(&NamedEventSelector::clear, _1));
       fillDone_ = false;
