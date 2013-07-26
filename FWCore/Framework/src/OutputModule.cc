@@ -112,7 +112,6 @@ namespace edm {
     productSelector_(),
     moduleDescription_(),
     current_context_(nullptr),
-    prodsValid_(false),
     wantAllEvents_(false),
     selectors_(),
     selector_config_id_(),
@@ -266,34 +265,21 @@ namespace edm {
   }
 
 
-  Trig OutputModule::getTriggerResults(Event const& ev) const {
-    return selectors_.getOneTriggerResults(ev);
-  }
-
   Trig OutputModule::getTriggerResults(EventPrincipal const& ep) const {
-    // This is bad, because we're returning handles into an Event that
-    // is destructed before the return. It might not fail, because the
-    // actual EventPrincipal is not destroyed, but it still needs to
-    // be cleaned up.
-    Event ev(const_cast<EventPrincipal&>(ep),
-             *current_context_->moduleDescription());
-    return getTriggerResults(ev);
-  }
+    return selectors_.getOneTriggerResults(ep);  }
 
   namespace {
     class  PVSentry {
     public:
-      PVSentry(detail::CachedProducts& prods, bool& valid) : p(prods), v(valid) {}
+      PVSentry(detail::TriggerResultsBasedEventSelector& prods) : p(prods) {}
       ~PVSentry() {
         p.clear();
-        v = false;
       }
     private:
-      detail::CachedProducts& p;
-      bool& v;
+      detail::TriggerResultsBasedEventSelector& p;
 
-      PVSentry(PVSentry const&);  // not implemented
-      PVSentry& operator=(PVSentry const&); // not implemented
+      PVSentry(PVSentry const&) = delete;
+      PVSentry& operator=(PVSentry const&) = delete;
     };
   }
 
@@ -302,15 +288,12 @@ namespace edm {
                         EventSetup const&,
                         CurrentProcessingContext const* cpc) {
     detail::CPCSentry sentry(current_context_, cpc);
-    PVSentry          products_sentry(selectors_, prodsValid_);
+    PVSentry          products_sentry(selectors_);
 
     FDEBUG(2) << "writeEvent called\n";
 
     if(!wantAllEvents_) {
-      // use module description and const_cast unless interface to
-      // event is changed to just take a const EventPrincipal
-      Event e(const_cast<EventPrincipal&>(ep), moduleDescription_);
-      if(!selectors_.wantEvent(e)) {
+      if(!selectors_.wantEvent(ep)) {
         return true;
       }
     }

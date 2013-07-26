@@ -5,10 +5,20 @@
 #include "FWCore/Framework/interface/TriggerResultsBasedEventSelector.h"
 #include "FWCore/Utilities/interface/Algorithms.h"
 
+static const edm::TypeID s_TrigResultsType(typeid(edm::TriggerResults));
+
 namespace edm 
 {
   namespace detail
   {
+    void NamedEventSelector::fill(EventPrincipal const& e) {
+      edm::BasicHandle h = e.getByLabel(PRODUCT_TYPE,
+                                        s_TrigResultsType,
+                                        inputTag_,
+                                        nullptr);
+      convert_handle(h,product_);
+    }
+    
     typedef detail::NamedEventSelector NES;
 
 
@@ -75,14 +85,14 @@ namespace edm
     }
 
     TriggerResultsBasedEventSelector::handle_t
-    TriggerResultsBasedEventSelector::getOneTriggerResults(Event const& ev)
+    TriggerResultsBasedEventSelector::getOneTriggerResults(EventPrincipal const& ev)
     {
       fill(ev);
       return returnOneHandleOrThrow();
     }
 
     bool
-    TriggerResultsBasedEventSelector::wantEvent(Event const& ev)
+    TriggerResultsBasedEventSelector::wantEvent(EventPrincipal const& ev)
     {
       // We have to get all the TriggerResults objects before we test
       // any for a match, because we have to deal with the possibility
@@ -131,7 +141,7 @@ namespace edm
     }
 
     TriggerResultsBasedEventSelector::size_type
-    TriggerResultsBasedEventSelector::fill(Event const& ev)
+    TriggerResultsBasedEventSelector::fill(EventPrincipal const& ev)
     {
       if (!fillDone_)
 	{
