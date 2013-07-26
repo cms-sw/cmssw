@@ -18,6 +18,8 @@
 #include "FWCore/Framework/interface/OccurrenceTraits.h"
 #include "FWCore/Framework/interface/OutputModuleDescription.h"
 #include "FWCore/Framework/interface/RunPrincipal.h"
+#include "FWCore/Framework/interface/getAllTriggerNames.h"
+#include "FWCore/Framework/interface/TriggerNamesService.h"
 #include "FWCore/Framework/src/EventSetupsController.h"
 #include "FWCore/Framework/src/SignallingProductRegistry.h"
 #include "FWCore/ParameterSet/interface/IllegalParameters.h"
@@ -38,7 +40,6 @@ namespace edm {
                          ActivityRegistry& parentActReg,
                          ServiceToken const& token,
                          serviceregistry::ServiceLegacy iLegacy) :
-      OutputModule(parameterSet),
       serviceToken_(),
       parentPreg_(parentProductRegistry),
       preg_(),
@@ -53,8 +54,28 @@ namespace edm {
       esInfo_(nullptr),
       subProcess_(),
       cleaningUpAfterException_(false),
-      processParameterSet_() {
-
+      processParameterSet_(),
+      productSelectorRules_(parameterSet, "outputCommands", "OutputModule"),
+      productSelector_(),
+      wantAllEvents_(true) {
+  
+    //Setup the event selection
+    Service<service::TriggerNamesService> tns;
+    
+    ParameterSet selectevents =
+    parameterSet.getUntrackedParameterSet("SelectEvents", ParameterSet());
+    
+    selectevents.registerIt(); // Just in case this PSet is not registered
+    wantAllEvents_ = detail::configureEventSelector(selectevents,
+                                                    tns->getProcessName(),
+                                                    getAllTriggerNames(),
+                                                    selectors_);
+    std::map<std::string, std::vector<std::pair<std::string, int> > > outputModulePathPositions;
+    selector_config_id_ = detail::registerProperSelectionInfo(selectevents,
+                                                              "",
+                                                              outputModulePathPositions,
+                                                              parentProductRegistry->anyProductProduced());
+        
     selectProducts(*parentProductRegistry);
 
     std::string const maxEvents("maxEvents");
@@ -116,12 +137,6 @@ namespace edm {
     branchIDListHelper_ = items.branchIDListHelper_;
     processConfiguration_ = items.processConfiguration_;
 
-    OutputModuleDescription desc(branchIDListHelper_->branchIDLists());
-    configure(desc);
-
-    std::map<std::string, std::vector<std::pair<std::string, int> > > outputModulePathPositions;
-    setEventSelectionInfo(outputModulePathPositions, parentProductRegistry->anyProductProduced());
-
     boost::shared_ptr<EventPrincipal> ep(new EventPrincipal(preg_, branchIDListHelper_, *processConfiguration_, historyAppender_.get(),
                                                             StreamID::invalidStreamID()));
     principalCache_.insert(ep);
@@ -132,6 +147,17 @@ namespace edm {
   }
 
   SubProcess::~SubProcess() {}
+
+  void
+  SubProcess::doBeginJob() {
+    this->beginJob();
+  }
+  
+  void
+  SubProcess::doEndJob() {
+    endJob();
+  }
+  
 
   void
   SubProcess::beginJob() {
@@ -151,6 +177,61 @@ namespace edm {
     if(subProcess_.get()) c.call([this](){ this->subProcess_->doEndJob();});
     if(c.hasThrown()) {
       c.rethrow();
+    }
+  }
+
+  void
+  SubProcess::selectProducts(ProductRegistry const& preg) {
+    if(productSelector_.initialized()) return;
+    productSelector_.initialize(productSelectorRules_, preg.allBranchDescriptions());
+    
+    // TODO: See if we can collapse keptProducts_ and productSelector_ into a
+    // single object. See the notes in the header for ProductSelector
+    // for more information.
+    
+    std::map<BranchID, BranchDescription const*> trueBranchIDToKeptBranchDesc;
+    
+    for(auto const& it : preg.productList()) {
+      BranchDescription const& desc = it.second;
+      if(desc.transient()) {
+        // if the class of the branch is marked transient, output nothing
+      } else if(!desc.present() && !desc.produced()) {
+        // else if the branch containing the product has been previously dropped,
+        // output nothing
+      } else if(productSelector_.selected(desc)) {
+        // else if the branch has been selected, put it in the list of selected branches.
+        if(desc.produced()) {
+          // First we check if an equivalent branch has already been selected due to an EDAlias.
+          // We only need the check for products produced in this process.
+          BranchID const& trueBranchID = desc.originalBranchID();
+          std::map<BranchID, BranchDescription const*>::const_iterator iter = trueBranchIDToKeptBranchDesc.find(trueBranchID);
+          if(iter != trueBranchIDToKeptBranchDesc.end()) {
+            throw edm::Exception(errors::Configuration, "Duplicate Output Selection")
+            << "Two (or more) equivalent branches have been selected for output.\n"
+            << "#1: " << BranchKey(desc) << "\n"
+            << "#2: " << BranchKey(*iter->second) << "\n"
+            << "Please drop at least one of them.\n";
+          }
+          trueBranchIDToKeptBranchDesc.insert(std::make_pair(trueBranchID, &desc));
+        }
+        // Now put it in the list of selected branches.
+        keptProducts_[desc.branchType()].push_back(&desc);
+      }
+    }
+    // Now fill in a mapping needed in the case that a branch was dropped while its EDAlias was kept.
+    for(auto const& it : preg.productList()) {
+      BranchDescription const& desc = it.second;
+      if(!desc.produced() || desc.isAlias()) continue;
+      BranchID const& branchID = desc.branchID();
+      std::map<BranchID, BranchDescription const*>::const_iterator iter = trueBranchIDToKeptBranchDesc.find(branchID);
+      if(iter != trueBranchIDToKeptBranchDesc.end()) {
+        // This branch, produced in this process, or an alias of it, was persisted.
+        BranchID const& keptBranchID = iter->second->branchID();
+        if(keptBranchID != branchID) {
+          // An EDAlias branch was persisted.
+          droppedBranchIDToKeptBranchID_.insert(std::make_pair(branchID.id(), keptBranchID.id()));
+        }
+      }
     }
   }
 
@@ -175,23 +256,36 @@ namespace edm {
   }
 
   void
-  SubProcess::doEvent(EventPrincipal const& principal, IOVSyncValue const& ts) {
+  SubProcess::doEvent(EventPrincipal const& ep, IOVSyncValue const& ts) {
     ServiceRegistry::Operate operate(serviceToken_);
     esInfo_.reset(new ESInfo(ts, *esp_));
-    CurrentProcessingContext cpc;
-    doEvent(principal, esInfo_->es_, &cpc);
+    /* BEGIN relevant bits from OutputModule::doEvent */
+    detail::TRBESSentry products_sentry(selectors_);
+    
+    
+    if(!wantAllEvents_) {
+      // use module description and const_cast unless interface to
+      // event is changed to just take a const EventPrincipal
+      if(!selectors_.wantEvent(ep)) {
+        return;
+      }
+    }
+    process(ep);
+    /* END relevant bits from OutputModule::doEvent */
+
+    //doEvent(principal, esInfo_->es_, &cpc);
     esInfo_.reset();
   }
 
   void
-  SubProcess::write(EventPrincipal const& principal) {
+  SubProcess::process(EventPrincipal const& principal) {
     EventAuxiliary aux(principal.aux());
     aux.setProcessHistoryID(principal.processHistoryID());
 
     boost::shared_ptr<EventSelectionIDVector> esids(new EventSelectionIDVector);
     *esids = principal.eventSelectionIDs();
-    if (principal.productRegistry().anyProductProduced() || !wantAllEvents()) {
-      esids->push_back(selectorConfig());
+    if (principal.productRegistry().anyProductProduced() || !wantAllEvents_) {
+      esids->push_back(selector_config_id_);
     }
 
     EventPrincipal& ep = principalCache_.eventPrincipal();
@@ -214,7 +308,7 @@ namespace edm {
     ServiceRegistry::Operate operate(serviceToken_);
     esInfo_.reset(new ESInfo(ts, *esp_));
     CurrentProcessingContext cpc;
-    doBeginRun(principal, esInfo_->es_, &cpc);
+    beginRun(principal);
     esInfo_.reset();
   }
 
@@ -244,8 +338,7 @@ namespace edm {
     cleaningUpAfterException_ = cleaningUpAfterException;
     ServiceRegistry::Operate operate(serviceToken_);
     esInfo_.reset(new ESInfo(ts, *esp_));
-    CurrentProcessingContext cpc;
-    doEndRun(principal, esInfo_->es_, &cpc);
+    endRun(principal);
     esInfo_.reset();
   }
 
@@ -279,8 +372,7 @@ namespace edm {
   SubProcess::doBeginLuminosityBlock(LuminosityBlockPrincipal const& principal, IOVSyncValue const& ts) {
     ServiceRegistry::Operate operate(serviceToken_);
     esInfo_.reset(new ESInfo(ts, *esp_));
-    CurrentProcessingContext cpc;
-    doBeginLuminosityBlock(principal, esInfo_->es_, &cpc);
+    beginLuminosityBlock(principal);
     esInfo_.reset();
   }
 
@@ -305,7 +397,7 @@ namespace edm {
     ServiceRegistry::Operate operate(serviceToken_);
     esInfo_.reset(new ESInfo(ts, *esp_));
     CurrentProcessingContext cpc;
-    doEndLuminosityBlock(principal, esInfo_->es_, &cpc);
+    endLuminosityBlock(principal);
     esInfo_.reset();
   }
 

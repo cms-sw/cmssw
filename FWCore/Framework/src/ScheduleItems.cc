@@ -7,7 +7,7 @@
 #include "FWCore/Framework/interface/Actions.h"
 #include "FWCore/Framework/interface/CommonParams.h"
 #include "FWCore/Framework/interface/ConstProductRegistry.h"
-#include "FWCore/Framework/interface/OutputModule.h"
+#include "FWCore/Framework/interface/SubProcess.h"
 #include "FWCore/Framework/interface/Schedule.h"
 #include "FWCore/Framework/interface/TriggerNamesService.h"
 #include "FWCore/Framework/src/SignallingProductRegistry.h"
@@ -29,7 +29,7 @@ namespace edm {
       processConfiguration_() {
   }
 
-  ScheduleItems::ScheduleItems(ProductRegistry const& preg, BranchIDListHelper const& branchIDListHelper, OutputModule const& om) :
+  ScheduleItems::ScheduleItems(ProductRegistry const& preg, BranchIDListHelper const& branchIDListHelper, SubProcess const& om) :
       actReg_(new ActivityRegistry),
       preg_(new SignallingProductRegistry(preg)),
       branchIDListHelper_(new BranchIDListHelper(branchIDListHelper)),

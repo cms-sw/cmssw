@@ -11,6 +11,7 @@
 #include <string>
 #include <utility>
 #include <vector>
+#include <map>
 
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/interface/EventSelector.h"
@@ -55,7 +56,6 @@ namespace edm
       handle_t            product_;
     };
 
-
     class TriggerResultsBasedEventSelector
     {
     public:
@@ -93,6 +93,36 @@ namespace edm
       size_type   numberFound_;
       selectors_t selectors_;
     };
+    
+    class  TRBESSentry {
+    public:
+      TRBESSentry(detail::TriggerResultsBasedEventSelector& prods) : p(prods) {}
+      ~TRBESSentry() {
+        p.clear();
+      }
+    private:
+      detail::TriggerResultsBasedEventSelector& p;
+      
+      TRBESSentry(TRBESSentry const&) = delete;
+      TRBESSentry& operator=(TRBESSentry const&) = delete;
+    };
+
+
+    /** Handles the final initialization of the TriggerResutsBasedEventSelector
+     \return true if all events will be selected
+     */
+    bool configureEventSelector(edm::ParameterSet const& iPSet,
+                                std::string const& iProcessName,
+                                std::vector<std::string> const& iAllTriggerNames,
+                                edm::detail::TriggerResultsBasedEventSelector& oSelector);
+    /** Takes the user specified SelectEvents PSet and creates a new one
+     which conforms to the canonical format required for provenance
+     */
+    ParameterSetID registerProperSelectionInfo(edm::ParameterSet const& iInitial,
+                                               std::string const& iLabel,
+                                               std::map<std::string, std::vector<std::pair<std::string, int> > > const& outputModulePathPositions,
+                                               bool anyProductProduced);
+
   }
 }
 

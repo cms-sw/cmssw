@@ -20,6 +20,7 @@ output stream.
 #include "FWCore/Framework/interface/ProductSelectorRules.h"
 #include "FWCore/Framework/interface/ProductSelector.h"
 #include "FWCore/Framework/interface/EDConsumerBase.h"
+#include "FWCore/Framework/interface/getAllTriggerNames.h"
 #include "FWCore/ParameterSet/interface/ParameterSetfwd.h"
 
 #include <array>
@@ -30,8 +31,6 @@ output stream.
 namespace edm {
 
   typedef detail::TriggerResultsBasedEventSelector::handle_t Trig;
-
-  std::vector<std::string> const& getAllTriggerNames();
 
   class OutputModule : public EDConsumerBase {
   public:
