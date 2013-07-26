@@ -175,8 +175,12 @@ KDTreeLinkerAlgo<DATA>::recSearch(int	current,
     float dimOther = info.dim[1-dimIndex];
 
     // If point inside the rectangle/area
-    if(dimCurr >= dimCurrMin && dimCurr <= dimCurrMax &&
-       dimOther >= dimOtherMin && dimOther <= dimOtherMax)
+    // Use intentionally bit-wise & instead of logical && for better
+    // performance. It is faster to always do all comparisons than to
+    // allow use of branches to not do some if any of the first ones
+    // is false.
+    if((dimCurr >= dimCurrMin) & (dimCurr <= dimCurrMax) &
+       (dimOther >= dimOtherMin) & (dimOther <= dimOtherMax))
       closestNeighbour->push_back(info);
 
   } else {
