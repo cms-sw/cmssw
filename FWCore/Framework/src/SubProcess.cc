@@ -51,9 +51,7 @@ namespace edm {
       schedule_(),
       parentToChildPhID_(),
       historyAppender_(new HistoryAppender),
-      esInfo_(nullptr),
       subProcess_(),
-      cleaningUpAfterException_(false),
       processParameterSet_(),
       productSelectorRules_(parameterSet, "outputCommands", "OutputModule"),
       productSelector_(),
@@ -250,15 +248,9 @@ namespace edm {
     if(subProcess_.get()) subProcess_->fixBranchIDListsForEDAliases(droppedBranchIDToKeptBranchID);
   }
 
-  SubProcess::ESInfo::ESInfo(IOVSyncValue const& ts, eventsetup::EventSetupProvider& esp) :
-      ts_(ts),
-      es_(esp.eventSetupForInstance(ts)) {
-  }
-
   void
   SubProcess::doEvent(EventPrincipal const& ep, IOVSyncValue const& ts) {
     ServiceRegistry::Operate operate(serviceToken_);
-    esInfo_.reset(new ESInfo(ts, *esp_));
     /* BEGIN relevant bits from OutputModule::doEvent */
     detail::TRBESSentry products_sentry(selectors_);
     
@@ -270,15 +262,12 @@ namespace edm {
         return;
       }
     }
-    process(ep);
+    process(ep,ts);
     /* END relevant bits from OutputModule::doEvent */
-
-    //doEvent(principal, esInfo_->es_, &cpc);
-    esInfo_.reset();
   }
 
   void
-  SubProcess::process(EventPrincipal const& principal) {
+  SubProcess::process(EventPrincipal const& principal, IOVSyncValue const& ts) {
     EventAuxiliary aux(principal.aux());
     aux.setProcessHistoryID(principal.processHistoryID());
 
@@ -298,22 +287,19 @@ namespace edm {
     ep.setLuminosityBlockPrincipal(principalCache_.lumiPrincipalPtr());
     propagateProducts(InEvent, principal, ep);
     typedef OccurrenceTraits<EventPrincipal, BranchActionStreamBegin> Traits;
-    schedule_->processOneOccurrence<Traits>(ep, esInfo_->es_);
-    if(subProcess_.get()) subProcess_->doEvent(ep, esInfo_->ts_);
+    schedule_->processOneOccurrence<Traits>(ep, esp_->eventSetupForInstance(ts));
+    if(subProcess_.get()) subProcess_->doEvent(ep, ts);
     ep.clearEventPrincipal();
   }
 
   void
   SubProcess::doBeginRun(RunPrincipal const& principal, IOVSyncValue const& ts) {
     ServiceRegistry::Operate operate(serviceToken_);
-    esInfo_.reset(new ESInfo(ts, *esp_));
-    CurrentProcessingContext cpc;
-    beginRun(principal);
-    esInfo_.reset();
+    beginRun(principal,ts);
   }
 
   void
-  SubProcess::beginRun(RunPrincipal const& principal) {
+  SubProcess::beginRun(RunPrincipal const& principal, IOVSyncValue const& ts) {
     boost::shared_ptr<RunAuxiliary> aux(new RunAuxiliary(principal.aux()));
     aux->setProcessHistoryID(principal.processHistoryID());
     boost::shared_ptr<RunPrincipal> rpp(new RunPrincipal(aux, preg_, *processConfiguration_, historyAppender_.get(),principal.index()));
@@ -329,26 +315,23 @@ namespace edm {
     RunPrincipal& rp = *principalCache_.runPrincipalPtr();
     propagateProducts(InRun, principal, rp);
     typedef OccurrenceTraits<RunPrincipal, BranchActionGlobalBegin> Traits;
-    schedule_->processOneOccurrence<Traits>(rp, esInfo_->es_);
-    if(subProcess_.get()) subProcess_->doBeginRun(rp, esInfo_->ts_);
+    schedule_->processOneOccurrence<Traits>(rp, esp_->eventSetupForInstance(ts));
+    if(subProcess_.get()) subProcess_->doBeginRun(rp, ts);
   }
 
   void
   SubProcess::doEndRun(RunPrincipal const& principal, IOVSyncValue const& ts, bool cleaningUpAfterException) {
-    cleaningUpAfterException_ = cleaningUpAfterException;
     ServiceRegistry::Operate operate(serviceToken_);
-    esInfo_.reset(new ESInfo(ts, *esp_));
-    endRun(principal);
-    esInfo_.reset();
+    endRun(principal,ts,cleaningUpAfterException);
   }
 
   void
-  SubProcess::endRun(RunPrincipal const& principal) {
+  SubProcess::endRun(RunPrincipal const& principal, IOVSyncValue const& ts, bool cleaningUpAfterException) {
     RunPrincipal& rp = *principalCache_.runPrincipalPtr();
     propagateProducts(InRun, principal, rp);
     typedef OccurrenceTraits<RunPrincipal, BranchActionGlobalEnd> Traits;
-    schedule_->processOneOccurrence<Traits>(rp, esInfo_->es_, cleaningUpAfterException_);
-    if(subProcess_.get()) subProcess_->doEndRun(rp, esInfo_->ts_, cleaningUpAfterException_);
+    schedule_->processOneOccurrence<Traits>(rp, esp_->eventSetupForInstance(ts), cleaningUpAfterException);
+    if(subProcess_.get()) subProcess_->doEndRun(rp, ts, cleaningUpAfterException);
   }
 
   void
@@ -371,13 +354,11 @@ namespace edm {
   void
   SubProcess::doBeginLuminosityBlock(LuminosityBlockPrincipal const& principal, IOVSyncValue const& ts) {
     ServiceRegistry::Operate operate(serviceToken_);
-    esInfo_.reset(new ESInfo(ts, *esp_));
-    beginLuminosityBlock(principal);
-    esInfo_.reset();
+    beginLuminosityBlock(principal,ts);
   }
 
   void
-  SubProcess::beginLuminosityBlock(LuminosityBlockPrincipal const& principal) {
+  SubProcess::beginLuminosityBlock(LuminosityBlockPrincipal const& principal, IOVSyncValue const& ts) {
     boost::shared_ptr<LuminosityBlockAuxiliary> aux(new LuminosityBlockAuxiliary(principal.aux()));
     aux->setProcessHistoryID(principal.processHistoryID());
     boost::shared_ptr<LuminosityBlockPrincipal> lbpp(new LuminosityBlockPrincipal(aux, preg_, *processConfiguration_, historyAppender_.get(),principal.index()));
@@ -387,27 +368,23 @@ namespace edm {
     LuminosityBlockPrincipal& lbp = *principalCache_.lumiPrincipalPtr();
     propagateProducts(InLumi, principal, lbp);
     typedef OccurrenceTraits<LuminosityBlockPrincipal, BranchActionGlobalBegin> Traits;
-    schedule_->processOneOccurrence<Traits>(lbp, esInfo_->es_);
-    if(subProcess_.get()) subProcess_->doBeginLuminosityBlock(lbp, esInfo_->ts_);
+    schedule_->processOneOccurrence<Traits>(lbp, esp_->eventSetupForInstance(ts));
+    if(subProcess_.get()) subProcess_->doBeginLuminosityBlock(lbp, ts);
   }
 
   void
   SubProcess::doEndLuminosityBlock(LuminosityBlockPrincipal const& principal, IOVSyncValue const& ts, bool cleaningUpAfterException) {
-    cleaningUpAfterException_ = cleaningUpAfterException;
     ServiceRegistry::Operate operate(serviceToken_);
-    esInfo_.reset(new ESInfo(ts, *esp_));
-    CurrentProcessingContext cpc;
-    endLuminosityBlock(principal);
-    esInfo_.reset();
+    endLuminosityBlock(principal,ts,cleaningUpAfterException);
   }
 
   void
-  SubProcess::endLuminosityBlock(LuminosityBlockPrincipal const& principal) {
+  SubProcess::endLuminosityBlock(LuminosityBlockPrincipal const& principal, IOVSyncValue const& ts, bool cleaningUpAfterException) {
     LuminosityBlockPrincipal& lbp = *principalCache_.lumiPrincipalPtr();
     propagateProducts(InLumi, principal, lbp);
     typedef OccurrenceTraits<LuminosityBlockPrincipal, BranchActionGlobalEnd> Traits;
-    schedule_->processOneOccurrence<Traits>(lbp, esInfo_->es_, cleaningUpAfterException_);
-    if(subProcess_.get()) subProcess_->doEndLuminosityBlock(lbp, esInfo_->ts_, cleaningUpAfterException_);
+    schedule_->processOneOccurrence<Traits>(lbp, esp_->eventSetupForInstance(ts), cleaningUpAfterException);
+    if(subProcess_.get()) subProcess_->doEndLuminosityBlock(lbp, ts, cleaningUpAfterException);
   }
 
   void
@@ -443,18 +420,49 @@ namespace edm {
     if(subProcess_.get()) subProcess_->doEndStream(iID);
   }
 
-  //Dummies until SubProcess inherits from new interface
   void
-  SubProcess::doStreamBeginRun(StreamID, RunPrincipal const& principal, IOVSyncValue const& ts) {}
+  SubProcess::doStreamBeginRun(StreamID id, RunPrincipal const& principal, IOVSyncValue const& ts) {
+    ServiceRegistry::Operate operate(serviceToken_);
+    {
+      RunPrincipal& rp = *principalCache_.runPrincipalPtr();
+      typedef OccurrenceTraits<RunPrincipal, BranchActionStreamBegin> Traits;
+      schedule_->processOneOccurrence<Traits>(rp, esp_->eventSetupForInstance(ts));
+      if(subProcess_.get()) subProcess_->doStreamBeginRun(id,rp, ts);
+    }
+  }
   
   void
-  SubProcess::doStreamEndRun(StreamID, RunPrincipal const& principal, IOVSyncValue const& ts, bool cleaningUpAfterException) {}
+  SubProcess::doStreamEndRun(StreamID id, RunPrincipal const& principal, IOVSyncValue const& ts, bool cleaningUpAfterException) {
+    ServiceRegistry::Operate operate(serviceToken_);
+    {
+      RunPrincipal& rp = *principalCache_.runPrincipalPtr();
+      typedef OccurrenceTraits<RunPrincipal, BranchActionStreamEnd> Traits;
+      schedule_->processOneOccurrence<Traits>(rp, esp_->eventSetupForInstance(ts),cleaningUpAfterException);
+      if(subProcess_.get()) subProcess_->doStreamEndRun(id,rp, ts,cleaningUpAfterException);
+    }
+  }
   
   void
-  SubProcess::doStreamBeginLuminosityBlock(StreamID, LuminosityBlockPrincipal const& principal, IOVSyncValue const& ts) {}
+  SubProcess::doStreamBeginLuminosityBlock(StreamID id, LuminosityBlockPrincipal const& principal, IOVSyncValue const& ts) {
+    ServiceRegistry::Operate operate(serviceToken_);
+    {
+      LuminosityBlockPrincipal& lbp = *principalCache_.lumiPrincipalPtr();
+      typedef OccurrenceTraits<LuminosityBlockPrincipal, BranchActionStreamBegin> Traits;
+      schedule_->processOneOccurrence<Traits>(lbp, esp_->eventSetupForInstance(ts));
+      if(subProcess_.get()) subProcess_->doStreamBeginLuminosityBlock(id,lbp, ts);
+    }
+  }
   
   void
-  SubProcess::doStreamEndLuminosityBlock(StreamID, LuminosityBlockPrincipal const& principal, IOVSyncValue const& ts, bool cleaningUpAfterException) {}
+  SubProcess::doStreamEndLuminosityBlock(StreamID id, LuminosityBlockPrincipal const& principal, IOVSyncValue const& ts, bool cleaningUpAfterException) {
+    ServiceRegistry::Operate operate(serviceToken_);
+    {
+      LuminosityBlockPrincipal& lbp = *principalCache_.lumiPrincipalPtr();
+      typedef OccurrenceTraits<LuminosityBlockPrincipal, BranchActionStreamEnd> Traits;
+      schedule_->processOneOccurrence<Traits>(lbp, esp_->eventSetupForInstance(ts),cleaningUpAfterException);
+      if(subProcess_.get()) subProcess_->doStreamEndLuminosityBlock(id,lbp, ts,cleaningUpAfterException);
+    }
+  }
 
 
   void

@@ -207,19 +207,13 @@ namespace edm {
     }
 
   private:
-    struct ESInfo {
-      ESInfo(IOVSyncValue const& ts, eventsetup::EventSetupProvider& esp);
-      IOVSyncValue const& ts_;
-      EventSetup const& es_;
-    };
-
      void beginJob();
      void endJob();
-     void process(EventPrincipal const& e);
-     void beginRun(RunPrincipal const& r);
-     void endRun(RunPrincipal const& r);
-     void beginLuminosityBlock(LuminosityBlockPrincipal const& lb);
-     void endLuminosityBlock(LuminosityBlockPrincipal const& lb);
+     void process(EventPrincipal const& e, IOVSyncValue const& ts);
+     void beginRun(RunPrincipal const& r, IOVSyncValue const& ts);
+     void endRun(RunPrincipal const& r, IOVSyncValue const& ts, bool cleaningUpAfterException);
+     void beginLuminosityBlock(LuminosityBlockPrincipal const& lb, IOVSyncValue const& ts);
+     void endLuminosityBlock(LuminosityBlockPrincipal const& lb, IOVSyncValue const& ts, bool cleaningUpAfterException);
 
     void propagateProducts(BranchType type, Principal const& parentPrincipal, Principal& principal) const;
     void fixBranchIDListsForEDAliases(std::map<BranchID::value_type, BranchID::value_type> const& droppedBranchIDToKeptBranchID);
@@ -240,9 +234,7 @@ namespace edm {
     std::auto_ptr<Schedule>                       schedule_;
     std::map<ProcessHistoryID, ProcessHistoryID>  parentToChildPhID_;
     std::unique_ptr<HistoryAppender>              historyAppender_;
-    std::auto_ptr<ESInfo>                         esInfo_;
     std::auto_ptr<SubProcess>                     subProcess_;
-    bool                                          cleaningUpAfterException_;
     std::unique_ptr<ParameterSet>                 processParameterSet_;
 
     // keptProducts_ are pointers to the BranchDescription objects describing
