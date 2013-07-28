@@ -1,0 +1,203 @@
+(run){
+  EVENTS 100
+  EVENT_MODE = HepMC;
+  ACTIVE[6]=0
+  ACTIVE[22]=0
+  ACTIVE[23]=0
+  ACTIVE[25]=0
+  ERROR=0.02
+  MASSIVE[11]=1
+  MASSIVE[13]=1
+  MASSIVE[15]=1
+  # costruct container for ease
+  PARTICLE_CONTAINER 991[m:-1] leptons 11 -11 13 -13 15 -15;
+# avoid comix re-init after runcard modification
+WRITE_MAPPING_FILE 3;
+}(run)
+
+(beam){
+  BEAM_1 = 2212; BEAM_ENERGY_1 = 4000;
+  BEAM_2 = 2212; BEAM_ENERGY_2 = 4000;
+}(beam)
+
+(processes){
+  # with massive leptons cannot map processes, write out explicitly
+#W+W+
+  Process 93 93 -> 11 -12 11 -12 93{3};
+  Integration_Error 0.05 {5,6,7}
+  Order_EW 4
+  CKKW sqr(20/E_CMS)
+  Scales LOOSE_METS{MU_F2}{MU_R2} {6,7}
+  End process;
+
+  Process 93 93 -> 11 -12 13 -14 93{3};
+  Integration_Error 0.05 {5,6,7}
+  Order_EW 4
+  CKKW sqr(20/E_CMS)
+  Scales LOOSE_METS{MU_F2}{MU_R2} {6,7}
+  End process;
+
+  Process 93 93 -> 11 -12 15 -16 93{3};
+  Integration_Error 0.05 {5,6,7}
+  Order_EW 4
+  CKKW sqr(20/E_CMS)
+  Scales LOOSE_METS{MU_F2}{MU_R2} {6,7}
+  End process;
+
+  Process 93 93 -> 13 -14 13 -14 93{3};
+  Integration_Error 0.05 {5,6,7}
+  Order_EW 4
+  CKKW sqr(20/E_CMS)
+  Scales LOOSE_METS{MU_F2}{MU_R2} {6,7}
+  End process;
+
+  Process 93 93 -> 13 -14 15 -16 93{3};
+  Integration_Error 0.05 {5,6,7}
+  Order_EW 4
+  CKKW sqr(20/E_CMS)
+  Scales LOOSE_METS{MU_F2}{MU_R2} {6,7}
+  End process;
+
+  Process 93 93 -> 15 -16 15 -16 93{3};
+  Integration_Error 0.05 {5,6,7}
+  Order_EW 4
+  CKKW sqr(20/E_CMS)
+  Scales LOOSE_METS{MU_F2}{MU_R2} {6,7}
+  End process;
+
+
+#W+W-
+  Process 93 93 -> 11 -12 -11 12 93{3};
+  Integration_Error 0.05 {5,6,7}
+  Order_EW 4
+  CKKW sqr(20/E_CMS)
+  Scales LOOSE_METS{MU_F2}{MU_R2} {6,7}
+  End process;
+
+  Process 93 93 -> 11 -12 -13 14 93{3};
+  Integration_Error 0.05 {5,6,7}
+  Order_EW 4
+  CKKW sqr(20/E_CMS)
+  Scales LOOSE_METS{MU_F2}{MU_R2} {6,7}
+  End process;
+
+  Process 93 93 -> 11 -12 -15 16 93{3};
+  Integration_Error 0.05 {5,6,7}
+  Order_EW 4
+  CKKW sqr(20/E_CMS)
+  Scales LOOSE_METS{MU_F2}{MU_R2} {6,7}
+  End process;
+
+  Process 93 93 -> 13 -14 -11 12 93{3};
+  Integration_Error 0.05 {5,6,7}
+  Order_EW 4
+  CKKW sqr(20/E_CMS)
+  Scales LOOSE_METS{MU_F2}{MU_R2} {6,7}
+  End process;
+
+  Process 93 93 -> 13 -14 -13 14 93{3};
+  Integration_Error 0.05 {5,6,7}
+  Order_EW 4
+  CKKW sqr(20/E_CMS)
+  Scales LOOSE_METS{MU_F2}{MU_R2} {6,7}
+  End process;
+
+  Process 93 93 -> 13 -14 -15 16 93{3};
+  Integration_Error 0.05 {5,6,7}
+  Order_EW 4
+  CKKW sqr(20/E_CMS)
+  Scales LOOSE_METS{MU_F2}{MU_R2} {6,7}
+  End process;
+
+  Process 93 93 -> 15 -16 -11 12 93{3};
+  Integration_Error 0.05 {5,6,7}
+  Order_EW 4
+  CKKW sqr(20/E_CMS)
+  Scales LOOSE_METS{MU_F2}{MU_R2} {6,7}
+  End process;
+
+  Process 93 93 -> 15 -16 -13 14 93{3};
+  Integration_Error 0.05 {5,6,7}
+  Order_EW 4
+  CKKW sqr(20/E_CMS)
+  Scales LOOSE_METS{MU_F2}{MU_R2} {6,7}
+  End process;
+
+  Process 93 93 -> 15 -16 -15 16 93{3};
+  Integration_Error 0.05 {5,6,7}
+  Order_EW 4
+  CKKW sqr(20/E_CMS)
+  Scales LOOSE_METS{MU_F2}{MU_R2} {6,7}
+  End process;
+
+
+#W-W-
+  Process 93 93 -> -11 12 -11 12 93{3};
+  Integration_Error 0.05 {5,6,7}
+  Order_EW 4
+  CKKW sqr(20/E_CMS)
+  Scales LOOSE_METS{MU_F2}{MU_R2} {6,7}
+  End process;
+
+  Process 93 93 -> -11 12 -13 14 93{3};
+  Integration_Error 0.05 {5,6,7}
+  Order_EW 4
+  CKKW sqr(20/E_CMS)
+  Scales LOOSE_METS{MU_F2}{MU_R2} {6,7}
+  End process;
+
+  Process 93 93 -> -11 12 -15 16 93{3};
+  Integration_Error 0.05 {5,6,7}
+  Order_EW 4
+  CKKW sqr(20/E_CMS)
+  Scales LOOSE_METS{MU_F2}{MU_R2} {6,7}
+  End process;
+
+  Process 93 93 -> -13 14 -13 14 93{3};
+  Integration_Error 0.05 {5,6,7}
+  Order_EW 4
+  CKKW sqr(20/E_CMS)
+  Scales LOOSE_METS{MU_F2}{MU_R2} {6,7}
+  End process;
+
+  Process 93 93 -> -13 14 -15 16 93{3};
+  Integration_Error 0.05 {5,6,7}
+  Order_EW 4
+  CKKW sqr(20/E_CMS)
+  Scales LOOSE_METS{MU_F2}{MU_R2} {6,7}
+  End process;
+
+  Process 93 93 -> -15 16 -15 16 93{3};
+  Integration_Error 0.05 {5,6,7}
+  Order_EW 4
+  CKKW sqr(20/E_CMS)
+  Scales LOOSE_METS{MU_F2}{MU_R2} {6,7}
+  End process;
+}(processes)
+
+(selector){
+  # minimum lepton pt and eta
+  "PT" 991 5.0,E_CMS:5.0,E_CMS [PT_UP]
+  "Eta" 991 -2.7,2.7:-2.7,2.7 [PT_UP]
+}(selector)
+
+(integration){
+FINISH_OPTIMIZATION = Off
+}(integration)
+
+(isr){
+  PDF_LIBRARY     = LHAPDFSherpa
+  PDF_SET         = CT10.LHgrid
+  PDF_SET_VERSION = 0
+  PDF_GRID_PATH   = PDFsets
+}(isr)
+
+(me){
+ME_SIGNAL_GENERATOR = Comix
+EVENT_GENERATION_MODE = Unweighted;
+}(me)
+
+(mi){
+MI_HANDLER = Amisic  # None or Amisic
+}(mi)
+
