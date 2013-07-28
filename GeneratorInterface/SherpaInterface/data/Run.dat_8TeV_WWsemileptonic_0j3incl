@@ -1,0 +1,163 @@
+(run){
+  EVENTS 100
+  EVENT_MODE = HepMC;
+  ACTIVE[6]=0
+  ACTIVE[25]=0
+  ERROR=0.02
+  MASSIVE[11]=1
+  MASSIVE[13]=1
+  MASSIVE[15]=1
+  # costruct container for ease
+  PARTICLE_CONTAINER 991[m:-1] leptons 11 -11 13 -13 15 -15;
+# avoid comix re-init after runcard modification
+WRITE_MAPPING_FILE 3;
+}(run)
+
+(beam){
+  BEAM_1 = 2212; BEAM_ENERGY_1 = 4000;
+  BEAM_2 = 2212; BEAM_ENERGY_2 = 4000;
+}(beam)
+
+(processes){
+  # with massive leptons cannot map processes, write out explicitly
+
+  Process 93 93 -> 24[a] 24[b] 93{3};
+  Decay 24[a] -> -11 12;
+  Decay 24[b] -> 94 94;
+  Integration_Error 0.05 {6,7}
+  Order_EW 4
+  CKKW sqr(20/E_CMS)
+  Scales LOOSE_METS{MU_F2}{MU_R2} {6,7}
+  End process;
+
+  Process 93 93 -> 24[a] 24[b] 93{3};
+  Decay 24[a] -> -13 14;
+  Decay 24[b] -> 94 94;
+  Integration_Error 0.05 {6,7}
+  Order_EW 4
+  CKKW sqr(20/E_CMS)
+  Scales LOOSE_METS{MU_F2}{MU_R2} {6,7}
+  End process;
+
+  Process 93 93 -> 24[a] 24[b] 93{3};
+  Decay 24[a] -> -15 16;
+  Decay 24[b] -> 94 94;
+  Integration_Error 0.05 {6,7}
+  Order_EW 4
+  CKKW sqr(20/E_CMS)
+  Scales LOOSE_METS{MU_F2}{MU_R2} {6,7}
+  End process;
+
+
+  Process 93 93 -> 24[c] -24[d] 93{3};
+  Decay 24[c] -> -11 12;
+  Decay -24[d] -> 94 94;
+  Integration_Error 0.05 {6,7}
+  Order_EW 4
+  CKKW sqr(20/E_CMS)
+  Scales LOOSE_METS{MU_F2}{MU_R2} {6,7}
+  End process;
+
+  Process 93 93 -> 24[c] -24[d] 93{3};
+  Decay 24[c] -> -13 14;
+  Decay -24[d] -> 94 94;
+  Integration_Error 0.05 {6,7}
+  Order_EW 4
+  CKKW sqr(20/E_CMS)
+  Scales LOOSE_METS{MU_F2}{MU_R2} {6,7}
+  End process;
+
+  Process 93 93 -> 24[c] -24[d] 93{3};
+  Decay 24[c] -> -15 16;
+  Decay -24[d] -> 94 94;
+  Integration_Error 0.05 {6,7}
+  Order_EW 4
+  CKKW sqr(20/E_CMS)
+  Scales LOOSE_METS{MU_F2}{MU_R2} {6,7}
+  End process;
+
+
+  Process 93 93 -> 24[e] -24[f] 93{3};
+  Decay 24[e] -> 94 94;
+  Decay -24[f] -> 11 -12;
+  Integration_Error 0.05 {6,7}
+  Order_EW 4
+  CKKW sqr(20/E_CMS)
+  Scales LOOSE_METS{MU_F2}{MU_R2} {6,7}
+  End process;
+
+  Process 93 93 -> 24[e] -24[f] 93{3};
+  Decay 24[e] -> 94 94;
+  Decay -24[f] -> 13 -14;
+  Integration_Error 0.05 {6,7}
+  Order_EW 4
+  CKKW sqr(20/E_CMS)
+  Scales LOOSE_METS{MU_F2}{MU_R2} {6,7}
+  End process;
+
+  Process 93 93 -> 24[e] -24[f] 93{3};
+  Decay 24[e] -> 94 94;
+  Decay -24[f] -> 15 -16;
+  Integration_Error 0.05 {6,7}
+  Order_EW 4
+  CKKW sqr(20/E_CMS)
+  Scales LOOSE_METS{MU_F2}{MU_R2} {6,7}
+  End process;
+
+
+  Process 93 93 -> -24[g] -24[h] 93{3};
+  Decay -24[g] -> 11 -12;
+  Decay -24[h] -> 94 94;
+  Integration_Error 0.05 {6,7}
+  Order_EW 4
+  CKKW sqr(20/E_CMS)
+  Scales LOOSE_METS{MU_F2}{MU_R2} {6,7}
+  End process;
+
+  Process 93 93 -> -24[g] -24[h] 93{3};
+  Decay -24[g] -> 13 -14;
+  Decay -24[h] -> 94 94;
+  Integration_Error 0.05 {6,7}
+  Order_EW 4
+  CKKW sqr(20/E_CMS)
+  Scales LOOSE_METS{MU_F2}{MU_R2} {6,7}
+  End process;
+
+  Process 93 93 -> -24[g] -24[h] 93{3};
+  Decay -24[g] -> 15 -16;
+  Decay -24[h] -> 94 94;
+  Integration_Error 0.05 {6,7}
+  Order_EW 4
+  CKKW sqr(20/E_CMS)
+  Scales LOOSE_METS{MU_F2}{MU_R2} {6,7}
+  End process;
+}(processes)
+
+(selector){
+#  # loose cut on W-mass
+#  DecayMass 24 40.0 120.0
+  # minimum lepton pt and eta
+  "PT" 90 5.0,E_CMS:5.0,E_CMS [PT_UP]
+  "Eta" 90 -2.7,2.7:-2.7,2.7 [PT_UP]
+}(selector)
+
+(integration){
+FINISH_OPTIMIZATION = Off
+}(integration)
+
+(isr){
+  PDF_LIBRARY     = LHAPDFSherpa
+  PDF_SET         = CT10.LHgrid
+  PDF_SET_VERSION = 0
+  PDF_GRID_PATH   = PDFsets
+}(isr)
+
+(me){
+ME_SIGNAL_GENERATOR = Comix
+EVENT_GENERATION_MODE = Unweighted;
+}(me)
+
+(mi){
+MI_HANDLER = Amisic  # None or Amisic
+}(mi)
+
