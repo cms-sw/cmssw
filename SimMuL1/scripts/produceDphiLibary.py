@@ -85,7 +85,8 @@ def produceDphiLibary():
 
     ## close the output file
     outfile.close()
-        
+    print "dPhi library written to:", outfile.name
+    
 if __name__ == "__main__":  
     produceDphiLibary()
 
