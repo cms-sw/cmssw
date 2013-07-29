@@ -69,6 +69,7 @@ def produceDphiLibary():
             dphis[n][f][0] = dphiCut(h_dphi_odd, frac)
             dphis[n][f][1] = dphiCut(h_dphi_even, frac)
             
+    """
     ## print the dphi library for these samples
     outfile = open("GEMCSCdPhiLib.py","w")
     for f in range(len(fr)):
@@ -82,11 +83,32 @@ def produceDphiLibary():
             
             outfile.write("'%s' : { 'odd' :  %.8f, 'even' : %.8f }%s\n"%(pt_string, dphis[n][f][0], dphis[n][f][1], endchar))
         outfile.write("}\n")
+    """
+
+    ## print the dphi library for these samples
+    outfile = open("GEMCSCdPhiLib.py","w")
+    outfile.write("dphi_lct_pad = {\n")
+    for eff in range(len(fr)):
+        outfile.write('    "%d" : {\n'%(fr[eff]))
+        if eff == len(fr)-1:
+            endchar1 = ""
+        else:
+            endchar1 = ","
+        for n in range(len(pt)):
+            pt_string = ("%s"%(pt[n])).ljust(4)
+            if n == len(pt)-1:
+                endchar = ""
+            else:
+                endchar = ","
+            outfile.write("        '%s' : { 'odd' :  %.8f, 'even' : %.8f }%s\n"%(pt_string, dphis[n][f][0], dphis[n][f][1], endchar))
+        outfile.write('        }%s\n'%(endchar1))
+
+    outfile.write('}\n')
 
     ## close the output file
     outfile.close()
     print "dPhi library written to:", outfile.name
-    
+
 if __name__ == "__main__":  
     produceDphiLibary()
-
+    
