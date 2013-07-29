@@ -182,15 +182,15 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
-  virtual void write(edm::EventPrincipal const& e);
-  virtual void writeLuminosityBlock(edm::LuminosityBlockPrincipal const&);
-  virtual void writeRun(edm::RunPrincipal const&);
-  virtual bool isFileOpen() const;
-  virtual void openFile(edm::FileBlock const&);
+  virtual void write(edm::EventPrincipal const& e) override;
+  virtual void writeLuminosityBlock(edm::LuminosityBlockPrincipal const&) override;
+  virtual void writeRun(edm::RunPrincipal const&) override;
+  virtual bool isFileOpen() const override;
+  virtual void openFile(edm::FileBlock const&) override;
+  virtual void reallyCloseFile() override;
 
-
-  virtual void startEndFile();
-  virtual void finishEndFile();
+  void startEndFile();
+  void finishEndFile();
   std::string m_fileName;
   std::string m_logicalFileName;
   std::auto_ptr<TFile> m_file;
@@ -474,6 +474,13 @@ void DQMRootOutputModule::writeRun(edm::RunPrincipal const& iRun){
   edm::Service<edm::JobReport> jr;
   jr->reportRunNumber(m_run);  
 }
+
+void 
+DQMRootOutputModule::reallyCloseFile() {
+   startEndFile();
+   finishEndFile();
+}
+
 
 void DQMRootOutputModule::startEndFile() {
   //std::cout << "DQMRootOutputModule::startEndFile"<< std::endl;
