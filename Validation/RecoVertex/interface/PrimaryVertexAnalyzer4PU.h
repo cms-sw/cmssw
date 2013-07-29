@@ -52,7 +52,9 @@
 #include <SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h>
 #include <SimDataFormats/TrackingAnalysis/interface/TrackingVertex.h>
 #include <SimDataFormats/TrackingAnalysis/interface/TrackingVertexContainer.h>
+#include "SimTracker/Records/interface/TrackAssociatorRecord.h"
 #include "SimTracker/TrackAssociation/interface/TrackAssociatorBase.h"
+#include "SimTracker/TrackAssociation/interface/TrackAssociatorByHits.h"
 #include "SimDataFormats/EncodedEventId/interface/EncodedEventId.h"
 
 //Track et al
@@ -267,6 +269,9 @@ private:
 					  const edm::Handle<edm::SimVertexContainer> simVtxs, 
 					  const edm::Handle<edm::SimTrackContainer> simTrks);
   std::vector<PrimaryVertexAnalyzer4PU::simPrimaryVertex> getSimPVs(const edm::Handle<TrackingVertexCollection>);
+  double getTrueSeparation(float, std::vector<float>);
+  double getTrueSeparation(SimEvent, std::vector<SimEvent>);
+  std::vector<int> vertex_match(float, edm::Handle<reco::VertexCollection>);
 
   bool truthMatchedTrack( edm::RefToBase<reco::Track>, TrackingParticleRef &  );
   std::vector< edm::RefToBase<reco::Track> >  getTruthMatchedVertexTracks(
@@ -287,13 +292,15 @@ private:
 			       const edm::Handle<reco::VertexCollection> recVtxs,
 			       const edm::Handle<reco::TrackCollection> recTrks, 
 			       std::vector<simPrimaryVertex> & simpv,
+			       std::vector<float> pui_z, 
 			       const std::string message="");
 
   void analyzeVertexCollectionTP(std::map<std::string, TH1*> & h,
 			       const edm::Handle<reco::VertexCollection> recVtxs,
 			       const edm::Handle<reco::TrackCollection> recTrks, 
 			       std::vector<SimEvent> & simEvt,
-				 const std::string message="");
+			       reco::RecoToSimCollection rsC, 
+				   const std::string message="");
 
   void printEventSummary(std::map<std::string, TH1*> & h,
 			 const edm::Handle<reco::VertexCollection> recVtxs,
