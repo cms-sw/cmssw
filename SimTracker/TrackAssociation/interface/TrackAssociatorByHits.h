@@ -96,6 +96,8 @@ class TrackAssociatorByHits : public TrackAssociatorBase {
 
   const TrackingRecHit* getHitPtr(edm::OwnVector<TrackingRecHit>::const_iterator iter) const {return &*iter;}
   const TrackingRecHit* getHitPtr(trackingRecHit_iterator iter) const {return &**iter;}
+
+  edm::InputTag _simHitTpMapTag;
 };
 
 #endif
