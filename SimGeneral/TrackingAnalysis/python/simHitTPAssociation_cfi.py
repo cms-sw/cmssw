@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-tpClusterProducer = cms.EDProducer("ClusterTPAssociationProducer",
+simHitTPAssocProducer = cms.EDProducer("SimHitTPAssociationProducer",
   simHitSrc = cms.VInputTag(cms.InputTag('g4SimHits','MuonDTHits'),
                             cms.InputTag('g4SimHits','MuonCSCHits'),
                             cms.InputTag('g4SimHits','MuonRPCHits'),
