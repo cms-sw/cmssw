@@ -6,7 +6,6 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetfwd.h"
-#include "DataFormats/Candidate/interface/CandidateFwd.h"
 
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticleFwd.h"
@@ -22,12 +21,12 @@ public:
   explicit SimHitTPAssociationProducer(const edm::ParameterSet&);
   ~SimHitTPAssociationProducer();
 
+  static bool simHitTPAssociationListGreater(SimHitTPPair i,SimHitTPPair j) { return (i.first.key()>j.first.key()); }
+
 private:
   virtual void beginJob() {}
   virtual void produce(edm::Event&, const edm::EventSetup&);
   virtual void endJob() {}
-
-  static bool simHitTPAssociationListGreater(SimHitTPPair i,SimHitTPPair j) { return (i.first.key()>j.first.key()); }
 
   std::vector<edm::InputTag> _simHitSrc;
   edm::InputTag _trackingParticleSrc;
