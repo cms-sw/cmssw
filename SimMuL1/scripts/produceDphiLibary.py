@@ -65,32 +65,15 @@ def produceDphiLibary():
         h_dphi_odd = TH1F(gDirectory.Get("dphi_odd"))
         h_dphi_even = TH1F(gDirectory.Get("dphi_even"))
         for f in range(len(fr)):
-            frac = fr[f]
-            dphis[n][f][0] = dphiCut(h_dphi_odd, frac)
-            dphis[n][f][1] = dphiCut(h_dphi_even, frac)
+            dphis[n][f][0] = dphiCut(h_dphi_odd, fr[f])
+            dphis[n][f][1] = dphiCut(h_dphi_even, fr[f])
             
-    """
-    ## print the dphi library for these samples
-    outfile = open("GEMCSCdPhiLib.py","w")
-    for f in range(len(fr)):
-        outfile.write("dphi_lct_pad%d = {\n"%(fr[f]))
-        for n in range(len(pt)):
-            pt_string = ("%s"%(pt[n])).ljust(4)
-            if n == len(pt)-1:
-                endchar = ""
-            else:
-                endchar = ","
-            
-            outfile.write("'%s' : { 'odd' :  %.8f, 'even' : %.8f }%s\n"%(pt_string, dphis[n][f][0], dphis[n][f][1], endchar))
-        outfile.write("}\n")
-    """
-
     ## print the dphi library for these samples
     outfile = open("GEMCSCdPhiLib.py","w")
     outfile.write("dphi_lct_pad = {\n")
-    for eff in range(len(fr)):
-        outfile.write('    "%d" : {\n'%(fr[eff]))
-        if eff == len(fr)-1:
+    for f in range(len(fr)):
+        outfile.write('    "%d" : {\n'%(fr[f]))
+        if f == len(fr)-1:
             endchar1 = ""
         else:
             endchar1 = ","
@@ -111,4 +94,3 @@ def produceDphiLibary():
 
 if __name__ == "__main__":  
     produceDphiLibary()
-    
