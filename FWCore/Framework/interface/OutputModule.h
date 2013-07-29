@@ -15,11 +15,12 @@ output stream.
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
 #include "DataFormats/Provenance/interface/Selections.h"
 
-#include "FWCore/Framework/interface/CachedProducts.h"
+#include "FWCore/Framework/interface/TriggerResultsBasedEventSelector.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/ProductSelectorRules.h"
 #include "FWCore/Framework/interface/ProductSelector.h"
 #include "FWCore/Framework/interface/EDConsumerBase.h"
+#include "FWCore/Framework/interface/getAllTriggerNames.h"
 #include "FWCore/ParameterSet/interface/ParameterSetfwd.h"
 
 #include <array>
@@ -29,9 +30,7 @@ output stream.
 
 namespace edm {
 
-  typedef detail::CachedProducts::handle_t Trig;
-
-  std::vector<std::string> const& getAllTriggerNames();
+  typedef detail::TriggerResultsBasedEventSelector::handle_t Trig;
 
   class OutputModule : public EDConsumerBase {
   public:
@@ -73,9 +72,6 @@ namespace edm {
     BranchIDLists const* branchIDLists() const;
 
   protected:
-
-    //Trig const& getTriggerResults(Event const& ep) const;
-    Trig getTriggerResults(Event const& ep) const;
 
     // This function is needed for compatibility with older code. We
     // need to clean up the use of Event and EventPrincipal, to avoid
@@ -148,12 +144,8 @@ namespace edm {
     // We do not own the pointed-to CurrentProcessingContext.
     CurrentProcessingContext const* current_context_;
 
-    //This will store TriggerResults objects for the current event.
-    // mutable std::vector<Trig> prods_;
-    mutable bool prodsValid_;
-
     bool wantAllEvents_;
-    mutable detail::CachedProducts selectors_;
+    mutable detail::TriggerResultsBasedEventSelector selectors_;
     // ID of the ParameterSet that configured the event selector
     // subsystem.
     ParameterSetID selector_config_id_;

@@ -25,82 +25,6 @@
 
 namespace edm {
 
-  std::vector<std::string> const& getAllTriggerNames() {
-    Service<service::TriggerNamesService> tns;
-    return tns->getTrigPaths();
-  }
-}
-
-namespace {
-  //--------------------------------------------------------
-  // Remove whitespace (spaces and tabs) from a std::string.
-  void remove_whitespace(std::string& s) {
-    s.erase(std::remove(s.begin(), s.end(), ' '), s.end());
-    s.erase(std::remove(s.begin(), s.end(), '\t'), s.end());
-  }
-
-  void test_remove_whitespace() {
-    std::string a("noblanks");
-    std::string b("\t   no   blanks    \t");
-
-    remove_whitespace(b);
-    assert(a == b);
-  }
-
-  //--------------------------------------------------------
-  // Given a path-spec (std::string of the form "a:b", where the ":b" is
-  // optional), return a parsed_path_spec_t containing "a" and "b".
-
-  typedef std::pair<std::string, std::string> parsed_path_spec_t;
-  void parse_path_spec(std::string const& path_spec,
-                       parsed_path_spec_t& output) {
-    std::string trimmed_path_spec(path_spec);
-    remove_whitespace(trimmed_path_spec);
-
-    std::string::size_type colon = trimmed_path_spec.find(":");
-    if(colon == std::string::npos) {
-        output.first = trimmed_path_spec;
-    } else {
-        output.first  = trimmed_path_spec.substr(0, colon);
-        output.second = trimmed_path_spec.substr(colon + 1,
-                                                 trimmed_path_spec.size());
-    }
-  }
-
-  void test_parse_path_spec() {
-    std::vector<std::string> paths;
-    paths.push_back("a:p1");
-    paths.push_back("b:p2");
-    paths.push_back("  c");
-    paths.push_back("ddd\t:p3");
-    paths.push_back("eee:  p4  ");
-
-    std::vector<parsed_path_spec_t> parsed(paths.size());
-    for(size_t i = 0; i < paths.size(); ++i) {
-      parse_path_spec(paths[i], parsed[i]);
-    }
-
-    assert(parsed[0].first  == "a");
-    assert(parsed[0].second == "p1");
-    assert(parsed[1].first  == "b");
-    assert(parsed[1].second == "p2");
-    assert(parsed[2].first  == "c");
-    assert(parsed[2].second == "");
-    assert(parsed[3].first  == "ddd");
-    assert(parsed[3].second == "p3");
-    assert(parsed[4].first  == "eee");
-    assert(parsed[4].second == "p4");
-  }
-}
-
-namespace edm {
-  namespace test {
-    void run_all_output_module_tests() {
-      test_remove_whitespace();
-      test_parse_path_spec();
-    }
-  }
-
   // -------------------------------------------------------
   OutputModule::OutputModule(ParameterSet const& pset) :
     maxEvents_(-1),
@@ -112,7 +36,6 @@ namespace edm {
     productSelector_(),
     moduleDescription_(),
     current_context_(nullptr),
-    prodsValid_(false),
     wantAllEvents_(false),
     selectors_(),
     selector_config_id_(),
@@ -134,32 +57,10 @@ namespace edm {
     selectevents.registerIt(); // Just in case this PSet is not registered
 
     selector_config_id_ = selectevents.id();
-    // If selectevents is an emtpy ParameterSet, then we are to write
-    // all events, or one which contains a vstrig 'SelectEvents' that
-    // is empty, we are to write all events. We have no need for any
-    // EventSelectors.
-    if(selectevents.empty()) {
-        wantAllEvents_ = true;
-        selectors_.setupDefault(getAllTriggerNames());
-        return;
-    }
-
-    std::vector<std::string> path_specs =
-      selectevents.getParameter<std::vector<std::string> >("SelectEvents");
-
-    if(path_specs.empty()) {
-        wantAllEvents_ = true;
-        selectors_.setupDefault(getAllTriggerNames());
-        return;
-    }
-
-    // If we get here, we have the possibility of having to deal with
-    // path_specs that look at more than one process.
-    std::vector<parsed_path_spec_t> parsed_paths(path_specs.size());
-    for(size_t i = 0; i < path_specs.size(); ++i) {
-      parse_path_spec(path_specs[i], parsed_paths[i]);
-    }
-    selectors_.setup(parsed_paths, getAllTriggerNames(), process_name_);
+    wantAllEvents_ = detail::configureEventSelector(selectevents,
+                                                    process_name_,
+                                                    getAllTriggerNames(),
+                                                    selectors_);
   }
 
   void OutputModule::configure(OutputModuleDescription const& desc) {
@@ -266,35 +167,10 @@ namespace edm {
   }
 
 
-  Trig OutputModule::getTriggerResults(Event const& ev) const {
-    return selectors_.getOneTriggerResults(ev);
-  }
-
   Trig OutputModule::getTriggerResults(EventPrincipal const& ep) const {
-    // This is bad, because we're returning handles into an Event that
-    // is destructed before the return. It might not fail, because the
-    // actual EventPrincipal is not destroyed, but it still needs to
-    // be cleaned up.
-    Event ev(const_cast<EventPrincipal&>(ep),
-             *current_context_->moduleDescription());
-    return getTriggerResults(ev);
-  }
+    return selectors_.getOneTriggerResults(ep);  }
 
   namespace {
-    class  PVSentry {
-    public:
-      PVSentry(detail::CachedProducts& prods, bool& valid) : p(prods), v(valid) {}
-      ~PVSentry() {
-        p.clear();
-        v = false;
-      }
-    private:
-      detail::CachedProducts& p;
-      bool& v;
-
-      PVSentry(PVSentry const&);  // not implemented
-      PVSentry& operator=(PVSentry const&); // not implemented
-    };
   }
 
   bool
@@ -302,15 +178,12 @@ namespace edm {
                         EventSetup const&,
                         CurrentProcessingContext const* cpc) {
     detail::CPCSentry sentry(current_context_, cpc);
-    PVSentry          products_sentry(selectors_, prodsValid_);
+    detail::TRBESSentry products_sentry(selectors_);
 
     FDEBUG(2) << "writeEvent called\n";
 
     if(!wantAllEvents_) {
-      // use module description and const_cast unless interface to
-      // event is changed to just take a const EventPrincipal
-      Event e(const_cast<EventPrincipal&>(ep), moduleDescription_);
-      if(!selectors_.wantEvent(e)) {
+      if(!selectors_.wantEvent(ep)) {
         return true;
       }
     }
@@ -509,37 +382,14 @@ namespace edm {
   OutputModule::baseType() {
     return kBaseType;
   }
-
+  
   void
   OutputModule::setEventSelectionInfo(std::map<std::string, std::vector<std::pair<std::string, int> > > const& outputModulePathPositions,
                                       bool anyProductProduced) {
-
-    ParameterSet selectEventsInfo;
-    selectEventsInfo.copyForModify(getParameterSet(selector_config_id_));
-    selectEventsInfo.addParameter<bool>("InProcessHistory", anyProductProduced);
-    std::string const& label = description().moduleLabel();
-    std::vector<std::string> endPaths;
-    std::vector<int> endPathPositions;
-
-    // The label will be empty if and only if this is a SubProcess
-    // SubProcess's do not appear on any end path
-    if (!label.empty()) {
-      std::map<std::string, std::vector<std::pair<std::string, int> > >::const_iterator iter = outputModulePathPositions.find(label);
-      assert(iter != outputModulePathPositions.end());
-      for (std::vector<std::pair<std::string, int> >::const_iterator i = iter->second.begin(), e = iter->second.end();
-           i != e; ++i) {
-        endPaths.push_back(i->first);
-        endPathPositions.push_back(i->second);
-      }
-    }
-    selectEventsInfo.addParameter<std::vector<std::string> >("EndPaths", endPaths);
-    selectEventsInfo.addParameter<std::vector<int> >("EndPathPositions", endPathPositions);
-    if (!selectEventsInfo.exists("SelectEvents")) {
-      selectEventsInfo.addParameter<std::vector<std::string> >("SelectEvents", std::vector<std::string>());
-    }
-    selectEventsInfo.registerIt();
-
-    selector_config_id_ = selectEventsInfo.id();
+    selector_config_id_ = detail::registerProperSelectionInfo(getParameterSet(selector_config_id_),
+                                      description().moduleLabel(),
+                                                      outputModulePathPositions,
+                                                      anyProductProduced);
   }
 
   void
