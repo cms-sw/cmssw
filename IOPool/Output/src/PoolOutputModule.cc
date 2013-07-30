@@ -260,6 +260,22 @@ namespace edm {
       reportSvc->reportRunNumber(r.run());
   }
 
+  void PoolOutputModule::reallyCloseFile() {
+    startEndFile();
+    writeFileFormatVersion();
+    writeFileIdentifier();
+    writeIndexIntoFile();
+    writeProcessConfigurationRegistry();
+    writeProcessHistoryRegistry();
+    writeParameterSetRegistry();
+    writeProductDescriptionRegistry();
+    writeParentageRegistry();
+    writeBranchIDListRegistry();
+    writeProductDependencies();
+    finishEndFile();
+  }
+
+  
   // At some later date, we may move functionality from finishEndFile() to here.
   void PoolOutputModule::startEndFile() { }
 
