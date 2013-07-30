@@ -19,8 +19,8 @@ EcalEndcapGeometry::EcalEndcapGeometry( void )
     m_wref( 0. ),
     m_del( 0. ),
     m_nref( 0 ),
-    m_borderMgr( 0 ),
-    m_borderPtrVec( 0 ),
+    m_borderMgr( nullptr ),
+    m_borderPtrVec( nullptr ),
     m_avgZ( -1 ),
     m_cellVec( k_NumberOfCellsForCorners )
 {
@@ -40,8 +40,13 @@ EcalEndcapGeometry::EcalEndcapGeometry( void )
 
 EcalEndcapGeometry::~EcalEndcapGeometry() 
 {
-   delete m_borderPtrVec ;
-   delete m_borderMgr ;
+    auto ptr = m_borderPtrVec.load();
+    for(auto& v: (*ptr)) {
+        if(v) delete v;
+        v = nullptr;
+    }
+    delete m_borderPtrVec ;
+    delete m_borderMgr ;
 }
 
 unsigned int
@@ -421,45 +426,46 @@ EcalEndcapGeometry::getCells( const GlobalPoint& r,
 const EcalEndcapGeometry::OrderedListOfEBDetId*
 EcalEndcapGeometry::getClosestBarrelCells( EEDetId id ) const
 {
-   OrderedListOfEBDetId* ptr ( 0 ) ;
-   if( 0 != id.rawId() &&
-       0 != getGeometry( id ) )
-   {
-      const float phi ( 370. +
-			getGeometry( id )->getPosition().phi().degrees() );
-      const int iPhi ( 1 + int(phi)%360 ) ;
-      const int iz ( id.zside() ) ;
-      if( 0 == m_borderMgr )
-      {
-	 m_borderMgr = new EZMgrFL<EBDetId>( 720*9, 9 ) ;
-      }
-      if( 0 == m_borderPtrVec )
-      {
-	 m_borderPtrVec = new VecOrdListEBDetIdPtr() ;
-	 m_borderPtrVec->reserve( 720 ) ;
-	 for( unsigned int i ( 0 ) ; i != 720 ; ++i )
-	 {
-	    const int kz     ( 360>i ? -1 : 1 ) ;
-	    const int iEta   ( kz*85 ) ;
-	    const int iEtam1 ( kz*84 ) ;
-	    const int iEtam2 ( kz*83 ) ;
-	    const int jPhi   ( i%360 + 1 ) ;
-	    OrderedListOfEBDetId& olist ( *new OrderedListOfEBDetId( m_borderMgr ) );
-	    olist[0]=EBDetId( iEta  ,        jPhi     ) ;
-	    olist[1]=EBDetId( iEta  , myPhi( jPhi+1 ) ) ;
-	    olist[2]=EBDetId( iEta  , myPhi( jPhi-1 ) ) ;
-	    olist[3]=EBDetId( iEtam1,        jPhi     ) ;
-	    olist[4]=EBDetId( iEtam1, myPhi( jPhi+1 ) ) ;
-	    olist[5]=EBDetId( iEtam1, myPhi( jPhi-1 ) ) ;
-	    olist[6]=EBDetId( iEta  , myPhi( jPhi+2 ) ) ;
-	    olist[7]=EBDetId( iEta  , myPhi( jPhi-2 ) ) ;
-	    olist[8]=EBDetId( iEtam2,        jPhi     ) ;
-	    m_borderPtrVec->push_back( &olist ) ;
-	 }
-      }
-      ptr = (*m_borderPtrVec)[ ( iPhi - 1 ) + ( 0>iz ? 0 : 360 ) ] ;
-   }
-   return ptr ;
+    OrderedListOfEBDetId* ptr ( nullptr ) ;
+    if(0 != id.rawId() && 0 != getGeometry(id)) {
+        const float phi(370.+getGeometry(id)->getPosition().phi().degrees());
+        const int iPhi(1+int(phi)%360) ;
+        const int iz(id.zside()) ;
+        if (!m_borderMgr) {
+            EZMgrFL<EBDetId>* expect = nullptr;
+            auto ptrMgr = new EZMgrFL<EBDetId>( 720*9, 9 );
+            bool exchanged = m_borderMgr.compare_exchange_strong(expect, ptrMgr);
+            if(!exchanged) delete ptrMgr;
+        }
+        if (!m_borderPtrVec) {
+            VecOrdListEBDetIdPtr* expect = nullptr;
+            auto ptrVec = new VecOrdListEBDetIdPtr();
+            ptrVec->reserve(720);
+            for( unsigned int i ( 0 ) ; i != 720 ; ++i )
+            {
+                const int kz     ( 360>i ? -1 : 1 ) ;
+                const int iEta   ( kz*85 ) ;
+                const int iEtam1 ( kz*84 ) ;
+                const int iEtam2 ( kz*83 ) ;
+                const int jPhi   ( i%360 + 1 ) ;
+                OrderedListOfEBDetId& olist ( *new OrderedListOfEBDetId( m_borderMgr ) );
+                olist[0]=EBDetId( iEta  ,        jPhi     ) ;
+                olist[1]=EBDetId( iEta  , myPhi( jPhi+1 ) ) ;
+                olist[2]=EBDetId( iEta  , myPhi( jPhi-1 ) ) ;
+                olist[3]=EBDetId( iEtam1,        jPhi     ) ;
+                olist[4]=EBDetId( iEtam1, myPhi( jPhi+1 ) ) ;
+                olist[5]=EBDetId( iEtam1, myPhi( jPhi-1 ) ) ;
+                olist[6]=EBDetId( iEta  , myPhi( jPhi+2 ) ) ;
+                olist[7]=EBDetId( iEta  , myPhi( jPhi-2 ) ) ;
+                olist[8]=EBDetId( iEtam2,        jPhi     ) ;
+                ptrVec->push_back( &olist ) ;
+            }
+            bool exchanged = m_borderPtrVec.compare_exchange_strong(expect, ptrVec);
+            if(!exchanged) delete ptrVec;
+        }
+        ptr = (*m_borderPtrVec)[ ( iPhi - 1 ) + ( 0>iz ? 0 : 360 ) ] ;
+    }
+    return ptr;
 }
 
 void
@@ -488,7 +494,7 @@ EcalEndcapGeometry::newCell( const GlobalPoint& f1 ,
 CCGFloat 
 EcalEndcapGeometry::avgAbsZFrontFaceCenter() const
 {
-   if( 0 > m_avgZ )
+   if( 0 > m_avgZ.load() )
    {
       CCGFloat sum ( 0 ) ;
       for( unsigned int i ( 0 ) ; i != m_cellVec.size() ; ++i )
@@ -499,9 +505,9 @@ EcalEndcapGeometry::avgAbsZFrontFaceCenter() const
 	    sum += fabs( cell->getPosition().z() ) ;
 	 }
       }
-      m_avgZ = sum/m_cellVec.size() ;
+      m_avgZ.store(sum/m_cellVec.size());
    }
-   return m_avgZ ;
+   return m_avgZ.load();
 }
 
 const CaloCellGeometry* 
