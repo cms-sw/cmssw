@@ -297,26 +297,15 @@ namespace edm {
   }
 
   void OutputModule::doCloseFile() {
-    if(isFileOpen()) reallyCloseFile();
+    if(isFileOpen()) {
+      fillDependencyGraph();
+      reallyCloseFile();
+      branchParents_.clear();
+      branchChildren_.clear();
+    }
   }
 
   void OutputModule::reallyCloseFile() {
-    fillDependencyGraph();
-    startEndFile();
-    writeFileFormatVersion();
-    writeFileIdentifier();
-    writeIndexIntoFile();
-    writeProcessConfigurationRegistry();
-    writeProcessHistoryRegistry();
-    writeParameterSetRegistry();
-    writeProductDescriptionRegistry();
-    writeParentageRegistry();
-    writeBranchIDListRegistry();
-    writeProductDependencies();
-    writeBranchMapper();
-    finishEndFile();
-    branchParents_.clear();
-    branchChildren_.clear();
   }
 
   BranchIDLists const*

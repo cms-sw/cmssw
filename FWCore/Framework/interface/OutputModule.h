@@ -187,7 +187,7 @@ namespace edm {
 
     // Do the end-of-file tasks; this is only called internally, after
     // the appropriate tests have been done.
-    void reallyCloseFile();
+    virtual void reallyCloseFile();
 
     void registerProductsAndCallbacks(OutputModule const*, ProductRegistry const*) {}
 
@@ -223,23 +223,6 @@ namespace edm {
     void fillDependencyGraph();
 
     bool limitReached() const {return remainingEvents_ == 0;}
-
-    // The following member functions are part of the Template Method
-    // pattern, used for implementing doCloseFile() and maybeEndFile().
-
-    virtual void startEndFile() {}
-    virtual void writeFileFormatVersion() {}
-    virtual void writeFileIdentifier() {}
-    virtual void writeIndexIntoFile() {}
-    virtual void writeProcessConfigurationRegistry() {}
-    virtual void writeProcessHistoryRegistry() {}
-    virtual void writeParameterSetRegistry() {}
-    virtual void writeBranchIDListRegistry() {}
-    virtual void writeParentageRegistry() {}
-    virtual void writeProductDescriptionRegistry() {}
-    virtual void writeProductDependencies() {}
-    virtual void writeBranchMapper() {}
-    virtual void finishEndFile() {}
   };
 }
 
