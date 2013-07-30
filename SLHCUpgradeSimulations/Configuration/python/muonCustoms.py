@@ -230,6 +230,11 @@ def customise_csc_DQM(process):
     process.cscMonitor.wireDigiTag = cms.InputTag("simMuonCSCDigis", "MuonCSCWireDigi")
     process.cscMonitor.alctDigiTag = cms.InputTag("simCscTriggerPrimitiveDigis")
 
+    process.l1tCsctf.statusProducer=cms.InputTag("null")
+    process.l1tCsctf.lctProducer=cms.InputTag("null")
+    process.l1tCsctf.trackProducer=cms.InputTag("null")
+    process.l1tCsctf.mbProducer=cms.InputTag("null")
+
     return process
 
 
