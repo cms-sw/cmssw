@@ -351,7 +351,7 @@ namespace edm {
       ProductRegistry::ProductList& pList = inputProdDescReg.productListUpdator();
       BranchKey finder(rawData, source, "", "");
       ProductRegistry::ProductList::iterator it = pList.lower_bound(finder);
-      if(it != pList.end() && it->first.friendlyClassName_ == rawData && it->first.moduleLabel_ == source) {
+      if(it != pList.end() && it->first.friendlyClassName() == rawData && it->first.moduleLabel() == source) {
         // We found raw data with a module label of source.
         // We need to change the module label and process name.
         // Create helper.
@@ -367,7 +367,7 @@ namespace edm {
         pList.erase(it);
         // Check that there was only one.
         it = pList.lower_bound(finder);
-        assert(!(it != pList.end() && it->first.friendlyClassName_ == rawData && it->first.moduleLabel_ == source));
+        assert(!(it != pList.end() && it->first.friendlyClassName() == rawData && it->first.moduleLabel() == source));
         // Insert the new branch description into the product registry.
         inputProdDescReg.copyProduct(newBD);
         // Fix up other per file metadata.
@@ -861,7 +861,7 @@ namespace edm {
       // are not actually used in this function, but could be needed elsewhere.
       indexIntoFile_.unsortedEventNumbers().push_back(eventAux().event());
 
-      ProcessHistoryID reducedPHID = ProcessHistoryRegistry::instance()->extra().reduceProcessHistoryID(eventAux().processHistoryID());
+      ProcessHistoryID reducedPHID = ProcessHistoryRegistry::instance()->extraForUpdate().reduceProcessHistoryID(eventAux().processHistoryID());
 
       if(iFirst || prevPhid != reducedPHID || prevRun != eventAux().run()) {
         iFirst = false;
@@ -909,7 +909,7 @@ namespace edm {
         // Note: adjacent duplicates will be skipped without an explicit check.
 
         boost::shared_ptr<RunAuxiliary> runAux = fillRunAuxiliary();
-        ProcessHistoryID reducedPHID = ProcessHistoryRegistry::instance()->extra().reduceProcessHistoryID(runAux->processHistoryID());
+        ProcessHistoryID reducedPHID = ProcessHistoryRegistry::instance()->extraForUpdate().reduceProcessHistoryID(runAux->processHistoryID());
 
         if(runSet.insert(runAux->run()).second) { // (check 4, insert 4)
           // This run was not associated with any events.
@@ -1358,7 +1358,7 @@ namespace edm {
     // If this next assert shows up in performance profiling or significantly affects memory, then these three lines should be deleted.
     // The IndexIntoFile should guarantee that it never fails.
     ProcessHistoryID idToCheck = (daqProvenanceHelper_ && fileFormatVersion().useReducedProcessHistoryID() ? *daqProvenanceHelper_->oldProcessHistoryID_ : eventAux().processHistoryID());
-    ProcessHistoryID const& reducedPHID = ProcessHistoryRegistry::instance()->extra().reduceProcessHistoryID(idToCheck);
+    ProcessHistoryID const& reducedPHID = ProcessHistoryRegistry::instance()->extraForUpdate().reduceProcessHistoryID(idToCheck);
     assert(reducedPHID == indexIntoFile_.processHistoryID(indexIntoFileIter_.processHistoryIDIndex()));
 
     ++indexIntoFileIter_;

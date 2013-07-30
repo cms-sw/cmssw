@@ -141,20 +141,20 @@ int main() try {
   assert(phTest.id() != pnl3.id());
 
   edm::ProcessHistoryRegistry::instance()->insertMapped(pnl3);
-  edm::ProcessHistoryID reducedPHID = edm::ProcessHistoryRegistry::instance()->extra().reduceProcessHistoryID(pnl3.id());
+  edm::ProcessHistoryID reducedPHID = edm::ProcessHistoryRegistry::instance()->extraForUpdate().reduceProcessHistoryID(pnl3.id());
   assert(reducedPHID == phTest.id());
 
   // Repeat a few times to test the caching optimization in FullHistoryToReducedHistoryMap
   // (You have to watch in a debugger to really verify it is working properly)
-  reducedPHID = edm::ProcessHistoryRegistry::instance()->extra().reduceProcessHistoryID(pnl3.id());
+  reducedPHID = edm::ProcessHistoryRegistry::instance()->extraForUpdate().reduceProcessHistoryID(pnl3.id());
   assert(reducedPHID == phTest.id());
 
   edm::ProcessHistoryRegistry::instance()->insertMapped(pnl2);
-  reducedPHID = edm::ProcessHistoryRegistry::instance()->extra().reduceProcessHistoryID(pnl2.id());
+  reducedPHID = edm::ProcessHistoryRegistry::instance()->extraForUpdate().reduceProcessHistoryID(pnl2.id());
   pnl2.reduce();
   assert(reducedPHID == pnl2.id());
 
-  reducedPHID = edm::ProcessHistoryRegistry::instance()->extra().reduceProcessHistoryID(pnl3.id());
+  reducedPHID = edm::ProcessHistoryRegistry::instance()->extraForUpdate().reduceProcessHistoryID(pnl3.id());
   assert(reducedPHID == phTest.id());
 
   {

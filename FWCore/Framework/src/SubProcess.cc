@@ -306,7 +306,7 @@ namespace edm {
     rpp->fillRunPrincipal(principal.reader());
     principalCache_.insert(rpp);
 
-    FullHistoryToReducedHistoryMap & phidConverter(ProcessHistoryRegistry::instance()->extra());
+    FullHistoryToReducedHistoryMap& phidConverter(ProcessHistoryRegistry::instance()->extraForUpdate());
     ProcessHistoryID const& parentInputReducedPHID = phidConverter.reduceProcessHistoryID(principal.aux().processHistoryID());
     ProcessHistoryID const& inputReducedPHID       = phidConverter.reduceProcessHistoryID(principal.processHistoryID());
 

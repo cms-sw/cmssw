@@ -412,7 +412,7 @@ namespace edm {
     }
 
     // Store the reduced ID in the IndexIntoFile
-    ProcessHistoryID reducedPHID = ProcessHistoryRegistry::instance()->extra().reduceProcessHistoryID(e.processHistoryID());
+    ProcessHistoryID reducedPHID = ProcessHistoryRegistry::instance()->extraForUpdate().reduceProcessHistoryID(e.processHistoryID());
     // Add event to index
     indexIntoFile_.addEntry(reducedPHID, pEventAux_->run(), pEventAux_->luminosityBlock(), pEventAux_->event(), eventEntryNumber_);
     ++eventEntryNumber_;
@@ -429,7 +429,7 @@ namespace edm {
     // Use the updated process historyID
     lumiAux_.setProcessHistoryID(lb.processHistoryID());
     // Store the reduced ID in the IndexIntoFile
-    ProcessHistoryID reducedPHID = ProcessHistoryRegistry::instance()->extra().reduceProcessHistoryID(lb.processHistoryID());
+    ProcessHistoryID reducedPHID = ProcessHistoryRegistry::instance()->extraForUpdate().reduceProcessHistoryID(lb.processHistoryID());
     // Add lumi to index.
     indexIntoFile_.addEntry(reducedPHID, lumiAux_.run(), lumiAux_.luminosityBlock(), 0U, lumiEntryNumber_);
     ++lumiEntryNumber_;
@@ -444,7 +444,7 @@ namespace edm {
     // Use the updated process historyID
     runAux_.setProcessHistoryID(r.processHistoryID());
     // Store the reduced ID in the IndexIntoFile
-    ProcessHistoryID reducedPHID = ProcessHistoryRegistry::instance()->extra().reduceProcessHistoryID(r.processHistoryID());
+    ProcessHistoryID reducedPHID = ProcessHistoryRegistry::instance()->extraForUpdate().reduceProcessHistoryID(r.processHistoryID());
     // Add run to index.
     indexIntoFile_.addEntry(reducedPHID, runAux_.run(), 0U, 0U, runEntryNumber_);
     ++runEntryNumber_;

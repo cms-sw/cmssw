@@ -685,13 +685,13 @@ namespace edm {
     actReg_.reset();
 
     pset::Registry* psetRegistry = pset::Registry::instance();
-    psetRegistry->data().clear();
-    psetRegistry->extra().setID(ParameterSetID());
+    psetRegistry->dataForUpdate().clear();
+    psetRegistry->extraForUpdate().setID(ParameterSetID());
 
-    EntryDescriptionRegistry::instance()->data().clear();
-    ParentageRegistry::instance()->data().clear();
-    ProcessConfigurationRegistry::instance()->data().clear();
-    ProcessHistoryRegistry::instance()->data().clear();
+    EntryDescriptionRegistry::instance()->dataForUpdate().clear();
+    ParentageRegistry::instance()->dataForUpdate().clear();
+    ProcessConfigurationRegistry::instance()->dataForUpdate().clear();
+    ProcessHistoryRegistry::instance()->dataForUpdate().clear();
   }
 
   void

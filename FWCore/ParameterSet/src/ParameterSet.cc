@@ -30,7 +30,7 @@
 namespace edm {
 
   void
-  ParameterSet::invalidateRegistration(std::string const& nameOfTracked) const {
+  ParameterSet::invalidateRegistration(std::string const& nameOfTracked) {
     // We have added a new parameter.  Invalidate the ID.
     if(isRegistered()) {
       id_ = ParameterSetID();
@@ -131,7 +131,7 @@ namespace edm {
     psettable::iterator it = psetTable_.find(name);
     assert(it != psetTable_.end());
     std::auto_ptr<ParameterSet> pset(new ParameterSet);
-    std::swap(*pset, it->second.pset());
+    std::swap(*pset, it->second.psetForUpdate());
     psetTable_.erase(it);
     return pset;
   }
@@ -147,7 +147,7 @@ namespace edm {
     assert(!isRegistered());
     psettable::iterator it = psetTable_.find(name);
     assert(it != psetTable_.end());
-    ParameterSet& pset = it->second.pset();
+    ParameterSet& pset = it->second.psetForUpdate();
     if (pset.isRegistered()) {
       it->second.setIsTracked(false);
     } else {
@@ -160,18 +160,19 @@ namespace edm {
     vpsettable::iterator it = vpsetTable_.find(name);
     assert(it != vpsetTable_.end());
     std::auto_ptr<std::vector<ParameterSet> > vpset(new std::vector<ParameterSet>);
-    std::swap(*vpset, it->second.vpset());
+    std::swap(*vpset, it->second.vpsetForUpdate());
     vpsetTable_.erase(it);
     return vpset;
   }
 
   void ParameterSet::calculateID() {
     // make sure contained tracked psets are updated
-    for(psettable::iterator i = psetTable_.begin(), e = psetTable_.end(); i != e; ++i) {
-      if(!i->second.pset().isRegistered()) {
-        i->second.pset().registerIt();
+    for(auto& item : psetTable_) {
+      ParameterSet& pset = item.second.psetForUpdate();
+      if(!pset.isRegistered()) {
+        pset.registerIt();
       }
-      i->second.updateID();
+      item.second.updateID();
     }
 
     // make sure contained tracked vpsets are updated
@@ -204,7 +205,7 @@ namespace edm {
     return id_;
   }
 
-  void ParameterSet::setID(ParameterSetID const& id) const {
+  void ParameterSet::setID(ParameterSetID const& id) {
     id_ = id;
   }
 
@@ -518,7 +519,7 @@ namespace edm {
     psettable::iterator it = psetTable_.find(name);
     if(it == psetTable_.end()) return 0;
     isTracked = it->second.isTracked();
-    return &it->second.pset();
+    return &it->second.psetForUpdate();
   }
 
   VParameterSetEntry*
