@@ -112,20 +112,6 @@ namespace edm {
       if(subProcess_.get()) subProcess_->respondToCloseInputFile(fb);
     }
 
-    // Call respondToOpenOutputFiles() on all Modules
-    void respondToOpenOutputFiles(FileBlock const& fb) {
-      ServiceRegistry::Operate operate(serviceToken_);
-      schedule_->respondToOpenOutputFiles(fb);
-      if(subProcess_.get()) subProcess_->respondToOpenOutputFiles(fb);
-    }
-
-    // Call respondToCloseOutputFiles() on all Modules
-    void respondToCloseOutputFiles(FileBlock const& fb) {
-      ServiceRegistry::Operate operate(serviceToken_);
-      schedule_->respondToCloseOutputFiles(fb);
-      if(subProcess_.get()) subProcess_->respondToCloseOutputFiles(fb);
-    }
-
     // Call shouldWeCloseFile() on all OutputModules.
     bool shouldWeCloseOutput() const {
       ServiceRegistry::Operate operate(serviceToken_);

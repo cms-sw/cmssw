@@ -10,11 +10,9 @@ Machine parameters:  mode = NOMERGE  emptyRunLumiMode = handleEmptyRunsAndLumis
  	readFile
 	respondToOpenInputFile
 	openOutputFiles
-	respondToOpenOutputFiles
     *** nextItemType: Restart 0 ***
 	respondToCloseInputFile
 	closeInputFile
-	respondToCloseOutputFiles
 	closeOutputFiles
 	doErrorStuff
 	endOfLoop
@@ -25,11 +23,9 @@ Machine parameters:  mode = NOMERGE  emptyRunLumiMode = handleEmptyRunsAndLumis
  	readFile
 	respondToOpenInputFile
 	openOutputFiles
-	respondToOpenOutputFiles
     *** nextItemType: Lumi 1 ***
 	respondToCloseInputFile
 	closeInputFile
-	respondToCloseOutputFiles
 	closeOutputFiles
 	doErrorStuff
 	endOfLoop
@@ -40,11 +36,9 @@ Machine parameters:  mode = NOMERGE  emptyRunLumiMode = handleEmptyRunsAndLumis
  	readFile
 	respondToOpenInputFile
 	openOutputFiles
-	respondToOpenOutputFiles
     *** nextItemType: Event ***
 	respondToCloseInputFile
 	closeInputFile
-	respondToCloseOutputFiles
 	closeOutputFiles
 	doErrorStuff
 	endOfLoop
@@ -55,16 +49,13 @@ Machine parameters:  mode = NOMERGE  emptyRunLumiMode = handleEmptyRunsAndLumis
  	readFile
 	respondToOpenInputFile
 	openOutputFiles
-	respondToOpenOutputFiles
     *** nextItemType: File 0 ***
 	respondToCloseInputFile
 	closeInputFile
-	respondToCloseOutputFiles
 	closeOutputFiles
  	readFile
 	respondToOpenInputFile
 	openOutputFiles
-	respondToOpenOutputFiles
     *** nextItemType: Run 9 ***
 	readAndCacheRun 9
 	beginRun 9
@@ -74,12 +65,10 @@ Machine parameters:  mode = NOMERGE  emptyRunLumiMode = handleEmptyRunsAndLumis
 	deleteRunFromCache 9
 	respondToCloseInputFile
 	closeInputFile
-	respondToCloseOutputFiles
 	closeOutputFiles
  	readFile
 	respondToOpenInputFile
 	openOutputFiles
-	respondToOpenOutputFiles
     *** nextItemType: Run 1 ***
 	readAndCacheRun 1
 	beginRun 1
@@ -89,12 +78,10 @@ Machine parameters:  mode = NOMERGE  emptyRunLumiMode = handleEmptyRunsAndLumis
 	deleteRunFromCache 1
 	respondToCloseInputFile
 	closeInputFile
-	respondToCloseOutputFiles
 	closeOutputFiles
  	readFile
 	respondToOpenInputFile
 	openOutputFiles
-	respondToOpenOutputFiles
     *** nextItemType: Run 1 ***
 	readAndCacheRun 1
 	beginRun 1
@@ -110,12 +97,10 @@ Machine parameters:  mode = NOMERGE  emptyRunLumiMode = handleEmptyRunsAndLumis
 	deleteRunFromCache 2
 	respondToCloseInputFile
 	closeInputFile
-	respondToCloseOutputFiles
 	closeOutputFiles
  	readFile
 	respondToOpenInputFile
 	openOutputFiles
-	respondToOpenOutputFiles
     *** nextItemType: Run 2 ***
 	readAndCacheRun 2
 	beginRun 2
@@ -125,12 +110,10 @@ Machine parameters:  mode = NOMERGE  emptyRunLumiMode = handleEmptyRunsAndLumis
 	deleteRunFromCache 2
 	respondToCloseInputFile
 	closeInputFile
-	respondToCloseOutputFiles
 	closeOutputFiles
  	readFile
 	respondToOpenInputFile
 	openOutputFiles
-	respondToOpenOutputFiles
     *** nextItemType: Run 2 ***
 	readAndCacheRun 2
 	beginRun 2
@@ -146,12 +129,10 @@ Machine parameters:  mode = NOMERGE  emptyRunLumiMode = handleEmptyRunsAndLumis
 	deleteRunFromCache 2
 	respondToCloseInputFile
 	closeInputFile
-	respondToCloseOutputFiles
 	closeOutputFiles
  	readFile
 	respondToOpenInputFile
 	openOutputFiles
-	respondToOpenOutputFiles
     *** nextItemType: Run 2 ***
 	readAndCacheRun 2
 	beginRun 2
@@ -173,12 +154,10 @@ Machine parameters:  mode = NOMERGE  emptyRunLumiMode = handleEmptyRunsAndLumis
 	deleteRunFromCache 2
 	respondToCloseInputFile
 	closeInputFile
-	respondToCloseOutputFiles
 	closeOutputFiles
  	readFile
 	respondToOpenInputFile
 	openOutputFiles
-	respondToOpenOutputFiles
     *** nextItemType: Run 2 ***
 	readAndCacheRun 2
 	beginRun 2
@@ -188,12 +167,10 @@ Machine parameters:  mode = NOMERGE  emptyRunLumiMode = handleEmptyRunsAndLumis
 	deleteRunFromCache 2
 	respondToCloseInputFile
 	closeInputFile
-	respondToCloseOutputFiles
 	closeOutputFiles
  	readFile
 	respondToOpenInputFile
 	openOutputFiles
-	respondToOpenOutputFiles
     *** nextItemType: Run 2 ***
 	readAndCacheRun 2
 	beginRun 2
@@ -209,16 +186,13 @@ Machine parameters:  mode = NOMERGE  emptyRunLumiMode = handleEmptyRunsAndLumis
 	deleteRunFromCache 2
 	respondToCloseInputFile
 	closeInputFile
-	respondToCloseOutputFiles
 	closeOutputFiles
  	readFile
 	respondToOpenInputFile
 	openOutputFiles
-	respondToOpenOutputFiles
     *** nextItemType: Lumi 4 ***
 	respondToCloseInputFile
 	closeInputFile
-	respondToCloseOutputFiles
 	closeOutputFiles
 	doErrorStuff
 	endOfLoop
@@ -229,7 +203,6 @@ Machine parameters:  mode = NOMERGE  emptyRunLumiMode = handleEmptyRunsAndLumis
  	readFile
 	respondToOpenInputFile
 	openOutputFiles
-	respondToOpenOutputFiles
     *** nextItemType: Run 5 ***
 	readAndCacheRun 5
 	beginRun 5
@@ -245,16 +218,13 @@ Machine parameters:  mode = NOMERGE  emptyRunLumiMode = handleEmptyRunsAndLumis
 	deleteRunFromCache 5
 	respondToCloseInputFile
 	closeInputFile
-	respondToCloseOutputFiles
 	closeOutputFiles
  	readFile
 	respondToOpenInputFile
 	openOutputFiles
-	respondToOpenOutputFiles
     *** nextItemType: Event ***
 	respondToCloseInputFile
 	closeInputFile
-	respondToCloseOutputFiles
 	closeOutputFiles
 	doErrorStuff
 	endOfLoop
@@ -265,7 +235,6 @@ Machine parameters:  mode = NOMERGE  emptyRunLumiMode = handleEmptyRunsAndLumis
  	readFile
 	respondToOpenInputFile
 	openOutputFiles
-	respondToOpenOutputFiles
     *** nextItemType: Run 6 ***
 	readAndCacheRun 6
 	beginRun 6
@@ -281,7 +250,6 @@ Machine parameters:  mode = NOMERGE  emptyRunLumiMode = handleEmptyRunsAndLumis
 	deleteRunFromCache 6
 	respondToCloseInputFile
 	closeInputFile
-	respondToCloseOutputFiles
 	closeOutputFiles
 	doErrorStuff
 	endOfLoop
@@ -303,11 +271,9 @@ Machine parameters:  mode = NOMERGE  emptyRunLumiMode = handleEmptyRuns
  	readFile
 	respondToOpenInputFile
 	openOutputFiles
-	respondToOpenOutputFiles
     *** nextItemType: Restart 0 ***
 	respondToCloseInputFile
 	closeInputFile
-	respondToCloseOutputFiles
 	closeOutputFiles
 	doErrorStuff
 	endOfLoop
@@ -318,11 +284,9 @@ Machine parameters:  mode = NOMERGE  emptyRunLumiMode = handleEmptyRuns
  	readFile
 	respondToOpenInputFile
 	openOutputFiles
-	respondToOpenOutputFiles
     *** nextItemType: Lumi 1 ***
 	respondToCloseInputFile
 	closeInputFile
-	respondToCloseOutputFiles
 	closeOutputFiles
 	doErrorStuff
 	endOfLoop
@@ -333,11 +297,9 @@ Machine parameters:  mode = NOMERGE  emptyRunLumiMode = handleEmptyRuns
  	readFile
 	respondToOpenInputFile
 	openOutputFiles
-	respondToOpenOutputFiles
     *** nextItemType: Event ***
 	respondToCloseInputFile
 	closeInputFile
-	respondToCloseOutputFiles
 	closeOutputFiles
 	doErrorStuff
 	endOfLoop
@@ -348,16 +310,13 @@ Machine parameters:  mode = NOMERGE  emptyRunLumiMode = handleEmptyRuns
  	readFile
 	respondToOpenInputFile
 	openOutputFiles
-	respondToOpenOutputFiles
     *** nextItemType: File 0 ***
 	respondToCloseInputFile
 	closeInputFile
-	respondToCloseOutputFiles
 	closeOutputFiles
  	readFile
 	respondToOpenInputFile
 	openOutputFiles
-	respondToOpenOutputFiles
     *** nextItemType: Run 9 ***
 	readAndCacheRun 9
 	beginRun 9
@@ -367,12 +326,10 @@ Machine parameters:  mode = NOMERGE  emptyRunLumiMode = handleEmptyRuns
 	deleteRunFromCache 9
 	respondToCloseInputFile
 	closeInputFile
-	respondToCloseOutputFiles
 	closeOutputFiles
  	readFile
 	respondToOpenInputFile
 	openOutputFiles
-	respondToOpenOutputFiles
     *** nextItemType: Run 1 ***
 	readAndCacheRun 1
 	beginRun 1
@@ -382,12 +339,10 @@ Machine parameters:  mode = NOMERGE  emptyRunLumiMode = handleEmptyRuns
 	deleteRunFromCache 1
 	respondToCloseInputFile
 	closeInputFile
-	respondToCloseOutputFiles
 	closeOutputFiles
  	readFile
 	respondToOpenInputFile
 	openOutputFiles
-	respondToOpenOutputFiles
     *** nextItemType: Run 1 ***
 	readAndCacheRun 1
 	beginRun 1
@@ -403,12 +358,10 @@ Machine parameters:  mode = NOMERGE  emptyRunLumiMode = handleEmptyRuns
 	deleteRunFromCache 2
 	respondToCloseInputFile
 	closeInputFile
-	respondToCloseOutputFiles
 	closeOutputFiles
  	readFile
 	respondToOpenInputFile
 	openOutputFiles
-	respondToOpenOutputFiles
     *** nextItemType: Run 2 ***
 	readAndCacheRun 2
 	beginRun 2
@@ -418,12 +371,10 @@ Machine parameters:  mode = NOMERGE  emptyRunLumiMode = handleEmptyRuns
 	deleteRunFromCache 2
 	respondToCloseInputFile
 	closeInputFile
-	respondToCloseOutputFiles
 	closeOutputFiles
  	readFile
 	respondToOpenInputFile
 	openOutputFiles
-	respondToOpenOutputFiles
     *** nextItemType: Run 2 ***
 	readAndCacheRun 2
 	beginRun 2
@@ -437,12 +388,10 @@ Machine parameters:  mode = NOMERGE  emptyRunLumiMode = handleEmptyRuns
 	deleteRunFromCache 2
 	respondToCloseInputFile
 	closeInputFile
-	respondToCloseOutputFiles
 	closeOutputFiles
  	readFile
 	respondToOpenInputFile
 	openOutputFiles
-	respondToOpenOutputFiles
     *** nextItemType: Run 2 ***
 	readAndCacheRun 2
 	beginRun 2
@@ -460,12 +409,10 @@ Machine parameters:  mode = NOMERGE  emptyRunLumiMode = handleEmptyRuns
 	deleteRunFromCache 2
 	respondToCloseInputFile
 	closeInputFile
-	respondToCloseOutputFiles
 	closeOutputFiles
  	readFile
 	respondToOpenInputFile
 	openOutputFiles
-	respondToOpenOutputFiles
     *** nextItemType: Run 2 ***
 	readAndCacheRun 2
 	beginRun 2
@@ -475,12 +422,10 @@ Machine parameters:  mode = NOMERGE  emptyRunLumiMode = handleEmptyRuns
 	deleteRunFromCache 2
 	respondToCloseInputFile
 	closeInputFile
-	respondToCloseOutputFiles
 	closeOutputFiles
  	readFile
 	respondToOpenInputFile
 	openOutputFiles
-	respondToOpenOutputFiles
     *** nextItemType: Run 2 ***
 	readAndCacheRun 2
 	beginRun 2
@@ -494,16 +439,13 @@ Machine parameters:  mode = NOMERGE  emptyRunLumiMode = handleEmptyRuns
 	deleteRunFromCache 2
 	respondToCloseInputFile
 	closeInputFile
-	respondToCloseOutputFiles
 	closeOutputFiles
  	readFile
 	respondToOpenInputFile
 	openOutputFiles
-	respondToOpenOutputFiles
     *** nextItemType: Lumi 4 ***
 	respondToCloseInputFile
 	closeInputFile
-	respondToCloseOutputFiles
 	closeOutputFiles
 	doErrorStuff
 	endOfLoop
@@ -514,7 +456,6 @@ Machine parameters:  mode = NOMERGE  emptyRunLumiMode = handleEmptyRuns
  	readFile
 	respondToOpenInputFile
 	openOutputFiles
-	respondToOpenOutputFiles
     *** nextItemType: Run 5 ***
 	readAndCacheRun 5
 	beginRun 5
@@ -528,16 +469,13 @@ Machine parameters:  mode = NOMERGE  emptyRunLumiMode = handleEmptyRuns
 	deleteRunFromCache 5
 	respondToCloseInputFile
 	closeInputFile
-	respondToCloseOutputFiles
 	closeOutputFiles
  	readFile
 	respondToOpenInputFile
 	openOutputFiles
-	respondToOpenOutputFiles
     *** nextItemType: Event ***
 	respondToCloseInputFile
 	closeInputFile
-	respondToCloseOutputFiles
 	closeOutputFiles
 	doErrorStuff
 	endOfLoop
@@ -548,7 +486,6 @@ Machine parameters:  mode = NOMERGE  emptyRunLumiMode = handleEmptyRuns
  	readFile
 	respondToOpenInputFile
 	openOutputFiles
-	respondToOpenOutputFiles
     *** nextItemType: Run 6 ***
 	readAndCacheRun 6
 	beginRun 6
@@ -562,7 +499,6 @@ Machine parameters:  mode = NOMERGE  emptyRunLumiMode = handleEmptyRuns
 	deleteRunFromCache 6
 	respondToCloseInputFile
 	closeInputFile
-	respondToCloseOutputFiles
 	closeOutputFiles
 	doErrorStuff
 	endOfLoop
@@ -584,11 +520,9 @@ Machine parameters:  mode = NOMERGE  emptyRunLumiMode = doNotHandleEmptyRunsAndL
  	readFile
 	respondToOpenInputFile
 	openOutputFiles
-	respondToOpenOutputFiles
     *** nextItemType: Restart 0 ***
 	respondToCloseInputFile
 	closeInputFile
-	respondToCloseOutputFiles
 	closeOutputFiles
 	doErrorStuff
 	endOfLoop
@@ -599,11 +533,9 @@ Machine parameters:  mode = NOMERGE  emptyRunLumiMode = doNotHandleEmptyRunsAndL
  	readFile
 	respondToOpenInputFile
 	openOutputFiles
-	respondToOpenOutputFiles
     *** nextItemType: Lumi 1 ***
 	respondToCloseInputFile
 	closeInputFile
-	respondToCloseOutputFiles
 	closeOutputFiles
 	doErrorStuff
 	endOfLoop
@@ -614,11 +546,9 @@ Machine parameters:  mode = NOMERGE  emptyRunLumiMode = doNotHandleEmptyRunsAndL
  	readFile
 	respondToOpenInputFile
 	openOutputFiles
-	respondToOpenOutputFiles
     *** nextItemType: Event ***
 	respondToCloseInputFile
 	closeInputFile
-	respondToCloseOutputFiles
 	closeOutputFiles
 	doErrorStuff
 	endOfLoop
@@ -629,16 +559,13 @@ Machine parameters:  mode = NOMERGE  emptyRunLumiMode = doNotHandleEmptyRunsAndL
  	readFile
 	respondToOpenInputFile
 	openOutputFiles
-	respondToOpenOutputFiles
     *** nextItemType: File 0 ***
 	respondToCloseInputFile
 	closeInputFile
-	respondToCloseOutputFiles
 	closeOutputFiles
  	readFile
 	respondToOpenInputFile
 	openOutputFiles
-	respondToOpenOutputFiles
     *** nextItemType: Run 9 ***
 	readAndCacheRun 9
     *** nextItemType: File 0 ***
@@ -646,12 +573,10 @@ Machine parameters:  mode = NOMERGE  emptyRunLumiMode = doNotHandleEmptyRunsAndL
 	deleteRunFromCache 9
 	respondToCloseInputFile
 	closeInputFile
-	respondToCloseOutputFiles
 	closeOutputFiles
  	readFile
 	respondToOpenInputFile
 	openOutputFiles
-	respondToOpenOutputFiles
     *** nextItemType: Run 1 ***
 	readAndCacheRun 1
     *** nextItemType: File 0 ***
@@ -659,12 +584,10 @@ Machine parameters:  mode = NOMERGE  emptyRunLumiMode = doNotHandleEmptyRunsAndL
 	deleteRunFromCache 1
 	respondToCloseInputFile
 	closeInputFile
-	respondToCloseOutputFiles
 	closeOutputFiles
  	readFile
 	respondToOpenInputFile
 	openOutputFiles
-	respondToOpenOutputFiles
     *** nextItemType: Run 1 ***
 	readAndCacheRun 1
     *** nextItemType: Run 2 ***
@@ -676,12 +599,10 @@ Machine parameters:  mode = NOMERGE  emptyRunLumiMode = doNotHandleEmptyRunsAndL
 	deleteRunFromCache 2
 	respondToCloseInputFile
 	closeInputFile
-	respondToCloseOutputFiles
 	closeOutputFiles
  	readFile
 	respondToOpenInputFile
 	openOutputFiles
-	respondToOpenOutputFiles
     *** nextItemType: Run 2 ***
 	readAndCacheRun 2
     *** nextItemType: File 0 ***
@@ -689,12 +610,10 @@ Machine parameters:  mode = NOMERGE  emptyRunLumiMode = doNotHandleEmptyRunsAndL
 	deleteRunFromCache 2
 	respondToCloseInputFile
 	closeInputFile
-	respondToCloseOutputFiles
 	closeOutputFiles
  	readFile
 	respondToOpenInputFile
 	openOutputFiles
-	respondToOpenOutputFiles
     *** nextItemType: Run 2 ***
 	readAndCacheRun 2
     *** nextItemType: Lumi 1 ***
@@ -706,12 +625,10 @@ Machine parameters:  mode = NOMERGE  emptyRunLumiMode = doNotHandleEmptyRunsAndL
 	deleteRunFromCache 2
 	respondToCloseInputFile
 	closeInputFile
-	respondToCloseOutputFiles
 	closeOutputFiles
  	readFile
 	respondToOpenInputFile
 	openOutputFiles
-	respondToOpenOutputFiles
     *** nextItemType: Run 2 ***
 	readAndCacheRun 2
     *** nextItemType: Lumi 2 ***
@@ -727,12 +644,10 @@ Machine parameters:  mode = NOMERGE  emptyRunLumiMode = doNotHandleEmptyRunsAndL
 	deleteRunFromCache 2
 	respondToCloseInputFile
 	closeInputFile
-	respondToCloseOutputFiles
 	closeOutputFiles
  	readFile
 	respondToOpenInputFile
 	openOutputFiles
-	respondToOpenOutputFiles
     *** nextItemType: Run 2 ***
 	readAndCacheRun 2
     *** nextItemType: File 0 ***
@@ -740,12 +655,10 @@ Machine parameters:  mode = NOMERGE  emptyRunLumiMode = doNotHandleEmptyRunsAndL
 	deleteRunFromCache 2
 	respondToCloseInputFile
 	closeInputFile
-	respondToCloseOutputFiles
 	closeOutputFiles
  	readFile
 	respondToOpenInputFile
 	openOutputFiles
-	respondToOpenOutputFiles
     *** nextItemType: Run 2 ***
 	readAndCacheRun 2
     *** nextItemType: Lumi 3 ***
@@ -757,16 +670,13 @@ Machine parameters:  mode = NOMERGE  emptyRunLumiMode = doNotHandleEmptyRunsAndL
 	deleteRunFromCache 2
 	respondToCloseInputFile
 	closeInputFile
-	respondToCloseOutputFiles
 	closeOutputFiles
  	readFile
 	respondToOpenInputFile
 	openOutputFiles
-	respondToOpenOutputFiles
     *** nextItemType: Lumi 4 ***
 	respondToCloseInputFile
 	closeInputFile
-	respondToCloseOutputFiles
 	closeOutputFiles
 	doErrorStuff
 	endOfLoop
@@ -777,7 +687,6 @@ Machine parameters:  mode = NOMERGE  emptyRunLumiMode = doNotHandleEmptyRunsAndL
  	readFile
 	respondToOpenInputFile
 	openOutputFiles
-	respondToOpenOutputFiles
     *** nextItemType: Run 5 ***
 	readAndCacheRun 5
     *** nextItemType: Lumi 1 ***
@@ -789,16 +698,13 @@ Machine parameters:  mode = NOMERGE  emptyRunLumiMode = doNotHandleEmptyRunsAndL
 	deleteRunFromCache 5
 	respondToCloseInputFile
 	closeInputFile
-	respondToCloseOutputFiles
 	closeOutputFiles
  	readFile
 	respondToOpenInputFile
 	openOutputFiles
-	respondToOpenOutputFiles
     *** nextItemType: Event ***
 	respondToCloseInputFile
 	closeInputFile
-	respondToCloseOutputFiles
 	closeOutputFiles
 	doErrorStuff
 	endOfLoop
@@ -809,7 +715,6 @@ Machine parameters:  mode = NOMERGE  emptyRunLumiMode = doNotHandleEmptyRunsAndL
  	readFile
 	respondToOpenInputFile
 	openOutputFiles
-	respondToOpenOutputFiles
     *** nextItemType: Run 6 ***
 	readAndCacheRun 6
     *** nextItemType: Lumi 1 ***
@@ -821,7 +726,6 @@ Machine parameters:  mode = NOMERGE  emptyRunLumiMode = doNotHandleEmptyRunsAndL
 	deleteRunFromCache 6
 	respondToCloseInputFile
 	closeInputFile
-	respondToCloseOutputFiles
 	closeOutputFiles
 	doErrorStuff
 	endOfLoop
@@ -843,11 +747,9 @@ Machine parameters:  mode = FULLMERGE  emptyRunLumiMode = handleEmptyRunsAndLumi
  	readFile
 	respondToOpenInputFile
 	openOutputFiles
-	respondToOpenOutputFiles
     *** nextItemType: Restart 0 ***
 	respondToCloseInputFile
 	closeInputFile
-	respondToCloseOutputFiles
 	closeOutputFiles
 	doErrorStuff
 	endOfLoop
@@ -858,11 +760,9 @@ Machine parameters:  mode = FULLMERGE  emptyRunLumiMode = handleEmptyRunsAndLumi
  	readFile
 	respondToOpenInputFile
 	openOutputFiles
-	respondToOpenOutputFiles
     *** nextItemType: Lumi 1 ***
 	respondToCloseInputFile
 	closeInputFile
-	respondToCloseOutputFiles
 	closeOutputFiles
 	doErrorStuff
 	endOfLoop
@@ -873,11 +773,9 @@ Machine parameters:  mode = FULLMERGE  emptyRunLumiMode = handleEmptyRunsAndLumi
  	readFile
 	respondToOpenInputFile
 	openOutputFiles
-	respondToOpenOutputFiles
     *** nextItemType: Event ***
 	respondToCloseInputFile
 	closeInputFile
-	respondToCloseOutputFiles
 	closeOutputFiles
 	doErrorStuff
 	endOfLoop
@@ -888,7 +786,6 @@ Machine parameters:  mode = FULLMERGE  emptyRunLumiMode = handleEmptyRunsAndLumi
  	readFile
 	respondToOpenInputFile
 	openOutputFiles
-	respondToOpenOutputFiles
     *** nextItemType: File 0 ***
 	shouldWeCloseOutput
 	respondToCloseInputFile
@@ -996,7 +893,6 @@ Machine parameters:  mode = FULLMERGE  emptyRunLumiMode = handleEmptyRunsAndLumi
 	deleteRunFromCache 2
 	respondToCloseInputFile
 	closeInputFile
-	respondToCloseOutputFiles
 	closeOutputFiles
 	doErrorStuff
 	endOfLoop
@@ -1007,7 +903,6 @@ Machine parameters:  mode = FULLMERGE  emptyRunLumiMode = handleEmptyRunsAndLumi
  	readFile
 	respondToOpenInputFile
 	openOutputFiles
-	respondToOpenOutputFiles
     *** nextItemType: Run 5 ***
 	readAndCacheRun 5
 	beginRun 5
@@ -1029,7 +924,6 @@ Machine parameters:  mode = FULLMERGE  emptyRunLumiMode = handleEmptyRunsAndLumi
 	deleteRunFromCache 5
 	respondToCloseInputFile
 	closeInputFile
-	respondToCloseOutputFiles
 	closeOutputFiles
 	doErrorStuff
 	endOfLoop
@@ -1040,7 +934,6 @@ Machine parameters:  mode = FULLMERGE  emptyRunLumiMode = handleEmptyRunsAndLumi
  	readFile
 	respondToOpenInputFile
 	openOutputFiles
-	respondToOpenOutputFiles
     *** nextItemType: Run 6 ***
 	readAndCacheRun 6
 	beginRun 6
@@ -1056,7 +949,6 @@ Machine parameters:  mode = FULLMERGE  emptyRunLumiMode = handleEmptyRunsAndLumi
 	deleteRunFromCache 6
 	respondToCloseInputFile
 	closeInputFile
-	respondToCloseOutputFiles
 	closeOutputFiles
 	doErrorStuff
 	endOfLoop
@@ -1078,11 +970,9 @@ Machine parameters:  mode = FULLMERGE  emptyRunLumiMode = handleEmptyRuns
  	readFile
 	respondToOpenInputFile
 	openOutputFiles
-	respondToOpenOutputFiles
     *** nextItemType: Restart 0 ***
 	respondToCloseInputFile
 	closeInputFile
-	respondToCloseOutputFiles
 	closeOutputFiles
 	doErrorStuff
 	endOfLoop
@@ -1093,11 +983,9 @@ Machine parameters:  mode = FULLMERGE  emptyRunLumiMode = handleEmptyRuns
  	readFile
 	respondToOpenInputFile
 	openOutputFiles
-	respondToOpenOutputFiles
     *** nextItemType: Lumi 1 ***
 	respondToCloseInputFile
 	closeInputFile
-	respondToCloseOutputFiles
 	closeOutputFiles
 	doErrorStuff
 	endOfLoop
@@ -1108,11 +996,9 @@ Machine parameters:  mode = FULLMERGE  emptyRunLumiMode = handleEmptyRuns
  	readFile
 	respondToOpenInputFile
 	openOutputFiles
-	respondToOpenOutputFiles
     *** nextItemType: Event ***
 	respondToCloseInputFile
 	closeInputFile
-	respondToCloseOutputFiles
 	closeOutputFiles
 	doErrorStuff
 	endOfLoop
@@ -1123,7 +1009,6 @@ Machine parameters:  mode = FULLMERGE  emptyRunLumiMode = handleEmptyRuns
  	readFile
 	respondToOpenInputFile
 	openOutputFiles
-	respondToOpenOutputFiles
     *** nextItemType: File 0 ***
 	shouldWeCloseOutput
 	respondToCloseInputFile
@@ -1225,7 +1110,6 @@ Machine parameters:  mode = FULLMERGE  emptyRunLumiMode = handleEmptyRuns
 	deleteRunFromCache 2
 	respondToCloseInputFile
 	closeInputFile
-	respondToCloseOutputFiles
 	closeOutputFiles
 	doErrorStuff
 	endOfLoop
@@ -1236,7 +1120,6 @@ Machine parameters:  mode = FULLMERGE  emptyRunLumiMode = handleEmptyRuns
  	readFile
 	respondToOpenInputFile
 	openOutputFiles
-	respondToOpenOutputFiles
     *** nextItemType: Run 5 ***
 	readAndCacheRun 5
 	beginRun 5
@@ -1256,7 +1139,6 @@ Machine parameters:  mode = FULLMERGE  emptyRunLumiMode = handleEmptyRuns
 	deleteRunFromCache 5
 	respondToCloseInputFile
 	closeInputFile
-	respondToCloseOutputFiles
 	closeOutputFiles
 	doErrorStuff
 	endOfLoop
@@ -1267,7 +1149,6 @@ Machine parameters:  mode = FULLMERGE  emptyRunLumiMode = handleEmptyRuns
  	readFile
 	respondToOpenInputFile
 	openOutputFiles
-	respondToOpenOutputFiles
     *** nextItemType: Run 6 ***
 	readAndCacheRun 6
 	beginRun 6
@@ -1281,7 +1162,6 @@ Machine parameters:  mode = FULLMERGE  emptyRunLumiMode = handleEmptyRuns
 	deleteRunFromCache 6
 	respondToCloseInputFile
 	closeInputFile
-	respondToCloseOutputFiles
 	closeOutputFiles
 	doErrorStuff
 	endOfLoop
@@ -1303,11 +1183,9 @@ Machine parameters:  mode = FULLMERGE  emptyRunLumiMode = doNotHandleEmptyRunsAn
  	readFile
 	respondToOpenInputFile
 	openOutputFiles
-	respondToOpenOutputFiles
     *** nextItemType: Restart 0 ***
 	respondToCloseInputFile
 	closeInputFile
-	respondToCloseOutputFiles
 	closeOutputFiles
 	doErrorStuff
 	endOfLoop
@@ -1318,11 +1196,9 @@ Machine parameters:  mode = FULLMERGE  emptyRunLumiMode = doNotHandleEmptyRunsAn
  	readFile
 	respondToOpenInputFile
 	openOutputFiles
-	respondToOpenOutputFiles
     *** nextItemType: Lumi 1 ***
 	respondToCloseInputFile
 	closeInputFile
-	respondToCloseOutputFiles
 	closeOutputFiles
 	doErrorStuff
 	endOfLoop
@@ -1333,11 +1209,9 @@ Machine parameters:  mode = FULLMERGE  emptyRunLumiMode = doNotHandleEmptyRunsAn
  	readFile
 	respondToOpenInputFile
 	openOutputFiles
-	respondToOpenOutputFiles
     *** nextItemType: Event ***
 	respondToCloseInputFile
 	closeInputFile
-	respondToCloseOutputFiles
 	closeOutputFiles
 	doErrorStuff
 	endOfLoop
@@ -1348,7 +1222,6 @@ Machine parameters:  mode = FULLMERGE  emptyRunLumiMode = doNotHandleEmptyRunsAn
  	readFile
 	respondToOpenInputFile
 	openOutputFiles
-	respondToOpenOutputFiles
     *** nextItemType: File 0 ***
 	shouldWeCloseOutput
 	respondToCloseInputFile
@@ -1444,7 +1317,6 @@ Machine parameters:  mode = FULLMERGE  emptyRunLumiMode = doNotHandleEmptyRunsAn
 	deleteRunFromCache 2
 	respondToCloseInputFile
 	closeInputFile
-	respondToCloseOutputFiles
 	closeOutputFiles
 	doErrorStuff
 	endOfLoop
@@ -1455,7 +1327,6 @@ Machine parameters:  mode = FULLMERGE  emptyRunLumiMode = doNotHandleEmptyRunsAn
  	readFile
 	respondToOpenInputFile
 	openOutputFiles
-	respondToOpenOutputFiles
     *** nextItemType: Run 5 ***
 	readAndCacheRun 5
     *** nextItemType: Lumi 1 ***
@@ -1473,7 +1344,6 @@ Machine parameters:  mode = FULLMERGE  emptyRunLumiMode = doNotHandleEmptyRunsAn
 	deleteRunFromCache 5
 	respondToCloseInputFile
 	closeInputFile
-	respondToCloseOutputFiles
 	closeOutputFiles
 	doErrorStuff
 	endOfLoop
@@ -1484,7 +1354,6 @@ Machine parameters:  mode = FULLMERGE  emptyRunLumiMode = doNotHandleEmptyRunsAn
  	readFile
 	respondToOpenInputFile
 	openOutputFiles
-	respondToOpenOutputFiles
     *** nextItemType: Run 6 ***
 	readAndCacheRun 6
     *** nextItemType: Lumi 1 ***
@@ -1496,7 +1365,6 @@ Machine parameters:  mode = FULLMERGE  emptyRunLumiMode = doNotHandleEmptyRunsAn
 	deleteRunFromCache 6
 	respondToCloseInputFile
 	closeInputFile
-	respondToCloseOutputFiles
 	closeOutputFiles
 	doErrorStuff
 	endOfLoop

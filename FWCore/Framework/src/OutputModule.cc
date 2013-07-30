@@ -274,14 +274,6 @@ namespace edm {
     respondToCloseInputFile(fb);
   }
 
-  void OutputModule::doRespondToOpenOutputFiles(FileBlock const& fb) {
-    respondToOpenOutputFiles(fb);
-  }
-
-  void OutputModule::doRespondToCloseOutputFiles(FileBlock const& fb) {
-    respondToCloseOutputFiles(fb);
-  }
-
   void
   OutputModule::doPreForkReleaseResources() {
     preForkReleaseResources();

@@ -1897,22 +1897,6 @@ namespace edm {
     FDEBUG(1) << "\trespondToCloseInputFile\n";
   }
 
-  void EventProcessor::respondToOpenOutputFiles() {
-    if (fb_.get() != nullptr) {
-      schedule_->respondToOpenOutputFiles(*fb_);
-      if(hasSubProcess()) subProcess_->respondToOpenOutputFiles(*fb_);
-    }
-    FDEBUG(1) << "\trespondToOpenOutputFiles\n";
-  }
-
-  void EventProcessor::respondToCloseOutputFiles() {
-    if (fb_.get() != nullptr) {
-      schedule_->respondToCloseOutputFiles(*fb_);
-      if(hasSubProcess()) subProcess_->respondToCloseOutputFiles(*fb_);
-    }
-    FDEBUG(1) << "\trespondToCloseOutputFiles\n";
-  }
-
   void EventProcessor::startingNewLoop() {
     shouldWeStop_ = false;
     //NOTE: for first loop, need to delay calling 'doStartingNewLoop'
