@@ -32,7 +32,7 @@ private:
   virtual void endJob() {}
 
   template <typename T>
-  std::pair<uint32_t, EncodedEventId> 
+  std::vector<std::pair<uint32_t, EncodedEventId> >
   getSimTrackId(const edm::Handle<edm::DetSetVector<T> >& simLinks, const DetId& detId, uint32_t channel) const;
 
   bool _verbose;
