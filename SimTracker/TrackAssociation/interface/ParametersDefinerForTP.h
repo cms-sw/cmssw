@@ -48,7 +48,6 @@ class ParametersDefinerForTP {
 
   virtual void initEvent(edm::Handle<SimHitTPAssociationProducer::SimHitTPAssociationList> simHitsTPAssocToSet) const { }
 
-
 };
 
 
