@@ -39,7 +39,7 @@ namespace {
 
     reco::SuperCluster::EEtoPSAssociation sceepsassoc;
     edm::Wrapper<reco::SuperCluster::EEtoPSAssociation> wsceepsassoc;
-    std::pair<unsigned long,std::pair<unsigned long,unsigned long> > sceepsassocintval;
+    std::pair<unsigned long,std::vector<size_t> > sceepsassocintval;
     std::pair<reco::CaloClusterPtr::key_type,reco::CaloClusterPtr> sceepsassocval;
     reco::SuperCluster::EEtoPSAssociationInternal sceepsassocint;
     edm::Wrapper<reco::SuperCluster::EEtoPSAssociationInternal> wsceepsassocint;

@@ -21,7 +21,7 @@ namespace reco {
   public:
     typedef std::vector<std::pair<CaloClusterPtr::key_type,CaloClusterPtr> > EEtoPSAssociation;
     // cluster index to range in PS cluster vector
-    typedef std::vector<std::pair<CaloClusterPtr::key_type,std::pair<size_t,size_t> > > EEtoPSAssociationInternal;
+    typedef std::vector<std::pair<CaloClusterPtr::key_type,std::vector<size_t> > > EEtoPSAssociationInternal;
     typedef math::XYZPoint Point;
 
     /// default constructor
@@ -87,6 +87,9 @@ namespace reco {
     /// last iterator over PreshowerCluster constituents
     CaloCluster_iterator preshowerClustersEnd() const { return preshowerClusters_.end(); }
 
+    /// vector of PreshowerCluster indices for a given EE cluster
+    const std::vector<size_t>& preshowerClustersAssociated(const CaloClusterPtr& i) const;
+
     /// number of BasicCluster constituents
     size_t clustersSize() const { return clusters_.size(); }
 
@@ -103,10 +106,13 @@ namespace reco {
     void addCluster( const CaloClusterPtr & r ) { 
       clusters_.push_back( r ); 
       computeRawEnergy();
-    }
+    }    
 
     /// add reference to constituent BasicCluster
     void addPreshowerCluster( const CaloClusterPtr & r ) { preshowerClusters_.push_back( r ); }
+    // add ES cluster that is associated to an EE cluster
+    void addPreshowerCluster( const CaloClusterPtr & ee,
+			      const CaloClusterPtr & ps );
 
     /** Set preshower planes status :
         0 : both planes working
@@ -154,7 +160,7 @@ namespace reco {
     double preshowerEnergy1_;
     double preshowerEnergy2_;
 
-    EEtoPSAssociationInternal ee2ps;
+    EEtoPSAssociationInternal ee2ps;    
   };
 
 }

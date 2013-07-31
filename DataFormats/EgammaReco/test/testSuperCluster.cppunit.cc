@@ -17,6 +17,7 @@ class testSuperCluster: public CppUnit::TestFixture
   CPPUNIT_TEST_SUITE(testSuperCluster);
   CPPUNIT_TEST(PreshowerPlanesTest);
   CPPUNIT_TEST(CopyCtorTest);
+  CPPUNIT_TEST(ESAssociationTest);
   CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -25,6 +26,7 @@ public:
 
   void PreshowerPlanesTest();
   void CopyCtorTest();
+  void ESAssociationTest();
 };
 
 ///registration of the test so that the runner can find it
@@ -121,4 +123,94 @@ void testSuperCluster::CopyCtorTest(){
     bcitcopy++;
   }
   
+}
+
+void testSuperCluster::ESAssociationTest(){
+
+  using namespace reco;
+  using namespace edm;
+  
+  CaloID id;
+  CaloCluster c1(1.0,math::XYZPoint(0,0,0),id);
+  CaloCluster c2(2.0,math::XYZPoint(0,0,0),id);
+  CaloCluster c3(3.0,math::XYZPoint(0,0,0),id);
+
+  CaloCluster es1(1.0,math::XYZPoint(0,0,0),id);
+  CaloCluster es2(2.0,math::XYZPoint(0,0,0),id);
+  CaloCluster es3(3.0,math::XYZPoint(0,0,0),id);
+
+  CaloClusterCollection clusters;
+  clusters.push_back(c1);
+  clusters.push_back(c2);
+  clusters.push_back(c3);
+
+  CaloClusterCollection esclusters;
+  esclusters.push_back(es1);
+  esclusters.push_back(es2);
+  esclusters.push_back(es3);
+  
+  ProductID const pid(1, 1);
+  
+  ProductID const espid(1, 2);
+  
+  OrphanHandle<CaloClusterCollection> handle(&clusters, pid);
+  OrphanHandle<CaloClusterCollection> eshandle(&esclusters, espid);
+ 
+  CaloClusterPtr pc1(handle,0),pc2(handle,1),pc3(handle,2);
+  CaloClusterPtr pes1(eshandle,0),pes2(eshandle,1),pes3(eshandle,2);
+  
+  SuperCluster sc(5.0,math::XYZPoint(0,0,0));
+  sc.setSeed(pc1);
+  sc.addCluster(pc1);
+  sc.addCluster(pc2);
+  sc.addCluster(pc3);
+
+  sc.addPreshowerCluster(pc1,pes1);
+  sc.addPreshowerCluster(pc3,pes2);
+  sc.addPreshowerCluster(pc3,pes3);
+
+  CPPUNIT_ASSERT(sc.clustersSize() == 3);
+  CPPUNIT_ASSERT(sc.preshowerClustersSize() == 3);
+ 
+  for(CaloClusterPtrVector::const_iterator bcit  = sc.clustersBegin();
+      bcit != sc.clustersEnd(); ++bcit) {
+    const CaloClusterPtrVector& esclusters = sc.preshowerClusters();
+
+    if( *bcit == pc1 ) {      
+      const std::vector<size_t> indices = 
+	sc.preshowerClustersAssociated(*bcit);
+      CPPUNIT_ASSERT(indices.size() == 1);
+      for( const size_t& idx : indices ) {
+	switch(idx) {
+	case 0:
+	  CPPUNIT_ASSERT(esclusters[idx] == pes1);
+	  break;
+	default:
+	  CPPUNIT_ASSERT( 0 == 1 && "invalid index!");
+	  break;
+	}
+      }
+    }
+    if( *bcit == pc2 ) {
+      CPPUNIT_ASSERT(sc.preshowerClustersAssociated(*bcit).size() == 0);
+    }
+    if( *bcit == pc3 ) {
+      const std::vector<size_t> indices = 
+	sc.preshowerClustersAssociated(*bcit);
+      CPPUNIT_ASSERT(indices.size() == 2);
+      for( const size_t& idx : indices ) {
+	switch(idx) {
+	case 1:
+	  CPPUNIT_ASSERT(esclusters[idx] == pes2);
+	  break;
+	case 2:
+	  CPPUNIT_ASSERT(esclusters[idx] == pes3);
+	  break;
+	default:
+	  CPPUNIT_ASSERT( 0 == 1 && "invalid index!");
+	  break;
+	}
+      }
+    }
+  }  
 }
