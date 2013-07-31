@@ -21,6 +21,10 @@ using namespace edm;
 namespace {
   const std::string ClusterType__BOX("Box");
   const std::string ClusterType__Mustache("Mustache");
+
+  const std::string EnergyWeight__Raw("Raw");
+  const std::string EnergyWeight__CalibratedNoPS("CalibratedNoPS");
+  const std::string EnergyWeight__CalibratedTotal("CalibratedTotal");
 }
 
 PFECALSuperClusterProducer::PFECALSuperClusterProducer(const edm::ParameterSet& iConfig)
@@ -38,6 +42,20 @@ PFECALSuperClusterProducer::PFECALSuperClusterProducer(const edm::ParameterSet& 
     throw cms::Exception("InvalidClusteringType") 
       << "You have not chosen a valid clustering type," 
       << " please choose from \"Box\" or \"Mustache\"!";
+  }
+
+  std::string _weightname = iConfig.getParameter<std::string>("EnergyWeight");
+  if( _weightname == EnergyWeight__Raw ) {
+    _theenergyweight = PFECALSuperClusterAlgo::kRaw;
+  } else if ( _weightname == EnergyWeight__CalibratedNoPS ) {
+    _theenergyweight = PFECALSuperClusterAlgo::kCalibratedNoPS;
+  } else if ( _weightname == EnergyWeight__CalibratedTotal) {
+    _theenergyweight = PFECALSuperClusterAlgo::kCalibratedTotal;
+  } else {
+    throw cms::Exception("InvalidClusteringType") 
+      << "You have not chosen a valid energy weighting scheme," 
+      << " please choose from \"Raw\", \"CalibratedNoPS\", or"
+      << " \"CalibratedTotal\"!";
   }
   
 
@@ -71,6 +89,7 @@ PFECALSuperClusterProducer::PFECALSuperClusterProducer(const edm::ParameterSet& 
 
   superClusterAlgo_.setVerbosityLevel(verbose_);
   superClusterAlgo_.setClusteringType(_theclusteringtype);
+  superClusterAlgo_.setEnergyWeighting(_theenergyweight);
   superClusterAlgo_.setUseDynamicDPhi(useDynamicDPhi);
 
   superClusterAlgo_.setThreshPFClusterSeedBarrel( threshPFClusterSeedBarrel );

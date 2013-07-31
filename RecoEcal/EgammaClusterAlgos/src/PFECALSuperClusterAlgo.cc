@@ -194,7 +194,6 @@ loadAndSortPFClusters(const PFClusterView& clusters,
   superClustersEE_.reset(new reco::SuperClusterCollection);  
   EEtoPS_.reset(new reco::SuperCluster::EEtoPSAssociation);
   _clustersEE.clear();
-  _psclustersforee.clear();
   
   auto clusterPtrs = clusters.ptrVector(); 
   //Select PF clusters available for the clustering
@@ -216,8 +215,6 @@ loadAndSortPFClusters(const PFClusterView& clusters,
     case PFLayer::ECAL_ENDCAP:
       if( calib_cluster->energy() > threshPFClusterEndcap_ ) {
 	_clustersEE.push_back(calib_cluster);
-	_psclustersforee.emplace(calib_cluster->the_ptr(),
-				 edm::PtrVector<reco::PFCluster>());
       }
       break;
     default:
@@ -353,25 +350,26 @@ buildSuperCluster(CalibClusterPtr& seed,
   std::vector<const reco::PFCluster*> bare_ptrs;
   // calculate necessary parameters and build the SC
   double posX(0), posY(0), posZ(0),
-    rawSCEnergy(0), corrSCEnergy(0), clusterCorrEE(0), 
+    corrSCEnergy(0), clusterCorrEE(0), 
     corrPS1Energy(0), corrPS2Energy(0), 
-    ePS1(0), ePS2(0);
+    ePS1(0), ePS2(0), energyweight(0), energyweighttot(0);
   std::vector<double> ps1_energies, ps2_energies;
   for( auto& clus : clustered ) {    
     ePS1 = ePS2 = 0;
+    energyweight = clus->energy_nocalib();
     bare_ptrs.push_back(clus->the_ptr().get());
-      
-    double cluseraw = clus->energy_nocalib();
-    const math::XYZPoint& cluspos = clus->the_ptr()->position();
-    posX += cluseraw * cluspos.X();
-    posY += cluseraw * cluspos.Y();
-    posZ += cluseraw * cluspos.Z();
     // update EE calibrated super cluster energies
     if( isEE ) {
       ps1_energies.clear();
-      ps2_energies.clear();      
-      const auto& psclusters = _psclustersforee[clus->the_ptr()];
-      for( const auto& psclus : psclusters ) {
+      ps2_energies.clear();
+      auto ee_key_val = 
+	std::make_pair(clus->the_ptr().key(),edm::Ptr<reco::PFCluster>());
+      const auto clustops = std::equal_range(EEtoPS_->begin(),
+					     EEtoPS_->end(),
+					     ee_key_val,
+					     sortByKey);      
+      for( auto i_ps = clustops.first; i_ps != clustops.second; ++i_ps) {
+	edm::Ptr<reco::PFCluster> psclus(i_ps->second);
 	switch( psclus->layer() ) {
 	case PFLayer::PS1:
 	  ps1_energies.push_back(psclus->energy());
@@ -387,19 +385,35 @@ buildSuperCluster(CalibClusterPtr& seed,
 	_pfEnergyCalibration->energyEm(*(clus->the_ptr()),
 				       ps1_energies,ps2_energies,
 				       ePS1,ePS2,
-				       applyCrackCorrections_);
-      cluseraw = clusterCorrEE - ePS1 - ePS2;
+				       applyCrackCorrections_);      
       clus->resetCalibratedEnergy(clusterCorrEE);      
     }
+    
+    switch( _eweight ) {
+    case kRaw: // energyweight is initialized to raw cluster energy
+      break;
+    case kCalibratedNoPS:
+      energyweight = clus->energy() - ePS1 - ePS2;
+      break;
+    case kCalibratedTotal:
+      energyweight = clus->energy();
+      break;
+    default:
+      break;
+    }    
+    const math::XYZPoint& cluspos = clus->the_ptr()->position();
+    posX += energyweight * cluspos.X();
+    posY += energyweight * cluspos.Y();
+    posZ += energyweight * cluspos.Z();    
 
-    rawSCEnergy   += cluseraw;
-    corrSCEnergy  += clus->energy();    
-    corrPS1Energy += ePS1;
-    corrPS2Energy += ePS2;
+    energyweighttot += energyweight;
+    corrSCEnergy    += clus->energy();    
+    corrPS1Energy   += ePS1;
+    corrPS2Energy   += ePS2;
   }
-  posX /= rawSCEnergy;
-  posY /= rawSCEnergy;
-  posZ /= rawSCEnergy;    
+  posX /= energyweighttot;
+  posY /= energyweighttot;
+  posZ /= energyweighttot;    
   
   // now build the supercluster
   reco::SuperCluster new_sc(corrSCEnergy,math::XYZPoint(posX,posY,posZ));   
@@ -444,7 +458,6 @@ buildSuperCluster(CalibClusterPtr& seed,
       }
     }
   }  
-  
   
   // calculate linearly weighted cluster widths
   PFClusterWidthAlgo pfwidth(bare_ptrs);

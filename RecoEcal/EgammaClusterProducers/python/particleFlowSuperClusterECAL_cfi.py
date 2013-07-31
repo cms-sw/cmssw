@@ -6,6 +6,8 @@ particleFlowSuperClusterECALBox = cms.EDProducer(
     verbose = cms.untracked.bool(False),
     #clustering type: "Box" or "Mustache"
     ClusteringType = cms.string("Box"),
+    #energy weighting: "Raw", "CalibratedNoPS", "CalibratedTotal"
+    EnergyWeight = cms.string("Raw"),
 
     #this overrides both dphi cuts below if true!
     useDynamicDPhiWindow = cms.bool(False),
@@ -60,6 +62,8 @@ particleFlowSuperClusterECALMustache = cms.EDProducer(
     verbose = cms.untracked.bool(False),
     #clustering type: "Box" or "Mustache"
     ClusteringType = cms.string("Mustache"),
+    #energy weighting: "Raw", "CalibratedNoPS", "CalibratedTotal"
+    EnergyWeight = cms.string("Raw"),
 
     #this overrides both dphi cuts below if true!
     useDynamicDPhiWindow = cms.bool(True), 
