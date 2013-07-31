@@ -79,18 +79,23 @@ namespace reco {
     const MagneticField* theField;
 
     FreeTrajectoryState initialFTS;
+
+    // mutable member data, those should be treated very carefully to guarantee
+    // thread safeness of the code by using atomic thread-safe helpers, see below
     mutable TrajectoryStateOnSurface initialTSOS;
-    mutable std::atomic<char> m_TSOS;
     mutable TrajectoryStateClosestToPoint initialTSCP;
-    mutable std::atomic<char> m_TSCP;
     mutable TrajectoryStateClosestToBeamLine trajectoryStateClosestToBeamLine;
+    // thread-safe helpers to guarantee proper update of mutable member data
+    mutable std::atomic<char> m_TSOS;
+    mutable std::atomic<char> m_TSCP;
     mutable std::atomic<char> m_SCTBL;
 
     TSCPBuilderNoMaterial builder;
     edm::ESHandle<GlobalTrackingGeometry> theTrackingGeometry;
     reco::BeamSpot theBeamSpot;
 
-    enum KlassStates {kUnset, kSetting, kSet};
+    // to be used to setup thread states of class mutables
+    enum CacheStates {kUnset, kSetting, kSet};
 
   };
 
