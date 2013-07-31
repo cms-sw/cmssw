@@ -13,96 +13,119 @@
 //==================================================================//
 //======================= Constructor ==============================//
 //==================================================================//
-CastorDigiMonitor::CastorDigiMonitor() { doPerChannel_ = false;  }
+CastorDigiMonitor::CastorDigiMonitor()
+  {
+
+  doPerChannel_ = false;
+
+  }
 
 
 //==================================================================//
 //======================= Destructor ===============================//
 //==================================================================//
-CastorDigiMonitor::~CastorDigiMonitor() {
-}
+CastorDigiMonitor::~CastorDigiMonitor()
+  {
+
+  }
 
 
 //==================================================================//
 //=========================== reset  ===============================//
 //==================================================================//
-void CastorDigiMonitor::reset(){
-}
+void CastorDigiMonitor::reset()
+  {
+  
+  }
 
 //==================================================================//
 //=========================== setup  ===============================//
 //==================================================================//
-void CastorDigiMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe){
+void CastorDigiMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe)
+  {
+
   CastorBaseMonitor::setup(ps,dbe);
+
+  if(fVerbosity>0) { std::cout << "CastorDigiMonitor::setup (start)" << std::endl; }
+
+  //set base folder
   baseFolder_ = rootFolder_+"CastorDigiMonitor";
-   
-  if(fVerbosity>0) std::cout << "CastorDigiMonitor::setup (start)" << std::endl;
 
   doPerChannel_ = ps.getUntrackedParameter<bool>("DigiPerChannel", false);
   doFCpeds_ = ps.getUntrackedParameter<bool>("DigiInFC", true);
 
   ievt_=0;
 
-  if ( m_dbe !=NULL ) {
-    m_dbe->setCurrentFolder(baseFolder_);
-    meEVT_ = m_dbe->bookInt("Digi Task Event Number");
-    meEVT_->Fill(ievt_);
-        
-    m_dbe->setCurrentFolder(baseFolder_);
-  
-    ////---- book the following histograms 
-    std::string type = "Castor Digis ADC counts";
-    castHists.ALLPEDS =  m_dbe->book1D(type,type,130,0,130);
-    
-    ////---- LEAVE IT OUT FOR THE MOMENT
-    //type = "Castor Pedestal Mean Reference Values - from CondDB";
-    //castHists.PEDESTAL_REFS = m_dbe->book1D(type,type,50,0,50);
-    //type = "Castor Pedestal RMS Reference Values - from CondDB";
-    //castHists.WIDTH_REFS = m_dbe->book1D(type,type,20,0,10); 
-    ///// castHists.PEDRMS  =  m_dbe->book1D("Castor Pedestal RMS Values","Castor Pedestal RMS Values",100,0,3);
-    ///// castHists.SUBMEAN =  m_dbe->book1D("Castor Subtracted Mean Values","Castor Subtracted Mean Values",100,-2.5,2.5);
-    /////  castHists.PEDMEAN =  m_dbe->book1D("Castor Pedestal Mean Values","Castor Pedestal Mean Values",100,0,9);
-    ///// castHists.QIERMS  =  m_dbe->book1D("Castor QIE RMS Values","Castor QIE RMS Values",50,0,3);
-    ///// castHists.QIEMEAN =  m_dbe->book1D("Castor QIE Mean Values","Castor QIE Mean Values",50,0,10);
- 
-}
-
-  else{ 
-   if(fVerbosity>0) std::cout << "CastorDigiMonitor::setup - NO DQMStore service" << std::endl; 
-  }
-
- 
   outputFile_ = ps.getUntrackedParameter<std::string>("PedestalFile", "");
-  if ( outputFile_.size() != 0 ) { if(fVerbosity>0) std::cout << "Castor Pedestal Calibrations will be saved to " << outputFile_.c_str() << std::endl;}
+  if ( outputFile_.size() != 0 )
+  	{
+	if(fVerbosity>0) { std::cout << "Castor Pedestal Calibrations will be saved to " << outputFile_.c_str() << std::endl; }
+	}
 
 
- if(fVerbosity>0) std::cout << "CastorDigiMonitor::setup (end)" << std::endl;
+  if(fVerbosity>0) { std::cout << "CastorDigiMonitor::setup (end)" << std::endl; }
 
   return;
 }
 
 
+//==================================================================//
+//=========================== beginRun =============================//
+//==================================================================//
+void CastorDigiMonitor::beginRun(const edm::EventSetup& iSetup)
+  {
+  if(fVerbosity>0) std::cout << "CastorDigiMonitor::beginRun (start)" << std::endl;
+
+  if ( m_dbe !=NULL )
+	{
+    	m_dbe->setCurrentFolder(baseFolder_);
+    	meEVT_ = m_dbe->bookInt("Digi Task Event Number");
+    	meEVT_->Fill(ievt_);
+        
+    	m_dbe->setCurrentFolder(baseFolder_);
+  
+    	////---- book the following histograms 
+    	std::string type = "Castor Digis ADC counts";
+    	castHists.ALLPEDS =  m_dbe->book1D(type,type,130,0,130);
+    
+    	////---- LEAVE IT OUT FOR THE MOMENT
+    	//type = "Castor Pedestal Mean Reference Values - from CondDB";
+    	//castHists.PEDESTAL_REFS = m_dbe->book1D(type,type,50,0,50);
+    	//type = "Castor Pedestal RMS Reference Values - from CondDB";
+    	//castHists.WIDTH_REFS = m_dbe->book1D(type,type,20,0,10); 
+    	///// castHists.PEDRMS  =  m_dbe->book1D("Castor Pedestal RMS Values","Castor Pedestal RMS Values",100,0,3);
+    	///// castHists.SUBMEAN =  m_dbe->book1D("Castor Subtracted Mean Values","Castor Subtracted Mean Values",100,-2.5,2.5);
+    	/////  castHists.PEDMEAN =  m_dbe->book1D("Castor Pedestal Mean Values","Castor Pedestal Mean Values",100,0,9);
+    	///// castHists.QIERMS  =  m_dbe->book1D("Castor QIE RMS Values","Castor QIE RMS Values",50,0,3);
+    	///// castHists.QIEMEAN =  m_dbe->book1D("Castor QIE Mean Values","Castor QIE Mean Values",50,0,10);
+	}
+  else
+	{ 
+   	if(fVerbosity>0) std::cout << "CastorDigiMonitor::setup - NO DQMStore service" << std::endl; 
+  	}
+ 
+ 
+ if(fVerbosity>0) std::cout << "CastorDigiMonitor::beginRun (end)" << std::endl;
+
+ return;
+}
 
 
 //==================================================================//
 //=========================== processEvent  ========================//
 //==================================================================//
 void CastorDigiMonitor::processEvent(const CastorDigiCollection& castorDigis, const CastorDbService& cond)
-{
-  
- if(fVerbosity>0) std::cout << "==>CastorDigiMonitor::processEvent !!!"<< std::endl;
-
- 
-  meEVT_->Fill(ievt_);
-  
-  //if(!shape_) shape_ = cond.getCastorShape(); // this one is generic
-
+  {
+  if(fVerbosity>0) std::cout << "CastorDigiMonitor::processEvent (begin)"<< std::endl;
 
   if(!m_dbe) { 
     if(fVerbosity>0) std::cout<<"CastorDigiMonitor::processEvent DQMStore is not instantiated!!!"<<std::endl;  
     return; 
   }
 
+  //if(!shape_) shape_ = cond.getCastorShape(); // this one is generic
+
+  meEVT_->Fill(ievt_);
 
   CaloSamples tool;  
  
@@ -182,12 +205,22 @@ void CastorDigiMonitor::processEvent(const CastorDigiCollection& castorDigis, co
     }
 
   ievt_++;
-  return;
-}
 
-void CastorDigiMonitor::done(){
+  if(fVerbosity>0) std::cout << "CastorDigiMonitor::processEvent (end)"<< std::endl;
+
+
   return;
-}
+  }
+
+
+//==================================================================//
+//======================= done =====================================//
+//==================================================================//
+void CastorDigiMonitor::done()
+  {
+  
+  return;
+  }
 
 
 //==================================================================//

@@ -25,7 +25,8 @@
 #include <map>
 
 
-class CastorChannelQualityMonitor: public CastorBaseMonitor{
+class CastorChannelQualityMonitor: public CastorBaseMonitor
+{
 
   typedef std::map<uint32_t,float,std::less<uint32_t> >  MapType;
 
@@ -34,6 +35,7 @@ public:
   ~CastorChannelQualityMonitor();
 
   void setup(const edm::ParameterSet& ps, DQMStore* dbe);
+  void beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup);
   void processEvent(const CastorRecHitCollection& castorHits);
   void reset();
 
@@ -72,8 +74,6 @@ private:
  MonitorElement* reportSummaryMap;  TH2F* h_reportSummaryMap;
  MonitorElement* overallStatus;
  double fraction;
-
- 
 
 };
 
