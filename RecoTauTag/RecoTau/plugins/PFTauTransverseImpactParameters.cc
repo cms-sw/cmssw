@@ -23,6 +23,7 @@
 #include "TrackingTools/Records/interface/TransientTrackRecord.h"
 #include "RecoVertex/VertexPrimitives/interface/TransientVertex.h"
 #include "RecoVertex/AdaptiveVertexFit/interface/AdaptiveVertexFitter.h"
+#include "RecoBTag/SecondaryVertex/interface/SecondaryVertex.h"
 
 #include "DataFormats/TauReco/interface/PFTau.h"
 #include "DataFormats/TauReco/interface/PFTauFwd.h"
@@ -129,7 +130,9 @@ void PFTauTransverseImpactParameters::produce(edm::Event& iEvent,const edm::Even
 	    cov(i,j)=SV.at(0)->covariance(i,j)+PV->covariance(i,j);
 	  }
 	}
-	reco::PFTauTransverseImpactParameter TIPV(poca,dxy,dxy_err,PV,v,SV.at(0));
+	GlobalVector direction(RefPFTau->px(),RefPFTau->py(),RefPFTau->pz());
+	double vSig = SecondaryVertex::computeDist3d(*PV,*SV.at(0),direction,true).significance();
+	reco::PFTauTransverseImpactParameter TIPV(poca,dxy,dxy_err,PV,v,vSig,SV.at(0));
 	reco::PFTauTransverseImpactParameterRef TIPVRef=reco::PFTauTransverseImpactParameterRef(TIPRefProd_out,TIPCollection_out->size());
         TIPCollection_out->push_back(TIPV);
         AVPFTauTIP->setValue(iPFTau,TIPVRef);
