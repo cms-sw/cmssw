@@ -1,7 +1,14 @@
 
 def customiseDefault(process):
-    process.pfTrack.TrajInEvents = cms.bool(True)
-    process.csc2DRecHits.readBadChannels = cms.bool(False)
+    if hasattr(process,'pfTrack'):
+        process.pfTrack.TrajInEvents = cms.bool(True)
+    if hasattr(process,'csc2DRecHits'):    
+        process.csc2DRecHits.readBadChannels = cms.bool(False)
+
+    if hasattr(process,'validation_step'):
+        process.validation_step.remove(process.HLTSusyExoVal)
+        process.validation_step.remove(process.hltHiggsValidator)
+        process.validation_step.remove(process.relvalMuonBits)
 
     process.trackerNumberingSLHCGeometry.layerNumberPXB = cms.uint32(20)
     process.trackerTopologyConstants.pxb_layerStartBit = cms.uint32(20)
