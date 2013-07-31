@@ -12,6 +12,8 @@ from SLHCUpgradeSimulations.Configuration.customise_mixing import customise_NoCr
 from SLHCUpgradeSimulations.Configuration.phase1TkCustoms import customise as customisePhase1Tk
 from SLHCUpgradeSimulations.Configuration.HCalCustoms import customise_HcalPhase1, customise_HcalPhase0
 from SLHCUpgradeSimulations.Configuration.gemCustoms import customise as customise_gem
+from SLHCUpgradeSimulations.Configuration.fastsimCustoms import customiseDefault as fastCustomiseDefault
+from SLHCUpgradeSimulations.Configuration.fastsimCustoms import customisePhase2 as fastCustomisePhase2
 
 import SLHCUpgradeSimulations.Configuration.aging as aging
 
@@ -315,3 +317,10 @@ def fixEcalConditions_3000(process):
         )
                                     )
     return process
+
+def fastsimDefault(process):
+    return fastCustomiseDefault(process)
+
+def fastsimPhase2(process):
+    return fastCustomisePhase2(process)
+
