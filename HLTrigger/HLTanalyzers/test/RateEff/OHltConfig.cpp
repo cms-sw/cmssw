@@ -12,6 +12,9 @@ OHltConfig::OHltConfig(TString cfgfile, OHltMenu *omenu)
    nEntries = -1;
    nPrintStatusEvery = 10000;
    isRealData= false;
+   isCounts= false;
+   isCondor= false;
+   isMCPUreweight = false;
    menuTag = "";
    preFilterLogicString = "";
    versionTag = "";
@@ -20,6 +23,8 @@ OHltConfig::OHltConfig(TString cfgfile, OHltMenu *omenu)
    useNonIntegerPrescales = false;
    readRefPrescalesFromNtuple = false;
    nonlinearPileupFit = "";
+   alcaCondition = "";
+   lumiBinsForPileupFit = 150;
    dsList = "";
    iLumi = 1.E31;
    bunchCrossingTime = 25.0E-09;
@@ -54,6 +59,9 @@ OHltConfig::OHltConfig(TString cfgfile, OHltMenu *omenu)
       cfg.lookupValue("run.nPrintStatusEvery",nPrintStatusEvery);
       cfg.lookupValue("run.isRealData",isRealData);
       omenu->SetIsRealData(isRealData);
+      cfg.lookupValue("run.isCounts",isCounts);
+      cfg.lookupValue("run.isCondor",isCondor);
+      cfg.lookupValue("run.isMCPUreweight",isMCPUreweight);
       cfg.lookupValue("run.menuTag",stmp); menuTag = TString(stmp);
       cfg.lookupValue("run.versionTag",stmp); versionTag = TString(stmp);
       cfg.lookupValue("run.doPrintAll",doPrintAll);
@@ -62,6 +70,8 @@ OHltConfig::OHltConfig(TString cfgfile, OHltMenu *omenu)
       cfg.lookupValue("run.useNonIntegerPrescales",useNonIntegerPrescales);
       cfg.lookupValue("run.readRefPrescalesFromNtuple",readRefPrescalesFromNtuple);
       cfg.lookupValue("run.nonlinearPileupFit",stmp); nonlinearPileupFit = TString(stmp);
+      cfg.lookupValue("run.alcaCondition",stmp); alcaCondition = TString(stmp);
+      cfg.lookupValue("run.lumiBinsForPileupFit",lumiBinsForPileupFit);
       cout << "General Menu & Run conditions...ok"<< endl;
       /**********************************/
 
@@ -108,8 +118,10 @@ OHltConfig::OHltConfig(TString cfgfile, OHltMenu *omenu)
          string lastChar=ppath.substr(ppath.size()-1);
          if (lastChar.compare("/") != 0 ) ppath.append("/");
 
+
          ppaths.push_back(TString(ppath));
-         stmp = fn[i];
+	 if (isCondor) stmp = getenv("INFILE");
+         else stmp = fn[i];
          pfnames.push_back(TString(stmp));
          ftmp = xs[i];
          psigmas.push_back(ftmp);
@@ -370,11 +382,13 @@ void OHltConfig::print()
          cout << "Luminosity scaled by: " << lumiScaleFactor << endl;
       cout << "PD prescale factor: " << prescaleNormalization << endl;
    }
+   cout << "isCounts: " << isCounts << endl;
    cout << "doPrintAll: " << doPrintAll << endl;
    cout << "doDeterministicPrescale: " << doDeterministicPrescale << endl;
    cout << "useNonIntegerPrescales: " << useNonIntegerPrescales << endl;
    cout << "readRefPrescalesFromNtuple: " << readRefPrescalesFromNtuple << endl;
    cout << "nonlinearPileupFit: " << nonlinearPileupFit << endl;
+   cout << "lumiBinsForPileupFit: " << lumiBinsForPileupFit << endl;
    cout << "preFilterLogicString: " << preFilterLogicString << endl;
    cout << "---------------------------------------------" << endl;
    cout << "iLumi: " << iLumi << endl;
