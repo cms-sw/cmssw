@@ -53,7 +53,6 @@
 #include "DQM/CastorMonitor/interface/CastorChannelQualityMonitor.h"
 #include "DQM/CastorMonitor/interface/CastorLEDMonitor.h"
 #include "DQM/CastorMonitor/interface/CastorPSMonitor.h"
-#include "DQM/CastorMonitor/interface/CastorEventDisplay.h"
 #include "DQM/CastorMonitor/interface/CastorHIMonitor.h"
 #include "DQM/CastorMonitor/interface/CastorDataIntegrityMonitor.h"
 #include "DQM/CastorMonitor/interface/CastorTowerJetMonitor.h"
@@ -71,7 +70,6 @@
 #include <vector>
 #include <string>
 #include <sys/time.h>
-
 
 
 
@@ -191,7 +189,6 @@ public:
   int ievt_pre_; //-- copy of counter used for prescale purposes
   bool fedsListed_;
   
-  //edm::InputTag inputLabelGT_;
   edm::InputTag inputLabelRaw_;
   edm::InputTag inputLabelReport_;
   edm::InputTag inputLabelDigi_;
@@ -203,13 +200,10 @@ public:
   edm::InputTag inputLabelCastorBasicJets_ ; 
   edm::InputTag inputLabelCastorJetIDs_ ; 
 
-
-
   ////---- define  CastorTowerCollection
   // typedef std::vector<reco::CastorTower> CastorTowerCollection;
-
-  //edm::InputTag inputLabelCaloTower_;
-  //edm::InputTag inputLabelLaser_;
+  // edm::InputTag inputLabelCaloTower_;
+  // edm::InputTag inputLabelLaser_;
 
   ////---- Maps of readout hardware unit to calorimeter channel
   std::map<uint32_t, std::vector<HcalCastorDetId> > DCCtoCell;
@@ -226,7 +220,7 @@ public:
   MonitorElement* meLatency_;
   MonitorElement* meQuality_;
   MonitorElement* CastorEventProduct;
-  
+ 
 
   ////---- define monitors
   CastorMonitorSelector*    evtSel_;
@@ -235,7 +229,6 @@ public:
   CastorDigiMonitor*        DigiMon_;
   CastorLEDMonitor*         LedMon_;
   CastorPSMonitor*          PSMon_;
-  CastorEventDisplay*       EDMon_;
   CastorHIMonitor*          HIMon_;
   CastorDataIntegrityMonitor* DataIntMon_;
   CastorTowerJetMonitor*     TowerJetMon_;
