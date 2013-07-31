@@ -12,6 +12,8 @@
  * =============================================================================
  */
 
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
 #include "RecoTauTag/RecoTau/interface/RecoTauBuilderPlugins.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
@@ -267,9 +269,17 @@ void PFRecoTauEnergyAlgorithmPlugin::operator()(PFTau& tau) const
       for ( std::vector<PFRecoTauChargedHadron>::const_iterator chargedHadron = chargedHadrons.begin();
 	    chargedHadron != chargedHadrons.end(); ++chargedHadron ) {
 	if ( chargedHadron->algoIs(PFRecoTauChargedHadron::kChargedPFCandidate) || chargedHadron->algoIs(PFRecoTauChargedHadron::kTrack) ) {
-	  const edm::Ptr<Track>& chargedHadronTrack = chargedHadron->getTrack();
-	  allTracksSumP += chargedHadronTrack->p();
-	  allTracksSumPerr2 += getTrackPerr2(*chargedHadronTrack);
+          const edm::Ptr<Track>& chargedHadronTrack = chargedHadron->getTrack();
+	  if ( chargedHadronTrack.isNonnull() ) { 
+	    allTracksSumP += chargedHadronTrack->p();
+	    allTracksSumPerr2 += getTrackPerr2(*chargedHadronTrack);
+	  } else {
+	    edm::LogWarning("PFRecoTauEnergyAlgorithmPlugin::operator()") 
+	      << "PFRecoTauChargedHadron has no associated reco::Track !!" << std::endl;
+	    if ( verbosity_ ) {
+	      chargedHadron->print();
+	    }
+	  }
 	}
       }
       if ( verbosity_ ) {
@@ -312,11 +322,20 @@ void PFRecoTauEnergyAlgorithmPlugin::operator()(PFTau& tau) const
 	  } else if ( chargedHadron.algoIs(PFRecoTauChargedHadron::kTrack) ) {
 	    PFRecoTauChargedHadron chargedHadron_modified = chargedHadron;
 	    chargedHadron_modified.neutralPFCandidates_.clear();
-	    const edm::Ptr<reco::Track>& track = chargedHadron.getTrack();
-	    double chargedHadronPx_modified = track->px();
-	    double chargedHadronPy_modified = track->py();
-	    double chargedHadronPz_modified = track->pz();
-	    reco::Candidate::LorentzVector chargedHadronP4_modified = compChargedHadronP4(chargedHadronPx_modified, chargedHadronPy_modified, chargedHadronPz_modified);
+	    reco::Candidate::LorentzVector chargedHadronP4_modified(0.,0.,0.,0.);
+	    const edm::Ptr<Track>& chargedHadronTrack = chargedHadron.getTrack();
+	    if ( chargedHadronTrack.isNonnull() ) { 
+	      double chargedHadronPx_modified = chargedHadronTrack->px();
+	      double chargedHadronPy_modified = chargedHadronTrack->py();
+	      double chargedHadronPz_modified = chargedHadronTrack->pz();
+	      chargedHadronP4_modified = compChargedHadronP4(chargedHadronPx_modified, chargedHadronPy_modified, chargedHadronPz_modified);
+	    } else {
+	      edm::LogWarning("PFRecoTauEnergyAlgorithmPlugin::operator()") 
+		<< "PFRecoTauChargedHadron has no associated reco::Track !!" << std::endl;
+	      if ( verbosity_ ) {
+		chargedHadron.print();
+	      }
+	    }
 	    chargedHadron_modified.setP4(chargedHadronP4_modified);
 	    if ( verbosity_ ) {
 	      std::cout << "chargedHadron #" << iChargedHadron << ": changing En = " << chargedHadron.energy() << " to " << chargedHadron_modified.energy() << std::endl;
@@ -339,31 +358,40 @@ void PFRecoTauEnergyAlgorithmPlugin::operator()(PFTau& tau) const
 	    if ( chargedHadron.algoIs(PFRecoTauChargedHadron::kChargedPFCandidate) || chargedHadron.algoIs(PFRecoTauChargedHadron::kTrack) ) {
 	      PFRecoTauChargedHadron chargedHadron_modified = chargedHadron;
 	      chargedHadron_modified.neutralPFCandidates_.clear();
-	      const edm::Ptr<Track>& track = chargedHadron.getTrack();
-	      double trackP = track->p();
-	      double trackPerr2 = getTrackPerr2(*track);	  
-	      if ( verbosity_ ) {
-		std::cout << "trackP = " << trackP << " +/- " << sqrt(trackPerr2) << std::endl;
-	      }
-	      // CV: adjust track momenta such that difference beeen (measuredTrackP - adjustedTrackP)/sigmaMeasuredTrackP is minimal
-	      //    (expression derived using Mathematica)
-	      double trackP_modified = 
-                (trackP*(allTracksSumPerr2 - trackPerr2) 
-               + trackPerr2*(allNeutralsSumEn - (allTracksSumP - trackP)))/
-                allTracksSumPerr2;
-	      // CV: trackP_modified may actually become negative in case sum of energy deposits in ECAL + HCAL + HO is small
-	      //     and one of the tracks has a significantly larger momentum uncertainty than the other tracks.
-	      //     In this case set track momentum to small positive value.
-	      if ( trackP_modified < 1.e-1 ) trackP_modified = 1.e-1;
-	      if ( verbosity_ ) {
-		std::cout << "trackP (modified) = " << trackP_modified << std::endl;
-	      }
-	      double scaleFactor = trackP_modified/trackP;
-	      assert(scaleFactor >= 0. && scaleFactor <= 1.);
-	      double chargedHadronPx_modified = scaleFactor*track->px();
-	      double chargedHadronPy_modified = scaleFactor*track->py();
-	      double chargedHadronPz_modified = scaleFactor*track->pz();
-	      reco::Candidate::LorentzVector chargedHadronP4_modified = compChargedHadronP4(chargedHadronPx_modified, chargedHadronPy_modified, chargedHadronPz_modified);
+	      reco::Candidate::LorentzVector chargedHadronP4_modified(0.,0.,0.,0.);
+	      const edm::Ptr<Track>& chargedHadronTrack = chargedHadron.getTrack();
+	      if ( chargedHadronTrack.isNonnull() ) {  
+		double trackP = chargedHadronTrack->p();
+		double trackPerr2 = getTrackPerr2(*chargedHadronTrack);	  
+		if ( verbosity_ ) {
+		  std::cout << "trackP = " << trackP << " +/- " << sqrt(trackPerr2) << std::endl;
+		}
+		// CV: adjust track momenta such that difference beeen (measuredTrackP - adjustedTrackP)/sigmaMeasuredTrackP is minimal
+		//    (expression derived using Mathematica)
+		double trackP_modified = 
+                  (trackP*(allTracksSumPerr2 - trackPerr2) 
+                 + trackPerr2*(allNeutralsSumEn - (allTracksSumP - trackP)))/
+                  allTracksSumPerr2;
+	        // CV: trackP_modified may actually become negative in case sum of energy deposits in ECAL + HCAL + HO is small
+		//     and one of the tracks has a significantly larger momentum uncertainty than the other tracks.
+		//     In this case set track momentum to small positive value.
+		if ( trackP_modified < 1.e-1 ) trackP_modified = 1.e-1;
+		if ( verbosity_ ) {
+		  std::cout << "trackP (modified) = " << trackP_modified << std::endl;
+		}
+		double scaleFactor = trackP_modified/trackP;
+		assert(scaleFactor >= 0. && scaleFactor <= 1.);
+		double chargedHadronPx_modified = scaleFactor*chargedHadronTrack->px();
+		double chargedHadronPy_modified = scaleFactor*chargedHadronTrack->py();
+		double chargedHadronPz_modified = scaleFactor*chargedHadronTrack->pz();
+		chargedHadronP4_modified = compChargedHadronP4(chargedHadronPx_modified, chargedHadronPy_modified, chargedHadronPz_modified);
+	      } else {
+		edm::LogWarning("PFRecoTauEnergyAlgorithmPlugin::operator()") 
+		  << "PFRecoTauChargedHadron has no associated reco::Track !!" << std::endl;
+		if ( verbosity_ ) {
+		  chargedHadron.print();
+		}
+	      }	     
 	      chargedHadron_modified.setP4(chargedHadronP4_modified);
 	      if ( verbosity_ ) {
 		std::cout << "chargedHadron #" << iChargedHadron << ": changing En = " << chargedHadron.energy() << " to " << chargedHadron_modified.energy() << std::endl;
@@ -394,6 +422,9 @@ void PFRecoTauEnergyAlgorithmPlugin::operator()(PFTau& tau) const
   }
 
   // CV: You should never come here.
+  if ( verbosity_ ) {
+    std::cout << "undefined case: you should never come here !!" << std::endl;
+  }
   assert(0);
 }
 
