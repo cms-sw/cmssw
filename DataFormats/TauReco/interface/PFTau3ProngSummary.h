@@ -32,7 +32,6 @@ namespace reco {
      typedef math::XYZPoint Point;
      typedef math::XYZVector Vector;
 
-
      /// constructor from values
      PFTau3ProngSummary();
      PFTau3ProngSummary(reco::PFTauTransverseImpactParameterRef TIP,TLorentzVector a1,double vertex_chi2,double vertex_ndf);
