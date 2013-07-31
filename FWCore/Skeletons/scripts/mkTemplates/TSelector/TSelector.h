@@ -2,7 +2,7 @@
 #define __subsys_____pkgname_____class___h
 // -*- C++ -*-
 //
-// Package:    __pkgname__
+// Package:    __subsys__/__pkgname__
 // Class:      __class__
 // 
 /**\class __class__ __class__.h __subsys__/__pkgname__/plugins/__class__.h
@@ -15,7 +15,6 @@ Implementation:
 //
 // Original Author:  __author__
 //         Created:  __date__
-// __rcsid__
 //
 //
 #include <TH1.h>
