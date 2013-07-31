@@ -99,16 +99,6 @@ namespace edm {
   }
 
   void 
-  EDProducer::doRespondToOpenOutputFiles(FileBlock const& fb) {
-    respondToOpenOutputFiles(fb);
-  }
-
-  void
-  EDProducer::doRespondToCloseOutputFiles(FileBlock const& fb) {
-    respondToCloseOutputFiles(fb);
-  }
-
-  void 
   EDProducer::doPreForkReleaseResources() {
     preForkReleaseResources();
   }

@@ -153,20 +153,6 @@ namespace edm{
   template<typename T>
   inline
   void
-  WorkerT<T>::implRespondToOpenOutputFiles(FileBlock const& fb) {
-    module_->doRespondToOpenOutputFiles(fb);
-  }
-  
-  template<typename T>
-  inline
-  void
-  WorkerT<T>::implRespondToCloseOutputFiles(FileBlock const& fb) {
-    module_->doRespondToCloseOutputFiles(fb);
-  }
-  
-  template<typename T>
-  inline
-  void
   WorkerT<T>::implPreForkReleaseResources() {
     module_->doPreForkReleaseResources();
   }

@@ -76,8 +76,6 @@ namespace edm {
     virtual void implEndStream(StreamID) override;
     virtual void implRespondToOpenInputFile(FileBlock const& fb) override;
     virtual void implRespondToCloseInputFile(FileBlock const& fb) override;
-    virtual void implRespondToOpenOutputFiles(FileBlock const& fb) override;
-    virtual void implRespondToCloseOutputFiles(FileBlock const& fb) override;
     virtual void implPreForkReleaseResources() override;
     virtual void implPostForkReacquireResources(unsigned int iChildIndex, 
                                                unsigned int iNumberOfChildren) override;

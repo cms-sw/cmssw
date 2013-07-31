@@ -8,7 +8,6 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu, 02 May 2013 21:56:04 GMT
-// $Id$
 //
 
 // system include files
@@ -126,16 +125,6 @@ namespace edm {
     void
     EDFilterBase::doRespondToCloseInputFile(FileBlock const& fb) {
       //respondToCloseInputFile(fb);
-    }
-    
-    void
-    EDFilterBase::doRespondToOpenOutputFiles(FileBlock const& fb) {
-      //respondToOpenOutputFiles(fb);
-    }
-    
-    void
-    EDFilterBase::doRespondToCloseOutputFiles(FileBlock const& fb) {
-      //respondToCloseOutputFiles(fb);
     }
     
     void

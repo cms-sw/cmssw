@@ -92,16 +92,6 @@ namespace edm {
     respondToCloseInputFile(fb);
   }
 
-  void
-  EDAnalyzer::doRespondToOpenOutputFiles(FileBlock const& fb) {
-    respondToOpenOutputFiles(fb);
-  }
-
-  void
-  EDAnalyzer::doRespondToCloseOutputFiles(FileBlock const& fb) {
-    respondToCloseOutputFiles(fb);
-  }
-
   void 
   EDAnalyzer::doPreForkReleaseResources() {
     preForkReleaseResources();

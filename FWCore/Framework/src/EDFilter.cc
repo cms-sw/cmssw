@@ -95,16 +95,6 @@ namespace edm {
     respondToCloseInputFile(fb);
   }
 
-  void
-  EDFilter::doRespondToOpenOutputFiles(FileBlock const& fb) {
-    respondToOpenOutputFiles(fb);
-  }
-
-  void
-  EDFilter::doRespondToCloseOutputFiles(FileBlock const& fb) {
-    respondToCloseOutputFiles(fb);
-  }
-
   void 
   EDFilter::doPreForkReleaseResources() {
     preForkReleaseResources();
