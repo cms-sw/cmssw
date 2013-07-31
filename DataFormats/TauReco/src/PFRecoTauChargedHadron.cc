@@ -17,15 +17,6 @@ PFRecoTauChargedHadron::PFRecoTauChargedHadron(PFRecoTauChargedHadronAlgorithm a
   else if ( q < 0. ) this->setPdgId(-211); 
 }
 
-// PFRecoTauChargedHadron::PFRecoTauChargedHadron(Charge q, const LorentzVector& p4,
-// 					      PFRecoTauChargedHadronAlgorithm algo)
-//   : PFCandidate(q, p4, PFCandidate::h), 
-//     algo_(algo) 
-// { 
-//   if ( q > 0. ) this->setPdgId(+211); 
-//   else if ( q < 0. ) this->setPdgId(-211); 
-// }
-
 PFRecoTauChargedHadron::PFRecoTauChargedHadron(Charge q, const LorentzVector& p4,
 					       const Point& vtx,
 					       int status, bool integerCharge,
@@ -34,10 +25,8 @@ PFRecoTauChargedHadron::PFRecoTauChargedHadron(Charge q, const LorentzVector& p4
     algo_(algo) 
 { 
   if ( q > 0. ) this->setPdgId(+211); 
-  else if ( q < 0. ) this->setPdgId(-211); 
-  
+  else if ( q < 0. ) this->setPdgId(-211);   
 }
-
     
 PFRecoTauChargedHadron::PFRecoTauChargedHadron(const Candidate& c, PFRecoTauChargedHadronAlgorithm algo)
   : CompositePtrCandidate(c),
