@@ -36,7 +36,7 @@ namespace reco
     PFTauTransverseImpactParameter(){}
     /// constructor from values
     PFTauTransverseImpactParameter(const Point&, double, double, const VertexRef&);
-    PFTauTransverseImpactParameter(const Point&, double, double, const VertexRef&, const Point&, const VertexRef&);
+    PFTauTransverseImpactParameter(const Point&, double, double, const VertexRef&, const Point&, double, const VertexRef&);
     
     virtual ~PFTauTransverseImpactParameter(){}
     PFTauTransverseImpactParameter* clone() const;
@@ -63,6 +63,7 @@ namespace reco
     VertexRef  PV_;
     bool       hasSV_;
     Vector     FlightLength_;
+    double     FlightLengthSig_;
     VertexRef  SV_;    
   };
 }
