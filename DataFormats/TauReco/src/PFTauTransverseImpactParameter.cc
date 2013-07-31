@@ -10,17 +10,19 @@ PFTauTransverseImpactParameter::PFTauTransverseImpactParameter(const Point& pca,
     dxy_(thedxy),
     dxy_error_(thedxy_error),
     PV_(PV),
-    hasSV_(false)
+    hasSV_(false),
+    FlightLengthSig_(0.)
 {}
 
 PFTauTransverseImpactParameter::PFTauTransverseImpactParameter(const Point& pca, double thedxy, double thedxy_error, const VertexRef& PV,
-							       const Point& theFlightLength, const VertexRef& SV)
+							       const Point& theFlightLength, double theFlightLengthSig, const VertexRef& SV)
   : pca_(pca),
     dxy_(thedxy),
     dxy_error_(thedxy_error),
     PV_(PV),
     hasSV_(true),
     FlightLength_(theFlightLength),
+    FlightLengthSig_(theFlightLengthSig),
     SV_(SV)
 {}
 
@@ -53,10 +55,13 @@ const PFTauTransverseImpactParameter::Vector& PFTauTransverseImpactParameter::fl
 
 double PFTauTransverseImpactParameter::flightLengthSig() const{
   if ( hasSV_ ) {
-    VertexDistance3D vtxdist;
-    return vtxdist.distance(*PV_, *SV_).significance(); // transforms using the jacobian then computes distance/uncertainty 
+    //std::cout << "<PFTauTransverseImpactParameter::flightLengthSig>:" << std::endl;
+    //VertexDistance3D vtxdist;
+    //std::cout << "oldValue = " << vtxdist.distance(*PV_, *SV_).significance() << std::endl; // transforms using the jacobian then computes distance/uncertainty 
+    //std::cout << "newValue = " << FlightLengthSig_ << std::endl;
+    return FlightLengthSig_;
   }
-  return -1.;
+  return -9.9;
 }
 
 PFTauTransverseImpactParameter::Point PFTauTransverseImpactParameter::secondaryVertexPos() const{ 
