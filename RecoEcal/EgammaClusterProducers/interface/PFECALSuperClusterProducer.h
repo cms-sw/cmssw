@@ -53,8 +53,8 @@ class PFECALSuperClusterProducer : public edm::EDProducer {
   /// verbose ?
   bool   verbose_;
   
-  edm::InputTag    inputTagPFClusters_;
-  edm::InputTag    inputTagPFClustersES_;
+  edm::EDGetTokenT<edm::View<reco::PFCluster> >   inputTagPFClusters_;
+  edm::EDGetTokenT<edm::View<reco::PFCluster> >   inputTagPFClustersES_;
 
   std::string PFBasicClusterCollectionBarrel_;
   std::string PFSuperClusterCollectionBarrel_;

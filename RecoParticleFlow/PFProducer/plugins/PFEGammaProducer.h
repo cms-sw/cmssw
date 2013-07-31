@@ -25,6 +25,9 @@
 #include "DataFormats/CaloRecHit/interface/CaloClusterFwd.h"
 #include "DataFormats/CaloRecHit/interface/CaloCluster.h"
 
+#include "DataFormats/ParticleFlowReco/interface/PFBlockFwd.h"
+#include "DataFormats/ParticleFlowReco/interface/PFBlock.h"
+
 #include <memory>
 
 class PFEGammaAlgo;
@@ -91,10 +94,9 @@ class PFEGammaProducer : public edm::EDProducer {
 			     const GBRForest *PFEcalResolution
 			     );   
   
-  edm::InputTag  inputTagBlocks_;
-  edm::InputTag eetopsSrc_;
-  edm::InputTag  vertices_;
-  edm::InputTag  inputTagEgammaElectrons_;
+  edm::EDGetTokenT<reco::PFBlockCollection>  inputTagBlocks_;
+  edm::EDGetTokenT<reco::SuperCluster::EEtoPSAssociation> eetopsSrc_;
+  edm::EDGetTokenT<reco::VertexCollection>  vertices_;
 
   //Use of HO clusters and links in PF Reconstruction
 

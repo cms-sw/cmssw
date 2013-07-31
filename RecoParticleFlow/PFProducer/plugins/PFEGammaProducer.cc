@@ -16,8 +16,7 @@
 #include "DataFormats/ParticleFlowReco/interface/PFRecHit.h"
 #include "DataFormats/ParticleFlowReco/interface/PFBlockElementSuperClusterFwd.h"
 #include "DataFormats/ParticleFlowReco/interface/PFBlockElementSuperCluster.h"
-#include "DataFormats/ParticleFlowReco/interface/PFBlockFwd.h"
-#include "DataFormats/ParticleFlowReco/interface/PFBlock.h"
+
 #include "DataFormats/Common/interface/RefToPtr.h"
 #include <sstream>
 
@@ -47,9 +46,9 @@ PFEGammaProducer::PFEGammaProducer(const edm::ParameterSet& iConfig) {
   
 
   inputTagBlocks_ 
-    = iConfig.getParameter<edm::InputTag>("blocks");
+    = consumes<reco::PFBlockCollection>(iConfig.getParameter<edm::InputTag>("blocks"));
 
-  eetopsSrc_ = iConfig.getParameter<edm::InputTag>("EEtoPS_source");
+  eetopsSrc_ = consumes<reco::SuperCluster::EEtoPSAssociation>(iConfig.getParameter<edm::InputTag>("EEtoPS_source"));
 
   usePhotonReg_
     =  iConfig.getParameter<bool>("usePhotonReg");
@@ -190,7 +189,7 @@ PFEGammaProducer::PFEGammaProducer(const edm::ParameterSet& iConfig) {
 		    sumPtTrackIsoSlopeForPhoton);  
 
   //MIKE: Vertex Parameters
-  vertices_ = iConfig.getParameter<edm::InputTag>("vertexCollection");
+  vertices_ = consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("vertexCollection"));
 
   verbose_ = 
     iConfig.getUntrackedParameter<bool>("verbose",false);
@@ -258,12 +257,12 @@ PFEGammaProducer::produce(edm::Event& iEvent,
     
   // Get the EE-PS associations
   edm::Handle<reco::SuperCluster::EEtoPSAssociation> eetops;
-  iEvent.getByLabel(eetopsSrc_,eetops);
+  iEvent.getByToken(eetopsSrc_,eetops);
 
   // Get The vertices from the event
   // and assign dynamic vertex parameters
   edm::Handle<reco::VertexCollection> vertices;
-  bool gotVertices = iEvent.getByLabel(vertices_,vertices);
+  bool gotVertices = iEvent.getByToken(vertices_,vertices);
   if(!gotVertices) {
     std::ostringstream err;
     err<<"Cannot find vertices for this event.Continuing Without them ";
@@ -278,12 +277,13 @@ PFEGammaProducer::produce(edm::Event& iEvent,
   edm::Handle< reco::PFBlockCollection > blocks;
 
   LOGDRESSED("PFEGammaProducer")<<"getting blocks"<<std::endl;
-  bool found = iEvent.getByLabel( inputTagBlocks_, blocks );  
+  bool found = iEvent.getByToken( inputTagBlocks_, blocks );  
 
   if(!found ) {
 
     std::ostringstream err;
-    err<<"cannot find blocks: "<<inputTagBlocks_;
+    err<<"cannot find blocks: (tag index)"
+       << std::hex<< inputTagBlocks_.index() << std::dec;
     edm::LogError("PFEGammaProducer")<<err.str()<<std::endl;
     
     throw cms::Exception( "MissingProduct", err.str());
