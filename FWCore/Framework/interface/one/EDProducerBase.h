@@ -16,7 +16,6 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu, 02 May 2013 21:21:21 GMT
-// $Id$
 //
 
 // system include files
@@ -71,8 +70,6 @@ namespace edm {
       //For now, the following are just dummy implemenations with no ability for users to override
       void doRespondToOpenInputFile(FileBlock const& fb);
       void doRespondToCloseInputFile(FileBlock const& fb);
-      void doRespondToOpenOutputFiles(FileBlock const& fb);
-      void doRespondToCloseOutputFiles(FileBlock const& fb);
       void doPreForkReleaseResources();
       void doPostForkReacquireResources(unsigned int iChildIndex, unsigned int iNumberOfChildren);
 

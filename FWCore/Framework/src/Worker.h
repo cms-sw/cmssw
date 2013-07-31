@@ -74,8 +74,6 @@ namespace edm {
     void endStream(StreamID id);
     void respondToOpenInputFile(FileBlock const& fb) {implRespondToOpenInputFile(fb);}
     void respondToCloseInputFile(FileBlock const& fb) {implRespondToCloseInputFile(fb);}
-    void respondToOpenOutputFiles(FileBlock const& fb) {implRespondToOpenOutputFiles(fb);}
-    void respondToCloseOutputFiles(FileBlock const& fb) {implRespondToCloseOutputFiles(fb);}
 
     void preForkReleaseResources() {implPreForkReleaseResources();}
     void postForkReacquireResources(unsigned int iChildIndex, unsigned int iNumberOfChildren) {implPostForkReacquireResources(iChildIndex, iNumberOfChildren);}
@@ -151,8 +149,6 @@ namespace edm {
   private:
     virtual void implRespondToOpenInputFile(FileBlock const& fb) = 0;
     virtual void implRespondToCloseInputFile(FileBlock const& fb) = 0;
-    virtual void implRespondToOpenOutputFiles(FileBlock const& fb) = 0;
-    virtual void implRespondToCloseOutputFiles(FileBlock const& fb) = 0;
 
     virtual void implPreForkReleaseResources() = 0;
     virtual void implPostForkReacquireResources(unsigned int iChildIndex,

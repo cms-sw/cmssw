@@ -49,8 +49,6 @@ namespace edm {
 
     virtual void respondToOpenInputFile() = 0;
     virtual void respondToCloseInputFile() = 0;
-    virtual void respondToOpenOutputFiles() = 0;
-    virtual void respondToCloseOutputFiles() = 0;
 
     virtual void startingNewLoop() = 0;
     virtual bool endOfLoop() = 0;

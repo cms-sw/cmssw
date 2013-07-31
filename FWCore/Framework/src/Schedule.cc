@@ -1248,14 +1248,6 @@ namespace edm {
     for_all(allWorkers(), boost::bind(&Worker::respondToCloseInputFile, _1, boost::cref(fb)));
   }
 
-  void Schedule::respondToOpenOutputFiles(FileBlock const& fb) {
-    for_all(allWorkers(), boost::bind(&Worker::respondToOpenOutputFiles, _1, boost::cref(fb)));
-  }
-
-  void Schedule::respondToCloseOutputFiles(FileBlock const& fb) {
-    for_all(allWorkers(), boost::bind(&Worker::respondToCloseOutputFiles, _1, boost::cref(fb)));
-  }
-
   void Schedule::beginJob(ProductRegistry const& iRegistry) {
     workerManager_.beginJob(iRegistry);
   }
