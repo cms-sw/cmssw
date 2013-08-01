@@ -1,6 +1,6 @@
 // -*- C++ -*-
 //
-// Package:     __pkgname__
+// Package:     __subsys__/__pkgname__
 // Class  :     __class__
 // 
 // Implementation:
@@ -8,7 +8,6 @@
 //
 // Author:      __author__
 // Created:     __date__
-// __rcsid__
 
 #include "__subsys__/__pkgname__/interface/__class__.h"
 #include "FWCore/Framework/interface/eventsetuprecord_registration_macro.h"
