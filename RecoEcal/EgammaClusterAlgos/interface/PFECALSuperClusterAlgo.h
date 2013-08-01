@@ -73,6 +73,8 @@ class PFECALSuperClusterAlgo {
 
   void setEnergyWeighting(energy_weight thetype) { _eweight = thetype; } 
 
+  void setUseETForSeeding(bool useET) { threshIsET_ = useET; } 
+
   void setUseDynamicDPhi(bool useit) { _useDynamicDPhi = useit; } 
 
   void setThreshPFClusterSeedBarrel(double thresh){ threshPFClusterSeedBarrel_ = thresh;}
@@ -149,7 +151,8 @@ class PFECALSuperClusterAlgo {
   bool _useDynamicDPhi;
 
   bool applyCrackCorrections_;
-  
+  bool threshIsET_;
+
   bool usePS;
 
 };

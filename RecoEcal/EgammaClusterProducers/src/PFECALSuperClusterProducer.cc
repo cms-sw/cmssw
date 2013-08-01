@@ -60,7 +60,8 @@ PFECALSuperClusterProducer::PFECALSuperClusterProducer(const edm::ParameterSet& 
   
 
   // parameters for clustering
-  
+  bool seedThresholdIsET = iConfig.getParameter<bool>("seedThresholdIsET");
+
   bool useDynamicDPhi = iConfig.getParameter<bool>("useDynamicDPhiWindow");
 
   double threshPFClusterSeedBarrel = iConfig.getParameter<double>("thresh_PFClusterSeedBarrel");
@@ -90,6 +91,7 @@ PFECALSuperClusterProducer::PFECALSuperClusterProducer(const edm::ParameterSet& 
   superClusterAlgo_.setVerbosityLevel(verbose_);
   superClusterAlgo_.setClusteringType(_theclusteringtype);
   superClusterAlgo_.setEnergyWeighting(_theenergyweight);
+  superClusterAlgo_.setUseETForSeeding(seedThresholdIsET);
   superClusterAlgo_.setUseDynamicDPhi(useDynamicDPhi);
 
   superClusterAlgo_.setThreshPFClusterSeedBarrel( threshPFClusterSeedBarrel );

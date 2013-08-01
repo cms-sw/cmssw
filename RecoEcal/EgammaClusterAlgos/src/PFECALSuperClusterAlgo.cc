@@ -70,10 +70,14 @@ namespace {
   };
 
   struct IsASeed : public ClusUnaryFunction {
-    double threshold;
-    IsASeed(double thresh) : threshold(thresh) {}
-    bool operator()(const CalibClusterPtr& x) { 
-      return x->energy() > threshold; 
+    const double threshold;
+    const bool cutET;
+    IsASeed(double thresh, bool useETcut = false) : 
+      threshold(thresh), cutET(useETcut) {}
+    bool operator()(const CalibClusterPtr& x) {
+      double e_or_et = x->energy();
+      if( cutET )  e_or_et /= std::cosh(x->eta());
+      return e_or_et > threshold; 
     }
   };
 
@@ -269,7 +273,7 @@ void PFECALSuperClusterAlgo::run() {
 void PFECALSuperClusterAlgo::
 buildAllSuperClusters(CalibClusterPtrVector& clusters,
 		      double seedthresh) {
-  IsASeed seedable(seedthresh);
+  IsASeed seedable(seedthresh,threshIsET_);
   // make sure only seeds appear at the front of the list of clusters
   std::stable_partition(clusters.begin(),clusters.end(),seedable);
   // in each iteration we are working on a list that is already sorted

@@ -25,12 +25,15 @@ particleFlowSuperClusterECALBox = cms.EDProducer(
 
     #use preshower ?
     use_preshower = cms.bool(True),
+
+    # are the seed thresholds Et or Energy?
+    seedThresholdIsET = cms.bool(False),
     
     # threshold in ECAL
     thresh_PFClusterSeedBarrel = cms.double(3.0),
     thresh_PFClusterBarrel = cms.double(0.5),
 
-    thresh_PFClusterSeedEndcap = cms.double(3.0),
+    thresh_PFClusterSeedEndcap = cms.double(5.0),
     thresh_PFClusterEndcap = cms.double(0.5),
 
     # window width in ECAL
@@ -82,14 +85,17 @@ particleFlowSuperClusterECALMustache = cms.EDProducer(
     #use preshower ?
     use_preshower = cms.bool(True),
 
+    # are the seed thresholds Et or Energy?
+    seedThresholdIsET = cms.bool(False),
+
     # threshold in ECAL
     thresh_PFClusterSeedBarrel = cms.double(3.0),
     thresh_PFClusterBarrel = cms.double(0.0),
 
-    thresh_PFClusterSeedEndcap = cms.double(3.0),
+    thresh_PFClusterSeedEndcap = cms.double(5.0),
     thresh_PFClusterEndcap = cms.double(0.0),
 
-    # window width in ECAL
+    # window width in ECAL ( these don't mean anything for Mustache )
     phiwidth_SuperClusterBarrel = cms.double(0.6),
     etawidth_SuperClusterBarrel = cms.double(0.04),
 
