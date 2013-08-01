@@ -154,8 +154,8 @@ public:
    std::vector<double> prescaleCount;
    std::vector<double> prescaleCountL1;
 
-   std::vector< std::vector<double> > perLumiSectionCount;
-   std::vector<double> perLumiSectionTotCount;
+   std::vector< std::vector<int> > perLumiSectionCount;
+   std::vector<int> perLumiSectionTotCount;
    std::vector< std::vector<int> > perLumiSectionRefPrescale;
    std::vector< std::vector<int> > perLumiSectionRefL1Prescale;
    std::vector<int> runID;
