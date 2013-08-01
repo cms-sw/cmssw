@@ -65,3 +65,11 @@ BaseMatcher::propagateToZ(float z) const
   GlobalVector inner_vec (trk_.momentum().x(), trk_.momentum().y(), trk_.momentum().z());
   return propagateToZ(inner_point, inner_vec, z);
 }
+
+GlobalPoint
+BaseMatcher::propagatedPositionGEM() const
+{
+  const double eta(trk().momentum().eta());
+  const int endcap( (eta > 0.) ? 1 : -1);
+  return propagateToZ(endcap*AVERAGE_GEM_Z);
+}

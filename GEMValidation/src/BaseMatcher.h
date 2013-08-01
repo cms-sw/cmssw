@@ -63,6 +63,9 @@ public:
   /// propagation for a track starting from a vertex
   GlobalPoint propagateToZ(float z) const;
 
+  /// propagate the track to average GEM z-position                                                                            
+  GlobalPoint propagatedPositionGEM() const;
+
 private:
 
   const SimTrack& trk_;
