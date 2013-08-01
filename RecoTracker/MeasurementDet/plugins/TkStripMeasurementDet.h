@@ -124,6 +124,7 @@ public:
     for(auto vl : vlv) {
       auto && recHit  = TSiStripRecHit2DLocalPos::build( vl.first, vl.second, &fastGeomDet(), cluster, cpe()); 
       std::pair<bool,double> diffEst = est.estimate(ltp, *recHit);
+      LogDebug("TkStripMeasurementDet")<<" chi2=" << diffEst.second;
       if ( diffEst.first ) {
 	result.push_back(std::move(recHit));
 	diffs.push_back(diffEst.second);
