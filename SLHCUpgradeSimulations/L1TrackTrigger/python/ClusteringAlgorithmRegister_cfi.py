@@ -13,7 +13,7 @@ ClusteringAlgorithm_a_PixelDigi_ = cms.ESProducer("ClusteringAlgorithm_a_PixelDi
 #    WidthCut = cms.int32(3)
 #)  
 ClusteringAlgorithm_broadside_PixelDigi_ = cms.ESProducer("ClusteringAlgorithm_broadside_PixelDigi_",
-    WidthCut = cms.int32(3)
+    WidthCut = cms.int32(4)
 )
 
 # 2d clustering algorithm

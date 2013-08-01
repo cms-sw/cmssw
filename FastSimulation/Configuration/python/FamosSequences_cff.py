@@ -2,6 +2,10 @@ import FWCore.ParameterSet.Config as cms
 
 from FastSimulation.Configuration.CommonInputs_cff import *
 
+# Switch between normal mode and Phase 2 Upgrades studies
+simulationType = 'phase2' # 'normal' and 'phase2'
+from FastSimulation.Configuration.simulationSwitch_cff import *
+
 # Conversion to GenParticleCandidates 
 from PhysicsTools.HepMCCandAlgos.genParticleCandidatesFast_cfi import *
 
@@ -14,7 +18,10 @@ from PhysicsTools.HepMCCandAlgos.genParticleCandidatesFast_cfi import *
 from FastSimulation.EventProducer.FamosSimHits_cff import *
 
 # Gaussian Smearing RecHit producer
-from FastSimulation.TrackingRecHitProducer.SiTrackerGaussianSmearingRecHitConverter_cfi import *
+if(simulationType=='phase2'):
+    from FastSimulation.TrackingRecHitProducer.SiTrackerGaussianSmearingRecHitConverter_Phase2_cfi import *
+else: 
+    from FastSimulation.TrackingRecHitProducer.SiTrackerGaussianSmearingRecHitConverter_cfi import *
 
 # Rec Hit Tranlator to the Full map with DeTId'
 from FastSimulation.TrackingRecHitProducer.TrackingRecHitTranslator_cfi import *
@@ -36,7 +43,11 @@ from FastSimulation.Tracking.GSTrackFinalFitCommon_cff import *
 # this one is added before 340pre3 to cope with adding SiPixelTemplateDBObjectESProducer and corresponding objects to the ConfDB (MC_3XY_V11, STARTUP3X_V10)
 from CalibTracker.SiPixelESProducers.SiPixelTemplateDBObjectESProducer_cfi import *
 from FastSimulation.Tracking.GlobalPixelTracking_cff import *
-from FastSimulation.Tracking.IterativeTracking_cff import *
+if(simulationType=='phase2'):
+    from FastSimulation.Tracking.IterativeTracking_Phase2_cff import *
+else: 
+    from FastSimulation.Tracking.IterativeTracking_Phase2_cff import *
+#    from FastSimulation.Tracking.IterativeTracking_cff import *
 
 # Calo RecHits producer (with no HCAL miscalibration by default)
 from FastSimulation.CaloRecHitsProducer.CaloRecHits_cff import *
@@ -190,12 +201,17 @@ electronGsfTracks.TrajectoryInEvent = True
 # PF related electron sequences defined in FastSimulation.ParticleFlow.ParticleFlowFastSim_cff
 from RecoEgamma.ElectronIdentification.electronIdSequence_cff import *
 
-iterativeTrackingBeginning = cms.Sequence(
-    iterativeInitialSeeds+
-    iterativePixelPairSeeds+
-    iterativeMixedTripletStepSeeds+
-    iterativePixelLessSeeds
-    )
+if(simulationType=='phase2'):
+    iterativeTrackingBeginning = cms.Sequence(
+        iterativeInitialSeeds
+        )
+else:
+    iterativeTrackingBeginning = cms.Sequence(
+        iterativeInitialSeeds+
+        iterativePixelPairSeeds+
+        iterativeMixedTripletStepSeeds+
+        iterativePixelLessSeeds
+        )
 
 famosGsfTrackSequence = cms.Sequence(
     iterativeTrackingBeginning+ 

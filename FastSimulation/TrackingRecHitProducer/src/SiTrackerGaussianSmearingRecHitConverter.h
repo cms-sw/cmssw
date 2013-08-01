@@ -97,6 +97,13 @@ class SiTrackerGaussianSmearingRecHitConverter : public edm::EDProducer
   edm::ParameterSet pset_;
   double deltaRaysPCut; // GeV/c
   bool trackingPSimHits; // in case it is true make RecHit = replica of PSimHit without errors (1 um)
+  bool trackingPSimHitsEqualSmearing; // if true, read the following two parameters:
+  double localPositionResolution_x; // cm
+  double localPositionResolution_y; // cm
+  std::vector<double> localPositionResolutionBar_x; // cm
+  std::vector<double> localPositionResolutionBar_y; // cm
+  std::vector<double> localPositionResolutionFwd_x; // cm
+  std::vector<double> localPositionResolutionFwd_y; // cm
   //
   bool doMatching;
   bool doDisableChannels;

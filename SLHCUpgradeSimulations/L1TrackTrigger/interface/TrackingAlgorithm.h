@@ -172,7 +172,7 @@ void TrackingAlgorithm< T >::FitTrack( L1TkTrack< T > &seed ) const
 
       double dPhi_dRInv      = - 0.5 * ( stubZ - seedZ0 ) / ( seedCotTheta0 );
       double dPhi_dPhi0      = 1;
-      double dPhi_dCotTheta0 = - 0.5 * seedRInv * ( stubZ - seedZ0 ) / ( seedCotTheta0 * seedCotTheta0 ); 
+      double dPhi_dCotTheta0 = 0.5 * seedRInv * ( stubZ - seedZ0 ) / ( seedCotTheta0 * seedCotTheta0 ); 
       double dPhi_dZ0        = 0.5 * seedRInv / seedCotTheta0;
 
       /// Transverse plane
@@ -418,7 +418,9 @@ void TrackingAlgorithm< T >::FitTrack( L1TkTrack< T > &seed ) const
   double mMagneticField = this->ReturnMagneticField();
 
   double newPt = fabs( mMagneticField*0.003 / newRInv );
-  seed.setMomentum( GlobalVector( newPt*cos(newPhi0), newPt*sin(newPhi0), newPt*newCotTheta0 ) );
+  seed.setMomentum( GlobalVector( newPt*cos(newPhi0),
+                                  newPt*sin(newPhi0),
+                                  newPt*newCotTheta0 ) );
   seed.setVertex( GlobalPoint( 0, 0, seedZ0 + dZ0 ) );
   seed.setRInv( newRInv );
   seed.setChi2( chiSquare );

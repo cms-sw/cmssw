@@ -127,8 +127,8 @@ def customise_Digi(process):
         process.simHcalDigis.useConfigZSvalues=cms.int32(1)
         process.simHcalDigis.HBlevel=cms.int32(16)
         process.simHcalDigis.HElevel=cms.int32(16)
-        process.simHcalDigis.HOlevel=cms.int32(16)
-        process.simHcalDigis.HFlevel=cms.int32(16)
+        process.simHcalDigis.HOlevel=cms.int32(8)
+        process.simHcalDigis.HFlevel=cms.int32(10)
 
     process.digitisation_step.remove(process.simHcalTriggerPrimitiveDigis)
     process.digitisation_step.remove(process.simHcalTTPDigis)

@@ -6,6 +6,7 @@
 // this is needed to get errors from templates
 #include "RecoLocalTracker/SiPixelRecHits/interface/SiPixelTemplate.h"
 #include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
+#include "DataFormats/SiPixelDetId/interface/PXFDetId.h"
 #include "DataFormats/DetId/interface/DetId.h"
 
 
@@ -53,6 +54,10 @@ PixelCPEGeneric::PixelCPEGeneric(edm::ParameterSet const & conf,
   IrradiationBiasCorrection_ = conf.getParameter<bool>("IrradiationBiasCorrection");
   DoCosmics_                 = conf.getParameter<bool>("DoCosmics");
   LoadTemplatesFromDB_       = conf.getParameter<bool>("LoadTemplatesFromDB");
+  // First layer/disk number used in Phase2 Tracker
+  Phase2BPixStart_ = (conf.exists("Phase2BPixStart")?conf.getParameter<int>("Phase2BPixStart"):5);
+  Phase2FPixStart_ = (conf.exists("Phase2FPixStart")?conf.getParameter<int>("Phase2FPixStart"):4);
+  //std::cout <<"\n\nSetting up PixLocalReco with Phase2 trackers starting at Layer "<<Phase2BPixStart_<<" and Disk "<<Phase2FPixStart_<<"\n\n";
 
   if ( !UseErrorsFromTemplates_ && ( TruncatePixelCharge_       || 
 				     IrradiationBiasCorrection_ || 
@@ -623,7 +628,7 @@ PixelCPEGeneric::localError( const SiPixelCluster& cluster,
 		else yerr=yerr_barrel_l1_def_;
 	      }
 	  }
-	  else{
+	  else if (layer<Phase2BPixStart_) {
 	    if ( !edgex )
 	      {
 		if ( sizex<=xerr_barrel_ln_.size() ) xerr=xerr_barrel_ln_[sizex-1];
@@ -636,20 +641,31 @@ PixelCPEGeneric::localError( const SiPixelCluster& cluster,
 		else yerr=yerr_barrel_ln_def_;
 	      }
 	  }
+	  else {
+		xerr=thePitchX / sqrt( 12.0f );
+		yerr=thePitchY / sqrt( 12.0f );
+	  }
 	} 
       else // EndCap
-	{
-	  if ( !edgex )
+	{ 
+          DetId id = (det.geographicalId());
+          int disk = PXFDetId(id).disk();
+	  if ( !edgex && disk<Phase2FPixStart_)
 	    {
 	      if ( sizex<=xerr_endcap_.size() ) xerr=xerr_endcap_[sizex-1];
 	      else xerr=xerr_endcap_def_;
 	    }
 	
-	  if ( !edgey )
+	  if ( !edgey && disk<Phase2FPixStart_)
 	    {
 	      if ( sizey<=yerr_endcap_.size() ) yerr=yerr_endcap_[sizey-1];
 	      else yerr=yerr_endcap_def_;
 	    }
+          else {
+                xerr=thePitchX / sqrt( 12.0f );
+                yerr=thePitchY / sqrt( 12.0f );
+          }
+
 	}
 
     } // if ( !with_track_angle )

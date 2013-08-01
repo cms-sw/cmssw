@@ -125,6 +125,8 @@ void L1TkTrackBuilder< T >::produce( edm::Event& iEvent, const edm::EventSetup& 
   } /// End AM workflow
   else
   {
+    /// Tracklet-based approach
+
     /// Create the Seeds and map the Stubs per Sector/Wedge
     std::vector< L1TkTrack< T > > theseSeeds;
     std::map< std::pair< unsigned int, unsigned int >, std::vector< edm::Ptr< L1TkStub< T > > > > *stubSectorWedgeMap;
@@ -150,7 +152,7 @@ void L1TkTrackBuilder< T >::produce( edm::Event& iEvent, const edm::EventSetup& 
       L1TkTracksSeedsForOutput->push_back( curSeed );
 
       /// Find the sector and the stubs to be attached
-      unsigned int curSector0 = curSeed.getSector() + nSectors;
+      unsigned int curSector0 = curSeed.getSector() + nSectors; /// This is to use the %nSectors later
       unsigned int curWedge0 = curSeed.getWedge();
 
       /// Loop over the sector and its two neighbors
@@ -215,6 +217,11 @@ void L1TkTrackBuilder< T >::produce( edm::Event& iEvent, const edm::EventSetup& 
       /// Check if they are the same track
       if ( L1TkTracksForOutput->at(i).isTheSameAs( L1TkTracksForOutput->at(j) ) )
       {
+        /// Check they both have > 3 stubs
+        if ( L1TkTracksForOutput->at(i).getStubPtrs().size() < 3 ||
+             L1TkTracksForOutput->at(j).getStubPtrs().size() < 3 )
+          continue;
+
         /// Compare Chi2
         if ( L1TkTracksForOutput->at(i).getChi2() > L1TkTracksForOutput->at(j).getChi2() )
         {
