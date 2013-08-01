@@ -1,6 +1,8 @@
+gROOT->ProcessLine("effFunctions.C");
+
 /*
 
-.L effFunctions.C
+.L 
 
 "gem_csc_eff_pt2pt50_pad4.root"
 
