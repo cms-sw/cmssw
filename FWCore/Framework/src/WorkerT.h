@@ -47,6 +47,27 @@ namespace edm {
                               ProductHolderIndexHelper const&) override;
 
 
+    template<typename D>
+    void callWorkerBeginStream(D, StreamID);
+    template<typename D>
+    void callWorkerEndStream(D, StreamID);
+    template<typename D>
+    void callWorkerStreamBegin(D, StreamID id, RunPrincipal& rp,
+                               EventSetup const& c,
+                               CurrentProcessingContext const* cpc);
+    template<typename D>
+    void callWorkerStreamEnd(D, StreamID id, RunPrincipal& rp,
+                             EventSetup const& c,
+                             CurrentProcessingContext const* cpc);
+    template<typename D>
+    void callWorkerStreamBegin(D, StreamID id, LuminosityBlockPrincipal& rp,
+                               EventSetup const& c,
+                               CurrentProcessingContext const* cpc);
+    template<typename D>
+    void callWorkerStreamEnd(D, StreamID id, LuminosityBlockPrincipal& rp,
+                             EventSetup const& c,
+                             CurrentProcessingContext const* cpc);
+    
   protected:
     T& module() {return *module_;}
     T const& module() const {return *module_;}
