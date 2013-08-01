@@ -60,6 +60,16 @@ namespace
 
 
 }
+/*
+struct alct
+{
+  Int_t detId;
+  Short_t bx;
+  Float_t x, y;
+  Float_t g_r, g_eta, g_phi, g_x, g_y, g_z;
+  Float_t sdf;
+  }*/
+
 
 // ================================================================================================
 // class' constants
@@ -134,7 +144,7 @@ GEMCSCTriggerRate::GEMCSCTriggerRate(const edm::ParameterSet& iConfig):
   debugTFCAND   = iConfig.getUntrackedParameter<int>("debugTFCAND", 0);
   debugGMTCAND  = iConfig.getUntrackedParameter<int>("debugGMTCAND", 0);
   debugL1EXTRA  = iConfig.getUntrackedParameter<int>("debugL1EXTRA", 0);
-  debugRATE     = iConfig.getUntrackedParameter<int>("debugRATE", 0);
+  debugRATE     = iConfig.getUntrackedParameter<int>("debugRATE", 1);
 
   minSimTrPt_   = iConfig.getUntrackedParameter<double>("minSimTrPt", 2.);
   minSimTrPhi_  = iConfig.getUntrackedParameter<double>("minSimTrPhi",-3.15);
@@ -194,7 +204,7 @@ GEMCSCTriggerRate::GEMCSCTriggerRate(const edm::ParameterSet& iConfig):
   ParameterSet stripPSet = iConfig.getParameter<edm::ParameterSet>("strips");
   theStripConditions = new CSCDbStripConditions(stripPSet);
 
-  CSCTFSPset = iConfig.getParameter<edm::ParameterSet>("SectorProcessor");
+  CSCTFSPset = iConfig.getParameter<edm::ParameterSet>("sectorProcessor");
   ptLUTset = CSCTFSPset.getParameter<edm::ParameterSet>("PTLUT");
   edm::ParameterSet srLUTset = CSCTFSPset.getParameter<edm::ParameterSet>("SRLUT");
 
@@ -793,20 +803,25 @@ bool GEMCSCTriggerRate::filter(edm::Event& iEvent, const edm::EventSetup& iSetup
 //   const CSCWireDigiCollection* wiredc = wireDigis.product();
 //   const CSCComparatorDigiCollection* compdc = compDigis.product();
 
-  // ALCTs and CLCTs
+  // ALCTs
   Handle< CSCALCTDigiCollection > halcts;
-  Handle< CSCCLCTDigiCollection > hclcts;
   iEvent.getByLabel("simCscTriggerPrimitiveDigis",  halcts);
-  iEvent.getByLabel("simCscTriggerPrimitiveDigis",  hclcts);
   const CSCALCTDigiCollection* alcts = halcts.product();
+
+  /*
+  // CLCTs
+  Handle< CSCCLCTDigiCollection > hclcts;
+  iEvent.getByLabel("simCscTriggerPrimitiveDigis",  hclcts);
   const CSCCLCTDigiCollection* clcts = hclcts.product();
 
-  // strip&wire matching output  after TMB  and after MPC sorting
+  // TMB LCTs
   Handle< CSCCorrelatedLCTDigiCollection > lcts_tmb;
-  Handle< CSCCorrelatedLCTDigiCollection > lcts_mpc;
+  const CSCCorrelatedLCTDigiCollection* lcts = lcts_tmb.product(); 
   iEvent.getByLabel("simCscTriggerPrimitiveDigis",  lcts_tmb);
+
+  // MPC LCTs
+  Handle< CSCCorrelatedLCTDigiCollection > lcts_mpc;
   iEvent.getByLabel("simCscTriggerPrimitiveDigis", "MPCSORTED", lcts_mpc);
-  const CSCCorrelatedLCTDigiCollection* lcts = lcts_tmb.product();
   const CSCCorrelatedLCTDigiCollection* mplcts = lcts_mpc.product();
   
   // DT primitives for input to TF
@@ -835,6 +850,10 @@ bool GEMCSCTriggerRate::filter(edm::Event& iEvent, const edm::EventSetup& iSetup
   vector<L1MuRegionalCand>    l1GmtRPCbCands;
   vector<L1MuRegionalCand>    l1GmtDTCands;
 
+
+  */
+
+  /*
   // key = BX
   map<int, vector<L1MuRegionalCand> >  l1GmtCSCCandsInBXs;
 
@@ -911,12 +930,13 @@ bool GEMCSCTriggerRate::filter(edm::Event& iEvent, const edm::EventSetup& iSetup
       muPtScaleCacheID_ = iSetup.get< L1MuTriggerPtScaleRcd >().cacheIdentifier();
     }
 
-
+  */
 
 
 
   // //=======================================================================
   // //============================= RATES ===================================
+  // //=======================================================================
 
 
   //============ RATE ALCT ==================
@@ -946,36 +966,34 @@ bool GEMCSCTriggerRate::filter(edm::Event& iEvent, const edm::EventSetup& iSetup
       const CSCALCTDigiCollection::Range& range = (*adetUnitIt).second;
       for (CSCALCTDigiCollection::const_iterator digiIt = range.first; digiIt != range.second; digiIt++) 
   	{
-  	  if ((*digiIt).isValid()) 
-  	    {
-  	      int bx = (*digiIt).getBX();
-  	      //if ( bx-6 < minBX_ || bx-6 > maxBX_ )
-  	      if ( bx < minBxALCT_ || bx > maxBxALCT_ )
-  		{
-  		  if (debugRATE) cout<<"discarding BX = "<< bx-6 <<endl;
-  		  continue;
-  		}
-
-  	      // store all ME11 alcts together so we can look at them later
-  	      // take into accout that 10<=WG<=15 alcts are present in both 1a and 1b
-  	      if (csct==0) me11alcts[idd.rawId()].push_back(&(*digiIt));
-  	      if (csct==3 && (*digiIt).getKeyWG() < 10) {
-  		CSCDetId id11(idd.endcap(),1,1,idd.chamber());
-  		me11alcts[id11.rawId()].push_back(&(*digiIt));
-  	      }
-
-  	      //        if (debugALCT) cout<<"raw ID "<<id.rawId()<<" "<<id<<"    NTrackHitsInChamber  nmhits  alctInfo.size  diff  " 
-  	      //                           <<trackHitsInChamber.size()<<" "<<nmhits<<" "<<alctInfo.size()<<"  "
-  	      //                           << nmhits-alctInfo.size() <<endl 
-  	      //                           << "  "<<(*digiIt)<<endl;
-  	      nalct++;
-  	      ++nalct_per_bx[bx];
-  	      ++nalct_per_ch_bx[bx];
-  	      h_rt_alct_bx->Fill( bx - 6 );
-  	      h_rt_alct_bx_cscdet[csct]->Fill( bx - 6 );
-  	      if (bx>=5 && bx<=7) h_rt_csctype_alct_bx567->Fill(cscst);
-
-  	    } //if (alct_valid) 
+  	  if (!(*digiIt).isValid()) continue;
+	  int bx = (*digiIt).getBX();
+	  //if ( bx-6 < minBX_ || bx-6 > maxBX_ )
+	  if ( bx < minBxALCT_ || bx > maxBxALCT_ )
+	    {
+	      if (debugRATE) cout<<"discarding BX = "<< bx-6 <<endl;
+	      continue;
+	    }
+	  
+	  // store all ME11 alcts together so we can look at them later
+	  // take into accout that 10<=WG<=15 alcts are present in both 1a and 1b
+	  if (csct==0) me11alcts[idd.rawId()].push_back(&(*digiIt));
+	  if (csct==3 && (*digiIt).getKeyWG() < 10) {
+	    CSCDetId id11(idd.endcap(),1,1,idd.chamber());
+	    me11alcts[id11.rawId()].push_back(&(*digiIt));
+	  }
+	  
+	  //        if (debugALCT) cout<<"raw ID "<<id.rawId()<<" "<<id<<"    NTrackHitsInChamber  nmhits  alctInfo.size  diff  " 
+	  //                           <<trackHitsInChamber.size()<<" "<<nmhits<<" "<<alctInfo.size()<<"  "
+	  //                           << nmhits-alctInfo.size() <<endl 
+	  //                           << "  "<<(*digiIt)<<endl;
+	  nalct++;
+	  ++nalct_per_bx[bx];
+	  ++nalct_per_ch_bx[bx];
+	  h_rt_alct_bx->Fill( bx - 6 );
+	  h_rt_alct_bx_cscdet[csct]->Fill( bx - 6 );
+	  if (bx>=5 && bx<=7) h_rt_csctype_alct_bx567->Fill(cscst);
+	  
   	}
       for (int b=0;b<16;b++) 
   	{
@@ -1021,6 +1039,20 @@ bool GEMCSCTriggerRate::filter(edm::Event& iEvent, const edm::EventSetup& iSetup
 
   
   if (debugRATE) cout<< "----- end nalct="<<nalct<<endl;
+  /*
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
   //============ RATE CLCT ==================
@@ -1404,7 +1436,7 @@ bool GEMCSCTriggerRate::filter(edm::Event& iEvent, const edm::EventSetup& iSetup
   	  myTFTrk.print("");
   	}
       }
-
+      std::cout << "here" << std::endl;
       h_rt_tftrack_pt->Fill(myTFTrk.pt);
       h_rt_tftrack_bx->Fill(trk->first.bx());
       h_rt_tftrack_mode->Fill(myTFTrk.mode());
@@ -1645,8 +1677,12 @@ bool GEMCSCTriggerRate::filter(edm::Event& iEvent, const edm::EventSetup& iSetup
   	      if (eta_me42) h_rt_gmt_csc_pt_2s42->Fill(gpt);
   	      if (eta_me42r) h_rt_gmt_csc_pt_2s42r->Fill(gpt);
   	      if (            gpt > max_pt_2s     ) { max_pt_2s = gpt; max_pt_2s_eta = geta; }
-  	      if (eta_me1b && gpt > max_pt_2s_1b  ) { max_pt_2s_1b = gpt; /*max_pt_2s_eta_1b = geta;*/ }
-  	      if (eta_no1a && gpt > max_pt_2s_no1a) { max_pt_2s_no1a = gpt; /*max_pt_2s_eta_no1a = geta;*/ }
+  	      if (eta_me1b && gpt > max_pt_2s_1b  ) { max_pt_2s_1b = gpt; 
+	      //max_pt_2s_eta_1b = geta;
+	      }
+  	      if (eta_no1a && gpt > max_pt_2s_no1a) { max_pt_2s_no1a = gpt; 
+	      //max_pt_2s_eta_no1a = geta;
+	      }
   	      if (eta_me42 && gpt > max_pt_me42_2s) max_pt_me42_2s = gpt;
   	      if (eta_me42r && gpt>max_pt_me42r_2s) max_pt_me42r_2s = gpt;
   	    }
@@ -2284,18 +2320,29 @@ bool GEMCSCTriggerRate::filter(edm::Event& iEvent, const edm::EventSetup& iSetup
   	      if (isCSC    && gpt > max_pt_sing_csc ) { max_pt_sing_csc = gpt; max_pt_eta_sing_csc = geta; }
   	      if ((isCSC||isDT) && gpt > max_pt_sing_dtcsc ) { max_pt_sing_dtcsc = gpt; max_pt_eta_sing_dtcsc = geta; }
   	      if (gpt > max_pt_sing_3s && ( !isCSC || isCSC3s ) ) {max_pt_sing_3s = gpt; max_pt_eta_sing_3s = geta;}
-  	      if (eta_me1b && gpt > max_pt_sing_1b  ) { max_pt_sing_1b = gpt; /*max_pt_eta_sing_1b = geta;*/ }
-  	      if (eta_no1a && gpt > max_pt_sing_no1a) { max_pt_sing_no1a = gpt; /*max_pt_eta_sing_no1a = geta;*/ }
-  	    }
+  	      if (eta_me1b && gpt > max_pt_sing_1b  ) { max_pt_sing_1b = gpt; 
+	      max_pt_eta_sing_1b = geta;
+	      //
+	      }
+  	      if (eta_no1a && gpt > max_pt_sing_no1a) { max_pt_sing_no1a = gpt; 
+	      //max_pt_eta_sing_no1a = geta; 
+	      }
+	      }
   	  if (isSingle6TrigOk)
   	    {
   	      if (            gpt > max_pt_sing6     ) { max_pt_sing6 = gpt;     max_pt_eta_sing6 = geta;}
   	      if (isCSC    && gpt > max_pt_sing6_csc ) { max_pt_sing6_csc = gpt; max_pt_eta_sing6_csc = geta; }
   	      if (gpt > max_pt_sing6_3s && ( !isCSC || isCSC3s ) ) {max_pt_sing6_3s = gpt; max_pt_eta_sing6_3s = geta;}
-  	      if (eta_me1b && gpt > max_pt_sing6_1b  ) { max_pt_sing6_1b = gpt; /*max_pt_eta_sing6_1b = geta;*/ }
-  	      if (eta_no1a && gpt > max_pt_sing6_no1a) { max_pt_sing6_no1a = gpt; /*max_pt_eta_sing6_no1a = geta;*/ }
+  	      if (eta_me1b && gpt > max_pt_sing6_1b  ) { max_pt_sing6_1b = gpt; 
+	      max_pt_eta_sing6_1b = geta; 
+	      }
+  	      if (eta_no1a && gpt > max_pt_sing6_no1a) { max_pt_sing6_no1a = gpt; 
+	      //max_pt_eta_sing6_no1a = geta; 
+	      }
   	      if (eta_no1a && gpt > max_pt_sing6_3s1b_no1a && 
-  		  (!eta_me1b  || (eta_me1b && has_me1_stub && n_stubs >=3) ) ) { max_pt_sing6_3s1b_no1a = gpt; /*max_pt_eta_sing6_no1a = geta;*/ }
+  		  (!eta_me1b  || (eta_me1b && has_me1_stub && n_stubs >=3) ) ) { max_pt_sing6_3s1b_no1a = gpt; 
+		  max_pt_eta_sing6_no1a = geta;
+		  }
   	    }
   	}
     }
@@ -2361,7 +2408,8 @@ bool GEMCSCTriggerRate::filter(edm::Event& iEvent, const edm::EventSetup& iSetup
   //  matches.clear ();
 
   //  cleanUp();
-  return true;
+*/
+ return true;
 }
 
 

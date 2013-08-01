@@ -9,7 +9,6 @@ cmssw = os.getenv( "CMSSW_VERSION" )
 
 ## steering
 deltaMatch = 2
-minSimTrDR = 0.0
 pileup = 100
 events = 1000000
 #sample = 'dimu'
@@ -20,8 +19,8 @@ globalTag = 'upgrade2019'
 from GEMCode.SimMuL1.GEMCSCTriggerSamplesLib import files
 suffix = '_gem_dphi_pat2_PU0'
 inputDir = files[suffix]
-inputDir = ['tempDir/']
-theInputFiles = []
+inputDir = ['/afs/cern.ch/user/d/dildick/work/GEM/CMSSW_6_1_2_SLHC6_patch1/src/tempDir/']
+inputFiles = []
 import os
 for d in range(len(inputDir)):
   my_dir = inputDir[d]
@@ -33,9 +32,9 @@ for d in range(len(inputDir)):
     continue
   print "Proceed to next directory"
   ls = os.listdir(my_dir)
-  theInputFiles.extend([my_dir[16:] + x for x in ls if x.endswith('root')])
+  inputFiles.extend([my_dir[:] + 'file:' + x for x in ls if x.endswith('root')])
     
-print "inputFiles:", theInputFiles
+print "inputFiles:", inputFiles
 
 ## readout windows
 w = 3
@@ -60,13 +59,16 @@ process.load('Configuration.Geometry.GeometryExtended2019Reco_cff')
 process.load('Configuration.Geometry.GeometryExtended2019_cff')
 process.load('Configuration.StandardSequences.EndOfProcess_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
+from Configuration.AlCa.GlobalTag import GlobalTag
+process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:upgrade2019', '')
 process.load('Configuration.StandardSequences.MagneticField_38T_PostLS1_cff')
-process.GlobalTag.globaltag = 'auto:upgrade2019'
 process.load('L1TriggerConfig.L1ScalesProducers.L1MuTriggerScalesConfig_cff')
 process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
 process.load("Configuration.StandardSequences.L1Emulator_cff")
 process.load("Configuration.StandardSequences.L1Extra_cff")
+process.load("RecoMuon.TrackingTools.MuonServiceProxy_cff")
 process.load("SimMuon.CSCDigitizer.muonCSCDigis_cfi")
+process.load('Configuration.StandardSequences.Digi_cff')
 process.load('L1Trigger.CSCTrackFinder.csctfTrackDigisUngangedME1a_cfi')
 process.simCsctfTrackDigis = process.csctfTrackDigisUngangedME1a.clone()
 process.simCsctfTrackDigis.DTproducer = cms.untracked.InputTag("simDtTriggerPrimitiveDigis")
@@ -87,7 +89,7 @@ process.source = cms.Source("PoolSource",
 #      'drop *_simDtTriggerPrimitiveDigis_*_MUTRG'
 #    ),
     fileNames = cms.untracked.vstring(
-      *theInputFiles
+      *inputFiles
     )
 )
 
@@ -113,7 +115,7 @@ process.load('GEMCode.SimMuL1.GEMCSCTriggerRate_cfi')
 process.GEMCSCTriggerRate.minDeltaWire = -1*deltaMatch
 process.GEMCSCTriggerRate.maxDeltaWire = deltaMatch
 process.GEMCSCTriggerRate.minDeltaStrip = -1*deltaMatch
-process.GEMCSCTriggerRate.simTrackGEMMatching = process.SimTrackMatching
+process.GEMCSCTriggerRate.simTrackGEMMatching = SimTrackMatching
 process.GEMCSCTriggerRate.minBxALCT = readout_windows[0][0]
 process.GEMCSCTriggerRate.maxBxALCT = readout_windows[0][1]
 process.GEMCSCTriggerRate.minBxCLCT = readout_windows[1][0]
@@ -122,12 +124,8 @@ process.GEMCSCTriggerRate.minBxLCT = readout_windows[2][0]
 process.GEMCSCTriggerRate.maxBxLCT = readout_windows[2][1]
 process.GEMCSCTriggerRate.minBxMPLCT = readout_windows[3][0]
 process.GEMCSCTriggerRate.maxBxMPLCT = readout_windows[3][1]
-process.GEMCSCTriggerRate.minSimTrDR = minSimTrDR
-process.GEMCSCTriggerRate.minSimTrEta = theMinSimTrEta
-process.GEMCSCTriggerRate.maxSimTrEta = theMaxSimTrEta
 process.GEMCSCTriggerRate.sectorProcessor = process.simCsctfTrackDigis.SectorProcessor
 process.GEMCSCTriggerRate.strips = process.simMuonCSCDigis.strips
-print process.GEMCSCTriggerRate.strips
 
 
 ## customization 
