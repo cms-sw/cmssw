@@ -22,15 +22,23 @@ class PFClient: public edm::EDAnalyzer {
 
   void doSummaries();
   void doEfficiency();
+  void doProjection();
+  void doProfiles();
   void createResolutionPlots(std::string& folder, std::string& name);
   void getHistogramParameters(MonitorElement* me_slice, double& avarage, double& rms, 
                                                         double& mean, double& sigma);
   void createEfficiencyPlots(std::string& folder, std::string& name);
+
+  void createProjectionPlots(std::string& folder, std::string& name);
+  void createProfilePlots(std::string& folder, std::string& name);
      
   std::vector<std::string> folderNames_;
   std::vector<std::string> histogramNames_;
   std::vector<std::string> effHistogramNames_;
-  bool   efficiencyFlag_;
+  std::vector<std::string> projectionHistogramNames_;
+  std::vector<std::string> profileHistogramNames_;
+  bool efficiencyFlag_;
+  bool profileFlag_;
 
   DQMStore* dqmStore_;
 

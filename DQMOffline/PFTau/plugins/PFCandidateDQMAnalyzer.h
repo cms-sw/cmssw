@@ -25,7 +25,8 @@ class PFCandidateDQMAnalyzer: public edm::EDAnalyzer {
   edm::InputTag matchLabel_;
   edm::InputTag inputLabel_;
   std::string benchmarkLabel_;
-  
+  bool createEfficiencyHistos_;
+
   PFCandidateMonitor pfCandidateMonitor_;
 
   edm::ParameterSet pSet_;

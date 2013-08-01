@@ -14,7 +14,7 @@ process.MessageLogger.cerr.FwkReport.reportEvery = 10000
 # Input Source (EDM file(s) created at step #1
 #-----------------------------------------------
 process.source = cms.Source("PoolSource",
-                   fileNames = cms.untracked.vstring('file:MEtoEDM_PFlow.root'),
+                   fileNames = cms.untracked.vstring('file:MEtoEDM_QCD_PFlow.root'),
                    processingMode = cms.untracked.string('RunsAndLumis')
                  )
 #-----------------------
@@ -46,6 +46,6 @@ process.options = cms.untracked.PSet(
 #--------------
 process.load("Validation.RecoParticleFlow.PFValidationClient_cff")
 
-process.pfClientSequence = cms.Sequence(process.pfJetClient*process.pfMETClient*process.pfElectronClient)
-process.p = cms.Path(process.EDMtoME*process.pfClientSequence*process.dqmEnv*process.dqmSaver)
+process.pfClientSequence = cms.Sequence(process.pfJetClient * process.pfMETClient * process.pfElectronClient * process.pfElectronClient)
+process.p = cms.Path(process.EDMtoME * process.pfClientSequence * process.dqmEnv * process.dqmSaver)
 
