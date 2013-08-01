@@ -19,7 +19,6 @@
 //
 // Original Author:  __author__
 //         Created:  __date__
-// __rcsid__
 //
 
 

@@ -2,7 +2,7 @@
 #define __class_____class___h
 // -*- C++ -*-
 //
-// Package:     __pkgname__
+// Package:     __subsys__/__pkgname__
 // Class  :     __class__
 // 
 /**\class __class__ __class__.h __subsys__/__pkgname__/interface/__class__.h
@@ -16,7 +16,6 @@
 //
 // Author:      __author__
 // Created:     __date__
-// __rcsid__
 //
 
 #include "FWCore/Framework/interface/EventSetupRecordImplementation.h"
