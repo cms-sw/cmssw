@@ -27,7 +27,7 @@ particleFlowSuperClusterECALBox = cms.EDProducer(
     use_preshower = cms.bool(True),
 
     # are the seed thresholds Et or Energy?
-    seedThresholdIsET = cms.bool(False),
+    seedThresholdIsET = cms.bool(True),
     
     # threshold in ECAL
     thresh_PFClusterSeedBarrel = cms.double(3.0),
@@ -86,7 +86,7 @@ particleFlowSuperClusterECALMustache = cms.EDProducer(
     use_preshower = cms.bool(True),
 
     # are the seed thresholds Et or Energy?
-    seedThresholdIsET = cms.bool(False),
+    seedThresholdIsET = cms.bool(True),
 
     # threshold in ECAL
     thresh_PFClusterSeedBarrel = cms.double(3.0),
