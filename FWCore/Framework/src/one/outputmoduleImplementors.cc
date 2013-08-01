@@ -33,6 +33,14 @@ namespace edm {
       void LuminosityBlockWatcher::doEndLuminosityBlock_(LuminosityBlockPrincipal const& lbp) {
         endLuminosityBlock(lbp);
       }
+      void InputFileWatcher::doRespondToOpenInputFile_(FileBlock const& iB)
+      {
+        respondToOpenInputFile(iB);
+      }
+      void InputFileWatcher::doRespondToCloseInputFile_(FileBlock const& iB)
+      {
+        respondToCloseInputFile(iB);
+      }
     }
   }
 }

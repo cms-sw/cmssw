@@ -29,6 +29,8 @@
 // forward declarations
 
 namespace edm {
+  class FileBlock;
+  
   namespace one {
     namespace outputmodule {
       class RunWatcher : public virtual OutputModuleBase {
@@ -60,6 +62,20 @@ namespace edm {
         virtual void endLuminosityBlock(edm::LuminosityBlockPrincipal const&) = 0;
       };
 
+      class InputFileWatcher : public virtual OutputModuleBase {
+      public:
+        InputFileWatcher(edm::ParameterSet const&iPSet): OutputModuleBase(iPSet) {}
+        InputFileWatcher(InputFileWatcher const&) = delete;
+        InputFileWatcher& operator=(InputFileWatcher const&) = delete;
+        
+      private:
+        void doRespondToOpenInputFile_(FileBlock const&) override final;
+        void doRespondToCloseInputFile_(FileBlock const&) override final;
+        
+        virtual void respondToOpenInputFile(FileBlock const&) = 0;
+        virtual void respondToCloseInputFile(FileBlock const&) = 0;
+      };
+      
       template<typename T> struct AbilityToImplementor;
       
       template<>
@@ -76,7 +92,12 @@ namespace edm {
       struct AbilityToImplementor<edm::one::WatchLuminosityBlocks> {
         typedef edm::one::outputmodule::LuminosityBlockWatcher Type;
       };
-    }
+
+      template<>
+      struct AbilityToImplementor<edm::WatchInputFiles> {
+        typedef edm::one::outputmodule::InputFileWatcher Type;
+      };
+}
   }
 }
 
