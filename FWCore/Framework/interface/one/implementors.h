@@ -32,11 +32,12 @@ namespace edm {
          
          class SharedResourcesUser {
          public:
-            SharedResourcesUser() = default;
+            template< typename... Args>
+            SharedResourcesUser(Args...) {}
             SharedResourcesUser(SharedResourcesUser const&) = delete;
             SharedResourcesUser& operator=(SharedResourcesUser const&) = delete;
             
-            virtual ~SharedResourcesUser() = default;
+            virtual ~SharedResourcesUser() {}
             
          protected:
             static const std::string kUnknownResource;
