@@ -21,6 +21,7 @@
 #include "FWCore/Framework/interface/TriggerNamesService.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/ServiceRegistry/interface/ServiceRegistry.h"
+#include "FWCore/Framework/interface/FileBlock.h"
 
 
 #include "FWCore/Utilities/interface/Exception.h"
@@ -34,6 +35,8 @@ class testOneOutputModule: public CppUnit::TestFixture
   CPPUNIT_TEST(basicTest);
   CPPUNIT_TEST(runTest);
   CPPUNIT_TEST(lumiTest);
+  CPPUNIT_TEST(fileTest);
+  CPPUNIT_TEST(resourceTest);
   
   CPPUNIT_TEST_SUITE_END();
 public:
@@ -45,17 +48,21 @@ public:
   void basicTest();
   void runTest();
   void lumiTest();
+  void fileTest();
+  void resourceTest();
 
 private:
 
   enum class Trans {
     kBeginJob,
+    kGlobalOpenInputFile,
     kGlobalBeginRun,
     kGlobalBeginRunProduce,
     kGlobalBeginLuminosityBlock,
     kEvent,
     kGlobalEndLuminosityBlock,
     kGlobalEndRun,
+    kGlobalCloseInputFile,
     kEndJob
   };
   
@@ -147,7 +154,50 @@ private:
       ++m_count;
     }
   };
+  class FileOutputModule : public edm::one::OutputModule<edm::WatchInputFiles> {
+  public:
+    FileOutputModule(edm::ParameterSet const& iPSet) : edm::one::OutputModuleBase(iPSet), edm::one::OutputModule<edm::WatchInputFiles>(iPSet) {}
+    unsigned int m_count = 0;
+    void write(edm::EventPrincipal const&) override {
+      ++m_count;
+    }
+    void writeRun(edm::RunPrincipal const&) override {
+      ++m_count;
+    }
+    void writeLuminosityBlock(edm::LuminosityBlockPrincipal const&) override {
+      ++m_count;
+    }
+    
+    void respondToOpenInputFile(edm::FileBlock const&)  override {
+      ++m_count;
+    }
+    
+    void respondToCloseInputFile(edm::FileBlock const&) override {
+      ++m_count;
+    }
   };
+  
+  class ResourceOutputModule : public edm::one::OutputModule<edm::one::SharedResources> {
+  public:
+    ResourceOutputModule(edm::ParameterSet const& iPSet): edm::one::OutputModuleBase(iPSet),edm::one::OutputModule<edm::one::SharedResources>(iPSet){
+      usesResource();
+    }
+    unsigned int m_count = 0;
+    
+    void write(edm::EventPrincipal const&) override {
+      ++m_count;
+    }
+    void writeRun(edm::RunPrincipal const&) override {
+      ++m_count;
+    }
+    void writeLuminosityBlock(edm::LuminosityBlockPrincipal const&) override {
+      ++m_count;
+    }
+    
+  };
+
+
+};
 
 ///registration of the test so that the runner can find it
 CPPUNIT_TEST_SUITE_REGISTRATION(testOneOutputModule);
@@ -178,6 +228,10 @@ m_ep()
   m_ep->setLuminosityBlockPrincipal(m_lbp);
 
   //For each transition, bind a lambda which will call the proper method of the Worker
+  m_transToFunc[Trans::kGlobalOpenInputFile] = [this](edm::Worker* iBase) {
+    edm::FileBlock fb;
+    iBase->respondToOpenInputFile(fb);
+  };
   m_transToFunc[Trans::kGlobalBeginRun] = [this](edm::Worker* iBase) {
     typedef edm::OccurrenceTraits<edm::RunPrincipal, edm::BranchActionGlobalBegin> Traits;
     iBase->doWork<Traits>(*m_rp,*m_es,m_context,m_timer, edm::StreamID::invalidStreamID()); };
@@ -205,6 +259,12 @@ m_ep()
     CPPUNIT_ASSERT(b.get());
     b->writeRun(*m_rp);
   };
+  
+  m_transToFunc[Trans::kGlobalCloseInputFile] = [this](edm::Worker* iBase) {
+    edm::FileBlock fb;
+    iBase->respondToCloseInputFile(fb);
+  };
+
 
   // We want to create the TriggerNamesService because it is used in
   // the tests.  We do that here, but first we need to build a minimal
@@ -293,5 +353,29 @@ void testOneOutputModule::lumiTest()
   
   CPPUNIT_ASSERT(0 == testProd->m_count);
   testTransitions(std::move(testProd), {Trans::kGlobalBeginLuminosityBlock, Trans::kEvent, Trans::kGlobalEndLuminosityBlock, Trans::kGlobalEndLuminosityBlock, Trans::kGlobalEndRun});
+}
+
+void testOneOutputModule::fileTest()
+{
+  //make the services available
+  edm::ServiceRegistry::Operate operate(serviceToken_);
+  
+  edm::ParameterSet pset;
+  std::unique_ptr<FileOutputModule> testProd{ new FileOutputModule(pset) };
+  
+  CPPUNIT_ASSERT(0 == testProd->m_count);
+  testTransitions(std::move(testProd), {Trans::kGlobalOpenInputFile, Trans::kEvent, Trans::kGlobalEndLuminosityBlock, Trans::kGlobalEndRun, Trans::kGlobalCloseInputFile});
+}
+
+void testOneOutputModule::resourceTest()
+{
+  //make the services available
+  edm::ServiceRegistry::Operate operate(serviceToken_);
+  
+  edm::ParameterSet pset;
+  std::unique_ptr<ResourceOutputModule> testProd{ new ResourceOutputModule(pset) };
+  
+  CPPUNIT_ASSERT(0 == testProd->m_count);
+  testTransitions(std::move(testProd), {Trans::kEvent,Trans::kGlobalEndLuminosityBlock, Trans::kGlobalEndRun});
 }
 
