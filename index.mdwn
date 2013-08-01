@@ -2,12 +2,11 @@
 title: CMS Offline Software
 layout: default
 related:
- - { name: Project page, link: https://github.com/cms-sw/cmssw }
- - { name: Topic Collector, link: https://cern.ch/cmsgit/cmsgit }
- - { name: Feedback, link: https://github.com/cms-sw/cmssw/issues/new }
+ - { name: Project page, link: 'https://github.com/cms-sw/cmssw' }
+ - { name: Topic Collector, link: 'https://cern.ch/cmsgit/cmsgit' }
+ - { name: Feedback, link: 'https://github.com/cms-sw/cmssw/issues/new' }
 ---
 
-[We are experiencing some troubles with these pages, you can find a mirror here](https://cmssdt.cern.ch/SDT/github)
 # Welcome to CMSSW on GitHub pages
 
 CMS is migrating the repository of its Offline Experiment Software (CMSSW) to
@@ -26,7 +25,7 @@ forks!**
 
 ### CMSSW_6_2_X, CMSSW_5_3_X, CMSSW_4_4_X, CMSSW_4_1_X, SLHC releases.
 
-On the day `CMSSW_6_2_0` is released, we opened branches in git for all the
+On the day `CMSSW_6_2_0` was released, we opened branches in git for all the
 required stable release queue.
 
 CVS access to CMSSW repository became read only at that point and all the

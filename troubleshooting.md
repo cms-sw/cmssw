@@ -3,9 +3,9 @@ title: CMS Offline Software
 layout: default
 related:
  - { name: Home, link: index.html }
- - { name: Project, link: https://github.com/cms-sw/cmssw }
- - { name: Topic Collector, link: https://cern.ch/cmsgit/cmsgit}
- - { name: Feedback, link: https://github.com/cms-sw/cmssw/issues/new }
+ - { name: Project, link: 'https://github.com/cms-sw/cmssw' }
+ - { name: Topic Collector, link: 'https://cern.ch/cmsgit/cmsgit' }
+ - { name: Feedback, link: 'https://github.com/cms-sw/cmssw/issues/new' }
 ---
 
 # Troubleshooting git
