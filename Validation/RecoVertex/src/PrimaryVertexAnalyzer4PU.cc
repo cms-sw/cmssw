@@ -2039,8 +2039,10 @@ PrimaryVertexAnalyzer4PU::analyze(const Event& iEvent, const EventSetup& iSetup)
  
     pui_z = puinfo.getPU_zpositions(); 
     
-  } catch(...) {
-    std::cout << "Nou PileupSummryInfo could be found ! Maybe data  ?" <<std::endl;  
+  } catch( edm::Exception const & ex ) {
+    if ( !ex.alreadyPrinted() ) {
+      std::cout << ex.what() << " Maybe data?" << std::endl;
+    }  
   }
 
   Handle<reco::VertexCollection> recVtxs;
