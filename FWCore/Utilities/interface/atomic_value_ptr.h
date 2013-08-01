@@ -32,6 +32,7 @@ namespace edm {
   //  Auxiliary traits class template providing default clone()
   //  Users should specialize this template for types that have their
   //  own self-copy operations; failure to do so may lead to slicing!
+  //  User specified clone methods must be thread safe.
   //
   // --------------------------------------------------------------------
 

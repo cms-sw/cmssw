@@ -81,6 +81,10 @@ namespace edm {
     return *theVPSet_;
   }
 
+  // NOTE: This function, and other non-const functions of this class
+  // that expose internals, may be used in a way that causes the cached
+  // "theVPSet_" and "theIDs_" to be inconsistent.
+  // THIS PROBLEM NEEDS TO BE ADDRESSED
   std::vector<ParameterSet>& VParameterSetEntry::vpsetForUpdate() {
     fillVPSet();
     return *theVPSet_;
@@ -101,6 +105,10 @@ namespace edm {
     }
   }
 
+  // NOTE: This function, and other non-const functions of this class
+  // that expose internals, may be used in a way that causes the cached
+  // "theVPSet_" and "theIDs_" to be inconsistent.
+  // THIS PROBLEM NEEDS TO BE ADDRESSED
   ParameterSet& VParameterSetEntry::psetInVector(int i) {
     assert(theVPSet_);
     return theVPSet_->at(i);
