@@ -1,0 +1,145 @@
+#ifndef FWCore_Framework_global_EDFilterBase_h
+#define FWCore_Framework_global_EDFilterBase_h
+// -*- C++ -*-
+//
+// Package:     FWCore/Framework
+// Class  :     EDFilterBase
+// 
+/**\class EDFilterBase EDFilterBase.h "EDFilterBase.h"
+
+ Description: [one line class summary]
+
+ Usage:
+    <usage>
+
+*/
+//
+// Original Author:  Chris Jones
+//         Created:  Thu, 18 Jul 2013 11:51:14 GMT
+// $Id$
+//
+
+// system include files
+
+// user include files
+#include "FWCore/Framework/interface/ProducerBase.h"
+#include "FWCore/Framework/interface/EDConsumerBase.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "DataFormats/Provenance/interface/ModuleDescription.h"
+#include "FWCore/ParameterSet/interface/ParameterSetfwd.h"
+
+// forward declarations
+
+namespace edm {
+  class StreamID;
+  
+  namespace global {
+    
+    class EDFilterBase : public ProducerBase, public EDConsumerBase
+    {
+      
+    public:
+      template <typename T> friend class edm::WorkerT;
+      typedef EDFilterBase ModuleType;
+      typedef WorkerT<EDFilterBase> WorkerType;
+
+      EDFilterBase();
+      virtual ~EDFilterBase();
+
+      static void fillDescriptions(ConfigurationDescriptions& descriptions);
+      static void prevalidate(ConfigurationDescriptions& descriptions);
+      static const std::string& baseType();
+
+    protected:
+      // The returned pointer will be null unless the this is currently
+      // executing its event loop function ('produce').
+      CurrentProcessingContext const* currentContext() const;
+      
+    private:
+      bool doEvent(EventPrincipal& ep, EventSetup const& c,
+                   CurrentProcessingContext const* cpcp);
+      void doBeginJob();
+      void doEndJob();
+      
+      void doBeginStream(StreamID id);
+      void doEndStream(StreamID id);
+      void doStreamBeginRun(StreamID id,
+                            RunPrincipal& ep,
+                            EventSetup const& c,
+                            CurrentProcessingContext const* cpcp);
+      void doStreamEndRun(StreamID id,
+                          RunPrincipal& ep,
+                          EventSetup const& c,
+                          CurrentProcessingContext const* cpcp);
+      void doStreamBeginLuminosityBlock(StreamID id,
+                                        LuminosityBlockPrincipal& ep,
+                                        EventSetup const& c,
+                                        CurrentProcessingContext const* cpcp);
+      void doStreamEndLuminosityBlock(StreamID id,
+                                      LuminosityBlockPrincipal& ep,
+                                      EventSetup const& c,
+                                      CurrentProcessingContext const* cpcp);
+
+      
+      void doBeginRun(RunPrincipal& rp, EventSetup const& c,
+                      CurrentProcessingContext const* cpc);
+      void doEndRun(RunPrincipal& rp, EventSetup const& c,
+                    CurrentProcessingContext const* cpc);
+      void doBeginLuminosityBlock(LuminosityBlockPrincipal& lbp, EventSetup const& c,
+                                  CurrentProcessingContext const* cpc);
+      void doEndLuminosityBlock(LuminosityBlockPrincipal& lbp, EventSetup const& c,
+                                CurrentProcessingContext const* cpc);
+      
+      //For now, the following are just dummy implemenations with no ability for users to override
+      void doRespondToOpenInputFile(FileBlock const& fb);
+      void doRespondToCloseInputFile(FileBlock const& fb);
+      void doPreForkReleaseResources();
+      void doPostForkReacquireResources(unsigned int iChildIndex, unsigned int iNumberOfChildren);
+      
+      
+      void registerProductsAndCallbacks(EDFilterBase* module, ProductRegistry* reg) {
+        registerProducts(module, reg, moduleDescription_);
+      }
+      std::string workerType() const {return "WorkerT<EDProducer>";}
+      
+      virtual bool filter(StreamID, Event&, EventSetup const&) const= 0;
+      virtual void beginJob() {}
+      virtual void endJob(){}
+
+      virtual void doBeginStream_(StreamID id);
+      virtual void doEndStream_(StreamID id);
+      virtual void doStreamBeginRun_(StreamID id, Run const& rp, EventSetup const& c);
+      virtual void doStreamEndRun_(StreamID id, Run const& rp, EventSetup const& c);
+      virtual void doStreamEndRunSummary_(StreamID id, Run const& rp, EventSetup const& c);
+      virtual void doStreamBeginLuminosityBlock_(StreamID id, LuminosityBlock const& lbp, EventSetup const& c);
+      virtual void doStreamEndLuminosityBlock_(StreamID id, LuminosityBlock const& lbp, EventSetup const& c);
+      virtual void doStreamEndLuminosityBlockSummary_(StreamID id, LuminosityBlock const& lbp, EventSetup const& c);
+
+      virtual void doBeginRun_(Run const& rp, EventSetup const& c);
+      virtual void doBeginRunSummary_(Run const& rp, EventSetup const& c);
+      virtual void doEndRunSummary_(Run const& rp, EventSetup const& c);
+      virtual void doEndRun_(Run const& rp, EventSetup const& c);
+      virtual void doBeginLuminosityBlock_(LuminosityBlock const& lbp, EventSetup const& c);
+      virtual void doBeginLuminosityBlockSummary_(LuminosityBlock const& rp, EventSetup const& c);
+      virtual void doEndLuminosityBlockSummary_(LuminosityBlock const& lb, EventSetup const& c);
+      virtual void doEndLuminosityBlock_(LuminosityBlock const& lb, EventSetup const& c);
+      
+      virtual void doBeginRunProduce_(Run& rp, EventSetup const& c);
+      virtual void doEndRunProduce_(Run& rp, EventSetup const& c);
+      virtual void doBeginLuminosityBlockProduce_(LuminosityBlock& lbp, EventSetup const& c);
+      virtual void doEndLuminosityBlockProduce_(LuminosityBlock& lbp, EventSetup const& c);
+      
+      
+      void setModuleDescription(ModuleDescription const& md) {
+        moduleDescription_ = md;
+      }
+      ModuleDescription moduleDescription_;
+      CurrentProcessingContext const* current_context_; //Change in future
+      std::vector<BranchID> previousParentage_; //Per stream in the future?
+      ParentageID previousParentageId_;
+    };
+
+  }
+}
+
+#endif
