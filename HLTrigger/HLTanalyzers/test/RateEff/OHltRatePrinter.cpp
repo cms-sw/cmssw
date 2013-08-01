@@ -452,6 +452,7 @@ void OHltRatePrinter::writeHistos(OHltConfig *cfg, OHltMenu *menu, int Nevents)
    TH1F *unique = new TH1F("unique","unique",nTrig,1,nTrig+1);
    
    TH1F *NEVTS = new TH1F("NEVTS","NEVTS",1,0.,1.);
+   TH1F *NLumiSec = new TH1F("NLumiSec","NLumiSec",1,0.,1.);
 
    int RunLSn = RatePerLS.size();
 
@@ -463,6 +464,9 @@ void OHltRatePrinter::writeHistos(OHltConfig *cfg, OHltMenu *menu, int Nevents)
    int RunLSmin = RunMin*10000 + LSMin;
    int RunLSmax = RunMax*10000 + LSMax;
 
+   int NLSec = lumiSection.size();
+
+   NLumiSec->SetBinContent(1,NLSec);
    NEVTS->SetBinContent(1,Nevents);
    
    //cout<<">>>>>>>> "<<RunLSn<<" "<<RunMin<<" "<<RunMax<<" "<<LSMin<<" "<<LSMax<<endl;
@@ -483,6 +487,7 @@ void OHltRatePrinter::writeHistos(OHltConfig *cfg, OHltMenu *menu, int Nevents)
 
    double cumulRate = 0.;
    double cumulRateErr = 0.;
+   double cumulRErr = 0.;
    double cuThru = 0.;
    double cuThruErr = 0.;
    for (unsigned int i=0; i<menu->GetTriggerSize(); i++)
@@ -491,10 +496,13 @@ void OHltRatePrinter::writeHistos(OHltConfig *cfg, OHltMenu *menu, int Nevents)
       cumulRateErr += pow(spureRateErr[i], fTwo);
       cuThru += spureRate[i] * menu->GetEventsize(i);
       cuThruErr += pow(spureRate[i]*menu->GetEventsize(i), fTwo);
+      cumulRErr = sqrt(cumulRateErr);
 
       individual->SetBinContent(i+1, Rate[i]);
+      individual->SetBinError(i+1, RateErr[i]);
       individual->GetXaxis()->SetBinLabel(i+1, menu->GetTriggerName(i));
       cumulative->SetBinContent(i+1, cumulRate);
+      cumulative->SetBinError(i+1, cumulRErr);
       cumulative->GetXaxis()->SetBinLabel(i+1, menu->GetTriggerName(i));
       unique->SetBinContent(i+1, pureRate[i]); 
       unique->GetXaxis()->SetBinLabel(i+1, menu->GetTriggerName(i));
@@ -618,6 +626,7 @@ void OHltRatePrinter::writeHistos(OHltConfig *cfg, OHltMenu *menu, int Nevents)
    overlap->Write();
    unique->Write();
    NEVTS->Write();
+   NLumiSec->Write();
    individualPerLS->SetStats(0);
    individualPerLS->SetZTitle("Rate (Hz)");
    individualPerLS->SetTitle("Individual trigger rate vs Run/LumiSection");
