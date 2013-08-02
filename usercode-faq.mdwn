@@ -51,10 +51,9 @@ probably a good idea if you stick with it too.
 
 ### How do I migrate to github?
 
-Assuming you already have your own account on github (if not follow the
-instructions
-[here](http://cms-sw.github.io/cmssw/faq.html#how_do_i_subscribe_to_github)),
-the first step is to create a new repository to hold your usercode. 
+**First of all follow the account creation instructions
+  [here](http://cms-sw.github.io/cmssw/faq.html#how_do_i_subscribe_to_github)**.
+Once you have done that create a new repository to hold your usercode.
 This can be done by simply going to [https://github.com/new](https://github.com/new).
 
 ![https://github.com/new](images/create-new-repository.png)
