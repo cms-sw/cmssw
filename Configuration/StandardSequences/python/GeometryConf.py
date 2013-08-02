@@ -46,3 +46,11 @@ GeometryConf={
     'SLHC'        : 'Configuration.Geometry.GeometrySLHCSimIdeal_cff,Configuration.Geometry.GeometrySLHCReco_cff',
     'Design'      : 'Design,DesignReco'
     }
+
+FastSimGeometryConf={
+    'MC': 'FastSimulation/Configuration/Geometries_MC_cff',
+    'STARTUP': 'FastSimulation/Configuration/Geometries_START_cff',
+    'Phase1' : 'FastSimulation/Configuration/Geometries_cff',
+    'Phase2' : 'FastSimulation/Configuration/Geometriesph2_cff',
+    'Phase2Forward' : 'FastSimulation/Configuration/Geometriesph2Forward_cff',
+    }

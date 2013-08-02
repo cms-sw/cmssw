@@ -12,8 +12,15 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/PluginManager/interface/ModuleDef.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
+
+#include "DataFormats/GeometryCommonDetAlgo/interface/MeasurementPoint.h"
+#include "Geometry/CommonTopologies/interface/Topology.h"
+#include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
+#include "Geometry/CommonTopologies/interface/PixelTopology.h"
+
 #include "Geometry/Records/interface/StackedTrackerGeometryRecord.h"
 #include "Geometry/TrackerGeometryBuilder/interface/StackedTrackerGeometry.h"
+
 #include "SimDataFormats/SLHC/interface/StackedTrackerTypes.h"
 #include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
 //#include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h" /* TEST PURPOSE!!! */
@@ -359,22 +366,22 @@ void ValidateL1Track::beginJob()
       histoName.str("");  histoName << "hTrackProp_deltaRhoPhi_Eta_L" << seed << "_L" << targ;
       histoTitle.str(""); histoTitle << "#Delta#rho#phi vs seed #eta, Propagation from L " << seed << " to L " << targ;
       mapTrackPropBB_deltaRhoPhi_Eta[ mapKey ] = fs->make<TH2D>( histoName.str().c_str(),  histoTitle.str().c_str(),
-                                                                 180, -M_PI, M_PI, 300, -3, 3 );
+                                                                 180, -M_PI, M_PI, 100, -1, 1 );
 
       histoName.str("");  histoName << "hTrackProp_deltaRhoPhi_L" << seed << "_L" << targ;
       histoTitle.str(""); histoTitle << "#Delta#rho#phi, Propagation from L " << seed << " to L " << targ;
       mapTrackPropBB_deltaRhoPhi[ mapKey ] = fs->make<TH1D>( histoName.str().c_str(),  histoTitle.str().c_str(),
-                                                             300, -3, 3 );
+                                                             100, -1, 1 );
 
       histoName.str("");  histoName << "hTrackProp_deltaZ_Eta_L" << seed << "_L" << targ;
       histoTitle.str(""); histoTitle << "#Deltaz vs seed #eta, Propagation from L " << seed << " to L " << targ;
       mapTrackPropBB_deltaZ_Eta[ mapKey ] = fs->make<TH2D>( histoName.str().c_str(),  histoTitle.str().c_str(),
-                                                            180, -M_PI, M_PI, 300, -3, 3 );
+                                                            180, -M_PI, M_PI, 200, -4, 4 );
 
       histoName.str("");  histoName << "hTrackProp_deltaZ_L" << seed << "_L" << targ;
       histoTitle.str(""); histoTitle << "#Deltaz, Propagation from L " << seed << " to L " << targ;
       mapTrackPropBB_deltaZ[ mapKey ] = fs->make<TH1D>( histoName.str().c_str(),  histoTitle.str().c_str(),
-                                                        300, -3, 3 );
+                                                        200, -4, 4 );
 
       mapTrackPropBB_deltaRhoPhi_Eta[ mapKey ]->Sumw2();
       mapTrackPropBB_deltaRhoPhi[ mapKey ]->Sumw2();
@@ -384,22 +391,22 @@ void ValidateL1Track::beginJob()
       histoName.str("");  histoName << "hTrackProp_deltaRhoPhi_Eta_L" << seed << "_D" << targ;
       histoTitle.str(""); histoTitle << "#Delta#rho#phi vs seed #eta, Propagation from L " << seed << " to D " << targ;
       mapTrackPropBE_deltaRhoPhi_Eta[ mapKey ] = fs->make<TH2D>( histoName.str().c_str(),  histoTitle.str().c_str(),
-                                                                 180, -M_PI, M_PI, 300, -3, 3 );
+                                                                 180, -M_PI, M_PI, 100, -1, 1 );
 
       histoName.str("");  histoName << "hTrackProp_deltaRhoPhi_L" << seed << "_D" << targ;
       histoTitle.str(""); histoTitle << "#Delta#rho#phi, Propagation from L " << seed << " to D " << targ;
       mapTrackPropBE_deltaRhoPhi[ mapKey ] = fs->make<TH1D>( histoName.str().c_str(),  histoTitle.str().c_str(),
-                                                             300, -3, 3 );
+                                                             100, -1, 1 );
 
       histoName.str("");  histoName << "hTrackProp_deltaR_Eta_L" << seed << "_D" << targ;
       histoTitle.str(""); histoTitle << "#Delta#rho vs seed #eta, Propagation from L " << seed << " to D " << targ;
       mapTrackPropBE_deltaR_Eta[ mapKey ] = fs->make<TH2D>( histoName.str().c_str(),  histoTitle.str().c_str(),
-                                                            180, -M_PI, M_PI, 300, -3, 3 );
+                                                            180, -M_PI, M_PI, 200, -4, 4 );
 
       histoName.str("");  histoName << "hTrackProp_deltaR_L" << seed << "_D" << targ;
       histoTitle.str(""); histoTitle << "#Delta#rho, Propagation from L " << seed << " to D " << targ;
       mapTrackPropBE_deltaR[ mapKey ] = fs->make<TH1D>( histoName.str().c_str(),  histoTitle.str().c_str(),
-                                                        300, -3, 3 );
+                                                        200, -4, 4 );
 
       mapTrackPropBE_deltaRhoPhi_Eta[ mapKey ]->Sumw2();
       mapTrackPropBE_deltaRhoPhi[ mapKey ]->Sumw2();
@@ -409,22 +416,22 @@ void ValidateL1Track::beginJob()
       histoName.str("");  histoName << "hTrackProp_deltaRhoPhi_Eta_D" << seed << "_L" << targ;
       histoTitle.str(""); histoTitle << "#Delta#rho#phi vs seed #eta, Propagation from D " << seed << " to L " << targ;
       mapTrackPropEB_deltaRhoPhi_Eta[ mapKey ] = fs->make<TH2D>( histoName.str().c_str(),  histoTitle.str().c_str(),
-                                                                 180, -M_PI, M_PI, 300, -3, 3 );
+                                                                 180, -M_PI, M_PI, 100, -1, 1 );
 
       histoName.str("");  histoName << "hTrackProp_deltaRhoPhi_D" << seed << "_L" << targ;
       histoTitle.str(""); histoTitle << "#Delta#rho#phi, Propagation from D " << seed << " to L " << targ;
       mapTrackPropEB_deltaRhoPhi[ mapKey ] = fs->make<TH1D>( histoName.str().c_str(),  histoTitle.str().c_str(),
-                                                             300, -3, 3 );
+                                                             100, -1, 1 );
 
       histoName.str("");  histoName << "hTrackProp_deltaZ_Eta_D" << seed << "_L" << targ;
       histoTitle.str(""); histoTitle << "#Deltaz vs seed #eta, Propagation from D " << seed << " to L " << targ;
       mapTrackPropEB_deltaZ_Eta[ mapKey ] = fs->make<TH2D>( histoName.str().c_str(),  histoTitle.str().c_str(),
-                                                            180, -M_PI, M_PI, 300, -3, 3 );
+                                                            180, -M_PI, M_PI, 400, -8, 8 );
 
       histoName.str("");  histoName << "hTrackProp_deltaZ_D" << seed << "_L" << targ;
       histoTitle.str(""); histoTitle << "#Deltaz, Propagation from D " << seed << " to L " << targ;
       mapTrackPropEB_deltaZ[ mapKey ] = fs->make<TH1D>( histoName.str().c_str(),  histoTitle.str().c_str(),
-                                                        300, -3, 3 );
+                                                        400, -8, 8 );
 
       mapTrackPropEB_deltaRhoPhi_Eta[ mapKey ]->Sumw2();
       mapTrackPropEB_deltaRhoPhi[ mapKey ]->Sumw2();
@@ -434,22 +441,22 @@ void ValidateL1Track::beginJob()
       histoName.str("");  histoName << "hTrackProp_deltaRhoPhi_Eta_D" << seed << "_D" << targ;
       histoTitle.str(""); histoTitle << "#Delta#rho#phi vs seed #eta, Propagation from D " << seed << " to D " << targ;
       mapTrackPropEE_deltaRhoPhi_Eta[ mapKey ] = fs->make<TH2D>( histoName.str().c_str(),  histoTitle.str().c_str(),
-                                                                 180, -M_PI, M_PI, 300, -3, 3 );
+                                                                 180, -M_PI, M_PI, 100, -1, 1 );
 
       histoName.str("");  histoName << "hTrackProp_deltaRhoPhi_D" << seed << "_D" << targ;
       histoTitle.str(""); histoTitle << "#Delta#rho#phi, Propagation from D " << seed << " to D " << targ;
       mapTrackPropEE_deltaRhoPhi[ mapKey ] = fs->make<TH1D>( histoName.str().c_str(),  histoTitle.str().c_str(),
-                                                             300, -3, 3 );
+                                                             100, -1, 1 );
 
       histoName.str("");  histoName << "hTrackProp_deltaR_Eta_D" << seed << "_D" << targ;
       histoTitle.str(""); histoTitle << "#Delta#rho vs seed #eta, Propagation from D " << seed << " to D " << targ;
       mapTrackPropEE_deltaR_Eta[ mapKey ] = fs->make<TH2D>( histoName.str().c_str(),  histoTitle.str().c_str(),
-                                                            180, -M_PI, M_PI, 300, -3, 3 );
+                                                            180, -M_PI, M_PI, 200, -4, 4 );
 
       histoName.str("");  histoName << "hTrackProp_deltaR_D" << seed << "_D" << targ;
       histoTitle.str(""); histoTitle << "#Delta#rho, Propagation from D " << seed << " to D " << targ;
       mapTrackPropEE_deltaR[ mapKey ] = fs->make<TH1D>( histoName.str().c_str(),  histoTitle.str().c_str(),
-                                                        300, -3, 3 );
+                                                        200, -4, 4 );
 
       mapTrackPropEE_deltaRhoPhi_Eta[ mapKey ]->Sumw2();
       mapTrackPropEE_deltaRhoPhi[ mapKey ]->Sumw2();
@@ -673,22 +680,27 @@ void ValidateL1Track::analyze(const edm::Event& iEvent, const edm::EventSetup& i
           iterL1TkCluster != PixelDigiL1TkClusterHandle->end();
           ++iterL1TkCluster )
     {
-/*
-      StackedTrackerDetId detIdClu( iterL1TkCluster->getDetId() );
-      unsigned int memberClu = iterL1TkCluster->getStackMember();
-*/
       bool genuineClu     = iterL1TkCluster->isGenuine();
-/*
       bool combinClu      = iterL1TkCluster->isCombinatoric();
-      //bool unknownClu     = iterL1TkCluster->isUnknown();
-      int partClu         = iterL1TkCluster->findType();
-      unsigned int widClu = iterL1TkCluster->findWidth();
-      GlobalPoint posClu  = theStackedGeometry->findAverageGlobalPosition( &(*iterL1TkCluster) );
-*/
-      /// Store Track information in maps, skip if the Cluster is not good
-      if ( !genuineClu ) continue;
 
-      edm::Ptr< SimTrack > simTrackPtr = iterL1TkCluster->getSimTrackPtrs().at(0);
+      /// Store Track information in maps, skip if the Cluster is not good
+      if ( !genuineClu && !combinClu ) continue;
+
+      for ( unsigned int i = 0; i < iterL1TkCluster->getSimTrackPtrs().size(); i++ )
+      {
+        edm::Ptr< SimTrack > simTrackPtr = iterL1TkCluster->getSimTrackPtrs().at(i);
+
+        if ( simTrackPtr.isNull() )
+          continue;
+
+        /// Get the corresponding vertex and reject the track
+        /// if its vertex is outside the beampipe
+        int vertexIndex = simTrackPtr->vertIndex();
+        const SimVertex& theSimVertex = (*SimVtxHandle)[vertexIndex];
+        math::XYZTLorentzVectorD trkVtxPos = theSimVertex.position();
+
+        if ( trkVtxPos.rho() >= 2 )
+          continue;
 
       if ( mapSimTrackCluPt.find( simTrackPtr->trackId() ) == mapSimTrackCluPt.end() )
       {
@@ -698,6 +710,7 @@ void ValidateL1Track::analyze(const edm::Event& iEvent, const edm::EventSetup& i
         mapSimTrackCluEta.insert( std::make_pair( simTrackPtr->trackId(), simTrackPtr->momentum().eta() ) );
       }
     }
+  }
   }
 
   std::map< unsigned int, double >::iterator iterMapSimTrack;
@@ -737,22 +750,21 @@ void ValidateL1Track::analyze(const edm::Event& iEvent, const edm::EventSetup& i
           iterL1TkStub != PixelDigiL1TkStubHandle->end();
           ++iterL1TkStub )
     {
-/*
-      StackedTrackerDetId detIdClu( iterL1TkCluster->getDetId() );
-      unsigned int memberClu = iterL1TkCluster->getStackMember();
-*/
       bool genuineStub     = iterL1TkStub->isGenuine();
-/*
-      bool combinClu      = iterL1TkCluster->isCombinatoric();
-      //bool unknownClu     = iterL1TkCluster->isUnknown();
-      int partClu         = iterL1TkCluster->findType();
-      unsigned int widClu = iterL1TkCluster->findWidth();
-      GlobalPoint posClu  = theStackedGeometry->findAverageGlobalPosition( &(*iterL1TkCluster) );
-*/
+
       /// Store Track information in maps, skip if the Stub is not good
       if ( !genuineStub ) continue;
 
       edm::Ptr< SimTrack > simTrackPtr = iterL1TkStub->getSimTrackPtr();
+
+      /// Get the corresponding vertex and reject the track
+      /// if its vertex is outside the beampipe
+      int vertexIndex = simTrackPtr->vertIndex();
+      const SimVertex& theSimVertex = (*SimVtxHandle)[vertexIndex];
+      math::XYZTLorentzVectorD trkVtxPos = theSimVertex.position();
+
+      if ( trkVtxPos.rho() >= 2 )
+        continue;
 
       if ( mapSimTrackStubPt.find( simTrackPtr->trackId() ) == mapSimTrackStubPt.end() )
       {
@@ -835,6 +847,16 @@ void ValidateL1Track::analyze(const edm::Event& iEvent, const edm::EventSetup& i
       if ( !genuineTrack ) continue;
 
       edm::Ptr< SimTrack > simTrackPtr = iterL1TkTrack->getSimTrackPtr();
+
+      /// Get the corresponding vertex and reject the track
+      /// if its vertex is outside the beampipe
+      int vertexIndex = simTrackPtr->vertIndex();
+      const SimVertex& theSimVertex = (*SimVtxHandle)[vertexIndex];
+      math::XYZTLorentzVectorD trkVtxPos = theSimVertex.position();
+
+      if ( trkVtxPos.rho() >= 2 )
+        continue;
+
       double simTrackPt = simTrackPtr->momentum().pt();
       double simTrackEta = simTrackPtr->momentum().eta();
       double simTrackPhi = simTrackPtr->momentum().phi();
@@ -947,6 +969,15 @@ void ValidateL1Track::analyze(const edm::Event& iEvent, const edm::EventSetup& i
           /// Loop over track stubs
           for ( unsigned int js = 0; js < iterL1TkTrack->getStubPtrs().size(); js++ )
           {
+            /// Skip Stubs in the Seed
+            bool isInSeed = false;
+            for ( unsigned int ks = 0; ks < iterSeed->getStubPtrs().size(); ks++ )
+            {
+              if ( iterL1TkTrack->getStubPtrs().at(js) == iterSeed->getStubPtrs().at(ks) )
+                isInSeed = true;
+            }
+            if ( isInSeed ) continue;
+
             /// Candidate SL
             StackedTrackerDetId detIdCand( iterL1TkTrack->getStubPtrs().at(js)->getDetId() );
 //            unsigned int candSL = (unsigned int)((detIdCand.iLayer() + 1)/2);
@@ -965,13 +996,13 @@ void ValidateL1Track::analyze(const edm::Event& iEvent, const edm::EventSetup& i
             {
               /// Propagation
               double propPsi = asin( posStub.perp() * 0.5 * seedRInv );
-              double propRhoPsi = 2 * propPsi / seedRInv;
               double propPhi = seedPhi - propPsi;
+              double propRhoPsi = 2 * propPsi / seedRInv;
               double propZ = seedVtxZ0 + propRhoPsi * tan( M_PI_2 - iterSeed->getMomentum().theta() );
 
               /// Calculate displacement
               /// Perform standard trigonometric operations
-              double deltaPhi = propPhi - posStub.phi();
+              double deltaPhi = posStub.phi() - propPhi;
               if ( fabs(deltaPhi) >= M_PI )
               {
                 if ( deltaPhi>0 )
@@ -1015,8 +1046,36 @@ void ValidateL1Track::analyze(const edm::Event& iEvent, const edm::EventSetup& i
                 else
                   deltaPhi = 2*M_PI + deltaPhi;
               }
-              double deltaRPhi = deltaPhi * posStub.perp();
+              double deltaRPhi = deltaPhi * posStub.perp(); /// OLD VERSION (updated few lines below)
               double deltaR = posStub.perp() - propRho;
+
+              /// NEW VERSION - non-pointing strips correction
+              double rhoTrack = 2.0 * sin( 0.5 * seedRInv * ( posStub.z() - seedVtxZ0 ) / tan( M_PI_2 - iterSeed->getMomentum().theta() ) ) / seedRInv;
+              double phiTrack = iterSeed->getMomentum().phi() - 0.5 * seedRInv * ( posStub.z() - seedVtxZ0 ) / tan( M_PI_2 - iterSeed->getMomentum().theta() );
+
+              /// Calculate a correction for non-pointing-strips in square modules
+              /// Relevant angle is the one between hit and module center, with
+              /// vertex at (0, 0). Take snippet from HitMatchingAlgorithm_window201*
+              /// POSITION IN TERMS OF PITCH MULTIPLES:
+              ///       0 1 2 3 4 5 5 6 8 9 ...
+              /// COORD: 0 1 2 3 4 5 6 7 8 9 ...
+              /// OUT   | | | | | |x| | | | | | | | | |
+              ///
+              /// IN    | | | |x|x| | | | | | | | | | |
+              ///             THIS is 3.5 (COORD) and 4.0 (POS)
+              /// The center of the module is at NROWS/2 (position) and NROWS-0.5 (coordinates)
+              const GeomDetUnit* det0 = theStackedGeometry->idToDetUnit( detIdCand, 0 );
+              const PixelGeomDetUnit* pix0 = dynamic_cast< const PixelGeomDetUnit* >( det0 );
+              const PixelTopology* top0 = dynamic_cast< const PixelTopology* >( &(pix0->specificTopology()) );
+              std::pair< float, float > pitch0 = top0->pitch();
+              MeasurementPoint stubCoord = iterL1TkTrack->getStubPtrs().at(js)->getClusterPtr(0)->findAverageLocalCoordinates();
+              double stubTransvDispl = pitch0.first * ( stubCoord.x() - (top0->nrows()/2 - 0.5) ); /// Difference in coordinates is the same as difference in position
+              if ( posStub.z() > 0 )
+              {
+                stubTransvDispl = - stubTransvDispl;
+              }
+              double stubPhiCorr = asin( stubTransvDispl / posStub.perp() );
+              deltaRPhi = stubTransvDispl - rhoTrack * sin( stubPhiCorr - phiTrack + posStub.phi() );
 
               if ( seedBarrel0 )
               {
@@ -1118,6 +1177,16 @@ void ValidateL1Track::analyze(const edm::Event& iEvent, const edm::EventSetup& i
       hSeed_Eta->Fill( seedEta );
 
       edm::Ptr< SimTrack > simTrackPtr = iterSeed->getSimTrackPtr();
+
+      /// Get the corresponding vertex and reject the track
+      /// if its vertex is outside the beampipe
+      int vertexIndex = simTrackPtr->vertIndex();
+      const SimVertex& theSimVertex = (*SimVtxHandle)[vertexIndex];
+      math::XYZTLorentzVectorD trkVtxPos = theSimVertex.position();
+
+      if ( trkVtxPos.rho() >= 2 )
+        continue;
+
       double simTrackPt = simTrackPtr->momentum().pt();
       double simTrackEta = simTrackPtr->momentum().eta();
       double simTrackPhi = simTrackPtr->momentum().phi();

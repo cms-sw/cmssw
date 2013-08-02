@@ -100,6 +100,12 @@ PixelForwardLayer::~PixelForwardLayer(){
   }
 } 
 
+namespace {
+
+  bool groupSortByZ(DetGroupElement i,DetGroupElement j) { return (fabs(i.det()->position().z())<fabs(j.det()->position().z())); }
+
+}
+
 void
 PixelForwardLayer::groupedCompatibleDetsV( const TrajectoryStateOnSurface& tsos,
 					  const Propagator& prop,
@@ -201,6 +207,66 @@ PixelForwardLayer::groupedCompatibleDetsV( const TrajectoryStateOnSurface& tsos,
     DetGroupMerger::orderAndMergeTwoLevels( std::move(result_inner), std::move(result_outer), result, 
   					    theHelicity, crossingSide);
   }
+
+  /*
+  for (auto gr : result) {
+    std::cout << "new group" << std::endl;
+    for (auto dge : gr) {
+      PixelBarrelNameUpgrade name(dge.det()->geographicalId());
+      std::cout << "new det with geom det at r:"<<dge.det()->position().perp()<<" id:"<<dge.det()->geographicalId().rawId()<<" name:"<<name.name()<<" isHalf:"<<name.isHalfModule()<<" tsos at:" <<dge.trajectoryState().globalPosition()<< std::endl;
+    }
+  }
+  */
+
+  if (this->specificSurface().innerRadius()>17.0) {
+    //do splitting of groups for outer 'pixel' layer of phase 2 tracker
+    //fixme: to be changed when moving to a new DetId schema with 'matched' hits
+    std::vector<DetGroup> splitResult;
+    for (auto gr : result) {
+      if (gr.size()==1) {
+	splitResult.push_back(gr);
+	continue;
+      }
+      //sort according to Z
+      std::sort(gr.begin(),gr.end(),groupSortByZ);
+      DetGroup firstGroup; //this group contains the innermost dets of 2S/PS modules
+      DetGroup secondGroup;//this group contains the outermost dets of 2S/PS modules
+      for (auto dge : gr) {
+	if (firstGroup.size()==0) {
+	  firstGroup.push_back(dge);
+	  continue;
+	}
+	bool foundInFirstGroup = false;
+	for (auto dge_f : firstGroup) {
+	  if (abs(int(dge.det()->geographicalId().rawId())-int(dge_f.det()->geographicalId().rawId()))==4 &&
+	      fabs(dge.det()->position().z()-dge_f.det()->position().z())>0.15 ) {
+	    //std::cout << "found dge for second group with id: " << dge.det()->geographicalId().rawId() << std::endl;
+	    secondGroup.push_back(dge);
+	    foundInFirstGroup = true;
+	    break;
+	  }
+	}
+	if (!foundInFirstGroup )firstGroup.push_back(dge);
+      }
+      splitResult.push_back(firstGroup);
+      if (secondGroup.size()>0) splitResult.push_back(secondGroup);
+    }
+    splitResult.swap(result);
+
+    /*
+    std::cout << "AFTER SPLITTING" <<std::endl;
+    for (auto gr : result) {
+      std::cout << "new group" << std::endl;
+      for (auto dge : gr) {
+	PixelBarrelNameUpgrade name(dge.det()->geographicalId());
+	std::cout << "new det with geom det at r:"<<dge.det()->position().perp()<<" id:"<<dge.det()->geographicalId().rawId()<<" name:"<<name.name()<<" isHalf:"<<name.isHalfModule()<<" tsos at:" <<dge.trajectoryState().globalPosition()<< std::endl;
+      }
+    }
+    */
+
+  }//end of hack for phase 2 stacked layers
+
+
 }
 
 

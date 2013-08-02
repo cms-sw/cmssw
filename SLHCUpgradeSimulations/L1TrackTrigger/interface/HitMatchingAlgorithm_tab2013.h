@@ -40,7 +40,8 @@ class HitMatchingAlgorithm_tab2013 : public HitMatchingAlgorithm< T >
 {
   private:
     /// Data members
-    bool                         mPerformZMatching;
+    bool                         mPerformZMatchingPS;
+    bool                         mPerformZMatching2S;
     std::string                  className_;
 
     std::vector< double > barrelCut;
@@ -51,12 +52,13 @@ class HitMatchingAlgorithm_tab2013 : public HitMatchingAlgorithm< T >
     HitMatchingAlgorithm_tab2013( const StackedTrackerGeometry *aStackedTracker,
                                   std::vector< double > setBarrelCut,
                                   std::vector< std::vector< double > > setRingCut,
-                                  bool aPerformZMatching )
+                                  bool aPerformZMatchingPS, bool aPerformZMatching2S )
     : HitMatchingAlgorithm< T >( aStackedTracker,__func__ )
     {
       barrelCut = setBarrelCut;
       ringCut = setRingCut;
-      mPerformZMatching = aPerformZMatching;
+      mPerformZMatchingPS = aPerformZMatchingPS;
+      mPerformZMatching2S = aPerformZMatching2S;
     }
 
     /// Destructor
@@ -101,8 +103,17 @@ void HitMatchingAlgorithm_tab2013< T >::CheckTwoMemberHitsForCompatibility( bool
   int cols1 = top1->ncolumns();
   int ratio = cols0/cols1; /// This assumes the ratio is integer!
   int segment0 = floor( mp0.y() / ratio );
-  if ( mPerformZMatching && ( segment0 != floor( mp1.y() ) ) )
+
+  if ( ratio == 1 ) /// 2S Modules
+  {
+    if ( mPerformZMatching2S && ( segment0 != floor( mp1.y() ) ) )
+      return;
+  }
+  else /// PS Modules
+  {
+    if ( mPerformZMatchingPS && ( segment0 != floor( mp1.y() ) ) )
     return;
+  }
 
   /// Get the Stack radius and z and displacements
   double R0 = det0->position().perp();
@@ -195,13 +206,15 @@ class ES_HitMatchingAlgorithm_tab2013 : public edm::ESProducer
     std::vector< double > setBarrelCut;
     std::vector< std::vector< double > > setRingCut;
 
-    bool   mPerformZMatching;
+    bool   mPerformZMatchingPS;
+    bool   mPerformZMatching2S;
 
   public:
     /// Constructor
     ES_HitMatchingAlgorithm_tab2013( const edm::ParameterSet & p )
     {
-      mPerformZMatching =  p.getParameter< bool >("zMatching");
+      mPerformZMatchingPS =  p.getParameter< bool >("zMatchingPS");
+      mPerformZMatching2S =  p.getParameter< bool >("zMatching2S");
 
       setBarrelCut = p.getParameter< std::vector< double > >("BarrelCut");
 
@@ -235,7 +248,7 @@ class ES_HitMatchingAlgorithm_tab2013 : public edm::ESProducer
   
       HitMatchingAlgorithm< T >* HitMatchingAlgo =
         new HitMatchingAlgorithm_tab2013< T >( &(*StackedTrackerGeomHandle),
-                                               setBarrelCut, setRingCut, mPerformZMatching );
+                                               setBarrelCut, setRingCut, mPerformZMatchingPS, mPerformZMatching2S );
 
       _theAlgo = boost::shared_ptr< HitMatchingAlgorithm< T > >( HitMatchingAlgo );
       return _theAlgo;

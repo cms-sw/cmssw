@@ -108,15 +108,26 @@ SiTrackerGaussianSmearingRecHitConverter::SiTrackerGaussianSmearingRecHitConvert
   produces<SiTrackerGSRecHit2DCollection>("TrackerGSRecHits");
   produces<SiTrackerGSMatchedRecHit2DCollection>("TrackerGSMatchedRecHits");
 
+  //--- switch to have RecHit == PSimHit
+  trackingPSimHits = conf.getParameter<bool>("trackingPSimHits");
+  trackingPSimHitsEqualSmearing = conf.getParameter<bool>("trackingPSimHitsEqualSmearing");
+  if(trackingPSimHits) std::cout << "### trackingPSimHits chosen " << trackingPSimHits << std::endl;
+  if(trackingPSimHitsEqualSmearing) {
+    std::cout << "### trackingPSimHitsEqualSmearing chosen " << trackingPSimHitsEqualSmearing << std::endl;
+    localPositionResolution_x = conf.getParameter<double>("GeneralResX");
+    localPositionResolution_y = conf.getParameter<double>("GeneralResY");
+    localPositionResolutionBar_x = conf.getParameter<std::vector<double> >("GeneralBarResX");
+    localPositionResolutionBar_y = conf.getParameter<std::vector<double> >("GeneralBarResY");
+    localPositionResolutionFwd_x = conf.getParameter<std::vector<double> >("GeneralFwdResX");
+    localPositionResolutionFwd_y = conf.getParameter<std::vector<double> >("GeneralFwdResY");
+  }
+
   //--- PSimHit Containers
   trackerContainers.clear();
   trackerContainers = conf.getParameter<std::vector<edm::InputTag> >("ROUList");
   //--- delta rays p cut [GeV/c] to filter PSimHits with p>
   deltaRaysPCut = conf.getParameter<double>("DeltaRaysMomentumCut");
 
-  //--- switch to have RecHit == PSimHit
-  trackingPSimHits = conf.getParameter<bool>("trackingPSimHits");
-  if(trackingPSimHits) std::cout << "### trackingPSimHits chosen " << trackingPSimHits << std::endl;
 
   // switch on/off matching
   doMatching = conf.getParameter<bool>("doRecHitMatching");
@@ -125,224 +136,229 @@ SiTrackerGaussianSmearingRecHitConverter::SiTrackerGaussianSmearingRecHitConvert
   doDisableChannels = conf.getParameter<bool>("killDeadChannels");
 
   // Switch between old (ORCA) and new (CMSSW) pixel parameterization
-  useCMSSWPixelParameterization = conf.getParameter<bool>("UseCMSSWPixelParametrization");
+  if (!trackingPSimHitsEqualSmearing && !trackingPSimHits) {
+    useCMSSWPixelParameterization = conf.getParameter<bool>("UseCMSSWPixelParametrization");
 #ifdef FAMOS_DEBUG
-  std::cout << (useCMSSWPixelParameterization? "CMSSW" : "ORCA") << " pixel parametrization chosen in config file." << std::endl;
+    std::cout << (useCMSSWPixelParameterization? "CMSSW" : "ORCA") << " pixel parametrization chosen in config file." << std::endl;
 #endif
+  }
 
   //Clusters
   GevPerElectron =  conf.getParameter<double>("GevPerElectron");
   ElectronsPerADC =  conf.getParameter<double>("ElectronsPerADC");
   
-  //
-  // TIB
-  localPositionResolution_TIB1x = conf.getParameter<double>("TIB1x");
-  localPositionResolution_TIB1y = conf.getParameter<double>("TIB1y");
-  localPositionResolution_TIB2x = conf.getParameter<double>("TIB2x");
-  localPositionResolution_TIB2y = conf.getParameter<double>("TIB2y");
-  localPositionResolution_TIB3x = conf.getParameter<double>("TIB3x");
-  localPositionResolution_TIB3y = conf.getParameter<double>("TIB3y");
-  localPositionResolution_TIB4x = conf.getParameter<double>("TIB4x");
-  localPositionResolution_TIB4y = conf.getParameter<double>("TIB4y");
-  //
-  // TID
-  localPositionResolution_TID1x = conf.getParameter<double>("TID1x");
-  localPositionResolution_TID1y = conf.getParameter<double>("TID1y");
-  localPositionResolution_TID2x = conf.getParameter<double>("TID2x");
-  localPositionResolution_TID2y = conf.getParameter<double>("TID2y");
-  localPositionResolution_TID3x = conf.getParameter<double>("TID3x");
-  localPositionResolution_TID3y = conf.getParameter<double>("TID3y");
-  //
-  // TOB
-  localPositionResolution_TOB1x = conf.getParameter<double>("TOB1x");
-  localPositionResolution_TOB1y = conf.getParameter<double>("TOB1y");
-  localPositionResolution_TOB2x = conf.getParameter<double>("TOB2x");
-  localPositionResolution_TOB2y = conf.getParameter<double>("TOB2y");
-  localPositionResolution_TOB3x = conf.getParameter<double>("TOB3x");
-  localPositionResolution_TOB3y = conf.getParameter<double>("TOB3y");
-  localPositionResolution_TOB4x = conf.getParameter<double>("TOB4x");
-  localPositionResolution_TOB4y = conf.getParameter<double>("TOB4y");
-  localPositionResolution_TOB5x = conf.getParameter<double>("TOB5x");
-  localPositionResolution_TOB5y = conf.getParameter<double>("TOB5y");
-  localPositionResolution_TOB6x = conf.getParameter<double>("TOB6x");
-  localPositionResolution_TOB6y = conf.getParameter<double>("TOB6y");
-  //
-  // TEC
-  localPositionResolution_TEC1x = conf.getParameter<double>("TEC1x");
-  localPositionResolution_TEC1y = conf.getParameter<double>("TEC1y");
-  localPositionResolution_TEC2x = conf.getParameter<double>("TEC2x");
-  localPositionResolution_TEC2y = conf.getParameter<double>("TEC2y");
-  localPositionResolution_TEC3x = conf.getParameter<double>("TEC3x");
-  localPositionResolution_TEC3y = conf.getParameter<double>("TEC3y");
-  localPositionResolution_TEC4x = conf.getParameter<double>("TEC4x");
-  localPositionResolution_TEC4y = conf.getParameter<double>("TEC4y");
-  localPositionResolution_TEC5x = conf.getParameter<double>("TEC5x");
-  localPositionResolution_TEC5y = conf.getParameter<double>("TEC5y");
-  localPositionResolution_TEC6x = conf.getParameter<double>("TEC6x");
-  localPositionResolution_TEC6y = conf.getParameter<double>("TEC6y");
-  localPositionResolution_TEC7x = conf.getParameter<double>("TEC7x");
-  localPositionResolution_TEC7y = conf.getParameter<double>("TEC7y");
-  //
+  if (!trackingPSimHitsEqualSmearing && !trackingPSimHits) {
+    //
+    // TIB
+    localPositionResolution_TIB1x = conf.getParameter<double>("TIB1x");
+    localPositionResolution_TIB1y = conf.getParameter<double>("TIB1y");
+    localPositionResolution_TIB2x = conf.getParameter<double>("TIB2x");
+    localPositionResolution_TIB2y = conf.getParameter<double>("TIB2y");
+    localPositionResolution_TIB3x = conf.getParameter<double>("TIB3x");
+    localPositionResolution_TIB3y = conf.getParameter<double>("TIB3y");
+    localPositionResolution_TIB4x = conf.getParameter<double>("TIB4x");
+    localPositionResolution_TIB4y = conf.getParameter<double>("TIB4y");
+    //
+    // TID
+    localPositionResolution_TID1x = conf.getParameter<double>("TID1x");
+    localPositionResolution_TID1y = conf.getParameter<double>("TID1y");
+    localPositionResolution_TID2x = conf.getParameter<double>("TID2x");
+    localPositionResolution_TID2y = conf.getParameter<double>("TID2y");
+    localPositionResolution_TID3x = conf.getParameter<double>("TID3x");
+    localPositionResolution_TID3y = conf.getParameter<double>("TID3y");
+    //
+    // TOB
+    localPositionResolution_TOB1x = conf.getParameter<double>("TOB1x");
+    localPositionResolution_TOB1y = conf.getParameter<double>("TOB1y");
+    localPositionResolution_TOB2x = conf.getParameter<double>("TOB2x");
+    localPositionResolution_TOB2y = conf.getParameter<double>("TOB2y");
+    localPositionResolution_TOB3x = conf.getParameter<double>("TOB3x");
+    localPositionResolution_TOB3y = conf.getParameter<double>("TOB3y");
+    localPositionResolution_TOB4x = conf.getParameter<double>("TOB4x");
+    localPositionResolution_TOB4y = conf.getParameter<double>("TOB4y");
+    localPositionResolution_TOB5x = conf.getParameter<double>("TOB5x");
+    localPositionResolution_TOB5y = conf.getParameter<double>("TOB5y");
+    localPositionResolution_TOB6x = conf.getParameter<double>("TOB6x");
+    localPositionResolution_TOB6y = conf.getParameter<double>("TOB6y");
+    //
+    // TEC
+    localPositionResolution_TEC1x = conf.getParameter<double>("TEC1x");
+    localPositionResolution_TEC1y = conf.getParameter<double>("TEC1y");
+    localPositionResolution_TEC2x = conf.getParameter<double>("TEC2x");
+    localPositionResolution_TEC2y = conf.getParameter<double>("TEC2y");
+    localPositionResolution_TEC3x = conf.getParameter<double>("TEC3x");
+    localPositionResolution_TEC3y = conf.getParameter<double>("TEC3y");
+    localPositionResolution_TEC4x = conf.getParameter<double>("TEC4x");
+    localPositionResolution_TEC4y = conf.getParameter<double>("TEC4y");
+    localPositionResolution_TEC5x = conf.getParameter<double>("TEC5x");
+    localPositionResolution_TEC5y = conf.getParameter<double>("TEC5y");
+    localPositionResolution_TEC6x = conf.getParameter<double>("TEC6x");
+    localPositionResolution_TEC6y = conf.getParameter<double>("TEC6y");
+    localPositionResolution_TEC7x = conf.getParameter<double>("TEC7x");
+    localPositionResolution_TEC7y = conf.getParameter<double>("TEC7y");
+    //
+  }
   localPositionResolution_z = 0.0001; // not to be changed, set to minimum (1 um), Kalman Filter will crash if errors are exactly 0, setting 1 um means 0
   //
-#ifdef FAMOS_DEBUG
-  std::cout << "RecHit local position error set to" << "\n"
-	    << "\tTIB1\tx = " << localPositionResolution_TIB1x 
-	    << " cm\ty = " << localPositionResolution_TIB1y << " cm" << "\n"
-	    << "\tTIB2\tx = " << localPositionResolution_TIB2x 
-	    << " cm\ty = " << localPositionResolution_TIB2y << " cm" << "\n"
-	    << "\tTIB3\tx = " << localPositionResolution_TIB3x 
-	    << " cm\ty = " << localPositionResolution_TIB3y << " cm" << "\n"
-	    << "\tTIB4\tx = " << localPositionResolution_TIB4x 
-	    << " cm\ty = " << localPositionResolution_TIB4y << " cm" << "\n"
-	    << "\tTID1\tx = " << localPositionResolution_TID1x 
-	    << " cm\ty = " << localPositionResolution_TID1y << " cm" << "\n"
-	    << "\tTID2\tx = " << localPositionResolution_TID2x 
-	    << " cm\ty = " << localPositionResolution_TID2y << " cm" << "\n"
-	    << "\tTID3\tx = " << localPositionResolution_TID3x 
-	    << " cm\ty = " << localPositionResolution_TID3y << " cm" << "\n"
-	    << "\tTOB1\tx = " << localPositionResolution_TOB1x 
-	    << " cm\ty = " << localPositionResolution_TOB1y << " cm" << "\n"
-	    << "\tTOB2\tx = " << localPositionResolution_TOB2x 
-	    << " cm\ty = " << localPositionResolution_TOB2y << " cm" << "\n"
-	    << "\tTOB3\tx = " << localPositionResolution_TOB3x 
-	    << " cm\ty = " << localPositionResolution_TOB3y << " cm" << "\n"
-	    << "\tTOB4\tx = " << localPositionResolution_TOB4x 
-	    << " cm\ty = " << localPositionResolution_TOB4y << " cm" << "\n"
-	    << "\tTOB5\tx = " << localPositionResolution_TOB5x 
-	    << " cm\ty = " << localPositionResolution_TOB5y << " cm" << "\n"
-	    << "\tTOB6\tx = " << localPositionResolution_TOB6x 
-	    << " cm\ty = " << localPositionResolution_TOB6y << " cm" << "\n"
-	    << "\tTEC1\tx = " << localPositionResolution_TEC1x 
-	    << " cm\ty = " << localPositionResolution_TEC1y << " cm" << "\n"
-	    << "\tTEC2\tx = " << localPositionResolution_TEC2x 
-	    << " cm\ty = " << localPositionResolution_TEC2y << " cm" << "\n"
-	    << "\tTEC3\tx = " << localPositionResolution_TEC3x 
-	    << " cm\ty = " << localPositionResolution_TEC3y << " cm" << "\n"
-	    << "\tTEC4\tx = " << localPositionResolution_TEC4x 
-	    << " cm\ty = " << localPositionResolution_TEC4y << " cm" << "\n"
-	    << "\tTEC5\tx = " << localPositionResolution_TEC5x 
-	    << " cm\ty = " << localPositionResolution_TEC5y << " cm" << "\n"
-	    << "\tTEC6\tx = " << localPositionResolution_TEC6x 
-	    << " cm\ty = " << localPositionResolution_TEC6y << " cm" << "\n"
-	    << "\tTEC7\tx = " << localPositionResolution_TEC7x 
-	    << " cm\ty = " << localPositionResolution_TEC7y << " cm" << "\n"
-	    << "\tAll:\tz = " << localPositionResolution_z     << " cm" 
-	    << std::endl;
-#endif
+  //#ifdef FAMOS_DEBUG
+//   std::cout << "RecHit local position error set to" << "\n"
+// 	    << "\tTIB1\tx = " << localPositionResolution_TIB1x 
+// 	    << " cm\ty = " << localPositionResolution_TIB1y << " cm" << "\n"
+// 	    << "\tTIB2\tx = " << localPositionResolution_TIB2x 
+// 	    << " cm\ty = " << localPositionResolution_TIB2y << " cm" << "\n"
+// 	    << "\tTIB3\tx = " << localPositionResolution_TIB3x 
+// 	    << " cm\ty = " << localPositionResolution_TIB3y << " cm" << "\n"
+// 	    << "\tTIB4\tx = " << localPositionResolution_TIB4x 
+// 	    << " cm\ty = " << localPositionResolution_TIB4y << " cm" << "\n"
+// 	    << "\tTID1\tx = " << localPositionResolution_TID1x 
+// 	    << " cm\ty = " << localPositionResolution_TID1y << " cm" << "\n"
+// 	    << "\tTID2\tx = " << localPositionResolution_TID2x 
+// 	    << " cm\ty = " << localPositionResolution_TID2y << " cm" << "\n"
+// 	    << "\tTID3\tx = " << localPositionResolution_TID3x 
+// 	    << " cm\ty = " << localPositionResolution_TID3y << " cm" << "\n"
+// 	    << "\tTOB1\tx = " << localPositionResolution_TOB1x 
+// 	    << " cm\ty = " << localPositionResolution_TOB1y << " cm" << "\n"
+// 	    << "\tTOB2\tx = " << localPositionResolution_TOB2x 
+// 	    << " cm\ty = " << localPositionResolution_TOB2y << " cm" << "\n"
+// 	    << "\tTOB3\tx = " << localPositionResolution_TOB3x 
+// 	    << " cm\ty = " << localPositionResolution_TOB3y << " cm" << "\n"
+// 	    << "\tTOB4\tx = " << localPositionResolution_TOB4x 
+// 	    << " cm\ty = " << localPositionResolution_TOB4y << " cm" << "\n"
+// 	    << "\tTOB5\tx = " << localPositionResolution_TOB5x 
+// 	    << " cm\ty = " << localPositionResolution_TOB5y << " cm" << "\n"
+// 	    << "\tTOB6\tx = " << localPositionResolution_TOB6x 
+// 	    << " cm\ty = " << localPositionResolution_TOB6y << " cm" << "\n"
+// 	    << "\tTEC1\tx = " << localPositionResolution_TEC1x 
+// 	    << " cm\ty = " << localPositionResolution_TEC1y << " cm" << "\n"
+// 	    << "\tTEC2\tx = " << localPositionResolution_TEC2x 
+// 	    << " cm\ty = " << localPositionResolution_TEC2y << " cm" << "\n"
+// 	    << "\tTEC3\tx = " << localPositionResolution_TEC3x 
+// 	    << " cm\ty = " << localPositionResolution_TEC3y << " cm" << "\n"
+// 	    << "\tTEC4\tx = " << localPositionResolution_TEC4x 
+// 	    << " cm\ty = " << localPositionResolution_TEC4y << " cm" << "\n"
+// 	    << "\tTEC5\tx = " << localPositionResolution_TEC5x 
+// 	    << " cm\ty = " << localPositionResolution_TEC5y << " cm" << "\n"
+// 	    << "\tTEC6\tx = " << localPositionResolution_TEC6x 
+// 	    << " cm\ty = " << localPositionResolution_TEC6y << " cm" << "\n"
+// 	    << "\tTEC7\tx = " << localPositionResolution_TEC7x 
+// 	    << " cm\ty = " << localPositionResolution_TEC7y << " cm" << "\n"
+// 	    << "\tAll:\tz = " << localPositionResolution_z     << " cm" 
+// 	    << std::endl;
+// #endif
 
   //--- Number of histograms for alpha/beta barrel/forward multiplicity
-  if(useCMSSWPixelParameterization) {
-    nAlphaBarrel  = conf.getParameter<int>("AlphaBarrelMultiplicityNew");
-    nBetaBarrel   = conf.getParameter<int>("BetaBarrelMultiplicityNew");
-    nAlphaForward = conf.getParameter<int>("AlphaForwardMultiplicityNew");
-    nBetaForward  = conf.getParameter<int>("BetaForwardMultiplicityNew");
-  } else {
-    nAlphaBarrel  = conf.getParameter<int>("AlphaBarrelMultiplicity");
-    nBetaBarrel   = conf.getParameter<int>("BetaBarrelMultiplicity");
-    nAlphaForward = conf.getParameter<int>("AlphaForwardMultiplicity");
-    nBetaForward  = conf.getParameter<int>("BetaForwardMultiplicity");
-  }
+  if (!trackingPSimHitsEqualSmearing && !trackingPSimHits) {
+    if(useCMSSWPixelParameterization) {
+      nAlphaBarrel  = conf.getParameter<int>("AlphaBarrelMultiplicityNew");
+      nBetaBarrel   = conf.getParameter<int>("BetaBarrelMultiplicityNew");
+      nAlphaForward = conf.getParameter<int>("AlphaForwardMultiplicityNew");
+      nBetaForward  = conf.getParameter<int>("BetaForwardMultiplicityNew");
+    } else {
+      nAlphaBarrel  = conf.getParameter<int>("AlphaBarrelMultiplicity");
+      nBetaBarrel   = conf.getParameter<int>("BetaBarrelMultiplicity");
+      nAlphaForward = conf.getParameter<int>("AlphaForwardMultiplicity");
+      nBetaForward  = conf.getParameter<int>("BetaForwardMultiplicity");
+    }
 #ifdef FAMOS_DEBUG
-  std::cout << "Pixel maximum multiplicity set to " 
-	    << "\nBarrel"  << "\talpha " << nAlphaBarrel  
-	    << "\tbeta " << nBetaBarrel
-	    << "\nForward" << "\talpha " << nAlphaForward 
-	    << "\tbeta " << nBetaForward
-	    << std::endl;
+    std::cout << "Pixel maximum multiplicity set to " 
+	      << "\nBarrel"  << "\talpha " << nAlphaBarrel  
+	      << "\tbeta " << nBetaBarrel
+	      << "\nForward" << "\talpha " << nAlphaForward 
+	      << "\tbeta " << nBetaForward
+	      << std::endl;
 #endif
-  
-  // Resolution Barrel    
-  if(useCMSSWPixelParameterization) {
-    resAlphaBarrel_binMin   = conf.getParameter<double>("AlphaBarrel_BinMinNew"  );
-    resAlphaBarrel_binWidth = conf.getParameter<double>("AlphaBarrel_BinWidthNew");
-    resAlphaBarrel_binN     = conf.getParameter<int>(   "AlphaBarrel_BinNNew"    );
-    resBetaBarrel_binMin    = conf.getParameter<double>("BetaBarrel_BinMinNew"   );
-    resBetaBarrel_binWidth  = conf.getParameter<double>("BetaBarrel_BinWidthNew" );
-    resBetaBarrel_binN      = conf.getParameter<int>(   "BetaBarrel_BinNNew"     );
-  } else {
-    resAlphaBarrel_binMin   = conf.getParameter<double>("AlphaBarrel_BinMin"  );
-    resAlphaBarrel_binWidth = conf.getParameter<double>("AlphaBarrel_BinWidth");
-    resAlphaBarrel_binN     = conf.getParameter<int>(   "AlphaBarrel_BinN"    );
-    resBetaBarrel_binMin    = conf.getParameter<double>("BetaBarrel_BinMin"   );
-    resBetaBarrel_binWidth  = conf.getParameter<double>("BetaBarrel_BinWidth" );
-    resBetaBarrel_binN      = conf.getParameter<int>(   "BetaBarrel_BinN"     );
-  }
-  
-  // Resolution Forward
-  if(useCMSSWPixelParameterization) {
-    resAlphaForward_binMin   = conf.getParameter<double>("AlphaForward_BinMinNew"   );
-    resAlphaForward_binWidth = conf.getParameter<double>("AlphaForward_BinWidthNew" );
-    resAlphaForward_binN     = conf.getParameter<int>(   "AlphaForward_BinNNew"     );
-    resBetaForward_binMin    = conf.getParameter<double>("BetaForward_BinMinNew"    );
-    resBetaForward_binWidth  = conf.getParameter<double>("BetaForward_BinWidthNew"  );
-    resBetaForward_binN      = conf.getParameter<int>(   "BetaForward_BinNNew"      );
-  } else {
-    resAlphaForward_binMin   = conf.getParameter<double>("AlphaForward_BinMin"   );
-    resAlphaForward_binWidth = conf.getParameter<double>("AlphaForward_BinWidth" );
-    resAlphaForward_binN     = conf.getParameter<int>(   "AlphaForward_BinN"     );
-    resBetaForward_binMin    = conf.getParameter<double>("BetaForward_BinMin"    );
-    resBetaForward_binWidth  = conf.getParameter<double>("BetaForward_BinWidth"  );
-    resBetaForward_binN      = conf.getParameter<int>(   "BetaForward_BinN"      );
-  }
-
-  // Hit Finding Probability
-  theHitFindingProbability_PXB  = conf.getParameter<double>("HitFindingProbability_PXB" );
-  theHitFindingProbability_PXF  = conf.getParameter<double>("HitFindingProbability_PXF" );
-  theHitFindingProbability_TIB1 = conf.getParameter<double>("HitFindingProbability_TIB1");
-  theHitFindingProbability_TIB2 = conf.getParameter<double>("HitFindingProbability_TIB2");
-  theHitFindingProbability_TIB3 = conf.getParameter<double>("HitFindingProbability_TIB3");
-  theHitFindingProbability_TIB4 = conf.getParameter<double>("HitFindingProbability_TIB4");
-  theHitFindingProbability_TID1 = conf.getParameter<double>("HitFindingProbability_TID1");
-  theHitFindingProbability_TID2 = conf.getParameter<double>("HitFindingProbability_TID2");
-  theHitFindingProbability_TID3 = conf.getParameter<double>("HitFindingProbability_TID3");
-  theHitFindingProbability_TOB1 = conf.getParameter<double>("HitFindingProbability_TOB1");
-  theHitFindingProbability_TOB2 = conf.getParameter<double>("HitFindingProbability_TOB2");
-  theHitFindingProbability_TOB3 = conf.getParameter<double>("HitFindingProbability_TOB3");
-  theHitFindingProbability_TOB4 = conf.getParameter<double>("HitFindingProbability_TOB4");
-  theHitFindingProbability_TOB5 = conf.getParameter<double>("HitFindingProbability_TOB5");
-  theHitFindingProbability_TOB6 = conf.getParameter<double>("HitFindingProbability_TOB6");
-  theHitFindingProbability_TEC1 = conf.getParameter<double>("HitFindingProbability_TEC1");
-  theHitFindingProbability_TEC2 = conf.getParameter<double>("HitFindingProbability_TEC2");
-  theHitFindingProbability_TEC3 = conf.getParameter<double>("HitFindingProbability_TEC3");
-  theHitFindingProbability_TEC4 = conf.getParameter<double>("HitFindingProbability_TEC4");
-  theHitFindingProbability_TEC5 = conf.getParameter<double>("HitFindingProbability_TEC5");
-  theHitFindingProbability_TEC6 = conf.getParameter<double>("HitFindingProbability_TEC6");
-  theHitFindingProbability_TEC7 = conf.getParameter<double>("HitFindingProbability_TEC7");
-  //
+    
+    // Resolution Barrel    
+    if(useCMSSWPixelParameterization) {
+      resAlphaBarrel_binMin   = conf.getParameter<double>("AlphaBarrel_BinMinNew"  );
+      resAlphaBarrel_binWidth = conf.getParameter<double>("AlphaBarrel_BinWidthNew");
+      resAlphaBarrel_binN     = conf.getParameter<int>(   "AlphaBarrel_BinNNew"    );
+      resBetaBarrel_binMin    = conf.getParameter<double>("BetaBarrel_BinMinNew"   );
+      resBetaBarrel_binWidth  = conf.getParameter<double>("BetaBarrel_BinWidthNew" );
+      resBetaBarrel_binN      = conf.getParameter<int>(   "BetaBarrel_BinNNew"     );
+    } else {
+      resAlphaBarrel_binMin   = conf.getParameter<double>("AlphaBarrel_BinMin"  );
+      resAlphaBarrel_binWidth = conf.getParameter<double>("AlphaBarrel_BinWidth");
+      resAlphaBarrel_binN     = conf.getParameter<int>(   "AlphaBarrel_BinN"    );
+      resBetaBarrel_binMin    = conf.getParameter<double>("BetaBarrel_BinMin"   );
+      resBetaBarrel_binWidth  = conf.getParameter<double>("BetaBarrel_BinWidth" );
+      resBetaBarrel_binN      = conf.getParameter<int>(   "BetaBarrel_BinN"     );
+    }
+    
+    // Resolution Forward
+    if(useCMSSWPixelParameterization) {
+      resAlphaForward_binMin   = conf.getParameter<double>("AlphaForward_BinMinNew"   );
+      resAlphaForward_binWidth = conf.getParameter<double>("AlphaForward_BinWidthNew" );
+      resAlphaForward_binN     = conf.getParameter<int>(   "AlphaForward_BinNNew"     );
+      resBetaForward_binMin    = conf.getParameter<double>("BetaForward_BinMinNew"    );
+      resBetaForward_binWidth  = conf.getParameter<double>("BetaForward_BinWidthNew"  );
+      resBetaForward_binN      = conf.getParameter<int>(   "BetaForward_BinNNew"      );
+    } else {
+      resAlphaForward_binMin   = conf.getParameter<double>("AlphaForward_BinMin"   );
+      resAlphaForward_binWidth = conf.getParameter<double>("AlphaForward_BinWidth" );
+      resAlphaForward_binN     = conf.getParameter<int>(   "AlphaForward_BinN"     );
+      resBetaForward_binMin    = conf.getParameter<double>("BetaForward_BinMin"    );
+      resBetaForward_binWidth  = conf.getParameter<double>("BetaForward_BinWidth"  );
+      resBetaForward_binN      = conf.getParameter<int>(   "BetaForward_BinN"      );
+    }
+    
+    // Hit Finding Probability
+    theHitFindingProbability_PXB  = conf.getParameter<double>("HitFindingProbability_PXB" );
+    theHitFindingProbability_PXF  = conf.getParameter<double>("HitFindingProbability_PXF" );
+    theHitFindingProbability_TIB1 = conf.getParameter<double>("HitFindingProbability_TIB1");
+    theHitFindingProbability_TIB2 = conf.getParameter<double>("HitFindingProbability_TIB2");
+    theHitFindingProbability_TIB3 = conf.getParameter<double>("HitFindingProbability_TIB3");
+    theHitFindingProbability_TIB4 = conf.getParameter<double>("HitFindingProbability_TIB4");
+    theHitFindingProbability_TID1 = conf.getParameter<double>("HitFindingProbability_TID1");
+    theHitFindingProbability_TID2 = conf.getParameter<double>("HitFindingProbability_TID2");
+    theHitFindingProbability_TID3 = conf.getParameter<double>("HitFindingProbability_TID3");
+    theHitFindingProbability_TOB1 = conf.getParameter<double>("HitFindingProbability_TOB1");
+    theHitFindingProbability_TOB2 = conf.getParameter<double>("HitFindingProbability_TOB2");
+    theHitFindingProbability_TOB3 = conf.getParameter<double>("HitFindingProbability_TOB3");
+    theHitFindingProbability_TOB4 = conf.getParameter<double>("HitFindingProbability_TOB4");
+    theHitFindingProbability_TOB5 = conf.getParameter<double>("HitFindingProbability_TOB5");
+    theHitFindingProbability_TOB6 = conf.getParameter<double>("HitFindingProbability_TOB6");
+    theHitFindingProbability_TEC1 = conf.getParameter<double>("HitFindingProbability_TEC1");
+    theHitFindingProbability_TEC2 = conf.getParameter<double>("HitFindingProbability_TEC2");
+    theHitFindingProbability_TEC3 = conf.getParameter<double>("HitFindingProbability_TEC3");
+    theHitFindingProbability_TEC4 = conf.getParameter<double>("HitFindingProbability_TEC4");
+    theHitFindingProbability_TEC5 = conf.getParameter<double>("HitFindingProbability_TEC5");
+    theHitFindingProbability_TEC6 = conf.getParameter<double>("HitFindingProbability_TEC6");
+    theHitFindingProbability_TEC7 = conf.getParameter<double>("HitFindingProbability_TEC7");
+    //
 #ifdef FAMOS_DEBUG
-  std::cout << "RecHit finding probability set to" << "\n"
-	    << "\tPXB  = " << theHitFindingProbability_PXB  << "\n"
-	    << "\tPXF  = " << theHitFindingProbability_PXF  << "\n"
-	    << "\tTIB1 = " << theHitFindingProbability_TIB1 << "\n"
-	    << "\tTIB2 = " << theHitFindingProbability_TIB2 << "\n"
-	    << "\tTIB3 = " << theHitFindingProbability_TIB3 << "\n"
-	    << "\tTIB4 = " << theHitFindingProbability_TIB4 << "\n"
-	    << "\tTID1 = " << theHitFindingProbability_TID1 << "\n"
-	    << "\tTID2 = " << theHitFindingProbability_TID2 << "\n"
-	    << "\tTID3 = " << theHitFindingProbability_TID3 << "\n"
-	    << "\tTOB1 = " << theHitFindingProbability_TOB1 << "\n"
-	    << "\tTOB2 = " << theHitFindingProbability_TOB2 << "\n"
-	    << "\tTOB3 = " << theHitFindingProbability_TOB3 << "\n"
-	    << "\tTOB4 = " << theHitFindingProbability_TOB4 << "\n"
-	    << "\tTOB5 = " << theHitFindingProbability_TOB5 << "\n"
-	    << "\tTOB6 = " << theHitFindingProbability_TOB6 << "\n"
-	    << "\tTEC1 = " << theHitFindingProbability_TEC1 << "\n"
-	    << "\tTEC2 = " << theHitFindingProbability_TEC2 << "\n"
-	    << "\tTEC3 = " << theHitFindingProbability_TEC3 << "\n"
-	    << "\tTEC4 = " << theHitFindingProbability_TEC4 << "\n"
-	    << "\tTEC5 = " << theHitFindingProbability_TEC5 << "\n"
-	    << "\tTEC6 = " << theHitFindingProbability_TEC6 << "\n"
-	    << "\tTEC7 = " << theHitFindingProbability_TEC7 << "\n"
-	    << std::endl;
+    std::cout << "RecHit finding probability set to" << "\n"
+	      << "\tPXB  = " << theHitFindingProbability_PXB  << "\n"
+	      << "\tPXF  = " << theHitFindingProbability_PXF  << "\n"
+	      << "\tTIB1 = " << theHitFindingProbability_TIB1 << "\n"
+	      << "\tTIB2 = " << theHitFindingProbability_TIB2 << "\n"
+	      << "\tTIB3 = " << theHitFindingProbability_TIB3 << "\n"
+	      << "\tTIB4 = " << theHitFindingProbability_TIB4 << "\n"
+	      << "\tTID1 = " << theHitFindingProbability_TID1 << "\n"
+	      << "\tTID2 = " << theHitFindingProbability_TID2 << "\n"
+	      << "\tTID3 = " << theHitFindingProbability_TID3 << "\n"
+	      << "\tTOB1 = " << theHitFindingProbability_TOB1 << "\n"
+	      << "\tTOB2 = " << theHitFindingProbability_TOB2 << "\n"
+	      << "\tTOB3 = " << theHitFindingProbability_TOB3 << "\n"
+	      << "\tTOB4 = " << theHitFindingProbability_TOB4 << "\n"
+	      << "\tTOB5 = " << theHitFindingProbability_TOB5 << "\n"
+	      << "\tTOB6 = " << theHitFindingProbability_TOB6 << "\n"
+	      << "\tTEC1 = " << theHitFindingProbability_TEC1 << "\n"
+	      << "\tTEC2 = " << theHitFindingProbability_TEC2 << "\n"
+	      << "\tTEC3 = " << theHitFindingProbability_TEC3 << "\n"
+	      << "\tTEC4 = " << theHitFindingProbability_TEC4 << "\n"
+	      << "\tTEC5 = " << theHitFindingProbability_TEC5 << "\n"
+	      << "\tTEC6 = " << theHitFindingProbability_TEC6 << "\n"
+	      << "\tTEC7 = " << theHitFindingProbability_TEC7 << "\n"
+	      << std::endl;
 #endif
 
-  // Initialize the si strip error parametrization
+    // Initialize the si strip error parametrization
   theSiStripErrorParametrization = 
     new SiStripGaussianSmearingRecHitConverterAlgorithm(random);
-
+  
   // Initialization of pixel parameterization posponed to beginRun(), since it depends on the magnetic field
-
+  }
 }
 
 
@@ -518,22 +534,23 @@ SiTrackerGaussianSmearingRecHitConverter::beginRun(edm::Run & run, const edm::Ev
   double magFieldAtCenter = magfield->inTesla(center).mag();
 
   // For new parameterization: select multiplicity and resolution files according to magnetic field
-  if(useCMSSWPixelParameterization) {
-    if(magFieldAtCenter > 3.9) {
-      thePixelMultiplicityFileName = pset_.getParameter<std::string>( "PixelMultiplicityFile40T");
-      thePixelBarrelResolutionFileName = pset_.getParameter<std::string>( "PixelBarrelResolutionFile40T");
-      thePixelForwardResolutionFileName = pset_.getParameter<std::string>( "PixelForwardResolutionFile40T");
+  if (!trackingPSimHitsEqualSmearing && !trackingPSimHits) {
+    if(useCMSSWPixelParameterization) {
+      if(magFieldAtCenter > 3.9) {
+	thePixelMultiplicityFileName = pset_.getParameter<std::string>( "PixelMultiplicityFile40T");
+	thePixelBarrelResolutionFileName = pset_.getParameter<std::string>( "PixelBarrelResolutionFile40T");
+	thePixelForwardResolutionFileName = pset_.getParameter<std::string>( "PixelForwardResolutionFile40T");
+      } else {
+	thePixelMultiplicityFileName = pset_.getParameter<std::string>( "PixelMultiplicityFile38T");
+	thePixelBarrelResolutionFileName = pset_.getParameter<std::string>( "PixelBarrelResolutionFile38T");      
+	thePixelForwardResolutionFileName = pset_.getParameter<std::string>( "PixelForwardResolutionFile38T");
+      }
     } else {
-      thePixelMultiplicityFileName = pset_.getParameter<std::string>( "PixelMultiplicityFile38T");
-      thePixelBarrelResolutionFileName = pset_.getParameter<std::string>( "PixelBarrelResolutionFile38T");      
-      thePixelForwardResolutionFileName = pset_.getParameter<std::string>( "PixelForwardResolutionFile38T");
+      thePixelMultiplicityFileName = pset_.getParameter<std::string>( "PixelMultiplicityFile" );
+      thePixelBarrelResolutionFileName = pset_.getParameter<std::string>( "PixelBarrelResolutionFile");
+      thePixelForwardResolutionFileName = pset_.getParameter<std::string>( "PixelForwardResolutionFile");
     }
-  } else {
-    thePixelMultiplicityFileName = pset_.getParameter<std::string>( "PixelMultiplicityFile" );
-    thePixelBarrelResolutionFileName = pset_.getParameter<std::string>( "PixelBarrelResolutionFile");
-    thePixelForwardResolutionFileName = pset_.getParameter<std::string>( "PixelForwardResolutionFile");
   }
-
 
   // Reading the list of dead pixel modules from DB:
   edm::ESHandle<SiPixelQuality> siPixelBadModule;
@@ -561,57 +578,60 @@ SiTrackerGaussianSmearingRecHitConverter::beginRun(edm::Run & run, const edm::Ev
   
 
 
-#ifdef FAMOS_DEBUG
-  std::cout << "Pixel multiplicity data are taken from file " << thePixelMultiplicityFileName << std::endl;
+// #ifdef FAMOS_DEBUG
+//   std::cout << "Pixel multiplicity data are taken from file " << thePixelMultiplicityFileName << std::endl;
 
-  std::cout << "Pixel maximum multiplicity set to " 
-	    << "\nBarrel"  << "\talpha " << nAlphaBarrel  
-	    << "\tbeta " << nBetaBarrel
-	    << "\nForward" << "\talpha " << nAlphaForward 
-	    << "\tbeta " << nBetaForward
-	    << std::endl;
+//   std::cout << "Pixel maximum multiplicity set to " 
+// 	    << "\nBarrel"  << "\talpha " << nAlphaBarrel  
+// 	    << "\tbeta " << nBetaBarrel
+// 	    << "\nForward" << "\talpha " << nAlphaForward 
+// 	    << "\tbeta " << nBetaForward
+// 	    << std::endl;
 
-  std::cout << "Barrel Pixel resolution data are taken from file " 
-	    << thePixelBarrelResolutionFileName << "\n"
-	    << "Alpha bin min = " << resAlphaBarrel_binMin
-	    << "\twidth = "       << resAlphaBarrel_binWidth
-	    << "\tbins = "        << resAlphaBarrel_binN
-	    << "\n"
-	    << " Beta bin min = " << resBetaBarrel_binMin
-	    << "\twidth = "       << resBetaBarrel_binWidth
-	    << "\tbins = "        << resBetaBarrel_binN
-	    << std::endl;
+//   std::cout << "Barrel Pixel resolution data are taken from file " 
+// 	    << thePixelBarrelResolutionFileName << "\n"
+// 	    << "Alpha bin min = " << resAlphaBarrel_binMin
+// 	    << "\twidth = "       << resAlphaBarrel_binWidth
+// 	    << "\tbins = "        << resAlphaBarrel_binN
+// 	    << "\n"
+// 	    << " Beta bin min = " << resBetaBarrel_binMin
+// 	    << "\twidth = "       << resBetaBarrel_binWidth
+// 	    << "\tbins = "        << resBetaBarrel_binN
+// 	    << std::endl;
 
-  std::cout << "Forward Pixel resolution data are taken from file " 
-	    << thePixelForwardResolutionFileName << "\n"
-	    << "Alpha bin min = " << resAlphaForward_binMin
-	    << "\twidth = "       << resAlphaForward_binWidth
-	    << "\tbins = "        << resAlphaForward_binN
-	    << "\n"
-	    << " Beta bin min = " << resBetaForward_binMin
-	    << "\twidth = "       << resBetaForward_binWidth
-	    << "\tbins = "        << resBetaForward_binN
-	    << std::endl;
-#endif 
+//   std::cout << "Forward Pixel resolution data are taken from file " 
+// 	    << thePixelForwardResolutionFileName << "\n"
+// 	    << "Alpha bin min = " << resAlphaForward_binMin
+// 	    << "\twidth = "       << resAlphaForward_binWidth
+// 	    << "\tbins = "        << resAlphaForward_binN
+// 	    << "\n"
+// 	    << " Beta bin min = " << resBetaForward_binMin
+// 	    << "\twidth = "       << resBetaForward_binWidth
+// 	    << "\tbins = "        << resBetaForward_binN
+// 	    << std::endl;
+// #endif 
   //
 
   //    
   // load pixel data
-  loadPixelData();
-  //
+  if (!trackingPSimHitsEqualSmearing && !trackingPSimHits ) {
+    loadPixelData();
+    //
+    
+    // Initialize and open relevant files for the pixel barrel error parametrization
+    thePixelBarrelParametrization = 
+      new SiPixelGaussianSmearingRecHitConverterAlgorithm(
+							  pset_,
+							  GeomDetEnumerators::PixelBarrel,
+							  random);
+    // Initialize and open relevant files for the pixel forward error parametrization 
+    thePixelEndcapParametrization = 
+      new SiPixelGaussianSmearingRecHitConverterAlgorithm(
+							  pset_,
+							  GeomDetEnumerators::PixelEndcap,
+							  random);
+  }
 
-  // Initialize and open relevant files for the pixel barrel error parametrization
-  thePixelBarrelParametrization = 
-    new SiPixelGaussianSmearingRecHitConverterAlgorithm(
-        pset_,
-	GeomDetEnumerators::PixelBarrel,
-	random);
-  // Initialize and open relevant files for the pixel forward error parametrization 
-  thePixelEndcapParametrization = 
-    new SiPixelGaussianSmearingRecHitConverterAlgorithm(
-        pset_,
-	GeomDetEnumerators::PixelEndcap,
-	random);
 }
 
 void SiTrackerGaussianSmearingRecHitConverter::produce(edm::Event& e, const edm::EventSetup& es) 
@@ -636,6 +656,7 @@ void SiTrackerGaussianSmearingRecHitConverter::produce(edm::Event& e, const edm:
   std::map<unsigned, edm::OwnVector<SiTrackerGSRecHit2D> > temporaryRecHits;
   std::map<unsigned, edm::OwnVector<FastTrackerCluster> > theClusters ;
  
+
   smearHits( *allTrackerHits, temporaryRecHits, theClusters);
   
  // Step C: match rechits on stereo layers
@@ -654,12 +675,12 @@ void SiTrackerGaussianSmearingRecHitConverter::produce(edm::Event& e, const edm:
     loadRecHits(temporaryRecHits, *recHitCollection);
   }
   
-  
+#ifdef FAMOS_DEBUG 
 
-  //std::cout << "****** TrackerGSRecHits hits are =\t" <<  (*recHitCollection).size()<<std::endl;
-  //std::cout << "****** TrackerGSRecHitsMatched hits are =\t" <<  (*recHitCollectionMatched).size()<< std::endl;
+  std::cout << "\n****** TrackerGSRecHits hits are =\t" <<  (*recHitCollection).size()<<std::endl;
+  std::cout << "\n****** TrackerGSRecHitsMatched hits are =\t" <<  (*recHitCollectionMatched).size()<< std::endl;
   
-  
+#endif 
 
   // Step E: write output to file
   e.put(recHitCollection,"TrackerGSRecHits");
@@ -693,6 +714,8 @@ void SiTrackerGaussianSmearingRecHitConverter::smearHits(MixCollection<PSimHit>&
   
   // loop on PSimHits
 
+  //std::cout << " Begin Number of Sim Hits " <<  input.size() << std::endl;
+
   for ( ; isim != lastSimHit; ++isim ) {
     ++simHitCounter;
     
@@ -701,16 +724,33 @@ void SiTrackerGaussianSmearingRecHitConverter::smearHits(MixCollection<PSimHit>&
     uint32_t eeID = (*isim).eventId().rawId(); //get the rawId of the eeid for pileup treatment
 
 
-    
-
     //// Here comes the Dead Modules rejection, by Suzan 
 
-    // unsigned int subdetId = det.subdetId();
-    // unsigned int  disk  = PXFDetId(det).disk();
-    // unsigned int  side  = PXFDetId(det).side();
-    // std::cout<< " Pixel Forward Disk Number : "<< disk << " Side : "<<side<<std::endl; 
-    // if(subdetId==1 || subdetId==2) std::cout<<" Pixel GSRecHits "<<std::endl;
-    // else if(subdetId==3|| subdetId==4 || subdetId==5 || subdetId == 6) std::cout<<" Strip GSRecHits "<<std::endl;    
+#ifdef FAMOS_DEBUG
+
+     unsigned int subdetId = det.subdetId();
+     //unsigned int  disk  = PXFDetId(det).disk();
+     //unsigned int  side  = PXFDetId(det).side();
+
+
+     std::cout << " SubDetector = " << subdetId << std::endl;
+     //std::cout<< " Pixel Forward Disk Number : "<< disk << " Side : "<<side<<std::endl; 
+     if(subdetId==1 || subdetId==2) std::cout<<" Pixel GSRecHits "<<std::endl;
+     else if(subdetId==3|| subdetId==4 || subdetId==5 || subdetId == 6) std::cout<<" Strip GSRecHits "<<std::endl;    
+
+     if(subdetId==1){
+      PXBDetId module(det);
+      unsigned int theLayer = module.layer();
+      std::cout << "\tPixel Barrel Layer " << theLayer << std::endl;
+     }
+
+     if(subdetId==2){
+      PXFDetId module(det);
+      unsigned int theDisk = module.disk();
+      std::cout << "\tPixel Forward Disk " << theDisk << std::endl;
+     }
+#endif
+
 
     bool isBad = false;
     unsigned int geoId  = det.rawId();
@@ -724,8 +764,7 @@ void SiTrackerGaussianSmearingRecHitConverter::smearHits(MixCollection<PSimHit>&
     }    
     if(isBad)      continue;
 
-
-    /*
+#ifdef FAMOS_DEBUG
     const GeomDet* theDet = geometry->idToDet(det);
     std::cout << "SimHit Track/z/r as simulated : "
 	      << trackID << " " 
@@ -736,19 +775,27 @@ void SiTrackerGaussianSmearingRecHitConverter::smearHits(MixCollection<PSimHit>&
 	      << trackID << " " 
 	      << theMADet->surface().toGlobal((*isim).localPosition()).z() << " " 
 	      << theMADet->surface().toGlobal((*isim).localPosition()).perp() << std::endl;
-    */
+#endif
+
 
     ++numberOfPSimHits;	
     // gaussian smearing
     unsigned int alphaMult = 0;
     unsigned int betaMult  = 0;
     bool isCreated = gaussianSmearing(*isim, position, error, alphaMult, betaMult);
-    // std::cout << "Error as simulated     " << error.xx() << " " << error.xy() << " " << error.yy() << std::endl;
+
+#ifdef FAMOS_DEBUG
+    std::cout << "Error as simulated     " << error.xx() << " " << error.xy() << " " << error.yy() << std::endl;
+#endif
     //
     unsigned int subdet = det.subdetId();
     
     //
     if(isCreated) {
+
+
+      //      std::cout << "Inside isCreated in subdetector" << subdet << std::endl; 
+
       //      double dist = theDet->surface().toGlobal((*isim).localPosition()).mag2();
       // create RecHit
       // Fill the temporary RecHit on the current DetId collection
@@ -787,6 +834,7 @@ void SiTrackerGaussianSmearingRecHitConverter::smearHits(MixCollection<PSimHit>&
       
       // set y=0 in single-sided strip detectors 
       if(doMatching && (subdet>2)){    
+
 	StripSubdetector specDetId=StripSubdetector(det);
 	if( !specDetId.glued() ){  // this is a single-sided module
 	  position = Local3DPoint(position.x(),0.,0.); // set y to 0 on single-sided modules
@@ -797,16 +845,16 @@ void SiTrackerGaussianSmearingRecHitConverter::smearHits(MixCollection<PSimHit>&
       // Inflate errors in case of geometry misalignment
       const GeomDet* theMADet = misAlignedGeometry->idToDet(det);
       if ( theMADet->alignmentPositionError() != 0 ) { 
-	LocalError lape = 
-	  ErrorFrameTransformer().transform ( theMADet->alignmentPositionError()->globalError(),
-					      theMADet->surface() );
-	error = LocalError ( error.xx()+lape.xx(),
-			     error.xy()+lape.xy(),
-			     error.yy()+lape.yy() );
+ 	LocalError lape = 
+ 	  ErrorFrameTransformer().transform ( theMADet->alignmentPositionError()->globalError(),
+ 					      theMADet->surface() );
+ 	error = LocalError ( error.xx()+lape.xx(),
+ 			     error.xy()+lape.xy(),
+ 			     error.yy()+lape.yy() );
       }
       
       float chargeADC = (*isim).energyLoss()/(GevPerElectron * ElectronsPerADC);
-
+      
       //create cluster
       if(subdet > 2) theClusters[trackID].push_back(
 						    new FastTrackerCluster(LocalPoint(position.x(), 0.0, 0.0), error, det,
@@ -823,6 +871,7 @@ void SiTrackerGaussianSmearingRecHitConverter::smearHits(MixCollection<PSimHit>&
 								 chargeADC)
 					  );
     
+
       //       std::cout << "CLUSTER for simhit " << simHitCounter << "\t energy loss = " <<chargeADC << std::endl;
       
       // std::cout << "Error as reconstructed " << error.xx() << " " << error.xy() << " " << error.yy() << std::endl;
@@ -862,13 +911,15 @@ bool SiTrackerGaussianSmearingRecHitConverter::gaussianSmearing(const PSimHit& s
   const Bounds& theBounds = theDetPlane.bounds();
   double boundX = theBounds.width()/2.;
   double boundY = theBounds.length()/2.;
-  
+
+
 #ifdef FAMOS_DEBUG
-  std::cout << "\tSubdetector " << subdet 
+  std::cout << "Inside gaussianSmearing \tSubdetector " << subdet 
 	    << " rawid " << detid
 	    << std::endl;
 #endif
   if(trackingPSimHits) {
+
     // z is fixed for all detectors, in case of errors resolution is fixed also for x and y to 1 um (zero)
     // The Matrix is the Covariance Matrix, sigma^2 on diagonal!!!
     error = LocalError( localPositionResolution_z * localPositionResolution_z , 
@@ -881,8 +932,57 @@ bool SiTrackerGaussianSmearingRecHitConverter::gaussianSmearing(const PSimHit& s
     std::cout << " Tracking PSimHit position set to  " << position;
 #endif
     return true; // RecHit == PSimHit with 100% hit finding efficiency
+  } else if (trackingPSimHitsEqualSmearing) {
+    
+    
+    //split the errors per layer
+    if(subdet == 1){ //Pixel Barrel (now includes tracker) 
+      PXBDetId module(detid);
+      unsigned int theLayer = module.layer();
+      position = Local3DPoint(random->gaussShoot((double)simHit.localPosition().x(), localPositionResolutionBar_x[theLayer]),(double)simHit.localPosition().y(),localPositionResolutionBar_y[theLayer]);
+      //position = Local3DPoint(random->gaussShoot((double)simHit.localPosition().x(), localPositionResolutionBar_x[theLayer]),(double)simHit.localPosition().y(),0.);
+      error = LocalError( localPositionResolutionBar_x[theLayer] * localPositionResolutionBar_x[theLayer],
+			  0.0,
+			  localPositionResolutionBar_y[theLayer] * localPositionResolutionBar_y[theLayer] ); 
+    } else if(subdet == 2) {
+      PXFDetId module(detid);
+      unsigned int theDisk = module.disk();     
+      position = Local3DPoint(random->gaussShoot((double)simHit.localPosition().x(), localPositionResolutionFwd_x[theDisk]), (double)simHit.localPosition().y(),localPositionResolutionFwd_y[theDisk]);
+      // position = Local3DPoint(random->gaussShoot((double)simHit.localPosition().x(), localPositionResolutionFwd_x[theDisk]),(double)simHit.localPosition().y(),0.);
+      error = LocalError( localPositionResolutionFwd_x[theDisk] * localPositionResolutionFwd_x[theDisk],
+			  0.0,
+			  localPositionResolutionFwd_y[theDisk] * localPositionResolutionFwd_y[theDisk] ); 
+    } else if (subdet>2) {
+      //we are in the Phase 1 tracker same smearing for all channels. Will be improved to use the actual tracker resolutions
+      
+      position = Local3DPoint(random->gaussShoot((double)simHit.localPosition().x(), localPositionResolution_x), 
+			      (double)simHit.localPosition().y(),0.);
+      error = LocalError( localPositionResolution_x * localPositionResolution_x,
+			  0.0, localPositionResolution_y * localPositionResolution_y ); 
+      //      std::cout << "in the Phase 1 tracker subdet" << subdet << std::endl;
+    }
+
+    /*
+      position = Local3DPoint(random->gaussShoot((double)simHit.localPosition().x(), localPositionResolution_x), 
+			      (double)simHit.localPosition().y(),
+			      0.);
+      error = LocalError( localPositionResolution_x * localPositionResolution_x,
+			  0.0,
+			  localPositionResolution_y * localPositionResolution_y ); 
+      std::cout << "in the Phase 1 old style tracker subdet" << subdet << std::endl;
+    */
+
+#ifdef FAMOS_DEBUG
+    std::cout << " Tracking PSimHit position set to  " << position;
+    std::cout << " Tracking PSimHit error set to  " << error;
+#endif
+    return true; // RecHit == PSimHit 100% hit finding efficiency
   }
   //
+  
+  
+  //  std::cout << "************************ HERE???" << std::endl;
+  
   
   // hit finding probability --> RecHit will be created if and only if hitFindingProbability <= theHitFindingProbability_###
   double hitFindingProbability = random->flatShoot();
@@ -1329,6 +1429,8 @@ SiTrackerGaussianSmearingRecHitConverter::matchHits(
 	      }
 	    
 	    
+	    //std::cout << "CHECKING matched hits: Partners found = " << partnersFound << std::endl;
+
 	    // in case partner has not been found this way, need to loop over all rechits in track to be sure
 	    // (rare cases fortunately)
 	    if(partnersFound==0){
