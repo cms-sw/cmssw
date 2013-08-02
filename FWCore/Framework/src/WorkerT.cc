@@ -9,6 +9,7 @@
 #include "FWCore/Framework/interface/OutputModule.h"
 #include "FWCore/Framework/interface/one/EDProducerBase.h"
 #include "FWCore/Framework/interface/one/EDFilterBase.h"
+#include "FWCore/Framework/interface/one/EDAnalyzerBase.h"
 #include "FWCore/Framework/interface/one/OutputModuleBase.h"
 #include "FWCore/Framework/interface/global/EDProducerBase.h"
 #include "FWCore/Framework/interface/global/EDFilterBase.h"
@@ -322,6 +323,8 @@ namespace edm{
   template<>
   Worker::Types WorkerT<edm::one::EDFilterBase>::moduleType() const { return Worker::kFilter;}
   template<>
+  Worker::Types WorkerT<edm::one::EDAnalyzerBase>::moduleType() const { return Worker::kAnalyzer;}
+  template<>
   Worker::Types WorkerT<edm::one::OutputModuleBase>::moduleType() const { return Worker::kOutputModule;}
 
   template<>
@@ -340,6 +343,7 @@ namespace edm{
   template class WorkerT<OutputModule>;
   template class WorkerT<one::EDProducerBase>;
   template class WorkerT<one::EDFilterBase>;
+  template class WorkerT<one::EDAnalyzerBase>;
   template class WorkerT<one::OutputModuleBase>;
   template class WorkerT<global::EDProducerBase>;
   template class WorkerT<global::EDFilterBase>;
