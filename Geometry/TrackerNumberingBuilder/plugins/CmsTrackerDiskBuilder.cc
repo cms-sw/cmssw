@@ -87,12 +87,16 @@ CmsTrackerDiskBuilder::buildComponent( DDFilteredView& fv, GeometricDet* g, std:
 void
 CmsTrackerDiskBuilder::sortNS( DDFilteredView& fv, GeometricDet* det )
 {
+
+
   GeometricDet::GeometricDetContainer & comp = det->components();
 
-// NP** BIG switch between Phase 1 and Outer Tracker Pixels
-if( fabs( comp[0]->translation().z() ) < 1000 ) {
+  std::string det_name = det->name();
+  bool pixel_disk = det_name.find("PixelForwardDisk") < det_name.size();
 
-  //std::cerr<<"PHASE1"<<std::endl;
+ // NP** BIG switch between Phase 1 and Outer Tracker Pixels
+  if( pixel_disk ) {
+    //std::cerr<<"PHASE1"<<std::endl;
 
   /////////GeometricDet::GeometricDetContainer & comp = det->components(); !!!!!!!!!!!!BUG?
 
@@ -174,6 +178,7 @@ else {
   GeometricDet::GeometricDetContainer rings;
   uint32_t  totalrings = comp.size();
 
+
   for ( uint32_t rn=0; rn<totalrings; rn++) {
     rings.push_back(comp[rn]);
     uint32_t blade = rn+1;
@@ -187,7 +192,6 @@ else {
   det->addComponents(rings);
 }
 // NP** End of the BIG switch
-
 
 }
 

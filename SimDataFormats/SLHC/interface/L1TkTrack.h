@@ -36,6 +36,7 @@ class L1TkTrack
     unsigned int                              theWedge;
     double                                    theChi2;
     edm::Ptr< SimTrack >                      theSimTrack;
+    uint32_t                                  theEventId;
 
   public:
     /// Constructors
@@ -46,34 +47,35 @@ class L1TkTrack
     ~L1TkTrack();
 
     /// Track components
-    std::vector< edm::Ptr< L1TkStub< T > > > getStubPtrs() const;
+    std::vector< edm::Ptr< L1TkStub< T > > > getStubPtrs() const { return theStubPtrs; }
     void addStubPtr( edm::Ptr< L1TkStub< T > > aStub );
 
     /// Track momentum
-    GlobalVector getMomentum() const;
+    GlobalVector getMomentum() const { return theMomentum; }
     void         setMomentum( GlobalVector aMomentum );
 
     /// Track parameters
-    double getRInv() const;
+    double getRInv() const { return theRInv; }
     void   setRInv( double aRInv );
 
     /// Vertex
-    GlobalPoint getVertex() const;
+    GlobalPoint getVertex() const { return theVertex; }
     void        setVertex( GlobalPoint aVertex );
 
     /// Sector
-    unsigned int getSector() const;
+    unsigned int getSector() const { return theSector; }
     void         setSector( unsigned int aSector );
-    unsigned int getWedge() const;
+    unsigned int getWedge() const { return theWedge; }
     void         setWedge( unsigned int aWedge );
 
     /// Chi2
-    double getChi2() const;
+    double getChi2() const { return theChi2; }
     double getChi2Red() const;
     void   setChi2( double aChi2 );
 
     /// MC Truth
-    edm::Ptr< SimTrack > getSimTrackPtr() const;
+    edm::Ptr< SimTrack > getSimTrackPtr() const { return theSimTrack; }
+    uint32_t             getEventId() const { return theEventId; }
     bool                 isGenuine() const;
     bool                 isCombinatoric() const;
     bool                 isUnknown() const;
@@ -119,6 +121,8 @@ L1TkTrack< T >::L1TkTrack()
   theSector   = 0;
   theWedge    = 0;
   theChi2     = 0;
+  /// theSimTrack is NULL by default
+  theEventId = 0xFFFF;
 }
 
 /// Another Constructor
@@ -132,6 +136,8 @@ L1TkTrack< T >::L1TkTrack( std::vector< edm::Ptr< L1TkStub< T > > > aStubs )
   theSector   = 0;
   theWedge    = 0;
   theChi2     = 0;
+  /// theSimTrack is NULL by default
+  theEventId = 0xFFFF;
 }
 
 /// Destructor
@@ -140,18 +146,12 @@ L1TkTrack< T >::~L1TkTrack(){}
 
 /// Track components
 template< typename T >
-std::vector< edm::Ptr< L1TkStub< T > > > L1TkTrack< T >::getStubPtrs() const { return theStubPtrs; }
-
-template< typename T >
 void L1TkTrack< T >::addStubPtr( edm::Ptr< L1TkStub< T > > aStub )
 {
   theStubPtrs.push_back( aStub );
 }
 
 /// Track momentum
-template< typename T >
-GlobalVector L1TkTrack< T >::getMomentum() const { return theMomentum; }
-
 template< typename T >
 void L1TkTrack< T >::setMomentum( GlobalVector aMomentum )
 {
@@ -165,13 +165,7 @@ void L1TkTrack< T >::setVertex( GlobalPoint aVertex )
   theVertex = aVertex;
 }
 
-template< typename T >
-GlobalPoint L1TkTrack< T >::getVertex() const { return theVertex; }
-
 /// Track parameters
-template< typename T >
-double L1TkTrack< T >::getRInv() const { return theRInv; }
-
 template< typename T >
 void L1TkTrack< T >::setRInv( double aRInv )
 {
@@ -180,16 +174,10 @@ void L1TkTrack< T >::setRInv( double aRInv )
 
 /// Sector
 template< typename T >
-unsigned int L1TkTrack< T >::getSector() const { return theSector; }
-
-template< typename T >
 void L1TkTrack< T >::setSector( unsigned int aSector )
 {
   theSector = aSector;
 }
-
-template< typename T >
-unsigned int L1TkTrack< T >::getWedge() const { return theWedge; }
 
 template< typename T >
 void L1TkTrack< T >::setWedge( unsigned int aWedge )
@@ -198,9 +186,6 @@ void L1TkTrack< T >::setWedge( unsigned int aWedge )
 }
 
 /// Chi2
-template< typename T >
-double L1TkTrack< T >::getChi2() const { return theChi2; }
-
 template< typename T >
 double L1TkTrack< T >::getChi2Red() const { return theChi2/( 2*theStubPtrs.size() - 4 ); }
 
@@ -211,9 +196,6 @@ void L1TkTrack< T >::setChi2( double aChi2 )
 }
 
 // MC truth
-template< typename T >
-edm::Ptr< SimTrack > L1TkTrack< T >::getSimTrackPtr() const { return theSimTrack; }
-
 template< typename T >
 int L1TkTrack< T >::findType() const
 {
@@ -265,6 +247,8 @@ void L1TkTrack< T >::checkSimTrack()
   /// Vector to store SimTracks
   std::vector< edm::Ptr< SimTrack > > tempVecGen;
   std::vector< std::vector< edm::Ptr< SimTrack > > > tempVecComb;
+  std::vector< uint32_t >                evIdGen;
+  std::vector< std::vector< uint32_t > > evIdComb;
 
   /// Loop over the Stubs
   /// Put the SimTracks together
@@ -280,6 +264,7 @@ void L1TkTrack< T >::checkSimTrack()
     if ( theStubPtrs.at(js)->isGenuine() )
     {
       tempVecGen.push_back( theStubPtrs.at(js)->getSimTrackPtr() );
+      evIdGen.push_back( theStubPtrs.at(js)->getEventId() );
     }
     else if ( theStubPtrs.at(js)->isCombinatoric() )
     {
@@ -287,6 +272,8 @@ void L1TkTrack< T >::checkSimTrack()
       {
         std::vector< edm::Ptr< SimTrack > > cluVec = theStubPtrs.at(js)->getClusterPtrs().at(ic)->getSimTrackPtrs();
         tempVecComb.push_back( cluVec );
+        std::vector< uint32_t > evVec = theStubPtrs.at(js)->getClusterPtrs().at(ic)->getEventIds();
+        evIdComb.push_back( evVec );
       }
     }
   }
@@ -308,14 +295,20 @@ void L1TkTrack< T >::checkSimTrack()
   /// COMBINATORIC means that no common SimTrack can be found
   /// GENUINE means otherwise
   int idSimTrackG = -99999;
+  uint32_t evIdG = 0xFFFF;
 
   if ( tempVecGen.size() > 0 )
   {
     /// Case of >=1 genuine Stubs
-
     idSimTrackG = tempVecGen.at(0)->trackId();
+    evIdG = evIdGen.at(0);
+
     for ( unsigned int jg = 1; jg < tempVecGen.size(); jg++ )
     {
+      /// Two genuine Stubs with different EventId mean COMBINATORIC
+      if ( evIdGen.at(0) != evIdG )
+        return;
+
       /// Two genuine Stubs with different SimTrack mean COMBINATORIC
       if ( (int)(tempVecGen.at(0)->trackId()) != idSimTrackG )
         return;
@@ -330,6 +323,7 @@ void L1TkTrack< T >::checkSimTrack()
       /// No combinatoric stubs found
       /// All genuine, all the same SimTrack
       theSimTrack = tempVecGen.at(0);
+      theEventId = evIdGen.at(0);
       return;
     }
 
@@ -344,7 +338,8 @@ void L1TkTrack< T >::checkSimTrack()
         if ( tempVecComb.at(jc1).at(jc0).isNull() )
           continue;
 
-        if ( ((int)tempVecComb.at(jc1).at(jc0)->trackId()) == idSimTrackG )
+        if ( (int)(tempVecComb.at(jc1).at(jc0)->trackId()) == idSimTrackG &&
+             evIdComb.at(jc1).at(jc0) == evIdG )
         {
           foundSimTrack = true;
         }
@@ -355,7 +350,8 @@ void L1TkTrack< T >::checkSimTrack()
         if ( tempVecComb.at(jc1+1).at(jc0).isNull() )
           continue;
 
-        if ( (int)(tempVecComb.at(jc1+1).at(jc0)->trackId()) == idSimTrackG )
+        if ( (int)(tempVecComb.at(jc1+1).at(jc0)->trackId()) == idSimTrackG &&
+             evIdComb.at(jc1+1).at(jc0) == evIdG )
         {
           foundSimTrack = true;
         }
@@ -367,6 +363,7 @@ void L1TkTrack< T >::checkSimTrack()
       /// If we got here, we have >= 1 genuine Stub whose SimTrack
       /// is found in at least 1 Cluster of all other Stubs
       theSimTrack = tempVecGen.at(0);
+      theEventId = evIdGen.at(0);
       return;
     }
   }
@@ -388,7 +385,7 @@ void L1TkTrack< T >::checkSimTrack()
     /// We need to have the same SimTrack in all Stubs
     /// If we are here, we must have EVEN tempVecComb.size()
     /// Map by SimTrackId all the SimTracks and count in how many Stubs they are
-    std::map< unsigned int, std::vector< unsigned int > > mapSimTrack;
+    std::map< std::pair< unsigned int, uint32_t >, std::vector< unsigned int > > mapSimTrack;
 
     for ( unsigned int jc1 = 0; jc1 < tempVecComb.size(); jc1+=2 )
     {
@@ -398,7 +395,7 @@ void L1TkTrack< T >::checkSimTrack()
         if ( tempVecComb.at(jc1).at(jc0).isNull() )
           continue;
 
-        unsigned int thisId = tempVecComb.at(jc1).at(jc0)->trackId();
+        std::pair< unsigned int, uint32_t > thisId = std::make_pair( tempVecComb.at(jc1).at(jc0)->trackId(), evIdComb.at(jc1).at(jc0) );
 
         if ( mapSimTrack.find( thisId ) == mapSimTrack.end() )
         {
@@ -421,7 +418,7 @@ void L1TkTrack< T >::checkSimTrack()
         if ( tempVecComb.at(jc1+1).at(jc0).isNull() )
           continue;
 
-        unsigned int thisId = tempVecComb.at(jc1+1).at(jc0)->trackId();
+        std::pair< unsigned int, uint32_t > thisId = std::make_pair( tempVecComb.at(jc1+1).at(jc0)->trackId(), evIdComb.at(jc1+1).at(jc0) );
         
         if ( mapSimTrack.find( thisId ) == mapSimTrack.end() )
         {
@@ -443,7 +440,8 @@ void L1TkTrack< T >::checkSimTrack()
     /// Check the SimTrack Map
     unsigned int countSimTracks = 0;
     unsigned int theSimTrackId = 0;
-    std::map< unsigned int, std::vector< unsigned int > >::iterator mapIt;
+    uint32_t     theStoredEventId = 0xFFFF;
+    std::map< std::pair< unsigned int, uint32_t >, std::vector< unsigned int > >::iterator mapIt;
     for ( mapIt = mapSimTrack.begin();
           mapIt != mapSimTrack.end();
           ++mapIt )
@@ -459,7 +457,8 @@ void L1TkTrack< T >::checkSimTrack()
       if ( tempVector.size() == theStubPtrs.size() )
       {
         countSimTracks++;
-        theSimTrackId = mapIt->first;
+        theSimTrackId = mapIt->first.first;
+        theStoredEventId = mapIt->first.second;
       }
     }
 
@@ -475,9 +474,11 @@ void L1TkTrack< T >::checkSimTrack()
       if ( tempVecComb.at(0).at(jc0).isNull() )
         continue;
 
-      if ( theSimTrackId == tempVecComb.at(0).at(jc0)->trackId() )
+      if ( theSimTrackId == tempVecComb.at(0).at(jc0)->trackId() &&
+           theStoredEventId == evIdComb.at(0).at(jc0) )
       {
         theSimTrack = tempVecComb.at(0).at(jc0);
+        theEventId = evIdComb.at(0).at(jc0);
         return;
       }
     }
@@ -488,9 +489,11 @@ void L1TkTrack< T >::checkSimTrack()
       if ( tempVecComb.at(1).at(jc0).isNull() )
         continue;
 
-      if ( theSimTrackId == tempVecComb.at(1).at(jc0)->trackId() )
+      if ( theSimTrackId == tempVecComb.at(1).at(jc0)->trackId() &&
+           theStoredEventId == evIdComb.at(1).at(jc0) )
       {
         theSimTrack = tempVecComb.at(1).at(jc0);
+        theEventId = evIdComb.at(1).at(jc0);
         return;
       }
     }

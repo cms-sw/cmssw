@@ -72,6 +72,10 @@ class PixelForwardLayer GCC11_FINAL : public ForwardDetLayer, public GeometricSe
   unsigned int     _num_innerpanels;
   unsigned int     _num_outerpanels;
 
+  std::vector<float> theBinFinder_byR;
+  std::vector<unsigned int> theBinFinder_byR_index;
+  std::vector<unsigned int> theBinFinder_byR_nextindex;
+  bool useR;
   std::vector<const GeometricSearchDet*> theComps;
   std::vector<const GeomDet*> theBasicComps;
 };
