@@ -23,6 +23,10 @@
 
 #include<string>
 
+namespace edm {
+  class ConfigurationDescriptions;
+}
+
 //
 // class declaration
 //
@@ -33,10 +37,12 @@ class HLTSummaryFilter : public HLTFilter {
 
       explicit HLTSummaryFilter(const edm::ParameterSet&);
       ~HLTSummaryFilter();
+      static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
       virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct);
 
    private:
-      edm::InputTag summaryTag_; // input tag identifying TriggerSummaryAOD
+      edm::InputTag                           summaryTag_;   // input tag identifying TriggerSummaryAOD
+      edm::EDGetTokenT<trigger::TriggerEvent> summaryToken_; // token identifying TriggerSummaryAOD
       edm::InputTag memberTag_;  // which packed-up collection or filter
       std::string   cut_;        // smart cut
       int           min_N_;      // number of objects passing cuts required
