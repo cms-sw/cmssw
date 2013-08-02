@@ -14,7 +14,7 @@
  $Id:$
 */
 
-#include "BaseMatcher.h"
+#include "GEMCode/GEMValidation/src/BaseMatcher.h"
 
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 
