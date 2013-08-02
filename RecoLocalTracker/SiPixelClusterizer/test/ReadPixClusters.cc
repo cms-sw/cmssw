@@ -3,6 +3,7 @@
 // Author: Danek Kotlinski 
 // Creation Date:  Initial version. 3/06
 // Modify to work with CMSSW354, 11/03/10 d.k.
+// First version it Git, incldes the fpix radial split. 8/13 dk
 //--------------------------------------------
 #include <memory>
 #include <string>
