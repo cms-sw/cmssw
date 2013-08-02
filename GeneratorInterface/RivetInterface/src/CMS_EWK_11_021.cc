@@ -166,7 +166,7 @@ namespace Rivet {
       }
     }  
 
-    void normalizeNoOverflows(AIDA::IHistogram1D* plot, double integral){
+    void normalize(AIDA::IHistogram1D* plot, double integral){
       double factor=1.;
       if (plot->sumBinHeights()>0 && plot->sumAllBinHeights()>0)
         factor = plot->sumAllBinHeights()/plot->sumBinHeights();
@@ -175,25 +175,25 @@ namespace Rivet {
 
     void finalize() 
       {
-      normalizeNoOverflows(_histDeltaPhiZJ1,1.);
-      normalizeNoOverflows(_histDeltaPhiZJ3,1.);
-      normalizeNoOverflows(_histDeltaPhiZJ1_2,1.);
-      normalizeNoOverflows(_histDeltaPhiZJ1_3,1.);
-      normalizeNoOverflows(_histDeltaPhiZJ2_3,1.);
-      normalizeNoOverflows(_histDeltaPhiJ1J2_3,1.);
-      normalizeNoOverflows(_histTransvThrust,1.);
-      normalizeNoOverflows(_histDeltaPhiJ1J3_3, 1.);
-      normalizeNoOverflows(_histDeltaPhiJ2J3_3, 1.);
+      normalize(_histDeltaPhiZJ1,1.);
+      normalize(_histDeltaPhiZJ3,1.);
+      normalize(_histDeltaPhiZJ1_2,1.);
+      normalize(_histDeltaPhiZJ1_3,1.);
+      normalize(_histDeltaPhiZJ2_3,1.);
+      normalize(_histDeltaPhiJ1J2_3,1.);
+      normalize(_histTransvThrust,1.);
+      normalize(_histDeltaPhiJ1J3_3, 1.);
+      normalize(_histDeltaPhiJ2J3_3, 1.);
       // Boosted
-      normalizeNoOverflows(_histBoostedDeltaPhiZJ1,1.);
-      normalizeNoOverflows(_histBoostedDeltaPhiZJ3,1.);
-      normalizeNoOverflows(_histBoostedDeltaPhiZJ1_2,1.);
-      normalizeNoOverflows(_histBoostedDeltaPhiZJ1_3,1.);
-      normalizeNoOverflows(_histBoostedDeltaPhiZJ2_3,1.);
-      normalizeNoOverflows(_histBoostedDeltaPhiJ1J2_3,1.);
-      normalizeNoOverflows(_histBoostedTransvThrust,1.);
-      normalizeNoOverflows(_histBoostedDeltaPhiJ1J3_3, 1.);
-      normalizeNoOverflows(_histBoostedDeltaPhiJ2J3_3, 1.);
+      normalize(_histBoostedDeltaPhiZJ1,1.);
+      normalize(_histBoostedDeltaPhiZJ3,1.);
+      normalize(_histBoostedDeltaPhiZJ1_2,1.);
+      normalize(_histBoostedDeltaPhiZJ1_3,1.);
+      normalize(_histBoostedDeltaPhiZJ2_3,1.);
+      normalize(_histBoostedDeltaPhiJ1J2_3,1.);
+      normalize(_histBoostedTransvThrust,1.);
+      normalize(_histBoostedDeltaPhiJ1J3_3, 1.);
+      normalize(_histBoostedDeltaPhiJ2J3_3, 1.);
      }
 
 
