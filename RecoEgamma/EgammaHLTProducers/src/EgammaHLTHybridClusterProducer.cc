@@ -4,9 +4,6 @@
 #include <memory>
 
 // Framework
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "CommonTools/Utils/interface/StringToEnumValue.h"
@@ -32,10 +29,7 @@
 #include "Geometry/CaloTopology/interface/EcalEndcapTopology.h"
 #include "Geometry/CaloTopology/interface/EcalPreshowerTopology.h"
 
-
 // Level 1 Trigger
-#include "DataFormats/L1Trigger/interface/L1EmParticle.h"
-#include "DataFormats/L1Trigger/interface/L1EmParticleFwd.h"
 #include "CondFormats/L1TObjects/interface/L1CaloGeometry.h"
 #include "CondFormats/DataRecord/interface/L1CaloGeometryRecord.h"
 
@@ -47,20 +41,16 @@
 #include "RecoEgamma/EgammaHLTProducers/interface/EgammaHLTHybridClusterProducer.h"
 
 
-EgammaHLTHybridClusterProducer::EgammaHLTHybridClusterProducer(const edm::ParameterSet& ps)
-{
-
+EgammaHLTHybridClusterProducer::EgammaHLTHybridClusterProducer(const edm::ParameterSet& ps) {
 
   basicclusterCollection_ = ps.getParameter<std::string>("basicclusterCollection");
   superclusterCollection_ = ps.getParameter<std::string>("superclusterCollection");
   hitproducer_ = ps.getParameter<edm::InputTag>("ecalhitproducer");
   hitcollection_ =ps.getParameter<std::string>("ecalhitcollection");
-
-
-
+  
   // L1 matching parameters
-  l1TagIsolated_ = ps.getParameter< edm::InputTag > ("l1TagIsolated");
-  l1TagNonIsolated_ = ps.getParameter< edm::InputTag > ("l1TagNonIsolated");
+  l1TagIsolated_    = consumes<l1extra::L1EmParticleCollection>(ps.getParameter< edm::InputTag > ("l1TagIsolated"));
+  l1TagNonIsolated_ = consumes<l1extra::L1EmParticleCollection>(ps.getParameter< edm::InputTag > ("l1TagNonIsolated"));
 
   doIsolated_   = ps.getParameter<bool>("doIsolated");
 
@@ -165,10 +155,11 @@ void EgammaHLTHybridClusterProducer::produce(edm::Event& evt, const edm::EventSe
   //Get the L1 EM Particle Collection
   edm::Handle< l1extra::L1EmParticleCollection > emIsolColl ;
   if(doIsolated_)
-    evt.getByLabel(l1TagIsolated_, emIsolColl);
+    evt.getByToken(l1TagIsolated_, emIsolColl);
+
   //Get the L1 EM Particle Collection
   edm::Handle< l1extra::L1EmParticleCollection > emNonIsolColl ;
-  evt.getByLabel(l1TagNonIsolated_, emNonIsolColl);
+  evt.getByToken(l1TagNonIsolated_, emNonIsolColl);
 
   // Get the CaloGeometry
   edm::ESHandle<L1CaloGeometry> l1CaloGeom ;
@@ -179,13 +170,7 @@ void EgammaHLTHybridClusterProducer::produce(edm::Event& evt, const edm::EventSe
   if(doIsolated_) {
     for( l1extra::L1EmParticleCollection::const_iterator emItr = emIsolColl->begin(); emItr != emIsolColl->end() ;++emItr ){
 
-    if (emItr->et() > l1LowerThr_ && emItr->et() < l1UpperThr_
-        //&&
-	//!emItr->gctEmCand()->regionId().isForward()
-) {
-
-      //bool isolated = emItr->gctEmCand()->isolated();
-      //if ((l1Isolated_ &&isolated) || (!l1Isolated_ &&!isolated)) {
+    if (emItr->et() > l1LowerThr_ && emItr->et() < l1UpperThr_) {
 
       // Access the GCT hardware object corresponding to the L1Extra EM object.
       int etaIndex = emItr->gctEmCand()->etaIndex() ;
@@ -222,13 +207,7 @@ void EgammaHLTHybridClusterProducer::produce(edm::Event& evt, const edm::EventSe
 
       if(doIsolated_&&emItr->et()<l1LowerThrIgnoreIsolation_) continue;
 
-    if (emItr->et() > l1LowerThr_ && emItr->et() < l1UpperThr_
-        //&&
-	//!emItr->gctEmCand()->regionId().isForward()
-) {
-
-      //bool isolated = emItr->gctEmCand()->isolated();
-      //if ((l1Isolated_ &&isolated) || (!l1Isolated_ &&!isolated)) {
+    if (emItr->et() > l1LowerThr_ && emItr->et() < l1UpperThr_) {
 
       // Access the GCT hardware object corresponding to the L1Extra EM object.
       int etaIndex = emItr->gctEmCand()->etaIndex() ;
@@ -269,12 +248,6 @@ void EgammaHLTHybridClusterProducer::produce(edm::Event& evt, const edm::EventSe
   basicclusters_p->assign(basicClusters.begin(), basicClusters.end());
   edm::OrphanHandle<reco::BasicClusterCollection> bccHandle =  evt.put(basicclusters_p, 
                                                                        basicclusterCollection_);
-  //Basic clusters now in the event.
-  
-  //Weird though it is, get the BasicClusters back out of the event.  We need the
-  //edm::Ref to these guys to make our superclusters for Hybrid.
-//  edm::Handle<reco::BasicClusterCollection> bccHandle;
- // evt.getByLabel("clusterproducer",basicclusterCollection_, bccHandle);
   if (!(bccHandle.isValid())) {
     return;
   }

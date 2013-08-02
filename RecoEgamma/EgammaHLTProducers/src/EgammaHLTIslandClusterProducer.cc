@@ -4,16 +4,11 @@
 #include <memory>
 
 // Framework
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/Utilities/interface/Exception.h"
 
 // Reconstruction Classes
 #include "DataFormats/EcalRecHit/interface/EcalRecHit.h"
-#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
 #include "DataFormats/EgammaReco/interface/BasicClusterFwd.h"
@@ -27,8 +22,6 @@
 #include "Geometry/CaloTopology/interface/EcalBarrelTopology.h"
 
 // Level 1 Trigger
-#include "DataFormats/L1Trigger/interface/L1EmParticle.h"
-#include "DataFormats/L1Trigger/interface/L1EmParticleFwd.h"
 #include "CondFormats/L1TObjects/interface/L1CaloGeometry.h"
 #include "CondFormats/DataRecord/interface/L1CaloGeometryRecord.h"
 
@@ -49,8 +42,8 @@ EgammaHLTIslandClusterProducer::EgammaHLTIslandClusterProducer(const edm::Parame
   else                                   verbosity = IslandClusterAlgo::pERROR;
 
   doBarrel_   = ps.getParameter<bool>("doBarrel");
-  doEndcaps_   = ps.getParameter<bool>("doEndcaps");
-  doIsolated_   = ps.getParameter<bool>("doIsolated");
+  doEndcaps_  = ps.getParameter<bool>("doEndcaps");
+  doIsolated_ = ps.getParameter<bool>("doIsolated");
 
   // Parameters to identify the hit collections
   barrelHitProducer_   = ps.getParameter<edm::InputTag>("barrelHitProducer");
@@ -67,8 +60,8 @@ EgammaHLTIslandClusterProducer::EgammaHLTIslandClusterProducer(const edm::Parame
   double endcapSeedThreshold = ps.getParameter<double>("IslandEndcapSeedThr");
 
   // L1 matching parameters
-  l1TagIsolated_ = ps.getParameter< edm::InputTag > ("l1TagIsolated");
-  l1TagNonIsolated_ = ps.getParameter< edm::InputTag > ("l1TagNonIsolated");
+  l1TagIsolated_    = consumes<l1extra::L1EmParticleCollection>(ps.getParameter< edm::InputTag > ("l1TagIsolated"));
+  l1TagNonIsolated_ = consumes<l1extra::L1EmParticleCollection>(ps.getParameter< edm::InputTag > ("l1TagNonIsolated"));
   l1LowerThr_ = ps.getParameter<double> ("l1LowerThr");
   l1UpperThr_ = ps.getParameter<double> ("l1UpperThr");
   l1LowerThrIgnoreIsolation_ = ps.getParameter<double> ("l1LowerThrIgnoreIsolation");
@@ -89,22 +82,21 @@ EgammaHLTIslandClusterProducer::EgammaHLTIslandClusterProducer(const edm::Parame
   nEvt_ = 0;
 }
 
-
-EgammaHLTIslandClusterProducer::~EgammaHLTIslandClusterProducer()
-{
+EgammaHLTIslandClusterProducer::~EgammaHLTIslandClusterProducer() {
   delete island_p;
 }
 
+void EgammaHLTIslandClusterProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
 
-void EgammaHLTIslandClusterProducer::produce(edm::Event& evt, const edm::EventSetup& es)
-{
   //Get the L1 EM Particle Collection
   edm::Handle< l1extra::L1EmParticleCollection > emIsolColl ;
   if(doIsolated_)
-    evt.getByLabel(l1TagIsolated_, emIsolColl);
+    evt.getByToken(l1TagIsolated_, emIsolColl);
+  
   //Get the L1 EM Particle Collection
   edm::Handle< l1extra::L1EmParticleCollection > emNonIsolColl ;
-  evt.getByLabel(l1TagNonIsolated_, emNonIsolColl);
+  evt.getByToken(l1TagNonIsolated_, emNonIsolColl);
+
   // Get the CaloGeometry
   edm::ESHandle<L1CaloGeometry> l1CaloGeom ;
   es.get<L1CaloGeometryRecord>().get(l1CaloGeom) ;
@@ -119,7 +111,6 @@ void EgammaHLTIslandClusterProducer::produce(edm::Event& evt, const edm::EventSe
 	
 	// Access the GCT hardware object corresponding to the L1Extra EM object.
 	int etaIndex = emItr->gctEmCand()->etaIndex() ;
-	
 	
 	int phiIndex = emItr->gctEmCand()->phiIndex() ;
 	// Use the L1CaloGeometry to find the eta, phi bin boundaries.

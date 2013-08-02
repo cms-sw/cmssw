@@ -8,40 +8,20 @@
 
 #include "RecoEgamma/EgammaHLTProducers/interface/EgammaHLTGsfTrackVarProducer.h"
 
-// Framework
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "DataFormats/Common/interface/Handle.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/Utilities/interface/Exception.h"
-
-#include "DataFormats/EgammaCandidates/interface/Electron.h"
-#include "DataFormats/EgammaCandidates/interface/ElectronFwd.h"
-//#include "DataFormats/EgammaCandidates/interface/ElectronIsolationAssociation.h"
-#include "DataFormats/RecoCandidate/interface/RecoEcalCandidate.h"
 #include "DataFormats/RecoCandidate/interface/RecoEcalCandidateIsolation.h"
-#include "DataFormats/Common/interface/RefToBase.h"
-#include "DataFormats/Common/interface/Ref.h"
-#include "DataFormats/Common/interface/RefProd.h"
+#include "DataFormats/EgammaCandidates/interface/ElectronIsolationAssociation.h"
 
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
 
-#include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "DataFormats/EgammaReco/interface/ElectronSeed.h"
 #include "DataFormats/EgammaReco/interface/ElectronSeedFwd.h"
-//#include "CondFormats/DataRecord/interface/BeamSpotObjectsRcd.h"//needed?
-//#include "CondFormats/BeamSpotObjects/interface/BeamSpotObjects.h"//needed?
 
-#include "DataFormats/BeamSpot/interface/BeamSpot.h"
 #include "DataFormats/Math/interface/Point3D.h"
-
 #include "RecoEgamma/EgammaTools/interface/ECALPositionCalculator.h"
 
-#include "FWCore/Framework/interface/EventSetup.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
@@ -50,45 +30,37 @@
 
 EgammaHLTGsfTrackVarProducer::EgammaHLTGsfTrackVarProducer(const edm::ParameterSet& config)
 {
-  recoEcalCandTag_ = config.getParameter<edm::InputTag>("recoEcalCandidateProducer");
-  inputCollectionTag_             = config.getParameter<edm::InputTag>("inputCollection");
-  beamSpotTag_                   = config.getParameter<edm::InputTag>("beamSpotProducer");
-  upperTrackNrToRemoveCut_  = config.getParameter<int>("upperTrackNrToRemoveCut"); //zeros out dEtaIn,dPhiIn if nrTracks>= this
-  lowerTrackNrToRemoveCut_  = config.getParameter<int>("lowerTrackNrToRemoveCut"); //zeros out dEtaIn,dPhiIn if nrTracks<= this
+  recoEcalCandTag_         = consumes<reco::RecoEcalCandidateCollection>(config.getParameter<edm::InputTag>("recoEcalCandidateProducer"));
+  inputCollectionTag_      = consumes<reco::ElectronCollection>(config.getParameter<edm::InputTag>("inputCollection"));
+  beamSpotTag_             = consumes<reco::BeamSpot>(config.getParameter<edm::InputTag>("beamSpotProducer"));
+  upperTrackNrToRemoveCut_ = config.getParameter<int>("upperTrackNrToRemoveCut"); 
+  lowerTrackNrToRemoveCut_ = config.getParameter<int>("lowerTrackNrToRemoveCut");
  
-  
-  
   //register your products
   produces < reco::RecoEcalCandidateIsolationMap >( "Deta" ).setBranchAlias( "deta" );
   produces < reco::RecoEcalCandidateIsolationMap >( "Dphi" ).setBranchAlias( "dphi" ); 
 }
 
-EgammaHLTGsfTrackVarProducer::~EgammaHLTGsfTrackVarProducer(){}
+EgammaHLTGsfTrackVarProducer::~EgammaHLTGsfTrackVarProducer()
+{}
 
-
-//
-// member functions
-//
-
-// ------------ method called to produce the data  ------------
-void
-EgammaHLTGsfTrackVarProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
-{
+void EgammaHLTGsfTrackVarProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
   trackExtrapolator_.setup(iSetup);
-
+  
   // Get the HLT filtered objects
   edm::Handle<reco::RecoEcalCandidateCollection> recoEcalCandHandle;
-  iEvent.getByLabel(recoEcalCandTag_,recoEcalCandHandle);
+  iEvent.getByToken(recoEcalCandTag_,recoEcalCandHandle);
 
   edm::Handle<reco::ElectronCollection> electronHandle;
-  iEvent.getByLabel(inputCollectionTag_,electronHandle);
+  iEvent.getByToken(inputCollectionTag_,electronHandle);
 
   edm::Handle<reco::GsfTrackCollection> gsfTracksHandle;
-  if(!electronHandle.isValid()) iEvent.getByLabel (inputCollectionTag_,gsfTracksHandle);
+  if(!electronHandle.isValid()) 
+    iEvent.getByToken(inputCollectionTag_, gsfTracksHandle);
 
   edm::Handle<reco::BeamSpot> recoBeamSpotHandle;
-  iEvent.getByLabel(beamSpotTag_,recoBeamSpotHandle);
+  iEvent.getByToken(beamSpotTag_,recoBeamSpotHandle);
   // gets its position
   const reco::BeamSpot& beamSpot = *recoBeamSpotHandle; 
 
@@ -152,7 +124,6 @@ EgammaHLTGsfTrackVarProducer::produce(edm::Event& iEvent, const edm::EventSetup&
   std::auto_ptr<reco::RecoEcalCandidateIsolationMap> dPhiMapForEvent(new reco::RecoEcalCandidateIsolationMap(dPhiMap));
   iEvent.put(dEtaMapForEvent, "Deta" );
   iEvent.put(dPhiMapForEvent, "Dphi" );
-
 }
 
 

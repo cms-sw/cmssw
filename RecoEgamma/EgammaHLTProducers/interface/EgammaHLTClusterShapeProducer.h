@@ -12,39 +12,31 @@
 //
 //
 
-
-// system include files
-#include <memory>
-
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDProducer.h"
-
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-//
-// class declaration
-//
+#include "DataFormats/RecoCandidate/interface/RecoEcalCandidate.h"
+#include "DataFormats/RecoCandidate/interface/RecoEcalCandidateFwd.h"
 
 class EgammaHLTClusterShapeProducer : public edm::EDProducer {
-   public:
-      explicit EgammaHLTClusterShapeProducer(const edm::ParameterSet&);
-      ~EgammaHLTClusterShapeProducer();
-
-
-      virtual void produce(edm::Event&, const edm::EventSetup&);
-   private:
-      // ----------member data ---------------------------
-
-  edm::InputTag recoEcalCandidateProducer_;
+public:
+  explicit EgammaHLTClusterShapeProducer(const edm::ParameterSet&);
+  ~EgammaHLTClusterShapeProducer();
+  
+  
+  virtual void produce(edm::Event&, const edm::EventSetup&);
+private:
+  // ----------member data ---------------------------
+  
+  edm::EDGetTokenT<reco::RecoEcalCandidateCollection> recoEcalCandidateProducer_;
   edm::InputTag ecalRechitEBTag_;
   edm::InputTag ecalRechitEETag_;
   bool EtaOrIeta_;
 
   edm::ParameterSet conf_;
-
 };
 
