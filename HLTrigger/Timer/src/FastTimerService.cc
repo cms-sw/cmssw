@@ -101,7 +101,7 @@ FastTimerService::FastTimerService(const edm::ParameterSet & config, edm::Activi
   m_first_endpath(0),
   m_last_endpath(0),
   m_is_first_module(false),
-  m_is_first_event(false),
+  m_is_first_event(true),
   // per-event accounting
   m_event(0.),
   m_presource(0.),
@@ -769,7 +769,7 @@ void FastTimerService::reset() {
   m_first_endpath = 0;
   m_last_endpath = 0;
   m_is_first_module = false;
-  m_is_first_event = false;
+  m_is_first_event = true;
   // per-event accounting
   m_event = 0.;
   m_presource = 0.;
