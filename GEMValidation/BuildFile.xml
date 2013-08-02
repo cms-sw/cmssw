@@ -3,6 +3,7 @@
 <use   name="DataFormats/GEMDigi"/>
 <use   name="DataFormats/RPCDigi"/>
 <use   name="DataFormats/CSCDigi"/>
+<use   name="DataFormats/GEMRecHit"/>
 <use   name="FWCore/Framework"/>
 <use   name="FWCore/MessageLogger"/>
 <use   name="FWCore/ParameterSet"/>
