@@ -121,7 +121,10 @@ In general it's fine to leave it as it is.
 Your branch is now updated and the conflicts are solved. You can push your
 changes to `my-cmssw` and update your pull request:
 
-    git push my-cmssw tutorial-unmergeable
+    git push my-cmssw HEAD:tutorial-unmergeable
+
+This will tell git to push the current HEAD of the branch you are on (i.e. the
+one containing the merge) to the remote `tutorial-unmergeable` branch.
 
 ### Rewriting history and cleaning up your changes
 
