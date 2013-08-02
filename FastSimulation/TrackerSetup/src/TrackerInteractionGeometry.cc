@@ -224,10 +224,10 @@ TrackerInteractionGeometry::TrackerInteractionGeometry(const edm::ParameterSet& 
     std::vector<double> barrel_length;
     
     for(unsigned int i = 0; i < barrelLayers.size(); i++){
-      std::cout << "defining barrellayer: " << i << std::endl;
-      std::cout << "   length,radius= " <<
+      LogDebug("FastSimGeom") << "defining barrellayer: " << i ;
+      LogDebug("FastSimGeom") << "   length,radius= " <<
 	barrelLayers[i]->specificSurface().bounds().length() << " " <<
-	barrelLayers[i]->specificSurface().radius() << " " << std::endl;
+	barrelLayers[i]->specificSurface().radius() << " " ;
       
       barrel_length.push_back( barrelLayers[i]->specificSurface().bounds().length());
       barrel_radius.push_back( barrelLayers[i]->specificSurface().radius());
@@ -237,11 +237,11 @@ TrackerInteractionGeometry::TrackerInteractionGeometry(const edm::ParameterSet& 
     
     for(unsigned int i = 0; i < posForwardLayers.size(); i++){
       
-      std::cout << "defining forwardlayer: " << i << std::endl;
-      std::cout << "  z,inner R, outer R = " <<     
+      LogDebug("FastSimGeom") << "defining forwardlayer: " << i ;
+      LogDebug("FastSimGeom") << "  z,inner R, outer R = " <<     
 	posForwardLayers[i]->surface().position().z() << " " <<
 	posForwardLayers[i]->specificSurface().innerRadius() << " " <<
-	posForwardLayers[i]->specificSurface().outerRadius() << std::endl;
+	posForwardLayers[i]->specificSurface().outerRadius() ;
       
       disk_z.push_back(posForwardLayers[i]->surface().position().z());
       disk_inner_radius.push_back(posForwardLayers[i]->specificSurface().innerRadius());
@@ -327,7 +327,7 @@ TrackerInteractionGeometry::TrackerInteractionGeometry(const edm::ParameterSet& 
     float max_R=0.;
 
     for(unsigned int i = 0, j = 0; i < barrel_length.size() || j < disk_z.size(); ){
-      std::cout << "i,j = " << i << " " << j << std::endl;
+      LogDebug("FastSimGeom") << "i,j = " << i << " " << j ;
 
       bool add_disk = false;
       if(i < barrel_length.size() && j < disk_z.size()){
@@ -344,7 +344,7 @@ TrackerInteractionGeometry::TrackerInteractionGeometry(const edm::ParameterSet& 
       else
 	assert(0);
 
-      std::cout << "add_disk= " << add_disk << std::endl;
+      LogDebug("FastSimGeom") << "add_disk= " << add_disk ;
       
       if(add_disk){
 	_mediumProperties.push_back(new MediumProperties(disk_thickness[j],0.0001));  
@@ -368,7 +368,7 @@ TrackerInteractionGeometry::TrackerInteractionGeometry(const edm::ParameterSet& 
 	    _theCylinders.push_back(TrackerLayer(theDisk,true,layerNr,
 					       std::vector<double>(),std::vector<double>(),
 					       std::vector<double>()));
-	    std::cout << "disk added" << std::endl;
+	    LogDebug("FastSimGeom") << "disk added" ;
 	    if (disk_z[j]>max_Z) max_Z=disk_z[j];
 	    
 	  }
@@ -403,7 +403,7 @@ TrackerInteractionGeometry::TrackerInteractionGeometry(const edm::ParameterSet& 
 	    _theCylinders.push_back(TrackerLayer(theCylinder,false,layerNr,
 						 std::vector<double>(),std::vector<double>(),
 						 std::vector<double>()));
-	    std::cout << "cylinder added" << std::endl;
+	    LogDebug("FastSimGeom") << "cylinder added" ;
 
 	    if (barrel_radius[i]>max_R) max_R=barrel_radius[i];
 	    }
@@ -422,7 +422,7 @@ TrackerInteractionGeometry::TrackerInteractionGeometry(const edm::ParameterSet& 
   double zout, rout;
   unsigned nCyl=0;
   std::list<TrackerLayer>::const_iterator cyliterOut=cylinderBegin();
-  std::cout << "Number of defined cylinders: " << nCylinders() << std::endl;
+  LogDebug("FastSimGeom") << "Number of defined cylinders: " << nCylinders() ;
 
   // Inner cylinder dimensions
   if ( cyliterOut->forward() ) {
@@ -447,8 +447,8 @@ TrackerInteractionGeometry::TrackerInteractionGeometry(const edm::ParameterSet& 
 
     nCyl++;
     if ( zout < zin || rout < rin ) { 
-      //      throw cms::Exception("FastSimulation/TrackerInteractionGeometry ") 
-	std::cout 
+      throw cms::Exception("FastSimulation/TrackerInteractionGeometry ") 
+	//	std::cout 
 	<< " WARNING with cylinder number " << nCyl 
 	<< " (Active Layer Number = " <<  cyliterOut->layerNumber() 
 	<< " Forward ? " <<  cyliterOut->forward() << " ) "
@@ -456,12 +456,12 @@ TrackerInteractionGeometry::TrackerInteractionGeometry(const edm::ParameterSet& 
 	<< " zout/zin = " << zout << " " << zin << std::endl
 	<< " rout/rin = " << rout << " " << rin << std::endl;
     } else {
-      std::cout << " Cylinder number " << nCyl 
+      LogDebug("FastSimGeom") << " Cylinder number " << nCyl 
 		<< " (Active Layer Number = " <<  cyliterOut->layerNumber() 
 		<< " Forward ? " <<  cyliterOut->forward() << " ) "
 		<< " has dimensions of : " 
 		<< " zout = " << zout << "; " 
-		<< " rout = " << rout << std::endl;
+		<< " rout = " << rout ;
     }
     // Go to the next cylinder
     cyliterOut++;
