@@ -23,7 +23,7 @@ def customise(process):
     if hasattr(process,'dqmHarvesting'):
         process=customise_harvesting(process)
     if hasattr(process,'validation_step'):
-        process=customise_Validation(process)
+        process=customise_Validation(process,float(n))
     process=customise_condOverRides(process)
     
     return process
@@ -250,7 +250,6 @@ def customise_DQM(process,pileup):
     process.SiPixelHitEfficiencySource.isUpgrade = cms.untracked.bool(True)
     
     from DQM.TrackingMonitor.customizeTrackingMonitorSeedNumber import customise_trackMon_IterativeTracking_PHASE1PU140
-    
     process=customise_trackMon_IterativeTracking_PHASE1PU140(process)
     process.dqmoffline_step.remove(process.Phase1Pu70TrackMonStep2)
     process.dqmoffline_step.remove(process.Phase1Pu70TrackMonStep4)
@@ -261,7 +260,7 @@ def customise_DQM(process,pileup):
        'g4SimHitsTrackerHitsPixelEndcapHighTof')
     return process
 
-def customise_Validation(process):
+def customise_Validation(process,pileup):
     process.validation_step.remove(process.PixelTrackingRecHitsValid)
     process.validation_step.remove(process.stripRecHitsValid)
     process.validation_step.remove(process.StripTrackingRecHitsValid)
@@ -269,6 +268,26 @@ def customise_Validation(process):
     process.validation_step.remove(process.HLTSusyExoVal)
     process.validation_step.remove(process.hltHiggsValidator)
     process.validation_step.remove(process.relvalMuonBits)
+    if pileup>30:
+        process.trackValidator.label=cms.VInputTag(cms.InputTag("cutsRecoTracksHp"))
+        process.tracksValidationSelectors = cms.Sequence(process.cutsRecoTracksHp)
+        process.globalValidation.remove(process.recoMuonValidation)
+        process.validation.remove(process.recoMuonValidation)
+        process.validation_preprod.remove(process.recoMuonValidation)
+        process.validation_step.remove(process.recoMuonValidation)
+        process.validation.remove(process.globalrechitsanalyze)
+        process.validation_prod.remove(process.globalrechitsanalyze)
+        process.validation_step.remove(process.globalrechitsanalyze)
+        process.validation.remove(process.stripRecHitsValid)
+        process.validation_step.remove(process.stripRecHitsValid)
+        process.validation_step.remove(process.StripTrackingRecHitsValid)
+        process.globalValidation.remove(process.vertexValidation)
+        process.validation.remove(process.vertexValidation)
+        process.validation_step.remove(process.vertexValidation)
+        process.mix.input.nbPileupEvents.averageNumber = cms.double(0.0)
+        process.mix.minBunch = cms.int32(0)
+        process.mix.maxBunch = cms.int32(0)
+
     return process
 
 def customise_harvesting(process):
