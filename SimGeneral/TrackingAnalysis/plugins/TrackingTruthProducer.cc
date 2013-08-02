@@ -325,6 +325,11 @@ void TrackingTruthProducer::mergeBremsstrahlung()
                     pointer->clearParentVertex();
                     // Set the new parent vertex to the vertex of the source track
                     pointer->setParentVertex( track->parentVertex() );
+                    // Also call "setVertex" so that the two aren't out of synch. There's no getter
+                    // for the production time so I'll just use zero as an arbitrary value. Since
+                    // there's no getter, and there's nowhere else it's used, it's pretty irrelevant
+                    // what I set it to anyway. Grimes - 02/Aug/2013.
+                    pointer->setVertex( track->vertex(), 0 );
                     // Get a non-const pointer to the parent vertex
                     TrackingVertex * vertex = &trackingVertexes_->at( track->parentVertex().key() );
                     // Add the photon to the doughter list of the parent vertex
@@ -424,6 +429,10 @@ void TrackingTruthProducer::mergeBremsstrahlung()
 
         // Add vertex to track
         newTrack.setParentVertex( TrackingVertexRef(refMergedTrackingVertexes_, parentIndex) );
+        // Also call "setVertex" so that the two aren't out of synch
+        const LorentzVector& position = mergedTrackingVertexes_->at(parentIndex).position();
+        newTrack.setVertex( Vector(position.x(),position.y(),position.z()), position.t() );
+
         // Add track to vertex
         (mergedTrackingVertexes_->at(parentIndex)).addDaughterTrack(TrackingParticleRef(refMergedTrackingParticles_, tIndex));
 
@@ -602,12 +611,9 @@ void TrackingTruthProducer::createTrackingTruth(const TrackerTopology *tTopo)
                     }
                     else
                     {
-                        // Get the postion and time of the vertex
-                        const LorentzVector & position = trackingVertexes_->at(trackingVertexIndex).position();
-                        Vector xyz = Vector(position.x(), position.y(), position.z());
-                        double t = position.t();
-                        // Set the vertex postion of the tp to the closest vertex
-                        trackingParticles_->at(trackingParticleIndex).setVertex(xyz, t);
+                    	// No need to call setVertex() here anymore, because I've added it a few
+                    	// lines below. It was previously only called for this particular "else"
+                    	// condition, whereas it should be called for every condition.
                     }
 
                     vetoedSimVertexes.insert( std::make_pair(parentSimVertexIndex, trackingVertexIndex) );
@@ -619,6 +625,9 @@ void TrackingTruthProducer::createTrackingTruth(const TrackerTopology *tTopo)
                 trackingParticles_->at(trackingParticleIndex).setParentVertex(
                     TrackingVertexRef(refTrackingVertexes_, trackingVertexIndex)
                 );
+                // Also call "setVertex" so that the two aren't out of synch
+                const LorentzVector& position = trackingVertexes_->at(trackingVertexIndex).position();
+                trackingParticles_->at(trackingParticleIndex).setVertex( Vector(position.x(),position.y(),position.z()), position.t() );
 
                 // Add the newly created tp to the tv daughter list
                 trackingVertexes_->at(trackingVertexIndex).addDaughterTrack(
