@@ -1,0 +1,291 @@
+ <PosPartSection label="gemf.xml">
+  <PosPart copyNumber="1">
+    <rParent name="mf:ME1RingP"/>
+    <rChild name="gemf:GE11P"/>
+    <Translation x="0*fm" y="0*fm" z="5.686*m" />
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="mf:ME1RingN"/>
+    <rChild name="gemf:GE11N"/>
+    <Translation x="0*fm" y="0*fm" z="5.686*m" />
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="gemf:GA11"/>
+    <rChild name="gemf:GAAX"/>
+    <Translation x="0*fm" y="-0.5*mm" z="0*fm" />
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="gemf:GB11"/>
+    <rChild name="gemf:GTAX"/>
+    <Translation x="0*fm" y="7.1*mm" z="0*fm" />
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="gemf:GB11"/>
+    <rChild name="gemf:GMAX"/>
+    <Translation x="0*fm" y="1.1*mm" z="0*fm" />
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="gemf:GMAX"/>
+    <rChild name="gemf:GDAX"/>
+    <Translation x="0*fm" y="-5.375*mm " z="0*fm" />
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="gemf:GMAX"/>
+    <rChild name="gemf:GSAX"/>
+    <Translation x="0*fm" y="-3.650*mm" z="0*fm" />
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="gemf:GMAX"/>
+    <rChild name="gemf:GKAX"/>
+    <Translation x="0*fm" y="-2.025*mm" z="0*fm" />
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="gemf:GMAX"/>
+    <rChild name="gemf:GJAX"/>
+    <Translation x="0*fm" y="-1.500*mm" z="0*fm" />
+  </PosPart>
+  <PosPart copyNumber="2">
+    <rParent name="gemf:GMAX"/>
+    <rChild name="gemf:GKAX"/>
+    <Translation x="0*fm" y="-0.975*mm" z="0*fm" />
+  </PosPart>
+  <PosPart copyNumber="2">
+    <rParent name="gemf:GMAX"/>
+    <rChild name="gemf:GIAX"/>
+    <Translation x="0*fm" y="+0.100*mm" z="0*fm" />
+  </PosPart>
+  <PosPart copyNumber="3">
+    <rParent name="gemf:GMAX"/>
+    <rChild name="gemf:GKAX"/>
+    <Translation x="0*fm" y="+1.175*mm" z="0*fm" />
+  </PosPart>
+  <PosPart copyNumber="3">
+    <rParent name="gemf:GMAX"/>
+    <rChild name="gemf:GJAX"/>
+    <Translation x="0*fm" y="+1.700*mm" z="0*fm" />
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="gemf:GMAX"/>
+    <rChild name="gemf:GRAX"/>
+    <Translation x="0*fm" y="+3.700*mm" z="0*fm" />
+  </PosPart>
+
+  <PosPart copyNumber="1">
+    <rParent name="gemf:GIAX"/>
+    <rChild name="gemf:GFA1"/>
+    <Translation x="0*fm" y="0*fm" z="[z10]" />
+  </PosPart>
+  <PosPart copyNumber="2">
+    <rParent name="gemf:GIAX"/>
+    <rChild name="gemf:GFA2"/>
+    <Translation x="0*fm" y="0*fm" z="[z20]" />
+  </PosPart>
+  <PosPart copyNumber="3">
+    <rParent name="gemf:GIAX"/>
+    <rChild name="gemf:GFA3"/>
+    <Translation x="0*fm" y="0*fm" z="[z30]" />
+  </PosPart>
+  <PosPart copyNumber="4">
+    <rParent name="gemf:GIAX"/>
+    <rChild name="gemf:GFA4"/>
+    <Translation x="0*fm" y="0*fm" z="[z40]" />
+  </PosPart>
+  <PosPart copyNumber="5">
+    <rParent name="gemf:GIAX"/>
+    <rChild name="gemf:GFA5"/>
+    <Translation x="0*fm" y="0*fm" z="[z50]" />
+  </PosPart>
+  <PosPart copyNumber="6">
+    <rParent name="gemf:GIAX"/>
+    <rChild name="gemf:GFA6"/>
+    <Translation x="0*fm" y="0*fm" z="[z60]" />
+  </PosPart>
+  <PosPart copyNumber="7">
+    <rParent name="gemf:GIAX"/>
+    <rChild name="gemf:GFA7"/>
+    <Translation x="0*fm" y="0*fm" z="[z70]" />
+  </PosPart>
+  <PosPart copyNumber="8">
+    <rParent name="gemf:GIAX"/>
+    <rChild name="gemf:GFA8"/>
+    <Translation x="0*fm" y="0*fm" z="[z80]" />
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="gemf:GFA1"/>
+    <rChild name="gemf:GCA1"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="gemf:GFA2"/>
+    <rChild name="gemf:GCA2"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="gemf:GFA3"/>
+    <rChild name="gemf:GCA3"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="gemf:GFA4"/>
+    <rChild name="gemf:GCA4"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="gemf:GFA5"/>
+    <rChild name="gemf:GCA5"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="gemf:GFA6"/>
+    <rChild name="gemf:GCA6"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="gemf:GFA7"/>
+    <rChild name="gemf:GCA7"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="gemf:GFA8"/>
+    <rChild name="gemf:GCA8"/>
+  </PosPart>
+
+  <PosPart copyNumber="1">
+    <rParent name="gemf:GJAX"/>
+    <rChild name="gemf:GGA1"/>
+    <Translation x="0*fm" y="0*fm" z="[z10]" />
+  </PosPart>
+  <PosPart copyNumber="2">
+    <rParent name="gemf:GJAX"/>
+    <rChild name="gemf:GGA2"/>
+    <Translation x="0*fm" y="0*fm" z="[z20]" />
+  </PosPart>
+  <PosPart copyNumber="3">
+    <rParent name="gemf:GJAX"/>
+    <rChild name="gemf:GGA3"/>
+    <Translation x="0*fm" y="0*fm" z="[z30]" />
+  </PosPart>
+  <PosPart copyNumber="4">
+    <rParent name="gemf:GJAX"/>
+    <rChild name="gemf:GGA4"/>
+    <Translation x="0*fm" y="0*fm" z="[z40]" />
+  </PosPart>
+  <PosPart copyNumber="5">
+    <rParent name="gemf:GJAX"/>
+    <rChild name="gemf:GGA5"/>
+    <Translation x="0*fm" y="0*fm" z="[z50]" />
+  </PosPart>
+  <PosPart copyNumber="6">
+    <rParent name="gemf:GJAX"/>
+    <rChild name="gemf:GGA6"/>
+    <Translation x="0*fm" y="0*fm" z="[z60]" />
+  </PosPart>
+  <PosPart copyNumber="7">
+    <rParent name="gemf:GJAX"/>
+    <rChild name="gemf:GGA7"/>
+    <Translation x="0*fm" y="0*fm" z="[z70]" />
+  </PosPart>
+  <PosPart copyNumber="8">
+    <rParent name="gemf:GJAX"/>
+    <rChild name="gemf:GGA8"/>
+    <Translation x="0*fm" y="0*fm" z="[z80]" />
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="gemf:GGA1"/>
+    <rChild name="gemf:GDA1"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="gemf:GGA2"/>
+    <rChild name="gemf:GDA2"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="gemf:GGA3"/>
+    <rChild name="gemf:GDA3"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="gemf:GGA4"/>
+    <rChild name="gemf:GDA4"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="gemf:GGA5"/>
+    <rChild name="gemf:GDA5"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="gemf:GGA6"/>
+    <rChild name="gemf:GDA6"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="gemf:GGA7"/>
+    <rChild name="gemf:GDA7"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="gemf:GGA8"/>
+    <rChild name="gemf:GDA8"/>
+  </PosPart>
+
+  <PosPart copyNumber="1">
+    <rParent name="gemf:GSAX"/>
+    <rChild name="gemf:GHA1"/>
+    <Translation x="0*fm" y="0*fm" z="[z10]" />
+  </PosPart>
+  <PosPart copyNumber="2">
+    <rParent name="gemf:GSAX"/>
+    <rChild name="gemf:GHA2"/>
+    <Translation x="0*fm" y="0*fm" z="[z20]" />
+  </PosPart>
+  <PosPart copyNumber="3">
+    <rParent name="gemf:GSAX"/>
+    <rChild name="gemf:GHA3"/>
+    <Translation x="0*fm" y="0*fm" z="[z30]" />
+  </PosPart>
+  <PosPart copyNumber="4">
+    <rParent name="gemf:GSAX"/>
+    <rChild name="gemf:GHA4"/>
+    <Translation x="0*fm" y="0*fm" z="[z40]" />
+  </PosPart>
+  <PosPart copyNumber="5">
+    <rParent name="gemf:GSAX"/>
+    <rChild name="gemf:GHA5"/>
+    <Translation x="0*fm" y="0*fm" z="[z50]" />
+  </PosPart>
+  <PosPart copyNumber="6">
+    <rParent name="gemf:GSAX"/>
+    <rChild name="gemf:GHA6"/>
+    <Translation x="0*fm" y="0*fm" z="[z60]" />
+  </PosPart>
+  <PosPart copyNumber="7">
+    <rParent name="gemf:GSAX"/>
+    <rChild name="gemf:GHA7"/>
+    <Translation x="0*fm" y="0*fm" z="[z70]" />
+  </PosPart>
+  <PosPart copyNumber="8">
+    <rParent name="gemf:GSAX"/>
+    <rChild name="gemf:GHA8"/>
+    <Translation x="0*fm" y="0*fm" z="[z80]" />
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="gemf:GHA1"/>
+    <rChild name="gemf:GEA1"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="gemf:GHA2"/>
+    <rChild name="gemf:GEA2"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="gemf:GHA3"/>
+    <rChild name="gemf:GEA3"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="gemf:GHA4"/>
+    <rChild name="gemf:GEA4"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="gemf:GHA5"/>
+    <rChild name="gemf:GEA5"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="gemf:GHA6"/>
+    <rChild name="gemf:GEA6"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="gemf:GHA7"/>
+    <rChild name="gemf:GEA7"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="gemf:GHA8"/>
+    <rChild name="gemf:GEA8"/>
+  </PosPart>
+</PosPartSection>
