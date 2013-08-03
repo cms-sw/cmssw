@@ -326,9 +326,10 @@ void TrackingTruthProducer::mergeBremsstrahlung()
                     // Set the new parent vertex to the vertex of the source track
                     pointer->setParentVertex( track->parentVertex() );
                     // Also call "setVertex" so that the two aren't out of synch. There's no getter
-                    // for the production time so I'll just use zero as an arbitrary value. Since
-                    // there's no getter, and there's nowhere else it's used, it's pretty irrelevant
-                    // what I set it to anyway. Grimes - 02/Aug/2013.
+                    // for the production time so I'll just use zero as an arbitrary value. I can't
+                    // query parentVertex().position() either because the Ref isn't valid until it's
+                    // committed to the event. Since there's no getter, and there's nowhere else it's
+                    // used, it's pretty irrelevant what I set it to anyway. Grimes - 02/Aug/2013.
                     pointer->setVertex( track->vertex(), 0 );
                     // Get a non-const pointer to the parent vertex
                     TrackingVertex * vertex = &trackingVertexes_->at( track->parentVertex().key() );
