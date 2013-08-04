@@ -30,13 +30,13 @@
 // forward declarations
 namespace edm {
   namespace stream {
-    class EDProducerAdapterBase;
+    class EDProducerAdaptorBase;
     class StreamProducerWorker;
     
     class EDProducerBase : public edm::ProducerBase, public edm::EDConsumerBase
     {
       //This needs access to the parentage cache info
-      friend class EDProducerAdapterBase;
+      friend class EDProducerAdaptorBase;
       typedef EDProducerBase ModuleType;
       //WorkerType is used to call the 'makeModule<T>' call which constructs
       // the actual module. We can use the StreamWorker to create the actual

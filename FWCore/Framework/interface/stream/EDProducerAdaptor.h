@@ -1,11 +1,11 @@
-#ifndef FWCore_Framework_stream_EDProducerAdapter_h
-#define FWCore_Framework_stream_EDProducerAdapter_h
+#ifndef FWCore_Framework_stream_EDProducerAdaptor_h
+#define FWCore_Framework_stream_EDProducerAdaptor_h
 // -*- C++ -*-
 //
 // Package:     FWCore/Framework
-// Class  :     EDProducerAdapter
+// Class  :     EDProducerAdaptor
 // 
-/**\class edm::stream::EDProducerAdapter EDProducerAdapter.h "EDProducerAdapter.h"
+/**\class edm::stream::EDProducerAdaptor EDProducerAdaptor.h "EDProducerAdaptor.h"
 
  Description: Adapts an edm::stream::EDProducer<> to work with an edm::Worker
 
@@ -21,7 +21,7 @@
 // system include files
 
 // user include files
-#include "FWCore/Framework/interface/stream/EDProducerAdapterBase.h"
+#include "FWCore/Framework/interface/stream/EDProducerAdaptorBase.h"
 #include "FWCore/Framework/interface/stream/callAbilities.h"
 #include "FWCore/Framework/interface/stream/dummy_helpers.h"
 // forward declarations
@@ -52,11 +52,11 @@ namespace edm {
     }
     
     template<typename T>
-    class EDProducerAdapter : public EDProducerAdapterBase
+    class EDProducerAdaptor : public EDProducerAdaptorBase
     {
       
     public:
-      EDProducerAdapter( edm::ParameterSet const& iPSet)
+      EDProducerAdaptor( edm::ParameterSet const& iPSet)
       {
         m_runs.resize(1);
         m_lumis.resize(1);
@@ -64,7 +64,7 @@ namespace edm {
         m_global.reset( impl::makeGlobal<T>(iPSet,dummy).release());
         this->createStreamModules([this,&iPSet] () -> EDProducerBase* {return impl::makeStreamModule<T>(iPSet,m_global.get());});
       }
-      ~EDProducerAdapter() {
+      ~EDProducerAdaptor() {
       }
       
       static void fillDescriptions(ConfigurationDescriptions& descriptions) {
@@ -187,9 +187,9 @@ namespace edm {
         }
       }
 
-      EDProducerAdapter(const EDProducerAdapter&); // stop default
+      EDProducerAdaptor(const EDProducerAdaptor&); // stop default
       
-      const EDProducerAdapter& operator=(const EDProducerAdapter&); // stop default
+      const EDProducerAdaptor& operator=(const EDProducerAdaptor&); // stop default
       
       // ---------- member data --------------------------------
       typename impl::choose_unique_ptr<typename T::GlobalCache>::type m_global;

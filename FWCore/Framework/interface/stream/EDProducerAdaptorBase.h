@@ -1,11 +1,11 @@
-#ifndef FWCore_Framework_stream_EDProducerAdapterBase_h
-#define FWCore_Framework_stream_EDProducerAdapterBase_h
+#ifndef FWCore_Framework_stream_EDProducerAdaptorBase_h
+#define FWCore_Framework_stream_EDProducerAdaptorBase_h
 // -*- C++ -*-
 //
 // Package:     FWCore/Framework
-// Class  :     EDProducerAdapterBase
+// Class  :     EDProducerAdaptorBase
 // 
-/**\class edm::stream::EDProducerAdapterBase EDProducerAdapterBase.h "FWCore/Framework/interface/stream/EDProducerAdapterBase.h"
+/**\class edm::stream::EDProducerAdaptorBase EDProducerAdaptorBase.h "FWCore/Framework/interface/stream/EDProducerAdaptorBase.h"
 
  Description: [one line class summary]
 
@@ -36,14 +36,14 @@
 namespace edm {
   namespace stream {
     class EDProducerBase;
-    class EDProducerAdapterBase : public ProducerBase, public EDConsumerBase
+    class EDProducerAdaptorBase : public ProducerBase, public EDConsumerBase
     {
       
     public:
       template <typename T> friend class edm::WorkerT;
 
-      EDProducerAdapterBase();
-      virtual ~EDProducerAdapterBase();
+      EDProducerAdaptorBase();
+      virtual ~EDProducerAdaptorBase();
       
       // ---------- const member functions ---------------------
       
@@ -65,9 +65,9 @@ namespace edm {
       }
       
     private:
-      EDProducerAdapterBase(const EDProducerAdapterBase&); // stop default
+      EDProducerAdaptorBase(const EDProducerAdaptorBase&); // stop default
       
-      const EDProducerAdapterBase& operator=(const EDProducerAdapterBase&); // stop default
+      const EDProducerAdaptorBase& operator=(const EDProducerAdaptorBase&); // stop default
       
       bool doEvent(EventPrincipal& ep, EventSetup const& c,
                            CurrentProcessingContext const* cpcp) ;
