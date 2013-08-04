@@ -8,13 +8,11 @@
 #include "FWCore/Utilities/interface/Exception.h"
 #include "CalibFormats/HcalObjects/interface/HcalDbRecord.h"
 
-using namespace std;
-
 #include <iostream>
 
 HcalRealisticZS::HcalRealisticZS(edm::ParameterSet const& conf):
-  inputLabel_(conf.getParameter<edm::InputTag>("digiLabel"))
-{
+  inputLabel_(conf.getParameter<std::string>("digiLabel")) {
+
   bool markAndPass=conf.getParameter<bool>("markAndPass");
 
 
@@ -70,8 +68,7 @@ HcalRealisticZS::HcalRealisticZS(edm::ParameterSet const& conf):
 				  HFsearchTS
 				  ));
       
-    }
-    else {
+    } else {
 
       algo_=std::auto_ptr<HcalZSAlgoRealistic>
 	(new HcalZSAlgoRealistic(markAndPass,				  
@@ -84,7 +81,9 @@ HcalRealisticZS::HcalRealisticZS(edm::ParameterSet const& conf):
     produces<HBHEDigiCollection>();
     produces<HODigiCollection>();
     produces<HFDigiCollection>();
-    
+    produces<HBHEUpgradeDigiCollection>("HBHEUpgradeDigiCollection");
+    produces<HFUpgradeDigiCollection>("HFUpgradeDigiCollection");
+   
 }
     
 HcalRealisticZS::~HcalRealisticZS() {
@@ -96,7 +95,9 @@ void HcalRealisticZS::produce(edm::Event& e, const edm::EventSetup& eventSetup)
  
   edm::Handle<HBHEDigiCollection> hbhe;    
   edm::Handle<HODigiCollection> ho;    
-  edm::Handle<HFDigiCollection> hf;    
+  edm::Handle<HFDigiCollection> hf;
+  edm::Handle<HBHEUpgradeDigiCollection> hbheUpgrade;
+  edm::Handle<HFUpgradeDigiCollection> hfUpgrade;
 
   edm::ESHandle<HcalDbService> conditions;
   eventSetup.get<HcalDbRecord>().get(conditions);
@@ -117,21 +118,36 @@ void HcalRealisticZS::produce(edm::Event& e, const edm::EventSetup& eventSetup)
   // create empty output
   std::auto_ptr<HFDigiCollection> zs_hf(new HFDigiCollection);
   
+  edm::InputTag hbheUpgradeTag(inputLabel_, "HBHEUpgradeDigiCollection");
+  e.getByLabel(hbheUpgradeTag,hbheUpgrade);
+  edm::InputTag hfUpgradeTag(inputLabel_, "HFUpgradeDigiCollection");
+  e.getByLabel(hfUpgradeTag,hfUpgrade);
+  
+  // create empty output
+  std::auto_ptr<HBHEUpgradeDigiCollection> zs_hbheUpgrade(new HBHEUpgradeDigiCollection);
+  std::auto_ptr<HFUpgradeDigiCollection> zs_hfUpgrade(new HFUpgradeDigiCollection);
+  
   //run the algorithm
 
   algo_->suppress(*(hbhe.product()),*zs_hbhe);
   algo_->suppress(*(ho.product()),*zs_ho);
   algo_->suppress(*(hf.product()),*zs_hf);
+  algo_->suppress(*(hbheUpgrade.product()),*zs_hbheUpgrade);
+  algo_->suppress(*(hfUpgrade.product()),*zs_hfUpgrade);
 
   
   edm::LogInfo("HcalZeroSuppression") << "Suppression (HBHE) input " << hbhe->size() << " digis, output " << zs_hbhe->size() << " digis" 
 				      <<  " (HO) input " << ho->size() << " digis, output " << zs_ho->size() << " digis"
-				      <<  " (HF) input " << hf->size() << " digis, output " << zs_hf->size() << " digis";
+				      <<  " (HF) input " << hf->size() << " digis, output " << zs_hf->size() << " digis"
+				      <<  " (HBHEUpgrade) input " << hbheUpgrade->size() << " digis, output " << zs_hbheUpgrade->size() << " digis"
+				      <<  " (HFUpgrade) input " << hfUpgrade->size() << " digis, output " << zs_hfUpgrade->size() << " digis";
   
 
     // return result
     e.put(zs_hbhe);
     e.put(zs_ho);
     e.put(zs_hf);
+    e.put(zs_hbheUpgrade,"HBHEUpgradeDigiCollection");
+    e.put(zs_hfUpgrade,"HFUpgradeDigiCollection");
 
 }
