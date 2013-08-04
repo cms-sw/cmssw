@@ -1,7 +1,7 @@
 // -*- C++ -*-
 //
 // Package:     FWCore/Framework
-// Class  :     edm::stream::EDProducerWrapperBase
+// Class  :     edm::stream::EDProducerAdapterBase
 // 
 // Implementation:
 //     [Notes on implementation]
@@ -13,7 +13,7 @@
 // system include files
 
 // user include files
-#include "FWCore/Framework/interface/stream/EDProducerWrapperBase.h"
+#include "FWCore/Framework/interface/stream/EDProducerAdapterBase.h"
 #include "FWCore/Framework/interface/stream/EDProducerBase.h"
 #include "FWCore/Framework/src/CPCSentry.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -36,17 +36,17 @@ using namespace edm::stream;
 //
 // constructors and destructor
 //
-EDProducerWrapperBase::EDProducerWrapperBase()
+EDProducerAdapterBase::EDProducerAdapterBase()
 {
   m_streamModules.resize(1);
 }
 
-// EDProducerWrapperBase::EDProducerWrapperBase(const EDProducerWrapperBase& rhs)
+// EDProducerAdapterBase::EDProducerAdapterBase(const EDProducerAdapterBase& rhs)
 // {
 //    // do actual copying here;
 // }
 
-EDProducerWrapperBase::~EDProducerWrapperBase()
+EDProducerAdapterBase::~EDProducerAdapterBase()
 {
   for(auto m: m_streamModules) {
     delete m;
@@ -56,10 +56,10 @@ EDProducerWrapperBase::~EDProducerWrapperBase()
 //
 // assignment operators
 //
-// const EDProducerWrapperBase& EDProducerWrapperBase::operator=(const EDProducerWrapperBase& rhs)
+// const EDProducerAdapterBase& EDProducerAdapterBase::operator=(const EDProducerAdapterBase& rhs)
 // {
 //   //An exception safe implementation is
-//   EDProducerWrapperBase temp(rhs);
+//   EDProducerAdapterBase temp(rhs);
 //   swap(rhs);
 //
 //   return *this;
@@ -69,7 +69,7 @@ EDProducerWrapperBase::~EDProducerWrapperBase()
 // member functions
 //
 bool
-EDProducerWrapperBase::doEvent(EventPrincipal& ep, EventSetup const& c,
+EDProducerAdapterBase::doEvent(EventPrincipal& ep, EventSetup const& c,
                                CurrentProcessingContext const* cpcp) {
 
   auto mod = m_streamModules[ep.streamID()];
@@ -81,21 +81,21 @@ EDProducerWrapperBase::doEvent(EventPrincipal& ep, EventSetup const& c,
   return true;
 }
 void
-EDProducerWrapperBase::doBeginJob() {
+EDProducerAdapterBase::doBeginJob() {
   
 }
 
 void
-EDProducerWrapperBase::doBeginStream(StreamID id) {
+EDProducerAdapterBase::doBeginStream(StreamID id) {
   m_streamModules[id]->beginStream();
 }
 void
-EDProducerWrapperBase::doEndStream(StreamID id) {
+EDProducerAdapterBase::doEndStream(StreamID id) {
   m_streamModules[id]->endStream();
 }
 
 void
-EDProducerWrapperBase::doStreamBeginRun(StreamID id,
+EDProducerAdapterBase::doStreamBeginRun(StreamID id,
                                         RunPrincipal& rp,
                                         EventSetup const& c,
                                         CurrentProcessingContext const* cpcp)
@@ -111,7 +111,7 @@ EDProducerWrapperBase::doStreamBeginRun(StreamID id,
 }
 
 void
-EDProducerWrapperBase::doStreamEndRun(StreamID id,
+EDProducerAdapterBase::doStreamEndRun(StreamID id,
                     RunPrincipal& rp,
                     EventSetup const& c,
                     CurrentProcessingContext const* cpcp)
@@ -125,7 +125,7 @@ EDProducerWrapperBase::doStreamEndRun(StreamID id,
 }
 
 void
-EDProducerWrapperBase::doStreamBeginLuminosityBlock(StreamID id,
+EDProducerAdapterBase::doStreamBeginLuminosityBlock(StreamID id,
                                                     LuminosityBlockPrincipal& lbp,
                                                     EventSetup const& c,
                                                     CurrentProcessingContext const* cpcp) {
@@ -138,7 +138,7 @@ EDProducerWrapperBase::doStreamBeginLuminosityBlock(StreamID id,
   mod->beginLuminosityBlock(lb, c);
 }
 void
-EDProducerWrapperBase::doStreamEndLuminosityBlock(StreamID id,
+EDProducerAdapterBase::doStreamEndLuminosityBlock(StreamID id,
                                 LuminosityBlockPrincipal& lbp,
                                 EventSetup const& c,
                                 CurrentProcessingContext const* cpcp)

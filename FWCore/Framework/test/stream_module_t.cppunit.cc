@@ -11,7 +11,7 @@
 #include <functional>
 #include "FWCore/Framework/src/Worker.h"
 #include "FWCore/Framework/interface/stream/EDProducer.h"
-#include "FWCore/Framework/interface/stream/EDProducerWrapper.h"
+#include "FWCore/Framework/interface/stream/EDProducerAdapter.h"
 #include "FWCore/Framework/interface/OccurrenceTraits.h"
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
 #include "DataFormats/Provenance/interface/BranchIDListHelper.h"
@@ -386,7 +386,7 @@ namespace {
   template<typename T>
   void * createModule() {
     edm::ParameterSet pset;
-    edm::stream::EDProducerWrapper<T> t(pset);
+    edm::stream::EDProducerAdapter<T> t(pset);
     return nullptr;
   }
   template<typename T>
@@ -408,7 +408,7 @@ template<typename T, typename U>
 void
 testStreamModule::testTransitions(std::unique_ptr<U>&& iMod, Expectations const& iExpect) {
   U* pMod = iMod.get();
-  edm::WorkerT<edm::stream::EDProducerWrapperBase> w{std::move(iMod),m_desc,m_params};
+  edm::WorkerT<edm::stream::EDProducerAdapterBase> w{std::move(iMod),m_desc,m_params};
   for(auto& keyVal: m_transToFunc) {
     testTransition(pMod,&w,keyVal.first,iExpect,keyVal.second);
   }

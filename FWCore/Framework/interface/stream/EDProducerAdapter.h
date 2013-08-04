@@ -1,13 +1,13 @@
-#ifndef Subsystem_Package_EDProducerWrapper_h
-#define Subsystem_Package_EDProducerWrapper_h
+#ifndef FWCore_Framework_stream_EDProducerAdapter_h
+#define FWCore_Framework_stream_EDProducerAdapter_h
 // -*- C++ -*-
 //
-// Package:     Subsystem/Package
-// Class  :     EDProducerWrapper
+// Package:     FWCore/Framework
+// Class  :     EDProducerAdapter
 // 
-/**\class EDProducerWrapper EDProducerWrapper.h "EDProducerWrapper.h"
+/**\class edm::stream::EDProducerAdapter EDProducerAdapter.h "EDProducerAdapter.h"
 
- Description: [one line class summary]
+ Description: Adapts an edm::stream::EDProducer<> to work with an edm::Worker
 
  Usage:
     <usage>
@@ -21,7 +21,7 @@
 // system include files
 
 // user include files
-#include "FWCore/Framework/interface/stream/EDProducerWrapperBase.h"
+#include "FWCore/Framework/interface/stream/EDProducerAdapterBase.h"
 #include "FWCore/Framework/interface/stream/callAbilities.h"
 #include "FWCore/Framework/interface/stream/dummy_helpers.h"
 // forward declarations
@@ -52,11 +52,11 @@ namespace edm {
     }
     
     template<typename T>
-    class EDProducerWrapper : public EDProducerWrapperBase
+    class EDProducerAdapter : public EDProducerAdapterBase
     {
       
     public:
-      EDProducerWrapper( edm::ParameterSet const& iPSet)
+      EDProducerAdapter( edm::ParameterSet const& iPSet)
       {
         m_runs.resize(1);
         m_lumis.resize(1);
@@ -64,7 +64,7 @@ namespace edm {
         m_global.reset( impl::makeGlobal<T>(iPSet,dummy).release());
         this->createStreamModules([this,&iPSet] () -> EDProducerBase* {return impl::makeStreamModule<T>(iPSet,m_global.get());});
       }
-      ~EDProducerWrapper() {
+      ~EDProducerAdapter() {
       }
       
       static void fillDescriptions(ConfigurationDescriptions& descriptions) {
@@ -118,9 +118,9 @@ namespace edm {
       void doEndLuminosityBlock(LuminosityBlockPrincipal& lbp, EventSetup const& c,
                                         CurrentProcessingContext const* cpc)override final;
 
-      EDProducerWrapper(const EDProducerWrapper&); // stop default
+      EDProducerAdapter(const EDProducerAdapter&); // stop default
       
-      const EDProducerWrapper& operator=(const EDProducerWrapper&); // stop default
+      const EDProducerAdapter& operator=(const EDProducerAdapter&); // stop default
       
       // ---------- member data --------------------------------
       typename impl::choose_unique_ptr<typename T::GlobalCache>::type m_global;
