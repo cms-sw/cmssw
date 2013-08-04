@@ -1,11 +1,11 @@
-#ifndef FWCore_Framework_callAbilities_h
-#define FWCore_Framework_callAbilities_h
+#ifndef FWCore_Framework_stream_callAbilities_h
+#define FWCore_Framework_stream_callAbilities_h
 // -*- C++ -*-
 //
 // Package:     FWCore/Framework
 // Class  :     callAbilities
 // 
-/**\class callAbilities callAbilities.h "FWCore/Framework/interface/streams/callAbilities.h"
+/**\class callAbilities callAbilities.h "FWCore/Framework/interface/stream/callAbilities.h"
 
  Description: [one line class summary]
 
@@ -66,7 +66,7 @@ namespace edm {
         static_cast<T>(iProd)->setRunCache(iCache);
       }
       
-      static void globalEndRun(edm::Run const& iRun,
+      static void endRun(edm::Run const& iRun,
                                edm::EventSetup const& iES,
                                typename T::RunContext const* iContext) {
         T::globalEndRun(iRun, iES, iContext);
@@ -82,7 +82,7 @@ namespace edm {
       }
       static void set(void* iProd,
                       typename T::RunCache const* iCache) {}
-      static void globalEndRun(edm::Run const& ,
+      static void endRun(edm::Run const& ,
                                edm::EventSetup const& ,
                                typename T::RunContext const* ) {
       }
@@ -101,8 +101,10 @@ namespace edm {
       }
       template<typename B>
       static void streamEndRunSummary(B* iProd,
-                                      typename T::RunSummaryCache const* iCache) {
-        static_cast<T>(iProd)->endRunSummary(iCache);
+                                      edm::Run const& iRun,
+                                      edm::EventSetup const& iES,
+                                      typename T::RunSummaryCache* iCache) {
+        static_cast<T>(iProd)->endRunSummary(iRun,iES,iCache);
       }
       
       static void globalEndRun(edm::Run const& iRun,
@@ -120,7 +122,10 @@ namespace edm {
                            typename T::RunContext const* ,
                            impl::dummy_ptr ) {
       }
-      static void streamEndRunSummary(void* iProd, typename T::RunSummaryCache const* iCache) {}
+      static void streamEndRunSummary(void* iProd,
+                                      edm::Run const&,
+                                      edm::EventSetup const&,
+                                      typename T::RunSummaryCache const* iCache) {}
       static void globalEndRun(edm::Run const& ,
                                edm::EventSetup const& ,
                                typename T::RunContext const*,
@@ -128,6 +133,90 @@ namespace edm {
       }
     };
 
+    //********************************
+    // CallGlobalLuminosityBlock
+    //********************************
+    template<typename T, bool>
+    struct CallGlobalLuminosityBlock {
+      static void beginLuminosityBlock(edm::LuminosityBlock const& Lumi,
+                           edm::EventSetup const& iES,
+                           typename T::RunContext const* iRC,
+                           std::shared_ptr<typename T::LuminosityBlockCache>& oCache) {
+        oCache = T::globalBeginLuminosityBlock(Lumi,iES,iRC);
+      }
+      
+      template <typename B>
+      static void set(B* iProd, typename T::LuminosityBlockCache const* iCache) {
+        static_cast<T>(iProd)->setLuminosityBlockCache(iCache);
+      }
+      
+      static void endLuminosityBlock(edm::LuminosityBlock const& Lumi,
+                                     edm::EventSetup const& iES,
+                                     typename T::LuminosityBlockContext const* iContext) {
+        T::globalEndLuminosityBlock(Lumi, iES, iContext);
+      }
+    };
+    
+    template<typename T>
+    struct CallGlobalLuminosityBlock<T,false> {
+      static void beginLuminosityBlock(edm::LuminosityBlock const& ,
+                           edm::EventSetup const& ,
+                           typename T::RunCache const* ,
+                           impl::dummy_ptr ) {
+      }
+      static void set(void* iProd,
+                      typename T::LuminosityBlockCache const* iCache) {}
+      static void endLuminosityBlock(edm::LuminosityBlock const& ,
+                                     edm::EventSetup const& ,
+                                     typename T::LuminosityBlockContext const* ) {
+      }
+    };
+    
+    //********************************
+    // CallGlobalLuminosityBlockSummary
+    //********************************
+    template<typename T, bool>
+    struct CallGlobalLuminosityBlockSummary {
+      static void beginLuminosityBlock(edm::LuminosityBlock const& Lumi,
+                           edm::EventSetup const& iES,
+                           typename T::LuminosityBlockContext const* iRC,
+                           std::shared_ptr<typename T::LuminosityBlockSummaryCache>& oCache) {
+        oCache = T::globalBeginLuminosityBlockSummary(Lumi,iES,iRC);
+      }
+      template<typename B>
+      static void streamEndLuminosityBlockSummary(B* iProd,
+                                                  edm::LuminosityBlock const& iLumi,
+                                                  edm::EventSetup const& iES,
+                                      typename T::LuminosityBlockSummaryCache const* iCache) {
+        static_cast<T>(iProd)->endLuminosityBlockSummary(iLumi,iES,iCache);
+      }
+      
+      static void globalEndLuminosityBlock(edm::LuminosityBlock const& Lumi,
+                               edm::EventSetup const& iES,
+                               typename T::LuminosityBlockContext const* iContext,
+                               typename T::LuminosityBlockSummaryCache* iCache) {
+        T::globalEndLuminosityBlockSummary(Lumi, iES, iContext,iCache);
+      }
+    };
+    
+    template<typename T>
+    struct CallGlobalLuminosityBlockSummary<T,false> {
+      static void beginLuminosityBlock(edm::LuminosityBlock const& ,
+                           edm::EventSetup const& ,
+                           typename T::LuminosityBlockContext const* ,
+                           impl::dummy_ptr ) {
+      }
+      static void streamEndLuminosityBlockSummary(void* iProd,
+                                                  edm::LuminosityBlock const&,
+                                                  edm::EventSetup const&,
+                                                  typename T::LuminosityBlockSummaryCache const* iCache) {}
+      static void globalEndLuminosityBlock(edm::LuminosityBlock const& ,
+                               edm::EventSetup const& ,
+                               typename T::LuminosityBlockContext const*,
+                               typename T::LuminosityBlockSummaryCache* ) {
+      }
+    };
+    
     //********************************
     // CallBeginRunProduce
     //********************************
@@ -178,7 +267,58 @@ namespace edm {
         T::globalEndRunProduce(iRun,iES,iRC, iRS);
       }
     };
-}
+
+    //********************************
+    // CallBeginLuminosityBlockProduce
+    //********************************
+    template<typename T, bool >
+    struct CallBeginLuminosityBlockProduce {
+      static void produce(edm::LuminosityBlock& Lumi,
+                          edm::EventSetup const& iES,
+                          typename T::LuminosityBlockContext const* iRC) {
+        T::globalBeginLuminosityBlockProduce(Lumi,iES,iRC);
+      }
+    };
+    
+    template<typename T>
+    struct CallBeginLuminosityBlockProduce<T,false> {
+      static void produce(edm::LuminosityBlock& Lumi,
+                          edm::EventSetup const& iES,
+                          typename T::LuminosityBlockContext const* iRC) {
+      }
+    };
+    
+    //********************************
+    // CallEndLuminosityBlockProduce
+    //********************************
+    template<typename T, bool bProduce, bool bSummary>
+    struct CallEndLuminosityBlockProduce {
+      static void produce(edm::LuminosityBlock&,
+                          edm::EventSetup const&,
+                          typename T::LuminosityBlockContext const*,
+                          typename T::LuminosityBlockSummaryCache const*) {}
+    };
+    
+    template<typename T>
+    struct CallEndLuminosityBlockProduce<T,true,false> {
+      static void produce(edm::LuminosityBlock& Lumi,
+                          edm::EventSetup const& iES,
+                          typename T::LuminosityBlockContext const* iRC,
+                          typename T::LuminosityBlockSummaryCache const*) {
+        T::globalEndLuminosityBlockProduce(Lumi,iES,iRC);
+      }
+    };
+    
+    template<typename T>
+    struct CallEndLuminosityBlockProduce<T,true,true> {
+      static void produce(edm::LuminosityBlock& Lumi,
+                          edm::EventSetup const& iES,
+                          typename T::LuminosityBlockContext const* iRC,
+                          typename T::LuminosityBlockSummaryCache const* iRS) {
+        T::globalEndLuminosityBlockProduce(Lumi,iES,iRC, iRS);
+      }
+    };
+  }
 }
 
 
