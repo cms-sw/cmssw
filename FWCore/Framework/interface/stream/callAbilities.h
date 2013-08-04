@@ -33,9 +33,10 @@ namespace edm {
     //********************************
     template<typename T , bool>
     struct CallGlobal {
-      static void set(void* iProd,
+      template<typename B>
+      static void set(B* iProd,
                       typename T::GlobalCache const* iCache) {
-        reinterpret_cast<T*>(iProd)->setGlobalCache(iCache);
+        static_cast<T*>(iProd)->setGlobalCache(iCache);
       }
       static void endJob(typename T::GlobalCache* iCache) {
         T::globalEndJob(iCache);
@@ -60,7 +61,8 @@ namespace edm {
         oCache = T::globalBeginRun(iRun,iES,iGC);
       }
     
-      static void set(EDProducerBase* iProd, typename T::RunCache const* iCache) {
+      template <typename B>
+      static void set(B* iProd, typename T::RunCache const* iCache) {
         static_cast<T>(iProd)->setRunCache(iCache);
       }
       
@@ -97,8 +99,9 @@ namespace edm {
                            std::shared_ptr<typename T::RunSummaryCache>& oCache) {
         oCache = T::globalBeginRunSummary(iRun,iES,iRC);
       }
-      
-      static void streamEndRunSummary(EDProducerBase* iProd, typename T::RunSummaryCache const* iCache) {
+      template<typename B>
+      static void streamEndRunSummary(B* iProd,
+                                      typename T::RunSummaryCache const* iCache) {
         static_cast<T>(iProd)->endRunSummary(iCache);
       }
       
@@ -117,7 +120,7 @@ namespace edm {
                            typename T::RunContext const* ,
                            impl::dummy_ptr ) {
       }
-      static void streamEndRunSummary(EDProducerBase* iProd, typename T::RunSummaryCache const* iCache) {}
+      static void streamEndRunSummary(void* iProd, typename T::RunSummaryCache const* iCache) {}
       static void globalEndRun(edm::Run const& ,
                                edm::EventSetup const& ,
                                typename T::RunContext const*,
