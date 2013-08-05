@@ -1,7 +1,7 @@
 // -*- C++ -*-
 //
 // Package:     FWCore/Framework
-// Class  :     edm::stream::EDProducerAdaptorBase
+// Class  :     edm::stream::EDAnalyzerAdaptorBase
 // 
 // Implementation:
 //     [Notes on implementation]
@@ -13,8 +13,8 @@
 // system include files
 
 // user include files
-#include "FWCore/Framework/interface/stream/EDProducerAdaptorBase.h"
-#include "FWCore/Framework/interface/stream/EDProducerBase.h"
+#include "FWCore/Framework/interface/stream/EDAnalyzerAdaptorBase.h"
+#include "FWCore/Framework/interface/stream/EDAnalyzerBase.h"
 #include "FWCore/Framework/src/CPCSentry.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
@@ -36,17 +36,17 @@ using namespace edm::stream;
 //
 // constructors and destructor
 //
-EDProducerAdaptorBase::EDProducerAdaptorBase()
+EDAnalyzerAdaptorBase::EDAnalyzerAdaptorBase()
 {
   m_streamModules.resize(1);
 }
 
-// EDProducerAdaptorBase::EDProducerAdaptorBase(const EDProducerAdaptorBase& rhs)
+// EDAnalyzerAdaptorBase::EDAnalyzerAdaptorBase(const EDAnalyzerAdaptorBase& rhs)
 // {
 //    // do actual copying here;
 // }
 
-EDProducerAdaptorBase::~EDProducerAdaptorBase()
+EDAnalyzerAdaptorBase::~EDAnalyzerAdaptorBase()
 {
   for(auto m: m_streamModules) {
     delete m;
@@ -56,10 +56,10 @@ EDProducerAdaptorBase::~EDProducerAdaptorBase()
 //
 // assignment operators
 //
-// const EDProducerAdaptorBase& EDProducerAdaptorBase::operator=(const EDProducerAdaptorBase& rhs)
+// const EDAnalyzerAdaptorBase& EDAnalyzerAdaptorBase::operator=(const EDAnalyzerAdaptorBase& rhs)
 // {
 //   //An exception safe implementation is
-//   EDProducerAdaptorBase temp(rhs);
+//   EDAnalyzerAdaptorBase temp(rhs);
 //   swap(rhs);
 //
 //   return *this;
@@ -69,46 +69,41 @@ EDProducerAdaptorBase::~EDProducerAdaptorBase()
 // member functions
 //
 void
-EDProducerAdaptorBase::registerProductsAndCallbacks(EDProducerAdaptorBase const*, ProductRegistry* reg) {
+EDAnalyzerAdaptorBase::registerProductsAndCallbacks(EDAnalyzerAdaptorBase const*, ProductRegistry* reg) {
   for(auto mod : m_streamModules) {
-    //NOTE: this will cause us to register the same products multiple times
-    // since each stream module will indepdently do this
-    //Maybe I could only have module 0 do the registration and only call
-    // the callbacks for the others
-    mod->registerProducts(mod, reg, moduleDescription_);
+    mod->registerProductsAndCallbacks(mod, reg);
   }
 }
 
 
 
 bool
-EDProducerAdaptorBase::doEvent(EventPrincipal& ep, EventSetup const& c,
+EDAnalyzerAdaptorBase::doEvent(EventPrincipal& ep, EventSetup const& c,
                                CurrentProcessingContext const* cpcp) {
   assert(ep.streamID()<m_streamModules.size());
   auto mod = m_streamModules[ep.streamID()];
   detail::CPCSentry sentry(mod->current_context_, cpcp);
   Event e(ep, moduleDescription_);
   e.setConsumer(mod);
-  mod->produce(e, c);
-  commit_(e,&mod->previousParentage_, &mod->previousParentageId_);
+  mod->analyze(e, c);
   return true;
 }
 void
-EDProducerAdaptorBase::doBeginJob() {
+EDAnalyzerAdaptorBase::doBeginJob() {
   
 }
 
 void
-EDProducerAdaptorBase::doBeginStream(StreamID id) {
+EDAnalyzerAdaptorBase::doBeginStream(StreamID id) {
   m_streamModules[id]->beginStream();
 }
 void
-EDProducerAdaptorBase::doEndStream(StreamID id) {
+EDAnalyzerAdaptorBase::doEndStream(StreamID id) {
   m_streamModules[id]->endStream();
 }
 
 void
-EDProducerAdaptorBase::doStreamBeginRun(StreamID id,
+EDAnalyzerAdaptorBase::doStreamBeginRun(StreamID id,
                                         RunPrincipal& rp,
                                         EventSetup const& c,
                                         CurrentProcessingContext const* cpcp)
@@ -124,7 +119,7 @@ EDProducerAdaptorBase::doStreamBeginRun(StreamID id,
 }
 
 void
-EDProducerAdaptorBase::doStreamEndRun(StreamID id,
+EDAnalyzerAdaptorBase::doStreamEndRun(StreamID id,
                     RunPrincipal& rp,
                     EventSetup const& c,
                     CurrentProcessingContext const* cpcp)
@@ -138,7 +133,7 @@ EDProducerAdaptorBase::doStreamEndRun(StreamID id,
 }
 
 void
-EDProducerAdaptorBase::doStreamBeginLuminosityBlock(StreamID id,
+EDAnalyzerAdaptorBase::doStreamBeginLuminosityBlock(StreamID id,
                                                     LuminosityBlockPrincipal& lbp,
                                                     EventSetup const& c,
                                                     CurrentProcessingContext const* cpcp) {
@@ -151,7 +146,7 @@ EDProducerAdaptorBase::doStreamBeginLuminosityBlock(StreamID id,
   mod->beginLuminosityBlock(lb, c);
 }
 void
-EDProducerAdaptorBase::doStreamEndLuminosityBlock(StreamID id,
+EDAnalyzerAdaptorBase::doStreamEndLuminosityBlock(StreamID id,
                                 LuminosityBlockPrincipal& lbp,
                                 EventSetup const& c,
                                 CurrentProcessingContext const* cpcp)
@@ -166,10 +161,10 @@ EDProducerAdaptorBase::doStreamEndLuminosityBlock(StreamID id,
 }
 
 void
-EDProducerAdaptorBase::doRespondToOpenInputFile(FileBlock const& fb){}
+EDAnalyzerAdaptorBase::doRespondToOpenInputFile(FileBlock const& fb){}
 void
-EDProducerAdaptorBase::doRespondToCloseInputFile(FileBlock const& fb){}
+EDAnalyzerAdaptorBase::doRespondToCloseInputFile(FileBlock const& fb){}
 void
-EDProducerAdaptorBase::doPreForkReleaseResources(){}
+EDAnalyzerAdaptorBase::doPreForkReleaseResources(){}
 void
-EDProducerAdaptorBase::doPostForkReacquireResources(unsigned int iChildIndex, unsigned int iNumberOfChildren){}
+EDAnalyzerAdaptorBase::doPostForkReacquireResources(unsigned int iChildIndex, unsigned int iNumberOfChildren){}
