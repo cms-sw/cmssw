@@ -52,9 +52,9 @@ void Walker::VisitCXXMemberCallExpr( CXXMemberCallExpr *CE ) {
 //				llvm::errs()<<"class "<<RD->getQualifiedNameAsString()<<"\n";
 //				llvm::errs()<<"\n";
 //				}
-			std::string tname;
-			llvm::dyn_cast<CXXMethodDecl>(D)->getNameForDiagnostic(tname,Policy,1);
-			os<<"function '"<<tname<<"' ";
+			os<<"function '";
+			llvm::dyn_cast<CXXMethodDecl>(D)->getNameForDiagnostic(os,Policy,1);
+			os<<"' ";
 //			os<<"call expression '";
 //			CE->printPretty(os,0,Policy);
 //			os<<"' ";
@@ -118,9 +118,10 @@ void Walker::VisitCXXMemberCallExpr( CXXMemberCallExpr *CE ) {
 			if ( qtname=="edm::Event" || qtname=="const edm::Event" ||
 				qtname=="edm::Event *" || qtname=="const edm::Event *" )  {
 				std::string tname;
-				MD->getNameForDiagnostic(tname,Policy,1);
 				os<<"function '"<<dname<<"' ";
-				os<<"calls '"<<tname<<"' with argument of type '"<<qtname<<"'\n";
+				os<<"calls '";
+				MD->getNameForDiagnostic(os,Policy,1);
+				os<<"' with argument of type '"<<qtname<<"'\n";
 //				llvm::errs()<<"\n";
 //				llvm::errs()<<"call expression passed edm::Event ";
 //				CE->printPretty(llvm::errs(),0,Policy);

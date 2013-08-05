@@ -22,7 +22,6 @@
 //
 // Original Author:  __author__
 //         Created:  __date__
-// __rcsid__
 //
 
 #include "DataFormats/PatCandidates/interface/HardEventHypothesis.h"

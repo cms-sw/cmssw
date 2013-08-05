@@ -14,7 +14,7 @@ namespace edm {
   public:
     LuminosityBlockAux() : processHistoryID_(), id_(), runID_() {}
     ~LuminosityBlockAux() {}
-    mutable ProcessHistoryID processHistoryID_;
+    ProcessHistoryID processHistoryID_;
     LuminosityBlockNumber_t id_;
     RunNumber_t runID_;
   };

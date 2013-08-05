@@ -1,3 +1,4 @@
+//updated by Reza Goldouzian
 //FastSimulation Headers
 #include "FastSimulation/ShowerDevelopment/interface/HDShower.h"
 //#include "FastSimulation/Utilities/interface/Histos.h"
@@ -36,12 +37,14 @@ HDShower::HDShower(const RandomEngine* engine,
 		   HcalHitMaker* myHcalHitMaker,
 		   int onECAL,
 		   double epart,
+                   double pmip,
            DQMStore * const dbeIn)
   : theParam(myParam), 
     theGrid(myGrid),
     theHcalHitMaker(myHcalHitMaker),
     onEcal(onECAL),
     e(epart),
+//    pmip(pmip),
     random(engine),
 	dbe(dbeIn)
 { 
@@ -240,6 +243,11 @@ HDShower::HDShower(const RandomEngine* engine,
   // if no HCAL material behind - force to deposit in ECAL
   double maxDepth    = depthToHCAL + depthHCAL - 1.1 * depthStep;
   double depthStart  = std::log(1./random->flatShoot()); // starting point lambda unts
+  //std::cout<<"generated depth             "<<depthStart<<std::endl;
+  if (pmip==1) {depthStart=depthToHCAL;}
+  else {depthStart=depthStart*0.9*depthECAL/std::log(1./pmip);}
+ // std::cout<<"modified  depth             "<<depthStart<<std::endl;
+
 
   if(e < emin) {
     if(debug) LogInfo("FastCalorimetry") << " FamosHDShower : e <emin ->  depthStart = 0" << std::endl; 

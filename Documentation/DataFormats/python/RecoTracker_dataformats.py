@@ -1,67 +1,292 @@
-full_title = "RecoTracker collections (in RECO and AOD)"
+'''
+    Created on Jun 26, 2013 
+    @author:  Mantas Stankevicius
+    @contact: mantas.stankevicius@cern.ch
+    http://cmsdoxy.web.cern.ch/cmsdoxy/dataformats/
+    
+    @responsible: 
+    
+'''
 
-full = {
-    '0':['generalTracks', 'recoTracks', 'Collection of tracks obtained with tracker-standalone reconstruction and officially supported by the Tracker DPG group. Such a collection can contain tracks from different tracking algorithms'] ,
-    '1':['generalTracks', 'recoTrackExtras', 'Track extra for the generalTracks.The trajectory state at the inner and outer most measurements'] ,
-    '2':['extraFromSeeds', 'TrackingRecHitsOwned', 'No documentation'] ,
-    '3':['extraFromSeeds', 'uints', 'No documentation'] ,
-    '4':['generalTracks', 'TrackingRecHitsOwned', 'No documentation'] ,
-    '5':['beamhaloTracks', 'recoTracks', 'No documentation'] ,
-    '6':['beamhaloTracks', 'recoTrackExtras', 'No documentation'] ,
-    '7':['beamhaloTracks', 'TrackingRecHitsOwned', 'No documentation'] ,
-    '8':['regionalCosmicTracks', 'recoTracks', 'No documentation'] ,
-    '9':['regionalCosmicTracks', 'recoTrackExtras', 'No documentation'] ,
-    '10':['regionalCosmicTracks', 'TrackingRecHitsOwned', 'No documentation'] ,
-    '11':['rsWithMaterialTracks', 'recoTracks', 'No documentation'] ,
-    '12':['rsWithMaterialTracks', 'recoTrackExtras', 'No documentation'] ,
-    '13':['rsWithMaterialTracks', 'TrackingRecHitsOwned', 'No documentation'] ,
-    '14':['conversionStepTracks', 'recoTracks', 'No documentation'] ,
-    '15':['conversionStepTracks', 'recoTrackExtras', 'No documentation'] ,
-    '16':['conversionStepTracks', 'TrackingRecHitsOwned', 'No documentation'] ,
-    '17':['ctfPixelLess', '*', 'No documentation'] ,
-    '18':['dedxTruncated40', '*', 'No documentation'] ,
-    '19':['dedxDiscrimASmi', '*', 'No documentation'] ,
-    '20':['dedxHarmonic2', '*', 'No documentation'] ,
-    '21':['trackExtrapolator', '*', 'No documentation'] 
-}
-
-reco_title = "RecoTracker collections (in RECO only)"
-
-reco = {
-    '0':['generalTracks', 'recoTracks', 'Collection of tracks obtained with tracker-standalone reconstruction and officially supported by the Tracker DPG group. Such a collection can contain tracks from different tracking algorithms'] ,
-    '1':['generalTracks', 'recoTrackExtras', 'Track extra for the generalTracks.The trajectory state at the inner and outer most measurements'] ,
-    '2':['extraFromSeeds', 'TrackingRecHitsOwned', 'No documentation'] ,
-    '3':['extraFromSeeds', 'uints', 'No documentation'] ,
-    '4':['generalTracks', 'TrackingRecHitsOwned', 'No documentation'] ,
-    '5':['beamhaloTracks', 'recoTracks', 'No documentation'] ,
-    '6':['beamhaloTracks', 'recoTrackExtras', 'No documentation'] ,
-    '7':['beamhaloTracks', 'TrackingRecHitsOwned', 'No documentation'] ,
-    '8':['regionalCosmicTracks', 'recoTracks', 'No documentation'] ,
-    '9':['regionalCosmicTracks', 'recoTrackExtras', 'No documentation'] ,
-    '10':['regionalCosmicTracks', 'TrackingRecHitsOwned', 'No documentation'] ,
-    '11':['rsWithMaterialTracks', 'recoTracks', 'No documentation'] ,
-    '12':['rsWithMaterialTracks', 'recoTrackExtras', 'No documentation'] ,
-    '13':['rsWithMaterialTracks', 'TrackingRecHitsOwned', 'No documentation'] ,
-    '14':['conversionStepTracks', 'recoTracks', 'No documentation'] ,
-    '15':['conversionStepTracks', 'recoTrackExtras', 'No documentation'] ,
-    '16':['conversionStepTracks', 'TrackingRecHitsOwned', 'No documentation'] ,
-    '17':['ctfPixelLess', '*', 'No documentation'] ,
-    '18':['dedxTruncated40', '*', 'No documentation'] ,
-    '19':['dedxDiscrimASmi', '*', 'No documentation'] ,
-    '20':['dedxHarmonic2', '*', 'No documentation'] ,
-    '21':['trackExtrapolator', '*', 'No documentation'] 
-}
-
-aod_title = "RecoTracker collections (in AOD only)"
-
-aod = {
-    '0':['generalTracks', 'recoTracks', 'Collection of tracks obtained with tracker-standalone reconstruction and officially supported by the Tracker DPG group. Such a collection can contain tracks from different tracking algorithms'] ,
-    '1':['rsWithMaterialTracks', 'recoTracks', 'No documentation'] ,
-    '2':['conversionStepTracks', 'recoTracks', 'No documentation'] ,
-    '3':['beamhaloTracks', 'recoTracks', 'No documentation'] ,
-    '4':['regionalCosmicTracks', 'recoTracks', 'No documentation'] ,
-    '5':['ctfPixelLess', 'recoTracks', 'No documentation'] ,
-    '6':['dedxHarmonic2', '*', 'No documentation'] ,
-    '7':['dedxDiscrimASmi', '*', 'No documentation'] ,
-    '8':['trackExtrapolator', '*', 'No documentation'] 
+json = {
+  "full": {
+    "title": "RecoTracker collections (in RECO and AOD)",
+    "data": [
+     {
+      "instance": "dedxHarmonic2",
+      "container": "*",
+      "desc": "No documentation"
+     },
+     {
+      "instance": "trackExtrapolator",
+      "container": "*",
+      "desc": "No documentation"
+     },
+     {
+      "instance": "generalTracks",
+      "container": "recoTrackExtras",
+      "desc": "Track extra for the generalTracks.The trajectory state at the inner and outer most measurements"
+     },
+     {
+      "instance": "generalTracks",
+      "container": "recoTracks",
+      "desc": "Collection of tracks obtained with tracker-standalone reconstruction and officially supported by the Tracker DPG group. Such a collection can contain tracks from different tracking algorithms"
+     },
+     {
+      "instance": "extraFromSeeds",
+      "container": "uints",
+      "desc": "No documentation"
+     },
+     {
+      "instance": "extraFromSeeds",
+      "container": "TrackingRecHitsOwned",
+      "desc": "No documentation"
+     },
+     {
+      "instance": "beamhaloTracks",
+      "container": "recoTracks",
+      "desc": "No documentation"
+     },
+     {
+      "instance": "generalTracks",
+      "container": "TrackingRecHitsOwned",
+      "desc": "No documentation"
+     },
+     {
+      "instance": "beamhaloTracks",
+      "container": "TrackingRecHitsOwned",
+      "desc": "No documentation"
+     },
+     {
+      "instance": "beamhaloTracks",
+      "container": "recoTrackExtras",
+      "desc": "No documentation"
+     },
+     {
+      "instance": "regionalCosmicTracks",
+      "container": "recoTrackExtras",
+      "desc": "No documentation"
+     },
+     {
+      "instance": "regionalCosmicTracks",
+      "container": "recoTracks",
+      "desc": "No documentation"
+     },
+     {
+      "instance": "rsWithMaterialTracks",
+      "container": "recoTracks",
+      "desc": "No documentation"
+     },
+     {
+      "instance": "regionalCosmicTracks",
+      "container": "TrackingRecHitsOwned",
+      "desc": "No documentation"
+     },
+     {
+      "instance": "rsWithMaterialTracks",
+      "container": "TrackingRecHitsOwned",
+      "desc": "No documentation"
+     },
+     {
+      "instance": "rsWithMaterialTracks",
+      "container": "recoTrackExtras",
+      "desc": "No documentation"
+     },
+     {
+      "instance": "conversionStepTracks",
+      "container": "recoTrackExtras",
+      "desc": "No documentation"
+     },
+     {
+      "instance": "conversionStepTracks",
+      "container": "recoTracks",
+      "desc": "No documentation"
+     },
+     {
+      "instance": "ctfPixelLess",
+      "container": "*",
+      "desc": "No documentation"
+     },
+     {
+      "instance": "conversionStepTracks",
+      "container": "TrackingRecHitsOwned",
+      "desc": "No documentation"
+     },
+     {
+      "instance": "dedxDiscrimASmi",
+      "container": "*",
+      "desc": "No documentation"
+     },
+     {
+      "instance": "dedxTruncated40",
+      "container": "*",
+      "desc": "No documentation"
+     }
+    ]
+  },
+  "aod": {
+    "title": "RecoTracker collections (in AOD only)",
+    "data": [
+     {
+      "instance": "rsWithMaterialTracks",
+      "container": "recoTracks",
+      "desc": "No documentation"
+     },
+     {
+      "instance": "generalTracks",
+      "container": "recoTracks",
+      "desc": "Collection of tracks obtained with tracker-standalone reconstruction and officially supported by the Tracker DPG group. Such a collection can contain tracks from different tracking algorithms"
+     },
+     {
+      "instance": "beamhaloTracks",
+      "container": "recoTracks",
+      "desc": "No documentation"
+     },
+     {
+      "instance": "conversionStepTracks",
+      "container": "recoTracks",
+      "desc": "No documentation"
+     },
+     {
+      "instance": "ctfPixelLess",
+      "container": "recoTracks",
+      "desc": "No documentation"
+     },
+     {
+      "instance": "regionalCosmicTracks",
+      "container": "recoTracks",
+      "desc": "No documentation"
+     },
+     {
+      "instance": "dedxDiscrimASmi",
+      "container": "*",
+      "desc": "No documentation"
+     },
+     {
+      "instance": "dedxHarmonic2",
+      "container": "*",
+      "desc": "No documentation"
+     },
+     {
+      "instance": "trackExtrapolator",
+      "container": "*",
+      "desc": "No documentation"
+     }
+    ]
+  },
+  "reco": {
+    "title": "RecoTracker collections (in RECO only)",
+    "data": [
+     {
+      "instance": "dedxHarmonic2",
+      "container": "*",
+      "desc": "No documentation"
+     },
+     {
+      "instance": "trackExtrapolator",
+      "container": "*",
+      "desc": "No documentation"
+     },
+     {
+      "instance": "generalTracks",
+      "container": "recoTrackExtras",
+      "desc": "Track extra for the generalTracks.The trajectory state at the inner and outer most measurements"
+     },
+     {
+      "instance": "generalTracks",
+      "container": "recoTracks",
+      "desc": "Collection of tracks obtained with tracker-standalone reconstruction and officially supported by the Tracker DPG group. Such a collection can contain tracks from different tracking algorithms"
+     },
+     {
+      "instance": "extraFromSeeds",
+      "container": "uints",
+      "desc": "No documentation"
+     },
+     {
+      "instance": "extraFromSeeds",
+      "container": "TrackingRecHitsOwned",
+      "desc": "No documentation"
+     },
+     {
+      "instance": "beamhaloTracks",
+      "container": "recoTracks",
+      "desc": "No documentation"
+     },
+     {
+      "instance": "generalTracks",
+      "container": "TrackingRecHitsOwned",
+      "desc": "No documentation"
+     },
+     {
+      "instance": "beamhaloTracks",
+      "container": "TrackingRecHitsOwned",
+      "desc": "No documentation"
+     },
+     {
+      "instance": "beamhaloTracks",
+      "container": "recoTrackExtras",
+      "desc": "No documentation"
+     },
+     {
+      "instance": "regionalCosmicTracks",
+      "container": "recoTrackExtras",
+      "desc": "No documentation"
+     },
+     {
+      "instance": "regionalCosmicTracks",
+      "container": "recoTracks",
+      "desc": "No documentation"
+     },
+     {
+      "instance": "rsWithMaterialTracks",
+      "container": "recoTracks",
+      "desc": "No documentation"
+     },
+     {
+      "instance": "regionalCosmicTracks",
+      "container": "TrackingRecHitsOwned",
+      "desc": "No documentation"
+     },
+     {
+      "instance": "rsWithMaterialTracks",
+      "container": "TrackingRecHitsOwned",
+      "desc": "No documentation"
+     },
+     {
+      "instance": "rsWithMaterialTracks",
+      "container": "recoTrackExtras",
+      "desc": "No documentation"
+     },
+     {
+      "instance": "conversionStepTracks",
+      "container": "recoTrackExtras",
+      "desc": "No documentation"
+     },
+     {
+      "instance": "conversionStepTracks",
+      "container": "recoTracks",
+      "desc": "No documentation"
+     },
+     {
+      "instance": "ctfPixelLess",
+      "container": "*",
+      "desc": "No documentation"
+     },
+     {
+      "instance": "conversionStepTracks",
+      "container": "TrackingRecHitsOwned",
+      "desc": "No documentation"
+     },
+     {
+      "instance": "dedxDiscrimASmi",
+      "container": "*",
+      "desc": "No documentation"
+     },
+     {
+      "instance": "dedxTruncated40",
+      "container": "*",
+      "desc": "No documentation"
+     }
+    ]
+  }
 }

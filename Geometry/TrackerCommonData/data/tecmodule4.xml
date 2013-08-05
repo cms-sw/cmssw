@@ -1,0 +1,38 @@
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
+	<ConstantsSection label="tecmodule4.xml" eval="true">
+		<Constant name="Rin" value="59.67*cm"/>
+		<Constant name="Rout" value="79.76*cm"/>
+		<Constant name="FullHeight" value="15.0029000*cm"/>
+		<Constant name="ActiveHeight" value="14.7262500*cm"/>
+		<Constant name="DlTop" value="12.2914000*cm"/>
+		<Constant name="DlBottom" value="9.8952000*cm"/>
+		<Constant name="InactiveStart" value="65.983*mm"/>
+		<Constant name="SideWidthTop" value="0.1431406*cm"/>
+		<Constant name="SideWidthBottom" value="0.1229168*cm"/>
+		<Constant name="HybridZ" value="[ActiveZ]+ 0.5*(-[tecmodpar:WaferThick2] + [tecmodpar:HybridThick])"/>
+		<Constant name="TopFrameZ" value="[HybridZ]+ 0.5*([tecmodpar:HybridThick]+[tecmodpar:TopFrameThick])"/>
+		<Constant name="SideFrameZ" value="[TopFrameZ]+0.5*(-[tecmodpar:TopFrameThick]+[tecmodpar:SideFrameThick])"/>
+		<Constant name="PitchZ" value="[TopFrameZ] - 0.5*([tecmodpar:TopFrameThick] + [tecmodpar:PitchThick])"/>
+		<Constant name="DlHybrid" value="12.900*cm"/>
+		<Constant name="BridgeWidth" value="2.475*cm"/>
+		<Constant name="BridgeThick" value="0.176*cm"/>
+		<Constant name="BridgeHeight" value="2.60*cm"/>
+		<Constant name="BridgeSeparation" value="8.300*cm"/>
+		<Constant name="ModuleThick" value="[tecmodpar:ModuleThickDS]"/>
+		<Constant name="ShiftZ" value="-([tecmodpar:ModuleThick]+                                             [tecmodpar:GapModule])/2"/>
+		<Constant name="TopFrameBotWidth" value="143.3*mm"/>
+		<Constant name="ActiveZ" value="([tecmodpar:ActiveZ2]+[ShiftZ])"/>
+		<Constant name="PitchWidth" value="122.6*mm"/>
+		<Constant name="dPhi" value="2.2*asin(0.5*[TopFrameBotWidth]/([Rin]+[FullHeight]))"/>
+	</ConstantsSection>
+	<SolidSection label="tecmodule4.xml">
+		<Tubs name="TECModule4" rMin="[Rin]" rMax="[Rout]" dz="0.5*[tecmodpar:ModuleThickDS]" startPhi="-[dPhi]/2" deltaPhi="[dPhi]"/>
+	</SolidSection>
+	<LogicalPartSection label="tecmodule4.xml">
+		<LogicalPart name="TECModule4" category="unspecified">
+			<rSolid name="tecmodule4:TECModule4"/>
+			<rMaterial name="materials:Air"/>
+		</LogicalPart>
+	</LogicalPartSection>
+</DDDefinition>

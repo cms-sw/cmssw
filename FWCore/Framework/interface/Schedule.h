@@ -65,6 +65,7 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/OccurrenceTraits.h"
 #include "FWCore/Framework/interface/UnscheduledCallProducer.h"
+#include "FWCore/Framework/interface/WorkerManager.h"
 #include "FWCore/Framework/src/Path.h"
 #include "FWCore/Framework/src/RunStopwatch.h"
 #include "FWCore/Framework/src/Worker.h"
@@ -78,6 +79,7 @@
 #include "FWCore/Utilities/interface/BranchType.h"
 #include "FWCore/Utilities/interface/ConvertException.h"
 #include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/Utilities/interface/StreamID.h"
 
 #include "boost/shared_ptr.hpp"
 
@@ -96,7 +98,7 @@ namespace edm {
   class BranchIDListHelper;
   class EventSetup;
   class ExceptionCollector;
-  class OutputWorker;
+  class OutputModuleCommunicator;
   class RunStopwatch;
   class UnscheduledCallProducer;
   class WorkerInPath;
@@ -108,7 +110,7 @@ namespace edm {
     typedef boost::shared_ptr<HLTGlobalStatus> TrigResPtr;
     typedef boost::shared_ptr<Worker> WorkerPtr;
     typedef std::vector<Worker*> AllWorkers;
-    typedef std::vector<OutputWorker*> AllOutputWorkers;
+    typedef std::vector<boost::shared_ptr<OutputModuleCommunicator>> AllOutputModuleCommunicators;
 
     typedef std::vector<Worker*> Workers;
 
@@ -121,7 +123,8 @@ namespace edm {
              ActionTable const& actions,
              boost::shared_ptr<ActivityRegistry> areg,
              boost::shared_ptr<ProcessConfiguration> processConfiguration,
-             const ParameterSet* subProcPSet);
+             const ParameterSet* subProcPSet,
+             StreamID streamID);
 
     enum State { Ready = 0, Running, Latched };
 
@@ -132,6 +135,9 @@ namespace edm {
 
     void beginJob(ProductRegistry const&);
     void endJob(ExceptionCollector & collector);
+    
+    void beginStream();
+    void endStream();
 
     // Write the luminosity block
     void writeLumi(LuminosityBlockPrincipal const& lbp);
@@ -154,18 +160,14 @@ namespace edm {
     // Call respondToCloseInputFile() on all Modules
     void respondToCloseInputFile(FileBlock const& fb);
 
-    // Call respondToOpenOutputFiles() on all Modules
-    void respondToOpenOutputFiles(FileBlock const& fb);
-
-    // Call respondToCloseOutputFiles() on all Modules
-    void respondToCloseOutputFiles(FileBlock const& fb);
-
     // Call shouldWeCloseFile() on all OutputModules.
     bool shouldWeCloseOutput() const;
 
     void preForkReleaseResources();
     void postForkReacquireResources(unsigned int iChildIndex, unsigned int iNumberOfChildren);
 
+    StreamID streamID() const { return streamID_; }
+    
     std::pair<double, double> timeCpuReal() const {
       return std::pair<double, double>(stopwatch_->cpuTime(), stopwatch_->realTime());
     }
@@ -226,23 +228,17 @@ namespace edm {
     /// Returns true if successful.
     bool changeModule(std::string const& iLabel, ParameterSet const& iPSet);
 
+    /// returns the collection of pointers to workers
+    AllWorkers const& allWorkers() const {
+      return workerManager_.allWorkers();
+    }
+
+    /// returns the action table
+    ActionTable const& actionTable() const {
+      return workerManager_.actionTable();
+    }
+
   private:
-
-    AllWorkers::const_iterator workersBegin() const {
-      return all_workers_.begin();
-    }
-
-    AllWorkers::const_iterator workersEnd() const {
-      return all_workers_.end();
-    }
-
-    AllWorkers::iterator workersBegin() {
-      return  all_workers_.begin();
-    }
-
-    AllWorkers::iterator workersEnd() {
-      return all_workers_.end();
-    }
 
     void resetAll();
 
@@ -251,8 +247,6 @@ namespace edm {
 
     template <typename T>
     void runEndPaths(typename T::MyPrincipal&, EventSetup const&);
-
-    void setupOnDemandSystem(EventPrincipal& principal, EventSetup const& es);
 
     void reportSkipped(EventPrincipal const& ep) const;
     void reportSkipped(LuminosityBlockPrincipal const&) const {}
@@ -289,8 +283,7 @@ namespace edm {
                                edm::ProductRegistry const& preg, 
                                edm::ParameterSet const* subProcPSet);
 
-    WorkerRegistry                                worker_reg_;
-    ActionTable const*                            act_table_;
+    WorkerManager            workerManager_;
     boost::shared_ptr<ActivityRegistry>           actReg_;
 
     State                    state_;
@@ -301,8 +294,7 @@ namespace edm {
     TrigResPtr               endpath_results_;
 
     WorkerPtr                results_inserter_;
-    AllWorkers               all_workers_;
-    AllOutputWorkers         all_output_workers_;
+    AllOutputModuleCommunicators         all_output_communicators_;
     TrigPaths                trig_paths_;
     TrigPaths                end_paths_;
     std::vector<int>         empty_trig_paths_;
@@ -328,28 +320,8 @@ namespace edm {
     int                            total_passed_;
     RunStopwatch::StopwatchPointer stopwatch_;
 
-    boost::shared_ptr<UnscheduledCallProducer> unscheduled_;
-
+    StreamID                streamID_;
     volatile bool           endpathsAreActive_;
-  };
-
-  // -----------------------------
-  // ProcessOneOccurrence is a functor that has bound a specific
-  // Principal and Event Setup, and can be called with a Path, to
-  // execute Path::processOneOccurrence for that event
-
-  template <typename T>
-  class ProcessOneOccurrence {
-  public:
-    typedef void result_type;
-    ProcessOneOccurrence(typename T::MyPrincipal& principal, EventSetup const& setup) :
-      ep(principal), es(setup) {};
-
-      void operator()(Path& p) {p.processOneOccurrence<T>(ep, es);}
-
-  private:
-    typename T::MyPrincipal&   ep;
-    EventSetup const& es;
   };
 
   void
@@ -373,22 +345,22 @@ namespace edm {
     // A RunStopwatch, but only if we are processing an event.
     RunStopwatch stopwatch(T::isEvent_ ? stopwatch_ : RunStopwatch::StopwatchPointer());
 
+    // This call takes care of the unscheduled processing.
+    workerManager_.processOneOccurrence<T>(ep, es, streamID_, cleaningUpAfterException);
+
     if (T::isEvent_) {
       ++total_events_;
-      setupOnDemandSystem(dynamic_cast<EventPrincipal&>(ep), es);
     }
     try {
       try {
         try {
-          //make sure the unscheduled items see this transition [Event will be a no-op]
-          unscheduled_->runNow<T>(ep, es);
           if (runTriggerPaths<T>(ep, es)) {
             if (T::isEvent_) ++total_passed_;
           }
           state_ = Latched;
         }
         catch(cms::Exception& e) {
-          actions::ActionCodes action = (T::isEvent_ ? act_table_->find(e.category()) : actions::Rethrow);
+          actions::ActionCodes action = (T::isEvent_ ? actionTable().find(e.category()) : actions::Rethrow);
           assert (action != actions::IgnoreCompletely);
           assert (action != actions::FailPath);
           if (action == actions::SkipEvent) {
@@ -400,7 +372,7 @@ namespace edm {
 
         try {
           CPUTimer timer;
-          if (results_inserter_.get()) results_inserter_->doWork<T>(ep, es, nullptr, &timer);
+          if (results_inserter_.get()) results_inserter_->doWork<T>(ep, es, nullptr, &timer,streamID_);
         }
         catch (cms::Exception & ex) {
           if (T::isEvent_) {
@@ -438,7 +410,9 @@ namespace edm {
   template <typename T>
   bool
   Schedule::runTriggerPaths(typename T::MyPrincipal& ep, EventSetup const& es) {
-    for_all(trig_paths_, ProcessOneOccurrence<T>(ep, es));
+    for(auto& p : trig_paths_) {
+      p.processOneOccurrence<T>(ep, es, streamID_);
+    }
     return results_->accept();
   }
 
@@ -447,7 +421,9 @@ namespace edm {
   Schedule::runEndPaths(typename T::MyPrincipal& ep, EventSetup const& es) {
     // Note there is no state-checking safety controlling the
     // activation/deactivation of endpaths.
-    for_all(end_paths_, ProcessOneOccurrence<T>(ep, es));
+    for(auto& p : end_paths_) {
+      p.processOneOccurrence<T>(ep, es, streamID_);
+    }
 
     // We could get rid of the functor ProcessOneOccurrence if we used
     // boost::lambda, but the use of lambda with member functions

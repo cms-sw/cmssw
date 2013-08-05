@@ -54,18 +54,20 @@ namespace edm {
     ParameterSet emptyPSet;
     emptyPSet.registerIt();
     processConfiguration_->setParameterSetID(emptyPSet.id());
+    processConfiguration_->setProcessConfigurationID();
  
-    secInput_->productRegistry()->setFrozen();
- 
+    productRegistry_->setFrozen();
+
     produces<edmtest::ThingCollection>();
     produces<edmtest::OtherThingCollection>("testUserTag");
+    consumes<edmtest::IntProduct>(edm::InputTag{"EventNumber"});
   }
 
   void SecondaryProducer::beginJob() {
     eventPrincipal_.reset(new EventPrincipal(secInput_->productRegistry(),
                                             secInput_->branchIDListHelper(),
                                             *processConfiguration_,
-                                            nullptr));
+                                             nullptr, StreamID::invalidStreamID()));
 
   }
 
@@ -104,7 +106,8 @@ namespace edm {
     BasicHandle bhandle = eventPrincipal.getByLabel(PRODUCT_TYPE, TypeID(typeid(edmtest::IntProduct)),
                                                     "EventNumber",
                                                     "",
-                                                    "");
+                                                    "",
+                                                    nullptr);
     assert(bhandle.isValid());
     Handle<edmtest::IntProduct> handle;
     convert_handle<edmtest::IntProduct>(bhandle, handle);
@@ -117,7 +120,8 @@ namespace edm {
     BasicHandle bh = eventPrincipal.getByLabel(PRODUCT_TYPE, TypeID(typeid(TC)),
                                                "Thing",
                                                "",
-                                               "");
+                                               "",
+                                               nullptr);
     assert(bh.isValid());
     if(!(bh.interface()->dynamicTypeInfo() == typeid(TC))) {
       handleimpl::throwConvertTypeError(typeid(TC), bh.interface()->dynamicTypeInfo());

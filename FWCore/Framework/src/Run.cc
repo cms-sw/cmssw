@@ -18,6 +18,8 @@ namespace edm {
     for_all(putProducts_, principal_get_adapter_detail::deleter());
   }
 
+  RunIndex Run::index() const { return runPrincipal().index();}
+  
   RunPrincipal&
   Run::runPrincipal() {
     return dynamic_cast<RunPrincipal&>(provRecorder_.principal());

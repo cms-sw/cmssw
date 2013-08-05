@@ -35,6 +35,7 @@ For its usage, see "FWCore/Framework/interface/PrincipalGetAdapter.h"
 #include "FWCore/Utilities/interface/TypeID.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
 #include "FWCore/Utilities/interface/ProductKindOfType.h"
+#include "FWCore/Utilities/interface/StreamID.h"
 
 #include "boost/shared_ptr.hpp"
 
@@ -63,6 +64,11 @@ namespace edm {
     
     // AUX functions are defined in EventBase
     EventAuxiliary const& eventAuxiliary() const {return aux_;}
+    
+    ///\return The id for the particular Stream processing the Event
+    StreamID streamID() const {
+      return streamID_;
+    }
 
     LuminosityBlock const&
     getLuminosityBlock() const {
@@ -246,6 +252,8 @@ namespace edm {
 
     // We own the retrieved Views, and have to destroy them.
     mutable std::vector<boost::shared_ptr<ViewBase> > gotViews_;
+    
+    StreamID streamID_;
 
     static const std::string emptyString_;
   };

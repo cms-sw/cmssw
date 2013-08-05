@@ -8,8 +8,8 @@
 namespace edm {
   namespace pset {
     ParameterSetID
-    getProcessParameterSetID(Registry const* reg) {
-      ParameterSetID const& psetID = reg->extra().id();
+    getProcessParameterSetID(Registry const& reg) {
+      ParameterSetID const& psetID = reg.extra().id();
       if (!psetID.isValid()) {
         throw edm::Exception(errors::LogicError)
           << "Illegal attempt to access the process top level parameter set ID\n"
@@ -21,22 +21,21 @@ namespace edm {
       return psetID;
     }
 
-    void fillMap(Registry* reg, regmap_type& fillme) {
-      typedef Registry::const_iterator iter;
+    void fillMap(Registry const& reg, regmap_type& fillme) {
       fillme.clear();
       // Note: The tracked part is in the registry.
-      for (iter i = reg->begin(), e = reg->end(); i != e; ++i) {
-	fillme[i->first].pset() = i->second.toString();
+      for (auto const& item : reg) {
+	fillme[item.first].pset() = item.second.toString();
       }
     }
   } // namespace pset
 
   ParameterSet const& getProcessParameterSet() {
-    pset::Registry* reg = pset::Registry::instance();
+    pset::Registry const& reg = *pset::Registry::instance();
     ParameterSetID id = pset::getProcessParameterSetID(reg);
 
     ParameterSet const* result;
-    if (0==(result=reg->getMapped(id))) {
+    if (nullptr == (result = reg.getMapped(id))) {
       throw edm::Exception(errors::EventCorruption, "Unknown ParameterSetID")
 	<< "Unable to find the ParameterSet for id: "
 	<< id

@@ -184,6 +184,7 @@ namespace edmtest {
     explicit AVSimpleProducer(edm::ParameterSet const& p) :
     src_(p.getParameter<edm::InputTag>("src")) {
       produces<AVSimpleProduct>();
+      consumes<std::vector<edmtest::Simple>>(src_);
     }
 
     virtual ~AVSimpleProducer() {}
@@ -367,6 +368,7 @@ namespace edmtest {
     explicit ProdigalProducer(edm::ParameterSet const& p) :
       label_(p.getParameter<std::string>("label")) {
       produces<Prodigal>();
+      consumes<IntProduct>(edm::InputTag{label_});
     }
     virtual ~ProdigalProducer() {}
     virtual void produce(edm::Event& e, edm::EventSetup const& c);

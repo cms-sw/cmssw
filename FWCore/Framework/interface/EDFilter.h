@@ -58,8 +58,6 @@ namespace edm {
 		   CurrentProcessingContext const* cpc);
     void doRespondToOpenInputFile(FileBlock const& fb);
     void doRespondToCloseInputFile(FileBlock const& fb);
-    void doRespondToOpenOutputFiles(FileBlock const& fb);
-    void doRespondToCloseOutputFiles(FileBlock const& fb);
     void doPreForkReleaseResources();
     void doPostForkReacquireResources(unsigned int iChildIndex, unsigned int iNumberOfChildren);
 
@@ -79,8 +77,6 @@ namespace edm {
     virtual void endLuminosityBlock(LuminosityBlock const& iL, EventSetup const& iE){}
     virtual void respondToOpenInputFile(FileBlock const&) {}
     virtual void respondToCloseInputFile(FileBlock const&) {}
-    virtual void respondToOpenOutputFiles(FileBlock const&) {}
-    virtual void respondToCloseOutputFiles(FileBlock const&) {}
     virtual void preForkReleaseResources() {}
     virtual void postForkReacquireResources(unsigned int /*iChildIndex*/, unsigned int /*iNumberOfChildren*/) {}
      

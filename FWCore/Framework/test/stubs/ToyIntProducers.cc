@@ -154,6 +154,7 @@ namespace edmtest {
   public:
     explicit IntProducerFromTransient(edm::ParameterSet const&) {
       produces<IntProduct>();
+      consumes<TransientIntProduct>(edm::InputTag{"TransientThing"});
     }
     explicit IntProducerFromTransient() {
       produces<IntProduct>();
@@ -210,6 +211,9 @@ namespace edmtest {
     explicit AddIntsProducer(edm::ParameterSet const& p) :
         labels_(p.getParameter<std::vector<std::string> >("labels")) {
       produces<IntProduct>();
+      for( auto const& label: labels_) {
+        consumes<IntProduct>(edm::InputTag{label});
+      }
     }
     virtual ~AddIntsProducer() {}
     virtual void produce(edm::Event& e, edm::EventSetup const& c);

@@ -1,0 +1,662 @@
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../../DetectorDescription/Schema/DDLSchema.xsd">
+	<ConstantsSection label="tob.xml" eval="true">
+		<Constant name="zero" value="0.0*fm"/>
+		<Constant name="Rin1" value="54.0*cm"/>
+		<Constant name="Rin2" value="58.0*cm"/>
+		<Constant name="Rin3" value="1.160*m"/>
+		<Constant name="Rout1" value="1.169*m"/>
+		<Constant name="Rout2" value="1.169*m"/>
+		<Constant name="Zv0" value="1.100*m"/>
+		<Constant name="Zv1" value="1.160*m"/>
+		<Constant name="Zv2" value="1.180*m"/>
+		<Constant name="Zv3" value="2.820*m"/>
+		<Constant name="RailL" value="1.100*m"/>
+		<Constant name="RailInR" value="0.300*cm"/>
+		<Constant name="RailInX" value="54.433*cm"/>
+		<Constant name="RailInY" value="2.700*cm"/>
+		<Constant name="AlPieceR0" value="1.161*m"/>
+		<Constant name="AlPieceR1" value="1.164*m"/>
+		<Constant name="AlPieceR2" value="1.169*m"/>
+		<Constant name="AlPiecePhi1" value="1.535*deg"/>
+		<Constant name="AlPiecePhi2" value="175.535*deg"/>
+		<Constant name="AlPiecePhi3" value="1.580*deg"/>
+		<Constant name="AlPiecePhi4" value="175.180*deg"/>
+		<Constant name="AlPieceDPhi1" value="4.930*deg"/>
+		<Constant name="AlPieceDPhi2" value="2.930*deg"/>
+		<Constant name="AlPieceDPhi3" value="0.240*deg"/>
+		<Constant name="AlPieceDPhi4" value="3.240*deg"/>
+		<Constant name="AlPieceDz1" value="5.000*cm"/>
+		<Constant name="AlPieceDz2" value="0.500*cm"/>
+		<Constant name="AlPieceZ" value="69.00*cm"/>
+		<Constant name="CFTubeRin1" value="1.142*m"/>
+		<Constant name="CFTubeRout1" value="1.160*m"/>
+		<Constant name="CFTubeRin2" value="55.00*cm"/>
+		<Constant name="CFTubeRout2" value="57.80*cm"/>
+		<Constant name="CFTubeL1" value="27.80*cm"/>
+		<Constant name="CFTubeL2" value="38.80*cm"/>
+		<Constant name="CFTubeZ" value="69.00*cm"/>
+		<Constant name="NomexTubeRin1" value="1.1425*m"/>
+		<Constant name="NomexTubeRout1" value="1.1595*m"/>
+		<Constant name="NomexTubeRin2" value="55.05*cm"/>
+		<Constant name="NomexTubeRout2" value="57.75*cm"/>
+		<Constant name="NomexTubeF1" value="48.633*deg"/>
+		<Constant name="NomexTubeF2" value="29.346*deg"/>
+		<Constant name="NomexTubeF3" value="35.774*deg"/>
+		<Constant name="NomexInPhi1" value="48.214*deg"/>
+		<Constant name="NomexInPhi2" value="90.000*deg"/>
+		<Constant name="NomexInPhi3" value="131.790*deg"/>
+		<Constant name="NomexInPhi4" value="183.214*deg"/>
+		<Constant name="NomexInPhi5" value="228.214*deg"/>
+		<Constant name="NomexInPhi6" value="273.214*deg"/>
+		<Constant name="NomexInPhi7" value="315.000*deg"/>
+		<Constant name="NomexInPhi8" value="356.785*deg"/>
+		<Constant name="AlignTubeDx" value="1.150*cm"/>
+		<Constant name="AlignTubeDy" value="1.338*cm"/>
+		<Constant name="AlignTubeT" value="0.200*cm"/>
+		<Constant name="AlignPhi1" value="22.500*deg"/>
+		<Constant name="AlignPhi2" value="73.928*deg"/>
+		<Constant name="AlignPhi3" value="106.071*deg"/>
+		<Constant name="AlignPhi4" value="157.500*deg"/>
+		<Constant name="AlignPhi5" value="208.929*deg"/>
+		<Constant name="AlignPhi6" value="247.500*deg"/>
+		<Constant name="AlignPhi7" value="298.929*deg"/>
+		<Constant name="AlignPhi8" value="331.071*deg"/>
+		<Constant name="PottingRin1" value="1.142*m"/>
+		<Constant name="PottingRout1" value="1.157*m"/>
+		<Constant name="PottingRin2" value="55.00*cm"/>
+		<Constant name="PottingRout2" value="57.80*cm"/>
+		<Constant name="PottingL" value="0.200*cm"/>
+		<Constant name="PottingZ1" value="108.00*cm"/>
+		<Constant name="PottingZ2" value="30.00*cm"/>
+		<Constant name="PottingZ3" value="28.20*cm"/>
+		<Constant name="ConnectRin1" value="1.157*m"/>
+		<Constant name="ConnectRout1" value="1.160*m"/>
+		<Constant name="ConnectL1" value="1.000*cm"/>
+		<Constant name="ConnectZ11" value="1.090*m"/>
+		<Constant name="ConnectZ12" value="29.00*cm"/>
+		<Constant name="ConnectDphi1" value="4.95*deg"/>
+		<Constant name="ConnectRin2" value="1.141*m"/>
+		<Constant name="ConnectRout2" value="1.142*m"/>
+		<Constant name="ConnectL2" value="2.000*cm"/>
+		<Constant name="ConnectZ21" value="1.058*m"/>
+		<Constant name="ConnectZ22" value="32.20*cm"/>
+		<Constant name="ConnectZ23" value="25.80*cm"/>
+		<Constant name="ConnectDphi2" value="3.51*deg"/>
+		<Constant name="ConnectRin3" value="1.160*m"/>
+		<Constant name="ConnectRout3" value="1.161*m"/>
+		<Constant name="ConnectL3" value="2.000*cm"/>
+		<Constant name="ConnectDphi3" value="3.46*deg"/>
+		<Constant name="ConnectRin4" value="57.80*cm"/>
+		<Constant name="ConnectRout4" value="58.10*cm"/>
+		<Constant name="ConnectL4" value="1.000*cm"/>
+		<Constant name="ConnectDphi4" value="9.89*deg"/>
+		<Constant name="ConnectRin5" value="54.90*cm"/>
+		<Constant name="ConnectRout5" value="55.00*cm"/>
+		<Constant name="ConnectL5" value="2.000*cm"/>
+		<Constant name="ConnectDphi5" value="7.30*deg"/>
+		<Constant name="ConnectRin6" value="57.80*cm"/>
+		<Constant name="ConnectRout6" value="57.90*cm"/>
+		<Constant name="ConnectL6" value="2.000*cm"/>
+		<Constant name="ConnectDphi6" value="6.93*deg"/>
+		<Constant name="Layer0Rin" value="58.20*cm"/>
+		<Constant name="Layer0Rout" value="64.24*cm"/>
+		<Constant name="Layer0LowR" value="59.20*cm"/>
+		<Constant name="Layer0HighR" value="62.40*cm"/>
+		<Constant name="Layer0CoolRa" value="65.40*cm"/>
+		<Constant name="Layer0CoolRr" value="66.40*cm"/>
+		<Constant name="Layer1Rin" value="66.60*cm"/>
+		<Constant name="Layer1Rout" value="72.80*cm"/>
+		<Constant name="Layer1LowR" value="67.60*cm"/>
+		<Constant name="Layer1HighR" value="70.80*cm"/>
+		<Constant name="Layer1CoolRa" value="74.00*cm"/>
+		<Constant name="Layer1CoolRr" value="75.00*cm"/>
+		<Constant name="Layer2Rin" value="75.40*cm"/>
+		<Constant name="Layer2Rout" value="81.40*cm"/>
+		<Constant name="Layer2LowR" value="76.40*cm"/>
+		<Constant name="Layer2HighR" value="79.60*cm"/>
+		<Constant name="Layer2CoolRa" value="82.50*cm"/>
+		<Constant name="Layer2CoolRr" value="83.50*cm"/>
+		<Constant name="Layer3Rin" value="84.10*cm"/>
+		<Constant name="Layer3Rout" value="89.90*cm"/>
+		<Constant name="Layer3LowR" value="85.20*cm"/>
+		<Constant name="Layer3HighR" value="88.40*cm"/>
+		<Constant name="Layer3CoolRa" value="91.10*cm"/>
+		<Constant name="Layer3CoolRr" value="92.10*cm"/>
+		<Constant name="Layer4Rin" value="93.80*cm"/>
+		<Constant name="Layer4Rout" value="99.60*cm"/>
+		<Constant name="Layer4LowR" value="94.90*cm"/>
+		<Constant name="Layer4HighR" value="98.10*cm"/>
+		<Constant name="Layer4CoolRa" value="100.70*cm"/>
+		<Constant name="Layer4CoolRr" value="101.70*cm"/>
+		<Constant name="Layer5Rin" value="105.30*cm"/>
+		<Constant name="Layer5Rout" value="111.10*cm"/>
+		<Constant name="Layer5LowR" value="106.40*cm"/>
+		<Constant name="Layer5HighR" value="109.60*cm"/>
+		<Constant name="Layer5CoolRa" value="112.20*cm"/>
+		<Constant name="Layer5CoolRr" value="113.20*cm"/>
+		<Constant name="RibRin" value="58.10*cm"/>
+		<Constant name="RibRout" value="115.70*cm"/>
+		<Constant name="RibDZ" value="0.350*cm"/>
+		<Constant name="RibZ1" value="109.0*cm"/>
+		<Constant name="RibZ2" value="29.00*cm"/>
+		<Constant name="SideDiskDz" value="3.250*cm"/>
+		<Constant name="SideDiskZ" value="114.05*cm"/>
+		<Constant name="DetectorTilt" value="0*deg"/>
+		<Constant name="AxCableRin" value="[Rin3]"/>
+		<Constant name="AxCableRout" value="[Rout1]"/>
+		<Constant name="AxCableT" value="0.210*cm"/>
+		<Constant name="AxCableDz" value="([Zv3]-[Zv1])/2"/>
+		<Constant name="AxCableW" value="22.5*deg"/>
+		<Constant name="AxCableZ" value="([Zv1]+[Zv3])/2"/>
+		<Constant name="DOHMsDz" value="0.3*cm"/>
+		<Constant name="DOHMW" value="47*mm"/>
+		<Constant name="DOHML" value="71.5*mm"/>
+		<Constant name="DOHMT" value="3.0*mm"/>
+		<Constant name="DOHMRadius1" value="690*mm"/>
+		<Constant name="DOHMRadius2" value="860*mm"/>
+		<Constant name="DOHMRadius3" value="1040*mm"/>
+		<Constant name="DOHM_R1_phi1" value="9.417*deg"/>
+		<Constant name="DOHM_R1_phi2" value="45.383*deg"/>
+		<Constant name="DOHM_R1_phi3" value="65.583*deg"/>
+		<Constant name="DOHM_R1_phi4" value="85.118*deg"/>
+		<Constant name="DOHM_R1_phi5" value="108.583*deg"/>
+		<Constant name="DOHM_R1_phi6" value="135.918*deg"/>
+		<Constant name="DOHM_R1_phi7" value="162.083*deg"/>
+		<Constant name="DOHM_R1_phi8" value="186.918*deg"/>
+		<Constant name="DOHM_R1_phi9" value="208.083*deg"/>
+		<Constant name="DOHM_R1_phi10" value="227.418*deg"/>
+		<Constant name="DOHM_R1_phi11" value="251.083*deg"/>
+		<Constant name="DOHM_R1_phi12" value="282.418*deg"/>
+		<Constant name="DOHM_R1_phi13" value="302.083*deg"/>
+		<Constant name="DOHM_R1_phi14" value="325.918*deg"/>
+		<Constant name="DOHM_R1_phi15" value="346.083*deg"/>
+		<Constant name="DOHM_R2_phi1" value="4.066*deg"/>
+		<Constant name="DOHM_R2_phi2" value="20.066*deg"/>
+		<Constant name="DOHM_R2_phi3" value="52.066*deg"/>
+		<Constant name="DOHM_R2_phi4" value="68.066*deg"/>
+		<Constant name="DOHM_R2_phi5" value="105.567*deg"/>
+		<Constant name="DOHM_R2_phi6" value="134.067*deg"/>
+		<Constant name="DOHM_R2_phi7" value="153.067*deg"/>
+		<Constant name="DOHM_R2_phi8" value="176.067*deg"/>
+		<Constant name="DOHM_R2_phi9" value="194.067*deg"/>
+		<Constant name="DOHM_R2_phi10" value="225.567*deg"/>
+		<Constant name="DOHM_R2_phi11" value="244.067*deg"/>
+		<Constant name="DOHM_R2_phi12" value="276.067*deg"/>
+		<Constant name="DOHM_R2_phi13" value="291.067*deg"/>
+		<Constant name="DOHM_R2_phi14" value="322.067*deg"/>
+		<Constant name="DOHM_R2_phi15" value="341.067*deg"/>
+		<Constant name="DOHM_R3_phi1" value="4.055*deg"/>
+		<Constant name="DOHM_R3_phi2" value="36.055*deg"/>
+		<Constant name="DOHM_R3_phi3" value="50.055*deg"/>
+		<Constant name="DOHM_R3_phi4" value="78.055*deg"/>
+		<Constant name="DOHM_R3_phi5" value="92.055*deg"/>
+		<Constant name="DOHM_R3_phi6" value="125.055*deg"/>
+		<Constant name="DOHM_R3_phi7" value="140.055*deg"/>
+		<Constant name="DOHM_R3_phi8" value="176.055*deg"/>
+		<Constant name="DOHM_R3_phi9" value="189.055*deg"/>
+		<Constant name="DOHM_R3_phi10" value="218.055*deg"/>
+		<Constant name="DOHM_R3_phi11" value="231.055*deg"/>
+		<Constant name="DOHM_R3_phi12" value="257.055*deg"/>
+		<Constant name="DOHM_R3_phi13" value="270.055*deg"/>
+		<Constant name="DOHM_R3_phi14" value="303.055*deg"/>
+		<Constant name="DOHM_R3_phi15" value="317.055*deg"/>
+		<Constant name="DOHM_R3_phi16" value="350.055*deg"/>
+		<Constant name="Tol" value="0.0*mm"/>
+	</ConstantsSection>
+	<SolidSection label="tob.xml">
+		<Tubs name="TOBRailIn" rMin="[zero]" rMax="[RailInR]" dz="[RailL]" startPhi="0*deg" deltaPhi="360*deg"/>
+		<Tubs name="TOBAlPiece1" rMin="[AlPieceR0]" rMax="[AlPieceR1]" dz="[AlPieceDz1]" startPhi="[AlPiecePhi1]" deltaPhi="[AlPieceDPhi1]"/>
+		<Tubs name="TOBAlPiece2" rMin="[AlPieceR0]" rMax="[AlPieceR1]" dz="[AlPieceDz1]" startPhi="[AlPiecePhi2]" deltaPhi="[AlPieceDPhi2]"/>
+		<Tubs name="TOBAlPiece3" rMin="[AlPieceR1]" rMax="[AlPieceR2]" dz="[AlPieceDz2]" startPhi="[AlPiecePhi3]" deltaPhi="[AlPieceDPhi3]"/>
+		<Tubs name="TOBAlPiece4" rMin="[AlPieceR1]" rMax="[AlPieceR2]" dz="[AlPieceDz2]" startPhi="[AlPiecePhi4]" deltaPhi="[AlPieceDPhi4]"/>
+		<Tubs name="TOBCFTube1" rMin="[CFTubeRin1]" rMax="[CFTubeRout1]" dz="[CFTubeL1]" startPhi="0*deg" deltaPhi="360*deg"/>
+		<Tubs name="TOBCFTube2" rMin="[CFTubeRin1]" rMax="[CFTubeRout1]" dz="[CFTubeL2]" startPhi="0*deg" deltaPhi="360*deg"/>
+		<Tubs name="TOBCFTube3" rMin="[CFTubeRin2]" rMax="[CFTubeRout2]" dz="[CFTubeL1]" startPhi="0*deg" deltaPhi="360*deg"/>
+		<Tubs name="TOBCFTube4" rMin="[CFTubeRin2]" rMax="[CFTubeRout2]" dz="[CFTubeL2]" startPhi="0*deg" deltaPhi="360*deg"/>
+		<Tubs name="TOBNomexTube1" rMin="[NomexTubeRin1]" rMax="[NomexTubeRout1]" dz="[CFTubeL1]" startPhi="0*deg" deltaPhi="360*deg"/>
+		<Tubs name="TOBNomexTube2" rMin="[NomexTubeRin1]" rMax="[NomexTubeRout1]" dz="[CFTubeL2]" startPhi="0*deg" deltaPhi="360*deg"/>
+		<Tubs name="TOBNomexTube3" rMin="[NomexTubeRin2]" rMax="[NomexTubeRout2]" dz="[CFTubeL1]" startPhi="0*deg" deltaPhi="360*deg"/>
+		<Tubs name="TOBNomexT3In1" rMin="[NomexTubeRin2]" rMax="[NomexTubeRout2]" dz="[CFTubeL1]" startPhi="-[NomexTubeF1]/2" deltaPhi="[NomexTubeF1]"/>
+		<Tubs name="TOBNomexT3In2" rMin="[NomexTubeRin2]" rMax="[NomexTubeRout2]" dz="[CFTubeL1]" startPhi="-[NomexTubeF2]/2" deltaPhi="[NomexTubeF2]"/>
+		<Tubs name="TOBNomexT3In3" rMin="[NomexTubeRin2]" rMax="[NomexTubeRout2]" dz="[CFTubeL1]" startPhi="-[NomexTubeF3]/2" deltaPhi="[NomexTubeF3]"/>
+		<Box name="TOBAlignTube3" dx="[AlignTubeDx]" dy="[AlignTubeDy]" dz="[CFTubeL1]"/>
+		<Box name="TOBAlignT3In" dx="([AlignTubeDx]-[AlignTubeT])" dy="([AlignTubeDy]-[AlignTubeT])" dz="[CFTubeL1]"/>
+		<Tubs name="TOBNomexTube4" rMin="[NomexTubeRin2]" rMax="[NomexTubeRout2]" dz="[CFTubeL2]" startPhi="0*deg" deltaPhi="360*deg"/>
+		<Box name="TOBAlignTube4" dx="[AlignTubeDx]" dy="[AlignTubeDy]" dz="[CFTubeL2]"/>
+		<Box name="TOBAlignT4In" dx="([AlignTubeDx]-[AlignTubeT])" dy="([AlignTubeDy]-[AlignTubeT])" dz="[CFTubeL2]"/>
+		<Tubs name="TOBNomexT4In1" rMin="[NomexTubeRin2]" rMax="[NomexTubeRout2]" dz="[CFTubeL2]" startPhi="-[NomexTubeF1]/2" deltaPhi="[NomexTubeF1]"/>
+		<Tubs name="TOBNomexT4In2" rMin="[NomexTubeRin2]" rMax="[NomexTubeRout2]" dz="[CFTubeL2]" startPhi="-[NomexTubeF2]/2" deltaPhi="[NomexTubeF2]"/>
+		<Tubs name="TOBNomexT4In3" rMin="[NomexTubeRin2]" rMax="[NomexTubeRout2]" dz="[CFTubeL2]" startPhi="-[NomexTubeF3]/2" deltaPhi="[NomexTubeF3]"/>
+		<Tubs name="TOBPotting1" rMin="[PottingRin1]" rMax="[PottingRout1]" dz="[PottingL]" startPhi="0*deg" deltaPhi="360*deg"/>
+		<Tubs name="TOBPotting2" rMin="[PottingRin2]" rMax="[PottingRout2]" dz="[PottingL]" startPhi="0*deg" deltaPhi="360*deg"/>
+		<Tubs name="TOBPotting2I1" rMin="[PottingRin2]" rMax="[PottingRout2]" dz="[PottingL]" startPhi="-[NomexTubeF1]/2" deltaPhi="[NomexTubeF1]"/>
+		<Tubs name="TOBPotting2I2" rMin="[PottingRin2]" rMax="[PottingRout2]" dz="[PottingL]" startPhi="-[NomexTubeF2]/2" deltaPhi="[NomexTubeF2]"/>
+		<Tubs name="TOBPotting2I3" rMin="[PottingRin2]" rMax="[PottingRout2]" dz="[PottingL]" startPhi="-[NomexTubeF3]/2" deltaPhi="[NomexTubeF3]"/>
+		<Tubs name="TOBConnect1" rMin="[ConnectRin1]" rMax="[ConnectRout1]" dz="[ConnectL1]" startPhi="0*deg" deltaPhi="360*deg"/>
+		<Tubs name="TOBAlConnect1" rMin="[ConnectRin1]" rMax="[ConnectRout1]" dz="[ConnectL1]" startPhi="-[ConnectDphi1]/2" deltaPhi="[ConnectDphi1]"/>
+		<Tubs name="TOBConnect2" rMin="[ConnectRin2]" rMax="[ConnectRout2]" dz="[ConnectL2]" startPhi="0*deg" deltaPhi="360*deg"/>
+		<Tubs name="TOBAlConnect2" rMin="[ConnectRin2]" rMax="[ConnectRout2]" dz="[ConnectL2]" startPhi="-[ConnectDphi2]/2" deltaPhi="[ConnectDphi2]"/>
+		<Tubs name="TOBConnect3" rMin="[ConnectRin3]" rMax="[ConnectRout3]" dz="[ConnectL3]" startPhi="0*deg" deltaPhi="360*deg"/>
+		<Tubs name="TOBAlConnect3" rMin="[ConnectRin3]" rMax="[ConnectRout3]" dz="[ConnectL3]" startPhi="-[ConnectDphi3]/2" deltaPhi="[ConnectDphi3]"/>
+		<Tubs name="TOBConnect4" rMin="[ConnectRin4]" rMax="[ConnectRout4]" dz="[ConnectL4]" startPhi="0*deg" deltaPhi="360*deg"/>
+		<Tubs name="TOBAlConnect4" rMin="[ConnectRin4]" rMax="[ConnectRout4]" dz="[ConnectL4]" startPhi="-[ConnectDphi4]/2" deltaPhi="[ConnectDphi4]"/>
+		<Tubs name="TOBConnect5" rMin="[ConnectRin5]" rMax="[ConnectRout5]" dz="[ConnectL5]" startPhi="0*deg" deltaPhi="360*deg"/>
+		<Tubs name="TOBAlConnect5" rMin="[ConnectRin5]" rMax="[ConnectRout5]" dz="[ConnectL5]" startPhi="-[ConnectDphi5]/2" deltaPhi="[ConnectDphi5]"/>
+		<Tubs name="TOBConnect6" rMin="[ConnectRin6]" rMax="[ConnectRout6]" dz="[ConnectL6]" startPhi="0*deg" deltaPhi="360*deg"/>
+		<Tubs name="TOBAlConnect6" rMin="[ConnectRin6]" rMax="[ConnectRout6]" dz="[ConnectL6]" startPhi="-[ConnectDphi6]/2" deltaPhi="[ConnectDphi6]"/>
+		<Tubs name="TOBMidRib0" rMin="[RibRin]" rMax="[Layer0Rin]" dz="[RibDZ]" startPhi="0*deg" deltaPhi="360*deg"/>
+		<Tubs name="TOBMidRib1" rMin="[Layer0Rout]" rMax="[Layer1Rin]" dz="[RibDZ]" startPhi="0*deg" deltaPhi="360*deg"/>
+		<Tubs name="TOBMidRib2" rMin="[Layer1Rout]" rMax="[Layer2Rin]" dz="[RibDZ]" startPhi="0*deg" deltaPhi="360*deg"/>
+		<Tubs name="TOBMidRib3" rMin="[Layer2Rout]" rMax="[Layer3Rin]" dz="[RibDZ]" startPhi="0*deg" deltaPhi="360*deg"/>
+		<Tubs name="TOBMidRib4" rMin="[Layer3Rout]" rMax="[Layer4Rin]" dz="[RibDZ]" startPhi="0*deg" deltaPhi="360*deg"/>
+		<Tubs name="TOBMidRib5" rMin="[Layer4Rout]" rMax="[Layer5Rin]" dz="[RibDZ]" startPhi="0*deg" deltaPhi="360*deg"/>
+		<Tubs name="TOBMidRib6" rMin="[Layer5Rout]" rMax="[RibRout]" dz="[RibDZ]" startPhi="0*deg" deltaPhi="360*deg"/>
+		<Tubs name="TOBLayer0" rMin="[Layer0Rin]" rMax="[Layer0Rout]" dz="[tobrodpar:RodL]" startPhi="0*deg" deltaPhi="360*deg"/>
+		<Tubs name="TOBLayer1" rMin="[Layer1Rin]" rMax="[Layer1Rout]" dz="[tobrodpar:RodL]" startPhi="0*deg" deltaPhi="360*deg"/>
+		<Tubs name="TOBLayer2" rMin="[Layer2Rin]" rMax="[Layer2Rout]" dz="[tobrodpar:RodL]" startPhi="0*deg" deltaPhi="360*deg"/>
+		<Tubs name="TOBLayer3" rMin="[Layer3Rin]" rMax="[Layer3Rout]" dz="[tobrodpar:RodL]" startPhi="0*deg" deltaPhi="360*deg"/>
+		<Tubs name="TOBLayer4" rMin="[Layer4Rin]" rMax="[Layer4Rout]" dz="[tobrodpar:RodL]" startPhi="0*deg" deltaPhi="360*deg"/>
+		<Tubs name="TOBLayer5" rMin="[Layer5Rin]" rMax="[Layer5Rout]" dz="[tobrodpar:RodL]" startPhi="0*deg" deltaPhi="360*deg"/>
+		<Tubs name="TOBSideDisk" rMin="[Rin2]" rMax="[Rin3]" dz="[SideDiskDz]" startPhi="0*deg" deltaPhi="360*deg"/>
+		<Tubs name="TOBAxCabCont" rMin="[AxCableRin]" rMax="[AxCableRout]" dz="[AxCableDz]" startPhi="0*deg" deltaPhi="360*deg"/>
+		<Tubs name="TOBDOHMs" rMin="[Rin2]" rMax="[Rin3]" dz="[DOHMsDz]" startPhi="0*deg" deltaPhi="360*deg"/>
+		<Box name="TOBDOHM" dx="[DOHMW]" dy="[DOHML]" dz="[DOHMT]-[Tol]"/>
+		<Box name="TOB" dx="98.9*cm" dy="198.9*cm" dz="198.9*cm"/>
+		<Box name="LAYER8" dx="30*cm" dy="5.0*cm" dz="1.2*m"/>
+		<Box name="LAYER7" dx="30*cm" dy="5.0*cm" dz="1.2*m"/>
+		<Box name="LAYER6" dx="30*cm" dy="5.0*cm" dz="1.2*m"/>
+		<Box name="LAYER5" dx="30*cm" dy="5.0*cm" dz="1.2*m"/>
+		<Box name="LAYER4" dx="30*cm" dy="5.0*cm" dz="1.2*m"/>
+		<Box name="LAYER3" dx="30*cm" dy="5.0*cm" dz="1.2*m"/>
+		<Box name="LAYER2" dx="30*cm" dy="5.0*cm" dz="1.2*m"/>
+		<Box name="LAYER1" dx="30*cm" dy="5.0*cm" dz="1.2*m"/>
+	</SolidSection>
+	<LogicalPartSection label="tob.xml">
+		<LogicalPart name="TOBRailIn" category="unspecified">
+			<rSolid name="TOBRailIn"/>
+			<rMaterial name="tobmaterial:TIB_rail"/>
+		</LogicalPart>
+		<LogicalPart name="TOBAlPiece1" category="unspecified">
+			<rSolid name="TOBAlPiece1"/>
+			<rMaterial name="materials:Aluminium"/>
+		</LogicalPart>
+		<LogicalPart name="TOBAlPiece2" category="unspecified">
+			<rSolid name="TOBAlPiece2"/>
+			<rMaterial name="materials:Aluminium"/>
+		</LogicalPart>
+		<LogicalPart name="TOBAlPiece3" category="unspecified">
+			<rSolid name="TOBAlPiece3"/>
+			<rMaterial name="materials:Aluminium"/>
+		</LogicalPart>
+		<LogicalPart name="TOBAlPiece4" category="unspecified">
+			<rSolid name="TOBAlPiece4"/>
+			<rMaterial name="materials:Aluminium"/>
+		</LogicalPart>
+		<LogicalPart name="TOBCFTube1" category="unspecified">
+			<rSolid name="TOBCFTube1"/>
+			<rMaterial name="tobmaterial:TOB_CF_Str"/>
+		</LogicalPart>
+		<LogicalPart name="TOBCFTube2" category="unspecified">
+			<rSolid name="TOBCFTube2"/>
+			<rMaterial name="tobmaterial:TOB_CF_Str"/>
+		</LogicalPart>
+		<LogicalPart name="TOBCFTube3" category="unspecified">
+			<rSolid name="TOBCFTube3"/>
+			<rMaterial name="tobmaterial:TOB_CF_Str"/>
+		</LogicalPart>
+		<LogicalPart name="TOBCFTube4" category="unspecified">
+			<rSolid name="TOBCFTube4"/>
+			<rMaterial name="tobmaterial:TOB_CF_Str"/>
+		</LogicalPart>
+		<LogicalPart name="TOBNomexTube1" category="unspecified">
+			<rSolid name="TOBNomexTube1"/>
+			<rMaterial name="tobmaterial:TOB_Nomex"/>
+		</LogicalPart>
+		<LogicalPart name="TOBNomexTube2" category="unspecified">
+			<rSolid name="TOBNomexTube2"/>
+			<rMaterial name="tobmaterial:TOB_Nomex"/>
+		</LogicalPart>
+		<LogicalPart name="TOBNomexTube3" category="unspecified">
+			<rSolid name="TOBNomexTube3"/>
+			<rMaterial name="materials:Air"/>
+		</LogicalPart>
+		<LogicalPart name="TOBNomexT3In1" category="unspecified">
+			<rSolid name="TOBNomexT3In1"/>
+			<rMaterial name="tobmaterial:TOB_Nomex"/>
+		</LogicalPart>
+		<LogicalPart name="TOBNomexT3In2" category="unspecified">
+			<rSolid name="TOBNomexT3In2"/>
+			<rMaterial name="tobmaterial:TOB_Nomex"/>
+		</LogicalPart>
+		<LogicalPart name="TOBNomexT3In3" category="unspecified">
+			<rSolid name="TOBNomexT3In3"/>
+			<rMaterial name="tobmaterial:TOB_Nomex"/>
+		</LogicalPart>
+		<LogicalPart name="TOBAlignTube3" category="unspecified">
+			<rSolid name="TOBAlignTube3"/>
+			<rMaterial name="tobmaterial:TOB_CF_Str"/>
+		</LogicalPart>
+		<LogicalPart name="TOBAlignT3In" category="unspecified">
+			<rSolid name="TOBAlignT3In"/>
+			<rMaterial name="materials:Air"/>
+		</LogicalPart>
+		<LogicalPart name="TOBNomexTube4" category="unspecified">
+			<rSolid name="TOBNomexTube4"/>
+			<rMaterial name="materials:Air"/>
+		</LogicalPart>
+		<LogicalPart name="TOBNomexT4In1" category="unspecified">
+			<rSolid name="TOBNomexT4In1"/>
+			<rMaterial name="tobmaterial:TOB_Nomex"/>
+		</LogicalPart>
+		<LogicalPart name="TOBNomexT4In2" category="unspecified">
+			<rSolid name="TOBNomexT4In2"/>
+			<rMaterial name="tobmaterial:TOB_Nomex"/>
+		</LogicalPart>
+		<LogicalPart name="TOBNomexT4In3" category="unspecified">
+			<rSolid name="TOBNomexT4In3"/>
+			<rMaterial name="tobmaterial:TOB_Nomex"/>
+		</LogicalPart>
+		<LogicalPart name="TOBAlignTube4" category="unspecified">
+			<rSolid name="TOBAlignTube4"/>
+			<rMaterial name="tobmaterial:TOB_CF_Str"/>
+		</LogicalPart>
+		<LogicalPart name="TOBAlignT4In" category="unspecified">
+			<rSolid name="TOBAlignT4In"/>
+			<rMaterial name="materials:Air"/>
+		</LogicalPart>
+		<LogicalPart name="TOBPotting1" category="unspecified">
+			<rSolid name="TOBPotting1"/>
+			<rMaterial name="tobmaterial:TOB_Epoxy"/>
+		</LogicalPart>
+		<LogicalPart name="TOBPotting2" category="unspecified">
+			<rSolid name="TOBPotting2"/>
+			<rMaterial name="materials:Air"/>
+		</LogicalPart>
+		<LogicalPart name="TOBPotting2I1" category="unspecified">
+			<rSolid name="TOBPotting2I1"/>
+			<rMaterial name="tobmaterial:TOB_Epoxy"/>
+		</LogicalPart>
+		<LogicalPart name="TOBPotting2I2" category="unspecified">
+			<rSolid name="TOBPotting2I2"/>
+			<rMaterial name="tobmaterial:TOB_Epoxy"/>
+		</LogicalPart>
+		<LogicalPart name="TOBPotting2I3" category="unspecified">
+			<rSolid name="TOBPotting2I3"/>
+			<rMaterial name="tobmaterial:TOB_Epoxy"/>
+		</LogicalPart>
+		<LogicalPart name="TOBConnect1" category="unspecified">
+			<rSolid name="TOBConnect1"/>
+			<rMaterial name="materials:Air"/>
+		</LogicalPart>
+		<LogicalPart name="TOBAlConnect1" category="unspecified">
+			<rSolid name="TOBAlConnect1"/>
+			<rMaterial name="materials:Aluminium"/>
+		</LogicalPart>
+		<LogicalPart name="TOBConnect2" category="unspecified">
+			<rSolid name="TOBConnect2"/>
+			<rMaterial name="materials:Air"/>
+		</LogicalPart>
+		<LogicalPart name="TOBAlConnect2" category="unspecified">
+			<rSolid name="TOBAlConnect2"/>
+			<rMaterial name="materials:Aluminium"/>
+		</LogicalPart>
+		<LogicalPart name="TOBConnect3" category="unspecified">
+			<rSolid name="TOBConnect3"/>
+			<rMaterial name="materials:Air"/>
+		</LogicalPart>
+		<LogicalPart name="TOBAlConnect3" category="unspecified">
+			<rSolid name="TOBAlConnect3"/>
+			<rMaterial name="materials:Aluminium"/>
+		</LogicalPart>
+		<LogicalPart name="TOBConnect4" category="unspecified">
+			<rSolid name="TOBConnect4"/>
+			<rMaterial name="materials:Air"/>
+		</LogicalPart>
+		<LogicalPart name="TOBAlConnect4" category="unspecified">
+			<rSolid name="TOBAlConnect4"/>
+			<rMaterial name="materials:Aluminium"/>
+		</LogicalPart>
+		<LogicalPart name="TOBConnect5" category="unspecified">
+			<rSolid name="TOBConnect5"/>
+			<rMaterial name="materials:Air"/>
+		</LogicalPart>
+		<LogicalPart name="TOBAlConnect5" category="unspecified">
+			<rSolid name="TOBAlConnect5"/>
+			<rMaterial name="materials:Aluminium"/>
+		</LogicalPart>
+		<LogicalPart name="TOBConnect6" category="unspecified">
+			<rSolid name="TOBConnect6"/>
+			<rMaterial name="materials:Air"/>
+		</LogicalPart>
+		<LogicalPart name="TOBAlConnect6" category="unspecified">
+			<rSolid name="TOBAlConnect6"/>
+			<rMaterial name="materials:Aluminium"/>
+		</LogicalPart>
+		<LogicalPart name="TOBMidRib0" category="unspecified">
+			<rSolid name="TOBMidRib0"/>
+			<rMaterial name="tobmaterial:TOB_middle_ribs"/>
+		</LogicalPart>
+		<LogicalPart name="TOBMidRib1" category="unspecified">
+			<rSolid name="TOBMidRib1"/>
+			<rMaterial name="tobmaterial:TOB_middle_ribs"/>
+		</LogicalPart>
+		<LogicalPart name="TOBMidRib2" category="unspecified">
+			<rSolid name="TOBMidRib2"/>
+			<rMaterial name="tobmaterial:TOB_middle_ribs"/>
+		</LogicalPart>
+		<LogicalPart name="TOBMidRib3" category="unspecified">
+			<rSolid name="TOBMidRib3"/>
+			<rMaterial name="tobmaterial:TOB_middle_ribs"/>
+		</LogicalPart>
+		<LogicalPart name="TOBMidRib4" category="unspecified">
+			<rSolid name="TOBMidRib4"/>
+			<rMaterial name="tobmaterial:TOB_middle_ribs"/>
+		</LogicalPart>
+		<LogicalPart name="TOBMidRib5" category="unspecified">
+			<rSolid name="TOBMidRib5"/>
+			<rMaterial name="tobmaterial:TOB_middle_ribs"/>
+		</LogicalPart>
+		<LogicalPart name="TOBMidRib6" category="unspecified">
+			<rSolid name="TOBMidRib6"/>
+			<rMaterial name="tobmaterial:TOB_middle_ribs"/>
+		</LogicalPart>
+		<LogicalPart name="TOBDOHM" category="unspecified">
+			<rSolid name="TOBDOHM"/>
+			<rMaterial name="tobmaterial:TOB_DOHM"/>
+		</LogicalPart>
+		<LogicalPart name="TOBLayer0" category="unspecified">
+			<rSolid name="TOBLayer0"/>
+			<rMaterial name="materials:Air"/>
+		</LogicalPart>
+		<LogicalPart name="TOBLayer1" category="unspecified">
+			<rSolid name="TOBLayer1"/>
+			<rMaterial name="materials:Air"/>
+		</LogicalPart>
+		<LogicalPart name="TOBLayer2" category="unspecified">
+			<rSolid name="TOBLayer2"/>
+			<rMaterial name="materials:Air"/>
+		</LogicalPart>
+		<LogicalPart name="TOBLayer3" category="unspecified">
+			<rSolid name="TOBLayer3"/>
+			<rMaterial name="materials:Air"/>
+		</LogicalPart>
+		<LogicalPart name="TOBLayer4" category="unspecified">
+			<rSolid name="TOBLayer4"/>
+			<rMaterial name="materials:Air"/>
+		</LogicalPart>
+		<LogicalPart name="TOBLayer5" category="unspecified">
+			<rSolid name="TOBLayer5"/>
+			<rMaterial name="materials:Air"/>
+		</LogicalPart>
+		<LogicalPart name="TOBSideDisk" category="unspecified">
+			<rSolid name="TOBSideDisk"/>
+			<rMaterial name="materials:Air"/>
+		</LogicalPart>
+		<LogicalPart name="TOBAxCabCont" category="unspecified">
+			<rSolid name="TOBAxCabCont"/>
+			<rMaterial name="materials:Air"/>
+		</LogicalPart>
+		<LogicalPart name="TOBDOHMs" category="unspecified">
+			<rSolid name="TOBDOHMs"/>
+			<rMaterial name="materials:Air"/>
+		</LogicalPart>
+		<!-- For cosmic Track -->
+		<LogicalPart name="TOB" category="unspecified">
+			<rSolid name="TOB"/>
+			<rMaterial name="materials:Air"/>
+		</LogicalPart>
+		<LogicalPart name="LAYER8" category="unspecified">
+			<rSolid name="LAYER8"/>
+			<rMaterial name="materials:Air"/>
+		</LogicalPart>
+		<LogicalPart name="LAYER7" category="unspecified">
+			<rSolid name="LAYER7"/>
+			<rMaterial name="materials:Air"/>
+		</LogicalPart>
+		<LogicalPart name="LAYER6" category="unspecified">
+			<rSolid name="LAYER6"/>
+			<rMaterial name="materials:Air"/>
+		</LogicalPart>
+		<LogicalPart name="LAYER5" category="unspecified">
+			<rSolid name="LAYER5"/>
+			<rMaterial name="materials:Air"/>
+		</LogicalPart>
+		<LogicalPart name="LAYER4" category="unspecified">
+			<rSolid name="LAYER4"/>
+			<rMaterial name="materials:Air"/>
+		</LogicalPart>
+		<LogicalPart name="LAYER3" category="unspecified">
+			<rSolid name="LAYER3"/>
+			<rMaterial name="materials:Air"/>
+		</LogicalPart>
+		<LogicalPart name="LAYER2" category="unspecified">
+			<rSolid name="LAYER2"/>
+			<rMaterial name="materials:Air"/>
+		</LogicalPart>
+		<LogicalPart name="LAYER1" category="unspecified">
+			<rSolid name="LAYER1"/>
+			<rMaterial name="materials:Air"/>
+		</LogicalPart>
+	</LogicalPartSection>
+	<RotationSection label="tobrod4_b_mtcc.xml">
+		<Rotation name="180Z" thetaX="90*deg" phiX="180*deg" thetaY="90*deg" phiY="270*deg" thetaZ="0*deg" phiZ="0*deg"/>
+		<Rotation name="R180" thetaX="90*deg" phiX="180*deg" thetaY="90*deg" phiY="-90*deg" thetaZ="0*deg" phiZ="0*deg"/>
+		<Rotation name="SKEW" thetaX="90*deg" phiX="-8.5*deg" thetaY="90*deg" phiY="81.5*deg" thetaZ="0*deg" phiZ="0*deg"/>
+	</RotationSection>
+	<PosPartSection label="tob.xml">
+		<!-- NOW START TO BUILD THE COSMIC RACK ITSELF -->
+		<PosPart copyNumber="8">
+			<rParent name="tob:TOB"/>
+			<rChild name="tob:LAYER8"/>
+			<Translation x="0.0*mm" y="172.0*mm" z="0*mm"/>
+		</PosPart>
+		<PosPart copyNumber="7">
+			<rParent name="tob:TOB"/>
+			<rChild name="tob:LAYER7"/>
+			<Translation x="0.0*mm" y="258.0*mm" z="0*mm"/>
+		</PosPart>
+		<PosPart copyNumber="6">
+			<rParent name="tob:TOB"/>
+			<rChild name="tob:LAYER6"/>
+			<Translation x="0.0*mm" y="344.0*mm" z="0*mm"/>
+		</PosPart>
+		<PosPart copyNumber="5">
+			<rParent name="tob:TOB"/>
+			<rChild name="tob:LAYER5"/>
+			<Translation x="0*mm" y="430.0*mm" z="0*mm"/>
+		</PosPart>
+		<PosPart copyNumber="4">
+			<rParent name="tob:TOB"/>
+			<rChild name="tob:LAYER4"/>
+			<Translation x="0*mm" y="516.0*mm" z="0*mm"/>
+		</PosPart>
+		<PosPart copyNumber="3">
+			<rParent name="tob:TOB"/>
+			<rChild name="tob:LAYER3"/>
+			<Translation x="0*mm" y="602.0*mm" z="0*mm"/>
+		</PosPart>
+		<PosPart copyNumber="2">
+			<rParent name="tob:TOB"/>
+			<rChild name="tob:LAYER2"/>
+			<Translation x="0.0*mm" y="688.0*mm" z="0*mm"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="tob:TOB"/>
+			<rChild name="tob:LAYER1"/>
+			<Translation x="0.0*mm" y="774.0*mm" z="0*mm"/>
+		</PosPart>
+		<!-- Layer 8 -->
+		<PosPart copyNumber="2">
+			<rParent name="tob:LAYER8"/>
+			<rChild name="tobrod_SS4H:TOBRod_SS4H"/>
+			<Translation x="-44.875*mm" y="-15*mm" z="0*mm"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="tob:LAYER8"/>
+			<rChild name="tobrod_SS4L:TOBRod_SS4L"/>
+			<Translation x="44.875*mm" y="10.125*mm" z="0*mm"/>
+			<rRotation name="tob:SKEW"/>
+		</PosPart>
+		<!-- Layer 7 -->
+		<PosPart copyNumber="2">
+			<rParent name="tob:LAYER7"/>
+			<rChild name="tobrod_SS4L:TOBRod_SS4L"/>
+			<Translation x="-44.875*mm" y="-15*mm" z="0*mm"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="tob:LAYER7"/>
+			<rChild name="tobrod_SS4L:TOBRod_SS4L"/>
+			<rRotation name="tob:SKEW"/>
+			<Translation x="44.875*mm" y="10.125*mm" z="0*mm"/>
+		</PosPart>
+		<!-- Layer 6 -->
+		<PosPart copyNumber="2">
+			<rParent name="tob:LAYER6"/>
+			<rChild name="tobrod_DSH_L2:TOBRod_DSH_L2"/>
+			<Translation x="-44.875*mm" y="-15*mm" z="0*mm"/>
+		</PosPart>
+		<!-- Layer 5 change to SS6-->
+		<PosPart copyNumber="2">
+			<rParent name="tob:LAYER5"/>
+			<rChild name="tobrod_SS6L:TOBRod_SS6L"/>
+			<Translation x="-44.875*mm" y="-15*mm" z="0*mm"/>
+		</PosPart>
+		<!-- Layer 4 -->
+		<PosPart copyNumber="2">
+			<rParent name="tob:LAYER4"/>
+			<rChild name="tobrod_SS4H:TOBRod_SS4H"/>
+			<Translation x="-44.875*mm" y="-15*mm" z="0*mm"/>
+		</PosPart>
+		<!-- Layer 3 change to ss6-->
+		<PosPart copyNumber="2">
+			<rParent name="tob:LAYER3"/>
+			<rChild name="tobrod_SS6L:TOBRod_SS6L"/>
+			<Translation x="-44.875*mm" y="-15*mm" z="0*mm"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="tob:LAYER3"/>
+			<rChild name="tobrod_SS6H:TOBRod_SS6H"/>
+			<rRotation name="tob:SKEW"/>
+			<Translation x="44.875*mm" y="10.125*mm" z="0*mm"/>
+		</PosPart>
+		<!-- Layer 2 -->
+		<PosPart copyNumber="2">
+			<rParent name="tob:LAYER2"/>
+			<rChild name="tobrod_DSL_L2:TOBRod_DSL_L2"/>
+			<Translation x="-44.875*mm" y="-15*mm" z="0*mm"/>
+		</PosPart>
+		<!-- Layer 1 change to ss6-->
+		<PosPart copyNumber="2">
+			<rParent name="tob:LAYER1"/>
+			<rChild name="tobrod_SS6H:TOBRod_SS6H"/>
+			<Translation x="-44.875*mm" y="-15*mm" z="0*mm"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="tob:LAYER1"/>
+			<rChild name="tobrod_SS6H:TOBRod_SS6H"/>
+			<rRotation name="tob:SKEW"/>
+			<Translation x="44.875*mm" y="10.125*mm" z="0*mm"/>
+		</PosPart>
+	</PosPartSection>
+</DDDefinition>

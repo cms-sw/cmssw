@@ -14,17 +14,18 @@ namespace edm {
   class ActivityRegistry;
   class BranchIDListHelper;
   class CommonParams;
-  class OutputModule;
+  class SubProcess;
   class ParameterSet;
   class ProcessConfiguration;
   class ProductRegistry;
   class Schedule;
   class SignallingProductRegistry;
+  class StreamID;
 
   struct ScheduleItems {
     ScheduleItems();
 
-    ScheduleItems(ProductRegistry const& preg, BranchIDListHelper const& branchIDListHelper, OutputModule const& om);
+    ScheduleItems(ProductRegistry const& preg, BranchIDListHelper const& branchIDListHelper, SubProcess const& om);
 
     ScheduleItems(ScheduleItems const&) = delete; // Disallow copying and moving
     ScheduleItems& operator=(ScheduleItems const&) = delete; // Disallow copying and moving
@@ -44,7 +45,8 @@ namespace edm {
 
     std::auto_ptr<Schedule>
     initSchedule(ParameterSet& parameterSet,
-                 ParameterSet const* subProcessPSet);
+                 ParameterSet const* subProcessPSet,
+                 StreamID streamID);
 
     void
     clear();

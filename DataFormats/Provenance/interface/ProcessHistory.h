@@ -63,6 +63,7 @@ namespace edm {
 
     collection_type const& data() const {return data_;}
     ProcessHistoryID id() const;
+    ProcessHistoryID setProcessHistoryID();
 
     // Return true, and fill in config appropriately, if the a process
     // with the given name is recorded in this ProcessHistory. Return
@@ -77,7 +78,7 @@ namespace edm {
 
     void reduce();
 
-    void initializeTransients() const {transient_.reset();}
+    void initializeTransients() {transient_.reset();}
 
     struct Transients {
       Transients() : phid_() {}
@@ -86,9 +87,9 @@ namespace edm {
     };
 
   private:
-    ProcessHistoryID& phid() const {return transient_.phid_;}
+    ProcessHistoryID& phid() {return transient_.phid_;}
     collection_type data_;
-    mutable Transients transient_;
+    Transients transient_;
   };
 
   // Free swap function

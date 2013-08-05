@@ -31,9 +31,11 @@ namespace edm {
 
     void setParameterSetID(ParameterSetID const& pSetID);
 
+    ProcessConfigurationID setProcessConfigurationID();
+
     void reduce();
 
-    void initializeTransients() const {transient_.reset();}
+    void initializeTransients() {transient_.reset();}
 
     struct Transients {
       Transients() : pcid_(), isCurrentProcess_(false) {}
@@ -47,14 +49,15 @@ namespace edm {
     };
 
   private:
-    ProcessConfigurationID& pcid() const {return transient_.pcid_;}
-    bool& isCurrentProcess() const {return transient_.isCurrentProcess_;}
+    void setPCID(ProcessConfigurationID const& pcid) {transient_.pcid_ = pcid;}
+    bool isCurrentProcess() const {return transient_.isCurrentProcess_;}
+    void setCurrentProcess() {transient_.isCurrentProcess_ = true;}
 
     std::string processName_;
     ParameterSetID parameterSetID_;
     ReleaseVersion releaseVersion_;
     PassID passID_;
-    mutable Transients transient_;
+    Transients transient_;
   };
 
   bool

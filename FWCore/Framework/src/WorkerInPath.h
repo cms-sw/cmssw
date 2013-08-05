@@ -16,6 +16,7 @@
 #include "FWCore/Framework/src/RunStopwatch.h"
 
 namespace edm {
+  class StreamID;
 
   class WorkerInPath {
   public:
@@ -26,7 +27,7 @@ namespace edm {
 
     template <typename T>
     bool runWorker(typename T::MyPrincipal&, EventSetup const&,
-		   CurrentProcessingContext const* cpc);
+		   CurrentProcessingContext const* cpc, StreamID streamID);
 
     std::pair<double,double> timeCpuReal() const {
       if(stopwatch_) {
@@ -62,7 +63,7 @@ namespace edm {
 
   template <typename T>
   bool WorkerInPath::runWorker(typename T::MyPrincipal & ep, EventSetup const & es,
-			       CurrentProcessingContext const* cpc) {
+			       CurrentProcessingContext const* cpc, StreamID streamID) {
 
     if (T::isEvent_) {
       ++timesVisited_;
@@ -73,7 +74,7 @@ namespace edm {
 	// may want to change the return value from the worker to be 
 	// the Worker::FilterAction so conditions in the path will be easier to 
 	// identify
-	rc = worker_->doWork<T>(ep, es, cpc,stopwatch_.get());
+	rc = worker_->doWork<T>(ep, es, cpc,stopwatch_.get(),streamID);
 
         // Ignore return code for non-event (e.g. run, lumi) calls
 	if (!T::isEvent_) rc = true;

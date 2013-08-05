@@ -152,7 +152,7 @@ namespace edm {
     uint32 run = 1;
 
     //Get the Process PSet ID
-    pset::Registry* reg = pset::Registry::instance();
+    pset::Registry const& reg = *pset::Registry::instance();
     ParameterSetID toplevel = pset::getProcessParameterSetID(reg);
 
     //In case we need to print it

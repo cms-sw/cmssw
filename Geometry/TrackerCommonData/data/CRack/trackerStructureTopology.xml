@@ -1,0 +1,60 @@
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../../DetectorDescription/Schema/DDLSchema.xsd">
+  <SpecParSection label="spec-pars2.xml">
+    <SpecPar name="FullTrackerPar">
+      <PartSelector path="//Tracker"/>
+      <Parameter name="TkDDDStructure" value="FullTracker"/>
+    </SpecPar>
+    <SpecPar name="TOBSubDetPar">
+      <PartSelector path="//TOB"/>
+      <Parameter name="TkDDDStructure" value="TOB"/>
+    </SpecPar>
+    <SpecPar name="TOBSubDetLayerPar">
+      <PartSelector path="//LAYER1"/>
+      <PartSelector path="//LAYER2"/>
+      <PartSelector path="//LAYER3"/>
+      <PartSelector path="//LAYER4"/>
+      <PartSelector path="//LAYER5"/>
+      <PartSelector path="//LAYER6"/>
+      <PartSelector path="//LAYER7"/>
+      <PartSelector path="//LAYER8"/>
+      <Parameter name="TkDDDStructure" value="TOBLayer"/>
+    </SpecPar>
+    <SpecPar name="TOBSubDetRodPar">
+      <PartSelector path="//TOBRod0L"/>
+      <PartSelector path="//TOBRod0H"/>
+      <PartSelector path="//TOBRod1L"/>
+      <PartSelector path="//TOBRod1H"/>
+      <PartSelector path="//TOBRod2L"/>
+      <PartSelector path="//TOBRod2H"/>
+      <PartSelector path="//TOBRod4L"/>
+      <PartSelector path="//TOBRod4H"/>
+      <Parameter name="TkDDDStructure" value="TOBRod"/>
+    </SpecPar>
+    <SpecPar name="TOBSubDetGluedDetPar">
+      <PartSelector path="//TOBModule0"/>
+      <Parameter name="TkDDDStructure" value="TOBGluedDet"/>
+    </SpecPar>
+    <SpecPar name="TOBSubDetDetPar">
+      <PartSelector path="//TOBActiveRphi0"/>
+      <PartSelector path="//TOBActiveSter0"/>
+      <PartSelector path="//TOBActiveRphi2"/>
+      <PartSelector path="//TOBActiveRphi4"/>
+      <Parameter name="TkDDDStructure" value="TOBDet"/>
+    </SpecPar>
+    <SpecPar name="TrackerStereoDetectorsPar">
+      <PartSelector path="//TOBActiveSter0"/>
+      <Parameter name="TrackerStereoDetectors" value="true"/>
+    </SpecPar>
+    <SpecPar name="TrackerAPVNumber6Par">
+      <PartSelector path="//TOBActiveRphi4"/>
+      <Parameter name="SiliconAPVNumber" value="6"/>
+    </SpecPar>
+    <SpecPar name="TrackerAPVNumber4Par">
+      <PartSelector path="//TOBActiveRphi0"/>
+      <PartSelector path="//TOBActiveSter0"/>
+      <PartSelector path="//TOBActiveRphi2"/>
+      <Parameter name="SiliconAPVNumber" value="4"/>
+    </SpecPar>
+  </SpecParSection>
+</DDDefinition>

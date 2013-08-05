@@ -5,25 +5,31 @@
 # Author:      Zhen Xie                                           #
 ###################################################################
 
-import os,sys,time,json
-from RecoLuminosity.LumiDB import sessionManager,argparse,nameDealer,revisionDML,dataDML,lumiParameters
+import os,sys,time,json,coral
+from datetime import datetime
+from RecoLuminosity.LumiDB import sessionManager,argparse,nameDealer,revisionDML,dataDML,lumiParameters,lumiTime
 
 def generateLumiRundata(filename,runsummaryData,runlist):
     '''
-    input: runsummaryData {runnum:[]}
-    output: {runnum:[datasource,nominalegev,ncollidingbunches]}
+    input: runsummaryData {runnum: (datasource(0),nominalegev(1),ncollidingbunches(2),starttime(3),stoptime(4)}
+    output: {runnum: [nominalenergy,ncollidingbunches,starttime,stoptime,nls] }
     '''
     result={}
+    t=lumiTime.lumiTime()
     for run in runlist:
         summary=runsummaryData[run]
-        result[run]=[filename,summary[1],summary[2]]
+        start=datetime.strptime(summary[3],'%m/%d/%y %H:%M:%S')
+        stop=datetime.strptime(summary[4],'%m/%d/%y %H:%M:%S')
+        starttime=coral.TimeStamp(start.year,start.month,start.day,start.hour,start.minute,start.second,0)
+        stoptime=coral.TimeStamp(stop.year,stop.month,stop.day,stop.hour,stop.minute,stop.second,0)
+        result[run]=[filename,summary[1],summary[2],starttime,stoptime,0]
     return result
 
 def generateLumiLSdataForRun(lsdata,lumirundata,beamsta):
     '''
     input:
       lsdata: [(cmslsnum,instlumi),...]
-      lumirundata: [datasource,nominalegev,ncollidingbunches]
+      lumirundata: [datasource,nominalegev,ncollidingbunches,ncollidingbunches,starttime,stoptime,o]
       beamstatus {cmslsnum:beamstatus}
     output:
     i.e. bulkInsertLumiLSSummary expected input: {lumilsnum:[cmslsnum,instlumi,instlumierror,instlumiquality,beamstatus,beamenergy,numorbit,startorbit]}
@@ -138,9 +144,9 @@ if __name__ == "__main__":
     hfdataidmap=revisionDML.dataIdsByTagId(session.nominalSchema(),hf_tagid,runlist,withcomment=False,lumitype='HF')
     beamstatusdata=dataDML.beamstatusByIds(session.nominalSchema(),hfdataidmap)
     #print 'beamstatusdata ',beamstatusdata
-    lumirundata=dataDML.lumiRunByIds(session.nominalSchema(),hfdataidmap,lumitype='HF')
-    #{runnum: (datasource(1),nominalegev(2),ncollidingbunches(3)}
+    lumirundata=dataDML.lumiRunByIds(session.nominalSchema(),hfdataidmap,lumitype='HF')#{runnum: (nominalegev(0),ncollidingbunches(1),starttime(2),stoptime(3),nls(4)}
     session.transaction().commit()
+    #print 'lumirundata ', lumirundata
     alllumirundata=generateLumiRundata(inputfilename,lumirundata,runlist)
     alllumilsdata={}
     for runnum,perrundata in parseresult.items():
@@ -154,7 +160,7 @@ if __name__ == "__main__":
         beamsta={}
         if beamstatusdata.has_key(runnum):
             beamsta=beamstatusdata[runnum]
-        alllumilsdata[runnum]=generateLumiLSdataForRun(perrundata,alllumirundata[runnum],beamsta)
+        alllumilsdata[runnum]=generateLumiLSdataForRun(perrundata,alllumirundata[runnum],beamsta)#lumirundata [datasource,nominalenergy,ncollidingbunches,starttime,stoptime,nls]
         pixellumirundata=alllumirundata[runnum]
         (pixellumirevid,pixellumientryid,pixellumidataid)=dataDML.addLumiRunDataToBranch(session.nominalSchema(),runnum,pixellumirundata,pixellumibranchinfo,nameDealer.pixellumidataTableName())
         pixellumilsdata=alllumilsdata[runnum]

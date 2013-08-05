@@ -40,9 +40,6 @@ namespace edm {
      module_->setModuleDescription(description());
      
   }
-
-    void setEventSelectionInfo(std::map<std::string, std::vector<std::pair<std::string, int> > > const& outputModulePathPositions,
-                               bool anyProductProduced);
     
     virtual Types moduleType() const override;
 
@@ -50,29 +47,56 @@ namespace edm {
                               ProductHolderIndexHelper const&) override;
 
 
+    template<typename D>
+    void callWorkerBeginStream(D, StreamID);
+    template<typename D>
+    void callWorkerEndStream(D, StreamID);
+    template<typename D>
+    void callWorkerStreamBegin(D, StreamID id, RunPrincipal& rp,
+                               EventSetup const& c,
+                               CurrentProcessingContext const* cpc);
+    template<typename D>
+    void callWorkerStreamEnd(D, StreamID id, RunPrincipal& rp,
+                             EventSetup const& c,
+                             CurrentProcessingContext const* cpc);
+    template<typename D>
+    void callWorkerStreamBegin(D, StreamID id, LuminosityBlockPrincipal& rp,
+                               EventSetup const& c,
+                               CurrentProcessingContext const* cpc);
+    template<typename D>
+    void callWorkerStreamEnd(D, StreamID id, LuminosityBlockPrincipal& rp,
+                             EventSetup const& c,
+                             CurrentProcessingContext const* cpc);
+    
   protected:
     T& module() {return *module_;}
     T const& module() const {return *module_;}
 
   private:
-    virtual bool implDoBegin(EventPrincipal& ep, EventSetup const& c,
-                            CurrentProcessingContext const* cpc) override;
-    virtual bool implDoEnd(EventPrincipal& ep, EventSetup const& c,
-                            CurrentProcessingContext const* cpc) override;
+    virtual bool implDo(EventPrincipal& ep, EventSetup const& c,
+                        CurrentProcessingContext const* cpc) override;
     virtual bool implDoBegin(RunPrincipal& rp, EventSetup const& c,
-                            CurrentProcessingContext const* cpc) override;
+                             CurrentProcessingContext const* cpc) override;
+    virtual bool implDoStreamBegin(StreamID id, RunPrincipal& rp, EventSetup const& c,
+                                   CurrentProcessingContext const* cpc) override;
+    virtual bool implDoStreamEnd(StreamID id, RunPrincipal& rp, EventSetup const& c,
+                                 CurrentProcessingContext const* cpc) override;
     virtual bool implDoEnd(RunPrincipal& rp, EventSetup const& c,
                             CurrentProcessingContext const* cpc) override;
     virtual bool implDoBegin(LuminosityBlockPrincipal& lbp, EventSetup const& c,
                             CurrentProcessingContext const* cpc) override;
+    virtual bool implDoStreamBegin(StreamID id, LuminosityBlockPrincipal& lbp, EventSetup const& c,
+                                   CurrentProcessingContext const* cpc) override;
+    virtual bool implDoStreamEnd(StreamID id, LuminosityBlockPrincipal& lbp, EventSetup const& c,
+                                 CurrentProcessingContext const* cpc) override;
     virtual bool implDoEnd(LuminosityBlockPrincipal& lbp, EventSetup const& c,
-                            CurrentProcessingContext const* cpc) override;
+                           CurrentProcessingContext const* cpc) override;
     virtual void implBeginJob() override;
     virtual void implEndJob() override;
+    virtual void implBeginStream(StreamID) override;
+    virtual void implEndStream(StreamID) override;
     virtual void implRespondToOpenInputFile(FileBlock const& fb) override;
     virtual void implRespondToCloseInputFile(FileBlock const& fb) override;
-    virtual void implRespondToOpenOutputFiles(FileBlock const& fb) override;
-    virtual void implRespondToCloseOutputFiles(FileBlock const& fb) override;
     virtual void implPreForkReleaseResources() override;
     virtual void implPostForkReacquireResources(unsigned int iChildIndex, 
                                                unsigned int iNumberOfChildren) override;

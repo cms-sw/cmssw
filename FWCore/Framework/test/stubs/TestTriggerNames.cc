@@ -62,6 +62,7 @@ namespace edmtest {
     dumpPSetRegistry_(ps.getUntrackedParameter<bool>("dumpPSetRegistry", false)),
     expectedTriggerResultsHLT_(ps.getUntrackedParameter<std::vector<unsigned int> >("expectedTriggerResultsHLT", std::vector<unsigned int>())),
     expectedTriggerResultsPROD_(ps.getUntrackedParameter<std::vector<unsigned int> >("expectedTriggerResultsPROD", std::vector<unsigned int>())) {
+      consumesMany<edm::TriggerResults>();
   }
 
   // -----------------------------------------------------------------

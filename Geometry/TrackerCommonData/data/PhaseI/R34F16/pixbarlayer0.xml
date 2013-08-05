@@ -1,0 +1,35 @@
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
+
+<ConstantsSection label="pixbarlayer0.xml" eval="true">
+ <Constant name="Ladders"           value="16"/>
+ <Constant name="CoolDist"          value="3.4*cm"/>
+ <Constant name="CoolRadius"        value="0.0900*cm"/>
+ <Constant name="LadderOffset"        value="0.225*cm"/>
+ <Constant name="Cool1Offset"        value="0.83*cm"/>
+ <Constant name="Cool2Offset"        value="-0.16*cm"/>
+ <Constant name="OuterFirst"        value="1"/>
+</ConstantsSection>
+
+<Algorithm name="track:DDPixBarLayerUpgradeAlgo">
+  <rParent name="pixbarlayer0:PixelBarrelLayer0"/>
+  <String name="GeneralMaterial"   value="materials:Air"/>
+  <Numeric name="Ladders"          value="[pixbarlayer0:Ladders]"/>
+  <Numeric name="LayerDz"          value="[pixbarlayer:LayerDz]"/>
+  <Numeric name="CoolDz"           value="[pixbarlayer:CoolDz]"/>
+  <Numeric name="CoolThick"        value="[pixbarlayer:CoolThick]"/>
+  <Numeric name="CoolRadius"       value="[pixbarlayer0:CoolRadius]"/>
+  <Numeric name="CoolDist"         value="[pixbarlayer0:CoolDist]"/>
+  <Numeric name="Cool1Offset"         value="[pixbarlayer0:Cool1Offset]"/>
+  <Numeric name="Cool2Offset"         value="[pixbarlayer0:Cool2Offset]"/>
+  <String name="CoolMaterial"      value="materials:Bpix_CO2_-20C"/>
+  <String name="CoolTubeMaterial"  value="materials:Bpix_Pipe_Steel"/>
+  <String name="LadderName"        value="pixbarladderfull0:PixelBarrelLadderFull0"/> 
+  <Numeric name="LadderWidth"      value="[pixbarladderfull0:LadderWidth]"/>
+  <Numeric name="LadderThick"      value="[pixbarladderfull0:LadderThick]"/>
+  <Numeric name="LadderOffset"      value="[pixbarlayer0:LadderOffset]"/>
+  <Numeric name="ActiveWidth"      value="[pixbarladderfull0:ActiveWidth]"/>
+  <Numeric name="OuterFirst"       value="[pixbarlayer0:OuterFirst]"/>
+</Algorithm>
+
+</DDDefinition>

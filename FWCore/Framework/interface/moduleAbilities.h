@@ -89,6 +89,10 @@ namespace edm {
     typedef module::Empty Type;
   };
 
+  struct WatchInputFiles {
+    static constexpr module::Abilities kAbilities=module::Abilities::kWatchInputFiles;
+    typedef module::Empty Type;
+  };
   
   //Recursively checks VArgs template arguments looking for the ABILITY
   template<module::Abilities ABILITY, typename... VArgs> struct CheckAbility;

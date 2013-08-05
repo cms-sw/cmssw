@@ -54,7 +54,7 @@ namespace edm {
     parentageID_(),
     transient_() {
       parentagePtr() = boost::shared_ptr<Parentage>(new Parentage);
-      parentagePtr()->parents() = parents;
+      parentagePtr()->setParents(parents);
       parentageID_ = parentagePtr()->id();
       ParentageRegistry::instance()->insertMapped(*parentagePtr());
   }

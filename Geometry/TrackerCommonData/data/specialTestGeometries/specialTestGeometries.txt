@@ -1,0 +1,59 @@
+1) PixelBarrelConnToST, pixbarmaterial:cable_endring_to_tube
+
+pixbarmaterial.xml:
+
+Standard
+<CompositeMaterial name="cable_endring_to_tube" density="1.94299*g/cm3" symbol=" " method="mixture by weight">
+
+Mod
+<CompositeMaterial name="cable_endring_to_tube" density="2.137289*g/cm3" symbol=" " method="mixture by weight">
+
+----------------------------------------------------------------------------------------------------------
+
+2) PixelBarrelConn1, pixbarmaterial:Layer3_EndringPrints and  PixelBarrelConn2, pixbarmaterial:Layer1_2_EndringPrints
+
+pixbarmaterial.xml:
+
+Standard
+<CompositeMaterial name="Layer1_2_EndringPrints" density="1.16836*g/cm3" symbol=" " method="mixture by weight">
+<CompositeMaterial name="Layer3_EndringPrints" density="1.08648*g/cm3" symbol=" " method="mixture by weight">
+
+Mod
+<CompositeMaterial name="Layer1_2_EndringPrints" density="1.285196*g/cm3" symbol=" " method="mixture by weight">
+<CompositeMaterial name="Layer3_EndringPrints" density="1.195128*g/cm3" symbol=" " method="mixture by weight">
+
+----------------------------------------------------------------------------------------------------------
+
+3) TIBFlange, tibmaterial:TIB_Flange
+
+tibmaterial.xml:
+
+Standard
+<CompositeMaterial name="TIB_Flange" density="0.45162*g/cm3" symbol=" " method="mixture by weight">
+
+Mod
+<CompositeMaterial name="TIB_Flange" density="0.496782*g/cm3" symbol=" " method="mixture by weight">
+
+----------------------------------------------------------------------------------------------------------
+
+4) TIBTIDServiceCylinder, tibtidcommonmaterial:TIBTID_ServiceCylinder
+
+tibtidcommonmaterial.xml:
+
+Standard
+<CompositeMaterial name="TIBTID_ServiceCylinder" density="0.43765*g/cm3" symbol=" " method="mixture by weight">
+
+Mod
+<CompositeMaterial name="TIBTID_ServiceCylinder" density="0.481415*g/cm3" symbol=" " method="mixture by weight">
+
+----------------------------------------------------------------------------------------------------------
+
+5) TIBTIDMargherita, tibtidcommonmaterial:TIBTID_Margherita
+
+tibtidcommonmaterial.xml:
+
+Standard
+<CompositeMaterial name="TIBTID_Margherita" density="1.09393*g/cm3" symbol=" " method="mixture by weight">
+
+Mod
+<CompositeMaterial name="TIBTID_Margherita" density="1.203323*g/cm3" symbol=" " method="mixture by weight">

@@ -21,6 +21,7 @@ using namespace edm;
 
 TestPRegisterModule2::TestPRegisterModule2(edm::ParameterSet const&){
    produces<edmtest::DoubleProduct>();
+   consumes<edmtest::StringProduct>(edm::InputTag{"m2"});
 }
 
   void TestPRegisterModule2::produce(Event& e, EventSetup const&)

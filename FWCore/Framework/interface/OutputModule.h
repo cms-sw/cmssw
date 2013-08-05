@@ -15,11 +15,12 @@ output stream.
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
 #include "DataFormats/Provenance/interface/Selections.h"
 
-#include "FWCore/Framework/interface/CachedProducts.h"
+#include "FWCore/Framework/interface/TriggerResultsBasedEventSelector.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/ProductSelectorRules.h"
 #include "FWCore/Framework/interface/ProductSelector.h"
 #include "FWCore/Framework/interface/EDConsumerBase.h"
+#include "FWCore/Framework/interface/getAllTriggerNames.h"
 #include "FWCore/ParameterSet/interface/ParameterSetfwd.h"
 
 #include <array>
@@ -29,14 +30,12 @@ output stream.
 
 namespace edm {
 
-  typedef detail::CachedProducts::handle_t Trig;
-
-  std::vector<std::string> const& getAllTriggerNames();
+  typedef detail::TriggerResultsBasedEventSelector::handle_t Trig;
 
   class OutputModule : public EDConsumerBase {
   public:
     template <typename T> friend class WorkerT;
-    friend class OutputWorker;
+    friend class ClassicOutputModuleCommunicator;
     typedef OutputModule ModuleType;
     typedef OutputWorker WorkerType;
 
@@ -73,9 +72,6 @@ namespace edm {
     BranchIDLists const* branchIDLists() const;
 
   protected:
-
-    //Trig const& getTriggerResults(Event const& ep) const;
-    Trig getTriggerResults(Event const& ep) const;
 
     // This function is needed for compatibility with older code. We
     // need to clean up the use of Event and EventPrincipal, to avoid
@@ -148,12 +144,8 @@ namespace edm {
     // We do not own the pointed-to CurrentProcessingContext.
     CurrentProcessingContext const* current_context_;
 
-    //This will store TriggerResults objects for the current event.
-    // mutable std::vector<Trig> prods_;
-    mutable bool prodsValid_;
-
     bool wantAllEvents_;
-    mutable detail::CachedProducts selectors_;
+    mutable detail::TriggerResultsBasedEventSelector selectors_;
     // ID of the ParameterSet that configured the event selector
     // subsystem.
     ParameterSetID selector_config_id_;
@@ -178,8 +170,6 @@ namespace edm {
     void doOpenFile(FileBlock const& fb);
     void doRespondToOpenInputFile(FileBlock const& fb);
     void doRespondToCloseInputFile(FileBlock const& fb);
-    void doRespondToOpenOutputFiles(FileBlock const& fb);
-    void doRespondToCloseOutputFiles(FileBlock const& fb);
     void doPreForkReleaseResources();
     void doPostForkReacquireResources(unsigned int iChildIndex, unsigned int iNumberOfChildren);
 
@@ -195,7 +185,7 @@ namespace edm {
 
     // Do the end-of-file tasks; this is only called internally, after
     // the appropriate tests have been done.
-    void reallyCloseFile();
+    virtual void reallyCloseFile();
 
     void registerProductsAndCallbacks(OutputModule const*, ProductRegistry const*) {}
 
@@ -214,14 +204,12 @@ namespace edm {
     virtual void openFile(FileBlock const&) {}
     virtual void respondToOpenInputFile(FileBlock const&) {}
     virtual void respondToCloseInputFile(FileBlock const&) {}
-    virtual void respondToOpenOutputFiles(FileBlock const&) {}
-    virtual void respondToCloseOutputFiles(FileBlock const&) {}
     virtual void preForkReleaseResources() {}
     virtual void postForkReacquireResources(unsigned int /*iChildIndex*/, unsigned int /*iNumberOfChildren*/) {}
 
     virtual bool isFileOpen() const { return true; }
 
-    virtual void doOpenFile() { }
+    virtual void reallyOpenFile() {}
 
     void setModuleDescription(ModuleDescription const& md) {
       moduleDescription_ = md;
@@ -231,23 +219,6 @@ namespace edm {
     void fillDependencyGraph();
 
     bool limitReached() const {return remainingEvents_ == 0;}
-
-    // The following member functions are part of the Template Method
-    // pattern, used for implementing doCloseFile() and maybeEndFile().
-
-    virtual void startEndFile() {}
-    virtual void writeFileFormatVersion() {}
-    virtual void writeFileIdentifier() {}
-    virtual void writeIndexIntoFile() {}
-    virtual void writeProcessConfigurationRegistry() {}
-    virtual void writeProcessHistoryRegistry() {}
-    virtual void writeParameterSetRegistry() {}
-    virtual void writeBranchIDListRegistry() {}
-    virtual void writeParentageRegistry() {}
-    virtual void writeProductDescriptionRegistry() {}
-    virtual void writeProductDependencies() {}
-    virtual void writeBranchMapper() {}
-    virtual void finishEndFile() {}
   };
 }
 

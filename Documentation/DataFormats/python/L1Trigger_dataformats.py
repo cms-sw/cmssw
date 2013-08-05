@@ -1,38 +1,143 @@
-full_title = "L1Trigger collections (in RECO and AOD)"
+'''
+    Created on Jun 26, 2013 
+    @author:  Mantas Stankevicius
+    @contact: mantas.stankevicius@cern.ch
+    http://cmsdoxy.web.cern.ch/cmsdoxy/dataformats/
+    
+    @responsible: 
+    
+'''
 
-full = {
+json = {
+  "full": {
+    "title": "L1Trigger collections (in RECO and AOD)",
+    "data": [
 
-}
-
-reco_title = "L1Trigger collections (in RECO only)"
-
-reco = {
-    '0':['gtDigis', 'L1GlobalTriggerReadoutRecord', 'No documentation'] ,
-    '1':['l1GtRecord', '*', 'No documentation'] ,
-    '2':['l1GtTriggerMenuLite', '*', 'No documentation'] ,
-    '3':['conditionsInEdm', '*', 'No documentation'] ,
-    '4':['l1extraParticles', '*', 'No documentation'] ,
-    '5':['l1L1GtObjectMap', '*', 'No documentation'] ,
-    '6':['gtDigis', 'L1MuGMTReadoutCollection', 'No documentation'] ,
-    '7':['gctDigis', 'L1GctEmCand*', 'No documentation'] ,
-    '8':['gctDigis', 'L1GctJetCand*', 'No documentation'] ,
-    '9':['gctDigis', 'L1GctEtHad*', 'No documentation'] ,
-    '10':['gctDigis', 'L1GctEtMiss*', 'No documentation'] ,
-    '11':['gctDigis', 'L1GctEtTotal*', 'No documentation'] ,
-    '12':['gctDigis', 'L1GctHtMiss*', 'No documentation'] ,
-    '13':['gctDigis', 'L1GctJetCounts*', 'No documentation'] ,
-    '14':['gctDigis', 'L1GctHFRingEtSums*', 'No documentation'] ,
-    '15':['gctDigis', 'L1GctHFBitCounts*', 'No documentation'] ,
-    '16':['lumiProducer', 'LumiDetails', 'No documentation'] 
-}
-
-aod_title = "L1Trigger collections (in AOD only)"
-
-aod = {
-    '0':['gtDigis', 'L1GlobalTriggerReadoutRecord', 'No documentation'] ,
-    '1':['l1GtRecord', '*', 'No documentation'] ,
-    '2':['l1GtTriggerMenuLite', '*', 'No documentation'] ,
-    '3':['conditionsInEdm', '*', 'No documentation'] ,
-    '4':['l1extraParticles', '*', 'No documentation'] ,
-    '5':['l1L1GtObjectMap', '*', 'No documentation'] 
+    ]
+  },
+  "aod": {
+    "title": "L1Trigger collections (in AOD only)",
+    "data": [
+     {
+      "instance": "l1GtRecord",
+      "container": "*",
+      "desc": "No documentation"
+     },
+     {
+      "instance": "gtDigis",
+      "container": "L1GlobalTriggerReadoutRecord",
+      "desc": "No documentation"
+     },
+     {
+      "instance": "conditionsInEdm",
+      "container": "*",
+      "desc": "No documentation"
+     },
+     {
+      "instance": "l1GtTriggerMenuLite",
+      "container": "*",
+      "desc": "No documentation"
+     },
+     {
+      "instance": "l1L1GtObjectMap",
+      "container": "*",
+      "desc": "No documentation"
+     },
+     {
+      "instance": "l1extraParticles",
+      "container": "*",
+      "desc": "No documentation"
+     }
+    ]
+  },
+  "reco": {
+    "title": "L1Trigger collections (in RECO only)",
+    "data": [
+     {
+      "instance": "gctDigis",
+      "container": "L1GctEtTotal*",
+      "desc": "No documentation"
+     },
+     {
+      "instance": "gctDigis",
+      "container": "L1GctEtMiss*",
+      "desc": "No documentation"
+     },
+     {
+      "instance": "gctDigis",
+      "container": "L1GctJetCounts*",
+      "desc": "No documentation"
+     },
+     {
+      "instance": "gctDigis",
+      "container": "L1GctHtMiss*",
+      "desc": "No documentation"
+     },
+     {
+      "instance": "gctDigis",
+      "container": "L1GctHFBitCounts*",
+      "desc": "No documentation"
+     },
+     {
+      "instance": "gctDigis",
+      "container": "L1GctHFRingEtSums*",
+      "desc": "No documentation"
+     },
+     {
+      "instance": "lumiProducer",
+      "container": "LumiDetails",
+      "desc": "No documentation"
+     },
+     {
+      "instance": "l1GtRecord",
+      "container": "*",
+      "desc": "No documentation"
+     },
+     {
+      "instance": "gtDigis",
+      "container": "L1GlobalTriggerReadoutRecord",
+      "desc": "No documentation"
+     },
+     {
+      "instance": "conditionsInEdm",
+      "container": "*",
+      "desc": "No documentation"
+     },
+     {
+      "instance": "l1GtTriggerMenuLite",
+      "container": "*",
+      "desc": "No documentation"
+     },
+     {
+      "instance": "l1L1GtObjectMap",
+      "container": "*",
+      "desc": "No documentation"
+     },
+     {
+      "instance": "l1extraParticles",
+      "container": "*",
+      "desc": "No documentation"
+     },
+     {
+      "instance": "gctDigis",
+      "container": "L1GctEmCand*",
+      "desc": "No documentation"
+     },
+     {
+      "instance": "gtDigis",
+      "container": "L1MuGMTReadoutCollection",
+      "desc": "No documentation"
+     },
+     {
+      "instance": "gctDigis",
+      "container": "L1GctEtHad*",
+      "desc": "No documentation"
+     },
+     {
+      "instance": "gctDigis",
+      "container": "L1GctJetCand*",
+      "desc": "No documentation"
+     }
+    ]
+  }
 }
