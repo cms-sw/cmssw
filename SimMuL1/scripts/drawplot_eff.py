@@ -14,9 +14,6 @@ sys.argv.append( '-b' )
 import ROOT
 ROOT.gROOT.SetBatch(1)
 
-## JSON format for dphi dictionary
-import json
-
 gStyle.SetStatW(0.07)
 gStyle.SetStatH(0.06)
 
