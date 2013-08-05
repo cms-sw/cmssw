@@ -15,6 +15,8 @@
 #include "FWCore/Framework/interface/global/EDFilterBase.h"
 #include "FWCore/Framework/interface/global/EDAnalyzerBase.h"
 
+#include "FWCore/Framework/interface/stream/EDProducerAdaptorBase.h"
+
 namespace edm{
   namespace workerimpl {
     template<typename T>
@@ -34,6 +36,11 @@ namespace edm{
     
     template<>
     struct has_stream_functions<edm::global::EDAnalyzerBase> {
+      static bool constexpr value = true;
+    };
+    
+    template<>
+    struct has_stream_functions<edm::stream::EDProducerAdaptorBase> {
       static bool constexpr value = true;
     };
     
@@ -138,7 +145,6 @@ namespace edm{
     workerimpl::DoStreamBeginTrans<T,RunPrincipal>,
     workerimpl::DoNothing>::type might_call;
     might_call(this,id,rp,c,cpc);
-    //module_->doStreamBeginRun(id, rp, c, cpc);
     return true;
   }
   
@@ -150,7 +156,6 @@ namespace edm{
     workerimpl::DoStreamEndTrans<T,RunPrincipal>,
     workerimpl::DoNothing>::type might_call;
     might_call(this,id,rp,c,cpc);
-    //module_->doStreamEndRun(id, rp, c, cpc);
     return true;
   }
   
@@ -197,7 +202,6 @@ namespace edm{
     workerimpl::DoStreamBeginTrans<T,LuminosityBlockPrincipal>,
     workerimpl::DoNothing>::type might_call;
     might_call(this,id,lbp,c,cpc);
-    //module_->doStreamBeginLuminosityBlock(id, lbp, c, cpc);
     return true;
   }
   
@@ -210,7 +214,6 @@ namespace edm{
     workerimpl::DoNothing>::type might_call;
     might_call(this,id,lbp,c,cpc);
 
-    //module_->doStreamEndLuminosityBlock(id, lbp, c, cpc);
     return true;
   }
   
@@ -334,7 +337,10 @@ namespace edm{
   template<>
   Worker::Types WorkerT<edm::global::EDAnalyzerBase>::moduleType() const { return Worker::kAnalyzer;}
 
-  
+
+  template<>
+  Worker::Types WorkerT<edm::stream::EDProducerAdaptorBase>::moduleType() const { return Worker::kProducer;}
+
   //Explicitly instantiate our needed templates to avoid having the compiler
   // instantiate them in all of our libraries
   template class WorkerT<EDProducer>;
@@ -348,4 +354,5 @@ namespace edm{
   template class WorkerT<global::EDProducerBase>;
   template class WorkerT<global::EDFilterBase>;
   template class WorkerT<global::EDAnalyzerBase>;
+  template class WorkerT<stream::EDProducerAdaptorBase>;
 }
