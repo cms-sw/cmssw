@@ -5,10 +5,7 @@ from tdrStyle import *
 from GEMCSCdPhiLib import *
 
 ## ROOT modules
-from ROOT import TFile,TStyle,TKey,TTree,TH1F,TH2D,TObject,TF1
-from ROOT import TMath,TCanvas,TCut,TEfficiency,TLegend
-from ROOT import gStyle,gROOT,gPad,gDirectory
-from ROOT import kBlue,kRed,kFullStar, kViolet, kAzure, kGreen
+from ROOT import *
 
 ## run quiet mode
 import sys
@@ -290,7 +287,7 @@ def gemTurnOn(filesDir, plotDir, eff, oddEven, ext):
     """Produce GEM turn-on curve"""
     
     pt = ["pt10","pt20","pt30","pt40"]
-    pt_labels = ["10","20","30","40"]
+    pt_labels = ["#geq 10","#geq 20","#geq 30","#geq 40"]
 
     marker_colors = [kRed, kViolet+1, kAzure+1, kGreen-2]
     marker_styles = [20,21,23,24]
@@ -303,7 +300,7 @@ def gemTurnOn(filesDir, plotDir, eff, oddEven, ext):
     c.cd()
 
 
-    h = TH1F("","Efficiency for track with LCT to have GEM pad in chamber;muon p_{T} [GeV/c];Efficiency",50,0.,50.)
+    h = TH1F("","GEM-CSC bending angle patterns for different p_{T} thresholds;muon p_{T} [GeV/c];Efficiency",50,0.,50.)
     h.SetStats(0)
     h.Draw("")
 
@@ -317,23 +314,29 @@ def gemTurnOn(filesDir, plotDir, eff, oddEven, ext):
             ok_dphi = TCut("TMath::Abs(dphi_pad_odd) < %f"%(dphi))
             denom_cut = ok_pad1_lct1_eta
 
-        h2 = draw_eff(t, "Eff. for track with LCT to have matched GEM pad;p_{T} [GeV/c];Efficiency", "h2", "(50,0.,50.)", "pt", 
+        h2 = draw_eff(t, "GEM-CSC bending angle patterns for different p_{T} thresholds;p_{T} [GeV/c];Efficiency", "h2", "(50,0.,50.)", "pt", 
                          denom_cut, ok_dphi, marker_colors[i], marker_styles[i])
+        ## Eff. for track with LCT to have matched GEM pad
         histoList.append(h2)
         h2.SetMarkerSize(1)
         h2.Draw("same")
         
     
     ## add legend
-    leg_header =  "    #Delta#phi(LCT,GEM) is %s%% efficient for"%(eff)
-    leg = TLegend(0.50,0.17,.99,0.57, "", "brNDC")
-    leg.AddEntry(0, "%s chambers at pt"%(oddEven), "")
+    ##    leg_header =  "    #Delta#phi(GEM,CSC) is %s%% efficient for"%(eff)
+    ##    leg.AddEntry(0, "%s chambers at pt"%(oddEven), "")
+    leg = TLegend(0.5,0.2,.8,0.65, "", "brNDC")
+    leg_header =  "    "
+    leg.AddEntry(0, "muon p_{T} measured by %s"%(oddEven), "")
+    leg.AddEntry(0, "numbered GEM-CSC chambers", "")
     for n in range(len(pt)):
         leg.AddEntry(histoList[n], pt_labels[n], "p")
     leg.SetBorderSize(0)
     leg.SetFillStyle(0)
+##    leg.SetFillStyle(1001)
+##    leg.SetFillColor(kWhite)
     leg.SetHeader(leg_header)
-    leg.SetTextSize(0.05)
+    leg.SetTextSize(0.04)
     leg.Draw("same")
 
     ## save the file
@@ -531,8 +534,9 @@ def eff_hs_10(filesDir, plotDir, f_name, ext):
     ho = draw_eff(t, "Eff. for track with LCT to have GEM pad in chamber;p_{T} [GeV/c];Eff.", "h_evn", "(50,0.,50.)", "pt", ok_lct2_eta, ok_pad2)
     c.SaveAs("%stest%s"%(plotDir, ext))
 
+"""
 def eff_hs_11(filesDir, plotDir, f_name, ext):
-    """Comment to be added here"""
+    Comment to be added here
 
     t = getTree("%s%s"%(filesDir, f_name));
     c = TCanvas("c","c",800,600)
@@ -548,7 +552,7 @@ def eff_hs_11(filesDir, plotDir, f_name, ext):
     hg = draw_eff(t, "Eff. for track with LCT to have GEM pad in chamber;LCT half-strip number;Eff.", "h_odd", "(130,-0.2,0.2)", "fmod(phi+TMath::Pi()/36., TMath::Pi()/18.)", ok_eta, ok_pad1 || ok_pad2, "same");
     hgp = draw_eff(t, "Eff. for track with LCT to have GEM pad in chamber;LCT half-strip number;Eff.", "h_odd", "(130,-0.2,0.2)", "fmod(phi+TMath::Pi()/36., TMath::Pi()/18.)", ok_eta&&Qpos, ok_pad1 || ok_pad2, "same", kGreen);
     c.SaveAs("%stest%s"%(plotDir, ext))
-
+"""
 
 
 def eff_hs_all(filesDir, plotDir, f_name, ext):
@@ -562,9 +566,10 @@ def eff_hs_all(filesDir, plotDir, f_name, ext):
     eff_hs_7(filesDir, plotDir, f_name, ext)
     eff_hs_8(filesDir, plotDir, f_name, ext)
     eff_hs_9(filesDir, plotDir, f_name, ext)
+"""
     eff_hs_10(filesDir, plotDir, f_name, ext)
     eff_hs_11(filesDir, plotDir, f_name, ext)
-
+"""
 
 def eff_hs(filesDir, plotDir, ext):
 
@@ -987,6 +992,7 @@ def eff_hs(filesDir, plotDir, ext):
 ## */
 
 if __name__ == "__main__":  
+    """
     halfStripEfficiencies("files/", "plots/efficiency/", ".pdf")
     halfStripEfficiencies("files/", "plots/efficiency/", ".eps")
     halfStripEfficiencies("files/", "plots/efficiency/", ".png")
@@ -994,11 +1000,10 @@ if __name__ == "__main__":
     etaMatchingEfficiencies("files/", "plots/efficiency/", ".pdf")
     etaMatchingEfficiencies("files/", "plots/efficiency/", ".eps")
     etaMatchingEfficiencies("files/", "plots/efficiency/", ".png")
-
+    """
     gemTurnOns("files/", "plots/efficiency/", ".pdf")
     gemTurnOns("files/", "plots/efficiency/", ".eps")    
     gemTurnOns("files/", "plots/efficiency/", ".png")
-
     """
     eff_hs("files/", "plots/efficiency/", ".pdf")
     eff_hs("files/", "plots/efficiency/", ".eps")    
