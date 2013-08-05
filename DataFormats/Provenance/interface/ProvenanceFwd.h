@@ -6,7 +6,7 @@ namespace edm {
   class BranchIDListHelper;
   class Parentage;
   class BranchID;
-  struct BranchKey;
+  class BranchKey;
   class ConstBranchDescription;
   class ProductProvenance;
   class ProductProvenance;

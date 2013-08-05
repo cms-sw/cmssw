@@ -62,7 +62,7 @@ namespace edm {
 
     // identification
     ParameterSetID id() const;
-    void setID(ParameterSetID const& id) const;
+    void setID(ParameterSetID const& id);
     bool isRegistered() const {return id_.isValid();}
     ParameterSetID trackedID() const {return id();} // to be phased out.
 
@@ -285,9 +285,9 @@ namespace edm {
     // If the id_ is invalid, that means a new value should be
     // calculated before the value is returned. Upon registration, the
     // id_ is made valid. Updating any tracked parameter invalidates the id_.
-    mutable ParameterSetID id_;
+    ParameterSetID id_;
 
-    void invalidateRegistration(std::string const& nameOfTracked) const;
+    void invalidateRegistration(std::string const& nameOfTracked);
 
     void calculateID();
 

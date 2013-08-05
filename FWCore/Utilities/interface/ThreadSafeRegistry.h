@@ -89,13 +89,13 @@ namespace edm {
       void print(std::ostream& os) const;
 
       /// Provide access to the contained collection
-      collection_type& data();
+      collection_type& dataForUpdate();
       collection_type const& data() const;
 
       /// Provide access to the appendage "extra". The
       /// ThreadSafeRegistry doesn't know what this is for, but
       /// instantiations of the template can use it.
-      extra_type& extra();
+      extra_type& extraForUpdate();
       extra_type const& extra() const;      
 
     private:
@@ -183,14 +183,14 @@ namespace edm {
     template <typename KEY, typename T, typename E>
     inline
     typename ThreadSafeRegistry<KEY,T,E>::collection_type&
-    ThreadSafeRegistry<KEY,T,E>::data() {
+    ThreadSafeRegistry<KEY,T,E>::dataForUpdate() {
       return data_;
     }
 
     template <typename KEY, typename T, typename E>
     inline
     typename ThreadSafeRegistry<KEY,T,E>::extra_type&
-    ThreadSafeRegistry<KEY,T,E>::extra() {
+    ThreadSafeRegistry<KEY,T,E>::extraForUpdate() {
       return extra_;
     }
 
