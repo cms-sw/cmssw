@@ -20,7 +20,7 @@
 class HERecalibration {
 
 public:
-  HERecalibration(double integrated_lumi);
+  HERecalibration(double integrated_lumi, double cutoff);
   ~HERecalibration();
 
   double getCorr(int ieta, int idepth);
@@ -30,6 +30,7 @@ private:
 
   void initialize();
   double iLumi;
+  double cutoff_;
   HEDarkening darkening;
 
  // Tabulated mean energy values per layer and per depth

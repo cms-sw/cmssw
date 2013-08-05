@@ -395,6 +395,7 @@ namespace edm {
     proc_pset.registerIt();
     pset::Registry::instance()->extra().setID(proc_pset.id());
     processConfiguration->setParameterSetID(proc_pset.id());
+    processConfiguration->setProcessConfigurationID();
 
     initializeEarlyDelete(opts,preg,subProcPSet);
     
@@ -1245,14 +1246,6 @@ namespace edm {
 
   void Schedule::respondToCloseInputFile(FileBlock const& fb) {
     for_all(allWorkers(), boost::bind(&Worker::respondToCloseInputFile, _1, boost::cref(fb)));
-  }
-
-  void Schedule::respondToOpenOutputFiles(FileBlock const& fb) {
-    for_all(allWorkers(), boost::bind(&Worker::respondToOpenOutputFiles, _1, boost::cref(fb)));
-  }
-
-  void Schedule::respondToCloseOutputFiles(FileBlock const& fb) {
-    for_all(allWorkers(), boost::bind(&Worker::respondToCloseOutputFiles, _1, boost::cref(fb)));
   }
 
   void Schedule::beginJob(ProductRegistry const& iRegistry) {

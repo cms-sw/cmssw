@@ -54,8 +54,6 @@ namespace edmtest {
     virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&);
     virtual void respondToOpenInputFile(edm::FileBlock const& fb);
     virtual void respondToCloseInputFile(edm::FileBlock const& fb);
-    virtual void respondToOpenOutputFiles(edm::FileBlock const& fb);
-    virtual void respondToCloseOutputFiles(edm::FileBlock const& fb);
     void endJob();
 
   private:
@@ -97,12 +95,8 @@ namespace edmtest {
 
     int nRespondToOpenInputFile_;
     int nRespondToCloseInputFile_;
-    int nRespondToOpenOutputFiles_;
-    int nRespondToCloseOutputFiles_;
     int expectedRespondToOpenInputFile_;
     int expectedRespondToCloseInputFile_;
-    int expectedRespondToOpenOutputFiles_;
-    int expectedRespondToCloseOutputFiles_;
 
     std::vector<std::string> expectedInputFileNames_;
 
@@ -150,12 +144,8 @@ namespace edmtest {
 
     nRespondToOpenInputFile_(0),
     nRespondToCloseInputFile_(0),
-    nRespondToOpenOutputFiles_(0),
-    nRespondToCloseOutputFiles_(0),
     expectedRespondToOpenInputFile_(ps.getUntrackedParameter<int>("expectedRespondToOpenInputFile", -1)),
     expectedRespondToCloseInputFile_(ps.getUntrackedParameter<int>("expectedRespondToCloseInputFile", -1)),
-    expectedRespondToOpenOutputFiles_(ps.getUntrackedParameter<int>("expectedRespondToOpenOutputFiles", -1)),
-    expectedRespondToCloseOutputFiles_(ps.getUntrackedParameter<int>("expectedRespondToCloseOutputFiles", -1)),
 
     expectedInputFileNames_(ps.getUntrackedParameter<std::vector<std::string> >("expectedInputFileNames", defaultvstring_)),
 
@@ -529,16 +519,6 @@ namespace edmtest {
     ++droppedIndex1_;
   }
 
-  void TestMergeResults::respondToOpenOutputFiles(edm::FileBlock const&) {
-    if(verbose_) edm::LogInfo("TestMergeResults") << "respondToOpenOutputFiles";
-    ++nRespondToOpenOutputFiles_;
-  }
-
-  void TestMergeResults::respondToCloseOutputFiles(edm::FileBlock const&) {
-    if(verbose_) edm::LogInfo("TestMergeResults") << "respondToCloseOutputFiles";
-    ++nRespondToCloseOutputFiles_;
-  }
-
   void TestMergeResults::endJob() {
     if(verbose_) edm::LogInfo("TestMergeResults") << "endJob";
 
@@ -551,18 +531,6 @@ namespace edmtest {
     if(expectedRespondToCloseInputFile_ > -1 && nRespondToCloseInputFile_ != expectedRespondToCloseInputFile_) {
       std::cerr << "Error while testing merging of run/lumi products in TestMergeResults.cc\n"
                 << "Unexpected number of calls to the function respondToCloseInputFile" << std::endl;
-      abort();
-    }
-
-    if(expectedRespondToOpenOutputFiles_ > -1 && nRespondToOpenOutputFiles_ != expectedRespondToOpenOutputFiles_) {
-      std::cerr << "Error while testing merging of run/lumi products in TestMergeResults.cc\n"
-                << "Unexpected number of calls to the function respondToOpenOutputFiles" << std::endl;
-      abort();
-    }
-
-    if(expectedRespondToCloseOutputFiles_ > -1 && nRespondToCloseOutputFiles_ != expectedRespondToCloseOutputFiles_) {
-      std::cerr << "Error while testing merging of run/lumi products in TestMergeResults.cc\n"
-                << "Unexpected number of calls to the function respondToCloseOutputFiles" << std::endl;
       abort();
     }
   }

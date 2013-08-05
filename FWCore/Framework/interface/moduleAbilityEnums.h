@@ -41,7 +41,8 @@ namespace edm {
       kEndLuminosityBlockProducer,
       kOneSharedResources,
       kOneWatchRuns,
-      kOneWatchLuminosityBlocks
+      kOneWatchLuminosityBlocks,
+      kWatchInputFiles
     };
     
     namespace AbilityBits {
@@ -56,7 +57,8 @@ namespace edm {
         kEndRunProducer=128,
         kOneSharedResources=256,
         kOneWatchRuns=512,
-        kOneWatchLuminosityBlocks=1024
+        kOneWatchLuminosityBlocks=1024,
+        kWatchInputFiles=2048
       };
     }
     

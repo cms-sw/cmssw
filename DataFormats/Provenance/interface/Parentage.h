@@ -30,30 +30,24 @@ namespace edm {
 
     ~Parentage() {}
 
-    // Only the 'salient attributes' are encoded into the ID.
     ParentageID id() const;
 
     void write(std::ostream& os) const;
 
     std::vector<BranchID> const& parents() const {return parents_;}
-    std::vector<BranchID> & parents() {return parents_;}
-    void swap(Parentage& other) {parents_.swap(other.parents_); parentageID().swap(other.parentageID());}
-
+    std::vector<BranchID>& parentsForUpdate() {return parents_;}
+    void setParents(std::vector<BranchID> const& parents) {parents_ = parents;}
+    void swap(Parentage& other) {parents_.swap(other.parents_);}
     void initializeTransients() {transient_.reset();}
-
     struct Transients {
-      Transients() : parentageID_() {}
-      void reset() {parentageID_.reset();}
-      mutable ParentageID parentageID_;
+      Transients() {}
+      void reset() {}
     };
 
-
   private:
-    ParentageID& parentageID() const {return transient_.parentageID_;}
     // The Branch IDs of the parents
     std::vector<BranchID> parents_;
     Transients transient_;
-
   };
 
   // Free swap function

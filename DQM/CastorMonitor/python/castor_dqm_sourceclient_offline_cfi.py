@@ -16,7 +16,7 @@ castorOfflineMonitor = cms.EDAnalyzer("CastorMonitorModule",
 			   
 			   # Define Labels
                            digiLabel            = cms.InputTag("castorDigis"),
-                           rawLabel             = cms.InputTag("source"),
+                           rawLabel             = cms.InputTag("rawDataCollector"),
                            unpackerReportLabel  = cms.InputTag("castorDigis"),
                            CastorRecHitLabel    = cms.InputTag("castorreco"),
                            CastorTowerLabel     = cms.InputTag("CastorTowerReco"),

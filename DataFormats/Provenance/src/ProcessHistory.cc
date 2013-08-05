@@ -6,12 +6,11 @@
 
 #include "DataFormats/Provenance/interface/ProcessHistory.h"
 
-
 namespace edm {
   ProcessHistoryID
   ProcessHistory::id() const {
-    if(phid().isValid()) {
-      return phid();
+    if(transient_.phid_.isValid()) {
+      return transient_.phid_;
     }
     // This implementation is ripe for optimization.
     // We do not use operator<< because it does not write out everything.
@@ -24,9 +23,16 @@ namespace edm {
     }
     std::string stringrep = oss.str();
     cms::Digest md5alg(stringrep);
-    ProcessHistoryID tmp(md5alg.digest().toString());
-    phid().swap(tmp);
-    return phid();
+    ProcessHistoryID phID(md5alg.digest().toString());
+    return phID;
+  }
+
+  ProcessHistoryID
+  ProcessHistory::setProcessHistoryID() {
+    if(!transient_.phid_.isValid()) {
+      transient_.phid_ = id();
+    }
+    return transient_.phid_;
   }
 
   bool

@@ -47,6 +47,27 @@ namespace edm {
                               ProductHolderIndexHelper const&) override;
 
 
+    template<typename D>
+    void callWorkerBeginStream(D, StreamID);
+    template<typename D>
+    void callWorkerEndStream(D, StreamID);
+    template<typename D>
+    void callWorkerStreamBegin(D, StreamID id, RunPrincipal& rp,
+                               EventSetup const& c,
+                               CurrentProcessingContext const* cpc);
+    template<typename D>
+    void callWorkerStreamEnd(D, StreamID id, RunPrincipal& rp,
+                             EventSetup const& c,
+                             CurrentProcessingContext const* cpc);
+    template<typename D>
+    void callWorkerStreamBegin(D, StreamID id, LuminosityBlockPrincipal& rp,
+                               EventSetup const& c,
+                               CurrentProcessingContext const* cpc);
+    template<typename D>
+    void callWorkerStreamEnd(D, StreamID id, LuminosityBlockPrincipal& rp,
+                             EventSetup const& c,
+                             CurrentProcessingContext const* cpc);
+    
   protected:
     T& module() {return *module_;}
     T const& module() const {return *module_;}
@@ -76,8 +97,6 @@ namespace edm {
     virtual void implEndStream(StreamID) override;
     virtual void implRespondToOpenInputFile(FileBlock const& fb) override;
     virtual void implRespondToCloseInputFile(FileBlock const& fb) override;
-    virtual void implRespondToOpenOutputFiles(FileBlock const& fb) override;
-    virtual void implRespondToCloseOutputFiles(FileBlock const& fb) override;
     virtual void implPreForkReleaseResources() override;
     virtual void implPostForkReacquireResources(unsigned int iChildIndex, 
                                                unsigned int iNumberOfChildren) override;

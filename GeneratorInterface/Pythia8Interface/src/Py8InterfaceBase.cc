@@ -53,14 +53,6 @@ bool Py8InterfaceBase::readSettings( int )
 				      << *line << "\"." << std::endl;
    }
 
-   if ( pythiaPylistVerbosity > 10 ) 
-   {
-      if ( pythiaPylistVerbosity == 11 || pythiaPylistVerbosity == 13 )
-         fMasterGen->settings.listAll();
-      if ( pythiaPylistVerbosity == 12 || pythiaPylistVerbosity == 13 )
-         fMasterGen->particleData.listAll();
-   }
-
    return true;
 
 }

@@ -1,0 +1,708 @@
+<?xml version="1.0" encoding="utf-8"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
+  <SpecParSection label="spec-pars2.xml">
+    <SpecPar name="TrackerRecMaterialPixelBarrelLayer0" eval="true">
+      <PartSelector path="//PixelBarrel/PixelBarrelLayer0/PixelBarrelLadderFull/PixelBarrelModuleBoxFull/PixelBarrelModuleFullPlus/PixelBarrelSensorFull/PixelBarrelActiveFull"/>
+      <PartSelector path="//PixelBarrel/PixelBarrelLayer0/PixelBarrelLadderFull/PixelBarrelModuleBoxFull/PixelBarrelModuleFullMinus/PixelBarrelSensorFull/PixelBarrelActiveFull"/>
+      <PartSelector path="//PixelBarrel/PixelBarrelLayer0/PixelBarrelLadderHalf/PixelBarrelModuleBoxHalf/PixelBarrelModuleHalfPlus/PixelBarrelSensorHalf/PixelBarrelActiveHalf"/>
+      <PartSelector path="//PixelBarrel/PixelBarrelLayer0/PixelBarrelLadderHalf/PixelBarrelModuleBoxHalf/PixelBarrelModuleHalfMinus/PixelBarrelSensorHalf/PixelBarrelActiveHalf"/>
+      <Parameter name="TrackerRadLength" value="0.0257"/>
+      <Parameter name="TrackerXi" value="5.42e-05"/>
+    </SpecPar>
+    <!-- 
+         <SpecPar name="TrackerRecMaterialPixelBarrelLayer0_Z0" eval="true">
+         <PartSelector path="//Tracker/PixelBarrel/PixelBarrelLayer0/PixelBarrelLadderHalf/PixelBarrelModuleBoxHalf/PixelBarrelModuleHalfMinus[4]/PixelBarrelSensorHalf/PixelBarrelActiveHalf"/>
+         <PartSelector path="//Tracker/PixelBarrel/PixelBarrelLayer0/PixelBarrelLadderHalf/PixelBarrelModuleBoxHalf/PixelBarrelModuleHalfPlus[1]/PixelBarrelSensorHalf/PixelBarrelActiveHalf"/>
+         <PartSelector path="//Tracker/PixelBarrel/PixelBarrelLayer0/PixelBarrelLadderFull/PixelBarrelModuleBoxFull/PixelBarrelModuleFullMinus[4]/PixelBarrelSensorFull/PixelBarrelActiveFull"/>
+         <PartSelector path="//Tracker/PixelBarrel/PixelBarrelLayer0/PixelBarrelLadderFull/PixelBarrelModuleBoxFull/PixelBarrelModuleFullPlus[1]/PixelBarrelSensorFull/PixelBarrelActiveFull"/>
+         <Parameter name="TrackerRadLength" value="0.0150922"/>
+         <Parameter name="TrackerXi" value="0.0000341362"/>
+    </SpecPar>
+         
+         <SpecPar name="TrackerRecMaterialPixelBarrelLayer0_Z6" eval="true">
+         <PartSelector path="//Tracker/PixelBarrel/PixelBarrelLayer0/PixelBarrelLadderHalf/PixelBarrelModuleBoxHalf/PixelBarrelModuleHalfMinus[1]/PixelBarrelSensorHalf/PixelBarrelActiveHalf"/>
+         <PartSelector path="//Tracker/PixelBarrel/PixelBarrelLayer0/PixelBarrelLadderHalf/PixelBarrelModuleBoxHalf/PixelBarrelModuleHalfMinus[2]/PixelBarrelSensorHalf/PixelBarrelActiveHalf"/>
+         <PartSelector path="//Tracker/PixelBarrel/PixelBarrelLayer0/PixelBarrelLadderHalf/PixelBarrelModuleBoxHalf/PixelBarrelModuleHalfMinus[3]/PixelBarrelSensorHalf/PixelBarrelActiveHalf"/>
+         <PartSelector path="//Tracker/PixelBarrel/PixelBarrelLayer0/PixelBarrelLadderHalf/PixelBarrelModuleBoxHalf/PixelBarrelModuleHalfPlus[2]/PixelBarrelSensorHalf/PixelBarrelActiveHalf"/>
+         <PartSelector path="//Tracker/PixelBarrel/PixelBarrelLayer0/PixelBarrelLadderHalf/PixelBarrelModuleBoxHalf/PixelBarrelModuleHalfPlus[3]/PixelBarrelSensorHalf/PixelBarrelActiveHalf"/>
+         <PartSelector path="//Tracker/PixelBarrel/PixelBarrelLayer0/PixelBarrelLadderHalf/PixelBarrelModuleBoxHalf/PixelBarrelModuleHalfPlus[4]/PixelBarrelSensorHalf/PixelBarrelActiveHalf"/>
+         <PartSelector path="//Tracker/PixelBarrel/PixelBarrelLayer0/PixelBarrelLadderFull/PixelBarrelModuleBoxFull/PixelBarrelModuleFullMinus[1]/PixelBarrelSensorFull/PixelBarrelActiveFull"/>
+         <PartSelector path="//Tracker/PixelBarrel/PixelBarrelLayer0/PixelBarrelLadderFull/PixelBarrelModuleBoxFull/PixelBarrelModuleFullMinus[2]/PixelBarrelSensorFull/PixelBarrelActiveFull"/>
+         <PartSelector path="//Tracker/PixelBarrel/PixelBarrelLayer0/PixelBarrelLadderFull/PixelBarrelModuleBoxFull/PixelBarrelModuleFullMinus[3]/PixelBarrelSensorFull/PixelBarrelActiveFull"/>
+         <PartSelector path="//Tracker/PixelBarrel/PixelBarrelLayer0/PixelBarrelLadderFull/PixelBarrelModuleBoxFull/PixelBarrelModuleFullPlus[2]/PixelBarrelSensorFull/PixelBarrelActiveFull"/>
+         <PartSelector path="//Tracker/PixelBarrel/PixelBarrelLayer0/PixelBarrelLadderFull/PixelBarrelModuleBoxFull/PixelBarrelModuleFullPlus[3]/PixelBarrelSensorFull/PixelBarrelActiveFull"/>
+         <PartSelector path="//Tracker/PixelBarrel/PixelBarrelLayer0/PixelBarrelLadderFull/PixelBarrelModuleBoxFull/PixelBarrelModuleFullPlus[4]/PixelBarrelSensorFull/PixelBarrelActiveFull"/>
+         <Parameter name="TrackerRadLength" value="0.016466"/>
+         <Parameter name="TrackerXi" value="0.0000367183"/>
+    </SpecPar>
+         -->
+    <SpecPar name="TrackerRecMaterialPixelBarrelLayer1_Z0" eval="true">
+      <PartSelector path="//Tracker/PixelBarrel/PixelBarrelLayer1/PixelBarrelLadderHalf/PixelBarrelModuleBoxHalf/PixelBarrelModuleHalfMinus[4]/PixelBarrelSensorHalf/PixelBarrelActiveHalf"/>
+      <PartSelector path="//Tracker/PixelBarrel/PixelBarrelLayer1/PixelBarrelLadderHalf/PixelBarrelModuleBoxHalf/PixelBarrelModuleHalfPlus[1]/PixelBarrelSensorHalf/PixelBarrelActiveHalf"/>
+      <PartSelector path="//Tracker/PixelBarrel/PixelBarrelLayer1/PixelBarrelLadderFull/PixelBarrelModuleBoxFull/PixelBarrelModuleFullMinus[4]/PixelBarrelSensorFull/PixelBarrelActiveFull"/>
+      <PartSelector path="//Tracker/PixelBarrel/PixelBarrelLayer1/PixelBarrelLadderFull/PixelBarrelModuleBoxFull/PixelBarrelModuleFullPlus[1]/PixelBarrelSensorFull/PixelBarrelActiveFull"/>
+      <Parameter name="TrackerRadLength" value="0.0197832"/>
+      <Parameter name="TrackerXi" value="0.00003663"/>
+    </SpecPar>
+    <SpecPar name="TrackerRecMaterialPixelBarrelLayer1_Z10" eval="true">
+      <PartSelector path="//Tracker/PixelBarrel/PixelBarrelLayer1/PixelBarrelLadderHalf/PixelBarrelModuleBoxHalf/PixelBarrelModuleHalfMinus[1]/PixelBarrelSensorHalf/PixelBarrelActiveHalf"/>
+      <PartSelector path="//Tracker/PixelBarrel/PixelBarrelLayer1/PixelBarrelLadderHalf/PixelBarrelModuleBoxHalf/PixelBarrelModuleHalfMinus[2]/PixelBarrelSensorHalf/PixelBarrelActiveHalf"/>
+      <PartSelector path="//Tracker/PixelBarrel/PixelBarrelLayer1/PixelBarrelLadderHalf/PixelBarrelModuleBoxHalf/PixelBarrelModuleHalfMinus[3]/PixelBarrelSensorHalf/PixelBarrelActiveHalf"/>
+      <PartSelector path="//Tracker/PixelBarrel/PixelBarrelLayer1/PixelBarrelLadderHalf/PixelBarrelModuleBoxHalf/PixelBarrelModuleHalfPlus[2]/PixelBarrelSensorHalf/PixelBarrelActiveHalf"/>
+      <PartSelector path="//Tracker/PixelBarrel/PixelBarrelLayer1/PixelBarrelLadderHalf/PixelBarrelModuleBoxHalf/PixelBarrelModuleHalfPlus[3]/PixelBarrelSensorHalf/PixelBarrelActiveHalf"/>
+      <PartSelector path="//Tracker/PixelBarrel/PixelBarrelLayer1/PixelBarrelLadderHalf/PixelBarrelModuleBoxHalf/PixelBarrelModuleHalfPlus[4]/PixelBarrelSensorHalf/PixelBarrelActiveHalf"/>
+      <PartSelector path="//Tracker/PixelBarrel/PixelBarrelLayer1/PixelBarrelLadderFull/PixelBarrelModuleBoxFull/PixelBarrelModuleFullMinus[1]/PixelBarrelSensorFull/PixelBarrelActiveFull"/>
+      <PartSelector path="//Tracker/PixelBarrel/PixelBarrelLayer1/PixelBarrelLadderFull/PixelBarrelModuleBoxFull/PixelBarrelModuleFullMinus[2]/PixelBarrelSensorFull/PixelBarrelActiveFull"/>
+      <PartSelector path="//Tracker/PixelBarrel/PixelBarrelLayer1/PixelBarrelLadderFull/PixelBarrelModuleBoxFull/PixelBarrelModuleFullMinus[3]/PixelBarrelSensorFull/PixelBarrelActiveFull"/>
+      <PartSelector path="//Tracker/PixelBarrel/PixelBarrelLayer1/PixelBarrelLadderFull/PixelBarrelModuleBoxFull/PixelBarrelModuleFullPlus[2]/PixelBarrelSensorFull/PixelBarrelActiveFull"/>
+      <PartSelector path="//Tracker/PixelBarrel/PixelBarrelLayer1/PixelBarrelLadderFull/PixelBarrelModuleBoxFull/PixelBarrelModuleFullPlus[3]/PixelBarrelSensorFull/PixelBarrelActiveFull"/>
+      <PartSelector path="//Tracker/PixelBarrel/PixelBarrelLayer1/PixelBarrelLadderFull/PixelBarrelModuleBoxFull/PixelBarrelModuleFullPlus[4]/PixelBarrelSensorFull/PixelBarrelActiveFull"/>
+      <Parameter name="TrackerRadLength" value="0.0219543"/>
+      <Parameter name="TrackerXi" value="0.0000399488"/>
+    </SpecPar>
+    <SpecPar name="TrackerRecMaterialPixelBarrelLayer2_Z0" eval="true">
+      <PartSelector path="//Tracker/PixelBarrel/PixelBarrelLayer2/PixelBarrelLadderHalf/PixelBarrelModuleBoxHalf/PixelBarrelModuleHalfMinus[3]/PixelBarrelSensorHalf/PixelBarrelActiveHalf"/>
+      <PartSelector path="//Tracker/PixelBarrel/PixelBarrelLayer2/PixelBarrelLadderHalf/PixelBarrelModuleBoxHalf/PixelBarrelModuleHalfMinus[4]/PixelBarrelSensorHalf/PixelBarrelActiveHalf"/>
+      <PartSelector path="//Tracker/PixelBarrel/PixelBarrelLayer2/PixelBarrelLadderHalf/PixelBarrelModuleBoxHalf/PixelBarrelModuleHalfPlus[1]/PixelBarrelSensorHalf/PixelBarrelActiveHalf"/>
+      <PartSelector path="//Tracker/PixelBarrel/PixelBarrelLayer2/PixelBarrelLadderHalf/PixelBarrelModuleBoxHalf/PixelBarrelModuleHalfPlus[2]/PixelBarrelSensorHalf/PixelBarrelActiveHalf"/>
+      <PartSelector path="//Tracker/PixelBarrel/PixelBarrelLayer2/PixelBarrelLadderFull/PixelBarrelModuleBoxFull/PixelBarrelModuleFullMinus[3]/PixelBarrelSensorFull/PixelBarrelActiveFull"/>
+      <PartSelector path="//Tracker/PixelBarrel/PixelBarrelLayer2/PixelBarrelLadderFull/PixelBarrelModuleBoxFull/PixelBarrelModuleFullMinus[4]/PixelBarrelSensorFull/PixelBarrelActiveFull"/>
+      <PartSelector path="//Tracker/PixelBarrel/PixelBarrelLayer2/PixelBarrelLadderFull/PixelBarrelModuleBoxFull/PixelBarrelModuleFullPlus[1]/PixelBarrelSensorFull/PixelBarrelActiveFull"/>
+      <PartSelector path="//Tracker/PixelBarrel/PixelBarrelLayer2/PixelBarrelLadderFull/PixelBarrelModuleBoxFull/PixelBarrelModuleFullPlus[2]/PixelBarrelSensorFull/PixelBarrelActiveFull"/>
+      <Parameter name="TrackerRadLength" value="0.0204699"/>
+      <Parameter name="TrackerXi" value="0.0000374987"/>
+    </SpecPar>
+    <SpecPar name="TrackerRecMaterialPixelBarrelLayer2_Z15" eval="true">
+      <PartSelector path="//Tracker/PixelBarrel/PixelBarrelLayer2/PixelBarrelLadderHalf/PixelBarrelModuleBoxHalf/PixelBarrelModuleHalfMinus[1]/PixelBarrelSensorHalf/PixelBarrelActiveHalf"/>
+      <PartSelector path="//Tracker/PixelBarrel/PixelBarrelLayer2/PixelBarrelLadderHalf/PixelBarrelModuleBoxHalf/PixelBarrelModuleHalfMinus[2]/PixelBarrelSensorHalf/PixelBarrelActiveHalf"/>
+      <PartSelector path="//Tracker/PixelBarrel/PixelBarrelLayer2/PixelBarrelLadderHalf/PixelBarrelModuleBoxHalf/PixelBarrelModuleHalfPlus[3]/PixelBarrelSensorHalf/PixelBarrelActiveHalf"/>
+      <PartSelector path="//Tracker/PixelBarrel/PixelBarrelLayer2/PixelBarrelLadderHalf/PixelBarrelModuleBoxHalf/PixelBarrelModuleHalfPlus[4]/PixelBarrelSensorHalf/PixelBarrelActiveHalf"/>
+      <PartSelector path="//Tracker/PixelBarrel/PixelBarrelLayer2/PixelBarrelLadderFull/PixelBarrelModuleBoxFull/PixelBarrelModuleFullMinus[1]/PixelBarrelSensorFull/PixelBarrelActiveFull"/>
+      <PartSelector path="//Tracker/PixelBarrel/PixelBarrelLayer2/PixelBarrelLadderFull/PixelBarrelModuleBoxFull/PixelBarrelModuleFullMinus[2]/PixelBarrelSensorFull/PixelBarrelActiveFull"/>
+      <PartSelector path="//Tracker/PixelBarrel/PixelBarrelLayer2/PixelBarrelLadderFull/PixelBarrelModuleBoxFull/PixelBarrelModuleFullPlus[3]/PixelBarrelSensorFull/PixelBarrelActiveFull"/>
+      <PartSelector path="//Tracker/PixelBarrel/PixelBarrelLayer2/PixelBarrelLadderFull/PixelBarrelModuleBoxFull/PixelBarrelModuleFullPlus[4]/PixelBarrelSensorFull/PixelBarrelActiveFull"/>
+      <Parameter name="TrackerRadLength" value="0.0226123"/>
+      <Parameter name="TrackerXi" value="0.0000406881"/>
+    </SpecPar>
+    <SpecPar name="TrackerRecMaterialTIBLayer0_Z0" eval="true">
+      <PartSelector path="//Tracker/TIB/TIBLayer0/TIBLayer0Down/TIBString0Lo1/TIBString0LoMin1/TIBModule0B[3]/TIBWaferRphi0/TIBActiveRphi0"/>
+      <PartSelector path="//Tracker/TIB/TIBLayer0/TIBLayer0Down/TIBString0Lo1/TIBString0LoMin1/TIBModule0B[3]/TIBWaferSter0/TIBActiveSter0"/>
+      <PartSelector path="//Tracker/TIB/TIBLayer0/TIBLayer0Down/TIBString0Lo1/TIBString0LoPls1/TIBModule0B[1]/TIBWaferRphi0/TIBActiveRphi0"/>
+      <PartSelector path="//Tracker/TIB/TIBLayer0/TIBLayer0Down/TIBString0Lo1/TIBString0LoPls1/TIBModule0B[1]/TIBWaferSter0/TIBActiveSter0"/>
+      <PartSelector path="//Tracker/TIB/TIBLayer0/TIBLayer0Up/TIBString0Up1/TIBString0UpMin1/TIBModule0A[3]/TIBWaferRphi0/TIBActiveRphi0"/>
+      <PartSelector path="//Tracker/TIB/TIBLayer0/TIBLayer0Up/TIBString0Up1/TIBString0UpMin1/TIBModule0A[3]/TIBWaferSter0/TIBActiveSter0"/>
+      <PartSelector path="//Tracker/TIB/TIBLayer0/TIBLayer0Up/TIBString0Up1/TIBString0UpPls1/TIBModule0A[1]/TIBWaferRphi0/TIBActiveRphi0"/>
+      <PartSelector path="//Tracker/TIB/TIBLayer0/TIBLayer0Up/TIBString0Up1/TIBString0UpPls1/TIBModule0A[1]/TIBWaferSter0/TIBActiveSter0"/>
+      <Parameter name="TrackerRadLength" value="0.0499323"/>
+      <Parameter name="TrackerXi" value="0.000114569"/>
+    </SpecPar>
+    <SpecPar name="TrackerRecMaterialTIBLayer0_Z20" eval="true">
+      <PartSelector path="//Tracker/TIB/TIBLayer0/TIBLayer0Down/TIBString0Lo1/TIBString0LoMin1/TIBModule0B[1]/TIBWaferRphi0/TIBActiveRphi0"/>
+      <PartSelector path="//Tracker/TIB/TIBLayer0/TIBLayer0Down/TIBString0Lo1/TIBString0LoMin1/TIBModule0B[1]/TIBWaferSter0/TIBActiveSter0"/>
+      <PartSelector path="//Tracker/TIB/TIBLayer0/TIBLayer0Down/TIBString0Lo1/TIBString0LoMin1/TIBModule0B[2]/TIBWaferRphi0/TIBActiveRphi0"/>
+      <PartSelector path="//Tracker/TIB/TIBLayer0/TIBLayer0Down/TIBString0Lo1/TIBString0LoMin1/TIBModule0B[2]/TIBWaferSter0/TIBActiveSter0"/>
+      <PartSelector path="//Tracker/TIB/TIBLayer0/TIBLayer0Down/TIBString0Lo1/TIBString0LoPls1/TIBModule0B[2]/TIBWaferRphi0/TIBActiveRphi0"/>
+      <PartSelector path="//Tracker/TIB/TIBLayer0/TIBLayer0Down/TIBString0Lo1/TIBString0LoPls1/TIBModule0B[2]/TIBWaferSter0/TIBActiveSter0"/>
+      <PartSelector path="//Tracker/TIB/TIBLayer0/TIBLayer0Down/TIBString0Lo1/TIBString0LoPls1/TIBModule0B[3]/TIBWaferRphi0/TIBActiveRphi0"/>
+      <PartSelector path="//Tracker/TIB/TIBLayer0/TIBLayer0Down/TIBString0Lo1/TIBString0LoPls1/TIBModule0B[3]/TIBWaferSter0/TIBActiveSter0"/>
+      <PartSelector path="//Tracker/TIB/TIBLayer0/TIBLayer0Up/TIBString0Up1/TIBString0UpMin1/TIBModule0A[1]/TIBWaferRphi0/TIBActiveRphi0"/>
+      <PartSelector path="//Tracker/TIB/TIBLayer0/TIBLayer0Up/TIBString0Up1/TIBString0UpMin1/TIBModule0A[1]/TIBWaferSter0/TIBActiveSter0"/>
+      <PartSelector path="//Tracker/TIB/TIBLayer0/TIBLayer0Up/TIBString0Up1/TIBString0UpMin1/TIBModule0A[2]/TIBWaferRphi0/TIBActiveRphi0"/>
+      <PartSelector path="//Tracker/TIB/TIBLayer0/TIBLayer0Up/TIBString0Up1/TIBString0UpMin1/TIBModule0A[2]/TIBWaferSter0/TIBActiveSter0"/>
+      <PartSelector path="//Tracker/TIB/TIBLayer0/TIBLayer0Up/TIBString0Up1/TIBString0UpPls1/TIBModule0A[2]/TIBWaferRphi0/TIBActiveRphi0"/>
+      <PartSelector path="//Tracker/TIB/TIBLayer0/TIBLayer0Up/TIBString0Up1/TIBString0UpPls1/TIBModule0A[2]/TIBWaferSter0/TIBActiveSter0"/>
+      <PartSelector path="//Tracker/TIB/TIBLayer0/TIBLayer0Up/TIBString0Up1/TIBString0UpPls1/TIBModule0A[3]/TIBWaferRphi0/TIBActiveRphi0"/>
+      <PartSelector path="//Tracker/TIB/TIBLayer0/TIBLayer0Up/TIBString0Up1/TIBString0UpPls1/TIBModule0A[3]/TIBWaferSter0/TIBActiveSter0"/>
+      <Parameter name="TrackerRadLength" value="0.0838454"/>
+      <Parameter name="TrackerXi" value="0.000177827"/>
+    </SpecPar>
+    <SpecPar name="TrackerRecMaterialTIBLayer1_Z0" eval="true">
+      <PartSelector path="//Tracker/TIB/TIBLayer1/TIBLayer1Down/TIBString1Lo1/TIBString1LoMin1/TIBModule0A[3]/TIBWaferRphi0/TIBActiveRphi0"/>
+      <PartSelector path="//Tracker/TIB/TIBLayer1/TIBLayer1Down/TIBString1Lo1/TIBString1LoMin1/TIBModule0A[3]/TIBWaferSter0/TIBActiveSter0"/>
+      <PartSelector path="//Tracker/TIB/TIBLayer1/TIBLayer1Down/TIBString1Lo1/TIBString1LoPls1/TIBModule0A[1]/TIBWaferRphi0/TIBActiveRphi0"/>
+      <PartSelector path="//Tracker/TIB/TIBLayer1/TIBLayer1Down/TIBString1Lo1/TIBString1LoPls1/TIBModule0A[1]/TIBWaferSter0/TIBActiveSter0"/>
+      <PartSelector path="//Tracker/TIB/TIBLayer1/TIBLayer1Down/TIBString1Lo1/TIBString1LoPls1/TIBModule0A[2]/TIBWaferRphi0/TIBActiveRphi0"/>
+      <PartSelector path="//Tracker/TIB/TIBLayer1/TIBLayer1Down/TIBString1Lo1/TIBString1LoPls1/TIBModule0A[2]/TIBWaferSter0/TIBActiveSter0"/>
+      <PartSelector path="//Tracker/TIB/TIBLayer1/TIBLayer1Up/TIBString1Up1/TIBString1UpMin1/TIBModule0B[3]/TIBWaferRphi0/TIBActiveRphi0"/>
+      <PartSelector path="//Tracker/TIB/TIBLayer1/TIBLayer1Up/TIBString1Up1/TIBString1UpMin1/TIBModule0B[3]/TIBWaferSter0/TIBActiveSter0"/>
+      <PartSelector path="//Tracker/TIB/TIBLayer1/TIBLayer1Up/TIBString1Up1/TIBString1UpPls1/TIBModule0B[1]/TIBWaferRphi0/TIBActiveRphi0"/>
+      <PartSelector path="//Tracker/TIB/TIBLayer1/TIBLayer1Up/TIBString1Up1/TIBString1UpPls1/TIBModule0B[1]/TIBWaferSter0/TIBActiveSter0"/>
+      <Parameter name="TrackerRadLength" value="0.0461994"/>
+      <Parameter name="TrackerXi" value="0.0000953946"/>
+    </SpecPar>
+    <SpecPar name="TrackerRecMaterialTIBLayer1_Z30" eval="true">
+      <PartSelector path="//Tracker/TIB/TIBLayer1/TIBLayer1Down/TIBString1Lo1/TIBString1LoMin1/TIBModule0A[1]/TIBWaferRphi0/TIBActiveRphi0"/>
+      <PartSelector path="//Tracker/TIB/TIBLayer1/TIBLayer1Down/TIBString1Lo1/TIBString1LoMin1/TIBModule0A[1]/TIBWaferSter0/TIBActiveSter0"/>
+      <PartSelector path="//Tracker/TIB/TIBLayer1/TIBLayer1Down/TIBString1Lo1/TIBString1LoMin1/TIBModule0A[2]/TIBWaferRphi0/TIBActiveRphi0"/>
+      <PartSelector path="//Tracker/TIB/TIBLayer1/TIBLayer1Down/TIBString1Lo1/TIBString1LoMin1/TIBModule0A[2]/TIBWaferSter0/TIBActiveSter0"/>
+      <PartSelector path="//Tracker/TIB/TIBLayer1/TIBLayer1Down/TIBString1Lo1/TIBString1LoPls1/TIBModule0A[3]/TIBWaferRphi0/TIBActiveRphi0"/>
+      <PartSelector path="//Tracker/TIB/TIBLayer1/TIBLayer1Down/TIBString1Lo1/TIBString1LoPls1/TIBModule0A[3]/TIBWaferSter0/TIBActiveSter0"/>
+      <PartSelector path="//Tracker/TIB/TIBLayer1/TIBLayer1Up/TIBString1Up1/TIBString1UpMin1/TIBModule0B[1]/TIBWaferRphi0/TIBActiveRphi0"/>
+      <PartSelector path="//Tracker/TIB/TIBLayer1/TIBLayer1Up/TIBString1Up1/TIBString1UpMin1/TIBModule0B[1]/TIBWaferSter0/TIBActiveSter0"/>
+      <PartSelector path="//Tracker/TIB/TIBLayer1/TIBLayer1Up/TIBString1Up1/TIBString1UpMin1/TIBModule0B[2]/TIBWaferRphi0/TIBActiveRphi0"/>
+      <PartSelector path="//Tracker/TIB/TIBLayer1/TIBLayer1Up/TIBString1Up1/TIBString1UpMin1/TIBModule0B[2]/TIBWaferSter0/TIBActiveSter0"/>
+      <PartSelector path="//Tracker/TIB/TIBLayer1/TIBLayer1Up/TIBString1Up1/TIBString1UpPls1/TIBModule0B[2]/TIBWaferRphi0/TIBActiveRphi0"/>
+      <PartSelector path="//Tracker/TIB/TIBLayer1/TIBLayer1Up/TIBString1Up1/TIBString1UpPls1/TIBModule0B[2]/TIBWaferSter0/TIBActiveSter0"/>
+      <PartSelector path="//Tracker/TIB/TIBLayer1/TIBLayer1Up/TIBString1Up1/TIBString1UpPls1/TIBModule0B[3]/TIBWaferRphi0/TIBActiveRphi0"/>
+      <PartSelector path="//Tracker/TIB/TIBLayer1/TIBLayer1Up/TIBString1Up1/TIBString1UpPls1/TIBModule0B[3]/TIBWaferSter0/TIBActiveSter0"/>
+      <Parameter name="TrackerRadLength" value="0.0659822"/>
+      <Parameter name="TrackerXi" value="0.000133117"/>
+    </SpecPar>
+    <SpecPar name="TrackerRecMaterialTIBLayer2_Z0" eval="true">
+      <PartSelector path="//Tracker/TIB/TIBLayer2/TIBLayer2Down/TIBString2Lo1/TIBString2LoMin1/TIBModule2[2]/TIBWaferRphi2/TIBActiveRphi2"/>
+      <PartSelector path="//Tracker/TIB/TIBLayer2/TIBLayer2Down/TIBString2Lo1/TIBString2LoMin1/TIBModule2[3]/TIBWaferRphi2/TIBActiveRphi2"/>
+      <PartSelector path="//Tracker/TIB/TIBLayer2/TIBLayer2Down/TIBString2Lo1/TIBString2LoPls1/TIBModule2[1]/TIBWaferRphi2/TIBActiveRphi2"/>
+      <PartSelector path="//Tracker/TIB/TIBLayer2/TIBLayer2Down/TIBString2Lo1/TIBString2LoPls1/TIBModule2[2]/TIBWaferRphi2/TIBActiveRphi2"/>
+      <PartSelector path="//Tracker/TIB/TIBLayer2/TIBLayer2Up/TIBString2Up1/TIBString2UpMin1/TIBModule2[2]/TIBWaferRphi2/TIBActiveRphi2"/>
+      <PartSelector path="//Tracker/TIB/TIBLayer2/TIBLayer2Up/TIBString2Up1/TIBString2UpMin1/TIBModule2[3]/TIBWaferRphi2/TIBActiveRphi2"/>
+      <PartSelector path="//Tracker/TIB/TIBLayer2/TIBLayer2Up/TIBString2Up1/TIBString2UpPls1/TIBModule2[1]/TIBWaferRphi2/TIBActiveRphi2"/>
+      <PartSelector path="//Tracker/TIB/TIBLayer2/TIBLayer2Up/TIBString2Up1/TIBString2UpPls1/TIBModule2[2]/TIBWaferRphi2/TIBActiveRphi2"/>
+      <Parameter name="TrackerRadLength" value="0.0404423"/>
+      <Parameter name="TrackerXi" value="0.0000846575"/>
+    </SpecPar>
+    <SpecPar name="TrackerRecMaterialTIBLayer2_Z40" eval="true">
+      <PartSelector path="//Tracker/TIB/TIBLayer2/TIBLayer2Down/TIBString2Lo1/TIBString2LoMin1/TIBModule2[1]/TIBWaferRphi2/TIBActiveRphi2"/>
+      <PartSelector path="//Tracker/TIB/TIBLayer2/TIBLayer2Down/TIBString2Lo1/TIBString2LoPls1/TIBModule2[3]/TIBWaferRphi2/TIBActiveRphi2"/>
+      <PartSelector path="//Tracker/TIB/TIBLayer2/TIBLayer2Up/TIBString2Up1/TIBString2UpMin1/TIBModule2[1]/TIBWaferRphi2/TIBActiveRphi2"/>
+      <PartSelector path="//Tracker/TIB/TIBLayer2/TIBLayer2Up/TIBString2Up1/TIBString2UpPls1/TIBModule2[3]/TIBWaferRphi2/TIBActiveRphi2"/>
+      <Parameter name="TrackerRadLength" value="0.0613079"/>
+      <Parameter name="TrackerXi" value="0.000125477"/>
+    </SpecPar>
+    <SpecPar name="TrackerRecMaterialTIBLayer3_Z0" eval="true">
+      <PartSelector path="//Tracker/TIB/TIBLayer3/TIBLayer3Down/TIBString3Lo1/TIBString3LoMin1/TIBModule2[2]/TIBWaferRphi2/TIBActiveRphi2"/>
+      <PartSelector path="//Tracker/TIB/TIBLayer3/TIBLayer3Down/TIBString3Lo1/TIBString3LoMin1/TIBModule2[3]/TIBWaferRphi2/TIBActiveRphi2"/>
+      <PartSelector path="//Tracker/TIB/TIBLayer3/TIBLayer3Down/TIBString3Lo1/TIBString3LoPls1/TIBModule2[1]/TIBWaferRphi2/TIBActiveRphi2"/>
+      <PartSelector path="//Tracker/TIB/TIBLayer3/TIBLayer3Down/TIBString3Lo1/TIBString3LoPls1/TIBModule2[2]/TIBWaferRphi2/TIBActiveRphi2"/>
+      <PartSelector path="//Tracker/TIB/TIBLayer3/TIBLayer3Down/TIBString3Lo1/TIBString3LoPls1/TIBModule2[3]/TIBWaferRphi2/TIBActiveRphi2"/>
+      <PartSelector path="//Tracker/TIB/TIBLayer3/TIBLayer3Up/TIBString3Up1/TIBString3UpMin1/TIBModule2[2]/TIBWaferRphi2/TIBActiveRphi2"/>
+      <PartSelector path="//Tracker/TIB/TIBLayer3/TIBLayer3Up/TIBString3Up1/TIBString3UpMin1/TIBModule2[3]/TIBWaferRphi2/TIBActiveRphi2"/>
+      <PartSelector path="//Tracker/TIB/TIBLayer3/TIBLayer3Up/TIBString3Up1/TIBString3UpPls1/TIBModule2[1]/TIBWaferRphi2/TIBActiveRphi2"/>
+      <PartSelector path="//Tracker/TIB/TIBLayer3/TIBLayer3Up/TIBString3Up1/TIBString3UpPls1/TIBModule2[2]/TIBWaferRphi2/TIBActiveRphi2"/>
+      <Parameter name="TrackerRadLength" value="0.0356819"/>
+      <Parameter name="TrackerXi" value="0.0000750728"/>
+    </SpecPar>
+    <SpecPar name="TrackerRecMaterialTIBLayer3_Z50" eval="true">
+      <PartSelector path="//Tracker/TIB/TIBLayer3/TIBLayer3Down/TIBString3Lo1/TIBString3LoMin1/TIBModule2[1]/TIBWaferRphi2/TIBActiveRphi2"/>
+      <PartSelector path="//Tracker/TIB/TIBLayer3/TIBLayer3Up/TIBString3Up1/TIBString3UpMin1/TIBModule2[1]/TIBWaferRphi2/TIBActiveRphi2"/>
+      <PartSelector path="//Tracker/TIB/TIBLayer3/TIBLayer3Up/TIBString3Up1/TIBString3UpPls1/TIBModule2[3]/TIBWaferRphi2/TIBActiveRphi2"/>
+      <Parameter name="TrackerRadLength" value="0.050652"/>
+      <Parameter name="TrackerXi" value="0.000105773"/>
+    </SpecPar>
+    <SpecPar name="TrackerRecMaterialTOBLayer0_Z0" eval="true">
+      <PartSelector path="//Tracker/TOB/TOBLayer0/TOBRod0/TOBRod0L/TOBRodCentral0L/TOBModule0[6]/TOBWaferRphi0/TOBActiveRphi0"/>
+      <PartSelector path="//Tracker/TOB/TOBLayer0/TOBRod0/TOBRod0L/TOBRodCentral0L/TOBModule0[6]/TOBWaferSter0/TOBActiveSter0"/>
+      <PartSelector path="//Tracker/TOB/TOBLayer0/TOBRod0/TOBRod0H/TOBRodCentral0H/TOBModule0[1]/TOBWaferRphi0/TOBActiveRphi0"/>
+      <PartSelector path="//Tracker/TOB/TOBLayer0/TOBRod0/TOBRod0H/TOBRodCentral0H/TOBModule0[1]/TOBWaferSter0/TOBActiveSter0"/>
+      <Parameter name="TrackerRadLength" value="0.0445001"/>
+      <Parameter name="TrackerXi" value="0.00011131"/>
+    </SpecPar>
+    <SpecPar name="TrackerRecMaterialTOBLayer0_Z20" eval="true">
+      <PartSelector path="//Tracker/TOB/TOBLayer0/TOBRod0/TOBRod0L/TOBRodCentral0L/TOBModule0[3]/TOBWaferRphi0/TOBActiveRphi0"/>
+      <PartSelector path="//Tracker/TOB/TOBLayer0/TOBRod0/TOBRod0L/TOBRodCentral0L/TOBModule0[3]/TOBWaferSter0/TOBActiveSter0"/>
+      <PartSelector path="//Tracker/TOB/TOBLayer0/TOBRod0/TOBRod0L/TOBRodCentral0L/TOBModule0[4]/TOBWaferRphi0/TOBActiveRphi0"/>
+      <PartSelector path="//Tracker/TOB/TOBLayer0/TOBRod0/TOBRod0L/TOBRodCentral0L/TOBModule0[4]/TOBWaferSter0/TOBActiveSter0"/>
+      <PartSelector path="//Tracker/TOB/TOBLayer0/TOBRod0/TOBRod0L/TOBRodCentral0L/TOBModule0[5]/TOBWaferRphi0/TOBActiveRphi0"/>
+      <PartSelector path="//Tracker/TOB/TOBLayer0/TOBRod0/TOBRod0L/TOBRodCentral0L/TOBModule0[5]/TOBWaferSter0/TOBActiveSter0"/>
+      <PartSelector path="//Tracker/TOB/TOBLayer0/TOBRod0/TOBRod0H/TOBRodCentral0H/TOBModule0[2]/TOBWaferRphi0/TOBActiveRphi0"/>
+      <PartSelector path="//Tracker/TOB/TOBLayer0/TOBRod0/TOBRod0H/TOBRodCentral0H/TOBModule0[2]/TOBWaferSter0/TOBActiveSter0"/>
+      <PartSelector path="//Tracker/TOB/TOBLayer0/TOBRod0/TOBRod0H/TOBRodCentral0H/TOBModule0[3]/TOBWaferRphi0/TOBActiveRphi0"/>
+      <PartSelector path="//Tracker/TOB/TOBLayer0/TOBRod0/TOBRod0H/TOBRodCentral0H/TOBModule0[3]/TOBWaferSter0/TOBActiveSter0"/>
+      <PartSelector path="//Tracker/TOB/TOBLayer0/TOBRod0/TOBRod0H/TOBRodCentral0H/TOBModule0[4]/TOBWaferRphi0/TOBActiveRphi0"/>
+      <PartSelector path="//Tracker/TOB/TOBLayer0/TOBRod0/TOBRod0H/TOBRodCentral0H/TOBModule0[4]/TOBWaferSter0/TOBActiveSter0"/>
+      <Parameter name="TrackerRadLength" value="0.0684551"/>
+      <Parameter name="TrackerXi" value="0.000153442"/>
+    </SpecPar>
+    <SpecPar name="TrackerRecMaterialTOBLayer0_Z70" eval="true">
+      <PartSelector path="//Tracker/TOB/TOBLayer0/TOBRod0/TOBRod0L/TOBRodCentral0L/TOBModule0[1]/TOBWaferRphi0/TOBActiveRphi0"/>
+      <PartSelector path="//Tracker/TOB/TOBLayer0/TOBRod0/TOBRod0L/TOBRodCentral0L/TOBModule0[1]/TOBWaferSter0/TOBActiveSter0"/>
+      <PartSelector path="//Tracker/TOB/TOBLayer0/TOBRod0/TOBRod0L/TOBRodCentral0L/TOBModule0[2]/TOBWaferRphi0/TOBActiveRphi0"/>
+      <PartSelector path="//Tracker/TOB/TOBLayer0/TOBRod0/TOBRod0L/TOBRodCentral0L/TOBModule0[2]/TOBWaferSter0/TOBActiveSter0"/>
+      <PartSelector path="//Tracker/TOB/TOBLayer0/TOBRod0/TOBRod0H/TOBRodCentral0H/TOBModule0[5]/TOBWaferRphi0/TOBActiveRphi0"/>
+      <PartSelector path="//Tracker/TOB/TOBLayer0/TOBRod0/TOBRod0H/TOBRodCentral0H/TOBModule0[5]/TOBWaferSter0/TOBActiveSter0"/>
+      <PartSelector path="//Tracker/TOB/TOBLayer0/TOBRod0/TOBRod0H/TOBRodCentral0H/TOBModule0[6]/TOBWaferRphi0/TOBActiveRphi0"/>
+      <PartSelector path="//Tracker/TOB/TOBLayer0/TOBRod0/TOBRod0H/TOBRodCentral0H/TOBModule0[6]/TOBWaferSter0/TOBActiveSter0"/>
+      <Parameter name="TrackerRadLength" value="0.12827"/>
+      <Parameter name="TrackerXi" value="0.000262192"/>
+    </SpecPar>
+    <SpecPar name="TrackerRecMaterialTOBLayer1_Z0" eval="true">
+      <PartSelector path="//Tracker/TOB/TOBLayer1/TOBRod1/TOBRod1L/TOBRodCentral1L/TOBModule0[6]/TOBWaferRphi0/TOBActiveRphi0"/>
+      <PartSelector path="//Tracker/TOB/TOBLayer1/TOBRod1/TOBRod1L/TOBRodCentral1L/TOBModule0[6]/TOBWaferSter0/TOBActiveSter0"/>
+      <PartSelector path="//Tracker/TOB/TOBLayer1/TOBRod1/TOBRod1H/TOBRodCentral1H/TOBModule0[1]/TOBWaferRphi0/TOBActiveRphi0"/>
+      <PartSelector path="//Tracker/TOB/TOBLayer1/TOBRod1/TOBRod1H/TOBRodCentral1H/TOBModule0[1]/TOBWaferSter0/TOBActiveSter0"/>
+      <Parameter name="TrackerRadLength" value="0.0230002"/>
+      <Parameter name="TrackerXi" value="0.0000486523"/>
+    </SpecPar>
+    <SpecPar name="TrackerRecMaterialTOBLayer1_Z20" eval="true">
+      <PartSelector path="//Tracker/TOB/TOBLayer1/TOBRod1/TOBRod1L/TOBRodCentral1L/TOBModule0[3]/TOBWaferRphi0/TOBActiveRphi0"/>
+      <PartSelector path="//Tracker/TOB/TOBLayer1/TOBRod1/TOBRod1L/TOBRodCentral1L/TOBModule0[3]/TOBWaferSter0/TOBActiveSter0"/>
+      <PartSelector path="//Tracker/TOB/TOBLayer1/TOBRod1/TOBRod1L/TOBRodCentral1L/TOBModule0[4]/TOBWaferRphi0/TOBActiveRphi0"/>
+      <PartSelector path="//Tracker/TOB/TOBLayer1/TOBRod1/TOBRod1L/TOBRodCentral1L/TOBModule0[4]/TOBWaferSter0/TOBActiveSter0"/>
+      <PartSelector path="//Tracker/TOB/TOBLayer1/TOBRod1/TOBRod1L/TOBRodCentral1L/TOBModule0[5]/TOBWaferRphi0/TOBActiveRphi0"/>
+      <PartSelector path="//Tracker/TOB/TOBLayer1/TOBRod1/TOBRod1L/TOBRodCentral1L/TOBModule0[5]/TOBWaferSter0/TOBActiveSter0"/>
+      <PartSelector path="//Tracker/TOB/TOBLayer1/TOBRod1/TOBRod1H/TOBRodCentral1H/TOBModule0[2]/TOBWaferRphi0/TOBActiveRphi0"/>
+      <PartSelector path="//Tracker/TOB/TOBLayer1/TOBRod1/TOBRod1H/TOBRodCentral1H/TOBModule0[2]/TOBWaferSter0/TOBActiveSter0"/>
+      <PartSelector path="//Tracker/TOB/TOBLayer1/TOBRod1/TOBRod1H/TOBRodCentral1H/TOBModule0[3]/TOBWaferRphi0/TOBActiveRphi0"/>
+      <PartSelector path="//Tracker/TOB/TOBLayer1/TOBRod1/TOBRod1H/TOBRodCentral1H/TOBModule0[3]/TOBWaferSter0/TOBActiveSter0"/>
+      <PartSelector path="//Tracker/TOB/TOBLayer1/TOBRod1/TOBRod1H/TOBRodCentral1H/TOBModule0[4]/TOBWaferRphi0/TOBActiveRphi0"/>
+      <PartSelector path="//Tracker/TOB/TOBLayer1/TOBRod1/TOBRod1H/TOBRodCentral1H/TOBModule0[4]/TOBWaferSter0/TOBActiveSter0"/>
+      <Parameter name="TrackerRadLength" value="0.0493919"/>
+      <Parameter name="TrackerXi" value="0.000097715"/>
+    </SpecPar>
+    <SpecPar name="TrackerRecMaterialTOBLayer1_Z80" eval="true">
+      <PartSelector path="//Tracker/TOB/TOBLayer1/TOBRod1/TOBRod1L/TOBRodCentral1L/TOBModule0[1]/TOBWaferRphi0/TOBActiveRphi0"/>
+      <PartSelector path="//Tracker/TOB/TOBLayer1/TOBRod1/TOBRod1L/TOBRodCentral1L/TOBModule0[1]/TOBWaferSter0/TOBActiveSter0"/>
+      <PartSelector path="//Tracker/TOB/TOBLayer1/TOBRod1/TOBRod1L/TOBRodCentral1L/TOBModule0[2]/TOBWaferRphi0/TOBActiveRphi0"/>
+      <PartSelector path="//Tracker/TOB/TOBLayer1/TOBRod1/TOBRod1L/TOBRodCentral1L/TOBModule0[2]/TOBWaferSter0/TOBActiveSter0"/>
+      <PartSelector path="//Tracker/TOB/TOBLayer1/TOBRod1/TOBRod1H/TOBRodCentral1H/TOBModule0[5]/TOBWaferRphi0/TOBActiveRphi0"/>
+      <PartSelector path="//Tracker/TOB/TOBLayer1/TOBRod1/TOBRod1H/TOBRodCentral1H/TOBModule0[5]/TOBWaferSter0/TOBActiveSter0"/>
+      <PartSelector path="//Tracker/TOB/TOBLayer1/TOBRod1/TOBRod1H/TOBRodCentral1H/TOBModule0[6]/TOBWaferRphi0/TOBActiveRphi0"/>
+      <PartSelector path="//Tracker/TOB/TOBLayer1/TOBRod1/TOBRod1H/TOBRodCentral1H/TOBModule0[6]/TOBWaferSter0/TOBActiveSter0"/>
+      <Parameter name="TrackerRadLength" value="0.0546651"/>
+      <Parameter name="TrackerXi" value="0.000106385"/>
+    </SpecPar>
+    <SpecPar name="TrackerRecMaterialTOBLayer2_Z0" eval="true">
+      <PartSelector path="//Tracker/TOB/TOBLayer2/TOBRod2/TOBRod2L/TOBRodCentral2L/TOBModule2[6]/TOBWaferRphi2/TOBActiveRphi2"/>
+      <PartSelector path="//Tracker/TOB/TOBLayer2/TOBRod2/TOBRod2H/TOBRodCentral2H/TOBModule2[1]/TOBWaferRphi2/TOBActiveRphi2"/>
+      <Parameter name="TrackerRadLength" value="0.0154492"/>
+      <Parameter name="TrackerXi" value="0.0000344627"/>
+    </SpecPar>
+    <SpecPar name="TrackerRecMaterialTOBLayer2_Z25" eval="true">
+      <PartSelector path="//Tracker/TOB/TOBLayer2/TOBRod2/TOBRod2L/TOBRodCentral2L/TOBModule2[3]/TOBWaferRphi2/TOBActiveRphi2"/>
+      <PartSelector path="//Tracker/TOB/TOBLayer2/TOBRod2/TOBRod2L/TOBRodCentral2L/TOBModule2[4]/TOBWaferRphi2/TOBActiveRphi2"/>
+      <PartSelector path="//Tracker/TOB/TOBLayer2/TOBRod2/TOBRod2L/TOBRodCentral2L/TOBModule2[5]/TOBWaferRphi2/TOBActiveRphi2"/>
+      <PartSelector path="//Tracker/TOB/TOBLayer2/TOBRod2/TOBRod2H/TOBRodCentral2H/TOBModule2[2]/TOBWaferRphi2/TOBActiveRphi2"/>
+      <PartSelector path="//Tracker/TOB/TOBLayer2/TOBRod2/TOBRod2H/TOBRodCentral2H/TOBModule2[3]/TOBWaferRphi2/TOBActiveRphi2"/>
+      <PartSelector path="//Tracker/TOB/TOBLayer2/TOBRod2/TOBRod2H/TOBRodCentral2H/TOBModule2[4]/TOBWaferRphi2/TOBActiveRphi2"/>
+      <Parameter name="TrackerRadLength" value="0.0381806"/>
+      <Parameter name="TrackerXi" value="0.0000764069"/>
+    </SpecPar>
+    <SpecPar name="TrackerRecMaterialTOBLayer2_Z80" eval="true">
+      <PartSelector path="//Tracker/TOB/TOBLayer2/TOBRod2/TOBRod2L/TOBRodCentral2L/TOBModule2[1]/TOBWaferRphi2/TOBActiveRphi2"/>
+      <PartSelector path="//Tracker/TOB/TOBLayer2/TOBRod2/TOBRod2L/TOBRodCentral2L/TOBModule2[2]/TOBWaferRphi2/TOBActiveRphi2"/>
+      <PartSelector path="//Tracker/TOB/TOBLayer2/TOBRod2/TOBRod2H/TOBRodCentral2H/TOBModule2[5]/TOBWaferRphi2/TOBActiveRphi2"/>
+      <PartSelector path="//Tracker/TOB/TOBLayer2/TOBRod2/TOBRod2H/TOBRodCentral2H/TOBModule2[6]/TOBWaferRphi2/TOBActiveRphi2"/>
+      <Parameter name="TrackerRadLength" value="0.0432571"/>
+      <Parameter name="TrackerXi" value="0.0000839064"/>
+    </SpecPar>
+    <SpecPar name="TrackerRecMaterialTOBLayer3_Z0" eval="true">
+      <PartSelector path="//Tracker/TOB/TOBLayer3/TOBRod3/TOBRod3L/TOBRodCentral3L/TOBModule2[6]/TOBWaferRphi2/TOBActiveRphi2"/>
+      <PartSelector path="//Tracker/TOB/TOBLayer3/TOBRod3/TOBRod3H/TOBRodCentral3H/TOBModule2[1]/TOBWaferRphi2/TOBActiveRphi2"/>
+      <Parameter name="TrackerRadLength" value="0.0148792"/>
+      <Parameter name="TrackerXi" value="0.0000331637"/>
+    </SpecPar>
+    <SpecPar name="TrackerRecMaterialTOBLayer3_Z25" eval="true">
+      <PartSelector path="//Tracker/TOB/TOBLayer3/TOBRod3/TOBRod3L/TOBRodCentral3L/TOBModule2[3]/TOBWaferRphi2/TOBActiveRphi2"/>
+      <PartSelector path="//Tracker/TOB/TOBLayer3/TOBRod3/TOBRod3L/TOBRodCentral3L/TOBModule2[4]/TOBWaferRphi2/TOBActiveRphi2"/>
+      <PartSelector path="//Tracker/TOB/TOBLayer3/TOBRod3/TOBRod3L/TOBRodCentral3L/TOBModule2[5]/TOBWaferRphi2/TOBActiveRphi2"/>
+      <PartSelector path="//Tracker/TOB/TOBLayer3/TOBRod3/TOBRod3H/TOBRodCentral3H/TOBModule2[2]/TOBWaferRphi2/TOBActiveRphi2"/>
+      <PartSelector path="//Tracker/TOB/TOBLayer3/TOBRod3/TOBRod3H/TOBRodCentral3H/TOBModule2[3]/TOBWaferRphi2/TOBActiveRphi2"/>
+      <PartSelector path="//Tracker/TOB/TOBLayer3/TOBRod3/TOBRod3H/TOBRodCentral3H/TOBModule2[4]/TOBWaferRphi2/TOBActiveRphi2"/>
+      <Parameter name="TrackerRadLength" value="0.0342274"/>
+      <Parameter name="TrackerXi" value="0.0000683527"/>
+    </SpecPar>
+    <SpecPar name="TrackerRecMaterialTOBLayer3_Z80" eval="true">
+      <PartSelector path="//Tracker/TOB/TOBLayer3/TOBRod3/TOBRod3L/TOBRodCentral3L/TOBModule2[1]/TOBWaferRphi2/TOBActiveRphi2"/>
+      <PartSelector path="//Tracker/TOB/TOBLayer3/TOBRod3/TOBRod3L/TOBRodCentral3L/TOBModule2[2]/TOBWaferRphi2/TOBActiveRphi2"/>
+      <PartSelector path="//Tracker/TOB/TOBLayer3/TOBRod3/TOBRod3H/TOBRodCentral3H/TOBModule2[5]/TOBWaferRphi2/TOBActiveRphi2"/>
+      <PartSelector path="//Tracker/TOB/TOBLayer3/TOBRod3/TOBRod3H/TOBRodCentral3H/TOBModule2[6]/TOBWaferRphi2/TOBActiveRphi2"/>
+      <Parameter name="TrackerRadLength" value="0.0377054"/>
+      <Parameter name="TrackerXi" value="0.0000728117"/>
+    </SpecPar>
+    <SpecPar name="TrackerRecMaterialTOBLayer4_Z0" eval="true">
+      <PartSelector path="//Tracker/TOB/TOBLayer4/TOBRod4/TOBRod4L/TOBRodCentral4L/TOBModule4[6]/TOBWaferRphi4/TOBActiveRphi4"/>
+      <PartSelector path="//Tracker/TOB/TOBLayer4/TOBRod4/TOBRod4H/TOBRodCentral4H/TOBModule4[1]/TOBWaferRphi4/TOBActiveRphi4"/>
+      <Parameter name="TrackerRadLength" value="0.0148619"/>
+      <Parameter name="TrackerXi" value="0.0000329913"/>
+    </SpecPar>
+    <SpecPar name="TrackerRecMaterialTOBLayer4_Z25" eval="true">
+      <PartSelector path="//Tracker/TOB/TOBLayer4/TOBRod4/TOBRod4L/TOBRodCentral4L/TOBModule4[3]/TOBWaferRphi4/TOBActiveRphi4"/>
+      <PartSelector path="//Tracker/TOB/TOBLayer4/TOBRod4/TOBRod4L/TOBRodCentral4L/TOBModule4[4]/TOBWaferRphi4/TOBActiveRphi4"/>
+      <PartSelector path="//Tracker/TOB/TOBLayer4/TOBRod4/TOBRod4L/TOBRodCentral4L/TOBModule4[5]/TOBWaferRphi4/TOBActiveRphi4"/>
+      <PartSelector path="//Tracker/TOB/TOBLayer4/TOBRod4/TOBRod4H/TOBRodCentral4H/TOBModule4[2]/TOBWaferRphi4/TOBActiveRphi4"/>
+      <PartSelector path="//Tracker/TOB/TOBLayer4/TOBRod4/TOBRod4H/TOBRodCentral4H/TOBModule4[3]/TOBWaferRphi4/TOBActiveRphi4"/>
+      <PartSelector path="//Tracker/TOB/TOBLayer4/TOBRod4/TOBRod4H/TOBRodCentral4H/TOBModule4[4]/TOBWaferRphi4/TOBActiveRphi4"/>
+      <Parameter name="TrackerRadLength" value="0.0347104"/>
+      <Parameter name="TrackerXi" value="0.0000704833"/>
+    </SpecPar>
+    <SpecPar name="TrackerRecMaterialTOBLayer4_Z80" eval="true">
+      <PartSelector path="//Tracker/TOB/TOBLayer4/TOBRod4/TOBRod4L/TOBRodCentral4L/TOBModule4[1]/TOBWaferRphi4/TOBActiveRphi4"/>
+      <PartSelector path="//Tracker/TOB/TOBLayer4/TOBRod4/TOBRod4L/TOBRodCentral4L/TOBModule4[2]/TOBWaferRphi4/TOBActiveRphi4"/>
+      <PartSelector path="//Tracker/TOB/TOBLayer4/TOBRod4/TOBRod4H/TOBRodCentral4H/TOBModule4[5]/TOBWaferRphi4/TOBActiveRphi4"/>
+      <PartSelector path="//Tracker/TOB/TOBLayer4/TOBRod4/TOBRod4H/TOBRodCentral4H/TOBModule4[6]/TOBWaferRphi4/TOBActiveRphi4"/>
+      <Parameter name="TrackerRadLength" value="0.0375432"/>
+      <Parameter name="TrackerXi" value="0.0000733171"/>
+    </SpecPar>
+    <SpecPar name="TrackerRecMaterialTOBLayer5_Z0" eval="true">
+      <PartSelector path="//Tracker/TOB/TOBLayer5/TOBRod5/TOBRod5L/TOBRodCentral5L/TOBModule4[6]/TOBWaferRphi4/TOBActiveRphi4"/>
+      <PartSelector path="//Tracker/TOB/TOBLayer5/TOBRod5/TOBRod5H/TOBRodCentral5H/TOBModule4[1]/TOBWaferRphi4/TOBActiveRphi4"/>
+      <Parameter name="TrackerRadLength" value="0.014789"/>
+      <Parameter name="TrackerXi" value="0.0000329983"/>
+    </SpecPar>
+    <SpecPar name="TrackerRecMaterialTOBLayer5_Z25" eval="true">
+      <PartSelector path="//Tracker/TOB/TOBLayer5/TOBRod5/TOBRod5L/TOBRodCentral5L/TOBModule4[3]/TOBWaferRphi4/TOBActiveRphi4"/>
+      <PartSelector path="//Tracker/TOB/TOBLayer5/TOBRod5/TOBRod5L/TOBRodCentral5L/TOBModule4[4]/TOBWaferRphi4/TOBActiveRphi4"/>
+      <PartSelector path="//Tracker/TOB/TOBLayer5/TOBRod5/TOBRod5L/TOBRodCentral5L/TOBModule4[5]/TOBWaferRphi4/TOBActiveRphi4"/>
+      <PartSelector path="//Tracker/TOB/TOBLayer5/TOBRod5/TOBRod5H/TOBRodCentral5H/TOBModule4[2]/TOBWaferRphi4/TOBActiveRphi4"/>
+      <PartSelector path="//Tracker/TOB/TOBLayer5/TOBRod5/TOBRod5H/TOBRodCentral5H/TOBModule4[3]/TOBWaferRphi4/TOBActiveRphi4"/>
+      <PartSelector path="//Tracker/TOB/TOBLayer5/TOBRod5/TOBRod5H/TOBRodCentral5H/TOBModule4[4]/TOBWaferRphi4/TOBActiveRphi4"/>
+      <Parameter name="TrackerRadLength" value="0.0362598"/>
+      <Parameter name="TrackerXi" value="0.0000750769"/>
+    </SpecPar>
+    <SpecPar name="TrackerRecMaterialTOBLayer5_Z80" eval="true">
+      <PartSelector path="//Tracker/TOB/TOBLayer5/TOBRod5/TOBRod5L/TOBRodCentral5L/TOBModule4[1]/TOBWaferRphi4/TOBActiveRphi4"/>
+      <PartSelector path="//Tracker/TOB/TOBLayer5/TOBRod5/TOBRod5L/TOBRodCentral5L/TOBModule4[2]/TOBWaferRphi4/TOBActiveRphi4"/>
+      <PartSelector path="//Tracker/TOB/TOBLayer5/TOBRod5/TOBRod5H/TOBRodCentral5H/TOBModule4[5]/TOBWaferRphi4/TOBActiveRphi4"/>
+      <PartSelector path="//Tracker/TOB/TOBLayer5/TOBRod5/TOBRod5H/TOBRodCentral5H/TOBModule4[6]/TOBWaferRphi4/TOBActiveRphi4"/>
+      <Parameter name="TrackerRadLength" value="0.0377906"/>
+      <Parameter name="TrackerXi" value="0.0000740375"/>
+    </SpecPar>
+    <SpecPar name="TrackerRecMaterialPixelEndcapDisk1_R0" eval="true">
+      <PartSelector path="//Tracker/PixelForwardZPlus/PixelForwardDiskZPlus[1]/PixelForwardPanel4Right/PixelForwardPlaquette1x2Right/PixelForwardSensor1x2/PixelForwardActive1x2"/>
+      <PartSelector path="//Tracker/PixelForwardZPlus/PixelForwardDiskZPlus[1]/PixelForwardPanel4Left/PixelForwardPlaquette1x2Left/PixelForwardSensor1x2/PixelForwardActive1x2"/>
+      <PartSelector path="//Tracker/PixelForwardZMinus/PixelForwardDiskZMinus[1]/PixelForwardPanel4Right/PixelForwardPlaquette1x2Right/PixelForwardSensor1x2/PixelForwardActive1x2"/>
+      <PartSelector path="//Tracker/PixelForwardZMinus/PixelForwardDiskZMinus[1]/PixelForwardPanel4Left/PixelForwardPlaquette1x2Left/PixelForwardSensor1x2/PixelForwardActive1x2"/>
+      <Parameter name="TrackerRadLength" value="0.1146"/>
+      <Parameter name="TrackerXi" value="0.000221467"/>
+    </SpecPar>
+    <SpecPar name="TrackerRecMaterialPixelEndcapDisk1_R7" eval="true">
+      <PartSelector path="//Tracker/PixelForwardZPlus/PixelForwardDiskZPlus[1]/PixelForwardPanel3Right/PixelForwardPlaquette2x3Up/PixelForwardSensor2x3/PixelForwardActive2x3"/>
+      <PartSelector path="//Tracker/PixelForwardZPlus/PixelForwardDiskZPlus[1]/PixelForwardPanel3Right/PixelForwardPlaquette2x4Up/PixelForwardSensor2x4/PixelForwardActive2x4"/>
+      <PartSelector path="//Tracker/PixelForwardZPlus/PixelForwardDiskZPlus[1]/PixelForwardPanel3Left/PixelForwardPlaquette2x3Down/PixelForwardSensor2x3/PixelForwardActive2x3"/>
+      <PartSelector path="//Tracker/PixelForwardZPlus/PixelForwardDiskZPlus[1]/PixelForwardPanel3Left/PixelForwardPlaquette2x4Down/PixelForwardSensor2x4/PixelForwardActive2x4"/>
+      <PartSelector path="//Tracker/PixelForwardZPlus/PixelForwardDiskZPlus[1]/PixelForwardPanel4Right/PixelForwardPlaquette2x3Down/PixelForwardSensor2x3/PixelForwardActive2x3"/>
+      <PartSelector path="//Tracker/PixelForwardZPlus/PixelForwardDiskZPlus[1]/PixelForwardPanel4Left/PixelForwardPlaquette2x3Up/PixelForwardSensor2x3/PixelForwardActive2x3"/>
+      <PartSelector path="//Tracker/PixelForwardZMinus/PixelForwardDiskZMinus[1]/PixelForwardPanel3Right/PixelForwardPlaquette2x3Up/PixelForwardSensor2x3/PixelForwardActive2x3"/>
+      <PartSelector path="//Tracker/PixelForwardZMinus/PixelForwardDiskZMinus[1]/PixelForwardPanel3Right/PixelForwardPlaquette2x4Up/PixelForwardSensor2x4/PixelForwardActive2x4"/>
+      <PartSelector path="//Tracker/PixelForwardZMinus/PixelForwardDiskZMinus[1]/PixelForwardPanel3Left/PixelForwardPlaquette2x3Down/PixelForwardSensor2x3/PixelForwardActive2x3"/>
+      <PartSelector path="//Tracker/PixelForwardZMinus/PixelForwardDiskZMinus[1]/PixelForwardPanel3Left/PixelForwardPlaquette2x4Down/PixelForwardSensor2x4/PixelForwardActive2x4"/>
+      <PartSelector path="//Tracker/PixelForwardZMinus/PixelForwardDiskZMinus[1]/PixelForwardPanel4Right/PixelForwardPlaquette2x3Down/PixelForwardSensor2x3/PixelForwardActive2x3"/>
+      <PartSelector path="//Tracker/PixelForwardZMinus/PixelForwardDiskZMinus[1]/PixelForwardPanel4Left/PixelForwardPlaquette2x3Up/PixelForwardSensor2x3/PixelForwardActive2x3"/>
+      <Parameter name="TrackerRadLength" value="0.109129"/>
+      <Parameter name="TrackerXi" value="0.000207436"/>
+    </SpecPar>
+    <SpecPar name="TrackerRecMaterialPixelEndcapDisk1_R11" eval="true">
+      <PartSelector path="//Tracker/PixelForwardZPlus/PixelForwardDiskZPlus[1]/PixelForwardPanel3Right/PixelForwardPlaquette2x5Up/PixelForwardSensor2x5/PixelForwardActive2x5"/>
+      <PartSelector path="//Tracker/PixelForwardZPlus/PixelForwardDiskZPlus[1]/PixelForwardPanel3Left/PixelForwardPlaquette2x5Down/PixelForwardSensor2x5/PixelForwardActive2x5"/>
+      <PartSelector path="//Tracker/PixelForwardZPlus/PixelForwardDiskZPlus[1]/PixelForwardPanel4Right/PixelForwardPlaquette2x4Down/PixelForwardSensor2x4/PixelForwardActive2x4"/>
+      <PartSelector path="//Tracker/PixelForwardZPlus/PixelForwardDiskZPlus[1]/PixelForwardPanel4Right/PixelForwardPlaquette1x5Left/PixelForwardSensor1x5/PixelForwardActive1x5"/>
+      <PartSelector path="//Tracker/PixelForwardZPlus/PixelForwardDiskZPlus[1]/PixelForwardPanel4Left/PixelForwardPlaquette2x4Up/PixelForwardSensor2x4/PixelForwardActive2x4"/>
+      <PartSelector path="//Tracker/PixelForwardZPlus/PixelForwardDiskZPlus[1]/PixelForwardPanel4Left/PixelForwardPlaquette1x5Right/PixelForwardSensor1x5/PixelForwardActive1x5"/>
+      <PartSelector path="//Tracker/PixelForwardZMinus/PixelForwardDiskZMinus[1]/PixelForwardPanel3Right/PixelForwardPlaquette2x5Up/PixelForwardSensor2x5/PixelForwardActive2x5"/>
+      <PartSelector path="//Tracker/PixelForwardZMinus/PixelForwardDiskZMinus[1]/PixelForwardPanel3Left/PixelForwardPlaquette2x5Down/PixelForwardSensor2x5/PixelForwardActive2x5"/>
+      <PartSelector path="//Tracker/PixelForwardZMinus/PixelForwardDiskZMinus[1]/PixelForwardPanel4Right/PixelForwardPlaquette2x4Down/PixelForwardSensor2x4/PixelForwardActive2x4"/>
+      <PartSelector path="//Tracker/PixelForwardZMinus/PixelForwardDiskZMinus[1]/PixelForwardPanel4Right/PixelForwardPlaquette1x5Left/PixelForwardSensor1x5/PixelForwardActive1x5"/>
+      <PartSelector path="//Tracker/PixelForwardZMinus/PixelForwardDiskZMinus[1]/PixelForwardPanel4Left/PixelForwardPlaquette2x4Up/PixelForwardSensor2x4/PixelForwardActive2x4"/>
+      <PartSelector path="//Tracker/PixelForwardZMinus/PixelForwardDiskZMinus[1]/PixelForwardPanel4Left/PixelForwardPlaquette1x5Right/PixelForwardSensor1x5/PixelForwardActive1x5"/>
+      <Parameter name="TrackerRadLength" value="0.101257"/>
+      <Parameter name="TrackerXi" value="0.000182176"/>
+    </SpecPar>
+    <SpecPar name="TrackerRecMaterialPixelEndcapDisk2_R0" eval="true">
+      <PartSelector path="//Tracker/PixelForwardZPlus/PixelForwardDiskZPlus[2]/PixelForwardPanel4Right/PixelForwardPlaquette1x2Right/PixelForwardSensor1x2/PixelForwardActive1x2"/>
+      <PartSelector path="//Tracker/PixelForwardZPlus/PixelForwardDiskZPlus[2]/PixelForwardPanel4Left/PixelForwardPlaquette1x2Left/PixelForwardSensor1x2/PixelForwardActive1x2"/>
+      <PartSelector path="//Tracker/PixelForwardZMinus/PixelForwardDiskZMinus[2]/PixelForwardPanel4Left/PixelForwardPlaquette1x2Left/PixelForwardSensor1x2/PixelForwardActive1x2"/>
+      <PartSelector path="//Tracker/PixelForwardZMinus/PixelForwardDiskZMinus[2]/PixelForwardPanel4Right/PixelForwardPlaquette1x2Right/PixelForwardSensor1x2/PixelForwardActive1x2"/>
+      <Parameter name="TrackerRadLength" value="0.0273691"/>
+      <Parameter name="TrackerXi" value="0.0000820599"/>
+    </SpecPar>
+    <SpecPar name="TrackerRecMaterialPixelEndcapDisk2_R7" eval="true">
+      <PartSelector path="//Tracker/PixelForwardZPlus/PixelForwardDiskZPlus[2]/PixelForwardPanel3Right/PixelForwardPlaquette2x3Up/PixelForwardSensor2x3/PixelForwardActive2x3"/>
+      <PartSelector path="//Tracker/PixelForwardZPlus/PixelForwardDiskZPlus[2]/PixelForwardPanel3Right/PixelForwardPlaquette2x4Up/PixelForwardSensor2x4/PixelForwardActive2x4"/>
+      <PartSelector path="//Tracker/PixelForwardZPlus/PixelForwardDiskZPlus[2]/PixelForwardPanel3Right/PixelForwardPlaquette2x5Up/PixelForwardSensor2x5/PixelForwardActive2x5"/>
+      <PartSelector path="//Tracker/PixelForwardZPlus/PixelForwardDiskZPlus[2]/PixelForwardPanel3Left/PixelForwardPlaquette2x3Down/PixelForwardSensor2x3/PixelForwardActive2x3"/>
+      <PartSelector path="//Tracker/PixelForwardZPlus/PixelForwardDiskZPlus[2]/PixelForwardPanel3Left/PixelForwardPlaquette2x4Down/PixelForwardSensor2x4/PixelForwardActive2x4"/>
+      <PartSelector path="//Tracker/PixelForwardZPlus/PixelForwardDiskZPlus[2]/PixelForwardPanel3Left/PixelForwardPlaquette2x5Down/PixelForwardSensor2x5/PixelForwardActive2x5"/>
+      <PartSelector path="//Tracker/PixelForwardZPlus/PixelForwardDiskZPlus[2]/PixelForwardPanel4Right/PixelForwardPlaquette2x3Down/PixelForwardSensor2x3/PixelForwardActive2x3"/>
+      <PartSelector path="//Tracker/PixelForwardZPlus/PixelForwardDiskZPlus[2]/PixelForwardPanel4Right/PixelForwardPlaquette2x4Down/PixelForwardSensor2x4/PixelForwardActive2x4"/>
+      <PartSelector path="//Tracker/PixelForwardZPlus/PixelForwardDiskZPlus[2]/PixelForwardPanel4Right/PixelForwardPlaquette1x5Left/PixelForwardSensor1x5/PixelForwardActive1x5"/>
+      <PartSelector path="//Tracker/PixelForwardZPlus/PixelForwardDiskZPlus[2]/PixelForwardPanel4Left/PixelForwardPlaquette2x3Up/PixelForwardSensor2x3/PixelForwardActive2x3"/>
+      <PartSelector path="//Tracker/PixelForwardZPlus/PixelForwardDiskZPlus[2]/PixelForwardPanel4Left/PixelForwardPlaquette2x4Up/PixelForwardSensor2x4/PixelForwardActive2x4"/>
+      <PartSelector path="//Tracker/PixelForwardZPlus/PixelForwardDiskZPlus[2]/PixelForwardPanel4Left/PixelForwardPlaquette1x5Right/PixelForwardSensor1x5/PixelForwardActive1x5"/>
+      <PartSelector path="//Tracker/PixelForwardZMinus/PixelForwardDiskZMinus[2]/PixelForwardPanel3Left/PixelForwardPlaquette2x3Down/PixelForwardSensor2x3/PixelForwardActive2x3"/>
+      <PartSelector path="//Tracker/PixelForwardZMinus/PixelForwardDiskZMinus[2]/PixelForwardPanel3Left/PixelForwardPlaquette2x4Down/PixelForwardSensor2x4/PixelForwardActive2x4"/>
+      <PartSelector path="//Tracker/PixelForwardZMinus/PixelForwardDiskZMinus[2]/PixelForwardPanel3Left/PixelForwardPlaquette2x5Down/PixelForwardSensor2x5/PixelForwardActive2x5"/>
+      <PartSelector path="//Tracker/PixelForwardZMinus/PixelForwardDiskZMinus[2]/PixelForwardPanel4Right/PixelForwardPlaquette2x3Down/PixelForwardSensor2x3/PixelForwardActive2x3"/>
+      <PartSelector path="//Tracker/PixelForwardZMinus/PixelForwardDiskZMinus[2]/PixelForwardPanel4Right/PixelForwardPlaquette2x4Down/PixelForwardSensor2x4/PixelForwardActive2x4"/>
+      <PartSelector path="//Tracker/PixelForwardZMinus/PixelForwardDiskZMinus[2]/PixelForwardPanel4Right/PixelForwardPlaquette1x5Left/PixelForwardSensor1x5/PixelForwardActive1x5"/>
+      <PartSelector path="//Tracker/PixelForwardZMinus/PixelForwardDiskZMinus[2]/PixelForwardPanel4Left/PixelForwardPlaquette2x3Up/PixelForwardSensor2x3/PixelForwardActive2x3"/>
+      <PartSelector path="//Tracker/PixelForwardZMinus/PixelForwardDiskZMinus[2]/PixelForwardPanel4Left/PixelForwardPlaquette2x4Up/PixelForwardSensor2x4/PixelForwardActive2x4"/>
+      <PartSelector path="//Tracker/PixelForwardZMinus/PixelForwardDiskZMinus[2]/PixelForwardPanel3Right/PixelForwardPlaquette2x3Up/PixelForwardSensor2x3/PixelForwardActive2x3"/>
+      <PartSelector path="//Tracker/PixelForwardZMinus/PixelForwardDiskZMinus[2]/PixelForwardPanel3Right/PixelForwardPlaquette2x4Up/PixelForwardSensor2x4/PixelForwardActive2x4"/>
+      <PartSelector path="//Tracker/PixelForwardZMinus/PixelForwardDiskZMinus[2]/PixelForwardPanel3Right/PixelForwardPlaquette2x5Up/PixelForwardSensor2x5/PixelForwardActive2x5"/>
+      <PartSelector path="//Tracker/PixelForwardZMinus/PixelForwardDiskZMinus[2]/PixelForwardPanel4Left/PixelForwardPlaquette1x5Right/PixelForwardSensor1x5/PixelForwardActive1x5"/>
+      <Parameter name="TrackerRadLength" value="0.0681022"/>
+      <Parameter name="TrackerXi" value="0.000133997"/>
+    </SpecPar>
+    <SpecPar name="TrackerRecMaterialTIDDisk1_R0" eval="true">
+      <PartSelector path="//Tracker/TIDF/TIDWheelF[1]/TIDRing0F/TIDModule0L/TIDModule0RphiWafer/TIDModule0RphiActive"/>
+      <PartSelector path="//Tracker/TIDF/TIDWheelF[1]/TIDRing0F/TIDModule0L/TIDModule0StereoWafer/TIDModule0StereoActive"/>
+      <PartSelector path="//Tracker/TIDF/TIDWheelF[1]/TIDRing0F/TIDModule0R/TIDModule0RphiWafer/TIDModule0RphiActive"/>
+      <PartSelector path="//Tracker/TIDF/TIDWheelF[1]/TIDRing0F/TIDModule0R/TIDModule0StereoWafer/TIDModule0StereoActive"/>
+      <PartSelector path="//Tracker/TIDB/TIDWheelB[1]/TIDRing0B/TIDModule0L/TIDModule0RphiWafer/TIDModule0RphiActive"/>
+      <PartSelector path="//Tracker/TIDB/TIDWheelB[1]/TIDRing0B/TIDModule0L/TIDModule0StereoWafer/TIDModule0StereoActive"/>
+      <PartSelector path="//Tracker/TIDB/TIDWheelB[1]/TIDRing0B/TIDModule0R/TIDModule0RphiWafer/TIDModule0RphiActive"/>
+      <PartSelector path="//Tracker/TIDB/TIDWheelB[1]/TIDRing0B/TIDModule0R/TIDModule0StereoWafer/TIDModule0StereoActive"/>
+      <Parameter name="TrackerRadLength" value="0.302858"/>
+      <Parameter name="TrackerXi" value="0.000625266"/>
+    </SpecPar>
+    <SpecPar name="TrackerRecMaterialTIDDisk1_R30" eval="true">
+      <PartSelector path="//Tracker/TIDF/TIDWheelF[1]/TIDRing1F/TIDModule1L/TIDModule1RphiWafer/TIDModule1RphiActive"/>
+      <PartSelector path="//Tracker/TIDF/TIDWheelF[1]/TIDRing1F/TIDModule1L/TIDModule1StereoWafer/TIDModule1StereoActive"/>
+      <PartSelector path="//Tracker/TIDF/TIDWheelF[1]/TIDRing1F/TIDModule1R/TIDModule1RphiWafer/TIDModule1RphiActive"/>
+      <PartSelector path="//Tracker/TIDF/TIDWheelF[1]/TIDRing1F/TIDModule1R/TIDModule1StereoWafer/TIDModule1StereoActive"/>
+      <PartSelector path="//Tracker/TIDF/TIDWheelF[1]/TIDRing2/TIDModule2/TIDModule2RphiWafer/TIDModule2RphiActive"/>
+      <PartSelector path="//Tracker/TIDB/TIDWheelB[1]/TIDRing1B/TIDModule1L/TIDModule1RphiWafer/TIDModule1RphiActive"/>
+      <PartSelector path="//Tracker/TIDB/TIDWheelB[1]/TIDRing1B/TIDModule1L/TIDModule1StereoWafer/TIDModule1StereoActive"/>
+      <PartSelector path="//Tracker/TIDB/TIDWheelB[1]/TIDRing1B/TIDModule1R/TIDModule1RphiWafer/TIDModule1RphiActive"/>
+      <PartSelector path="//Tracker/TIDB/TIDWheelB[1]/TIDRing1B/TIDModule1R/TIDModule1StereoWafer/TIDModule1StereoActive"/>
+      <PartSelector path="//Tracker/TIDB/TIDWheelB[1]/TIDRing2/TIDModule2/TIDModule2RphiWafer/TIDModule2RphiActive"/>
+      <Parameter name="TrackerRadLength" value="0.18083"/>
+      <Parameter name="TrackerXi" value="0.000343126"/>
+    </SpecPar>
+    <SpecPar name="TrackerRecMaterialTIDDisk2_R25" eval="true">
+      <PartSelector path="//Tracker/TIDF/TIDWheelF[2]/TIDRing0F/TIDModule0L/TIDModule0RphiWafer/TIDModule0RphiActive"/>
+      <PartSelector path="//Tracker/TIDF/TIDWheelF[2]/TIDRing0F/TIDModule0L/TIDModule0StereoWafer/TIDModule0StereoActive"/>
+      <PartSelector path="//Tracker/TIDF/TIDWheelF[2]/TIDRing0F/TIDModule0R/TIDModule0RphiWafer/TIDModule0RphiActive"/>
+      <PartSelector path="//Tracker/TIDF/TIDWheelF[2]/TIDRing0F/TIDModule0R/TIDModule0StereoWafer/TIDModule0StereoActive"/>
+      <PartSelector path="//Tracker/TIDB/TIDWheelB[2]/TIDRing0B/TIDModule0L/TIDModule0RphiWafer/TIDModule0RphiActive"/>
+      <PartSelector path="//Tracker/TIDB/TIDWheelB[2]/TIDRing0B/TIDModule0L/TIDModule0StereoWafer/TIDModule0StereoActive"/>
+      <PartSelector path="//Tracker/TIDB/TIDWheelB[2]/TIDRing0B/TIDModule0R/TIDModule0RphiWafer/TIDModule0RphiActive"/>
+      <PartSelector path="//Tracker/TIDB/TIDWheelB[2]/TIDRing0B/TIDModule0R/TIDModule0StereoWafer/TIDModule0StereoActive"/>
+      <Parameter name="TrackerRadLength" value="0.114732"/>
+      <Parameter name="TrackerXi" value="0.00027425"/>
+    </SpecPar>
+    <SpecPar name="TrackerRecMaterialTIDDisk2_R30" eval="true">
+      <PartSelector path="//Tracker/TIDF/TIDWheelF[2]/TIDRing1F/TIDModule1L/TIDModule1RphiWafer/TIDModule1RphiActive"/>
+      <PartSelector path="//Tracker/TIDF/TIDWheelF[2]/TIDRing1F/TIDModule1L/TIDModule1StereoWafer/TIDModule1StereoActive"/>
+      <PartSelector path="//Tracker/TIDF/TIDWheelF[2]/TIDRing1F/TIDModule1R/TIDModule1RphiWafer/TIDModule1RphiActive"/>
+      <PartSelector path="//Tracker/TIDF/TIDWheelF[2]/TIDRing1F/TIDModule1R/TIDModule1StereoWafer/TIDModule1StereoActive"/>
+      <PartSelector path="//Tracker/TIDB/TIDWheelB[2]/TIDRing1B/TIDModule1L/TIDModule1RphiWafer/TIDModule1RphiActive"/>
+      <PartSelector path="//Tracker/TIDB/TIDWheelB[2]/TIDRing1B/TIDModule1L/TIDModule1StereoWafer/TIDModule1StereoActive"/>
+      <PartSelector path="//Tracker/TIDB/TIDWheelB[2]/TIDRing1B/TIDModule1R/TIDModule1RphiWafer/TIDModule1RphiActive"/>
+      <PartSelector path="//Tracker/TIDB/TIDWheelB[2]/TIDRing1B/TIDModule1R/TIDModule1StereoWafer/TIDModule1StereoActive"/>
+      <Parameter name="TrackerRadLength" value="0.0591204"/>
+      <Parameter name="TrackerXi" value="0.000130465"/>
+    </SpecPar>
+    <SpecPar name="TrackerRecMaterialTIDDisk2_R40" eval="true">
+      <PartSelector path="//Tracker/TIDF/TIDWheelF[2]/TIDRing2/TIDModule2/TIDModule2RphiWafer/TIDModule2RphiActive"/>
+      <PartSelector path="//Tracker/TIDB/TIDWheelB[2]/TIDRing2/TIDModule2/TIDModule2RphiWafer/TIDModule2RphiActive"/>
+      <Parameter name="TrackerRadLength" value="0.0701756"/>
+      <Parameter name="TrackerXi" value="0.000145315"/>
+    </SpecPar>
+    <SpecPar name="TrackerRecMaterialTIDDisk3_R24" eval="true">
+      <PartSelector path="//Tracker/TIDF/TIDWheelF[3]/TIDRing0F/TIDModule0L/TIDModule0RphiWafer/TIDModule0RphiActive"/>
+      <PartSelector path="//Tracker/TIDF/TIDWheelF[3]/TIDRing0F/TIDModule0L/TIDModule0StereoWafer/TIDModule0StereoActive"/>
+      <PartSelector path="//Tracker/TIDF/TIDWheelF[3]/TIDRing0F/TIDModule0R/TIDModule0RphiWafer/TIDModule0RphiActive"/>
+      <PartSelector path="//Tracker/TIDF/TIDWheelF[3]/TIDRing0F/TIDModule0R/TIDModule0StereoWafer/TIDModule0StereoActive"/>
+      <PartSelector path="//Tracker/TIDF/TIDWheelF[3]/TIDRing1F/TIDModule1L/TIDModule1RphiWafer/TIDModule1RphiActive"/>
+      <PartSelector path="//Tracker/TIDF/TIDWheelF[3]/TIDRing1F/TIDModule1L/TIDModule1StereoWafer/TIDModule1StereoActive"/>
+      <PartSelector path="//Tracker/TIDF/TIDWheelF[3]/TIDRing1F/TIDModule1R/TIDModule1RphiWafer/TIDModule1RphiActive"/>
+      <PartSelector path="//Tracker/TIDF/TIDWheelF[3]/TIDRing1F/TIDModule1R/TIDModule1StereoWafer/TIDModule1StereoActive"/>
+      <PartSelector path="//Tracker/TIDF/TIDWheelF[3]/TIDRing2/TIDModule2/TIDModule2RphiWafer/TIDModule2RphiActive"/>
+      <PartSelector path="//Tracker/TIDB/TIDWheelB[3]/TIDRing0B/TIDModule0L/TIDModule0RphiWafer/TIDModule0RphiActive"/>
+      <PartSelector path="//Tracker/TIDB/TIDWheelB[3]/TIDRing0B/TIDModule0L/TIDModule0StereoWafer/TIDModule0StereoActive"/>
+      <PartSelector path="//Tracker/TIDB/TIDWheelB[3]/TIDRing0B/TIDModule0R/TIDModule0RphiWafer/TIDModule0RphiActive"/>
+      <PartSelector path="//Tracker/TIDB/TIDWheelB[3]/TIDRing0B/TIDModule0R/TIDModule0StereoWafer/TIDModule0StereoActive"/>
+      <PartSelector path="//Tracker/TIDB/TIDWheelB[3]/TIDRing1B/TIDModule1L/TIDModule1RphiWafer/TIDModule1RphiActive"/>
+      <PartSelector path="//Tracker/TIDB/TIDWheelB[3]/TIDRing1B/TIDModule1L/TIDModule1StereoWafer/TIDModule1StereoActive"/>
+      <PartSelector path="//Tracker/TIDB/TIDWheelB[3]/TIDRing1B/TIDModule1R/TIDModule1RphiWafer/TIDModule1RphiActive"/>
+      <PartSelector path="//Tracker/TIDB/TIDWheelB[3]/TIDRing1B/TIDModule1R/TIDModule1StereoWafer/TIDModule1StereoActive"/>
+      <PartSelector path="//Tracker/TIDB/TIDWheelB[3]/TIDRing2/TIDModule2/TIDModule2RphiWafer/TIDModule2RphiActive"/>
+      <Parameter name="TrackerRadLength" value="0.0960482"/>
+      <Parameter name="TrackerXi" value="0.00021912"/>
+    </SpecPar>
+    <SpecPar name="TrackerRecMaterialTECDisk0_R20" eval="true">
+      <PartSelector path="//Tracker/TEC/TECWheels/TECWheelA[0]/TECPetalCont0F/TECRing0F/TECModule0/TECModule0RphiWafer/TECModule0RphiActive"/>
+      <PartSelector path="//Tracker/TEC/TECWheels/TECWheelA[0]/TECPetalCont0F/TECRing0F/TECModule0/TECModule0StereoWafer/TECModule0StereoActive"/>
+      <PartSelector path="//Tracker/TEC/TECWheels/TECWheelA[0]/TECPetalCont0F/TECRing1F/TECModule1/TECModule1RphiWafer/TECModule1RphiActive"/>
+      <PartSelector path="//Tracker/TEC/TECWheels/TECWheelA[0]/TECPetalCont0F/TECRing1F/TECModule1/TECModule1StereoWafer/TECModule1StereoActive"/>
+      <PartSelector path="//Tracker/TEC/TECWheels/TECWheelA[0]/TECPetalCont0B/TECRing0B/TECModule0/TECModule0RphiWafer/TECModule0RphiActive"/>
+      <PartSelector path="//Tracker/TEC/TECWheels/TECWheelA[0]/TECPetalCont0B/TECRing0B/TECModule0/TECModule0StereoWafer/TECModule0StereoActive"/>
+      <PartSelector path="//Tracker/TEC/TECWheels/TECWheelA[0]/TECPetalCont0B/TECRing1B/TECModule1/TECModule1RphiWafer/TECModule1RphiActive"/>
+      <PartSelector path="//Tracker/TEC/TECWheels/TECWheelA[0]/TECPetalCont0B/TECRing1B/TECModule1/TECModule1StereoWafer/TECModule1StereoActive"/>
+      <Parameter name="TrackerRadLength" value="0.206625"/>
+      <Parameter name="TrackerXi" value="0.000484302"/>
+    </SpecPar>
+    <SpecPar name="TrackerRecMaterialTECDisk0_R40" eval="true">
+      <PartSelector path="//Tracker/TEC/TECWheels/TECWheelA[0]/TECPetalCont0F/TECRing2F/TECModule2/TECModule2RphiWafer/TECModule2RphiActive"/>
+      <PartSelector path="//Tracker/TEC/TECWheels/TECWheelA[0]/TECPetalCont0B/TECRing2B/TECModule2/TECModule2RphiWafer/TECModule2RphiActive"/>
+      <Parameter name="TrackerRadLength" value="0.100807"/>
+      <Parameter name="TrackerXi" value="0.000262011"/>
+    </SpecPar>
+    <SpecPar name="TrackerRecMaterialTECDisk0_R50" eval="true">
+      <PartSelector path="//Tracker/TEC/TECWheels/TECWheelA[0]/TECPetalCont0F/TECRing3F/TECModule3/TECModule3RphiWafer/TECModule3RphiActive"/>
+      <PartSelector path="//Tracker/TEC/TECWheels/TECWheelA[0]/TECPetalCont0B/TECRing3B/TECModule3/TECModule3RphiWafer/TECModule3RphiActive"/>
+      <Parameter name="TrackerRadLength" value="0.166558"/>
+      <Parameter name="TrackerXi" value="0.000388072"/>
+    </SpecPar>
+    <SpecPar name="TrackerRecMaterialTECDisk0_R60" eval="true">
+      <PartSelector path="//Tracker/TEC/TECWheels/TECWheelA[0]/TECPetalCont0F/TECRing4F/TECModule4/TECModule4RphiWafer/TECModule4RphiActive"/>
+      <PartSelector path="//Tracker/TEC/TECWheels/TECWheelA[0]/TECPetalCont0F/TECRing4F/TECModule4/TECModule4StereoWafer/TECModule4StereoActive"/>
+      <PartSelector path="//Tracker/TEC/TECWheels/TECWheelA[0]/TECPetalCont0F/TECRing5F/TECModule5/TECModule5RphiWafer/TECModule5RphiActive"/>
+      <PartSelector path="//Tracker/TEC/TECWheels/TECWheelA[0]/TECPetalCont0B/TECRing4B/TECModule4/TECModule4RphiWafer/TECModule4RphiActive"/>
+      <PartSelector path="//Tracker/TEC/TECWheels/TECWheelA[0]/TECPetalCont0B/TECRing4B/TECModule4/TECModule4StereoWafer/TECModule4StereoActive"/>
+      <PartSelector path="//Tracker/TEC/TECWheels/TECWheelA[0]/TECPetalCont0B/TECRing5B/TECModule5/TECModule5RphiWafer/TECModule5RphiActive"/>
+      <Parameter name="TrackerRadLength" value="0.289455"/>
+      <Parameter name="TrackerXi" value="0.00054809"/>
+    </SpecPar>
+    <SpecPar name="TrackerRecMaterialTECDisk0_R90" eval="true">
+      <PartSelector path="//Tracker/TEC/TECWheels/TECWheelA[0]/TECPetalCont0F/TECRing6F/TECModule6/TECModule6RphiWafer/TECModule6RphiActive"/>
+      <PartSelector path="//Tracker/TEC/TECWheels/TECWheelA[0]/TECPetalCont0B/TECRing6B/TECModule6/TECModule6RphiWafer/TECModule6RphiActive"/>
+      <Parameter name="TrackerRadLength" value="0.278665"/>
+      <Parameter name="TrackerXi" value="0.000475715"/>
+    </SpecPar>
+    <SpecPar name="TrackerRecMaterialTECDisk1_R20" eval="true">
+      <PartSelector path="//Tracker/TEC/TECWheels/TECWheelA[1]/TECPetalCont0F/TECRing0F/TECModule0/TECModule0RphiWafer/TECModule0RphiActive"/>
+      <PartSelector path="//Tracker/TEC/TECWheels/TECWheelA[1]/TECPetalCont0F/TECRing0F/TECModule0/TECModule0StereoWafer/TECModule0StereoActive"/>
+      <PartSelector path="//Tracker/TEC/TECWheels/TECWheelA[1]/TECPetalCont0F/TECRing1F/TECModule1/TECModule1RphiWafer/TECModule1RphiActive"/>
+      <PartSelector path="//Tracker/TEC/TECWheels/TECWheelA[1]/TECPetalCont0F/TECRing1F/TECModule1/TECModule1StereoWafer/TECModule1StereoActive"/>
+      <PartSelector path="//Tracker/TEC/TECWheels/TECWheelA[1]/TECPetalCont0F/TECRing2F/TECModule2/TECModule2RphiWafer/TECModule2RphiActive"/>
+      <PartSelector path="//Tracker/TEC/TECWheels/TECWheelA[1]/TECPetalCont0F/TECRing3F/TECModule3/TECModule3RphiWafer/TECModule3RphiActive"/>
+      <PartSelector path="//Tracker/TEC/TECWheels/TECWheelA[1]/TECPetalCont0F/TECRing4F/TECModule4/TECModule4RphiWafer/TECModule4RphiActive"/>
+      <PartSelector path="//Tracker/TEC/TECWheels/TECWheelA[1]/TECPetalCont0F/TECRing4F/TECModule4/TECModule4StereoWafer/TECModule4StereoActive"/>
+      <PartSelector path="//Tracker/TEC/TECWheels/TECWheelA[1]/TECPetalCont0F/TECRing5F/TECModule5/TECModule5RphiWafer/TECModule5RphiActive"/>
+      <PartSelector path="//Tracker/TEC/TECWheels/TECWheelA[1]/TECPetalCont0F/TECRing6F/TECModule6/TECModule6RphiWafer/TECModule6RphiActive"/>
+      <PartSelector path="//Tracker/TEC/TECWheels/TECWheelA[1]/TECPetalCont0B/TECRing0B/TECModule0/TECModule0RphiWafer/TECModule0RphiActive"/>
+      <PartSelector path="//Tracker/TEC/TECWheels/TECWheelA[1]/TECPetalCont0B/TECRing0B/TECModule0/TECModule0StereoWafer/TECModule0StereoActive"/>
+      <PartSelector path="//Tracker/TEC/TECWheels/TECWheelA[1]/TECPetalCont0B/TECRing1B/TECModule1/TECModule1RphiWafer/TECModule1RphiActive"/>
+      <PartSelector path="//Tracker/TEC/TECWheels/TECWheelA[1]/TECPetalCont0B/TECRing1B/TECModule1/TECModule1StereoWafer/TECModule1StereoActive"/>
+      <PartSelector path="//Tracker/TEC/TECWheels/TECWheelA[1]/TECPetalCont0B/TECRing2B/TECModule2/TECModule2RphiWafer/TECModule2RphiActive"/>
+      <PartSelector path="//Tracker/TEC/TECWheels/TECWheelA[1]/TECPetalCont0B/TECRing3B/TECModule3/TECModule3RphiWafer/TECModule3RphiActive"/>
+      <PartSelector path="//Tracker/TEC/TECWheels/TECWheelA[1]/TECPetalCont0B/TECRing4B/TECModule4/TECModule4RphiWafer/TECModule4RphiActive"/>
+      <PartSelector path="//Tracker/TEC/TECWheels/TECWheelA[1]/TECPetalCont0B/TECRing4B/TECModule4/TECModule4StereoWafer/TECModule4StereoActive"/>
+      <PartSelector path="//Tracker/TEC/TECWheels/TECWheelA[1]/TECPetalCont0B/TECRing5B/TECModule5/TECModule5RphiWafer/TECModule5RphiActive"/>
+      <PartSelector path="//Tracker/TEC/TECWheels/TECWheelA[1]/TECPetalCont0B/TECRing6B/TECModule6/TECModule6RphiWafer/TECModule6RphiActive"/>
+      <Parameter name="TrackerRadLength" value="0.0711444"/>
+      <Parameter name="TrackerXi" value="0.000158792"/>
+    </SpecPar>
+    <SpecPar name="TrackerRecMaterialTECDisk2_R20" eval="true">
+      <PartSelector path="//Tracker/TEC/TECWheels/TECWheelA[2]/TECPetalCont0F/TECRing0F/TECModule0/TECModule0RphiWafer/TECModule0RphiActive"/>
+      <PartSelector path="//Tracker/TEC/TECWheels/TECWheelA[2]/TECPetalCont0F/TECRing0F/TECModule0/TECModule0StereoWafer/TECModule0StereoActive"/>
+      <PartSelector path="//Tracker/TEC/TECWheels/TECWheelA[2]/TECPetalCont0F/TECRing1F/TECModule1/TECModule1RphiWafer/TECModule1RphiActive"/>
+      <PartSelector path="//Tracker/TEC/TECWheels/TECWheelA[2]/TECPetalCont0F/TECRing1F/TECModule1/TECModule1StereoWafer/TECModule1StereoActive"/>
+      <PartSelector path="//Tracker/TEC/TECWheels/TECWheelA[2]/TECPetalCont0F/TECRing2F/TECModule2/TECModule2RphiWafer/TECModule2RphiActive"/>
+      <PartSelector path="//Tracker/TEC/TECWheels/TECWheelA[2]/TECPetalCont0F/TECRing3F/TECModule3/TECModule3RphiWafer/TECModule3RphiActive"/>
+      <PartSelector path="//Tracker/TEC/TECWheels/TECWheelA[2]/TECPetalCont0F/TECRing4F/TECModule4/TECModule4RphiWafer/TECModule4RphiActive"/>
+      <PartSelector path="//Tracker/TEC/TECWheels/TECWheelA[2]/TECPetalCont0F/TECRing4F/TECModule4/TECModule4StereoWafer/TECModule4StereoActive"/>
+      <PartSelector path="//Tracker/TEC/TECWheels/TECWheelA[2]/TECPetalCont0F/TECRing5F/TECModule5/TECModule5RphiWafer/TECModule5RphiActive"/>
+      <PartSelector path="//Tracker/TEC/TECWheels/TECWheelA[2]/TECPetalCont0F/TECRing6F/TECModule6/TECModule6RphiWafer/TECModule6RphiActive"/>
+      <PartSelector path="//Tracker/TEC/TECWheels/TECWheelA[2]/TECPetalCont0B/TECRing0B/TECModule0/TECModule0RphiWafer/TECModule0RphiActive"/>
+      <PartSelector path="//Tracker/TEC/TECWheels/TECWheelA[2]/TECPetalCont0B/TECRing0B/TECModule0/TECModule0StereoWafer/TECModule0StereoActive"/>
+      <PartSelector path="//Tracker/TEC/TECWheels/TECWheelA[2]/TECPetalCont0B/TECRing1B/TECModule1/TECModule1RphiWafer/TECModule1RphiActive"/>
+      <PartSelector path="//Tracker/TEC/TECWheels/TECWheelA[2]/TECPetalCont0B/TECRing1B/TECModule1/TECModule1StereoWafer/TECModule1StereoActive"/>
+      <PartSelector path="//Tracker/TEC/TECWheels/TECWheelA[2]/TECPetalCont0B/TECRing2B/TECModule2/TECModule2RphiWafer/TECModule2RphiActive"/>
+      <PartSelector path="//Tracker/TEC/TECWheels/TECWheelA[2]/TECPetalCont0B/TECRing3B/TECModule3/TECModule3RphiWafer/TECModule3RphiActive"/>
+      <PartSelector path="//Tracker/TEC/TECWheels/TECWheelA[2]/TECPetalCont0B/TECRing4B/TECModule4/TECModule4RphiWafer/TECModule4RphiActive"/>
+      <PartSelector path="//Tracker/TEC/TECWheels/TECWheelA[2]/TECPetalCont0B/TECRing4B/TECModule4/TECModule4StereoWafer/TECModule4StereoActive"/>
+      <PartSelector path="//Tracker/TEC/TECWheels/TECWheelA[2]/TECPetalCont0B/TECRing5B/TECModule5/TECModule5RphiWafer/TECModule5RphiActive"/>
+      <PartSelector path="//Tracker/TEC/TECWheels/TECWheelA[2]/TECPetalCont0B/TECRing6B/TECModule6/TECModule6RphiWafer/TECModule6RphiActive"/>
+      <Parameter name="TrackerRadLength" value="0.0536887"/>
+      <Parameter name="TrackerXi" value="0.000121022"/>
+    </SpecPar>
+    <SpecPar name="TrackerRecMaterialTECDisk3" eval="true">
+      <PartSelector path="//Tracker/TEC/TECWheels/TECWheelB[3]/TECPetalCont3F/TECRing1F/TECModule1/TECModule1RphiWafer/TECModule1RphiActive"/>
+      <PartSelector path="//Tracker/TEC/TECWheels/TECWheelB[3]/TECPetalCont3F/TECRing1F/TECModule1/TECModule1StereoWafer/TECModule1StereoActive"/>
+      <PartSelector path="//Tracker/TEC/TECWheels/TECWheelB[3]/TECPetalCont3F/TECRing2F/TECModule2/TECModule2RphiWafer/TECModule2RphiActive"/>
+      <PartSelector path="//Tracker/TEC/TECWheels/TECWheelB[3]/TECPetalCont3F/TECRing3F/TECModule3/TECModule3RphiWafer/TECModule3RphiActive"/>
+      <PartSelector path="//Tracker/TEC/TECWheels/TECWheelB[3]/TECPetalCont3F/TECRing4F/TECModule4/TECModule4RphiWafer/TECModule4RphiActive"/>
+      <PartSelector path="//Tracker/TEC/TECWheels/TECWheelB[3]/TECPetalCont3F/TECRing4F/TECModule4/TECModule4StereoWafer/TECModule4StereoActive"/>
+      <PartSelector path="//Tracker/TEC/TECWheels/TECWheelB[3]/TECPetalCont3F/TECRing5F/TECModule5/TECModule5RphiWafer/TECModule5RphiActive"/>
+      <PartSelector path="//Tracker/TEC/TECWheels/TECWheelB[3]/TECPetalCont3F/TECRing6F/TECModule6/TECModule6RphiWafer/TECModule6RphiActive"/>
+      <PartSelector path="//Tracker/TEC/TECWheels/TECWheelB[3]/TECPetalCont3B/TECRing1B/TECModule1/TECModule1RphiWafer/TECModule1RphiActive"/>
+      <PartSelector path="//Tracker/TEC/TECWheels/TECWheelB[3]/TECPetalCont3B/TECRing1B/TECModule1/TECModule1StereoWafer/TECModule1StereoActive"/>
+      <PartSelector path="//Tracker/TEC/TECWheels/TECWheelB[3]/TECPetalCont3B/TECRing2B/TECModule2/TECModule2RphiWafer/TECModule2RphiActive"/>
+      <PartSelector path="//Tracker/TEC/TECWheels/TECWheelB[3]/TECPetalCont3B/TECRing3B/TECModule3/TECModule3RphiWafer/TECModule3RphiActive"/>
+      <PartSelector path="//Tracker/TEC/TECWheels/TECWheelB[3]/TECPetalCont3B/TECRing4B/TECModule4/TECModule4RphiWafer/TECModule4RphiActive"/>
+      <PartSelector path="//Tracker/TEC/TECWheels/TECWheelB[3]/TECPetalCont3B/TECRing4B/TECModule4/TECModule4StereoWafer/TECModule4StereoActive"/>
+      <PartSelector path="//Tracker/TEC/TECWheels/TECWheelB[3]/TECPetalCont3B/TECRing5B/TECModule5/TECModule5RphiWafer/TECModule5RphiActive"/>
+      <PartSelector path="//Tracker/TEC/TECWheels/TECWheelB[3]/TECPetalCont3B/TECRing6B/TECModule6/TECModule6RphiWafer/TECModule6RphiActive"/>
+      <Parameter name="TrackerRadLength" value="0.0471239"/>
+      <Parameter name="TrackerXi" value="0.000106928"/>
+    </SpecPar>
+    <SpecPar name="TrackerRecMaterialTECDisk4_R33" eval="true">
+      <PartSelector path="//Tracker/TEC/TECWheels/TECWheelB[4]/TECPetalCont3F/TECRing1F/TECModule1/TECModule1RphiWafer/TECModule1RphiActive"/>
+      <PartSelector path="//Tracker/TEC/TECWheels/TECWheelB[4]/TECPetalCont3F/TECRing1F/TECModule1/TECModule1StereoWafer/TECModule1StereoActive"/>
+      <PartSelector path="//Tracker/TEC/TECWheels/TECWheelB[4]/TECPetalCont3F/TECRing2F/TECModule2/TECModule2RphiWafer/TECModule2RphiActive"/>
+      <PartSelector path="//Tracker/TEC/TECWheels/TECWheelB[4]/TECPetalCont3F/TECRing3F/TECModule3/TECModule3RphiWafer/TECModule3RphiActive"/>
+      <PartSelector path="//Tracker/TEC/TECWheels/TECWheelB[4]/TECPetalCont3F/TECRing4F/TECModule4/TECModule4RphiWafer/TECModule4RphiActive"/>
+      <PartSelector path="//Tracker/TEC/TECWheels/TECWheelB[4]/TECPetalCont3F/TECRing4F/TECModule4/TECModule4StereoWafer/TECModule4StereoActive"/>
+      <PartSelector path="//Tracker/TEC/TECWheels/TECWheelB[4]/TECPetalCont3F/TECRing5F/TECModule5/TECModule5RphiWafer/TECModule5RphiActive"/>
+      <PartSelector path="//Tracker/TEC/TECWheels/TECWheelB[4]/TECPetalCont3F/TECRing6F/TECModule6/TECModule6RphiWafer/TECModule6RphiActive"/>
+      <PartSelector path="//Tracker/TEC/TECWheels/TECWheelB[4]/TECPetalCont3B/TECRing1B/TECModule1/TECModule1RphiWafer/TECModule1RphiActive"/>
+      <PartSelector path="//Tracker/TEC/TECWheels/TECWheelB[4]/TECPetalCont3B/TECRing1B/TECModule1/TECModule1StereoWafer/TECModule1StereoActive"/>
+      <PartSelector path="//Tracker/TEC/TECWheels/TECWheelB[4]/TECPetalCont3B/TECRing2B/TECModule2/TECModule2RphiWafer/TECModule2RphiActive"/>
+      <PartSelector path="//Tracker/TEC/TECWheels/TECWheelB[4]/TECPetalCont3B/TECRing3B/TECModule3/TECModule3RphiWafer/TECModule3RphiActive"/>
+      <PartSelector path="//Tracker/TEC/TECWheels/TECWheelB[4]/TECPetalCont3B/TECRing4B/TECModule4/TECModule4RphiWafer/TECModule4RphiActive"/>
+      <PartSelector path="//Tracker/TEC/TECWheels/TECWheelB[4]/TECPetalCont3B/TECRing4B/TECModule4/TECModule4StereoWafer/TECModule4StereoActive"/>
+      <PartSelector path="//Tracker/TEC/TECWheels/TECWheelB[4]/TECPetalCont3B/TECRing5B/TECModule5/TECModule5RphiWafer/TECModule5RphiActive"/>
+      <PartSelector path="//Tracker/TEC/TECWheels/TECWheelB[4]/TECPetalCont3B/TECRing6B/TECModule6/TECModule6RphiWafer/TECModule6RphiActive"/>
+      <Parameter name="TrackerRadLength" value="0.0507337"/>
+      <Parameter name="TrackerXi" value="0.000118276"/>
+    </SpecPar>
+    <SpecPar name="TrackerRecMaterialTECDisk5_R33" eval="true">
+      <PartSelector path="//Tracker/TEC/TECWheels/TECWheel6[5]/TECPetalCont3F/TECRing1F/TECModule1/TECModule1RphiWafer/TECModule1RphiActive"/>
+      <PartSelector path="//Tracker/TEC/TECWheels/TECWheel6[5]/TECPetalCont3F/TECRing1F/TECModule1/TECModule1StereoWafer/TECModule1StereoActive"/>
+      <PartSelector path="//Tracker/TEC/TECWheels/TECWheel6[5]/TECPetalCont3F/TECRing2F/TECModule2/TECModule2RphiWafer/TECModule2RphiActive"/>
+      <PartSelector path="//Tracker/TEC/TECWheels/TECWheel6[5]/TECPetalCont3F/TECRing3F/TECModule3/TECModule3RphiWafer/TECModule3RphiActive"/>
+      <PartSelector path="//Tracker/TEC/TECWheels/TECWheel6[5]/TECPetalCont3F/TECRing4F/TECModule4/TECModule4RphiWafer/TECModule4RphiActive"/>
+      <PartSelector path="//Tracker/TEC/TECWheels/TECWheel6[5]/TECPetalCont3F/TECRing4F/TECModule4/TECModule4StereoWafer/TECModule4StereoActive"/>
+      <PartSelector path="//Tracker/TEC/TECWheels/TECWheel6[5]/TECPetalCont3F/TECRing5F/TECModule5/TECModule5RphiWafer/TECModule5RphiActive"/>
+      <PartSelector path="//Tracker/TEC/TECWheels/TECWheel6[5]/TECPetalCont3F/TECRing6F/TECModule6/TECModule6RphiWafer/TECModule6RphiActive"/>
+      <PartSelector path="//Tracker/TEC/TECWheels/TECWheel6[5]/TECPetalCont3B/TECRing1B/TECModule1/TECModule1RphiWafer/TECModule1RphiActive"/>
+      <PartSelector path="//Tracker/TEC/TECWheels/TECWheel6[5]/TECPetalCont3B/TECRing1B/TECModule1/TECModule1StereoWafer/TECModule1StereoActive"/>
+      <PartSelector path="//Tracker/TEC/TECWheels/TECWheel6[5]/TECPetalCont3B/TECRing2B/TECModule2/TECModule2RphiWafer/TECModule2RphiActive"/>
+      <PartSelector path="//Tracker/TEC/TECWheels/TECWheel6[5]/TECPetalCont3B/TECRing3B/TECModule3/TECModule3RphiWafer/TECModule3RphiActive"/>
+      <PartSelector path="//Tracker/TEC/TECWheels/TECWheel6[5]/TECPetalCont3B/TECRing4B/TECModule4/TECModule4RphiWafer/TECModule4RphiActive"/>
+      <PartSelector path="//Tracker/TEC/TECWheels/TECWheel6[5]/TECPetalCont3B/TECRing4B/TECModule4/TECModule4StereoWafer/TECModule4StereoActive"/>
+      <PartSelector path="//Tracker/TEC/TECWheels/TECWheel6[5]/TECPetalCont3B/TECRing5B/TECModule5/TECModule5RphiWafer/TECModule5RphiActive"/>
+      <PartSelector path="//Tracker/TEC/TECWheels/TECWheel6[5]/TECPetalCont3B/TECRing6B/TECModule6/TECModule6RphiWafer/TECModule6RphiActive"/>
+      <Parameter name="TrackerRadLength" value="0.0527718"/>
+      <Parameter name="TrackerXi" value="0.000122312"/>
+    </SpecPar>
+    <SpecPar name="TrackerRecMaterialTECDisk6" eval="true">
+      <PartSelector path="//Tracker/TEC/TECWheels/TECWheelC[6]/TECPetalCont6F/TECRing2F/TECModule2/TECModule2RphiWafer/TECModule2RphiActive"/>
+      <PartSelector path="//Tracker/TEC/TECWheels/TECWheelC[6]/TECPetalCont6F/TECRing3F/TECModule3/TECModule3RphiWafer/TECModule3RphiActive"/>
+      <PartSelector path="//Tracker/TEC/TECWheels/TECWheelC[6]/TECPetalCont6F/TECRing4F/TECModule4/TECModule4RphiWafer/TECModule4RphiActive"/>
+      <PartSelector path="//Tracker/TEC/TECWheels/TECWheelC[6]/TECPetalCont6F/TECRing4F/TECModule4/TECModule4StereoWafer/TECModule4StereoActive"/>
+      <PartSelector path="//Tracker/TEC/TECWheels/TECWheelC[6]/TECPetalCont6F/TECRing5F/TECModule5/TECModule5RphiWafer/TECModule5RphiActive"/>
+      <PartSelector path="//Tracker/TEC/TECWheels/TECWheelC[6]/TECPetalCont6F/TECRing6F/TECModule6/TECModule6RphiWafer/TECModule6RphiActive"/>
+      <PartSelector path="//Tracker/TEC/TECWheels/TECWheelC[6]/TECPetalCont6B/TECRing2B/TECModule2/TECModule2RphiWafer/TECModule2RphiActive"/>
+      <PartSelector path="//Tracker/TEC/TECWheels/TECWheelC[6]/TECPetalCont6B/TECRing3B/TECModule3/TECModule3RphiWafer/TECModule3RphiActive"/>
+      <PartSelector path="//Tracker/TEC/TECWheels/TECWheelC[6]/TECPetalCont6B/TECRing4B/TECModule4/TECModule4RphiWafer/TECModule4RphiActive"/>
+      <PartSelector path="//Tracker/TEC/TECWheels/TECWheelC[6]/TECPetalCont6B/TECRing4B/TECModule4/TECModule4StereoWafer/TECModule4StereoActive"/>
+      <PartSelector path="//Tracker/TEC/TECWheels/TECWheelC[6]/TECPetalCont6B/TECRing5B/TECModule5/TECModule5RphiWafer/TECModule5RphiActive"/>
+      <PartSelector path="//Tracker/TEC/TECWheels/TECWheelC[6]/TECPetalCont6B/TECRing6B/TECModule6/TECModule6RphiWafer/TECModule6RphiActive"/>
+      <Parameter name="TrackerRadLength" value="0.0470615"/>
+      <Parameter name="TrackerXi" value="0.000105712"/>
+    </SpecPar>
+    <SpecPar name="TrackerRecMaterialTECDisk7_R40" eval="true">
+      <PartSelector path="//Tracker/TEC/TECWheels/TECWheelC[7]/TECPetalCont6F/TECRing2F/TECModule2/TECModule2RphiWafer/TECModule2RphiActive"/>
+      <PartSelector path="//Tracker/TEC/TECWheels/TECWheelC[7]/TECPetalCont6F/TECRing3F/TECModule3/TECModule3RphiWafer/TECModule3RphiActive"/>
+      <PartSelector path="//Tracker/TEC/TECWheels/TECWheelC[7]/TECPetalCont6F/TECRing4F/TECModule4/TECModule4RphiWafer/TECModule4RphiActive"/>
+      <PartSelector path="//Tracker/TEC/TECWheels/TECWheelC[7]/TECPetalCont6F/TECRing4F/TECModule4/TECModule4StereoWafer/TECModule4StereoActive"/>
+      <PartSelector path="//Tracker/TEC/TECWheels/TECWheelC[7]/TECPetalCont6F/TECRing5F/TECModule5/TECModule5RphiWafer/TECModule5RphiActive"/>
+      <PartSelector path="//Tracker/TEC/TECWheels/TECWheelC[7]/TECPetalCont6F/TECRing6F/TECModule6/TECModule6RphiWafer/TECModule6RphiActive"/>
+      <PartSelector path="//Tracker/TEC/TECWheels/TECWheelC[7]/TECPetalCont6B/TECRing2B/TECModule2/TECModule2RphiWafer/TECModule2RphiActive"/>
+      <PartSelector path="//Tracker/TEC/TECWheels/TECWheelC[7]/TECPetalCont6B/TECRing3B/TECModule3/TECModule3RphiWafer/TECModule3RphiActive"/>
+      <PartSelector path="//Tracker/TEC/TECWheels/TECWheelC[7]/TECPetalCont6B/TECRing4B/TECModule4/TECModule4RphiWafer/TECModule4RphiActive"/>
+      <PartSelector path="//Tracker/TEC/TECWheels/TECWheelC[7]/TECPetalCont6B/TECRing4B/TECModule4/TECModule4StereoWafer/TECModule4StereoActive"/>
+      <PartSelector path="//Tracker/TEC/TECWheels/TECWheelC[7]/TECPetalCont6B/TECRing5B/TECModule5/TECModule5RphiWafer/TECModule5RphiActive"/>
+      <PartSelector path="//Tracker/TEC/TECWheels/TECWheelC[7]/TECPetalCont6B/TECRing6B/TECModule6/TECModule6RphiWafer/TECModule6RphiActive"/>
+      <Parameter name="TrackerRadLength" value="0.0453539"/>
+      <Parameter name="TrackerXi" value="0.000103887"/>
+    </SpecPar>
+    <SpecPar name="TrackerRecMaterialTECDisk8" eval="true">
+      <PartSelector path="//Tracker/TEC/TECWheels/TECWheelD[8]/TECPetalCont8F/TECRing3F/TECModule3/TECModule3RphiWafer/TECModule3RphiActive"/>
+      <PartSelector path="//Tracker/TEC/TECWheels/TECWheelD[8]/TECPetalCont8F/TECRing4F/TECModule4/TECModule4RphiWafer/TECModule4RphiActive"/>
+      <PartSelector path="//Tracker/TEC/TECWheels/TECWheelD[8]/TECPetalCont8F/TECRing4F/TECModule4/TECModule4StereoWafer/TECModule4StereoActive"/>
+      <PartSelector path="//Tracker/TEC/TECWheels/TECWheelD[8]/TECPetalCont8F/TECRing5F/TECModule5/TECModule5RphiWafer/TECModule5RphiActive"/>
+      <PartSelector path="//Tracker/TEC/TECWheels/TECWheelD[8]/TECPetalCont8F/TECRing6F/TECModule6/TECModule6RphiWafer/TECModule6RphiActive"/>
+      <PartSelector path="//Tracker/TEC/TECWheels/TECWheelD[8]/TECPetalCont8B/TECRing3B/TECModule3/TECModule3RphiWafer/TECModule3RphiActive"/>
+      <PartSelector path="//Tracker/TEC/TECWheels/TECWheelD[8]/TECPetalCont8B/TECRing4B/TECModule4/TECModule4RphiWafer/TECModule4RphiActive"/>
+      <PartSelector path="//Tracker/TEC/TECWheels/TECWheelD[8]/TECPetalCont8B/TECRing4B/TECModule4/TECModule4StereoWafer/TECModule4StereoActive"/>
+      <PartSelector path="//Tracker/TEC/TECWheels/TECWheelD[8]/TECPetalCont8B/TECRing5B/TECModule5/TECModule5RphiWafer/TECModule5RphiActive"/>
+      <PartSelector path="//Tracker/TEC/TECWheels/TECWheelD[8]/TECPetalCont8B/TECRing6B/TECModule6/TECModule6RphiWafer/TECModule6RphiActive"/>
+      <Parameter name="TrackerRadLength" value="0.0452548"/>
+      <Parameter name="TrackerXi" value="0.000102518"/>
+    </SpecPar>
+  </SpecParSection>
+</DDDefinition>

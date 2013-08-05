@@ -1,3 +1,5 @@
+#include "boost/mpl/if.hpp"
+
 #include "FWCore/Framework/src/WorkerT.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
 
@@ -7,8 +9,71 @@
 #include "FWCore/Framework/interface/OutputModule.h"
 #include "FWCore/Framework/interface/one/EDProducerBase.h"
 #include "FWCore/Framework/interface/one/EDFilterBase.h"
+#include "FWCore/Framework/interface/one/OutputModuleBase.h"
+#include "FWCore/Framework/interface/global/EDProducerBase.h"
+#include "FWCore/Framework/interface/global/EDFilterBase.h"
+#include "FWCore/Framework/interface/global/EDAnalyzerBase.h"
 
 namespace edm{
+  namespace workerimpl {
+    template<typename T>
+    struct has_stream_functions {
+      static bool constexpr value = false;
+    };
+
+    template<>
+    struct has_stream_functions<edm::global::EDProducerBase> {
+      static bool constexpr value = true;
+    };
+    
+    template<>
+    struct has_stream_functions<edm::global::EDFilterBase> {
+      static bool constexpr value = true;
+    };
+    
+    template<>
+    struct has_stream_functions<edm::global::EDAnalyzerBase> {
+      static bool constexpr value = true;
+    };
+    
+    struct DoNothing {
+      template< typename... T>
+      inline void operator()(const T&...) {}
+    };
+    
+    template<typename T>
+    struct DoBeginStream {
+      inline void operator()(WorkerT<T>* iWorker, StreamID id) {
+        iWorker->callWorkerBeginStream(0,id);
+      }
+    };
+
+    template<typename T>
+    struct DoEndStream {
+      inline void operator()(WorkerT<T>* iWorker, StreamID id) {
+        iWorker->callWorkerEndStream(0,id);
+      }
+    };
+
+    template<typename T, typename P>
+    struct DoStreamBeginTrans {
+      inline void operator() (WorkerT<T>* iWorker, StreamID id, P& rp,
+                            EventSetup const& c,
+                            CurrentProcessingContext const* cpc) {
+        iWorker->callWorkerStreamBegin(0,id,rp,c,cpc);
+      }
+    };
+
+    template<typename T, typename P>
+    struct DoStreamEndTrans {
+      inline void operator() (WorkerT<T>* iWorker, StreamID id, P& rp,
+                              EventSetup const& c,
+                              CurrentProcessingContext const* cpc) {
+        iWorker->callWorkerStreamEnd(0,id,rp,c,cpc);
+      }
+    };
+  }
+  
   UnscheduledHandler* getUnscheduledHandler(EventPrincipal const& ep) {
     return ep.unscheduledHandler().get();
   }
@@ -46,9 +111,32 @@ namespace edm{
   }
   
   template<typename T>
+  template<typename D>
+  void
+  WorkerT<T>::callWorkerStreamBegin(D, StreamID id, RunPrincipal& rp,
+                                    EventSetup const& c,
+                                    CurrentProcessingContext const* cpc) {
+    module_->doStreamBeginRun(id, rp, c, cpc);
+  }
+
+  template<typename T>
+  template<typename D>
+  void
+  WorkerT<T>::callWorkerStreamEnd(D, StreamID id, RunPrincipal& rp,
+                                    EventSetup const& c,
+                                    CurrentProcessingContext const* cpc) {
+    module_->doStreamEndRun(id, rp, c, cpc);
+  }
+
+  
+  template<typename T>
   inline
   bool
   WorkerT<T>::implDoStreamBegin(StreamID id, RunPrincipal& rp, EventSetup const& c, CurrentProcessingContext const* cpc) {
+    typename boost::mpl::if_c<workerimpl::has_stream_functions<T>::value,
+    workerimpl::DoStreamBeginTrans<T,RunPrincipal>,
+    workerimpl::DoNothing>::type might_call;
+    might_call(this,id,rp,c,cpc);
     //module_->doStreamBeginRun(id, rp, c, cpc);
     return true;
   }
@@ -57,6 +145,10 @@ namespace edm{
   inline
   bool
   WorkerT<T>::implDoStreamEnd(StreamID id, RunPrincipal& rp, EventSetup const& c, CurrentProcessingContext const* cpc) {
+    typename boost::mpl::if_c<workerimpl::has_stream_functions<T>::value,
+    workerimpl::DoStreamEndTrans<T,RunPrincipal>,
+    workerimpl::DoNothing>::type might_call;
+    might_call(this,id,rp,c,cpc);
     //module_->doStreamEndRun(id, rp, c, cpc);
     return true;
   }
@@ -78,9 +170,32 @@ namespace edm{
   }
   
   template<typename T>
+  template<typename D>
+  void
+  WorkerT<T>::callWorkerStreamBegin(D, StreamID id, LuminosityBlockPrincipal& rp,
+                                    EventSetup const& c,
+                                    CurrentProcessingContext const* cpc) {
+    module_->doStreamBeginLuminosityBlock(id, rp, c, cpc);
+  }
+  
+  template<typename T>
+  template<typename D>
+  void
+  WorkerT<T>::callWorkerStreamEnd(D, StreamID id, LuminosityBlockPrincipal& rp,
+                                  EventSetup const& c,
+                                  CurrentProcessingContext const* cpc) {
+    module_->doStreamEndLuminosityBlock(id, rp, c, cpc);
+  }
+
+  
+  template<typename T>
   inline
   bool
   WorkerT<T>::implDoStreamBegin(StreamID id, LuminosityBlockPrincipal& lbp, EventSetup const& c, CurrentProcessingContext const* cpc) {
+    typename boost::mpl::if_c<workerimpl::has_stream_functions<T>::value,
+    workerimpl::DoStreamBeginTrans<T,LuminosityBlockPrincipal>,
+    workerimpl::DoNothing>::type might_call;
+    might_call(this,id,lbp,c,cpc);
     //module_->doStreamBeginLuminosityBlock(id, lbp, c, cpc);
     return true;
   }
@@ -89,6 +204,11 @@ namespace edm{
   inline
   bool
   WorkerT<T>::implDoStreamEnd(StreamID id, LuminosityBlockPrincipal& lbp, EventSetup const& c, CurrentProcessingContext const* cpc) {
+    typename boost::mpl::if_c<workerimpl::has_stream_functions<T>::value,
+    workerimpl::DoStreamEndTrans<T,LuminosityBlockPrincipal>,
+    workerimpl::DoNothing>::type might_call;
+    might_call(this,id,lbp,c,cpc);
+
     //module_->doStreamEndLuminosityBlock(id, lbp, c, cpc);
     return true;
   }
@@ -121,19 +241,37 @@ namespace edm{
   WorkerT<T>::implEndJob() {
     module_->doEndJob();
   }
-  
+
+  template<typename T>
+  template<typename D>
+  void WorkerT<T>::callWorkerBeginStream(D, StreamID id) {
+    module_->doBeginStream(id);
+  }
+
   template<typename T>
   inline
   void
   WorkerT<T>::implBeginStream(StreamID id) {
-    //module_->doBeginStream(id);
+    typename boost::mpl::if_c<workerimpl::has_stream_functions<T>::value,
+    workerimpl::DoBeginStream<T>,
+    workerimpl::DoNothing>::type might_call;
+    might_call(this,id);
+  }
+  
+  template<typename T>
+  template<typename D>
+  void WorkerT<T>::callWorkerEndStream(D, StreamID id) {
+    module_->doEndStream(id);
   }
   
   template<typename T>
   inline
   void
   WorkerT<T>::implEndStream(StreamID id) {
-    //module_->doEndStream(id);
+    typename boost::mpl::if_c<workerimpl::has_stream_functions<T>::value,
+    workerimpl::DoEndStream<T>,
+    workerimpl::DoNothing>::type might_call;
+    might_call(this,id);
   }
 
   template<typename T>
@@ -148,20 +286,6 @@ namespace edm{
   void
   WorkerT<T>::implRespondToCloseInputFile(FileBlock const& fb) {
     module_->doRespondToCloseInputFile(fb);
-  }
-  
-  template<typename T>
-  inline
-  void
-  WorkerT<T>::implRespondToOpenOutputFiles(FileBlock const& fb) {
-    module_->doRespondToOpenOutputFiles(fb);
-  }
-  
-  template<typename T>
-  inline
-  void
-  WorkerT<T>::implRespondToCloseOutputFiles(FileBlock const& fb) {
-    module_->doRespondToCloseOutputFiles(fb);
   }
   
   template<typename T>
@@ -197,6 +321,15 @@ namespace edm{
   Worker::Types WorkerT<edm::one::EDProducerBase>::moduleType() const { return Worker::kProducer;}
   template<>
   Worker::Types WorkerT<edm::one::EDFilterBase>::moduleType() const { return Worker::kFilter;}
+  template<>
+  Worker::Types WorkerT<edm::one::OutputModuleBase>::moduleType() const { return Worker::kOutputModule;}
+
+  template<>
+  Worker::Types WorkerT<edm::global::EDProducerBase>::moduleType() const { return Worker::kProducer;}
+  template<>
+  Worker::Types WorkerT<edm::global::EDFilterBase>::moduleType() const { return Worker::kFilter;}
+  template<>
+  Worker::Types WorkerT<edm::global::EDAnalyzerBase>::moduleType() const { return Worker::kAnalyzer;}
 
   
   //Explicitly instantiate our needed templates to avoid having the compiler
@@ -207,4 +340,8 @@ namespace edm{
   template class WorkerT<OutputModule>;
   template class WorkerT<one::EDProducerBase>;
   template class WorkerT<one::EDFilterBase>;
+  template class WorkerT<one::OutputModuleBase>;
+  template class WorkerT<global::EDProducerBase>;
+  template class WorkerT<global::EDFilterBase>;
+  template class WorkerT<global::EDAnalyzerBase>;
 }

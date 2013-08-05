@@ -13,7 +13,10 @@
 //==================================================================//
 //======================= Constructor ==============================//
 //==================================================================//
-CastorHIMonitor::CastorHIMonitor() {
+CastorHIMonitor::CastorHIMonitor()
+  {
+//  if(fVerbosity>0) std::cout << "CastorHIMonitor() (start)" << std::endl;
+
   doPerChannel_ = true;
   //  occThresh_ = 1;
   ievt_  =   0;
@@ -25,7 +28,8 @@ CastorHIMonitor::CastorHIMonitor() {
   EtotalHAD =-99;
   EtotalCASTOR =-99;
 
-}
+//  if(fVerbosity>0) std::cout << "CastorHIMonitor() (end)" << std::endl; 
+  }
 
 //==================================================================//
 //======================= Destructor ==============================//
@@ -33,45 +37,70 @@ CastorHIMonitor::CastorHIMonitor() {
 CastorHIMonitor::~CastorHIMonitor(){
 }
 
-void CastorHIMonitor::reset(){
-}
+
+//==================================================================//
+//======================= Reset ====================================//
+//==================================================================//
+void CastorHIMonitor::reset()
+  {
+  
+  }
 
 
 //==========================================================//
 //========================= setup ==========================//
 //==========================================================//
 
-void CastorHIMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe){
-  
+void CastorHIMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe)
+  {
   CastorBaseMonitor::setup(ps,dbe);
+
+  if(fVerbosity>0) std::cout << "CastorHIMonitor::setup (start)" << std::endl;
+  
   baseFolder_ = rootFolder_+"CastorHIMonitor/EnergyUnits";
 
-   if(fVerbosity>0) std::cout << "CastorHIMonitor::setup (start)" << std::endl;
-  
-  if ( ps.getUntrackedParameter<bool>("RecHitsPerChannel", false) ){
-    doPerChannel_ = true;
-  }
+  if ( ps.getUntrackedParameter<bool>("RecHitsPerChannel", false) )
+	{
+    	doPerChannel_ = true;
+  	}
     
   ievt_=0; EtotalEM =0; EtotalHAD =0; EtotalCASTOR =0; 
  
  
  ////---- initialize the array energyInEachChannel
-  for (int mod=0; mod<14; mod++) {
-    for (int sec=0; sec<16; sec++){
-        energyInEachChannel[mod][sec] = 0;
-        energyTotalChannel[mod][sec] = 0;
-    }
-  }
+  for (int mod=0; mod<14; mod++)
+	{
+    	for (int sec=0; sec<16; sec++)
+		{
+        	energyInEachChannel[mod][sec] = 0;
+        	energyTotalChannel[mod][sec] = 0;
+    		}
+  	}
   
 ///---- initialize the array energyHADsector,  energySectors
-  for (int sec=0; sec<16; sec++){
+  for (int sec=0; sec<16; sec++)
+	{
         energyHADsector[sec] = 0;
         energySectors[sec] = 0;
         energyTotalSector[sec] =0;
-      }
- 
-  if ( m_dbe !=NULL ) {    
- m_dbe->setCurrentFolder(baseFolder_);
+      	}
+
+  if(fVerbosity>0) std::cout << "CastorHIMonitor::setup (start)" << std::endl;  
+
+  return;
+}
+
+
+//==========================================================//
+//================== beginRun ==============================//
+//==========================================================//
+void CastorHIMonitor::beginRun(const edm::EventSetup& iSetup)
+  {
+  if(fVerbosity>0) std::cout << "CastorHIMonitor::beginRun (start)" << std::endl;
+
+  if ( m_dbe !=NULL )
+	{    
+ 	m_dbe->setCurrentFolder(baseFolder_);
  
 
 ////---- book MonitorElements
@@ -320,35 +349,25 @@ meChargeSectorEMvsHAD16  =  m_dbe->book1D("Ratio E_EM to E_HAD phi-sector16","Ra
  */
 
 
-
-
-
-
-
   }//-- end of if
 
-  else{
-  if(fVerbosity>0) std::cout << "CastorHIMonitor::setup - NO DQMStore service" << std::endl; 
- }
+  else
+	{
+  	if(fVerbosity>0) std::cout << "CastorHIMonitor::beginRun - NO DQMStore service" << std::endl; 
+  	}
 
-  if(fVerbosity>0) std::cout << "CastorHIMonitor::setup (end)" << std::endl;
+  if(fVerbosity>0) std::cout << "CastorHIMonitor::beginRun (end)" << std::endl;
 
-  return;
-}
-
-
-
-
-
+  }
 
 //==========================================================//
 //================== processEvent ==========================//
 //==========================================================//
 
 
-void CastorHIMonitor::processEvent(const CastorRecHitCollection& castorHits, const CastorDigiCollection& castorDigis, const CastorDbService& cond ){  
-
-  if(fVerbosity>0) std::cout << "==>CastorHIMonitor::processEvent !!!"<< std::endl;
+void CastorHIMonitor::processEvent(const CastorRecHitCollection& castorHits, const CastorDigiCollection& castorDigis, const CastorDbService& cond )
+  {  
+  if(fVerbosity>0) std::cout << "CastorHIMonitor::processEvent (begin)"<< std::endl;
 
   if(!m_dbe) { 
     if(fVerbosity>0) std::cout <<"CastorHIMonitor::processEvent => DQMStore is not instantiated !!!"<<std::endl;  
@@ -385,7 +404,7 @@ void CastorHIMonitor::processEvent(const CastorRecHitCollection& castorHits, con
   if(castorHits.size()>0)
   {    
  
-     if(fVerbosity>0) std::cout << "==>CastorHIMonitor::processEvent: castorHits.size()>0 !!!" << std::endl; 
+     if(fVerbosity>1) std::cout << "==>CastorHIMonitor::processEvent: castorHits.size()>0 !!!" << std::endl; 
 
     ////---- loop over all hits in an event
     for (CASTORiter=castorHits.begin(); CASTORiter!=castorHits.end(); ++CASTORiter) { 
@@ -400,7 +419,7 @@ void CastorHIMonitor::processEvent(const CastorRecHitCollection& castorHits, con
       energy = CASTORiter->energy();    
       time   = CASTORiter->time();
       
-      if(fVerbosity>0) 
+      if(fVerbosity>1) 
       std::cout<<"CastorHIMonitor==> module:"<< module << " sector:"<< sector << " energy:" << energy<<std::endl;
 
       ////--- don't deal with negative values           
@@ -628,8 +647,8 @@ void CastorHIMonitor::processEvent(const CastorRecHitCollection& castorHits, con
   
   ievt_++; 
 
+  if(fVerbosity>0) std::cout << "CastorHIMonitor::processEvent (end)"<< std::endl;
+
   return;
 
-}
-
-
+  }
