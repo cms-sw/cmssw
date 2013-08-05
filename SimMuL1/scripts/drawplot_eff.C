@@ -335,6 +335,54 @@ cEff->SetGridy(1);
 
 TTree *gt = getTree("gem_csc_delta_pt40_pad4.root");
 
+//ht = draw_geff(gt, "Eff. for a SimTrack to have an associated LCT;SimTrack |#eta|;Eff.", "h_odd", "(100,1.54,2.2)", "TMath::Abs(eta)", "", ok_lct1 || ok_lct2, "P", kRed);
+//hh = draw_geff(gt, "Eff. for a SimTrack to have an associated LCT;SimTrack |#eta|;Eff.", "h_odd", "(100,1.54,2.2)", "TMath::Abs(eta)", "", ok_sh1 || ok_sh2, "P same", kViolet);
+h1 = draw_geff(gt, "Eff. for a SimTrack to have an associated ME1/b LCT;SimTrack |#eta|;Eff.", "h_odd", "(70,1.54,2.2)", "TMath::Abs(eta)", ok_sh1, ok_lct1, "P", kRed);
+h2 = draw_geff(gt, "Eff. for a SimTrack to have an associated ME1/b LCT;SimTrack |#eta|;Eff.", "h_odd", "(70,1.54,2.2)", "TMath::Abs(eta)", ok_sh2, ok_lct2, "P same");
+eff_base->GetYaxis()->SetRangeUser(0.6,1.05);
+TLegend *leg = new TLegend(0.42,0.23,.96,0.4, NULL, "brNDC");
+leg->SetBorderSize(0);
+leg->SetFillStyle(0);
+leg->AddEntry(h1, "odd chambers","l");
+leg->AddEntry(h2, "even chambers","l");
+leg->Draw();
+TLatex *  tex = new TLatex(0.17, 0.16,"No Pile-Up");
+tex->SetNDC();
+tex->Draw();
+cEff->Print("lct_eff_for_Trk_vsTrkEta_pt40.png");
+
+
+h1 = draw_geff(gt, "Eff. for a SimTrack to have an associated ME1/b LCT and GEM Pad;SimTrack |#eta|;Eff.", "h_odd", "(70,1.54,2.2)", "TMath::Abs(eta)", ok_sh1, ok_lct1 && ok_pad1, "P", kRed);
+h2 = draw_geff(gt, "Eff. for a SimTrack to have an associated ME1/b LCT and GEM Pad;SimTrack |#eta|;Eff.", "h_odd", "(70,1.54,2.2)", "TMath::Abs(eta)", ok_sh2, ok_lct2 && ok_pad2, "P same");
+eff_base->GetYaxis()->SetRangeUser(0.6,1.05);
+TLegend *leg = new TLegend(0.42,0.23,.96,0.4, NULL, "brNDC");
+leg->SetBorderSize(0);
+leg->SetFillStyle(0);
+leg->AddEntry(h1, "odd chambers","l");
+leg->AddEntry(h2, "even chambers","l");
+leg->Draw();
+TLatex *  tex = new TLatex(0.17, 0.16,"No Pile-Up");
+tex->SetNDC();
+tex->Draw();
+cEff->Print("gem_pad_and_lct_eff_for_Trk_vsTrkEta_pt40.png");
+
+return;
+
+h1 = draw_geff(gt, "Eff. for a SimTrack to have an associated GEM Pad;SimTrack |#eta|;Eff.", "h_odd", "(70,1.54,2.2)", "TMath::Abs(eta)", "", ok_pad1 || ok_pad2, "P", kViolet);
+eff_base->GetYaxis()->SetRangeUser(0.6,1.05);
+TLatex *  tex = new TLatex(0.17, 0.16,"No Pile-Up");
+tex->SetNDC();
+tex->Draw();
+cEff->Print("gem_pad0_eff_for_Trk_vsTrkEta_pt40.png");
+
+
+
+
+TTree *gt15 = getTree("gem_csc_delta_pt15_pad4.root");
+h1 = draw_geff(gt15, "Eff. for a SimTrack to have an associated LCT;SimTrack |#eta|;Eff.", "h_odd", "(140,1.54,2.2)", "TMath::Abs(eta)", "", ok_lct1 || ok_lct2, "P", kViolet+2);
+cEff->Print("lct_eff_for_Trk_vsTrkEta_pt15.png");
+
+
 ho = draw_geff(gt, "Eff. for track with LCT to have GEM pad in chamber;LCT |#eta|;Eff.", "h_odd", "(140,1.5,2.2)", "TMath::Abs(eta_lct_odd)", ok_lct1, ok_pad1, "P", kRed);
 he = draw_geff(gt, "Eff. for track with LCT to have GEM pad in chamber;LCT |#eta|;Eff.", "h_evn", "(140,1.5,2.2)", "TMath::Abs(eta_lct_even)", ok_lct2, ok_pad2, "P same");
 TLegend *leg = new TLegend(0.42,0.23,.96,0.4, NULL, "brNDC");
