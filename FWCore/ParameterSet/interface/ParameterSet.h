@@ -229,7 +229,7 @@ namespace edm {
     // untracked parameters.
     size_t getParameterSetNames(std::vector<std::string>& output,
                                 bool trackiness = true) const;
-    size_t getParameterSetNames(std::vector<std::string>& output);
+
     // Return the names of all parameters of type
     // vector<ParameterSet>, pushing the names into the argument
     // 'output'. Return the number of names pushed into the vector. If
