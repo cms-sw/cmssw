@@ -28,7 +28,7 @@ HitExtractorSTRP::HitExtractorSTRP( const DetLayer* detLayer,
     SeedingLayer::Side & side, int idLayer)
   : theLayer(detLayer), theSide(side), theIdLayer(idLayer),
     hasMatchedHits(false), hasRPhiHits(false), hasStereoHits(false),
-    hasRingSelector(false), theMinRing(1), theMaxRing(0), hasSimpleRphiHitsCleaner(true)
+    hasRingSelector(false), theMinRing(1), theMaxRing(0), hasSimpleRphiHitsCleaner(true), minAbsZ(0)
 { }
 
 void HitExtractorSTRP::useRingSelector(int minRing, int maxRing) 
@@ -104,9 +104,13 @@ void HitExtractorSTRP::cleanedOfClusters( const edm::Event& ev, HitExtractor::Hi
   unsigned int projected=0;
   newHits.reserve(hits.size());
   TransientTrackingRecHit::ConstRecHitPointer replaceMe;
-  for (unsigned int iH=cleanFrom;iH<hits.size();++iH){
+  for (unsigned int iH=0;iH<hits.size();++iH){
     if (!hits[iH]->isValid()) continue;
     replaceMe=hits[iH];
+    if (iH<cleanFrom) {
+      newHits.push_back(replaceMe);
+      continue;
+    }
     if (matched && skipThis(hits[iH],stripClusterMask,replaceMe)){
       LogDebug("HitExtractorSTRP")<<"skipping a matched hit on :"<<hits[iH]->hit()->geographicalId().rawId();
       skipped++;
@@ -221,7 +225,18 @@ HitExtractor::Hits HitExtractorSTRP::hits(const SeedingLayer & sl, const edm::Ev
       edm::Handle<SiStripMatchedRecHit2DCollection> matchedHits;
       ev.getByLabel( theMatchedHits, matchedHits);
       if (skipClusters) cleanFrom=result.size();
-      range2SeedingHits( *matchedHits, result, accessor.stripTOBLayer(theIdLayer), sl, es); 
+      if (minAbsZ>0.) {
+	std::pair<DetId,DetIdTOBSameLayerComparator> getter = accessor.stripTOBLayer(theIdLayer);
+	SiStripMatchedRecHit2DCollection::Range range = matchedHits->equal_range(getter.first, getter.second);
+	for (SiStripMatchedRecHit2DCollection::const_iterator it = range.first; it != range.second; ++it) {
+	  for (SiStripMatchedRecHit2DCollection::DetSet::const_iterator hit = it->begin(), end = it->end(); hit != end; ++hit) {
+	    TransientTrackingRecHit::ConstRecHitPointer ttrh = sl.hitBuilder()->build(hit);
+	    if (fabs(ttrh->globalPosition().z())>=minAbsZ) result.push_back( ttrh ); 
+	  }
+	}
+      } else {
+	range2SeedingHits( *matchedHits, result, accessor.stripTOBLayer(theIdLayer), sl, es); 
+      }
       if (skipClusters) cleanedOfClusters(ev,result,true,cleanFrom);
     }
     if (hasRPhiHits) {
