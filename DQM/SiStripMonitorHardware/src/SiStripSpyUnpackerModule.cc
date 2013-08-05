@@ -3,6 +3,7 @@
  */
 
 // CMSSW includes
+#include "FWCore/Utilities/interface/EDGetToken.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -67,6 +68,7 @@ namespace sistrip {
         // Configuration
         std::vector<uint32_t> fed_ids_;     //!< Vector of FED IDs to examine (FEDs).
         const edm::InputTag productLabel_;  //!< The product label of the FEDRawDataCollection input.
+      edm::EDGetTokenT<FEDRawDataCollection> productToken_;
         const bool allowIncompleteEvents_;  //!< Allow inconsistent (by event count, APV address) event storage.
         const bool storeCounters_;          //!< True = store L1ID and TotalEventCount by FED key.
         const bool storeScopeRawDigis_;           //!< True = store the scope mode raw digis.
@@ -93,6 +95,7 @@ namespace sistrip {
     storeScopeRawDigis_(pset.getParameter<bool>("StoreScopeRawDigis")),
     unpacker_(NULL)
   {
+    productToken_ = consumes<FEDRawDataCollection>(productLabel_);
 
     if ((fed_ids_.size()==0)) {
       LogInfo(msgLb_) << "No FED IDs specified, so will try to unpack all FEDs with data" << std::endl;
@@ -139,7 +142,8 @@ namespace sistrip {
 
     //retrieve FED raw data (by label, which is "source" by default)
     edm::Handle<FEDRawDataCollection> buffers;
-    event.getByLabel( productLabel_, buffers ); 
+    //    event.getByLabel( productLabel_, buffers ); 
+    event.getByToken( productToken_, buffers ); 
     
     //create container for digis
     std::auto_ptr< edm::DetSetVector<SiStripRawDigi> > digis(new edm::DetSetVector<SiStripRawDigi>);
