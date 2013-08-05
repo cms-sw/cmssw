@@ -33,6 +33,9 @@ For its usage, see "FWCore/Framework/interface/PrincipalGetAdapter.h"
 
 namespace edm {
   class ProducerBase;
+  namespace stream {
+    template< typename T> class ProducingModuleAdaptorBase;
+  }
 
   class Run : public RunBase {
   public:
@@ -138,6 +141,7 @@ namespace edm {
     friend class InputSource;
     friend class RawInputSource;
     friend class ProducerBase;
+    template<typename T> friend class stream::ProducingModuleAdaptorBase;
 
     void commit_();
     void addToGotBranchIDs(Provenance const& prov) const;

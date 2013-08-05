@@ -15,6 +15,10 @@
 #include "FWCore/Framework/interface/global/EDFilterBase.h"
 #include "FWCore/Framework/interface/global/EDAnalyzerBase.h"
 
+#include "FWCore/Framework/interface/stream/EDProducerAdaptorBase.h"
+#include "FWCore/Framework/interface/stream/EDFilterAdaptorBase.h"
+#include "FWCore/Framework/interface/stream/EDAnalyzerAdaptorBase.h"
+
 namespace edm{
   namespace workerimpl {
     template<typename T>
@@ -37,6 +41,21 @@ namespace edm{
       static bool constexpr value = true;
     };
     
+    template<>
+    struct has_stream_functions<edm::stream::EDProducerAdaptorBase> {
+      static bool constexpr value = true;
+    };
+    
+    template<>
+    struct has_stream_functions<edm::stream::EDFilterAdaptorBase> {
+      static bool constexpr value = true;
+    };
+
+    template<>
+    struct has_stream_functions<edm::stream::EDAnalyzerAdaptorBase> {
+      static bool constexpr value = true;
+    };
+
     struct DoNothing {
       template< typename... T>
       inline void operator()(const T&...) {}
@@ -138,7 +157,6 @@ namespace edm{
     workerimpl::DoStreamBeginTrans<T,RunPrincipal>,
     workerimpl::DoNothing>::type might_call;
     might_call(this,id,rp,c,cpc);
-    //module_->doStreamBeginRun(id, rp, c, cpc);
     return true;
   }
   
@@ -150,7 +168,6 @@ namespace edm{
     workerimpl::DoStreamEndTrans<T,RunPrincipal>,
     workerimpl::DoNothing>::type might_call;
     might_call(this,id,rp,c,cpc);
-    //module_->doStreamEndRun(id, rp, c, cpc);
     return true;
   }
   
@@ -197,7 +214,6 @@ namespace edm{
     workerimpl::DoStreamBeginTrans<T,LuminosityBlockPrincipal>,
     workerimpl::DoNothing>::type might_call;
     might_call(this,id,lbp,c,cpc);
-    //module_->doStreamBeginLuminosityBlock(id, lbp, c, cpc);
     return true;
   }
   
@@ -210,7 +226,6 @@ namespace edm{
     workerimpl::DoNothing>::type might_call;
     might_call(this,id,lbp,c,cpc);
 
-    //module_->doStreamEndLuminosityBlock(id, lbp, c, cpc);
     return true;
   }
   
@@ -334,7 +349,14 @@ namespace edm{
   template<>
   Worker::Types WorkerT<edm::global::EDAnalyzerBase>::moduleType() const { return Worker::kAnalyzer;}
 
-  
+
+  template<>
+  Worker::Types WorkerT<edm::stream::EDProducerAdaptorBase>::moduleType() const { return Worker::kProducer;}
+  template<>
+  Worker::Types WorkerT<edm::stream::EDFilterAdaptorBase>::moduleType() const { return Worker::kFilter;}
+  template<>
+  Worker::Types WorkerT<edm::stream::EDAnalyzerAdaptorBase>::moduleType() const { return Worker::kAnalyzer;}
+
   //Explicitly instantiate our needed templates to avoid having the compiler
   // instantiate them in all of our libraries
   template class WorkerT<EDProducer>;
@@ -348,4 +370,7 @@ namespace edm{
   template class WorkerT<global::EDProducerBase>;
   template class WorkerT<global::EDFilterBase>;
   template class WorkerT<global::EDAnalyzerBase>;
+  template class WorkerT<stream::EDProducerAdaptorBase>;
+  template class WorkerT<stream::EDFilterAdaptorBase>;
+  template class WorkerT<stream::EDAnalyzerAdaptorBase>;
 }
