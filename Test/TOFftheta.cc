@@ -34,6 +34,9 @@ Double_t delta_t( Double_t *eta, Double_t *par )
     if(par[4]==0.0) value=tdiff;
     if(par[4]==1.0) value=neutral_t;
     if(par[4]==2.0) value=Tfinal*relr/(C()*Sin(theta));
+    if(par[4]==3.0) value=relr;
+    if(par[4]==4.0) value=neutral_t_e;
+    if(par[4]==5.0) value=Tz1*relr/(C()*Sin(theta));
     return value;
 }
 
@@ -43,19 +46,31 @@ int main()
     TFile *outfile=new TFile("1.root", "RECREATE");
     TCanvas *c1=new TCanvas("c1","asdfaksdfj",600,400);
     TLegend *legend=new TLegend(0.6,0.7,0.89,0.89);
-    TF1 *f = new TF1( "deltat",delta_t, 0.1,3.,5);
+    TF1 *f = new TF1( "t_{charged}-t_{neutral}",delta_t, 0.1,3.,5);
     f->SetParameters(5.0,0.0,1.0,9.1E-31,0.0);f->SetLineColor(42);
-    f->Draw();
     f->Write();
     c1->Update();
-    TF1 *f2 = new TF1( "deltat2", delta_t, 0.1, 3., 5 );
-    f2->SetParameters(10.0,0.0,1.,9.1E-31,0.0);f2->SetLineColor(13);
+    TF1 *f2 = new TF1( "neutral particle time", delta_t, 0.1, 3., 5 );
+    f2->SetParameters(50.0,0.0,1.,9.1E-31,1.0);f2->SetLineColor(13);
     f2->Draw("SAME");
     f2->Write();
-    TF1 *f3 = new TF1( "deltat3", delta_t, 0.1, 3., 5 );
-    f3->SetParameters(50.0,0.0,1.,9.1E-31,0.0);
+    TF1 *f3 = new TF1( "charged particle time", delta_t, 0.1, 3., 5 );
+    f3->SetParameters(50.0,0.0,1.,9.1E-31,2.0); f3->SetLineColor(55);
     f3->Draw("SAME");
     f3->Write();
+    TF1 *f4 = new TF1( "relativistic radius", delta_t, 0.1, 3., 5 );
+    f4->SetParameters(50.0,0.0,1.,9.1E-31,3.0);f4->SetLineColor(1);
+    f4->Draw("SAME");
+    f4->Write();
+    TF1 *f5 = new TF1( "neutral if only endcap time", delta_t, 0.1, 3., 5 );
+    f5->SetParameters(50.0,0.0,1.,9.1E-31,4.0);f5->SetLineColor(77);
+    f5->Draw("SAME");
+    f5->Write();
+    TF1 *f6 = new TF1( "charged if only endcap time", delta_t, 0.1, 3., 5 );
+    f6->SetParameters(50.0,0.0,1.,9.1E-31,5.0);f6->SetLineColor(100);
+    f6->Draw("SAME");
+    f6->Write();
+
     legend->AddEntry(f,"p=5GeV","l");
     legend->AddEntry(f2,"p=10GeV","l");
     legend->AddEntry(f3,"p=50GeV","l");
