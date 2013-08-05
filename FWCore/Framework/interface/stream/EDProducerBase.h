@@ -24,6 +24,7 @@
 #include "FWCore/Framework/interface/ProducerBase.h"
 #include "FWCore/Framework/interface/EDConsumerBase.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/stream/StreamWorker.h"
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
 #include "FWCore/ParameterSet/interface/ParameterSetfwd.h"
 
@@ -31,19 +32,20 @@
 namespace edm {
   namespace stream {
     class EDProducerAdaptorBase;
-    class StreamProducerWorker;
+    template<typename T> class StreamWorker;
     
     class EDProducerBase : public edm::ProducerBase, public edm::EDConsumerBase
     {
       //This needs access to the parentage cache info
       friend class EDProducerAdaptorBase;
-      typedef EDProducerBase ModuleType;
+
+    public:
+      typedef EDProducerAdaptorBase ModuleType;
       //WorkerType is used to call the 'makeModule<T>' call which constructs
       // the actual module. We can use the StreamWorker to create the actual
       // module which holds the various stream modules
-      typedef StreamProducerWorker WorkerType;
+      typedef StreamWorker<EDProducerAdaptorBase> WorkerType;
 
-    public:
       EDProducerBase();
       virtual ~EDProducerBase();
       
