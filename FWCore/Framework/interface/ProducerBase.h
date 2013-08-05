@@ -27,6 +27,9 @@ namespace edm {
     class EDProducerBase;
     class EDFilterBase;
   }
+  namespace stream {
+    template<typename T> class ProducingModuleAdaptorBase;
+  }
   
   class ProducerBase : private ProductRegistryHelper {
   public:
@@ -56,6 +59,7 @@ namespace edm {
     friend class one::EDFilterBase;
     friend class global::EDProducerBase;
     friend class global::EDFilterBase;
+    template<typename T> friend class stream::ProducingModuleAdaptorBase;
     
     template< typename P>
     void commit_(P& iPrincipal) {

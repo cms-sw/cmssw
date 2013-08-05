@@ -38,6 +38,10 @@ For its usage, see "FWCore/Framework/interface/PrincipalGetAdapter.h"
 
 namespace edm {
   class ProducerBase;
+  namespace stream {
+    template< typename T> class ProducingModuleAdaptorBase;
+  }
+
 
   class LuminosityBlock : public LuminosityBlockBase {
   public:
@@ -129,6 +133,8 @@ namespace edm {
     friend class DaqSource;
     friend class RawInputSource;
     friend class ProducerBase;
+    template<typename T> friend class stream::ProducingModuleAdaptorBase;
+
 
     void commit_();
     void addToGotBranchIDs(Provenance const& prov) const;

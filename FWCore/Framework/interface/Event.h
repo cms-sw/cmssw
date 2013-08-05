@@ -53,6 +53,9 @@ namespace edm {
   class TriggerNames;
   class EDConsumerBase;
   class ProducerBase;
+  namespace stream {
+    template< typename T> class ProducingModuleAdaptorBase;
+  }
 
   class Event : public EventBase {
   public:
@@ -217,6 +220,7 @@ namespace edm {
     friend class InputSource;
     friend class RawInputSource;
     friend class ProducerBase;
+    template<typename T> friend class stream::ProducingModuleAdaptorBase;
 
     void commit_(std::vector<BranchID>* previousParentage= 0, ParentageID* previousParentageId = 0);
     void commit_aux(ProductPtrVec& products, bool record_parents, std::vector<BranchID>* previousParentage = 0, ParentageID* previousParentageId = 0);
