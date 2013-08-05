@@ -160,7 +160,7 @@ namespace edm {
         // No product was found matching the alias.
         // We throw an exception only if a module with the specified module label was created in this process.
         for(auto const& product : preg.productList()) {
-          if(moduleLabel == product.first.moduleLabel_ && processName == product.first.processName_) {
+          if(moduleLabel == product.first.moduleLabel() && processName == product.first.processName()) {
             throw Exception(errors::Configuration, "EDAlias does not match data\n")
               << "There are no products of type '" << friendlyClassName << "'\n"
               << "with module label '" << moduleLabel << "' and instance name '" << productInstanceName << "'.\n";
@@ -184,7 +184,7 @@ namespace edm {
             << "The module label alias '" << alias << "' and product instance alias '" << theInstanceAlias << "'\n"
             << "are used for multiple products of type '" << friendlyClassName << "'\n"
             << "One has module label '" << moduleLabel << "' and product instance name '" << productInstanceName << "',\n"
-            << "the other has module label '" << iter->second.moduleLabel_ << "' and product instance name '" << iter->second.productInstanceName_ << "'.\n";
+            << "the other has module label '" << iter->second.moduleLabel() << "' and product instance name '" << iter->second.productInstanceName() << "'.\n";
         }
       } else {
         auto prodIter = preg.productList().find(key);
@@ -234,20 +234,20 @@ namespace edm {
               bool match = false;
               BranchKey lowerBound(friendlyClassName, moduleLabel, empty, empty);
               for(ProductRegistry::ProductList::const_iterator it = preg.productList().lower_bound(lowerBound);
-                  it != preg.productList().end() && it->first.friendlyClassName_ == friendlyClassName && it->first.moduleLabel_ == moduleLabel;
+                  it != preg.productList().end() && it->first.friendlyClassName() == friendlyClassName && it->first.moduleLabel() == moduleLabel;
                   ++it) {
-                if(it->first.processName_ != processName) {
+                if(it->first.processName() != processName) {
                   continue;
                 }
                 match = true;
 
-                checkAndInsertAlias(friendlyClassName, moduleLabel, it->first.productInstanceName_, processName, alias, instanceAlias, preg, aliasMap, aliasKeys);
+                checkAndInsertAlias(friendlyClassName, moduleLabel, it->first.productInstanceName(), processName, alias, instanceAlias, preg, aliasMap, aliasKeys);
               }
               if(!match) {
                 // No product was found matching the alias.
                 // We throw an exception only if a module with the specified module label was created in this process.
                 for(auto const& product : preg.productList()) {
-                  if(moduleLabel == product.first.moduleLabel_ && processName == product.first.processName_) {
+                  if(moduleLabel == product.first.moduleLabel() && processName == product.first.processName()) {
                     throw Exception(errors::Configuration, "EDAlias parameter set mismatch\n")
                        << "There are no products of type '" << friendlyClassName << "'\n"
                        << "with module label '" << moduleLabel << "'.\n";
@@ -266,7 +266,7 @@ namespace edm {
       for(auto const& aliasEntry : aliasMap) {
         ProductRegistry::ProductList::const_iterator it = preg.productList().find(aliasEntry.first);
         assert(it != preg.productList().end()); 
-        preg.addLabelAlias(it->second, aliasEntry.second.moduleLabel_, aliasEntry.second.productInstanceName_);
+        preg.addLabelAlias(it->second, aliasEntry.second.moduleLabel(), aliasEntry.second.productInstanceName());
       }
 
     }
@@ -393,7 +393,7 @@ namespace edm {
     processEDAliases(proc_pset, processConfiguration->processName(), preg);
 
     proc_pset.registerIt();
-    pset::Registry::instance()->extra().setID(proc_pset.id());
+    pset::Registry::instance()->extraForUpdate().setID(proc_pset.id());
     processConfiguration->setParameterSetID(proc_pset.id());
     processConfiguration->setProcessConfigurationID();
 

@@ -325,7 +325,7 @@ namespace edm {
   void
   IndexIntoFile::reduceProcessHistoryIDs() {
 
-    FullHistoryToReducedHistoryMap & phidConverter(ProcessHistoryRegistry::instance()->extra());
+    FullHistoryToReducedHistoryMap& phidConverter(ProcessHistoryRegistry::instance()->extraForUpdate());
 
     std::vector<ProcessHistoryID> reducedPHIDs;
 

@@ -51,16 +51,16 @@ namespace edm {
     FDEBUG(9) << "Product List: " << std::endl;
 
 
-    for(; i != e; ++i)  {
-        sd.push_back(**i);
-        FDEBUG(9) << "StreamOutput got product = " << (*i)->className()
+    for(auto const& selection : *selections_)  {
+        sd.push_back(*selection);
+        FDEBUG(9) << "StreamOutput got product = " << selection->className()
                   << std::endl;
     }
     Service<ConstProductRegistry> reg;
     sd.setBranchIDLists(branchIDLists);
     SendJobHeader::ParameterSetMap psetMap;
 
-    pset::fillMap(pset::Registry::instance(), psetMap);
+    pset::fillMap(*pset::Registry::instance(), psetMap);
     sd.setParameterSetMap(psetMap);
 
     typedef ProcessConfigurationRegistry::collection_type PCMap;
