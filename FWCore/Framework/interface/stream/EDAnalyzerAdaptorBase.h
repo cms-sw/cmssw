@@ -21,8 +21,8 @@
 // system include files
 
 // user include files
-#include "FWCore/Framework/interface/ProducerBase.h"
-#include "FWCore/Framework/interface/EDConsumerBase.h"
+#include "DataFormats/Provenance/interface/BranchType.h"
+#include "FWCore/Utilities/interface/ProductHolderIndex.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
 #include "FWCore/ParameterSet/interface/ParameterSetfwd.h"
@@ -34,9 +34,11 @@
 // forward declarations
 
 namespace edm {
+  class ProductHolderIndexHelper;
+  class EDConsumerBase;
   namespace stream {
     class EDAnalyzerBase;
-    class EDAnalyzerAdaptorBase : public EDConsumerBase
+    class EDAnalyzerAdaptorBase
     {
       
     public:
@@ -60,6 +62,13 @@ namespace edm {
         m_streamModules[0] = iFunc();
       }
       
+      //Same interface as EDConsumerBase
+      void itemsToGet(BranchType, std::vector<ProductHolderIndex>&) const;
+      void itemsMayGet(BranchType, std::vector<ProductHolderIndex>&) const;
+      void updateLookup(BranchType iBranchType,
+                        ProductHolderIndexHelper const&);
+      
+      const EDConsumerBase* consumer() const;
     private:
       EDAnalyzerAdaptorBase(const EDAnalyzerAdaptorBase&); // stop default
       

@@ -21,23 +21,28 @@
 // system include files
 
 // user include files
-#include "FWCore/Framework/interface/ProducerBase.h"
-#include "FWCore/Framework/interface/EDConsumerBase.h"
+#include "DataFormats/Provenance/interface/BranchType.h"
+#include "FWCore/Utilities/interface/ProductHolderIndex.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
 #include "FWCore/ParameterSet/interface/ParameterSetfwd.h"
 #include "FWCore/Utilities/interface/StreamID.h"
 #include "FWCore/Utilities/interface/RunIndex.h"
 #include "FWCore/Utilities/interface/LuminosityBlockIndex.h"
-
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/Run.h"
+#include "FWCore/Framework/interface/LuminosityBlock.h"
 
 // forward declarations
 
 namespace edm {
   class Event;
+  class ProductHolderIndexHelper;
+  class EDConsumerBase;
+  
   namespace stream {
     template<typename T>
-    class ProducingModuleAdaptorBase : public ProducerBase, public EDConsumerBase
+    class ProducingModuleAdaptorBase
     {
       
     public:
@@ -55,22 +60,32 @@ namespace edm {
       
       void
       registerProductsAndCallbacks(ProducingModuleAdaptorBase const*, ProductRegistry* reg);
+      
+      void itemsToGet(BranchType, std::vector<ProductHolderIndex>&) const;
+      void itemsMayGet(BranchType, std::vector<ProductHolderIndex>&) const;
+      void updateLookup(BranchType iBranchType,
+                        ProductHolderIndexHelper const&);
+
+
     protected:
       template<typename F> void createStreamModules(F iFunc) {
         m_streamModules[0] = iFunc();
       }
       
       void commit(Run& iRun) {
-        commit_(iRun);
+        iRun.commit_();
       }
       void commit(LuminosityBlock& iLumi) {
-        commit_(iLumi);
+        iLumi.commit_();
       }
       template<typename L, typename I>
       void commit(Event& iEvent, L* iList, I* iID) {
-        commit_(iEvent,iList,iID);
+        iEvent.commit_(iList,iID);
       }
 
+      const EDConsumerBase* consumer() {
+        return m_streamModules[0];
+      }
     private:
       ProducingModuleAdaptorBase(const ProducingModuleAdaptorBase&) = delete; // stop default
       

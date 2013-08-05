@@ -75,6 +75,29 @@ EDAnalyzerAdaptorBase::registerProductsAndCallbacks(EDAnalyzerAdaptorBase const*
   }
 }
 
+void
+EDAnalyzerAdaptorBase::itemsToGet(BranchType iType, std::vector<ProductHolderIndex>& iIndices) const {
+  assert(not m_streamModules.empty());
+  m_streamModules[0]->itemsToGet(iType,iIndices);
+}
+void
+EDAnalyzerAdaptorBase::itemsMayGet(BranchType iType, std::vector<ProductHolderIndex>& iIndices) const {
+  assert(not m_streamModules.empty());
+  m_streamModules[0]->itemsToGet(iType,iIndices);  
+}
+
+void
+EDAnalyzerAdaptorBase::updateLookup(BranchType iType,
+                                    ProductHolderIndexHelper const& iHelper) {
+  for(auto mod: m_streamModules) {
+    mod->updateLookup(iType,iHelper);
+  }
+}
+
+const edm::EDConsumerBase*
+EDAnalyzerAdaptorBase::consumer() const {
+  return m_streamModules[0];
+}
 
 
 bool
@@ -154,7 +177,7 @@ EDAnalyzerAdaptorBase::doStreamEndLuminosityBlock(StreamID id,
   auto mod = m_streamModules[id];
   detail::CPCSentry sentry(mod->current_context_, cpcp);
   LuminosityBlock lb(lbp, moduleDescription_);
-  lb.setConsumer(this);
+  lb.setConsumer(mod);
   mod->endLuminosityBlock(lb, c);
   streamEndLuminosityBlockSummary(mod,lb, c);
 

@@ -54,15 +54,50 @@ namespace edm {
     template< typename T>
     void
     ProducingModuleAdaptorBase<T>::registerProductsAndCallbacks(ProducingModuleAdaptorBase const*, ProductRegistry* reg) {
-      for(auto mod : m_streamModules) {
-        //NOTE: this will cause us to register the same products multiple times
-        // since each stream module will indepdently do this
-        //Maybe I could only have module 0 do the registration and only call
-        // the callbacks for the others
-        mod->registerProducts(mod, reg, moduleDescription_);
+      auto firstMod = m_streamModules[0];
+      if(firstMod->registrationCallback() and m_streamModules.size()>1) {
+        //we have a callback so we will collect all callbacks and create a new callback which calls them all.
+        
+        std::vector<std::function<void(BranchDescription const&)>> callbacks;
+        callbacks.reserve(m_streamModules.size());
+        
+        for(auto mod: m_streamModules) {
+          callbacks.push_back(mod->registrationCallback());
+        }
+        //Since only the first module will actually do the registration
+        // we will change its callback to call all the callbacks
+        firstMod->callWhenNewProductsRegistered([callbacks](BranchDescription const& iBD) {
+          for(auto c: callbacks) {
+            c(iBD);
+          }
+        });
       }
+      firstMod->registerProducts(firstMod,reg,moduleDescription_);
     }
     
+    template< typename T>
+    void
+    ProducingModuleAdaptorBase<T>::itemsToGet(BranchType iType, std::vector<ProductHolderIndex>& iIndices) const {
+      assert(not m_streamModules.empty());
+      m_streamModules[0]->itemsToGet(iType,iIndices);
+    }
+    
+    template< typename T>
+    void
+    ProducingModuleAdaptorBase<T>::itemsMayGet(BranchType iType, std::vector<ProductHolderIndex>& iIndices) const {
+      assert(not m_streamModules.empty());
+      m_streamModules[0]->itemsToGet(iType,iIndices);
+    }
+
+    template< typename T>
+    void
+    ProducingModuleAdaptorBase<T>::updateLookup(BranchType iType,
+                                        ProductHolderIndexHelper const& iHelper) {
+      for(auto mod: m_streamModules) {
+        mod->updateLookup(iType,iHelper);
+      }
+    }
+
     template< typename T>
     void
     ProducingModuleAdaptorBase<T>::doBeginJob() {
@@ -136,7 +171,7 @@ namespace edm {
       auto mod = m_streamModules[id];
       detail::CPCSentry sentry(mod->current_context_, cpcp);
       LuminosityBlock lb(lbp, moduleDescription_);
-      lb.setConsumer(this);
+      lb.setConsumer(mod);
       mod->endLuminosityBlock(lb, c);
       streamEndLuminosityBlockSummary(mod,lb, c);
     }
