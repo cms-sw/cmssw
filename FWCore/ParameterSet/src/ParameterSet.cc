@@ -775,12 +775,15 @@ namespace edm {
     return result;
   }
 
+/*
+  // Comment out unneeded function
   size_t
-  ParameterSet::getParameterSetNames(std::vector<std::string>& output) {
+  ParameterSet::getAllParameterSetNames(std::vector<std::string>& output) const {
     std::transform(psetTable_.begin(), psetTable_.end(), back_inserter(output),
                    boost::bind(&std::pair<std::string const, ParameterSetEntry>::first, _1));
     return output.size();
   }
+*/
 
   size_t
   ParameterSet::getParameterSetNames(std::vector<std::string>& output,
