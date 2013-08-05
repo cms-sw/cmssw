@@ -43,57 +43,62 @@ void comparisonScript(string inFile="../test/testComparison.root",string outDir=
 	// plots the normal 3x3 plus dx/dy vs. r/z/phi
 	// stores each histogram to output file (including dr/dz/r*dphi 1D plots)
 	//syntax (TCut Cut, dirrectory name, bool savePlot, std::string plotName, bool autolimits, int ColorCode (0=z/-z separation| 1= subdetector seperation ))
-	c1.plot3x5( levelCut, "Tracker",true,"Tracker.eps", true,1 );
-	c1.plot3x5( levelCut+PXBCut, "PXB", true,  "PXB.eps", true ,0);
-	c1.plot3x5( levelCut+PXFCut, "PXF", true,  "PXF.eps", true ,0);
-	c1.plot3x5( levelCut+TIBCut, "TIB", true,  "TIB.eps", true ,0);
-	c1.plot3x5( levelCut+TIDCut, "TID", true,  "TID.eps", true ,0);
-	c1.plot3x5( levelCut+TOBCut, "TOB", true,  "TOB.eps", true ,0);
-	c1.plot3x5( levelCut+TECCut, "TEC", true,  "TEC.eps", true ,0);
+	
+	c1.plot3x5( levelCut, "Tracker",true,"Tracker.pdf", true,1 );
+	c1.plot3x5( levelCut+PXBCut, "PXB", true,  "PXB.pdf", true ,0);
+	c1.plot3x5( levelCut+PXFCut, "PXF", true,  "PXF.pdf", true ,0);
+	c1.plot3x5( levelCut+TIBCut, "TIB", true,  "TIB.pdf", true ,0);
+	c1.plot3x5( levelCut+TIDCut, "TID", true,  "TID.pdf", true ,0);
+	c1.plot3x5( levelCut+TOBCut, "TOB", true,  "TOB.pdf", true ,0);
+	c1.plot3x5( levelCut+TECCut, "TEC", true,  "TEC.pdf", true ,0);
 
-        c1.plotTwist( levelCut, "TwistTracker",true,"Tracker.eps", true,1 );
-	c1.plotTwist( levelCut+PXBCut, "TwistPXB", true,  "PXB.eps", true ,0);
-	c1.plotTwist( levelCut+PXFCut, "TwistPXF", true,  "PXF.eps", true ,0);
-	c1.plotTwist( levelCut+TIBCut, "TwistTIB", true,  "TIB.eps", true ,0);
-	c1.plotTwist( levelCut+TIDCut, "TwistTID", true,  "TID.eps", true ,0);
-	c1.plotTwist( levelCut+TOBCut, "TwistTOB", true,  "TOB.eps", true ,0);
-	c1.plotTwist( levelCut+TECCut, "TwistTEC", true,  "TEC.eps", true ,0);
+	c1.plot3x3Rot( levelCut,        "Tracker", true, "Tracker.pdf", true, 1);
+	c1.plot3x3Rot( levelCut+PXBCut, "PXB",     true, "PXB.pdf",     true ,0);
+	c1.plot3x3Rot( levelCut+PXFCut, "PXF",     true, "PXF.pdf",     true ,0);
+	c1.plot3x3Rot( levelCut+TIBCut, "TIB",     true, "TIB.pdf",     true ,0);
+	c1.plot3x3Rot( levelCut+TIDCut, "TID",     true, "TID.pdf",     true ,0);
+	c1.plot3x3Rot( levelCut+TOBCut, "TOB",     true, "TOB.pdf",     true ,0);
+	c1.plot3x3Rot( levelCut+TECCut, "TEC",     true, "TEC.pdf",     true ,0);
 
-
+        c1.plotTwist( levelCut, "TwistTracker",true,"Tracker.pdf", true,1 );
+	c1.plotTwist( levelCut+PXBCut, "TwistPXB", true,  "PXB.pdf", true ,0);
+	c1.plotTwist( levelCut+PXFCut, "TwistPXF", true,  "PXF.pdf", true ,0);
+	c1.plotTwist( levelCut+TIBCut, "TwistTIB", true,  "TIB.pdf", true ,0);
+	c1.plotTwist( levelCut+TIDCut, "TwistTID", true,  "TID.pdf", true ,0);
+	c1.plotTwist( levelCut+TOBCut, "TwistTOB", true,  "TOB.pdf", true ,0);
+	c1.plotTwist( levelCut+TECCut, "TwistTEC", true,  "TEC.pdf", true ,0);
 
 	//again this time only for 2D modules
 
-	c1.plot3x5( levelCut+Det2dCut, "Tracker2D",true,"Tracker2D.eps", true ,1);
-	//c1.plot3x5( levelCut+PXBCut+Det2dCut, "PXB2D", true,  "PXB2D.eps", true );
-	//c1.plot3x5( levelCut+PXFCut+Det2dCut, "PXF2D", true,  "PXF2D.eps", true );
-	c1.plot3x5( levelCut+TIBCut+Det2dCut, "TIB2D", true,  "TIB2D.eps", true ,0);
-	c1.plot3x5( levelCut+TIDCut+Det2dCut, "TID2D", true,  "TID2D.eps", true ,0);
-	c1.plot3x5( levelCut+TOBCut+Det2dCut, "TOB2D", true,  "TOB2D.eps", true,0 );
-	c1.plot3x5( levelCut+TECCut+Det2dCut, "TEC2D", true,  "TEC2D.eps", true ,0);
+	c1.plot3x5( levelCut+Det2dCut,        "Tracker2D",true,"Tracker2D.pdf", true ,1);
+	c1.plot3x5( levelCut+PXBCut+Det2dCut, "PXB2D", true,  "PXB2D.pdf", true );
+	c1.plot3x5( levelCut+PXFCut+Det2dCut, "PXF2D", true,  "PXF2D.pdf", true );
+	c1.plot3x5( levelCut+TIBCut+Det2dCut, "TIB2D", true,  "TIB2D.pdf", true ,0);
+	c1.plot3x5( levelCut+TIDCut+Det2dCut, "TID2D", true,  "TID2D.pdf", true ,0);
+	c1.plot3x5( levelCut+TOBCut+Det2dCut, "TOB2D", true,  "TOB2D.pdf", true,0 );
+	c1.plot3x5( levelCut+TECCut+Det2dCut, "TEC2D", true,  "TEC2D.pdf", true ,0);
 	
 
-	c1.plotTwist( levelCut+Det2dCut, "TwistTracker2D",true,"Tracker2D.eps", true ,1);
-	//c1.plotTwist( levelCut+PXBCut+Det2dCut, "TwistPXB2D", true,  "PXB2D.eps", true );
-	//c1.plotTwist( levelCut+PXFCut+Det2dCut, "TwistPXF2D", true,  "PXF2D.eps", true );
-	c1.plotTwist( levelCut+TIBCut+Det2dCut, "TwistTIB2D", true,  "TIB2D.eps", true ,0);
-	c1.plotTwist( levelCut+TIDCut+Det2dCut, "TwistTID2D", true,  "TID2D.eps", true ,0);
-	c1.plotTwist( levelCut+TOBCut+Det2dCut, "TwistTOB2D", true,  "TOB2D.eps", true,0 );
-	c1.plotTwist( levelCut+TECCut+Det2dCut, "TwistTEC2D", true,  "TEC2D.eps", true ,0);
-	
-
-
+	c1.plotTwist( levelCut+Det2dCut,        "TwistTracker2D",true,"Tracker2D.pdf", true ,1);
+	c1.plotTwist( levelCut+PXBCut+Det2dCut, "TwistPXB2D", true,  "PXB2D.pdf", true );
+	c1.plotTwist( levelCut+PXFCut+Det2dCut, "TwistPXF2D", true,  "PXF2D.pdf", true );
+	c1.plotTwist( levelCut+TIBCut+Det2dCut, "TwistTIB2D", true,  "TIB2D.pdf", true ,0);
+	c1.plotTwist( levelCut+TIDCut+Det2dCut, "TwistTID2D", true,  "TID2D.pdf", true ,0);
+	c1.plotTwist( levelCut+TOBCut+Det2dCut, "TwistTOB2D", true,  "TOB2D.pdf", true,0 );
+	c1.plotTwist( levelCut+TECCut+Det2dCut, "TwistTEC2D", true,  "TEC2D.pdf", true ,0);
 	
 	// plots the normal 3x3 plus dx/dy vs. r/z/phi 2D profile plots
 	// second argument is the nBinsX for profile plot
 	// all arguments are stored to output file
 	//syntax (TCut Cut, dirrectory name, bool savePlot, std::string plotName, bool autolimits, int ColorCode (0=z/-z separation| 1= subdetector seperation ))
-	c1.plot3x5Profile( levelCut, "Tracker", 50,true,"Tracker.eps", false ,1);
-	c1.plot3x5Profile( levelCut+PXBCut,"PXB", 50, true,  "PXB.eps", false ,0);
-	c1.plot3x5Profile( levelCut+PXFCut,"PXF", 50, true,  "PXF.eps", false,0 );
-	c1.plot3x5Profile( levelCut+TIBCut,"TIB", 50 , true,  "TIB.eps", false,0 );
-	c1.plot3x5Profile( levelCut+TIDCut,"TID", 50, true,  "TID.eps", false,0) ;
-	c1.plot3x5Profile( levelCut+TOBCut,"TOB", 50, true,  "TOB.eps", false ,0);
-	c1.plot3x5Profile( levelCut+TECCut,"TEC", 50, true,  "TEC.eps", false,0 );
+	c1.plot3x5Profile( levelCut,       "Tracker", 50, true, "Tracker.pdf", true, 1);
+	c1.plot3x5Profile( levelCut+PXBCut,"PXB",     50, true, "PXB.pdf",     true, 0);
+	c1.plot3x5Profile( levelCut+PXFCut,"PXF",     50, true, "PXF.pdf",     true, 0);
+	c1.plot3x5Profile( levelCut+TIBCut,"TIB",     50 ,true, "TIB.pdf",     true, 0);
+	c1.plot3x5Profile( levelCut+TIDCut,"TID",     50, true, "TID.pdf",     true, 0);
+	c1.plot3x5Profile( levelCut+TOBCut,"TOB",     50, true, "TOB.pdf",     true, 0);
+	c1.plot3x5Profile( levelCut+TECCut,"TEC",     50, true, "TEC.pdf",     true, 0);
 	
+	return ; 
 	
 }

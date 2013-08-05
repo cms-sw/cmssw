@@ -61,34 +61,48 @@ class ResidualRefitting : public edm::EDAnalyzer{
 	ResidualRefitting::storage_event eventInfo_;
 
  
-	typedef struct {
+	typedef struct StorageMuon {
 
 		int n_;
     
-		int 	charge_			[N_MAX_STORED];
-		float 	pt_  			[N_MAX_STORED];
-		float 	eta_ 			[N_MAX_STORED];
-		float 	p_  	 		[N_MAX_STORED];
-		float 	phi_ 			[N_MAX_STORED];
+		int 	charge_		[N_MAX_STORED];
+		float 	pt_  		[N_MAX_STORED];
+		float 	eta_ 		[N_MAX_STORED];
+		float 	p_  	 	[N_MAX_STORED];
+		float 	phi_ 		[N_MAX_STORED];
 		int 	numRecHits_ 	[N_MAX_STORED];
-		float 	chiSq_ 			[N_MAX_STORED];
-		float 	ndf_ 			[N_MAX_STORED];
+		float 	chiSq_ 		[N_MAX_STORED];
+		float 	ndf_ 		[N_MAX_STORED];
 		float 	chiSqOvrNdf_ 	[N_MAX_STORED];
-	
+
+	        StorageMuon() :
+		  n_(0) {
+		  for (int i=0;i<N_MAX_STORED;++i) {
+		    charge_[i] = 0;
+		    pt_[i] = 0.;
+		    eta_[i] = 0.;
+		    p_[i] = 0.;
+		    phi_[i] = 0.;
+		    numRecHits_[i] = 0;
+		    chiSq_[i] = 0.;
+		    ndf_[i] = 0.;
+		    chiSqOvrNdf_[i] = 0.;
+		  }
+		}
 	} storage_muon; // Storage for standard muon information
 
-	typedef struct {
+	typedef struct StorageHit {
 	
 		int n_;
-		int muonLink_[N_MAX_STORED_HIT];
+		int muonLink_           [N_MAX_STORED_HIT];
 		
 		int system_		[N_MAX_STORED_HIT];
 		int endcap_		[N_MAX_STORED_HIT];
-		int station_	[N_MAX_STORED_HIT];
+		int station_	        [N_MAX_STORED_HIT];
 		int ring_		[N_MAX_STORED_HIT];
-		int chamber_	[N_MAX_STORED_HIT];
+		int chamber_	        [N_MAX_STORED_HIT];
 		int layer_		[N_MAX_STORED_HIT];
-		int superLayer_	[N_MAX_STORED_HIT];
+		int superLayer_	        [N_MAX_STORED_HIT];
 		int wheel_		[N_MAX_STORED_HIT];
 		int sector_		[N_MAX_STORED_HIT];
 		
@@ -101,10 +115,32 @@ class ResidualRefitting : public edm::EDAnalyzer{
 		float	lpY_		[N_MAX_STORED_HIT];
 		float	lpZ_		[N_MAX_STORED_HIT];
 		
-
+	        StorageHit() :
+		  n_(0) {
+		  for (int i=0;i<N_MAX_STORED_HIT;++i) {
+		    muonLink_[i] = 0;
+		    system_[i] = 0;
+		    endcap_[i] = 0;
+		    station_[i] = 0;
+		    ring_[i] = 0;
+		    chamber_[i] = 0;
+		    layer_[i] = 0;
+		    superLayer_[i] = 0;
+		    wheel_[i] = 0;
+		    sector_[i] = 0;
+		    gpX_[i] = 0.;
+		    gpY_[i] = 0.;
+		    gpZ_[i] = 0.;
+		    gpEta_[i] = 0.;
+		    gpPhi_[i] = 0.;
+		    lpX_[i] = 0.;
+		    lpY_[i] = 0.;
+		    lpZ_[i] = 0.;		    
+		  }
+		}
 	} storage_hit;
 
-	typedef struct {
+	typedef struct StorageTrackExtrap {
 	
 		int n_;
 		
@@ -121,9 +157,28 @@ class ResidualRefitting : public edm::EDAnalyzer{
 		float resX_			[N_MAX_STORED_HIT];
 		float resY_			[N_MAX_STORED_HIT];
 		float resZ_			[N_MAX_STORED_HIT];
+
+	        StorageTrackExtrap() :
+		  n_(0) {
+		  for (int i=0;i<N_MAX_STORED_HIT;++i) {
+		    muonLink_[i] = 0;
+		    recLink_[i] = 0;
+		    gpX_[i] = 0.;
+		    gpY_[i] = 0.;
+		    gpZ_[i] = 0.;
+		    gpEta_[i] = 0.;
+		    gpPhi_[i] = 0.;
+		    lpX_[i] = 0.;
+		    lpY_[i] = 0.;
+		    lpZ_[i] = 0.;
+		    resX_[i] = 0.;
+		    resY_[i] = 0.;
+		    resZ_[i] = 0.;
+		  }
+		}
 	} storage_trackExtrap;
 		
-	typedef struct {
+	typedef struct StorageTrackHit {
 	
 		int n_;
 		
@@ -149,6 +204,31 @@ class ResidualRefitting : public edm::EDAnalyzer{
 		float lpY_		[N_MAX_STORED_HIT];
 		float lpZ_		[N_MAX_STORED_HIT];
 				
+	        StorageTrackHit() :
+		  n_(0) {
+		  for (int i=0;i<N_MAX_STORED_HIT;++i) {
+		    muonLink_[i] = 0;
+		    detector_[i] = 0;
+		    subdetector_[i] = 0;
+		    blade_[i] = 0;
+		    disk_[i] = 0;
+		    ladder_[i] = 0;
+		    layer_[i] = 0;
+		    module_[i] = 0;
+		    panel_[i] = 0;
+		    ring_[i] = 0;
+		    side_[i] = 0;
+		    wheel_[i] = 0;
+		    gpX_[i] = 0.;
+		    gpY_[i] = 0.;
+		    gpZ_[i] = 0.;
+		    gpEta_[i] = 0.;
+		    gpPhi_[i] = 0.;
+		    lpX_[i] = 0.;
+		    lpY_[i] = 0.;
+		    lpZ_[i] = 0.;
+		  }
+		}
 	} storage_trackHit;
 		
 //Standard Muon info storage
@@ -226,11 +306,11 @@ class ResidualRefitting : public edm::EDAnalyzer{
 	bool IsSameHit(trackingRecHit_iterator hit1, trackingRecHit_iterator hit2);
 
 
-	void trkExtrap(DetId detid, int iTrkLink, int iTrk, int iRec,
-					FreeTrajectoryState freeTrajState,
-					LocalPoint recPoint,
-					storage_trackExtrap& storeTemp);
-
+	void trkExtrap(const DetId& detid, int iTrkLink, int iTrk, int iRec,
+		       const FreeTrajectoryState& freeTrajState,
+		       const LocalPoint& recPoint,
+		       storage_trackExtrap& storeTemp);
+	
 	void cylExtrapTrkSam(int recNum, reco::TrackRef track, ResidualRefitting::storage_trackExtrap& storage, double rho);
 
 //Simplifiying functions

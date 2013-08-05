@@ -46,7 +46,7 @@ class TrackerValidationVariables
   struct AVTrackStruct
   {
   AVTrackStruct() : p(0.), pt(0.), ptError(0.), px(0.), py(0.), pz(0.), eta(0.), phi(0.), kappa(0.),
-      chi2(0.), normchi2(0), d0(-999.), dz(-999.), charge(-999), numberOfValidHits(0), numberOfLostHits(0) {};
+      chi2(0.), chi2Prob(0.), normchi2(0), d0(-999.), dz(-999.), charge(-999), numberOfValidHits(0), numberOfLostHits(0) {};
     float p;
     float pt;
     float ptError;

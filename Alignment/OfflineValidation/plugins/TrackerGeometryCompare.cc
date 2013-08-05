@@ -49,7 +49,19 @@
 #include <iostream>
 #include <fstream>
 
-TrackerGeometryCompare::TrackerGeometryCompare(const edm::ParameterSet& cfg)
+TrackerGeometryCompare::TrackerGeometryCompare(const edm::ParameterSet& cfg) :
+  referenceTracker(0),
+  dummyTracker(0),
+  currentTracker(0),
+  theSurveyIndex(0),
+  theSurveyValues(0),
+  theSurveyErrors(0),
+  _commonTrackerLevel(align::invalid),
+  _inputRootFile1(0),
+  _inputRootFile2(0),
+  _inputTree1(0),
+  _inputTree2(0),
+  firstEvent_(true)
 {
 	
 	//input is ROOT
@@ -304,7 +316,10 @@ void TrackerGeometryCompare::createROOTGeometry(const edm::EventSetup& iSetup){
 	}
 	currentTracker = new AlignableTracker(&(*theCurTracker));
 	
-	
+	delete alignments1;
+	delete alignmentErrors1;
+	delete alignments2;
+	delete alignmentErrors2;
 }
 
 void TrackerGeometryCompare::compareGeometries(Alignable* refAli, Alignable* curAli){
@@ -513,7 +528,6 @@ void TrackerGeometryCompare::fillTree(Alignable *refAli, AlgebraicVector diff){
 	_dwVal = diff[8];
 	//...TODO...
 	align::GlobalVector g(_dxVal, _dyVal, _dzVal);
-	align::LocalVector l = refAli->surface().toLocal(g);
 	//getting dR and dPhi
 	align::GlobalVector vRef(_xVal,_yVal,_zVal);
 	align::GlobalVector vCur(_xVal + _dxVal, _yVal + _dyVal, _zVal + _dzVal);
