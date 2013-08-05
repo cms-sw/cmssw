@@ -371,10 +371,8 @@ void RPCRecHitValid::analyze(const edm::Event& event, const edm::EventSetup& eve
     return;
   }
 
-  typedef std::pair<TrackingParticleRef, TrackPSimHitRef> SimHitTPPair;
-  typedef std::vector<SimHitTPPair> SimHitTPAssociationList;
   // Get SimParticle to SimHit association map
-  edm::Handle<SimHitTPAssociationList> simHitsTPAssoc;
+  edm::Handle<SimHitTPAssociationProducer::SimHitTPAssociationList> simHitsTPAssoc;
   if ( !event.getByLabel(simHitAssocLabel_, simHitsTPAssoc) )
   {
     edm::LogInfo("RPCRecHitValid") << "Cannot find TrackingParticle to SimHit association map\n";
