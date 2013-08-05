@@ -68,10 +68,23 @@ EDProducerAdaptorBase::~EDProducerAdaptorBase()
 //
 // member functions
 //
+void
+EDProducerAdaptorBase::registerProductsAndCallbacks(EDProducerAdaptorBase const*, ProductRegistry* reg) {
+  for(auto mod : m_streamModules) {
+    //NOTE: this will cause us to register the same products multiple times
+    // since each stream module will indepdently do this
+    //Maybe I could only have module 0 do the registration and only call
+    // the callbacks for the others
+    mod->registerProducts(mod, reg, moduleDescription_);
+  }
+}
+
+
+
 bool
 EDProducerAdaptorBase::doEvent(EventPrincipal& ep, EventSetup const& c,
                                CurrentProcessingContext const* cpcp) {
-
+  assert(ep.streamID()<m_streamModules.size());
   auto mod = m_streamModules[ep.streamID()];
   detail::CPCSentry sentry(mod->current_context_, cpcp);
   Event e(ep, moduleDescription_);
@@ -151,3 +164,12 @@ EDProducerAdaptorBase::doStreamEndLuminosityBlock(StreamID id,
   streamEndLuminosityBlockSummary(mod,lb, c);
 
 }
+
+void
+EDProducerAdaptorBase::doRespondToOpenInputFile(FileBlock const& fb){}
+void
+EDProducerAdaptorBase::doRespondToCloseInputFile(FileBlock const& fb){}
+void
+EDProducerAdaptorBase::doPreForkReleaseResources(){}
+void
+EDProducerAdaptorBase::doPostForkReacquireResources(unsigned int iChildIndex, unsigned int iNumberOfChildren){}

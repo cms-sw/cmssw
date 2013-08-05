@@ -57,10 +57,10 @@ namespace edm {
         RunCacheHolder() = default;
         RunCacheHolder( RunCacheHolder<C> const&) = delete;
         RunCacheHolder<C>& operator=(RunCacheHolder<C> const&) = delete;
+        void setRunCache(C const* iCache) { cache_=iCache; }
       protected:
         C const* runCache() const { return cache_; }
       private:
-        void setRunCache(C const* iCache) { cache_=iCache; }
         C const* cache_;
       };
       
@@ -70,10 +70,10 @@ namespace edm {
         LuminosityBlockCacheHolder() = default;
         LuminosityBlockCacheHolder( LuminosityBlockCacheHolder<C> const&) = delete;
         LuminosityBlockCacheHolder<C>& operator=(LuminosityBlockCacheHolder<C> const&) = delete;
+        void setLuminosityBlockCache(C const* iCache) { cache_=iCache; }
       protected:
         C const* luminosityBlockCache() const { return cache_; }
       private:
-        void setLuminosityBlockCache(C const* iCache) { cache_=iCache; }
         C const* cache_;
       };
       

@@ -58,22 +58,22 @@ namespace edm {
       };
 
       template<typename... U>
-      struct HasAbility<BeginRunProducer, U...> :public HasAbility<U...> {
+      struct HasAbility<edm::BeginRunProducer, U...> :public HasAbility<U...> {
         static constexpr bool kBeginRunProducer = true;
       };
       
       template<typename... U>
-      struct HasAbility<EndRunProducer, U...> :public HasAbility<U...> {
+      struct HasAbility<edm::EndRunProducer, U...> :public HasAbility<U...> {
         static constexpr bool kEndRunProducer = true;
       };
       
       template<typename... U>
-      struct HasAbility<BeginLuminosityBlockProducer, U...> :public HasAbility<U...> {
+      struct HasAbility<edm::BeginLuminosityBlockProducer, U...> :public HasAbility<U...> {
         static constexpr bool kBeginLuminosityBlockProducer = true;
       };
  
       template<typename... U>
-      struct HasAbility<EndLuminosityBlockProducer, U...> :public HasAbility<U...> {
+      struct HasAbility<edm::EndLuminosityBlockProducer, U...> :public HasAbility<U...> {
         static constexpr bool kEndLuminosityBlockProducer = true;
       };
       

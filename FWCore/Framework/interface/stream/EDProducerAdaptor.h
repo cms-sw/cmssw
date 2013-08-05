@@ -60,6 +60,8 @@ namespace edm {
       {
         m_runs.resize(1);
         m_lumis.resize(1);
+        m_runSummaries.resize(1);
+        m_lumiSummaries.resize(1);
         typename T::GlobalCache const* dummy=nullptr;
         m_global.reset( impl::makeGlobal<T>(iPSet,dummy).release());
         this->createStreamModules([this,&iPSet] () -> EDProducerBase* {return impl::makeStreamModule<T>(iPSet,m_global.get());});
@@ -76,18 +78,18 @@ namespace edm {
 
       
     private:
-      typedef CallGlobal<T,T::HasAbility::kGlobalCache> MyGlobal;
-      typedef CallGlobalRun<T,T::HasAbility::kRunCache> MyGlobalRun;
-      typedef CallGlobalRunSummary<T,T::HasAbility::kRunSummaryCache> MyGlobalRunSummary;
-      typedef CallBeginRunProduce<T,T::HasAbility::kBeginRunProducer> MyBeginRunProduce;
-      typedef CallEndRunProduce<T,T::HasAbility::kEndRunProducer, T::HasAbility::kRunSummaryCache> MyEndRunProduce;
-      typedef CallGlobalLuminosityBlock<T,T::HasAbility::kLuminosityBlockCache> MyGlobalLuminosityBlock;
-      typedef CallGlobalLuminosityBlockSummary<T,T::HasAbility::kLuminosityBlockSummaryCache> MyGlobalLuminosityBlockSummary;
-      typedef CallBeginLuminosityBlockProduce<T,T::HasAbility::kBeginLuminosityBlockProducer> MyBeginLuminosityBlockProduce;
-      typedef CallEndLuminosityBlockProduce<T,T::HasAbility::kEndLuminosityBlockProducer, T::HasAbility::kLuminosityBlockSummaryCache> MyEndLuminosityBlockProduce;
+      typedef CallGlobal<T> MyGlobal;
+      typedef CallGlobalRun<T> MyGlobalRun;
+      typedef CallGlobalRunSummary<T> MyGlobalRunSummary;
+      typedef CallBeginRunProduce<T> MyBeginRunProduce;
+      typedef CallEndRunProduce<T> MyEndRunProduce;
+      typedef CallGlobalLuminosityBlock<T> MyGlobalLuminosityBlock;
+      typedef CallGlobalLuminosityBlockSummary<T> MyGlobalLuminosityBlockSummary;
+      typedef CallBeginLuminosityBlockProduce<T> MyBeginLuminosityBlockProduce;
+      typedef CallEndLuminosityBlockProduce<T> MyEndLuminosityBlockProduce;
       
       void doEndJob() override final {
-        CallGlobal<T, T::HasAbility::kGlobalCache>::endJob(m_global.get());
+        MyGlobal::endJob(m_global.get());
       }
       void setupRun(EDProducerBase* iProd, RunIndex iIndex) override final {
         MyGlobal::set(iProd,m_global.get());
@@ -139,7 +141,7 @@ namespace edm {
 
           RunIndex ri = rp.index();
           typename T::RunContext rc(m_runs[ri].get(),m_global.get());
-          if(T::HasAbility::kBeginRunProducer) {
+          if(T::HasAbility::kEndRunProducer) {
             MyEndRunProduce::produce(r,c,&rc,m_runSummaries[ri].get());
             commit(r);
           }
@@ -157,7 +159,8 @@ namespace edm {
           LuminosityBlock const& cnstLb = lb;
           LuminosityBlockIndex li = lbp.index();
           RunIndex ri = lbp.runPrincipal().index();
-          MyGlobalLuminosityBlock::beginLuminosityBlock(cnstLb,c,m_global.get(),m_lumis[li]);
+          typename T::RunContext rc(m_runs[ri].get(),m_global.get());
+          MyGlobalLuminosityBlock::beginLuminosityBlock(cnstLb,c,&rc,m_lumis[li]);
           typename T::LuminosityBlockContext lc(m_lumis[li].get(),m_runs[ri].get(),m_global.get());
           MyGlobalLuminosityBlockSummary::beginLuminosityBlock(cnstLb,c,&lc,m_lumiSummaries[li]);
           if(T::HasAbility::kBeginLuminosityBlockProducer) {
@@ -178,7 +181,7 @@ namespace edm {
           LuminosityBlockIndex li = lbp.index();
           RunIndex ri = lbp.runPrincipal().index();
           typename T::LuminosityBlockContext lc(m_lumis[li].get(),m_runs[ri].get(),m_global.get());
-          if(T::HasAbility::kBeginLuminosityBlockProducer) {
+          if(T::HasAbility::kEndLuminosityBlockProducer) {
             MyEndLuminosityBlockProduce::produce(lb,c,&lc,m_lumiSummaries[li].get());
             commit(lb);
           }
@@ -193,8 +196,8 @@ namespace edm {
       
       // ---------- member data --------------------------------
       typename impl::choose_unique_ptr<typename T::GlobalCache>::type m_global;
-      typename impl::choose_shared_vec<typename T::RunCache>::type m_runs;
-      typename impl::choose_shared_vec<typename T::LuminosityBlockCache>::type m_lumis;
+      typename impl::choose_shared_vec<typename T::RunCache const>::type m_runs;
+      typename impl::choose_shared_vec<typename T::LuminosityBlockCache const>::type m_lumis;
       typename impl::choose_shared_vec<typename T::RunSummaryCache>::type m_runSummaries;
       typename impl::choose_shared_vec<typename T::LuminosityBlockSummaryCache>::type m_lumiSummaries;
     };

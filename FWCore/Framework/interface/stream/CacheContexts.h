@@ -30,7 +30,7 @@ namespace edm {
       struct Last {};
       
       template<typename T, typename... U>
-      struct AbilityToCache;
+      struct AbilityToCache : public AbilityToCache<U...> {};
       
       template<typename G, typename... U>
       struct AbilityToCache<GlobalCache<G>, U...> : public AbilityToCache<U...> {

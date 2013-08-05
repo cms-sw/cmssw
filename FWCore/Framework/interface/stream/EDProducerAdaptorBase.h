@@ -52,6 +52,9 @@ namespace edm {
       // ---------- member functions ---------------------------
       const ModuleDescription moduleDescription() { return moduleDescription_;}
       
+      std::string workerType() const { return "WorkerT<EDProducerAdaptorBase>";}
+      void
+      registerProductsAndCallbacks(EDProducerAdaptorBase const*, ProductRegistry* reg);
     protected:
       template<typename T> void createStreamModules(T iFunc) {
         m_streamModules[0] = iFunc();
