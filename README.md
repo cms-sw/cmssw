@@ -65,7 +65,8 @@ git cms-merge-topic dildick:feature-for-gemgeometry
 git cms-merge-topic dildick:feature-for-gemcsctrigger
 </code></pre>
 -->
-<pre><code>git fetch cmssw-gem
+<pre><code>git remote add gem-cmssw git://github.com/gem-sw/cmssw.git
+git fetch gem-cmssw
 git merge FETCH_HEAD
 </code></pre>
 

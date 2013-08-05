@@ -1,4 +1,4 @@
-## configuration file to produce GEM XML geometries
+# configuration file to produce GEM XML geometries
 
 ## number of eta partitions
 dzEta = [7.630,7.630,6.188,6.188,5.190,5.190,5.056,5.056]
