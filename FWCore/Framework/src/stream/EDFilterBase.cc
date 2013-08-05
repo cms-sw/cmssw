@@ -1,7 +1,7 @@
 // -*- C++ -*-
 //
 // Package:     FWCore/Framework
-// Class  :     edm::stream::EDProducerBase
+// Class  :     edm::stream::EDFilterBase
 // 
 // Implementation:
 //     [Notes on implementation]
@@ -13,7 +13,7 @@
 // system include files
 
 // user include files
-#include "FWCore/Framework/interface/stream/EDProducerBase.h"
+#include "FWCore/Framework/interface/stream/EDFilterBase.h"
 #include "FWCore/Framework/src/edmodule_mightGet_config.h"
 
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
@@ -31,26 +31,26 @@ using namespace edm::stream;
 //
 // constructors and destructor
 //
-EDProducerBase::EDProducerBase()
+EDFilterBase::EDFilterBase()
 {
 }
 
-// EDProducerBase::EDProducerBase(const EDProducerBase& rhs)
+// EDFilterBase::EDFilterBase(const EDFilterBase& rhs)
 // {
 //    // do actual copying here;
 // }
 
-EDProducerBase::~EDProducerBase()
+EDFilterBase::~EDFilterBase()
 {
 }
 
 //
 // assignment operators
 //
-// const EDProducerBase& EDProducerBase::operator=(const EDProducerBase& rhs)
+// const EDFilterBase& EDFilterBase::operator=(const EDFilterBase& rhs)
 // {
 //   //An exception safe implementation is
-//   EDProducerBase temp(rhs);
+//   EDFilterBase temp(rhs);
 //   swap(rhs);
 //
 //   return *this;
@@ -68,20 +68,20 @@ EDProducerBase::~EDProducerBase()
 // static member functions
 //
 void
-EDProducerBase::fillDescriptions(ConfigurationDescriptions& descriptions) {
+EDFilterBase::fillDescriptions(ConfigurationDescriptions& descriptions) {
   ParameterSetDescription desc;
   desc.setUnknown();
   descriptions.addDefault(desc);
 }
 
 void
-EDProducerBase::prevalidate(ConfigurationDescriptions& iConfig) {
+EDFilterBase::prevalidate(ConfigurationDescriptions& iConfig) {
   edmodule_mightGet_config(iConfig);
 }
 
-static const std::string kBaseType("EDProducer");
+static const std::string kBaseType("EDFilter");
 
 const std::string&
-EDProducerBase::baseType() {
+EDFilterBase::baseType() {
   return kBaseType;
 }

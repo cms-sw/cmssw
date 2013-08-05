@@ -22,31 +22,30 @@
 
 // user include files
 #include "FWCore/Framework/src/WorkerT.h"
-#include "FWCore/Framework/interface/stream/EDProducerAdaptor.h"
 
 // forward declarations
 namespace edm {
   namespace stream {
-    template<typename T>
-    class StreamWorker;
+    template<typename ABase, typename ModType> struct BaseToAdaptor;
     
-    template<>
-    class StreamWorker<EDProducerAdaptorBase> : public WorkerT<EDProducerAdaptorBase>
+    template<typename T>
+    class StreamWorker : public WorkerT<T>
     {
       
     public:
       //Doesn't work in gcc4.7 using WorkerT<EDProducerAdaptorBase>::WorkerT;
-      StreamWorker(std::unique_ptr<EDProducerAdaptorBase>&& iMod,
+      StreamWorker(std::unique_ptr<T>&& iMod,
                    ModuleDescription const& iDesc,
                    WorkerParams const& iParams):
-      WorkerT(std::move(iMod), iDesc,iParams) {}
+      WorkerT<T>(std::move(iMod), iDesc,iParams) {}
 
 
       template<typename ModType>
-      static std::unique_ptr<EDProducerAdaptorBase> makeModule(ModuleDescription const&,
+      static std::unique_ptr<T> makeModule(ModuleDescription const&,
                                                                ParameterSet const& pset) {
-        std::unique_ptr<EDProducerAdaptor<ModType>> module = std::unique_ptr<EDProducerAdaptor<ModType>>(new EDProducerAdaptor<ModType>(pset));
-        return std::unique_ptr<EDProducerAdaptorBase>(module.release());
+        typedef typename BaseToAdaptor<T,ModType>::Type Adaptor;
+        std::unique_ptr<Adaptor> module = std::unique_ptr<Adaptor>(new Adaptor(pset));
+        return std::unique_ptr<T>(module.release());
       }
     };
     

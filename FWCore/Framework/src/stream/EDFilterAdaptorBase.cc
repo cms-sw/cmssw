@@ -1,7 +1,7 @@
 // -*- C++ -*-
 //
 // Package:     FWCore/Framework
-// Class  :     edm::stream::EDProducerAdaptorBase
+// Class  :     edm::stream::EDFilterAdaptorBase
 // 
 // Implementation:
 //     [Notes on implementation]
@@ -13,8 +13,8 @@
 // system include files
 
 // user include files
-#include "FWCore/Framework/interface/stream/EDProducerAdaptorBase.h"
-#include "FWCore/Framework/interface/stream/EDProducerBase.h"
+#include "FWCore/Framework/interface/stream/EDFilterAdaptorBase.h"
+#include "FWCore/Framework/interface/stream/EDFilterBase.h"
 #include "FWCore/Framework/src/CPCSentry.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
@@ -41,24 +41,24 @@ namespace edm {
     //
     // constructors and destructor
     //
-    EDProducerAdaptorBase::EDProducerAdaptorBase()
+    EDFilterAdaptorBase::EDFilterAdaptorBase()
     {
     }
     
     bool
-    EDProducerAdaptorBase::doEvent(EventPrincipal& ep, EventSetup const& c,
+    EDFilterAdaptorBase::doEvent(EventPrincipal& ep, EventSetup const& c,
                                    CurrentProcessingContext const* cpcp) {
       assert(ep.streamID()<m_streamModules.size());
       auto mod = m_streamModules[ep.streamID()];
       detail::CPCSentry sentry(mod->current_context_, cpcp);
       Event e(ep, moduleDescription());
       e.setConsumer(mod);
-      mod->produce(e, c);
+      bool result = mod->filter(e, c);
       commit(e,&mod->previousParentage_, &mod->previousParentageId_);
-      return true;
+      return result;
     }
     
-    template class edm::stream::ProducingModuleAdaptorBase<edm::stream::EDProducerBase>;
+    template class edm::stream::ProducingModuleAdaptorBase<edm::stream::EDFilterBase>;
   }
 }
 

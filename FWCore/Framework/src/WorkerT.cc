@@ -16,6 +16,7 @@
 #include "FWCore/Framework/interface/global/EDAnalyzerBase.h"
 
 #include "FWCore/Framework/interface/stream/EDProducerAdaptorBase.h"
+#include "FWCore/Framework/interface/stream/EDFilterAdaptorBase.h"
 
 namespace edm{
   namespace workerimpl {
@@ -41,6 +42,11 @@ namespace edm{
     
     template<>
     struct has_stream_functions<edm::stream::EDProducerAdaptorBase> {
+      static bool constexpr value = true;
+    };
+    
+    template<>
+    struct has_stream_functions<edm::stream::EDFilterAdaptorBase> {
       static bool constexpr value = true;
     };
     
@@ -340,6 +346,8 @@ namespace edm{
 
   template<>
   Worker::Types WorkerT<edm::stream::EDProducerAdaptorBase>::moduleType() const { return Worker::kProducer;}
+  template<>
+  Worker::Types WorkerT<edm::stream::EDFilterAdaptorBase>::moduleType() const { return Worker::kFilter;}
 
   //Explicitly instantiate our needed templates to avoid having the compiler
   // instantiate them in all of our libraries
@@ -355,4 +363,5 @@ namespace edm{
   template class WorkerT<global::EDFilterBase>;
   template class WorkerT<global::EDAnalyzerBase>;
   template class WorkerT<stream::EDProducerAdaptorBase>;
+  template class WorkerT<stream::EDFilterAdaptorBase>;
 }

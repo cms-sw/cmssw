@@ -1,11 +1,11 @@
-#ifndef FWCore_Framework_stream_EDProducerAdaptorBase_h
-#define FWCore_Framework_stream_EDProducerAdaptorBase_h
+#ifndef FWCore_Framework_stream_EDFilterAdaptorBase_h
+#define FWCore_Framework_stream_EDFilterAdaptorBase_h
 // -*- C++ -*-
 //
 // Package:     FWCore/Framework
-// Class  :     EDProducerAdaptorBase
+// Class  :     EDFilterAdaptorBase
 // 
-/**\class edm::stream::EDProducerAdaptorBase EDProducerAdaptorBase.h "FWCore/Framework/interface/stream/EDProducerAdaptorBase.h"
+/**\class edm::stream::EDFilterAdaptorBase EDFilterAdaptorBase.h "FWCore/Framework/interface/stream/EDFilterAdaptorBase.h"
 
  Description: [one line class summary]
 
@@ -34,14 +34,14 @@
 
 namespace edm {
   namespace stream {
-    class EDProducerBase;
-    class EDProducerAdaptorBase : public ProducingModuleAdaptorBase<EDProducerBase>
+    class EDFilterBase;
+    class EDFilterAdaptorBase : public ProducingModuleAdaptorBase<EDFilterBase>
     {
       
     public:
       template <typename T> friend class edm::WorkerT;
 
-      EDProducerAdaptorBase();
+      EDFilterAdaptorBase();
       
       // ---------- const member functions ---------------------
       
@@ -49,17 +49,17 @@ namespace edm {
       
       // ---------- member functions ---------------------------
       
-      std::string workerType() const { return "WorkerT<EDProducerAdaptorBase>";}
+      std::string workerType() const { return "WorkerT<EDFilterAdaptorBase>";}
     protected:
-      using ProducingModuleAdaptorBase<EDProducerBase>::commit;
+      using ProducingModuleAdaptorBase<EDFilterBase>::commit;
 
     private:
-      EDProducerAdaptorBase(const EDProducerAdaptorBase&) =delete; // stop default
+      EDFilterAdaptorBase(const EDFilterAdaptorBase&) =delete; // stop default
       
-      const EDProducerAdaptorBase& operator=(const EDProducerAdaptorBase&) =delete; // stop default
+      const EDFilterAdaptorBase& operator=(const EDFilterAdaptorBase&) =delete; // stop default
       
       bool doEvent(EventPrincipal& ep, EventSetup const& c,
-                           CurrentProcessingContext const* cpcp) ;
+                   CurrentProcessingContext const* cpcp) ;
     };
   }
 }

@@ -1,11 +1,11 @@
-#ifndef FWCore_Framework_stream_EDProducerBase_h
-#define FWCore_Framework_stream_EDProducerBase_h
+#ifndef FWCore_Framework_stream_EDFilterBase_h
+#define FWCore_Framework_stream_EDFilterBase_h
 // -*- C++ -*-
 //
 // Package:     FWCore/Framework
-// Class  :     EDProducerBase
+// Class  :     EDFilterBase
 // 
-/**\class edm::stream::EDProducerBase EDProducerBase.h "FWCore/Framework/interface/stream/EDProducerBase.h"
+/**\class edm::stream::EDFilterBase EDFilterBase.h "FWCore/Framework/interface/stream/EDFilterBase.h"
 
  Description: [one line class summary]
 
@@ -24,46 +24,46 @@
 #include "FWCore/Framework/interface/ProducerBase.h"
 #include "FWCore/Framework/interface/EDConsumerBase.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/stream/EDProducerAdaptor.h"
+#include "FWCore/Framework/interface/stream/EDFilterAdaptor.h"
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
 #include "FWCore/ParameterSet/interface/ParameterSetfwd.h"
 
 // forward declarations
 namespace edm {
   namespace stream {
-    class EDProducerAdaptorBase;
-    template<typename T> class StreamWorker;
+    class EDFilterAdaptorBase;
     template<typename> class ProducingModuleAdaptorBase;
     
-    class EDProducerBase : public edm::ProducerBase, public edm::EDConsumerBase
+    class EDFilterBase : public edm::ProducerBase, public edm::EDConsumerBase
     {
       //This needs access to the parentage cache info
-      friend class EDProducerAdaptorBase;
-      friend class ProducingModuleAdaptorBase<EDProducerBase>;
+      friend class EDFilterAdaptorBase;
+      friend class ProducingModuleAdaptorBase<EDFilterBase>;
 
     public:
-      typedef EDProducerAdaptorBase ModuleType;
+      typedef EDFilterAdaptorBase ModuleType;
       //WorkerType is used to call the 'makeModule<T>' call which constructs
       // the actual module. We can use the StreamWorker to create the actual
       // module which holds the various stream modules
-      typedef StreamWorker<EDProducerAdaptorBase> WorkerType;
+      typedef StreamWorker<EDFilterAdaptorBase> WorkerType;
 
-      EDProducerBase();
-      virtual ~EDProducerBase();
+
+      EDFilterBase();
+      virtual ~EDFilterBase();
       
       static void fillDescriptions(ConfigurationDescriptions& descriptions);
       static void prevalidate(ConfigurationDescriptions& descriptions);
       static const std::string& baseType();
       
     private:
-      EDProducerBase(const EDProducerBase&) = delete; // stop default
+      EDFilterBase(const EDFilterBase&) = delete; // stop default
       
-      const EDProducerBase& operator=(const EDProducerBase&) = delete; // stop default
+      const EDFilterBase& operator=(const EDFilterBase&) = delete; // stop default
       
       virtual void beginStream() {}
       virtual void beginRun(edm::Run const&, edm::EventSetup const&) {}
       virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) {}
-      virtual void produce(Event&, EventSetup const&) = 0;
+      virtual bool filter(Event&, EventSetup const&) = 0;
       virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) {}
       virtual void endRun(edm::Run const&, edm::EventSetup const&) {}
       virtual void endStream(){}
