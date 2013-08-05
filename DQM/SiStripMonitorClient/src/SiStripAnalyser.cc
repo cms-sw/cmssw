@@ -3,8 +3,8 @@
 /*
  * \file SiStripAnalyser.cc
  * 
- * $Date: 2012/11/20 11:28:25 $
- * $Revision: 1.61 $
+ * $Date: 2013/01/02 17:41:51 $
+ * $Revision: 1.62 $
  * \author  S. Dutta INFN-Pisa
  *
  */
@@ -94,6 +94,7 @@ SiStripAnalyser::SiStripAnalyser(edm::ParameterSet const& ps) :
   rawDataTag_            = ps.getUntrackedParameter<edm::InputTag>("RawDataTag"); 
   printFaultyModuleList_ = ps.getUntrackedParameter<bool>("PrintFaultyModuleList", true);
 
+  rawDataToken_ = consumes<FEDRawDataCollection>(ps.getUntrackedParameter<edm::InputTag>("RawDataTag") );
   // get back-end interface
   dqmStore_ = edm::Service<DQMStore>().operator->();
 
@@ -267,7 +268,8 @@ void SiStripAnalyser::endJob(){
 //
 void SiStripAnalyser::checkTrackerFEDs(edm::Event const& e) {
   edm::Handle<FEDRawDataCollection> rawDataHandle;
-  e.getByLabel(rawDataTag_, rawDataHandle);
+  //  e.getByLabel(rawDataTag_, rawDataHandle);
+  e.getByToken( rawDataToken_, rawDataHandle );
   if ( !rawDataHandle.isValid() ) return;
   
   const FEDRawDataCollection& rawDataCollection = *rawDataHandle;
