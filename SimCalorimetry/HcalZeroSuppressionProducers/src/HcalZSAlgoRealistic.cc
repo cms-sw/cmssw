@@ -1,4 +1,5 @@
 #include "HcalZSAlgoRealistic.h"
+#include "DataFormats/HcalDigi/interface/HcalUpgradeQIESample.h"
 #include <iostream>
 
 HcalZSAlgoRealistic::HcalZSAlgoRealistic(bool mp, int levelHB, int levelHE, int levelHO, int levelHF, std::pair<int,int> HBsearchTS, std::pair<int,int> HEsearchTS, std::pair<int,int> HOsearchTS, std::pair<int,int> HFsearchTS) : 
@@ -102,27 +103,39 @@ bool HcalZSAlgoRealistic::keepMe(const HFDataFrame& inp, int start, int finish, 
   return keepIt;
 }
 
+bool HcalZSAlgoRealistic::keepMe(const HcalUpgradeDataFrame& inp, int start, int finish, int threshold, uint32_t zsmask) const{
+  
+  bool keepIt=false;
+  //int mask = 999;
+  if ((usingDBvalues) && (threshold < 0) && (m_dbService != 0)){
+    threshold = (m_dbService->getHcalZSThreshold(inp.id()))->getValue();
+  }
+
+  //determine the sum of 2 timeslices
+  for (int i = start; i < finish && !keepIt; i++) {
+    int sum=0;
+    for (int j = i; j < (i+2); j++){
+      sum+=inp[j].adc();
+    }
+    if ((zsmask&(1<<i)) !=0) continue; 
+    else if (sum>=threshold) keepIt=true;
+  }
+  return keepIt;
+}
 
 bool HcalZSAlgoRealistic::shouldKeep(const HBHEDataFrame& digi) const{
-  // uint32_t hbhezsmask = digi.zsCrossingMask();
+
   if (digi.id().subdet()==HcalBarrel) {
-    
     int start  = std::max(0,HBsearchTS_.first);
     int finish = std::min(digi.size()-1,HBsearchTS_.second);
-
     /*
     std::cout << " HBsearchTS_ : " <<  HBsearchTS_.first 
 	      << ", " << HBsearchTS_.second << std::endl;
     std::cout << " HB start, finish = " << start << ", "
 	      << finish << std::endl;
     */
-
     return keepMe(digi,start,finish,thresholdHB_,digi.zsCrossingMask());
-
-
-  }
-  else {
-
+  } else {
     int start  = std::max(0,HEsearchTS_.first);
     int finish = std::min(digi.size()-1,HEsearchTS_.second);
     return keepMe(digi,start,finish,thresholdHE_,digi.zsCrossingMask());
@@ -143,3 +156,20 @@ bool HcalZSAlgoRealistic::shouldKeep(const HFDataFrame& digi) const{
   int finish = std::min(digi.size()-1,HFsearchTS_.second);
   return keepMe(digi,start,finish,thresholdHF_,digi.zsCrossingMask());
 }
+
+bool HcalZSAlgoRealistic::shouldKeep(const HcalUpgradeDataFrame& digi) const{
+
+  if (digi.id().subdet()==HcalForward) {
+    int start  = std::max(0,HFsearchTS_.first);
+    int finish = std::min(digi.size()-1,HFsearchTS_.second);
+    return keepMe(digi,start,finish,thresholdHF_,digi.zsCrossingMask());
+  } else  if (digi.id().subdet()==HcalBarrel) {
+    int start  = std::max(0,HBsearchTS_.first);
+    int finish = std::min(digi.size()-1,HBsearchTS_.second);
+    return keepMe(digi,start,finish,thresholdHB_,digi.zsCrossingMask());
+  } else {
+    int start  = std::max(0,HEsearchTS_.first);
+    int finish = std::min(digi.size()-1,HEsearchTS_.second);
+    return keepMe(digi,start,finish,thresholdHE_,digi.zsCrossingMask());
+  }
+}  
