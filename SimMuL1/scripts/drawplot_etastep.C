@@ -1,8 +1,6 @@
 
 //int kGray=920, kOrange=800, kSpring=820, kTeal=840, kAzure=860, kViolet=880, kPink=900;
 
-
-
 TFile *f;
 char pdir[111];
 
@@ -15,6 +13,9 @@ TH1D *h1, *h2, *he;
 
 
 double yrange[2]={0.,1.04};
+double yrange05[2]={0.5,1.04};
+double yrange06[2]={0.6,1.04};
+double yrange07[2]={0.7,1.04};
 //double yrange[2]={0.5,1.02};
 //double yrange[2]={0.8,1.02};
 double xrange[2]={0.86,2.5};
@@ -187,12 +188,18 @@ int ptreb=2;
 
 TString hdir = "SimMuL1StrictAll";
 
-TString f_def = "hp_dimu_6_0_1_POSTLS161_V12__pu000_w3_def_pat2.root";
+//TString f_def = "hp_dimu_6_0_1_POSTLS161_V12__pu000_w3_def_pat2.root";
+TString f_def = "hp_dimu_6_0_1_POSTLS161_V12__pu000_w3_gem_dphi0_pat2.root";
 TString f_g98_pt10 = "hp_dimu_6_0_1_POSTLS161_V12__pu000_w3_gem98_pt10_pat2.root";
 TString f_g98_pt15 = "hp_dimu_6_0_1_POSTLS161_V12__pu000_w3_gem98_pt15_pat2.root";
 TString f_g98_pt20 = "hp_dimu_6_0_1_POSTLS161_V12__pu000_w3_gem98_pt20_pat2.root";
 TString f_g98_pt30 = "hp_dimu_6_0_1_POSTLS161_V12__pu000_w3_gem98_pt30_pat2.root";
 TString f_g98_pt40 = "hp_dimu_6_0_1_POSTLS161_V12__pu000_w3_gem98_pt40_pat2.root";
+
+TString f_g95_pt10 = "hp_dimu_6_0_1_POSTLS161_V12__pu000_w3_gem95_pt10_pat2.root";
+TString f_g95_pt20 = "hp_dimu_6_0_1_POSTLS161_V12__pu000_w3_gem95_pt20_pat2.root";
+TString f_g95_pt30 = "hp_dimu_6_0_1_POSTLS161_V12__pu000_w3_gem95_pt30_pat2.root";
+TString f_g95_pt40 = "hp_dimu_6_0_1_POSTLS161_V12__pu000_w3_gem95_pt40_pat2.root";
 
 double rpt[2] = {0.,49.99};
 
@@ -211,19 +218,21 @@ TH1D* h_eff_tf0_2s1b  = getEffHisto(f_def, hdir, h2s1b, hini, ptreb, kBlack, 1, 
 TH1D* h_eff_tf0_3s1b  = getEffHisto(f_def, hdir, h3s1b, hini, ptreb, kBlack, 1, 2, htitle, rpt, yrange);
 
 
+TH1D* h_eff_tf10_2s  = getEffHisto(f_def, hdir, h2s + "_pt10", hini, ptreb, kGreen+4, 1, 2, htitle, rpt,yrange);
 TH1D* h_eff_tf10_2s1b  = getEffHisto(f_def, hdir, h2s1b + "_pt10", hini, ptreb, kGreen+2, 1, 2, htitle, rpt,yrange);
 TH1D* h_eff_tf10_3s  = getEffHisto(f_def, hdir, h3s + "_pt10", hini, ptreb, kGreen+2, 1, 2, htitle, rpt,yrange);
 TH1D* h_eff_tf10_3s1b  = getEffHisto(f_def, hdir, h3s1b + "_pt10", hini, ptreb, kGreen+2, 1, 2, htitle, rpt,yrange);
 
-TH1D* h_eff_tf15_2s1b  = getEffHisto(f_def, hdir, h2s1b + "_pt15", hini, ptreb, kBlue, 1, 2, htitle, rpt,yrange);
-TH1D* h_eff_tf15_3s  = getEffHisto(f_def, hdir, h3s + "_pt15", hini, ptreb, kBlue, 1, 2, htitle, rpt,yrange);
-TH1D* h_eff_tf15_3s1b  = getEffHisto(f_def, hdir, h3s1b + "_pt15", hini, ptreb, kBlue, 1, 2, htitle, rpt,yrange);
+//TH1D* h_eff_tf15_2s1b  = getEffHisto(f_def, hdir, h2s1b + "_pt15", hini, ptreb, kBlue, 1, 2, htitle, rpt,yrange);
+//TH1D* h_eff_tf15_3s  = getEffHisto(f_def, hdir, h3s + "_pt15", hini, ptreb, kBlue, 1, 2, htitle, rpt,yrange);
+//TH1D* h_eff_tf15_3s1b  = getEffHisto(f_def, hdir, h3s1b + "_pt15", hini, ptreb, kBlue, 1, 2, htitle, rpt,yrange);
 
 TH1D* h_eff_tf20_2s  = getEffHisto(f_def, hdir, h2s + "_pt20", hini, ptreb, kOrange+4, 1, 2, htitle, rpt,yrange);
 TH1D* h_eff_tf20_2s1b  = getEffHisto(f_def, hdir, h2s1b + "_pt20", hini, ptreb, kOrange, 1, 2, htitle, rpt,yrange);
 TH1D* h_eff_tf20_3s  = getEffHisto(f_def, hdir, h3s + "_pt20", hini, ptreb, kOrange, 1, 2, htitle, rpt,yrange);
 TH1D* h_eff_tf20_3s1b  = getEffHisto(f_def, hdir, h3s1b + "_pt20", hini, ptreb, kOrange, 1, 2, htitle, rpt,yrange);
 
+TH1D* h_eff_tf30_2s  = getEffHisto(f_def, hdir, h2s + "_pt30", hini, ptreb, kRed+4, 1, 2, htitle, rpt,yrange);
 TH1D* h_eff_tf30_2s1b  = getEffHisto(f_def, hdir, h2s1b + "_pt30", hini, ptreb, kRed, 1, 2, htitle, rpt,yrange);
 TH1D* h_eff_tf30_3s  = getEffHisto(f_def, hdir, h3s + "_pt30", hini, ptreb, kRed, 1, 2, htitle, rpt,yrange);
 TH1D* h_eff_tf30_3s1b  = getEffHisto(f_def, hdir, h3s1b + "_pt30", hini, ptreb, kRed, 1, 2, htitle, rpt,yrange);
@@ -269,17 +278,28 @@ return;
 */
 
 
-TH1D* h_eff_tf10_gpt15_2s1b  = getEffHisto(f_g98_pt15, hdir, h2s1b + "_pt10", hini, ptreb, kGreen+2, 2, 2, htitle, rpt,yrange);
-TH1D* h_eff_tf10_gpt15_3s1b  = getEffHisto(f_g98_pt15, hdir, h3s1b + "_pt10", hini, ptreb, kGreen+2, 2, 2, htitle, rpt,yrange);
+TH1D* h_eff_tf10_gpt15_2s1b  = getEffHisto(f_g98_pt15, hdir, h2s1b + "_pt10", hini, ptreb, kGreen+2, 3, 2, htitle, rpt,yrange);
+TH1D* h_eff_tf10_gpt15_3s1b  = getEffHisto(f_g98_pt15, hdir, h3s1b + "_pt10", hini, ptreb, kGreen+2, 3, 2, htitle, rpt,yrange);
 
-TH1D* h_eff_tf15_gpt20_2s1b  = getEffHisto(f_g98_pt20, hdir, h2s1b + "_pt15", hini, ptreb, kBlue, 2, 2, htitle, rpt,yrange);
-TH1D* h_eff_tf15_gpt20_3s1b  = getEffHisto(f_g98_pt20, hdir, h3s1b + "_pt15", hini, ptreb, kBlue, 2, 2, htitle, rpt,yrange);
+TH1D* h_eff_tf15_gpt20_2s1b  = getEffHisto(f_g98_pt20, hdir, h2s1b + "_pt15", hini, ptreb, kViolet, 3, 2, htitle, rpt,yrange);
+TH1D* h_eff_tf15_gpt20_3s1b  = getEffHisto(f_g98_pt20, hdir, h3s1b + "_pt15", hini, ptreb, kViolet, 3, 2, htitle, rpt,yrange);
 
-TH1D* h_eff_tf20_gpt30_2s1b  = getEffHisto(f_g98_pt30, hdir, h2s1b + "_pt20", hini, ptreb, kOrange, 2, 2, htitle, rpt,yrange);
-TH1D* h_eff_tf20_gpt30_3s1b  = getEffHisto(f_g98_pt30, hdir, h3s1b + "_pt20", hini, ptreb, kOrange, 2, 2, htitle, rpt,yrange);
+TH1D* h_eff_tf20_gpt30_2s1b  = getEffHisto(f_g98_pt30, hdir, h2s1b + "_pt20", hini, ptreb, kOrange, 3, 2, htitle, rpt,yrange);
+TH1D* h_eff_tf20_gpt30_3s1b  = getEffHisto(f_g98_pt30, hdir, h3s1b + "_pt20", hini, ptreb, kOrange, 3, 2, htitle, rpt,yrange);
 
-TH1D* h_eff_tf30_gpt40_2s1b  = getEffHisto(f_g98_pt40, hdir, h2s1b + "_pt30", hini, ptreb, kRed, 2, 2, htitle, rpt,yrange);
-TH1D* h_eff_tf30_gpt40_3s1b  = getEffHisto(f_g98_pt40, hdir, h3s1b + "_pt30", hini, ptreb, kRed, 2, 2, htitle, rpt,yrange);
+TH1D* h_eff_tf30_gpt40_2s1b  = getEffHisto(f_g98_pt40, hdir, h2s1b + "_pt30", hini, ptreb, kRed, 3, 2, htitle, rpt,yrange);
+TH1D* h_eff_tf30_gpt40_3s1b  = getEffHisto(f_g98_pt40, hdir, h3s1b + "_pt30", hini, ptreb, kRed, 3, 2, htitle, rpt,yrange);
+
+
+TH1D* h_eff_tf10_gpt20_2s1b  = getEffHisto(f_g98_pt20, hdir, h2s1b + "_pt10", hini, ptreb, kGreen+2, 3, 2, htitle, rpt,yrange);
+TH1D* h_eff_tf10_gpt20_3s1b  = getEffHisto(f_g98_pt20, hdir, h3s1b + "_pt10", hini, ptreb, kGreen+2, 3, 2, htitle, rpt,yrange);
+
+TH1D* h_eff_tf15_gpt30_2s1b  = getEffHisto(f_g98_pt30, hdir, h2s1b + "_pt15", hini, ptreb, kViolet, 3, 2, htitle, rpt,yrange);
+TH1D* h_eff_tf15_gpt30_3s1b  = getEffHisto(f_g98_pt30, hdir, h3s1b + "_pt15", hini, ptreb, kViolet, 3, 2, htitle, rpt,yrange);
+
+TH1D* h_eff_tf20_gpt40_2s1b  = getEffHisto(f_g98_pt40, hdir, h2s1b + "_pt20", hini, ptreb, kOrange, 3, 2, htitle, rpt,yrange);
+TH1D* h_eff_tf20_gpt40_3s1b  = getEffHisto(f_g98_pt40, hdir, h3s1b + "_pt20", hini, ptreb, kOrange, 3, 2, htitle, rpt,yrange);
+
 
 
 TCanvas* c2s1b = new TCanvas("c2s1b","c2s1b",800,600) ;
@@ -410,13 +430,76 @@ c3s1b_def->Print("eff_3s1b_def.png");
 
 
 
+h_eff_tf10_2s->SetLineColor(kAzure+2);
+h_eff_tf10_2s1b->SetLineColor(kAzure+6);
+h_eff_tf10_3s->SetLineColor(kAzure+3);
+h_eff_tf10_3s1b->SetLineColor(kAzure+7);
+h_eff_tf10_gpt10_2s1b->SetLineColor(kAzure+6);
+h_eff_tf10_gpt10_3s1b->SetLineColor(kAzure+7);
+
 h_eff_tf20_2s->SetLineColor(kAzure+2);
 h_eff_tf20_2s1b->SetLineColor(kAzure+6);
 h_eff_tf20_3s->SetLineColor(kAzure+3);
 h_eff_tf20_3s1b->SetLineColor(kAzure+7);
-
 h_eff_tf20_gpt20_2s1b->SetLineColor(kAzure+6);
 h_eff_tf20_gpt20_3s1b->SetLineColor(kAzure+7);
+
+h_eff_tf30_2s->SetLineColor(kAzure+2);
+h_eff_tf30_2s1b->SetLineColor(kAzure+6);
+h_eff_tf30_3s->SetLineColor(kAzure+3);
+h_eff_tf30_3s1b->SetLineColor(kAzure+7);
+h_eff_tf30_gpt30_2s1b->SetLineColor(kAzure+6);
+h_eff_tf30_gpt30_3s1b->SetLineColor(kAzure+7);
+
+h_eff_tf40_2s->SetLineColor(kAzure+2);
+h_eff_tf40_2s1b->SetLineColor(kAzure+6);
+h_eff_tf40_3s->SetLineColor(kAzure+3);
+h_eff_tf40_3s1b->SetLineColor(kAzure+7);
+h_eff_tf40_gpt40_2s1b->SetLineColor(kAzure+6);
+h_eff_tf40_gpt40_3s1b->SetLineColor(kAzure+7);
+
+
+TCanvas* c2s_pt10_def = new TCanvas("c2s_pt10_def","c2s_pt10_def",800,600);
+
+h_eff_tf10_2s->Draw("hist");
+h_eff_tf10_2s1b->Draw("hist same");
+
+TLegend *leg = new TLegend(0.55,0.17,.999,0.57, NULL, "brNDC");
+leg->SetBorderSize(0);
+leg->SetFillStyle(0);
+leg->SetHeader("TF track: p_{T}^{TF}>=10 and 2+ stubs");
+leg->AddEntry(h_eff_tf10_2s, "anywhere", "l");
+leg->AddEntry(h_eff_tf10_2s1b, "with ME1", "l");
+leg->Draw();
+
+c2s_pt10_def->Print("eff_2s_pt10_def.png");
+
+h_eff_tf10_gpt10_2s1b->Draw("hist same");
+leg->AddEntry(h_eff_tf10_gpt10_2s1b, "with (ME1 + GEM)", "l");
+c2s_pt10_def->Print("eff_2s_pt10_gem.png");
+
+
+
+TCanvas* c3s_pt10_def = new TCanvas("c3s_pt10_def","c3s_pt10_def",800,600);
+
+h_eff_tf10_3s->Draw("hist");
+h_eff_tf10_3s1b->Draw("hist same");
+
+TLegend *leg = new TLegend(0.55,0.17,.999,0.57, NULL, "brNDC");
+leg->SetBorderSize(0);
+leg->SetFillStyle(0);
+leg->SetHeader("TF track: p_{T}^{TF}>=10 and 3+ stubs");
+leg->AddEntry(h_eff_tf10_3s, "anywhere", "l");
+leg->AddEntry(h_eff_tf10_3s1b, "with ME1", "l");
+leg->Draw();
+
+c3s_pt10_def->Print("eff_3s_pt10_def.png");
+
+h_eff_tf10_gpt10_3s1b->Draw("hist same");
+leg->AddEntry(h_eff_tf10_gpt10_3s1b, "with (ME1 + GEM)", "l");
+c3s_pt10_def->Print("eff_3s_pt10_gem.png");
+
+
 
 
 TCanvas* c2s_pt20_def = new TCanvas("c2s_pt20_def","c2s_pt20_def",800,600);
@@ -460,12 +543,397 @@ leg->AddEntry(h_eff_tf20_gpt20_3s1b, "with (ME1 + GEM)", "l");
 c3s_pt20_def->Print("eff_3s_pt20_gem.png");
 
 
-return;
-h_eff_tf10_gpt15_2s1b->Draw("hist same");
-h_eff_tf20_gpt30_2s1b->Draw("hist same");
-h_eff_tf30_gpt40_2s1b->Draw("hist same");
+
+TCanvas* c2s_pt30_def = new TCanvas("c2s_pt30_def","c2s_pt30_def",800,600);
+
+h_eff_tf30_2s->Draw("hist");
+h_eff_tf30_2s1b->Draw("hist same");
+
+TLegend *leg = new TLegend(0.55,0.17,.999,0.57, NULL, "brNDC");
+leg->SetBorderSize(0);
+leg->SetFillStyle(0);
+leg->SetHeader("TF track: p_{T}^{TF}>=30 and 2+ stubs");
+leg->AddEntry(h_eff_tf30_2s, "anywhere", "l");
+leg->AddEntry(h_eff_tf30_2s1b, "with ME1", "l");
+leg->Draw();
+
+c2s_pt30_def->Print("eff_2s_pt30_def.png");
+
+h_eff_tf30_gpt30_2s1b->Draw("hist same");
+leg->AddEntry(h_eff_tf30_gpt30_2s1b, "with (ME1 + GEM)", "l");
+c2s_pt30_def->Print("eff_2s_pt30_gem.png");
+
+
+
+TCanvas* c3s_pt30_def = new TCanvas("c3s_pt30_def","c3s_pt30_def",800,600);
+
+h_eff_tf30_3s->Draw("hist");
+h_eff_tf30_3s1b->Draw("hist same");
+
+TLegend *leg = new TLegend(0.55,0.17,.999,0.57, NULL, "brNDC");
+leg->SetBorderSize(0);
+leg->SetFillStyle(0);
+leg->SetHeader("TF track: p_{T}^{TF}>=30 and 3+ stubs");
+leg->AddEntry(h_eff_tf30_3s, "anywhere", "l");
+leg->AddEntry(h_eff_tf30_3s1b, "with ME1", "l");
+leg->Draw();
+
+c3s_pt30_def->Print("eff_3s_pt30_def.png");
+
+h_eff_tf30_gpt30_3s1b->Draw("hist same");
+leg->AddEntry(h_eff_tf30_gpt30_3s1b, "with (ME1 + GEM)", "l");
+c3s_pt30_def->Print("eff_3s_pt30_gem.png");
+
+
+
+TCanvas* c2s_pt40_def = new TCanvas("c2s_pt40_def","c2s_pt40_def",800,600);
+
+h_eff_tf40_2s->Draw("hist");
+h_eff_tf40_2s1b->Draw("hist same");
+
+TLegend *leg = new TLegend(0.55,0.17,.999,0.57, NULL, "brNDC");
+leg->SetBorderSize(0);
+leg->SetFillStyle(0);
+leg->SetHeader("TF track: p_{T}^{TF}>=40 and 2+ stubs");
+leg->AddEntry(h_eff_tf40_2s, "anywhere", "l");
+leg->AddEntry(h_eff_tf40_2s1b, "with ME1", "l");
+leg->Draw();
+
+c2s_pt40_def->Print("eff_2s_pt40_def.png");
+
+h_eff_tf40_gpt40_2s1b->Draw("hist same");
+leg->AddEntry(h_eff_tf40_gpt40_2s1b, "with (ME1 + GEM)", "l");
+c2s_pt40_def->Print("eff_2s_pt40_gem.png");
+
+
+
+TCanvas* c3s_pt40_def = new TCanvas("c3s_pt40_def","c3s_pt40_def",800,600);
+
+h_eff_tf40_3s->Draw("hist");
+h_eff_tf40_3s1b->Draw("hist same");
+
+TLegend *leg = new TLegend(0.55,0.17,.999,0.57, NULL, "brNDC");
+leg->SetBorderSize(0);
+leg->SetFillStyle(0);
+leg->SetHeader("TF track: p_{T}^{TF}>=40 and 3+ stubs");
+leg->AddEntry(h_eff_tf40_3s, "anywhere", "l");
+leg->AddEntry(h_eff_tf40_3s1b, "with ME1", "l");
+leg->Draw();
+
+c3s_pt40_def->Print("eff_3s_pt40_def.png");
+
+h_eff_tf40_gpt40_3s1b->Draw("hist same");
+leg->AddEntry(h_eff_tf40_gpt40_3s1b, "with (ME1 + GEM)", "l");
+c3s_pt40_def->Print("eff_3s_pt40_gem.png");
+
+
+
+//return;
+
+h_eff_tf10_gpt10_3s1b->SetLineColor(kBlue);
+h_eff_tf10_gpt15_3s1b->SetLineColor(kMagenta);
+h_eff_tf20_gpt20_3s1b->SetLineColor(kBlue+2);
+h_eff_tf20_gpt30_3s1b->SetLineColor(kMagenta+2);
+h_eff_tf30_gpt30_3s1b->SetLineColor(kBlue+4);
+h_eff_tf30_gpt40_3s1b->SetLineColor(kMagenta+4);
+
+TCanvas* c3s_tight = new TCanvas("c3s_tight","c3s_tight",800,600);
+
+h_eff_tf10_gpt10_3s1b->Draw("hist");
+h_eff_tf10_gpt15_3s1b->Draw("hist same");
+
+//h_eff_tf15_gpt15_3s1b->Draw("hist same");
+//h_eff_tf15_gpt20_3s1b->Draw("hist same");
+
+h_eff_tf20_gpt20_3s1b->Draw("hist same");
+h_eff_tf20_gpt30_3s1b->Draw("hist same");
+
+h_eff_tf30_gpt30_3s1b->Draw("hist same");
+h_eff_tf30_gpt40_3s1b->Draw("hist same");
+
+TLegend *leg = new TLegend(0.55,0.17,.999,0.57, NULL, "brNDC");
+leg->SetBorderSize(0);
+leg->SetFillStyle(0);
+leg->SetNColumns(2);
+leg->SetHeader("TF track: 3+ stubs with ME1");
+leg->AddEntry(h_eff_tf10_gpt10_3s1b, "p_{T}^{TF} cut and", "");
+leg->AddEntry(h_eff_tf10_gpt10_3s1b, "p_{T}^{TF} cut and", "");
+leg->AddEntry(h_eff_tf10_gpt10_3s1b, "p_{T} for #Delta#phi(GEM,LCT)", "");
+leg->AddEntry(h_eff_tf10_gpt10_3s1b, "p_{T} for #Delta#phi(GEM,LCT)", "");
+leg->AddEntry(h_eff_tf10_gpt10_3s1b, "#geq10 and 10", "l");
+leg->AddEntry(h_eff_tf10_gpt15_3s1b, "#geq10 and 15", "l");
+leg->AddEntry(h_eff_tf20_gpt20_3s1b, "#geq20 and 20", "l");
+leg->AddEntry(h_eff_tf20_gpt30_3s1b, "#geq20 and 30", "l");
+leg->AddEntry(h_eff_tf30_gpt30_3s1b, "#geq30 and 30", "l");
+leg->AddEntry(h_eff_tf30_gpt40_3s1b, "#geq30 and 40", "l");
+leg->Draw();
+
+c3s_tight->Print("eff_3s_gemtight.png");
+
+
+
+h_eff_tf10_gpt10_3s1b->SetLineColor(kBlue);
+h_eff_tf10_gpt20_3s1b->SetLineColor(kMagenta);
+h_eff_tf15_gpt15_3s1b->SetLineColor(kBlue+2);
+h_eff_tf15_gpt30_3s1b->SetLineColor(kMagenta+2);
+h_eff_tf20_gpt20_3s1b->SetLineColor(kBlue+4);
+h_eff_tf20_gpt40_3s1b->SetLineColor(kMagenta+4);
+
+TCanvas* c3s_tight = new TCanvas("c3s_tight","c3s_tight",800,600);
+
+h_eff_tf10_gpt10_3s1b->Draw("hist");
+h_eff_tf10_gpt20_3s1b->Draw("hist same");
+
+h_eff_tf15_gpt15_3s1b->Draw("hist same");
+h_eff_tf15_gpt30_3s1b->Draw("hist same");
+
+h_eff_tf20_gpt20_3s1b->Draw("hist same");
+h_eff_tf20_gpt40_3s1b->Draw("hist same");
+
+TLegend *leg = new TLegend(0.55,0.17,.999,0.57, NULL, "brNDC");
+leg->SetBorderSize(0);
+leg->SetFillStyle(0);
+leg->SetNColumns(2);
+leg->SetHeader("TF track: 3+ stubs with ME1");
+leg->AddEntry(h_eff_tf10_gpt10_3s1b, "p_{T}^{TF} cut and", "");
+leg->AddEntry(h_eff_tf10_gpt10_3s1b, "p_{T}^{TF} cut and", "");
+leg->AddEntry(h_eff_tf10_gpt10_3s1b, "p_{T} for #Delta#phi(GEM,LCT)", "");
+leg->AddEntry(h_eff_tf10_gpt10_3s1b, "p_{T} for #Delta#phi(GEM,LCT)", "");
+leg->AddEntry(h_eff_tf10_gpt10_3s1b, "#geq10 and 10", "l");
+leg->AddEntry(h_eff_tf10_gpt20_3s1b, "#geq10 and 20", "l");
+leg->AddEntry(h_eff_tf15_gpt15_3s1b, "#geq15 and 15", "l");
+leg->AddEntry(h_eff_tf15_gpt30_3s1b, "#geq15 and 30", "l");
+leg->AddEntry(h_eff_tf20_gpt20_3s1b, "#geq20 and 20", "l");
+leg->AddEntry(h_eff_tf20_gpt40_3s1b, "#geq20 and 40", "l");
+leg->Draw();
+
+c3s_tight->Print("eff_3s_gemtightX.png");
 
 }
+
+
+
+
+void gem_eff_draw_gem1b()
+{
+gStyle->SetOptStat(0);
+gStyle->SetTitleStyle(0);
+
+int ptreb=2;
+
+TString hdir = "SimMuL1StrictAll";
+
+//TString f_def = "hp_dimu_6_0_1_POSTLS161_V12__pu000_w3_def_pat2.root";
+TString f_def = "hp_dimu_6_0_1_POSTLS161_V12__pu000_w3_gem_dphi0_pat2.root";
+
+double rpt[2] = {0.,49.99};
+
+
+
+TString hini = "h_pt_initial_gem_1b";
+TString hini_g = "h_pt_gem_1b";
+TString hini_gl = "h_pt_lctgem_1b";
+
+TString h2g_00 = "h_pt_after_tfcand_gem1b_2s1b";
+TString h2g_00_123 = "h_pt_after_tfcand_gem1b_2s123";
+TString h2g_00_13  = "h_pt_after_tfcand_gem1b_2s13";
+TString h3g_00 = "h_pt_after_tfcand_gem1b_3s1b";
+TString h2p_00 = "h_pt_after_tfcand_dphigem1b_2s1b";
+TString h2p_00_123 = "h_pt_after_tfcand_dphigem1b_2s123";
+TString h2p_00_13 = "h_pt_after_tfcand_dphigem1b_2s13";
+TString h3p_00 = "h_pt_after_tfcand_dphigem1b_3s1b";
+
+TString h2g_15 = "h_pt_after_tfcand_gem1b_2s1b_pt15";
+TString h2g_15_123 = "h_pt_after_tfcand_gem1b_2s123_pt15";
+TString h2g_15_13 = "h_pt_after_tfcand_gem1b_2s13_pt15";
+TString h3g_15 = "h_pt_after_tfcand_gem1b_3s1b_pt15";
+TString h2p_15 = "h_pt_after_tfcand_dphigem1b_2s1b_pt15";
+TString h2p_15_123 = "h_pt_after_tfcand_dphigem1b_2s123_pt15";
+TString h2p_15_13 = "h_pt_after_tfcand_dphigem1b_2s13_pt15";
+TString h3p_15 = "h_pt_after_tfcand_dphigem1b_3s1b_pt15";
+
+TString h2g_20 = "h_pt_after_tfcand_gem1b_2s1b_pt20";
+TString h2g_20_123 = "h_pt_after_tfcand_gem1b_2s123_pt20";
+TString h2g_20_13 = "h_pt_after_tfcand_gem1b_2s13_pt20";
+TString h3g_20 = "h_pt_after_tfcand_gem1b_3s1b_pt20";
+TString h2p_20 = "h_pt_after_tfcand_dphigem1b_2s1b_pt20";
+TString h2p_20_123 = "h_pt_after_tfcand_dphigem1b_2s123_pt20";
+TString h2p_20_13 = "h_pt_after_tfcand_dphigem1b_2s13_pt20";
+TString h3p_20 = "h_pt_after_tfcand_dphigem1b_3s1b_pt20";
+
+TString h2g_30 = "h_pt_after_tfcand_gem1b_2s1b_pt30";
+TString h2g_30_123 = "h_pt_after_tfcand_gem1b_2s123_pt30";
+TString h2g_30_13 = "h_pt_after_tfcand_gem1b_2s13_pt30";
+TString h3g_30 = "h_pt_after_tfcand_gem1b_3s1b_pt30";
+TString h2p_30 = "h_pt_after_tfcand_dphigem1b_2s1b_pt30";
+TString h2p_30_123 = "h_pt_after_tfcand_dphigem1b_2s123_pt30";
+TString h2p_30_13 = "h_pt_after_tfcand_dphigem1b_2s13_pt30";
+TString h3p_30 = "h_pt_after_tfcand_dphigem1b_3s1b_pt30";
+
+
+TCanvas* c2 = new TCanvas("c2","c2",800,600) ;
+gPad->SetGridx(1);
+gPad->SetGridy(1);
+
+
+TString htitle = "Efficiency for #mu (GEM) in 1.64<|#eta|<2.05 to have TF track with ME1/b stub;p_{T}^{MC}";
+
+hel = getEffHisto(f_def, hdir, hini_gl, hini_g, ptreb, kBlack, 1, 2, htitle, rpt, yrange07);
+hel->Draw("hist");
+het2 = getEffHisto(f_def, hdir, h2g_00, hini_g, ptreb, kGreen+2, 1, 2, htitle, rpt, yrange07);
+het2->Draw("same hist");
+het3 = getEffHisto(f_def, hdir, h3g_00, hini_g, ptreb, kGreen+2, 2, 2, htitle, rpt, yrange07);
+het3->Draw("same hist");
+het2pt20 = getEffHisto(f_def, hdir, h2g_20, hini_g, ptreb, kBlue, 1, 2, htitle, rpt, yrange07);
+het2pt20->Draw("same hist");
+het3pt20 = getEffHisto(f_def, hdir, h3g_20, hini_g, ptreb, kBlue, 2, 2, htitle, rpt, yrange07);
+het3pt20->Draw("same hist");
+
+TLegend *leg = new TLegend(0.55,0.17,.999,0.57, NULL, "brNDC");
+leg->SetBorderSize(0);
+leg->SetFillStyle(0);
+leg->SetNColumns(2);
+//leg->SetHeader("TF track: 3+ stubs with ME1");
+leg->AddEntry(hel, "ME1/b LCT stub", "l");
+leg->AddEntry(hel, " ", "");
+leg->AddEntry(het2, "any p_{T}^{TF}, 2+ stubs", "l");
+leg->AddEntry(het2pt20, "p_{T}^{TF}#geq20, 2+ stubs", "l");
+leg->AddEntry(het3, "any p_{T}^{TF}, 3+ stubs", "l");
+leg->AddEntry(het3pt20, "p_{T}^{TF}#geq20, 3+ stubs", "l");
+leg->Draw();
+
+c2->Print("eff_gem1b_basegem.png");
+
+
+
+TString htitle = "Efficiency for #mu (GEM+LCT) in 1.64<|#eta|<2.05 to have TF track with ME1/b stub;p_{T}^{MC}";
+
+helt2pt20 = getEffHisto(f_def, hdir, h2g_20, hini_gl, ptreb, kMagenta-3, 1, 2, htitle, rpt, yrange07);
+helt2pt20->Draw("hist");
+helt3pt20 = getEffHisto(f_def, hdir, h3g_20, hini_gl, ptreb, kMagenta-3, 2, 2, htitle, rpt, yrange07);
+helt3pt20->Draw("same hist");
+het2pt20->Draw("same hist");
+het3pt20->Draw("same hist");
+
+TLegend *leg = new TLegend(0.55,0.17,.999,0.57, NULL, "brNDC");
+leg->SetBorderSize(0);
+leg->SetFillStyle(0);
+leg->SetNColumns(2);
+leg->SetHeader("TF track p_{T}^{TF}#geq20 with ME1");
+leg->AddEntry(het2pt20, "GEM baseline", "");
+leg->AddEntry(helt2pt20, "GEM+LCT baseline", "");
+leg->AddEntry(het2pt20, "2+ stubs", "l");
+leg->AddEntry(helt2pt20, "2+ stubs", "l");
+leg->AddEntry(het3pt20, "3+ stubs", "l");
+leg->AddEntry(helt3pt20, "3+ stubs", "l");
+leg->Draw();
+c2->Print("eff_gem1b_baselctgem.png");
+
+//return;
+
+TString htitle = "Efficiency for #mu (GEM) in 1.64<|#eta|<2.05 to have TF track with ME1/b stub;p_{T}^{MC}";
+
+het2pt20->Draw("hist");
+het3pt20->Draw("same hist");
+het2pt20p = getEffHisto(f_def, hdir, h2p_20, hini_g, ptreb, kGray+2, 1, 2, htitle, rpt, yrange07);
+het2pt20p->Draw("same hist");
+het3pt20p = getEffHisto(f_def, hdir, h3p_20, hini_g, ptreb, kGray+2, 2, 2, htitle, rpt, yrange07);
+het3pt20p->Draw("same hist");
+
+TLegend *leg = new TLegend(0.55,0.17,.999,0.57, NULL, "brNDC");
+leg->SetBorderSize(0);
+leg->SetFillStyle(0);
+leg->SetNColumns(2);
+leg->SetHeader("TF track p_{T}^{TF}#geq20 with ME1");
+leg->AddEntry(het2pt20, "no GEM #Delta#phi", "");
+leg->AddEntry(het2pt20p, "with GEM #Delta#phi", "l");
+leg->AddEntry(het2pt20, "2+ stubs", "l");
+leg->AddEntry(het2pt20p, "2+ stubs", "l");
+leg->AddEntry(het3pt20, "3+ stubs", "l");
+leg->AddEntry(het3pt20p, "3+ stubs", "l");
+leg->Draw();
+c2->Print("eff_gem1b_basegem_dphi.png");
+
+
+htitle = "Efficiency for #mu (GEM+LCT) in 1.64<|#eta|<2.05 to have TF track with ME1/b stub;p_{T}^{MC}";
+
+helt2pt20->Draw("hist");
+helt3pt20->Draw("same hist");
+helt2pt20p = getEffHisto(f_def, hdir, h2p_20, hini_gl, ptreb, kGray+2, 1, 2, htitle, rpt, yrange07);
+helt2pt20p->Draw("same hist");
+helt3pt20p = getEffHisto(f_def, hdir, h3p_20, hini_gl, ptreb, kGray+2, 2, 2, htitle, rpt, yrange07);
+helt3pt20p->Draw("same hist");
+
+TLegend *leg = new TLegend(0.55,0.17,.999,0.57, NULL, "brNDC");
+leg->SetBorderSize(0);
+leg->SetFillStyle(0);
+leg->SetNColumns(2);
+leg->SetHeader("TF track p_{T}^{TF}#geq20 with ME1");
+leg->AddEntry(helt2pt20, "no GEM #Delta#phi", "");
+leg->AddEntry(helt2pt20p, "with GEM #Delta#phi", "l");
+leg->AddEntry(helt2pt20, "2+ stubs", "l");
+leg->AddEntry(helt2pt20p, "2+ stubs", "l");
+leg->AddEntry(helt3pt20, "3+ stubs", "l");
+leg->AddEntry(helt3pt20p, "3+ stubs", "l");
+leg->Draw();
+c2->Print("eff_gem1b_baselpcgem_dphi.png");
+
+
+helt2pt20->Draw("hist");
+helt3pt20->Draw("same hist");
+helt2pt20_123 = getEffHisto(f_def, hdir, h2g_20_123, hini_gl, ptreb, kMagenta-3, 9, 2, htitle, rpt, yrange07);
+helt2pt20_123->Draw("same hist");
+helt3pt20_13 = getEffHisto(f_def, hdir, h2g_20_13, hini_gl, ptreb, kMagenta-3, 7, 2, htitle, rpt, yrange07);
+helt3pt20_13->Draw("same hist");
+
+TLegend *leg = new TLegend(0.5,0.17,.999,0.55, NULL, "brNDC");
+leg->SetBorderSize(0);
+leg->SetFillStyle(0);
+//leg->SetNColumns(2);
+leg->SetHeader("TF track p_{T}^{TF}#geq20 with ME1");
+//leg->AddEntry(helt2pt20, "no GEM #Delta#phi", "");
+//leg->AddEntry(helt2pt20p, "with GEM #Delta#phi", "");
+leg->AddEntry(helt2pt20, "2+ stubs", "l");
+leg->AddEntry(helt2pt20_123, "2+ stubs (no ME1-4 tracks)", "l");
+leg->AddEntry(helt3pt20_13, "2+ stubs (no ME1-2 and ME1-4)", "l");
+leg->AddEntry(helt3pt20, "3+ stubs", "l");
+leg->Draw();
+c2->Print("eff_gem1b_baselpcgem_123.png");
+
+return;
+
+hegl = getEffHisto(f_def, hdir, hgl, hini, ptreb, kRed, 1, 2, htitle, rpt, yrange);
+hegl->Draw("same hist")
+heg = getEffHisto(f_def, hdir, hg, hini, ptreb, kBlack, 1, 2, htitle, rpt, yrange);
+heg->Draw("same hist")
+
+
+
+
+TString hini = "h_pt_initial_1b";
+TString h2s = "h_pt_after_tfcand_eta1b_2s";
+TString h3s = "h_pt_after_tfcand_eta1b_3s";
+TString h2s1b = "h_pt_after_tfcand_eta1b_2s1b";
+TString h3s1b = "h_pt_after_tfcand_eta1b_3s1b";
+
+
+TH1D* h_eff_tf0_2s  = getEffHisto(f_def, hdir, h2s, hini, ptreb, kBlack, 1, 2, htitle, rpt, yrange);
+TH1D* h_eff_tf0_3s  = getEffHisto(f_def, hdir, h3s, hini, ptreb, kBlack, 1, 2, htitle, rpt, yrange);
+TH1D* h_eff_tf0_2s1b  = getEffHisto(f_def, hdir, h2s1b, hini, ptreb, kBlack, 1, 2, htitle, rpt, yrange);
+TH1D* h_eff_tf0_3s1b  = getEffHisto(f_def, hdir, h3s1b, hini, ptreb, kBlack, 1, 2, htitle, rpt, yrange);
+
+
+TH1D* h_eff_tf10_2s  = getEffHisto(f_def, hdir, h2s + "_pt10", hini, ptreb, kGreen+4, 1, 2, htitle, rpt,yrange);
+TH1D* h_eff_tf10_2s1b  = getEffHisto(f_def, hdir, h2s1b + "_pt10", hini, ptreb, kGreen+2, 1, 2, htitle, rpt,yrange);
+TH1D* h_eff_tf10_3s  = getEffHisto(f_def, hdir, h3s + "_pt10", hini, ptreb, kGreen+2, 1, 2, htitle, rpt,yrange);
+TH1D* h_eff_tf10_3s1b  = getEffHisto(f_def, hdir, h3s1b + "_pt10", hini, ptreb, kGreen+2, 1, 2, htitle, rpt,yrange);
+}
+
+
+
+
+
+
 
 void drawplot_etastep(char *fname, char* pu, char *dname="tf")
 {
