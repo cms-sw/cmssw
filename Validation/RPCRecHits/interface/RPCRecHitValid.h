@@ -33,6 +33,7 @@ private:
   std::string subDir_;
   edm::InputTag simHitLabel_, recHitLabel_;
   edm::InputTag simParticleLabel_;
+  edm::InputTag simHitAssocLabel_;
   edm::InputTag muonLabel_;
 
   DQMStore* dbe_;
