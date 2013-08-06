@@ -20,17 +20,13 @@ TLatex* drawLumiLabel(float x=0.17, float y=0.35)
 
 
 
-void produceRatePlotsForApproval()
+void produceRatePlotsForApproval(TString ext)
 {
-  gROOT->ProcessLine(".L drawplot_gmtrt.C");
-  gROOT->ProcessLine(".L getPTHistos.C");
-  gROOT->SetBatch(true);
 
   gem_dir = "files/"; 
   gem_label = "gem98";
 
   TString plots = "plots/rate/"; 
-  TString ext = ".pdf";
   TString the_ttl = "CSC L1 trigger rates in ME1/b region;p_{T}^{cut} [GeV/c];rate [kHz]";
 
 
@@ -515,3 +511,13 @@ void produceRatePlotsForApproval()
 
 }
 
+void produceRatePlotsForApproval()
+{
+  gROOT->ProcessLine(".L drawplot_gmtrt.C");
+  gROOT->ProcessLine(".L getPTHistos.C");
+  gROOT->SetBatch(true);
+
+  produceRatePlotsForApproval(".png");
+  produceRatePlotsForApproval(".pdf");
+  produceRatePlotsForApproval(".eps");
+}
