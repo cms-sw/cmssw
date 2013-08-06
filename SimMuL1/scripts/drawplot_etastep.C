@@ -12,8 +12,8 @@ TH1F *gh;
 TH1D *h1, *h2, *he;
 
 TString filesDir = "files/";
-TString plotDir = "plots/";
-TString ext = ".png";
+TString plotDir = "plots/efficiency/";
+TString ext = ".pdf";
 
 double yrange[2]={0.,1.04};
 double yrange05[2]={0.5,1.04};
