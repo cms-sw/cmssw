@@ -342,7 +342,8 @@ bool AlignmentTrackSelector::detailedHitsCheck(const reco::Track *trackp, const 
       || minHitsinFPIXplus_ || minHitsinFPIXminus_
       || minHitsinTECplus_ || minHitsinTECminus_
       || minHitsinFPIX_ || minHitsinBPIX_ || minHitsinPIX_ ||nHitMin2D_ || chargeCheck_
-      || applyIsolation_ || (seedOnlyFromAbove_ == 1 || seedOnlyFromAbove_ == 2)) {
+      || applyIsolation_ || (seedOnlyFromAbove_ == 1 || seedOnlyFromAbove_ == 2)
+      || RorZofFirstHitMin_.size() > 0 || RorZofFirstHitMax_.size() > 0 || RorZofLastHitMin_.size() > 0 || RorZofLastHitMax_.size() > 0 ) {
     // any detailed hit cut is active, so have to check
     
     int nhitinTIB = 0, nhitinTOB = 0, nhitinTID = 0;
