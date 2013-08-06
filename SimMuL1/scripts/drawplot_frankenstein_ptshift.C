@@ -1,4 +1,3 @@
-gROOT->ProcessLine(".L drawplot_gmtrt.C");
 
 /*
 .L drawplot_gmtrt.C
@@ -53,7 +52,10 @@ result_gem_eta_no1a = getPTHisto(f_gem, dir, "h_rt_gmt_csc_ptmax_3s_3s1b_no1a", 
 
 void drawplot_frankenstein_ptshift()
 {
-gem_dir = "gemPT/"; gem_label = "gem98";
+  gROOT->ProcessLine(".L drawplot_gmtrt.C");
+  
+  gem_dir = "plots/rate_vs_pt_shift/"; 
+  gem_label = "gem98";
 
 //gem_dir = "gem95/"; gem_label = "gem95";
 
@@ -159,7 +161,7 @@ for (int b = 1; b <= hh_no1a->GetNbinsX(); ++b) if (hh_no1a->GetBinContent(b)==0
 for (int b = 1; b <= hh_2s1b->GetNbinsX(); ++b) if (hh_2s1b->GetBinContent(b)==0) hh_2s1b->SetBinError(b, 0.);
 
 
-TString the_ttl = "CSC L1 trigger rates in ME1/b eta region;p_{T}^{cut}, GeV/c;rate, kHz";
+TString the_ttl = "CSC L1 trigger rates in ME1/b eta region;p_{T}^{cut} [GeV/c];rate [kHz]";
 
 hh = setPTHisto(hh, the_ttl, kGreen+3, 1, 1);
 hh_all = setPTHisto(hh_all, the_ttl, kGreen+3, 1, 1);

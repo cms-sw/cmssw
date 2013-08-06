@@ -1,4 +1,3 @@
-gROOT->ProcessLine(".L drawplot_gmtrt.C");
 
 /*
 .L drawplot_gmtrt.C
@@ -59,6 +58,9 @@ result_gem_gmtsing_no1a = getPTHisto(f_def, dir, "h_rt_gmt_ptmax_sing6_3s1b_no1a
 
 void drawplot_frankenstein()
 {
+
+  gROOT->ProcessLine(".L drawplot_gmtrt.C");
+
   //gem_dir = "gem_vadim/";
   gem_dir = plotDir;
   gem_label = "gem98";
@@ -222,9 +224,9 @@ for (int b = 1; b <= hh_2s13->GetNbinsX(); ++b) if (hh_2s13->GetBinContent(b)==0
 for (int b = 1; b <= hh_sing_no1a->GetNbinsX(); ++b) if (hh_sing_no1a->GetBinContent(b)==0) hh_sing_no1a->SetBinError(b, 0.);
 
 
-TString the_ttl = "CSC L1 trigger rates in ME1/b eta region;p_{T}^{cut}, GeV/c;rate, kHz";
-TString the_ttl_no1a = "CSC L1 trigger rates in 1.2<|#eta|<2.14;p_{T}^{cut}, GeV/c;rate, kHz";
-TString the_ttl_all = "CSC L1 trigger rates in 1.<|#eta|<2.4;p_{T}^{cut}, GeV/c;rate, kHz";
+TString the_ttl = "CSC L1 trigger rates in ME1/b eta region;p_{T}^{cut} [GeV/c];rate [kHz]";
+TString the_ttl_no1a = "CSC L1 trigger rates in 1.2<|#eta|<2.14;p_{T}^{cut} [GeV/c];rate [kHz]";
+TString the_ttl_all = "CSC L1 trigger rates in 1.<|#eta|<2.4;p_{T}^{cut} [GeV/c];rate [kHz]";
 
 hh = setPTHisto(hh, the_ttl, kGreen+3, 1, 1);
 hh_all = setPTHisto(hh_all, the_ttl_all, kGreen+3, 1, 1);
