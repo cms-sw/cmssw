@@ -60,16 +60,16 @@ def plotGEMCSCdPhi(filesDir, plotDir, oddEven = "even", ext = ".png"):
     gStyle.SetOptStat(0)
     gStyle.SetMarkerStyle(1)
 
-#    setTDRStyle()
+    #setTDRStyle()
 
     if oddEven == "even":
         ok_pad_lct = ok_pad2_lct2       
         var = "dphi_pad_even"
-        closeFar = "close"
+        closeFar = "Close"
     else:
         ok_pad_lct = ok_pad1_lct1
         var = "dphi_pad_odd"
-        closeFar = "far"
+        closeFar = "Far"
         
     t.Draw("TMath::Abs(%s)>>dphi_pt5"%(var) , ok_pad_lct);
     t1.Draw("TMath::Abs(%s)>>dphi_pt20"%(var) , ok_pad_lct);
@@ -82,24 +82,34 @@ def plotGEMCSCdPhi(filesDir, plotDir, oddEven = "even", ext = ".png"):
     dphi_pt5.SetLineWidth(2);
     dphi_pt20.SetLineWidth(2);
 
-    dphi_pt20.GetXaxis().SetTitle("GEM-CSC bending angle [rad]");
-    dphi_pt20.GetYaxis().SetTitle("A.U.");
-    dphi_pt20.SetTitle("GEM-CSC bending angle for muons in %s chambers"%(closeFar));
+    dphi_pt20.GetXaxis().SetTitle("#Delta#Phi(GEM,CSC) [rad]");
+    dphi_pt20.GetYaxis().SetTitle("Arbitrary units");
+    dphi_pt20.SetTitle("CMS Simulation: GEM-CSC bending angle");
 
     dphi_pt20.Draw();
     dphi_pt5.Draw("same");
 
-    legend = TLegend(.4,.6,.7,.8);
+    legend = TLegend(.4,.5,.7,.7);
     legend.SetFillColor(kWhite);
     legend.SetFillStyle(0);
     legend.SetBorderSize(0);
-    legend.SetTextSize(0.05);
+    legend.SetTextSize(0.06);
     legend.SetMargin(0.13);
-    legend.AddEntry(dphi_pt5,"p_{T}=5 GeV","L");
-    legend.AddEntry(dphi_pt20,"p_{T}=20 GeV","L");
+    legend.AddEntry(dphi_pt5,"muon p_{T} = 5 GeV/c","L");
+    legend.AddEntry(dphi_pt20,"muon p_{T} = 20 GeV/c","L");
     legend.Draw("same");
 
-    c.SaveAs("%sGEMCSCdPhi_%s_chambers%s"%(plotDir, oddEven, ext));
+    tex = TLatex(.65,.85,"%s chambers"%(closeFar))
+    tex.SetTextSize(0.06)
+    tex.SetNDC()
+    tex.Draw("same")
+
+    tex2 = TLatex(.65,.75,"1.64<|#eta|<2.14")
+    tex2.SetTextSize(0.06)
+    tex2.SetNDC()
+    tex2.Draw("same")
+
+    c.SaveAs("%sGEMCSCdPhi_%s_chambers%s"%(plotDir, oddEven, ext))
 
 if __name__ == "__main__":  
     plotGEMCSCdPhi("files/", "plots/bending/", "even", ".png")
