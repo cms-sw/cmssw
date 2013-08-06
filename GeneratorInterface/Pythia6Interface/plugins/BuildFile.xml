@@ -2,9 +2,6 @@
 <architecture name="slc5">
 <use   name="pydata"/>
 </architecture>
-<architecture name="gcc480">
-<use   name="pydata"/>
-</architecture>
 <architecture name="osx">
 <use   name="pydata"/>
 </architecture>
