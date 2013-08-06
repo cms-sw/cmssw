@@ -72,6 +72,11 @@ SiStripCommissioningSource::SiStripCommissioningSource( const edm::ParameterSet&
   view_( pset.getUntrackedParameter<std::string>("View", "Default") ),
   parameters_(pset)
 {
+  inputModuleSummaryToken_     = consumes<SiStripEventSummary>(edm::InputTag(inputModuleLabelSummary_) );
+  digiVirginRawToken_          = mayConsume<edm::DetSetVector<SiStripRawDigi> >(edm::InputTag(inputModuleLabel_,"VirginRaw") );
+  digiScopeModeToken_          = mayConsume<edm::DetSetVector<SiStripRawDigi> >(edm::InputTag(inputModuleLabel_,"ScopeMode") );
+  digiFineDelaySelectionToken_ = mayConsume<edm::DetSetVector<SiStripRawDigi> >(edm::InputTag(inputModuleLabel_,"FineDelaySelection") );
+
   LogTrace(mlDqmSource_)
     << "[SiStripCommissioningSource::" << __func__ << "]"
     << " Constructing object...";
@@ -259,7 +264,8 @@ void SiStripCommissioningSource::analyze( const edm::Event& event,
 					  const edm::EventSetup& setup ) {
   // Retrieve commissioning information from "event summary" 
   edm::Handle<SiStripEventSummary> summary;
-  event.getByLabel( inputModuleLabelSummary_, summary );
+  //  event.getByLabel( inputModuleLabelSummary_, summary );
+  event.getByToken( inputModuleSummaryToken_,summary );
 
   // Check if EventSummary has info attached
   if ( ( summary->runType() == sistrip::UNDEFINED_RUN_TYPE ||
@@ -299,9 +305,11 @@ void SiStripCommissioningSource::analyze( const edm::Event& event,
   edm::Handle< edm::DetSetVector<SiStripRawDigi> > raw;
   if ( task_ == sistrip::DAQ_SCOPE_MODE ) { 
     if ( summary->fedReadoutMode() == FED_VIRGIN_RAW ) {
-      event.getByLabel( inputModuleLabel_, "VirginRaw", raw );
+      //      event.getByLabel( inputModuleLabel_, "VirginRaw", raw );
+      event.getByToken( digiVirginRawToken_, raw );
     } else if ( summary->fedReadoutMode() == FED_SCOPE_MODE ) {
-      event.getByLabel( inputModuleLabel_, "ScopeMode", raw );
+      //      event.getByLabel( inputModuleLabel_, "ScopeMode", raw );
+      event.getByToken( digiScopeModeToken_, raw );
     } else {
       std::stringstream ss;
       ss << "[SiStripCommissioningSource::" << __func__ << "]"
@@ -315,7 +323,8 @@ void SiStripCommissioningSource::analyze( const edm::Event& event,
 	      task_ == sistrip::APV_TIMING ||
 	      task_ == sistrip::FED_TIMING ||
 	      task_ == sistrip::OPTO_SCAN ) { 
-    event.getByLabel( inputModuleLabel_, "ScopeMode", raw );
+    //    event.getByLabel( inputModuleLabel_, "ScopeMode", raw );
+    event.getByToken( digiScopeModeToken_, raw );
   } else if ( task_ == sistrip::VPSP_SCAN ||
               task_ == sistrip::CALIBRATION ||
               task_ == sistrip::CALIBRATION_DECO ||
@@ -325,10 +334,12 @@ void SiStripCommissioningSource::analyze( const edm::Event& event,
 	      task_ == sistrip::PEDS_ONLY ||
 	      task_ == sistrip::NOISE ||
 	      task_ == sistrip::PEDS_FULL_NOISE ) {
-    event.getByLabel( inputModuleLabel_, "VirginRaw", raw );
+    //    event.getByLabel( inputModuleLabel_, "VirginRaw", raw );
+    event.getByToken( digiVirginRawToken_, raw );
   } else if ( task_ == sistrip::APV_LATENCY ||
 	      task_ == sistrip::FINE_DELAY ) {
-    event.getByLabel( inputModuleLabel_, "FineDelaySelection", raw );
+    //    event.getByLabel( inputModuleLabel_, "FineDelaySelection", raw );
+    event.getByToken( digiFineDelaySelectionToken_, raw );
   } else {
     std::stringstream ss;
     ss << "[SiStripCommissioningSource::" << __func__ << "]"

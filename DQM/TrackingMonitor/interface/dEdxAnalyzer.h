@@ -9,6 +9,8 @@ Monitoring source for general quantities related to track dEdx.
 #include <memory>
 #include <fstream>
 
+#include "FWCore/Utilities/interface/EDGetToken.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 
@@ -20,6 +22,10 @@ Monitoring source for general quantities related to track dEdx.
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
+
+#include "DataFormats/TrackReco/interface/DeDxData.h"
+#include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
 
 class DQMStore;
 class GenericTriggerEventFlag;
@@ -70,6 +76,12 @@ class dEdxAnalyzer : public edm::EDAnalyzer {
   double TrackHitMin, HIPdEdxMin;
   double dEdxK, dEdxC;
   
+  edm::InputTag trackInputTag_;
+  edm::EDGetTokenT<reco::TrackCollection> trackToken_;
+
+  std::vector<std::string> dEdxInputList_;
+  std::vector<edm::EDGetTokenT<reco::DeDxDataValueMap> > dEdxTokenList_;
+
   std::string TrackName ;
   std::vector< std::string  > AlgoNames;
   std::vector< dEdxMEs > dEdxMEsVector;

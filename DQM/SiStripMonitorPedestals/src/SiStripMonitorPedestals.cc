@@ -13,7 +13,7 @@
 //
 // Original Author:  Simone Gennai and Suchandra Dutta
 //         Created:  Sat Feb  4 20:49:10 CET 2006
-// $Id: SiStripMonitorPedestals.cc,v 1.38 2013/01/02 14:17:44 wmtan Exp $
+// $Id: SiStripMonitorPedestals.cc,v 1.39 2013/01/03 18:59:36 wmtan Exp $
 //
 //
 
@@ -62,6 +62,11 @@ SiStripMonitorPedestals::SiStripMonitorPedestals(edm::ParameterSet const& iConfi
   apvFactory_(0),
   m_cacheID_(0)
 {
+  // retrieve producer name of input StripDigiCollection
+  std::string digiProducer = conf_.getParameter<std::string>("DigiProducer");
+  std::string digiType = "VirginRaw";
+  digiToken_ = consumes<edm::DetSetVector<SiStripRawDigi> >(edm::InputTag(digiProducer,digiType) ); 
+
   edm::LogInfo("SiStripMonitorPedestals") <<"SiStripMonitorPedestals  " 
 					  << " Constructing....... ";     
 }
@@ -282,13 +287,15 @@ void SiStripMonitorPedestals::analyze(const edm::Event& iEvent, const edm::Event
   //Increment # of Events
   nEvTot_++;
  
-  // retrieve producer name of input StripDigiCollection
-  std::string digiProducer = conf_.getParameter<std::string>("DigiProducer");
   // get DigiCollection object from Event
   edm::Handle< edm::DetSetVector<SiStripRawDigi> > digi_collection;
-  std::string digiType = "VirginRaw";
   //you have a collection as there are all the digis for the event for every detector
+  /*
+  // retrieve producer name of input StripDigiCollection
+  std::string digiProducer = conf_.getParameter<std::string>("DigiProducer");
   iEvent.getByLabel(digiProducer, digiType, digi_collection);
+  */
+  iEvent.getByToken(digiToken_, digi_collection);
 
   //Increase the number of iterations ...
   if((nEvTot_ - theEventInitNumber_)%theEventIterNumber_ == 1) nIteration_++;
