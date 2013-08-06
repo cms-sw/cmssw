@@ -18,10 +18,72 @@ Produces matching efficiency plots (simtrack to LCT, gem pad vs track pt, pt eta
 
 ###drawplot_frankenstein.C	
 
-Produces a lot of rate plots. 
-
 <pre><code>root -l -b drawplot_frankenstein.C
 </code></pre>
+
+Produces a lot of rate plots
+<pre><code>Info in <TCanvas::Print>: png file plots/rate_vs_pt/rates__164-214_PU100__def-3s__gem-3s-3s1b__Frankenstein_pat2.png has been created
+Info in <TCanvas::Print>: png file plots/rate_vs_pt/rates__164-214_PU100__def-3s__gem-3s-3s1b__Frankenstein_pat2__ratio.png has been created
+Info in <TCanvas::Print>: png file plots/rate_vs_pt/rates__164-214_PU100__def-3s-3s1b__gem-3s-3s1b__Frankenstein_pat2.png has been created
+Info in <TCanvas::Print>: png file plots/rate_vs_pt/rates__164-214_PU100__def-3s-3s1b__gem-3s-3s1b__Frankenstein_pat2__ratio.png has been created
+Info in <TCanvas::Print>: png file plots/rate_vs_pt/rates__164-214_PU100__def-3s-2s1b__gem-3s-2s1b__Frankenstein_pat2.png has been created
+Info in <TCanvas::Print>: png file plots/rate_vs_pt/rates__164-214_PU100__def-3s-2s1b__gem-3s-2s1b__Frankenstein_pat2__ratio.png has been created
+Info in <TCanvas::Print>: png file plots/rate_vs_pt/rates__164-214_PU100__def-3s__gem-3s-2s1b__Frankenstein_pat2.png has been created
+Info in <TCanvas::Print>: png file plots/rate_vs_pt/rates__164-214_PU100__def-3s__gem-3s-2s1b__Frankenstein_pat2__ratio.png has been created
+Info in <TCanvas::Print>: png file plots/rate_vs_pt/rates__164-214_PU100__def-3s-3s1b__gem-3s-2s1b__Frankenstein_pat2.png has been created
+Info in <TCanvas::Print>: png file plots/rate_vs_pt/rates__164-214_PU100__def-3s-3s1b__gem-3s-2s1b__Frankenstein_pat2__ratio.png has been created
+Info in <TCanvas::Print>: png file plots/rate_vs_pt/rates__100-240_PU100__def-3s__gem-3s-3s1b__Frankenstein_pat2.png has been created
+Info in <TCanvas::Print>: png file plots/rate_vs_pt/rates__100-240_PU100__def-3s__gem-3s-3s1b__Frankenstein_pat2__ratio.png has been created
+Info in <TCanvas::Print>: png file plots/rate_vs_pt/rates__100-240_PU100__def-3s-3s1b__gem-3s-3s1b__Frankenstein_pat2.png has been created
+Info in <TCanvas::Print>: png file plots/rate_vs_pt/rates__100-240_PU100__def-3s-3s1b__gem-3s-3s1b__Frankenstein_pat2__ratio.png has been created
+Info in <TCanvas::Print>: png file plots/rate_vs_pt/rates__164-214_PU100__def-3s__gem-3s-3s1b__Frankenstein_pat8.png has been created
+Info in <TCanvas::Print>: png file plots/rate_vs_pt/rates__164-214_PU100__def-3s__gem-3s-3s1b__Frankenstein_pat8__ratio.png has been created
+Info in <TCanvas::Print>: png file plots/rate_vs_pt/rates__164-214_PU100__def-3s-3s1b__gem-3s-3s1b__Frankenstein_pat8.png has been created
+Info in <TCanvas::Print>: png file plots/rate_vs_pt/rates__164-214_PU100__def-3s-3s1b__gem-3s-3s1b__Frankenstein_pat8__ratio.png has been created
+Info in <TCanvas::Print>: png file plots/rate_vs_pt/rates__164-214_PU100__def-3s-2s1b__gem-3s-2s1b__Frankenstein_pat8.png has been created
+Info in <TCanvas::Print>: png file plots/rate_vs_pt/rates__164-214_PU100__def-3s-2s1b__gem-3s-2s1b__Frankenstein_pat8__ratio.png has been created
+Info in <TCanvas::Print>: png file plots/rate_vs_pt/rates__164-214_PU100__def-3s__gem-3s-2s1b__Frankenstein_pat8.png has been created
+Info in <TCanvas::Print>: png file plots/rate_vs_pt/rates__164-214_PU100__def-3s__gem-3s-2s1b__Frankenstein_pat8__ratio.png has been created
+Info in <TCanvas::Print>: png file plots/rate_vs_pt/rates__164-214_PU100__def-3s-3s1b__gem-3s-2s1b__Frankenstein_pat8.png has been created
+Info in <TCanvas::Print>: png file plots/rate_vs_pt/rates__164-214_PU100__def-3s-3s1b__gem-3s-2s1b__Frankenstein_pat8__ratio.png has been created
+Info in <TCanvas::Print>: png file plots/rate_vs_pt/rates__100-240_PU100__def-3s__gem-3s-3s1b__Frankenstein_pat8.png has been created
+Info in <TCanvas::Print>: png file plots/rate_vs_pt/rates__100-240_PU100__def-3s__gem-3s-3s1b__Frankenstein_pat8__ratio.png has been created
+Info in <TCanvas::Print>: png file plots/rate_vs_pt/rates__100-240_PU100__def-3s-3s1b__gem-3s-3s1b__Frankenstein_pat8.png has been created
+Info in <TCanvas::Print>: png file plots/rate_vs_pt/rates__100-240_PU100__def-3s-3s1b__gem-3s-3s1b__Frankenstein_pat8__ratio.png has been created
+Info in <TCanvas::Print>: png file plots/rate_vs_pt/rates__120-214_PU100__def-3s__gem-3s-3s1b__Frankenstein_pat8.png has been created
+Info in <TCanvas::Print>: png file plots/rate_vs_pt/rates__120-214_PU100__def-3s__gem-3s-3s1b__Frankenstein_pat8__ratio.png has been created
+Info in <TCanvas::Print>: png file plots/rate_vs_pt/rates__120-214_PU100__def-3s-3s1b__gem-3s-3s1b__Frankenstein_pat8.png has been created
+Info in <TCanvas::Print>: png file plots/rate_vs_pt/rates__120-214_PU100__def-3s-3s1b__gem-3s-3s1b__Frankenstein_pat8__ratio.png has been created
+Info in <TCanvas::Print>: png file plots/rate_vs_pt/rates__164-214_PU100__sequential__3s__Frankenstein_pat2.png has been created
+Info in <TCanvas::Print>: png file plots/rate_vs_pt/rates__164-214_PU100__sequential__3s1b__Frankenstein_pat2__ratio.png has been created
+Info in <TCanvas::Print>: png file plots/rate_vs_pt/rates__164-214_PU100__sequential__3s__Frankenstein_pat2__ratio.png has been created
+Info in <TCanvas::Print>: png file plots/rate_vs_pt/rates__164-214_PU100__sequential__3s_GMT__Frankenstein_pat2.png has been created
+Info in <TCanvas::Print>: png file plots/rate_vs_pt/rates__164-214_PU100__sequential__3s_GMT__Frankenstein_pat2__ratio.png has been created
+Info in <TCanvas::Print>: png file plots/rate_vs_pt/rates__164-214_PU100__sequential__3s_tightGEM__Frankenstein_pat2.png has been created
+Info in <TCanvas::Print>: png file plots/rate_vs_pt/rates__164-214_PU100__sequential__3s_tightGEM__Frankenstein_pat2__ratio.png has been created
+Info in <TCanvas::Print>: png file plots/rate_vs_pt/rates__164-214_PU100__sequential__3s_xtightGEM__Frankenstein_pat2.png has been created
+Info in <TCanvas::Print>: png file plots/rate_vs_pt/rates__164-214_PU100__sequential__3s_xtightGEM__Frankenstein_pat2__ratio.png has been created
+Info in <TCanvas::Print>: png file plots/rate_vs_pt/rates__164-214_PU100__sequential__3s__Frankenstein_pat8.png has been created
+Info in <TCanvas::Print>: png file plots/rate_vs_pt/rates__164-214_PU100__sequential__3s__Frankenstein.png has been created
+Info in <TCanvas::Print>: png file plots/rate_vs_pt/rates__164-214_PU100__sequential__2s__Frankenstein_pat2.png has been created
+Info in <TCanvas::Print>: png file plots/rate_vs_pt/rates__164-214_PU100__sequential__2s1b__Frankenstein_pat2__ratio.png has been created
+Info in <TCanvas::Print>: png file plots/rate_vs_pt/rates__164-214_PU100__sequential__2s_GMT__Frankenstein_pat2.png has been created
+Info in <TCanvas::Print>: png file plots/rate_vs_pt/rates__164-214_PU100__sequential__2s_GMT__Frankenstein_pat2__ratio.png has been created
+Info in <TCanvas::Print>: png file plots/rate_vs_pt/rates__164-214_PU100__sequential__2s_tightGEM__Frankenstein_pat2.png has been created
+Info in <TCanvas::Print>: png file plots/rate_vs_pt/rates__164-214_PU100__sequential__2s_tightGEM__Frankenstein_pat2__ratio.png has been created
+Info in <TCanvas::Print>: png file plots/rate_vs_pt/rates__164-214_PU100__sequential__2s_xtightGEM__Frankenstein_pat2.png has been created
+Info in <TCanvas::Print>: png file plots/rate_vs_pt/rates__164-214_PU100__sequential__2s_xtightGEM__Frankenstein_pat2__ratio.png has been created
+Info in <TCanvas::Print>: png file plots/rate_vs_pt/rates__164-214_PU100__sequential__2s__Frankenstein_pat8.png has been created
+Info in <TCanvas::Print>: png file plots/rate_vs_pt/rates__164-214_PU100__sequential__2s__Frankenstein.png has been created
+Info in <TCanvas::Print>: png file plots/rate_vs_pt/rates__164-214_PU100__sequential__GMT__Frankenstein_pat2.png has been created
+Info in <TCanvas::Print>: png file plots/rate_vs_pt/rates__164-214_PU100__sequential__2s3s__Frankenstein_pat2.png has been created
+Info in <TCanvas::Print>: png file plots/rate_vs_pt/rates__164-214_PU100__sequential__2s3s123__Frankenstein_pat2.png has been created
+Info in <TCanvas::Print>: png file plots/rate_vs_pt/rates__164-214_PU100__sequential__2s3s123__Frankenstein_pat2__ratio.png has been created
+Info in <TCanvas::Print>: png file plots/rate_vs_pt/rates__164-214_PU100__sequential__3s2s13__Frankenstein_pat2__ratio.png has been created
+Info in <TCanvas::Print>: png file plots/rate_vs_pt/rates__120-214_PU100__sequential__GMT2s1b__Frankenstein_pat2.png has been created
+Info in <TCanvas::Print>: png file plots/rate_vs_pt/rates__120-214_PU100__sequential__GMT2s1b__Frankenstein_pat2__ratio.png has been created
+</code></pre>
+
 
 ###drawplot_frankenstein_ptshift.C
 
