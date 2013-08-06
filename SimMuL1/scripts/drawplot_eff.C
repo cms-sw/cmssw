@@ -1,4 +1,4 @@
-gROOT->ProcessLine("effFunctions.C");
+gROOT->ProcessLine(".L effFunctions.C");
 
 /*
 
