@@ -1,6 +1,7 @@
 
 //int kGray=920, kOrange=800, kSpring=820, kTeal=840, kAzure=860, kViolet=880, kPink=900;
 
+// Design LHC orbit: 2808 filled bickets out of 3564 --->  0.7879 filled BX fraction
 
 
 TFile *f=0;
@@ -19,7 +20,11 @@ TH1D* result_def_2s = 0;
 TH1D* result_def_3s1b = 0;
 
 TH1D* result_gem_2s1b = 0;
+TH1D* result_gem_2s123 = 0;
+TH1D* result_gem_2s13 = 0;
 TH1D* result_def_2s1b = 0;
+TH1D* result_def_2s123 = 0;
+TH1D* result_def_2s13 = 0;
 
 TH1D* result_gem_eta_all = 0;
 TH1D* result_def_eta_all = 0;
@@ -29,7 +34,10 @@ TH1D* result_gem_eta_no1a = 0;
 TH1D* result_def_eta_no1a = 0;
 TH1D* result_def_eta_no1a_3s1b = 0;
 
-TH1D* result_gmtsing = 0;
+TH1D* result_def_gmtsing = 0;
+
+TH1D* result_def_gmtsing_no1a = 0;
+TH1D* result_gem_gmtsing_no1a = 0;
 
 // for later use
 TH1D* result_def_2s__pat2 = 0;
@@ -41,8 +49,8 @@ TH1D* result_def_3s__pat8 = 0;
 TH1D* result_def_2s1b__pat8 = 0;
 TH1D* result_def_3s1b__pat8 = 0;
 
-TH1D* result_gmtsing__pat2 = 0;
-TH1D* result_gmtsing__pat8 = 0;
+TH1D* result_def_gmtsing__pat2 = 0;
+TH1D* result_def_gmtsing__pat8 = 0;
 
 TH1D* result_gem_2s1b__pat2 = 0;
 TH1D* result_gem_3s1b__pat2 = 0;
@@ -1638,7 +1646,7 @@ tex->Draw();
 
 Print(cAll100, "rates__1.6-2.1_PU100__def-3s__gmtsing.png");
 
-result_gmtsing = hAll100gem;
+result_def_gmtsing = hAll100gem;
 
 if (do_return) return;
 }
