@@ -269,9 +269,9 @@ Uses a set of input files from the GEMCSCAnalyzer for different pt values and bu
 <pre><code>python produceDphiDict.py  
 </code></pre>
 
-</code></pre>Info in <TCanvas::MakeDefCanvas>:  created default TCanvas with name c1
+<pre><code>Info in <TCanvas::MakeDefCanvas>:  created default TCanvas with name c1
 dPhi library written to: GEMCSCdPhiDict.py
-<pre><code>
+</code></pre>
 
 ###tdrStyle.py
 
