@@ -11,6 +11,9 @@
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include<string>
 #include<vector>
+namespace trigger {
+  class TriggerFilterObjectWithRefs;
+}
 
 //
 // class declaration
@@ -32,6 +35,8 @@ class HLTDoubletDZ : public HLTFilter {
       edm::InputTag originTag2_;  // input tag identifying original 2nd product
       edm::InputTag inputTag1_;   // input tag identifying filtered 1st product
       edm::InputTag inputTag2_;   // input tag identifying filtered 2nd product
+      edm::EDGetTokenT<trigger::TriggerFilterObjectWithRefs> inputToken1_;
+      edm::EDGetTokenT<trigger::TriggerFilterObjectWithRefs> inputToken2_;
       int triggerType1_;
       int triggerType2_;
       double minDR_;              // minimum dR between two objects to be considered a pair
@@ -40,7 +45,7 @@ class HLTDoubletDZ : public HLTFilter {
       int    min_N_;              // number of pairs passing cuts required
       bool   checkSC_;            // make sure SC constituents are different
 
-      std:: string label_;        // module label
+      std::string label_;         // module label
 
       typedef std::vector<T1> T1Collection;
       typedef edm::Ref<T1Collection> T1Ref;

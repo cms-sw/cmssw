@@ -34,7 +34,8 @@ class HLTSinglet : public HLTFilter {
       virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct);
 
    private:
-      edm::InputTag inputTag_;  // input tag identifying product
+      edm::InputTag                     inputTag_;   // input tag identifying product
+      edm::EDGetTokenT<std::vector<T> > inputToken_; // token identifying product
       int    triggerType_ ;     // triggerType configured
       double min_E_;            // energy threshold in GeV 
       double min_Pt_;           // pt threshold in GeV 
