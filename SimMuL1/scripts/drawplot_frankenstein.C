@@ -5,10 +5,14 @@ gROOT->ProcessLine(".L drawplot_gmtrt.C");
 
 */
 
+TString ext = ".png";
+TString filesDir = "files/";
+TString plotDir = "plots/";
+
 void getPTHistos(TString dname)
 {
-TString  f_def = gem_dir;
-TString  f_gem = gem_dir;
+TString  f_def = filesDir;
+TString  f_gem = filesDir;
 
 if (dname.Contains("_pat8"))      f_def += "hp_minbias_6_0_1_POSTLS161_V12__pu100_w3_def_pat8.root";
 if (dname == "minbias_pt05_pat8") f_gem += "hp_minbias_6_0_1_POSTLS161_V12__pu100_w3_" + gem_label + "_pt05_pat8.root";
@@ -55,7 +59,9 @@ result_gem_gmtsing_no1a = getPTHisto(f_def, dir, "h_rt_gmt_ptmax_sing6_3s1b_no1a
 
 void drawplot_frankenstein()
 {
-gem_dir = "gem_vadim/"; gem_label = "gem98";
+  //gem_dir = "gem_vadim/";
+  gem_dir = plotDir;
+  gem_label = "gem98";
 
 //gem_dir = "gem95/"; gem_label = "gem95";
 
@@ -285,13 +291,13 @@ leg->Draw();
 
 drawPULabel();
 
-gPad->Print(gem_dir + "rates__1.6-2.1_PU100__def-3s__gem-3s-3s1b__Frankenstein_pat2.png");
+gPad->Print(gem_dir + "rates__1.6-2.1_PU100__def-3s__gem-3s-3s1b__Frankenstein_pat2" + ext);
 
 
 ((TCanvas*)gROOT->FindObject("cAll100r"))->cd();
 hh_ratio = setHistoRatio(hh, result_def, "", 0.,1.1);
 hh_ratio->Draw("e1");
-gPad->Print(gem_dir + "rates__1.6-2.1_PU100__def-3s__gem-3s-3s1b__Frankenstein_pat2__ratio.png");
+gPad->Print(gem_dir + "rates__1.6-2.1_PU100__def-3s__gem-3s-3s1b__Frankenstein_pat2__ratio" + ext);
 
 
 // --- def-3s-3s1b   gem-3s-3s1b
@@ -312,13 +318,13 @@ leg->Draw();
 
 drawPULabel();
 
-gPad->Print(gem_dir + "rates__1.6-2.1_PU100__def-3s-3s1b__gem-3s-3s1b__Frankenstein_pat2.png");
+gPad->Print(gem_dir + "rates__1.6-2.1_PU100__def-3s-3s1b__gem-3s-3s1b__Frankenstein_pat2" + ext);
 
 
 ((TCanvas*)gROOT->FindObject("cAll100r"))->cd();
 hh_ratio = setHistoRatio(hh, result_def_3s1b, "", 0.,1.1);
 hh_ratio->Draw("e1");
-gPad->Print(gem_dir + "rates__1.6-2.1_PU100__def-3s-3s1b__gem-3s-3s1b__Frankenstein_pat2__ratio.png");
+gPad->Print(gem_dir + "rates__1.6-2.1_PU100__def-3s-3s1b__gem-3s-3s1b__Frankenstein_pat2__ratio" + ext);
 
 
 // --- def-3s-2s1b   gem-3s-2s1b
@@ -339,13 +345,13 @@ leg->Draw();
 
 drawPULabel();
 
-gPad->Print(gem_dir + "rates__1.6-2.1_PU100__def-3s-2s1b__gem-3s-2s1b__Frankenstein_pat2.png");
+gPad->Print(gem_dir + "rates__1.6-2.1_PU100__def-3s-2s1b__gem-3s-2s1b__Frankenstein_pat2" + ext);
 
 
 ((TCanvas*)gROOT->FindObject("cAll100r"))->cd();
 hh_ratio = setHistoRatio(hh_2s1b, result_def_2s1b, "", 0.,1.1);
 hh_ratio->Draw("e1");
-gPad->Print(gem_dir + "rates__1.6-2.1_PU100__def-3s-2s1b__gem-3s-2s1b__Frankenstein_pat2__ratio.png");
+gPad->Print(gem_dir + "rates__1.6-2.1_PU100__def-3s-2s1b__gem-3s-2s1b__Frankenstein_pat2__ratio" + ext);
 
 
 // --- def-3s   gem-3s-2s1b
@@ -366,13 +372,13 @@ leg->Draw();
 
 drawPULabel();
 
-gPad->Print(gem_dir + "rates__1.6-2.1_PU100__def-3s__gem-3s-2s1b__Frankenstein_pat2.png");
+gPad->Print(gem_dir + "rates__1.6-2.1_PU100__def-3s__gem-3s-2s1b__Frankenstein_pat2" + ext);
 
 
 ((TCanvas*)gROOT->FindObject("cAll100r"))->cd();
 hh_ratio = setHistoRatio(hh_2s1b, result_def, "", 0.,1.1);
 hh_ratio->Draw("e1");
-gPad->Print(gem_dir + "rates__1.6-2.1_PU100__def-3s__gem-3s-2s1b__Frankenstein_pat2__ratio.png");
+gPad->Print(gem_dir + "rates__1.6-2.1_PU100__def-3s__gem-3s-2s1b__Frankenstein_pat2__ratio" + ext);
 
 
 // --- def-3s-3s1b   gem-3s-2s1b
@@ -394,13 +400,13 @@ leg->Draw();
 
 drawPULabel();
 
-gPad->Print(gem_dir + "rates__1.6-2.1_PU100__def-3s-3s1b__gem-3s-2s1b__Frankenstein_pat2.png");
+gPad->Print(gem_dir + "rates__1.6-2.1_PU100__def-3s-3s1b__gem-3s-2s1b__Frankenstein_pat2" + ext);
 
 
 ((TCanvas*)gROOT->FindObject("cAll100r"))->cd();
 hh_ratio = setHistoRatio(hh_2s1b, result_def_3s1b, "", 0.,3.1);
 hh_ratio->Draw("e1");
-gPad->Print(gem_dir + "rates__1.6-2.1_PU100__def-3s-3s1b__gem-3s-2s1b__Frankenstein_pat2__ratio.png");
+gPad->Print(gem_dir + "rates__1.6-2.1_PU100__def-3s-3s1b__gem-3s-2s1b__Frankenstein_pat2__ratio" + ext);
 
 
 // --- eta 1-2.4  def-3s   gem-3s-3s1b
@@ -420,13 +426,13 @@ leg->Draw();
 
 drawPULabel();
 
-gPad->Print(gem_dir + "rates__1-2.4_PU100__def-3s__gem-3s-3s1b__Frankenstein_pat2.png");
+gPad->Print(gem_dir + "rates__1-2.4_PU100__def-3s__gem-3s-3s1b__Frankenstein_pat2" + ext);
 
 
 ((TCanvas*)gROOT->FindObject("cAll100r"))->cd();
 hh_ratio = setHistoRatio(hh_all, result_def_eta_all, "", 0.,1.1);
 hh_ratio->Draw("e1");
-gPad->Print(gem_dir + "rates__1-2.4_PU100__def-3s__gem-3s-3s1b__Frankenstein_pat2__ratio.png");
+gPad->Print(gem_dir + "rates__1-2.4_PU100__def-3s__gem-3s-3s1b__Frankenstein_pat2__ratio" + ext);
 
 
 // --- eta 1-2.4  def-3s-3s1b   gem-3s-3s1b
@@ -447,13 +453,13 @@ leg->Draw();
 
 drawPULabel();
 
-gPad->Print(gem_dir + "rates__1-2.4_PU100__def-3s-3s1b__gem-3s-3s1b__Frankenstein_pat2.png");
+gPad->Print(gem_dir + "rates__1-2.4_PU100__def-3s-3s1b__gem-3s-3s1b__Frankenstein_pat2" + ext);
 
 
 ((TCanvas*)gROOT->FindObject("cAll100r"))->cd();
 hh_ratio = setHistoRatio(hh_all, result_def_eta_all_3s1b, "", 0.,1.1);
 hh_ratio->Draw("e1");
-gPad->Print(gem_dir + "rates__1-2.4_PU100__def-3s-3s1b__gem-3s-3s1b__Frankenstein_pat2__ratio.png");
+gPad->Print(gem_dir + "rates__1-2.4_PU100__def-3s-3s1b__gem-3s-3s1b__Frankenstein_pat2__ratio" + ext);
 
 
 // --- eta 1.2-2.1 def-3s   gem-3s-3s1b
@@ -473,13 +479,13 @@ leg->Draw();
 
 drawPULabel();
 
-gPad->Print(gem_dir + "rates__1.2-2.1_PU100__def-3s__gem-3s-3s1b__Frankenstein_pat2.png");
+gPad->Print(gem_dir + "rates__1.2-2.1_PU100__def-3s__gem-3s-3s1b__Frankenstein_pat2" + ext);
 
 
 ((TCanvas*)gROOT->FindObject("cAll100r"))->cd();
 hh_ratio = setHistoRatio(hh_no1a, result_def_eta_no1a, "", 0.,1.1);
 hh_ratio->Draw("e1");
-gPad->Print(gem_dir + "rates__1.2-2.1_PU100__def-3s__gem-3s-3s1b__Frankenstein_pat2__ratio.png");
+gPad->Print(gem_dir + "rates__1.2-2.1_PU100__def-3s__gem-3s-3s1b__Frankenstein_pat2__ratio" + ext);
 
 
 // --- eta 1.2-2.1  def-3s-3s1b   gem-3s-3s1b
@@ -500,13 +506,13 @@ leg->Draw();
 
 drawPULabel();
 
-gPad->Print(gem_dir + "rates__1.2-2.1_PU100__def-3s-3s1b__gem-3s-3s1b__Frankenstein_pat2.png");
+gPad->Print(gem_dir + "rates__1.2-2.1_PU100__def-3s-3s1b__gem-3s-3s1b__Frankenstein_pat2" + ext);
 
 
 ((TCanvas*)gROOT->FindObject("cAll100r"))->cd();
 hh_ratio = setHistoRatio(hh_no1a, result_def_eta_no1a_3s1b, "", 0.,1.1);
 hh_ratio->Draw("e1");
-gPad->Print(gem_dir + "rates__1.2-2.1_PU100__def-3s-3s1b__gem-3s-3s1b__Frankenstein_pat2__ratio.png");
+gPad->Print(gem_dir + "rates__1.2-2.1_PU100__def-3s-3s1b__gem-3s-3s1b__Frankenstein_pat2__ratio" + ext);
 
 
 
@@ -641,13 +647,13 @@ leg->Draw();
 
 drawPULabel();
 
-gPad->Print(gem_dir + "rates__1.6-2.1_PU100__def-3s__gem-3s-3s1b__Frankenstein_pat8.png");
+gPad->Print(gem_dir + "rates__1.6-2.1_PU100__def-3s__gem-3s-3s1b__Frankenstein_pat8" + ext);
 
 
 ((TCanvas*)gROOT->FindObject("cAll100r"))->cd();
 hh_ratio = setHistoRatio(hh, result_def, "", 0.,1.1);
 hh_ratio->Draw("e1");
-gPad->Print(gem_dir + "rates__1.6-2.1_PU100__def-3s__gem-3s-3s1b__Frankenstein_pat8__ratio.png");
+gPad->Print(gem_dir + "rates__1.6-2.1_PU100__def-3s__gem-3s-3s1b__Frankenstein_pat8__ratio" + ext);
 
 
 // --- def-3s-3s1b   gem-3s-3s1b
@@ -668,13 +674,13 @@ leg->Draw();
 
 drawPULabel();
 
-gPad->Print(gem_dir + "rates__1.6-2.1_PU100__def-3s-3s1b__gem-3s-3s1b__Frankenstein_pat8.png");
+gPad->Print(gem_dir + "rates__1.6-2.1_PU100__def-3s-3s1b__gem-3s-3s1b__Frankenstein_pat8" + ext);
 
 
 ((TCanvas*)gROOT->FindObject("cAll100r"))->cd();
 hh_ratio = setHistoRatio(hh, result_def_3s1b, "", 0.,1.1);
 hh_ratio->Draw("e1");
-gPad->Print(gem_dir + "rates__1.6-2.1_PU100__def-3s-3s1b__gem-3s-3s1b__Frankenstein_pat8__ratio.png");
+gPad->Print(gem_dir + "rates__1.6-2.1_PU100__def-3s-3s1b__gem-3s-3s1b__Frankenstein_pat8__ratio" + ext);
 
 
 // --- def-3s-2s1b   gem-3s-2s1b
@@ -695,13 +701,13 @@ leg->Draw();
 
 drawPULabel();
 
-gPad->Print(gem_dir + "rates__1.6-2.1_PU100__def-3s-2s1b__gem-3s-2s1b__Frankenstein_pat8.png");
+gPad->Print(gem_dir + "rates__1.6-2.1_PU100__def-3s-2s1b__gem-3s-2s1b__Frankenstein_pat8" + ext);
 
 
 ((TCanvas*)gROOT->FindObject("cAll100r"))->cd();
 hh_ratio = setHistoRatio(hh_2s1b, result_def_2s1b, "", 0.,1.1);
 hh_ratio->Draw("e1");
-gPad->Print(gem_dir + "rates__1.6-2.1_PU100__def-3s-2s1b__gem-3s-2s1b__Frankenstein_pat8__ratio.png");
+gPad->Print(gem_dir + "rates__1.6-2.1_PU100__def-3s-2s1b__gem-3s-2s1b__Frankenstein_pat8__ratio" + ext);
 
 
 // --- def-3s   gem-3s-2s1b
@@ -722,13 +728,13 @@ leg->Draw();
 
 drawPULabel();
 
-gPad->Print(gem_dir + "rates__1.6-2.1_PU100__def-3s__gem-3s-2s1b__Frankenstein_pat8.png");
+gPad->Print(gem_dir + "rates__1.6-2.1_PU100__def-3s__gem-3s-2s1b__Frankenstein_pat8" + ext);
 
 
 ((TCanvas*)gROOT->FindObject("cAll100r"))->cd();
 hh_ratio = setHistoRatio(hh_2s1b, result_def, "", 0.,1.1);
 hh_ratio->Draw("e1");
-gPad->Print(gem_dir + "rates__1.6-2.1_PU100__def-3s__gem-3s-2s1b__Frankenstein_pat8__ratio.png");
+gPad->Print(gem_dir + "rates__1.6-2.1_PU100__def-3s__gem-3s-2s1b__Frankenstein_pat8__ratio" + ext);
 
 
 // --- def-3s-3s1b   gem-3s-2s1b
@@ -750,13 +756,13 @@ leg->Draw();
 
 drawPULabel();
 
-gPad->Print(gem_dir + "rates__1.6-2.1_PU100__def-3s-3s1b__gem-3s-2s1b__Frankenstein_pat8.png");
+gPad->Print(gem_dir + "rates__1.6-2.1_PU100__def-3s-3s1b__gem-3s-2s1b__Frankenstein_pat8" + ext);
 
 
 ((TCanvas*)gROOT->FindObject("cAll100r"))->cd();
 hh_ratio = setHistoRatio(hh_2s1b, result_def_3s1b, "", 0.,3.1);
 hh_ratio->Draw("e1");
-gPad->Print(gem_dir + "rates__1.6-2.1_PU100__def-3s-3s1b__gem-3s-2s1b__Frankenstein_pat8__ratio.png");
+gPad->Print(gem_dir + "rates__1.6-2.1_PU100__def-3s-3s1b__gem-3s-2s1b__Frankenstein_pat8__ratio" + ext);
 
 
 // --- eta 1-2.4 def-3s   gem-3s-3s1b
@@ -776,13 +782,13 @@ leg->Draw();
 
 drawPULabel();
 
-gPad->Print(gem_dir + "rates__1-2.4_PU100__def-3s__gem-3s-3s1b__Frankenstein_pat8.png");
+gPad->Print(gem_dir + "rates__1-2.4_PU100__def-3s__gem-3s-3s1b__Frankenstein_pat8" + ext);
 
 
 ((TCanvas*)gROOT->FindObject("cAll100r"))->cd();
 hh_ratio = setHistoRatio(hh_all, result_def_eta_all, "", 0.,1.1);
 hh_ratio->Draw("e1");
-gPad->Print(gem_dir + "rates__1-2.4_PU100__def-3s__gem-3s-3s1b__Frankenstein_pat8__ratio.png");
+gPad->Print(gem_dir + "rates__1-2.4_PU100__def-3s__gem-3s-3s1b__Frankenstein_pat8__ratio" + ext);
 
 
 // --- eta 1-2.4  def-3s-3s1b   gem-3s-3s1b
@@ -803,13 +809,13 @@ leg->Draw();
 
 drawPULabel();
 
-gPad->Print(gem_dir + "rates__1-2.4_PU100__def-3s-3s1b__gem-3s-3s1b__Frankenstein_pat8.png");
+gPad->Print(gem_dir + "rates__1-2.4_PU100__def-3s-3s1b__gem-3s-3s1b__Frankenstein_pat8" + ext);
 
 
 ((TCanvas*)gROOT->FindObject("cAll100r"))->cd();
 hh_ratio = setHistoRatio(hh_all, result_def_eta_all_3s1b, "", 0.,1.1);
 hh_ratio->Draw("e1");
-gPad->Print(gem_dir + "rates__1-2.4_PU100__def-3s-3s1b__gem-3s-3s1b__Frankenstein_pat8__ratio.png");
+gPad->Print(gem_dir + "rates__1-2.4_PU100__def-3s-3s1b__gem-3s-3s1b__Frankenstein_pat8__ratio" + ext);
 
 
 // --- eta 1.2-2.1 def-3s   gem-3s-3s1b
@@ -829,13 +835,13 @@ leg->Draw();
 
 drawPULabel();
 
-gPad->Print(gem_dir + "rates__1.2-2.1_PU100__def-3s__gem-3s-3s1b__Frankenstein_pat8.png");
+gPad->Print(gem_dir + "rates__1.2-2.1_PU100__def-3s__gem-3s-3s1b__Frankenstein_pat8" + ext);
 
 
 ((TCanvas*)gROOT->FindObject("cAll100r"))->cd();
 hh_ratio = setHistoRatio(hh_no1a, result_def_eta_no1a, "", 0.,1.1);
 hh_ratio->Draw("e1");
-gPad->Print(gem_dir + "rates__1.2-2.1_PU100__def-3s__gem-3s-3s1b__Frankenstein_pat8__ratio.png");
+gPad->Print(gem_dir + "rates__1.2-2.1_PU100__def-3s__gem-3s-3s1b__Frankenstein_pat8__ratio" + ext);
 
 
 // --- eta 1.2-2.1  def-3s-3s1b   gem-3s-3s1b
@@ -856,13 +862,13 @@ leg->Draw();
 
 drawPULabel();
 
-gPad->Print(gem_dir + "rates__1.2-2.1_PU100__def-3s-3s1b__gem-3s-3s1b__Frankenstein_pat8.png");
+gPad->Print(gem_dir + "rates__1.2-2.1_PU100__def-3s-3s1b__gem-3s-3s1b__Frankenstein_pat8" + ext);
 
 
 ((TCanvas*)gROOT->FindObject("cAll100r"))->cd();
 hh_ratio = setHistoRatio(hh_no1a, result_def_eta_no1a_3s1b, "", 0.,1.1);
 hh_ratio->Draw("e1");
-gPad->Print(gem_dir + "rates__1.2-2.1_PU100__def-3s-3s1b__gem-3s-3s1b__Frankenstein_pat8__ratio.png");
+gPad->Print(gem_dir + "rates__1.2-2.1_PU100__def-3s-3s1b__gem-3s-3s1b__Frankenstein_pat8__ratio" + ext);
 
 
 
@@ -915,13 +921,13 @@ result_def_gmtsing__pat8->GetYaxis()->SetRangeUser(.1, 5000.);
 
 result_def_gmtsing_no1a__pat2->GetYaxis()->SetRangeUser(1., 8000.);
 
-bool get_ptshift = true;
+bool get_ptshift = false;
 TH1D* result_gem_3s1b__pat2_ptshift,  *result_gem_2s1b__pat2_ptshift;
 TH1D* result_gem_3s1b__pat2_ptshiftX, *result_gem_2s1b__pat2_ptshiftX;
 TFile *fsave;
 TFile *fsaveX;
 if (get_ptshift) {
-fsave = new TFile("gem_3plus_ptshift.root");
+fsave = new TFile(filesDir + "gem_3plus_ptshift.root");
 result_gem_3s1b__pat2__ptshift = (TH1D*) fsave->Get("result_gem_3s1b__pat2")->Clone("result_gem_3s1b__pat2__ptshift");
 result_gem_3s1b__pat2__ptshift->SetFillColor(kGreen-5);
 result_gem_3s1b__pat2__ptshift->SetLineColor(kGreen-5);
@@ -929,14 +935,14 @@ result_gem_2s1b__pat2__ptshift = (TH1D*) fsave->Get("result_gem_2s1b__pat2")->Cl
 result_gem_2s1b__pat2__ptshift->SetFillColor(kGreen-5);
 result_gem_2s1b__pat2__ptshift->SetLineColor(kGreen-5);
 
-fsaveX = new TFile("gem_3plus_ptshiftX.root");
+fsaveX = new TFile(filesDir + "gem_3plus_ptshiftX.root");
 result_gem_3s1b__pat2__ptshiftX = (TH1D*) fsaveX->Get("result_gem_3s1b__pat2")->Clone("result_gem_3s1b__pat2__ptshiftX");
 result_gem_3s1b__pat2__ptshiftX->SetFillColor(kGreen-5);
 result_gem_3s1b__pat2__ptshiftX->SetLineColor(kGreen-5);
 result_gem_2s1b__pat2__ptshiftX = (TH1D*) fsaveX->Get("result_gem_2s1b__pat2")->Clone("result_gem_2s1b__pat2__ptshiftX");
 result_gem_2s1b__pat2__ptshiftX->SetFillColor(kGreen-5);
 result_gem_2s1b__pat2__ptshiftX->SetLineColor(kGreen-5);
-}
+ }
 
 ///----- 3 stubs
 
@@ -956,15 +962,15 @@ leg->Draw();
 
 drawPULabel();
 
-gPad->Print(gem_dir + "rates__1.6-2.1_PU100__sequential__3s__Frankenstein_pat2.png");
+gPad->Print(gem_dir + "rates__1.6-2.1_PU100__sequential__3s__Frankenstein_pat2" + ext);
 
 ((TCanvas*)gROOT->FindObject("cAll100r"))->cd();
 hh_ratio = setHistoRatio(result_gem_3s1b__pat2, result_def_3s1b__pat2, "", 0.,1.1);
 hh_ratio->Draw("e1");
-gPad->Print(gem_dir + "rates__1.6-2.1_PU100__sequential__3s1b__Frankenstein_pat2__ratio.png");
+gPad->Print(gem_dir + "rates__1.6-2.1_PU100__sequential__3s1b__Frankenstein_pat2__ratio" + ext);
 hh_ratio = setHistoRatio(result_gem_3s1b__pat2, result_def_3s__pat2, "", 0.,1.1);
 hh_ratio->Draw("e1");
-gPad->Print(gem_dir + "rates__1.6-2.1_PU100__sequential__3s__Frankenstein_pat2__ratio.png");
+gPad->Print(gem_dir + "rates__1.6-2.1_PU100__sequential__3s__Frankenstein_pat2__ratio" + ext);
 
 
 
@@ -986,12 +992,12 @@ leg->Draw();
 
 drawPULabel();
 
-gPad->Print(gem_dir + "rates__1.6-2.1_PU100__sequential__3s_GMT__Frankenstein_pat2.png");
+gPad->Print(gem_dir + "rates__1.6-2.1_PU100__sequential__3s_GMT__Frankenstein_pat2" + ext);
 
 ((TCanvas*)gROOT->FindObject("cAll100r"))->cd();
 hh_ratio = setHistoRatio(result_gem_3s1b__pat2, result_def_gmtsing__pat2, "", 0.,1.1);
 hh_ratio->Draw("e1");
-gPad->Print(gem_dir + "rates__1.6-2.1_PU100__sequential__3s_GMT__Frankenstein_pat2__ratio.png");
+gPad->Print(gem_dir + "rates__1.6-2.1_PU100__sequential__3s_GMT__Frankenstein_pat2__ratio" + ext);
 
 
 
@@ -1013,12 +1019,12 @@ leg->Draw();
 
 drawPULabel();
 
-gPad->Print(gem_dir + "rates__1.6-2.1_PU100__sequential__3s_tightGEM__Frankenstein_pat2.png");
+gPad->Print(gem_dir + "rates__1.6-2.1_PU100__sequential__3s_tightGEM__Frankenstein_pat2" + ext);
 
 ((TCanvas*)gROOT->FindObject("cAll100r"))->cd();
 hh_ratio = setHistoRatio(result_gem_3s1b__pat2__ptshift, result_gem_3s1b__pat2, "", 0.,1.1);
 hh_ratio->Draw("e1");
-gPad->Print(gem_dir + "rates__1.6-2.1_PU100__sequential__3s_tightGEM__Frankenstein_pat2__ratio.png");
+gPad->Print(gem_dir + "rates__1.6-2.1_PU100__sequential__3s_tightGEM__Frankenstein_pat2__ratio" + ext);
 
 
 ((TCanvas*)gROOT->FindObject("cAll100"))->cd();
@@ -1036,12 +1042,12 @@ leg->Draw();
 
 drawPULabel();
 
-gPad->Print(gem_dir + "rates__1.6-2.1_PU100__sequential__3s_xtightGEM__Frankenstein_pat2.png");
+gPad->Print(gem_dir + "rates__1.6-2.1_PU100__sequential__3s_xtightGEM__Frankenstein_pat2" + ext);
 
 ((TCanvas*)gROOT->FindObject("cAll100r"))->cd();
 hh_ratio = setHistoRatio(result_gem_3s1b__pat2__ptshiftX, result_gem_3s1b__pat2, "", 0.,1.1);
 hh_ratio->Draw("e1");
-gPad->Print(gem_dir + "rates__1.6-2.1_PU100__sequential__3s_xtightGEM__Frankenstein_pat2__ratio.png");
+gPad->Print(gem_dir + "rates__1.6-2.1_PU100__sequential__3s_xtightGEM__Frankenstein_pat2__ratio" + ext);
 
 } //-----
 
@@ -1063,7 +1069,7 @@ leg->Draw();
 
 drawPULabel();
 
-gPad->Print(gem_dir + "rates__1.6-2.1_PU100__sequential__3s__Frankenstein_pat8.png");
+gPad->Print(gem_dir + "rates__1.6-2.1_PU100__sequential__3s__Frankenstein_pat8" + ext);
 
 
 
@@ -1085,7 +1091,7 @@ leg->Draw();
 
 drawPULabel();
 
-gPad->Print(gem_dir + "rates__1.6-2.1_PU100__sequential__3s__Frankenstein.png");
+gPad->Print(gem_dir + "rates__1.6-2.1_PU100__sequential__3s__Frankenstein" + ext);
 
 
 /// ----- 2 stubs
@@ -1107,12 +1113,12 @@ leg->Draw();
 
 drawPULabel();
 
-gPad->Print(gem_dir + "rates__1.6-2.1_PU100__sequential__2s__Frankenstein_pat2.png");
+gPad->Print(gem_dir + "rates__1.6-2.1_PU100__sequential__2s__Frankenstein_pat2" + ext);
 
 ((TCanvas*)gROOT->FindObject("cAll100r"))->cd();
 hh_ratio = setHistoRatio(result_gem_2s1b__pat2, result_def_2s1b__pat2, "", 0.,1.1);
 hh_ratio->Draw("e1");
-gPad->Print(gem_dir + "rates__1.6-2.1_PU100__sequential__2s1b__Frankenstein_pat2__ratio.png");
+gPad->Print(gem_dir + "rates__1.6-2.1_PU100__sequential__2s1b__Frankenstein_pat2__ratio" + ext);
 
 
 
@@ -1134,12 +1140,12 @@ leg->Draw();
 
 drawPULabel();
 
-gPad->Print(gem_dir + "rates__1.6-2.1_PU100__sequential__2s_GMT__Frankenstein_pat2.png");
+gPad->Print(gem_dir + "rates__1.6-2.1_PU100__sequential__2s_GMT__Frankenstein_pat2" + ext);
 
 ((TCanvas*)gROOT->FindObject("cAll100r"))->cd();
 hh_ratio = setHistoRatio(result_gem_2s1b__pat2, result_def_gmtsing__pat2, "", 0.,1.1);
 hh_ratio->Draw("e1");
-gPad->Print(gem_dir + "rates__1.6-2.1_PU100__sequential__2s_GMT__Frankenstein_pat2__ratio.png");
+gPad->Print(gem_dir + "rates__1.6-2.1_PU100__sequential__2s_GMT__Frankenstein_pat2__ratio" + ext);
 
 
 
@@ -1162,12 +1168,12 @@ leg->Draw();
 
 drawPULabel();
 
-gPad->Print(gem_dir + "rates__1.6-2.1_PU100__sequential__2s_tightGEM__Frankenstein_pat2.png");
+gPad->Print(gem_dir + "rates__1.6-2.1_PU100__sequential__2s_tightGEM__Frankenstein_pat2" + ext);
 
 ((TCanvas*)gROOT->FindObject("cAll100r"))->cd();
 hh_ratio = setHistoRatio(result_gem_2s1b__pat2__ptshift, result_gem_2s1b__pat2, "", 0.,1.1);
 hh_ratio->Draw("e1");
-gPad->Print(gem_dir + "rates__1.6-2.1_PU100__sequential__2s_tightGEM__Frankenstein_pat2__ratio.png");
+gPad->Print(gem_dir + "rates__1.6-2.1_PU100__sequential__2s_tightGEM__Frankenstein_pat2__ratio" + ext);
 
 fsave->Close();
 
@@ -1187,12 +1193,12 @@ leg->Draw();
 
 drawPULabel();
 
-gPad->Print(gem_dir + "rates__1.6-2.1_PU100__sequential__2s_xtightGEM__Frankenstein_pat2.png");
+gPad->Print(gem_dir + "rates__1.6-2.1_PU100__sequential__2s_xtightGEM__Frankenstein_pat2" + ext);
 
 ((TCanvas*)gROOT->FindObject("cAll100r"))->cd();
 hh_ratio = setHistoRatio(result_gem_2s1b__pat2__ptshiftX, result_gem_2s1b__pat2, "", 0.,1.1);
 hh_ratio->Draw("e1");
-gPad->Print(gem_dir + "rates__1.6-2.1_PU100__sequential__2s_xtightGEM__Frankenstein_pat2__ratio.png");
+gPad->Print(gem_dir + "rates__1.6-2.1_PU100__sequential__2s_xtightGEM__Frankenstein_pat2__ratio" + ext);
 
 fsaveX->Close();
 
@@ -1216,7 +1222,7 @@ leg->Draw();
 
 drawPULabel();
 
-gPad->Print(gem_dir + "rates__1.6-2.1_PU100__sequential__2s__Frankenstein_pat8.png");
+gPad->Print(gem_dir + "rates__1.6-2.1_PU100__sequential__2s__Frankenstein_pat8" + ext);
 
 
 
@@ -1238,7 +1244,7 @@ leg->Draw();
 
 drawPULabel();
 
-gPad->Print(gem_dir + "rates__1.6-2.1_PU100__sequential__2s__Frankenstein.png");
+gPad->Print(gem_dir + "rates__1.6-2.1_PU100__sequential__2s__Frankenstein" + ext);
 
 
 /// ----- GMT current "default" single trigger
@@ -1266,7 +1272,7 @@ leg->Draw();
 
 drawPULabel();
 
-gPad->Print(gem_dir + "rates__1.6-2.1_PU100__sequential__GMT__Frankenstein_pat2.png");
+gPad->Print(gem_dir + "rates__1.6-2.1_PU100__sequential__GMT__Frankenstein_pat2" + ext);
 
 
 
@@ -1292,7 +1298,7 @@ leg->Draw();
 
 drawPULabel();
 
-gPad->Print(gem_dir + "rates__1.6-2.1_PU100__sequential__2s3s__Frankenstein_pat2.png");
+gPad->Print(gem_dir + "rates__1.6-2.1_PU100__sequential__2s3s__Frankenstein_pat2" + ext);
 
 
 ///----- 2 & 123 & 13 & 3 stubs
@@ -1323,17 +1329,17 @@ leg->Draw();
 
 drawPULabel();
 
-gPad->Print(gem_dir + "rates__1.6-2.1_PU100__sequential__2s3s123__Frankenstein_pat2.png");
+gPad->Print(gem_dir + "rates__1.6-2.1_PU100__sequential__2s3s123__Frankenstein_pat2" + ext);
 
 ((TCanvas*)gROOT->FindObject("cAll100r"))->cd();
 hh_ratio = setHistoRatio(result_gem_2s123__pat2, result_gem_2s1b__pat2, "", 0.,1.1);
 hh_ratio->Draw("e1");
-gPad->Print(gem_dir + "rates__1.6-2.1_PU100__sequential__2s3s123__Frankenstein_pat2__ratio.png");
+gPad->Print(gem_dir + "rates__1.6-2.1_PU100__sequential__2s3s123__Frankenstein_pat2__ratio" + ext);
 
 ((TCanvas*)gROOT->FindObject("cAll100r"))->cd();
 hh_ratio = setHistoRatio(result_gem_2s13__pat2, result_gem_3s1b__pat2, "", 0.,1.4);
 hh_ratio->Draw("e1");
-gPad->Print(gem_dir + "rates__1.6-2.1_PU100__sequential__3s2s13__Frankenstein_pat2__ratio.png");
+gPad->Print(gem_dir + "rates__1.6-2.1_PU100__sequential__3s2s13__Frankenstein_pat2__ratio" + ext);
 
 
 ///----- GMT 1.2 eta 2.14
@@ -1355,12 +1361,12 @@ leg->Draw();
 
 drawPULabel();
 
-gPad->Print(gem_dir + "rates__1.2-2.1_PU100__sequential__GMT2s1b__Frankenstein_pat2.png");
+gPad->Print(gem_dir + "rates__1.2-2.1_PU100__sequential__GMT2s1b__Frankenstein_pat2" + ext);
 
 ((TCanvas*)gROOT->FindObject("cAll100r"))->cd();
 hh_ratio = setHistoRatio(result_gem_sing_no1a__pat2, result_def_gmtsing_no1a__pat2, "", 0.,1.1);
 hh_ratio->Draw("e1");
-gPad->Print(gem_dir + "rates__1.2-2.1_PU100__sequential__GMT2s1b__Frankenstein_pat2__ratio.png");
+gPad->Print(gem_dir + "rates__1.2-2.1_PU100__sequential__GMT2s1b__Frankenstein_pat2__ratio" + ext);
 
 return;
 
