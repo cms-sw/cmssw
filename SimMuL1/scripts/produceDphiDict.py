@@ -1,14 +1,12 @@
 from cuts import *
 
-from ROOT import TFile,TTree,TH1F
-from ROOT import gROOT,gDirectory
 
 ## run quiet mode
 import sys
 sys.argv.append( '-b' )
 
-import ROOT
-ROOT.gROOT.SetBatch(1)
+from ROOT import *
+gROOT.SetBatch(1)
 
 def getTree(fileName):
     """Get tree for given filename"""
@@ -51,7 +49,7 @@ def dphiCut(h, fractionToKeep):
     return x
 
 
-def produceDphiLibary():
+def produceDphiDict(filesDir, outFileName):
     """Get the libary of dPhi values"""
 
     pt = ["pt5","pt10","pt15","pt20","pt30","pt40"]
@@ -59,7 +57,7 @@ def produceDphiLibary():
     dphis = [[[0 for x in xrange(2)] for x in xrange(len(fr))] for x in xrange(len(pt))] 
     
     for n in range(len(pt)):
-        t = getTree("files/gem_csc_delta_%s_pad4.root"%(pt[n]))
+        t = getTree("%sgem_csc_delta_%s_pad4.root"%(filesDir,pt[n]))
         t.Draw("TMath::Abs(dphi_pad_odd)>>dphi_odd(600,0.,0.03)" , ok_pad1_lct1)
         t.Draw("TMath::Abs(dphi_pad_even)>>dphi_even(600,0.,0.03)" , ok_pad2_lct2)
         h_dphi_odd = TH1F(gDirectory.Get("dphi_odd"))
@@ -69,7 +67,7 @@ def produceDphiLibary():
             dphis[n][f][1] = dphiCut(h_dphi_even, fr[f])
             
     ## print the dphi library for these samples
-    outfile = open("GEMCSCdPhiLib.py","w")
+    outfile = open("%s"%(outFileName),"w")
     outfile.write("dphi_lct_pad = {\n")
     for f in range(len(fr)):
         outfile.write('    "%d" : {\n'%(fr[f]))
@@ -93,4 +91,4 @@ def produceDphiLibary():
     print "dPhi library written to:", outfile.name
 
 if __name__ == "__main__":  
-    produceDphiLibary()
+    produceDphiDict("files/", "GEMCSCdPhiDict.py")
