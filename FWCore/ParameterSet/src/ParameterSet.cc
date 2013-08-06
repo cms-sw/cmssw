@@ -2357,9 +2357,6 @@ namespace edm {
   ParameterSet::getUntrackedParameterSet(char const* name, ParameterSet const& defaultValue) const {
     ParameterSetEntry const* entryPtr = retrieveUntrackedParameterSet(name);
     if(entryPtr == 0) {
-      if(!defaultValue.isRegistered()) {
-        const_cast<ParameterSet&>(defaultValue).registerIt();
-      }
       return defaultValue;
     }
     return entryPtr->pset();
