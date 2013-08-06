@@ -28,8 +28,6 @@
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
 #include "TrackingTools/PatternTools/interface/TSCBLBuilderNoMaterial.h"
 
-#include "DataFormats/BeamSpot/interface/BeamSpot.h"
-
 #include <Math/Functions.h>
 #include <Math/SVector.h>
 #include <Math/SMatrix.h>
@@ -47,11 +45,13 @@ const double lambdaMass = 1.115683;
 
 // Constructor and (empty) destructor
 V0Fitter::V0Fitter(const edm::ParameterSet& theParameters,
-		   const edm::Event& iEvent, const edm::EventSetup& iSetup) {
+		   const edm::Event& iEvent, const edm::EventSetup& iSetup,
+		   edm::ConsumesCollector && iC) {
   using std::string;
 
   // Get the track reco algorithm from the ParameterSet
-  recoAlg = theParameters.getParameter<edm::InputTag>("trackRecoAlgorithm");
+  token_beamSpot = iC.consumes<reco::BeamSpot>(edm::InputTag("offlineBeamSpot"));
+  token_tracks = iC.consumes<reco::TrackCollection>(theParameters.getParameter<edm::InputTag>("trackRecoAlgorithm"));
 
   // ------> Initialize parameters from PSet. ALL TRACKED, so no defaults.
   // First set bits to do various things:
@@ -126,8 +126,8 @@ void V0Fitter::fitAll(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
   // Get the tracks from the event, and get the B-field record
   //  from the EventSetup
-  iEvent.getByLabel(recoAlg, theTrackHandle);
-  iEvent.getByLabel(std::string("offlineBeamSpot"), theBeamSpotHandle);
+  iEvent.getByToken(token_tracks, theTrackHandle);
+  iEvent.getByToken(token_beamSpot,theBeamSpotHandle);
   if( !theTrackHandle->size() ) return;
   iSetup.get<IdealMagneticFieldRecord>().get(bFieldHandle);
   iSetup.get<TrackerDigiGeometryRecord>().get(trackerGeomHandle);

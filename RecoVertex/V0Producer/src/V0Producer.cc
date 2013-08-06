@@ -55,7 +55,7 @@ void V0Producer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
    // Create V0Fitter object which reconstructs the vertices and creates
    //  (and contains) collections of Kshorts, Lambda0s
-   V0Fitter theVees(theParams, iEvent, iSetup);
+   V0Fitter theVees(theParams, iEvent, iSetup, consumesCollector());
 
    // Create auto_ptr for each collection to be stored in the Event
    std::auto_ptr< reco::VertexCompositeCandidateCollection > 
