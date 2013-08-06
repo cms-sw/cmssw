@@ -15,12 +15,12 @@ pfMETClient.HistogramNames = cms.vstring( "delta_et_Over_et_VS_et_")
 pfMETClient.CreateProfilePlots = cms.bool(True)
 pfMETClient.HistogramNamesForProfilePlots = cms.vstring("delta_et_Over_et_VS_et_","delta_et_VS_et_","delta_eta_VS_et_","delta_phi_VS_et_")
 
-pfDanieleClient = pfClient_Daniele.clone()
-pfDanieleClient.FolderNames = cms.vstring("ElectronValidation/JetPtRes")
-pfDanieleClient.HistogramNames = cms.vstring("delta_et_Over_et_VS_et_", "BRdelta_et_Over_et_VS_et_", "ERdelta_et_Over_et_VS_et_")
-#pfDanieleClient.HistogramNames = cms.vstring("") # use this if slicingOn is true in PFDanieleDQMAnalyzer
-pfDanieleClient.CreateEfficiencyPlots = cms.bool(False)
-pfDanieleClient.HistogramNamesForEfficiencyPlots = cms.vstring("pt_", "eta_", "phi_")
+pfJetResClient = pfClient_JetRes.clone()
+pfJetResClient.FolderNames = cms.vstring("ElectronValidation/JetPtRes")
+pfJetResClient.HistogramNames = cms.vstring("delta_et_Over_et_VS_et_", "BRdelta_et_Over_et_VS_et_", "ERdelta_et_Over_et_VS_et_")
+#pfJetResClient.HistogramNames = cms.vstring("") # use this if slicingOn is true in PFJetResDQMAnalyzer
+pfJetResClient.CreateEfficiencyPlots = cms.bool(False)
+pfJetResClient.HistogramNamesForEfficiencyPlots = cms.vstring("pt_", "eta_", "phi_")
 
 pfElectronClient = pfClient.clone()
 pfElectronClient.FolderNames = cms.vstring("PFElectronValidation/CompWithGenElectron")

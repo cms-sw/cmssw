@@ -158,7 +158,7 @@ void PFCandidateMonitor::setDirectory(TDirectory* dir) {
   matchCandBench_.setDirectory(dir);
 }
 //
-// -- fill histograms for a given Jet pair
+// -- fill histograms for a single collection
 //
 void PFCandidateMonitor::fillOne(const reco::Candidate& cand) {
 
