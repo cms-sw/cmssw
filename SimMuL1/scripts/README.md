@@ -1,6 +1,12 @@
 Usage of the plotting scripts
 =============================
 
+General stuff
+-------------
+
+1. Keep your input ROOT files in a directory "files/" relative to the location of the scripts
+2. The plots will be produced in a directory "plots/" relative to the location of the scripts - for each plotting script a specific output directory was added. 
+
 ROOT
 ----
 
