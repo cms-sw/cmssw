@@ -8,6 +8,10 @@ gROOT->ProcessLine(".L effFunctions.C");
 
 */
 
+TString filesDir = "files/";
+TString plotDir = "plots/";
+TString ext = ".png";
+
 TCut ok_sh1 = "(has_csc_sh&1) > 0";
 TCut ok_sh2 = "(has_csc_sh&2) > 0";
 TCut ok_st1 = "(has_csc_strips&1) > 0";
@@ -101,7 +105,7 @@ void gemTurnOns(int label_eff = GEM_EFF98)
   TCanvas* gEff_even = new TCanvas("gEff_even","gEff_even",700,500);
   gEff_even->SetGridx(1);  gEff_even->SetGridy(1);
 
-  TTree *t = getTree("gem_csc_eff_pt2pt50_pad4.root");
+  TTree *t = getTree(filesDir + "gem_csc_eff_pt2pt50_pad4.root");
   TH1F *ho[N], *he[N];
   for (int n=0; n<N; ++n) {
     if (n==1) continue;
@@ -137,7 +141,7 @@ void gemTurnOns(int label_eff = GEM_EFF98)
     leg->AddEntry(he[n], pts[n], "p");
   }
   leg->Draw();
-  gEff->Print("gem_pad_eff_for_LCT_gemEff" + efs[label_eff] +".png");
+  gEff->Print("gem_pad_eff_for_LCT_gemEff" + efs[label_eff] +"" + ext);
 
   gEff_odd->cd();
   TLegend *leg = new TLegend(0.50,0.17,.99,0.57, NULL, "brNDC");
@@ -150,7 +154,7 @@ void gemTurnOns(int label_eff = GEM_EFF98)
     leg->AddEntry(ho[n], pts[n], "p");
   }
   leg->Draw();
-  gEff_odd->Print("gem_pad_eff_for_LCT_gemEff" + efs[label_eff] +"_odd.png");
+  gEff_odd->Print("gem_pad_eff_for_LCT_gemEff" + efs[label_eff] +"_odd" + ext);
 
   gEff_even->cd();
   TLegend *leg = new TLegend(0.50,0.17,.99,0.57, NULL, "brNDC");
@@ -163,7 +167,7 @@ void gemTurnOns(int label_eff = GEM_EFF98)
     leg->AddEntry(he[n], pts[n], "p");
   }
   leg->Draw();
-  gEff_even->Print("gem_pad_eff_for_LCT_gemEff" + efs[label_eff] +"_even.png");
+  gEff_even->Print("gem_pad_eff_for_LCT_gemEff" + efs[label_eff] +"_even" + ext);
 }
 
 
@@ -193,7 +197,7 @@ TString pt[6] = {"pt5","pt10","pt15","pt20","pt30","pt40"};
 float fr[3] = {0.95, 0.98, 0.99};
 
 for (int n=0; n<6; ++n) {
-  t = getTree(TString("gem_csc_delta_")+pt[n] + "_pad4.root");
+  t = getTree(filesDir + TString("gem_csc_delta_")+pt[n] + "_pad4.root");
   t->Draw("TMath::Abs(dphi_pad_odd)>>dphi_odd(600,0.,0.03)" , ok_pad1 && ok_lct1);
   t->Draw("TMath::Abs(dphi_pad_even)>>dphi_even(600,0.,0.03)" , ok_pad2 && ok_lct2);
   for (int f=0; f<3; ++f) {
@@ -333,7 +337,7 @@ TCanvas* cEff = new TCanvas("cEff","cEff",700,450);
 cEff->SetGridx(1);
 cEff->SetGridy(1);
 
-TTree *gt = getTree("gem_csc_delta_pt40_pad4.root");
+TTree *gt = getTree(filesDir + "gem_csc_delta_pt40_pad4.root");
 
 //ht = draw_geff(gt, "Eff. for a SimTrack to have an associated LCT;SimTrack |#eta|;Eff.", "h_odd", "(100,1.54,2.2)", "TMath::Abs(eta)", "", ok_lct1 || ok_lct2, "P", kRed);
 //hh = draw_geff(gt, "Eff. for a SimTrack to have an associated LCT;SimTrack |#eta|;Eff.", "h_odd", "(100,1.54,2.2)", "TMath::Abs(eta)", "", ok_sh1 || ok_sh2, "P same", kViolet);
@@ -349,7 +353,7 @@ leg->Draw();
 TLatex *  tex = new TLatex(0.17, 0.16,"No Pile-Up");
 tex->SetNDC();
 tex->Draw();
-cEff->Print("lct_eff_for_Trk_vsTrkEta_pt40.png");
+cEff->Print("lct_eff_for_Trk_vsTrkEta_pt40" + ext);
 
 
 h1 = draw_geff(gt, "Eff. for a SimTrack to have an associated ME1/b LCT and GEM Pad;SimTrack |#eta|;Eff.", "h_odd", "(70,1.54,2.2)", "TMath::Abs(eta)", ok_sh1, ok_lct1 && ok_pad1, "P", kRed);
@@ -364,7 +368,7 @@ leg->Draw();
 TLatex *  tex = new TLatex(0.17, 0.16,"No Pile-Up");
 tex->SetNDC();
 tex->Draw();
-cEff->Print("gem_pad_and_lct_eff_for_Trk_vsTrkEta_pt40.png");
+cEff->Print("gem_pad_and_lct_eff_for_Trk_vsTrkEta_pt40" + ext);
 
 return;
 
@@ -373,14 +377,14 @@ eff_base->GetYaxis()->SetRangeUser(0.6,1.05);
 TLatex *  tex = new TLatex(0.17, 0.16,"No Pile-Up");
 tex->SetNDC();
 tex->Draw();
-cEff->Print("gem_pad0_eff_for_Trk_vsTrkEta_pt40.png");
+cEff->Print("gem_pad0_eff_for_Trk_vsTrkEta_pt40" + ext);
 
 
 
 
-TTree *gt15 = getTree("gem_csc_delta_pt15_pad4.root");
+TTree *gt15 = getTree(filesDir + "gem_csc_delta_pt15_pad4.root");
 h1 = draw_geff(gt15, "Eff. for a SimTrack to have an associated LCT;SimTrack |#eta|;Eff.", "h_odd", "(140,1.54,2.2)", "TMath::Abs(eta)", "", ok_lct1 || ok_lct2, "P", kViolet+2);
-cEff->Print("lct_eff_for_Trk_vsTrkEta_pt15.png");
+cEff->Print("lct_eff_for_Trk_vsTrkEta_pt15" + ext);
 
 
 ho = draw_geff(gt, "Eff. for track with LCT to have GEM pad in chamber;LCT |#eta|;Eff.", "h_odd", "(140,1.5,2.2)", "TMath::Abs(eta_lct_odd)", ok_lct1, ok_pad1, "P", kRed);
@@ -391,22 +395,22 @@ leg->SetFillStyle(0);
 leg->AddEntry(ho, "odd chambers","l");
 leg->AddEntry(he, "even chambers","l");
 leg->Draw();
-cEff->Print("gem_pad_eff_for_LCT_vsLCTEta_pt40.png");
+cEff->Print("gem_pad_eff_for_LCT_vsLCTEta_pt40" + ext);
 
 draw_geff(gt, "Eff. for track with LCT to have GEM pad in chamber;SimTrack |#eta|;Eff.", "h_odd", "(140,1.5,2.2)", "TMath::Abs(eta)", ok_lct1, ok_pad1, "P", kRed);
 draw_geff(gt, "Eff. for track with LCT to have GEM pad in chamber;SimTrack |#eta|;Eff.", "h_evn", "(140,1.5,2.2)", "TMath::Abs(eta)", ok_lct2, ok_pad2, "P same");
 leg->Draw();
-cEff->Print("gem_pad_eff_for_LCT_vsTrkEta_pt40.png");
+cEff->Print("gem_pad_eff_for_LCT_vsTrkEta_pt40" + ext);
 
 draw_geff(gt, "Eff. for track with LCT to have GEM pad in chamber;LCT |#eta|;Eff.", "h_odd", "(140,1.5,2.2)", "TMath::Abs(eta_lct_odd)", ok_lct1, ok_pad1_overlap, "P", kRed);
 draw_geff(gt, "Eff. for track with LCT to have GEM pad in chamber;LCT |#eta|;Eff.", "h_evn", "(140,1.5,2.2)", "TMath::Abs(eta_lct_even)", ok_lct2, ok_pad2_overlap, "P same");
 leg->Draw();
-cEff->Print("gem_pad_eff_for_LCT_vsLCTEta_pt40_overlap.png");
+cEff->Print("gem_pad_eff_for_LCT_vsLCTEta_pt40_overlap" + ext);
 
 draw_geff(gt, "Eff. for track with LCT to have GEM pad in chamber;SimTrack |#eta|;Eff.", "h_odd", "(140,1.5,2.2)", "TMath::Abs(eta)", ok_lct1, ok_pad1_overlap, "P", kRed);
 draw_geff(gt, "Eff. for track with LCT to have GEM pad in chamber;SimTrack |#eta|;Eff.", "h_evn", "(140,1.5,2.2)", "TMath::Abs(eta)", ok_lct2, ok_pad2_overlap, "P same");
 leg->Draw();
-cEff->Print("gem_pad_eff_for_LCT_vsTrkEta_pt40_overlap.png");
+cEff->Print("gem_pad_eff_for_LCT_vsTrkEta_pt40_overlap" + ext);
 
 //draw_geff(gt, "Eff. for track with LCT to have GEM pad in chamber;z SimTrack |#eta|;Eff.", "h_odd", "(140,1.5,2.2)", "TMath::Abs(eta)", ok_lct1 && Ep, ok_pad1_overlap, "P", kRed);
 //draw_geff(gt, "Eff. for track with LCT to have GEM pad in chamber;z SimTrack |#eta|;Eff.", "h_evn", "(140,1.5,2.2)", "TMath::Abs(eta)", ok_lct2 && Ep, ok_pad2_overlap, "P same");
@@ -419,7 +423,7 @@ leg->SetFillStyle(0);
 leg->AddEntry(h1, "at least one pad","l");
 leg->AddEntry(he, "two pads in two GEMs","l");
 leg->Draw();
-cEff->Print("gem_pad_eff_for_Trk_vsTrkEta_pt40.png");
+cEff->Print("gem_pad_eff_for_Trk_vsTrkEta_pt40" + ext);
 
 return;
 draw_geff(gt, "Eff. for a SimTrack to have an associated GEM pad;SimTrack |#eta|;Eff.", "h_odd", "(140,1.54,2.2)", "TMath::Abs(eta)", "", ok_gsh1 || ok_gsh2, "P", kViolet);
@@ -436,19 +440,19 @@ gf_name = "";
 
 TCanvas* cEff = new TCanvas("cEff","cEff",700,500);
 
-eff_hs("gem_csc_delta_pt5_pad4.root",  "gem/gem_pad_eff_for_LCT_vsHS_pt05.png");
-eff_hs("gem_csc_delta_pt10_pad4.root", "gem/gem_pad_eff_for_LCT_vsHS_pt10.png");
-eff_hs("gem_csc_delta_pt15_pad4.root", "gem/gem_pad_eff_for_LCT_vsHS_pt15.png");
-eff_hs("gem_csc_delta_pt20_pad4.root", "gem/gem_pad_eff_for_LCT_vsHS_pt20.png");
-eff_hs("gem_csc_delta_pt30_pad4.root", "gem/gem_pad_eff_for_LCT_vsHS_pt30.png");
-eff_hs("gem_csc_delta_pt40_pad4.root", "gem/gem_pad_eff_for_LCT_vsHS_pt40.png");
+eff_hs(filesDir + "gem_csc_delta_pt5_pad4.root",  plotDir + "gem_pad_eff_for_LCT_vsHS_pt05" + ext);
+eff_hs(filesDir + "gem_csc_delta_pt10_pad4.root", plotDir + "gem_pad_eff_for_LCT_vsHS_pt10" + ext);
+eff_hs(filesDir + "gem_csc_delta_pt15_pad4.root", plotDir + "gem_pad_eff_for_LCT_vsHS_pt15" + ext);
+eff_hs(filesDir + "gem_csc_delta_pt20_pad4.root", plotDir + "gem_pad_eff_for_LCT_vsHS_pt20" + ext);
+eff_hs(filesDir + "gem_csc_delta_pt30_pad4.root", plotDir + "gem_pad_eff_for_LCT_vsHS_pt30" + ext);
+eff_hs(filesDir + "gem_csc_delta_pt40_pad4.root", plotDir + "gem_pad_eff_for_LCT_vsHS_pt40" + ext);
 
-eff_hs_overlap("gem_csc_delta_pt5_pad4.root",  "gem/gem_pad_eff_for_LCT_vsHS_pt05_overlap.png");
-eff_hs_overlap("gem_csc_delta_pt10_pad4.root", "gem/gem_pad_eff_for_LCT_vsHS_pt10_overlap.png");
-eff_hs_overlap("gem_csc_delta_pt15_pad4.root", "gem/gem_pad_eff_for_LCT_vsHS_pt15_overlap.png");
-eff_hs_overlap("gem_csc_delta_pt20_pad4.root", "gem/gem_pad_eff_for_LCT_vsHS_pt20_overlap.png");
-eff_hs_overlap("gem_csc_delta_pt30_pad4.root", "gem/gem_pad_eff_for_LCT_vsHS_pt30_overlap.png");
-eff_hs_overlap("gem_csc_delta_pt40_pad4.root", "gem/gem_pad_eff_for_LCT_vsHS_pt40_overlap.png");
+eff_hs_overlap(filesDir + "gem_csc_delta_pt5_pad4.root",  plotDir + "gem_pad_eff_for_LCT_vsHS_pt05_overlap" + ext);
+eff_hs_overlap(filesDir + "gem_csc_delta_pt10_pad4.root", plotDir + "gem_pad_eff_for_LCT_vsHS_pt10_overlap" + ext);
+eff_hs_overlap(filesDir + "gem_csc_delta_pt15_pad4.root", plotDir + "gem_pad_eff_for_LCT_vsHS_pt15_overlap" + ext);
+eff_hs_overlap(filesDir + "gem_csc_delta_pt20_pad4.root", plotDir + "gem_pad_eff_for_LCT_vsHS_pt20_overlap" + ext);
+eff_hs_overlap(filesDir + "gem_csc_delta_pt30_pad4.root", plotDir + "gem_pad_eff_for_LCT_vsHS_pt30_overlap" + ext);
+eff_hs_overlap(filesDir + "gem_csc_delta_pt40_pad4.root", plotDir + "gem_pad_eff_for_LCT_vsHS_pt40_overlap" + ext);
 
 }
 
@@ -660,7 +664,7 @@ g->SetMarkerStyle(2);
 g->SetMarkerSize(0.4);
 gPad->Modified()
 
-c1.Print((string("chan_")+suff+".png").c_str())
+c1.Print((string("chan_")+suff+"" + ext).c_str())
 
 
 
@@ -678,7 +682,7 @@ g->SetMarkerStyle(2);
 g->SetMarkerSize(0.4);
 gPad->Modified()
 
-c1.Print((string("strip_")+suff+".png").c_str())
+c1.Print((string("strip_")+suff+"" + ext).c_str())
 
 
 
@@ -697,7 +701,7 @@ g->SetMarkerStyle(2);
 g->SetMarkerSize(0.4);
 gPad->Modified()
 
-c1.Print((string("wg_")+suff+".png").c_str())
+c1.Print((string("wg_")+suff+"" + ext).c_str())
 
 
 
@@ -709,26 +713,26 @@ c1.Print((string("wg_")+suff+".png").c_str())
 fname="shtree_POSTLS161_pt1000.root";  suff = "postls1_pt1000";
 TFile *f = TFile::Open(fname)
 
-globalPosfromTree("+ME1", f, 1, 1, "rphi_+ME1_postls1.png")
-globalPosfromTree("+ME2", f, 1, 2, "rphi_+ME2_postls1.png")
-globalPosfromTree("+ME3", f, 1, 3, "rphi_+ME3_postls1.png")
-globalPosfromTree("+ME4", f, 1, 4, "rphi_+ME4_postls1.png")
-globalPosfromTree("-ME1", f, 2, 1, "rphi_-ME1_postls1.png")
-globalPosfromTree("-ME2", f, 2, 2, "rphi_-ME2_postls1.png")
-globalPosfromTree("-ME3", f, 2, 3, "rphi_-ME3_postls1.png")
-globalPosfromTree("-ME4", f, 2, 4, "rphi_-ME4_postls1.png")
+globalPosfromTree("+ME1", f, 1, 1, "rphi_+ME1_postls1" + ext)
+globalPosfromTree("+ME2", f, 1, 2, "rphi_+ME2_postls1" + ext)
+globalPosfromTree("+ME3", f, 1, 3, "rphi_+ME3_postls1" + ext)
+globalPosfromTree("+ME4", f, 1, 4, "rphi_+ME4_postls1" + ext)
+globalPosfromTree("-ME1", f, 2, 1, "rphi_-ME1_postls1" + ext)
+globalPosfromTree("-ME2", f, 2, 2, "rphi_-ME2_postls1" + ext)
+globalPosfromTree("-ME3", f, 2, 3, "rphi_-ME3_postls1" + ext)
+globalPosfromTree("-ME4", f, 2, 4, "rphi_-ME4_postls1" + ext)
 
 .L shFunctions.C
 fname="shtree_std_pt100.root";  suff = "std_pt100";
 TFile *f = TFile::Open(fname)
-globalPosfromTree("+ME1", f, 1, 1, "rphi_+ME1_std.png")
-globalPosfromTree("+ME2", f, 1, 2, "rphi_+ME2_std.png")
-globalPosfromTree("+ME3", f, 1, 3, "rphi_+ME3_std.png")
-globalPosfromTree("+ME4", f, 1, 4, "rphi_+ME4_std.png")
-globalPosfromTree("-ME1", f, 2, 1, "rphi_-ME1_std.png")
-globalPosfromTree("-ME2", f, 2, 2, "rphi_-ME2_std.png")
-globalPosfromTree("-ME3", f, 2, 3, "rphi_-ME3_std.png")
-globalPosfromTree("-ME4", f, 2, 4, "rphi_-ME4_std.png")
+globalPosfromTree("+ME1", f, 1, 1, "rphi_+ME1_std" + ext)
+globalPosfromTree("+ME2", f, 1, 2, "rphi_+ME2_std" + ext)
+globalPosfromTree("+ME3", f, 1, 3, "rphi_+ME3_std" + ext)
+globalPosfromTree("+ME4", f, 1, 4, "rphi_+ME4_std" + ext)
+globalPosfromTree("-ME1", f, 2, 1, "rphi_-ME1_std" + ext)
+globalPosfromTree("-ME2", f, 2, 2, "rphi_-ME2_std" + ext)
+globalPosfromTree("-ME3", f, 2, 3, "rphi_-ME3_std" + ext)
+globalPosfromTree("-ME4", f, 2, 4, "rphi_-ME4_std" + ext)
 
 
 
@@ -767,7 +771,7 @@ g->SetMarkerStyle(1);
 g->SetMarkerSize(0.1);
 gPad->Modified()
 
-c1.Print((string("rz_+ME_")+suff+".png").c_str())
+c1.Print((string("rz_+ME_")+suff+"" + ext).c_str())
 
 
 
@@ -783,7 +787,7 @@ g->SetMarkerStyle(1);
 g->SetMarkerSize(0.1);
 gPad->Modified()
 
-c1.Print((string("rz_-ME_")+suff+".png").c_str())
+c1.Print((string("rz_-ME_")+suff+"" + ext).c_str())
 
 
 
@@ -829,7 +833,7 @@ leg1->AddEntry(htmp,"6_0_0_patch1","l");
 leg1->AddEntry(htmp2,"POSTLS161","l");
 leg1->Draw();
 
-c1.Print("sh_eloss.png")
+c1.Print("sh_eloss" + ext)
 
 
 
@@ -872,7 +876,7 @@ leg1->AddEntry(htmp,"6_0_0_patch1","l");
 leg1->AddEntry(htmp2,"POSTLS161","l");
 leg1->Draw();
 
-c1.Print("sh_tof.png")
+c1.Print("sh_tof" + ext)
 
 
 
