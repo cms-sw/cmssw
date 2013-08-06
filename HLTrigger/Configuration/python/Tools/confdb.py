@@ -624,25 +624,25 @@ if 'hltTrigReport' in %%(dict)s:
     %%(process)shltTrigReport.HLTriggerResults                    = cms.InputTag( 'TriggerResults', '', '%(name)s' )
 
 if 'hltPreExpressCosmicsOutputSmart' in %%(dict)s:
-    %%(process)shltPreExpressCosmicsOutputSmart.TriggerResultsTag = cms.InputTag( 'TriggerResults', '', '%(name)s' )
+    %%(process)shltPreExpressCosmicsOutputSmart.hltResults = cms.InputTag( 'TriggerResults', '', '%(name)s' )
 
 if 'hltPreExpressOutputSmart' in %%(dict)s:
-    %%(process)shltPreExpressOutputSmart.TriggerResultsTag        = cms.InputTag( 'TriggerResults', '', '%(name)s' )
+    %%(process)shltPreExpressOutputSmart.hltResults        = cms.InputTag( 'TriggerResults', '', '%(name)s' )
 
 if 'hltPreDQMForHIOutputSmart' in %%(dict)s:
-    %%(process)shltPreDQMForHIOutputSmart.TriggerResultsTag       = cms.InputTag( 'TriggerResults', '', '%(name)s' )
+    %%(process)shltPreDQMForHIOutputSmart.hltResults       = cms.InputTag( 'TriggerResults', '', '%(name)s' )
 
 if 'hltPreDQMForPPOutputSmart' in %%(dict)s:
-    %%(process)shltPreDQMForPPOutputSmart.TriggerResultsTag       = cms.InputTag( 'TriggerResults', '', '%(name)s' )
+    %%(process)shltPreDQMForPPOutputSmart.hltResults       = cms.InputTag( 'TriggerResults', '', '%(name)s' )
 
 if 'hltPreHLTDQMResultsOutputSmart' in %%(dict)s:
-    %%(process)shltPreHLTDQMResultsOutputSmart.TriggerResultsTag  = cms.InputTag( 'TriggerResults', '', '%(name)s' )
+    %%(process)shltPreHLTDQMResultsOutputSmart.hltResults  = cms.InputTag( 'TriggerResults', '', '%(name)s' )
 
 if 'hltPreHLTDQMOutputSmart' in %%(dict)s:
-    %%(process)shltPreHLTDQMOutputSmart.TriggerResultsTag         = cms.InputTag( 'TriggerResults', '', '%(name)s' )
+    %%(process)shltPreHLTDQMOutputSmart.hltResults         = cms.InputTag( 'TriggerResults', '', '%(name)s' )
 
 if 'hltPreHLTMONOutputSmart' in %%(dict)s:
-    %%(process)shltPreHLTMONOutputSmart.TriggerResultsTag         = cms.InputTag( 'TriggerResults', '', '%(name)s' )
+    %%(process)shltPreHLTMONOutputSmart.hltResults         = cms.InputTag( 'TriggerResults', '', '%(name)s' )
 
 if 'hltDQMHLTScalers' in %%(dict)s:
     %%(process)shltDQMHLTScalers.triggerResults                   = cms.InputTag( 'TriggerResults', '', '%(name)s' )
