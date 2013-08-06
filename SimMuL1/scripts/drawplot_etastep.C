@@ -391,7 +391,7 @@ leg->AddEntry(h_eff_tf30_3s, "p_{T}^{TF}>=30", "l");
 leg->AddEntry(h_eff_tf30_gpt30_2s1b, "#Delta#phi for p_{T}=30", "l");
 leg->Draw();
 
-c3s_2s1b->Print("eff_3s_2s1b" + ext);
+c3s_2s1b->Print(plotDir + "eff_3s_2s1b" + ext);
 
 
 
