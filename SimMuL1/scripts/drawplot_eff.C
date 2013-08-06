@@ -1,4 +1,4 @@
-gROOT->ProcessLine(".L effFunctions.C");
+//gROOT->ProcessLine(".L effFunctions.C");
 
 /*
 
@@ -264,7 +264,7 @@ void eff_hs_overlap(TString f_name, TString p_name)
 void drawplot_eff_eta()
 {
 
-  gROOT->ProcessLine(".L effFunctions.C");
+  // gROOT->ProcessLine(".L effFunctions.C");
 
   TCanvas* cEff = new TCanvas("cEff","cEff",700,450);
   cEff->SetGridx(1);
@@ -286,7 +286,7 @@ void drawplot_eff_eta()
   TLatex *  tex = new TLatex(0.17, 0.16,"No Pile-Up");
   tex->SetNDC();
   tex->Draw();
-  cEff->Print("lct_eff_for_Trk_vsTrkEta_pt40" + ext);
+  cEff->Print(plotDir + "lct_eff_for_Trk_vsTrkEta_pt40" + ext);
 
 
   h1 = draw_geff(gt, "Eff. for a SimTrack to have an associated ME1/b LCT and GEM Pad;SimTrack |#eta|;Eff.", "h_odd", "(70,1.54,2.2)", "TMath::Abs(eta)", ok_sh1, ok_lct1 && ok_pad1, "P", kRed);
@@ -301,7 +301,7 @@ void drawplot_eff_eta()
   TLatex *  tex = new TLatex(0.17, 0.16,"No Pile-Up");
   tex->SetNDC();
   tex->Draw();
-  cEff->Print("gem_pad_and_lct_eff_for_Trk_vsTrkEta_pt40" + ext);
+  cEff->Print(plotDir + "gem_pad_and_lct_eff_for_Trk_vsTrkEta_pt40" + ext);
 
   return;
 
@@ -310,14 +310,14 @@ void drawplot_eff_eta()
   TLatex *  tex = new TLatex(0.17, 0.16,"No Pile-Up");
   tex->SetNDC();
   tex->Draw();
-  cEff->Print("gem_pad0_eff_for_Trk_vsTrkEta_pt40" + ext);
+  cEff->Print(plotDir + "gem_pad0_eff_for_Trk_vsTrkEta_pt40" + ext);
 
 
 
 
   TTree *gt15 = getTree(filesDir + "gem_csc_delta_pt15_pad4.root");
   h1 = draw_geff(gt15, "Eff. for a SimTrack to have an associated LCT;SimTrack |#eta|;Eff.", "h_odd", "(140,1.54,2.2)", "TMath::Abs(eta)", "", ok_lct1 || ok_lct2, "P", kViolet+2);
-  cEff->Print("lct_eff_for_Trk_vsTrkEta_pt15" + ext);
+  cEff->Print(plotDir + "lct_eff_for_Trk_vsTrkEta_pt15" + ext);
 
 
   ho = draw_geff(gt, "Eff. for track with LCT to have GEM pad in chamber;LCT |#eta|;Eff.", "h_odd", "(140,1.5,2.2)", "TMath::Abs(eta_lct_odd)", ok_lct1, ok_pad1, "P", kRed);
@@ -328,22 +328,22 @@ void drawplot_eff_eta()
   leg->AddEntry(ho, "odd chambers","l");
   leg->AddEntry(he, "even chambers","l");
   leg->Draw();
-  cEff->Print("gem_pad_eff_for_LCT_vsLCTEta_pt40" + ext);
+  cEff->Print(plotDir + "gem_pad_eff_for_LCT_vsLCTEta_pt40" + ext);
 
   draw_geff(gt, "Eff. for track with LCT to have GEM pad in chamber;SimTrack |#eta|;Eff.", "h_odd", "(140,1.5,2.2)", "TMath::Abs(eta)", ok_lct1, ok_pad1, "P", kRed);
   draw_geff(gt, "Eff. for track with LCT to have GEM pad in chamber;SimTrack |#eta|;Eff.", "h_evn", "(140,1.5,2.2)", "TMath::Abs(eta)", ok_lct2, ok_pad2, "P same");
   leg->Draw();
-  cEff->Print("gem_pad_eff_for_LCT_vsTrkEta_pt40" + ext);
+  cEff->Print(plotDir + "gem_pad_eff_for_LCT_vsTrkEta_pt40" + ext);
 
   draw_geff(gt, "Eff. for track with LCT to have GEM pad in chamber;LCT |#eta|;Eff.", "h_odd", "(140,1.5,2.2)", "TMath::Abs(eta_lct_odd)", ok_lct1, ok_pad1_overlap, "P", kRed);
   draw_geff(gt, "Eff. for track with LCT to have GEM pad in chamber;LCT |#eta|;Eff.", "h_evn", "(140,1.5,2.2)", "TMath::Abs(eta_lct_even)", ok_lct2, ok_pad2_overlap, "P same");
   leg->Draw();
-  cEff->Print("gem_pad_eff_for_LCT_vsLCTEta_pt40_overlap" + ext);
+  cEff->Print(plotDir + "gem_pad_eff_for_LCT_vsLCTEta_pt40_overlap" + ext);
 
   draw_geff(gt, "Eff. for track with LCT to have GEM pad in chamber;SimTrack |#eta|;Eff.", "h_odd", "(140,1.5,2.2)", "TMath::Abs(eta)", ok_lct1, ok_pad1_overlap, "P", kRed);
   draw_geff(gt, "Eff. for track with LCT to have GEM pad in chamber;SimTrack |#eta|;Eff.", "h_evn", "(140,1.5,2.2)", "TMath::Abs(eta)", ok_lct2, ok_pad2_overlap, "P same");
   leg->Draw();
-  cEff->Print("gem_pad_eff_for_LCT_vsTrkEta_pt40_overlap" + ext);
+  cEff->Print(plotDir + "gem_pad_eff_for_LCT_vsTrkEta_pt40_overlap" + ext);
 
   //draw_geff(gt, "Eff. for track with LCT to have GEM pad in chamber;z SimTrack |#eta|;Eff.", "h_odd", "(140,1.5,2.2)", "TMath::Abs(eta)", ok_lct1 && Ep, ok_pad1_overlap, "P", kRed);
   //draw_geff(gt, "Eff. for track with LCT to have GEM pad in chamber;z SimTrack |#eta|;Eff.", "h_evn", "(140,1.5,2.2)", "TMath::Abs(eta)", ok_lct2 && Ep, ok_pad2_overlap, "P same");
@@ -356,7 +356,7 @@ void drawplot_eff_eta()
   leg->AddEntry(h1, "at least one pad","l");
   leg->AddEntry(he, "two pads in two GEMs","l");
   leg->Draw();
-  cEff->Print("gem_pad_eff_for_Trk_vsTrkEta_pt40" + ext);
+  cEff->Print(plotDir + "gem_pad_eff_for_Trk_vsTrkEta_pt40" + ext);
 
   return;
   draw_geff(gt, "Eff. for a SimTrack to have an associated GEM pad;SimTrack |#eta|;Eff.", "h_odd", "(140,1.54,2.2)", "TMath::Abs(eta)", "", ok_gsh1 || ok_gsh2, "P", kViolet);
@@ -389,7 +389,9 @@ void drawplot_eff()
   eff_hs_overlap(filesDir + "gem_csc_delta_pt30_pad4.root", plotDir + "gem_pad_eff_for_LCT_vsHS_pt30_overlap" + ext);
   eff_hs_overlap(filesDir + "gem_csc_delta_pt40_pad4.root", plotDir + "gem_pad_eff_for_LCT_vsHS_pt40_overlap" + ext);
 
-  gemTurnOns();
+  //gemTurnOns();
+
+  drawplot_eff_eta();
 
 }
 
