@@ -223,6 +223,9 @@ Auxiliary file
 
 Based on drawplot_frankenstein.C. Produces 4 plots comparing the trigger rate of GMT with CSCTF (n stubs, n stubs with ME1/b, n stubs with ME1/b and GEM); n=2,3; CSCTF track patterns > 2 and > 8
 
+<pre><code>root -l -b produceRatePlotsForApproval.C
+</code></pre>
+
 Produces trigger summary plots for approval
 
 <pre><code>Warning in <TCanvas::Constructor>: Deleting canvas with same name: c
