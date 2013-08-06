@@ -1,6 +1,6 @@
 /*
- *
- *
+ * The version of NeutronSimHitsAnalyzer that was used for 
+ * SimHit level occupancy studies for CSC
  *
  *
  */
@@ -769,4 +769,4 @@ void NeutronSimHitsAnalyzer::endJob()
 
 // ================================================================================================
 //define this as a plug-in
-//DEFINE_FWK_MODULE(NeutronSimHitsAnalyzer);
+DEFINE_FWK_MODULE(NeutronSimHitsAnalyzer);
