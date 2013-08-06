@@ -254,6 +254,14 @@ Produces plots comparing the bending angle values for high and low pt muons
 <pre><code>python plotGEMCSCdPhi.py  
 </code></pre>
 
+<pre><code>Info in <TCanvas::Print>: png file plots/bending/GEMCSCdPhi_even_chambers.png has been created
+Info in <TCanvas::Print>: png file plots/bending/GEMCSCdPhi_odd_chambers.png has been created
+Info in <TCanvas::Print>: pdf file plots/bending/GEMCSCdPhi_even_chambers.pdf has been created
+Info in <TCanvas::Print>: pdf file plots/bending/GEMCSCdPhi_odd_chambers.pdf has been created
+Info in <TCanvas::Print>: eps file plots/bending/GEMCSCdPhi_even_chambers.eps has been created
+Info in <TCanvas::Print>: eps file plots/bending/GEMCSCdPhi_odd_chambers.eps has been created
+</code></pre>
+
 ###produceDphiDict.py	
 
 Uses a set of input files from the GEMCSCAnalyzer for different pt values and builds a python libary file (GEMCSCdPhiDict.py) which can be used in other scripts.
@@ -261,6 +269,9 @@ Uses a set of input files from the GEMCSCAnalyzer for different pt values and bu
 <pre><code>python produceDphiDict.py  
 </code></pre>
 
+</code></pre>Info in <TCanvas::MakeDefCanvas>:  created default TCanvas with name c1
+dPhi library written to: GEMCSCdPhiDict.py
+<pre><code>
 
 ###tdrStyle.py
 
