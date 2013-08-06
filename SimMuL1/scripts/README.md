@@ -12,7 +12,24 @@ ROOT
 
 ###drawplot_eff.C
 
+<pre><code>root -l -b drawplot_eff.C
+</code></pre>
+
 Produces matching efficiency plots (simtrack to LCT, gem pad vs track pt, pt eta, lct eta, lct number) for even and odd chambers
+
+<pre><code>Info in <TCanvas::Print>: png file plots/efficiency/gem_pad_eff_for_LCT_vsHS_pt05.png has been created
+Info in <TCanvas::Print>: png file plots/efficiency/gem_pad_eff_for_LCT_vsHS_pt10.png has been created
+Info in <TCanvas::Print>: png file plots/efficiency/gem_pad_eff_for_LCT_vsHS_pt15.png has been created
+Info in <TCanvas::Print>: png file plots/efficiency/gem_pad_eff_for_LCT_vsHS_pt20.png has been created
+Info in <TCanvas::Print>: png file plots/efficiency/gem_pad_eff_for_LCT_vsHS_pt30.png has been created
+Info in <TCanvas::Print>: png file plots/efficiency/gem_pad_eff_for_LCT_vsHS_pt40.png has been created
+Info in <TCanvas::Print>: png file plots/efficiency/gem_pad_eff_for_LCT_vsHS_pt05_overlap.png has been created
+Info in <TCanvas::Print>: png file plots/efficiency/gem_pad_eff_for_LCT_vsHS_pt10_overlap.png has been created
+Info in <TCanvas::Print>: png file plots/efficiency/gem_pad_eff_for_LCT_vsHS_pt15_overlap.png has been created
+Info in <TCanvas::Print>: png file plots/efficiency/gem_pad_eff_for_LCT_vsHS_pt20_overlap.png has been created
+Info in <TCanvas::Print>: png file plots/efficiency/gem_pad_eff_for_LCT_vsHS_pt30_overlap.png has been created
+Info in <TCanvas::Print>: png file plots/efficiency/gem_pad_eff_for_LCT_vsHS_pt40_overlap.png has been created
+</code></pre>
 
 ###drawplot_etastep.C
 
