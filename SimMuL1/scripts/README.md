@@ -221,9 +221,28 @@ Auxiliary file
 
 ###produceRatePlotsForApproval.C
 
+Based on drawplot_frankenstein.C. Produces 4 plots comparing the trigger rate of GMT with CSCTF (n stubs, n stubs with ME1/b, n stubs with ME1/b and GEM); n=2,3; CSCTF track patterns > 2 and > 8
+
 Produces trigger summary plots for approval
 
-Based on drawplot_frankenstein.C. Produces 4 plots comparing the trigger rate of GMT with CSCTF (n stubs, n stubs with ME1/b, n stubs with ME1/b and GEM); n=2,3; CSCTF track patterns > 2 and > 8
+<pre><code>Warning in <TCanvas::Constructor>: Deleting canvas with same name: c
+Info in <TCanvas::Print>: png file plots/rate/GMT_2s_2s1b_2s1bgem_loose.png has been created
+Info in <TCanvas::Print>: png file plots/rate/GMT_2s_2s1b_2s1bgem_tight.png has been created
+Info in <TCanvas::Print>: png file plots/rate/GMT_3s_3s1b_3s1bgem_loose.png has been created
+Info in <TCanvas::Print>: png file plots/rate/GMT_3s_3s1b_3s1bgem_tight.png has been created
+Warning in <TCanvas::Constructor>: Deleting canvas with same name: c
+Info in <TCanvas::Print>: pdf file plots/rate/GMT_2s_2s1b_2s1bgem_loose.pdf has been created
+Info in <TCanvas::Print>: pdf file plots/rate/GMT_2s_2s1b_2s1bgem_tight.pdf has been created
+Info in <TCanvas::Print>: pdf file plots/rate/GMT_3s_3s1b_3s1bgem_loose.pdf has been created
+Info in <TCanvas::Print>: pdf file plots/rate/GMT_3s_3s1b_3s1bgem_tight.pdf has been created
+Warning in <TCanvas::Constructor>: Deleting canvas with same name: c
+Info in <TCanvas::Print>: eps file plots/rate/GMT_2s_2s1b_2s1bgem_loose.eps has been created
+Info in <TCanvas::Print>: eps file plots/rate/GMT_2s_2s1b_2s1bgem_tight.eps has been created
+Info in <TCanvas::Print>: eps file plots/rate/GMT_3s_3s1b_3s1bgem_loose.eps has been created
+Info in <TCanvas::Print>: eps file plots/rate/GMT_3s_3s1b_3s1bgem_tight.eps has been created
+</code></pre>
+
+Do we have to reproduce them with the shift and the extra shift?
 
 ###rootlogon.C	
 
