@@ -29,7 +29,7 @@ void produceRatePlotsForApproval()
   gem_dir = "files/"; 
   gem_label = "gem98";
 
-  TString plots = "plots/"; 
+  TString plots = "plots/rate/"; 
   TString ext = ".pdf";
   TString the_ttl = "CSC L1 trigger rates in ME1/b region;p_{T}^{cut} [GeV/c];rate [kHz]";
 
