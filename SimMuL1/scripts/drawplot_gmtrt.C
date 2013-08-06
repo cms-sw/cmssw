@@ -35,6 +35,7 @@ TH1D* result_def_eta_no1a = 0;
 TH1D* result_def_eta_no1a_3s1b = 0;
 
 TH1D* result_def_gmtsing = 0;
+TH1D* result_gmtsing = 0;
 
 TH1D* result_def_gmtsing_no1a = 0;
 TH1D* result_gem_gmtsing_no1a = 0;
