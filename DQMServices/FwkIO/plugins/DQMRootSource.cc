@@ -800,9 +800,7 @@ DQMRootSource::setupFile(unsigned int iIndex)
     for(unsigned int index = 0; index != parameterSetTree->GetEntries();++index)
     {
       parameterSetTree->GetEntry(index);
-      cms::Digest dg(blob);
-      edm::ParameterSetID psID(dg.digest().toString());
-      edm::ParameterSet temp(blob,psID);
+      edm::ParameterSet::registerFromString(blob);
     } 
   }
 
