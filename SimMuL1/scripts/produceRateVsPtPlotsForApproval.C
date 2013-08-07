@@ -32,7 +32,7 @@ void produceRatePlots(TString ext)
   gem_dir = "files/"; 
   gem_label = "gem98";
 
-  TString the_ttl = "CSC L1 trigger rates in 1.64<|#eta|<2.14 region;p_{T}^{cut} [GeV/c];rate [kHz]";
+  TString the_ttl = "        L1 trigger rates in 1.64<|#eta|<2.14 region, CMS Simulation;p_{T}^{cut} [GeV/c];rate [kHz]";
   TString plots = "plots/rate/";
 
   //gStyle->SetStatW(0.13);
@@ -680,7 +680,7 @@ void produceRatePlots(TString ext)
   }
 }
 
-void produceRatePlotsForApproval()
+void produceRateVsPtPlotsForApproval()
 {
   gROOT->ProcessLine(".L drawplot_gmtrt.C");
   gROOT->ProcessLine(".L getPTHistos.C");
