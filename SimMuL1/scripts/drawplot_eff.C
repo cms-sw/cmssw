@@ -220,15 +220,23 @@ void eff_hs(TString f_name, TString p_name)
   TCut ok_eta = "TMath::Abs(eta)>1.64 && TMath::Abs(eta)<2.12";
 
   TTree *t = getTree(f_name);
-  TH1F* ho = draw_eff(t, "Eff. for track with LCT to have GEM pad in chamber;LCT half-strip;Eff.", "h_odd", "(130,0.5,130.5)", "hs_lct_odd", ok_lct1 && ok_eta , ok_pad1, "", kRed);
-  TH1F* he = draw_eff(t, "Eff. for track with LCT to have GEM pad in chamber;LCT half-strip;Eff.", "h_evn", "(130,0.5,130.5)", "hs_lct_even", ok_lct2 && ok_eta , ok_pad2, "same");
+  TH1F* ho = draw_eff(t, "GEM reconstruction efficiency versus LCT half-strip;LCT half-strip number;Efficiency", "h_odd", "(130,0.5,130.5)", "hs_lct_odd", ok_lct1 && ok_eta , ok_pad1, "", kRed);
+  TH1F* he = draw_eff(t, "GEM reconstruction efficiency versus LCT half-strip;LCT half-strip number;Efficiency", "h_evn", "(130,0.5,130.5)", "hs_lct_even", ok_lct2 && ok_eta , ok_pad2, "same");
 
-  TLegend *leg = new TLegend(0.50,0.23,.9,0.4, NULL, "brNDC");
+  TLegend *leg = new TLegend(0.35,0.2,.65,0.4, NULL, "brNDC");
   leg->SetBorderSize(0);
+  leg->SetTextSize(0.06);
   leg->SetFillStyle(0);
+  leg->AddEntry((TObject*)0,"1.64<|#eta|<2.12","");
   leg->AddEntry(ho,"odd chambers","l");
   leg->AddEntry(he,"even chambers","l");
   leg->Draw();
+
+  // TLatex *  tex = new TLatex(.4,.6,"1.64<|#eta|<2.12");
+  // tex->SetTextSize(0.05);
+  // tex->SetNDC();
+  // tex->Draw();
+
 
   gPad->Print(p_name);
 }
@@ -240,8 +248,8 @@ void eff_hs_overlap(TString f_name, TString p_name)
   TCut ok_eta = "TMath::Abs(eta)>1.64 && TMath::Abs(eta)<2.12";
 
   TTree *t = getTree(f_name);
-  TH1F* ho = draw_eff(t, "Eff. for track with LCT to have GEM pad in chamber;LCT half-strip;Eff.", "h_odd", "(130,0.5,130.5)", "hs_lct_odd", ok_lct1 && ok_eta , ok_pad1_overlap, "", kRed);
-  TH1F* he = draw_eff(t, "Eff. for track with LCT to have GEM pad in chamber;LCT half-strip;Eff.", "h_evn", "(130,0.5,130.5)", "hs_lct_even", ok_lct2 && ok_eta , ok_pad2_overlap, "same");
+  TH1F* ho = draw_eff(t, "GEM reconstruction efficiency versus LCT half-strip;LCT half-strip number;Efficiency", "h_odd", "(130,0.5,130.5)", "hs_lct_odd", ok_lct1 && ok_eta , ok_pad1_overlap, "", kRed);
+  TH1F* he = draw_eff(t, "GEM reconstruction efficiency versus LCT half-strip;LCT half-strip number;Efficiency", "h_evn", "(130,0.5,130.5)", "hs_lct_even", ok_lct2 && ok_eta , ok_pad2_overlap, "same");
 
   TF1 fo("fo", "pol0", 6., 123.);
   ho->Fit("fo","RN");
@@ -253,6 +261,7 @@ void eff_hs_overlap(TString f_name, TString p_name)
   leg->SetFillStyle(0);
   //leg->AddEntry(ho, Form("odd chambers (%0.2f #pm %0.2f)%%", 100.*fo.GetParameter(0), 100.*fo.GetParError(0)),"l");
   //leg->AddEntry(he, Form("even chambers (%0.1f #pm %0.1f)%%", 100.*fe.GetParameter(0), 100.*fe.GetParError(0)),"l");
+  leg->AddEntry((TObject*)0,"1.64<|#eta|<2.12","");
   leg->AddEntry(ho, "odd chambers","l");
   leg->AddEntry(he, "even chambers","l");
   leg->Draw();
@@ -370,6 +379,8 @@ void drawplot_eff_eta()
 void drawplot_eff()
 {
   gROOT->ProcessLine(".L effFunctions.C");
+  gROOT->ProcessLine(".L tdrstyle.C");
+  setTDRStyle();
 
   gf_name = "";
 
