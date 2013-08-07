@@ -83,8 +83,8 @@ def plotGEMCSCdPhi(filesDir, plotDir, oddEven = "even", ext = ".png"):
     dphi_pt20.SetLineWidth(2);
 
     dphi_pt20.GetXaxis().SetTitle("#Delta#Phi(GEM,CSC) [rad]");
-    dphi_pt20.GetYaxis().SetTitle("Arbitrary units");
-    dphi_pt20.SetTitle("CMS Simulation: GEM-CSC bending angle");
+    dphi_pt20.GetYaxis().SetTitle("A.U.");
+    dphi_pt20.SetTitle("        GEM-CSC Bending Angle                                  CMS Simulation");
 
     dphi_pt20.Draw();
     dphi_pt5.Draw("same");
@@ -95,16 +95,17 @@ def plotGEMCSCdPhi(filesDir, plotDir, oddEven = "even", ext = ".png"):
     legend.SetBorderSize(0);
     legend.SetTextSize(0.06);
     legend.SetMargin(0.13);
+    legend.AddEntry(0,"1.64<|#eta|<2.14:","");
     legend.AddEntry(dphi_pt5,"muon p_{T} = 5 GeV/c","L");
     legend.AddEntry(dphi_pt20,"muon p_{T} = 20 GeV/c","L");
     legend.Draw("same");
 
-    tex = TLatex(.65,.85,"%s chambers"%(closeFar))
+    tex = TLatex(.55,.85,'"%s" chamber pairs'%(closeFar))
     tex.SetTextSize(0.06)
     tex.SetNDC()
     tex.Draw("same")
 
-    tex2 = TLatex(.65,.75,"1.64<|#eta|<2.14")
+    tex2 = TLatex(.22,.85,'L1 Trigger')
     tex2.SetTextSize(0.06)
     tex2.SetNDC()
     tex2.Draw("same")
