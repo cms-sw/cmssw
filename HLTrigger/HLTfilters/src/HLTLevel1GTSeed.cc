@@ -18,6 +18,7 @@
 
 // this class header
 #include "HLTrigger/HLTfilters/interface/HLTLevel1GTSeed.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 
 // system include files
 #include <string>
@@ -98,10 +99,12 @@ HLTLevel1GTSeed::HLTLevel1GTSeed(const edm::ParameterSet& parSet) : HLTFilter(pa
             // InputTag for the L1 Global Trigger DAQ readout record
             m_l1GtReadoutRecordTag(parSet.getParameter<edm::InputTag> (
                     "L1GtReadoutRecordTag")),
+	    m_l1GtReadoutRecordToken(consumes<L1GlobalTriggerReadoutRecord>(m_l1GtReadoutRecordTag)),
 
             // InputTag for L1 Global Trigger object maps
             m_l1GtObjectMapTag(parSet.getParameter<edm::InputTag> (
                     "L1GtObjectMapTag")),
+	    m_l1GtObjectMapToken(consumes<L1GlobalTriggerObjectMapRecord>(m_l1GtObjectMapTag)),
 
             // InputTag for L1 particle collections (except muon)
             m_l1CollectionsTag(parSet.getParameter<edm::InputTag> (
@@ -112,16 +115,23 @@ HLTLevel1GTSeed::HLTLevel1GTSeed(const edm::ParameterSet& parSet) : HLTFilter(pa
                     "L1MuonCollectionTag")),
 
             /// cached InputTags
-            m_l1MuonTag(edm::InputTag(m_l1MuonCollectionTag.label())),
             m_l1ExtraTag(edm::InputTag(m_l1CollectionsTag.label())),
+            m_l1MuonTag(edm::InputTag(m_l1MuonCollectionTag.label())),
+            m_l1MuonToken(consumes<l1extra::L1MuonParticleCollection>(m_l1MuonTag)),
             m_l1IsoEGTag(edm::InputTag(m_l1CollectionsTag.label(), "Isolated")),
-            m_l1NoIsoEGTag(edm::InputTag(m_l1CollectionsTag.label(),
-                    "NonIsolated")), m_l1CenJetTag(edm::InputTag(
-                    m_l1CollectionsTag.label(), "Central")), m_l1ForJetTag(
-                    edm::InputTag(m_l1CollectionsTag.label(), "Forward")),
+            m_l1IsoEGToken(consumes<l1extra::L1EmParticleCollection>(m_l1IsoEGTag)),
+            m_l1NoIsoEGTag(edm::InputTag(m_l1CollectionsTag.label(),"NonIsolated")),
+            m_l1NoIsoEGToken(consumes<l1extra::L1EmParticleCollection>(m_l1NoIsoEGTag)),
+            m_l1CenJetTag(edm::InputTag(m_l1CollectionsTag.label(), "Central")),
+            m_l1CenJetToken(consumes<l1extra::L1JetParticleCollection>(m_l1CenJetTag)),
+            m_l1ForJetTag(edm::InputTag(m_l1CollectionsTag.label(), "Forward")),
+            m_l1ForJetToken(consumes<l1extra::L1JetParticleCollection>(m_l1ForJetTag)),
             m_l1TauJetTag(edm::InputTag(m_l1CollectionsTag.label(), "Tau")),
-            m_l1EtMissMET(edm::InputTag(m_l1CollectionsTag.label(), "MET")),
-            m_l1EtMissMHT(edm::InputTag(m_l1CollectionsTag.label(), "MHT")),
+            m_l1TauJetToken(consumes<l1extra::L1JetParticleCollection>(m_l1TauJetTag)),
+            m_l1EtMissMETTag(edm::InputTag(m_l1CollectionsTag.label(), "MET")),
+            m_l1EtMissMETToken(consumes<l1extra::L1EtMissParticleCollection>(m_l1EtMissMETTag)),
+            m_l1EtMissMHTTag(edm::InputTag(m_l1CollectionsTag.label(), "MHT")),
+            m_l1EtMissMHTToken(consumes<l1extra::L1EtMissParticleCollection>(m_l1EtMissMHTTag)),
             m_l1GlobalDecision(false),
             m_isDebugEnabled(edm::isDebugEnabled()) {
 
@@ -186,6 +196,64 @@ HLTLevel1GTSeed::~HLTLevel1GTSeed() {
 
 // member functions
 
+void
+HLTLevel1GTSeed::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  makeHLTFilterDescription(desc);
+
+  // # default: true
+  // #    seeding done via L1 trigger object maps, with objects that fired 
+  // #    only objects from the central BxInEvent (L1A) are used
+  // # if false:
+  // #    seeding is done ignoring if a L1 object fired or not, 
+  // #    adding all L1EXtra objects corresponding to the object types 
+  // #    used in all conditions from the algorithms in logical expression 
+  // #    for a given number of BxInEvent
+  desc.add<bool>("L1UseL1TriggerObjectMaps",true);
+
+  // # option used forL1UseL1TriggerObjectMaps = False only
+  // # number of BxInEvent: 1: L1A=0; 3: -1, L1A=0, 1; 5: -2, -1, L1A=0, 1, 2
+  desc.add<int>("L1NrBxInEvent",3);
+
+  // # seeding done via technical trigger bits, if value is "true";
+  // # default: false (seeding via physics algorithms)
+  desc.add<bool>("L1TechTriggerSeeding",false);
+
+  // # seeding done with aliases for physics algorithms
+  desc.add<bool>("L1UseAliasesForSeeding",true);
+
+  // # logical expression for the required L1 algorithms;
+  // # the algorithms are specified by name
+  // # allowed operators: "AND", "OR", "NOT", "(", ")"
+  // #
+  // # by convention, "L1GlobalDecision" logical expression means global decision
+  desc.add<std::string>("L1SeedsLogicalExpression","");
+
+  // # InputTag for the L1 Global Trigger DAQ readout record
+  // #   GT Emulator = gtDigis
+  // #   GT Unpacker = l1GtUnpack
+  // #
+  // #   cloned GT unpacker in HLT = gtDigis
+  desc.add<edm::InputTag>("L1GtReadoutRecordTag",edm::InputTag("gtDigis"));
+
+  // # InputTag for L1 Global Trigger object maps
+  // #   only the emulator produces the object maps
+  // #   GT Emulator = gtDigis
+  // #
+  // #   cloned GT emulator in HLT = l1GtObjectMap
+  desc.add<edm::InputTag>("L1GtObjectMapTag",edm::InputTag("l1GtObjectMap"));
+
+  // # InputTag for L1 particle collections (except muon)
+  // #   L1 Extra = l1extraParticles
+  desc.add<edm::InputTag>("L1CollectionsTag",edm::InputTag("l1extraParticles"));
+
+  // # InputTag for L1 muon collection
+  // #   L1 Extra = l1extraParticles
+  desc.add<edm::InputTag>("L1MuonCollectionTag",edm::InputTag("l1extraParticles"));
+
+  descriptions.add("hltLevel1GTSeed", desc);
+}
+
 bool HLTLevel1GTSeed::hltFilter(edm::Event& iEvent, const edm::EventSetup& evSetup, trigger::TriggerFilterObjectWithRefs & filterproduct) {
 
     // all HLT filters must create and fill a HLT filter object,
@@ -201,13 +269,13 @@ bool HLTLevel1GTSeed::hltFilter(edm::Event& iEvent, const edm::EventSetup& evSet
         filterproduct.addCollectionTag(m_l1CenJetTag);
         filterproduct.addCollectionTag(m_l1ForJetTag);
         filterproduct.addCollectionTag(m_l1TauJetTag);
-        filterproduct.addCollectionTag(m_l1EtMissMET);
-        filterproduct.addCollectionTag(m_l1EtMissMHT);
+        filterproduct.addCollectionTag(m_l1EtMissMETTag);
+        filterproduct.addCollectionTag(m_l1EtMissMHTTag);
     }
 
     // get L1GlobalTriggerReadoutRecord and GT decision
     edm::Handle<L1GlobalTriggerReadoutRecord> gtReadoutRecord;
-    iEvent.getByLabel(m_l1GtReadoutRecordTag, gtReadoutRecord);
+    iEvent.getByToken(m_l1GtReadoutRecordToken, gtReadoutRecord);
     const L1GlobalTriggerReadoutRecord* gtReadoutRecordPtr =
             gtReadoutRecord.product();
 
@@ -733,7 +801,7 @@ bool HLTLevel1GTSeed::seedsL1TriggerObjectMaps(edm::Event& iEvent,
 
     // get handle to object maps (one object map per algorithm)
     edm::Handle<L1GlobalTriggerObjectMapRecord> gtObjectMapRecord;
-    iEvent.getByLabel(m_l1GtObjectMapTag, gtObjectMapRecord);
+    iEvent.getByToken(m_l1GtObjectMapToken, gtObjectMapRecord);
 
     if (!gtObjectMapRecord.isValid()) {
         edm::LogWarning("HLTLevel1GTSeed")
@@ -988,7 +1056,7 @@ bool HLTLevel1GTSeed::seedsL1TriggerObjectMaps(edm::Event& iEvent,
     if (!listMuon.empty()) {
 
         edm::Handle<l1extra::L1MuonParticleCollection> l1Muon;
-        iEvent.getByLabel(m_l1MuonTag, l1Muon);
+        iEvent.getByToken(m_l1MuonToken, l1Muon);
 
         if (!l1Muon.isValid()) {
             edm::LogWarning("HLTLevel1GTSeed")
@@ -1011,7 +1079,7 @@ bool HLTLevel1GTSeed::seedsL1TriggerObjectMaps(edm::Event& iEvent,
     // EG (isolated)
     if (!listIsoEG.empty()) {
         edm::Handle<l1extra::L1EmParticleCollection> l1IsoEG;
-        iEvent.getByLabel(m_l1IsoEGTag, l1IsoEG);
+        iEvent.getByToken(m_l1IsoEGToken, l1IsoEG);
 
         if (!l1IsoEG.isValid()) {
             edm::LogWarning("HLTLevel1GTSeed")
@@ -1032,7 +1100,7 @@ bool HLTLevel1GTSeed::seedsL1TriggerObjectMaps(edm::Event& iEvent,
     // EG (no isolation)
     if (!listNoIsoEG.empty()) {
         edm::Handle<l1extra::L1EmParticleCollection> l1NoIsoEG;
-        iEvent.getByLabel(m_l1NoIsoEGTag, l1NoIsoEG);
+        iEvent.getByToken(m_l1NoIsoEGToken, l1NoIsoEG);
 
         if (!l1NoIsoEG.isValid()) {
             edm::LogWarning("HLTLevel1GTSeed")
@@ -1054,7 +1122,7 @@ bool HLTLevel1GTSeed::seedsL1TriggerObjectMaps(edm::Event& iEvent,
     // central jets
     if (!listCenJet.empty()) {
         edm::Handle<l1extra::L1JetParticleCollection> l1CenJet;
-        iEvent.getByLabel(m_l1CenJetTag, l1CenJet);
+        iEvent.getByToken(m_l1CenJetToken, l1CenJet);
 
         if (!l1CenJet.isValid()) {
             edm::LogWarning("HLTLevel1GTSeed")
@@ -1076,7 +1144,7 @@ bool HLTLevel1GTSeed::seedsL1TriggerObjectMaps(edm::Event& iEvent,
     // forward jets
     if (!listForJet.empty()) {
         edm::Handle<l1extra::L1JetParticleCollection> l1ForJet;
-        iEvent.getByLabel(m_l1ForJetTag, l1ForJet);
+        iEvent.getByToken(m_l1ForJetToken, l1ForJet);
 
         if (!l1ForJet.isValid()) {
             edm::LogWarning("HLTLevel1GTSeed")
@@ -1098,7 +1166,7 @@ bool HLTLevel1GTSeed::seedsL1TriggerObjectMaps(edm::Event& iEvent,
     // tau jets
     if (!listTauJet.empty()) {
         edm::Handle<l1extra::L1JetParticleCollection> l1TauJet;
-        iEvent.getByLabel(m_l1TauJetTag, l1TauJet);
+        iEvent.getByToken(m_l1TauJetToken, l1TauJet);
 
         if (!l1TauJet.isValid()) {
             edm::LogWarning("HLTLevel1GTSeed")
@@ -1120,16 +1188,16 @@ bool HLTLevel1GTSeed::seedsL1TriggerObjectMaps(edm::Event& iEvent,
     // energy sums
     if (!listETM.empty()) {
         edm::Handle<l1extra::L1EtMissParticleCollection> l1EnergySums;
-        iEvent.getByLabel(m_l1EtMissMET, l1EnergySums);
+        iEvent.getByToken(m_l1EtMissMETToken, l1EnergySums);
 
         if (!l1EnergySums.isValid()) {
             edm::LogWarning("HLTLevel1GTSeed")
-            << "\nWarning: L1EtMissParticleCollection with input tag " << m_l1EtMissMET
+            << "\nWarning: L1EtMissParticleCollection with input tag " << m_l1EtMissMETTag
             << "\nrequested in configuration, but not found in the event."
             << "\nNo ETM added to filterproduct." << std::endl;
         } else if (l1EnergySums->size() == 0) {
             edm::LogWarning("HLTLevel1GTSeed")
-            << "\nWarning: L1EtMissParticleCollection with input tag " << m_l1EtMissMET
+            << "\nWarning: L1EtMissParticleCollection with input tag " << m_l1EtMissMETTag
             << "\nfound in the event but with 0 size." << "\nNo ETM added to filterproduct."
             << std::endl;
 
@@ -1148,16 +1216,16 @@ bool HLTLevel1GTSeed::seedsL1TriggerObjectMaps(edm::Event& iEvent,
 
     if (!listETT.empty()) {
         edm::Handle<l1extra::L1EtMissParticleCollection> l1EnergySums;
-        iEvent.getByLabel(m_l1EtMissMET, l1EnergySums);
+        iEvent.getByToken(m_l1EtMissMETToken, l1EnergySums);
 
         if (!l1EnergySums.isValid()) {
             edm::LogWarning("HLTLevel1GTSeed")
-            << "\nWarning: L1EtMissParticleCollection with input tag " << m_l1EtMissMET
+            << "\nWarning: L1EtMissParticleCollection with input tag " << m_l1EtMissMETTag
             << "\nrequested in configuration, but not found in the event."
             << "\nNo ETT added to filterproduct." << std::endl;
         } else if (l1EnergySums->size() == 0) {
             edm::LogWarning("HLTLevel1GTSeed")
-            << "\nWarning: L1EtMissParticleCollection with input tag " << m_l1EtMissMET
+            << "\nWarning: L1EtMissParticleCollection with input tag " << m_l1EtMissMETTag
             << "\nfound in the event but with 0 size." << "\nNo ETT added to filterproduct."
             << std::endl;
 
@@ -1176,17 +1244,17 @@ bool HLTLevel1GTSeed::seedsL1TriggerObjectMaps(edm::Event& iEvent,
 
     if (!listHTT.empty()) {
         edm::Handle<l1extra::L1EtMissParticleCollection> l1EnergySums;
-        iEvent.getByLabel(m_l1EtMissMHT, l1EnergySums);
+        iEvent.getByToken(m_l1EtMissMHTToken, l1EnergySums);
 
         if (!l1EnergySums.isValid()) {
             edm::LogWarning("HLTLevel1GTSeed")
-            << "\nWarning: L1EtMissParticleCollection with input tag " << m_l1EtMissMHT
+            << "\nWarning: L1EtMissParticleCollection with input tag " << m_l1EtMissMHTTag
             << "\nrequested in configuration, but not found in the event."
             << "\nNo HTT added to filterproduct." << std::endl;
 
         } else if (l1EnergySums->size() == 0) {
             edm::LogWarning("HLTLevel1GTSeed")
-            << "\nWarning: L1EtMissParticleCollection with input tag " << m_l1EtMissMHT
+            << "\nWarning: L1EtMissParticleCollection with input tag " << m_l1EtMissMHTTag
             << "\nfound in the event but with 0 size." << "\nNo HTT added to filterproduct."
             << std::endl;
 
@@ -1204,17 +1272,17 @@ bool HLTLevel1GTSeed::seedsL1TriggerObjectMaps(edm::Event& iEvent,
 
     if (!listHTM.empty()) {
         edm::Handle<l1extra::L1EtMissParticleCollection> l1EnergySums;
-        iEvent.getByLabel(m_l1EtMissMHT, l1EnergySums);
+        iEvent.getByToken(m_l1EtMissMHTToken, l1EnergySums);
 
         if (!l1EnergySums.isValid()) {
             edm::LogWarning("HLTLevel1GTSeed")
-            << "\nWarning: L1EtMissParticleCollection with input tag " << m_l1EtMissMHT
+            << "\nWarning: L1EtMissParticleCollection with input tag " << m_l1EtMissMHTTag
             << "\nrequested in configuration, but not found in the event."
             << "\nNo HTM added to filterproduct." << std::endl;
 
         } else if (l1EnergySums->size() == 0) {
             edm::LogWarning("HLTLevel1GTSeed")
-            << "\nWarning: L1EtMissParticleCollection with input tag " << m_l1EtMissMHT
+            << "\nWarning: L1EtMissParticleCollection with input tag " << m_l1EtMissMHTTag
             << "\nfound in the event but with 0 size." << "\nNo HTM added to filterproduct."
             << std::endl;
 
@@ -1234,7 +1302,7 @@ bool HLTLevel1GTSeed::seedsL1TriggerObjectMaps(edm::Event& iEvent,
     //    // jet counts
     //    if (!listJetCounts.empty()) {
     //        edm::Handle<l1extra::L1JetCounts> l1JetCounts;
-    //        iEvent.getByLabel(m_l1CollectionsTag.label(), l1JetCounts);
+    //        iEvent.getByToken(m_l1CollectionsToken.label(), l1JetCounts);
     //
     //        for (std::list<int>::const_iterator itObj = listJetCounts.begin();
     //                itObj != listJetCounts.end(); ++itObj) {
@@ -1264,7 +1332,7 @@ bool HLTLevel1GTSeed::seedsL1Extra(edm::Event & iEvent, trigger::TriggerFilterOb
     //        LogTrace("HLTLevel1GTSeed") << "\n Printing muons from gtDigis\n " << std::endl;
     //
     //        edm::Handle<std::vector<L1MuGMTCand> > muonData;
-    //        iEvent.getByLabel("gtDigis", muonData);
+    //        iEvent.getByToken("gtDigis", muonData);
     //
     //        if (!muonData.isValid()) {
     //            edm::LogWarning("HLTLevel1GTSeed")
@@ -1346,7 +1414,7 @@ bool HLTLevel1GTSeed::seedsL1Extra(edm::Event & iEvent, trigger::TriggerFilterOb
                         if (includeMuon) {
 
                             edm::Handle<l1extra::L1MuonParticleCollection> l1Muon;
-                            iEvent.getByLabel(m_l1MuonTag, l1Muon);
+                            iEvent.getByToken(m_l1MuonToken, l1Muon);
 
                             if (!l1Muon.isValid()) {
                                 edm::LogWarning("HLTLevel1GTSeed")
@@ -1384,7 +1452,7 @@ bool HLTLevel1GTSeed::seedsL1Extra(edm::Event & iEvent, trigger::TriggerFilterOb
                     case IsoEG: {
                         if (includeIsoEG) {
                             edm::Handle<l1extra::L1EmParticleCollection> l1IsoEG;
-                            iEvent.getByLabel(m_l1IsoEGTag, l1IsoEG);
+                            iEvent.getByToken(m_l1IsoEGToken, l1IsoEG);
 
                             if (!l1IsoEG.isValid()) {
                                 edm::LogWarning("HLTLevel1GTSeed")
@@ -1422,7 +1490,7 @@ bool HLTLevel1GTSeed::seedsL1Extra(edm::Event & iEvent, trigger::TriggerFilterOb
                     case NoIsoEG: {
                         if (includeNoIsoEG) {
                             edm::Handle<l1extra::L1EmParticleCollection> l1NoIsoEG;
-                            iEvent.getByLabel(m_l1NoIsoEGTag, l1NoIsoEG);
+                            iEvent.getByToken(m_l1NoIsoEGToken, l1NoIsoEG);
 
                             if (!l1NoIsoEG.isValid()) {
                                 edm::LogWarning("HLTLevel1GTSeed")
@@ -1460,7 +1528,7 @@ bool HLTLevel1GTSeed::seedsL1Extra(edm::Event & iEvent, trigger::TriggerFilterOb
                     case CenJet: {
                         if (includeCenJet) {
                             edm::Handle<l1extra::L1JetParticleCollection> l1CenJet;
-                            iEvent.getByLabel(m_l1CenJetTag, l1CenJet);
+                            iEvent.getByToken(m_l1CenJetToken, l1CenJet);
 
                             if (!l1CenJet.isValid()) {
                                 edm::LogWarning("HLTLevel1GTSeed")
@@ -1499,7 +1567,7 @@ bool HLTLevel1GTSeed::seedsL1Extra(edm::Event & iEvent, trigger::TriggerFilterOb
                     case ForJet: {
                         if (includeForJet) {
                             edm::Handle<l1extra::L1JetParticleCollection> l1ForJet;
-                            iEvent.getByLabel(m_l1ForJetTag, l1ForJet);
+                            iEvent.getByToken(m_l1ForJetToken, l1ForJet);
 
                             if (!l1ForJet.isValid()) {
                                 edm::LogWarning("HLTLevel1GTSeed")
@@ -1538,7 +1606,7 @@ bool HLTLevel1GTSeed::seedsL1Extra(edm::Event & iEvent, trigger::TriggerFilterOb
                     case TauJet: {
                         if (includeTauJet) {
                             edm::Handle<l1extra::L1JetParticleCollection> l1TauJet;
-                            iEvent.getByLabel(m_l1TauJetTag, l1TauJet);
+                            iEvent.getByToken(m_l1TauJetToken, l1TauJet);
 
                             if (!l1TauJet.isValid()) {
                                 edm::LogWarning("HLTLevel1GTSeed")
@@ -1577,12 +1645,12 @@ bool HLTLevel1GTSeed::seedsL1Extra(edm::Event & iEvent, trigger::TriggerFilterOb
                     case ETM: {
                         if (includeETM) {
                             edm::Handle<l1extra::L1EtMissParticleCollection> l1EnergySums;
-                            iEvent.getByLabel(m_l1EtMissMET, l1EnergySums);
+                            iEvent.getByToken(m_l1EtMissMETToken, l1EnergySums);
 
                             if (!l1EnergySums.isValid()) {
                                 edm::LogWarning("HLTLevel1GTSeed")
                                         << "\nWarning: L1EtMissParticleCollection with input tag "
-                                        << m_l1EtMissMET
+                                        << m_l1EtMissMETTag
                                         << "\nrequested in configuration, but not found in the event."
                                         << "\nNo ETM added to filterproduct."
                                         << std::endl;
@@ -1590,7 +1658,7 @@ bool HLTLevel1GTSeed::seedsL1Extra(edm::Event & iEvent, trigger::TriggerFilterOb
                             } else if (l1EnergySums->size() == 0) {
                                 edm::LogWarning("HLTLevel1GTSeed")
                                         << "\nWarning: L1EtMissParticleCollection with input tag "
-                                        << m_l1EtMissMET
+                                        << m_l1EtMissMETTag
                                         << "\nfound in the event but with 0 size."
                                         << "\nNo ETM added to filterproduct."
                                         << std::endl;
@@ -1624,12 +1692,12 @@ bool HLTLevel1GTSeed::seedsL1Extra(edm::Event & iEvent, trigger::TriggerFilterOb
                     case ETT: {
                         if (includeETT) {
                             edm::Handle<l1extra::L1EtMissParticleCollection> l1EnergySums;
-                            iEvent.getByLabel(m_l1EtMissMET, l1EnergySums);
+                            iEvent.getByToken(m_l1EtMissMETToken, l1EnergySums);
 
                             if (!l1EnergySums.isValid()) {
                                 edm::LogWarning("HLTLevel1GTSeed")
                                         << "\nWarning: L1EtMissParticleCollection with input tag "
-                                        << m_l1EtMissMET
+                                        << m_l1EtMissMETTag
                                         << "\nrequested in configuration, but not found in the event."
                                         << "\nNo ETT added to filterproduct."
                                         << std::endl;
@@ -1637,7 +1705,7 @@ bool HLTLevel1GTSeed::seedsL1Extra(edm::Event & iEvent, trigger::TriggerFilterOb
                             } else if (l1EnergySums->size() == 0) {
                                 edm::LogWarning("HLTLevel1GTSeed")
                                         << "\nWarning: L1EtMissParticleCollection with input tag "
-                                        << m_l1EtMissMET
+                                        << m_l1EtMissMETTag
                                         << "\nfound in the event but with 0 size."
                                         << "\nNo ETT added to filterproduct."
                                         << std::endl;
@@ -1671,12 +1739,12 @@ bool HLTLevel1GTSeed::seedsL1Extra(edm::Event & iEvent, trigger::TriggerFilterOb
                     case HTT: {
                         if (includeHTT) {
                             edm::Handle<l1extra::L1EtMissParticleCollection> l1EnergySums;
-                            iEvent.getByLabel(m_l1EtMissMHT, l1EnergySums);
+                            iEvent.getByToken(m_l1EtMissMHTToken, l1EnergySums);
 
                             if (!l1EnergySums.isValid()) {
                                 edm::LogWarning("HLTLevel1GTSeed")
                                         << "\nWarning: L1EtMissParticleCollection with input tag "
-                                        << m_l1EtMissMHT
+                                        << m_l1EtMissMHTTag
                                         << "\nrequested in configuration, but not found in the event."
                                         << "\nNo HTT added to filterproduct."
                                         << std::endl;
@@ -1684,7 +1752,7 @@ bool HLTLevel1GTSeed::seedsL1Extra(edm::Event & iEvent, trigger::TriggerFilterOb
                             } else if (l1EnergySums->size() == 0) {
                                 edm::LogWarning("HLTLevel1GTSeed")
                                         << "\nWarning: L1EtMissParticleCollection with input tag "
-                                        << m_l1EtMissMHT
+                                        << m_l1EtMissMHTTag
                                         << "\nfound in the event but with 0 size."
                                         << "\nNo HTT added to filterproduct."
                                         << std::endl;
@@ -1717,12 +1785,12 @@ bool HLTLevel1GTSeed::seedsL1Extra(edm::Event & iEvent, trigger::TriggerFilterOb
                     case HTM: {
                         if (includeHTM) {
                             edm::Handle<l1extra::L1EtMissParticleCollection> l1EnergySums;
-                            iEvent.getByLabel(m_l1EtMissMHT, l1EnergySums);
+                            iEvent.getByToken(m_l1EtMissMHTToken, l1EnergySums);
 
                             if (!l1EnergySums.isValid()) {
                                 edm::LogWarning("HLTLevel1GTSeed")
                                         << "\nWarning: L1EtMissParticleCollection with input tag "
-                                        << m_l1EtMissMHT
+                                        << m_l1EtMissMHTTag
                                         << "\nrequested in configuration, but not found in the event."
                                         << "\nNo HTM added to filterproduct."
                                         << std::endl;
@@ -1730,7 +1798,7 @@ bool HLTLevel1GTSeed::seedsL1Extra(edm::Event & iEvent, trigger::TriggerFilterOb
                             } else if (l1EnergySums->size() == 0) {
                                 edm::LogWarning("HLTLevel1GTSeed")
                                         << "\nWarning: L1EtMissParticleCollection with input tag "
-                                        << m_l1EtMissMHT
+                                        << m_l1EtMissMHTTag
                                         << "\nfound in the event but with 0 size."
                                         << "\nNo HTM added to filterproduct."
                                         << std::endl;

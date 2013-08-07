@@ -28,6 +28,9 @@
 #include "HLTrigger/HLTcore/interface/TriggerExpressionData.h"
 
 // forward declaration
+namespace edm {
+  class ConfigurationDescriptions;
+}
 namespace triggerExpression {
   class Evaluator;
 }
@@ -40,6 +43,7 @@ class TriggerResultsFilter : public edm::EDFilter {
 public:
   explicit TriggerResultsFilter(const edm::ParameterSet &);
   ~TriggerResultsFilter();
+  static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
   virtual bool filter(edm::Event &, const edm::EventSetup &);
 
 private:

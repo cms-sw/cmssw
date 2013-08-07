@@ -40,6 +40,15 @@
 class L1GtTriggerMenu;
 class L1GtTriggerMask;
 class L1GlobalTriggerReadoutRecord;
+class L1GlobalTriggerObjectMapRecord;
+namespace edm {
+  class ConfigurationDescriptions;
+}
+
+#include "DataFormats/L1Trigger/interface/L1EmParticleFwd.h"
+#include "DataFormats/L1Trigger/interface/L1JetParticleFwd.h"
+#include "DataFormats/L1Trigger/interface/L1MuonParticleFwd.h"
+#include "DataFormats/L1Trigger/interface/L1EtMissParticleFwd.h"
 
 // class declaration
 class HLTLevel1GTSeed : public HLTFilter
@@ -52,6 +61,9 @@ public:
 
     /// destructor
     virtual ~HLTLevel1GTSeed();
+
+    /// parameter description
+    static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
     /// filter the event
     virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct);
@@ -156,27 +168,37 @@ private:
     std::string m_l1SeedsLogicalExpression;
 
     /// InputTag for the L1 Global Trigger DAQ readout record
-    edm::InputTag m_l1GtReadoutRecordTag;
+    edm::InputTag                                  m_l1GtReadoutRecordTag;
+    edm::EDGetTokenT<L1GlobalTriggerReadoutRecord> m_l1GtReadoutRecordToken;
 
     /// InputTag for L1 Global Trigger object maps
-    edm::InputTag m_l1GtObjectMapTag;
+    edm::InputTag                                    m_l1GtObjectMapTag;
+    edm::EDGetTokenT<L1GlobalTriggerObjectMapRecord> m_l1GtObjectMapToken;
 
-    /// InputTag for L1 particle collections (except muon)
+    /// Meta InputTag for L1 particle collections (except muon)
     edm::InputTag m_l1CollectionsTag;
 
-    /// InputTag for L1 muon collection
+    /// Meta InputTag for L1 muon collection
     edm::InputTag m_l1MuonCollectionTag;
 
     /// cached InputTags
-    edm::InputTag m_l1MuonTag;
-    edm::InputTag m_l1ExtraTag;
-    edm::InputTag m_l1IsoEGTag;
-    edm::InputTag m_l1NoIsoEGTag;
-    edm::InputTag m_l1CenJetTag;
-    edm::InputTag m_l1ForJetTag;
-    edm::InputTag m_l1TauJetTag;
-    edm::InputTag m_l1EtMissMET;
-    edm::InputTag m_l1EtMissMHT;
+    edm::InputTag                                         m_l1ExtraTag;
+    edm::InputTag                                         m_l1MuonTag;
+    edm::EDGetTokenT<l1extra::L1MuonParticleCollection>   m_l1MuonToken;
+    edm::InputTag                                         m_l1IsoEGTag;
+    edm::EDGetTokenT<l1extra::L1EmParticleCollection>     m_l1IsoEGToken;
+    edm::InputTag                                         m_l1NoIsoEGTag;
+    edm::EDGetTokenT<l1extra::L1EmParticleCollection>     m_l1NoIsoEGToken;
+    edm::InputTag                                         m_l1CenJetTag;
+    edm::EDGetTokenT<l1extra::L1JetParticleCollection>    m_l1CenJetToken;
+    edm::InputTag                                         m_l1ForJetTag;
+    edm::EDGetTokenT<l1extra::L1JetParticleCollection>    m_l1ForJetToken;
+    edm::InputTag                                         m_l1TauJetTag;
+    edm::EDGetTokenT<l1extra::L1JetParticleCollection>    m_l1TauJetToken;
+    edm::InputTag                                         m_l1EtMissMETTag;
+    edm::EDGetTokenT<l1extra::L1EtMissParticleCollection> m_l1EtMissMETToken;
+    edm::InputTag                                         m_l1EtMissMHTTag;
+    edm::EDGetTokenT<l1extra::L1EtMissParticleCollection> m_l1EtMissMHTToken;
 
     /// replace string "L1GlobalDecision" with bool to speed up the "if"
     bool m_l1GlobalDecision;
