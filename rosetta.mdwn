@@ -20,7 +20,7 @@ related:
 | `cmstc tagset <tagset-id> -a`        | `git cms-merge-topic <topic-id>`             |
 | `cvs log`                            | `git log`                                    |
 | `cvs diff -r some tag`               | `git diff -r <some-tag>`                     |
-| `cvs diff -r TAG1 -r TAG2 Package`   | `git diff TAG1..TAG2 Package`                |
+| `cvs diff -r TAG1 -r TAG2 Package`   | `git diff TAG1..TAG2 -- Package`             |
 
 
 ### Converting "Real World" git to "CMS" git
