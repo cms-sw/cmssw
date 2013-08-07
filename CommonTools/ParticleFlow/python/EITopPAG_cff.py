@@ -91,7 +91,7 @@ pfIsolatedElectronsEI = cms.EDFilter(
     (gsfElectronRef.pfIsolationVariables().chargedHadronIso+
     max(0.,gsfElectronRef.pfIsolationVariables().neutralHadronIso+
     gsfElectronRef.pfIsolationVariables().photonIso-
-    1.0*gsfElectronRef.pfIsolationVariables().puIso))/pt < 0.15
+    0.5*gsfElectronRef.pfIsolationVariables().puIso))/pt < 0.15
     '''),
     makeClones = cms.bool(True)
 )
