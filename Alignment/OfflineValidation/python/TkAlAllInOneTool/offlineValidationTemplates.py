@@ -533,7 +533,7 @@ process.TrackerTrackHitFilter.usePixelQualityFlag= True
 #no triger on bunch crossing bit 0
 
 
-process.triggerSelection=cms.Sequence(process.bit40)
+# process.triggerSelection=cms.Sequence(process.bit40)
 
 """
 
