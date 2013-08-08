@@ -11,6 +11,8 @@
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+#include "DataFormats/RPCDigi/interface/RPCRawDataCounts.h"
+
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include <bitset>
@@ -44,7 +46,7 @@ private:
                                                           // to get index one has to subtract -1
                                                           // 0 is not selected error type 
                                                   
-  edm::InputTag rpcRawDataCountsTag_;
+  edm::EDGetTokenT<RPCRawDataCounts> rpcRawDataCountsTag_;
 };
 
 #endif

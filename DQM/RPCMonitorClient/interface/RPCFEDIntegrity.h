@@ -7,9 +7,13 @@
 #include <FWCore/Framework/interface/MakerMacros.h>
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
+
+#include "DataFormats/RPCDigi/interface/RPCRawDataCounts.h"
+
 #include <memory>
 #include <string>
 #include <map>
+
 class DQMStore;
 class MonitorElement;
 
@@ -26,8 +30,7 @@ public:
   void beginJob();
 
   //Begin Run
-   void beginRun(const edm::Run& r, const edm::EventSetup& c);
-  
+   void beginRun(const edm::Run& r, const edm::EventSetup& c);  
   
   /// Begin Lumi block 
   void beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& context) ;
@@ -45,7 +48,7 @@ public:
  private:
   
   void labelBins( MonitorElement * myMe);
-  edm::InputTag rawCountsLabel_;
+  edm::EDGetTokenT<RPCRawDataCounts> rawCountsLabel_;
   void reset(void);
   void bookFEDMe(void);
 

@@ -29,9 +29,12 @@
 
 RPCMonitorLinkSynchro::RPCMonitorLinkSynchro( const edm::ParameterSet& cfg) 
     : theConfig(cfg),
-      theSynchroStat(RPCLinkSynchroStat(theConfig.getUntrackedParameter<bool>("useFirstHitOnly", false))),
-      rpcRawSynchroProdItemTag_(cfg.getParameter<edm::InputTag>("rpcRawSynchroProdItemTag"))
+      theSynchroStat(RPCLinkSynchroStat(theConfig.getUntrackedParameter<bool>("useFirstHitOnly", false)))
+
 { 
+
+  rpcRawSynchroProdItemTag_=consumes<RPCRawSynchro::ProdItem>(cfg.getParameter<edm::InputTag>("rpcRawSynchroProdItemTag"));
+
 }
 
 RPCMonitorLinkSynchro::~RPCMonitorLinkSynchro()
@@ -107,7 +110,7 @@ void RPCMonitorLinkSynchro::endJob()
 void RPCMonitorLinkSynchro::analyze(const edm::Event& ev, const edm::EventSetup& es)
 {
   edm::Handle<RPCRawSynchro::ProdItem> synchroCounts;
-  ev.getByLabel(rpcRawSynchroProdItemTag_, synchroCounts);
+  ev.getByToken(rpcRawSynchroProdItemTag_, synchroCounts);
   std::vector<LinkBoardElectronicIndex> problems;
   const RPCRawSynchro::ProdItem &vItem = select(*synchroCounts.product(), ev,es);
   theSynchroStat.add(vItem, problems);
