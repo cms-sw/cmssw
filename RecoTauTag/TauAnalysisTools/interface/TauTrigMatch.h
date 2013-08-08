@@ -10,10 +10,17 @@ class TauTrigMatch {
     // Default needed for persistency
     TauTrigMatch( ); 
 
-    TauTrigMatch( const pat::Tau* tagTau, std::vector<const reco::Candidate*>* trigObj, unsigned int index, unsigned int nTotalObjects );
+    TauTrigMatch( const pat::Tau* tagTau, std::vector<const reco::Candidate*>* trigObj, const reco::Candidate* GenTauMatch, unsigned int index, unsigned int nTotalObjects );
     
     // Get tag tau object
     const pat::Tau* tagTau() const;
+
+    const reco::Candidate* GenTauMatch() const; 
+
+    bool GenTauMatchTest() const;
+
+    // return true if pat::tau is matched to a hadronically decaying Gen Tau
+    bool GenHadTauMatch() const;
 
     // Get match status of trigger filter object
     bool trigObjMatch(int a) const;
@@ -26,9 +33,13 @@ class TauTrigMatch {
     // Get the total number of reco objects in this event.
     unsigned int nTotalObjects() const;
 
+    const reco::Candidate* GenTauJet() const; 
+
   private:
     const pat::Tau* tagTau_;
     std::vector<const reco::Candidate*>* trigObj_;
+    const reco::Candidate* GenTauMatch_;
+    reco::Candidate* dummyCandidate_;
     unsigned int index_;
     unsigned int nTotalObjects_;
 
