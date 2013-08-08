@@ -16,9 +16,9 @@ SiStripPedestalsGenerator::~SiStripPedestalsGenerator() {
 }
 
 
-void SiStripPedestalsGenerator::createObject(){
+SiStripPedestals* SiStripPedestalsGenerator::createObject(){
     
-  obj_ = new SiStripPedestals();
+  SiStripPedestals* obj = new SiStripPedestals();
 
   uint32_t PedestalValue_ = _pset.getParameter<uint32_t>("PedestalsValue");  
   edm::FileInPath fp_ = _pset.getParameter<edm::FileInPath>("file");
@@ -37,10 +37,11 @@ void SiStripPedestalsGenerator::createObject(){
       if (count<printdebug_) {
 	edm::LogInfo("SiStripPedestalsFakeESSource::makePedestals(): ") << "detid: " << it->first  << " strip: " << j <<  " ped: " << PedestalValue_  << std::endl; 	    
       }
-      obj_->setData(PedestalValue_,theSiStripVector);
+      obj->setData(PedestalValue_,theSiStripVector);
     }
     count++;
-    if ( ! obj_->put(it->first, theSiStripVector) )
+    if ( ! obj->put(it->first, theSiStripVector) )
       edm::LogError("SiStripPedestalsFakeESSource::produce ")<<" detid already exists"<<std::endl;
   }
+  return obj;
 }

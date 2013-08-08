@@ -18,11 +18,11 @@ class SiStripConfObjectGenerator : public SiStripCondObjBuilderBase<SiStripConfO
   explicit SiStripConfObjectGenerator(const edm::ParameterSet&,const edm::ActivityRegistry&);
   ~SiStripConfObjectGenerator();
 
-  void getObj(SiStripConfObject* & obj){createObject(); obj=obj_;}
+  void getObj(SiStripConfObject* & obj){obj=createObject();}
 
  private:
 
-  void createObject();
+  SiStripConfObject*  createObject();
 
   std::vector<edm::ParameterSet> parameters_;
 };

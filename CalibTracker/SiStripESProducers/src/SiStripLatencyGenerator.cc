@@ -18,9 +18,9 @@ SiStripLatencyGenerator::~SiStripLatencyGenerator()
   edm::LogInfo("SiStripLatencyGenerator") << "[SiStripLatencyGenerator::~SiStripLatencyGenerator]";
 }
 
-void SiStripLatencyGenerator::createObject()
+SiStripLatency* SiStripLatencyGenerator::createObject()
 {
-  obj_ = new SiStripLatency();
+  SiStripLatency* obj = new SiStripLatency();
 
   // Read the full list of detIds
   edm::FileInPath fp_ = _pset.getParameter<edm::FileInPath>("file");
@@ -32,12 +32,13 @@ void SiStripLatencyGenerator::createObject()
     edm::LogInfo("SiStripLatencyGenerator") << "detId = " << detInfos.rbegin()->first << " apv = " << 6
                                             << " latency = " << _pset.getParameter<uint32_t>("latency")
                                             << " mode = " << _pset.getParameter<uint32_t>("mode") << std::endl;
-    obj_->put(detInfos.rbegin()->first, 6, _pset.getParameter<uint32_t>("latency"), _pset.getParameter<uint32_t>("mode") );
+    obj->put(detInfos.rbegin()->first, 6, _pset.getParameter<uint32_t>("latency"), _pset.getParameter<uint32_t>("mode") );
 
     // Call this method to collapse all consecutive detIdAndApvs with the same latency and mode to a single entry
-    obj_->compress();
+    obj->compress();
   }
   else {
     edm::LogError("SiStripLatencyGenerator") << "Error: detInfo map is empty. Cannot get the last detId." << std::endl;
   }
+  return obj;
 }
