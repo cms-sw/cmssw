@@ -140,7 +140,7 @@ namespace edm {
     }
 
    // calculate the adler32 checksum
-   uint32_t adler32_chksum = cms::Adler32((char*)initView.descData(),initView.descLength());
+   uint32_t adler32_chksum = cms::Adler32((char const*)initView.descData(),initView.descLength());
    //std::cout << "Adler32 checksum of init message = " << adler32_chksum << std::endl;
    //std::cout << "Adler32 checksum of init messsage from header = " << initView.adler32_chksum() << " "
    //          << "host name = " << initView.hostName() << " len = " << initView.hostName_len() << std::endl;
@@ -154,7 +154,7 @@ namespace edm {
     TClass* desc = getTClass(typeid(SendJobHeader));
 
     TBufferFile xbuf(TBuffer::kRead, initView.descLength(),
-                 (char*)initView.descData(),kFALSE);
+                 const_cast<char*>((char const*)initView.descData()),kFALSE);
     RootDebug tracer(10,10);
     std::auto_ptr<SendJobHeader> sd((SendJobHeader*)xbuf.ReadObjectAny(desc));
 
@@ -216,7 +216,7 @@ namespace edm {
     unsigned long origsize = eventView.origDataSize();
     unsigned long dest_size; //(should be >= eventView.origDataSize())
 
-    uint32_t adler32_chksum = cms::Adler32((char*)eventView.eventData(), eventView.eventLength());
+    uint32_t adler32_chksum = cms::Adler32((char const*)eventView.eventData(), eventView.eventLength());
     //std::cout << "Adler32 checksum of event = " << adler32_chksum << std::endl;
     //std::cout << "Adler32 checksum from header = " << eventView.adler32_chksum() << " "
     //          << "host name = " << eventView.hostName() << " len = " << eventView.hostName_len() << std::endl;
@@ -228,20 +228,20 @@ namespace edm {
     }
     if(origsize != 78 && origsize != 0) {
       // compressed
-      dest_size = uncompressBuffer((unsigned char*)eventView.eventData(),
+      dest_size = uncompressBuffer(const_cast<unsigned char*>((unsigned char const*)eventView.eventData()),
                                    eventView.eventLength(), dest_, origsize);
     } else { // not compressed
       // we need to copy anyway the buffer as we are using dest in xbuf
       dest_size = eventView.eventLength();
       dest_.resize(dest_size);
       unsigned char* pos = (unsigned char*) &dest_[0];
-      unsigned char* from = (unsigned char*) eventView.eventData();
+      unsigned char const* from = (unsigned char const*) eventView.eventData();
       std::copy(from,from+dest_size,pos);
     }
     //TBuffer xbuf(TBuffer::kRead, dest_size,
-    //             (char*) &dest[0],kFALSE);
+    //             (char const*) &dest[0],kFALSE);
     //TBuffer xbuf(TBuffer::kRead, eventView.eventLength(),
-    //             (char*) eventView.eventData(),kFALSE);
+    //             (char const*) eventView.eventData(),kFALSE);
     xbuf_.Reset();
     xbuf_.SetBuffer(&dest_[0],dest_size,kFALSE);
     RootDebug tracer(10,10);
