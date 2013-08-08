@@ -46,9 +46,6 @@ namespace edm {
     // construct from coded string.
     explicit ParameterSet(std::string const& rep);
 
-    // construct from coded string and id.  Will cause registration
-    ParameterSet(std::string const& rep, ParameterSetID const& id);
-
     ~ParameterSet();
 
     // instantiate in this library, so these methods don't cause code bloat
@@ -272,7 +269,15 @@ namespace edm {
     VParameterSetEntry*
     getPSetVectorForUpdate(std::string const& name);
 
+    // construct from coded string and register it.
+    static
+    void
+    registerFromString(std::string const& rep);
+
   private:
+    // construct from coded string and id.
+    ParameterSet(std::string const& rep, ParameterSetID const& id);
+
     // decode
     bool fromString(std::string const&);
 

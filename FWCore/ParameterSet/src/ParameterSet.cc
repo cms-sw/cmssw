@@ -74,7 +74,7 @@ namespace edm {
   }
 
   // ----------------------------------------------------------------------
-  // from coded string and ID.  Will cause registration
+  // from coded string and ID.
 
   ParameterSet::ParameterSet(std::string const& code, ParameterSetID const& id) :
     tbl_(),
@@ -87,10 +87,18 @@ namespace edm {
         << "passed to a ParameterSet during construction is invalid:\n"
         << code;
     }
-    pset::Registry::instance()->insertMapped(*this);
   }
 
   ParameterSet::~ParameterSet() {}
+
+  void
+  ParameterSet::registerFromString(std::string const& rep) {
+    // from coded string.  Will cause registration
+    cms::Digest dg(rep);
+    edm::ParameterSetID psID(dg.digest().toString());
+    edm::ParameterSet ps(rep, psID);
+    pset::Registry::instance()->insertMapped(ps);
+  }
 
   ParameterSet::ParameterSet(ParameterSet const& other)
   : tbl_(other.tbl_),
