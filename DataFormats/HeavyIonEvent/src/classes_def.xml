@@ -16,12 +16,7 @@
 </class>
 <class name="reco::VoronoiBackground" />
 <class name="edm::Wrapper<reco::VoronoiBackground>"/>
-<class name="edm::AssociationMap<edm::OneToValue<std::vector<reco::PFCandidate>, reco::VoronoiBackground, unsigned int> >" />
-<class name="edm::Wrapper<edm::AssociationMap<edm::OneToValue<std::vector<reco::PFCandidate>, reco::VoronoiBackground, unsigned int> > >" />
-<class name="edm::AssociationMap<edm::OneToValue<edm::View<reco::Candidate>, reco::VoronoiBackground, unsigned int> >" >
-<field name="transientMap_" transient="true" />
-</class>
-<class name="edm::Wrapper<edm::AssociationMap<edm::OneToValue<edm::View<reco::Candidate>, reco::VoronoiBackground, unsigned int> > >" />
-<class name="std::map<unsigned int, reco::VoronoiBackground>" />
+<class name="edm::ValueMap<reco::VoronoiBackground>" />
+<class name="edm::Wrapper<edm::ValueMap<reco::VoronoiBackground> >" />
 <class name="edm::Wrapper<pat::HeavyIon >" />
 </lcgdict>

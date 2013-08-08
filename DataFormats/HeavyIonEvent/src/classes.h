@@ -21,17 +21,9 @@ namespace {
 
      reco::VoronoiBackground vor;
      edm::Wrapper<reco::VoronoiBackground> wvor;
-     reco::VoronoiBackgroundMap vormap;
-     edm::Wrapper<reco::VoronoiBackgroundMap> wvormap;
 
-     edm::AssociationMap<edm::OneToValue<std::vector<reco::PFCandidate>, reco::VoronoiBackground, unsigned int > > y1;
-     edm::Wrapper<edm::AssociationMap<edm::OneToValue<std::vector<reco::PFCandidate>, reco::VoronoiBackground, unsigned int > > > y2;
-
-     edm::AssociationMap<edm::OneToValue<edm::View<reco::Candidate>, reco::VoronoiBackground, unsigned int > > y3;
-     edm::Wrapper<edm::AssociationMap<edm::OneToValue<edm::View<reco::Candidate>, reco::VoronoiBackground, unsigned int > > > y4;
-
-     reco::PFVoronoiBackgroundMap pfvormap;
-     edm::Wrapper<reco::PFVoronoiBackgroundMap> pfwvormap;
+     reco::VoronoiMap pfvorvmap;
+     edm::Wrapper<reco::VoronoiMap> pfwvorvmap;
 
      edm::Wrapper<pat::HeavyIon >              w_v_p_hi;
 

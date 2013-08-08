@@ -7,7 +7,7 @@
 
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
-#include "DataFormats/Common/interface/AssociationMap.h"
+#include "DataFormats/Common/interface/ValueMap.h"
 
 #include <string>
 #include <vector>
@@ -37,15 +37,8 @@ protected:
 
 };
 
-
- // typedef edm::AssociationMap<edm::OneToValue<reco::PFCandidateCollection, reco::VoronoiBackground> > VoronoiBackgroundMap;
- // typedef edm::AssociationMap<edm::OneToValue<reco::CandidateCollection, reco::VoronoiBackground> > VoronoiBackgroundMap;
-
- typedef edm::AssociationMap<edm::OneToValue<reco::CandidateView, reco::VoronoiBackground> > VoronoiBackgroundMap;
- typedef edm::AssociationMap<edm::OneToValue<reco::PFCandidateCollection, reco::VoronoiBackground> > PFVoronoiBackgroundMap;
-
+ typedef edm::ValueMap<reco::VoronoiBackground> VoronoiMap;
  typedef edm::Ref<reco::CandidateView> CandidateViewRef;
-
 
 
 }
