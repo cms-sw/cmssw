@@ -14,8 +14,8 @@
  *   path p = { comparator }
  *
  *
- *  $Date: 2010/01/04 18:24:37 $
- *  $Revision: 1.10 $
+ *  $Date: 2012/11/05 10:58:06 $
+ *  $Revision: 1.13 $
  *  \author Nhan Tran
  *
  * ********
@@ -105,8 +105,8 @@ private:
 	// configurables
 	std::string _inputFilename1;
 	std::string _inputFilename2;
-	std::string _inputTreename1;
-	std::string _inputTreename2;
+	std::string _inputTreenameAlign;
+	std::string _inputTreenameDeform;
 	bool _writeToDB; 
 	std::string _weightBy;
 	std::string _setCommonTrackerSystem;
@@ -151,9 +151,6 @@ private:
 	double m_rangeHigh ; 
 	
 	bool firstEvent_;
-
-	TkHistoMap* m_tkhisto; 
-	TrackerMap* m_tkmap; 
 
 	std::vector<TrackerMap> m_vtkmap; 
 
