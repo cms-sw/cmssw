@@ -76,6 +76,14 @@ private:
 	std::string m_outputFile;
 	std::string m_outputTreename;
 	TFile *m_file;
+
+  int m_ROWS_PER_ROC;
+  int m_COLS_PER_ROC;
+  int m_BIG_PIX_PER_ROC_X;
+  int m_BIG_PIX_PER_ROC_Y;
+  int m_ROCS_X;
+  int m_ROCS_Y;
+  bool m_upgradeGeometry;
 };
 
 //
@@ -105,7 +113,14 @@ TrackerGeometryIntoNtuples::TrackerGeometryIntoNtuples(const edm::ParameterSet& 
 	//snprintf(errorTreeName, sizeof(errorTreeName), "%sErrors", m_outputTreename);
 	//m_treeErrors = new TTree(errorTreeName,errorTreeName);
 	m_treeErrors = new TTree("alignTreeErrors","alignTreeErrors");
-	
+
+	m_ROWS_PER_ROC  = iConfig.getUntrackedParameter<int>( "ROWS_PER_ROC", m_ROWS_PER_ROC );
+	m_COLS_PER_ROC  = iConfig.getUntrackedParameter<int>( "COLS_PER_ROC", m_COLS_PER_ROC );
+	m_BIG_PIX_PER_ROC_X = iConfig.getUntrackedParameter<int>( "BIG_PIX_PER_ROC_X", m_BIG_PIX_PER_ROC_X );
+	m_BIG_PIX_PER_ROC_Y = iConfig.getUntrackedParameter<int>( "BIG_PIX_PER_ROC_Y", m_BIG_PIX_PER_ROC_Y );
+	m_ROCS_X = iConfig.getUntrackedParameter<int>( "ROCS_X", m_ROCS_X );
+	m_ROCS_Y = iConfig.getUntrackedParameter<int>( "ROCS_Y", m_ROCS_Y );
+	m_upgradeGeometry = iConfig.getUntrackedParameter<bool>( "upgradeGeometry", m_upgradeGeometry );	
 }
 
 
@@ -129,7 +144,13 @@ void TrackerGeometryIntoNtuples::analyze(const edm::Event& iEvent, const edm::Ev
 	iSetup.get<IdealGeometryRecord>().get(theGeometricDet);
 	TrackerGeomBuilderFromGeometricDet trackerBuilder;
 	//currernt tracker
-	TrackerGeometry* theCurTracker = trackerBuilder.build(&*theGeometricDet); 
+	TrackerGeometry* theCurTracker = trackerBuilder.build(&*theGeometricDet,
+							      m_upgradeGeometry,
+							      m_ROWS_PER_ROC,
+							      m_COLS_PER_ROC,
+							      m_BIG_PIX_PER_ROC_X,
+							      m_BIG_PIX_PER_ROC_Y,
+							      m_ROCS_X, m_ROCS_Y ); 
 	
 	
 	//build the tracker

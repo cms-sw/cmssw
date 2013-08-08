@@ -124,7 +124,15 @@ private:
 	float _surWidth, _surLength;
 	uint32_t _identifiers[6];
 	double _surRot[9];
-	
+
+  int m_ROWS_PER_ROC;
+  int m_COLS_PER_ROC;
+  int m_BIG_PIX_PER_ROC_X;
+  int m_BIG_PIX_PER_ROC_Y;
+  int m_ROCS_X;
+  int m_ROCS_Y;
+  bool m_upgradeGeometry;
+
 	bool firstEvent_;
 	
 };
