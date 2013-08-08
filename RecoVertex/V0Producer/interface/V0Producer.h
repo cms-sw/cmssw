@@ -52,7 +52,7 @@ private:
   virtual void endJob() ;
 
   edm::ParameterSet theParams;
-      
+  V0Fitter * theVees;      
 };
 
 #endif

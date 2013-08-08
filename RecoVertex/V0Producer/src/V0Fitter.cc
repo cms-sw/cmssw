@@ -45,7 +45,6 @@ const double lambdaMass = 1.115683;
 
 // Constructor and (empty) destructor
 V0Fitter::V0Fitter(const edm::ParameterSet& theParameters,
-		   const edm::Event& iEvent, const edm::EventSetup& iSetup,
 		   edm::ConsumesCollector && iC) {
   using std::string;
 
@@ -91,7 +90,6 @@ V0Fitter::V0Fitter(const edm::ParameterSet& theParameters,
 
   //std::cout << "Entering V0Producer" << std::endl;
 
-  fitAll(iEvent, iSetup);
 
   // FOR DEBUG:
   //cleanupFileOutput();
@@ -110,6 +108,9 @@ void V0Fitter::fitAll(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   using std::endl;
   using namespace reco;
   using namespace edm;
+
+  theKshorts.clear();
+  theLambdas.clear();
 
   // Create std::vectors for Tracks and TrackRefs (required for
   //  passing to the KalmanVertexFitter)
