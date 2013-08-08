@@ -1,9 +1,6 @@
 #include <sstream>
 #include <TMath.h>
 #include "DQM/RPCMonitorDigi/interface/RPCRecHitProbability.h"
-///Data Format
-#include "DataFormats/Scalers/interface/DcsStatus.h"
-#include "DataFormats/MuonReco/interface/Muon.h"
 //Geometry
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
@@ -19,10 +16,11 @@ RPCRecHitProbability::RPCRecHitProbability( const edm::ParameterSet& pset ):coun
   saveRootFile  = pset.getUntrackedParameter<bool>("SaveRootFile", false); 
   RootFileName  = pset.getUntrackedParameter<std::string>("RootFileName", "RPCRecHitProbabilityDQM.root"); 
 
-  muonLabel_ = pset.getParameter<edm::InputTag>("MuonLabel");
+  muonLabel_ =consumes<reco::CandidateView>(pset.getParameter<edm::InputTag>("MuonLabel"));
   muPtCut_  = pset.getUntrackedParameter<double>("MuonPtCut", 3.0); 
   muEtaCut_ = pset.getUntrackedParameter<double>("MuonEtaCut", 1.9); 
- 
+  scalersRawToDigiLabel_  = consumes<DcsStatusCollection>(pset.getParameter<edm::InputTag>("ScalersRawToDigiLabel"));
+
   subsystemFolder_ = pset.getUntrackedParameter<std::string>("RPCFolder", "RPC");
   globalFolder_ = pset.getUntrackedParameter<std::string>("GlobalFolder", "SummaryHistograms");
   muonFolder_ = pset.getUntrackedParameter<std::string>("MuonFolder", "Muon");
@@ -148,7 +146,7 @@ void RPCRecHitProbability::analyze(const edm::Event& event,const edm::EventSetup
  
   //Muons
   edm::Handle<reco::CandidateView> muonCands;
-  event.getByLabel(muonLabel_, muonCands);
+  event.getByToken(muonLabel_, muonCands);
    std::map<RPCDetId  , std::vector<RPCRecHit> > rechitMuon;
 
   if(muonCands.isValid()){
@@ -226,7 +224,8 @@ void  RPCRecHitProbability::makeDcsInfo(const edm::Event& e) {
 
   edm::Handle<DcsStatusCollection> dcsStatus;
 
-  if ( ! e.getByLabel("scalersRawToDigi", dcsStatus) ){
+
+  if ( ! e.getByToken(scalersRawToDigiLabel_, dcsStatus) ){
     dcs_ = true;
     return;
   }

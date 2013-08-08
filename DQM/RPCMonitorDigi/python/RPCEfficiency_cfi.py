@@ -16,7 +16,7 @@ rpcEfficiency = cms.EDAnalyzer("RPCEfficiency",
                                dt4DSegments = cms.InputTag('dt4DSegments'),
                                RecHitLabel = cms.InputTag('rpcRecHits'),
                                EffSaveRootFile = cms.untracked.bool(False),
-                               EffRootFileName = cms.untracked.string('/tmp/carrillo/RPCEfficiencyFIRST.root'),
+                               EffRootFileName = cms.untracked.string('/tmp/cimmino/RPCEfficiencyFIRST.root'),
                                EffSaveRootFileEventsInterval = cms.untracked.int32(100)
                                )
 

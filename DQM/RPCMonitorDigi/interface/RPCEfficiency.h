@@ -15,28 +15,24 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
-#include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/RPCRecHit/interface/RPCRecHitCollection.h"
+#include <DataFormats/DTRecHit/interface/DTRecSegment4DCollection.h>
+#include <DataFormats/CSCRecHit/interface/CSCSegmentCollection.h>
+
+
+
 
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 
 #include <DataFormats/MuonDetId/interface/RPCDetId.h>
-#include "FWCore/Framework/interface/ESHandle.h"
+
 #include <Geometry/RPCGeometry/interface/RPCGeometry.h>
 #include "Geometry/DTGeometry/interface/DTGeometry.h"
 #include <Geometry/CSCGeometry/interface/CSCGeometry.h>
 
 #include<string>
 #include<map>
-//#include<fstream>
-
-//class RPCDetId;
-/* class TFile; */
-/* class TH1F; */
-/* class TFile; */
-/* class TCanvas; */
-/* class TH2F; */
-/* class TString; */
 
 
 class DTStationIndex{
@@ -171,13 +167,11 @@ class RPCEfficiency : public edm::EDAnalyzer {
       double MaxDrb4;
       int dupli;
   
-    //      std::string muonRPCDigis;
-      edm::InputTag cscSegments;
-      edm::InputTag dt4DSegments;
-      edm::InputTag RPCRecHitLabel_;
-
-      std::string folderPath;
-      //   std::string rejected;
+      edm::EDGetTokenT<CSCSegmentCollection> cscSegments;
+      edm::EDGetTokenT<DTRecSegment4DCollection> dt4DSegments;
+      edm::EDGetTokenT<RPCRecHitCollection>    RPCRecHitLabel_;
+      
+       std::string folderPath;
       std::string rollseff;
       
       std::map<int, std::map<std::string, MonitorElement*> >  meCollection;
