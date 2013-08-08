@@ -311,7 +311,8 @@ namespace edm {
     ModuleDescription md(main_input->id(),
                          main_input->getParameter<std::string>("@module_type"),
                          "source",
-                         processConfiguration.get());
+                         processConfiguration.get(),
+                         ModuleDescription::getUniqueID());
 
     InputSourceDescription isdesc(md, preg, branchIDListHelper, areg, common.maxEventsInput_, common.maxLumisInput_);
     areg->preSourceConstructionSignal_(md);
