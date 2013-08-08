@@ -13,7 +13,7 @@
 //
 // Original Author:  Nhan Tran
 //         Created:  Mon Jul 16m 16:56:34 CDT 2007
-// $Id: TrackerGeometryIntoNtuples.cc,v 1.8 2011/12/20 15:11:41 mussgill Exp $
+// $Id: TrackerGeometryIntoNtuples.cc,v 1.9 2012/06/13 09:20:14 yana Exp $
 //
 //
 
@@ -77,13 +77,7 @@ private:
 	std::string m_outputTreename;
 	TFile *m_file;
 
-  int m_ROWS_PER_ROC;
-  int m_COLS_PER_ROC;
-  int m_BIG_PIX_PER_ROC_X;
-  int m_BIG_PIX_PER_ROC_Y;
-  int m_ROCS_X;
-  int m_ROCS_Y;
-  bool m_upgradeGeometry;
+  const edm::ParameterSet theParameterSet;
 };
 
 //
@@ -103,7 +97,8 @@ TrackerGeometryIntoNtuples::TrackerGeometryIntoNtuples(const edm::ParameterSet& 
   m_x(0.), m_y(0.), m_z(0.),
   m_alpha(0.), m_beta(0.), m_gamma(0.),
   m_subdetid(0),
-  m_xx(0.), m_xy(0.), m_yy(0.), m_xz(0.), m_yz(0.), m_zz(0.)
+  m_xx(0.), m_xy(0.), m_yy(0.), m_xz(0.), m_yz(0.), m_zz(0.),
+  theParameterSet( iConfig )
 {
 	m_outputFile = iConfig.getUntrackedParameter< std::string > ("outputFile");
 	m_outputTreename = iConfig.getUntrackedParameter< std::string > ("outputTreename");
@@ -113,14 +108,6 @@ TrackerGeometryIntoNtuples::TrackerGeometryIntoNtuples(const edm::ParameterSet& 
 	//snprintf(errorTreeName, sizeof(errorTreeName), "%sErrors", m_outputTreename);
 	//m_treeErrors = new TTree(errorTreeName,errorTreeName);
 	m_treeErrors = new TTree("alignTreeErrors","alignTreeErrors");
-
-	m_ROWS_PER_ROC  = iConfig.getUntrackedParameter<int>( "ROWS_PER_ROC", m_ROWS_PER_ROC );
-	m_COLS_PER_ROC  = iConfig.getUntrackedParameter<int>( "COLS_PER_ROC", m_COLS_PER_ROC );
-	m_BIG_PIX_PER_ROC_X = iConfig.getUntrackedParameter<int>( "BIG_PIX_PER_ROC_X", m_BIG_PIX_PER_ROC_X );
-	m_BIG_PIX_PER_ROC_Y = iConfig.getUntrackedParameter<int>( "BIG_PIX_PER_ROC_Y", m_BIG_PIX_PER_ROC_Y );
-	m_ROCS_X = iConfig.getUntrackedParameter<int>( "ROCS_X", m_ROCS_X );
-	m_ROCS_Y = iConfig.getUntrackedParameter<int>( "ROCS_Y", m_ROCS_Y );
-	m_upgradeGeometry = iConfig.getUntrackedParameter<bool>( "upgradeGeometry", m_upgradeGeometry );	
 }
 
 
@@ -144,14 +131,15 @@ void TrackerGeometryIntoNtuples::analyze(const edm::Event& iEvent, const edm::Ev
 	iSetup.get<IdealGeometryRecord>().get(theGeometricDet);
 	TrackerGeomBuilderFromGeometricDet trackerBuilder;
 	//currernt tracker
+	const edm::ParameterSet tkGeomConsts( theParameterSet.getParameter<edm::ParameterSet>( "trackerGeometryConstants" ));
 	TrackerGeometry* theCurTracker = trackerBuilder.build(&*theGeometricDet,
-							      m_upgradeGeometry,
-							      m_ROWS_PER_ROC,
-							      m_COLS_PER_ROC,
-							      m_BIG_PIX_PER_ROC_X,
-							      m_BIG_PIX_PER_ROC_Y,
-							      m_ROCS_X, m_ROCS_Y ); 
-	
+							      tkGeomConsts.getParameter<bool>("upgradeGeometry"),
+							      tkGeomConsts.getParameter<int>( "ROWS_PER_ROC" ),
+							      tkGeomConsts.getParameter<int>( "COLS_PER_ROC" ),
+							      tkGeomConsts.getParameter<int>( "BIG_PIX_PER_ROC_X" ),
+							      tkGeomConsts.getParameter<int>( "BIG_PIX_PER_ROC_Y" ),
+							      tkGeomConsts.getParameter<int>( "ROCS_X" ),
+							      tkGeomConsts.getParameter<int>( "ROCS_Y" ));
 	
 	//build the tracker
 	edm::ESHandle<Alignments> alignments;
