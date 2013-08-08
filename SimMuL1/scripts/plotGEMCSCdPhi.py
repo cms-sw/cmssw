@@ -89,7 +89,7 @@ def plotGEMCSCdPhi(filesDir, plotDir, oddEven = "even", ext = ".png"):
     dphi_pt20.Draw();
     dphi_pt5.Draw("same");
 
-    legend = TLegend(.4,.5,.7,.7);
+    legend = TLegend(.4,.45,.7,.7);
     legend.SetFillColor(kWhite);
     legend.SetFillStyle(0);
     legend.SetBorderSize(0);
@@ -105,7 +105,7 @@ def plotGEMCSCdPhi(filesDir, plotDir, oddEven = "even", ext = ".png"):
     tex.SetNDC()
     tex.Draw("same")
 
-    tex2 = TLatex(.22,.85,'L1 Trigger')
+    tex2 = TLatex(.22,.85,'   L1 Trigger')
     tex2.SetTextSize(0.06)
     tex2.SetNDC()
     tex2.Draw("same")
