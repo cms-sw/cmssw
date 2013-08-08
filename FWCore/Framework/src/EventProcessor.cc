@@ -584,6 +584,9 @@ namespace edm {
    
     ROOT::Cintex::Cintex::Enable();
 
+    // register the empty parameter set, once and for all.
+    ParameterSet().registerIt();
+
     boost::shared_ptr<ParameterSet> parameterSet = processDesc->getProcessPSet();
     //std::cerr << parameterSet->dump() << std::endl;
 
