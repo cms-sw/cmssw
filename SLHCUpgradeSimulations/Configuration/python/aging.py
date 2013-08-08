@@ -62,6 +62,7 @@ def agePixel(process,lumi):
             process.mix.digitizers.pixel.thePixelPseudoRadDamage_BPix4 = cms.double(0.)
             process.mix.digitizers.pixel.thePixelPseudoRadDamage_FPix1 = cms.double(0.)
             process.mix.digitizers.pixel.thePixelPseudoRadDamage_FPix2 = cms.double(0.)
+            process.mix.digitizers.pixel.thePixelPseudoRadDamage_FPix3 = cms.double(0.)
 
     return process    
 
