@@ -42,6 +42,8 @@ class SiStripMonitorDigi : public edm::EDAnalyzer {
   virtual void beginLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&);
   virtual void endLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&);
 
+  std::string topFolderName_;
+
   struct ModMEs{
 	
     MonitorElement* NumberOfDigis;

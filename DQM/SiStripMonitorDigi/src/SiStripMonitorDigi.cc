@@ -54,6 +54,8 @@ SiStripMonitorDigi::SiStripMonitorDigi(const edm::ParameterSet& iConfig) : dqmSt
   SubDetPhasePartMap["TEC__side__1"] = "TM";
   SubDetPhasePartMap["TEC__side__2"] = "TP";
 
+  topFolderName_ = conf_.getParameter<std::string>("TopFolderName");
+
   // get Digi Producer List   
   digiProducerList = conf_.getParameter<std::vector<edm::InputTag> >("DigiProducersList");
   for (auto const& tag : digiProducerList) {
@@ -242,7 +244,7 @@ void SiStripMonitorDigi::beginLuminosityBlock(const edm::LuminosityBlock& lb, co
 void SiStripMonitorDigi::endLuminosityBlock(const edm::LuminosityBlock& lb, const edm::EventSetup& es) {
 
   if (subdetswitchtotdigifailureon){
-    MonitorElement * me = dqmStore_->get("SiStrip/MechanicalView/NumberOfDigisInLastLS");     
+    MonitorElement * me = dqmStore_->get(topFolderName_+"/MechanicalView/NumberOfDigisInLastLS");     
     if (me) {
       
       for (int ibin = 1; ibin<7;ibin++){
@@ -293,10 +295,10 @@ void SiStripMonitorDigi::createMEs(const edm::EventSetup& es){
 
     // Create TkHistoMap for Digi and APV shots properies
     
-    if (digitkhistomapon) tkmapdigi = new TkHistoMap("SiStrip/TkHisto","TkHMap_NumberOfDigi",0.0,1);
-    if (shotshistomapon)  tkmapNApvshots = new TkHistoMap("SiStrip/TkHisto","TkHMap_NApvShots",0.0,1);
-    if (shotsstripshistomapon) tkmapNstripApvshot= new TkHistoMap("SiStrip/TkHisto","TkHMap_NStripApvShots",0.0,1);
-    if (shotschargehistomapon) tkmapMedianChargeApvshots= new TkHistoMap("SiStrip/TkHisto","TkHMap_MedianChargeApvShots",0.0,1);
+    if (digitkhistomapon)      tkmapdigi                = new TkHistoMap(topFolderName_,"TkHMap_NumberOfDigi",        0.0,true);
+    if (shotshistomapon)       tkmapNApvshots           = new TkHistoMap(topFolderName_,"TkHMap_NApvShots",           0.0,true);
+    if (shotsstripshistomapon) tkmapNstripApvshot       = new TkHistoMap(topFolderName_,"TkHMap_NStripApvShots",      0.0,true);
+    if (shotschargehistomapon) tkmapMedianChargeApvshots= new TkHistoMap(topFolderName_,"TkHMap_MedianChargeApvShots",0.0,true);
     
     std::vector<uint32_t> tibDetIds;
     
@@ -369,7 +371,7 @@ void SiStripMonitorDigi::createMEs(const edm::EventSetup& es){
 
     //book some Summary histograms on APV shots in the MechanicalView
 
-    dqmStore_->setCurrentFolder("SiStrip/MechanicalView/");
+    dqmStore_->setCurrentFolder(topFolderName_+"/MechanicalView/");
 
     if (globalsummaryapvshotson) {
       const char* HistoName = "Summary Mean Apv shots for SubDets";
