@@ -48,9 +48,9 @@ GeometryConf={
     }
 
 FastSimGeometryConf={
-    'MC': 'FastSimulation/Configuration/Geometries_MC_cff',
-    'STARTUP': 'FastSimulation/Configuration/Geometries_START_cff',
-    'Phase1' : 'FastSimulation/Configuration/Geometries_cff',
-    'Phase2' : 'FastSimulation/Configuration/Geometriesph2_cff',
-    'Phase2Forward' : 'FastSimulation/Configuration/Geometriesph2Forward_cff',
+    'MC'                        : 'FastSimulation/Configuration/Geometries_MC_cff',
+    'STARTUP'                   : 'FastSimulation/Configuration/Geometries_START_cff',
+    'Extended2017'              : 'FastSimulation/Configuration/GeometriesExtended2017_cff',
+    'ExtendedPhase2TkBE'        : 'FastSimulation/Configuration/GeometriesExtendedPhase2TkBE_cff',
+    'ExtendedPhase2TkBEForward' : 'FastSimulation/Configuration/GeometriesExtendedPhase2TkBEForward_cff',
     }

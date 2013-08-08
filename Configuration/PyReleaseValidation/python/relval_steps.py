@@ -1430,7 +1430,56 @@ steps['TTbarFSPU']=merge([PUFS,steps['TTbarFS']])
 steps['TTbarFSPU2']=merge([PUFS2,steps['TTbarFS']])
 ##########################
 
+#### fastsim section for phase2 ####
+##no forseen to do things in two steps GEN-SIM then FASTIM->end: maybe later
+step1FastDefaultsP1 =merge([{'-s':'GEN,SIM,RECO,VALIDATION',
+                           '--eventcontent':'FEVTDEBUGHLT,DQM',
+                           '--datatier':'GEN-SIM-DIGI-RECO,DQM',
+                           '--conditions':'auto:upgradePLS3', 
+			   '--fast':'',
+			   '--geometry' : 'Extended2017',
+			   '--customise' : 'SLHCUpgradeSimulations/Configuration/combinedCustoms.fastsimDefault',
+                           '--relval':'27000,3000'},
+                          step1Defaults])
 
+steps['TTbarFSP1']=merge([{'cfg':'TTbar_Tauola_14TeV_cfi'},Kby(100,1000),step1FastDefaultsP1])
+steps['SingleMuPt1FSP1']=merge([{'cfg':'SingleMuPt1_cfi'},step1FastDefaultsP1])
+steps['SingleMuPt10FSP1']=merge([{'cfg':'SingleMuPt10_cfi'},step1FastDefaultsP1])
+steps['SingleMuPt100FSP1']=merge([{'cfg':'SingleMuPt100_cfi'},step1FastDefaultsP1])
+steps['MinBias_TuneZ2starFSP1']=merge([{'cfg':'MinBias_TuneZ2star_14TeV_pythia6_cff'},step1FastDefaultsP1])
+
+step1FastDefaultsP2 =merge([{'-s':'GEN,SIM,RECO,VALIDATION',
+                           '--eventcontent':'FEVTDEBUGHLT,DQM',
+                           '--datatier':'GEN-SIM-DIGI-RECO,DQM',
+			   '--fast':'',
+                           '--conditions':'auto:upgradePLS3', 
+			   '--geometry' : 'ExtendedPhase2TkBE',
+			   '--customise' : 'SLHCUpgradeSimulations/Configuration/combinedCustoms.fastsimPhase2',
+                           '--relval':'27000,3000'},
+                          step1Defaults])
+
+steps['TTbarFSP2']=merge([{'cfg':'TTbar_Tauola_14TeV_cfi'},Kby(100,1000),step1FastDefaultsP2])
+steps['SingleMuPt1FSP2']=merge([{'cfg':'SingleMuPt1_cfi'},step1FastDefaultsP2])
+steps['SingleMuPt10FSP2']=merge([{'cfg':'SingleMuPt10_cfi'},step1FastDefaultsP2])
+steps['SingleMuPt100FSP2']=merge([{'cfg':'SingleMuPt100_cfi'},step1FastDefaultsP2])
+steps['MinBias_TuneZ2starFSP2']=merge([{'cfg':'MinBias_TuneZ2star_14TeV_pythia6_cff'},step1FastDefaultsP2])
+
+
+step1FastDefaultsP2Forw =merge([{'-s':'GEN,SIM,RECO,VALIDATION',
+                           '--eventcontent':'FEVTDEBUGHLT,DQM',
+                           '--datatier':'GEN-SIM-DIGI-RECO,DQM',
+                           '--conditions':'auto:upgradePLS3', 
+			   '--geometry' : 'ExtendedPhase2TkBEForward',
+			   '--fast':'',
+			   '--customise' : 'SLHCUpgradeSimulations/Configuration/combinedCustoms.fastsimDefault',
+                           '--relval':'27000,3000'},
+                          step1Defaults])
+
+steps['TTbarFSP2Forw']=merge([{'cfg':'TTbar_Tauola_14TeV_cfi'},Kby(100,1000),step1FastDefaultsP2Forw])
+steps['SingleMuPt1FSP2Forw']=merge([{'cfg':'SingleMuPt1_cfi'},step1FastDefaultsP2Forw])
+steps['SingleMuPt10FSP2Forw']=merge([{'cfg':'SingleMuPt10_cfi'},step1FastDefaultsP2Forw])
+steps['SingleMuPt100FSP2Forw']=merge([{'cfg':'SingleMuPt100_cfi'},step1FastDefaultsP2Forw])
+steps['MinBias_TuneZ2starFSP2Forw']=merge([{'cfg':'MinBias_TuneZ2star_14TeV_pythia6_cff'},step1FastDefaultsP2Forw])
 
 # step2 
 step2Defaults = { 
@@ -2954,6 +3003,27 @@ steps['HARVESTUP193000']={'-s':'HARVESTING:validationHarvesting+dqmHarvesting',
                    '--customise' : 'SLHCUpgradeSimulations/Configuration/phase1TkCustoms.customise',
 		   '--geometry' : 'Extended2019'
                    }
+		   
+		   
+#fastsim upgrade
+	   
+steps['HARVESTFSP1']={'-s':'HARVESTING:validationHarvestingFS',
+                   '--conditions':'auto:upgradePLS3',
+                   '--mc':'',
+		   '--geometry' : 'Extended2017',
+                   '--scenario':'pp'}
+		   
+steps['HARVESTFSP2']={'-s':'HARVESTING:validationHarvestingFS',
+                   '--conditions':'auto:upgradePLS3',
+                   '--mc':'',
+		   '--geometry' : 'ExtendedPhase2TkBE',
+                   '--scenario':'pp'}
+steps['HARVESTFSP2Forw']={'-s':'HARVESTING:validationHarvestingFS',
+                   '--conditions':'auto:upgradePLS3',
+                   '--mc':'',
+		   '--geometry' : 'ExtendedPhase2TkBEForward',
+                   '--scenario':'pp'}
+		   
 		   
 		   
 steps['ALCASPLIT']={'-s':'ALCAOUTPUT:@allForPrompt',
