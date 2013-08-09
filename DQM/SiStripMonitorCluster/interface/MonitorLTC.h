@@ -23,6 +23,9 @@
 
 class DQMStore;
 
+#include "DataFormats/LTCDigi/interface/LTCDigi.h"
+
+
 class MonitorLTC : public edm::EDAnalyzer {
    public:
       explicit MonitorLTC(const edm::ParameterSet&);
@@ -37,7 +40,8 @@ class MonitorLTC : public edm::EDAnalyzer {
        MonitorElement * LTCTriggerDecision_all;
        //
        std::string HLTDirectory;
-       edm::InputTag ltcDigiCollectionTag_;
+       //       edm::InputTag ltcDigiCollectionTag_;
+       edm::EDGetTokenT<LTCDigiCollection> ltcDigiCollectionTagToken_;
 };
 
 #endif

@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2012/10/16 08:42:39 $
- *  $Revision: 1.2 $
+ *  $Date: 2012/10/16 10:07:41 $
+ *  $Revision: 1.3 $
  *  \author Suchandra Dutta , Giorgia Mila
  */
 
@@ -18,7 +18,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQM/TrackingMonitor/interface/TrackAnalyzer.h"
+//#include "DQM/TrackingMonitor/interface/TrackAnalyzer.h"
 #include "DQM/TrackingMonitor/interface/TrackSplittingMonitor.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -30,9 +30,6 @@
 #include "TrackingTools/PatternTools/interface/TSCPBuilderNoMaterial.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 #include <string>
-
-#include "DataFormats/MuonReco/interface/Muon.h"
-#include "DataFormats/MuonReco/interface/MuonFwd.h"
 
 TrackSplittingMonitor::TrackSplittingMonitor(const edm::ParameterSet& iConfig) {
 	dqmStore_ = edm::Service<DQMStore>().operator->();
@@ -51,6 +48,9 @@ void TrackSplittingMonitor::beginJob(void) {
   splitTracks_ = conf_.getParameter< edm::InputTag >("splitTrackCollection");
   splitMuons_ = conf_.getParameter< edm::InputTag >("splitMuonCollection");
   plotMuons_ = conf_.getParameter<bool>("ifPlotMuons");
+
+  splitTracksToken_ = consumes<std::vector<reco::Track> >(splitTracks_);
+  splitMuonsToken_  = mayConsume<std::vector<reco::Muon> >(splitMuons_);
   
   // cuts
   pixelHitsPerLeg_ = conf_.getParameter<int>("pixelHitsPerLeg");
@@ -166,12 +166,14 @@ void TrackSplittingMonitor::analyze(const edm::Event& iEvent, const edm::EventSe
   iSetup.get<MuonGeometryRecord>().get(rpcGeometry);
   
   edm::Handle<std::vector<reco::Track> > splitTracks;
-  iEvent.getByLabel(splitTracks_, splitTracks);
+  //  iEvent.getByLabel(splitTracks_, splitTracks);
+  iEvent.getByToken(splitTracksToken_, splitTracks);
   if (!splitTracks.isValid()) return;
 
   edm::Handle<std::vector<reco::Muon> > splitMuons;
   if (plotMuons_){
-    iEvent.getByLabel(splitMuons_, splitMuons);
+    //    iEvent.getByLabel(splitMuons_, splitMuons);
+    iEvent.getByToken(splitMuonsToken_, splitMuons);
   }
   
   if (splitTracks->size() == 2){
