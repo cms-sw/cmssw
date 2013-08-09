@@ -1820,7 +1820,7 @@ std::vector<PrimaryVertexAnalyzer4PU::simPrimaryVertex> PrimaryVertexAnalyzer4PU
 
 
 double
-PrimaryVertexAnalyzer4PU::getTrueSeparation(float in_z, vector<float> simpv)
+PrimaryVertexAnalyzer4PU::getTrueSeparation(float in_z, const vector<float> & simpv)
 {
 
   double sepL_min = 50.;
@@ -1843,7 +1843,7 @@ PrimaryVertexAnalyzer4PU::getTrueSeparation(float in_z, vector<float> simpv)
 
 
 double
-PrimaryVertexAnalyzer4PU::getTrueSeparation(SimEvent inEv, vector<SimEvent> simEv)
+PrimaryVertexAnalyzer4PU::getTrueSeparation(SimEvent inEv, vector<SimEvent> & simEv)
 {
 
   EncodedEventId in_ev = inEv.eventId;
@@ -1876,13 +1876,13 @@ PrimaryVertexAnalyzer4PU::getTrueSeparation(SimEvent inEv, vector<SimEvent> simE
 
 } 
 
-vector<int> 
-PrimaryVertexAnalyzer4PU::vertex_match(float in_z, edm::Handle<reco::VertexCollection> vCH)
+vector<int>* 
+PrimaryVertexAnalyzer4PU::vertex_match(float in_z, const edm::Handle<reco::VertexCollection> vCH)
 {
 
   double zmatch_ = 3.;
 
-  vector<int> matchs;
+  vector<int>* matchs = new vector<int>();
   
   for(unsigned vtx_idx=0; vtx_idx<vCH->size(); ++vtx_idx){
 
@@ -1895,7 +1895,7 @@ PrimaryVertexAnalyzer4PU::vertex_match(float in_z, edm::Handle<reco::VertexColle
     double z_rel = z_dist / comp_z_err;
      
     if ( fabs(z_rel)<zmatch_ ) {
-      matchs.push_back(vtx_idx);
+      matchs->push_back(vtx_idx);
     }
   
   }
@@ -2940,7 +2940,7 @@ void PrimaryVertexAnalyzer4PU::analyzeVertexCollection(std::map<std::string, TH1
 						 const Handle<reco::VertexCollection> recVtxs,
 						 const Handle<reco::TrackCollection> recTrks, 
 						 std::vector<simPrimaryVertex> & simpv, 
-						 std::vector<float> pui_z,
+						 const std::vector<float> & pui_z,
 						 const std::string message)
 {
   //cout <<"PrimaryVertexAnalyzer4PU::analyzeVertexCollection (HepMC), simpvs=" << simpv.size() << endl;
@@ -3669,14 +3669,14 @@ void PrimaryVertexAnalyzer4PU::analyzeVertexCollection(std::map<std::string, TH1
       double dreco = 0.;
       double dsimed = 0.;
       
-      vector<int> matchedV = vertex_match(sv, recVtxs);
-      unsigned numMatchs = matchedV.size();
+      vector<int>* matchedV = vertex_match(sv, recVtxs);
+      unsigned numMatchs = matchedV->size();
       
       bool dsflag = false;
       
       for (unsigned i=0;i<used_indizesV.size(); i++) {   
         for (unsigned j=0;j<numMatchs; j++) {   
-          if ( used_indizesV.at(i)==matchedV.at(j) ) {
+          if ( used_indizesV.at(i)==matchedV->at(j) ) {
             dsflag = true;
             break;
           }
@@ -3689,10 +3689,10 @@ void PrimaryVertexAnalyzer4PU::analyzeVertexCollection(std::map<std::string, TH1
       if ( ( numMatchs>0 ) && ( !dsflag ) ) effwod = 1.;       
       
       for (unsigned i=0;i<numMatchs; i++) {
-        used_indizesV.push_back(matchedV.at(i));
+        used_indizesV.push_back(matchedV->at(i));
       }
       
-      float sep = getTrueSeparation(sv,pui_z);
+      float sep = getTrueSeparation(sv, pui_z);
    
       Fill(h,"effvszsep", sep, eff);
       Fill(h,"effwodvszsep", sep, effwod);
