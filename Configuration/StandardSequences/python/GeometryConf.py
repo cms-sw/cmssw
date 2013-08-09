@@ -18,6 +18,7 @@ GeometryConf={
     'ExtendedPhase2TkBE'   : 'ExtendedPhase2TkBE,ExtendedPhase2TkBEReco',
     'ExtendedPhase2TkLB_6PS'   : 'ExtendedPhase2TkLB6PS,ExtendedPhase2TkLB6PSReco',
     'ExtendedPhase2TkLB_4LPS_2L2S'   : 'ExtendedPhase2TkLB4LPS_2L2S,ExtendedPhase2TkLB4LPS_2L2SReco',
+    'ExtendedPhaseIIPixelForward'    : 'ExtendedPhaseIIPixelForward,ExtendedPhaseIIPixelForwardReco',
     'ExtendedGFlash' : 'ExtendedGFlash,ExtendedGFlashReco',
     'ExtendedLiMax'  : 'ExtendedLiMax,ExtendedLiMaxReco',
     'ExtendedLiMin'  : 'ExtendedLiMin,ExtendedLiMinReco',
