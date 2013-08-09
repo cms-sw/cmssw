@@ -9,7 +9,8 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Utilities/interface/InputTag.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "DataFormats/BeamSpot/interface/BeamSpot.h"
 
   /**
    * This is a very simple test analyzer to test the update of a track with
@@ -28,6 +29,7 @@ public:
 
 private:
 
-  edm::InputTag trackLabel_, beamSpotLabel;
+  edm::EDGetTokenT<reco::TrackCollection>	 token_tracks; 
+  edm::EDGetTokenT<reco::BeamSpot> 	 token_beamSpot; 
 
 };

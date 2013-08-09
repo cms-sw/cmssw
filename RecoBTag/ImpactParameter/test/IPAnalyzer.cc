@@ -60,9 +60,9 @@ class IPAnalyzer : public edm::EDAnalyzer {
       virtual void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup);
 
    private:
-     edm::InputTag m_ipassoc;
      edm::InputTag m_assoc;
      edm::InputTag m_jets;
+     edm::EDGetTokenT<reco::TrackIPTagInfoCollection> token_ipassoc;
 };
 
 //
@@ -72,7 +72,7 @@ IPAnalyzer::IPAnalyzer(const edm::ParameterSet& iConfig)
 {
   m_jets  = iConfig.getParameter<edm::InputTag>("jets");
   m_assoc = iConfig.getParameter<edm::InputTag>("association");
-  m_ipassoc = iConfig.getParameter<edm::InputTag>("ipassociation");
+  token_ipassoc = consumes<reco::TrackIPTagInfoCollection>(iConfig.getParameter<edm::InputTag>("ipassociation"));
 }
 
 void
@@ -82,7 +82,7 @@ IPAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   using namespace reco;
 
   Handle<TrackIPTagInfoCollection> ipHandle;
-  iEvent.getByLabel(m_ipassoc, ipHandle);
+  iEvent.getByToken(token_ipassoc, ipHandle);
   const TrackIPTagInfoCollection & ip = *(ipHandle.product());
   cout << "Found " << ip.size() << " TagInfo" << endl;
 
