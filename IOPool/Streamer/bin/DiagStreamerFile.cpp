@@ -287,7 +287,7 @@ bool compares_bad(EventMsgView const* eview1, EventMsgView const* eview2) {
 
 //==========================================================================
 bool test_chksum(EventMsgView const* eview) {
-  uint32_t adler32_chksum = cms::Adler32((char*)eview->eventData(), eview->eventLength());
+  uint32_t adler32_chksum = cms::Adler32((char const*)eview->eventData(), eview->eventLength());
   //std::cout << "Adler32 checksum of event = " << adler32_chksum << std::endl;
   //std::cout << "Adler32 checksum from header = " << eview->adler32_chksum() << std::endl;
   //std::cout << "event from host name = " << eview->hostName() << std::endl;
@@ -307,7 +307,7 @@ bool test_uncompress(EventMsgView const* eview, std::vector<unsigned char> &dest
   if(origsize != 0 && origsize != 78)
   {
     // compressed
-    success = uncompressBuffer((unsigned char*)eview->eventData(),
+    success = uncompressBuffer(const_cast<unsigned char*>((unsigned char const*)eview->eventData()),
                                    eview->eventLength(), dest, origsize);
   } else {
     // uncompressed anyway
