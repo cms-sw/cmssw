@@ -17,6 +17,8 @@
 #include "SimGeneral/PileupInformation/interface/PileupInformation.h"
 #include "SimDataFormats/PileupSummaryInfo/interface/PileupMixingContent.h"
 
+#include <cmath>
+
 PileupInformation::PileupInformation(const edm::ParameterSet & config) 
 {
     // Initialize global parameters
@@ -250,7 +252,7 @@ void PileupInformation::produce(edm::Event &event, const edm::EventSetup & setup
 	    }
 	  else{
 	    if(FoundTrk) {
-
+	      
 	      iTrackTest = --iTrack;  // reset so we can start over next time
 	      --iTrackTest;  // just to be sure
 	      break;
@@ -261,7 +263,69 @@ void PileupInformation::produce(edm::Event &event, const edm::EventSetup & setup
 	} // end of track loop
 
     } // end of check that we have TrackingParticles to begin with...
+    else {  // We can at least get the vertex information from the SimVertices
 
+      //Two tries at this: old and new:
+      //If we find a Crossing Frame, it will have all of the SimVertices, so use this first
+
+      EncodedEventIdToIndex vertexId;
+      EncodedEventId oldEventId;
+
+      edm::Handle<CrossingFrame<SimVertex> > cfSimVertexes;
+      if(event.getByLabel("mix", simHitLabel_, cfSimVertexes) ) {
+
+	// Create a mix collection from one simvertex collection  
+	simVertexes_ = std::auto_ptr<MixCollection<SimVertex> >( new MixCollection<SimVertex>(cfSimVertexes.product()) );
+
+	// Pick first parent-less vertex for each event as interaction position
+
+	for (MixCollection<SimVertex>::MixItr iterator = simVertexes_->begin(); iterator != simVertexes_->end(); ++iterator) {
+	  if(iterator->eventId().bunchCrossing() == (*BXIter) && iterator->eventId() != oldEventId ) { // found first vertex in first event of this bunch crossing 
+	    if(iterator->eventId().event()==0) continue;
+	    if(iterator->noParent()) {
+
+	      	      math::XYZTLorentzVectorD vert = iterator->position();
+
+		      //	      double radius = sqrt(vert.x()*vert.x()+vert.y()*vert.y());
+
+		      //std::cout << " SimVtx eventid, BX, vtxZ, vtxR " << iterator->eventId().event() << " " << iterator->eventId().bunchCrossing() << " " << vert.z() << " " << radius << std::endl;
+
+	      float zpos = -999.;
+	      zpos = vert.z();
+	      zpositions.push_back(zpos);  //save z position of each vertex                                                          
+	      oldEventId = iterator->eventId();
+	      continue;
+	    }
+	  }
+	}
+      }
+      else{  // Forward compatibility for new mixing module, assuming the same product label (check this!)
+	edm::Handle<std::vector<SimVertex> > hSimVertices;
+	if(event.getByLabel( simHitLabel_, hSimVertices ) ) {
+
+	  for(std::vector<SimVertex>::const_iterator iterator = hSimVertices->begin(); iterator !=hSimVertices->end(); ++iterator) {
+	    if(iterator->eventId().bunchCrossing() == (*BXIter) && iterator->eventId() != oldEventId ) { // found first vertex in first event of this bunch crossing 
+
+	      if(iterator->eventId().event()==0) continue;
+	      if(iterator->noParent()) {
+
+		math::XYZTLorentzVectorD vert = iterator->position();
+
+		//double radius = sqrt(vert.x()*vert.x()+vert.y()*vert.y());
+
+		//std::cout << " SimVtx eventid, BX, vtxZ, vtxR " << iterator->eventId().event() << " " << iterator->eventId().bunchCrossing() << " " << vert.z() << " " << radius << std::endl;
+
+		float zpos = -999.;
+		zpos = vert.z();
+		zpositions.push_back(zpos);  //save z position of each vertex                                                          
+		oldEventId = iterator->eventId();
+		continue;
+	      }
+	    }	
+	  }
+	}
+      }
+    } //end of SimVertices section
 
     // now that we have all of the track information for a given bunch crossing, 
     // make PileupSummary for this one and move on
@@ -270,7 +334,7 @@ void PileupInformation::produce(edm::Event &event, const edm::EventSetup & setup
 
     if(!HaveTrackingParticles) { // stick in one value so we don't have empty vectors
 
-      zpositions.push_back(-999.);  
+      //  zpositions.push_back(-999.);  
       sumpT_lowpT.push_back(0.);
       sumpT_highpT.push_back(0.);
       ntrks_lowpT.push_back(0);

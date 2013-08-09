@@ -444,3 +444,20 @@ workflows[4300] = ['', ['FourMuPt1_200_UPG2023_LB4','RECOUP23_LB4']]
 workflows[4301] = ['', ['MinBias_TuneZ2star_UPG2023_14_LB4','RECOUP23_LB4']]
 workflows[4302] = ['', ['TTbar_UPG2023_14_LB4','RECOUP23_LB4']]
 
+#Fastsim
+workflows[40000] = ['TTbar_14TeV', ['TTbarFSP1','HARVESTFSP1']]
+workflows[40001] = ['SingleMuPt10', ['SingleMuPt10FSP1','HARVESTFSP1']]
+workflows[40002] = ['SingleMuPt100', ['SingleMuPt100FSP1','HARVESTFSP1']]
+workflows[40003] = ['MinBias_14TeV', ['MinBias_TuneZ2starFSP1','HARVESTFSP1']]
+
+workflows[50001] = ['TTbar_14TeV', ['TTbarFSP2','HARVESTFSP2']]
+workflows[50002] = ['SingleMuPt10', ['SingleMuPt10FSP2','HARVESTFSP2']]
+workflows[50003] = ['SingleMuPt100', ['SingleMuPt100FSP2','HARVESTFSP2']]
+workflows[50004] = ['MinBias_14TeV', ['MinBias_TuneZ2starFSP2','HARVESTFSP2']]
+
+workflows[60001] = ['TTbar_14TeV', ['TTbarFSP2Forw','HARVESTFSP2Forw']]
+workflows[60002] = ['SingleMuPt10', ['SingleMuPt10FSP2Forw','HARVESTFSP2Forw']]
+workflows[60003] = ['SingleMuPt100', ['SingleMuPt100FSP2Forw','HARVESTFSP2Forw']]
+workflows[60004] = ['MinBias_14TeV', ['MinBias_TuneZ2starFSP2Forw','HARVESTFSP2Forw']]
+
+
