@@ -3,7 +3,6 @@
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -26,8 +25,8 @@ using namespace std;
 TrackMix::TrackMix(const edm::ParameterSet& iConfig)
   : theConfig(iConfig)
 {
-  gsfTrackLabel_ = iConfig.getParameter<std::string>("gsfTrackLabel");
-  ckfTrackLabel_ = iConfig.getParameter<std::string>("ckfTrackLabel");
+  token_gsf = consumes<edm::View<reco::Track> >(iConfig.getParameter<string>("gsfTrackLabel"));
+  token_ckf = consumes<edm::View<reco::Track> >(iConfig.getParameter<string>("ckfTrackLabel"));
 }
 
 
@@ -53,9 +52,9 @@ TrackMix::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     // get RECO tracks from the event
     // `tks` can be used as a ptr to a reco::TrackCollection
     edm::Handle<edm::View<reco::Track> > tks;
-    iEvent.getByLabel(gsfTrackLabel_, tks);
+    iEvent.getByToken(token_gsf, tks);
     edm::Handle<edm::View<reco::Track> > tks2;
-    iEvent.getByLabel(ckfTrackLabel_, tks2);
+    iEvent.getByToken(token_ckf, tks2);
 
     cout << "got " << (*tks).size() << " gsf tracks " << endl;
     cout << "got " << (*tks2).size()<< " ckf tracks " << endl;

@@ -52,19 +52,19 @@ class TrackVertexArbitrator : public edm::EDProducer {
     private:
 	bool trackFilter(const reco::TrackRef &track) const;
 
-	edm::InputTag				primaryVertexCollection;
-	edm::InputTag				secondaryVertexCollection;
-	edm::InputTag				trackCollection;
-        edm::InputTag                           beamSpotCollection;
+	edm::EDGetTokenT<reco::VertexCollection> token_primaryVertex;
+	edm::EDGetTokenT<reco::VertexCollection> token_secondaryVertex;
+	edm::EDGetTokenT<reco::TrackCollection>	 token_tracks; 
+	edm::EDGetTokenT<reco::BeamSpot> 	 token_beamSpot; 
 	TrackVertexArbitration * theArbitrator;
 };
 
-TrackVertexArbitrator::TrackVertexArbitrator(const edm::ParameterSet &params) :
-	primaryVertexCollection      (params.getParameter<edm::InputTag>("primaryVertices")),
-	secondaryVertexCollection    (params.getParameter<edm::InputTag>("secondaryVertices")),
-	trackCollection              (params.getParameter<edm::InputTag>("tracks")),
-        beamSpotCollection           (params.getParameter<edm::InputTag>("beamSpot"))
+TrackVertexArbitrator::TrackVertexArbitrator(const edm::ParameterSet &params)
 {
+	token_primaryVertex = consumes<reco::VertexCollection>(params.getParameter<edm::InputTag>("primaryVertices"));
+	token_secondaryVertex = consumes<reco::VertexCollection>(params.getParameter<edm::InputTag>("secondaryVertices"));
+	token_beamSpot = consumes<reco::BeamSpot>(params.getParameter<edm::InputTag>("beamSpot"));
+	token_tracks = consumes<reco::TrackCollection>(params.getParameter<edm::InputTag>("tracks"));
 	produces<reco::VertexCollection>();
 	theArbitrator = new TrackVertexArbitration(params);
 }
@@ -75,25 +75,25 @@ void TrackVertexArbitrator::produce(edm::Event &event, const edm::EventSetup &es
 	using namespace reco;
 
 	edm::Handle<VertexCollection> secondaryVertices;
-	event.getByLabel(secondaryVertexCollection, secondaryVertices);
+	event.getByToken(token_secondaryVertex, secondaryVertices);
         VertexCollection theSecVertexColl = *(secondaryVertices.product());
 
         edm::Handle<VertexCollection> primaryVertices;
-        event.getByLabel(primaryVertexCollection, primaryVertices);
+	event.getByToken(token_primaryVertex, primaryVertices);
 
 	std::auto_ptr<VertexCollection> recoVertices(new VertexCollection);
         if(primaryVertices->size()!=0){ 
         const reco::Vertex &pv = (*primaryVertices)[0];
     
         edm::Handle<TrackCollection> tracks;
-        event.getByLabel(trackCollection, tracks);
+	event.getByToken(token_tracks, tracks);
 
         edm::ESHandle<TransientTrackBuilder> trackBuilder;
         es.get<TransientTrackRecord>().get("TransientTrackBuilder",
                                            trackBuilder);
 
         edm::Handle<BeamSpot> beamSpot;
-        event.getByLabel(beamSpotCollection, beamSpot);
+	event.getByToken(token_beamSpot,beamSpot);
 
         
 	edm::RefVector< TrackCollection >  selectedTracks;

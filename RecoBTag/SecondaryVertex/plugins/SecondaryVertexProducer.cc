@@ -81,8 +81,8 @@ class SecondaryVertexProducer : public edm::EDProducer {
 
 	static ConstraintType getConstraintType(const std::string &name);
 
-	const edm::InputTag		trackIPTagInfoLabel;
-        edm::InputTag beamSpotTag;
+        edm::EDGetTokenT<reco::BeamSpot> token_BeamSpot;
+        edm::EDGetTokenT<reco::TrackIPTagInfoCollection> token_trackIPTagInfo;
 	TrackIPTagInfo::SortCriteria	sortCriterium;
 	TrackSelector			trackSelector;
 	ConstraintType			constraint;
@@ -95,7 +95,7 @@ class SecondaryVertexProducer : public edm::EDProducer {
 	VertexSorting			vertexSorting;
         bool                            useExternalSV;  
         double                          extSVDeltaRToJet;      
- 	edm::InputTag                   extSVCollection; 
+        edm::EDGetTokenT<reco::VertexCollection> token_extSVCollection;
 };
 
 SecondaryVertexProducer::ConstraintType
@@ -139,7 +139,6 @@ getGhostTrackFitType(const std::string &name)
 
 SecondaryVertexProducer::SecondaryVertexProducer(
 					const edm::ParameterSet &params) :
-	trackIPTagInfoLabel(params.getParameter<edm::InputTag>("trackIPTagInfos")),
 	sortCriterium(TrackSorting::getCriterium(params.getParameter<std::string>("trackSort"))),
 	trackSelector(params.getParameter<edm::ParameterSet>("trackSelection")),
 	constraint(getConstraintType(params.getParameter<std::string>("constraint"))),
@@ -151,6 +150,7 @@ SecondaryVertexProducer::SecondaryVertexProducer(
 	vertexFilter(params.getParameter<edm::ParameterSet>("vertexCuts")),
 	vertexSorting(params.getParameter<edm::ParameterSet>("vertexSelection"))
 {
+	token_trackIPTagInfo =  consumes<reco::TrackIPTagInfoCollection>(params.getParameter<edm::InputTag>("trackIPTagInfos"));
 	if (constraint == CONSTRAINT_PV_ERROR_SCALED ||
 	    constraint == CONSTRAINT_PV_BS_Z_ERRORS_SCALED)
 		constraintScaling = params.getParameter<double>("pvErrorScaling");
@@ -159,11 +159,11 @@ SecondaryVertexProducer::SecondaryVertexProducer(
 	    constraint == CONSTRAINT_PV_BS_Z_ERRORS_SCALED ||
 	    constraint == CONSTRAINT_BEAMSPOT ||
 	    constraint == CONSTRAINT_PV_PRIMARIES_IN_FIT )
-	    beamSpotTag = params.getParameter<edm::InputTag>("beamSpotTag");
+	    token_BeamSpot = consumes<reco::BeamSpot>(params.getParameter<edm::InputTag>("beamSpotTag"));
         useExternalSV = false;
         if(params.existsAs<bool>("useExternalSV")) useExternalSV = params.getParameter<bool> ("useExternalSV");
         if(useExternalSV) {
-           extSVCollection  = params.getParameter<edm::InputTag>("extSVCollection");
+	   token_extSVCollection =  consumes<reco::VertexCollection>(params.getParameter<edm::InputTag>("extSVCollection"));
        	   extSVDeltaRToJet = params.getParameter<double>("extSVDeltaRToJet");
         }
 	produces<SecondaryVertexTagInfoCollection>();
@@ -219,11 +219,11 @@ void SecondaryVertexProducer::produce(edm::Event &event,
 	                                   trackBuilder);
 
 	edm::Handle<TrackIPTagInfoCollection> trackIPTagInfos;
-	event.getByLabel(trackIPTagInfoLabel, trackIPTagInfos);
+	event.getByToken(token_trackIPTagInfo, trackIPTagInfos);
 
         // External Sec Vertex collection (e.g. for IVF usage)
         edm::Handle<reco::VertexCollection> extSecVertex;          
-        if(useExternalSV) event.getByLabel(extSVCollection,extSecVertex);
+        if(useExternalSV) event.getByToken(token_extSVCollection,extSecVertex);
                                                              
 
 	edm::Handle<BeamSpot> beamSpot;
@@ -231,14 +231,14 @@ void SecondaryVertexProducer::produce(edm::Event &event,
 	double sigmaZ = 0.0, beamWidth = 0.0;
 	switch(constraint) {
 	    case CONSTRAINT_PV_BEAMSPOT_SIZE:
-	        event.getByLabel(beamSpotTag,beamSpot);
+		event.getByToken(token_BeamSpot,beamSpot);
 		bsCovSrc[3] = bsCovSrc[4] = bsCovSrc[5] = bsCovSrc[6] = 1;
 		sigmaZ = beamSpot->sigmaZ();
 		beamWidth = beamSpot->BeamWidthX();
 		break;
 
 	    case CONSTRAINT_PV_BS_Z_ERRORS_SCALED:
-	      event.getByLabel(beamSpotTag,beamSpot);
+		event.getByToken(token_BeamSpot,beamSpot);
 		bsCovSrc[0] = bsCovSrc[1] = 2;
 		bsCovSrc[3] = bsCovSrc[4] = bsCovSrc[5] = 1;
 		sigmaZ = beamSpot->sigmaZ();
@@ -250,7 +250,7 @@ void SecondaryVertexProducer::produce(edm::Event &event,
 
 	    case CONSTRAINT_BEAMSPOT:
 	    case CONSTRAINT_PV_PRIMARIES_IN_FIT:
-	        event.getByLabel(beamSpotTag,beamSpot);
+		event.getByToken(token_BeamSpot,beamSpot);
 		break;
 
 	    default:

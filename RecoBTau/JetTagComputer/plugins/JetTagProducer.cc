@@ -35,10 +35,8 @@
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 
-#include "DataFormats/Common/interface/View.h"
 #include "DataFormats/Common/interface/RefToBase.h"
 #include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/BTauReco/interface/BaseTagInfo.h"
 #include "DataFormats/BTauReco/interface/JetTag.h"
 
 #include "RecoBTau/JetTagComputer/interface/JetTagComputer.h"
@@ -55,9 +53,14 @@ using namespace edm;
 //
 JetTagProducer::JetTagProducer(const ParameterSet& iConfig) :
   m_computer(0),
-  m_jetTagComputer(iConfig.getParameter<string>("jetTagComputer")),
-  m_tagInfos(iConfig.getParameter< vector<InputTag> >("tagInfos"))
+  m_jetTagComputer(iConfig.getParameter<string>("jetTagComputer"))
 {
+  std::vector<edm::InputTag> m_tagInfos = iConfig.getParameter< vector<InputTag> >("tagInfos");
+  nTagInfos = m_tagInfos.size();
+  for(unsigned int i = 0; i < nTagInfos; i++) {
+    token_tagInfos.push_back( consumes<View<BaseTagInfo> >(m_tagInfos[i]) );
+  }
+
   produces<JetTagCollection>();
 }
 
@@ -83,7 +86,7 @@ void JetTagProducer::setup(const edm::EventSetup& iSetup)
   if (inputLabels.empty())
     inputLabels.push_back("tagInfo");
 
-  if (m_tagInfos.size() != inputLabels.size()) {
+  if (nTagInfos != inputLabels.size()) {
     std::string message("VInputTag size mismatch - the following taginfo "
                         "labels are needed:\n");
     for(vector<string>::const_iterator iter = inputLabels.begin();
@@ -122,11 +125,10 @@ JetTagProducer::produce(Event& iEvent, const EventSetup& iSetup)
   JetToTagInfoMap jetToTagInfos;
 
   // retrieve all requested TagInfos
-  vector< Handle< View<BaseTagInfo> > > tagInfoHandles(m_tagInfos.size());
-  unsigned int nTagInfos = m_tagInfos.size();
+  vector< Handle< View<BaseTagInfo> > > tagInfoHandles(nTagInfos);
   for(unsigned int i = 0; i < nTagInfos; i++) {
     Handle< View<BaseTagInfo> > &tagInfoHandle = tagInfoHandles[i];
-    iEvent.getByLabel(m_tagInfos[i], tagInfoHandle);
+    iEvent.getByToken(token_tagInfos[i], tagInfoHandle);
 
     for(View<BaseTagInfo>::const_iterator iter = tagInfoHandle->begin();
         iter != tagInfoHandle->end(); iter++) {
