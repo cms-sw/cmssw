@@ -1,0 +1,80 @@
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
+	<SolidSection label="TBHcal02BeamLine.xml">
+		<Box name="HcalTB02BeamLine" dx="10*cm" dy="10*cm" dz="60*cm"/>
+		<Box name="HcalTB02BeamLineWChamb1" dx="7.5*cm" dy="7.5*cm" dz="5*mm"/>
+		<Box name="HcalTB02BeamLineWChamb2" dx="7.5*cm" dy="7.5*cm" dz="5*mm"/>
+		<Box name="HcalTB02BeamLineTTile10" dx="7*cm" dy="7*cm" dz="5*mm"/>
+		<Box name="HcalTB02BeamLineTTile21" dx="2*cm" dy="2*cm" dz="5*mm"/>
+		<Box name="HcalTB02BeamLineTTile32" dx="1*cm" dy="1*cm" dz="5*mm"/>
+		<Box name="HcalTB02BeamLineTTile43" dx="7*cm" dy="7*cm" dz="5*mm"/>
+	</SolidSection>
+	<LogicalPartSection label="TBHcal02BeamLine.xml">
+		<LogicalPart name="HcalTB02BeamLine" category="unspecified">
+			<rSolid name="HcalTB02BeamLine"/>
+			<rMaterial name="TBHcal02Materials:Air"/>
+		</LogicalPart>
+		<LogicalPart name="HcalTB02BeamLineWChamb1" category="unspecified">
+			<rSolid name="HcalTB02BeamLineWChamb1"/>
+			<rMaterial name="TBHcal02Materials:Air"/>
+		</LogicalPart>
+		<LogicalPart name="HcalTB02BeamLineWChamb2" category="unspecified">
+			<rSolid name="HcalTB02BeamLineWChamb2"/>
+			<rMaterial name="TBHcal02Materials:Air"/>
+		</LogicalPart>
+		<LogicalPart name="HcalTB02BeamLineTTile10" category="unspecified">
+			<rSolid name="HcalTB02BeamLineTTile10"/>
+			<rMaterial name="TBHcal02Materials:Scintillator"/>
+		</LogicalPart>
+		<LogicalPart name="HcalTB02BeamLineTTile21" category="unspecified">
+			<rSolid name="HcalTB02BeamLineTTile21"/>
+			<rMaterial name="TBHcal02Materials:Scintillator"/>
+		</LogicalPart>
+		<LogicalPart name="HcalTB02BeamLineTTile32" category="unspecified">
+			<rSolid name="HcalTB02BeamLineTTile32"/>
+			<rMaterial name="TBHcal02Materials:Scintillator"/>
+		</LogicalPart>
+		<LogicalPart name="HcalTB02BeamLineTTile43" category="unspecified">
+			<rSolid name="HcalTB02BeamLineTTile43"/>
+			<rMaterial name="TBHcal02Materials:Scintillator"/>
+		</LogicalPart>
+	</LogicalPartSection>
+	<PosPartSection label="TBHcal02BeamLine.xml">
+		<PosPart copyNumber="0">
+			<rParent name="TBHcal02:TestBeamHCal02"/>
+			<rChild name="TBHcal02BeamLine:HcalTB02BeamLine"/>
+			<rRotation name="TBHcal02Rotations:R3"/>
+			<Translation x="-3.348*m" y="14.618*cm" z="-2.71116*m"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="TBHcal02BeamLine:HcalTB02BeamLine"/>
+			<rChild name="TBHcal02BeamLine:HcalTB02BeamLineWChamb1"/>
+			<Translation x="0*fm" y="0*fm" z="-57.5*cm"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="TBHcal02BeamLine:HcalTB02BeamLine"/>
+			<rChild name="TBHcal02BeamLine:HcalTB02BeamLineWChamb2"/>
+			<Translation x="0*fm" y="0*fm" z="57.5*cm"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="TBHcal02BeamLine:HcalTB02BeamLine"/>
+			<rChild name="TBHcal02BeamLine:HcalTB02BeamLineTTile10"/>
+			<Translation x="0*fm" y="0*fm" z="-46*cm"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="TBHcal02BeamLine:HcalTB02BeamLine"/>
+			<rChild name="TBHcal02BeamLine:HcalTB02BeamLineTTile21"/>
+			<Translation x="0*fm" y="0*fm" z="-36*cm"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="TBHcal02BeamLine:HcalTB02BeamLine"/>
+			<rChild name="TBHcal02BeamLine:HcalTB02BeamLineTTile32"/>
+			<Translation x="0*fm" y="0*fm" z="-20*cm"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="TBHcal02BeamLine:HcalTB02BeamLine"/>
+			<rChild name="TBHcal02BeamLine:HcalTB02BeamLineTTile43"/>
+			<Translation x="0*fm" y="0*fm" z="46*cm"/>
+		</PosPart>
+	</PosPartSection>
+</DDDefinition>

@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
+ <SpecParSection label="regions.xml" eval="true">
+  <SpecPar name="quad">
+   <PartSelector path="//QuadInner"/>
+   <PartSelector path="//QuadCoil"/>
+   <PartSelector path="//QuadOuter"/>
+   <PartSelector path="//FixedShield10"/>
+   <PartSelector path="//FixedShield11"/>
+   <PartSelector path="//FixedShield12"/>
+   <Parameter name="CMSCutsRegion" value="QuadRegion" eval="false"/>
+   <Parameter name="ProdCutsForElectrons" value="1*mm"/>
+   <Parameter name="ProdCutsForPositrons" value="1*mm"/>
+   <Parameter name="ProdCutsForGamma" value="10*mm"/>
+  </SpecPar>
+ </SpecParSection>
+</DDDefinition>
