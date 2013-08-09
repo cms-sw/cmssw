@@ -20,6 +20,8 @@
 
 namespace edm
 {
+  class ModuleCallingContext;
+
   namespace detail
   {
     typedef edm::Handle<edm::TriggerResults> handle_t;
@@ -33,7 +35,7 @@ namespace edm
 	product_() 
       { }
 
-      void fill(EventPrincipal const& e);
+      void fill(EventPrincipal const& e, ModuleCallingContext const* mcc);
 
       bool match()
       {
@@ -71,9 +73,9 @@ namespace edm
 		 std::vector<std::string> const& triggernames,
                  const std::string& process_name);
 
-      bool wantEvent(EventPrincipal const& e);
+      bool wantEvent(EventPrincipal const& e, ModuleCallingContext const*);
 
-      handle_t getOneTriggerResults(EventPrincipal const& e);
+      handle_t getOneTriggerResults(EventPrincipal const& e, ModuleCallingContext const*);
 
       // Clear the cache
       void clear();
@@ -83,7 +85,7 @@ namespace edm
 
       // Get all TriggerResults objects for the process names we're
       // interested in.
-      size_type fill(EventPrincipal const& ev);
+      size_type fill(EventPrincipal const& ev, ModuleCallingContext const*);
       
       // If we have only one handle cached, return it; otherwise throw.
       handle_t returnOneHandleOrThrow();

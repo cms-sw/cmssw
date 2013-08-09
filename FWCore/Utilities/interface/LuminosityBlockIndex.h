@@ -52,6 +52,8 @@ namespace edm {
      */
     unsigned int value() const { return value_;}
     
+    static LuminosityBlockIndex invalidLuminosityBlockIndex();
+
   private:
     ///Only the LuminosityBlockPrincipal is allowed to make one of these
     friend class LuminosityBlockPrincipal;
@@ -63,6 +65,7 @@ namespace edm {
     // ---------- member data --------------------------------
     unsigned int value_;
     
+    static const unsigned int invalidValue_;    
   };
 }
 

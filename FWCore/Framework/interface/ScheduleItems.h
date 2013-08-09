@@ -17,6 +17,7 @@ namespace edm {
   class SubProcess;
   class ParameterSet;
   class ProcessConfiguration;
+  class ProcessContext;
   class ProductRegistry;
   class Schedule;
   class SignallingProductRegistry;
@@ -46,7 +47,8 @@ namespace edm {
     std::auto_ptr<Schedule>
     initSchedule(ParameterSet& parameterSet,
                  ParameterSet const* subProcessPSet,
-                 StreamID streamID);
+                 StreamID streamID,
+                 ProcessContext const*);
 
     void
     clear();

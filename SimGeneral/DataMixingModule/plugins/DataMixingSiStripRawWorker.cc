@@ -79,7 +79,8 @@ namespace edm
 
 
 
-  void DataMixingSiStripRawWorker::addSiStripPileups(const int bcr, const EventPrincipal *ep, unsigned int eventNr) {
+  void DataMixingSiStripRawWorker::addSiStripPileups(const int bcr, const EventPrincipal *ep, unsigned int eventNr,
+                                                     ModuleCallingContext const* mcc) {
     
     LogDebug("DataMixingSiStripRawWorker") << "\n===============> adding pileups from event  "
 					   << ep->id() << " for bunchcrossing " << bcr;
@@ -88,10 +89,10 @@ namespace edm
     boost::shared_ptr<Wrapper<edm::DetSetVector<SiStripRawDigi> > const> pSSRD;
     
     if (SiStripRawDigiSource_=="SIGNAL") {
-      pSSD = getProductByTag<edm::DetSetVector<SiStripDigi> >(*ep, SiStripPileInputTag_);
+      pSSD = getProductByTag<edm::DetSetVector<SiStripDigi> >(*ep, SiStripPileInputTag_, mcc);
       digicollection_ = const_cast< edm::DetSetVector<SiStripDigi> * >(pSSD->product());
     } else if (SiStripRawDigiSource_=="PILEUP") {
-      pSSRD = getProductByTag<edm::DetSetVector<SiStripRawDigi> >(*ep, SiStripRawInputTag_ );
+      pSSRD = getProductByTag<edm::DetSetVector<SiStripRawDigi> >(*ep, SiStripRawInputTag_, mcc);
       rawdigicollection_ = const_cast< edm::DetSetVector<SiStripRawDigi> * >(pSSRD->product());
     } else {
       std::cout << "you shouldn't be here" << std::endl;

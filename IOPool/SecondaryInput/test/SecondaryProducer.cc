@@ -107,6 +107,7 @@ namespace edm {
                                                     "EventNumber",
                                                     "",
                                                     "",
+                                                    nullptr,
                                                     nullptr);
     assert(bhandle.isValid());
     Handle<edmtest::IntProduct> handle;
@@ -121,6 +122,7 @@ namespace edm {
                                                "Thing",
                                                "",
                                                "",
+                                               nullptr,
                                                nullptr);
     assert(bh.isValid());
     if(!(bh.interface()->dynamicTypeInfo() == typeid(TC))) {

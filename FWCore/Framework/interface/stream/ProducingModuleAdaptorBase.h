@@ -37,6 +37,7 @@
 
 namespace edm {
   class Event;
+  class ModuleCallingContext;
   class ProductHolderIndexHelper;
   class EDConsumerBase;
   
@@ -102,36 +103,44 @@ namespace edm {
       void doStreamBeginRun(StreamID id,
                             RunPrincipal& ep,
                             EventSetup const& c,
-                            CurrentProcessingContext const* cpcp);
+                            CurrentProcessingContext const* cpcp,
+                            ModuleCallingContext const*);
       virtual void setupRun(T*, RunIndex) = 0;
       void doStreamEndRun(StreamID id,
                           RunPrincipal& ep,
                           EventSetup const& c,
-                          CurrentProcessingContext const* cpcp);
+                          CurrentProcessingContext const* cpcp,
+                          ModuleCallingContext const*);
       virtual void streamEndRunSummary(T*,edm::Run const&, edm::EventSetup const&) = 0;
 
       void doStreamBeginLuminosityBlock(StreamID id,
                                         LuminosityBlockPrincipal& ep,
                                         EventSetup const& c,
-                                        CurrentProcessingContext const* cpcp);
+                                        CurrentProcessingContext const* cpcp,
+                                        ModuleCallingContext const*);
       virtual void setupLuminosityBlock(T*, LuminosityBlockIndex) = 0;
       void doStreamEndLuminosityBlock(StreamID id,
                                       LuminosityBlockPrincipal& ep,
                                       EventSetup const& c,
-                                      CurrentProcessingContext const* cpcp);
+                                      CurrentProcessingContext const* cpcp,
+                                      ModuleCallingContext const*);
       virtual void streamEndLuminosityBlockSummary(T*,edm::LuminosityBlock const&, edm::EventSetup const&) = 0;
       
       
       virtual void doBeginRun(RunPrincipal& rp, EventSetup const& c,
-                              CurrentProcessingContext const* cpc)=0;
+                              CurrentProcessingContext const* cpc,
+                              ModuleCallingContext const*)=0;
       virtual void doEndRun(RunPrincipal& rp, EventSetup const& c,
-                            CurrentProcessingContext const* cpc)=0;
+                            CurrentProcessingContext const* cpc,
+                            ModuleCallingContext const*)=0;
       virtual void doBeginLuminosityBlock(LuminosityBlockPrincipal& lbp,
                                           EventSetup const& c,
-                                          CurrentProcessingContext const* cpc)=0;
+                                          CurrentProcessingContext const* cpc,
+                                          ModuleCallingContext const*)=0;
       virtual void doEndLuminosityBlock(LuminosityBlockPrincipal& lbp,
                                         EventSetup const& c,
-                                        CurrentProcessingContext const* cpc)=0;
+                                        CurrentProcessingContext const* cpc,
+                                        ModuleCallingContext const*)=0;
       
       //For now, the following are just dummy implemenations with no ability for users to override
       void doRespondToOpenInputFile(FileBlock const& fb);

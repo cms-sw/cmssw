@@ -179,22 +179,24 @@ namespace edm {
     }
     
     
-    Trig OutputModuleBase::getTriggerResults(EventPrincipal const& ep) const {
-      return selectors_.getOneTriggerResults(ep);  }
+    Trig OutputModuleBase::getTriggerResults(EventPrincipal const& ep,
+                                             ModuleCallingContext const* mcc) const {
+      return selectors_.getOneTriggerResults(ep, mcc);  }
     
     bool
     OutputModuleBase::doEvent(EventPrincipal const& ep,
-                          EventSetup const&,
-                          CurrentProcessingContext const* cpc) {
+                              EventSetup const&,
+                              CurrentProcessingContext const* cpc,
+                              ModuleCallingContext const* mcc) {
       detail::CPCSentry sentry(current_context_, cpc);
       detail::TRBESSentry products_sentry(selectors_);
       
       if(!wantAllEvents_) {
-        if(!selectors_.wantEvent(ep)) {
+        if(!selectors_.wantEvent(ep, mcc)) {
           return true;
         }
       }
-      write(ep);
+      write(ep, mcc);
       updateBranchParents(ep);
       if(remainingEvents_ > 0) {
         --remainingEvents_;
@@ -204,47 +206,53 @@ namespace edm {
     
     bool
     OutputModuleBase::doBeginRun(RunPrincipal const& rp,
-                             EventSetup const&,
-                             CurrentProcessingContext const* cpc) {
+                                 EventSetup const&,
+                                 CurrentProcessingContext const* cpc,
+                                 ModuleCallingContext const* mcc) {
       detail::CPCSentry sentry(current_context_, cpc);
-      doBeginRun_(rp);
+      doBeginRun_(rp, mcc);
       return true;
     }
     
     bool
     OutputModuleBase::doEndRun(RunPrincipal const& rp,
-                           EventSetup const&,
-                           CurrentProcessingContext const* cpc) {
+                               EventSetup const&,
+                               CurrentProcessingContext const* cpc,
+                               ModuleCallingContext const* mcc) {
       detail::CPCSentry sentry(current_context_, cpc);
-      doEndRun_(rp);
+      doEndRun_(rp, mcc);
       return true;
     }
     
     void
-    OutputModuleBase::doWriteRun(RunPrincipal const& rp) {
-      writeRun(rp);
+    OutputModuleBase::doWriteRun(RunPrincipal const& rp,
+                                 ModuleCallingContext const* mcc) {
+      writeRun(rp, mcc);
     }
     
     bool
     OutputModuleBase::doBeginLuminosityBlock(LuminosityBlockPrincipal const& lbp,
-                                         EventSetup const&,
-                                         CurrentProcessingContext const* cpc) {
+                                             EventSetup const&,
+                                             CurrentProcessingContext const* cpc,
+                                             ModuleCallingContext const* mcc) {
       detail::CPCSentry sentry(current_context_, cpc);
-      doBeginLuminosityBlock_(lbp);
+      doBeginLuminosityBlock_(lbp, mcc);
       return true;
     }
     
     bool
     OutputModuleBase::doEndLuminosityBlock(LuminosityBlockPrincipal const& lbp,
-                                       EventSetup const&,
-                                       CurrentProcessingContext const* cpc) {
+                                           EventSetup const&,
+                                           CurrentProcessingContext const* cpc,
+                                           ModuleCallingContext const* mcc) {
       detail::CPCSentry sentry(current_context_, cpc);
-      doEndLuminosityBlock_(lbp);
+      doEndLuminosityBlock_(lbp, mcc);
       return true;
     }
     
-    void OutputModuleBase::doWriteLuminosityBlock(LuminosityBlockPrincipal const& lbp) {
-      writeLuminosityBlock(lbp);
+    void OutputModuleBase::doWriteLuminosityBlock(LuminosityBlockPrincipal const& lbp,
+                                                  ModuleCallingContext const* mcc) {
+      writeLuminosityBlock(lbp, mcc);
     }
     
     void OutputModuleBase::doOpenFile(FileBlock const& fb) {

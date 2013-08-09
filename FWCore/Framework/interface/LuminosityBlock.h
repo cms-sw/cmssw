@@ -37,6 +37,7 @@ For its usage, see "FWCore/Framework/interface/PrincipalGetAdapter.h"
 #include <vector>
 
 namespace edm {
+  class ModuleCallingContext;
   class ProducerBase;
   namespace stream {
     template< typename T> class ProducingModuleAdaptorBase;
@@ -45,7 +46,8 @@ namespace edm {
 
   class LuminosityBlock : public LuminosityBlockBase {
   public:
-    LuminosityBlock(LuminosityBlockPrincipal& lbp, ModuleDescription const& md);
+    LuminosityBlock(LuminosityBlockPrincipal& lbp, ModuleDescription const& md,
+                    ModuleCallingContext const*);
     ~LuminosityBlock();
 
     // AUX functions are defined in LuminosityBlockBase
@@ -111,6 +113,8 @@ namespace edm {
     ProcessHistory const&
     processHistory() const;
 
+    ModuleCallingContext const* moduleCallingContext() const { return moduleCallingContext_; }
+
   private:
     LuminosityBlockPrincipal const&
     luminosityBlockPrincipal() const;
@@ -145,6 +149,7 @@ namespace edm {
     boost::shared_ptr<Run const> const run_;
     typedef std::set<BranchID> BranchIDSet;
     mutable BranchIDSet gotBranchIDs_;
+    ModuleCallingContext const* moduleCallingContext_;
 
     static const std::string emptyString_;
   };
@@ -189,7 +194,7 @@ namespace edm {
       principal_get_adapter_detail::throwOnPrematureRead("Lumi", TypeID(typeid(PROD)), label, productInstanceName);
     }
     result.clear();
-    BasicHandle bh = provRecorder_.getByLabel_(TypeID(typeid(PROD)), label, productInstanceName, emptyString_);
+    BasicHandle bh = provRecorder_.getByLabel_(TypeID(typeid(PROD)), label, productInstanceName, emptyString_, moduleCallingContext_);
     convert_handle(bh, result);  // throws on conversion error
     if (bh.failedToGet()) {
       return false;
@@ -205,7 +210,7 @@ namespace edm {
       principal_get_adapter_detail::throwOnPrematureRead("Lumi", TypeID(typeid(PROD)), tag.label(), tag.instance());
     }
     result.clear();
-    BasicHandle bh = provRecorder_.getByLabel_(TypeID(typeid(PROD)), tag);
+    BasicHandle bh = provRecorder_.getByLabel_(TypeID(typeid(PROD)), tag, moduleCallingContext_);
     convert_handle(bh, result);  // throws on conversion error
     if (bh.failedToGet()) {
       return false;
@@ -220,7 +225,7 @@ namespace edm {
       principal_get_adapter_detail::throwOnPrematureRead("Lumi", TypeID(typeid(PROD)), token);
     }
     result.clear();
-    BasicHandle bh = provRecorder_.getByToken_(TypeID(typeid(PROD)),PRODUCT_TYPE, token);
+    BasicHandle bh = provRecorder_.getByToken_(TypeID(typeid(PROD)),PRODUCT_TYPE, token, moduleCallingContext_);
     convert_handle(bh, result);  // throws on conversion error
     if (bh.failedToGet()) {
       return false;
@@ -235,7 +240,7 @@ namespace edm {
       principal_get_adapter_detail::throwOnPrematureRead("Lumi", TypeID(typeid(PROD)), token);
     }
     result.clear();
-    BasicHandle bh = provRecorder_.getByToken_(TypeID(typeid(PROD)),PRODUCT_TYPE, token);
+    BasicHandle bh = provRecorder_.getByToken_(TypeID(typeid(PROD)),PRODUCT_TYPE, token, moduleCallingContext_);
     convert_handle(bh, result);  // throws on conversion error
     if (bh.failedToGet()) {
       return false;
@@ -250,7 +255,7 @@ namespace edm {
     if(!provRecorder_.checkIfComplete<PROD>()) {
       principal_get_adapter_detail::throwOnPrematureRead("Lumi", TypeID(typeid(PROD)));
     }
-    return provRecorder_.getManyByType(results);
+    return provRecorder_.getManyByType(results, moduleCallingContext_);
   }
 
 }

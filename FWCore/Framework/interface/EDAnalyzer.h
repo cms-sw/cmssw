@@ -12,6 +12,8 @@
 
 namespace edm {
 
+  class ModuleCallingContext;
+
   class EDAnalyzer : public EDConsumerBase {
   public:
     template <typename T> friend class WorkerT;
@@ -27,6 +29,9 @@ namespace edm {
     static const std::string& baseType();
     static   void prevalidate(ConfigurationDescriptions& );
 
+    // Warning: the returned moduleDescription will be invalid during construction
+    ModuleDescription const& moduleDescription() const { return moduleDescription_; }
+
   protected:
     // The returned pointer will be null unless the this is currently
     // executing its event loop function ('analyze').
@@ -36,17 +41,22 @@ namespace edm {
 
   private:
     bool doEvent(EventPrincipal const& ep, EventSetup const& c,
-		   CurrentProcessingContext const* cpc);
+                 CurrentProcessingContext const* cpc,
+                 ModuleCallingContext const* mcc);
     void doBeginJob();
     void doEndJob();
     bool doBeginRun(RunPrincipal const& rp, EventSetup const& c,
-		   CurrentProcessingContext const* cpc);
+                    CurrentProcessingContext const* cpc,
+                    ModuleCallingContext const* mcc);
     bool doEndRun(RunPrincipal const& rp, EventSetup const& c,
-		   CurrentProcessingContext const* cpc);
+                  CurrentProcessingContext const* cpc,
+                  ModuleCallingContext const* mcc);
     bool doBeginLuminosityBlock(LuminosityBlockPrincipal const& lbp, EventSetup const& c,
-		   CurrentProcessingContext const* cpc);
+                                CurrentProcessingContext const* cpc,
+                                ModuleCallingContext const* mcc);
     bool doEndLuminosityBlock(LuminosityBlockPrincipal const& lbp, EventSetup const& c,
-		   CurrentProcessingContext const* cpc);
+                              CurrentProcessingContext const* cpc,
+                              ModuleCallingContext const* mcc);
     void doRespondToOpenInputFile(FileBlock const& fb);
     void doRespondToCloseInputFile(FileBlock const& fb);
     void doPreForkReleaseResources();

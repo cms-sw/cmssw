@@ -39,7 +39,8 @@ namespace edm {
                          eventsetup::EventSetupsController& esController,
                          ActivityRegistry& parentActReg,
                          ServiceToken const& token,
-                         serviceregistry::ServiceLegacy iLegacy) :
+                         serviceregistry::ServiceLegacy iLegacy,
+                         ProcessContext const* parentProcessContext) :
       serviceToken_(),
       parentPreg_(parentProductRegistry),
       preg_(),
@@ -127,20 +128,22 @@ namespace edm {
     esp_ = esController.makeProvider(*processParameterSet_);
 
     // intialize the Schedule
-    schedule_ = items.initSchedule(*processParameterSet_,subProcessParameterSet.get(),StreamID{0});
+    schedule_ = items.initSchedule(*processParameterSet_,subProcessParameterSet.get(),StreamID{0},&processContext_);
 
     // set the items
     act_table_ = std::move(items.act_table_);
     preg_.reset(items.preg_.release());
     branchIDListHelper_ = items.branchIDListHelper_;
     processConfiguration_ = items.processConfiguration_;
+    processContext_.setProcessConfiguration(processConfiguration_.get());
+    processContext_.setParentProcessContext(parentProcessContext);
 
     boost::shared_ptr<EventPrincipal> ep(new EventPrincipal(preg_, branchIDListHelper_, *processConfiguration_, historyAppender_.get(),
                                                             StreamID::invalidStreamID()));
     principalCache_.insert(ep);
 
     if(subProcessParameterSet) {
-      subProcess_.reset(new SubProcess(*subProcessParameterSet, topLevelParameterSet, preg_, branchIDListHelper_, esController, *items.actReg_, newToken, iLegacy));
+      subProcess_.reset(new SubProcess(*subProcessParameterSet, topLevelParameterSet, preg_, branchIDListHelper_, esController, *items.actReg_, newToken, iLegacy, &processContext_));
     }
   }
 
@@ -258,7 +261,7 @@ namespace edm {
     if(!wantAllEvents_) {
       // use module description and const_cast unless interface to
       // event is changed to just take a const EventPrincipal
-      if(!selectors_.wantEvent(ep)) {
+      if(!selectors_.wantEvent(ep, nullptr)) {
         return;
       }
     }
@@ -287,7 +290,7 @@ namespace edm {
     ep.setLuminosityBlockPrincipal(principalCache_.lumiPrincipalPtr());
     propagateProducts(InEvent, principal, ep);
     typedef OccurrenceTraits<EventPrincipal, BranchActionStreamBegin> Traits;
-    schedule_->processOneOccurrence<Traits>(ep, esp_->eventSetupForInstance(ts));
+    schedule_->processOneEvent<Traits>(ep, esp_->eventSetupForInstance(ts));
     if(subProcess_.get()) subProcess_->doEvent(ep, ts);
     ep.clearEventPrincipal();
   }
@@ -315,7 +318,7 @@ namespace edm {
     RunPrincipal& rp = *principalCache_.runPrincipalPtr();
     propagateProducts(InRun, principal, rp);
     typedef OccurrenceTraits<RunPrincipal, BranchActionGlobalBegin> Traits;
-    schedule_->processOneOccurrence<Traits>(rp, esp_->eventSetupForInstance(ts));
+    schedule_->processOneGlobal<Traits>(rp, esp_->eventSetupForInstance(ts));
     if(subProcess_.get()) subProcess_->doBeginRun(rp, ts);
   }
 
@@ -330,7 +333,7 @@ namespace edm {
     RunPrincipal& rp = *principalCache_.runPrincipalPtr();
     propagateProducts(InRun, principal, rp);
     typedef OccurrenceTraits<RunPrincipal, BranchActionGlobalEnd> Traits;
-    schedule_->processOneOccurrence<Traits>(rp, esp_->eventSetupForInstance(ts), cleaningUpAfterException);
+    schedule_->processOneGlobal<Traits>(rp, esp_->eventSetupForInstance(ts), cleaningUpAfterException);
     if(subProcess_.get()) subProcess_->doEndRun(rp, ts, cleaningUpAfterException);
   }
 
@@ -339,7 +342,7 @@ namespace edm {
     ServiceRegistry::Operate operate(serviceToken_);
     std::map<ProcessHistoryID, ProcessHistoryID>::const_iterator it = parentToChildPhID_.find(parentPhID);
     assert(it != parentToChildPhID_.end());
-    schedule_->writeRun(principalCache_.runPrincipal(it->second, runNumber));
+    schedule_->writeRun(principalCache_.runPrincipal(it->second, runNumber), &processContext_);
     if(subProcess_.get()) subProcess_->writeRun(it->second, runNumber);
   }
 
@@ -368,7 +371,7 @@ namespace edm {
     LuminosityBlockPrincipal& lbp = *principalCache_.lumiPrincipalPtr();
     propagateProducts(InLumi, principal, lbp);
     typedef OccurrenceTraits<LuminosityBlockPrincipal, BranchActionGlobalBegin> Traits;
-    schedule_->processOneOccurrence<Traits>(lbp, esp_->eventSetupForInstance(ts));
+    schedule_->processOneGlobal<Traits>(lbp, esp_->eventSetupForInstance(ts));
     if(subProcess_.get()) subProcess_->doBeginLuminosityBlock(lbp, ts);
   }
 
@@ -383,7 +386,7 @@ namespace edm {
     LuminosityBlockPrincipal& lbp = *principalCache_.lumiPrincipalPtr();
     propagateProducts(InLumi, principal, lbp);
     typedef OccurrenceTraits<LuminosityBlockPrincipal, BranchActionGlobalEnd> Traits;
-    schedule_->processOneOccurrence<Traits>(lbp, esp_->eventSetupForInstance(ts), cleaningUpAfterException);
+    schedule_->processOneGlobal<Traits>(lbp, esp_->eventSetupForInstance(ts), cleaningUpAfterException);
     if(subProcess_.get()) subProcess_->doEndLuminosityBlock(lbp, ts, cleaningUpAfterException);
   }
 
@@ -392,7 +395,7 @@ namespace edm {
     ServiceRegistry::Operate operate(serviceToken_);
     std::map<ProcessHistoryID, ProcessHistoryID>::const_iterator it = parentToChildPhID_.find(parentPhID);
     assert(it != parentToChildPhID_.end());
-    schedule_->writeLumi(principalCache_.lumiPrincipal(it->second, runNumber, lumiNumber));
+    schedule_->writeLumi(principalCache_.lumiPrincipal(it->second, runNumber, lumiNumber), &processContext_);
     if(subProcess_.get()) subProcess_->writeLumi(it->second, runNumber, lumiNumber);
   }
 
@@ -426,7 +429,7 @@ namespace edm {
     {
       RunPrincipal& rp = *principalCache_.runPrincipalPtr();
       typedef OccurrenceTraits<RunPrincipal, BranchActionStreamBegin> Traits;
-      schedule_->processOneOccurrence<Traits>(rp, esp_->eventSetupForInstance(ts));
+      schedule_->processOneStream<Traits>(rp, esp_->eventSetupForInstance(ts));
       if(subProcess_.get()) subProcess_->doStreamBeginRun(id,rp, ts);
     }
   }
@@ -437,7 +440,7 @@ namespace edm {
     {
       RunPrincipal& rp = *principalCache_.runPrincipalPtr();
       typedef OccurrenceTraits<RunPrincipal, BranchActionStreamEnd> Traits;
-      schedule_->processOneOccurrence<Traits>(rp, esp_->eventSetupForInstance(ts),cleaningUpAfterException);
+      schedule_->processOneStream<Traits>(rp, esp_->eventSetupForInstance(ts),cleaningUpAfterException);
       if(subProcess_.get()) subProcess_->doStreamEndRun(id,rp, ts,cleaningUpAfterException);
     }
   }
@@ -448,7 +451,7 @@ namespace edm {
     {
       LuminosityBlockPrincipal& lbp = *principalCache_.lumiPrincipalPtr();
       typedef OccurrenceTraits<LuminosityBlockPrincipal, BranchActionStreamBegin> Traits;
-      schedule_->processOneOccurrence<Traits>(lbp, esp_->eventSetupForInstance(ts));
+      schedule_->processOneStream<Traits>(lbp, esp_->eventSetupForInstance(ts));
       if(subProcess_.get()) subProcess_->doStreamBeginLuminosityBlock(id,lbp, ts);
     }
   }
@@ -459,7 +462,7 @@ namespace edm {
     {
       LuminosityBlockPrincipal& lbp = *principalCache_.lumiPrincipalPtr();
       typedef OccurrenceTraits<LuminosityBlockPrincipal, BranchActionStreamEnd> Traits;
-      schedule_->processOneOccurrence<Traits>(lbp, esp_->eventSetupForInstance(ts),cleaningUpAfterException);
+      schedule_->processOneStream<Traits>(lbp, esp_->eventSetupForInstance(ts),cleaningUpAfterException);
       if(subProcess_.get()) subProcess_->doStreamEndLuminosityBlock(id,lbp, ts,cleaningUpAfterException);
     }
   }
@@ -469,10 +472,10 @@ namespace edm {
   SubProcess::propagateProducts(BranchType type, Principal const& parentPrincipal, Principal& principal) const {
     Selections const& keptVector = keptProducts()[type];
     for(Selections::const_iterator it = keptVector.begin(), itEnd = keptVector.end(); it != itEnd; ++it) {
-      ProductHolderBase const* parentProductHolder = parentPrincipal.getProductHolder((*it)->branchID(), false, false);
+      ProductHolderBase const* parentProductHolder = parentPrincipal.getProductHolder((*it)->branchID(), false, false, nullptr);
       if(parentProductHolder != 0) {
         ProductData const& parentData = parentProductHolder->productData();
-        ProductHolderBase const* productHolder = principal.getProductHolder((*it)->branchID(), false, false);
+        ProductHolderBase const* productHolder = principal.getProductHolder((*it)->branchID(), false, false, nullptr);
         if(productHolder != 0) {
           ProductData& thisData = const_cast<ProductData&>(productHolder->productData());
           //Propagate the per event(run)(lumi) data for this product to the subprocess.

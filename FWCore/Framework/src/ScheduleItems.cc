@@ -127,7 +127,8 @@ namespace edm {
   std::auto_ptr<Schedule>
   ScheduleItems::initSchedule(ParameterSet& parameterSet,
                               ParameterSet const* subProcessPSet,
-                              StreamID streamID) {
+                              StreamID streamID,
+                              ProcessContext const* processContext) {
     std::auto_ptr<Schedule> schedule(
         new Schedule(parameterSet,
                      ServiceRegistry::instance().get<service::TriggerNamesService>(),
@@ -137,7 +138,8 @@ namespace edm {
                      actReg_,
                      processConfiguration_,
                      subProcessPSet,
-                     streamID));
+                     streamID,
+                     processContext));
     return schedule;
   }
 

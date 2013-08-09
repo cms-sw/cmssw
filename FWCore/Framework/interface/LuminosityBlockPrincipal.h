@@ -25,6 +25,7 @@ is the DataBlock.
 namespace edm {
 
   class HistoryAppender;
+  class ModuleCallingContext;
   class RunPrincipal;
   class UnscheduledHandler;
 
@@ -107,7 +108,8 @@ namespace edm {
 
     virtual bool isComplete_() const override {return complete_;}
 
-    virtual bool unscheduledFill(std::string const&) const override {return false;}
+    virtual bool unscheduledFill(std::string const&,
+                                 ModuleCallingContext const* mcc) const override {return false;}
 
     void resolveProductImmediate(ProductHolderBase const& phb) const;
 

@@ -1,0 +1,323 @@
+++ constructing source:IntSource
+++ construction finished:IntSource
+++ constructing module: intProducer
+++ construction finished: intProducer
+++ constructing module: a1
+++ construction finished: a1
+++ constructing module: a2
+++ construction finished: a2
+++ constructing module: a3
+++ construction finished: a3
+++ constructing module: TriggerResults
+++ construction finished: TriggerResults
+++ constructing module: out
+++ construction finished: out
+++ constructing module: intProducerA
+++ construction finished: intProducerA
+++ constructing module: intProducerU
+++ construction finished: intProducerU
+++ constructing module: intVectorProducer
+++ construction finished: intVectorProducer
+++ ModuleBeginJob: intProducer
+++ ModuleBeginJob finished: intProducer
+++ ModuleBeginJob: a1
+++ ModuleBeginJob finished: a1
+++ ModuleBeginJob: a2
+++ ModuleBeginJob finished: a2
+++ ModuleBeginJob: a3
+++ ModuleBeginJob finished: a3
+++ ModuleBeginJob: TriggerResults
+++ ModuleBeginJob finished: TriggerResults
+++ ModuleBeginJob: out
+++ ModuleBeginJob finished: out
+++ ModuleBeginJob: intProducerA
+++ ModuleBeginJob finished: intProducerA
+++ ModuleBeginJob: intProducerU
+++ ModuleBeginJob finished: intProducerU
+++ ModuleBeginJob: intVectorProducer
+++ ModuleBeginJob finished: intVectorProducer
+++ Job started
+++++ ModuleBeginStream: intProducer
+++++ ModuleBeginStream finished
+++++ ModuleBeginStream: a1
+++++ ModuleBeginStream finished
+++++ ModuleBeginStream: a2
+++++ ModuleBeginStream finished
+++++ ModuleBeginStream: a3
+++++ ModuleBeginStream finished
+++++ ModuleBeginStream: TriggerResults
+++++ ModuleBeginStream finished
+++++ ModuleBeginStream: out
+++++ ModuleBeginStream finished
+++++ ModuleBeginStream: intProducerA
+++++ ModuleBeginStream finished
+++++ ModuleBeginStream: intProducerU
+++++ ModuleBeginStream finished
+++++ ModuleBeginStream: intVectorProducer
+++++ ModuleBeginStream finished
+++++ source run
+++++ finished: source run
+++++ GlobalBeginRun run: 1 time: 1
+++++++ ModuleGlobalBeginRun: intProducerA
+++++++ ModuleGlobalBeginRun finished: intProducerA
+++++++ ModuleGlobalBeginRun: intProducerU
+++++++ ModuleGlobalBeginRun finished: intProducerU
+++++++ ModuleGlobalBeginRun: intVectorProducer
+++++++ ModuleGlobalBeginRun finished: intVectorProducer
+++++++ ModuleGlobalBeginRun: intProducer
+++++++ ModuleGlobalBeginRun finished: intProducer
+++++++ ModuleGlobalBeginRun: a1
+++++++ ModuleGlobalBeginRun finished: a1
+++++++ ModuleGlobalBeginRun: a2
+++++++ ModuleGlobalBeginRun finished: a2
+++++++ ModuleGlobalBeginRun: a3
+++++++ ModuleGlobalBeginRun finished: a3
+++++++ ModuleGlobalBeginRun: out
+++++++ ModuleGlobalBeginRun finished: out
+++++ GlobalBeginRun finished
+++++ StreamBeginRun run: 1 time: 1
+++++++ ModuleStreamBeginRun: intProducerA
+++++++ ModuleStreamBeginRun finished: intProducerA
+++++++ ModuleStreamBeginRun: intProducerU
+++++++ ModuleStreamBeginRun finished: intProducerU
+++++++ ModuleStreamBeginRun: intVectorProducer
+++++++ ModuleStreamBeginRun finished: intVectorProducer
+++++++ ModuleStreamBeginRun: intProducer
+++++++ ModuleStreamBeginRun finished: intProducer
+++++++ ModuleStreamBeginRun: a1
+++++++ ModuleStreamBeginRun finished: a1
+++++++ ModuleStreamBeginRun: a2
+++++++ ModuleStreamBeginRun finished: a2
+++++++ ModuleStreamBeginRun: a3
+++++++ ModuleStreamBeginRun finished: a3
+++++++ ModuleStreamBeginRun: out
+++++++ ModuleStreamBeginRun finished: out
+++++ StreamBeginRun finished
+++++ source lumi
+++++ finished: source lumi
+++++ GlobalBeginLumi run: 1 lumi: 1 time: 1
+++++++ ModuleGlobalBeginLumi: intProducerA
+++++++ ModuleGlobalBeginLumi finished: intProducerA
+++++++ ModuleGlobalBeginLumi: intProducerU
+++++++ ModuleGlobalBeginLumi finished: intProducerU
+++++++ ModuleGlobalBeginLumi: intVectorProducer
+++++++ ModuleGlobalBeginLumi finished: intVectorProducer
+++++++ ModuleGlobalBeginLumi: intProducer
+++++++ ModuleGlobalBeginLumi finished: intProducer
+++++++ ModuleGlobalBeginLumi: a1
+++++++ ModuleGlobalBeginLumi finished: a1
+++++++ ModuleGlobalBeginLumi: a2
+++++++ ModuleGlobalBeginLumi finished: a2
+++++++ ModuleGlobalBeginLumi: a3
+++++++ ModuleGlobalBeginLumi finished: a3
+++++++ ModuleGlobalBeginLumi: out
+++++++ ModuleGlobalBeginLumi finished: out
+++++ GlobalBeginLumi finished
+++++ StreamBeginLumi run: 1 lumi: 1 time: 1
+++++++ ModuleStreamBeginLumi: intProducerA
+++++++ ModuleStreamBeginLumi finished: intProducerA
+++++++ ModuleStreamBeginLumi: intProducerU
+++++++ ModuleStreamBeginLumi finished: intProducerU
+++++++ ModuleStreamBeginLumi: intVectorProducer
+++++++ ModuleStreamBeginLumi finished: intVectorProducer
+++++++ ModuleStreamBeginLumi: intProducer
+++++++ ModuleStreamBeginLumi finished: intProducer
+++++++ ModuleStreamBeginLumi: a1
+++++++ ModuleStreamBeginLumi finished: a1
+++++++ ModuleStreamBeginLumi: a2
+++++++ ModuleStreamBeginLumi finished: a2
+++++++ ModuleStreamBeginLumi: a3
+++++++ ModuleStreamBeginLumi finished: a3
+++++++ ModuleStreamBeginLumi: out
+++++++ ModuleStreamBeginLumi finished: out
+++++ StreamBeginLumi finished
+++++ source event
+++++ finished: source event
+++++ processing event run: 1 lumi: 1 event: 1 time:5000001
+++++++ processing path for event: p
+++++++++ module for event: intProducer
+++++++++ finished module for event: intProducer
+++++++++ module for event: a1
+++++++++ finished module for event: a1
+++++++++ module for event: a2
+++++++++++ module for event: intProducerA
+++++++++++ finished module for event: intProducerA
+++++++++ finished module for event: a2
+++++++++ module for event: a3
+++++++++ finished module for event: a3
+++++++ path for event finished: p
+++++++++ module for event: TriggerResults
+++++++++ finished module for event: TriggerResults
+++++++ processing path for event: e
+++++++++ module for event: out
+++++++++++ module for event: intProducerU
+++++++++++ finished module for event: intProducerU
+++++++++++ module for event: intVectorProducer
+++++++++++ finished module for event: intVectorProducer
+++++++++ finished module for event: out
+++++++ path for event finished: e
+++++ event finished
+++++ source event
+++++ finished: source event
+++++ processing event run: 1 lumi: 1 event: 2 time:10000001
+++++++ processing path for event: p
+++++++++ module for event: intProducer
+++++++++ finished module for event: intProducer
+++++++++ module for event: a1
+++++++++ finished module for event: a1
+++++++++ module for event: a2
+++++++++++ module for event: intProducerA
+++++++++++ finished module for event: intProducerA
+++++++++ finished module for event: a2
+++++++++ module for event: a3
+++++++++ finished module for event: a3
+++++++ path for event finished: p
+++++++++ module for event: TriggerResults
+++++++++ finished module for event: TriggerResults
+++++++ processing path for event: e
+++++++++ module for event: out
+++++++++++ module for event: intProducerU
+++++++++++ finished module for event: intProducerU
+++++++++++ module for event: intVectorProducer
+++++++++++ finished module for event: intVectorProducer
+++++++++ finished module for event: out
+++++++ path for event finished: e
+++++ event finished
+++++ source event
+++++ finished: source event
+++++ processing event run: 1 lumi: 1 event: 3 time:15000001
+++++++ processing path for event: p
+++++++++ module for event: intProducer
+++++++++ finished module for event: intProducer
+++++++++ module for event: a1
+++++++++ finished module for event: a1
+++++++++ module for event: a2
+++++++++++ module for event: intProducerA
+++++++++++ finished module for event: intProducerA
+++++++++ finished module for event: a2
+++++++++ module for event: a3
+++++++++ finished module for event: a3
+++++++ path for event finished: p
+++++++++ module for event: TriggerResults
+++++++++ finished module for event: TriggerResults
+++++++ processing path for event: e
+++++++++ module for event: out
+++++++++++ module for event: intProducerU
+++++++++++ finished module for event: intProducerU
+++++++++++ module for event: intVectorProducer
+++++++++++ finished module for event: intVectorProducer
+++++++++ finished module for event: out
+++++++ path for event finished: e
+++++ event finished
+++++ StreamEndLumi run: 1 lumi: 1 time: 15000001
+++++++ ModuleStreamEndLumi: intProducerA
+++++++ ModuleStreamEndLumi finished: intProducerA
+++++++ ModuleStreamEndLumi: intProducerU
+++++++ ModuleStreamEndLumi finished: intProducerU
+++++++ ModuleStreamEndLumi: intVectorProducer
+++++++ ModuleStreamEndLumi finished: intVectorProducer
+++++++ ModuleStreamEndLumi: intProducer
+++++++ ModuleStreamEndLumi finished: intProducer
+++++++ ModuleStreamEndLumi: a1
+++++++ ModuleStreamEndLumi finished: a1
+++++++ ModuleStreamEndLumi: a2
+++++++ ModuleStreamEndLumi finished: a2
+++++++ ModuleStreamEndLumi: a3
+++++++ ModuleStreamEndLumi finished: a3
+++++++ ModuleStreamEndLumi: out
+++++++ ModuleStreamEndLumi finished: out
+++++ StreamEndLumi finished
+++++ GlobalEndLumi run: 1 lumi: 1 time: 1
+++++++ ModuleGlobalEndLumi: intProducerA
+++++++ ModuleGlobalEndLumi finished: intProducerA
+++++++ ModuleGlobalEndLumi: intProducerU
+++++++ ModuleGlobalEndLumi finished: intProducerU
+++++++ ModuleGlobalEndLumi: intVectorProducer
+++++++ ModuleGlobalEndLumi finished: intVectorProducer
+++++++ ModuleGlobalEndLumi: intProducer
+++++++ ModuleGlobalEndLumi finished: intProducer
+++++++ ModuleGlobalEndLumi: a1
+++++++ ModuleGlobalEndLumi finished: a1
+++++++ ModuleGlobalEndLumi: a2
+++++++ ModuleGlobalEndLumi finished: a2
+++++++ ModuleGlobalEndLumi: a3
+++++++ ModuleGlobalEndLumi finished: a3
+++++++ ModuleGlobalEndLumi: out
+++++++ ModuleGlobalEndLumi finished: out
+++++ GlobalEndLumi finished
+++++ StreamEndRun run: 1 time: 15000001
+++++++ ModuleStreamEndRun: intProducerA
+++++++ ModuleStreamEndRun finished: intProducerA
+++++++ ModuleStreamEndRun: intProducerU
+++++++ ModuleStreamEndRun finished: intProducerU
+++++++ ModuleStreamEndRun: intVectorProducer
+++++++ ModuleStreamEndRun finished: intVectorProducer
+++++++ ModuleStreamEndRun: intProducer
+++++++ ModuleStreamEndRun finished: intProducer
+++++++ ModuleStreamEndRun: a1
+++++++ ModuleStreamEndRun finished: a1
+++++++ ModuleStreamEndRun: a2
+++++++ ModuleStreamEndRun finished: a2
+++++++ ModuleStreamEndRun: a3
+++++++ ModuleStreamEndRun finished: a3
+++++++ ModuleStreamEndRun: out
+++++++ ModuleStreamEndRun finished: out
+++++ StreamEndRun finished
+++++ GlobalEndRun run: 1 time: 15000001
+++++++ ModuleGlobalEndRun: intProducerA
+++++++ ModuleGlobalEndRun finished: intProducerA
+++++++ ModuleGlobalEndRun: intProducerU
+++++++ ModuleGlobalEndRun finished: intProducerU
+++++++ ModuleGlobalEndRun: intVectorProducer
+++++++ ModuleGlobalEndRun finished: intVectorProducer
+++++++ ModuleGlobalEndRun: intProducer
+++++++ ModuleGlobalEndRun finished: intProducer
+++++++ ModuleGlobalEndRun: a1
+++++++ ModuleGlobalEndRun finished: a1
+++++++ ModuleGlobalEndRun: a2
+++++++ ModuleGlobalEndRun finished: a2
+++++++ ModuleGlobalEndRun: a3
+++++++ ModuleGlobalEndRun finished: a3
+++++++ ModuleGlobalEndRun: out
+++++++ ModuleGlobalEndRun finished: out
+++++ GlobalEndRun finished
+++++ ModuleEndStream: 
+++++ ModuleEndStream finished
+++++ ModuleEndStream: 
+++++ ModuleEndStream finished
+++++ ModuleEndStream: 
+++++ ModuleEndStream finished
+++++ ModuleEndStream: 
+++++ ModuleEndStream finished
+++++ ModuleEndStream: 
+++++ ModuleEndStream finished
+++++ ModuleEndStream: 
+++++ ModuleEndStream finished
+++++ ModuleEndStream: 
+++++ ModuleEndStream finished
+++++ ModuleEndStream: 
+++++ ModuleEndStream finished
+++++ ModuleEndStream: 
+++++ ModuleEndStream finished
+++ ModuleEndJob: intProducer
+++ ModuleEndJob finished: intProducer
+++ ModuleEndJob: a1
+TestFindProduct sum = 12
+++ ModuleEndJob finished: a1
+++ ModuleEndJob: a2
+TestFindProduct sum = 300
+++ ModuleEndJob finished: a2
+++ ModuleEndJob: a3
+TestFindProduct sum = 300
+++ ModuleEndJob finished: a3
+++ ModuleEndJob: TriggerResults
+++ ModuleEndJob finished: TriggerResults
+++ ModuleEndJob: out
+++ ModuleEndJob finished: out
+++ ModuleEndJob: intProducerA
+++ ModuleEndJob finished: intProducerA
+++ ModuleEndJob: intProducerU
+++ ModuleEndJob finished: intProducerU
+++ ModuleEndJob: intVectorProducer
+++ ModuleEndJob finished: intVectorProducer
+++ Job ended

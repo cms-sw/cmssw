@@ -167,8 +167,8 @@ namespace edm {
   }
 
 
-  Trig OutputModule::getTriggerResults(EventPrincipal const& ep) const {
-    return selectors_.getOneTriggerResults(ep);  }
+  Trig OutputModule::getTriggerResults(EventPrincipal const& ep, ModuleCallingContext const* mcc) const {
+    return selectors_.getOneTriggerResults(ep, mcc);  }
 
   namespace {
   }
@@ -176,18 +176,19 @@ namespace edm {
   bool
   OutputModule::doEvent(EventPrincipal const& ep,
                         EventSetup const&,
-                        CurrentProcessingContext const* cpc) {
+                        CurrentProcessingContext const* cpc,
+                        ModuleCallingContext const* mcc) {
     detail::CPCSentry sentry(current_context_, cpc);
     detail::TRBESSentry products_sentry(selectors_);
 
     FDEBUG(2) << "writeEvent called\n";
 
     if(!wantAllEvents_) {
-      if(!selectors_.wantEvent(ep)) {
+      if(!selectors_.wantEvent(ep, mcc)) {
         return true;
       }
     }
-    write(ep);
+    write(ep, mcc);
     updateBranchParents(ep);
     if(remainingEvents_ > 0) {
       --remainingEvents_;
@@ -213,53 +214,59 @@ namespace edm {
 
   bool
   OutputModule::doBeginRun(RunPrincipal const& rp,
-                                EventSetup const&,
-                                CurrentProcessingContext const* cpc) {
+                           EventSetup const&,
+                           CurrentProcessingContext const* cpc,
+                           ModuleCallingContext const* mcc) {
     detail::CPCSentry sentry(current_context_, cpc);
     FDEBUG(2) << "beginRun called\n";
-    beginRun(rp);
+    beginRun(rp, mcc);
     return true;
   }
 
   bool
   OutputModule::doEndRun(RunPrincipal const& rp,
-                              EventSetup const&,
-                              CurrentProcessingContext const* cpc) {
+                         EventSetup const&,
+                         CurrentProcessingContext const* cpc,
+                         ModuleCallingContext const* mcc) {
     detail::CPCSentry sentry(current_context_, cpc);
     FDEBUG(2) << "endRun called\n";
-    endRun(rp);
+    endRun(rp, mcc);
     return true;
   }
 
   void
-  OutputModule::doWriteRun(RunPrincipal const& rp) {
+  OutputModule::doWriteRun(RunPrincipal const& rp,
+                           ModuleCallingContext const* mcc) {
     FDEBUG(2) << "writeRun called\n";
-    writeRun(rp);
+    writeRun(rp, mcc);
   }
 
   bool
   OutputModule::doBeginLuminosityBlock(LuminosityBlockPrincipal const& lbp,
-                                            EventSetup const&,
-                                            CurrentProcessingContext const* cpc) {
+                                       EventSetup const&,
+                                       CurrentProcessingContext const* cpc,
+                                       ModuleCallingContext const* mcc) {
     detail::CPCSentry sentry(current_context_, cpc);
     FDEBUG(2) << "beginLuminosityBlock called\n";
-    beginLuminosityBlock(lbp);
+    beginLuminosityBlock(lbp, mcc);
     return true;
   }
 
   bool
   OutputModule::doEndLuminosityBlock(LuminosityBlockPrincipal const& lbp,
-                                          EventSetup const&,
-                                          CurrentProcessingContext const* cpc) {
+                                     EventSetup const&,
+                                     CurrentProcessingContext const* cpc,
+                                     ModuleCallingContext const* mcc) {
     detail::CPCSentry sentry(current_context_, cpc);
     FDEBUG(2) << "endLuminosityBlock called\n";
-    endLuminosityBlock(lbp);
+    endLuminosityBlock(lbp, mcc);
     return true;
   }
 
-  void OutputModule::doWriteLuminosityBlock(LuminosityBlockPrincipal const& lbp) {
+  void OutputModule::doWriteLuminosityBlock(LuminosityBlockPrincipal const& lbp,
+                                            ModuleCallingContext const* mcc) {
     FDEBUG(2) << "writeLuminosityBlock called\n";
-    writeLuminosityBlock(lbp);
+    writeLuminosityBlock(lbp, mcc);
   }
 
   void OutputModule::doOpenFile(FileBlock const& fb) {

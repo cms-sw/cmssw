@@ -20,18 +20,18 @@
 namespace edm {
   namespace one {
     namespace outputmodule {
-      void RunWatcher::doBeginRun_(RunPrincipal const& rp) {
-        beginRun(rp);
+      void RunWatcher::doBeginRun_(RunPrincipal const& rp, ModuleCallingContext const* mcc) {
+        beginRun(rp, mcc);
       }
-      void RunWatcher::doEndRun_(RunPrincipal const& rp) {
-        endRun(rp);
+      void RunWatcher::doEndRun_(RunPrincipal const& rp, ModuleCallingContext const* mcc) {
+        endRun(rp, mcc);
       }
       
-      void LuminosityBlockWatcher::doBeginLuminosityBlock_(LuminosityBlockPrincipal const& lbp) {
-        beginLuminosityBlock(lbp);
+      void LuminosityBlockWatcher::doBeginLuminosityBlock_(LuminosityBlockPrincipal const& lbp, ModuleCallingContext const* mcc) {
+        beginLuminosityBlock(lbp, mcc);
       }
-      void LuminosityBlockWatcher::doEndLuminosityBlock_(LuminosityBlockPrincipal const& lbp) {
-        endLuminosityBlock(lbp);
+      void LuminosityBlockWatcher::doEndLuminosityBlock_(LuminosityBlockPrincipal const& lbp, ModuleCallingContext const* mcc) {
+        endLuminosityBlock(lbp, mcc);
       }
       void InputFileWatcher::doRespondToOpenInputFile_(FileBlock const& iB)
       {

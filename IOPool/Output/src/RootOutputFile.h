@@ -35,7 +35,9 @@ class TTree;
 class TFile;
 
 namespace edm {
+  class ModuleCallingContext;
   class PoolOutputModule;
+
 
   class RootOutputFile {
   public:
@@ -45,10 +47,10 @@ namespace edm {
     explicit RootOutputFile(PoolOutputModule* om, std::string const& fileName,
                             std::string const& logicalFileName);
     ~RootOutputFile() {}
-    void writeOne(EventPrincipal const& e);
+    void writeOne(EventPrincipal const& e, ModuleCallingContext const*);
     //void endFile();
-    void writeLuminosityBlock(LuminosityBlockPrincipal const& lb);
-    void writeRun(RunPrincipal const& r);
+    void writeLuminosityBlock(LuminosityBlockPrincipal const& lb, ModuleCallingContext const*);
+    void writeRun(RunPrincipal const& r, ModuleCallingContext const*);
     void writeFileFormatVersion();
     void writeFileIdentifier();
     void writeIndexIntoFile();
@@ -80,12 +82,14 @@ namespace edm {
 
     void fillBranches(BranchType const& branchType,
                       Principal const& principal,
-                      StoredProductProvenanceVector* productProvenanceVecPtr);
+                      StoredProductProvenanceVector* productProvenanceVecPtr,
+                      ModuleCallingContext const*);
 
      void insertAncestors(ProductProvenance const& iGetParents,
                           EventPrincipal const& principal,
                           bool produced,
-                          std::set<StoredProductProvenance>& oToFill);
+                          std::set<StoredProductProvenance>& oToFill,
+                          ModuleCallingContext const*);
 
     bool insertProductProvenance(const ProductProvenance&,
                                  std::set<StoredProductProvenance>& oToInsert);

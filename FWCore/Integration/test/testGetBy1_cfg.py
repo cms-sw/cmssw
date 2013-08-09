@@ -2,6 +2,8 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("PROD1")
 
+process.Tracer = cms.Service('Tracer')
+
 process.options = cms.untracked.PSet( allowUnscheduled = cms.untracked.bool(True) )
 
 process.source = cms.Source("IntSource")
