@@ -175,13 +175,13 @@ namespace edm {
 
     std::string moduleLabel = description().moduleLabel();
     uLong crc = crc32(0L, Z_NULL, 0);
-    Bytef* buf = (Bytef*) moduleLabel.data();
+    Bytef const* buf = (Bytef const*)(moduleLabel.data());
     crc = crc32(crc, buf, moduleLabel.length());
     outputModuleId_ = static_cast<uint32>(crc);
 
     std::auto_ptr<InitMsgBuilder> init_message(
         new InitMsgBuilder(&serialize_databuffer.header_buf_[0], serialize_databuffer.header_buf_.size(),
-                           run, Version((uint8*)toplevel.compactForm().c_str()),
+                           run, Version((uint8 const*)toplevel.compactForm().c_str()),
                            getReleaseVersion().c_str() , processName.c_str(),
                            moduleLabel.c_str(), outputModuleId_,
                            hltTriggerNames, hltTriggerSelections_, l1_names,
