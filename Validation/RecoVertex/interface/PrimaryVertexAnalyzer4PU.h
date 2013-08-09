@@ -269,9 +269,9 @@ private:
 					  const edm::Handle<edm::SimVertexContainer> simVtxs, 
 					  const edm::Handle<edm::SimTrackContainer> simTrks);
   std::vector<PrimaryVertexAnalyzer4PU::simPrimaryVertex> getSimPVs(const edm::Handle<TrackingVertexCollection>);
-  double getTrueSeparation(float, std::vector<float>);
-  double getTrueSeparation(SimEvent, std::vector<SimEvent>);
-  std::vector<int> vertex_match(float, edm::Handle<reco::VertexCollection>);
+  double getTrueSeparation(float, const std::vector<float> &);
+  double getTrueSeparation(SimEvent, std::vector<SimEvent> &);
+  std::vector<int>* vertex_match(float, const edm::Handle<reco::VertexCollection>);
 
   bool truthMatchedTrack( edm::RefToBase<reco::Track>, TrackingParticleRef &  );
   std::vector< edm::RefToBase<reco::Track> >  getTruthMatchedVertexTracks(
@@ -292,7 +292,7 @@ private:
 			       const edm::Handle<reco::VertexCollection> recVtxs,
 			       const edm::Handle<reco::TrackCollection> recTrks, 
 			       std::vector<simPrimaryVertex> & simpv,
-			       std::vector<float> pui_z, 
+			       const std::vector<float> & pui_z, 
 			       const std::string message="");
 
   void analyzeVertexCollectionTP(std::map<std::string, TH1*> & h,
