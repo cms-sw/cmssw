@@ -565,12 +565,13 @@ void TrackingTruthProducer::createTrackingTruth()
                     }
                     else
                     {
-                        // Get the postion and time of the vertex
-                        const LorentzVector & position = trackingVertexes_->at(trackingVertexIndex).position();
-                        Vector xyz = Vector(position.x(), position.y(), position.z());
-                        double t = position.t();
-                        // Set the vertex postion of the tp to the closest vertex
-                        trackingParticles_->at(trackingParticleIndex).setVertex(xyz, t);
+                        // I removed the setVertex call here because it's actually useful to
+                        // have the stored position vector different to the position of the
+                        // referenced parent vertex. This "else" block is for when the vertex
+                        // has been merged into another one within the configured distance of
+                        // distanceCut_ (default is 30 microns). If that happens then we might
+                        // as well keep the true position which will have been set when the
+                        // TrackingParticle was initialised. Grimes 09/Aug/2013
                     }
 
                     vetoedSimVertexes.insert( std::make_pair(parentSimVertexIndex, trackingVertexIndex) );
@@ -641,7 +642,10 @@ bool TrackingTruthProducer::setTrackingParticle(
     if (simTrack.noVertex())
         position = LorentzVector(0, 0, 0, 0);
     else
-        position = simVertexes_->getObject(simTrack.vertIndex()). position();
+    {
+    	unsigned int parentSimVertexIndex = vertexIdToIndex_[ EncodedTruthId( simTrack.eventId(), simTrack.vertIndex() ) ];
+    	position = simVertexes_->getObject(parentSimVertexIndex).position();
+    }
 
     // Define the default status and pdgid
     int status = -99;
