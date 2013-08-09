@@ -16,14 +16,15 @@
 #include "DQM/SiStripMonitorCluster/interface/MonitorLTC.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 
-#include "DataFormats/LTCDigi/interface/LTCDigi.h"
 
-MonitorLTC::MonitorLTC(const edm::ParameterSet& iConfig) :
-  ltcDigiCollectionTag_(iConfig.getParameter<edm::InputTag>("ltcDigiCollectionTag"))
+MonitorLTC::MonitorLTC(const edm::ParameterSet& iConfig) // :
+  //  ltcDigiCollectionTag_(iConfig.getParameter<edm::InputTag>("ltcDigiCollectionTag"))
 {
   HLTDirectory="HLTResults";
   dqmStore_  = edm::Service<DQMStore>().operator->();
   conf_ = iConfig;
+
+  ltcDigiCollectionTagToken_ = consumes<LTCDigiCollection>(conf_.getParameter<edm::InputTag>("ltcDigiCollectionTag") );
 }
 
 
@@ -49,7 +50,8 @@ void MonitorLTC::beginJob(){
 
 void MonitorLTC::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-  edm::Handle<LTCDigiCollection> ltcdigis; iEvent.getByLabel(ltcDigiCollectionTag_, ltcdigis);
+  //  edm::Handle<LTCDigiCollection> ltcdigis; iEvent.getByLabel(ltcDigiCollectionTag_, ltcdigis);
+  edm::Handle<LTCDigiCollection> ltcdigis; iEvent.getByToken(ltcDigiCollectionTagToken_, ltcdigis);
 //  unsigned int ltc_run;
 //  unsigned int ltc_event;
 //  unsigned int ltc_triggerNumber;

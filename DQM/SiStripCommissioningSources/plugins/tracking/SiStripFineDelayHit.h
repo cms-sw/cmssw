@@ -6,6 +6,7 @@
 #include <utility>
 
 // user include files
+#include "FWCore/Utilities/interface/EDGetToken.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -23,6 +24,12 @@
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include <TrackingTools/PatternTools/interface/Trajectory.h>
 #include "DQM/SiStripCommissioningSources/plugins/tracking/SiStripFineDelayTLA.h"
+
+#include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
+#include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
+#include "DataFormats/SiStripCluster/interface/SiStripClusterCollection.h"
+#include "DataFormats/SiStripDigi/interface/SiStripRawDigi.h"
+#include <DataFormats/SiStripCommon/interface/SiStripEventSummary.h>
 
 //
 // class decleration
@@ -54,7 +61,13 @@ class SiStripFineDelayHit : public edm::EDProducer {
       double maxAngle_, minTrackP2_, maxClusterDistance_;
       int mode_; // 1=delayScan 2=latencyScan
       int explorationWindow_;
-      edm::InputTag digiLabel_, clusterLabel_, trackLabel_, seedLabel_, inputModuleLabel_;
+      //      edm::InputTag digiLabel_, clusterLabel_, trackLabel_, seedLabel_, inputModuleLabel_;
+      edm::EDGetTokenT<TrajectorySeedCollection> seedcollToken_;
+      edm::EDGetTokenT<SiStripEventSummary> inputModuleToken_;
+      edm::EDGetTokenT<reco::TrackCollection> trackCollectionToken_;
+      edm::EDGetTokenT<edm::DetSetVector<SiStripDigi> > digiToken_;
+      edm::EDGetTokenT<edmNew::DetSetVector<SiStripCluster> > clustersToken_;
+      edm::EDGetTokenT<std::vector<Trajectory> > trackToken_;
       std::map<uint32_t,uint32_t> connectionMap_;
 };
 

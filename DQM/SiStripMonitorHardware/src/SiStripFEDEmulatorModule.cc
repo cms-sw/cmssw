@@ -1,6 +1,6 @@
 // Original Author:  Anne-Marie Magnan
 //         Created:  2010/01/21
-// $Id: SiStripFEDEmulatorModule.cc,v 1.1 2012/10/15 09:02:47 threus Exp $
+// $Id: SiStripFEDEmulatorModule.cc,v 1.2 2013/03/04 07:53:45 davidlt Exp $
 //
 
 #include <sstream>
@@ -10,6 +10,7 @@
 #include <cassert>
 #include <vector>
 
+#include "FWCore/Utilities/interface/EDGetToken.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -70,6 +71,9 @@ namespace sistrip
     //tag of spydata collection
     edm::InputTag spyReorderedDigisTag_;
     edm::InputTag spyVirginRawDigisTag_;
+    edm::EDGetTokenT<edm::DetSetVector<SiStripRawDigi> > spyReorderedDigisToken_;
+    edm::EDGetTokenT<edm::DetSetVector<SiStripRawDigi> > spyVirginRawDigisToken_;
+
 
     //by fedIndex or module detid
     bool byModule_;
@@ -101,6 +105,9 @@ namespace sistrip {
     byModule_(iConfig.getParameter<bool>("ByModule")),
     algorithms_(SiStripRawProcessingFactory::create(iConfig.getParameter<edm::ParameterSet>("Algorithms"))) 
   {
+
+    spyReorderedDigisToken_ = consumes<edm::DetSetVector<SiStripRawDigi> >(spyReorderedDigisTag_);
+    spyVirginRawDigisToken_ = consumes<edm::DetSetVector<SiStripRawDigi> >(spyVirginRawDigisTag_);
 
     fedEmulator_.initialise(byModule_);
 
@@ -143,10 +150,12 @@ namespace sistrip {
     edm::Handle<edm::DetSetVector<SiStripRawDigi> > lDigisHandle;
     try { //to get the digis from the event
       if (!byModule_) {
-	iEvent.getByLabel(spyReorderedDigisTag_, lDigisHandle);
+	//	iEvent.getByLabel(spyReorderedDigisTag_, lDigisHandle);
+	iEvent.getByToken(spyReorderedDigisToken_, lDigisHandle);
       }
       else { //digis supplied by module
-	iEvent.getByLabel(spyVirginRawDigisTag_, lDigisHandle);
+	//	iEvent.getByLabel(spyVirginRawDigisTag_, lDigisHandle);
+	iEvent.getByToken(spyVirginRawDigisToken_, lDigisHandle);
       }//end of by module check
     } catch (const cms::Exception& e) {
       std::cout << e.what() ;

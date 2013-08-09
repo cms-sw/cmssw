@@ -1,5 +1,6 @@
 #include <sstream>
 
+#include "FWCore/Utilities/interface/EDGetToken.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -29,6 +30,7 @@ class SiStripFEDDumpPlugin : public edm::EDAnalyzer
 
   //tag of FEDRawData collection
   edm::InputTag rawDataTag_;
+  edm::EDGetTokenT<FEDRawDataCollection> rawDataToken_;
   //FED ID to dump
   unsigned int fedIdToDump_;
 };
@@ -42,6 +44,7 @@ SiStripFEDDumpPlugin::SiStripFEDDumpPlugin(const edm::ParameterSet& iConfig)
   : rawDataTag_(iConfig.getUntrackedParameter<edm::InputTag>("RawDataTag",edm::InputTag("source",""))),
     fedIdToDump_(iConfig.getUntrackedParameter<unsigned int>("FEDID",50))
 {
+  rawDataToken_ = consumes<FEDRawDataCollection>(rawDataTag_);
   if ( (fedIdToDump_ > FEDNumbering::MAXSiStripFEDID) || (fedIdToDump_ < FEDNumbering::MINSiStripFEDID) )
     edm::LogError("SiStripFEDDump") << "FED ID " << fedIdToDump_ << " is not valid. "
                                     << "SiStrip FED IDs are " << uint16_t(FEDNumbering::MINSiStripFEDID) << "-" << uint16_t(FEDNumbering::MAXSiStripFEDID);
@@ -62,7 +65,8 @@ SiStripFEDDumpPlugin::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 {
   //get raw data
   edm::Handle<FEDRawDataCollection> rawDataCollectionHandle;
-  iEvent.getByLabel(rawDataTag_,rawDataCollectionHandle);
+  //  iEvent.getByLabel(rawDataTag_,rawDataCollectionHandle);
+  iEvent.getByToken(rawDataToken_,rawDataCollectionHandle);
   const FEDRawDataCollection& rawDataCollection = *rawDataCollectionHandle;
   
   const FEDRawData& rawData = rawDataCollection.FEDData(fedIdToDump_);

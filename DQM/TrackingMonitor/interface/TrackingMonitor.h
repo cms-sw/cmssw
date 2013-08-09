@@ -10,10 +10,11 @@ Monitoring source for general quantities related to tracks.
 */
 // Original Author:  Suchandra Dutta, Giorgia Mila
 //         Created:  Thu 28 22:45:30 CEST 2008
-// $Id: TrackingMonitor.h,v 1.18 2012/04/24 17:42:42 tosi Exp $
+// $Id: TrackingMonitor.h,v 1.7 2012/10/15 13:24:45 threus Exp $
 
 #include <memory>
 #include <fstream>
+#include "FWCore/Utilities/interface/EDGetToken.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -22,6 +23,17 @@ Monitoring source for general quantities related to tracks.
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHitBuilder.h"
+#include "DataFormats/VertexReco/interface/Vertex.h"
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
+
+#include "DataFormats/TrackCandidate/interface/TrackCandidateCollection.h" 
+#include "DataFormats/TrackCandidate/interface/TrackCandidate.h" 
+
+#include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
+
+#include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
+#include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
+
 
 class DQMStore;
 class TrackAnalyzer;
@@ -60,8 +72,23 @@ class TrackingMonitor : public edm::EDAnalyzer
         edm::ParameterSet conf_;
 
         // the track analyzer
-        edm::InputTag bsSrc;
-	edm::InputTag pvSrc;
+        edm::InputTag bsSrc_;
+	edm::InputTag pvSrc_;
+	edm::EDGetTokenT<reco::BeamSpot> bsSrcToken_;
+	edm::EDGetTokenT<reco::VertexCollection> pvSrcToken_;
+
+	edm::EDGetTokenT<reco::TrackCollection> trackToken_;
+	edm::EDGetTokenT<TrackCandidateCollection> trackCandidateToken_;
+	edm::EDGetTokenT<edm::View<TrajectorySeed> > seedToken_;
+
+	edm::InputTag stripClusterInputTag_;
+	edm::InputTag pixelClusterInputTag_;
+	edm::EDGetTokenT<edmNew::DetSetVector<SiStripCluster> > stripClustersToken_;
+	edm::EDGetTokenT<edmNew::DetSetVector<SiPixelCluster> > pixelClustersToken_;
+
+	std::string Quality_;
+	std::string AlgoName_;
+
 
         TrackAnalyzer * theTrackAnalyzer;
         TrackBuildingAnalyzer  * theTrackBuildingAnalyzer;
