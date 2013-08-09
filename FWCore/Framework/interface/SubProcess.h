@@ -8,6 +8,7 @@
 #include "FWCore/Framework/interface/TriggerResultsBasedEventSelector.h"
 #include "FWCore/Framework/interface/ProductSelectorRules.h"
 #include "FWCore/Framework/interface/ProductSelector.h"
+#include "FWCore/ServiceRegistry/interface/ProcessContext.h"
 #include "FWCore/ServiceRegistry/interface/ServiceLegacy.h"
 #include "FWCore/ServiceRegistry/interface/ServiceToken.h"
 #include "FWCore/Utilities/interface/BranchType.h"
@@ -24,6 +25,7 @@ namespace edm {
   class EDLooperBase;
   class HistoryAppender;
   class IOVSyncValue;
+  class ModuleCallingContext;
   class ParameterSet;
   class ProductRegistry;
   namespace eventsetup {
@@ -38,7 +40,8 @@ namespace edm {
                eventsetup::EventSetupsController& esController,
                ActivityRegistry& parentActReg,
                ServiceToken const& token,
-               serviceregistry::ServiceLegacy iLegacy);
+               serviceregistry::ServiceLegacy iLegacy,
+               ProcessContext const* parentProcessContext);
 
     virtual ~SubProcess();
     
@@ -215,6 +218,7 @@ namespace edm {
     boost::shared_ptr<BranchIDListHelper>         branchIDListHelper_;
     std::unique_ptr<ActionTable const>            act_table_;
     boost::shared_ptr<ProcessConfiguration const> processConfiguration_;
+    ProcessContext                                processContext_;
     PrincipalCache                                principalCache_;
     boost::shared_ptr<eventsetup::EventSetupProvider> esp_;
     std::auto_ptr<Schedule>                       schedule_;

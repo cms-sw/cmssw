@@ -31,6 +31,7 @@
 // forward declarations
 
 namespace edm {
+  class ModuleCallingContext;
   class StreamID;
   
   namespace global {
@@ -50,6 +51,9 @@ namespace edm {
       static void prevalidate(ConfigurationDescriptions& descriptions);
       static const std::string& baseType();
 
+      // Warning: the returned moduleDescription will be invalid during construction
+      ModuleDescription const& moduleDescription() const { return moduleDescription_; }
+
     protected:
       // The returned pointer will be null unless the this is currently
       // executing its event loop function ('produce').
@@ -57,7 +61,8 @@ namespace edm {
       
     private:
       bool doEvent(EventPrincipal& ep, EventSetup const& c,
-                   CurrentProcessingContext const* cpcp);
+                   CurrentProcessingContext const* cpcp,
+                   ModuleCallingContext const*);
       void doBeginJob();
       void doEndJob();
       
@@ -66,29 +71,37 @@ namespace edm {
       void doStreamBeginRun(StreamID id,
                             RunPrincipal& ep,
                             EventSetup const& c,
-                            CurrentProcessingContext const* cpcp);
+                            CurrentProcessingContext const* cpcp,
+                            ModuleCallingContext const*);
       void doStreamEndRun(StreamID id,
                           RunPrincipal& ep,
                           EventSetup const& c,
-                          CurrentProcessingContext const* cpcp);
+                          CurrentProcessingContext const* cpcp,
+                          ModuleCallingContext const*);
       void doStreamBeginLuminosityBlock(StreamID id,
                                         LuminosityBlockPrincipal& ep,
                                         EventSetup const& c,
-                                        CurrentProcessingContext const* cpcp);
+                                        CurrentProcessingContext const* cpcp,
+                                        ModuleCallingContext const*);
       void doStreamEndLuminosityBlock(StreamID id,
                                       LuminosityBlockPrincipal& ep,
                                       EventSetup const& c,
-                                      CurrentProcessingContext const* cpcp);
+                                      CurrentProcessingContext const* cpcp,
+                                      ModuleCallingContext const*);
 
       
       void doBeginRun(RunPrincipal& rp, EventSetup const& c,
-                      CurrentProcessingContext const* cpc);
+                      CurrentProcessingContext const* cpc,
+                      ModuleCallingContext const*);
       void doEndRun(RunPrincipal& rp, EventSetup const& c,
-                    CurrentProcessingContext const* cpc);
+                    CurrentProcessingContext const* cpc,
+                    ModuleCallingContext const*);
       void doBeginLuminosityBlock(LuminosityBlockPrincipal& lbp, EventSetup const& c,
-                                  CurrentProcessingContext const* cpc);
+                                  CurrentProcessingContext const* cpc,
+                                  ModuleCallingContext const*);
       void doEndLuminosityBlock(LuminosityBlockPrincipal& lbp, EventSetup const& c,
-                                CurrentProcessingContext const* cpc);
+                                CurrentProcessingContext const* cpc,
+                                ModuleCallingContext const*);
       
       //For now, the following are just dummy implemenations with no ability for users to override
       void doRespondToOpenInputFile(FileBlock const& fb);

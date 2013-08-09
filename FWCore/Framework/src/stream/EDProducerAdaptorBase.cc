@@ -47,11 +47,12 @@ namespace edm {
     
     bool
     EDProducerAdaptorBase::doEvent(EventPrincipal& ep, EventSetup const& c,
-                                   CurrentProcessingContext const* cpcp) {
+                                   CurrentProcessingContext const* cpcp,
+                                   ModuleCallingContext const* mcc) {
       assert(ep.streamID()<m_streamModules.size());
       auto mod = m_streamModules[ep.streamID()];
       detail::CPCSentry sentry(mod->current_context_, cpcp);
-      Event e(ep, moduleDescription());
+      Event e(ep, moduleDescription(), mcc);
       e.setConsumer(mod);
       mod->produce(e, c);
       commit(e,&mod->previousParentage_, &mod->previousParentageId_);

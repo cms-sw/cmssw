@@ -63,6 +63,8 @@ namespace edm {
   class HistoryAppender;
   class ParameterSet;
   class ParameterSetDescription;
+  class ProcessContext;
+  class StreamContext;
   namespace multicore {
     class MessageReceiverForSource;
   }
@@ -104,10 +106,10 @@ namespace edm {
 
     /// Read next event
     /// Indicate inability to get a new event by returning a null ptr.
-    EventPrincipal* readEvent(EventPrincipal& ep);
+    EventPrincipal* readEvent(EventPrincipal& ep, StreamContext *);
 
     /// Read a specific event
-    EventPrincipal* readEvent(EventPrincipal& ep, EventID const&);
+    EventPrincipal* readEvent(EventPrincipal& ep, EventID const&, StreamContext *);
 
     /// Read next luminosity block Auxilary
     boost::shared_ptr<LuminosityBlockAuxiliary> readLuminosityBlockAuxiliary();
@@ -205,16 +207,16 @@ namespace edm {
     void doEndJob();
 
     /// Called by framework at beginning of lumi block
-    void doBeginLumi(LuminosityBlockPrincipal& lbp);
+    void doBeginLumi(LuminosityBlockPrincipal& lbp, ProcessContext const*);
 
     /// Called by framework at end of lumi block
-    void doEndLumi(LuminosityBlockPrincipal& lbp, bool cleaningUpAfterException);
+    void doEndLumi(LuminosityBlockPrincipal& lbp, bool cleaningUpAfterException, ProcessContext const*);
 
     /// Called by framework at beginning of run
-    void doBeginRun(RunPrincipal& rp);
+    void doBeginRun(RunPrincipal& rp, ProcessContext const*);
 
     /// Called by framework at end of run
-    void doEndRun(RunPrincipal& rp, bool cleaningUpAfterException);
+    void doEndRun(RunPrincipal& rp, bool cleaningUpAfterException, ProcessContext const*);
 
     /// Called by the framework before forking the process
     void doPreForkReleaseResources();
@@ -289,22 +291,32 @@ namespace edm {
 
     class FileOpenSentry {
     public:
-      explicit FileOpenSentry(InputSource const& source);
+      typedef signalslot::Signal<void(std::string const&, bool)> Sig;
+      explicit FileOpenSentry(InputSource const& source, std::string const& lfn, bool usedFallback);
+      ~FileOpenSentry();
+
+      FileOpenSentry(FileOpenSentry const&) = delete; // Disallow copying and moving
+      FileOpenSentry& operator=(FileOpenSentry const&) = delete; // Disallow copying and moving
+
     private:
-      SourceSentry sentry_;
+      Sig& post_;
+      std::string const& lfn_;
+      bool usedFallback_;
     };
 
     class FileCloseSentry {
     public:
-      typedef signalslot::Signal<void()> Sig;
-      explicit FileCloseSentry(InputSource const& source);
-      explicit FileCloseSentry(InputSource const& source, std::string const& lfn, bool primary);
+      typedef signalslot::Signal<void(std::string const&, bool)> Sig;
+      explicit FileCloseSentry(InputSource const& source, std::string const& lfn, bool usedFallback);
       ~FileCloseSentry();
 
       FileCloseSentry(FileCloseSentry const&) = delete; // Disallow copying and moving
       FileCloseSentry& operator=(FileCloseSentry const&) = delete; // Disallow copying and moving
 
+    private:
       Sig& post_;
+      std::string const& lfn_;
+      bool usedFallback_;
     };
 
   protected:

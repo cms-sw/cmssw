@@ -292,7 +292,7 @@ TFWLiteSelectorBasic::Process(Long64_t iEntry) {
          m_->ep_->setLuminosityBlockPrincipal(lbp);
          m_->processNames_ = m_->ep_->processHistory();
 
-         edm::Event event(*m_->ep_, m_->md_);
+         edm::Event event(*m_->ep_, m_->md_, nullptr);
 
          //Make the event principal accessible to edm::Ref's
          Operate sentry(m_->ep_->prodGetter());

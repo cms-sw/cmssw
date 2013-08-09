@@ -24,6 +24,7 @@ a set of related EDProducts. This is the storage unit of such information.
 namespace edm {
   class BranchMapper;
   class DelayedReader;
+  class ModuleCallingContext;
   class Principal;
   class WrapperInterfaceBase;
 
@@ -46,8 +47,9 @@ namespace edm {
       return getProductData();
     }
 
-    ProductData const* resolveProduct(ResolveStatus& resolveStatus, bool skipCurrentProcess) const {
-      return resolveProduct_(resolveStatus, skipCurrentProcess);
+    ProductData const* resolveProduct(ResolveStatus& resolveStatus, bool skipCurrentProcess,
+                                      ModuleCallingContext const* mcc) const {
+      return resolveProduct_(resolveStatus, skipCurrentProcess, mcc);
     }
 
     void resetStatus () {
@@ -174,7 +176,8 @@ namespace edm {
   private:
     virtual ProductData const& getProductData() const = 0;
     virtual ProductData& getProductData() = 0;
-    virtual ProductData const* resolveProduct_(ResolveStatus& resolveStatus, bool skipCurrentProcess) const = 0;
+    virtual ProductData const* resolveProduct_(ResolveStatus& resolveStatus, bool skipCurrentProcess,
+                                               ModuleCallingContext const* mcc) const = 0;
     virtual void swap_(ProductHolderBase& rhs) = 0;
     virtual bool onDemand_() const = 0;
     virtual bool productUnavailable_() const = 0;
@@ -225,7 +228,8 @@ namespace edm {
         edm::swap(productData_, other.productData_);
         std::swap(productIsUnavailable_, other.productIsUnavailable_);
       }
-      virtual ProductData const* resolveProduct_(ResolveStatus& resolveStatus, bool skipCurrentProcess) const;
+      virtual ProductData const* resolveProduct_(ResolveStatus& resolveStatus, bool skipCurrentProcess,
+                                                 ModuleCallingContext const* mcc) const;
       virtual void putProduct_(WrapperOwningHolder const& edp, ProductProvenance const& productProvenance);
       virtual void putProduct_(WrapperOwningHolder const& edp) const;
       virtual void mergeProduct_(WrapperOwningHolder const& edp, ProductProvenance& productProvenance);
@@ -311,7 +315,8 @@ namespace edm {
         edm::swap(productData_, other.productData_);
         std::swap(theStatus_, other.theStatus_);
       }
-      virtual ProductData const* resolveProduct_(ResolveStatus& resolveStatus, bool skipCurrentProcess) const;
+      virtual ProductData const* resolveProduct_(ResolveStatus& resolveStatus, bool skipCurrentProcess,
+                                                 ModuleCallingContext const* mcc) const;
       virtual void resetStatus_() {theStatus_ = NotRun;}
       virtual bool onDemand_() const {return false;}
       virtual ProductData const& getProductData() const {return productData_;}
@@ -338,7 +343,8 @@ namespace edm {
         edm::swap(productData_, other.productData_);
         std::swap(theStatus_, other.theStatus_);
       }
-      virtual ProductData const* resolveProduct_(ResolveStatus& resolveStatus, bool skipCurrentProcess) const;
+      virtual ProductData const* resolveProduct_(ResolveStatus& resolveStatus, bool skipCurrentProcess,
+                                                 ModuleCallingContext const* mcc) const;
       virtual void resetStatus_() {theStatus_ = UnscheduledNotRun;}
       virtual bool onDemand_() const {return status() == UnscheduledNotRun;}
       virtual ProductData const& getProductData() const {return productData_;}
@@ -365,7 +371,8 @@ namespace edm {
         edm::swap(productData_, other.productData_);
         std::swap(theStatus_, other.theStatus_);
       }
-      virtual ProductData const* resolveProduct_(ResolveStatus& resolveStatus, bool skipCurrentProcess) const;
+      virtual ProductData const* resolveProduct_(ResolveStatus& resolveStatus, bool skipCurrentProcess,
+                                                 ModuleCallingContext const* mcc) const;
       virtual void resetStatus_() {theStatus_ = NotPut;}
       virtual bool onDemand_() const {return false;}
       virtual ProductData const& getProductData() const {return productData_;}
@@ -387,7 +394,8 @@ namespace edm {
         realProduct_.swap(other.realProduct_);
         std::swap(bd_, other.bd_);
       }
-      virtual ProductData const* resolveProduct_(ResolveStatus& resolveStatus, bool skipCurrentProcess) const {return realProduct_.resolveProduct(resolveStatus, skipCurrentProcess);}
+      virtual ProductData const* resolveProduct_(ResolveStatus& resolveStatus, bool skipCurrentProcess,
+                                                 ModuleCallingContext const* mcc) const {return realProduct_.resolveProduct(resolveStatus, skipCurrentProcess, mcc);}
       virtual bool onDemand_() const {return realProduct_.onDemand();}
       virtual ProductStatus& status_() const {return realProduct_.status();}
       virtual void resetStatus_() {realProduct_.resetStatus();}
@@ -436,7 +444,8 @@ namespace edm {
     private:
       virtual ProductData const& getProductData() const;
       virtual ProductData& getProductData();
-      virtual ProductData const* resolveProduct_(ResolveStatus& resolveStatus, bool skipCurrentProcess) const;
+      virtual ProductData const* resolveProduct_(ResolveStatus& resolveStatus, bool skipCurrentProcess,
+                                                 ModuleCallingContext const* mcc) const;
       virtual void swap_(ProductHolderBase& rhs);
       virtual bool onDemand_() const;
       virtual bool productUnavailable_() const;

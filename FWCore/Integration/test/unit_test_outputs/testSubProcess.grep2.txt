@@ -1,0 +1,3812 @@
+++ constructing source:EmptySource
+++ construction finished:EmptySource
+++ constructing module: thingWithMergeProducer
+++ construction finished: thingWithMergeProducer
+++ constructing module: get
+++ construction finished: get
+++ constructing module: putInt
+++ construction finished: putInt
+++ constructing module: putInt2
+++ construction finished: putInt2
+++ constructing module: putInt3
+++ construction finished: putInt3
+++ constructing module: getInt
+++ construction finished: getInt
+++ constructing module: noPut
+++ construction finished: noPut
+++ constructing module: TriggerResults
+++ construction finished: TriggerResults
+++ constructing module: thingWithMergeProducer
+++ construction finished: thingWithMergeProducer
+++ constructing module: test
+++ construction finished: test
+++ constructing module: testmerge
+++ construction finished: testmerge
+++ constructing module: get
+++ construction finished: get
+++ constructing module: getInt
+++ construction finished: getInt
+++ constructing module: dependsOnNoPut
+++ construction finished: dependsOnNoPut
+++ constructing module: TriggerResults
+++ construction finished: TriggerResults
+++ constructing module: out
+++ construction finished: out
+++ ModuleBeginJob: thingWithMergeProducer
+++ ModuleBeginJob finished: thingWithMergeProducer
+++ ModuleBeginJob: get
+++ ModuleBeginJob finished: get
+++ ModuleBeginJob: putInt
+++ ModuleBeginJob finished: putInt
+++ ModuleBeginJob: putInt2
+++ ModuleBeginJob finished: putInt2
+++ ModuleBeginJob: putInt3
+++ ModuleBeginJob finished: putInt3
+++ ModuleBeginJob: getInt
+++ ModuleBeginJob finished: getInt
+++ ModuleBeginJob: noPut
+++ ModuleBeginJob finished: noPut
+++ ModuleBeginJob: TriggerResults
+++ ModuleBeginJob finished: TriggerResults
+++ ModuleBeginJob: thingWithMergeProducer
+++ ModuleBeginJob finished: thingWithMergeProducer
+++ ModuleBeginJob: test
+++ ModuleBeginJob finished: test
+++ ModuleBeginJob: testmerge
+++ ModuleBeginJob finished: testmerge
+++ ModuleBeginJob: get
+++ ModuleBeginJob finished: get
+++ ModuleBeginJob: getInt
+++ ModuleBeginJob finished: getInt
+++ ModuleBeginJob: dependsOnNoPut
+++ ModuleBeginJob finished: dependsOnNoPut
+++ ModuleBeginJob: TriggerResults
+++ ModuleBeginJob finished: TriggerResults
+++ ModuleBeginJob: out
+++ ModuleBeginJob finished: out
+++ Job started
+++++ ModuleBeginStream: thingWithMergeProducer
+++++ ModuleBeginStream finished
+++++ ModuleBeginStream: get
+++++ ModuleBeginStream finished
+++++ ModuleBeginStream: putInt
+++++ ModuleBeginStream finished
+++++ ModuleBeginStream: putInt2
+++++ ModuleBeginStream finished
+++++ ModuleBeginStream: putInt3
+++++ ModuleBeginStream finished
+++++ ModuleBeginStream: getInt
+++++ ModuleBeginStream finished
+++++ ModuleBeginStream: noPut
+++++ ModuleBeginStream finished
+++++ ModuleBeginStream: TriggerResults
+++++ ModuleBeginStream finished
+++++ ModuleBeginStream: thingWithMergeProducer
+++++ ModuleBeginStream finished
+++++ ModuleBeginStream: test
+++++ ModuleBeginStream finished
+++++ ModuleBeginStream: testmerge
+++++ ModuleBeginStream finished
+++++ ModuleBeginStream: get
+++++ ModuleBeginStream finished
+++++ ModuleBeginStream: getInt
+++++ ModuleBeginStream finished
+++++ ModuleBeginStream: dependsOnNoPut
+++++ ModuleBeginStream finished
+++++ ModuleBeginStream: TriggerResults
+++++ ModuleBeginStream finished
+++++ ModuleBeginStream: out
+++++ ModuleBeginStream finished
+++++ source run
+++++ finished: source run
+++++ GlobalBeginRun run: 1 time: 1
+++++ GlobalBeginRun finished
+++++ GlobalBeginRun run: 1 time: 1
+++++ GlobalBeginRun finished
+++++ GlobalBeginRun run: 1 time: 1
+++++++ ModuleGlobalBeginRun: thingWithMergeProducer
+++++++ ModuleGlobalBeginRun finished: thingWithMergeProducer
+++++++ ModuleGlobalBeginRun: get
+++++++ ModuleGlobalBeginRun finished: get
+++++++ ModuleGlobalBeginRun: putInt
+++++++ ModuleGlobalBeginRun finished: putInt
+++++++ ModuleGlobalBeginRun: putInt2
+++++++ ModuleGlobalBeginRun finished: putInt2
+++++++ ModuleGlobalBeginRun: putInt3
+++++++ ModuleGlobalBeginRun finished: putInt3
+++++++ ModuleGlobalBeginRun: getInt
+++++++ ModuleGlobalBeginRun finished: getInt
+++++++ ModuleGlobalBeginRun: noPut
+++++++ ModuleGlobalBeginRun finished: noPut
+++++ GlobalBeginRun finished
+++++ GlobalBeginRun run: 1 time: 1
+++++ GlobalBeginRun finished
+++++ GlobalBeginRun run: 1 time: 1
+++++++ ModuleGlobalBeginRun: thingWithMergeProducer
+++++++ ModuleGlobalBeginRun finished: thingWithMergeProducer
+++++++ ModuleGlobalBeginRun: test
+++++++ ModuleGlobalBeginRun finished: test
+++++++ ModuleGlobalBeginRun: testmerge
+++++++ ModuleGlobalBeginRun finished: testmerge
+++++++ ModuleGlobalBeginRun: get
+++++++ ModuleGlobalBeginRun finished: get
+++++++ ModuleGlobalBeginRun: getInt
+++++++ ModuleGlobalBeginRun finished: getInt
+++++++ ModuleGlobalBeginRun: dependsOnNoPut
+++++++ ModuleGlobalBeginRun finished: dependsOnNoPut
+++++++ ModuleGlobalBeginRun: out
+++++++ ModuleGlobalBeginRun finished: out
+++++ GlobalBeginRun finished
+++++ StreamBeginRun run: 1 time: 1
+++++ StreamBeginRun finished
+++++ StreamBeginRun run: 1 time: 1
+++++ StreamBeginRun finished
+++++ StreamBeginRun run: 1 time: 1
+++++++ ModuleStreamBeginRun: thingWithMergeProducer
+++++++ ModuleStreamBeginRun finished: thingWithMergeProducer
+++++++ ModuleStreamBeginRun: get
+++++++ ModuleStreamBeginRun finished: get
+++++++ ModuleStreamBeginRun: putInt
+++++++ ModuleStreamBeginRun finished: putInt
+++++++ ModuleStreamBeginRun: putInt2
+++++++ ModuleStreamBeginRun finished: putInt2
+++++++ ModuleStreamBeginRun: putInt3
+++++++ ModuleStreamBeginRun finished: putInt3
+++++++ ModuleStreamBeginRun: getInt
+++++++ ModuleStreamBeginRun finished: getInt
+++++++ ModuleStreamBeginRun: noPut
+++++++ ModuleStreamBeginRun finished: noPut
+++++ StreamBeginRun finished
+++++ StreamBeginRun run: 1 time: 1
+++++ StreamBeginRun finished
+++++ StreamBeginRun run: 1 time: 1
+++++++ ModuleStreamBeginRun: thingWithMergeProducer
+++++++ ModuleStreamBeginRun finished: thingWithMergeProducer
+++++++ ModuleStreamBeginRun: test
+++++++ ModuleStreamBeginRun finished: test
+++++++ ModuleStreamBeginRun: testmerge
+++++++ ModuleStreamBeginRun finished: testmerge
+++++++ ModuleStreamBeginRun: get
+++++++ ModuleStreamBeginRun finished: get
+++++++ ModuleStreamBeginRun: getInt
+++++++ ModuleStreamBeginRun finished: getInt
+++++++ ModuleStreamBeginRun: dependsOnNoPut
+++++++ ModuleStreamBeginRun finished: dependsOnNoPut
+++++++ ModuleStreamBeginRun: out
+++++++ ModuleStreamBeginRun finished: out
+++++ StreamBeginRun finished
+++++ source lumi
+++++ finished: source lumi
+++++ GlobalBeginLumi run: 1 lumi: 1 time: 1
+++++ GlobalBeginLumi finished
+++++ GlobalBeginLumi run: 1 lumi: 1 time: 1
+++++ GlobalBeginLumi finished
+++++ GlobalBeginLumi run: 1 lumi: 1 time: 1
+++++++ ModuleGlobalBeginLumi: thingWithMergeProducer
+++++++ ModuleGlobalBeginLumi finished: thingWithMergeProducer
+++++++ ModuleGlobalBeginLumi: get
+++++++ ModuleGlobalBeginLumi finished: get
+++++++ ModuleGlobalBeginLumi: putInt
+++++++ ModuleGlobalBeginLumi finished: putInt
+++++++ ModuleGlobalBeginLumi: putInt2
+++++++ ModuleGlobalBeginLumi finished: putInt2
+++++++ ModuleGlobalBeginLumi: putInt3
+++++++ ModuleGlobalBeginLumi finished: putInt3
+++++++ ModuleGlobalBeginLumi: getInt
+++++++ ModuleGlobalBeginLumi finished: getInt
+++++++ ModuleGlobalBeginLumi: noPut
+++++++ ModuleGlobalBeginLumi finished: noPut
+++++ GlobalBeginLumi finished
+++++ GlobalBeginLumi run: 1 lumi: 1 time: 1
+++++ GlobalBeginLumi finished
+++++ GlobalBeginLumi run: 1 lumi: 1 time: 1
+++++++ ModuleGlobalBeginLumi: thingWithMergeProducer
+++++++ ModuleGlobalBeginLumi finished: thingWithMergeProducer
+++++++ ModuleGlobalBeginLumi: test
+++++++ ModuleGlobalBeginLumi finished: test
+++++++ ModuleGlobalBeginLumi: testmerge
+++++++ ModuleGlobalBeginLumi finished: testmerge
+++++++ ModuleGlobalBeginLumi: get
+++++++ ModuleGlobalBeginLumi finished: get
+++++++ ModuleGlobalBeginLumi: getInt
+++++++ ModuleGlobalBeginLumi finished: getInt
+++++++ ModuleGlobalBeginLumi: dependsOnNoPut
+++++++ ModuleGlobalBeginLumi finished: dependsOnNoPut
+++++++ ModuleGlobalBeginLumi: out
+++++++ ModuleGlobalBeginLumi finished: out
+++++ GlobalBeginLumi finished
+++++ StreamBeginLumi run: 1 lumi: 1 time: 1
+++++ StreamBeginLumi finished
+++++ StreamBeginLumi run: 1 lumi: 1 time: 1
+++++ StreamBeginLumi finished
+++++ StreamBeginLumi run: 1 lumi: 1 time: 1
+++++++ ModuleStreamBeginLumi: thingWithMergeProducer
+++++++ ModuleStreamBeginLumi finished: thingWithMergeProducer
+++++++ ModuleStreamBeginLumi: get
+++++++ ModuleStreamBeginLumi finished: get
+++++++ ModuleStreamBeginLumi: putInt
+++++++ ModuleStreamBeginLumi finished: putInt
+++++++ ModuleStreamBeginLumi: putInt2
+++++++ ModuleStreamBeginLumi finished: putInt2
+++++++ ModuleStreamBeginLumi: putInt3
+++++++ ModuleStreamBeginLumi finished: putInt3
+++++++ ModuleStreamBeginLumi: getInt
+++++++ ModuleStreamBeginLumi finished: getInt
+++++++ ModuleStreamBeginLumi: noPut
+++++++ ModuleStreamBeginLumi finished: noPut
+++++ StreamBeginLumi finished
+++++ StreamBeginLumi run: 1 lumi: 1 time: 1
+++++ StreamBeginLumi finished
+++++ StreamBeginLumi run: 1 lumi: 1 time: 1
+++++++ ModuleStreamBeginLumi: thingWithMergeProducer
+++++++ ModuleStreamBeginLumi finished: thingWithMergeProducer
+++++++ ModuleStreamBeginLumi: test
+++++++ ModuleStreamBeginLumi finished: test
+++++++ ModuleStreamBeginLumi: testmerge
+++++++ ModuleStreamBeginLumi finished: testmerge
+++++++ ModuleStreamBeginLumi: get
+++++++ ModuleStreamBeginLumi finished: get
+++++++ ModuleStreamBeginLumi: getInt
+++++++ ModuleStreamBeginLumi finished: getInt
+++++++ ModuleStreamBeginLumi: dependsOnNoPut
+++++++ ModuleStreamBeginLumi finished: dependsOnNoPut
+++++++ ModuleStreamBeginLumi: out
+++++++ ModuleStreamBeginLumi finished: out
+++++ StreamBeginLumi finished
+++++ source event
+++++ finished: source event
+++++ processing event run: 1 lumi: 1 event: 1 time:5000001
+++++ event finished
+++++ processing event run: 1 lumi: 1 event: 1 time:5000001
+++++ event finished
+++++ processing event run: 1 lumi: 1 event: 1 time:5000001
+++++++ processing path for event: p1
+++++++++ module for event: thingWithMergeProducer
+++++++++ finished module for event: thingWithMergeProducer
+++++++ path for event finished: p1
+++++++ processing path for event: path1
+++++++++ module for event: get
+++++++++ finished module for event: get
+++++++++ module for event: putInt
+++++++++ finished module for event: putInt
+++++++++ module for event: putInt2
+++++++++ finished module for event: putInt2
+++++++++ module for event: putInt3
+++++++++ finished module for event: putInt3
+++++++++ module for event: getInt
+++++++++ finished module for event: getInt
+++++++ path for event finished: path1
+++++++ processing path for event: path2
+++++++++ module for event: noPut
+++++++++ finished module for event: noPut
+++++++ path for event finished: path2
+++++++++ module for event: TriggerResults
+++++++++ finished module for event: TriggerResults
+++++ event finished
+++++ processing event run: 1 lumi: 1 event: 1 time:5000001
+++++ event finished
+++++ processing event run: 1 lumi: 1 event: 1 time:5000001
+++++++ processing path for event: path1
+++++++++ module for event: thingWithMergeProducer
+++++++++ finished module for event: thingWithMergeProducer
+++++++ path for event finished: path1
+++++++ processing path for event: path2
+++++++++ module for event: test
+++++++++ finished module for event: test
+++++++++ module for event: testmerge
+++++++++ finished module for event: testmerge
+++++++ path for event finished: path2
+++++++ processing path for event: path3
+++++++++ module for event: get
+++++++++ finished module for event: get
+++++++++ module for event: getInt
+++++++++ finished module for event: getInt
+++++++ path for event finished: path3
+++++++ processing path for event: path4
+++++++++ module for event: dependsOnNoPut
+++++++++ finished module for event: dependsOnNoPut
+++++++ path for event finished: path4
+++++++++ module for event: TriggerResults
+++++++++ finished module for event: TriggerResults
+++++++ processing path for event: endPath1
+++++++++ module for event: out
+++++++++ finished module for event: out
+++++++ path for event finished: endPath1
+++++ event finished
+++++ source event
+++++ finished: source event
+++++ processing event run: 1 lumi: 1 event: 2 time:10000001
+++++ event finished
+++++ processing event run: 1 lumi: 1 event: 2 time:10000001
+++++ event finished
+++++ processing event run: 1 lumi: 1 event: 2 time:10000001
+++++++ processing path for event: p1
+++++++++ module for event: thingWithMergeProducer
+++++++++ finished module for event: thingWithMergeProducer
+++++++ path for event finished: p1
+++++++ processing path for event: path1
+++++++++ module for event: get
+++++++++ finished module for event: get
+++++++++ module for event: putInt
+++++++++ finished module for event: putInt
+++++++++ module for event: putInt2
+++++++++ finished module for event: putInt2
+++++++++ module for event: putInt3
+++++++++ finished module for event: putInt3
+++++++++ module for event: getInt
+++++++++ finished module for event: getInt
+++++++ path for event finished: path1
+++++++ processing path for event: path2
+++++++++ module for event: noPut
+++++++++ finished module for event: noPut
+++++++ path for event finished: path2
+++++++++ module for event: TriggerResults
+++++++++ finished module for event: TriggerResults
+++++ event finished
+++++ processing event run: 1 lumi: 1 event: 2 time:10000001
+++++ event finished
+++++ processing event run: 1 lumi: 1 event: 2 time:10000001
+++++++ processing path for event: path1
+++++++++ module for event: thingWithMergeProducer
+++++++++ finished module for event: thingWithMergeProducer
+++++++ path for event finished: path1
+++++++ processing path for event: path2
+++++++++ module for event: test
+++++++++ finished module for event: test
+++++++++ module for event: testmerge
+++++++++ finished module for event: testmerge
+++++++ path for event finished: path2
+++++++ processing path for event: path3
+++++++++ module for event: get
+++++++++ finished module for event: get
+++++++++ module for event: getInt
+++++++++ finished module for event: getInt
+++++++ path for event finished: path3
+++++++ processing path for event: path4
+++++++++ module for event: dependsOnNoPut
+++++++++ finished module for event: dependsOnNoPut
+++++++ path for event finished: path4
+++++++++ module for event: TriggerResults
+++++++++ finished module for event: TriggerResults
+++++++ processing path for event: endPath1
+++++++++ module for event: out
+++++++++ finished module for event: out
+++++++ path for event finished: endPath1
+++++ event finished
+++++ source event
+++++ finished: source event
+++++ processing event run: 1 lumi: 1 event: 3 time:15000001
+++++ event finished
+++++ processing event run: 1 lumi: 1 event: 3 time:15000001
+++++ event finished
+++++ processing event run: 1 lumi: 1 event: 3 time:15000001
+++++++ processing path for event: p1
+++++++++ module for event: thingWithMergeProducer
+++++++++ finished module for event: thingWithMergeProducer
+++++++ path for event finished: p1
+++++++ processing path for event: path1
+++++++++ module for event: get
+++++++++ finished module for event: get
+++++++++ module for event: putInt
+++++++++ finished module for event: putInt
+++++++++ module for event: putInt2
+++++++++ finished module for event: putInt2
+++++++++ module for event: putInt3
+++++++++ finished module for event: putInt3
+++++++++ module for event: getInt
+++++++++ finished module for event: getInt
+++++++ path for event finished: path1
+++++++ processing path for event: path2
+++++++++ module for event: noPut
+++++++++ finished module for event: noPut
+++++++ path for event finished: path2
+++++++++ module for event: TriggerResults
+++++++++ finished module for event: TriggerResults
+++++ event finished
+++++ processing event run: 1 lumi: 1 event: 3 time:15000001
+++++ event finished
+++++ processing event run: 1 lumi: 1 event: 3 time:15000001
+++++++ processing path for event: path1
+++++++++ module for event: thingWithMergeProducer
+++++++++ finished module for event: thingWithMergeProducer
+++++++ path for event finished: path1
+++++++ processing path for event: path2
+++++++++ module for event: test
+++++++++ finished module for event: test
+++++++++ module for event: testmerge
+++++++++ finished module for event: testmerge
+++++++ path for event finished: path2
+++++++ processing path for event: path3
+++++++++ module for event: get
+++++++++ finished module for event: get
+++++++++ module for event: getInt
+++++++++ finished module for event: getInt
+++++++ path for event finished: path3
+++++++ processing path for event: path4
+++++++++ module for event: dependsOnNoPut
+++++++++ finished module for event: dependsOnNoPut
+++++++ path for event finished: path4
+++++++++ module for event: TriggerResults
+++++++++ finished module for event: TriggerResults
+++++++ processing path for event: endPath1
+++++++++ module for event: out
+++++++++ finished module for event: out
+++++++ path for event finished: endPath1
+++++ event finished
+++++ source event
+++++ finished: source event
+++++ processing event run: 1 lumi: 1 event: 4 time:20000001
+++++ event finished
+++++ processing event run: 1 lumi: 1 event: 4 time:20000001
+++++ event finished
+++++ processing event run: 1 lumi: 1 event: 4 time:20000001
+++++++ processing path for event: p1
+++++++++ module for event: thingWithMergeProducer
+++++++++ finished module for event: thingWithMergeProducer
+++++++ path for event finished: p1
+++++++ processing path for event: path1
+++++++++ module for event: get
+++++++++ finished module for event: get
+++++++++ module for event: putInt
+++++++++ finished module for event: putInt
+++++++++ module for event: putInt2
+++++++++ finished module for event: putInt2
+++++++++ module for event: putInt3
+++++++++ finished module for event: putInt3
+++++++++ module for event: getInt
+++++++++ finished module for event: getInt
+++++++ path for event finished: path1
+++++++ processing path for event: path2
+++++++++ module for event: noPut
+++++++++ finished module for event: noPut
+++++++ path for event finished: path2
+++++++++ module for event: TriggerResults
+++++++++ finished module for event: TriggerResults
+++++ event finished
+++++ processing event run: 1 lumi: 1 event: 4 time:20000001
+++++ event finished
+++++ processing event run: 1 lumi: 1 event: 4 time:20000001
+++++++ processing path for event: path1
+++++++++ module for event: thingWithMergeProducer
+++++++++ finished module for event: thingWithMergeProducer
+++++++ path for event finished: path1
+++++++ processing path for event: path2
+++++++++ module for event: test
+++++++++ finished module for event: test
+++++++++ module for event: testmerge
+++++++++ finished module for event: testmerge
+++++++ path for event finished: path2
+++++++ processing path for event: path3
+++++++++ module for event: get
+++++++++ finished module for event: get
+++++++++ module for event: getInt
+++++++++ finished module for event: getInt
+++++++ path for event finished: path3
+++++++ processing path for event: path4
+++++++++ module for event: dependsOnNoPut
+++++++++ finished module for event: dependsOnNoPut
+++++++ path for event finished: path4
+++++++++ module for event: TriggerResults
+++++++++ finished module for event: TriggerResults
+++++++ processing path for event: endPath1
+++++++++ module for event: out
+++++++++ finished module for event: out
+++++++ path for event finished: endPath1
+++++ event finished
+++++ StreamEndLumi run: 1 lumi: 1 time: 20000001
+++++ StreamEndLumi finished
+++++ StreamEndLumi run: 1 lumi: 1 time: 0
+++++ StreamEndLumi finished
+++++ StreamEndLumi run: 1 lumi: 1 time: 0
+++++++ ModuleStreamEndLumi: thingWithMergeProducer
+++++++ ModuleStreamEndLumi finished: thingWithMergeProducer
+++++++ ModuleStreamEndLumi: get
+++++++ ModuleStreamEndLumi finished: get
+++++++ ModuleStreamEndLumi: putInt
+++++++ ModuleStreamEndLumi finished: putInt
+++++++ ModuleStreamEndLumi: putInt2
+++++++ ModuleStreamEndLumi finished: putInt2
+++++++ ModuleStreamEndLumi: putInt3
+++++++ ModuleStreamEndLumi finished: putInt3
+++++++ ModuleStreamEndLumi: getInt
+++++++ ModuleStreamEndLumi finished: getInt
+++++++ ModuleStreamEndLumi: noPut
+++++++ ModuleStreamEndLumi finished: noPut
+++++ StreamEndLumi finished
+++++ StreamEndLumi run: 1 lumi: 1 time: 0
+++++ StreamEndLumi finished
+++++ StreamEndLumi run: 1 lumi: 1 time: 0
+++++++ ModuleStreamEndLumi: thingWithMergeProducer
+++++++ ModuleStreamEndLumi finished: thingWithMergeProducer
+++++++ ModuleStreamEndLumi: test
+++++++ ModuleStreamEndLumi finished: test
+++++++ ModuleStreamEndLumi: testmerge
+++++++ ModuleStreamEndLumi finished: testmerge
+++++++ ModuleStreamEndLumi: get
+++++++ ModuleStreamEndLumi finished: get
+++++++ ModuleStreamEndLumi: getInt
+++++++ ModuleStreamEndLumi finished: getInt
+++++++ ModuleStreamEndLumi: dependsOnNoPut
+++++++ ModuleStreamEndLumi finished: dependsOnNoPut
+++++++ ModuleStreamEndLumi: out
+++++++ ModuleStreamEndLumi finished: out
+++++ StreamEndLumi finished
+++++ GlobalEndLumi run: 1 lumi: 1 time: 1
+++++ GlobalEndLumi finished
+++++ GlobalEndLumi run: 1 lumi: 1 time: 1
+++++ GlobalEndLumi finished
+++++ GlobalEndLumi run: 1 lumi: 1 time: 1
+++++++ ModuleGlobalEndLumi: thingWithMergeProducer
+++++++ ModuleGlobalEndLumi finished: thingWithMergeProducer
+++++++ ModuleGlobalEndLumi: get
+++++++ ModuleGlobalEndLumi finished: get
+++++++ ModuleGlobalEndLumi: putInt
+++++++ ModuleGlobalEndLumi finished: putInt
+++++++ ModuleGlobalEndLumi: putInt2
+++++++ ModuleGlobalEndLumi finished: putInt2
+++++++ ModuleGlobalEndLumi: putInt3
+++++++ ModuleGlobalEndLumi finished: putInt3
+++++++ ModuleGlobalEndLumi: getInt
+++++++ ModuleGlobalEndLumi finished: getInt
+++++++ ModuleGlobalEndLumi: noPut
+++++++ ModuleGlobalEndLumi finished: noPut
+++++ GlobalEndLumi finished
+++++ GlobalEndLumi run: 1 lumi: 1 time: 1
+++++ GlobalEndLumi finished
+++++ GlobalEndLumi run: 1 lumi: 1 time: 1
+++++++ ModuleGlobalEndLumi: thingWithMergeProducer
+++++++ ModuleGlobalEndLumi finished: thingWithMergeProducer
+++++++ ModuleGlobalEndLumi: test
+++++++ ModuleGlobalEndLumi finished: test
+++++++ ModuleGlobalEndLumi: testmerge
+++++++ ModuleGlobalEndLumi finished: testmerge
+++++++ ModuleGlobalEndLumi: get
+++++++ ModuleGlobalEndLumi finished: get
+++++++ ModuleGlobalEndLumi: getInt
+++++++ ModuleGlobalEndLumi finished: getInt
+++++++ ModuleGlobalEndLumi: dependsOnNoPut
+++++++ ModuleGlobalEndLumi finished: dependsOnNoPut
+++++++ ModuleGlobalEndLumi: out
+++++++ ModuleGlobalEndLumi finished: out
+++++ GlobalEndLumi finished
+++++ source lumi
+++++ finished: source lumi
+++++ GlobalBeginLumi run: 1 lumi: 2 time: 25000001
+++++ GlobalBeginLumi finished
+++++ GlobalBeginLumi run: 1 lumi: 2 time: 25000001
+++++ GlobalBeginLumi finished
+++++ GlobalBeginLumi run: 1 lumi: 2 time: 25000001
+++++++ ModuleGlobalBeginLumi: thingWithMergeProducer
+++++++ ModuleGlobalBeginLumi finished: thingWithMergeProducer
+++++++ ModuleGlobalBeginLumi: get
+++++++ ModuleGlobalBeginLumi finished: get
+++++++ ModuleGlobalBeginLumi: putInt
+++++++ ModuleGlobalBeginLumi finished: putInt
+++++++ ModuleGlobalBeginLumi: putInt2
+++++++ ModuleGlobalBeginLumi finished: putInt2
+++++++ ModuleGlobalBeginLumi: putInt3
+++++++ ModuleGlobalBeginLumi finished: putInt3
+++++++ ModuleGlobalBeginLumi: getInt
+++++++ ModuleGlobalBeginLumi finished: getInt
+++++++ ModuleGlobalBeginLumi: noPut
+++++++ ModuleGlobalBeginLumi finished: noPut
+++++ GlobalBeginLumi finished
+++++ GlobalBeginLumi run: 1 lumi: 2 time: 25000001
+++++ GlobalBeginLumi finished
+++++ GlobalBeginLumi run: 1 lumi: 2 time: 25000001
+++++++ ModuleGlobalBeginLumi: thingWithMergeProducer
+++++++ ModuleGlobalBeginLumi finished: thingWithMergeProducer
+++++++ ModuleGlobalBeginLumi: test
+++++++ ModuleGlobalBeginLumi finished: test
+++++++ ModuleGlobalBeginLumi: testmerge
+++++++ ModuleGlobalBeginLumi finished: testmerge
+++++++ ModuleGlobalBeginLumi: get
+++++++ ModuleGlobalBeginLumi finished: get
+++++++ ModuleGlobalBeginLumi: getInt
+++++++ ModuleGlobalBeginLumi finished: getInt
+++++++ ModuleGlobalBeginLumi: dependsOnNoPut
+++++++ ModuleGlobalBeginLumi finished: dependsOnNoPut
+++++++ ModuleGlobalBeginLumi: out
+++++++ ModuleGlobalBeginLumi finished: out
+++++ GlobalBeginLumi finished
+++++ StreamBeginLumi run: 1 lumi: 2 time: 25000001
+++++ StreamBeginLumi finished
+++++ StreamBeginLumi run: 1 lumi: 2 time: 25000001
+++++ StreamBeginLumi finished
+++++ StreamBeginLumi run: 1 lumi: 2 time: 25000001
+++++++ ModuleStreamBeginLumi: thingWithMergeProducer
+++++++ ModuleStreamBeginLumi finished: thingWithMergeProducer
+++++++ ModuleStreamBeginLumi: get
+++++++ ModuleStreamBeginLumi finished: get
+++++++ ModuleStreamBeginLumi: putInt
+++++++ ModuleStreamBeginLumi finished: putInt
+++++++ ModuleStreamBeginLumi: putInt2
+++++++ ModuleStreamBeginLumi finished: putInt2
+++++++ ModuleStreamBeginLumi: putInt3
+++++++ ModuleStreamBeginLumi finished: putInt3
+++++++ ModuleStreamBeginLumi: getInt
+++++++ ModuleStreamBeginLumi finished: getInt
+++++++ ModuleStreamBeginLumi: noPut
+++++++ ModuleStreamBeginLumi finished: noPut
+++++ StreamBeginLumi finished
+++++ StreamBeginLumi run: 1 lumi: 2 time: 25000001
+++++ StreamBeginLumi finished
+++++ StreamBeginLumi run: 1 lumi: 2 time: 25000001
+++++++ ModuleStreamBeginLumi: thingWithMergeProducer
+++++++ ModuleStreamBeginLumi finished: thingWithMergeProducer
+++++++ ModuleStreamBeginLumi: test
+++++++ ModuleStreamBeginLumi finished: test
+++++++ ModuleStreamBeginLumi: testmerge
+++++++ ModuleStreamBeginLumi finished: testmerge
+++++++ ModuleStreamBeginLumi: get
+++++++ ModuleStreamBeginLumi finished: get
+++++++ ModuleStreamBeginLumi: getInt
+++++++ ModuleStreamBeginLumi finished: getInt
+++++++ ModuleStreamBeginLumi: dependsOnNoPut
+++++++ ModuleStreamBeginLumi finished: dependsOnNoPut
+++++++ ModuleStreamBeginLumi: out
+++++++ ModuleStreamBeginLumi finished: out
+++++ StreamBeginLumi finished
+++++ source event
+++++ finished: source event
+++++ processing event run: 1 lumi: 2 event: 5 time:25000001
+++++ event finished
+++++ processing event run: 1 lumi: 2 event: 5 time:25000001
+++++ event finished
+++++ processing event run: 1 lumi: 2 event: 5 time:25000001
+++++++ processing path for event: p1
+++++++++ module for event: thingWithMergeProducer
+++++++++ finished module for event: thingWithMergeProducer
+++++++ path for event finished: p1
+++++++ processing path for event: path1
+++++++++ module for event: get
+++++++++ finished module for event: get
+++++++++ module for event: putInt
+++++++++ finished module for event: putInt
+++++++++ module for event: putInt2
+++++++++ finished module for event: putInt2
+++++++++ module for event: putInt3
+++++++++ finished module for event: putInt3
+++++++++ module for event: getInt
+++++++++ finished module for event: getInt
+++++++ path for event finished: path1
+++++++ processing path for event: path2
+++++++++ module for event: noPut
+++++++++ finished module for event: noPut
+++++++ path for event finished: path2
+++++++++ module for event: TriggerResults
+++++++++ finished module for event: TriggerResults
+++++ event finished
+++++ processing event run: 1 lumi: 2 event: 5 time:25000001
+++++ event finished
+++++ processing event run: 1 lumi: 2 event: 5 time:25000001
+++++++ processing path for event: path1
+++++++++ module for event: thingWithMergeProducer
+++++++++ finished module for event: thingWithMergeProducer
+++++++ path for event finished: path1
+++++++ processing path for event: path2
+++++++++ module for event: test
+++++++++ finished module for event: test
+++++++++ module for event: testmerge
+++++++++ finished module for event: testmerge
+++++++ path for event finished: path2
+++++++ processing path for event: path3
+++++++++ module for event: get
+++++++++ finished module for event: get
+++++++++ module for event: getInt
+++++++++ finished module for event: getInt
+++++++ path for event finished: path3
+++++++ processing path for event: path4
+++++++++ module for event: dependsOnNoPut
+++++++++ finished module for event: dependsOnNoPut
+++++++ path for event finished: path4
+++++++++ module for event: TriggerResults
+++++++++ finished module for event: TriggerResults
+++++++ processing path for event: endPath1
+++++++++ module for event: out
+++++++++ finished module for event: out
+++++++ path for event finished: endPath1
+++++ event finished
+++++ source event
+++++ finished: source event
+++++ processing event run: 1 lumi: 2 event: 6 time:30000001
+++++ event finished
+++++ processing event run: 1 lumi: 2 event: 6 time:30000001
+++++ event finished
+++++ processing event run: 1 lumi: 2 event: 6 time:30000001
+++++++ processing path for event: p1
+++++++++ module for event: thingWithMergeProducer
+++++++++ finished module for event: thingWithMergeProducer
+++++++ path for event finished: p1
+++++++ processing path for event: path1
+++++++++ module for event: get
+++++++++ finished module for event: get
+++++++++ module for event: putInt
+++++++++ finished module for event: putInt
+++++++++ module for event: putInt2
+++++++++ finished module for event: putInt2
+++++++++ module for event: putInt3
+++++++++ finished module for event: putInt3
+++++++++ module for event: getInt
+++++++++ finished module for event: getInt
+++++++ path for event finished: path1
+++++++ processing path for event: path2
+++++++++ module for event: noPut
+++++++++ finished module for event: noPut
+++++++ path for event finished: path2
+++++++++ module for event: TriggerResults
+++++++++ finished module for event: TriggerResults
+++++ event finished
+++++ processing event run: 1 lumi: 2 event: 6 time:30000001
+++++ event finished
+++++ processing event run: 1 lumi: 2 event: 6 time:30000001
+++++++ processing path for event: path1
+++++++++ module for event: thingWithMergeProducer
+++++++++ finished module for event: thingWithMergeProducer
+++++++ path for event finished: path1
+++++++ processing path for event: path2
+++++++++ module for event: test
+++++++++ finished module for event: test
+++++++++ module for event: testmerge
+++++++++ finished module for event: testmerge
+++++++ path for event finished: path2
+++++++ processing path for event: path3
+++++++++ module for event: get
+++++++++ finished module for event: get
+++++++++ module for event: getInt
+++++++++ finished module for event: getInt
+++++++ path for event finished: path3
+++++++ processing path for event: path4
+++++++++ module for event: dependsOnNoPut
+++++++++ finished module for event: dependsOnNoPut
+++++++ path for event finished: path4
+++++++++ module for event: TriggerResults
+++++++++ finished module for event: TriggerResults
+++++++ processing path for event: endPath1
+++++++++ module for event: out
+++++++++ finished module for event: out
+++++++ path for event finished: endPath1
+++++ event finished
+++++ source event
+++++ finished: source event
+++++ processing event run: 1 lumi: 2 event: 7 time:35000001
+++++ event finished
+++++ processing event run: 1 lumi: 2 event: 7 time:35000001
+++++ event finished
+++++ processing event run: 1 lumi: 2 event: 7 time:35000001
+++++++ processing path for event: p1
+++++++++ module for event: thingWithMergeProducer
+++++++++ finished module for event: thingWithMergeProducer
+++++++ path for event finished: p1
+++++++ processing path for event: path1
+++++++++ module for event: get
+++++++++ finished module for event: get
+++++++++ module for event: putInt
+++++++++ finished module for event: putInt
+++++++++ module for event: putInt2
+++++++++ finished module for event: putInt2
+++++++++ module for event: putInt3
+++++++++ finished module for event: putInt3
+++++++++ module for event: getInt
+++++++++ finished module for event: getInt
+++++++ path for event finished: path1
+++++++ processing path for event: path2
+++++++++ module for event: noPut
+++++++++ finished module for event: noPut
+++++++ path for event finished: path2
+++++++++ module for event: TriggerResults
+++++++++ finished module for event: TriggerResults
+++++ event finished
+++++ processing event run: 1 lumi: 2 event: 7 time:35000001
+++++ event finished
+++++ processing event run: 1 lumi: 2 event: 7 time:35000001
+++++++ processing path for event: path1
+++++++++ module for event: thingWithMergeProducer
+++++++++ finished module for event: thingWithMergeProducer
+++++++ path for event finished: path1
+++++++ processing path for event: path2
+++++++++ module for event: test
+++++++++ finished module for event: test
+++++++++ module for event: testmerge
+++++++++ finished module for event: testmerge
+++++++ path for event finished: path2
+++++++ processing path for event: path3
+++++++++ module for event: get
+++++++++ finished module for event: get
+++++++++ module for event: getInt
+++++++++ finished module for event: getInt
+++++++ path for event finished: path3
+++++++ processing path for event: path4
+++++++++ module for event: dependsOnNoPut
+++++++++ finished module for event: dependsOnNoPut
+++++++ path for event finished: path4
+++++++++ module for event: TriggerResults
+++++++++ finished module for event: TriggerResults
+++++++ processing path for event: endPath1
+++++++++ module for event: out
+++++++++ finished module for event: out
+++++++ path for event finished: endPath1
+++++ event finished
+++++ source event
+++++ finished: source event
+++++ processing event run: 1 lumi: 2 event: 8 time:40000001
+++++ event finished
+++++ processing event run: 1 lumi: 2 event: 8 time:40000001
+++++ event finished
+++++ processing event run: 1 lumi: 2 event: 8 time:40000001
+++++++ processing path for event: p1
+++++++++ module for event: thingWithMergeProducer
+++++++++ finished module for event: thingWithMergeProducer
+++++++ path for event finished: p1
+++++++ processing path for event: path1
+++++++++ module for event: get
+++++++++ finished module for event: get
+++++++++ module for event: putInt
+++++++++ finished module for event: putInt
+++++++++ module for event: putInt2
+++++++++ finished module for event: putInt2
+++++++++ module for event: putInt3
+++++++++ finished module for event: putInt3
+++++++++ module for event: getInt
+++++++++ finished module for event: getInt
+++++++ path for event finished: path1
+++++++ processing path for event: path2
+++++++++ module for event: noPut
+++++++++ finished module for event: noPut
+++++++ path for event finished: path2
+++++++++ module for event: TriggerResults
+++++++++ finished module for event: TriggerResults
+++++ event finished
+++++ processing event run: 1 lumi: 2 event: 8 time:40000001
+++++ event finished
+++++ processing event run: 1 lumi: 2 event: 8 time:40000001
+++++++ processing path for event: path1
+++++++++ module for event: thingWithMergeProducer
+++++++++ finished module for event: thingWithMergeProducer
+++++++ path for event finished: path1
+++++++ processing path for event: path2
+++++++++ module for event: test
+++++++++ finished module for event: test
+++++++++ module for event: testmerge
+++++++++ finished module for event: testmerge
+++++++ path for event finished: path2
+++++++ processing path for event: path3
+++++++++ module for event: get
+++++++++ finished module for event: get
+++++++++ module for event: getInt
+++++++++ finished module for event: getInt
+++++++ path for event finished: path3
+++++++ processing path for event: path4
+++++++++ module for event: dependsOnNoPut
+++++++++ finished module for event: dependsOnNoPut
+++++++ path for event finished: path4
+++++++++ module for event: TriggerResults
+++++++++ finished module for event: TriggerResults
+++++++ processing path for event: endPath1
+++++++++ module for event: out
+++++++++ finished module for event: out
+++++++ path for event finished: endPath1
+++++ event finished
+++++ StreamEndLumi run: 1 lumi: 2 time: 40000001
+++++ StreamEndLumi finished
+++++ StreamEndLumi run: 1 lumi: 2 time: 0
+++++ StreamEndLumi finished
+++++ StreamEndLumi run: 1 lumi: 2 time: 0
+++++++ ModuleStreamEndLumi: thingWithMergeProducer
+++++++ ModuleStreamEndLumi finished: thingWithMergeProducer
+++++++ ModuleStreamEndLumi: get
+++++++ ModuleStreamEndLumi finished: get
+++++++ ModuleStreamEndLumi: putInt
+++++++ ModuleStreamEndLumi finished: putInt
+++++++ ModuleStreamEndLumi: putInt2
+++++++ ModuleStreamEndLumi finished: putInt2
+++++++ ModuleStreamEndLumi: putInt3
+++++++ ModuleStreamEndLumi finished: putInt3
+++++++ ModuleStreamEndLumi: getInt
+++++++ ModuleStreamEndLumi finished: getInt
+++++++ ModuleStreamEndLumi: noPut
+++++++ ModuleStreamEndLumi finished: noPut
+++++ StreamEndLumi finished
+++++ StreamEndLumi run: 1 lumi: 2 time: 0
+++++ StreamEndLumi finished
+++++ StreamEndLumi run: 1 lumi: 2 time: 0
+++++++ ModuleStreamEndLumi: thingWithMergeProducer
+++++++ ModuleStreamEndLumi finished: thingWithMergeProducer
+++++++ ModuleStreamEndLumi: test
+++++++ ModuleStreamEndLumi finished: test
+++++++ ModuleStreamEndLumi: testmerge
+++++++ ModuleStreamEndLumi finished: testmerge
+++++++ ModuleStreamEndLumi: get
+++++++ ModuleStreamEndLumi finished: get
+++++++ ModuleStreamEndLumi: getInt
+++++++ ModuleStreamEndLumi finished: getInt
+++++++ ModuleStreamEndLumi: dependsOnNoPut
+++++++ ModuleStreamEndLumi finished: dependsOnNoPut
+++++++ ModuleStreamEndLumi: out
+++++++ ModuleStreamEndLumi finished: out
+++++ StreamEndLumi finished
+++++ GlobalEndLumi run: 1 lumi: 2 time: 25000001
+++++ GlobalEndLumi finished
+++++ GlobalEndLumi run: 1 lumi: 2 time: 25000001
+++++ GlobalEndLumi finished
+++++ GlobalEndLumi run: 1 lumi: 2 time: 25000001
+++++++ ModuleGlobalEndLumi: thingWithMergeProducer
+++++++ ModuleGlobalEndLumi finished: thingWithMergeProducer
+++++++ ModuleGlobalEndLumi: get
+++++++ ModuleGlobalEndLumi finished: get
+++++++ ModuleGlobalEndLumi: putInt
+++++++ ModuleGlobalEndLumi finished: putInt
+++++++ ModuleGlobalEndLumi: putInt2
+++++++ ModuleGlobalEndLumi finished: putInt2
+++++++ ModuleGlobalEndLumi: putInt3
+++++++ ModuleGlobalEndLumi finished: putInt3
+++++++ ModuleGlobalEndLumi: getInt
+++++++ ModuleGlobalEndLumi finished: getInt
+++++++ ModuleGlobalEndLumi: noPut
+++++++ ModuleGlobalEndLumi finished: noPut
+++++ GlobalEndLumi finished
+++++ GlobalEndLumi run: 1 lumi: 2 time: 25000001
+++++ GlobalEndLumi finished
+++++ GlobalEndLumi run: 1 lumi: 2 time: 25000001
+++++++ ModuleGlobalEndLumi: thingWithMergeProducer
+++++++ ModuleGlobalEndLumi finished: thingWithMergeProducer
+++++++ ModuleGlobalEndLumi: test
+++++++ ModuleGlobalEndLumi finished: test
+++++++ ModuleGlobalEndLumi: testmerge
+++++++ ModuleGlobalEndLumi finished: testmerge
+++++++ ModuleGlobalEndLumi: get
+++++++ ModuleGlobalEndLumi finished: get
+++++++ ModuleGlobalEndLumi: getInt
+++++++ ModuleGlobalEndLumi finished: getInt
+++++++ ModuleGlobalEndLumi: dependsOnNoPut
+++++++ ModuleGlobalEndLumi finished: dependsOnNoPut
+++++++ ModuleGlobalEndLumi: out
+++++++ ModuleGlobalEndLumi finished: out
+++++ GlobalEndLumi finished
+++++ source lumi
+++++ finished: source lumi
+++++ GlobalBeginLumi run: 1 lumi: 3 time: 45000001
+++++ GlobalBeginLumi finished
+++++ GlobalBeginLumi run: 1 lumi: 3 time: 45000001
+++++ GlobalBeginLumi finished
+++++ GlobalBeginLumi run: 1 lumi: 3 time: 45000001
+++++++ ModuleGlobalBeginLumi: thingWithMergeProducer
+++++++ ModuleGlobalBeginLumi finished: thingWithMergeProducer
+++++++ ModuleGlobalBeginLumi: get
+++++++ ModuleGlobalBeginLumi finished: get
+++++++ ModuleGlobalBeginLumi: putInt
+++++++ ModuleGlobalBeginLumi finished: putInt
+++++++ ModuleGlobalBeginLumi: putInt2
+++++++ ModuleGlobalBeginLumi finished: putInt2
+++++++ ModuleGlobalBeginLumi: putInt3
+++++++ ModuleGlobalBeginLumi finished: putInt3
+++++++ ModuleGlobalBeginLumi: getInt
+++++++ ModuleGlobalBeginLumi finished: getInt
+++++++ ModuleGlobalBeginLumi: noPut
+++++++ ModuleGlobalBeginLumi finished: noPut
+++++ GlobalBeginLumi finished
+++++ GlobalBeginLumi run: 1 lumi: 3 time: 45000001
+++++ GlobalBeginLumi finished
+++++ GlobalBeginLumi run: 1 lumi: 3 time: 45000001
+++++++ ModuleGlobalBeginLumi: thingWithMergeProducer
+++++++ ModuleGlobalBeginLumi finished: thingWithMergeProducer
+++++++ ModuleGlobalBeginLumi: test
+++++++ ModuleGlobalBeginLumi finished: test
+++++++ ModuleGlobalBeginLumi: testmerge
+++++++ ModuleGlobalBeginLumi finished: testmerge
+++++++ ModuleGlobalBeginLumi: get
+++++++ ModuleGlobalBeginLumi finished: get
+++++++ ModuleGlobalBeginLumi: getInt
+++++++ ModuleGlobalBeginLumi finished: getInt
+++++++ ModuleGlobalBeginLumi: dependsOnNoPut
+++++++ ModuleGlobalBeginLumi finished: dependsOnNoPut
+++++++ ModuleGlobalBeginLumi: out
+++++++ ModuleGlobalBeginLumi finished: out
+++++ GlobalBeginLumi finished
+++++ StreamBeginLumi run: 1 lumi: 3 time: 45000001
+++++ StreamBeginLumi finished
+++++ StreamBeginLumi run: 1 lumi: 3 time: 45000001
+++++ StreamBeginLumi finished
+++++ StreamBeginLumi run: 1 lumi: 3 time: 45000001
+++++++ ModuleStreamBeginLumi: thingWithMergeProducer
+++++++ ModuleStreamBeginLumi finished: thingWithMergeProducer
+++++++ ModuleStreamBeginLumi: get
+++++++ ModuleStreamBeginLumi finished: get
+++++++ ModuleStreamBeginLumi: putInt
+++++++ ModuleStreamBeginLumi finished: putInt
+++++++ ModuleStreamBeginLumi: putInt2
+++++++ ModuleStreamBeginLumi finished: putInt2
+++++++ ModuleStreamBeginLumi: putInt3
+++++++ ModuleStreamBeginLumi finished: putInt3
+++++++ ModuleStreamBeginLumi: getInt
+++++++ ModuleStreamBeginLumi finished: getInt
+++++++ ModuleStreamBeginLumi: noPut
+++++++ ModuleStreamBeginLumi finished: noPut
+++++ StreamBeginLumi finished
+++++ StreamBeginLumi run: 1 lumi: 3 time: 45000001
+++++ StreamBeginLumi finished
+++++ StreamBeginLumi run: 1 lumi: 3 time: 45000001
+++++++ ModuleStreamBeginLumi: thingWithMergeProducer
+++++++ ModuleStreamBeginLumi finished: thingWithMergeProducer
+++++++ ModuleStreamBeginLumi: test
+++++++ ModuleStreamBeginLumi finished: test
+++++++ ModuleStreamBeginLumi: testmerge
+++++++ ModuleStreamBeginLumi finished: testmerge
+++++++ ModuleStreamBeginLumi: get
+++++++ ModuleStreamBeginLumi finished: get
+++++++ ModuleStreamBeginLumi: getInt
+++++++ ModuleStreamBeginLumi finished: getInt
+++++++ ModuleStreamBeginLumi: dependsOnNoPut
+++++++ ModuleStreamBeginLumi finished: dependsOnNoPut
+++++++ ModuleStreamBeginLumi: out
+++++++ ModuleStreamBeginLumi finished: out
+++++ StreamBeginLumi finished
+++++ source event
+++++ finished: source event
+++++ processing event run: 1 lumi: 3 event: 9 time:45000001
+++++ event finished
+++++ processing event run: 1 lumi: 3 event: 9 time:45000001
+++++ event finished
+++++ processing event run: 1 lumi: 3 event: 9 time:45000001
+++++++ processing path for event: p1
+++++++++ module for event: thingWithMergeProducer
+++++++++ finished module for event: thingWithMergeProducer
+++++++ path for event finished: p1
+++++++ processing path for event: path1
+++++++++ module for event: get
+++++++++ finished module for event: get
+++++++++ module for event: putInt
+++++++++ finished module for event: putInt
+++++++++ module for event: putInt2
+++++++++ finished module for event: putInt2
+++++++++ module for event: putInt3
+++++++++ finished module for event: putInt3
+++++++++ module for event: getInt
+++++++++ finished module for event: getInt
+++++++ path for event finished: path1
+++++++ processing path for event: path2
+++++++++ module for event: noPut
+++++++++ finished module for event: noPut
+++++++ path for event finished: path2
+++++++++ module for event: TriggerResults
+++++++++ finished module for event: TriggerResults
+++++ event finished
+++++ processing event run: 1 lumi: 3 event: 9 time:45000001
+++++ event finished
+++++ processing event run: 1 lumi: 3 event: 9 time:45000001
+++++++ processing path for event: path1
+++++++++ module for event: thingWithMergeProducer
+++++++++ finished module for event: thingWithMergeProducer
+++++++ path for event finished: path1
+++++++ processing path for event: path2
+++++++++ module for event: test
+++++++++ finished module for event: test
+++++++++ module for event: testmerge
+++++++++ finished module for event: testmerge
+++++++ path for event finished: path2
+++++++ processing path for event: path3
+++++++++ module for event: get
+++++++++ finished module for event: get
+++++++++ module for event: getInt
+++++++++ finished module for event: getInt
+++++++ path for event finished: path3
+++++++ processing path for event: path4
+++++++++ module for event: dependsOnNoPut
+++++++++ finished module for event: dependsOnNoPut
+++++++ path for event finished: path4
+++++++++ module for event: TriggerResults
+++++++++ finished module for event: TriggerResults
+++++++ processing path for event: endPath1
+++++++++ module for event: out
+++++++++ finished module for event: out
+++++++ path for event finished: endPath1
+++++ event finished
+++++ source event
+++++ finished: source event
+++++ processing event run: 1 lumi: 3 event: 10 time:50000001
+++++ event finished
+++++ processing event run: 1 lumi: 3 event: 10 time:50000001
+++++ event finished
+++++ processing event run: 1 lumi: 3 event: 10 time:50000001
+++++++ processing path for event: p1
+++++++++ module for event: thingWithMergeProducer
+++++++++ finished module for event: thingWithMergeProducer
+++++++ path for event finished: p1
+++++++ processing path for event: path1
+++++++++ module for event: get
+++++++++ finished module for event: get
+++++++++ module for event: putInt
+++++++++ finished module for event: putInt
+++++++++ module for event: putInt2
+++++++++ finished module for event: putInt2
+++++++++ module for event: putInt3
+++++++++ finished module for event: putInt3
+++++++++ module for event: getInt
+++++++++ finished module for event: getInt
+++++++ path for event finished: path1
+++++++ processing path for event: path2
+++++++++ module for event: noPut
+++++++++ finished module for event: noPut
+++++++ path for event finished: path2
+++++++++ module for event: TriggerResults
+++++++++ finished module for event: TriggerResults
+++++ event finished
+++++ processing event run: 1 lumi: 3 event: 10 time:50000001
+++++ event finished
+++++ processing event run: 1 lumi: 3 event: 10 time:50000001
+++++++ processing path for event: path1
+++++++++ module for event: thingWithMergeProducer
+++++++++ finished module for event: thingWithMergeProducer
+++++++ path for event finished: path1
+++++++ processing path for event: path2
+++++++++ module for event: test
+++++++++ finished module for event: test
+++++++++ module for event: testmerge
+++++++++ finished module for event: testmerge
+++++++ path for event finished: path2
+++++++ processing path for event: path3
+++++++++ module for event: get
+++++++++ finished module for event: get
+++++++++ module for event: getInt
+++++++++ finished module for event: getInt
+++++++ path for event finished: path3
+++++++ processing path for event: path4
+++++++++ module for event: dependsOnNoPut
+++++++++ finished module for event: dependsOnNoPut
+++++++ path for event finished: path4
+++++++++ module for event: TriggerResults
+++++++++ finished module for event: TriggerResults
+++++++ processing path for event: endPath1
+++++++++ module for event: out
+++++++++ finished module for event: out
+++++++ path for event finished: endPath1
+++++ event finished
+++++ StreamEndLumi run: 1 lumi: 3 time: 50000001
+++++ StreamEndLumi finished
+++++ StreamEndLumi run: 1 lumi: 3 time: 0
+++++ StreamEndLumi finished
+++++ StreamEndLumi run: 1 lumi: 3 time: 0
+++++++ ModuleStreamEndLumi: thingWithMergeProducer
+++++++ ModuleStreamEndLumi finished: thingWithMergeProducer
+++++++ ModuleStreamEndLumi: get
+++++++ ModuleStreamEndLumi finished: get
+++++++ ModuleStreamEndLumi: putInt
+++++++ ModuleStreamEndLumi finished: putInt
+++++++ ModuleStreamEndLumi: putInt2
+++++++ ModuleStreamEndLumi finished: putInt2
+++++++ ModuleStreamEndLumi: putInt3
+++++++ ModuleStreamEndLumi finished: putInt3
+++++++ ModuleStreamEndLumi: getInt
+++++++ ModuleStreamEndLumi finished: getInt
+++++++ ModuleStreamEndLumi: noPut
+++++++ ModuleStreamEndLumi finished: noPut
+++++ StreamEndLumi finished
+++++ StreamEndLumi run: 1 lumi: 3 time: 0
+++++ StreamEndLumi finished
+++++ StreamEndLumi run: 1 lumi: 3 time: 0
+++++++ ModuleStreamEndLumi: thingWithMergeProducer
+++++++ ModuleStreamEndLumi finished: thingWithMergeProducer
+++++++ ModuleStreamEndLumi: test
+++++++ ModuleStreamEndLumi finished: test
+++++++ ModuleStreamEndLumi: testmerge
+++++++ ModuleStreamEndLumi finished: testmerge
+++++++ ModuleStreamEndLumi: get
+++++++ ModuleStreamEndLumi finished: get
+++++++ ModuleStreamEndLumi: getInt
+++++++ ModuleStreamEndLumi finished: getInt
+++++++ ModuleStreamEndLumi: dependsOnNoPut
+++++++ ModuleStreamEndLumi finished: dependsOnNoPut
+++++++ ModuleStreamEndLumi: out
+++++++ ModuleStreamEndLumi finished: out
+++++ StreamEndLumi finished
+++++ GlobalEndLumi run: 1 lumi: 3 time: 45000001
+++++ GlobalEndLumi finished
+++++ GlobalEndLumi run: 1 lumi: 3 time: 45000001
+++++ GlobalEndLumi finished
+++++ GlobalEndLumi run: 1 lumi: 3 time: 45000001
+++++++ ModuleGlobalEndLumi: thingWithMergeProducer
+++++++ ModuleGlobalEndLumi finished: thingWithMergeProducer
+++++++ ModuleGlobalEndLumi: get
+++++++ ModuleGlobalEndLumi finished: get
+++++++ ModuleGlobalEndLumi: putInt
+++++++ ModuleGlobalEndLumi finished: putInt
+++++++ ModuleGlobalEndLumi: putInt2
+++++++ ModuleGlobalEndLumi finished: putInt2
+++++++ ModuleGlobalEndLumi: putInt3
+++++++ ModuleGlobalEndLumi finished: putInt3
+++++++ ModuleGlobalEndLumi: getInt
+++++++ ModuleGlobalEndLumi finished: getInt
+++++++ ModuleGlobalEndLumi: noPut
+++++++ ModuleGlobalEndLumi finished: noPut
+++++ GlobalEndLumi finished
+++++ GlobalEndLumi run: 1 lumi: 3 time: 45000001
+++++ GlobalEndLumi finished
+++++ GlobalEndLumi run: 1 lumi: 3 time: 45000001
+++++++ ModuleGlobalEndLumi: thingWithMergeProducer
+++++++ ModuleGlobalEndLumi finished: thingWithMergeProducer
+++++++ ModuleGlobalEndLumi: test
+++++++ ModuleGlobalEndLumi finished: test
+++++++ ModuleGlobalEndLumi: testmerge
+++++++ ModuleGlobalEndLumi finished: testmerge
+++++++ ModuleGlobalEndLumi: get
+++++++ ModuleGlobalEndLumi finished: get
+++++++ ModuleGlobalEndLumi: getInt
+++++++ ModuleGlobalEndLumi finished: getInt
+++++++ ModuleGlobalEndLumi: dependsOnNoPut
+++++++ ModuleGlobalEndLumi finished: dependsOnNoPut
+++++++ ModuleGlobalEndLumi: out
+++++++ ModuleGlobalEndLumi finished: out
+++++ GlobalEndLumi finished
+++++ StreamEndRun run: 1 time: 50000001
+++++ StreamEndRun finished
+++++ StreamEndRun run: 1 time: 0
+++++ StreamEndRun finished
+++++ StreamEndRun run: 1 time: 0
+++++++ ModuleStreamEndRun: thingWithMergeProducer
+++++++ ModuleStreamEndRun finished: thingWithMergeProducer
+++++++ ModuleStreamEndRun: get
+++++++ ModuleStreamEndRun finished: get
+++++++ ModuleStreamEndRun: putInt
+++++++ ModuleStreamEndRun finished: putInt
+++++++ ModuleStreamEndRun: putInt2
+++++++ ModuleStreamEndRun finished: putInt2
+++++++ ModuleStreamEndRun: putInt3
+++++++ ModuleStreamEndRun finished: putInt3
+++++++ ModuleStreamEndRun: getInt
+++++++ ModuleStreamEndRun finished: getInt
+++++++ ModuleStreamEndRun: noPut
+++++++ ModuleStreamEndRun finished: noPut
+++++ StreamEndRun finished
+++++ StreamEndRun run: 1 time: 0
+++++ StreamEndRun finished
+++++ StreamEndRun run: 1 time: 0
+++++++ ModuleStreamEndRun: thingWithMergeProducer
+++++++ ModuleStreamEndRun finished: thingWithMergeProducer
+++++++ ModuleStreamEndRun: test
+++++++ ModuleStreamEndRun finished: test
+++++++ ModuleStreamEndRun: testmerge
+++++++ ModuleStreamEndRun finished: testmerge
+++++++ ModuleStreamEndRun: get
+++++++ ModuleStreamEndRun finished: get
+++++++ ModuleStreamEndRun: getInt
+++++++ ModuleStreamEndRun finished: getInt
+++++++ ModuleStreamEndRun: dependsOnNoPut
+++++++ ModuleStreamEndRun finished: dependsOnNoPut
+++++++ ModuleStreamEndRun: out
+++++++ ModuleStreamEndRun finished: out
+++++ StreamEndRun finished
+++++ GlobalEndRun run: 1 time: 50000001
+++++ GlobalEndRun finished
+++++ GlobalEndRun run: 1 time: 0
+++++ GlobalEndRun finished
+++++ GlobalEndRun run: 1 time: 0
+++++++ ModuleGlobalEndRun: thingWithMergeProducer
+++++++ ModuleGlobalEndRun finished: thingWithMergeProducer
+++++++ ModuleGlobalEndRun: get
+++++++ ModuleGlobalEndRun finished: get
+++++++ ModuleGlobalEndRun: putInt
+++++++ ModuleGlobalEndRun finished: putInt
+++++++ ModuleGlobalEndRun: putInt2
+++++++ ModuleGlobalEndRun finished: putInt2
+++++++ ModuleGlobalEndRun: putInt3
+++++++ ModuleGlobalEndRun finished: putInt3
+++++++ ModuleGlobalEndRun: getInt
+++++++ ModuleGlobalEndRun finished: getInt
+++++++ ModuleGlobalEndRun: noPut
+++++++ ModuleGlobalEndRun finished: noPut
+++++ GlobalEndRun finished
+++++ GlobalEndRun run: 1 time: 0
+++++ GlobalEndRun finished
+++++ GlobalEndRun run: 1 time: 0
+++++++ ModuleGlobalEndRun: thingWithMergeProducer
+++++++ ModuleGlobalEndRun finished: thingWithMergeProducer
+++++++ ModuleGlobalEndRun: test
+++++++ ModuleGlobalEndRun finished: test
+++++++ ModuleGlobalEndRun: testmerge
+++++++ ModuleGlobalEndRun finished: testmerge
+++++++ ModuleGlobalEndRun: get
+++++++ ModuleGlobalEndRun finished: get
+++++++ ModuleGlobalEndRun: getInt
+++++++ ModuleGlobalEndRun finished: getInt
+++++++ ModuleGlobalEndRun: dependsOnNoPut
+++++++ ModuleGlobalEndRun finished: dependsOnNoPut
+++++++ ModuleGlobalEndRun: out
+++++++ ModuleGlobalEndRun finished: out
+++++ GlobalEndRun finished
+++++ source run
+++++ finished: source run
+++++ GlobalBeginRun run: 2 time: 55000001
+++++ GlobalBeginRun finished
+++++ GlobalBeginRun run: 2 time: 55000001
+++++ GlobalBeginRun finished
+++++ GlobalBeginRun run: 2 time: 55000001
+++++++ ModuleGlobalBeginRun: thingWithMergeProducer
+++++++ ModuleGlobalBeginRun finished: thingWithMergeProducer
+++++++ ModuleGlobalBeginRun: get
+++++++ ModuleGlobalBeginRun finished: get
+++++++ ModuleGlobalBeginRun: putInt
+++++++ ModuleGlobalBeginRun finished: putInt
+++++++ ModuleGlobalBeginRun: putInt2
+++++++ ModuleGlobalBeginRun finished: putInt2
+++++++ ModuleGlobalBeginRun: putInt3
+++++++ ModuleGlobalBeginRun finished: putInt3
+++++++ ModuleGlobalBeginRun: getInt
+++++++ ModuleGlobalBeginRun finished: getInt
+++++++ ModuleGlobalBeginRun: noPut
+++++++ ModuleGlobalBeginRun finished: noPut
+++++ GlobalBeginRun finished
+++++ GlobalBeginRun run: 2 time: 55000001
+++++ GlobalBeginRun finished
+++++ GlobalBeginRun run: 2 time: 55000001
+++++++ ModuleGlobalBeginRun: thingWithMergeProducer
+++++++ ModuleGlobalBeginRun finished: thingWithMergeProducer
+++++++ ModuleGlobalBeginRun: test
+++++++ ModuleGlobalBeginRun finished: test
+++++++ ModuleGlobalBeginRun: testmerge
+++++++ ModuleGlobalBeginRun finished: testmerge
+++++++ ModuleGlobalBeginRun: get
+++++++ ModuleGlobalBeginRun finished: get
+++++++ ModuleGlobalBeginRun: getInt
+++++++ ModuleGlobalBeginRun finished: getInt
+++++++ ModuleGlobalBeginRun: dependsOnNoPut
+++++++ ModuleGlobalBeginRun finished: dependsOnNoPut
+++++++ ModuleGlobalBeginRun: out
+++++++ ModuleGlobalBeginRun finished: out
+++++ GlobalBeginRun finished
+++++ StreamBeginRun run: 2 time: 55000001
+++++ StreamBeginRun finished
+++++ StreamBeginRun run: 2 time: 55000001
+++++ StreamBeginRun finished
+++++ StreamBeginRun run: 2 time: 55000001
+++++++ ModuleStreamBeginRun: thingWithMergeProducer
+++++++ ModuleStreamBeginRun finished: thingWithMergeProducer
+++++++ ModuleStreamBeginRun: get
+++++++ ModuleStreamBeginRun finished: get
+++++++ ModuleStreamBeginRun: putInt
+++++++ ModuleStreamBeginRun finished: putInt
+++++++ ModuleStreamBeginRun: putInt2
+++++++ ModuleStreamBeginRun finished: putInt2
+++++++ ModuleStreamBeginRun: putInt3
+++++++ ModuleStreamBeginRun finished: putInt3
+++++++ ModuleStreamBeginRun: getInt
+++++++ ModuleStreamBeginRun finished: getInt
+++++++ ModuleStreamBeginRun: noPut
+++++++ ModuleStreamBeginRun finished: noPut
+++++ StreamBeginRun finished
+++++ StreamBeginRun run: 2 time: 55000001
+++++ StreamBeginRun finished
+++++ StreamBeginRun run: 2 time: 55000001
+++++++ ModuleStreamBeginRun: thingWithMergeProducer
+++++++ ModuleStreamBeginRun finished: thingWithMergeProducer
+++++++ ModuleStreamBeginRun: test
+++++++ ModuleStreamBeginRun finished: test
+++++++ ModuleStreamBeginRun: testmerge
+++++++ ModuleStreamBeginRun finished: testmerge
+++++++ ModuleStreamBeginRun: get
+++++++ ModuleStreamBeginRun finished: get
+++++++ ModuleStreamBeginRun: getInt
+++++++ ModuleStreamBeginRun finished: getInt
+++++++ ModuleStreamBeginRun: dependsOnNoPut
+++++++ ModuleStreamBeginRun finished: dependsOnNoPut
+++++++ ModuleStreamBeginRun: out
+++++++ ModuleStreamBeginRun finished: out
+++++ StreamBeginRun finished
+++++ source lumi
+++++ finished: source lumi
+++++ GlobalBeginLumi run: 2 lumi: 1 time: 55000001
+++++ GlobalBeginLumi finished
+++++ GlobalBeginLumi run: 2 lumi: 1 time: 55000001
+++++ GlobalBeginLumi finished
+++++ GlobalBeginLumi run: 2 lumi: 1 time: 55000001
+++++++ ModuleGlobalBeginLumi: thingWithMergeProducer
+++++++ ModuleGlobalBeginLumi finished: thingWithMergeProducer
+++++++ ModuleGlobalBeginLumi: get
+++++++ ModuleGlobalBeginLumi finished: get
+++++++ ModuleGlobalBeginLumi: putInt
+++++++ ModuleGlobalBeginLumi finished: putInt
+++++++ ModuleGlobalBeginLumi: putInt2
+++++++ ModuleGlobalBeginLumi finished: putInt2
+++++++ ModuleGlobalBeginLumi: putInt3
+++++++ ModuleGlobalBeginLumi finished: putInt3
+++++++ ModuleGlobalBeginLumi: getInt
+++++++ ModuleGlobalBeginLumi finished: getInt
+++++++ ModuleGlobalBeginLumi: noPut
+++++++ ModuleGlobalBeginLumi finished: noPut
+++++ GlobalBeginLumi finished
+++++ GlobalBeginLumi run: 2 lumi: 1 time: 55000001
+++++ GlobalBeginLumi finished
+++++ GlobalBeginLumi run: 2 lumi: 1 time: 55000001
+++++++ ModuleGlobalBeginLumi: thingWithMergeProducer
+++++++ ModuleGlobalBeginLumi finished: thingWithMergeProducer
+++++++ ModuleGlobalBeginLumi: test
+++++++ ModuleGlobalBeginLumi finished: test
+++++++ ModuleGlobalBeginLumi: testmerge
+++++++ ModuleGlobalBeginLumi finished: testmerge
+++++++ ModuleGlobalBeginLumi: get
+++++++ ModuleGlobalBeginLumi finished: get
+++++++ ModuleGlobalBeginLumi: getInt
+++++++ ModuleGlobalBeginLumi finished: getInt
+++++++ ModuleGlobalBeginLumi: dependsOnNoPut
+++++++ ModuleGlobalBeginLumi finished: dependsOnNoPut
+++++++ ModuleGlobalBeginLumi: out
+++++++ ModuleGlobalBeginLumi finished: out
+++++ GlobalBeginLumi finished
+++++ StreamBeginLumi run: 2 lumi: 1 time: 55000001
+++++ StreamBeginLumi finished
+++++ StreamBeginLumi run: 2 lumi: 1 time: 55000001
+++++ StreamBeginLumi finished
+++++ StreamBeginLumi run: 2 lumi: 1 time: 55000001
+++++++ ModuleStreamBeginLumi: thingWithMergeProducer
+++++++ ModuleStreamBeginLumi finished: thingWithMergeProducer
+++++++ ModuleStreamBeginLumi: get
+++++++ ModuleStreamBeginLumi finished: get
+++++++ ModuleStreamBeginLumi: putInt
+++++++ ModuleStreamBeginLumi finished: putInt
+++++++ ModuleStreamBeginLumi: putInt2
+++++++ ModuleStreamBeginLumi finished: putInt2
+++++++ ModuleStreamBeginLumi: putInt3
+++++++ ModuleStreamBeginLumi finished: putInt3
+++++++ ModuleStreamBeginLumi: getInt
+++++++ ModuleStreamBeginLumi finished: getInt
+++++++ ModuleStreamBeginLumi: noPut
+++++++ ModuleStreamBeginLumi finished: noPut
+++++ StreamBeginLumi finished
+++++ StreamBeginLumi run: 2 lumi: 1 time: 55000001
+++++ StreamBeginLumi finished
+++++ StreamBeginLumi run: 2 lumi: 1 time: 55000001
+++++++ ModuleStreamBeginLumi: thingWithMergeProducer
+++++++ ModuleStreamBeginLumi finished: thingWithMergeProducer
+++++++ ModuleStreamBeginLumi: test
+++++++ ModuleStreamBeginLumi finished: test
+++++++ ModuleStreamBeginLumi: testmerge
+++++++ ModuleStreamBeginLumi finished: testmerge
+++++++ ModuleStreamBeginLumi: get
+++++++ ModuleStreamBeginLumi finished: get
+++++++ ModuleStreamBeginLumi: getInt
+++++++ ModuleStreamBeginLumi finished: getInt
+++++++ ModuleStreamBeginLumi: dependsOnNoPut
+++++++ ModuleStreamBeginLumi finished: dependsOnNoPut
+++++++ ModuleStreamBeginLumi: out
+++++++ ModuleStreamBeginLumi finished: out
+++++ StreamBeginLumi finished
+++++ source event
+++++ finished: source event
+++++ processing event run: 2 lumi: 1 event: 1 time:55000001
+++++ event finished
+++++ processing event run: 2 lumi: 1 event: 1 time:55000001
+++++ event finished
+++++ processing event run: 2 lumi: 1 event: 1 time:55000001
+++++++ processing path for event: p1
+++++++++ module for event: thingWithMergeProducer
+++++++++ finished module for event: thingWithMergeProducer
+++++++ path for event finished: p1
+++++++ processing path for event: path1
+++++++++ module for event: get
+++++++++ finished module for event: get
+++++++++ module for event: putInt
+++++++++ finished module for event: putInt
+++++++++ module for event: putInt2
+++++++++ finished module for event: putInt2
+++++++++ module for event: putInt3
+++++++++ finished module for event: putInt3
+++++++++ module for event: getInt
+++++++++ finished module for event: getInt
+++++++ path for event finished: path1
+++++++ processing path for event: path2
+++++++++ module for event: noPut
+++++++++ finished module for event: noPut
+++++++ path for event finished: path2
+++++++++ module for event: TriggerResults
+++++++++ finished module for event: TriggerResults
+++++ event finished
+++++ processing event run: 2 lumi: 1 event: 1 time:55000001
+++++ event finished
+++++ processing event run: 2 lumi: 1 event: 1 time:55000001
+++++++ processing path for event: path1
+++++++++ module for event: thingWithMergeProducer
+++++++++ finished module for event: thingWithMergeProducer
+++++++ path for event finished: path1
+++++++ processing path for event: path2
+++++++++ module for event: test
+++++++++ finished module for event: test
+++++++++ module for event: testmerge
+++++++++ finished module for event: testmerge
+++++++ path for event finished: path2
+++++++ processing path for event: path3
+++++++++ module for event: get
+++++++++ finished module for event: get
+++++++++ module for event: getInt
+++++++++ finished module for event: getInt
+++++++ path for event finished: path3
+++++++ processing path for event: path4
+++++++++ module for event: dependsOnNoPut
+++++++++ finished module for event: dependsOnNoPut
+++++++ path for event finished: path4
+++++++++ module for event: TriggerResults
+++++++++ finished module for event: TriggerResults
+++++++ processing path for event: endPath1
+++++++++ module for event: out
+++++++++ finished module for event: out
+++++++ path for event finished: endPath1
+++++ event finished
+++++ source event
+++++ finished: source event
+++++ processing event run: 2 lumi: 1 event: 2 time:60000001
+++++ event finished
+++++ processing event run: 2 lumi: 1 event: 2 time:60000001
+++++ event finished
+++++ processing event run: 2 lumi: 1 event: 2 time:60000001
+++++++ processing path for event: p1
+++++++++ module for event: thingWithMergeProducer
+++++++++ finished module for event: thingWithMergeProducer
+++++++ path for event finished: p1
+++++++ processing path for event: path1
+++++++++ module for event: get
+++++++++ finished module for event: get
+++++++++ module for event: putInt
+++++++++ finished module for event: putInt
+++++++++ module for event: putInt2
+++++++++ finished module for event: putInt2
+++++++++ module for event: putInt3
+++++++++ finished module for event: putInt3
+++++++++ module for event: getInt
+++++++++ finished module for event: getInt
+++++++ path for event finished: path1
+++++++ processing path for event: path2
+++++++++ module for event: noPut
+++++++++ finished module for event: noPut
+++++++ path for event finished: path2
+++++++++ module for event: TriggerResults
+++++++++ finished module for event: TriggerResults
+++++ event finished
+++++ processing event run: 2 lumi: 1 event: 2 time:60000001
+++++ event finished
+++++ processing event run: 2 lumi: 1 event: 2 time:60000001
+++++++ processing path for event: path1
+++++++++ module for event: thingWithMergeProducer
+++++++++ finished module for event: thingWithMergeProducer
+++++++ path for event finished: path1
+++++++ processing path for event: path2
+++++++++ module for event: test
+++++++++ finished module for event: test
+++++++++ module for event: testmerge
+++++++++ finished module for event: testmerge
+++++++ path for event finished: path2
+++++++ processing path for event: path3
+++++++++ module for event: get
+++++++++ finished module for event: get
+++++++++ module for event: getInt
+++++++++ finished module for event: getInt
+++++++ path for event finished: path3
+++++++ processing path for event: path4
+++++++++ module for event: dependsOnNoPut
+++++++++ finished module for event: dependsOnNoPut
+++++++ path for event finished: path4
+++++++++ module for event: TriggerResults
+++++++++ finished module for event: TriggerResults
+++++++ processing path for event: endPath1
+++++++++ module for event: out
+++++++++ finished module for event: out
+++++++ path for event finished: endPath1
+++++ event finished
+++++ source event
+++++ finished: source event
+++++ processing event run: 2 lumi: 1 event: 3 time:65000001
+++++ event finished
+++++ processing event run: 2 lumi: 1 event: 3 time:65000001
+++++ event finished
+++++ processing event run: 2 lumi: 1 event: 3 time:65000001
+++++++ processing path for event: p1
+++++++++ module for event: thingWithMergeProducer
+++++++++ finished module for event: thingWithMergeProducer
+++++++ path for event finished: p1
+++++++ processing path for event: path1
+++++++++ module for event: get
+++++++++ finished module for event: get
+++++++++ module for event: putInt
+++++++++ finished module for event: putInt
+++++++++ module for event: putInt2
+++++++++ finished module for event: putInt2
+++++++++ module for event: putInt3
+++++++++ finished module for event: putInt3
+++++++++ module for event: getInt
+++++++++ finished module for event: getInt
+++++++ path for event finished: path1
+++++++ processing path for event: path2
+++++++++ module for event: noPut
+++++++++ finished module for event: noPut
+++++++ path for event finished: path2
+++++++++ module for event: TriggerResults
+++++++++ finished module for event: TriggerResults
+++++ event finished
+++++ processing event run: 2 lumi: 1 event: 3 time:65000001
+++++ event finished
+++++ processing event run: 2 lumi: 1 event: 3 time:65000001
+++++++ processing path for event: path1
+++++++++ module for event: thingWithMergeProducer
+++++++++ finished module for event: thingWithMergeProducer
+++++++ path for event finished: path1
+++++++ processing path for event: path2
+++++++++ module for event: test
+++++++++ finished module for event: test
+++++++++ module for event: testmerge
+++++++++ finished module for event: testmerge
+++++++ path for event finished: path2
+++++++ processing path for event: path3
+++++++++ module for event: get
+++++++++ finished module for event: get
+++++++++ module for event: getInt
+++++++++ finished module for event: getInt
+++++++ path for event finished: path3
+++++++ processing path for event: path4
+++++++++ module for event: dependsOnNoPut
+++++++++ finished module for event: dependsOnNoPut
+++++++ path for event finished: path4
+++++++++ module for event: TriggerResults
+++++++++ finished module for event: TriggerResults
+++++++ processing path for event: endPath1
+++++++++ module for event: out
+++++++++ finished module for event: out
+++++++ path for event finished: endPath1
+++++ event finished
+++++ source event
+++++ finished: source event
+++++ processing event run: 2 lumi: 1 event: 4 time:70000001
+++++ event finished
+++++ processing event run: 2 lumi: 1 event: 4 time:70000001
+++++ event finished
+++++ processing event run: 2 lumi: 1 event: 4 time:70000001
+++++++ processing path for event: p1
+++++++++ module for event: thingWithMergeProducer
+++++++++ finished module for event: thingWithMergeProducer
+++++++ path for event finished: p1
+++++++ processing path for event: path1
+++++++++ module for event: get
+++++++++ finished module for event: get
+++++++++ module for event: putInt
+++++++++ finished module for event: putInt
+++++++++ module for event: putInt2
+++++++++ finished module for event: putInt2
+++++++++ module for event: putInt3
+++++++++ finished module for event: putInt3
+++++++++ module for event: getInt
+++++++++ finished module for event: getInt
+++++++ path for event finished: path1
+++++++ processing path for event: path2
+++++++++ module for event: noPut
+++++++++ finished module for event: noPut
+++++++ path for event finished: path2
+++++++++ module for event: TriggerResults
+++++++++ finished module for event: TriggerResults
+++++ event finished
+++++ processing event run: 2 lumi: 1 event: 4 time:70000001
+++++ event finished
+++++ processing event run: 2 lumi: 1 event: 4 time:70000001
+++++++ processing path for event: path1
+++++++++ module for event: thingWithMergeProducer
+++++++++ finished module for event: thingWithMergeProducer
+++++++ path for event finished: path1
+++++++ processing path for event: path2
+++++++++ module for event: test
+++++++++ finished module for event: test
+++++++++ module for event: testmerge
+++++++++ finished module for event: testmerge
+++++++ path for event finished: path2
+++++++ processing path for event: path3
+++++++++ module for event: get
+++++++++ finished module for event: get
+++++++++ module for event: getInt
+++++++++ finished module for event: getInt
+++++++ path for event finished: path3
+++++++ processing path for event: path4
+++++++++ module for event: dependsOnNoPut
+++++++++ finished module for event: dependsOnNoPut
+++++++ path for event finished: path4
+++++++++ module for event: TriggerResults
+++++++++ finished module for event: TriggerResults
+++++++ processing path for event: endPath1
+++++++++ module for event: out
+++++++++ finished module for event: out
+++++++ path for event finished: endPath1
+++++ event finished
+++++ StreamEndLumi run: 2 lumi: 1 time: 70000001
+++++ StreamEndLumi finished
+++++ StreamEndLumi run: 2 lumi: 1 time: 0
+++++ StreamEndLumi finished
+++++ StreamEndLumi run: 2 lumi: 1 time: 0
+++++++ ModuleStreamEndLumi: thingWithMergeProducer
+++++++ ModuleStreamEndLumi finished: thingWithMergeProducer
+++++++ ModuleStreamEndLumi: get
+++++++ ModuleStreamEndLumi finished: get
+++++++ ModuleStreamEndLumi: putInt
+++++++ ModuleStreamEndLumi finished: putInt
+++++++ ModuleStreamEndLumi: putInt2
+++++++ ModuleStreamEndLumi finished: putInt2
+++++++ ModuleStreamEndLumi: putInt3
+++++++ ModuleStreamEndLumi finished: putInt3
+++++++ ModuleStreamEndLumi: getInt
+++++++ ModuleStreamEndLumi finished: getInt
+++++++ ModuleStreamEndLumi: noPut
+++++++ ModuleStreamEndLumi finished: noPut
+++++ StreamEndLumi finished
+++++ StreamEndLumi run: 2 lumi: 1 time: 0
+++++ StreamEndLumi finished
+++++ StreamEndLumi run: 2 lumi: 1 time: 0
+++++++ ModuleStreamEndLumi: thingWithMergeProducer
+++++++ ModuleStreamEndLumi finished: thingWithMergeProducer
+++++++ ModuleStreamEndLumi: test
+++++++ ModuleStreamEndLumi finished: test
+++++++ ModuleStreamEndLumi: testmerge
+++++++ ModuleStreamEndLumi finished: testmerge
+++++++ ModuleStreamEndLumi: get
+++++++ ModuleStreamEndLumi finished: get
+++++++ ModuleStreamEndLumi: getInt
+++++++ ModuleStreamEndLumi finished: getInt
+++++++ ModuleStreamEndLumi: dependsOnNoPut
+++++++ ModuleStreamEndLumi finished: dependsOnNoPut
+++++++ ModuleStreamEndLumi: out
+++++++ ModuleStreamEndLumi finished: out
+++++ StreamEndLumi finished
+++++ GlobalEndLumi run: 2 lumi: 1 time: 55000001
+++++ GlobalEndLumi finished
+++++ GlobalEndLumi run: 2 lumi: 1 time: 55000001
+++++ GlobalEndLumi finished
+++++ GlobalEndLumi run: 2 lumi: 1 time: 55000001
+++++++ ModuleGlobalEndLumi: thingWithMergeProducer
+++++++ ModuleGlobalEndLumi finished: thingWithMergeProducer
+++++++ ModuleGlobalEndLumi: get
+++++++ ModuleGlobalEndLumi finished: get
+++++++ ModuleGlobalEndLumi: putInt
+++++++ ModuleGlobalEndLumi finished: putInt
+++++++ ModuleGlobalEndLumi: putInt2
+++++++ ModuleGlobalEndLumi finished: putInt2
+++++++ ModuleGlobalEndLumi: putInt3
+++++++ ModuleGlobalEndLumi finished: putInt3
+++++++ ModuleGlobalEndLumi: getInt
+++++++ ModuleGlobalEndLumi finished: getInt
+++++++ ModuleGlobalEndLumi: noPut
+++++++ ModuleGlobalEndLumi finished: noPut
+++++ GlobalEndLumi finished
+++++ GlobalEndLumi run: 2 lumi: 1 time: 55000001
+++++ GlobalEndLumi finished
+++++ GlobalEndLumi run: 2 lumi: 1 time: 55000001
+++++++ ModuleGlobalEndLumi: thingWithMergeProducer
+++++++ ModuleGlobalEndLumi finished: thingWithMergeProducer
+++++++ ModuleGlobalEndLumi: test
+++++++ ModuleGlobalEndLumi finished: test
+++++++ ModuleGlobalEndLumi: testmerge
+++++++ ModuleGlobalEndLumi finished: testmerge
+++++++ ModuleGlobalEndLumi: get
+++++++ ModuleGlobalEndLumi finished: get
+++++++ ModuleGlobalEndLumi: getInt
+++++++ ModuleGlobalEndLumi finished: getInt
+++++++ ModuleGlobalEndLumi: dependsOnNoPut
+++++++ ModuleGlobalEndLumi finished: dependsOnNoPut
+++++++ ModuleGlobalEndLumi: out
+++++++ ModuleGlobalEndLumi finished: out
+++++ GlobalEndLumi finished
+++++ source lumi
+++++ finished: source lumi
+++++ GlobalBeginLumi run: 2 lumi: 2 time: 75000001
+++++ GlobalBeginLumi finished
+++++ GlobalBeginLumi run: 2 lumi: 2 time: 75000001
+++++ GlobalBeginLumi finished
+++++ GlobalBeginLumi run: 2 lumi: 2 time: 75000001
+++++++ ModuleGlobalBeginLumi: thingWithMergeProducer
+++++++ ModuleGlobalBeginLumi finished: thingWithMergeProducer
+++++++ ModuleGlobalBeginLumi: get
+++++++ ModuleGlobalBeginLumi finished: get
+++++++ ModuleGlobalBeginLumi: putInt
+++++++ ModuleGlobalBeginLumi finished: putInt
+++++++ ModuleGlobalBeginLumi: putInt2
+++++++ ModuleGlobalBeginLumi finished: putInt2
+++++++ ModuleGlobalBeginLumi: putInt3
+++++++ ModuleGlobalBeginLumi finished: putInt3
+++++++ ModuleGlobalBeginLumi: getInt
+++++++ ModuleGlobalBeginLumi finished: getInt
+++++++ ModuleGlobalBeginLumi: noPut
+++++++ ModuleGlobalBeginLumi finished: noPut
+++++ GlobalBeginLumi finished
+++++ GlobalBeginLumi run: 2 lumi: 2 time: 75000001
+++++ GlobalBeginLumi finished
+++++ GlobalBeginLumi run: 2 lumi: 2 time: 75000001
+++++++ ModuleGlobalBeginLumi: thingWithMergeProducer
+++++++ ModuleGlobalBeginLumi finished: thingWithMergeProducer
+++++++ ModuleGlobalBeginLumi: test
+++++++ ModuleGlobalBeginLumi finished: test
+++++++ ModuleGlobalBeginLumi: testmerge
+++++++ ModuleGlobalBeginLumi finished: testmerge
+++++++ ModuleGlobalBeginLumi: get
+++++++ ModuleGlobalBeginLumi finished: get
+++++++ ModuleGlobalBeginLumi: getInt
+++++++ ModuleGlobalBeginLumi finished: getInt
+++++++ ModuleGlobalBeginLumi: dependsOnNoPut
+++++++ ModuleGlobalBeginLumi finished: dependsOnNoPut
+++++++ ModuleGlobalBeginLumi: out
+++++++ ModuleGlobalBeginLumi finished: out
+++++ GlobalBeginLumi finished
+++++ StreamBeginLumi run: 2 lumi: 2 time: 75000001
+++++ StreamBeginLumi finished
+++++ StreamBeginLumi run: 2 lumi: 2 time: 75000001
+++++ StreamBeginLumi finished
+++++ StreamBeginLumi run: 2 lumi: 2 time: 75000001
+++++++ ModuleStreamBeginLumi: thingWithMergeProducer
+++++++ ModuleStreamBeginLumi finished: thingWithMergeProducer
+++++++ ModuleStreamBeginLumi: get
+++++++ ModuleStreamBeginLumi finished: get
+++++++ ModuleStreamBeginLumi: putInt
+++++++ ModuleStreamBeginLumi finished: putInt
+++++++ ModuleStreamBeginLumi: putInt2
+++++++ ModuleStreamBeginLumi finished: putInt2
+++++++ ModuleStreamBeginLumi: putInt3
+++++++ ModuleStreamBeginLumi finished: putInt3
+++++++ ModuleStreamBeginLumi: getInt
+++++++ ModuleStreamBeginLumi finished: getInt
+++++++ ModuleStreamBeginLumi: noPut
+++++++ ModuleStreamBeginLumi finished: noPut
+++++ StreamBeginLumi finished
+++++ StreamBeginLumi run: 2 lumi: 2 time: 75000001
+++++ StreamBeginLumi finished
+++++ StreamBeginLumi run: 2 lumi: 2 time: 75000001
+++++++ ModuleStreamBeginLumi: thingWithMergeProducer
+++++++ ModuleStreamBeginLumi finished: thingWithMergeProducer
+++++++ ModuleStreamBeginLumi: test
+++++++ ModuleStreamBeginLumi finished: test
+++++++ ModuleStreamBeginLumi: testmerge
+++++++ ModuleStreamBeginLumi finished: testmerge
+++++++ ModuleStreamBeginLumi: get
+++++++ ModuleStreamBeginLumi finished: get
+++++++ ModuleStreamBeginLumi: getInt
+++++++ ModuleStreamBeginLumi finished: getInt
+++++++ ModuleStreamBeginLumi: dependsOnNoPut
+++++++ ModuleStreamBeginLumi finished: dependsOnNoPut
+++++++ ModuleStreamBeginLumi: out
+++++++ ModuleStreamBeginLumi finished: out
+++++ StreamBeginLumi finished
+++++ source event
+++++ finished: source event
+++++ processing event run: 2 lumi: 2 event: 5 time:75000001
+++++ event finished
+++++ processing event run: 2 lumi: 2 event: 5 time:75000001
+++++ event finished
+++++ processing event run: 2 lumi: 2 event: 5 time:75000001
+++++++ processing path for event: p1
+++++++++ module for event: thingWithMergeProducer
+++++++++ finished module for event: thingWithMergeProducer
+++++++ path for event finished: p1
+++++++ processing path for event: path1
+++++++++ module for event: get
+++++++++ finished module for event: get
+++++++++ module for event: putInt
+++++++++ finished module for event: putInt
+++++++++ module for event: putInt2
+++++++++ finished module for event: putInt2
+++++++++ module for event: putInt3
+++++++++ finished module for event: putInt3
+++++++++ module for event: getInt
+++++++++ finished module for event: getInt
+++++++ path for event finished: path1
+++++++ processing path for event: path2
+++++++++ module for event: noPut
+++++++++ finished module for event: noPut
+++++++ path for event finished: path2
+++++++++ module for event: TriggerResults
+++++++++ finished module for event: TriggerResults
+++++ event finished
+++++ processing event run: 2 lumi: 2 event: 5 time:75000001
+++++ event finished
+++++ processing event run: 2 lumi: 2 event: 5 time:75000001
+++++++ processing path for event: path1
+++++++++ module for event: thingWithMergeProducer
+++++++++ finished module for event: thingWithMergeProducer
+++++++ path for event finished: path1
+++++++ processing path for event: path2
+++++++++ module for event: test
+++++++++ finished module for event: test
+++++++++ module for event: testmerge
+++++++++ finished module for event: testmerge
+++++++ path for event finished: path2
+++++++ processing path for event: path3
+++++++++ module for event: get
+++++++++ finished module for event: get
+++++++++ module for event: getInt
+++++++++ finished module for event: getInt
+++++++ path for event finished: path3
+++++++ processing path for event: path4
+++++++++ module for event: dependsOnNoPut
+++++++++ finished module for event: dependsOnNoPut
+++++++ path for event finished: path4
+++++++++ module for event: TriggerResults
+++++++++ finished module for event: TriggerResults
+++++++ processing path for event: endPath1
+++++++++ module for event: out
+++++++++ finished module for event: out
+++++++ path for event finished: endPath1
+++++ event finished
+++++ source event
+++++ finished: source event
+++++ processing event run: 2 lumi: 2 event: 6 time:80000001
+++++ event finished
+++++ processing event run: 2 lumi: 2 event: 6 time:80000001
+++++ event finished
+++++ processing event run: 2 lumi: 2 event: 6 time:80000001
+++++++ processing path for event: p1
+++++++++ module for event: thingWithMergeProducer
+++++++++ finished module for event: thingWithMergeProducer
+++++++ path for event finished: p1
+++++++ processing path for event: path1
+++++++++ module for event: get
+++++++++ finished module for event: get
+++++++++ module for event: putInt
+++++++++ finished module for event: putInt
+++++++++ module for event: putInt2
+++++++++ finished module for event: putInt2
+++++++++ module for event: putInt3
+++++++++ finished module for event: putInt3
+++++++++ module for event: getInt
+++++++++ finished module for event: getInt
+++++++ path for event finished: path1
+++++++ processing path for event: path2
+++++++++ module for event: noPut
+++++++++ finished module for event: noPut
+++++++ path for event finished: path2
+++++++++ module for event: TriggerResults
+++++++++ finished module for event: TriggerResults
+++++ event finished
+++++ processing event run: 2 lumi: 2 event: 6 time:80000001
+++++ event finished
+++++ processing event run: 2 lumi: 2 event: 6 time:80000001
+++++++ processing path for event: path1
+++++++++ module for event: thingWithMergeProducer
+++++++++ finished module for event: thingWithMergeProducer
+++++++ path for event finished: path1
+++++++ processing path for event: path2
+++++++++ module for event: test
+++++++++ finished module for event: test
+++++++++ module for event: testmerge
+++++++++ finished module for event: testmerge
+++++++ path for event finished: path2
+++++++ processing path for event: path3
+++++++++ module for event: get
+++++++++ finished module for event: get
+++++++++ module for event: getInt
+++++++++ finished module for event: getInt
+++++++ path for event finished: path3
+++++++ processing path for event: path4
+++++++++ module for event: dependsOnNoPut
+++++++++ finished module for event: dependsOnNoPut
+++++++ path for event finished: path4
+++++++++ module for event: TriggerResults
+++++++++ finished module for event: TriggerResults
+++++++ processing path for event: endPath1
+++++++++ module for event: out
+++++++++ finished module for event: out
+++++++ path for event finished: endPath1
+++++ event finished
+++++ source event
+++++ finished: source event
+++++ processing event run: 2 lumi: 2 event: 7 time:85000001
+++++ event finished
+++++ processing event run: 2 lumi: 2 event: 7 time:85000001
+++++ event finished
+++++ processing event run: 2 lumi: 2 event: 7 time:85000001
+++++++ processing path for event: p1
+++++++++ module for event: thingWithMergeProducer
+++++++++ finished module for event: thingWithMergeProducer
+++++++ path for event finished: p1
+++++++ processing path for event: path1
+++++++++ module for event: get
+++++++++ finished module for event: get
+++++++++ module for event: putInt
+++++++++ finished module for event: putInt
+++++++++ module for event: putInt2
+++++++++ finished module for event: putInt2
+++++++++ module for event: putInt3
+++++++++ finished module for event: putInt3
+++++++++ module for event: getInt
+++++++++ finished module for event: getInt
+++++++ path for event finished: path1
+++++++ processing path for event: path2
+++++++++ module for event: noPut
+++++++++ finished module for event: noPut
+++++++ path for event finished: path2
+++++++++ module for event: TriggerResults
+++++++++ finished module for event: TriggerResults
+++++ event finished
+++++ processing event run: 2 lumi: 2 event: 7 time:85000001
+++++ event finished
+++++ processing event run: 2 lumi: 2 event: 7 time:85000001
+++++++ processing path for event: path1
+++++++++ module for event: thingWithMergeProducer
+++++++++ finished module for event: thingWithMergeProducer
+++++++ path for event finished: path1
+++++++ processing path for event: path2
+++++++++ module for event: test
+++++++++ finished module for event: test
+++++++++ module for event: testmerge
+++++++++ finished module for event: testmerge
+++++++ path for event finished: path2
+++++++ processing path for event: path3
+++++++++ module for event: get
+++++++++ finished module for event: get
+++++++++ module for event: getInt
+++++++++ finished module for event: getInt
+++++++ path for event finished: path3
+++++++ processing path for event: path4
+++++++++ module for event: dependsOnNoPut
+++++++++ finished module for event: dependsOnNoPut
+++++++ path for event finished: path4
+++++++++ module for event: TriggerResults
+++++++++ finished module for event: TriggerResults
+++++++ processing path for event: endPath1
+++++++++ module for event: out
+++++++++ finished module for event: out
+++++++ path for event finished: endPath1
+++++ event finished
+++++ source event
+++++ finished: source event
+++++ processing event run: 2 lumi: 2 event: 8 time:90000001
+++++ event finished
+++++ processing event run: 2 lumi: 2 event: 8 time:90000001
+++++ event finished
+++++ processing event run: 2 lumi: 2 event: 8 time:90000001
+++++++ processing path for event: p1
+++++++++ module for event: thingWithMergeProducer
+++++++++ finished module for event: thingWithMergeProducer
+++++++ path for event finished: p1
+++++++ processing path for event: path1
+++++++++ module for event: get
+++++++++ finished module for event: get
+++++++++ module for event: putInt
+++++++++ finished module for event: putInt
+++++++++ module for event: putInt2
+++++++++ finished module for event: putInt2
+++++++++ module for event: putInt3
+++++++++ finished module for event: putInt3
+++++++++ module for event: getInt
+++++++++ finished module for event: getInt
+++++++ path for event finished: path1
+++++++ processing path for event: path2
+++++++++ module for event: noPut
+++++++++ finished module for event: noPut
+++++++ path for event finished: path2
+++++++++ module for event: TriggerResults
+++++++++ finished module for event: TriggerResults
+++++ event finished
+++++ processing event run: 2 lumi: 2 event: 8 time:90000001
+++++ event finished
+++++ processing event run: 2 lumi: 2 event: 8 time:90000001
+++++++ processing path for event: path1
+++++++++ module for event: thingWithMergeProducer
+++++++++ finished module for event: thingWithMergeProducer
+++++++ path for event finished: path1
+++++++ processing path for event: path2
+++++++++ module for event: test
+++++++++ finished module for event: test
+++++++++ module for event: testmerge
+++++++++ finished module for event: testmerge
+++++++ path for event finished: path2
+++++++ processing path for event: path3
+++++++++ module for event: get
+++++++++ finished module for event: get
+++++++++ module for event: getInt
+++++++++ finished module for event: getInt
+++++++ path for event finished: path3
+++++++ processing path for event: path4
+++++++++ module for event: dependsOnNoPut
+++++++++ finished module for event: dependsOnNoPut
+++++++ path for event finished: path4
+++++++++ module for event: TriggerResults
+++++++++ finished module for event: TriggerResults
+++++++ processing path for event: endPath1
+++++++++ module for event: out
+++++++++ finished module for event: out
+++++++ path for event finished: endPath1
+++++ event finished
+++++ StreamEndLumi run: 2 lumi: 2 time: 90000001
+++++ StreamEndLumi finished
+++++ StreamEndLumi run: 2 lumi: 2 time: 0
+++++ StreamEndLumi finished
+++++ StreamEndLumi run: 2 lumi: 2 time: 0
+++++++ ModuleStreamEndLumi: thingWithMergeProducer
+++++++ ModuleStreamEndLumi finished: thingWithMergeProducer
+++++++ ModuleStreamEndLumi: get
+++++++ ModuleStreamEndLumi finished: get
+++++++ ModuleStreamEndLumi: putInt
+++++++ ModuleStreamEndLumi finished: putInt
+++++++ ModuleStreamEndLumi: putInt2
+++++++ ModuleStreamEndLumi finished: putInt2
+++++++ ModuleStreamEndLumi: putInt3
+++++++ ModuleStreamEndLumi finished: putInt3
+++++++ ModuleStreamEndLumi: getInt
+++++++ ModuleStreamEndLumi finished: getInt
+++++++ ModuleStreamEndLumi: noPut
+++++++ ModuleStreamEndLumi finished: noPut
+++++ StreamEndLumi finished
+++++ StreamEndLumi run: 2 lumi: 2 time: 0
+++++ StreamEndLumi finished
+++++ StreamEndLumi run: 2 lumi: 2 time: 0
+++++++ ModuleStreamEndLumi: thingWithMergeProducer
+++++++ ModuleStreamEndLumi finished: thingWithMergeProducer
+++++++ ModuleStreamEndLumi: test
+++++++ ModuleStreamEndLumi finished: test
+++++++ ModuleStreamEndLumi: testmerge
+++++++ ModuleStreamEndLumi finished: testmerge
+++++++ ModuleStreamEndLumi: get
+++++++ ModuleStreamEndLumi finished: get
+++++++ ModuleStreamEndLumi: getInt
+++++++ ModuleStreamEndLumi finished: getInt
+++++++ ModuleStreamEndLumi: dependsOnNoPut
+++++++ ModuleStreamEndLumi finished: dependsOnNoPut
+++++++ ModuleStreamEndLumi: out
+++++++ ModuleStreamEndLumi finished: out
+++++ StreamEndLumi finished
+++++ GlobalEndLumi run: 2 lumi: 2 time: 75000001
+++++ GlobalEndLumi finished
+++++ GlobalEndLumi run: 2 lumi: 2 time: 75000001
+++++ GlobalEndLumi finished
+++++ GlobalEndLumi run: 2 lumi: 2 time: 75000001
+++++++ ModuleGlobalEndLumi: thingWithMergeProducer
+++++++ ModuleGlobalEndLumi finished: thingWithMergeProducer
+++++++ ModuleGlobalEndLumi: get
+++++++ ModuleGlobalEndLumi finished: get
+++++++ ModuleGlobalEndLumi: putInt
+++++++ ModuleGlobalEndLumi finished: putInt
+++++++ ModuleGlobalEndLumi: putInt2
+++++++ ModuleGlobalEndLumi finished: putInt2
+++++++ ModuleGlobalEndLumi: putInt3
+++++++ ModuleGlobalEndLumi finished: putInt3
+++++++ ModuleGlobalEndLumi: getInt
+++++++ ModuleGlobalEndLumi finished: getInt
+++++++ ModuleGlobalEndLumi: noPut
+++++++ ModuleGlobalEndLumi finished: noPut
+++++ GlobalEndLumi finished
+++++ GlobalEndLumi run: 2 lumi: 2 time: 75000001
+++++ GlobalEndLumi finished
+++++ GlobalEndLumi run: 2 lumi: 2 time: 75000001
+++++++ ModuleGlobalEndLumi: thingWithMergeProducer
+++++++ ModuleGlobalEndLumi finished: thingWithMergeProducer
+++++++ ModuleGlobalEndLumi: test
+++++++ ModuleGlobalEndLumi finished: test
+++++++ ModuleGlobalEndLumi: testmerge
+++++++ ModuleGlobalEndLumi finished: testmerge
+++++++ ModuleGlobalEndLumi: get
+++++++ ModuleGlobalEndLumi finished: get
+++++++ ModuleGlobalEndLumi: getInt
+++++++ ModuleGlobalEndLumi finished: getInt
+++++++ ModuleGlobalEndLumi: dependsOnNoPut
+++++++ ModuleGlobalEndLumi finished: dependsOnNoPut
+++++++ ModuleGlobalEndLumi: out
+++++++ ModuleGlobalEndLumi finished: out
+++++ GlobalEndLumi finished
+++++ source lumi
+++++ finished: source lumi
+++++ GlobalBeginLumi run: 2 lumi: 3 time: 95000001
+++++ GlobalBeginLumi finished
+++++ GlobalBeginLumi run: 2 lumi: 3 time: 95000001
+++++ GlobalBeginLumi finished
+++++ GlobalBeginLumi run: 2 lumi: 3 time: 95000001
+++++++ ModuleGlobalBeginLumi: thingWithMergeProducer
+++++++ ModuleGlobalBeginLumi finished: thingWithMergeProducer
+++++++ ModuleGlobalBeginLumi: get
+++++++ ModuleGlobalBeginLumi finished: get
+++++++ ModuleGlobalBeginLumi: putInt
+++++++ ModuleGlobalBeginLumi finished: putInt
+++++++ ModuleGlobalBeginLumi: putInt2
+++++++ ModuleGlobalBeginLumi finished: putInt2
+++++++ ModuleGlobalBeginLumi: putInt3
+++++++ ModuleGlobalBeginLumi finished: putInt3
+++++++ ModuleGlobalBeginLumi: getInt
+++++++ ModuleGlobalBeginLumi finished: getInt
+++++++ ModuleGlobalBeginLumi: noPut
+++++++ ModuleGlobalBeginLumi finished: noPut
+++++ GlobalBeginLumi finished
+++++ GlobalBeginLumi run: 2 lumi: 3 time: 95000001
+++++ GlobalBeginLumi finished
+++++ GlobalBeginLumi run: 2 lumi: 3 time: 95000001
+++++++ ModuleGlobalBeginLumi: thingWithMergeProducer
+++++++ ModuleGlobalBeginLumi finished: thingWithMergeProducer
+++++++ ModuleGlobalBeginLumi: test
+++++++ ModuleGlobalBeginLumi finished: test
+++++++ ModuleGlobalBeginLumi: testmerge
+++++++ ModuleGlobalBeginLumi finished: testmerge
+++++++ ModuleGlobalBeginLumi: get
+++++++ ModuleGlobalBeginLumi finished: get
+++++++ ModuleGlobalBeginLumi: getInt
+++++++ ModuleGlobalBeginLumi finished: getInt
+++++++ ModuleGlobalBeginLumi: dependsOnNoPut
+++++++ ModuleGlobalBeginLumi finished: dependsOnNoPut
+++++++ ModuleGlobalBeginLumi: out
+++++++ ModuleGlobalBeginLumi finished: out
+++++ GlobalBeginLumi finished
+++++ StreamBeginLumi run: 2 lumi: 3 time: 95000001
+++++ StreamBeginLumi finished
+++++ StreamBeginLumi run: 2 lumi: 3 time: 95000001
+++++ StreamBeginLumi finished
+++++ StreamBeginLumi run: 2 lumi: 3 time: 95000001
+++++++ ModuleStreamBeginLumi: thingWithMergeProducer
+++++++ ModuleStreamBeginLumi finished: thingWithMergeProducer
+++++++ ModuleStreamBeginLumi: get
+++++++ ModuleStreamBeginLumi finished: get
+++++++ ModuleStreamBeginLumi: putInt
+++++++ ModuleStreamBeginLumi finished: putInt
+++++++ ModuleStreamBeginLumi: putInt2
+++++++ ModuleStreamBeginLumi finished: putInt2
+++++++ ModuleStreamBeginLumi: putInt3
+++++++ ModuleStreamBeginLumi finished: putInt3
+++++++ ModuleStreamBeginLumi: getInt
+++++++ ModuleStreamBeginLumi finished: getInt
+++++++ ModuleStreamBeginLumi: noPut
+++++++ ModuleStreamBeginLumi finished: noPut
+++++ StreamBeginLumi finished
+++++ StreamBeginLumi run: 2 lumi: 3 time: 95000001
+++++ StreamBeginLumi finished
+++++ StreamBeginLumi run: 2 lumi: 3 time: 95000001
+++++++ ModuleStreamBeginLumi: thingWithMergeProducer
+++++++ ModuleStreamBeginLumi finished: thingWithMergeProducer
+++++++ ModuleStreamBeginLumi: test
+++++++ ModuleStreamBeginLumi finished: test
+++++++ ModuleStreamBeginLumi: testmerge
+++++++ ModuleStreamBeginLumi finished: testmerge
+++++++ ModuleStreamBeginLumi: get
+++++++ ModuleStreamBeginLumi finished: get
+++++++ ModuleStreamBeginLumi: getInt
+++++++ ModuleStreamBeginLumi finished: getInt
+++++++ ModuleStreamBeginLumi: dependsOnNoPut
+++++++ ModuleStreamBeginLumi finished: dependsOnNoPut
+++++++ ModuleStreamBeginLumi: out
+++++++ ModuleStreamBeginLumi finished: out
+++++ StreamBeginLumi finished
+++++ source event
+++++ finished: source event
+++++ processing event run: 2 lumi: 3 event: 9 time:95000001
+++++ event finished
+++++ processing event run: 2 lumi: 3 event: 9 time:95000001
+++++ event finished
+++++ processing event run: 2 lumi: 3 event: 9 time:95000001
+++++++ processing path for event: p1
+++++++++ module for event: thingWithMergeProducer
+++++++++ finished module for event: thingWithMergeProducer
+++++++ path for event finished: p1
+++++++ processing path for event: path1
+++++++++ module for event: get
+++++++++ finished module for event: get
+++++++++ module for event: putInt
+++++++++ finished module for event: putInt
+++++++++ module for event: putInt2
+++++++++ finished module for event: putInt2
+++++++++ module for event: putInt3
+++++++++ finished module for event: putInt3
+++++++++ module for event: getInt
+++++++++ finished module for event: getInt
+++++++ path for event finished: path1
+++++++ processing path for event: path2
+++++++++ module for event: noPut
+++++++++ finished module for event: noPut
+++++++ path for event finished: path2
+++++++++ module for event: TriggerResults
+++++++++ finished module for event: TriggerResults
+++++ event finished
+++++ processing event run: 2 lumi: 3 event: 9 time:95000001
+++++ event finished
+++++ processing event run: 2 lumi: 3 event: 9 time:95000001
+++++++ processing path for event: path1
+++++++++ module for event: thingWithMergeProducer
+++++++++ finished module for event: thingWithMergeProducer
+++++++ path for event finished: path1
+++++++ processing path for event: path2
+++++++++ module for event: test
+++++++++ finished module for event: test
+++++++++ module for event: testmerge
+++++++++ finished module for event: testmerge
+++++++ path for event finished: path2
+++++++ processing path for event: path3
+++++++++ module for event: get
+++++++++ finished module for event: get
+++++++++ module for event: getInt
+++++++++ finished module for event: getInt
+++++++ path for event finished: path3
+++++++ processing path for event: path4
+++++++++ module for event: dependsOnNoPut
+++++++++ finished module for event: dependsOnNoPut
+++++++ path for event finished: path4
+++++++++ module for event: TriggerResults
+++++++++ finished module for event: TriggerResults
+++++++ processing path for event: endPath1
+++++++++ module for event: out
+++++++++ finished module for event: out
+++++++ path for event finished: endPath1
+++++ event finished
+++++ source event
+++++ finished: source event
+++++ processing event run: 2 lumi: 3 event: 10 time:100000001
+++++ event finished
+++++ processing event run: 2 lumi: 3 event: 10 time:100000001
+++++ event finished
+++++ processing event run: 2 lumi: 3 event: 10 time:100000001
+++++++ processing path for event: p1
+++++++++ module for event: thingWithMergeProducer
+++++++++ finished module for event: thingWithMergeProducer
+++++++ path for event finished: p1
+++++++ processing path for event: path1
+++++++++ module for event: get
+++++++++ finished module for event: get
+++++++++ module for event: putInt
+++++++++ finished module for event: putInt
+++++++++ module for event: putInt2
+++++++++ finished module for event: putInt2
+++++++++ module for event: putInt3
+++++++++ finished module for event: putInt3
+++++++++ module for event: getInt
+++++++++ finished module for event: getInt
+++++++ path for event finished: path1
+++++++ processing path for event: path2
+++++++++ module for event: noPut
+++++++++ finished module for event: noPut
+++++++ path for event finished: path2
+++++++++ module for event: TriggerResults
+++++++++ finished module for event: TriggerResults
+++++ event finished
+++++ processing event run: 2 lumi: 3 event: 10 time:100000001
+++++ event finished
+++++ processing event run: 2 lumi: 3 event: 10 time:100000001
+++++++ processing path for event: path1
+++++++++ module for event: thingWithMergeProducer
+++++++++ finished module for event: thingWithMergeProducer
+++++++ path for event finished: path1
+++++++ processing path for event: path2
+++++++++ module for event: test
+++++++++ finished module for event: test
+++++++++ module for event: testmerge
+++++++++ finished module for event: testmerge
+++++++ path for event finished: path2
+++++++ processing path for event: path3
+++++++++ module for event: get
+++++++++ finished module for event: get
+++++++++ module for event: getInt
+++++++++ finished module for event: getInt
+++++++ path for event finished: path3
+++++++ processing path for event: path4
+++++++++ module for event: dependsOnNoPut
+++++++++ finished module for event: dependsOnNoPut
+++++++ path for event finished: path4
+++++++++ module for event: TriggerResults
+++++++++ finished module for event: TriggerResults
+++++++ processing path for event: endPath1
+++++++++ module for event: out
+++++++++ finished module for event: out
+++++++ path for event finished: endPath1
+++++ event finished
+++++ StreamEndLumi run: 2 lumi: 3 time: 100000001
+++++ StreamEndLumi finished
+++++ StreamEndLumi run: 2 lumi: 3 time: 0
+++++ StreamEndLumi finished
+++++ StreamEndLumi run: 2 lumi: 3 time: 0
+++++++ ModuleStreamEndLumi: thingWithMergeProducer
+++++++ ModuleStreamEndLumi finished: thingWithMergeProducer
+++++++ ModuleStreamEndLumi: get
+++++++ ModuleStreamEndLumi finished: get
+++++++ ModuleStreamEndLumi: putInt
+++++++ ModuleStreamEndLumi finished: putInt
+++++++ ModuleStreamEndLumi: putInt2
+++++++ ModuleStreamEndLumi finished: putInt2
+++++++ ModuleStreamEndLumi: putInt3
+++++++ ModuleStreamEndLumi finished: putInt3
+++++++ ModuleStreamEndLumi: getInt
+++++++ ModuleStreamEndLumi finished: getInt
+++++++ ModuleStreamEndLumi: noPut
+++++++ ModuleStreamEndLumi finished: noPut
+++++ StreamEndLumi finished
+++++ StreamEndLumi run: 2 lumi: 3 time: 0
+++++ StreamEndLumi finished
+++++ StreamEndLumi run: 2 lumi: 3 time: 0
+++++++ ModuleStreamEndLumi: thingWithMergeProducer
+++++++ ModuleStreamEndLumi finished: thingWithMergeProducer
+++++++ ModuleStreamEndLumi: test
+++++++ ModuleStreamEndLumi finished: test
+++++++ ModuleStreamEndLumi: testmerge
+++++++ ModuleStreamEndLumi finished: testmerge
+++++++ ModuleStreamEndLumi: get
+++++++ ModuleStreamEndLumi finished: get
+++++++ ModuleStreamEndLumi: getInt
+++++++ ModuleStreamEndLumi finished: getInt
+++++++ ModuleStreamEndLumi: dependsOnNoPut
+++++++ ModuleStreamEndLumi finished: dependsOnNoPut
+++++++ ModuleStreamEndLumi: out
+++++++ ModuleStreamEndLumi finished: out
+++++ StreamEndLumi finished
+++++ GlobalEndLumi run: 2 lumi: 3 time: 95000001
+++++ GlobalEndLumi finished
+++++ GlobalEndLumi run: 2 lumi: 3 time: 95000001
+++++ GlobalEndLumi finished
+++++ GlobalEndLumi run: 2 lumi: 3 time: 95000001
+++++++ ModuleGlobalEndLumi: thingWithMergeProducer
+++++++ ModuleGlobalEndLumi finished: thingWithMergeProducer
+++++++ ModuleGlobalEndLumi: get
+++++++ ModuleGlobalEndLumi finished: get
+++++++ ModuleGlobalEndLumi: putInt
+++++++ ModuleGlobalEndLumi finished: putInt
+++++++ ModuleGlobalEndLumi: putInt2
+++++++ ModuleGlobalEndLumi finished: putInt2
+++++++ ModuleGlobalEndLumi: putInt3
+++++++ ModuleGlobalEndLumi finished: putInt3
+++++++ ModuleGlobalEndLumi: getInt
+++++++ ModuleGlobalEndLumi finished: getInt
+++++++ ModuleGlobalEndLumi: noPut
+++++++ ModuleGlobalEndLumi finished: noPut
+++++ GlobalEndLumi finished
+++++ GlobalEndLumi run: 2 lumi: 3 time: 95000001
+++++ GlobalEndLumi finished
+++++ GlobalEndLumi run: 2 lumi: 3 time: 95000001
+++++++ ModuleGlobalEndLumi: thingWithMergeProducer
+++++++ ModuleGlobalEndLumi finished: thingWithMergeProducer
+++++++ ModuleGlobalEndLumi: test
+++++++ ModuleGlobalEndLumi finished: test
+++++++ ModuleGlobalEndLumi: testmerge
+++++++ ModuleGlobalEndLumi finished: testmerge
+++++++ ModuleGlobalEndLumi: get
+++++++ ModuleGlobalEndLumi finished: get
+++++++ ModuleGlobalEndLumi: getInt
+++++++ ModuleGlobalEndLumi finished: getInt
+++++++ ModuleGlobalEndLumi: dependsOnNoPut
+++++++ ModuleGlobalEndLumi finished: dependsOnNoPut
+++++++ ModuleGlobalEndLumi: out
+++++++ ModuleGlobalEndLumi finished: out
+++++ GlobalEndLumi finished
+++++ StreamEndRun run: 2 time: 100000001
+++++ StreamEndRun finished
+++++ StreamEndRun run: 2 time: 0
+++++ StreamEndRun finished
+++++ StreamEndRun run: 2 time: 0
+++++++ ModuleStreamEndRun: thingWithMergeProducer
+++++++ ModuleStreamEndRun finished: thingWithMergeProducer
+++++++ ModuleStreamEndRun: get
+++++++ ModuleStreamEndRun finished: get
+++++++ ModuleStreamEndRun: putInt
+++++++ ModuleStreamEndRun finished: putInt
+++++++ ModuleStreamEndRun: putInt2
+++++++ ModuleStreamEndRun finished: putInt2
+++++++ ModuleStreamEndRun: putInt3
+++++++ ModuleStreamEndRun finished: putInt3
+++++++ ModuleStreamEndRun: getInt
+++++++ ModuleStreamEndRun finished: getInt
+++++++ ModuleStreamEndRun: noPut
+++++++ ModuleStreamEndRun finished: noPut
+++++ StreamEndRun finished
+++++ StreamEndRun run: 2 time: 0
+++++ StreamEndRun finished
+++++ StreamEndRun run: 2 time: 0
+++++++ ModuleStreamEndRun: thingWithMergeProducer
+++++++ ModuleStreamEndRun finished: thingWithMergeProducer
+++++++ ModuleStreamEndRun: test
+++++++ ModuleStreamEndRun finished: test
+++++++ ModuleStreamEndRun: testmerge
+++++++ ModuleStreamEndRun finished: testmerge
+++++++ ModuleStreamEndRun: get
+++++++ ModuleStreamEndRun finished: get
+++++++ ModuleStreamEndRun: getInt
+++++++ ModuleStreamEndRun finished: getInt
+++++++ ModuleStreamEndRun: dependsOnNoPut
+++++++ ModuleStreamEndRun finished: dependsOnNoPut
+++++++ ModuleStreamEndRun: out
+++++++ ModuleStreamEndRun finished: out
+++++ StreamEndRun finished
+++++ GlobalEndRun run: 2 time: 100000001
+++++ GlobalEndRun finished
+++++ GlobalEndRun run: 2 time: 0
+++++ GlobalEndRun finished
+++++ GlobalEndRun run: 2 time: 0
+++++++ ModuleGlobalEndRun: thingWithMergeProducer
+++++++ ModuleGlobalEndRun finished: thingWithMergeProducer
+++++++ ModuleGlobalEndRun: get
+++++++ ModuleGlobalEndRun finished: get
+++++++ ModuleGlobalEndRun: putInt
+++++++ ModuleGlobalEndRun finished: putInt
+++++++ ModuleGlobalEndRun: putInt2
+++++++ ModuleGlobalEndRun finished: putInt2
+++++++ ModuleGlobalEndRun: putInt3
+++++++ ModuleGlobalEndRun finished: putInt3
+++++++ ModuleGlobalEndRun: getInt
+++++++ ModuleGlobalEndRun finished: getInt
+++++++ ModuleGlobalEndRun: noPut
+++++++ ModuleGlobalEndRun finished: noPut
+++++ GlobalEndRun finished
+++++ GlobalEndRun run: 2 time: 0
+++++ GlobalEndRun finished
+++++ GlobalEndRun run: 2 time: 0
+++++++ ModuleGlobalEndRun: thingWithMergeProducer
+++++++ ModuleGlobalEndRun finished: thingWithMergeProducer
+++++++ ModuleGlobalEndRun: test
+++++++ ModuleGlobalEndRun finished: test
+++++++ ModuleGlobalEndRun: testmerge
+++++++ ModuleGlobalEndRun finished: testmerge
+++++++ ModuleGlobalEndRun: get
+++++++ ModuleGlobalEndRun finished: get
+++++++ ModuleGlobalEndRun: getInt
+++++++ ModuleGlobalEndRun finished: getInt
+++++++ ModuleGlobalEndRun: dependsOnNoPut
+++++++ ModuleGlobalEndRun finished: dependsOnNoPut
+++++++ ModuleGlobalEndRun: out
+++++++ ModuleGlobalEndRun finished: out
+++++ GlobalEndRun finished
+++++ source run
+++++ finished: source run
+++++ GlobalBeginRun run: 3 time: 105000001
+++++ GlobalBeginRun finished
+++++ GlobalBeginRun run: 3 time: 105000001
+++++ GlobalBeginRun finished
+++++ GlobalBeginRun run: 3 time: 105000001
+++++++ ModuleGlobalBeginRun: thingWithMergeProducer
+++++++ ModuleGlobalBeginRun finished: thingWithMergeProducer
+++++++ ModuleGlobalBeginRun: get
+++++++ ModuleGlobalBeginRun finished: get
+++++++ ModuleGlobalBeginRun: putInt
+++++++ ModuleGlobalBeginRun finished: putInt
+++++++ ModuleGlobalBeginRun: putInt2
+++++++ ModuleGlobalBeginRun finished: putInt2
+++++++ ModuleGlobalBeginRun: putInt3
+++++++ ModuleGlobalBeginRun finished: putInt3
+++++++ ModuleGlobalBeginRun: getInt
+++++++ ModuleGlobalBeginRun finished: getInt
+++++++ ModuleGlobalBeginRun: noPut
+++++++ ModuleGlobalBeginRun finished: noPut
+++++ GlobalBeginRun finished
+++++ GlobalBeginRun run: 3 time: 105000001
+++++ GlobalBeginRun finished
+++++ GlobalBeginRun run: 3 time: 105000001
+++++++ ModuleGlobalBeginRun: thingWithMergeProducer
+++++++ ModuleGlobalBeginRun finished: thingWithMergeProducer
+++++++ ModuleGlobalBeginRun: test
+++++++ ModuleGlobalBeginRun finished: test
+++++++ ModuleGlobalBeginRun: testmerge
+++++++ ModuleGlobalBeginRun finished: testmerge
+++++++ ModuleGlobalBeginRun: get
+++++++ ModuleGlobalBeginRun finished: get
+++++++ ModuleGlobalBeginRun: getInt
+++++++ ModuleGlobalBeginRun finished: getInt
+++++++ ModuleGlobalBeginRun: dependsOnNoPut
+++++++ ModuleGlobalBeginRun finished: dependsOnNoPut
+++++++ ModuleGlobalBeginRun: out
+++++++ ModuleGlobalBeginRun finished: out
+++++ GlobalBeginRun finished
+++++ StreamBeginRun run: 3 time: 105000001
+++++ StreamBeginRun finished
+++++ StreamBeginRun run: 3 time: 105000001
+++++ StreamBeginRun finished
+++++ StreamBeginRun run: 3 time: 105000001
+++++++ ModuleStreamBeginRun: thingWithMergeProducer
+++++++ ModuleStreamBeginRun finished: thingWithMergeProducer
+++++++ ModuleStreamBeginRun: get
+++++++ ModuleStreamBeginRun finished: get
+++++++ ModuleStreamBeginRun: putInt
+++++++ ModuleStreamBeginRun finished: putInt
+++++++ ModuleStreamBeginRun: putInt2
+++++++ ModuleStreamBeginRun finished: putInt2
+++++++ ModuleStreamBeginRun: putInt3
+++++++ ModuleStreamBeginRun finished: putInt3
+++++++ ModuleStreamBeginRun: getInt
+++++++ ModuleStreamBeginRun finished: getInt
+++++++ ModuleStreamBeginRun: noPut
+++++++ ModuleStreamBeginRun finished: noPut
+++++ StreamBeginRun finished
+++++ StreamBeginRun run: 3 time: 105000001
+++++ StreamBeginRun finished
+++++ StreamBeginRun run: 3 time: 105000001
+++++++ ModuleStreamBeginRun: thingWithMergeProducer
+++++++ ModuleStreamBeginRun finished: thingWithMergeProducer
+++++++ ModuleStreamBeginRun: test
+++++++ ModuleStreamBeginRun finished: test
+++++++ ModuleStreamBeginRun: testmerge
+++++++ ModuleStreamBeginRun finished: testmerge
+++++++ ModuleStreamBeginRun: get
+++++++ ModuleStreamBeginRun finished: get
+++++++ ModuleStreamBeginRun: getInt
+++++++ ModuleStreamBeginRun finished: getInt
+++++++ ModuleStreamBeginRun: dependsOnNoPut
+++++++ ModuleStreamBeginRun finished: dependsOnNoPut
+++++++ ModuleStreamBeginRun: out
+++++++ ModuleStreamBeginRun finished: out
+++++ StreamBeginRun finished
+++++ source lumi
+++++ finished: source lumi
+++++ GlobalBeginLumi run: 3 lumi: 1 time: 105000001
+++++ GlobalBeginLumi finished
+++++ GlobalBeginLumi run: 3 lumi: 1 time: 105000001
+++++ GlobalBeginLumi finished
+++++ GlobalBeginLumi run: 3 lumi: 1 time: 105000001
+++++++ ModuleGlobalBeginLumi: thingWithMergeProducer
+++++++ ModuleGlobalBeginLumi finished: thingWithMergeProducer
+++++++ ModuleGlobalBeginLumi: get
+++++++ ModuleGlobalBeginLumi finished: get
+++++++ ModuleGlobalBeginLumi: putInt
+++++++ ModuleGlobalBeginLumi finished: putInt
+++++++ ModuleGlobalBeginLumi: putInt2
+++++++ ModuleGlobalBeginLumi finished: putInt2
+++++++ ModuleGlobalBeginLumi: putInt3
+++++++ ModuleGlobalBeginLumi finished: putInt3
+++++++ ModuleGlobalBeginLumi: getInt
+++++++ ModuleGlobalBeginLumi finished: getInt
+++++++ ModuleGlobalBeginLumi: noPut
+++++++ ModuleGlobalBeginLumi finished: noPut
+++++ GlobalBeginLumi finished
+++++ GlobalBeginLumi run: 3 lumi: 1 time: 105000001
+++++ GlobalBeginLumi finished
+++++ GlobalBeginLumi run: 3 lumi: 1 time: 105000001
+++++++ ModuleGlobalBeginLumi: thingWithMergeProducer
+++++++ ModuleGlobalBeginLumi finished: thingWithMergeProducer
+++++++ ModuleGlobalBeginLumi: test
+++++++ ModuleGlobalBeginLumi finished: test
+++++++ ModuleGlobalBeginLumi: testmerge
+++++++ ModuleGlobalBeginLumi finished: testmerge
+++++++ ModuleGlobalBeginLumi: get
+++++++ ModuleGlobalBeginLumi finished: get
+++++++ ModuleGlobalBeginLumi: getInt
+++++++ ModuleGlobalBeginLumi finished: getInt
+++++++ ModuleGlobalBeginLumi: dependsOnNoPut
+++++++ ModuleGlobalBeginLumi finished: dependsOnNoPut
+++++++ ModuleGlobalBeginLumi: out
+++++++ ModuleGlobalBeginLumi finished: out
+++++ GlobalBeginLumi finished
+++++ StreamBeginLumi run: 3 lumi: 1 time: 105000001
+++++ StreamBeginLumi finished
+++++ StreamBeginLumi run: 3 lumi: 1 time: 105000001
+++++ StreamBeginLumi finished
+++++ StreamBeginLumi run: 3 lumi: 1 time: 105000001
+++++++ ModuleStreamBeginLumi: thingWithMergeProducer
+++++++ ModuleStreamBeginLumi finished: thingWithMergeProducer
+++++++ ModuleStreamBeginLumi: get
+++++++ ModuleStreamBeginLumi finished: get
+++++++ ModuleStreamBeginLumi: putInt
+++++++ ModuleStreamBeginLumi finished: putInt
+++++++ ModuleStreamBeginLumi: putInt2
+++++++ ModuleStreamBeginLumi finished: putInt2
+++++++ ModuleStreamBeginLumi: putInt3
+++++++ ModuleStreamBeginLumi finished: putInt3
+++++++ ModuleStreamBeginLumi: getInt
+++++++ ModuleStreamBeginLumi finished: getInt
+++++++ ModuleStreamBeginLumi: noPut
+++++++ ModuleStreamBeginLumi finished: noPut
+++++ StreamBeginLumi finished
+++++ StreamBeginLumi run: 3 lumi: 1 time: 105000001
+++++ StreamBeginLumi finished
+++++ StreamBeginLumi run: 3 lumi: 1 time: 105000001
+++++++ ModuleStreamBeginLumi: thingWithMergeProducer
+++++++ ModuleStreamBeginLumi finished: thingWithMergeProducer
+++++++ ModuleStreamBeginLumi: test
+++++++ ModuleStreamBeginLumi finished: test
+++++++ ModuleStreamBeginLumi: testmerge
+++++++ ModuleStreamBeginLumi finished: testmerge
+++++++ ModuleStreamBeginLumi: get
+++++++ ModuleStreamBeginLumi finished: get
+++++++ ModuleStreamBeginLumi: getInt
+++++++ ModuleStreamBeginLumi finished: getInt
+++++++ ModuleStreamBeginLumi: dependsOnNoPut
+++++++ ModuleStreamBeginLumi finished: dependsOnNoPut
+++++++ ModuleStreamBeginLumi: out
+++++++ ModuleStreamBeginLumi finished: out
+++++ StreamBeginLumi finished
+++++ source event
+++++ finished: source event
+++++ processing event run: 3 lumi: 1 event: 1 time:105000001
+++++ event finished
+++++ processing event run: 3 lumi: 1 event: 1 time:105000001
+++++ event finished
+++++ processing event run: 3 lumi: 1 event: 1 time:105000001
+++++++ processing path for event: p1
+++++++++ module for event: thingWithMergeProducer
+++++++++ finished module for event: thingWithMergeProducer
+++++++ path for event finished: p1
+++++++ processing path for event: path1
+++++++++ module for event: get
+++++++++ finished module for event: get
+++++++++ module for event: putInt
+++++++++ finished module for event: putInt
+++++++++ module for event: putInt2
+++++++++ finished module for event: putInt2
+++++++++ module for event: putInt3
+++++++++ finished module for event: putInt3
+++++++++ module for event: getInt
+++++++++ finished module for event: getInt
+++++++ path for event finished: path1
+++++++ processing path for event: path2
+++++++++ module for event: noPut
+++++++++ finished module for event: noPut
+++++++ path for event finished: path2
+++++++++ module for event: TriggerResults
+++++++++ finished module for event: TriggerResults
+++++ event finished
+++++ processing event run: 3 lumi: 1 event: 1 time:105000001
+++++ event finished
+++++ processing event run: 3 lumi: 1 event: 1 time:105000001
+++++++ processing path for event: path1
+++++++++ module for event: thingWithMergeProducer
+++++++++ finished module for event: thingWithMergeProducer
+++++++ path for event finished: path1
+++++++ processing path for event: path2
+++++++++ module for event: test
+++++++++ finished module for event: test
+++++++++ module for event: testmerge
+++++++++ finished module for event: testmerge
+++++++ path for event finished: path2
+++++++ processing path for event: path3
+++++++++ module for event: get
+++++++++ finished module for event: get
+++++++++ module for event: getInt
+++++++++ finished module for event: getInt
+++++++ path for event finished: path3
+++++++ processing path for event: path4
+++++++++ module for event: dependsOnNoPut
+++++++++ finished module for event: dependsOnNoPut
+++++++ path for event finished: path4
+++++++++ module for event: TriggerResults
+++++++++ finished module for event: TriggerResults
+++++++ processing path for event: endPath1
+++++++++ module for event: out
+++++++++ finished module for event: out
+++++++ path for event finished: endPath1
+++++ event finished
+++++ source event
+++++ finished: source event
+++++ processing event run: 3 lumi: 1 event: 2 time:110000001
+++++ event finished
+++++ processing event run: 3 lumi: 1 event: 2 time:110000001
+++++ event finished
+++++ processing event run: 3 lumi: 1 event: 2 time:110000001
+++++++ processing path for event: p1
+++++++++ module for event: thingWithMergeProducer
+++++++++ finished module for event: thingWithMergeProducer
+++++++ path for event finished: p1
+++++++ processing path for event: path1
+++++++++ module for event: get
+++++++++ finished module for event: get
+++++++++ module for event: putInt
+++++++++ finished module for event: putInt
+++++++++ module for event: putInt2
+++++++++ finished module for event: putInt2
+++++++++ module for event: putInt3
+++++++++ finished module for event: putInt3
+++++++++ module for event: getInt
+++++++++ finished module for event: getInt
+++++++ path for event finished: path1
+++++++ processing path for event: path2
+++++++++ module for event: noPut
+++++++++ finished module for event: noPut
+++++++ path for event finished: path2
+++++++++ module for event: TriggerResults
+++++++++ finished module for event: TriggerResults
+++++ event finished
+++++ processing event run: 3 lumi: 1 event: 2 time:110000001
+++++ event finished
+++++ processing event run: 3 lumi: 1 event: 2 time:110000001
+++++++ processing path for event: path1
+++++++++ module for event: thingWithMergeProducer
+++++++++ finished module for event: thingWithMergeProducer
+++++++ path for event finished: path1
+++++++ processing path for event: path2
+++++++++ module for event: test
+++++++++ finished module for event: test
+++++++++ module for event: testmerge
+++++++++ finished module for event: testmerge
+++++++ path for event finished: path2
+++++++ processing path for event: path3
+++++++++ module for event: get
+++++++++ finished module for event: get
+++++++++ module for event: getInt
+++++++++ finished module for event: getInt
+++++++ path for event finished: path3
+++++++ processing path for event: path4
+++++++++ module for event: dependsOnNoPut
+++++++++ finished module for event: dependsOnNoPut
+++++++ path for event finished: path4
+++++++++ module for event: TriggerResults
+++++++++ finished module for event: TriggerResults
+++++++ processing path for event: endPath1
+++++++++ module for event: out
+++++++++ finished module for event: out
+++++++ path for event finished: endPath1
+++++ event finished
+++++ source event
+++++ finished: source event
+++++ processing event run: 3 lumi: 1 event: 3 time:115000001
+++++ event finished
+++++ processing event run: 3 lumi: 1 event: 3 time:115000001
+++++ event finished
+++++ processing event run: 3 lumi: 1 event: 3 time:115000001
+++++++ processing path for event: p1
+++++++++ module for event: thingWithMergeProducer
+++++++++ finished module for event: thingWithMergeProducer
+++++++ path for event finished: p1
+++++++ processing path for event: path1
+++++++++ module for event: get
+++++++++ finished module for event: get
+++++++++ module for event: putInt
+++++++++ finished module for event: putInt
+++++++++ module for event: putInt2
+++++++++ finished module for event: putInt2
+++++++++ module for event: putInt3
+++++++++ finished module for event: putInt3
+++++++++ module for event: getInt
+++++++++ finished module for event: getInt
+++++++ path for event finished: path1
+++++++ processing path for event: path2
+++++++++ module for event: noPut
+++++++++ finished module for event: noPut
+++++++ path for event finished: path2
+++++++++ module for event: TriggerResults
+++++++++ finished module for event: TriggerResults
+++++ event finished
+++++ processing event run: 3 lumi: 1 event: 3 time:115000001
+++++ event finished
+++++ processing event run: 3 lumi: 1 event: 3 time:115000001
+++++++ processing path for event: path1
+++++++++ module for event: thingWithMergeProducer
+++++++++ finished module for event: thingWithMergeProducer
+++++++ path for event finished: path1
+++++++ processing path for event: path2
+++++++++ module for event: test
+++++++++ finished module for event: test
+++++++++ module for event: testmerge
+++++++++ finished module for event: testmerge
+++++++ path for event finished: path2
+++++++ processing path for event: path3
+++++++++ module for event: get
+++++++++ finished module for event: get
+++++++++ module for event: getInt
+++++++++ finished module for event: getInt
+++++++ path for event finished: path3
+++++++ processing path for event: path4
+++++++++ module for event: dependsOnNoPut
+++++++++ finished module for event: dependsOnNoPut
+++++++ path for event finished: path4
+++++++++ module for event: TriggerResults
+++++++++ finished module for event: TriggerResults
+++++++ processing path for event: endPath1
+++++++++ module for event: out
+++++++++ finished module for event: out
+++++++ path for event finished: endPath1
+++++ event finished
+++++ source event
+++++ finished: source event
+++++ processing event run: 3 lumi: 1 event: 4 time:120000001
+++++ event finished
+++++ processing event run: 3 lumi: 1 event: 4 time:120000001
+++++ event finished
+++++ processing event run: 3 lumi: 1 event: 4 time:120000001
+++++++ processing path for event: p1
+++++++++ module for event: thingWithMergeProducer
+++++++++ finished module for event: thingWithMergeProducer
+++++++ path for event finished: p1
+++++++ processing path for event: path1
+++++++++ module for event: get
+++++++++ finished module for event: get
+++++++++ module for event: putInt
+++++++++ finished module for event: putInt
+++++++++ module for event: putInt2
+++++++++ finished module for event: putInt2
+++++++++ module for event: putInt3
+++++++++ finished module for event: putInt3
+++++++++ module for event: getInt
+++++++++ finished module for event: getInt
+++++++ path for event finished: path1
+++++++ processing path for event: path2
+++++++++ module for event: noPut
+++++++++ finished module for event: noPut
+++++++ path for event finished: path2
+++++++++ module for event: TriggerResults
+++++++++ finished module for event: TriggerResults
+++++ event finished
+++++ processing event run: 3 lumi: 1 event: 4 time:120000001
+++++ event finished
+++++ processing event run: 3 lumi: 1 event: 4 time:120000001
+++++++ processing path for event: path1
+++++++++ module for event: thingWithMergeProducer
+++++++++ finished module for event: thingWithMergeProducer
+++++++ path for event finished: path1
+++++++ processing path for event: path2
+++++++++ module for event: test
+++++++++ finished module for event: test
+++++++++ module for event: testmerge
+++++++++ finished module for event: testmerge
+++++++ path for event finished: path2
+++++++ processing path for event: path3
+++++++++ module for event: get
+++++++++ finished module for event: get
+++++++++ module for event: getInt
+++++++++ finished module for event: getInt
+++++++ path for event finished: path3
+++++++ processing path for event: path4
+++++++++ module for event: dependsOnNoPut
+++++++++ finished module for event: dependsOnNoPut
+++++++ path for event finished: path4
+++++++++ module for event: TriggerResults
+++++++++ finished module for event: TriggerResults
+++++++ processing path for event: endPath1
+++++++++ module for event: out
+++++++++ finished module for event: out
+++++++ path for event finished: endPath1
+++++ event finished
+++++ StreamEndLumi run: 3 lumi: 1 time: 120000001
+++++ StreamEndLumi finished
+++++ StreamEndLumi run: 3 lumi: 1 time: 0
+++++ StreamEndLumi finished
+++++ StreamEndLumi run: 3 lumi: 1 time: 0
+++++++ ModuleStreamEndLumi: thingWithMergeProducer
+++++++ ModuleStreamEndLumi finished: thingWithMergeProducer
+++++++ ModuleStreamEndLumi: get
+++++++ ModuleStreamEndLumi finished: get
+++++++ ModuleStreamEndLumi: putInt
+++++++ ModuleStreamEndLumi finished: putInt
+++++++ ModuleStreamEndLumi: putInt2
+++++++ ModuleStreamEndLumi finished: putInt2
+++++++ ModuleStreamEndLumi: putInt3
+++++++ ModuleStreamEndLumi finished: putInt3
+++++++ ModuleStreamEndLumi: getInt
+++++++ ModuleStreamEndLumi finished: getInt
+++++++ ModuleStreamEndLumi: noPut
+++++++ ModuleStreamEndLumi finished: noPut
+++++ StreamEndLumi finished
+++++ StreamEndLumi run: 3 lumi: 1 time: 0
+++++ StreamEndLumi finished
+++++ StreamEndLumi run: 3 lumi: 1 time: 0
+++++++ ModuleStreamEndLumi: thingWithMergeProducer
+++++++ ModuleStreamEndLumi finished: thingWithMergeProducer
+++++++ ModuleStreamEndLumi: test
+++++++ ModuleStreamEndLumi finished: test
+++++++ ModuleStreamEndLumi: testmerge
+++++++ ModuleStreamEndLumi finished: testmerge
+++++++ ModuleStreamEndLumi: get
+++++++ ModuleStreamEndLumi finished: get
+++++++ ModuleStreamEndLumi: getInt
+++++++ ModuleStreamEndLumi finished: getInt
+++++++ ModuleStreamEndLumi: dependsOnNoPut
+++++++ ModuleStreamEndLumi finished: dependsOnNoPut
+++++++ ModuleStreamEndLumi: out
+++++++ ModuleStreamEndLumi finished: out
+++++ StreamEndLumi finished
+++++ GlobalEndLumi run: 3 lumi: 1 time: 105000001
+++++ GlobalEndLumi finished
+++++ GlobalEndLumi run: 3 lumi: 1 time: 105000001
+++++ GlobalEndLumi finished
+++++ GlobalEndLumi run: 3 lumi: 1 time: 105000001
+++++++ ModuleGlobalEndLumi: thingWithMergeProducer
+++++++ ModuleGlobalEndLumi finished: thingWithMergeProducer
+++++++ ModuleGlobalEndLumi: get
+++++++ ModuleGlobalEndLumi finished: get
+++++++ ModuleGlobalEndLumi: putInt
+++++++ ModuleGlobalEndLumi finished: putInt
+++++++ ModuleGlobalEndLumi: putInt2
+++++++ ModuleGlobalEndLumi finished: putInt2
+++++++ ModuleGlobalEndLumi: putInt3
+++++++ ModuleGlobalEndLumi finished: putInt3
+++++++ ModuleGlobalEndLumi: getInt
+++++++ ModuleGlobalEndLumi finished: getInt
+++++++ ModuleGlobalEndLumi: noPut
+++++++ ModuleGlobalEndLumi finished: noPut
+++++ GlobalEndLumi finished
+++++ GlobalEndLumi run: 3 lumi: 1 time: 105000001
+++++ GlobalEndLumi finished
+++++ GlobalEndLumi run: 3 lumi: 1 time: 105000001
+++++++ ModuleGlobalEndLumi: thingWithMergeProducer
+++++++ ModuleGlobalEndLumi finished: thingWithMergeProducer
+++++++ ModuleGlobalEndLumi: test
+++++++ ModuleGlobalEndLumi finished: test
+++++++ ModuleGlobalEndLumi: testmerge
+++++++ ModuleGlobalEndLumi finished: testmerge
+++++++ ModuleGlobalEndLumi: get
+++++++ ModuleGlobalEndLumi finished: get
+++++++ ModuleGlobalEndLumi: getInt
+++++++ ModuleGlobalEndLumi finished: getInt
+++++++ ModuleGlobalEndLumi: dependsOnNoPut
+++++++ ModuleGlobalEndLumi finished: dependsOnNoPut
+++++++ ModuleGlobalEndLumi: out
+++++++ ModuleGlobalEndLumi finished: out
+++++ GlobalEndLumi finished
+++++ source lumi
+++++ finished: source lumi
+++++ GlobalBeginLumi run: 3 lumi: 2 time: 125000001
+++++ GlobalBeginLumi finished
+++++ GlobalBeginLumi run: 3 lumi: 2 time: 125000001
+++++ GlobalBeginLumi finished
+++++ GlobalBeginLumi run: 3 lumi: 2 time: 125000001
+++++++ ModuleGlobalBeginLumi: thingWithMergeProducer
+++++++ ModuleGlobalBeginLumi finished: thingWithMergeProducer
+++++++ ModuleGlobalBeginLumi: get
+++++++ ModuleGlobalBeginLumi finished: get
+++++++ ModuleGlobalBeginLumi: putInt
+++++++ ModuleGlobalBeginLumi finished: putInt
+++++++ ModuleGlobalBeginLumi: putInt2
+++++++ ModuleGlobalBeginLumi finished: putInt2
+++++++ ModuleGlobalBeginLumi: putInt3
+++++++ ModuleGlobalBeginLumi finished: putInt3
+++++++ ModuleGlobalBeginLumi: getInt
+++++++ ModuleGlobalBeginLumi finished: getInt
+++++++ ModuleGlobalBeginLumi: noPut
+++++++ ModuleGlobalBeginLumi finished: noPut
+++++ GlobalBeginLumi finished
+++++ GlobalBeginLumi run: 3 lumi: 2 time: 125000001
+++++ GlobalBeginLumi finished
+++++ GlobalBeginLumi run: 3 lumi: 2 time: 125000001
+++++++ ModuleGlobalBeginLumi: thingWithMergeProducer
+++++++ ModuleGlobalBeginLumi finished: thingWithMergeProducer
+++++++ ModuleGlobalBeginLumi: test
+++++++ ModuleGlobalBeginLumi finished: test
+++++++ ModuleGlobalBeginLumi: testmerge
+++++++ ModuleGlobalBeginLumi finished: testmerge
+++++++ ModuleGlobalBeginLumi: get
+++++++ ModuleGlobalBeginLumi finished: get
+++++++ ModuleGlobalBeginLumi: getInt
+++++++ ModuleGlobalBeginLumi finished: getInt
+++++++ ModuleGlobalBeginLumi: dependsOnNoPut
+++++++ ModuleGlobalBeginLumi finished: dependsOnNoPut
+++++++ ModuleGlobalBeginLumi: out
+++++++ ModuleGlobalBeginLumi finished: out
+++++ GlobalBeginLumi finished
+++++ StreamBeginLumi run: 3 lumi: 2 time: 125000001
+++++ StreamBeginLumi finished
+++++ StreamBeginLumi run: 3 lumi: 2 time: 125000001
+++++ StreamBeginLumi finished
+++++ StreamBeginLumi run: 3 lumi: 2 time: 125000001
+++++++ ModuleStreamBeginLumi: thingWithMergeProducer
+++++++ ModuleStreamBeginLumi finished: thingWithMergeProducer
+++++++ ModuleStreamBeginLumi: get
+++++++ ModuleStreamBeginLumi finished: get
+++++++ ModuleStreamBeginLumi: putInt
+++++++ ModuleStreamBeginLumi finished: putInt
+++++++ ModuleStreamBeginLumi: putInt2
+++++++ ModuleStreamBeginLumi finished: putInt2
+++++++ ModuleStreamBeginLumi: putInt3
+++++++ ModuleStreamBeginLumi finished: putInt3
+++++++ ModuleStreamBeginLumi: getInt
+++++++ ModuleStreamBeginLumi finished: getInt
+++++++ ModuleStreamBeginLumi: noPut
+++++++ ModuleStreamBeginLumi finished: noPut
+++++ StreamBeginLumi finished
+++++ StreamBeginLumi run: 3 lumi: 2 time: 125000001
+++++ StreamBeginLumi finished
+++++ StreamBeginLumi run: 3 lumi: 2 time: 125000001
+++++++ ModuleStreamBeginLumi: thingWithMergeProducer
+++++++ ModuleStreamBeginLumi finished: thingWithMergeProducer
+++++++ ModuleStreamBeginLumi: test
+++++++ ModuleStreamBeginLumi finished: test
+++++++ ModuleStreamBeginLumi: testmerge
+++++++ ModuleStreamBeginLumi finished: testmerge
+++++++ ModuleStreamBeginLumi: get
+++++++ ModuleStreamBeginLumi finished: get
+++++++ ModuleStreamBeginLumi: getInt
+++++++ ModuleStreamBeginLumi finished: getInt
+++++++ ModuleStreamBeginLumi: dependsOnNoPut
+++++++ ModuleStreamBeginLumi finished: dependsOnNoPut
+++++++ ModuleStreamBeginLumi: out
+++++++ ModuleStreamBeginLumi finished: out
+++++ StreamBeginLumi finished
+++++ source event
+++++ finished: source event
+++++ processing event run: 3 lumi: 2 event: 5 time:125000001
+++++ event finished
+++++ processing event run: 3 lumi: 2 event: 5 time:125000001
+++++ event finished
+++++ processing event run: 3 lumi: 2 event: 5 time:125000001
+++++++ processing path for event: p1
+++++++++ module for event: thingWithMergeProducer
+++++++++ finished module for event: thingWithMergeProducer
+++++++ path for event finished: p1
+++++++ processing path for event: path1
+++++++++ module for event: get
+++++++++ finished module for event: get
+++++++++ module for event: putInt
+++++++++ finished module for event: putInt
+++++++++ module for event: putInt2
+++++++++ finished module for event: putInt2
+++++++++ module for event: putInt3
+++++++++ finished module for event: putInt3
+++++++++ module for event: getInt
+++++++++ finished module for event: getInt
+++++++ path for event finished: path1
+++++++ processing path for event: path2
+++++++++ module for event: noPut
+++++++++ finished module for event: noPut
+++++++ path for event finished: path2
+++++++++ module for event: TriggerResults
+++++++++ finished module for event: TriggerResults
+++++ event finished
+++++ processing event run: 3 lumi: 2 event: 5 time:125000001
+++++ event finished
+++++ processing event run: 3 lumi: 2 event: 5 time:125000001
+++++++ processing path for event: path1
+++++++++ module for event: thingWithMergeProducer
+++++++++ finished module for event: thingWithMergeProducer
+++++++ path for event finished: path1
+++++++ processing path for event: path2
+++++++++ module for event: test
+++++++++ finished module for event: test
+++++++++ module for event: testmerge
+++++++++ finished module for event: testmerge
+++++++ path for event finished: path2
+++++++ processing path for event: path3
+++++++++ module for event: get
+++++++++ finished module for event: get
+++++++++ module for event: getInt
+++++++++ finished module for event: getInt
+++++++ path for event finished: path3
+++++++ processing path for event: path4
+++++++++ module for event: dependsOnNoPut
+++++++++ finished module for event: dependsOnNoPut
+++++++ path for event finished: path4
+++++++++ module for event: TriggerResults
+++++++++ finished module for event: TriggerResults
+++++++ processing path for event: endPath1
+++++++++ module for event: out
+++++++++ finished module for event: out
+++++++ path for event finished: endPath1
+++++ event finished
+++++ source event
+++++ finished: source event
+++++ processing event run: 3 lumi: 2 event: 6 time:130000001
+++++ event finished
+++++ processing event run: 3 lumi: 2 event: 6 time:130000001
+++++ event finished
+++++ processing event run: 3 lumi: 2 event: 6 time:130000001
+++++++ processing path for event: p1
+++++++++ module for event: thingWithMergeProducer
+++++++++ finished module for event: thingWithMergeProducer
+++++++ path for event finished: p1
+++++++ processing path for event: path1
+++++++++ module for event: get
+++++++++ finished module for event: get
+++++++++ module for event: putInt
+++++++++ finished module for event: putInt
+++++++++ module for event: putInt2
+++++++++ finished module for event: putInt2
+++++++++ module for event: putInt3
+++++++++ finished module for event: putInt3
+++++++++ module for event: getInt
+++++++++ finished module for event: getInt
+++++++ path for event finished: path1
+++++++ processing path for event: path2
+++++++++ module for event: noPut
+++++++++ finished module for event: noPut
+++++++ path for event finished: path2
+++++++++ module for event: TriggerResults
+++++++++ finished module for event: TriggerResults
+++++ event finished
+++++ processing event run: 3 lumi: 2 event: 6 time:130000001
+++++ event finished
+++++ processing event run: 3 lumi: 2 event: 6 time:130000001
+++++++ processing path for event: path1
+++++++++ module for event: thingWithMergeProducer
+++++++++ finished module for event: thingWithMergeProducer
+++++++ path for event finished: path1
+++++++ processing path for event: path2
+++++++++ module for event: test
+++++++++ finished module for event: test
+++++++++ module for event: testmerge
+++++++++ finished module for event: testmerge
+++++++ path for event finished: path2
+++++++ processing path for event: path3
+++++++++ module for event: get
+++++++++ finished module for event: get
+++++++++ module for event: getInt
+++++++++ finished module for event: getInt
+++++++ path for event finished: path3
+++++++ processing path for event: path4
+++++++++ module for event: dependsOnNoPut
+++++++++ finished module for event: dependsOnNoPut
+++++++ path for event finished: path4
+++++++++ module for event: TriggerResults
+++++++++ finished module for event: TriggerResults
+++++++ processing path for event: endPath1
+++++++++ module for event: out
+++++++++ finished module for event: out
+++++++ path for event finished: endPath1
+++++ event finished
+++++ source event
+++++ finished: source event
+++++ processing event run: 3 lumi: 2 event: 7 time:135000001
+++++ event finished
+++++ processing event run: 3 lumi: 2 event: 7 time:135000001
+++++ event finished
+++++ processing event run: 3 lumi: 2 event: 7 time:135000001
+++++++ processing path for event: p1
+++++++++ module for event: thingWithMergeProducer
+++++++++ finished module for event: thingWithMergeProducer
+++++++ path for event finished: p1
+++++++ processing path for event: path1
+++++++++ module for event: get
+++++++++ finished module for event: get
+++++++++ module for event: putInt
+++++++++ finished module for event: putInt
+++++++++ module for event: putInt2
+++++++++ finished module for event: putInt2
+++++++++ module for event: putInt3
+++++++++ finished module for event: putInt3
+++++++++ module for event: getInt
+++++++++ finished module for event: getInt
+++++++ path for event finished: path1
+++++++ processing path for event: path2
+++++++++ module for event: noPut
+++++++++ finished module for event: noPut
+++++++ path for event finished: path2
+++++++++ module for event: TriggerResults
+++++++++ finished module for event: TriggerResults
+++++ event finished
+++++ processing event run: 3 lumi: 2 event: 7 time:135000001
+++++ event finished
+++++ processing event run: 3 lumi: 2 event: 7 time:135000001
+++++++ processing path for event: path1
+++++++++ module for event: thingWithMergeProducer
+++++++++ finished module for event: thingWithMergeProducer
+++++++ path for event finished: path1
+++++++ processing path for event: path2
+++++++++ module for event: test
+++++++++ finished module for event: test
+++++++++ module for event: testmerge
+++++++++ finished module for event: testmerge
+++++++ path for event finished: path2
+++++++ processing path for event: path3
+++++++++ module for event: get
+++++++++ finished module for event: get
+++++++++ module for event: getInt
+++++++++ finished module for event: getInt
+++++++ path for event finished: path3
+++++++ processing path for event: path4
+++++++++ module for event: dependsOnNoPut
+++++++++ finished module for event: dependsOnNoPut
+++++++ path for event finished: path4
+++++++++ module for event: TriggerResults
+++++++++ finished module for event: TriggerResults
+++++++ processing path for event: endPath1
+++++++++ module for event: out
+++++++++ finished module for event: out
+++++++ path for event finished: endPath1
+++++ event finished
+++++ source event
+++++ finished: source event
+++++ processing event run: 3 lumi: 2 event: 8 time:140000001
+++++ event finished
+++++ processing event run: 3 lumi: 2 event: 8 time:140000001
+++++ event finished
+++++ processing event run: 3 lumi: 2 event: 8 time:140000001
+++++++ processing path for event: p1
+++++++++ module for event: thingWithMergeProducer
+++++++++ finished module for event: thingWithMergeProducer
+++++++ path for event finished: p1
+++++++ processing path for event: path1
+++++++++ module for event: get
+++++++++ finished module for event: get
+++++++++ module for event: putInt
+++++++++ finished module for event: putInt
+++++++++ module for event: putInt2
+++++++++ finished module for event: putInt2
+++++++++ module for event: putInt3
+++++++++ finished module for event: putInt3
+++++++++ module for event: getInt
+++++++++ finished module for event: getInt
+++++++ path for event finished: path1
+++++++ processing path for event: path2
+++++++++ module for event: noPut
+++++++++ finished module for event: noPut
+++++++ path for event finished: path2
+++++++++ module for event: TriggerResults
+++++++++ finished module for event: TriggerResults
+++++ event finished
+++++ processing event run: 3 lumi: 2 event: 8 time:140000001
+++++ event finished
+++++ processing event run: 3 lumi: 2 event: 8 time:140000001
+++++++ processing path for event: path1
+++++++++ module for event: thingWithMergeProducer
+++++++++ finished module for event: thingWithMergeProducer
+++++++ path for event finished: path1
+++++++ processing path for event: path2
+++++++++ module for event: test
+++++++++ finished module for event: test
+++++++++ module for event: testmerge
+++++++++ finished module for event: testmerge
+++++++ path for event finished: path2
+++++++ processing path for event: path3
+++++++++ module for event: get
+++++++++ finished module for event: get
+++++++++ module for event: getInt
+++++++++ finished module for event: getInt
+++++++ path for event finished: path3
+++++++ processing path for event: path4
+++++++++ module for event: dependsOnNoPut
+++++++++ finished module for event: dependsOnNoPut
+++++++ path for event finished: path4
+++++++++ module for event: TriggerResults
+++++++++ finished module for event: TriggerResults
+++++++ processing path for event: endPath1
+++++++++ module for event: out
+++++++++ finished module for event: out
+++++++ path for event finished: endPath1
+++++ event finished
+++++ StreamEndLumi run: 3 lumi: 2 time: 140000001
+++++ StreamEndLumi finished
+++++ StreamEndLumi run: 3 lumi: 2 time: 0
+++++ StreamEndLumi finished
+++++ StreamEndLumi run: 3 lumi: 2 time: 0
+++++++ ModuleStreamEndLumi: thingWithMergeProducer
+++++++ ModuleStreamEndLumi finished: thingWithMergeProducer
+++++++ ModuleStreamEndLumi: get
+++++++ ModuleStreamEndLumi finished: get
+++++++ ModuleStreamEndLumi: putInt
+++++++ ModuleStreamEndLumi finished: putInt
+++++++ ModuleStreamEndLumi: putInt2
+++++++ ModuleStreamEndLumi finished: putInt2
+++++++ ModuleStreamEndLumi: putInt3
+++++++ ModuleStreamEndLumi finished: putInt3
+++++++ ModuleStreamEndLumi: getInt
+++++++ ModuleStreamEndLumi finished: getInt
+++++++ ModuleStreamEndLumi: noPut
+++++++ ModuleStreamEndLumi finished: noPut
+++++ StreamEndLumi finished
+++++ StreamEndLumi run: 3 lumi: 2 time: 0
+++++ StreamEndLumi finished
+++++ StreamEndLumi run: 3 lumi: 2 time: 0
+++++++ ModuleStreamEndLumi: thingWithMergeProducer
+++++++ ModuleStreamEndLumi finished: thingWithMergeProducer
+++++++ ModuleStreamEndLumi: test
+++++++ ModuleStreamEndLumi finished: test
+++++++ ModuleStreamEndLumi: testmerge
+++++++ ModuleStreamEndLumi finished: testmerge
+++++++ ModuleStreamEndLumi: get
+++++++ ModuleStreamEndLumi finished: get
+++++++ ModuleStreamEndLumi: getInt
+++++++ ModuleStreamEndLumi finished: getInt
+++++++ ModuleStreamEndLumi: dependsOnNoPut
+++++++ ModuleStreamEndLumi finished: dependsOnNoPut
+++++++ ModuleStreamEndLumi: out
+++++++ ModuleStreamEndLumi finished: out
+++++ StreamEndLumi finished
+++++ GlobalEndLumi run: 3 lumi: 2 time: 125000001
+++++ GlobalEndLumi finished
+++++ GlobalEndLumi run: 3 lumi: 2 time: 125000001
+++++ GlobalEndLumi finished
+++++ GlobalEndLumi run: 3 lumi: 2 time: 125000001
+++++++ ModuleGlobalEndLumi: thingWithMergeProducer
+++++++ ModuleGlobalEndLumi finished: thingWithMergeProducer
+++++++ ModuleGlobalEndLumi: get
+++++++ ModuleGlobalEndLumi finished: get
+++++++ ModuleGlobalEndLumi: putInt
+++++++ ModuleGlobalEndLumi finished: putInt
+++++++ ModuleGlobalEndLumi: putInt2
+++++++ ModuleGlobalEndLumi finished: putInt2
+++++++ ModuleGlobalEndLumi: putInt3
+++++++ ModuleGlobalEndLumi finished: putInt3
+++++++ ModuleGlobalEndLumi: getInt
+++++++ ModuleGlobalEndLumi finished: getInt
+++++++ ModuleGlobalEndLumi: noPut
+++++++ ModuleGlobalEndLumi finished: noPut
+++++ GlobalEndLumi finished
+++++ GlobalEndLumi run: 3 lumi: 2 time: 125000001
+++++ GlobalEndLumi finished
+++++ GlobalEndLumi run: 3 lumi: 2 time: 125000001
+++++++ ModuleGlobalEndLumi: thingWithMergeProducer
+++++++ ModuleGlobalEndLumi finished: thingWithMergeProducer
+++++++ ModuleGlobalEndLumi: test
+++++++ ModuleGlobalEndLumi finished: test
+++++++ ModuleGlobalEndLumi: testmerge
+++++++ ModuleGlobalEndLumi finished: testmerge
+++++++ ModuleGlobalEndLumi: get
+++++++ ModuleGlobalEndLumi finished: get
+++++++ ModuleGlobalEndLumi: getInt
+++++++ ModuleGlobalEndLumi finished: getInt
+++++++ ModuleGlobalEndLumi: dependsOnNoPut
+++++++ ModuleGlobalEndLumi finished: dependsOnNoPut
+++++++ ModuleGlobalEndLumi: out
+++++++ ModuleGlobalEndLumi finished: out
+++++ GlobalEndLumi finished
+++++ source lumi
+++++ finished: source lumi
+++++ GlobalBeginLumi run: 3 lumi: 3 time: 145000001
+++++ GlobalBeginLumi finished
+++++ GlobalBeginLumi run: 3 lumi: 3 time: 145000001
+++++ GlobalBeginLumi finished
+++++ GlobalBeginLumi run: 3 lumi: 3 time: 145000001
+++++++ ModuleGlobalBeginLumi: thingWithMergeProducer
+++++++ ModuleGlobalBeginLumi finished: thingWithMergeProducer
+++++++ ModuleGlobalBeginLumi: get
+++++++ ModuleGlobalBeginLumi finished: get
+++++++ ModuleGlobalBeginLumi: putInt
+++++++ ModuleGlobalBeginLumi finished: putInt
+++++++ ModuleGlobalBeginLumi: putInt2
+++++++ ModuleGlobalBeginLumi finished: putInt2
+++++++ ModuleGlobalBeginLumi: putInt3
+++++++ ModuleGlobalBeginLumi finished: putInt3
+++++++ ModuleGlobalBeginLumi: getInt
+++++++ ModuleGlobalBeginLumi finished: getInt
+++++++ ModuleGlobalBeginLumi: noPut
+++++++ ModuleGlobalBeginLumi finished: noPut
+++++ GlobalBeginLumi finished
+++++ GlobalBeginLumi run: 3 lumi: 3 time: 145000001
+++++ GlobalBeginLumi finished
+++++ GlobalBeginLumi run: 3 lumi: 3 time: 145000001
+++++++ ModuleGlobalBeginLumi: thingWithMergeProducer
+++++++ ModuleGlobalBeginLumi finished: thingWithMergeProducer
+++++++ ModuleGlobalBeginLumi: test
+++++++ ModuleGlobalBeginLumi finished: test
+++++++ ModuleGlobalBeginLumi: testmerge
+++++++ ModuleGlobalBeginLumi finished: testmerge
+++++++ ModuleGlobalBeginLumi: get
+++++++ ModuleGlobalBeginLumi finished: get
+++++++ ModuleGlobalBeginLumi: getInt
+++++++ ModuleGlobalBeginLumi finished: getInt
+++++++ ModuleGlobalBeginLumi: dependsOnNoPut
+++++++ ModuleGlobalBeginLumi finished: dependsOnNoPut
+++++++ ModuleGlobalBeginLumi: out
+++++++ ModuleGlobalBeginLumi finished: out
+++++ GlobalBeginLumi finished
+++++ StreamBeginLumi run: 3 lumi: 3 time: 145000001
+++++ StreamBeginLumi finished
+++++ StreamBeginLumi run: 3 lumi: 3 time: 145000001
+++++ StreamBeginLumi finished
+++++ StreamBeginLumi run: 3 lumi: 3 time: 145000001
+++++++ ModuleStreamBeginLumi: thingWithMergeProducer
+++++++ ModuleStreamBeginLumi finished: thingWithMergeProducer
+++++++ ModuleStreamBeginLumi: get
+++++++ ModuleStreamBeginLumi finished: get
+++++++ ModuleStreamBeginLumi: putInt
+++++++ ModuleStreamBeginLumi finished: putInt
+++++++ ModuleStreamBeginLumi: putInt2
+++++++ ModuleStreamBeginLumi finished: putInt2
+++++++ ModuleStreamBeginLumi: putInt3
+++++++ ModuleStreamBeginLumi finished: putInt3
+++++++ ModuleStreamBeginLumi: getInt
+++++++ ModuleStreamBeginLumi finished: getInt
+++++++ ModuleStreamBeginLumi: noPut
+++++++ ModuleStreamBeginLumi finished: noPut
+++++ StreamBeginLumi finished
+++++ StreamBeginLumi run: 3 lumi: 3 time: 145000001
+++++ StreamBeginLumi finished
+++++ StreamBeginLumi run: 3 lumi: 3 time: 145000001
+++++++ ModuleStreamBeginLumi: thingWithMergeProducer
+++++++ ModuleStreamBeginLumi finished: thingWithMergeProducer
+++++++ ModuleStreamBeginLumi: test
+++++++ ModuleStreamBeginLumi finished: test
+++++++ ModuleStreamBeginLumi: testmerge
+++++++ ModuleStreamBeginLumi finished: testmerge
+++++++ ModuleStreamBeginLumi: get
+++++++ ModuleStreamBeginLumi finished: get
+++++++ ModuleStreamBeginLumi: getInt
+++++++ ModuleStreamBeginLumi finished: getInt
+++++++ ModuleStreamBeginLumi: dependsOnNoPut
+++++++ ModuleStreamBeginLumi finished: dependsOnNoPut
+++++++ ModuleStreamBeginLumi: out
+++++++ ModuleStreamBeginLumi finished: out
+++++ StreamBeginLumi finished
+++++ source event
+++++ finished: source event
+++++ processing event run: 3 lumi: 3 event: 9 time:145000001
+++++ event finished
+++++ processing event run: 3 lumi: 3 event: 9 time:145000001
+++++ event finished
+++++ processing event run: 3 lumi: 3 event: 9 time:145000001
+++++++ processing path for event: p1
+++++++++ module for event: thingWithMergeProducer
+++++++++ finished module for event: thingWithMergeProducer
+++++++ path for event finished: p1
+++++++ processing path for event: path1
+++++++++ module for event: get
+++++++++ finished module for event: get
+++++++++ module for event: putInt
+++++++++ finished module for event: putInt
+++++++++ module for event: putInt2
+++++++++ finished module for event: putInt2
+++++++++ module for event: putInt3
+++++++++ finished module for event: putInt3
+++++++++ module for event: getInt
+++++++++ finished module for event: getInt
+++++++ path for event finished: path1
+++++++ processing path for event: path2
+++++++++ module for event: noPut
+++++++++ finished module for event: noPut
+++++++ path for event finished: path2
+++++++++ module for event: TriggerResults
+++++++++ finished module for event: TriggerResults
+++++ event finished
+++++ processing event run: 3 lumi: 3 event: 9 time:145000001
+++++ event finished
+++++ processing event run: 3 lumi: 3 event: 9 time:145000001
+++++++ processing path for event: path1
+++++++++ module for event: thingWithMergeProducer
+++++++++ finished module for event: thingWithMergeProducer
+++++++ path for event finished: path1
+++++++ processing path for event: path2
+++++++++ module for event: test
+++++++++ finished module for event: test
+++++++++ module for event: testmerge
+++++++++ finished module for event: testmerge
+++++++ path for event finished: path2
+++++++ processing path for event: path3
+++++++++ module for event: get
+++++++++ finished module for event: get
+++++++++ module for event: getInt
+++++++++ finished module for event: getInt
+++++++ path for event finished: path3
+++++++ processing path for event: path4
+++++++++ module for event: dependsOnNoPut
+++++++++ finished module for event: dependsOnNoPut
+++++++ path for event finished: path4
+++++++++ module for event: TriggerResults
+++++++++ finished module for event: TriggerResults
+++++++ processing path for event: endPath1
+++++++++ module for event: out
+++++++++ finished module for event: out
+++++++ path for event finished: endPath1
+++++ event finished
+++++ source event
+++++ finished: source event
+++++ processing event run: 3 lumi: 3 event: 10 time:150000001
+++++ event finished
+++++ processing event run: 3 lumi: 3 event: 10 time:150000001
+++++ event finished
+++++ processing event run: 3 lumi: 3 event: 10 time:150000001
+++++++ processing path for event: p1
+++++++++ module for event: thingWithMergeProducer
+++++++++ finished module for event: thingWithMergeProducer
+++++++ path for event finished: p1
+++++++ processing path for event: path1
+++++++++ module for event: get
+++++++++ finished module for event: get
+++++++++ module for event: putInt
+++++++++ finished module for event: putInt
+++++++++ module for event: putInt2
+++++++++ finished module for event: putInt2
+++++++++ module for event: putInt3
+++++++++ finished module for event: putInt3
+++++++++ module for event: getInt
+++++++++ finished module for event: getInt
+++++++ path for event finished: path1
+++++++ processing path for event: path2
+++++++++ module for event: noPut
+++++++++ finished module for event: noPut
+++++++ path for event finished: path2
+++++++++ module for event: TriggerResults
+++++++++ finished module for event: TriggerResults
+++++ event finished
+++++ processing event run: 3 lumi: 3 event: 10 time:150000001
+++++ event finished
+++++ processing event run: 3 lumi: 3 event: 10 time:150000001
+++++++ processing path for event: path1
+++++++++ module for event: thingWithMergeProducer
+++++++++ finished module for event: thingWithMergeProducer
+++++++ path for event finished: path1
+++++++ processing path for event: path2
+++++++++ module for event: test
+++++++++ finished module for event: test
+++++++++ module for event: testmerge
+++++++++ finished module for event: testmerge
+++++++ path for event finished: path2
+++++++ processing path for event: path3
+++++++++ module for event: get
+++++++++ finished module for event: get
+++++++++ module for event: getInt
+++++++++ finished module for event: getInt
+++++++ path for event finished: path3
+++++++ processing path for event: path4
+++++++++ module for event: dependsOnNoPut
+++++++++ finished module for event: dependsOnNoPut
+++++++ path for event finished: path4
+++++++++ module for event: TriggerResults
+++++++++ finished module for event: TriggerResults
+++++++ processing path for event: endPath1
+++++++++ module for event: out
+++++++++ finished module for event: out
+++++++ path for event finished: endPath1
+++++ event finished
+++++ StreamEndLumi run: 3 lumi: 3 time: 150000001
+++++ StreamEndLumi finished
+++++ StreamEndLumi run: 3 lumi: 3 time: 0
+++++ StreamEndLumi finished
+++++ StreamEndLumi run: 3 lumi: 3 time: 0
+++++++ ModuleStreamEndLumi: thingWithMergeProducer
+++++++ ModuleStreamEndLumi finished: thingWithMergeProducer
+++++++ ModuleStreamEndLumi: get
+++++++ ModuleStreamEndLumi finished: get
+++++++ ModuleStreamEndLumi: putInt
+++++++ ModuleStreamEndLumi finished: putInt
+++++++ ModuleStreamEndLumi: putInt2
+++++++ ModuleStreamEndLumi finished: putInt2
+++++++ ModuleStreamEndLumi: putInt3
+++++++ ModuleStreamEndLumi finished: putInt3
+++++++ ModuleStreamEndLumi: getInt
+++++++ ModuleStreamEndLumi finished: getInt
+++++++ ModuleStreamEndLumi: noPut
+++++++ ModuleStreamEndLumi finished: noPut
+++++ StreamEndLumi finished
+++++ StreamEndLumi run: 3 lumi: 3 time: 0
+++++ StreamEndLumi finished
+++++ StreamEndLumi run: 3 lumi: 3 time: 0
+++++++ ModuleStreamEndLumi: thingWithMergeProducer
+++++++ ModuleStreamEndLumi finished: thingWithMergeProducer
+++++++ ModuleStreamEndLumi: test
+++++++ ModuleStreamEndLumi finished: test
+++++++ ModuleStreamEndLumi: testmerge
+++++++ ModuleStreamEndLumi finished: testmerge
+++++++ ModuleStreamEndLumi: get
+++++++ ModuleStreamEndLumi finished: get
+++++++ ModuleStreamEndLumi: getInt
+++++++ ModuleStreamEndLumi finished: getInt
+++++++ ModuleStreamEndLumi: dependsOnNoPut
+++++++ ModuleStreamEndLumi finished: dependsOnNoPut
+++++++ ModuleStreamEndLumi: out
+++++++ ModuleStreamEndLumi finished: out
+++++ StreamEndLumi finished
+++++ GlobalEndLumi run: 3 lumi: 3 time: 145000001
+++++ GlobalEndLumi finished
+++++ GlobalEndLumi run: 3 lumi: 3 time: 145000001
+++++ GlobalEndLumi finished
+++++ GlobalEndLumi run: 3 lumi: 3 time: 145000001
+++++++ ModuleGlobalEndLumi: thingWithMergeProducer
+++++++ ModuleGlobalEndLumi finished: thingWithMergeProducer
+++++++ ModuleGlobalEndLumi: get
+++++++ ModuleGlobalEndLumi finished: get
+++++++ ModuleGlobalEndLumi: putInt
+++++++ ModuleGlobalEndLumi finished: putInt
+++++++ ModuleGlobalEndLumi: putInt2
+++++++ ModuleGlobalEndLumi finished: putInt2
+++++++ ModuleGlobalEndLumi: putInt3
+++++++ ModuleGlobalEndLumi finished: putInt3
+++++++ ModuleGlobalEndLumi: getInt
+++++++ ModuleGlobalEndLumi finished: getInt
+++++++ ModuleGlobalEndLumi: noPut
+++++++ ModuleGlobalEndLumi finished: noPut
+++++ GlobalEndLumi finished
+++++ GlobalEndLumi run: 3 lumi: 3 time: 145000001
+++++ GlobalEndLumi finished
+++++ GlobalEndLumi run: 3 lumi: 3 time: 145000001
+++++++ ModuleGlobalEndLumi: thingWithMergeProducer
+++++++ ModuleGlobalEndLumi finished: thingWithMergeProducer
+++++++ ModuleGlobalEndLumi: test
+++++++ ModuleGlobalEndLumi finished: test
+++++++ ModuleGlobalEndLumi: testmerge
+++++++ ModuleGlobalEndLumi finished: testmerge
+++++++ ModuleGlobalEndLumi: get
+++++++ ModuleGlobalEndLumi finished: get
+++++++ ModuleGlobalEndLumi: getInt
+++++++ ModuleGlobalEndLumi finished: getInt
+++++++ ModuleGlobalEndLumi: dependsOnNoPut
+++++++ ModuleGlobalEndLumi finished: dependsOnNoPut
+++++++ ModuleGlobalEndLumi: out
+++++++ ModuleGlobalEndLumi finished: out
+++++ GlobalEndLumi finished
+++++ StreamEndRun run: 3 time: 150000001
+++++ StreamEndRun finished
+++++ StreamEndRun run: 3 time: 0
+++++ StreamEndRun finished
+++++ StreamEndRun run: 3 time: 0
+++++++ ModuleStreamEndRun: thingWithMergeProducer
+++++++ ModuleStreamEndRun finished: thingWithMergeProducer
+++++++ ModuleStreamEndRun: get
+++++++ ModuleStreamEndRun finished: get
+++++++ ModuleStreamEndRun: putInt
+++++++ ModuleStreamEndRun finished: putInt
+++++++ ModuleStreamEndRun: putInt2
+++++++ ModuleStreamEndRun finished: putInt2
+++++++ ModuleStreamEndRun: putInt3
+++++++ ModuleStreamEndRun finished: putInt3
+++++++ ModuleStreamEndRun: getInt
+++++++ ModuleStreamEndRun finished: getInt
+++++++ ModuleStreamEndRun: noPut
+++++++ ModuleStreamEndRun finished: noPut
+++++ StreamEndRun finished
+++++ StreamEndRun run: 3 time: 0
+++++ StreamEndRun finished
+++++ StreamEndRun run: 3 time: 0
+++++++ ModuleStreamEndRun: thingWithMergeProducer
+++++++ ModuleStreamEndRun finished: thingWithMergeProducer
+++++++ ModuleStreamEndRun: test
+++++++ ModuleStreamEndRun finished: test
+++++++ ModuleStreamEndRun: testmerge
+++++++ ModuleStreamEndRun finished: testmerge
+++++++ ModuleStreamEndRun: get
+++++++ ModuleStreamEndRun finished: get
+++++++ ModuleStreamEndRun: getInt
+++++++ ModuleStreamEndRun finished: getInt
+++++++ ModuleStreamEndRun: dependsOnNoPut
+++++++ ModuleStreamEndRun finished: dependsOnNoPut
+++++++ ModuleStreamEndRun: out
+++++++ ModuleStreamEndRun finished: out
+++++ StreamEndRun finished
+++++ GlobalEndRun run: 3 time: 150000001
+++++ GlobalEndRun finished
+++++ GlobalEndRun run: 3 time: 0
+++++ GlobalEndRun finished
+++++ GlobalEndRun run: 3 time: 0
+++++++ ModuleGlobalEndRun: thingWithMergeProducer
+++++++ ModuleGlobalEndRun finished: thingWithMergeProducer
+++++++ ModuleGlobalEndRun: get
+++++++ ModuleGlobalEndRun finished: get
+++++++ ModuleGlobalEndRun: putInt
+++++++ ModuleGlobalEndRun finished: putInt
+++++++ ModuleGlobalEndRun: putInt2
+++++++ ModuleGlobalEndRun finished: putInt2
+++++++ ModuleGlobalEndRun: putInt3
+++++++ ModuleGlobalEndRun finished: putInt3
+++++++ ModuleGlobalEndRun: getInt
+++++++ ModuleGlobalEndRun finished: getInt
+++++++ ModuleGlobalEndRun: noPut
+++++++ ModuleGlobalEndRun finished: noPut
+++++ GlobalEndRun finished
+++++ GlobalEndRun run: 3 time: 0
+++++ GlobalEndRun finished
+++++ GlobalEndRun run: 3 time: 0
+++++++ ModuleGlobalEndRun: thingWithMergeProducer
+++++++ ModuleGlobalEndRun finished: thingWithMergeProducer
+++++++ ModuleGlobalEndRun: test
+++++++ ModuleGlobalEndRun finished: test
+++++++ ModuleGlobalEndRun: testmerge
+++++++ ModuleGlobalEndRun finished: testmerge
+++++++ ModuleGlobalEndRun: get
+++++++ ModuleGlobalEndRun finished: get
+++++++ ModuleGlobalEndRun: getInt
+++++++ ModuleGlobalEndRun finished: getInt
+++++++ ModuleGlobalEndRun: dependsOnNoPut
+++++++ ModuleGlobalEndRun finished: dependsOnNoPut
+++++++ ModuleGlobalEndRun: out
+++++++ ModuleGlobalEndRun finished: out
+++++ GlobalEndRun finished
+++++ ModuleEndStream: 
+++++ ModuleEndStream finished
+++++ ModuleEndStream: 
+++++ ModuleEndStream finished
+++++ ModuleEndStream: 
+++++ ModuleEndStream finished
+++++ ModuleEndStream: 
+++++ ModuleEndStream finished
+++++ ModuleEndStream: 
+++++ ModuleEndStream finished
+++++ ModuleEndStream: 
+++++ ModuleEndStream finished
+++++ ModuleEndStream: 
+++++ ModuleEndStream finished
+++++ ModuleEndStream: 
+++++ ModuleEndStream finished
+++++ ModuleEndStream: 
+++++ ModuleEndStream finished
+++++ ModuleEndStream: 
+++++ ModuleEndStream finished
+++++ ModuleEndStream: 
+++++ ModuleEndStream finished
+++++ ModuleEndStream: 
+++++ ModuleEndStream finished
+++++ ModuleEndStream: 
+++++ ModuleEndStream finished
+++++ ModuleEndStream: 
+++++ ModuleEndStream finished
+++++ ModuleEndStream: 
+++++ ModuleEndStream finished
+++++ ModuleEndStream: 
+++++ ModuleEndStream finished
+++ ModuleEndJob: thingWithMergeProducer
+++ ModuleEndJob finished: thingWithMergeProducer
+++ ModuleEndJob: get
+++ ModuleEndJob finished: get
+++ ModuleEndJob: putInt
+++ ModuleEndJob finished: putInt
+++ ModuleEndJob: putInt2
+++ ModuleEndJob finished: putInt2
+++ ModuleEndJob: putInt3
+++ ModuleEndJob finished: putInt3
+++ ModuleEndJob: getInt
+++ ModuleEndJob finished: getInt
+++ ModuleEndJob: noPut
+++ ModuleEndJob finished: noPut
+++ ModuleEndJob: TriggerResults
+++ ModuleEndJob finished: TriggerResults
+++ ModuleEndJob: thingWithMergeProducer
+++ ModuleEndJob finished: thingWithMergeProducer
+++ ModuleEndJob: test
+++ ModuleEndJob finished: test
+++ ModuleEndJob: testmerge
+++ ModuleEndJob finished: testmerge
+++ ModuleEndJob: get
+++ ModuleEndJob finished: get
+++ ModuleEndJob: getInt
+++ ModuleEndJob finished: getInt
+++ ModuleEndJob: dependsOnNoPut
+++ ModuleEndJob finished: dependsOnNoPut
+++ ModuleEndJob: TriggerResults
+++ ModuleEndJob finished: TriggerResults
+++ ModuleEndJob: out
+++ ModuleEndJob finished: out
+++ Job ended

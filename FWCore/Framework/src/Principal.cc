@@ -418,23 +418,25 @@ namespace edm {
   }
 
   Principal::ConstProductPtr
-  Principal::getProductHolder(BranchID const& bid, bool resolveProd, bool fillOnDemand) const {
+  Principal::getProductHolder(BranchID const& bid, bool resolveProd, bool fillOnDemand,
+                              ModuleCallingContext const* mcc) const {
     ProductHolderIndex index = preg_->indexFrom(bid);
     if(index == ProductHolderIndexInvalid){
        return ConstProductPtr();
     }
-    return getProductByIndex(index, resolveProd, fillOnDemand);
+    return getProductByIndex(index, resolveProd, fillOnDemand, mcc);
   }
 
   Principal::ConstProductPtr
-  Principal::getProductByIndex(ProductHolderIndex const& index, bool resolveProd, bool fillOnDemand) const {
+  Principal::getProductByIndex(ProductHolderIndex const& index, bool resolveProd, bool fillOnDemand,
+                               ModuleCallingContext const* mcc) const {
 
     ConstProductPtr const phb = productHolders_[index].get();
     if(nullptr == phb) {
       return phb;
     }
     if(resolveProd && !phb->productUnavailable()) {
-      this->resolveProduct(*phb, fillOnDemand);
+      this->resolveProduct(*phb, fillOnDemand, mcc);
     }
     return phb;
   }
@@ -443,9 +445,10 @@ namespace edm {
   Principal::getByLabel(KindOfType kindOfType,
                         TypeID const& typeID,
                         InputTag const& inputTag,
-                        EDConsumerBase const* consumer) const {
+                        EDConsumerBase const* consumer,
+                        ModuleCallingContext const* mcc) const {
 
-    ProductData const* result = findProductByLabel(kindOfType, typeID, inputTag, consumer);
+    ProductData const* result = findProductByLabel(kindOfType, typeID, inputTag, consumer, mcc);
     if(result == 0) {
       boost::shared_ptr<cms::Exception> whyFailed =
         makeNotFoundException("getByLabel", kindOfType, typeID, inputTag.label(), inputTag.instance(), inputTag.process());
@@ -460,9 +463,10 @@ namespace edm {
                         std::string const& label,
                         std::string const& instance,
                         std::string const& process,
-                        EDConsumerBase const* consumer) const {
+                        EDConsumerBase const* consumer,
+                        ModuleCallingContext const* mcc) const {
 
-    ProductData const* result = findProductByLabel(kindOfType, typeID, label, instance, process,consumer);
+    ProductData const* result = findProductByLabel(kindOfType, typeID, label, instance, process,consumer, mcc);
     if(result == 0) {
       boost::shared_ptr<cms::Exception> whyFailed =
         makeNotFoundException("getByLabel", kindOfType, typeID, label, instance, process);
@@ -476,12 +480,13 @@ namespace edm {
                         TypeID const& typeID,
                         ProductHolderIndex index,
                         bool skipCurrentProcess,
-                        bool& ambiguous) const {
+                        bool& ambiguous,
+                        ModuleCallingContext const* mcc) const {
     assert(index !=ProductHolderIndexInvalid);
     boost::shared_ptr<ProductHolderBase> const& productHolder = productHolders_[index];
     assert(0!=productHolder.get());
     ProductHolderBase::ResolveStatus resolveStatus;
-    ProductData const* productData = productHolder->resolveProduct(resolveStatus, skipCurrentProcess);
+    ProductData const* productData = productHolder->resolveProduct(resolveStatus, skipCurrentProcess, mcc);
     if(resolveStatus == ProductHolderBase::Ambiguous) {
       ambiguous = true;
       return BasicHandle();
@@ -495,7 +500,8 @@ namespace edm {
   void
   Principal::getManyByType(TypeID const& typeID,
                            BasicHandleVec& results,
-                           EDConsumerBase const* consumer) const {
+                           EDConsumerBase const* consumer,
+                           ModuleCallingContext const* mcc) const {
 
     assert(results.empty());
 
@@ -546,7 +552,7 @@ namespace edm {
       if(!matches.isFullyResolved(i)) {
         if(!holders.empty()) {
           // Process the ones with a particular module label and instance
-          findProducts(holders, typeID, results);
+          findProducts(holders, typeID, results, mcc);
           holders.clear();
         }
       } else {
@@ -557,7 +563,7 @@ namespace edm {
     }
     // Do not miss the last subset of products
     if(!holders.empty()) {
-      findProducts(holders, typeID, results);
+      findProducts(holders, typeID, results, mcc);
     }
     return;
   }
@@ -565,7 +571,8 @@ namespace edm {
   void
   Principal::findProducts(std::vector<ProductHolderBase const*> const& holders,
                           TypeID const& typeID,
-                          BasicHandleVec& results) const {
+                          BasicHandleVec& results,
+                          ModuleCallingContext const* mcc) const {
 
     for (auto iter = processHistoryPtr_->rbegin(),
               iEnd = processHistoryPtr_->rend();
@@ -592,7 +599,7 @@ namespace edm {
           // Skip product if not available.
           if(!productHolder->productUnavailable()) {
 
-            this->resolveProduct(*productHolder, true);
+            this->resolveProduct(*productHolder, true, mcc);
             // If the product is a dummy filler, product holder will now be marked unavailable.
             // Unscheduled execution can fail to produce the EDProduct so check
             if(productHolder->product() && !productHolder->productUnavailable() && !productHolder->onDemand()) {
@@ -610,7 +617,8 @@ namespace edm {
   Principal::findProductByLabel(KindOfType kindOfType,
                                 TypeID const& typeID,
                                 InputTag const& inputTag,
-                                EDConsumerBase const* consumer) const {
+                                EDConsumerBase const* consumer,
+                                ModuleCallingContext const* mcc) const {
 
     bool skipCurrentProcess = inputTag.willSkipCurrentProcess();
 
@@ -650,7 +658,7 @@ namespace edm {
     boost::shared_ptr<ProductHolderBase> const& productHolder = productHolders_[index];
 
     ProductHolderBase::ResolveStatus resolveStatus;
-    ProductData const* productData = productHolder->resolveProduct(resolveStatus, skipCurrentProcess);
+    ProductData const* productData = productHolder->resolveProduct(resolveStatus, skipCurrentProcess, mcc);
     if(resolveStatus == ProductHolderBase::Ambiguous) {
       throwAmbiguousException("findProductByLabel", typeID, inputTag.label(), inputTag.instance(), inputTag.process());
     }
@@ -663,7 +671,8 @@ namespace edm {
                                 std::string const& label,
                                 std::string const& instance,
                                 std::string const& process,
-                                EDConsumerBase const* consumer) const {
+                                EDConsumerBase const* consumer,
+                                ModuleCallingContext const* mcc) const {
 
     ProductHolderIndex index = productLookup().index(kindOfType,
                                                      typeID,
@@ -690,7 +699,7 @@ namespace edm {
     boost::shared_ptr<ProductHolderBase> const& productHolder = productHolders_[index];
 
     ProductHolderBase::ResolveStatus resolveStatus;
-    ProductData const* productData = productHolder->resolveProduct(resolveStatus, false);
+    ProductData const* productData = productHolder->resolveProduct(resolveStatus, false, mcc);
     if(resolveStatus == ProductHolderBase::Ambiguous) {
       throwAmbiguousException("findProductByLabel", typeID, label, instance, process);
     }
@@ -698,12 +707,13 @@ namespace edm {
   }
 
   ProductData const*
-  Principal::findProductByTag(TypeID const& typeID, InputTag const& tag) const {
+  Principal::findProductByTag(TypeID const& typeID, InputTag const& tag, ModuleCallingContext const* mcc) const {
     ProductData const* productData =
       findProductByLabel(PRODUCT_TYPE,
                          typeID,
                          tag,
-                         nullptr);
+                         nullptr,
+                         mcc);
     if(productData == nullptr) {
       throwNotFoundException("findProductByTag", typeID, tag);
     }
@@ -711,8 +721,9 @@ namespace edm {
   }
 
   OutputHandle
-  Principal::getForOutput(BranchID const& bid, bool getProd) const {
-    ConstProductPtr const phb = getProductHolder(bid, getProd, true);
+  Principal::getForOutput(BranchID const& bid, bool getProd,
+                          ModuleCallingContext const* mcc) const {
+    ConstProductPtr const phb = getProductHolder(bid, getProd, true, mcc);
     if(phb == nullptr) {
       throwProductNotFoundException("getForOutput", errors::LogicError, bid);
     }
@@ -729,14 +740,15 @@ namespace edm {
   }
 
   Provenance
-  Principal::getProvenance(BranchID const& bid) const {
-    ConstProductPtr const phb = getProductHolder(bid, false, true);
+  Principal::getProvenance(BranchID const& bid,
+                           ModuleCallingContext const* mcc) const {
+    ConstProductPtr const phb = getProductHolder(bid, false, true, mcc);
     if(phb == nullptr) {
       throwProductNotFoundException("getProvenance", errors::ProductNotFound, bid);
     }
 
     if(phb->onDemand()) {
-      unscheduledFill(phb->branchDescription().moduleLabel());
+      unscheduledFill(phb->branchDescription().moduleLabel(), mcc);
     }
     // We already tried to produce the unscheduled products above
     // If they still are not there, then throw

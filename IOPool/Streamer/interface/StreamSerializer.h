@@ -60,6 +60,7 @@ namespace edm
 {
   
   class EventPrincipal;
+  class ModuleCallingContext;
   class StreamSerializer
   {
 
@@ -71,7 +72,8 @@ namespace edm
     int serializeEvent(EventPrincipal const& eventPrincipal,
                        ParameterSetID const& selectorConfig,
                        bool use_compression, int compression_level,
-                       SerializeDataBuffer &data_buffer);
+                       SerializeDataBuffer &data_buffer,
+                       ModuleCallingContext const* mcc);
 
     /**
      * Compresses the data in the specified input buffer into the

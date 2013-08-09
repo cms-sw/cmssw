@@ -15,7 +15,8 @@ namespace edm {
 	     TrigResPtr trptr,
 	     ActionTable const& actions,
 	     boost::shared_ptr<ActivityRegistry> areg,
-	     bool isEndPath):
+	     bool isEndPath,
+             StreamContext const* streamContext):
     stopwatch_(),
     timesRun_(),
     timesPassed_(),
@@ -28,7 +29,8 @@ namespace edm {
     actReg_(areg),
     act_table_(&actions),
     workers_(workers),
-    isEndPath_(isEndPath) {
+    isEndPath_(isEndPath),
+    pathContext_(path_name, bitpos, streamContext) {
   }
   
   bool

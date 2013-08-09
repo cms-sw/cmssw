@@ -144,11 +144,13 @@ namespace edm {
   }
 
   void
-  EventPrincipal::resolveProduct_(ProductHolderBase const& phb, bool fillOnDemand) const {
+  EventPrincipal::resolveProduct_(ProductHolderBase const& phb, bool fillOnDemand,
+                                  ModuleCallingContext const* mcc) const {
     // Try unscheduled production.
     if(phb.onDemand()) {
       if(fillOnDemand) {
-        unscheduledFill(phb.resolvedModuleLabel());
+        unscheduledFill(phb.resolvedModuleLabel(),
+                        mcc);
       }
       return;
     }
@@ -213,7 +215,7 @@ namespace edm {
   BasicHandle
   EventPrincipal::getByProductID(ProductID const& pid) const {
     BranchID bid = pidToBid(pid);
-    ConstProductPtr const phb = getProductHolder(bid, true, true);
+    ConstProductPtr const phb = getProductHolder(bid, true, false, nullptr);
     if(phb == nullptr) {
       boost::shared_ptr<cms::Exception> whyFailed(new Exception(errors::ProductNotFound, "InvalidID"));
       *whyFailed
@@ -243,9 +245,9 @@ namespace edm {
   }
 
   Provenance
-  EventPrincipal::getProvenance(ProductID const& pid) const {
+  EventPrincipal::getProvenance(ProductID const& pid, ModuleCallingContext const* mcc) const {
     BranchID bid = pidToBid(pid);
-    return getProvenance(bid);
+    return getProvenance(bid, mcc);
   }
 
   void
@@ -269,7 +271,8 @@ namespace edm {
   }
 
   bool
-  EventPrincipal::unscheduledFill(std::string const& moduleLabel) const {
+  EventPrincipal::unscheduledFill(std::string const& moduleLabel, 
+                                  ModuleCallingContext const* mcc) const {
 
     // If it is a module already currently running in unscheduled
     // mode, then there is a circular dependency related to which
@@ -293,7 +296,13 @@ namespace edm {
     moduleLabelsRunning_.push_back(moduleLabel);
 
     if(unscheduledHandler_) {
-      unscheduledHandler_->tryToFill(moduleLabel, *const_cast<EventPrincipal*>(this));
+      if(mcc == nullptr) {
+        throw Exception(errors::LogicError)
+          << "EventPrincipal::unscheduledFill, Attempting to run unscheduled production\n"
+          << "with a null pointer to the ModuleCalling Context. This should never happen.\n"
+          << "Contact a Framework developer";
+      }
+      unscheduledHandler_->tryToFill(moduleLabel, *const_cast<EventPrincipal*>(this), mcc);
     }
     moduleLabelsRunning_.pop_back();
     return true;

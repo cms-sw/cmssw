@@ -4,11 +4,22 @@ $Id: OutputWorker.cc,v 1.40 2013/02/27 15:21:54 wdd Exp $
 ----------------------------------------------------------------------*/
 
 #include "FWCore/Framework/interface/OutputModule.h"
-#include "FWCore/Framework/src/WorkerParams.h"
+
+#include "DataFormats/Provenance/interface/LuminosityBlockID.h"
+#include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"
+#include "FWCore/Framework/interface/RunPrincipal.h"
 #include "FWCore/Framework/src/OutputWorker.h"
 #include "FWCore/Framework/src/OutputModuleCommunicator.h"
+#include "FWCore/Framework/src/WorkerParams.h"
+#include "FWCore/ServiceRegistry/interface/GlobalContext.h"
+#include "FWCore/ServiceRegistry/interface/ModuleCallingContext.h"
+#include "FWCore/ServiceRegistry/interface/ParentContext.h"
+#include "FWCore/Utilities/interface/LuminosityBlockIndex.h"
 
 namespace edm {
+
+  class ProcessContext;
+
   OutputWorker::OutputWorker(std::unique_ptr<OutputModule>&& mod,
 			     ModuleDescription const& md,
 			     WorkerParams const& wp):
@@ -35,9 +46,9 @@ namespace edm {
     
     virtual void openFile(edm::FileBlock const& fb) override;
     
-    virtual void writeRun(edm::RunPrincipal const& rp) override;
+    virtual void writeRun(edm::RunPrincipal const& rp, ProcessContext const*) override;
     
-    virtual void writeLumi(edm::LuminosityBlockPrincipal const& lbp) override;
+    virtual void writeLumi(edm::LuminosityBlockPrincipal const& lbp, ProcessContext const*) override;
     
     ///\return true if OutputModule has reached its limit on maximum number of events it wants to see
     virtual bool limitReached() const override;
@@ -78,17 +89,33 @@ namespace edm {
   ClassicOutputModuleCommunicator::openFile(edm::FileBlock const& fb) {
     module().doOpenFile(fb);
   }
-  
+
   void
-  ClassicOutputModuleCommunicator::writeRun(edm::RunPrincipal const& rp) {
-    module().doWriteRun(rp);
+  ClassicOutputModuleCommunicator::writeRun(edm::RunPrincipal const& rp, ProcessContext const* processContext) {
+    GlobalContext globalContext(GlobalContext::Transition::kWriteRun,
+                                LuminosityBlockID(rp.run(), 0),
+                                rp.index(),
+                                LuminosityBlockIndex::invalidLuminosityBlockIndex(),
+                                rp.endTime(),
+                                processContext);
+    ParentContext parentContext(&globalContext);
+    ModuleCallingContext mcc(&description(), ModuleCallingContext::State::kRunning, parentContext);
+    module().doWriteRun(rp, &mcc);
   }
-  
+
   void
-  ClassicOutputModuleCommunicator::writeLumi(edm::LuminosityBlockPrincipal const& lbp) {
-    module().doWriteLuminosityBlock(lbp);
+  ClassicOutputModuleCommunicator::writeLumi(edm::LuminosityBlockPrincipal const& lbp, ProcessContext const* processContext) {
+    GlobalContext globalContext(GlobalContext::Transition::kWriteLuminosityBlock,
+                                lbp.id(),
+                                lbp.runPrincipal().index(),
+                                lbp.index(),
+                                lbp.beginTime(),
+                                processContext);
+    ParentContext parentContext(&globalContext);
+    ModuleCallingContext mcc(&description(), ModuleCallingContext::State::kRunning, parentContext);
+    module().doWriteLuminosityBlock(lbp, &mcc);
   }
-  
+
   bool ClassicOutputModuleCommunicator::wantAllEvents() const {return module().wantAllEvents();}
   
   bool ClassicOutputModuleCommunicator::limitReached() const {return module().limitReached();}

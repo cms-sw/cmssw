@@ -33,9 +33,9 @@ namespace edm {
       static void fillDescriptions(ConfigurationDescriptions& descriptions);
 
    private:
-      virtual void write(EventPrincipal const& e);
-      virtual void writeLuminosityBlock(LuminosityBlockPrincipal const&){}
-      virtual void writeRun(RunPrincipal const&){}
+      virtual void write(EventPrincipal const& e, ModuleCallingContext const*) override;
+      virtual void writeLuminosityBlock(LuminosityBlockPrincipal const&, ModuleCallingContext const*) override {}
+      virtual void writeRun(RunPrincipal const&, ModuleCallingContext const*) override {}
    };
 
 
@@ -101,7 +101,7 @@ namespace edm {
    }
 
    void
-   ProvenanceCheckerOutputModule::write(EventPrincipal const& e) {
+   ProvenanceCheckerOutputModule::write(EventPrincipal const& e, ModuleCallingContext const* mcc) {
       //check ProductProvenance's parents to see if they are in the ProductProvenance list
       boost::shared_ptr<BranchMapper> mapperPtr = e.branchMapperPtr();
 
@@ -118,7 +118,7 @@ namespace edm {
             idToProductHolder[branchID] = (*it);
             if((*it)->productUnavailable()) {
                //This call seems to have a side effect of filling the 'ProductProvenance' in the ProductHolder
-               OutputHandle const oh = e.getForOutput(branchID, false);
+              OutputHandle const oh = e.getForOutput(branchID, false, mcc);
 
                bool cannotFindProductProvenance=false;
                if(!(*it)->productProvenancePtr()) {

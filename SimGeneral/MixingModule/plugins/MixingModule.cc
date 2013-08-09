@@ -14,6 +14,9 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/TriggerNamesService.h"
+#include "FWCore/ServiceRegistry/interface/InternalContext.h"
+#include "FWCore/ServiceRegistry/interface/ModuleCallingContext.h"
+#include "FWCore/ServiceRegistry/interface/ParentContext.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Provenance/interface/Provenance.h"
@@ -264,17 +267,23 @@ dropUnwantedBranches(wantedBranches_);
   }
 
   void MixingModule::pileAllWorkers(EventPrincipal const& eventPrincipal,
+                                    ModuleCallingContext const* mcc,
                                     int bunchCrossing, int eventId,
                                     int& vertexOffset,
                                     const edm::EventSetup& setup) {
-    PileUpEventPrincipal pep(eventPrincipal, bunchCrossing, bunchSpace_, eventId, vertexOffset);
+
+    InternalContext internalContext(eventPrincipal.id(), mcc);
+    ParentContext parentContext(&internalContext);
+    ModuleCallingContext moduleCallingContext(&moduleDescription(), ModuleCallingContext::State::kRunning, parentContext);
+
+    PileUpEventPrincipal pep(eventPrincipal, &moduleCallingContext, bunchCrossing, bunchSpace_, eventId, vertexOffset);
     accumulateEvent(pep, setup);
 
     for (unsigned int ii=0;ii<workers_.size();++ii) {
       LogDebug("MixingModule") <<" merging Event:  id " << eventPrincipal.id();
       //      std::cout <<"PILEALLWORKERS merging Event:  id " << eventPrincipal.id() << std::endl;
 
-        workers_[ii]->addPileups(bunchCrossing,eventPrincipal, eventId, vertexoffset);
+      workers_[ii]->addPileups(bunchCrossing,eventPrincipal, &moduleCallingContext, eventId, vertexoffset);
     }
   }
 
@@ -345,10 +354,11 @@ dropUnwantedBranches(wantedBranches_);
         //        int eventId = 0;
         int vertexOffset = 0;
 
+        ModuleCallingContext const* mcc = e.moduleCallingContext(); 
         if (!playback_) {
           inputSources_[readSrcIdx]->readPileUp(e.id(), recordEventID,
-            boost::bind(&MixingModule::pileAllWorkers, boost::ref(*this), _1, bunchIdx,
-                        _2, vertexOffset, boost::ref(setup)), NumPU_Events
+                                                boost::bind(&MixingModule::pileAllWorkers, boost::ref(*this), _1, mcc, bunchIdx,
+                                                            _2, vertexOffset, boost::ref(setup)), NumPU_Events
             );
           playbackInfo_->setStartEventId(recordEventID, readSrcIdx, bunchIdx, KeepTrackOfPileup);
           KeepTrackOfPileup+=NumPU_Events;
@@ -362,7 +372,7 @@ dropUnwantedBranches(wantedBranches_);
           }
           inputSources_[readSrcIdx]->playPileUp(
             playEventID,
-            boost::bind(&MixingModule::pileAllWorkers, boost::ref(*this), _1, bunchIdx,
+            boost::bind(&MixingModule::pileAllWorkers, boost::ref(*this), _1, mcc, bunchIdx,
                         dummyId, vertexOffset, boost::ref(setup))
             );
         }

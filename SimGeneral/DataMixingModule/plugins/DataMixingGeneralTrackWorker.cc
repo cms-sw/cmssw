@@ -73,12 +73,13 @@ namespace edm
 
 
 
-  void DataMixingGeneralTrackWorker::addGeneralTrackPileups(const int bcr, const EventPrincipal *ep, unsigned int eventNr) {
+  void DataMixingGeneralTrackWorker::addGeneralTrackPileups(const int bcr, const EventPrincipal *ep, unsigned int eventNr,
+                                                            ModuleCallingContext const* mcc) {
     LogDebug("DataMixingGeneralTrackWorker") <<"\n===============> adding pileups from event  "<<ep->id()<<" for bunchcrossing "<<bcr;
 
 
     boost::shared_ptr<Wrapper<reco::TrackCollection >  const> inputPTR =
-      getProductByTag<reco::TrackCollection >(*ep, GeneralTrackPileInputTag_ );
+      getProductByTag<reco::TrackCollection >(*ep, GeneralTrackPileInputTag_, mcc);
 
     if(inputPTR ) {
 

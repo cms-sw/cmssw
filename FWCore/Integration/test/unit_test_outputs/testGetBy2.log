@@ -1,0 +1,196 @@
+++ constructing source:PoolSource
+++++ open input file: file:testGetBy1.root
+++++ finished: open input file
+++ construction finished:PoolSource
+++ constructing module: intProducer
+++ construction finished: intProducer
+++ constructing module: TriggerResults
+++ construction finished: TriggerResults
+++ constructing module: out
+++ construction finished: out
+++ constructing module: intProducerU
+++ construction finished: intProducerU
+++ constructing module: intVectorProducer
+++ construction finished: intVectorProducer
+++ ModuleBeginJob: intProducer
+++ ModuleBeginJob finished: intProducer
+++ ModuleBeginJob: TriggerResults
+++ ModuleBeginJob finished: TriggerResults
+++ ModuleBeginJob: out
+++ ModuleBeginJob finished: out
+++ ModuleBeginJob: intProducerU
+++ ModuleBeginJob finished: intProducerU
+++ ModuleBeginJob: intVectorProducer
+++ ModuleBeginJob finished: intVectorProducer
+++ Job started
+++++ ModuleBeginStream: intProducer
+++++ ModuleBeginStream finished
+++++ ModuleBeginStream: TriggerResults
+++++ ModuleBeginStream finished
+++++ ModuleBeginStream: out
+++++ ModuleBeginStream finished
+++++ ModuleBeginStream: intProducerU
+++++ ModuleBeginStream finished
+++++ ModuleBeginStream: intVectorProducer
+++++ ModuleBeginStream finished
+++++ source run
+++++ finished: source run
+++++ GlobalBeginRun run: 1 time: 1
+++++++ ModuleGlobalBeginRun: intProducerU
+++++++ ModuleGlobalBeginRun finished: intProducerU
+++++++ ModuleGlobalBeginRun: intVectorProducer
+++++++ ModuleGlobalBeginRun finished: intVectorProducer
+++++++ ModuleGlobalBeginRun: intProducer
+++++++ ModuleGlobalBeginRun finished: intProducer
+++++++ ModuleGlobalBeginRun: out
+++++++ ModuleGlobalBeginRun finished: out
+++++ GlobalBeginRun finished
+++++ StreamBeginRun run: 1 time: 1
+++++++ ModuleStreamBeginRun: intProducerU
+++++++ ModuleStreamBeginRun finished: intProducerU
+++++++ ModuleStreamBeginRun: intVectorProducer
+++++++ ModuleStreamBeginRun finished: intVectorProducer
+++++++ ModuleStreamBeginRun: intProducer
+++++++ ModuleStreamBeginRun finished: intProducer
+++++++ ModuleStreamBeginRun: out
+++++++ ModuleStreamBeginRun finished: out
+++++ StreamBeginRun finished
+++++ source lumi
+++++ finished: source lumi
+++++ GlobalBeginLumi run: 1 lumi: 1 time: 1
+++++++ ModuleGlobalBeginLumi: intProducerU
+++++++ ModuleGlobalBeginLumi finished: intProducerU
+++++++ ModuleGlobalBeginLumi: intVectorProducer
+++++++ ModuleGlobalBeginLumi finished: intVectorProducer
+++++++ ModuleGlobalBeginLumi: intProducer
+++++++ ModuleGlobalBeginLumi finished: intProducer
+++++++ ModuleGlobalBeginLumi: out
+++++++ ModuleGlobalBeginLumi finished: out
+++++ GlobalBeginLumi finished
+++++ StreamBeginLumi run: 1 lumi: 1 time: 1
+++++++ ModuleStreamBeginLumi: intProducerU
+++++++ ModuleStreamBeginLumi finished: intProducerU
+++++++ ModuleStreamBeginLumi: intVectorProducer
+++++++ ModuleStreamBeginLumi finished: intVectorProducer
+++++++ ModuleStreamBeginLumi: intProducer
+++++++ ModuleStreamBeginLumi finished: intProducer
+++++++ ModuleStreamBeginLumi: out
+++++++ ModuleStreamBeginLumi finished: out
+++++ StreamBeginLumi finished
+++++ source event
+++++ finished: source event
+++++ processing event run: 1 lumi: 1 event: 1 time:5000001
+++++++ processing path for event: p
+++++++++ module for event: intProducer
+++++++++ finished module for event: intProducer
+++++++ path for event finished: p
+++++++++ module for event: TriggerResults
+++++++++ finished module for event: TriggerResults
+++++++ processing path for event: e
+++++++++ module for event: out
+++++++++++ module for event: intProducerU
+++++++++++ finished module for event: intProducerU
+++++++++++ module for event: intVectorProducer
+++++++++++ finished module for event: intVectorProducer
+++++++++ finished module for event: out
+++++++ path for event finished: e
+++++ event finished
+++++ source event
+++++ finished: source event
+++++ processing event run: 1 lumi: 1 event: 2 time:10000001
+++++++ processing path for event: p
+++++++++ module for event: intProducer
+++++++++ finished module for event: intProducer
+++++++ path for event finished: p
+++++++++ module for event: TriggerResults
+++++++++ finished module for event: TriggerResults
+++++++ processing path for event: e
+++++++++ module for event: out
+++++++++++ module for event: intProducerU
+++++++++++ finished module for event: intProducerU
+++++++++++ module for event: intVectorProducer
+++++++++++ finished module for event: intVectorProducer
+++++++++ finished module for event: out
+++++++ path for event finished: e
+++++ event finished
+++++ source event
+++++ finished: source event
+++++ processing event run: 1 lumi: 1 event: 3 time:15000001
+++++++ processing path for event: p
+++++++++ module for event: intProducer
+++++++++ finished module for event: intProducer
+++++++ path for event finished: p
+++++++++ module for event: TriggerResults
+++++++++ finished module for event: TriggerResults
+++++++ processing path for event: e
+++++++++ module for event: out
+++++++++++ module for event: intProducerU
+++++++++++ finished module for event: intProducerU
+++++++++++ module for event: intVectorProducer
+++++++++++ finished module for event: intVectorProducer
+++++++++ finished module for event: out
+++++++ path for event finished: e
+++++ event finished
+++++ StreamEndLumi run: 1 lumi: 1 time: 15000001
+++++++ ModuleStreamEndLumi: intProducerU
+++++++ ModuleStreamEndLumi finished: intProducerU
+++++++ ModuleStreamEndLumi: intVectorProducer
+++++++ ModuleStreamEndLumi finished: intVectorProducer
+++++++ ModuleStreamEndLumi: intProducer
+++++++ ModuleStreamEndLumi finished: intProducer
+++++++ ModuleStreamEndLumi: out
+++++++ ModuleStreamEndLumi finished: out
+++++ StreamEndLumi finished
+++++ GlobalEndLumi run: 1 lumi: 1 time: 1
+++++++ ModuleGlobalEndLumi: intProducerU
+++++++ ModuleGlobalEndLumi finished: intProducerU
+++++++ ModuleGlobalEndLumi: intVectorProducer
+++++++ ModuleGlobalEndLumi finished: intVectorProducer
+++++++ ModuleGlobalEndLumi: intProducer
+++++++ ModuleGlobalEndLumi finished: intProducer
+++++++ ModuleGlobalEndLumi: out
+++++++ ModuleGlobalEndLumi finished: out
+++++ GlobalEndLumi finished
+++++ StreamEndRun run: 1 time: 15000001
+++++++ ModuleStreamEndRun: intProducerU
+++++++ ModuleStreamEndRun finished: intProducerU
+++++++ ModuleStreamEndRun: intVectorProducer
+++++++ ModuleStreamEndRun finished: intVectorProducer
+++++++ ModuleStreamEndRun: intProducer
+++++++ ModuleStreamEndRun finished: intProducer
+++++++ ModuleStreamEndRun: out
+++++++ ModuleStreamEndRun finished: out
+++++ StreamEndRun finished
+++++ GlobalEndRun run: 1 time: 15000001
+++++++ ModuleGlobalEndRun: intProducerU
+++++++ ModuleGlobalEndRun finished: intProducerU
+++++++ ModuleGlobalEndRun: intVectorProducer
+++++++ ModuleGlobalEndRun finished: intVectorProducer
+++++++ ModuleGlobalEndRun: intProducer
+++++++ ModuleGlobalEndRun finished: intProducer
+++++++ ModuleGlobalEndRun: out
+++++++ ModuleGlobalEndRun finished: out
+++++ GlobalEndRun finished
+++++ close input file: file:testGetBy1.root
+++++ finished: close input file
+++++ ModuleEndStream: 
+++++ ModuleEndStream finished
+++++ ModuleEndStream: 
+++++ ModuleEndStream finished
+++++ ModuleEndStream: 
+++++ ModuleEndStream finished
+++++ ModuleEndStream: 
+++++ ModuleEndStream finished
+++++ ModuleEndStream: 
+++++ ModuleEndStream finished
+++ ModuleEndJob: intProducer
+++ ModuleEndJob finished: intProducer
+++ ModuleEndJob: TriggerResults
+++ ModuleEndJob finished: TriggerResults
+++ ModuleEndJob: out
+++ ModuleEndJob finished: out
+++ ModuleEndJob: intProducerU
+++ ModuleEndJob finished: intProducerU
+++ ModuleEndJob: intVectorProducer
+++ ModuleEndJob finished: intVectorProducer
+++ Job ended

@@ -174,7 +174,7 @@ namespace edm {
     if (provider_.get() != nullptr) {
       boost::shared_ptr<RunAuxiliary> aux(new RunAuxiliary(run.runAuxiliary()));
       runPrincipal_.reset(new RunPrincipal(aux, productRegistry_, *processConfiguration_, nullptr, 0));
-      provider_->beginRun(*runPrincipal_, setup);
+      provider_->beginRun(*runPrincipal_, setup, run.moduleCallingContext());
     }
   }
   void PileUp::beginLuminosityBlock(const edm::LuminosityBlock& lumi, const edm::EventSetup& setup) {
@@ -182,18 +182,18 @@ namespace edm {
       boost::shared_ptr<LuminosityBlockAuxiliary> aux(new LuminosityBlockAuxiliary(lumi.luminosityBlockAuxiliary()));
       lumiPrincipal_.reset(new LuminosityBlockPrincipal(aux, productRegistry_, *processConfiguration_, nullptr, 0));
       lumiPrincipal_->setRunPrincipal(runPrincipal_);
-      provider_->beginLuminosityBlock(*lumiPrincipal_, setup);
+      provider_->beginLuminosityBlock(*lumiPrincipal_, setup, lumi.moduleCallingContext());
     }
   }
 
   void PileUp::endRun(const edm::Run& run, const edm::EventSetup& setup) {
     if (provider_.get() != nullptr) {
-      provider_->endRun(*runPrincipal_, setup);
+      provider_->endRun(*runPrincipal_, setup, run.moduleCallingContext());
     }
   }
   void PileUp::endLuminosityBlock(const edm::LuminosityBlock& lumi, const edm::EventSetup& setup) {
     if (provider_.get() != nullptr) {
-      provider_->endLuminosityBlock(*lumiPrincipal_, setup);
+      provider_->endLuminosityBlock(*lumiPrincipal_, setup, lumi.moduleCallingContext());
     }
   }
 

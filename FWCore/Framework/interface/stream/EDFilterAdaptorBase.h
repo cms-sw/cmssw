@@ -33,6 +33,9 @@
 // forward declarations
 
 namespace edm {
+
+  class ModuleCallingContext;
+
   namespace stream {
     class EDFilterBase;
     class EDFilterAdaptorBase : public ProducingModuleAdaptorBase<EDFilterBase>
@@ -59,7 +62,8 @@ namespace edm {
       const EDFilterAdaptorBase& operator=(const EDFilterAdaptorBase&) =delete; // stop default
       
       bool doEvent(EventPrincipal& ep, EventSetup const& c,
-                   CurrentProcessingContext const* cpcp) ;
+                   CurrentProcessingContext const* cpcp,
+                   ModuleCallingContext const*) ;
     };
   }
 }
