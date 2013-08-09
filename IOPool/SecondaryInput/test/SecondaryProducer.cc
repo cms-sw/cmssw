@@ -51,9 +51,7 @@ namespace edm {
         firstEvent_(true),
         firstLoop_(true),
         expectedEventNumber_(1) {
-    ParameterSet emptyPSet;
-    emptyPSet.registerIt();
-    processConfiguration_->setParameterSetID(emptyPSet.id());
+    processConfiguration_->setParameterSetID(ParameterSet::emptyParameterSetID());
     processConfiguration_->setProcessConfigurationID();
  
     productRegistry_->setFrozen();
