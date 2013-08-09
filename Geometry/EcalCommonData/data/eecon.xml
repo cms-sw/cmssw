@@ -1,0 +1,295 @@
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
+	<ConstantsSection label="eecon.xml" eval="true">
+		<Constant name="SCEnvLength" value="346.60*mm"/>
+		<Constant name="EESpaWidth" value="154*mm"/>
+		<Constant name="EESpaDepth" value=" 68.5*mm"/>
+		<Constant name="EESpAirWidth" value="102*mm"/>
+		<Constant name="EESpAirDepth" value=" 40*mm"/>
+		<Constant name="EESpHVDepth" value=" 16.0*mm"/>
+		<Constant name="EESpCaDepth" value="  8.0*mm"/>
+		<Constant name="EESpaXYOff" value="  1.8*mm"/>
+		<Constant name="EESpAirZOff" value="  3.0*mm"/>
+		<Constant name="EEIRECAL" value="200*mm"/>
+		<Constant name="EEIREREG" value="250*mm"/>
+		<Constant name="EEInnerAngle" value="5.9*deg"/>
+		<Constant name="EETanInnerAngle" value="tan([EEInnerAngle])"/>
+		<Constant name="EECosInnerAngle" value="cos([EEInnerAngle])"/>
+		<Constant name="EEOuterAngle" value="20.0*deg"/>
+		<Constant name="EETanOuterAngle" value="tan([EEOuterAngle])"/>
+		<Constant name="EECosOuterAngle" value="cos([EEOuterAngle])"/>
+		<Constant name="EEzMagF" value="-16*mm"/>
+		<!-- ESFrontZ controls the absolute position with no B field
+		     of all the ES and EE. All z's drive off this value      -->
+		<Constant name="ESFrontZ" value=" 2972.3*mm + 4.7*mm"/>
+		<Constant name="ESFrontToEEFrontinZ" value=" 199.7*mm + 0.3*mm"/>
+		<Constant name="ESFrontToESRingFrontinZ" value=" 101.7*mm"/>
+		<Constant name="EEFrontToNeckinZ" value=" 739.5*mm - 5.0*mm"/>
+		<Constant name="EEFrontToBackinZ" value=" 819.0*mm"/>
+		<Constant name="EEzFront" value="[ESFrontZ] + [ESFrontToEEFrontinZ]"/>
+		<Constant name="EEFarZ" value="[EEzFront] + [EEFrontToBackinZ]"/>
+		<Constant name="EEFarZC" value="[EEFarZ]  + [EEzMagF]"/>
+		<Constant name="EBRMin" value="1238.0*mm"/>
+		<Constant name="EBRMax" value="1775.0*mm"/>
+		<Constant name="EEBackPlateThick" value="  60*mm"/>
+		<Constant name="EEBackPlateOR" value="1715*mm"/>
+		<Constant name="EEBackPlateIR" value="353.8*mm"/>
+		<!-- Backplate pipe info -->
+		<Constant name="EEBPPIR" value="  4*mm"/>
+		<Constant name="EEBPPOR" value="  5*mm"/>
+		<Constant name="EEBPPLA" value="1250*mm"/>
+		<Constant name="EEBPPLB" value=" 490*mm"/>
+		<Constant name="EEBPPLC" value=" 160*mm"/>
+		<Constant name="EEdz" value=" 209.00*mm"/>
+		<Constant name="EErMin1" value=" 305.00*mm"/>
+		<Constant name="EErMin2" value=" 350.00*mm"/>
+		<Constant name="EErMax1" value="1561.90*mm"/>
+		<Constant name="EErMax2" value="1715.0*mm"/>
+		<Constant name="EEzOff" value="[EEzFront] + [EEdz]"/>
+		<Constant name="EEzBack" value="[EEzOff]   + [EEdz]"/>
+		<Constant name="EEzBackBack" value="[EEzBack]  + [EEBackPlateThick]"/>
+		<Constant name="EErNeck" value="1690.00*mm"/>
+		<Constant name="EEzNeck" value="[EEzFront] + [EEFrontToNeckinZ]"/>
+		<Constant name="EEzNeckC" value="[EEzNeck] + [EEzMagF]"/>
+		<!-- Preshower support cone -->
+		<Constant name="ESConeZ6" value=" 450.0*mm"/>
+		<Constant name="ESConeZ5" value=" 410.0*mm"/>
+		<Constant name="ESConeZ4" value=" 410.0*mm"/>
+		<!--
+		     <Constant name="ESConeZ4"   value=" 370.0*mm"/>
+		     -->
+		<Constant name="ESConeZ3" value="-434.0*mm"/>
+		<Constant name="ESConeZ2" value="-434.0*mm"/>
+		<Constant name="ESConeZ1" value="-450.0*mm"/>
+		<Constant name="ESConeI6" value=" 375.0*mm"/>
+		<Constant name="ESConeI5" value=" 371.0*mm"/>
+		<Constant name="ESConeI4" value=" 371.0*mm"/>
+		<!--
+		     <Constant name="ESConeI4"   value="[ESConeI3] +
+		     [EETanInnerAngle]*( [ESConeZ4] - [ESConeZ3] )"/>
+		     -->
+		<Constant name="ESConeI3" value=" 284.0*mm"/>
+		<Constant name="ESConeI2" value=" 260.0*mm"/>
+		<Constant name="ESConeI1" value=" 260.0*mm"/>
+		<!--
+		     <Constant name="ESConeO6"   value=" 450.0*mm"/>
+		     
+		     make cone not as big because it does not fit into inner moderator
+		     -->
+		<Constant name="ESConeO6" value="[EEIModI5]"/>
+		<Constant name="ESConeO5" value="[ESConeO6]"/>
+		<Constant name="ESConeO4" value=" 374.0*mm"/>
+		<!--
+		     <Constant name="ESConeO4"   value="[ESConeO3] +
+		     [EETanInnerAngle]*( [ESConeZ4] - [ESConeZ3] )"/>
+		     -->
+		<Constant name="ESConeO3" value=" 287.0*mm"/>
+		<Constant name="ESConeO2" value=" 306.0*mm"/>
+		<Constant name="ESConeO1" value=" 306.0*mm"/>
+		<Constant name="ESPlus" value=" 0.1*mm"/>
+		<Constant name="ESConeO6Plus" value="[ESConeO6] + [ESPlus]"/>
+		<Constant name="ESConeO5Plus" value="[ESConeO5] + [ESPlus]"/>
+		<Constant name="ESConeO4Plus" value="[ESConeO4] + [ESPlus]"/>
+		<Constant name="ESRingZFront" value="[ESFrontZ] + [ESFrontToESRingFrontinZ]"/>
+		<Constant name="ESRingZThick" value="  14*mm"/>
+		<Constant name="ESRingIR" value=" 288*mm"/>
+		<Constant name="ESRingOR" value=" 311*mm"/>
+		<Constant name="EEBConeZ" value="[EEFarZ] - [EEIModZA] + [EEIModZ5]"/>
+		<Constant name="EEBConeIR" value="[EEIModI5]"/>
+		<!-- Global size specifications -->
+		<Constant name="ENCAEnvZES" value="[ESRingZFront] + [ESRingZThick] + [ESConeZ2] - [ESConeZ1]"/>
+		<Constant name="ENCAEnvRNeck" value="[ESConeO3] + [EETanInnerAngle]*( [EEzNeck] - [ENCAEnvZES] ) + 5*mm"/>
+		<Constant name="ENCAEnvRBCone" value="[ESConeO3] + [EETanInnerAngle]*( [EEBConeZ] - [ENCAEnvZES] ) + 5*mm"/>
+		<Constant name="ENCAEnvRFront" value="[ESConeO3] + [EETanInnerAngle]*( [EEzFront] - [ENCAEnvZES] ) +5*mm"/>
+		<Constant name="ENCAEnvRBack" value="[ESConeO3] + [EETanInnerAngle]*( [EEzBack] - [ENCAEnvZES] ) + 5*mm"/>
+		<Constant name="ENCAEnvRFar" value="[ESConeO3] + [EETanInnerAngle]*( [EEFarZ] - [ENCAEnvZES] ) + 5*mm"/>
+		<Constant name="ECALEnvRFar" value="[ENCAEnvRFar] - 5.0*mm"/>
+		<Constant name="ECALEnvRNeck" value="[ESConeO3] + [EETanInnerAngle]*( [EEzNeck] - [ENCAEnvZES] ) - 5.0*mm"/>
+		<Constant name="EREGEnvRBack" value="[ENCAEnvRBack] - 5.0*mm"/>
+		<!-- Inner Moderator -->
+		<Constant name="EEIModDZ" value="151.5*mm"/>
+		<Constant name="EEIModNeckDZ" value="   20*mm"/>
+		<Constant name="EEIModBeltDZ" value="   20*mm"/>
+		<Constant name="EEIModZ1" value="-[EEIModDZ]"/>
+		<Constant name="EEIModZ2" value="[EEIModZ1] + 2*[EEFModDZ]"/>
+		<Constant name="EEIModZ3" value="[EEIModZ2]"/>
+		<Constant name="EEIModZ4" value=" 101.5*mm"/>
+		<Constant name="EEIModZ5" value="[EEIModZ4]"/>
+		<Constant name="EEIModZ6" value="[EEIModZ8] - [EEIModBeltDZ]"/>
+		<Constant name="EEIModZ7" value="[EEIModZ6]"/>
+		<Constant name="EEIModZ8" value="[EEIModZA] - [EEIModNeckDZ]"/>
+		<Constant name="EEIModZ9" value="[EEIModZ8]"/>
+		<Constant name="EEIModZA" value="[EEIModDZ]"/>
+		<Constant name="EEIModI1" value=" 365.0*mm"/>
+		<Constant name="EEIModI2" value="[EEIModI1] + [EETanInnerAngle]*( [EEIModZ2] - [EEIModZ1] )"/>
+		<Constant name="EEIModI3" value="[EEIModI2]"/>
+		<Constant name="EEIModI4" value="[EEIModI1] + [EETanInnerAngle]*( [EEIModZ4] - [EEIModZ1] )"/>
+		<Constant name="EEIModI5" value=" 436.15*mm"/>
+		<Constant name="EEIModI6" value="[EEIModI5]"/>
+		<Constant name="EEIModI7" value="[EEIModI5]"/>
+		<Constant name="EEIModI8" value="[EEIModI5]"/>
+		<Constant name="EEIModI9" value="[EEIModI5]"/>
+		<Constant name="EEIModIA" value="[EEIModI5]"/>
+		<Constant name="EEIModO1" value=" 420.0*mm"/>
+		<Constant name="EEIModO2" value="[EEIModO1]"/>
+		<Constant name="EEIModO3" value="[EEIModI3] + 70*mm*[EECosInnerAngle]"/>
+		<Constant name="EEIModO4" value="[EEIModO3] + [EETanInnerAngle]*( [EEIModZ4] - [EEIModZ3] )"/>
+		<Constant name="EEIModO5" value="[EEIModO4]"/>
+		<Constant name="EEIModO6" value="[EEIModO3] + [EETanInnerAngle]*( [EEIModZ6] - [EEIModZ3] )"/>
+		<Constant name="EEIModO7" value=" 495.0*mm"/>
+		<Constant name="EEIModO8" value="[EEIModO7]"/>
+		<Constant name="EEIModO9" value=" 460.0*mm"/>
+		<Constant name="EEIModOA" value="[EEIModO9]"/>
+		<Constant name="EEzMidIMod" value="[EEFarZ] - [EEIModDZ]"/>
+		<Constant name="EEzBackIMod" value="[EEzMidIMod] + [EEIModDZ]"/>
+		<Constant name="EEzFrontIMod" value="[EEzMidIMod] - [EEIModDZ]"/>
+		<!-- Rear Moderator -->
+		<Constant name="EERModOR" value="1655*mm"/>
+		<Constant name="EERModIR" value="[EEIModO9] + 2*mm"/>
+		<Constant name="EERMCPTh" value="   2*mm"/>
+		<Constant name="EERModTh" value="[EEIModNeckDZ] - [EERMCPTh]"/>
+		<!-- Front Moderator -->
+		<Constant name="EEFModIR" value="[EEIModO1]"/>
+		<Constant name="EEFModDZ" value=" 40*mm"/>
+		<Constant name="EEFModOR1" value="1300*mm"/>
+		<Constant name="EEFModOR2" value="1000*mm"/>
+		<Constant name="EEzFMod" value="[EEzFrontIMod] + [EEFModDZ]"/>
+		<Constant name="EEzBackFMod" value="[EEzFMod] + [EEFModDZ]"/>
+		<!-- Cables -->
+		<Constant name="EECableFdz" value=" 7*mm"/>
+		<Constant name="EECableRdz" value=" 3*mm"/>
+		<!-- Support Ring -->
+		<Constant name="EESRingZ1" value="[EEzBackBack] +  2*[EEBPPOR]"/>
+		<Constant name="EESRingZ2" value="[EESRingZ1] + 18.0*mm"/>
+		<Constant name="EESRingZ3" value="[EESRingZ2]"/>
+		<Constant name="EESRingZ4" value="[EEzNeck] - 40.0*mm - 5.0*mm"/>
+		<Constant name="EESRingZ5" value="[EESRingZ4]"/>
+		<Constant name="EESRingZ6" value="[EEzNeck]"/>
+		<Constant name="EESRingZ7" value="[EESRingZ6]"/>
+		<Constant name="EESRingZ8" value="[EEFarZ]"/>
+		<Constant name="EESRingIR" value="[EERModOR]"/>
+		<Constant name="EESRingOR1" value="[EEBackPlateOR]"/>
+		<Constant name="EESRingOR2" value="[EESRingOR1]"/>
+		<Constant name="EESRingOR3" value="[EESRingIR] + 10*mm"/>
+		<Constant name="EESRingOR4" value="[EESRingOR3]"/>
+		<Constant name="EESRingOR5" value="[EBRMax]"/>
+		<Constant name="EESRingOR6" value="[EESRingOR5]"/>
+		<Constant name="EESRingOR7" value="[EErNeck]"/>
+		<Constant name="EESRingOR8" value="[EESRingOR7]"/>
+		<!-- Front Environmental Screen -->
+		<Constant name="EEfEnvScrTh" value=" 2.0*mm"/>
+		<Constant name="EEiEnvScrTh" value=" 3.0*mm"/>
+		<Constant name="EEsEnvScrTh" value="25.0*mm"/>
+		<Constant name="EEsEnvScrInnTh" value=" 5.0*mm"/>
+		<Constant name="EEsEnvScrOutTh" value=" 2.0*mm"/>
+		<Constant name="EEiEnvScrRT" value="15.0*mm"/>
+		<Constant name="EEfEnvScrZ1" value="-[EEdz]                      "/>
+		<Constant name="EEfEnvScrZ2" value="[EEfEnvScrZ1] + [EEfEnvScrTh]"/>
+		<Constant name="EEfEnvScrZ3" value="[EEfEnvScrZ2]                "/>
+		<Constant name="EEfEnvScrZ4" value="[EEdz]                       "/>
+		<Constant name="EEfEnvScrOR1" value="[EErMax1]"/>
+		<Constant name="EEfEnvScrOR2" value="[EEfEnvScrOR1] + ( [EEfEnvScrZ2] - [EEfEnvScrZ1] )*[EETanOuterAngle]"/>
+		<Constant name="EEfEnvScrOR3" value="[EEfEnvScrOR2]"/>
+		<Constant name="EEfEnvScrOR4" value="[EErMax2]"/>
+		<Constant name="EEfEnvScrIR1" value="316*mm"/>
+		<Constant name="EEfEnvScrIR2" value="[EEfEnvScrIR1]"/>
+		<Constant name="EEfEnvScrIR3" value="[EEfEnvScrOR2] - [EEsEnvScrTh]/[EECosOuterAngle]"/>
+		<Constant name="EEfEnvScrIR4" value="[EEfEnvScrOR4] - [EEsEnvScrTh]/[EECosOuterAngle]"/>
+		<!-- Interior of Conical Environmental Screen -->
+		<Constant name="EEgEnvScrZ1" value="[EEfEnvScrZ1] + [EEiEnvScrRT]"/>
+		<Constant name="EEgEnvScrZ2" value="[EEfEnvScrZ4] - [EEiEnvScrRT]"/>
+		<Constant name="EEgEnvScrIR1" value="[EEfEnvScrIR4]-([EEfEnvScrZ4]-[EEgEnvScrZ1])*[EETanOuterAngle] + [EEsEnvScrInnTh]/[EECosOuterAngle]"/>
+		<Constant name="EEgEnvScrIR2" value="[EEfEnvScrIR4]-([EEfEnvScrZ4]-[EEgEnvScrZ2])*[EETanOuterAngle] + [EEsEnvScrInnTh]/[EECosOuterAngle]"/>
+		<Constant name="EEgEnvScrOR1" value="[EEfEnvScrOR4]-([EEfEnvScrZ4]-[EEgEnvScrZ1])*[EETanOuterAngle] - [EEsEnvScrOutTh]/[EECosOuterAngle]"/>
+		<Constant name="EEgEnvScrOR2" value="[EEfEnvScrOR4]-([EEfEnvScrZ4]-[EEgEnvScrZ2])*[EETanOuterAngle] - [EEsEnvScrOutTh]/[EECosOuterAngle]"/>
+		<!-- Inner Environmental Screen -->
+		<Constant name="EEiEnvScrZ1" value="[EEfEnvScrZ2]"/>
+		<Constant name="EEiEnvScrZ2" value="[EEiEnvScrZ1] + [EEiEnvScrRT]"/>
+		<Constant name="EEiEnvScrZ3" value="[EEiEnvScrZ1] + 112*mm"/>
+		<Constant name="EEiEnvScrZ4" value="[EEfEnvScrZ4] - [EEiEnvScrRT]"/>
+		<Constant name="EEiEnvScrZ5" value="[EEfEnvScrZ4]"/>
+		<Constant name="EEiEnvScrIR1" value="[EEfEnvScrIR2]"/>
+		<Constant name="EEiEnvScrIR2" value="[EEiEnvScrIR1]"/>
+		<Constant name="EEiEnvScrIR3" value="[EEiEnvScrIR2]"/>
+		<Constant name="EEiEnvScrIR4" value="[EEiEnvScrIR3] + ( [EEiEnvScrZ4] - [EEiEnvScrZ3] )*[EETanInnerAngle]"/>
+		<Constant name="EEiEnvScrIR5" value="[EEiEnvScrIR4] + ( [EEiEnvScrZ5] - [EEiEnvScrZ4] )*[EETanInnerAngle]"/>
+		<Constant name="EEiEnvScrOR1" value="[EEiEnvScrIR1] + [EEiEnvScrRT]"/>
+		<Constant name="EEiEnvScrOR2" value="[EEiEnvScrIR2] + [EEiEnvScrTh]"/>
+		<Constant name="EEiEnvScrOR3" value="[EEiEnvScrOR2]                "/>
+		<Constant name="EEiEnvScrOR4" value="[EEiEnvScrIR4] + [EEiEnvScrTh]"/>
+		<Constant name="EEiEnvScrOR5" value="[EEiEnvScrIR4] + [EEiEnvScrRT]"/>
+		<Constant name="EEDeeFrontIR" value="[EEiEnvScrIR5] - 0.3*mm - ( [EEiEnvScrZ5] - [EEiEnvScrZ1] - [EEfEnvScrTh] )*[EETanInnerAngle]"/>
+		<Constant name="EEFrontMidOR" value="[EEfEnvScrOR1] + ( [EEfEnvScrOR4] - [EEfEnvScrOR1] )*( [EEiEnvScrZ3] - [EEfEnvScrZ1] )/( [EEfEnvScrZ4] - [EEfEnvScrZ1] )"/>
+		<Constant name="EEFrontMidZ" value="[EEzFront] + ( [EEiEnvScrZ3] - [EEfEnvScrZ1] ) "/>
+		<!-- Slats for Support of Front Environmental Screen -->
+		<Constant name="EEhSlatThick" value=" 2.0*mm"/>
+		<Constant name="EEhSlatWidth" value="30.0*mm"/>
+		<Constant name="EESlatLength" value="[EEfEnvScrIR3] - [EEiEnvScrOR1] - 10*mm"/>
+		<Constant name="EEvSlatThick" value=" 3.0*mm"/>
+		<Constant name="EEvSlatWidth" value="40.0*mm"/>
+		<!-- Cooling Pipes for Front Environmental Screen -->
+		<Constant name="EEfCoolIR" value="5.0*mm"/>
+		<Constant name="EEfCoolOR" value="6.0*mm"/>
+		<Constant name="EEfCoolZOff" value="-[EEdz] + [EEfEnvScrTh] + [EEfCoolOR]"/>
+		<!-- Cooling blocks and associated piping -->
+		<Constant name="EECBHt" value=" 152*mm"/>
+		<Constant name="EECBWid" value=" 124*mm"/>
+		<Constant name="EECBLen" value=" 535*mm"/>
+		<Constant name="EECQIR" value="[EEIModO6]"/>
+		<Constant name="EECQOR" value="[EERModOR]"/>
+		<Constant name="EECBY1" value=" 25*mm + [EECBWid]/2"/>
+		<Constant name="EECBY2" value=" 30*mm + [EECBY1] + [EECBWid]"/>
+		<Constant name="EECBY3" value=" 30*mm + [EECBY2] + [EECBWid]"/>
+		<Constant name="EECBY4" value=" 30*mm + [EECBY3] + [EECBWid]"/>
+		<Constant name="EECBY5" value=" 30*mm + [EECBY4] + [EECBWid]"/>
+		<Constant name="EECBY6" value=" 18*mm + [EECBY5] + [EECBWid]/2 + [EECBLen]/2"/>
+		<Constant name="EECBY7" value="[EECBY1]"/>
+		<Constant name="EECBY8" value="[EECBY2]"/>
+		<Constant name="EECBY9" value="[EECBY3]"/>
+		<Constant name="EECBY10" value="[EECBY4]"/>
+		<Constant name="EECBY11" value="[EECBY5]"/>
+		<Constant name="EECBY12" value=" 35*mm + [EECBY11] + [EECBWid]"/>
+		<Constant name="EECBY13" value=" 35*mm + [EECBY12] + [EECBWid]"/>
+		<Constant name="EECBY14" value=" 35*mm + [EECBY13] + [EECBWid]"/>
+		<Constant name="EECBY15" value=" 35*mm + [EECBY14] + [EECBWid]"/>
+		<Constant name="EECBY16" value="-20*mm + [EECQIR] + [EECBLen]/2"/>
+		<Constant name="EECBY17" value=" 35*mm + [EECBY16] + [EECBLen]"/>
+		<Constant name="EECBY18" value=" 25*mm + [EECBY16]"/>
+		<Constant name="EECBY19" value=" 35*mm + [EECBY18] + [EECBLen]"/>
+		<Constant name="EECBX1" value="  37*mm + [EECQIR] + [EECBLen]*3/2"/>
+		<Constant name="EECBX2" value=" -35*mm + [EECBX1]"/>
+		<Constant name="EECBX3" value=" -18*mm + [EECBX2]"/>
+		<Constant name="EECBX4" value=" -75*mm + [EECBX3]"/>
+		<Constant name="EECBX5" value=" -20*mm + [EECBX4]"/>
+		<Constant name="EECBX6" value=" -17*mm + [EECBX5] - [EECBLen]/2 + [EECBWid]/2"/>
+		<Constant name="EECBX7" value=" -15*mm + [EECBX1] - [EECBLen]"/>
+		<Constant name="EECBX8" value=" -30*mm + [EECBX7]"/>
+		<Constant name="EECBX9" value=" -38*mm + [EECBX8]"/>
+		<Constant name="EECBX10" value="-138*mm + [EECQIR] + [EECBLen]/2"/>
+		<Constant name="EECBX11" value="[EECBX10]"/>
+		<Constant name="EECBX12" value="[EECBX10]"/>
+		<Constant name="EECBX13" value="[EECBX10]"/>
+		<Constant name="EECBX14" value="[EECBX10]"/>
+		<Constant name="EECBX15" value="[EECBX10]"/>
+		<Constant name="EECBX16" value="37*mm + [EECBWid]*3/2"/>
+		<Constant name="EECBX17" value="[EECBX16]"/>
+		<Constant name="EECBX18" value="5*mm + [EECBWid]/2"/>
+		<Constant name="EECBX19" value="[EECBX18]"/>
+		<Constant name="EECBXPIR" value="4*mm"/>
+		<Constant name="EECBXPOR" value="5*mm"/>
+		<Constant name="EECBzPip" value="[eecon:EECBHt]/2-13*mm"/>
+		<Constant name="EEzCoolQ" value="[EEzBackBack] + 121*mm + [EECBHt]/2. "/>
+	</ConstantsSection>
+	<RotationSection label="eecon.xml">
+		<Rotation name="EERotVFE" phiX=" 0.*deg" thetaX=" 0.*deg" phiY="  0.*deg" thetaY="90.*deg" phiZ="90.*deg" thetaZ="90.*deg"/>
+		<Rotation name="EERotZ90" phiX="90.*deg" thetaX="90.*deg" phiY="180.*deg" thetaY="90.*deg" phiZ=" 0.*deg" thetaZ=" 0.*deg"/>
+		<Rotation name="EEfCR420" phiX="-57*deg" thetaX=" 90*deg" phiY=" 33*deg" thetaY="110*deg" phiZ="33*deg" thetaZ=" 20*deg"/>
+		<Rotation name="EEfCRot45" phiX="  0.*deg" thetaX="180.*deg" phiY=" 45.*deg" thetaY="90.*deg" phiZ="-45.*deg" thetaZ="90.*deg"/>
+		<Rotation name="EEfCRotX" phiX="0.*deg" thetaX="90.*deg" phiY="0.*deg" thetaY="180.*deg" phiZ="90.*deg" thetaZ="90.*deg"/>
+		<Rotation name="EEfCRotY" phiX="0.*deg" thetaX="180.*deg" phiY="90.*deg" thetaY="90.*deg" phiZ="0.*deg" thetaZ="90.*deg"/>
+		<Rotation name="EEfCR100" phiX="0.*deg" thetaX="180.*deg" phiY="123.*deg" thetaY="90.*deg" phiZ="33.*deg" thetaZ="90.*deg"/>
+		<ReflectionRotation name="ReflectionY" phiY="270.*deg" thetaY="90.*deg" phiX=" 0.*deg" thetaX="90.*deg" phiZ="0.*deg" thetaZ="0.*deg"/>
+		<Rotation name="EEOScrR5A" phiX="0.*deg" thetaX=" 90.*deg" phiY=" 90.*deg" thetaY="110.*deg" phiZ="90.*deg" thetaZ=" 20.*deg"/>
+		<Rotation name="EEOScrR5B" phiX="0.*deg" thetaX="110.*deg" phiY=" 90.*deg" thetaY=" 90.*deg" phiZ=" 0.*deg" thetaZ=" 20.*deg"/>
+	</RotationSection>
+</DDDefinition>

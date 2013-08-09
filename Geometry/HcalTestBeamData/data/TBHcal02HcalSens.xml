@@ -1,0 +1,66 @@
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
+ <SpecParSection label="TBHcal02HcalSens.xml" eval="true">
+  <SpecPar name="hcal">
+   <PartSelector path="//HcalBarrelLayer1In1Scintillator"/>
+   <PartSelector path="//HcalBarrelLayer1In2Scintillator"/>
+   <PartSelector path="//HcalBarrelLayer2In1Scintillator"/>
+   <PartSelector path="//HcalBarrelLayer2In2Scintillator"/>
+   <PartSelector path="//HcalBarrelLayer3In1Scintillator"/>
+   <PartSelector path="//HcalBarrelLayer3In2Scintillator"/>
+   <PartSelector path="//HcalBarrelLayer4In1Scintillator"/>
+   <PartSelector path="//HcalBarrelLayer4In2Scintillator"/>
+   <PartSelector path="//HcalBarrelLayer5In1Scintillator"/>
+   <PartSelector path="//HcalBarrelLayer5In2Scintillator"/>
+   <PartSelector path="//HcalBarrelLayer6In1Scintillator"/>
+   <PartSelector path="//HcalBarrelLayer6In2Scintillator"/>
+   <PartSelector path="//HcalBarrelLayer7In1Scintillator"/>
+   <PartSelector path="//HcalBarrelLayer7In2Scintillator"/>
+   <PartSelector path="//HcalBarrelLayer8In1Scintillator"/>
+   <PartSelector path="//HcalBarrelLayer8In2Scintillator"/>
+   <PartSelector path="//HcalBarrelLayer9In1Scintillator"/>
+   <PartSelector path="//HcalBarrelLayer9In2Scintillator"/>
+   <PartSelector path="//HcalBarrelLayer10In1Scintillator"/>
+   <PartSelector path="//HcalBarrelLayer10In2Scintillator"/>
+   <PartSelector path="//HcalBarrelLayer11In1Scintillator"/>
+   <PartSelector path="//HcalBarrelLayer11In2Scintillator"/>
+   <PartSelector path="//HcalBarrelLayer12In1Scintillator"/>
+   <PartSelector path="//HcalBarrelLayer12In2Scintillator"/>
+   <PartSelector path="//HcalBarrelLayer13In1Scintillator"/>
+   <PartSelector path="//HcalBarrelLayer13In2Scintillator"/>
+   <PartSelector path="//HcalBarrelLayer14In1Scintillator"/>
+   <PartSelector path="//HcalBarrelLayer14In2Scintillator"/>
+   <PartSelector path="//HcalBarrelLayer15In1Scintillator"/>
+   <PartSelector path="//HcalBarrelLayer15In2Scintillator"/>
+   <PartSelector path="//HcalBarrelLayer16In1Scintillator"/>
+   <PartSelector path="//HcalBarrelLayer16In2Scintillator"/>
+   <PartSelector path="//HcalBarrelLayer17In2Scintillator"/>
+   <PartSelector path="//HadronOuterLayer0Sens0"/>
+   <PartSelector path="//HadronOuterLayer0Sens1"/>
+   <PartSelector path="//HadronOuterLayer0Sens2"/>
+   <PartSelector path="//HadronOuterLayer0Sens3"/>
+   <PartSelector path="//HadronOuterLayer0Sens4"/>
+   <PartSelector path="//HadronOuterLayer0Sens5"/>
+   <PartSelector path="//HadronOuterLayer1Sens0"/>
+   <PartSelector path="//HadronOuterLayer1Sens1"/>
+   <PartSelector path="//HadronOuterLayer1Sens2"/>
+   <PartSelector path="//HadronOuterLayer1Sens3"/>
+   <PartSelector path="//HadronOuterLayer1Sens4"/>
+   <PartSelector path="//HadronOuterLayer1Sens5"/>
+   <PartSelector path="//HadronOuterLayer2Sens0"/>
+   <PartSelector path="//HadronOuterLayer2Sens1"/>
+   <PartSelector path="//HadronOuterLayer2Sens2"/>
+   <PartSelector path="//HadronOuterLayer2Sens3"/>
+   <PartSelector path="//HadronOuterLayer2Sens4"/>
+   <PartSelector path="//HadronOuterLayer2Sens5"/>
+   <PartSelector path="//HadronOuterLayer3Sens0"/>
+   <PartSelector path="//HadronOuterLayer3Sens1"/>
+   <PartSelector path="//HadronOuterLayer3Sens2"/>
+   <PartSelector path="//HadronOuterLayer3Sens3"/>
+   <PartSelector path="//HadronOuterLayer3Sens4"/>
+   <PartSelector path="//HadronOuterLayer3Sens5"/>
+   <Parameter name="SensitiveDetector" value="HcalTB02SensitiveDetector" eval="false"/>
+   <Parameter name="ReadOutName" value="HcalHits" eval="false"/>
+  </SpecPar>
+ </SpecParSection>
+</DDDefinition>
