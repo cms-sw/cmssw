@@ -174,6 +174,9 @@ namespace {
 
 }
 
+namespace edm {
+  class ModuleCallingContext;
+}
 
 class DQMRootOutputModule : public edm::OutputModule {
 public:
@@ -182,9 +185,9 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
-  virtual void write(edm::EventPrincipal const& e) override;
-  virtual void writeLuminosityBlock(edm::LuminosityBlockPrincipal const&) override;
-  virtual void writeRun(edm::RunPrincipal const&) override;
+  virtual void write(edm::EventPrincipal const& e, edm::ModuleCallingContext const*) override;
+  virtual void writeLuminosityBlock(edm::LuminosityBlockPrincipal const&, edm::ModuleCallingContext const*) override;
+  virtual void writeRun(edm::RunPrincipal const&, edm::ModuleCallingContext const*) override;
   virtual bool isFileOpen() const override;
   virtual void openFile(edm::FileBlock const&) override;
   virtual void reallyCloseFile() override;
@@ -363,11 +366,11 @@ DQMRootOutputModule::openFile(edm::FileBlock const&)
 
 
 void 
-DQMRootOutputModule::write(edm::EventPrincipal const& ){
+DQMRootOutputModule::write(edm::EventPrincipal const&, edm::ModuleCallingContext const*){
   
 }
 void 
-DQMRootOutputModule::writeLuminosityBlock(edm::LuminosityBlockPrincipal const& iLumi) {
+DQMRootOutputModule::writeLuminosityBlock(edm::LuminosityBlockPrincipal const& iLumi, edm::ModuleCallingContext const*) {
   //std::cout << "DQMRootOutputModule::writeLuminosityBlock"<< std::endl;
   edm::Service<DQMStore> dstore;
   m_run=iLumi.id().run();
@@ -426,7 +429,7 @@ DQMRootOutputModule::writeLuminosityBlock(edm::LuminosityBlockPrincipal const& i
 }
 
 
-void DQMRootOutputModule::writeRun(edm::RunPrincipal const& iRun){
+void DQMRootOutputModule::writeRun(edm::RunPrincipal const& iRun, edm::ModuleCallingContext const*){
   //std::cout << "DQMRootOutputModule::writeRun"<< std::endl;
   edm::Service<DQMStore> dstore;
   m_run=iRun.id().run();

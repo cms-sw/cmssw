@@ -165,7 +165,8 @@ namespace edm
     
   } // end of addEMSignals
 
-  void DataMixingEMWorker::addEMPileups(const int bcr, const EventPrincipal *ep, unsigned int eventNr) {
+  void DataMixingEMWorker::addEMPileups(const int bcr, const EventPrincipal *ep, unsigned int eventNr,
+                                        ModuleCallingContext const* mcc) {
   
     LogInfo("DataMixingEMWorker") <<"\n===============> adding pileups from event  "<<ep->id()<<" for bunchcrossing "<<bcr;
 
@@ -174,7 +175,7 @@ namespace edm
     // EB first
 
     boost::shared_ptr<Wrapper<EBRecHitCollection>  const> EBRecHitsPTR =
-      getProductByTag<EBRecHitCollection>(*ep, EBPileRecHitInputTag_ );
+      getProductByTag<EBRecHitCollection>(*ep, EBPileRecHitInputTag_, mcc);
 
     if(EBRecHitsPTR ) {
 
@@ -199,7 +200,7 @@ namespace edm
     // EE Next
 
     boost::shared_ptr<Wrapper<EERecHitCollection>  const> EERecHitsPTR =
-      getProductByTag<EERecHitCollection>(*ep, EEPileRecHitInputTag_ );
+      getProductByTag<EERecHitCollection>(*ep, EEPileRecHitInputTag_, mcc);
 
     if(EERecHitsPTR ) {
 
@@ -224,7 +225,7 @@ namespace edm
     // ES Next
 
     boost::shared_ptr<Wrapper<ESRecHitCollection>  const> ESRecHitsPTR =
-      getProductByTag<ESRecHitCollection>(*ep, ESPileRecHitInputTag_ );
+      getProductByTag<ESRecHitCollection>(*ep, ESPileRecHitInputTag_, mcc);
 
     if(ESRecHitsPTR ) {
 

@@ -115,11 +115,12 @@ namespace edm
     }
 
     
-    void NamedEventSelector::fill(EventPrincipal const& e) {
+    void NamedEventSelector::fill(EventPrincipal const& e, ModuleCallingContext const* mcc) {
       edm::BasicHandle h = e.getByLabel(PRODUCT_TYPE,
                                         s_TrigResultsType,
                                         inputTag_,
-                                        nullptr);
+                                        nullptr,
+                                        mcc);
       convert_handle(h,product_);
     }
     
@@ -189,14 +190,14 @@ namespace edm
     }
 
     TriggerResultsBasedEventSelector::handle_t
-    TriggerResultsBasedEventSelector::getOneTriggerResults(EventPrincipal const& ev)
+    TriggerResultsBasedEventSelector::getOneTriggerResults(EventPrincipal const& ev, ModuleCallingContext const* mcc)
     {
-      fill(ev);
+      fill(ev, mcc);
       return returnOneHandleOrThrow();
     }
 
     bool
-    TriggerResultsBasedEventSelector::wantEvent(EventPrincipal const& ev)
+    TriggerResultsBasedEventSelector::wantEvent(EventPrincipal const& ev, ModuleCallingContext const* mcc)
     {
       // We have to get all the TriggerResults objects before we test
       // any for a match, because we have to deal with the possibility
@@ -206,7 +207,7 @@ namespace edm
       // configuration has been set to match all events, or the
       // configuration is set to use specific process names.
 
-      fill(ev);
+      fill(ev, mcc);
 
       // Now we go through and see if anyone matches...
       iter i = selectors_.begin();
@@ -245,7 +246,7 @@ namespace edm
     }
 
     TriggerResultsBasedEventSelector::size_type
-    TriggerResultsBasedEventSelector::fill(EventPrincipal const& ev)
+    TriggerResultsBasedEventSelector::fill(EventPrincipal const& ev, ModuleCallingContext const* mcc)
     {
       if (!fillDone_)
 	{
@@ -253,7 +254,7 @@ namespace edm
 	  for (iter i = selectors_.begin(), e = selectors_.end(); 
 	       i != e; ++i)
 	    {
-	      i->fill(ev);     // fill might throw...
+	      i->fill(ev, mcc);     // fill might throw...
 	      ++numberFound_ ; // so numberFound_ might be less than expected
 	    }
 	}

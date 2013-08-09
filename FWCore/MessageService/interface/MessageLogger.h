@@ -56,9 +56,9 @@ public:
   void  preSource  ();
   void  postSource ();
 
-  void  preFile       ();
+  void  preFile       ( std::string const &, bool );
   void  preFileClose  ( std::string const&, bool );
-  void  postFile      ();
+  void  postFile      ( std::string const &, bool );
 
   void  preModuleConstruction ( ModuleDescription const & );
   void  postModuleConstruction( ModuleDescription const & );

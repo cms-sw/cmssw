@@ -96,16 +96,16 @@ namespace edm {
   }
 
   void
-  WorkerManager::beginStream(StreamID iID) {
+  WorkerManager::beginStream(StreamID iID, StreamContext& streamContext) {
     for(auto& worker: allWorkers_) {
-      worker->beginStream(iID);
+      worker->beginStream(iID, streamContext);
     }
   }
 
   void
-  WorkerManager::endStream(StreamID iID) {
+  WorkerManager::endStream(StreamID iID, StreamContext& streamContext) {
     for(auto& worker: allWorkers_) {
-      worker->endStream(iID);
+      worker->endStream(iID, streamContext);
     }
   }
 

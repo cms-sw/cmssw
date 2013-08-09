@@ -40,12 +40,12 @@ namespace edm {
         RunWatcher& operator=(RunWatcher const&) = delete;
         
       private:
-        void doBeginRun_(RunPrincipal const& rp) override final;
-        void doEndRun_(RunPrincipal const& rp) override final;
+        void doBeginRun_(RunPrincipal const& rp, ModuleCallingContext const*) override final;
+        void doEndRun_(RunPrincipal const& rp, ModuleCallingContext const*) override final;
         
         
-        virtual void beginRun(edm::RunPrincipal const&) = 0;
-        virtual void endRun(edm::RunPrincipal const&) = 0;
+        virtual void beginRun(edm::RunPrincipal const&, ModuleCallingContext const*) = 0;
+        virtual void endRun(edm::RunPrincipal const&, ModuleCallingContext const*) = 0;
       };
       
       class LuminosityBlockWatcher : public virtual OutputModuleBase {
@@ -55,11 +55,11 @@ namespace edm {
         LuminosityBlockWatcher& operator=(LuminosityBlockWatcher const&) = delete;
         
       private:
-        void doBeginLuminosityBlock_(LuminosityBlockPrincipal const& lbp) override final;
-        void doEndLuminosityBlock_(LuminosityBlockPrincipal const& lbp) override final;
+        void doBeginLuminosityBlock_(LuminosityBlockPrincipal const& lbp, ModuleCallingContext const*) override final;
+        void doEndLuminosityBlock_(LuminosityBlockPrincipal const& lbp, ModuleCallingContext const*) override final;
         
-        virtual void beginLuminosityBlock(edm::LuminosityBlockPrincipal const&) = 0;
-        virtual void endLuminosityBlock(edm::LuminosityBlockPrincipal const&) = 0;
+        virtual void beginLuminosityBlock(edm::LuminosityBlockPrincipal const&, ModuleCallingContext const*) = 0;
+        virtual void endLuminosityBlock(edm::LuminosityBlockPrincipal const&, ModuleCallingContext const*) = 0;
       };
 
       class InputFileWatcher : public virtual OutputModuleBase {

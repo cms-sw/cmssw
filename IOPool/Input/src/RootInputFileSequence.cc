@@ -191,6 +191,7 @@ namespace edm {
     }
 
     lfn_ = fileIter_->logicalFileName().empty() ? fileIter_->fileName() : fileIter_->logicalFileName();
+    usedFallback_ = false;
 
     // Determine whether we have a fallback URL specified; if so, prepare it;
     // Only valid if it is non-empty and differs from the original filename.
@@ -200,7 +201,7 @@ namespace edm {
     boost::shared_ptr<InputFile> filePtr;
     try {
       std::unique_ptr<InputSource::FileOpenSentry>
-        sentry(inputType_ == InputType::Primary ? new InputSource::FileOpenSentry(input_) : 0);
+        sentry(inputType_ == InputType::Primary ? new InputSource::FileOpenSentry(input_, lfn_, usedFallback_) : 0);
       filePtr.reset(new InputFile(gSystem->ExpandPathName(fileIter_->fileName().c_str()), "  Initiating request to open file "));
     }
     catch (cms::Exception const& e) {
@@ -223,10 +224,10 @@ namespace edm {
     }
     if(!filePtr && (hasFallbackUrl)) {
       try {
-        std::unique_ptr<InputSource::FileOpenSentry>
-          sentry(inputType_ == InputType::Primary ? new InputSource::FileOpenSentry(input_) : 0);
-        filePtr.reset(new InputFile(gSystem->ExpandPathName(fallbackName.c_str()), "  Fallback request to file "));
         usedFallback_ = true;
+        std::unique_ptr<InputSource::FileOpenSentry>
+          sentry(inputType_ == InputType::Primary ? new InputSource::FileOpenSentry(input_, lfn_, usedFallback_) : 0);
+        filePtr.reset(new InputFile(gSystem->ExpandPathName(fallbackName.c_str()), "  Fallback request to file "));
       }
       catch (cms::Exception const& e) {
         if(!skipBadFiles) {

@@ -19,6 +19,7 @@
 #include "FWCore/Framework/interface/HistoryAppender.h"
 #include "FWCore/Utilities/interface/GlobalIdentifier.h"
 #include "FWCore/Framework/interface/TriggerNamesService.h"
+#include "FWCore/ServiceRegistry/interface/ParentContext.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/ServiceRegistry/interface/ServiceRegistry.h"
 #include "FWCore/Framework/interface/FileBlock.h"
@@ -27,6 +28,10 @@
 #include "FWCore/Utilities/interface/Exception.h"
 
 #include <cppunit/extensions/HelperMacros.h>
+
+namespace edm {
+  class ModuleCallingContext;
+}
 
 class testOneOutputModule: public CppUnit::TestFixture 
 {
@@ -95,13 +100,13 @@ private:
     BasicOutputModule(edm::ParameterSet const& iPSet): edm::one::OutputModuleBase(iPSet),edm::one::OutputModule<>(iPSet){}
     unsigned int m_count = 0;
     
-    void write(edm::EventPrincipal const&) override {
+    void write(edm::EventPrincipal const&, edm::ModuleCallingContext const*) override {
       ++m_count;
     }
-    void writeRun(edm::RunPrincipal const&) override {
+    void writeRun(edm::RunPrincipal const&, edm::ModuleCallingContext const*) override {
       ++m_count;
     }
-    void writeLuminosityBlock(edm::LuminosityBlockPrincipal const&) override {
+    void writeLuminosityBlock(edm::LuminosityBlockPrincipal const&, edm::ModuleCallingContext const*) override {
       ++m_count;
     }
 
@@ -111,21 +116,21 @@ private:
   public:
     RunOutputModule(edm::ParameterSet const& iPSet) : edm::one::OutputModuleBase(iPSet), edm::one::OutputModule<edm::one::WatchRuns>(iPSet) {}
     unsigned int m_count = 0;
-    void write(edm::EventPrincipal const&) override {
+    void write(edm::EventPrincipal const&, edm::ModuleCallingContext const*) override {
       ++m_count;
     }
-    void writeRun(edm::RunPrincipal const&) override {
+    void writeRun(edm::RunPrincipal const&, edm::ModuleCallingContext const*) override {
       ++m_count;
     }
-    void writeLuminosityBlock(edm::LuminosityBlockPrincipal const&) override {
+    void writeLuminosityBlock(edm::LuminosityBlockPrincipal const&, edm::ModuleCallingContext const*) override {
       ++m_count;
     }
     
-    void beginRun(edm::RunPrincipal const&)  override {
+    void beginRun(edm::RunPrincipal const&, edm::ModuleCallingContext const*)  override {
       ++m_count;
     }
 
-    void endRun(edm::RunPrincipal const&)  override {
+    void endRun(edm::RunPrincipal const&, edm::ModuleCallingContext const*)  override {
       ++m_count;
     }
   };
@@ -135,22 +140,22 @@ private:
   public:
     LumiOutputModule(edm::ParameterSet const& iPSet) : edm::one::OutputModuleBase(iPSet), edm::one::OutputModule<edm::one::WatchLuminosityBlocks>(iPSet) {}
     unsigned int m_count = 0;
-    void write(edm::EventPrincipal const&) override {
+    void write(edm::EventPrincipal const&, edm::ModuleCallingContext const*) override {
       ++m_count;
     }
-    void writeRun(edm::RunPrincipal const&) override {
+    void writeRun(edm::RunPrincipal const&, edm::ModuleCallingContext const*) override {
       ++m_count;
     }
-    void writeLuminosityBlock(edm::LuminosityBlockPrincipal const&) override {
-      ++m_count;
-    }
-    
-    
-    void beginLuminosityBlock(edm::LuminosityBlockPrincipal const&)  override {
+    void writeLuminosityBlock(edm::LuminosityBlockPrincipal const&, edm::ModuleCallingContext const*) override {
       ++m_count;
     }
     
-    void endLuminosityBlock(edm::LuminosityBlockPrincipal const&) override {
+    
+    void beginLuminosityBlock(edm::LuminosityBlockPrincipal const&, edm::ModuleCallingContext const*)  override {
+      ++m_count;
+    }
+    
+    void endLuminosityBlock(edm::LuminosityBlockPrincipal const&, edm::ModuleCallingContext const*) override {
       ++m_count;
     }
   };
@@ -158,13 +163,13 @@ private:
   public:
     FileOutputModule(edm::ParameterSet const& iPSet) : edm::one::OutputModuleBase(iPSet), edm::one::OutputModule<edm::WatchInputFiles>(iPSet) {}
     unsigned int m_count = 0;
-    void write(edm::EventPrincipal const&) override {
+    void write(edm::EventPrincipal const&, edm::ModuleCallingContext const*) override {
       ++m_count;
     }
-    void writeRun(edm::RunPrincipal const&) override {
+    void writeRun(edm::RunPrincipal const&, edm::ModuleCallingContext const*) override {
       ++m_count;
     }
-    void writeLuminosityBlock(edm::LuminosityBlockPrincipal const&) override {
+    void writeLuminosityBlock(edm::LuminosityBlockPrincipal const&, edm::ModuleCallingContext const*) override {
       ++m_count;
     }
     
@@ -184,13 +189,13 @@ private:
     }
     unsigned int m_count = 0;
     
-    void write(edm::EventPrincipal const&) override {
+    void write(edm::EventPrincipal const&, edm::ModuleCallingContext const*) override {
       ++m_count;
     }
-    void writeRun(edm::RunPrincipal const&) override {
+    void writeRun(edm::RunPrincipal const&, edm::ModuleCallingContext const*) override {
       ++m_count;
     }
-    void writeLuminosityBlock(edm::LuminosityBlockPrincipal const&) override {
+    void writeLuminosityBlock(edm::LuminosityBlockPrincipal const&, edm::ModuleCallingContext const*) override {
       ++m_count;
     }
     
@@ -232,32 +237,35 @@ m_ep()
     edm::FileBlock fb;
     iBase->respondToOpenInputFile(fb);
   };
-  m_transToFunc[Trans::kGlobalBeginRun] = [this](edm::Worker* iBase) {
-    typedef edm::OccurrenceTraits<edm::RunPrincipal, edm::BranchActionGlobalBegin> Traits;
-    iBase->doWork<Traits>(*m_rp,*m_es,m_context,m_timer, edm::StreamID::invalidStreamID()); };
-  
-  m_transToFunc[Trans::kGlobalBeginLuminosityBlock] = [this](edm::Worker* iBase) {
-    typedef edm::OccurrenceTraits<edm::LuminosityBlockPrincipal, edm::BranchActionGlobalBegin> Traits;
-    iBase->doWork<Traits>(*m_lbp,*m_es,m_context,m_timer, edm::StreamID::invalidStreamID()); };
-  
-  m_transToFunc[Trans::kEvent] = [this](edm::Worker* iBase) {
-    typedef edm::OccurrenceTraits<edm::EventPrincipal, edm::BranchActionStreamBegin> Traits;
-    iBase->doWork<Traits>(*m_ep,*m_es,m_context,m_timer, edm::StreamID::invalidStreamID()); };
 
-  m_transToFunc[Trans::kGlobalEndLuminosityBlock] = [this](edm::Worker* iBase) {
+  edm::ParentContext parentContext;
+
+  m_transToFunc[Trans::kGlobalBeginRun] = [this, &parentContext](edm::Worker* iBase) {
+    typedef edm::OccurrenceTraits<edm::RunPrincipal, edm::BranchActionGlobalBegin> Traits;
+    iBase->doWork<Traits>(*m_rp,*m_es,m_context,m_timer, edm::StreamID::invalidStreamID(), parentContext, nullptr); };
+  
+  m_transToFunc[Trans::kGlobalBeginLuminosityBlock] = [this, &parentContext](edm::Worker* iBase) {
+    typedef edm::OccurrenceTraits<edm::LuminosityBlockPrincipal, edm::BranchActionGlobalBegin> Traits;
+    iBase->doWork<Traits>(*m_lbp,*m_es,m_context,m_timer, edm::StreamID::invalidStreamID(), parentContext, nullptr); };
+  
+  m_transToFunc[Trans::kEvent] = [this, &parentContext](edm::Worker* iBase) {
+    typedef edm::OccurrenceTraits<edm::EventPrincipal, edm::BranchActionStreamBegin> Traits;
+    iBase->doWork<Traits>(*m_ep,*m_es,m_context,m_timer, edm::StreamID::invalidStreamID(), parentContext, nullptr); };
+
+  m_transToFunc[Trans::kGlobalEndLuminosityBlock] = [this, &parentContext](edm::Worker* iBase) {
     typedef edm::OccurrenceTraits<edm::LuminosityBlockPrincipal, edm::BranchActionGlobalEnd> Traits;
-    iBase->doWork<Traits>(*m_lbp,*m_es,m_context,m_timer, edm::StreamID::invalidStreamID());
+    iBase->doWork<Traits>(*m_lbp,*m_es,m_context,m_timer, edm::StreamID::invalidStreamID(), parentContext, nullptr);
     auto b =iBase->createOutputModuleCommunicator();
     CPPUNIT_ASSERT(b.get());
-    b->writeLumi(*m_lbp);
+    b->writeLumi(*m_lbp, nullptr);
   };
 
-  m_transToFunc[Trans::kGlobalEndRun] = [this](edm::Worker* iBase) {
+  m_transToFunc[Trans::kGlobalEndRun] = [this, &parentContext](edm::Worker* iBase) {
     typedef edm::OccurrenceTraits<edm::RunPrincipal, edm::BranchActionGlobalEnd> Traits;
-    iBase->doWork<Traits>(*m_rp,*m_es,m_context,m_timer, edm::StreamID::invalidStreamID());
+    iBase->doWork<Traits>(*m_rp,*m_es,m_context,m_timer, edm::StreamID::invalidStreamID(), parentContext, nullptr);
     auto b = iBase->createOutputModuleCommunicator();
     CPPUNIT_ASSERT(b.get());
-    b->writeRun(*m_rp);
+    b->writeRun(*m_rp, nullptr);
   };
   
   m_transToFunc[Trans::kGlobalCloseInputFile] = [this](edm::Worker* iBase) {

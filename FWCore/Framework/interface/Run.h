@@ -32,6 +32,7 @@ For its usage, see "FWCore/Framework/interface/PrincipalGetAdapter.h"
 #include <vector>
 
 namespace edm {
+  class ModuleCallingContext;
   class ProducerBase;
   namespace stream {
     template< typename T> class ProducingModuleAdaptorBase;
@@ -39,7 +40,8 @@ namespace edm {
 
   class Run : public RunBase {
   public:
-    Run(RunPrincipal& rp, ModuleDescription const& md);
+    Run(RunPrincipal& rp, ModuleDescription const& md,
+        ModuleCallingContext const*);
     ~Run();
 
     //Used in conjunction with EDGetToken
@@ -119,6 +121,8 @@ namespace edm {
     ProcessHistory const&
     processHistory() const;
 
+    ModuleCallingContext const* moduleCallingContext() const { return moduleCallingContext_; }
+
   private:
     RunPrincipal const&
     runPrincipal() const;
@@ -151,6 +155,7 @@ namespace edm {
     RunAuxiliary const& aux_;
     typedef std::set<BranchID> BranchIDSet;
     mutable BranchIDSet gotBranchIDs_;
+    ModuleCallingContext const* moduleCallingContext_;
 
     static const std::string emptyString_;
   };
@@ -195,7 +200,7 @@ namespace edm {
       principal_get_adapter_detail::throwOnPrematureRead("Run", TypeID(typeid(PROD)), label, productInstanceName);
     }
     result.clear();
-    BasicHandle bh = provRecorder_.getByLabel_(TypeID(typeid(PROD)), label, productInstanceName, emptyString_);
+    BasicHandle bh = provRecorder_.getByLabel_(TypeID(typeid(PROD)), label, productInstanceName, emptyString_, moduleCallingContext_);
     convert_handle(bh, result);  // throws on conversion error
     if (bh.failedToGet()) {
       return false;
@@ -211,7 +216,7 @@ namespace edm {
       principal_get_adapter_detail::throwOnPrematureRead("Run", TypeID(typeid(PROD)), tag.label(), tag.instance());
     }
     result.clear();
-    BasicHandle bh = provRecorder_.getByLabel_(TypeID(typeid(PROD)), tag);
+    BasicHandle bh = provRecorder_.getByLabel_(TypeID(typeid(PROD)), tag, moduleCallingContext_);
     convert_handle(bh, result);  // throws on conversion error
     if (bh.failedToGet()) {
       return false;
@@ -226,7 +231,7 @@ namespace edm {
       principal_get_adapter_detail::throwOnPrematureRead("Run", TypeID(typeid(PROD)), token);
     }
     result.clear();
-    BasicHandle bh = provRecorder_.getByToken_(TypeID(typeid(PROD)),PRODUCT_TYPE, token);
+    BasicHandle bh = provRecorder_.getByToken_(TypeID(typeid(PROD)),PRODUCT_TYPE, token, moduleCallingContext_);
     convert_handle(bh, result);  // throws on conversion error
     if (bh.failedToGet()) {
       return false;
@@ -241,7 +246,7 @@ namespace edm {
       principal_get_adapter_detail::throwOnPrematureRead("Run", TypeID(typeid(PROD)), token);
     }
     result.clear();
-    BasicHandle bh = provRecorder_.getByToken_(TypeID(typeid(PROD)),PRODUCT_TYPE, token);
+    BasicHandle bh = provRecorder_.getByToken_(TypeID(typeid(PROD)),PRODUCT_TYPE, token, moduleCallingContext_);
     convert_handle(bh, result);  // throws on conversion error
     if (bh.failedToGet()) {
       return false;
@@ -255,7 +260,7 @@ namespace edm {
     if(!provRecorder_.checkIfComplete<PROD>()) {
       principal_get_adapter_detail::throwOnPrematureRead("Run", TypeID(typeid(PROD)));
     }
-    return provRecorder_.getManyByType(results);
+    return provRecorder_.getManyByType(results, moduleCallingContext_);
   }
 
 }

@@ -7,9 +7,11 @@ namespace edm {
 
   std::string const Run::emptyString_;
 
-  Run::Run(RunPrincipal& rp, ModuleDescription const& md) :
+  Run::Run(RunPrincipal& rp, ModuleDescription const& md,
+           ModuleCallingContext const* moduleCallingContext) :
         provRecorder_(rp, md),
-        aux_(rp.aux()) {
+        aux_(rp.aux()),
+        moduleCallingContext_(moduleCallingContext)  {
   }
 
   Run::~Run() {
@@ -32,7 +34,7 @@ namespace edm {
 
   Provenance
   Run::getProvenance(BranchID const& bid) const {
-    return runPrincipal().getProvenance(bid);
+    return runPrincipal().getProvenance(bid, moduleCallingContext_);
   }
 
   void
@@ -111,7 +113,7 @@ namespace edm {
 
   BasicHandle
   Run::getByLabelImpl(std::type_info const&, std::type_info const& iProductType, const InputTag& iTag) const {
-    BasicHandle h = provRecorder_.getByLabel_(TypeID(iProductType), iTag);
+    BasicHandle h = provRecorder_.getByLabel_(TypeID(iProductType), iTag, moduleCallingContext_);
     if(h.isValid()) {
       addToGotBranchIDs(*(h.provenance()));
     }

@@ -31,6 +31,8 @@
 
 namespace edm
 {
+  class ModuleCallingContext;
+
   class DataMixingPileupCopy
     {
     public:
@@ -44,7 +46,8 @@ namespace edm
       virtual ~DataMixingPileupCopy();
 
       void putPileupInfo(edm::Event &e) ;
-      void addPileupInfo(const edm::EventPrincipal*,unsigned int EventId);
+      void addPileupInfo(const edm::EventPrincipal*,unsigned int EventId,
+                         ModuleCallingContext const* mcc);
 
 
     private:

@@ -35,6 +35,7 @@ namespace edm {
   class EventID;
   class HistoryAppender;
   class LuminosityBlockPrincipal;
+  class ModuleCallingContext;
   class RunPrincipal;
   class UnscheduledHandler;
 
@@ -131,7 +132,7 @@ namespace edm {
     BranchListIndexes const& branchListIndexes() const;
 
     Provenance
-    getProvenance(ProductID const& pid) const;
+    getProvenance(ProductID const& pid, ModuleCallingContext const* mcc) const;
 
     BasicHandle
     getByProductID(ProductID const& oid) const;
@@ -160,9 +161,12 @@ namespace edm {
 
     BranchID pidToBid(ProductID const& pid) const;
 
-    virtual bool unscheduledFill(std::string const& moduleLabel) const override;
+    virtual bool unscheduledFill(std::string const& moduleLabel,
+                                 ModuleCallingContext const* mcc) const override;
 
-    virtual void resolveProduct_(ProductHolderBase const& phb, bool fillOnDemand) const override;
+    virtual void resolveProduct_(ProductHolderBase const& phb,
+                                 bool fillOnDemand,
+                                 ModuleCallingContext const* mcc) const override;
 
   private:
 

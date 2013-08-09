@@ -44,7 +44,8 @@ namespace edm
   }  
 
 
-  void DataMixingPileupCopy::addPileupInfo(const EventPrincipal *ep, unsigned int eventNr) {
+  void DataMixingPileupCopy::addPileupInfo(const EventPrincipal *ep, unsigned int eventNr,
+                                           ModuleCallingContext const* mcc) {
   
     LogDebug("DataMixingPileupCopy") <<"\n===============> adding pileup Info from event  "<<ep->id();
 
@@ -53,7 +54,7 @@ namespace edm
     // Pileup info first
 
     boost::shared_ptr<Wrapper< std::vector<PileupSummaryInfo> >  const> PileupInfoPTR =
-      getProductByTag<std::vector<PileupSummaryInfo>>(*ep,PileupInfoInputTag_ );
+      getProductByTag<std::vector<PileupSummaryInfo>>(*ep,PileupInfoInputTag_, mcc);
 
     if(PileupInfoPTR ) {
 
@@ -66,7 +67,7 @@ namespace edm
     // Playback
 
     boost::shared_ptr<Wrapper<CrossingFramePlaybackInfoExtended>  const> PlaybackPTR =
-      getProductByTag<CrossingFramePlaybackInfoExtended>(*ep,CFPlaybackInputTag_ );
+      getProductByTag<CrossingFramePlaybackInfoExtended>(*ep,CFPlaybackInputTag_, mcc);
 
     if(PlaybackPTR ) {
 
