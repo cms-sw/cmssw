@@ -100,6 +100,13 @@ namespace edm {
     pset::Registry::instance()->insertMapped(ps);
   }
 
+  ParameterSetID
+  ParameterSet::emptyParameterSetID() {  // const
+    cms::Digest newDigest;
+    ParameterSet().toDigest(newDigest);
+    return ParameterSetID(newDigest.digest().toString());
+  }
+
   ParameterSet::ParameterSet(ParameterSet const& other)
   : tbl_(other.tbl_),
     psetTable_(other.psetTable_),
