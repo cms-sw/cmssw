@@ -40,7 +40,7 @@ def plotGEMCSCdPhi(filesDir, plotDir, oddEven = "even", ext = ".png"):
     dphi_pt5 = TH1F("dphi_pt5","",600,0.0,0.03);
     dphi_pt20 = TH1F("dphi_pt20","",600,0.0,0.03);
     
-    c = TCanvas("cDphi","cDphi",700,450);
+    c = TCanvas("c","c",700,450);
     c.Clear()
     c.SetGridx(1)
     c.SetGridy(1)
@@ -84,22 +84,45 @@ def plotGEMCSCdPhi(filesDir, plotDir, oddEven = "even", ext = ".png"):
 
     dphi_pt20.GetXaxis().SetTitle("#Delta#Phi(GEM,CSC) [rad]");
     dphi_pt20.GetYaxis().SetTitle("A.U.");
-    dphi_pt20.SetTitle("        GEM-CSC Bending Angle                                  CMS Simulation");
+    dphi_pt20.SetTitle("           GEM-CSC Bending Angle                                           CMS Simulation");
 
     dphi_pt20.Draw();
     dphi_pt5.Draw("same");
 
-    legend = TLegend(.4,.45,.7,.7);
+    legend = TLegend(.4,.45,.7,.6);
     legend.SetFillColor(kWhite);
     legend.SetFillStyle(0);
     legend.SetBorderSize(0);
     legend.SetTextSize(0.06);
     legend.SetMargin(0.13);
-    legend.AddEntry(0,"1.64<|#eta|<2.14:","");
+    ##    legend.AddEntry(0,"1.64<|#eta|<2.14:","");
     legend.AddEntry(dphi_pt5,"muon p_{T} = 5 GeV/c","L");
     legend.AddEntry(dphi_pt20,"muon p_{T} = 20 GeV/c","L");
     legend.Draw("same");
 
+    ## Adding additional information - top right
+    tex2 = TLatex(.75,.87,'   L1 Trigger')
+    tex2.SetTextSize(0.05)
+    tex2.SetNDC()
+    tex2.Draw("same")
+
+    tex3 = TLatex(.74,.80,'1.64<|#eta|<2.14')
+    tex3.SetTextSize(0.05)
+    tex3.SetNDC()
+    tex3.Draw("same")
+
+    ## hardcore nitpicking over here!
+    if closeFar == "Close":
+        xpos = 0.61
+    else:
+        xpos = 0.64
+
+    tex = TLatex(xpos,.74,'"%s" chamber pairs'%(closeFar))
+    tex.Draw("same")
+    tex.SetTextSize(0.05)
+    tex.SetNDC()
+
+    """
     tex = TLatex(.55,.85,'"%s" chamber pairs'%(closeFar))
     tex.SetTextSize(0.06)
     tex.SetNDC()
@@ -109,7 +132,7 @@ def plotGEMCSCdPhi(filesDir, plotDir, oddEven = "even", ext = ".png"):
     tex2.SetTextSize(0.06)
     tex2.SetNDC()
     tex2.Draw("same")
-
+    """
     c.SaveAs("%sGEMCSCdPhi_%s_chambers%s"%(plotDir, oddEven, ext))
 
 if __name__ == "__main__":  

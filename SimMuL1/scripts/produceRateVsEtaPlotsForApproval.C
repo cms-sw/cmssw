@@ -8,10 +8,10 @@ int gNEvt=238000;
 //int gNEvt=128000;
 float gdy[2]={0.1,2500};
 
-TLatex* drawLumiLabel2(float x=0.17, float y=0.35)
+TLatex* drawLumiLabel2(float x=0.2, float y=0.35)
 {
   TLatex *  tex = new TLatex(x, y,"L = 4*10^{34} cm^{-2} s^{-1}");
-  tex->SetTextSize(0.04);
+  tex->SetTextSize(0.05);
   tex->SetNDC();
   tex->Draw();
   return tex;
@@ -113,7 +113,7 @@ TH1D* setHistoRatio(TH1D* num, TH1D* denom, TString title = "", double ymin=0.4,
   ratio->GetYaxis()->SetLabelSize(.11);
 
   //ratio->GetXaxis()->SetMoreLogLabels(1);
-  ratio->GetXaxis()->SetTitle("track #eta");
+  //  ratio->GetXaxis()->SetTitle("track #eta");
   ratio->GetXaxis()->SetLabelSize(.11);
   ratio->GetXaxis()->SetTitleSize(.14);
   ratio->GetXaxis()->SetTitleOffset(1.); 
@@ -591,12 +591,12 @@ void produceRateVsEtaPlotsForApproval()
 
   // colors - same colors as for rate vs eta plots!!
   Color_t col1 = kViolet+1;
-  Color_t col2 = kAzure+1;
+  Color_t col2 = kAzure+2;
   Color_t col3 = kGreen-2;
 
   // Declaration of histograms
   TString vs_eta_minpt = "10";
-  TString ttl = "         L1 trigger rates versus track #eta        CMS Simulation;;rate/bin [kHz]";
+  TString ttl = "        L1 Single Muon Trigger                   CMS Simulation;L1 muon candidate #eta;rate/bin [kHz]";
   TH1D* h_rt_tf10_2s   = setHistoEta(f_def, "h_rt_gmt_csc_ptmax" + vs_eta_minpt + "_eta_2s", "_hAll100", ttl, col1, 1, 2);
   TH1D* h_rt_tf10_2s1b   = setHistoEta(f_def, "h_rt_gmt_csc_ptmax" + vs_eta_minpt + "_eta_2s_2s1b", "_hAll100", ttl, col2, 1, 2);
   TH1D* h_rt_tf10_gpt10_2s1b   = setHistoEta(f_g98_pt10, "h_rt_gmt_csc_ptmax" + vs_eta_minpt + "_eta_2s_2s1b", "_hAll100", ttl, col3, 1, 2);
@@ -606,7 +606,6 @@ void produceRateVsEtaPlotsForApproval()
   
   /*
   TString vs_eta_minpt = "15";
-  TString ttl = "CSC L1 trigger rates for p_{T}^{TF}>" + vs_eta_minpt + " GeV/c;;rate/bin [kHz]";
   TH1D* h_rt_tf15_2s   = setHistoEta(f_def, "h_rt_gmt_csc_ptmax" + vs_eta_minpt + "_eta_2s", "_hAll100", ttl, col1, 1, 2);
   TH1D* h_rt_tf15_2s1b   = setHistoEta(f_def, "h_rt_gmt_csc_ptmax" + vs_eta_minpt + "_eta_2s_2s1b", "_hAll100", ttl, col2, 1, 2);
   TH1D* h_rt_tf15_gpt15_2s1b   = setHistoEta(f_g98_pt15, "h_rt_gmt_csc_ptmax" + vs_eta_minpt + "_eta_2s_2s1b", "_hAll100", ttl, col3, 1, 2);
@@ -616,7 +615,6 @@ void produceRateVsEtaPlotsForApproval()
   */
 
   TString vs_eta_minpt = "20";
-  TString ttl = "         L1 trigger rates versus track #eta        CMS Simulation;;rate/bin [kHz]";
   TH1D* h_rt_tf20_2s   = setHistoEta(f_def, "h_rt_gmt_csc_ptmax" + vs_eta_minpt + "_eta_2s", "_hAll100", ttl, col1, 1, 2);
   TH1D* h_rt_tf20_2s1b   = setHistoEta(f_def, "h_rt_gmt_csc_ptmax" + vs_eta_minpt + "_eta_2s_2s1b", "_hAll100", ttl, col2, 1, 2);
   TH1D* h_rt_tf20_gpt20_2s1b   = setHistoEta(f_g98_pt20, "h_rt_gmt_csc_ptmax" + vs_eta_minpt + "_eta_2s_2s1b", "_hAll100", ttl, col3, 1, 2);
@@ -625,7 +623,6 @@ void produceRateVsEtaPlotsForApproval()
   TH1D* h_rt_tf20_gpt20_3s1b   = setHistoEta(f_g98_pt20, "h_rt_gmt_csc_ptmax" + vs_eta_minpt + "_eta_3s_3s1b", "_hAll100", ttl, col3, 1, 2);
 
   TString vs_eta_minpt = "30";
-  TString ttl = "         L1 trigger rates versus track #eta        CMS Simulation;;rate/bin [kHz]";
   TH1D* h_rt_tf30_2s   = setHistoEta(f_def, "h_rt_gmt_csc_ptmax" + vs_eta_minpt + "_eta_2s", "_hAll100", ttl, col1, 1, 2);
   TH1D* h_rt_tf30_2s1b   = setHistoEta(f_def, "h_rt_gmt_csc_ptmax" + vs_eta_minpt + "_eta_2s_2s1b", "_hAll100", ttl, col2, 1, 2);
   TH1D* h_rt_tf30_gpt30_2s1b   = setHistoEta(f_g98_pt30, "h_rt_gmt_csc_ptmax" + vs_eta_minpt + "_eta_2s_2s1b", "_hAll100", ttl, col3, 1, 2);
@@ -635,7 +632,6 @@ void produceRateVsEtaPlotsForApproval()
 
   /*
   TString vs_eta_minpt = "40";
-  TString ttl = "CSC L1 trigger rates for p_{T}^{TF}>" + vs_eta_minpt + " GeV/c;;rate/bin [kHz]";
   TH1D* h_rt_tf40_2s   = setHistoEta(f_def, "h_rt_gmt_csc_ptmax" + vs_eta_minpt + "_eta_2s", "_hAll100", ttl, col1, 1, 2);
   TH1D* h_rt_tf40_2s1b   = setHistoEta(f_def, "h_rt_gmt_csc_ptmax" + vs_eta_minpt + "_eta_2s_2s1b", "_hAll100", ttl, col2, 1, 2);
   TH1D* h_rt_tf40_gpt40_2s1b   = setHistoEta(f_g98_pt40, "h_rt_gmt_csc_ptmax" + vs_eta_minpt + "_eta_2s_2s1b", "_hAll100", ttl, col3, 1, 2);
@@ -662,7 +658,7 @@ void produceRateVsEtaPlotsForApproval()
   // producing the histograms 
   float miny = 0.01, maxy;
 
-  // ------------ +2 stubs, track pt=10GeV ----------------//
+  // ------------ +2 stubs, L1 candidate muon pt=10GeV ----------------//
   vs_eta_minpt = "10";
 
   {
@@ -701,12 +697,14 @@ void produceRateVsEtaPlotsForApproval()
     h_rt_tf10_2s1b->GetYaxis()->SetRangeUser(miny,maxy);
     h_rt_tf10_gpt10_2s1b->GetYaxis()->SetRangeUser(miny,maxy);
     
-    TLegend *leg = new TLegend(0.17,0.65,.8,0.90,NULL,"brNDC");
+    TLegend *leg = new TLegend(0.16,0.67,.8,0.87,"L1 Selections (#geq2 stations, L1 candidate p_{T}#geq20 GeV/c):","brNDC");
     leg->SetBorderSize(0);
+    leg->SetMargin(0.2);
     leg->SetTextSize(0.04);
     leg->SetFillStyle(1001);
     leg->SetFillColor(kWhite);
-    leg->AddEntry(h_rt_tf10_2s,"L1 Selections (#geq2 stations, track p_{T}#geq10):","");
+    leg->AddEntry(h_rt_tf10_2s,"L1 Selections:","");
+    // leg->AddEntry((TObject*)0,"(#geq2 stations, L1 candidate muon p_{T}#geq10 GeV/c)","");
     leg->AddEntry(h_rt_tf10_2s,"CSC, loose","f");
     leg->AddEntry(h_rt_tf10_2s1b,"CSC, tight","f");
     leg->AddEntry(h_rt_tf10_gpt10_2s1b,"GEM+CSC Integrated Trigger","f");
@@ -726,7 +724,8 @@ void produceRateVsEtaPlotsForApproval()
     gem_ratio = setHistoRatio(h_rt_tf10_gpt10_2s1b, h_rt_tf10_2s1b, "", 0.01,2.0, col2);
     gem_ratio->Draw("Pe");
     
-    leg = new TLegend(0.16,0.33,.5,0.45,NULL,"brNDC");
+    leg = new TLegend(0.2,0.33,.5,0.45,NULL,"brNDC");
+    leg->SetMargin(0.1);
     leg->SetBorderSize(0);
     leg->SetTextSize(0.1);
     leg->SetFillStyle(1001);
@@ -738,7 +737,7 @@ void produceRateVsEtaPlotsForApproval()
   }
 
 
-  // ------------ +2 stubs, track pt=20GeV ----------------//
+  // ------------ +2 stubs, L1 candidate muon pt=20GeV ----------------//
   vs_eta_minpt = "20";
 
   {
@@ -772,17 +771,20 @@ void produceRateVsEtaPlotsForApproval()
     h_rt_tf20_2s1b->SetFillStyle(3354);
     h_rt_tf20_gpt20_2s1b->SetFillStyle(3344);
 
-    maxy = 35;
+    maxy = 40;
     h_rt_tf20_2s->GetYaxis()->SetRangeUser(miny,maxy);
     h_rt_tf20_2s1b->GetYaxis()->SetRangeUser(miny,maxy);
     h_rt_tf20_gpt20_2s1b->GetYaxis()->SetRangeUser(miny,maxy);
     
-    TLegend *leg = new TLegend(0.17,0.65,.8,0.90,NULL,"brNDC");
+    TLegend *leg = new TLegend(0.16,0.67,.8,0.87,"L1 Selections (#geq2 stations, L1 candidate p_{T}#geq20 GeV/c):","brNDC");
+    leg->SetMargin(0.2);
     leg->SetBorderSize(0);
     leg->SetTextSize(0.04);
     leg->SetFillStyle(1001);
     leg->SetFillColor(kWhite);
-    leg->AddEntry(h_rt_tf20_2s,"L1 Selections (#geq2 stations, track p_{T}#geq20):","");
+    // leg->AddEntry(h_rt_tf20_2s,"L1 Selections:","");
+    // leg->AddEntry((TObject*)0,"()","");
+    // leg->AddEntry((TObject*)0,"()","");
     leg->AddEntry(h_rt_tf20_2s,"CSC, loose","f");
     leg->AddEntry(h_rt_tf20_2s1b,"CSC, tight","f");
     leg->AddEntry(h_rt_tf20_gpt20_2s1b,"GEM+CSC Integrated Trigger","f");
@@ -802,7 +804,8 @@ void produceRateVsEtaPlotsForApproval()
     gem_ratio = setHistoRatio(h_rt_tf20_gpt20_2s1b, h_rt_tf20_2s1b, "", 0.01,2.0, col2);
     gem_ratio->Draw("Pe");
     
-    leg = new TLegend(0.16,0.33,.5,0.45,NULL,"brNDC");
+    leg = new TLegend(0.16,0.4,.5,0.55,NULL,"brNDC");
+    leg->SetMargin(0.1);
     leg->SetBorderSize(0);
     leg->SetTextSize(0.1);
     leg->SetFillStyle(1001);
@@ -813,7 +816,7 @@ void produceRateVsEtaPlotsForApproval()
     c->SaveAs(plots + "rates_vs_eta__minpt" + vs_eta_minpt + "__PU100__def_2s_2s1b_2s1bgem" + ext);
   }
 
-  // ------------ +2 stubs, track pt=30GeV ----------------//
+  // ------------ +2 stubs, L1 candidate muon pt=30GeV ----------------//
   vs_eta_minpt = "30";
     
   {
@@ -852,12 +855,12 @@ void produceRateVsEtaPlotsForApproval()
     h_rt_tf30_2s1b->GetYaxis()->SetRangeUser(miny,maxy);
     h_rt_tf30_gpt30_2s1b->GetYaxis()->SetRangeUser(miny,maxy);
     
-    TLegend *leg = new TLegend(0.17,0.65,.8,0.90,NULL,"brNDC");
+    TLegend *leg = new TLegend(0.16,0.67,.8,0.87,"L1 Selections (#geq2 stations, L1 candidate p_{T}#geq20 GeV/c):","brNDC");
+    leg->SetMargin(0.2);
     leg->SetBorderSize(0);
     leg->SetTextSize(0.04);
     leg->SetFillStyle(1001);
     leg->SetFillColor(kWhite);
-    leg->AddEntry(h_rt_tf30_2s,"L1 Selections (#geq2 stations, track p_{T}#geq30):","");
     leg->AddEntry(h_rt_tf30_2s,"CSC, loose","f");
     leg->AddEntry(h_rt_tf30_2s1b,"CSC, tight","f");
     leg->AddEntry(h_rt_tf30_gpt30_2s1b,"GEM+CSC Integrated Trigger","f");
@@ -877,7 +880,8 @@ void produceRateVsEtaPlotsForApproval()
     gem_ratio = setHistoRatio(h_rt_tf30_gpt30_2s1b, h_rt_tf30_2s1b, "", 0.01,2.0, col2);
     gem_ratio->Draw("Pe");
     
-    leg = new TLegend(0.16,0.33,.5,0.45,NULL,"brNDC");
+    leg = new TLegend(0.16,0.4,.5,0.55,NULL,"brNDC");
+    leg->SetMargin(0.1);
     leg->SetBorderSize(0);
     leg->SetTextSize(0.1);
     leg->SetFillStyle(1001);
@@ -893,7 +897,7 @@ void produceRateVsEtaPlotsForApproval()
 
 
 
-  // ------------ +3 stubs, track pt=10GeV ----------------//
+  // ------------ +3 stubs, L1 candidate muon pt=10GeV ----------------//
   vs_eta_minpt = "10";
 
   {
@@ -932,12 +936,12 @@ void produceRateVsEtaPlotsForApproval()
     h_rt_tf10_3s1b->GetYaxis()->SetRangeUser(miny,maxy);
     h_rt_tf10_gpt10_3s1b->GetYaxis()->SetRangeUser(miny,maxy);
     
-    TLegend *leg = new TLegend(0.17,0.65,.8,0.90,NULL,"brNDC");
+    TLegend *leg = new TLegend(0.16,0.67,.8,0.87,"L1 Selections (#geq2 stations, L1 candidate p_{T}#geq20 GeV/c):","brNDC");
+    leg->SetMargin(0.2);
     leg->SetBorderSize(0);
     leg->SetTextSize(0.04);
     leg->SetFillStyle(1001);
     leg->SetFillColor(kWhite);
-    leg->AddEntry(h_rt_tf10_3s,"L1 Selections (#geq3 stations, track p_{T}#geq10):","");
     leg->AddEntry(h_rt_tf10_3s,"CSC, loose","f");
     leg->AddEntry(h_rt_tf10_3s1b,"CSC, tight","f");
     leg->AddEntry(h_rt_tf10_gpt10_3s1b,"GEM+CSC Integrated Trigger","f");
@@ -957,7 +961,8 @@ void produceRateVsEtaPlotsForApproval()
     gem_ratio = setHistoRatio(h_rt_tf10_gpt10_3s1b, h_rt_tf10_3s1b, "", 0.01,2.0, col2);
     gem_ratio->Draw("Pe");
     
-    leg = new TLegend(0.16,0.33,.5,0.45,NULL,"brNDC");
+    leg = new TLegend(0.16,0.4,.5,0.55,NULL,"brNDC");
+    leg->SetMargin(0.1);
     leg->SetBorderSize(0);
     leg->SetTextSize(0.1);
     leg->SetFillStyle(1001);
@@ -969,7 +974,7 @@ void produceRateVsEtaPlotsForApproval()
   }
 
 
-  // ------------ +3 stubs, track pt=20GeV ----------------//
+  // ------------ +3 stubs, L1 candidate muon pt=20GeV ----------------//
   vs_eta_minpt = "20";
 
   {
@@ -1008,12 +1013,12 @@ void produceRateVsEtaPlotsForApproval()
     h_rt_tf20_3s1b->GetYaxis()->SetRangeUser(miny,maxy);
     h_rt_tf20_gpt20_3s1b->GetYaxis()->SetRangeUser(miny,maxy);
     
-    TLegend *leg = new TLegend(0.17,0.65,.8,0.90,NULL,"brNDC");
+    TLegend *leg = new TLegend(0.16,0.67,.8,0.87,"L1 Selections (#geq2 stations, L1 candidate p_{T}#geq20 GeV/c):","brNDC");
+    leg->SetMargin(0.20);
     leg->SetBorderSize(0);
     leg->SetTextSize(0.04);
     leg->SetFillStyle(1001);
     leg->SetFillColor(kWhite);
-    leg->AddEntry(h_rt_tf20_3s,"L1 Selections (#geq3 stations, track p_{T}#geq20):","");
     leg->AddEntry(h_rt_tf20_3s,"CSC, loose","f");
     leg->AddEntry(h_rt_tf20_3s1b,"CSC, tight","f");
     leg->AddEntry(h_rt_tf20_gpt20_3s1b,"GEM+CSC Integrated Trigger","f");
@@ -1033,7 +1038,8 @@ void produceRateVsEtaPlotsForApproval()
     gem_ratio = setHistoRatio(h_rt_tf20_gpt20_3s1b, h_rt_tf20_3s1b, "", 0.01,2.0, col2);
     gem_ratio->Draw("Pe");
     
-    leg = new TLegend(0.16,0.33,.5,0.45,NULL,"brNDC");
+    leg = new TLegend(0.16,0.4,.5,0.55,NULL,"brNDC");
+    leg->SetMargin(0.1);
     leg->SetBorderSize(0);
     leg->SetTextSize(0.1);
     leg->SetFillStyle(1001);
@@ -1044,7 +1050,7 @@ void produceRateVsEtaPlotsForApproval()
     c->SaveAs(plots + "rates_vs_eta__minpt" + vs_eta_minpt + "__PU100__def_3s_3s1b_3s1bgem" + ext);
   }
 
-  // ------------ +3 stubs, track pt=30GeV ----------------//
+  // ------------ +3 stubs, L1 candidate muon pt=30GeV ----------------//
   vs_eta_minpt = "30";
     
   {
@@ -1083,12 +1089,12 @@ void produceRateVsEtaPlotsForApproval()
     h_rt_tf30_3s1b->GetYaxis()->SetRangeUser(miny,maxy);
     h_rt_tf30_gpt30_3s1b->GetYaxis()->SetRangeUser(miny,maxy);
     
-    TLegend *leg = new TLegend(0.17,0.65,.8,0.90,NULL,"brNDC");
+    TLegend *leg = new TLegend(0.16,0.67,.8,0.87,"L1 Selections (#geq2 stations, L1 candidate p_{T}#geq20 GeV/c):","brNDC");
+    leg->SetMargin(0.2);
     leg->SetBorderSize(0);
     leg->SetTextSize(0.04);
     leg->SetFillStyle(1001);
     leg->SetFillColor(kWhite);
-    leg->AddEntry(h_rt_tf30_3s,"L1 Selections (#geq3 stations, track p_{T}#geq30):","");
     leg->AddEntry(h_rt_tf30_3s,"CSC, loose","f");
     leg->AddEntry(h_rt_tf30_3s1b,"CSC, tight","f");
     leg->AddEntry(h_rt_tf30_gpt30_3s1b,"GEM+CSC Integrated Trigger","f");
@@ -1108,7 +1114,8 @@ void produceRateVsEtaPlotsForApproval()
     gem_ratio = setHistoRatio(h_rt_tf30_gpt30_3s1b, h_rt_tf30_3s1b, "", 0.01,2.0, col2);
     gem_ratio->Draw("Pe");
     
-    leg = new TLegend(0.16,0.33,.5,0.45,NULL,"brNDC");
+    leg = new TLegend(0.16,0.4,.5,0.55,NULL,"brNDC");
+    leg->SetMargin(0.1);
     leg->SetBorderSize(0);
     leg->SetTextSize(0.1);
     leg->SetFillStyle(1001);

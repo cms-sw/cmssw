@@ -214,29 +214,57 @@ void eff_hs_dphi(TString f_name, TString p_name)
 }
 
 
-void eff_hs(TString f_name, TString p_name)
+void eff_hs(TString f_name, TString p_name, TString pt)
 {
+  
+  gStyle->SetTitleStyle(0);
+  gStyle->SetTitleAlign(13); // coord in top left
+  gStyle->SetTitleX(0.);
+  gStyle->SetTitleY(1.);
+  gStyle->SetTitleW(1);
+  gStyle->SetTitleH(0.058);
+  gStyle->SetTitleBorderSize(0);
+    
+  gStyle->SetPadLeftMargin(0.126);
+  gStyle->SetPadRightMargin(0.04);
+  gStyle->SetPadTopMargin(0.06);
+  gStyle->SetPadBottomMargin(0.13);
+  gStyle->SetOptStat(0);
+  gStyle->SetMarkerStyle(1);
+
   // efficiency vs half-strip  - separate odd-even
   TCut ok_eta = "TMath::Abs(eta)>1.64 && TMath::Abs(eta)<2.12";
 
   TTree *t = getTree(f_name);
-  TH1F* ho = draw_eff(t, "GEM reconstruction efficiency versus LCT half-strip;LCT half-strip number;Efficiency", "h_odd", "(130,0.5,130.5)", "hs_lct_odd", ok_lct1 && ok_eta , ok_pad1, "", kRed);
-  TH1F* he = draw_eff(t, "GEM reconstruction efficiency versus LCT half-strip;LCT half-strip number;Efficiency", "h_evn", "(130,0.5,130.5)", "hs_lct_even", ok_lct2 && ok_eta , ok_pad2, "same");
+  TH1F* ho = draw_eff(t, "         GEM reconstruction efficiency               CMS Simulation;LCT half-strip number;Efficiency", "h_odd", "(130,0.5,130.5)", "hs_lct_odd", ok_lct1 && ok_eta , ok_pad1, "", kRed);
+  TH1F* he = draw_eff(t, "         GEM reconstruction efficiency               CMS Simulation;LCT half-strip number;Efficiency", "h_evn", "(130,0.5,130.5)", "hs_lct_even", ok_lct2 && ok_eta , ok_pad2, "same");
 
-  TLegend *leg = new TLegend(0.35,0.2,.65,0.4, NULL, "brNDC");
+  TLegend *leg = new TLegend(0.25,0.23,.75,0.5, NULL, "brNDC");
   leg->SetBorderSize(0);
-  leg->SetTextSize(0.06);
   leg->SetFillStyle(0);
-  leg->AddEntry((TObject*)0,"1.64<|#eta|<2.12","");
-  leg->AddEntry(ho,"odd chambers","l");
-  leg->AddEntry(he,"even chambers","l");
+  leg->SetTextSize(0.06);
+  leg->AddEntry((TObject*)0,"muon p_{T} = " + pt + " GeV/c",""); 
+  leg->AddEntry(he, "\"Close\" chamber pairs","l");
+  leg->AddEntry(ho, "\"Far\" chamber pairs","l");
   leg->Draw();
+  // TLegend *leg = new TLegend(0.35,0.2,.65,0.4, NULL, "brNDC");
+  // leg->SetBorderSize(0);
+  // leg->SetTextSize(0.06);
+  // leg->SetFillStyle(0);
+  // leg->AddEntry((TObject*)0,"muon p_{T} = " + pt + " GeV/c",""); 
+  // leg->AddEntry(ho,"odd chambers","l");
+  // leg->AddEntry(he,"even chambers","l");
+  // leg->Draw();
 
-  // TLatex *  tex = new TLatex(.4,.6,"1.64<|#eta|<2.12");
-  // tex->SetTextSize(0.05);
-  // tex->SetNDC();
-  // tex->Draw();
-
+  TLatex* tex2 = new TLatex(.67,.8,"   L1 Trigger");
+  tex2->SetTextSize(0.05);
+  tex2->SetNDC();
+  tex2->Draw();
+    
+  TLatex *  tex = new TLatex(.66,.73,"1.64<|#eta|<2.12");
+  tex->SetTextSize(0.05);
+  tex->SetNDC();
+  tex->Draw();
 
   gPad->Print(p_name);
 }
@@ -249,35 +277,33 @@ void eff_hs_overlap(TString f_name, TString p_name, TString pt)
   
   
   TTree *t = getTree(f_name);
-  TH1F* ho = draw_eff(t, "GEM reconstruction efficiency versus LCT half-strip;LCT half-strip number;Efficiency", "h_odd", "(130,0.5,130.5)", "hs_lct_odd", ok_lct1 && ok_eta , ok_pad1_overlap, "", kRed);
-  TH1F* he = draw_eff(t, "GEM reconstruction efficiency versus LCT half-strip;LCT half-strip number;Efficiency", "h_evn", "(130,0.5,130.5)", "hs_lct_even", ok_lct2 && ok_eta , ok_pad2_overlap, "same");
+  TH1F* ho = draw_eff(t, "         GEM reconstruction efficiency               CMS Simulation;LCT half-strip number;Efficiency", "h_odd", "(130,0.5,130.5)", "hs_lct_odd", ok_lct1 && ok_eta , ok_pad1_overlap, "", kRed);
+  TH1F* he = draw_eff(t, "         GEM reconstruction efficiency               CMS Simulation;LCT half-strip number;Efficiency", "h_evn", "(130,0.5,130.5)", "hs_lct_even", ok_lct2 && ok_eta , ok_pad2_overlap, "same");
 
   TF1 fo("fo", "pol0", 6., 123.);
   ho->Fit("fo","RN");
   TF1 fe("fe", "pol0", 6., 123.);
   he->Fit("fe","RN");
 
-  // TLatex *  tex = new TLatex(.2, .35,"muon p_{T} = " + pt + " GeV/c");
-  // tex->SetTextSize(0.05);
-  // tex->SetNDC();
-  // tex->Draw();
-
-  // TLatex *  tex2 = new TLatex(.2, .3,"1.64<|#eta|<2.12");
-  // tex2->SetTextSize(0.05);
-  // tex2->SetNDC();
-  // tex2->Draw();
-  
   TLegend *leg = new TLegend(0.25,0.23,.75,0.5, NULL, "brNDC");
   leg->SetBorderSize(0);
   leg->SetFillStyle(0);
-  leg->SetTextSize(0.05);
-  //leg->AddEntry(ho, Form("odd chambers (%0.2f #pm %0.2f)%%", 100.*fo.GetParameter(0), 100.*fo.GetParError(0)),"l");
-  //leg->AddEntry(he, Form("even chambers (%0.1f #pm %0.1f)%%", 100.*fe.GetParameter(0), 100.*fe.GetParError(0)),"l");
+  leg->SetTextSize(0.06);
   leg->AddEntry((TObject*)0,"muon p_{T} = " + pt + " GeV/c",""); 
-  leg->AddEntry((TObject*)0,"1.64<|#eta|<2.12",""); 
   leg->AddEntry(he, "\"Close\" chamber pairs","l");
   leg->AddEntry(ho, "\"Far\" chamber pairs","l");
   leg->Draw();
+
+  // Print additional information
+  TLatex* tex2 = new TLatex(.67,.8,"   L1 Trigger");
+  tex2->SetTextSize(0.05);
+  tex2->SetNDC();
+  tex2->Draw();
+    
+  TLatex *  tex = new TLatex(.66,.73,"1.64<|#eta|<2.12");
+  tex->SetTextSize(0.05);
+  tex->SetNDC();
+  tex->Draw();
 
   gPad->Print(p_name);
 }
@@ -394,6 +420,7 @@ void drawplot_eff()
   gROOT->ProcessLine(".L effFunctions.C");
   gROOT->ProcessLine(".L tdrstyle.C");
   //setTDRStyle();
+  
   gStyle->SetTitleStyle(0);
   gStyle->SetTitleAlign(13);// coord in top left
   gStyle->SetTitleX(0.);
@@ -401,17 +428,17 @@ void drawplot_eff()
   gStyle->SetTitleW(1);
   gStyle->SetTitleH(0.058);
   gStyle->SetTitleBorderSize(0);
-
+  
   gf_name = "";
 
   TCanvas* cEff = new TCanvas("cEff","cEff",700,500);
 
-  eff_hs(filesDir + "gem_csc_delta_pt5_pad4.root",  plotDir + "gem_pad_eff_for_LCT_vsHS_pt05" + ext);
-  eff_hs(filesDir + "gem_csc_delta_pt10_pad4.root", plotDir + "gem_pad_eff_for_LCT_vsHS_pt10" + ext);
-  eff_hs(filesDir + "gem_csc_delta_pt15_pad4.root", plotDir + "gem_pad_eff_for_LCT_vsHS_pt15" + ext);
-  eff_hs(filesDir + "gem_csc_delta_pt20_pad4.root", plotDir + "gem_pad_eff_for_LCT_vsHS_pt20" + ext);
-  eff_hs(filesDir + "gem_csc_delta_pt30_pad4.root", plotDir + "gem_pad_eff_for_LCT_vsHS_pt30" + ext);
-  eff_hs(filesDir + "gem_csc_delta_pt40_pad4.root", plotDir + "gem_pad_eff_for_LCT_vsHS_pt40" + ext);
+  eff_hs(filesDir + "gem_csc_delta_pt5_pad4.root",  plotDir + "gem_pad_eff_for_LCT_vsHS_pt05" + ext,"5");
+  eff_hs(filesDir + "gem_csc_delta_pt10_pad4.root", plotDir + "gem_pad_eff_for_LCT_vsHS_pt10" + ext,"10");
+  eff_hs(filesDir + "gem_csc_delta_pt15_pad4.root", plotDir + "gem_pad_eff_for_LCT_vsHS_pt15" + ext,"15");
+  eff_hs(filesDir + "gem_csc_delta_pt20_pad4.root", plotDir + "gem_pad_eff_for_LCT_vsHS_pt20" + ext,"20");
+  eff_hs(filesDir + "gem_csc_delta_pt30_pad4.root", plotDir + "gem_pad_eff_for_LCT_vsHS_pt30" + ext,"30");
+  eff_hs(filesDir + "gem_csc_delta_pt40_pad4.root", plotDir + "gem_pad_eff_for_LCT_vsHS_pt40" + ext,"40");
 
   eff_hs_overlap(filesDir + "gem_csc_delta_pt5_pad4.root",  plotDir + "gem_pad_eff_for_LCT_vsHS_pt05_overlap" + ext,"5");
   eff_hs_overlap(filesDir + "gem_csc_delta_pt10_pad4.root", plotDir + "gem_pad_eff_for_LCT_vsHS_pt10_overlap" + ext,"10");
@@ -420,7 +447,7 @@ void drawplot_eff()
   eff_hs_overlap(filesDir + "gem_csc_delta_pt30_pad4.root", plotDir + "gem_pad_eff_for_LCT_vsHS_pt30_overlap" + ext,"30");
   eff_hs_overlap(filesDir + "gem_csc_delta_pt40_pad4.root", plotDir + "gem_pad_eff_for_LCT_vsHS_pt40_overlap" + ext,"40");
 
-  gemTurnOns();
+  //gemTurnOns();
 
   //drawplot_eff_eta();
 

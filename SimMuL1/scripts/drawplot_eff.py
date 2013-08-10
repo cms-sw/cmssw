@@ -283,8 +283,9 @@ def getDphi(eff,pt,evenOdd):
 def gemTurnOn(filesDir, plotDir, eff, oddEven, ext):
     """Produce GEM turn-on curve"""
     
-    pt = ["pt10","pt20","pt30","pt40"]
-    pt_labels = ["#geq 10","#geq 20","#geq 30","#geq 40"]
+    pt = ["pt10","pt20","pt30","pt40"]    
+    pt_labels = ["10 GeV/c","20 GeV/c","30 GeV/c","40 GeV/c"]
+    dphis = [0.,0.,0.,0.]
 
     marker_colors = [kRed, kViolet+1, kAzure+1, kGreen-2]
     marker_styles = [20,21,23,24]
@@ -297,23 +298,24 @@ def gemTurnOn(filesDir, plotDir, eff, oddEven, ext):
     c.cd()
 
 
-    h = TH1F("","High efficiency GEM-CSC bending angle patterns;muon p_{T} [GeV/c];Efficiency",50,0.,50.)
+    h = TH1F("","         GEM-CSC bending Angle: p_{T} measurement, CMS Simulation;p_{T} [GeV/c];Efficiency",50,0.,50.)
     h.SetStats(0)
     h.Draw("")
 
     histoList = []
     for i in range(len(pt)):
         dphi = getDphi("%s"%(eff),"%s"%(pt[i]),"%s"%(oddEven))
+        dphis[i] = dphi
         if oddEven=="even":
             ok_dphi = TCut("TMath::Abs(dphi_pad_even) < %f"%(dphi))
             denom_cut = ok_pad2_lct2_eta
-            closeFar = "close"
+            closeFar = "Close"
         else:
             ok_dphi = TCut("TMath::Abs(dphi_pad_odd) < %f"%(dphi))
             denom_cut = ok_pad1_lct1_eta
-            closeFar = "far"
+            closeFar = "Far"
 
-        h2 = draw_eff(t, "GEM-CSC bending angle patterns for different p_{T} thresholds;p_{T} [GeV/c];Efficiency", "h2", "(50,0.,50.)", "pt", 
+        h2 = draw_eff(t, "GEM-CSC bending angle: momentum measurement;p_{T} [GeV/c];Efficiency", "h2", "(50,0.,50.)", "pt", 
                          denom_cut, ok_dphi, marker_colors[i], marker_styles[i])
         ## Eff. for track with LCT to have matched GEM pad
         histoList.append(h2)
@@ -324,19 +326,41 @@ def gemTurnOn(filesDir, plotDir, eff, oddEven, ext):
     ## add legend
     ##    leg_header =  "    #Delta#phi(GEM,CSC) is %s%% efficient for"%(eff)
     ##    leg.AddEntry(0, "%s chambers at pt"%(oddEven), "")
-    leg = TLegend(0.5,0.2,.8,0.65, "", "brNDC")
+    leg = TLegend(0.37,0.15,.82,0.5, "", "brNDC")
     leg_header =  "    "
-    leg.AddEntry(0, 'muon p_{T} measured by "%s"'%(closeFar), "")
-    leg.AddEntry(0, "GEM-CSC chamber pairs", "")
+    leg.AddEntry(0, 'High efficiency patterns:', "")
     for n in range(len(pt)):
-        leg.AddEntry(histoList[n], pt_labels[n], "p")
+        leg.AddEntry(histoList[n], "#Delta#Phi(GEM-CSC)#geq%.4f (p_{T}>%s)"%(dphis[n],pt_labels[n]), "p")
     leg.SetBorderSize(0)
     leg.SetFillStyle(0)
-##    leg.SetFillStyle(1001)
-##    leg.SetFillColor(kWhite)
+    ##    leg.SetFillStyle(1001)
+    ##    leg.SetFillColor(kWhite)
     leg.SetHeader(leg_header)
     leg.SetTextSize(0.04)
     leg.Draw("same")
+
+    ## Adding additional information - top right
+    tex2 = TLatex(.75,.82,'   L1 Trigger')
+    tex2.SetTextSize(0.05)
+    tex2.SetNDC()
+    tex2.Draw("same")
+
+    tex3 = TLatex(.735,.75,'1.64<|#eta|<2.14')
+    tex3.SetTextSize(0.05)
+    tex3.SetNDC()
+    tex3.Draw("same")
+
+    ## hardcore nitpicking over here!
+    if closeFar == "Close":
+        xpos = 0.57
+    else:
+        xpos = 0.62
+
+    tex = TLatex(xpos,.68,'"%s" chamber pairs'%(closeFar))
+    tex.Draw("same")
+    tex.SetTextSize(0.05)
+    tex.SetNDC()
+
 
     ## save the file
     c.SaveAs("%sGEM_turnon_%s_%s%s"%(plotDir, eff,oddEven,ext))
@@ -344,12 +368,17 @@ def gemTurnOn(filesDir, plotDir, eff, oddEven, ext):
 
 def gemTurnOns(filesDir, plotDir, ext):
     """Produce the GEM turn-on curves"""
+
+    """
     gemTurnOn(filesDir, plotDir, "95", "even", ext)
     gemTurnOn(filesDir, plotDir, "95", "odd",  ext)
+    """
     gemTurnOn(filesDir, plotDir, "98", "even", ext)
     gemTurnOn(filesDir, plotDir, "98", "odd",  ext)
+    """
     gemTurnOn(filesDir, plotDir, "99", "even", ext)
     gemTurnOn(filesDir, plotDir, "99", "odd",  ext)
+    """
 
 ##double mymod(double x, double y) {return fmod(x,y);}
 
@@ -1000,9 +1029,11 @@ if __name__ == "__main__":
     etaMatchingEfficiencies("files/", "plots/efficiency/", ".eps")
     etaMatchingEfficiencies("files/", "plots/efficiency/", ".png")
     """
+
     gemTurnOns("files/", "plots/efficiency/", ".pdf")
     gemTurnOns("files/", "plots/efficiency/", ".eps")    
     gemTurnOns("files/", "plots/efficiency/", ".png")
+
     """
     eff_hs("files/", "plots/efficiency/", ".pdf")
     eff_hs("files/", "plots/efficiency/", ".eps")    
