@@ -56,7 +56,7 @@ from DQMOffline.Trigger.HLTInclusiveVBFSource_cfi import *
 
 import DQM.TrackingMonitor.TrackerCollisionTrackingMonitor_cfi
 TrackerCollisionTrackMonHLT = DQM.TrackingMonitor.TrackerCollisionTrackingMonitor_cfi.TrackerCollisionTrackMon.clone()
-TrackerCollisionTrackMonHLT.FolderName    = 'HLT/Tracking'
+TrackerCollisionTrackMonHLT.FolderName    = 'HLT/Tracking/pixelTracks'
 TrackerCollisionTrackMonHLT.TrackProducer    = 'hltPixelTracks'
 
 #### TEST track collection
@@ -111,25 +111,35 @@ HLTSiStripMonitorCluster.StripDCSfilter = cms.PSet(
             errorReplyDcs = cms.bool( True ),
         )
 
-import DQM.SiStripMonitorTrack.SiStripMonitorTrack_cfi
-HLTSiStripMonitorTrack = DQM.SiStripMonitorTrack.SiStripMonitorTrack_cfi.SiStripMonitorTrack.clone()
-HLTSiStripMonitorTrack.TrackProducer     = 'hltIter4Merged'
-HLTSiStripMonitorTrack.TrackLabel        = ''
-HLTSiStripMonitorTrack.TrajectoryInEvent = cms.bool(False)
-HLTSiStripMonitorTrack.AlgoName          = cms.string("HLT")
-HLTSiStripMonitorTrack.RawDigis_On       = cms.bool(False)
-HLTSiStripMonitorTrack.Cluster_src       = cms.InputTag('HLTsiStripClusters')
-HLTSiStripMonitorTrack.Trend_On          = cms.bool(True)
-HLTSiStripMonitorTrack.TopFolderName     = cms.string('HLT/SiStrip')
+#from RecoTracker.TrackProducer.TrackRefitter_cfi import *
+#hltTrackRefitterForSiStripMonitorTrack = TrackRefitter.clone()
+##hltTrackRefitterForSiStripMonitorTrack.src = cms.InputTag("hltIter4Merged") ## give problem : BadRefCore RefCore: Request to resolve a null or invalid reference to a product of type 'edmNew::DetSetVector<SiStripCluster>' has been detected
+##hltTrackRefitterForSiStripMonitorTrack.src = cms.InputTag("hltPFJetCtfWithMaterialTracks") ## give problem : BadRefCore RefCore: Request to resolve a null or invalid reference to a product of type 'edmNew::DetSetVector<SiStripCluster>' has been detected
+##hltTrackRefitterForSiStripMonitorTrack.src = cms.InputTag('hltIter4PFJetCkfTrackCandidates') ## give problems w/ trajectory maker
+##hltTrackRefitterForSiStripMonitorTrack.src = cms.InputTag('hltIter4PFlowTrackSelectionHighPurity')
+#hltTrackRefitterForSiStripMonitorTrack.src = cms.InputTag('hltIter4PFJetCtfWithMaterialTracks')
+#hltTrackRefitterForSiStripMonitorTrack.TrajectoryInEvent = True
+#
+#import DQM.SiStripMonitorTrack.SiStripMonitorTrack_cfi
+#HLTSiStripMonitorTrack = DQM.SiStripMonitorTrack.SiStripMonitorTrack_cfi.SiStripMonitorTrack.clone()
+##HLTSiStripMonitorTrack.TrackProducer     = 'hltIter4Merged' ## works, but there is not the trajectory map :(
+#HLTSiStripMonitorTrack.TrackProducer     = 'hltTrackRefitterForSiStripMonitorTrack' 
+#HLTSiStripMonitorTrack.TrackLabel        = ''
+#HLTSiStripMonitorTrack.TrajectoryInEvent = cms.bool(True) ### ?!?!?!?!?
+#HLTSiStripMonitorTrack.AlgoName          = cms.string("HLT")
+#HLTSiStripMonitorTrack.RawDigis_On       = cms.bool(False) ### ?!?!?!?!?
+#HLTSiStripMonitorTrack.Cluster_src       = cms.InputTag('HLTsiStripClusters')
+#HLTSiStripMonitorTrack.Trend_On          = cms.bool(True)
+#HLTSiStripMonitorTrack.TopFolderName     = cms.string('HLT/SiStrip')
 
 offlineHLTtrackerSource = cms.Sequence(
 #    HLTSiPixelDigiSource *
 #    HLTSiPixelClusterSource *
-    HLTsiStripClusters *
-    HLTSiStripMonitorCluster *
-    HLTSiStripMonitorTrack
+    HLTsiStripClusters
+    * HLTSiStripMonitorCluster
+#    * hltTrackRefitterForSiStripMonitorTrack
+#    * HLTSiStripMonitorTrack
 )    
-
 
 import DQMServices.Components.DQMEnvironment_cfi
 dqmEnvHLT= DQMServices.Components.DQMEnvironment_cfi.dqmEnv.clone()

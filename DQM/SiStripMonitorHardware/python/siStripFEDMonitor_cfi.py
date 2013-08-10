@@ -6,7 +6,7 @@ siStripFEDMonitor = cms.EDAnalyzer("SiStripFEDMonitorPlugin",
   #Folder in DQM Store to write global histograms to
   TopFolderName       = cms.untracked.string('SiStrip'),                                 
 #  HistogramFolderName = cms.untracked.string('SiStrip/ReadoutView/FedSummary'),
-  HistogramFolderName = cms.untracked.string('ReadoutView/FedSummary'),
+  HistogramFolderName = cms.untracked.string('ReadoutView'),
   #Fill all detailed histograms at FED level even if they will be empty (so that files can be merged)
   FillAllDetailedHistograms = cms.untracked.bool(False),
   #do histos vs time with time=event number. Default time = orbit number (s).

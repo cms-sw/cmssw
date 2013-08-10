@@ -140,7 +140,7 @@ SiStripFEDMonitorPlugin::SiStripFEDMonitorPlugin(const edm::ParameterSet& iConfi
     cablingCacheId_(0),
     maxFedBufferSize_(0)
 {
-  std::string subFolderName = iConfig.getUntrackedParameter<std::string>("HistogramFolderName","ReadoutView/FedSummary");
+  std::string subFolderName = iConfig.getUntrackedParameter<std::string>("HistogramFolderName","ReadoutView");
   folderName_ = topFolderName_ + "/" + subFolderName;
 	      
 

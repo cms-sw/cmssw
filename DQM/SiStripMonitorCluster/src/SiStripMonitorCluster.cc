@@ -256,7 +256,7 @@ void SiStripMonitorCluster::createMEs(const edm::EventSetup& es){
 
     // Create TkHistoMap for Cluster
     if (clustertkhistomapon) {
-      std::cout << "[SiStripMonitorCluster::createMEs] topFolderName_: " << topFolderName_ << "     ";
+      //      std::cout << "[SiStripMonitorCluster::createMEs] topFolderName_: " << topFolderName_ << "     ";
       if ( (topFolderName_ == "SiStrip") or (std::string::npos != topFolderName_.find("HLT")) )
 	tkmapcluster = new TkHistoMap(topFolderName_,"TkHMap_NumberOfCluster",0.,true);
       else tkmapcluster = new TkHistoMap(topFolderName_+"/TkHistoMap","TkHMap_NumberOfCluster",0.,false);

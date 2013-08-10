@@ -376,7 +376,7 @@ void FEDHistograms::bookTopLevelHistograms(DQMStore* dqm, std::string topFolderN
   //lDirName << 
 
   const std::string lBaseDir = dqm_->pwd();
-  std::cout << "[FEDHistograms::bookTopLevelHistograms] lBaseDir: " << lBaseDir << std::endl;
+  //  std::cout << "[FEDHistograms::bookTopLevelHistograms] lBaseDir: " << lBaseDir << std::endl;
 
   dqm_->setCurrentFolder(lBaseDir+"/FED");
 
