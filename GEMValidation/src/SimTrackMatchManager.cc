@@ -6,6 +6,7 @@ SimTrackMatchManager::SimTrackMatchManager(const SimTrack& t, const SimVertex& v
 , gem_digis_(simhits_)
 , csc_digis_(simhits_)
 , stubs_(simhits_, csc_digis_)
+, gem_rechits_(simhits_)
 {}
 
 SimTrackMatchManager::~SimTrackMatchManager() {}

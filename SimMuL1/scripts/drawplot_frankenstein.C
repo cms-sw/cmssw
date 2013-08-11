@@ -163,7 +163,7 @@ for (int b = 1; b <= hh_no1a->GetNbinsX(); ++b) if (hh_no1a->GetBinContent(b)==0
 for (int b = 1; b <= hh_2s1b->GetNbinsX(); ++b) if (hh_2s1b->GetBinContent(b)==0) hh_2s1b->SetBinError(b, 0.);
 
 
-TString the_ttl = "CSC L1 trigger rates in ME1/b eta region;p_{T}^{cut}, GeV/c;rate, kHz";
+TString the_ttl = "CSC L1 trigger rates in ME1/b eta region;p_{T}^{cut} [GeV/c];rate [kHz]";
 
 hh = setPTHisto(hh, the_ttl, kGreen+3, 1, 1);
 hh_all = setPTHisto(hh_all, the_ttl, kGreen+3, 1, 1);

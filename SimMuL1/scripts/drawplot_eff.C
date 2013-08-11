@@ -1,5 +1,9 @@
 gROOT->ProcessLine("effFunctions.C");
 
+
+gROOT->SetBatch(1);
+
+
 /*
 
 .L 
@@ -101,7 +105,7 @@ void gemTurnOns(int label_eff = GEM_EFF98)
   TCanvas* gEff_even = new TCanvas("gEff_even","gEff_even",700,500);
   gEff_even->SetGridx(1);  gEff_even->SetGridy(1);
 
-  TTree *t = getTree("gem_csc_eff_pt2pt50_pad4.root");
+  TTree *t = getTree("files/gem_csc_eff_pt2pt50_pad4.root");
   TH1F *ho[N], *he[N];
   for (int n=0; n<N; ++n) {
     if (n==1) continue;
@@ -384,24 +388,24 @@ draw_geff(gt, "Eff. for a SimTrack to have an associated GEM pad;SimTrack |#eta|
 
 void drawplot_eff()
 {
-gf_name = "";
+// gf_name = "";
 
-TCanvas* cEff = new TCanvas("cEff","cEff",700,500);
+// TCanvas* cEff = new TCanvas("cEff","cEff",700,500);
+// eff_hs("files/gem_csc_delta_pt5_pad4.root",  "gem/gem_pad_eff_for_LCT_vsHS_pt05.png");
+// eff_hs("files/gem_csc_delta_pt10_pad4.root", "gem/gem_pad_eff_for_LCT_vsHS_pt10.png");
+// eff_hs("files/gem_csc_delta_pt15_pad4.root", "gem/gem_pad_eff_for_LCT_vsHS_pt15.png");
+// eff_hs("files/gem_csc_delta_pt20_pad4.root", "gem/gem_pad_eff_for_LCT_vsHS_pt20.png");
+// eff_hs("files/gem_csc_delta_pt30_pad4.root", "gem/gem_pad_eff_for_LCT_vsHS_pt30.png");
+// eff_hs("files/gem_csc_delta_pt40_pad4.root", "gem/gem_pad_eff_for_LCT_vsHS_pt40.png");
 
-eff_hs("gem_csc_delta_pt5_pad4.root",  "gem/gem_pad_eff_for_LCT_vsHS_pt05.png");
-eff_hs("gem_csc_delta_pt10_pad4.root", "gem/gem_pad_eff_for_LCT_vsHS_pt10.png");
-eff_hs("gem_csc_delta_pt15_pad4.root", "gem/gem_pad_eff_for_LCT_vsHS_pt15.png");
-eff_hs("gem_csc_delta_pt20_pad4.root", "gem/gem_pad_eff_for_LCT_vsHS_pt20.png");
-eff_hs("gem_csc_delta_pt30_pad4.root", "gem/gem_pad_eff_for_LCT_vsHS_pt30.png");
-eff_hs("gem_csc_delta_pt40_pad4.root", "gem/gem_pad_eff_for_LCT_vsHS_pt40.png");
+// eff_hs_overlap("files/gem_csc_delta_pt5_pad4.root",  "gem/gem_pad_eff_for_LCT_vsHS_pt05_overlap.png");
+// eff_hs_overlap("files/gem_csc_delta_pt10_pad4.root", "gem/gem_pad_eff_for_LCT_vsHS_pt10_overlap.png");
+// eff_hs_overlap("files/gem_csc_delta_pt15_pad4.root", "gem/gem_pad_eff_for_LCT_vsHS_pt15_overlap.png");
+// eff_hs_overlap("files/gem_csc_delta_pt20_pad4.root", "gem/gem_pad_eff_for_LCT_vsHS_pt20_overlap.png");
+// eff_hs_overlap("files/gem_csc_delta_pt30_pad4.root", "gem/gem_pad_eff_for_LCT_vsHS_pt30_overlap.png");
+// eff_hs_overlap("files/gem_csc_delta_pt40_pad4.root", "gem/gem_pad_eff_for_LCT_vsHS_pt40_overlap.png");
 
-eff_hs_overlap("gem_csc_delta_pt5_pad4.root",  "gem/gem_pad_eff_for_LCT_vsHS_pt05_overlap.png");
-eff_hs_overlap("gem_csc_delta_pt10_pad4.root", "gem/gem_pad_eff_for_LCT_vsHS_pt10_overlap.png");
-eff_hs_overlap("gem_csc_delta_pt15_pad4.root", "gem/gem_pad_eff_for_LCT_vsHS_pt15_overlap.png");
-eff_hs_overlap("gem_csc_delta_pt20_pad4.root", "gem/gem_pad_eff_for_LCT_vsHS_pt20_overlap.png");
-eff_hs_overlap("gem_csc_delta_pt30_pad4.root", "gem/gem_pad_eff_for_LCT_vsHS_pt30_overlap.png");
-eff_hs_overlap("gem_csc_delta_pt40_pad4.root", "gem/gem_pad_eff_for_LCT_vsHS_pt40_overlap.png");
-
+// gemTurnOns();
 }
 
 

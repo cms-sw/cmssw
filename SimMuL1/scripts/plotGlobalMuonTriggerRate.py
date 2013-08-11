@@ -1,7 +1,30 @@
-//int kGray=920, kOrange=800, kSpring=820, kTeal=840, kAzure=860, kViolet=880, kPink=900;
+from ROOT import * 
+
+## run quiet mode
+import sys
+sys.argv.append( '-b' )
+
+import ROOT
+ROOT.gROOT.SetBatch(1)
+
+def getTriggerSF():
+    """Calculate the factor to scale the trigger rate"""
+    
+    events = 238000 ## number of events
+    rate = 40000. ## the collision frequency [kHz]
+    bxwindow = 3. ##[-1,0,1] width of the bx window used to calculate the rates (see also the analyzer)
+    bxfilling = 0.795 ##average bx filling
+    trgScaleFactor = rate/events/bxwindow*bxfilling
+    return trgScaleFactor
+
+def Print(c, dirName, outFileName):
+    """Print the canvas"""
+
+    gPad.RedrawAxis()
+    c.SaveAs("%s%s"%(dirName, outFileName))
 
 
-
+"""
 TFile *f=0;
 char pdir[111]="";
 char dir[111]="SimMuL1StrictAll";
@@ -56,6 +79,8 @@ bool do_not_print = false;
 
 TString gem_dir = "files/";
 TString gem_label = "gem98";
+
+
 
 int gNPU=100;
 int gNEvt=238000;
@@ -123,15 +148,6 @@ TObject* getH(TFile *fi, char dir[100], char name[100])
 
 
 
-void Print(TCanvas *c, char nm[200])
-{
-  if (do_not_print) return;
-  if (strcmp(pdir,"")<=0) return;
-  gPad->RedrawAxis();
-  char dirnm[200];
-  sprintf(dirnm,"%s/%s",pdir,nm);
-  c->Print(dirnm);
-}
 
 void myRebin(TH1D* h, int n)
 {
@@ -258,60 +274,85 @@ TH1D* setHisto2(char *f_name, char *name1, char *name2, char *cname, char *title
   return h;
 }
 
+"""
+
+def setHistoEta(f_name, name, cname, title, lcolor, lstyle, lwidth):
+    f = TFile.Open(f_name)
+    dirName = "SimMuL1StrictAll"
+    if not file:
+        sys.exit('Input ROOT file %s is missing.' %(f_name))
+    h0 = f.Get("%s/%s"%(dirName,name))
+    if not h0:
+        sys.exit("No such histogram")
+
+    nb = h0.GetXaxis().GetNbins();        
+    h = h0.Clone("%s%s"%(name,cname))
+    h.SetTitle(title)
+    h.Sumw2()
+    h.Scale(getTriggerSF())
+    h.SetLineColor(lcolor)
+    ##h.SetFillColor(lcolor)
+    h.SetLineStyle(lstyle)
+    h.SetLineWidth(lwidth)
+    h.SetTitle(title)
+    ##h.GetXaxis().SetRangeUser(1.2, 2.4)
+    ##h.GetYaxis().SetRangeUser(gdy[0],gdy[1])
+    h.GetYaxis().SetRangeUser(0,8)
+    h.GetXaxis().SetTitleSize(0.055)
+    h.GetXaxis().SetTitleOffset(1.05)
+    h.GetXaxis().SetLabelSize(0.045)
+    h.GetXaxis().SetLabelOffset(0.003)
+    h.GetXaxis().SetTitleFont(62)
+    h.GetXaxis().SetLabelFont(62)
+    h.GetXaxis().SetMoreLogLabels(1)
+    h.GetYaxis().SetTitleSize(0.055)
+    h.GetYaxis().SetTitleOffset(0.9)
+    h.GetYaxis().SetLabelSize(0.045)
+    h.GetYaxis().SetTitleFont(62)
+    h.GetYaxis().SetLabelFont(62)
+    ##h.GetYaxis().SetLabelOffset(0.015)
+    
+    return h
 
 
-TH1D* setHistoEta(TString f_name, char *name, char *cname, char *title, 
-		  int lcolor, int lstyle, int lwidth)
-//double *x_range, double *y_range)
-{
-  cout<<"opening "<<f_name<<endl;
-  f = TFile::Open(f_name);
-  
-  TH1D* h0 = (TH1D*)getH(f, dir, name);
-  if (!h0) std::cout << "no such histogram" << std::endl;
-  TString s_name(name);
-  int nb = h0->GetXaxis()->GetNbins();
-  
-  TH1D* h = (TH1D*)h0->Clone(s_name+cname);
-  h->SetTitle(title);
-  
-  h->Sumw2();
-  h->Scale(40000./gNEvt/3.*0.795);
-  
-  h->SetLineColor(lcolor);
-  //h->SetFillColor(lcolor);
-  h->SetLineStyle(lstyle);
-  h->SetLineWidth(lwidth);
-  
-  h->SetTitle(title);
-  
-  //h->GetXaxis()->SetRangeUser(1.2, 2.4);
-  h->GetYaxis()->SetRangeUser(gdy[0],gdy[1]);
-  
-  h->GetXaxis()->SetTitleSize(0.055);
-  h->GetXaxis()->SetTitleOffset(1.05);
-  h->GetXaxis()->SetLabelSize(0.045);
-  h->GetXaxis()->SetLabelOffset(0.003);
-  h->GetXaxis()->SetTitleFont(62);
-  h->GetXaxis()->SetLabelFont(62);
-  h->GetXaxis()->SetMoreLogLabels(1);
+def setHistoRatio(num, denom, title = "", ymin=0.4, ymax=1.6, color = kRed+3):
+    
+    ratio = num.Clone("%s__%s_ratio"%(num.GetName(), denom.GetName()))
+    ratio.Divide(num, denom, 1., 1.)
+    ratio.SetTitle(title)
+    
+    ratio.GetYaxis().SetRangeUser(ymin, ymax)
+    ratio.GetYaxis().SetTitle("ratio: (with GEM)/default")
+    ratio.GetYaxis().SetTitle("ratio")
+    ## ratio.GetYaxis().SetTitle("(ME1/b + GEM) / ME1/b")
+    ratio.GetYaxis().SetTitleSize(.14)
+    ## ratio.GetYaxis().SetTitleSize(.1)
+    ratio.GetYaxis().SetTitleOffset(0.4)
+    ratio.GetYaxis().SetLabelSize(.11)
+    
+    
+    ## ratio.GetXaxis().SetMoreLogLabels(1)
+    ratio.GetXaxis().SetTitle("p_{T}^{cut} [GeV/c]")
+    ratio.GetXaxis().SetLabelSize(.11)
+    ratio.GetXaxis().SetTitleSize(.14)
+    ratio.GetXaxis().SetTitleOffset(1.3) 
+    ratio.SetLineWidth(2)
+    ratio.SetFillColor(color)
+    ratio.SetLineColor(color)
+    ratio.SetMarkerColor(color)
+    ratio.SetMarkerStyle(20)
+    ##ratio.Draw("e3")
 
-  h->GetYaxis()->SetTitleSize(0.055);
-  h->GetYaxis()->SetTitleOffset(0.9);
-  h->GetYaxis()->SetLabelSize(0.045);
-  h->GetYaxis()->SetTitleFont(62);
-  h->GetYaxis()->SetLabelFont(62);
+    return ratio
 
-  //h->GetYaxis()->SetLabelOffset(0.015);
-  
-  gh = h;
-  return h;
-}
+
+
+"""
 
 
 TH1D* getPTHisto(TString f_name, TString dir_name, TString h_name, TString clone_suffix = "_cln")
 {
-  f = TFile::Open(f_name);
+  f = TFile::Open(f_name)
   //cout<<dir_name + "/" + h_name<<endl;
   TH1D* h0 = (TH1D*) f->Get(dir_name + "/" + h_name)->Clone(h_name + clone_suffix);
   return h0;
@@ -431,37 +472,6 @@ TH1D* setHisto(TString f_name, char *name, char *cname, char *title,
   return h;
 }
 
-TH1D* setHistoRatio(TH1D* num, TH1D* denom, TString title = "", double ymin=0.4, double ymax=1.6, int color = kRed+3)
-{
-  ratio = (TH1D*) num->Clone(Form("%s--%s_ratio",num->GetName(),denom->GetName()) );
-  ratio->Divide(num, denom, 1., 1.);
-  ratio->SetTitle(title);
-
-  ratio->GetYaxis()->SetRangeUser(ymin, ymax);
-  ratio->GetYaxis()->SetTitle("ratio: (with GEM)/default");
-  ratio->GetYaxis()->SetTitle("ratio");
-  // ratio->GetYaxis()->SetTitle("(ME1/b + GEM) / ME1/b");
-  ratio->GetYaxis()->SetTitleSize(.14);
-  // ratio->GetYaxis()->SetTitleSize(.1);
-  ratio->GetYaxis()->SetTitleOffset(0.4);
-  ratio->GetYaxis()->SetLabelSize(.11);
-
-
-  // ratio->GetXaxis()->SetMoreLogLabels(1);
-  ratio->GetXaxis()->SetTitle("p_{T}^{cut} [GeV/c]");
-  ratio->GetXaxis()->SetLabelSize(.11);
-  ratio->GetXaxis()->SetTitleSize(.14);
-  ratio->GetXaxis()->SetTitleOffset(1.3); 
-  ratio->SetLineWidth(2);
-  ratio->SetFillColor(color);
-  ratio->SetLineColor(color);
-  ratio->SetMarkerColor(color);
-  ratio->SetMarkerStyle(20);
-  //ratio->Draw("e3");
-  
-  return ratio;
-}
-
 
 TH1D* setHistoRatio2(TH1D* num, TH1D* denom, TString title = "", double ymin=0.4, double ymax=1.6)
 {
@@ -553,247 +563,292 @@ TLatex* drawPULabel(float x=0.17, float y=0.25, float font_size=0.)
   tex->Draw();
   return tex;
 }
+"""
 
+def etaTriggerRate(filesDir, plotDir, ext):
+    """Produce trigger rate plots versus eta."""
 
-void gem_rate_draw()
-{
-  do_not_print = false;
-  
-  gStyle->SetOptStat(0);
-  gStyle->SetTitleStyle(0);
-  //gStyle->SetPadTopMargin(0.08);
-  gStyle->SetTitleH(0.06);
-  
-  int ptreb=2;
-  
-  TString hdir = "SimMuL1StrictAll";
-  
-  TString f_def =      gem_dir + "hp_minbias_6_0_1_POSTLS161_V12__pu100_w3_def_pat2.root";
-  TString f_g98_pt10 = gem_dir + "hp_minbias_6_0_1_POSTLS161_V12__pu100_w3_gem98_pt10_pat2.root";
-  TString f_g98_pt15 = gem_dir + "hp_minbias_6_0_1_POSTLS161_V12__pu100_w3_gem98_pt15_pat2.root";
-  TString f_g98_pt20 = gem_dir + "hp_minbias_6_0_1_POSTLS161_V12__pu100_w3_gem98_pt20_pat2.root";
-  TString f_g98_pt30 = gem_dir + "hp_minbias_6_0_1_POSTLS161_V12__pu100_w3_gem98_pt30_pat2.root";
-  TString f_g98_pt40 = gem_dir + "hp_minbias_6_0_1_POSTLS161_V12__pu100_w3_gem98_pt40_pat2.root";
-  
-  sprintf(pdir,"%s", gem_dir.Data());
-  
-  double rpt[2] = {0.,49.99};
-  
-  TString htitle = "Efficiency for #mu in 1.6<|#eta|<2.12 to have TF track;p_{T}^{MC} [GeV/c]";
-  
-  TString hini  = "h_pt_initial_1b";
-  TString h2s   = "h_pt_after_tfcand_eta1b_2s";
-  TString h3s   = "h_pt_after_tfcand_eta1b_3s";
-  TString h2s1b = "h_pt_after_tfcand_eta1b_2s1b";
-  TString h3s1b = "h_pt_after_tfcand_eta1b_3s1b";
-  
-  
-  //gdy[0]=0; gdy[1]=7.;
-  //if (vs_eta_minpt=="20") gdy[1]=10.;
-  float miny = 0.01, maxy;
-  
-  TString vs_eta_minpt = "20";
-  TString ttl = "CSC L1 trigger rates for p_{T}^{TF}>" + vs_eta_minpt + " GeV/c;track #eta;rate/bin [kHz]";
-  
-  std::cout << "obtaining the input files" << std::endl;
+    gStyle.SetOptStat(0)
+    gStyle.SetTitleStyle(0)
+    ##gStyle.SetPadTopMargin(0.08)
+    gStyle.SetTitleH(0.06)
+    
+    hdir = "SimMuL1StrictAll"
+    
+    f_def =      "%shp_minbias_6_0_1_POSTLS161_V12__pu100_w3_def_pat2.root"%(filesDir)
+    f_g98_pt10 = "%shp_minbias_6_0_1_POSTLS161_V12__pu100_w3_gem98_pt10_pat2.root"%(filesDir)
+    f_g98_pt15 = "%shp_minbias_6_0_1_POSTLS161_V12__pu100_w3_gem98_pt15_pat2.root"%(filesDir)
+    f_g98_pt20 = "%shp_minbias_6_0_1_POSTLS161_V12__pu100_w3_gem98_pt20_pat2.root"%(filesDir)
+    f_g98_pt30 = "%shp_minbias_6_0_1_POSTLS161_V12__pu100_w3_gem98_pt30_pat2.root"%(filesDir)
+    f_g98_pt40 = "%shp_minbias_6_0_1_POSTLS161_V12__pu100_w3_gem98_pt40_pat2.root"%(filesDir)
+    
+    htitle = "Efficiency for #mu in 1.6<|#eta|<2.12 to have TF track;p_{T}^{MC} [GeV/c]"
+    
+    minpt = 10
+    ttl = "CSC L1 trigger rates for p_{T}^{TF}>%d GeV/c;track #eta;rate/bin [kHz]"%(minpt)
+    
+    h_rt_def_tf10_2s = setHistoEta(f_def,          "h_rt_gmt_csc_ptmax%d_eta_2s"%(minpt),          "_hAll100", ttl, kAzure+2, 1, 2);
+    h_rt_def_tf10_2s_2s1b = setHistoEta(f_def,     "h_rt_gmt_csc_ptmax%d_eta_2s_2s1b"%(minpt),     "_hAll100", ttl, kAzure+5, 1, 2);
+    h_rt_def_tf10_3s = setHistoEta(f_def,          "h_rt_gmt_csc_ptmax%d_eta_3s"%(minpt),          "_hAll100", ttl, kAzure+3, 1, 2);
+    h_rt_def_tf10_3s_no1a = setHistoEta(f_def,     "h_rt_gmt_csc_ptmax%d_eta_3s_no1a"%(minpt),     "_hAll100", ttl, kAzure+2, 1, 2);
+    h_rt_def_tf10_3s_1b = setHistoEta(f_def,       "h_rt_gmt_csc_ptmax%d_eta_3s_1b"%(minpt),       "_hAll100", ttl, kAzure+2, 1, 2);
+    h_rt_def_tf10_3s_2s1b = setHistoEta(f_def,     "h_rt_gmt_csc_ptmax%d_eta_3s_2s1b"%(minpt),     "_hAll100", ttl, kAzure+6, 1, 2);
+    h_rt_def_tf10_3s_2s1b_1b = setHistoEta(f_def,  "h_rt_gmt_csc_ptmax%d_eta_3s_2s1b_1b"%(minpt),  "_hAll100", ttl, kAzure+6, 1, 2);
+    h_rt_def_tf10_3s_2s1b_no1a = setHistoEta(f_def,"h_rt_gmt_csc_ptmax%d_eta_3s_2s1b_no1a"%(minpt),"_hAll100", ttl, kAzure+3, 7, 2);
+    h_rt_def_tf10_3s_3s1b = setHistoEta(f_def,     "h_rt_gmt_csc_ptmax%d_eta_3s_3s1b"%(minpt),     "_hAll100", ttl, kAzure+6, 1, 2);
+    h_rt_def_tf10_3s_3s1b_1b = setHistoEta(f_def,  "h_rt_gmt_csc_ptmax%d_eta_3s_3s1b_1b"%(minpt),  "_hAll100", ttl, kAzure+6, 1, 2);
+    h_rt_def_tf10_3s_3s1b_no1a = setHistoEta(f_def,"h_rt_gmt_csc_ptmax%d_eta_3s_3s1b_no1a"%(minpt),"_hAll100", ttl, kAzure+3, 7, 2);
 
-  TH1D* h_rt_tf20_2s   = setHistoEta(f_def, "h_rt_gmt_csc_ptmax" + vs_eta_minpt + "_eta_2s", "_hAll100", ttl, kAzure+2, 1, 2);
-  TH1D* h_rt_tf20_2s1b   = setHistoEta(f_def, "h_rt_gmt_csc_ptmax" + vs_eta_minpt + "_eta_2s_2s1b", "_hAll100", ttl, kAzure+5, 1, 2);
-  TH1D* h_rt_tf20_gpt20_2s1b   = setHistoEta(f_g98_pt20, "h_rt_gmt_csc_ptmax" + vs_eta_minpt + "_eta_2s_2s1b", "_hAll100", ttl, kGreen+1, 7, 2);
-  
-  TH1D* h_rt_tf20_3s   = setHistoEta(f_def, "h_rt_gmt_csc_ptmax" + vs_eta_minpt + "_eta_3s", "_hAll100", ttl, kAzure+3, 1, 2);
-  TH1D* h_rt_tf20_3s1b   = setHistoEta(f_def, "h_rt_gmt_csc_ptmax" + vs_eta_minpt + "_eta_3s_3s1b", "_hAll100", ttl, kAzure+6, 1, 2);
-  TH1D* h_rt_tf20_gpt20_3s1b   = setHistoEta(f_g98_pt20, "h_rt_gmt_csc_ptmax" + vs_eta_minpt + "_eta_3s_3s1b", "_hAll100", ttl, kGreen+3, 7, 2);
-  std::cout << "got them" << std::endl;
-  
-  // TH1D* h_rt_tf20_3s1ab   = setHistoEta(f_def, "h_rt_gmt_csc_ptmax" + vs_eta_minpt + "_eta_3s_3s1ab", "_hAll100", ttl, kBlue, 1, 2);
-  // TH1D* h_rt_tf20_gpt20_3s1ab   = setHistoEta(f_g98_pt20, "h_rt_gmt_csc_ptmax" + vs_eta_minpt + "_eta_3s_3s1ab", "_hAll100", ttl, kRed, 7, 2);
+    minpt = 20
+    ttl = "CSC L1 trigger rates for p_{T}^{TF}>%d GeV/c;track #eta;rate/bin [kHz]"%(minpt)
 
-  
-  
-  
-  // maxy = 300;// 45;
-  // h_rt_tf20_2s->GetYaxis()->SetRangeUser(miny,maxy);
-  // h_rt_tf20_2s1b->GetYaxis()->SetRangeUser(miny,maxy);
-  // h_rt_tf20_gpt20_2s1b->GetYaxis()->SetRangeUser(miny,maxy);
-  
-  
-  TCanvas* cAll100 = new TCanvas("cAll100","cAll100",800,600) ;
-  cAll100->SetLogy(1);
-  
-  // h_rt_tf20_2s->Draw("hist e1");
-  // h_rt_tf20_gpt20_2s1b->Draw("hist e1 same");
-  // h_rt_tf20_2s->Draw("hist e1 same");
-  // h_rt_tf20_2s1b->Draw("hist e1 same");
+    h_rt_def_tf20_2s = setHistoEta(f_def,          "h_rt_gmt_csc_ptmax%d_eta_2s"%(minpt),          "_hAll100", ttl, kAzure+2, 1, 2);
+    h_rt_def_tf20_2s_2s1b = setHistoEta(f_def,     "h_rt_gmt_csc_ptmax%d_eta_2s_2s1b"%(minpt),     "_hAll100", ttl, kAzure+5, 1, 2);
+    h_rt_def_tf20_3s = setHistoEta(f_def,          "h_rt_gmt_csc_ptmax%d_eta_3s"%(minpt),          "_hAll100", ttl, kAzure+3, 1, 2);
+    h_rt_def_tf20_3s_no1a = setHistoEta(f_def,     "h_rt_gmt_csc_ptmax%d_eta_3s_no1a"%(minpt),     "_hAll100", ttl, kAzure+2, 1, 2);
+    h_rt_def_tf20_3s_1b = setHistoEta(f_def,       "h_rt_gmt_csc_ptmax%d_eta_3s_1b"%(minpt),       "_hAll100", ttl, kAzure+2, 1, 2);
+    h_rt_def_tf20_3s_2s1b = setHistoEta(f_def,     "h_rt_gmt_csc_ptmax%d_eta_3s_2s1b"%(minpt),     "_hAll100", ttl, kAzure+6, 1, 2);
+    h_rt_def_tf20_3s_2s1b_1b = setHistoEta(f_def,  "h_rt_gmt_csc_ptmax%d_eta_3s_2s1b_1b"%(minpt),  "_hAll100", ttl, kAzure+6, 1, 2);
+    h_rt_def_tf20_3s_2s1b_no1a = setHistoEta(f_def,"h_rt_gmt_csc_ptmax%d_eta_3s_2s1b_no1a"%(minpt),"_hAll100", ttl, kAzure+3, 7, 2);
+    h_rt_def_tf20_3s_3s1b = setHistoEta(f_def,     "h_rt_gmt_csc_ptmax%d_eta_3s_3s1b"%(minpt),     "_hAll100", ttl, kAzure+6, 1, 2);
+    h_rt_def_tf20_3s_3s1b_1b = setHistoEta(f_def,  "h_rt_gmt_csc_ptmax%d_eta_3s_3s1b_1b"%(minpt),  "_hAll100", ttl, kAzure+6, 1, 2);
+    h_rt_def_tf20_3s_3s1b_no1a = setHistoEta(f_def,"h_rt_gmt_csc_ptmax%d_eta_3s_3s1b_no1a"%(minpt),"_hAll100", ttl, kAzure+3, 7, 2);
 
-  // TLegend *leg = new TLegend(0.4,0.63,.98,0.90,NULL,"brNDC");
-  // leg->SetBorderSize(0);
-  // leg->SetFillStyle(0);
-  // leg->AddEntry(h_rt_tf20_2s,"Tracks: p_{T}>=20, 2+ stubs","");
-  // leg->AddEntry(h_rt_tf20_2s,"anywhere","l");
-  // leg->AddEntry(h_rt_tf20_2s1b,"with ME1 in 1.6<|#eta|<2.14","l");
-  // leg->AddEntry(h_rt_tf20_gpt20_2s1b,"with (ME1+GEM) in 1.6<|#eta|<2.14","l");
-  // leg->Draw();
+    h_rt_def_tf20_2s = setHistoEta(f_def,          "h_rt_gmt_csc_ptmax%d_eta_2s"%(minpt),          "_hAll100", ttl, kAzure+2, 1, 2);
+    h_rt_def_tf20_2s_2s1b = setHistoEta(f_def,     "h_rt_gmt_csc_ptmax%d_eta_2s_2s1b"%(minpt),     "_hAll100", ttl, kAzure+5, 1, 2);
+    h_rt_def_tf20_3s = setHistoEta(f_def,          "h_rt_gmt_csc_ptmax%d_eta_3s"%(minpt),          "_hAll100", ttl, kAzure+3, 1, 2);
+    h_rt_def_tf20_3s_no1a = setHistoEta(f_def,     "h_rt_gmt_csc_ptmax%d_eta_3s_no1a"%(minpt),     "_hAll100", ttl, kAzure+2, 1, 2);
+    h_rt_def_tf20_3s_1b = setHistoEta(f_def,       "h_rt_gmt_csc_ptmax%d_eta_3s_1b"%(minpt),       "_hAll100", ttl, kAzure+2, 1, 2);
+    h_rt_def_tf20_3s_2s1b = setHistoEta(f_def,     "h_rt_gmt_csc_ptmax%d_eta_3s_2s1b"%(minpt),     "_hAll100", ttl, kAzure+6, 1, 2);
+    h_rt_def_tf20_3s_2s1b_1b = setHistoEta(f_def,  "h_rt_gmt_csc_ptmax%d_eta_3s_2s1b_1b"%(minpt),  "_hAll100", ttl, kAzure+6, 1, 2);
+    h_rt_def_tf20_3s_2s1b_no1a = setHistoEta(f_def,"h_rt_gmt_csc_ptmax%d_eta_3s_2s1b_no1a"%(minpt),"_hAll100", ttl, kAzure+3, 7, 2);
+    h_rt_def_tf20_3s_3s1b = setHistoEta(f_def,     "h_rt_gmt_csc_ptmax%d_eta_3s_3s1b"%(minpt),     "_hAll100", ttl, kAzure+6, 1, 2);
+    h_rt_def_tf20_3s_3s1b_1b = setHistoEta(f_def,  "h_rt_gmt_csc_ptmax%d_eta_3s_3s1b_1b"%(minpt),  "_hAll100", ttl, kAzure+6, 1, 2);
+    h_rt_def_tf20_3s_3s1b_no1a = setHistoEta(f_def,"h_rt_gmt_csc_ptmax%d_eta_3s_3s1b_no1a"%(minpt),"_hAll100", ttl, kAzure+3, 7, 2);
 
-  // TLatex *  tex = new TLatex(0.17, 0.82,"#splitline{L=4*10^{34}}{(25ns PU100)}");
-  // tex->SetNDC();
-  // tex->Draw();
-
-  // Print(cAll100, ("rates__vs_eta__minpt"+ vs_eta_minpt +"__PU100__def-2s-2s1b__gem-2s-2s1b.png").Data());
-
-
-  // TCanvas* cAll100r = new TCanvas("cAll100r","cAll100r",800,300) ;
-  // gPad->SetGridx(1);gPad->SetGridy(1);
-
-  // gem_ratio = setHistoRatio(h_rt_tf20_gpt20_2s1b, h_rt_tf20_2s1b, "", 0.,1.8);
-  // gem_ratio->Draw("e1");
-
-  // Print(cAll100r, ("rates__vs_eta__minpt"+ vs_eta_minpt +"__PU100__def-2s-2s1b__gem-2s-2s1b__ratio.png").Data());
-
-
-  // //========================  3+ Stubs ================================//
-
-
-  // ((TCanvas*)gROOT->FindObject("cAll100"))->cd();
-
-  maxy = 30.;//10;
-  h_rt_tf20_3s->GetYaxis()->SetRangeUser(miny,maxy);
-  h_rt_tf20_3s1b->GetYaxis()->SetRangeUser(miny,maxy);
-  h_rt_tf20_gpt20_3s1b->GetYaxis()->SetRangeUser(miny,maxy);
-  // h_rt_tf20_3s1ab->GetYaxis()->SetRangeUser(miny,maxy);
-  // h_rt_tf20_gpt20_3s1ab->GetYaxis()->SetRangeUser(miny,maxy);
-
-  // ((TCanvas*)gROOT->FindObject("cAll100"))->cd();
-  // h_rt_tf20_3s->Draw("hist e1");
-  // h_rt_tf20_gpt20_3s1b->Draw("hist e1 same");
-  // h_rt_tf20_3s->Draw("hist e1 same");
-  // h_rt_tf20_3s1b->Draw("hist e1 same");
-
-  // TLegend *leg = new TLegend(0.4,0.63,.98,0.90,NULL,"brNDC");
-  // leg->SetBorderSize(0);
-  // leg->SetFillStyle(0);
-  // leg->AddEntry(h_rt_tf20_3s,"Tracks: p_{T}>=20, 3+ stubs","");
-  // leg->AddEntry(h_rt_tf20_3s,"anywhere","l");
-  // leg->AddEntry(h_rt_tf20_3s1b,"with ME1 in 1.6<|#eta|<2.14","l");
-  // leg->AddEntry(h_rt_tf20_gpt20_3s1b,"with (ME1+GEM) in 1.6<|#eta|<2.14","l");
-  // leg->Draw();
-
-  // TLatex *  tex = new TLatex(0.17, 0.82,"#splitline{L=4*10^{34}}{(25ns PU100)}");
-  // tex->SetNDC();
-  // tex->Draw();
-
-  // Print(cAll100, ("rates__vs_eta__minpt"+ vs_eta_minpt +"__PU100__def-3s-3s1b__gem-3s-3s1b.png").Data());
-
-
-  // TCanvas* cAll100r = new TCanvas("cAll100r","cAll100r",800,300) ;
-  // gPad->SetGridx(1);gPad->SetGridy(1);
-
-  // gem_ratio = setHistoRatio(h_rt_tf20_gpt20_3s1b, h_rt_tf20_3s1b, "", 0.,1.8);
-  // gem_ratio->Draw("e1");
-
-  // Print(cAll100r, ("rates__vs_eta__minpt"+ vs_eta_minpt +"__PU100__def-3s-3s1b__gem-3s-3s1b__ratio.png").Data());
-
-
-  //=========================  Comparing default with/without stub in ME1a ==============================================
-
-  /*
-  ((TCanvas*)gROOT->FindObject("cAll100"))->cd();
-  h_rt_tf20_3s1b->Draw("hist e1");
-  // h_rt_tf20_3s1ab->Draw("hist e1 same");
- 
-  TLegend *leg = new TLegend(0.25,0.65,.85,0.90,NULL,"brNDC");
-  leg->SetBorderSize(0);
-  leg->SetFillStyle(0);
-  leg->AddEntry(h_rt_tf20_3s1b,"Tracks: p_{T}>=20, 3+ stubs","");
-  leg->AddEntry(h_rt_tf20_3s1b,"Requiring stub in ME1b","l");
-  // leg->AddEntry(h_rt_tf20_3s1ab,"Requiring stub in ME1b and ME1a","l");
-  leg->Draw();
-
-  TLatex *  tex = new TLatex(0.15, 0.85,"#splitline{L=4*10^{34}}{(25ns PU100)}");
-  tex->SetNDC();
-  tex->Draw();
-
-  Print(cAll100, ("rates__vs_eta__minpt"+ vs_eta_minpt +"__PU100__def-3s-3s1b__def-3s-3s1b_compstubME1a.png").Data());
-
-  TCanvas* cAll100r = new TCanvas("cAll100r","cAll100r",800,300) ;
-  gPad->SetGridx(1);gPad->SetGridy(1);
-
-  gem_ratio = setHistoRatio(h_rt_tf20_3s1ab, h_rt_tf20_3s1b, "", 0.,1.8);
-  gem_ratio->Draw("e1");
-
-  Print(cAll100r, ("rates__vs_eta__minpt"+ vs_eta_minpt +"__PU100__def-3s-3s1b__def-3s-3s1b__ratio_compstubME1a.png").Data());
-  */
-
-
-
-  // ((TCanvas*)gROOT->FindObject("cAll100"))->cd();
-
-  // maxy = 30.;//10;
-
-  // h_rt_tf20_3s1ab->GetYaxis()->SetRangeUser(miny,maxy);
-  // h_rt_tf20_gpt20_3s1ab->GetYaxis()->SetRangeUser(miny,maxy);
-
-  // ((TCanvas*)gROOT->FindObject("cAll100"))->cd();
-  // h_rt_tf20_3s->Draw("hist e1");
-  // h_rt_tf20_gpt20_3s1ab->Draw("hist e1 same");
-  // h_rt_tf20_3s->Draw("hist e1 same");
-  // h_rt_tf20_3s1ab->Draw("hist e1 same");
-
-
-  // TLegend *leg = new TLegend(0.4,0.63,.98,0.90,NULL,"brNDC");
-  // leg->SetBorderSize(0);
-  // leg->SetFillStyle(0);
-  // leg->AddEntry(h_rt_tf20_3s,"Tracks: p_{T}>=20, 3+ stubs","");
-  // leg->AddEntry(h_rt_tf20_3s,"anywhere","l");
-  // leg->AddEntry(h_rt_tf20_3s1ab,"with ME1 in 1.6<|#eta|","l");
-  // leg->AddEntry(h_rt_tf20_gpt20_3s1ab,"with (ME1+GEM) in 1.6<|#eta|","l");
-  // leg->Draw();
- 
-  // TLatex *  tex = new TLatex(0.17, 0.82,"#splitline{L=4*10^{34}}{(25ns PU100)}");
-  // tex->SetNDC();
-  // tex->Draw();
- 
-  // Print(cAll100, ("rates__vs_eta__minpt"+ vs_eta_minpt +"__PU100__def-3s-3s1ab__gem-3s-3s1ab.png").Data());
- 
- 
-  // TCanvas* cAll100r = new TCanvas("cAll100r","cAll100r",800,300) ;
-  // gPad->SetGridx(1);gPad->SetGridy(1);
- 
-  // gem_ratio = setHistoRatio(h_rt_tf20_gpt20_3s1ab, h_rt_tf20_3s1ab, "", 0.,1.8);
-  // gem_ratio->Draw("e1");
- 
-  // Print(cAll100r, ("rates__vs_eta__minpt"+ vs_eta_minpt +"__PU100__def-3s-3s1ab__gem-3s-3s1ab__ratio.png").Data());
+    minpt = 30
+    ttl = "CSC L1 trigger rates for p_{T}^{TF}>%d GeV/c;track #eta;rate/bin [kHz]"%(minpt)
+    
+    h_rt_def_tf30_2s = setHistoEta(f_def,          "h_rt_gmt_csc_ptmax%d_eta_2s"%(minpt),          "_hAll300", ttl, kAzure+2, 1, 2);
+    h_rt_def_tf30_2s_2s1b = setHistoEta(f_def,     "h_rt_gmt_csc_ptmax%d_eta_2s_2s1b"%(minpt),     "_hAll100", ttl, kAzure+5, 1, 2);
+    h_rt_def_tf30_3s = setHistoEta(f_def,          "h_rt_gmt_csc_ptmax%d_eta_3s"%(minpt),          "_hAll100", ttl, kAzure+3, 1, 2);
+    h_rt_def_tf30_3s_no1a = setHistoEta(f_def,     "h_rt_gmt_csc_ptmax%d_eta_3s_no1a"%(minpt),     "_hAll100", ttl, kAzure+2, 1, 2);
+    h_rt_def_tf30_3s_1b = setHistoEta(f_def,       "h_rt_gmt_csc_ptmax%d_eta_3s_1b"%(minpt),       "_hAll100", ttl, kAzure+2, 1, 2);
+    h_rt_def_tf30_3s_2s1b = setHistoEta(f_def,     "h_rt_gmt_csc_ptmax%d_eta_3s_2s1b"%(minpt),     "_hAll100", ttl, kAzure+6, 1, 2);
+    h_rt_def_tf30_3s_2s1b_1b = setHistoEta(f_def,  "h_rt_gmt_csc_ptmax%d_eta_3s_2s1b_1b"%(minpt),  "_hAll100", ttl, kAzure+6, 1, 2);
+    h_rt_def_tf30_3s_2s1b_no1a = setHistoEta(f_def,"h_rt_gmt_csc_ptmax%d_eta_3s_2s1b_no1a"%(minpt),"_hAll100", ttl, kAzure+3, 7, 2);
+    h_rt_def_tf30_3s_3s1b = setHistoEta(f_def,     "h_rt_gmt_csc_ptmax%d_eta_3s_3s1b"%(minpt),     "_hAll100", ttl, kAzure+6, 1, 2);
+    h_rt_def_tf30_3s_3s1b_1b = setHistoEta(f_def,  "h_rt_gmt_csc_ptmax%d_eta_3s_3s1b_1b"%(minpt),  "_hAll100", ttl, kAzure+6, 1, 2);
+    h_rt_def_tf30_3s_3s1b_no1a = setHistoEta(f_def,"h_rt_gmt_csc_ptmax%d_eta_3s_3s1b_no1a"%(minpt),"_hAll100", ttl, kAzure+3, 7, 2);
 
 
 
 
 
-  // ((TCanvas*)gROOT->FindObject("cAll100"))->cd();
-  // h_rt_tf20_gpt20_3s1b->Draw("hist e1");
-  // h_rt_tf20_gpt20_3s1ab->Draw("hist e1 same");
- 
-  //  TLegend *leg = new TLegend(0.25,0.65,.85,0.90,NULL,"brNDC");
-  // leg->SetBorderSize(0);
-  // leg->SetFillStyle(0);
-  // leg->AddEntry(h_rt_tf20_gpt20_3s1b,"Tracks: p_{T}>=20, 3+ stubs","");
-  // leg->AddEntry(h_rt_tf20_gpt20_3s1b,"Requiring stub in ME1b (ME1+GEM)","l");
-  // leg->AddEntry(h_rt_tf20_gpt20_3s1ab,"Requiring stub in ME1b and ME1a (ME1+GEM)","l");
-  // leg->Draw();
+    h_rt_tf20_gpt20_2s1b = setHistoEta(f_g98_pt20, "h_rt_gmt_csc_ptmax%d_eta_2s_2s1b"%(minpt),    "_hAll100", ttl, kGreen+1, 7, 2);
+    h_rt_tf20_gpt20_3s1b = setHistoEta(f_g98_pt20, "h_rt_gmt_csc_ptmax%d_eta_3s_3s1b"%(minpt),    "_hAll100", ttl, kGreen+3, 7, 2);
+    h_rt_tf20_gpt20_3s1b_1b = setHistoEta(f_g98_pt20,   "h_rt_gmt_csc_ptmax%d_eta_3s_3s1b_1b"%(minpt),    "_hAll100", ttl, kAzure+6, 1, 2);
+    h_rt_tf20_gpt20_3s1b_no1a = setHistoEta(f_g98_pt20, "h_rt_gmt_csc_ptmax%d_eta_3s_3s1b_no1a"%(minpt),    "_hAll100", ttl, kAzure+3, 7, 2);
 
-  // TLatex *  tex = new TLatex(0.15, 0.82,"#splitline{L=4*10^{34}}{(25ns PU100)}");
-  // tex->SetNDC();
-  // tex->Draw();
+    ##    h_rt_tf20_3s1ab = setHistoEta(f_def,            "h_rt_gmt_csc_ptmax%d_eta_3s_3s1ab"%(minpt),  "_hAll100", ttl, kBlue, 1, 2);
+    ##    h_rt_tf20_gpt20_3s1ab = setHistoEta(f_g98_pt20, "h_rt_gmt_csc_ptmax%d_eta_3s_3s1ab"%(minpt),  "_hAll100", ttl, kRed, 7, 2);
+    
+    
+"""
+    c = TCanvas("c","c",800,600)
+    c.SetLogy(1)
+    
+    miny = 0.01
+    maxy = 300
+    
+    h_rt_tf20_2s.GetYaxis().SetRangeUser(miny,maxy)
+    h_rt_tf20_2s1b.GetYaxis().SetRangeUser(miny,maxy)
+    h_rt_tf20_gpt20_2s1b.GetYaxis().SetRangeUser(miny,maxy)
+    
+    h_rt_tf20_2s.Draw("hist e1")
+    h_rt_tf20_2s1b.Draw("hist e1 same") 
+    h_rt_tf20_gpt20_2s1b.Draw("hist e1 same")
+    
+    leg = TLegend(0.4,0.63,.98,0.90,"","brNDC")
+    leg.SetBorderSize(0)
+    leg.SetFillStyle(0)
+    leg.AddEntry(h_rt_tf20_2s,"Tracks: p_{T}>=20, 2+ stubs","")
+    leg.AddEntry(h_rt_tf20_2s,"anywhere","l")
+    leg.AddEntry(h_rt_tf20_2s1b,"with ME1 in 1.6<|#eta|<2.14","l")
+    leg.AddEntry(h_rt_tf20_gpt20_2s1b,"with (ME1+GEM) in 1.6<|#eta|<2.14","l")
+    leg.Draw()
+    
+    tex = TLatex(0.17, 0.82,"#splitline{L=4*10^{34}}{(25ns PU100)}")
+    tex.SetNDC()
+    tex.Draw("same")
 
-  // Print(cAll100, ("rates__vs_eta__minpt"+ vs_eta_minpt +"__PU100__gme-3s-3s1b__gem-3s-3s1b_compstubME1a.png").Data());
+    Print(c, plotDir, "rates__vs_eta__minpt%s__PU100__def-2s-2s1b__gem-2s-2s1b%s"%(minpt,ext))
 
-  // TCanvas* cAll100r = new TCanvas("cAll100r","cAll100r",800,300) ;
-  // gPad->SetGridx(1);gPad->SetGridy(1);
+    ## Ratio plot
+    cAll100r = TCanvas("cAll100r","cAll100r",800,300) 
+    gPad.SetGridx(1)
+    gPad.SetGridy(1)
+    gem_ratio = setHistoRatio(h_rt_tf20_gpt20_2s1b, h_rt_tf20_2s1b, "", 0.,1.8)
+    gem_ratio.Draw("e1")
+    
+    Print(cAll100r, plotDir, "rates__vs_eta__minpt%d__PU100__def-2s-2s1b__gem-2s-2s1b__ratio%s"%(minpt, ext))
 
-  // gem_ratio = setHistoRatio(h_rt_tf20_gpt20_3s1ab, h_rt_tf20_gpt20_3s1b, "", 0.,1.8);
-  // gem_ratio->Draw("e1");
 
-  // Print(cAll100r, ("rates__vs_eta__minpt"+ vs_eta_minpt +"__PU100__gem-3s-3s1b__gem-3s-3s1b__ratio_compstubME1a.png").Data());
+    ##========================  3+ Stubs ================================//
 
+    c.Clear()
+    c.cd()
+   
+    maxy = 30
+    h_rt_tf20_3s.GetYaxis().SetRangeUser(miny,maxy)
+    h_rt_tf20_3s1b.GetYaxis().SetRangeUser(miny,maxy)
+    h_rt_tf20_gpt20_3s1b.GetYaxis().SetRangeUser(miny,maxy)
+
+    h_rt_tf20_3s.Draw("hist e1")
+    h_rt_tf20_gpt20_3s1b.Draw("hist e1 same")
+    h_rt_tf20_3s.Draw("hist e1 same")
+    h_rt_tf20_3s1b.Draw("hist e1 same")
+
+    
+    
+    leg = TLegend(0.4,0.63,.98,0.90,"","brNDC")
+    leg.SetBorderSize(0)
+    leg.SetFillStyle(0)
+    leg.AddEntry(h_rt_tf20_3s,"Tracks: p_{T}>=20, 3+ stubs","")
+    leg.AddEntry(h_rt_tf20_3s,"anywhere","l")
+    leg.AddEntry(h_rt_tf20_3s1b,"with ME1 in 1.6<|#eta|<2.14","l")
+    leg.AddEntry(h_rt_tf20_gpt20_3s1b,"with (ME1+GEM) in 1.6<|#eta|<2.14","l")
+    leg.Draw()
+    
+    tex = TLatex(0.17, 0.82,"#splitline{L=4*10^{34}}{(25ns PU100)}")
+    tex.SetNDC()
+    tex.Draw()
+    
+    Print(c, plotDir, "rates__vs_eta__minpt%s__PU100__def-3s-3s1b__gem-3s-3s1b%s"%(minpt,ext))
+
+
+    cAll100r = TCanvas("cAll100r","cAll100r",800,300) 
+    gPad.SetGridx(1)
+    gPad.SetGridy(1)
+    gem_ratio = setHistoRatio(h_rt_tf20_gpt20_3s1b, h_rt_tf20_3s1b, "", 0.,1.8)
+    gem_ratio.Draw("e1")
+    
+    Print(cAll100r, plotDir, "rates__vs_eta__minpt%d__PU100__def-3s-3s1b__gem-3s-3s1b__ratio%s"%(minpt, ext))
+    
+
+
+    ##=========================  Comparing default with/without stub in ME1a ==============================================
+
+
+    c.Clear()
+    c.cd()
+    h_rt_tf20_3s1b.Draw("hist e1")
+    h_rt_tf20_3s.Draw("same hist e1")
+    h_rt_tf20_3s1b_1b.Draw("same hist e1")
+    h_rt_tf20_3s1b_no1a.Draw("same hist e1")
+
+    h_rt_tf20_3s1b_1b.SetLineColor(kRed)
+    h_rt_tf20_3s1b_no1a.SetLineColor(kGreen+2)
+    h_rt_tf20_3s1b_1b.GetYaxis().SetRangeUser(miny,maxy)
+    h_rt_tf20_gpt20_3s1b_no1a.GetYaxis().SetRangeUser(miny,maxy)
+
+
+#    h_rt_tf20_3s1ab.Draw("hist e1 same")
+
+    leg = TLegend(0.25,0.65,.85,0.90,"","brNDC")
+    leg.SetBorderSize(0)
+    leg.SetFillStyle(0)
+    leg.AddEntry(h_rt_tf20_3s1b,"Tracks: p_{T}>=20, 3+ stubs","")
+    leg.AddEntry(h_rt_tf20_3s1b,"Requiring stub in ME1b","l")
+    ## leg.AddEntry(h_rt_tf20_3s1ab,"Requiring stub in ME1b and ME1a","l")
+    leg.Draw()
+    
+    tex = TLatex(0.15, 0.85,"#splitline{L=4*10^{34}}{(25ns PU100)}")
+    tex.SetNDC()
+    tex.Draw()
+    
+    Print(c, plotDir, "test.pdf")
+    ##)rates__vs_eta__minpt%s__PU100__def-3s-3s1b__def-3s-3s1b_compstubME1a%s"%(minpt,ext)
+
+    cAll100r = TCanvas("cAll100r","cAll100r",800,300) 
+    gPad.SetGridx(1)
+    gPad.SetGridy(1)
+    gem_ratio = setHistoRatio(h_rt_tf20_3s1ab, h_rt_tf20_3s1b, "", 0.,1.8)
+    gem_ratio.Draw("e1")
+    
+    Print(cAll100r, plotDir, "rates__vs_eta__minpt%d__PU100__def-3s-3s1b__gem-3s-3s1b__ratio_compstubME1a%s"%(minpt, ext))
+
+    
+    
+    
+    // ((TCanvas*)gROOT->FindObject("cAll100"))->cd();
+    
+    // maxy = 30.;//10;
+    
+    // h_rt_tf20_3s1ab->GetYaxis()->SetRangeUser(miny,maxy);
+    // h_rt_tf20_gpt20_3s1ab->GetYaxis()->SetRangeUser(miny,maxy);
+    
+    // ((TCanvas*)gROOT->FindObject("cAll100"))->cd();
+    // h_rt_tf20_3s->Draw("hist e1");
+    // h_rt_tf20_gpt20_3s1ab->Draw("hist e1 same");
+    // h_rt_tf20_3s->Draw("hist e1 same");
+    // h_rt_tf20_3s1ab->Draw("hist e1 same");
+    
+    
+    // TLegend *leg = new TLegend(0.4,0.63,.98,0.90,"","brNDC");
+    // leg->SetBorderSize(0);
+    // leg->SetFillStyle(0);
+    // leg->AddEntry(h_rt_tf20_3s,"Tracks: p_{T}>=20, 3+ stubs","");
+    // leg->AddEntry(h_rt_tf20_3s,"anywhere","l");
+    // leg->AddEntry(h_rt_tf20_3s1ab,"with ME1 in 1.6<|#eta|","l");
+    // leg->AddEntry(h_rt_tf20_gpt20_3s1ab,"with (ME1+GEM) in 1.6<|#eta|","l");
+    // leg->Draw();
+    
+    // TLatex *  tex = new TLatex(0.17, 0.82,"#splitline{L=4*10^{34}}{(25ns PU100)}");
+    // tex->SetNDC();
+    // tex->Draw();
+    
+    // Print(cAll100, ("rates__vs_eta__minpt"+ vs_eta_minpt +"__PU100__def-3s-3s1ab__gem-3s-3s1ab.png").Data());
+    
+    
+    // TCanvas* cAll100r = new TCanvas("cAll100r","cAll100r",800,300) ;
+    // gPad->SetGridx(1);gPad->SetGridy(1);
+    
+    // gem_ratio = setHistoRatio(h_rt_tf20_gpt20_3s1ab, h_rt_tf20_3s1ab, "", 0.,1.8);
+    // gem_ratio->Draw("e1");
+    
+    // Print(cAll100r, ("rates__vs_eta__minpt"+ vs_eta_minpt +"__PU100__def-3s-3s1ab__gem-3s-3s1ab__ratio.png").Data());
+    
+    
+
+
+
+    // ((TCanvas*)gROOT->FindObject("cAll100"))->cd();
+    // h_rt_tf20_gpt20_3s1b->Draw("hist e1");
+    // h_rt_tf20_gpt20_3s1ab->Draw("hist e1 same");
+    
+    //  TLegend *leg = new TLegend(0.25,0.65,.85,0.90,"","brNDC");
+    // leg->SetBorderSize(0);
+    // leg->SetFillStyle(0);
+    // leg->AddEntry(h_rt_tf20_gpt20_3s1b,"Tracks: p_{T}>=20, 3+ stubs","");
+    // leg->AddEntry(h_rt_tf20_gpt20_3s1b,"Requiring stub in ME1b (ME1+GEM)","l");
+    // leg->AddEntry(h_rt_tf20_gpt20_3s1ab,"Requiring stub in ME1b and ME1a (ME1+GEM)","l");
+    // leg->Draw();
+    
+    // TLatex *  tex = new TLatex(0.15, 0.82,"#splitline{L=4*10^{34}}{(25ns PU100)}");
+    // tex->SetNDC();
+    // tex->Draw();
+    
+    // Print(cAll100, ("rates__vs_eta__minpt"+ vs_eta_minpt +"__PU100__gme-3s-3s1b__gem-3s-3s1b_compstubME1a.png").Data());
+    
+    // TCanvas* cAll100r = new TCanvas("cAll100r","cAll100r",800,300) ;
+    // gPad->SetGridx(1);gPad->SetGridy(1);
+    
+    // gem_ratio = setHistoRatio(h_rt_tf20_gpt20_3s1ab, h_rt_tf20_gpt20_3s1b, "", 0.,1.8);
+    // gem_ratio->Draw("e1");
+    
+    // Print(cAll100r, ("rates__vs_eta__minpt"+ vs_eta_minpt +"__PU100__gem-3s-3s1b__gem-3s-3s1b__ratio_compstubME1a.png").Data());
+    
 
 
 
@@ -801,7 +856,7 @@ void gem_rate_draw()
   // h_rt_tf20_3s1ab->Draw("hist e1");
   // h_rt_tf20_gpt20_3s1ab->Draw("hist e1 same");
  
-  //  TLegend *leg = new TLegend(0.25,0.65,.85,0.90,NULL,"brNDC");
+  //  TLegend *leg = new TLegend(0.25,0.65,.85,0.90,"","brNDC");
   // leg->SetBorderSize(0);
   // leg->SetFillStyle(0);
   // leg->AddEntry(h_rt_tf20_3s1ab,"Tracks: p_{T}>=20, 3+ stubs","");
@@ -854,7 +909,7 @@ void gem_rate_draw()
   // // h_rt_tf30_2s->Draw("hist e1 same");
   // // h_rt_tf30_2s1b->Draw("hist e1 same");
 
-  // // TLegend *leg = new TLegend(0.4,0.63,.98,0.90,NULL,"brNDC");
+  // // TLegend *leg = new TLegend(0.4,0.63,.98,0.90,"","brNDC");
   // // leg->SetBorderSize(0);
   // // leg->SetFillStyle(0);
   // // leg->AddEntry(h_rt_tf30_2s,"Tracks: p_{T}>=30, 2+ stubs","");
@@ -893,7 +948,7 @@ void gem_rate_draw()
   // h_rt_tf30_3s->Draw("hist e1 same");
   // h_rt_tf30_3s1b->Draw("hist e1 same");
 
-  // TLegend *leg = new TLegend(0.4,0.63,.98,0.90,NULL,"brNDC");
+  // TLegend *leg = new TLegend(0.4,0.63,.98,0.90,"","brNDC");
   // leg->SetBorderSize(0);
   // leg->SetFillStyle(0);
   // leg->AddEntry(h_rt_tf30_3s,"Tracks: p_{T}>=30, 3+ stubs","");
@@ -938,7 +993,7 @@ void gem_rate_draw()
   // h_rt_tf30_3s->Draw("hist e1 same");
   // h_rt_tf30_3s1ab->Draw("hist e1 same");
 
-  // TLegend *leg = new TLegend(0.4,0.63,.98,0.90,NULL,"brNDC");
+  // TLegend *leg = new TLegend(0.4,0.63,.98,0.90,"","brNDC");
   // leg->SetBorderSize(0);
   // leg->SetFillStyle(0);
 
@@ -971,7 +1026,7 @@ void gem_rate_draw()
   // h_rt_tf30_3s1b->Draw("hist e1");
   // h_rt_tf30_3s1ab->Draw("hist e1 same");
  
-  //   TLegend *leg = new TLegend(0.25,0.65,.85,0.90,NULL,"brNDC");
+  //   TLegend *leg = new TLegend(0.25,0.65,.85,0.90,"","brNDC");
   // leg->SetBorderSize(0);
   // leg->SetFillStyle(0);
   // leg->AddEntry(h_rt_tf30_3s1b,"Tracks: p_{T}>=30, 3+ stubs","");
@@ -1003,7 +1058,7 @@ void gem_rate_draw()
   //  h_rt_tf30_gpt30_3s1b->Draw("hist e1");
   //  h_rt_tf30_gpt30_3s1ab->Draw("hist e1 same ");
   
-  //    TLegend *leg = new TLegend(0.25,0.65,.85,0.90,NULL,"brNDC");
+  //    TLegend *leg = new TLegend(0.25,0.65,.85,0.90,"","brNDC");
   //  leg->SetBorderSize(0);
   //  leg->SetFillStyle(0);
   //  leg->AddEntry(h_rt_tf30_gpt30_3s1b,"Tracks: p_{T}>=30, 3+ stubs" ,"");
@@ -1033,7 +1088,7 @@ void gem_rate_draw()
   //  h_rt_tf30_3s1ab->Draw("hist e1");
   //  h_rt_tf30_gpt30_3s1ab->Draw("hist e1 same");
   
-  //  TLegend *leg = new TLegend(0.25,0.65,.85,0.90,NULL,"brNDC");
+  //  TLegend *leg = new TLegend(0.25,0.65,.85,0.90,"","brNDC");
   //  leg->SetBorderSize(0);
   //  leg->SetFillStyle(0);
   //  leg->AddEntry(h_rt_tf30_3s1ab,"Tracks: p_{T}>=30, 3+ stubs, 1 stub in ME1b or ME1a","");
@@ -1063,9 +1118,39 @@ void gem_rate_draw()
 
 
 }
+    
+def etaTriggerRates(filesDir, plotDir, ext):
+    Produce trigger rate plots versus eta for pt values and specific patterns
 
+    etaTriggerRate(filesDir, 'hp_minbias_6_0_1_POSTLS161_V12__pu100_w3_gem95_pt10_pat2.root', plotDir, ext)
 
+    etaTriggerRate(filesDir, 'hp_minbias_6_0_1_POSTLS161_V12__pu100_w3_gem95_pt15_pat2.root', plotDir, ext)
+    etaTriggerRate(filesDir, 'hp_minbias_6_0_1_POSTLS161_V12__pu100_w3_gem95_pt20_pat2.root', plotDir, ext)
+    etaTriggerRate(filesDir, 'hp_minbias_6_0_1_POSTLS161_V12__pu100_w3_gem95_pt30_pat2.root', plotDir, ext)
+    etaTriggerRate(filesDir, 'hp_minbias_6_0_1_POSTLS161_V12__pu100_w3_gem95_pt40_pat2.root', plotDir, ext)
 
+    etaTriggerRate(filesDir, 'hp_minbias_6_0_1_POSTLS161_V12__pu100_w3_gem95_pt10_pat8.root', plotDir, ext)
+    etaTriggerRate(filesDir, 'hp_minbias_6_0_1_POSTLS161_V12__pu100_w3_gem95_pt15_pat8.root', plotDir, ext)
+    etaTriggerRate(filesDir, 'hp_minbias_6_0_1_POSTLS161_V12__pu100_w3_gem95_pt20_pat8.root', plotDir, ext)
+    etaTriggerRate(filesDir, 'hp_minbias_6_0_1_POSTLS161_V12__pu100_w3_gem95_pt30_pat8.root', plotDir, ext)
+    etaTriggerRate(filesDir, 'hp_minbias_6_0_1_POSTLS161_V12__pu100_w3_gem95_pt40_pat8.root', plotDir, ext)
+
+    etaTriggerRate(filesDir, 'hp_minbias_6_0_1_POSTLS161_V12__pu100_w3_gem98_pt10_pat2.root', plotDir, ext)
+    etaTriggerRate(filesDir, 'hp_minbias_6_0_1_POSTLS161_V12__pu100_w3_gem98_pt15_pat2.root', plotDir, ext)
+    etaTriggerRate(filesDir, 'hp_minbias_6_0_1_POSTLS161_V12__pu100_w3_gem98_pt20_pat2.root', plotDir, ext)
+    etaTriggerRate(filesDir, 'hp_minbias_6_0_1_POSTLS161_V12__pu100_w3_gem98_pt30_pat2.root', plotDir, ext)
+    etaTriggerRate(filesDir, 'hp_minbias_6_0_1_POSTLS161_V12__pu100_w3_gem98_pt40_pat2.root', plotDir, ext)
+
+    etaTriggerRate(filesDir, 'hp_minbias_6_0_1_POSTLS161_V12__pu100_w3_gem98_pt10_pat8.root', plotDir, ext)
+    etaTriggerRate(filesDir, 'hp_minbias_6_0_1_POSTLS161_V12__pu100_w3_gem98_pt15_pat8.root', plotDir, ext)
+    etaTriggerRate(filesDir, 'hp_minbias_6_0_1_POSTLS161_V12__pu100_w3_gem98_pt20_pat8.root', plotDir, ext)
+    etaTriggerRate(filesDir, 'hp_minbias_6_0_1_POSTLS161_V12__pu100_w3_gem98_pt30_pat8.root', plotDir, ext)
+    etaTriggerRate(filesDir, 'hp_minbias_6_0_1_POSTLS161_V12__pu100_w3_gem98_pt40_pat8.root', plotDir, ext)
+
+    """
+
+"""
+/*
 //###########################################################################
 //###########################################################################
 
@@ -1222,7 +1307,7 @@ void drawplot_gmtrt(TString dname = "", TString vs_eta_minpt = "")
       TCanvas* cAll100 = new TCanvas("cAll100","cAll100",800,600) ;
       hAll100->Draw("hist e1");
       hAll100gem->Draw("hist e1 same");
-      TLegend *leg_cc100 = new TLegend(0.4,0.65,.98,0.92,NULL,"brNDC");
+      TLegend *leg_cc100 = new TLegend(0.4,0.65,.98,0.92,"","brNDC");
       const TObject obj;
       leg_cc100->SetBorderSize(0);
       //leg_cc100->SetTextSize(0.0368);
@@ -1261,7 +1346,7 @@ void drawplot_gmtrt(TString dname = "", TString vs_eta_minpt = "")
       TCanvas* cAll100 = new TCanvas("cAll100","cAll100",800,600) ;
       hAll100->Draw("hist e1");
       hAll100gem->Draw("hist e1 same");
-      TLegend *leg_cc100 = new TLegend(0.4,0.65,.98,0.92,NULL,"brNDC");
+      TLegend *leg_cc100 = new TLegend(0.4,0.65,.98,0.92,"","brNDC");
       const TObject obj;
       leg_cc100->SetBorderSize(0);
       //leg_cc100->SetTextSize(0.0368);
@@ -1298,7 +1383,7 @@ void drawplot_gmtrt(TString dname = "", TString vs_eta_minpt = "")
       TCanvas* cAll100 = new TCanvas("cAll100","cAll100",800,600) ;
       hAll100->Draw("hist e1");
       hAll100gem->Draw("hist e1 same");
-      TLegend *leg_cc100 = new TLegend(0.4,0.65,.98,0.92,NULL,"brNDC");
+      TLegend *leg_cc100 = new TLegend(0.4,0.65,.98,0.92,"","brNDC");
       const TObject obj;
       leg_cc100->SetBorderSize(0);
       //leg_cc100->SetTextSize(0.0368);
@@ -1336,7 +1421,7 @@ void drawplot_gmtrt(TString dname = "", TString vs_eta_minpt = "")
       TCanvas* cAll100 = new TCanvas("cAll100","cAll100",800,600) ;
       hAll100->Draw("hist e1");
       hAll100gem->Draw("hist e1 same");
-      TLegend *leg_cc100 = new TLegend(0.4,0.65,.98,0.92,NULL,"brNDC");
+      TLegend *leg_cc100 = new TLegend(0.4,0.65,.98,0.92,"","brNDC");
       const TObject obj;
       leg_cc100->SetBorderSize(0);
       //leg_cc100->SetTextSize(0.0368);
@@ -1376,7 +1461,7 @@ void drawplot_gmtrt(TString dname = "", TString vs_eta_minpt = "")
       gPad->SetGridx(1);gPad->SetGridy(1);
       hAll100->Draw("e3");
       hAll100gem->Draw("e3 same");
-      TLegend *leg_cc100 = new TLegend(0.4,0.65,.98,0.92,NULL,"brNDC");
+      TLegend *leg_cc100 = new TLegend(0.4,0.65,.98,0.92,"","brNDC");
       const TObject obj;
       leg_cc100->SetBorderSize(0);
       //leg_cc100->SetTextSize(0.0368);
@@ -1423,7 +1508,7 @@ void drawplot_gmtrt(TString dname = "", TString vs_eta_minpt = "")
       gPad->SetGridx(1);gPad->SetGridy(1);
       hAll100->Draw("e3");
       hAll100gem->Draw("e3 same");
-      TLegend *leg_cc100 = new TLegend(0.4,0.65,.98,0.92,NULL,"brNDC");
+      TLegend *leg_cc100 = new TLegend(0.4,0.65,.98,0.92,"","brNDC");
       const TObject obj;
       leg_cc100->SetBorderSize(0);
       //leg_cc100->SetTextSize(0.0368);
@@ -1469,7 +1554,7 @@ void drawplot_gmtrt(TString dname = "", TString vs_eta_minpt = "")
       gPad->SetGridx(1);gPad->SetGridy(1);
       hAll100->Draw("e3");
       hAll100gem->Draw("e3 same");
-      TLegend *leg_cc100 = new TLegend(0.4,0.65,.98,0.92,NULL,"brNDC");
+      TLegend *leg_cc100 = new TLegend(0.4,0.65,.98,0.92,"","brNDC");
       const TObject obj;
       leg_cc100->SetBorderSize(0);
       //leg_cc100->SetTextSize(0.0368);
@@ -1518,7 +1603,7 @@ void drawplot_gmtrt(TString dname = "", TString vs_eta_minpt = "")
       gPad->SetGridx(1);gPad->SetGridy(1);
       hAll100->Draw("e3");
       hAll100gem->Draw("e3 same");
-      TLegend *leg_cc100 = new TLegend(0.4,0.65,.98,0.92,NULL,"brNDC");
+      TLegend *leg_cc100 = new TLegend(0.4,0.65,.98,0.92,"","brNDC");
       const TObject obj;
       leg_cc100->SetBorderSize(0);
       //leg_cc100->SetTextSize(0.0368);
@@ -1566,7 +1651,7 @@ void drawplot_gmtrt(TString dname = "", TString vs_eta_minpt = "")
       gPad->SetGridx(1);gPad->SetGridy(1);
       hAll100->Draw("e3");
       hAll100gem->Draw("e3 same");
-      TLegend *leg_cc100 = new TLegend(0.4,0.65,.98,0.92,NULL,"brNDC");
+      TLegend *leg_cc100 = new TLegend(0.4,0.65,.98,0.92,"","brNDC");
       const TObject obj;
       leg_cc100->SetBorderSize(0);
       //leg_cc100->SetTextSize(0.0368);
@@ -1615,7 +1700,7 @@ void drawplot_gmtrt(TString dname = "", TString vs_eta_minpt = "")
       gPad->SetGridx(1);gPad->SetGridy(1);
       hAll100->Draw("e3");
       hAll100gem->Draw("e3 same");
-      TLegend *leg_cc100 = new TLegend(0.4,0.65,.98,0.92,NULL,"brNDC");
+      TLegend *leg_cc100 = new TLegend(0.4,0.65,.98,0.92,"","brNDC");
       const TObject obj;
       leg_cc100->SetBorderSize(0);
       //leg_cc100->SetTextSize(0.0368);
@@ -1664,7 +1749,7 @@ void drawplot_gmtrt(TString dname = "", TString vs_eta_minpt = "")
       gPad->SetGridx(1);gPad->SetGridy(1);
       hAll100->Draw("e3");
       hAll100gem->Draw("e3 same");
-      TLegend *leg_cc100 = new TLegend(0.4,0.65,.98,0.92,NULL,"brNDC");
+      TLegend *leg_cc100 = new TLegend(0.4,0.65,.98,0.92,"","brNDC");
       const TObject obj;
       leg_cc100->SetBorderSize(0);
       //leg_cc100->SetTextSize(0.0368);
@@ -1713,7 +1798,7 @@ void drawplot_gmtrt(TString dname = "", TString vs_eta_minpt = "")
       gPad->SetGridx(1);gPad->SetGridy(1);
       hAll100->Draw("e3");
       hAll100gem->Draw("e3 same");
-      TLegend *leg_cc100 = new TLegend(0.4,0.65,.98,0.92,NULL,"brNDC");
+      TLegend *leg_cc100 = new TLegend(0.4,0.65,.98,0.92,"","brNDC");
       const TObject obj;
       leg_cc100->SetBorderSize(0);
       //leg_cc100->SetTextSize(0.0368);
@@ -1767,7 +1852,7 @@ void drawplot_gmtrt(TString dname = "", TString vs_eta_minpt = "")
       gPad->SetGridx(1);gPad->SetGridy(1);
       hAll100->Draw("e3");
       hAll100gem->Draw("e3 same");
-      TLegend *leg_cc100 = new TLegend(0.4,0.65,.98,0.92,NULL,"brNDC");
+      TLegend *leg_cc100 = new TLegend(0.4,0.65,.98,0.92,"","brNDC");
       const TObject obj;
       leg_cc100->SetBorderSize(0);
       //leg_cc100->SetTextSize(0.0368);
@@ -1801,7 +1886,7 @@ void drawplot_gmtrt(TString dname = "", TString vs_eta_minpt = "")
       gPad->SetGridx(1);gPad->SetGridy(1);
       hAll100->Draw("e3");
       hAll100gem->Draw("e3 same");
-      TLegend *leg_cc100 = new TLegend(0.4,0.65,.98,0.92,NULL,"brNDC");
+      TLegend *leg_cc100 = new TLegend(0.4,0.65,.98,0.92,"","brNDC");
       const TObject obj;
       leg_cc100->SetBorderSize(0);
       //leg_cc100->SetTextSize(0.0368);
@@ -1836,8 +1921,7 @@ void drawplot_gmtrt(TString dname = "", TString vs_eta_minpt = "")
     }
 
 
-
-  /*
+    // this was commented out
 
   // ME1b eta 1.64 - 2.14    Default: 3station, 3s   GEM: 3station, 2s & 1b
   if (1)
@@ -1852,7 +1936,7 @@ void drawplot_gmtrt(TString dname = "", TString vs_eta_minpt = "")
   gPad->SetGridx(1);gPad->SetGridy(1);
   hAll100->Draw("e3");
   hAll100gem->Draw("e3 same");
-  TLegend *leg_cc100 = new TLegend(0.4,0.65,.98,0.92,NULL,"brNDC");
+  TLegend *leg_cc100 = new TLegend(0.4,0.65,.98,0.92,"","brNDC");
   const TObject obj;
   leg_cc100->SetBorderSize(0);
   //leg_cc100->SetTextSize(0.0368);
@@ -1886,12 +1970,12 @@ void drawplot_gmtrt(TString dname = "", TString vs_eta_minpt = "")
   if (do_return) return;
   }
 
-  */
 
 
 
   return;
 }
+*/
 
 /*
 
@@ -1915,7 +1999,7 @@ void drawplot_gmtrt(TString dname = "", TString vs_eta_minpt = "")
   result_def->Draw("e3");
   hh->Draw("same e3");
 
-  TLegend *leg_cc100 = new TLegend(0.4,0.65,.98,0.92,NULL,"brNDC");
+  TLegend *leg_cc100 = new TLegend(0.4,0.65,.98,0.92,"","brNDC");
   const TObject obj;
   leg_cc100->SetBorderSize(0);
   leg_cc100->SetFillStyle(0);
@@ -1942,7 +2026,7 @@ void drawplot_gmtrt(TString dname = "", TString vs_eta_minpt = "")
   result_def_3s1b->Draw("e3")
   hh->Draw("same e3")
 
-  TLegend *leg_cc100 = new TLegend(0.4,0.65,.98,0.92,NULL,"brNDC");
+  TLegend *leg_cc100 = new TLegend(0.4,0.65,.98,0.92,"","brNDC");
   const TObject obj;
   leg_cc100->SetBorderSize(0);
   leg_cc100->SetFillStyle(0);
@@ -1989,7 +2073,7 @@ void drawplot_gmtrt(TString dname = "", TString vs_eta_minpt = "")
   result_def->Draw("e3")
   hh->Draw("same e3")
 
-  TLegend *leg_cc100 = new TLegend(0.4,0.65,.98,0.92,NULL,"brNDC");
+  TLegend *leg_cc100 = new TLegend(0.4,0.65,.98,0.92,"","brNDC");
   const TObject obj;
   leg_cc100->SetBorderSize(0);
   leg_cc100->SetFillStyle(0);
@@ -2017,7 +2101,7 @@ void drawplot_gmtrt(TString dname = "", TString vs_eta_minpt = "")
   result_def_3s1b->Draw("e3")
   hh->Draw("same e3")
 
-  TLegend *leg_cc100 = new TLegend(0.4,0.65,.98,0.92,NULL,"brNDC");
+  TLegend *leg_cc100 = new TLegend(0.4,0.65,.98,0.92,"","brNDC");
   const TObject obj;
   leg_cc100->SetBorderSize(0);
   leg_cc100->SetFillStyle(0);
@@ -2042,3 +2126,25 @@ void drawplot_gmtrt(TString dname = "", TString vs_eta_minpt = "")
 
 
 */
+
+"""
+
+def plotGlobalMuonTriggerRate(filesDir, plotDir, ext):
+    """Produce trigger rate plots versus eta"""
+    etaTriggerRate(filesDir, plotDir, ext) 
+
+if __name__ == '__main__':
+    
+    plotGlobalMuonTriggerRate("files/", "plots/rate/", ".pdf")
+
+
+
+#### PNG
+"""
+    // Print(cAll100, ("rates__vs_eta__minpt"+ vs_eta_minpt +"__PU100__def-3s-3s1ab__gem-3s-3s1ab.png").Data());
+    // Print(cAll100, ("rates__vs_eta__minpt"+ vs_eta_minpt +"__PU100__gme-3s-3s1b__gem-3s-3s1b_compstubME1a.png").Data());
+    // Print(cAll100, ("rates__vs_eta__minpt"+ vs_eta_minpt +"__PU100__def-3s-3s1b__gem-3s-3s1b_compstubME1a.png").Data());
+    // Print(cAll100, ("rates__vs_eta__minpt"+ vs_eta_minpt +"__PU100__def-2s-2s1b__gem-2s-2s1b.png").Data());
+    // Print(cAll100, ("rates__vs_eta__minpt"+ vs_eta_minpt +"__PU100__def-3s-3s1b__gem-3s-3s1b.png").Data());
+        Print(cAll100, "rates__1.6-2.1_PU100__def-3s__gem-3s-3s1b.png");
+"""
