@@ -36,29 +36,8 @@ using namespace edm;
 
 namespace 
 {
-
   const Double_t ETA_BIN = 0.0125 *2;
   const Double_t PHI_BIN = 62.*M_PI/180./4096.; // 0.26 mrad
-
-  bool isME1bEtaRegion(float eta, float eta_min = 1.64, float eta_max = 2.14)
-  {
-    if (fabs(eta) >= eta_min && fabs(eta) <= eta_max) return true;
-    else return false;
-  }
-
-  bool isME1abEtaRegion(float eta, float eta_min = 1.64)
-  {
-    if (fabs(eta) >= eta_min) return true;
-    else return false;
-  }
-
-  bool isME1aEtaRegion(float eta, float eta_min = 2.14)
-  {
-    if (fabs(eta) >= eta_min) return true;
-    else return false;
-  }
-
-
 }
 
 // ================================================================================================
@@ -2470,20 +2449,6 @@ GEMCSCTriggerRate::cscTriggerSubsector(CSCDetId &id)
   }
   chamber = ((chamber-1)%6) + 1; // renumber all chambers to 1-6
   return ((chamber-1) / 3) + 1; // [1,3] -> 1 , [4,6]->2
-}
-
-
-// ================================================================================================
-bool GEMCSCTriggerRate::isME42EtaRegion(float eta)
-{
-  if (fabs(eta)>=1.2499 && fabs(eta)<=1.8) return true;
-  else return false;
-}
-
-bool GEMCSCTriggerRate::isME42RPCEtaRegion(float eta)
-{
-  if (fabs(eta)>=1.2499 && fabs(eta)<=1.6) return true;
-  else return false;
 }
 
 
