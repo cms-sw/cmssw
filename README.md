@@ -1,15 +1,23 @@
-GEMCode
-=======
+#GEMCode
 
-Introduction
-------------
+## Table of contents
+
+* [Introduction](#Introduction)
+* [Documentation](#Documentation)
+* [Instructions to get the code](#Instructions-to-get-the-code)
+  *[General GitHub setup](#General-GitHub-setup)
+  *[CMSSW environment setup](#CMSSW-environment-setup)
+  *[Get the official CMSSW code](#Get-the-official-CMSSW-code)
+  *[Checking out and merging the latest GEM developments](#Checking-out-and-merging-the-latest-GEM-developments)
+  *[Adding submodules](#Adding-submodules)
+
+##Introduction
 
 This is the repository for code development of GEM the validation analyzer and the GEM-CSC integrated local trigger analyzer.<br><br>
 This README.md file can is encoded in MarkDown, see<br>
 http://daringfireball.net/projects/markdown/syntax
 
-Documentation
--------------
+##Documentation
 
 * Home page of validation page<br>
 https://twiki.cern.ch/twiki/bin/view/MPGD/GemSimulationsInstructionsCMSSW<br>
@@ -28,8 +36,7 @@ http://cms-project-gem-validation.web.cern.ch/cms-project-gem-validation/<br>
 https://twiki.cern.ch/twiki/bin/view/MPGD/GEMTriggerRoadMap
 
 
-Instructions to get the code
-----------------------------
+##Instructions to get the code
 
 ###General GitHub setup
 
