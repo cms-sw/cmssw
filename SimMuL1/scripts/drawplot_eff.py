@@ -565,13 +565,13 @@ def eff_hs_10(filesDir, plotDir, f_name, ext):
 """
 def eff_hs_11(filesDir, plotDir, f_name, ext):
     Comment to be added here
-
+    
     t = getTree("%s%s"%(filesDir, f_name));
     c = TCanvas("c","c",800,600)
     c.SetGridx(1)
     c.SetGridy(1)
     c.cd()
-    h = TH1F("","Efficiency for track with LCT to have GEM pad in chamber;LCT |#eta|;Efficiency",50,0.,50.)
+    h = TH1F("","Efficiency for track with LCT to have GEM pad in chamber;LCT |\#eta|;Efficiency",50,0.,50.)
     h.SetStats(0)
     h.Draw("")
     he.Draw()
@@ -594,10 +594,10 @@ def eff_hs_all(filesDir, plotDir, f_name, ext):
     eff_hs_7(filesDir, plotDir, f_name, ext)
     eff_hs_8(filesDir, plotDir, f_name, ext)
     eff_hs_9(filesDir, plotDir, f_name, ext)
-"""
+    """
     eff_hs_10(filesDir, plotDir, f_name, ext)
     eff_hs_11(filesDir, plotDir, f_name, ext)
-"""
+    """
 
 def eff_hs(filesDir, plotDir, ext):
 
@@ -645,11 +645,11 @@ def eff_hs(filesDir, plotDir, ext):
 ## draw_eff(gt, "Eff. for track with LCT to have GEM pad in chamber;LCT half-strip number;Eff.", "h_evn", "(130,0.5,130.5)", "hs_lct_even", ok_lct2 && ok_eta , ok_pad2_overlap, "same")
 
 
-## draw_eff(gt, "Eff. for track with LCT to have GEM pad in chamber;LCT |#eta|;Eff.", "h_odd", "(140,1.5,2.2)", "TMath::Abs(eta_lct_odd)", ok_lct1, ok_pad1, "", kRed)
-## draw_eff(gt, "Eff. for track with LCT to have GEM pad in chamber;LCT |#eta|;Eff.", "h_evn", "(140,1.5,2.2)", "TMath::Abs(eta_lct_even)", ok_lct2, ok_pad2, "same")
+## draw_eff(gt, "Eff. for track with LCT to have GEM pad in chamber;LCT |\#eta|;Eff.", "h_odd", "(140,1.5,2.2)", "TMath::Abs(eta_lct_odd)", ok_lct1, ok_pad1, "", kRed)
+## draw_eff(gt, "Eff. for track with LCT to have GEM pad in chamber;LCT |\#eta|;Eff.", "h_evn", "(140,1.5,2.2)", "TMath::Abs(eta_lct_even)", ok_lct2, ok_pad2, "same")
 
-## draw_eff(gt, "Eff. for track with LCT to have GEM pad in chamber;trk |#eta|;Eff.", "h_odd", "(140,1.5,2.2)", "TMath::Abs(eta)", ok_lct1, ok_pad1, "", kRed)
-## draw_eff(gt, "Eff. for track with LCT to have GEM pad in chamber;trk |#eta|;Eff.", "h_evn", "(140,1.5,2.2)", "TMath::Abs(eta)", ok_lct2, ok_pad2, "same")
+## draw_eff(gt, "Eff. for track with LCT to have GEM pad in chamber;trk |\#eta|;Eff.", "h_odd", "(140,1.5,2.2)", "TMath::Abs(eta)", ok_lct1, ok_pad1, "", kRed)
+## draw_eff(gt, "Eff. for track with LCT to have GEM pad in chamber;trk |\#eta|;Eff.", "h_evn", "(140,1.5,2.2)", "TMath::Abs(eta)", ok_lct2, ok_pad2, "same")
 
 
 ## draw_eff(gt, "Eff. for track with LCT to have matched GEM pad;p_{T}, GeV/c;Eff.", "h_odd", "(50,0.,50.)", "pt", ok_lct1 && ok_eta , ok_pad1 && ok_dphi1)
@@ -686,7 +686,7 @@ def eff_hs(filesDir, plotDir, ext):
 
 ## |#Delta#phi_{odd}(LCT,Pad)| < 5.5 mrad
 ## |#Delta#phi_{even}(LCT,Pad)| < 3.1 mrad
-## |#Delta#eta(LCT,Pad)| < 0.08
+## |#Delta\#eta(LCT,Pad)| < 0.08
 
 ## draw_eff(gt, "Eff. for track with LCT to have matched GEM pad;p_{T}, GeV/c;Eff.", "hname", "(45,0.5,45.5)", "pt", ok_sh1 && ok_eta , ok_lct1 && ok_pad1 && ok_dphi1)
 ## draw_eff(gt, "Eff. for track with LCT to have matched GEM pad;p_{T}, GeV/c;Eff.", "hname", "(45,0.5,45.5)", "pt", ok_sh2 && ok_eta , ok_lct2 && ok_pad2 && ok_dphi2, "same")
@@ -696,7 +696,7 @@ def eff_hs(filesDir, plotDir, ext):
 
 ## draw_eff(gt, "title;pt;Eff.", "hname", "(45,0.5,45.5)", "pt", ok_lct1 && ok_eta , ok_pad1 && ok_dphi1)
 ## draw_eff(gt, "title;pt;Eff.", "hname", "(45,0.5,45.5)", "pt", ok_lct2 && ok_eta , ok_pad2 && ok_dphi2, "same")
-## draw_eff(gt, "title;|#eta|;Eff.", "hname", "(45,1.5,2.2)", "TMath::Abs(eta)", ok_sh1 , ok_lct1 && ok_pad1 )
+## draw_eff(gt, "title;|\#eta|;Eff.", "hname", "(45,1.5,2.2)", "TMath::Abs(eta)", ok_sh1 , ok_lct1 && ok_pad1 )
 ## draw_eff(gt, "title;|#phi|;Eff.", "hname", "(128,0,3.2)", "TMath::Abs(phi)", ok_sh2 , ok_lct2 && ok_pad2 )
 
 
@@ -1029,11 +1029,9 @@ if __name__ == "__main__":
     etaMatchingEfficiencies("files/", "plots/efficiency/", ".eps")
     etaMatchingEfficiencies("files/", "plots/efficiency/", ".png")
     """
-
     gemTurnOns("files/", "plots/efficiency/", ".pdf")
     gemTurnOns("files/", "plots/efficiency/", ".eps")    
     gemTurnOns("files/", "plots/efficiency/", ".png")
-
     """
     eff_hs("files/", "plots/efficiency/", ".pdf")
     eff_hs("files/", "plots/efficiency/", ".eps")    

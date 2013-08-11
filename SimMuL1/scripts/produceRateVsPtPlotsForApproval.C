@@ -323,7 +323,8 @@ void produceRatePlots(TString ext)
     TLegend *leg = new TLegend(0.45,0.68,.93,0.86,"L1 Selections (#geq 2 stations):","brNDC");
     leg->SetMargin(0.25);
     leg->SetBorderSize(0);
-    leg->SetFillStyle(0);
+    leg->SetFillStyle(1001);
+    leg->SetFillColor(kWhite);
     leg->SetTextSize(0.04);
     leg->SetFillStyle(1001);
     leg->SetFillColor(kWhite);
@@ -333,6 +334,9 @@ void produceRatePlots(TString ext)
     leg->AddEntry(result_gem_2s1b__pat2,"GEM+CSC Integrated Trigger","f");
     leg->Draw();
 
+    leg->Draw();
+ 
+    //    drawL1Label(0.17,0.35);
     drawLumiLabel(0.17,.3);
     drawEtaLabel("1.64","2.14",0.17,.37);
     
@@ -407,6 +411,7 @@ void produceRatePlots(TString ext)
     leg->AddEntry(result_gem_2s1b__pat8,"GEM+CSC Integrated Trigger","f");
     leg->Draw();
 
+    // drawL1Label(0.17,0.35);
     drawLumiLabel(0.17,.3);
     drawEtaLabel("1.64","2.14",0.17,.37);
 
@@ -480,6 +485,7 @@ void produceRatePlots(TString ext)
     leg->AddEntry(result_gem_3s1b__pat2,"GEM+CSC Integrated Trigger","f");
     leg->Draw();
 
+    // drawL1Label(0.17,0.35);
     drawLumiLabel(0.17,.3);
     drawEtaLabel("1.64","2.14",0.17,.37);
 
@@ -553,6 +559,7 @@ void produceRatePlots(TString ext)
     leg->AddEntry(result_gem_3s1b__pat8,"GEM+CSC Integrated Trigger","f");
     leg->Draw();
 
+    // drawL1Label(0.17,0.35);
     drawLumiLabel(0.17,.3);
     drawEtaLabel("1.64","2.14",0.17,.37);
 
