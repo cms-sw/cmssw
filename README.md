@@ -2,14 +2,14 @@
 
 ## Table of contents
 
-* [Introduction](#Introduction)
-* [Documentation](#Documentation)
-* [Instructions to get the code](#Instructions-to-get-the-code)
-  *[General GitHub setup](#General-GitHub-setup)
-  *[CMSSW environment setup](#CMSSW-environment-setup)
-  *[Get the official CMSSW code](#Get-the-official-CMSSW-code)
-  *[Checking out and merging the latest GEM developments](#Checking-out-and-merging-the-latest-GEM-developments)
-  *[Adding submodules](#Adding-submodules)
+* [Introduction](#introduction)
+* [Documentation](#documentation)
+* [Instructions to get the code](#instructions-to-get-the-code)
+  * [General GitHub setup](#general-github-setup)
+  * [CMSSW environment setup](#cmssw-environment-setup)
+  * [Get the official CMSSW code](#get-the-official-cmssw-code)
+  * [Checking out and merging the latest GEM developments](#Checking-out-and-merging-the-latest-gem-developments)
+  * [Adding submodules](#adding-submodules)
 
 ##Introduction
 
