@@ -1,15 +1,23 @@
-GEMCode
-=======
+#GEMCode
 
-Introduction
-------------
+## Table of contents
+
+* [Introduction](#introduction)
+* [Documentation](#documentation)
+* [Instructions to get the code](#instructions-to-get-the-code)
+  * [General GitHub setup](#general-github-setup)
+  * [CMSSW environment setup](#cmssw-environment-setup)
+  * [Get the official CMSSW code](#get-the-official-cmssw-code)
+  * [Checking out and merging the latest GEM developments](#Checking-out-and-merging-the-latest-gem-developments)
+  * [Adding submodules](#adding-submodules)
+
+##Introduction
 
 This is the repository for code development of GEM the validation analyzer and the GEM-CSC integrated local trigger analyzer.<br><br>
 This README.md file can is encoded in MarkDown, see<br>
 http://daringfireball.net/projects/markdown/syntax
 
-Documentation
--------------
+##Documentation
 
 * Home page of validation page<br>
 https://twiki.cern.ch/twiki/bin/view/MPGD/GemSimulationsInstructionsCMSSW<br>
@@ -28,8 +36,7 @@ http://cms-project-gem-validation.web.cern.ch/cms-project-gem-validation/<br>
 https://twiki.cern.ch/twiki/bin/view/MPGD/GEMTriggerRoadMap
 
 
-Instructions to get the code
-----------------------------
+##Instructions to get the code
 
 ###General GitHub setup
 
@@ -65,7 +72,8 @@ git cms-merge-topic dildick:feature-for-gemgeometry
 git cms-merge-topic dildick:feature-for-gemcsctrigger
 </code></pre>
 -->
-<pre><code>git fetch cmssw-gem
+<pre><code>git remote add gem-cmssw git://github.com/gem-sw/cmssw.git
+git fetch gem-cmssw
 git merge FETCH_HEAD
 </code></pre>
 

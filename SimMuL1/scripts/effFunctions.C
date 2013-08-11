@@ -1,3 +1,4 @@
+TH1F* eff_base = 0;
 
 TH1F* draw_eff(TTree *t, TString title, TString h_name, TString h_bins,
                TString to_draw, TCut denom_cut, TCut extra_num_cut, TString opt = "", int color = kBlue, int marker_st = 20)
@@ -37,6 +38,7 @@ TGraphAsymmErrors* draw_geff(TTree *t, TString title, TString h_name, TString h_
   num->SetStats(0);
   num->SetTitle(title);
   num->Draw();
+  eff_base = num;
   }
   eff->SetLineWidth(2);
   eff->SetLineColor(color);
@@ -47,4 +49,3 @@ TGraphAsymmErrors* draw_geff(TTree *t, TString title, TString h_name, TString h_
 
   return eff;
 }
-

@@ -6,7 +6,7 @@
 
 TString ext = ".png";
 TString filesDir = "files/";
-TString plotDir = "plots/rate_vs_pt/";
+TString plotDir = "plots/";
 
 void getPTHistos(TString dname)
 {
@@ -50,11 +50,12 @@ result_gem_eta_no1a = getPTHisto(f_gem, dir, "h_rt_gmt_csc_ptmax_3s_3s1b_no1a", 
 
 
 
-void drawplot_frankenstein_ptshift()
+void drawplot_frankenstein_ptshiftX()
 {
   gROOT->ProcessLine(".L drawplot_gmtrt.C");
-  
-  gem_dir = "plots/rate_vs_pt_shift/"; 
+
+  //gem_dir = "gemPTX/";
+  gem_dir = "plots/rate_vs_pt_shiftX/";
   gem_label = "gem98";
 
 //gem_dir = "gem95/"; gem_label = "gem95";
@@ -107,53 +108,53 @@ hh_2s1b = (TH1D*)result_def_2s1b->Clone("gem_new_2s1b");
 for (int b = hh_2s1b->FindBin(7.01); b <= hh_2s1b->GetNbinsX(); ++b) hh_2s1b->SetBinContent(b, 0);
 
 h06 = (TH1D*)result_gem->Clone("gem_new_06");
-for (int b = h06->FindBin(7.01); b < h06->FindBin(10.01); ++b) {hh->SetBinContent(b, h06->GetBinContent(b)); hh->SetBinError(b, h06->GetBinError(b));}
+for (int b = h06->FindBin(7.01); b < h06->FindBin(8.01); ++b) {hh->SetBinContent(b, h06->GetBinContent(b)); hh->SetBinError(b, h06->GetBinError(b));}
 h06_all = (TH1D*)result_gem_eta_all->Clone("gem_new_eta_all_06");
-for (int b = h06_all->FindBin(7.01); b < h06_all->FindBin(10.01); ++b) {hh_all->SetBinContent(b, h06_all->GetBinContent(b)); hh_all->SetBinError(b, h06_all->GetBinError(b));}
+for (int b = h06_all->FindBin(7.01); b < h06_all->FindBin(8.01); ++b) {hh_all->SetBinContent(b, h06_all->GetBinContent(b)); hh_all->SetBinError(b, h06_all->GetBinError(b));}
 h06_no1a = (TH1D*)result_gem_eta_no1a->Clone("gem_new_eta_no1a_06");
-for (int b = h06_no1a->FindBin(7.01); b < h06_no1a->FindBin(10.01); ++b) {hh_no1a->SetBinContent(b, h06_no1a->GetBinContent(b)); hh_no1a->SetBinError(b, h06_no1a->GetBinError(b));}
+for (int b = h06_no1a->FindBin(7.01); b < h06_no1a->FindBin(8.01); ++b) {hh_no1a->SetBinContent(b, h06_no1a->GetBinContent(b)); hh_no1a->SetBinError(b, h06_no1a->GetBinError(b));}
 h06_2s1b = (TH1D*)result_gem_2s1b->Clone("gem_new_2s1b_06");
-for (int b = h06_2s1b->FindBin(7.01); b < h06_2s1b->FindBin(10.01); ++b) {hh_2s1b->SetBinContent(b, h06_2s1b->GetBinContent(b)); hh_2s1b->SetBinError(b, h06_2s1b->GetBinError(b));}
+for (int b = h06_2s1b->FindBin(7.01); b < h06_2s1b->FindBin(8.01); ++b) {hh_2s1b->SetBinContent(b, h06_2s1b->GetBinContent(b)); hh_2s1b->SetBinError(b, h06_2s1b->GetBinError(b));}
 
 getPTHistos("minbias_pt15_pat2");
 h10 = (TH1D*)result_gem->Clone("gem10");
-for (int b = h10->FindBin(10.01); b < h10->FindBin(15.01); ++b) {hh->SetBinContent(b, h10->GetBinContent(b)); hh->SetBinError(b, h10->GetBinError(b));}
+for (int b = h10->FindBin(8.01); b < h10->FindBin(10.01); ++b) {hh->SetBinContent(b, h10->GetBinContent(b)); hh->SetBinError(b, h10->GetBinError(b));}
 h10_all = (TH1D*)result_gem_eta_all->Clone("gem_new_eta_all_10");
-for (int b = h10_all->FindBin(10.01); b < h10_all->FindBin(15.01); ++b) {hh_all->SetBinContent(b, h10_all->GetBinContent(b)); hh_all->SetBinError(b, h10_all->GetBinError(b));}
+for (int b = h10_all->FindBin(8.01); b < h10_all->FindBin(10.01); ++b) {hh_all->SetBinContent(b, h10_all->GetBinContent(b)); hh_all->SetBinError(b, h10_all->GetBinError(b));}
 h10_no1a = (TH1D*)result_gem_eta_no1a->Clone("gem_new_eta_no1a_10");
-for (int b = h10_no1a->FindBin(10.01); b < h10_no1a->FindBin(15.01); ++b) {hh_no1a->SetBinContent(b, h10_no1a->GetBinContent(b)); hh_no1a->SetBinError(b, h10_no1a->GetBinError(b));}
+for (int b = h10_no1a->FindBin(8.01); b < h10_no1a->FindBin(10.01); ++b) {hh_no1a->SetBinContent(b, h10_no1a->GetBinContent(b)); hh_no1a->SetBinError(b, h10_no1a->GetBinError(b));}
 h10_2s1b = (TH1D*)result_gem_2s1b->Clone("gem_new_2s1b_10");
-for (int b = h10_2s1b->FindBin(10.01); b < h10_2s1b->FindBin(15.01); ++b) {hh_2s1b->SetBinContent(b, h10_2s1b->GetBinContent(b)); hh_2s1b->SetBinError(b, h10_2s1b->GetBinError(b));}
+for (int b = h10_2s1b->FindBin(8.01); b < h10_2s1b->FindBin(10.01); ++b) {hh_2s1b->SetBinContent(b, h10_2s1b->GetBinContent(b)); hh_2s1b->SetBinError(b, h10_2s1b->GetBinError(b));}
 
 getPTHistos("minbias_pt20_pat2");
 h15 = (TH1D*)result_gem->Clone("gem15");
-for (int b = h15->FindBin(15.01); b < h15->FindBin(20.01); ++b) {hh->SetBinContent(b, h15->GetBinContent(b)); hh->SetBinError(b, h15->GetBinError(b));}
+for (int b = h15->FindBin(10.01); b < h15->FindBin(15.01); ++b) {hh->SetBinContent(b, h15->GetBinContent(b)); hh->SetBinError(b, h15->GetBinError(b));}
 h15_all = (TH1D*)result_gem_eta_all->Clone("gem_new_eta_all_15");
-for (int b = h15_all->FindBin(15.01); b < h15_all->FindBin(20.01); ++b) {hh_all->SetBinContent(b, h15_all->GetBinContent(b)); hh_all->SetBinError(b, h15_all->GetBinError(b));}
+for (int b = h15_all->FindBin(10.01); b < h15_all->FindBin(15.01); ++b) {hh_all->SetBinContent(b, h15_all->GetBinContent(b)); hh_all->SetBinError(b, h15_all->GetBinError(b));}
 h15_no1a = (TH1D*)result_gem_eta_no1a->Clone("gem_new_eta_no1a_15");
-for (int b = h15_no1a->FindBin(15.01); b < h15_no1a->FindBin(20.01); ++b) {hh_no1a->SetBinContent(b, h15_no1a->GetBinContent(b)); hh_no1a->SetBinError(b, h15_no1a->GetBinError(b));}
+for (int b = h15_no1a->FindBin(10.01); b < h15_no1a->FindBin(15.01); ++b) {hh_no1a->SetBinContent(b, h15_no1a->GetBinContent(b)); hh_no1a->SetBinError(b, h15_no1a->GetBinError(b));}
 h15_2s1b = (TH1D*)result_gem_2s1b->Clone("gem_new_2s1b_15");
-for (int b = h15_2s1b->FindBin(15.01); b < h15_2s1b->FindBin(20.01); ++b) {hh_2s1b->SetBinContent(b, h15_2s1b->GetBinContent(b)); hh_2s1b->SetBinError(b, h15_2s1b->GetBinError(b));}
+for (int b = h15_2s1b->FindBin(10.01); b < h15_2s1b->FindBin(15.01); ++b) {hh_2s1b->SetBinContent(b, h15_2s1b->GetBinContent(b)); hh_2s1b->SetBinError(b, h15_2s1b->GetBinError(b));}
 
 getPTHistos("minbias_pt30_pat2");
 h20 = (TH1D*)result_gem->Clone("gem20");
-for (int b = h20->FindBin(20.01); b < h20->FindBin(30.01); ++b) {hh->SetBinContent(b, h20->GetBinContent(b)); hh->SetBinError(b, h20->GetBinError(b));}
+for (int b = h20->FindBin(15.01); b < h20->FindBin(20.01); ++b) {hh->SetBinContent(b, h20->GetBinContent(b)); hh->SetBinError(b, h20->GetBinError(b));}
 h20_all = (TH1D*)result_gem_eta_all->Clone("gem_new_eta_all_20");
-for (int b = h20_all->FindBin(20.01); b < h20_all->FindBin(30.01); ++b) {hh_all->SetBinContent(b, h20_all->GetBinContent(b)); hh_all->SetBinError(b, h20_all->GetBinError(b));}
+for (int b = h20_all->FindBin(15.01); b < h20_all->FindBin(20.01); ++b) {hh_all->SetBinContent(b, h20_all->GetBinContent(b)); hh_all->SetBinError(b, h20_all->GetBinError(b));}
 h20_no1a = (TH1D*)result_gem_eta_no1a->Clone("gem_new_eta_no1a_20");
-for (int b = h20_no1a->FindBin(20.01); b < h20_no1a->FindBin(30.01); ++b) {hh_no1a->SetBinContent(b, h20_no1a->GetBinContent(b)); hh_no1a->SetBinError(b, h20_no1a->GetBinError(b));}
+for (int b = h20_no1a->FindBin(15.01); b < h20_no1a->FindBin(20.01); ++b) {hh_no1a->SetBinContent(b, h20_no1a->GetBinContent(b)); hh_no1a->SetBinError(b, h20_no1a->GetBinError(b));}
 h20_2s1b = (TH1D*)result_gem_2s1b->Clone("gem_new_2s1b_20");
-for (int b = h20_2s1b->FindBin(20.01); b < h20_2s1b->FindBin(30.01); ++b) {hh_2s1b->SetBinContent(b, h20_2s1b->GetBinContent(b)); hh_2s1b->SetBinError(b, h20_2s1b->GetBinError(b));}
+for (int b = h20_2s1b->FindBin(15.01); b < h20_2s1b->FindBin(20.01); ++b) {hh_2s1b->SetBinContent(b, h20_2s1b->GetBinContent(b)); hh_2s1b->SetBinError(b, h20_2s1b->GetBinError(b));}
 
 getPTHistos("minbias_pt40_pat2");
 h30 = (TH1D*)result_gem->Clone("gem30");
-for (int b = h30->FindBin(30.01); b <= h30->GetNbinsX(); ++b) {hh->SetBinContent(b, h30->GetBinContent(b)); hh->SetBinError(b, h30->GetBinError(b));}
+for (int b = h30->FindBin(20.01); b <= h30->GetNbinsX(); ++b) {hh->SetBinContent(b, h30->GetBinContent(b)); hh->SetBinError(b, h30->GetBinError(b));}
 h30_all = (TH1D*)result_gem_eta_all->Clone("gem_new_eta_all_30");
-for (int b = h30_all->FindBin(30.01); b < h30_all->GetNbinsX(); ++b) {hh_all->SetBinContent(b, h30_all->GetBinContent(b)); hh_all->SetBinError(b, h30_all->GetBinError(b));}
+for (int b = h30_all->FindBin(20.01); b < h30_all->GetNbinsX(); ++b) {hh_all->SetBinContent(b, h30_all->GetBinContent(b)); hh_all->SetBinError(b, h30_all->GetBinError(b));}
 h30_no1a = (TH1D*)result_gem_eta_no1a->Clone("gem_new_eta_no1a_30");
-for (int b = h30_no1a->FindBin(30.01); b < h30_no1a->GetNbinsX(); ++b) {hh_no1a->SetBinContent(b, h30_no1a->GetBinContent(b)); hh_no1a->SetBinError(b, h30_no1a->GetBinError(b));}
+for (int b = h30_no1a->FindBin(20.01); b < h30_no1a->GetNbinsX(); ++b) {hh_no1a->SetBinContent(b, h30_no1a->GetBinContent(b)); hh_no1a->SetBinError(b, h30_no1a->GetBinError(b));}
 h30_2s1b = (TH1D*)result_gem_2s1b->Clone("gem_new_2s1b_30");
-for (int b = h30_2s1b->FindBin(30.01); b < h30_2s1b->GetNbinsX(); ++b) {hh_2s1b->SetBinContent(b, h30_2s1b->GetBinContent(b)); hh_2s1b->SetBinError(b, h30_2s1b->GetBinError(b));}
+for (int b = h30_2s1b->FindBin(20.01); b < h30_2s1b->GetNbinsX(); ++b) {hh_2s1b->SetBinContent(b, h30_2s1b->GetBinContent(b)); hh_2s1b->SetBinError(b, h30_2s1b->GetBinError(b));}
 
 for (int b = 1; b <= hh->GetNbinsX(); ++b) if (hh->GetBinContent(b)==0) hh->SetBinError(b, 0.);
 for (int b = 1; b <= hh_all->GetNbinsX(); ++b) if (hh_all->GetBinContent(b)==0) hh_all->SetBinError(b, 0.);
@@ -370,7 +371,7 @@ leg->SetFillStyle(0);
 leg->AddEntry(result_def_eta_all_3s1b,"default emulator","f");
 leg->AddEntry(hh_all,"with GEM match","f");
 leg->AddEntry(result_def_eta_all_3s1b,"Tracks req. for both:","");
-leg->AddEntry(result_def_eta_all_3s1b,"with #geq3 stubs in 1.64<|#eta|<2.14","");
+leg->AddEntry(result_def_eta_all_3s1b,"with #geq3 stubs in 1.64<|#eta|<2.4","");
 leg->AddEntry(result_def_eta_all_3s1b,"and require one stub to be from ME1/b","");
 leg->Draw();
 
@@ -395,7 +396,7 @@ TLegend *leg = new TLegend(0.4,0.65,.98,0.92,NULL,"brNDC");
 leg->SetBorderSize(0);
 leg->SetFillStyle(0);
 leg->AddEntry(result_def_eta_no1a,"default emulator","f");
-leg->AddEntry(result_def_eta_no1a,"Tracks: with #geq3 stubs in 1.<|#eta|<2.14","");
+leg->AddEntry(result_def_eta_no1a,"Tracks: with #geq3 stubs in 1.<|#eta|<2.4","");
 leg->AddEntry(hh_no1a,"with GEM match","f");
 leg->AddEntry(result_def_eta_no1a,"Tracks: same, plus req. one stub from ME1/b","");
 leg->Draw();
@@ -456,53 +457,53 @@ hh_2s1b = (TH1D*)result_def_2s1b->Clone("gem_new_2s1b");
 for (int b = hh_2s1b->FindBin(7.01); b <= hh_2s1b->GetNbinsX(); ++b) hh_2s1b->SetBinContent(b, 0);
 
 h06 = (TH1D*)result_gem->Clone("gem_new_06");
-for (int b = h06->FindBin(7.01); b < h06->FindBin(10.01); ++b) {hh->SetBinContent(b, h06->GetBinContent(b)); hh->SetBinError(b, h06->GetBinError(b));}
+for (int b = h06->FindBin(7.01); b < h06->FindBin(8.01); ++b) {hh->SetBinContent(b, h06->GetBinContent(b)); hh->SetBinError(b, h06->GetBinError(b));}
 h06_all = (TH1D*)result_gem_eta_all->Clone("gem_new_eta_all_06");
-for (int b = h06_all->FindBin(7.01); b < h06_all->FindBin(10.01); ++b) {hh_all->SetBinContent(b, h06_all->GetBinContent(b)); hh_all->SetBinError(b, h06_all->GetBinError(b));}
+for (int b = h06_all->FindBin(7.01); b < h06_all->FindBin(8.01); ++b) {hh_all->SetBinContent(b, h06_all->GetBinContent(b)); hh_all->SetBinError(b, h06_all->GetBinError(b));}
 h06_no1a = (TH1D*)result_gem_eta_no1a->Clone("gem_new_eta_no1a_06");
-for (int b = h06_no1a->FindBin(7.01); b < h06_no1a->FindBin(10.01); ++b) {hh_no1a->SetBinContent(b, h06_no1a->GetBinContent(b)); hh_no1a->SetBinError(b, h06_no1a->GetBinError(b));}
+for (int b = h06_no1a->FindBin(7.01); b < h06_no1a->FindBin(8.01); ++b) {hh_no1a->SetBinContent(b, h06_no1a->GetBinContent(b)); hh_no1a->SetBinError(b, h06_no1a->GetBinError(b));}
 h06_2s1b = (TH1D*)result_gem_2s1b->Clone("gem_new_2s1b_06");
-for (int b = h06_2s1b->FindBin(7.01); b < h06_2s1b->FindBin(10.01); ++b) {hh_2s1b->SetBinContent(b, h06_2s1b->GetBinContent(b)); hh_2s1b->SetBinError(b, h06_2s1b->GetBinError(b));}
+for (int b = h06_2s1b->FindBin(7.01); b < h06_2s1b->FindBin(8.01); ++b) {hh_2s1b->SetBinContent(b, h06_2s1b->GetBinContent(b)); hh_2s1b->SetBinError(b, h06_2s1b->GetBinError(b));}
 
 getPTHistos("minbias_pt15_pat8");
 h10 = (TH1D*)result_gem->Clone("gem10");
-for (int b = h10->FindBin(10.01); b < h10->FindBin(15.01); ++b) {hh->SetBinContent(b, h10->GetBinContent(b)); hh->SetBinError(b, h10->GetBinError(b));}
+for (int b = h10->FindBin(8.01); b < h10->FindBin(10.01); ++b) {hh->SetBinContent(b, h10->GetBinContent(b)); hh->SetBinError(b, h10->GetBinError(b));}
 h10_all = (TH1D*)result_gem_eta_all->Clone("gem_new_eta_all_10");
-for (int b = h10_all->FindBin(10.01); b < h10_all->FindBin(15.01); ++b) {hh_all->SetBinContent(b, h10_all->GetBinContent(b)); hh_all->SetBinError(b, h10_all->GetBinError(b));}
+for (int b = h10_all->FindBin(8.01); b < h10_all->FindBin(10.01); ++b) {hh_all->SetBinContent(b, h10_all->GetBinContent(b)); hh_all->SetBinError(b, h10_all->GetBinError(b));}
 h10_no1a = (TH1D*)result_gem_eta_no1a->Clone("gem_new_eta_no1a_10");
-for (int b = h10_no1a->FindBin(10.01); b < h10_no1a->FindBin(15.01); ++b) {hh_no1a->SetBinContent(b, h10_no1a->GetBinContent(b)); hh_no1a->SetBinError(b, h10_no1a->GetBinError(b));}
+for (int b = h10_no1a->FindBin(8.01); b < h10_no1a->FindBin(10.01); ++b) {hh_no1a->SetBinContent(b, h10_no1a->GetBinContent(b)); hh_no1a->SetBinError(b, h10_no1a->GetBinError(b));}
 h10_2s1b = (TH1D*)result_gem_2s1b->Clone("gem_new_2s1b_10");
-for (int b = h10_2s1b->FindBin(10.01); b < h10_2s1b->FindBin(15.01); ++b) {hh_2s1b->SetBinContent(b, h10_2s1b->GetBinContent(b)); hh_2s1b->SetBinError(b, h10_2s1b->GetBinError(b));}
+for (int b = h10_2s1b->FindBin(8.01); b < h10_2s1b->FindBin(10.01); ++b) {hh_2s1b->SetBinContent(b, h10_2s1b->GetBinContent(b)); hh_2s1b->SetBinError(b, h10_2s1b->GetBinError(b));}
 
 getPTHistos("minbias_pt20_pat8");
 h15 = (TH1D*)result_gem->Clone("gem15");
-for (int b = h15->FindBin(15.01); b < h15->FindBin(20.01); ++b) {hh->SetBinContent(b, h15->GetBinContent(b)); hh->SetBinError(b, h15->GetBinError(b));}
+for (int b = h15->FindBin(10.01); b < h15->FindBin(15.01); ++b) {hh->SetBinContent(b, h15->GetBinContent(b)); hh->SetBinError(b, h15->GetBinError(b));}
 h15_all = (TH1D*)result_gem_eta_all->Clone("gem_new_eta_all_15");
-for (int b = h15_all->FindBin(15.01); b < h15_all->FindBin(20.01); ++b) {hh_all->SetBinContent(b, h15_all->GetBinContent(b)); hh_all->SetBinError(b, h15_all->GetBinError(b));}
+for (int b = h15_all->FindBin(10.01); b < h15_all->FindBin(15.01); ++b) {hh_all->SetBinContent(b, h15_all->GetBinContent(b)); hh_all->SetBinError(b, h15_all->GetBinError(b));}
 h15_no1a = (TH1D*)result_gem_eta_no1a->Clone("gem_new_eta_no1a_15");
-for (int b = h15_no1a->FindBin(15.01); b < h15_no1a->FindBin(20.01); ++b) {hh_no1a->SetBinContent(b, h15_no1a->GetBinContent(b)); hh_no1a->SetBinError(b, h15_no1a->GetBinError(b));}
+for (int b = h15_no1a->FindBin(10.01); b < h15_no1a->FindBin(15.01); ++b) {hh_no1a->SetBinContent(b, h15_no1a->GetBinContent(b)); hh_no1a->SetBinError(b, h15_no1a->GetBinError(b));}
 h15_2s1b = (TH1D*)result_gem_2s1b->Clone("gem_new_2s1b_15");
-for (int b = h15_2s1b->FindBin(15.01); b < h15_2s1b->FindBin(20.01); ++b) {hh_2s1b->SetBinContent(b, h15_2s1b->GetBinContent(b)); hh_2s1b->SetBinError(b, h15_2s1b->GetBinError(b));}
+for (int b = h15_2s1b->FindBin(10.01); b < h15_2s1b->FindBin(15.01); ++b) {hh_2s1b->SetBinContent(b, h15_2s1b->GetBinContent(b)); hh_2s1b->SetBinError(b, h15_2s1b->GetBinError(b));}
 
 getPTHistos("minbias_pt30_pat8");
 h20 = (TH1D*)result_gem->Clone("gem20");
-for (int b = h20->FindBin(20.01); b < h20->FindBin(30.01); ++b) {hh->SetBinContent(b, h20->GetBinContent(b)); hh->SetBinError(b, h20->GetBinError(b));}
+for (int b = h20->FindBin(15.01); b < h20->FindBin(20.01); ++b) {hh->SetBinContent(b, h20->GetBinContent(b)); hh->SetBinError(b, h20->GetBinError(b));}
 h20_all = (TH1D*)result_gem_eta_all->Clone("gem_new_eta_all_20");
-for (int b = h20_all->FindBin(20.01); b < h20_all->FindBin(30.01); ++b) {hh_all->SetBinContent(b, h20_all->GetBinContent(b)); hh_all->SetBinError(b, h20_all->GetBinError(b));}
+for (int b = h20_all->FindBin(15.01); b < h20_all->FindBin(20.01); ++b) {hh_all->SetBinContent(b, h20_all->GetBinContent(b)); hh_all->SetBinError(b, h20_all->GetBinError(b));}
 h20_no1a = (TH1D*)result_gem_eta_no1a->Clone("gem_new_eta_no1a_20");
-for (int b = h20_no1a->FindBin(20.01); b < h20_no1a->FindBin(30.01); ++b) {hh_no1a->SetBinContent(b, h20_no1a->GetBinContent(b)); hh_no1a->SetBinError(b, h20_no1a->GetBinError(b));}
+for (int b = h20_no1a->FindBin(15.01); b < h20_no1a->FindBin(20.01); ++b) {hh_no1a->SetBinContent(b, h20_no1a->GetBinContent(b)); hh_no1a->SetBinError(b, h20_no1a->GetBinError(b));}
 h20_2s1b = (TH1D*)result_gem_2s1b->Clone("gem_new_2s1b_20");
-for (int b = h20_2s1b->FindBin(20.01); b < h20_2s1b->FindBin(30.01); ++b) {hh_2s1b->SetBinContent(b, h20_2s1b->GetBinContent(b)); hh_2s1b->SetBinError(b, h20_2s1b->GetBinError(b));}
+for (int b = h20_2s1b->FindBin(15.01); b < h20_2s1b->FindBin(20.01); ++b) {hh_2s1b->SetBinContent(b, h20_2s1b->GetBinContent(b)); hh_2s1b->SetBinError(b, h20_2s1b->GetBinError(b));}
 
 getPTHistos("minbias_pt40_pat8");
 h30 = (TH1D*)result_gem->Clone("gem30");
-for (int b = h30->FindBin(30.01); b <= h30->GetNbinsX(); ++b) {hh->SetBinContent(b, h30->GetBinContent(b)); hh->SetBinError(b, h30->GetBinError(b));}
+for (int b = h30->FindBin(20.01); b <= h30->GetNbinsX(); ++b) {hh->SetBinContent(b, h30->GetBinContent(b)); hh->SetBinError(b, h30->GetBinError(b));}
 h30_all = (TH1D*)result_gem_eta_all->Clone("gem_new_eta_all_30");
-for (int b = h30_all->FindBin(30.01); b < h30_all->GetNbinsX(); ++b) {hh_all->SetBinContent(b, h30_all->GetBinContent(b)); hh_all->SetBinError(b, h30_all->GetBinError(b));}
+for (int b = h30_all->FindBin(20.01); b < h30_all->GetNbinsX(); ++b) {hh_all->SetBinContent(b, h30_all->GetBinContent(b)); hh_all->SetBinError(b, h30_all->GetBinError(b));}
 h30_no1a = (TH1D*)result_gem_eta_no1a->Clone("gem_new_eta_no1a_30");
-for (int b = h30_no1a->FindBin(30.01); b < h30_no1a->GetNbinsX(); ++b) {hh_no1a->SetBinContent(b, h30_no1a->GetBinContent(b)); hh_no1a->SetBinError(b, h30_no1a->GetBinError(b));}
+for (int b = h30_no1a->FindBin(20.01); b < h30_no1a->GetNbinsX(); ++b) {hh_no1a->SetBinContent(b, h30_no1a->GetBinContent(b)); hh_no1a->SetBinError(b, h30_no1a->GetBinError(b));}
 h30_2s1b = (TH1D*)result_gem_2s1b->Clone("gem_new_2s1b_30");
-for (int b = h30_2s1b->FindBin(30.01); b < h30_2s1b->GetNbinsX(); ++b) {hh_2s1b->SetBinContent(b, h30_2s1b->GetBinContent(b)); hh_2s1b->SetBinError(b, h30_2s1b->GetBinError(b));}
+for (int b = h30_2s1b->FindBin(20.01); b < h30_2s1b->GetNbinsX(); ++b) {hh_2s1b->SetBinContent(b, h30_2s1b->GetBinContent(b)); hh_2s1b->SetBinError(b, h30_2s1b->GetBinError(b));}
 
 for (int b = 1; b <= hh->GetNbinsX(); ++b) if (hh->GetBinContent(b)==0) hh->SetBinError(b, 0.);
 for (int b = 1; b <= hh_all->GetNbinsX(); ++b) if (hh_all->GetBinContent(b)==0) hh_all->SetBinError(b, 0.);
@@ -716,7 +717,7 @@ leg->SetFillStyle(0);
 leg->AddEntry(result_def_eta_all_3s1b,"default emulator","f");
 leg->AddEntry(hh_all,"with GEM match","f");
 leg->AddEntry(result_def_eta_all_3s1b,"Tracks req. for both:","");
-leg->AddEntry(result_def_eta_all_3s1b,"with #geq3 stubs in 1.64<|#eta|<2.4","");
+leg->AddEntry(result_def_eta_all_3s1b,"with #geq3 stubs in 1.64<|#eta|<2.14","");
 leg->AddEntry(result_def_eta_all_3s1b,"and require one stub to be from ME1/b","");
 leg->Draw();
 
@@ -881,7 +882,7 @@ hh_ratio->Draw("e1");
 gPad->Print(gem_dir + "rates__164-214_PU100__sequential__3s_GMT__Frankenstein_pat2__ratio" + ext);
 
 
-TFile fsave("gem_3plus_ptshift.root", "RECREATE");
+TFile fsave("gem_3plus_ptshiftX.root", "RECREATE");
 result_gem_2s1b__pat2->Write();
 result_gem_3s1b__pat2->Write();
 fsave.Write();
@@ -1084,3 +1085,4 @@ return;
 
 
 }
+

@@ -2,7 +2,7 @@
 from effFunctions import *
 from cuts import *
 from tdrStyle import *
-from GEMCSCdPhiLib import *
+from GEMCSCdPhiDict import *
 
 ## ROOT modules
 from ROOT import *
@@ -283,8 +283,9 @@ def getDphi(eff,pt,evenOdd):
 def gemTurnOn(filesDir, plotDir, eff, oddEven, ext):
     """Produce GEM turn-on curve"""
     
-    pt = ["pt10","pt20","pt30","pt40"]
-    pt_labels = ["#geq 10","#geq 20","#geq 30","#geq 40"]
+    pt = ["pt10","pt20","pt30","pt40"]    
+    pt_labels = ["10 GeV/c","20 GeV/c","30 GeV/c","40 GeV/c"]
+    dphis = [0.,0.,0.,0.]
 
     marker_colors = [kRed, kViolet+1, kAzure+1, kGreen-2]
     marker_styles = [20,21,23,24]
@@ -297,21 +298,24 @@ def gemTurnOn(filesDir, plotDir, eff, oddEven, ext):
     c.cd()
 
 
-    h = TH1F("","GEM-CSC bending angle patterns for different p_{T} thresholds;muon p_{T} [GeV/c];Efficiency",50,0.,50.)
+    h = TH1F("","         GEM-CSC bending Angle: p_{T} measurement, CMS Simulation;p_{T} [GeV/c];Efficiency",50,0.,50.)
     h.SetStats(0)
     h.Draw("")
 
     histoList = []
     for i in range(len(pt)):
         dphi = getDphi("%s"%(eff),"%s"%(pt[i]),"%s"%(oddEven))
+        dphis[i] = dphi
         if oddEven=="even":
             ok_dphi = TCut("TMath::Abs(dphi_pad_even) < %f"%(dphi))
             denom_cut = ok_pad2_lct2_eta
+            closeFar = "Close"
         else:
             ok_dphi = TCut("TMath::Abs(dphi_pad_odd) < %f"%(dphi))
             denom_cut = ok_pad1_lct1_eta
+            closeFar = "Far"
 
-        h2 = draw_eff(t, "GEM-CSC bending angle patterns for different p_{T} thresholds;p_{T} [GeV/c];Efficiency", "h2", "(50,0.,50.)", "pt", 
+        h2 = draw_eff(t, "GEM-CSC bending angle: momentum measurement;p_{T} [GeV/c];Efficiency", "h2", "(50,0.,50.)", "pt", 
                          denom_cut, ok_dphi, marker_colors[i], marker_styles[i])
         ## Eff. for track with LCT to have matched GEM pad
         histoList.append(h2)
@@ -322,19 +326,41 @@ def gemTurnOn(filesDir, plotDir, eff, oddEven, ext):
     ## add legend
     ##    leg_header =  "    #Delta#phi(GEM,CSC) is %s%% efficient for"%(eff)
     ##    leg.AddEntry(0, "%s chambers at pt"%(oddEven), "")
-    leg = TLegend(0.5,0.2,.8,0.65, "", "brNDC")
+    leg = TLegend(0.37,0.15,.82,0.5, "", "brNDC")
     leg_header =  "    "
-    leg.AddEntry(0, "muon p_{T} measured by %s"%(oddEven), "")
-    leg.AddEntry(0, "numbered GEM-CSC chambers", "")
+    leg.AddEntry(0, 'High efficiency patterns:', "")
     for n in range(len(pt)):
-        leg.AddEntry(histoList[n], pt_labels[n], "p")
+        leg.AddEntry(histoList[n], "#Delta#Phi(GEM-CSC)#geq%.4f (p_{T}>%s)"%(dphis[n],pt_labels[n]), "p")
     leg.SetBorderSize(0)
     leg.SetFillStyle(0)
-##    leg.SetFillStyle(1001)
-##    leg.SetFillColor(kWhite)
+    ##    leg.SetFillStyle(1001)
+    ##    leg.SetFillColor(kWhite)
     leg.SetHeader(leg_header)
     leg.SetTextSize(0.04)
     leg.Draw("same")
+
+    ## Adding additional information - top right
+    tex2 = TLatex(.75,.82,'   L1 Trigger')
+    tex2.SetTextSize(0.05)
+    tex2.SetNDC()
+    tex2.Draw("same")
+
+    tex3 = TLatex(.735,.75,'1.64<|#eta|<2.14')
+    tex3.SetTextSize(0.05)
+    tex3.SetNDC()
+    tex3.Draw("same")
+
+    ## hardcore nitpicking over here!
+    if closeFar == "Close":
+        xpos = 0.57
+    else:
+        xpos = 0.62
+
+    tex = TLatex(xpos,.68,'"%s" chamber pairs'%(closeFar))
+    tex.Draw("same")
+    tex.SetTextSize(0.05)
+    tex.SetNDC()
+
 
     ## save the file
     c.SaveAs("%sGEM_turnon_%s_%s%s"%(plotDir, eff,oddEven,ext))
@@ -342,12 +368,17 @@ def gemTurnOn(filesDir, plotDir, eff, oddEven, ext):
 
 def gemTurnOns(filesDir, plotDir, ext):
     """Produce the GEM turn-on curves"""
+
+    """
     gemTurnOn(filesDir, plotDir, "95", "even", ext)
     gemTurnOn(filesDir, plotDir, "95", "odd",  ext)
+    """
     gemTurnOn(filesDir, plotDir, "98", "even", ext)
     gemTurnOn(filesDir, plotDir, "98", "odd",  ext)
+    """
     gemTurnOn(filesDir, plotDir, "99", "even", ext)
     gemTurnOn(filesDir, plotDir, "99", "odd",  ext)
+    """
 
 ##double mymod(double x, double y) {return fmod(x,y);}
 
@@ -534,13 +565,13 @@ def eff_hs_10(filesDir, plotDir, f_name, ext):
 """
 def eff_hs_11(filesDir, plotDir, f_name, ext):
     Comment to be added here
-
+    
     t = getTree("%s%s"%(filesDir, f_name));
     c = TCanvas("c","c",800,600)
     c.SetGridx(1)
     c.SetGridy(1)
     c.cd()
-    h = TH1F("","Efficiency for track with LCT to have GEM pad in chamber;LCT |#eta|;Efficiency",50,0.,50.)
+    h = TH1F("","Efficiency for track with LCT to have GEM pad in chamber;LCT |\#eta|;Efficiency",50,0.,50.)
     h.SetStats(0)
     h.Draw("")
     he.Draw()
@@ -563,10 +594,10 @@ def eff_hs_all(filesDir, plotDir, f_name, ext):
     eff_hs_7(filesDir, plotDir, f_name, ext)
     eff_hs_8(filesDir, plotDir, f_name, ext)
     eff_hs_9(filesDir, plotDir, f_name, ext)
-"""
+    """
     eff_hs_10(filesDir, plotDir, f_name, ext)
     eff_hs_11(filesDir, plotDir, f_name, ext)
-"""
+    """
 
 def eff_hs(filesDir, plotDir, ext):
 
@@ -614,11 +645,11 @@ def eff_hs(filesDir, plotDir, ext):
 ## draw_eff(gt, "Eff. for track with LCT to have GEM pad in chamber;LCT half-strip number;Eff.", "h_evn", "(130,0.5,130.5)", "hs_lct_even", ok_lct2 && ok_eta , ok_pad2_overlap, "same")
 
 
-## draw_eff(gt, "Eff. for track with LCT to have GEM pad in chamber;LCT |#eta|;Eff.", "h_odd", "(140,1.5,2.2)", "TMath::Abs(eta_lct_odd)", ok_lct1, ok_pad1, "", kRed)
-## draw_eff(gt, "Eff. for track with LCT to have GEM pad in chamber;LCT |#eta|;Eff.", "h_evn", "(140,1.5,2.2)", "TMath::Abs(eta_lct_even)", ok_lct2, ok_pad2, "same")
+## draw_eff(gt, "Eff. for track with LCT to have GEM pad in chamber;LCT |\#eta|;Eff.", "h_odd", "(140,1.5,2.2)", "TMath::Abs(eta_lct_odd)", ok_lct1, ok_pad1, "", kRed)
+## draw_eff(gt, "Eff. for track with LCT to have GEM pad in chamber;LCT |\#eta|;Eff.", "h_evn", "(140,1.5,2.2)", "TMath::Abs(eta_lct_even)", ok_lct2, ok_pad2, "same")
 
-## draw_eff(gt, "Eff. for track with LCT to have GEM pad in chamber;trk |#eta|;Eff.", "h_odd", "(140,1.5,2.2)", "TMath::Abs(eta)", ok_lct1, ok_pad1, "", kRed)
-## draw_eff(gt, "Eff. for track with LCT to have GEM pad in chamber;trk |#eta|;Eff.", "h_evn", "(140,1.5,2.2)", "TMath::Abs(eta)", ok_lct2, ok_pad2, "same")
+## draw_eff(gt, "Eff. for track with LCT to have GEM pad in chamber;trk |\#eta|;Eff.", "h_odd", "(140,1.5,2.2)", "TMath::Abs(eta)", ok_lct1, ok_pad1, "", kRed)
+## draw_eff(gt, "Eff. for track with LCT to have GEM pad in chamber;trk |\#eta|;Eff.", "h_evn", "(140,1.5,2.2)", "TMath::Abs(eta)", ok_lct2, ok_pad2, "same")
 
 
 ## draw_eff(gt, "Eff. for track with LCT to have matched GEM pad;p_{T}, GeV/c;Eff.", "h_odd", "(50,0.,50.)", "pt", ok_lct1 && ok_eta , ok_pad1 && ok_dphi1)
@@ -655,7 +686,7 @@ def eff_hs(filesDir, plotDir, ext):
 
 ## |#Delta#phi_{odd}(LCT,Pad)| < 5.5 mrad
 ## |#Delta#phi_{even}(LCT,Pad)| < 3.1 mrad
-## |#Delta#eta(LCT,Pad)| < 0.08
+## |#Delta\#eta(LCT,Pad)| < 0.08
 
 ## draw_eff(gt, "Eff. for track with LCT to have matched GEM pad;p_{T}, GeV/c;Eff.", "hname", "(45,0.5,45.5)", "pt", ok_sh1 && ok_eta , ok_lct1 && ok_pad1 && ok_dphi1)
 ## draw_eff(gt, "Eff. for track with LCT to have matched GEM pad;p_{T}, GeV/c;Eff.", "hname", "(45,0.5,45.5)", "pt", ok_sh2 && ok_eta , ok_lct2 && ok_pad2 && ok_dphi2, "same")
@@ -665,7 +696,7 @@ def eff_hs(filesDir, plotDir, ext):
 
 ## draw_eff(gt, "title;pt;Eff.", "hname", "(45,0.5,45.5)", "pt", ok_lct1 && ok_eta , ok_pad1 && ok_dphi1)
 ## draw_eff(gt, "title;pt;Eff.", "hname", "(45,0.5,45.5)", "pt", ok_lct2 && ok_eta , ok_pad2 && ok_dphi2, "same")
-## draw_eff(gt, "title;|#eta|;Eff.", "hname", "(45,1.5,2.2)", "TMath::Abs(eta)", ok_sh1 , ok_lct1 && ok_pad1 )
+## draw_eff(gt, "title;|\#eta|;Eff.", "hname", "(45,1.5,2.2)", "TMath::Abs(eta)", ok_sh1 , ok_lct1 && ok_pad1 )
 ## draw_eff(gt, "title;|#phi|;Eff.", "hname", "(128,0,3.2)", "TMath::Abs(phi)", ok_sh2 , ok_lct2 && ok_pad2 )
 
 
