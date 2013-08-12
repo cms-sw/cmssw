@@ -28,9 +28,20 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 
+#include <string>
 
 namespace edm {
    class ConfigurationDescriptions;
+   class Event;
+   class EventSetup;
+   class GlobalContext;
+   class HLTPathStatus;
+   class LuminosityBlock;
+   class ModuleCallingContext;
+   class ModuleDescription;
+   class PathContext;
+   class Run;
+   class StreamContext;
 
    namespace service {
       class Tracer {
@@ -42,50 +53,8 @@ public:
          void postBeginJob();
          void postEndJob();
          
-         void preBeginRun(RunID const& id, Timestamp const& ts);
-         void postBeginRun(Run const& run, EventSetup const& es);
-
-         void preBeginLumi(LuminosityBlockID const& id, Timestamp const& ts);
-         void postBeginLumi(LuminosityBlock const& run, EventSetup const& es);
-
-         void preEvent(EventID const& id, Timestamp const& ts);
-         void postEvent(Event const& ev, EventSetup const& es);
-         
-         void preEndLumi(LuminosityBlockID const& id, Timestamp const& ts);
-         void postEndLumi(LuminosityBlock const& run, EventSetup const& es);
-
-         void preEndRun(RunID const& id, Timestamp const& ts);
-         void postEndRun(Run const& run, EventSetup const& es);
-
-         void preSourceConstruction(ModuleDescription const& md);
-         void postSourceConstruction(ModuleDescription const& md);
-
-         void preModuleConstruction(ModuleDescription const& md);
-         void postModuleConstruction(ModuleDescription const& md);
-
-         void preModuleBeginJob(ModuleDescription const& md);
-         void postModuleBeginJob(ModuleDescription const& md);
-
-         void preModuleBeginRun(ModuleDescription const& md);
-         void postModuleBeginRun(ModuleDescription const& md);
-
-         void preModuleBeginLumi(ModuleDescription const& md);
-         void postModuleBeginLumi(ModuleDescription const& md);
-
-         void preModuleEvent(ModuleDescription const& md);
-         void postModuleEvent(ModuleDescription const& md);
-         
-         void preModuleEndLumi(ModuleDescription const& md);
-         void postModuleEndLumi(ModuleDescription const& md);
-
-         void preModuleEndRun(ModuleDescription const& md);
-         void postModuleEndRun(ModuleDescription const& md);
-
-         void preModuleEndJob(ModuleDescription const& md);
-         void postModuleEndJob(ModuleDescription const& md);
-
-         void preSourceEvent();
-         void postSourceEvent();
+         void preSource();
+         void postSource();
 
          void preSourceLumi();
          void postSourceLumi();
@@ -93,33 +62,87 @@ public:
          void preSourceRun();
          void postSourceRun();
 
-         void preOpenFile();
-         void postOpenFile();
+         void preOpenFile(std::string const&, bool);
+         void postOpenFile(std::string const&, bool);
          
          void preCloseFile(std::string const& lfn, bool primary);
-         void postCloseFile();
+         void postCloseFile(std::string const&, bool);
+
+         void preModuleBeginStream(StreamContext const&, ModuleDescription const&);
+         void postModuleBeginStream(StreamContext const&, ModuleDescription const&);
+
+         void preModuleEndStream(StreamContext const&, ModuleDescription const&);
+         void postModuleEndStream(StreamContext const&, ModuleDescription const&);
+
+         void preGlobalBeginRun(GlobalContext const&);
+         void postGlobalBeginRun(GlobalContext const&);
+
+         void preGlobalEndRun(GlobalContext const&);
+         void postGlobalEndRun(GlobalContext const&, Run const&, EventSetup const&);
+
+         void preStreamBeginRun(StreamContext const&);
+         void postStreamBeginRun(StreamContext const&);
+
+         void preStreamEndRun(StreamContext const&);
+         void postStreamEndRun(StreamContext const&, Run const&, EventSetup const&);
+
+         void preGlobalBeginLumi(GlobalContext const&);
+         void postGlobalBeginLumi(GlobalContext const&);
+
+         void preGlobalEndLumi(GlobalContext const&);
+         void postGlobalEndLumi(GlobalContext const&, LuminosityBlock const&, EventSetup const&);
+
+         void preStreamBeginLumi(StreamContext const&);
+         void postStreamBeginLumi(StreamContext const&);
+
+         void preStreamEndLumi(StreamContext const&);
+         void postStreamEndLumi(StreamContext const&, LuminosityBlock const&, EventSetup const&);
+
+         void preEvent(StreamContext const&);
+         void postEvent(StreamContext const&, Event const&, EventSetup const&);
+
+         void prePathEvent(StreamContext const&, PathContext const&);
+         void postPathEvent(StreamContext const&, PathContext const&, HLTPathStatus const&);
+
+         void preModuleConstruction(ModuleDescription const& md);
+         void postModuleConstruction(ModuleDescription const& md);
+
+         void preModuleBeginJob(ModuleDescription const& md);
+         void postModuleBeginJob(ModuleDescription const& md);
+
+         void preModuleEndJob(ModuleDescription const& md);
+         void postModuleEndJob(ModuleDescription const& md);
+
+         void preModuleEvent(StreamContext const&, ModuleCallingContext const&);
+         void postModuleEvent(StreamContext const&, ModuleCallingContext const&);
          
-         void prePathBeginRun(std::string const& s);
-         void postPathBeginRun(std::string const& s, HLTPathStatus const& hlt);
+         void preModuleStreamBeginRun(StreamContext const&, ModuleCallingContext const&);
+         void postModuleStreamBeginRun(StreamContext const&, ModuleCallingContext const&);
+         void preModuleStreamEndRun(StreamContext const&, ModuleCallingContext const&);
+         void postModuleStreamEndRun(StreamContext const&, ModuleCallingContext const&);
 
-         void prePathBeginLumi(std::string const& s);
-         void postPathBeginLumi(std::string const& s, HLTPathStatus const& hlt);
+         void preModuleStreamBeginLumi(StreamContext const&, ModuleCallingContext const&);
+         void postModuleStreamBeginLumi(StreamContext const&, ModuleCallingContext const&);
+         void preModuleStreamEndLumi(StreamContext const&, ModuleCallingContext const&);
+         void postModuleStreamEndLumi(StreamContext const&, ModuleCallingContext const&);
 
-         void prePathEvent(std::string const& s);
-         void postPathEvent(std::string const& s, HLTPathStatus const& hlt);
+         void preModuleGlobalBeginRun(GlobalContext const&, ModuleCallingContext const&);
+         void postModuleGlobalBeginRun(GlobalContext const&, ModuleCallingContext const&);
+         void preModuleGlobalEndRun(GlobalContext const&, ModuleCallingContext const&);
+         void postModuleGlobalEndRun(GlobalContext const&, ModuleCallingContext const&);
 
-         void prePathEndLumi(std::string const& s);
-         void postPathEndLumi(std::string const& s, HLTPathStatus const& hlt);
+         void preModuleGlobalBeginLumi(GlobalContext const&, ModuleCallingContext const&);
+         void postModuleGlobalBeginLumi(GlobalContext const&, ModuleCallingContext const&);
+         void preModuleGlobalEndLumi(GlobalContext const&, ModuleCallingContext const&);
+         void postModuleGlobalEndLumi(GlobalContext const&, ModuleCallingContext const&);
 
-         void prePathEndRun(std::string const& s);
-         void postPathEndRun(std::string const& s, HLTPathStatus const& hlt);
+         void preSourceConstruction(ModuleDescription const& md);
+         void postSourceConstruction(ModuleDescription const& md);
 
 private:
          std::string indention_;
          unsigned int depth_;
-         
       };
    }
 }
-   
 #endif

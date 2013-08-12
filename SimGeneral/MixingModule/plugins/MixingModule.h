@@ -41,6 +41,7 @@ class PileUpEventPrincipal;
 
 namespace edm {
   class MixingWorkerBase;
+  class ModuleCallingContext;
 
   class MixingModule : public BMixingModule {
     public:
@@ -79,7 +80,7 @@ namespace edm {
       virtual void checkSignal(const edm::Event &e);
       virtual void addSignals(const edm::Event &e, const edm::EventSetup& es); 
       virtual void doPileUp(edm::Event &e, const edm::EventSetup& es);
-      void pileAllWorkers(EventPrincipal const& ep, int bcr, int id, int& offset,
+      void pileAllWorkers(EventPrincipal const& ep, ModuleCallingContext const*, int bcr, int id, int& offset,
 			  const edm::EventSetup& setup);
       void createDigiAccumulators( const edm::ParameterSet& mixingPSet ) ;
 

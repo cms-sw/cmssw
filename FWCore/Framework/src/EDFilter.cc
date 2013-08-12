@@ -19,10 +19,11 @@ namespace edm {
 
   bool
   EDFilter::doEvent(EventPrincipal& ep, EventSetup const& c,
-		     CurrentProcessingContext const* cpc) {
+		    CurrentProcessingContext const* cpc,
+                    ModuleCallingContext const* mcc) {
     detail::CPCSentry sentry(current_context_, cpc);
     bool rc = false;
-    Event e(ep, moduleDescription_);
+    Event e(ep, moduleDescription_, mcc);
     e.setConsumer(this);
     rc = this->filter(e, c);
     commit_(e,&previousParentage_, &previousParentageId_);
@@ -40,9 +41,10 @@ namespace edm {
 
   void
   EDFilter::doBeginRun(RunPrincipal& rp, EventSetup const& c,
-			CurrentProcessingContext const* cpc) {
+		       CurrentProcessingContext const* cpc,
+                       ModuleCallingContext const* mcc) {
     detail::CPCSentry sentry(current_context_, cpc);
-    Run r(rp, moduleDescription_);
+    Run r(rp, moduleDescription_, mcc);
     r.setConsumer(this);
     Run const& cnstR=r;
     this->beginRun(cnstR, c);
@@ -52,9 +54,10 @@ namespace edm {
 
   void
   EDFilter::doEndRun(RunPrincipal& rp, EventSetup const& c,
-			CurrentProcessingContext const* cpc) {
+		     CurrentProcessingContext const* cpc,
+                     ModuleCallingContext const* mcc) {
     detail::CPCSentry sentry(current_context_, cpc);
-    Run r(rp, moduleDescription_);
+    Run r(rp, moduleDescription_, mcc);
     r.setConsumer(this);
     Run const& cnstR=r;
     this->endRun(cnstR, c);
@@ -64,9 +67,10 @@ namespace edm {
 
   void
   EDFilter::doBeginLuminosityBlock(LuminosityBlockPrincipal& lbp, EventSetup const& c,
-			CurrentProcessingContext const* cpc) {
+                                   CurrentProcessingContext const* cpc,
+                                   ModuleCallingContext const* mcc) {
     detail::CPCSentry sentry(current_context_, cpc);
-    LuminosityBlock lb(lbp, moduleDescription_);
+    LuminosityBlock lb(lbp, moduleDescription_, mcc);
     lb.setConsumer(this);
     LuminosityBlock const& cnstLb = lb;
     this->beginLuminosityBlock(cnstLb, c);
@@ -75,9 +79,10 @@ namespace edm {
 
   void
   EDFilter::doEndLuminosityBlock(LuminosityBlockPrincipal& lbp, EventSetup const& c,
-			CurrentProcessingContext const* cpc) {
+			         CurrentProcessingContext const* cpc,
+                                 ModuleCallingContext const* mcc) {
     detail::CPCSentry sentry(current_context_, cpc);
-    LuminosityBlock lb(lbp, moduleDescription_);
+    LuminosityBlock lb(lbp, moduleDescription_, mcc);
     lb.setConsumer(this);
     LuminosityBlock const& cnstLb = lb;
     this->endLuminosityBlock(cnstLb, c);

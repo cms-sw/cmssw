@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
+ <SpecParSection label="tbhcal06util.xml" eval="true">
+  <SpecPar name="calo">
+   <PartSelector path="//Calo"/>
+   <Parameter name="SensitiveDetector" value="CaloTrkProcessing" eval="false"/>
+   <Parameter name="ReadOutName" value="CaloHitsTk" eval="false"/>
+   <Parameter name="Calorimeter" value="Calo" eval="false"/>
+   <Parameter name="Levels" value="3" eval="true"/>
+   <Parameter name="Neighbours" value="1" eval="true"/>
+   <Parameter name="Inside" value="NotFound" eval="false"/>
+   <Parameter name="InsideLevel" value="3" eval="true"/>
+  </SpecPar>
+ </SpecParSection>
+</DDDefinition>

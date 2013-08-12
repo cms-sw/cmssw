@@ -62,7 +62,7 @@ namespace edm {
     EventSourceSentry sentry(*this);
     EventAuxiliary aux(eventID_, processGUID(), Timestamp(presentTime_), isRealData_, eType_);
     eventPrincipal.fillEventPrincipal(aux);
-    Event e(eventPrincipal, moduleDescription());
+    Event e(eventPrincipal, moduleDescription(), nullptr);
     produce(e);
     e.commit_();
     resetEventCached();

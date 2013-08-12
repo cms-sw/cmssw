@@ -9,7 +9,8 @@
    <class name="edm::RefProd<std::vector<reco::WMuNuCandidatePtr> >"/>
    <class name="edm::helpers::Key<edm::RefProd<std::vector<reco::WMuNuCandidatePtr> > >"/>
 
-   <class name="edm::RefToBase<reco::WMuNuCandidatePtr>" />
+   <class name="edm::reftobase::BaseHolder<reco::WMuNuCandidatePtr>"/>
+   <class name="edm::RefToBase<reco::WMuNuCandidatePtr>"/>
    <class name="edm::reftobase::IndirectHolder<reco::WMuNuCandidatePtr>" />
    <class name="edm::RefToBaseProd<reco::WMuNuCandidatePtr>" />
    <class name="edm::RefToBaseVector<reco::WMuNuCandidatePtr>" />
@@ -26,7 +27,8 @@
    <class name="edm::RefProd<std::vector<reco::WMuNuCandidate> >"/>
    <class name="edm::helpers::Key<edm::RefProd<std::vector<reco::WMuNuCandidate> > >"/>
 
-   <class name="edm::RefToBase<reco::WMuNuCandidate>" />
+   <class name="edm::reftobase::BaseHolder<reco::WMuNuCandidate>"/>
+   <class name="edm::RefToBase<reco::WMuNuCandidate>"/>
    <class name="edm::reftobase::IndirectHolder<reco::WMuNuCandidate>" />
    <class name="edm::RefToBaseProd<reco::WMuNuCandidate>" />
    <class name="edm::RefToBaseVector<reco::WMuNuCandidate>" />

@@ -1,0 +1,300 @@
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
+	<ConstantsSection label="TBHcal04BeamLine.xml" eval="true">
+		<Constant name="motherDxby2" value="15.0*cm"/>
+		<Constant name="motherDyby2" value="15.0*cm"/>
+		<Constant name="motherDzby2" value="215.0*cm"/>
+		<Constant name="upstreamZ" value="3.065*m"/>
+		<Constant name="tile10Dxby2" value="7.0*cm"/>
+		<Constant name="tile10Dyby2" value="7.0*cm"/>
+		<Constant name="tile10Dzby2" value="5.0*mm"/>
+		<Constant name="tile21Dxby2" value="2.0*cm"/>
+		<Constant name="tile21Dyby2" value="2.0*cm"/>
+		<Constant name="tile21Dzby2" value="5.0*mm"/>
+		<Constant name="tile32Dxby2" value="1.0*cm"/>
+		<Constant name="tile32Dyby2" value="1.0*cm"/>
+		<Constant name="tile32Dzby2" value="5.0*mm"/>
+		<Constant name="tile43Dxby2" value="7.0*cm"/>
+		<Constant name="tile43Dyby2" value="7.0*cm"/>
+		<Constant name="tile43Dzby2" value="5.0*mm"/>
+		<Constant name="chambDxby2" value="11.0*cm"/>
+		<Constant name="chambAlT" value="5.0*mm"/>
+		<Constant name="chambKapW" value="11.0*cm"/>
+		<Constant name="chambKapT" value="0.025*mm"/>
+		<Constant name="chambVetW" value="25.0*mm"/>
+		<Constant name="chambVetT" value="5.0*mm"/>
+		<Constant name="chambVetGap" value="12.0*cm"/>
+		<Constant name="chambVetL" value="0.5*([chambVetGap]+[chambVetW])"/>
+		<Constant name="chambVetX" value="0.5*[chambVetW]"/>
+		<Constant name="chambVetZ" value="20.0*mm"/>
+		<Constant name="chambGasGap" value="([chambVetZ]+0.5*[chambVetT])"/>
+		<Constant name="chambGasW" value="([chambVetW]+0.5*[chambVetGap])"/>
+		<Constant name="chambDzby2" value="([chambGasGap]+[chambAlT])"/>
+		<Constant name="chambAl1L" value="0.5*([chambDxby2]+0.5*[chambKapW])"/>
+		<Constant name="chambAl1W" value="0.5*([chambDxby2]-0.5*[chambKapW])"/>
+		<Constant name="chambAl1X" value="([chambDxby2]-[chambAl1L])"/>
+		<Constant name="chambAl1Y" value="([chambDxby2]-[chambAl1W])"/>
+		<Constant name="chambAl1Z" value="([chambGasGap]+0.5*[chambAlT])"/>
+		<Constant name="chambAl2L" value="([chambDxby2]-0.5*[chambAlT])"/>
+		<Constant name="chambAl2X" value="([chambDxby2]-[chambAl2L])"/>
+		<Constant name="chambAl2Y" value="([chambDxby2]-0.5*[chambAlT])"/>
+		<Constant name="chamb1Z" value="-507.6*cm"/>
+		<Constant name="chamb2Z" value="-400.3*cm"/>
+		<Constant name="chamb3Z" value="-200.5*cm"/>
+	</ConstantsSection>
+	<SolidSection label="TBHcal04BeamLine.xml">
+		<Box name="HcalTestBeamLine" dx="[motherDxby2]" dy="[motherDyby2]" dz="[motherDzby2]"/>
+		<Box name="HcalTestBeamLineTTile10" dx="[tile10Dxby2]" dy="[tile10Dyby2]" dz="[tile10Dzby2]"/>
+		<Box name="HcalTestBeamLineTTile21" dx="[tile21Dxby2]" dy="[tile21Dyby2]" dz="[tile21Dzby2]"/>
+		<Box name="HcalTestBeamLineTTile32" dx="[tile32Dxby2]" dy="[tile32Dyby2]" dz="[tile32Dzby2]"/>
+		<Box name="HcalTestBeamLineTTile43" dx="[tile43Dxby2]" dy="[tile43Dyby2]" dz="[tile43Dzby2]"/>
+		<Box name="HcalTestBeamLineWChamb" dx="[chambDxby2]" dy="[chambDxby2]" dz="[chambDzby2]"/>
+		<Box name="HcalTestBeamLineWChambGas" dx="[chambGasW]" dy="[chambGasW]" dz="[chambGasGap]"/>
+		<Box name="HcalTestBeamLineWChambVet" dx="[chambVetL]" dy="[chambVetW]/2" dz="[chambVetT]/2"/>
+		<Box name="HcalTestBeamLineWChambWindow" dx="[chambKapW]/2" dy="[chambKapW]/2" dz="[chambKapT]/2"/>
+		<Box name="HcalTestBeamLineWChambAl1" dx="[chambAl1L]" dy="[chambAl1W]" dz="[chambAlT]/2"/>
+		<Box name="HcalTestBeamLineWChambAl2" dx="[chambAl2L]" dy="[chambAlT]/2" dz="[chambGasGap]"/>
+	</SolidSection>
+	<LogicalPartSection label="TBHcal04BeamLine.xml">
+		<LogicalPart name="HcalTestBeamLine" category="unspecified">
+			<rSolid name="HcalTestBeamLine"/>
+			<rMaterial name="materials:Air"/>
+		</LogicalPart>
+		<LogicalPart name="HcalTestBeamLineTTile10" category="unspecified">
+			<rSolid name="HcalTestBeamLineTTile10"/>
+			<rMaterial name="materials:Scintillator"/>
+		</LogicalPart>
+		<LogicalPart name="HcalTestBeamLineTTile21" category="unspecified">
+			<rSolid name="HcalTestBeamLineTTile21"/>
+			<rMaterial name="materials:Scintillator"/>
+		</LogicalPart>
+		<LogicalPart name="HcalTestBeamLineTTile32" category="unspecified">
+			<rSolid name="HcalTestBeamLineTTile32"/>
+			<rMaterial name="materials:Scintillator"/>
+		</LogicalPart>
+		<LogicalPart name="HcalTestBeamLineTTile43" category="unspecified">
+			<rSolid name="HcalTestBeamLineTTile43"/>
+			<rMaterial name="materials:Scintillator"/>
+		</LogicalPart>
+		<LogicalPart name="HcalTestBeamLineWChamb" category="unspecified">
+			<rSolid name="HcalTestBeamLineWChamb"/>
+			<rMaterial name="materials:Air"/>
+		</LogicalPart>
+		<LogicalPart name="HcalTestBeamLineWChambGas" category="unspecified">
+			<rSolid name="HcalTestBeamLineWChambGas"/>
+			<rMaterial name="materials:Ar(50%)+CO_2(50%)"/>
+		</LogicalPart>
+		<LogicalPart name="HcalTestBeamLineWChambVet" category="unspecified">
+			<rSolid name="HcalTestBeamLineWChambVet"/>
+			<rMaterial name="materials:Polyethylene"/>
+		</LogicalPart>
+		<LogicalPart name="HcalTestBeamLineWChambWindow" category="unspecified">
+			<rSolid name="HcalTestBeamLineWChambWindow"/>
+			<rMaterial name="materials:Kapton"/>
+		</LogicalPart>
+		<LogicalPart name="HcalTestBeamLineWChambAl1" category="unspecified">
+			<rSolid name="HcalTestBeamLineWChambAl1"/>
+			<rMaterial name="materials:Aluminium"/>
+		</LogicalPart>
+		<LogicalPart name="HcalTestBeamLineWChambAl2" category="unspecified">
+			<rSolid name="HcalTestBeamLineWChambAl2"/>
+			<rMaterial name="materials:Aluminium"/>
+		</LogicalPart>
+	</LogicalPartSection>
+	<RotationSection label="TBHcal04BeamLine.xml">
+		<Rotation name="R1" phiX="90*deg" thetaX="90*deg" phiY="180*deg" thetaY="90*deg" phiZ="0*deg" thetaZ="0*deg"/>
+	</RotationSection>
+	<PosPartSection label="TBHcal04BeamLine.xml">
+		<PosPart copyNumber="1">
+			<rParent name="TBHcal04BeamLine:HcalTestBeamLine"/>
+			<rChild name="TBHcal04BeamLine:HcalTestBeamLineTTile10"/>
+			<Translation x="0*fm" y="0*fm" z="-74.0*cm"/>
+		</PosPart>
+		<PosPart copyNumber="2">
+			<rParent name="TBHcal04BeamLine:HcalTestBeamLine"/>
+			<rChild name="TBHcal04BeamLine:HcalTestBeamLineTTile21"/>
+			<Translation x="0*fm" y="0*fm" z="-59.0*cm"/>
+		</PosPart>
+		<PosPart copyNumber="3">
+			<rParent name="TBHcal04BeamLine:HcalTestBeamLine"/>
+			<rChild name="TBHcal04BeamLine:HcalTestBeamLineTTile32"/>
+			<Translation x="0*fm" y="0*fm" z="-44.0*cm"/>
+		</PosPart>
+		<PosPart copyNumber="4">
+			<rParent name="TBHcal04BeamLine:HcalTestBeamLine"/>
+			<rChild name="TBHcal04BeamLine:HcalTestBeamLineTTile43"/>
+			<Translation x="0*fm" y="0*fm" z="21.0*cm"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="TBHcal04BeamLine:HcalTestBeamLineWChamb"/>
+			<rChild name="TBHcal04BeamLine:HcalTestBeamLineWChambGas"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="TBHcal04BeamLine:HcalTestBeamLineWChamb"/>
+			<rChild name="TBHcal04BeamLine:HcalTestBeamLineWChambAl1"/>
+			<Translation x="[chambAl1X]" y="[chambAl1Y]" z="[chambAl1Z]"/>
+		</PosPart>
+		<PosPart copyNumber="2">
+			<rParent name="TBHcal04BeamLine:HcalTestBeamLineWChamb"/>
+			<rChild name="TBHcal04BeamLine:HcalTestBeamLineWChambAl1"/>
+			<Translation x="-[chambAl1Y]" y="[chambAl1X]" z="[chambAl1Z]"/>
+			<rRotation name="TBHcal04BeamLine:R1"/>
+		</PosPart>
+		<PosPart copyNumber="3">
+			<rParent name="TBHcal04BeamLine:HcalTestBeamLineWChamb"/>
+			<rChild name="TBHcal04BeamLine:HcalTestBeamLineWChambAl1"/>
+			<Translation x="-[chambAl1X]" y="-[chambAl1Y]" z="[chambAl1Z]"/>
+		</PosPart>
+		<PosPart copyNumber="4">
+			<rParent name="TBHcal04BeamLine:HcalTestBeamLineWChamb"/>
+			<rChild name="TBHcal04BeamLine:HcalTestBeamLineWChambAl1"/>
+			<Translation x="[chambAl1Y]" y="-[chambAl1X]" z="[chambAl1Z]"/>
+			<rRotation name="TBHcal04BeamLine:R1"/>
+		</PosPart>
+		<PosPart copyNumber="5">
+			<rParent name="TBHcal04BeamLine:HcalTestBeamLineWChamb"/>
+			<rChild name="TBHcal04BeamLine:HcalTestBeamLineWChambAl1"/>
+			<Translation x="[chambAl1X]" y="[chambAl1Y]" z="-[chambAl1Z]"/>
+		</PosPart>
+		<PosPart copyNumber="6">
+			<rParent name="TBHcal04BeamLine:HcalTestBeamLineWChamb"/>
+			<rChild name="TBHcal04BeamLine:HcalTestBeamLineWChambAl1"/>
+			<Translation x="-[chambAl1Y]" y="[chambAl1X]" z="-[chambAl1Z]"/>
+			<rRotation name="TBHcal04BeamLine:R1"/>
+		</PosPart>
+		<PosPart copyNumber="7">
+			<rParent name="TBHcal04BeamLine:HcalTestBeamLineWChamb"/>
+			<rChild name="TBHcal04BeamLine:HcalTestBeamLineWChambAl1"/>
+			<Translation x="-[chambAl1X]" y="-[chambAl1Y]" z="-[chambAl1Z]"/>
+		</PosPart>
+		<PosPart copyNumber="8">
+			<rParent name="TBHcal04BeamLine:HcalTestBeamLineWChamb"/>
+			<rChild name="TBHcal04BeamLine:HcalTestBeamLineWChambAl1"/>
+			<Translation x="[chambAl1Y]" y="-[chambAl1X]" z="-[chambAl1Z]"/>
+			<rRotation name="TBHcal04BeamLine:R1"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="TBHcal04BeamLine:HcalTestBeamLineWChamb"/>
+			<rChild name="TBHcal04BeamLine:HcalTestBeamLineWChambAl2"/>
+			<Translation x="[chambAl2X]" y="[chambAl2Y]" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="2">
+			<rParent name="TBHcal04BeamLine:HcalTestBeamLineWChamb"/>
+			<rChild name="TBHcal04BeamLine:HcalTestBeamLineWChambAl2"/>
+			<Translation x="-[chambAl2Y]" y="[chambAl2X]" z="0*fm"/>
+			<rRotation name="TBHcal04BeamLine:R1"/>
+		</PosPart>
+		<PosPart copyNumber="3">
+			<rParent name="TBHcal04BeamLine:HcalTestBeamLineWChamb"/>
+			<rChild name="TBHcal04BeamLine:HcalTestBeamLineWChambAl2"/>
+			<Translation x="-[chambAl2X]" y="-[chambAl2Y]" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="4">
+			<rParent name="TBHcal04BeamLine:HcalTestBeamLineWChamb"/>
+			<rChild name="TBHcal04BeamLine:HcalTestBeamLineWChambAl2"/>
+			<Translation x="[chambAl2Y]" y="-[chambAl2X]" z="0*fm"/>
+			<rRotation name="TBHcal04BeamLine:R1"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="TBHcal04BeamLine:HcalTestBeamLineWChamb"/>
+			<rChild name="TBHcal04BeamLine:HcalTestBeamLineWChambWindow"/>
+			<Translation x="0*fm" y="0*fm" z="([chambDzby2]-0.5*[chambKapT])"/>
+		</PosPart>
+		<PosPart copyNumber="2">
+			<rParent name="TBHcal04BeamLine:HcalTestBeamLineWChamb"/>
+			<rChild name="TBHcal04BeamLine:HcalTestBeamLineWChambWindow"/>
+			<Translation x="0*fm" y="0*fm" z="-([chambDzby2]-0.5*[chambKapT])"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="TBHcal04BeamLine:HcalTestBeamLineWChambGas"/>
+			<rChild name="TBHcal04BeamLine:HcalTestBeamLineWChambVet"/>
+			<Translation x="[chambVetX]" y="[chambVetL]" z="[chambVetZ]"/>
+		</PosPart>
+		<PosPart copyNumber="2">
+			<rParent name="TBHcal04BeamLine:HcalTestBeamLineWChambGas"/>
+			<rChild name="TBHcal04BeamLine:HcalTestBeamLineWChambVet"/>
+			<Translation x="-[chambVetL]" y="[chambVetX]" z="[chambVetZ]"/>
+			<rRotation name="TBHcal04BeamLine:R1"/>
+		</PosPart>
+		<PosPart copyNumber="3">
+			<rParent name="TBHcal04BeamLine:HcalTestBeamLineWChambGas"/>
+			<rChild name="TBHcal04BeamLine:HcalTestBeamLineWChambVet"/>
+			<Translation x="-[chambVetX]" y="-[chambVetL]" z="[chambVetZ]"/>
+		</PosPart>
+		<PosPart copyNumber="4">
+			<rParent name="TBHcal04BeamLine:HcalTestBeamLineWChambGas"/>
+			<rChild name="TBHcal04BeamLine:HcalTestBeamLineWChambVet"/>
+			<Translation x="[chambVetL]" y="-[chambVetX]" z="[chambVetZ]"/>
+			<rRotation name="TBHcal04BeamLine:R1"/>
+		</PosPart>
+		<PosPart copyNumber="5">
+			<rParent name="TBHcal04BeamLine:HcalTestBeamLineWChambGas"/>
+			<rChild name="TBHcal04BeamLine:HcalTestBeamLineWChambVet"/>
+			<Translation x="[chambVetX]" y="[chambVetL]" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="6">
+			<rParent name="TBHcal04BeamLine:HcalTestBeamLineWChambGas"/>
+			<rChild name="TBHcal04BeamLine:HcalTestBeamLineWChambVet"/>
+			<Translation x="-[chambVetL]" y="[chambVetX]" z="0*fm"/>
+			<rRotation name="TBHcal04BeamLine:R1"/>
+		</PosPart>
+		<PosPart copyNumber="7">
+			<rParent name="TBHcal04BeamLine:HcalTestBeamLineWChambGas"/>
+			<rChild name="TBHcal04BeamLine:HcalTestBeamLineWChambVet"/>
+			<Translation x="-[chambVetX]" y="-[chambVetL]" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="8">
+			<rParent name="TBHcal04BeamLine:HcalTestBeamLineWChambGas"/>
+			<rChild name="TBHcal04BeamLine:HcalTestBeamLineWChambVet"/>
+			<Translation x="[chambVetL]" y="-[chambVetX]" z="0*fm"/>
+			<rRotation name="TBHcal04BeamLine:R1"/>
+		</PosPart>
+		<PosPart copyNumber="9">
+			<rParent name="TBHcal04BeamLine:HcalTestBeamLineWChambGas"/>
+			<rChild name="TBHcal04BeamLine:HcalTestBeamLineWChambVet"/>
+			<Translation x="[chambVetX]" y="[chambVetL]" z="-[chambVetZ]"/>
+		</PosPart>
+		<PosPart copyNumber="10">
+			<rParent name="TBHcal04BeamLine:HcalTestBeamLineWChambGas"/>
+			<rChild name="TBHcal04BeamLine:HcalTestBeamLineWChambVet"/>
+			<Translation x="-[chambVetL]" y="[chambVetX]" z="-[chambVetZ]"/>
+			<rRotation name="TBHcal04BeamLine:R1"/>
+		</PosPart>
+		<PosPart copyNumber="11">
+			<rParent name="TBHcal04BeamLine:HcalTestBeamLineWChambGas"/>
+			<rChild name="TBHcal04BeamLine:HcalTestBeamLineWChambVet"/>
+			<Translation x="-[chambVetX]" y="-[chambVetL]" z="-[chambVetZ]"/>
+		</PosPart>
+		<PosPart copyNumber="12">
+			<rParent name="TBHcal04BeamLine:HcalTestBeamLineWChambGas"/>
+			<rChild name="TBHcal04BeamLine:HcalTestBeamLineWChambVet"/>
+			<Translation x="[chambVetL]" y="-[chambVetX]" z="-[chambVetZ]"/>
+			<rRotation name="TBHcal04BeamLine:R1"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="TBHcal04BeamLine:HcalTestBeamLine"/>
+			<rChild name="TBHcal04BeamLine:HcalTestBeamLineWChamb"/>
+			<Translation x="0*fm" y="0*fm" z="([chamb1Z]+[upstreamZ]-[chambDzby2])"/>
+		</PosPart>
+		<PosPart copyNumber="2">
+			<rParent name="TBHcal04BeamLine:HcalTestBeamLine"/>
+			<rChild name="TBHcal04BeamLine:HcalTestBeamLineWChamb"/>
+			<Translation x="0*fm" y="0*fm" z="([chamb2Z]+[upstreamZ]-[chambDzby2])"/>
+		</PosPart>
+		<PosPart copyNumber="3">
+			<rParent name="TBHcal04BeamLine:HcalTestBeamLine"/>
+			<rChild name="TBHcal04BeamLine:HcalTestBeamLineWChamb"/>
+			<Translation x="0*fm" y="0*fm" z="([chamb3Z]+[upstreamZ]-[chambDzby2])"/>
+		</PosPart>
+	</PosPartSection>
+	<Algorithm name="hcal:DDHCalTestBeamAlgo">
+		<rParent name="TBHcal:TBHCal"/>
+		<String name="ChildName" value="HcalTestBeamLine"/>
+		<Numeric name="Eta" value="[TBHcal:Eta]"/>
+		<Numeric name="Phi" value="[TBHcal:Phi]"/>
+		<Numeric name="Dist" value="-[upstreamZ]"/>
+		<Numeric name="DistZ" value="0.0*fm"/>
+		<Numeric name="Dz" value="[motherDzby2]"/>
+		<Numeric name="Number" value="1"/>
+	</Algorithm>
+</DDDefinition>

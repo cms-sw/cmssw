@@ -1,6 +1,7 @@
 #ifndef DQM_SiStripCommissioningSources_SiStripCommissioningSource_H
 #define DQM_SiStripCommissioningSources_SiStripCommissioningSource_H
 
+#include "FWCore/Utilities/interface/EDGetToken.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripFecCabling.h"
 #include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
@@ -96,6 +97,10 @@ class SiStripCommissioningSource : public edm::EDAnalyzer {
   SiStripFecCabling* fecCabling_;
   
   // ---------- Input / output ----------
+  edm::EDGetTokenT<SiStripEventSummary> inputModuleSummaryToken_;
+  edm::EDGetTokenT<edm::DetSetVector<SiStripRawDigi> > digiVirginRawToken_;
+  edm::EDGetTokenT<edm::DetSetVector<SiStripRawDigi> > digiScopeModeToken_;
+  edm::EDGetTokenT<edm::DetSetVector<SiStripRawDigi> > digiFineDelaySelectionToken_;
 
   /** Name of digi input module. */
   std::string inputModuleLabel_;

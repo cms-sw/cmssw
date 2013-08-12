@@ -8,10 +8,12 @@ namespace edm {
 
   std::string const LuminosityBlock::emptyString_;
 
-  LuminosityBlock::LuminosityBlock(LuminosityBlockPrincipal& lbp, ModuleDescription const& md) :
+  LuminosityBlock::LuminosityBlock(LuminosityBlockPrincipal& lbp, ModuleDescription const& md,
+                                   ModuleCallingContext const* moduleCallingContext) :
         provRecorder_(lbp, md),
         aux_(lbp.aux()),
-        run_(new Run(lbp.runPrincipal(), md)) {
+        run_(new Run(lbp.runPrincipal(), md, moduleCallingContext)),
+        moduleCallingContext_(moduleCallingContext) {
   }
 
   LuminosityBlock::~LuminosityBlock() {
@@ -46,7 +48,7 @@ namespace edm {
 
   Provenance
   LuminosityBlock::getProvenance(BranchID const& bid) const {
-    return luminosityBlockPrincipal().getProvenance(bid);
+    return luminosityBlockPrincipal().getProvenance(bid, moduleCallingContext_);
   }
 
   void
@@ -88,7 +90,7 @@ namespace edm {
 
   BasicHandle
   LuminosityBlock::getByLabelImpl(std::type_info const&, std::type_info const& iProductType, const InputTag& iTag) const {
-    BasicHandle h = provRecorder_.getByLabel_(TypeID(iProductType), iTag);
+    BasicHandle h = provRecorder_.getByLabel_(TypeID(iProductType), iTag, moduleCallingContext_);
     if (h.isValid()) {
       addToGotBranchIDs(*(h.provenance()));
     }

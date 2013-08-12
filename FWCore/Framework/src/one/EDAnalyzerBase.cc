@@ -49,9 +49,10 @@ namespace edm {
     
     bool
     EDAnalyzerBase::doEvent(EventPrincipal& ep, EventSetup const& c,
-                        CurrentProcessingContext const* cpc) {
+                        CurrentProcessingContext const* cpc,
+                        ModuleCallingContext const* mcc) {
       detail::CPCSentry sentry(current_context_, cpc);
-      Event e(ep, moduleDescription_);
+      Event e(ep, moduleDescription_, mcc);
       e.setConsumer(this);
       this->analyze(e, c);
       return true;
@@ -69,10 +70,11 @@ namespace edm {
     
     void
     EDAnalyzerBase::doBeginRun(RunPrincipal& rp, EventSetup const& c,
-                           CurrentProcessingContext const* cpc) {
+                               CurrentProcessingContext const* cpc,
+                               ModuleCallingContext const* mcc) {
       
       detail::CPCSentry sentry(current_context_, cpc);
-      Run r(rp, moduleDescription_);
+      Run r(rp, moduleDescription_, mcc);
       r.setConsumer(this);
       Run const& cnstR = r;
       this->doBeginRun_(cnstR, c);
@@ -80,9 +82,10 @@ namespace edm {
     
     void
     EDAnalyzerBase::doEndRun(RunPrincipal& rp, EventSetup const& c,
-                         CurrentProcessingContext const* cpc) {
+                             CurrentProcessingContext const* cpc,
+                             ModuleCallingContext const* mcc) {
       detail::CPCSentry sentry(current_context_, cpc);
-      Run r(rp, moduleDescription_);
+      Run r(rp, moduleDescription_, mcc);
       r.setConsumer(this);
       Run const& cnstR = r;
       this->doEndRun_(cnstR, c);
@@ -90,9 +93,10 @@ namespace edm {
     
     void
     EDAnalyzerBase::doBeginLuminosityBlock(LuminosityBlockPrincipal& lbp, EventSetup const& c,
-                                       CurrentProcessingContext const* cpc) {
+                                           CurrentProcessingContext const* cpc,
+                                           ModuleCallingContext const* mcc) {
       detail::CPCSentry sentry(current_context_, cpc);
-      LuminosityBlock lb(lbp, moduleDescription_);
+      LuminosityBlock lb(lbp, moduleDescription_, mcc);
       lb.setConsumer(this);
       LuminosityBlock const& cnstLb = lb;
       this->doBeginLuminosityBlock_(cnstLb, c);
@@ -100,9 +104,10 @@ namespace edm {
     
     void
     EDAnalyzerBase::doEndLuminosityBlock(LuminosityBlockPrincipal& lbp, EventSetup const& c,
-                                     CurrentProcessingContext const* cpc) {
+                                         CurrentProcessingContext const* cpc,
+                                         ModuleCallingContext const* mcc) {
       detail::CPCSentry sentry(current_context_, cpc);
-      LuminosityBlock lb(lbp, moduleDescription_);
+      LuminosityBlock lb(lbp, moduleDescription_, mcc);
       lb.setConsumer(this);
       LuminosityBlock const& cnstLb = lb;
       this->doEndLuminosityBlock_(cnstLb, c);

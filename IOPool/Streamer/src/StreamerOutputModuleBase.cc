@@ -104,14 +104,14 @@ namespace edm {
   StreamerOutputModuleBase::~StreamerOutputModuleBase() {}
 
   void
-  StreamerOutputModuleBase::beginRun(RunPrincipal const&) {
+  StreamerOutputModuleBase::beginRun(RunPrincipal const&, ModuleCallingContext const*) {
     start();
     std::auto_ptr<InitMsgBuilder>  init_message = serializeRegistry();
     doOutputHeader(*init_message);
   }
 
   void
-  StreamerOutputModuleBase::endRun(RunPrincipal const&) {
+  StreamerOutputModuleBase::endRun(RunPrincipal const&, ModuleCallingContext const*) {
     stop();
   }
 
@@ -124,14 +124,14 @@ namespace edm {
   }
 
   void
-  StreamerOutputModuleBase::writeRun(RunPrincipal const&) {}
+  StreamerOutputModuleBase::writeRun(RunPrincipal const&, ModuleCallingContext const*) {}
 
   void
-  StreamerOutputModuleBase::writeLuminosityBlock(LuminosityBlockPrincipal const&) {}
+  StreamerOutputModuleBase::writeLuminosityBlock(LuminosityBlockPrincipal const&, ModuleCallingContext const*) {}
 
   void
-  StreamerOutputModuleBase::write(EventPrincipal const& e) {
-    std::auto_ptr<EventMsgBuilder> msg = serializeEvent(e);
+  StreamerOutputModuleBase::write(EventPrincipal const& e, ModuleCallingContext const* mcc) {
+    std::auto_ptr<EventMsgBuilder> msg = serializeEvent(e, mcc);
     doOutputEvent(*msg); // You can't use msg in StreamerOutputModuleBase after this point
   }
 
@@ -175,13 +175,13 @@ namespace edm {
 
     std::string moduleLabel = description().moduleLabel();
     uLong crc = crc32(0L, Z_NULL, 0);
-    Bytef* buf = (Bytef*) moduleLabel.data();
+    Bytef const* buf = (Bytef const*)(moduleLabel.data());
     crc = crc32(crc, buf, moduleLabel.length());
     outputModuleId_ = static_cast<uint32>(crc);
 
     std::auto_ptr<InitMsgBuilder> init_message(
         new InitMsgBuilder(&serialize_databuffer.header_buf_[0], serialize_databuffer.header_buf_.size(),
-                           run, Version((uint8*)toplevel.compactForm().c_str()),
+                           run, Version((uint8 const*)toplevel.compactForm().c_str()),
                            getReleaseVersion().c_str() , processName.c_str(),
                            moduleLabel.c_str(), outputModuleId_,
                            hltTriggerNames, hltTriggerSelections_, l1_names,
@@ -195,11 +195,11 @@ namespace edm {
   }
 
   void
-  StreamerOutputModuleBase::setHltMask(EventPrincipal const& e) {
+  StreamerOutputModuleBase::setHltMask(EventPrincipal const& e, ModuleCallingContext const* mcc) {
 
     hltbits_.clear();  // If there was something left over from last event
 
-    Handle<TriggerResults> const& prod = getTriggerResults(e);
+    Handle<TriggerResults> const& prod = getTriggerResults(e, mcc);
     //Trig const& prod = getTrigMask(e);
     std::vector<unsigned char> vHltState;
 
@@ -236,7 +236,7 @@ namespace edm {
   }
 
   std::auto_ptr<EventMsgBuilder>
-  StreamerOutputModuleBase::serializeEvent(EventPrincipal const& e) {
+  StreamerOutputModuleBase::serializeEvent(EventPrincipal const& e, ModuleCallingContext const* mcc) {
     //Lets Build the Event Message first
 
     //Following is strictly DUMMY Data for L! Trig and will be replaced with actual
@@ -246,7 +246,7 @@ namespace edm {
     l1bit_.push_back(false);
     //End of dummy data
 
-    setHltMask(e);
+    setHltMask(e, mcc);
 
     if (lumiSectionInterval_ == 0) {
       lumi_ = e.luminosityBlock();
@@ -254,7 +254,7 @@ namespace edm {
       setLumiSection();
     }
 
-    serializer_.serializeEvent(e, selectorConfig(), useCompression_, compressionLevel_, serialize_databuffer);
+    serializer_.serializeEvent(e, selectorConfig(), useCompression_, compressionLevel_, serialize_databuffer, mcc);
 
     // resize bufs_ to reflect space used in serializer_ + header
     // I just added an overhead for header of 50000 for now

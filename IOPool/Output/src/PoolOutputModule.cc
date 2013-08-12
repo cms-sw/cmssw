@@ -239,8 +239,8 @@ namespace edm {
   PoolOutputModule::~PoolOutputModule() {
   }
 
-  void PoolOutputModule::write(EventPrincipal const& e) {
-      rootOutputFile_->writeOne(e);
+  void PoolOutputModule::write(EventPrincipal const& e, ModuleCallingContext const* mcc) {
+    rootOutputFile_->writeOne(e, mcc);
       if (!statusFileName_.empty()) {
         std::ofstream statusFile(statusFileName_.c_str());
         statusFile << e.id() << " time: " << std::setprecision(3) << TimeOfDay() << '\n';
@@ -248,14 +248,14 @@ namespace edm {
       }
   }
 
-  void PoolOutputModule::writeLuminosityBlock(LuminosityBlockPrincipal const& lb) {
-      rootOutputFile_->writeLuminosityBlock(lb);
+  void PoolOutputModule::writeLuminosityBlock(LuminosityBlockPrincipal const& lb, ModuleCallingContext const* mcc) {
+    rootOutputFile_->writeLuminosityBlock(lb, mcc);
       Service<JobReport> reportSvc;
       reportSvc->reportLumiSection(lb.id().run(), lb.id().luminosityBlock());
   }
 
-  void PoolOutputModule::writeRun(RunPrincipal const& r) {
-      rootOutputFile_->writeRun(r);
+  void PoolOutputModule::writeRun(RunPrincipal const& r, ModuleCallingContext const* mcc) {
+    rootOutputFile_->writeRun(r, mcc);
       Service<JobReport> reportSvc;
       reportSvc->reportRunNumber(r.run());
   }

@@ -4,6 +4,7 @@
 #include <utility>
 #include "boost/cstdint.hpp"
 
+#include "FWCore/Utilities/interface/EDGetToken.h"
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -42,6 +43,7 @@ namespace sistrip {
 
   private:
     const edm::InputTag productLabel_;
+    edm::EDGetTokenT<sistrip::SpyDigiConverter::DSVRawDigis> productToken_;
     const bool storeAPVAddress_;             //!< True = store APVE address for each channel.
     const bool storePayloadDigis_, storeReorderedDigis_, storeModuleDigis_;
     sistrip::SpyUtilities::FrameQuality frameQuality_;
@@ -67,6 +69,7 @@ namespace sistrip {
     discardDigisWithAPVAddressError_(pset.getParameter<bool>("DiscardDigisWithWrongAPVAddress")),
     expectedHeaderBit_(pset.getParameter<uint32_t>("ExpectedPositionOfFirstHeaderBit"))
   {
+    productToken_ = consumes<sistrip::SpyDigiConverter::DSVRawDigis>(productLabel_);
     if ( edm::isDebugEnabled() ) {
       LogTrace("SiStripSpyDigiConverter")
 	<< "[sistrip::SpyDigiConverterModule::" << __func__ << "]"
@@ -118,7 +121,8 @@ namespace sistrip {
     
     //retrieve the scope mode digis
     edm::Handle<sistrip::SpyDigiConverter::DSVRawDigis> scopeDigisHandle;
-    event.getByLabel(productLabel_, scopeDigisHandle);
+    //    event.getByLabel(productLabel_, scopeDigisHandle);
+    event.getByToken(productToken_, scopeDigisHandle);
     
     //32-bit to accomodate known CMSSW container
     std::auto_ptr< std::vector<uint32_t> > pAPVAddresses(new std::vector<uint32_t>);

@@ -213,7 +213,8 @@ namespace edm
     
   } // end of addMuonSignals
 
-  void DataMixingMuonWorker::addMuonPileups(const int bcr, const EventPrincipal *ep, unsigned int eventNr) {
+  void DataMixingMuonWorker::addMuonPileups(const int bcr, const EventPrincipal *ep, unsigned int eventNr,
+                                            ModuleCallingContext const* mcc) {
   
     LogDebug("DataMixingMuonWorker") <<"\n===============> adding pileups from event  "<<ep->id()<<" for bunchcrossing "<<bcr;
 
@@ -224,7 +225,7 @@ namespace edm
     // Get the digis from the event
 
    boost::shared_ptr<Wrapper<DTDigiCollection>  const> DTDigisPTR = 
-          getProductByTag<DTDigiCollection>(*ep, DTPileInputTag_ );
+     getProductByTag<DTDigiCollection>(*ep, DTPileInputTag_, mcc);
  
    if(DTDigisPTR ) {
 
@@ -249,7 +250,7 @@ namespace edm
 
 
    boost::shared_ptr<Wrapper<RPCDigiCollection>  const> RPCDigisPTR = 
-          getProductByTag<RPCDigiCollection>(*ep, RPCPileInputTag_ );
+     getProductByTag<RPCDigiCollection>(*ep, RPCPileInputTag_, mcc);
  
    if(RPCDigisPTR ) {
 
@@ -274,7 +275,7 @@ namespace edm
     // Get the digis from the event
 
    boost::shared_ptr<Wrapper<CSCStripDigiCollection>  const> CSCStripDigisPTR = 
-          getProductByTag<CSCStripDigiCollection>(*ep, CSCStripPileInputTag_ );
+     getProductByTag<CSCStripDigiCollection>(*ep, CSCStripPileInputTag_, mcc);
  
    if(CSCStripDigisPTR ) {
 
@@ -299,7 +300,7 @@ namespace edm
     // Get the digis from the event
 
    boost::shared_ptr<Wrapper<CSCWireDigiCollection>  const> CSCWireDigisPTR = 
-          getProductByTag<CSCWireDigiCollection>(*ep, CSCWirePileInputTag_ );
+     getProductByTag<CSCWireDigiCollection>(*ep, CSCWirePileInputTag_, mcc);
  
    if(CSCWireDigisPTR ) {
 
@@ -324,7 +325,7 @@ namespace edm
    // Get the digis from the event
 
    boost::shared_ptr<Wrapper<CSCComparatorDigiCollection>  const> CSCComparatorDigisPTR =
-     getProductByTag<CSCComparatorDigiCollection>(*ep, CSCCompPileInputTag_ );
+     getProductByTag<CSCComparatorDigiCollection>(*ep, CSCCompPileInputTag_, mcc);
 
    if(CSCComparatorDigisPTR ) {
 

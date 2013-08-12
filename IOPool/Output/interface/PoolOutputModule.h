@@ -100,13 +100,13 @@ namespace edm {
   protected:
     ///allow inheriting classes to override but still be able to call this method in the overridden version
     virtual bool shouldWeCloseFile() const override;
-    virtual void write(EventPrincipal const& e) override;
+    virtual void write(EventPrincipal const& e, ModuleCallingContext const*) override;
   private:
     virtual void openFile(FileBlock const& fb) override;
     virtual void respondToOpenInputFile(FileBlock const& fb) override;
     virtual void respondToCloseInputFile(FileBlock const& fb) override;
-    virtual void writeLuminosityBlock(LuminosityBlockPrincipal const& lb) override;
-    virtual void writeRun(RunPrincipal const& r) override;
+    virtual void writeLuminosityBlock(LuminosityBlockPrincipal const& lb, ModuleCallingContext const*) override;
+    virtual void writeRun(RunPrincipal const& r, ModuleCallingContext const*) override;
     virtual void postForkReacquireResources(unsigned int iChildIndex, unsigned int iNumberOfChildren) override;
     virtual bool isFileOpen() const override;
     virtual void reallyOpenFile() override;

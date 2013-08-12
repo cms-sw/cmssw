@@ -5,6 +5,8 @@
 #include <memory> 
 
 // user include files
+#include "FWCore/Utilities/interface/EDGetToken.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 
@@ -12,6 +14,9 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+
+class LumiDetails;
+class LumiSummary;
 
 class GetLumi
 {
@@ -31,6 +36,8 @@ class GetLumi
 
   GetLumi(const edm::ParameterSet&);
   GetLumi(const edm::InputTag&, double);
+  GetLumi(const edm::ParameterSet&,edm::ConsumesCollector& iC);
+  GetLumi(const edm::InputTag&, double,edm::ConsumesCollector& iC);
   virtual ~GetLumi();
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
@@ -47,6 +54,8 @@ class GetLumi
   edm::InputTag     lumiInputTag_;
   double            lumiScale_;
 
+  edm::EDGetTokenT<LumiDetails> lumiDetailsToken_;
+  edm::EDGetTokenT<LumiSummary> lumiSummaryToken_;
 
 };
 #endif

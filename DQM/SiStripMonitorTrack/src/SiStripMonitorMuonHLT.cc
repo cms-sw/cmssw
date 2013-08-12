@@ -13,7 +13,7 @@
 //
 // Original Author:  Eric Chabert
 //         Created:  Wed Sep 23 17:26:42 CEST 2009
-// $Id: SiStripMonitorMuonHLT.cc,v 1.15 2013/01/02 16:55:48 wmtan Exp $
+// $Id: SiStripMonitorMuonHLT.cc,v 1.16 2013/01/03 19:04:38 wmtan Exp $
 //
 
 #include "DQM/SiStripMonitorTrack/interface/SiStripMonitorMuonHLT.h"
@@ -42,6 +42,10 @@ SiStripMonitorMuonHLT::SiStripMonitorMuonHLT (const edm::ParameterSet & iConfig)
   l3collectionTag_ = parameters_.getUntrackedParameter < edm::InputTag > ("l3MuonTag",edm::InputTag("hltL3MuonCandidates"));
   TrackCollectionTag_ = parameters_.getUntrackedParameter < edm::InputTag > ("trackCollectionTag",edm::InputTag("hltL3TkTracksFromL2"));
   //////////////////////////
+  clusterCollectionToken_ = consumes<edm::LazyGetter < SiStripCluster > >(clusterCollectionTag_);
+  l3collectionToken_      = consumes<reco::RecoChargedCandidateCollection>(l3collectionTag_);
+  TrackCollectionToken_   = consumes<reco::TrackCollection>(TrackCollectionTag_); 
+
 
   HistoNumber = 35;
 
@@ -116,18 +120,6 @@ float SiStripMonitorMuonHLT::GetPhiWeight(std::string label, GlobalPoint clustgp
 void
 SiStripMonitorMuonHLT::analyze (const edm::Event & iEvent, const edm::EventSetup & iSetup)
 {
-
-
-#ifdef THIS_IS_AN_EVENT_EXAMPLE
-  Handle < ExampleData > pIn;
-  iEvent.getByLabel ("example", pIn);
-#endif
-
-#ifdef THIS_IS_AN_EVENTSETUP_EXAMPLE
-  ESHandle < SetupData > pSetup;
-  iSetup.get < SetupRecord > ().get (pSetup);
-#endif
-
   if (!dbe_)
     return;
   counterEvt_++;
@@ -147,19 +139,22 @@ SiStripMonitorMuonHLT::analyze (const edm::Event & iEvent, const edm::EventSetup
   //Access to L3MuonCand
   edm::Handle < reco::RecoChargedCandidateCollection > l3mucands;
   bool accessToL3Muons = true;
-  iEvent.getByLabel (l3collectionTag_, l3mucands);
+  //  iEvent.getByLabel (l3collectionTag_, l3mucands);
+  iEvent.getByToken (l3collectionToken_, l3mucands);
   reco::RecoChargedCandidateCollection::const_iterator cand;
 
   //Access to clusters
   edm::Handle < edm::LazyGetter < SiStripCluster > >clusters;
   bool accessToClusters = true;
-  iEvent.getByLabel (clusterCollectionTag_, clusters);
+  //  iEvent.getByLabel (clusterCollectionTag_, clusters);
+  iEvent.getByToken (clusterCollectionToken_, clusters);
   edm::LazyGetter < SiStripCluster >::record_iterator clust;
  
   //Access to Tracks
   edm::Handle<reco::TrackCollection > trackCollection;
   bool accessToTracks = true;
-  iEvent.getByLabel (TrackCollectionTag_, trackCollection);
+  //  iEvent.getByLabel (TrackCollectionTag_, trackCollection);
+  iEvent.getByToken (TrackCollectionToken_, trackCollection);
   reco::TrackCollection::const_iterator track;
    /////////////////////////////////////////////////////
 

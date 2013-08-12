@@ -12,6 +12,8 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "RecoBTau/JetTagComputer/interface/JetTagComputer.h"
+#include "DataFormats/Common/interface/View.h"
+#include "DataFormats/BTauReco/interface/BaseTagInfo.h"
 
 class JetTagProducer : public edm::EDProducer {
     public:
@@ -25,7 +27,8 @@ class JetTagProducer : public edm::EDProducer {
 
 	const JetTagComputer			*m_computer;
 	std::string				m_jetTagComputer;
-	std::vector<edm::InputTag>		m_tagInfos;
+	std::vector<edm::EDGetTokenT<edm::View<reco::BaseTagInfo> > > token_tagInfos;
+	unsigned int nTagInfos;
 };
 
 #endif // RecoBTag_JetTagComputer_JetTagProducer_h

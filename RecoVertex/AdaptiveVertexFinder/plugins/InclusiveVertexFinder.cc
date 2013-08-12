@@ -40,9 +40,9 @@ class InclusiveVertexFinder : public edm::EDProducer {
 	bool trackFilter(const reco::TrackRef &track) const;
         std::pair<std::vector<reco::TransientTrack>,GlobalPoint> nearTracks(const reco::TransientTrack &seed, const std::vector<reco::TransientTrack> & tracks, const reco::Vertex & primaryVertex) const;
 
-	edm::InputTag				beamSpotCollection;
-	edm::InputTag				primaryVertexCollection;
-	edm::InputTag				trackCollection;
+	edm::EDGetTokenT<reco::BeamSpot> 	token_beamSpot; 
+	edm::EDGetTokenT<reco::VertexCollection> token_primaryVertex;
+	edm::EDGetTokenT<reco::TrackCollection>	token_tracks; 
 	unsigned int				minHits;
 	unsigned int				maxNTracks;
 	double					maxLIP;
@@ -57,9 +57,6 @@ class InclusiveVertexFinder : public edm::EDProducer {
 };
 
 InclusiveVertexFinder::InclusiveVertexFinder(const edm::ParameterSet &params) :
-	beamSpotCollection(params.getParameter<edm::InputTag>("beamSpot")),
-	primaryVertexCollection(params.getParameter<edm::InputTag>("primaryVertices")),
-	trackCollection(params.getParameter<edm::InputTag>("tracks")),
 	minHits(params.getParameter<unsigned int>("minHits")),
 	maxNTracks(params.getParameter<unsigned int>("maxNTracks")),
        	maxLIP(params.getParameter<double>("maximumLongitudinalImpactParameter")),
@@ -71,6 +68,9 @@ InclusiveVertexFinder::InclusiveVertexFinder(const edm::ParameterSet &params) :
         clusterizer(new TracksClusteringFromDisplacedSeed(params.getParameter<edm::ParameterSet>("clusterizer")))
 
 {
+	token_beamSpot = consumes<reco::BeamSpot>(params.getParameter<edm::InputTag>("beamSpot"));
+	token_primaryVertex = consumes<reco::VertexCollection>(params.getParameter<edm::InputTag>("primaryVertices"));
+	token_tracks = consumes<reco::TrackCollection>(params.getParameter<edm::InputTag>("tracks"));
 	produces<reco::VertexCollection>();
 	//produces<reco::VertexCollection>("multi");
 }
@@ -105,13 +105,13 @@ void InclusiveVertexFinder::produce(edm::Event &event, const edm::EventSetup &es
 
 
 	edm::Handle<BeamSpot> beamSpot;
-	event.getByLabel(beamSpotCollection, beamSpot);
+	event.getByToken(token_beamSpot,beamSpot);
 
 	edm::Handle<VertexCollection> primaryVertices;
-	event.getByLabel(primaryVertexCollection, primaryVertices);
+	event.getByToken(token_primaryVertex, primaryVertices);
 
 	edm::Handle<TrackCollection> tracks;
-	event.getByLabel(trackCollection, tracks);
+	event.getByToken(token_tracks, tracks);
 
 	edm::ESHandle<TransientTrackBuilder> trackBuilder;
 	es.get<TransientTrackRecord>().get("TransientTrackBuilder",

@@ -11,6 +11,7 @@
 #include <memory>
 
 // user include files
+#include "FWCore/Utilities/interface/EDGetToken.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 
@@ -33,6 +34,11 @@ class SiStripMonitorHLT : public edm::EDAnalyzer {
        virtual void endJob() ;
 
    private:
+
+       edm::EDGetTokenT<int> filerDecisionToken_;
+       edm::EDGetTokenT<uint> sumOfClusterToken_;
+       edm::EDGetTokenT<std::map<uint,std::vector<SiStripCluster> > > clusterInSubComponentsToken_;
+
        DQMStore* dqmStore_;
        edm::ParameterSet conf_;
        MonitorElement * HLTDecision;

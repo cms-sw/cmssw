@@ -78,9 +78,10 @@ namespace edm{
     template<typename T, typename P>
     struct DoStreamBeginTrans {
       inline void operator() (WorkerT<T>* iWorker, StreamID id, P& rp,
-                            EventSetup const& c,
-                            CurrentProcessingContext const* cpc) {
-        iWorker->callWorkerStreamBegin(0,id,rp,c,cpc);
+                              EventSetup const& c,
+                              CurrentProcessingContext const* cpc,
+                              ModuleCallingContext const* mcc) {
+        iWorker->callWorkerStreamBegin(0,id,rp,c,cpc, mcc);
       }
     };
 
@@ -88,8 +89,9 @@ namespace edm{
     struct DoStreamEndTrans {
       inline void operator() (WorkerT<T>* iWorker, StreamID id, P& rp,
                               EventSetup const& c,
-                              CurrentProcessingContext const* cpc) {
-        iWorker->callWorkerStreamEnd(0,id,rp,c,cpc);
+                              CurrentProcessingContext const* cpc,
+                              ModuleCallingContext const* mcc) {
+        iWorker->callWorkerStreamEnd(0,id,rp,c,cpc,mcc);
       }
     };
   }
@@ -116,17 +118,19 @@ namespace edm{
   template<typename T>
   inline
   bool
-  WorkerT<T>::implDo(EventPrincipal& ep, EventSetup const& c, CurrentProcessingContext const* cpc) {
+  WorkerT<T>::implDo(EventPrincipal& ep, EventSetup const& c, CurrentProcessingContext const* cpc,
+                     ModuleCallingContext const* mcc) {
     UnscheduledHandlerSentry s(getUnscheduledHandler(ep), cpc);
     boost::shared_ptr<Worker> sentry(this,[&ep](Worker* obj) {obj->postDoEvent(ep);});
-    return module_->doEvent(ep, c, cpc);
+    return module_->doEvent(ep, c, cpc, mcc);
   }
   
   template<typename T>
   inline
   bool
-  WorkerT<T>::implDoBegin(RunPrincipal& rp, EventSetup const& c, CurrentProcessingContext const* cpc) {
-    module_->doBeginRun(rp, c, cpc);
+  WorkerT<T>::implDoBegin(RunPrincipal& rp, EventSetup const& c, CurrentProcessingContext const* cpc,
+                          ModuleCallingContext const* mcc) {
+    module_->doBeginRun(rp, c, cpc, mcc);
     return true;
   }
   
@@ -135,8 +139,9 @@ namespace edm{
   void
   WorkerT<T>::callWorkerStreamBegin(D, StreamID id, RunPrincipal& rp,
                                     EventSetup const& c,
-                                    CurrentProcessingContext const* cpc) {
-    module_->doStreamBeginRun(id, rp, c, cpc);
+                                    CurrentProcessingContext const* cpc,
+                                    ModuleCallingContext const* mcc) {
+    module_->doStreamBeginRun(id, rp, c, cpc, mcc);
   }
 
   template<typename T>
@@ -144,46 +149,51 @@ namespace edm{
   void
   WorkerT<T>::callWorkerStreamEnd(D, StreamID id, RunPrincipal& rp,
                                     EventSetup const& c,
-                                    CurrentProcessingContext const* cpc) {
-    module_->doStreamEndRun(id, rp, c, cpc);
+                                    CurrentProcessingContext const* cpc,
+                                    ModuleCallingContext const* mcc) {
+    module_->doStreamEndRun(id, rp, c, cpc, mcc);
   }
 
   
   template<typename T>
   inline
   bool
-  WorkerT<T>::implDoStreamBegin(StreamID id, RunPrincipal& rp, EventSetup const& c, CurrentProcessingContext const* cpc) {
+  WorkerT<T>::implDoStreamBegin(StreamID id, RunPrincipal& rp, EventSetup const& c, CurrentProcessingContext const* cpc,
+                                ModuleCallingContext const* mcc) {
     typename boost::mpl::if_c<workerimpl::has_stream_functions<T>::value,
     workerimpl::DoStreamBeginTrans<T,RunPrincipal>,
     workerimpl::DoNothing>::type might_call;
-    might_call(this,id,rp,c,cpc);
+    might_call(this,id,rp,c,cpc, mcc);
     return true;
   }
   
   template<typename T>
   inline
   bool
-  WorkerT<T>::implDoStreamEnd(StreamID id, RunPrincipal& rp, EventSetup const& c, CurrentProcessingContext const* cpc) {
+  WorkerT<T>::implDoStreamEnd(StreamID id, RunPrincipal& rp, EventSetup const& c, CurrentProcessingContext const* cpc,
+                              ModuleCallingContext const* mcc) {
     typename boost::mpl::if_c<workerimpl::has_stream_functions<T>::value,
     workerimpl::DoStreamEndTrans<T,RunPrincipal>,
     workerimpl::DoNothing>::type might_call;
-    might_call(this,id,rp,c,cpc);
+    might_call(this,id,rp,c,cpc, mcc);
     return true;
   }
   
   template<typename T>
   inline
   bool
-  WorkerT<T>::implDoEnd(RunPrincipal& rp, EventSetup const& c, CurrentProcessingContext const* cpc) {
-    module_->doEndRun(rp, c, cpc);
+  WorkerT<T>::implDoEnd(RunPrincipal& rp, EventSetup const& c, CurrentProcessingContext const* cpc,
+                        ModuleCallingContext const* mcc) {
+    module_->doEndRun(rp, c, cpc, mcc);
     return true;
   }
   
   template<typename T>
   inline
   bool
-  WorkerT<T>::implDoBegin(LuminosityBlockPrincipal& lbp, EventSetup const& c, CurrentProcessingContext const* cpc) {
-    module_->doBeginLuminosityBlock(lbp, c, cpc);
+  WorkerT<T>::implDoBegin(LuminosityBlockPrincipal& lbp, EventSetup const& c, CurrentProcessingContext const* cpc,
+                          ModuleCallingContext const* mcc) {
+    module_->doBeginLuminosityBlock(lbp, c, cpc, mcc);
     return true;
   }
   
@@ -192,8 +202,9 @@ namespace edm{
   void
   WorkerT<T>::callWorkerStreamBegin(D, StreamID id, LuminosityBlockPrincipal& rp,
                                     EventSetup const& c,
-                                    CurrentProcessingContext const* cpc) {
-    module_->doStreamBeginLuminosityBlock(id, rp, c, cpc);
+                                    CurrentProcessingContext const* cpc,
+                                    ModuleCallingContext const* mcc) {
+    module_->doStreamBeginLuminosityBlock(id, rp, c, cpc, mcc);
   }
   
   template<typename T>
@@ -201,30 +212,33 @@ namespace edm{
   void
   WorkerT<T>::callWorkerStreamEnd(D, StreamID id, LuminosityBlockPrincipal& rp,
                                   EventSetup const& c,
-                                  CurrentProcessingContext const* cpc) {
-    module_->doStreamEndLuminosityBlock(id, rp, c, cpc);
+                                  CurrentProcessingContext const* cpc,
+                                  ModuleCallingContext const* mcc) {
+    module_->doStreamEndLuminosityBlock(id, rp, c, cpc, mcc);
   }
 
   
   template<typename T>
   inline
   bool
-  WorkerT<T>::implDoStreamBegin(StreamID id, LuminosityBlockPrincipal& lbp, EventSetup const& c, CurrentProcessingContext const* cpc) {
+    WorkerT<T>::implDoStreamBegin(StreamID id, LuminosityBlockPrincipal& lbp, EventSetup const& c, CurrentProcessingContext const* cpc,
+                                  ModuleCallingContext const* mcc) {
     typename boost::mpl::if_c<workerimpl::has_stream_functions<T>::value,
     workerimpl::DoStreamBeginTrans<T,LuminosityBlockPrincipal>,
     workerimpl::DoNothing>::type might_call;
-    might_call(this,id,lbp,c,cpc);
+    might_call(this,id,lbp,c,cpc, mcc);
     return true;
   }
   
   template<typename T>
   inline
   bool
-  WorkerT<T>::implDoStreamEnd(StreamID id, LuminosityBlockPrincipal& lbp, EventSetup const& c, CurrentProcessingContext const* cpc) {
+  WorkerT<T>::implDoStreamEnd(StreamID id, LuminosityBlockPrincipal& lbp, EventSetup const& c, CurrentProcessingContext const* cpc,
+                              ModuleCallingContext const* mcc) {
     typename boost::mpl::if_c<workerimpl::has_stream_functions<T>::value,
     workerimpl::DoStreamEndTrans<T,LuminosityBlockPrincipal>,
     workerimpl::DoNothing>::type might_call;
-    might_call(this,id,lbp,c,cpc);
+    might_call(this,id,lbp,c,cpc,mcc);
 
     return true;
   }
@@ -232,8 +246,9 @@ namespace edm{
   template<typename T>
   inline
   bool
-  WorkerT<T>::implDoEnd(LuminosityBlockPrincipal& lbp, EventSetup const& c, CurrentProcessingContext const* cpc) {
-    module_->doEndLuminosityBlock(lbp, c, cpc);
+  WorkerT<T>::implDoEnd(LuminosityBlockPrincipal& lbp, EventSetup const& c, CurrentProcessingContext const* cpc,
+                        ModuleCallingContext const* mcc) {
+    module_->doEndLuminosityBlock(lbp, c, cpc, mcc);
     return true;
   }
   

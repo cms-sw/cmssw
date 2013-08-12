@@ -4,6 +4,7 @@
 //Author: Nick Cripps
 //Date: 10/05/2010
 
+#include "FWCore/Utilities/interface/EDGetToken.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -40,6 +41,7 @@ namespace sistrip {
       void warnAboutUnsupportedRunType();
       static const char* messageLabel_;
       const edm::InputTag rawDataTag_;
+    edm::EDGetTokenT<FEDRawDataCollection> rawDataToken_;
       const sistrip::RunType runType_;
   };
   
@@ -53,6 +55,7 @@ namespace sistrip {
     : rawDataTag_(config.getParameter<edm::InputTag>("RawDataTag")),
       runType_(sistrip::RunType(config.getParameter<uint32_t>("RunType")))
   {
+    rawDataToken_ = consumes<FEDRawDataCollection>(rawDataTag_);
     produces<SiStripEventSummary>();
     warnAboutUnsupportedRunType();
   }
@@ -65,7 +68,8 @@ namespace sistrip {
     
     //get the event number and Bx counter from the first valud FED buffer
     edm::Handle<FEDRawDataCollection> rawDataHandle;
-    event.getByLabel(rawDataTag_,rawDataHandle);
+    //    event.getByLabel(rawDataTag_,rawDataHandle);
+    event.getByToken(rawDataToken_,rawDataHandle);
     const FEDRawDataCollection& rawData = *rawDataHandle;
     bool fedFound = false;
     uint32_t fedEventNumber = 0;

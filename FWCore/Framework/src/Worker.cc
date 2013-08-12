@@ -5,6 +5,7 @@
 #include "FWCore/Framework/src/Worker.h"
 #include "FWCore/Framework/src/EarlyDeleteHelper.h"
 #include "FWCore/Framework/src/OutputModuleCommunicator.h"
+#include "FWCore/ServiceRegistry/interface/StreamContext.h"
 
 namespace edm {
   namespace {
@@ -33,7 +34,39 @@ private:
       ActivityRegistry* a_;
       ModuleDescription* md_;
     };
-    
+
+    class ModuleBeginStreamSignalSentry {
+    public:
+      ModuleBeginStreamSignalSentry(ActivityRegistry* a,
+                                    StreamContext const& sc,
+                                    ModuleDescription const& md) : a_(a), sc_(sc), md_(md) {
+        if(a_) a_->preModuleBeginStreamSignal_(sc_, md_);
+      }
+      ~ModuleBeginStreamSignalSentry() {
+        if(a_) a_->postModuleBeginStreamSignal_(sc_, md_);
+      }
+    private:
+      ActivityRegistry* a_;
+      StreamContext const& sc_;
+      ModuleDescription const& md_;
+    };
+
+    class ModuleEndStreamSignalSentry {
+    public:
+      ModuleEndStreamSignalSentry(ActivityRegistry* a,
+                                  StreamContext const& sc,
+                                  ModuleDescription const& md) : a_(a), sc_(sc), md_(md) {
+        if(a_) a_->preModuleEndStreamSignal_(sc_, md_);
+      }
+      ~ModuleEndStreamSignalSentry() {
+        if(a_) a_->postModuleEndStreamSignal_(sc_, md_);
+      }
+    private:
+      ActivityRegistry* a_;
+      StreamContext const& sc_;
+      ModuleDescription const& md_;
+    };
+
     cms::Exception& exceptionContext(ModuleDescription const& iMD,
                                      cms::Exception& iEx) {
       iEx << iMD.moduleName() << "/" << iMD.moduleLabel() << "\n";
@@ -52,6 +85,7 @@ private:
     timesExcept_(),
     state_(Ready),
     md_(iMD),
+    moduleCallingContext_(&md_),
     actions_(iWP.actions_),
     cached_exception_(),
     actReg_(),
@@ -119,10 +153,15 @@ private:
     }
   }
 
-  void Worker::beginStream(StreamID id) {
+  void Worker::beginStream(StreamID id, StreamContext& streamContext) {
     try {
       try {
-        //ModuleBeginStreamSignalSentry cpp(actReg_.get(), md_);
+        streamContext.setTransition(StreamContext::Transition::kBeginStream);
+        streamContext.setEventID(EventID(0, 0, 0));
+        streamContext.setRunIndex(RunIndex::invalidRunIndex());
+        streamContext.setLuminosityBlockIndex(LuminosityBlockIndex::invalidLuminosityBlockIndex());
+        streamContext.setTimestamp(Timestamp());
+        ModuleBeginStreamSignalSentry beginSentry(actReg_.get(), streamContext, md_);
         implBeginStream(id);
       }
       catch (cms::Exception& e) { throw; }
@@ -141,10 +180,15 @@ private:
     }
   }
   
-  void Worker::endStream(StreamID id) {
+  void Worker::endStream(StreamID id, StreamContext& streamContext) {
     try {
       try {
-        //ModuleEndStreamSignalSentry cpp(actReg_.get(), md_);
+        streamContext.setTransition(StreamContext::Transition::kEndStream);
+        streamContext.setEventID(EventID(0, 0, 0));
+        streamContext.setRunIndex(RunIndex::invalidRunIndex());
+        streamContext.setLuminosityBlockIndex(LuminosityBlockIndex::invalidLuminosityBlockIndex());
+        streamContext.setTimestamp(Timestamp());
+        ModuleEndStreamSignalSentry endSentry(actReg_.get(), streamContext, md_);
         implEndStream(id);
       }
       catch (cms::Exception& e) { throw; }

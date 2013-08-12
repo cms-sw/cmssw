@@ -1,6 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 process = cms.Process("FIRST")
 
+process.Tracer = cms.Service('Tracer')
+
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 
 process.MessageLogger.cerr.threshold = 'INFO'

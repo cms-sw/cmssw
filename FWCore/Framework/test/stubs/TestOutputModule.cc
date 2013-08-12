@@ -61,10 +61,10 @@ namespace edmtest
     virtual ~TestOutputModule();
 
   private:
-    virtual void write(edm::EventPrincipal const& e);
-    virtual void writeLuminosityBlock(edm::LuminosityBlockPrincipal const&){}
-    virtual void writeRun(edm::RunPrincipal const&){}
-    virtual void endJob();
+    virtual void write(edm::EventPrincipal const& e, ModuleCallingContext const*) override;
+    virtual void writeLuminosityBlock(edm::LuminosityBlockPrincipal const&, ModuleCallingContext const*) override {}
+    virtual void writeRun(edm::RunPrincipal const&, ModuleCallingContext const*) override {}
+    virtual void endJob() override;
 
     std::string name_;
     int bitMask_;
@@ -87,7 +87,7 @@ namespace edmtest
   {
   }
 
-  void TestOutputModule::write(edm::EventPrincipal const& e)
+  void TestOutputModule::write(edm::EventPrincipal const& e, ModuleCallingContext const* mcc)
   {
     assert(currentContext() != 0);
 
@@ -109,7 +109,7 @@ namespace edmtest
     if (!expectTriggerResults_) {
 
       try {
-        prod = getTriggerResults(e);
+        prod = getTriggerResults(e, mcc);
         //throw doesn't happen until we dereference
         *prod;
       }
@@ -126,7 +126,7 @@ namespace edmtest
     // Now deal with the other case where we expect the object
     // to be present.
 
-    prod = getTriggerResults(e);
+    prod = getTriggerResults(e, mcc);
 
     std::vector<unsigned char> vHltState;
 

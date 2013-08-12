@@ -11,6 +11,8 @@ Monitoring source for general quantities related to vertex
 #include <memory> 
 
 // user include files
+#include "FWCore/Utilities/interface/EDGetToken.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 
@@ -22,15 +24,17 @@ Monitoring source for general quantities related to vertex
 #include "DQMServices/Core/interface/MonitorElement.h"
 
 #include "DataFormats/VertexReco/interface/Vertex.h"
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
 
 class GetLumi;
-
 class DQMStore;
 
 class VertexMonitor
 {
    public:
-  VertexMonitor(const edm::ParameterSet&,const edm::InputTag&,const edm::InputTag&, std::string pvLabel);
+       VertexMonitor(const edm::ParameterSet&,const edm::InputTag&,const edm::InputTag&, std::string pvLabel);
+       VertexMonitor(const edm::ParameterSet&,const edm::InputTag&,const edm::InputTag&, std::string pvLabel,edm::ConsumesCollector& iC);
+
        virtual ~VertexMonitor();
        static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
@@ -47,6 +51,10 @@ class VertexMonitor
        edm::InputTag     primaryVertexInputTag_;
        edm::InputTag     selectedPrimaryVertexInputTag_;
        std::string       label_;
+
+       edm::EDGetTokenT<reco::VertexCollection> pvToken_;
+       edm::EDGetTokenT<reco::VertexCollection> selpvToken_;
+       
 
        GetLumi* lumiDetails_;
 

@@ -287,7 +287,8 @@ namespace edm {
                      boost::shared_ptr<ActivityRegistry> areg,
                      boost::shared_ptr<ProcessConfiguration> processConfiguration,
                      const ParameterSet* subProcPSet,
-                     StreamID streamID) :
+                     StreamID streamID,
+                     ProcessContext const* processContext) :
     workerManager_(areg, actions),
     actReg_(areg),
     state_(Ready),
@@ -304,6 +305,7 @@ namespace edm {
     total_passed_(),
     stopwatch_(wantSummary_? new RunStopwatch::StopwatchPointer::element_type : static_cast<RunStopwatch::StopwatchPointer::element_type*> (nullptr)),
     streamID_(streamID),
+    streamContext_(streamID_, processContext),
     endpathsAreActive_(true) {
 
     ParameterSet const& opts = proc_pset.getUntrackedParameterSet("options", ParameterSet());
@@ -829,7 +831,7 @@ namespace edm {
 
     // an empty path will cause an extra bit that is not used
     if (!tmpworkers.empty()) {
-      Path p(bitpos, name, tmpworkers, trptr, actionTable(), actReg_, false);
+      Path p(bitpos, name, tmpworkers, trptr, actionTable(), actReg_, false, &streamContext_);
       if (wantSummary_) {
         p.useStopwatch();
       }
@@ -854,7 +856,7 @@ namespace edm {
     }
 
     if (!tmpworkers.empty()) {
-      Path p(bitpos, name, tmpworkers, endpath_results_, actionTable(), actReg_, true);
+      Path p(bitpos, name, tmpworkers, endpath_results_, actionTable(), actReg_, true, &streamContext_);
       if (wantSummary_) {
         p.useStopwatch();
       }
@@ -1226,12 +1228,12 @@ namespace edm {
     for_all(all_output_communicators_, boost::bind(&OutputModuleCommunicator::openFile, _1, boost::cref(fb)));
   }
 
-  void Schedule::writeRun(RunPrincipal const& rp) {
-    for_all(all_output_communicators_, boost::bind(&OutputModuleCommunicator::writeRun, _1, boost::cref(rp)));
+  void Schedule::writeRun(RunPrincipal const& rp, ProcessContext const* processContext) {
+    for_all(all_output_communicators_, boost::bind(&OutputModuleCommunicator::writeRun, _1, boost::cref(rp), processContext));
   }
 
-  void Schedule::writeLumi(LuminosityBlockPrincipal const& lbp) {
-    for_all(all_output_communicators_, boost::bind(&OutputModuleCommunicator::writeLumi, _1, boost::cref(lbp)));
+  void Schedule::writeLumi(LuminosityBlockPrincipal const& lbp, ProcessContext const* processContext) {
+    for_all(all_output_communicators_, boost::bind(&OutputModuleCommunicator::writeLumi, _1, boost::cref(lbp), processContext));
   }
 
   bool Schedule::shouldWeCloseOutput() const {
@@ -1254,11 +1256,11 @@ namespace edm {
   }
   
   void Schedule::beginStream() {
-    workerManager_.beginStream(streamID_);
+    workerManager_.beginStream(streamID_, streamContext_);
   }
   
   void Schedule::endStream() {
-    workerManager_.endStream(streamID_);
+    workerManager_.endStream(streamID_, streamContext_);
   }
 
   void Schedule::preForkReleaseResources() {

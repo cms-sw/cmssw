@@ -118,9 +118,10 @@ namespace edm {
 
       void doBeginRun(RunPrincipal& rp,
                       EventSetup const& c,
-                      CurrentProcessingContext const* cpc)override final {
+                      CurrentProcessingContext const* cpc,
+                      ModuleCallingContext const* mcc) override final {
         if(T::HasAbility::kRunCache or T::HasAbility::kRunSummaryCache or T::HasAbility::kBeginRunProducer) {
-          Run r(rp, this->moduleDescription());
+          Run r(rp, this->moduleDescription(), mcc);
           r.setConsumer(this->consumer());
           Run const& cnstR = r;
           RunIndex ri = rp.index();
@@ -135,11 +136,12 @@ namespace edm {
       }
       void doEndRun(RunPrincipal& rp,
                     EventSetup const& c,
-                    CurrentProcessingContext const* cpc)override final
+                    CurrentProcessingContext const* cpc,
+                    ModuleCallingContext const* mcc) override final
       {
         if(T::HasAbility::kRunCache or T::HasAbility::kRunSummaryCache or T::HasAbility::kEndRunProducer) {
           
-          Run r(rp, this->moduleDescription());
+          Run r(rp, this->moduleDescription(), mcc);
           r.setConsumer(this->consumer());
 
           RunIndex ri = rp.index();
@@ -154,10 +156,11 @@ namespace edm {
       }
 
       void doBeginLuminosityBlock(LuminosityBlockPrincipal& lbp, EventSetup const& c,
-                                  CurrentProcessingContext const* cpc)override final
+                                  CurrentProcessingContext const* cpc,
+                                  ModuleCallingContext const* mcc) override final
       {
         if(T::HasAbility::kLuminosityBlockCache or T::HasAbility::kLuminosityBlockSummaryCache or T::HasAbility::kBeginLuminosityBlockProducer) {
-          LuminosityBlock lb(lbp, this->moduleDescription());
+          LuminosityBlock lb(lbp, this->moduleDescription(), mcc);
           lb.setConsumer(this->consumer());
           LuminosityBlock const& cnstLb = lb;
           LuminosityBlockIndex li = lbp.index();
@@ -175,10 +178,11 @@ namespace edm {
       }
       void doEndLuminosityBlock(LuminosityBlockPrincipal& lbp,
                                 EventSetup const& c,
-                                CurrentProcessingContext const* cpc)override final {
+                                CurrentProcessingContext const* cpc,
+                                ModuleCallingContext const* mcc) override final {
         if(T::HasAbility::kLuminosityBlockCache or T::HasAbility::kLuminosityBlockSummaryCache or T::HasAbility::kEndLuminosityBlockProducer) {
           
-          LuminosityBlock lb(lbp, this->moduleDescription());
+          LuminosityBlock lb(lbp, this->moduleDescription(), mcc);
           lb.setConsumer(this->consumer());
           
           LuminosityBlockIndex li = lbp.index();

@@ -7,7 +7,8 @@ ClusterCount::ClusterCount(const edm::ParameterSet& iConfig)
 
 {
    //now do what ever initialization is needed
-   clusterLabel_ = iConfig.getParameter<edm::InputTag>("ClustersLabel");
+  //   clusterLabel_ = iConfig.getParameter<edm::InputTag>("ClustersLabel");
+  clusterToken_ = consumes<edm::DetSetVector<SiStripCluster> >(iConfig.getParameter<edm::InputTag>("ClustersLabel") );
    
 }
 
@@ -32,7 +33,8 @@ ClusterCount::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    using namespace edm;
    // look at the clusters
    edm::Handle<edm::DetSetVector<SiStripCluster> > clusters;
-   iEvent.getByLabel(clusterLabel_, clusters);
+   //   iEvent.getByLabel(clusterLabel_, clusters);
+   iEvent.getByToken(clusterToken_, clusters);
    const edm::DetSetVector<SiStripCluster>* clusterSet = clusters.product();
    // loop on the detsetvector<cluster>
    for (edm::DetSetVector<SiStripCluster>::const_iterator DSViter=clusterSet->begin(); DSViter!=clusterSet->end();DSViter++ ) {

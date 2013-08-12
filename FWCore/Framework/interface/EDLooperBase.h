@@ -64,7 +64,9 @@ namespace edm {
     class EventSetupProvider;
   }
   class ActionTable;
+  class ProcessContext;
   class ScheduleInfo;
+  class StreamContext;
   class ModuleChanger;
   class ProcessingController;
   class ActivityRegistry;
@@ -80,13 +82,13 @@ namespace edm {
       EDLooperBase& operator=(EDLooperBase const&) = delete; // Disallow copying and moving
 
       void doStartingNewLoop();
-      Status doDuringLoop(EventPrincipal& eventPrincipal, EventSetup const& es, ProcessingController&);
+      Status doDuringLoop(EventPrincipal& eventPrincipal, EventSetup const& es, ProcessingController&, StreamContext*);
       Status doEndOfLoop(EventSetup const& es);
       void prepareForNextLoop(eventsetup::EventSetupProvider* esp);
-      void doBeginRun(RunPrincipal&, EventSetup const&);
-      void doEndRun(RunPrincipal&, EventSetup const&);
-      void doBeginLuminosityBlock(LuminosityBlockPrincipal&, EventSetup const&);
-      void doEndLuminosityBlock(LuminosityBlockPrincipal&, EventSetup const&);
+      void doBeginRun(RunPrincipal&, EventSetup const&, ProcessContext*);
+      void doEndRun(RunPrincipal&, EventSetup const&, ProcessContext*);
+      void doBeginLuminosityBlock(LuminosityBlockPrincipal&, EventSetup const&, ProcessContext*);
+      void doEndLuminosityBlock(LuminosityBlockPrincipal&, EventSetup const&, ProcessContext*);
 
       //This interface is deprecated
       virtual void beginOfJob(EventSetup const&);

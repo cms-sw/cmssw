@@ -30,6 +30,8 @@ output stream.
 
 namespace edm {
 
+  class ModuleCallingContext;
+
   typedef detail::TriggerResultsBasedEventSelector::handle_t Trig;
 
   class OutputModule : public EDConsumerBase {
@@ -77,7 +79,7 @@ namespace edm {
     // need to clean up the use of Event and EventPrincipal, to avoid
     // creation of multiple Event objects when handling a single
     // event.
-    Trig getTriggerResults(EventPrincipal const& ep) const;
+    Trig getTriggerResults(EventPrincipal const& ep, ModuleCallingContext const*) const;
 
     // The returned pointer will be null unless the this is currently
     // executing its event loop function ('write').
@@ -90,15 +92,20 @@ namespace edm {
     void doBeginJob();
     void doEndJob();
     bool doEvent(EventPrincipal const& ep, EventSetup const& c,
-                 CurrentProcessingContext const* cpc);
+                 CurrentProcessingContext const* cpc,
+                 ModuleCallingContext const* mcc);
     bool doBeginRun(RunPrincipal const& rp, EventSetup const& c,
-                 CurrentProcessingContext const* cpc);
+                    CurrentProcessingContext const* cpc,
+                    ModuleCallingContext const* mcc);
     bool doEndRun(RunPrincipal const& rp, EventSetup const& c,
-                 CurrentProcessingContext const* cpc);
+                  CurrentProcessingContext const* cpc,
+                  ModuleCallingContext const* mcc);
     bool doBeginLuminosityBlock(LuminosityBlockPrincipal const& lbp, EventSetup const& c,
-                 CurrentProcessingContext const* cpc);
+                                CurrentProcessingContext const* cpc,
+                                ModuleCallingContext const* mcc);
     bool doEndLuminosityBlock(LuminosityBlockPrincipal const& lbp, EventSetup const& c,
-                 CurrentProcessingContext const* cpc);
+                              CurrentProcessingContext const* cpc,
+                              ModuleCallingContext const* mcc);
 
     void setEventSelectionInfo(std::map<std::string, std::vector<std::pair<std::string, int> > > const& outputModulePathPositions,
                                bool anyProductProduced);
@@ -165,8 +172,8 @@ namespace edm {
     //------------------------------------------------------------------
     // private member functions
     //------------------------------------------------------------------
-    void doWriteRun(RunPrincipal const& rp);
-    void doWriteLuminosityBlock(LuminosityBlockPrincipal const& lbp);
+    void doWriteRun(RunPrincipal const& rp, ModuleCallingContext const* mcc);
+    void doWriteLuminosityBlock(LuminosityBlockPrincipal const& lbp, ModuleCallingContext const* mcc);
     void doOpenFile(FileBlock const& fb);
     void doRespondToOpenInputFile(FileBlock const& fb);
     void doRespondToCloseInputFile(FileBlock const& fb);
@@ -192,15 +199,15 @@ namespace edm {
     /// Ask the OutputModule if we should end the current file.
     virtual bool shouldWeCloseFile() const {return false;}
 
-    virtual void write(EventPrincipal const& e) = 0;
+    virtual void write(EventPrincipal const& e, ModuleCallingContext const*) = 0;
     virtual void beginJob(){}
     virtual void endJob(){}
-    virtual void beginRun(RunPrincipal const&){}
-    virtual void endRun(RunPrincipal const&){}
-    virtual void writeRun(RunPrincipal const&) = 0;
-    virtual void beginLuminosityBlock(LuminosityBlockPrincipal const&){}
-    virtual void endLuminosityBlock(LuminosityBlockPrincipal const&){}
-    virtual void writeLuminosityBlock(LuminosityBlockPrincipal const&) = 0;
+    virtual void beginRun(RunPrincipal const&, ModuleCallingContext const*){}
+    virtual void endRun(RunPrincipal const&, ModuleCallingContext const*){}
+    virtual void writeRun(RunPrincipal const&, ModuleCallingContext const*) = 0;
+    virtual void beginLuminosityBlock(LuminosityBlockPrincipal const&, ModuleCallingContext const*){}
+    virtual void endLuminosityBlock(LuminosityBlockPrincipal const&, ModuleCallingContext const*){}
+    virtual void writeLuminosityBlock(LuminosityBlockPrincipal const&, ModuleCallingContext const*) = 0;
     virtual void openFile(FileBlock const&) {}
     virtual void respondToOpenInputFile(FileBlock const&) {}
     virtual void respondToCloseInputFile(FileBlock const&) {}

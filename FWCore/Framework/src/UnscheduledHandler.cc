@@ -70,7 +70,8 @@ namespace edm {
 
   bool
   UnscheduledHandler::tryToFill(std::string const& label,
-                                EventPrincipal& iEvent) {
+                                EventPrincipal& iEvent,
+                                ModuleCallingContext const* mcc) {
      assert(m_setup);
      CurrentProcessingContext const* chosen = m_context;
      CurrentProcessingContext temp;
@@ -80,7 +81,7 @@ namespace edm {
         chosen = &temp;
      }
      UnscheduledHandlerSentry sentry(this, chosen);
-     return tryToFillImpl(label, iEvent, *m_setup, chosen);
+     return tryToFillImpl(label, iEvent, *m_setup, chosen, mcc);
   }
 
   //
