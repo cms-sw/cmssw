@@ -1,8 +1,6 @@
 /*
  * \file L1TGCT.cc
  *
- * $Date: 2012/03/29 21:16:48 $
- * $Revision: 1.56 $
  * \author J. Berryhill
  *
  * $Log: L1TGCT.cc,v $

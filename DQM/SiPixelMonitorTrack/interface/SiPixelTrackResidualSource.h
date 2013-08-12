@@ -12,7 +12,6 @@
 //
 // Original Author: Shan-Huei Chuang
 //         Created: Fri Mar 23 18:41:42 CET 2007
-// $Id: SiPixelTrackResidualSource.h,v 1.8 2010/12/13 14:17:40 merkelp Exp $
 //
 // Updated by: Lukas Wehrli
 // for pixel offline DQM 

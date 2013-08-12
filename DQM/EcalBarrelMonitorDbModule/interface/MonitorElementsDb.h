@@ -1,4 +1,3 @@
-// $Id: MonitorElementsDb.h,v 1.9 2009/10/26 17:33:46 dellaric Exp $
 
 #ifndef MonitorElementsDb_H
 #define MonitorElementsDb_H
@@ -7,8 +6,6 @@
   \file MonitorElementsDb.h
   \brief Generate a Monitor Element from DB data
   \author B. Gobbo 
-  \version $Revision: 1.9 $
-  \date $Date: 2009/10/26 17:33:46 $
 */
 
 

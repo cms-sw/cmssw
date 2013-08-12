@@ -14,7 +14,6 @@
 //
 // Original Author:  Vincenzo Chiochia
 //         Created:  
-// $Id: SiPixelRecHitSource.cc,v 1.25 2010/01/11 16:20:50 merkelp Exp $
 //
 //
 // Adapted by:  Keith Rose

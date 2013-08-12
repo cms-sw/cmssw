@@ -4,8 +4,6 @@
 /*
  * \file EcalBarrelMonitorClient.h
  *
- * $Date: 2012/03/16 14:46:35 $
- * $Revision: 1.125.6.2 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *

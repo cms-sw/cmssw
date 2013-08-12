@@ -14,7 +14,6 @@ Implementation:
 // Original Author:  Adam Hunt - Princeton University
 //           email:  ahunt@princeton.edu
 //         Created:  Thu Jul 19 02:29:59 EDT 2007
-// $Id: HLXMonitor.h,v 1.20 2010/03/16 10:20:13 neadam Exp $
 //
 //
 

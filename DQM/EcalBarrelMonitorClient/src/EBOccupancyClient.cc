@@ -1,8 +1,6 @@
 /*
  * \file EBOccupancyClient.cc
  *
- * $Date: 2011/09/02 13:55:01 $
- * $Revision: 1.44 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *

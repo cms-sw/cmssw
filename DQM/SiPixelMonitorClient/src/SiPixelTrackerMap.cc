@@ -16,7 +16,6 @@
 //
 // Original Author:  Dario Menasce
 //         Created:  
-// $Id: SiPixelTrackerMap.cc,v 1.13 2009/06/17 14:03:12 merkelp Exp $
 //
 //
 #include "DQM/SiPixelMonitorClient/interface/SiPixelTrackerMap.h"

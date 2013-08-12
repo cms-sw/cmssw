@@ -1,4 +1,3 @@
-// Last commit: $Id: CalibrationHistosUsingDb.h,v 1.6 2009/06/18 20:52:35 lowette Exp $
 
 #ifndef DQM_SiStripCommissioningClients_CalibrationHistosUsingDb_H
 #define DQM_SiStripCommissioningClients_CalibrationHistosUsingDb_H

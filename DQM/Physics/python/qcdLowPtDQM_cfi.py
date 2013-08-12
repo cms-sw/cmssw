@@ -1,4 +1,3 @@
-# $Id: qcdLowPtDQM_cfi.py,v 1.10 2009/12/04 12:36:42 loizides Exp $
 
 import FWCore.ParameterSet.Config as cms
 

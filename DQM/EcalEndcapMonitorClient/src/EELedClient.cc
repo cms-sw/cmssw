@@ -1,8 +1,6 @@
 /*
  * \file EELedClient.cc
  *
- * $Date: 2011/10/07 17:21:20 $
- * $Revision: 1.130 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *

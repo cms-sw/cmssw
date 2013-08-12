@@ -6,8 +6,6 @@
  *
  *  DQM offline for QCD-Photons
  *
- *  $Date: 2012/06/19 10:15:33 $
- *  $Revision: 1.17 $
  *  \author Michael B. Anderson, University of Wisconsin Madison
  */
 

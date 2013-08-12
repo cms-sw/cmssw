@@ -1,8 +1,6 @@
 /*
  * \file EBStatusFlagsTask.cc
  *
- * $Date: 2012/03/20 20:26:48 $
- * $Revision: 1.34.2.1 $
  * \author G. Della Ricca
  *
 */

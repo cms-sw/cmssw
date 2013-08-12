@@ -10,7 +10,6 @@
 */
 //
 //         Created:  2009/07/22
-// $Id: BuildTrackerMap.cc,v 1.1 2012/10/15 09:02:08 threus Exp $
 //
 
 #include <sstream>

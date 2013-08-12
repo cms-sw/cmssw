@@ -1,8 +1,6 @@
 /*
  * \file EBStatusFlagsClient.cc
  *
- * $Date: 2011/09/02 13:55:01 $
- * $Revision: 1.46 $
  * \author G. Della Ricca
  *
 */

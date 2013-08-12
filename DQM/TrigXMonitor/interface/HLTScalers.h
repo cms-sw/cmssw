@@ -1,7 +1,6 @@
 // -*-c++-*-
 // 
 //
-// $Id: HLTScalers.h,v 1.19 2011/03/29 09:46:03 rekovic Exp $
 // Class to collect HLT scaler information 
 // for Trigger Cross Section Monitor
 // [wittich 11/07] 

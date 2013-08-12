@@ -1,4 +1,3 @@
-// Last commit: $Id: ApvTimingHistosUsingDb.cc,v 1.30 2010/02/02 18:31:57 lowette Exp $
 
 #include "DQM/SiStripCommissioningDbClients/interface/ApvTimingHistosUsingDb.h"
 #include "CondFormats/SiStripObjects/interface/ApvTimingAnalysis.h"

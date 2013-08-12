@@ -13,8 +13,6 @@
 /*
  * \file HcalDetDiagLaserClient.cc
  * 
- * $Date: 2012/06/18 08:23:10 $
- * $Revision: 1.7 $
  * \author J. Temple
  * \brief Hcal DetDiagLaser Client class
  */
