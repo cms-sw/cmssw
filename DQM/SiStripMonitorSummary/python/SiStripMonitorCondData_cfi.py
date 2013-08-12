@@ -30,11 +30,10 @@ CondDataMonitoring = cms.EDAnalyzer("SiStripMonitorCondData",
       ActiveDetIds_On         =  cms.bool(False),
       TkMap_On                =  cms.bool(False),
 
-      restrictModules         = cms.bool(True),      
       modulesToBeIncluded = cms.VPSet(
 #         cms.PSet(detSelection = cms.uint32(103), detLabel = cms.string("TIB"), selection=cms.untracked.vstring("0x1e000000-0x16000000")),
 #         cms.PSet(detSelection = cms.uint32(104), detLabel = cms.string("TID"), selection=cms.untracked.vstring("0x1e000000-0x18000000")),
-         cms.PSet(detSelection = cms.uint32(1041),detLabel = cms.string("TIDm"),selection=cms.untracked.vstring("0x1e006000-0x18002000")),
+#         cms.PSet(detSelection = cms.uint32(1041),detLabel = cms.string("TIDm"),selection=cms.untracked.vstring("0x1e006000-0x18002000")),
 #         cms.PSet(detSelection = cms.uint32(1042),detLabel = cms.string("TIDp"),selection=cms.untracked.vstring("0x1e006000-0x18004000")),
 #         cms.PSet(detSelection = cms.uint32(105), detLabel = cms.string("TOB"), selection=cms.untracked.vstring("0x1e000000-0x1a000000")),
 #         cms.PSet(detSelection = cms.uint32(106), detLabel = cms.string("TEC"), selection=cms.untracked.vstring("0x1e000000-0x1c000000")),
@@ -45,15 +44,15 @@ CondDataMonitoring = cms.EDAnalyzer("SiStripMonitorCondData",
 #         cms.PSet(detSelection = cms.uint32(103), detLabel = cms.string("TIB"), selection=cms.untracked.vstring("0x1e000000-0x16000000")),
 #         cms.PSet(detSelection = cms.uint32(104), detLabel = cms.string("TID"), selection=cms.untracked.vstring("0x1e000000-0x18000000")),
 #         cms.PSet(detSelection = cms.uint32(1041),detLabel = cms.string("TIDm"),selection=cms.untracked.vstring("0x1e006000-0x18002000")),
-         cms.PSet(detSelection = cms.uint32(1042),detLabel = cms.string("TIDp"),selection=cms.untracked.vstring("0x1e006000-0x18004000")),
+#         cms.PSet(detSelection = cms.uint32(1042),detLabel = cms.string("TIDp"),selection=cms.untracked.vstring("0x1e006000-0x18004000")),
 #         cms.PSet(detSelection = cms.uint32(105), detLabel = cms.string("TOB"), selection=cms.untracked.vstring("0x1e000000-0x1a000000")),
 #         cms.PSet(detSelection = cms.uint32(106), detLabel = cms.string("TEC"), selection=cms.untracked.vstring("0x1e000000-0x1c000000")),
 #         cms.PSet(detSelection = cms.uint32(1061),detLabel = cms.string("TECm"),selection=cms.untracked.vstring("0x1e0c0000-0x1c040000")),
 #         cms.PSet(detSelection = cms.uint32(1062),detLabel = cms.string("TECp"),selection=cms.untracked.vstring("0x1e0c0000-0x1c080000"))
       ),
       #  exclude OR include a set of modules
-#      restrictModules         = cms.bool(False),
-
+      restrictModules         = cms.bool(False),
+#      restrictModules         = cms.bool(True),      
       ModulesToBeIncluded     = cms.vuint32(), #e.g. {369120277, 369120278, 369120282}
       ModulesToBeExcluded     = cms.vuint32(),
         
