@@ -1,8 +1,14 @@
 
+
+
+
+
+
+
 //int kGray=920, kOrange=800, kSpring=820, kTeal=840, kAzure=860, kViolet=880, kPink=900;
 
 TFile *f;
-char pdir[111];
+char pdir[111] = "plots/";
 
 TObject* NUL;
 
@@ -11,6 +17,9 @@ TH1F *gh;
 
 TH1D *h1, *h2, *he;
 
+TString filesDir = "files/";
+TString plotDir = "plots/efficiency/";
+TString ext = ".pdf";
 
 double yrange[2]={0.,1.04};
 double yrange05[2]={0.5,1.04};
@@ -188,18 +197,18 @@ int ptreb=2;
 
 TString hdir = "SimMuL1StrictAll";
 
-//TString f_def = "hp_dimu_6_0_1_POSTLS161_V12__pu000_w3_def_pat2.root";
-TString f_def = "hp_dimu_6_0_1_POSTLS161_V12__pu000_w3_gem_dphi0_pat2.root";
-TString f_g98_pt10 = "hp_dimu_6_0_1_POSTLS161_V12__pu000_w3_gem98_pt10_pat2.root";
-TString f_g98_pt15 = "hp_dimu_6_0_1_POSTLS161_V12__pu000_w3_gem98_pt15_pat2.root";
-TString f_g98_pt20 = "hp_dimu_6_0_1_POSTLS161_V12__pu000_w3_gem98_pt20_pat2.root";
-TString f_g98_pt30 = "hp_dimu_6_0_1_POSTLS161_V12__pu000_w3_gem98_pt30_pat2.root";
-TString f_g98_pt40 = "hp_dimu_6_0_1_POSTLS161_V12__pu000_w3_gem98_pt40_pat2.root";
+//TString f_def = filesDir + "hp_dimu_6_0_1_POSTLS161_V12__pu000_w3_def_pat2.root";
+TString f_def = filesDir + "hp_dimu_6_0_1_POSTLS161_V12__pu000_w3_gem_dphi0_pat2.root";
+TString f_g98_pt10 = filesDir + "hp_dimu_6_0_1_POSTLS161_V12__pu000_w3_gem98_pt10_pat2.root";
+TString f_g98_pt15 = filesDir + "hp_dimu_6_0_1_POSTLS161_V12__pu000_w3_gem98_pt15_pat2.root";
+TString f_g98_pt20 = filesDir + "hp_dimu_6_0_1_POSTLS161_V12__pu000_w3_gem98_pt20_pat2.root";
+TString f_g98_pt30 = filesDir + "hp_dimu_6_0_1_POSTLS161_V12__pu000_w3_gem98_pt30_pat2.root";
+TString f_g98_pt40 = filesDir + "hp_dimu_6_0_1_POSTLS161_V12__pu000_w3_gem98_pt40_pat2.root";
 
-TString f_g95_pt10 = "hp_dimu_6_0_1_POSTLS161_V12__pu000_w3_gem95_pt10_pat2.root";
-TString f_g95_pt20 = "hp_dimu_6_0_1_POSTLS161_V12__pu000_w3_gem95_pt20_pat2.root";
-TString f_g95_pt30 = "hp_dimu_6_0_1_POSTLS161_V12__pu000_w3_gem95_pt30_pat2.root";
-TString f_g95_pt40 = "hp_dimu_6_0_1_POSTLS161_V12__pu000_w3_gem95_pt40_pat2.root";
+TString f_g95_pt10 = filesDir + "hp_dimu_6_0_1_POSTLS161_V12__pu000_w3_gem95_pt10_pat2.root";
+TString f_g95_pt20 = filesDir + "hp_dimu_6_0_1_POSTLS161_V12__pu000_w3_gem95_pt20_pat2.root";
+TString f_g95_pt30 = filesDir + "hp_dimu_6_0_1_POSTLS161_V12__pu000_w3_gem95_pt30_pat2.root";
+TString f_g95_pt40 = filesDir + "hp_dimu_6_0_1_POSTLS161_V12__pu000_w3_gem95_pt40_pat2.root";
 
 double rpt[2] = {0.,49.99};
 
@@ -330,7 +339,7 @@ leg->AddEntry(h_eff_tf30_2s1b, "p_{T}^{TF}>=30", "l");
 leg->AddEntry(h_eff_tf30_gpt30_2s1b, "#Delta#phi for p_{T}=30", "l");
 leg->Draw();
 
-c2s1b->Print("eff_2s1b.png");
+c2s1b->Print(plotDir + "eff_2s1b" + ext);
 
 
 
@@ -359,7 +368,7 @@ leg->AddEntry(h_eff_tf30_3s1b, "p_{T}^{TF}>=30", "l");
 leg->AddEntry(h_eff_tf30_gpt30_3s1b, "#Delta#phi for p_{T}=30", "l");
 leg->Draw();
 
-c3s1b->Print("eff_3s1b.png");
+c3s1b->Print(plotDir + "eff_3s1b" + ext);
 
 
 
@@ -388,7 +397,7 @@ leg->AddEntry(h_eff_tf30_3s, "p_{T}^{TF}>=30", "l");
 leg->AddEntry(h_eff_tf30_gpt30_2s1b, "#Delta#phi for p_{T}=30", "l");
 leg->Draw();
 
-c3s_2s1b->Print("eff_3s_2s1b.png");
+c3s_2s1b->Print(plotDir + "eff_3s_2s1b" + ext);
 
 
 
@@ -408,7 +417,7 @@ leg->AddEntry(h_eff_tf20_3s, "p_{T}^{TF}>=20", "l");
 leg->AddEntry(h_eff_tf30_3s, "p_{T}^{TF}>=30", "l");
 leg->Draw();
 
-c3s_def->Print("eff_3s_def.png");
+c3s_def->Print(plotDir + "eff_3s_def" + ext);
 
 
 TCanvas* c3s1b_def = new TCanvas("c3s1b_def","c3s1b_def",800,600);
@@ -426,7 +435,7 @@ leg->AddEntry(h_eff_tf20_3s, "p_{T}^{TF}>=20", "l");
 leg->AddEntry(h_eff_tf30_3s, "p_{T}^{TF}>=30", "l");
 leg->Draw();
 
-c3s1b_def->Print("eff_3s1b_def.png");
+c3s1b_def->Print(plotDir + "eff_3s1b_def" + ext);
 
 
 
@@ -472,11 +481,11 @@ leg->AddEntry(h_eff_tf10_2s, "anywhere", "l");
 leg->AddEntry(h_eff_tf10_2s1b, "with ME1", "l");
 leg->Draw();
 
-c2s_pt10_def->Print("eff_2s_pt10_def.png");
+c2s_pt10_def->Print(plotDir + "eff_2s_pt10_def" + ext);
 
 h_eff_tf10_gpt10_2s1b->Draw("hist same");
 leg->AddEntry(h_eff_tf10_gpt10_2s1b, "with (ME1 + GEM)", "l");
-c2s_pt10_def->Print("eff_2s_pt10_gem.png");
+c2s_pt10_def->Print(plotDir + "eff_2s_pt10_gem" + ext);
 
 
 
@@ -493,11 +502,11 @@ leg->AddEntry(h_eff_tf10_3s, "anywhere", "l");
 leg->AddEntry(h_eff_tf10_3s1b, "with ME1", "l");
 leg->Draw();
 
-c3s_pt10_def->Print("eff_3s_pt10_def.png");
+c3s_pt10_def->Print(plotDir + "eff_3s_pt10_def" + ext);
 
 h_eff_tf10_gpt10_3s1b->Draw("hist same");
 leg->AddEntry(h_eff_tf10_gpt10_3s1b, "with (ME1 + GEM)", "l");
-c3s_pt10_def->Print("eff_3s_pt10_gem.png");
+c3s_pt10_def->Print(plotDir + "eff_3s_pt10_gem" + ext);
 
 
 
@@ -515,11 +524,11 @@ leg->AddEntry(h_eff_tf20_2s, "anywhere", "l");
 leg->AddEntry(h_eff_tf20_2s1b, "with ME1", "l");
 leg->Draw();
 
-c2s_pt20_def->Print("eff_2s_pt20_def.png");
+c2s_pt20_def->Print(plotDir + "eff_2s_pt20_def" + ext);
 
 h_eff_tf20_gpt20_2s1b->Draw("hist same");
 leg->AddEntry(h_eff_tf20_gpt20_2s1b, "with (ME1 + GEM)", "l");
-c2s_pt20_def->Print("eff_2s_pt20_gem.png");
+c2s_pt20_def->Print(plotDir + "eff_2s_pt20_gem" + ext);
 
 
 
@@ -536,11 +545,11 @@ leg->AddEntry(h_eff_tf20_3s, "anywhere", "l");
 leg->AddEntry(h_eff_tf20_3s1b, "with ME1", "l");
 leg->Draw();
 
-c3s_pt20_def->Print("eff_3s_pt20_def.png");
+c3s_pt20_def->Print(plotDir + "eff_3s_pt20_def" + ext);
 
 h_eff_tf20_gpt20_3s1b->Draw("hist same");
 leg->AddEntry(h_eff_tf20_gpt20_3s1b, "with (ME1 + GEM)", "l");
-c3s_pt20_def->Print("eff_3s_pt20_gem.png");
+c3s_pt20_def->Print(plotDir + "eff_3s_pt20_gem" + ext);
 
 
 
@@ -557,11 +566,11 @@ leg->AddEntry(h_eff_tf30_2s, "anywhere", "l");
 leg->AddEntry(h_eff_tf30_2s1b, "with ME1", "l");
 leg->Draw();
 
-c2s_pt30_def->Print("eff_2s_pt30_def.png");
+c2s_pt30_def->Print(plotDir + "eff_2s_pt30_def" + ext);
 
 h_eff_tf30_gpt30_2s1b->Draw("hist same");
 leg->AddEntry(h_eff_tf30_gpt30_2s1b, "with (ME1 + GEM)", "l");
-c2s_pt30_def->Print("eff_2s_pt30_gem.png");
+c2s_pt30_def->Print(plotDir + "eff_2s_pt30_gem" + ext);
 
 
 
@@ -578,11 +587,11 @@ leg->AddEntry(h_eff_tf30_3s, "anywhere", "l");
 leg->AddEntry(h_eff_tf30_3s1b, "with ME1", "l");
 leg->Draw();
 
-c3s_pt30_def->Print("eff_3s_pt30_def.png");
+c3s_pt30_def->Print(plotDir + "eff_3s_pt30_def" + ext);
 
 h_eff_tf30_gpt30_3s1b->Draw("hist same");
 leg->AddEntry(h_eff_tf30_gpt30_3s1b, "with (ME1 + GEM)", "l");
-c3s_pt30_def->Print("eff_3s_pt30_gem.png");
+c3s_pt30_def->Print(plotDir + "eff_3s_pt30_gem" + ext);
 
 
 
@@ -599,11 +608,11 @@ leg->AddEntry(h_eff_tf40_2s, "anywhere", "l");
 leg->AddEntry(h_eff_tf40_2s1b, "with ME1", "l");
 leg->Draw();
 
-c2s_pt40_def->Print("eff_2s_pt40_def.png");
+c2s_pt40_def->Print(plotDir + "eff_2s_pt40_def" + ext);
 
 h_eff_tf40_gpt40_2s1b->Draw("hist same");
 leg->AddEntry(h_eff_tf40_gpt40_2s1b, "with (ME1 + GEM)", "l");
-c2s_pt40_def->Print("eff_2s_pt40_gem.png");
+c2s_pt40_def->Print(plotDir + "eff_2s_pt40_gem" + ext);
 
 
 
@@ -620,11 +629,11 @@ leg->AddEntry(h_eff_tf40_3s, "anywhere", "l");
 leg->AddEntry(h_eff_tf40_3s1b, "with ME1", "l");
 leg->Draw();
 
-c3s_pt40_def->Print("eff_3s_pt40_def.png");
+c3s_pt40_def->Print(plotDir + "eff_3s_pt40_def" + ext);
 
 h_eff_tf40_gpt40_3s1b->Draw("hist same");
 leg->AddEntry(h_eff_tf40_gpt40_3s1b, "with (ME1 + GEM)", "l");
-c3s_pt40_def->Print("eff_3s_pt40_gem.png");
+c3s_pt40_def->Print(plotDir + "eff_3s_pt40_gem" + ext);
 
 
 
@@ -668,7 +677,7 @@ leg->AddEntry(h_eff_tf30_gpt30_3s1b, "#geq30 and 30", "l");
 leg->AddEntry(h_eff_tf30_gpt40_3s1b, "#geq30 and 40", "l");
 leg->Draw();
 
-c3s_tight->Print("eff_3s_gemtight.png");
+c3s_tight->Print(plotDir + "eff_3s_gemtight" + ext);
 
 
 
@@ -707,7 +716,7 @@ leg->AddEntry(h_eff_tf20_gpt20_3s1b, "#geq20 and 20", "l");
 leg->AddEntry(h_eff_tf20_gpt40_3s1b, "#geq20 and 40", "l");
 leg->Draw();
 
-c3s_tight->Print("eff_3s_gemtightX.png");
+c3s_tight->Print(plotDir + "eff_3s_gemtightX" + ext);
 
 }
 
@@ -723,8 +732,8 @@ int ptreb=2;
 
 TString hdir = "SimMuL1StrictAll";
 
-//TString f_def = "hp_dimu_6_0_1_POSTLS161_V12__pu000_w3_def_pat2.root";
-TString f_def = "hp_dimu_6_0_1_POSTLS161_V12__pu000_w3_gem_dphi0_pat2.root";
+//TString f_def = filesDir + "hp_dimu_6_0_1_POSTLS161_V12__pu000_w3_def_pat2.root";
+TString f_def = filesDir + "hp_dimu_6_0_1_POSTLS161_V12__pu000_w3_gem_dphi0_pat2.root";
 
 double rpt[2] = {0.,49.99};
 
@@ -802,7 +811,7 @@ leg->AddEntry(het3, "any p_{T}^{TF}, 3+ stubs", "l");
 leg->AddEntry(het3pt20, "p_{T}^{TF}#geq20, 3+ stubs", "l");
 leg->Draw();
 
-c2->Print("eff_gem1b_basegem.png");
+c2->Print(plotDir + "eff_gem1b_basegem" + ext);
 
 
 
@@ -827,7 +836,7 @@ leg->AddEntry(helt2pt20, "2+ stubs", "l");
 leg->AddEntry(het3pt20, "3+ stubs", "l");
 leg->AddEntry(helt3pt20, "3+ stubs", "l");
 leg->Draw();
-c2->Print("eff_gem1b_baselctgem.png");
+c2->Print(plotDir + "eff_gem1b_baselctgem" + ext);
 
 //return;
 
@@ -852,7 +861,7 @@ leg->AddEntry(het2pt20p, "2+ stubs", "l");
 leg->AddEntry(het3pt20, "3+ stubs", "l");
 leg->AddEntry(het3pt20p, "3+ stubs", "l");
 leg->Draw();
-c2->Print("eff_gem1b_basegem_dphi.png");
+c2->Print(plotDir + "eff_gem1b_basegem_dphi" + ext);
 
 
 htitle = "Efficiency for #mu (GEM+LCT) in 1.64<|#eta|<2.05 to have TF track with ME1/b stub;p_{T}^{MC}";
@@ -876,7 +885,7 @@ leg->AddEntry(helt2pt20p, "2+ stubs", "l");
 leg->AddEntry(helt3pt20, "3+ stubs", "l");
 leg->AddEntry(helt3pt20p, "3+ stubs", "l");
 leg->Draw();
-c2->Print("eff_gem1b_baselpcgem_dphi.png");
+c2->Print(plotDir + "eff_gem1b_baselpcgem_dphi" + ext);
 
 
 helt2pt20->Draw("hist");
@@ -898,7 +907,7 @@ leg->AddEntry(helt2pt20_123, "2+ stubs (no ME1-4 tracks)", "l");
 leg->AddEntry(helt3pt20_13, "2+ stubs (no ME1-2 and ME1-4)", "l");
 leg->AddEntry(helt3pt20, "3+ stubs", "l");
 leg->Draw();
-c2->Print("eff_gem1b_baselpcgem_123.png");
+c2->Print(plotDir + "eff_gem1b_baselpcgem_123" + ext);
 
 return;
 
@@ -1014,7 +1023,7 @@ h_eta_me3_initial->Draw("hist");
 c_eff_eta_simh_by_st->cd(4);
 h_eta_me4_initial->Draw("hist");
 
-Print(c_eff_eta_simh_by_st,"c_eff_eta_simh_by_st.png");
+Print(c_eff_eta_simh_by_st,"c_eff_eta_simh_by_st" + ext);
 
 
 TCanvas* c_eff_eta_simh_by_st = new TCanvas("c_eff_eta_mpc_by_st","c_eff_eta_mpc_by_st",900,800 ) ;
@@ -1043,7 +1052,7 @@ c_eff_eta_mpc_by_st->cd(4);
 h_eta_me4_initial->Draw("hist");
 h_eta_me4_mpc->Draw("hist same");
 
-Print(c_eff_eta_mpc_by_st,"c_eff_eta_mpc_by_st.png");
+Print(c_eff_eta_mpc_by_st,"c_eff_eta_mpc_by_st" + ext);
 
 
 }
@@ -1069,7 +1078,7 @@ l_eff_eta_simh->AddEntry(h_eta_initial_2st,"#geq2 CSC stations","pl");
 l_eff_eta_simh->AddEntry(h_eta_initial_3st,"#geq3 CSC stations","pl");
 l_eff_eta_simh->Draw();
 
-Print(c_eff_eta_simh,"c_eff_eta_simh.png");
+Print(c_eff_eta_simh,"c_eff_eta_simh" + ext);
 
 
 TCanvas* c_eff_eta_mpc = new TCanvas("c_eff_eta_mpc","c_eff_eta_mpc",1000,600 ) ;
@@ -1091,7 +1100,7 @@ l_eff_eta_mpc->AddEntry(h_eta_mpc_2st,"#geq2 CSC stations","pl");
 l_eff_eta_mpc->AddEntry(h_eta_mpc_3st,"#geq3 CSC stations","pl");
 l_eff_eta_mpc->Draw();
 
-Print(c_eff_eta_mpc,"c_eff_eta_mpc.png");
+Print(c_eff_eta_mpc,"c_eff_eta_mpc" + ext);
 
 
 TCanvas* c_eff_eta_mpc_relative = new TCanvas("c_eff_eta_mpc_relative","c_eff_eta_mpc_relative",1000,600 ) ;
@@ -1113,7 +1122,7 @@ l_eff_eta_mpc_relative->AddEntry(h_eta_mpc_2st_r,"#geq2 CSC stations","pl");
 l_eff_eta_mpc_relative->AddEntry(h_eta_mpc_3st_r,"#geq3 CSC stations","pl");
 l_eff_eta_mpc_relative->Draw();
 
-Print(c_eff_eta_mpc_relative,"c_eff_eta_mpc_relative.png");
+Print(c_eff_eta_mpc_relative,"c_eff_eta_mpc_relative" + ext);
 
 }
 
@@ -1138,7 +1147,7 @@ l_eff_eta_simh_me1->AddEntry(h_eta_me1_initial_2st,"ME1 + #geq1 stations","pl");
 l_eff_eta_simh_me1->AddEntry(h_eta_me1_initial_3st,"ME1 + #geq2 stations","pl");
 l_eff_eta_simh_me1->Draw();
 
-Print(c_eff_eta_simh_me1,"c_eff_eta_simh_me1.png");
+Print(c_eff_eta_simh_me1,"c_eff_eta_simh_me1" + ext);
 }
 //################################################################################################
 
@@ -1205,7 +1214,7 @@ if (!interactive) {
   return;
 }
 
-Print(c_eff_eta_me1_stubs,"h_eff_eta_me1_steps_stubs.png");
+Print(c_eff_eta_me1_stubs,"h_eff_eta_me1_steps_stubs" + ext);
 
 //################################################################################################
 
@@ -1233,7 +1242,7 @@ leg->AddEntry(h_eff_eta_me1_after_tf_ok_plus,"TF track with matched stubs in ME1
 leg->AddEntry(h_eff_eta_me1_after_tf_ok_plus_pt10,"p_{T}^{TF}>10 TF track with matched stubs in ME1+one","pl");
 leg->Draw();
 
-Print(c_eff_eta_me1_tf,"h_eff_eta_me1_tf.png");
+Print(c_eff_eta_me1_tf,"h_eff_eta_me1_tf" + ext);
 
 
 //################################################################################################
@@ -1257,7 +1266,7 @@ leg->AddEntry(h_eff_eta_after_tfcand_ok_plus,"TF track with matched stubs in 2st
 leg->AddEntry(h_eff_eta_after_tfcand_ok_plus_pt10,"p_{T}^{TF}>10 TF track with matched stubs in 2st","pl");
 leg->Draw();
 
-Print(c_eff_eta_tf,"h_eff_eta_tf.png");
+Print(c_eff_eta_tf,"h_eff_eta_tf" + ext);
 
 //################################################################################################
 
@@ -1285,7 +1294,7 @@ leg->AddEntry(h_eff_eta_after_tfcand_ok_plus_3st1a,"TF track with matched stubs 
 leg->AddEntry(h_eff_eta_after_tfcand_ok_plus_pt10_3st1a,"p_{T}^{TF}>10 TF track with matched stubs in 2st","pl");
 leg->Draw();
 
-Print(c_eff_eta_tf_3st1a,"h_eff_eta_tf_3st1a.png");
+Print(c_eff_eta_tf_3st1a,"h_eff_eta_tf_3st1a" + ext);
 
 
 //################################################################################################
@@ -1320,7 +1329,7 @@ leg->AddEntry(h_eff_eta_after_tfcand_ok_plus_q3,"Q=3","pl");
 leg->AddEntry(h_eff_eta_after_tfcand_ok_plus_pt10_q3,"Q=3, p_{T}^{TF}>10","pl");
 leg->Draw();
 
-Print(c_eff_eta_tf_q,"h_eff_eta_tf_q.png");
+Print(c_eff_eta_tf_q,"h_eff_eta_tf_q" + ext);
 
 
 //################################################################################################
@@ -1344,7 +1353,7 @@ leg1->AddEntry(h_eff_pt_after_tfcand_ok_plus,"TF track with matched stubs in 2st
 leg1->AddEntry(h_eff_pt_after_tfcand_ok_plus_pt10,"p_{T}^{TF}>10 TF track with matched stubs in 2st","pl");
 leg1->Draw();
 
-Print(c_eff_pt_tf,"h_eff_pt_tf.png");
+Print(c_eff_pt_tf,"h_eff_pt_tf" + ext);
 
 
 //################################################################################################
@@ -1376,7 +1385,7 @@ leg1->AddEntry(h_eff_pt_after_tfcand_eta1b_2s_pt25,"p_{T}^{TF}>=25, stubs in (2+
 leg1->AddEntry(h_eff_pt_after_tfcand_eta1b_2s_pt30,"p_{T}^{TF}>=30, stubs in (2+)st","pl");
 leg1->Draw();
 
-Print(c_eff_pt_tf_eta1b_2s, "h_eff_pt_tf_eta1b_2s.png");
+Print(c_eff_pt_tf_eta1b_2s, "h_eff_pt_tf_eta1b_2s" + ext);
 
 //################################################################################################
 
@@ -1407,7 +1416,7 @@ leg1->AddEntry(h_eff_pt_after_tfcand_eta1b_2s1b_pt25,"p_{T}^{TF}>=25, stubs in M
 leg1->AddEntry(h_eff_pt_after_tfcand_eta1b_2s1b_pt30,"p_{T}^{TF}>=30, stubs in ME1+(1+)st","pl");
 leg1->Draw();
 
-Print(c_eff_pt_tf_eta1b_2s1b, "h_eff_pt_tf_eta1b_2s1b.png");
+Print(c_eff_pt_tf_eta1b_2s1b, "h_eff_pt_tf_eta1b_2s1b" + ext);
 
 
 //################################################################################################
@@ -1439,7 +1448,7 @@ leg1->AddEntry(h_eff_pt_after_tfcand_eta1b_3s_pt25,"p_{T}^{TF}>=25, stubs in (3+
 leg1->AddEntry(h_eff_pt_after_tfcand_eta1b_3s_pt30,"p_{T}^{TF}>=30, stubs in (3+)st","pl");
 leg1->Draw();
 
-Print(c_eff_pt_tf_eta1b_3s, "h_eff_pt_tf_eta1b_3s.png");
+Print(c_eff_pt_tf_eta1b_3s, "h_eff_pt_tf_eta1b_3s" + ext);
 
 //################################################################################################
 
@@ -1470,7 +1479,7 @@ leg1->AddEntry(h_eff_pt_after_tfcand_eta1b_3s1b_pt25,"p_{T}^{TF}>=25, stubs in M
 leg1->AddEntry(h_eff_pt_after_tfcand_eta1b_3s1b_pt30,"p_{T}^{TF}>=30, stubs in ME1+(2+)st","pl");
 leg1->Draw();
 
-Print(c_eff_pt_tf_eta1b_3s1b, "h_eff_pt_tf_eta1b_3s1b.png");
+Print(c_eff_pt_tf_eta1b_3s1b, "h_eff_pt_tf_eta1b_3s1b" + ext);
 
 
 
@@ -1496,7 +1505,7 @@ leg1->AddEntry(h_eff_pth_after_tfcand_ok_plus,"TF track with matched stubs in 2s
 leg1->AddEntry(h_eff_pth_after_tfcand_ok_plus_pt10,"p_{T}^{TF}>10 TF track with matched stubs in 2st","pl");
 leg1->Draw();
 
-Print(c_eff_pth_tf,"h_eff_pth_tf.png");
+Print(c_eff_pth_tf,"h_eff_pth_tf" + ext);
 */
 
 //################################################################################################
@@ -1521,7 +1530,7 @@ leg1->AddEntry(h_eff_pth_after_tfcand_ok_plus_3st1a,"TF track with matched stubs
 leg1->AddEntry(h_eff_pth_after_tfcand_ok_plus_pt10_3st1a,"p_{T}^{TF}>10 TF track with matched stubs in 3st","pl");
 leg1->Draw();
 
-Print(c_eff_pth_tf_3st1a,"h_eff_pth_tf_3st1a.png");
+Print(c_eff_pth_tf_3st1a,"h_eff_pth_tf_3st1a" + ext);
 
 */
 //################################################################################################
@@ -1556,7 +1565,7 @@ leg1->AddEntry(h_eff_pt_after_tfcand_ok_plus_q3,"Q=3","pl");
 leg1->AddEntry(h_eff_pt_after_tfcand_ok_plus_pt10_q3,"Q=3, p_{T}^{TF}>10","pl");
 leg1->Draw();
 
-Print(c_eff_pt_tf_q,"h_eff_pt_tf_q.png");
+Print(c_eff_pt_tf_q,"h_eff_pt_tf_q" + ext);
 
 //################################################################################################
 
@@ -1579,7 +1588,7 @@ leg1->AddEntry(h_eff_pt_after_tfcand_ok_plus_pt10_q2,"Q#geq2","pl");
 leg1->AddEntry(h_eff_pt_after_tfcand_ok_plus_pt10_q3,"Q=3","pl");
 leg1->Draw();
 
-Print(c_eff_ptres_tf,"h_eff_ptres_tf.png");
+Print(c_eff_ptres_tf,"h_eff_ptres_tf" + ext);
 
 
 //################################################################################################
@@ -1599,7 +1608,7 @@ TGraphAsymmErrors *gg = new TGraphAsymmErrors();
 gg->BayesDivide((const TH1*)h1,(const TH1*)h2);
 gg->Draw("p");
 
-Print(c_eff_DR2_tf,"h_eff_DR_2SimTr_tf.png");
+Print(c_eff_DR2_tf,"h_eff_DR_2SimTr_tf" + ext);
 */
 
 
@@ -1901,7 +1910,7 @@ h_eff_eta_after_tfcand_all     ->GetXaxis()->SetRangeUser(0.9,2.5);
 h_eff_eta_after_tfcand_all     ->Draw("hist");
 h_eff_eta_after_tfcand->Draw("same hist");
 c2->cd(2);
-Print(c2,"h_eff_eta.png");
+Print(c2,"h_eff_eta" + ext);
 
 
 h_eff_eta_after_mpc->SetLineColor(kBlack);
@@ -2043,7 +2052,7 @@ leg->AddEntry(h_eff_eta_after_gmt,"match to MPC & TF trk & GMT trk","pl");
 
 leg->Draw();
 Print(c22x,"h_eff_eta_steps_full.eps");
-Print(c22x,"h_eff_eta_steps_full.png");
+Print(c22x,"h_eff_eta_steps_full" + ext);
 */
 
 if (h_eff_eta_steps_full10) {
@@ -2069,7 +2078,7 @@ leg->AddEntry(h_eff_eta_after_gmt_pt10,"match to MPC & TF trk & GMT trk","pl");
 
 leg->Draw();
 Print(c22x10,"h_eff_eta_steps_full10.eps");
-Print(c22x10,"h_eff_eta_steps_full10.png");
+Print(c22x10,"h_eff_eta_steps_full10" + ext);
 Print(c22x10,"h_eff_eta_steps_full10.pdf");
 
 }
@@ -2109,7 +2118,7 @@ leg->AddEntry(h_eff_eta_after_tfcand_my_st1_pt10," (d) at least 1 matched TF stu
 
 leg->Draw();
 Print(c22x10tf,"h_eff_eta_steps_full10_tf.eps");
-Print(c22x10tf,"h_eff_eta_steps_full10_tf.png");
+Print(c22x10tf,"h_eff_eta_steps_full10_tf" + ext);
 
 */
 
@@ -2147,7 +2156,7 @@ leg->AddEntry(h_eff_eta_after_tfcand_my_st1," at least 1 matched TF stub in ME1"
 
 leg->Draw();
 Print(c22x10tfs,"h_eff_eta_steps_full10_tfs.eps");
-Print(c22x10tfs,"h_eff_eta_steps_full10_tfs.png");
+Print(c22x10tfs,"h_eff_eta_steps_full10_tfs" + ext);
 Print(c22x10tfs,"h_eff_eta_steps_full10_tfs.pdf");
 */
 
@@ -2178,7 +2187,7 @@ leg->AddEntry(h_eff_eta_after_gmtreg_dr,"#Delta R match to CSC GMT trk","pl");
 
 leg->Draw();
 Print(c222xx1,"h_eff_eta_steps_xchk1.eps");
-Print(c222xx1,"h_eff_eta_steps_xchk1.png");
+Print(c222xx1,"h_eff_eta_steps_xchk1" + ext);
 
 }
 
@@ -2212,7 +2221,7 @@ leg->AddEntry(h_eff_eta_after_xtra_dr,"#Delta R match to GMT","pl");
 
 leg->Draw();
 Print(c222xx2,"h_eff_eta_steps_xchk2.eps");
-Print(c222xx2,"h_eff_eta_steps_xchk2.png");
+Print(c222xx2,"h_eff_eta_steps_xchk2" + ext);
 return;
 
 */
@@ -2291,7 +2300,7 @@ leg->AddEntry(h_eff_eta_after_tfcand_all_pt10,"there is TF track p_{T}>10 in #De
 //leg->AddEntry(," ","pl");
 leg->Draw();
 Print(cme1n1,"h_eff_eta_me1_steps_all.eps");
-Print(cme1n1,"h_eff_eta_me1_steps_all.png");
+Print(cme1n1,"h_eff_eta_me1_steps_all" + ext);
 Print(cme1n1,"h_eff_eta_me1_steps_all.pdf");
 
 
@@ -2325,7 +2334,7 @@ leg->AddEntry(h_eff_eta_me1_after_mplct_okAlctClct_plus," + one more MPC LCT stu
 leg->AddEntry(h_eff_eta_me1_after_tf_ok," + this stub was used by a TF track","pl");
 leg->AddEntry(h_eff_eta_me1_after_tf_ok_pt10,"  + this TF track has p_{T}(TF)>10 GeV","pl");
 leg->Draw();
-Print(cme1n2,"h_eff_eta_me1_tf.png");
+Print(cme1n2,"h_eff_eta_me1_tf" + ext);
 
 
 
@@ -2355,7 +2364,7 @@ leg->AddEntry(h_eff_eta_me1_after_mplct_okAlctClct_plus,"MPC LCT stubs in ME1 an
 leg->AddEntry(h_eff_eta_me1_after_tf_ok_plus," + these stubs were used by a TF track","pl");
 leg->AddEntry(h_eff_eta_me1_after_tf_ok_plus_pt10,"  + this TF track has p_{T}(TF)>10 GeV","pl");
 leg->Draw();
-Print(cme1n2_plus,"h_eff_eta_me1_tfplus.png");
+Print(cme1n2_plus,"h_eff_eta_me1_tfplus" + ext);
 
 
 
@@ -2465,7 +2474,7 @@ leg->AddEntry(h_eff_eta_me1_after_lct_okClctAlct,"correct LCT","pl");
 
 leg->Draw();
 Print(cme1na,"h_eff_eta_me1_steps_stubs.eps");
-Print(cme1na,"h_eff_eta_me1_steps_stubs.png");
+Print(cme1na,"h_eff_eta_me1_steps_stubs" + ext);
 Print(cme1na,"h_eff_eta_me1_steps_stubs.pdf");
 
 
@@ -2533,7 +2542,7 @@ leg->AddEntry(h_eff_eta_me1_after_lct_okClctAlct,"correct LCT","pl");
 leg->Draw();
 
 Print(cme1na,"h_eff_eta_me1_steps_stubs.eps");
-Print(cme1na,"h_eff_eta_me1_steps_stubs.png");
+Print(cme1na,"h_eff_eta_me1_steps_stubs" + ext);
 Print(cme1na,"h_eff_eta_me1_steps_stubs.pdf");
 */
 
