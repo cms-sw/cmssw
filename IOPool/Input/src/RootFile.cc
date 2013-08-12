@@ -41,7 +41,6 @@
 #include "FWCore/Version/interface/GetReleaseVersion.h"
 
 //used for backward compatibility
-#include "DataFormats/Provenance/interface/EntryDescriptionRegistry.h"
 #include "DataFormats/Provenance/interface/EventAux.h"
 #include "DataFormats/Provenance/interface/LuminosityBlockAux.h"
 #include "DataFormats/Provenance/interface/RunAux.h"
@@ -66,7 +65,10 @@ namespace edm {
   };
   class MakeOldProvenanceReader : public MakeProvenanceReader {
   public:
+    MakeOldProvenanceReader(std::unique_ptr<EntryDescriptionMap>&& entryDescriptionMap) : MakeProvenanceReader(), entryDescriptionMap_(std::move(entryDescriptionMap)) {}
     virtual std::unique_ptr<ProvenanceReaderBase> makeReader(RootTree& eventTree, DaqProvenanceHelper const* daqProvenanceHelper) const;
+  private:
+    std::unique_ptr<EntryDescriptionMap> entryDescriptionMap_;
   };
   class MakeFullProvenanceReader : public MakeProvenanceReader {
   public:
@@ -384,8 +386,9 @@ namespace edm {
 
     validateFile(inputType, usingGoToEvent);
 
-    // Read the parentage tree.  Old format files are handled internally in readParentageTree().
-    readParentageTree();
+    // Here, we make the class that will make the ProvenanceReader
+    // It reads whatever trees it needs.
+    provenanceReaderMaker_.reset(makeProvenanceReaderMaker().release());
 
     // Merge into the hashed registries.
     if(eventSkipperByID_ && eventSkipperByID_->somethingToSkip()) {
@@ -436,9 +439,6 @@ namespace edm {
       productRegistry_.reset(newReg.release());
     }
 
-    // Here, we make the class that will make the ProvenanceReader
-    provenanceReaderMaker_.reset(makeProvenanceReaderMaker().release());
-
     // Set up information from the product registry.
     ProductRegistry::ProductList const& prodList = productRegistry()->productList();
     for(auto const& product : prodList) {
@@ -472,9 +472,8 @@ namespace edm {
   }
 
   void
-  RootFile::readEntryDescriptionTree() {
+  RootFile::readEntryDescriptionTree(EntryDescriptionMap& entryDescriptionMap) {
     // Called only for old format files.
-    if(!fileFormatVersion().perEventProductIDs()) return;
     // We use a smart pointer so the tree will be deleted after use, and not kept for the life of the file.
     std::unique_ptr<TTree> entryDescriptionTree(dynamic_cast<TTree*>(filePtr_->Get(poolNames::entryDescriptionTreeName().c_str())));
     if(nullptr == entryDescriptionTree.get()) {
@@ -485,8 +484,6 @@ namespace edm {
     EntryDescriptionID idBuffer;
     EntryDescriptionID* pidBuffer = &idBuffer;
     entryDescriptionTree->SetBranchAddress(poolNames::entryDescriptionIDBranchName().c_str(), &pidBuffer);
-
-    EntryDescriptionRegistry& oldregistry = *EntryDescriptionRegistry::instance();
 
     EventEntryDescription entryDescriptionBuffer;
     EventEntryDescription *pEntryDescriptionBuffer = &entryDescriptionBuffer;
@@ -500,7 +497,7 @@ namespace edm {
       if(idBuffer != entryDescriptionBuffer.id()) {
         throw Exception(errors::EventCorruption) << "Corruption of EntryDescription tree detected.\n";
       }
-      oldregistry.insertMapped(entryDescriptionBuffer);
+      entryDescriptionMap.insert(std::make_pair(entryDescriptionBuffer.id(),entryDescriptionBuffer));
       Parentage parents;
       parents.setParents(entryDescriptionBuffer.parents());
       if(daqProvenanceHelper_) {
@@ -519,11 +516,6 @@ namespace edm {
 
   void
   RootFile::readParentageTree() {
-    if(!fileFormatVersion().splitProductIDs()) {
-      // Old format file.
-      readEntryDescriptionTree();
-      return;
-    }
     // New format file
     // We use a smart pointer so the tree will be deleted after use, and not kept for the life of the file.
     std::unique_ptr<TTree> parentageTree(dynamic_cast<TTree*>(filePtr_->Get(poolNames::parentageTreeName().c_str())));
@@ -1722,13 +1714,17 @@ namespace edm {
   }
 
   std::unique_ptr<MakeProvenanceReader>
-  RootFile::makeProvenanceReaderMaker() const {
+  RootFile::makeProvenanceReaderMaker() {
     if(fileFormatVersion_.storedProductProvenanceUsed()) {
+      readParentageTree();
       return std::unique_ptr<MakeProvenanceReader>(new MakeReducedProvenanceReader(parentageIDLookup_));
     } else if(fileFormatVersion_.splitProductIDs()) {
+      readParentageTree();
       return std::unique_ptr<MakeProvenanceReader>(new MakeFullProvenanceReader);
     } else if(fileFormatVersion_.perEventProductIDs()) {
-      return std::unique_ptr<MakeProvenanceReader>(new MakeOldProvenanceReader);
+      std::unique_ptr<EntryDescriptionMap> entryDescriptionMap(new EntryDescriptionMap);
+      readEntryDescriptionTree(*entryDescriptionMap);
+      return std::unique_ptr<MakeProvenanceReader>(new MakeOldProvenanceReader(std::move(entryDescriptionMap)));
     } else {
       return std::unique_ptr<MakeProvenanceReader>(new MakeDummyProvenanceReader);
     }
@@ -1831,21 +1827,23 @@ namespace edm {
 
   class OldProvenanceReader : public ProvenanceReaderBase {
   public:
-    explicit OldProvenanceReader(RootTree* rootTree, DaqProvenanceHelper const* daqProvenanceHelper);
+    explicit OldProvenanceReader(RootTree* rootTree, EntryDescriptionMap const& theMap, DaqProvenanceHelper const* daqProvenanceHelper);
     virtual ~OldProvenanceReader() {}
   private:
     virtual void readProvenance(BranchMapper const& mapper) const;
     RootTree* rootTree_;
     std::vector<EventEntryInfo> infoVector_;
     mutable std::vector<EventEntryInfo> *pInfoVector_;
+    EntryDescriptionMap const& entryDescriptionMap_;
     DaqProvenanceHelper const* daqProvenanceHelper_;
   };
 
-  OldProvenanceReader::OldProvenanceReader(RootTree* rootTree, DaqProvenanceHelper const* daqProvenanceHelper) :
+  OldProvenanceReader::OldProvenanceReader(RootTree* rootTree, EntryDescriptionMap const& theMap, DaqProvenanceHelper const* daqProvenanceHelper) :
          ProvenanceReaderBase(),
          rootTree_(rootTree),
          infoVector_(),
          pInfoVector_(&infoVector_),
+         entryDescriptionMap_(theMap),
          daqProvenanceHelper_(daqProvenanceHelper) {
   }
 
@@ -1855,9 +1853,9 @@ namespace edm {
     roottree::getEntry(rootTree_->branchEntryInfoBranch(), rootTree_->entryNumber());
     setRefCoreStreamer(true);
     for(auto const& info : infoVector_) {
-      EventEntryDescription eed;
-      EntryDescriptionRegistry::instance()->getMapped(info.entryDescriptionID(), eed);
-      Parentage parentage(eed.parents());
+      EntryDescriptionMap::const_iterator iter = entryDescriptionMap_.find(info.entryDescriptionID());
+      assert(iter != entryDescriptionMap_.end());
+      Parentage parentage(iter->second.parents());
       if(daqProvenanceHelper_) {
         ProductProvenance entry(daqProvenanceHelper_->mapBranchID(info.branchID()),
                                 daqProvenanceHelper_->mapParentageID(parentage.id()));
@@ -1894,7 +1892,7 @@ namespace edm {
 
   std::unique_ptr<ProvenanceReaderBase>
   MakeOldProvenanceReader::makeReader(RootTree& rootTree, DaqProvenanceHelper const* daqProvenanceHelper) const {
-    return std::unique_ptr<ProvenanceReaderBase>(new OldProvenanceReader(&rootTree, daqProvenanceHelper));
+    return std::unique_ptr<ProvenanceReaderBase>(new OldProvenanceReader(&rootTree, *entryDescriptionMap_, daqProvenanceHelper));
   }
 
   std::unique_ptr<ProvenanceReaderBase>
