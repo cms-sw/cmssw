@@ -11,7 +11,6 @@ Monitoring source to measure the track efficiency
 //  Original Author:  Jeremy Andrea
 // Insertion in DQM:  Anne-Catherine Le Bihan
 //          Created:  Thu 28 22:45:30 CEST 2008
-// $Id: TrackEfficiencyMonitor.h,v 1.1 2012/10/15 13:24:45 threus Exp $
 
 #include <memory>
 #include <fstream>

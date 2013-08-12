@@ -5,7 +5,6 @@
  */
 // Original Author:  Dorian Kcira
 //         Created:  Wed Feb  1 16:42:34 CET 2006
-// $Id: SiStripMonitorCluster.cc,v 1.86 2013/01/02 14:22:27 wmtan Exp $
 #include <vector>
 #include <numeric>
 #include <fstream>

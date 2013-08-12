@@ -10,7 +10,6 @@
  */
 // Original Author:  Nhan Tran
 //         Created:  Thu 28 22:45:30 CEST 2008
-// $Id: TrackSplittingMonitor.h,v 1.2 2009/11/05 17:07:51 boudoul Exp $
 
 #include <memory>
 #include <fstream>

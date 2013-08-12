@@ -13,7 +13,6 @@
 //
 // Original Author:  Suchandra Dutta
 //         Created:  Fri June  1 17:00:00 CET 2007
-// $Id: SiStripMonitorRawData.cc,v 1.7 2009/11/05 21:08:29 dutta Exp $
 //
 //
 

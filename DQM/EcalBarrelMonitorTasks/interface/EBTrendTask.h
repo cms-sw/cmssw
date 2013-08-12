@@ -4,8 +4,6 @@
 /*
  * \file EBTrendTask.h
  *
- * $Date: 2010/02/08 21:35:03 $
- * $Revision: 1.3 $
  * \author Dongwook Jang, Soon Yung Jun
  *
  */

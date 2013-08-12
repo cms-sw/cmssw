@@ -1,6 +1,5 @@
 // Original Author:  Anne-Marie Magnan
 //         Created:  2010/02/25
-// $Id: SiStripSpyIdentifyRuns.cc,v 1.2 2010/04/26 15:00:55 amagnan Exp $
 //
 
 #include <sstream>

@@ -7,10 +7,7 @@
  *
  * Version 0.0. A.Savin 2008/04/26
  *
- * $Date: 2011/10/24 14:41:23 $
- * $Revision: 1.15 $
  * \author P. Wittich
- * $Id: L1TdeRCT.h,v 1.15 2011/10/24 14:41:23 asavin Exp $
  * $Log: L1TdeRCT.h,v $
  * Revision 1.15  2011/10/24 14:41:23  asavin
  * L1TdeRCT includes bit histos + cut of 2 GeV on EcalTPG hist

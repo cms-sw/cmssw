@@ -5,8 +5,6 @@
  * *
  *  Class that handles the SiPixel color codes
  * 
- *  $Date: 2009/06/18 14:03:57 $
- *  $Revision: 1.2 $
  *  \author Dario Menasce
  *
  *  This namespace defines a color space to produce 

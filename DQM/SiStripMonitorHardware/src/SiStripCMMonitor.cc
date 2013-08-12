@@ -10,7 +10,6 @@
 */
 //
 //         Created:  2009/07/22
-// $Id: SiStripCMMonitor.cc,v 1.2 2013/01/02 14:30:24 wmtan Exp $
 //
 
 #include <sstream>

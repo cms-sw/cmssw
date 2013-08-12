@@ -1,8 +1,6 @@
 /*
  * \file EBDaqInfoTask.cc
  *
- * $Date: 2011/08/30 09:30:32 $
- * $Revision: 1.12 $
  * \author E. Di Marco
  *
 */

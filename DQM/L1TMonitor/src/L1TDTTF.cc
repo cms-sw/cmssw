@@ -1,8 +1,6 @@
 /*
  * \file L1TDTTF.cc
  *
- * $Date: 2010/11/02 13:58:20 $
- * $Revision: 1.28 $
  * \author J. Berryhill
  *
  * $Log: L1TDTTF.cc,v $

@@ -1,8 +1,6 @@
 /*
  * \file L1TGMT.cc
  *
- * $Date: 2010/01/13 13:04:58 $
- * $Revision: 1.27 $
  * \author J. Berryhill, I. Mikulec
  *
  */

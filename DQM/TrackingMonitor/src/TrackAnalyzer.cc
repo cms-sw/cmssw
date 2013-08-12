@@ -1,8 +1,6 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2012/03/28 14:05:53 $
- *  $Revision: 1.24 $
  *  \author Suchandra Dutta , Giorgia Mila
  */
 

@@ -13,7 +13,6 @@
 //
 // Original Author:  Christophe DELAERE
 //         Created:  Fri Jan 18 12:17:46 CET 2008
-// $Id: SiStripCommissioningRunTypeFilter.cc,v 1.1 2008/01/18 14:07:37 delaer Exp $
 //
 //
 

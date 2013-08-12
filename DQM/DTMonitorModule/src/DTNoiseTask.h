@@ -4,8 +4,6 @@
 /** \class DTNoiseTask
  *  No description available.
  *
- *  $Date: 2010/02/11 00:10:56 $
- *  $Revision: 1.8 $
  *  \authors G. Mila , G. Cerminara - INFN Torino
  */
 

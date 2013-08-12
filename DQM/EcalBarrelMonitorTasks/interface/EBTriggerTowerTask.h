@@ -4,8 +4,6 @@
 /*
  * \file EBTriggerTowerTask.h
  *
- * $Date: 2011/08/30 09:32:03 $
- * $Revision: 1.30 $
  *
 */
 

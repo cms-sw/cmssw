@@ -1,8 +1,6 @@
 /*
  * \file L1TDTTPG.cc
  *
- * $Date: 2008/03/20 19:38:25 $
- * $Revision: 1.20 $
  * \author J. Berryhill
  *
  * $Log: L1TDTTPG.cc,v $

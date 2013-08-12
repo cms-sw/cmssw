@@ -1,8 +1,6 @@
 /*
  * \file L1TRate.cc
  *
- * $Date: 2011/11/02 12:24:57 $
- * $Revision: 1.10 $
  * \author J. Pela, P. Musella
  *
  */

@@ -5,10 +5,7 @@
 /*
  * \file L1TGCT.h
  *
- * $Date: 2012/03/29 21:16:48 $
- * $Revision: 1.24 $
  * \author J. Berryhill
- * $Id: L1TGCT.h,v 1.24 2012/03/29 21:16:48 rovere Exp $
  * $Log: L1TGCT.h,v $
  * Revision 1.24  2012/03/29 21:16:48  rovere
  * Removed all instances of hltTriggerTypeFilter from L1T DQM Code.

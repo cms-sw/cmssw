@@ -1,4 +1,3 @@
-// $Id: L1Scalers.cc,v 1.26 2010/07/20 19:55:57 wmtan Exp $
 #include <iostream>
 
 

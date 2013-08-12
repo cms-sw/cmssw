@@ -4,8 +4,6 @@
 /*
  * \file EBLaserTask.h
  *
- * $Date: 2011/08/12 16:01:18 $
- * $Revision: 1.36 $
  * \author G. Della Ricca
  *
 */
