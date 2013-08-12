@@ -13,7 +13,6 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Jun 24 19:13:25 EDT 2005
-// $Id: WhatsItAnalyzer.cc,v 1.10 2007/08/08 16:44:49 wmtan Exp $
 //
 //
 

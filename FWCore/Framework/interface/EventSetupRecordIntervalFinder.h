@@ -16,7 +16,6 @@
 //
 // Author:      Chris Jones
 // Created:     Tue Mar 29 16:15:11 EST 2005
-// $Id: EventSetupRecordIntervalFinder.h,v 1.9 2007/01/12 14:38:57 chrjones Exp $
 //
 
 // system include files

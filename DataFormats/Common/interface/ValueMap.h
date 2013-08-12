@@ -4,7 +4,6 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: ValueMap.h,v 1.19 2011/03/08 18:47:15 chrjones Exp $
  *
  */
 

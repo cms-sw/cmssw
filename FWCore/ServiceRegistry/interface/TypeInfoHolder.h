@@ -18,7 +18,6 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Sep  5 14:38:42 EDT 2005
-// $Id: TypeInfoHolder.h,v 1.2 2005/09/10 02:08:48 wmtan Exp $
 //
 
 // system include files

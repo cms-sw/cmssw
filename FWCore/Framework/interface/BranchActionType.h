@@ -5,7 +5,6 @@
   
 BranchActionType: BranchAction
 
-$Id: BranchActionType.h,v 1.2 2007/06/05 04:02:30 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 namespace edm {

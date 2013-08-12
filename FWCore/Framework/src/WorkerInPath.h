@@ -5,7 +5,6 @@
 
 	Author: Jim Kowalkowski 28-01-06
 
-	$Id: WorkerInPath.h,v 1.13 2010/07/24 14:15:28 wmtan Exp $
 
 	A wrapper around a Worker, so that statistics can be managed
 	per path.  A Path holds Workers as these things.

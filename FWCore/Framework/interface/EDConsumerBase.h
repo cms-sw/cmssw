@@ -16,7 +16,6 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue, 02 Apr 2013 21:35:53 GMT
-// $Id: EDConsumerBase.h,v 1.6 2013/06/07 17:58:31 chrjones Exp $
 //
 
 // system include files
