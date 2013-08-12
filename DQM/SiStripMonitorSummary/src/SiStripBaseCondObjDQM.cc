@@ -188,7 +188,6 @@ void SiStripBaseCondObjDQM::selectModules(std::vector<uint32_t> & detIds_){
 	}
       }
     }
-    edm::LogInfo("SiStripBaseCondObjDQM") << "[SiStripBaseCondObjDQM::selectModules] modulesToBeIncluded: " << modulesToBeIncluded.size() << std::endl;
     
     // -----
     // *** exclude modules ***
@@ -208,7 +207,6 @@ void SiStripBaseCondObjDQM::selectModules(std::vector<uint32_t> & detIds_){
 	}
       }
     }
-    edm::LogInfo("SiStripBaseCondObjDQM") << "[SiStripBaseCondObjDQM::selectModules] modulesToBeExcluded: " << modulesToBeExcluded.size() << std::endl;
     
     ModulesToBeExcluded_     = fPSet_.getParameter< std::vector<unsigned int> >("ModulesToBeExcluded");
     ModulesToBeIncluded_     = fPSet_.getParameter< std::vector<unsigned int> >("ModulesToBeIncluded");
@@ -227,6 +225,9 @@ void SiStripBaseCondObjDQM::selectModules(std::vector<uint32_t> & detIds_){
     
     
     modulesToBeIncluded.insert(modulesToBeIncluded.end(),ModulesToBeIncluded_.begin(),ModulesToBeIncluded_.end());
+    edm::LogInfo("SiStripBaseCondObjDQM") << "[SiStripBaseCondObjDQM::selectModules] modulesToBeIncluded: " << modulesToBeIncluded.size() << std::endl;
+    modulesToBeExcluded.insert(modulesToBeExcluded.end(),ModulesToBeExcluded_.begin(),ModulesToBeExcluded_.end());
+    edm::LogInfo("SiStripBaseCondObjDQM") << "[SiStripBaseCondObjDQM::selectModules] modulesToBeExcluded: " << modulesToBeExcluded.size() << std::endl;
     
     // apply modules selection
     if( modulesToBeIncluded.size()>0 ){
@@ -240,10 +241,7 @@ void SiStripBaseCondObjDQM::selectModules(std::vector<uint32_t> & detIds_){
     
     edm::LogInfo("SiStripBaseCondObjDQM") << "[SiStripBaseCondObjDQM::selectModules] after included detIds_: " << detIds_.size() << std::endl;
     
-    
     std::sort(detIds_.begin(),detIds_.end());
-    
-    modulesToBeExcluded.insert(modulesToBeExcluded.end(),ModulesToBeExcluded_.begin(),ModulesToBeExcluded_.end());
     if(modulesToBeExcluded.size()>0) {
       for( std::vector<uint32_t>::const_iterator mod = modulesToBeExcluded.begin(); 
 	   mod != modulesToBeExcluded.end(); mod++){
