@@ -13,7 +13,6 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed May 30 14:42:16 CDT 2012
-// $Id$
 //
 //
 

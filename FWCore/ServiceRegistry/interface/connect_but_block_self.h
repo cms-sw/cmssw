@@ -17,7 +17,6 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Sep 22 20:42:32 CEST 2005
-// $Id: connect_but_block_self.h,v 1.3 2007/01/22 23:04:27 wmtan Exp $
 //
 
 // system include files

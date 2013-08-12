@@ -16,7 +16,6 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Jul 17 09:03:32 EDT 2006
-// $Id: ESProducerLooper.h,v 1.1 2006/07/23 01:24:33 valya Exp $
 //
 
 // system include files

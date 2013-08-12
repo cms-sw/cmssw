@@ -35,7 +35,6 @@
  *   }
  *
  *
- * \version $Id: AssociativeIterator.h,v 1.1 2008/04/30 17:07:50 gpetrucc Exp $
  *
  */
 

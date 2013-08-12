@@ -3,7 +3,6 @@
 Test program for RootAutoLibraryLoader class.
 Changed by Viji on 29-06-2005
 
-$Id$
  ----------------------------------------------------------------------*/
 
 #include <cassert>

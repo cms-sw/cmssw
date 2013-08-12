@@ -18,7 +18,6 @@ the ESProducer's 'produce' method.
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Jun 22 11:40:41 EDT 2005
-// $Id: ESPreFunctorDecorator.h,v 1.5 2005/09/01 05:39:14 wmtan Exp $
 //
 
 // system include files
