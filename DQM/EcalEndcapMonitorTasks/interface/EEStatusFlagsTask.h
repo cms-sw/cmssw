@@ -4,8 +4,6 @@
 /*
  * \file EEStatusFlagsTask.h
  *
- * $Date: 2012/03/20 20:26:49 $
- * $Revision: 1.10.18.1 $
  * \author G. Della Ricca
  *
 */

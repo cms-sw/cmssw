@@ -1,4 +1,3 @@
-// Last commit: $Id: OptoScanHistosUsingDb.h,v 1.12 2009/10/09 09:27:06 lowette Exp $
 
 #ifndef DQM_SiStripCommissioningClients_OptoScanHistosUsingDb_H
 #define DQM_SiStripCommissioningClients_OptoScanHistosUsingDb_H

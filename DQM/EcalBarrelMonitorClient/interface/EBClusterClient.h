@@ -4,8 +4,6 @@
 /*
  * \file EBClusterClient.h
  *
- * $Date: 2009/10/28 08:18:20 $
- * $Revision: 1.35 $
  * \author G. Della Ricca
  * \author F. Cossutti
  * \author E. Di Marco

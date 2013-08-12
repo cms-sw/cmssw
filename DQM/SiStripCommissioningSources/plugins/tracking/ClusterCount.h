@@ -15,7 +15,6 @@
 //
 // Original Author:  Christophe DELAERE
 //         Created:  Tue May 27 11:11:05 CEST 2008
-// $Id: ClusterCount.h,v 1.3 2010/02/20 20:59:01 wmtan Exp $
 //
 //
 

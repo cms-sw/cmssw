@@ -1,4 +1,3 @@
-// Last commit: $Id: SiStripTFile.h,v 1.1 2007/04/04 07:16:15 bainbrid Exp $
 
 #ifndef DQM_SiStripCommissioningClients_SiStripTFile_H
 #define DQM_SiStripCommissioningClients_SiStripTFile_H

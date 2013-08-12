@@ -16,7 +16,6 @@
 //        Vladimir Rekovic, July 2010
 //
 //
-// $Id: TrigResRateMon.h,v 1.10 2011/09/14 16:34:55 lwming Exp $
 //
 //
 

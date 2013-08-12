@@ -1,8 +1,6 @@
 /*
  * \file L1TSync.cc
  *
- * $Date: 2011/11/15 10:41:01 $
- * $Revision: 1.10 $
  * \author J. Pela, P. Musella
  *
  */

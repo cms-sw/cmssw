@@ -9,7 +9,6 @@
 // Original Author:  dkcira
 //         Created:  Thu Jan 26 23:52:43 CET 2006
 
-// $Id: SiStripFolderOrganizer.cc,v 1.31 2013/01/02 17:37:22 wmtan Exp $
 //
 
 #include <iostream>
