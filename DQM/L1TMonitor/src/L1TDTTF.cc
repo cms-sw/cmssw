@@ -1,13 +1,8 @@
 /*
  * \file L1TDTTF.cc
  *
- * $Date: 2010/11/02 13:58:20 $
- * $Revision: 1.28 $
  * \author J. Berryhill
  *
- * $Log: L1TDTTF.cc,v $
- * Revision 1.28  2010/11/02 13:58:20  gcodispo
- * Added protection against missing products
  *
  * Revision 1.27  2010/11/01 11:27:53  gcodispo
  * Cleaned up 2nd track sections
@@ -74,9 +69,6 @@
  * Revision 1.16  2008/03/01 00:40:00  lat
  * DQM core migration.
  *
- * $Log: L1TDTTF.cc,v $
- * Revision 1.28  2010/11/02 13:58:20  gcodispo
- * Added protection against missing products
  *
  * Revision 1.27  2010/11/01 11:27:53  gcodispo
  * Cleaned up 2nd track sections

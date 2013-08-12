@@ -2,7 +2,6 @@
 //
 // Package: DQM/TrackerCommon
 //
-// $Id: TrackerRunCertification.C,v 1.4 2010/08/03 17:19:06 vadler Exp $
 //
 /**
   \brief    Performs DQM offline data certification for SiStrip, Pixel and Tracking
@@ -81,7 +80,6 @@
        display this help and exit
 
   \author   Volker Adler
-  \version  $Id: TrackerRunCertification.C,v 1.4 2010/08/03 17:19:06 vadler Exp $
 */
 
 #include <algorithm>

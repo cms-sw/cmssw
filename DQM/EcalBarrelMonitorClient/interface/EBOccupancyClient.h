@@ -4,8 +4,6 @@
 /*
  * \file EBOccupancyClient.h
  *
- * $Date: 2009/10/28 08:18:21 $
- * $Revision: 1.19 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *

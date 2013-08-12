@@ -5,8 +5,6 @@
  * *
  *  Class to calculate corrections to the fine delays loaded in DT MiniCrates
  *
- *  $Date: 2009/10/30 14:27:54 $
- *  $Revision: 1.1 $
  *  \author  M. Giunta, C. Battilana
  *   
  */

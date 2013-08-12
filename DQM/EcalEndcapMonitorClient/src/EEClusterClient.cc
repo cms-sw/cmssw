@@ -1,8 +1,6 @@
 /*
  * \file EEClusterClient.cc
  *
- * $Date: 2011/08/30 09:29:44 $
- * $Revision: 1.65 $
  * \author G. Della Ricca
  * \author E. Di Marco
  *

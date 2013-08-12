@@ -4,8 +4,6 @@
 /*
  * \file L1TRate.h
  *
- * $Date: 2011/07/28 16:03:54 $
- * $Revision: 1.3 $
  * \author J. Pela
  *
 */

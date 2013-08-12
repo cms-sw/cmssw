@@ -15,8 +15,6 @@
 /*
  * \file HcalSummaryClient.cc
  * 
- * $Date: 2011/04/26 15:33:10 $
- * $Revision: 1.106 $
  * \author J. Temple
  * \brief Summary Client class
  */

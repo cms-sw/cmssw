@@ -7,7 +7,6 @@
 */
 //
 //         Created:  2009/12/07
-// $Id: SiStripShotFilter.cc,v 1.1 2012/10/15 09:02:47 threus Exp $
 //
 
 #include <sstream>

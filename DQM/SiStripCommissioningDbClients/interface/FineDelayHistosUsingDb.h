@@ -1,4 +1,3 @@
-// Last commit: $Id: FineDelayHistosUsingDb.h,v 1.10 2009/06/18 20:52:35 lowette Exp $
 
 #ifndef DQM_SiStripCommissioningClients_FineDelayHistosUsingDb_H
 #define DQM_SiStripCommissioningClients_FineDelayHistosUsingDb_H

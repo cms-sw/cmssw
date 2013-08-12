@@ -16,7 +16,6 @@
 //
 // Original Author:  dutta
 //         Created:  Sat Feb  4 20:49:51 CET 2006
-// $Id: SiStripMonitorRawData.h,v 1.5 2009/11/05 21:08:29 dutta Exp $
 //
 
 // system include files
