@@ -274,6 +274,11 @@ namespace edm {
     void
     registerFromString(std::string const& rep);
 
+    // return ID of empty parameter set without registering it.
+    static
+    ParameterSetID
+    emptyParameterSetID();
+
   private:
     // construct from coded string and id.
     ParameterSet(std::string const& rep, ParameterSetID const& id);
