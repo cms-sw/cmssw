@@ -1,8 +1,6 @@
 /*
  * \file EBSummaryClient.cc
  *
- * $Date: 2012/05/18 09:11:54 $
- * $Revision: 1.231 $
  * \author G. Della Ricca
  *
 */

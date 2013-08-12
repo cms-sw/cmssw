@@ -3,8 +3,6 @@
 
 /** \class TKStatus
  * *
- *  $Date: 2010/05/11 23:56:07 $
- *  $Revision: 1.1 $
  *  \author  Geng-yuan Jeng/UC Riverside
  *           Francisco Yumiceva/FNAL
  *   

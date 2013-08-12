@@ -2,8 +2,6 @@
  *
  *  DQM source for BJet HLT paths
  *
- *  $Date: 2009/11/11 13:31:50 $
- *  $Revision: 1.10 $
  *  \author Andrea Bocci, Pisa
  *
  */

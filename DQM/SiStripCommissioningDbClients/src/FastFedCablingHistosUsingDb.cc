@@ -1,4 +1,3 @@
-// Last commit: $Id: FastFedCablingHistosUsingDb.cc,v 1.22 2009/06/18 20:52:37 lowette Exp $
 
 #include "DQM/SiStripCommissioningDbClients/interface/FastFedCablingHistosUsingDb.h"
 #include "CondFormats/SiStripObjects/interface/FastFedCablingAnalysis.h"

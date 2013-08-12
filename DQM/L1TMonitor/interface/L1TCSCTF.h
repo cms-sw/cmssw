@@ -4,8 +4,6 @@
 /*
  * \file L1TCSCTF.h
  *
- * $Date: 2011/12/29 20:49:26 $
- * $Revision: 1.16 $
  * \author J. Berryhill
  *
 */

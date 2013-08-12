@@ -1,8 +1,6 @@
 /*
  * \file EEDcsInfoTask.cc
  *
- * $Date: 2011/08/30 09:28:42 $
- * $Revision: 1.20 $
  * \author E. Di Marco
  *
 */

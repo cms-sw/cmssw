@@ -13,7 +13,6 @@
 //
 // Original Author:  Vincenzo Chiochia & Andrew York
 //         Created:  
-// $Id: SiPixelClusterSource.cc,v 1.28 2010/06/11 00:49:53 merkelp Exp $
 //
 //
 // Updated by: Lukas Wehrli

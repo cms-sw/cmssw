@@ -4,8 +4,6 @@
 /*
  * \file EBOccupancyTask.h
  *
- * $Date: 2012/03/18 17:20:53 $
- * $Revision: 1.25.16.1 $
  * \author G. Della Ricca
  *
 */

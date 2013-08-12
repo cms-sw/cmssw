@@ -7,7 +7,6 @@
 // Package:    DQM/TrackerCommon
 // Class:      TriggerHelper
 //
-// $Id: TriggerHelper.h,v 1.8 2010/03/27 12:09:10 dutta Exp $
 //
 /**
   \class    TriggerHelper TriggerHelper.h "DQM/TrackerCommon/interface/TriggerHelper.h"
@@ -16,7 +15,6 @@
    [...]
 
   \author   Volker Adler
-  \version  $Id: TriggerHelper.h,v 1.8 2010/03/27 12:09:10 dutta Exp $
 */
 
 

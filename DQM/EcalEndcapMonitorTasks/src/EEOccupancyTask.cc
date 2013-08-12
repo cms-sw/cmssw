@@ -1,8 +1,6 @@
 /*
  * \file EEOccupancyTask.cc
  *
- * $Date: 2012/03/18 17:21:01 $
- * $Revision: 1.89.4.1 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *

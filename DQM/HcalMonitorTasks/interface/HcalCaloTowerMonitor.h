@@ -10,8 +10,6 @@
 
 /** \class HcalCaloTowerMonitor
   *  
-  * $Date: 2008/03/05 20:48:57 $
-  * $Revision: 1.1 $
   * \author J. Temple - Univ. of Maryland
   */
 
