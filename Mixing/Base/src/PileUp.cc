@@ -57,9 +57,7 @@ namespace edm {
     seed_(0) {
 
     // Use the empty parameter set for the parameter set ID of our "@MIXING" process.
-    ParameterSet emptyPSet;
-    emptyPSet.registerIt();
-    processConfiguration_->setParameterSetID(emptyPSet.id());
+    processConfiguration_->setParameterSetID(ParameterSet::emptyParameterSetID());
 
     if(pset.existsAs<std::vector<ParameterSet> >("producers", true)) {
       std::vector<ParameterSet> producers = pset.getParameter<std::vector<ParameterSet> >("producers");
