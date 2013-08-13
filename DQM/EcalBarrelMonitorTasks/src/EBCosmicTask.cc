@@ -1,8 +1,6 @@
 /*
  * \file EBCosmicTask.cc
  *
- * $Date: 2011/08/30 09:30:32 $
- * $Revision: 1.118 $
  * \author G. Della Ricca
  *
 */

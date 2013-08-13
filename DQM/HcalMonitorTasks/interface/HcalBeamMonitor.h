@@ -15,8 +15,6 @@
 
 /** \class HcalBeamMonitor
   *
-  * $Date: 2010/03/25 18:04:33 $
-  * $Revision: 1.18 $
   * \author J. Temple - Univ. of Maryland
   */
 

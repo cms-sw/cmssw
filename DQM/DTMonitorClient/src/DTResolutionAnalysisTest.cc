@@ -3,8 +3,6 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2011/10/31 17:22:23 $
- *  $Revision: 1.24 $
  *  \author G. Mila - INFN Torino
  */
 

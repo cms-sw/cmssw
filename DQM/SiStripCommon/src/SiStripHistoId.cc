@@ -8,7 +8,6 @@
 //
 // Original Author:  dkcira
 //         Created:  Wed Feb 22 16:07:58 CET 2006
-// $Id: SiStripHistoId.cc,v 1.17 2013/01/02 17:37:22 wmtan Exp $
 //
 
 #include<iostream>

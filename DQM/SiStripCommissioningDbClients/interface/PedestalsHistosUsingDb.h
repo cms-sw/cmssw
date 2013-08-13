@@ -1,4 +1,3 @@
-// Last commit: $Id: PedestalsHistosUsingDb.h,v 1.12 2009/11/10 14:49:01 lowette Exp $
 
 #ifndef DQM_SiStripCommissioningClients_PedestalsHistosUsingDb_H
 #define DQM_SiStripCommissioningClients_PedestalsHistosUsingDb_H

@@ -11,8 +11,6 @@
 /*
  * \file HcalTrigPrimClient.cc
  * 
- * $Date: 2011/04/12 18:25:42 $
- * $Revision: 1.21 $
  * \author J. Temple
  * \brief Hcal Trigger Primitive Client class
  */

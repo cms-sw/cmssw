@@ -1,8 +1,6 @@
 /*
  * \file EETrendTask.cc
  *
- * $Date: 2011/08/30 09:28:42 $
- * $Revision: 1.13 $
  * \author Dongwook Jang, Soon Yung Jun
  *
 */

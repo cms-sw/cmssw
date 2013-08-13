@@ -6,8 +6,6 @@
  * *
  *  DQM Test Client
  *
- *  $Date: 2010/01/22 15:32:04 $
- *  $Revision: 1.6 $
  *  \author  M. Pelliccioni - INFN Torino
  *   
  */

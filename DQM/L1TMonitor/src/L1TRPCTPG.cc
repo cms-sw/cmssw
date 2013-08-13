@@ -1,8 +1,6 @@
 /*
  * \file L1TRPCTPG.cc
  *
- * $Date: 2009/11/19 14:40:21 $
- * $Revision: 1.12 $
  * \author J. Berryhill
  *
  */

@@ -2,8 +2,6 @@
  *
  * Class for RPC Monitoring using RPCDigi and DT and CSC Segments.
  *
- *  $Date: 2011/07/05 15:08:28 $
- *  $Revision: 1.7 $
  *
  * \author Camilo Carrillo (Uniandes)
  *
