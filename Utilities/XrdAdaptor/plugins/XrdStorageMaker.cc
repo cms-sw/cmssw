@@ -76,8 +76,8 @@ public:
 
   virtual void setDebugLevel (unsigned int level)
   {
-    //XrdCl::Log *log = XrdCl::DefaultEnv::GetLog();
-    //log->SetLevel(static_cast<XrdCl::Log::LogLevel>(level+2));
+    XrdCl::Log *log = XrdCl::DefaultEnv::GetLog();
+    log->SetLevel(static_cast<XrdCl::Log::LogLevel>(level+2));
   }
 };
 
