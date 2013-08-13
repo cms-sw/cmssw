@@ -1,7 +1,7 @@
 /*
- * NeutronSimHitsAnalyzer: analyzer module for SimHit level occupancy studies in muon systems
+ * MuSimHitOccupancy: analyzer module for SimHit level occupancy studies in muon systems
  *
- * The NeutronSimHitsAnalyzer that was used for CSC studies was taken as a base.
+ * The MuSimHitOccupancy that was used for CSC studies was taken as a base.
  *
  */
 
@@ -373,10 +373,10 @@ struct MyDTSimHit
 
 // ================================================================================================
 
-class NeutronSimHitsAnalyzer : public edm::EDAnalyzer {
+class MuSimHitOccupancy : public edm::EDAnalyzer {
 public:
-  explicit NeutronSimHitsAnalyzer(const edm::ParameterSet&);
-  ~NeutronSimHitsAnalyzer();
+  explicit MuSimHitOccupancy(const edm::ParameterSet&);
+  ~MuSimHitOccupancy();
 
   virtual void beginJob() ;
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
@@ -578,7 +578,7 @@ private:
 
 
 // ================================================================================================
-NeutronSimHitsAnalyzer::NeutronSimHitsAnalyzer(const edm::ParameterSet& iConfig)
+MuSimHitOccupancy::MuSimHitOccupancy(const edm::ParameterSet& iConfig)
 {
   // should be set to false if running over a regular MB sample
   input_is_neutrons_ = iConfig.getUntrackedParameter< bool >("inputIsNeutrons", true);
@@ -862,13 +862,13 @@ NeutronSimHitsAnalyzer::NeutronSimHitsAnalyzer(const edm::ParameterSet& iConfig)
 }
 
 // ================================================================================================
-NeutronSimHitsAnalyzer::~NeutronSimHitsAnalyzer()
+MuSimHitOccupancy::~MuSimHitOccupancy()
 {}
 
 
 // ================================================================================================
 void
-NeutronSimHitsAnalyzer::bookCSCSimHitsTrees()
+MuSimHitOccupancy::bookCSCSimHitsTrees()
 {
   edm::Service<TFileService> fs;
 
@@ -903,7 +903,7 @@ NeutronSimHitsAnalyzer::bookCSCSimHitsTrees()
 
 // ================================================================================================
 void
-NeutronSimHitsAnalyzer::bookGEMSimHitsTrees()
+MuSimHitOccupancy::bookGEMSimHitsTrees()
 {
   edm::Service<TFileService> fs;
   gem_sh_tree = fs->make<TTree>("GEMSimHitsTree", "GEMSimHitsTree");
@@ -938,7 +938,7 @@ NeutronSimHitsAnalyzer::bookGEMSimHitsTrees()
 
 // ================================================================================================
 void
-NeutronSimHitsAnalyzer::bookRPCSimHitsTrees()
+MuSimHitOccupancy::bookRPCSimHitsTrees()
 {
   edm::Service<TFileService> fs;
   rpc_sh_tree = fs->make<TTree>("RPCSimHitsTree", "RPCSimHitsTree");
@@ -973,7 +973,7 @@ NeutronSimHitsAnalyzer::bookRPCSimHitsTrees()
 
 // ================================================================================================
 void
-NeutronSimHitsAnalyzer::bookDTSimHitsTrees()
+MuSimHitOccupancy::bookDTSimHitsTrees()
 {
   edm::Service<TFileService> fs;
   dt_sh_tree = fs->make<TTree>("DTSimHitsTree", "DTSimHitsTree");
@@ -1579,7 +1579,7 @@ MyDTSimHit::init(PSimHit &sh, const DTGeometry* dt_g, const ParticleDataTable * 
 
 // ================================================================================================
 void
-NeutronSimHitsAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
+MuSimHitOccupancy::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   using namespace edm;
   using namespace std;
@@ -1654,7 +1654,7 @@ NeutronSimHitsAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup&
 
 // ================================================================================================
 void
-NeutronSimHitsAnalyzer::analyzeCSC()
+MuSimHitOccupancy::analyzeCSC()
 {
   using namespace edm;
   using namespace std;
@@ -1773,7 +1773,7 @@ NeutronSimHitsAnalyzer::analyzeCSC()
 
 // ================================================================================================
 void
-NeutronSimHitsAnalyzer::analyzeGEM()
+MuSimHitOccupancy::analyzeGEM()
 {
   using namespace edm;
   using namespace std;
@@ -1887,7 +1887,7 @@ NeutronSimHitsAnalyzer::analyzeGEM()
 
 // ================================================================================================
 void
-NeutronSimHitsAnalyzer::analyzeRPC()
+MuSimHitOccupancy::analyzeRPC()
 {
   using namespace edm;
   using namespace std;
@@ -2034,7 +2034,7 @@ NeutronSimHitsAnalyzer::analyzeRPC()
 
 // ================================================================================================
 void
-NeutronSimHitsAnalyzer::analyzeDT()
+MuSimHitOccupancy::analyzeDT()
 {
   using namespace edm;
   using namespace std;
@@ -2092,7 +2092,7 @@ NeutronSimHitsAnalyzer::analyzeDT()
 
 
 // ================================================================================================
-void NeutronSimHitsAnalyzer::calculateCSCDetectorAreas()
+void MuSimHitOccupancy::calculateCSCDetectorAreas()
 {
   for (int i=0; i<=CSC_TYPES; i++) csc_total_areas_cm2[i]=0.;
 
@@ -2139,7 +2139,7 @@ void NeutronSimHitsAnalyzer::calculateCSCDetectorAreas()
 
 
 // ================================================================================================
-void NeutronSimHitsAnalyzer::calculateGEMDetectorAreas()
+void MuSimHitOccupancy::calculateGEMDetectorAreas()
 {
   std::vector<float> emptyv(12, 0.);
   float minr[GEM_TYPES+1], maxr[GEM_TYPES+1];
@@ -2191,7 +2191,7 @@ void NeutronSimHitsAnalyzer::calculateGEMDetectorAreas()
 
 
 // ================================================================================================
-void NeutronSimHitsAnalyzer::calculateDTDetectorAreas()
+void MuSimHitOccupancy::calculateDTDetectorAreas()
 {
   for (int i=0; i<=DT_TYPES; i++) dt_total_areas_cm2[i]=0.;
 
@@ -2224,7 +2224,7 @@ void NeutronSimHitsAnalyzer::calculateDTDetectorAreas()
 
 
 // ================================================================================================
-void NeutronSimHitsAnalyzer::calculateRPCDetectorAreas()
+void MuSimHitOccupancy::calculateRPCDetectorAreas()
 {
   for (int i=0; i<=RPCB_TYPES; i++) rpcb_total_areas_cm2[i]=0.;
   for (int i=0; i<=RPCF_TYPES; i++) rpcf_total_areas_cm2[i]=0.;
@@ -2269,11 +2269,11 @@ void NeutronSimHitsAnalyzer::calculateRPCDetectorAreas()
 
 
 // ================================================================================================
-void NeutronSimHitsAnalyzer::beginJob() {}
+void MuSimHitOccupancy::beginJob() {}
 
 
 // ================================================================================================
-void NeutronSimHitsAnalyzer::endJob()
+void MuSimHitOccupancy::endJob()
 {
   using namespace std;
   cout<<"******************* COUNTERS *******************"<<endl;
@@ -2531,7 +2531,7 @@ void NeutronSimHitsAnalyzer::endJob()
 
 
 // ================================================================================================
-std::vector<std::vector<MyCSCSimHit> > NeutronSimHitsAnalyzer::clusterCSCHitsInLayer(std::vector<MyCSCSimHit> &hits)
+std::vector<std::vector<MyCSCSimHit> > MuSimHitOccupancy::clusterCSCHitsInLayer(std::vector<MyCSCSimHit> &hits)
 {
   /* Does recursive clustering:
       - sort by WG,Strip,TOF
@@ -2585,7 +2585,7 @@ std::vector<std::vector<MyCSCSimHit> > NeutronSimHitsAnalyzer::clusterCSCHitsInL
 
 
 // ================================================================================================
-std::vector<std::vector<MyGEMSimHit> > NeutronSimHitsAnalyzer::clusterGEMHitsInPart(std::vector<MyGEMSimHit> &hits)
+std::vector<std::vector<MyGEMSimHit> > MuSimHitOccupancy::clusterGEMHitsInPart(std::vector<MyGEMSimHit> &hits)
 {
   /* Does recursive clustering:
       - sort by Strip,TOF
@@ -2637,7 +2637,7 @@ std::vector<std::vector<MyGEMSimHit> > NeutronSimHitsAnalyzer::clusterGEMHitsInP
 }
 
 // ================================================================================================
-std::vector<std::vector<MyRPCSimHit> > NeutronSimHitsAnalyzer::clusterRPCHitsInRoll(std::vector<MyRPCSimHit> &hits)
+std::vector<std::vector<MyRPCSimHit> > MuSimHitOccupancy::clusterRPCHitsInRoll(std::vector<MyRPCSimHit> &hits)
 {
   /* Does recursive clustering:
       - sort by Strip,TOF
@@ -2691,4 +2691,4 @@ std::vector<std::vector<MyRPCSimHit> > NeutronSimHitsAnalyzer::clusterRPCHitsInR
 
 // ================================================================================================
 //define this as a plug-in
-DEFINE_FWK_MODULE(NeutronSimHitsAnalyzer);
+DEFINE_FWK_MODULE(MuSimHitOccupancy);

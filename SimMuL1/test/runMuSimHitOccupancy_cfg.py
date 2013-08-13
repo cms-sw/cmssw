@@ -71,12 +71,14 @@ process.TFileService = cms.Service("TFileService",
 )
 
 
-process.neutronAna = cms.EDAnalyzer("NeutronSimHitsAnalyzer",
+process.neutronAna = cms.EDAnalyzer("MuSimHitOccupancy",
     inputIsNeutrons = cms.untracked.bool(not isMB),
     inputTagCSC = cms.untracked.InputTag("g4SimHits","MuonCSCHits"),
+    inputTagGEM = cms.untracked.InputTag("g4SimHits","MuonGEMHits"),
     inputTagRPC = cms.untracked.InputTag("g4SimHits","MuonRPCHits"),
     inputTagDT  = cms.untracked.InputTag("g4SimHits","MuonDTHits")
     #inputTagCSC = cms.untracked.InputTag("g4SimHitsNeutrons","MuonCSCHits"),
+    #inputTagGEM = cms.untracked.InputTag("g4SimHitsNeutrons","MuonGEMHits"),
     #inputTagRPC = cms.untracked.InputTag("g4SimHitsNeutrons","MuonRPCHits"),
     #inputTagDT  = cms.untracked.InputTag("g4SimHitsNeutrons","MuonDTHits")
 )
