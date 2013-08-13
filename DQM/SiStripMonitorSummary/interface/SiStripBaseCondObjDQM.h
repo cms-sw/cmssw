@@ -30,6 +30,8 @@
 #include "DQM/SiStripCommon/interface/TkHistoMap.h"  /// ADDITON OF TK_HISTO_MAP
 #include "CommonTools/TrackerMap/interface/TrackerMap.h"
 
+#include "CommonTools/UtilAlgos/interface/DetIdSelector.h"
+
 #include <vector>
 #include <map>
 #include <string>
@@ -158,6 +160,10 @@ class SiStripBaseCondObjDQM {
     SiStripFolderOrganizer folder_organizer;         
     DQMStore* dqmStore_;
 
+    std::map<unsigned int, std::string> m_included_subdets;
+    std::map<unsigned int, DetIdSelector> m_included_subdetsels;
+    std::map<unsigned int, std::string> m_excluded_subdets;
+    std::map<unsigned int, DetIdSelector> m_excluded_subdetsels;
 };
 
 
