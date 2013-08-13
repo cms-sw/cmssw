@@ -141,6 +141,8 @@ public:
 private:
          std::string indention_;
          unsigned int depth_;
+         std::string dumpContextForLabel_;
+         bool dumpNonModuleContext_;
       };
    }
 }
