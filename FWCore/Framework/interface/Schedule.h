@@ -64,7 +64,6 @@
 #include "FWCore/Framework/interface/ExceptionHelpers.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/OccurrenceTraits.h"
-#include "FWCore/Framework/interface/UnscheduledCallProducer.h"
 #include "FWCore/Framework/interface/WorkerManager.h"
 #include "FWCore/Framework/src/Path.h"
 #include "FWCore/Framework/src/RunStopwatch.h"
@@ -123,8 +122,9 @@ namespace edm {
   class OutputModuleCommunicator;
   class ProcessContext;
   class RunStopwatch;
-  class UnscheduledCallProducer;
   class WorkerInPath;
+  class PreallocationConfiguration;
+  
   class Schedule {
   public:
     typedef std::vector<std::string> vstring;
@@ -147,7 +147,7 @@ namespace edm {
              boost::shared_ptr<ActivityRegistry> areg,
              boost::shared_ptr<ProcessConfiguration> processConfiguration,
              const ParameterSet* subProcPSet,
-             StreamID streamID,
+             PreallocationConfiguration const& config,
              ProcessContext const* processContext);
 
     enum State { Ready = 0, Running, Latched };

@@ -28,6 +28,8 @@ namespace edm {
   class ModuleCallingContext;
   class ParameterSet;
   class ProductRegistry;
+  class PreallocationConfiguration;
+  
   namespace eventsetup {
     class EventSetupsController;
   }
@@ -41,6 +43,7 @@ namespace edm {
                ActivityRegistry& parentActReg,
                ServiceToken const& token,
                serviceregistry::ServiceLegacy iLegacy,
+               PreallocationConfiguration const& preallocConfig,
                ProcessContext const* parentProcessContext);
 
     virtual ~SubProcess();

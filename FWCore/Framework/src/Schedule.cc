@@ -286,7 +286,7 @@ namespace edm {
                      boost::shared_ptr<ActivityRegistry> areg,
                      boost::shared_ptr<ProcessConfiguration> processConfiguration,
                      const ParameterSet* subProcPSet,
-                     StreamID streamID,
+                     PreallocationConfiguration const& config,
                      ProcessContext const* processContext) :
     workerManager_(areg, actions),
     actReg_(areg),
@@ -303,7 +303,7 @@ namespace edm {
     total_events_(),
     total_passed_(),
     stopwatch_(wantSummary_? new RunStopwatch::StopwatchPointer::element_type : static_cast<RunStopwatch::StopwatchPointer::element_type*> (nullptr)),
-    streamID_(streamID),
+    streamID_(0),
     streamContext_(streamID_, processContext),
     endpathsAreActive_(true) {
 

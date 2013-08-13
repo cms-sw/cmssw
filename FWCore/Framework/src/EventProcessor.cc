@@ -581,6 +581,47 @@ namespace edm {
     fileMode_ = optionsPset.getUntrackedParameter<std::string>("fileMode", "");
     emptyRunLumiMode_ = optionsPset.getUntrackedParameter<std::string>("emptyRunLumiMode", "");
     forceESCacheClearOnNewRun_ = optionsPset.getUntrackedParameter<bool>("forceEventSetupCacheClearOnNewRun", false);
+    //threading
+    unsigned int nThreads=1;
+    if(optionsPset.existsAs<unsigned int>("numberOfThreads",false)) {
+      nThreads = optionsPset.getUntrackedParameter<unsigned int>("numberOfThreads");
+    }
+    unsigned int nStreams =1;
+    /*
+    if(optionsPset.existsAs<unsigned int>("numberOfStreams",false)) {
+      nThreads = optionsPset.getUntrackedParameter<unsigned int>("numberOfStreams");
+    }
+    bool nRunsSet = false;
+     */
+    unsigned int nConcurrentRuns =1;
+    /*
+    if(nRunsSet = optionsPset.existsAs<unsigned int>("numberOfConcurrentRuns",false)) {
+    nThreads = optionsPset.getUntrackedParameter<unsigned int>("numberOfConcurrentRuns");
+    }
+     */
+    unsigned int nConcurrentLumis =1;
+    /*
+    if(optionsPset.existsAs<unsigned int>("numberOfConcurrentLuminosityBlocks",false)) {
+    nThreads = optionsPset.getUntrackedParameter<unsigned int>("numberOfConcurrentLuminosityBlocks");
+    } else {
+      nConcurrentLumis = nConcurrentRuns;
+    }
+     */
+    //Check that relationships between threading parameters makes sense
+    /*
+    if(nThreads<nStreams) {
+      //bad
+    }
+    if(nConcurrentRuns>nStreams) {
+      //bad
+    }
+    if(nConcurrentRuns>nConcurrentLumis) {
+      //bad
+    }
+     */
+    preallocations_ = PreallocationConfiguration(nThreads,nStreams,nConcurrentLumis,nConcurrentRuns);
+    
+    //forking
     ParameterSet const& forking = optionsPset.getUntrackedParameterSet("multiProcesses", ParameterSet());
     numberOfForkedChildren_ = forking.getUntrackedParameter<int>("maxChildProcesses", 0);
     numberOfSequentialEventsPerChild_ = forking.getUntrackedParameter<unsigned int>("maxSequentialEventsPerChild", 1);
@@ -624,7 +665,7 @@ namespace edm {
     input_ = makeInput(*parameterSet, *common, *items.preg_, items.branchIDListHelper_, items.actReg_, items.processConfiguration_);
 
     // intialize the Schedule
-    schedule_ = items.initSchedule(*parameterSet,subProcessParameterSet.get(),StreamID{0},&processContext_);
+    schedule_ = items.initSchedule(*parameterSet,subProcessParameterSet.get(),preallocations_,&processContext_);
 
     // set the data members
     act_table_ = std::move(items.act_table_);
@@ -646,7 +687,7 @@ namespace edm {
       
     // initialize the subprocess, if there is one
     if(subProcessParameterSet) {
-      subProcess_.reset(new SubProcess(*subProcessParameterSet, *parameterSet, preg_, branchIDListHelper_, *espController_, *actReg_, token, serviceregistry::kConfigurationOverrides, &processContext_));
+      subProcess_.reset(new SubProcess(*subProcessParameterSet, *parameterSet, preg_, branchIDListHelper_, *espController_, *actReg_, token, serviceregistry::kConfigurationOverrides, preallocations_, &processContext_));
     }
   }
 

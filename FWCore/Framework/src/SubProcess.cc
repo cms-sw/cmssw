@@ -40,6 +40,7 @@ namespace edm {
                          ActivityRegistry& parentActReg,
                          ServiceToken const& token,
                          serviceregistry::ServiceLegacy iLegacy,
+                         PreallocationConfiguration const& preallocConfig,
                          ProcessContext const* parentProcessContext) :
       serviceToken_(),
       parentPreg_(parentProductRegistry),
@@ -128,7 +129,7 @@ namespace edm {
     esp_ = esController.makeProvider(*processParameterSet_);
 
     // intialize the Schedule
-    schedule_ = items.initSchedule(*processParameterSet_,subProcessParameterSet.get(),StreamID{0},&processContext_);
+    schedule_ = items.initSchedule(*processParameterSet_,subProcessParameterSet.get(),preallocConfig,&processContext_);
 
     // set the items
     act_table_ = std::move(items.act_table_);
@@ -143,7 +144,7 @@ namespace edm {
     principalCache_.insert(ep);
 
     if(subProcessParameterSet) {
-      subProcess_.reset(new SubProcess(*subProcessParameterSet, topLevelParameterSet, preg_, branchIDListHelper_, esController, *items.actReg_, newToken, iLegacy, &processContext_));
+      subProcess_.reset(new SubProcess(*subProcessParameterSet, topLevelParameterSet, preg_, branchIDListHelper_, esController, *items.actReg_, newToken, iLegacy, preallocConfig, &processContext_));
     }
   }
 
