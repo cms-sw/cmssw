@@ -39,7 +39,5 @@ filesSingleMuRECO = cms.untracked.vstring(
     # only one block available at CERN
     # FIXME: need to fix DBS query in 'pickRelValInputFiles' to identify them properly
     # ==> query for file requiring dataset AND site does not work in DBS :-(
-       '/store/relval/CMSSW_6_2_0_pre4/SingleMu/RECO/PRE_61_V1_RelVal_mu2012D-v1/00000/003C223A-CD92-E211-B862-0025905964A6.root',
-       '/store/relval/CMSSW_6_2_0_pre4/SingleMu/RECO/PRE_61_V1_RelVal_mu2012D-v1/00000/0069FCF4-C992-E211-ACFF-003048679266.root',
-       '/store/relval/CMSSW_6_2_0_pre4/SingleMu/RECO/PRE_61_V1_RelVal_mu2012D-v1/00000/007CE5CD-CC92-E211-A36F-00259059649C.root',
+       '/store/relval/CMSSW_6_2_0_pre4/SingleMu/RECO/PRE_61_V1_RelVal_mu2012D-v1/00000/2A8716C9-3492-E211-8E04-0025905938A4.root',
     )
