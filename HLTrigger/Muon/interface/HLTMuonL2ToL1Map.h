@@ -24,15 +24,15 @@ typedef edm::AssociationMap<edm::OneToMany<std::vector<L2MuonTrajectorySeed>, st
 class HLTMuonL2ToL1Map{
 
   public:
-    /// construct with the InputTag of the L1 filter object, the InputTag of the L2 seed map ("hltL2Muons") and the Event
-    explicit HLTMuonL2ToL1Map(edm::InputTag& previousCandTag, edm::InputTag& seedMapTag, edm::Event& iEvent){
+    /// construct with the Token of the L1 filter object, the Token of the L2 seed map ("hltL2Muons") and the Event
+  explicit HLTMuonL2ToL1Map(const edm::EDGetTokenT<trigger::TriggerFilterObjectWithRefs>& previousCandToken, const edm::EDGetTokenT<SeedMap> seedMapToken, const edm::Event& iEvent){
       // get hold of muons that fired the previous level
       edm::Handle<trigger::TriggerFilterObjectWithRefs> previousLevelCands;
-      iEvent.getByLabel(previousCandTag, previousLevelCands);
+      iEvent.getByToken(previousCandToken, previousLevelCands);
       previousLevelCands->getObjects(trigger::TriggerL1Mu, firedL1Muons_);
 
       // get hold of the seed map
-      iEvent.getByLabel(seedMapTag, seedMapHandle_);
+      iEvent.getByToken(seedMapToken, seedMapHandle_);
     }
 
     ~HLTMuonL2ToL1Map(){

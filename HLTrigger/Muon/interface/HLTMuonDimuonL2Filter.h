@@ -12,6 +12,9 @@
  */
 
 #include "HLTrigger/HLTcore/interface/HLTFilter.h"
+#include "DataFormats/BeamSpot/interface/BeamSpot.h"
+#include "DataFormats/RecoCandidate/interface/RecoChargedCandidateFwd.h"
+#include "HLTrigger/Muon/interface/HLTMuonL2ToL1Map.h"
 
 namespace edm {
   class ConfigurationDescriptions;
@@ -26,11 +29,15 @@ class HLTMuonDimuonL2Filter : public HLTFilter {
       virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct);
 
    private:
-      edm::InputTag beamspotTag_ ;
-      edm::InputTag candTag_;  // input tag identifying product contains muons
-      edm::InputTag previousCandTag_;  // input tag identifying product contains muons passing the previous level
+      edm::InputTag                    beamspotTag_ ;
+      edm::EDGetTokenT<reco::BeamSpot> beamspotToken_ ;
+      edm::InputTag                                          candTag_;   // input tag identifying product contains muons
+      edm::EDGetTokenT<reco::RecoChargedCandidateCollection> candToken_; // token identifying product contains muons
+      edm::InputTag                                          previousCandTag_;   // input tag identifying product contains muons passing the previous level
+      edm::EDGetTokenT<trigger::TriggerFilterObjectWithRefs> previousCandToken_; // token identifying product contains muons passing the previous level
       /// input tag of the map from the L2 seed to the sister L2 seeds of cleaned tracks
-      edm::InputTag seedMapTag_;
+      edm::InputTag             seedMapTag_;
+      edm::EDGetTokenT<SeedMap> seedMapToken_;
       
       bool   fast_Accept_;      // flag to save time: stop processing after identification of the first valid pair
       double max_Eta_;          // Eta cut

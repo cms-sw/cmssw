@@ -30,7 +30,7 @@
 //
 HLTMuonIsoFilter::HLTMuonIsoFilter(const edm::ParameterSet& iConfig) : HLTFilter(iConfig),
    candTag_ (iConfig.getParameter< edm::InputTag > ("CandTag") ),
-   candToken_(consumes<reco::RecoChargedCandidate>(candTag_)),
+   candToken_(consumes<reco::RecoChargedCandidateCollection>(candTag_)),
    previousCandTag_ (iConfig.getParameter<edm::InputTag > ("PreviousCandTag")),
    previousCandToken_ (consumes<trigger::TriggerFilterObjectWithRefs>(previousCandTag_)),
    depTag_  (iConfig.getParameter< std::vector< edm::InputTag > >("DepTag" ) ),

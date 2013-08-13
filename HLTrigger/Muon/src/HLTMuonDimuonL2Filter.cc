@@ -39,9 +39,13 @@ using namespace l1extra;
 //
 HLTMuonDimuonL2Filter::HLTMuonDimuonL2Filter(const edm::ParameterSet& iConfig): HLTFilter(iConfig),
    beamspotTag_   (iConfig.getParameter< edm::InputTag > ("BeamSpotTag")),
+   beamspotToken_ (consumes<reco::BeamSpot>(beamspotTag_)),
    candTag_     (iConfig.getParameter< edm::InputTag > ("CandTag")),
+   candToken_   (consumes<reco::RecoChargedCandidateCollection>(candTag_)),
    previousCandTag_   (iConfig.getParameter<InputTag > ("PreviousCandTag")),
+   previousCandToken_ (consumes<trigger::TriggerFilterObjectWithRefs>(previousCandTag_)),
    seedMapTag_( iConfig.getParameter<InputTag >("SeedMapTag") ),
+   seedMapToken_(consumes<SeedMap>(seedMapTag_)),
    fast_Accept_ (iConfig.getParameter<bool> ("FastAccept")),
    max_Eta_     (iConfig.getParameter<double> ("MaxEta")),
    min_Nhits_   (iConfig.getParameter<int> ("MinNhits")),
@@ -140,16 +144,16 @@ HLTMuonDimuonL2Filter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSet
 
    // get hold of trks
    Handle<RecoChargedCandidateCollection> mucands;
-   iEvent.getByLabel (candTag_,mucands);
+   iEvent.getByToken(candToken_,mucands);
    if (saveTags()) filterproduct.addCollectionTag(candTag_);
 
    BeamSpot beamSpot;
    Handle<BeamSpot> recoBeamSpotHandle;
-   iEvent.getByLabel(beamspotTag_,recoBeamSpotHandle);
+   iEvent.getByToken(beamspotToken_,recoBeamSpotHandle);
    beamSpot = *recoBeamSpotHandle;
 
    // get the L2 to L1 map object for this event
-   HLTMuonL2ToL1Map mapL2ToL1(previousCandTag_, seedMapTag_, iEvent);
+   HLTMuonL2ToL1Map mapL2ToL1(previousCandToken_, seedMapToken_, iEvent);
 
    // look at all mucands,  check cuts and add to filter object
    int n = 0;

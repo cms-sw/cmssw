@@ -30,8 +30,8 @@ class HLTMuonIsoFilter : public HLTFilter {
       virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct);
       bool triggerdByPreviousLevel(const reco::RecoChargedCandidateRef &, const std::vector<reco::RecoChargedCandidateRef> &);
    private:
-      edm::InputTag                                candTag_;   // input tag identifying muon container
-      edm::EDGetTokenT<reco::RecoChargedCandidate> candToken_; // token identifying muon container
+      edm::InputTag                                          candTag_;   // input tag identifying muon container
+      edm::EDGetTokenT<reco::RecoChargedCandidateCollection> candToken_; // token identifying muon container
       edm::InputTag                                          previousCandTag_;   // input tag identifying product contains muons passing the previous level
       edm::EDGetTokenT<trigger::TriggerFilterObjectWithRefs> previousCandToken_; // token identifying product contains muons passing the previous level
       std::vector<edm::InputTag>                                       depTag_;   // input tags identifying deposit maps
