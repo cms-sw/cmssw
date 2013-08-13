@@ -48,8 +48,13 @@ process.load("TopQuarkAnalysis.TopSkimming.ttDecayChannelFilters_cff")
 ## std sequence to produce the kinematic fit for full hadronic events
 process.load("TopQuarkAnalysis.TopKinFitter.TtFullHadKinFitProducer_cfi")
 
+## process path
+process.p = cms.Path(process.ttFullHadronicFilter
+                     )
+
 ## configure output module
 process.out = cms.OutputModule("PoolOutputModule",
+    SelectEvents   = cms.untracked.PSet(SelectEvents = cms.vstring('p') ),
     fileName = cms.untracked.string('ttFullHadKinFitProducer.root'),
     outputCommands = cms.untracked.vstring('drop *')
 )
