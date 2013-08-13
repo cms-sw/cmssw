@@ -62,6 +62,16 @@ const std::string pdg_ids_names[N_PDGIDS]  = {"unknown", "e", "#mu", "#pi", "K",
 const std::string pdg_ids_names_[N_PDGIDS] = {"", "e", "mu", "pi", "K", "p", "nucl"};
 const int pdg_colors[N_PDGIDS] = {0, kBlack, kBlue, kGreen+1, kOrange-3, kMagenta, kRed};
 const int pdg_markers[N_PDGIDS] = {0, 1, 24, 3, 5, 26, 2};
+
+template<class H>
+void scaleOneBin(H *h, int bin, double scale)
+{
+  double rt = scale * h->GetBinContent(bin);
+  double er = scale * h->GetBinError(bin);
+  h->SetBinContent(bin, rt);
+  h->SetBinError(bin, er);
+}
+
 } // local namespace
 
 
@@ -157,6 +167,7 @@ private:
   TH1D * h_csc_hit_rate_per_ch;
   TH1D * h_csc_clu_flux_per_layer;
   TH1D * h_csc_clu_rate_per_ch;
+  TH1D * h_csc_total_area;
 
   std::map<int,int> pdg2idx;
   TH2D * h_csc_tof_vs_ekin[CSC_TYPES+1][N_PDGIDS];
@@ -169,6 +180,12 @@ private:
   TH1D * h_gem_clu_flux_per_layer;
   TH1D * h_gem_clu_rate_per_ch;
   TH2D * h_gem_tof_vs_ekin[N_PDGIDS];
+  TH2D * h_gem_hit_avg_per_ch;
+  TH1D * h_gem_total_area;
+
+  TH1D * h_gem_hit_flux_per_partlayer_ge11;
+  TH1D * h_gem_hit_avg_per_part_ge11;
+  TH1D * h_gem_total_partarea_ge11;
 
 
   TH2D * h_rpc_rz_sh_heatmap;
@@ -177,12 +194,14 @@ private:
   TH1D * h_rpcf_hit_rate_per_ch;
   TH1D * h_rpcf_clu_flux_per_layer;
   TH1D * h_rpcf_clu_rate_per_ch;
+  TH1D * h_rpcf_total_area;
 
   TH1D * h_rpcb_nevt_fraction_with_sh;
   TH1D * h_rpcb_hit_flux_per_layer;
   TH1D * h_rpcb_hit_rate_per_ch;
   TH1D * h_rpcb_clu_flux_per_layer;
   TH1D * h_rpcb_clu_rate_per_ch;
+  TH1D * h_rpcb_total_area;
 
   TH2D * h_rpcb_tof_vs_ekin[N_PDGIDS];
   TH2D * h_rpcf_tof_vs_ekin[N_PDGIDS];
@@ -193,6 +212,7 @@ private:
   TH1D * h_dt_hit_flux_per_layer;
   TH1D * h_dt_hit_rate_per_ch;
   TH2D * h_dt_tof_vs_ekin[N_PDGIDS];
+  TH1D * h_dt_total_area;
 
 
   TH2D * h_mu_rz_sh_heatmap;
@@ -203,6 +223,7 @@ private:
   TGraphErrors *gr_dt_hit_flux_mb1, *gr_dt_hit_flux_mb2, *gr_dt_hit_flux_mb3, *gr_dt_hit_flux_mb4;
 
   TGraphErrors *gr_gem_hit_flux_ge1;
+  TGraphErrors *gr_gem_hit_padflux_ge1;
 
   // some ntuples:
 
@@ -357,6 +378,8 @@ MuSimHitOccupancy::MuSimHitOccupancy(const edm::ParameterSet& iConfig)
   for (int i=1; i<=h_csc_clu_rate_per_ch->GetXaxis()->GetNbins();i++)
     h_csc_clu_rate_per_ch->GetXaxis()->SetBinLabel(i,csc_type[i].c_str());
 
+  h_csc_total_area = fs->make<TH1D>("h_csc_total_area", "CSC total area per type", CSC_TYPES, 0.5, CSC_TYPES+0.5);
+
   for (int pdg=1; pdg<N_PDGIDS; pdg++) pdg2idx[pdg_ids[pdg]] = pdg;
   //for (int me=0; me<=CSC_TYPES; me++) for (int pdg=1; pdg<N_PDGIDS; pdg++)
   for (int me=0; me<=0; me++) for (int pdg=1; pdg<N_PDGIDS; pdg++)
@@ -378,7 +401,7 @@ MuSimHitOccupancy::MuSimHitOccupancy(const edm::ParameterSet& iConfig)
     h_gem_nevt_fraction_with_sh->GetXaxis()->SetBinLabel(i,gem_type[i-1].c_str());
 
   h_gem_hit_flux_per_layer = fs->make<TH1D>("h_gem_hit_flux_per_layer",
-      (n_simhits+" Flux in GEM at L=10^{34};RE station/ring;Hz/cm^{2}").c_str(), GEM_TYPES, 0.5,  GEM_TYPES+0.5);
+      (n_simhits+" Flux in GEM at L=10^{34};GE station/ring;Hz/cm^{2}").c_str(), GEM_TYPES, 0.5,  GEM_TYPES+0.5);
   for (int i=1; i<=h_gem_hit_flux_per_layer->GetXaxis()->GetNbins();i++)
     h_gem_hit_flux_per_layer->GetXaxis()->SetBinLabel(i,gem_type[i].c_str());
 
@@ -396,6 +419,16 @@ MuSimHitOccupancy::MuSimHitOccupancy(const edm::ParameterSet& iConfig)
       (n_clusters+" rate per chamber in GEM L=10^{34};GE station/ring;kHz").c_str(), GEM_TYPES, 0.5, GEM_TYPES+0.5);
   for (int i=1; i<=h_gem_clu_rate_per_ch->GetXaxis()->GetNbins();i++)
     h_gem_clu_rate_per_ch->GetXaxis()->SetBinLabel(i,gem_type[i].c_str());
+
+  h_gem_total_area = fs->make<TH1D>("h_gem_total_area", "GEM total area per type", GEM_TYPES, 0.5, GEM_TYPES+0.5);
+
+  h_gem_hit_flux_per_partlayer_ge11 = fs->make<TH1D>("h_gem_hit_flux_per_partlayer_ge11",
+      (n_simhits+" Flux in GEM at L=10^{34};GE1/1 partition#;Hz/cm^{2}").c_str(), 10, 0.5,  10.5);
+
+  h_gem_hit_avg_per_part_ge11 = fs->make<TH1D>("h_gem_hit_avg_per_part_ge11",
+      (n_simhits+" Avg. #hits GE1/1 at PU=1;GE1/1 partition#;hits/part./BX").c_str(), 10, 0.5,  10.5);
+
+  h_gem_total_partarea_ge11 = fs->make<TH1D>("h_gem_total_partarea_ge11", "GE1/1 total area per partition", 10, 0.5,  10.5);
 
   for (int pdg=1; pdg<N_PDGIDS; pdg++)
   {
@@ -460,6 +493,8 @@ MuSimHitOccupancy::MuSimHitOccupancy(const edm::ParameterSet& iConfig)
   for (int i=1; i<=h_rpcb_clu_rate_per_ch->GetXaxis()->GetNbins();i++)
     h_rpcb_clu_rate_per_ch->GetXaxis()->SetBinLabel(i,rpcb_type[i].c_str());
 
+  h_rpcb_total_area = fs->make<TH1D>("h_rpcb_total_area", "RPCb total area per type", RPCB_TYPES, 0.5, RPCB_TYPES+0.5);
+
   for (int pdg=1; pdg<N_PDGIDS; pdg++)
   {
     sprintf(label,"h_rpcb_tof_vs_ekin_%s", pdg_ids_names_[pdg].c_str());
@@ -493,6 +528,8 @@ MuSimHitOccupancy::MuSimHitOccupancy(const edm::ParameterSet& iConfig)
       (n_simhits+" rate per chamber in DT at L=10^{34};DT station/|wheel|;kHz").c_str(), DT_TYPES, 0.5, DT_TYPES+0.5);
   for (int i=1; i<=h_dt_hit_rate_per_ch->GetXaxis()->GetNbins();i++)
     h_dt_hit_rate_per_ch->GetXaxis()->SetBinLabel(i,dt_type[i].c_str());
+
+  h_dt_total_area = fs->make<TH1D>("h_dt_total_area", "DT total area per type", DT_TYPES, 0.5, DT_TYPES+0.5);
 
   for (int pdg=1; pdg<N_PDGIDS; pdg++)
   {
@@ -537,7 +574,10 @@ MuSimHitOccupancy::MuSimHitOccupancy(const edm::ParameterSet& iConfig)
 
   gr_gem_hit_flux_ge1 = fs->make<TGraphErrors>(10);
   gr_gem_hit_flux_ge1->SetName("gr_gem_hit_flux_ge1");
-  gr_gem_hit_flux_ge1->SetTitle("SimHit Flux in GE1;r, cm;Hz/cm^{2}");
+  gr_gem_hit_flux_ge1->SetTitle("SimHit Flux in GE1;r, cm;Hz/pad");
+  gr_gem_hit_padflux_ge1 = fs->make<TGraphErrors>(10);
+  gr_gem_hit_padflux_ge1->SetName("gr_gem_hit_padflux_ge1");
+  gr_gem_hit_padflux_ge1->SetTitle("SimHit Flux in GE1;r, cm;Hz/pad");
 }
 
 // ================================================================================================
@@ -905,6 +945,12 @@ MuSimHitOccupancy::analyzeGEM()
       h_gem_hit_flux_per_layer->Fill(g_id.t);
       h_gem_hit_rate_per_ch->Fill(g_id.t);
 
+      if (t==1)
+      {
+        h_gem_hit_flux_per_partlayer_ge11->Fill(g_id.part);
+        h_gem_hit_avg_per_part_ge11->Fill(g_id.part);
+      }
+
       if (idx > 0) h_gem_tof_vs_ekin[idx]->Fill( log10(g_h.eKin() * 1000.), log10(g_h.t) );
     }
 
@@ -1056,8 +1102,6 @@ MuSimHitOccupancy::analyzeRPC()
       // fill some histograms
       if (shid.region() == 0)
       {
-        //h_csc_rz_clu_heatmap->Fill(fabs(c_cl.gz), c_cl.r);
-
         h_rpcb_clu_flux_per_layer->Fill(r_id.t);
         h_rpcb_clu_rate_per_ch->Fill(r_id.t);
       }
@@ -1222,6 +1266,14 @@ void MuSimHitOccupancy::endJob()
   if (!input_is_neutrons_) f_full_bx = 1.;
   // bx rate 40 MHz
   double bxrate = 40000000.;
+  double scale;
+
+  if (do_csc_) for (int t=0; t <= CSC_TYPES; t++)
+  {
+    h_csc_total_area->SetBinContent(t+1,areas_.csc_total_areas_cm2[t]);
+  }
+  h_csc_total_area->SetBinContent(0, evtn); // store it in underflow
+  h_csc_total_area->SetEntries(CSC_TYPES+2);
 
   h_csc_hit_flux_per_layer->Sumw2();
   h_csc_hit_rate_per_ch->Sumw2();
@@ -1230,156 +1282,137 @@ void MuSimHitOccupancy::endJob()
   if (do_csc_) for (int t=1; t <= CSC_TYPES; t++)
   {
     // 2 endcaps , 6 layers
-    double scale = bxrate * n_pu * f_full_bx /areas_.csc_total_areas_cm2[t]/evtn;
-    double rt = scale * h_csc_hit_flux_per_layer->GetBinContent(t);
-    double er = scale * h_csc_hit_flux_per_layer->GetBinError(t);
-    h_csc_hit_flux_per_layer->SetBinContent(t, rt);
-    h_csc_hit_flux_per_layer->SetBinError(t, er);
-
-    rt = scale * h_csc_clu_flux_per_layer->GetBinContent(t);
-    er = scale * h_csc_clu_flux_per_layer->GetBinError(t);
-    h_csc_clu_flux_per_layer->SetBinContent(t, rt);
-    h_csc_clu_flux_per_layer->SetBinError(t, er);
+    scale = bxrate * n_pu * f_full_bx /areas_.csc_total_areas_cm2[t]/evtn;
+    scaleOneBin(h_csc_hit_flux_per_layer, t, scale);
+    scaleOneBin(h_csc_clu_flux_per_layer, t, scale);
 
     scale = bxrate * n_pu * f_full_bx /csc_radial_segm[t]/2./evtn/1000.;
-    rt = scale * h_csc_hit_rate_per_ch->GetBinContent(t);
-    er = scale * h_csc_hit_rate_per_ch->GetBinError(t);
-    h_csc_hit_rate_per_ch->SetBinContent(t, rt);
-    h_csc_hit_rate_per_ch->SetBinError(t, er);
-
-    rt = scale * h_csc_clu_rate_per_ch->GetBinContent(t);
-    er = scale * h_csc_clu_rate_per_ch->GetBinError(t);
-    h_csc_clu_rate_per_ch->SetBinContent(t, rt);
-    h_csc_clu_rate_per_ch->SetBinError(t, er);
-
-    for (int i=0; i<4; i++)
-    {
-      gr_csc_hit_flux_me1->SetPoint(i, areas_.csc_ch_radius[i+1], h_csc_hit_flux_per_layer->GetBinContent(i+1) );
-      gr_csc_hit_flux_me1->SetPointError(i, areas_.csc_ch_halfheight[i+1], h_csc_hit_flux_per_layer->GetBinError(i+1) );
-      if (i>1) continue;
-      gr_csc_hit_flux_me2->SetPoint(i, areas_.csc_ch_radius[i+5], h_csc_hit_flux_per_layer->GetBinContent(i+5) );
-      gr_csc_hit_flux_me3->SetPoint(i, areas_.csc_ch_radius[i+7], h_csc_hit_flux_per_layer->GetBinContent(i+7) );
-      gr_csc_hit_flux_me4->SetPoint(i, areas_.csc_ch_radius[i+9], h_csc_hit_flux_per_layer->GetBinContent(i+9) );
-      gr_csc_hit_flux_me2->SetPointError(i, areas_.csc_ch_halfheight[i+5], h_csc_hit_flux_per_layer->GetBinError(i+5) );
-      gr_csc_hit_flux_me3->SetPointError(i, areas_.csc_ch_halfheight[i+7], h_csc_hit_flux_per_layer->GetBinError(i+7) );
-      gr_csc_hit_flux_me4->SetPointError(i, areas_.csc_ch_halfheight[i+9], h_csc_hit_flux_per_layer->GetBinError(i+9) );
-    }
+    scaleOneBin(h_csc_hit_rate_per_ch, t, scale);
+    scaleOneBin(h_csc_clu_rate_per_ch, t, scale);
+  }
+  if (do_csc_) for (int i=0; i<4; i++)
+  {
+    gr_csc_hit_flux_me1->SetPoint(i, areas_.csc_ch_radius[i+1], h_csc_hit_flux_per_layer->GetBinContent(i+1) );
+    gr_csc_hit_flux_me1->SetPointError(i, areas_.csc_ch_halfheight[i+1], h_csc_hit_flux_per_layer->GetBinError(i+1) );
+    if (i>1) continue;
+    gr_csc_hit_flux_me2->SetPoint(i, areas_.csc_ch_radius[i+5], h_csc_hit_flux_per_layer->GetBinContent(i+5) );
+    gr_csc_hit_flux_me3->SetPoint(i, areas_.csc_ch_radius[i+7], h_csc_hit_flux_per_layer->GetBinContent(i+7) );
+    gr_csc_hit_flux_me4->SetPoint(i, areas_.csc_ch_radius[i+9], h_csc_hit_flux_per_layer->GetBinContent(i+9) );
+    gr_csc_hit_flux_me2->SetPointError(i, areas_.csc_ch_halfheight[i+5], h_csc_hit_flux_per_layer->GetBinError(i+5) );
+    gr_csc_hit_flux_me3->SetPointError(i, areas_.csc_ch_halfheight[i+7], h_csc_hit_flux_per_layer->GetBinError(i+7) );
+    gr_csc_hit_flux_me4->SetPointError(i, areas_.csc_ch_halfheight[i+9], h_csc_hit_flux_per_layer->GetBinError(i+9) );
   }
 
+
+  if (do_gem_) for (int t=0; t <= GEM_TYPES; t++)
+  {
+    h_gem_total_area->SetBinContent(t+1,areas_.gem_total_areas_cm2[t]);
+  }
+  h_gem_total_area->SetBinContent(0, evtn); // store it in underflow
+  h_gem_total_area->SetEntries(GEM_TYPES+2);
 
   h_gem_hit_flux_per_layer->Sumw2();
   h_gem_hit_rate_per_ch->Sumw2();
   if (do_gem_) for (int t=1; t<=GEM_TYPES; t++)
   {
-    double scale = bxrate * n_pu * f_full_bx /areas_.gem_total_areas_cm2[t]/evtn;
-
-    double rt = scale * h_gem_hit_flux_per_layer->GetBinContent(t);
-    double er = scale * h_gem_hit_flux_per_layer->GetBinError(t);
-    h_gem_hit_flux_per_layer->SetBinContent(t,rt);
-    h_gem_hit_flux_per_layer->SetBinError(t,er);
-
-    rt = scale * h_gem_clu_flux_per_layer->GetBinContent(t);
-    er = scale * h_gem_clu_flux_per_layer->GetBinError(t);
-    h_gem_clu_flux_per_layer->SetBinContent(t,rt);
-    h_gem_clu_flux_per_layer->SetBinError(t,er);
+    scale = bxrate * n_pu * f_full_bx /areas_.gem_total_areas_cm2[t]/evtn;
+    scaleOneBin(h_gem_hit_flux_per_layer, t, scale);
+    scaleOneBin(h_gem_clu_flux_per_layer, t, scale);
 
     scale = bxrate * n_pu * f_full_bx /gem_radial_segm[t]/2/evtn/1000;
+    scaleOneBin(h_gem_hit_rate_per_ch, t, scale);
+    scaleOneBin(h_gem_clu_rate_per_ch, t, scale);
 
-    rt = scale * h_gem_hit_rate_per_ch->GetBinContent(t);
-    er = scale * h_gem_hit_rate_per_ch->GetBinError(t);
-    h_gem_hit_rate_per_ch->SetBinContent(t,rt);
-    h_gem_hit_rate_per_ch->SetBinError(t,er);
+    scale = 1. /evtn /gem_radial_segm[t]/2./2.; // gem
+    scaleOneBin(h_gem_hit_avg_per_ch, t, scale);
+  }
 
-    rt = scale * h_gem_clu_rate_per_ch->GetBinContent(t);
-    er = scale * h_gem_clu_rate_per_ch->GetBinError(t);
-    h_gem_clu_rate_per_ch->SetBinContent(t,rt);
-    h_gem_clu_rate_per_ch->SetBinError(t,er);
+  h_gem_hit_flux_per_partlayer_ge11->Sumw2();
+  h_gem_hit_avg_per_part_ge11->Sumw2();
+  if (do_gem_)
+  {
+    scale = bxrate * n_pu * f_full_bx /evtn /areas_.gem_total_part_areas_cm2[1];
+    h_gem_hit_flux_per_partlayer_ge11->Scale(scale);
+
+    scale = 1. /evtn /gem_radial_segm[1]/2./2.; // gem
+    h_gem_hit_avg_per_part_ge11->Scale(scale);
+  }
+  if (do_gem_) for (int i=0; i<=10; i++)
+  {
+    gr_gem_hit_flux_ge1->SetPoint(i, areas_.gem_part_radius[i+1], h_gem_hit_flux_per_partlayer_ge11->GetBinContent(i+1) );
+    gr_gem_hit_flux_ge1->SetPointError(i, areas_.gem_part_halfheight[i+1], h_gem_hit_flux_per_partlayer_ge11->GetBinError(i+1) );
   }
   
+
+  if (do_rpc_) for (int t=0; t <= RPCF_TYPES; t++)
+  {
+    h_rpcf_total_area->SetBinContent(t+1, areas_.rpcf_total_areas_cm2[t]);
+  }
+  h_rpcf_total_area->SetBinContent(0, evtn); // store it in underflow
+  h_rpcf_total_area->SetEntries(RPCF_TYPES+2);
 
   h_rpcf_hit_flux_per_layer->Sumw2();
   h_rpcf_hit_rate_per_ch->Sumw2();
   if (do_rpc_) for (int t=1; t<=RPCF_TYPES; t++)
   {
-    double scale = bxrate * n_pu * f_full_bx /areas_.rpcf_total_areas_cm2[t]/evtn;
-    double rt = scale * h_rpcf_hit_flux_per_layer->GetBinContent(t);
-    double er = scale * h_rpcf_hit_flux_per_layer->GetBinError(t);
-    h_rpcf_hit_flux_per_layer->SetBinContent(t,rt);
-    h_rpcf_hit_flux_per_layer->SetBinError(t,er);
-
-    rt = scale * h_rpcf_clu_flux_per_layer->GetBinContent(t);
-    er = scale * h_rpcf_clu_flux_per_layer->GetBinError(t);
-    h_rpcf_clu_flux_per_layer->SetBinContent(t,rt);
-    h_rpcf_clu_flux_per_layer->SetBinError(t,er);
+    scale = bxrate * n_pu * f_full_bx /areas_.rpcf_total_areas_cm2[t]/evtn;
+    scaleOneBin(h_rpcf_hit_flux_per_layer, t, scale);
+    scaleOneBin(h_rpcf_clu_flux_per_layer, t, scale);
 
     scale = bxrate * n_pu * f_full_bx /rpcf_radial_segm[t]/2/evtn/1000;
-    rt = scale * h_rpcf_hit_rate_per_ch->GetBinContent(t);
-    er = scale * h_rpcf_hit_rate_per_ch->GetBinError(t);
-    h_rpcf_hit_rate_per_ch->SetBinContent(t,rt);
-    h_rpcf_hit_rate_per_ch->SetBinError(t,er);
-
-    rt = scale * h_rpcf_clu_rate_per_ch->GetBinContent(t);
-    er = scale * h_rpcf_clu_rate_per_ch->GetBinError(t);
-    h_rpcf_clu_rate_per_ch->SetBinContent(t,rt);
-    h_rpcf_clu_rate_per_ch->SetBinError(t,er);
+    scaleOneBin(h_rpcf_hit_rate_per_ch, t, scale);
+    scaleOneBin(h_rpcf_clu_rate_per_ch, t, scale);
   }
 
   
+  if (do_rpc_) for (int t=0; t <= RPCB_TYPES; t++)
+  {
+    h_rpcb_total_area->SetBinContent(t+1, areas_.rpcb_total_areas_cm2[t]);
+  }
+  h_rpcb_total_area->SetBinContent(0, evtn); // store it in underflow
+  h_rpcb_total_area->SetEntries(RPCB_TYPES+2);
+
   h_rpcb_hit_flux_per_layer->Sumw2();
   if (do_rpc_) for (int t=1; t<=RPCB_TYPES; t++)
   {
-    double scale = bxrate * n_pu * f_full_bx /areas_.rpcb_total_areas_cm2[t]/evtn;
-    double rt = scale * h_rpcb_hit_flux_per_layer->GetBinContent(t);
-    double er = scale * h_rpcb_hit_flux_per_layer->GetBinError(t);
-    h_rpcb_hit_flux_per_layer->SetBinContent(t,rt);
-    h_rpcb_hit_flux_per_layer->SetBinError(t,er);
-
-    rt = scale * h_rpcb_clu_flux_per_layer->GetBinContent(t);
-    er = scale * h_rpcb_clu_flux_per_layer->GetBinError(t);
-    h_rpcb_clu_flux_per_layer->SetBinContent(t,rt);
-    h_rpcb_clu_flux_per_layer->SetBinError(t,er);
+    scale = bxrate * n_pu * f_full_bx /areas_.rpcb_total_areas_cm2[t]/evtn;
+    scaleOneBin(h_rpcb_hit_flux_per_layer, t, scale);
+    scaleOneBin(h_rpcb_clu_flux_per_layer, t, scale);
 
     scale = bxrate * n_pu * f_full_bx /rpcb_radial_segm[t]/evtn/1000;
-    rt = scale * h_rpcb_hit_rate_per_ch->GetBinContent(t);
-    er = scale * h_rpcb_hit_rate_per_ch->GetBinError(t);
-    h_rpcb_hit_rate_per_ch->SetBinContent(t,rt);
-    h_rpcb_hit_rate_per_ch->SetBinError(t,er);
-
-    rt = scale * h_rpcb_clu_rate_per_ch->GetBinContent(t);
-    er = scale * h_rpcb_clu_rate_per_ch->GetBinError(t);
-    h_rpcb_clu_rate_per_ch->SetBinContent(t,rt);
-    h_rpcb_clu_rate_per_ch->SetBinError(t,er);
+    scaleOneBin(h_rpcb_hit_rate_per_ch, t, scale);
+    scaleOneBin(h_rpcb_clu_rate_per_ch, t, scale);
   }
 
+
+  if (do_dt_) for (int t=0; t <= DT_TYPES; t++)
+  {
+    h_dt_total_area->SetBinContent(t+1, areas_.dt_total_areas_cm2[t]);
+  }
+  h_dt_total_area->SetBinContent(0, evtn); // store it in underflow
+  h_dt_total_area->SetEntries(DT_TYPES+2);
 
   h_dt_hit_flux_per_layer->Sumw2();
   h_dt_hit_rate_per_ch->Sumw2();
   if (do_dt_) for (int t=1; t<=DT_TYPES; t++)
   {
     // 2 endcaps , 6 layers
-    double scale = bxrate * n_pu * f_full_bx /areas_.dt_total_areas_cm2[t] /evtn;
-    double rt = scale * h_dt_hit_flux_per_layer->GetBinContent(t);
-    double er = scale * h_dt_hit_flux_per_layer->GetBinError(t);
-    h_dt_hit_flux_per_layer->SetBinContent(t,rt);
-    h_dt_hit_flux_per_layer->SetBinError(t,er);
+    scale = bxrate * n_pu * f_full_bx /areas_.dt_total_areas_cm2[t] /evtn;
+    scaleOneBin(h_dt_hit_flux_per_layer, t, scale);
 
     scale = bxrate * n_pu * f_full_bx /dt_radial_segm[t]/evtn/1000.;
-    rt = scale * h_dt_hit_rate_per_ch->GetBinContent(t);
-    er = scale * h_dt_hit_rate_per_ch->GetBinError(t);
-    h_dt_hit_rate_per_ch->SetBinContent(t,rt);
-    h_dt_hit_rate_per_ch->SetBinError(t,er);
-
-    for (int i=0; i<3; i++)
-    {
-      gr_dt_hit_flux_mb1->SetPoint(i, areas_.dt_ch_z[i+1], h_dt_hit_flux_per_layer->GetBinContent(i+1) );
-      gr_dt_hit_flux_mb2->SetPoint(i, areas_.dt_ch_z[i+4], h_dt_hit_flux_per_layer->GetBinContent(i+4) );
-      gr_dt_hit_flux_mb3->SetPoint(i, areas_.dt_ch_z[i+7], h_dt_hit_flux_per_layer->GetBinContent(i+7) );
-      gr_dt_hit_flux_mb4->SetPoint(i, areas_.dt_ch_z[i+10], h_dt_hit_flux_per_layer->GetBinContent(i+10) );
-      gr_dt_hit_flux_mb1->SetPointError(i, areas_.dt_ch_halfspanz[i+1], h_dt_hit_flux_per_layer->GetBinError(i+1) );
-      gr_dt_hit_flux_mb2->SetPointError(i, areas_.dt_ch_halfspanz[i+4], h_dt_hit_flux_per_layer->GetBinError(i+4) );
-      gr_dt_hit_flux_mb3->SetPointError(i, areas_.dt_ch_halfspanz[i+7], h_dt_hit_flux_per_layer->GetBinError(i+7) );
-      gr_dt_hit_flux_mb4->SetPointError(i, areas_.dt_ch_halfspanz[i+10], h_dt_hit_flux_per_layer->GetBinError(i+10) );
-    }
+    scaleOneBin(h_dt_hit_rate_per_ch, t, scale);
+  }
+  if (do_dt_) for (int i=0; i<3; i++)
+  {
+    gr_dt_hit_flux_mb1->SetPoint(i, areas_.dt_ch_z[i+1], h_dt_hit_flux_per_layer->GetBinContent(i+1) );
+    gr_dt_hit_flux_mb2->SetPoint(i, areas_.dt_ch_z[i+4], h_dt_hit_flux_per_layer->GetBinContent(i+4) );
+    gr_dt_hit_flux_mb3->SetPoint(i, areas_.dt_ch_z[i+7], h_dt_hit_flux_per_layer->GetBinContent(i+7) );
+    gr_dt_hit_flux_mb4->SetPoint(i, areas_.dt_ch_z[i+10], h_dt_hit_flux_per_layer->GetBinContent(i+10) );
+    gr_dt_hit_flux_mb1->SetPointError(i, areas_.dt_ch_halfspanz[i+1], h_dt_hit_flux_per_layer->GetBinError(i+1) );
+    gr_dt_hit_flux_mb2->SetPointError(i, areas_.dt_ch_halfspanz[i+4], h_dt_hit_flux_per_layer->GetBinError(i+4) );
+    gr_dt_hit_flux_mb3->SetPointError(i, areas_.dt_ch_halfspanz[i+7], h_dt_hit_flux_per_layer->GetBinError(i+7) );
+    gr_dt_hit_flux_mb4->SetPointError(i, areas_.dt_ch_halfspanz[i+10], h_dt_hit_flux_per_layer->GetBinError(i+10) );
   }
 
 }
