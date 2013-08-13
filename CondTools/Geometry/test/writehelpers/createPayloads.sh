@@ -75,8 +75,11 @@ cmsRun geometryxmlwriter.py
 sed -i '{s/Flat10Percent/Flat20Percent/g}' geometryxmlwriter.py
 sed -i '{s/\/geflat10percent/\/geflat20percent/g}' geometryxmlwriter.py
 cmsRun geometryxmlwriter.py
-sed -i '{s/Flat20Percent/Flat10Services30Percent/g}' geometryxmlwriter.py
-sed -i '{s/\/geflat20percent/\/geflat10services30percent/g}' geometryxmlwriter.py
+sed -i '{s/Flat20Percent/Flat30Percent/g}' geometryxmlwriter.py
+sed -i '{s/\/geflat20percent/\/geflat30percent/g}' geometryxmlwriter.py
+cmsRun geometryxmlwriter.py
+sed -i '{s/Flat30Percent/Flat10Services30Percent/g}' geometryxmlwriter.py
+sed -i '{s/\/geflat30percent/\/geflat10services30percent/g}' geometryxmlwriter.py
 cmsRun geometryxmlwriter.py
 sed -i '{s/Flat10Services30Percent/Flat20Services30Percent/g}' geometryxmlwriter.py
 sed -i '{s/\/geflat10services30percent/\/geflat20services30percent/g}' geometryxmlwriter.py
@@ -141,8 +144,11 @@ cmsRun xmlgeometrywriter.py
 sed -i '{s/Flat10Percent/Flat20Percent/g}' xmlgeometrywriter.py
 sed -i '{s/\/geflat10percent/\/geflat20percent/g}' xmlgeometrywriter.py
 cmsRun xmlgeometrywriter.py
-sed -i '{s/Flat20Percent/Flat10Services30Percent/g}' xmlgeometrywriter.py
-sed -i '{s/\/geflat20percent/\/geflat10services30percent/g}' xmlgeometrywriter.py
+sed -i '{s/Flat20Percent/Flat30Percent/g}' xmlgeometrywriter.py
+sed -i '{s/\/geflat20percent/\/geflat30percent/g}' xmlgeometrywriter.py
+cmsRun xmlgeometrywriter.py
+sed -i '{s/Flat30Percent/Flat10Services30Percent/g}' xmlgeometrywriter.py
+sed -i '{s/\/geflat30percent/\/geflat10services30percent/g}' xmlgeometrywriter.py
 cmsRun xmlgeometrywriter.py
 sed -i '{s/Flat10Services30Percent/Flat20Services30Percent/g}' xmlgeometrywriter.py
 sed -i '{s/\/geflat10services30percent/\/geflat20services30percent/g}' xmlgeometrywriter.py
