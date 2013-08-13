@@ -1,7 +1,5 @@
 /** \file
  *
- *  $Date: 2007/06/15 01:19:52 $
- *  $Revision: 1.8 $
  */
 
 #include <FWCore/Framework/interface/Frameworkfwd.h>

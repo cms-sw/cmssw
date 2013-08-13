@@ -6,8 +6,6 @@
  *  Create pair of RecHits at fixed distance from
  *  the wire.
  *
- *  $Date: 2007/03/06 14:02:05 $
- *  $Revision: 1.1 $
  *  \author Martijn Mulders - CERN (martijn.mulders@cern.ch)
  *  based on DTLinearDriftAlgo
  */

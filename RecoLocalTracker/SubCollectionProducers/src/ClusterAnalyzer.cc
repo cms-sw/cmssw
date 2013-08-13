@@ -13,7 +13,6 @@
 //
 // Original Author:  Michael Segala
 //         Created:  Wed Feb 23 17:36:23 CST 2011
-// $Id: ClusterAnalyzer.cc,v 1.3 2012/04/24 15:44:32 msegala Exp $
 //
 //
 

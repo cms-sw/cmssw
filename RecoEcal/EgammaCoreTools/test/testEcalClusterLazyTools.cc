@@ -13,7 +13,6 @@ Implementation:
 //
 // Original Author:  "Federico Ferri federi
 //         Created:  Mon Apr  7 14:11:00 CEST 2008
-// $Id: testEcalClusterLazyTools.cc,v 1.6 2009/12/29 19:06:04 wmtan Exp $
 //
 //
 

@@ -8,8 +8,6 @@
  * GeV, then the max value of 10 is used.  (The pT of pixel tracks is
  * not very precise.)
  *
- *  $Date: 2006/06/05 23:23:34 $
- *  $Revision: 1.1 $
  *  \author Aaron Dominguez (UNL)
  */
 #include "RecoPixelVertexing/PixelVertexFinding/interface/PVCluster.h"

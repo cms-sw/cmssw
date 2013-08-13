@@ -1,7 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
 
-# $Id: RecoJetsGR_cff.py,v 1.6.2.2 2009/11/11 15:17:51 srappocc Exp $
 
 # Standard set:
 from RecoJets.Configuration.RecoJets_cff import *

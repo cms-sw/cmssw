@@ -15,8 +15,6 @@
  * matches, then it makes a comparison of the TSOS local direction.
  *
  *
- *  $Date: 2010/03/08 15:34:44 $
- *  $Revision: 1.11 $
  *
  *  \author Edwin Antillon      Purdue University
  *  \author Chang Liu           Purdue University

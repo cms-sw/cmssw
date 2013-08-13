@@ -5,7 +5,6 @@
 //
 // Original Author:  Dmytro Kovalskyi
 //         Created:  Wed Oct  3 16:29:03 CDT 2007
-// $Id: CaloMuonProducer.h,v 1.2 2009/09/07 04:49:15 dmytro Exp $
 //
 //
 

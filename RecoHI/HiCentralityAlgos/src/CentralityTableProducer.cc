@@ -13,7 +13,6 @@
 //
 // Original Author:  Yetkin Yilmaz
 //         Created:  Wed May  2 21:41:30 EDT 2007
-// $Id: CentralityTableProducer.cc,v 1.12 2010/11/03 14:53:05 yilmaz Exp $
 //
 //
 

@@ -1,7 +1,5 @@
 /** \file
  *
- *  $Date: 2013/02/26 10:49:13 $
- *  $Revision: 1.11 $
  *  \author M. Maggi -- INFN Bari
 */
 

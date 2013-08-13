@@ -20,7 +20,6 @@
 */
 //
 // Original Author:  Dmytro Kovalskyi
-// $Id: MuonIdProducer.h,v 1.28 2012/08/21 21:20:01 mskim Exp $
 //
 //
 

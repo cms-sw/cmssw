@@ -9,7 +9,6 @@
 
  author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
 
- version $Id: BeamSpotProducer.h,v 1.3 2007/03/30 18:46:57 yumiceva Exp $
 
 ________________________________________________________________**/
 

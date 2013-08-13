@@ -12,7 +12,6 @@
 
 // Original Author:  fwyzard
 //         Created:  Wed Oct 18 18:02:07 CEST 2006
-// $Id: SoftLepton.cc,v 1.35 2010/02/26 18:16:18 saout Exp $
 
 
 #include <memory>

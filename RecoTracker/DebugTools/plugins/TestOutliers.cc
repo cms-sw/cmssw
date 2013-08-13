@@ -13,7 +13,6 @@
 //
 // Original Author:  Giuseppe Cerati
 //         Created:  Mon Sep 17 10:31:30 CEST 2007
-// $Id: TestOutliers.cc,v 1.15 2013/01/02 21:11:56 dlange Exp $
 //
 //
 

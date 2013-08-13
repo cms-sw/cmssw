@@ -4,8 +4,6 @@
 /** \class MuonTrackFinder
  *  Track finder for the Muon Reco
  *
- *  $Date: 2007/12/17 17:23:07 $
- *  $Revision: 1.24 $
  *  \author R. Bellan - INFN Torino
  */
 

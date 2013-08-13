@@ -4,8 +4,6 @@
 /** \class CSCSegmentBuilderPluginFactory
  *  Plugin factory for concrete CSCSegmentBuilder algorithms
  *
- * $Date: 2007/04/18 23:32:56 $
- * $Revision: 1.5 $
  * \author M. Sani
  * 
  */

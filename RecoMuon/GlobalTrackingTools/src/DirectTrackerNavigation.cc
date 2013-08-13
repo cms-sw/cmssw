@@ -2,8 +2,6 @@
  *  Class: DirectTrackerNavigation
  *
  *
- *  $Date: 2008/03/19 21:43:46 $
- *  $Revision: 1.3 $
  *
  *  \author Chang Liu  -  Purdue University
  */

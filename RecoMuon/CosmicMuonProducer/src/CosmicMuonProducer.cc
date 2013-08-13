@@ -6,8 +6,6 @@
  *
  * Implementation:
  *
- * $Date: 2008/09/15 12:42:12 $
- * $Revision: 1.15 $
  * Original Author:  Chang Liu
  *        Created:  Tue Jun 13 02:46:17 CEST 2006
 **/

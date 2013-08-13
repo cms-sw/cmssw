@@ -13,7 +13,6 @@
 //
 // Original Author:  Yetkin Yilmaz,32 4-A08,+41227673039,
 //         Created:  Thu Jan 20 19:53:58 CET 2011
-// $Id: ParticleTowerProducer.cc,v 1.10 2012/11/12 20:54:33 dlange Exp $
 //
 //
 

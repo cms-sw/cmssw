@@ -8,7 +8,6 @@
 //
 // Original Author:  Monica Vazquez Acosta (CERN)
 //         Created:  Tue Jun 13 14:48:33 CEST 2006
-// $Id: EgammaHLTPhotonTrackIsolationProducersRegional.h,v 1.1 2007/03/23 17:22:54 ghezzi Exp $
 //
 //
 

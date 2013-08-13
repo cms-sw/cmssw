@@ -9,7 +9,6 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: GsfElectronMCAnalyzer.h,v 1.20 2009/09/19 21:38:27 charlot Exp $
 //
 //
 

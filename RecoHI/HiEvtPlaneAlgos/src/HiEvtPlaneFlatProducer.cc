@@ -14,7 +14,6 @@
 //
 // Original Author:  Stephen Sanders
 //         Created:  Sat Jun 26 16:04:04 EDT 2010
-// $Id: HiEvtPlaneFlatProducer.cc,v 1.13 2012/02/15 10:33:36 eulisse Exp $
 //
 //
 
