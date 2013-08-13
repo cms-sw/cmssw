@@ -5,7 +5,7 @@ process = cms.Process("Demo")
 process.load("FWCore.MessageService.MessageLogger_cfi")
 
 # maximum number of events which will be analyzed
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(10) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(4000) )
 
 # the input files holding RECO collections for events which have alreday been reconstructed
 process.source = cms.Source("PoolSource",
