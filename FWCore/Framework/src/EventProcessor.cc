@@ -565,6 +565,9 @@ namespace edm {
    
     ROOT::Cintex::Cintex::Enable();
 
+    // register the empty parentage vector , once and for all
+    ParentageRegistry::instance()->insertMapped(Parentage());
+
     // register the empty parameter set, once and for all.
     ParameterSet().registerIt();
 
