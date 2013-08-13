@@ -326,17 +326,18 @@ def gemTurnOn(filesDir, plotDir, eff, oddEven, ext):
     ## add legend
     ##    leg_header =  "    #Delta#phi(GEM,CSC) is %s%% efficient for"%(eff)
     ##    leg.AddEntry(0, "%s chambers at pt"%(oddEven), "")
-    leg = TLegend(0.37,0.15,.82,0.5, "", "brNDC")
+    leg = TLegend(0.37,0.15,.93,0.6, "", "brNDC")
     leg_header =  "    "
     leg.AddEntry(0, 'High efficiency patterns:', "")
     for n in range(len(pt)):
-        leg.AddEntry(histoList[n], "#Delta#Phi(GEM-CSC)#geq%.4f (p_{T}>%s)"%(dphis[n],pt_labels[n]), "p")
+        leg.AddEntry(histoList[n], "|#Delta#Phi_{(GEM,CSC)}|<%.4f (p_{T}^{th}>%s)"%(dphis[n],pt_labels[n]), "p")
     leg.SetBorderSize(0)
+    leg.SetMargin(0.1)
     leg.SetFillStyle(0)
-    ##    leg.SetFillStyle(1001)
-    ##    leg.SetFillColor(kWhite)
+    leg.SetFillStyle(1001)
+    leg.SetFillColor(kWhite)
     leg.SetHeader(leg_header)
-    leg.SetTextSize(0.04)
+    leg.SetTextSize(0.05)
     leg.Draw("same")
 
     ## Adding additional information - top right
@@ -354,7 +355,7 @@ def gemTurnOn(filesDir, plotDir, eff, oddEven, ext):
     if closeFar == "Close":
         xpos = 0.57
     else:
-        xpos = 0.62
+        xpos = 0.61
 
     tex = TLatex(xpos,.68,'"%s" chamber pairs'%(closeFar))
     tex.Draw("same")

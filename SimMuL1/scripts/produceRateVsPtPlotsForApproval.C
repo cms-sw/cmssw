@@ -59,21 +59,30 @@ void produceRatePlots(TString ext)
   // ********** PAT2 **********
 
   getPTHistos("minbias_pt06_pat2");
+
   hh = (TH1D*)result_def_3s1b->Clone("gem_new");
   for (int b = hh->FindBin(6.01); b <= hh->GetNbinsX(); ++b) hh->SetBinContent(b, 0);
+
   hh_all = (TH1D*)result_def_eta_all_3s1b->Clone("gem_new_eta_all");
   for (int b = hh_all->FindBin(6.01); b <= hh_all->GetNbinsX(); ++b) hh_all->SetBinContent(b, 0);
+
   hh_no1a = (TH1D*)result_def_eta_no1a_3s1b->Clone("gem_new_eta_no1a");
   for (int b = hh_no1a->FindBin(6.01); b <= hh_no1a->GetNbinsX(); ++b) hh_no1a->SetBinContent(b, 0);
+
   hh_2s1b = (TH1D*)result_def_2s1b->Clone("gem_new_2s1b");
   for (int b = hh_2s1b->FindBin(6.01); b <= hh_2s1b->GetNbinsX(); ++b) hh_2s1b->SetBinContent(b, 0);
 
+
+
   h06 = (TH1D*)result_gem->Clone("gem_new_06");
   for (int b = h06->FindBin(6.01); b < h06->FindBin(10.01); ++b) {hh->SetBinContent(b, h06->GetBinContent(b)); hh->SetBinError(b, h06->GetBinError(b));}
+
   h06_all = (TH1D*)result_gem_eta_all->Clone("gem_new_eta_all_06");
   for (int b = h06_all->FindBin(6.01); b < h06_all->FindBin(10.01); ++b) {hh_all->SetBinContent(b, h06_all->GetBinContent(b)); hh_all->SetBinError(b, h06_all->GetBinError(b));}
+
   h06_no1a = (TH1D*)result_gem_eta_no1a->Clone("gem_new_eta_no1a_06");
   for (int b = h06_no1a->FindBin(6.01); b < h06_no1a->FindBin(10.01); ++b) {hh_no1a->SetBinContent(b, h06_no1a->GetBinContent(b)); hh_no1a->SetBinError(b, h06_no1a->GetBinError(b));}
+
   h06_2s1b = (TH1D*)result_gem_2s1b->Clone("gem_new_2s1b_06");
   for (int b = h06_2s1b->FindBin(6.01); b < h06_2s1b->FindBin(10.01); ++b) {hh_2s1b->SetBinContent(b, h06_2s1b->GetBinContent(b)); hh_2s1b->SetBinError(b, h06_2s1b->GetBinError(b));}
 
@@ -310,27 +319,18 @@ void produceRatePlots(TString ext)
     result_gmtsing__pat2->GetYaxis()->SetRangeUser(0.1, 10000.);
     result_gmtsing__pat2->GetXaxis()->SetTitle("");
  
-    TLegend *leg0 = new TLegend(0.365,0.88,.93,0.93,NULL,"brNDC");
-    leg0->SetBorderSize(0);
-    leg0->SetMargin(0.235);
-    leg0->SetFillStyle(0);
-    leg0->SetTextSize(0.04);
-    leg0->SetFillStyle(1001);
-    leg0->SetFillColor(kWhite);
-    leg0->AddEntry(result_gmtsing__pat2,"Standard Configuration (GMT 2012)","f");
-    leg0->Draw();
- 
-    TLegend *leg = new TLegend(0.45,0.68,.93,0.86,"L1 Selections (#geq 2 stations):","brNDC");
+    TLegend *leg = new TLegend(0.45,0.7,.93,0.93,"","brNDC");
     leg->SetMargin(0.25);
     leg->SetBorderSize(0);
     leg->SetFillStyle(0);
     leg->SetTextSize(0.04);
     leg->SetFillStyle(1001);
     leg->SetFillColor(kWhite);
-    //    leg->AddEntry((TObject*)0,          "L1 Selections (#geq 2 stations):","");
+    leg->AddEntry(result_gmtsing__pat2, "GMT (2012 configuration)","f");
+    leg->AddEntry((TObject*)0,          "L1 selections (#geq 2 stations):","");
     leg->AddEntry(result_def_2s__pat2,  "CSC, loose","f");
     leg->AddEntry(result_def_2s1b__pat2,"CSC, tight","f");
-    leg->AddEntry(result_gem_2s1b__pat2,"GEM+CSC Integrated Trigger","f");
+    leg->AddEntry(result_gem_2s1b__pat2,"GEM+CSC integrated trigger","f");
     leg->Draw();
 
     drawLumiLabel(0.17,.3);
@@ -362,8 +362,8 @@ void produceRatePlots(TString ext)
     leg->SetTextSize(0.1);
     leg->SetFillStyle(1001);
     leg->SetFillColor(kWhite);
-    leg->AddEntry(hh_ratio_gmt, "GEM+CSC/GMT","p");
-    leg->AddEntry(hh_ratio,     "GEM+CSC/CSC tight","p");
+    leg->AddEntry(hh_ratio_gmt, "(GEM+CSC)/GMT","p");
+    leg->AddEntry(hh_ratio,     "(GEM+CSC)/CSC tight","p");
     leg->Draw("same");
 
     c->SaveAs(plots + "rates_vs_pt__PU100__def_2s_2s1b_2s1bgem__loose" + ext);
@@ -386,25 +386,18 @@ void produceRatePlots(TString ext)
     result_gmtsing__pat8->GetYaxis()->SetRangeUser(0.1, 10000.);
     result_gmtsing__pat8->GetXaxis()->SetTitle("");
  
-    TLegend *leg0 = new TLegend(0.15,0.88,.9,0.93,NULL,"brNDC");
-    leg0->SetBorderSize(0);
-    leg0->SetFillStyle(0);
-    leg0->SetTextSize(0.04);
-    leg0->SetFillStyle(1001);
-    leg0->SetFillColor(kWhite);
-    leg0->AddEntry(result_gmtsing__pat8,"Single muon trigger in 2012 configuration [GMT]","f");
-    leg0->Draw();
- 
-    TLegend *leg = new TLegend(0.45,0.68,.93,0.86,"L1 Selections (#geq 2 stations):","brNDC");
+    TLegend *leg = new TLegend(0.45,0.7,.93,0.93,"","brNDC");
     leg->SetMargin(0.25);
     leg->SetBorderSize(0);
     leg->SetFillStyle(0);
     leg->SetTextSize(0.04);
     leg->SetFillStyle(1001);
     leg->SetFillColor(kWhite);
+    leg->AddEntry(result_gmtsing__pat8, "GMT (2012 configuration)","f");
+    leg->AddEntry((TObject*)0,          "L1 selections (#geq 2 stations):","");
     leg->AddEntry(result_def_2s__pat8,  "CSC, loose","f");
     leg->AddEntry(result_def_2s1b__pat8,"CSC, tight","f");
-    leg->AddEntry(result_gem_2s1b__pat8,"GEM+CSC Integrated Trigger","f");
+    leg->AddEntry(result_gem_2s1b__pat8,"GEM+CSC integrated trigger","f");
     leg->Draw();
 
     drawLumiLabel(0.17,.3);
@@ -423,20 +416,20 @@ void produceRatePlots(TString ext)
     pad2->SetBottomMargin(0.4);
     
     hh_ratio = setHistoRatio(result_gem_2s1b__pat8, result_def_2s1b__pat8, "", 0.01,1.1,col2);
-    hh_ratio->GetXaxis()->SetTitle("p_{T}^{cut} [GeV/c]");
+    hh_ratio->GetXaxis()->SetTitle("L1 muon candidate p_{T}^{cut} [GeV/c]");
     hh_ratio->Draw("P");
     hh_ratio_gmt = setHistoRatio(result_gem_2s1b__pat8, result_gmtsing__pat8, "", 0.01,1.1,col0);
     hh_ratio_gmt->Draw("P same");
 
-    leg = new TLegend(0.15,0.45,.5,0.7,NULL,"brNDC");
+    leg = new TLegend(0.15,0.45,.45,0.7,NULL,"brNDC");
     leg->SetMargin(0.1);
     leg->SetBorderSize(0);
     leg->SetFillStyle(0);
     leg->SetTextSize(0.1);
     leg->SetFillStyle(1001);
     leg->SetFillColor(kWhite);
-    leg->AddEntry(hh_ratio_gmt, "GEM+CSC/GMT","p");
-    leg->AddEntry(hh_ratio,     "GEM+CSC/CSC tight","p");
+    leg->AddEntry(hh_ratio_gmt, "(GEM+CSC)/GMT","p");
+    leg->AddEntry(hh_ratio,     "(GEM+CSC)/CSC tight","p");
     leg->Draw("same");
 
     c->SaveAs(plots + "rates_vs_pt__PU100__def_2s_2s1b_2s1bgem__tight" + ext);
@@ -459,25 +452,18 @@ void produceRatePlots(TString ext)
     result_gmtsing__pat2->GetYaxis()->SetRangeUser(0.01, 10000.);
     result_gmtsing__pat2->GetXaxis()->SetTitle("");
  
-    TLegend *leg0 = new TLegend(0.15,0.88,.9,0.93,NULL,"brNDC");
-    leg0->SetBorderSize(0);
-    leg0->SetFillStyle(0);
-    leg0->SetTextSize(0.04);
-    leg0->SetFillStyle(1001);
-    leg0->SetFillColor(kWhite);
-    leg0->AddEntry(result_gmtsing__pat2,"Single muon trigger in 2012 configuration [GMT]","f");
-    leg0->Draw();
- 
-    TLegend *leg = new TLegend(0.45,0.68,.93,0.86,"L1 Selections (#geq 3 stations):","brNDC");
+    TLegend *leg = new TLegend(0.45,0.7,.93,0.93,"","brNDC");
     leg->SetMargin(0.25);
     leg->SetBorderSize(0);
     leg->SetFillStyle(0);
     leg->SetTextSize(0.04);
     leg->SetFillStyle(1001);
     leg->SetFillColor(kWhite);
+    leg->AddEntry(result_gmtsing__pat2, "GMT (2012 configuration)","f");
+    leg->AddEntry((TObject*)0,          "L1 selections (#geq 3 stations):","");
     leg->AddEntry(result_def_3s__pat2,  "CSC, loose","f");
     leg->AddEntry(result_def_3s1b__pat2,"CSC, tight","f");
-    leg->AddEntry(result_gem_3s1b__pat2,"GEM+CSC Integrated Trigger","f");
+    leg->AddEntry(result_gem_3s1b__pat2,"GEM+CSC integrated trigger","f");
     leg->Draw();
 
     drawLumiLabel(0.17,.3);
@@ -496,20 +482,19 @@ void produceRatePlots(TString ext)
     pad2->SetBottomMargin(0.4);
     
     hh_ratio = setHistoRatio(result_gem_3s1b__pat2, result_def_3s1b__pat2, "", 0.01,1.1,col2);
-    hh_ratio->GetXaxis()->SetTitle("p_{T}^{cut} [GeV/c]");
+    hh_ratio->GetXaxis()->SetTitle("L1 muon candidate p_{T}^{cut} [GeV/c]");
     hh_ratio->Draw("P");
     hh_ratio_gmt = setHistoRatio(result_gem_3s1b__pat2, result_gmtsing__pat2, "", 0.01,1.1,col0);
     hh_ratio_gmt->Draw("P same");
 
-    leg = new TLegend(0.15,0.45,.5,0.7,NULL,"brNDC");
+    leg = new TLegend(0.15,0.45,.45,0.7,NULL,"brNDC");
     leg->SetMargin(0.1);
     leg->SetBorderSize(0);
-    leg->SetFillStyle(0);
     leg->SetTextSize(0.1);
     leg->SetFillStyle(1001);
     leg->SetFillColor(kWhite);
-    leg->AddEntry(hh_ratio_gmt, "GEM+CSC/GMT","p");
-    leg->AddEntry(hh_ratio,     "GEM+CSC/CSC tight","p");
+    leg->AddEntry(hh_ratio_gmt, "(GEM+CSC)/GMT","p");
+    leg->AddEntry(hh_ratio,     "(GEM+CSC)/CSC tight","p");
     leg->Draw("same");
 
     c->SaveAs(plots + "rates_vs_pt__PU100__def_3s_3s1b_3s1bgem__loose" + ext);
@@ -532,25 +517,18 @@ void produceRatePlots(TString ext)
     result_gmtsing__pat8->GetYaxis()->SetRangeUser(0.01, 10000.);
     result_gmtsing__pat8->GetXaxis()->SetTitle("");
 
-    TLegend *leg0 = new TLegend(0.15,0.88,.9,0.93,NULL,"brNDC");
-    leg0->SetBorderSize(0);
-    leg0->SetFillStyle(0);
-    leg0->SetTextSize(0.04);
-    leg0->SetFillStyle(1001);
-    leg0->SetFillColor(kWhite);
-    leg0->AddEntry(result_gmtsing__pat8,"Single muon trigger in 2012 configuration [GMT]","f");
-    leg0->Draw();
- 
-    TLegend *leg = new TLegend(0.45,0.68,.93,0.86,"L1 Selections (#geq 3 stations):","brNDC");
+    TLegend *leg = new TLegend(0.45,0.7,.93,0.93,"","brNDC");
     leg->SetMargin(0.25);
     leg->SetBorderSize(0);
     leg->SetFillStyle(0);
     leg->SetTextSize(0.04);
     leg->SetFillStyle(1001);
     leg->SetFillColor(kWhite);
+    leg->AddEntry(result_gmtsing__pat8, "GMT (2012 configuration)","f");
+    leg->AddEntry((TObject*)0,          "L1 selections (#geq 3 stations):","");
     leg->AddEntry(result_def_3s__pat8,  "CSC, loose","f");
     leg->AddEntry(result_def_3s1b__pat8,"CSC, tight","f");
-    leg->AddEntry(result_gem_3s1b__pat8,"GEM+CSC Integrated Trigger","f");
+    leg->AddEntry(result_gem_3s1b__pat8,"GEM+CSC integrated trigger","f");
     leg->Draw();
 
     drawLumiLabel(0.17,.3);
@@ -569,20 +547,20 @@ void produceRatePlots(TString ext)
     pad2->SetBottomMargin(0.4);
     
     hh_ratio = setHistoRatio(result_gem_3s1b__pat8, result_def_3s1b__pat8, "", 0.01,1.1,col2);
-    hh_ratio->GetXaxis()->SetTitle("p_{T}^{cut} [GeV/c]");
+    hh_ratio->GetXaxis()->SetTitle("L1 muon candidate p_{T}^{cut} [GeV/c]");
     hh_ratio->Draw("P");
     hh_ratio_gmt = setHistoRatio(result_gem_3s1b__pat8, result_gmtsing__pat8, "", 0.01,1.1,col0);
     hh_ratio_gmt->Draw("P same");
 
-    leg = new TLegend(0.15,0.45,.5,0.7,NULL,"brNDC");
+    leg = new TLegend(0.15,0.45,.45,0.7,NULL,"brNDC");
     leg->SetMargin(0.1);
     leg->SetBorderSize(0);
     leg->SetFillStyle(0);
     leg->SetTextSize(0.1);
     leg->SetFillStyle(1001);
     leg->SetFillColor(kWhite);
-    leg->AddEntry(hh_ratio_gmt, "GEM+CSC/GMT","p");
-    leg->AddEntry(hh_ratio,     "GEM+CSC/CSC tight","p");
+    leg->AddEntry(hh_ratio_gmt, "(GEM+CSC)/GMT","p");
+    leg->AddEntry(hh_ratio,     "(GEM+CSC)/CSC tight","p");
     leg->Draw("same");
 
     c->SaveAs(plots + "rates_vs_pt__PU100__def_3s_3s1b_3s1bgem__tight" + ext);
@@ -705,4 +683,5 @@ void produceRateVsPtPlotsForApproval()
   produceRatePlots(".pdf");
   produceRatePlots(".eps");
   produceRatePlots(".png");
+  //  produceRatePlots(".C");
 }

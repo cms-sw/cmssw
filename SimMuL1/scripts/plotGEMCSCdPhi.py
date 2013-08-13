@@ -42,8 +42,8 @@ def plotGEMCSCdPhi(filesDir, plotDir, oddEven = "even", ext = ".png"):
     
     c = TCanvas("c","c",700,450);
     c.Clear()
-    c.SetGridx(1)
-    c.SetGridy(1)
+    ##    c.SetGridx(1)
+    ##    c.SetGridy(1)
 
     gStyle.SetTitleStyle(0)
     gStyle.SetTitleAlign(13) ##// coord in top left
@@ -101,38 +101,27 @@ def plotGEMCSCdPhi(filesDir, plotDir, oddEven = "even", ext = ".png"):
     legend.Draw("same");
 
     ## Adding additional information - top right
-    tex2 = TLatex(.75,.87,'   L1 Trigger')
-    tex2.SetTextSize(0.05)
+    tex2 = TLatex(.73,.85,'   L1 Trigger')
+    tex2.SetTextSize(0.06)
     tex2.SetNDC()
     tex2.Draw("same")
 
-    tex3 = TLatex(.74,.80,'1.64<|#eta|<2.14')
-    tex3.SetTextSize(0.05)
+    tex3 = TLatex(.72,.75,'1.64<|#eta|<2.14')
+    tex3.SetTextSize(0.06)
     tex3.SetNDC()
     tex3.Draw("same")
 
     ## hardcore nitpicking over here!
     if closeFar == "Close":
-        xpos = 0.61
+        xpos = 0.22##0.61
     else:
-        xpos = 0.64
+        xpos = 0.25##0.64
 
-    tex = TLatex(xpos,.74,'"%s" chamber pairs'%(closeFar))
+    tex = TLatex(xpos,.85,'"%s" chamber pairs'%(closeFar))
     tex.Draw("same")
-    tex.SetTextSize(0.05)
-    tex.SetNDC()
-
-    """
-    tex = TLatex(.55,.85,'"%s" chamber pairs'%(closeFar))
     tex.SetTextSize(0.06)
     tex.SetNDC()
-    tex.Draw("same")
 
-    tex2 = TLatex(.22,.85,'   L1 Trigger')
-    tex2.SetTextSize(0.06)
-    tex2.SetNDC()
-    tex2.Draw("same")
-    """
     c.SaveAs("%sGEMCSCdPhi_%s_chambers%s"%(plotDir, oddEven, ext))
 
 if __name__ == "__main__":  
