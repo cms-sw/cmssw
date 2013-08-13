@@ -37,7 +37,7 @@
 #include "GEMCode/SimMuL1/interface/PSimHitMapCSC.h"
 
 //
-// class decleration
+// class declaration
 //
 
 struct MyCSCDetId
@@ -128,12 +128,17 @@ class NeutronSimHitAnalyzer : public edm::EDAnalyzer
 {
 public:
 
+  typedef std::vector<std::string> vstring;
+  typedef std::vector<double> vdouble;
+  typedef std::vector<int> vint;
+ 
   explicit NeutronSimHitAnalyzer(const edm::ParameterSet&);
   ~NeutronSimHitAnalyzer();
 
-  virtual void beginJob() ;
+  virtual void beginRun(const edm::Run &, const edm::EventSetup &);
+  virtual void beginJob();
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void endJob() ;
+  virtual void endJob();
 
 private:
 
@@ -152,7 +157,6 @@ private:
   const DTGeometry*  dt_geometry;
   const RPCGeometry* rpc_geometry;
   const GEMGeometry* gem_geometry;
-
 
   // some counters:
   int evtn;
@@ -198,27 +202,27 @@ private:
   int maxGEMStations_;
   int nGEMTypes_;
 
-  std::vector<std::string> cscTypesLong_;
-  std::vector<std::string> cscTypesShort_;
-  std::vector<std::string> dtTypesLong_;
-  std::vector<std::string> dtTypesShort_;
-  std::vector<std::string> rpcfTypesLong_;
-  std::vector<std::string> rpcfTypesShort_;
-  std::vector<std::string> rpcbTypesLong_;
-  std::vector<std::string> rpcbTypesShort_;
-  std::vector<std::string> gemTypesLong_;
-  std::vector<std::string> gemTypesShort_;
+  vstring cscTypesLong_;
+  vstring cscTypesShort_;
+  vstring dtTypesLong_;
+  vstring dtTypesShort_;
+  vstring rpcfTypesLong_;
+  vstring rpcfTypesShort_;
+  vstring rpcbTypesLong_;
+  vstring rpcbTypesShort_;
+  vstring gemTypesLong_;
+  vstring gemTypesShort_;
 
   SimHitAnalysis::PSimHitMapCSC simhit_map_csc;
   bool inputIsNeutrons_;
 
   // chamber sizes and segmentation
-  std::vector<double> cscAreascm2_;
-  std::vector<double> rpcfAreascm2_;
-  std::vector<double> gemAreascm2_;
-  std::vector<int> cscRadialSegmentation_;
-  std::vector<int> rpcfRadialSegmentation_;
-  std::vector<int> gemRadialSegmentation_;
+  vdouble cscAreascm2_;
+  vdouble rpcfAreascm2_;
+  vdouble gemAreascm2_;
+  vint cscRadialSegmentation_;
+  vint rpcfRadialSegmentation_;
+  vint gemRadialSegmentation_;
 
   // layers
   int nRPCLayers_;
@@ -272,26 +276,26 @@ NeutronSimHitAnalyzer::NeutronSimHitAnalyzer(const edm::ParameterSet& iConfig):
   nRPCbTypes_(iConfig.getParameter<int>("nRPCbTypes")),
   maxGEMStations_(iConfig.getParameter<int>("maxGEMStations")),
   nGEMTypes_(iConfig.getParameter<int>("nGEMTypes")),
-  cscTypesLong_(iConfig.getParameter<std::vector<std::string> >("cscTypesLong")),
-  cscTypesShort_(iConfig.getParameter<std::vector<std::string> >("cscTypesShort")),
-  dtTypesLong_(iConfig.getParameter<std::vector<std::string> >("dtTypesLong")),
-  dtTypesShort_(iConfig.getParameter<std::vector<std::string> >("dtTypesShort")),
-  rpcfTypesLong_(iConfig.getParameter<std::vector<std::string> >("rpcfTypesLong")),
-  rpcfTypesShort_(iConfig.getParameter<std::vector<std::string> >("rpcfTypesShort")),
-  rpcbTypesLong_(iConfig.getParameter<std::vector<std::string> >("rpcbTypesLong")),
-  rpcbTypesShort_(iConfig.getParameter<std::vector<std::string> >("rpcbTypesShort")),
-  gemTypesLong_(iConfig.getParameter<std::vector<std::string> >("gemTypesLong")),
-  gemTypesShort_(iConfig.getParameter<std::vector<std::string> >("gemTypesLong")),
+  cscTypesLong_(iConfig.getParameter<vstring>("cscTypesLong")),
+  cscTypesShort_(iConfig.getParameter<vstring>("cscTypesShort")),
+  dtTypesLong_(iConfig.getParameter<vstring>("dtTypesLong")),
+  dtTypesShort_(iConfig.getParameter<vstring>("dtTypesShort")),
+  rpcfTypesLong_(iConfig.getParameter<vstring>("rpcfTypesLong")),
+  rpcfTypesShort_(iConfig.getParameter<vstring>("rpcfTypesShort")),
+  rpcbTypesLong_(iConfig.getParameter<vstring>("rpcbTypesLong")),
+  rpcbTypesShort_(iConfig.getParameter<vstring>("rpcbTypesShort")),
+  gemTypesLong_(iConfig.getParameter<vstring>("gemTypesLong")),
+  gemTypesShort_(iConfig.getParameter<vstring>("gemTypesLong")),
   simhit_map_csc(),
   // should be set to false if running over a regular MB sample
   inputIsNeutrons_(iConfig.getParameter<bool>("inputIsNeutrons")),
   //chambers sizes
-  cscAreascm2_(iConfig.getParameter<std::vector<double> >("cscAreascm2")),
-  rpcfAreascm2_(iConfig.getParameter<std::vector<double> >("rpfcAreascm2")),
-  gemAreascm2_(iConfig.getParameter<std::vector<double> >("gemAreascm2")),
-  cscRadialSegmentation_(iConfig.getParameter<std::vector<int> >("cscRadialSegmentation")),
-  rpcfRadialSegmentation_(iConfig.getParameter<std::vector<int> >("rpcfRadialSegmentation")),
-  gemRadialSegmentation_(iConfig.getParameter<std::vector<int> >("gemRadialSegmentation")),
+  cscAreascm2_(iConfig.getParameter<vdouble>("cscAreascm2")),
+  rpcfAreascm2_(iConfig.getParameter<vdouble>("rpfcAreascm2")),
+  gemAreascm2_(iConfig.getParameter<vdouble>("gemAreascm2")),
+  cscRadialSegmentation_(iConfig.getParameter<vint>("cscRadialSegmentation")),
+  rpcfRadialSegmentation_(iConfig.getParameter<vint>("rpcfRadialSegmentation")),
+  gemRadialSegmentation_(iConfig.getParameter<vint>("gemRadialSegmentation")),
   nRPCLayers_(iConfig.getParameter<int>("nRPCLayers")),
   nGEMLayers_(iConfig.getParameter<int>("nGEMLayers")),
   nCSCLayers_(iConfig.getParameter<int>("nCSCLayers"))
@@ -384,8 +388,6 @@ NeutronSimHitAnalyzer::bookCSCSimHitsTree()
   csc_sh_tree->Branch("shn", &csc_shn);
   csc_sh_tree->Branch("id", &c_id.e,"e/I:s:r:c:l:t");
   csc_sh_tree->Branch("sh", &c_h.x,"x/F:y:z:r:eta:phi:gz:e:t:pdg/I:w:s");
-  //csc_sh_tree->Branch("", &., "/I");
-  //csc_sh_tree->Branch("" , "vector<double>" , & );
 }
 
 
@@ -644,19 +646,13 @@ MyGEMSimHit::init(const PSimHit &sh, const GEMGeometry* gem_g)
   g_phi = hitGP.phi();
   g_z = hitGP.z();
 
-//   const LocalPoint hitEP(sh->entryPoint());
-//   strip = gem_geometry_->etaPartition(sh->detUnitId())->strip(hitEP);
-
+  const LocalPoint hitEP(sh.entryPoint());
+  strip = gem_g->etaPartition(sh.detUnitId())->strip(hitEP);
 }
 
-// ================================================================================================
-void
-NeutronSimHitAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
+void 
+NeutronSimHitAnalyzer::beginRun(const edm::Run &iRun, const edm::EventSetup &iSetup)
 {
-  evtn += 1;
-  csc_shn = 0;
-  rpc_shn = 0;
-
   // Get the geometry
   edm::ESHandle<CSCGeometry> csc_geom;
   iSetup.get< MuonGeometryRecord >().get(csc_geom);
@@ -673,11 +669,25 @@ NeutronSimHitAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
   edm::ESHandle<GEMGeometry> gem_geom;
   iSetup.get< MuonGeometryRecord >().get(gem_geom);
   gem_geometry = &*gem_geom;
+}
+
+// ================================================================================================
+void 
+NeutronSimHitAnalyzer::beginJob() {}
+
+
+// ================================================================================================
+void
+NeutronSimHitAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
+{
+  evtn += 1;
+  csc_shn = 0;
+  rpc_shn = 0;
 
   // get SimHits
   simhit_map_csc.fill(iEvent);
 
-  std::vector<int> chIds = simhit_map_csc.chambersWithHits();
+  vint chIds = simhit_map_csc.chambersWithHits();
   if (chIds.size()) {
     //std::cout<<"--- chambers with hits: "<<chIds.size()<<std::endl;
     nevt_with_cscsh++;
@@ -689,7 +699,7 @@ NeutronSimHitAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     CSCDetId chId(chIds[ch]);
     c_cid.init(chId);
 
-    std::vector<int> layer_ids = simhit_map_csc.chamberLayersWithHits(chIds[ch]);
+    vint layer_ids = simhit_map_csc.chamberLayersWithHits(chIds[ch]);
     //if (layer_ids.size()) std::cout<<"------ layers with hits: "<<layer_ids.size()<<std::endl;
 
     std::vector<MyCSCLayer> chamber_layers;
@@ -813,7 +823,7 @@ NeutronSimHitAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 
   edm::Handle< edm::PSimHitContainer > h_gem_simhits;
   iEvent.getByLabel(inputTagGEM_, h_gem_simhits);
-  const edm::PSimHitContainer* gem_simhits = h_gem_simhits.product();
+  const edm::PSimHitContainer* gem_simhits(h_gem_simhits.product());
 
   if (gem_simhits->size()) nevt_with_gemsh++;
 
@@ -852,13 +862,9 @@ NeutronSimHitAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 
 
 // ================================================================================================
-void NeutronSimHitAnalyzer::beginJob() {}
-
-
-// ================================================================================================
-void NeutronSimHitAnalyzer::endJob()
+void 
+NeutronSimHitAnalyzer::endJob()
 {
-  using namespace std;
   std::cout<<"******************* COUNTERS *******************"<<std::endl;
   std::cout<<"* #events: "<< evtn <<std::endl;
   std::cout<<"* #events with SimHits in:"<<std::endl;
@@ -893,7 +899,7 @@ void NeutronSimHitAnalyzer::endJob()
   for (int t=1; t<=nCSCTypes_; t++)
   {
     // 2 endcaps , 6 layers
-    const double scale(bxRate_ * pu_ * fractionEmptyBX_ /cscAreascm2_.at(t)/cscRadialSegmentation_.at(t)/2/6 /evtn);
+    const double scale(bxRate_ * pu_ * fractionEmptyBX_ /cscAreascm2_.at(t)/cscRadialSegmentation_.at(t)/2/nCSCLayers_ /evtn);
     const double rt(scale * h_csc_shflux_per_layer->GetBinContent(t));
     const double er(scale * h_csc_shflux_per_layer->GetBinError(t));
     h_csc_shflux_per_layer->SetBinContent(t,rt);
@@ -903,7 +909,8 @@ void NeutronSimHitAnalyzer::endJob()
   h_rpcf_shflux_per_layer->Sumw2();
   for (int t=1; t<=nRPCfTypes_; t++)
   {
-    const double scale(bxRate_ * pu_ * fractionEmptyBX_ /rpcfAreascm2_.at(t)/rpcfRadialSegmentation_.at(t)/2 /evtn);
+    // 2 endcaps , 1 layer
+    const double scale(bxRate_ * pu_ * fractionEmptyBX_ /rpcfAreascm2_.at(t)/rpcfRadialSegmentation_.at(t)/2/nRPCLayers_ /evtn);
     const double rt(scale * h_rpcf_shflux_per_layer->GetBinContent(t));
     const double er(scale * h_rpcf_shflux_per_layer->GetBinError(t));
     h_rpcf_shflux_per_layer->SetBinContent(t,rt);
@@ -913,7 +920,8 @@ void NeutronSimHitAnalyzer::endJob()
   h_gem_shflux_per_layer->Sumw2();
   for (int t=1; t<=nGEMTypes_; t++)
   {
-    const double scale(bxRate_ * pu_ * fractionEmptyBX_ /gemAreascm2_.at(t)/gemRadialSegmentation_.at(t)/2 /evtn);
+    // 2 endcaps , 2 layers
+    const double scale(bxRate_ * pu_ * fractionEmptyBX_ /gemAreascm2_.at(t)/gemRadialSegmentation_.at(t)/2/nGEMLayers_ /evtn);
     const double rt(scale * h_gem_shflux_per_layer->GetBinContent(t));
     const double er(scale * h_gem_shflux_per_layer->GetBinError(t));
     h_gem_shflux_per_layer->SetBinContent(t,rt);
