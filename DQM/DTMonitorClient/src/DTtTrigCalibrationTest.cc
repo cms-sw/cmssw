@@ -1,8 +1,6 @@
 /*
  * \file DTtTrigCalibrationTest.cc
  * 
- * $Date: 2008/12/13 10:02:28 $
- * $Revision: 1.19 $
  * \author M. Zanetti - CERN
  * Modified by G. Mila - INFN Torino
  *

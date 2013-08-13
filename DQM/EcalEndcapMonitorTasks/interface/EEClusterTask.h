@@ -4,8 +4,6 @@
 /*
  * \file EEClusterTask.h
  *
- * $Date: 2009/12/11 19:18:28 $
- * $Revision: 1.22 $
  * \author G. Della Ricca
  *
  */

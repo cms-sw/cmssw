@@ -5,8 +5,6 @@
  * *
  *  Class that handles the SiStrip Quality Tests
  * 
- *  $Date: 2009/02/25 17:02:37 $
- *  $Revision: 1.5 $
  *  \author Suchandra Dutta
   */
 

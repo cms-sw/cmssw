@@ -6,8 +6,6 @@
  *
  *  DQM offline for SMP V+Jets
  *
- *  $Date: 2012/06/19 10:13:04 $
- *  $Revision: 1.11 $
  *  \author Valentina Gori, University of Firenze
  */
 

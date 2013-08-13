@@ -3,8 +3,6 @@
 
 /** \class BeamMonitor
  * *
- *  $Date: 2011/02/28 16:44:29 $
- *  $Revision: 1.10 $
  *  \author  Geng-yuan Jeng/UC Riverside
  *           Francisco Yumiceva/FNAL
  *

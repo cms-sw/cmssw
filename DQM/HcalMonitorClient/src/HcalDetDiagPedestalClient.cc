@@ -13,8 +13,6 @@
 /*
  * \file HcalDetDiagPedestalClient.cc
  * 
- * $Date: 2012/06/18 08:23:10 $
- * $Revision: 1.12 $
  * \author J. Temple
  * \brief Hcal DetDiagPedestal Client class
  */

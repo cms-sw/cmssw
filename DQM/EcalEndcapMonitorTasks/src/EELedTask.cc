@@ -1,8 +1,6 @@
 /*
  * \file EELedTask.cc
  *
- * $Date: 2012/04/29 14:20:12 $
- * $Revision: 1.72 $
  * \author G. Della Ricca
  *
 */

@@ -4,8 +4,6 @@
 /*
  * \file EEPedestalTask.h
  *
- * $Date: 2009/10/26 17:33:50 $
- * $Revision: 1.13 $
  * \author G. Della Ricca
  *
 */

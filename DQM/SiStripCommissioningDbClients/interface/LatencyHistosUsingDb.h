@@ -1,4 +1,3 @@
-// Last commit: $Id: LatencyHistosUsingDb.h,v 1.9 2009/06/18 20:52:35 lowette Exp $
 
 #ifndef DQM_SiStripCommissioningClients_LatencyHistosUsingDb_H
 #define DQM_SiStripCommissioningClients_LatencyHistosUsingDb_H

@@ -4,8 +4,6 @@
 /** \class FitSlicesYTool
  *  Class to fill Monitor Elements using the ROOT FitSlicesY tool
  *
- *  $Date: 2008/03/01 15:22:03 $
- *  $Revision: 1.2 $
  *  \author cerati
  */
 

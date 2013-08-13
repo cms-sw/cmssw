@@ -4,8 +4,6 @@
  * \author Andrea Gozzelino - Universita%Gï¿½%@ e INFN Torino
  * \author Stefano Argiro
  *        
- * $Date: 2009/12/08 17:24:45 $
- * $Revision: 1.4 $
  *
  *
  * Description: Monitoring of Phi Symmetry Calibration Stream  

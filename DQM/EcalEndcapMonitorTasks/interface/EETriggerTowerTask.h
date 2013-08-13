@@ -4,8 +4,6 @@
 /*
  * \file EETriggerTowerTask.h
  *
- * $Date: 2011/08/30 09:29:05 $
- * $Revision: 1.26 $
  *
 */
 

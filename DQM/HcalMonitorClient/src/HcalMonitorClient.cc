@@ -1,8 +1,6 @@
 /*
  * \file HcalMonitorClient.cc
  * 
- * $Date: 2012/11/02 14:23:43 $
- * $Revision: 1.103 $
  * \author J. Temple
  * 
  */

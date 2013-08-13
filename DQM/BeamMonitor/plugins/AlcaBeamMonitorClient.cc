@@ -1,8 +1,6 @@
 /*
  * \file AlcaBeamMonitorClient.cc
  * \author Lorenzo Uplegger/FNAL
- * $Date: 2010/11/08 21:44:51 $
- * $Revision: 1.4 $
  *
  */
 

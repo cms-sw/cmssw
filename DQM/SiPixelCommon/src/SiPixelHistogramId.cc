@@ -8,7 +8,6 @@
 //
 // Original Author:  chiochia
 //         Created:  Wed Feb 22 16:07:58 CET 2006
-// $Id: SiPixelHistogramId.cc,v 1.3 2008/01/22 18:52:48 muzaffar Exp $
 //
 
 #include<iostream>
