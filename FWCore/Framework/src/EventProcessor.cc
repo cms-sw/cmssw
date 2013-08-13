@@ -2,7 +2,6 @@
 #include "FWCore/Framework/interface/EventProcessor.h"
 
 #include "DataFormats/Provenance/interface/BranchIDListHelper.h"
-#include "DataFormats/Provenance/interface/EntryDescriptionRegistry.h"
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
 #include "DataFormats/Provenance/interface/ParameterSetID.h"
 #include "DataFormats/Provenance/interface/ParentageRegistry.h"
@@ -674,7 +673,6 @@ namespace edm {
     psetRegistry->dataForUpdate().clear();
     psetRegistry->extraForUpdate().setID(ParameterSetID());
 
-    EntryDescriptionRegistry::instance()->dataForUpdate().clear();
     ParentageRegistry::instance()->dataForUpdate().clear();
     ProcessConfigurationRegistry::instance()->dataForUpdate().clear();
     ProcessHistoryRegistry::instance()->dataForUpdate().clear();

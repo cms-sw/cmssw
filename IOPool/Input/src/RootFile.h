@@ -12,7 +12,9 @@ RootFile.h // used by ROOT input sources
 #include "DataFormats/Provenance/interface/BranchChildren.h"
 #include "DataFormats/Provenance/interface/BranchIDList.h"
 #include "DataFormats/Provenance/interface/BranchListIndex.h"
+#include "DataFormats/Provenance/interface/EntryDescriptionID.h" // backward compatibility
 #include "DataFormats/Provenance/interface/EventAuxiliary.h"
+#include "DataFormats/Provenance/interface/EventEntryDescription.h" // backward compatibility
 #include "DataFormats/Provenance/interface/EventProcessHistoryID.h" // backward compatibility
 #include "DataFormats/Provenance/interface/EventSelectionID.h"
 #include "DataFormats/Provenance/interface/FileFormatVersion.h"
@@ -42,6 +44,7 @@ namespace edm {
   class InputFile;
   class ProvenanceReaderBase;
   class ProvenanceAdaptor;
+  typedef std::map<EntryDescriptionID, EventEntryDescription> EntryDescriptionMap;
 
   class MakeProvenanceReader {
   public:
@@ -157,14 +160,14 @@ namespace edm {
     std::string const& newBranchToOldBranch(std::string const& newBranch) const;
     void dropOnInput(ProductRegistry& reg, ProductSelectorRules const& rules, bool dropDescendants, InputType::InputType inputType);
     void readParentageTree();
-    void readEntryDescriptionTree();
+    void readEntryDescriptionTree(EntryDescriptionMap&); // backward compatibility
     void readEventHistoryTree();
     bool isDuplicateEvent();
 
     void initializeDuplicateChecker(std::vector<boost::shared_ptr<IndexIntoFile> > const& indexesIntoFiles,
                                     std::vector<boost::shared_ptr<IndexIntoFile> >::size_type currentIndexIntoFile);
 
-    std::unique_ptr<MakeProvenanceReader> makeProvenanceReaderMaker() const;
+    std::unique_ptr<MakeProvenanceReader> makeProvenanceReaderMaker();
     boost::shared_ptr<BranchMapper> makeBranchMapper();
 
     std::string const file_;
