@@ -23,20 +23,20 @@ process.maxEvents = cms.untracked.PSet(
 
 ## configure process options
 process.options = cms.untracked.PSet(
-    wantSummary = cms.untracked.bool(False)
+    allowUnscheduled = cms.untracked.bool(True),
+    wantSummary      = cms.untracked.bool(True)
 )
 
 ## configure geometry & conditions
-#process.load("Configuration.StandardSequences.Geometry_cff")
 process.load("Configuration.Geometry.GeometryIdeal_cff")
-process.load("Configuration.StandardSequences.MagneticField_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
+from Configuration.AlCa.GlobalTag import GlobalTag
+process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:startup')
+process.load("Configuration.StandardSequences.MagneticField_cff")
 
-from Configuration.AlCa.autoCond import autoCond
-process.GlobalTag.globaltag = autoCond['mc']
-
-## std sequence for pat
-process.load("PhysicsTools.PatAlgos.patSequences_cff")
+## std sequence for PAT
+process.load("PhysicsTools.PatAlgos.producersLayer1.patCandidates_cff")
+process.load("PhysicsTools.PatAlgos.selectionLayer1.selectedPatCandidates_cff")
 
 ## std sequence to produce the ttGenEvt
 process.load("TopQuarkAnalysis.TopEventProducers.sequences.ttGenEvent_cff")
@@ -67,17 +67,9 @@ process.ttSemiLepJetPartonMatch.verbosity  = 1              #default: 0
 #process.ttSemiLepJetPartonMatch.maxNJets   = 5              #default: 4
 #process.ttSemiLepJetPartonMatch.maxNComb   = 1              #default: 1
 
-## process path
-process.p = cms.Path(process.patDefaultSequence *
-                     process.makeGenEvt *
-                     process.ttFullHadJetPartonMatch *
-                     process.ttFullLepJetPartonMatch *
-                     process.ttSemiLepJetPartonMatch)
-
 ## configure output module
 process.out = cms.OutputModule("PoolOutputModule",
-    SelectEvents   = cms.untracked.PSet(SelectEvents = cms.vstring('p') ),                               
-    fileName = cms.untracked.string('ttJetPartonMatch.root'),                               
+    fileName = cms.untracked.string('ttJetPartonMatch.root'),
     outputCommands = cms.untracked.vstring('drop *')
 )
 process.out.outputCommands += ['keep *_ttFullHadJetPartonMatch_*_*',
