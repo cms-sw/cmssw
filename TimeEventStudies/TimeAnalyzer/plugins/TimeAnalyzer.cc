@@ -335,8 +335,6 @@ unsigned int motherid=0;
    // for an example of matching between truth MC particles and ECAL superclusters see: 
    // http://cmssw.cvs.cern.ch/cgi-bin/cmssw.cgi/UserCode/Minnesota/Hgg/ClusteringWithPU/plugins/SCwithTruthPUAnalysis.cc?revision=1.3&view=markup 
 
-
-
 }
 
 
