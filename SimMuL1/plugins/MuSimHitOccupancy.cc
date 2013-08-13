@@ -29,8 +29,6 @@
 #include "Geometry/RPCGeometry/interface/RPCGeometry.h"
 #include "Geometry/RPCGeometry/interface/RPCGeomServ.h"
 #include "Geometry/DTGeometry/interface/DTGeometry.h"
-#include "Geometry/CommonTopologies/interface/RectangularStripTopology.h"
-#include "Geometry/CommonTopologies/interface/TrapezoidalStripTopology.h"
 
 #include "DataFormats/MuonDetId/interface/CSCDetId.h"
 #include "L1Trigger/CSCCommonTrigger/interface/CSCConstants.h"
@@ -46,338 +44,32 @@
 #include "TTree.h"
 
 #include "GEMCode/SimMuL1/interface/PSimHitMapCSC.h"
+#include "GEMCode/SimMuL1/interface/MuGeometryHelpers.h"
+#include "GEMCode/SimMuL1/interface/MuNtupleClasses.h"
 
 #include <iomanip>
 
 using std::cout;
 using std::endl;
+using namespace mugeo;
 
 namespace
 {
-enum ETrigCSC {MAX_CSC_STATIONS = 4, CSC_TYPES = 10};
-enum ETrigGEM {MAX_GEM_STATIONS = 1, GEM_TYPES = 1};
-enum ETrigDT {MAX_DT_STATIONS = 4, DT_TYPES = 12};
-enum ETrigRPCF {MAX_RPCF_STATIONS = 4, RPCF_TYPES = 12};
-enum ETrigRPCB {MAX_RPCB_STATIONS = 4, RPCB_TYPES = 12};
-
-int type(CSCDetId &d)  {return  d.iChamberType();}
-int type(GEMDetId &d)  {return  3*d.station() + d.ring() - 3;}
-int type(RPCDetId &d)
-{
-  if (d.region()==0) return  3*d.station() + abs(d.ring()) - 2;
-  else return  3*d.station() + d.ring() - 3;
-}
-int type(DTWireId &d)  {return  3*d.station() + abs(d.wheel()) - 2;}
-
-const std::string csc_type[CSC_TYPES+1] =
-  { "all", "ME1/a", "ME1/b", "ME1/2", "ME1/3", "ME2/1", "ME2/2", "ME3/1", "ME3/2", "ME4/1", "ME4/2"};
-const std::string csc_type_[CSC_TYPES+1] =
-  { "all", "ME1a", "ME1b", "ME12", "ME13", "ME21", "ME22", "ME31", "ME32", "ME41", "ME42"};
-
-const std::string gem_type[GEM_TYPES+1] =
-  { "all", "GE1/1"};
-const std::string gem_type_[GEM_TYPES+1] =
-  { "all", "GE11"};
-
-const std::string dt_type[DT_TYPES+1] =
-  { "all", "MB1/0", "MB1/1", "MB1/2", "MB2/0", "MB2/1", "MB2/2", "MB3/0", "MB3/1", "MB3/2", "MB4/0", "MB4/1", "MB4/2",};
-const std::string dt_type_[DT_TYPES+1] =
-  { "all", "MB10", "MB11", "MB12", "MB20", "MB21", "MB22", "MB30", "MB31", "MB32", "MB40", "MB41", "MB42",};
-
-const std::string rpcf_type[RPCF_TYPES+1] =
-  { "all", "RE1/1", "RE1/2", "RE1/3", "RE2/1", "RE2/2", "RE2/3", "RE3/1", "RE3/2", "RE3/3", "RE4/1", "RE4/2", "RE4/3"};
-const std::string rpcf_type_[RPCF_TYPES+1] =
-  { "all", "RE11", "RE12", "RE13", "RE21", "RE22", "RE23", "RE31", "RE32", "RE33", "RE41", "RE42", "RE43"};
-
-const std::string rpcb_type[RPCB_TYPES+1] =
-  { "all", "RB1/0", "RB1/1", "RB1/2", "RB2/0", "RB2/1", "RB2/2", "RB3/0", "RB3/1", "RB3/2", "RB4/0", "RB4/1", "RB4/2",};
-const std::string rpcb_type_[RPCB_TYPES+1] =
-  { "all", "RB10", "RB11", "RB12", "RB20", "RB21", "RB22", "RB30", "RB31", "RB32", "RB40", "RB41", "RB42",};
-
-// chamber radial segmentations (including factor of 2 for non-zero wheels in barrel):
-const double csc_radial_segm[CSC_TYPES+1] = {1, 36, 36, 36, 36, 18, 36, 18, 36, 18, 36};
-const double gem_radial_segm[GEM_TYPES+1] = {1, 36};
-const double dt_radial_segm[DT_TYPES+1]   = {1, 12, 12*2, 12*2, 12, 12*2, 12*2, 12, 12*2, 12*2, 14, 14*2, 14*2};
-const double rpcb_radial_segm[RPCF_TYPES+1] = {1, 12, 12*2, 12*2, 12, 12*2, 12*2, 24, 24*2, 24*2, 12, 24*2, 24*2};
-const double rpcf_radial_segm[RPCF_TYPES+1] = {1, 36, 36, 36, 18, 36, 36, 18, 36, 36, 18, 36, 36};
-
-// DT # of superlayers in chamber
-const double dt_n_superlayers[DT_TYPES+1]   = {1, 3, 3, 3, 3, 3, 3, 3, 3, 3, 2, 2, 2};
-
+// constants for PDG IDs to consider
 enum ENumPDG {N_PDGIDS=7};
-const int pdg_ids[N_PDGIDS] = {0,11,13,211,321,2212,1000000000};
-const std::string pdg_ids_names[N_PDGIDS]  = {"unknown","e","#mu","#pi","K","p","nuclei"};
-const std::string pdg_ids_names_[N_PDGIDS] = {"","e","mu","pi","K","p","nucl"};
+const int pdg_ids[N_PDGIDS] = {0, 11, 13, 211, 321, 2212, 1000000000};
+const std::string pdg_ids_names[N_PDGIDS]  = {"unknown", "e", "#mu", "#pi", "K", "p", "nuclei"};
+const std::string pdg_ids_names_[N_PDGIDS] = {"", "e", "mu", "pi", "K", "p", "nucl"};
 const int pdg_colors[N_PDGIDS] = {0, kBlack, kBlue, kGreen+1, kOrange-3, kMagenta, kRed};
 const int pdg_markers[N_PDGIDS] = {0, 1, 24, 3, 5, 26, 2};
 } // local namespace
 
-//
-// class declarations
-//
-// ================================================================================================
-
-struct MyCSCDetId
-{
-  void init(CSCDetId &id);
-  Short_t e, s, r, c, l;
-  Short_t t; // type 1-10: ME1/a,1/b,1/2,1/3,2/1...4/2
-};
-
-struct MyCSCSimHit
-{
-  void init(PSimHit &sh, const CSCGeometry* csc_g, const ParticleDataTable * pdt);
-  float eKin() {return sqrt(p*p + m*m) - m;}
-  bool operator < (const MyCSCSimHit &rhs) const;
-  Float_t x, y, z;    // local
-  Float_t r, eta, phi, gx, gy, gz; // global
-  Float_t e;          // energy deposit
-  Float_t p;          // particle momentum
-  Float_t m;          // particle mass
-  Float_t t;          // TOF
-  Int_t trid;         // trackId
-  Int_t pdg;          // PDG
-  Int_t w, s;         // WG & Strip
-};
-
-
-struct MyCSCCluster
-{
-  void init(std::vector<MyCSCSimHit> &shits);
-  float eKin() {return sqrt(p*p + m*m) - m;}
-  std::vector<MyCSCSimHit> hits;
-  Int_t nh;             // # of hits
-  Float_t r, eta, phi, gx, gy, gz; // globals fot 1st hit
-  Float_t e;            // total energy deposit
-  Float_t p, m;         // particle mass and initial momentum
-  Float_t mint, maxt;   // min/max TOF
-  Float_t meant, sigmat;// mean&stdev of TOF
-  Int_t mintrid, maxtrid;// trackId
-  Int_t pdg;            // PDG
-  Int_t minw, maxw, mins, maxs; // min/max WG & Strip
-};
-
-struct MyCSCLayer
-{
-  void init(int l, std::vector<MyCSCCluster> &sclusters);
-  std::vector<MyCSCCluster> clusters;
-  Int_t ln;             // layer #, not stored
-  Int_t nh;             // # of hits
-  Int_t nclu;           // # of clusters
-  Float_t mint, maxt;   // min/max TOF
-  Int_t mintrid, maxtrid;// trackId
-  Int_t minw, maxw, mins, maxs; // min/max WG & Strip
-};
-
-struct MyCSCChamber
-{
-  void init(std::vector<MyCSCLayer> &slayers);
-  Int_t nh;             // # of hits
-  Int_t nclu;           // # of clusters
-  Int_t nl, l1, ln;     // # of layers, 1st and last layer #
-  Float_t mint, maxt;   // min/max TOF
-  Int_t minw, maxw, mins, maxs; // min/max WG & Strip
-};
-
-struct MyCSCEvent
-{
-  void init(std::vector<MyCSCChamber> &schambers);
-  Int_t nh;        // #hits
-  Int_t nclu;      // #clusters
-  Int_t nch;       // #chambers w/ hits
-  Int_t nch2, nch3, nch4, nch5, nch6; // #chambers w/ at least 2,3... hits
-};
-
 
 // ================================================================================================
+// the analyzer
 
-struct MyGEMDetId
+class MuSimHitOccupancy : public edm::EDAnalyzer
 {
-  void init(GEMDetId &id);
-  Short_t reg, ring, st, layer, ch, part;
-  Short_t t; // type 1: GE1/1
-};
-
-
-struct MyGEMSimHit
-{
-  void init(PSimHit &sh, const GEMGeometry* gem_g, const ParticleDataTable * pdt);
-  float eKin() {return sqrt(p*p + m*m) - m;}
-  bool operator < (const MyGEMSimHit &rhs) const;
-  Float_t x, y, z;    // local
-  Float_t r, eta, phi, gx, gy, gz; // global
-  Float_t e;          // energy deposit
-  Float_t p;          // particle momentum
-  Float_t m;          // particle mass
-  Float_t t;          // TOF
-  Int_t trid;         // trackId
-  Int_t pdg;          // PDG
-  Int_t s;            // Strip
-};
-
-
-struct MyGEMCluster
-{
-  void init(std::vector<MyGEMSimHit> &shits);
-  float eKin() {return sqrt(p*p + m*m) - m;}
-  std::vector<MyGEMSimHit> hits;
-  Int_t nh;             // # of hits
-  Float_t r, eta, phi, gx, gy, gz; // globals fot 1st hit
-  Float_t e;            // total energy deposit
-  Float_t p, m;         // 1st particle mass and initial momentum
-  Float_t mint, maxt;   // min/max TOF
-  Float_t meant, sigmat;// mean&stdev of TOF
-  Int_t mintrid, maxtrid;// trackId
-  Int_t pdg;            // PDG
-  Int_t mins, maxs; // min/max strip
-};
-
-
-struct MyGEMPart
-{
-  void init(int r, int l, std::vector<MyGEMCluster> &sclusters);
-  std::vector<MyGEMCluster> clusters;
-  Int_t pn;             // partition #, not stored
-  Int_t ln;             // layer #, not stored
-  Int_t nh;             // # of hits
-  Int_t nclu;           // # of clusters
-  Float_t mint, maxt;   // min/max TOF
-  Int_t mintrid, maxtrid;// trackId
-  Int_t mins, maxs;      // min/max strip
-};
-
-
-struct MyGEMChamber
-{
-  void init(std::vector<MyGEMPart> &sparts);
-  Int_t nh;             // # of hits
-  Int_t nclu;           // # of clusters
-  Int_t np;             // # of partitions
-  Int_t nl;             // # of layers
-  Float_t mint, maxt;   // min/max TOF
-};
-
-
-struct MyGEMEvent
-{
-  void init(std::vector<MyGEMChamber> &schambers);
-  Int_t nh;        // #hits
-  Int_t nclu;      // #clusters
-  Int_t np;        // #partitions
-  Int_t nch;       // #chambers w/ hits
-  //Short_t nch2, nch3, nch4, nch5, nch6; // #chambers w/ at least 2,3... hits
-};
-
-
-// ================================================================================================
-
-struct MyRPCDetId
-{
-  void init(RPCDetId &id);
-  Short_t reg, ring, st, sec, layer, subsec, roll;
-  Short_t t; // type 1-8: RE1/2,1/3,2/2,2/3,3/2,3/3,4/2,4/3
-};
-
-
-struct MyRPCSimHit
-{
-  void init(PSimHit &sh, const RPCGeometry* rpc_g, const ParticleDataTable * pdt);
-  float eKin() {return sqrt(p*p + m*m) - m;}
-  bool operator < (const MyRPCSimHit &rhs) const;
-  Float_t x, y, z;    // local
-  Float_t r, eta, phi, gx, gy, gz; // global
-  Float_t e;          // energy deposit
-  Float_t p;          // particle momentum
-  Float_t m;          // particle mass
-  Float_t t;          // TOF
-  Int_t trid;         // trackId
-  Int_t pdg;          // PDG
-  Int_t s;            // Strip
-};
-
-
-struct MyRPCCluster
-{
-  void init(std::vector<MyRPCSimHit> &shits);
-  float eKin() {return sqrt(p*p + m*m) - m;}
-  std::vector<MyRPCSimHit> hits;
-  Int_t nh;             // # of hits
-  Float_t r, eta, phi, gx, gy, gz; // globals fot 1st hit
-  Float_t e;            // total energy deposit
-  Float_t p, m;         // 1st particle mass and initial momentum
-  Float_t mint, maxt;   // min/max TOF
-  Float_t meant, sigmat;// mean&stdev of TOF
-  Int_t mintrid, maxtrid;// trackId
-  Int_t pdg;            // PDG
-  Int_t mins, maxs; // min/max strip
-};
-
-
-struct MyRPCRoll
-{
-  void init(int r, int l, std::vector<MyRPCCluster> &sclusters);
-  std::vector<MyRPCCluster> clusters;
-  Int_t rn;             // roll #, not stored
-  Int_t ln;             // layer #, not stored
-  Int_t nh;             // # of hits
-  Int_t nclu;           // # of clusters
-  Float_t mint, maxt;   // min/max TOF
-  Int_t mintrid, maxtrid;// trackId
-  Int_t mins, maxs;      // min/max strip
-};
-
-
-struct MyRPCChamber
-{
-  void init(std::vector<MyRPCRoll> &srolls);
-  Int_t nh;             // # of hits
-  Int_t nclu;           // # of clusters
-  Int_t nr;             // # of rolls
-  Int_t nl;             // # of layers
-  Float_t mint, maxt;   // min/max TOF
-};
-
-
-struct MyRPCEvent
-{
-  void init(std::vector<MyRPCChamber> &schambers);
-  Int_t nh;        // #hits
-  Int_t nclu;      // #clusters
-  Int_t nr;        // #rolls
-  Int_t nch;       // #chambers w/ hits
-  //Short_t nch2, nch3, nch4, nch5, nch6; // #chambers w/ at least 2,3... hits
-};
-
-
-// ================================================================================================
-
-struct MyDTDetId
-{
-  void init(DTWireId &id);
-  Short_t st, wh, sec, sl, l, wire;
-  Short_t t; //
-};
-
-
-struct MyDTSimHit
-{
-  void init(PSimHit &sh, const DTGeometry* dt_g, const ParticleDataTable * pdt);
-  float eKin() {return sqrt(p*p + m*m) - m;}
-  Float_t x, y, z;    // local
-  Float_t r, eta, phi, gx, gy, gz; // global
-  Float_t e;          // energy deposit
-  Float_t p;          // particle momentum
-  Float_t m;          // particle mass
-  Float_t t;          // TOF
-  Int_t trid;         // trackId
-  Int_t pdg;          // PDG
-  //Int_t w, s;         // WG & Strip
-};
-
-
-// ================================================================================================
-
-class MuSimHitOccupancy : public edm::EDAnalyzer {
 public:
   explicit MuSimHitOccupancy(const edm::ParameterSet&);
   ~MuSimHitOccupancy();
@@ -432,21 +124,7 @@ private:
   SimHitAnalysis::PSimHitMap simhit_map_dt;
 
   // sensitive areas
-
-  void calculateCSCDetectorAreas();
-  void calculateGEMDetectorAreas();
-  void calculateDTDetectorAreas();
-  void calculateRPCDetectorAreas();
-
-  float csc_total_areas_cm2[CSC_TYPES+1];
-  float gem_total_areas_cm2[GEM_TYPES+1];
-  float dt_total_areas_cm2[DT_TYPES+1];
-  float rpcb_total_areas_cm2[RPCB_TYPES+1];
-  float rpcf_total_areas_cm2[RPCF_TYPES+1];
-
-  // vector index is over partitions
-  std::vector<float> gem_total_part_areas_cm2[GEM_TYPES+1];
-  std::vector<float> gem_part_radii[GEM_TYPES+1];
+  mugeo::MuGeometryAreas areas_;
 
   // some counters:
 
@@ -524,7 +202,7 @@ private:
   TGraphErrors *gr_csc_hit_flux_me1, *gr_csc_hit_flux_me2, *gr_csc_hit_flux_me3, *gr_csc_hit_flux_me4;
   TGraphErrors *gr_dt_hit_flux_mb1, *gr_dt_hit_flux_mb2, *gr_dt_hit_flux_mb3, *gr_dt_hit_flux_mb4;
 
-  //TGraphErrors *gr_gem_hit_flux_me1;
+  TGraphErrors *gr_gem_hit_flux_ge1;
 
   // some ntuples:
 
@@ -577,8 +255,6 @@ private:
   MyDTSimHit d_h;
 
 };
-
-
 
 
 // ================================================================================================
@@ -643,9 +319,9 @@ MuSimHitOccupancy::MuSimHitOccupancy(const edm::ParameterSet& iConfig)
   std::string n_clusters = "n-Clusters";
   if (!input_is_neutrons_) n_clusters = "Clusters";
 
-  h_csc_rz_sh_xray = fs->make<TH2D>("h_csc_rz_sh_xray",("CSC "+n_simhits+" #rho-z X-ray;z, cm;#rho, cm").c_str(),2060,550,1080,755,0,755);
-  h_csc_rz_sh_heatmap = fs->make<TH2D>("h_csc_rz_sh_heatmap",("CSC "+n_simhits+" #rho-z;z, cm;#rho, cm").c_str(),220,541.46,1101.46,150,0,755);
-  h_csc_rz_clu_heatmap = fs->make<TH2D>("h_csc_rz_clu_heatmap",("CSC "+n_clusters+" #rho-z;z, cm;#rho, cm").c_str(),220,541.46,1101.46,150,0,755);
+  h_csc_rz_sh_xray = fs->make<TH2D>("h_csc_rz_sh_xray",("CSC "+n_simhits+" #rho-z X-ray;z, cm;#rho, cm").c_str(), 2060, 550, 1080, 755, 0, 755);
+  h_csc_rz_sh_heatmap = fs->make<TH2D>("h_csc_rz_sh_heatmap",("CSC "+n_simhits+" #rho-z;z, cm;#rho, cm").c_str(), 220, 541.46, 1101.46, 150, 0, 755);
+  h_csc_rz_clu_heatmap = fs->make<TH2D>("h_csc_rz_clu_heatmap",("CSC "+n_clusters+" #rho-z;z, cm;#rho, cm").c_str(), 220, 541.46, 1101.46, 150, 0, 755);
 
 
   char label[200], nlabel[200];
@@ -692,7 +368,6 @@ MuSimHitOccupancy::MuSimHitOccupancy(const edm::ParameterSet& iConfig)
     h_csc_tof_vs_ekin[me][pdg]->SetMarkerColor(pdg_colors[pdg]);
     h_csc_tof_vs_ekin[me][pdg]->SetMarkerStyle(pdg_markers[pdg]);
   }
-
 
 
   h_gem_rz_sh_heatmap = fs->make<TH2D>("h_gem_rz_sh_heatmap",("GEM "+n_simhits+" #rho-z;z, cm;#rho, cm").c_str(),572,0,1120,160,0,800);
@@ -860,9 +535,9 @@ MuSimHitOccupancy::MuSimHitOccupancy(const edm::ParameterSet& iConfig)
   gr_dt_hit_flux_mb4->SetName("gr_dt_hit_flux_mb4");
   gr_dt_hit_flux_mb4->SetTitle("SimHit Flux in MB4;z, cm;Hz/cm^{2}");
 
-  //gr_gem_hit_flux_me1 = fs->make<TGraphErrors>(2);
-  //gr_gem_hit_flux_me1->SetName("gr_gem_hit_flux_me1");
-  //gr_gem_hit_flux_me1->SetTitle("SimHit Flux in GE1;r, cm;Hz/cm^{2}");
+  gr_gem_hit_flux_ge1 = fs->make<TGraphErrors>(10);
+  gr_gem_hit_flux_ge1->SetName("gr_gem_hit_flux_ge1");
+  gr_gem_hit_flux_ge1->SetTitle("SimHit Flux in GE1;r, cm;Hz/cm^{2}");
 }
 
 // ================================================================================================
@@ -879,29 +554,27 @@ MuSimHitOccupancy::bookCSCSimHitsTrees()
   csc_sh_tree = fs->make<TTree>("CSCSimHitsTree", "CSCSimHitsTree");
   csc_sh_tree->Branch("evtn", &evtn,"evtn/i");
   csc_sh_tree->Branch("shn", &csc_shn,"shn/i");
-  csc_sh_tree->Branch("id", &c_id.e,"e/S:s:r:c:l:t");
-  csc_sh_tree->Branch("sh", &c_h.x,"x/F:y:z:r:eta:phi:gx:gy:gz:e:p:m:t:trid/I:pdg:w:s");
-  //csc_sh_tree->Branch("", &., "/I");
-  //csc_sh_tree->Branch("" , "vector<double>" , & );
+  c_id.book(csc_sh_tree);
+  c_h.book(csc_sh_tree);
 
   csc_cl_tree = fs->make<TTree>("CSCClustersTree", "CSCClustersTree");
   csc_cl_tree->Branch("evtn", &evtn,"evtn/i");
-  csc_cl_tree->Branch("id", &c_id.e,"e/S:s:r:c:l:t");
-  csc_cl_tree->Branch("cl", &c_cl.nh,"nh/I:r/F:eta:phi:gx:gy:gz:e:p:m:mint:maxt:meant:sigmat:mintrid/I:maxtrid:pdg/I:minw:maxw:mins:maxs");
+  c_id.book(csc_cl_tree);
+  c_cl.book(csc_cl_tree);
 
   csc_la_tree = fs->make<TTree>("CSCLayersTree", "CSCLayersTree");
   csc_la_tree->Branch("evtn", &evtn,"evtn/i");
-  csc_la_tree->Branch("id", &c_id.e,"e/S:s:r:c:l:t");
-  csc_la_tree->Branch("la", &c_la.nh,"nh/I:nclu:mint/F:maxt:mintrid/I:maxtrid:minw:maxw:mins:maxs");
+  c_id.book(csc_la_tree);
+  c_la.book(csc_la_tree);
 
   csc_ch_tree = fs->make<TTree>("CSCChambersTree", "CSCChambersTree");
   csc_ch_tree->Branch("evtn", &evtn,"evtn/i");
-  csc_ch_tree->Branch("id", &c_cid.e,"e/S:s:r:c:l:t");
-  csc_ch_tree->Branch("ch", &c_ch.nh,"nh/I:nclu:nl:l1:ln:mint/F:maxt:minw/I:maxw:mins:maxs");
+  c_id.book(csc_ch_tree);
+  c_ch.book(csc_ch_tree);
 
   csc_ev_tree = fs->make<TTree>("CSCEventsTree", "CSCEventsTree");
   csc_ev_tree->Branch("evtn", &evtn,"evtn/i");
-  csc_ev_tree->Branch("ev", &c_ev.nh,"nh/I:nclu:nch:nch2:nch3:nch4:nch5:nch6");
+  c_ev.book(csc_ev_tree);
 }
 
 
@@ -913,30 +586,27 @@ MuSimHitOccupancy::bookGEMSimHitsTrees()
   gem_sh_tree = fs->make<TTree>("GEMSimHitsTree", "GEMSimHitsTree");
   gem_sh_tree->Branch("evtn", &evtn,"evtn/i");
   gem_sh_tree->Branch("shn", &gem_shn,"shn/i");
-  gem_sh_tree->Branch("id", &g_id.reg,"reg/S:ring:st:layer:ch:part:t");
-  gem_sh_tree->Branch("sh", &g_h.x,"x/F:y:z:r:eta:phi:gx:gy:gz:e:p:m:t:trid/I:pdg:s");
+  g_id.book(gem_sh_tree);
+  g_h.book(gem_sh_tree);
 
   gem_cl_tree = fs->make<TTree>("GEMClustersTree", "GEMClustersTree");
   gem_cl_tree->Branch("evtn", &evtn,"evtn/i");
-  gem_cl_tree->Branch("id", &g_id.reg,"reg/S:ring:st:layer:ch:part:t");
-  gem_cl_tree->Branch("cl", &g_cl.nh,"nh/I:r/F:eta:phi:gx:gy:gz:e:p:m:mint:maxt:meant:sigmat:mintrid/I:maxtrid:pdg/I:mins:maxs");
+  g_id.book(gem_cl_tree);
+  g_cl.book(gem_cl_tree);
 
   gem_part_tree = fs->make<TTree>("GEMPartTree", "GEMPartTree");
   gem_part_tree->Branch("evtn", &evtn,"evtn/i");
-  gem_part_tree->Branch("id", &g_id.reg,"reg/S:ring:st:layer:ch:part:t");
-  gem_part_tree->Branch("part", &g_part.nh,"nh/I:nclu:mint/F:maxt:mintrid/I:maxtrid:mins:maxs");
+  g_id.book(gem_part_tree);
+  g_part.book(gem_part_tree);
 
   gem_ch_tree = fs->make<TTree>("GEMChambersTree", "GEMChambersTree");
   gem_ch_tree->Branch("evtn", &evtn,"evtn/i");
-  gem_ch_tree->Branch("id", &g_id.reg,"reg/S:ring:st:layer:ch:part:t");
-  gem_ch_tree->Branch("ch", &g_ch.nh,"nh/I:nclu:np:nl:mint/F:maxt");
+  g_id.book(gem_ch_tree);
+  g_ch.book(gem_ch_tree);
 
   gem_ev_tree = fs->make<TTree>("GEMEventsTree", "GEMEventsTree");
   gem_ev_tree->Branch("evtn", &evtn,"evtn/i");
-  gem_ev_tree->Branch("ev", &g_ev.nh,"nh/I:nclu:np:nch");
-
-  //gem_sh_tree->Branch("", &., "/I");
-  //gem_sh_tree->Branch("" , "vector<double>" , & );
+  g_ev.book(gem_ev_tree);
 }
 
 
@@ -948,30 +618,27 @@ MuSimHitOccupancy::bookRPCSimHitsTrees()
   rpc_sh_tree = fs->make<TTree>("RPCSimHitsTree", "RPCSimHitsTree");
   rpc_sh_tree->Branch("evtn", &evtn,"evtn/i");
   rpc_sh_tree->Branch("shn", &rpc_shn,"shn/i");
-  rpc_sh_tree->Branch("id", &r_id.reg,"reg/S:ring:st:sec:layer:subsec:roll:t");
-  rpc_sh_tree->Branch("sh", &r_h.x,"x/F:y:z:r:eta:phi:gx:gy:gz:e:p:m:t:trid/I:pdg:s");
+  r_id.book(rpc_sh_tree);
+  r_h.book(rpc_sh_tree);
 
   rpc_cl_tree = fs->make<TTree>("RPCClustersTree", "RPCClustersTree");
   rpc_cl_tree->Branch("evtn", &evtn,"evtn/i");
-  rpc_cl_tree->Branch("id", &r_id.reg,"reg/S:ring:st:sec:layer:subsec:roll:t");
-  rpc_cl_tree->Branch("cl", &r_cl.nh,"nh/I:r/F:eta:phi:gx:gy:gz:e:p:m:mint:maxt:meant:sigmat:mintrid/I:maxtrid:pdg/I:mins:maxs");
+  r_id.book(rpc_cl_tree);
+  r_cl.book(rpc_cl_tree);
 
   rpc_rl_tree = fs->make<TTree>("RPCRollsTree", "RPCRollsTree");
   rpc_rl_tree->Branch("evtn", &evtn,"evtn/i");
-  rpc_rl_tree->Branch("id", &r_id.reg,"reg/S:ring:st:sec:layer:subsec:roll:t");
-  rpc_rl_tree->Branch("rl", &r_rl.nh,"nh/I:nclu:mint/F:maxt:mintrid/I:maxtrid:mins:maxs");
+  r_id.book(rpc_rl_tree);
+  r_rl.book(rpc_rl_tree);
 
   rpc_ch_tree = fs->make<TTree>("RPCChambersTree", "RPCChambersTree");
   rpc_ch_tree->Branch("evtn", &evtn,"evtn/i");
-  rpc_ch_tree->Branch("id", &r_id.reg,"reg/S:ring:st:sec:layer:subsec:roll:t");
-  rpc_ch_tree->Branch("ch", &r_ch.nh,"nh/I:nclu:nr:nl:mint/F:maxt");
+  r_id.book(rpc_ch_tree);
+  r_ch.book(rpc_ch_tree);
 
   rpc_ev_tree = fs->make<TTree>("RPCEventsTree", "RPCEventsTree");
   rpc_ev_tree->Branch("evtn", &evtn,"evtn/i");
-  rpc_ev_tree->Branch("ev", &r_ev.nh,"nh/I:nclu:nr:nch");
-
-  //rpc_sh_tree->Branch("", &., "/I");
-  //rpc_sh_tree->Branch("" , "vector<double>" , & );
+  r_ev.book(rpc_ev_tree);
 }
 
 
@@ -983,601 +650,10 @@ MuSimHitOccupancy::bookDTSimHitsTrees()
   dt_sh_tree = fs->make<TTree>("DTSimHitsTree", "DTSimHitsTree");
   dt_sh_tree->Branch("evtn", &evtn,"evtn/i");
   dt_sh_tree->Branch("shn", &dt_shn,"shn/i");
-  dt_sh_tree->Branch("id", &d_id.st,"st/I:wh:sec:sl:l:wire:t");
-  dt_sh_tree->Branch("sh", &r_h.x,"x/F:y:z:r:eta:phi:gx:gy:gz:e:p:m:t:trid/I:pdg");
-  //dt_sh_tree->Branch("", &., "/I");
-  //dt_sh_tree->Branch("" , "vector<double>" , & );
+  d_id.book(dt_sh_tree);
+  d_h.book(dt_sh_tree);
 }
 
-
-// ================================================================================================
-void
-MyCSCDetId::init(CSCDetId &id)
-{
-  e = id.endcap();
-  s = id.station();
-  r = id.ring();
-  c = id.chamber();
-  l = id.layer();
-  t = type(id);
-}
-
-
-// ================================================================================================
-void
-MyCSCSimHit::init(PSimHit &sh, const CSCGeometry* csc_g, const ParticleDataTable * pdt)
-{
-  LocalPoint hitLP = sh.localPosition();
-  pdg = sh.particleType();
-  m = 0.00051;
-
-  ParticleData const *pdata = 0;
-  HepPDT::ParticleID particleType(pdg);
-  if (particleType.isValid()) pdata = pdt->particle(particleType);
-  if (pdata)  m = pdata->mass();
-  //  cout<<"  "<<pdg<<" "<<pdata->name()<<" "<<m;
-  else cout<<" pdg not in PDT: "<< pdg<<endl;
-
-  x = hitLP.x();
-  y = hitLP.y();
-  z = hitLP.z();
-  e = sh.energyLoss();
-  p = sh.pabs();
-  t = sh.tof();
-  trid = sh.trackId();
-
-  CSCDetId layerId(sh.detUnitId());
-  const CSCLayer* csclayer = csc_g->layer(layerId);
-  GlobalPoint hitGP = csclayer->toGlobal(hitLP);
-
-  r = hitGP.perp();
-  eta = hitGP.eta();
-  phi = hitGP.phi();
-  gx = hitGP.x();
-  gy = hitGP.y();
-  gz = hitGP.z();
-
-  w = csclayer->geometry()->wireGroup(csclayer->geometry()->nearestWire(hitLP));
-  s = csclayer->geometry()->nearestStrip(hitLP);
-}
-
-
-bool MyCSCSimHit::operator<(const MyCSCSimHit & rhs) const
-{
-  // first sort by wire group, then by strip, then by TOF
-  if (w==rhs.w)
-  {
-    if (s==rhs.s) return t<rhs.t;
-    else return s<rhs.s;
-  }
-  else return w<rhs.w;
-}
-
-
-// ================================================================================================
-void
-MyCSCCluster::init(std::vector<MyCSCSimHit> &shits)
-{
-  hits = shits;
-  nh = hits.size();
-  mint = 1000000000.;
-  maxt = -1.;
-  minw = mins = 1000;
-  maxw = maxs = -1;
-  meant = 0;
-  sigmat = 0;
-  if (nh==0) return;
-  r = hits[0].r;
-  eta = hits[0].eta;
-  phi = hits[0].phi;
-  gx = hits[0].gx;
-  gy = hits[0].gy;
-  gz = hits[0].gz;
-  p = hits[0].p;
-  m = hits[0].m;
-  pdg = hits[0].pdg;
-  e = 0;
-  mintrid = 1000000000;
-  maxtrid = -1;
-  for (std::vector<MyCSCSimHit>::const_iterator itr = hits.begin(); itr != hits.end(); itr++)
-  {
-    MyCSCSimHit sh = *itr;
-    e += sh.e;
-    if (sh.t < mint) mint = sh.t;
-    if (sh.t > maxt) maxt = sh.t;
-    if (sh.w < minw) minw = sh.w;
-    if (sh.w > maxw) maxw = sh.w;
-    if (sh.s < mins) mins = sh.s;
-    if (sh.s > maxs) maxs = sh.s;
-    if (sh.trid < mintrid) mintrid = sh.trid;
-    if (sh.trid > maxtrid) maxtrid = sh.trid;
-    meant += sh.t;
-    sigmat += sh.t*sh.t;
-  }
-  meant = meant/nh;
-  sigmat = sqrt( sigmat/nh - meant*meant);
-cout<<" clu: "<<nh<<" "<<mint<<" "<<minw<<" "<<meant<<" "<<r<<" "<<gz<<" "<<m<<" "<<endl;
-}
-
-
-// ================================================================================================
-void
-MyCSCLayer::init(int l, std::vector<MyCSCCluster> &sclusters)
-{
-  clusters = sclusters;
-  ln = l;
-  nclu = clusters.size();
-  nh = 0;
-  mint = 1000000000.;
-  maxt = -1.;
-  minw = mins = 1000;
-  maxw = maxs = -1;
-  mintrid = 1000000000;
-  maxtrid = -1;
-  if (nclu==0) return;
-  for (std::vector<MyCSCCluster>::const_iterator itr = clusters.begin(); itr != clusters.end(); itr++)
-  {
-    MyCSCCluster cl = *itr;
-    nh += cl.nh;
-    if (cl.mint < mint) mint = cl.mint;
-    if (cl.maxt > maxt) maxt = cl.maxt;
-    if (cl.minw < minw) minw = cl.minw;
-    if (cl.maxw > maxw) maxw = cl.maxw;
-    if (cl.mins < mins) mins = cl.mins;
-    if (cl.maxs > maxs) maxs = cl.maxs;
-    if (cl.mintrid < mintrid) mintrid = cl.mintrid;
-    if (cl.maxtrid > maxtrid) maxtrid = cl.maxtrid;
-  }
-}
-
-
-// ================================================================================================
-void
-MyCSCChamber::init(std::vector<MyCSCLayer> &slayers)
-{
-  nh = nclu = 0;
-  nl = slayers.size();
-  mint = 1000000000.;
-  maxt = -1.;
-  minw = mins = 1000;
-  maxw = maxs = -1;
-  if (nl==0) return;
-  l1 = 7;
-  ln = -1;
-  for (std::vector<MyCSCLayer>::const_iterator itr = slayers.begin(); itr != slayers.end(); itr++)
-  {
-    MyCSCLayer la = *itr;
-    nh += la.nh;
-    nclu += la.nclu;
-    if (la.ln < l1) l1 = la.ln;
-    if (la.ln > ln) ln = la.ln;
-    if (la.mint < mint) mint = la.mint;
-    if (la.maxt > maxt) maxt = la.maxt;
-    if (la.minw < minw) minw = la.minw;
-    if (la.maxw > maxw) maxw = la.maxw;
-    if (la.mins < mins) mins = la.mins;
-    if (la.maxs > maxs) maxs = la.maxs;
-
-  }
-}
-
-
-// ================================================================================================
-void
-MyCSCEvent::init(std::vector<MyCSCChamber> &schambers)
-{
-  nch = schambers.size();
-  nh = nclu = 0;
-  nch2 = nch3 = nch4 = nch5 = nch6 = 0;
-  for (std::vector<MyCSCChamber>::const_iterator itr = schambers.begin(); itr != schambers.end(); itr++)
-  {
-    MyCSCChamber ch = *itr;
-    nh += ch.nh;
-    nclu += ch.nclu;
-    if (ch.nl>1) nch2++;
-    if (ch.nl>2) nch3++;
-    if (ch.nl>3) nch4++;
-    if (ch.nl>4) nch5++;
-    if (ch.nl>5) nch6++;
-  }
-}
-
-
-
-// ================================================================================================
-void
-MyGEMDetId::init(GEMDetId &id)
-{
-  reg    = id.region();
-  ring   = id.ring();
-  st     = id.station();
-  layer  = id.layer();
-  ch     = id.chamber();
-  part   = id.roll();
-  t      = type(id);
-}
-
-
-// ================================================================================================
-void
-MyGEMSimHit::init(PSimHit &sh, const GEMGeometry* gem_g, const ParticleDataTable * pdt)
-{
-  LocalPoint hitLP = sh.localPosition();
-  pdg = sh.particleType();
-  m = 0.00051;
-
-  ParticleData const *pdata = 0;
-  HepPDT::ParticleID particleType(pdg);
-  if (particleType.isValid()) pdata = pdt->particle(particleType);
-  if (pdata)  m = pdata->mass();
-  //  cout<<"  "<<pdg<<" "<<pdata->name()<<" "<<m;
-  else cout<<" pdg not in PDT: "<< pdg<<endl;
-
-  x = hitLP.x();
-  y = hitLP.y();
-  z = hitLP.z();
-  e = sh.energyLoss();
-  p = sh.pabs();
-  t = sh.tof();
-  trid = sh.trackId();
-
-  GlobalPoint hitGP = gem_g->idToDet(DetId(sh.detUnitId()))->surface().toGlobal(hitLP);
-
-  r = hitGP.perp();
-  eta = hitGP.eta();
-  phi = hitGP.phi();
-  gx = hitGP.x();
-  gy = hitGP.y();
-  gz = hitGP.z();
-
-  GEMDetId rollId(sh.detUnitId());
-  s = gem_g->etaPartition(rollId)->strip(hitLP);
-}
-
-
-bool MyGEMSimHit::operator<(const MyGEMSimHit & rhs) const
-{
-  // first sort by strip, then by TOF
-  if (s==rhs.s) return t<rhs.t;
-  else return s<rhs.s;
-}
-
-
-// ================================================================================================
-void
-MyGEMCluster::init(std::vector<MyGEMSimHit> &shits)
-{
-  hits = shits;
-  nh = hits.size();
-  mint = 1000000000.;
-  maxt = -1.;
-  mins = 1000;
-  maxs = -1;
-  meant = 0;
-  sigmat = 0;
-  if (nh==0) return;
-  r = hits[0].r;
-  eta = hits[0].eta;
-  phi = hits[0].phi;
-  gx = hits[0].gx;
-  gy = hits[0].gy;
-  gz = hits[0].gz;
-  p = hits[0].p;
-  m = hits[0].m;
-  pdg = hits[0].pdg;
-  e = 0;
-  mintrid = 1000000000;
-  maxtrid = -1;
-  for (std::vector<MyGEMSimHit>::const_iterator itr = hits.begin(); itr != hits.end(); itr++)
-  {
-    MyGEMSimHit sh = *itr;
-    e += sh.e;
-    if (sh.t < mint) mint = sh.t;
-    if (sh.t > maxt) maxt = sh.t;
-    if (sh.s < mins) mins = sh.s;
-    if (sh.s > maxs) maxs = sh.s;
-    if (sh.trid < mintrid) mintrid = sh.trid;
-    if (sh.trid > maxtrid) maxtrid = sh.trid;
-    meant += sh.t;
-    sigmat += sh.t*sh.t;
-  }
-  meant = meant/nh;
-  sigmat = sqrt( sigmat/nh - meant*meant);
-  cout<<" gem clu: "<<nh<<" "<<mint<<" "<<mins<<" "<<meant<<" "<<r<<" "<<gz<<" "<<m<<" "<<endl;
-}
-
-
-// ================================================================================================
-void
-MyGEMPart::init(int p, int l, std::vector<MyGEMCluster> &sclusters)
-{
-  clusters = sclusters;
-  pn = p;
-  ln = l;
-  nclu = clusters.size();
-  nh = 0;
-  mint = 1000000000.;
-  maxt = -1.;
-  mins = 1000;
-  maxs = -1;
-  mintrid = 1000000000;
-  maxtrid = -1;
-  if (nclu==0) return;
-  for (std::vector<MyGEMCluster>::const_iterator itr = clusters.begin(); itr != clusters.end(); itr++)
-  {
-    MyGEMCluster cl = *itr;
-    nh += cl.nh;
-    if (cl.mint < mint) mint = cl.mint;
-    if (cl.maxt > maxt) maxt = cl.maxt;
-    if (cl.mins < mins) mins = cl.mins;
-    if (cl.maxs > maxs) maxs = cl.maxs;
-    if (cl.mintrid < mintrid) mintrid = cl.mintrid;
-    if (cl.maxtrid > maxtrid) maxtrid = cl.maxtrid;
-  }
-}
-
-
-// ================================================================================================
-void
-MyGEMChamber::init(std::vector<MyGEMPart> &sparts)
-{
-  nh = nclu = nl = 0;
-  np = sparts.size();
-  mint = 1000000000.;
-  maxt = -1.;
-  if (np==0) return;
-  std::set<int> layers;
-  for (std::vector<MyGEMPart>::const_iterator itr = sparts.begin(); itr != sparts.end(); itr++)
-  {
-    MyGEMPart rl = *itr;
-    nh += rl.nh;
-    nclu += rl.nclu;
-    layers.insert(rl.ln);
-    if (rl.mint < mint) mint = rl.mint;
-    if (rl.maxt > maxt) maxt = rl.maxt;
-  }
-  nl = layers.size();
-}
-
-
-// ================================================================================================
-void
-MyGEMEvent::init(std::vector<MyGEMChamber> &schambers)
-{
-  nch = schambers.size();
-  nh = nclu = np = 0;
-  for (std::vector<MyGEMChamber>::const_iterator itr = schambers.begin(); itr != schambers.end(); itr++)
-  {
-    MyGEMChamber ch = *itr;
-    nh += ch.nh;
-    nclu += ch.nclu;
-    np += ch.np;
-  }
-}
-
-
-// ================================================================================================
-void
-MyRPCDetId::init(RPCDetId &id)
-{
-  reg    = id.region();
-  ring   = id.ring();
-  st     = id.station();
-  sec    = id.sector();
-  layer  = id.layer();
-  subsec = id.subsector();
-  roll   = id.roll();
-  t      = type(id);
-}
-
-
-// ================================================================================================
-void
-MyRPCSimHit::init(PSimHit &sh, const RPCGeometry* rpc_g, const ParticleDataTable * pdt)
-{
-  LocalPoint hitLP = sh.localPosition();
-  pdg = sh.particleType();
-  m = 0.00051;
-
-  ParticleData const *pdata = 0;
-  HepPDT::ParticleID particleType(pdg);
-  if (particleType.isValid()) pdata = pdt->particle(particleType);
-  if (pdata)  m = pdata->mass();
-  //  cout<<"  "<<pdg<<" "<<pdata->name()<<" "<<m;
-  else cout<<" pdg not in PDT: "<< pdg<<endl;
-
-  x = hitLP.x();
-  y = hitLP.y();
-  z = hitLP.z();
-  e = sh.energyLoss();
-  p = sh.pabs();
-  t = sh.tof();
-  trid = sh.trackId();
-
-  GlobalPoint hitGP = rpc_g->idToDet(DetId(sh.detUnitId()))->surface().toGlobal(hitLP);
-
-  r = hitGP.perp();
-  eta = hitGP.eta();
-  phi = hitGP.phi();
-  gx = hitGP.x();
-  gy = hitGP.y();
-  gz = hitGP.z();
-
-  RPCDetId rollId(sh.detUnitId());
-  s = rpc_g->roll(rollId)->strip(hitLP);
-}
-
-
-bool MyRPCSimHit::operator<(const MyRPCSimHit & rhs) const
-{
-  // first sort by strip, then by TOF
-  if (s==rhs.s) return t<rhs.t;
-  else return s<rhs.s;
-}
-
-
-// ================================================================================================
-void
-MyRPCCluster::init(std::vector<MyRPCSimHit> &shits)
-{
-  hits = shits;
-  nh = hits.size();
-  mint = 1000000000.;
-  maxt = -1.;
-  mins = 1000;
-  maxs = -1;
-  meant = 0;
-  sigmat = 0;
-  if (nh==0) return;
-  r = hits[0].r;
-  eta = hits[0].eta;
-  phi = hits[0].phi;
-  gx = hits[0].gx;
-  gy = hits[0].gy;
-  gz = hits[0].gz;
-  p = hits[0].p;
-  m = hits[0].m;
-  pdg = hits[0].pdg;
-  e = 0;
-  mintrid = 1000000000;
-  maxtrid = -1;
-  for (std::vector<MyRPCSimHit>::const_iterator itr = hits.begin(); itr != hits.end(); itr++)
-  {
-    MyRPCSimHit sh = *itr;
-    e += sh.e;
-    if (sh.t < mint) mint = sh.t;
-    if (sh.t > maxt) maxt = sh.t;
-    if (sh.s < mins) mins = sh.s;
-    if (sh.s > maxs) maxs = sh.s;
-    if (sh.trid < mintrid) mintrid = sh.trid;
-    if (sh.trid > maxtrid) maxtrid = sh.trid;
-    meant += sh.t;
-    sigmat += sh.t*sh.t;
-  }
-  meant = meant/nh;
-  sigmat = sqrt( sigmat/nh - meant*meant);
-  cout<<" rpc clu: "<<nh<<" "<<mint<<" "<<mins<<" "<<meant<<" "<<r<<" "<<gz<<" "<<m<<" "<<endl;
-}
-
-
-// ================================================================================================
-void
-MyRPCRoll::init(int r, int l, std::vector<MyRPCCluster> &sclusters)
-{
-  clusters = sclusters;
-  rn = r;
-  ln = l;
-  nclu = clusters.size();
-  nh = 0;
-  mint = 1000000000.;
-  maxt = -1.;
-  mins = 1000;
-  maxs = -1;
-  mintrid = 1000000000;
-  maxtrid = -1;
-  if (nclu==0) return;
-  for (std::vector<MyRPCCluster>::const_iterator itr = clusters.begin(); itr != clusters.end(); itr++)
-  {
-    MyRPCCluster cl = *itr;
-    nh += cl.nh;
-    if (cl.mint < mint) mint = cl.mint;
-    if (cl.maxt > maxt) maxt = cl.maxt;
-    if (cl.mins < mins) mins = cl.mins;
-    if (cl.maxs > maxs) maxs = cl.maxs;
-    if (cl.mintrid < mintrid) mintrid = cl.mintrid;
-    if (cl.maxtrid > maxtrid) maxtrid = cl.maxtrid;
-  }
-}
-
-
-// ================================================================================================
-void
-MyRPCChamber::init(std::vector<MyRPCRoll> &srolls)
-{
-  nh = nclu = nl = 0;
-  nr = srolls.size();
-  mint = 1000000000.;
-  maxt = -1.;
-  if (nr==0) return;
-  std::set<int> layers;
-  for (std::vector<MyRPCRoll>::const_iterator itr = srolls.begin(); itr != srolls.end(); itr++)
-  {
-    MyRPCRoll rl = *itr;
-    nh += rl.nh;
-    nclu += rl.nclu;
-    layers.insert(rl.ln);
-    if (rl.mint < mint) mint = rl.mint;
-    if (rl.maxt > maxt) maxt = rl.maxt;
-  }
-  nl = layers.size();
-}
-
-
-// ================================================================================================
-void
-MyRPCEvent::init(std::vector<MyRPCChamber> &schambers)
-{
-  nch = schambers.size();
-  nh = nclu = nr = 0;
-  for (std::vector<MyRPCChamber>::const_iterator itr = schambers.begin(); itr != schambers.end(); itr++)
-  {
-    MyRPCChamber ch = *itr;
-    nh += ch.nh;
-    nclu += ch.nclu;
-    nr += ch.nr;
-  }
-}
-
-
-// ================================================================================================
-void
-MyDTDetId::init(DTWireId &id)
-{
-  st     = id.station();
-  wh     = id.wheel();
-  sec    = id.sector();
-  sl     = id.superLayer();
-  l      = id.layer();
-  wire   = id.wire();
-  t      = type(id);
-}
-
-
-// ================================================================================================
-void
-MyDTSimHit::init(PSimHit &sh, const DTGeometry* dt_g, const ParticleDataTable * pdt)
-{
-  LocalPoint hitLP = sh.localPosition();
-  pdg = sh.particleType();
-  m = 0.00051;
-
-  ParticleData const *pdata = 0;
-  HepPDT::ParticleID particleType(pdg);
-  if (particleType.isValid()) pdata = pdt->particle(particleType);
-  if (pdata)  m = pdata->mass();
-  //  cout<<"  "<<pdg<<" "<<pdata->name()<<" "<<m;
-  else cout<<" pdg not in PDT: "<< pdg<<endl;
-
-  x = hitLP.x();
-  y = hitLP.y();
-  z = hitLP.z();
-  e = sh.energyLoss();
-  p = sh.pabs();
-  t = sh.tof();
-  trid = sh.trackId();
-
-  GlobalPoint hitGP = dt_g->idToDet(DetId(sh.detUnitId()))->surface().toGlobal(hitLP);
-
-  r = hitGP.perp();
-  eta = hitGP.eta();
-  phi = hitGP.phi();
-  gx = hitGP.x();
-  gy = hitGP.y();
-  gz = hitGP.z();
-
-  //w = csclayer->geometry()->wireGroup(csclayer->geometry()->nearestWire(hitLP));
-  //s = csclayer->geometry()->nearestStrip(hitLP);
-}
 
 
 // ================================================================================================
@@ -1603,7 +679,7 @@ MuSimHitOccupancy::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
     iSetup.get< MuonGeometryRecord >().get(csc_geom);
     csc_geometry = &*csc_geom;
 
-    if (evtn==1) calculateCSCDetectorAreas();
+    if (evtn==1) areas_.calculateCSCDetectorAreas(csc_geom);
 
     // get SimHits
     simhit_map_csc.fill(iEvent);
@@ -1617,7 +693,7 @@ MuSimHitOccupancy::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
     iSetup.get< MuonGeometryRecord >().get(gem_geom);
     gem_geometry = &*gem_geom;
 
-    if (evtn==1) calculateGEMDetectorAreas();
+    if (evtn==1) areas_.calculateGEMDetectorAreas(gem_geom);
 
     // get SimHits
     simhit_map_gem.fill(iEvent);
@@ -1631,7 +707,7 @@ MuSimHitOccupancy::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
     iSetup.get< MuonGeometryRecord >().get(rpc_geom);
     rpc_geometry = &*rpc_geom;
 
-    if (evtn==1) calculateRPCDetectorAreas();
+    if (evtn==1) areas_.calculateRPCDetectorAreas(rpc_geom);
 
     // get SimHits
     simhit_map_rpc.fill(iEvent);
@@ -1645,7 +721,7 @@ MuSimHitOccupancy::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
     iSetup.get< MuonGeometryRecord >().get(dt_geom);
     dt_geometry = &*dt_geom;
 
-    if (evtn==1) calculateDTDetectorAreas();
+    if (evtn==1) areas_.calculateDTDetectorAreas(dt_geom);
 
     // get SimHits
     simhit_map_dt.fill(iEvent);
@@ -2094,182 +1170,6 @@ MuSimHitOccupancy::analyzeDT()
 }
 
 
-// ================================================================================================
-void MuSimHitOccupancy::calculateCSCDetectorAreas()
-{
-  for (int i=0; i<=CSC_TYPES; i++) csc_total_areas_cm2[i]=0.;
-
-  for(std::vector<CSCLayer*>::const_iterator it = csc_geometry->layers().begin(); it != csc_geometry->layers().end(); it++)
-  {
-    if( dynamic_cast<CSCLayer*>( *it ) == 0 ) continue;
-
-    CSCLayer* layer = dynamic_cast<CSCLayer*>( *it );
-    CSCDetId id = layer->id();
-    int ctype = id.iChamberType();
-
-    const CSCWireTopology*  wire_topo  = layer->geometry()->wireTopology();
-    const CSCStripTopology* strip_topo = layer->geometry()->topology();
-    float b = wire_topo->narrowWidthOfPlane();
-    float t = wire_topo->wideWidthOfPlane();
-    float w_h   = wire_topo->lengthOfPlane();
-    float s_h = fabs(strip_topo->yLimitsOfStripPlane().first - strip_topo->yLimitsOfStripPlane().second);
-    float h = (w_h < s_h)? w_h : s_h;
-
-    // special cases:
-    if (ctype==1) // ME1/1a
-    {
-      h += -0.5; // adjustment in order to agree with the official me1a height number
-      t = ( b*(w_h - h) + t*h )/w_h;
-    }
-    if (ctype==2) // ME1/1a
-    {
-      h += -1.;
-      b = ( b*h + t*(w_h - h) )/w_h;
-    }
-
-    float layer_area = h*(t + b)*0.5;
-    csc_total_areas_cm2[0] += layer_area;
-    csc_total_areas_cm2[ctype] += layer_area;
-
-    if (id.layer()==1) cout<<"CSC type "<<ctype<<"  "<<id<<"  layer area: "<<layer_area<<" cm2   "
-        <<"  b="<<b<<" t="<<t<<" h="<<h<<"  w_h="<<w_h<<" s_h="<<s_h<<endl;
-  }
-  cout<<"========================"<<endl;
-  cout<<"= CSC chamber sensitive areas per layer (cm2):"<<endl;
-  for (int i=1; i<=CSC_TYPES; i++) cout<<"= "<<csc_type[i]<<" "<<csc_total_areas_cm2[i]/6./2./csc_radial_segm[i]<<endl;
-  cout<<"========================"<<endl;
-}
-
-
-// ================================================================================================
-void MuSimHitOccupancy::calculateGEMDetectorAreas()
-{
-  std::vector<float> emptyv(12, 0.);
-  float minr[GEM_TYPES+1], maxr[GEM_TYPES+1];
-  for (int i=0; i<=GEM_TYPES; i++) 
-  {
-    gem_total_areas_cm2[i]=0.;
-    gem_total_part_areas_cm2[i] = emptyv;
-    gem_part_radii[i] = emptyv;
-    minr[i] = 9999.;
-    maxr[i] = 0.;
-  }
-
-
-  auto etaPartitions = gem_geometry->etaPartitions();
-  for(auto p: etaPartitions)
-  {
-    GEMDetId id = p->id();
-    int t = type(id);
-    int part = id.roll();
-
-    const TrapezoidalStripTopology* top = dynamic_cast<const TrapezoidalStripTopology*>(&(p->topology()));
-    float xmin = top->localPosition(0.).x();
-    float xmax = top->localPosition((float)p->nstrips()).x();
-    float rollarea = top->stripLength() * (xmax - xmin);
-    gem_total_areas_cm2[0] += rollarea;
-    gem_total_areas_cm2[t] += rollarea;
-    gem_total_part_areas_cm2[0][0] += rollarea;
-    gem_total_part_areas_cm2[t][part] += rollarea;
-    cout<<"Partition: "<<id.rawId()<<" "<<id<<" area: "<<rollarea<<" cm2"<<endl;
-
-    GlobalPoint gp = gem_geometry->idToDet(id)->surface().toGlobal(LocalPoint(0.,0.,0.));
-    gem_part_radii[t][part] = gp.perp();
-
-    if (maxr[t] < gp.perp() + top->stripLength()/2.) maxr[t] = gp.perp() + top->stripLength()/2.;
-    if (minr[t] > gp.perp() - top->stripLength()/2.) minr[t] = gp.perp() - top->stripLength()/2.;
-  }
-
-  for (int t=1; t<=GEM_TYPES; t++)
-  {
-    gem_part_radii[t][0] = (minr[t] + maxr[t])/2.;
-  }
-
-  cout<<"========================"<<endl;
-  cout<<"= GEM chamber sensitive areas per layer (cm2):"<<endl;
-  for (int i=0; i<=GEM_TYPES; i++) cout<<"= "<<gem_type[i]<<" "<<rpcf_total_areas_cm2[i]/2./2./rpcf_radial_segm[i]<<endl;
-  cout<<"========================"<<endl;
-}
-
-
-
-// ================================================================================================
-void MuSimHitOccupancy::calculateDTDetectorAreas()
-{
-  for (int i=0; i<=DT_TYPES; i++) dt_total_areas_cm2[i]=0.;
-
-  for(std::vector<DTLayer*>::const_iterator it = dt_geometry->layers().begin(); it != dt_geometry->layers().end(); it++)
-  {
-    if( dynamic_cast<DTLayer*>( *it ) == 0 ) continue;
-
-    DTLayer* layer = dynamic_cast<DTLayer*>( *it );
-    DTWireId id = (DTWireId) layer->id();
-    int t = type(id);
-
-    const DTTopology& topo = layer->specificTopology();
-    // cell's sensible width * # cells
-    float w = topo.sensibleWidth() * topo.channels();
-    float l = topo.cellLenght();
-
-    float layer_area = w*l;
-    dt_total_areas_cm2[0] += layer_area;
-    dt_total_areas_cm2[t] += layer_area;
-
-    if (id.layer()==1) cout<<"DT type "<<t<<"  "<<id<<"  layer area: "<<layer_area<<" cm2   "
-        <<"  w="<<w<<" l="<<l<<" ncells="<<topo.channels()<<endl;
-  }
-
-  cout<<"========================"<<endl;
-  cout<<"= DT *total* sensitive areas (cm2):"<<endl;
-  for (int i=0; i<=DT_TYPES; i++) cout<<"= "<<dt_type[i]<<" "<<dt_total_areas_cm2[i]<<endl;
-  cout<<"========================"<<endl;
-}
-
-
-// ================================================================================================
-void MuSimHitOccupancy::calculateRPCDetectorAreas()
-{
-  for (int i=0; i<=RPCB_TYPES; i++) rpcb_total_areas_cm2[i]=0.;
-  for (int i=0; i<=RPCF_TYPES; i++) rpcf_total_areas_cm2[i]=0.;
-
-  // adapted from Piet's RPCGeomAnalyzer
-
-  for(std::vector<RPCRoll*>::const_iterator it = rpc_geometry->rolls().begin(); it != rpc_geometry->rolls().end(); it++)
-  {
-    if( dynamic_cast<RPCRoll*>( *it ) != 0 ) { // check if dynamic cast is ok: cast ok => 1
-      RPCRoll* roll = dynamic_cast<RPCRoll*>( *it );
-      RPCDetId id = roll->id();
-      //RPCGeomServ rpcsrv(detId);
-      //std::string name = rpcsrv.name();
-      if (id.region() == 0) {
-        const RectangularStripTopology* top_ = dynamic_cast<const RectangularStripTopology*>(&(roll->topology()));
-        float xmin = (top_->localPosition(0.)).x();
-        float xmax = (top_->localPosition((float)roll->nstrips())).x();
-        float rollarea = top_->stripLength() * (xmax - xmin);
-        rpcb_total_areas_cm2[0] += rollarea;
-        rpcb_total_areas_cm2[type(id)] += rollarea;
-        // cout<<"Roll: RawId: "<<id.rawId()<<" Name: "<<name<<" RPCDetId: "<<id<<" rollarea: "<<rollarea<<" cm2"<<endl;
-      }
-      else
-      {
-        const TrapezoidalStripTopology* top_=dynamic_cast<const TrapezoidalStripTopology*>(&(roll->topology()));
-        float xmin = (top_->localPosition(0.)).x();
-        float xmax = (top_->localPosition((float)roll->nstrips())).x();
-        float rollarea = top_->stripLength() * (xmax - xmin);
-        rpcf_total_areas_cm2[0] += rollarea;
-        rpcf_total_areas_cm2[type(id)] += rollarea;
-        // cout<<"Roll: RawId: "<<id.rawId()<<" Name: "<<name<<" RPCDetId: "<<id<<" rollarea: "<<rollarea<<" cm2"<<endl;
-      }
-    }
-  }
-  cout<<"========================"<<endl;
-  cout<<"= RPCb *total* sensitive areas (cm2):"<<endl;
-  for (int i=0; i<=RPCB_TYPES; i++) cout<<"= "<<rpcb_type[i]<<" "<<rpcb_total_areas_cm2[i]<<endl;
-  cout<<"= RPCf chamber sensitive areas (cm2):"<<endl;
-  for (int i=0; i<=RPCF_TYPES; i++) cout<<"= "<<rpcf_type[i]<<" "<<rpcf_total_areas_cm2[i]/2./rpcf_radial_segm[i]<<endl;
-  cout<<"========================"<<endl;
-}
-
 
 // ================================================================================================
 void MuSimHitOccupancy::beginJob() {}
@@ -2323,69 +1223,46 @@ void MuSimHitOccupancy::endJob()
   // bx rate 40 MHz
   double bxrate = 40000000.;
 
-  //  chamber areas
-  //const double csc_areas_cm2[CSC_TYPES+1] =
-  //  {10000000, 1068.32, 4108.77, 10872.75, 13559.025, 16986, 31121.2, 15716.4, 31121.2, 14542.5, 31121.2};
   h_csc_hit_flux_per_layer->Sumw2();
   h_csc_hit_rate_per_ch->Sumw2();
   h_csc_clu_flux_per_layer->Sumw2();
   h_csc_clu_rate_per_ch->Sumw2();
-  if (do_csc_) for (int t=1; t<=CSC_TYPES; t++)
+  if (do_csc_) for (int t=1; t <= CSC_TYPES; t++)
   {
     // 2 endcaps , 6 layers
-    double scale = bxrate * n_pu * f_full_bx /csc_total_areas_cm2[t]/evtn;
+    double scale = bxrate * n_pu * f_full_bx /areas_.csc_total_areas_cm2[t]/evtn;
     double rt = scale * h_csc_hit_flux_per_layer->GetBinContent(t);
     double er = scale * h_csc_hit_flux_per_layer->GetBinError(t);
-    h_csc_hit_flux_per_layer->SetBinContent(t,rt);
-    h_csc_hit_flux_per_layer->SetBinError(t,er);
+    h_csc_hit_flux_per_layer->SetBinContent(t, rt);
+    h_csc_hit_flux_per_layer->SetBinError(t, er);
 
     rt = scale * h_csc_clu_flux_per_layer->GetBinContent(t);
     er = scale * h_csc_clu_flux_per_layer->GetBinError(t);
-    h_csc_clu_flux_per_layer->SetBinContent(t,rt);
-    h_csc_clu_flux_per_layer->SetBinError(t,er);
+    h_csc_clu_flux_per_layer->SetBinContent(t, rt);
+    h_csc_clu_flux_per_layer->SetBinError(t, er);
 
-    scale = bxrate * n_pu * f_full_bx /csc_radial_segm[t]/2/evtn/1000;
+    scale = bxrate * n_pu * f_full_bx /csc_radial_segm[t]/2./evtn/1000.;
     rt = scale * h_csc_hit_rate_per_ch->GetBinContent(t);
     er = scale * h_csc_hit_rate_per_ch->GetBinError(t);
-    h_csc_hit_rate_per_ch->SetBinContent(t,rt);
-    h_csc_hit_rate_per_ch->SetBinError(t,er);
+    h_csc_hit_rate_per_ch->SetBinContent(t, rt);
+    h_csc_hit_rate_per_ch->SetBinError(t, er);
 
     rt = scale * h_csc_clu_rate_per_ch->GetBinContent(t);
     er = scale * h_csc_clu_rate_per_ch->GetBinError(t);
-    h_csc_clu_rate_per_ch->SetBinContent(t,rt);
-    h_csc_clu_rate_per_ch->SetBinError(t,er);
+    h_csc_clu_rate_per_ch->SetBinContent(t, rt);
+    h_csc_clu_rate_per_ch->SetBinError(t, er);
 
-
-    // centers of ME stations in r
-    const Double_t xx[4][4] = {
-        {128., 203.25, 369.75, 594.1}, {239.05, 525.55, 0, 0}, {251.75, 525.55, 0, 0}, {261.7, 525.55, 0, 0}};
-    // half-spans of ME stations in r
-    const Double_t xe[4][4] = {
-        {22., 53.25, 87.25, 82.1}, {94.85, 161.55, 0, 0}, {84.85, 161.55, 0, 0}, {74.7, 161.55, 0, 0}};
-    // fluxes and errors
-    const Double_t yy[4][4] = {
-        { h_csc_hit_flux_per_layer->GetBinContent(1), h_csc_hit_flux_per_layer->GetBinContent(2),
-          h_csc_hit_flux_per_layer->GetBinContent(3), h_csc_hit_flux_per_layer->GetBinContent(4)},
-        { h_csc_hit_flux_per_layer->GetBinContent(5), h_csc_hit_flux_per_layer->GetBinContent(6), 0, 0},
-        { h_csc_hit_flux_per_layer->GetBinContent(7), h_csc_hit_flux_per_layer->GetBinContent(8), 0, 0},
-        { h_csc_hit_flux_per_layer->GetBinContent(9), h_csc_hit_flux_per_layer->GetBinContent(10), 0, 0} };
-    const Double_t ye[4][4] = {
-        { h_csc_hit_flux_per_layer->GetBinError(1), h_csc_hit_flux_per_layer->GetBinError(2),
-          h_csc_hit_flux_per_layer->GetBinError(3), h_csc_hit_flux_per_layer->GetBinError(4)},
-        { h_csc_hit_flux_per_layer->GetBinError(5), h_csc_hit_flux_per_layer->GetBinError(6), 0, 0},
-        { h_csc_hit_flux_per_layer->GetBinError(7), h_csc_hit_flux_per_layer->GetBinError(8), 0, 0},
-        { h_csc_hit_flux_per_layer->GetBinError(9), h_csc_hit_flux_per_layer->GetBinError(10), 0, 0} };
     for (int i=0; i<4; i++)
     {
-      gr_csc_hit_flux_me1->SetPoint(i, xx[0][i], yy[0][i]);
-      gr_csc_hit_flux_me1->SetPointError(i, xe[0][i], ye[0][i]);
+      gr_csc_hit_flux_me1->SetPoint(i, areas_.csc_ch_radius[i+1], h_csc_hit_flux_per_layer->GetBinContent(i+1) );
+      gr_csc_hit_flux_me1->SetPointError(i, areas_.csc_ch_halfheight[i+1], h_csc_hit_flux_per_layer->GetBinError(i+1) );
       if (i>1) continue;
-      gr_csc_hit_flux_me2->SetPoint(i, xx[1][i], yy[1][i]);
-      gr_csc_hit_flux_me3->SetPoint(i, xx[2][i], yy[2][i]);
-      gr_csc_hit_flux_me4->SetPoint(i, xx[3][i], yy[3][i]);
-      gr_csc_hit_flux_me2->SetPointError(i, xe[1][i], ye[1][i]);
-      gr_csc_hit_flux_me3->SetPointError(i, xe[2][i], ye[2][i]);
-      gr_csc_hit_flux_me4->SetPointError(i, xe[3][i], ye[3][i]);
+      gr_csc_hit_flux_me2->SetPoint(i, areas_.csc_ch_radius[i+5], h_csc_hit_flux_per_layer->GetBinContent(i+5) );
+      gr_csc_hit_flux_me3->SetPoint(i, areas_.csc_ch_radius[i+7], h_csc_hit_flux_per_layer->GetBinContent(i+7) );
+      gr_csc_hit_flux_me4->SetPoint(i, areas_.csc_ch_radius[i+9], h_csc_hit_flux_per_layer->GetBinContent(i+9) );
+      gr_csc_hit_flux_me2->SetPointError(i, areas_.csc_ch_halfheight[i+5], h_csc_hit_flux_per_layer->GetBinError(i+5) );
+      gr_csc_hit_flux_me3->SetPointError(i, areas_.csc_ch_halfheight[i+7], h_csc_hit_flux_per_layer->GetBinError(i+7) );
+      gr_csc_hit_flux_me4->SetPointError(i, areas_.csc_ch_halfheight[i+9], h_csc_hit_flux_per_layer->GetBinError(i+9) );
     }
   }
 
@@ -2394,7 +1271,7 @@ void MuSimHitOccupancy::endJob()
   h_gem_hit_rate_per_ch->Sumw2();
   if (do_gem_) for (int t=1; t<=GEM_TYPES; t++)
   {
-    double scale = bxrate * n_pu * f_full_bx /gem_total_areas_cm2[t]/evtn;
+    double scale = bxrate * n_pu * f_full_bx /areas_.gem_total_areas_cm2[t]/evtn;
 
     double rt = scale * h_gem_hit_flux_per_layer->GetBinContent(t);
     double er = scale * h_gem_hit_flux_per_layer->GetBinError(t);
@@ -2419,15 +1296,12 @@ void MuSimHitOccupancy::endJob()
     h_gem_clu_rate_per_ch->SetBinError(t,er);
   }
   
-  //const double rpcf_areas_cm2[RPCF_TYPES+1] = {100000, 3150,11700,17360,11070,11690,19660,7330,11690,19660,5330,11690,19660};
-  //const double rpcf_total_areas_cm2[RPCF_TYPES+1] =
-  //  { 10000000, 244093, 738256, 1289290, 397166, 854259, 1418920, 276969, 854259, 1418920, 204059, 854259, 1418920};
 
   h_rpcf_hit_flux_per_layer->Sumw2();
   h_rpcf_hit_rate_per_ch->Sumw2();
   if (do_rpc_) for (int t=1; t<=RPCF_TYPES; t++)
   {
-    double scale = bxrate * n_pu * f_full_bx /rpcf_total_areas_cm2[t]/evtn;
+    double scale = bxrate * n_pu * f_full_bx /areas_.rpcf_total_areas_cm2[t]/evtn;
     double rt = scale * h_rpcf_hit_flux_per_layer->GetBinContent(t);
     double er = scale * h_rpcf_hit_flux_per_layer->GetBinError(t);
     h_rpcf_hit_flux_per_layer->SetBinContent(t,rt);
@@ -2449,14 +1323,12 @@ void MuSimHitOccupancy::endJob()
     h_rpcf_clu_rate_per_ch->SetBinContent(t,rt);
     h_rpcf_clu_rate_per_ch->SetBinError(t,er);
   }
+
   
-  // chambers with two layers have their area doubled:
-  //const double rpcb_total_areas_cm2[RPCF_TYPES+1] =
-  //  { 10000000, 1196940, 2361750, 2393880, 1439190, 2839700, 2878390, 859939, 1696790, 1719880, 1102040, 2163920, 2204080};
   h_rpcb_hit_flux_per_layer->Sumw2();
   if (do_rpc_) for (int t=1; t<=RPCB_TYPES; t++)
   {
-    double scale = bxrate * n_pu * f_full_bx /rpcb_total_areas_cm2[t]/evtn;
+    double scale = bxrate * n_pu * f_full_bx /areas_.rpcb_total_areas_cm2[t]/evtn;
     double rt = scale * h_rpcb_hit_flux_per_layer->GetBinContent(t);
     double er = scale * h_rpcb_hit_flux_per_layer->GetBinError(t);
     h_rpcb_hit_flux_per_layer->SetBinContent(t,rt);
@@ -2480,53 +1352,33 @@ void MuSimHitOccupancy::endJob()
   }
 
 
-    //  chamber areas
-  //const double dt_total_areas_cm2[DT_TYPES+1] =
-  //  {1.65696e+08,6.73021e+06,1.32739e+07,1.34604e+07,8.20906e+06,1.61906e+07,1.64182e+07,9.88901e+06,1.95039e+07,1.9778e+07,8.50898e+06,1.67151e+07,1.7018e+07};
   h_dt_hit_flux_per_layer->Sumw2();
   h_dt_hit_rate_per_ch->Sumw2();
   if (do_dt_) for (int t=1; t<=DT_TYPES; t++)
   {
     // 2 endcaps , 6 layers
-    double scale = bxrate * n_pu * f_full_bx /dt_total_areas_cm2[t] /evtn;
+    double scale = bxrate * n_pu * f_full_bx /areas_.dt_total_areas_cm2[t] /evtn;
     double rt = scale * h_dt_hit_flux_per_layer->GetBinContent(t);
     double er = scale * h_dt_hit_flux_per_layer->GetBinError(t);
     h_dt_hit_flux_per_layer->SetBinContent(t,rt);
     h_dt_hit_flux_per_layer->SetBinError(t,er);
 
-    scale = bxrate * n_pu * f_full_bx /dt_radial_segm[t]/evtn/1000;
+    scale = bxrate * n_pu * f_full_bx /dt_radial_segm[t]/evtn/1000.;
     rt = scale * h_dt_hit_rate_per_ch->GetBinContent(t);
     er = scale * h_dt_hit_rate_per_ch->GetBinError(t);
     h_dt_hit_rate_per_ch->SetBinContent(t,rt);
     h_dt_hit_rate_per_ch->SetBinError(t,er);
 
-    // centers of MB stations in |z|
-    const Double_t xx[4][3] = {{58.7, 273, 528}, {58.7, 273, 528}, {58.7, 273, 528}, {58.7, 273, 528}};
-    // half-spans of MB stations in |z|
-    const Double_t xe[4][3] = {{58.7, 117.4, 117.4}, {58.7, 117.4, 117.4}, {58.7, 117.4, 117.4}, {58.7, 117.4, 117.4}};
-    // fluxes and errors
-    const Double_t yy[4][3] = {
-        { h_dt_hit_flux_per_layer->GetBinContent(1), h_dt_hit_flux_per_layer->GetBinContent(2), h_dt_hit_flux_per_layer->GetBinContent(3)},
-        { h_dt_hit_flux_per_layer->GetBinContent(4), h_dt_hit_flux_per_layer->GetBinContent(5), h_dt_hit_flux_per_layer->GetBinContent(6)},
-        { h_dt_hit_flux_per_layer->GetBinContent(7), h_dt_hit_flux_per_layer->GetBinContent(8), h_dt_hit_flux_per_layer->GetBinContent(9)},
-        { h_dt_hit_flux_per_layer->GetBinContent(10), h_dt_hit_flux_per_layer->GetBinContent(11), h_dt_hit_flux_per_layer->GetBinContent(12)}
-    };
-    const Double_t ye[4][3] = {
-        { h_dt_hit_flux_per_layer->GetBinError(1), h_dt_hit_flux_per_layer->GetBinError(2), h_dt_hit_flux_per_layer->GetBinError(3)},
-        { h_dt_hit_flux_per_layer->GetBinError(4), h_dt_hit_flux_per_layer->GetBinError(5), h_dt_hit_flux_per_layer->GetBinError(6)},
-        { h_dt_hit_flux_per_layer->GetBinError(7), h_dt_hit_flux_per_layer->GetBinError(8), h_dt_hit_flux_per_layer->GetBinError(9)},
-        { h_dt_hit_flux_per_layer->GetBinError(10), h_dt_hit_flux_per_layer->GetBinError(11), h_dt_hit_flux_per_layer->GetBinError(12)}
-    };
     for (int i=0; i<3; i++)
     {
-      gr_dt_hit_flux_mb1->SetPoint(i, xx[0][i], yy[0][i]);
-      gr_dt_hit_flux_mb2->SetPoint(i, xx[1][i], yy[1][i]);
-      gr_dt_hit_flux_mb3->SetPoint(i, xx[2][i], yy[2][i]);
-      gr_dt_hit_flux_mb4->SetPoint(i, xx[3][i], yy[3][i]);
-      gr_dt_hit_flux_mb1->SetPointError(i, xe[0][i], ye[0][i]);
-      gr_dt_hit_flux_mb2->SetPointError(i, xe[1][i], ye[1][i]);
-      gr_dt_hit_flux_mb3->SetPointError(i, xe[2][i], ye[2][i]);
-      gr_dt_hit_flux_mb4->SetPointError(i, xe[3][i], ye[3][i]);
+      gr_dt_hit_flux_mb1->SetPoint(i, areas_.dt_ch_z[i+1], h_dt_hit_flux_per_layer->GetBinContent(i+1) );
+      gr_dt_hit_flux_mb2->SetPoint(i, areas_.dt_ch_z[i+4], h_dt_hit_flux_per_layer->GetBinContent(i+4) );
+      gr_dt_hit_flux_mb3->SetPoint(i, areas_.dt_ch_z[i+7], h_dt_hit_flux_per_layer->GetBinContent(i+7) );
+      gr_dt_hit_flux_mb4->SetPoint(i, areas_.dt_ch_z[i+10], h_dt_hit_flux_per_layer->GetBinContent(i+10) );
+      gr_dt_hit_flux_mb1->SetPointError(i, areas_.dt_ch_halfspanz[i+1], h_dt_hit_flux_per_layer->GetBinError(i+1) );
+      gr_dt_hit_flux_mb2->SetPointError(i, areas_.dt_ch_halfspanz[i+4], h_dt_hit_flux_per_layer->GetBinError(i+4) );
+      gr_dt_hit_flux_mb3->SetPointError(i, areas_.dt_ch_halfspanz[i+7], h_dt_hit_flux_per_layer->GetBinError(i+7) );
+      gr_dt_hit_flux_mb4->SetPointError(i, areas_.dt_ch_halfspanz[i+10], h_dt_hit_flux_per_layer->GetBinError(i+10) );
     }
   }
 
