@@ -60,10 +60,14 @@ enum ETrigDT {MAX_DT_STATIONS = 4, DT_TYPES = 12};
 enum ETrigRPCF {MAX_RPCF_STATIONS = 4, RPCF_TYPES = 12};
 enum ETrigRPCB {MAX_RPCB_STATIONS = 4, RPCB_TYPES = 12};
 
-int typeRPCb(RPCDetId &d) {return  3*d.station() + abs(d.ring()) - 2;}
-int typeRPCf(RPCDetId &d) {return  3*d.station() + d.ring() - 3;}
-int typeGEM(GEMDetId &d)  {return  3*d.station() + d.ring() - 3;}
-int typeDT(DTWireId &d)   {return  3*d.station() + abs(d.wheel()) - 2;}
+int type(CSCDetId &d)  {return  d.iChamberType();}
+int type(GEMDetId &d)  {return  3*d.station() + d.ring() - 3;}
+int type(RPCDetId &d)
+{
+  if (d.region()==0) return  3*d.station() + abs(d.ring()) - 2;
+  else return  3*d.station() + d.ring() - 3;
+}
+int type(DTWireId &d)  {return  3*d.station() + abs(d.wheel()) - 2;}
 
 const std::string csc_type[CSC_TYPES+1] =
   { "all", "ME1/a", "ME1/b", "ME1/2", "ME1/3", "ME2/1", "ME2/2", "ME3/1", "ME3/2", "ME4/1", "ME4/2"};
@@ -995,7 +999,7 @@ MyCSCDetId::init(CSCDetId &id)
   r = id.ring();
   c = id.chamber();
   l = id.layer();
-  t = id.iChamberType();
+  t = type(id);
 }
 
 
@@ -1190,7 +1194,7 @@ MyGEMDetId::init(GEMDetId &id)
   layer  = id.layer();
   ch     = id.chamber();
   part   = id.roll();
-  t      = typeGEM(id);
+  t      = type(id);
 }
 
 
@@ -1363,8 +1367,7 @@ MyRPCDetId::init(RPCDetId &id)
   layer  = id.layer();
   subsec = id.subsector();
   roll   = id.roll();
-  if (reg!=0) t = typeRPCf(id);
-  else t = typeRPCb(id);
+  t      = type(id);
 }
 
 
@@ -1536,7 +1539,7 @@ MyDTDetId::init(DTWireId &id)
   sl     = id.superLayer();
   l      = id.layer();
   wire   = id.wire();
-  t = typeDT(id);
+  t      = type(id);
 }
 
 
@@ -2157,7 +2160,7 @@ void MuSimHitOccupancy::calculateGEMDetectorAreas()
   for(auto p: etaPartitions)
   {
     GEMDetId id = p->id();
-    int t = typeGEM(id);
+    int t = type(id);
     int part = id.roll();
 
     const TrapezoidalStripTopology* top = dynamic_cast<const TrapezoidalStripTopology*>(&(p->topology()));
@@ -2165,7 +2168,7 @@ void MuSimHitOccupancy::calculateGEMDetectorAreas()
     float xmax = top->localPosition((float)p->nstrips()).x();
     float rollarea = top->stripLength() * (xmax - xmin);
     gem_total_areas_cm2[0] += rollarea;
-    gem_total_areas_cm2[typeGEM(id)] += rollarea;
+    gem_total_areas_cm2[t] += rollarea;
     gem_total_part_areas_cm2[0][0] += rollarea;
     gem_total_part_areas_cm2[t][part] += rollarea;
     cout<<"Partition: "<<id.rawId()<<" "<<id<<" area: "<<rollarea<<" cm2"<<endl;
@@ -2201,7 +2204,7 @@ void MuSimHitOccupancy::calculateDTDetectorAreas()
 
     DTLayer* layer = dynamic_cast<DTLayer*>( *it );
     DTWireId id = (DTWireId) layer->id();
-    int ctype = typeDT(id);
+    int t = type(id);
 
     const DTTopology& topo = layer->specificTopology();
     // cell's sensible width * # cells
@@ -2210,9 +2213,9 @@ void MuSimHitOccupancy::calculateDTDetectorAreas()
 
     float layer_area = w*l;
     dt_total_areas_cm2[0] += layer_area;
-    dt_total_areas_cm2[ctype] += layer_area;
+    dt_total_areas_cm2[t] += layer_area;
 
-    if (id.layer()==1) cout<<"DT type "<<ctype<<"  "<<id<<"  layer area: "<<layer_area<<" cm2   "
+    if (id.layer()==1) cout<<"DT type "<<t<<"  "<<id<<"  layer area: "<<layer_area<<" cm2   "
         <<"  w="<<w<<" l="<<l<<" ncells="<<topo.channels()<<endl;
   }
 
@@ -2244,7 +2247,7 @@ void MuSimHitOccupancy::calculateRPCDetectorAreas()
         float xmax = (top_->localPosition((float)roll->nstrips())).x();
         float rollarea = top_->stripLength() * (xmax - xmin);
         rpcb_total_areas_cm2[0] += rollarea;
-        rpcb_total_areas_cm2[typeRPCb(id)] += rollarea;
+        rpcb_total_areas_cm2[type(id)] += rollarea;
         // cout<<"Roll: RawId: "<<id.rawId()<<" Name: "<<name<<" RPCDetId: "<<id<<" rollarea: "<<rollarea<<" cm2"<<endl;
       }
       else
@@ -2254,7 +2257,7 @@ void MuSimHitOccupancy::calculateRPCDetectorAreas()
         float xmax = (top_->localPosition((float)roll->nstrips())).x();
         float rollarea = top_->stripLength() * (xmax - xmin);
         rpcf_total_areas_cm2[0] += rollarea;
-        rpcf_total_areas_cm2[typeRPCf(id)] += rollarea;
+        rpcf_total_areas_cm2[type(id)] += rollarea;
         // cout<<"Roll: RawId: "<<id.rawId()<<" Name: "<<name<<" RPCDetId: "<<id<<" rollarea: "<<rollarea<<" cm2"<<endl;
       }
     }
