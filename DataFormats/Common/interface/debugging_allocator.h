@@ -14,7 +14,6 @@
 //    typedef vector<int, edm::debugging_allocator<int> > vint;
 // etc.
 //
-// $Id: debugging_allocator.h,v 1.1 2006/10/25 21:32:00 paterno Exp $
 //---------------------------------------------------------------------
 
 #include <limits>

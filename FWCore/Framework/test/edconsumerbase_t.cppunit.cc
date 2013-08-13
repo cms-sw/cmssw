@@ -8,7 +8,6 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Sat, 06 Apr 2013 16:39:12 GMT
-// $Id: edconsumerbase_t.cppunit.cc,v 1.5 2013/06/07 17:58:32 chrjones Exp $
 //
 
 // system include files

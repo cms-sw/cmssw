@@ -16,7 +16,6 @@
 //
 // Original Author:
 //         Created:  Wed Feb 10 11:15:16 CST 2010
-// $Id$
 //
 #if !defined(__CINT__) && !defined(__MAKECINT__)
 

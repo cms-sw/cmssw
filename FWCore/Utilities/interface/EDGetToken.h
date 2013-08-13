@@ -20,7 +20,6 @@ The templated form, EDGetTokenT<T>, is the same as EDGetToken except when used t
 //
 // Original Author:  Chris Jones
 //         Created:  Wed, 03 Apr 2013 17:54:11 GMT
-// $Id: EDGetToken.h,v 1.2 2013/05/29 14:10:10 wdd Exp $
 //
 
 // system include files
