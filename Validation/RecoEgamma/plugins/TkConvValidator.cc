@@ -97,8 +97,6 @@
  **
  **
  **  $Id: TkConvValidator
- **  $Date: 2012/12/26 13:37:05 $
- **  $Revision: 1.6 $
  **  \author N.Marinelli - Univ. of Notre Dame
  **
  ***/

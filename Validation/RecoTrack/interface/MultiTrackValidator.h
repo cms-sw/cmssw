@@ -4,8 +4,6 @@
 /** \class MultiTrackValidator
  *  Class that prodecs histrograms to validate Track Reconstruction performances
  *
- *  $Date: 2011/02/02 11:41:16 $
- *  $Revision: 1.51 $
  *  \author cerati
  */
 #include "FWCore/Framework/interface/Frameworkfwd.h"

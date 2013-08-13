@@ -41,8 +41,6 @@
  **
  **
  **  $Id: ElectronConversionRejectionValidator
- **  $Date: 2011/07/20 16:57:32 $
- **  $Revision: 1.3 $
  **  \author J.Bendavid
  **
  ***/

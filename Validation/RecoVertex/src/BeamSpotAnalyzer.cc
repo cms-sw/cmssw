@@ -13,7 +13,6 @@
 //
 // Original Author:  Andrea Venturi
 //         Created:  Mon Oct 27 17:37:53 CET 2008
-// $Id: BeamSpotAnalyzer.cc,v 1.2 2011/05/28 08:15:53 venturia Exp $
 //
 //
 

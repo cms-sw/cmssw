@@ -13,7 +13,6 @@
 //
 // Original Author:  Wolfram Erdmann
 //         Created:  Fri Jun  2 10:54:05 CEST 2006
-// $Id: PrimaryVertexAnalyzer.h,v 1.14 2009/01/09 10:23:27 saout Exp $
 //
 //
 

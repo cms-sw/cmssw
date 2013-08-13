@@ -5,8 +5,6 @@
  *
  *
  *
- *  $Date: 2009/05/08 15:24:25 $
- *  $Revision: 1.4 $
  *
  *  \author Adam Everett        Purdue University
  */
