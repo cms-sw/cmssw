@@ -2,9 +2,16 @@
 #include "Utilities/StorageFactory/interface/StorageMakerFactory.h"
 #include "Utilities/StorageFactory/interface/StorageFactory.h"
 #include "Utilities/XrdAdaptor/src/XrdFile.h"
+
+// These are to be removed once the new client supports prepare requests.
 #include "XrdClient/XrdClientAdmin.hh"
 #include "XrdClient/XrdClientUrlSet.hh"
-#include "XrdClient/XrdClientEnv.hh"
+#include "XrdCl/XrdClDefaultEnv.hh"
+// We muck with internal symbols of XrdCl to avoid duplicate definition issues
+// See https://github.com/xrootd/xrootd/issues/16
+#define __XRD_CL_OPTIMIZERS_HH__
+#include "XrdCl/XrdClLog.hh"
+
 
 class XrdStorageMaker : public StorageMaker
 {
@@ -15,11 +22,6 @@ public:
 			 const std::string &path,
 			 int mode)
   {
-    // The important part here is not the cache size (which will get
-    // auto-adjusted), but the fact the cache is set to something non-zero.
-    // If we don't do this before creating the XrdFile object, caching will be
-    // completely disabled, resulting in poor performance.
-    EnvPutInt(NAME_READCACHESIZE, 20*1024*1024);
 
     StorageFactory *f = StorageFactory::get();
     StorageFactory::ReadHint readHint = f->readHint();
@@ -74,7 +76,8 @@ public:
 
   virtual void setDebugLevel (unsigned int level)
   {
-    EnvPutInt("DebugLevel", level);
+    //XrdCl::Log *log = XrdCl::DefaultEnv::GetLog();
+    //log->SetLevel(static_cast<XrdCl::Log::LogLevel>(level+2));
   }
 };
 
