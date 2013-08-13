@@ -60,7 +60,7 @@ namespace sistrip {
       eventPrincipal_()
   {
     // Use the empty parameter set for the parameter set ID of our "@MIXING" process.
-    processConfiguration_->setParameterSetID(ParameterSet::emptyParameterSetID());
+    processConfiguration_->setParameterSetID(edm::ParameterSet::emptyParameterSetID());
     productRegistry_->setFrozen();
 
     eventPrincipal_.reset(new edm::EventPrincipal(source_->productRegistry(),
