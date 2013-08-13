@@ -13,6 +13,8 @@
 #include "DataFormats/MuonDetId/interface/RPCDetId.h"
 #include "DataFormats/MuonDetId/interface/DTWireId.h"
 
+#include <vector>
+
 class CSCGeometry;
 class GEMGeometry;
 class RPCGeometry;
@@ -29,14 +31,14 @@ enum ETrigRPCF {MAX_RPCF_STATIONS = 4, RPCF_TYPES = 12};
 enum ETrigRPCB {MAX_RPCB_STATIONS = 4, RPCB_TYPES = 12};
 
 // chamber types
-int type(CSCDetId &d)  {return  d.iChamberType();}
-int type(GEMDetId &d)  {return  3*d.station() + d.ring() - 3;}
-int type(RPCDetId &d)
+inline int type(CSCDetId &d)  {return  d.iChamberType();}
+inline int type(GEMDetId &d)  {return  3*d.station() + d.ring() - 3;}
+inline int type(RPCDetId &d)
 {
   if (d.region()==0) return  3*d.station() + abs(d.ring()) - 2;
   else return  3*d.station() + d.ring() - 3;
 }
-int type(DTWireId &d)  {return  3*d.station() + abs(d.wheel()) - 2;}
+inline int type(DTWireId &d)  {return  3*d.station() + abs(d.wheel()) - 2;}
 
 // labels for chamber types
 const std::string csc_type[CSC_TYPES+1] =
@@ -98,17 +100,17 @@ public:
   std::vector<float> gem_part_halfheight[GEM_TYPES+1];  // partition half height
 
   // centers of CSC chamber positions in r
-  const float csc_ch_radius[CSC_TYPES+1] = {0., 128., 203.25, 369.75, 594.1, 239.05, 525.55, 251.75, 525.55, 261.7, 525.55};
+  static const float csc_ch_radius[CSC_TYPES+1];
   // half-spans of CSC stations in r
-  const float csc_ch_halfheight[CSC_TYPES+1] = {0., 22., 53.25, 87.25, 82.1, 94.85, 161.55, 84.85, 161.55, 74.7, 161.55};
+  static const float csc_ch_halfheight[CSC_TYPES+1];
 
 
   // centers of MB chamber types in |z|
   // Note: normally, wheel 0 chamber is centered at 0, but as we are looking at "half-detector"
   //       we take half-of-half of a wheel 0 position
-  const float dt_ch_z[DT_TYPES+1] = {0., 58.7, 273, 528, 58.7, 273, 528, 58.7, 273, 528, 58.7, 273, 528};
+  static const float dt_ch_z[DT_TYPES+1];
   // half-spans of MB chambers in |z|
-  const float dt_ch_halfspanz[DT_TYPES+1] = {0., 58.7, 117.4, 117.4, 58.7, 117.4, 117.4, 58.7, 117.4, 117.4, 58.7, 117.4, 117.4};
+  static const float dt_ch_halfspanz[DT_TYPES+1];
 
 private:
 

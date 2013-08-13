@@ -8,8 +8,14 @@
 #include "Geometry/CommonTopologies/interface/RectangularStripTopology.h"
 #include "Geometry/CommonTopologies/interface/TrapezoidalStripTopology.h"
 
+using std::cout;
+using std::endl;
 using namespace mugeo;
 
+const float mugeo::MuGeometryAreas::csc_ch_radius[CSC_TYPES+1] = {0., 128., 203.25, 369.75, 594.1, 239.05, 525.55, 251.75, 525.55, 261.7, 525.55};
+const float mugeo::MuGeometryAreas::csc_ch_halfheight[CSC_TYPES+1] = {0., 22., 53.25, 87.25, 82.1, 94.85, 161.55, 84.85, 161.55, 74.7, 161.55};
+const float mugeo::MuGeometryAreas::dt_ch_z[DT_TYPES+1] = {0., 58.7, 273, 528, 58.7, 273, 528, 58.7, 273, 528, 58.7, 273, 528};
+const float mugeo::MuGeometryAreas::dt_ch_halfspanz[DT_TYPES+1] = {0., 58.7, 117.4, 117.4, 58.7, 117.4, 117.4, 58.7, 117.4, 117.4, 58.7, 117.4, 117.4};
 
 
 // ================================================================================================
@@ -68,7 +74,7 @@ void mugeo::MuGeometryAreas::calculateGEMDetectorAreas(const GEMGeometry* g)
   {
     gem_total_areas_cm2[i]=0.;
     gem_total_part_areas_cm2[i] = emptyv;
-    gem_part_radii[i] = emptyv;
+    gem_part_radius[i] = emptyv;
     gem_part_halfheight[i] = emptyv;
     minr[i] = 9999.;
     maxr[i] = 0.;
@@ -93,7 +99,7 @@ void mugeo::MuGeometryAreas::calculateGEMDetectorAreas(const GEMGeometry* g)
     cout<<"Partition: "<<id.rawId()<<" "<<id<<" area: "<<rollarea<<" cm2"<<endl;
 
     GlobalPoint gp = g->idToDet(id)->surface().toGlobal(LocalPoint(0.,0.,0.));
-    gem_part_radii[t][part] = gp.perp();
+    gem_part_radius[t][part] = gp.perp();
     gem_part_halfheight[t][part] = top->stripLength()/2.;
 
     if (maxr[t] < gp.perp() + top->stripLength()/2.) maxr[t] = gp.perp() + top->stripLength()/2.;
@@ -102,7 +108,7 @@ void mugeo::MuGeometryAreas::calculateGEMDetectorAreas(const GEMGeometry* g)
 
   for (int t=1; t<=GEM_TYPES; t++)
   {
-    gem_part_radii[t][0] = (minr[t] + maxr[t])/2.;
+    gem_part_radius[t][0] = (minr[t] + maxr[t])/2.;
   }
 
   cout<<"========================"<<endl;

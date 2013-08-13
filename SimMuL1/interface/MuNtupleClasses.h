@@ -12,6 +12,9 @@ Various data classes to use for analysis ntuples
 #include "DataFormats/MuonDetId/interface/RPCDetId.h"
 #include "DataFormats/MuonDetId/interface/DTWireId.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
+#include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
+
+#include "TTree.h"
 
 class CSCGeometry;
 class GEMGeometry;

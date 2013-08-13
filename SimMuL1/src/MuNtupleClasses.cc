@@ -1,9 +1,14 @@
 #include "GEMCode/SimMuL1/interface/MuNtupleClasses.h"
+#include "GEMCode/SimMuL1/interface/MuGeometryHelpers.h"
 
 #include "Geometry/CSCGeometry/interface/CSCGeometry.h"
 #include "Geometry/GEMGeometry/interface/GEMGeometry.h"
 #include "Geometry/RPCGeometry/interface/RPCGeometry.h"
 #include "Geometry/DTGeometry/interface/DTGeometry.h"
+
+using std::cout;
+using std::endl;
+using namespace mugeo;
 
 // ================================================================================================
 void

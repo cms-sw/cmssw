@@ -679,7 +679,7 @@ MuSimHitOccupancy::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
     iSetup.get< MuonGeometryRecord >().get(csc_geom);
     csc_geometry = &*csc_geom;
 
-    if (evtn==1) areas_.calculateCSCDetectorAreas(csc_geom);
+    if (evtn==1) areas_.calculateCSCDetectorAreas(csc_geometry);
 
     // get SimHits
     simhit_map_csc.fill(iEvent);
@@ -693,7 +693,7 @@ MuSimHitOccupancy::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
     iSetup.get< MuonGeometryRecord >().get(gem_geom);
     gem_geometry = &*gem_geom;
 
-    if (evtn==1) areas_.calculateGEMDetectorAreas(gem_geom);
+    if (evtn==1) areas_.calculateGEMDetectorAreas(gem_geometry);
 
     // get SimHits
     simhit_map_gem.fill(iEvent);
@@ -707,7 +707,7 @@ MuSimHitOccupancy::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
     iSetup.get< MuonGeometryRecord >().get(rpc_geom);
     rpc_geometry = &*rpc_geom;
 
-    if (evtn==1) areas_.calculateRPCDetectorAreas(rpc_geom);
+    if (evtn==1) areas_.calculateRPCDetectorAreas(rpc_geometry);
 
     // get SimHits
     simhit_map_rpc.fill(iEvent);
@@ -721,7 +721,7 @@ MuSimHitOccupancy::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
     iSetup.get< MuonGeometryRecord >().get(dt_geom);
     dt_geometry = &*dt_geom;
 
-    if (evtn==1) areas_.calculateDTDetectorAreas(dt_geom);
+    if (evtn==1) areas_.calculateDTDetectorAreas(dt_geometry);
 
     // get SimHits
     simhit_map_dt.fill(iEvent);
