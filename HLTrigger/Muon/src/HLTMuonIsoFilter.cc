@@ -43,6 +43,8 @@ HLTMuonIsoFilter::HLTMuonIsoFilter(const edm::ParameterSet& iConfig) : HLTFilter
     depToken_.push_back(consumes<edm::ValueMap<reco::IsoDeposit> >(depTag_[i]));
     tags<<" IsoTag["<<i<<"] : "<<depTag_[i].encode()<<" \n";
   }
+  decMapToken_ = consumes<edm::ValueMap<bool> >(depTag_.front());
+
    LogDebug("HLTMuonIsoFilter") << " candTag : " << candTag_.encode()
 				<< "\n" << tags 
 				<< "  MinN : " << min_N_;
@@ -114,7 +116,7 @@ HLTMuonIsoFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, t
    if (theDepositIsolator){
      for (unsigned int i=0;i!=nDep;++i) iEvent.getByToken(depToken_[i],depMap[i]);
    }else{
-     bool success = iEvent.getByToken(depToken_.front(), decisionMap);
+     bool success = iEvent.getByToken(decMapToken_, decisionMap);
      LogDebug("HLTMuonIsoFilter")<<"get decisionMap " << success;
    }
 

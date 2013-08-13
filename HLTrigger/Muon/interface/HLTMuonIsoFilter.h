@@ -36,6 +36,7 @@ class HLTMuonIsoFilter : public HLTFilter {
       edm::EDGetTokenT<trigger::TriggerFilterObjectWithRefs> previousCandToken_; // token identifying product contains muons passing the previous level
       std::vector<edm::InputTag>                                       depTag_;   // input tags identifying deposit maps
       std::vector<edm::EDGetTokenT<edm::ValueMap<reco::IsoDeposit> > > depToken_; // tokens identifying deposit maps
+      edm::EDGetTokenT<edm::ValueMap<bool> > decMapToken_; // bool decision map
 
       const muonisolation::MuIsoBaseIsolator * theDepositIsolator;
 
