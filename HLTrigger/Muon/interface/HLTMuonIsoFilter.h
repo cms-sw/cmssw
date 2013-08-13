@@ -14,18 +14,28 @@
 #include "HLTrigger/HLTcore/interface/HLTFilter.h"
 #include "DataFormats/RecoCandidate/interface/RecoChargedCandidateFwd.h"
 #include "RecoMuon/MuonIsolation/interface/MuIsoBaseIsolator.h"
+#include "RecoMuon/MuonIsolation/interface/MuonIsolatorFactory.h"
+#include "DataFormats/RecoCandidate/interface/IsoDepositFwd.h"
+
+namespace edm {
+  class ConfigurationDescriptions;
+}
 
 class HLTMuonIsoFilter : public HLTFilter {
 
    public:
       explicit HLTMuonIsoFilter(const edm::ParameterSet&);
       ~HLTMuonIsoFilter();
+      static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
       virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct);
       bool triggerdByPreviousLevel(const reco::RecoChargedCandidateRef &, const std::vector<reco::RecoChargedCandidateRef> &);
    private:
-      edm::InputTag candTag_; // input tag identifying muon container
-      edm::InputTag previousCandTag_;  // input tag identifying product contains muons passing the previous level
-      std::vector<edm::InputTag> depTag_;  // input tag identifying deposit maps
+      edm::InputTag                                candTag_;   // input tag identifying muon container
+      edm::EDGetTokenT<reco::RecoChargedCandidate> candToken_; // token identifying muon container
+      edm::InputTag                                          previousCandTag_;   // input tag identifying product contains muons passing the previous level
+      edm::EDGetTokenT<trigger::TriggerFilterObjectWithRefs> previousCandToken_; // token identifying product contains muons passing the previous level
+      std::vector<edm::InputTag>                                       depTag_;   // input tags identifying deposit maps
+      std::vector<edm::EDGetTokenT<edm::ValueMap<reco::IsoDeposit> > > depToken_; // tokens identifying deposit maps
 
       const muonisolation::MuIsoBaseIsolator * theDepositIsolator;
 

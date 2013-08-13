@@ -13,11 +13,16 @@
 
 #include "HLTrigger/HLTcore/interface/HLTFilter.h"
 
+namespace edm {
+  class ConfigurationDescriptions;
+}
+
 class HLTMuonDimuonL2Filter : public HLTFilter {
 
    public:
       explicit HLTMuonDimuonL2Filter(const edm::ParameterSet&);
       ~HLTMuonDimuonL2Filter();
+      static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
       virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct);
 
    private:
