@@ -6,8 +6,6 @@
  *  Base class for Parsers used by DQM
  *
  *
- *  $Date: 2010/01/26 20:55:57 $
- *  $Revision: 1.5 $
  *  \author Ilaria Segoni
   */
 

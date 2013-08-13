@@ -4,8 +4,6 @@
 /*
  * \file EBPedestalTask.h
  *
- * $Date: 2009/10/26 17:33:47 $
- * $Revision: 1.32 $
  * \author G. Della Ricca
  *
 */

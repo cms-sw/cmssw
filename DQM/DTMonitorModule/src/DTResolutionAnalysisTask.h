@@ -10,8 +10,6 @@
  *  All histos are produce per Chamber
  *
  *
- *  $Date: 2010/01/05 10:14:40 $
- *  $Revision: 1.10 $
  *  \author G. Cerminara - INFN Torino
  */
 

@@ -5,8 +5,6 @@
  *  
  *  Class to perform operations on MEs after EDMtoMEConverter
  *
- *  $Date: 2008/04/17 21:20:12 $
- *  $Revision: 1.1 $
  *  \author M. Strang SUNY-Buffalo
  */
 

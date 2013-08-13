@@ -1,8 +1,6 @@
 /*
  * \file EBIntegrityTask.cc
  *
- * $Date: 2012/03/18 17:20:54 $
- * $Revision: 1.86.2.1 $
  * \author G. Della Ricca
  *
  */

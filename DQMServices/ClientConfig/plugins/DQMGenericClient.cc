@@ -2,8 +2,6 @@
  *  Class:DQMGenericClient 
  *
  *
- *  $Date: 2012/10/16 10:05:33 $
- *  $Revision: 1.34 $
  * 
  *  \author Junghwan Goh - SungKyunKwan University
  */

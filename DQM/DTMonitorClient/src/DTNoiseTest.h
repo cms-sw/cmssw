@@ -7,8 +7,6 @@
  * *
  *  DQM Test Client
  *
- *  $Date: 2008/03/01 00:39:52 $
- *  $Revision: 1.7 $
  *  A. Gresele - INFN Trento
  *  G. Mila - INFN Torino
  *  M. Zanetti - CERN PH

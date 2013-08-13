@@ -5,8 +5,6 @@
  * *
  *  Handles quality tests (configuring, attaching to ME's, 
  *
- *  $Date: 2008/11/26 09:13:18 $
- *  $Revision: 1.8 $
  *  \author Ilaria Segoni
  */
   

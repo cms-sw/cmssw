@@ -5,8 +5,6 @@
   \file UtilsClient.h
   \brief Ecal Monitor Utils for Client
   \author B. Gobbo 
-  \version $Revision: 1.21 $
-  \date $Date: 2011/08/05 12:22:38 $
 */
 
 /*! \class UtilsClient

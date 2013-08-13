@@ -1,6 +1,5 @@
 // Original Author:  Anne-Marie Magnan
 //         Created:  2010/02/25
-// $Id: SiStripSpyExtractRunModule.cc,v 1.1 2012/10/15 09:02:47 threus Exp $
 //
 
 #include <sstream>

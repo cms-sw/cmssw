@@ -4,8 +4,6 @@
 /*
  * \file L1TRPCTPG.h
  *
- * $Date: 2008/08/21 06:59:51 $
- * $Revision: 1.6 $
  * \author J. Berryhill
  *
 */

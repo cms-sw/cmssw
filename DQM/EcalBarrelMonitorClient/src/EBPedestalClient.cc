@@ -1,8 +1,6 @@
 /*
  * \file EBPedestalClient.cc
  *
- * $Date: 2011/09/15 20:55:48 $
- * $Revision: 1.230 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
