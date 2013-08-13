@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <set>
+#include <atomic>
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
@@ -127,10 +128,10 @@ class CaloSubdetectorGeometry {
       CaloSubdetectorGeometry(            const CaloSubdetectorGeometry& ) ;
       CaloSubdetectorGeometry& operator=( const CaloSubdetectorGeometry& ) ;
 
-      mutable bool m_sortedIds ;
+      mutable std::atomic<bool> m_sortedIds ;
 
-      mutable std::vector<CCGFloat>*  m_deltaPhi ;
-      mutable std::vector<CCGFloat>*  m_deltaEta ;
+      mutable std::atomic<std::vector<CCGFloat>*>  m_deltaPhi ;
+      mutable std::atomic<std::vector<CCGFloat>*>  m_deltaEta ;
 };
 
 

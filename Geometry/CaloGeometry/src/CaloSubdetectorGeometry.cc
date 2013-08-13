@@ -14,8 +14,8 @@ CaloSubdetectorGeometry::CaloSubdetectorGeometry() :
    m_parMgr ( 0 ) ,
    m_cmgr   ( 0 ) ,
    m_sortedIds (false) ,
-   m_deltaPhi  ( 0 ) ,
-   m_deltaEta  ( 0 )  
+   m_deltaPhi  (nullptr) ,
+   m_deltaEta  (nullptr)
 {}
 
 
@@ -23,8 +23,8 @@ CaloSubdetectorGeometry::~CaloSubdetectorGeometry()
 { 
    delete m_cmgr ;
    delete m_parMgr ; 
-   delete m_deltaPhi ;
-   delete m_deltaEta ;
+   if (m_deltaPhi) delete m_deltaPhi ;
+   if (m_deltaEta) delete m_deltaEta ;
 }
 
 const std::vector<DetId>& 
@@ -33,8 +33,8 @@ CaloSubdetectorGeometry::getValidDetIds( DetId::Detector /*det*/    ,
 {
    if( !m_sortedIds )
    {
-      m_sortedIds = true ;
       std::sort( m_validIds.begin(), m_validIds.end() ) ;
+      m_sortedIds.store(true);
    }
    return m_validIds ;
 }
@@ -221,10 +221,10 @@ CaloSubdetectorGeometry::deltaPhi( const DetId& detId ) const
 {
    const CaloGenericDetId cgId ( detId ) ;
 
-   if( 0 == m_deltaPhi )
+   if(!m_deltaPhi )
    {
      const uint32_t kSize ( sizeForDenseIndex(detId));
-      m_deltaPhi = new std::vector<CCGFloat> ( kSize ) ;
+     auto ptr = new std::vector<CCGFloat>(kSize);
       for( uint32_t i ( 0 ) ; i != kSize ; ++i )
       {
 	 const CaloCellGeometry* cellPtr ( cellGeomPtr( i ) ) ;
@@ -259,9 +259,12 @@ CaloSubdetectorGeometry::deltaPhi( const DetId& detId ) const
 					       cell.getCorners()[1].z() )/2.  ).phi() ) ) ;
 	    if( M_PI < dPhi1 ) dPhi1 = fabs( dPhi1 - 2.*M_PI ) ;
 	    if( M_PI < dPhi2 ) dPhi2 = fabs( dPhi2 - 2.*M_PI ) ;
-	    (*m_deltaPhi)[i] = dPhi1>dPhi2 ? dPhi1 : dPhi2 ;
+	    (*ptr)[i] = dPhi1>dPhi2 ? dPhi1 : dPhi2 ;
 	 }
       }
+    std::vector<CCGFloat>* expect = nullptr;
+    bool exchanged = m_deltaPhi.compare_exchange_strong(expect, ptr);
+    if (!exchanged) delete ptr;
    }
    return (*m_deltaPhi)[ indexFor(detId) ] ;
 }
@@ -270,10 +273,10 @@ CCGFloat
 CaloSubdetectorGeometry::deltaEta( const DetId& detId ) const
 {
 
-   if( 0 == m_deltaEta )
+   if(!m_deltaEta )
    {
      const uint32_t kSize ( sizeForDenseIndex(detId));
-      m_deltaEta = new std::vector<CCGFloat> ( kSize ) ;
+     auto ptr = new std::vector<CCGFloat> ( kSize ) ;
       for( uint32_t i ( 0 ) ; i != kSize ; ++i )
       {
 	 const CaloCellGeometry* cellPtr ( cellGeomPtr( i ) ) ;
@@ -306,9 +309,12 @@ CaloSubdetectorGeometry::deltaEta( const DetId& detId ) const
 						     cell.getCorners()[1].y() )/2. ,
 						   ( cell.getCorners()[2].z() + 
 						     cell.getCorners()[1].z() )/2.  ).eta() ) ) ;
-	    (*m_deltaEta)[i] = dEta1>dEta2 ? dEta1 : dEta2 ;
+	    (*ptr)[i] = dEta1>dEta2 ? dEta1 : dEta2 ;
 	 }
       }
+    std::vector<CCGFloat>* expect = nullptr;
+    bool exchanged = m_deltaEta.compare_exchange_strong(expect, ptr);
+    if (!exchanged) delete ptr;
    }
    return (*m_deltaEta)[ indexFor(detId)];
 }
