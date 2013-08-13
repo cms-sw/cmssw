@@ -156,7 +156,6 @@ TimeAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    if (vertexCollection->size()>0) recoVtx = vertexCollection->begin()->position();
    
 
-
    // get hold of the MC product and loop over truth-level particles 
    // standard numeric ParticleId:
    // http://www.physics.ox.ac.uk/CDF/Mphys/old/notes/pythia_codeListing.html
@@ -180,7 +179,7 @@ TimeAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    }
 
    // superclusters are groups of neighboring Electromagnetic Calorimeter (ECAL) recHits
-   // collecting the energy relesed by (at least) one particle in the ECAL
+   // collecting the energy relesed by (at least) one particle impinging into the ECAL
    Handle<std::vector<reco::SuperCluster> > barrelSCHandle;
    iEvent.getByLabel("correctedHybridSuperClusters","",barrelSCHandle);
    const reco::SuperClusterCollection * barrelSCCollection = barrelSCHandle.product();
