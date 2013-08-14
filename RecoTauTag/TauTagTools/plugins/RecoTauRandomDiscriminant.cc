@@ -16,7 +16,7 @@ class PFTauRandomDiscriminator : public PFTauDiscriminationProducerBase {
         passRate_ = pset.getParameter<double>("passRate");
       }
 
-    double discriminate(const reco::PFTauRef& tau) {
+    double discriminate(const reco::PFTauRef& tau) override {
       return randy_.Rndm() < passRate_;
     }
   private:

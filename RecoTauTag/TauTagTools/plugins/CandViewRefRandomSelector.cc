@@ -25,7 +25,7 @@
 class CandViewRefRandomSelector : public edm::EDFilter {
   public:
     explicit CandViewRefRandomSelector(const edm::ParameterSet &pset);
-    bool filter(edm::Event&, const edm::EventSetup&);
+    bool filter(edm::Event&, const edm::EventSetup&) override;
   private:
     edm::InputTag src_;
     unsigned int choose_;

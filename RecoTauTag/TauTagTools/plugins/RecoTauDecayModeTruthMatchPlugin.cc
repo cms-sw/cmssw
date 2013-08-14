@@ -32,8 +32,8 @@ class RecoTauDecayModeTruthMatchPlugin : public reco::tau::RecoTauCleanerPlugin
   public:
     explicit RecoTauDecayModeTruthMatchPlugin(const edm::ParameterSet& pset);
     virtual ~RecoTauDecayModeTruthMatchPlugin() {}
-    double operator()(const reco::PFTauRef&) const;
-    void beginEvent();
+    double operator()(const reco::PFTauRef&) const override;
+    void beginEvent() override;
 
   private:
     edm::InputTag matchingSrc_;
