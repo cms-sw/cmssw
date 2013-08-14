@@ -42,9 +42,9 @@ public:
   explicit  AlCaRecoTriggerBitsRcdRead(const edm::ParameterSet &cfg);
   ~AlCaRecoTriggerBitsRcdRead() {}
   
-  virtual void analyze(const edm::Event &evt, const edm::EventSetup &evtSetup) {}
-  virtual void beginRun(const edm::Run &run, const edm::EventSetup &evtSetup);
-  virtual void endJob();
+  virtual void analyze(const edm::Event &evt, const edm::EventSetup &evtSetup) override {}
+  virtual void beginRun(const edm::Run &run, const edm::EventSetup &evtSetup) override;
+  virtual void endJob() override;
 
   
 private:
