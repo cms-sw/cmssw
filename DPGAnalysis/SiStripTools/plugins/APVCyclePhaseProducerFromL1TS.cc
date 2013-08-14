@@ -58,10 +58,10 @@ class APVCyclePhaseProducerFromL1TS : public edm::EDProducer {
       ~APVCyclePhaseProducerFromL1TS();
 
 private:
-  virtual void beginJob() ;
+  virtual void beginJob() override ;
   virtual void beginRun(const edm::Run&, const edm::EventSetup&) override;
   virtual void produce(edm::Event&, const edm::EventSetup&) override;
-  virtual void endJob() ;
+  virtual void endJob() override ;
 
   bool isBadRun(const unsigned int) const;
   
