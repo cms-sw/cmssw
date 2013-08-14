@@ -29,9 +29,12 @@ class HLTMuonDimuonL3Filter : public HLTFilter {
       bool triggeredByLevel2(const reco::TrackRef& track,std::vector<reco::RecoChargedCandidateRef>& vcands);
 
    private:
-      edm::InputTag beamspotTag_ ;
-      edm::InputTag candTag_;  // input tag identifying product contains muons
-      edm::InputTag previousCandTag_;  // input tag identifying product contains muons passing the previous level
+      edm::InputTag                    beamspotTag_ ;
+      edm::EDGetTokenT<reco::BeamSpot> beamspotToken_ ;
+      edm::InputTag                                          candTag_;   // input tag identifying product contains muons
+      edm::EDGetTokenT<reco::RecoChargedCandidateCollection> candToken_; // token identifying product contains muons
+      edm::InputTag                                          previousCandTag_;   // input tag identifying product contains muons passing the previous level
+      edm::EDGetTokenT<trigger::TriggerFilterObjectWithRefs> previousCandToken_; // tokenidentifying product contains muons passing the previous level
       
       bool   fast_Accept_;      // flag to save time: stop processing after identification of the first valid pair
       double max_Eta_;          // Eta cut

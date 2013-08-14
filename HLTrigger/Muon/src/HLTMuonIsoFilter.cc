@@ -22,20 +22,29 @@
 
 #include "RecoMuon/MuonIsolation/interface/MuonIsolatorFactory.h"
 
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+
 #include <iostream>
 //
 // constructors and destructor
 //
 HLTMuonIsoFilter::HLTMuonIsoFilter(const edm::ParameterSet& iConfig) : HLTFilter(iConfig),
    candTag_ (iConfig.getParameter< edm::InputTag > ("CandTag") ),
+   candToken_(consumes<reco::RecoChargedCandidateCollection>(candTag_)),
    previousCandTag_ (iConfig.getParameter<edm::InputTag > ("PreviousCandTag")),
+   previousCandToken_ (consumes<trigger::TriggerFilterObjectWithRefs>(previousCandTag_)),
    depTag_  (iConfig.getParameter< std::vector< edm::InputTag > >("DepTag" ) ),
+   depToken_(0), 
    theDepositIsolator(0),
    min_N_   (iConfig.getParameter<int> ("MinN"))
 {
   std::stringstream tags;
-  for (unsigned int i=0;i!=depTag_.size();++i)
+  for (unsigned int i=0;i!=depTag_.size();++i) {
+    depToken_.push_back(consumes<edm::ValueMap<reco::IsoDeposit> >(depTag_[i]));
     tags<<" IsoTag["<<i<<"] : "<<depTag_[i].encode()<<" \n";
+  }
+  decMapToken_ = consumes<edm::ValueMap<bool> >(depTag_.front());
+
    LogDebug("HLTMuonIsoFilter") << " candTag : " << candTag_.encode()
 				<< "\n" << tags 
 				<< "  MinN : " << min_N_;
@@ -58,6 +67,19 @@ HLTMuonIsoFilter::~HLTMuonIsoFilter()
 //
 // member functions
 //
+void
+HLTMuonIsoFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  makeHLTFilterDescription(desc);
+  desc.add<edm::InputTag>("CandTag",edm::InputTag("hltL3MuonCandidates"));
+  desc.add<edm::InputTag>("PreviousCandTag",edm::InputTag(""));
+  desc.add<int>("MinN",1);
+  std::vector<edm::InputTag> depTag(1,edm::InputTag("hltL3MuonIsolations"));
+  desc.add<std::vector<edm::InputTag> >("DepTag",depTag);
+  edm::ParameterSetDescription isolatorPSet;
+  desc.add<edm::ParameterSetDescription>("IsolatorPSet",isolatorPSet);
+  descriptions.add("hltMuonIsoFilter", desc);
+}
 
 // ------------ method called to produce the data  ------------
 bool
@@ -79,9 +101,9 @@ HLTMuonIsoFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, t
    // get hold of trks
    Handle<RecoChargedCandidateCollection> mucands;
    if (saveTags()) filterproduct.addCollectionTag(candTag_);
-   iEvent.getByLabel (candTag_,mucands);
+   iEvent.getByToken(candToken_,mucands);
    Handle<TriggerFilterObjectWithRefs> previousLevelCands;
-   iEvent.getByLabel (previousCandTag_,previousLevelCands);
+   iEvent.getByToken(previousCandToken_,previousLevelCands);
    vector<RecoChargedCandidateRef> vcands;
    previousLevelCands->getObjects(TriggerMuon,vcands);
    
@@ -92,9 +114,9 @@ HLTMuonIsoFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, t
    muonisolation::MuIsoBaseIsolator::DepositContainer isoContainer(nDep);
 
    if (theDepositIsolator){
-     for (unsigned int i=0;i!=nDep;++i) iEvent.getByLabel (depTag_[i],depMap[i]);
+     for (unsigned int i=0;i!=nDep;++i) iEvent.getByToken(depToken_[i],depMap[i]);
    }else{
-     bool success = iEvent.getByLabel(depTag_.front(), decisionMap);
+     bool success = iEvent.getByToken(decMapToken_, decisionMap);
      LogDebug("HLTMuonIsoFilter")<<"get decisionMap " << success;
    }
 
