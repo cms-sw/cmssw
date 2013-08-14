@@ -12,7 +12,7 @@ class FlavorJetCorrectionExample : public edm::EDAnalyzer {
  public:
   explicit FlavorJetCorrectionExample (const edm::ParameterSet& fParameters);
   virtual ~FlavorJetCorrectionExample () {}
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
+  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
  private:
   edm::InputTag mInput;
   std::string mUDSCorrectorName;
