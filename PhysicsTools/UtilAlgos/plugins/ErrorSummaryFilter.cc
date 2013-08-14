@@ -41,7 +41,7 @@ public:
   ~ErrorSummaryFilter();
 
 private:
-  virtual bool filter(edm::Event&, edm::EventSetup const&);
+  virtual bool filter(edm::Event&, edm::EventSetup const&) override;
 
   // ----------member data ---------------------------
   edm::InputTag src_;
