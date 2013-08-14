@@ -6,9 +6,9 @@ class WeakEffectsWeightProducer: public edm::EDProducer {
 public:
       WeakEffectsWeightProducer(const edm::ParameterSet& pset);
       virtual ~WeakEffectsWeightProducer();
-      virtual void beginJob() ;
+      virtual void beginJob() override ;
       virtual void produce(edm::Event &, const edm::EventSetup&) override;
-      virtual void endJob() ;
+      virtual void endJob() override ;
 private:
       edm::InputTag genParticlesTag_;
       double rhoParameter_;
