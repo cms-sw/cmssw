@@ -98,14 +98,18 @@ you can then proceed at merging a given branch (say `master`) into the CMSSW are
     git merge -s ours --no-commit usercode/master
     git read-tree --prefix=UserCode/<my-name> -u usercode/master 
 
-notice that the argument of `--prefix` is where your repository will be merged.
-You might want to use some standard `SubSystem/Package`. You also can repeat
-these steps multiple times if you have more than one repository you would like
-to merge.  For example you might want to use those present in
-https://github.com/cms-analysis.
+notice that the argument of `--prefix` is where your repository will be merged
+and that an empty prefix (i.e. `--prefix= ` ) is a valid one which can be used
+in the case your usercode area already contains a standard
+`<sub-system>/<package>` layout.
 
-Once you are happy with the merge (use `git log --graph --oneline` to see what
-has been done by the various merges) you can commit your work:
+You also can repeat these steps multiple times if you have more than one
+repository you would like to merge.  For example you might want to use those
+present in https://github.com/cms-analysis.
+
+Once you are happy with the merge (use `git log --graph --oneline` or `git
+status` to see what has been done by the various merges) you can commit
+your work via:
 
     git commit -m 'Merge usercode in CMSSW'
 
