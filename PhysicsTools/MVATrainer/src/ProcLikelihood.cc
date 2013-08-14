@@ -36,16 +36,16 @@ class ProcLikelihood : public TrainProcessor {
 	               MVATrainer *trainer);
 	virtual ~ProcLikelihood();
 
-	virtual void configure(DOMElement *elem);
-	virtual Calibration::VarProcessor *getCalibration() const;
+	virtual void configure(DOMElement *elem) override;
+	virtual Calibration::VarProcessor *getCalibration() const override;
 
-	virtual void trainBegin();
+	virtual void trainBegin() override;
 	virtual void trainData(const std::vector<double> *values,
-	                       bool target, double weight);
-	virtual void trainEnd();
+	                       bool target, double weight) override;
+	virtual void trainEnd() override;
 
-	virtual bool load();
-	virtual void save();
+	virtual bool load() override;
+	virtual void save() override;
 
 	struct PDF {
 		std::vector<double>		distr;

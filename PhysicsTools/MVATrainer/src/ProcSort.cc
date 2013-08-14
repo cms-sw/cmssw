@@ -40,8 +40,8 @@ class ProcSort : public TrainProcessor {
 	ProcSort(const char *name, const AtomicId *id, MVATrainer *trainer);
 	virtual ~ProcSort();
 
-	virtual void configure(DOMElement *elem);
-	virtual Calibration::VarProcessor *getCalibration() const;
+	virtual void configure(DOMElement *elem) override;
+	virtual Calibration::VarProcessor *getCalibration() const override;
 
     private:
 	unsigned int	sortByIndex;

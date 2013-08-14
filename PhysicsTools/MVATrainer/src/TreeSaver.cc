@@ -53,13 +53,13 @@ class TreeSaver : public TrainProcessor {
 	         MVATrainer *trainer);
 	virtual ~TreeSaver();
 
-	virtual void configure(DOMElement *elem);
-	virtual void passFlags(const std::vector<Variable::Flags> &flags);
+	virtual void configure(DOMElement *elem) override;
+	virtual void passFlags(const std::vector<Variable::Flags> &flags) override;
 
-	virtual void trainBegin();
+	virtual void trainBegin() override;
 	virtual void trainData(const std::vector<double> *values,
-	                       bool target, double weight);
-	virtual void trainEnd();
+	                       bool target, double weight) override;
+	virtual void trainEnd() override;
 
     private:
 	void init();
