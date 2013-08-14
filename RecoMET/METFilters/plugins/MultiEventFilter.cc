@@ -26,7 +26,7 @@ class MultiEventFilter : public edm::EDFilter {
 
   private:
 
-    virtual bool filter(edm::Event & iEvent, const edm::EventSetup & iSetup);
+    virtual bool filter(edm::Event & iEvent, const edm::EventSetup & iSetup) override;
     
     std::vector<Event> events_;
     const std::vector<std::string> eventList_;
