@@ -32,14 +32,14 @@ public:
 
   virtual const ReferenceTrajectoryCollection trajectories(const edm::EventSetup &setup,
 							   const ConstTrajTrackPairCollection &tracks,
-							   const reco::BeamSpot &beamSpot) const;
+							   const reco::BeamSpot &beamSpot) const override;
 
   virtual const ReferenceTrajectoryCollection trajectories(const edm::EventSetup &setup,
 							   const ConstTrajTrackPairCollection &tracks,
 							   const ExternalPredictionCollection &external,
-							   const reco::BeamSpot &beamSpot) const;
+							   const reco::BeamSpot &beamSpot) const override;
 
-  virtual CombinedTrajectoryFactory* clone() const { return new CombinedTrajectoryFactory(*this); }
+  virtual CombinedTrajectoryFactory* clone() const override { return new CombinedTrajectoryFactory(*this); }
 
 private:
 
