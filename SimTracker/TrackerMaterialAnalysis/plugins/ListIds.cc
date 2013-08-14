@@ -72,9 +72,9 @@ public:
   virtual ~ListIds();
   
 private:
-  void analyze(const edm::Event &, const edm::EventSetup &);
-  void beginJob() {}
-  void endJob();
+  void analyze(const edm::Event &, const edm::EventSetup &) override;
+  void beginJob() override {}
+  void endJob() override;
 };
 
 ListIds::ListIds(const edm::ParameterSet &) {
