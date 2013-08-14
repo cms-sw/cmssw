@@ -12,6 +12,8 @@
 #include "Math/GenVector/VectorUtil.h"
 #include "Math/GenVector/PxPyPzE4D.h"
 
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+
 class  ConeIsolationAlgorithm  {
 public:
  
@@ -23,6 +25,8 @@ public:
   // ConeIsolationAlgorithm (int,float,....);
    
   ~ConeIsolationAlgorithm() {}
+
+  static void fillDescription(edm::ParameterSetDescription& desc);
 
   std::pair<float ,reco::IsolatedTauTagInfo> tag( const reco::JetTracksAssociationRef & jetTracks, const reco::Vertex & pv); 
   
