@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-process = cms.Process("GEMDIGIANA")
+process = cms.Process("NEUTRON")
 
 ## Standard sequence
 process.load('Configuration.StandardSequences.Services_cff')
@@ -19,24 +19,16 @@ from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:upgrade2019', '')
 
 # the analyzer configuration
-process.load('GEMCode.GEMValidation.GEMDigiAnalyzer_cfi')
-process.GEMDigiAnalyzer.simTrackMatching.cscComparatorDigiInput = ""
-process.GEMDigiAnalyzer.simTrackMatching.cscWireDigiInput = ""
-process.GEMDigiAnalyzer.simTrackMatching.cscCLCTInput = ""
-process.GEMDigiAnalyzer.simTrackMatching.cscALCTInput = ""
-process.GEMDigiAnalyzer.simTrackMatching.cscLCTInput = ""
-
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1000) )
 
 process.options = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) )
 
 process.source = cms.Source("PoolSource",
-  fileNames = cms.untracked.vstring("file:out_digi.root")
+  fileNames = cms.untracked.vstring("file:out_sim.root")                            
 )
 
 process.TFileService = cms.Service("TFileService",
-    fileName = cms.string("gem_digi_ana.root")
+  fileName = cms.string("neutron_sh_ana.root")
 )
 
-process.p = cms.Path(process.GEMDigiAnalyzer)
-
+process.p = cms.Path(process.NeutronSimHitAnalyzer)

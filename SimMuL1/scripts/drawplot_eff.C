@@ -1,5 +1,9 @@
 //gROOT->ProcessLine(".L effFunctions.C");
 
+
+gROOT->SetBatch(1);
+
+
 /*
 
   .L 
@@ -450,7 +454,6 @@ void drawplot_eff()
   //gemTurnOns();
 
   //drawplot_eff_eta();
-
 }
 
 

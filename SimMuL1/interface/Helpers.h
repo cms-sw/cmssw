@@ -3,13 +3,13 @@
 
 namespace helpers
 {
-inline bool 
+bool
 isME1bEtaRegion(float eta, float eta_min = 1.64, float eta_max = 2.14)
 {
   return fabs(eta) >= eta_min && fabs(eta) <= eta_max;
 }
 
-inline bool
+bool
 isME1abEtaRegion(float eta, float eta_min = 1.64)
 {
   return fabs(eta) >= eta_min;
