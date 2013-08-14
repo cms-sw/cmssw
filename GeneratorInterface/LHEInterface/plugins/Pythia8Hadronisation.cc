@@ -35,9 +35,9 @@ class Pythia8Hadronisation : public Hadronisation {
 	~Pythia8Hadronisation();
 
     private:
-	void doInit();
-	std::auto_ptr<HepMC::GenEvent> doHadronisation();
-	void newRunInfo(const boost::shared_ptr<LHERunInfo> &runInfo);
+	void doInit() override;
+	std::auto_ptr<HepMC::GenEvent> doHadronisation() override;
+	void newRunInfo(const boost::shared_ptr<LHERunInfo> &runInfo) override;
 
 	const int				pythiaPylistVerbosity;
 	int					maxEventsToPrint;
@@ -63,8 +63,8 @@ class Pythia8Hadronisation::LHAupLesHouches : public LHAup {
 
     private:
 
-	bool setInit();
-	bool setEvent(int idProcIn);
+	bool setInit() override;
+	bool setEvent(int idProcIn) override;
 
 	Hadronisation			*hadronisation;
 	boost::shared_ptr<LHERunInfo>	runInfo;
