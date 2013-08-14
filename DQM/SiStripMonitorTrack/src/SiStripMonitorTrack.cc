@@ -448,7 +448,7 @@ void SiStripMonitorTrack::trajectoryStudy(const edm::Ref<std::vector<Trajectory>
     //    std::cout << "[SiStripMonitorTrack::trajectoryStudy] RecHit DONE" << std::endl;
     
     //      RecHitType type=Single;
-    
+
     if(matchedhit){
       LogTrace("SiStripMonitorTrack")<<"\nMatched recHit found"<< std::endl;
       //	type=Matched;

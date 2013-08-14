@@ -50,6 +50,7 @@
 class SiStripDCSStatus;
 class GenericTriggerEventFlag;
 class TrackerTopology;
+
 //
 // class declaration
 //
