@@ -29,13 +29,13 @@ class ZMuMuEfficiency : public edm::EDAnalyzer {
 public:
   ZMuMuEfficiency(const edm::ParameterSet& pset);
 private:
-  virtual void analyze(const edm::Event& event, const edm::EventSetup& setup);
+  virtual void analyze(const edm::Event& event, const edm::EventSetup& setup) override;
   bool check_ifZmumu(const Candidate * dauGen0, const Candidate * dauGen1, const Candidate * dauGen2); 
   float getParticlePt(const int ipart, const Candidate * dauGen0, const Candidate * dauGen1, const Candidate * dauGen2); 
   float getParticleEta(const int ipart, const Candidate * dauGen0, const Candidate * dauGen1, const Candidate * dauGen2); 
   float getParticlePhi(const int ipart, const Candidate * dauGen0, const Candidate * dauGen1, const Candidate * dauGen2); 
   Particle::LorentzVector getParticleP4(const int ipart, const Candidate * dauGen0, const Candidate * dauGen1, const Candidate * dauGen2); 
-  virtual void endJob();
+  virtual void endJob() override;
 
   edm::InputTag zMuMu_, zMuMuMatchMap_; 
   edm::InputTag zMuTrack_, zMuTrackMatchMap_; 
