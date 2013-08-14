@@ -5,8 +5,6 @@
   \file EcalMonitorPrescaler.h
   \brief Ecal specific Prescaler 
   \author G. Della Ricca
-  \version $Revision: 1.7 $
-  \date $Date: 2010/03/27 20:44:49 $
 */
 
 #include "FWCore/Framework/interface/EDFilter.h"

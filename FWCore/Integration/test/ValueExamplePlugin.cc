@@ -8,7 +8,6 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Sep  5 19:52:01 EDT 2005
-// $Id: ValueExample.cc,v 1.3 2006/10/21 16:44:13 wmtan Exp $
 //
 
 // system include files

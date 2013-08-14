@@ -2,7 +2,10 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("PROD2")
 
-process.Tracer = cms.Service('Tracer')
+process.Tracer = cms.Service('Tracer',
+                             dumpContextForLabel = cms.untracked.string('intProducer'),
+                             dumpNonModuleContext = cms.untracked.bool(True)
+)
 
 process.options = cms.untracked.PSet( allowUnscheduled = cms.untracked.bool(True) )
 

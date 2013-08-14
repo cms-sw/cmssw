@@ -7,8 +7,6 @@
 
 /** \class HcalLSbyLSMonitor
   *
-  * $Date: 2010/05/07 09:32:02 $
-  * $Revision: 1.1 $
   * \author J. Temple - Univ. of Maryland
   */
 

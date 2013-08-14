@@ -4,8 +4,6 @@
 /*
  * \file EELaserTask.h
  *
- * $Date: 2011/08/12 16:01:44 $
- * $Revision: 1.15 $
  * \author G. Della Ricca
  *
 */

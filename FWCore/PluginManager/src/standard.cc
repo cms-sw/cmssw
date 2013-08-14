@@ -8,7 +8,6 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Sat Apr  7 17:10:11 EDT 2007
-// $Id: standard.cc,v 1.4 2010/10/05 16:35:12 eulisse Exp $
 //
 
 // system include files

@@ -16,7 +16,6 @@
 //
 // Original Author:  mf and cdj
 //         Created:  Fri Aug  7 10:19:58 CDT 2009
-// $Id$
 //
 
 #include "FWCore/MessageLogger/interface/MessageLoggerQ.h"

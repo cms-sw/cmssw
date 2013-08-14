@@ -6,7 +6,6 @@
 // Implementation:
 //
 // Original Author:  Jim Kowalkowski
-// $Id: PathTimerService.cc,v 1.13 2008/07/28 19:55:55 wittich Exp $
 //
 
 #include "DQM/HLTEvF/interface/PathTimerService.h"

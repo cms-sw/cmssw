@@ -1,8 +1,6 @@
 /*
  * \file L1TRCT.cc
  *
- * $Date: 2012/03/30 10:24:07 $
- * $Revision: 1.21 $
  * \author P. Wittich
  *
  */

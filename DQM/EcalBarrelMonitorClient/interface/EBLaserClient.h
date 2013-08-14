@@ -4,8 +4,6 @@
 /*
  * \file EBLaserClient.h
  *
- * $Date: 2010/02/14 14:35:44 $
- * $Revision: 1.91 $
  * \author G. Della Ricca
  *
 */

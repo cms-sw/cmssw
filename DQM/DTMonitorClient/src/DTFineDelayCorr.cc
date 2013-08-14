@@ -1,8 +1,6 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2011/03/07 11:58:15 $
- *  $Revision: 1.4 $
  *  \author M. Giunta, C. Battilana 
  */
 

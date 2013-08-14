@@ -4,8 +4,6 @@
 /*
  * \file EEPedestalOnlineTask.h
  *
- * $Date: 2012/03/29 13:49:35 $
- * $Revision: 1.12.20.1 $
  * \author G. Della Ricca
  *
 */

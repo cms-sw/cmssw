@@ -13,7 +13,6 @@
 //
 // Original Author:  Samvel Khalatyan (ksamdev at gmail dot com)
 //         Created:  Wed Oct  5 16:42:34 CET 2006
-// $Id: SiStripOfflineDQM.cc,v 1.42 2013/01/02 17:41:51 wmtan Exp $
 //
 //
 

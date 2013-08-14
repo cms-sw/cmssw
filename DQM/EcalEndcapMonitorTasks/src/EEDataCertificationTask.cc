@@ -1,8 +1,6 @@
 /*
  * \file EEDataCertificationTask.cc
  *
- * $Date: 2011/08/30 09:28:42 $
- * $Revision: 1.28 $
  * \author E. Di Marco
  *
 */

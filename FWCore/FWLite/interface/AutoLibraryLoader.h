@@ -7,7 +7,6 @@
  *
  * \author Chris Jones, Cornell
  *
- * $Id: AutoLibraryLoader.h,v 1.2 2008/06/12 22:17:22 dsr Exp $
  *
  */
 class DummyClassToStopCompilerWarning;

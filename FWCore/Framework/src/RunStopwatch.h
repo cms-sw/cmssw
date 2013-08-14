@@ -3,7 +3,6 @@
 
 /*----------------------------------------------------------------------
   
-$Id: RunStopwatch.h,v 1.3 2007/06/14 17:52:18 wmtan Exp $
 
 Simple "guard" class as suggested by Chris Jones to start/stop the
 Stopwatch: creating an object of type RunStopwatch starts the clock

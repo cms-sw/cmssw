@@ -11,8 +11,6 @@
 
 /** \class HcalZDCMonitor
  *
- * $DATE: 2010/02/04
- * $Revision:
  * \author S.Sen
  */
 

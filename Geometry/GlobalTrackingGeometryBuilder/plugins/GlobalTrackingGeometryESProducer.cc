@@ -72,7 +72,7 @@ GlobalTrackingGeometryESProducer::produce(const GlobalTrackingGeometryRecord& re
       record.getRecord<MuonGeometryRecord>().get(gem);      
     } catch (edm::eventsetup::NoProxyException<GEMGeometry>& e) {
       // No GEM geo available
-      LogWarning("GeometryGlobalTrackingGeometryBuilder") << "No GEM geometry is available.";
+      LogInfo("GeometryGlobalTrackingGeometryBuilder") << "No GEM geometry is available.";
     }
 
   } catch (edm::eventsetup::NoRecordException<MuonGeometryRecord>& e){

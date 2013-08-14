@@ -1,4 +1,3 @@
-// $Id: SealModule.cc,v 1.28 2012/03/01 09:34:59 sauerlan Exp $
 
 #include "DQM/HLTEvF/interface/PathTimerService.h"
 #include "DQM/HLTEvF/interface/PathTimerInserter.h"

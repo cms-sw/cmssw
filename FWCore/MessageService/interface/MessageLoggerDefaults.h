@@ -24,7 +24,6 @@
 //
 // Original Author:  M. Fischler 
 //         Created:  Tues Jun 14 10:38:19 CST 2007
-// $Id: MessageLoggerDefaults.h,v 1.2 2008/07/09 21:47:29 fischler Exp $
 //
 
 // Framework include files

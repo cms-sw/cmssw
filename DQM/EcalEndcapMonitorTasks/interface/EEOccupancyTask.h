@@ -4,8 +4,6 @@
 /*
  * \file EEOccupancyTask.h
  *
- * $Date: 2012/03/18 17:20:59 $
- * $Revision: 1.28.8.1 $
  * \author G. Della Ricca
  *
 */

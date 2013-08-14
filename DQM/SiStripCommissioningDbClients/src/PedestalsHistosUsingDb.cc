@@ -1,4 +1,3 @@
-// Last commit: $Id: PedestalsHistosUsingDb.cc,v 1.26 2009/11/15 16:42:16 lowette Exp $
 
 #include "DQM/SiStripCommissioningDbClients/interface/PedestalsHistosUsingDb.h"
 #include "CondFormats/SiStripObjects/interface/PedestalsAnalysis.h"

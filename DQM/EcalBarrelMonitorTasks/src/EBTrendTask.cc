@@ -1,8 +1,6 @@
 /*
  * \file EBTrendTask.cc
  *
- * $Date: 2011/08/30 09:30:33 $
- * $Revision: 1.10 $
  * \author Dongwook Jang, Soon Yung Jun
  *
 */

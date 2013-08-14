@@ -7,7 +7,6 @@ TriggerReport: This struct contains all the information relevant to
 reporting on the behavior of the trigger.ed at the time of its
 creation.
 
-$Id: TriggerReport.h,v 1.1 2006/05/26 15:52:58 paterno Exp $
 
 ----------------------------------------------------------------------*/
 

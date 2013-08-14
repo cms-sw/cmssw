@@ -3,7 +3,6 @@
 Test program for edm::SoATuple class.
 Changed by Viji on 29-06-2005
 
-$Id: soatuple_t.cppunit.cpp,v 1.3 2013/04/22 19:19:25 chrjones Exp $
  ----------------------------------------------------------------------*/
 
 #include <cassert>
