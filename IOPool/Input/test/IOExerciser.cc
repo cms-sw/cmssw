@@ -1,7 +1,9 @@
 // -*- C++ -*-
 //
-// Package:    IOExerciser
-// Class:      IOExerciser
+//         Package:  IOPool/Input
+//           Class:  IOExerciser
+// Original Author:  Brian Bockelman
+//         Created:  Mon Jun  4 17:35:30 CDT 2012
 // 
 /*
  Description: Read out a fixed subset of an input file
@@ -10,13 +12,10 @@
 
 Much of the interaction with the framework is from EventContentAnalyzer and AsciiOutputModule
 
+See also IOPool/Input/doc/IOExerciser-README for a more detailed description of how
+to use this plugin.
+
 */
-//
-// Original Author:  Brian Bockelman
-//         Created:  Mon Jun  4 17:35:30 CDT 2012
-// $Id$
-//
-//
 
 
 // system include files
