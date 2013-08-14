@@ -33,7 +33,7 @@ namespace cond {
 			// here one can make stuff really complicated...
 		}
 
-		void compute(Class const & it){
+		void compute(Class const & it) override{
 		}
 	private:
 
@@ -50,7 +50,7 @@ namespace cond {
 	protected:
 		HcalLUTCorrs::tAllContWithNames allContainers;
 
-		void doFillIn(std::vector<TH2F> &graphData){
+		void doFillIn(std::vector<TH2F> &graphData) override{
 			//ITERATORS AND VALUES:
 			HcalLUTCorrs::tAllContWithNames::const_iterator iter;
 			std::vector<HcalLUTCorr>::const_iterator contIter;
