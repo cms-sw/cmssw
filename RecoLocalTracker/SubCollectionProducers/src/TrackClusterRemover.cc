@@ -38,7 +38,7 @@ class TrackClusterRemover : public edm::EDProducer {
     public:
         TrackClusterRemover(const edm::ParameterSet& iConfig) ;
         ~TrackClusterRemover() ;
-        void produce(edm::Event &iEvent, const edm::EventSetup &iSetup) ;
+        void produce(edm::Event &iEvent, const edm::EventSetup &iSetup) override ;
     private:
         struct ParamBlock {
             ParamBlock() : isSet_(false), usesCharge_(false) {}
