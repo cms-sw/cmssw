@@ -24,9 +24,9 @@ class SiStripFEDDumpPlugin : public edm::EDAnalyzer
   explicit SiStripFEDDumpPlugin(const edm::ParameterSet&);
   ~SiStripFEDDumpPlugin();
  private:
-  virtual void beginJob();
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void endJob();
+  virtual void beginJob() override;
+  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
+  virtual void endJob() override;
 
   //tag of FEDRawData collection
   edm::InputTag rawDataTag_;

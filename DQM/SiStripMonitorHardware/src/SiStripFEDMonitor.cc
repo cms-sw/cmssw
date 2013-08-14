@@ -64,13 +64,13 @@ class SiStripFEDMonitorPlugin : public edm::EDAnalyzer
   explicit SiStripFEDMonitorPlugin(const edm::ParameterSet&);
   ~SiStripFEDMonitorPlugin();
  private:
-  virtual void beginJob();
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void endJob();
+  virtual void beginJob() override;
+  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
+  virtual void endJob() override;
   virtual void beginLuminosityBlock(const edm::LuminosityBlock& lumiSeg, 
-				    const edm::EventSetup& context);
+				    const edm::EventSetup& context) override;
   virtual void endLuminosityBlock(const edm::LuminosityBlock& lumiSeg, 
-				  const edm::EventSetup& context);
+				  const edm::EventSetup& context) override;
 
   //update the cabling if necessary
   void updateCabling(const edm::EventSetup& eventSetup);
