@@ -37,7 +37,7 @@ namespace Rivet {
     //@{
 
     /// Book histograms and initialise projections before the run
-    void init() {
+    void init() override {
 // MSG_DEBUG("test...test");
 
       const ChargedFinalState cfs(-0.8, 0.8, 500*MeV);
@@ -66,7 +66,7 @@ namespace Rivet {
        return 2;
      }
     /// Perform the per-event analysis
-    void analyze(const Event& event) {
+    void analyze(const Event& event) override {
       const double weight = event.weight();
        // Require at least one track in the event with pT >= 1 GeV
        const ChargedFinalState& cfslead = applyProjection<ChargedFinalState>(event, "CFSlead");
@@ -143,7 +143,7 @@ _hist_profile_SumpT_pT_09TeV->fill(pTlead/GeV, ptSum500[1] / (GeV * (dEtadPhi)),
 
 
     /// Normalise histograms etc., after the run
-    void finalize() {
+    void finalize() override {
 
       /// @todo Normalise, scale and otherwise manipulate histograms here
 

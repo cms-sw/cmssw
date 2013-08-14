@@ -37,7 +37,7 @@ namespace Rivet {
     }
 
 //AK =====================================================INIT
-    void init() {
+    void init() override {
       ChargedFinalState cfs(-2.4, 2.4, 0.1*GeV); //Note the eta selection for charged particles is here
       addProjection(cfs, "CFS");
       addProjection(Beam(), "Beam");
@@ -98,7 +98,7 @@ namespace Rivet {
     }
 
 //AK =====================================================ANALYZE
-    void analyze(const Event& event) {
+    void analyze(const Event& event) override {
 	
       const double _ptbinslimits[5] = {0.1,1.0,2.0,3.0,4.0};
       const unsigned int _Nbinslimits[5] = {1, 35, 90, 110, 9999};
@@ -425,7 +425,7 @@ namespace Rivet {
     } //end - analyze()
     
 //AK =====================================================FINALIZE
-    void finalize() {
+    void finalize() override {
 
 	getLog() << Log::INFO << "Number of events after event selection: " << _Nevt_after_cuts << endl;	
 	getLog() << Log::INFO << "Number of events with N>110:" << _N110events << endl;

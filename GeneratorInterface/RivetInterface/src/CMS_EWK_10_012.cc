@@ -26,7 +26,7 @@ namespace Rivet {
     
     
     /// Book histograms and initialise projections before the run
-    void init() {
+    void init() override {
       
       const FinalState fs(-MAXRAPIDITY,MAXRAPIDITY);
       addProjection(fs, "FS");
@@ -180,7 +180,7 @@ namespace Rivet {
 
 
 
-    void analyze(const Event& event) {
+    void analyze(const Event& event) override {
       //some flag definitions.
       bool isZmm =false;
       bool isZee =false;
@@ -317,7 +317,7 @@ namespace Rivet {
     
     
     /// Normalise histograms etc., after the run
-    void finalize() {
+    void finalize() override {
       FillNoverNm1(_histJetMultWelec,_histNoverNm1Welec);
       FillNoverN0(_histJetMultWelec,_histNoverN0Welec);
       FillNoverNm1(_histJetMultWmu,_histNoverNm1Wmu);
