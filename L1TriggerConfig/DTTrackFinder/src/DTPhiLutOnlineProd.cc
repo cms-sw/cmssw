@@ -40,7 +40,7 @@ class DTPhiLutOnlineProd :
       ~DTPhiLutOnlineProd();
 
   virtual boost::shared_ptr< L1MuDTPhiLut > newObject(
-    const std::string& objectKey ) ;
+    const std::string& objectKey ) override ;
 
    private:
       // ----------member data ---------------------------
