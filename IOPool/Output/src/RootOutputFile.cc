@@ -591,7 +591,9 @@ namespace edm {
     b->Fill();
   }
 
-  void RootOutputFile::finishEndFile() { metaDataTree_->SetEntries(-1); RootOutputTree::writeTTree(metaDataTree_);
+  void RootOutputFile::finishEndFile() {
+    metaDataTree_->SetEntries(-1);
+    RootOutputTree::writeTTree(metaDataTree_);
     RootOutputTree::writeTTree(parameterSetsTree_);
 
     RootOutputTree::writeTTree(parentageTree_);
