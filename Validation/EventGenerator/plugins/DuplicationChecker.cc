@@ -2,8 +2,6 @@
  *  
  *  Class to monitor duplication of events
  *
- *  $Date: 2012/10/16 14:49:03 $
- *  $Revision: 1.4 $
  *
  */
  

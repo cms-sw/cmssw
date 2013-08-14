@@ -2,8 +2,6 @@
  *  
  *  Class to fill dqm monitor elements from existing EDM file
  *
- *  $Date: 2012/08/12 16:13:29 $
- *  $Revision: 1.1 $
  */
  
 #include "Validation/EventGenerator/interface/HiggsValidation.h"

@@ -4,8 +4,6 @@
 /** \class Histograms
  *  Collection of histograms for DT RecHit and Segment test.
  *
- *  $Date: 2010/09/17 07:47:43 $
- *  $Revision: 1.6 $
  *  \author S. Bolognesi and G. Cerminara - INFN Torino
  */
 
