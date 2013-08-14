@@ -73,7 +73,7 @@ namespace {
   public:
     TreeHelper(TTree* iTree, std::string* iFullNameBufferPtr ):
      m_tree(iTree), m_flagBuffer(0),m_fullNameBufferPtr(iFullNameBufferPtr){ setup();}
-     virtual void doFill(MonitorElement* iElement) {
+     virtual void doFill(MonitorElement* iElement) override {
        *m_fullNameBufferPtr = iElement->getFullname();
        m_flagBuffer = iElement->getTag();
        m_bufferPtr = dynamic_cast<T*>(iElement->getRootObject());
@@ -103,7 +103,7 @@ namespace {
      m_tree(iTree), m_flagBuffer(0),m_fullNameBufferPtr(iFullNameBufferPtr)
      {setup();}
 
-    virtual void doFill(MonitorElement* iElement) {
+    virtual void doFill(MonitorElement* iElement) override {
      *m_fullNameBufferPtr = iElement->getFullname();
      m_flagBuffer = iElement->getTag();
      m_buffer = iElement->getIntValue();
@@ -127,7 +127,7 @@ namespace {
     FloatTreeHelper(TTree* iTree, std::string* iFullNameBufferPtr):
      m_tree(iTree), m_flagBuffer(0),m_fullNameBufferPtr(iFullNameBufferPtr)
      {setup();}
-   virtual void doFill(MonitorElement* iElement) {
+   virtual void doFill(MonitorElement* iElement) override {
      *m_fullNameBufferPtr = iElement->getFullname();
      m_flagBuffer = iElement->getTag();
      m_buffer = iElement->getFloatValue();
@@ -151,7 +151,7 @@ namespace {
     StringTreeHelper(TTree* iTree, std::string* iFullNameBufferPtr):
      m_tree(iTree), m_flagBuffer(0),m_fullNameBufferPtr(iFullNameBufferPtr), m_bufferPtr(&m_buffer)
      {setup();}
-   virtual void doFill(MonitorElement* iElement) {
+   virtual void doFill(MonitorElement* iElement) override {
      *m_fullNameBufferPtr = iElement->getFullname();
      m_flagBuffer = iElement->getTag();
      m_buffer = iElement->getStringValue();
