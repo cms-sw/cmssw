@@ -9,8 +9,6 @@
 
 /** \class HcalTBTriggerFilter
     
-   $Date: 2007/03/08 23:09:15 $
-   $Revision: 1.1 $
    \author J. Mans - Minnesota
 */
 class HcalTBTriggerFilter : public edm::EDFilter {

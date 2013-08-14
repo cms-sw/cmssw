@@ -5,8 +5,6 @@
  *
  * Abstract aglo class to reconstruct segments in SL given a set of hits
  *
- * $Date: 2006/04/13 07:23:16 $
- * $Revision: 1.3 $
  * \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  * \author Riccardo Bellan - INFN TO <riccardo.bellan@cern.ch>
  */

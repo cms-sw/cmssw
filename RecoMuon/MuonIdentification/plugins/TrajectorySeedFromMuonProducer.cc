@@ -1,5 +1,4 @@
 // -*- C++ -*-
-// $Id: TrajectorySeedFromMuonProducer.cc,v 1.1 2010/06/22 13:19:57 dmytro Exp $
 //
 // Authors: Y.Gao (FNAL)
 //

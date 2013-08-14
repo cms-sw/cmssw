@@ -1,7 +1,6 @@
 //
 // Original Author:  Pietro Govoni
 //         Created:  Thu Aug 10 16:21:22 CEST 2006
-// $Id: IsTBH4Type.cc,v 1.3 2007/12/31 18:43:17 ratnik Exp $
 //
 //
 

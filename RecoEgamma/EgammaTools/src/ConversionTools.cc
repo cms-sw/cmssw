@@ -1,4 +1,3 @@
-// $Id: ConversionTools.cc,v 1.2 2011/04/18 20:47:51 bendavid Exp $
 
 #include <TMath.h>
 #include "RecoEgamma/EgammaTools/interface/ConversionTools.h"

@@ -3,9 +3,6 @@
 /** \class ConvertedPhotonProducer
  **  
  **
- **  $Id: ConvertedPhotonProducer.h,v 1.35 2011/06/08 13:22:40 nancy Exp $ 
- **  $Date: 2011/06/08 13:22:40 $ 
- **  $Revision: 1.35 $
  **  \author Nancy Marinelli, U. of Notre Dame, US
  **
  ***/

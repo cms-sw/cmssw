@@ -14,20 +14,26 @@
  */
 
 #include "HLTrigger/HLTcore/interface/HLTFilter.h"
+namespace edm {
+  class ConfigurationDescriptions;
+}
 
 class HLTMuonL1RegionalFilter : public HLTFilter {
 
   public:
     explicit HLTMuonL1RegionalFilter(const edm::ParameterSet&);
     ~HLTMuonL1RegionalFilter();
+    static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
     virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct);
 
   private:
     /// input tag identifying the product containing muons
-    edm::InputTag candTag_;
+    edm::InputTag                                       candTag_;
+    edm::EDGetTokenT<l1extra::L1MuonParticleCollection> candToken_;
 
     /// input tag identifying the product containing refs to muons passing the previous level
-    edm::InputTag previousCandTag_;
+    edm::InputTag                                          previousCandTag_;
+    edm::EDGetTokenT<trigger::TriggerFilterObjectWithRefs> previousCandToken_;
 
     /// the vector of eta region boundaries; note: # of boundaries = # of regions + 1
     std::vector<double> etaBoundaries_;

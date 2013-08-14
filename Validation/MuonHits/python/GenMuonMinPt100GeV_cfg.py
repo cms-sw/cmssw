@@ -50,8 +50,6 @@ process.GEN = cms.OutputModule("PoolOutputModule",
 )
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.1 $'),
-    name = cms.untracked.string('$Source: /cvs_server/repositories/CMSSW/CMSSW/Validation/MuonHits/data/GenMuonMinPt100GeV.cfg,v $'),
     annotation = cms.untracked.string('gen. mu- pt=100GeV for muon subsystems validation scan')
 )
 process.outpath = cms.EndPath(process.GEN)

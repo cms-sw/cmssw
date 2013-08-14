@@ -16,7 +16,6 @@
 //
 // Original Author:  fwyzard
 //         Created:  Wed Oct 18 18:02:07 CEST 2006
-// $Id: SoftLepton.h,v 1.12 2010/02/26 18:16:18 saout Exp $
 //
 
 // system include files

@@ -5,7 +5,6 @@
 // 
 // Original Authors:  R. Remington (UF), R. Cavanaugh (UIC/Fermilab)
 //          Created:  October 27, 2008
-// $Id: GenSpecificAlgo.h,v 1.5 2012/06/10 21:54:11 sakuma Exp $
 //
 //
 //____________________________________________________________________________||

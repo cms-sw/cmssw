@@ -1,9 +1,6 @@
 /** \class EcalRecalibRecHitProducer
  *   produce ECAL rechits from uncalibrated rechits
  *
- *  $Id: EcalRecalibRecHitProducer.cc,v 1.6 2012/03/06 23:53:34 ferriff Exp $
- *  $Date: 2012/03/06 23:53:34 $
- *  $Revision: 1.6 $
  *  \author Federico Ferri, University of Milano Bicocca and INFN
  *
  **/

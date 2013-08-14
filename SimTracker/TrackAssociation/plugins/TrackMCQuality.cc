@@ -13,7 +13,6 @@
 //
 // Original Author:  Jean-Roch Vlimant
 //         Created:  Fri Mar 27 15:19:03 CET 2009
-// $Id: TrackMCQuality.cc,v 1.2 2010/09/09 15:42:23 sunanda Exp $
 //
 //
 

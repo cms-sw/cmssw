@@ -4,8 +4,6 @@
 /*
  * \file EcalSelectiveReadoutValidation.h
  *
- * $Date: 2010/05/05 10:54:53 $
- * $Revision: 1.13 $
  *
  */
 

@@ -6,8 +6,6 @@
  *  Define some basic tools and utilities for 1D DT Rec Hit and 
  *  2D, 4D DT Segment analysis
  *
- *  $Date: 2007/03/12 00:53:39 $
- *  $Revision: 1.3 $
  *  \author S. Bolognesi and G. Cerminara - INFN Torino
  */
 

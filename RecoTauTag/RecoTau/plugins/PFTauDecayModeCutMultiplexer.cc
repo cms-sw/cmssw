@@ -20,7 +20,6 @@
 //
 // Original Author:  Evan K. Friis, UC Davis (friis@physics.ucdavis.edu)
 //         Created:  Thurs, April 16, 2009
-// $Id: PFTauDecayModeCutMultiplexer.cc,v 1.2 2009/09/04 21:34:24 friis Exp $
 //
 //
 

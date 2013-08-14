@@ -2,8 +2,6 @@
  *  See header file for a description of this class.
  *
  *
- *  $Date: 2011/10/29 00:48:40 $
- *  $Revision: 1.4 $
  *  \author Haiyun.Teng - Peking University
  *
  */

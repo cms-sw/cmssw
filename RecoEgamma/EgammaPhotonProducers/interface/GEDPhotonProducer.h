@@ -3,9 +3,6 @@
 /** \class GEDPhotonProducer
  **  
  **
- **  $Id: GEDPhotonProducer.h $ 
- **  $Date:  $ 
- **  $Revision: $
  **  \author Nancy Marinelli, U. of Notre Dame, US
  **
  ***/
