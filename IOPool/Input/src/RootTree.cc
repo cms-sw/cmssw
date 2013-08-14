@@ -8,6 +8,7 @@
 #include "TTreeIndex.h"
 #include "TTreeCache.h"
 
+#include <cassert>
 #include <iostream>
 
 namespace edm {

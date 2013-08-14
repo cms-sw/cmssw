@@ -18,6 +18,7 @@
 #include "FWCore/Utilities/interface/TypeWithDict.h"
 #include "FWCore/Utilities/interface/WrappedClassName.h"
 
+#include <cassert>
 #include <iterator>
 #include <limits>
 #include <sstream>
