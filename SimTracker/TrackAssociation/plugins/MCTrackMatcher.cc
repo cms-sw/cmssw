@@ -17,7 +17,7 @@ class MCTrackMatcher : public edm::EDProducer {
   MCTrackMatcher( const edm::ParameterSet & );
 
  private:
-  void produce( edm::Event& evt, const edm::EventSetup& es );
+  void produce( edm::Event& evt, const edm::EventSetup& es ) override;
   std::string associator_;
   edm::InputTag tracks_, genParticles_, trackingParticles_;
   typedef edm::Association<reco::GenParticleCollection> GenParticleMatch;
