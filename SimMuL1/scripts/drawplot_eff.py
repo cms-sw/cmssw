@@ -355,7 +355,7 @@ def gemTurnOn(filesDir, plotDir, eff, oddEven, ext):
     if closeFar == "Close":
         xpos = 0.57
     else:
-        xpos = 0.61
+        xpos = 0.611
 
     tex = TLatex(xpos,.68,'"%s" chamber pairs'%(closeFar))
     tex.Draw("same")
