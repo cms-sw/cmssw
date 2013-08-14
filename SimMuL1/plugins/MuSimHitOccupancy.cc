@@ -180,7 +180,7 @@ private:
   TH1D * h_gem_clu_flux_per_layer;
   TH1D * h_gem_clu_rate_per_ch;
   TH2D * h_gem_tof_vs_ekin[N_PDGIDS];
-  TH2D * h_gem_hit_avg_per_ch;
+  TH1D * h_gem_nhit_avg_per_ch;
   TH1D * h_gem_total_area;
 
   TH1D * h_gem_hit_flux_per_partlayer_ge11;
@@ -420,6 +420,11 @@ MuSimHitOccupancy::MuSimHitOccupancy(const edm::ParameterSet& iConfig)
   for (int i=1; i<=h_gem_clu_rate_per_ch->GetXaxis()->GetNbins();i++)
     h_gem_clu_rate_per_ch->GetXaxis()->SetBinLabel(i,gem_type[i].c_str());
 
+  h_gem_nhit_avg_per_ch = fs->make<TH1D>("h_gem_nhit_avg_per_ch",
+      (n_clusters+" average #hits per chamber in GEM L=10^{34};GE station/ring;<#hits>").c_str(), GEM_TYPES, 0.5, GEM_TYPES+0.5);
+  for (int i=1; i<=h_gem_nhit_avg_per_ch->GetXaxis()->GetNbins();i++)
+    h_gem_nhit_avg_per_ch->GetXaxis()->SetBinLabel(i,gem_type[i].c_str());
+
   h_gem_total_area = fs->make<TH1D>("h_gem_total_area", "GEM total area per type", GEM_TYPES, 0.5, GEM_TYPES+0.5);
 
   h_gem_hit_flux_per_partlayer_ge11 = fs->make<TH1D>("h_gem_hit_flux_per_partlayer_ge11",
@@ -466,6 +471,8 @@ MuSimHitOccupancy::MuSimHitOccupancy(const edm::ParameterSet& iConfig)
       (n_clusters+" rate per chamber in RPCf at L=10^{34};RE station/ring;kHz").c_str(), RPCF_TYPES, 0.5, RPCF_TYPES+0.5);
   for (int i=1; i<=h_rpcf_clu_rate_per_ch->GetXaxis()->GetNbins();i++)
     h_rpcf_clu_rate_per_ch->GetXaxis()->SetBinLabel(i,rpcf_type[i].c_str());
+
+  h_rpcf_total_area = fs->make<TH1D>("h_rpcf_total_area", "RPCf total area per type", RPCF_TYPES, 0.5, RPCF_TYPES+0.5);
 
 
   h_rpcb_nevt_fraction_with_sh = fs->make<TH1D>("h_rpcb_nevt_fraction_with_sh",
@@ -945,7 +952,7 @@ MuSimHitOccupancy::analyzeGEM()
       h_gem_hit_flux_per_layer->Fill(g_id.t);
       h_gem_hit_rate_per_ch->Fill(g_id.t);
 
-      if (t==1)
+      if (g_id.t==1)
       {
         h_gem_hit_flux_per_partlayer_ge11->Fill(g_id.part);
         h_gem_hit_avg_per_part_ge11->Fill(g_id.part);
@@ -1270,9 +1277,9 @@ void MuSimHitOccupancy::endJob()
 
   if (do_csc_) for (int t=0; t <= CSC_TYPES; t++)
   {
-    h_csc_total_area->SetBinContent(t+1,areas_.csc_total_areas_cm2[t]);
+    h_csc_total_area->SetBinContent(t, areas_.csc_total_areas_cm2[t]);
   }
-  h_csc_total_area->SetBinContent(0, evtn); // store it in underflow
+  h_csc_total_area->SetBinContent(CSC_TYPES+1, evtn); // store it in overflow
   h_csc_total_area->SetEntries(CSC_TYPES+2);
 
   h_csc_hit_flux_per_layer->Sumw2();
@@ -1304,11 +1311,11 @@ void MuSimHitOccupancy::endJob()
   }
 
 
-  if (do_gem_) for (int t=0; t <= GEM_TYPES; t++)
+  if (do_gem_) for (int t=0; t <= GEM_TYPES; t++) // underflow is total area
   {
-    h_gem_total_area->SetBinContent(t+1,areas_.gem_total_areas_cm2[t]);
+    h_gem_total_area->SetBinContent(t,areas_.gem_total_areas_cm2[t]);
   }
-  h_gem_total_area->SetBinContent(0, evtn); // store it in underflow
+  h_gem_total_area->SetBinContent(GEM_TYPES+1, evtn); // store it in overflow
   h_gem_total_area->SetEntries(GEM_TYPES+2);
 
   h_gem_hit_flux_per_layer->Sumw2();
@@ -1324,31 +1331,34 @@ void MuSimHitOccupancy::endJob()
     scaleOneBin(h_gem_clu_rate_per_ch, t, scale);
 
     scale = 1. /evtn /gem_radial_segm[t]/2./2.; // gem
-    scaleOneBin(h_gem_hit_avg_per_ch, t, scale);
+    scaleOneBin(h_gem_nhit_avg_per_ch, t, scale);
   }
 
   h_gem_hit_flux_per_partlayer_ge11->Sumw2();
   h_gem_hit_avg_per_part_ge11->Sumw2();
+  if (do_gem_)  for (int i=1; i<=10; i++)
+  {
+    if (areas_.gem_total_part_areas_cm2[1][i] == 0.) continue;
+    scale = bxrate * n_pu * f_full_bx /evtn /areas_.gem_total_part_areas_cm2[1][i];
+    scaleOneBin(h_gem_hit_flux_per_partlayer_ge11, i, scale);
+  }
   if (do_gem_)
   {
-    scale = bxrate * n_pu * f_full_bx /evtn /areas_.gem_total_part_areas_cm2[1];
-    h_gem_hit_flux_per_partlayer_ge11->Scale(scale);
-
     scale = 1. /evtn /gem_radial_segm[1]/2./2.; // gem
     h_gem_hit_avg_per_part_ge11->Scale(scale);
   }
   if (do_gem_) for (int i=0; i<=10; i++)
   {
-    gr_gem_hit_flux_ge1->SetPoint(i, areas_.gem_part_radius[i+1], h_gem_hit_flux_per_partlayer_ge11->GetBinContent(i+1) );
-    gr_gem_hit_flux_ge1->SetPointError(i, areas_.gem_part_halfheight[i+1], h_gem_hit_flux_per_partlayer_ge11->GetBinError(i+1) );
+    gr_gem_hit_flux_ge1->SetPoint(i, areas_.gem_part_radius[1][i+1], h_gem_hit_flux_per_partlayer_ge11->GetBinContent(i+1) );
+    gr_gem_hit_flux_ge1->SetPointError(i, areas_.gem_part_halfheight[1][i+1], h_gem_hit_flux_per_partlayer_ge11->GetBinError(i+1) );
   }
   
 
   if (do_rpc_) for (int t=0; t <= RPCF_TYPES; t++)
   {
-    h_rpcf_total_area->SetBinContent(t+1, areas_.rpcf_total_areas_cm2[t]);
+    h_rpcf_total_area->SetBinContent(t, areas_.rpcf_total_areas_cm2[t]);
   }
-  h_rpcf_total_area->SetBinContent(0, evtn); // store it in underflow
+  h_rpcf_total_area->SetBinContent(RPCF_TYPES+1, evtn); // store it in overflow
   h_rpcf_total_area->SetEntries(RPCF_TYPES+2);
 
   h_rpcf_hit_flux_per_layer->Sumw2();
@@ -1367,9 +1377,9 @@ void MuSimHitOccupancy::endJob()
   
   if (do_rpc_) for (int t=0; t <= RPCB_TYPES; t++)
   {
-    h_rpcb_total_area->SetBinContent(t+1, areas_.rpcb_total_areas_cm2[t]);
+    h_rpcb_total_area->SetBinContent(t, areas_.rpcb_total_areas_cm2[t]);
   }
-  h_rpcb_total_area->SetBinContent(0, evtn); // store it in underflow
+  h_rpcb_total_area->SetBinContent(RPCB_TYPES+1, evtn); // store it in overflow
   h_rpcb_total_area->SetEntries(RPCB_TYPES+2);
 
   h_rpcb_hit_flux_per_layer->Sumw2();
@@ -1387,9 +1397,9 @@ void MuSimHitOccupancy::endJob()
 
   if (do_dt_) for (int t=0; t <= DT_TYPES; t++)
   {
-    h_dt_total_area->SetBinContent(t+1, areas_.dt_total_areas_cm2[t]);
+    h_dt_total_area->SetBinContent(t, areas_.dt_total_areas_cm2[t]);
   }
-  h_dt_total_area->SetBinContent(0, evtn); // store it in underflow
+  h_dt_total_area->SetBinContent(DT_TYPES+1, evtn); // store it in overflow
   h_dt_total_area->SetEntries(DT_TYPES+2);
 
   h_dt_hit_flux_per_layer->Sumw2();

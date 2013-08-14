@@ -15,6 +15,17 @@ if isMB: inputDir = '/uscmst1b_scratch/lpc1/lpctau/khotilov/condor/minbias_3_6_2
 
 #inputDir = '/uscmst1b_scratch/lpc1/lpctau/khotilov/slhc/CMSSW_3_6_3_ye4/src/out_n_58k'
 
+ls = os.listdir(inputDir)
+input_names = ['file:'+inputDir+"/"+x for x in ls if x.endswith('root')]
+
+
+ff = open('filelist_minbias_29M.txt', "r")
+input_names = ff.read().split('\n')
+ff.close()
+input_names = filter(lambda x: x.endswith('.root'),  input_names)
+input_names = input_names[:1000]
+
+
 theHistoFileName = "shtree100K.root"
 if isMB: theHistoFileName = "shtreeMB.root"
 
@@ -38,20 +49,32 @@ process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(nevt) )
 # import of standard configurations
 process.load('Configuration.StandardSequences.Services_cff')
 process.load('FWCore.MessageService.MessageLogger_cfi')
-process.load('Configuration.StandardSequences.Geometry_cff')
+#process.load('Configuration.StandardSequences.Geometry_cff')
 process.load('Configuration.StandardSequences.EndOfProcess_cff')
 process.load('Configuration.EventContent.EventContent_cff')
 
+### GEM Geometry ###
+
+process.load('Geometry.GEMGeometry.cmsExtendedGeometryPostLS1plusGEMXML_cfi')
+#process.load('Geometry.GEMGeometry.cmsExtendedGeometryPostLS1plusGEMr08v01XML_cfi')
+#process.load('Geometry.GEMGeometry.cmsExtendedGeometryPostLS1plusGEMr10v01XML_cfi')
+process.load('Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi')
+process.load('Geometry.CommonDetUnit.globalTrackingGeometry_cfi')
+process.load('Geometry.MuonNumbering.muonNumberingInitialization_cfi')
+process.load('Geometry.GEMGeometry.gemGeometry_cfi')
+
+
+### GlobalTag ###
+
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
-#process.GlobalTag.globaltag = 'MC_38Y_V9::All'
-process.GlobalTag.globaltag = 'MC_36Y_V10::All'
+process.GlobalTag.globaltag = 'POSTLS161_V12::All'
+
 
 process.options = cms.untracked.PSet(
   makeTriggerResults = cms.untracked.bool(False),
   wantSummary = cms.untracked.bool(True)
 )
 
-ls = os.listdir(inputDir)
 
 process.source = cms.Source("PoolSource",
   duplicateCheckMode = cms.untracked.string('noDuplicateCheck'),
@@ -60,8 +83,9 @@ process.source = cms.Source("PoolSource",
     #"file:/uscmst1b_scratch/lpc1/lpctau/khotilov/slhc/CMSSW_3_9_0_pre2/src/condor_hp_eml/zomg.root"
     #"file:/uscmst1b_scratch/lpc1/lpctau/khotilov/slhc/CMSSW_3_9_0_pre2/src/condor_emlsn/zomg.root"
     #"file:/uscmst1b_scratch/lpc1/lpctau/khotilov/slhc/CMSSW_3_9_0_pre2/src/condor_eml/zomg.root"
-    ['file:'+inputDir+"/"+x for x in ls if x.endswith('root')]
+    #['file:'+inputDir+"/"+x for x in ls if x.endswith('root')]
     #"file:/uscmst1b_scratch/lpc1/lpctau/khotilov/slhc/CMSSW_3_6_3_n/src/out_std/zomg.root"
+    *input_names
   )
 )
 

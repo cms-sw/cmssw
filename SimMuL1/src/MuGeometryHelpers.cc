@@ -112,8 +112,10 @@ void mugeo::MuGeometryAreas::calculateGEMDetectorAreas(const GEMGeometry* g)
   }
 
   cout<<"========================"<<endl;
+  cout<<"= GEM chamber total sensitive areas (cm2):"<<endl;
+  for (int i=0; i<=GEM_TYPES; i++) cout<<"= "<<gem_type[i]<<" "<<gem_total_areas_cm2[i]<<endl;
   cout<<"= GEM chamber sensitive areas per layer (cm2):"<<endl;
-  for (int i=0; i<=GEM_TYPES; i++) cout<<"= "<<gem_type[i]<<" "<<rpcf_total_areas_cm2[i]/2./2./rpcf_radial_segm[i]<<endl;
+  for (int i=0; i<=GEM_TYPES; i++) cout<<"= "<<gem_type[i]<<" "<<gem_total_areas_cm2[i]/2./2./gem_radial_segm[i]<<endl;
   cout<<"========================"<<endl;
 }
 
