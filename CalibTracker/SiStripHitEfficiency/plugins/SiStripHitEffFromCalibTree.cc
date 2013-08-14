@@ -96,8 +96,8 @@ class SiStripHitEffFromCalibTree : public ConditionDBWriter<SiStripBadStrip> {
 
   private:
     virtual void algoBeginJob();
-    virtual void algoEndJob();
-    virtual void algoAnalyze(const edm::Event& e, const edm::EventSetup& c);
+    virtual void algoEndJob() override;
+    virtual void algoAnalyze(const edm::Event& e, const edm::EventSetup& c) override;
     void SetBadComponents(int i, int component,SiStripQuality::BadComponent& BC, std::stringstream ssV[4][19], int NBadComponent[4][19][4]);
     void makeTKMap();
     void makeHotColdMaps();
@@ -110,7 +110,7 @@ class SiStripHitEffFromCalibTree : public ConditionDBWriter<SiStripBadStrip> {
     SiStripDetInfoFileReader* reader;
     edm::FileInPath FileInPath_;
     SiStripQuality* quality_;
-    SiStripBadStrip* getNewObject();
+    SiStripBadStrip* getNewObject() override;
     
     TFile* CalibTreeFile;
     TTree* CalibTree;
