@@ -1,5 +1,4 @@
 Questions -> Fedor Ratnikov: ratnikov@fnal.gov
-$Id: HOWTO,v 1.2 2007/10/11 00:48:07 fedor Exp $
 
 The purpose of jet validation package is to provide a tool to quickly
 and automatically produce distributions reflecting sanity of jet objects.

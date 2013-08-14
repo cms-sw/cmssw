@@ -1,7 +1,6 @@
 /*
  * \file EcalBarrelRecHitsValidation.cc
  *
- * $Date: 2009/12/14 22:24:44 $
  * \author C. Rovelli
  *
  */
