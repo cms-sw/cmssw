@@ -7,8 +7,8 @@ class RecoTauDecayModeCutMultiplexer : public PFTauDiscriminationProducerBase {
     explicit RecoTauDecayModeCutMultiplexer(const edm::ParameterSet& pset);
 
     ~RecoTauDecayModeCutMultiplexer() {}
-    double discriminate(const reco::PFTauRef&);
-    void beginEvent(const edm::Event& event, const edm::EventSetup& eventSetup);
+    double discriminate(const reco::PFTauRef&) override;
+    void beginEvent(const edm::Event& event, const edm::EventSetup& eventSetup) override;
 
   private:
     typedef std::pair<unsigned int, unsigned int> IntPair;

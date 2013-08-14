@@ -44,7 +44,7 @@ class RecoTauPiZeroProducer : public edm::EDProducer {
 
     explicit RecoTauPiZeroProducer(const edm::ParameterSet& pset);
     ~RecoTauPiZeroProducer() {}
-    void produce(edm::Event& evt, const edm::EventSetup& es);
+    void produce(edm::Event& evt, const edm::EventSetup& es) override;
     void print(const std::vector<reco::RecoTauPiZero>& piZeros,
                std::ostream& out);
 

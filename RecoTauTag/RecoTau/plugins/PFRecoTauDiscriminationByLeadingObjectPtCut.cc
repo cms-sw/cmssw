@@ -16,7 +16,7 @@ class PFRecoTauDiscriminationByLeadingObjectPtCut : public PFTauDiscriminationPr
          minPtLeadObject_ = iConfig.getParameter<double>("MinPtLeadingObject");
       }
       ~PFRecoTauDiscriminationByLeadingObjectPtCut(){} 
-      double discriminate(const PFTauRef& pfTau);
+      double discriminate(const PFTauRef& pfTau) override;
    private:
       bool chargedOnly_;
       double minPtLeadObject_;

@@ -45,7 +45,7 @@ class PFRecoTauDiscriminationAgainstElectronMVA : public PFTauDiscriminationProd
 
       }
 
-      double discriminate(const PFTauRef& thePFTauRef);
+      double discriminate(const PFTauRef& thePFTauRef) override;
 
       ~PFRecoTauDiscriminationAgainstElectronMVA() { delete mva_; }
 

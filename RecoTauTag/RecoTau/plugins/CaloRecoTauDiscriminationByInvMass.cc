@@ -26,7 +26,7 @@ class CaloRecoTauDiscriminationByInvMass : public CaloTauDiscriminationProducerB
 
     ~CaloRecoTauDiscriminationByInvMass(){}
 
-    double discriminate(const reco::CaloTauRef&);
+    double discriminate(const reco::CaloTauRef&) override;
 
   private:
     double threeProngInvMass(const CaloTauRef&);

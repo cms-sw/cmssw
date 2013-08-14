@@ -22,7 +22,7 @@ class TCRecoTauProducer : public edm::EDProducer {
         explicit TCRecoTauProducer(const edm::ParameterSet& iConfig);
         ~TCRecoTauProducer();
 
-        virtual void produce(edm::Event&,const edm::EventSetup&);
+        virtual void produce(edm::Event&,const edm::EventSetup&) override;
 
     private:
         edm::InputTag    caloRecoTauProducer;

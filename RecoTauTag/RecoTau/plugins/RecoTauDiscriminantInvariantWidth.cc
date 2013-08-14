@@ -22,7 +22,7 @@ class RecoTauDiscriminantInvariantWidth : public RecoTauDiscriminantPlugin {
   public:
     explicit RecoTauDiscriminantInvariantWidth(
         const edm::ParameterSet& pset);
-    std::vector<double> operator()(const reco::PFTauRef& tau) const;
+    std::vector<double> operator()(const reco::PFTauRef& tau) const override;
   private:
     typedef StringObjectFunction<PFTau> TauFunc;
     typedef boost::shared_ptr<TauFunc> TauFuncPtr;

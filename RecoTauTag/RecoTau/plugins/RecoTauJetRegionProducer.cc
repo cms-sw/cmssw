@@ -28,7 +28,7 @@ class RecoTauJetRegionProducer : public edm::EDProducer {
     typedef edm::Association<reco::PFJetCollection> PFJetMatchMap;
     explicit RecoTauJetRegionProducer(const edm::ParameterSet& pset);
     ~RecoTauJetRegionProducer() {}
-    void produce(edm::Event& evt, const edm::EventSetup& es);
+    void produce(edm::Event& evt, const edm::EventSetup& es) override;
   private:
     float deltaR2_;
     edm::InputTag inputJets_;
