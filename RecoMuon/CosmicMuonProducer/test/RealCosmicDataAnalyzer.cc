@@ -1,7 +1,5 @@
 /** \class RealCosmicDataAnalyzer
  *
- *  $Date: 2009/12/29 23:18:38 $
- *  $Revision: 1.3 $
  *  \author Chang Liu   -  Purdue University <Chang.Liu@cern.ch>
  */
 

@@ -16,7 +16,6 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: ForwardMeasurementEstimator.h,v 1.16 2010/07/28 10:52:45 chamont Exp $
 //
 //
 #include "TrackingTools/DetLayers/interface/MeasurementEstimator.h"

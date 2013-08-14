@@ -13,7 +13,6 @@ Implementation:
 //
 // Original Author:  Giuseppe Cerati
 //         Created:  Tue Jul 10 15:05:02 CEST 2007
-// $Id: VertexConstraintProducer.cc,v 1.6 2010/05/21 12:59:35 caponeri Exp $
 //
 //
 

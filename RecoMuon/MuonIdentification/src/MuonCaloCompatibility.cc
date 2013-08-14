@@ -10,7 +10,6 @@
 */
 //
 // Original Author:  Ingo Bloch
-// $Id: MuonCaloCompatibility.cc,v 1.6 2010/01/21 01:39:00 slava77 Exp $
 //
 //
 #include "RecoMuon/MuonIdentification/interface/MuonCaloCompatibility.h"

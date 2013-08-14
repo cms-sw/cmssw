@@ -5,7 +5,6 @@
 // 
 // Original Author:  Kyle Story, Freya Blekman (Cornell University)
 //         Created:  Fri Apr 18 11:58:33 CEST 2008
-// $Id: SignCaloSpecificAlgo.cc,v 1.10 2012/06/09 18:27:46 sakuma Exp $
 //
 //
 

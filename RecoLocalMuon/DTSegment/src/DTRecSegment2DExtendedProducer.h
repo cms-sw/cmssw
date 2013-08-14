@@ -5,8 +5,6 @@
  *
  * Producer for DT segment in one projection.
  *  
- * $Date: 2008/12/03 12:52:22 $
- * $Revision: 1.1 $
  * \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  * \author Riccardo Bellan - INFN TO <riccardo.bellan@cern.ch>
  *

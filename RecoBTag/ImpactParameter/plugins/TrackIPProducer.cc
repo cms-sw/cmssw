@@ -13,7 +13,6 @@
 //
 // Original Author:  Andrea Rizzi
 //         Created:  Thu Apr  6 09:56:23 CEST 2006
-// $Id: TrackIPProducer.cc,v 1.23 2009/10/12 14:24:30 muzaffar Exp $
 //
 //
 

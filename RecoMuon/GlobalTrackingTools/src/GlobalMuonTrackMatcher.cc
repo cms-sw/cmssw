@@ -2,8 +2,6 @@
  *  Class: GlobalMuonTrackMatcher
  *
  * 
- *  $Date: 2010/11/19 22:06:13 $
- *  $Revision: 1.26 $
  *  
  *  \author Chang Liu - Purdue University
  *  \author Norbert Neumeister - Purdue University

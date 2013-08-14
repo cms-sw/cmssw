@@ -6,7 +6,6 @@ from RecoEcal.EgammaClusterProducers.hybridSuperClusters_cfi import *
 from RecoEcal.EgammaClusterProducers.multi5x5BasicClusters_cfi import *
 #
 # producer for photons
-# $Id: photons_cfi.py,v 1.44 2012/04/24 13:53:34 arun Exp $
 #
 photons = cms.EDProducer("PhotonProducer",
     photonCoreProducer = cms.InputTag("photonCore"),

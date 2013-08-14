@@ -1,7 +1,6 @@
 /// Algorithm to convert transient protojets into persistent jets
 /// Author: F.Ratnikov, UMd
 /// Mar. 8, 2006
-/// $Id: JetMaker.cc,v 1.2 2010/10/15 22:44:34 wmtan Exp $
 
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"

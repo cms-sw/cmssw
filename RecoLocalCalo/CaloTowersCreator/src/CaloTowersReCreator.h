@@ -14,8 +14,6 @@
 
 /** \class CaloTowersReCreator
   *  
-  * $Date: 2007/03/31 18:38:51 $
-  * $Revision: 1.1 $
   */
 class CaloTowersReCreator : public edm::EDProducer {
 public:

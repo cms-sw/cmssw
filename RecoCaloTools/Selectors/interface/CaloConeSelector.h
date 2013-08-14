@@ -7,8 +7,6 @@
 
 /** \class CaloConeSelector
   *  
-  * $Date: $
-  * $Revision: $
   * \author J. Mans - Minnesota
   */
 class CaloConeSelector {

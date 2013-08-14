@@ -16,7 +16,6 @@
 //
 // Original Author:  "Matthew Nguyen"
 //         Created:  Sun Nov 7 12:18:18 CDT 2010
-// $Id: HiL1Subtractor.h,v 1.3 2010/03/23 21:05:10 mnguyenD Exp $
 //
 //
 

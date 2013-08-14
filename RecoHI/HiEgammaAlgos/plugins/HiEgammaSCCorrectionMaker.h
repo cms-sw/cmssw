@@ -14,7 +14,6 @@
 //
 // Original Author:  Dave Evans
 //         Created:  Thu Apr 13 15:50:17 CEST 2006
-// $Id: HiEgammaSCCorrectionMaker.h,v 1.3 2010/10/28 13:36:01 yjlee Exp $
 //
 //
 

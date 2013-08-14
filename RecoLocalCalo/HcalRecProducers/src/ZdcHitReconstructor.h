@@ -27,8 +27,6 @@ class HcalTopology;
 
     /** \class ZdcHitReconstructor
 	
-    $Date: 2012/11/12 20:56:34 $
-    $Revision: 1.6 $
     \author E. Garcia - CSU
     ** Based on HcalSimpleReconstructor.h by J. Mans
     */

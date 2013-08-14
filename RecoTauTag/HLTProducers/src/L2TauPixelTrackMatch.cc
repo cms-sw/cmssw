@@ -1,4 +1,3 @@
-// $Id:$
 
 #include "RecoTauTag/HLTProducers/interface/L2TauPixelTrackMatch.h"
 #include "FWCore/Utilities/interface/Exception.h"

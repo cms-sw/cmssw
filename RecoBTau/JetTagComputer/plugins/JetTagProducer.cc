@@ -13,7 +13,6 @@
 //
 // Original Author:  Andrea Rizzi
 //         Created:  Thu Apr  6 09:56:23 CEST 2006
-// $Id: JetTagProducer.cc,v 1.10 2008/07/17 08:14:17 saout Exp $
 //
 //
 

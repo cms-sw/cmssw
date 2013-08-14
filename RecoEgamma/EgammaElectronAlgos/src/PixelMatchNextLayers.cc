@@ -13,7 +13,6 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: PixelMatchNextLayers.cc,v 1.17 2011/04/08 08:54:09 innocent Exp $
 //
 //
 

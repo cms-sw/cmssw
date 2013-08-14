@@ -1,8 +1,6 @@
 /** \class StandAloneMuonRefitter
  *  Class ti interface the muon system rechits with the standard KF tools.
  *
- *  $Date: 2009/07/03 09:12:52 $
- *  $Revision: 1.50 $
  *  \authors R. Bellan - INFN Torino <riccardo.bellan@cern.ch>,
  *           D. Trocino - INFN Torino <daniele.trocino@to.infn.it>
  */

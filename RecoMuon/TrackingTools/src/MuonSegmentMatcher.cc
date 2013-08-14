@@ -6,7 +6,6 @@
 //
 // Original Author:  Alan Tua
 //         Created:  Wed Jul  9 21:40:17 CEST 2008
-// $Id: MuonSegmentMatcher.cc,v 1.11 2011/10/03 11:43:03 ptraczyk Exp $
 //
 //
 

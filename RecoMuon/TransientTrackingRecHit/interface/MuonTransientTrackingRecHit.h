@@ -5,8 +5,6 @@
  *
  *  A TransientTrackingRecHit for muons.
  *
- *  $Date: 2009/09/17 18:50:11 $
- *  $Revision: 1.17 $
  *
  *   \author   C. Liu            Purdue University
  */

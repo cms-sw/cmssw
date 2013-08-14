@@ -3,7 +3,6 @@
 // Original Author:  Andrea Rizzi
 //         Created:  Wed Apr 12 11:12:49 CEST 2006
 // Accommodated for Jet Package by: Fedor Ratnikov Jul. 30, 2007
-// $Id: JetTracksAssociatorExplicit.cc,v 1.8 2011/11/11 19:44:39 srappocc Exp $
 //
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 

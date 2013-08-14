@@ -13,7 +13,6 @@
 //
 // Original Author:  Zablocki Jakub
 //         Created:  Thu Feb  9 10:47:50 CST 2012
-// $Id: ElectronIdMVABased.cc,v 1.3 2012/02/20 18:51:57 benedet Exp $
 //
 //
 
