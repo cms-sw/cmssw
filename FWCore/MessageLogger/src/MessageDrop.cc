@@ -101,7 +101,7 @@ class StringProducerWithPhase : public StringProducer
       memset(snapshot_phase_, '\0', sizeof(snapshot_phase_));
     }
 
-    virtual std::string theContext() const {
+    virtual std::string theContext() const override {
       if (cache_.empty()) {
 	if (moduleID_ != 0) {
 	  NLMiter nameLableIter = nameLabelMap_.find(moduleID_);
@@ -129,7 +129,7 @@ class StringProducerWithPhase : public StringProducer
       phasePtr_ = phase;
       cache_.clear();	     
     } 
-    virtual void snapshot() 				// change log 5
+    virtual void snapshot() override 				// change log 5
     {
       snapshot_name_ = *name_;
       name_ = &snapshot_name_;
@@ -165,7 +165,7 @@ class StringProducerPath : public StringProducer{
     , snapshot_type_() {
       memset(snapshot_type_, '\0', sizeof(snapshot_type_));
     }
-     virtual std::string theContext() const {
+     virtual std::string theContext() const override {
       if ( cache_.empty() ) {
 	cache_.assign(typePtr_);
 	cache_.append(path_);
@@ -177,7 +177,7 @@ class StringProducerPath : public StringProducer{
       path_ = pathname;
       cache_.clear();	     
     } 
-    virtual void snapshot() 				// change log 5
+    virtual void snapshot() override 				// change log 5
     {
       if ( snapshot_type_ != typePtr_ ) {		// change log 6
         std::strncpy (snapshot_type_,typePtr_,TYPE_MAX_LENGTH);
@@ -200,11 +200,11 @@ class StringProducerSinglet : public StringProducer{
     , snapshot_singlet_() {
       memset(snapshot_singlet_, '\0', sizeof(snapshot_singlet_));
     }
-    virtual std::string theContext() const {
+    virtual std::string theContext() const override {
       return singlet_;
     }
     void set(const char * sing) {singlet_ = sing; } 
-    virtual void snapshot() 
+    virtual void snapshot() override 
     {
       if ( snapshot_singlet_ != singlet_ ) {		// change log 6
         std::strncpy (snapshot_singlet_,singlet_,SINGLET_MAX_LENGTH);
