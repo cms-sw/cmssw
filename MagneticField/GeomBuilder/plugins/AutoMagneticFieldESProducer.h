@@ -6,8 +6,8 @@
  *  Produce a magnetic field map corresponding to the current 
  *  recorded in the condidtion DB.
  *
- *  $Date: 2008/11/14 10:42:40 $
- *  $Revision: 1.1 $
+ *  $Date: 2009/05/23 22:48:49 $
+ *  $Revision: 1.2 $
  *  \author Nicola Amapane 11/08
  */
 

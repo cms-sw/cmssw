@@ -22,7 +22,7 @@
 //
 // Original Author:  Salvatore Rappoccio
 //         Created:  Wed Nov 28 15:31:57 CST 2007
-// $Id: CompoundPseudoJet.h,v 1.1 2008/10/31 19:00:22 srappocc Exp $
+// $Id: CompoundPseudoJet.h,v 1.2 2011/03/24 17:02:39 schiefer Exp $
 //
 //-------------------------------------------------------------------------------------
 

@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Jan 12 13:32:29 CST 2012
-// $Id$
+// $Id: ProductDeletedException.h,v 1.1 2012/02/09 22:12:56 chrjones Exp $
 //
 
 // system include files

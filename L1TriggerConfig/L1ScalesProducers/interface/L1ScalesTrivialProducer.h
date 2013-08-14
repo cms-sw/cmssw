@@ -16,7 +16,7 @@
 //
 // Original Author:  Jim Brooke
 //         Created:  Wed Sep 27 17:51:32 CEST 2006
-// $Id: L1ScalesTrivialProducer.h,v 1.2 2009/03/24 00:47:14 jbrooke Exp $
+// $Id: L1ScalesTrivialProducer.h,v 1.3 2009/03/25 23:17:55 jbrooke Exp $
 //
 //
 

@@ -1,5 +1,5 @@
 //
-// $Id: LogErrorEventFilter.cc,v 1.3 2011/02/04 23:43:53 venturia Exp $
+// $Id: LogErrorEventFilter.cc,v 1.1 2012/03/23 20:42:51 venturia Exp $
 //
 
 /**
@@ -7,7 +7,7 @@
   \brief    Use StandAlone track to define the 4-momentum of a PAT Muon (normally the global one is used)
             
   \author   Giovanni Petrucciani
-  \version  $Id: LogErrorEventFilter.cc,v 1.3 2011/02/04 23:43:53 venturia Exp $
+  \version  $Id: LogErrorEventFilter.cc,v 1.1 2012/03/23 20:42:51 venturia Exp $
 */
 
 

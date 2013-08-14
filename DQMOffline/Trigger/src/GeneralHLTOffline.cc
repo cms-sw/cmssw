@@ -12,7 +12,7 @@
 //
 // Original Author:  Jason Michael Slaunwhite,512 1-008,`+41227670494,
 //         Created:  Fri Aug  5 10:34:47 CEST 2011
-// $Id: GeneralHLTOffline.cc,v 1.9 2012/10/19 20:02:11 bjk Exp $
+// $Id: GeneralHLTOffline.cc,v 1.10 2012/10/22 08:57:59 rovere Exp $
 //
 //
 

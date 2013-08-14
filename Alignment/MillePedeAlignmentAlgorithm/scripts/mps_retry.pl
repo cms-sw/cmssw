@@ -1,8 +1,8 @@
 #!/usr/bin/env perl
 #     R. Mankel, DESY Hamburg     10-Jul-2007
 #     A. Parenti, DESY Hamburg    16-Apr-2008
-#     $Revision: 1.5 $ by $Author$
-#     $Date: 2009/01/07 18:26:31 $
+#     $Revision: 1.6 $ by $Author: flucke $
+#     $Date: 2009/06/24 10:13:36 $
 #
 #  Re-Setup failed jobs for resubmission
 #  

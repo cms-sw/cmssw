@@ -6,7 +6,7 @@
  * class description:
  *
  *
- * Version: $Id: MasterTestMuScleFit.cpp,v 1.1 2010/01/11 09:32:33 demattia Exp $
+ * Version: $Id: MasterTest.cpp,v 1.1 2010/04/15 12:48:14 demattia Exp $
  */
 
 #include <cppunit/TestFixture.h>

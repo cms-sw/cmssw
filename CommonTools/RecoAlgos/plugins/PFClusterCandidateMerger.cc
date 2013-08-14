@@ -5,7 +5,7 @@
  *
  * \author Hartmut Stadie
  *
- * $Id: PFClusterCandidateProducer.cc,v 1.1 2011/01/26 16:00:11 srappocc Exp $
+ * $Id: PFClusterCandidateMerger.cc,v 1.1 2011/01/27 17:39:41 srappocc Exp $
  *
  */
 

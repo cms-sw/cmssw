@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb  2 14:26:42 CST 2012
-// $Id$
+// $Id: edmodule_mightGet_config.cc,v 1.1 2012/02/09 22:12:56 chrjones Exp $
 //
 
 // system include files

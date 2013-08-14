@@ -2,8 +2,8 @@
 #define Alignment_MuonAlignmentAlgorithms_DTMuonLocalAlignment_h
 
 /** \class DTMuonLocalAlignment
- *  $Date$
- *  $Revision: 1.3 $
+ *  $Date: 2010/02/25 11:33:32 $
+ *  $Revision: 1.2 $
  *  \author Luca Scodellaro <Luca.Scodellaro@cern.ch>
  */
 

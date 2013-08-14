@@ -7,9 +7,9 @@
  * 
  * \author Luca Lista, INFN
  *
- * \version $Revision: 1.2 $
+ * \version $Revision: 1.3 $
  *
- * $Id: ObjectCountFilter.h,v 1.2 2009/04/08 11:35:00 veelken Exp $
+ * $Id: ObjectCountFilter.h,v 1.3 2010/02/20 20:55:25 wmtan Exp $
  *
  */
 

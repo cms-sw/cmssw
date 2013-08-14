@@ -4,7 +4,7 @@
  *
  * \author Luca Lista, INFN
  *
- * $Id: MinFunctionSelector.h,v 1.2 2007/06/18 18:33:53 llista Exp $
+ * $Id: MinFunctionSelector.h,v 1.1 2009/02/24 14:40:26 llista Exp $
  */
 
 template<typename T, double (T::*fun)() const>

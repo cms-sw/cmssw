@@ -8,9 +8,9 @@
  *
  *  \author    : Gero Flucke
  *  date       : November 2006
- *  $Revision: 1.3 $
- *  $Date: 2007/12/17 18:59:52 $
- *  (last update by $Author: flucke $)
+ *  $Revision: 1.4 $
+ *  $Date: 2011/02/16 13:11:57 $
+ *  (last update by $Author: mussgill $)
  */
 
 #include <fstream>

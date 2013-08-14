@@ -16,7 +16,7 @@
 //
 // Author:      Anne-Catherine Le Bihan
 // Created:     Wed Apr 01 15:11:00 CET 2009
-// $Id: HDQMSummaryRcd.h,v 1.1 2009/04/01 16:04:31 alebihan Exp $
+// $Id: HDQMSummaryRcd.h,v 1.1 2009/04/06 16:52:56 giordano Exp $
 //
 
 #include "FWCore/Framework/interface/EventSetupRecordImplementation.h"

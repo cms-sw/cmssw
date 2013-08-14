@@ -4,8 +4,8 @@
 /** \class LaserOpticalPhysics
  *  Custom physics to activate optical processes for the simulation of the Laser Alignment System
  *
- *  $Date: 2009/12/10 18:10:05 $
- *  $Revision: 1.4 $
+ *  $Date: 2010/08/02 13:09:56 $
+ *  $Revision: 1.5 $
  *  \author Maarten Thomas
  */ 
 

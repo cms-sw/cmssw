@@ -5,8 +5,8 @@
  * *
  *  DQM Client to Summarize LS by LS the status of the Read-Out channels.
  *
- *  $Date: 2010/06/21 14:55:01 $
- *  $Revision: 1.5 $
+ *  $Date: 2012/03/13 09:00:51 $
+ *  $Revision: 1.6 $
  *  \author G. Cerminara - University and INFN Torino
  *   
  */

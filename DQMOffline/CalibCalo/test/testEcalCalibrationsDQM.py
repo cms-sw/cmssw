@@ -3,7 +3,7 @@
 # from two different databases or sqlite files
 #
 # author: Stefano Argiro
-# revision $Id$
+# revision $Id: testEcalCalibrationsDQM.py,v 1.1 2009/03/27 16:08:03 argiro Exp $
 #
 
 

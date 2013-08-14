@@ -4,8 +4,8 @@
 /** \class DTRecHitHistograms
  *  Collection of histograms for 1D DT RecHit test.
  *
- *  $Date: 2006/02/15 13:56:48 $
- *  $Revision: 1.1 $
+ *  $Date: 2006/03/24 11:09:57 $
+ *  $Revision: 1.2 $
  *  \author G. Cerminara - INFN Torino
  */
 

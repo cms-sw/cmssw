@@ -12,7 +12,7 @@
 //----------------------------------------------------------------------
 
 //STARTHEADER
-// $Id: 06-area.cc 2003 2011-03-11 16:10:08Z soyez $
+// $Id: test-large-voronoi-area.cc,v 1.1 2011/07/11 12:02:16 stadie Exp $
 //
 // Copyright (c) 2005-2011, Matteo Cacciari, Gavin Salam and Gregory Soyez
 //

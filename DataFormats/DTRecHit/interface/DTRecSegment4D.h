@@ -5,8 +5,8 @@
  *
  * 4-parameter RecHits for MuonBarrel DT (x,y, dx/dz, dy/dz)
  *
- * $Date: 2007/08/02 05:35:46 $
- * $Revision: 1.11 $
+ * $Date: 2009/10/20 09:06:12 $
+ * $Revision: 1.12 $
  * \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  * \author Riccardo Bellan - INFN TO <riccardo.bellan@cern.ch>
  *

@@ -18,7 +18,7 @@
 //
 // Original Author:  "Salvatore Rappoccio"
 //         Created:  Tue Apr  8 16:19:45 CDT 2008
-// $Id: HFFilter.h,v 1.1 2008/04/11 15:17:40 srappocc Exp $
+// $Id: HFFilter.h,v 1.2 2010/01/11 13:26:22 hegner Exp $
 //
 //
 

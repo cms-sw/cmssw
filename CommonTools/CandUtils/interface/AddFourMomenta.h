@@ -7,9 +7,9 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Revision: 1.9 $
+ * \version $Revision: 1.1 $
  *
- * $Id: AddFourMomenta.h,v 1.9 2007/01/09 09:14:42 llista Exp $
+ * $Id: AddFourMomenta.h,v 1.1 2009/02/26 09:17:33 llista Exp $
  *
  */
 #include "DataFormats/Candidate/interface/CandidateFwd.h"

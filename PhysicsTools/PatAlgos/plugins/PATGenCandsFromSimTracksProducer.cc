@@ -6,7 +6,7 @@
    
 
   \author   Jordan Tucker (original module), Giovanni Petrucciani (PAT integration)
-  \version  $Id: PATGenCandsFromSimTracksProducer.cc,v 1.7 2010/01/11 13:36:48 hegner Exp $
+  \version  $Id: PATGenCandsFromSimTracksProducer.cc,v 1.8 2010/10/20 23:09:25 wmtan Exp $
 */
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"

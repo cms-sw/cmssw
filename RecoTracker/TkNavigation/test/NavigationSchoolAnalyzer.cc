@@ -13,7 +13,7 @@
 //
 // Original Author:  Jean-Roch Vlimant
 //         Created:  Fri Mar 16 13:19:20 CDT 2007
-// $Id: NavigationSchoolAnalyzer.cc,v 1.4 2009/10/20 14:59:01 gpetrucc Exp $
+// $Id: NavigationSchoolAnalyzer.cc,v 1.5 2010/10/03 17:14:42 elmer Exp $
 //
 //
 

@@ -4,8 +4,8 @@
 /** \class DTVDriftBaseAlgo
  *  Base class to define algorithm for vDrift computation 
  *
- *  $Date: 2010/11/17 17:54:23 $
- *  $Revision: 1.1 $
+ *  $Date: 2010/11/18 20:59:52 $
+ *  $Revision: 1.2 $
  *  \author A. Vilela Pereira
  */
 

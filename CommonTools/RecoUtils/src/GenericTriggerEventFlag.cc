@@ -1,5 +1,5 @@
 //
-// $Id: GenericTriggerEventFlag.cc,v 1.3 2010/05/12 12:57:50 vadler Exp $
+// $Id: GenericTriggerEventFlag.cc,v 1.4 2010/05/12 14:12:17 vadler Exp $
 //
 
 

@@ -6,7 +6,7 @@
 
  author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
 
- version $Id: BeamSpotFromDB.cc,v 1.3 2010/02/20 21:01:51 wmtan Exp $
+ version $Id: BeamSpotFromDB.cc,v 1.4 2010/02/21 20:26:37 yumiceva Exp $
 
 ________________________________________________________________**/
 

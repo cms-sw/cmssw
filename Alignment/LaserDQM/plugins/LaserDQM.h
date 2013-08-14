@@ -4,8 +4,8 @@
 /** \class LaserDQM
  *  DQM Monitor Elements for the Laser Alignment System
  *
- *  $Date: 2008/03/01 13:22:57 $
- *  $Revision: 1.5 $
+ *  $Date: 2009/12/14 22:21:46 $
+ *  $Revision: 1.6 $
  *  \author Maarten Thomas
  */
 

@@ -8,7 +8,7 @@
 //
 // Original Author:  Jim Pivarski
 //         Created:  Fri May 26 15:48:28 EDT 2006
-// $Id: SiStripElectron.cc,v 1.2 2007/07/31 15:20:03 ratnik Exp $
+// $Id: SiStripElectron.cc,v 1.3 2008/04/21 14:05:24 llista Exp $
 //
 
 // system include files

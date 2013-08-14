@@ -16,7 +16,7 @@
 //
 // Original Author:  d.k.
 //         Created:  Jan CET 2006
-// $Id: PixelDigisTest.cc,v 1.26 2010/11/30 09:23:31 dkotlins Exp $
+// $Id: PixelDigisTest.cc,v 1.27 2011/01/14 01:24:51 fwyzard Exp $
 //
 //
 // system include files

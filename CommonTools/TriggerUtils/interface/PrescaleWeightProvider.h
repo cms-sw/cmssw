@@ -7,7 +7,7 @@
 // Package:    CommonTools/TriggerUtils
 // Class:      PrescaleWeightProvider
 //
-// $Id: PrescaleWeightProvider.h,v 1.1 2010/08/17 17:15:26 vadler Exp $
+// $Id: PrescaleWeightProvider.h,v 1.1 2010/08/23 18:44:13 avetisya Exp $
 //
 /**
   \class    PrescaleWeightProvider PrescaleWeightProvider.h "CommonTools/TriggerUtils/interface/PrescaleWeightProvider.h"
@@ -19,7 +19,7 @@
 
 
   \author   Aram Avetisyan
-  \version  $Id: PrescaleWeightProvider.h,v 1.1 2010/08/17 17:15:26 vadler Exp $
+  \version  $Id: PrescaleWeightProvider.h,v 1.1 2010/08/23 18:44:13 avetisya Exp $
 */
 
 

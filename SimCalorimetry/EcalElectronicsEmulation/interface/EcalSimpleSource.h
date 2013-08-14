@@ -1,5 +1,5 @@
 /*
- * $Id: EcalSimpleSource.h,v 1.2 2007/03/07 19:42:02 pgras Exp $
+ * $Id: EcalSimpleSource.h,v 1.3 2009/11/13 13:39:28 fambrogl Exp $
  */
 
 #ifndef ECALSIMPLESOURCE_H

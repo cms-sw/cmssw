@@ -13,7 +13,7 @@
 //
 // Original Author:  Samvel Khalatyan (ksamdev at gmail dot com)
 //         Created:  Wed Oct  5 16:42:34 CET 2006
-// $Id: SiStripOfflineDQM.cc,v 1.2 2011/05/04 12:07:50 dutta Exp $
+// $Id: SiStripOfflineDQM.cc,v 1.4 2012/04/07 09:40:38 venturia Exp $
 //
 //
 

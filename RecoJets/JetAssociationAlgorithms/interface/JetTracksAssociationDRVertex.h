@@ -1,7 +1,7 @@
 // \class JetTracksAssociationDRVertex
 // Associate jets with tracks by simple "delta R" criteria
 // Fedor Ratnikov (UMd), Aug. 28, 2007
-// $Id: JetTracksAssociationDRVertex.h,v 1.3 2007/09/19 18:02:39 fedor Exp $
+// $Id: JetTracksAssociationDRVertex.h,v 1.5 2010/03/18 12:17:58 bainbrid Exp $
 
 #ifndef JetTracksAssociationDRVertex_h
 #define JetTracksAssociationDRVertex_h

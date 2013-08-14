@@ -14,7 +14,7 @@
  * \author Ivica Puljak - FESB, Split
  * \author Stephanie Baffioni - Laboratoire Leprince-Ringuet - École polytechnique, CNRS/IN2P3
  *
- * \version $Id: ElectronEnergyCorrector.cc,v 1.15 2011/11/12 11:01:25 chamont Exp $
+ * \version $Id: ElectronEnergyCorrector.cc,v 1.16 2012/02/22 17:36:44 chamont Exp $
  *
  ****************************************************************************/
 

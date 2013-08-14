@@ -14,7 +14,7 @@
 //
 // Original Author:  Kyle Story, Freya Blekman (Cornell University)
 //         Created:  Fri Apr 18 11:58:33 CEST 2008
-// $Id: SignAlgoResolutions.cc,v 1.8 2011/05/23 11:43:15 akhukhun Exp $
+// $Id: SignAlgoResolutions.cc,v 1.9 2011/08/15 12:32:03 akhukhun Exp $
 //
 //
 #include "FWCore/Framework/interface/EventSetup.h"

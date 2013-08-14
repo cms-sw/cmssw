@@ -2,9 +2,9 @@
 # RelMon: a tool for automatic Release Comparison                              
 # https://twiki.cern.ch/twiki/bin/view/CMSPublic/RelMon
 #
-# $Author: dpiparo $
-# $Date: 2012/06/12 13:19:32 $
-# $Revision: 1.2 $
+# $Author: agimbuta $
+# $Date: 2012/07/13 15:34:15 $
+# $Revision: 1.3 $
 
 #
 #                                                                              

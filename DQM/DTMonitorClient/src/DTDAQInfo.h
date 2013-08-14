@@ -4,8 +4,8 @@
 /** \class DTDAQInfo
  *  No description available.
  *
- *  $Date: 2009/10/19 14:06:00 $
- *  $Revision: 1.3 $
+ *  $Date: 2010/01/05 10:15:46 $
+ *  $Revision: 1.4 $
  *  \author G. Cerminara - INFN Torino
  */
 

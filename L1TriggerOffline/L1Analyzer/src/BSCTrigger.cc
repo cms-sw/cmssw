@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Muriel VANDER DONCKT *:0
 //         Created:  Wed Jul 16 16:11:05 CEST 2008
-// $Id: BSCTrigger.cc,v 1.8 2010/02/11 00:12:53 wmtan Exp $
+// $Id: BSCTrigger.cc,v 1.10 2010/10/07 22:02:55 yjlee Exp $
 //
 //
 

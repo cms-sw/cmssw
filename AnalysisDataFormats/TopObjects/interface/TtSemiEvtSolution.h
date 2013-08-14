@@ -1,5 +1,5 @@
 //
-// $Id: TtSemiEvtSolution.h,v 1.29 2008/12/18 21:20:10 rwolf Exp $
+// $Id: TtSemiEvtSolution.h,v 1.30 2011/05/26 10:14:37 mseidel Exp $
 //
 
 #ifndef TopObjects_TtSemiEvtSolution_h

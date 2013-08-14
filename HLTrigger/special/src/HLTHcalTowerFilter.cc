@@ -3,8 +3,8 @@
  *  This class is an EDFilter implementing the following requirement:
  *  the number of caltowers with hadEnergy>E_Thr less than N_Thr for HB/HE/HF sperately.
  *
- *  $Date: 2012/01/21 15:00:21 $
- *  $Revision: 1.7 $
+ *  $Date: 2012/10/10 05:41:14 $
+ *  $Revision: 1.8 $
  *
  *  \author Li Wenbo (PKU)
  *

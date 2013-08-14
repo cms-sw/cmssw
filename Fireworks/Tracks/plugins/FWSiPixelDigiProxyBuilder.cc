@@ -6,7 +6,7 @@
 //
 // Original Author:
 //         Created:  Thu Dec  6 18:01:21 PST 2007
-// $Id: FWSiPixelDigiProxyBuilder.cc,v 1.16 2010/09/03 14:47:59 yana Exp $
+// $Id: FWSiPixelDigiProxyBuilder.cc,v 1.17 2010/09/07 15:46:48 yana Exp $
 //
 
 #include "TEveCompound.h"

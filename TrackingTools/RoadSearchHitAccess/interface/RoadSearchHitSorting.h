@@ -12,8 +12,8 @@
 // Created:         Fri Jul  6 13:37:38 UTC 2007
 //
 // $Author: gutsche $
-// $Date: 2007/06/29 23:54:04 $
-// $Revision: 1.39 $
+// $Date: 2007/07/08 20:34:15 $
+// $Revision: 1.1 $
 //
 
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"

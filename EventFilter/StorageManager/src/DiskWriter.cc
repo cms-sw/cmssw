@@ -1,4 +1,4 @@
-// $Id: DiskWriter.cc,v 1.32 2011/11/08 10:48:40 mommsen Exp $
+// $Id: DiskWriter.cc,v 1.33 2012/10/17 10:13:25 mommsen Exp $
 /// @file: DiskWriter.cc
 
 #include <algorithm>

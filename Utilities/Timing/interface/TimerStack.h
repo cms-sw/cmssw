@@ -10,7 +10,7 @@
  */
 //
 // Original Author:  Dmytro Kovalskyi
-// $Id: DetIdAssociator.h,v 1.10 2007/04/02 17:32:14 dmytro Exp $
+// $Id: TimerStack.h,v 1.1 2007/04/10 06:42:57 dmytro Exp $
 
 #include "Utilities/Timing/interface/TimingReport.h"
 #include <stack>

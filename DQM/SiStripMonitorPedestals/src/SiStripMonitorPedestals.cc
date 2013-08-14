@@ -13,7 +13,7 @@
 //
 // Original Author:  Simone Gennai and Suchandra Dutta
 //         Created:  Sat Feb  4 20:49:10 CET 2006
-// $Id: SiStripMonitorPedestals.cc,v 1.36 2009/11/05 21:08:29 dutta Exp $
+// $Id: SiStripMonitorPedestals.cc,v 1.37 2011/09/19 10:56:39 demattia Exp $
 //
 //
 

@@ -7,7 +7,7 @@
 Description: A essource/esproducer for lumi values from DIP via runtime logger DB
 */
 // read lumi from dip database and dump to express stream
-// $Id: ExpressLumiProducer.cc,v 1.2 2012/05/01 14:50:37 xiezhen Exp $
+// $Id: ExpressLumiProducer.cc,v 1.3 2012/05/02 09:24:23 xiezhen Exp $
 
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"

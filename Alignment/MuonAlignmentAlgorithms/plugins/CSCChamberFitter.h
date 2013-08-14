@@ -2,8 +2,8 @@
 #define Alignment_MuonAlignmentAlgorithms_CSCChamberFitter_H
 
 /** \class CSCChamberFitter
- *  $Date: 2010/05/06 05:57:33 $
- *  $Revision: 1.2 $
+ *  $Date: 2010/05/27 19:40:03 $
+ *  $Revision: 1.1 $
  *  \author J. Pivarski - Texas A&M University <pivarski@physics.tamu.edu>
  */
 

@@ -1,4 +1,4 @@
-/* $Id: EcalDccWeightBuilder.cc,v 1.8 2009/10/09 15:55:35 pgras Exp $
+/* $Id: EcalDccWeightBuilder.cc,v 1.9 2009/10/13 15:56:16 heltsley Exp $
  *
  * authors: Ph. Gras (CEA/Saclay), F. Cavallari (INFN/Roma)
  *          some code copied from CalibCalorimetry/EcalTPGTools code

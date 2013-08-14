@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Sat Oct 18 08:43:45 EDT 2008
-// $Id: FWItemTVirtualCollectionProxyAccessor.h,v 1.4 2010/06/03 19:26:59 chrjones Exp $
+// $Id: FWItemTVirtualCollectionProxyAccessor.h,v 1.5 2010/07/23 16:02:54 eulisse Exp $
 //
 
 // system include files

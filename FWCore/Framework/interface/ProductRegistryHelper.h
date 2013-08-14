@@ -5,7 +5,7 @@
   
 ProductRegistryHelper: 
 
-$Id: ProductRegistryHelper.h,v 1.15 2011/04/19 19:15:50 wmtan Exp $
+$Id: ProductRegistryHelper.h,v 1.16 2011/07/06 20:29:12 wmtan Exp $
 
 
 ----------------------------------------------------------------------*/

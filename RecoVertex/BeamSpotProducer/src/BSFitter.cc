@@ -7,7 +7,7 @@
  author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
 
 
- version $Id: BSFitter.cc,v 1.23 2010/11/15 14:35:48 rovere Exp $
+ version $Id: BSFitter.cc,v 1.24 2011/02/18 22:16:38 burkett Exp $
 
 ________________________________________________________________**/
 

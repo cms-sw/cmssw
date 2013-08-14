@@ -3,8 +3,8 @@
 
 /** \class TrackerSeedCleaner
  *  Seeds Cleaner based on direction
- *  $Date: 2008/04/09 05:14:39 $
- *  $Revision: 1.3 $
+ *  $Date: 2010/02/16 17:08:46 $
+ *  $Revision: 1.4 $
     \author A. Grelli -  Purdue University, Pavia University
  */ 
 

@@ -1,4 +1,4 @@
-// $Id: DQMHttpSource.cc,v 1.27 2011/07/04 10:21:53 mommsen Exp $
+// $Id: DQMHttpSource.cc,v 1.28 2011/07/05 12:06:04 mommsen Exp $
 /// @file: DQMHttpSource.cc
 
 #include "DQMServices/Core/interface/MonitorElement.h"

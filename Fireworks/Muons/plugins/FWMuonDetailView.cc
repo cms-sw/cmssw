@@ -3,7 +3,7 @@
 //
 // Package:     Calo
 // Class  :     FWMuonDetailView
-// $Id: FWMuonDetailView.cc,v 1.26 2010/06/18 16:57:26 matevz Exp $
+// $Id: FWMuonDetailView.cc,v 1.27 2010/06/22 14:03:11 matevz Exp $
 //
 
 // ROOT includes

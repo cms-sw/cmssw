@@ -8,9 +8,9 @@
 
 /** \class ElectronTagger
  *
- *  $Id: ElectronTagger.h,v 1.5 2008/10/01 12:35:34 fwyzard Exp $
- *  $Date: 2008/10/01 12:35:34 $
- *  $Revision: 1.5 $
+ *  $Id: ElectronTagger.h,v 1.6 2010/02/26 18:16:18 saout Exp $
+ *  $Date: 2010/02/26 18:16:18 $
+ *  $Revision: 1.6 $
  *
  *  \author P. Demin - UCL, Louvain-la-Neuve - Belgium
  *

@@ -3,9 +3,9 @@
  *
  *  \author    : Gero Flucke
  *  date       : October 2006
- *  $Revision: 1.7 $
- *  $Date: 2010/10/26 20:49:42 $
- *  (last update by $Author: flucke $)
+ *  $Revision: 1.8 $
+ *  $Date: 2011/02/16 12:52:46 $
+ *  (last update by $Author: mussgill $)
  */
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"

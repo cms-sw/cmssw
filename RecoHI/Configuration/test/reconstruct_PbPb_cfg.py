@@ -20,7 +20,7 @@ process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
 process.load('Configuration/EventContent/EventContentHeavyIons_cff')
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.7 $'),
+    version = cms.untracked.string('$Revision: 1.11 $'),
     annotation = cms.untracked.string('hiReco nevts:1'),
     name = cms.untracked.string('PyReleaseValidation')
 )

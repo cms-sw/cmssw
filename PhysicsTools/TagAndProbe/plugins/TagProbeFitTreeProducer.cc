@@ -13,7 +13,7 @@
 //
 // Original Author:  Sep 15 09:45
 //         Created:  Mon Sep 15 09:49:08 CEST 2008
-// $Id: TagProbeFitTreeProducer.cc,v 1.6 2010/03/22 16:19:05 gpetrucc Exp $
+// $Id: TagProbeFitTreeProducer.cc,v 1.7 2010/05/02 15:18:25 gpetrucc Exp $
 //
 //
 

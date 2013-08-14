@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2012/06/18 16:52:41 $
- *  $Revision: 1.19 $
+ *  $Date: 2012/06/19 10:13:04 $
+ *  $Revision: 1.20 $
  *  \author Valentina Gori, University of Firenze
  */
 

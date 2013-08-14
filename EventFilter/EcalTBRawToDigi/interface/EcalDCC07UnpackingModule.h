@@ -4,8 +4,8 @@
 /** \class EcalUnpackingModule
  * 
  *
- *  $Date: 2007/10/20 10:58:00 $
- *  $Revision: 1.4 $
+ *  $Date: 2009/12/14 22:22:35 $
+ *  $Revision: 1.5 $
  * \author Y. Maravin
  * \author G. Franzoni
  * \author G. Della Ricca

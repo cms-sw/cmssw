@@ -1,0 +1,39 @@
+# Type=1, All taus (no separate corrections for 1- and 3-prongs are currently provided).
+# Derived on CMSSW_1_2_0 particle gun (hadronic) taus by F.Blekman.
+# To be used with 0.4 cone jets, and only tested for jets in the
+#   30 GeV < E_T < 420 GeV 
+# region. Below 30 GeV these calibrations are not valid!
+# the following config file can be used to create 0.4 cone jets in CMSSW120:
+###############################################################
+#  include "RecoJets/JetProducers/data/IconeJetParameters.cfi"
+#  module iterativeCone4CaloJets = IterativeConeJetProducer {
+#      using IconeJetParameters
+#      double towerThreshold = 0.5
+#      double coneRadius = 0.4
+#      InputTag src = caloTowers
+#      untracked string jetType = "CaloJet"
+#  }
+###############################################################
+0       1       -4.90416        0.930121        1.10516e-05
+0.1     1       -5.51532        0.942558        -1.12994e-05
+0.2     1       -4.81038        0.926596        2.00892e-05
+0.3     1       -5.67774        0.938678        -5.73523e-06
+0.4     1       -5.59131        0.932245        -1.21205e-05
+0.5     1       -5.38096        0.936394        -4.81876e-06
+0.6     1       -5.37149        0.92985 9.85832e-06
+0.7     1       -5.58752        0.922151        1.80871e-05
+0.8     1       -6.08392        0.940257        -3.64424e-05
+0.9     1       -5.42514        0.92729 2.15421e-06
+1       1       -5.80376        0.924626        6.28818e-06
+1.1     1       -5.38515        0.904935        2.51631e-05
+1.2     1       -6.11419        0.897515        2.72252e-05
+1.3     1       -5.84506        0.866031        3.64853e-05
+1.4     1       -6.6216 0.895852        1.00598e-05
+1.5     1       -7.59558        0.979814        3.77978e-05
+1.6     1       -7.55159        0.967981        6.81278e-06
+1.7     1       -7.05418        0.950618        6.07705e-05
+1.8     1       -6.61641        0.961984        1.66052e-05
+1.9     1       -5.63999        0.956814        4.33414e-05
+2       1       -6.19057        0.973593        2.32189e-05
+2.2     1       -5.0238 0.963163        1.19299e-05
+2.5	-1

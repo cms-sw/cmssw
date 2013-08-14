@@ -1,4 +1,4 @@
-// $Id$
+// $Id: LumiSummaryRunHeader.cc,v 1.1 2011/02/22 16:23:57 matevz Exp $
 
 #include "DataFormats/Luminosity/interface/LumiSummaryRunHeader.h"
 

@@ -5,8 +5,8 @@
 /** \class Histograms
  *  Collection of histograms for DT RecHit and Segment test.
  *
- *  $Date: 2010/09/17 07:48:11 $
- *  $Revision: 1.12 $
+ *  $Date: 2011/04/18 15:58:30 $
+ *  $Revision: 1.13 $
  *  \author S. Bolognesi and G. Cerminara - INFN Torino
  */
 #include "DQMServices/Core/interface/DQMStore.h"

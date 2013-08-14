@@ -22,9 +22,9 @@ process.load('FastSimulation.Configuration.CommonInputs_cff')
 process.load('FastSimulation.Configuration.EventContent_cff')
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.3 $'),
+    version = cms.untracked.string('$Revision: 1.4 $'),
     annotation = cms.untracked.string('PYTHIA6-MinBias at 2200GeV'),
-    name = cms.untracked.string('$Source: /cvs/CMSSW/CMSSW/FastSimulation/Configuration/python/PYTHIA6_MinBias_2360GeV_cff_py_GEN_FASTSIM.py,v $')
+    name = cms.untracked.string('$Source: /local/reps/CMSSW/CMSSW/FastSimulation/Configuration/python/PYTHIA6_MinBias_2360GeV_cff_py_GEN_FASTSIM.py,v $')
 )
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(100)

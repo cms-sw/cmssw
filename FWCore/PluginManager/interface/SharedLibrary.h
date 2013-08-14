@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Apr  5 15:30:08 EDT 2007
-// $Id: SharedLibrary.h,v 1.2 2007/04/12 12:51:12 wmtan Exp $
+// $Id: SharedLibrary.h,v 1.3 2008/11/28 17:44:30 wmtan Exp $
 //
 
 // system include files

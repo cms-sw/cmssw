@@ -4,8 +4,8 @@
 /** \class GeneralBinFinderInPhi
  * A phi bin finder for a non-periodic group of detectors.
  *
- *  $Date: 2007/01/22 18:17:37 $
- *  $Revision: 1.4 $
+ *  $Date: 2007/02/18 16:01:46 $
+ *  $Revision: 1.5 $
  *  \author N. Amapane - INFN Torino
  */
 

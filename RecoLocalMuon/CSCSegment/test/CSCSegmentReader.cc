@@ -1,7 +1,7 @@
 /** \file CSCSegmentReader.cc
  *
- *  $Date: 2011/11/03 10:29:15 $
- *  $Revision: 1.23 $
+ *  $Date: 2012/01/12 10:42:36 $
+ *  $Revision: 1.24 $
  *  \author M. Sani
  *
  *  Modified by D. Fortin - UC Riverside

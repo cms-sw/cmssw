@@ -2,8 +2,8 @@
 #define CalibMuon_DTCalibration_DTResidualFitter_h
 
 /*
- *  $Date: 2010/11/18 21:38:41 $
- *  $Revision: 1.2 $
+ *  $Date: 2010/11/19 14:02:08 $
+ *  $Revision: 1.3 $
  *  \author A. Vilela Pereira
  */
 

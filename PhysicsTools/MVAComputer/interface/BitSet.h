@@ -9,7 +9,7 @@
 //
 // Author:	Christophe Saout <christophe.saout@cern.ch>
 // Created:     Sat Apr 24 15:18 CEST 2007
-// $Id: BitSet.h,v 1.4 2007/12/08 16:11:10 saout Exp $
+// $Id: BitSet.h,v 1.5 2009/05/09 12:23:46 saout Exp $
 //
 
 #include <string.h>

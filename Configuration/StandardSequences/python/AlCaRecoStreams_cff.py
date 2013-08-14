@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-# last update: $Date: 2011/07/01 09:42:52 $ by $Author: mussgill $
+# last update: $Date: 2012/02/11 15:22:32 $ by $Author: demattia $
 
 # AlCaReco sequence definitions:
 

@@ -1,4 +1,4 @@
-// $Id: SMProxyServer.cc,v 1.46 2011/03/07 15:41:55 mommsen Exp $
+// $Id: SMProxyServer.cc,v 1.47 2011/08/22 14:21:00 mommsen Exp $
 /// @file: SMProxyServer.cc
 
 #include "EventFilter/SMProxyServer/interface/Exception.h"

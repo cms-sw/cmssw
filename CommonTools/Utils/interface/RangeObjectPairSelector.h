@@ -4,7 +4,7 @@
  *
  * \author Luca Lista, INFN
  *
- * $Id: RangeObjectPairSelector.h,v 1.4 2007/06/18 18:33:54 llista Exp $
+ * $Id: RangeObjectPairSelector.h,v 1.1 2009/02/24 14:40:26 llista Exp $
  */
 
 template<typename F>

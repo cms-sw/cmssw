@@ -1,0 +1,34 @@
+eActivityCut		0.0
+hActivityCut		0.0
+eMaxForFGCut		1024.0
+hOeCut			1024.0
+eGammaLSB		1
+jetMETLSB		1
+ignoreEcalFineGrain	1
+ecalScaleFactors:
+0.00
+0.00
+0.00
+0.00
+0.00
+0.00
+0.00
+0.00
+0.00
+0.00
+0.00
+0.00
+0.00
+0.00
+0.00
+0.00
+0.00
+0.00
+0.00
+0.00
+0.00
+0.00
+0.00
+0.00
+0.00
+0.00

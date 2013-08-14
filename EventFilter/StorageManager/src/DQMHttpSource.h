@@ -1,4 +1,4 @@
-// $Id: DQMHttpSource.h,v 1.12 2011/03/30 15:16:48 mommsen Exp $
+// $Id: DQMHttpSource.h,v 1.13 2011/04/04 16:05:37 mommsen Exp $
 /// @file: DQMHttpSource.h
 
 #ifndef StorageManager_DQMHttpSource_h
@@ -25,8 +25,8 @@ namespace edm
     the StorageManager or SMProxyServer to get DQM (histogram) data.
     
     $Author: mommsen $
-    $Revision: 1.12 $
-    $Date: 2011/03/30 15:16:48 $
+    $Revision: 1.13 $
+    $Date: 2011/04/04 16:05:37 $
   */
 
   class DQMHttpSource : public edm::RawInputSource

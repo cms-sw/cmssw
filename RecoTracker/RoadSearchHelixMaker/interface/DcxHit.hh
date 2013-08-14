@@ -1,6 +1,6 @@
 //------------------------------------------------------------------------
 // File and Version Information:
-// 	$Id: DcxHit.hh,v 1.21 2004/08/06 05:58:22 bartoldu Exp $
+// 	$Id: DcxHit.hh,v 1.2 2006/03/22 22:47:37 stevew Exp $
 //
 // Description:
 //	Class Header for |DcxHit|: hit that can calculate derivatives

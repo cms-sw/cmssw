@@ -3,8 +3,8 @@
 \author Fedor Ratnikov (UMd)
 correlation matrix for pedestals
 $Author: ratnikov
-$Date: 2008/11/07 16:06:24 $
-$Revision: 1.8 $
+$Date: 2009/03/24 16:05:35 $
+$Revision: 1.9 $
 */
 
 #include <math.h>

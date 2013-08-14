@@ -18,7 +18,7 @@
 //
 // Original Author: Christian Veelken, UC Davis
 //         Created: Wed May 16 13:47:40 CST 2007
-// $Id: FixedAreaIsolationCone.cc,v 1.0 2006/11/30 17:07:28 veelken Exp $
+// $Id: FixedAreaIsolationCone.cc,v 1.1 2007/05/23 20:21:38 veelken Exp $
 //
 //
 

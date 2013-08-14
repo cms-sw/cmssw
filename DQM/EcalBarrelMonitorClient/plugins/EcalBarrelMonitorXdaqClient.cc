@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorXdaqClient.cc
  *
- * $Date: 2010/03/27 20:07:56 $
- * $Revision: 1.3 $
+ * $Date: 2010/03/27 20:30:36 $
+ * $Revision: 1.4 $
  * \author G. Della Ricca
  *
 */

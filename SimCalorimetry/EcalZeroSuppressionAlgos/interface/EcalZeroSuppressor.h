@@ -4,8 +4,8 @@
 /*
  * \file EcalZeroSuppressor.h
  *
- * $Date: 2007/09/28 10:02:04 $
- * $Revision: 1.4 $
+ * $Date: 2011/05/20 17:17:34 $
+ * $Revision: 1.5 $
  * \author F. Cossutti
  *
 */

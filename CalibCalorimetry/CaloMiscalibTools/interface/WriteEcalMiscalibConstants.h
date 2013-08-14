@@ -3,7 +3,7 @@
 //
 // Original Author:  Stephanie BEAUCERON
 //         Created:  Tue May 15 16:23:21 CEST 2007
-// $Id: WriteEcalMiscalibConstants.h,v 1.1 2007/05/16 16:13:40 malgeri Exp $
+// $Id: WriteEcalMiscalibConstants.h,v 1.2 2009/12/17 20:59:29 wmtan Exp $
 //
 //
 

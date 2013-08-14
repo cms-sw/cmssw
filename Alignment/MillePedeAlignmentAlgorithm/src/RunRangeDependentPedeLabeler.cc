@@ -3,8 +3,8 @@
  *
  *  \author    : Gero Flucke
  *  date       : October 2006
- *  $Revision: 1.2 $
- *  $Date: 2011/02/18 17:08:13 $
+ *  $Revision: 1.3 $
+ *  $Date: 2011/08/10 12:51:00 $
  *  (last update by $Author: mussgill $)
  */
 

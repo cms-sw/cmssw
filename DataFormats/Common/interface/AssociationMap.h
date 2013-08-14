@@ -6,7 +6,7 @@
  *
  * \author Luca Lista, INFN
  *
- * $Id: AssociationMap.h,v 1.41 2011/03/08 18:47:15 chrjones Exp $
+ * $Id: AssociationMap.h,v 1.42 2011/11/16 22:33:15 wmtan Exp $
  *
  */
 #include "DataFormats/Common/interface/CMS_CLASS_VERSION.h"

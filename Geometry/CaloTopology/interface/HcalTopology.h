@@ -17,8 +17,8 @@
    cells which would normally exist in the full CMS HCAL, but are not
    present for the specified topology.
     
-   $Date: 2007/05/08 20:40:22 $
-   $Revision: 1.7.4.1 $
+   $Date: 2007/05/11 14:12:24 $
+   $Revision: 1.8 $
    \author J. Mans - Minnesota
 */
 class HcalTopology : public CaloSubdetectorTopology {

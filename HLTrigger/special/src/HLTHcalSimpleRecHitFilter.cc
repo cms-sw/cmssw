@@ -13,7 +13,7 @@
 //
 // Original Author:  Bryan DAHMES
 //         Created:  Wed Sep 19 16:21:29 CEST 2007
-// $Id: HLTHcalSimpleRecHitFilter.cc,v 1.4 2010/09/06 18:23:04 cer Exp $
+// $Id: HLTHcalSimpleRecHitFilter.cc,v 1.5 2012/01/21 15:00:21 fwyzard Exp $
 //
 //
 

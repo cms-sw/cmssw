@@ -1,6 +1,6 @@
 // -------------------------------------------------------------------------
 // File and Version Information:
-// 	$Id: DcxTrackCandidatesToTracks.cc,v 1.10 2011/04/07 21:47:06 stevew Exp $
+// 	$Id: DcxTrackCandidatesToTracks.cc,v 1.11 2012/01/31 16:41:42 wmtan Exp $
 //
 // Description:
 //	Class Implementation for |DcxTrackCandidatesToTracks|

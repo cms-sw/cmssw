@@ -9,8 +9,8 @@
 /** \class HcalDetId
  *  Cell identifier class for the HCAL subdetectors, precision readout cells only
  *
- *  $Date: 2009/11/04 02:55:13 $
- *  $Revision: 1.14 $
+ *  $Date: 2011/05/29 18:43:20 $
+ *  $Revision: 1.15 $
  *  \author J. Mans - Minnesota
  *
  *  Rev.1.11: A.Kubik,R.Ofierzynski: add the hashed_index

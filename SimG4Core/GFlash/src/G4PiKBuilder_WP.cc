@@ -23,8 +23,8 @@
 // * acceptance of all terms of the Geant4 Software license.          *
 // ********************************************************************
 //
-// $Id: G4PiKBuilder_WP.cc,v 1.3 2009/02/04 17:05:26 syjun Exp $
-// GEANT4 tag $Name: V03-01-08 $
+// $Id: G4PiKBuilder_WP.cc,v 1.4 2009/10/16 07:55:51 fabiocos Exp $
+// GEANT4 tag $Name: V04-03-00 $
 //
 //---------------------------------------------------------------------------
 //

@@ -7,8 +7,8 @@
 ///
 ///  \author    : Gero Flucke
 ///  date       : October 2010
-///  $Revision: 1.1 $
-///  $Date: 2010/10/26 18:59:59 $
+///  $Revision: 1.2 $
+///  $Date: 2011/02/11 10:57:40 $
 ///  (last update by $Author: flucke $)
 
 #include <vector>

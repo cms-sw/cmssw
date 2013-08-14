@@ -7,7 +7,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: LeafRefCandidateT.h,v 1.1 2009/11/24 03:15:57 srappocc Exp $
+ * \version $Id: LeafRefCandidateT.h,v 1.2 2011/10/27 19:54:25 wmtan Exp $
  *
  */
 #include "DataFormats/Candidate/interface/Candidate.h"

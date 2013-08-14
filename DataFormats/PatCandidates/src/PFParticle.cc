@@ -1,5 +1,5 @@
 //
-// $Id: PFParticle.cc,v 1.1 2008/07/24 12:43:52 cbern Exp $
+// $Id: PFParticle.cc,v 1.2 2008/11/28 19:02:15 lowette Exp $
 //
 
 #include "DataFormats/PatCandidates/interface/PFParticle.h"

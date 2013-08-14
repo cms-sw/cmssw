@@ -17,7 +17,7 @@
 //
 // Original Author:  Alja Mrak-Tadel 
 //         Created:  Thu Oct 21 20:40:32 CEST 2010
-// $Id: FWTauProxyBuilderBase.h,v 1.1 2010/10/22 14:34:44 amraktad Exp $
+// $Id: FWTauProxyBuilderBase.h,v 1.2 2012/03/23 00:08:28 amraktad Exp $
 //
 
 #include "Fireworks/Core/interface/FWProxyBuilderBase.h"

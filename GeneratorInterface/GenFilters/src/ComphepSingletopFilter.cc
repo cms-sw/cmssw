@@ -13,7 +13,7 @@
 //
 // Original Author:  Vladimir Molchanov
 //         Created:  Wed Mar 25 19:43:12 CET 2009
-// $Id: ComphepSingletopFilter.cc,v 1.3 2009/12/15 10:29:32 fabiocos Exp $
+// $Id: ComphepSingletopFilter.cc,v 1.4 2011/10/26 09:25:47 eulisse Exp $
 //
 //
 

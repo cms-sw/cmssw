@@ -10,9 +10,9 @@
 /// [derived from AlignmentParameters]. The number of parameters
 /// N_PARAM is fixed to 4 (2 translations in x & y, and 2 slopes)
 ///
-///  $Date: 2008/09/02 15:08:12 $
-///  $Revision: 1.13 $
-/// (last update by $Author: flucke $)
+///  $Date: 2010/09/10 11:16:36 $
+///  $Revision: 1.1 $
+/// (last update by $Author: mussgill $)
 
 class Alignable;
 class AlignableDetOrUnitPtr;

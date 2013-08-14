@@ -20,8 +20,8 @@ class CDFEventInfo;
 
    \note Notice that there is a hack to renumber events from runs where the first event number was zero.
     
-   $Date: 2008/06/06 11:39:09 $
-   $Revision: 1.6 $
+   $Date: 2008/10/16 08:09:12 $
+   $Revision: 1.7 $
    \author J. Mans - Minnesota
 */
 class HcalTBSource : public edm::ExternalInputSource {

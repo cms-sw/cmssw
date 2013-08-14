@@ -2,7 +2,7 @@
 //
 // Author:      Chris Jones
 // Created:     Mon Apr 18 16:42:52 EDT 2005
-// $Id: T_EventSetup_EcalTPGSlidingWindow.cc,v 1.1 2007/06/22 13:08:30 paganini Exp $
+// $Id: T_EventSetup_EcalTPGSlidingWindow.cc,v 1.2 2010/02/20 20:57:03 wmtan Exp $
 //
 
 // system include files

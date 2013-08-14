@@ -3,8 +3,8 @@
 /**  \class  DTSCTrigUnit
  *     Muon Barrel Sector Collector Trigger Unit (Chamber trigger)
  *
- *   $Date: 2009/11/02 14:18:29 $
- *   $Revision: 1.9 $
+ *   $Date: 2010/11/11 16:28:21 $
+ *   $Revision: 1.10 $
  *
  *   \author C.Grandi, S. Marcellini
  */

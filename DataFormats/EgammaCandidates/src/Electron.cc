@@ -1,4 +1,4 @@
-// $Id: Electron.cc,v 1.4 2008/04/30 07:46:09 llista Exp $
+// $Id: Electron.cc,v 1.5 2012/01/23 11:29:52 sani Exp $
 #include "DataFormats/EgammaCandidates/interface/Electron.h"
 
 using namespace reco;

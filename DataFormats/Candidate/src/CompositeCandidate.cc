@@ -1,4 +1,4 @@
-// $Id: CompositeCandidate.cc,v 1.14 2008/12/05 12:15:19 hegner Exp $
+// $Id: CompositeCandidate.cc,v 1.15 2010/12/06 20:04:17 wmtan Exp $
 #include "DataFormats/Candidate/interface/CompositeCandidate.h"
 #include "FWCore/Utilities/interface/Exception.h"
 

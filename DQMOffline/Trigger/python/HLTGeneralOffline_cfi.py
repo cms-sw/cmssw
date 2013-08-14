@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-# $Id: HLTGeneralOffline_cfi.py,v 1.1 2012/02/10 17:11:57 bjk Exp $
+# $Id: HLTGeneralOffline_cfi.py,v 1.2 2012/08/07 12:19:32 muell149 Exp $
 hltResults = cms.EDAnalyzer("GeneralHLTOffline",
     dirname = cms.untracked.string("HLT/General/paths"),
     muonRecoCollectionName = cms.untracked.string("muons"),

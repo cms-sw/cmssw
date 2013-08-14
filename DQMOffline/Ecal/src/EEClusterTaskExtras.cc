@@ -1,8 +1,8 @@
 /*
  * \file EEClusterTaskExtras.cc
  *
- * $Date: 2009/12/14 21:14:08 $
- * $Revision: 1.7 $
+ * $Date: 2012/01/30 09:11:07 $
+ * $Revision: 1.8 $
  * \author G. Della Ricca
  * \author E. Di Marco
  *

@@ -1,7 +1,7 @@
 #ifndef RecoEcal_EgammaClusterAlgos_PreshowerClusterAlgo_h
 #define RecoEcal_EgammaClusterAlgos_PreshowerClusterAlgo_h
 //
-// $Id: PreshowerClusterAlgo.h,v 1.12 2007/02/14 14:51:27 futyand Exp $
+// $Id: PreshowerClusterAlgo.h,v 1.13 2011/07/18 18:48:11 argiro Exp $
 //
 
 //#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"

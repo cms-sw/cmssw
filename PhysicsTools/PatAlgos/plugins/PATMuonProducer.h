@@ -1,5 +1,5 @@
 //
-// $Id: PATMuonProducer.h,v 1.27 2010/09/14 15:20:20 kukartse Exp $
+// $Id: PATMuonProducer.h,v 1.28 2011/09/21 03:40:18 tucker Exp $
 //
 
 #ifndef PhysicsTools_PatAlgos_PATMuonProducer_h
@@ -13,7 +13,7 @@
    a collection of objects of reco::Muon.
 
   \author   Steven Lowette, Roger Wolf
-  \version  $Id: PATMuonProducer.h,v 1.27 2010/09/14 15:20:20 kukartse Exp $
+  \version  $Id: PATMuonProducer.h,v 1.28 2011/09/21 03:40:18 tucker Exp $
 */
 
 #include <string>

@@ -19,8 +19,8 @@ class CDFEventInfo;
   *  
   * Writes HCAL-style ROOT files from the RawData block
   *
-  * $Date: 2006/01/02 21:59:03 $
-  * $Revision: 1.1 $
+  * $Date: 2007/03/07 19:02:18 $
+  * $Revision: 1.2 $
   * \author J. Mans - Minnesota
   */
 class HcalTBWriter : public edm::EDAnalyzer {

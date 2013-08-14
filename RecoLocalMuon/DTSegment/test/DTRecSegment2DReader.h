@@ -7,8 +7,8 @@
  *  
  * detailed description
  *
- * $Date: 2006/05/04 12:19:17 $
- * $Revision: 1.1 $
+ * $Date: 2007/03/10 16:14:43 $
+ * $Revision: 1.2 $
  * \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  * \author Riccardo Bellan - INFN TO <riccardo.bellan@cern.ch>
  *

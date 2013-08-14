@@ -13,7 +13,7 @@
 //
 // Original Author:  Hans Van Haevermaet
 //         Created:  Wed Feb 23 11:29:43 CET 2011
-// $Id$
+// $Id: RecHitCorrector.cc,v 1.1 2011/02/24 09:45:08 hvanhaev Exp $
 //
 //
 

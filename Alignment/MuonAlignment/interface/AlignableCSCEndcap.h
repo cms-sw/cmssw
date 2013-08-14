@@ -4,8 +4,8 @@
 /** \class AlignableCSCCEndcap
  *  The alignable muon CSC endcap.
  *
- *  $Date: 2008/04/15 16:05:53 $
- *  $Revision: 1.10 $
+ *  $Date: 2011/09/15 09:40:22 $
+ *  $Revision: 1.11 $
  *  \author Andre Sznajder - UERJ(Brazil)
  */
 

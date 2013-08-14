@@ -3,7 +3,7 @@
 
 /**
  * Author: Emmanuelle Perez & Paolo Meridiani
- * $Id: $
+ * $Id: EcalMappingElectronics.h,v 1.1 2008/03/06 14:43:57 meridian Exp $
  **/
 #include "CondFormats/EcalObjects/interface/EcalCondObjectContainer.h"
 

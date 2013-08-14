@@ -7,9 +7,9 @@
 ///
 /// Calculates derivatives for 4D Segments
 ///
-///  $Date: 2007/03/12 21:28:48 $
-///  $Revision: 1.4 $
-/// (last update by $Author: P. Martinez $)
+///  $Date: 2008/12/12 15:58:07 $
+///  $Revision: 1.1 $
+/// (last update by $Author: pablom $)
 
 class TrajectoryStateOnSurface;
 

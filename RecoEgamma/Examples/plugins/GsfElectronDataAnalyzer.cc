@@ -14,7 +14,7 @@
 //
 // Original Author:  Ursula Berthon
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: GsfElectronDataAnalyzer.cc,v 1.39 2010/10/19 17:34:56 wmtan Exp $
+// $Id: GsfElectronDataAnalyzer.cc,v 1.40 2011/03/04 14:43:15 chamont Exp $
 //
 //
 

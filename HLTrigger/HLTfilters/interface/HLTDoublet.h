@@ -12,8 +12,8 @@
  *  single-object-type filters so that the access is thorugh
  *  RefToBases and polymorphic.
  *
- *  $Date: 2012/02/23 11:48:34 $
- *  $Revision: 1.8 $
+ *  $Date: 2012/02/24 13:34:20 $
+ *  $Revision: 1.9 $
  *
  *  \author Martin Grunewald
  *

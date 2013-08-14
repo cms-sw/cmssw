@@ -6,8 +6,8 @@
 \author Fedor Ratnikov (UMd)
 POOL object to store QIE basic shape
 $Author: ratnikov
-$Date: 2005/11/07 22:15:09 $
-$Revision: 1.2 $
+$Date: 2005/12/15 23:38:04 $
+$Revision: 1.3 $
 */
 
 #include <vector>

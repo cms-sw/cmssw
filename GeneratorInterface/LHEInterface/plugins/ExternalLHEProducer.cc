@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Brian Paul Bockelman,8 R-018,+41227670861,
 //         Created:  Fri Oct 21 11:37:26 CEST 2011
-// $Id: ExternalLHEProducer.cc,v 1.5 2011/11/14 12:50:28 fabiocos Exp $
+// $Id: ExternalLHEProducer.cc,v 1.6 2012/04/01 13:30:08 davidlt Exp $
 //
 //
 

@@ -5,8 +5,8 @@
  *  This class is used for evaluation of layer occupancy in DTOccupancyTest.
  *  It describes a point in the 2D plane (average cell occupancy vs cell occupancy RMS).
  *
- *  $Date: 2008/07/02 16:32:48 $
- *  $Revision: 1.1 $
+ *  $Date: 2008/07/02 16:50:29 $
+ *  $Revision: 1.2 $
  *  \author G. Cerminara - INFN Torino
  */
 

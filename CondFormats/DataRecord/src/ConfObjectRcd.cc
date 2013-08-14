@@ -8,7 +8,7 @@
 //
 // Author:      
 // Created:     Tue Jan 18 11:27:43 CET 2011
-// $Id$
+// $Id: ConfObjectRcd.cc,v 1.1 2011/01/18 11:33:54 vlimant Exp $
 
 #include "CondFormats/DataRecord/interface/ConfObjectRcd.h"
 #include "FWCore/Framework/interface/eventsetuprecord_registration_macro.h"

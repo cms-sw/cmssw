@@ -16,7 +16,7 @@
 //
 // Original Author:  Jim Pivarski
 //         Created:  Fri Mar 14 18:02:28 CDT 2008
-// $Id: MuonAlignmentOutputXML.h,v 1.3 2008/05/17 18:10:19 pivarski Exp $
+// $Id: MuonAlignmentOutputXML.h,v 1.4 2011/06/07 19:28:47 khotilov Exp $
 //
 
 // system include files

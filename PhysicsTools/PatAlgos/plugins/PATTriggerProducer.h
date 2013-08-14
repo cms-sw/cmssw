@@ -7,7 +7,7 @@
 // Package:    PatAlgos
 // Class:      pat::PATTriggerProducer
 //
-// $Id: PATTriggerProducer.h,v 1.16 2011/02/22 18:29:50 vadler Exp $
+// $Id: PATTriggerProducer.h,v 1.17 2012/03/02 23:34:23 wdd Exp $
 //
 /**
   \class    pat::PATTriggerProducer PATTriggerProducer.h "PhysicsTools/PatAlgos/plugins/PATTriggerProducer.h"
@@ -33,7 +33,7 @@
    https://twiki.cern.ch/twiki/bin/view/CMS/SWGuidePATTrigger
 
   \author   Volker Adler
-  \version  $Id: PATTriggerProducer.h,v 1.16 2011/02/22 18:29:50 vadler Exp $
+  \version  $Id: PATTriggerProducer.h,v 1.17 2012/03/02 23:34:23 wdd Exp $
 */
 
 

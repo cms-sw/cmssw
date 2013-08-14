@@ -1,5 +1,5 @@
 //
-// $Id: Photon.cc,v 1.17 2008/11/28 19:02:15 lowette Exp $
+// $Id: Photon.cc,v 1.18 2011/06/08 20:40:19 rwolf Exp $
 //
 
 #include "DataFormats/PatCandidates/interface/Photon.h"

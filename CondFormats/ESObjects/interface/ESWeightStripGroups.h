@@ -3,7 +3,7 @@
 /**
  * Author: Shahram Rahatlou, University of Rome & INFN
  * Created: 22 Feb 2006
- * $Id: ESWeightStripGroups.h,v 1.4 2007/09/27 09:42:55 ferriff Exp $
+ * $Id: ESWeightStripGroups.h,v 1.1 2009/03/27 15:31:48 fra Exp $
  **/
 
 #include "CondFormats/ESObjects/interface/ESCondObjectContainer.h"

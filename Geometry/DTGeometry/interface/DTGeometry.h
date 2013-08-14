@@ -8,8 +8,8 @@
  *  The geometry owns the DTChamber s; these own their DTSuperLayer s which 
  *  in turn own their DTLayer s.
  *
- *  $Date: 2006/08/22 15:57:10 $
- *  $Revision: 1.6 $
+ *  $Date: 2009/01/16 11:12:10 $
+ *  $Revision: 1.7 $
  *  \author N. Amapane - CERN
  */
 

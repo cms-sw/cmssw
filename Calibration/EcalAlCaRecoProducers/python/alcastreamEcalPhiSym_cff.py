@@ -6,7 +6,7 @@
 #
 # Passes events that are coming from the online phi-symmetry stream 
 # 
-# Id: $Id: alcastreamEcalPhiSym_cff.py,v 1.8 2009/04/23 11:57:48 beaucero Exp $
+# Id: $Id: alcastreamEcalPhiSym_cff.py,v 1.9 2010/01/08 15:45:42 argiro Exp $
 #
 
 import FWCore.ParameterSet.Config as cms

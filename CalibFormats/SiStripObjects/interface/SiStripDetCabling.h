@@ -10,7 +10,7 @@
 */
 // Original Author:  dkcira
 //         Created:  Wed Mar 22 12:24:20 CET 2006
-// $Id: SiStripDetCabling.h,v 1.9 2009/07/25 11:34:10 demattia Exp $
+// $Id: SiStripDetCabling.h,v 1.10 2011/09/16 13:49:22 demattia Exp $
 #include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"
 #include "CondFormats/SiStripObjects/interface/FedChannelConnection.h"
 #include <boost/cstdint.hpp>

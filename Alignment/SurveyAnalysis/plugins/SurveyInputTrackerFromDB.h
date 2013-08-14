@@ -5,8 +5,8 @@
  *
  *  Class to read ideal tracker from DB.
  *
- *  $Date: 2007/10/08 16:38:04 $
- *  $Revision: 1.2 $
+ *  $Date: 2010/01/07 14:36:23 $
+ *  $Revision: 1.3 $
  *  \author Chung Khim Lae
  */
 

@@ -15,8 +15,8 @@
  *    Re-designed and fully rewritten class.
  *    Original version and authors: see CVS history
  *
- * $Date: 2010/11/16 14:05:17 $
- * $Revision: 1.9 $
+ * $Date: 2012/04/04 10:00:00 $
+ * $Revision: 1.10 $
  *
  */
 

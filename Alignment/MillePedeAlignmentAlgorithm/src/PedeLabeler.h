@@ -8,9 +8,9 @@
  *
  * \author    : Gero Flucke
  * date       : September 2007
- * $Date: 2010/10/26 20:52:23 $
- * $Revision: 1.4 $
- * (last update by $Author: flucke $)
+ * $Date: 2011/02/16 12:52:46 $
+ * $Revision: 1.5 $
+ * (last update by $Author: mussgill $)
  */
 
 #include <vector>
