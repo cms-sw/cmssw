@@ -47,12 +47,12 @@ namespace edm {
       static void fillDescriptions(ConfigurationDescriptions& descriptions);
 
     private:
-      virtual void beginJob();
+      virtual void beginJob() override;
 
-      virtual void analyze(Event const&, EventSetup const&);
-      virtual void endJob() ;
-      virtual void beginRun(Run const&, EventSetup const&);
-      virtual void beginLuminosityBlock(LuminosityBlock const&, EventSetup const&);
+      virtual void analyze(Event const&, EventSetup const&) override;
+      virtual void endJob() override ;
+      virtual void beginRun(Run const&, EventSetup const&) override;
+      virtual void beginLuminosityBlock(LuminosityBlock const&, EventSetup const&) override;
 
       void print(EventSetup const&);
 
