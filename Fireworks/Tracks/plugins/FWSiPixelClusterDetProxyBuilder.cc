@@ -27,7 +27,7 @@ public:
   REGISTER_PROXYBUILDER_METHODS();
 
 private:
-  virtual void build(const FWEventItem* iItem, TEveElementList* product, const FWViewContext*);
+  virtual void build(const FWEventItem* iItem, TEveElementList* product, const FWViewContext*) override;
   FWSiPixelClusterDetProxyBuilder(const FWSiPixelClusterDetProxyBuilder&);
   const FWSiPixelClusterDetProxyBuilder& operator=(const FWSiPixelClusterDetProxyBuilder&);
 };
