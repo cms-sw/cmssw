@@ -5,7 +5,7 @@
 #include <vector>
 
 #include <boost/utility.hpp>
-#include <XrdCl/XrdClMessageUtils.hh>
+#include <XrdCl/XrdClXRootDResponses.hh>
 
 #include "Utilities/StorageFactory/interface/Storage.h"
 

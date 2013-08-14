@@ -1,3 +1,6 @@
+
+#include "FWCore/Utilities/interface/EDMException.h"
+
 #include "Utilities/StorageFactory/interface/StorageMaker.h"
 #include "Utilities/StorageFactory/interface/StorageMakerFactory.h"
 #include "Utilities/StorageFactory/interface/StorageFactory.h"
@@ -7,10 +10,6 @@
 #include "XrdClient/XrdClientAdmin.hh"
 #include "XrdClient/XrdClientUrlSet.hh"
 #include "XrdCl/XrdClDefaultEnv.hh"
-// We muck with internal symbols of XrdCl to avoid duplicate definition issues
-// See https://github.com/xrootd/xrootd/issues/16
-#define __XRD_CL_OPTIMIZERS_HH__
-#include "XrdCl/XrdClLog.hh"
 
 
 class XrdStorageMaker : public StorageMaker
@@ -76,8 +75,29 @@ public:
 
   virtual void setDebugLevel (unsigned int level)
   {
-    XrdCl::Log *log = XrdCl::DefaultEnv::GetLog();
-    log->SetLevel(static_cast<XrdCl::Log::LogLevel>(level+2));
+    switch (level)
+    {
+      case 0:
+        XrdCl::DefaultEnv::SetLogLevel("Error");
+        break;
+      case 1:
+        XrdCl::DefaultEnv::SetLogLevel("Warning");
+        break;
+      case 2:
+        XrdCl::DefaultEnv::SetLogLevel("Info");
+        break;
+      case 3:
+        XrdCl::DefaultEnv::SetLogLevel("Debug");
+        break;
+      case 4:
+        XrdCl::DefaultEnv::SetLogLevel("Dump");
+        break;
+      default:
+        edm::Exception ex(edm::errors::Configuration);
+        ex << "Invalid log level specified " << level;
+        ex.addContext("Calling XrdStorageMaker::setDebugLevel()");
+        throw ex;
+    }
   }
 };
 
