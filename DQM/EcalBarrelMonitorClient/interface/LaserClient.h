@@ -12,13 +12,13 @@ namespace ecaldqm {
     LaserClient(const edm::ParameterSet &, const edm::ParameterSet &);
     ~LaserClient() {}
 
-    void bookMEs();
+    void bookMEs() override;
 
-    void initialize();
+    void initialize() override;
 
-    void beginRun(const edm::Run&, const edm::EventSetup&);
+    void beginRun(const edm::Run&, const edm::EventSetup&) override;
 
-    void producePlots();
+    void producePlots() override;
 
     enum Constants {
       nWL = LaserTask::nWL,
