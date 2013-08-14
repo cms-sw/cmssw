@@ -30,6 +30,7 @@
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
+#include "SimDataFormats/CrossingFrame/interface/CrossingFrame.h"
 
 #include <iostream>
 #include <fstream>
@@ -69,21 +70,21 @@ class EcalLocalRecoTask: public edm::EDAnalyzer
   
   std::string outputFile_;
 
-  std::string recHitProducer_;
-  std::string ESrecHitProducer_;
+
+  edm::EDGetTokenT<EBRecHitCollection> EBrecHitToken_;
+  edm::EDGetTokenT<EERecHitCollection> EErecHitToken_;
+  edm::EDGetTokenT<ESRecHitCollection> ESrecHitToken_;
   
-  std::string EBrechitCollection_;
-  std::string EErechitCollection_;
-  std::string ESrechitCollection_;
+  edm::EDGetTokenT<EBUncalibratedRecHitCollection> EBurecHitToken_;
+  edm::EDGetTokenT<EBUncalibratedRecHitCollection> EEurecHitToken_;
+  
 
-  std::string uncalibrecHitProducer_;
-  std::string EBuncalibrechitCollection_;
-  std::string EEuncalibrechitCollection_;
+  edm::EDGetTokenT<EBDigiCollection> EBdigiToken_;
+  edm::EDGetTokenT<EEDigiCollection> EEdigiToken_;
+  edm::EDGetTokenT<ESDigiCollection> ESdigiToken_;
 
-  std::string digiProducer_;
-  std::string EBdigiCollection_;
-  std::string EEdigiCollection_;
-  std::string ESdigiCollection_;
+  edm::EDGetTokenT<CrossingFrame<PCaloHit>> cfToken_;
+  
 
   MonitorElement* meEBUncalibRecHitMaxSampleRatio_;
   MonitorElement* meEBUncalibRecHitPedestal_;

@@ -12,6 +12,9 @@
 #include "RecoLocalCalo/EcalRecProducers/interface/EcalUncalibRecHitWorkerBaseClass.h"
 
 
+class EBDigiCollection;
+class EEDigiCollection;
+
 class EcalUncalibRecHitProducer : public edm::EDProducer {
 
         public:
@@ -21,11 +24,11 @@ class EcalUncalibRecHitProducer : public edm::EDProducer {
 
         private:
 
-                edm::InputTag ebDigiCollection_; // collection of EB digis
-                edm::InputTag eeDigiCollection_; // collection of EE digis
+		edm::EDGetTokenT<EBDigiCollection>  ebDigiCollectionToken_; 
+                edm::EDGetTokenT<EEDigiCollection>  eeDigiCollectionToken_; 
 
-                std::string ebHitCollection_; // secondary name to be given to collection of hits
-                std::string eeHitCollection_; // secondary name to be given to collection of hits
+                std::string ebHitCollection_; 
+                std::string eeHitCollection_; 
 
                 EcalUncalibRecHitWorkerBaseClass * worker_;
 };

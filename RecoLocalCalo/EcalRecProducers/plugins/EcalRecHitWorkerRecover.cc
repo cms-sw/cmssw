@@ -18,11 +18,12 @@
 #include "RecoLocalCalo/EcalDeadChannelRecoveryAlgos/interface/EcalDeadChannelRecoveryAlgos.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Framework/interface/EDProducer.h"
 
 //$Id: EcalRecHitWorkerRecover.cc,v 1.36 2012/03/01 14:32:39 vieri Exp $
 
-EcalRecHitWorkerRecover::EcalRecHitWorkerRecover(const edm::ParameterSet&ps) :
-        EcalRecHitWorkerBaseClass(ps)
+EcalRecHitWorkerRecover::EcalRecHitWorkerRecover(const edm::ParameterSet&ps, edm::ConsumesCollector&  c) :
+  EcalRecHitWorkerBaseClass(ps,c)
 {
         rechitMaker_ = new EcalRecHitSimpleAlgo();
         // isolated channel recovery
@@ -39,7 +40,8 @@ EcalRecHitWorkerRecover::EcalRecHitWorkerRecover(const edm::ParameterSet&ps) :
 	dbStatusToBeExcludedEE_ = ps.getParameter<std::vector<int> >("dbStatusToBeExcludedEE");
 	dbStatusToBeExcludedEB_ = ps.getParameter<std::vector<int> >("dbStatusToBeExcludedEB");
 	
-        tpDigiCollection_        = ps.getParameter<edm::InputTag>("triggerPrimitiveDigiCollection");
+        tpDigiToken_        = 
+	  c.consumes<EcalTrigPrimDigiCollection>(ps.getParameter<edm::InputTag>("triggerPrimitiveDigiCollection"));
         logWarningEtThreshold_EB_FE_ = ps.getParameter<double>("logWarningEtThreshold_EB_FE");
         logWarningEtThreshold_EE_FE_ = ps.getParameter<double>("logWarningEtThreshold_EE_FE");
 }
@@ -152,15 +154,10 @@ EcalRecHitWorkerRecover::run( const edm::Event & evt,
 
                 EcalTrigTowerDetId ttDetId( ((EBDetId)detId).tower() );
                 edm::Handle<EcalTrigPrimDigiCollection> pTPDigis;
-                evt.getByLabel(tpDigiCollection_, pTPDigis);
-                const EcalTrigPrimDigiCollection * tpDigis = 0;
-                if ( pTPDigis.isValid() ) {
-                        tpDigis = pTPDigis.product();
-                } else {
-                        edm::LogError("EcalRecHitWorkerRecover") << "Can't get the product " << tpDigiCollection_.instance() 
-                                << " with label " << tpDigiCollection_.label();
-                        return false;
-                }
+                evt.getByToken(tpDigiToken_, pTPDigis);
+                const EcalTrigPrimDigiCollection * tpDigis = 0;               
+		tpDigis = pTPDigis.product();
+           
                 EcalTrigPrimDigiCollection::const_iterator tp = tpDigis->find( ttDetId );
                 // recover the whole trigger tower
                 if ( tp != tpDigis->end() ) {
@@ -224,15 +221,10 @@ EcalRecHitWorkerRecover::run( const edm::Event & evt,
                         }
                         
                         edm::Handle<EcalTrigPrimDigiCollection> pTPDigis;
-                        evt.getByLabel(tpDigiCollection_, pTPDigis);
+                        evt.getByToken(tpDigiToken_, pTPDigis);
                         const EcalTrigPrimDigiCollection * tpDigis = 0;
-                        if ( pTPDigis.isValid() ) {
-                                tpDigis = pTPDigis.product();
-                        } else {
-                                edm::LogError("EcalRecHitWorkerRecover") << "Can't get the product " << tpDigiCollection_.instance() 
-                                        << " with label " << tpDigiCollection_.label();
-                                return false;
-                        }
+			tpDigis = pTPDigis.product();
+
                         // associated trigger towers
                         std::set<EcalTrigTowerDetId> aTT;
                         for ( std::set<DetId>::const_iterator it = eeC.begin(); it!=eeC.end(); ++it ) {
