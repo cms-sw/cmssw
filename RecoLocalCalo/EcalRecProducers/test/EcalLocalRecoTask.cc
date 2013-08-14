@@ -1,7 +1,6 @@
 /*
  * \file EcalLocalReco.cc
  *
- * $Id: EcalLocalRecoTask.cc,v 1.11 2010/07/21 04:23:25 wmtan Exp $
  *
 */
 

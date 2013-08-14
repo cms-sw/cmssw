@@ -5,8 +5,6 @@
  *  Find the R binning of a list of detector according to several 
  *  definitions.
  *
- *  $Date: 2006/07/10 22:05:13 $
- *  $Revision: 1.4 $
  *  \author N. Amapane - INFN Torino
  */
 

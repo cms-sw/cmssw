@@ -1,6 +1,5 @@
 // Associate jets with tracks by simple "dR" criteria
 // Fedor Ratnikov (UMd), Aug. 28, 2007
-// $Id: JetTracksAssociationDRVertexAssigned.cc,v 1.1 2011/11/11 18:58:03 srappocc Exp $
 
 #include "RecoJets/JetAssociationAlgorithms/interface/JetTracksAssociationDRVertexAssigned.h"
 

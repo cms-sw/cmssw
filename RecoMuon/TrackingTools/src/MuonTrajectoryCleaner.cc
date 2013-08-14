@@ -1,8 +1,6 @@
 /**
  *  A selector for muon tracks
  *
- *  $Date: 2011/03/12 07:01:42 $
- *  $Revision: 1.31 $
  *  \author R.Bellan - INFN Torino
  */
 #include "RecoMuon/TrackingTools/interface/MuonTrajectoryCleaner.h"

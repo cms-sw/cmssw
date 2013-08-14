@@ -5,8 +5,6 @@
  *  Find the phi binning of a list of detector according to several 
  *  definitions.
  *
- *  $Date: 2007/02/18 16:01:46 $
- *  $Revision: 1.9 $
  *  \author N. Amapane - INFN Torino
  */
 

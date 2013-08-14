@@ -13,7 +13,6 @@
 //
 // Original Author:  Igor Volobouev
 //         Created:  Thu Jul 18 19:19:40 CDT 2012
-// $Id: FFTJetDijetFilter.cc,v 1.1 2012/06/21 19:19:40 igv Exp $
 //
 //
 #include <cmath>

@@ -2,8 +2,6 @@
  *
  *  Navigable layer for Forward Muon
  *
- * $Date: 2007/01/23 18:18:41 $
- * $Revision: 1.9 $
  *
  * \author : Stefano Lacaprara - INFN Padova <stefano.lacaprara@pd.infn.it>
  *

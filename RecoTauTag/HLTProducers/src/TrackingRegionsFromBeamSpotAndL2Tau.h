@@ -4,7 +4,6 @@
 //
 // Class:           TrackingRegionsFromBeamSpotAndL2Tau
 //
-// $Id: TrackingRegionsFromBeamSpotAndL2Tau.h,v 1.1 2012/02/02 23:20:09 khotilov Exp $
 
 
 #include "RecoTracker/TkTrackingRegions/interface/TrackingRegionProducer.h"

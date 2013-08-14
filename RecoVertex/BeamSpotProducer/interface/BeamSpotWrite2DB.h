@@ -9,7 +9,6 @@
 
  author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
 
- version $Id: BeamSpotWrite2DB.h,v 1.1 2008/05/14 15:39:17 yumiceva Exp $
 
 ________________________________________________________________**/
 

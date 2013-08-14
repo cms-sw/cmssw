@@ -13,7 +13,6 @@
 //
 // Original Author:  Hans Van Haevermaet, Benoit Roland
 //         Created:  Wed Jul  9 14:00:40 CEST 2008
-// $Id: CastorCellProducer.cc,v 1.5 2010/06/29 11:30:28 hvanhaev Exp $
 //
 //
 

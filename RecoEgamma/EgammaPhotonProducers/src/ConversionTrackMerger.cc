@@ -6,9 +6,6 @@
 //
 // Original Author: J.Bendavid
 //
-// $Author: bendavid $
-// $Date: 2010/11/22 02:02:08 $
-// $Revision: 1.2 $
 //
 
 #include <memory>

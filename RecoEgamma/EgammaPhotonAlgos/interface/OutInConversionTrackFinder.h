@@ -3,9 +3,6 @@
 /** \class OutInConversionTrackFinder
  **  
  **
- **  $Id: OutInConversionTrackFinder.h,v 1.9 2008/05/08 20:41:27 nancy Exp $ 
- **  $Date: 2008/05/08 20:41:27 $ 
- **  $Revision: 1.9 $
  **  \author Nancy Marinelli, U. of Notre Dame, US
  **
  ***/

@@ -5,8 +5,6 @@
  *
  *  Provide access to the DetLayers of muon detectors.
  *
- *  $Date: 2009/04/11 01:02:38 $
- *  $Revision: 1.12 $
  *  \author N. Amapane - CERN
  */
 

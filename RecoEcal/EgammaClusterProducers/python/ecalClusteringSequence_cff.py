@@ -1,7 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
 #
-# $Id: ecalClusteringSequence_cff.py,v 1.4 2009/02/28 22:06:25 dlange Exp $
 # complete sequence of clustering in ecal barrel & endcap + preshower
 # Shahram Rahatlou, University of Rome & INFN, 3 Aug 2006
 #

@@ -12,7 +12,6 @@
 //----------------------------------------------------------------------
 
 //STARTHEADER
-// $Id: 06-area.cc 2003 2011-03-11 16:10:08Z soyez $
 //
 // Copyright (c) 2005-2011, Matteo Cacciari, Gavin Salam and Gregory Soyez
 //

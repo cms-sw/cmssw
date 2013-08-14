@@ -1,6 +1,5 @@
 // Associate jets with tracks by simple "dR" criteria
 // Fedor Ratnikov (UMd), Aug. 28, 2007
-// $Id: JetTracksAssociationDR.cc,v 1.4.2.2 2009/02/23 12:59:13 bainbrid Exp $
 
 #include "RecoJets/JetAssociationAlgorithms/interface/JetTracksAssociationDR.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
