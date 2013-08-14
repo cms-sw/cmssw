@@ -6,10 +6,10 @@ namespace cond{
   public:
     SQLiteProxy(){}
     ~SQLiteProxy(){}
-    void initialize( const DbConnection& ){
+    void initialize( const DbConnection& ) override{
     }
     std::string 
-    getRealConnectString( const std::string &userconnect ) const{
+    getRealConnectString( const std::string &userconnect ) const override{
       if( userconnect.find("sqlite_fip:") != std::string::npos ){
 	cond::FipProtocolParser p;
 	return p.getRealConnect( userconnect );
@@ -18,11 +18,11 @@ namespace cond{
     }
 
     std::string 
-    getRealConnectString( const std::string &userconnect, const std::string& ) const {
+    getRealConnectString( const std::string &userconnect, const std::string& ) const override {
       return getRealConnectString( userconnect );
     }
 
-    bool isTransactional() const { return true;}
+    bool isTransactional() const override { return true;}
 
   };  
 }//ns cond
