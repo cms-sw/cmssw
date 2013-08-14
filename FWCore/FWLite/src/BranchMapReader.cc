@@ -30,6 +30,8 @@
 #include "TFile.h"
 #include "TTree.h"
 
+#include <cassert>
+
 namespace fwlite {
   namespace internal {
 

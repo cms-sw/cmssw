@@ -7,7 +7,7 @@
 #include <iostream>
 #include <limits>
 #include <string>
-#include <assert.h>
+#include <cassert>
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/EDMException.h"

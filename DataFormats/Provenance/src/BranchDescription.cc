@@ -5,6 +5,7 @@
 #include "FWCore/Utilities/interface/TypeWithDict.h"
 #include "FWCore/Utilities/interface/WrappedClassName.h"
 
+#include <cassert>
 #include <ostream>
 #include <sstream>
 #include <stdlib.h>
