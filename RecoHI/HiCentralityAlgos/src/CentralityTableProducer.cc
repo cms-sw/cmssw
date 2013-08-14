@@ -61,8 +61,8 @@ class CentralityTableProducer : public edm::EDAnalyzer {
 
    private:
       virtual void beginRun(const edm::EventSetup&) ;
-      virtual void analyze(const edm::Event&, const edm::EventSetup&);
-      virtual void endJob() ;
+      virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
+      virtual void endJob() override ;
    void printBin(const CentralityTable::CBin*);
       // ----------member data ---------------------------
 
