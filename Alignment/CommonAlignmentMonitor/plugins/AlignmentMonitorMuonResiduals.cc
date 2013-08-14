@@ -35,9 +35,9 @@ class AlignmentMonitorMuonResiduals: public AlignmentMonitorBase {
       AlignmentMonitorMuonResiduals(const edm::ParameterSet& cfg);
       ~AlignmentMonitorMuonResiduals() {};
 
-      void book();
-      void event(const edm::Event &iEvent, const edm::EventSetup &iSetup, const ConstTrajTrackPairCollection& iTrajTracks);
-      void afterAlignment(const edm::EventSetup &iSetup);
+      void book() override;
+      void event(const edm::Event &iEvent, const edm::EventSetup &iSetup, const ConstTrajTrackPairCollection& iTrajTracks) override;
+      void afterAlignment(const edm::EventSetup &iSetup) override;
 
    private:
       std::map<int, int> m_numx;

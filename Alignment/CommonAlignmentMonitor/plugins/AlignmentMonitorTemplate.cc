@@ -30,9 +30,9 @@ class AlignmentMonitorTemplate: public AlignmentMonitorBase {
       AlignmentMonitorTemplate(const edm::ParameterSet& cfg): AlignmentMonitorBase(cfg, "AlignmentMonitorTemplate") { };
       ~AlignmentMonitorTemplate() {};
 
-      void book();
-      void event(const edm::Event &iEvent, const edm::EventSetup &iSetup, const ConstTrajTrackPairCollection& iTrajTracks);
-      void afterAlignment(const edm::EventSetup &iSetup);
+      void book() override;
+      void event(const edm::Event &iEvent, const edm::EventSetup &iSetup, const ConstTrajTrackPairCollection& iTrajTracks) override;
+      void afterAlignment(const edm::EventSetup &iSetup) override;
 
    private:
       TH1F *m_hist, *m_ihist, *m_otherdir, *m_otherdir2;

@@ -31,12 +31,12 @@ public:
   AlignmentMonitorMuonSystemMap1D(const edm::ParameterSet& cfg);
   virtual ~AlignmentMonitorMuonSystemMap1D() {}
 
-  void book();
+  void book() override;
 
-  void event(const edm::Event &iEvent, const edm::EventSetup &iSetup, const ConstTrajTrackPairCollection& iTrajTracks);
+  void event(const edm::Event &iEvent, const edm::EventSetup &iSetup, const ConstTrajTrackPairCollection& iTrajTracks) override;
   void processMuonResidualsFromTrack(MuonResidualsFromTrack &mrft, const edm::Event &iEvent);
 
-  void afterAlignment(const edm::EventSetup &iSetup);
+  void afterAlignment(const edm::EventSetup &iSetup) override;
 
 private:
 
