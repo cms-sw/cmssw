@@ -16,6 +16,7 @@
 #include "DataFormats/RecoCandidate/interface/RecoChargedCandidateFwd.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
+#include "DataFormats/BeamSpot/interface/BeamSpot.h"
 
 namespace edm {
    class ConfigurationDescriptions;
@@ -31,9 +32,12 @@ class HLTMuonL3PreFilter : public HLTFilter {
       bool triggeredByLevel2(const reco::TrackRef& track,std::vector<reco::RecoChargedCandidateRef>& vcands);
    private:
 
-      edm::InputTag beamspotTag_ ;
-      edm::InputTag candTag_;  // input tag identifying product contains muons
-      edm::InputTag previousCandTag_;  // input tag identifying product contains muons passing the previous level
+      edm::InputTag                    beamspotTag_ ;
+      edm::EDGetTokenT<reco::BeamSpot> beamspotToken_ ;
+      edm::InputTag                                          candTag_;   // input tag identifying product contains muons
+      edm::EDGetTokenT<reco::RecoChargedCandidateCollection> candToken_; // token identifying product contains muons
+      edm::InputTag                                          previousCandTag_;   // input tag identifying product contains muons passing the previous level
+      edm::EDGetTokenT<trigger::TriggerFilterObjectWithRefs> previousCandToken_; // token identifying product contains muons passing the previous level
       int    min_N_;            // minimum number of muons to fire the trigger
       double max_Eta_;          // Eta cut
       int    min_Nhits_;        // threshold on number of hits on muon
