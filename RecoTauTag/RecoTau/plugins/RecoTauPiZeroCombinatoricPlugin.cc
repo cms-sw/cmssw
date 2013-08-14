@@ -31,7 +31,7 @@ class RecoTauPiZeroCombinatoricPlugin : public RecoTauPiZeroBuilderPlugin {
     explicit RecoTauPiZeroCombinatoricPlugin(const edm::ParameterSet& pset);
     ~RecoTauPiZeroCombinatoricPlugin() {}
     // Return type is auto_ptr<PiZeroVector>
-    return_type operator()(const reco::PFJet& jet) const;
+    return_type operator()(const reco::PFJet& jet) const override;
 
   private:
     RecoTauQualityCuts qcuts_;

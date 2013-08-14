@@ -22,7 +22,7 @@ class LHEFilter : public edm::EDFilter {
 	virtual ~LHEFilter();
 
     protected:
-	virtual bool filter(edm::Event &event, const edm::EventSetup &es);
+	virtual bool filter(edm::Event &event, const edm::EventSetup &es) override;
 
     private:
 	edm::InputTag	sourceLabel;

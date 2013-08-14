@@ -61,7 +61,7 @@ namespace fwlite {
                 ProductGetter(Event* iEvent) : event_(iEvent) {}
 
                 edm::WrapperHolder
-                getIt(edm::ProductID const& iID) const {
+                getIt(edm::ProductID const& iID) const override {
                     return event_->getByProductID(iID);
                 }
             private:

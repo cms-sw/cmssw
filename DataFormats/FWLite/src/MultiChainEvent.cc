@@ -29,7 +29,7 @@ public:
       MultiProductGetter(MultiChainEvent const* iEvent) : event_(iEvent) {}
 
       virtual edm::WrapperHolder
-      getIt(edm::ProductID const& iID) const {
+      getIt(edm::ProductID const& iID) const override {
 
 	return event_->getByProductID(iID);
       }

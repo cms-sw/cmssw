@@ -40,8 +40,8 @@ class PFTauDecayModeCutMultiplexer : public PFTauDiscriminationProducerBase {
       typedef std::vector<ComputerAndCut>    CutList;
       typedef std::map<int, CutList::iterator> DecayModeToCutMap;
 
-      double discriminate(const PFTauRef& thePFTau);
-      void beginEvent(const edm::Event& event, const edm::EventSetup& eventSetup);
+      double discriminate(const PFTauRef& thePFTau) override;
+      void beginEvent(const edm::Event& event, const edm::EventSetup& eventSetup) override;
 
    private:
       // PFTau discriminator continaing the decaymode index of the tau collection

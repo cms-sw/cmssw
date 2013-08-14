@@ -32,9 +32,9 @@ namespace edm {
     NavigateEventsLooper(ParameterSet const& pset);
     virtual ~NavigateEventsLooper();
 
-    virtual void startingNewLoop(unsigned int iIteration);
-    virtual Status duringLoop(Event const& ev, EventSetup const& es, ProcessingController& pc);
-    virtual Status endOfLoop(EventSetup const& es, unsigned int iCounter);
+    virtual void startingNewLoop(unsigned int iIteration) override;
+    virtual Status duringLoop(Event const& ev, EventSetup const& es, ProcessingController& pc) override;
+    virtual Status endOfLoop(EventSetup const& es, unsigned int iCounter) override;
 
   private:
     NavigateEventsLooper(NavigateEventsLooper const&); // stop default

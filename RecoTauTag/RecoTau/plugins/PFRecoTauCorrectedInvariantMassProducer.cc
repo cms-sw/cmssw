@@ -27,8 +27,8 @@ class PFRecoTauCorrectedInvariantMassProducer : public PFTauDiscriminationProduc
          PFTauDecayModeProducer_     = iConfig.getParameter<edm::InputTag>("PFTauDecayModeProducer");
       }
       ~PFRecoTauCorrectedInvariantMassProducer(){} 
-      double discriminate(const PFTauRef& pfTau);
-      void beginEvent(const edm::Event& event, const edm::EventSetup& evtSetup);
+      double discriminate(const PFTauRef& pfTau) override;
+      void beginEvent(const edm::Event& event, const edm::EventSetup& evtSetup) override;
    private:
       edm::InputTag PFTauDecayModeProducer_;
       edm::Handle<PFTauDecayModeAssociation> theDMAssoc;

@@ -47,7 +47,7 @@ class MuonGeometryDBConverter : public edm::EDAnalyzer {
 
 
    private:
-      virtual void analyze(const edm::Event&, const edm::EventSetup&);
+      virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
 
       bool m_done;
       std::string m_input, m_output;

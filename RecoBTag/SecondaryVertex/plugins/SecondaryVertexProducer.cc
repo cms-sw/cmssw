@@ -67,7 +67,7 @@ class SecondaryVertexProducer : public edm::EDProducer {
 	explicit SecondaryVertexProducer(const edm::ParameterSet &params);
 	~SecondaryVertexProducer();
 
-	virtual void produce(edm::Event &event, const edm::EventSetup &es);
+	virtual void produce(edm::Event &event, const edm::EventSetup &es) override;
 
     private:
 	enum ConstraintType {

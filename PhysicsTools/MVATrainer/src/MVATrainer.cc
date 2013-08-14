@@ -71,10 +71,10 @@ namespace { // anonymous
 
 		virtual std::vector<Variable::Flags>
 		configure(const MVAComputer *computer, unsigned int n,
-		          const std::vector<Variable::Flags> &flags);
+		          const std::vector<Variable::Flags> &flags) override;
 
 		virtual double
-		intercept(const std::vector<double> *values) const;
+		intercept(const std::vector<double> *values) const override;
 	};
 
 	class TrainInterceptor : public BaseInterceptor {
@@ -86,13 +86,13 @@ namespace { // anonymous
 
 		virtual std::vector<Variable::Flags>
 		configure(const MVAComputer *computer, unsigned int n,
-		          const std::vector<Variable::Flags> &flags);
+		          const std::vector<Variable::Flags> &flags) override;
 
 		virtual double
-		intercept(const std::vector<double> *values) const;
+		intercept(const std::vector<double> *values) const override;
 
-		virtual void init();
-		virtual void finish(bool save);
+		virtual void init() override;
+		virtual void finish(bool save) override;
 
 	    private:
 		unsigned int					targetIdx;
@@ -112,9 +112,9 @@ namespace { // anonymous
 		virtual ~MVATrainerComputer();
 
 		virtual std::vector<Calibration::VarProcessor*>
-							getProcessors() const;
+							getProcessors() const override;
 		virtual void initFlags(std::vector<Variable::Flags>
-							&flags) const;
+							&flags) const override;
 
 		void configured(BaseInterceptor *interceptor) const;
 		void next();

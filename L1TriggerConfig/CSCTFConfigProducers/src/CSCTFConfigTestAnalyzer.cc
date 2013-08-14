@@ -39,9 +39,9 @@ class CSCTFConfigTestAnalyzer : public edm::EDAnalyzer {
 
 
    private:
-      virtual void beginJob() ;
-      virtual void analyze(const edm::Event&, const edm::EventSetup&);
-      virtual void endJob() ;
+      virtual void beginJob() override ;
+      virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
+      virtual void endJob() override ;
 
       // ----------member data ---------------------------
 };

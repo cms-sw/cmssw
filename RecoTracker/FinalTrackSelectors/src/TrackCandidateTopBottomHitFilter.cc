@@ -47,7 +47,7 @@ public:
 private:
   virtual void beginRun(edm::Run const& run, const edm::EventSetup&) override;
   virtual void produce(edm::Event&, const edm::EventSetup&) override;
-  virtual void endJob() ;
+  virtual void endJob() override ;
   edm::InputTag label;
   edm::ESHandle<TransientTrackingRecHitBuilder> theBuilder;
   std::string builderName;

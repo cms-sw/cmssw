@@ -12,7 +12,7 @@ namespace cond {
     public:
       TruncateIOVUtilities();
       ~TruncateIOVUtilities();
-      int execute();
+      int execute() override;
   };
 }
 

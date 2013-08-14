@@ -25,8 +25,8 @@ class RecoTauDiscriminantCutMultiplexer : public PFTauDiscriminationProducerBase
     explicit RecoTauDiscriminantCutMultiplexer(const edm::ParameterSet& pset);
 
     ~RecoTauDiscriminantCutMultiplexer() {}
-    double discriminate(const reco::PFTauRef&);
-    void beginEvent(const edm::Event& event, const edm::EventSetup& eventSetup);
+    double discriminate(const reco::PFTauRef&) override;
+    void beginEvent(const edm::Event& event, const edm::EventSetup& eventSetup) override;
 
   private:
     typedef std::map<int, double> DiscriminantCutMap;

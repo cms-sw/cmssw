@@ -37,7 +37,7 @@ namespace pat{
     ~DuplicatedElectronCleaner();  
     
     virtual void produce(edm::Event & iEvent, const edm::EventSetup& iSetup) override;
-    virtual void endJob();
+    virtual void endJob() override;
     
   private:
     edm::InputTag electronSrc_;

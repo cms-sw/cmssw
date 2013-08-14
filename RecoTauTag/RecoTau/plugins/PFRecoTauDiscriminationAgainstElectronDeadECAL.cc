@@ -45,12 +45,12 @@ class PFRecoTauDiscriminationAgainstElectronDeadECAL : public PFTauDiscriminatio
   }
   ~PFRecoTauDiscriminationAgainstElectronDeadECAL() {}
 
-  void beginEvent(const edm::Event& evt, const edm::EventSetup& es)
+  void beginEvent(const edm::Event& evt, const edm::EventSetup& es) override
   {
     updateBadTowers(es);
   }
 
-  double discriminate(const PFTauRef& pfTau)
+  double discriminate(const PFTauRef& pfTau) override
   {
     //std::cout << "<PFRecoTauDiscriminationAgainstElectronDeadECAL::discriminate>:" << std::endl;
     //std::cout << " moduleLabel = " << moduleLabel_ << std::endl;

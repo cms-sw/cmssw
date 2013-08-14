@@ -264,8 +264,8 @@ namespace edm {
      explicit EventContentAnalyzer(ParameterSet const&);
      ~EventContentAnalyzer();
 
-     virtual void analyze(Event const&, EventSetup const&);
-     virtual void endJob();
+     virtual void analyze(Event const&, EventSetup const&) override;
+     virtual void endJob() override;
 
      static void fillDescriptions(ConfigurationDescriptions& descriptions);
 

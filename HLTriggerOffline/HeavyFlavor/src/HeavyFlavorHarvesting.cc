@@ -30,8 +30,8 @@ class HeavyFlavorHarvesting : public edm::EDAnalyzer , public TGraphAsymmErrors{
   public:
     HeavyFlavorHarvesting(const edm::ParameterSet& pset);
     virtual ~HeavyFlavorHarvesting();
-    virtual void analyze(const edm::Event& event, const edm::EventSetup& eventSetup) {};
-    virtual void endRun(const edm::Run &, const edm::EventSetup &);
+    virtual void analyze(const edm::Event& event, const edm::EventSetup& eventSetup) override {};
+    virtual void endRun(const edm::Run &, const edm::EventSetup &) override;
   private:
     void calculateEfficiency(const ParameterSet& pset);
     void calculateEfficiency1D( TH1* num, TH1* den, string name );

@@ -12,7 +12,7 @@ public:
   CandCollectionExistFilter(const ParameterSet & cfg) :
     src_(cfg.getParameter<InputTag>("src")) { }
 private:
-  bool filter(Event& evt, const EventSetup&) {
+  bool filter(Event& evt, const EventSetup&) override {
     Handle<CandidateView> src;
     bool exists = true;
     evt.getByLabel(src_, src);

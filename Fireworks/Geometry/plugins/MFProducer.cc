@@ -16,9 +16,9 @@ public:
   ~MFProducer( void );
   
 private:
-  virtual void beginJob( void );
-  virtual void produce( edm::Event&, const edm::EventSetup& );
-  virtual void endJob( void );
+  virtual void beginJob( void ) override;
+  virtual void produce( edm::Event&, const edm::EventSetup& ) override;
+  virtual void endJob( void ) override;
   void 		evaluate( const double point[3], double field[3] ) const;
   unsigned	m_mapDensityX;
   unsigned      m_mapDensityY;

@@ -18,7 +18,7 @@ class RecoTauRandomCleanerPlugin : public RecoTauCleanerPlugin {
     RecoTauRandomCleanerPlugin(const edm::ParameterSet& pset);
     virtual ~RecoTauRandomCleanerPlugin(){}
     // Get discriminant value for a given tau Ref
-    double operator()(const reco::PFTauRef&) const;
+    double operator()(const reco::PFTauRef&) const override;
   private:
     unsigned int seed_;
 };

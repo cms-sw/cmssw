@@ -69,9 +69,9 @@ public:
   ~MuonsFromRefitTracksProducer() {}
 
 private:
-  virtual void beginJob() {}
-  virtual void produce(edm::Event&, const edm::EventSetup&);
-  virtual void endJob() {}
+  virtual void beginJob() override {}
+  virtual void produce(edm::Event&, const edm::EventSetup&) override;
+  virtual void endJob() override {}
 
   // Store the track-to-track map(s) used when using TeV refit tracks.
   bool storeMatchMaps(const edm::Event& event);

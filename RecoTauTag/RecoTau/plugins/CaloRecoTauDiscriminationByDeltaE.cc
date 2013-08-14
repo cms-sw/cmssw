@@ -27,8 +27,8 @@ class CaloRecoTauDiscriminationByDeltaE : public CaloTauDiscriminationProducerBa
 
       	~CaloRecoTauDiscriminationByDeltaE(){}
 
-	void beginEvent(const edm::Event&, const edm::EventSetup&);
-	double discriminate(const reco::CaloTauRef&);
+	void beginEvent(const edm::Event&, const edm::EventSetup&) override;
+	double discriminate(const reco::CaloTauRef&) override;
 
     private:
 	double DeltaE(const CaloTauRef&);

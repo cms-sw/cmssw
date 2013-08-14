@@ -34,8 +34,8 @@ class RecoTauEnergyRecoveryPlugin : public RecoTauModifierPlugin
 
   explicit RecoTauEnergyRecoveryPlugin(const edm::ParameterSet&);
   virtual ~RecoTauEnergyRecoveryPlugin();
-  void operator()(PFTau&) const;
-  virtual void beginEvent();
+  void operator()(PFTau&) const override;
+  virtual void beginEvent() override;
 
  private:
 

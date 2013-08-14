@@ -25,8 +25,8 @@ class ProcForeach : public TrainProcessor {
 	            MVATrainer *trainer);
 	virtual ~ProcForeach();
 
-	virtual void configure(DOMElement *elem);
-	virtual Calibration::VarProcessor *getCalibration() const;
+	virtual void configure(DOMElement *elem) override;
+	virtual Calibration::VarProcessor *getCalibration() const override;
 
     private:
 	unsigned int	count;

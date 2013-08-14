@@ -39,7 +39,7 @@ class PFRecoTauDiscriminationByInvMass: public PFTauDiscriminationProducerBase {
       }
     }
     ~PFRecoTauDiscriminationByInvMass(){}
-    double discriminate(const reco::PFTauRef&);
+    double discriminate(const reco::PFTauRef&) override;
 
   private:
     typedef std::pair<unsigned int, unsigned int> IntPair;

@@ -26,7 +26,7 @@ private:
    FWPCaloHitProxyBuilder( const FWPCaloHitProxyBuilder& );
    const FWPCaloHitProxyBuilder& operator=( const FWPCaloHitProxyBuilder& );
 
-   virtual void build( const FWEventItem* iItem, TEveElementList* product, const FWViewContext* );
+   virtual void build( const FWEventItem* iItem, TEveElementList* product, const FWViewContext* ) override;
 };
 
 void FWPCaloHitProxyBuilder::build(const FWEventItem* iItem, TEveElementList* product, const FWViewContext*)

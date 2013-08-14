@@ -150,11 +150,11 @@ class HcalDetDiagPedestalMonitor : public HcalBaseDQMonitor {
       edm::InputTag inputLabelDigi_;
       edm::InputTag  inputLabelRawData_;
 
-      void beginRun(const edm::Run& run, const edm::EventSetup& c);  
-      void endRun(const edm::Run& run, const edm::EventSetup& c);
-      void beginLuminosityBlock(const edm::LuminosityBlock& lumiSeg,const edm::EventSetup& c) ;
-      void endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,const edm::EventSetup& c);
-      void analyze(const edm::Event&, const edm::EventSetup&);
+      void beginRun(const edm::Run& run, const edm::EventSetup& c) override;  
+      void endRun(const edm::Run& run, const edm::EventSetup& c) override;
+      void beginLuminosityBlock(const edm::LuminosityBlock& lumiSeg,const edm::EventSetup& c) override ;
+      void endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,const edm::EventSetup& c) override;
+      void analyze(const edm::Event&, const edm::EventSetup&) override;
 
       int         ievt_;
       int         run_number;

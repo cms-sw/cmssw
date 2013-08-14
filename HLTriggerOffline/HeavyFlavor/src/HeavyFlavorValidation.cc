@@ -54,9 +54,9 @@ class HeavyFlavorValidation : public edm::EDAnalyzer {
     explicit HeavyFlavorValidation(const edm::ParameterSet&);
     ~HeavyFlavorValidation();
   private:
-    virtual void beginRun(const Run & iRun, const EventSetup & iSetup);
-    virtual void analyze(const edm::Event&, const edm::EventSetup&);
-    virtual void endJob();
+    virtual void beginRun(const Run & iRun, const EventSetup & iSetup) override;
+    virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
+    virtual void endJob() override;
     int getMotherId( const Candidate * p );
     void match( MonitorElement * me, vector<LeafCandidate> & from, vector<LeafCandidate> & to, double deltaRMatchingCut, vector<int> & map );
     void myBook2D( TString name, vector<double> &xBins, TString xLabel, vector<double> &yBins, TString yLabel, TString title);

@@ -61,9 +61,9 @@ private:
     FFTJetDijetFilter(const FFTJetDijetFilter&);
     FFTJetDijetFilter& operator=(const FFTJetDijetFilter&);
 
-    void beginJob();
-    bool filter(edm::Event& iEvent, const edm::EventSetup& iSetup);
-    void endJob();
+    void beginJob() override;
+    bool filter(edm::Event& iEvent, const edm::EventSetup& iSetup) override;
+    void endJob() override;
 
     template<class Ptr>
     inline void checkConfig(const Ptr& ptr, const char* message) const

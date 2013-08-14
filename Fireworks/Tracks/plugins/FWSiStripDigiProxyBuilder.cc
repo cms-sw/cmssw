@@ -30,7 +30,7 @@ public:
   REGISTER_PROXYBUILDER_METHODS();
 
 private:
-  virtual void build( const FWEventItem* iItem, TEveElementList* product, const FWViewContext* );
+  virtual void build( const FWEventItem* iItem, TEveElementList* product, const FWViewContext* ) override;
   FWSiStripDigiProxyBuilder( const FWSiStripDigiProxyBuilder& );    
   const FWSiStripDigiProxyBuilder& operator=( const FWSiStripDigiProxyBuilder& );
 };

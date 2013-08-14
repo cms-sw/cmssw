@@ -25,7 +25,7 @@ class RecoTauElectronRejectionPlugin : public RecoTauModifierPlugin {
   public:
     explicit RecoTauElectronRejectionPlugin(const edm::ParameterSet& pset);
     virtual ~RecoTauElectronRejectionPlugin() {}
-    void operator()(PFTau&) const;
+    void operator()(PFTau&) const override;
   private:
     double ElecPreIDLeadTkMatch_maxDR_;
     double EcalStripSumE_minClusEnergy_;

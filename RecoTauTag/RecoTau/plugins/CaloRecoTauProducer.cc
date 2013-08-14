@@ -35,7 +35,7 @@ class CaloRecoTauProducer : public EDProducer {
  public:
   explicit CaloRecoTauProducer(const edm::ParameterSet& iConfig);
   ~CaloRecoTauProducer();
-  virtual void produce(edm::Event&,const edm::EventSetup&);
+  virtual void produce(edm::Event&,const edm::EventSetup&) override;
  private:
   edm::InputTag CaloRecoTauTagInfoProducer_;
   edm::InputTag PVProducer_;

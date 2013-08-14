@@ -25,7 +25,7 @@ public:
   explicit CaloMuonMerger(const edm::ParameterSet & iConfig);
   virtual ~CaloMuonMerger() { }
 
-  virtual void produce(edm::Event & iEvent, const edm::EventSetup & iSetup);
+  virtual void produce(edm::Event & iEvent, const edm::EventSetup & iSetup) override;
 
 private:
   edm::InputTag muons_;

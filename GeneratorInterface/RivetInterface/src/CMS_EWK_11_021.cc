@@ -24,7 +24,7 @@ namespace Rivet {
     }
 
 
-    void init()
+    void init() override
       {
 
       const FinalState fs(-5.0,5.0);
@@ -159,7 +159,7 @@ namespace Rivet {
       }
 
 
-    void analyze(const Event& event)
+    void analyze(const Event& event) override
       {
       const double weight = event.weight();
       bool is_ele = false;
@@ -418,7 +418,7 @@ namespace Rivet {
           }
       }
 
-    void finalize() 
+    void finalize() override 
       {
       normalize(_histMll,1.);
       normalize(_histNjets,1.);

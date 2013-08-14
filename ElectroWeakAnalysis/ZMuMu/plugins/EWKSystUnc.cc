@@ -6,8 +6,8 @@ class EWKSystUnc : public edm::EDAnalyzer {
 public:
   EWKSystUnc(const edm::ParameterSet& pset); 
 private:
-  virtual void analyze(const edm::Event& event, const edm::EventSetup& setup);
-  virtual void endJob();
+  virtual void analyze(const edm::Event& event, const edm::EventSetup& setup) override;
+  virtual void endJob() override;
   edm::InputTag   gen_, weights_;
   unsigned int  nbinsMass_, nbinsPt_, nbinsAng_ ;
   double massMax_, ptMax_, angMax_;

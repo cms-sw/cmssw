@@ -43,7 +43,7 @@ public:
   explicit HLTLevel1Activity(const edm::ParameterSet&);
   ~HLTLevel1Activity();
   static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
-  virtual bool filter(edm::Event&, const edm::EventSetup&);
+  virtual bool filter(edm::Event&, const edm::EventSetup&) override;
 
 private:
   edm::InputTag                                  m_gtReadoutRecordTag;

@@ -14,8 +14,8 @@ class Py8PtGun : public Py8GunBase {
       Py8PtGun( edm::ParameterSet const& );
       ~Py8PtGun() {}
 	 
-      bool generatePartonsAndHadronize();
-      const char* classname() const;
+      bool generatePartonsAndHadronize() override;
+      const char* classname() const override;
 	 
    private:
       

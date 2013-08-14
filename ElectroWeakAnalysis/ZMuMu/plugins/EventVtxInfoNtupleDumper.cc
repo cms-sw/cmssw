@@ -18,7 +18,7 @@ public:
   EventVtxInfoNtupleDumper( const edm::ParameterSet & );
    
 private:
-  void produce( edm::Event &, const edm::EventSetup & );
+  void produce( edm::Event &, const edm::EventSetup & ) override;
   edm::InputTag primaryVertices_;
 
 };

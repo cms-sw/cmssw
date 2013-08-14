@@ -22,7 +22,7 @@ namespace cond {
     {
       // here one can make stuff really complicated...
     }
-    void compute(Class const & it){
+    void compute(Class const & it) override{
       this->add(it.m_start_current);
       this->add(it.m_stop_current);
       this->add(it.m_avg_current);

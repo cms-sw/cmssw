@@ -67,7 +67,7 @@ namespace {
          fMBottom = -3;
       }
       
-      void DoRedraw();
+      void DoRedraw() override;
    };
    
    void BorderlessTextButton::DoRedraw() {

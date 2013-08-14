@@ -52,9 +52,9 @@ class HCALHighEnergyFilter : public edm::EDFilter {
       ~HCALHighEnergyFilter();
 
    private:
-      virtual void beginJob() ;
+      virtual void beginJob() override ;
       virtual bool filter(edm::Event&, const edm::EventSetup&) override;
-      virtual void endJob() ;
+      virtual void endJob() override ;
   //  bool jetGood(L1JetParticleCollection::const_iterator &);
   bool jetGood(reco::CaloJetCollection::const_iterator &);
       // ----------member data ---------------------------

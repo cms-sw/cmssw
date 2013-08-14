@@ -61,23 +61,23 @@ namespace edm {
   // Algorithm classes for making ProvenanceReader:
   class MakeDummyProvenanceReader : public MakeProvenanceReader {
   public:
-    virtual std::unique_ptr<ProvenanceReaderBase> makeReader(RootTree& eventTree, DaqProvenanceHelper const* daqProvenanceHelper) const;
+    virtual std::unique_ptr<ProvenanceReaderBase> makeReader(RootTree& eventTree, DaqProvenanceHelper const* daqProvenanceHelper) const override;
   };
   class MakeOldProvenanceReader : public MakeProvenanceReader {
   public:
     MakeOldProvenanceReader(std::unique_ptr<EntryDescriptionMap>&& entryDescriptionMap) : MakeProvenanceReader(), entryDescriptionMap_(std::move(entryDescriptionMap)) {}
-    virtual std::unique_ptr<ProvenanceReaderBase> makeReader(RootTree& eventTree, DaqProvenanceHelper const* daqProvenanceHelper) const;
+    virtual std::unique_ptr<ProvenanceReaderBase> makeReader(RootTree& eventTree, DaqProvenanceHelper const* daqProvenanceHelper) const override;
   private:
     std::unique_ptr<EntryDescriptionMap> entryDescriptionMap_;
   };
   class MakeFullProvenanceReader : public MakeProvenanceReader {
   public:
-    virtual std::unique_ptr<ProvenanceReaderBase> makeReader(RootTree& eventTree, DaqProvenanceHelper const* daqProvenanceHelper) const;
+    virtual std::unique_ptr<ProvenanceReaderBase> makeReader(RootTree& eventTree, DaqProvenanceHelper const* daqProvenanceHelper) const override;
   };
   class MakeReducedProvenanceReader : public MakeProvenanceReader {
   public:
     MakeReducedProvenanceReader(std::vector<ParentageID> const& parentageIDLookup) : parentageIDLookup_(parentageIDLookup) {}
-    virtual std::unique_ptr<ProvenanceReaderBase> makeReader(RootTree& eventTree, DaqProvenanceHelper const* daqProvenanceHelper) const;
+    virtual std::unique_ptr<ProvenanceReaderBase> makeReader(RootTree& eventTree, DaqProvenanceHelper const* daqProvenanceHelper) const override;
   private:
     std::vector<ParentageID> const& parentageIDLookup_;
   };
@@ -105,7 +105,7 @@ namespace edm {
     explicit RootFileEventFinder(RootTree& eventTree) : eventTree_(eventTree) {}
     virtual ~RootFileEventFinder() {}
     virtual
-    EventNumber_t getEventNumberOfEntry(roottree::EntryNumber entry) const {
+    EventNumber_t getEventNumberOfEntry(roottree::EntryNumber entry) const override {
       roottree::EntryNumber saveEntry = eventTree_.entryNumber();
       eventTree_.setEntryNumber(entry);
       EventAuxiliary eventAux;
@@ -1743,7 +1743,7 @@ namespace edm {
   public:
     ReducedProvenanceReader(RootTree* iRootTree, std::vector<ParentageID> const& iParentageIDLookup, DaqProvenanceHelper const* daqProvenanceHelper);
   private:
-    virtual void readProvenance(BranchMapper const& mapper) const;
+    virtual void readProvenance(BranchMapper const& mapper) const override;
     RootTree* rootTree_;
     TBranch* provBranch_;
     StoredProductProvenanceVector provVector_;
@@ -1794,7 +1794,7 @@ namespace edm {
     explicit FullProvenanceReader(RootTree* rootTree, DaqProvenanceHelper const* daqProvenanceHelper);
     virtual ~FullProvenanceReader() {}
   private:
-    virtual void readProvenance(BranchMapper const& mapper) const;
+    virtual void readProvenance(BranchMapper const& mapper) const override;
     RootTree* rootTree_;
     ProductProvenanceVector infoVector_;
     mutable ProductProvenanceVector* pInfoVector_;
@@ -1830,7 +1830,7 @@ namespace edm {
     explicit OldProvenanceReader(RootTree* rootTree, EntryDescriptionMap const& theMap, DaqProvenanceHelper const* daqProvenanceHelper);
     virtual ~OldProvenanceReader() {}
   private:
-    virtual void readProvenance(BranchMapper const& mapper) const;
+    virtual void readProvenance(BranchMapper const& mapper) const override;
     RootTree* rootTree_;
     std::vector<EventEntryInfo> infoVector_;
     mutable std::vector<EventEntryInfo> *pInfoVector_;
@@ -1873,7 +1873,7 @@ namespace edm {
     DummyProvenanceReader();
     virtual ~DummyProvenanceReader() {}
   private:
-    virtual void readProvenance(BranchMapper const& mapper) const;
+    virtual void readProvenance(BranchMapper const& mapper) const override;
   };
 
   DummyProvenanceReader::DummyProvenanceReader() :

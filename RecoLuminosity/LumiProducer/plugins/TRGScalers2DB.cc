@@ -35,9 +35,9 @@ namespace lumi{
     const static unsigned int COMMITLSINTERVAL=150; //commit interval in LS, totalrow=nsl*192
     const static unsigned int COMMITLSTRGINTERVAL=550; //commit interval in LS of schema2
     explicit TRGScalers2DB(const std::string& dest);
-    virtual unsigned long long retrieveData( unsigned int runnumber);
-    virtual const std::string dataType() const;
-    virtual const std::string sourceType() const;
+    virtual unsigned long long retrieveData( unsigned int runnumber) override;
+    virtual const std::string dataType() const override;
+    virtual const std::string sourceType() const override;
     virtual ~TRGScalers2DB();													  
 
     //per run information
