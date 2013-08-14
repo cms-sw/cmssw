@@ -16,7 +16,6 @@
 //
 // Original Author:  
 //         Created:  Fri Sep 23 17:05:48 CDT 2011
-// $Id$
 //
 
 // system include files

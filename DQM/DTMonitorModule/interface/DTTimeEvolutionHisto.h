@@ -4,8 +4,6 @@
 /** \class DTTimeEvolutionHisto
  *  No description available.
  *
- *  $Date: 2010/01/19 10:05:31 $
- *  $Revision: 1.3 $
  *  \author G. Cerminara - INFN Torino
  */
 

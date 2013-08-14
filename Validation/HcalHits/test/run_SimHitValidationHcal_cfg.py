@@ -45,7 +45,6 @@ process.options = cms.untracked.PSet(
 
 # Production Info
 process.configurationMetadata = cms.untracked.PSet(
-	version = cms.untracked.string('$Revision: 1.1 $'),
 	annotation = cms.untracked.string('Configuration/Generator/python/SinglePiE30HCAL_cfi.py nevts:10000'),
 	name = cms.untracked.string('PyReleaseValidation')
 )

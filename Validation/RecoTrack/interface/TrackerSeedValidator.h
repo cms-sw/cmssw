@@ -4,8 +4,6 @@
 /** \class TrackerSeedValidator
  *  Class that prodecs histrograms to validate Track Reconstruction performances
  *
- *  $Date: 2008/07/04 10:43:37 $
- *  $Revision: 1.4 $
  *  \author cerati
  */
 

@@ -2,7 +2,6 @@
 #include "FWCore/Framework/interface/EventProcessor.h"
 
 #include "DataFormats/Provenance/interface/BranchIDListHelper.h"
-#include "DataFormats/Provenance/interface/EntryDescriptionRegistry.h"
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
 #include "DataFormats/Provenance/interface/ParameterSetID.h"
 #include "DataFormats/Provenance/interface/ParentageRegistry.h"
@@ -292,7 +291,8 @@ namespace edm {
     ModuleDescription md(main_input->id(),
                          main_input->getParameter<std::string>("@module_type"),
                          "source",
-                         processConfiguration.get());
+                         processConfiguration.get(),
+                         ModuleDescription::getUniqueID());
 
     InputSourceDescription isdesc(md, preg, branchIDListHelper, areg, common.maxEventsInput_, common.maxLumisInput_);
     areg->preSourceConstructionSignal_(md);
@@ -565,6 +565,9 @@ namespace edm {
    
     ROOT::Cintex::Cintex::Enable();
 
+    // register the empty parentage vector , once and for all
+    ParentageRegistry::instance()->insertMapped(Parentage());
+
     // register the empty parameter set, once and for all.
     ParameterSet().registerIt();
 
@@ -673,7 +676,6 @@ namespace edm {
     psetRegistry->dataForUpdate().clear();
     psetRegistry->extraForUpdate().setID(ParameterSetID());
 
-    EntryDescriptionRegistry::instance()->dataForUpdate().clear();
     ParentageRegistry::instance()->dataForUpdate().clear();
     ProcessConfigurationRegistry::instance()->dataForUpdate().clear();
     ProcessHistoryRegistry::instance()->dataForUpdate().clear();

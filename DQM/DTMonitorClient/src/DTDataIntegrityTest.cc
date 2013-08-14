@@ -2,8 +2,6 @@
 /*
  * \file DTDataIntegrityTest.cc
  * 
- * $Date: 2011/06/10 13:50:12 $
- * $Revision: 1.38 $
  * \author S. Bolognesi - CERN
  *
  */

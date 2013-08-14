@@ -10,8 +10,6 @@
  *   L2 muon reconstruction
  *
  *
- *   $Date: 2010/02/11 00:14:22 $
- *   $Revision: 1.6 $
  *
  *   \author  A.Everett, R.Bellan
  *

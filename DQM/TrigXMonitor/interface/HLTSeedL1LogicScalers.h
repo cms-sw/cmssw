@@ -13,7 +13,6 @@
 //
 // Original Author:   Vladimir  Rekovic
 //         Created:  Tue Feb  9 15:15:20 CET 2010
-// $Id: HLTSeedL1LogicScalers.h,v 1.3 2010/02/25 17:34:01 wdd Exp $
 //
 //
 

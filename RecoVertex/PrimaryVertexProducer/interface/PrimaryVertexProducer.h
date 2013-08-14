@@ -13,7 +13,6 @@
 //
 // Original Author:  Pascal Vanlaer
 //         Created:  Tue Feb 28 11:06:34 CET 2006
-// $Id: PrimaryVertexProducer.h,v 1.11 2011/09/14 13:36:59 werdmann Exp $
 //
 //
 

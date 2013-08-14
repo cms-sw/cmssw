@@ -1,8 +1,6 @@
 /*
  * \file EECosmicClient.cc
  *
- * $Date: 2011/09/02 13:55:02 $
- * $Revision: 1.74 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *

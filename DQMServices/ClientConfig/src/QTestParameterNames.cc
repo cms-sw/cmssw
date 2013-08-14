@@ -2,8 +2,6 @@
  *
  *  Implementation of QTestParameterNames 
  *
- *  $Date: 2010/03/14 13:07:53 $
- *  $Revision: 1.12 $
  *  \author Ilaria Segoni
  */
  

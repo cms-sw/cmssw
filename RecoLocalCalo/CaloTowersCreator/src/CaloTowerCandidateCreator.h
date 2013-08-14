@@ -8,9 +8,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Revision: 1.4 $
  *
- * $Id: CaloTowerCandidateCreator.h,v 1.4 2006/08/17 15:23:34 mansj Exp $
  *
  */
 #include "FWCore/Framework/interface/EDProducer.h"

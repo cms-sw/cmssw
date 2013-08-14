@@ -3,8 +3,6 @@
  *  Class to load the product in the event
  *
 
- *  $Date: 2012/08/16 16:26:08 $
- *  $Revision: 1.89 $
 
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */

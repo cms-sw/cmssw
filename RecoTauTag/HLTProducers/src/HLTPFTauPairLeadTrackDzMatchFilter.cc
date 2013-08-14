@@ -1,4 +1,3 @@
-// $Id: HLTPFTauPairLeadTrackDzMatchFilter.cc,v 1.2 2012/02/13 18:31:45 mbluj Exp $
 
 #include "HLTPFTauPairLeadTrackDzMatchFilter.h"
 

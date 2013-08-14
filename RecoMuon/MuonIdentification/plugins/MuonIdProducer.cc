@@ -5,7 +5,6 @@
 // 
 //
 // Original Author:  Dmytro Kovalskyi
-// $Id: MuonIdProducer.cc,v 1.73 2013/02/07 00:32:22 bachtis Exp $
 //
 //
 

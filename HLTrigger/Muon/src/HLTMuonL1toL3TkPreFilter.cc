@@ -23,6 +23,8 @@
 #include "DataFormats/MuonSeed/interface/L3MuonTrajectorySeed.h"
 #include "DataFormats/MuonSeed/interface/L3MuonTrajectorySeedCollection.h"
 
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+
 //
 // constructors and destructor
 //
@@ -33,15 +35,18 @@ using namespace trigger;
 
 HLTMuonL1toL3TkPreFilter::HLTMuonL1toL3TkPreFilter(const ParameterSet& iConfig) : HLTFilter(iConfig),
    beamspotTag_   (iConfig.getParameter< edm::InputTag > ("BeamSpotTag")),
+   beamspotToken_ (consumes<reco::BeamSpot>(beamspotTag_)),
    candTag_   (iConfig.getParameter<InputTag > ("CandTag")),
+   candToken_ (consumes<reco::RecoChargedCandidateCollection>(candTag_)),
    previousCandTag_   (iConfig.getParameter<InputTag > ("PreviousCandTag")),
+   previousCandToken_ (consumes<trigger::TriggerFilterObjectWithRefs>(previousCandTag_)),
    min_N_     (iConfig.getParameter<int> ("MinN")),
    max_Eta_   (iConfig.getParameter<double> ("MaxEta")),
    min_Nhits_ (iConfig.getParameter<int> ("MinNhits")),
    max_Dr_    (iConfig.getParameter<double> ("MaxDr")),
    max_Dz_    (iConfig.getParameter<double> ("MaxDz")),
    min_Pt_    (iConfig.getParameter<double> ("MinPt")),
-   nsigma_Pt_  (iConfig.getParameter<double> ("NSigmaPt"))
+   nsigma_Pt_ (iConfig.getParameter<double> ("NSigmaPt"))
 {
 
    LogDebug("HLTMuonL1toL3TkPreFilter")
@@ -66,6 +71,22 @@ HLTMuonL1toL3TkPreFilter::~HLTMuonL1toL3TkPreFilter()
 //
 // member functions
 //
+void
+HLTMuonL1toL3TkPreFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  makeHLTFilterDescription(desc);
+  desc.add<edm::InputTag>("BeamSpotTag",edm::InputTag("hltBeamSpotTag"));
+  desc.add<edm::InputTag>("CandTag",edm::InputTag("hltCandTag"));
+  desc.add<edm::InputTag>("PreviousCandTag",edm::InputTag("hltPreviousCandTag"));
+  desc.add<int>("MinN",0);
+  desc.add<double>("MaxEta",9999.0);
+  desc.add<int>("MinNhits",0);
+  desc.add<double>("MaxDr",9999.0);
+  desc.add<double>("MaxDz",9999.0);
+  desc.add<double>("MinPt",0.0);
+  desc.add<double>("NSigmaPt",9999.0);
+  descriptions.add("hltMuonL1toL3TkPreFilter", desc);
+}
 
 // ------------ method called to produce the data  ------------
 bool
@@ -78,7 +99,7 @@ HLTMuonL1toL3TkPreFilter::hltFilter(Event& iEvent, const EventSetup& iSetup, tri
 
    // get hold of trks
    Handle<RecoChargedCandidateCollection> mucands;
-   iEvent.getByLabel(candTag_,mucands);
+   iEvent.getByToken(candToken_,mucands);
    if (saveTags()) filterproduct.addCollectionTag(candTag_);
    // sort them by L2Track
    std::map<l1extra::L1MuonParticleRef, std::vector<RecoChargedCandidateRef> > L1toL3s;
@@ -93,10 +114,10 @@ HLTMuonL1toL3TkPreFilter::hltFilter(Event& iEvent, const EventSetup& iSetup, tri
 
    // additionnal objects needed
    Handle<TriggerFilterObjectWithRefs> previousLevelCands;
-   iEvent.getByLabel (previousCandTag_,previousLevelCands);
+   iEvent.getByToken(previousCandToken_,previousLevelCands);
    BeamSpot beamSpot;
    Handle<BeamSpot> recoBeamSpotHandle;
-   iEvent.getByLabel(beamspotTag_,recoBeamSpotHandle);
+   iEvent.getByToken(beamspotToken_,recoBeamSpotHandle);
    beamSpot = *recoBeamSpotHandle;
 
 

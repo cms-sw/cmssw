@@ -38,7 +38,6 @@
 //
 // Author:      Chris Jones
 // Created:     Thu Apr  7 07:59:56 CDT 2005
-// $Id: data_default_record_trait.h,v 1.3 2005/07/14 22:50:53 wmtan Exp $
 //
 
 // system include files

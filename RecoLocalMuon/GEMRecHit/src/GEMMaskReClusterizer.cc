@@ -1,7 +1,5 @@
 
 /** \Class GEMMaskReClusterizer
- *  $Date: 2013/04/04 13:35:55 $
- *  $Revision: 1.2 $
  *  \author J.C. Sanabria -- UniAndes, Bogota
  */
 

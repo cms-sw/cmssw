@@ -1,4 +1,3 @@
-// $Id: reftobasevector_t.cppunit.cc,v 1.11.4.1 2008/11/04 19:24:08 wmtan Exp $
 
 #include <algorithm>
 

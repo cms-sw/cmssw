@@ -12,7 +12,6 @@
 //
 // Author:      Chris D. Jones
 // Created:     Sun Sep 20 15:27:25 EDT 1998
-// $Id: HCTypeTag.cc,v 1.2 2010/01/23 02:03:42 chrjones Exp $
 //
 // Revision history
 //

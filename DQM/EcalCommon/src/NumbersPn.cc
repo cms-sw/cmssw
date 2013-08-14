@@ -1,10 +1,7 @@
-// $Id: NumbersPn.cc,v 1.8 2010/08/08 08:16:15 dellaric Exp $
 
 /*!
   \file NumbersPn.cc
   \brief Some "id" conversions
-  \version $Revision: 1.8 $
-  \date $Date: 2010/08/08 08:16:15 $
 */
 
 #include <sstream>

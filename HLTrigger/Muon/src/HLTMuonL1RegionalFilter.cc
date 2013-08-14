@@ -1,3 +1,4 @@
+
 #include "HLTrigger/Muon/interface/HLTMuonL1RegionalFilter.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
@@ -7,10 +8,13 @@
 #include "DataFormats/L1Trigger/interface/L1MuonParticleFwd.h"
 #include "DataFormats/L1GlobalMuonTrigger/interface/L1MuGMTCand.h"
 #include "FWCore/Utilities/interface/EDMException.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 
 HLTMuonL1RegionalFilter::HLTMuonL1RegionalFilter(const edm::ParameterSet& iConfig): HLTFilter(iConfig),
-  candTag_( iConfig.getParameter<edm::InputTag>("CandTag") ),
-  previousCandTag_( iConfig.getParameter<edm::InputTag>("PreviousCandTag") ),
+  candTag_  (iConfig.getParameter<edm::InputTag>("CandTag") ),
+  candToken_(consumes<l1extra::L1MuonParticleCollection>(candTag_)),
+  previousCandTag_  (iConfig.getParameter<edm::InputTag>("PreviousCandTag") ),
+  previousCandToken_(consumes<trigger::TriggerFilterObjectWithRefs>(previousCandTag_)),
   minN_( iConfig.getParameter<int>("MinN") )
 {
   using namespace std;
@@ -82,6 +86,73 @@ HLTMuonL1RegionalFilter::HLTMuonL1RegionalFilter(const edm::ParameterSet& iConfi
 HLTMuonL1RegionalFilter::~HLTMuonL1RegionalFilter(){
 }
 
+void
+HLTMuonL1RegionalFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  makeHLTFilterDescription(desc);
+  desc.add<edm::InputTag>("CandTag",edm::InputTag("hltL1extraParticles"));
+  desc.add<edm::InputTag>("PreviousCandTag",edm::InputTag("hltL1sL1SingleMu20"));
+  desc.add<int>("MinN",1);
+
+  edm::ParameterSetDescription validator;
+  std::vector<edm::ParameterSet> defaults(3);
+
+  std::vector<double> etaRange;
+  double minPt;
+  std::vector<unsigned int> qualityBits;
+
+  etaRange.clear();
+  etaRange.push_back(-2.5);
+  etaRange.push_back(+2.5);
+  minPt=20.0;
+  qualityBits.clear();
+  qualityBits.push_back(6);
+  qualityBits.push_back(7);
+  validator.add<std::vector<double> >("EtaRange",etaRange);
+  validator.add<double>("MinPt",minPt);
+  validator.add<std::vector<unsigned int> >("QualityBits",qualityBits);
+
+
+  etaRange.clear();
+  etaRange.push_back(-2.5);
+  etaRange.push_back(-1.6);
+  minPt=20.0;
+  qualityBits.clear();
+  qualityBits.push_back(6);
+  qualityBits.push_back(7);
+  defaults[0].addParameter<std::vector<double> >("EtaRange",etaRange);
+  defaults[0].addParameter<double>("MinPt",minPt);
+  defaults[0].addParameter<std::vector<unsigned int> >("QualityBits",qualityBits);
+
+
+  etaRange.clear();
+  etaRange.push_back(-1.6);
+  etaRange.push_back(+1.6);
+  minPt=20.0;
+  qualityBits.clear();
+  qualityBits.push_back(7);
+  defaults[1].addParameter<std::vector<double> >("EtaRange",etaRange);
+  defaults[1].addParameter<double>("MinPt",minPt);
+  defaults[1].addParameter<std::vector<unsigned int> >("QualityBits",qualityBits);
+
+
+  etaRange.clear();
+  etaRange.push_back(+1.6);
+  etaRange.push_back(+2.5);
+  minPt=20.0;
+  qualityBits.clear();
+  qualityBits.push_back(6);
+  qualityBits.push_back(7);
+  edm::ParameterSetDescription element2;
+  defaults[2].addParameter<std::vector<double> >("EtaRange",etaRange);
+  defaults[2].addParameter<double>("MinPt",minPt);
+  defaults[2].addParameter<std::vector<unsigned int> >("QualityBits",qualityBits);
+
+  desc.addVPSet("Cuts",validator,defaults);
+
+  descriptions.add("hltMuonL1RegionalFilter", desc);
+}
+
 bool HLTMuonL1RegionalFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct){
   using namespace std;
   using namespace edm;
@@ -94,11 +165,11 @@ bool HLTMuonL1RegionalFilter::hltFilter(edm::Event& iEvent, const edm::EventSetu
 
   // get hold of all muons
   Handle<L1MuonParticleCollection> allMuons;
-  iEvent.getByLabel(candTag_, allMuons);
+  iEvent.getByToken(candToken_, allMuons);
 
   // get hold of muons that fired the previous level
   Handle<TriggerFilterObjectWithRefs> previousLevelCands;
-  iEvent.getByLabel(previousCandTag_, previousLevelCands);
+  iEvent.getByToken(previousCandToken_, previousLevelCands);
   vector<L1MuonParticleRef> prevMuons;
   previousLevelCands->getObjects(TriggerL1Mu, prevMuons);
    

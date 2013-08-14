@@ -200,7 +200,7 @@ void testGenericHandle::getbyLabelTest() {
 
     edm::ParameterSet pset;
     pset.registerIt();
-    edm::ModuleDescription modDesc(pset.id(), "Blah", "blahs", processConfiguration.get());
+    edm::ModuleDescription modDesc(pset.id(), "Blah", "blahs", processConfiguration.get(),edm::ModuleDescription::getUniqueID());
     edm::Event event(ep, modDesc, nullptr);
 
     event.getByLabel(label, productInstanceName,h);

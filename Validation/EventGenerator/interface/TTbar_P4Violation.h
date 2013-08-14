@@ -13,7 +13,6 @@
 //
 // Original Author:  Martijn Gosselink,,,
 //         Created:  Fri Jan 20 12:52:00 CET 2012
-// $Id: TTbar_P4Violation.h,v 1.3 2013/03/06 16:40:19 inugent Exp $
 //
 //
 // Added to: Validation/EventGenerator by Ian M. Nugent June 28, 2012

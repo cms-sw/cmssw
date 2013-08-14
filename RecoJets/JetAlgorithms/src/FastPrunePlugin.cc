@@ -1,4 +1,3 @@
-// $Id: FastPrunePlugin.cc 984 2010-12-20 22:35:41Z verm $
 ///////////////////////////////////////////////////////////////////////////////
 //
 // Implements the FastPrunePlugin class.  See FastPrunePlugin.hh for a

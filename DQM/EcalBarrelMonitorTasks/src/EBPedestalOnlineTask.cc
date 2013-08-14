@@ -1,8 +1,6 @@
 /*
  * \file EBPedestalOnlineTask.cc
  *
- * $Date: 2012/04/27 13:46:02 $
- * $Revision: 1.50 $
  * \author G. Della Ricca
  *
 */

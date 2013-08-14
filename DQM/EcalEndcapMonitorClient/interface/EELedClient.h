@@ -4,8 +4,6 @@
 /*
  * \file EELedClient.h
  *
- * $Date: 2010/03/04 13:56:00 $
- * $Revision: 1.38 $
  * \author G. Della Ricca
  *
 */

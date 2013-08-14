@@ -1,8 +1,6 @@
 /** \class MuonProducer
  *  See header file.
  *
- *  $Date: 2012/12/01 16:05:46 $
- *  $Revision: 1.17 $
  *  \author R. Bellan - UCSB <riccardo.bellan@cern.ch>
  */
 

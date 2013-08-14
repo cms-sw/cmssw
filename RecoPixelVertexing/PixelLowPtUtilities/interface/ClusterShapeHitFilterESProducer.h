@@ -18,7 +18,6 @@
 //
 // Original Author:  Jean-Roch Vlimant
 //         Created:  Fri Sep 28 18:07:52 CEST 2007
-// $Id: ClusterShapeHitFilterESProducer.h,v 1.2 2009/04/22 17:56:57 vlimant Exp $
 //
 //
 

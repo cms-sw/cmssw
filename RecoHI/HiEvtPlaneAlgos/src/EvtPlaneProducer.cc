@@ -13,7 +13,6 @@ Implementation:
 //
 // Original Author:  Sergey Petrushanko
 //         Created:  Fri Jul 11 10:05:00 2008
-// $Id: EvtPlaneProducer.cc,v 1.20 2012/02/15 10:33:36 eulisse Exp $
 //
 //
 #define TRACKCOLLECTION 1

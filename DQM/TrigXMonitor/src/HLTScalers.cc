@@ -1,6 +1,4 @@
-// $Id: HLTScalers.cc,v 1.30 2011/03/30 21:44:03 fwyzard Exp $
 // 
-// $Log: HLTScalers.cc,v $
 // Revision 1.30  2011/03/30 21:44:03  fwyzard
 // make sure HLTConfigProvider is used only if succesfully initialized
 //

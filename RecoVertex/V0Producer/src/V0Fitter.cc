@@ -13,7 +13,6 @@
 //
 // Original Author:  Brian Drell
 //         Created:  Fri May 18 22:57:40 CEST 2007
-// $Id: V0Fitter.cc,v 1.56 2011/12/23 08:13:39 innocent Exp $
 //
 //
 

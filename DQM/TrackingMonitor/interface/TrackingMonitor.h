@@ -10,7 +10,6 @@ Monitoring source for general quantities related to tracks.
 */
 // Original Author:  Suchandra Dutta, Giorgia Mila
 //         Created:  Thu 28 22:45:30 CEST 2008
-// $Id: TrackingMonitor.h,v 1.7 2012/10/15 13:24:45 threus Exp $
 
 #include <memory>
 #include <fstream>

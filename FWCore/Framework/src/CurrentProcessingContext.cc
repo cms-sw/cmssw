@@ -2,6 +2,8 @@
 
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
 
+#include <cassert>
+
 namespace edm {
   CurrentProcessingContext::CurrentProcessingContext() :
     pathInSchedule_(0),

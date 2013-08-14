@@ -5,8 +5,6 @@
  * \file HcalMonitorModule.h
  *
 
- * $Date: 2010/03/03 11:26:03 $
- * $Revision: 1.7.2.4 $
  * \author J. Temple
  *
 */

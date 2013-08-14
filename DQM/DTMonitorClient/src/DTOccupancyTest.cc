@@ -3,8 +3,6 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2010/07/20 02:58:23 $
- *  $Revision: 1.16 $
  *  \author G. Cerminara - University and INFN Torino
  */
 

@@ -6,8 +6,6 @@
  * Simple eta-phi cell identifier, mimic calorimetric tower structure
  * phi is stored in radians 
  *
- * $Date: 2010/05/25 16:50:50 $
- * $Revision: 1.1 $
  *
  */
 

@@ -1,12 +1,8 @@
 /*
  * \file L1TDTTPG.cc
  *
- * $Date: 2008/03/20 19:38:25 $
- * $Revision: 1.20 $
  * \author J. Berryhill
  *
- * $Log: L1TDTTPG.cc,v $
- * Revision 1.20  2008/03/20 19:38:25  berryhil
  *
  *
  * organized message logger
@@ -29,8 +25,6 @@
  * Revision 1.16  2008/03/01 00:40:00  lat
  * DQM core migration.
  *
- * $Log: L1TDTTPG.cc,v $
- * Revision 1.20  2008/03/20 19:38:25  berryhil
  *
  *
  * organized message logger

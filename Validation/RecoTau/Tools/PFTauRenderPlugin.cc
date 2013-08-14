@@ -2,8 +2,6 @@
   \file PFTauRenderPlugin
   \brief Display Plugin for Pixel DQM Histograms
   \author P.Merkel
-  \version $Revision: 1.48 $
-  \date $Date: 2011/09/09 11:53:43 $
 */
 
 #include "DQM/DQMRenderPlugin.h"

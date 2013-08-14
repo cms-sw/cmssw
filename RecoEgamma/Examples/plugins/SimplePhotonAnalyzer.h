@@ -3,8 +3,6 @@
 /**\class SimplePhotonAnalyzer
  **
  ** Description: Get Photon collection from the event and make very basic histos
- ** $Date: 2009/03/06 12:42:16 $
- ** $Revision: 1.10 $
  ** \author Nancy Marinelli, U. of Notre Dame, US
  **
  **/

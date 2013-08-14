@@ -3,9 +3,6 @@
 /** \class PhotonEnergyCorrector
  **  
  **
- **  $Id: PhotonEnergyCorrector.h,v 1.6 2012/02/14 14:33:43 nancy Exp $ 
- **  $Date: 2012/02/14 14:33:43 $ 
- **  $Revision: 1.6 $
  **  \author Nancy Marinelli, U. of Notre Dame, US
  **
  ***/

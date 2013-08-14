@@ -8,7 +8,6 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Apr  4 13:38:29 EDT 2007
-// $Id: cacheparser_t.cc,v 1.2 2007/04/12 12:51:13 wmtan Exp $
 //
 
 // system include files
