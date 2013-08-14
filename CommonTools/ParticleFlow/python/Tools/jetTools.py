@@ -19,5 +19,5 @@ def jetAlgo( algo ):
         
     jetAlgo.src = 'pfNoElectronJME'
     jetAlgo.doPVCorrection = True
-    jetalgo.srcPVs = cms.InputTag("goodOfflinePrimaryVertices")
+    jetAlgo.srcPVs = cms.InputTag("goodOfflinePrimaryVertices")
     return jetAlgo    
