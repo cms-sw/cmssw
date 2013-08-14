@@ -36,11 +36,3 @@ isME42RPCEtaRegion(float eta)
 }
 
 #endif
-
-
-
-
-
-
-
-
