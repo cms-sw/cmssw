@@ -30,7 +30,7 @@ namespace pat {
       ~CandidateSummaryTable();  
 
       virtual void analyze(const edm::Event & iEvent, const edm::EventSetup& iSetup) override;
-      virtual void endJob();
+      virtual void endJob() override;
 
     private:
       struct Record {
