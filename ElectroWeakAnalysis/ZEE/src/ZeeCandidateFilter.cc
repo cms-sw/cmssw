@@ -108,9 +108,9 @@ public:
 
 private:
 
-    virtual Bool_t filter(edm::Event&, const edm::EventSetup&);
+    virtual Bool_t filter(edm::Event&, const edm::EventSetup&) override;
 
-    virtual void endJob() ;
+    virtual void endJob() override ;
 
     Bool_t isInFiducial(Double_t eta);
 
