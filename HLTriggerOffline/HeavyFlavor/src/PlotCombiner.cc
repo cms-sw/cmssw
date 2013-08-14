@@ -19,8 +19,8 @@ class PlotCombiner : public edm::EDAnalyzer{
   public:
     PlotCombiner(const edm::ParameterSet& pset);
     virtual ~PlotCombiner();
-    virtual void analyze(const edm::Event& event, const edm::EventSetup& eventSetup) {};
-    virtual void endRun(const edm::Run &, const edm::EventSetup &);
+    virtual void analyze(const edm::Event& event, const edm::EventSetup& eventSetup) override {};
+    virtual void endRun(const edm::Run &, const edm::EventSetup &) override;
   private:
     void makePlot(const ParameterSet& pset);
     DQMStore * dqmStore;
