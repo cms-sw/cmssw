@@ -43,9 +43,9 @@ public:
   ~NeutronHitsCollector() {};
 
 private:
-  virtual void beginJob();
-  virtual void produce(edm::Event&, const edm::EventSetup&);
-  virtual void endJob();
+  virtual void beginJob() override;
+  virtual void produce(edm::Event&, const edm::EventSetup&) override;
+  virtual void endJob() override;
 
   std::string neutron_label_csc;
   std::string neutron_label_dt;
