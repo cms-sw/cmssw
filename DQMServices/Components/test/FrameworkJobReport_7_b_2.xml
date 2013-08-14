@@ -818,7 +818,7 @@
   <Branch>recoElectrons_hltPixelMatchElectronsActivity__HLT.</Branch>
   <Branch>recoElectrons_hltPixelMatchElectronsL1Seeded__HLT.</Branch>
   <Branch>recoGenJets_ak4GenJets__SIM.</Branch>
-  <Branch>recoGenJets_ak7GenJets__SIM.</Branch>
+  <Branch>recoGenJets_ak8GenJets__SIM.</Branch>
   <Branch>recoGenJets_iterativeCone5GenJets__SIM.</Branch>
   <Branch>recoGenJets_kt4GenJets__SIM.</Branch>
   <Branch>recoGenJets_kt6GenJets__SIM.</Branch>
@@ -2588,7 +2588,7 @@
 <Branch Name="l1extraL1MuonParticles_hltL1extraParticles__HLT." ReadCount="1" />
 <Branch Name="recoCaloMETs_hltMet__HLT." ReadCount="1" />
 <Branch Name="recoGenJets_ak4GenJets__SIM." ReadCount="1" />
-<Branch Name="recoGenJets_ak7GenJets__SIM." ReadCount="1" />
+<Branch Name="recoGenJets_ak8GenJets__SIM." ReadCount="1" />
 <Branch Name="recoGenJets_iterativeCone5GenJets__SIM." ReadCount="1" />
 <Branch Name="recoGenJets_kt4GenJets__SIM." ReadCount="1" />
 <Branch Name="recoGenJets_kt6GenJets__SIM." ReadCount="1" />
@@ -2703,7 +2703,7 @@
 <Branch Name="l1extraL1MuonParticles_hltL1extraParticles__HLT." ReadCount="1" />
 <Branch Name="recoCaloMETs_hltMet__HLT." ReadCount="1" />
 <Branch Name="recoGenJets_ak4GenJets__SIM." ReadCount="1" />
-<Branch Name="recoGenJets_ak7GenJets__SIM." ReadCount="1" />
+<Branch Name="recoGenJets_ak8GenJets__SIM." ReadCount="1" />
 <Branch Name="recoGenJets_iterativeCone5GenJets__SIM." ReadCount="1" />
 <Branch Name="recoGenJets_kt4GenJets__SIM." ReadCount="1" />
 <Branch Name="recoGenJets_kt6GenJets__SIM." ReadCount="1" />

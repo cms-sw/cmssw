@@ -28,6 +28,6 @@ ak8BasicJets = cms.EDProducer(
        GhostArea = cms.double(0.01),
        Ghost_EtaMax = cms.double(5.0),
     jetAlgorithm = cms.string("AntiKt"),
-    rParam       = cms.double(0.7)
+    rParam       = cms.double(0.8)
     )
 

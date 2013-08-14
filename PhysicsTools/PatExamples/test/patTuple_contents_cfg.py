@@ -22,7 +22,7 @@ from PhysicsTools.PatAlgos.patTemplate_cfg import *
 #            event content
 # ----------------------------------------------------
 #from PhysicsTools.PatAlgos.tools.jetTools import *
-#addJetCollection(process,cms.InputTag('ak7CaloJets'),
+#addJetCollection(process,cms.InputTag('ak8CaloJets'),
 #                 'AK7', 'Calo',
 #                 doJTA        = True,
 #                 doBTagging   = False,
@@ -30,9 +30,9 @@ from PhysicsTools.PatAlgos.patTemplate_cfg import *
 #                 doType1MET   = True,
 #                 doL1Cleaning = True,                 
 #                 doL1Counters = False,
-#                 genJetCollection=cms.InputTag("ak7GenJets"),
+#                 genJetCollection=cms.InputTag("ak8GenJets"),
 #                 doJetID      = True,
-#                 jetIdLabel   = "ak7"
+#                 jetIdLabel   = "ak8"
 #                 )
 #addJetCollection(process,cms.InputTag('ic5CaloJets'),
 #                 'IC5', 'Calo',

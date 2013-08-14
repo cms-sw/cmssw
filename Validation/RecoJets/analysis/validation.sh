@@ -22,8 +22,8 @@ if [ -n $title ]; then
     if [ -e $reference ]; then
 	if [ -e $new ]; then
 
-	    TAG=(PFJetTask_kt6PFJets CaloJetTask_kt6CaloJets CaloJetTask_ak4CaloJets CaloJetTask_ak7CaloJets PFJetTask_ak4PFJets JPTJetTask_JetPlusTrackZSPCorJetAntiKt5)
-	    TAGREF=(PFJetTask_kt6PFJets CaloJetTask_kt6CaloJets CaloJetTask_ak4CaloJets CaloJetTask_ak7CaloJets PFJetTask_ak4PFJets JPTJetTask_JetPlusTrackZSPCorJetAntiKt5)
+	    TAG=(PFJetTask_kt6PFJets CaloJetTask_kt6CaloJets CaloJetTask_ak4CaloJets CaloJetTask_ak8CaloJets PFJetTask_ak4PFJets JPTJetTask_JetPlusTrackZSPCorJetAntiKt5)
+	    TAGREF=(PFJetTask_kt6PFJets CaloJetTask_kt6CaloJets CaloJetTask_ak4CaloJets CaloJetTask_ak8CaloJets PFJetTask_ak4PFJets JPTJetTask_JetPlusTrackZSPCorJetAntiKt5)
 	    FOLDER=(PFlowKt6 kt6 AntiKt5 AntiKt7 PFlowAntiKt5 JPTAntiKt5)
 	    ntag=${#TAG[@]}
 	    echo "Number of module tags: " $ntag

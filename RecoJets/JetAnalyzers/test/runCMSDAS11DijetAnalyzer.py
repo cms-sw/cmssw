@@ -167,9 +167,9 @@ process.load("JetMETCorrections.Configuration.DefaultJEC_cff")
 
 #############   Correct Calo Jets on the fly #########
 process.dijetAna = cms.EDAnalyzer("CMSDAS11DijetAnalyzer",
-                                  jetSrc = cms.InputTag("ak7CaloJets"),
+                                  jetSrc = cms.InputTag("ak8CaloJets"),
                                   vertexSrc = cms.InputTag("offlinePrimaryVertices"),
-                                  jetCorrections = cms.string("ak7CaloL2L3Residual"),
+                                  jetCorrections = cms.string("ak8CaloL2L3Residual"),
                                   innerDeltaEta = cms.double(0.7),
                                   outerDeltaEta = cms.double(1.3),
                                   JESbias = cms.double(1.0)

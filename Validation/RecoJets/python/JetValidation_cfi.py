@@ -81,8 +81,8 @@ JetAnalyzerAk5Calo = cms.EDAnalyzer("CaloJetTester",
 # AntiKt7 jets
                                     
 JetAnalyzerAk7Calo = cms.EDAnalyzer("CaloJetTester",
-    src = cms.InputTag("ak7CaloJets"),
-    srcGen = cms.InputTag("ak7GenJets"),
+    src = cms.InputTag("ak8CaloJets"),
+    srcGen = cms.InputTag("ak8GenJets"),
     JetCorrectionService = cms.string('newAk7CaloL2L3'),
 #    TurnOnEverything = cms.untracked.string('yes'),
 #    TurnOnEverything = cms.untracked.string('no'),

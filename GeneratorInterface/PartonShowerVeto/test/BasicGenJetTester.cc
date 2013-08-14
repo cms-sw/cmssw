@@ -91,15 +91,15 @@ void BasicGenJetTester::analyze( const Event& e, const EventSetup& )
    // here's an example of accessing GenJetCollection
    //
    Handle< GenJetCollection > ak4GenJetHandle ;
-   Handle< GenJetCollection > ak7GenJetHandle ;
+   Handle< GenJetCollection > ak8GenJetHandle ;
   
    // find initial (unsmeared, unfiltered,...) HepMCProduct
    //
    e.getByLabel( "ak4GenJets", ak4GenJetHandle ) ;
-   // e.getByLabel( "ak7GenJets", ak7GenJetHandle ) ;
+   // e.getByLabel( "ak8GenJets", ak8GenJetHandle ) ;
      
    int NGenJets5 = ak4GenJetHandle->size();
-   // int NGenJets7 = ak7GenJetHandle->size();
+   // int NGenJets7 = ak8GenJetHandle->size();
   
    if ( NGenJets5 <= 0 ) return;
    

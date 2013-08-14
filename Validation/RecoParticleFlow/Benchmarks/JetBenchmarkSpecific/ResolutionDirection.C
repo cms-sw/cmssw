@@ -8,11 +8,11 @@ void ResolutionDirection(bool barrel, const char* input, const char* output, con
   
   //filePF->cd("DQMData/PFTask/Benchmarks/iterativeCone5PFJets/Gen");
   TH2F* etaPF2 = barrel ? 
-    (TH2F*) filePF->Get("DQMData/PFTask/Benchmarks/ak5PFJets/Gen/BDEtavsPt") : 
-    (TH2F*) filePF->Get("DQMData/PFTask/Benchmarks/ak5PFJets/Gen/EDEtavsPt");
+    (TH2F*) filePF->Get("DQMData/PFTask/Benchmarks/ak4PFJets/Gen/BDEtavsPt") : 
+    (TH2F*) filePF->Get("DQMData/PFTask/Benchmarks/ak4PFJets/Gen/EDEtavsPt");
   TH2F* phiPF2 = barrel ? 
-    (TH2F*) filePF->Get("DQMData/PFTask/Benchmarks/ak5PFJets/Gen/BDPhivsPt") : 
-    (TH2F*) filePF->Get("DQMData/PFTask/Benchmarks/ak5PFJets/Gen/EDPhivsPt");
+    (TH2F*) filePF->Get("DQMData/PFTask/Benchmarks/ak4PFJets/Gen/BDPhivsPt") : 
+    (TH2F*) filePF->Get("DQMData/PFTask/Benchmarks/ak4PFJets/Gen/EDPhivsPt");
 
   gStyle->SetOptStat(0);
   TCanvas *c = new TCanvas("c","",800, 1000);

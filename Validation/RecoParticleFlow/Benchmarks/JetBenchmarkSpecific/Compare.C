@@ -6,12 +6,12 @@ void PlotHisto(char* hname, TFile* f1, TFile* f2, unsigned algo1=0, unsigned alg
   if ( algo1 == 1 ) 
     f1->cd("DQMData/PFTask/Benchmarks/iterativeCone5PFJets/Gen"); 
   else if ( algo1 == 0 ) 
-    f1->cd("DQMData/PFTask/Benchmarks/ak5PFJets/Gen"); 
+    f1->cd("DQMData/PFTask/Benchmarks/ak4PFJets/Gen"); 
   TH1F* h1 = (TH1F*) gDirectory->Get(hname);
   if ( algo2 == 1 ) 
     f2->cd("DQMData/PFTask/Benchmarks/iterativeCone5PFJets/Gen"); 
   else if ( algo2 == 0 ) 
-    f2->cd("DQMData/PFTask/Benchmarks/ak5PFJets/Gen"); 
+    f2->cd("DQMData/PFTask/Benchmarks/ak4PFJets/Gen"); 
   TH1F* h2 = (TH1F*) gDirectory->Get(hname);
   h1->SetTitle(hname);
   h1->SetStats(0);

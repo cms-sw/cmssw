@@ -125,9 +125,9 @@ class AddJetCollection(ConfigToolBase):
         ## determine jet algorithm from jetSource; supported algo types
         ## are ak, kt, sc, ic. This loop expects that the algo type is
         ## followed by a single integer corresponding to the opening
-        ## angle parameter dR times 10 (examples ak5, kt4, kt6, ...)
+        ## angle parameter dR times 10 (examples ak4, kt4, kt6, ...)
         _algo=algo
-	#jetSource=cms.InputTag("ak5PFJets")
+	#jetSource=cms.InputTag("ak4PFJets")
         for x in ["ak", "kt", "sc", "ic"]:
             if jetSource.getModuleLabel().lower().find(x)>-1:
                 _algo=jetSource.getModuleLabel()[jetSource.getModuleLabel().lower().find(x):jetSource.getModuleLabel().lower().find(x)+3]
@@ -198,12 +198,12 @@ class AddJetCollection(ConfigToolBase):
         ## add jetTrackAssociation for btagging (or jetTracksAssociation only) if required by user
         if (jetTrackAssociation or bTagging):
             ## add new jetTracksAssociationAtVertex to process
-            from RecoJets.JetAssociationProducers.ak5JTA_cff import ak5JetTracksAssociatorAtVertex
+            from RecoJets.JetAssociationProducers.ak4JTA_cff import ak4JetTracksAssociatorAtVertex
             if 'jetTracksAssociationAtVertex'+_labelName+postfix in knownModules :
                 _newJetTracksAssociationAtVertex=getattr(process, 'jetTracksAssociatorAtVertex'+_labelName+postfix)
                 _newJetTracksAssociationAtVertex.jets=jetSource
             else:
-                setattr(process, 'jetTracksAssociatorAtVertex'+_labelName+postfix, ak5JetTracksAssociatorAtVertex.clone(jets=jetSource))
+                setattr(process, 'jetTracksAssociatorAtVertex'+_labelName+postfix, ak4JetTracksAssociatorAtVertex.clone(jets=jetSource))
                 knownModules.append('jetTracksAssociationAtVertex'+_labelName+postfix)
             ## add new patJetCharge to process
             from PhysicsTools.PatAlgos.recoLayer0.jetTracksCharge_cff import patJetCharge
@@ -368,17 +368,17 @@ class AddJetCollection(ConfigToolBase):
                     raise ValueError, "In addJecCollection: MET(type1) corrections are not supported for JPTJets. Please set the MET-LABEL to \"None\" (as string in quatiation \
                     marks) and use raw tcMET together with JPTJets."
                 ## set up jet correctors for MET corrections
-                from JetMETCorrections.Configuration.JetCorrectionServicesAllAlgos_cff import ak5PFL1Fastjet
-                from JetMETCorrections.Configuration.JetCorrectionServicesAllAlgos_cff import ak5PFL1Offset
-                from JetMETCorrections.Configuration.JetCorrectionServicesAllAlgos_cff import ak5PFL2Relative
-                from JetMETCorrections.Configuration.JetCorrectionServicesAllAlgos_cff import ak5PFL3Absolute
-                from JetMETCorrections.Configuration.JetCorrectionServicesAllAlgos_cff import ak5PFResidual
+                from JetMETCorrections.Configuration.JetCorrectionServicesAllAlgos_cff import ak4PFL1Fastjet
+                from JetMETCorrections.Configuration.JetCorrectionServicesAllAlgos_cff import ak4PFL1Offset
+                from JetMETCorrections.Configuration.JetCorrectionServicesAllAlgos_cff import ak4PFL2Relative
+                from JetMETCorrections.Configuration.JetCorrectionServicesAllAlgos_cff import ak4PFL3Absolute
+                from JetMETCorrections.Configuration.JetCorrectionServicesAllAlgos_cff import ak4PFResidual
 
-                setattr(process, jetCorrections[0]+'L1FastJet', ak5PFL1Fastjet.clone(algorithm=jetCorrections[0], srcRho=cms.InputTag('kt6'+_type+'Jets','rho')))
-                setattr(process, jetCorrections[0]+'L1Offset', ak5PFL1Offset.clone(algorithm=jetCorrections[0]))
-                setattr(process, jetCorrections[0]+'L2Relative', ak5PFL2Relative.clone(algorithm=jetCorrections[0]))
-                setattr(process, jetCorrections[0]+'L3Absolute', ak5PFL3Absolute.clone(algorithm=jetCorrections[0]))
-                setattr(process, jetCorrections[0]+'L2L3Residual', ak5PFResidual.clone(algorithm=jetCorrections[0]))
+                setattr(process, jetCorrections[0]+'L1FastJet', ak4PFL1Fastjet.clone(algorithm=jetCorrections[0], srcRho=cms.InputTag('kt6'+_type+'Jets','rho')))
+                setattr(process, jetCorrections[0]+'L1Offset', ak4PFL1Offset.clone(algorithm=jetCorrections[0]))
+                setattr(process, jetCorrections[0]+'L2Relative', ak4PFL2Relative.clone(algorithm=jetCorrections[0]))
+                setattr(process, jetCorrections[0]+'L3Absolute', ak4PFL3Absolute.clone(algorithm=jetCorrections[0]))
+                setattr(process, jetCorrections[0]+'L2L3Residual', ak4PFResidual.clone(algorithm=jetCorrections[0]))
                 setattr(process, jetCorrections[0]+'CombinedCorrector', cms.ESProducer( 'JetCorrectionESChain', correctors = cms.vstring()))
                 for x in jetCorrections[1]:
                     if x != 'L1FastJet' and x != 'L1Offset' and x != 'L2Relative' and x != 'L3Absolute' and x != 'L2L3Residual':
@@ -571,8 +571,8 @@ class AddJetID(ConfigToolBase):
         print "Making new jet ID label with label " + jetIdTag
 
         ## replace jet id sequence
-        process.load("RecoJets.JetProducers.ak5JetID_cfi")
-        setattr( process, jetIdLabel, process.ak5JetID.clone(src = jetSrc))
+        process.load("RecoJets.JetProducers.ak4JetID_cfi")
+        setattr( process, jetIdLabel, process.ak4JetID.clone(src = jetSrc))
 
 
 addJetID=AddJetID()

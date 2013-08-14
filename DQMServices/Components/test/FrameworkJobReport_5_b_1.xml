@@ -138,12 +138,12 @@
   <Branch>double_ak4PFJets_sigma_RECO.</Branch>
   <Branch>double_ak4TrackJets_rho_RECO.</Branch>
   <Branch>double_ak4TrackJets_sigma_RECO.</Branch>
-  <Branch>double_ak7BasicJets_rho_RECO.</Branch>
-  <Branch>double_ak7BasicJets_sigma_RECO.</Branch>
-  <Branch>double_ak7CaloJets_rho_RECO.</Branch>
-  <Branch>double_ak7CaloJets_sigma_RECO.</Branch>
-  <Branch>double_ak7PFJets_rho_RECO.</Branch>
-  <Branch>double_ak7PFJets_sigma_RECO.</Branch>
+  <Branch>double_ak8BasicJets_rho_RECO.</Branch>
+  <Branch>double_ak8BasicJets_sigma_RECO.</Branch>
+  <Branch>double_ak8CaloJets_rho_RECO.</Branch>
+  <Branch>double_ak8CaloJets_sigma_RECO.</Branch>
+  <Branch>double_ak8PFJets_rho_RECO.</Branch>
+  <Branch>double_ak8PFJets_sigma_RECO.</Branch>
   <Branch>double_fixedGridRhoAll__RECO.</Branch>
   <Branch>double_fixedGridRhoFastjetAll__RECO.</Branch>
   <Branch>double_iterativeCone5CaloJets_rho_RECO.</Branch>
@@ -184,12 +184,12 @@
   <Branch>doubles_ak4PFJets_sigmas_RECO.</Branch>
   <Branch>doubles_ak4TrackJets_rhos_RECO.</Branch>
   <Branch>doubles_ak4TrackJets_sigmas_RECO.</Branch>
-  <Branch>doubles_ak7BasicJets_rhos_RECO.</Branch>
-  <Branch>doubles_ak7BasicJets_sigmas_RECO.</Branch>
-  <Branch>doubles_ak7CaloJets_rhos_RECO.</Branch>
-  <Branch>doubles_ak7CaloJets_sigmas_RECO.</Branch>
-  <Branch>doubles_ak7PFJets_rhos_RECO.</Branch>
-  <Branch>doubles_ak7PFJets_sigmas_RECO.</Branch>
+  <Branch>doubles_ak8BasicJets_rhos_RECO.</Branch>
+  <Branch>doubles_ak8BasicJets_sigmas_RECO.</Branch>
+  <Branch>doubles_ak8CaloJets_rhos_RECO.</Branch>
+  <Branch>doubles_ak8CaloJets_sigmas_RECO.</Branch>
+  <Branch>doubles_ak8PFJets_rhos_RECO.</Branch>
+  <Branch>doubles_ak8PFJets_sigmas_RECO.</Branch>
   <Branch>doubles_iterativeCone5CaloJets_rhos_RECO.</Branch>
   <Branch>doubles_iterativeCone5CaloJets_sigmas_RECO.</Branch>
   <Branch>doubles_iterativeCone5PFJets_rhos_RECO.</Branch>
@@ -216,7 +216,7 @@
   <Branch>floatedmValueMap_pfElectronTranslator_pf_RECO.</Branch>
   <Branch>floatedmValueMap_softElectronCands__RECO.</Branch>
   <Branch>ints_genParticles__HLT.</Branch>
-  <Branch>recoBasicJets_ak7BasicJets__RECO.</Branch>
+  <Branch>recoBasicJets_ak8BasicJets__RECO.</Branch>
   <Branch>recoBeamHaloSummary_BeamHaloSummary__RECO.</Branch>
   <Branch>recoBeamSpot_offlineBeamSpot__RECO.</Branch>
   <Branch>recoCSCHaloData_CSCHaloData__RECO.</Branch>
@@ -228,7 +228,7 @@
   <Branch>recoCaloClusters_pfElectronTranslator_pf_RECO.</Branch>
   <Branch>recoCaloClusters_pfPhotonTranslator_pfphot_RECO.</Branch>
   <Branch>recoCaloJets_ak4CaloJets__RECO.</Branch>
-  <Branch>recoCaloJets_ak7CaloJets__RECO.</Branch>
+  <Branch>recoCaloJets_ak8CaloJets__RECO.</Branch>
   <Branch>recoCaloJets_iterativeCone5CaloJets__RECO.</Branch>
   <Branch>recoCaloJets_kt4CaloJets__RECO.</Branch>
   <Branch>recoCaloJets_kt6CaloJets__RECO.</Branch>
@@ -251,7 +251,7 @@
   <Branch>recoCaloTauDiscriminator_caloRecoTauDiscriminationByTrackIsolation__RECO.</Branch>
   <Branch>recoCaloTauTagInfos_caloRecoTauTagInfoProducer__RECO.</Branch>
   <Branch>recoCaloTaus_caloRecoTauProducer__RECO.</Branch>
-  <Branch>recoCastorJetIDedmValueMap_ak7CastorJetID__RECO.</Branch>
+  <Branch>recoCastorJetIDedmValueMap_ak8CastorJetID__RECO.</Branch>
   <Branch>recoCastorTowers_CastorTowerReco__RECO.</Branch>
   <Branch>recoConversions_allConversions__RECO.</Branch>
   <Branch>recoConversions_conversions__RECO.</Branch>
@@ -263,7 +263,7 @@
   <Branch>recoEcalHaloData_EcalHaloData__RECO.</Branch>
   <Branch>recoElectronSeeds_electronMergedSeeds__RECO.</Branch>
   <Branch>recoGenJets_ak4GenJets__HLT.</Branch>
-  <Branch>recoGenJets_ak7GenJets__HLT.</Branch>
+  <Branch>recoGenJets_ak8GenJets__HLT.</Branch>
   <Branch>recoGenJets_iterativeCone5GenJets__HLT.</Branch>
   <Branch>recoGenJets_kt4GenJets__HLT.</Branch>
   <Branch>recoGenJets_kt6GenJets__HLT.</Branch>
@@ -296,7 +296,7 @@
   <Branch>recoJPTJets_JetPlusTrackZSPCorJetAntiKt5__RECO.</Branch>
   <Branch>recoJPTJets_TCTauJetPlusTrackZSPCorJetAntiKt5__RECO.</Branch>
   <Branch>recoJetIDedmValueMap_ak4JetID__RECO.</Branch>
-  <Branch>recoJetIDedmValueMap_ak7JetID__RECO.</Branch>
+  <Branch>recoJetIDedmValueMap_ak8JetID__RECO.</Branch>
   <Branch>recoJetIDedmValueMap_ic5JetID__RECO.</Branch>
   <Branch>recoJetIDedmValueMap_kt4JetID__RECO.</Branch>
   <Branch>recoJetIDedmValueMap_kt6JetID__RECO.</Branch>
@@ -316,13 +316,13 @@
   <Branch>recoJetedmRefToBaseProdTofloatsAssociationVector_trackCountingHighEffBJetTags__RECO.</Branch>
   <Branch>recoJetedmRefToBaseProdTofloatsAssociationVector_trackCountingHighPurBJetTags__RECO.</Branch>
   <Branch>recoJetedmRefToBaseProdTorecoJetExtendedAssociationJetExtendedDatasAssociationVector_ak4JetExtender__RECO.</Branch>
-  <Branch>recoJetedmRefToBaseProdTorecoJetExtendedAssociationJetExtendedDatasAssociationVector_ak7JetExtender__RECO.</Branch>
+  <Branch>recoJetedmRefToBaseProdTorecoJetExtendedAssociationJetExtendedDatasAssociationVector_ak8JetExtender__RECO.</Branch>
   <Branch>recoJetedmRefToBaseProdTorecoJetExtendedAssociationJetExtendedDatasAssociationVector_iterativeCone5JetExtender__RECO.</Branch>
   <Branch>recoJetedmRefToBaseProdTorecoJetExtendedAssociationJetExtendedDatasAssociationVector_kt4JetExtender__RECO.</Branch>
   <Branch>recoJetedmRefToBaseProdrecoTracksrecoTrackrecoTracksTorecoTrackedmrefhelperFindUsingAdvanceedmRefVectorsAssociationVector_ak4JetTracksAssociatorAtCaloFace__RECO.</Branch>
   <Branch>recoJetedmRefToBaseProdrecoTracksrecoTrackrecoTracksTorecoTrackedmrefhelperFindUsingAdvanceedmRefVectorsAssociationVector_ak4JetTracksAssociatorAtVertex__RECO.</Branch>
-  <Branch>recoJetedmRefToBaseProdrecoTracksrecoTrackrecoTracksTorecoTrackedmrefhelperFindUsingAdvanceedmRefVectorsAssociationVector_ak7JetTracksAssociatorAtCaloFace__RECO.</Branch>
-  <Branch>recoJetedmRefToBaseProdrecoTracksrecoTrackrecoTracksTorecoTrackedmrefhelperFindUsingAdvanceedmRefVectorsAssociationVector_ak7JetTracksAssociatorAtVertex__RECO.</Branch>
+  <Branch>recoJetedmRefToBaseProdrecoTracksrecoTrackrecoTracksTorecoTrackedmrefhelperFindUsingAdvanceedmRefVectorsAssociationVector_ak8JetTracksAssociatorAtCaloFace__RECO.</Branch>
+  <Branch>recoJetedmRefToBaseProdrecoTracksrecoTrackrecoTracksTorecoTrackedmrefhelperFindUsingAdvanceedmRefVectorsAssociationVector_ak8JetTracksAssociatorAtVertex__RECO.</Branch>
   <Branch>recoJetedmRefToBaseProdrecoTracksrecoTrackrecoTracksTorecoTrackedmrefhelperFindUsingAdvanceedmRefVectorsAssociationVector_ic5JetTracksAssociatorAtVertex__RECO.</Branch>
   <Branch>recoJetedmRefToBaseProdrecoTracksrecoTrackrecoTracksTorecoTrackedmrefhelperFindUsingAdvanceedmRefVectorsAssociationVector_iterativeCone5JetTracksAssociatorAtCaloFace__RECO.</Branch>
   <Branch>recoJetedmRefToBaseProdrecoTracksrecoTrackrecoTracksTorecoTrackedmrefhelperFindUsingAdvanceedmRefVectorsAssociationVector_iterativeCone5JetTracksAssociatorAtVertex__RECO.</Branch>
@@ -357,7 +357,7 @@
   <Branch>recoPFClusters_particleFlowClusterPS__RECO.</Branch>
   <Branch>recoPFDisplacedVertexs_particleFlowDisplacedVertex__RECO.</Branch>
   <Branch>recoPFJets_ak4PFJets__RECO.</Branch>
-  <Branch>recoPFJets_ak7PFJets__RECO.</Branch>
+  <Branch>recoPFJets_ak8PFJets__RECO.</Branch>
   <Branch>recoPFJets_iterativeCone5PFJets__RECO.</Branch>
   <Branch>recoPFJets_kt4PFJets__RECO.</Branch>
   <Branch>recoPFJets_kt6PFJets__RECO.</Branch>

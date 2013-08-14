@@ -281,7 +281,7 @@ process.ca8PFJetsPFlow = ca4PFJets.clone(
 ###############################
 ###### AK 0.7 jets ############
 ###############################
-process.ak7PFlow = process.pfJetsPFlow.clone(
+process.ak8PFlow = process.pfJetsPFlow.clone(
 	rParam = cms.double(0.7)
     )
 
@@ -322,23 +322,23 @@ process.ak4PrunedPFlow = ak4PFJetsPruned.clone(
 ###### AK 0.7 jets groomed ####
 ###############################
 
-process.ak7TrimmedPFlow = process.ak4TrimmedPFlow.clone(
+process.ak8TrimmedPFlow = process.ak4TrimmedPFlow.clone(
 	src = process.pfJetsPFlow.src,
 	rParam = cms.double(0.7)
     )
 
-process.ak7FilteredPFlow = process.ak4FilteredPFlow.clone(
+process.ak8FilteredPFlow = process.ak4FilteredPFlow.clone(
 	src = process.pfJetsPFlow.src,
 	rParam = cms.double(0.7)
 	)
 
-process.ak7PrunedPFlow = process.ak4PrunedPFlow.clone(
+process.ak8PrunedPFlow = process.ak4PrunedPFlow.clone(
 	src = process.pfJetsPFlow.src,
 	rParam = cms.double(0.7)
     )
 
 
-process.ak7TrimmedGenJetsNoNu = ak4GenJets.clone(
+process.ak8TrimmedGenJetsNoNu = ak4GenJets.clone(
 	rParam = cms.double(0.7),
 	src = cms.InputTag("genParticlesForJetsNoNu"),
 	useTrimming = cms.bool(True),
@@ -346,7 +346,7 @@ process.ak7TrimmedGenJetsNoNu = ak4GenJets.clone(
 	trimPtFracMin = cms.double(0.03),
 	)
 
-process.ak7FilteredGenJetsNoNu = ak4GenJets.clone(
+process.ak8FilteredGenJetsNoNu = ak4GenJets.clone(
 	rParam = cms.double(0.7),
 	src = cms.InputTag("genParticlesForJetsNoNu"),
 	useFiltering = cms.bool(True),
@@ -358,7 +358,7 @@ process.ak7FilteredGenJetsNoNu = ak4GenJets.clone(
 
 
 
-process.ak7PrunedGenJetsNoNu = ak4GenJets.clone(
+process.ak8PrunedGenJetsNoNu = ak4GenJets.clone(
 	SubJetParameters,
 	rParam = cms.double(0.7),
 	src = cms.InputTag("genParticlesForJetsNoNu"),
@@ -533,10 +533,10 @@ for ipostfix in [postfix] :
 		getattr(process,"ak4Trimmed" + ipostfix),
 		getattr(process,"ak4Filtered" + ipostfix),
 		getattr(process,"ak4Pruned" + ipostfix),
-		getattr(process,"ak7Trimmed" + ipostfix),
-		getattr(process,"ak7Filtered" + ipostfix),
-		getattr(process,"ak7Pruned" + ipostfix),
-		getattr(process,"ak7" + ipostfix),
+		getattr(process,"ak8Trimmed" + ipostfix),
+		getattr(process,"ak8Filtered" + ipostfix),
+		getattr(process,"ak8Pruned" + ipostfix),
+		getattr(process,"ak8" + ipostfix),
 		getattr(process,"ak8Trimmed" + ipostfix),
 		getattr(process,"ak8Filtered" + ipostfix),
 		getattr(process,"ak8Pruned" + ipostfix),
@@ -686,7 +686,7 @@ if options.useExtraJetColls:
 
 
 	addJetCollection(process, 
-			 cms.InputTag('ak7PFlow'),
+			 cms.InputTag('ak8PFlow'),
 			 'AK7', 'PF',
 			 doJTA=False,
 			 doBTagging=False,
@@ -694,12 +694,12 @@ if options.useExtraJetColls:
 			 doType1MET=False,
 			 doL1Cleaning=False,
 			 doL1Counters=False,
-			 genJetCollection = cms.InputTag("ak7GenJetsNoNu"),
+			 genJetCollection = cms.InputTag("ak8GenJetsNoNu"),
 			 doJetID = False
 			 )
 
 	addJetCollection(process, 
-			 cms.InputTag('ak7PrunedPFlow'),
+			 cms.InputTag('ak8PrunedPFlow'),
 			 'AK7Pruned', 'PF',
 			 doJTA=False,
 			 doBTagging=False,
@@ -707,13 +707,13 @@ if options.useExtraJetColls:
 			 doType1MET=False,
 			 doL1Cleaning=False,
 			 doL1Counters=False,
-			 genJetCollection = cms.InputTag("ak7GenJetsNoNu"),
+			 genJetCollection = cms.InputTag("ak8GenJetsNoNu"),
 			 doJetID = False
 			 )
 
 
 	addJetCollection(process, 
-			 cms.InputTag('ak7FilteredPFlow'),
+			 cms.InputTag('ak8FilteredPFlow'),
 			 'AK7Filtered', 'PF',
 			 doJTA=False,
 			 doBTagging=False,
@@ -721,12 +721,12 @@ if options.useExtraJetColls:
 			 doType1MET=False,
 			 doL1Cleaning=False,
 			 doL1Counters=False,
-			 genJetCollection = cms.InputTag("ak7GenJetsNoNu"),
+			 genJetCollection = cms.InputTag("ak8GenJetsNoNu"),
 			 doJetID = False
 			 )
 
 	addJetCollection(process, 
-			 cms.InputTag('ak7TrimmedPFlow'),
+			 cms.InputTag('ak8TrimmedPFlow'),
 			 'AK7Trimmed', 'PF',
 			 doJTA=False,
 			 doBTagging=False,
@@ -734,7 +734,7 @@ if options.useExtraJetColls:
 			 doType1MET=False,
 			 doL1Cleaning=False,
 			 doL1Counters=False,
-			 genJetCollection = cms.InputTag("ak7GenJetsNoNu"),
+			 genJetCollection = cms.InputTag("ak8GenJetsNoNu"),
 			 doJetID = False
 			 )
 
@@ -1166,28 +1166,28 @@ if options.useExtraJetColls:
 		src = cms.InputTag('goodPatJetsAK5FilteredPF')
 		)
 
-	process.ak7Lite = process.ak4Lite.clone(
+	process.ak8Lite = process.ak4Lite.clone(
 		src = cms.InputTag('goodPatJetsAK7PF')
 		)
 
-	process.ak7TrimmedLite = process.ak4Lite.clone(
+	process.ak8TrimmedLite = process.ak4Lite.clone(
 		src = cms.InputTag('goodPatJetsAK7TrimmedPF')
 		)
 
-	process.ak7PrunedLite = process.ak4Lite.clone(
+	process.ak8PrunedLite = process.ak4Lite.clone(
 		src = cms.InputTag('goodPatJetsAK7PrunedPF')
 		)
 
-	process.ak7FilteredLite = process.ak4Lite.clone(
+	process.ak8FilteredLite = process.ak4Lite.clone(
 		src = cms.InputTag('goodPatJetsAK7FilteredPF')
 		)
 
 
 
 
-	process.ak7TrimmedGenLite = cms.EDProducer(
+	process.ak8TrimmedGenLite = cms.EDProducer(
 	    "CandViewNtpProducer", 
-	    src = cms.InputTag('ak7TrimmedGenJetsNoNu'),
+	    src = cms.InputTag('ak8TrimmedGenJetsNoNu'),
 	    lazyParser = cms.untracked.bool(True),
 	    eventInfo = cms.untracked.bool(False),
 	    variables = cms.VPSet(
@@ -1211,23 +1211,23 @@ if options.useExtraJetColls:
 	)
 
 
-	process.ak7PrunedGenLite = process.ak7TrimmedGenLite.clone(
-		src = cms.InputTag('ak7PrunedGenJetsNoNu')
+	process.ak8PrunedGenLite = process.ak8TrimmedGenLite.clone(
+		src = cms.InputTag('ak8PrunedGenJetsNoNu')
 		)
 
-	process.ak7FilteredGenLite = process.ak7TrimmedGenLite.clone(
-		src = cms.InputTag('ak7FilteredGenJetsNoNu')
+	process.ak8FilteredGenLite = process.ak8TrimmedGenLite.clone(
+		src = cms.InputTag('ak8FilteredGenJetsNoNu')
 		)
 
-        process.ca8PrunedGenLite = process.ak7TrimmedGenLite.clone(
+        process.ca8PrunedGenLite = process.ak8TrimmedGenLite.clone(
                 src = cms.InputTag('caPrunedGen')
                 )
 
-        process.ca12FilteredGenLite = process.ak7TrimmedGenLite.clone(
+        process.ca12FilteredGenLite = process.ak8TrimmedGenLite.clone(
                 src = cms.InputTag('caFilteredGenJetsNoNu')
                 )
 
-        process.ca12MassDropFilteredGenLite = process.ak7TrimmedGenLite.clone(
+        process.ca12MassDropFilteredGenLite = process.ak8TrimmedGenLite.clone(
                 src = cms.InputTag('caMassDropFilteredGenJetsNoNu')
                 )
 
@@ -1286,9 +1286,9 @@ process.patseq = cms.Sequence(
 
 if options.useExtraJetColls:
 	process.extraJetSeq = cms.Sequence(
-		process.ak7TrimmedGenJetsNoNu*
-		process.ak7FilteredGenJetsNoNu*
-		process.ak7PrunedGenJetsNoNu*
+		process.ak8TrimmedGenJetsNoNu*
+		process.ak8FilteredGenJetsNoNu*
+		process.ak8PrunedGenJetsNoNu*
 		process.goodPatJetsCA12FilteredPF*
 		process.goodPatJetsCA12MassDropFilteredPF*
 		process.goodPatJetsAK5TrimmedPF*
@@ -1306,13 +1306,13 @@ if options.useExtraJetColls:
 		process.ak4TrimmedLite*
 		process.ak4FilteredLite*
 		process.ak4PrunedLite*
-		process.ak7Lite*
-		process.ak7TrimmedLite*
-		process.ak7FilteredLite*
-		process.ak7PrunedLite*
-		process.ak7TrimmedGenLite*
-		process.ak7FilteredGenLite*
-		process.ak7PrunedGenLite*
+		process.ak8Lite*
+		process.ak8TrimmedLite*
+		process.ak8FilteredLite*
+		process.ak8PrunedLite*
+		process.ak8TrimmedGenLite*
+		process.ak8FilteredGenLite*
+		process.ak8PrunedGenLite*
 		process.ak8Lite*
 		process.ak8TrimmedLite*
 		process.ak8FilteredLite*
@@ -1338,12 +1338,12 @@ if options.useData == True :
     if options.useExtraJetColls:
 	    process.patseq.remove( process.ak8GenJetsNoNu )
 	    process.patseq.remove( process.caFilteredGenJetsNoNu )
-	    process.patseq.remove( process.ak7TrimmedGenJetsNoNu )
-	    process.patseq.remove( process.ak7FilteredGenJetsNoNu )
-	    process.patseq.remove( process.ak7PrunedGenJetsNoNu )
-	    process.patseq.remove( process.ak7TrimmedGenLite )
-	    process.patseq.remove( process.ak7FilteredGenLite )
-	    process.patseq.remove( process.ak7PrunedGenLite )
+	    process.patseq.remove( process.ak8TrimmedGenJetsNoNu )
+	    process.patseq.remove( process.ak8FilteredGenJetsNoNu )
+	    process.patseq.remove( process.ak8PrunedGenJetsNoNu )
+	    process.patseq.remove( process.ak8TrimmedGenLite )
+	    process.patseq.remove( process.ak8FilteredGenLite )
+	    process.patseq.remove( process.ak8PrunedGenLite )
             process.patseq.remove( process.ca8PrunedGenLite )
             process.patseq.remove( process.ca12FilteredGenLite )
             process.patseq.remove( process.ca12MassDropFilteredGenLite )
@@ -1471,7 +1471,7 @@ if options.useData :
 else :
     process.out.outputCommands += ['keep recoGenJets_ca8GenJetsNoNu_*_*',
 				   'keep recoGenJets_ak4GenJetsNoNu_*_*',
-				   'keep recoGenJets_ak7GenJetsNoNu_*_*',
+				   'keep recoGenJets_ak8GenJetsNoNu_*_*',
 				   'keep recoGenJets_ak8GenJetsNoNu_*_*',
 				   'keep recoGenJets_caFilteredGenJetsNoNu_*_*',
 				   'keep recoGenJets_caPrunedGen_*_*',

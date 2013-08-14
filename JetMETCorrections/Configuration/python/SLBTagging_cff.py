@@ -12,9 +12,9 @@ ak4GenJetsSoftElectronTagInfos  = softElectronTagInfos.clone(jets = 'ak4GenJets'
 ak4CaloJetsSoftElectronTagInfos = softElectronTagInfos.clone(jets = 'ak4CaloJets')
 ak4PFJetsSoftElectronTagInfos   = softElectronTagInfos.clone(jets = 'ak4PFJets')
 
-ak7GenJetsSoftElectronTagInfos  = softElectronTagInfos.clone(jets = 'ak7GenJets')
-ak7CaloJetsSoftElectronTagInfos = softElectronTagInfos.clone(jets = 'ak7CaloJets')
-ak7PFJetsSoftElectronTagInfos   = softElectronTagInfos.clone(jets = 'ak7PFJets')
+ak8GenJetsSoftElectronTagInfos  = softElectronTagInfos.clone(jets = 'ak8GenJets')
+ak8CaloJetsSoftElectronTagInfos = softElectronTagInfos.clone(jets = 'ak8CaloJets')
+ak8PFJetsSoftElectronTagInfos   = softElectronTagInfos.clone(jets = 'ak8PFJets')
 
 kt4GenJetsSoftElectronTagInfos  = softElectronTagInfos.clone(jets = 'kt4GenJets')
 kt4CaloJetsSoftElectronTagInfos = softElectronTagInfos.clone(jets = 'kt4CaloJets')
@@ -49,9 +49,9 @@ ak4GenJetsSoftMuonTagInfos  = softMuonTagInfosGMPT.clone(jets = 'ak4GenJets')
 ak4CaloJetsSoftMuonTagInfos = softMuonTagInfosGMPT.clone(jets = 'ak4CaloJets')
 ak4PFJetsSoftMuonTagInfos   = softMuonTagInfosGMPT.clone(jets = 'ak4PFJets')
 
-ak7GenJetsSoftMuonTagInfos  = softMuonTagInfosGMPT.clone(jets = 'ak7GenJets')
-ak7CaloJetsSoftMuonTagInfos = softMuonTagInfosGMPT.clone(jets = 'ak7CaloJets')
-ak7PFJetsSoftMuonTagInfos   = softMuonTagInfosGMPT.clone(jets = 'ak7PFJets')
+ak8GenJetsSoftMuonTagInfos  = softMuonTagInfosGMPT.clone(jets = 'ak8GenJets')
+ak8CaloJetsSoftMuonTagInfos = softMuonTagInfosGMPT.clone(jets = 'ak8CaloJets')
+ak8PFJetsSoftMuonTagInfos   = softMuonTagInfosGMPT.clone(jets = 'ak8PFJets')
 
 kt4GenJetsSoftMuonTagInfos  = softMuonTagInfosGMPT.clone(jets = 'kt4GenJets')
 kt4CaloJetsSoftMuonTagInfos = softMuonTagInfosGMPT.clone(jets = 'kt4CaloJets')
@@ -89,15 +89,15 @@ ak4PFJetsSLBSequence = cms.Sequence(
     ak4PFJetsSoftMuonTagInfos*softPFElectrons*ak4PFJetsSoftElectronTagInfos
     )
 
-# ak7
-ak7GenJetsSLBSequence = cms.Sequence(
-    ak7GenJetsSoftMuonTagInfos*softPFElectrons*ak7GenJetsSoftElectronTagInfos
+# ak8
+ak8GenJetsSLBSequence = cms.Sequence(
+    ak8GenJetsSoftMuonTagInfos*softPFElectrons*ak8GenJetsSoftElectronTagInfos
     )
-ak7CaloJetsSLBSequence = cms.Sequence(
-    ak7CaloJetsSoftMuonTagInfos*softPFElectrons*ak7CaloJetsSoftElectronTagInfos
+ak8CaloJetsSLBSequence = cms.Sequence(
+    ak8CaloJetsSoftMuonTagInfos*softPFElectrons*ak8CaloJetsSoftElectronTagInfos
     )
-ak7PFJetsSLBSequence = cms.Sequence(
-    ak7PFJetsSoftMuonTagInfos*softPFElectrons*ak7PFJetsSoftElectronTagInfos
+ak8PFJetsSLBSequence = cms.Sequence(
+    ak8PFJetsSoftMuonTagInfos*softPFElectrons*ak8PFJetsSoftElectronTagInfos
     )
 
 # kt4

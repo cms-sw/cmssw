@@ -11,7 +11,7 @@ from RecoJets.JetAssociationProducers.iterativeCone5JTA_cff import *
 from RecoJets.JetAssociationProducers.sisCone5JTA_cff import *
 from RecoJets.JetAssociationProducers.kt4JTA_cff import *
 from RecoJets.JetAssociationProducers.ak4JTA_cff import *
-from RecoJets.JetAssociationProducers.ak7JTA_cff import *
+from RecoJets.JetAssociationProducers.ak8JTA_cff import *
 
 # ---------- Tight Electron ID
 

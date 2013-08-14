@@ -31,15 +31,15 @@ from PhysicsTools.PatAlgos.tools.jetTools import switchJetCollection
 #                 jetIdLabel   = "ak4"
 #                 )
 
-## uncomment the following lines to add ak7CaloJets to your PAT output
+## uncomment the following lines to add ak8CaloJets to your PAT output
 addJetCollection(
    process,
    labelName = 'AK7Calo',
-   jetSource = cms.InputTag('ak7CaloJets'),
+   jetSource = cms.InputTag('ak8CaloJets'),
    jetCorrections = ('AK7Calo', cms.vstring(['L1Offset', 'L2Relative', 'L3Absolute']), 'Type-2'),
    )
 process.patJetsAK7Calo.addJetID=True
-process.patJetsAK7Calo.jetIDMap="ak7JetID"
+process.patJetsAK7Calo.jetIDMap="ak8JetID"
 
 ## uncomment the following lines to add kt6CaloJets to your PAT output
 postfixAK5Calo = 'Copy'

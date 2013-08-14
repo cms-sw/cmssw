@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-import RecoJets.JetProducers.ak5PFJets_cfi
+import RecoJets.JetProducers.ak4PFJets_cfi
 import RecoJets.JetProducers.ic5PFJets_cfi
 
 def jetAlgo( algo ):
@@ -11,9 +11,9 @@ def jetAlgo( algo ):
 #allPfJets = RecoJets.JetProducers.ic5PFJets_cfi.iterativeCone5PFJets.clone()
         jetAlgo = RecoJets.JetProducers.ic5PFJets_cfi.iterativeCone5PFJets.clone()
     elif algo == 'AK5':
-        jetAlgo = RecoJets.JetProducers.ak5PFJets_cfi.ak5PFJets.clone()
+        jetAlgo = RecoJets.JetProducers.ak4PFJets_cfi.ak4PFJets.clone()
     elif algo == 'AK7':
-        jetAlgo = RecoJets.JetProducers.ak5PFJets_cfi.ak5PFJets.clone()    
+        jetAlgo = RecoJets.JetProducers.ak4PFJets_cfi.ak4PFJets.clone()    
         jetAlgo.rParam = cms.double(0.7)
         jetAlgo.doAreaFastjet = cms.bool(False)
         

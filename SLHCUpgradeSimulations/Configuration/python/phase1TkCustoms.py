@@ -232,8 +232,8 @@ def customise_Reco(process,pileup):
 
     process.reconstruction.remove(process.castorreco)
     process.reconstruction.remove(process.CastorTowerReco)
-    process.reconstruction.remove(process.ak7BasicJets)
-    process.reconstruction.remove(process.ak7CastorJetID)
+    process.reconstruction.remove(process.ak8BasicJets)
+    process.reconstruction.remove(process.ak8CastorJetID)
 
     #the quadruplet merger configuration     
     process.load("RecoPixelVertexing.PixelTriplets.quadrupletseedmerging_cff")

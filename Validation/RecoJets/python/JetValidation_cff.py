@@ -12,8 +12,8 @@ from Validation.RecoJets.JetValidation_cfi import *
 from JetMETCorrections.Configuration.JetCorrectionServices_cff import ak4CaloL2L3,ak4CaloL2Relative,ak4CaloL3Absolute
 newAk5CaloL2L3 = ak4CaloL2L3.clone()
 
-from JetMETCorrections.Configuration.JetCorrectionServicesAllAlgos_cff import ak7CaloL2L3,ak7CaloL2Relative,ak7CaloL3Absolute
-newAk7CaloL2L3 = ak7CaloL2L3.clone()
+from JetMETCorrections.Configuration.JetCorrectionServicesAllAlgos_cff import ak8CaloL2L3,ak8CaloL2Relative,ak8CaloL3Absolute
+newAk7CaloL2L3 = ak8CaloL2L3.clone()
 
 from JetMETCorrections.Configuration.JetCorrectionServices_cff import ak4PFL1FastL2L3,ak4PFL1Fastjet,ak4PFL2Relative,ak4PFL3Absolute
 newAk5PFL1FastL2L3 = ak4PFL1FastL2L3.clone()
