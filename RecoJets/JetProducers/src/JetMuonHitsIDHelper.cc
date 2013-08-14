@@ -88,7 +88,7 @@ void reco::helper::JetMuonHitsIDHelper::calculate( const edm::Event& event, cons
       GlobalPoint gp = gd->toGlobal(lp);
       double dR2 = reco::deltaR(jet.eta(), jet.phi(), 
 				static_cast<double>( gp.eta() ), static_cast<double>(gp.phi()) );
-      if (dR2 < 0.5) {
+      if (dR2 < 0.4) {
 	RPCDetId rpcChamberId = (RPCDetId) detid;
 	numberOfHitsRPC_++;
 	if (rpcChamberId.station() == 1)

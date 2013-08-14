@@ -130,7 +130,7 @@ void BackgroundEstimator::_compute(){
 
   // now get the median & error, accounting for empty jets
   // define the fractions of distribution at median, median-1sigma
-  double posn[2] = {0.5, (1.0-0.6827)/2.0};
+  double posn[2] = {0.4, (1.0-0.6827)/2.0};
   double res[2];
 
   for (int i = 0; i < 2; i++) {

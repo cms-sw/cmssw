@@ -53,24 +53,24 @@ process.load("RecoMET/METProducers/PFClusterMET_cfi")
 
 process.load("RecoJets/JetAssociationProducers/trackExtrapolator_cfi")
 
-process.ca12PFJetsMassDropFiltered = process.ak5PFJetsMassDropFiltered.clone(
+process.ca12PFJetsMassDropFiltered = process.ak4PFJetsMassDropFiltered.clone(
     rParam = cms.double(1.2)
     )
 
-process.ak5PFJetsTrimmed.doAreaFastjet = True
-process.ak5PFJetsPruned.doAreaFastjet = True
-process.ca8PFJetsPruned = process.ak5PFJetsPruned.clone(
+process.ak4PFJetsTrimmed.doAreaFastjet = True
+process.ak4PFJetsPruned.doAreaFastjet = True
+process.ca8PFJetsPruned = process.ak4PFJetsPruned.clone(
     jetAlgorithm = cms.string("CambridgeAachen"),
     rParam       = cms.double(0.8)
     )
 
 #process.recoJets = cms.Path(process.trackExtrapolator+process.jetGlobalReco+process.CastorFullReco+process.jetHighLevelReco+process.recoPFClusterJets)
-process.recoJets = cms.Path(process.ak5PFJets+
-                            process.ak5PFJetsTrimmed+
-                            process.ak5PFJetsFiltered+
-                            process.ak5PFJetsMassDropFiltered+
+process.recoJets = cms.Path(process.ak4PFJets+
+                            process.ak4PFJetsTrimmed+
+                            process.ak4PFJetsFiltered+
+                            process.ak4PFJetsMassDropFiltered+
                             process.ca12PFJetsMassDropFiltered+
-                            process.ak5PFJetsPruned+
+                            process.ak4PFJetsPruned+
                             process.ca8PFJetsPruned
                             )
 

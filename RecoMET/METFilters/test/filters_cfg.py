@@ -155,8 +155,8 @@ process.goodVertices = cms.EDFilter(
 
 process.load('RecoMET.METFilters.trackingFailureFilter_cfi')
 process.load('JetMETCorrections.Configuration.DefaultJEC_cff')
-#process.trackingFailureFilter.JetSource = cms.InputTag('ak5PFJets')
-#process.trackingFailureFilter.JetSource = cms.InputTag('ak5PFJetsL2L3Residual')
+#process.trackingFailureFilter.JetSource = cms.InputTag('ak4PFJets')
+#process.trackingFailureFilter.JetSource = cms.InputTag('ak4PFJetsL2L3Residual')
 
 process.load('RecoMET.METFilters.inconsistentMuonPFCandidateFilter_cfi')
 

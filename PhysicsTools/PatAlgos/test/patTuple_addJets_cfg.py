@@ -17,7 +17,7 @@ from PhysicsTools.PatAlgos.tools.jetTools import addJetCollection
 from PhysicsTools.PatAlgos.tools.jetTools import switchJetCollection
 
 
-## uncomment the following lines to add ak5JPTJets to your PAT output
+## uncomment the following lines to add ak4JPTJets to your PAT output
 #addJetCollection(process,cms.InputTag('JetPlusTrackZSPCorJetAntiKt5'),
 #                 'AK5', 'JPT',
 #                 doJTA        = True,
@@ -26,9 +26,9 @@ from PhysicsTools.PatAlgos.tools.jetTools import switchJetCollection
 #                 doType1MET   = False,
 #                 doL1Cleaning = False,
 #                 doL1Counters = True,
-#                 genJetCollection = cms.InputTag("ak5GenJets"),
+#                 genJetCollection = cms.InputTag("ak4GenJets"),
 #                 doJetID      = True,
-#                 jetIdLabel   = "ak5"
+#                 jetIdLabel   = "ak4"
 #                 )
 
 ## uncomment the following lines to add ak7CaloJets to your PAT output
@@ -47,7 +47,7 @@ addJetCollection(
    process,
    postfix   = postfixAK5Calo,
    labelName = 'AK5Calo',
-   jetSource = cms.InputTag('ak5CaloJets'),
+   jetSource = cms.InputTag('ak4CaloJets'),
    jetCorrections = ('AK5Calo', cms.vstring(['L1Offset', 'L2Relative', 'L3Absolute']), 'Type-2'),
    btagDiscriminators = [
        'jetBProbabilityBJetTags'
@@ -60,15 +60,15 @@ addJetCollection(
      ],
    )
 getattr(process, 'patJetsAK5Calo' + postfixAK5Calo).addJetID=True
-getattr(process, 'patJetsAK5Calo' + postfixAK5Calo).jetIDMap="ak5JetID"
+getattr(process, 'patJetsAK5Calo' + postfixAK5Calo).jetIDMap="ak4JetID"
 process.out.outputCommands.append( 'drop *_selectedPatJetsAK5Calo%s_pfCandidates_*'%(postfixAK5Calo) )
 #process.patJetsAK5Calo.addJetID=True
-#process.patJetsAK5Calo.jetIDMap="ak5JetID"
+#process.patJetsAK5Calo.jetIDMap="ak4JetID"
 
-## uncomment the following lines to add ak5PFJets to your PAT output
+## uncomment the following lines to add ak4PFJets to your PAT output
 switchJetCollection(
    process,
-   jetSource = cms.InputTag('ak5PFJets'),
+   jetSource = cms.InputTag('ak4PFJets'),
    jetCorrections = ('AK5PF', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute']), 'Type-2'),
    btagDiscriminators = [
        'jetBProbabilityBJetTags'

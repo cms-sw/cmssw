@@ -47,12 +47,12 @@ from PhysicsTools.PatAlgos.patTemplate_cfg import *
 
 ## uncomment the following lines to switch the jet
 ## collection from a 35X input sample
-#switchJetCollection35X(process,cms.InputTag('ak5PFJets'),
+#switchJetCollection35X(process,cms.InputTag('ak4PFJets'),
 #                 doJTA        = True,
 #                 doBTagging   = True,
 #                 jetCorrLabel = None,
 #                 doType1MET   = True,
-#                 genJetCollection=cms.InputTag("ak5GenJets"),
+#                 genJetCollection=cms.InputTag("ak4GenJets"),
 #                 doJetID      = True
 #                 )
 

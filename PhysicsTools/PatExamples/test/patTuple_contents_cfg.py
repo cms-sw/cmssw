@@ -8,12 +8,12 @@ from PhysicsTools.PatAlgos.patTemplate_cfg import *
 #            event content
 # ----------------------------------------------------
 #from PhysicsTools.PatAlgos.tools.jetTools import *
-#switchJetCollection(process,cms.InputTag('ak5PFJets'),
+#switchJetCollection(process,cms.InputTag('ak4PFJets'),
 #                 doJTA        = True,
 #                 doBTagging   = True,
 #                 jetCorrLabel = ('AK5PF', cms.vstring(['L2Relative', 'L3Absolute', 'L2L3Residual'])),
 #                 doType1MET   = True,
-#                 genJetCollection=cms.InputTag("ak5GenJets"),
+#                 genJetCollection=cms.InputTag("ak4GenJets"),
 #                 doJetID      = True
 #                 )
 

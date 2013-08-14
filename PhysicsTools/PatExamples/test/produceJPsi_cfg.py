@@ -14,7 +14,7 @@ from PhysicsTools.PatAlgos.tools.coreTools import *
 
 
 
-# switch from "ak5" to "antikt5" if running on 31x samples. 
+# switch from "ak4" to "antikt5" if running on 31x samples. 
 run33xOn31xMC = False
 if run33xOn31xMC :
     switchJetCollection(process, 

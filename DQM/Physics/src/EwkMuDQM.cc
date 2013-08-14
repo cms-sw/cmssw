@@ -39,7 +39,7 @@ EwkMuDQM::EwkMuDQM( const ParameterSet & cfg ) :
       trigTag_      (cfg.getUntrackedParameter<edm::InputTag> ("TrigTag", edm::InputTag("TriggerResults::HLT"))),
       muonTag_      (cfg.getUntrackedParameter<edm::InputTag> ("MuonTag", edm::InputTag("muons"))),
       metTag_       (cfg.getUntrackedParameter<edm::InputTag> ("METTag", edm::InputTag("pfmet"))),
-      jetTag_       (cfg.getUntrackedParameter<edm::InputTag> ("JetTag", edm::InputTag("ak5PFJets"))),
+      jetTag_       (cfg.getUntrackedParameter<edm::InputTag> ("JetTag", edm::InputTag("ak4PFJets"))),
       phoTag_       (cfg.getUntrackedParameter<edm::InputTag> ("phoTag", edm::InputTag("photons"))),
       pfPhoTag_     (cfg.getUntrackedParameter<edm::InputTag> ("pfPhoTag", edm::InputTag("pfPhotonTranslator","pfPhot"))),
       vertexTag_    (cfg.getUntrackedParameter<edm::InputTag> ("VertexTag", edm::InputTag("offlinePrimaryVertices"))),

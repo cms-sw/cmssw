@@ -28,10 +28,10 @@ process.out.outputCommands.extend( process.prunedAODForPF2PATEventContent.output
 process.out.outputCommands.extend(
     [
       'keep GenEventInfoProduct_*_*_*',
-      'keep *_ak5GenJets_*_*',
-      'keep *_ak5CaloJets_*_*',
-      'keep *_ak5JetID_*_*',
-      'keep *_ak5JetExtender_*_*',
+      'keep *_ak4GenJets_*_*',
+      'keep *_ak4CaloJets_*_*',
+      'keep *_ak4JetID_*_*',
+      'keep *_ak4JetExtender_*_*',
       'keep *_ak7GenJets_*_*',
       'keep *_ak7CaloJets_*_*',
       'keep *_ak7JetID_*_*',
@@ -39,7 +39,7 @@ process.out.outputCommands.extend(
       #------- PFJet collections --------
       'keep *_kt6PFJets_rho_*',
       'keep *_kt6PFJets_sigma_*',
-      'keep *_ak5PFJets_*_*',        'keep *_ak7PFJets_*_*',
+      'keep *_ak4PFJets_*_*',        'keep *_ak7PFJets_*_*',
       #------- Trigger collections ------
       'keep edmTriggerResults_TriggerResults_*_*',
       'keep *_hltTriggerSummaryAOD_*_*',

@@ -18,7 +18,7 @@ json = {
       "desc": "No documentation"
      },
      {
-      "instance": "ak5JetID",
+      "instance": "ak4JetID",
       "container": "*",
       "desc": "No documentation"
      },
@@ -33,12 +33,12 @@ json = {
       "desc": "No documentation"
      },
      {
-      "instance": "ak5JetExtender",
+      "instance": "ak4JetExtender",
       "container": "*",
       "desc": "No documentation"
      },
      {
-      "instance": "ak5JetTracksAssociatorExplicit",
+      "instance": "ak4JetTracksAssociatorExplicit",
       "container": "*",
       "desc": "No documentation"
      },
@@ -128,12 +128,12 @@ json = {
       "desc": "No documentation"
      },
      {
-      "instance": "ak5JetTracksAssociatorAtCaloFace",
+      "instance": "ak4JetTracksAssociatorAtCaloFace",
       "container": "*",
       "desc": "No documentation"
      },
      {
-      "instance": "ak5JetTracksAssociatorAtVertex",
+      "instance": "ak4JetTracksAssociatorAtVertex",
       "container": "*",
       "desc": "No documentation"
      },
@@ -158,7 +158,7 @@ json = {
       "desc": "Corresponding JetID object to go with the ak7BasicJets, contains various information on how a jet in CASTOR looks, see CASTOR reconstruction page for more info"
      },
      {
-      "instance": "ak5GenJets",
+      "instance": "ak4GenJets",
       "container": "reco::GenJetCollection",
       "desc": "Fastjet Anti-kT R=0.5 jets reconstructed from stable generator particles. Note that the label is antikt5GenJets for CMSSW_3_1_X (Summer09 MC production)"
      },
@@ -178,7 +178,7 @@ json = {
       "desc": "Fastjet Anti-kT R=0.5 jets reconstructed from CaloTowers, corrected with track response within the jet cone."
      },
      {
-      "instance": "ak5TrackJets",
+      "instance": "ak4TrackJets",
       "container": "reco::TrackJetCollection",
       "desc": "Fastjet Anti-kT R=0.5 jets reconstructed from tracks."
      },
@@ -228,7 +228,7 @@ json = {
       "desc": "Fastjet Anti-kT R=0.7 jets reconstructed from PF particles. Note that the label is antikt7PFJets for CMSSW_3_1_X (Summer09 MC production)"
      },
      {
-      "instance": "ak5CaloJets",
+      "instance": "ak4CaloJets",
       "container": "reco::CaloJetCollection",
       "desc": "Fastjet Anti-kT R=0.5 jets reconstructed from CaloTowers with pT>0.5 GeV. Note that the label is antikt5CaloJets for CMSSW_3_1_X (Summer09 MC production)"
      },
@@ -248,7 +248,7 @@ json = {
       "desc": "No documentation"
      },
      {
-      "instance": "ak5PFJets",
+      "instance": "ak4PFJets",
       "container": "reco::PFJetCollection",
       "desc": "Fastjet Anti-kT R=0.5 jets reconstructed from PF particles. Note that the label is antikt5PFJets for CMSSW_3_1_X (Summer09 MC production)"
      },
@@ -288,17 +288,17 @@ json = {
       "desc": "No documentation"
      },
      {
-      "instance": "ak5PFJetsCHS*",
+      "instance": "ak4PFJetsCHS*",
       "container": "*",
       "desc": "No documentation"
      },
      {
-      "instance": "ak5CaloJets",
+      "instance": "ak4CaloJets",
       "container": "reco::CaloJetCollection",
       "desc": "Fastjet Anti-kT R=0.5 jets reconstructed from CaloTowers with pT>0.5 GeV. Note that the label is antikt5CaloJets for CMSSW_3_1_X (Summer09 MC production)"
      },
      {
-      "instance": "ak5PFJets",
+      "instance": "ak4PFJets",
       "container": "reco::PFJetCollection",
       "desc": "Fastjet Anti-kT R=0.5 jets reconstructed from PF particles. Note that the label is antikt5PFJets for CMSSW_3_1_X (Summer09 MC production)"
      },
@@ -308,7 +308,7 @@ json = {
       "desc": "Fastjet kT R=0.6 jets reconstructed from PF particles"
      },
      {
-      "instance": "ak5TrackJets",
+      "instance": "ak4TrackJets",
       "container": "*",
       "desc": "No documentation"
      },
@@ -328,9 +328,9 @@ json = {
       "desc": "No documentation"
      },
      {
-      "instance": "ak5JetTracksAssociatorAtVertex",
+      "instance": "ak4JetTracksAssociatorAtVertex",
       "container": " ",
-      "desc": "tracks associated to all ak5CaloJets within a Cone R=0.5 at the vertex"
+      "desc": "tracks associated to all ak4CaloJets within a Cone R=0.5 at the vertex"
      },
      {
       "instance": "CastorTowerReco",
@@ -343,12 +343,12 @@ json = {
       "desc": "No documentation"
      },
      {
-      "instance": "ak5JetTracksAssociatorExplicit",
+      "instance": "ak4JetTracksAssociatorExplicit",
       "container": "*",
       "desc": "No documentation"
      },
      {
-      "instance": "ak5JetExtender",
+      "instance": "ak4JetExtender",
       "container": "*",
       "desc": "No documentation"
      },
@@ -358,7 +358,7 @@ json = {
       "desc": "No documentation"
      },
      {
-      "instance": "ak5JetID",
+      "instance": "ak4JetID",
       "container": "*",
       "desc": "No documentation"
      },
@@ -403,12 +403,12 @@ json = {
       "desc": "No documentation"
      },
      {
-      "instance": "ak5JetTracksAssociatorAtVertex",
+      "instance": "ak4JetTracksAssociatorAtVertex",
       "container": " ",
-      "desc": "tracks associated to all ak5CaloJets within a Cone R=0.5 at the vertex"
+      "desc": "tracks associated to all ak4CaloJets within a Cone R=0.5 at the vertex"
      },
      {
-      "instance": "ak5JetTracksAssociatorAtCaloFace",
+      "instance": "ak4JetTracksAssociatorAtCaloFace",
       "container": "*",
       "desc": "No documentation"
      },
@@ -433,12 +433,12 @@ json = {
       "desc": "No documentation"
      },
      {
-      "instance": "ak5JetTracksAssociatorExplicit",
+      "instance": "ak4JetTracksAssociatorExplicit",
       "container": "*",
       "desc": "No documentation"
      },
      {
-      "instance": "ak5JetExtender",
+      "instance": "ak4JetExtender",
       "container": "*",
       "desc": "No documentation"
      },
@@ -448,7 +448,7 @@ json = {
       "desc": "Fastjet kT R=0.4 jets reconstructed from CaloTowers with pT>0.5 GeV"
      },
      {
-      "instance": "ak5CaloJets",
+      "instance": "ak4CaloJets",
       "container": "reco::CaloJetCollection",
       "desc": "Fastjet Anti-kT R=0.5 jets reconstructed from CaloTowers with pT>0.5 GeV. Note that the label is antikt5CaloJets for CMSSW_3_1_X (Summer09 MC production)"
      },
@@ -463,7 +463,7 @@ json = {
       "desc": "No documentation"
      },
      {
-      "instance": "ak5PFJets",
+      "instance": "ak4PFJets",
       "container": "*",
       "desc": "No documentation"
      },
@@ -473,12 +473,12 @@ json = {
       "desc": "No documentation"
      },
      {
-      "instance": "ak5PFJetsCHS*",
+      "instance": "ak4PFJetsCHS*",
       "container": "*",
       "desc": "No documentation"
      },
      {
-      "instance": "ak5TrackJets",
+      "instance": "ak4TrackJets",
       "container": "*",
       "desc": "No documentation"
      },
@@ -568,7 +568,7 @@ json = {
       "desc": "No documentation"
      },
      {
-      "instance": "ak5JetID",
+      "instance": "ak4JetID",
       "container": "*",
       "desc": "No documentation"
      },

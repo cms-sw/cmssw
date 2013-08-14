@@ -58,22 +58,22 @@ JetCorrectionEra.era = 'Summer09_7TeV'
 process.load('JetMETCorrections.Configuration.JetCorrectionProducers_cff')
 
 # correct kt4CaloJets
-process.kt4CaloL2Relative = process.ak5CaloL2Relative.clone(algorithm = 'KT4CALO')
-process.kt4CaloL3Absolute = process.ak5CaloL3Absolute.clone(algorithm = 'KT4CALO')
-process.kt4CaloL2L3 = process.ak5CaloL2L3.clone(
+process.kt4CaloL2Relative = process.ak4CaloL2Relative.clone(algorithm = 'KT4CALO')
+process.kt4CaloL3Absolute = process.ak4CaloL3Absolute.clone(algorithm = 'KT4CALO')
+process.kt4CaloL2L3 = process.ak4CaloL2L3.clone(
     correctors = ['kt4CaloL2Relative','kt4CaloL3Absolute']
     )
-process.kt4CaloJetsL2L3 = process.ak5CaloJetsL2L3.clone(
+process.kt4CaloJetsL2L3 = process.ak4CaloJetsL2L3.clone(
     src = 'kt4CaloJets', correctors = ['kt4CaloL2L3']
     )
 
 # correct kt4PFJets
-process.kt4PFL2Relative = process.ak5PFL2Relative.clone(algorithm = 'KT4PF')
-process.kt4PFL3Absolute = process.ak5PFL3Absolute.clone(algorithm = 'KT4PF')
-process.kt4PFL2L3 = process.ak5PFL2L3.clone(
+process.kt4PFL2Relative = process.ak4PFL2Relative.clone(algorithm = 'KT4PF')
+process.kt4PFL3Absolute = process.ak4PFL3Absolute.clone(algorithm = 'KT4PF')
+process.kt4PFL2L3 = process.ak4PFL2L3.clone(
     correctors = ['kt4PFL2Relative','kt4PFL3Absolute']
     )
-process.kt4PFJetsL2L3 = process.ak5PFJetsL2L3.clone(
+process.kt4PFJetsL2L3 = process.ak4PFJetsL2L3.clone(
     src = 'kt4PFJets', correctors = ['kt4PFL2L3']
     )
 

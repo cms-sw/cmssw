@@ -52,8 +52,8 @@ process.towerMakerPET = process.towerMaker.clone()
 process.towerMakerPET.hfInput = cms.InputTag("hcalrechitReflagger")
 process.metPET = process.met.clone()
 process.metPET.src = cms.InputTag("towerMakerPET")
-process.ak5CaloJetsPET = process.ak5CaloJets.clone()
-process.ak5CaloJetsPET.src = cms.InputTag("towerMakerPET")
+process.ak4CaloJetsPET = process.ak4CaloJets.clone()
+process.ak4CaloJetsPET.src = cms.InputTag("towerMakerPET")
 
 # Output definition
 process.output = cms.OutputModule("PoolOutputModule",
@@ -108,7 +108,7 @@ for i in process.hcalRecAlgos.SeverityLevels:
 #print process.hbhereco.firstSample, "  FIRST"
 
 process.reflagging_step = cms.Path(process.hcalrechitReflagger)
-process.reconstruction_step = cms.Path(process.towerMakerPET*(process.metPET+process.ak5CaloJetsPET))
+process.reconstruction_step = cms.Path(process.towerMakerPET*(process.metPET+process.ak4CaloJetsPET))
 process.out_step = cms.EndPath(process.output)
 
 process.schedule = cms.Schedule(process.reflagging_step,process.reconstruction_step,process.out_step)

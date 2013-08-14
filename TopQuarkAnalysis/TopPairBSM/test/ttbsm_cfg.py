@@ -158,11 +158,11 @@ process.goodOfflinePrimaryVertices = cms.EDFilter(
 
 process.load("RecoJets.Configuration.GenJetParticles_cff")
 from RecoJets.JetProducers.ca4GenJets_cfi import ca4GenJets
-from RecoJets.JetProducers.ak5GenJets_cfi import ak5GenJets
+from RecoJets.JetProducers.ak4GenJets_cfi import ak4GenJets
 process.ca8GenJetsNoNu = ca4GenJets.clone( rParam = cms.double(0.8),
                                            src = cms.InputTag("genParticlesForJetsNoNu"))
 
-process.ak8GenJetsNoNu = ak5GenJets.clone( rParam = cms.double(0.8),
+process.ak8GenJetsNoNu = ak4GenJets.clone( rParam = cms.double(0.8),
                                            src = cms.InputTag("genParticlesForJetsNoNu"))
 
 
@@ -298,20 +298,20 @@ process.ak8PFlow = process.pfJetsPFlow.clone(
 ###### AK 0.5 jets groomed ####
 ###############################
 
-from RecoJets.JetProducers.ak5PFJetsTrimmed_cfi import ak5PFJetsTrimmed
-process.ak5TrimmedPFlow = ak5PFJetsTrimmed.clone(
+from RecoJets.JetProducers.ak4PFJetsTrimmed_cfi import ak4PFJetsTrimmed
+process.ak4TrimmedPFlow = ak4PFJetsTrimmed.clone(
     src = process.pfJetsPFlow.src,
     doAreaFastjet = cms.bool(True)
     )
 
-from RecoJets.JetProducers.ak5PFJetsFiltered_cfi import ak5PFJetsFiltered
-process.ak5FilteredPFlow = ak5PFJetsFiltered.clone(
+from RecoJets.JetProducers.ak4PFJetsFiltered_cfi import ak4PFJetsFiltered
+process.ak4FilteredPFlow = ak4PFJetsFiltered.clone(
     src = process.pfJetsPFlow.src,
     doAreaFastjet = cms.bool(True)
     )
 
-from RecoJets.JetProducers.ak5PFJetsPruned_cfi import ak5PFJetsPruned
-process.ak5PrunedPFlow = ak5PFJetsPruned.clone(
+from RecoJets.JetProducers.ak4PFJetsPruned_cfi import ak4PFJetsPruned
+process.ak4PrunedPFlow = ak4PFJetsPruned.clone(
     src = process.pfJetsPFlow.src,
     doAreaFastjet = cms.bool(True)
     )
@@ -322,23 +322,23 @@ process.ak5PrunedPFlow = ak5PFJetsPruned.clone(
 ###### AK 0.7 jets groomed ####
 ###############################
 
-process.ak7TrimmedPFlow = process.ak5TrimmedPFlow.clone(
+process.ak7TrimmedPFlow = process.ak4TrimmedPFlow.clone(
 	src = process.pfJetsPFlow.src,
 	rParam = cms.double(0.7)
     )
 
-process.ak7FilteredPFlow = process.ak5FilteredPFlow.clone(
+process.ak7FilteredPFlow = process.ak4FilteredPFlow.clone(
 	src = process.pfJetsPFlow.src,
 	rParam = cms.double(0.7)
 	)
 
-process.ak7PrunedPFlow = process.ak5PrunedPFlow.clone(
+process.ak7PrunedPFlow = process.ak4PrunedPFlow.clone(
 	src = process.pfJetsPFlow.src,
 	rParam = cms.double(0.7)
     )
 
 
-process.ak7TrimmedGenJetsNoNu = ak5GenJets.clone(
+process.ak7TrimmedGenJetsNoNu = ak4GenJets.clone(
 	rParam = cms.double(0.7),
 	src = cms.InputTag("genParticlesForJetsNoNu"),
 	useTrimming = cms.bool(True),
@@ -346,7 +346,7 @@ process.ak7TrimmedGenJetsNoNu = ak5GenJets.clone(
 	trimPtFracMin = cms.double(0.03),
 	)
 
-process.ak7FilteredGenJetsNoNu = ak5GenJets.clone(
+process.ak7FilteredGenJetsNoNu = ak4GenJets.clone(
 	rParam = cms.double(0.7),
 	src = cms.InputTag("genParticlesForJetsNoNu"),
 	useFiltering = cms.bool(True),
@@ -358,7 +358,7 @@ process.ak7FilteredGenJetsNoNu = ak5GenJets.clone(
 
 
 
-process.ak7PrunedGenJetsNoNu = ak5GenJets.clone(
+process.ak7PrunedGenJetsNoNu = ak4GenJets.clone(
 	SubJetParameters,
 	rParam = cms.double(0.7),
 	src = cms.InputTag("genParticlesForJetsNoNu"),
@@ -373,17 +373,17 @@ process.ak7PrunedGenJetsNoNu = ak5GenJets.clone(
 ###### AK 0.8 jets groomed ####
 ###############################
 
-process.ak8TrimmedPFlow = process.ak5TrimmedPFlow.clone(
+process.ak8TrimmedPFlow = process.ak4TrimmedPFlow.clone(
 	src = process.pfJetsPFlow.src,
 	rParam = cms.double(0.8)
     )
 
-process.ak8FilteredPFlow = process.ak5FilteredPFlow.clone(
+process.ak8FilteredPFlow = process.ak4FilteredPFlow.clone(
 	src = process.pfJetsPFlow.src,
 	rParam = cms.double(0.8)
 	)
 
-process.ak8PrunedPFlow = process.ak5PrunedPFlow.clone(
+process.ak8PrunedPFlow = process.ak4PrunedPFlow.clone(
 	src = process.pfJetsPFlow.src,
 	rParam = cms.double(0.8)
     )
@@ -394,7 +394,7 @@ process.ak8PrunedPFlow = process.ak5PrunedPFlow.clone(
 
 
 # Pruned PF Jets
-process.caPrunedPFlow = process.ak5PrunedPFlow.clone(
+process.caPrunedPFlow = process.ak4PrunedPFlow.clone(
 	jetAlgorithm = cms.string("CambridgeAachen"),
 	rParam       = cms.double(0.8)
 )
@@ -414,7 +414,7 @@ process.caPrunedGen = process.ca8GenJetsNoNu.clone(
 
 
 # Filtered PF Jets
-process.caFilteredPFlow = ak5PFJetsFiltered.clone(
+process.caFilteredPFlow = ak4PFJetsFiltered.clone(
 	src = cms.InputTag('pfNoElectron'+postfix),
 	jetAlgorithm = cms.string("CambridgeAachen"),
 	rParam       = cms.double(1.2),
@@ -423,8 +423,8 @@ process.caFilteredPFlow = ak5PFJetsFiltered.clone(
 	jetPtMin = cms.double(100.0)
 )
 
-from RecoJets.JetProducers.ak5PFJetsFiltered_cfi import ak5PFJetsMassDropFiltered
-process.caMassDropFilteredPFlow = ak5PFJetsMassDropFiltered.clone(
+from RecoJets.JetProducers.ak4PFJetsFiltered_cfi import ak4PFJetsMassDropFiltered
+process.caMassDropFilteredPFlow = ak4PFJetsMassDropFiltered.clone(
 	src = cms.InputTag('pfNoElectron'+postfix),
 	jetAlgorithm = cms.string("CambridgeAachen"),
 	rParam       = cms.double(1.2),
@@ -530,9 +530,9 @@ for ipostfix in [postfix] :
 
     if options.useExtraJetColls : 
 	    for module in (
-		getattr(process,"ak5Trimmed" + ipostfix),
-		getattr(process,"ak5Filtered" + ipostfix),
-		getattr(process,"ak5Pruned" + ipostfix),
+		getattr(process,"ak4Trimmed" + ipostfix),
+		getattr(process,"ak4Filtered" + ipostfix),
+		getattr(process,"ak4Pruned" + ipostfix),
 		getattr(process,"ak7Trimmed" + ipostfix),
 		getattr(process,"ak7Filtered" + ipostfix),
 		getattr(process,"ak7Pruned" + ipostfix),
@@ -640,12 +640,12 @@ if options.useExtraJetColls:
 			 doType1MET=False,
 			 doL1Cleaning=False,
 			 doL1Counters=False,
-			 genJetCollection = cms.InputTag("ak5GenJetsNoNu"),
+			 genJetCollection = cms.InputTag("ak4GenJetsNoNu"),
 			 doJetID = False
 			 )
 
 	addJetCollection(process, 
-			 cms.InputTag('ak5PrunedPFlow'),
+			 cms.InputTag('ak4PrunedPFlow'),
 			 'AK5Pruned', 'PF',
 			 doJTA=False,
 			 doBTagging=False,
@@ -653,13 +653,13 @@ if options.useExtraJetColls:
 			 doType1MET=False,
 			 doL1Cleaning=False,
 			 doL1Counters=False,
-			 genJetCollection = cms.InputTag("ak5GenJetsNoNu"),
+			 genJetCollection = cms.InputTag("ak4GenJetsNoNu"),
 			 doJetID = False
 			 )
 
 
 	addJetCollection(process, 
-			 cms.InputTag('ak5FilteredPFlow'),
+			 cms.InputTag('ak4FilteredPFlow'),
 			 'AK5Filtered', 'PF',
 			 doJTA=False,
 			 doBTagging=False,
@@ -667,12 +667,12 @@ if options.useExtraJetColls:
 			 doType1MET=False,
 			 doL1Cleaning=False,
 			 doL1Counters=False,
-			 genJetCollection = cms.InputTag("ak5GenJetsNoNu"),
+			 genJetCollection = cms.InputTag("ak4GenJetsNoNu"),
 			 doJetID = False
 			 )
 
 	addJetCollection(process, 
-			 cms.InputTag('ak5TrimmedPFlow'),
+			 cms.InputTag('ak4TrimmedPFlow'),
 			 'AK5Trimmed', 'PF',
 			 doJTA=False,
 			 doBTagging=False,
@@ -680,7 +680,7 @@ if options.useExtraJetColls:
 			 doType1MET=False,
 			 doL1Cleaning=False,
 			 doL1Counters=False,
-			 genJetCollection = cms.InputTag("ak5GenJetsNoNu"),
+			 genJetCollection = cms.InputTag("ak4GenJetsNoNu"),
 			 doJetID = False
 			 )
 
@@ -798,12 +798,12 @@ if options.useExtraJetColls:
 
 
 
-switchJetCollection(process,cms.InputTag('ak5PFJets'),
+switchJetCollection(process,cms.InputTag('ak4PFJets'),
 		    doJTA        = False,
 		    doBTagging   = False,
 		    jetCorrLabel = inputJetCorrLabel,
 		    doType1MET   = False,
-		    genJetCollection=cms.InputTag("ak5GenJetsNoNu"),
+		    genJetCollection=cms.InputTag("ak4GenJetsNoNu"),
 		    doJetID      = False
 		    )
 
@@ -1120,7 +1120,7 @@ if options.writeSimpleInputs :
 
 
 if options.useExtraJetColls:
-	process.ak5Lite = cms.EDProducer(
+	process.ak4Lite = cms.EDProducer(
 	    "CandViewNtpProducer", 
 	    src = cms.InputTag('goodPatJetsPFlow'),
 	    lazyParser = cms.untracked.bool(True),
@@ -1154,31 +1154,31 @@ if options.useExtraJetColls:
 	)
 
 
-	process.ak5TrimmedLite = process.ak5Lite.clone(
+	process.ak4TrimmedLite = process.ak4Lite.clone(
 		src = cms.InputTag('goodPatJetsAK5TrimmedPF')
 		)
 
-	process.ak5PrunedLite = process.ak5Lite.clone(
+	process.ak4PrunedLite = process.ak4Lite.clone(
 		src = cms.InputTag('goodPatJetsAK5PrunedPF')
 		)
 
-	process.ak5FilteredLite = process.ak5Lite.clone(
+	process.ak4FilteredLite = process.ak4Lite.clone(
 		src = cms.InputTag('goodPatJetsAK5FilteredPF')
 		)
 
-	process.ak7Lite = process.ak5Lite.clone(
+	process.ak7Lite = process.ak4Lite.clone(
 		src = cms.InputTag('goodPatJetsAK7PF')
 		)
 
-	process.ak7TrimmedLite = process.ak5Lite.clone(
+	process.ak7TrimmedLite = process.ak4Lite.clone(
 		src = cms.InputTag('goodPatJetsAK7TrimmedPF')
 		)
 
-	process.ak7PrunedLite = process.ak5Lite.clone(
+	process.ak7PrunedLite = process.ak4Lite.clone(
 		src = cms.InputTag('goodPatJetsAK7PrunedPF')
 		)
 
-	process.ak7FilteredLite = process.ak5Lite.clone(
+	process.ak7FilteredLite = process.ak4Lite.clone(
 		src = cms.InputTag('goodPatJetsAK7FilteredPF')
 		)
 
@@ -1233,19 +1233,19 @@ if options.useExtraJetColls:
 
 
 
-	process.ak8Lite = process.ak5Lite.clone(
+	process.ak8Lite = process.ak4Lite.clone(
 		src = cms.InputTag('goodPatJetsAK8PF')
 		)
 
-	process.ak8TrimmedLite = process.ak5Lite.clone(
+	process.ak8TrimmedLite = process.ak4Lite.clone(
 		src = cms.InputTag('goodPatJetsAK8TrimmedPF')
 		)
 
-	process.ak8PrunedLite = process.ak5Lite.clone(
+	process.ak8PrunedLite = process.ak4Lite.clone(
 		src = cms.InputTag('goodPatJetsAK8PrunedPF')
 		)
 
-	process.ak8FilteredLite = process.ak5Lite.clone(
+	process.ak8FilteredLite = process.ak4Lite.clone(
 		src = cms.InputTag('goodPatJetsAK8FilteredPF')
 		)
 
@@ -1302,10 +1302,10 @@ if options.useExtraJetColls:
 		process.goodPatJetsAK8TrimmedPF*
 		process.goodPatJetsAK8FilteredPF*
 		process.goodPatJetsAK8PrunedPF*
-		process.ak5Lite*
-		process.ak5TrimmedLite*
-		process.ak5FilteredLite*
-		process.ak5PrunedLite*
+		process.ak4Lite*
+		process.ak4TrimmedLite*
+		process.ak4FilteredLite*
+		process.ak4PrunedLite*
 		process.ak7Lite*
 		process.ak7TrimmedLite*
 		process.ak7FilteredLite*
@@ -1470,7 +1470,7 @@ if options.useData :
                                    ]
 else :
     process.out.outputCommands += ['keep recoGenJets_ca8GenJetsNoNu_*_*',
-				   'keep recoGenJets_ak5GenJetsNoNu_*_*',
+				   'keep recoGenJets_ak4GenJetsNoNu_*_*',
 				   'keep recoGenJets_ak7GenJetsNoNu_*_*',
 				   'keep recoGenJets_ak8GenJetsNoNu_*_*',
 				   'keep recoGenJets_caFilteredGenJetsNoNu_*_*',

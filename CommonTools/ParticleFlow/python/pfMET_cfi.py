@@ -7,7 +7,7 @@ from RecoMET.METProducers.PFMET_cfi import *
 pfMET = pfMet.clone(alias="pfMET")
 
 # Use PF2PAT cleaned jet collection (pfJets) for MET significance
-# instead of standard collection (ak5PFJets)?
+# instead of standard collection (ak4PFJets)?
 # It requires that MET is produced at the end.
 pfMET.jets = cms.InputTag("pfJets")
 

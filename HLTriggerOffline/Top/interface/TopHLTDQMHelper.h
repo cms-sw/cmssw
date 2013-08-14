@@ -350,7 +350,7 @@ bool SelectionStepHLT<Object>::select(const edm::Event& event, const edm::EventS
         << "                                                                                      \n"
         << "  ## load jet corrections                                                             \n"
         << "  process.load(\"JetMETCorrections.Configuration.JetCorrectionServicesAllAlgos_cff\") \n"
-        << "  process.prefer(\"ak5CaloL2L3\")                                                     \n"
+        << "  process.prefer(\"ak4CaloL2L3\")                                                     \n"
         << "                                                                                      \n"
         << "------------------------------------------------------------------------------------- \n";
     }

@@ -18,7 +18,7 @@ process.load("RecoJets.JetAssociationProducers.ic5JetVertexCompatibility_cfi")
 process.pileupJetAnalyzer = cms.EDAnalyzer("PileupJetAnalyzer",
 	jetTracksAssoc = cms.InputTag("ic5JetTracksAssociatorAtVertex"),
 	jetTagLabel = cms.InputTag("ic5JetVertexCompatibility"),
-	signalFraction = cms.double(0.5),
+	signalFraction = cms.double(0.4),
 	jetMinE = cms.double(10),
 	jetMinEt = cms.double(10),
 	jetMaxEta = cms.double(2.7),
