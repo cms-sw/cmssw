@@ -1,0 +1,51 @@
+
+This module is designed to help benchmark CMSSW I/O performance.
+
+The IOExerciser EDAnalyzer reads a fixed percentage of branches from a
+file (percentages are done by the size of the branch) and, at a fixed interval,
+will read out all the data in an event.
+
+To emulate production work, set the percent read to 100%.  To emulate analysis
+jobs, set the percent read to around 30% and the trigger factor to 10-100
+(there's a wide range of analysis behavior).
+
+To emulate a traditionally problematic I/O job, set the percent read to 10% and
+the trigger factor to 10-20.
+
+The selection strategy determines how branches are selected - smallest first,
+largest first, or round robin:
+- 'smallestFirst' (default): Read branches in increasing order of size until limit is hit.
+- 'largestFirst': Read branches in decreasing order of size until limit is hit.
+- 'roundRobin':   Read a small branch, then large branch.  Repeat until size limit is hit.
+
+Smallest-first will allow you to stay closest to the desired percent read.
+Round robin is likely closer to user behavior.
+
+Run "edmPluginHelp -p IOExerciser" for online help.
+
+
+********************************
+Here's an example configuration:
+
+import FWCore.ParameterSet.Config as cms
+
+process = cms.Process("Demo")
+
+process.load("FWCore.MessageService.MessageLogger_cfi")
+
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
+
+process.source = cms.Source("PoolSource",
+    # replace 'myfile.root' with the source file you want to use
+    fileNames = cms.untracked.vstring(
+        '/store/mc/HC/GenericTTbar/GEN-SIM-RECO/CMSSW_5_3_1_START53_V5-v1/0010/A2B8D47D-BCAD-E111-B16A-BCAEC53296FB.root'
+    )
+)
+
+process.demo = cms.EDAnalyzer('IOExerciser',
+    percentBranches = cms.untracked.uint32(30),
+    triggerFactor = cms.untracked.uint32(20),
+)
+
+process.p = cms.Path(process.demo)
+
