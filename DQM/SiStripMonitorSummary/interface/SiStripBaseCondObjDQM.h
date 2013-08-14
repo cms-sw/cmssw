@@ -160,10 +160,6 @@ class SiStripBaseCondObjDQM {
     SiStripFolderOrganizer folder_organizer;         
     DQMStore* dqmStore_;
 
-    std::map<unsigned int, std::string> m_included_subdets;
-    std::map<unsigned int, DetIdSelector> m_included_subdetsels;
-    std::map<unsigned int, std::string> m_excluded_subdets;
-    std::map<unsigned int, DetIdSelector> m_excluded_subdetsels;
 };
 
 

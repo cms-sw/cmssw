@@ -50,8 +50,6 @@ SiStripBaseCondObjDQM::SiStripBaseCondObjDQM(const edm::EventSetup & eSetup,
 // -----
 void SiStripBaseCondObjDQM::analysis(const edm::EventSetup & eSetup_){
 
-  edm::LogInfo("SiStripBaseCondObjDQM") << "[SiStripBaseCondObjDQM::analysis] starting .. " << std::endl;
- 
   cacheID_current=  getCache(eSetup_);
   
   if (cacheID_memory == cacheID_current) return;
@@ -170,8 +168,10 @@ void SiStripBaseCondObjDQM::selectModules(std::vector<uint32_t> & detIds_){
   edm::LogInfo("SiStripBaseCondObjDQM") << "[SiStripBaseCondObjDQM::selectModules] input detIds_: " << detIds_.size() << std::endl;
   
   if( fPSet_.getParameter<bool>("restrictModules")){
-    
-    std::vector<edm::ParameterSet> included_subdets = fPSet_.getParameter<std::vector<edm::ParameterSet> >("modulesToBeIncluded");
+
+    std::map<unsigned int, std::string> m_included_subdets;
+    std::map<unsigned int, DetIdSelector> m_included_subdetsels;
+    std::vector<edm::ParameterSet> included_subdets = fPSet_.getParameter<std::vector<edm::ParameterSet> >("ModulesToBeIncluded_DetIdSelector");
     for(std::vector<edm::ParameterSet>::const_iterator wsdps = included_subdets.begin();wsdps!=included_subdets.end();++wsdps) {
       m_included_subdets   [wsdps->getParameter<unsigned int>("detSelection")] = wsdps->getParameter<std::string>("detLabel");
       m_included_subdetsels[wsdps->getParameter<unsigned int>("detSelection")] = 
@@ -191,7 +191,9 @@ void SiStripBaseCondObjDQM::selectModules(std::vector<uint32_t> & detIds_){
     
     // -----
     // *** exclude modules ***
-    std::vector<edm::ParameterSet> excluded_subdets = fPSet_.getParameter<std::vector<edm::ParameterSet> >("modulesToBeExcluded");
+    std::map<unsigned int, std::string> m_excluded_subdets;
+    std::map<unsigned int, DetIdSelector> m_excluded_subdetsels;
+    std::vector<edm::ParameterSet> excluded_subdets = fPSet_.getParameter<std::vector<edm::ParameterSet> >("ModulesToBeExcluded_DetIdSelector");
     for(std::vector<edm::ParameterSet>::const_iterator wsdps = excluded_subdets.begin();wsdps!=excluded_subdets.end();++wsdps) {
       m_excluded_subdets   [wsdps->getParameter<unsigned int>("detSelection")] = wsdps->getParameter<std::string>("detLabel");
       m_excluded_subdetsels[wsdps->getParameter<unsigned int>("detSelection")] = 
@@ -239,8 +241,6 @@ void SiStripBaseCondObjDQM::selectModules(std::vector<uint32_t> & detIds_){
       swap(detIds_,tmp);
     }
     
-    edm::LogInfo("SiStripBaseCondObjDQM") << "[SiStripBaseCondObjDQM::selectModules] after included detIds_: " << detIds_.size() << std::endl;
-    
     std::sort(detIds_.begin(),detIds_.end());
     if(modulesToBeExcluded.size()>0) {
       for( std::vector<uint32_t>::const_iterator mod = modulesToBeExcluded.begin(); 
@@ -252,8 +252,6 @@ void SiStripBaseCondObjDQM::selectModules(std::vector<uint32_t> & detIds_){
 	detid--;
       }
     }
-    edm::LogInfo("SiStripBaseCondObjDQM") << "[SiStripBaseCondObjDQM::selectModules] after excluded detIds_: " << detIds_.size() << std::endl;
-    
     
     // -----
     // *** restrict to a particular subdetector ***
@@ -1192,8 +1190,6 @@ void SiStripBaseCondObjDQM::fillTkMap(const uint32_t& detid, const float& value)
 //==========================
 void SiStripBaseCondObjDQM::saveTkMap(const std::string& TkMapname, double minValue, double maxValue){
 
-  edm::LogInfo("SiStripBaseCondObjDQM") << "[SiStripBaseCondObjDQM::saveTkMap] starting .. " << std::endl;
-  
   if(tkMapScaler.size()!=0){
     //check that saturation is below x%  below minValue and above minValue, and in case re-arrange.
     float th=hPSet_.getParameter<double>("saturatedFraction");
@@ -1235,21 +1231,16 @@ void SiStripBaseCondObjDQM::saveTkMap(const std::string& TkMapname, double minVa
   tkMap->save(false, minValue, maxValue, TkMapname.c_str(),4500,2400);
   tkMap->setPalette(1); tkMap->showPalette(true);
   
-  edm::LogInfo("SiStripBaseCondObjDQM") << "[SiStripBaseCondObjDQM::fillModMEs] DONE" << std::endl;
 }
 
 
 //==========================
 void SiStripBaseCondObjDQM::end(){
-  edm::LogInfo("SiStripBaseCondObjDQM") 
-    << "SiStripBaseCondObjDQM::end"
-    << std::endl; 
+  edm::LogInfo("SiStripBaseCondObjDQM") << "SiStripBaseCondObjDQM::end" << std::endl; 
 }
 
 //==========================
 void SiStripBaseCondObjDQM::fillModMEs(const std::vector<uint32_t> & selectedDetIds, const edm::EventSetup& es){
-
-  edm::LogInfo("SiStripBaseCondObjDQM") << "[SiStripBaseCondObjDQM::fillModMEs] starting .. " << std::endl;
 
   //Retrieve tracker topology from geometry
   edm::ESHandle<TrackerTopology> tTopoHandle;
@@ -1262,13 +1253,10 @@ void SiStripBaseCondObjDQM::fillModMEs(const std::vector<uint32_t> & selectedDet
       detIter_!=selectedDetIds.end();++detIter_){
     fillMEsForDet(CondObj_ME,*detIter_,tTopo);
   }
-  edm::LogInfo("SiStripBaseCondObjDQM") << "[SiStripBaseCondObjDQM::fillModMEs] DONE" << std::endl;
 }
 
 //==========================
 void SiStripBaseCondObjDQM::fillSummaryMEs(const std::vector<uint32_t> & selectedDetIds, const edm::EventSetup& es){
-
-  edm::LogInfo("SiStripBaseCondObjDQM") << "[SiStripBaseCondObjDQM::fillSummaryMEs] starting .. " << std::endl;
 
   //Retrieve tracker topology from geometry
   edm::ESHandle<TrackerTopology> tTopoHandle;
@@ -1321,5 +1309,4 @@ void SiStripBaseCondObjDQM::fillSummaryMEs(const std::vector<uint32_t> & selecte
     }
 
   }
-  edm::LogInfo("SiStripBaseCondObjDQM") << "[SiStripBaseCondObjDQM::fillSummaryMEs] DONE" << std::endl;
 }
