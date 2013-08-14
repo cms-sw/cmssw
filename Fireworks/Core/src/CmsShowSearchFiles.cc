@@ -24,7 +24,7 @@ public:
    FWHtml(const TGWindow* p, int w, int h, int id = -1):
    TGHtml(p,w,h,id) {}
    
-   int	IsVisited(const char* iCheck) {
+   int	IsVisited(const char* iCheck) override {
       std::string check(GetBaseUri());
       check +=iCheck;
       int value = m_visited.find(check)==m_visited.end()?kFALSE:kTRUE;

@@ -125,7 +125,7 @@ namespace {
 
       virtual ~FWGeometryVF() {};
 
-      virtual Bool_t HandleKey(Event_t *event)
+      virtual Bool_t HandleKey(Event_t *event) override
       {
          if (event->fCode == (UInt_t) gVirtualX->KeysymToKeycode(kKey_Escape)) {
             m_tv->getTableManager()->cancelEditor(true);
@@ -142,7 +142,7 @@ namespace {
       FWTranspEntry(const TGWindow* p, FWGeometryTableViewBase* tv) :TGTextEntry(p), m_tv (tv){}
       virtual ~FWTranspEntry() {}
 
-      virtual Bool_t HandleKey(Event_t *event)
+      virtual Bool_t HandleKey(Event_t *event) override
       {
          if (event->fCode == (UInt_t) gVirtualX->KeysymToKeycode(kKey_Escape)) {
             m_tv->getTableManager()->cancelEditor(true);
