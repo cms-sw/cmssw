@@ -29,14 +29,14 @@ SiStripBaseCondObjDQM::SiStripBaseCondObjDQM(const edm::EventSetup & eSetup,
  
 
   //Warning message from wrong input:
-  if(SummaryOnLayerLevel_On_ and SummaryOnStringLevel_On_){
+  if(SummaryOnLayerLevel_On_ && SummaryOnStringLevel_On_){
     edm::LogWarning("SiStripBaseCondObjDQM") 
        << "[SiStripBaseCondObjDQM::SiStripBaseCondObjDQMs] PLEASE CHECK : String and layer level options can not be activated together"
        << std::endl; 
   }
 
   //The OR of the two conditions allow to switch on this feature for all the components (if the FillConditions_PSet has the TkMap_On =true) or for single MEs (if the PSet for a ME has the TkMap_On =true)
-  if(fPSet_.getParameter<bool>("TkMap_On") or hPSet_.getParameter<bool>("TkMap_On")) bookTkMap(hPSet_.getParameter<std::string>("TkMapName"));
+  if(fPSet_.getParameter<bool>("TkMap_On") || hPSet_.getParameter<bool>("TkMap_On")) bookTkMap(hPSet_.getParameter<std::string>("TkMapName"));
 
 
   minValue=hPSet_.getParameter<double>("minValue");
@@ -59,7 +59,7 @@ void SiStripBaseCondObjDQM::analysis(const edm::EventSetup & eSetup_){
   getConditionObject(eSetup_);
 
   //The OR of the two conditions allows to switch on this feature for all the components (if the FillConditions_PSet has the ActiveDetIds_On =true) or for single MEs (if the PSet for a ME has the ActiveDetIds_On =true)
-  if(fPSet_.getParameter<bool>("ActiveDetIds_On") or hPSet_.getParameter<bool>("ActiveDetIds_On"))
+  if(fPSet_.getParameter<bool>("ActiveDetIds_On") || hPSet_.getParameter<bool>("ActiveDetIds_On"))
     getActiveDetIds(eSetup_);
   else
     activeDetIds=reader->getAllDetIds();
@@ -67,7 +67,7 @@ void SiStripBaseCondObjDQM::analysis(const edm::EventSetup & eSetup_){
   selectModules(activeDetIds);
 
   if(Mod_On_ )                                            { fillModMEs    (activeDetIds, eSetup_); }
-  if(SummaryOnLayerLevel_On_ or SummaryOnStringLevel_On_ ){ fillSummaryMEs(activeDetIds, eSetup_); }
+  if(SummaryOnLayerLevel_On_ || SummaryOnStringLevel_On_ ){ fillSummaryMEs(activeDetIds, eSetup_); }
 
   std::string filename = hPSet_.getParameter<std::string>("TkMapName");
   if (filename!=""){
@@ -217,8 +217,8 @@ void SiStripBaseCondObjDQM::selectModules(std::vector<uint32_t> & detIds_){
     std::sort(ModulesToBeExcluded_.begin(),ModulesToBeExcluded_.end());
     std::sort(ModulesToBeIncluded_.begin(),ModulesToBeIncluded_.end());
     
-    if (modulesToBeExcluded.size()==0  and modulesToBeIncluded.size()==0 and
-	ModulesToBeExcluded_.size()==0 and ModulesToBeIncluded_.size()==0 )
+    if (modulesToBeExcluded.size()==0  && modulesToBeIncluded.size()==0 &&
+	ModulesToBeExcluded_.size()==0 && ModulesToBeIncluded_.size()==0 )
       edm::LogWarning("SiStripBaseCondObjDQM") 
 	<< "[SiStripBaseCondObjDQM::selectModules] PLEASE CHECK : no modules to be exclude/included in your cfg"
 	<< std::endl; 
@@ -353,11 +353,11 @@ void SiStripBaseCondObjDQM::getModMEs(ModMEs& CondObj_ME, const uint32_t& detId_
   
     CondObj_ME=ModMEsMap_iter->second;
   
-    if( ( CondObj_fillId_ =="ProfileAndCumul" or CondObj_fillId_ =="onlyProfile") and CondObj_ME.ProfileDistr ) { 
+    if( ( CondObj_fillId_ =="ProfileAndCumul" || CondObj_fillId_ =="onlyProfile") && CondObj_ME.ProfileDistr ) { 
       CondObj_ME.ProfileDistr ->Reset();    
     }
        
-    if( (CondObj_fillId_ =="ProfileAndCumul" or CondObj_fillId_ =="onlyCumul" ) and  CondObj_ME.CumulDistr ){
+    if( (CondObj_fillId_ =="ProfileAndCumul" || CondObj_fillId_ =="onlyCumul" ) &&  CondObj_ME.CumulDistr ){
       CondObj_ME.CumulDistr ->Reset();
     }
     else {
@@ -369,13 +369,13 @@ void SiStripBaseCondObjDQM::getModMEs(ModMEs& CondObj_ME, const uint32_t& detId_
   }
   
   // --> profile defined for all CondData
-  if ( (CondObj_fillId_ =="ProfileAndCumul" or CondObj_fillId_ =="onlyProfile")) {
+  if ( (CondObj_fillId_ =="ProfileAndCumul" || CondObj_fillId_ =="onlyProfile")) {
     bookProfileMEs(CondObj_ME,detId_,tTopo);
   }  
   
   // --> cumul currently only defined for noise and apvgain
-  if( (CondObj_fillId_ =="ProfileAndCumul" or CondObj_fillId_ =="onlyCumul" )
-      and(CondObj_name_ == "noise" or CondObj_name_ == "apvgain")          ) bookCumulMEs(CondObj_ME,detId_,tTopo);
+  if( (CondObj_fillId_ =="ProfileAndCumul" || CondObj_fillId_ =="onlyCumul" )
+      &&(CondObj_name_ == "noise" || CondObj_name_ == "apvgain")          ) bookCumulMEs(CondObj_ME,detId_,tTopo);
   
  
   ModMEsMap_.insert( std::make_pair(detId_,CondObj_ME) );
@@ -390,7 +390,7 @@ void SiStripBaseCondObjDQM::getSummaryMEs(ModMEs& CondObj_ME, const uint32_t& de
 
   std::map<uint32_t, ModMEs>::const_iterator SummaryMEsMap_iter;
 
-  if(CondObj_name_ == "lorentzangle" and SummaryOnStringLevel_On_ ){
+  if(CondObj_name_ == "lorentzangle" && SummaryOnStringLevel_On_ ){
     SummaryMEsMap_iter = SummaryMEsMap_.find(getStringNameAndId(detId_,tTopo).second);
   }
   else {
@@ -402,40 +402,40 @@ void SiStripBaseCondObjDQM::getSummaryMEs(ModMEs& CondObj_ME, const uint32_t& de
   //FIXME t's not good that the base class has to know about which derived class shoudl exist.
   // please modify this part. implement virtual functions, esplicited in the derived classes
   // --> currently only profile summary defined for all condition objects except quality
-  if(  (CondObj_fillId_ =="ProfileAndCumul" or CondObj_fillId_ =="onlyProfile" ) and
+  if(  (CondObj_fillId_ =="ProfileAndCumul" || CondObj_fillId_ =="onlyProfile" ) &&
      (
-      CondObj_name_ == "pedestal"     or 
-      CondObj_name_ == "noise"         or 
-      CondObj_name_ == "lowthreshold"  or 
-      CondObj_name_ == "highthreshold" or 
-      CondObj_name_ == "apvgain"       or 
+      CondObj_name_ == "pedestal"     || 
+      CondObj_name_ == "noise"         || 
+      CondObj_name_ == "lowthreshold"  || 
+      CondObj_name_ == "highthreshold" || 
+      CondObj_name_ == "apvgain"       || 
       CondObj_name_ == "lorentzangle") ) {
     if(hPSet_.getParameter<bool>("FillSummaryProfileAtLayerLevel"))	
       if (!CondObj_ME.SummaryOfProfileDistr) { bookSummaryProfileMEs(CondObj_ME,detId_,tTopo); }
   }    
     
   // --> currently only genuine cumul LA
-  if(   (CondObj_fillId_ =="ProfileAndCumul" or CondObj_fillId_ =="onlyCumul" ) and
+  if(   (CondObj_fillId_ =="ProfileAndCumul" || CondObj_fillId_ =="onlyCumul" ) &&
 	(
-	 CondObj_name_ == "lorentzangle" or  
+	 CondObj_name_ == "lorentzangle" ||  
 	 CondObj_name_ == "noise")  ) {
     if(hPSet_.getParameter<bool>("FillCumulativeSummaryAtLayerLevel"))
       if (!CondObj_ME.SummaryOfCumulDistr) { bookSummaryCumulMEs(CondObj_ME,detId_,tTopo); } 
   } 
                           
   // --> currently only summary as a function of detId for noise, pedestal and apvgain 
-  if(      CondObj_name_ == "noise"         or
-	   CondObj_name_ == "lowthreshold"  or 
-	   CondObj_name_ == "highthreshold" or 
-	   CondObj_name_ == "apvgain"       or 
-	   CondObj_name_ == "pedestal"      or 
+  if(      CondObj_name_ == "noise"         ||
+	   CondObj_name_ == "lowthreshold"  || 
+	   CondObj_name_ == "highthreshold" || 
+	   CondObj_name_ == "apvgain"       || 
+	   CondObj_name_ == "pedestal"      || 
 	   CondObj_name_ == "quality"           ) {
     if(hPSet_.getParameter<bool>("FillSummaryAtLayerLevel"))          
       if (!CondObj_ME.SummaryDistr) { bookSummaryMEs(CondObj_ME,detId_,tTopo); } 
     
   } 
                           
-  if(CondObj_name_ == "lorentzangle" and SummaryOnStringLevel_On_) {
+  if(CondObj_name_ == "lorentzangle" && SummaryOnStringLevel_On_) {
     //FIXME getStringNameandId takes time. not need to call it every timne. put the call at the beginning of the method and caache the string 
     SummaryMEsMap_.insert( std::make_pair(getStringNameAndId(detId_,tTopo).second,CondObj_ME) );
   }
@@ -561,16 +561,16 @@ void SiStripBaseCondObjDQM::bookSummaryProfileMEs(SiStripBaseCondObjDQM::ModMEs&
   
   int nStrip, nApv, layerId_;    
   
-  if(CondObj_name_ == "lorentzangle" and SummaryOnStringLevel_On_) { layerId_= getStringNameAndId(detId_,tTopo).second;}
+  if(CondObj_name_ == "lorentzangle" && SummaryOnStringLevel_On_) { layerId_= getStringNameAndId(detId_,tTopo).second;}
   else                                                            { layerId_= getLayerNameAndId(detId_,tTopo).second;}
 
 
-  if( CondObj_name_ == "pedestal" or CondObj_name_ == "noise" or CondObj_name_ == "lowthreshold" or CondObj_name_ == "highthreshold" ){ // plot in strip number
+  if( CondObj_name_ == "pedestal" || CondObj_name_ == "noise" || CondObj_name_ == "lowthreshold" || CondObj_name_ == "highthreshold" ){ // plot in strip number
     
-    if( (layerId_ > 610 and layerId_ < 620) or // TID & TEC have 768 strips at maximum
-        (layerId_ > 620 and layerId_ < 630) or
-        (layerId_ > 410 and layerId_ < 414) or
-        (layerId_ > 420 and layerId_ < 424) ){ nStrip =768;} 
+    if( (layerId_ > 610 && layerId_ < 620) || // TID & TEC have 768 strips at maximum
+        (layerId_ > 620 && layerId_ < 630) ||
+        (layerId_ > 410 && layerId_ < 414) ||
+        (layerId_ > 420 && layerId_ < 424) ){ nStrip =768;} 
     else { nStrip      = reader->getNumberOfApvsAndStripLength(detId_).first*128;}
     
     hSummaryOfProfile_NchX           = nStrip;
@@ -578,7 +578,7 @@ void SiStripBaseCondObjDQM::bookSummaryProfileMEs(SiStripBaseCondObjDQM::ModMEs&
     hSummaryOfProfile_HighX          = nStrip+0.5;
   
   }  
-  else if( (CondObj_name_ == "lorentzangle" and SummaryOnLayerLevel_On_) or CondObj_name_ == "quality"){ // plot in detId-number
+  else if( (CondObj_name_ == "lorentzangle" && SummaryOnLayerLevel_On_) || CondObj_name_ == "quality"){ // plot in detId-number
 
     // -----
     // get detIds belonging to same layer to fill X-axis with detId-number
@@ -606,7 +606,7 @@ void SiStripBaseCondObjDQM::bookSummaryProfileMEs(SiStripBaseCondObjDQM::ModMEs&
     hSummaryOfProfile_HighX          = sameLayerDetIds_.size()+0.5;
  
   } 
-  else if( CondObj_name_ == "lorentzangle" and SummaryOnStringLevel_On_){ // plot in detId-number
+  else if( CondObj_name_ == "lorentzangle" && SummaryOnStringLevel_On_){ // plot in detId-number
 
     // -----
     // get detIds belonging to same string to fill X-axis with detId-number
@@ -640,10 +640,10 @@ void SiStripBaseCondObjDQM::bookSummaryProfileMEs(SiStripBaseCondObjDQM::ModMEs&
   } 
   else if( CondObj_name_ == "apvgain"){
  
-    if( (layerId_ > 610 and layerId_ < 620) or // TID & TEC have 6 apvs at maximum
-        (layerId_ > 620 and layerId_ < 630) or
-        (layerId_ > 410 and layerId_ < 414) or
-        (layerId_ > 420 and layerId_ < 424) ){ nApv =6;} 
+    if( (layerId_ > 610 && layerId_ < 620) || // TID & TEC have 6 apvs at maximum
+        (layerId_ > 620 && layerId_ < 630) ||
+        (layerId_ > 410 && layerId_ < 414) ||
+        (layerId_ > 420 && layerId_ < 424) ){ nApv =6;} 
     else { nApv     = reader->getNumberOfApvsAndStripLength(detId_).first;}
     
     hSummaryOfProfile_NchX           = nApv;
@@ -669,7 +669,7 @@ void SiStripBaseCondObjDQM::bookSummaryProfileMEs(SiStripBaseCondObjDQM::ModMEs&
   int subdetectorId_ = ((detId_>>25)&0x7);
   
  
-  if( subdetectorId_<3 or subdetectorId_>6 ){ 
+  if( subdetectorId_<3 || subdetectorId_>6 ){ 
     edm::LogError("SiStripBaseCondObjDQM")
        << "[SiStripBaseCondObjDQM::bookSummaryProfileMEs] WRONG INPUT : no such subdetector type : "
        << subdetectorId_ << " no folder set!" 
@@ -678,7 +678,7 @@ void SiStripBaseCondObjDQM::bookSummaryProfileMEs(SiStripBaseCondObjDQM::ModMEs&
   }
   // ---
   
-  if(CondObj_name_ == "lorentzangle" and SummaryOnStringLevel_On_) { 
+  if(CondObj_name_ == "lorentzangle" && SummaryOnStringLevel_On_) { 
     hSummaryOfProfile_name = hidmanager.createHistoLayer(hSummaryOfProfile_description, "layer" , getStringNameAndId(detId_,tTopo).first,"") ;
   }
   else {
@@ -792,7 +792,7 @@ void SiStripBaseCondObjDQM::bookSummaryCumulMEs(SiStripBaseCondObjDQM::ModMEs& C
   // ---
   int subdetectorId_ = ((detId_>>25)&0x7);
   
-  if( subdetectorId_<3 or subdetectorId_>6 ){ 
+  if( subdetectorId_<3 || subdetectorId_>6 ){ 
     edm::LogError("SiStripBaseCondObjDQM")
        << "[SiStripBaseCondObjDQM::bookSummaryCumulMEs] WRONG INPUT : no such subdetector type : "
        << subdetectorId_ << " no folder set!" 
@@ -802,7 +802,7 @@ void SiStripBaseCondObjDQM::bookSummaryCumulMEs(SiStripBaseCondObjDQM::ModMEs& C
   // ---
   
   // LA Histos are plotted for each string:
-  if(CondObj_name_ == "lorentzangle" and SummaryOnStringLevel_On_) { 
+  if(CondObj_name_ == "lorentzangle" && SummaryOnStringLevel_On_) { 
     hSummaryOfCumul_name = hidmanager.createHistoLayer(hSummaryOfCumul_description, "layer" , getStringNameAndId(detId_,tTopo).first, "") ;
   }
   else {  
@@ -876,7 +876,7 @@ void SiStripBaseCondObjDQM::bookSummaryMEs(SiStripBaseCondObjDQM::ModMEs& CondOb
   int subdetectorId_ = ((detId_>>25)&0x7);
   
  
-  if( subdetectorId_<3 or subdetectorId_>6 ){ 
+  if( subdetectorId_<3 || subdetectorId_>6 ){ 
     edm::LogError("SiStripBaseCondObjDQM")
        << "[SiStripBaseCondObjDQM::bookSummaryMEs] WRONG INPUT : no such subdetector type : "
        << subdetectorId_ << " no folder set!" 
@@ -1026,7 +1026,7 @@ std::pair<std::string,uint32_t> SiStripBaseCondObjDQM::getStringNameAndId(const 
   std::stringstream layerStringName;
   
   if( subdetectorId_==3 ){ //TIB
-    if(tTopo->tibLayer(detId_)==1 and tTopo->tibIsInternalString(detId_)){ //1st layer int
+    if(tTopo->tibLayer(detId_)==1 && tTopo->tibIsInternalString(detId_)){ //1st layer int
       for( unsigned int i=1; i < 27 ;i++){
 	if(tTopo->tibString(detId_)==i){  
 	  layerStringName << "TIB_L1_Int_Str_" << i;
@@ -1034,7 +1034,7 @@ std::pair<std::string,uint32_t> SiStripBaseCondObjDQM::getStringNameAndId(const 
 	}
       }      
     }
-    else  if(tTopo->tibLayer(detId_)==1 and tTopo->tibIsExternalString(detId_)){ //1st layer ext
+    else  if(tTopo->tibLayer(detId_)==1 && tTopo->tibIsExternalString(detId_)){ //1st layer ext
       for( unsigned int i=1; i < 31 ;i++){
 	if(tTopo->tibString(detId_)==i){  
 	  layerStringName << "TIB_L1_Ext_Str_" << i;
@@ -1042,7 +1042,7 @@ std::pair<std::string,uint32_t> SiStripBaseCondObjDQM::getStringNameAndId(const 
 	}
       }      
     }
-    else if(tTopo->tibLayer(detId_)==2 and tTopo->tibIsInternalString(detId_)){ //2nd layer int
+    else if(tTopo->tibLayer(detId_)==2 && tTopo->tibIsInternalString(detId_)){ //2nd layer int
       for( unsigned int i=1; i < 35 ;i++){
 	if(tTopo->tibString(detId_)==i){  
 	  layerStringName << "TIB_L2_Int_Str_" << i;
@@ -1050,7 +1050,7 @@ std::pair<std::string,uint32_t> SiStripBaseCondObjDQM::getStringNameAndId(const 
 	}
       }      
     }
-    else if(tTopo->tibLayer(detId_)==2 and tTopo->tibIsExternalString(detId_)){ //2nd layer ext
+    else if(tTopo->tibLayer(detId_)==2 && tTopo->tibIsExternalString(detId_)){ //2nd layer ext
       for( unsigned int i=1; i < 39 ;i++){
 	if(tTopo->tibString(detId_)==i){  
 	  layerStringName << "TIB_L2_Ext_Str_" << i;
@@ -1058,7 +1058,7 @@ std::pair<std::string,uint32_t> SiStripBaseCondObjDQM::getStringNameAndId(const 
 	}
       }      
     }
-    else if(tTopo->tibLayer(detId_)==3 and tTopo->tibIsInternalString(detId_)){ //3rd layer int
+    else if(tTopo->tibLayer(detId_)==3 && tTopo->tibIsInternalString(detId_)){ //3rd layer int
       for( unsigned int i=1; i < 45 ;i++){
 	if(tTopo->tibString(detId_)==i){  
 	  layerStringName << "TIB_L3_Int_Str_" << i;
@@ -1066,7 +1066,7 @@ std::pair<std::string,uint32_t> SiStripBaseCondObjDQM::getStringNameAndId(const 
 	}
       }      
     }
-    else if(tTopo->tibLayer(detId_)==3 and tTopo->tibIsExternalString(detId_)){ //3rd layer ext
+    else if(tTopo->tibLayer(detId_)==3 && tTopo->tibIsExternalString(detId_)){ //3rd layer ext
       for( unsigned int i=1; i < 47 ;i++){
 	if(tTopo->tibString(detId_)==i){  
 	  layerStringName << "TIB_L3_Ext_Str_" << i;
@@ -1074,7 +1074,7 @@ std::pair<std::string,uint32_t> SiStripBaseCondObjDQM::getStringNameAndId(const 
 	}
       }      
     }
-    else if(tTopo->tibLayer(detId_)==4 and tTopo->tibIsInternalString(detId_)){ //4th layer int
+    else if(tTopo->tibLayer(detId_)==4 && tTopo->tibIsInternalString(detId_)){ //4th layer int
       for( unsigned int i=1; i < 53 ;i++){
 	if(tTopo->tibString(detId_)==i){  
 	  layerStringName << "TIB_L4_Int_Str_" << i;
@@ -1082,7 +1082,7 @@ std::pair<std::string,uint32_t> SiStripBaseCondObjDQM::getStringNameAndId(const 
 	}
       }      
     }
-    else if(tTopo->tibLayer(detId_)==4 and tTopo->tibIsExternalString(detId_)){ //4th layer ext
+    else if(tTopo->tibLayer(detId_)==4 && tTopo->tibIsExternalString(detId_)){ //4th layer ext
       for( unsigned int i=1; i < 57 ;i++){
 	if(tTopo->tibString(detId_)==i){  
 	  layerStringName << "TIB_L4_Ext_Str_" << i;
@@ -1204,17 +1204,17 @@ void SiStripBaseCondObjDQM::saveTkMap(const std::string& TkMapname, double minVa
       entries+=tkMapScaler[i];
 
     float min=0 ;
-    for(size_t i=0;(i<tkMapScaler.size()) and (min<th);++i){
+    for(size_t i=0;(i<tkMapScaler.size()) && (min<th);++i){
       min+=tkMapScaler[i]/entries;
       imin=i;
     }
 
     float max=0;
-    // for(size_t i=tkMapScaler.size()-1;(i>=0) and (max<th);--i){ // Wrong
+    // for(size_t i=tkMapScaler.size()-1;(i>=0) && (max<th);--i){ // Wrong
     // Since i is unsigned, i >= 0 is always true,
     // and the loop termination condition is never reached.
     // We offset the loop index by one to fix this.
-    for(size_t j=tkMapScaler.size();(j>0) and (max<th);--j){ 
+    for(size_t j=tkMapScaler.size();(j>0) && (max<th);--j){ 
       size_t i = j - 1;
       max+=tkMapScaler[i]/entries;
       imax=i;
@@ -1286,10 +1286,10 @@ void SiStripBaseCondObjDQM::fillSummaryMEs(const std::vector<uint32_t> & selecte
     ModMEs selME;
     selME = iter->second;
 
-    if(hPSet_.getParameter<bool>("FillSummaryProfileAtLayerLevel") and
+    if(hPSet_.getParameter<bool>("FillSummaryProfileAtLayerLevel") &&
        fPSet_.getParameter<bool>("OutputSummaryProfileAtLayerLevelAsImage")){
 
-      if( CondObj_fillId_ =="onlyProfile" or CondObj_fillId_ =="ProfileAndCumul"){
+      if( CondObj_fillId_ =="onlyProfile" || CondObj_fillId_ =="ProfileAndCumul"){
 
 	TCanvas c1("c1");
 	selME.SummaryOfProfileDistr->getTProfile()->Draw();
@@ -1298,7 +1298,7 @@ void SiStripBaseCondObjDQM::fillSummaryMEs(const std::vector<uint32_t> & selecte
 	c1.Print(name.c_str());
       }
     }
-    if(hPSet_.getParameter<bool>("FillSummaryAtLayerLevel") and
+    if(hPSet_.getParameter<bool>("FillSummaryAtLayerLevel") &&
        fPSet_.getParameter<bool>("OutputSummaryAtLayerLevelAsImage")){
 
       TCanvas c1("c1");
@@ -1307,10 +1307,10 @@ void SiStripBaseCondObjDQM::fillSummaryMEs(const std::vector<uint32_t> & selecte
       name+=".png";
       c1.Print(name.c_str());
     }
-    if(hPSet_.getParameter<bool>("FillCumulativeSummaryAtLayerLevel") and
+    if(hPSet_.getParameter<bool>("FillCumulativeSummaryAtLayerLevel") &&
        fPSet_.getParameter<bool>("OutputCumulativeSummaryAtLayerLevelAsImage")){
 
-      if( CondObj_fillId_ =="onlyCumul" or CondObj_fillId_ =="ProfileAndCumul"){
+      if( CondObj_fillId_ =="onlyCumul" || CondObj_fillId_ =="ProfileAndCumul"){
 
 	TCanvas c1("c1");
 	selME.SummaryOfCumulDistr->getTH1()->Draw();
