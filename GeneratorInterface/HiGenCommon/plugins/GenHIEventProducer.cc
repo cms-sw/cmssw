@@ -52,7 +52,7 @@ class GenHIEventProducer : public edm::EDProducer {
         ~GenHIEventProducer();
 
     private:
-        virtual void produce(edm::Event&, const edm::EventSetup&);
+        virtual void produce(edm::Event&, const edm::EventSetup&) override;
         std::vector<std::string> hepmcSrc_;
         edm::ESHandle < ParticleDataTable > pdt;
 
