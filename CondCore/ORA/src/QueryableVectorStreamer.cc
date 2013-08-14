@@ -304,7 +304,7 @@ namespace ora {
       public:
 
       // triggers the data loading
-      bool load(void* address) const {
+      bool load(void* address) const override {
         bool ret = false;
         if(m_isValid) {
           m_reader.read( m_identity, address );
@@ -313,7 +313,7 @@ namespace ora {
         return ret;
       }
 
-      bool loadSelection(const Selection& selection, void* address) const {
+      bool loadSelection(const Selection& selection, void* address) const override {
         bool ret = false;
         if(m_isValid) {
           m_queryMaker.build();
@@ -324,7 +324,7 @@ namespace ora {
         return ret;
       }
 
-      size_t getSelectionCount( const Selection& selection ) const {
+      size_t getSelectionCount( const Selection& selection ) const override {
         size_t ret = 0;
         if(m_isValid) {
           ret = m_queryMaker.selectionCount( m_identity, selection );
@@ -332,11 +332,11 @@ namespace ora {
         return ret;
       }
 
-      void invalidate(){
+      void invalidate() override{
         m_isValid = false;
       }
 
-      bool isValid() const{
+      bool isValid() const override{
         return m_isValid;
       }
         
