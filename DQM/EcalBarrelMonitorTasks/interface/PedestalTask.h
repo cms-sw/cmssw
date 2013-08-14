@@ -12,11 +12,11 @@ namespace ecaldqm {
     PedestalTask(const edm::ParameterSet &, const edm::ParameterSet &);
     ~PedestalTask();
 
-    void bookMEs();
+    void bookMEs() override;
 
-    bool filterRunType(const std::vector<short>&);
+    bool filterRunType(const std::vector<short>&) override;
 
-    void analyze(const void*, Collections);
+    void analyze(const void*, Collections) override;
 
     void runOnDigis(const EcalDigiCollection&);
     void runOnPnDigis(const EcalPnDiodeDigiCollection&);

@@ -13,11 +13,11 @@ namespace ecaldqm {
     IntegrityTask(const edm::ParameterSet &, const edm::ParameterSet&);
     ~IntegrityTask();
 
-    void bookMEs();
+    void bookMEs() override;
 
-    void beginLuminosityBlock(const edm::LuminosityBlock &, const edm::EventSetup &);
+    void beginLuminosityBlock(const edm::LuminosityBlock &, const edm::EventSetup &) override;
 
-    void analyze(const void*, Collections);
+    void analyze(const void*, Collections) override;
 
     void runOnErrors(const DetIdCollection &, Collections);
     void runOnErrors(const EcalElectronicsIdCollection &, Collections);
