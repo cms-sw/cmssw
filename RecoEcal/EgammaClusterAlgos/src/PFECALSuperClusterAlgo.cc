@@ -450,7 +450,7 @@ buildSuperCluster(CalibClusterPtr& seed,
 					 i_ps->second);
 	if( found_pscluster == new_sc.preshowerClustersEnd() ) {
 #endif	  
-	  new_sc.addPreshowerCluster(clus->the_ptr(),psclus);	  	  
+	  new_sc.addPreshowerCluster(psclus);	  	  
 #ifdef EDM_ML_DEBUG
 	} else {
 	  throw cms::Exception("PFECALSuperClusterAlgo::buildSuperCluster")
