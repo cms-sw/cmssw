@@ -28,7 +28,7 @@
 
 #include "boost/program_options.hpp"
 
-#include <assert.h>
+#include <cassert>
 #include <iostream>
 #include <memory>
 #include <map>

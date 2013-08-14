@@ -16,7 +16,7 @@
 #include <map>
 #include <sstream>
 #include <ostream>
-#include <assert.h>
+#include <cassert>
 #include <iostream>
 
 enum {
