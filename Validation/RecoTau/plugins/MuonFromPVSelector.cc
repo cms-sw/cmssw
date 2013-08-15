@@ -30,8 +30,8 @@ public:
   virtual ~MuonFromPVSelector();
   
   // member functions
-  void produce(edm::Event& iEvent,const edm::EventSetup& iSetup);
-  void endJob();
+  void produce(edm::Event& iEvent,const edm::EventSetup& iSetup) override;
+  void endJob() override;
 
 private:  
   // member data
