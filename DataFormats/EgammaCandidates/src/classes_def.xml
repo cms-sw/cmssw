@@ -93,8 +93,8 @@
 
 
 
-  <class name="reco::GsfElectronCore" ClassVersion="10">
-   <version ClassVersion="10" checksum="2226610106"/>
+  <class name="reco::GsfElectronCore" ClassVersion="11">
+   <version ClassVersion="11" checksum="2226610106"/>
   </class>
   <class name="std::vector<reco::GsfElectronCore>"/>  
   <class name="edm::reftobase::BaseHolder<reco::GsfElectronCore>"/>
@@ -138,8 +138,8 @@
   <class name="reco::GsfElectron::ChargeInfo" ClassVersion="10">
    <version ClassVersion="10" checksum="1415326811"/>
   </class>
-  <class name="reco::GsfElectron::PflowIsolationVariables" ClassVersion="10">
-   <version ClassVersion="10" checksum="4270399196"/>
+  <class name="reco::GsfElectron::PflowIsolationVariables" ClassVersion="11">
+   <version ClassVersion="11" checksum="980464324"/>
   </class>
   <class name="reco::GsfElectron::MvaInput" ClassVersion="11">
    <version ClassVersion="11" checksum="2106253688"/>
