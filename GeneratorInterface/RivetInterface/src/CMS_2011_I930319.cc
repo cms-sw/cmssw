@@ -30,7 +30,7 @@ namespace Rivet
  	double evcounter_dijet;
  
 
-  void init() {
+  void init() override {
     const FinalState fs(-6.0,6.0,0.0*GeV);             
     addProjection(fs, "FS"); 
     addProjection(FastJets(fs, FastJets::ANTIKT, 0.5), "Jets");	
@@ -62,7 +62,7 @@ namespace Rivet
 
   }
 
-  void analyze(const Event& event) {
+  void analyze(const Event& event) override {
     const double weight = event.weight();     
     
     // Skip if the event is empty
@@ -209,7 +209,7 @@ namespace Rivet
   }
 
     
-  void finalize() {      
+  void finalize() override {      
       
     const double norm_dijet = evcounter_dijet*2.0 ; //AK norm factor 2 for the +/- region
     const double norm_mb = evcounter_mb*2.0 ;
