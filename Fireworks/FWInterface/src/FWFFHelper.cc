@@ -29,7 +29,7 @@ public:
          fInputHandler->Remove();
       }
 
-   Bool_t HandleTermInput()
+   Bool_t HandleTermInput() override
       {
          if (m_rootPrompt)
             return TRint::HandleTermInput();
