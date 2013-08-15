@@ -218,7 +218,7 @@ namespace {
       public:
         TreeObjectReader():m_tree(0),m_fullName(0),m_buffer(0),m_tag(0){
         }
-        virtual MonitorElement* doRead(ULong64_t iIndex, DQMStore& iStore, bool iIsLumi) {
+        virtual MonitorElement* doRead(ULong64_t iIndex, DQMStore& iStore, bool iIsLumi) override {
           m_tree->GetEntry(iIndex);
           MonitorElement* element = iStore.get(*m_fullName);
           if(0 == element) {
@@ -236,7 +236,7 @@ namespace {
           }
           return element;
         }
-        virtual void setTree(TTree* iTree)  {
+        virtual void setTree(TTree* iTree) override  {
           m_tree = iTree;
           m_tree->SetBranchAddress(kFullNameBranch,&m_fullName);
           m_tree->SetBranchAddress(kFlagBranch,&m_tag);
@@ -254,7 +254,7 @@ namespace {
       public:
         TreeSimpleReader():m_tree(0),m_fullName(0),m_buffer(),m_tag(0){
         }
-        virtual MonitorElement* doRead(ULong64_t iIndex, DQMStore& iStore,bool iIsLumi) {
+        virtual MonitorElement* doRead(ULong64_t iIndex, DQMStore& iStore,bool iIsLumi) override {
           m_tree->GetEntry(iIndex);
           MonitorElement* element = iStore.get(*m_fullName);
           if(0 == element) {
@@ -272,7 +272,7 @@ namespace {
           }
           return element;
         }
-        virtual void setTree(TTree* iTree)  {
+        virtual void setTree(TTree* iTree) override  {
           m_tree = iTree;
           m_tree->SetBranchAddress(kFullNameBranch,&m_fullName);
           m_tree->SetBranchAddress(kFlagBranch,&m_tag);
@@ -344,16 +344,16 @@ class DQMRootSource : public edm::InputSource
         unsigned int lumi_;
       };
 
-      virtual edm::InputSource::ItemType getNextItemType();
+      virtual edm::InputSource::ItemType getNextItemType() override;
       //NOTE: the following is really read next run auxiliary
-      virtual boost::shared_ptr<edm::RunAuxiliary> readRunAuxiliary_() ;
-      virtual boost::shared_ptr<edm::LuminosityBlockAuxiliary> readLuminosityBlockAuxiliary_() ;
-      virtual boost::shared_ptr<edm::RunPrincipal> readRun_(boost::shared_ptr<edm::RunPrincipal> rpCache);
-      virtual boost::shared_ptr<edm::LuminosityBlockPrincipal> readLuminosityBlock_( boost::shared_ptr<edm::LuminosityBlockPrincipal> lbCache);
-      virtual edm::EventPrincipal* readEvent_(edm::EventPrincipal&) ;
+      virtual boost::shared_ptr<edm::RunAuxiliary> readRunAuxiliary_() override ;
+      virtual boost::shared_ptr<edm::LuminosityBlockAuxiliary> readLuminosityBlockAuxiliary_() override ;
+      virtual boost::shared_ptr<edm::RunPrincipal> readRun_(boost::shared_ptr<edm::RunPrincipal> rpCache) override;
+      virtual boost::shared_ptr<edm::LuminosityBlockPrincipal> readLuminosityBlock_( boost::shared_ptr<edm::LuminosityBlockPrincipal> lbCache) override;
+      virtual edm::EventPrincipal* readEvent_(edm::EventPrincipal&) override ;
       
-      virtual std::unique_ptr<edm::FileBlock> readFile_();
-      virtual void closeFile_();
+      virtual std::unique_ptr<edm::FileBlock> readFile_() override;
+      virtual void closeFile_() override;
       
       void logFileAction(char const* msg, char const* fileName) const;
       
