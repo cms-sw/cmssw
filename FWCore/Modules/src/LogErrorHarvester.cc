@@ -39,9 +39,9 @@ namespace edm {
       static void fillDescriptions(ConfigurationDescriptions& descriptions);
 
     private:
-      virtual void beginJob();
-      virtual void produce(Event&, EventSetup const&);
-      virtual void endJob() ;
+      virtual void beginJob() override;
+      virtual void produce(Event&, EventSetup const&) override;
+      virtual void endJob() override ;
   };
 
   LogErrorHarvester::LogErrorHarvester(ParameterSet const&) {
