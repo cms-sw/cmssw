@@ -113,8 +113,8 @@ class Herwig6Hadronizer : public gen::BaseHadronizer,
 	int pythiaStatusCode(const HepMC::GenParticle *p) const;
 	void pythiaStatusCodes();
 
-	virtual void upInit();
-	virtual void upEvnt();
+	virtual void upInit() override;
+	virtual void upEvnt() override;
 
 	HepMC::IO_HERWIG		conv;
 	bool				needClear;
