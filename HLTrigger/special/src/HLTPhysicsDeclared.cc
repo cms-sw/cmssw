@@ -22,7 +22,7 @@ public:
   ~HLTPhysicsDeclared();
   
 private:
-  virtual bool filter( edm::Event &, const edm::EventSetup & );
+  virtual bool filter( edm::Event &, const edm::EventSetup & ) override;
 
   bool          m_invert;
   edm::InputTag m_gtDigis;
