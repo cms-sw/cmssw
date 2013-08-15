@@ -35,6 +35,7 @@ public:
 
 TestLumiCorrectionSource::TestLumiCorrectionSource(edm::ParameterSet const& ps)
 {
+  consumes<LumiSummary,edm::InLumi>(edm::InputTag("lumiProducer",""));
 }
 
 // -----------------------------------------------------------------
