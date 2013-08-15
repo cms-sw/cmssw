@@ -46,6 +46,7 @@ EcalBarrelRecHitsMaker::EcalBarrelRecHitsMaker(edm::ParameterSet const & p,
   applyZSCells_.resize(EBDetId::kSizeForDenseIndexing,true);
   theCalorimeterHits_.resize(EBDetId::kSizeForDenseIndexing,0.);
   theCalorimeterTimes_.resize(EBDetId::kSizeForDenseIndexing,0.);
+  theCalorimeterNominalTimes_.resize(EBDetId::kSizeForDenseIndexing,0.);
   crystalsinTT_.resize(2448);
   TTTEnergy_.resize(2448,0.);
   TTHighInterest_.resize(2448,0);
@@ -77,7 +78,15 @@ EcalBarrelRecHitsMaker::EcalBarrelRecHitsMaker(edm::ParameterSet const & p,
   edm::ParameterSet CalibParameters = RecHitsParameters.getParameter<edm::ParameterSet>("ContFact"); 
   double c1=CalibParameters.getParameter<double>("EBs25notContainment"); 
   calibfactor_=1./c1;
-
+    
+  // initializing theCalorimeterNominalTimes, which needs be done only once, and not at all events
+  std::cout << "EcalBarrelRecHitsMaker size is: " << theCalorimeterNominalTimes_.size() << std::endl;
+  for(unsigned hashindex=0;hashindex<theCalorimeterNominalTimes_.size();++hashindex)
+    {
+      theCalorimeterNominalTimes_[hashindex] = 0.;
+      std::cout << "EcalBarrelRecHitsMaker setting theCalorimeterNominalTimes_ to 0 for hash: " << hashindex << std::endl;
+    }
+  
 
 }
 
@@ -181,10 +190,10 @@ void EcalBarrelRecHitsMaker::loadEcalBarrelRecHits(edm::Event &iEvent,EBRecHitCo
 //      std::cout << " Threshold ok " << std::endl;
 //      std::cout << " Raw Id " << barrelRawId_[icell] << std::endl;
 //      std::cout << " Adding " << icell << " " << barrelRawId_[icell] << " " << energy << std::endl;
-      if(energy!=0.)
-	ecalHits.push_back(EcalRecHit(myDetId,energy, theCalorimeterTimes_[icell] ));
-      // GF: third argument is the time
-      std::cout << " EB rechitHit stored ene time: " <<  energy << "\t" << theCalorimeterTimes_[icell]   << std::endl;
+      if(energy!=0.) {
+	ecalHits.push_back(EcalRecHit(myDetId,energy, theCalorimeterTimes_[icell] )); 
+	std::cout << " EB rechitHit stored ene time: " <<  energy << "\t" << theCalorimeterTimes_[icell]   << std::endl;
+      }
     }
   //  std::cout << " Done " << std::endl;
 
@@ -222,11 +231,13 @@ void EcalBarrelRecHitsMaker::loadPCaloHits(const edm::Event & iEvent)
       // not be added several times. 
       float energy=(cficalo->energy()==0.) ? 0.000001 : cficalo->energy() ;
       energy*=calib;
-      theCalorimeterHits_[hashedindex] +=energy;         
+      theCalorimeterHits_[hashedindex] +=energy;
       theCalorimeterTimes_[hashedindex] =cficalo->time();
-      ///////////////////////////////////////////////////
-      // GF  you need to subtract the straight path here! 
-      std::cout << "EB cficalo ene: " << cficalo->energy() << " time: " << cficalo->time() << " theCalorimeterTimes_[hashedindex]:  " << theCalorimeterTimes_[hashedindex] << std::endl;
+      theCalorimeterTimes_[hashedindex]= cficalo->time() - theCalorimeterNominalTimes_[hashedindex];
+      // GF: you need to account for combination of multiple sim hits on the same cell TODO
+      std::cout << "EB cficalo ene : " << cficalo->energy() << " cficalo time: " << cficalo->time()
+		<< " being changed to theCalorimeterTimes_: " << theCalorimeterTimes_[hashedindex]
+		<< " via subtracting: " << theCalorimeterNominalTimes_[hashedindex] << " hash: " << hashedindex << std::endl;
 
       // Now deal with the TTs. 
       EBDetId myDetId(EBDetId(cficalo->id()));
@@ -456,6 +467,13 @@ void EcalBarrelRecHitsMaker::init(const edm::EventSetup &es,bool doDigis,bool do
 	  sinTheta_[ietaAbs]=std::sin(myEcalBarrelGeometry->getGeometry(myDetId)->getPosition().theta());
 	  //	  std::cout << " Ieta abs " << ietaAbs << " " << sinTheta_[ietaAbs] << std::endl;
 	}
+
+      // time of flight of a neutral particle from the nominal IP to the crystal
+      // => to be suctracted from the calohit time, to emulate the ECAL latency adjustments in the hw (aimed at <t_reco>=0 at any eta)
+      float netralAndNominalTof= (myEcalBarrelGeometry->getGeometry(myDetId)->getPosition().mag()) /29.98 ;
+      theCalorimeterNominalTimes_[crystalHashedIndex] = netralAndNominalTof;  // GF : shorten this
+      std::cout << "EcalBarrelRecHitsMaker theCalorimeterNominalTimes set to: " << theCalorimeterNominalTimes_[crystalHashedIndex]
+		<< " hash: " << crystalHashedIndex  << std::endl;
     }
 
 

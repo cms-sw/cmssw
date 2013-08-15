@@ -63,8 +63,10 @@ class EcalEndcapRecHitsMaker
 
   // array (size = 20000) of the energy in the barrel
   std::vector<float> theCalorimeterHits_;
-  // array (size = 62000) of the time in the barrel
+  // vector of the reco time in the barrel
   std::vector<float> theCalorimeterTimes_;
+  // vector of the nominal neutral time in the barrel
+  std::vector<float> theCalorimeterNominalTimes_;
   // array of the hashedindices in the previous array of the cells that received a hit
   std::vector<int> theFiredCells_;
   // array of the hashedindices in the previous array of the cells that received a hit
