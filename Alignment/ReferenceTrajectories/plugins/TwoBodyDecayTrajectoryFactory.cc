@@ -42,14 +42,14 @@ public:
   /// Produce the trajectories.
   virtual const ReferenceTrajectoryCollection trajectories(const edm::EventSetup &setup,
 							   const ConstTrajTrackPairCollection &tracks,
-							   const reco::BeamSpot &beamSpot) const;
+							   const reco::BeamSpot &beamSpot) const override;
 
   virtual const ReferenceTrajectoryCollection trajectories(const edm::EventSetup &setup,
 							   const ConstTrajTrackPairCollection &tracks,
 							   const ExternalPredictionCollection &external,
-							   const reco::BeamSpot &beamSpot) const;
+							   const reco::BeamSpot &beamSpot) const override;
 
-  virtual TwoBodyDecayTrajectoryFactory* clone() const { return new TwoBodyDecayTrajectoryFactory(*this); }
+  virtual TwoBodyDecayTrajectoryFactory* clone() const override { return new TwoBodyDecayTrajectoryFactory(*this); }
 
 protected:
   const ReferenceTrajectoryCollection constructTrajectories(const ConstTrajTrackPairCollection &tracks,
