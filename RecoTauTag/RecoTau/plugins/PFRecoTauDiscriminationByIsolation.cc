@@ -132,8 +132,8 @@ class PFRecoTauDiscriminationByIsolation :
 
     ~PFRecoTauDiscriminationByIsolation(){}
 
-    void beginEvent(const edm::Event& evt, const edm::EventSetup& evtSetup);
-    double discriminate(const PFTauRef& pfTau);
+    void beginEvent(const edm::Event& evt, const edm::EventSetup& evtSetup) override;
+    double discriminate(const PFTauRef& pfTau) override;
 
   private:
     edm::ParameterSet qualityCutsPSet_;

@@ -35,7 +35,7 @@ class PFRecoTauProducer : public EDProducer {
  public:
   explicit PFRecoTauProducer(const edm::ParameterSet& iConfig);
   ~PFRecoTauProducer();
-  virtual void produce(edm::Event&,const edm::EventSetup&);
+  virtual void produce(edm::Event&,const edm::EventSetup&) override;
  private:
   edm::InputTag PFTauTagInfoProducer_;
   edm::InputTag ElectronPreIDProducer_;

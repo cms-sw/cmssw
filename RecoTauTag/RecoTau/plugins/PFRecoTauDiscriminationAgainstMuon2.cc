@@ -53,9 +53,9 @@ class PFRecoTauDiscriminationAgainstMuon2 : public PFTauDiscriminationProducerBa
    }
   ~PFRecoTauDiscriminationAgainstMuon2() {} 
 
-  void beginEvent(const edm::Event&, const edm::EventSetup&);
+  void beginEvent(const edm::Event&, const edm::EventSetup&) override;
 
-  double discriminate(const reco::PFTauRef&);
+  double discriminate(const reco::PFTauRef&) override;
 
  private:  
   std::string moduleLabel_;

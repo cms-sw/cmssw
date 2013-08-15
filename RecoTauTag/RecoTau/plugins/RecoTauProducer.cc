@@ -47,7 +47,7 @@ class RecoTauProducer : public edm::EDProducer {
 
     explicit RecoTauProducer(const edm::ParameterSet& pset);
     ~RecoTauProducer() {}
-    void produce(edm::Event& evt, const edm::EventSetup& es);
+    void produce(edm::Event& evt, const edm::EventSetup& es) override;
 
   private:
     edm::InputTag jetSrc_;

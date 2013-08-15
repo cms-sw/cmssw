@@ -25,7 +25,7 @@ class RecoTauStringCleanerPlugin : public RecoTauCleanerPlugin {
   public:
     explicit RecoTauStringCleanerPlugin(const edm::ParameterSet&);
     ~RecoTauStringCleanerPlugin() {}
-    double operator()(const PFTauRef& tau) const;
+    double operator()(const PFTauRef& tau) const override;
   private:
     const StringCutObjectSelector<PFTau> selector_;
     const StringObjectFunction<PFTau> function_;

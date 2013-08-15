@@ -38,7 +38,7 @@ class CaloRecoTauTagInfoProducer : public EDProducer {
  public:
   explicit CaloRecoTauTagInfoProducer(const edm::ParameterSet&);
   ~CaloRecoTauTagInfoProducer();
-  virtual void produce(edm::Event&,const edm::EventSetup&);
+  virtual void produce(edm::Event&,const edm::EventSetup&) override;
  private:
   CaloRecoTauTagInfoAlgorithm* CaloRecoTauTagInfoAlgo_;
   edm::InputTag CaloJetTracksAssociatorProducer_;
