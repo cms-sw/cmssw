@@ -30,7 +30,7 @@ namespace cms
     typedef std::vector<Trajectory> TrajectoryCollection;
 
     explicit CkfTrajectoryMaker(const edm::ParameterSet& conf):
-      CkfTrackCandidateMakerBase(conf)
+      CkfTrackCandidateMakerBase(conf, consumesCollector())
     {
       theTrackCandidateOutput=conf.getParameter<bool>("trackCandidateAlso");
       theTrajectoryOutput=true;

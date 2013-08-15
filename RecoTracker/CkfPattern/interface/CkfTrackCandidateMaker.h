@@ -29,7 +29,7 @@ namespace cms
   public:
 
     explicit CkfTrackCandidateMaker(const edm::ParameterSet& conf):
-      CkfTrackCandidateMakerBase(conf){
+      CkfTrackCandidateMakerBase(conf, consumesCollector()){
       produces<TrackCandidateCollection>();
     }
 
