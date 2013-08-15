@@ -53,7 +53,7 @@ public:
     // delete DigiTimeBox;
   }
   
-  void analyze(const Event & event, const EventSetup& eventSetup){
+  void analyze(const Event & event, const EventSetup& eventSetup) override{
     cout << "--- Run: " << event.id().run()
 	 << " Event: " << event.id().event() << endl;
     

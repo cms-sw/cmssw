@@ -34,7 +34,7 @@ class PFRecoTauDiscriminationAgainstMuon : public PFTauDiscriminationProducerBas
 
   ~PFRecoTauDiscriminationAgainstMuon() {} 
 
-  double discriminate(const PFTauRef& pfTau);
+  double discriminate(const PFTauRef& pfTau) override;
 
  private:  
   std::string discriminatorOption_;

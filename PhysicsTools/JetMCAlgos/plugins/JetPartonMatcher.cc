@@ -98,7 +98,7 @@ class JetPartonMatcher : public edm::EDProducer
     ~JetPartonMatcher();
 
   private:
-    virtual void produce(edm::Event&, const edm::EventSetup& );
+    virtual void produce(edm::Event&, const edm::EventSetup& ) override;
 
     int fillAlgoritDefinition( const Jet& );
     int fillPhysicsDefinition( const Jet& );

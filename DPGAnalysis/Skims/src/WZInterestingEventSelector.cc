@@ -63,7 +63,7 @@ public:
   
 private:
   virtual bool filter(edm::Event&, const edm::EventSetup&) override;
-  virtual void endJob(); 
+  virtual void endJob() override; 
   bool electronSelection( const GsfElectron* eleRef , math::XYZPoint bspotPosition);  
   // ----------member data ---------------------------
 

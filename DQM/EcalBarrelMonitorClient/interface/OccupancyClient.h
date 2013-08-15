@@ -12,11 +12,11 @@ namespace ecaldqm {
     OccupancyClient(const edm::ParameterSet &, const edm::ParameterSet &);
     ~OccupancyClient() {}
 
-    void beginRun(const edm::Run &, const edm::EventSetup &);
+    void beginRun(const edm::Run &, const edm::EventSetup &) override;
 
-    void bookMEs();
+    void bookMEs() override;
 
-    void producePlots();
+    void producePlots() override;
 
     enum MESets {
       kHotDigi,

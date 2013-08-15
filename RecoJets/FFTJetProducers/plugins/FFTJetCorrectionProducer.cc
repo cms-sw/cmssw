@@ -96,9 +96,9 @@ public:
     ~FFTJetCorrectionProducer();
 
 private:
-    virtual void beginJob() ;
-    virtual void produce(edm::Event&, const edm::EventSetup&);
-    virtual void endJob() ;
+    virtual void beginJob() override ;
+    virtual void produce(edm::Event&, const edm::EventSetup&) override;
+    virtual void endJob() override ;
 
     template <typename Jet>
     void makeProduces(const std::string& alias, const std::string& tag);

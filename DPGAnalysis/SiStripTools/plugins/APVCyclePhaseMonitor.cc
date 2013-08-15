@@ -55,11 +55,11 @@ class APVCyclePhaseMonitor : public edm::EDAnalyzer {
 
 
    private:
-      virtual void beginJob() ;
+      virtual void beginJob() override ;
       virtual void beginRun(const edm::Run&, const edm::EventSetup&) override;
       virtual void endRun(const edm::Run&, const edm::EventSetup&) override;
       virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
-      virtual void endJob() ;
+      virtual void endJob() override ;
 
       // ----------member data ---------------------------
 

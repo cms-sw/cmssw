@@ -42,7 +42,7 @@ class LHEAnalyzer : public edm::EDAnalyzer {
 
     protected:
 	virtual void analyze(const edm::Event &event,
-	                     const edm::EventSetup &es);
+	                     const edm::EventSetup &es) override;
 
 
     private:

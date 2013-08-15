@@ -21,14 +21,14 @@ class EmptyESSource : public  EventSetupRecordIntervalFinder {
       // ---------- member functions ---------------------------
    void setIntervalFor(eventsetup::EventSetupRecordKey const&,
                         IOVSyncValue const& iTime, 
-                        ValidityInterval& oInterval);
+                        ValidityInterval& oInterval) override;
       
    private:
       EmptyESSource(EmptyESSource const&); // stop default
 
       EmptyESSource const& operator=(EmptyESSource const&); // stop default
       
-      void delaySettingRecords();
+      void delaySettingRecords() override;
       // ---------- member data --------------------------------
       std::string recordName_;
       std::set <IOVSyncValue> setOfIOV_;

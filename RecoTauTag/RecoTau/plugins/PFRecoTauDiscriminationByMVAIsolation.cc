@@ -70,8 +70,8 @@ public:
 
   ~PFRecoTauDiscriminationByMVAIsolation(){} 
 
-  void beginEvent(const edm::Event& evt, const edm::EventSetup& evtSetup);
-  double discriminate(const PFTauRef& pfTau);
+  void beginEvent(const edm::Event& evt, const edm::EventSetup& evtSetup) override;
+  double discriminate(const PFTauRef& pfTau) override;
   reco::tau::cone::IsoRings computeIsoRings(const PFTauRef& pfTau);
 
 private:

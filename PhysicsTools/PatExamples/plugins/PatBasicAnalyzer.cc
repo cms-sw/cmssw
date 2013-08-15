@@ -20,11 +20,11 @@ public:
   
 private:
   /// everything that needs to be done before the event loop
-  virtual void beginJob() ;
+  virtual void beginJob() override ;
   /// everything that needs to be done during the event loop
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
+  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
   /// everything that needs to be done after the event loop
-  virtual void endJob() ;
+  virtual void endJob() override ;
   
   // simple map to contain all histograms; 
   // histograms are booked in the beginJob() 

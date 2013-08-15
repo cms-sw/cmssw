@@ -61,12 +61,12 @@ namespace edm {
       void setTree(TTree* iTree) {eventTree_ = iTree;}
       void set(boost::shared_ptr<ProductRegistry const> iReg) { reg_ = iReg;}
      private:
-      virtual WrapperOwningHolder getProduct_(BranchKey const& k, WrapperInterfaceBase const* interface, EDProductGetter const* ep) const;
+      virtual WrapperOwningHolder getProduct_(BranchKey const& k, WrapperInterfaceBase const* interface, EDProductGetter const* ep) const override;
       virtual std::auto_ptr<EventEntryDescription> getProvenance_(BranchKey const&) const {
         return std::auto_ptr<EventEntryDescription>();
       }
-      virtual void mergeReaders_(DelayedReader*) {}
-      virtual void reset_() {}
+      virtual void mergeReaders_(DelayedReader*) override {}
+      virtual void reset_() override {}
       Long64_t entry_;
       TTree* eventTree_;
       boost::shared_ptr<ProductRegistry const>(reg_);

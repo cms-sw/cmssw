@@ -49,7 +49,7 @@ class HLTCSCAcceptBusyFilter : public HLTFilter {
       explicit HLTCSCAcceptBusyFilter(const edm::ParameterSet&);
       virtual ~HLTCSCAcceptBusyFilter();
 
-      virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct);
+      virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) override;
   
    private:
       bool AcceptManyHitsInChamber(unsigned int maxRecHitsPerChamber, const edm::Handle<CSCRecHit2DCollection>& recHits);

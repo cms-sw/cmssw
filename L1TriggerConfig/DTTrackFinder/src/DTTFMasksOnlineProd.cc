@@ -38,7 +38,7 @@ class DTTFMasksOnlineProd :
       ~DTTFMasksOnlineProd();
 
       virtual boost::shared_ptr< L1MuDTTFMasks > newObject(
-        const std::string& objectKey ) ;
+        const std::string& objectKey ) override ;
 
    private:
 

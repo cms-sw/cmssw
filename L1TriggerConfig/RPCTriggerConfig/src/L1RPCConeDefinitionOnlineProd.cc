@@ -39,7 +39,7 @@ class L1RPCConeDefinitionOnlineProd : public L1ConfigOnlineProdBase<
       ~L1RPCConeDefinitionOnlineProd();
 
   virtual boost::shared_ptr< L1RPCConeDefinition > newObject(
-    const std::string& objectKey ) ;
+    const std::string& objectKey ) override ;
 
    private:
       // ----------member data ---------------------------

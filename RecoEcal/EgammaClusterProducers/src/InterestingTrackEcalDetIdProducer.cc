@@ -52,10 +52,10 @@ class InterestingTrackEcalDetIdProducer : public edm::EDProducer {
       ~InterestingTrackEcalDetIdProducer();
 
    private:
-      virtual void beginJob() ;
-      virtual void produce(edm::Event&, const edm::EventSetup&);
-      virtual void endJob() ;
-      void beginRun(edm::Run const&, const edm::EventSetup&);
+      virtual void beginJob() override ;
+      virtual void produce(edm::Event&, const edm::EventSetup&) override;
+      virtual void endJob() override ;
+      void beginRun(edm::Run const&, const edm::EventSetup&) override;
 
       
       // ----------member data ---------------------------

@@ -27,7 +27,7 @@ private:
    // Disable default assignment operator
    const FWTrackingVertexProxyBuilder& operator=( const FWTrackingVertexProxyBuilder& );
 
-   void build( const TrackingVertex& iData, unsigned int iIndex, TEveElement& oItemHolder, const FWViewContext* );
+   void build( const TrackingVertex& iData, unsigned int iIndex, TEveElement& oItemHolder, const FWViewContext* ) override;
 };
 
 void

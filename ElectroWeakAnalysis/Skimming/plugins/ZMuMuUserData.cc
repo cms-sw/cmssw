@@ -31,7 +31,7 @@ public:
   ZMuMuUserData( const edm::ParameterSet & );   
   typedef math::XYZVector Vector;
 private:
-  void produce( edm::Event &, const edm::EventSetup & );
+  void produce( edm::Event &, const edm::EventSetup & ) override;
   
   InputTag src_,beamSpot_, primaryVertices_, zGenParticlesMatch_;
   double alpha_, beta_; 

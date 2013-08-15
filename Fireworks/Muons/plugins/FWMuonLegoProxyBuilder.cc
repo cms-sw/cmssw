@@ -26,7 +26,7 @@ private:
    // Disable default assignment operator
    const FWMuonLegoProxyBuilder& operator=( const FWMuonLegoProxyBuilder& );
 
-   virtual void build( const reco::Muon& iData, unsigned int iIndex, TEveElement& oItemHolder, const FWViewContext* );
+   virtual void build( const reco::Muon& iData, unsigned int iIndex, TEveElement& oItemHolder, const FWViewContext* ) override;
 };
 
 void

@@ -24,7 +24,7 @@ private:
    FWPhotonLegoProxyBuilder(const FWPhotonLegoProxyBuilder&);
    const FWPhotonLegoProxyBuilder& operator=(const FWPhotonLegoProxyBuilder&);
 
-   virtual void build(const reco::Photon& iData, unsigned int iIndex, TEveElement& oItemHolder, const FWViewContext*);
+   virtual void build(const reco::Photon& iData, unsigned int iIndex, TEveElement& oItemHolder, const FWViewContext*) override;
 };
 
 void FWPhotonLegoProxyBuilder::build(const reco::Photon& iData, unsigned int iIndex, TEveElement& oItemHolder, const FWViewContext*) 

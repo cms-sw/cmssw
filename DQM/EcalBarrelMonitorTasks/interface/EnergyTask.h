@@ -14,11 +14,11 @@ namespace ecaldqm {
     EnergyTask(const edm::ParameterSet &, const edm::ParameterSet&);
     ~EnergyTask();
 
-    bool filterRunType(const std::vector<short>&);
+    bool filterRunType(const std::vector<short>&) override;
 
-    void beginRun(const edm::Run &, const edm::EventSetup &);
+    void beginRun(const edm::Run &, const edm::EventSetup &) override;
 
-    void analyze(const void*, Collections);
+    void analyze(const void*, Collections) override;
 
     void runOnRecHits(const EcalRecHitCollection &);
 

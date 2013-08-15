@@ -38,7 +38,7 @@ class L1HtMissScaleOnlineProd :
       ~L1HtMissScaleOnlineProd();
 
   virtual boost::shared_ptr< L1CaloEtScale > newObject(
-    const std::string& objectKey ) ;
+    const std::string& objectKey ) override ;
 
 
    private:

@@ -62,8 +62,8 @@ public:
 
 private:
   virtual void beginRun(edm::Run & run, const edm::EventSetup&) ;
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void endJob() ;
+  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
+  virtual void endJob() override ;
 
   // ----------member data ---------------------------
   edm::InputTag trackTagsOut_; //used to select what tracks to read from configuration file

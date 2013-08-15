@@ -56,9 +56,9 @@ class SiStripMeanCMExtractor : public edm::EDProducer {
       ~SiStripMeanCMExtractor();
 
    private:
-      virtual void beginJob() ;
-      virtual void produce(edm::Event&, const edm::EventSetup&);
-      virtual void endJob() ;
+      virtual void beginJob() override ;
+      virtual void produce(edm::Event&, const edm::EventSetup&) override;
+      virtual void endJob() override ;
       
 	  void init(const edm::EventSetup&);
 	  

@@ -110,12 +110,12 @@ public:
   HcalDetDiagLEDMonitor(const edm::ParameterSet& ps); 
   ~HcalDetDiagLEDMonitor(); 
 
-  void beginRun(const edm::Run& run, const edm::EventSetup& c);
-  void setup();
-  void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup);// const HcalDbService& cond)
-  void endRun(const edm::Run& run, const edm::EventSetup& c);
-  void reset();
-  void cleanup(); 
+  void beginRun(const edm::Run& run, const edm::EventSetup& c) override;
+  void setup() override;
+  void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) override;// const HcalDbService& cond)
+  void endRun(const edm::Run& run, const edm::EventSetup& c) override;
+  void reset() override;
+  void cleanup() override; 
   void fillHistos();
   int  GetStatistics(){ return ievt_; }
 private:

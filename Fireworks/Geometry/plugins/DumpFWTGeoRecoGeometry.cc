@@ -18,9 +18,9 @@ public:
   virtual ~DumpFWTGeoRecoGeometry( void ) {}
 
 private:
-  virtual void analyze( const edm::Event& event, const edm::EventSetup& eventSetup );
-  virtual void beginJob( void );
-  virtual void endJob( void );
+  virtual void analyze( const edm::Event& event, const edm::EventSetup& eventSetup ) override;
+  virtual void beginJob( void ) override;
+  virtual void endJob( void ) override;
 
   int m_level;
 };

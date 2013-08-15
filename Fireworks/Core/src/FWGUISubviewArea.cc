@@ -40,7 +40,7 @@ namespace
       XXXButton(const TGWindow* p, const TGPicture* pic) :
          TGPictureButton(p, pic), fXState(kButtonUp) {}
 
-      virtual void SetState(EButtonState state, Bool_t emit=kFALSE)
+      virtual void SetState(EButtonState state, Bool_t emit=kFALSE) override
       {
          TGPictureButton::SetState(state, kFALSE);
          if ((fXState == kButtonUp && fState  == kButtonEngaged) ||

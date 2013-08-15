@@ -15,8 +15,8 @@ namespace edm {
     virtual ~EventAuxiliaryHistoryProducer();
 
     static void fillDescriptions(ConfigurationDescriptions& descriptions);
-    virtual void produce(Event& e, EventSetup const& c);
-    void endJob();
+    virtual void produce(Event& e, EventSetup const& c) override;
+    void endJob() override;
 
   private:
     unsigned int depth_;

@@ -40,7 +40,7 @@ class DTExtLutOnlineProd :
       ~DTExtLutOnlineProd();
 
   virtual boost::shared_ptr< L1MuDTExtLut > newObject(
-    const std::string& objectKey ) ;
+    const std::string& objectKey ) override ;
 
    private:
       // ----------member data ---------------------------

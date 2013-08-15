@@ -23,9 +23,9 @@ class FSRWeightProducer : public edm::EDProducer {
       ~FSRWeightProducer();
 
    private:
-      virtual void beginJob() ;
+      virtual void beginJob() override ;
       virtual void produce(edm::Event&, const edm::EventSetup&) override;
-      virtual void endJob() ;
+      virtual void endJob() override ;
       double alphaRatio(double) ;
 
       edm::InputTag genTag_;

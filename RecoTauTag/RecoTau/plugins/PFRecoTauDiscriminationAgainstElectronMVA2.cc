@@ -89,11 +89,11 @@ class PFRecoTauDiscriminationAgainstElectronMVA2 : public PFTauDiscriminationPro
     }
   }
 
-  void beginEvent(const edm::Event&, const edm::EventSetup&);
+  void beginEvent(const edm::Event&, const edm::EventSetup&) override;
 
-  double discriminate(const PFTauRef&);
+  double discriminate(const PFTauRef&) override;
 
-  void endEvent(edm::Event&);
+  void endEvent(edm::Event&) override;
 
   ~PFRecoTauDiscriminationAgainstElectronMVA2()
   {

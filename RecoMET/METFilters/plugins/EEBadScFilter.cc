@@ -44,7 +44,7 @@ class EEBadScFilter : public edm::EDFilter {
 
   // main filter function
 
-  virtual bool filter(edm::Event & iEvent, const edm::EventSetup & iSetup);
+  virtual bool filter(edm::Event & iEvent, const edm::EventSetup & iSetup) override;
 
   // function to calculate 5x5 energy and check rechit flags 
 

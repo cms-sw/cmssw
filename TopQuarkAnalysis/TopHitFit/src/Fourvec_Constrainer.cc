@@ -1398,7 +1398,7 @@ public:
                      const Column_Vector& y,
                      Row_Vector& F,
                      Matrix& Bx,
-                     Matrix& By);
+                     Matrix& By) override;
 
 
   // Calculate the constraint functions and gradients.

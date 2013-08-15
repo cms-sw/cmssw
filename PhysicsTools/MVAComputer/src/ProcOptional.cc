@@ -31,10 +31,10 @@ class ProcOptional : public VarProcessor {
 	             const MVAComputer *computer);
 	virtual ~ProcOptional() {}
 
-	virtual void configure(ConfIterator iter, unsigned int n);
-	virtual void eval(ValueIterator iter, unsigned int n) const;
+	virtual void configure(ConfIterator iter, unsigned int n) override;
+	virtual void eval(ValueIterator iter, unsigned int n) const override;
 	virtual std::vector<double> deriv(
-				ValueIterator iter, unsigned int n) const;
+				ValueIterator iter, unsigned int n) const override;
 
     private:
 	std::vector<double>	neutralPos;

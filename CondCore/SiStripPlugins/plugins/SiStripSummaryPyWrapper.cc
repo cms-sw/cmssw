@@ -40,7 +40,7 @@ namespace cond {
       {
           // here one can make stuff really complicated...
       }
-      void compute(Class const & it){
+      void compute(Class const & it) override{
           std::vector<std::string> vlistItems;
           std::vector<float> res;
           uint32_t detid=m_what.trackerregion();

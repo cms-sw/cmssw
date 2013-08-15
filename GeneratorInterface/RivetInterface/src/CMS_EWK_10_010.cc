@@ -28,7 +28,7 @@ namespace Rivet {
     //@{
 
     /// Add projections and book histograms
-    void init() {
+    void init() override {
 	
 	//Only Mu and El unless Taus are set stable
       ZFinder zfinder(-MAXRAPIDITY, MAXRAPIDITY, 0.0*GeV, MUON, 
@@ -45,7 +45,7 @@ namespace Rivet {
 
 
     // Do the analysis
-    void analyze(const Event& e) {
+    void analyze(const Event& e) override {
       const double weight = e.weight();
 
       const ZFinder& zfinder = applyProjection<ZFinder>(e, "ZFinder");
@@ -81,7 +81,7 @@ namespace Rivet {
 
 
     /// Finalize
-    void finalize() {
+    void finalize() override {
       double pT_integral = _h_Z_pT_normalised->sumBinHeights();
       double pT_peak_integral = _h_Z_pT_peak_normalised->sumBinHeights();
 

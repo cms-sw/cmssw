@@ -35,7 +35,7 @@ class ElectronConversionRejectionVars : public edm::EDProducer {
         explicit ElectronConversionRejectionVars(const edm::ParameterSet & iConfig);
         virtual ~ElectronConversionRejectionVars() ;
 
-        virtual void produce(edm::Event & iEvent, const edm::EventSetup & iSetup);
+        virtual void produce(edm::Event & iEvent, const edm::EventSetup & iSetup) override;
 
     private:
         edm::InputTag probes_;            

@@ -10,12 +10,12 @@ namespace ecaldqm {
     TowerStatusTask(const edm::ParameterSet &, const edm::ParameterSet &);
     ~TowerStatusTask();
 
-    void bookMEs();
+    void bookMEs() override;
 
-    void beginRun(const edm::Run &, const edm::EventSetup &);
-    void endRun(const edm::Run &, const edm::EventSetup &);
-    void beginLuminosityBlock(const edm::LuminosityBlock &, const edm::EventSetup &);
-    void endLuminosityBlock(const edm::LuminosityBlock &, const edm::EventSetup &);
+    void beginRun(const edm::Run &, const edm::EventSetup &) override;
+    void endRun(const edm::Run &, const edm::EventSetup &) override;
+    void beginLuminosityBlock(const edm::LuminosityBlock &, const edm::EventSetup &) override;
+    void endLuminosityBlock(const edm::LuminosityBlock &, const edm::EventSetup &) override;
 
     void runOnTowerStatus(const std::map<uint32_t, bool>&, int);
 

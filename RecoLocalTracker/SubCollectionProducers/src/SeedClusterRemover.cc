@@ -39,7 +39,7 @@ class SeedClusterRemover : public edm::EDProducer {
     public:
         SeedClusterRemover(const edm::ParameterSet& iConfig) ;
         ~SeedClusterRemover() ;
-        void produce(edm::Event &iEvent, const edm::EventSetup &iSetup) ;
+        void produce(edm::Event &iEvent, const edm::EventSetup &iSetup) override ;
     private:
         struct ParamBlock {
             ParamBlock() : isSet_(false), usesCharge_(false) {}

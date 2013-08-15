@@ -62,8 +62,8 @@ class CastorDumpConditions : public edm::EDAnalyzer {
       std::string file_prefix;
       std::vector<std::string> mDumpRequest;
       virtual void beginJob(const edm::EventSetup&) ;
-      virtual void analyze(const edm::Event&, const edm::EventSetup&);
-      virtual void endJob() ;
+      virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
+      virtual void endJob() override ;
 
       // ----------member data ---------------------------
 };

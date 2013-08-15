@@ -18,9 +18,9 @@ class RecoTauDiscriminantCleanerPlugin : public RecoTauCleanerPlugin {
     virtual ~RecoTauDiscriminantCleanerPlugin(){}
 
     // Get discriminant value for a given tau Ref
-    double operator()(const reco::PFTauRef&) const;
+    double operator()(const reco::PFTauRef&) const override;
     // Hook called from base class at the beginning of each event
-    void beginEvent();
+    void beginEvent() override;
 
   private:
     edm::InputTag discriminatorSrc_;

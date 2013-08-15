@@ -59,9 +59,9 @@ class TauMVATrainer : public edm::EDAnalyzer {
 
       explicit TauMVATrainer(const edm::ParameterSet&);
       ~TauMVATrainer();
-      virtual void beginJob() ;
-      virtual void analyze(const edm::Event&, const edm::EventSetup&);
-      virtual void endJob() ;
+      virtual void beginJob() override ;
+      virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
+      virtual void endJob() override ;
 
    private:
       // ----------member data ---------------------------

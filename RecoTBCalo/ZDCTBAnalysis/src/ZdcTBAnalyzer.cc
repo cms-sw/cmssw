@@ -25,8 +25,8 @@ class ZdcTBAnalyzer : public edm::EDAnalyzer {
  public:
   explicit ZdcTBAnalyzer(const edm::ParameterSet&);
   ~ZdcTBAnalyzer();
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void endJob();
+  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
+  virtual void endJob() override;
 
 private:
   std::string outputFileName;

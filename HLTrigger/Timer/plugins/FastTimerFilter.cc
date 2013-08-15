@@ -27,7 +27,7 @@ private:
   double m_time_limit_path;
   double m_time_limit_allpaths;
 
-  bool filter(edm::Event & event, const edm::EventSetup & setup);
+  bool filter(edm::Event & event, const edm::EventSetup & setup) override;
 };
 
 FastTimerFilter::FastTimerFilter(edm::ParameterSet const & config) :

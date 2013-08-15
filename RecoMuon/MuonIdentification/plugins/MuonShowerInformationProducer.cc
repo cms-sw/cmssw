@@ -28,7 +28,7 @@ public:
   virtual ~MuonShowerInformationProducer() {}
 
 private:
-  virtual void produce(edm::Event&, const edm::EventSetup&);
+  virtual void produce(edm::Event&, const edm::EventSetup&) override;
   edm::InputTag inputMuonCollection_;
   edm::InputTag inputTrackCollection_;
   MuonShowerInformationFiller showerFiller_;

@@ -45,8 +45,8 @@ class HcalQLPlotAnal : public edm::EDAnalyzer {
 
 
    private:
-      virtual void analyze(const edm::Event&, const edm::EventSetup&);
-      virtual void endJob() ;
+      virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
+      virtual void endJob() override ;
 
       // ----------member data ---------------------------
   edm::InputTag hbheRHLabel_,hoRHLabel_,hfRHLabel_;

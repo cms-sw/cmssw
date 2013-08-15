@@ -182,9 +182,9 @@ class AlCaHOCalibProducer : public edm::EDProducer {
 
    private:
       void findHOEtaPhi(int iphsect, int& ietaho, int& iphiho);
-      virtual void beginJob() ;
-      virtual void produce(edm::Event&, const edm::EventSetup&);
-      virtual void endJob() ;
+      virtual void beginJob() override ;
+      virtual void produce(edm::Event&, const edm::EventSetup&) override;
+      virtual void endJob() override ;
 
       // ----------member data ---------------------------
 

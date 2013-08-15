@@ -99,7 +99,7 @@ public:
 
   virtual Storage *open (const std::string &proto,
 		         const std::string &path,
-			 int mode)
+			 int mode) override
   {
     StorageFactory *f = StorageFactory::get();
     StorageFactory::ReadHint readHint = f->readHint();
@@ -116,7 +116,7 @@ public:
   }
 
   virtual void stagein (const std::string &proto,
-		        const std::string &path)
+		        const std::string &path) override
   {
     std::string npath = normalise(path);
     size_t castor = npath.find("?path=/castor/");
@@ -167,7 +167,7 @@ public:
 
   virtual bool check (const std::string &/*proto*/,
 		      const std::string &path,
-		      IOOffset *size = 0)
+		      IOOffset *size = 0) override
   {
     std::string npath = normalise(path);
     if (rfio_access(npath.c_str (), R_OK) != 0)
