@@ -53,9 +53,9 @@ public:
   ~MultiplicityProducer();
   
 private:
-  virtual void beginJob() ;
+  virtual void beginJob() override ;
   virtual void produce(edm::Event&, const edm::EventSetup&) override;
-  virtual void endJob() ;
+  virtual void endJob() override ;
   int multiplicity(typename T::const_iterator det) const;
   int detSetMultiplicity(typename T::const_iterator det) const;
 
