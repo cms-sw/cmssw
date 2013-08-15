@@ -63,9 +63,9 @@ private:
     FFTJetTreeDump(const FFTJetTreeDump&);
     FFTJetTreeDump& operator=(const FFTJetTreeDump&);
 
-    virtual void beginJob() ;
-    virtual void analyze(const edm::Event&, const edm::EventSetup&);
-    virtual void endJob() ;
+    virtual void beginJob() override ;
+    virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
+    virtual void endJob() override ;
 
     template<class Real>
     void processTreeData(const edm::Event&, std::ofstream&);
