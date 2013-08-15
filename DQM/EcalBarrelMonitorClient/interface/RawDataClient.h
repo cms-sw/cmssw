@@ -10,9 +10,9 @@ namespace ecaldqm {
     RawDataClient(const edm::ParameterSet &, const edm::ParameterSet &);
     ~RawDataClient() {}
 
-    void bookMEs();
+    void bookMEs() override;
 
-    void producePlots();
+    void producePlots() override;
 
     enum MESets {
       kQualitySummary,

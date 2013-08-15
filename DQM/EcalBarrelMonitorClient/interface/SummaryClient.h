@@ -10,11 +10,11 @@ namespace ecaldqm {
     SummaryClient(const edm::ParameterSet &, const edm::ParameterSet &);
     ~SummaryClient() {}
 
-    void bookMEs();
+    void bookMEs() override;
 
-    void beginRun(const edm::Run &, const edm::EventSetup &);
+    void beginRun(const edm::Run &, const edm::EventSetup &) override;
 
-    void producePlots();
+    void producePlots() override;
 
     enum MESets {
       kQualitySummary,
