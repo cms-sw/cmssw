@@ -5,8 +5,6 @@
  *  Class which read a ttrig DB and modifies it introducing
  *  shifts with chamber granularity
  *
- *  $Date: 2010/01/19 09:51:31 $
- *  $Revision: 1.2 $
  *  \author S. Bolognesi - INFN Torino
  */
 
@@ -14,7 +12,9 @@
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include <FWCore/Framework/interface/ESHandle.h>
 
+#include <map>
 #include <string>
+#include <vector>
 
 class DTTtrig;
 class DTGeometry;

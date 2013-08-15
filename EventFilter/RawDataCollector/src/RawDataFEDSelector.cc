@@ -10,6 +10,7 @@
 #include <DataFormats/FEDRawData/interface/FEDNumbering.h>
 
 #include <stdio.h>
+#include <string.h>
 
 using namespace std;
 using namespace edm;
