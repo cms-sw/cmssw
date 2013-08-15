@@ -23,12 +23,12 @@ public:
 
    REGISTER_PROXYBUILDER_METHODS();
 
-   virtual void clean();
+   virtual void clean() override;
 
 protected:
-   virtual void build( const FWEventItem* iItem, TEveElementList* product, const FWViewContext*);
+   virtual void build( const FWEventItem* iItem, TEveElementList* product, const FWViewContext*) override;
    virtual void localModelChanges( const FWModelId& iId, TEveElement* iCompound,
-				   FWViewType::EType viewType, const FWViewContext* vc );
+				   FWViewType::EType viewType, const FWViewContext* vc ) override;
 private:
    FWSiStripClusterProxyBuilder( const FWSiStripClusterProxyBuilder& );
    const FWSiStripClusterProxyBuilder& operator=( const FWSiStripClusterProxyBuilder& );              

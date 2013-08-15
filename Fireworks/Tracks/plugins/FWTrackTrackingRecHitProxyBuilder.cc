@@ -19,7 +19,7 @@ public:
    REGISTER_PROXYBUILDER_METHODS();
   
 private:
-   void build( const reco::Track& iData, unsigned int iIndex, TEveElement& oItemHolder, const FWViewContext* );
+   void build( const reco::Track& iData, unsigned int iIndex, TEveElement& oItemHolder, const FWViewContext* ) override;
 
    FWTrackTrackingRecHitProxyBuilder( const FWTrackTrackingRecHitProxyBuilder& );    // stop default
    const FWTrackTrackingRecHitProxyBuilder& operator=( const FWTrackTrackingRecHitProxyBuilder& );    // stop default
