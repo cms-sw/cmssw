@@ -36,7 +36,7 @@ class EcalLaserCorrFilter : public edm::EDFilter {
 
   private:
 
-    virtual bool filter(edm::Event & iEvent, const edm::EventSetup & iSetup);
+    virtual bool filter(edm::Event & iEvent, const edm::EventSetup & iSetup) override;
     
     const edm::InputTag ebRHSrc_, eeRHSrc_;
   
