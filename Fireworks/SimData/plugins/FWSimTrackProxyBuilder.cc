@@ -34,7 +34,7 @@ private:
    // Disable default assignment operator
    const FWSimTrackProxyBuilder& operator=( const FWSimTrackProxyBuilder& );
 
-   virtual void build( const FWEventItem* iItem, TEveElementList* product, const FWViewContext* );
+   virtual void build( const FWEventItem* iItem, TEveElementList* product, const FWViewContext* ) override;
 
    void addParticlesToPdgDataBase( void );
 };
