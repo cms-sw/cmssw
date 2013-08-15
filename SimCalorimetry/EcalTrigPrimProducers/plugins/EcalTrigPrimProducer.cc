@@ -19,13 +19,10 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Framework/interface/ConstProductRegistry.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include "DataFormats/Provenance/interface/ProductID.h"
 #include "DataFormats/Provenance/interface/ParameterSetID.h"
 #include "DataFormats/Provenance/interface/Provenance.h"
-#include "DataFormats/Provenance/interface/BranchDescription.h"
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 
 #include "CondFormats/DataRecord/interface/EcalTPGFineGrainEBGroupRcd.h"
@@ -65,69 +62,67 @@
 EcalTrigPrimProducer::EcalTrigPrimProducer(const edm::ParameterSet&  iConfig):
   barrelOnly_(iConfig.getParameter<bool>("BarrelOnly")),
   tcpFormat_(iConfig.getParameter<bool>("TcpOutput")),
-  debug_(iConfig.getParameter<bool>("Debug")),ps_(iConfig)
+  debug_(iConfig.getParameter<bool>("Debug")),
+  famos_(iConfig.getParameter<bool>("Famos")),
+  label_(iConfig.getParameter<std::string>("Label")),
+  instanceNameEB_(iConfig.getParameter<std::string>("InstanceEB")),
+  instanceNameEE_(iConfig.getParameter<std::string>("InstanceEE")),
+  binOfMaximum_(iConfig.getParameter<int>("binOfMaximum")),
+  fillBinOfMaximumFromHistory_(-1==binOfMaximum_)
 {  
   //register your products
   produces <EcalTrigPrimDigiCollection >();
   if (tcpFormat_) produces <EcalTrigPrimDigiCollection >("formatTCP");
-
-  label_= iConfig.getParameter<std::string>("Label");
-  instanceNameEB_ = iConfig.getParameter<std::string>("InstanceEB");;
-  instanceNameEE_ = iConfig.getParameter<std::string>("InstanceEE");;
-  algo_=NULL;
 }
 
-void EcalTrigPrimProducer::beginRun(edm::Run const & run,edm::EventSetup const& setup) {
-  bool famos = ps_.getParameter<bool>("Famos");
+static
+int findBinOfMaximum(bool iFillFromHistory, int iPSetValue, edm::ProcessHistory const& iHistory) {
+  //  get  binOfMax
+  //  try first in cfg, then in ProcessHistory
+  //  =6 is default (1-10 possible values)
+  int binOfMaximum=0;  //starts at 1!
+  if(not iFillFromHistory) {
+    binOfMaximum=iPSetValue;
+    edm::LogInfo("EcalTPG") <<"EcalTrigPrimProducer is using binOfMaximum found in cfg file :  "<<binOfMaximum;
+  }
+  
+  //search backwards in history looking for the particular module
+  const std::string kModuleName{ "ecalUnsuppressedDigis" };
+  for(auto it = iHistory.rbegin(), itEnd = iHistory.rend();
+      it != itEnd; ++it) {
+    auto const& topLevelPSet = getParameterSet(it->parameterSetID());
+    if(topLevelPSet.exists(kModuleName)) {
+      int psetBinOfMax = topLevelPSet.getParameter<edm::ParameterSet>(kModuleName).getParameter<int>("binOfMaximum");
 
-  algo_ = new EcalTrigPrimFunctionalAlgo(setup,binOfMaximum_,tcpFormat_,barrelOnly_,debug_,famos);
+      if (not iFillFromHistory ) {
+	if ( psetBinOfMax!=binOfMaximum)edm:: LogWarning("EcalTPG")<< "binofMaximum given in configuration (="<<binOfMaximum<<") is different from the one found in ProductRegistration(="<<psetBinOfMax<<")!!!";
+      }else {
+	binOfMaximum=psetBinOfMax;
+	edm::LogInfo("EcalTPG") <<"EcalTrigPrimProducer is using binOfMaximum found in ProductRegistry :  "<<binOfMaximum;
+      }
+      break;
+    }
+  }
+  if (binOfMaximum==0) {
+    binOfMaximum=6;
+    edm::LogWarning("EcalTPG")<<"Could not find product registry of EBDigiCollection (label ecalUnsuppressedDigis), had to set the following parameters by Hand:  binOfMaximum="<<binOfMaximum;
+  }
+  return binOfMaximum;
+}
+
+
+void EcalTrigPrimProducer::beginRun(edm::Run const & run,edm::EventSetup const& setup) {
+  //ProcessHistory is guaranteed to be constant for an entire Run
+  binOfMaximum_ = findBinOfMaximum(fillBinOfMaximumFromHistory_,binOfMaximum_,run.processHistory());
+
+  algo_.reset( new EcalTrigPrimFunctionalAlgo(setup,binOfMaximum_,tcpFormat_,barrelOnly_,debug_,famos_) );
 
   // get a first version of the records
   cacheID_=this->getRecords(setup);
 }
 
 void EcalTrigPrimProducer::endRun(edm::Run const& run,edm::EventSetup const& setup) {
-  delete algo_;
-}
-
-void EcalTrigPrimProducer::beginJob() {
-  
-  //  get  binOfMax
-  //  try first in cfg, then in ProductRegistry
-  //  =6 is default (1-10 possible values)
-  binOfMaximum_=0;  //starts at 1!
-  bool found=false;
-  std::vector<std::string> names = ps_.getParameterNames();
-  if (find(names.begin(), names.end(), std::string("binOfMaximum"))
-      != names.end()) {
-    binOfMaximum_=ps_.getParameter<int>("binOfMaximum");
-    edm::LogInfo("EcalTPG") <<"EcalTrigPrimProducer is using binOfMaximum found in cfg file :  "<<binOfMaximum_;
-    found = true;
-  }
-  
-  edm::Service<edm::ConstProductRegistry> reg;
-  // Loop over provenance of products in registry.
-  for (edm::ProductRegistry::ProductList::const_iterator it =  reg->productList().begin();
-       it != reg->productList().end(); ++it) {
-    edm::BranchDescription desc = it->second;
-    if (desc.friendlyClassName().find("EBDigiCollection")==0  &&
-	desc.moduleLabel()=="ecalUnsuppressedDigis") {
-      edm::ParameterSet result = getParameterSet(desc.psetID());
-      if (found ) {
-	if ( result.getParameter<int>("binOfMaximum")!=binOfMaximum_)edm:: LogWarning("EcalTPG")<< "binofMaximum given in configuration (="<<binOfMaximum_<<") is different from the one found in ProductRegistration(="<<result.getParameter<int>("binOfMaximum")<<")!!!";
-      }else {
-	binOfMaximum_=result.getParameter<int>("binOfMaximum");
-	edm::LogInfo("EcalTPG") <<"EcalTrigPrimProducer is using binOfMaximum found in ProductRegistry :  "<<binOfMaximum_;
-	break;
-      }
-    }
-  }
-
-
-  if (binOfMaximum_==0) {
-    binOfMaximum_=6;
-    edm::LogWarning("EcalTPG")<<"Could not find product registry of EBDigiCollection (label ecalUnsuppressedDigis), had to set the following parameters by Hand:  binOfMaximum="<<binOfMaximum_;
-  }
+  algo_.reset();
 }
 
 unsigned long long  EcalTrigPrimProducer::getRecords(edm::EventSetup const& setup) {
@@ -274,4 +269,21 @@ EcalTrigPrimProducer::produce(edm::Event& e, const edm::EventSetup&  iSetup)
 
   e.put(pOut);
   if (tcpFormat_) e.put(pOutTcp,"formatTCP");
+}
+
+void 
+EcalTrigPrimProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+
+  edm::ParameterSetDescription desc;
+  desc.add<bool>("BarrelOnly",false);
+  desc.add<bool>("TcpOutput",false);
+  desc.add<bool>("Debug",false);
+  desc.add<bool>("Famos",false);
+  desc.add<std::string>("Label","simEcalUnsuppressedDigis");
+  desc.add<std::string>("InstanceEB","");
+  desc.add<std::string>("InstanceEE","");
+  const std::string kComment("A value of -1 will make the module lookup the value of 'binOfMaximum' from the module 'ecalUnsuppressedDigis' from the process history. Allowed values are -1 and from 1-10."); 
+  //The code before the existence of fillDescriptions did something special if 'binOfMaximum' was missing. This replicates that behavior.
+  desc.add<int>("binOfMaximum",-1)->setComment(kComment);
+  descriptions.addDefault(desc);
 }
