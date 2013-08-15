@@ -29,7 +29,7 @@ public:
   virtual ~CosmicsMuonIdProducer() {}
 
 private:
-  virtual void produce(edm::Event&, const edm::EventSetup&);
+  virtual void produce(edm::Event&, const edm::EventSetup&) override;
   edm::InputTag inputMuonCollection_;
   std::vector<edm::InputTag> inputTrackCollections_;
   MuonCosmicCompatibilityFiller compatibilityFiller_;
