@@ -50,7 +50,7 @@ public:
   ~EcalFEDWithCRCErrorProducer();
   
 private:
-  virtual void produce(edm::Event&, const edm::EventSetup&);
+  virtual void produce(edm::Event&, const edm::EventSetup&) override;
   
   // ----------member data ---------------------------
   
