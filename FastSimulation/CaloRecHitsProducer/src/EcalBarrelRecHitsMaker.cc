@@ -234,7 +234,7 @@ void EcalBarrelRecHitsMaker::loadPCaloHits(const edm::Event & iEvent)
       theCalorimeterHits_[hashedindex] +=energy;
       theCalorimeterTimes_[hashedindex] =cficalo->time();
       theCalorimeterTimes_[hashedindex]= cficalo->time() - theCalorimeterNominalTimes_[hashedindex];
-      // GF: you need to account for combination of multiple sim hits on the same cell TODO
+      // GF: you need to account for combination of multiple sim hits on the same cell TODO *** 
       std::cout << "EB cficalo ene : " << cficalo->energy() << " cficalo time: " << cficalo->time()
 		<< " being changed to theCalorimeterTimes_: " << theCalorimeterTimes_[hashedindex]
 		<< " via subtracting: " << theCalorimeterNominalTimes_[hashedindex] << " hash: " << hashedindex << std::endl;
