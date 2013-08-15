@@ -40,7 +40,7 @@ class L1RCTParametersOnlineProd :
       ~L1RCTParametersOnlineProd();
 
   virtual boost::shared_ptr< L1RCTParameters > newObject(
-    const std::string& objectKey ) ;
+    const std::string& objectKey ) override ;
 
   void fillScaleFactors(
     const l1t::OMDSReader::QueryResults& results,
