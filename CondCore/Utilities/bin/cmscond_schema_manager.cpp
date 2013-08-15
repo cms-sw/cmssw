@@ -12,7 +12,7 @@ namespace cond {
     public:
       SchemaManager();
       ~SchemaManager();
-      int execute();
+      int execute() override;
   };
 }
 

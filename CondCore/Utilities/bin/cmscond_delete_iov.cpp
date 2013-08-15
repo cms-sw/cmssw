@@ -12,7 +12,7 @@ namespace cond {
     public:
       DeleteIOVUtilities();
       ~DeleteIOVUtilities();
-      int execute();
+      int execute() override;
   };
 }
 
