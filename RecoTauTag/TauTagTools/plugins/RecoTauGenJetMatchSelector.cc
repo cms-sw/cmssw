@@ -61,7 +61,7 @@ class AssociationMatchRefSelector : public edm::EDFilter {
       filter_ = pset.getParameter<bool>("filter");
       produces<OutputType>();
     }
-    bool filter(edm::Event& evt, const edm::EventSetup &es) {
+    bool filter(edm::Event& evt, const edm::EventSetup &es) override {
       edm::Handle<edm::View<InputType> > input;
       evt.getByLabel(src_, input);
       edm::Handle<AssocType> match;
