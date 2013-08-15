@@ -46,6 +46,7 @@
 
 #include "FWCore/ServiceRegistry/interface/ServiceRegistry.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/ServiceRegistry/interface/StreamContext.h"
 
 #include "FWCore/Utilities/interface/DebugMacros.h"
 #include "FWCore/Utilities/interface/EDMException.h"
@@ -104,26 +105,6 @@ namespace edm {
   }
 
   using namespace event_processor;
-
-  namespace {
-    template <typename T>
-    class ScheduleSignalSentry {
-    public:
-      ScheduleSignalSentry(ActivityRegistry* a, typename T::MyPrincipal* principal, EventSetup const* es) :
-           a_(a), principal_(principal), es_(es) {
-        if (a_) T::preScheduleSignal(a_, principal_);
-      }
-      ~ScheduleSignalSentry() {
-        if (a_) if (principal_) T::postScheduleSignal(a_, principal_, es_);
-      }
-
-    private:
-      // We own none of these resources.
-      ActivityRegistry* a_;
-      typename T::MyPrincipal* principal_;
-      EventSetup const* es_;
-    };
-  }
 
   namespace {
 
@@ -584,6 +565,9 @@ namespace edm {
    
     ROOT::Cintex::Cintex::Enable();
 
+    // register the empty parameter set, once and for all.
+    ParameterSet().registerIt();
+
     boost::shared_ptr<ParameterSet> parameterSet = processDesc->getProcessPSet();
     //std::cerr << parameterSet->dump() << std::endl;
 
@@ -638,7 +622,7 @@ namespace edm {
     input_ = makeInput(*parameterSet, *common, *items.preg_, items.branchIDListHelper_, items.actReg_, items.processConfiguration_);
 
     // intialize the Schedule
-    schedule_ = items.initSchedule(*parameterSet,subProcessParameterSet.get(),StreamID{0});
+    schedule_ = items.initSchedule(*parameterSet,subProcessParameterSet.get(),StreamID{0},&processContext_);
 
     // set the data members
     act_table_ = std::move(items.act_table_);
@@ -646,6 +630,7 @@ namespace edm {
     preg_.reset(items.preg_.release());
     branchIDListHelper_ = items.branchIDListHelper_;
     processConfiguration_ = items.processConfiguration_;
+    processContext_.setProcessConfiguration(processConfiguration_.get());
 
     FDEBUG(2) << parameterSet << std::endl;
 
@@ -659,7 +644,7 @@ namespace edm {
       
     // initialize the subprocess, if there is one
     if(subProcessParameterSet) {
-      subProcess_.reset(new SubProcess(*subProcessParameterSet, *parameterSet, preg_, branchIDListHelper_, *espController_, *actReg_, token, serviceregistry::kConfigurationOverrides));
+      subProcess_.reset(new SubProcess(*subProcessParameterSet, *parameterSet, preg_, branchIDListHelper_, *espController_, *actReg_, token, serviceregistry::kConfigurationOverrides, &processContext_));
     }
   }
 
@@ -685,13 +670,13 @@ namespace edm {
     actReg_.reset();
 
     pset::Registry* psetRegistry = pset::Registry::instance();
-    psetRegistry->data().clear();
-    psetRegistry->extra().setID(ParameterSetID());
+    psetRegistry->dataForUpdate().clear();
+    psetRegistry->extraForUpdate().setID(ParameterSetID());
 
-    EntryDescriptionRegistry::instance()->data().clear();
-    ParentageRegistry::instance()->data().clear();
-    ProcessConfigurationRegistry::instance()->data().clear();
-    ProcessHistoryRegistry::instance()->data().clear();
+    EntryDescriptionRegistry::instance()->dataForUpdate().clear();
+    ParentageRegistry::instance()->dataForUpdate().clear();
+    ProcessConfigurationRegistry::instance()->dataForUpdate().clear();
+    ProcessHistoryRegistry::instance()->dataForUpdate().clear();
   }
 
   void
@@ -738,6 +723,9 @@ namespace edm {
     // toerror.succeeded(); // should we add this?
     if(hasSubProcess()) subProcess_->doBeginJob();
     actReg_->postBeginJobSignal_();
+    
+    schedule_->beginStream();
+    if(hasSubProcess()) subProcess_->doBeginStream(schedule_->streamID());
   }
 
   void
@@ -751,6 +739,12 @@ namespace edm {
     //make the services available
     ServiceRegistry::Operate operate(serviceToken_);
 
+    //NOTE: this really should go elsewhere in the future
+    c.call([this](){this->schedule_->endStream();});
+    if(hasSubProcess()) {
+      c.call([this](){ this->subProcess_->doEndStream(this->schedule_->streamID()); } );
+    }
+    
     schedule_->endJob(c);
     if(hasSubProcess()) {
       c.call(boost::bind(&SubProcess::doEndJob, subProcess_.get()));
@@ -1888,22 +1882,6 @@ namespace edm {
     FDEBUG(1) << "\trespondToCloseInputFile\n";
   }
 
-  void EventProcessor::respondToOpenOutputFiles() {
-    if (fb_.get() != nullptr) {
-      schedule_->respondToOpenOutputFiles(*fb_);
-      if(hasSubProcess()) subProcess_->respondToOpenOutputFiles(*fb_);
-    }
-    FDEBUG(1) << "\trespondToOpenOutputFiles\n";
-  }
-
-  void EventProcessor::respondToCloseOutputFiles() {
-    if (fb_.get() != nullptr) {
-      schedule_->respondToCloseOutputFiles(*fb_);
-      if(hasSubProcess()) subProcess_->respondToCloseOutputFiles(*fb_);
-    }
-    FDEBUG(1) << "\trespondToCloseOutputFiles\n";
-  }
-
   void EventProcessor::startingNewLoop() {
     shouldWeStop_ = false;
     //NOTE: for first loop, need to delay calling 'doStartingNewLoop'
@@ -1956,7 +1934,7 @@ namespace edm {
 
   void EventProcessor::beginRun(statemachine::Run const& run) {
     RunPrincipal& runPrincipal = principalCache_.runPrincipal(run.processHistoryID(), run.runNumber());
-    input_->doBeginRun(runPrincipal);
+    input_->doBeginRun(runPrincipal, &processContext_);
     IOVSyncValue ts(EventID(runPrincipal.run(), 0, 0),
                     runPrincipal.beginTime());
     if(forceESCacheClearOnNewRun_){
@@ -1972,70 +1950,66 @@ namespace edm {
     }
     {
       typedef OccurrenceTraits<RunPrincipal, BranchActionGlobalBegin> Traits;
-      ScheduleSignalSentry<Traits> sentry(actReg_.get(), &runPrincipal, &es);
-      schedule_->processOneOccurrence<Traits>(runPrincipal, es);
+      schedule_->processOneGlobal<Traits>(runPrincipal, es);
       if(hasSubProcess()) {
         subProcess_->doBeginRun(runPrincipal, ts);
       }
     }
     FDEBUG(1) << "\tbeginRun " << run.runNumber() << "\n";
     if(looper_) {
-      looper_->doBeginRun(runPrincipal, es);
+      looper_->doBeginRun(runPrincipal, es, &processContext_);
     }
     {
       typedef OccurrenceTraits<RunPrincipal, BranchActionStreamBegin> Traits;
-      ScheduleSignalSentry<Traits> sentry(actReg_.get(), &runPrincipal, &es);
-      schedule_->processOneOccurrence<Traits>(runPrincipal, es);
+      schedule_->processOneStream<Traits>(runPrincipal, es);
       if(hasSubProcess()) {
-        //subProcess_->doStreamBeginRun(StreamID{0}, runPrincipal, ts);
+        subProcess_->doStreamBeginRun(schedule_->streamID(), runPrincipal, ts);
       }
     }
     FDEBUG(1) << "\tstreamBeginRun " << run.runNumber() << "\n";
     if(looper_) {
-      //looper_->doStreamBeginRun(StreamID{0},runPrincipal, es);
+      //looper_->doStreamBeginRun(schedule_->streamID(),runPrincipal, es);
     }
   }
 
   void EventProcessor::endRun(statemachine::Run const& run, bool cleaningUpAfterException) {
     RunPrincipal& runPrincipal = principalCache_.runPrincipal(run.processHistoryID(), run.runNumber());
-    input_->doEndRun(runPrincipal, cleaningUpAfterException);
+    input_->doEndRun(runPrincipal, cleaningUpAfterException, &processContext_);
     IOVSyncValue ts(EventID(runPrincipal.run(), LuminosityBlockID::maxLuminosityBlockNumber(), EventID::maxEventNumber()),
                     runPrincipal.endTime());
     espController_->eventSetupForInstance(ts);
     EventSetup const& es = esp_->eventSetup();
     {
       typedef OccurrenceTraits<RunPrincipal, BranchActionStreamEnd> Traits;
-      ScheduleSignalSentry<Traits> sentry(actReg_.get(), &runPrincipal, &es);
-      schedule_->processOneOccurrence<Traits>(runPrincipal, es, cleaningUpAfterException);
+      schedule_->processOneStream<Traits>(runPrincipal, es, cleaningUpAfterException);
       if(hasSubProcess()) {
-        //subProcess_->doStreamEndRun(runPrincipal, ts, cleaningUpAfterException);
+        subProcess_->doStreamEndRun(schedule_->streamID(),runPrincipal, ts, cleaningUpAfterException);
       }
     }
     FDEBUG(1) << "\tstreamEndRun " << run.runNumber() << "\n";
     if(looper_) {
-      //looper_->doStreamEndRun(runPrincipal, es);
+      //looper_->doStreamEndRun(schedule_->streamID(),runPrincipal, es);
     }
     {
       typedef OccurrenceTraits<RunPrincipal, BranchActionGlobalEnd> Traits;
-      ScheduleSignalSentry<Traits> sentry(actReg_.get(), &runPrincipal, &es);
-      schedule_->processOneOccurrence<Traits>(runPrincipal, es, cleaningUpAfterException);
+      schedule_->processOneGlobal<Traits>(runPrincipal, es, cleaningUpAfterException);
       if(hasSubProcess()) {
         subProcess_->doEndRun(runPrincipal, ts, cleaningUpAfterException);
       }
     }
     FDEBUG(1) << "\tendRun " << run.runNumber() << "\n";
     if(looper_) {
-      looper_->doEndRun(runPrincipal, es);
+      looper_->doEndRun(runPrincipal, es, &processContext_);
     }
   }
 
   void EventProcessor::beginLumi(ProcessHistoryID const& phid, RunNumber_t run, LuminosityBlockNumber_t lumi) {
     LuminosityBlockPrincipal& lumiPrincipal = principalCache_.lumiPrincipal(phid, run, lumi);
-    input_->doBeginLumi(lumiPrincipal);
+    input_->doBeginLumi(lumiPrincipal, &processContext_);
 
     Service<RandomNumberGenerator> rng;
     if(rng.isAvailable()) {
-      LuminosityBlock lb(lumiPrincipal, ModuleDescription());
+      LuminosityBlock lb(lumiPrincipal, ModuleDescription(), nullptr);
       rng->preBeginLumi(lb);
     }
 
@@ -2046,33 +2020,31 @@ namespace edm {
     EventSetup const& es = esp_->eventSetup();
     {
       typedef OccurrenceTraits<LuminosityBlockPrincipal, BranchActionGlobalBegin> Traits;
-      ScheduleSignalSentry<Traits> sentry(actReg_.get(), &lumiPrincipal, &es);
-      schedule_->processOneOccurrence<Traits>(lumiPrincipal, es);
+      schedule_->processOneGlobal<Traits>(lumiPrincipal, es);
       if(hasSubProcess()) {
         subProcess_->doBeginLuminosityBlock(lumiPrincipal, ts);
       }
     }
     FDEBUG(1) << "\tbeginLumi " << run << "/" << lumi << "\n";
     if(looper_) {
-      looper_->doBeginLuminosityBlock(lumiPrincipal, es);
+      looper_->doBeginLuminosityBlock(lumiPrincipal, es, &processContext_);
     }
     {
       typedef OccurrenceTraits<LuminosityBlockPrincipal, BranchActionStreamBegin> Traits;
-      ScheduleSignalSentry<Traits> sentry(actReg_.get(), &lumiPrincipal, &es);
-      schedule_->processOneOccurrence<Traits>(lumiPrincipal, es);
+      schedule_->processOneStream<Traits>(lumiPrincipal, es);
       if(hasSubProcess()) {
-        //subProcess_->doStreamBeginLuminosityBlock(lumiPrincipal, ts);
+        subProcess_->doStreamBeginLuminosityBlock(schedule_->streamID(),lumiPrincipal, ts);
       }
     }
     FDEBUG(1) << "\tstreamBeginLumi " << run << "/" << lumi << "\n";
     if(looper_) {
-      //looper_->doStreamBeginLuminosityBlock(lumiPrincipal, es);
+      //looper_->doStreamBeginLuminosityBlock(schedule_->streamID(),lumiPrincipal, es);
     }
   }
 
   void EventProcessor::endLumi(ProcessHistoryID const& phid, RunNumber_t run, LuminosityBlockNumber_t lumi, bool cleaningUpAfterException) {
     LuminosityBlockPrincipal& lumiPrincipal = principalCache_.lumiPrincipal(phid, run, lumi);
-    input_->doEndLumi(lumiPrincipal, cleaningUpAfterException);
+    input_->doEndLumi(lumiPrincipal, cleaningUpAfterException, &processContext_);
     //NOTE: Using the max event number for the end of a lumi block is a bad idea
     // lumi blocks know their start and end times why not also start and end events?
     IOVSyncValue ts(EventID(lumiPrincipal.run(), lumiPrincipal.luminosityBlock(), EventID::maxEventNumber()),
@@ -2081,27 +2053,25 @@ namespace edm {
     EventSetup const& es = esp_->eventSetup();
     {
       typedef OccurrenceTraits<LuminosityBlockPrincipal, BranchActionStreamEnd> Traits;
-      ScheduleSignalSentry<Traits> sentry(actReg_.get(), &lumiPrincipal, &es);
-      schedule_->processOneOccurrence<Traits>(lumiPrincipal, es, cleaningUpAfterException);
+      schedule_->processOneStream<Traits>(lumiPrincipal, es, cleaningUpAfterException);
       if(hasSubProcess()) {
-        //subProcess_->doStreamEndLuminosityBlock(lumiPrincipal, ts, cleaningUpAfterException);
+        subProcess_->doStreamEndLuminosityBlock(schedule_->streamID(),lumiPrincipal, ts, cleaningUpAfterException);
       }
     }
     FDEBUG(1) << "\tendLumi " << run << "/" << lumi << "\n";
     if(looper_) {
-      //looper_->doStreamEndLuminosityBlock(lumiPrincipal, es);
+      //looper_->doStreamEndLuminosityBlock(schedule_->streamID(),lumiPrincipal, es);
     }
     {
       typedef OccurrenceTraits<LuminosityBlockPrincipal, BranchActionGlobalEnd> Traits;
-      ScheduleSignalSentry<Traits> sentry(actReg_.get(), &lumiPrincipal, &es);
-      schedule_->processOneOccurrence<Traits>(lumiPrincipal, es, cleaningUpAfterException);
+      schedule_->processOneGlobal<Traits>(lumiPrincipal, es, cleaningUpAfterException);
       if(hasSubProcess()) {
         subProcess_->doEndLuminosityBlock(lumiPrincipal, ts, cleaningUpAfterException);
       }
     }
     FDEBUG(1) << "\tendLumi " << run << "/" << lumi << "\n";
     if(looper_) {
-      looper_->doEndLuminosityBlock(lumiPrincipal, es);
+      looper_->doEndLuminosityBlock(lumiPrincipal, es, &processContext_);
     }
   }
 
@@ -2148,7 +2118,7 @@ namespace edm {
   }
 
   void EventProcessor::writeRun(statemachine::Run const& run) {
-    schedule_->writeRun(principalCache_.runPrincipal(run.processHistoryID(), run.runNumber()));
+    schedule_->writeRun(principalCache_.runPrincipal(run.processHistoryID(), run.runNumber()), &processContext_);
     if(hasSubProcess()) subProcess_->writeRun(run.processHistoryID(), run.runNumber());
     FDEBUG(1) << "\twriteRun " << run.runNumber() << "\n";
   }
@@ -2160,7 +2130,7 @@ namespace edm {
   }
 
   void EventProcessor::writeLumi(ProcessHistoryID const& phid, RunNumber_t run, LuminosityBlockNumber_t lumi) {
-    schedule_->writeLumi(principalCache_.lumiPrincipal(phid, run, lumi));
+    schedule_->writeLumi(principalCache_.lumiPrincipal(phid, run, lumi), &processContext_);
     if(hasSubProcess()) subProcess_->writeLumi(phid, run, lumi);
     FDEBUG(1) << "\twriteLumi " << run << "/" << lumi << "\n";
   }
@@ -2172,7 +2142,8 @@ namespace edm {
   }
 
   void EventProcessor::readAndProcessEvent() {
-    EventPrincipal *pep = input_->readEvent(principalCache_.eventPrincipal());
+    StreamContext streamContext(StreamID{0}, &processContext_);
+    EventPrincipal *pep = input_->readEvent(principalCache_.eventPrincipal(), &streamContext);
     FDEBUG(1) << "\treadEvent\n";
     assert(pep != 0);
     pep->setLuminosityBlockPrincipal(principalCache_.lumiPrincipalPtr());
@@ -2185,8 +2156,7 @@ namespace edm {
     EventSetup const& es = esp_->eventSetup();
     {
       typedef OccurrenceTraits<EventPrincipal, BranchActionStreamBegin> Traits;
-      ScheduleSignalSentry<Traits> sentry(actReg_.get(), pep, &es);
-      schedule_->processOneOccurrence<Traits>(*pep, es);
+      schedule_->processOneEvent<Traits>(*pep, es);
       if(hasSubProcess()) {
         subProcess_->doEvent(*pep, ts);
       }
@@ -2200,7 +2170,9 @@ namespace edm {
 
       EDLooperBase::Status status = EDLooperBase::kContinue;
       do {
-        status = looper_->doDuringLoop(*pep, esp_->eventSetup(), pc);
+
+        StreamContext streamContext(StreamID{0}, &processContext_);
+        status = looper_->doDuringLoop(*pep, esp_->eventSetup(), pc, &streamContext);
 
         bool succeeded = true;
         if(randomAccess) {

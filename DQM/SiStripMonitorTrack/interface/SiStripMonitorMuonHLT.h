@@ -8,6 +8,7 @@
 #include <cmath>
 
 // user include files
+#include "FWCore/Utilities/interface/EDGetToken.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -130,6 +131,12 @@ class SiStripMonitorMuonHLT : public edm::EDAnalyzer {
       edm::InputTag clusterCollectionTag_;
       edm::InputTag l3collectionTag_;
       edm::InputTag TrackCollectionTag_;
+
+      edm::EDGetTokenT<edm::LazyGetter < SiStripCluster > > clusterCollectionToken_;
+      edm::EDGetTokenT<reco::RecoChargedCandidateCollection> l3collectionToken_;
+      edm::EDGetTokenT<reco::TrackCollection> TrackCollectionToken_;
+
+
 
       int HistoNumber; //nof layers in Tracker = 34 
       TkDetMap* tkdetmap_;

@@ -27,6 +27,7 @@
 template<typename T>
 HLTGlobalSums<T>::HLTGlobalSums(const edm::ParameterSet& iConfig) : HLTFilter(iConfig),
   inputTag_   (iConfig.template getParameter<edm::InputTag>("inputTag")),
+  inputToken_ (consumes<std::vector<T> >(inputTag_)),
   triggerType_(iConfig.template getParameter<int>("triggerType")),
   observable_ (iConfig.template getParameter<std::string>("observable")),
   min_        (iConfig.template getParameter<double>("Min")),
@@ -112,7 +113,7 @@ HLTGlobalSums<T>::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, t
 
    // get hold of MET product from Event
    Handle<TCollection>   objects;
-   iEvent.getByLabel(inputTag_,objects);
+   iEvent.getByToken(inputToken_,objects);
    if (!objects.isValid()) {
      LogDebug("") << inputTag_ << " collection not found!";
      return false;

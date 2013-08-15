@@ -10,6 +10,7 @@
  */
 
 #include "HLTrigger/HLTfilters/interface/HLTFiltCand.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 
 #include "DataFormats/Common/interface/Handle.h"
 
@@ -52,6 +53,15 @@ HLTFiltCand::HLTFiltCand(const edm::ParameterSet& iConfig) : HLTFilter(iConfig),
   mhtsTag_ (iConfig.getParameter<edm::InputTag>("mhtsTag")),
   trckTag_ (iConfig.getParameter<edm::InputTag>("trckTag")),
   ecalTag_ (iConfig.getParameter<edm::InputTag>("ecalTag")),
+  photToken_ (consumes<reco::RecoEcalCandidateCollection>   (photTag_)),
+  elecToken_ (consumes<reco::ElectronCollection>            (elecTag_)),
+  muonToken_ (consumes<reco::RecoChargedCandidateCollection>(muonTag_)),
+  tausToken_ (consumes<reco::CaloJetCollection>             (tausTag_)),
+  jetsToken_ (consumes<reco::CaloJetCollection>             (jetsTag_)),
+  metsToken_ (consumes<reco::CaloMETCollection>             (metsTag_)),
+  mhtsToken_ (consumes<reco::METCollection>                 (mhtsTag_)),
+  trckToken_ (consumes<reco::RecoChargedCandidateCollection>(trckTag_)),
+  ecalToken_ (consumes<reco::RecoEcalCandidateCollection>   (ecalTag_)),
   min_Pt_  (iConfig.getParameter<double>("MinPt"))
 {
   LogDebug("") << "MinPt cut " << min_Pt_
@@ -74,6 +84,23 @@ HLTFiltCand::~HLTFiltCand()
 //
 // member functions
 //
+
+void
+HLTFiltCand::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  makeHLTFilterDescription(desc);
+  desc.add<edm::InputTag>("photTag",edm::InputTag("photCollection"));
+  desc.add<edm::InputTag>("elecTag",edm::InputTag("elecCollection"));
+  desc.add<edm::InputTag>("muonTag",edm::InputTag("muonCollection"));
+  desc.add<edm::InputTag>("tausTag",edm::InputTag("tausCollection"));
+  desc.add<edm::InputTag>("jetsTag",edm::InputTag("jetsCollection"));
+  desc.add<edm::InputTag>("metsTag",edm::InputTag("metsCollection"));
+  desc.add<edm::InputTag>("mhtsTag",edm::InputTag("mhtsCollection"));
+  desc.add<edm::InputTag>("trckTag",edm::InputTag("trckCollection"));
+  desc.add<edm::InputTag>("ecalTag",edm::InputTag("ecalCollection"));
+  desc.add<double>("MinPt",-1.0);
+  descriptions.add("hltFiltCand", desc);
+}
 
 // ------------ method called to produce the data  ------------
 bool
@@ -115,15 +142,15 @@ HLTFiltCand::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigge
    Handle<RecoChargedCandidateCollection> trcks;
    Handle<RecoEcalCandidateCollection>    ecals;
 
-   iEvent.getByLabel(photTag_,photons  );
-   iEvent.getByLabel(elecTag_,electrons);
-   iEvent.getByLabel(muonTag_,muons    );
-   iEvent.getByLabel(tausTag_,taus     );
-   iEvent.getByLabel(jetsTag_,jets     );
-   iEvent.getByLabel(metsTag_,mets     );
-   iEvent.getByLabel(mhtsTag_,mhts     );
-   iEvent.getByLabel(trckTag_,trcks    );
-   iEvent.getByLabel(ecalTag_,ecals    );
+   iEvent.getByToken(photToken_,photons  );
+   iEvent.getByToken(elecToken_,electrons);
+   iEvent.getByToken(muonToken_,muons    );
+   iEvent.getByToken(tausToken_,taus     );
+   iEvent.getByToken(jetsToken_,jets     );
+   iEvent.getByToken(metsToken_,mets     );
+   iEvent.getByToken(mhtsToken_,mhts     );
+   iEvent.getByToken(trckToken_,trcks    );
+   iEvent.getByToken(ecalToken_,ecals    );
 
 
    // look for at least one g,e,m,t,j,M,H,TR,SC above its pt cut

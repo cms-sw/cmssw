@@ -9,23 +9,24 @@ using namespace std;
 class SeedingLayer::SeedingLayerImpl {
 public:
   SeedingLayerImpl(
-                const std::string & name,
+                const std::string & name, int seqNum,
                 const DetLayer* layer,
                 const TransientTrackingRecHitBuilder * hitBuilder,
                 const HitExtractor * hitExtractor)
   : theName(name),
+    theSeqNum(seqNum),
     theLayer(layer),
     theTTRHBuilder(hitBuilder),
     theHitExtractor(hitExtractor),
     theHasPredefinedHitErrors(false),thePredefinedHitErrorRZ(0.),thePredefinedHitErrorRPhi(0.) { }
 
   SeedingLayerImpl(
-    const string & name,
+    const string & name, int seqNum,
     const DetLayer* layer,
     const TransientTrackingRecHitBuilder * hitBuilder,
     const HitExtractor * hitExtractor,
     float hitErrorRZ, float hitErrorRPhi)
-  : theName(name), theLayer(layer),
+  : theName(name), theSeqNum(seqNum), theLayer(layer),
     theTTRHBuilder(hitBuilder), theHitExtractor(hitExtractor),
     theHasPredefinedHitErrors(true),
     thePredefinedHitErrorRZ(hitErrorRZ), thePredefinedHitErrorRPhi(hitErrorRPhi) { }
@@ -36,6 +37,8 @@ public:
 			  const edm::EventSetup& es) const { return theHitExtractor->hits(sl,ev,es);  }
 
   std::string name() const { return theName; }
+
+  int seqNum() const { return theSeqNum; }
 
   const DetLayer*  detLayer() const { return theLayer; }
   const TransientTrackingRecHitBuilder * hitBuilder() const { return theTTRHBuilder; }
@@ -49,6 +52,7 @@ private:
 
 private:
   std::string theName;
+  int theSeqNum;
   const DetLayer* theLayer;
   const TransientTrackingRecHitBuilder *theTTRHBuilder;
   const HitExtractor * theHitExtractor;
@@ -60,21 +64,26 @@ private:
 
 
 SeedingLayer::SeedingLayer( 
-    const std::string & name, 
+    const std::string & name, int seqNum,
     const DetLayer* layer, 
     const TransientTrackingRecHitBuilder * hitBuilder,
     const HitExtractor * hitExtractor,
     bool usePredefinedErrors, float hitErrorRZ, float hitErrorRPhi)
 {
   SeedingLayerImpl * l = usePredefinedErrors ? 
-      new SeedingLayerImpl(name,layer,hitBuilder,hitExtractor,hitErrorRZ,hitErrorRPhi)
-    : new SeedingLayerImpl(name,layer,hitBuilder,hitExtractor);
+      new SeedingLayerImpl(name,seqNum,layer,hitBuilder,hitExtractor,hitErrorRZ,hitErrorRPhi)
+    : new SeedingLayerImpl(name,seqNum,layer,hitBuilder,hitExtractor);
   theImpl = boost::shared_ptr<SeedingLayerImpl> (l);
 }
 
 std::string SeedingLayer::name() const
 {
   return theImpl->name();
+}
+
+int SeedingLayer::seqNum() const
+{
+  return theImpl->seqNum();
 }
 
 const DetLayer*  SeedingLayer::detLayer() const

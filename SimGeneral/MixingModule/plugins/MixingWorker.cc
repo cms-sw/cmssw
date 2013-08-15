@@ -9,9 +9,9 @@
 
 namespace edm {
   template <>
-  void MixingWorker<PCaloHit>::addPileups(const int bcr, const EventPrincipal &ep, unsigned int eventNr,int vertexoffset) {
-
-    boost::shared_ptr<Wrapper<std::vector<PCaloHit> > const> shPtr = edm::getProductByTag<std::vector<PCaloHit> >(ep, tag_);
+  void MixingWorker<PCaloHit>::addPileups(const int bcr, const EventPrincipal &ep, ModuleCallingContext const* mcc,
+                                          unsigned int eventNr,int vertexoffset) {
+    boost::shared_ptr<Wrapper<std::vector<PCaloHit> > const> shPtr = edm::getProductByTag<std::vector<PCaloHit> >(ep, tag_, mcc);
 
     if (shPtr) {
       LogDebug("MixingModule") <<shPtr->product()->size()<<"  pileup objects  added, eventNr "<<eventNr;
@@ -21,9 +21,10 @@ namespace edm {
   }
 
   template <>
-  void MixingWorker<PSimHit>::addPileups(const int bcr, const EventPrincipal &ep,unsigned int eventNr,int vertexoffset) {
+  void MixingWorker<PSimHit>::addPileups(const int bcr, const EventPrincipal &ep, ModuleCallingContext const* mcc,
+                                         unsigned int eventNr,int vertexoffset) {
     //    changed for high/low treatment
-    boost::shared_ptr<Wrapper<std::vector<PSimHit> > const> shPtr = getProductByTag<std::vector<PSimHit> >(ep, tag_);
+    boost::shared_ptr<Wrapper<std::vector<PSimHit> > const> shPtr = getProductByTag<std::vector<PSimHit> >(ep, tag_, mcc);
     if (shPtr) {
       LogDebug("MixingModule") <<shPtr->product()->size()<<"  pileup objects  added, eventNr "<<eventNr;
       crFrame_->setPileupPtr(shPtr);
@@ -32,9 +33,10 @@ namespace edm {
   }
 
   template <>
-  void  MixingWorker<SimTrack>::addPileups(const int bcr, const EventPrincipal &ep,unsigned int eventNr,int vertexoffset) { 
+  void  MixingWorker<SimTrack>::addPileups(const int bcr, const EventPrincipal &ep, ModuleCallingContext const* mcc,
+                                           unsigned int eventNr,int vertexoffset) { 
       // changed to transmit vertexoffset
-      boost::shared_ptr<Wrapper<std::vector<SimTrack> > const> shPtr = getProductByTag<std::vector<SimTrack> >(ep, tag_);
+    boost::shared_ptr<Wrapper<std::vector<SimTrack> > const> shPtr = getProductByTag<std::vector<SimTrack> >(ep, tag_, mcc);
       
       if (shPtr) {
 	LogDebug("MixingModule") <<shPtr->product()->size()<<"  pileup objects  added, eventNr "<<eventNr;
@@ -44,10 +46,11 @@ namespace edm {
   }
 
   template <>
-  void MixingWorker<SimVertex>::addPileups(const int bcr, const EventPrincipal &ep,unsigned int eventNr,int vertexoffset) {
+  void MixingWorker<SimVertex>::addPileups(const int bcr, const EventPrincipal &ep, ModuleCallingContext const* mcc,
+                                           unsigned int eventNr,int vertexoffset) {
   
     // changed to take care of vertexoffset
-    boost::shared_ptr<Wrapper<std::vector<SimVertex> > const> shPtr = getProductByTag<std::vector<SimVertex> >(ep, tag_);
+    boost::shared_ptr<Wrapper<std::vector<SimVertex> > const> shPtr = getProductByTag<std::vector<SimVertex> >(ep, tag_, mcc);
         
     if (shPtr) {
       LogDebug("MixingModule") <<shPtr->product()->size()<<"  pileup objects  added, eventNr "<<eventNr;
@@ -58,9 +61,10 @@ namespace edm {
   }
 
   template <>
-  void MixingWorker<HepMCProduct>::addPileups(const int bcr, const EventPrincipal& ep,unsigned int eventNr,int vertexoffset) {
+  void MixingWorker<HepMCProduct>::addPileups(const int bcr, const EventPrincipal& ep, ModuleCallingContext const* mcc,
+                                              unsigned int eventNr,int vertexoffset) {
     // HepMCProduct does not come as a vector....
-    boost::shared_ptr<Wrapper<HepMCProduct> const> shPtr = getProductByTag<HepMCProduct>(ep, tag_);
+    boost::shared_ptr<Wrapper<HepMCProduct> const> shPtr = getProductByTag<HepMCProduct>(ep, tag_, mcc);
     if (shPtr) {
       LogDebug("MixingModule") <<"HepMC pileup objects  added, eventNr "<<eventNr << " Tag " << tag_ << std::endl;
       crFrame_->setPileupPtr(shPtr);

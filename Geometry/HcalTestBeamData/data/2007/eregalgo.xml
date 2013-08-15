@@ -1,0 +1,51 @@
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../../DetectorDescription/Schema/DDLSchema.xsd">
+	<ConstantsSection label="eregalgo.xml" eval="true">
+		
+		
+	</ConstantsSection>
+	<SolidSection label="eregalgo.xml">
+		<Polycone name="EREG" startPhi="-22.5*deg" deltaPhi="45*deg">
+			<ZSection z="[escon:PRESH_Z_OFFSET] - [escon:PRESH_Z_TOTAL]/2." rMin="[eecon:EEIREREG]" rMax="[escon:PRESH_RMAX_FRONT]"/>
+			<ZSection z="[escon:PRESH_Z_OFFSET] + [escon:PRESH_MID_Z]" rMin="[eecon:EEIREREG]" rMax="[escon:PRESH_RMAX_BACK]"/>
+			<ZSection z="[escon:PRESH_Z_OFFSET] + [escon:PRESH_Z_TOTAL]/2." rMin="[eecon:EEIREREG]" rMax="[escon:PRESH_RMAX_BACK]"/>
+			<ZSection z="[eecon:EEzFront]" rMin="[eecon:EEIREREG]" rMax="[escon:PRESH_RMAX_BACK]"/>
+			<ZSection z="[eecon:EEzFront]" rMin="[eecon:EEIREREG]" rMax="[eecon:EErMax1]"/>
+			<ZSection z="[eecon:EEzBack]" rMin="[eecon:EEIREREG]" rMax="[eecon:EErMax2]"/>
+			<ZSection z="[eecon:EEzBack]" rMin="[eecon:EEIREREG]" rMax="[eecon:EBRMax]"/>
+			<ZSection z="[eecon:EEzNeck]" rMin="[eecon:EEIREREG]" rMax="[eecon:EBRMax]"/>
+			<ZSection z="[eecon:EEzNeck]" rMin="[eecon:EEIREREG]" rMax="[eecon:EErNeck]"/>
+			<ZSection z="[eecon:EEFarZ]" rMin="[eecon:EEIREREG]" rMax="[eecon:EErNeck]"/>
+		</Polycone>
+	</SolidSection>
+	<LogicalPartSection label="eregalgo.xml">
+		<LogicalPart name="ECAL" category="unspecified">
+			<rSolid name="EREG"/>
+			<rMaterial name="materials:Air"/>
+		</LogicalPart>
+		<LogicalPart name="EREG" category="unspecified">
+			<rSolid name="EREG"/>
+			<rMaterial name="materials:E_Air"/>
+		</LogicalPart>
+	</LogicalPartSection>
+	<PosPartSection label="eregalgo.xml">
+		<PosPart copyNumber="1">
+			<rParent name="TBHcal:Calo"/>
+			<rChild name="eregalgo:ECAL"/>
+			<Translation x="0*mm" y="0*mm" z="[eecon:EEzMagF]"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="eregalgo:ECAL"/>
+			<rChild name="eregalgo:EREG"/>
+		</PosPart>
+	</PosPartSection>
+	<SpecParSection label="eregalgo.xml" eval="true">
+		<SpecPar name="ecal">
+			<PartSelector path="//ECAL"/>
+			<Parameter name="CMSCutsRegion" value="EcalRegion" eval="false"/>
+			<Parameter name="ProdCutsForElectrons" value="1*mm"/>
+			<Parameter name="ProdCutsForPositrons" value="1*mm"/>
+			<Parameter name="ProdCutsForGamma" value="1*mm"/>
+		</SpecPar>
+	</SpecParSection>
+</DDDefinition>

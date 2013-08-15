@@ -101,8 +101,8 @@ class ImpactParameterCalibration : public edm::EDAnalyzer {
  }
 
    TrackProbabilityCalibration * m_calibration[2];
-   edm::InputTag m_iptaginfo;
-   edm::InputTag m_pv;
+   edm::EDGetTokenT<reco::TrackIPTagInfoCollection> token_trackIPTagInfo;
+   edm::EDGetTokenT<reco::VertexCollection> token_primaryVertex;
   unsigned int minLoop, maxLoop;
 
 };
@@ -110,8 +110,8 @@ class ImpactParameterCalibration : public edm::EDAnalyzer {
 ImpactParameterCalibration::ImpactParameterCalibration(const edm::ParameterSet& iConfig):config(iConfig)
 {
   m_needInitFromES = false;
-  m_iptaginfo = iConfig.getParameter<edm::InputTag>("tagInfoSrc");
-  m_pv = iConfig.getParameter<edm::InputTag>("primaryVertexSrc");
+  token_trackIPTagInfo =  consumes<reco::TrackIPTagInfoCollection>(iConfig.getParameter<edm::InputTag>("tagInfoSrc"));
+  token_primaryVertex = consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("primaryVertexSrc"));
   bool createOnlyOne = iConfig.getUntrackedParameter<bool>("createOnlyOneCalibration", false);
   minLoop=0;
   maxLoop=1;
@@ -146,13 +146,13 @@ ImpactParameterCalibration::analyze(const edm::Event& iEvent, const edm::EventSe
   using namespace reco;
 
   Handle<TrackIPTagInfoCollection> ipHandle;
-  iEvent.getByLabel(m_iptaginfo, ipHandle);
+  iEvent.getByToken(token_trackIPTagInfo, ipHandle);
   const TrackIPTagInfoCollection & ip = *(ipHandle.product());
 
 //  cout << "Found " << ip.size() << " TagInfo" << endl;
 
   Handle<reco::VertexCollection> primaryVertex;
-  iEvent.getByLabel(m_pv,primaryVertex);
+  iEvent.getByToken(token_primaryVertex,primaryVertex);
 
   vector<TrackProbabilityCalibration::Entry>::iterator found;
   vector<TrackProbabilityCalibration::Entry>::iterator it_begin;

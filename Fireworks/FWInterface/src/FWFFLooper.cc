@@ -531,29 +531,6 @@ FWFFLooper::requestChanges(const std::string &moduleLabel, const edm::ParameterS
    m_scheduledChanges[moduleLabel] = ps;
 }
  
-
-//______________________________________________________________________________
-// AMT : I'm not sure if geometry can change in the two functionss. Plese delete
-// them if you think this is impossible
-
-void FWFFLooper::doBeginLuminosityBlock(edm::LuminosityBlockPrincipal& iLB, edm::EventSetup const& iES)
-{
-   try {
-      m_geomWatcher.check(iES);
-   } catch (...) {}
-   
-   EDLooperBase::doBeginLuminosityBlock(iLB, iES);
-}
-
-void FWFFLooper::doEndLuminosityBlock(edm::LuminosityBlockPrincipal& iLB, edm::EventSetup const& iES)
-{
-   try {
-      m_geomWatcher.check(iES);
-   }  catch (...) {}
-   
-   EDLooperBase::doEndLuminosityBlock(iLB, iES);
-}
-
 //______________________________________________________________________________
 
 void

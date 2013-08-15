@@ -347,9 +347,8 @@ Event::history() const {
         TBranch* b = meta->GetBranch(edm::poolNames::processHistoryBranchName().c_str());
         b->SetAddress(&pPhv);
         b->GetEntry(0);
-        for (edm::ProcessHistoryVector::const_iterator i = historyVector.begin(), e = historyVector.end();
-            i != e; ++i) {
-          historyMap_.insert(std::make_pair(i->id(), *i));
+        for (auto& history : historyVector) {
+          historyMap_.insert(std::make_pair(history.setProcessHistoryID(), history));
         }
       }
     }

@@ -292,7 +292,7 @@ TFWLiteSelectorBasic::Process(Long64_t iEntry) {
          m_->ep_->setLuminosityBlockPrincipal(lbp);
          m_->processNames_ = m_->ep_->processHistory();
 
-         edm::Event event(*m_->ep_, m_->md_);
+         edm::Event event(*m_->ep_, m_->md_, nullptr);
 
          //Make the event principal accessible to edm::Ref's
          Operate sentry(m_->ep_->prodGetter());
@@ -338,8 +338,6 @@ TFWLiteSelectorBasic::setupNewFile(TFile& iFile) {
   edm::ProductRegistry* pReg = &(*m_->reg_);
   metaDataTree->SetBranchAddress(edm::poolNames::productDescriptionBranchName().c_str(), &(pReg));
 
-  m_->reg_->setFrozen();
-
   typedef std::map<edm::ParameterSetID, edm::ParameterSetBlob> PsetMap;
   PsetMap psetMap;
   PsetMap *psetMapPtr = &psetMap;
@@ -382,6 +380,10 @@ TFWLiteSelectorBasic::setupNewFile(TFile& iFile) {
 
   metaDataTree->GetEntry(0);
 
+  for(auto& prod : m_->reg_->productListUpdator()) {
+    prod.second.init();
+  }
+
   // Merge into the registries. For now, we do NOT merge the product registry.
   edm::pset::Registry& psetRegistry = *edm::pset::Registry::instance();
   for(PsetMap::const_iterator i = psetMap.begin(), iEnd = psetMap.end();
@@ -400,12 +402,11 @@ TFWLiteSelectorBasic::setupNewFile(TFile& iFile) {
   fillProductRegistryTransients(procConfigVector, *m_->reg_);
   std::auto_ptr<edm::ProductRegistry> newReg(new edm::ProductRegistry());
 
-  edm::ProductRegistry::ProductList const& prodList = m_->reg_->productList();
+  edm::ProductRegistry::ProductList& prodList = m_->reg_->productListUpdator();
   {
-     for(edm::ProductRegistry::ProductList::const_iterator it = prodList.begin(), itEnd = prodList.end();
-            it != itEnd; ++it) {
-         edm::BranchDescription const& prod = it->second;
-         //std::cout << "productname = " << it->second << " end " << std::endl;
+     for(auto& item : prodList) {
+         edm::BranchDescription& prod = item.second;
+         //std::cout << "productname = " << item.second << " end " << std::endl;
          std::string newFriendlyName = edm::friendlyname::friendlyName(prod.className());
          if(newFriendlyName == prod.friendlyClassName()) {
            newReg->copyProduct(prod);
@@ -422,24 +423,22 @@ TFWLiteSelectorBasic::setupNewFile(TFile& iFile) {
          prod.init();
        }
 
-    newReg->setFrozen();
     m_->reg_.reset(newReg.release());
   }
 
-  edm::ProductRegistry::ProductList const& prodList2 = m_->reg_->productList();
+  edm::ProductRegistry::ProductList& prodList2 = m_->reg_->productListUpdator();
   std::vector<edm::EventEntryDescription> temp(prodList2.size(), edm::EventEntryDescription());
   m_->prov_.swap(temp);
   std::vector<edm::EventEntryDescription>::iterator itB = m_->prov_.begin();
   m_->pointerToBranchBuffer_.reserve(prodList2.size());
 
-  for(edm::ProductRegistry::ProductList::const_iterator it = prodList2.begin(), itEnd = prodList2.end();
-       it != itEnd; ++it, ++itB) {
-    edm::BranchDescription const& prod = it->second;
+  for(auto& item : prodList2) {
+    edm::BranchDescription& prod = item.second;
     if(prod.branchType() == edm::InEvent) {
       prod.init();
       //NEED to do this and check to see if branch exists
       if(m_->tree_->GetBranch(prod.branchName().c_str()) == 0) {
-        prod.setDropped();
+        prod.setDropped(true);
       }
 
       //std::cout << "id " << it->first << " branch " << it->second << std::endl;
@@ -451,6 +450,7 @@ TFWLiteSelectorBasic::setupNewFile(TFile& iFile) {
     }
   }
   m_->branchIDListHelper_->updateFromInput(*branchIDListsPtr);
+  m_->reg_->setFrozen();
   m_->ep_.reset(new edm::EventPrincipal(m_->reg_, m_->branchIDListHelper_, m_->pc_, nullptr,edm::StreamID::invalidStreamID()));
   everythingOK_ = true;
 }

@@ -18,6 +18,10 @@
 
 using namespace edm;
 
+namespace edm {
+  class ModuleCallingContext;
+}
+
 namespace edmtest
 {
 
@@ -27,8 +31,8 @@ namespace edmtest
     explicit TestResultAnalyzer(edm::ParameterSet const&);
     virtual ~TestResultAnalyzer();
 
-    virtual void analyze(edm::Event const& e, edm::EventSetup const& c);
-    void endJob();
+    virtual void analyze(edm::Event const& e, edm::EventSetup const& c) override;
+    void endJob() override;
 
   private:
     int    passed_;
@@ -48,8 +52,8 @@ namespace edmtest
     explicit TestFilterModule(edm::ParameterSet const&);
     virtual ~TestFilterModule();
 
-    virtual bool filter(edm::Event& e, edm::EventSetup const& c);
-    void endJob();
+    virtual bool filter(edm::Event& e, edm::EventSetup const& c) override;
+    void endJob() override;
 
   private:
     int count_;
@@ -66,10 +70,10 @@ namespace edmtest
     virtual ~SewerModule();
 
   private:
-    virtual void write(edm::EventPrincipal const& e);
-    virtual void writeLuminosityBlock(edm::LuminosityBlockPrincipal const&){}
-    virtual void writeRun(edm::RunPrincipal const&){}
-    virtual void endJob();
+    virtual void write(edm::EventPrincipal const& e, ModuleCallingContext const*) override;
+    virtual void writeLuminosityBlock(edm::LuminosityBlockPrincipal const&, ModuleCallingContext const*) override {}
+    virtual void writeRun(edm::RunPrincipal const&, ModuleCallingContext const*) override {}
+    virtual void endJob() override;
 
     std::string name_;
     int num_pass_;
@@ -179,7 +183,7 @@ namespace edmtest
   {
   }
 
-  void SewerModule::write(edm::EventPrincipal const&)
+  void SewerModule::write(edm::EventPrincipal const&, ModuleCallingContext const*)
   {
     ++total_;
     assert(currentContext() != 0);

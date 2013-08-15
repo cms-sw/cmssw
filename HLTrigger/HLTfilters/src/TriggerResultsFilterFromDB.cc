@@ -23,6 +23,7 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 
 #include "HLTrigger/HLTcore/interface/TriggerExpressionEvaluator.h"
 #include "HLTrigger/HLTcore/interface/TriggerExpressionParser.h"
@@ -42,6 +43,27 @@ TriggerResultsFilterFromDB::TriggerResultsFilterFromDB(const edm::ParameterSet &
 TriggerResultsFilterFromDB::~TriggerResultsFilterFromDB()
 {
   delete m_expression;
+}
+
+void
+TriggerResultsFilterFromDB::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  makeHLTFilterDescription(desc);
+  // # HLT results   - set to empty to ignore HLT
+  desc.add<edm::InputTag>("hltResults",edm::InputTag("TriggerResults"));
+  // # L1 GT results - set to empty to ignore L1T
+  desc.add<edm::InputTag>("l1tResults",edm::InputTag("hltGtDigis"));
+  // # use L1 mask
+  desc.add<bool>("l1tIgnoreMask",false);
+  // # read L1 technical bits from PSB#9, bypassing the prescales
+  desc.add<bool>("l1techIgnorePrescales",false);
+  // # used by the definition of the L1 mask
+  desc.add<unsigned int>("daqPartitions",0x01);
+  // # throw exception on unknown trigger names
+  desc.add<bool>("throw",true);
+  // # read paths from AlCaRecoTriggerBitsRcd via this key
+  desc.add<std::string>("eventSetupPathsKey","");
+  descriptions.add("triggerResultsFilterFromDB", desc);
 }
 
 void TriggerResultsFilterFromDB::parse(const std::vector<std::string> & expressions) {

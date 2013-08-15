@@ -46,8 +46,6 @@
  * 
  * \author Thomas Speer, Luca Lista, Pascal Vanlaer, Juan Alcaraz
  *
- * \version $Id: TrackBase.h,v 1.86 2012/03/16 18:16:21 mangano Exp $
- *
  */
 
 #include "DataFormats/Math/interface/Vector.h"
@@ -102,7 +100,7 @@ namespace reco {
 	       const Vector & momentum, int charge, const CovarianceMatrix &,
 	       TrackAlgorithm=undefAlgorithm, TrackQuality quality=undefQuality,signed char nloops=0);
     /// virtual destructor   
-    ~TrackBase();
+    virtual ~TrackBase();
     /// chi-squared of the fit
     double chi2() const { return chi2_; }
     /// number of degrees of freedom of the fit

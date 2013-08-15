@@ -1,0 +1,126 @@
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
+	<ConstantsSection label="TBHcalXtal.xml" eval="true">
+		<Constant name="motherDxby2" value="25.2*cm"/>
+		<Constant name="motherDyby2" value="25.0*cm"/>
+		<Constant name="motherDzby2" value="66.75*cm"/>
+		<Constant name="xtalBoxDxby2" value="25.2*cm"/>
+		<Constant name="xtalBoxDyby2" value="25.0*cm"/>
+		<Constant name="xtalBoxDzby2" value="72.5*cm"/>
+		<Constant name="wallT" value="0.2*cm"/>
+		<Constant name="LayerZ" value="42.95*cm"/>
+		<Constant name="LayerDz" value="11.85*cm"/>
+		<Constant name="LayerDy1" value="7.875*cm"/>
+		<Constant name="LayerDy2" value="9.135*cm"/>
+		<Constant name="LayerDx1" value="1.125*cm"/>
+		<Constant name="LayerDx2" value="1.305*cm"/>
+		<Constant name="CrystalDz" value="11.80*cm"/>
+		<Constant name="CrystalDx1" value="1.10*cm"/>
+		<Constant name="CrystalDx2" value="1.28*cm"/>
+		<Constant name="AlDzby2" value="4.00*cm"/>
+		<Constant name="Radius" value="1.50*m"/>
+		<Constant name="Tolerance" value="0.5*mm"/>
+		<Constant name="AngularWidth" value="0.01505*rad"/>
+	</ConstantsSection>
+	<SolidSection label="TBHcalXtal.xml">
+		<Box name="HcalTBXtal" dx="[motherDxby2]" dy="[motherDyby2]" dz="[motherDzby2]"/>
+		<Box name="HcalTBXtalInside" dx="([motherDxby2]-[wallT])" dy="([motherDyby2]-[wallT])" dz="([motherDzby2]-[wallT])"/>
+		<Trd1 name="HcalTBXtalLayer" dz="[LayerDz]" dy1="[LayerDy1]" dy2="[LayerDy2]" dx1="[LayerDx1]" dx2="[LayerDx2]"/>
+		<Trd1 name="HcalTBXtalCrystal" dz="[CrystalDz]" dy1="[CrystalDx1]" dy2="[CrystalDx2]" dx1="[CrystalDx1]" dx2="[CrystalDx2]"/>
+		<Box name="HcalTBXtalPlexiBlock" dx="8*cm" dy="8*cm" dz="1.15*cm"/>
+		<Box name="HcalTBXtalAlinBlock" dx="9.25*cm" dy="9.25*cm" dz="3.5*mm"/>
+		<Box name="HcalTBXtalAloutBlock" dx="9.25*cm" dy="9.25*cm" dz="[AlDzby2]"/>
+	</SolidSection>
+	<LogicalPartSection label="TBHcalXtal.xml">
+		<LogicalPart name="HcalTBXtal" category="unspecified">
+			<rSolid name="HcalTBXtal"/>
+			<rMaterial name="materials:Aluminium"/>
+		</LogicalPart>
+		<LogicalPart name="HcalTBXtalInside" category="unspecified">
+			<rSolid name="HcalTBXtalInside"/>
+			<rMaterial name="materials:Air"/>
+		</LogicalPart>
+		<LogicalPart name="HcalTBXtalLayer" category="unspecified">
+			<rSolid name="HcalTBXtalLayer"/>
+			<rMaterial name="materials:Air"/>
+		</LogicalPart>
+		<LogicalPart name="HcalTBXtalCrystal" category="sensitive">
+			<rSolid name="HcalTBXtalCrystal"/>
+			<rMaterial name="materials:E_PbWO4"/>
+		</LogicalPart>
+		<LogicalPart name="HcalTBXtalPlexiBlock" category="unspecified">
+			<rSolid name="HcalTBXtalPlexiBlock"/>
+			<rMaterial name="materials:Plexiglas"/>
+		</LogicalPart>
+		<LogicalPart name="HcalTBXtalAlinBlock" category="unspecified">
+			<rSolid name="HcalTBXtalAlinBlock"/>
+			<rMaterial name="materials:Aluminium"/>
+		</LogicalPart>
+		<LogicalPart name="HcalTBXtalAloutBlock" category="unspecified">
+			<rSolid name="HcalTBXtalAloutBlock"/>
+			<rMaterial name="materials:Aluminium"/>
+		</LogicalPart>
+	</LogicalPartSection>
+	<PosPartSection label="TBHcalXtal.xml">
+		<PosPart copyNumber="1">
+			<rParent name="TBHcalXtal:HcalTBXtal"/>
+			<rChild name="TBHcalXtal:HcalTBXtalInside"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="TBHcalXtal:HcalTBXtalInside"/>
+			<rChild name="TBHcalXtal:HcalTBXtalPlexiBlock"/>
+			<Translation x="0*fm" y="0*fm" z="29.85*cm"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="TBHcalXtal:HcalTBXtalInside"/>
+			<rChild name="TBHcalXtal:HcalTBXtalAlinBlock"/>
+			<Translation x="0*fm" y="0*fm" z="55.35*cm"/>
+		</PosPart>
+	</PosPartSection>
+	<Algorithm name="hcal:DDHCalTestBeamAlgo">
+		<rParent name="TBHcal:Calo"/>
+		<String name="ChildName" value="HcalTBXtal"/>
+		<Numeric name="Eta" value="[TBHcal:Eta]"/>
+		<Numeric name="Phi" value="[TBHcal:Phi]"/>
+		<Numeric name="Dist" value="-31.10*cm"/>
+		<Numeric name="DistZ" value="133.35*cm"/>
+		<Numeric name="Dz" value="[motherDzby2]"/>
+		<Numeric name="Number" value="1"/>
+	</Algorithm>
+	<Algorithm name="hcal:DDHCalTestBeamAlgo">
+		<rParent name="TBHcal:Calo"/>
+		<String name="ChildName" value="HcalTBXtalAloutBlock"/>
+		<Numeric name="Eta" value="[TBHcal:Eta]"/>
+		<Numeric name="Phi" value="[TBHcal:Phi]"/>
+		<Numeric name="Dist" value="39.75*cm"/>
+		<Numeric name="DistZ" value="133.35*cm"/>
+		<Numeric name="Dz" value="[AlDzby2]"/>
+		<Numeric name="Number" value="1"/>
+	</Algorithm>
+	<Algorithm name="hcal:DDHCalXtalAlgo">
+		<rParent name="TBHcalXtal:HcalTBXtalInside"/>
+		<String name="ChildName" value="HcalTBXtalLayer"/>
+		<Numeric name="Radius" value="[Radius]"/>
+		<Numeric name="Axis" value="0"/>
+		<Numeric name="Offset" value="[LayerZ]"/>
+		<Numeric name="Dx" value="[LayerDx2]"/>
+		<Numeric name="Dz" value="[LayerDz]"/>
+		<Numeric name="AngWidth" value="[AngularWidth]"/>
+		<Vector name="Names" type="string" nEntries="7">
+			Layer0,   Layer1,   Layer2,   Layer3,   Layer4,
+			Layer5,   Layer6</Vector>
+	</Algorithm>
+	<Algorithm name="hcal:DDHCalXtalAlgo">
+		<rParent name="TBHcalXtal:HcalTBXtalLayer"/>
+		<String name="ChildName" value="HcalTBXtalCrystal"/>
+		<Numeric name="Radius" value="[Radius]"/>
+		<Numeric name="Axis" value="1"/>
+		<Numeric name="Offset" value="-[Tolerance]"/>
+		<Numeric name="Dx" value="[CrystalDx2]"/>
+		<Numeric name="Dz" value="[CrystalDz]"/>
+		<Numeric name="AngWidth" value="[AngularWidth]"/>
+		<Vector name="Names" type="string" nEntries="7">
+			Crystal0, Crystal1, Crystal2, Crystal3, Crystal4,
+			Crystal5, Crystal6</Vector>
+	</Algorithm>
+</DDDefinition>

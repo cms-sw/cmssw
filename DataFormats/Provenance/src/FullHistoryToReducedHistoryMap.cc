@@ -14,6 +14,7 @@ namespace edm {
     // ProcessHistoryID is strangely also defined as the ID of the empty
     // Process History (maybe that should be fixed ...).
     ProcessHistory ph;
+    ph.setProcessHistoryID();
     std::pair<ProcessHistoryID, ProcessHistoryID> newEntry(ph.id(), ph.id());
     std::pair<Map::iterator, bool> result = cache_.insert(newEntry);
     previous_ = result.first;
@@ -36,7 +37,7 @@ namespace edm {
         << "Contact a Framework developer\n";
     }
     ph.reduce();
-    std::pair<ProcessHistoryID, ProcessHistoryID> newEntry(fullID, ph.id());
+    std::pair<ProcessHistoryID, ProcessHistoryID> newEntry(fullID, ph.setProcessHistoryID());
     std::pair<Map::iterator, bool> result = cache_.insert(newEntry);
     previous_ = result.first;
     return result.first->second;

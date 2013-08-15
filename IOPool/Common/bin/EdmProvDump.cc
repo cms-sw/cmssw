@@ -874,12 +874,12 @@ ProvenanceDumper::work_() {
 
   std::map<edm::BranchID, std::string> branchIDToBranchName;
 
-  for(edm::ProductRegistry::ProductList::const_iterator it =
-         reg_.productList().begin(), itEnd = reg_.productList().end();
+  for(edm::ProductRegistry::ProductList::iterator it =
+         reg_.productListUpdator().begin(), itEnd = reg_.productListUpdator().end();
        it != itEnd;
        ++it) {
     //force it to rebuild the branch name
-    const_cast<edm::BranchDescription&>(it->second).init();
+    it->second.init();
 
     if(showDependencies_ || extendedAncestors_ || extendedDescendants_) {
       branchIDToBranchName[it->second.branchID()] = it->second.branchName();

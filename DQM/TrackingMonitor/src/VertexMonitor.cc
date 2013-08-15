@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2012/03/29 17:21:28 $
- *  $Revision: 1.2 $
+ *  $Date: 2013/05/30 22:09:25 $
+ *  $Revision: 1.3 $
  *  \author:  Mia Tosi,40 3-B32,+41227671609 
  */
 
@@ -12,8 +12,6 @@
 #include "DQMServices/Core/interface/DQMStore.h"
 
 #include "DQM/TrackingMonitor/interface/VertexMonitor.h"
-
-#include "DataFormats/VertexReco/interface/VertexFwd.h"
 
 #include "DQM/TrackingMonitor/interface/GetLumi.h"
 
@@ -59,6 +57,15 @@ VertexMonitor::VertexMonitor(const edm::ParameterSet& iConfig, const edm::InputT
 
 }
 
+VertexMonitor::VertexMonitor(const edm::ParameterSet& iConfig, const edm::InputTag& primaryVertexInputTag, const edm::InputTag& selectedPrimaryVertexInputTag, std::string pvLabel, edm::ConsumesCollector& iC) : VertexMonitor(iConfig,primaryVertexInputTag,selectedPrimaryVertexInputTag,pvLabel)
+{
+
+  if ( doPlotsVsBXlumi_ )
+    lumiDetails_ = new GetLumi( iConfig.getParameter<edm::ParameterSet>("BXlumiSetup"), iC );
+
+  pvToken_    = iC.consumes<reco::VertexCollection>(primaryVertexInputTag_);
+  selpvToken_ = iC.consumes<reco::VertexCollection>(selectedPrimaryVertexInputTag_); 
+}
 
 VertexMonitor::~VertexMonitor()
 {
@@ -88,7 +95,8 @@ VertexMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   size_t totalNumPV = 0;
   size_t totalNumBADndofPV = 0;
   edm::Handle< reco::VertexCollection > pvHandle;
-  iEvent.getByLabel(primaryVertexInputTag_, pvHandle );
+  //  iEvent.getByLabel(primaryVertexInputTag_, pvHandle );
+  iEvent.getByToken(pvToken_, pvHandle );
   if ( pvHandle.isValid() )
     {
       totalNumPV = pvHandle->size();
@@ -108,7 +116,8 @@ VertexMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   
   size_t totalNumGoodPV = 0;
   edm::Handle< reco::VertexCollection > selpvHandle;
-  iEvent.getByLabel(selectedPrimaryVertexInputTag_, selpvHandle );
+  //  iEvent.getByLabel(selectedPrimaryVertexInputTag_, selpvHandle );
+  iEvent.getByToken(selpvToken_, selpvHandle );
   if ( selpvHandle.isValid() )
     totalNumGoodPV = selpvHandle->size();
   else return;

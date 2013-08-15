@@ -22,6 +22,7 @@
 namespace edm {
   class ExceptionCollector;
   class StreamID;
+  class StreamContext;
   
   class WorkerManager {
   public:
@@ -39,16 +40,21 @@ namespace edm {
 
     void setOnDemandProducts(ProductRegistry& pregistry, std::set<std::string> const& unscheduledLabels) const;
 
-    template <typename T>
+    template <typename T, typename U>
     void processOneOccurrence(typename T::MyPrincipal& principal,
                               EventSetup const& eventSetup,
                               StreamID streamID,
+                              typename T::Context const* topContext,
+                              U const* context,
                               bool cleaningUpAfterException = false);
 
     void beginJob(ProductRegistry const& iRegistry);
     void endJob();
     void endJob(ExceptionCollector& collector);
 
+    void beginStream(StreamID iID, StreamContext& streamContext);
+    void endStream(StreamID iID, StreamContext& streamContext);
+    
     AllWorkers const& allWorkers() const {return allWorkers_;}
 
     void addToAllWorkers(Worker* w, bool useStopwatch);
@@ -74,11 +80,13 @@ namespace edm {
     boost::shared_ptr<UnscheduledCallProducer> unscheduled_;
   };
 
-  template <typename T>
+  template <typename T, typename U>
   void
   WorkerManager::processOneOccurrence(typename T::MyPrincipal& ep,
                                  EventSetup const& es,
                                  StreamID streamID,
+                                 typename T::Context const* topContext,
+                                 U const* context,
                                  bool cleaningUpAfterException) {
     this->resetAll();
 
@@ -89,7 +97,7 @@ namespace edm {
             setupOnDemandSystem(dynamic_cast<EventPrincipal&>(ep), es);
           } else {
             //make sure the unscheduled items see this run or lumi rtansition
-            unscheduled_->runNow<T>(ep, es,streamID);
+            unscheduled_->runNow<T,U>(ep, es,streamID, topContext, context);
           }
         }
         catch(cms::Exception& e) {

@@ -12,87 +12,105 @@
 //==================================================================//
 //======================= Constructor ==============================//
 //==================================================================//
-CastorTowerJetMonitor::CastorTowerJetMonitor() {  
-}
+CastorTowerJetMonitor::CastorTowerJetMonitor()
+  {  
+  
+  }
 
 
 //==================================================================//
 //======================= Destructor ===============================//
 //==================================================================//
-CastorTowerJetMonitor::~CastorTowerJetMonitor() {
-}
+CastorTowerJetMonitor::~CastorTowerJetMonitor()
+  {
+  
+  }
 
 
 //==================================================================//
 //=========================== reset  ===============================//
 //==================================================================//
-void CastorTowerJetMonitor::reset(){
-}
+void CastorTowerJetMonitor::reset()
+  {
+  
+  }
 
 
 //==================================================================//
 //=========================== done  ===============================//
 //==================================================================//
-void CastorTowerJetMonitor::done(){
-}
+void CastorTowerJetMonitor::done()
+  {
+  
+  }
 
 
 //==================================================================//
 //=========================== setup  ===============================//
 //==================================================================//
-void CastorTowerJetMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe){
-
+void CastorTowerJetMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe)
+  {
   CastorBaseMonitor::setup(ps,dbe);
-  baseFolder_ = rootFolder_+"CastorTowerJetMonitor";
-   
+
   if(fVerbosity>0) std::cout << "CastorTowerJetMonitor::setup (start)" << std::endl;
+
+  baseFolder_ = rootFolder_+"CastorTowerJetMonitor";
   
    ////---- initialize these here
   ievt_=0;  nTowers=0; energyTower =0;  emEnergyTower = 0; hadEnergyTower=0;  femTower=0; etaTower=0; 
   phiTower=0; depthTower=0; nJets=0; energyJet =0; etaJet=0; phiJet=0;
-      
-  
-  if ( m_dbe !=NULL ) {
-    
-    m_dbe->setCurrentFolder(baseFolder_);
-    meEVT_ = m_dbe->bookInt("TowerJet Event Number");
-    meEVT_->Fill(ievt_);
-        
-    m_dbe->setCurrentFolder(baseFolder_);
-  
-      ////---- book the following histograms for Towers 
-      meCastorTowerEnergy    =  m_dbe->book1D("CASTOR Tower Total Energy","CASTOR Tower Total Energy",200,0,1000);
-      meCastorTowerEMEnergy  =  m_dbe->book1D("CASTOR Tower EM Energy","CASTOR Tower EM Energy",200,0,1000);
-      meCastorTowerHADEnergy  =  m_dbe->book1D("CASTOR Tower HAD Energy","CASTOR Tower HAD Energy",200,0,1000);
-      meCastorTowerFEM   =  m_dbe->book1D("CASTOR Tower fem - EM to Total Energy Fraction","CASTOR fem - EM to Total Energy Fraction",20,0,1.2);
-      meCastorTowerEta   =  m_dbe->book1D("CASTOR Tower Eta","CASTOR Tower Eta",42,-7,7);
-      meCastorTowerPhi   =  m_dbe->book1D("CASTOR Tower Phi","CASTOR Tower Phi",35,-3.5,3.5);
-      meCastorTowerDepth =  m_dbe->book1D("CASTOR Tower Depth","CASTOR Tower Depth",200,0,1000); 
-      meCastorTowerMultiplicity =  m_dbe->book1D("CASTOR Tower Multiplicity","CASTOR Tower Multiplicity",20,0,20); 
-      
-      
-      ////---- book the following histograms for Jets 
-      meCastorJetEnergy    =  m_dbe->book1D("CASTOR BasicJet Total Energy","CASTOR BasicJet Total Energy",200,0,2000);
-      meCastorJetEta   =  m_dbe->book1D("CASTOR BasicJet Eta","CASTOR BasicJet Eta",42,-7,7);
-      meCastorJetPhi   =  m_dbe->book1D("CASTOR BasicJet Phi","CASTOR BasicJet Phi",35,-3.5,3.5);
-      meCastorJetMultiplicity =  m_dbe->book1D("CASTOR BasicJet Multiplicity","CASTOR BasicJet Multiplicity",16,0,16); 
-      meCastorJetIDMultiplicity =  m_dbe->book1D("CASTOR JetID Multiplicity","CASTOR JetID Multiplicity",16,0,16); 
-      //-- add more here.....
- 
-   }
-  
-  
-  else{ 
-   if(fVerbosity>0) std::cout << "CastorTowerJetMonitor::setup - NO DQMStore service" << std::endl; 
-  }
 
   if(fVerbosity>0) std::cout << "CastorTowerJetMonitor::setup (end)" << std::endl;
   
-
   return;
 }
 
 
+//=================================================================//
+//========================== beginRun =============================//
+//================================================================//
+void CastorTowerJetMonitor::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup)
+  {
+  if(fVerbosity>0) std::cout << "CastorTowerJetMonitor::beginRun (start)" << std::endl;
+ 
+  if ( m_dbe !=NULL ) {
+    
+    	m_dbe->setCurrentFolder(baseFolder_);
+    	meEVT_ = m_dbe->bookInt("TowerJet Event Number");
+    	meEVT_->Fill(ievt_);
+        
+    	m_dbe->setCurrentFolder(baseFolder_);
+  
+      	////---- book the following histograms for Towers 
+      	meCastorTowerEnergy    =  m_dbe->book1D("CASTOR Tower Total Energy","CASTOR Tower Total Energy",200,0,1000);
+      	meCastorTowerEMEnergy  =  m_dbe->book1D("CASTOR Tower EM Energy","CASTOR Tower EM Energy",200,0,1000);
+      	meCastorTowerHADEnergy  =  m_dbe->book1D("CASTOR Tower HAD Energy","CASTOR Tower HAD Energy",200,0,1000);
+      	meCastorTowerFEM   =  m_dbe->book1D("CASTOR Tower fem - EM to Total Energy Fraction","CASTOR fem - EM to Total Energy Fraction",20,0,1.2);
+      	meCastorTowerEta   =  m_dbe->book1D("CASTOR Tower Eta","CASTOR Tower Eta",42,-7,7);
+      	meCastorTowerPhi   =  m_dbe->book1D("CASTOR Tower Phi","CASTOR Tower Phi",35,-3.5,3.5);
+      	meCastorTowerDepth =  m_dbe->book1D("CASTOR Tower Depth","CASTOR Tower Depth",200,0,1000); 
+      	meCastorTowerMultiplicity =  m_dbe->book1D("CASTOR Tower Multiplicity","CASTOR Tower Multiplicity",20,0,20); 
+      
+      
+      	////---- book the following histograms for Jets 
+      	meCastorJetEnergy    =  m_dbe->book1D("CASTOR BasicJet Total Energy","CASTOR BasicJet Total Energy",200,0,2000);
+      	meCastorJetEta   =  m_dbe->book1D("CASTOR BasicJet Eta","CASTOR BasicJet Eta",42,-7,7);
+      	meCastorJetPhi   =  m_dbe->book1D("CASTOR BasicJet Phi","CASTOR BasicJet Phi",35,-3.5,3.5);
+      	meCastorJetMultiplicity =  m_dbe->book1D("CASTOR BasicJet Multiplicity","CASTOR BasicJet Multiplicity",16,0,16); 
+      	meCastorJetIDMultiplicity =  m_dbe->book1D("CASTOR JetID Multiplicity","CASTOR JetID Multiplicity",16,0,16); 
+      	//-- add more here.....
+ 
+   	}
+  else
+	{ 
+   	if(fVerbosity>0) std::cout << "CastorTowerJetMonitor::setup - NO DQMStore service" << std::endl; 
+  	}
+ 
+  if(fVerbosity>0) std::cout << "CastorTowerJetMonitor::beginRun (end)" << std::endl;
+
+
+  return;
+  }
 
 
 //=============================================================================//

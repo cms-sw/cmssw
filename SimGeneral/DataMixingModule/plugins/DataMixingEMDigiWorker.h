@@ -37,6 +37,8 @@
 
 namespace edm
 {
+  class ModuleCallingContext;
+
   class DataMixingEMDigiWorker
     {
     public:
@@ -51,7 +53,8 @@ namespace edm
 
       void putEM(edm::Event &e,const edm::EventSetup& ES) ;
       void addEMSignals(const edm::Event &e,const edm::EventSetup& ES); 
-      void addEMPileups(const int bcr, const edm::EventPrincipal*,unsigned int EventId,const edm::EventSetup& ES);
+      void addEMPileups(const int bcr, const edm::EventPrincipal*,unsigned int EventId,const edm::EventSetup& ES,
+                        ModuleCallingContext const*);
 
 
     private:

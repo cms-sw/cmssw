@@ -14,12 +14,13 @@
 #include <Geometry/CommonDetUnit/interface/GeomDet.h>
 #include "FWCore/Framework/interface/Event.h"
 #include <FWCore/Framework/interface/ESHandle.h>
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 class TrajectoryStateClosestToBeamLineBuilder;
 
 
 TrackingParticle::Vector
- CosmicParametersDefinerForTP::momentum(const edm::Event& iEvent, const edm::EventSetup& iSetup, const TrackingParticle& tp) const{
+ CosmicParametersDefinerForTP::momentum(const edm::Event& iEvent, const edm::EventSetup& iSetup, const TrackingParticleRef tpr) const{
   // to add a new implementation for cosmic. For the moment, it is just as for the base class:
   using namespace edm;
   using namespace std;
@@ -34,23 +35,26 @@ TrackingParticle::Vector
   edm::Handle<reco::BeamSpot> bs;
   iEvent.getByLabel(InputTag("offlineBeamSpot"),bs);
 
-  // cout<<"TrackingParticle pdgId = "<<tp.pdgId()<<endl;
-  // cout<<"with tp.vertex(): ("<<tp.vertex().x()<<", "<<tp.vertex().y()<<", "<<tp.vertex().z()<<")"<<endl;
-  // cout<<"with tp.momentum(): ("<<tp.momentum().x()<<", "<<tp.momentum().y()<<", "<<tp.momentum().z()<<")"<<endl;
+  // cout<<"TrackingParticle pdgId = "<<tpr->pdgId()<<endl;
+  // cout<<"with tpr->vertex(): ("<<tpr->vertex().x()<<", "<<tpr->vertex().y()<<", "<<tpr->vertex().z()<<")"<<endl;
+  // cout<<"with tpr->momentum(): ("<<tpr->momentum().x()<<", "<<tpr->momentum().y()<<", "<<tpr->momentum().z()<<")"<<endl;
   
   GlobalVector finalGV;
   GlobalPoint finalGP;
-#warning "This file has been modified just to get it to compile without any regard as to whether it still functions as intended"
-#ifdef REMOVED_JUST_TO_GET_IT_TO_COMPILE__THIS_CODE_NEEDS_TO_BE_CHECKED
   double radius(9999);
-#endif
   bool found(0);
   TrackingParticle::Vector momentum(0,0,0);
-  
-#warning "This file has been modified just to get it to compile without any regard as to whether it still functions as intended"
-#ifdef REMOVED_JUST_TO_GET_IT_TO_COMPILE__THIS_CODE_NEEDS_TO_BE_CHECKED
-  const vector<PSimHit> & simHits = tp.trackPSimHit(DetId::Tracker);
-  for(vector<PSimHit>::const_iterator it=simHits.begin(); it!=simHits.end(); ++it){
+
+  if (simHitsTPAssoc.isValid()==0) {
+    LogError("TrackAssociation") << "Invalid handle!";
+    return momentum;
+  }
+  std::pair<TrackingParticleRef, TrackPSimHitRef> clusterTPpairWithDummyTP(tpr,TrackPSimHitRef());//SimHit is dummy: for simHitTPAssociationListGreater 
+                                                                                                 // sorting only the cluster is needed
+  auto range = std::equal_range(simHitsTPAssoc->begin(), simHitsTPAssoc->end(), 
+				clusterTPpairWithDummyTP, SimHitTPAssociationProducer::simHitTPAssociationListGreater);
+  for(auto ip = range.first; ip != range.second; ++ip) {
+    TrackPSimHitRef it = ip->second;
     const GeomDet* tmpDet  = tracker->idToDet( DetId(it->detUnitId()) ) ;
     LocalVector  lv = it->momentumAtEntry();
     Local3DPoint lp = it->localPosition ();
@@ -63,7 +67,6 @@ TrackingParticle::Vector
       finalGP = gp;
     }
   }
-#endif
 
   //cout<<"found = "<<found<<endl;
   // cout<<"Closest Hit Position: ("<<finalGP.x()<<", "<<finalGP.y()<<", "<<finalGP.z()<<")"<<endl;
@@ -71,7 +74,7 @@ TrackingParticle::Vector
 
   if(found) 
     {
-      FreeTrajectoryState ftsAtProduction(finalGP,finalGV,TrackCharge(tp.charge()),theMF.product());
+      FreeTrajectoryState ftsAtProduction(finalGP,finalGV,TrackCharge(tpr->charge()),theMF.product());
       TSCBLBuilderNoMaterial tscblBuilder;
       TrajectoryStateClosestToBeamLine tsAtClosestApproach = tscblBuilder(ftsAtProduction,*bs);//as in TrackProducerAlgorithm
       if(tsAtClosestApproach.isValid()){
@@ -83,7 +86,7 @@ TrackingParticle::Vector
   return momentum;
 }
 
-TrackingParticle::Point CosmicParametersDefinerForTP::vertex(const edm::Event& iEvent, const edm::EventSetup& iSetup, const TrackingParticle& tp) const{
+TrackingParticle::Point CosmicParametersDefinerForTP::vertex(const edm::Event& iEvent, const edm::EventSetup& iSetup, const TrackingParticleRef tpr) const{
   
   using namespace edm;
   using namespace std;
@@ -100,17 +103,20 @@ TrackingParticle::Point CosmicParametersDefinerForTP::vertex(const edm::Event& i
 
   GlobalVector finalGV;
   GlobalPoint finalGP;
-#warning "This file has been modified just to get it to compile without any regard as to whether it still functions as intended"
-#ifdef REMOVED_JUST_TO_GET_IT_TO_COMPILE__THIS_CODE_NEEDS_TO_BE_CHECKED
   double radius(9999);
-#endif
   bool found(0);
   TrackingParticle::Point vertex(0,0,0);
 
-#warning "This file has been modified just to get it to compile without any regard as to whether it still functions as intended"
-#ifdef REMOVED_JUST_TO_GET_IT_TO_COMPILE__THIS_CODE_NEEDS_TO_BE_CHECKED
-  const vector<PSimHit> & simHits = tp.trackPSimHit(DetId::Tracker);
-  for(vector<PSimHit>::const_iterator it=simHits.begin(); it!=simHits.end(); ++it){
+  if (simHitsTPAssoc.isValid()==0) {
+    LogError("TrackAssociation") << "Invalid handle!";
+    return vertex;
+  }
+  std::pair<TrackingParticleRef, TrackPSimHitRef> clusterTPpairWithDummyTP(tpr,TrackPSimHitRef());//SimHit is dummy: for simHitTPAssociationListGreater 
+                                                                                                 // sorting only the cluster is needed
+  auto range = std::equal_range(simHitsTPAssoc->begin(), simHitsTPAssoc->end(), 
+				clusterTPpairWithDummyTP, SimHitTPAssociationProducer::simHitTPAssociationListGreater);
+  for(auto ip = range.first; ip != range.second; ++ip) {
+    TrackPSimHitRef it = ip->second;
     const GeomDet* tmpDet  = tracker->idToDet( DetId(it->detUnitId()) ) ;
     LocalVector  lv = it->momentumAtEntry();
     Local3DPoint lp = it->localPosition ();
@@ -123,10 +129,9 @@ TrackingParticle::Point CosmicParametersDefinerForTP::vertex(const edm::Event& i
       finalGP = gp;
     }
   }
-#endif
   if(found)
     {
-      FreeTrajectoryState ftsAtProduction(finalGP,finalGV,TrackCharge(tp.charge()),theMF.product());
+      FreeTrajectoryState ftsAtProduction(finalGP,finalGV,TrackCharge(tpr->charge()),theMF.product());
       TSCBLBuilderNoMaterial tscblBuilder;
       TrajectoryStateClosestToBeamLine tsAtClosestApproach = tscblBuilder(ftsAtProduction,*bs);//as in TrackProducerAlgorithm
       if(tsAtClosestApproach.isValid()){

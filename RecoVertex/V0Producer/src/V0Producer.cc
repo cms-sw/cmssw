@@ -25,7 +25,9 @@
 
 // Constructor
 V0Producer::V0Producer(const edm::ParameterSet& iConfig) :
-  theParams(iConfig) {
+  theParams(iConfig) 
+{
+  theVees = new V0Fitter(theParams, consumesCollector());
 
    // Registering V0 Collections
   //produces<reco::VertexCollection>("Kshort");
@@ -55,22 +57,22 @@ void V0Producer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
    // Create V0Fitter object which reconstructs the vertices and creates
    //  (and contains) collections of Kshorts, Lambda0s
-   V0Fitter theVees(theParams, iEvent, iSetup);
+   theVees->fitAll(iEvent, iSetup);
 
    // Create auto_ptr for each collection to be stored in the Event
    std::auto_ptr< reco::VertexCompositeCandidateCollection > 
      kShortCandidates( new reco::VertexCompositeCandidateCollection );
-   kShortCandidates->reserve( theVees.getKshorts().size() ); 
+   kShortCandidates->reserve( theVees->getKshorts().size() ); 
 
    std::auto_ptr< reco::VertexCompositeCandidateCollection >
      lambdaCandidates( new reco::VertexCompositeCandidateCollection );
-   lambdaCandidates->reserve( theVees.getLambdas().size() );
+   lambdaCandidates->reserve( theVees->getLambdas().size() );
 
-   std::copy( theVees.getKshorts().begin(),
-	      theVees.getKshorts().end(),
+   std::copy( theVees->getKshorts().begin(),
+	      theVees->getKshorts().end(),
 	      std::back_inserter(*kShortCandidates) );
-   std::copy( theVees.getLambdas().begin(),
-	      theVees.getLambdas().end(),
+   std::copy( theVees->getLambdas().begin(),
+	      theVees->getLambdas().end(),
 	      std::back_inserter(*lambdaCandidates) );
 
    // Write the collections to the Event

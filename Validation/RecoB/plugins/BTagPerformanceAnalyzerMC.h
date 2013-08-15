@@ -48,9 +48,11 @@ class BTagPerformanceAnalyzerMC : public edm::EDAnalyzer {
 
       ~BTagPerformanceAnalyzerMC();
 
+      virtual void beginRun(const edm::Run & run, const edm::EventSetup & es);
+
       virtual void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup);
 
-  virtual void endJob();
+      virtual void endJob();
 
    private:
 
@@ -62,7 +64,7 @@ class BTagPerformanceAnalyzerMC : public edm::EDAnalyzer {
   };
 
   // Get histogram plotting options from configuration.
-  void bookHistos(const edm::ParameterSet& pSet);
+  void bookHistos();
   EtaPtBin getEtaPtBin(const int& iEta, const int& iPt);
     typedef std::pair<reco::Jet, reco::JetFlavour> JetWithFlavour;
 typedef std::map<edm::RefToBase<reco::Jet>, unsigned int, JetRefCompare> FlavourMap;

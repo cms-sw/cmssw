@@ -134,7 +134,6 @@ namespace edm {
           it != itEnd; ++it) {
         it->product_ = 0;
         BranchDescription const& desc = *it->branchDescription_;
-        desc.init();
         theTree->addBranch(desc.branchName(),
                            desc.wrappedName(),
                            desc.getInterface(),
@@ -381,7 +380,8 @@ namespace edm {
     return(size >= om_->maxFileSize());
   }
 
-  void RootOutputFile::writeOne(EventPrincipal const& e) {
+  void RootOutputFile::writeOne(EventPrincipal const& e,
+                                ModuleCallingContext const* mcc) {
     // Auxiliary branch
     pEventAux_ = &e.aux();
 
@@ -401,7 +401,7 @@ namespace edm {
       esids.push_back(om_->selectorConfig());
     }
     pEventSelectionIDs_ = &esids;
-    fillBranches(InEvent, e, pEventEntryInfoVector_);
+    fillBranches(InEvent, e, pEventEntryInfoVector_, mcc);
 
     // Add the dataType to the job report if it hasn't already been done
     if(!dataTypeReported_) {
@@ -413,7 +413,7 @@ namespace edm {
     }
 
     // Store the reduced ID in the IndexIntoFile
-    ProcessHistoryID reducedPHID = ProcessHistoryRegistry::instance()->extra().reduceProcessHistoryID(e.processHistoryID());
+    ProcessHistoryID reducedPHID = ProcessHistoryRegistry::instance()->extraForUpdate().reduceProcessHistoryID(e.processHistoryID());
     // Add event to index
     indexIntoFile_.addEntry(reducedPHID, pEventAux_->run(), pEventAux_->luminosityBlock(), pEventAux_->event(), eventEntryNumber_);
     ++eventEntryNumber_;
@@ -423,33 +423,33 @@ namespace edm {
     reportSvc->eventWrittenToFile(reportToken_, e.id().run(), e.id().event());
   }
 
-  void RootOutputFile::writeLuminosityBlock(LuminosityBlockPrincipal const& lb) {
+  void RootOutputFile::writeLuminosityBlock(LuminosityBlockPrincipal const& lb, ModuleCallingContext const* mcc) {
     // Auxiliary branch
     // NOTE: lumiAux_ must be filled before calling fillBranches since it gets written out in that routine.
     lumiAux_ = lb.aux();
     // Use the updated process historyID
     lumiAux_.setProcessHistoryID(lb.processHistoryID());
     // Store the reduced ID in the IndexIntoFile
-    ProcessHistoryID reducedPHID = ProcessHistoryRegistry::instance()->extra().reduceProcessHistoryID(lb.processHistoryID());
+    ProcessHistoryID reducedPHID = ProcessHistoryRegistry::instance()->extraForUpdate().reduceProcessHistoryID(lb.processHistoryID());
     // Add lumi to index.
     indexIntoFile_.addEntry(reducedPHID, lumiAux_.run(), lumiAux_.luminosityBlock(), 0U, lumiEntryNumber_);
     ++lumiEntryNumber_;
-    fillBranches(InLumi, lb, 0);
+    fillBranches(InLumi, lb, 0, mcc);
     lumiTree_.optimizeBaskets(10ULL*1024*1024);
   }
 
-  void RootOutputFile::writeRun(RunPrincipal const& r) {
+  void RootOutputFile::writeRun(RunPrincipal const& r, ModuleCallingContext const* mcc) {
     // Auxiliary branch
     // NOTE: runAux_ must be filled before calling fillBranches since it gets written out in that routine.
     runAux_ = r.aux();
     // Use the updated process historyID
     runAux_.setProcessHistoryID(r.processHistoryID());
     // Store the reduced ID in the IndexIntoFile
-    ProcessHistoryID reducedPHID = ProcessHistoryRegistry::instance()->extra().reduceProcessHistoryID(r.processHistoryID());
+    ProcessHistoryID reducedPHID = ProcessHistoryRegistry::instance()->extraForUpdate().reduceProcessHistoryID(r.processHistoryID());
     // Add run to index.
     indexIntoFile_.addEntry(reducedPHID, runAux_.run(), 0U, 0U, runEntryNumber_);
     ++runEntryNumber_;
-    fillBranches(InRun, r, 0);
+    fillBranches(InRun, r, 0, mcc);
     runTree_.optimizeBaskets(10ULL*1024*1024);
   }
 
@@ -664,7 +664,8 @@ namespace edm {
   RootOutputFile::insertAncestors(ProductProvenance const& iGetParents,
                                   EventPrincipal const& principal,
                                   bool produced,
-                                  std::set<StoredProductProvenance>& oToFill) {
+                                  std::set<StoredProductProvenance>& oToFill,
+                                  ModuleCallingContext const* mcc) {
     assert(om_->dropMetaData() != PoolOutputModule::DropAll);
     assert(produced || om_->dropMetaData() != PoolOutputModule::DropPrior);
     if(om_->dropMetaData() == PoolOutputModule::DropDroppedPrior && !produced) return;
@@ -676,10 +677,10 @@ namespace edm {
       ProductProvenance const* info = iMapper.branchIDToProvenance(*it);
       if(info) {
         if(om_->dropMetaData() == PoolOutputModule::DropNone ||
-                 principal.getProvenance(info->branchID()).product().produced()) {
+           principal.getProvenance(info->branchID(), mcc).product().produced()) {
           if(insertProductProvenance(*info,oToFill) ) {
             //haven't seen this one yet
-            insertAncestors(*info, principal, produced, oToFill);
+            insertAncestors(*info, principal, produced, oToFill, mcc);
           }
         }
       }
@@ -689,7 +690,8 @@ namespace edm {
   void RootOutputFile::fillBranches(
                 BranchType const& branchType,
                 Principal const& principal,
-                StoredProductProvenanceVector* productProvenanceVecPtr) {
+                StoredProductProvenanceVector* productProvenanceVecPtr,
+                ModuleCallingContext const* mcc) {
 
     typedef std::vector<std::pair<TClass*, void const*> > Dummies;
     Dummies dummies;
@@ -715,13 +717,13 @@ namespace edm {
          treePointers_[branchType]->uncloned(i->branchDescription_->branchName()));
 
       void const* product = 0;
-      OutputHandle const oh = principal.getForOutput(id, getProd);
+      OutputHandle const oh = principal.getForOutput(id, getProd, mcc);
       if(keepProvenance && oh.productProvenance()) {
         insertProductProvenance(*oh.productProvenance(),provenanceToKeep);
         //provenanceToKeep.insert(*oh.productProvenance());
         EventPrincipal const& eventPrincipal = dynamic_cast<EventPrincipal const&>(principal);
         assert(eventPrincipal.branchMapperPtr());
-        insertAncestors(*oh.productProvenance(), eventPrincipal, produced, provenanceToKeep);
+        insertAncestors(*oh.productProvenance(), eventPrincipal, produced, provenanceToKeep, mcc);
       }
       product = oh.wrapper();
       if(getProd) {

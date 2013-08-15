@@ -36,6 +36,10 @@ SiStripMonitorTrack::SiStripMonitorTrack(const edm::ParameterSet& conf):
   TrackProducer_ = conf_.getParameter<std::string>("TrackProducer");
   TrackLabel_ = conf_.getParameter<std::string>("TrackLabel");
 
+  clusterToken_   = consumes<edmNew::DetSetVector<SiStripCluster> >(Cluster_src_);
+  trackToken_     = consumes<reco::TrackCollection>(edm::InputTag(TrackProducer_,TrackLabel_) );
+  trackTrajToken_ = consumes<TrajTrackAssociationCollection>(edm::InputTag(TrackProducer_,TrackLabel_) );
+							     
   // cluster quality conditions 
   edm::ParameterSet cluster_condition = conf_.getParameter<edm::ParameterSet>("ClusterConditions");
   applyClusterQuality_ = cluster_condition.getParameter<bool>("On");
@@ -422,7 +426,8 @@ MonitorElement* SiStripMonitorTrack::bookMETrend(const char* ParameterSetLabel, 
   // track input  
  
   edm::Handle<reco::TrackCollection > trackCollectionHandle;
-  ev.getByLabel(TrackProducer_, TrackLabel_, trackCollectionHandle);//takes the track collection
+  //  ev.getByLabel(TrackProducer_, TrackLabel_, trackCollectionHandle);//takes the track collection
+  ev.getByToken(trackToken_, trackCollectionHandle);//takes the track collection
   if (!trackCollectionHandle.isValid()){
     edm::LogError("SiStripMonitorTrack")<<" Track Collection is not valid !! " << TrackLabel_<<std::endl;
     return;
@@ -430,7 +435,8 @@ MonitorElement* SiStripMonitorTrack::bookMETrend(const char* ParameterSetLabel, 
   
   // trajectory input
   edm::Handle<TrajTrackAssociationCollection> TItkAssociatorCollection;
-  ev.getByLabel(TrackProducer_, TrackLabel_, TItkAssociatorCollection);
+  //  ev.getByLabel(TrackProducer_, TrackLabel_, TItkAssociatorCollection);
+  ev.getByToken(trackTrajToken_, TItkAssociatorCollection);
   if( !TItkAssociatorCollection.isValid()){
     edm::LogError("SiStripMonitorTrack")<<"Association not found "<<std::endl;
     return;
@@ -578,7 +584,8 @@ void SiStripMonitorTrack::AllClusters(const edm::Event& ev, const edm::EventSetu
   const TrackerTopology* const tTopo = tTopoHandle.product();
     
   edm::Handle< edmNew::DetSetVector<SiStripCluster> > siStripClusterHandle;
-  ev.getByLabel( Cluster_src_, siStripClusterHandle); 
+  //  ev.getByLabel( Cluster_src_, siStripClusterHandle); 
+  ev.getByToken( clusterToken_, siStripClusterHandle); 
   if (!siStripClusterHandle.isValid()){
     edm::LogError("SiStripMonitorTrack")<< "ClusterCollection is not valid!!" << std::endl;
     return;

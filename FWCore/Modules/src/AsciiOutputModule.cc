@@ -24,9 +24,9 @@ namespace edm {
     static void fillDescriptions(ConfigurationDescriptions& descriptions);
 
   private:
-    virtual void write(EventPrincipal const& e);
-    virtual void writeLuminosityBlock(LuminosityBlockPrincipal const&){}
-    virtual void writeRun(RunPrincipal const&){}
+    virtual void write(EventPrincipal const& e, ModuleCallingContext const*) override;
+    virtual void writeLuminosityBlock(LuminosityBlockPrincipal const&, ModuleCallingContext const*) override {}
+    virtual void writeRun(RunPrincipal const&, ModuleCallingContext const*) override {}
     int prescale_;
     int verbosity_;
     int counter_;
@@ -45,7 +45,7 @@ namespace edm {
   }
 
   void
-  AsciiOutputModule::write(EventPrincipal const& e) {
+  AsciiOutputModule::write(EventPrincipal const& e, ModuleCallingContext const*) {
 
     if ((++counter_ % prescale_) != 0 || verbosity_ <= 0) return;
 

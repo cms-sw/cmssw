@@ -3,7 +3,6 @@
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -16,6 +15,7 @@
 #include "RecoVertex/KalmanVertexFit/interface/KalmanVertexFitter.h"
 #include "SimTracker/Records/interface/TrackAssociatorRecord.h"
 #include "RecoVertex/KalmanVertexFit/interface/SingleTrackVertexConstraint.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 
 #include <iostream>
 
@@ -25,8 +25,8 @@ using namespace std;
 
 KVFTrackUpdate::KVFTrackUpdate(const edm::ParameterSet& iConfig)
 {
-  trackLabel_ = iConfig.getParameter<edm::InputTag>("TrackLabel");
-  beamSpotLabel = iConfig.getParameter<edm::InputTag>("beamSpotLabel");
+  token_tracks = consumes<TrackCollection>(iConfig.getParameter<InputTag>("TrackLabel"));
+  token_beamSpot = consumes<BeamSpot>(iConfig.getParameter<InputTag>("beamSpotLabel"));
 }
 
 
@@ -57,7 +57,7 @@ KVFTrackUpdate::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     // get RECO tracks from the event
     // `tks` can be used as a ptr to a reco::TrackCollection
     edm::Handle<reco::TrackCollection> tks;
-    iEvent.getByLabel(trackLabel_, tks);
+    iEvent.getByToken(token_tracks, tks);
 
     edm::LogInfo("RecoVertex/KVFTrackUpdate") 
       << "Found: " << (*tks).size() << " reconstructed tracks" << "\n";
@@ -84,7 +84,7 @@ KVFTrackUpdate::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
     reco::BeamSpot vertexBeamSpot;
     edm::Handle<reco::BeamSpot> recoBeamSpotHandle;
-    iEvent.getByLabel(beamSpotLabel,recoBeamSpotHandle);
+    iEvent.getByToken(token_beamSpot,recoBeamSpotHandle);
 
 
     SingleTrackVertexConstraint stvc;

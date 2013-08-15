@@ -80,22 +80,27 @@ namespace edm {
   }
 
   ParameterSet const& ParameterSetEntry::pset() const {
-    if(!thePSet_) {
-      // get it from the registry, and save it here
-      thePSet_ = value_ptr<ParameterSet>(new ParameterSet(getParameterSet(theID_)));
-    }
+    fillPSet();
     return *thePSet_;
   }
 
-  ParameterSet& ParameterSetEntry::pset() {
-    if(!thePSet_) {
-      // get it from the registry, and save it here
-      thePSet_ = value_ptr<ParameterSet>(new ParameterSet(getParameterSet(theID_)));
-    }
+  ParameterSet& ParameterSetEntry::psetForUpdate() {
+    fillPSet();
     return *thePSet_;
   }
 
-  void ParameterSetEntry::updateID() const {
+  void ParameterSetEntry::fillPSet() const {
+    if(nullptr == thePSet_.load()) {
+      std::unique_ptr<ParameterSet> tmp(new ParameterSet(getParameterSet(theID_)));
+      ParameterSet* expected = nullptr;
+      if(thePSet_.compare_exchange_strong(expected, tmp.get())) {
+        // thePSet_ was equal to nullptr and now is equal to tmp.get()
+        tmp.release();
+      }
+    }
+  }
+
+  void ParameterSetEntry::updateID() {
     assert(pset().isRegistered());
     theID_ = pset().id();
   }

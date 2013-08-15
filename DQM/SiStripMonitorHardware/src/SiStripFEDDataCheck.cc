@@ -10,11 +10,12 @@
 //
 // Original Author:  Nicholas Cripps
 //         Created:  2008/09/16
-// $Id: SiStripFEDDataCheck.cc,v 1.2 2013/01/02 14:30:24 wmtan Exp $
+// $Id: SiStripFEDDataCheck.cc,v 1.3 2013/01/03 18:59:36 wmtan Exp $
 //
 //
 #include <memory>
 
+#include "FWCore/Utilities/interface/EDGetToken.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -72,6 +73,7 @@ class SiStripFEDCheckPlugin : public edm::EDAnalyzer
   
   
   edm::InputTag rawDataTag_;
+  edm::EDGetTokenT<FEDRawDataCollection> rawDataToken_;
   std::string dirName_;
   bool printDebug_;
   bool writeDQMStore_;
@@ -120,6 +122,7 @@ SiStripFEDCheckPlugin::SiStripFEDCheckPlugin(const edm::ParameterSet& iConfig)
     checkChannelStatusBits_(iConfig.getUntrackedParameter<bool>("CheckChannelStatus",true)),
     cablingCacheId_(0)
 {
+  rawDataToken_ = consumes<FEDRawDataCollection>(rawDataTag_);
   if (printDebug_ && !doPayloadChecks_ && (checkChannelLengths_ || checkPacketCodes_ || checkFELengths_)) {
     std::stringstream ss;
     ss << "Payload checks are disabled but individual payload checks have been enabled. The following payload checks will be skipped: ";
@@ -154,7 +157,8 @@ SiStripFEDCheckPlugin::analyze(const edm::Event& iEvent, const edm::EventSetup& 
   
   //get raw data
   edm::Handle<FEDRawDataCollection> rawDataCollectionHandle;
-  const bool gotData = iEvent.getByLabel(rawDataTag_,rawDataCollectionHandle);
+  //  const bool gotData = iEvent.getByLabel(rawDataTag_,rawDataCollectionHandle);
+  const bool gotData = iEvent.getByToken(rawDataToken_,rawDataCollectionHandle);
   if (!gotData) {
     //module is required to silently do nothing when data is not present
     return;
