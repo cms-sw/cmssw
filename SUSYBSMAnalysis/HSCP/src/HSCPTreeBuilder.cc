@@ -122,9 +122,9 @@ class HSCPTreeBuilder : public edm::EDFilter {
 
 
 	private:
-		virtual void beginJob() ;
-		virtual bool filter(edm::Event&, const edm::EventSetup&);
-		virtual void endJob() ;
+		virtual void beginJob() override ;
+		virtual bool filter(edm::Event&, const edm::EventSetup&) override;
+		virtual void endJob() override ;
                 int ClosestMuonIndex(reco::TrackRef track, std::vector<reco::MuonRef>);
 
 		const edm::EventSetup* iSetup_;
