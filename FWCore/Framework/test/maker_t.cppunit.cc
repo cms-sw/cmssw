@@ -46,7 +46,7 @@ void testmaker::makerTest()
 
     std::cerr << p1->getParameter<std::string>("@module_type");
 
-    edm::ActionTable table;
+    edm::ExceptionToActionTable table;
 
     edm::ProductRegistry preg;
 

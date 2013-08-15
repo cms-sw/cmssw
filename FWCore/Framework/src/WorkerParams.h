@@ -16,7 +16,7 @@ This struct is used to communication parameters into the worker factory.
 namespace edm {
   class ProcessConfiguration;
   class ProductRegistry;
-  class ActionTable;
+  class ExceptionToActionTable;
 
   struct WorkerParams {
     WorkerParams() :
@@ -26,7 +26,7 @@ namespace edm {
     WorkerParams(ParameterSet* pset,
                  ProductRegistry& reg,
                  boost::shared_ptr<ProcessConfiguration const> processConfiguration,
-                 ActionTable const& actions) :
+                 ExceptionToActionTable const& actions) :
       pset_(pset),
       reg_(&reg),
       processConfiguration_(processConfiguration),
@@ -35,7 +35,7 @@ namespace edm {
     ParameterSet* pset_;
     ProductRegistry* reg_;
     boost::shared_ptr<ProcessConfiguration const> processConfiguration_;
-    ActionTable const* actions_;
+    ExceptionToActionTable const* actions_;
   };
 }
 

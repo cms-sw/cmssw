@@ -71,7 +71,7 @@ namespace edm {
     Schedule::WorkerPtr
     makeInserter(ParameterSet& proc_pset,
                  ProductRegistry& preg,
-                 ActionTable const& actions,
+                 ExceptionToActionTable const& actions,
                  boost::shared_ptr<ActivityRegistry> areg,
                  boost::shared_ptr<ProcessConfiguration> processConfiguration,
                  Schedule::TrigResPtr trptr) {
@@ -283,7 +283,7 @@ namespace edm {
                      service::TriggerNamesService& tns,
                      ProductRegistry& preg,
                      BranchIDListHelper& branchIDListHelper,
-                     ActionTable const& actions,
+                     ExceptionToActionTable const& actions,
                      boost::shared_ptr<ActivityRegistry> areg,
                      boost::shared_ptr<ProcessConfiguration> processConfiguration,
                      const ParameterSet* subProcPSet,

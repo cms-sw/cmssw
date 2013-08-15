@@ -24,7 +24,7 @@ the worker is reset().
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
 #include "FWCore/MessageLogger/interface/ExceptionMessages.h"
 #include "FWCore/Framework/src/WorkerParams.h"
-#include "FWCore/Framework/interface/Actions.h"
+#include "FWCore/Framework/interface/ExceptionActions.h"
 #include "FWCore/Framework/interface/CurrentProcessingContext.h"
 #include "FWCore/Framework/interface/OccurrenceTraits.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -179,7 +179,7 @@ namespace edm {
     ModuleDescription md_;
     ModuleCallingContext moduleCallingContext_;
 
-    ActionTable const* actions_; // memory assumed to be managed elsewhere
+    ExceptionToActionTable const* actions_; // memory assumed to be managed elsewhere
     boost::shared_ptr<cms::Exception> cached_exception_; // if state is 'exception'
 
     boost::shared_ptr<ActivityRegistry> actReg_;
@@ -393,17 +393,17 @@ namespace edm {
 
       // Get the action corresponding to this exception.  However, if processing
       // something other than an event (e.g. run, lumi) always rethrow.
-      actions::ActionCodes action = (T::isEvent_ ? actions_->find(ex.category()) : actions::Rethrow);
+      exception_actions::ActionCodes action = (T::isEvent_ ? actions_->find(ex.category()) : exception_actions::Rethrow);
 
       // If we are processing an endpath and the module was scheduled, treat SkipEvent or FailPath
       // as IgnoreCompletely, so any subsequent OutputModules are still run.
       // For unscheduled modules only treat FailPath as IgnoreCompletely but still allow SkipEvent to throw
       if (cpc && cpc->isEndPath()) {
-        if ((action == actions::SkipEvent && !cpc->isUnscheduled()) ||
-             action == actions::FailPath) action = actions::IgnoreCompletely;
+        if ((action == exception_actions::SkipEvent && !cpc->isUnscheduled()) ||
+             action == exception_actions::FailPath) action = exception_actions::IgnoreCompletely;
       }
       switch(action) {
-        case actions::IgnoreCompletely:
+        case exception_actions::IgnoreCompletely:
           rc = true;
           ++timesPassed_;
 	  state_ = Pass;
