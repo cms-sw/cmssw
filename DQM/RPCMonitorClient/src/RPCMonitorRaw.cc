@@ -39,9 +39,10 @@ RPCMonitorRaw::RPCMonitorRaw(const edm::ParameterSet& cfg):theConfig(cfg){
 
 RPCMonitorRaw::~RPCMonitorRaw() { LogTrace("") << "RPCMonitorRaw destructor"; }
 
-void RPCMonitorRaw::beginJob()
-{
+void RPCMonitorRaw::beginJob(){}
 
+
+void RPCMonitorRaw::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup){
 // Get DQM interface
   DQMStore* theDMBE = edm::Service<DQMStore>().operator->();
   

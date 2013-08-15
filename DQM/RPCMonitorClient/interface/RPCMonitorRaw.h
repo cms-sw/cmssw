@@ -25,7 +25,7 @@ public:
 
   virtual void beginJob( );
   virtual void endJob();
-
+  virtual void beginRun(const edm::Run& , const edm::EventSetup& );
   /// get data, convert to digis attach againe to Event
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
 

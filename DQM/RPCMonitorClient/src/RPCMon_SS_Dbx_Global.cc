@@ -38,8 +38,9 @@ RPCMon_SS_Dbx_Global::~RPCMon_SS_Dbx_Global(){
 }
 
 void RPCMon_SS_Dbx_Global::beginJob(){
+
  edm::LogVerbatim ("rpcmonitorerror") << "[RPCMon_SS_Dbx_Global]: Begin job ";
- dbe_ = edm::Service<DQMStore>().operator->();
+
 }
 
 void RPCMon_SS_Dbx_Global::endJob(){}
@@ -47,6 +48,7 @@ void RPCMon_SS_Dbx_Global::endJob(){}
 void RPCMon_SS_Dbx_Global::beginRun(const edm::Run& r, const edm::EventSetup& c){
   edm::LogVerbatim ("rpcmonitorerror") << "[RPCMon_SS_Dbx_Global]: Begin run";
 
+  dbe_ = edm::Service<DQMStore>().operator->();
   dbe_->setCurrentFolder(globalFolder_);
 
   MonitorElement* me;
