@@ -54,9 +54,9 @@ class CastorTowerProducer : public edm::EDProducer {
       ~CastorTowerProducer();
 
    private:
-      virtual void beginJob() ;
-      virtual void produce(edm::Event&, const edm::EventSetup&);
-      virtual void endJob() ;
+      virtual void beginJob() override ;
+      virtual void produce(edm::Event&, const edm::EventSetup&) override;
+      virtual void endJob() override ;
       virtual void ComputeTowerVariable(const edm::RefVector<edm::SortedCollection<CastorRecHit> >& usedRecHits, double&  Ehot, double& depth);
       
       // member data
