@@ -33,7 +33,7 @@ private:
    FWCandidateProxyBuilder(const FWCandidateProxyBuilder&); // stop default
    const FWCandidateProxyBuilder& operator=(const FWCandidateProxyBuilder&); // stop default
 
-   void build(const reco::Candidate& iData, unsigned int iIndex, TEveElement& oItemHolder, const FWViewContext*);
+   void build(const reco::Candidate& iData, unsigned int iIndex, TEveElement& oItemHolder, const FWViewContext*) override;
 };
 
 
