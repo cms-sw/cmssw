@@ -23,7 +23,7 @@ public:
    FWEveDigitSetScalableMarkerGL() {}
    virtual ~FWEveDigitSetScalableMarkerGL() {}
    
-   virtual void DirectDraw(TGLRnrCtx & rnrCtx) const
+   virtual void DirectDraw(TGLRnrCtx & rnrCtx) const override
    {
       glPushAttrib(GL_ENABLE_BIT | GL_POLYGON_BIT | GL_POINT_BIT);
       glEnable(GL_POINT_SMOOTH);
