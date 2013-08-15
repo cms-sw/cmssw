@@ -36,7 +36,7 @@ namespace cond {
   public:
     AlignSplitIOV();
     ~AlignSplitIOV();
-    int execute();
+    int execute() override;
 
     template<class T>
     std::string processPayloadContainer(cond::DbSession &sourcedb,
