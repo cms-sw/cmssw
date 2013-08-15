@@ -56,6 +56,11 @@ RPCEfficiency::RPCEfficiency(const edm::ParameterSet& iConfig){
   EffSaveRootFile  = iConfig.getUntrackedParameter<bool>("EffSaveRootFile", false); 
   EffRootFileName  = iConfig.getUntrackedParameter<std::string>("EffRootFileName", "RPCEfficiency.root"); 
 
+}
+
+void RPCEfficiency::beginRun(const edm::Run& run, const edm::EventSetup& iSetup){
+ 
+
   //Interface
 
   dbe = edm::Service<DQMStore>().operator->();
@@ -117,7 +122,8 @@ RPCEfficiency::RPCEfficiency(const edm::ParameterSet& iConfig){
   dbe->setCurrentFolder(folder);
 
   //Endcap   
- 
+
+
   hGlobalResClu1R3C = dbe->book1D("GlobalResidualsClu1R3C","RPC Residuals Ring 3 Roll C Cluster Size 1",101,-10.,10.);
   hGlobalResClu1R3B = dbe->book1D("GlobalResidualsClu1R3B","RPC Residuals Ring 3 Roll B Cluster Size 1",101,-10.,10.);
   hGlobalResClu1R3A = dbe->book1D("GlobalResidualsClu1R3A","RPC Residuals Ring 3 Roll A Cluster Size 1",101,-10.,10.);
@@ -139,10 +145,8 @@ RPCEfficiency::RPCEfficiency(const edm::ParameterSet& iConfig){
   hGlobalResClu3R2B = dbe->book1D("GlobalResidualsClu3R2B","RPC Residuals Ring 2 Roll B Cluster Size 3",101,-10.,10.);
   hGlobalResClu3R2A = dbe->book1D("GlobalResidualsClu3R2A","RPC Residuals Ring 2 Roll A Cluster Size 3",101,-10.,10.);
 
-}
 
-void RPCEfficiency::beginRun(const edm::Run& run, const edm::EventSetup& iSetup){
-  
+
   edm::ESHandle<RPCGeometry> rpcGeo;
   iSetup.get<MuonGeometryRecord>().get(rpcGeo);
   

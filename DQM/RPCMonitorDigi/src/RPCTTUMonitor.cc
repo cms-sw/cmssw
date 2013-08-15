@@ -236,8 +236,10 @@ void RPCTTUMonitor::discriminateDecision( bool data, bool emu , int indx )
 
 
 
-void  RPCTTUMonitor::beginJob(){
+void  RPCTTUMonitor::beginJob(){}
 
+void RPCTTUMonitor::beginRun(const edm::EventSetup& iSetup){
+ 
   dbe = edm::Service<DQMStore>().operator->();
   dbe->showDirStructure();
 
@@ -281,10 +283,8 @@ void  RPCTTUMonitor::beginJob(){
    hname.str("");
    
  }
-}
 
-void RPCTTUMonitor::beginRun(const edm::EventSetup& iSetup){
-  
+ 
 }
 
 
