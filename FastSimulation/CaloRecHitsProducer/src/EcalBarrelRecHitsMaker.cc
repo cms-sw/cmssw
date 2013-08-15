@@ -45,6 +45,7 @@ EcalBarrelRecHitsMaker::EcalBarrelRecHitsMaker(edm::ParameterSet const & p,
   SRPhiSize_ = RecHitsParameters.getUntrackedParameter<int> ("SRPhiSize",1);
   applyZSCells_.resize(EBDetId::kSizeForDenseIndexing,true);
   theCalorimeterHits_.resize(EBDetId::kSizeForDenseIndexing,0.);
+  theCalorimeterTimes_.resize(EBDetId::kSizeForDenseIndexing,0.);
   crystalsinTT_.resize(2448);
   TTTEnergy_.resize(2448,0.);
   TTHighInterest_.resize(2448,0);
@@ -92,6 +93,7 @@ void EcalBarrelRecHitsMaker::clean()
   for(unsigned ic=0;ic<size;++ic)
     {
       theCalorimeterHits_[theFiredCells_[ic]] = 0.;
+      theCalorimeterTimes_[theFiredCells_[ic]] = 0.;
       applyZSCells_[theFiredCells_[ic]] = true;
     }
   theFiredCells_.clear();
@@ -152,7 +154,8 @@ void EcalBarrelRecHitsMaker::loadEcalBarrelRecHits(edm::Event &iEvent,EBRecHitCo
 	  geVtoGainAdc(theCalorimeterHits_[icell],gain,adc);
 	  myDataFrame.setSample(0,EcalMGPASample(adc,gain));
 	  
-	  //      std::cout << "myDataFrame" << myDataFrame.sample(0).raw() << std::endl;
+	  // GF - only to check the passege 
+	  // std::cout << "myDataFrame EB" << myDataFrame.sample(0).raw() << std::endl;
 	  //ecalDigis.push_back(myDataFrame);
 	}
       
@@ -179,8 +182,9 @@ void EcalBarrelRecHitsMaker::loadEcalBarrelRecHits(edm::Event &iEvent,EBRecHitCo
 //      std::cout << " Raw Id " << barrelRawId_[icell] << std::endl;
 //      std::cout << " Adding " << icell << " " << barrelRawId_[icell] << " " << energy << std::endl;
       if(energy!=0.)
-	ecalHits.push_back(EcalRecHit(myDetId,energy,0.));
-      //      std::cout << " Hit stored " << std::endl;
+	ecalHits.push_back(EcalRecHit(myDetId,energy, theCalorimeterTimes_[icell] ));
+      // GF: third argument is the time
+      std::cout << " EB rechitHit stored ene time: " <<  energy << "\t" << theCalorimeterTimes_[icell]   << std::endl;
     }
   //  std::cout << " Done " << std::endl;
 
@@ -218,7 +222,11 @@ void EcalBarrelRecHitsMaker::loadPCaloHits(const edm::Event & iEvent)
       // not be added several times. 
       float energy=(cficalo->energy()==0.) ? 0.000001 : cficalo->energy() ;
       energy*=calib;
-      theCalorimeterHits_[hashedindex]+=energy;         
+      theCalorimeterHits_[hashedindex] +=energy;         
+      theCalorimeterTimes_[hashedindex] =cficalo->time();
+      ///////////////////////////////////////////////////
+      // GF  you need to subtract the straight path here! 
+      std::cout << "EB cficalo ene: " << cficalo->energy() << " time: " << cficalo->time() << " theCalorimeterTimes_[hashedindex]:  " << theCalorimeterTimes_[hashedindex] << std::endl;
 
       // Now deal with the TTs. 
       EBDetId myDetId(EBDetId(cficalo->id()));

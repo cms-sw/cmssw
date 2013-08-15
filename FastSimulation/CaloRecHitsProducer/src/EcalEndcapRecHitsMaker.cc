@@ -41,8 +41,8 @@ EcalEndcapRecHitsMaker::EcalEndcapRecHitsMaker(edm::ParameterSet const & p,
   refactor_mean_ = RecHitsParameters.getParameter<double> ("Refactor_mean");
   noiseADC_ = RecHitsParameters.getParameter<double>("NoiseADC");
   highNoiseParameters_ = RecHitsParameters.getParameter<std::vector<double> > ("HighNoiseParameters");
-
   theCalorimeterHits_.resize(EEDetId::kSizeForDenseIndexing,0.);
+  theCalorimeterTimes_.resize(EEDetId::kSizeForDenseIndexing,0.);
   applyZSCells_.resize(EEDetId::kSizeForDenseIndexing,true);
   towerOf_.resize(EEDetId::kSizeForDenseIndexing);
   theTTDetIds_.resize(1440);
@@ -73,6 +73,7 @@ void EcalEndcapRecHitsMaker::clean()
   for(unsigned ic=0;ic<size;++ic)
     {
       theCalorimeterHits_[theFiredCells_[ic]] = 0.;
+      theCalorimeterTimes_[theFiredCells_[ic]] = 0.;
       applyZSCells_[theFiredCells_[ic]] = false;
     }
   theFiredCells_.clear();
@@ -129,6 +130,9 @@ void EcalEndcapRecHitsMaker::loadEcalEndcapRecHits(edm::Event &iEvent,EERecHitCo
 	   //  The real work is in the following line
 	   geVtoGainAdc(theCalorimeterHits_[icell],gain,adc);
 	   myDataFrame.setSample(0,EcalMGPASample(adc,gain));
+
+	   // GF - only to check the passege 
+	   // std::cout << "myDataFrame EE" << myDataFrame.sample(0).raw() << std::endl;
 	   //ecalDigis.push_back(myDataFrame);
 	}
 
@@ -152,7 +156,8 @@ void EcalEndcapRecHitsMaker::loadEcalEndcapRecHits(edm::Event &iEvent,EERecHitCo
 	  }
       if(energy!=0.)
 	{
-	  ecalHits.push_back(EcalRecHit(myDetId,energy,0.));
+	  ecalHits.push_back(EcalRecHit(myDetId,energy,theCalorimeterTimes_[icell]));
+	  std::cout << " EE rechitHit stored ene time: " <<  energy << "\t" << theCalorimeterTimes_[icell]   << std::endl;
 	}
     }
   noisified_ = true;
@@ -191,6 +196,8 @@ void EcalEndcapRecHitsMaker::loadPCaloHits(const edm::Event & iEvent)
       float energy=(cficalo->energy()==0.) ? 0.000001 : cficalo->energy() ;
       energy*=calib;
       theCalorimeterHits_[hashedindex]+=energy;   
+      std::cout << "EE cficalo ene : " << cficalo->energy() << " time: " << cficalo->time() << std::endl;
+      theCalorimeterTimes_[hashedindex] =cficalo->time();
 
       // Now deal with the TTs
       int TThashedindex=towerOf_[hashedindex];
