@@ -111,7 +111,7 @@ namespace cond {
 			// ask to make average on selected channels...
 		}
 
-		void compute(Class const & it){
+		void compute(Class const & it) override{
 			std::vector<float> res;
 			extractor(m_what.how())(it,m_what.quantity(),m_what.which(),res);
 			swap(res);
@@ -138,7 +138,7 @@ namespace cond {
 		EcalPedestalsHelper():EcalPyWrapperHelper<EcalObject>(6){}
 	protected:
 		typedef EcalPedestal EcalObject;
-		type_vValues getValues( const std::vector<EcalPedestal> & vItems)
+		type_vValues getValues( const std::vector<EcalPedestal> & vItems) override
 		{
 			//unsigned int totalValues = 6; 
 			type_vValues vValues(total_values);

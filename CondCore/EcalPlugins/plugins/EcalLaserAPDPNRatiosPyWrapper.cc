@@ -39,7 +39,7 @@ namespace cond {
     {
       // here one can make stuff really complicated...
     }
-    void compute(Class const & it){
+    void compute(Class const & it) override{
     }
   private:
   
@@ -64,7 +64,7 @@ namespace cond {
 		EcalLaserAPDPNRatiosHelper():EcalPyWrapperHelper<EcalObject>(3){}
 	protected:
     typedef EcalLaserAPDPNRatios::EcalLaserAPDPNpair EcalObject;
-    type_vValues getValues( const std::vector<EcalLaserAPDPNRatios::EcalLaserAPDPNpair> & vItems)
+    type_vValues getValues( const std::vector<EcalLaserAPDPNRatios::EcalLaserAPDPNpair> & vItems) override
 		{
 			//unsigned int totalValues = 6; 
 			type_vValues vValues(total_values);
