@@ -12,7 +12,7 @@ namespace ecaldqm {
     PNIntegrityTask(const edm::ParameterSet &, const edm::ParameterSet &);
     ~PNIntegrityTask();
 
-    void analyze(const void*, Collections);
+    void analyze(const void*, Collections) override;
 
     void runOnErrors(const EcalElectronicsIdCollection &, Collections);
 

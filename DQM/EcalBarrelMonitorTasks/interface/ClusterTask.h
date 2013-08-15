@@ -17,14 +17,14 @@ namespace ecaldqm {
     ClusterTask(const edm::ParameterSet &, const edm::ParameterSet&);
     ~ClusterTask();
 
-    void bookMEs();
+    void bookMEs() override;
 
-    bool filterRunType(const std::vector<short>&);
+    bool filterRunType(const std::vector<short>&) override;
 
-    void beginRun(const edm::Run &, const edm::EventSetup &);
-    void beginEvent(const edm::Event &, const edm::EventSetup &);
+    void beginRun(const edm::Run &, const edm::EventSetup &) override;
+    void beginEvent(const edm::Event &, const edm::EventSetup &) override;
 
-    void analyze(const void*, Collections);
+    void analyze(const void*, Collections) override;
 
     void runOnRecHits(const EcalRecHitCollection &, Collections);
     void runOnBasicClusters(const reco::BasicClusterCollection &, Collections);

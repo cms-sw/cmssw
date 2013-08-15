@@ -13,14 +13,14 @@ namespace ecaldqm {
     TestPulseTask(const edm::ParameterSet &, const edm::ParameterSet &);
     ~TestPulseTask();
 
-    void bookMEs();
+    void bookMEs() override;
 
-    bool filterRunType(const std::vector<short>&);
+    bool filterRunType(const std::vector<short>&) override;
 
-    void beginRun(const edm::Run&, const edm::EventSetup&);
-    void endEvent(const edm::Event&, const edm::EventSetup&);
+    void beginRun(const edm::Run&, const edm::EventSetup&) override;
+    void endEvent(const edm::Event&, const edm::EventSetup&) override;
 
-    void analyze(const void*, Collections);
+    void analyze(const void*, Collections) override;
 
     void runOnDigis(const EcalDigiCollection&);
     void runOnPnDigis(const EcalPnDiodeDigiCollection&);
