@@ -9,7 +9,7 @@
 namespace cms {
   class CkfDebugTrackCandidateMaker : public CkfTrackCandidateMakerBase, public edm::EDProducer {
   public:
-    CkfDebugTrackCandidateMaker(const edm::ParameterSet& conf) : CkfTrackCandidateMakerBase(conf) {
+    CkfDebugTrackCandidateMaker(const edm::ParameterSet& conf) : CkfTrackCandidateMakerBase(conf, consumesCollector()) {
       produces<TrackCandidateCollection>();
     }
 
