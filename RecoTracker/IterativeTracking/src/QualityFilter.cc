@@ -26,7 +26,8 @@ QualityFilter::QualityFilter(const edm::ParameterSet& iConfig)
   produces<std::vector<Trajectory> >();
   produces<TrajTrackAssociationCollection>();
 
-  tkTag  = iConfig.getParameter<edm::InputTag>("recTracks");
+  trajTag = consumes<std::vector<Trajectory> >(iConfig.getParameter<edm::InputTag>("recTracks"));
+  tassTag = consumes<TrajTrackAssociationCollection>(iConfig.getParameter<edm::InputTag>("recTracks"));
   trackQuality_=TrackBase::qualityByName(iConfig.getParameter<std::string>("TrackQuality"));
 }
 
@@ -67,8 +68,8 @@ QualityFilter::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   Handle<std::vector<Trajectory> > TrajectoryCollection;
   Handle<TrajTrackAssociationCollection> assoMap;
   
-  iEvent.getByLabel(tkTag,TrajectoryCollection);
-  iEvent.getByLabel(tkTag,assoMap);
+  iEvent.getByToken(trajTag,TrajectoryCollection);
+  iEvent.getByToken(tassTag,assoMap);
 
 
 
