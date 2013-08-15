@@ -12,7 +12,7 @@ class PartonJetCorrectionExample : public edm::EDAnalyzer {
  public:
   explicit PartonJetCorrectionExample (const edm::ParameterSet& fParameters);
   virtual ~PartonJetCorrectionExample () {}
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
+  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
  private:
   edm::InputTag mInput;
   std::string m_gJ_CorrectorName;
