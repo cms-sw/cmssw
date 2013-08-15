@@ -43,7 +43,7 @@ public:
 
 private:
   virtual void produce(edm::Event&, const edm::EventSetup&) override;
-  virtual void endJob() {}
+  virtual void endJob() override {}
 
   bool firstEvent_;
   edm::InputTag src_;
