@@ -458,12 +458,12 @@ public:
 
   virtual
   ELemptyContextSupplier *
-  clone() const  {
+  clone() const override  {
     return new ELemptyContextSupplier( *this );
   }
-  virtual ELstring context()        const  {  return ""; }
-  virtual ELstring summaryContext() const  {  return ""; }
-  virtual ELstring fullContext()    const  {  return ""; }
+  virtual ELstring context()        const override  {  return ""; }
+  virtual ELstring summaryContext() const override  {  return ""; }
+  virtual ELstring fullContext()    const override  {  return ""; }
 
   virtual ~ELemptyContextSupplier()  {}
 
