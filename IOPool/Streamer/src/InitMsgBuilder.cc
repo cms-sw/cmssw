@@ -3,7 +3,7 @@
 #include "IOPool/Streamer/interface/MsgHeader.h"
 #include <cassert>
 #include <cstring>
-#include <stdint.h>
+#include <cstdint>
 #include <unistd.h>
 
 #define MAX_INITHOSTNAME_LEN 25

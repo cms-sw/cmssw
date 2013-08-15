@@ -23,7 +23,7 @@
 #include "DataFormats/MuonDetId/interface/DTLayerId.h"
 
 #include "Geometry/MuonNumbering/interface/MuonDDDConstants.h"
-#include <DetectorDescription/Core/interface/DDCompactView.h>
+#include "DetectorDescription/Core/interface/DDCompactView.h"
 #include "CalibMuon/DTCalibration/plugins/DTGeometryParserFromDDD.h"
 
 using namespace std;

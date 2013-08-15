@@ -4,7 +4,7 @@
 #include "DataFormats/Common/interface/TestHandle.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
-#include <cppunit/extensions/HelperMacros.h>
+#include "cppunit/extensions/HelperMacros.h"
 
 #include "boost/lambda/bind.hpp"
 #include "boost/lambda/lambda.hpp"

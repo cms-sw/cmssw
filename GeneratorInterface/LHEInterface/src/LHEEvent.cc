@@ -8,10 +8,10 @@
 #include <memory>
 #include <cmath>
 
-#include <HepMC/GenEvent.h>
-#include <HepMC/GenVertex.h>
-#include <HepMC/GenParticle.h>
-#include <HepMC/SimpleVector.h>
+#include "HepMC/GenEvent.h"
+#include "HepMC/GenVertex.h"
+#include "HepMC/GenParticle.h"
+#include "HepMC/SimpleVector.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 

@@ -1,7 +1,7 @@
 #include "CalibCalorimetry/HcalAlgos/src/HcalPulseContainmentAlgo.h"
 #include "CalibCalorimetry/HcalAlgos/interface/HcalTimeSlew.h"
 #include "CalibCalorimetry/HcalAlgos/interface/HcalPulseShapes.h"
-#include <math.h>
+#include <cmath>
 #include <iostream>
 
 // Function generates a lookup map for a passed-in function (via templated object algoObject,

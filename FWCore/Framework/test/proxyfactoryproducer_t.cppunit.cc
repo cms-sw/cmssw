@@ -7,7 +7,7 @@
 
 */
 
-#include <cppunit/extensions/HelperMacros.h>
+#include "cppunit/extensions/HelperMacros.h"
 #include "FWCore/Framework/interface/ESProxyFactoryProducer.h"
 #include "FWCore/Framework/interface/ProxyFactoryTemplate.h"
 #include "FWCore/Framework/interface/DataProxyTemplate.h"

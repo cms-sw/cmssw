@@ -12,7 +12,7 @@
 
 
 #include <iostream>
-#include <stdio.h>
+#include <cstdio>
 #include <sstream>
 #include <string>
 

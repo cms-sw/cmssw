@@ -1,5 +1,5 @@
 #include "CalibCalorimetry/HcalAlgos/interface/HcalTimeSlew.h"
-#include <math.h>
+#include <cmath>
 
 static const double tzero[3]= {23.960177, 13.307784, 9.109694};
 static const double slope[3] = {-3.178648,  -1.556668, -1.075824 };

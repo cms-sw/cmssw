@@ -16,7 +16,7 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include <cppunit/extensions/HelperMacros.h>
+#include "cppunit/extensions/HelperMacros.h"
 
 using namespace edm;
 

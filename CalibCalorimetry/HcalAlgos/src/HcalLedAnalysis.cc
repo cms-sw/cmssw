@@ -5,7 +5,7 @@
 
 #include "CalibCalorimetry/HcalAlgos/interface/HcalLedAnalysis.h"
 #include "TFile.h"
-#include <math.h>
+#include <cmath>
 using namespace std;
 
 
