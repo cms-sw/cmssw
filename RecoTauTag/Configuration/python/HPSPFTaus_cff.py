@@ -361,9 +361,7 @@ hpsPFTauDiscriminationByLooseMuonRejection3 = pfRecoTauDiscriminationAgainstMuon
     doCaloMuonVeto = cms.bool(True),
     maxNumberOfHitsLast2Stations = cms.int32(-1)
 )
-hpsPFTauDiscriminationByTightMuonRejection3 = pfRecoTauDiscriminationAgainstMuon2.clone(
-    PFTauProducer = cms.InputTag('hpsPFTauProducer'),
-    Prediscriminants = noPrediscriminants,
+hpsPFTauDiscriminationByTightMuonRejection3 = hpsPFTauDiscriminationByLooseMuonRejection3.clone(
     maxNumberOfHitsLast2Stations = cms.int32(0)
 )
 
