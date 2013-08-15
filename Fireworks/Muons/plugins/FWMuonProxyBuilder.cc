@@ -30,10 +30,10 @@ private:
    const FWMuonProxyBuilder& operator=( const FWMuonProxyBuilder& );
 
 
-   virtual void build( const reco::Muon& iData, unsigned int iIndex, TEveElement& oItemHolder, const FWViewContext* );
+   virtual void build( const reco::Muon& iData, unsigned int iIndex, TEveElement& oItemHolder, const FWViewContext* ) override;
 
    virtual void localModelChanges( const FWModelId& iId, TEveElement* iCompound,
-                                   FWViewType::EType viewType, const FWViewContext* vc );
+                                   FWViewType::EType viewType, const FWViewContext* vc ) override;
 
    mutable FWMuonBuilder m_builder;
 };

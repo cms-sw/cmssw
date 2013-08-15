@@ -25,7 +25,7 @@ private:
    // Disable default assignment operator
    const FWMuonGlimpseProxyBuilder& operator=( const FWMuonGlimpseProxyBuilder& );
 
-   void build( const reco::Muon& iData, unsigned int iIndex, TEveElement& oItemHolder, const FWViewContext* );
+   void build( const reco::Muon& iData, unsigned int iIndex, TEveElement& oItemHolder, const FWViewContext* ) override;
 };
 
 void
