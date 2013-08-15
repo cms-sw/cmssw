@@ -16,10 +16,10 @@ namespace cond{
   public:
     FrontierProxy();
     ~FrontierProxy();
-    void initialize( const DbConnection& connection);
-    std::string getRealConnectString( const std::string&userconnect ) const;
-    std::string getRealConnectString( const std::string&userconnect, const std::string& transactionId ) const;
-    bool isTransactional() const { return false;}
+    void initialize( const DbConnection& connection) override;
+    std::string getRealConnectString( const std::string&userconnect ) const override;
+    std::string getRealConnectString( const std::string&userconnect, const std::string& transactionId ) const override;
+    bool isTransactional() const override { return false;}
 
   private:
     //static unsigned int countslash(const std::string& input);
