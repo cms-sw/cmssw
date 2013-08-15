@@ -166,7 +166,7 @@ void Resolution(unsigned barrel, const char* input, const char* output, const ch
   if ( algo == 1 ) 
     f->cd("DQMData/PFTask/Benchmarks/iterativeCone5PFJets/Gen");
   else if ( algo == 0 ) 
-    f->cd("DQMData/PFTask/Benchmarks/ak5PFJets/Gen");
+    f->cd("DQMData/PFTask/Benchmarks/ak4PFJets/Gen");
     
   for( unsigned i=0; i<hists.size(); ++i) {
 

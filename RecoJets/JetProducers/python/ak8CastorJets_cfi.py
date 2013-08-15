@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 from RecoJets.JetProducers.AnomalousCellParameters_cfi import *
 
-ak7BasicJets = cms.EDProducer(
+ak8BasicJets = cms.EDProducer(
     "FastjetJetProducer",
     AnomalousCellParameters,
     src            = cms.InputTag('CastorTowerReco'),
@@ -19,7 +19,7 @@ ak7BasicJets = cms.EDProducer(
     doPUOffsetCorr = cms.bool(False),
        # if pileup is false, these are not read:
        nSigmaPU = cms.double(1.0),
-       radiusPU = cms.double(0.5),  
+       radiusPU = cms.double(0.4),  
     # fastjet-style pileup 
     doAreaFastjet    = cms.bool(False),
     doRhoFastjet     = cms.bool(False),
@@ -28,6 +28,6 @@ ak7BasicJets = cms.EDProducer(
        GhostArea = cms.double(0.01),
        Ghost_EtaMax = cms.double(5.0),
     jetAlgorithm = cms.string("AntiKt"),
-    rParam       = cms.double(0.7)
+    rParam       = cms.double(0.8)
     )
 

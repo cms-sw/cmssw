@@ -21,18 +21,18 @@ process.GlobalTag.globaltag = cms.string("START44_V5::All")
 
 
 #define you jet ID
-jetID = cms.InputTag("ak5PFJets")
+jetID = cms.InputTag("ak4PFJets")
 
 #JTA for your jets
 from RecoJets.JetAssociationProducers.j2tParametersVX_cfi import *
-process.myak5JetTracksAssociatorAtVertex = cms.EDProducer("JetTracksAssociatorAtVertex",
+process.myak4JetTracksAssociatorAtVertex = cms.EDProducer("JetTracksAssociatorAtVertex",
                                                   j2tParametersVX,
                                                   jets = jetID
                                                   )
 
 #new input for impactParameterTagInfos, softleptons
 from RecoBTag.Configuration.RecoBTag_cff import *
-process.impactParameterTagInfos.jetTracks = cms.InputTag("myak5JetTracksAssociatorAtVertex")
+process.impactParameterTagInfos.jetTracks = cms.InputTag("myak4JetTracksAssociatorAtVertex")
 
 process.load("PhysicsTools.JetMCAlgos.CaloJetsMCFlavour_cfi")  
 process.AK5byRef.jets = jetID
@@ -52,26 +52,26 @@ process.goodOfflinePrimaryVertices = cms.EDFilter(
     )
 
 #for the  use of JEC, could change with time : be careful if recommandations change for the correctors
-#define you sequence like  process.JECAlgo = cms.Sequence(process.ak5PFJetsJEC * process.PFJetsFilter)
+#define you sequence like  process.JECAlgo = cms.Sequence(process.ak4PFJetsJEC * process.PFJetsFilter)
 JetCut=cms.string("neutralHadronEnergyFraction < 0.99 && neutralEmEnergyFraction < 0.99 && nConstituents > 1 && chargedHadronEnergyFraction > 0.0 && chargedMultiplicity > 0.0 && chargedEmEnergyFraction < 0.99")
 
 from JetMETCorrections.Configuration.DefaultJEC_cff import *
 process.load("JetMETCorrections.Configuration.JetCorrectionServices_cff")
-process.ak5PFJetsJEC = cms.EDProducer('PFJetCorrectionProducer',
-    src         = cms.InputTag('ak5PFJets'),
-    correctors  = cms.vstring('ak5PFL2L3')
+process.ak4PFJetsJEC = cms.EDProducer('PFJetCorrectionProducer',
+    src         = cms.InputTag('ak4PFJets'),
+    correctors  = cms.vstring('ak4PFL2L3')
     )
 
 process.PFJetsFilter = cms.EDFilter("PFJetSelector",
-                            src = cms.InputTag("ak5PFJetsJEC"),
+                            src = cms.InputTag("ak4PFJetsJEC"),
                             cut = JetCut,
                             filter = cms.bool(True)
                             )
 
 
-process.JECAlgo = cms.Sequence(process.ak5PFJetsJEC * process.PFJetsFilter)
+process.JECAlgo = cms.Sequence(process.ak4PFJetsJEC * process.PFJetsFilter)
 newjetID=cms.InputTag("PFJetsFilter")
-process.myak5JetTracksAssociatorAtVertex.jets = newjetID
+process.myak4JetTracksAssociatorAtVertex.jets = newjetID
 process.AK5byRef.jets                         = newjetID
 
 process.maxEvents = cms.untracked.PSet(
@@ -150,7 +150,7 @@ process.combinedSVMVATrainer = cms.EDAnalyzer("JetTagMVAExtractor",
 )
 
 process.p = cms.Path(
-process.goodOfflinePrimaryVertices * process.JECAlgo * process.myak5JetTracksAssociatorAtVertex * process.impactParameterTagInfos * process.secondaryVertexTagInfos * process.flavourSeq *  process.combinedSVMVATrainer 
+process.goodOfflinePrimaryVertices * process.JECAlgo * process.myak4JetTracksAssociatorAtVertex * process.impactParameterTagInfos * process.secondaryVertexTagInfos * process.flavourSeq *  process.combinedSVMVATrainer 
 )
 
  

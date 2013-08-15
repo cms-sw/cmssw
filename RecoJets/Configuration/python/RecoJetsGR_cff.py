@@ -10,5 +10,5 @@ from RecoJets.Configuration.RecoJets_cff import *
 iterativeCone15CaloJets = iterativeCone5CaloJets.clone( rParam = cms.double(0.15) )
 
 
-recoJetsGR = cms.Sequence(iterativeCone15CaloJets+kt4CaloJets+kt6CaloJets+iterativeCone5CaloJets+ak5CaloJets+ak7CaloJets+sisCone5CaloJets+sisCone7CaloJets)
+recoJetsGR = cms.Sequence(iterativeCone15CaloJets+kt4CaloJets+kt6CaloJets+iterativeCone5CaloJets+ak4CaloJets+ak8CaloJets+sisCone5CaloJets+sisCone7CaloJets)
 

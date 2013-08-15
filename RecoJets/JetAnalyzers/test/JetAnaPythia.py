@@ -39,7 +39,7 @@ process.source = cms.Source("PoolSource",
 #
 #
 process.gen = cms.EDAnalyzer("GenJetAnaPythia",
-    JetAlgorithm    = cms.string('ak7GenJets'),
+    JetAlgorithm    = cms.string('ak8GenJets'),
     HistoFileName   = cms.string('TestQCDhistos.root'),
     debug           = cms.bool(False),
     NJets           = cms.int32(2),

@@ -76,26 +76,26 @@ process.source.inputCommands = cms.untracked.vstring("keep *","drop *_MEtoEDMCon
                            
 
 #############   JetID: Calo Jets  ###########################
-process.load("RecoJets.JetProducers.ak5JetID_cfi")
+process.load("RecoJets.JetProducers.ak4JetID_cfi")
 process.CaloJetsLooseId = cms.EDProducer("CaloJetIdSelector",
-    src     = cms.InputTag( "ak5CaloJets" ),                                     
+    src     = cms.InputTag( "ak4CaloJets" ),                                     
     idLevel = cms.string("LOOSE"),                            
-    jetIDMap = cms.untracked.InputTag("ak5JetID")
+    jetIDMap = cms.untracked.InputTag("ak4JetID")
 )
 
 process.CaloJetsTightId = cms.EDProducer("CaloJetIdSelector",
-    src     = cms.InputTag( "ak5CaloJets" ),                                             
+    src     = cms.InputTag( "ak4CaloJets" ),                                             
     idLevel = cms.string("TIGHT"),                            
-    jetIDMap = cms.untracked.InputTag("ak5JetID")
+    jetIDMap = cms.untracked.InputTag("ak4JetID")
 )
 #############   JetID: PF Jets    ###########################
 process.PFJetsLooseId = cms.EDProducer("PFJetIdSelector",
-    src     = cms.InputTag( "ak5PFJets" ),                                     
+    src     = cms.InputTag( "ak4PFJets" ),                                     
     idLevel = cms.string("LOOSE")
 )
 
 process.PFJetsTightId = cms.EDProducer("PFJetIdSelector",
-    src     = cms.InputTag( "ak5PFJets" ),                                             
+    src     = cms.InputTag( "ak4PFJets" ),                                             
     idLevel = cms.string("TIGHT")
 )
 
@@ -136,7 +136,7 @@ process.pfJetAnalysisTightId.HistoFileName = cms.string('PFJetPlotsExample_Tight
 ## |_|   \__,_|\__|_| |_|
 
 ## #############   Path       ###########################
-process.p = cms.Path( process.ak5JetID +
+process.p = cms.Path( process.ak4JetID +
                       process.CaloJetsLooseId +
                       process.CaloJetsTightId +
                       process.PFJetsLooseId +

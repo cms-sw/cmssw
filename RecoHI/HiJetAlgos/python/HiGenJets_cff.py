@@ -80,16 +80,16 @@ ak5HiGenJets.doAreaFastjet = cms.bool(True)
 ak5HiGenJets.doRhoFastjet  = cms.bool(False)
 ak5HiGenJets.src = cms.InputTag("hiGenParticlesForJets")
 
-ak7HiGenJets = cms.EDProducer("SubEventGenJetProducer",
+ak8HiGenJets = cms.EDProducer("SubEventGenJetProducer",
                               GenJetParameters,
                               AnomalousCellParameters,
                               jetAlgorithm = cms.string("AntiKt"),
                               rParam = cms.double(0.7)
                               )
 
-ak7HiGenJets.doAreaFastjet = cms.bool(True)
-ak7HiGenJets.doRhoFastjet  = cms.bool(False)
-ak7HiGenJets.src = cms.InputTag("hiGenParticlesForJets")
+ak8HiGenJets.doAreaFastjet = cms.bool(True)
+ak8HiGenJets.doRhoFastjet  = cms.bool(False)
+ak8HiGenJets.src = cms.InputTag("hiGenParticlesForJets")
 
 kt3HiGenJets = cms.EDProducer("SubEventGenJetProducer",
                               GenJetParameters,
@@ -124,4 +124,4 @@ kt6HiGenJets.doAreaFastjet = cms.bool(True)
 kt6HiGenJets.doRhoFastjet  = cms.bool(False)
 kt6HiGenJets.src = cms.InputTag("hiGenParticlesForJets")
 
-hiRecoGenJets = cms.Sequence(iterativeCone5HiGenJets + iterativeCone7HiGenJets + ak5HiGenJets + ak7HiGenJets + kt4HiGenJets + kt6HiGenJets + ak3HiGenJets + ak4HiGenJets)
+hiRecoGenJets = cms.Sequence(iterativeCone5HiGenJets + iterativeCone7HiGenJets + ak5HiGenJets + ak8HiGenJets + kt4HiGenJets + kt6HiGenJets + ak3HiGenJets + ak4HiGenJets)

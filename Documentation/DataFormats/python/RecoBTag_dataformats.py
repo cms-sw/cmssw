@@ -45,7 +45,7 @@ json = {
      {
       "instance": "impactParameterTagInfos",
       "container": "reco::TrackIPTagInfo",
-      "desc": "contains information used for btagging about track properties such as impact parameters, decay len, probability to originate from th primary vertex. Uses ak5JetTracksAssociatorAtVertex collection as input."
+      "desc": "contains information used for btagging about track properties such as impact parameters, decay len, probability to originate from th primary vertex. Uses ak4JetTracksAssociatorAtVertex collection as input."
      },
      {
       "instance": "jetProbabilityBJetTags",
@@ -265,7 +265,7 @@ json = {
      {
       "instance": "impactParameterTagInfos",
       "container": "reco::TrackIPTagInfo",
-      "desc": "contains information used for btagging about track properties such as impact parameters, decay len, probability to originate from th primary vertex. Uses ak5JetTracksAssociatorAtVertex collection as input."
+      "desc": "contains information used for btagging about track properties such as impact parameters, decay len, probability to originate from th primary vertex. Uses ak4JetTracksAssociatorAtVertex collection as input."
      },
      {
       "instance": "jetProbabilityBJetTags",

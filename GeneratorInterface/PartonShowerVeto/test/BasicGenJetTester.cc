@@ -90,16 +90,16 @@ void BasicGenJetTester::analyze( const Event& e, const EventSetup& )
   
    // here's an example of accessing GenJetCollection
    //
-   Handle< GenJetCollection > ak5GenJetHandle ;
-   Handle< GenJetCollection > ak7GenJetHandle ;
+   Handle< GenJetCollection > ak4GenJetHandle ;
+   Handle< GenJetCollection > ak8GenJetHandle ;
   
    // find initial (unsmeared, unfiltered,...) HepMCProduct
    //
-   e.getByLabel( "ak5GenJets", ak5GenJetHandle ) ;
-   // e.getByLabel( "ak7GenJets", ak7GenJetHandle ) ;
+   e.getByLabel( "ak4GenJets", ak4GenJetHandle ) ;
+   // e.getByLabel( "ak8GenJets", ak8GenJetHandle ) ;
      
-   int NGenJets5 = ak5GenJetHandle->size();
-   // int NGenJets7 = ak7GenJetHandle->size();
+   int NGenJets5 = ak4GenJetHandle->size();
+   // int NGenJets7 = ak8GenJetHandle->size();
   
    if ( NGenJets5 <= 0 ) return;
    
@@ -108,9 +108,9 @@ void BasicGenJetTester::analyze( const Event& e, const EventSetup& )
    int NGenJets5AboveQCut = 0;
    GenJet GJet;
    
-   for ( unsigned int idx=0; idx<ak5GenJetHandle->size(); ++idx )
+   for ( unsigned int idx=0; idx<ak4GenJetHandle->size(); ++idx )
    {
-      GJet = (*ak5GenJetHandle)[idx];
+      GJet = (*ak4GenJetHandle)[idx];
       double pt  = GJet.pt();    //cout << ": pt=" << pt; 
       if ( pt < fQCut ) continue;
       NGenJets5AboveQCut++;      
@@ -122,7 +122,7 @@ void BasicGenJetTester::analyze( const Event& e, const EventSetup& )
    
    // leading jet
    //
-   GJet = (*ak5GenJetHandle)[0];
+   GJet = (*ak4GenJetHandle)[0];
    fLeadingJetPt->Fill( GJet.pt() );
    fLeadingJetEta->Fill( GJet.eta() );
 
@@ -130,7 +130,7 @@ void BasicGenJetTester::analyze( const Event& e, const EventSetup& )
    
    // next-to-leading jet
    //
-   GJet = (*ak5GenJetHandle)[1];
+   GJet = (*ak4GenJetHandle)[1];
    fNext2LeadingJetPt->Fill( GJet.pt() );
    fNext2LeadingJetEta->Fill( GJet.eta() );
 
@@ -138,7 +138,7 @@ void BasicGenJetTester::analyze( const Event& e, const EventSetup& )
 
    // lowest jet (above qcut)
    //
-   GJet = (*ak5GenJetHandle)[NGenJets5AboveQCut-1];
+   GJet = (*ak4GenJetHandle)[NGenJets5AboveQCut-1];
    fLowestJetHt->Fill( GJet.pt() );
    fLowestJetEta->Fill( GJet.eta() );
        

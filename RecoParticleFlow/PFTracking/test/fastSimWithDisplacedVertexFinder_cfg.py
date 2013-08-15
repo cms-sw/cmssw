@@ -87,15 +87,15 @@ process.particleFlowBlock.useV0 = cms.bool(False)
 
 
 
-#process.ak7PFJets.src = cms.InputTag("particleFlow", "WithoutNI", "TEST")
-#process.ak7PFJets.inputEtMin = 0.0
+#process.ak8PFJets.src = cms.InputTag("particleFlow", "WithoutNI", "TEST")
+#process.ak8PFJets.inputEtMin = 0.0
 
-#process.ak5PFJets.src = cms.InputTag("particleFlow", "WithoutNI", "TEST")
-#process.ak5PFJets.inputEtMin = 0.0
+#process.ak4PFJets.src = cms.InputTag("particleFlow", "WithoutNI", "TEST")
+#process.ak4PFJets.inputEtMin = 0.0
 
 #process.PFJetMet = cms.Sequence(
-#    process.ak7PFJets +
-#    process.ak5PFJets
+#    process.ak8PFJets +
+#    process.ak4PFJets
 #    )
 
 #process.famosTauTaggingSequence = cms.Sequence()
@@ -118,7 +118,7 @@ process.printList = cms.EDAnalyzer("ParticleListDrawer",
 
 process.highPtJets = cms.EDFilter(
     "CandViewSelector",
-    src = cms.InputTag("ak7PFJets"),
+    src = cms.InputTag("ak8PFJets"),
     cut = cms.string( "pt()>60" )
     )
 

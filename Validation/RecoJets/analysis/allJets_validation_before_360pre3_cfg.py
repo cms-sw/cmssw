@@ -99,7 +99,7 @@ process.JetAnalyzerIC5JPT = cms.EDFilter("CaloJetTester",
 ## AntiKt5 JPT jets
 process.JetAnalyzerAk5JPT = cms.EDFilter("CaloJetTester",
     src = cms.InputTag("JetPlusTrackZSPCorJetAntiKt5"),
-    srcGen = cms.InputTag("ak5GenJets"),
+    srcGen = cms.InputTag("ak4GenJets"),
 #    TurnOnEverything = cms.untracked.string('yes'),
 #    TurnOnEverything = cms.untracked.string('no'),
 #    outputFile = cms.untracked.string('histo.root'),

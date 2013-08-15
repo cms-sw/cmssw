@@ -128,7 +128,7 @@ process.out.outputCommands.extend(cms.untracked.vstring('keep *_corMetGlobalMuon
 process.out.outputCommands.extend(cms.untracked.vstring('keep *_tcMet_*_*'))
 process.out.outputCommands.extend(cms.untracked.vstring('keep *_pfMet_*_*'))
 process.out.outputCommands.extend(cms.untracked.vstring('keep *_distpfMet_*_*'))
-process.out.outputCommands.extend(cms.untracked.vstring('keep *_ak5CaloJets_*_*'))
+process.out.outputCommands.extend(cms.untracked.vstring('keep *_ak4CaloJets_*_*'))
 
 
 process.outpath = cms.EndPath(process.out)

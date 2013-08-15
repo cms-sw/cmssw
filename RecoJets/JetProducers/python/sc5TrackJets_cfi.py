@@ -8,6 +8,6 @@ sisCone5TrackJets = cms.EDProducer(
     TrackJetParameters,
     AnomalousCellParameters,
     jetAlgorithm = cms.string("SISCone"),
-    rParam       = cms.double(0.5)
+    rParam       = cms.double(0.4)
     )
 

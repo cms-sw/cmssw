@@ -36,20 +36,20 @@ ROOT::Cintex::Cintex::Enable();
 
 TFile* fast = new TFile(fileFast);
 gStyle->SetOptStat(0);
-TProfile* fastChBrFrac  = ((TH2F*) fast->Get("DQMData/PFTask/Benchmarks/ak5PFJets/Gen/BRCHEvsPt"))->ProfileX()->Rebin(5);
-TProfile* fastEmBrFrac  = ((TH2F*) fast->Get("DQMData/PFTask/Benchmarks/ak5PFJets/Gen/BRNEEvsPt"))->ProfileX()->Rebin(5);
-TProfile* fastHaBrFrac  = ((TH2F*) fast->Get("DQMData/PFTask/Benchmarks/ak5PFJets/Gen/BRNHEvsPt"))->ProfileX()->Rebin(5);
-TProfile* fastChEnFrac  = ((TH2F*) fast->Get("DQMData/PFTask/Benchmarks/ak5PFJets/Gen/ERCHEvsPt"))->ProfileX()->Rebin(5);
-TProfile* fastEmEnFrac  = ((TH2F*) fast->Get("DQMData/PFTask/Benchmarks/ak5PFJets/Gen/ERNEEvsPt"))->ProfileX()->Rebin(5);
-TProfile* fastHaEnFrac  = ((TH2F*) fast->Get("DQMData/PFTask/Benchmarks/ak5PFJets/Gen/ERNHEvsPt"))->ProfileX()->Rebin(5);
+TProfile* fastChBrFrac  = ((TH2F*) fast->Get("DQMData/PFTask/Benchmarks/ak4PFJets/Gen/BRCHEvsPt"))->ProfileX()->Rebin(5);
+TProfile* fastEmBrFrac  = ((TH2F*) fast->Get("DQMData/PFTask/Benchmarks/ak4PFJets/Gen/BRNEEvsPt"))->ProfileX()->Rebin(5);
+TProfile* fastHaBrFrac  = ((TH2F*) fast->Get("DQMData/PFTask/Benchmarks/ak4PFJets/Gen/BRNHEvsPt"))->ProfileX()->Rebin(5);
+TProfile* fastChEnFrac  = ((TH2F*) fast->Get("DQMData/PFTask/Benchmarks/ak4PFJets/Gen/ERCHEvsPt"))->ProfileX()->Rebin(5);
+TProfile* fastEmEnFrac  = ((TH2F*) fast->Get("DQMData/PFTask/Benchmarks/ak4PFJets/Gen/ERNEEvsPt"))->ProfileX()->Rebin(5);
+TProfile* fastHaEnFrac  = ((TH2F*) fast->Get("DQMData/PFTask/Benchmarks/ak4PFJets/Gen/ERNHEvsPt"))->ProfileX()->Rebin(5);
 
 TFile* full = new TFile(fileFull);
-TProfile* fullChBrFrac  = ((TH2F*) full->Get("DQMData/PFTask/Benchmarks/ak5PFJets/Gen/BRCHEvsPt"))->ProfileX()->Rebin(5);
-TProfile* fullEmBrFrac  = ((TH2F*) full->Get("DQMData/PFTask/Benchmarks/ak5PFJets/Gen/BRNEEvsPt"))->ProfileX()->Rebin(5);
-TProfile* fullHaBrFrac  = ((TH2F*) full->Get("DQMData/PFTask/Benchmarks/ak5PFJets/Gen/BRNHEvsPt"))->ProfileX()->Rebin(5);
-TProfile* fullChEnFrac  = ((TH2F*) full->Get("DQMData/PFTask/Benchmarks/ak5PFJets/Gen/ERCHEvsPt"))->ProfileX()->Rebin(5);
-TProfile* fullEmEnFrac  = ((TH2F*) full->Get("DQMData/PFTask/Benchmarks/ak5PFJets/Gen/ERNEEvsPt"))->ProfileX()->Rebin(5);
-TProfile* fullHaEnFrac  = ((TH2F*) full->Get("DQMData/PFTask/Benchmarks/ak5PFJets/Gen/ERNHEvsPt"))->ProfileX()->Rebin(5);
+TProfile* fullChBrFrac  = ((TH2F*) full->Get("DQMData/PFTask/Benchmarks/ak4PFJets/Gen/BRCHEvsPt"))->ProfileX()->Rebin(5);
+TProfile* fullEmBrFrac  = ((TH2F*) full->Get("DQMData/PFTask/Benchmarks/ak4PFJets/Gen/BRNEEvsPt"))->ProfileX()->Rebin(5);
+TProfile* fullHaBrFrac  = ((TH2F*) full->Get("DQMData/PFTask/Benchmarks/ak4PFJets/Gen/BRNHEvsPt"))->ProfileX()->Rebin(5);
+TProfile* fullChEnFrac  = ((TH2F*) full->Get("DQMData/PFTask/Benchmarks/ak4PFJets/Gen/ERCHEvsPt"))->ProfileX()->Rebin(5);
+TProfile* fullEmEnFrac  = ((TH2F*) full->Get("DQMData/PFTask/Benchmarks/ak4PFJets/Gen/ERNEEvsPt"))->ProfileX()->Rebin(5);
+TProfile* fullHaEnFrac  = ((TH2F*) full->Get("DQMData/PFTask/Benchmarks/ak4PFJets/Gen/ERNHEvsPt"))->ProfileX()->Rebin(5);
 
 TCanvas* c  = new TCanvas();
 c->cd();

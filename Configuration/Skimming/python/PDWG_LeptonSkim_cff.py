@@ -10,9 +10,9 @@ from Configuration.Skimming.pdwgMuonPFElectron_cfi import *
 from Configuration.Skimming.pdwgDoubleElectron_cfi import *
 from Configuration.Skimming.pdwgDoublePFElectron_cfi import *
 
-filterSingleMu         = cms.Sequence(ak5CaloJetsL2L3+ak5PFJetsL2L3+SingleMu)
-filterDoubleMu         = cms.Sequence(ak5CaloJetsL2L3+ak5PFJetsL2L3+DoubleMu)
-filterMuonElectron     = cms.Sequence(ak5CaloJetsL2L3+ak5PFJetsL2L3+MuonElectron)
-filterMuonPFElectron   = cms.Sequence(ak5CaloJetsL2L3+ak5PFJetsL2L3+MuonPFElectron)
-filterDoubleElectron   = cms.Sequence(ak5CaloJetsL2L3+ak5PFJetsL2L3+DoubleElectron)
-filterDoublePFElectron = cms.Sequence(ak5CaloJetsL2L3+ak5PFJetsL2L3+DoublePFElectron)
+filterSingleMu         = cms.Sequence(ak4CaloJetsL2L3+ak4PFJetsL2L3+SingleMu)
+filterDoubleMu         = cms.Sequence(ak4CaloJetsL2L3+ak4PFJetsL2L3+DoubleMu)
+filterMuonElectron     = cms.Sequence(ak4CaloJetsL2L3+ak4PFJetsL2L3+MuonElectron)
+filterMuonPFElectron   = cms.Sequence(ak4CaloJetsL2L3+ak4PFJetsL2L3+MuonPFElectron)
+filterDoubleElectron   = cms.Sequence(ak4CaloJetsL2L3+ak4PFJetsL2L3+DoubleElectron)
+filterDoublePFElectron = cms.Sequence(ak4CaloJetsL2L3+ak4PFJetsL2L3+DoublePFElectron)

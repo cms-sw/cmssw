@@ -8,6 +8,6 @@ gk5CaloJets = cms.EDProducer(
     CaloJetParameters,
     AnomalousCellParameters,
     jetAlgorithm = cms.string("GeneralizedKt"),
-    rParam       = cms.double(0.5)
+    rParam       = cms.double(0.4)
     )
 

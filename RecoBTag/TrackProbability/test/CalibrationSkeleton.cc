@@ -220,7 +220,7 @@ CalibrationSkeleton::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   //*************************************************************************
   //look at JetTracks
   edm::Handle<JetTracksAssociationCollection> associationHandle;
-  iEvent.getByLabel("ak5JetTracksAssociatorAtVertex", associationHandle);
+  iEvent.getByLabel("ak4JetTracksAssociatorAtVertex", associationHandle);
   reco::JetTracksAssociationCollection::const_iterator it = associationHandle->begin();
   
   

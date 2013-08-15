@@ -310,7 +310,7 @@ PileupJetIdentifier PileupJetIdAlgo::computeIdVariables(const reco::Jet * jet, f
 	
 	reco::PFCandidatePtr lLead, lSecond, lLeadNeut, lLeadEm, lLeadCh, lTrail;
 	std::vector<float> frac, fracCh, fracEm, fracNeut;
-	float cones[] = { 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7 };
+	float cones[] = { 0.1, 0.2, 0.3, 0.4, 0.4, 0.6, 0.7 };
 	size_t ncones = sizeof(cones)/sizeof(float);
 	float * coneFracs[]     = { &internalId_.frac01_, &internalId_.frac02_, &internalId_.frac03_, &internalId_.frac04_, 
 				    &internalId_.frac05_,  &internalId_.frac06_,  &internalId_.frac07_ };
@@ -478,7 +478,7 @@ PileupJetIdentifier PileupJetIdAlgo::computeIdVariables(const reco::Jet * jet, f
 	covMatrix(1,0)  = covMatrix(0,1);
 	internalId_.etaW_ = sqrt(covMatrix(0,0));
 	internalId_.phiW_ = sqrt(covMatrix(1,1));
-	internalId_.jetW_ = 0.5*(internalId_.etaW_+internalId_.phiW_);
+	internalId_.jetW_ = 0.4*(internalId_.etaW_+internalId_.phiW_);
 	TVectorD eigVals(2); eigVals = TMatrixDSymEigen(covMatrix).GetEigenValues();
 	internalId_.majW_ = sqrt(fabs(eigVals(0)));
 	internalId_.minW_ = sqrt(fabs(eigVals(1)));

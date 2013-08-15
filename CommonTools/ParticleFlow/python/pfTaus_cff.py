@@ -4,7 +4,7 @@ from RecoTauTag.Configuration.RecoPFTauTag_cff import *
 from RecoTauTag.TauTagTools.PFTauSelector_cfi  import pfTauSelector
 import RecoTauTag.RecoTau.RecoTauCleanerPlugins as cleaners
 #from CommonTools.ParticleFlow.pfJets_cff import pfJets
-from RecoJets.JetProducers.ak5PFJets_cfi import ak5PFJets
+from RecoJets.JetProducers.ak4PFJets_cfi import ak4PFJets
 
 ''' 
 
@@ -29,19 +29,19 @@ selection is constructed by:
 
 # PiZeroProducers
 
-pfJetsLegacyHPSPiZeros = ak5PFJetsLegacyHPSPiZeros.clone()
+pfJetsLegacyHPSPiZeros = ak4PFJetsLegacyHPSPiZeros.clone()
 
-pfJetsLegacyHPSPiZeros.jetSrc = cms.InputTag("ak5PFJets")
+pfJetsLegacyHPSPiZeros.jetSrc = cms.InputTag("ak4PFJets")
 
 pfTauPFJets08Region = recoTauAK5PFJets08Region.clone()
-pfTauPFJets08Region.src = cms.InputTag("ak5PFJets")
+pfTauPFJets08Region.src = cms.InputTag("ak4PFJets")
 pfTauPFJets08Region.pfSrc = cms.InputTag("particleFlow")
 pfJetsLegacyHPSPiZeros.jetRegionSrc = 'pfTauPFJets08Region'
 
 # Clone tau producer
 pfTausProducer = hpsPFTauProducer.clone()
 pfTausCombiner = combinatoricRecoTaus.clone()
-pfTausCombiner.jetSrc= cms.InputTag("ak5PFJets")
+pfTausCombiner.jetSrc= cms.InputTag("ak4PFJets")
 pfTausCombiner.piZeroSrc= "pfJetsLegacyHPSPiZeros"
 pfTausSelectionDiscriminator = hpsSelectionDiscriminator.clone()
 pfTausSelectionDiscriminator.PFTauProducer = cms.InputTag("pfTausCombiner")
@@ -103,8 +103,8 @@ pfTausBaseSequence = cms.Sequence(
 
 # Associate track to pfJets
 #from RecoJets.JetAssociationProducers.j2tParametersVX_cfi import *
-pfJetTracksAssociatorAtVertex = ak5PFJetTracksAssociatorAtVertex.clone()
-pfJetTracksAssociatorAtVertex.jets= cms.InputTag("ak5PFJets")
+pfJetTracksAssociatorAtVertex = ak4PFJetTracksAssociatorAtVertex.clone()
+pfJetTracksAssociatorAtVertex.jets= cms.InputTag("ak4PFJets")
 
 pfTauPileUpVertices = cms.EDFilter(
     "RecoTauPileUpVertexSelector",
@@ -115,7 +115,7 @@ pfTauPileUpVertices = cms.EDFilter(
 
 
 pfTauTagInfoProducer = pfRecoTauTagInfoProducer.clone()
-pfTauTagInfoProducer.PFCandidateProducer = ak5PFJets.src
+pfTauTagInfoProducer.PFCandidateProducer = ak4PFJets.src
 pfTauTagInfoProducer.PFJetTracksAssociatorProducer = 'pfJetTracksAssociatorAtVertex'
 
 

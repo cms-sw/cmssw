@@ -16,7 +16,7 @@ def changePFTauJetSource(process, jetSrc):
         piZeroProducer = getattr(process, piZeroProdName)
         piZeroProducer.src = jetSrc
     # Set the PFTauTagInfoProducer jet tracks associator correctly
-    process.ak5PFJetTracksAssociatorAtVertex.jets = jetSrc
+    process.ak4PFJetTracksAssociatorAtVertex.jets = jetSrc
 
 #if __name__ == "__main__":
     #import FWCore.ParameterSet.Config as cms
@@ -24,4 +24,4 @@ def changePFTauJetSource(process, jetSrc):
     #process.load("RecoTauTag.Configuration.RecoPFTauTag_cff")
     #changePFTauJetSource(process, "myJets")
     #print process.combinatoricRecoTaus.jetSrc
-    #print process.ak5PFJetsLegacyTaNCPiZeros.src
+    #print process.ak4PFJetsLegacyTaNCPiZeros.src

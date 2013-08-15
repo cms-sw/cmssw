@@ -10,7 +10,7 @@ process.load("Configuration.StandardSequences.Geometry_cff")
 process.load("TrackingTools.TransientTrack.TransientTrackBuilder_cfi")
 
 process.load("RecoVertex.PrimaryVertexProducer.OfflinePrimaryVertices_cfi")
-process.load("RecoJets.JetAssociationProducers.ak5JTA_cff")
+process.load("RecoJets.JetAssociationProducers.ak4JTA_cff")
 
 process.load("RecoBTau.JetTagComputer.jetTagRecord_cfi")
 process.load("RecoBTag.ImpactParameter.impactParameter_cff")
@@ -39,8 +39,8 @@ process.Output = cms.OutputModule("PoolOutputModule",
 	outputCommands = cms.untracked.vstring(
 		'drop *', 
 		'keep recoJetTags_*_*_*', 
-		'keep *_ak5JetTracksAssociatorAtVertex_*_*', 
-		'keep *_ak5CaloJets_*_*', 
+		'keep *_ak4JetTracksAssociatorAtVertex_*_*', 
+		'keep *_ak4CaloJets_*_*', 
 		'keep *_trackCountingJetTags_*_*', 
 		'keep *_impactParameterTagInfos_*_*', 
 		'keep recoTrackExtras_*_*_*', 
@@ -50,7 +50,7 @@ process.Output = cms.OutputModule("PoolOutputModule",
 
 process.p = cms.Path(
 	process.offlinePrimaryVertices *
-	process.ak5JetTracksAssociatorAtVertex *
+	process.ak4JetTracksAssociatorAtVertex *
 	process.impactParameterTagInfos *
 	process.impactParameterMVABJetTags
 )

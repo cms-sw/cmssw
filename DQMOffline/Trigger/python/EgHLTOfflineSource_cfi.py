@@ -23,7 +23,7 @@ egHLTOffDQMSource = cms.EDAnalyzer("EgHLTOfflineSource",
                                  VertexCollection = cms.InputTag("offlinePrimaryVertices"),
                                  #CaloJetCollection = cms.InputTag("sisCone5CaloJets"),
                                  #--------Morse
-                                 CaloJetCollection = cms.InputTag("ak5CaloJets"),
+                                 CaloJetCollection = cms.InputTag("ak4CaloJets"),
                                  #--------
                                  IsolTrackCollection = cms.InputTag("generalTracks"),
                                  HBHERecHitCollection = cms.InputTag("hbhereco"),

@@ -70,8 +70,8 @@ process.source = cms.Source("PoolSource",
 
 ####################################################### 
 #############   calo jets ##
-process.ak5calol2l3  = cms.EDAnalyzer('JetCorrectorDemo',
-    JetCorrectionService     = cms.string('ak5CaloL2L3Residual'),
+process.ak4calol2l3  = cms.EDAnalyzer('JetCorrectorDemo',
+    JetCorrectionService     = cms.string('ak4CaloL2L3Residual'),
     UncertaintyTag           = cms.string('Uncertainty'),
     UncertaintyFile          = cms.string(''),
     PayloadName              = cms.string('AK5Calo'),
@@ -91,8 +91,8 @@ process.ak5calol2l3  = cms.EDAnalyzer('JetCorrectorDemo',
 
 
 #############   pf jets ##
-process.ak5pfl2l3  = cms.EDAnalyzer('JetCorrectorDemo',
-    JetCorrectionService     = cms.string('ak5PFL2L3Residual'),
+process.ak4pfl2l3  = cms.EDAnalyzer('JetCorrectorDemo',
+    JetCorrectionService     = cms.string('ak4PFL2L3Residual'),
     UncertaintyTag           = cms.string('Uncertainty'),
     UncertaintyFile          = cms.string(''),
     PayloadName              = cms.string('AK5PF'),
@@ -112,8 +112,8 @@ process.ak5pfl2l3  = cms.EDAnalyzer('JetCorrectorDemo',
 
 
 #############   jpt jets ##
-process.ak5jptl2l3  = cms.EDAnalyzer('JetCorrectorDemo',
-    JetCorrectionService     = cms.string('ak5JPTL2L3Residual'),
+process.ak4jptl2l3  = cms.EDAnalyzer('JetCorrectorDemo',
+    JetCorrectionService     = cms.string('ak4JPTL2L3Residual'),
     UncertaintyTag           = cms.string('Uncertainty'),
     UncertaintyFile          = cms.string(''),
     PayloadName              = cms.string('AK5JPT'),
@@ -141,8 +141,8 @@ process.ak5jptl2l3  = cms.EDAnalyzer('JetCorrectorDemo',
 
 #############   Path       ###########################
 process.p = cms.Path(
-    process.ak5calol2l3 +
-    process.ak5pfl2l3 +
-    process.ak5jptl2l3 
+    process.ak4calol2l3 +
+    process.ak4pfl2l3 +
+    process.ak4jptl2l3 
     )
 
