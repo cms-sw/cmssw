@@ -41,6 +41,9 @@ PFElectronTranslator::PFElectronTranslator(const edm::ParameterSet & iConfig) {
 			(isoVals.getParameter<edm::InputTag>("pfPhotons"));
   		inputTagIsoVals_.push_back
 			(isoVals.getParameter<edm::InputTag>("pfNeutralHadrons"));
+  		inputTagIsoVals_.push_back
+			(isoVals.getParameter<edm::InputTag>("pfPU"));
+
 	}
   }
 
@@ -633,6 +636,7 @@ void PFElectronTranslator::createGsfElectrons(const reco::PFCandidateCollection 
       	myPFIso.chargedHadronIso=(*isolationValues[0])[CandidatePtr_[iGSF]];
       	myPFIso.photonIso=(*isolationValues[1])[CandidatePtr_[iGSF]];
       	myPFIso.neutralHadronIso=(*isolationValues[2])[CandidatePtr_[iGSF]];      
+      	myPFIso.puIso=(*isolationValues[3])[CandidatePtr_[iGSF]];      
       	myElectron.setPfIsolationVariables(myPFIso);
       }
 
