@@ -67,9 +67,9 @@ class CSCOverlapsTrackPreparation : public edm::EDProducer {
    private:
       enum {kNothing, kSimpleFit, kAllButOne, kExtrapolate};
 
-      virtual void beginJob();
-      virtual void produce(edm::Event&, const edm::EventSetup&);
-      virtual void endJob();
+      virtual void beginJob() override;
+      virtual void produce(edm::Event&, const edm::EventSetup&) override;
+      virtual void endJob() override;
       
       // ----------member data ---------------------------
       edm::InputTag m_src;
