@@ -6,7 +6,7 @@ class ZHistogrammer : public edm::EDAnalyzer {
 public:
   ZHistogrammer(const edm::ParameterSet& pset); 
 private:
-  virtual void analyze(const edm::Event& event, const edm::EventSetup& setup);
+  virtual void analyze(const edm::Event& event, const edm::EventSetup& setup) override;
   edm::InputTag  z_, gen_, match_;
   unsigned int nbinsMass_, nbinsPt_, nbinsAng_, nbinsMassRes_;
   double massMax_, ptMax_, angMax_, massResMax_;

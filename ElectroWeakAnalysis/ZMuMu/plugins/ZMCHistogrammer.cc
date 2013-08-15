@@ -6,7 +6,7 @@ class ZMCHistogrammer : public edm::EDAnalyzer {
 public:
   ZMCHistogrammer(const edm::ParameterSet& pset); 
 private:
-  virtual void analyze(const edm::Event& event, const edm::EventSetup& setup);
+  virtual void analyze(const edm::Event& event, const edm::EventSetup& setup) override;
   edm::InputTag  z_, gen_, match_;
   edm::InputTag hepMCProductTag_;
   unsigned int nbinsMass_, nbinsPt_, nbinsAng_, nbinsMassRes_;
