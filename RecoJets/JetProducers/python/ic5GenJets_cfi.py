@@ -8,5 +8,5 @@ iterativeCone5GenJets = cms.EDProducer(
     GenJetParameters,
     AnomalousCellParameters,
     jetAlgorithm = cms.string("IterativeCone"),
-    rParam       = cms.double(0.5)
+    rParam       = cms.double(0.4)
     )

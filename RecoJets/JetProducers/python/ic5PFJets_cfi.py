@@ -8,6 +8,6 @@ iterativeCone5PFJets = cms.EDProducer(
     PFJetParameters,
     AnomalousCellParameters,
     jetAlgorithm = cms.string("IterativeCone"),
-    rParam       = cms.double(0.5)
+    rParam       = cms.double(0.4)
     )
 

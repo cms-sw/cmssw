@@ -10,8 +10,8 @@ trackExtrapolator.trackSrc = cms.InputTag("hiGoodMergedTracks")
 from RecoJets.JetAssociationProducers.iterativeCone5JTA_cff import *
 from RecoJets.JetAssociationProducers.sisCone5JTA_cff import *
 from RecoJets.JetAssociationProducers.kt4JTA_cff import *
-from RecoJets.JetAssociationProducers.ak5JTA_cff import *
-from RecoJets.JetAssociationProducers.ak7JTA_cff import *
+from RecoJets.JetAssociationProducers.ak4JTA_cff import *
+from RecoJets.JetAssociationProducers.ak8JTA_cff import *
 
 # ---------- Tight Electron ID
 
@@ -147,17 +147,17 @@ JPTSisConePu5JetExtender.jet2TracksAtCALO = cms.InputTag("JPTSisConePu5JetTracks
 JPTSisConePu5JetExtender.jet2TracksAtVX = cms.InputTag("JPTSisConePu5JetTracksAssociatorAtVertex")
 
 # Anti-Kt
-from RecoJets.JetAssociationProducers.ak5JTA_cff import*
+from RecoJets.JetAssociationProducers.ak4JTA_cff import*
 
-JPTAntiKtPu5JetTracksAssociatorAtVertex = ak5JetTracksAssociatorAtVertex.clone()
+JPTAntiKtPu5JetTracksAssociatorAtVertex = ak4JetTracksAssociatorAtVertex.clone()
 JPTAntiKtPu5JetTracksAssociatorAtVertex.jets = cms.InputTag("akPu5CaloJets")
 JPTAntiKtPu5JetTracksAssociatorAtVertex.tracks = cms.InputTag("hiGoodMergedTracks")
 
-JPTAntiKtPu5JetTracksAssociatorAtCaloFace = ak5JetTracksAssociatorAtCaloFace.clone()
+JPTAntiKtPu5JetTracksAssociatorAtCaloFace = ak4JetTracksAssociatorAtCaloFace.clone()
 JPTAntiKtPu5JetTracksAssociatorAtCaloFace.jets = cms.InputTag("akPu5CaloJets")
 JPTAntiKtPu5JetTracksAssociatorAtCaloFace.tracks = cms.InputTag("hiGoodMergedTracks")
 
-JPTAntiKtPu5JetExtender = ak5JetExtender.clone()
+JPTAntiKtPu5JetExtender = ak4JetExtender.clone()
 JPTAntiKtPu5JetExtender.jets = cms.InputTag("akPu5CaloJets")
 JPTAntiKtPu5JetExtender.jet2TracksAtCALO = cms.InputTag("JPTAntiKtPu5JetTracksAssociatorAtCaloFace")
 JPTAntiKtPu5JetExtender.jet2TracksAtVX = cms.InputTag("JPTAntiKtPu5JetTracksAssociatorAtVertex")

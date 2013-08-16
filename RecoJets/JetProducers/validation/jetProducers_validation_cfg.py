@@ -36,7 +36,7 @@ process.ic5calo = cms.EDAnalyzer(
     genEnergyFractionThreshold = cms.double(0.05),
     genPtThreshold = cms.double(1.0),
     RThreshold = cms.double(0.3),
-    reverseEnergyFractionThreshold = cms.double(0.5)
+    reverseEnergyFractionThreshold = cms.double(0.4)
     )
 
 # IC5 PFlow-Jets
@@ -47,7 +47,7 @@ process.ic5pflow = cms.EDFilter(
     genEnergyFractionThreshold = cms.double(0.05),
     genPtThreshold = cms.double(1.0),
     RThreshold = cms.double(0.3),
-    reverseEnergyFractionThreshold = cms.double(0.5)
+    reverseEnergyFractionThreshold = cms.double(0.4)
 )
 
 # KT4 Calo jets
@@ -58,7 +58,7 @@ process.kt4calo = cms.EDFilter(
     genEnergyFractionThreshold = cms.double(0.05),
     genPtThreshold = cms.double(1.0),
     RThreshold = cms.double(0.3),
-    reverseEnergyFractionThreshold = cms.double(0.5)
+    reverseEnergyFractionThreshold = cms.double(0.4)
     )
                                     
 # KT6 Calo jets
@@ -69,7 +69,7 @@ process.kt6calo = cms.EDFilter(
     genEnergyFractionThreshold = cms.double(0.05),
     genPtThreshold = cms.double(1.0),
     RThreshold = cms.double(0.3),
-    reverseEnergyFractionThreshold = cms.double(0.5)
+    reverseEnergyFractionThreshold = cms.double(0.4)
     )
                                     
 # SC5 Calo-Jets
@@ -80,7 +80,7 @@ process.sc5calo = cms.EDFilter(
     genEnergyFractionThreshold = cms.double(0.05),
     genPtThreshold = cms.double(1.0),
     RThreshold = cms.double(0.3),
-    reverseEnergyFractionThreshold = cms.double(0.5)
+    reverseEnergyFractionThreshold = cms.double(0.4)
     )
 
 # SC7 Calo-Jets
@@ -91,7 +91,7 @@ process.sc7calo = cms.EDFilter(
     genEnergyFractionThreshold = cms.double(0.05),
     genPtThreshold = cms.double(1.0),
     RThreshold = cms.double(0.3),
-    reverseEnergyFractionThreshold = cms.double(0.5)
+    reverseEnergyFractionThreshold = cms.double(0.4)
     )
 
 process.p1 = cms.Path(process.fileSaver+

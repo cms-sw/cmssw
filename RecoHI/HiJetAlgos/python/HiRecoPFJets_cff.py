@@ -46,8 +46,8 @@ ak3PFJets.rParam       = cms.double(0.3)
 ak4PFJets = ak5PFJets.clone()
 ak4PFJets.rParam       = cms.double(0.4)
 
-ak7PFJets = ak5PFJets.clone()
-ak7PFJets.rParam       = cms.double(0.7)
+ak8PFJets = ak5PFJets.clone()
+ak8PFJets.rParam       = cms.double(0.7)
 
 kt3PFJets = kt4PFJets.clone()
 kt3PFJets.rParam       = cms.double(0.3)
@@ -57,6 +57,6 @@ kt6PFJets.rParam       = cms.double(0.6)
 
 
 #hiRecoPFJets = cms.Sequence(ic5PFJets)
-#hiRecoAllPFJets = cms.Sequence(ic5PFJets + ak5PFJets + ak7PFJets + kt4PFJets + kt6PFJets)
+#hiRecoAllPFJets = cms.Sequence(ic5PFJets + ak5PFJets + ak8PFJets + kt4PFJets + kt6PFJets)
 
 

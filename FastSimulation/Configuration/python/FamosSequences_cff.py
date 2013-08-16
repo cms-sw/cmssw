@@ -166,7 +166,7 @@ from RecoMuon.MuonIdentification.muonIdProducerSequence_cff import *
 from RecoMuon.MuonIsolationProducers.muIsolation_cff import *
 
 famosMuonIdAndIsolationSequence = cms.Sequence(
-    ak5CaloJets+
+    ak4CaloJets+
     muonIdProducerSequence+
     muIsolation
 )
@@ -249,8 +249,8 @@ from RecoEgamma.EgammaIsolationAlgos.interestingEgammaIsoDetIdsSequence_cff impo
 
 
 # B tagging
-from RecoJets.JetAssociationProducers.ak5JTA_cff import *
-ak5JetTracksAssociatorAtVertex.tracks = 'generalTracks'
+from RecoJets.JetAssociationProducers.ak4JTA_cff import *
+ak4JetTracksAssociatorAtVertex.tracks = 'generalTracks'
 from RecoVertex.Configuration.RecoVertex_cff import *
 from RecoVertex.BeamSpotProducer.BeamSpot_cff import *
 from RecoBTag.Configuration.RecoBTag_cff import *
@@ -415,7 +415,7 @@ if(CaloMode==3):
         caloJetMet+
         PFJetMet+
         ic5JetTracksAssociatorAtVertex+
-        ak5JetTracksAssociatorAtVertex+
+        ak4JetTracksAssociatorAtVertex+
         reducedRecHits+
         famosBTaggingSequence+
         famosPFTauTaggingSequence
@@ -441,7 +441,7 @@ else:
         caloJetMet+
         PFJetMet+
         ic5JetTracksAssociatorAtVertex+
-        ak5JetTracksAssociatorAtVertex+
+        ak4JetTracksAssociatorAtVertex+
         reducedRecHits+
         famosBTaggingSequence+
         famosPFTauTaggingSequence
@@ -478,7 +478,7 @@ reconstructionHighLevel = cms.Sequence(
     caloJetMet+
     PFJetMet+
     ic5JetTracksAssociatorAtVertex+
-    ak5JetTracksAssociatorAtVertex+
+    ak4JetTracksAssociatorAtVertex+
     reducedRecHits+
     famosBTaggingSequence+
     famosPFTauTaggingSequence
@@ -630,8 +630,8 @@ famosWithElectronsAndPhotons = cms.Sequence(
 famosWithBTagging = cms.Sequence(
     famosWithTracksAndCaloTowers+
     vertexreco+
-    ak5CaloJets+
-    ak5JetTracksAssociatorAtVertex+
+    ak4CaloJets+
+    ak4JetTracksAssociatorAtVertex+
     ecalClustersNoPFBox+
     famosMuonSequence+
     reducedRecHits+ 
@@ -678,7 +678,7 @@ reconstructionWithFamosNoTk = cms.Sequence(
     caloJetMet+
     PFJetMet+
     ic5JetTracksAssociatorAtVertex+
-    ak5JetTracksAssociatorAtVertex+
+    ak4JetTracksAssociatorAtVertex+
     reducedRecHits+
     famosBTaggingSequence+
     famosPFTauTaggingSequence

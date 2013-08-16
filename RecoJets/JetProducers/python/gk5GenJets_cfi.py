@@ -8,5 +8,5 @@ gk5GenJets = cms.EDProducer(
     GenJetParameters,
     AnomalousCellParameters,
     jetAlgorithm = cms.string("GeneralizedKt"),
-    rParam       = cms.double(0.5)
+    rParam       = cms.double(0.4)
     )

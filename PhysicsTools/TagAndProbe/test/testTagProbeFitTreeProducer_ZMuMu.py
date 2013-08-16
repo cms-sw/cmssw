@@ -70,7 +70,7 @@ process.drToNearestJet = cms.EDProducer("DeltaRNearestJetComputer",
     probes = cms.InputTag("muons"),
        # ^^--- NOTA BENE: if probes are defined by ref, as in this case, 
        #       this must be the full collection, not the subset by refs.
-    objects = cms.InputTag("ak5CaloJets"),
+    objects = cms.InputTag("ak4CaloJets"),
     objectSelection = cms.InputTag("et > 20 && abs(eta) < 3 && n60 > 3 && (.05 < emEnergyFraction < .95)"),
 )
 

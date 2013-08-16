@@ -45,39 +45,39 @@ jetPtHistogram = cms.PSet(min          = cms.untracked.double(     50),
                           plotquantity = cms.untracked.string(   'pt')
                           )
 
-process.ak5CaloL2L3Histos = cms.EDAnalyzer(
+process.ak4CaloL2L3Histos = cms.EDAnalyzer(
     'CandViewHistoAnalyzer',
-    src = cms.InputTag('ak5CaloJetsL2L3'),
+    src = cms.InputTag('ak4CaloJetsL2L3'),
     histograms = cms.VPSet(jetPtHistogram)
     )
-process.ak7CaloL2L3Histos = process.ak5CaloL2L3Histos.clone(src = 'ak7CaloJetsL2L3')
-process.kt4CaloL2L3Histos = process.ak5CaloL2L3Histos.clone(src = 'kt4CaloJetsL2L3')
-#process.kt6CaloL2L3Histos = process.ak5CaloL2L3Histos.clone(src = 'kt6CaloJetsL2L3')
+process.ak8CaloL2L3Histos = process.ak4CaloL2L3Histos.clone(src = 'ak8CaloJetsL2L3')
+process.kt4CaloL2L3Histos = process.ak4CaloL2L3Histos.clone(src = 'kt4CaloJetsL2L3')
+#process.kt6CaloL2L3Histos = process.ak4CaloL2L3Histos.clone(src = 'kt6CaloJetsL2L3')
 
-process.ak5PFL2L3Histos = process.ak5CaloL2L3Histos.clone(src = 'ak5PFJetsL2L3')
-process.ak7PFL2L3Histos = process.ak5CaloL2L3Histos.clone(src = 'ak7PFJetsL2L3')
-process.kt4PFL2L3Histos = process.ak5CaloL2L3Histos.clone(src = 'kt4PFJetsL2L3')
-#process.kt6PFL2L3Histos = process.ak5CaloL2L3Histos.clone(src = 'kt6PFJetsL2L3')
+process.ak4PFL2L3Histos = process.ak4CaloL2L3Histos.clone(src = 'ak4PFJetsL2L3')
+process.ak8PFL2L3Histos = process.ak4CaloL2L3Histos.clone(src = 'ak8PFJetsL2L3')
+process.kt4PFL2L3Histos = process.ak4CaloL2L3Histos.clone(src = 'kt4PFJetsL2L3')
+#process.kt6PFL2L3Histos = process.ak4CaloL2L3Histos.clone(src = 'kt6PFJetsL2L3')
 
-process.ak5JPTL2L3Histos = process.ak5CaloL2L3Histos.clone(src = 'ak5JPTJetsL2L3')
-process.ak5TrackL2L3Histos = process.ak5CaloL2L3Histos.clone(src = 'ak5TrackJetsL2L3')
+process.ak4JPTL2L3Histos = process.ak4CaloL2L3Histos.clone(src = 'ak4JPTJetsL2L3')
+process.ak4TrackL2L3Histos = process.ak4CaloL2L3Histos.clone(src = 'ak4TrackJetsL2L3')
 
 #
 # RUN!
 #
 process.run = cms.Path(
 #------ create the corrected calojet collection and run the histogram module ------
-process.ak5CaloJetsL2L3 * process.ak5CaloL2L3Histos * process.ak7CaloJetsL2L3 * process.ak7CaloL2L3Histos * 
+process.ak4CaloJetsL2L3 * process.ak4CaloL2L3Histos * process.ak8CaloJetsL2L3 * process.ak8CaloL2L3Histos * 
 process.kt4CaloJetsL2L3 * process.kt4CaloL2L3Histos * 
 #process.kt6CaloJetsL2L3 * process.kt6CaloL2L3Histos * 
 #------ create the corrected pfjet collection and run the histogram module --------
-process.ak5PFJetsL2L3 * process.ak5PFL2L3Histos * process.ak7PFJetsL2L3 * process.ak7PFL2L3Histos *
+process.ak4PFJetsL2L3 * process.ak4PFL2L3Histos * process.ak8PFJetsL2L3 * process.ak8PFL2L3Histos *
 process.kt4PFJetsL2L3 * process.kt4PFL2L3Histos *
 #process.kt6PFJetsL2L3 * process.kt6PFL2L3Histos *
 #------ create the corrected jptjet collection and run the histogram module -------
-process.ak5JPTJetsL2L3 * process.ak5JPTL2L3Histos *
+process.ak4JPTJetsL2L3 * process.ak4JPTL2L3Histos *
 #------ create the corrected trackjet collection and run the histogram module -----
-process.ak5TrackJetsL2L3 * process.ak5TrackL2L3Histos
+process.ak4TrackJetsL2L3 * process.ak4TrackL2L3Histos
 )
 
 

@@ -368,8 +368,8 @@ rules_Plotter = cms.PSet (
     deta0_EE  = cms.untracked.double(1000.0),
     hoe0_EE   = cms.untracked.double(1000.0),
     includeJetInformationInNtuples = cms.untracked.bool(True),
-    caloJetCollectionTag = cms.untracked.InputTag('ak5CaloJetsL2L3'),
-    pfJetCollectionTag = cms.untracked.InputTag('ak5PFJetsL2L3'),
+    caloJetCollectionTag = cms.untracked.InputTag('ak4CaloJetsL2L3'),
+    pfJetCollectionTag = cms.untracked.InputTag('ak4PFJetsL2L3'),
     DRJetFromElectron = cms.untracked.double(0.3),
     #
     zeeCollectionTag = cms.untracked.InputTag("zeeFilter","selectedZeeCandidates","PAT"),
@@ -437,9 +437,9 @@ rules_Plotter_Elec2 = cms.PSet (
 # we need to store jet information, hence we have to produce the jets:
 process.load("JetMETCorrections.Configuration.DefaultJEC_cff")
 
-process.jetSequence = cms.Sequence( process.ak5CaloJetsL2L3  )
+process.jetSequence = cms.Sequence( process.ak4CaloJetsL2L3  )
 
-process.pfjetAK5Sequence = cms.Sequence( process.ak5PFJetsL2L3 )
+process.pfjetAK5Sequence = cms.Sequence( process.ak4PFJetsL2L3 )
 
 process.ourJetSequence = cms.Sequence( process.jetSequence * process.pfjetAK5Sequence )
 

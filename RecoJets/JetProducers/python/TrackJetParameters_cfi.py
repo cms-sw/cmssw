@@ -13,7 +13,7 @@ TrackJetParameters = cms.PSet(
     doPUOffsetCorr = cms.bool(False),
     # if pileup is false, these are not read:
     nSigmaPU = cms.double(1.0),
-    radiusPU = cms.double(0.5),  
+    radiusPU = cms.double(0.4),  
     # fastjet-style pileup     
     doAreaFastjet   = cms.bool(False),
     doRhoFastjet    = cms.bool(False),

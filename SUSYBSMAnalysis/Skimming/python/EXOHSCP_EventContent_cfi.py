@@ -49,7 +49,7 @@ SpecifiedEvenetContent=cms.PSet(
         'keep *_HSCPIsolation01__*',
 	'keep *_HSCPIsolation03__*',
 	'keep *_HSCPIsolation05__*',
-        'keep recoPFJets_ak5PFJets__*', 
+        'keep recoPFJets_ak4PFJets__*', 
         'keep recoPFMETs_pfMet__*',
 	  'keep recoBeamSpot_offlineBeamSpot__*',
       )

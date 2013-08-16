@@ -54,7 +54,7 @@ process.maxEvents = cms.untracked.PSet(
 process.source = cms.Source("EmptySource")
 
 ##-------------------- User analyzer  --------------------------------
-process.ak5caloDemo  = cms.EDAnalyzer('FactorizedJetCorrectorDemo',
+process.ak4caloDemo  = cms.EDAnalyzer('FactorizedJetCorrectorDemo',
     levels                   = cms.vstring( 'L2Relative', 'L3Absolute', 'L5Flavor_gJ', 'L7Parton_gJ'),
     UncertaintyTag           = cms.string('Uncertainty'),
     UncertaintyFile          = cms.string(''),
@@ -72,5 +72,5 @@ process.ak5caloDemo  = cms.EDAnalyzer('FactorizedJetCorrectorDemo',
     Debug                    = cms.untracked.bool(True)
 )
 
-process.p = cms.Path(process.ak5caloDemo)
+process.p = cms.Path(process.ak4caloDemo)
 

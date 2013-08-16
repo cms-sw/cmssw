@@ -6,7 +6,7 @@ susyDQM = cms.EDAnalyzer("RecoSusyDQM",
 
     muonCollection = cms.InputTag('muons'),
     electronCollection = cms.InputTag('gsfElectrons'),
-    jetCollection = cms.InputTag('ak5CaloJets'),
+    jetCollection = cms.InputTag('ak4CaloJets'),
     metCollection = cms.InputTag('met'),
     vertexCollection = cms.InputTag('offlinePrimaryVertices'),
 

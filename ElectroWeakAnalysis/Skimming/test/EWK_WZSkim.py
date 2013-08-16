@@ -58,12 +58,12 @@ process.load("ElectroWeakAnalysis.WMuNu.wmunusProducer_cfi")
 # WMuNu candidates selectors
 process.load("ElectroWeakAnalysis.WMuNu.WMuNuSelection_cff")
 
-process.seltcMet.JetTag = cms.untracked.InputTag("ak5CaloJets")
+process.seltcMet.JetTag = cms.untracked.InputTag("ak4CaloJets")
 process.seltcMet.TrigTag = cms.untracked.InputTag("TriggerResults::HLT")
 process.seltcMet.IsCombinedIso = cms.untracked.bool(True)
 process.seltcMet.IsoCut03 = cms.untracked.double(0.15)
 
-process.selpfMet.JetTag = cms.untracked.InputTag("ak5CaloJets")
+process.selpfMet.JetTag = cms.untracked.InputTag("ak4CaloJets")
 process.selpfMet.TrigTag = cms.untracked.InputTag("TriggerResults::HLT")
 process.selpfMet.IsCombinedIso = cms.untracked.bool(True)
 process.selpfMet.IsoCut03 = cms.untracked.double(0.15)

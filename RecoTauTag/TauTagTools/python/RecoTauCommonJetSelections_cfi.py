@@ -10,7 +10,7 @@ Author: Evan K. Friis (UC Davis)
 '''
 
 # Base jets of tau production
-jet_collection = cms.InputTag('ak5PFJets')
+jet_collection = cms.InputTag('ak4PFJets')
 
 # Kinematic selections
 kinematic_selection = cms.string('pt > 5.0 & abs(eta) < 2.5')
