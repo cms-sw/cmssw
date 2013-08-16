@@ -445,49 +445,10 @@ namespace {
 }
 
 PFEGammaAlgo::
-PFEGammaAlgo(const double mvaEleCut,
-		std::string  mvaWeightFileEleID,
-		const std::shared_ptr<PFSCEnergyCalibration>& thePFSCEnergyCalibration,
-		const std::shared_ptr<PFEnergyCalibration>& thePFEnergyCalibration,
-		bool applyCrackCorrections,
-		bool usePFSCEleCalib,
-		bool useEGElectrons,
-		bool useEGammaSupercluster,
-		double sumEtEcalIsoForEgammaSC_barrel,
-		double sumEtEcalIsoForEgammaSC_endcap,
-		double coneEcalIsoForEgammaSC,
-		double sumPtTrackIsoForEgammaSC_barrel,
-		double sumPtTrackIsoForEgammaSC_endcap,
-		unsigned int nTrackIsoForEgammaSC,
-		double coneTrackIsoForEgammaSC,
-		std::string mvaweightfile,  
-		double mvaConvCut, 
-		bool useReg, 
-		std::string X0_Map,
-		const reco::Vertex& primary,
-		double sumPtTrackIsoForPhoton,
-		double sumPtTrackIsoSlopeForPhoton
-		) : 
-  mvaEleCut_(mvaEleCut),
-  thePFSCEnergyCalibration_(thePFSCEnergyCalibration),
-  thePFEnergyCalibration_(thePFEnergyCalibration),
-  applyCrackCorrections_(applyCrackCorrections),
-  usePFSCEleCalib_(usePFSCEleCalib),
-  useEGElectrons_(useEGElectrons),
-  useEGammaSupercluster_(useEGammaSupercluster),
-  sumEtEcalIsoForEgammaSC_barrel_(sumEtEcalIsoForEgammaSC_barrel),
-  sumEtEcalIsoForEgammaSC_endcap_(sumEtEcalIsoForEgammaSC_endcap),
-  coneEcalIsoForEgammaSC_(coneEcalIsoForEgammaSC),
-  sumPtTrackIsoForEgammaSC_barrel_(sumPtTrackIsoForEgammaSC_barrel),
-  sumPtTrackIsoForEgammaSC_endcap_(sumPtTrackIsoForEgammaSC_endcap),
-  nTrackIsoForEgammaSC_(nTrackIsoForEgammaSC),
-  coneTrackIsoForEgammaSC_(coneTrackIsoForEgammaSC),  
+PFEGammaAlgo(const PFEGammaAlgo::PFEGConfigInfo& cfg) : 
+  cfg_(cfg),
   isvalid_(false), 
   verbosityLevel_(Silent), 
-  MVACUT(mvaConvCut),
-  useReg_(useReg),
-  sumPtTrackIsoForPhoton_(sumPtTrackIsoForPhoton),
-  sumPtTrackIsoSlopeForPhoton_(sumPtTrackIsoSlopeForPhoton),
   nlost(0.0), nlayers(0.0),
   chi2(0.0), STIP(0.0), del_phi(0.0),HoverPt(0.0), EoverPt(0.0), track_pt(0.0),
   mvaValue(0.0),
@@ -528,28 +489,28 @@ PFEGammaAlgo(const double mvaEleCut,
 //   tmvaReaderEle_->AddVariable("HOverPin",&HOverPin);
   tmvaReaderEle_->AddVariable("lateBrem",&lateBrem);
   tmvaReaderEle_->AddVariable("firstBrem",&firstBrem);
-  tmvaReaderEle_->BookMVA("BDT",mvaWeightFileEleID.c_str());
+  tmvaReaderEle_->BookMVA("BDT",cfg_.mvaWeightFileEleID.c_str());
   
   
-    //Book MVA  
-    tmvaReader_ = new TMVA::Reader("!Color:Silent");  
-    tmvaReader_->AddVariable("del_phi",&del_phi);  
-    tmvaReader_->AddVariable("nlayers", &nlayers);  
-    tmvaReader_->AddVariable("chi2",&chi2);  
-    tmvaReader_->AddVariable("EoverPt",&EoverPt);  
-    tmvaReader_->AddVariable("HoverPt",&HoverPt);  
-    tmvaReader_->AddVariable("track_pt", &track_pt);  
-    tmvaReader_->AddVariable("STIP",&STIP);  
-    tmvaReader_->AddVariable("nlost", &nlost);  
-    tmvaReader_->BookMVA("BDT",mvaweightfile.c_str());  
+  //Book MVA  
+  tmvaReader_ = new TMVA::Reader("!Color:Silent");  
+  tmvaReader_->AddVariable("del_phi",&del_phi);  
+  tmvaReader_->AddVariable("nlayers", &nlayers);  
+  tmvaReader_->AddVariable("chi2",&chi2);  
+  tmvaReader_->AddVariable("EoverPt",&EoverPt);  
+  tmvaReader_->AddVariable("HoverPt",&HoverPt);  
+  tmvaReader_->AddVariable("track_pt", &track_pt);  
+  tmvaReader_->AddVariable("STIP",&STIP);  
+  tmvaReader_->AddVariable("nlost", &nlost);  
+  tmvaReader_->BookMVA("BDT",cfg_.mvaweightfile.c_str());  
 
-    //Material Map
-    TFile *XO_File = new TFile(X0_Map.c_str(),"READ");
-    X0_sum=(TH2D*)XO_File->Get("TrackerSum");
-    X0_inner = (TH2D*)XO_File->Get("Inner");
-    X0_middle = (TH2D*)XO_File->Get("Middle");
-    X0_outer = (TH2D*)XO_File->Get("Outer");
-    
+  //Material Map
+  TFile *XO_File = new TFile(cfg_.X0_Map.c_str(),"READ");
+  X0_sum    = (TH2D*)XO_File->Get("TrackerSum");
+  X0_inner  = (TH2D*)XO_File->Get("Inner");
+  X0_middle = (TH2D*)XO_File->Get("Middle");
+  X0_outer  = (TH2D*)XO_File->Get("Outer");
+  
 }
 
 void PFEGammaAlgo::RunPFEG(const reco::PFBlockRef&  blockRef,
@@ -568,7 +529,8 @@ void PFEGammaAlgo::RunPFEG(const reco::PFBlockRef&  blockRef,
   buildAndRefineEGObjects(blockRef);
 }
 
-float PFEGammaAlgo::EvaluateResMVA(reco::PFCandidate photon, std::vector<reco::CaloCluster>PFClusters){
+float PFEGammaAlgo::EvaluateResMVA(const reco::PFCandidate& photon, 
+		    const std::vector<reco::CaloCluster>& PFClusters) {
   float BDTG=1;
   PFPhoEta_=photon.eta();
   PFPhoPhi_=photon.phi();
@@ -672,7 +634,8 @@ float PFEGammaAlgo::EvaluateResMVA(reco::PFCandidate photon, std::vector<reco::C
    
 }
 
-float PFEGammaAlgo::EvaluateGCorrMVA(reco::PFCandidate photon, std::vector<CaloCluster>PFClusters){
+float PFEGammaAlgo::EvaluateGCorrMVA(const reco::PFCandidate& photon, 
+			    const std::vector<CaloCluster>& PFClusters) {
   float BDTG=1;
   PFPhoEta_=photon.eta();
   PFPhoPhi_=photon.phi();
@@ -820,7 +783,9 @@ float PFEGammaAlgo::EvaluateGCorrMVA(reco::PFCandidate photon, std::vector<CaloC
   
 }
 
-double PFEGammaAlgo::ClustersPhiRMS(std::vector<reco::CaloCluster>PFClusters, float PFPhoPhi){
+double PFEGammaAlgo::
+ClustersPhiRMS(const std::vector<reco::CaloCluster>& PFClusters, 
+	       float PFPhoPhi) const {
   double PFClustPhiRMS=0;
   double delPhi2=0;
   double delPhiSum=0;
@@ -836,7 +801,8 @@ double PFEGammaAlgo::ClustersPhiRMS(std::vector<reco::CaloCluster>PFClusters, fl
   return PFClustPhiRMS;
 }
 
-float PFEGammaAlgo::EvaluateLCorrMVA(reco::PFClusterRef clusterRef ){
+float PFEGammaAlgo::
+EvaluateLCorrMVA(const reco::PFClusterRef& clusterRef ) {
   float BDTG=1;
   PFPhotonClusters ClusterVar(clusterRef);
   std::pair<double, double>ClusCoor=ClusterVar.GetCrysCoor();
@@ -893,7 +859,7 @@ float PFEGammaAlgo::EvaluateLCorrMVA(reco::PFClusterRef clusterRef ){
   e2x5Max_=e2x5Max_/clusterRef->energy();
   //GetCrysCoordinates(clusterRef);
   //fill5x5Map(clusterRef);
-  VtxZ_=primaryVertex_->z();
+  VtxZ_=cfg_.primaryVtx->z();
   ClusPhi_=clusterRef->position().phi(); 
   ClusEta_=fabs(clusterRef->position().eta());
   EB=fabs(clusterRef->position().eta())/clusterRef->position().eta();
@@ -965,8 +931,9 @@ float PFEGammaAlgo::EvaluateLCorrMVA(reco::PFClusterRef clusterRef ){
   
 }
 
-bool PFEGammaAlgo::EvaluateSingleLegMVA(const reco::PFBlockRef& blockref, const reco::Vertex& primaryvtx, unsigned int track_index)  
-{  
+bool PFEGammaAlgo::EvaluateSingleLegMVA(const reco::PFBlockRef& blockref, 
+					const reco::Vertex& primaryvtx, 
+					unsigned int track_index) {  
   bool convtkfound=false;  
   const reco::PFBlock& block = *blockref;  
   const edm::OwnVector< reco::PFBlockElement >& elements = block.elements();  
@@ -1012,7 +979,7 @@ bool PFEGammaAlgo::EvaluateSingleLegMVA(const reco::PFBlockRef& blockref, const 
   //delta Phi between conversion vertex and track  
   del_phi=fabs(deltaPhi(vtx_phi, elements[track_index].trackRef()->innerMomentum().Phi()));  
   mvaValue = tmvaReader_->EvaluateMVA("BDT");  
-  if(mvaValue > MVACUT)convtkfound=true;  
+  if(mvaValue > cfg_.mvaConvCut) convtkfound=true;  
   return convtkfound;  
 }
 
@@ -1020,10 +987,10 @@ bool PFEGammaAlgo::EvaluateSingleLegMVA(const reco::PFBlockRef& blockref, const 
 void PFEGammaAlgo::EarlyConversion(    
 				   //std::auto_ptr< reco::PFCandidateCollection > 
 				   //&pfElectronCandidates_,
-				   std::vector<reco::PFCandidate>& 
+				   const std::vector<reco::PFCandidate>& 
 				   tempElectronCandidates,
 				   const reco::PFBlockElementSuperCluster* sc
-				   ){
+				   ) {
   //step 1 check temp electrons for clusters that match Photon Supercluster:
   // permElectronCandidates->clear();
   int count=0;
@@ -1644,8 +1611,8 @@ removeOrLinkECALClustersToKFTracks() {
 	  const int nexhits = 
 	    trackref->trackerExpectedHitsInner().numberOfLostHits();
 	  bool fromprimaryvertex = false;
-	  for( auto vtxtks = primaryVertex_->tracks_begin();
-	       vtxtks != primaryVertex_->tracks_end(); ++ vtxtks ) {
+	  for( auto vtxtks = cfg_.primaryVtx->tracks_begin();
+	       vtxtks != cfg_.primaryVtx->tracks_end(); ++ vtxtks ) {
 	    if( trackref == vtxtks->castTo<reco::TrackRef>() ) {
 	      fromprimaryvertex = true;
 	      break;
@@ -1951,7 +1918,7 @@ linkRefinableObjectECALToSingleLegConv(ProtoEGObject& RO) {
     }
     // go through non-conv-identified kfs and check MVA to add conversions
     for( auto kf = notconvkf; kf != notmatchedkf; ++kf ) {
-      if( EvaluateSingleLegMVA(_currentblock, *primaryVertex_, 
+      if( EvaluateSingleLegMVA(_currentblock, *cfg_.primaryVtx, 
 			       kf->first->index()) ) {
 	const reco::PFBlockElementTrack* elemaskf =
 	  docast(const reco::PFBlockElementTrack*,kf->first);
@@ -1990,6 +1957,7 @@ void PFEGammaAlgo::
 fillPFCandidates(const std::list<PFEGammaAlgo::ProtoEGObject>& ROs,
 		 reco::PFCandidateCollection& egcands,
 		 reco::PFCandidateEGammaExtraCollection& egxs) {  
+  bool RO_has_SC;
   // reset output collections
   egcands.clear();
   egxs.clear();  
@@ -1998,6 +1966,7 @@ fillPFCandidates(const std::list<PFEGammaAlgo::ProtoEGObject>& ROs,
   egxs.reserve(ROs.size());
   refinedscs_.reserve(ROs.size());
   for( const auto& RO : ROs ) {    
+    RO_has_SC = false;
     reco::PFCandidate cand;
     reco::PFCandidateEGammaExtra xtra;
     if( RO.primaryGSFs.size() || RO.primaryKFs.size() ) {
@@ -2018,6 +1987,7 @@ fillPFCandidates(const std::list<PFEGammaAlgo::ProtoEGObject>& ROs,
       cand.addElementInBlock(_currentblock,RO.primaryGSFs[0].first->index());
     }
     if( RO.parentSC ) {
+      RO_has_SC = true;
       xtra.setSuperClusterBoxRef(RO.parentSC->superClusterRef());      
       // we'll set to the refined supercluster back up in the producer
       cand.setSuperClusterRef(RO.parentSC->superClusterRef());
@@ -2054,7 +2024,7 @@ fillPFCandidates(const std::list<PFEGammaAlgo::ProtoEGObject>& ROs,
     const double scE = the_sc.energy();
     if( scE != 0.0 ) {
       const math::XYZPoint& seedPos = the_sc.seed()->position();
-      math::XYZVector egDir = the_sc.position()-primaryVertex_->position();
+      math::XYZVector egDir = the_sc.position()-cfg_.primaryVtx->position();
       egDir = egDir.Unit();      
       cand.setP4(math::XYZTLorentzVector(scE*egDir.x(),
 					 scE*egDir.y(),
@@ -2062,22 +2032,26 @@ fillPFCandidates(const std::list<PFEGammaAlgo::ProtoEGObject>& ROs,
 					 scE           ));
       math::XYZPointF ecalPOS_f(seedPos.x(),seedPos.y(),seedPos.z());
       cand.setPositionAtECALEntrance(ecalPOS_f);
-    } else if ( RO.primaryGSFs.size() ) {
+    } else if ( cfg_.produceEGCandsWithNoSuperCluster && 
+		RO.primaryGSFs.size() ) {
       const PFGSFElement* gsf = RO.primaryGSFs[0].first;
       reco::GsfTrackRef gref = gsf->GsftrackRef();
       math::XYZTLorentzVector p4(gref->pxMode(),gref->pyMode(),
 				 gref->pzMode(),gref->pMode());
       cand.setP4(p4);      
       cand.setPositionAtECALEntrance(gsf->positionAtECALEntrance());
-    } else if ( RO.primaryKFs.size() ) {
+    } else if ( cfg_.produceEGCandsWithNoSuperCluster &&
+		RO.primaryKFs.size() ) {
       const PFKFElement* kf = RO.primaryKFs[0].first;
       reco::TrackRef kref = RO.primaryKFs[0].first->trackRef();
       math::XYZTLorentzVector p4(kref->px(),kref->py(),kref->pz(),kref->p());
       cand.setP4(p4);   
       cand.setPositionAtECALEntrance(kf->positionAtECALEntrance());
     }
-    egcands.push_back(cand);
-    egxs.push_back(xtra);
+    if( RO_has_SC || cfg_.produceEGCandsWithNoSuperCluster ) {
+      egcands.push_back(cand);
+      egxs.push_back(xtra);
+    }
   }
 }
 
@@ -2108,9 +2082,10 @@ buildRefinedSuperCluster(const PFEGammaAlgo::ProtoEGObject& RO) {
     bare_ptrs.push_back(clusptr.get());    
 
     const double cluseraw = clusptr->energy();
-    const double cluscalibe_nops = thePFEnergyCalibration_->energyEm(*clusptr,
-								     0.0,0.0,
-								     false);
+    const double cluscalibe_nops = 
+      cfg_.thePFEnergyCalibration->energyEm(*clusptr,
+					    0.0,0.0,
+					    false);
     double cluscalibe_ps = cluscalibe_nops;
     const math::XYZPoint& cluspos = clusptr->position();
     posX += cluseraw * cluspos.X();
@@ -2124,9 +2099,9 @@ buildRefinedSuperCluster(const PFEGammaAlgo::ProtoEGObject& RO) {
       PS2_clus_sum = std::accumulate(psclusters.begin(),psclusters.end(),
 				     0.0,sumps2);
       cluscalibe_ps = 
-	thePFEnergyCalibration_->energyEm(*clusptr,
-					  PS1_clus_sum,PS2_clus_sum,
-					  applyCrackCorrections_);
+	cfg_.thePFEnergyCalibration->energyEm(*clusptr,
+					      PS1_clus_sum,PS2_clus_sum,
+					      cfg_.applyCrackCorrections);
     }
 
     rawSCEnergy  += cluseraw;

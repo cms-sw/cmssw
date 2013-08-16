@@ -30,7 +30,8 @@
 
 #include <memory>
 
-class PFEGammaAlgo;
+#include "RecoParticleFlow/PFProducer/interface/PFEGammaAlgo.h"
+
 class PFEnergyCalibrationHF;
 class PFEnergyCalibration;
 class PFSCEnergyCalibration;
@@ -57,30 +58,7 @@ class PFEGammaProducer : public edm::EDProducer {
 
  private:  
 
-  void setPFEGParameters(double mvaEleCut,
-			  std::string mvaWeightFileEleID,
-			  bool usePFElectrons,
-			  const std::shared_ptr<PFSCEnergyCalibration>& thePFSCEnergyCalibration,
-			  const std::shared_ptr<PFEnergyCalibration>& thePFEnergyCalibration,
-			  double sumEtEcalIsoForEgammaSC_barrel,
-			  double sumEtEcalIsoForEgammaSC_endcap,
-			  double coneEcalIsoForEgammaSC,
-			  double sumPtTrackIsoForEgammaSC_barrel,
-			  double sumPtTrackIsoForEgammaSC_endcap,
-			  unsigned int nTrackIsoForEgammaSC,
-			  double coneTrackIsoForEgammaSC,
-			  bool applyCrackCorrections,
-			  bool usePFSCEleCalib,
-			  bool useEGElectrons,
-			  bool useEGammaSupercluster,
-			  bool usePFPhoton,
-			  std::string mvaWeightFileConvID,
-			  double mvaConvCut,
-			  bool useReg,
-			  std::string X0_Map,
-			  double sumPtTrackIsoForPhoton,
-			  double sumPtTrackIsoSlopeForPhoton			  
-			);  
+  void setPFEGParameters(PFEGammaAlgo::PFEGConfigInfo&);  
   
   void setPFVertexParameters(bool useVertex,
 			     const reco::VertexCollection*  primaryVertices);	  

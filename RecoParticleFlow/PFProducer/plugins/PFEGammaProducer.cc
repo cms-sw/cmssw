@@ -1,5 +1,5 @@
 #include "RecoParticleFlow/PFProducer/plugins/PFEGammaProducer.h"
-#include "RecoParticleFlow/PFProducer/interface/PFEGammaAlgo.h"
+
 
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -43,26 +43,25 @@ namespace {
 }
 
 PFEGammaProducer::PFEGammaProducer(const edm::ParameterSet& iConfig) {
-  
+  PFEGammaAlgo::PFEGConfigInfo algo_config;
 
   inputTagBlocks_ 
     = consumes<reco::PFBlockCollection>(iConfig.getParameter<edm::InputTag>("blocks"));
 
   eetopsSrc_ = consumes<reco::SuperCluster::EEtoPSAssociation>(iConfig.getParameter<edm::InputTag>("EEtoPS_source"));
 
-  usePhotonReg_
+  algo_config.useReg
     =  iConfig.getParameter<bool>("usePhotonReg");
 
   useRegressionFromDB_
     = iConfig.getParameter<bool>("useRegressionFromDB"); 
 
 
-  bool usePFSCEleCalib;
   std::vector<double>  calibPFSCEle_Fbrem_barrel; 
   std::vector<double>  calibPFSCEle_Fbrem_endcap;
   std::vector<double>  calibPFSCEle_barrel;
   std::vector<double>  calibPFSCEle_endcap;
-  usePFSCEleCalib =     iConfig.getParameter<bool>("usePFSCEleCalib");
+  algo_config.usePFSCEleCalib = iConfig.getParameter<bool>("usePFSCEleCalib");
   calibPFSCEle_Fbrem_barrel = iConfig.getParameter<std::vector<double> >("calibPFSCEle_Fbrem_barrel");
   calibPFSCEle_Fbrem_endcap = iConfig.getParameter<std::vector<double> >("calibPFSCEle_Fbrem_endcap");
   calibPFSCEle_barrel = iConfig.getParameter<std::vector<double> >("calibPFSCEle_barrel");
@@ -71,14 +70,24 @@ PFEGammaProducer::PFEGammaProducer(const edm::ParameterSet& iConfig) {
     thePFSCEnergyCalibration ( new PFSCEnergyCalibration(calibPFSCEle_Fbrem_barrel,calibPFSCEle_Fbrem_endcap,
                                                          calibPFSCEle_barrel,calibPFSCEle_endcap )); 
                                
-  bool useEGammaSupercluster = iConfig.getParameter<bool>("useEGammaSupercluster");
-  double sumEtEcalIsoForEgammaSC_barrel = iConfig.getParameter<double>("sumEtEcalIsoForEgammaSC_barrel");
-  double sumEtEcalIsoForEgammaSC_endcap = iConfig.getParameter<double>("sumEtEcalIsoForEgammaSC_endcap");
-  double coneEcalIsoForEgammaSC = iConfig.getParameter<double>("coneEcalIsoForEgammaSC");
-  double sumPtTrackIsoForEgammaSC_barrel = iConfig.getParameter<double>("sumPtTrackIsoForEgammaSC_barrel");
-  double sumPtTrackIsoForEgammaSC_endcap = iConfig.getParameter<double>("sumPtTrackIsoForEgammaSC_endcap");
-  double coneTrackIsoForEgammaSC = iConfig.getParameter<double>("coneTrackIsoForEgammaSC");
-  unsigned int nTrackIsoForEgammaSC  = iConfig.getParameter<unsigned int>("nTrackIsoForEgammaSC");
+  algo_config.useEGammaSupercluster = 
+    iConfig.getParameter<bool>("useEGammaSupercluster");
+  algo_config.produceEGCandsWithNoSuperCluster = 
+    iConfig.getParameter<bool>("produceEGCandsWithNoSuperCluster");
+  algo_config.sumEtEcalIsoForEgammaSC_barrel = 
+    iConfig.getParameter<double>("sumEtEcalIsoForEgammaSC_barrel");
+  algo_config.sumEtEcalIsoForEgammaSC_endcap = 
+    iConfig.getParameter<double>("sumEtEcalIsoForEgammaSC_endcap");
+  algo_config.coneEcalIsoForEgammaSC = 
+    iConfig.getParameter<double>("coneEcalIsoForEgammaSC");
+  algo_config.sumPtTrackIsoForEgammaSC_barrel = 
+    iConfig.getParameter<double>("sumPtTrackIsoForEgammaSC_barrel");
+  algo_config.sumPtTrackIsoForEgammaSC_endcap = 
+    iConfig.getParameter<double>("sumPtTrackIsoForEgammaSC_endcap");
+  algo_config.coneTrackIsoForEgammaSC = 
+    iConfig.getParameter<double>("coneTrackIsoForEgammaSC");
+  algo_config.nTrackIsoForEgammaSC  = 
+    iConfig.getParameter<unsigned int>("nTrackIsoForEgammaSC");
 
 
   // register products
@@ -87,19 +96,20 @@ PFEGammaProducer::PFEGammaProducer(const edm::ParameterSet& iConfig) {
   produces<reco::SuperClusterCollection>();
   
   //PFElectrons Configuration
-  double mvaEleCut
+  algo_config.mvaEleCut
     = iConfig.getParameter<double>("pf_electron_mvaCut");
 
   
-  std::string mvaWeightFileEleID
+  algo_config. mvaWeightFileEleID
     = iConfig.getParameter<std::string>("pf_electronID_mvaWeightFile");
 
-  bool applyCrackCorrectionsForElectrons
+  algo_config.applyCrackCorrections
     = iConfig.getParameter<bool>("pf_electronID_crackCorrection");
   
   std::string path_mvaWeightFileEleID;
 
-  path_mvaWeightFileEleID = edm::FileInPath ( mvaWeightFileEleID.c_str() ).fullPath();
+  algo_config.mvaWeightFileEleID = 
+    edm::FileInPath ( algo_config.mvaWeightFileEleID.c_str() ).fullPath();
      
 
   //PFPhoton Configuration
@@ -110,19 +120,20 @@ PFEGammaProducer::PFEGammaProducer(const edm::ParameterSet& iConfig) {
   std::string path_mvaWeightFileLCorr;
   std::string path_X0_Map;
   std::string path_mvaWeightFileRes;
-  double mvaConvCut=-99.;
-  double sumPtTrackIsoForPhoton = 99.;
-  double sumPtTrackIsoSlopeForPhoton = 99.;
 
+  algo_config.mvaweightfile =
+    iConfig.getParameter<std::string>("pf_convID_mvaWeightFile");
+  algo_config.mvaConvCut = iConfig.getParameter<double>("pf_conv_mvaCut");
+  algo_config.mvaweightfile = 
+    edm::FileInPath ( algo_config.mvaweightfile.c_str() ).fullPath();  
+  algo_config.sumPtTrackIsoForPhoton = 
+    iConfig.getParameter<double>("sumPtTrackIsoForPhoton");
+  algo_config.sumPtTrackIsoSlopeForPhoton = 
+    iConfig.getParameter<double>("sumPtTrackIsoSlopeForPhoton");
 
-  mvaWeightFileConvID =iConfig.getParameter<std::string>("pf_convID_mvaWeightFile");
-  mvaConvCut = iConfig.getParameter<double>("pf_conv_mvaCut");
-  path_mvaWeightFileConvID = edm::FileInPath ( mvaWeightFileConvID.c_str() ).fullPath();  
-  sumPtTrackIsoForPhoton = iConfig.getParameter<double>("sumPtTrackIsoForPhoton");
-  sumPtTrackIsoSlopeForPhoton = iConfig.getParameter<double>("sumPtTrackIsoSlopeForPhoton");
-
-  std::string X0_Map=iConfig.getParameter<std::string>("X0_Map");
-  path_X0_Map = edm::FileInPath( X0_Map.c_str() ).fullPath();
+  algo_config.X0_Map = iConfig.getParameter<std::string>("X0_Map");
+  algo_config.X0_Map = 
+    edm::FileInPath( algo_config.X0_Map.c_str() ).fullPath();
 
   if(!useRegressionFromDB_) {
     std::string mvaWeightFileLCorr=iConfig.getParameter<std::string>("pf_locC_mvaWeightFile");
@@ -164,29 +175,7 @@ PFEGammaProducer::PFEGammaProducer(const edm::ParameterSet& iConfig) {
   }
   
   //PFEGamma
-  setPFEGParameters(mvaEleCut,
-		    path_mvaWeightFileEleID,
-		    true,
-		    thePFSCEnergyCalibration,
-		    calibration,
-		    sumEtEcalIsoForEgammaSC_barrel,
-		    sumEtEcalIsoForEgammaSC_endcap,
-		    coneEcalIsoForEgammaSC,
-		    sumPtTrackIsoForEgammaSC_barrel,
-		    sumPtTrackIsoForEgammaSC_endcap,
-		    nTrackIsoForEgammaSC,
-		    coneTrackIsoForEgammaSC,
-		    applyCrackCorrectionsForElectrons,
-		    usePFSCEleCalib,
-		    useEGammaElectrons_,
-		    useEGammaSupercluster,
-		    true,
-		    path_mvaWeightFileConvID,
-		    mvaConvCut,
-		    usePhotonReg_,
-		    path_X0_Map,
-		    sumPtTrackIsoForPhoton,
-		    sumPtTrackIsoSlopeForPhoton);  
+  setPFEGParameters(algo_config);  
 
   //MIKE: Vertex Parameters
   vertices_ = consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("vertexCollection"));
@@ -227,7 +216,7 @@ PFEGammaProducer::beginRun(const edm::Run & run,
     ReaderGCEndCapLowr9_=readerPFGCEELR9.product();
     es.get<GBRWrapperRcd>().get("PFEcalResolution",readerPFRes);
     ReaderEcalRes_=readerPFRes.product();
-    
+
     /*
     LogDebug("PFEGammaProducer")<<"setting regressions from DB "<<std::endl;
     */
@@ -235,7 +224,12 @@ PFEGammaProducer::beginRun(const edm::Run & run,
 
 
   //pfAlgo_->setPFPhotonRegWeights(ReaderLC_, ReaderGC_, ReaderRes_);
-  setPFPhotonRegWeights(ReaderLCEB_,ReaderLCEE_,ReaderGCBarrel_,ReaderGCEndCapHighr9_, ReaderGCEndCapLowr9_, ReaderEcalRes_ );
+  setPFPhotonRegWeights(ReaderLCEB_,
+			ReaderLCEE_,
+			ReaderGCBarrel_,
+			ReaderGCEndCapHighr9_, 
+			ReaderGCEndCapLowr9_, 
+			ReaderEcalRes_ );
     
 }
 
@@ -439,61 +433,18 @@ PFEGammaProducer::produce(edm::Event& iEvent,
 
 //PFEGammaAlgo: a new method added to set the parameters for electron and photon reconstruction. 
 void 
-PFEGammaProducer::setPFEGParameters(double mvaEleCut,
-				       std::string mvaWeightFileEleID,
-                           bool usePFElectrons,
-                           const std::shared_ptr<PFSCEnergyCalibration>& thePFSCEnergyCalibration,
-                           const std::shared_ptr<PFEnergyCalibration>& thePFEnergyCalibration,
-                           double sumEtEcalIsoForEgammaSC_barrel,
-                           double sumEtEcalIsoForEgammaSC_endcap,
-                           double coneEcalIsoForEgammaSC,
-                           double sumPtTrackIsoForEgammaSC_barrel,
-                           double sumPtTrackIsoForEgammaSC_endcap,
-                           unsigned int nTrackIsoForEgammaSC,
-                           double coneTrackIsoForEgammaSC,
-                           bool applyCrackCorrections,
-                           bool usePFSCEleCalib,
-                           bool useEGElectrons,
-                           bool useEGammaSupercluster,
-                           bool usePFPhotons,  
-                           std::string mvaWeightFileConvID, 
-                           double mvaConvCut,
-                           bool useReg,
-                           std::string X0_Map,
-                           double sumPtTrackIsoForPhoton,
-                           double sumPtTrackIsoSlopeForPhoton                      
-                        ) {
+PFEGammaProducer::setPFEGParameters(PFEGammaAlgo::PFEGConfigInfo& cfg) {  
   
-  mvaEleCut_ = mvaEleCut;
-  usePFElectrons_ = usePFElectrons;
-  applyCrackCorrectionsElectrons_ = applyCrackCorrections;  
-  usePFSCEleCalib_ = usePFSCEleCalib;
-  thePFSCEnergyCalibration_ = thePFSCEnergyCalibration;
-  useEGElectrons_ = useEGElectrons;
-  useEGammaSupercluster_ = useEGammaSupercluster;
-  sumEtEcalIsoForEgammaSC_barrel_ = sumEtEcalIsoForEgammaSC_barrel;
-  sumEtEcalIsoForEgammaSC_endcap_ = sumEtEcalIsoForEgammaSC_endcap;
-  coneEcalIsoForEgammaSC_ = coneEcalIsoForEgammaSC;
-  sumPtTrackIsoForEgammaSC_barrel_ = sumPtTrackIsoForEgammaSC_barrel;
-  sumPtTrackIsoForEgammaSC_endcap_ = sumPtTrackIsoForEgammaSC_endcap;
-  coneTrackIsoForEgammaSC_ = coneTrackIsoForEgammaSC;
-  nTrackIsoForEgammaSC_ = nTrackIsoForEgammaSC;
-
-
-  if(!usePFElectrons_) return;
-  mvaWeightFileEleID_ = mvaWeightFileEleID;
-  FILE * fileEleID = fopen(mvaWeightFileEleID_.c_str(), "r");
+  FILE * fileEleID = fopen(cfg.mvaWeightFileEleID.c_str(), "r");
   if (fileEleID) {
     fclose(fileEleID);
   }
   else {
     std::string err = "PFAlgo: cannot open weight file '";
-    err += mvaWeightFileEleID;
+    err += cfg.mvaWeightFileEleID;
     err += "'";
     throw std::invalid_argument( err );
   }
-  
-  usePFPhotons_ = usePFPhotons;
 
   //for MVA pass PV if there is one in the collection otherwise pass a dummy    
   reco::Vertex dummy;  
@@ -511,39 +462,18 @@ PFEGammaProducer::setPFEGParameters(double mvaEleCut,
   }  
   // pv=&dummy;  
   //if(! usePFPhotons_) return;  
-  FILE * filePhotonConvID = fopen(mvaWeightFileConvID.c_str(), "r");  
+  FILE * filePhotonConvID = fopen(cfg.mvaweightfile.c_str(), "r");  
   if (filePhotonConvID) {  
     fclose(filePhotonConvID);  
   }  
   else {  
     std::string err = "PFAlgo: cannot open weight file '";  
-    err += mvaWeightFileConvID;  
+    err += cfg.mvaweightfile;
     err += "'";  
     throw std::invalid_argument( err );  
   }  
-  const reco::Vertex* pv=&dummy;  
-  pfeg_.reset(new PFEGammaAlgo(mvaEleCut_,mvaWeightFileEleID_,
-				  thePFSCEnergyCalibration_,
-				  thePFEnergyCalibration,
-				  applyCrackCorrectionsElectrons_,
-				  usePFSCEleCalib_,
-				  useEGElectrons_,
-				  useEGammaSupercluster_,
-				  sumEtEcalIsoForEgammaSC_barrel_,
-				  sumEtEcalIsoForEgammaSC_endcap_,
-				  coneEcalIsoForEgammaSC_,
-				  sumPtTrackIsoForEgammaSC_barrel_,
-				  sumPtTrackIsoForEgammaSC_endcap_,
-				  nTrackIsoForEgammaSC_,
-				  coneTrackIsoForEgammaSC_,
-				  mvaWeightFileConvID, 
-				  mvaConvCut, 
-				  useReg,
-				  X0_Map,  
-				  *pv,
-				  sumPtTrackIsoForPhoton,
-				  sumPtTrackIsoSlopeForPhoton
-				  ));
+  cfg.primaryVtx = &dummy;  
+  pfeg_.reset(new PFEGammaAlgo(cfg));
 }
 
 /*
@@ -561,12 +491,12 @@ void PFEGammaProducer::setPFPhotonRegWeights(
                                    const GBRForest *LCorrForestEE,
                                    const GBRForest *GCorrForestBarrel,
                                    const GBRForest *GCorrForestEndcapHr9,
-                                   const GBRForest *GCorrForestEndcapLr9,                                          const GBRForest *PFEcalResolution
-                                   ){
-  
+                                   const GBRForest *GCorrForestEndcapLr9,
+				   const GBRForest *PFEcalResolution
+                                   ){  
   pfeg_->setGBRForest(LCorrForestEB,LCorrForestEE,
-                       GCorrForestBarrel, GCorrForestEndcapHr9, 
-                       GCorrForestEndcapLr9, PFEcalResolution);
+		      GCorrForestBarrel, GCorrForestEndcapHr9, 
+		      GCorrForestEndcapLr9, PFEcalResolution);
 }
 
 void

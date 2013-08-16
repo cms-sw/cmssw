@@ -92,30 +92,34 @@ class PFEGammaAlgo {
     ElementMap localMap;
   };  
   
-  //constructor
-  PFEGammaAlgo(const double mvaEleCut,
-	       std::string  mvaWeightFileEleID,
-	       const std::shared_ptr<PFSCEnergyCalibration>& thePFSCEnergyCalibration,
-	       const std::shared_ptr<PFEnergyCalibration>& thePFEnergyCalibration,
-	       bool applyCrackCorrections,
-	       bool usePFSCEleCalib,
-	       bool useEGElectrons,
-	       bool useEGammaSupercluster,
-	       double sumEtEcalIsoForEgammaSC_barrel,
-	       double sumEtEcalIsoForEgammaSC_endcap,
-	       double coneEcalIsoForEgammaSC,
-	       double sumPtTrackIsoForEgammaSC_barrel,
-	       double sumPtTrackIsoForEgammaSC_endcap,
-	       unsigned int nTrackIsoForEgammaSC,
-	       double coneTrackIsoForEgammaSC,
-	       std::string mvaweightfile,  
-	       double mvaConvCut, 
-	       bool useReg, 
-	       std::string X0_Map,
-	       const reco::Vertex& primary,
-               double sumPtTrackIsoForPhoton,
-               double sumPtTrackIsoSlopeForPhoton); 
+  struct PFEGConfigInfo {
+    double mvaEleCut;
+    std::string  mvaWeightFileEleID;
+    std::shared_ptr<PFSCEnergyCalibration> thePFSCEnergyCalibration;
+    std::shared_ptr<PFEnergyCalibration> thePFEnergyCalibration;
+    bool applyCrackCorrections;
+    bool usePFSCEleCalib;
+    bool useEGElectrons;
+    bool useEGammaSupercluster;
+    bool produceEGCandsWithNoSuperCluster;
+    double sumEtEcalIsoForEgammaSC_barrel;
+    double sumEtEcalIsoForEgammaSC_endcap;
+    double coneEcalIsoForEgammaSC;
+    double sumPtTrackIsoForEgammaSC_barrel;
+    double sumPtTrackIsoForEgammaSC_endcap;
+    unsigned int nTrackIsoForEgammaSC;
+    double coneTrackIsoForEgammaSC;
+    std::string mvaweightfile ;
+    double mvaConvCut;
+    bool useReg;
+    std::string X0_Map;
+    const reco::Vertex* primaryVtx;
+    double sumPtTrackIsoForPhoton;
+    double sumPtTrackIsoSlopeForPhoton;
+  };
 
+  //constructor
+  PFEGammaAlgo(const PFEGConfigInfo&);
   //destructor
   ~PFEGammaAlgo(){delete tmvaReaderEle_; delete tmvaReader_;   };
 
@@ -153,7 +157,7 @@ class PFEGammaAlgo {
     nVtx_=nVtx;
   }
   void setPhotonPrimaryVtx(const reco::Vertex& primary){
-    primaryVertex_ = & primary;
+    cfg_.primaryVtx = & primary;
   }
 
   void RunPFEG(const reco::PFBlockRef&  blockRef,
@@ -305,22 +309,9 @@ private:
   std::vector< std::pair <unsigned int, unsigned int> > fifthStepKfTrack_;
   std::vector< std::pair <unsigned int, unsigned int> > convGsfTrack_;
 
+  PFEGConfigInfo cfg_;
   
   TMVA::Reader    *tmvaReaderEle_;
-  double mvaEleCut_;
-  std::shared_ptr<PFSCEnergyCalibration> thePFSCEnergyCalibration_; 
-  std::shared_ptr<PFEnergyCalibration> thePFEnergyCalibration_; 
-  bool applyCrackCorrections_;
-  bool usePFSCEleCalib_;
-  bool useEGElectrons_;
-  bool useEGammaSupercluster_;
-  double sumEtEcalIsoForEgammaSC_barrel_;
-  double sumEtEcalIsoForEgammaSC_endcap_;
-  double coneEcalIsoForEgammaSC_;
-  double sumPtTrackIsoForEgammaSC_barrel_;
-  double sumPtTrackIsoForEgammaSC_endcap_;
-  unsigned int nTrackIsoForEgammaSC_;
-  double coneTrackIsoForEgammaSC_;
 
   const char  *mvaWeightFile_;
 
@@ -355,8 +346,6 @@ private:
 						  ...............  2: Chatty mode
                                               */ 
   //FOR SINGLE LEG MVA:					      
-  double MVACUT;
-  bool useReg_;
   const reco::Vertex  *  primaryVertex_;
   TMVA::Reader *tmvaReader_;
   const GBRForest *ReaderLC_;
@@ -418,24 +407,21 @@ private:
 			    const reco::Vertex& primaryvtx, 
 			    unsigned int track_index);
   
-  double ClustersPhiRMS(std::vector<reco::CaloCluster>PFClusters, 
-			float PFPhoPhi);
-  float EvaluateLCorrMVA(reco::PFClusterRef clusterRef );
-  float EvaluateGCorrMVA(reco::PFCandidate, 
-			 std::vector<reco::CaloCluster>PFClusters);
-  float EvaluateResMVA(reco::PFCandidate,
-		       std::vector<reco::CaloCluster>PFClusters );
-  std::vector<int> getPFMustacheClus(int nClust, 
-				     std::vector<float>& ClustEt, 
-				     std::vector<float>& ClustEta, 
-				     std::vector<float>& ClustPhi);
+  double ClustersPhiRMS(const std::vector<reco::CaloCluster>& PFClusters, 
+			float PFPhoPhi) const ;
+  float EvaluateLCorrMVA(const reco::PFClusterRef& clusterRef );
+  float EvaluateGCorrMVA(const reco::PFCandidate&, 
+		    const std::vector<reco::CaloCluster>& PFClusters) ;
+  float EvaluateResMVA(const reco::PFCandidate& ,
+		     const std::vector<reco::CaloCluster>& PFClusters ) ;
+ 
   void EarlyConversion(
 		       //std::auto_ptr< reco::PFCandidateCollection > 
 		       //&pfElectronCandidates_,
-		       std::vector<reco::PFCandidate>& 
+		       const std::vector<reco::PFCandidate>& 
 		       tempElectronCandidates,
 		       const reco::PFBlockElementSuperCluster* sc
-		       );
+		       ); 
 };
 
 #endif
