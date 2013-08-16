@@ -1,5 +1,5 @@
 
-#include "FWCore/Framework/interface/Actions.h"
+#include "FWCore/Framework/interface/ExceptionActions.h"
 #include "FWCore/Utilities/interface/DebugMacros.h"
 #include "FWCore/Utilities/interface/Algorithms.h"
 #include "boost/lambda/lambda.hpp"
@@ -8,7 +8,7 @@
 #include <iostream>
 
 namespace edm {
-  namespace actions {
+  namespace exception_actions {
     namespace {
       struct ActionNames {
 	ActionNames():table_(LastCode + 1) {
@@ -29,13 +29,13 @@ namespace edm {
     }
   }
 
-  ActionTable::ActionTable() : map_() {
+  ExceptionToActionTable::ExceptionToActionTable() : map_() {
     addDefaults();
   }
 
   namespace {
-    inline void install(actions::ActionCodes code,
-			ActionTable::ActionMap& out,
+    inline void install(exception_actions::ActionCodes code,
+			ExceptionToActionTable::ActionMap& out,
 			ParameterSet const& pset) {
       using boost::lambda::_1;
       using boost::lambda::var;
@@ -60,16 +60,16 @@ namespace edm {
     }  
   }
 
-  ActionTable::ActionTable(ParameterSet const& pset) : map_() {
+  ExceptionToActionTable::ExceptionToActionTable(ParameterSet const& pset) : map_() {
     addDefaults();
 
-    install(actions::SkipEvent, map_, pset);
-    install(actions::Rethrow, map_, pset);
-    install(actions::IgnoreCompletely, map_, pset);
-    install(actions::FailPath, map_, pset);
+    install(exception_actions::SkipEvent, map_, pset);
+    install(exception_actions::Rethrow, map_, pset);
+    install(exception_actions::IgnoreCompletely, map_, pset);
+    install(exception_actions::FailPath, map_, pset);
   }
 
-  void ActionTable::addDefaults() {
+  void ExceptionToActionTable::addDefaults() {
     using namespace boost::lambda;
     // populate defaults that are not 'Rethrow'
     // (There are none as of CMSSW_3_4_X.)
@@ -83,16 +83,16 @@ namespace edm {
     }
   }
 
-  ActionTable::~ActionTable() {
+  ExceptionToActionTable::~ExceptionToActionTable() {
   }
 
-  void ActionTable::add(std::string const& category, actions::ActionCodes code) {
+  void ExceptionToActionTable::add(std::string const& category, exception_actions::ActionCodes code) {
     map_[category] = code;
   }
 
-  actions::ActionCodes ActionTable::find(std::string const& category) const {
+  exception_actions::ActionCodes ExceptionToActionTable::find(std::string const& category) const {
     ActionMap::const_iterator i(map_.find(category));
-    return i != map_.end() ? i->second : actions::Rethrow;
+    return i != map_.end() ? i->second : exception_actions::Rethrow;
   }
 
 }

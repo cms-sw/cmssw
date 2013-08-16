@@ -49,7 +49,7 @@ namespace edm {
     Path(int bitpos, std::string const& path_name,
          WorkersInPath const& workers,
          TrigResPtr trptr,
-         ActionTable const& actions,
+         ExceptionToActionTable const& actions,
          boost::shared_ptr<ActivityRegistry> reg,
          bool isEndPath,
          StreamContext const* streamContext);
@@ -104,7 +104,7 @@ namespace edm {
     std::string name_;
     TrigResPtr trptr_;
     boost::shared_ptr<ActivityRegistry> actReg_;
-    ActionTable const* act_table_;
+    ExceptionToActionTable const* act_table_;
 
     WorkersInPath workers_;
     std::vector<EarlyDeleteHelper*> earlyDeleteHelpers_;

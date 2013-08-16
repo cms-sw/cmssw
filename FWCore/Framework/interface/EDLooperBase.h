@@ -63,7 +63,7 @@ namespace edm {
     class EventSetupRecordKey;
     class EventSetupProvider;
   }
-  class ActionTable;
+  class ExceptionToActionTable;
   class ProcessContext;
   class ScheduleInfo;
   class StreamContext;
@@ -99,7 +99,7 @@ namespace edm {
       ///Override this method if you need to monitor the state of the processing
       virtual void attachTo(ActivityRegistry&);
 
-      void setActionTable(ActionTable const* actionTable) { act_table_ = actionTable; }
+      void setActionTable(ExceptionToActionTable const* actionTable) { act_table_ = actionTable; }
 
       virtual std::set<eventsetup::EventSetupRecordKey> modifyingRecords() const;
 
@@ -143,7 +143,7 @@ namespace edm {
 
 
       unsigned int iCounter_;
-      ActionTable const* act_table_;
+      ExceptionToActionTable const* act_table_;
 
       std::auto_ptr<ScheduleInfo> scheduleInfo_;
       ModuleChanger const* moduleChanger_;

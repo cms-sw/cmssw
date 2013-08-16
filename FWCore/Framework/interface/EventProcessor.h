@@ -40,7 +40,7 @@ namespace statemachine {
 
 namespace edm {
 
-  class ActionTable;
+  class ExceptionToActionTable;
   class BranchIDListHelper;
   class EDLooperBase;
   class HistoryAppender;
@@ -316,7 +316,7 @@ namespace edm {
     std::unique_ptr<InputSource>                  input_;
     std::unique_ptr<eventsetup::EventSetupsController> espController_;
     boost::shared_ptr<eventsetup::EventSetupProvider> esp_;
-    std::unique_ptr<ActionTable const>          act_table_;
+    std::unique_ptr<ExceptionToActionTable const>          act_table_;
     boost::shared_ptr<ProcessConfiguration const>       processConfiguration_;
     ProcessContext                                processContext_;
     std::auto_ptr<Schedule>                       schedule_;

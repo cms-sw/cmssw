@@ -59,7 +59,7 @@
 
 #include "DataFormats/Common/interface/HLTGlobalStatus.h"
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
-#include "FWCore/Framework/interface/Actions.h"
+#include "FWCore/Framework/interface/ExceptionActions.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/interface/ExceptionHelpers.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -143,7 +143,7 @@ namespace edm {
              service::TriggerNamesService& tns,
              ProductRegistry& pregistry,
              BranchIDListHelper& branchIDListHelper,
-             ActionTable const& actions,
+             ExceptionToActionTable const& actions,
              boost::shared_ptr<ActivityRegistry> areg,
              boost::shared_ptr<ProcessConfiguration> processConfiguration,
              const ParameterSet* subProcPSet,
@@ -268,7 +268,7 @@ namespace edm {
     }
 
     /// returns the action table
-    ActionTable const& actionTable() const {
+    ExceptionToActionTable const& actionTable() const {
       return workerManager_.actionTable();
     }
 
@@ -395,10 +395,10 @@ namespace edm {
           state_ = Latched;
         }
         catch(cms::Exception& e) {
-          actions::ActionCodes action = actionTable().find(e.category());
-          assert (action != actions::IgnoreCompletely);
-          assert (action != actions::FailPath);
-          if (action == actions::SkipEvent) {
+          exception_actions::ActionCodes action = actionTable().find(e.category());
+          assert (action != exception_actions::IgnoreCompletely);
+          assert (action != exception_actions::FailPath);
+          if (action == exception_actions::SkipEvent) {
             edm::printCmsExceptionWarning("SkipEvent", e);
           } else {
             throw;

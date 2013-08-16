@@ -4,7 +4,7 @@
 #include "DataFormats/Provenance/interface/BranchID.h"
 #include "DataFormats/Provenance/interface/BranchIDListHelper.h"
 #include "DataFormats/Provenance/interface/Selections.h"
-#include "FWCore/Framework/interface/Actions.h"
+#include "FWCore/Framework/interface/ExceptionActions.h"
 #include "FWCore/Framework/interface/CommonParams.h"
 #include "FWCore/Framework/interface/ConstProductRegistry.h"
 #include "FWCore/Framework/interface/SubProcess.h"
@@ -113,7 +113,7 @@ namespace edm {
 
   boost::shared_ptr<CommonParams>
   ScheduleItems::initMisc(ParameterSet& parameterSet) {
-    act_table_.reset(new ActionTable(parameterSet));
+    act_table_.reset(new ExceptionToActionTable(parameterSet));
     std::string processName = parameterSet.getParameter<std::string>("@process_name");
     processConfiguration_.reset(new ProcessConfiguration(processName, getReleaseVersion(), getPassID()));
     boost::shared_ptr<CommonParams>
