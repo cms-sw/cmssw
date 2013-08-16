@@ -32,6 +32,11 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("Demo")
 
 process.load("FWCore.MessageService.MessageLogger_cfi")
+process.MessageLogger.cerr.FwkReport.reportEvery = 100
+# Uncomment the following lines for thorough debugging info
+#process.MessageLogger.debugModules.append("IOExerciser")
+#process.MessageLogger.cerr.threshold = 'INFO'
+#process.MessageLogger.cerr.INFO.limit = 500
 
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
 
@@ -42,10 +47,10 @@ process.source = cms.Source("PoolSource",
     )
 )
 
-process.demo = cms.EDAnalyzer('IOExerciser',
+process.out = cms.OutputModule('IOExerciser',
     percentBranches = cms.untracked.uint32(30),
     triggerFactor = cms.untracked.uint32(20),
 )
 
-process.p = cms.Path(process.demo)
+process.outpath = cms.EndPath(process.out)
 
