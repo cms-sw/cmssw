@@ -11,11 +11,3 @@ namespace triggerHelpers
 }
 
 #endif
-
-
-
-
-
-
-
-
