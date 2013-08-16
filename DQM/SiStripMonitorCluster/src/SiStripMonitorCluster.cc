@@ -60,11 +60,11 @@ SiStripMonitorCluster::SiStripMonitorCluster(const edm::ParameterSet& iConfig)
 
   // Detector Partitions
   SubDetPhasePartMap["TIB"]        = "TI";
-  SubDetPhasePartMap["TID__side__1"] = "TI";
-  SubDetPhasePartMap["TID__side__2"] = "TI";
+  SubDetPhasePartMap["TID__MINUS"] = "TI";
+  SubDetPhasePartMap["TID__PLUS"]  = "TI";
   SubDetPhasePartMap["TOB"]        = "TO";
-  SubDetPhasePartMap["TEC__side__1"] = "TM";
-  SubDetPhasePartMap["TEC__side__2"] = "TP";
+  SubDetPhasePartMap["TEC__MINUS"] = "TM";
+  SubDetPhasePartMap["TEC__PLUS"]  = "TP";
 
   //get on/off option for every cluster from cfi
   edm::ParameterSet ParametersnClusters =  conf_.getParameter<edm::ParameterSet>("TH1nClusters");

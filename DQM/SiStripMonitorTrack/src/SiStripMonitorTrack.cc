@@ -793,6 +793,7 @@ void SiStripMonitorTrack::fillMEs(SiStripClusterInfo* cluster,uint32_t detid, co
 //
 // -- Get Subdetector Tag from the Folder name
 //
+/* mia: what am I supposed to do w/ thi function ? */
 void SiStripMonitorTrack::getSubDetTag(std::string& folder_name, std::string& tag){
 
   tag =  folder_name.substr(folder_name.find("MechanicalView")+15);
