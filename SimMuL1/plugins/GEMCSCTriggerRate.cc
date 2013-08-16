@@ -29,6 +29,7 @@
 #include "DataFormats/MuonDetId/interface/GEMDetId.h"
 #include "Geometry/GEMGeometry/interface/GEMGeometry.h"
 #include "GEMCode/GEMValidation/src/SimTrackMatchManager.h"
+#include "GEMCode/SimMuL1/interface/Helpers.h"
 
 using namespace std;
 using namespace reco;
@@ -36,29 +37,8 @@ using namespace edm;
 
 namespace 
 {
-
   const Double_t ETA_BIN = 0.0125 *2;
   const Double_t PHI_BIN = 62.*M_PI/180./4096.; // 0.26 mrad
-
-  bool isME1bEtaRegion(float eta, float eta_min = 1.64, float eta_max = 2.14)
-  {
-    if (fabs(eta) >= eta_min && fabs(eta) <= eta_max) return true;
-    else return false;
-  }
-
-  bool isME1abEtaRegion(float eta, float eta_min = 1.64)
-  {
-    if (fabs(eta) >= eta_min) return true;
-    else return false;
-  }
-
-  bool isME1aEtaRegion(float eta, float eta_min = 2.14)
-  {
-    if (fabs(eta) >= eta_min) return true;
-    else return false;
-  }
-
-
 }
 
 // ================================================================================================
@@ -1479,7 +1459,7 @@ bool GEMCSCTriggerRate::filter(edm::Event& iEvent, const edm::EventSetup& iSetup
   	//cout<<"\n nnntf: "<<ntrg_stubs<<" "<<myTFCand.tftrack->nStubs(0,1,1,1,1)<<endl;
   	//if (ntrg_stubs != myTFCand.tftrack->nStubs()) myTFCand.tftrack->print("non-equal nstubs!");
   	//if (fabs(myTFCand.eta)>1.25 && fabs(myTFCand.eta)<1.9) {
-  	if (isME42EtaRegion(myTFCand.eta)) {
+  	if (triggerHelpers::isME42EtaRegion(myTFCand.eta)) {
   	  if (ntrg_stubs>=2) h_rt_tfcand_pt_h42_2st->Fill(tfpt);
   	  if (ntrg_stubs>=3) h_rt_tfcand_pt_h42_3st->Fill(tfpt);
   	}
@@ -1586,8 +1566,8 @@ bool GEMCSCTriggerRate::filter(edm::Event& iEvent, const edm::EventSetup& iSetup
       float geta = fabs(myGMTREGCand.eta);
       float gpt = myGMTREGCand.pt;
 
-      bool eta_me42 = isME42EtaRegion(myGMTREGCand.eta);
-      bool eta_me42r = isME42RPCEtaRegion(myGMTREGCand.eta);
+      bool eta_me42 = triggerHelpers::isME42EtaRegion(myGMTREGCand.eta);
+      bool eta_me42r = triggerHelpers::isME42RPCEtaRegion(myGMTREGCand.eta);
       //if (geta>=1.2 && geta<=1.8) eta_me42 = 1;
       bool eta_q = (geta > 1.2);
 
@@ -1615,10 +1595,10 @@ bool GEMCSCTriggerRate::filter(edm::Event& iEvent, const edm::EventSetup& iSetup
   	      continue;
   	    }
 
-  	  bool eta_me1b = isME1bEtaRegion(myGMTREGCand.eta);
-  	  bool eta_me1ab = isME1abEtaRegion(myGMTREGCand.eta);
-  	  bool eta_me1a = isME1aEtaRegion(myGMTREGCand.eta);
-  	  bool eta_me1b_whole = isME1bEtaRegion(myGMTREGCand.eta, 1.6, 2.14);
+  	  bool eta_me1b = triggerHelpers::isME1bEtaRegion(myGMTREGCand.eta);
+  	  bool eta_me1ab = triggerHelpers::isME1abEtaRegion(myGMTREGCand.eta);
+  	  bool eta_me1a = triggerHelpers::isME1aEtaRegion(myGMTREGCand.eta);
+  	  bool eta_me1b_whole = triggerHelpers::isME1bEtaRegion(myGMTREGCand.eta, 1.6, 2.14);
   	  bool eta_no1a = (geta >= 1.2 && geta < 2.14);
 	  
   	  n_stubs = myGMTREGCand.nTFStubs;
@@ -1744,7 +1724,7 @@ bool GEMCSCTriggerRate::filter(edm::Event& iEvent, const edm::EventSetup& iSetup
       //  else cout<<"null tftrack!"<<endl;
       //}
 
-      //    if (trk->quality()>=3 && gpt >=40. && isME1bEtaRegion(myGMTREGCand.eta) ) {
+      //    if (trk->quality()>=3 && gpt >=40. && triggerHelpers::isME1bEtaRegion(myGMTREGCand.eta) ) {
       //      cout<<"highpt csctf in ME1b "<<endl;
       //      myGMTREGCand.tfcand->tftrack->print("");
       //    }
@@ -1917,7 +1897,7 @@ bool GEMCSCTriggerRate::filter(edm::Event& iEvent, const edm::EventSetup& iSetup
       h_rt_gmt_rpcf_eta->Fill(fabs(myGMTREGCand.eta));
       h_rt_gmt_rpcf_bx->Fill(trk->bx());
 
-      bool eta_me42 = isME42RPCEtaRegion(myGMTREGCand.eta);
+      bool eta_me42 = triggerHelpers::isME42RPCEtaRegion(myGMTREGCand.eta);
       //if (fabs(myGMTREGCand.eta)>=1.2 && fabs(myGMTREGCand.eta)<=1.8) eta_me42 = 1;
 
       if(eta_me42) h_rt_gmt_rpcf_pt_42->Fill(myGMTREGCand.pt);
@@ -2145,13 +2125,13 @@ bool GEMCSCTriggerRate::filter(edm::Event& iEvent, const edm::EventSetup& iSetup
 
   	  if ( (gmt_csc != NULL && gmt_rpcf != NULL) && !muItr->isMatchedCand() ) cout<<"csc&rpcf but not matched!"<<endl;
 
-  	  bool eta_me42 = isME42EtaRegion(myGMTCand.eta);
-  	  bool eta_me42r = isME42RPCEtaRegion(myGMTCand.eta);
+  	  bool eta_me42 = triggerHelpers::isME42EtaRegion(myGMTCand.eta);
+  	  bool eta_me42r = triggerHelpers::isME42RPCEtaRegion(myGMTCand.eta);
   	  //if (geta>=1.2 && geta<=1.8) eta_me42 = 1;
   	  bool eta_q = (geta > 1.2);
 
-  	  bool eta_me1b = isME1bEtaRegion(myGMTCand.eta);
-  	  //bool eta_me1b_whole = isME1bEtaRegion(myGMTCand.eta, 1.6, 2.14);
+  	  bool eta_me1b = triggerHelpers::isME1bEtaRegion(myGMTCand.eta);
+  	  //bool eta_me1b_whole = triggerHelpers::isME1bEtaRegion(myGMTCand.eta, 1.6, 2.14);
   	  bool eta_no1a = (geta >= 1.2 && geta < 2.14);
   	  //bool eta_csc = (geta > 0.9);
   	  //
@@ -2470,20 +2450,6 @@ GEMCSCTriggerRate::cscTriggerSubsector(CSCDetId &id)
   }
   chamber = ((chamber-1)%6) + 1; // renumber all chambers to 1-6
   return ((chamber-1) / 3) + 1; // [1,3] -> 1 , [4,6]->2
-}
-
-
-// ================================================================================================
-bool GEMCSCTriggerRate::isME42EtaRegion(float eta)
-{
-  if (fabs(eta)>=1.2499 && fabs(eta)<=1.8) return true;
-  else return false;
-}
-
-bool GEMCSCTriggerRate::isME42RPCEtaRegion(float eta)
-{
-  if (fabs(eta)>=1.2499 && fabs(eta)<=1.6) return true;
-  else return false;
 }
 
 
