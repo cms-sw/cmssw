@@ -68,10 +68,12 @@ from FastSimulation.Configuration.CommonInputs_cff import * # CaloMode and Mixin
 if (MixingMode==2):
     # mix at SIM and RECO levels:
     from FastSimulation.Configuration.MixingHitsAndTracks_cff import *
-    mixSimCaloHits.input.nbPileupEvents.probFunctionVariable = npu
-    mixSimCaloHits.input.nbPileupEvents.probValue = prob
-    mixRecoTracks.input.nbPileupEvents.probFunctionVariable = npu
-    mixRecoTracks.input.nbPileupEvents.probValue = prob
+    mix.input.nbPileupEvents.probFunctionVariable = npu
+    mix.input.nbPileupEvents.probValue = prob
+#    mixSimCaloHits.input.nbPileupEvents.probFunctionVariable = npu
+#    mixSimCaloHits.input.nbPileupEvents.probValue = prob
+#    mixRecoTracks.input.nbPileupEvents.probFunctionVariable = npu
+#    mixRecoTracks.input.nbPileupEvents.probValue = prob
 else:
     # mix at GEN level:
     from FastSimulation.Configuration.MixingFull_cff import *
