@@ -1,24 +1,14 @@
 #include "CSCGeometryParsFromDD.h"
 
-#include <DetectorDescription/Core/interface/DDFilter.h>
 #include <DetectorDescription/Core/interface/DDFilteredView.h>
 #include <DetectorDescription/Core/interface/DDSolid.h>
 
-#include <Geometry/CSCGeometry/interface/CSCGeometry.h>
 #include <Geometry/CSCGeometry/interface/CSCChamberSpecs.h>
-#include <Geometry/CSCGeometry/interface/CSCChamber.h>
-#include <Geometry/CSCGeometry/interface/CSCLayer.h>
-#include <Geometry/CSCGeometry/interface/CSCLayerGeometry.h>
-#include <Geometry/CommonDetUnit/interface/TrackingGeometry.h>
 #include <Geometry/MuonNumbering/interface/CSCNumberingScheme.h>
 #include <Geometry/MuonNumbering/interface/MuonBaseNumber.h>
 #include <Geometry/MuonNumbering/interface/MuonDDDNumbering.h>
 #include <Geometry/MuonNumbering/interface/MuonDDDConstants.h>
-#include <DataFormats/GeometrySurface/interface/BoundPlane.h>
-#include <DataFormats/GeometrySurface/interface/TrapezoidalPlaneBounds.h>
-#include <DataFormats/GeometryVector/interface/Basic3DVector.h>
 
-//#include <CondFormats/RecoGeometryObjects/interface/CSCWireGroupPackage.h>
 #include <Geometry/CSCGeometry/src/CSCWireGroupPackage.h>
 #include <CondFormats/GeometryObjects/interface/CSCRecoDigiParameters.h>
 #include <CondFormats/GeometryObjects/interface/RecoIdealGeometry.h>
@@ -26,13 +16,6 @@
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
 
 #include <FWCore/MessageLogger/interface/MessageLogger.h>
-#include <FWCore/Utilities/interface/Exception.h>
-
-#include <iostream>
-#include <sstream>
-#include <iomanip>
-#include <algorithm>
-//#include <iterator>
 
 CSCGeometryParsFromDD::CSCGeometryParsFromDD() : myName("CSCGeometryParsFromDD") { }
 
@@ -104,11 +87,11 @@ bool CSCGeometryParsFromDD::build( const DDCompactView* cview
     // Package up the wire group info as it's decoded
     CSCWireGroupPackage wg; 
     uparvals.clear();
-    //std::cout << "size of spec=" << spec.size() << std::endl;
+    LogDebug(myName) << "size of spec=" << spec.size();
 
     // if the specs are made no need to get all this crap!
     int chamberType = CSCChamberSpecs::whatChamberType( jstation, jring );
-    //    std::cout << "Chamber Type: " << chamberType << std::endl;
+    LogDebug(myName) << "Chamber Type: " << chamberType;
     size_t ct = 0;
     bool chSpecsAlreadyExist = false;
     for ( ; ct < rdp.pChamberType.size() ; ++ct ) {
@@ -118,19 +101,19 @@ bool CSCGeometryParsFromDD::build( const DDCompactView* cview
     }
     if ( ct < rdp.pChamberType.size() && rdp.pChamberType[ct] == chamberType ) {
       // it was found, therefore no need to load all the intermediate crap from DD.
-      //      std::cout << "already found a " << chamberType << " at index " << ct << std::endl;
+      LogDebug(myName) << "already found a " << chamberType << " at index " << ct;
       chSpecsAlreadyExist = true;
     } else {
       for (;  spit != spec.end(); spit++) {
 	DDsvalues_type::const_iterator it = (**spit).begin();
 	for (;  it != (**spit).end(); it++) {
-	  //std::cout << "it->second.name()=" << it->second.name() << std::endl;  
+	  LogDebug(myName) << "it->second.name()=" << it->second.name();  
 	  if (it->second.name() == "upar") {
 	    uparvals.push_back(it->second.doubles().size());
 	    for ( size_t i = 0; i < it->second.doubles().size(); ++i) {
 	      uparvals.push_back(it->second.doubles()[i]);
 	    }
-	    //std::cout << "found upars " << std::endl;
+	    LogDebug(myName) << "found upars ";
 	  } else if (it->second.name() == "NoOfAnonParams") {
 	    noOfAnonParams = static_cast<int>( it->second.doubles()[0] );
 	  } else if (it->second.name() == "NumWiresPerGrp") {
@@ -138,7 +121,7 @@ bool CSCGeometryParsFromDD::build( const DDCompactView* cview
 	    for ( size_t i = 0 ; i < it->second.doubles().size(); i++) {
 	      wg.wiresInEachGroup.push_back( int( it->second.doubles()[i] ) );
 	    }
-	    //std::cout << "found upars " << std::endl;
+	    LogDebug(myName) << "found upars " << std::endl;
 	  } else if ( it->second.name() == "NumGroups" ) {
 	    //numGroups = it->second.doubles();
 	    for ( size_t i = 0 ; i < it->second.doubles().size(); i++) {
@@ -271,7 +254,7 @@ bool CSCGeometryParsFromDD::build( const DDCompactView* cview
       rig.insert( id, gtran, grmat, fpar );
       if ( !chSpecsAlreadyExist ) {
 	//	rdp.pCSCDetIds.push_back(CSCDetId(id));
-	//	std::cout << " inserting chamber type " << chamberType << std::endl;
+	LogDebug(myName) << " inserting chamber type " << chamberType << std::endl;
 	rdp.pChamberType.push_back(chamberType);
 	rdp.pUserParOffset.push_back(rdp.pfupars.size());
 	rdp.pUserParSize.push_back(uparvals.size());
@@ -298,10 +281,10 @@ bool CSCGeometryParsFromDD::build( const DDCompactView* cview
       }
       if ( ct < rdp.pChamberType.size() && rdp.pChamberType[ct] == chtypeA ) {
 	// then its in already, don't put it
-	//	std::cout << "found chamber type " << chtypeA << " so don't put it in! " << std::endl;
+	LogDebug(myName) << "found chamber type " << chtypeA << " so don't put it in! ";
       } else {
 	//	rdp.pCSCDetIds.push_back(detid1a);
-	//	std::cout << " inserting chamber type " << chtypeA << std::endl;
+	LogDebug(myName) << " inserting chamber type " << chtypeA;
 	rdp.pChamberType.push_back(chtypeA);
 	rdp.pUserParOffset.push_back(rdp.pfupars.size());
 	rdp.pUserParSize.push_back(uparvals.size());
@@ -313,7 +296,7 @@ bool CSCGeometryParsFromDD::build( const DDCompactView* cview
       rig.insert( id, gtran, grmat, fpar );
       if ( !chSpecsAlreadyExist ) {
 	//   rdp.pCSCDetIds.push_back(CSCDetId(id));
-	//	std::cout << " inserting chamber type " << chamberType << std::endl;
+	LogDebug(myName) << " inserting chamber type " << chamberType;
 	rdp.pChamberType.push_back(chamberType);
 	rdp.pUserParOffset.push_back(rdp.pfupars.size());
 	rdp.pUserParSize.push_back(uparvals.size());
