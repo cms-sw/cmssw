@@ -163,14 +163,20 @@ void WalkAST::VisitChildren( clang::Stmt *S) {
 
 
 void WalkAST::CheckBinaryOperator(const clang::BinaryOperator * BO,const clang::Expr *E) {
-//	BO->dump(); 
-//	llvm::errs()<<"\n";
+	BO->dump(); 
+	llvm::errs()<<"\n";
 if (BO->isAssignmentOp()) {
 	if (clang::DeclRefExpr * DRE =dyn_cast<clang::DeclRefExpr>(BO->getLHS())){
 			ReportDeclRef(DRE);
 		} else
 	if (clang::MemberExpr * ME = dyn_cast<clang::MemberExpr>(BO->getLHS())){
 			if (ME->isImplicitAccess()) ReportMember(ME);
+		} else
+	if (clang::UnaryOperator * UO = llvm::dyn_cast<clang::UnaryOperator>(BO->getLHS()->IgnoreParenImpCasts()) ) {
+		if (UO->getOpcode() == clang::UnaryOperatorKind::UO_Deref) {
+			if (clang::MemberExpr * ME = dyn_cast<clang::MemberExpr>(UO->getSubExpr()->IgnoreParenImpCasts()))
+			if (ME->isImplicitAccess()) ReportMember(ME);
+			}
 		}
 	}
 }
