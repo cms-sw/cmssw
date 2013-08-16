@@ -16,21 +16,23 @@ DuplicateListMerger::DuplicateListMerger(const edm::ParameterSet& iPara)
   minTrkProbCut_ = 0.0;
   if(iPara.exists("diffHitsCut"))diffHitsCut_ = iPara.getParameter<int>("diffHitsCut");
   if(iPara.exists("minTrkProbCut"))minTrkProbCut_ = iPara.getParameter<double>("minTrkProbCut");
-  if(iPara.exists("mergedSource"))mergedTrackSource_ = iPara.getParameter<edm::InputTag>("mergedSource");
-  if(iPara.exists("originalSource"))originalTrackSource_ = iPara.getParameter<edm::InputTag>("originalSource");
-  if(iPara.exists("candidateSource"))candidateSource_ = iPara.getParameter<edm::InputTag>("candidateSource");
+  if(iPara.exists("mergedSource")) mergedTrackSource_ = threeTokens(iPara.getParameter<edm::InputTag>("mergedSource"));
+  if(iPara.exists("originalSource"))originalTrackSource_ = threeTokens(iPara.getParameter<edm::InputTag>("originalSource"));
+  if(iPara.exists("candidateSource"))candidateSource_ = consumes<edm::View<DuplicateRecord> >(iPara.getParameter<edm::InputTag>("candidateSource"));
 
 
   if(iPara.exists("mergedMVAVals")){
     mergedMVAVals_ = iPara.getParameter<edm::InputTag>("mergedMVAVals");
   }else{
-    mergedMVAVals_ = edm::InputTag(mergedTrackSource_.label(),"MVAVals");
+    mergedMVAVals_ = edm::InputTag(mergedTrackSource_.tag.label(),"MVAVals");
   }
+  mergedMVAValsToken_ = consumes<edm::ValueMap<float> >(mergedMVAVals_);
   if(iPara.exists("originalMVAVals")){
     originalMVAVals_ = iPara.getParameter<edm::InputTag>("originalMVAVals");
   }else{
-    originalMVAVals_ = edm::InputTag(originalTrackSource_.label(),"MVAVals");
+    originalMVAVals_ = edm::InputTag(originalTrackSource_.tag.label(),"MVAVals");
   }
+  originalMVAValsToken_ = consumes<edm::ValueMap<float> >(originalMVAVals_);
 
   copyExtras_ = iPara.getUntrackedParameter<bool>("copyExtras",true);
   qualityToSet_ = reco::TrackBase::undefQuality;
@@ -69,26 +71,26 @@ DuplicateListMerger::~DuplicateListMerger()
 void DuplicateListMerger::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   edm::Handle<reco::TrackCollection > originalHandle;
-  iEvent.getByLabel(originalTrackSource_,originalHandle);
+  iEvent.getByToken(originalTrackSource_.tk,originalHandle);
   edm::Handle<reco::TrackCollection > mergedHandle;
-  iEvent.getByLabel(mergedTrackSource_,mergedHandle);
+  iEvent.getByToken(mergedTrackSource_.tk,mergedHandle);
 
   const reco::TrackCollection& mergedTracks(*mergedHandle);
   reco::TrackRefProd originalTrackRefs(originalHandle);
   reco::TrackRefProd mergedTrackRefs(mergedHandle);
 
   edm::Handle< std::vector<Trajectory> >  mergedTrajHandle;
-  iEvent.getByLabel(mergedTrackSource_,mergedTrajHandle);
+  iEvent.getByToken(mergedTrackSource_.traj,mergedTrajHandle);
   edm::Handle< TrajTrackAssociationCollection >  mergedTrajTrackHandle;
-  iEvent.getByLabel(mergedTrackSource_,mergedTrajTrackHandle);
+  iEvent.getByToken(mergedTrackSource_.tass,mergedTrajTrackHandle);
 
   edm::Handle< std::vector<Trajectory> >  originalTrajHandle;
-  iEvent.getByLabel(originalTrackSource_,originalTrajHandle);
+  iEvent.getByToken(originalTrackSource_.traj,originalTrajHandle);
   edm::Handle< TrajTrackAssociationCollection >  originalTrajTrackHandle;
-  iEvent.getByLabel(originalTrackSource_,originalTrajTrackHandle);
+  iEvent.getByToken(originalTrackSource_.tass,originalTrajTrackHandle);
 
   edm::Handle<edm::View<DuplicateRecord> > candidateHandle;
-  iEvent.getByLabel(candidateSource_,candidateHandle);
+  iEvent.getByToken(candidateSource_,candidateHandle);
 
   std::auto_ptr<std::vector<reco::Track> > out_generalTracks(new std::vector<reco::Track>());
   out_generalTracks->reserve(originalHandle->size());
@@ -112,8 +114,8 @@ void DuplicateListMerger::produce(edm::Event& iEvent, const edm::EventSetup& iSe
   edm::Handle<edm::ValueMap<float> > originalMVAStore;
   edm::Handle<edm::ValueMap<float> > mergedMVAStore;
 
-  iEvent.getByLabel(originalMVAVals_,originalMVAStore);
-  iEvent.getByLabel(mergedMVAVals_,mergedMVAStore);
+  iEvent.getByToken(originalMVAValsToken_,originalMVAStore);
+  iEvent.getByToken(mergedMVAValsToken_,mergedMVAStore);
 
   std::auto_ptr<edm::ValueMap<float> > vmMVA = std::auto_ptr<edm::ValueMap<float> >(new edm::ValueMap<float>);
   edm::ValueMap<float>::Filler fillerMVA(*vmMVA);
