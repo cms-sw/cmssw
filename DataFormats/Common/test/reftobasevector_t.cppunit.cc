@@ -1,7 +1,7 @@
 
 #include <algorithm>
 
-#include <cppunit/extensions/HelperMacros.h>
+#include "cppunit/extensions/HelperMacros.h"
 #include "DataFormats/Common/interface/TestHandle.h"
 #include "DataFormats/Common/interface/RefToBaseVector.h"
 #include "DataFormats/Common/interface/RefVector.h"

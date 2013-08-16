@@ -1,4 +1,4 @@
-#include <cppunit/extensions/HelperMacros.h>
+#include "cppunit/extensions/HelperMacros.h"
 #include "DataFormats/Common/interface/IDVectorMap.h"
 #include "DataFormats/Common/interface/CopyPolicy.h"
 

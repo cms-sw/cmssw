@@ -4,8 +4,8 @@
 #include <memory>
 #include <vector>
 
-#include <HepMC/GenEvent.h>
-#include <HepMC/SimpleVector.h>
+#include "HepMC/GenEvent.h"
+#include "HepMC/SimpleVector.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 

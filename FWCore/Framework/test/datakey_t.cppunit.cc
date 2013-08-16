@@ -6,7 +6,7 @@
  *  Changed by Viji Sundararajan on 24-Jun-2005.
  */
 
-#include <cppunit/extensions/HelperMacros.h>
+#include "cppunit/extensions/HelperMacros.h"
 #include <cstring>
 #include "FWCore/Framework/interface/DataKey.h"
 #include "FWCore/Framework/interface/HCTypeTag.h"

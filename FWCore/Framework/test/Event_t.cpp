@@ -40,7 +40,7 @@ Test program for edm::Event.
 #include "FWCore/Version/interface/GetReleaseVersion.h"
 #include "Utilities/Testing/interface/CppUnit_testdriver.icpp"
 
-#include <cppunit/extensions/HelperMacros.h>
+#include "cppunit/extensions/HelperMacros.h"
 
 #include "Cintex/Cintex.h"
 

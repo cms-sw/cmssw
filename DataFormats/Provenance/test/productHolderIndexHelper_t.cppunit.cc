@@ -2,7 +2,7 @@
  *  productHolderIndexHelper_t.cppunit.cc
  */
 
-#include <cppunit/extensions/HelperMacros.h>
+#include "cppunit/extensions/HelperMacros.h"
 
 #include "DataFormats/Provenance/interface/EventID.h"
 #include "DataFormats/Provenance/interface/ProductID.h"

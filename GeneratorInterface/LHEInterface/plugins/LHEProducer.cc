@@ -4,8 +4,8 @@
 #include <boost/shared_ptr.hpp>
 #include <sigc++/signal.h>
 
-#include <HepMC/GenEvent.h>
-#include <HepMC/SimpleVector.h>
+#include "HepMC/GenEvent.h"
+#include "HepMC/SimpleVector.h"
 
 #include "FWCore/Framework/interface/one/EDFilter.h"
 #include "FWCore/Framework/interface/MakerMacros.h"

@@ -8,7 +8,7 @@
 #include <cassert>
 #include <ostream>
 #include <sstream>
-#include <stdlib.h>
+#include <cstdlib>
 
 class TClass;
 /*----------------------------------------------------------------------

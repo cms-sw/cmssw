@@ -3,9 +3,9 @@
 #include "DataFormats/Common/interface/EDProductGetter.h"
 #include "DataFormats/Common/interface/Ref.h"
 #include "FWCore/Utilities/interface/EDMException.h"
-#include <Utilities/Testing/interface/CppUnit_testdriver.icpp>
+#include "Utilities/Testing/interface/CppUnit_testdriver.icpp"
 
-#include <cppunit/extensions/HelperMacros.h>
+#include "cppunit/extensions/HelperMacros.h"
 
 #include <iostream>
 #include <string>

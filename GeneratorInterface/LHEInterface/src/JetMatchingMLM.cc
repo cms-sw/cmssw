@@ -7,11 +7,11 @@
 
 #include <boost/bind.hpp>
 
-#include <Math/GenVector/Cartesian3D.h>
-#include <Math/GenVector/VectorUtil.h>
+#include "Math/GenVector/Cartesian3D.h"
+#include "Math/GenVector/VectorUtil.h"
 
-#include <HepMC/GenEvent.h>
-#include <HepMC/SimpleVector.h>
+#include "HepMC/GenEvent.h"
+#include "HepMC/SimpleVector.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/Exception.h"

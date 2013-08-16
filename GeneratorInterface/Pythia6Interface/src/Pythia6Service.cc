@@ -11,7 +11,7 @@
 #include <boost/algorithm/string/classification.hpp>
 #include <boost/algorithm/string/split.hpp>
 
-#include <CLHEP/Random/RandomEngine.h>
+#include "CLHEP/Random/RandomEngine.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
