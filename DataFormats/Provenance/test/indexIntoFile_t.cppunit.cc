@@ -2,7 +2,7 @@
  *  indexIntoFile_t.cppunit.cc
  */
 
-#include <cppunit/extensions/HelperMacros.h>
+#include "cppunit/extensions/HelperMacros.h"
 
 #include "DataFormats/Provenance/interface/ProcessHistoryID.h"
 #include "DataFormats/Provenance/interface/ProcessConfiguration.h"

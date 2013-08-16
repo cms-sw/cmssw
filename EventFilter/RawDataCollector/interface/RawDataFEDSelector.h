@@ -6,7 +6,7 @@
  * \author M. Zanetti CERN
  */
 
-#include <DataFormats/Common/interface/Handle.h>
+#include "DataFormats/Common/interface/Handle.h"
 
 #include <memory>
 #include <utility>

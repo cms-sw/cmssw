@@ -4,16 +4,16 @@
 #include <sstream>
 #include <string>
 #include <memory>
-#include <assert.h>
+#include <cassert>
 
 #include <boost/shared_ptr.hpp>
 
-#include <HepMC/GenEvent.h>
-#include <HepMC/GenParticle.h>
+#include "HepMC/GenEvent.h"
+#include "HepMC/GenParticle.h"
 
-#include <Pythia.h>
-#include <LesHouches.h>
-#include <HepMCInterface.h>
+#include "Pythia.h"
+#include "LesHouches.h"
+#include "HepMCInterface.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"

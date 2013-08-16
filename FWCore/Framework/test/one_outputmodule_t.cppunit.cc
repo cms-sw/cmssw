@@ -27,7 +27,7 @@
 
 #include "FWCore/Utilities/interface/Exception.h"
 
-#include <cppunit/extensions/HelperMacros.h>
+#include "cppunit/extensions/HelperMacros.h"
 
 namespace edm {
   class ModuleCallingContext;

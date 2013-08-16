@@ -2,7 +2,7 @@
  *  eventsetupscontroller_t.cc
  */
 
-#include <cppunit/extensions/HelperMacros.h>
+#include "cppunit/extensions/HelperMacros.h"
 #include "DataFormats/Provenance/interface/ParameterSetID.h"
 #include "FWCore/Framework/interface/EventSetupProvider.h"
 #include "FWCore/Framework/src/EventSetupsController.h"

@@ -39,7 +39,7 @@
  */
 
 #include "DataFormats/Provenance/interface/ProductID.h"
-#include <DataFormats/Common/interface/EDProductGetter.h>
+#include "DataFormats/Common/interface/EDProductGetter.h"
 
 namespace edm {
     struct Event;

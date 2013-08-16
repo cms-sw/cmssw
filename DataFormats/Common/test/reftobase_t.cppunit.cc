@@ -1,4 +1,4 @@
-#include <cppunit/extensions/HelperMacros.h>
+#include "cppunit/extensions/HelperMacros.h"
 #include "DataFormats/Common/interface/RefToBase.h"
 #include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/Common/interface/TestHandle.h"

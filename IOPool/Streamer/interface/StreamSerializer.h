@@ -10,7 +10,7 @@
 
 #include "TBufferFile.h"
 
-#include <stdint.h>
+#include <cstdint>
 #include <vector>
 
 #include "DataFormats/Provenance/interface/BranchIDList.h"

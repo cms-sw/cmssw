@@ -26,11 +26,11 @@
 
 // Database
 #include "CondFormats/DTObjects/interface/DTTtrig.h"
-#include <CondFormats/DataRecord/interface/DTTtrigRcd.h>
+#include "CondFormats/DataRecord/interface/DTTtrigRcd.h"
 
 //Random generator
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
-#include <CLHEP/Random/RandGaussQ.h>
+#include "CLHEP/Random/RandGaussQ.h"
 
 // DTDigitizer
 #include "CalibMuon/DTDigiSync/interface/DTTTrigSyncFactory.h"

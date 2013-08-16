@@ -23,7 +23,7 @@
 
 #include "FWCore/Utilities/interface/Exception.h"
 
-#include <cppunit/extensions/HelperMacros.h>
+#include "cppunit/extensions/HelperMacros.h"
 
 class testGlobalModule: public CppUnit::TestFixture 
 {

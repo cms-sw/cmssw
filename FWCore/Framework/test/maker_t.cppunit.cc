@@ -2,7 +2,7 @@
 #include <iostream>
 
 
-#include <cppunit/extensions/HelperMacros.h>
+#include "cppunit/extensions/HelperMacros.h"
 
 // ----------------------------------------------
 class testmaker: public CppUnit::TestFixture

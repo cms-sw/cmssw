@@ -16,7 +16,7 @@
 #include "FWCore/Framework/test/DummyData.h"
 #include "FWCore/Framework/test/DummyFinder.h"
 #include "FWCore/Framework/test/DummyProxyProvider.h"
-#include <cppunit/extensions/HelperMacros.h>
+#include "cppunit/extensions/HelperMacros.h"
 
 using namespace edm;
 using namespace edm::eventsetup;

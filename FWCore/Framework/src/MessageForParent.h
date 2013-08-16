@@ -20,7 +20,7 @@
 //
 
 // system include files
-#include <stddef.h>
+#include <cstddef>
 
 // user include files
 

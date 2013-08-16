@@ -3,9 +3,9 @@
 
 #include <vector>
 
-#include <HepMC/GenEvent.h>
-#include <HepMC/GenParticle.h>
-#include <HepMC/GenVertex.h>
+#include "HepMC/GenEvent.h"
+#include "HepMC/GenParticle.h"
+#include "HepMC/GenVertex.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 

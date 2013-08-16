@@ -170,4 +170,4 @@ void testeventmsg::eventMsg()
   CPPUNIT_ASSERT( from_new.getRunNumber() == 2 );
 
 }
-#include <Utilities/Testing/interface/CppUnit_testdriver.icpp>
+#include "Utilities/Testing/interface/CppUnit_testdriver.icpp"
