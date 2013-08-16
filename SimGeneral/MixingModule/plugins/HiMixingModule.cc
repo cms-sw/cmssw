@@ -91,7 +91,7 @@ namespace edm{
    public:
       HiMixingWorker(std::string& object, std::vector<InputTag>& tags, std::string& label) : HiMixingWorkerBase(object,tags, label) {;}
       ~HiMixingWorker(){;}
-      void addSignals(edm::Event &e) override{
+      void addSignals(edm::Event &e) override {
 	 std::vector<Handle<std::vector<T> > > handles;
 	 bool get = true;
 	 for(size_t itag = 0; itag < tags_.size(); ++itag){
@@ -116,7 +116,7 @@ namespace edm{
 	    }
 	    e.put(crFrame,label_);
 	 }
-      } override
+      }
    };
    
 template <>
