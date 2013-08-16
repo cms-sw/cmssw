@@ -1393,16 +1393,28 @@ class ConfigBuilder(object):
                   optionsForHLT['type'] = 'HIon'
                 else:
                   optionsForHLT['type'] = 'GRun'
-		optionsForHLTConfig = ', '.join('%s=%s' % (key, repr(val)) for (key, val) in optionsForHLT.iteritems())
-		if sequence == 'run,fromSource':
-			if hasattr(self.process.source,'firstRun'):
-				self.executeAndRemember('process.loadHltConfiguration("run:%%d"%%(process.source.firstRun.value()),%s)'%(optionsForHLTConfig))
-			elif hasattr(self.process.source,'setRunNumber'):
-				self.executeAndRemember('process.loadHltConfiguration("run:%%d"%%(process.source.setRunNumber.value()),%s)'%(optionsForHLTConfig))
-			else:
-				raise Exception('Cannot replace menu to load %s'%(sequence))
-		else:
-			self.executeAndRemember('process.loadHltConfiguration("%s",%s)'%(sequence.replace(',',':'),optionsForHLTConfig))
+                optionsForHLTConfig = ', '.join('%s=%s' % (key, repr(val)) for (key, val) in optionsForHLT.iteritems())
+                if sequence == 'run,fromSource':
+                        if hasattr(self.process.source,'firstRun'):
+                                self.executeAndRemember('process.loadHltConfiguration("run:%%d" %% (process.source.firstRun.value()), %s)' % (optionsForHLTConfig))
+                        elif hasattr(self.process.source,'setRunNumber'):
+                                self.executeAndRemember('process.loadHltConfiguration("run:%%d" %% (process.source.setRunNumber.value()), %s)' % (optionsForHLTConfig))
+                        else:
+                                raise Exception('Cannot replace menu to load %s'%(sequence))
+                elif sequence == 'cached,fromSource':
+                        self.executeAndRemember('import Configuration.HLT.cachedHLT')
+                        if hasattr(self.process.source,'firstRun'):
+                                self.executeAndRemember('process.loadCachedHltConfiguration( process.source.firstRun.value(), %s )' % ('FASTSIM' in self.stepMap))
+                        elif hasattr(self.process.source,'setRunNumber'):
+                                self.executeAndRemember('process.loadCachedHltConfiguration( process.source.setRunNumber.value(), %s )' % ('FASTSIM' in self.stepMap))
+                        else:
+                                raise Exception('Cannot replace menu to load %s'%(sequence))
+                elif sequence.startswith( 'cached,' ):
+                        run = int( sequence.split(',')[1] )
+                        self.executeAndRemember('import Configuration.HLT.cachedHLT')
+                        self.executeAndRemember('process.loadCachedHltConfiguration( %d, %s )' % (run, 'FASTSIM' in self.stepMap))
+                else:
+                        self.executeAndRemember('process.loadHltConfiguration("%s",%s)'%(sequence.replace(',',':'),optionsForHLTConfig))
         else:
                 if 'FASTSIM' in self.stepMap:
                     self.loadAndRemember('HLTrigger/Configuration/HLT_%s_Famos_cff' % sequence)
@@ -1410,15 +1422,15 @@ class ConfigBuilder(object):
                     self.loadAndRemember('HLTrigger/Configuration/HLT_%s_cff'       % sequence)
 
         if self._options.isMC:
-		self._options.customisation_file+=",HLTrigger/Configuration/customizeHLTforMC.customizeHLTforMC"
-		
-	if self._options.name != 'HLT':
-		self.additionalCommands.append('from HLTrigger.Configuration.CustomConfigs import ProcessName')
-		self.additionalCommands.append('process = ProcessName(process)')
+                self._options.customisation_file+=",HLTrigger/Configuration/customizeHLTforMC.customizeHLTforMC"
+                
+        if self._options.name != 'HLT':
+                self.additionalCommands.append('from HLTrigger.Configuration.CustomConfigs import ProcessName')
+                self.additionalCommands.append('process = ProcessName(process)')
                 self.additionalCommands.append('')
-		from HLTrigger.Configuration.CustomConfigs import ProcessName
-		self.process = ProcessName(self.process)
-		
+                from HLTrigger.Configuration.CustomConfigs import ProcessName
+                self.process = ProcessName(self.process)
+                
         self.schedule.append(self.process.HLTSchedule)
         [self.blacklist_paths.append(path) for path in self.process.HLTSchedule if isinstance(path,(cms.Path,cms.EndPath))]
         if ('FASTSIM' in self.stepMap and 'HLT' in self.stepMap):
