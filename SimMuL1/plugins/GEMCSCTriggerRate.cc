@@ -4,7 +4,7 @@
 #include <memory>
 #include <cmath>
 
-#include "DataFormats/HepMCCandidate/interface/GenParticle.h"
+// user include files
 #include "DataFormats/L1Trigger/interface/L1MuonParticleFwd.h"
 #include "DataFormats/L1Trigger/interface/L1MuonParticle.h"
 #include "DataFormats/MuonDetId/interface/CSCDetId.h"
@@ -28,8 +28,40 @@
 #include "DataFormats/GeometrySurface/interface/BoundCylinder.h"
 #include "DataFormats/MuonDetId/interface/GEMDetId.h"
 #include "Geometry/GEMGeometry/interface/GEMGeometry.h"
-#include "GEMCode/GEMValidation/src/SimTrackMatchManager.h"
 #include "GEMCode/SimMuL1/interface/EtaRangeHelpers.h"
+
+struct MyALCT
+{
+  Int_t nlayers, bx;
+  Float_t pt, eta, phi;
+  Char_t hit; // hits in MEX/Y or GE1/1
+};
+
+struct MyCLCT
+{
+  Int_t nlayers, bx;
+  Float_t pt, eta, phi;
+  Char_t hit; // hits in MEX/Y or GE1/1
+};
+
+struct MyLCT
+{
+  Int_t nlayers, bx;
+  Float_t pt, eta, phi;
+  Char_t hit; // hits in MEX/Y or GE1/1
+};
+
+struct MyMPCLCT
+{
+  Int_t nlayers, bx;
+  Float_t pt, eta, phi;
+  Char_t hit; // hits in MEX/Y or GE1/1
+};
+
+struct MyTFTrack{};
+struct MyTFCand{};
+struct MyGMTRegional{};
+struct MyGMT{};
 
 namespace 
 {
@@ -73,9 +105,6 @@ const double GEMCSCTriggerRate::PT_THRESHOLDS_FOR_ETA[N_PT_THRESHOLDS] = {10,15,
 
 
 // ================================================================================================
-//
-// constructors and destructor
-//
 GEMCSCTriggerRate::GEMCSCTriggerRate(const edm::ParameterSet& iConfig):
   //  theCSCSimHitMap("MuonCSCHits"), theDTSimHitMap("MuonDTHits"), theRPCSimHitMap("MuonRPCHits")
   ptLUT(0),
@@ -88,20 +117,8 @@ GEMCSCTriggerRate::GEMCSCTriggerRate(const edm::ParameterSet& iConfig):
   theCSCSimHitMap.setModuleName(simHitsModuleName_);
   theCSCSimHitMap.setCollectionName(simHitsCollectionName_);
 
-  doStrictSimHitToTrackMatch_ = iConfig.getUntrackedParameter<bool>("doStrictSimHitToTrackMatch", false);
   matchAllTrigPrimitivesInChamber_ = iConfig.getUntrackedParameter<bool>("matchAllTrigPrimitivesInChamber", false);
 
-  minNHitsShared_ = iConfig.getUntrackedParameter<int>("minNHitsShared_", -1);
-  
-  minDeltaYAnode_    = iConfig.getUntrackedParameter<double>("minDeltaYAnode", -1.);
-  minDeltaYCathode_  = iConfig.getUntrackedParameter<double>("minDeltaYCathode", -1.);
-
-  minDeltaWire_    = iConfig.getUntrackedParameter<int>("minDeltaWire", 0);
-  maxDeltaWire_    = iConfig.getUntrackedParameter<int>("maxDeltaWire", 2);
-  minDeltaStrip_   = iConfig.getUntrackedParameter<int>("minDeltaStrip", 1);
- 
-  debugALLEVENT = iConfig.getUntrackedParameter<int>("debugALLEVENT", 0);
-  debugINHISTOS = iConfig.getUntrackedParameter<int>("debugINHISTOS", 0);
   debugALCT     = iConfig.getUntrackedParameter<int>("debugALCT", 0);
   debugCLCT     = iConfig.getUntrackedParameter<int>("debugCLCT", 0);
   debugLCT      = iConfig.getUntrackedParameter<int>("debugLCT", 0);
@@ -111,14 +128,6 @@ GEMCSCTriggerRate::GEMCSCTriggerRate(const edm::ParameterSet& iConfig):
   debugGMTCAND  = iConfig.getUntrackedParameter<int>("debugGMTCAND", 0);
   debugL1EXTRA  = iConfig.getUntrackedParameter<int>("debugL1EXTRA", 0);
   debugRATE     = iConfig.getUntrackedParameter<int>("debugRATE", 0);
-
-  minSimTrPt_   = iConfig.getUntrackedParameter<double>("minSimTrPt", 2.);
-  minSimTrPhi_  = iConfig.getUntrackedParameter<double>("minSimTrPhi",-3.15);
-  maxSimTrPhi_  = iConfig.getUntrackedParameter<double>("maxSimTrPhi", 3.15);
-  minSimTrEta_  = iConfig.getUntrackedParameter<double>("minSimTrEta",-5.);
-  maxSimTrEta_  = iConfig.getUntrackedParameter<double>("maxSimTrEta", 5.);
-  invertSimTrPhiEta_ = iConfig.getUntrackedParameter<bool>("invertSimTrPhiEta", false);
-  bestPtMatch_  = iConfig.getUntrackedParameter<bool>("bestPtMatch", true);
 
   minBX_    = iConfig.getUntrackedParameter< int >("minBX",-6);
   maxBX_    = iConfig.getUntrackedParameter< int >("maxBX",6);
@@ -143,12 +152,7 @@ GEMCSCTriggerRate::GEMCSCTriggerRate(const edm::ParameterSet& iConfig):
 
   doSelectEtaForGMTRates_ = iConfig.getUntrackedParameter< bool >("doSelectEtaForGMTRates",false);
   
-  goodChambersOnly_ = iConfig.getUntrackedParameter< bool >("goodChambersOnly",false);
-  
-  lookAtTrackCondition_ = iConfig.getUntrackedParameter<int>("lookAtTrackCondition", 0);
-  
   doME1a_ = iConfig.getUntrackedParameter< bool >("doME1a",false);
-  naiveME1a_ = iConfig.getUntrackedParameter< bool >("naiveME1a",true);
 
   // no GMT and L1Extra processing
   lightRun = iConfig.getUntrackedParameter<bool>("lightRun", true);
@@ -156,17 +160,6 @@ GEMCSCTriggerRate::GEMCSCTriggerRate(const edm::ParameterSet& iConfig):
   // special treatment of matching in ME1a for the case of the default emulator
   defaultME1a = iConfig.getUntrackedParameter<bool>("defaultME1a", false);
 
-  // properly treat ganged ME1a in matching (consider triple ambiguity)
-  gangedME1a = iConfig.getUntrackedParameter<bool>("gangedME1a", false);
-  //if (defaultME1a) gangedME1a = true;
-
-  addGhostLCTs_ = iConfig.getUntrackedParameter< bool >("addGhostLCTs",true);
-
-  minNStWith4Hits_ = iConfig.getUntrackedParameter< int >("minNStWith4Hits", 0);
-  requireME1With4Hits_ = iConfig.getUntrackedParameter< bool >("requireME1With4Hits",false);
-
-  minSimTrackDR_ = iConfig.getUntrackedParameter<double>("minSimTrackDR", 0.);
-  
   edm::ParameterSet stripPSet = iConfig.getParameter<edm::ParameterSet>("strips");
   theStripConditions = new CSCDbStripConditions(stripPSet);
 
@@ -198,20 +191,11 @@ GEMCSCTriggerRate::GEMCSCTriggerRate(const edm::ParameterSet& iConfig):
   muPtScaleCacheID_ = 0ULL ;
 
   fill_debug_tree_ = iConfig.getUntrackedParameter< bool >("fill_debug_tree",false);
-  
-  // processed event counter
-  nevt = 0;
+}
 
-  gemMatchCfg_ = iConfig.getParameterSet("simTrackGEMMatching");
-  gemPTs_ = iConfig.getParameter<std::vector<double> >("gemPTs");
-  gemDPhisOdd_ = iConfig.getParameter<std::vector<double> >("gemDPhisOdd");
-  gemDPhisEven_ = iConfig.getParameter<std::vector<double> >("gemDPhisEven");
-
-  assert(std::is_sorted(gemPTs_.begin(), gemPTs_.end()));
-  assert(gemPTs_.size() == gemDPhisOdd_.size() && gemPTs_.size() == gemDPhisEven_.size());
-
-
-
+void 
+GEMCSCTriggerRate::beginJob()
+{
   // *********************************** HISTOGRAMS ******************************************
   edm::Service<TFileService> fs;
 
@@ -686,12 +670,6 @@ GEMCSCTriggerRate::~GEMCSCTriggerRate()
 }
 
 
-//
-// member functions
-//
-// ================================================================================================
-
-
 void
 GEMCSCTriggerRate::resetDbg(DbgStruct& d)
 {
@@ -701,41 +679,55 @@ GEMCSCTriggerRate::resetDbg(DbgStruct& d)
   d.meEtap = d.mePhip = d.mcStrip = d.mcWG = d.strip = d.wg = d.chamber = -1;
 }
 
-
-// ================================================================================================
-// ------------ method called to for each event  ------------
-bool GEMCSCTriggerRate::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
+void
+GEMCSCTriggerRate::beginRun(const edm::Run &iRun, const edm::EventSetup &iSetup)
 {
-  nevt++;
-  
-  std::cout<<"  Entry  Event    "<<std::endl;
-
-  if (addGhostLCTs_)
-    {
-      for (size_t i=0; i<ghostLCTs.size();i++) if (ghostLCTs[i]) delete ghostLCTs[i];
-      ghostLCTs.clear();
-    }
-  
   edm::ESHandle< CSCGeometry > cscGeom;
-  
-  iSetup.get< MuonGeometryRecord >().get(cscGeom);
-  iSetup.get<MuonRecoGeometryRecord>().get(muonGeometry);
-  
+  iSetup.get<MuonGeometryRecord>().get(cscGeom);
   cscGeometry = &*cscGeom;
-  
   CSCTriggerGeometry::setGeometry(cscGeometry);
 
+  edm::ESHandle<MuonDetLayerGeometry> muonGeometry;
+  iSetup.get<MuonRecoGeometryRecord>().get(muonGeometry);
+
+  // does the trigger sccale need to be defined in the beginrun or analyze method?
+  if (iSetup.get< L1MuTriggerScalesRcd >().cacheIdentifier() != muScalesCacheID_ ||
+      iSetup.get< L1MuTriggerPtScaleRcd >().cacheIdentifier() != muPtScaleCacheID_ )
+    {
+      iSetup.get< L1MuTriggerScalesRcd >().get( muScales );
+
+      iSetup.get< L1MuTriggerPtScaleRcd >().get( muPtScale );
+
+      if (ptLUT) delete ptLUT;  
+      ptLUT = new CSCTFPtLUT(ptLUTset, muScales.product(), muPtScale.product());
+  
+      for(int e=0; e<2; e++) for (int s=0; s<6; s++){
+  	  if  (my_SPs[e][s]) delete my_SPs[e][s];
+  	  my_SPs[e][s] = new CSCTFSectorProcessor(e+1, s+1, CSCTFSPset, true, muScales.product(), muPtScale.product());
+  	  my_SPs[e][s]->initialize(iSetup);
+  	}
+      muScalesCacheID_  = iSetup.get< L1MuTriggerScalesRcd >().cacheIdentifier();
+      muPtScaleCacheID_ = iSetup.get< L1MuTriggerPtScaleRcd >().cacheIdentifier();
+    }
+}
+
+// ================================================================================================
+void 
+GEMCSCTriggerRate::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
+{
   // get conditions for bad chambers (don't need random engine)
   theStripConditions->initializeEvent(iSetup);
+  
+  // get SimHits
+  theCSCSimHitMap.fill(iEvent);
 
-
-  //Get the Magnetic field from the setup
-  iSetup.get<IdealMagneticFieldRecord>().get(theBField);
-
-
-  // Get the propagators
-  iSetup.get<TrackingComponentsRecord>().get("SmartPropagatorAnyRK", propagatorAlong);
-  iSetup.get<TrackingComponentsRecord>().get("SmartPropagatorAnyOpposite", propagatorOpposite);
+//   analyzeALCTRate(iEvent);
+//   analyzeCLCTRate(iEvent);
+//   analyzeLCTRate(iEvent);
+//   analyzeMPLCTRate(iEvent);
+//   analyzeTFTrackRate(iEvent);
+//   analyzeTFCandRate(iEvent);
+//   analyzeGMTCandRate(iEvent);
 
 
   // get MC
@@ -754,8 +746,6 @@ bool GEMCSCTriggerRate::filter(edm::Event& iEvent, const edm::EventSetup& iSetup
 //   iEvent.getByLabel("g4SimHits", hSimVertices);
 //   const SimVertexContainer & simVertices = *(hSimVertices.product());
 
-  // get SimHits
-  theCSCSimHitMap.fill(iEvent);
 
 //   edm::Handle< PSimHitContainer > MuonCSCHits;
 //   iEvent.getByLabel("g4SimHits", "MuonCSCHits", MuonCSCHits);
@@ -2333,25 +2323,9 @@ bool GEMCSCTriggerRate::filter(edm::Event& iEvent, const edm::EventSetup& iSetup
   if (debugRATE) std::cout<< "----- end ngmt="<<ngmt<<std::endl;
 
 
-  //  for (unsigned int i=0; i<matches.size(); i++) delete matches[i];
-  //  matches.clear ();
-
-  //  cleanUp();
-  return true;
 }
 
 
-
-// ================================================================================================
-void 
-GEMCSCTriggerRate::cleanUp()
-{
-  if (addGhostLCTs_)
-  {
-    for (size_t i=0; i<ghostLCTs.size();i++) if (ghostLCTs[i]) delete ghostLCTs[i];
-    ghostLCTs.clear();
-  }
-}
 
 // ================================================================================================
 void 
@@ -2411,6 +2385,7 @@ GEMCSCTriggerRate::getCSCType(CSCDetId &id)
   return type;
 }
 
+// ================================================================================================
 int
 GEMCSCTriggerRate::isME11(int t)
 {
@@ -2418,8 +2393,9 @@ GEMCSCTriggerRate::isME11(int t)
   return 0;
 }
 
-// Returns chamber type (0-9) according to CSCChamberSpecs type
-// 1..10 -> 1/a, 1/b, 1/2, 1/3, 2/1...
+// ================================================================================================
+  // Returns chamber type (0-9) according to CSCChamberSpecs type
+  // 1..10 -> 1/a, 1/b, 1/2, 1/3, 2/1...
 int
 GEMCSCTriggerRate::getCSCSpecsType(CSCDetId &id)
 {
@@ -2450,8 +2426,8 @@ GEMCSCTriggerRate::cscTriggerSubsector(CSCDetId &id)
 
 
 // ================================================================================================
-
-void GEMCSCTriggerRate::setupTFModeHisto(TH1D* h)
+void 
+GEMCSCTriggerRate::setupTFModeHisto(TH1D* h)
 {
   if (h==0) return;
   if (h->GetXaxis()->GetNbins()<16) {
@@ -2479,8 +2455,8 @@ void GEMCSCTriggerRate::setupTFModeHisto(TH1D* h)
 }
 
 // ================================================================================================
-
-std::pair<float, float> GEMCSCTriggerRate::intersectionEtaPhi(CSCDetId id, int wg, int hs)
+std::pair<float, float> 
+GEMCSCTriggerRate::intersectionEtaPhi(CSCDetId id, int wg, int hs)
 {
 
   CSCDetId layerId(id.endcap(), id.station(), id.ring(), id.chamber(), CSCConstants::KEY_CLCT_LAYER);
@@ -2502,8 +2478,8 @@ std::pair<float, float> GEMCSCTriggerRate::intersectionEtaPhi(CSCDetId id, int w
 }
 
 // ================================================================================================
-
-csctf::TrackStub GEMCSCTriggerRate::buildTrackStub(const CSCCorrelatedLCTDigi &d, CSCDetId id)
+csctf::TrackStub 
+GEMCSCTriggerRate::buildTrackStub(const CSCCorrelatedLCTDigi &d, CSCDetId id)
 {
   unsigned fpga = (id.station() == 1) ? CSCTriggerNumbering::triggerSubSectorFromLabels(id) - 1 : id.station();
   CSCSectorReceiverLUT* srLUT = srLUTs_[fpga][id.triggerSector()-1][id.endcap()-1];
@@ -2523,17 +2499,6 @@ csctf::TrackStub GEMCSCTriggerRate::buildTrackStub(const CSCCorrelatedLCTDigi &d
 
   return csctf::TrackStub(d, id, gblPhi.global_phi, gblEta.global_eta);
 }
-
-// ================================================================================================
-// ------------ method called once each job just before starting event loop  ------------
-void 
-GEMCSCTriggerRate::beginJob() {}
-
-// ================================================================================================
-// ------------ method called once each job just after ending the event loop  ------------
-void 
-GEMCSCTriggerRate::endJob() {}
-
 
 //define this as a plug-in
 DEFINE_FWK_MODULE(GEMCSCTriggerRate);
