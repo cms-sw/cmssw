@@ -7,7 +7,7 @@ namespace edm {
   class Parentage;
   class BranchID;
   class BranchKey;
-  class ConstBranchDescription;
+  class BranchDescription;
   class ProductProvenance;
   class ProductProvenance;
   class EventAuxiliary;

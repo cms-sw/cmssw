@@ -10,8 +10,8 @@
 
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Common/interface/Wrapper.h"
+#include "DataFormats/Provenance/interface/BranchDescription.h"
 #include "DataFormats/Provenance/interface/BranchID.h"
-#include "DataFormats/Provenance/interface/ConstBranchDescription.h"
 #include "DataFormats/Provenance/interface/ProcessHistory.h"
 #include "DataFormats/Provenance/interface/Provenance.h"
 #include "DataFormats/TestObjects/interface/Thing.h"

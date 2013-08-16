@@ -30,7 +30,7 @@ namespace edm {
 
 
   void
-  principal_get_adapter_detail::deleter::operator()(std::pair<WrapperOwningHolder, ConstBranchDescription const*> const p) const {
+  principal_get_adapter_detail::deleter::operator()(std::pair<WrapperOwningHolder, BranchDescription const*> const p) const {
     WrapperOwningHolder* edp = const_cast<WrapperOwningHolder*>(&p.first);
     edp->reset();
   }
@@ -212,7 +212,7 @@ namespace edm {
     return principal_.processHistory();
   }
 
-  ConstBranchDescription const&
+  BranchDescription const&
   PrincipalGetAdapter::getBranchDescription(TypeID const& type,
                                             std::string const& productInstanceName) const {
     ProductHolderIndexHelper const& productHolderIndexHelper = principal_.productLookup();

@@ -176,7 +176,7 @@ void test_ep::setUp() {
     edm::BranchKey const bk(branch);
     edm::ProductRegistry::ProductList::const_iterator it = pl.find(bk);
 
-    edm::ConstBranchDescription const branchFromRegistry(it->second);
+    edm::BranchDescription const branchFromRegistry(it->second);
 
     boost::shared_ptr<edm::Parentage> entryDescriptionPtr(new edm::Parentage);
     edm::ProductProvenance prov(branchFromRegistry.branchID(), entryDescriptionPtr);

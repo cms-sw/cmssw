@@ -36,7 +36,7 @@ namespace edm {
 
   void
   LuminosityBlockPrincipal::put(
-        ConstBranchDescription const& bd,
+        BranchDescription const& bd,
         WrapperOwningHolder const& edp) {
 
     assert(bd.produced());

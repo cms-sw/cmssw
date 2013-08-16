@@ -133,7 +133,7 @@ namespace edm {
     // Override version from RunBase class
     virtual BasicHandle getByLabelImpl(std::type_info const& iWrapperType, std::type_info const& iProductType, InputTag const& iTag) const;
 
-    typedef std::vector<std::pair<WrapperOwningHolder, ConstBranchDescription const*> > ProductPtrVec;
+    typedef std::vector<std::pair<WrapperOwningHolder, BranchDescription const*> > ProductPtrVec;
     ProductPtrVec& putProducts() {return putProducts_;}
     ProductPtrVec const& putProducts() const {return putProducts_;}
 
@@ -175,7 +175,7 @@ namespace edm {
       DoNotPostInsert<PROD> >::type maybe_inserter;
     maybe_inserter(product.get());
 
-    ConstBranchDescription const& desc =
+    BranchDescription const& desc =
       provRecorder_.getBranchDescription(TypeID(*product), productInstanceName);
 
     WrapperOwningHolder edp(new Wrapper<PROD>(product), Wrapper<PROD>::getInterface());

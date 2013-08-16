@@ -95,7 +95,7 @@ namespace edm {
     void setUnscheduledHandler(boost::shared_ptr<UnscheduledHandler>) {}
 
     void put(
-        ConstBranchDescription const& bd,
+        BranchDescription const& bd,
         WrapperOwningHolder const& edp);
 
     void readImmediate() const;

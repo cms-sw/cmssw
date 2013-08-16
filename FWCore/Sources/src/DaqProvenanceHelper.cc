@@ -77,7 +77,7 @@ namespace edm {
   DaqProvenanceHelper::daqInit(ProductRegistry& productRegistry) const {
     // Now we need to set all the metadata
     // Add the product to the product registry  
-    productRegistry.copyProduct(constBranchDescription_.me());
+    productRegistry.copyProduct(constBranchDescription_);
 
     // Insert an entry for this process in the process history registry
     ProcessHistory ph;
