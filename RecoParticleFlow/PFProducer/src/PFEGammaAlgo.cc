@@ -1956,8 +1956,7 @@ linkRefinableObjectSecondaryKFsToECAL(ProtoEGObject& RO) {
 void PFEGammaAlgo::
 fillPFCandidates(const std::list<PFEGammaAlgo::ProtoEGObject>& ROs,
 		 reco::PFCandidateCollection& egcands,
-		 reco::PFCandidateEGammaExtraCollection& egxs) {  
-  bool RO_has_SC;
+		 reco::PFCandidateEGammaExtraCollection& egxs) {
   // reset output collections
   egcands.clear();
   egxs.clear();  
@@ -1966,7 +1965,9 @@ fillPFCandidates(const std::list<PFEGammaAlgo::ProtoEGObject>& ROs,
   egxs.reserve(ROs.size());
   refinedscs_.reserve(ROs.size());
   for( const auto& RO : ROs ) {    
-    RO_has_SC = false;
+    if( RO.ecalclusters.size() == 0  && 
+	!cfg_.produceEGCandsWithNoSuperCluster ) continue;
+    
     reco::PFCandidate cand;
     reco::PFCandidateEGammaExtra xtra;
     if( RO.primaryGSFs.size() || RO.primaryKFs.size() ) {
@@ -1987,7 +1988,6 @@ fillPFCandidates(const std::list<PFEGammaAlgo::ProtoEGObject>& ROs,
       cand.addElementInBlock(_currentblock,RO.primaryGSFs[0].first->index());
     }
     if( RO.parentSC ) {
-      RO_has_SC = true;
       xtra.setSuperClusterBoxRef(RO.parentSC->superClusterRef());      
       // we'll set to the refined supercluster back up in the producer
       cand.setSuperClusterRef(RO.parentSC->superClusterRef());
@@ -2016,6 +2016,7 @@ fillPFCandidates(const std::list<PFEGammaAlgo::ProtoEGObject>& ROs,
 
     // build the refined supercluster from those clusters left in the cand
     refinedscs_.push_back(buildRefinedSuperCluster(RO));
+    
     const reco::SuperCluster& the_sc = refinedscs_.back();
     // with the refined SC in hand we build a naive candidate p4 
     // and set the candidate ECAL position to either the barycenter of the 
@@ -2047,11 +2048,9 @@ fillPFCandidates(const std::list<PFEGammaAlgo::ProtoEGObject>& ROs,
       math::XYZTLorentzVector p4(kref->px(),kref->py(),kref->pz(),kref->p());
       cand.setP4(p4);   
       cand.setPositionAtECALEntrance(kf->positionAtECALEntrance());
-    }
-    if( RO_has_SC || cfg_.produceEGCandsWithNoSuperCluster ) {
-      egcands.push_back(cand);
-      egxs.push_back(xtra);
-    }
+    }    
+    egcands.push_back(cand);
+    egxs.push_back(xtra);    
   }
 }
 
