@@ -147,7 +147,7 @@ def guess_blacklists(samples,ver1,ver2,hlt):
   """
   blacklists={}
   for sample in samples:
-    blacklists[sample]="FED@1,AlcaBeamMonitor@1,Physics@1,Info@-1,HLT@1,AlCaReco@1"
+    blacklists[sample]="FED@1,AlcaBeamMonitor@1,HLT@1,AlCaReco@1"
     
     # HLT
     if hlt: #HLT
