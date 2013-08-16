@@ -6,7 +6,7 @@
 namespace edm {
   SecondaryEventProvider::SecondaryEventProvider(std::vector<ParameterSet>& psets,
                      ProductRegistry& preg,
-                     ActionTable const& actions,
+                     ExceptionToActionTable const& actions,
                      boost::shared_ptr<ProcessConfiguration> processConfiguration) :
     workerManager_(boost::shared_ptr<ActivityRegistry>(new ActivityRegistry), actions) {
     std::vector<std::string> shouldBeUsedLabels;
