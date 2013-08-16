@@ -2011,7 +2011,15 @@ fillPFCandidates(const std::list<PFEGammaAlgo::ProtoEGObject>& ROs,
     // add secondary tracks
     for( const auto& secdkf : RO.secondaryKFs ) {
       const PFKFElement* kf = secdkf.first;
-      cand.addElementInBlock(_currentblock,kf->index());      
+      cand.addElementInBlock(_currentblock,kf->index());
+      reco::ConversionRef convref = kf->convRef();
+      if( convref.isNonnull() && convref.isAvailable() ) {
+	xtra.addConversionRef(convref);
+      } else {
+	xtra.addSingleLegConvTrackRef(kf->trackRef());
+	// just hack it for now FIXME
+	xtra.addSingleLegConvMva(-999.9f); 
+      }
     }
 
     // build the refined supercluster from those clusters left in the cand
