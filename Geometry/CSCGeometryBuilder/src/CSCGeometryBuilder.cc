@@ -1,6 +1,4 @@
 #include "CSCGeometryBuilder.h"
-//#include <CondFormats/GeometryObjects/interface/CSCRecoDigiParameters.h>
-//#include <CondFormats/GeometryObjects/interface/RecoIdealGeometry.h>
 
 #include <Geometry/CSCGeometry/interface/CSCGeometry.h>
 
@@ -10,9 +8,6 @@
 
 #include <FWCore/MessageLogger/interface/MessageLogger.h>
 
-#include <iostream>
-#include <iomanip>
-#include <algorithm>
 #include <vector>
 
 CSCGeometryBuilder::CSCGeometryBuilder() : myName("CSCGeometryBuilder"){}
@@ -25,8 +20,6 @@ void CSCGeometryBuilder::build( boost::shared_ptr<CSCGeometry> theGeometry
 				, const RecoIdealGeometry& rig
 				, const CSCRecoDigiParameters& cscpars ) {
 
-  //  CSCGeometry* theGeometry = new CSCGeometry;
-
   std::vector<float> fpar;
   std::vector<float> gtran;
   std::vector<float> grmat;
@@ -36,10 +29,8 @@ void CSCGeometryBuilder::build( boost::shared_ptr<CSCGeometry> theGeometry
 
   for ( size_t idt = 0; idt < detids.size(); ++idt) {
     CSCDetId detid = CSCDetId( detids[idt] );
-    //    int jendcap  = detid.endcap();
     int jstation = detid.station();
     int jring    = detid.ring();
-    //    int jchamber = detid.chamber();
 
     endIt = rig.shapeEnd(idt);
     fpar.clear();
@@ -60,19 +51,14 @@ void CSCGeometryBuilder::build( boost::shared_ptr<CSCGeometry> theGeometry
 
     // get the chamber type from existing info
     int chamberType = CSCChamberSpecs::whatChamberType( jstation, jring );
-    //    std::cout << "Chamber type = " << chamberType << std::endl;
     size_t cs = 0;
-    //       assert ( cscpars.pCSCDetIds.size() != 0 );
     assert ( cscpars.pChamberType.size() != 0 );
-    //       while (cs < cscpars.pCSCDetIds.size() && detid != cscpars.pCSCDetIds[cs]) {
     while (cs < cscpars.pChamberType.size() && chamberType != cscpars.pChamberType[cs]) {
       ++cs;
     }
-    //       assert ( cs != cscpars.pCSCDetIds.size() );
     assert ( cs != cscpars.pChamberType.size() );
       
     // check the existence of the specs for this type WHY? Remove it...
-    //    const CSCChamberSpecs* aSpecs = theGeometry->findSpecs( chamberType );
     size_t fu, numfuPars;
     CSCWireGroupPackage wg;
     fu = cscpars.pUserParOffset[cs];
@@ -82,14 +68,10 @@ void CSCGeometryBuilder::build( boost::shared_ptr<CSCGeometry> theGeometry
     LogTrace(myName) << myName << ": I think I have " << cscpars.pUserParSize[cs] << " values in pfupars (uparvals)." << std::endl;
     LogTrace(myName) << myName << ": For fupar I will start at " << cscpars.pUserParOffset[cs] + 1 
 		     << " in pfupars and go to " << numfuPars << "." << std::endl;
-    //    if ( aSpecs == 0 ) { 
       for ( ++fu; fu < numfuPars; ++fu ) {
 	LogTrace(myName) << myName << ": pfupars[" << fu << "]=" << cscpars.pfupars[fu] << std::endl;
 	fupar.push_back(cscpars.pfupars[fu]);
       }
-//     } else {
-//       fu = fu + numfuPars + 1;
-//     }
     // now, we need to start from "here" at fu to go on and build wg...
     wg.wireSpacing = cscpars.pfupars[fu++];
     wg.alignmentPinToFirstWire = cscpars.pfupars[fu++];
@@ -104,8 +86,6 @@ void CSCGeometryBuilder::build( boost::shared_ptr<CSCGeometry> theGeometry
       wg.wiresInEachGroup.push_back(int(cscpars.pfupars[fu]));
     } 
     maxFu = fu + numgrp;
-    //stupid comment    // MEC: 2008-04-30: decided I need to have wg every time unless whole wg idea is re-worked.
-    //       std::cout << " fu = " << fu << " going to maxFu = " << maxFu << std::endl;
     for ( ;fu < maxFu; ++fu ) {
       wg.consecutiveGroups.push_back(int(cscpars.pfupars[fu]));
     } 
@@ -128,14 +108,12 @@ void CSCGeometryBuilder::build( boost::shared_ptr<CSCGeometry> theGeometry
     }
     LogTrace(myName) << myName << ": end of wire group info. " ;
       
-    //      CSCWireGroupPackage wg = cscpars.pWGPs[cs];
     // Are we going to apply centre-to-intersection offsets, even if values exist in the specs file?
     if ( !theGeometry->centreTIOffsets() ) fupar[30] = 0.;  // reset to zero if flagged 'off'
       
     buildChamber (theGeometry, detid, fpar, fupar, gtran, grmat, wg ); //, cscpars.pWGPs[cs] );
     fupar.clear();
   }
-  //    return theGeometry;  
 }
 
 void CSCGeometryBuilder::buildChamber (  
@@ -183,19 +161,12 @@ void CSCGeometryBuilder::buildChamber (
     LogTrace(myName) << myName <<": CSCChamberSpecs::build requested for ME" << jstat << jring ;
      int chamberType = CSCChamberSpecs::whatChamberType( jstat, jring );
      const CSCChamberSpecs* aSpecs = theGeometry->findSpecs( chamberType );
-//     //    CSCChamberSpecs* aSpecs = CSCChamberSpecs::specs( chamberType );
-//     if ( aSpecs == 0 ) aSpecs = theGeometry->buildSpecs( chamberType, fpar, fupar, wg );
-    //                 aSpecs = CSCChamberSpecs::build( chamberType, fpar, fupar, wg );
     if ( fupar.size() != 0 && aSpecs == 0 ) {
       // make new one:
       aSpecs = theGeometry->buildSpecs (chamberType, fpar, fupar, wg);
     } else if ( fupar.size() == 0 && aSpecs == 0 ) {
-	std::cout << "SHOULD BE THROW? Error, wg and/or fupar size are 0 BUT this Chamber Spec has not been built!" << std::endl;
+      edm::LogError(myName) << "SHOULD BE THROW? Error, wg and/or fupar size are 0 BUT this Chamber Spec has not been built!";
     }
-//  else if (fupar.size() != 0 && aSpecs != 0 ) {
-//       std::cout << "SHOULD BE THROW? Error, a Chamber Specs was found AND still the fupar and/or wg were/was non-zero! " << std::endl;
-//     }
-
 
    // Build a Transformation out of GEANT gtran and grmat...
    // These are used to transform a point in the local reference frame
@@ -259,7 +230,6 @@ void CSCGeometryBuilder::buildChamber (
     // hChamberThickness and fpar[2] should be the same - but using the above value at least shows
     // how chamber structure works
 
-    //    TrapezoidalPlaneBounds* bounds =  new TrapezoidalPlaneBounds( fpar[0], fpar[1], fpar[3], fpar[2] ); 
     TrapezoidalPlaneBounds* bounds =  new TrapezoidalPlaneBounds( fpar[0], fpar[1], fpar[3], hChamberThickness ); 
 
    // Centre of chamber in z is specified in DDD
@@ -286,9 +256,6 @@ void CSCGeometryBuilder::buildChamber (
     if ( (jend==1 && jstat<3 ) || ( jend==2 && jstat>2 ) ) localZwrtGlobalZ = -1;
     int globalZ = +1;
     if ( jend == 2 ) globalZ = -1;
-//     int localZwrtGlobalZ = +1;
-//     if ( (jend==1 && jstat<3 ) || ( jend==2 && jstat>2 ) ) localZwrtGlobalZ = -1;
-
 
     LogTrace(myName) << myName << ": layerSeparation=" << layerSeparation
                      << ", zAF-zAverageAGV="  << zAverageAGVtoAF
