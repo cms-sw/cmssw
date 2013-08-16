@@ -13,4 +13,13 @@ process.load('Geometry.CaloEventSetup.FakeCaloAlignments_cff')
 
 process.CaloAlignmentRcdRead = cms.EDAnalyzer("CaloAlignmentRcdRead")
 
+##
+## Please, rebuild the test with debug enabled
+## scram b USER_CXXFLAGS="-g\ -D=EDM_ML_DEBUG"
+##
+process.load("FWCore.MessageService.MessageLogger_cfi")
+process.MessageLogger.cerr.threshold = cms.untracked.string('DEBUG')
+process.MessageLogger.cerr.noTimeStamps = cms.untracked.bool(True)
+process.MessageLogger.debugModules = cms.untracked.vstring('CaloAlignmentRcdRead')
+
 process.p = cms.Path(process.CaloAlignmentRcdRead)
