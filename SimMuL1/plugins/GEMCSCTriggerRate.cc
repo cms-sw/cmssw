@@ -31,10 +31,6 @@
 #include "GEMCode/GEMValidation/src/SimTrackMatchManager.h"
 #include "GEMCode/SimMuL1/interface/EtaRangeHelpers.h"
 
-using namespace std;
-using namespace reco;
-using namespace edm;
-
 namespace 
 {
   const Double_t ETA_BIN = 0.0125 *2;
@@ -44,13 +40,13 @@ namespace
 // ================================================================================================
 // class' constants
 //
-const string GEMCSCTriggerRate::csc_type[CSC_TYPES+1] = 
+const std::string GEMCSCTriggerRate::csc_type[CSC_TYPES+1] = 
   { "ME1/1", "ME1/2", "ME1/3", "ME1/a", "ME2/1", "ME2/2", "ME3/1", "ME3/2", "ME4/1", "ME4/2", "ME1/T"};
-const string GEMCSCTriggerRate::csc_type_[CSC_TYPES+1] = 
+const std::string GEMCSCTriggerRate::csc_type_[CSC_TYPES+1] = 
   { "ME11", "ME12", "ME13", "ME1A", "ME21", "ME22", "ME31", "ME32", "ME41", "ME42", "ME1T"};
-const string GEMCSCTriggerRate::csc_type_a[CSC_TYPES+2] =
+const std::string GEMCSCTriggerRate::csc_type_a[CSC_TYPES+2] =
   { "N/A", "ME1/a", "ME1/b", "ME1/2", "ME1/3", "ME2/1", "ME2/2", "ME3/1", "ME3/2", "ME4/1", "ME4/2", "ME1/T"};
-const string GEMCSCTriggerRate::csc_type_a_[CSC_TYPES+2] =
+const std::string GEMCSCTriggerRate::csc_type_a_[CSC_TYPES+2] =
   { "NA", "ME1A", "ME1B", "ME12", "ME13", "ME21", "ME22", "ME31", "ME32", "ME41", "ME42", "ME1T"};
 
 const int GEMCSCTriggerRate::NCHAMBERS[CSC_TYPES] = 
@@ -86,8 +82,8 @@ GEMCSCTriggerRate::GEMCSCTriggerRate(const edm::ParameterSet& iConfig):
   theCSCSimHitMap()
 {
   simHitsFromCrossingFrame_ = iConfig.getUntrackedParameter<bool>("SimHitsFromCrossingFrame", false);
-  simHitsModuleName_        = iConfig.getUntrackedParameter<string>("SimHitsModuleName",    "g4SimHits");
-  simHitsCollectionName_    = iConfig.getUntrackedParameter<string>("SimHitsCollectionName","MuonCSCHits");
+  simHitsModuleName_        = iConfig.getUntrackedParameter<std::string>("SimHitsModuleName",    "g4SimHits");
+  simHitsCollectionName_    = iConfig.getUntrackedParameter<std::string>("SimHitsCollectionName","MuonCSCHits");
   theCSCSimHitMap.setUseCrossingFrame(simHitsFromCrossingFrame_);
   theCSCSimHitMap.setModuleName(simHitsModuleName_);
   theCSCSimHitMap.setCollectionName(simHitsCollectionName_);
@@ -171,7 +167,7 @@ GEMCSCTriggerRate::GEMCSCTriggerRate(const edm::ParameterSet& iConfig):
 
   minSimTrackDR_ = iConfig.getUntrackedParameter<double>("minSimTrackDR", 0.);
   
-  ParameterSet stripPSet = iConfig.getParameter<edm::ParameterSet>("strips");
+  edm::ParameterSet stripPSet = iConfig.getParameter<edm::ParameterSet>("strips");
   theStripConditions = new CSCDbStripConditions(stripPSet);
 
   CSCTFSPset = iConfig.getParameter<edm::ParameterSet>("SectorProcessor");
@@ -217,7 +213,7 @@ GEMCSCTriggerRate::GEMCSCTriggerRate(const edm::ParameterSet& iConfig):
 
 
   // *********************************** HISTOGRAMS ******************************************
-  Service<TFileService> fs;
+  edm::Service<TFileService> fs;
 
   int N_ETA_BINS=200;
   double ETA_START=-2.4999;
@@ -503,10 +499,10 @@ GEMCSCTriggerRate::GEMCSCTriggerRate(const edm::ParameterSet& iConfig):
   h_rt_gmt_ptmax20_eta_dbl = fs->make<TH1D>("h_rt_gmt_ptmax20_eta_dbl","h_rt_gmt_ptmax20_eta_dbl",N_ETA_BINS_GMT, ETA_BINS_GMT);
 
   const int Nthr = 7;
-  string str_pts[Nthr] = {"", "_pt10", "_pt15", "_pt20", "_pt25", "_pt30","_pt40"};
+  std::string str_pts[Nthr] = {"", "_pt10", "_pt15", "_pt20", "_pt25", "_pt30","_pt40"};
 
   for (int i = 1; i < Nthr; ++i) {
-    string prefix = "h_rt_gmt_csc_mode_2s1b_1b_";
+    std::string prefix = "h_rt_gmt_csc_mode_2s1b_1b_";
     h_rt_gmt_csc_mode_2s1b_1b[i-1] = fs->make<TH1D>((prefix + str_pts[i]).c_str(), (prefix + str_pts[i]).c_str(), 16, -0.5, 15.5);
     setupTFModeHisto(h_rt_gmt_csc_mode_2s1b_1b[i-1]);
   }
@@ -712,7 +708,7 @@ bool GEMCSCTriggerRate::filter(edm::Event& iEvent, const edm::EventSetup& iSetup
 {
   nevt++;
   
-  cout<<"  Entry  Event    "<<endl;
+  std::cout<<"  Entry  Event    "<<std::endl;
 
   if (addGhostLCTs_)
     {
@@ -720,7 +716,7 @@ bool GEMCSCTriggerRate::filter(edm::Event& iEvent, const edm::EventSetup& iSetup
       ghostLCTs.clear();
     }
   
-  ESHandle< CSCGeometry > cscGeom;
+  edm::ESHandle< CSCGeometry > cscGeom;
   
   iSetup.get< MuonGeometryRecord >().get(cscGeom);
   iSetup.get<MuonRecoGeometryRecord>().get(muonGeometry);
@@ -774,49 +770,49 @@ bool GEMCSCTriggerRate::filter(edm::Event& iEvent, const edm::EventSetup& iSetup
 //   const CSCComparatorDigiCollection* compdc = compDigis.product();
 
   // ALCTs and CLCTs
-  Handle< CSCALCTDigiCollection > halcts;
-  Handle< CSCCLCTDigiCollection > hclcts;
+  edm::Handle< CSCALCTDigiCollection > halcts;
+  edm::Handle< CSCCLCTDigiCollection > hclcts;
   iEvent.getByLabel("simCscTriggerPrimitiveDigis",  halcts);
   iEvent.getByLabel("simCscTriggerPrimitiveDigis",  hclcts);
   const CSCALCTDigiCollection* alcts = halcts.product();
   const CSCCLCTDigiCollection* clcts = hclcts.product();
 
   // strip&wire matching output  after TMB  and after MPC sorting
-  Handle< CSCCorrelatedLCTDigiCollection > lcts_tmb;
-  Handle< CSCCorrelatedLCTDigiCollection > lcts_mpc;
+  edm::Handle< CSCCorrelatedLCTDigiCollection > lcts_tmb;
+  edm::Handle< CSCCorrelatedLCTDigiCollection > lcts_mpc;
   iEvent.getByLabel("simCscTriggerPrimitiveDigis",  lcts_tmb);
   iEvent.getByLabel("simCscTriggerPrimitiveDigis", "MPCSORTED", lcts_mpc);
   const CSCCorrelatedLCTDigiCollection* lcts = lcts_tmb.product();
   const CSCCorrelatedLCTDigiCollection* mplcts = lcts_mpc.product();
   
   // DT primitives for input to TF
-  Handle<L1MuDTChambPhContainer> dttrig;
+  edm::Handle<L1MuDTChambPhContainer> dttrig;
   iEvent.getByLabel("simDtTriggerPrimitiveDigis", dttrig);
   const L1MuDTChambPhContainer* dttrigs = dttrig.product();
 
   // tracks produced by TF
-  Handle< L1CSCTrackCollection > hl1Tracks;
+  edm::Handle< L1CSCTrackCollection > hl1Tracks;
   iEvent.getByLabel("simCsctfTrackDigis",hl1Tracks);
   const L1CSCTrackCollection* l1Tracks = hl1Tracks.product();
 
   // L1 muon candidates after CSC sorter
-  Handle< vector< L1MuRegionalCand > > hl1TfCands;
+  edm::Handle< std::vector< L1MuRegionalCand > > hl1TfCands;
   iEvent.getByLabel("simCsctfDigis", "CSC", hl1TfCands);
-  const vector< L1MuRegionalCand > *l1TfCands = hl1TfCands.product();
+  const std::vector< L1MuRegionalCand > *l1TfCands = hl1TfCands.product();
 
   // GMT readout collection
-  Handle< L1MuGMTReadoutCollection > hl1GmtCands;
+  edm::Handle< L1MuGMTReadoutCollection > hl1GmtCands;
   if (!lightRun) iEvent.getByLabel("simGmtDigis", hl1GmtCands ) ;// InputTag("simCsctfDigis","CSC")
   //const L1MuGMTReadoutCollection* l1GmtCands = hl1GmtCands.product();
-  vector<L1MuGMTExtendedCand> l1GmtCands;
-  vector<L1MuGMTExtendedCand> l1GmtfCands;
-  vector<L1MuRegionalCand>    l1GmtCSCCands;
-  vector<L1MuRegionalCand>    l1GmtRPCfCands;
-  vector<L1MuRegionalCand>    l1GmtRPCbCands;
-  vector<L1MuRegionalCand>    l1GmtDTCands;
+  std::vector<L1MuGMTExtendedCand> l1GmtCands;
+  std::vector<L1MuGMTExtendedCand> l1GmtfCands;
+  std::vector<L1MuRegionalCand>    l1GmtCSCCands;
+  std::vector<L1MuRegionalCand>    l1GmtRPCfCands;
+  std::vector<L1MuRegionalCand>    l1GmtRPCbCands;
+  std::vector<L1MuRegionalCand>    l1GmtDTCands;
 
   // key = BX
-  map<int, vector<L1MuRegionalCand> >  l1GmtCSCCandsInBXs;
+  std::map<int, std::vector<L1MuRegionalCand> >  l1GmtCSCCandsInBXs;
 
   // TOCHECK
   if( !lightRun )
@@ -835,39 +831,39 @@ bool GEMCSCTriggerRate::filter(edm::Event& iEvent, const edm::EventSetup& iSetup
       else
   	{
   	  // Get GMT candidates from all bunch crossings
-  	  vector<L1MuGMTReadoutRecord> gmt_records = hl1GmtCands->getRecords();
-  	  for ( vector< L1MuGMTReadoutRecord >::const_iterator rItr=gmt_records.begin(); rItr!=gmt_records.end() ; ++rItr )
+  	  std::vector<L1MuGMTReadoutRecord> gmt_records = hl1GmtCands->getRecords();
+  	  for ( std::vector< L1MuGMTReadoutRecord >::const_iterator rItr=gmt_records.begin(); rItr!=gmt_records.end() ; ++rItr )
   	    {
   	      if (rItr->getBxInEvent() < minBxGMT_ || rItr->getBxInEvent() > maxBxGMT_) continue;
 
-  	      vector<L1MuGMTExtendedCand> GMTCands = rItr->getGMTCands();
-  	      for ( vector<L1MuGMTExtendedCand>::const_iterator  cItr = GMTCands.begin() ; cItr != GMTCands.end() ; ++cItr )
+  	      std::vector<L1MuGMTExtendedCand> GMTCands = rItr->getGMTCands();
+  	      for ( std::vector<L1MuGMTExtendedCand>::const_iterator  cItr = GMTCands.begin() ; cItr != GMTCands.end() ; ++cItr )
   		if (!cItr->empty()) l1GmtCands.push_back(*cItr);
 
-  	      vector<L1MuGMTExtendedCand> GMTfCands = rItr->getGMTFwdCands();
-  	      for ( vector<L1MuGMTExtendedCand>::const_iterator  cItr = GMTfCands.begin() ; cItr != GMTfCands.end() ; ++cItr )
+  	      std::vector<L1MuGMTExtendedCand> GMTfCands = rItr->getGMTFwdCands();
+  	      for ( std::vector<L1MuGMTExtendedCand>::const_iterator  cItr = GMTfCands.begin() ; cItr != GMTfCands.end() ; ++cItr )
   		if (!cItr->empty()) l1GmtfCands.push_back(*cItr);
 
-  	      //cout<<" ggg: "<<GMTCands.size()<<" "<<GMTfCands.size()<<endl;
+  	      //std::cout<<" ggg: "<<GMTCands.size()<<" "<<GMTfCands.size()<<std::endl;
 
-  	      vector<L1MuRegionalCand> CSCCands = rItr->getCSCCands();
+  	      std::vector<L1MuRegionalCand> CSCCands = rItr->getCSCCands();
   	      l1GmtCSCCandsInBXs[rItr->getBxInEvent()] = CSCCands;
-  	      for ( vector<L1MuRegionalCand>::const_iterator  cItr = CSCCands.begin() ; cItr != CSCCands.end() ; ++cItr )
+  	      for ( std::vector<L1MuRegionalCand>::const_iterator  cItr = CSCCands.begin() ; cItr != CSCCands.end() ; ++cItr )
   		if (!cItr->empty()) l1GmtCSCCands.push_back(*cItr);
 
-  	      vector<L1MuRegionalCand> RPCfCands = rItr->getFwdRPCCands();
-  	      for ( vector<L1MuRegionalCand>::const_iterator  cItr = RPCfCands.begin() ; cItr != RPCfCands.end() ; ++cItr )
+  	      std::vector<L1MuRegionalCand> RPCfCands = rItr->getFwdRPCCands();
+  	      for ( std::vector<L1MuRegionalCand>::const_iterator  cItr = RPCfCands.begin() ; cItr != RPCfCands.end() ; ++cItr )
   		if (!cItr->empty()) l1GmtRPCfCands.push_back(*cItr);
 
-  	      vector<L1MuRegionalCand> RPCbCands = rItr->getBrlRPCCands();
-  	      for ( vector<L1MuRegionalCand>::const_iterator  cItr = RPCbCands.begin() ; cItr != RPCbCands.end() ; ++cItr )
+  	      std::vector<L1MuRegionalCand> RPCbCands = rItr->getBrlRPCCands();
+  	      for ( std::vector<L1MuRegionalCand>::const_iterator  cItr = RPCbCands.begin() ; cItr != RPCbCands.end() ; ++cItr )
   		if (!cItr->empty()) l1GmtRPCbCands.push_back(*cItr);
 
-  	      vector<L1MuRegionalCand> DTCands = rItr->getDTBXCands();
-  	      for ( vector<L1MuRegionalCand>::const_iterator  cItr = DTCands.begin() ; cItr != DTCands.end() ; ++cItr )
+  	      std::vector<L1MuRegionalCand> DTCands = rItr->getDTBXCands();
+  	      for ( std::vector<L1MuRegionalCand>::const_iterator  cItr = DTCands.begin() ; cItr != DTCands.end() ; ++cItr )
   		if (!cItr->empty()) l1GmtDTCands.push_back(*cItr);
   	    }
-  	  //cout<<" sizes: "<<l1GmtCands.size()<<" "<<l1GmtfCands.size()<<" "<<l1GmtCSCCands.size()<<" "<<l1GmtRPCfCands.size()<<endl;
+  	  //std::cout<<" sizes: "<<l1GmtCands.size()<<" "<<l1GmtfCands.size()<<" "<<l1GmtCSCCands.size()<<" "<<l1GmtRPCfCands.size()<<std::endl;
   	}
     }
 
@@ -912,8 +908,8 @@ bool GEMCSCTriggerRate::filter(edm::Event& iEvent, const edm::EventSetup& iSetup
       for (int s=0; s<MAX_STATIONS; s++) n_ch_alct_per_bx_st[s][b]=0;
       for (int me=0; me<=CSC_TYPES; me++) n_ch_alct_per_bx_cscdet[me][b]=0;
     }
-  if (debugRATE) cout<< "----- statring nalct"<<endl;
-  map< int , vector<const CSCALCTDigi*> > me11alcts;
+  if (debugRATE) std::cout<< "----- statring nalct"<<std::endl;
+  std::map< int , std::vector<const CSCALCTDigi*> > me11alcts;
   for (CSCALCTDigiCollection::DigiRangeIterator  adetUnitIt = alcts->begin(); adetUnitIt != alcts->end(); adetUnitIt++)
     {
       const CSCDetId& id = (*adetUnitIt).first;
@@ -932,22 +928,22 @@ bool GEMCSCTriggerRate::filter(edm::Event& iEvent, const edm::EventSetup& iSetup
   	      //if ( bx-6 < minBX_ || bx-6 > maxBX_ )
   	      if ( bx < minBxALCT_ || bx > maxBxALCT_ )
   		{
-  		  if (debugRATE) cout<<"discarding BX = "<< bx-6 <<endl;
+  		  if (debugRATE) std::cout<<"discarding BX = "<< bx-6 <<std::endl;
   		  continue;
   		}
 
   	      // store all ME11 alcts together so we can look at them later
-  	      // take into accout that 10<=WG<=15 alcts are present in both 1a and 1b
+  	      // take into acstd::cout that 10<=WG<=15 alcts are present in both 1a and 1b
   	      if (csct==0) me11alcts[idd.rawId()].push_back(&(*digiIt));
   	      if (csct==3 && (*digiIt).getKeyWG() < 10) {
   		CSCDetId id11(idd.endcap(),1,1,idd.chamber());
   		me11alcts[id11.rawId()].push_back(&(*digiIt));
   	      }
 
-  	      //        if (debugALCT) cout<<"raw ID "<<id.rawId()<<" "<<id<<"    NTrackHitsInChamber  nmhits  alctInfo.size  diff  " 
+  	      //        if (debugALCT) std::cout<<"raw ID "<<id.rawId()<<" "<<id<<"    NTrackHitsInChamber  nmhits  alctInfo.size  diff  " 
   	      //                           <<trackHitsInChamber.size()<<" "<<nmhits<<" "<<alctInfo.size()<<"  "
-  	      //                           << nmhits-alctInfo.size() <<endl 
-  	      //                           << "  "<<(*digiIt)<<endl;
+  	      //                           << nmhits-alctInfo.size() <<std::endl 
+  	      //                           << "  "<<(*digiIt)<<std::endl;
   	      nalct++;
   	      ++nalct_per_bx[bx];
   	      ++nalct_per_ch_bx[bx];
@@ -968,9 +964,9 @@ bool GEMCSCTriggerRate::filter(edm::Event& iEvent, const edm::EventSetup& iSetup
   	  }
   	}
     } // loop CSCALCTDigiCollection
-  //map< CSCDetId , vector<const CSCALCTDigi*> >::const_iterator mapIt = me11alcts.begin();
+  //std::map< CSCDetId , std::vector<const CSCALCTDigi*> >::const_iterator mapIt = me11alcts.begin();
   //for (;mapIt != me11alcts.end(); mapIt++){}
-  map< int , vector<const CSCALCTDigi*> >::const_iterator aMapIt = me11alcts.begin();
+  std::map< int , std::vector<const CSCALCTDigi*> >::const_iterator aMapIt = me11alcts.begin();
   for (;aMapIt != me11alcts.end(); aMapIt++)
     {
       CSCDetId id(aMapIt->first);
@@ -1000,12 +996,12 @@ bool GEMCSCTriggerRate::filter(edm::Event& iEvent, const edm::EventSetup& iSetup
   }
 
   
-  if (debugRATE) cout<< "----- end nalct="<<nalct<<endl;
+  if (debugRATE) std::cout<< "----- end nalct="<<nalct<<std::endl;
 
 
   //============ RATE CLCT ==================
 
-  map<int, vector<CSCCLCTDigi> > detCLCT;
+  std::map<int, std::vector<CSCCLCTDigi> > detCLCT;
   detCLCT.clear();
   int nclct=0;
   int nclct_per_bx[16];
@@ -1018,7 +1014,7 @@ bool GEMCSCTriggerRate::filter(edm::Event& iEvent, const edm::EventSetup& iSetup
       for (int s=0; s<MAX_STATIONS; s++) n_ch_clct_per_bx_st[s][b]=0;
       for (int me=0; me<=CSC_TYPES; me++) n_ch_clct_per_bx_cscdet[me][b]=0;
     }
-  if (debugRATE) cout<< "----- statring nclct"<<endl;
+  if (debugRATE) std::cout<< "----- statring nclct"<<std::endl;
   for (CSCCLCTDigiCollection::DigiRangeIterator  cdetUnitIt = clcts->begin(); cdetUnitIt != clcts->end(); cdetUnitIt++)
     {
       const CSCDetId& id = (*cdetUnitIt).first;
@@ -1037,13 +1033,13 @@ bool GEMCSCTriggerRate::filter(edm::Event& iEvent, const edm::EventSetup& iSetup
   	      //if ( bx-5 < minBX_ || bx-7 > maxBX_ )
   	      if ( bx < minBxCLCT_ || bx > maxBxCLCT_ )
   		{
-  		  if (debugRATE) cout<<"discarding BX = "<< bx-6 <<endl;
+  		  if (debugRATE) std::cout<<"discarding BX = "<< bx-6 <<std::endl;
   		  continue;
   		}
-  	      //if (debugCLCT) cout<<"raw ID "<<id.rawId()<<" "<<id<<"    NTrackHitsInChamber  nmhits  clctInfo.size  diff  " 
+  	      //if (debugCLCT) std::cout<<"raw ID "<<id.rawId()<<" "<<id<<"    NTrackHitsInChamber  nmhits  clctInfo.size  diff  " 
   	      //                   <<trackHitsInChamber.size()<<" "<<nmhits<<" "<<clctInfo.size()<<"  "
-  	      //                   << nmhits-clctInfo.size() <<endl 
-  	      //                   << "  "<<(*digiIt)<<endl;
+  	      //                   << nmhits-clctInfo.size() <<std::endl 
+  	      //                   << "  "<<(*digiIt)<<std::endl;
   	      nclct++;
   	      ++nclct_per_bx[bx];
   	      ++nclct_per_ch_bx[bx];
@@ -1074,7 +1070,7 @@ bool GEMCSCTriggerRate::filter(edm::Event& iEvent, const edm::EventSetup& iSetup
     for (int me=0; me<=CSC_TYPES; me++) 
       h_rt_n_ch_clct_per_bx_cscdet[me]->Fill(n_ch_clct_per_bx_cscdet[me][b]);
   }
-  if (debugRATE) cout<< "----- end nclct="<<nclct<<endl;
+  if (debugRATE) std::cout<< "----- end nclct="<<nclct<<std::endl;
 
 
   //============ RATE LCT ==================
@@ -1095,8 +1091,8 @@ bool GEMCSCTriggerRate::filter(edm::Event& iEvent, const edm::EventSetup& iSetup
       nlct_sector_st[s][i]=0;
       for (int j=0; j<16; j++) { nlct_sector_bx_st[s][i][j]=0; nlct_trigsector_bx_st1[i][j]=0; }
     }
-  map< int , vector<const CSCCorrelatedLCTDigi*> > me11lcts;
-  if (debugRATE) cout<< "----- statring nlct"<<endl;
+  std::map< int , std::vector<const CSCCorrelatedLCTDigi*> > me11lcts;
+  if (debugRATE) std::cout<< "----- statring nlct"<<std::endl;
   for (CSCCorrelatedLCTDigiCollection::DigiRangeIterator detUnitIt = lcts->begin(); detUnitIt != lcts->end(); detUnitIt++) 
     {
       const CSCDetId& id = (*detUnitIt).first;
@@ -1113,12 +1109,12 @@ bool GEMCSCTriggerRate::filter(edm::Event& iEvent, const edm::EventSetup& iSetup
   	  if ((*digiIt).isValid()) 
   	    {
   	      int bx = (*digiIt).getBX();
-  	      //if (debugLCT) cout<< "----- LCT in raw ID "<<id.rawId()<<" "<<id<< " (trig id. " << id.triggerCscId() << ")"<<endl;
-  	      //if (debugLCT) cout<< " "<< (*digiIt);
+  	      //if (debugLCT) std::cout<< "----- LCT in raw ID "<<id.rawId()<<" "<<id<< " (trig id. " << id.triggerCscId() << ")"<<std::endl;
+  	      //if (debugLCT) std::cout<< " "<< (*digiIt);
   	      //if ( bx-6 < minBX_ || bx-6 > maxBX_ )
   	      if ( bx < minBxLCT_ || bx > maxBxLCT_ )
   		{
-  		  if (debugRATE) cout<<"discarding BX = "<< bx-6 <<endl;
+  		  if (debugRATE) std::cout<<"discarding BX = "<< bx-6 <<std::endl;
   		  continue;
   		}
 
@@ -1149,7 +1145,7 @@ bool GEMCSCTriggerRate::filter(edm::Event& iEvent, const edm::EventSetup& iSetup
   	      h_rt_lct_qu_vs_bx->Fill( quality, bx - 6);
   	      h_rt_lct_qu->Fill( quality );
 
-  	      map<int, vector<CSCCLCTDigi> >::const_iterator mapItr = detCLCT.find(id.rawId());
+  	      std::map<int, std::vector<CSCCLCTDigi> >::const_iterator mapItr = detCLCT.find(id.rawId());
   	      if(mapItr != detCLCT.end())
   		for ( unsigned i=0; i<mapItr->second.size(); i++ )
   		  if( (*digiIt).getStrip() == ((mapItr->second)[i]).getKeyStrip() &&
@@ -1170,7 +1166,7 @@ bool GEMCSCTriggerRate::filter(edm::Event& iEvent, const edm::EventSetup& iSetup
   	  }
   	}
     }
-  map< int , vector<const CSCCorrelatedLCTDigi*> >::const_iterator mapIt = me11lcts.begin();
+  std::map< int , std::vector<const CSCCorrelatedLCTDigi*> >::const_iterator mapIt = me11lcts.begin();
   for (;mapIt != me11lcts.end(); mapIt++)
     {
       CSCDetId id(mapIt->first);
@@ -1210,7 +1206,7 @@ bool GEMCSCTriggerRate::filter(edm::Event& iEvent, const edm::EventSetup& iSetup
   					    if (s==0 && i<7) h_rt_lct_per_sector_vs_bx_st1t->Fill(nlct_trigsector_bx_st1[i][j],j+0.5);
   					  }
   					}
-  if (debugRATE) cout<< "----- end nlct="<<nlct<<endl;
+  if (debugRATE) std::cout<< "----- end nlct="<<nlct<<std::endl;
 
 
   //============ RATE MPC LCT ==================
@@ -1223,8 +1219,8 @@ bool GEMCSCTriggerRate::filter(edm::Event& iEvent, const edm::EventSetup& iSetup
       for (int j=0; j<16; j++) { nmplct_sector_bx_st[s][i][j]=0; nmplct_trigsector_bx_st1[i][j]=0; }
     }
 
-  if (debugRATE) cout<< "----- statring nmplct"<<endl;
-  vector<MatchCSCMuL1::MPLCT> rtMPLCTs;
+  if (debugRATE) std::cout<< "----- statring nmplct"<<std::endl;
+  std::vector<MatchCSCMuL1::MPLCT> rtMPLCTs;
   for (CSCCorrelatedLCTDigiCollection::DigiRangeIterator detUnitIt = mplcts->begin();  detUnitIt != mplcts->end(); detUnitIt++) 
     {
       const CSCDetId& id = (*detUnitIt).first;
@@ -1237,13 +1233,13 @@ bool GEMCSCTriggerRate::filter(edm::Event& iEvent, const edm::EventSetup& iSetup
   	{
   	  if ((*digiIt).isValid()) 
   	    {
-  	      //if (debugRATE) cout<< "----- MPLCT in raw ID "<<id.rawId()<<" "<<id<< " (trig id. " << id.triggerCscId() << ")"<<endl;
-  	      //if (debugRATE) cout<<" "<< (*digiIt);
+  	      //if (debugRATE) std::cout<< "----- MPLCT in raw ID "<<id.rawId()<<" "<<id<< " (trig id. " << id.triggerCscId() << ")"<<std::endl;
+  	      //if (debugRATE) std::cout<<" "<< (*digiIt);
   	      int bx = (*digiIt).getBX();
   	      //if ( bx-6 < minBX_ || bx-6 > maxBX_ )
   	      if ( bx < minBxMPLCT_ || bx > maxBxMPLCT_ )
   		{
-  		  if (debugRATE) cout<<"discarding BX = "<< (*digiIt).getBX()-6 <<endl;
+  		  if (debugRATE) std::cout<<"discarding BX = "<< (*digiIt).getBX()-6 <<std::endl;
   		  continue;
   		}
 
@@ -1286,7 +1282,7 @@ bool GEMCSCTriggerRate::filter(edm::Event& iEvent, const edm::EventSetup& iSetup
   		  float eta_lut = stub.etaValue();
   		  float phi_lut = stub.phiValue();
 
-  		  cout<<"DBGSRLUT "<<id.endcap()<<" "<<id.station()<<" "<<id.ring()<<" "<<id.chamber()<<"  "<<(*digiIt).getKeyWG()<<" "<<(*digiIt).getStrip()<<"  "<<etaphi.first<<" "<<etaphi.second<<"  "<<eta_lut<<" "<<phi_lut<<"  "<<etaphi.first - eta_lut<<" "<<deltaPhi(etaphi.second, phi_lut)<<endl;
+  		  std::cout<<"DBGSRLUT "<<id.endcap()<<" "<<id.station()<<" "<<id.ring()<<" "<<id.chamber()<<"  "<<(*digiIt).getKeyWG()<<" "<<(*digiIt).getStrip()<<"  "<<etaphi.first<<" "<<etaphi.second<<"  "<<eta_lut<<" "<<phi_lut<<"  "<<etaphi.first - eta_lut<<" "<<deltaPhi(etaphi.second, phi_lut)<<std::endl;
   		}
   	    }
   	}
@@ -1308,20 +1304,20 @@ bool GEMCSCTriggerRate::filter(edm::Event& iEvent, const edm::EventSetup& iSetup
   					    if (s==0 && i<7) h_rt_mplct_per_sector_vs_bx_st1t->Fill(nmplct_trigsector_bx_st1[i][j],j+0.5);
   					  }
   					}
-  if (debugRATE) cout<< "----- end nmplct="<<nmplct<<endl;
+  if (debugRATE) std::cout<< "----- end nmplct="<<nmplct<<std::endl;
 
 
   //============ RATE TF TRACK ==================
 
   int ntftrack=0;
-  if (debugRATE) cout<< "----- statring ntftrack"<<endl;
-  vector<MatchCSCMuL1::TFTRACK> rtTFTracks;
-  //  if (debugTFInef && inefTF) cout<<"#################### TF INEFFICIENCY ALL TFTRACKs:"<<endl;
+  if (debugRATE) std::cout<< "----- statring ntftrack"<<std::endl;
+  std::vector<MatchCSCMuL1::TFTRACK> rtTFTracks;
+  //  if (debugTFInef && inefTF) std::cout<<"#################### TF INEFFICIENCY ALL TFTRACKs:"<<std::endl;
   for ( L1CSCTrackCollection::const_iterator trk = l1Tracks->begin(); trk != l1Tracks->end(); trk++)
     {
       if ( trk->first.bx() < minRateBX_ || trk->first.bx() > maxRateBX_ )
   	{
-  	  if (debugRATE) cout<<"discarding BX = "<< trk->first.bx() <<endl;
+  	  if (debugRATE) std::cout<<"discarding BX = "<< trk->first.bx() <<std::endl;
   	  continue;
   	}
       //if (trk->first.endcap()!=1) continue;
@@ -1338,13 +1334,13 @@ bool GEMCSCTriggerRate::filter(edm::Event& iEvent, const edm::EventSetup& iSetup
   	  const CSCCorrelatedLCTDigiCollection::Range& range = (*detUnitIt).second;
   	  for (CSCCorrelatedLCTDigiCollection::const_iterator digiIt = range.first; digiIt != range.second; digiIt++)
   	    {
-  	      if (!((*digiIt).isValid())) cout<<"ALARM!!! match TFCAND to TFTRACK in rates: not valid id="<<id.rawId()<<" "<<id<<endl;
+  	      if (!((*digiIt).isValid())) std::cout<<"ALARM!!! match TFCAND to TFTRACK in rates: not valid id="<<id.rawId()<<" "<<id<<std::endl;
   	      bool me1a_case = (defaultME1a && id.station()==1 && id.ring()==1 && (*digiIt).getStrip() > 127);
   	      if (me1a_case){
   		CSCDetId id1a(id.endcap(),id.station(),4,id.chamber(),0);
   		cid = id1a;
   	      }
-  	      //if (id.station()==1 && id.ring()==4) cout<<"me1adigi check: "<<(*digiIt)<<" "<<endl;
+  	      //if (id.station()==1 && id.ring()==4) std::cout<<"me1adigi check: "<<(*digiIt)<<" "<<std::endl;
   	      myTFTrk.trgdigis.push_back( &*digiIt );
   	      myTFTrk.trgids.push_back( cid );
   	      myTFTrk.trgetaphis.push_back( intersectionEtaPhi(cid, (*digiIt).getKeyWG(), (*digiIt).getStrip()) );
@@ -1370,17 +1366,17 @@ bool GEMCSCTriggerRate::filter(edm::Event& iEvent, const edm::EventSetup& iSetup
   	  auto etaphi2 = myTFTrk.trgetaphis[i2];
   	  auto d = myTFTrk.trgids[i1];
   	  auto &stub = *(myTFTrk.trgdigis[i1]);
-  	  cout<<"DBGdeta12 "<<d.endcap()<<" "<<d.ring()<<" "<<d.chamber()<<"  "<<stub.getKeyWG()<<" "<<stub.getStrip()<<"  "<<myTFTrk.nStubs(1,1,1,1,1)<<" "<<myTFTrk.pt<<" "<<myTFTrk.eta<<"  "<<etaphi1.first<<" "<<etaphi2.first<<" "<<etaphi1.first-etaphi2.first<<"  "<<etaphi1.second<<" "<<etaphi2.second<<" "<<deltaPhi(etaphi1.second,etaphi2.second)<<endl;
+  	  std::cout<<"DBGdeta12 "<<d.endcap()<<" "<<d.ring()<<" "<<d.chamber()<<"  "<<stub.getKeyWG()<<" "<<stub.getStrip()<<"  "<<myTFTrk.nStubs(1,1,1,1,1)<<" "<<myTFTrk.pt<<" "<<myTFTrk.eta<<"  "<<etaphi1.first<<" "<<etaphi2.first<<" "<<etaphi1.first-etaphi2.first<<"  "<<etaphi1.second<<" "<<etaphi2.second<<" "<<deltaPhi(etaphi1.second,etaphi2.second)<<std::endl;
 
   	  if ( (etaphi1.first-etaphi2.first) > 0.1) {
   	    myTFTrk.print("");
-  	    cout<<"############### CSCTFSPCoreLogic printout for large deta12 = "<<etaphi1.first-etaphi2.first<< " at "<<d.endcap()<<" "<<d.ring()<<" "<<d.chamber()<<endl;
+  	    std::cout<<"############### CSCTFSPCoreLogic printout for large deta12 = "<<etaphi1.first-etaphi2.first<< " at "<<d.endcap()<<" "<<d.ring()<<" "<<d.chamber()<<std::endl;
   	    runCSCTFSP(mplcts, dttrigs);
-  	    cout<<"############### end printout"<<endl;
+  	    std::cout<<"############### end printout"<<std::endl;
   	  }
   	}
   	else {
-  	  cout<<"myTFTrk.trgids corrupt"<<endl;
+  	  std::cout<<"myTFTrk.trgids corrupt"<<std::endl;
   	  myTFTrk.print("");
   	}
       }
@@ -1390,19 +1386,19 @@ bool GEMCSCTriggerRate::filter(edm::Event& iEvent, const edm::EventSetup& iSetup
       h_rt_tftrack_mode->Fill(myTFTrk.mode());
     }
   h_rt_ntftrack->Fill(ntftrack);
-  if (debugRATE) cout<< "----- end ntftrack="<<ntftrack<<endl;
+  if (debugRATE) std::cout<< "----- end ntftrack="<<ntftrack<<std::endl;
 
 
   //============ RATE TFCAND ==================
 
   int ntfcand=0, ntfcandpt10=0;
-  if (debugRATE) cout<< "----- statring ntfcand"<<endl;
-  vector<MatchCSCMuL1::TFCAND> rtTFCands;
-  for ( vector< L1MuRegionalCand >::const_iterator trk = l1TfCands->begin(); trk != l1TfCands->end(); trk++)
+  if (debugRATE) std::cout<< "----- statring ntfcand"<<std::endl;
+  std::vector<MatchCSCMuL1::TFCAND> rtTFCands;
+  for ( std::vector< L1MuRegionalCand >::const_iterator trk = l1TfCands->begin(); trk != l1TfCands->end(); trk++)
     {
       if ( trk->bx() < minRateBX_ || trk->bx() > maxRateBX_ )
   	{
-  	  if (debugRATE) cout<<"discarding BX = "<< trk->bx() <<endl;
+  	  if (debugRATE) std::cout<<"discarding BX = "<< trk->bx() <<std::endl;
   	  continue;
   	}
       double sign_eta = ( (trk->eta_packed() & 0x20) == 0) ? 1.:-1;
@@ -1414,7 +1410,7 @@ bool GEMCSCTriggerRate::filter(edm::Event& iEvent, const edm::EventSetup& iSetup
       myTFCand.dr = 999.;
       //double tfpt = myTFCand.pt;
 
-      //if (debugRATE) cout<< "----- eta/phi/pt "<<sign_eta<<"*"<<tfeta<<"/"<<tfphi<<"/"<<tfpt<<" "<< int(trk->eta_packed() & 0x1F) <<endl;
+      //if (debugRATE) std::cout<< "----- eta/phi/pt "<<sign_eta<<"*"<<tfeta<<"/"<<tfphi<<"/"<<tfpt<<" "<< int(trk->eta_packed() & 0x1F) <<std::endl;
 
       ntfcand++;
       //if (tfpt>=10.) ntfcandpt10++;
@@ -1436,11 +1432,11 @@ bool GEMCSCTriggerRate::filter(edm::Event& iEvent, const edm::EventSetup& iSetup
   	}
       rtTFCands.push_back(myTFCand);
       if(myTFCand.tftrack == NULL){
-  	cout<<"myTFCand.tftrack == NULL:"<<endl;
-  	cout<<" cand: "<<trk->pt_packed()<<" "<<trk->eta_packed()<<" "<<trk->phi_packed()<<" "<<trk->bx()<<endl;
-  	cout<<" trk: "<<endl;
+  	std::cout<<"myTFCand.tftrack == NULL:"<<std::endl;
+  	std::cout<<" cand: "<<trk->pt_packed()<<" "<<trk->eta_packed()<<" "<<trk->phi_packed()<<" "<<trk->bx()<<std::endl;
+  	std::cout<<" trk: "<<std::endl;
   	for (size_t tt = 0; tt<rtTFTracks.size(); tt++)
-  	  cout<<"       "<<rtTFTracks[tt].pt_packed<<" "<<rtTFTracks[tt].eta_packed<<" "<<rtTFTracks[tt].phi_packed<<" "<<rtTFTracks[tt].l1trk->bx()<<endl;
+  	  std::cout<<"       "<<rtTFTracks[tt].pt_packed<<" "<<rtTFTracks[tt].eta_packed<<" "<<rtTFTracks[tt].phi_packed<<" "<<rtTFTracks[tt].l1trk->bx()<<std::endl;
       }
 
       if (myTFCand.tftrack != NULL) {
@@ -1453,10 +1449,10 @@ bool GEMCSCTriggerRate::filter(edm::Event& iEvent, const edm::EventSetup& iSetup
     
   	unsigned int ntrg_stubs = myTFCand.tftrack->trgdigis.size();
   	if (ntrg_stubs!=myTFCand.ids.size())
-  	  cout<<"OBA!!! trgdigis.size()!=ids.size(): "<<ntrg_stubs<<"!="<<myTFCand.ids.size()<<endl;
+  	  std::cout<<"OBA!!! trgdigis.size()!=ids.size(): "<<ntrg_stubs<<"!="<<myTFCand.ids.size()<<std::endl;
   	if (ntrg_stubs>=2) h_rt_tfcand_pt_2st->Fill(tfpt);
   	if (ntrg_stubs>=3) h_rt_tfcand_pt_3st->Fill(tfpt);
-  	//cout<<"\n nnntf: "<<ntrg_stubs<<" "<<myTFCand.tftrack->nStubs(0,1,1,1,1)<<endl;
+  	//std::cout<<"\n nnntf: "<<ntrg_stubs<<" "<<myTFCand.tftrack->nStubs(0,1,1,1,1)<<std::endl;
   	//if (ntrg_stubs != myTFCand.tftrack->nStubs()) myTFCand.tftrack->print("non-equal nstubs!");
   	//if (fabs(myTFCand.eta)>1.25 && fabs(myTFCand.eta)<1.9) {
   	if (etaRangeHelpers::isME42EtaRegion(myTFCand.eta)) {
@@ -1486,18 +1482,18 @@ bool GEMCSCTriggerRate::filter(edm::Event& iEvent, const edm::EventSetup& iSetup
   	  h_rt_tfcand_pt_vs_eta_3st1a->Fill(tfpt,tfeta);
   	}
       }
-      //else cout<<"Strange: myTFCand.tftrack != NULL"<<endl;
+      //else std::cout<<"Strange: myTFCand.tftrack != NULL"<<std::endl;
     }
   h_rt_ntfcand->Fill(ntfcand);
   h_rt_ntfcand_pt10->Fill(ntfcandpt10);
-  if (debugRATE) cout<< "----- end ntfcand/ntfcandpt10="<<ntfcand<<"/"<<ntfcandpt10<<endl;
+  if (debugRATE) std::cout<< "----- end ntfcand/ntfcandpt10="<<ntfcand<<"/"<<ntfcandpt10<<std::endl;
 
 
   //============ RATE GMT REGIONAL ==================
 
   int ngmtcsc=0, ngmtcscpt10=0;
-  if (debugRATE) cout<< "----- statring ngmt csc"<<endl;
-  vector<MatchCSCMuL1::GMTREGCAND> rtGMTREGCands;
+  if (debugRATE) std::cout<< "----- statring ngmt csc"<<std::endl;
+  std::vector<MatchCSCMuL1::GMTREGCAND> rtGMTREGCands;
   float max_pt_2s = -1, max_pt_3s = -1, max_pt_2q = -1, max_pt_3q = -1;
   float max_pt_2s_eta = -111, max_pt_3s_eta = -111, max_pt_2q_eta = -111, max_pt_3q_eta = -111;
   float max_pt_me42_2s = -1, max_pt_me42_3s = -1, max_pt_me42_2q = -1, max_pt_me42_3q = -1;
@@ -1532,13 +1528,13 @@ bool GEMCSCTriggerRate::filter(edm::Event& iEvent, const edm::EventSetup& iSetup
   MatchCSCMuL1::TFTRACK *trk__max_pt_2s1b_1b = nullptr;
   const CSCCorrelatedLCTDigi * the_me1_stub = nullptr;
   CSCDetId the_me1_id;
-  map<int,int> bx2n;
+  std::map<int,int> bx2n;
   for (int bx=minRateBX_; bx<=maxRateBX_; bx++) bx2n[bx]=0;
-  for ( vector<L1MuRegionalCand>::const_iterator trk = l1GmtCSCCands.begin(); trk != l1GmtCSCCands.end(); trk++)
+  for ( std::vector<L1MuRegionalCand>::const_iterator trk = l1GmtCSCCands.begin(); trk != l1GmtCSCCands.end(); trk++)
     {
       if ( trk->bx() < minRateBX_ || trk->bx() > maxRateBX_ )
   	{
-  	  if (debugRATE) cout<<"discarding BX = "<< trk->bx() <<endl;
+  	  if (debugRATE) std::cout<<"discarding BX = "<< trk->bx() <<std::endl;
   	  continue;
   	}
       double sign_eta = ( (trk->eta_packed() & 0x20) == 0) ? 1.:-1;
@@ -1603,8 +1599,8 @@ bool GEMCSCTriggerRate::filter(edm::Event& iEvent, const edm::EventSetup& iSetup
 	  
   	  n_stubs = myGMTREGCand.nTFStubs;
   	  size_t n_stubs_id = myGMTREGCand.ids.size();
-  	  //if (n_stubs == n_stubs_id) cout<<"n_stubs good"<<endl;
-  	  if (n_stubs != n_stubs_id) cout<<"n_stubs bad: "<<eta_q<<" "<<n_stubs<<" != "<<n_stubs_id<<" "<< geta  <<endl;
+  	  //if (n_stubs == n_stubs_id) std::cout<<"n_stubs good"<<std::endl;
+  	  if (n_stubs != n_stubs_id) std::cout<<"n_stubs bad: "<<eta_q<<" "<<n_stubs<<" != "<<n_stubs_id<<" "<< geta  <<std::endl;
 	  
   	  auto stub_ids = myGMTREGCand.tfcand->tftrack->trgids;
   	  for (size_t i=0; i<stub_ids.size(); ++i)
@@ -1692,13 +1688,13 @@ bool GEMCSCTriggerRate::filter(edm::Event& iEvent, const edm::EventSetup& iSetup
 
 
   	} else { 
-  	cout<<"GMTCSC match not found pt="<<gpt<<" eta="<<myGMTREGCand.eta<<"  packed: "<<trk->phi_packed()<<" "<<trk->eta_packed()<<endl;
-  	for (unsigned i=0; i< rtTFCands.size(); i++) cout<<"    "<<rtTFCands[i].l1cand->phi_packed()<<" "<<rtTFCands[i].l1cand->eta_packed();
-  	cout<<endl;
-  	cout<<"  all tfcands:";
-  	for ( vector< L1MuRegionalCand >::const_iterator ctrk = l1TfCands->begin(); ctrk != l1TfCands->end(); ctrk++)
-  	  if (!( ctrk->bx() < minRateBX_ || ctrk->bx() > maxRateBX_ )) cout<<"    "<<ctrk->phi_packed()<<" "<<ctrk->eta_packed();
-  	cout<<endl;
+  	std::cout<<"GMTCSC match not found pt="<<gpt<<" eta="<<myGMTREGCand.eta<<"  packed: "<<trk->phi_packed()<<" "<<trk->eta_packed()<<std::endl;
+  	for (unsigned i=0; i< rtTFCands.size(); i++) std::cout<<"    "<<rtTFCands[i].l1cand->phi_packed()<<" "<<rtTFCands[i].l1cand->eta_packed();
+  	std::cout<<std::endl;
+  	std::cout<<"  all tfcands:";
+  	for ( std::vector< L1MuRegionalCand >::const_iterator ctrk = l1TfCands->begin(); ctrk != l1TfCands->end(); ctrk++)
+  	  if (!( ctrk->bx() < minRateBX_ || ctrk->bx() > maxRateBX_ )) std::cout<<"    "<<ctrk->phi_packed()<<" "<<ctrk->eta_packed();
+  	std::cout<<std::endl;
       }
     
       if (trk->quality()>=2) {
@@ -1719,17 +1715,17 @@ bool GEMCSCTriggerRate::filter(edm::Event& iEvent, const edm::EventSetup& iSetup
       }
     
       //if (trk->quality()>=3 && !(myGMTREGCand.ids.size()>=3) ) {
-      //  cout<<"weird stubs number "<<myGMTREGCand.ids.size()<<" for q="<<trk->quality()<<endl;
+      //  std::cout<<"weird stubs number "<<myGMTREGCand.ids.size()<<" for q="<<trk->quality()<<std::endl;
       //  if (myGMTREGCand.tfcand->tftrack != NULL) myGMTREGCand.tfcand->tftrack->print("");
-      //  else cout<<"null tftrack!"<<endl;
+      //  else std::cout<<"null tftrack!"<<std::endl;
       //}
 
       //    if (trk->quality()>=3 && gpt >=40. && etaRangeHelpers::isME1bEtaRegion(myGMTREGCand.eta) ) {
-      //      cout<<"highpt csctf in ME1b "<<endl;
+      //      std::cout<<"highpt csctf in ME1b "<<std::endl;
       //      myGMTREGCand.tfcand->tftrack->print("");
       //    }
       if (has_me1_stub && n_stubs > 2 && gpt >= 30. && geta> 1.6 && geta < 2.15 ) {
-  	cout<<"highpt csctf in ME1b "<<endl;
+  	std::cout<<"highpt csctf in ME1b "<<std::endl;
   	myGMTREGCand.tfcand->tftrack->print("");
       }
 
@@ -1848,11 +1844,11 @@ bool GEMCSCTriggerRate::filter(edm::Event& iEvent, const edm::EventSetup& iSetup
   if (max_pt_me42r_2q>0) h_rt_gmt_csc_ptmax_2q42r->Fill(max_pt_me42r_2q);
   if (max_pt_me42r_3q>0) h_rt_gmt_csc_ptmax_3q42r->Fill(max_pt_me42r_3q);
   for (int bx=minRateBX_; bx<=maxRateBX_; bx++) h_rt_ngmt_csc_per_bx->Fill(bx2n[bx]);
-  if (debugRATE) cout<< "----- end ngmt csc/ngmtpt10="<<ngmtcsc<<"/"<<ngmtcscpt10<<endl;
+  if (debugRATE) std::cout<< "----- end ngmt csc/ngmtpt10="<<ngmtcsc<<"/"<<ngmtcscpt10<<std::endl;
 
   if (max_pt_3s_3s1b>=30.) 
     {
-      cout<<"filled h_rt_gmt_csc_ptmax30_eta_3s_3s1b eta "<<max_pt_3s_3s1b_eta<<endl;
+      std::cout<<"filled h_rt_gmt_csc_ptmax30_eta_3s_3s1b eta "<<max_pt_3s_3s1b_eta<<std::endl;
       if (trk__max_pt_3s_3s1b_eta) trk__max_pt_3s_3s1b_eta->print("");
     }
 
@@ -1864,19 +1860,19 @@ bool GEMCSCTriggerRate::filter(edm::Event& iEvent, const edm::EventSetup& iSetup
   				   {
   				     h_rt_gmt_csc_mode_2s1b_1b[i]->Fill(trk__max_pt_2s1b_1b->mode());
   				   }
-      if (the_me1_stub) cout<<"DBGMODE "<<the_me1_id.endcap()<<" "<<the_me1_id.chamber()<<" "<<trk__max_pt_2s1b_1b->pt<<" "<<trk__max_pt_2s1b_1b->mode()<<" "<<pbend[the_me1_stub->getPattern()] <<" "<<the_me1_stub->getGEMDPhi()<<endl;
+      if (the_me1_stub) std::cout<<"DBGMODE "<<the_me1_id.endcap()<<" "<<the_me1_id.chamber()<<" "<<trk__max_pt_2s1b_1b->pt<<" "<<trk__max_pt_2s1b_1b->mode()<<" "<<pbend[the_me1_stub->getPattern()] <<" "<<the_me1_stub->getGEMDPhi()<<std::endl;
     }
 
   int ngmtrpcf=0, ngmtrpcfpt10=0;
-  if (debugRATE) cout<< "----- statring ngmt rpcf"<<endl;
-  vector<MatchCSCMuL1::GMTREGCAND> rtGMTRPCfCands;
+  if (debugRATE) std::cout<< "----- statring ngmt rpcf"<<std::endl;
+  std::vector<MatchCSCMuL1::GMTREGCAND> rtGMTRPCfCands;
   float max_pt_me42 = -1, max_pt = -1, max_pt_eta = -111;
   for (int bx=minRateBX_; bx<=maxRateBX_; bx++) bx2n[bx]=0;
-  for ( vector<L1MuRegionalCand>::const_iterator trk = l1GmtRPCfCands.begin(); trk != l1GmtRPCfCands.end(); trk++)
+  for ( std::vector<L1MuRegionalCand>::const_iterator trk = l1GmtRPCfCands.begin(); trk != l1GmtRPCfCands.end(); trk++)
     {
       if ( trk->bx() < minRateBX_ || trk->bx() > maxRateBX_ )
   	{
-  	  if (debugRATE) cout<<"discarding BX = "<< trk->bx() <<endl;
+  	  if (debugRATE) std::cout<<"discarding BX = "<< trk->bx() <<std::endl;
   	  continue;
   	}
       double sign_eta = ( (trk->eta_packed() & 0x20) == 0) ? 1.:-1;
@@ -1914,19 +1910,19 @@ bool GEMCSCTriggerRate::filter(edm::Event& iEvent, const edm::EventSetup& iSetup
   if (max_pt>=10.) h_rt_gmt_rpcf_ptmax10_eta->Fill(max_pt_eta);
   if (max_pt>=20.) h_rt_gmt_rpcf_ptmax20_eta->Fill(max_pt_eta);
   if (max_pt_me42>0) h_rt_gmt_rpcf_ptmax_42->Fill(max_pt_me42);
-  if (debugRATE) cout<< "----- end ngmt rpcf/ngmtpt10="<<ngmtrpcf<<"/"<<ngmtrpcfpt10<<endl;
+  if (debugRATE) std::cout<< "----- end ngmt rpcf/ngmtpt10="<<ngmtrpcf<<"/"<<ngmtrpcfpt10<<std::endl;
 
 
   int ngmtrpcb=0, ngmtrpcbpt10=0;
-  if (debugRATE) cout<< "----- statring ngmt rpcb"<<endl;
-  vector<MatchCSCMuL1::GMTREGCAND> rtGMTRPCbCands;
+  if (debugRATE) std::cout<< "----- statring ngmt rpcb"<<std::endl;
+  std::vector<MatchCSCMuL1::GMTREGCAND> rtGMTRPCbCands;
   max_pt = -1, max_pt_eta = -111;
   for (int bx=minRateBX_; bx<=maxRateBX_; bx++) bx2n[bx]=0;
-  for ( vector<L1MuRegionalCand>::const_iterator trk = l1GmtRPCbCands.begin(); trk != l1GmtRPCbCands.end(); trk++)
+  for ( std::vector<L1MuRegionalCand>::const_iterator trk = l1GmtRPCbCands.begin(); trk != l1GmtRPCbCands.end(); trk++)
     {
       if ( trk->bx() < minRateBX_ || trk->bx() > maxRateBX_ )
   	{
-  	  if (debugRATE) cout<<"discarding BX = "<< trk->bx() <<endl;
+  	  if (debugRATE) std::cout<<"discarding BX = "<< trk->bx() <<std::endl;
   	  continue;
   	}
       double sign_eta = ( (trk->eta_packed() & 0x20) == 0) ? 1.:-1;
@@ -1957,19 +1953,19 @@ bool GEMCSCTriggerRate::filter(edm::Event& iEvent, const edm::EventSetup& iSetup
   if (max_pt>0) h_rt_gmt_rpcb_ptmax->Fill(max_pt);
   if (max_pt>=10.) h_rt_gmt_rpcb_ptmax10_eta->Fill(max_pt_eta);
   if (max_pt>=20.) h_rt_gmt_rpcb_ptmax20_eta->Fill(max_pt_eta);
-  if (debugRATE) cout<< "----- end ngmt rpcb/ngmtpt10="<<ngmtrpcb<<"/"<<ngmtrpcbpt10<<endl;
+  if (debugRATE) std::cout<< "----- end ngmt rpcb/ngmtpt10="<<ngmtrpcb<<"/"<<ngmtrpcbpt10<<std::endl;
 
 
   int ngmtdt=0, ngmtdtpt10=0;
-  if (debugRATE) cout<< "----- statring ngmt dt"<<endl;
-  vector<MatchCSCMuL1::GMTREGCAND> rtGMTDTCands;
+  if (debugRATE) std::cout<< "----- statring ngmt dt"<<std::endl;
+  std::vector<MatchCSCMuL1::GMTREGCAND> rtGMTDTCands;
   max_pt = -1, max_pt_eta = -111;
   for (int bx=minRateBX_; bx<=maxRateBX_; bx++) bx2n[bx]=0;
-  for ( vector<L1MuRegionalCand>::const_iterator trk = l1GmtDTCands.begin(); trk != l1GmtDTCands.end(); trk++)
+  for ( std::vector<L1MuRegionalCand>::const_iterator trk = l1GmtDTCands.begin(); trk != l1GmtDTCands.end(); trk++)
     {
       if ( trk->bx() < minRateBX_ || trk->bx() > maxRateBX_ )
   	{
-  	  if (debugRATE) cout<<"discarding BX = "<< trk->bx() <<endl;
+  	  if (debugRATE) std::cout<<"discarding BX = "<< trk->bx() <<std::endl;
   	  continue;
   	}
       double sign_eta = ( (trk->eta_packed() & 0x20) == 0) ? 1.:-1;
@@ -2000,14 +1996,14 @@ bool GEMCSCTriggerRate::filter(edm::Event& iEvent, const edm::EventSetup& iSetup
   if (max_pt>0) h_rt_gmt_dt_ptmax->Fill(max_pt);
   if (max_pt>=10.) h_rt_gmt_dt_ptmax10_eta->Fill(max_pt_eta);
   if (max_pt>=20.) h_rt_gmt_dt_ptmax20_eta->Fill(max_pt_eta);
-  if (debugRATE) cout<< "----- end ngmt dt/ngmtpt10="<<ngmtdt<<"/"<<ngmtdtpt10<<endl;
+  if (debugRATE) std::cout<< "----- end ngmt dt/ngmtpt10="<<ngmtdt<<"/"<<ngmtdtpt10<<std::endl;
 
 
   //============ RATE GMT ==================
 
   int ngmt=0;
-  if (debugRATE) cout<< "----- statring ngmt"<<endl;
-  vector<MatchCSCMuL1::GMTCAND> rtGMTCands;
+  if (debugRATE) std::cout<< "----- statring ngmt"<<std::endl;
+  std::vector<MatchCSCMuL1::GMTCAND> rtGMTCands;
   max_pt_me42_2s = -1; max_pt_me42_3s = -1;  max_pt_me42_2q = -1; max_pt_me42_3q = -1;
   max_pt_me42r_2s = -1; max_pt_me42r_3s = -1;  max_pt_me42r_2q = -1; max_pt_me42r_3q = -1;
   float max_pt_me42_2s_sing = -1, max_pt_me42_3s_sing = -1, max_pt_me42_2q_sing = -1, max_pt_me42_3q_sing = -1;
@@ -2028,23 +2024,23 @@ bool GEMCSCTriggerRate::filter(edm::Event& iEvent, const edm::EventSetup& iSetup
 
   float max_pt_dbl = -1, max_pt_eta_dbl = -999;
 
-  vector<L1MuGMTReadoutRecord> gmt_records = hl1GmtCands->getRecords();
-  for ( vector< L1MuGMTReadoutRecord >::const_iterator rItr=gmt_records.begin(); rItr!=gmt_records.end() ; ++rItr )
+  std::vector<L1MuGMTReadoutRecord> gmt_records = hl1GmtCands->getRecords();
+  for ( std::vector< L1MuGMTReadoutRecord >::const_iterator rItr=gmt_records.begin(); rItr!=gmt_records.end() ; ++rItr )
     {
       if (rItr->getBxInEvent() < minBxGMT_ || rItr->getBxInEvent() > maxBxGMT_) continue;
 
-      vector<L1MuRegionalCand> CSCCands = rItr->getCSCCands();
-      vector<L1MuRegionalCand> DTCands  = rItr->getDTBXCands();
-      vector<L1MuRegionalCand> RPCfCands = rItr->getFwdRPCCands();
-      vector<L1MuRegionalCand> RPCbCands = rItr->getBrlRPCCands();
-      vector<L1MuGMTExtendedCand> GMTCands = rItr->getGMTCands();
-      for ( vector<L1MuGMTExtendedCand>::const_iterator  muItr = GMTCands.begin() ; muItr != GMTCands.end() ; ++muItr )
+      std::vector<L1MuRegionalCand> CSCCands = rItr->getCSCCands();
+      std::vector<L1MuRegionalCand> DTCands  = rItr->getDTBXCands();
+      std::vector<L1MuRegionalCand> RPCfCands = rItr->getFwdRPCCands();
+      std::vector<L1MuRegionalCand> RPCbCands = rItr->getBrlRPCCands();
+      std::vector<L1MuGMTExtendedCand> GMTCands = rItr->getGMTCands();
+      for ( std::vector<L1MuGMTExtendedCand>::const_iterator  muItr = GMTCands.begin() ; muItr != GMTCands.end() ; ++muItr )
   	{
   	  if( muItr->empty() ) continue;
 
   	  if ( muItr->bx() < minRateBX_ || muItr->bx() > maxRateBX_ )
   	    {
-  	      if (debugRATE) cout<<"discarding BX = "<< muItr->bx() <<endl;
+  	      if (debugRATE) std::cout<<"discarding BX = "<< muItr->bx() <<std::endl;
   	      continue;
   	    }
 
@@ -2070,7 +2066,7 @@ bool GEMCSCTriggerRate::filter(edm::Event& iEvent, const edm::EventSetup& iSetup
   		break;
   	      }
   	    if (my_i<99) gmt_csc = &rtGMTREGCands[my_i];
-  	    else cout<<"DOES NOT EXIST IN rtGMTREGCands! Should not happen!"<<endl;
+  	    else std::cout<<"DOES NOT EXIST IN rtGMTREGCands! Should not happen!"<<std::endl;
   	    myGMTCand.regcand = gmt_csc;
   	    myGMTCand.ids = gmt_csc->ids;
   	  }
@@ -2087,7 +2083,7 @@ bool GEMCSCTriggerRate::filter(edm::Event& iEvent, const edm::EventSetup& iSetup
   		  break;
   		}
   	      if (my_i<99) gmt_rpcf = &rtGMTRPCfCands[my_i];
-  	      else cout<<"DOES NOT EXIST IN rtGMTRPCfCands! Should not happen!"<<endl;
+  	      else std::cout<<"DOES NOT EXIST IN rtGMTRPCfCands! Should not happen!"<<std::endl;
   	      myGMTCand.regcand_rpc = gmt_rpcf;
   	    }
 
@@ -2103,7 +2099,7 @@ bool GEMCSCTriggerRate::filter(edm::Event& iEvent, const edm::EventSetup& iSetup
   		  break;
   		}
   	      if (my_i<99) gmt_rpcb = &rtGMTRPCbCands[my_i];
-  	      else cout<<"DOES NOT EXIST IN rtGMTRPCbCands! Should not happen!"<<endl;
+  	      else std::cout<<"DOES NOT EXIST IN rtGMTRPCbCands! Should not happen!"<<std::endl;
   	      myGMTCand.regcand_rpc = gmt_rpcb;
   	    }
 
@@ -2119,11 +2115,11 @@ bool GEMCSCTriggerRate::filter(edm::Event& iEvent, const edm::EventSetup& iSetup
   		  break;
   		}
   	      if (my_i<99) gmt_dt = &rtGMTDTCands[my_i];
-  	      else cout<<"DOES NOT EXIST IN rtGMTDTCands! Should not happen!"<<endl;
+  	      else std::cout<<"DOES NOT EXIST IN rtGMTDTCands! Should not happen!"<<std::endl;
   	      myGMTCand.regcand = gmt_dt;
   	    }
 
-  	  if ( (gmt_csc != NULL && gmt_rpcf != NULL) && !muItr->isMatchedCand() ) cout<<"csc&rpcf but not matched!"<<endl;
+  	  if ( (gmt_csc != NULL && gmt_rpcf != NULL) && !muItr->isMatchedCand() ) std::cout<<"csc&rpcf but not matched!"<<std::endl;
 
   	  bool eta_me42 = etaRangeHelpers::isME42EtaRegion(myGMTCand.eta);
   	  bool eta_me42r = etaRangeHelpers::isME42RPCEtaRegion(myGMTCand.eta);
@@ -2152,7 +2148,7 @@ bool GEMCSCTriggerRate::filter(edm::Event& iEvent, const edm::EventSetup& iSetup
   	    if (muItr->isMatchedCand()) gtype = 6;
   	    else if (gmt_csc!=0) gtype = gmt_csc->l1reg->quality()+2;
   	    else if (gmt_rpcf!=0) gtype = gmt_rpcf->l1reg->quality()+1;
-  	    if (gtype==0) cout<<"weird: gtype=0 That shouldn't happen!";
+  	    if (gtype==0) std::cout<<"weird: gtype=0 That shouldn't happen!";
   	    h_rt_gmt_gq_vs_type_42r->Fill(muItr->quality(), gtype);
   	    h_rt_gmt_gq_vs_pt_42r->Fill(muItr->quality(), gpt);
   	    h_rt_gmt_gq_42r->Fill(muItr->quality());
@@ -2175,9 +2171,9 @@ bool GEMCSCTriggerRate::filter(edm::Event& iEvent, const edm::EventSetup& iSetup
   	  bool isRPCf = (gmt_rpcf != NULL);
   	  bool isRPCb = (gmt_rpcb != NULL);
 
-  	  if (isCSC && gmt_csc->tfcand != NULL && gmt_csc->tfcand->tftrack == NULL) cout<<"warning: gmt_csc->tfcand->tftrack == NULL"<<endl;
+  	  if (isCSC && gmt_csc->tfcand != NULL && gmt_csc->tfcand->tftrack == NULL) std::cout<<"warning: gmt_csc->tfcand->tftrack == NULL"<<std::endl;
   	  if (isCSC && gmt_csc->tfcand != NULL && gmt_csc->tfcand->tftrack != NULL && gmt_csc->tfcand->tftrack->l1trk == NULL)
-  	    cout<<"warning: gmt_csc->tfcand->tftrack->l1trk == NULL"<<endl;
+  	    std::cout<<"warning: gmt_csc->tfcand->tftrack->l1trk == NULL"<<std::endl;
   	  //bool isCSC2s = (isCSC && gmt_csc->tfcand != NULL && myGMTCand.ids.size()>=2);
   	  //bool isCSC3s = (isCSC && gmt_csc->tfcand != NULL && myGMTCand.ids.size()>=3);
   	  bool isCSC2s = (isCSC && gmt_csc->tfcand != NULL && gmt_csc->tfcand->tftrack != NULL && gmt_csc->tfcand->tftrack->nStubs()>=2);
@@ -2334,7 +2330,7 @@ bool GEMCSCTriggerRate::filter(edm::Event& iEvent, const edm::EventSetup& iSetup
   if (max_pt_dbl>0) h_rt_gmt_ptmax_dbl->Fill(max_pt_dbl);
   if (max_pt_dbl>=10.) h_rt_gmt_ptmax10_eta_dbl->Fill(max_pt_eta_dbl);
   if (max_pt_dbl>=20.) h_rt_gmt_ptmax20_eta_dbl->Fill(max_pt_eta_dbl);
-  if (debugRATE) cout<< "----- end ngmt="<<ngmt<<endl;
+  if (debugRATE) std::cout<< "----- end ngmt="<<ngmt<<std::endl;
 
 
   //  for (unsigned int i=0; i<matches.size(); i++) delete matches[i];
@@ -2388,7 +2384,7 @@ GEMCSCTriggerRate::runCSCTFSP(const CSCCorrelatedLCTDigiCollection* mplcts, cons
   for (int s=0; s<6; s++) {
     CSCTriggerContainer<csctf::TrackStub> current_e_s = stub_list.get(e+1, s+1);
     if (current_e_s.get().size()>0) {
-      cout<<"sector "<<s+1<<":"<<endl<<endl;
+      std::cout<<"sector "<<s+1<<":"<<std::endl<<std::endl;
       my_SPs[e][s]->run(current_e_s);
     }
   }
@@ -2459,7 +2455,7 @@ void GEMCSCTriggerRate::setupTFModeHisto(TH1D* h)
 {
   if (h==0) return;
   if (h->GetXaxis()->GetNbins()<16) {
-    cout<<"TF mode histogram should have 16 bins, nbins="<<h->GetXaxis()->GetNbins()<<endl;
+    std::cout<<"TF mode histogram should have 16 bins, nbins="<<h->GetXaxis()->GetNbins()<<std::endl;
     return;
   }
   h->GetXaxis()->SetTitle("Track Type");
@@ -2484,7 +2480,7 @@ void GEMCSCTriggerRate::setupTFModeHisto(TH1D* h)
 
 // ================================================================================================
 
-pair<float, float> GEMCSCTriggerRate::intersectionEtaPhi(CSCDetId id, int wg, int hs)
+std::pair<float, float> GEMCSCTriggerRate::intersectionEtaPhi(CSCDetId id, int wg, int hs)
 {
 
   CSCDetId layerId(id.endcap(), id.station(), id.ring(), id.chamber(), CSCConstants::KEY_CLCT_LAYER);
@@ -2502,7 +2498,7 @@ pair<float, float> GEMCSCTriggerRate::intersectionEtaPhi(CSCDetId id, int wg, in
   
   GlobalPoint csc_gp = cscGeometry->idToDet(layerId)->surface().toGlobal(csc_intersect);
   
-  return make_pair(csc_gp.eta(), csc_gp.phi());
+  return std::make_pair(csc_gp.eta(), csc_gp.phi());
 }
 
 // ================================================================================================
