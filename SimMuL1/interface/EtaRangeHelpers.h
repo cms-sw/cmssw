@@ -1,7 +1,7 @@
-#ifndef SimMuL1_Helpers_h
-#define SimMuL1_Helpers_h
+#ifndef SimMuL1_EtaRangeHelpers_h
+#define SimMuL1_EtaRangeHelpers_h
 
-namespace triggerHelpers
+namespace etaRangeHelpers
 {
   bool isME1bEtaRegion(float eta, float eta_min = 1.64, float eta_max = 2.14);
   bool isME1abEtaRegion(float eta, float eta_min = 1.64);

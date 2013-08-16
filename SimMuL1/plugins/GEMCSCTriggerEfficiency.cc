@@ -36,6 +36,7 @@
 #include "Geometry/GEMGeometry/interface/GEMGeometry.h"
 
 #include "GEMCode/GEMValidation/src/SimTrackMatchManager.h"
+#include "GEMCode/SimMuL1/interface/EtaRangeHelpers.h"
 
 using namespace std;
 using namespace reco;
@@ -67,12 +68,6 @@ namespace
     
     a = ( sx2*sy - sx*sxy ) / delta;
     b = ( n*sxy -sx*sy ) / delta;
-  }
-
-  bool isME1bEtaRegion(float eta, float eta_min = 1.64, float eta_max = 2.14)
-  {
-    if (fabs(eta) >= eta_min && fabs(eta) <= eta_max) return true;
-    else return false;
   }
 
   //
@@ -1467,8 +1462,8 @@ bool GEMCSCTriggerEfficiency::filter(edm::Event& iEvent, const edm::EventSetup& 
       bool eta_ok = ( fabs(steta) >= 1.2 &&  fabs(steta) <= 2.14 );
       bool etapt_ok = eta_ok && pt_ok;
 
-      bool eta_1b = isME1bEtaRegion(steta, 1.6, 2.12);
-      bool eta_gem_1b = isME1bEtaRegion(steta, 1.64, 2.05);
+      bool eta_1b = etaRangeHelpers::isME1bEtaRegion(steta, 1.6, 2.12);
+      bool eta_gem_1b = etaRangeHelpers::isME1bEtaRegion(steta, 1.64, 2.05);
 
 
       unsigned nst_with_hits = match->nStationsWithHits();
@@ -2298,7 +2293,7 @@ bool GEMCSCTriggerEfficiency::filter(edm::Event& iEvent, const edm::EventSetup& 
 
       	  // wor weight calculation
       	  //if (fabs(steta)>1.25 && fabs(steta)<1.9) {
-      	  if (isME42EtaRegion(steta)) {
+      	  if (etaRangeHelpers::isME42EtaRegion(steta)) {
 	    //      	    double weight = rateWeight(stpt);
       	    if (tfc->tftrack->nStubs()>=2) {
       	      h_tf_pt_h42_2st->Fill(tfc_pt);
@@ -4417,20 +4412,6 @@ GEMCSCTriggerEfficiency::cscTriggerSubsector(CSCDetId &id)
   chamber = ((chamber-1)%6) + 1; // renumber all chambers to 1-6
   return ((chamber-1) / 3) + 1; // [1,3] -> 1 , [4,6]->2
 }
-
-// ================================================================================================
-bool GEMCSCTriggerEfficiency::isME42EtaRegion(float eta)
-{
-  if (fabs(eta)>=1.2499 && fabs(eta)<=1.8) return true;
-  else return false;
-}
-
-bool GEMCSCTriggerEfficiency::isME42RPCEtaRegion(float eta)
-{
-  if (fabs(eta)>=1.2499 && fabs(eta)<=1.6) return true;
-  else return false;
-}
-
 
 // ================================================================================================
 

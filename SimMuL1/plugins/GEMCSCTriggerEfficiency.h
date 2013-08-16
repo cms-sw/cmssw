@@ -202,9 +202,6 @@ public:
   // calculates the weight of the event to reproduce a min bias
   //spectrum, from G. Wrochna's note CMSS 1997/096
 
-  bool isME42EtaRegion(float eta);
-  bool isME42RPCEtaRegion(float eta);
-
   static void setupTFModeHisto(TH1D* h);
 
   std::pair<float, float> intersectionEtaPhi(CSCDetId id, int wg, int hs);
