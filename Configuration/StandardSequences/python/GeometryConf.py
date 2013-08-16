@@ -31,6 +31,7 @@ GeometryConf={
     'ExtendedInflated10TIBTIDServiceCylinder' : 'ExtendedInflated10TIBTIDServiceCylinder,ExtendedInflated10TIBTIDServiceCylinderReco',
     'ExtendedFlat10Percent'           : 'ExtendedFlat10Percent,ExtendedFlat10PercentReco',
     'ExtendedFlat20Percent'           : 'ExtendedFlat20Percent,ExtendedFlat20PercentReco',
+    'ExtendedFlat30Percent'           : 'ExtendedFlat30Percent,ExtendedFlat30PercentReco',
     'ExtendedFlat10Services30Percent' : 'ExtendedFlat10Services30Percent,ExtendedFlat10Services30PercentReco',
     'ExtendedFlat20Services30Percent' : 'ExtendedFlat20Services30Percent,ExtendedFlat20Services30PercentReco',
     'ExtendedServices30Percent'       : 'ExtendedServices30Percent,ExtendedServices30PercentReco',
