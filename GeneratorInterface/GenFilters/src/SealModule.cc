@@ -14,6 +14,7 @@
 #include "GeneratorInterface/GenFilters/interface/MCDijetResonance.h"
 #include "GeneratorInterface/GenFilters/interface/MCProcessFilter.h"
 #include "GeneratorInterface/GenFilters/interface/MCProcessRangeFilter.h"
+#include "GeneratorInterface/GenFilters/interface/MCPdgIndexFilter.h"
 #include "GeneratorInterface/GenFilters/interface/MCSingleParticleFilter.h"
 #include "GeneratorInterface/GenFilters/interface/MCSmartSingleParticleFilter.h"
 #include "GeneratorInterface/GenFilters/interface/MCZll.h"
@@ -59,6 +60,7 @@
   DEFINE_FWK_MODULE(MCDijetResonance);
   DEFINE_FWK_MODULE(MCProcessFilter);
   DEFINE_FWK_MODULE(MCProcessRangeFilter);
+  DEFINE_FWK_MODULE(MCPdgIndexFilter);
   DEFINE_FWK_MODULE(MCSingleParticleFilter);
   DEFINE_FWK_MODULE(MCSmartSingleParticleFilter);
   DEFINE_FWK_MODULE(MCZll);
