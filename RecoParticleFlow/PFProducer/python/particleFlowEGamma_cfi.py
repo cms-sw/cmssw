@@ -9,7 +9,7 @@ particleFlowEGamma = cms.EDProducer("PFEGammaProducer",
     EEtoPS_source = cms.InputTag("particleFlowSuperClusterECAL","eetops"),
 
     #allow building of candidates with no input or output supercluster?
-    produceEGCandsWithNoSuperCluster = cms.bool(True),
+    produceEGCandsWithNoSuperCluster = cms.bool(False),
 
     # reco::muons label and Post Muon cleaning
     muons = cms.InputTag("muons1stStep"),
