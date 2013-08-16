@@ -38,8 +38,6 @@ class SimTrack;
  **  
  **
  **  $Id: TkConvValidator
- **  $Date: 2011/07/11 17:53:34 $ 
- **  $Revision: 1.2 $
  **  \author N.Marinelli - Univ. of Notre Dame
  **
  ***/

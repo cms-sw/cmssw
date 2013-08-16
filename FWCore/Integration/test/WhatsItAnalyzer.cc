@@ -13,7 +13,6 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Jun 24 19:13:25 EDT 2005
-// $Id: WhatsItAnalyzer.cc,v 1.11 2010/05/12 14:19:38 chrjones Exp $
 //
 //
 

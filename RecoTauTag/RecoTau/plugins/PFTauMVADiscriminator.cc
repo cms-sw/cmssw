@@ -13,7 +13,6 @@
 //
 // Original Author:  Evan K. Friis, UC Davis (friis@physics.ucdavis.edu)
 //         Created:  Fri Aug 15 11:22:14 PDT 2008
-// $Id: PFTauMVADiscriminator.cc,v 1.4 2010/10/19 21:29:13 wmtan Exp $
 //
 //
 

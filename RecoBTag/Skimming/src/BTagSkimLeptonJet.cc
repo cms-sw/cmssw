@@ -1,8 +1,6 @@
 /** \class BTaSkimLeptonJet
  *
  *
- * $Date: 2008/06/29 18:13:20 $
- * $Revision: 1.7 $
  *
  * \author Francisco Yumiceva, FERMILAB
  *

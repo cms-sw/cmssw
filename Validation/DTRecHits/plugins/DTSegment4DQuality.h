@@ -5,8 +5,6 @@
  *  Basic analyzer class which accesses 4D DTSegments
  *  and plot resolution comparing reconstructed and simulated quantities
  *
- *  $Date: 2010/09/13 09:49:18 $
- *  $Revision: 1.7 $
  *  \author S. Bolognesi and G. Cerminara - INFN Torino
  */
 

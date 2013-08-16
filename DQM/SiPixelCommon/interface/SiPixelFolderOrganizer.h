@@ -16,7 +16,6 @@ Usage:
 //
 // Original Author:  chiochia
 //         Created:  Thu Jan 26 23:49:46 CET 2006
-// $Id: SiPixelFolderOrganizer.h,v 1.5 2008/06/06 15:55:01 merkelp Exp $
 #include "DQMServices/Core/interface/DQMStore.h"
 #include <boost/cstdint.hpp>
 #include <string>

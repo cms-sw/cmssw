@@ -16,7 +16,6 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Sep 23 09:58:07 EDT 2008
-// $Id: ErrorThrower.h,v 1.1 2008/09/23 15:49:33 chrjones Exp $
 //
 
 #if !defined(__CINT__) && !defined(__MAKECINT__)

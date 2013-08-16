@@ -13,7 +13,6 @@
 //
 // Original Author:  Andrea RIZZI
 //         Created:  Thu Dec 22 14:51:44 CET 2011
-// $Id: FastPrimaryVertexProducer.cc,v 1.3 2012/02/02 09:04:04 arizzi Exp $
 //
 //
 

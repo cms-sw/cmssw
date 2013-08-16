@@ -1,11 +1,8 @@
-// $Id: MonitorElementsDb.cc,v 1.25 2013/05/10 22:00:50 yiiyama Exp $
 
 /*!
   \file MonitorElementsDb.cc
   \brief Generate a Monitor Element from DB data
   \author B. Gobbo
-  \version $Revision: 1.25 $
-  \date $Date: 2013/05/10 22:00:50 $
 */
 
 #include "FWCore/ServiceRegistry/interface/Service.h"

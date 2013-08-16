@@ -1,5 +1,5 @@
 #!/bin/bash
-# $Id: mkstore.sh,v 1.10 2012/07/06 16:00:16 gbauer Exp $
+# $Id: mkstore.sh,v 1.9 2010/04/27 01:59:51 gbauer Exp $
 
 if test -e "/etc/profile.d/sm_env.sh"; then 
     source /etc/profile.d/sm_env.sh

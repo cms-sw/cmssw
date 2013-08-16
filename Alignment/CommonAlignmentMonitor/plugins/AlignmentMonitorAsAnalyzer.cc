@@ -13,7 +13,7 @@
 //
 // Original Author:  Jim Pivarski
 //         Created:  Sat Apr 26 12:36:13 CDT 2008
-// $Id: AlignmentMonitorAsAnalyzer.cc,v 1.10 2013/01/07 19:32:02 wmtan Exp $
+// $Id: AlignmentMonitorAsAnalyzer.cc,v 1.9 2012/07/13 09:18:40 yana Exp $
 //
 //
 
@@ -66,9 +66,9 @@ class AlignmentMonitorAsAnalyzer : public edm::EDAnalyzer {
       typedef std::vector<ConstTrajTrackPair> ConstTrajTrackPairCollection;
 
    private:
-      virtual void beginJob();
-      virtual void analyze(const edm::Event&, const edm::EventSetup&);
-      virtual void endJob();
+      virtual void beginJob() override;
+      virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
+      virtual void endJob() override;
 
       // ----------member data ---------------------------
       edm::InputTag m_tjTag;

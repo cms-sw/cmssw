@@ -13,7 +13,6 @@
 //
 // Original Author:  Georgios Daskalakis
 //         Created:  Thu Apr 12 17:02:06 CEST 2007
-// $Id: EcalDeadChannelRecoveryAlgos.cc,v 1.10 2010/08/06 20:24:54 wmtan Exp $
 //
 // May 4th 2007 S. Beauceron : modification of MakeNxNMatrice in order to use vectors
 //

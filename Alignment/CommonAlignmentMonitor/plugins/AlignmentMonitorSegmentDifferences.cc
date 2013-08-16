@@ -5,7 +5,7 @@
  * Original Author:  Jim Pivarski
  *         Created:  Mon Nov 12 13:30:14 CST 2007
  *
- * $Id: AlignmentMonitorSegmentDifferences.cc,v 1.6 2011/10/12 22:59:47 khotilov Exp $
+ * $Id: AlignmentMonitorSegmentDifferences.cc,v 1.5 2011/04/15 23:09:38 khotilov Exp $
  */
 
 #include "Alignment/CommonAlignmentMonitor/interface/AlignmentMonitorPluginFactory.h"
@@ -31,12 +31,12 @@ public:
   AlignmentMonitorSegmentDifferences(const edm::ParameterSet& cfg);
   ~AlignmentMonitorSegmentDifferences() {}
 
-  void book();
+  void book() override;
 
-  void event(const edm::Event &iEvent, const edm::EventSetup &iSetup, const ConstTrajTrackPairCollection& iTrajTracks);
+  void event(const edm::Event &iEvent, const edm::EventSetup &iSetup, const ConstTrajTrackPairCollection& iTrajTracks) override;
   void processMuonResidualsFromTrack(MuonResidualsFromTrack &mrft);
 
-  void afterAlignment(const edm::EventSetup &iSetup) {}
+  void afterAlignment(const edm::EventSetup &iSetup) override {}
 
 private:
 

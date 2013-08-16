@@ -4,8 +4,6 @@
 /*
  * \file DQMEventInfo.h
  *
- * $Date: 2009/09/06 11:34:28 $
- * $Revision: 1.2 $
  * \author M. Zanetti - INFN Padova
  *
 */

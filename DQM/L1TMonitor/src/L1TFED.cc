@@ -1,8 +1,6 @@
 /*
  * \file L1TFED.cc
  *
- * $Date: 2010/04/06 01:14:46 $
- * $Revision: 1.15 $
  * \author J. Berryhill
  *
  */

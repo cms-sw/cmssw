@@ -3,7 +3,6 @@
    Declaration of class EcalCleaningAlgo
 
    \author Stefano Argiro
-   \version $Id: EcalCleaningAlgo.h,v 1.5 2011/05/17 12:07:25 argiro Exp $
    \date 20 Dec 2010
 */
 

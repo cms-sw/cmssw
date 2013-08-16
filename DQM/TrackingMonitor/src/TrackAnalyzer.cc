@@ -1,8 +1,6 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2012/03/28 22:59:43 $
- *  $Revision: 1.25 $
  *  \author Suchandra Dutta , Giorgia Mila
  */
 
@@ -133,6 +131,15 @@ TrackAnalyzer::TrackAnalyzer(const edm::ParameterSet& iConfig)
 {
 
   //  std::cout << "TrackAnalyzer::TrackAnalyzer() - doGoodTrackPlots_ = "  << doGoodTrackPlots_ << std::endl;
+
+}
+
+TrackAnalyzer::TrackAnalyzer(const edm::ParameterSet& iConfig, edm::ConsumesCollector& iC) : TrackAnalyzer(iConfig)
+{
+  
+  edm::InputTag bsSrc = conf_.getParameter<edm::InputTag>("beamSpot");
+  beamSpotToken_ = iC.consumes<reco::BeamSpot>(bsSrc);
+  
 
 }
 
@@ -631,11 +638,12 @@ void TrackAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 
   if(doBSPlots_ || doAllPlots_)
     {
-      edm::InputTag bsSrc = conf_.getParameter< edm::InputTag >("beamSpot");
+      //      edm::InputTag bsSrc = conf_.getParameter< edm::InputTag >("beamSpot");
 
       edm::Handle<reco::BeamSpot> recoBeamSpotHandle;
-        iEvent.getByLabel(bsSrc,recoBeamSpotHandle);
-        reco::BeamSpot bs = *recoBeamSpotHandle;      
+      //        iEvent.getByLabel(bsSrc,recoBeamSpotHandle);
+      iEvent.getByToken(beamSpotToken_,recoBeamSpotHandle);
+      reco::BeamSpot bs = *recoBeamSpotHandle;      
 
         DistanceOfClosestApproachToBS->Fill(track.dxy(bs.position()));
         DistanceOfClosestApproachToBSVsPhi->Fill(track.phi(), track.dxy(bs.position()));

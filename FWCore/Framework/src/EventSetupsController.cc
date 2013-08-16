@@ -8,7 +8,6 @@
 //
 // Original Author:  Chris Jones, W. David Dagenhart
 //         Created:  Wed Jan 12 14:30:44 CST 2011
-// $Id: EventSetupsController.cc,v 1.4 2012/06/06 15:51:21 wdd Exp $
 //
 
 #include "FWCore/Framework/src/EventSetupsController.h"

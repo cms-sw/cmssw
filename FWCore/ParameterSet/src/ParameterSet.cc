@@ -30,7 +30,7 @@
 namespace edm {
 
   void
-  ParameterSet::invalidateRegistration(std::string const& nameOfTracked) const {
+  ParameterSet::invalidateRegistration(std::string const& nameOfTracked) {
     // We have added a new parameter.  Invalidate the ID.
     if(isRegistered()) {
       id_ = ParameterSetID();
@@ -74,7 +74,7 @@ namespace edm {
   }
 
   // ----------------------------------------------------------------------
-  // from coded string and ID.  Will cause registration
+  // from coded string and ID.
 
   ParameterSet::ParameterSet(std::string const& code, ParameterSetID const& id) :
     tbl_(),
@@ -87,10 +87,25 @@ namespace edm {
         << "passed to a ParameterSet during construction is invalid:\n"
         << code;
     }
-    pset::Registry::instance()->insertMapped(*this);
   }
 
   ParameterSet::~ParameterSet() {}
+
+  void
+  ParameterSet::registerFromString(std::string const& rep) {
+    // from coded string.  Will cause registration
+    cms::Digest dg(rep);
+    edm::ParameterSetID psID(dg.digest().toString());
+    edm::ParameterSet ps(rep, psID);
+    pset::Registry::instance()->insertMapped(ps);
+  }
+
+  ParameterSetID
+  ParameterSet::emptyParameterSetID() {  // const
+    cms::Digest newDigest;
+    ParameterSet().toDigest(newDigest);
+    return ParameterSetID(newDigest.digest().toString());
+  }
 
   ParameterSet::ParameterSet(ParameterSet const& other)
   : tbl_(other.tbl_),
@@ -131,7 +146,7 @@ namespace edm {
     psettable::iterator it = psetTable_.find(name);
     assert(it != psetTable_.end());
     std::auto_ptr<ParameterSet> pset(new ParameterSet);
-    std::swap(*pset, it->second.pset());
+    std::swap(*pset, it->second.psetForUpdate());
     psetTable_.erase(it);
     return pset;
   }
@@ -147,7 +162,7 @@ namespace edm {
     assert(!isRegistered());
     psettable::iterator it = psetTable_.find(name);
     assert(it != psetTable_.end());
-    ParameterSet& pset = it->second.pset();
+    ParameterSet& pset = it->second.psetForUpdate();
     if (pset.isRegistered()) {
       it->second.setIsTracked(false);
     } else {
@@ -160,18 +175,19 @@ namespace edm {
     vpsettable::iterator it = vpsetTable_.find(name);
     assert(it != vpsetTable_.end());
     std::auto_ptr<std::vector<ParameterSet> > vpset(new std::vector<ParameterSet>);
-    std::swap(*vpset, it->second.vpset());
+    std::swap(*vpset, it->second.vpsetForUpdate());
     vpsetTable_.erase(it);
     return vpset;
   }
 
   void ParameterSet::calculateID() {
     // make sure contained tracked psets are updated
-    for(psettable::iterator i = psetTable_.begin(), e = psetTable_.end(); i != e; ++i) {
-      if(!i->second.pset().isRegistered()) {
-        i->second.pset().registerIt();
+    for(auto& item : psetTable_) {
+      ParameterSet& pset = item.second.psetForUpdate();
+      if(!pset.isRegistered()) {
+        pset.registerIt();
       }
-      i->second.updateID();
+      item.second.updateID();
     }
 
     // make sure contained tracked vpsets are updated
@@ -204,7 +220,7 @@ namespace edm {
     return id_;
   }
 
-  void ParameterSet::setID(ParameterSetID const& id) const {
+  void ParameterSet::setID(ParameterSetID const& id) {
     id_ = id;
   }
 
@@ -518,7 +534,7 @@ namespace edm {
     psettable::iterator it = psetTable_.find(name);
     if(it == psetTable_.end()) return 0;
     isTracked = it->second.isTracked();
-    return &it->second.pset();
+    return &it->second.psetForUpdate();
   }
 
   VParameterSetEntry*
@@ -774,12 +790,15 @@ namespace edm {
     return result;
   }
 
+/*
+  // Comment out unneeded function
   size_t
-  ParameterSet::getParameterSetNames(std::vector<std::string>& output) {
+  ParameterSet::getAllParameterSetNames(std::vector<std::string>& output) const {
     std::transform(psetTable_.begin(), psetTable_.end(), back_inserter(output),
                    boost::bind(&std::pair<std::string const, ParameterSetEntry>::first, _1));
     return output.size();
   }
+*/
 
   size_t
   ParameterSet::getParameterSetNames(std::vector<std::string>& output,
@@ -2353,9 +2372,6 @@ namespace edm {
   ParameterSet::getUntrackedParameterSet(char const* name, ParameterSet const& defaultValue) const {
     ParameterSetEntry const* entryPtr = retrieveUntrackedParameterSet(name);
     if(entryPtr == 0) {
-      if(!defaultValue.isRegistered()) {
-        const_cast<ParameterSet&>(defaultValue).registerIt();
-      }
       return defaultValue;
     }
     return entryPtr->pset();

@@ -79,6 +79,7 @@
 #include "FWCore/Utilities/interface/BranchType.h"
 #include "FWCore/Utilities/interface/ConvertException.h"
 #include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/Utilities/interface/StreamID.h"
 
 #include "boost/shared_ptr.hpp"
 
@@ -90,6 +91,28 @@
 #include <sstream>
 
 namespace edm {
+
+  namespace {
+    template <typename T>
+    class ScheduleSignalSentry {
+    public:
+      ScheduleSignalSentry(ActivityRegistry* a, typename T::MyPrincipal* principal, EventSetup const* es, typename T::Context const* context) :
+        a_(a), principal_(principal), es_(es), context_(context) {
+        if (a_) T::preScheduleSignal(a_, principal_, context_);
+      }
+      ~ScheduleSignalSentry() {
+        if (a_) if (principal_) T::postScheduleSignal(a_, principal_, es_, context_);
+      }
+
+    private:
+      // We own none of these resources.
+      ActivityRegistry* a_;
+      typename T::MyPrincipal* principal_;
+      EventSetup const* es_;
+      typename T::Context const* context_;
+    };
+  }
+
   namespace service {
     class TriggerNamesService;
   }
@@ -98,6 +121,7 @@ namespace edm {
   class EventSetup;
   class ExceptionCollector;
   class OutputModuleCommunicator;
+  class ProcessContext;
   class RunStopwatch;
   class UnscheduledCallProducer;
   class WorkerInPath;
@@ -122,23 +146,38 @@ namespace edm {
              ActionTable const& actions,
              boost::shared_ptr<ActivityRegistry> areg,
              boost::shared_ptr<ProcessConfiguration> processConfiguration,
-             const ParameterSet* subProcPSet);
+             const ParameterSet* subProcPSet,
+             StreamID streamID,
+             ProcessContext const* processContext);
 
     enum State { Ready = 0, Running, Latched };
 
     template <typename T>
-    void processOneOccurrence(typename T::MyPrincipal& principal,
-                              EventSetup const& eventSetup,
-                              bool cleaningUpAfterException = false);
+    void processOneEvent(typename T::MyPrincipal& principal,
+                         EventSetup const& eventSetup,
+                         bool cleaningUpAfterException = false);
+
+    template <typename T>
+    void processOneGlobal(typename T::MyPrincipal& principal,
+                          EventSetup const& eventSetup,
+                          bool cleaningUpAfterException = false);
+
+    template <typename T>
+    void processOneStream(typename T::MyPrincipal& principal,
+                          EventSetup const& eventSetup,
+                          bool cleaningUpAfterException = false);
 
     void beginJob(ProductRegistry const&);
     void endJob(ExceptionCollector & collector);
+    
+    void beginStream();
+    void endStream();
 
     // Write the luminosity block
-    void writeLumi(LuminosityBlockPrincipal const& lbp);
+    void writeLumi(LuminosityBlockPrincipal const& lbp, ProcessContext const*);
 
     // Write the run
-    void writeRun(RunPrincipal const& rp);
+    void writeRun(RunPrincipal const& rp, ProcessContext const*);
 
     // Call closeFile() on all OutputModules.
     void closeOutputFiles();
@@ -155,18 +194,14 @@ namespace edm {
     // Call respondToCloseInputFile() on all Modules
     void respondToCloseInputFile(FileBlock const& fb);
 
-    // Call respondToOpenOutputFiles() on all Modules
-    void respondToOpenOutputFiles(FileBlock const& fb);
-
-    // Call respondToCloseOutputFiles() on all Modules
-    void respondToCloseOutputFiles(FileBlock const& fb);
-
     // Call shouldWeCloseFile() on all OutputModules.
     bool shouldWeCloseOutput() const;
 
     void preForkReleaseResources();
     void postForkReacquireResources(unsigned int iChildIndex, unsigned int iNumberOfChildren);
 
+    StreamID streamID() const { return streamID_; }
+    
     std::pair<double, double> timeCpuReal() const {
       return std::pair<double, double>(stopwatch_->cpuTime(), stopwatch_->realTime());
     }
@@ -242,10 +277,10 @@ namespace edm {
     void resetAll();
 
     template <typename T>
-    bool runTriggerPaths(typename T::MyPrincipal&, EventSetup const&);
+    bool runTriggerPaths(typename T::MyPrincipal&, EventSetup const&, typename T::Context const*);
 
     template <typename T>
-    void runEndPaths(typename T::MyPrincipal&, EventSetup const&);
+    void runEndPaths(typename T::MyPrincipal&, EventSetup const&, typename T::Context const*);
 
     void reportSkipped(EventPrincipal const& ep) const;
     void reportSkipped(LuminosityBlockPrincipal const&) const {}
@@ -319,26 +354,9 @@ namespace edm {
     int                            total_passed_;
     RunStopwatch::StopwatchPointer stopwatch_;
 
+    StreamID                streamID_;
+    StreamContext           streamContext_;
     volatile bool           endpathsAreActive_;
-  };
-
-  // -----------------------------
-  // ProcessOneOccurrence is a functor that has bound a specific
-  // Principal and Event Setup, and can be called with a Path, to
-  // execute Path::processOneOccurrence for that event
-
-  template <typename T>
-  class ProcessOneOccurrence {
-  public:
-    typedef void result_type;
-    ProcessOneOccurrence(typename T::MyPrincipal& principal, EventSetup const& setup) :
-      ep(principal), es(setup) {};
-
-      void operator()(Path& p) {p.processOneOccurrence<T>(ep, es);}
-
-  private:
-    typename T::MyPrincipal&   ep;
-    EventSetup const& es;
   };
 
   void
@@ -349,8 +367,7 @@ namespace edm {
   }
 
   template <typename T>
-  void
-  Schedule::processOneOccurrence(typename T::MyPrincipal& ep,
+  void Schedule::processOneEvent(typename T::MyPrincipal& ep,
                                  EventSetup const& es,
                                  bool cleaningUpAfterException) {
     this->resetAll();
@@ -359,25 +376,26 @@ namespace edm {
     }
     state_ = Running;
 
+    T::setStreamContext(streamContext_, ep);
+    ScheduleSignalSentry<T> sentry(actReg_.get(), &ep, &es, &streamContext_);
+
     // A RunStopwatch, but only if we are processing an event.
-    RunStopwatch stopwatch(T::isEvent_ ? stopwatch_ : RunStopwatch::StopwatchPointer());
+    RunStopwatch stopwatch(stopwatch_);
 
     // This call takes care of the unscheduled processing.
-    workerManager_.processOneOccurrence<T>(ep, es, cleaningUpAfterException);
+    workerManager_.processOneOccurrence<T>(ep, es, streamID_, &streamContext_, &streamContext_, cleaningUpAfterException);
 
-    if (T::isEvent_) {
-      ++total_events_;
-    }
+    ++total_events_;
     try {
       try {
         try {
-          if (runTriggerPaths<T>(ep, es)) {
-            if (T::isEvent_) ++total_passed_;
+          if (runTriggerPaths<T>(ep, es, &streamContext_)) {
+            ++total_passed_;
           }
           state_ = Latched;
         }
         catch(cms::Exception& e) {
-          actions::ActionCodes action = (T::isEvent_ ? actionTable().find(e.category()) : actions::Rethrow);
+          actions::ActionCodes action = actionTable().find(e.category());
           assert (action != actions::IgnoreCompletely);
           assert (action != actions::FailPath);
           if (action == actions::SkipEvent) {
@@ -389,7 +407,8 @@ namespace edm {
 
         try {
           CPUTimer timer;
-          if (results_inserter_.get()) results_inserter_->doWork<T>(ep, es, nullptr, &timer);
+          ParentContext parentContext(&streamContext_);
+          if (results_inserter_.get()) results_inserter_->doWork<T>(ep, es, nullptr, &timer,streamID_, parentContext, &streamContext_);
         }
         catch (cms::Exception & ex) {
           if (T::isEvent_) {
@@ -401,8 +420,8 @@ namespace edm {
           throw;
         }
 
-        if (endpathsAreActive_) runEndPaths<T>(ep, es);
-        if(T::isEvent_) resetEarlyDelete();
+        if (endpathsAreActive_) runEndPaths<T>(ep, es, &streamContext_);
+        resetEarlyDelete();
       }
       catch (cms::Exception& e) { throw; }
       catch(std::bad_alloc& bda) { convertException::badAllocToEDM(); }
@@ -413,7 +432,94 @@ namespace edm {
     }
     catch(cms::Exception& ex) {
       if (ex.context().empty()) {
-        addContextAndPrintException("Calling function Schedule::processOneOccurrence", ex, cleaningUpAfterException);
+        addContextAndPrintException("Calling function Schedule::processOneEvent", ex, cleaningUpAfterException);
+      } else {
+        addContextAndPrintException("", ex, cleaningUpAfterException);
+      }
+      state_ = Ready;
+      throw;
+    }
+    // next thing probably is not needed, the product insertion code clears it
+    state_ = Ready;
+  }
+
+  template <typename T>
+  void Schedule::processOneStream(typename T::MyPrincipal& ep,
+                                  EventSetup const& es,
+                                  bool cleaningUpAfterException) {
+    this->resetAll();
+    for (int empty_trig_path : empty_trig_paths_) {
+      results_->at(empty_trig_path) = HLTPathStatus(hlt::Pass, 0);
+    }
+    state_ = Running;
+
+    T::setStreamContext(streamContext_, ep);
+    ScheduleSignalSentry<T> sentry(actReg_.get(), &ep, &es, &streamContext_);
+
+    // This call takes care of the unscheduled processing.
+    workerManager_.processOneOccurrence<T>(ep, es, streamID_, &streamContext_, &streamContext_, cleaningUpAfterException);
+
+    try {
+      try {
+        runTriggerPaths<T>(ep, es, &streamContext_);
+        state_ = Latched;
+
+        if (endpathsAreActive_) runEndPaths<T>(ep, es, &streamContext_);
+      }
+      catch (cms::Exception& e) { throw; }
+      catch(std::bad_alloc& bda) { convertException::badAllocToEDM(); }
+      catch (std::exception& e) { convertException::stdToEDM(e); }
+      catch(std::string& s) { convertException::stringToEDM(s); }
+      catch(char const* c) { convertException::charPtrToEDM(c); }
+      catch (...) { convertException::unknownToEDM(); }
+    }
+    catch(cms::Exception& ex) {
+      if (ex.context().empty()) {
+        addContextAndPrintException("Calling function Schedule::processOneStream", ex, cleaningUpAfterException);
+      } else {
+        addContextAndPrintException("", ex, cleaningUpAfterException);
+      }
+      state_ = Ready;
+      throw;
+    }
+    // next thing probably is not needed, the product insertion code clears it
+    state_ = Ready;
+  }
+  template <typename T>
+  void
+  Schedule::processOneGlobal(typename T::MyPrincipal& ep,
+                                 EventSetup const& es,
+                                 bool cleaningUpAfterException) {
+    this->resetAll();
+    for (int empty_trig_path : empty_trig_paths_) {
+      results_->at(empty_trig_path) = HLTPathStatus(hlt::Pass, 0);
+    }
+    state_ = Running;
+
+    GlobalContext globalContext = T::makeGlobalContext(ep, streamContext_.processContext());
+
+    ScheduleSignalSentry<T> sentry(actReg_.get(), &ep, &es, &globalContext);
+
+    // This call takes care of the unscheduled processing.
+    workerManager_.processOneOccurrence<T>(ep, es, streamID_, &globalContext, &globalContext, cleaningUpAfterException);
+
+    try {
+      try {
+        runTriggerPaths<T>(ep, es, &globalContext);
+        state_ = Latched;
+
+        if (endpathsAreActive_) runEndPaths<T>(ep, es, &globalContext);
+      }
+      catch (cms::Exception& e) { throw; }
+      catch(std::bad_alloc& bda) { convertException::badAllocToEDM(); }
+      catch (std::exception& e) { convertException::stdToEDM(e); }
+      catch(std::string& s) { convertException::stringToEDM(s); }
+      catch(char const* c) { convertException::charPtrToEDM(c); }
+      catch (...) { convertException::unknownToEDM(); }
+    }
+    catch(cms::Exception& ex) {
+      if (ex.context().empty()) {
+        addContextAndPrintException("Calling function Schedule::processOneGlobal", ex, cleaningUpAfterException);
       } else {
         addContextAndPrintException("", ex, cleaningUpAfterException);
       }
@@ -426,29 +532,21 @@ namespace edm {
 
   template <typename T>
   bool
-  Schedule::runTriggerPaths(typename T::MyPrincipal& ep, EventSetup const& es) {
-    for_all(trig_paths_, ProcessOneOccurrence<T>(ep, es));
+  Schedule::runTriggerPaths(typename T::MyPrincipal& ep, EventSetup const& es, typename T::Context const* context) {
+    for(auto& p : trig_paths_) {
+      p.processOneOccurrence<T>(ep, es, streamID_, context);
+    }
     return results_->accept();
   }
 
   template <typename T>
   void
-  Schedule::runEndPaths(typename T::MyPrincipal& ep, EventSetup const& es) {
+  Schedule::runEndPaths(typename T::MyPrincipal& ep, EventSetup const& es, typename T::Context const* context) {
     // Note there is no state-checking safety controlling the
     // activation/deactivation of endpaths.
-    for_all(end_paths_, ProcessOneOccurrence<T>(ep, es));
-
-    // We could get rid of the functor ProcessOneOccurrence if we used
-    // boost::lambda, but the use of lambda with member functions
-    // which take multiple arguments, by both non-const and const
-    // reference, seems much more obscure...
-    //
-    // using namespace boost::lambda;
-    // for_all(end_paths_,
-    //          bind(&Path::processOneOccurrence,
-    //               boost::lambda::_1, // qualification to avoid ambiguity
-    //               var(ep),           //  pass by reference (not copy)
-    //               constant_ref(es))); // pass by const-reference (not copy)
+    for(auto& p : end_paths_) {
+      p.processOneOccurrence<T>(ep, es, streamID_, context);
+    }
   }
 }
 

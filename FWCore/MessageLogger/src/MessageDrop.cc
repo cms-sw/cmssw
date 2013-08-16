@@ -8,7 +8,6 @@
 //
 // Original Author:  M. Fischler and Jim Kowalkowsi
 //         Created:  Tues Feb 14 16:38:19 CST 2006
-// $Id: MessageDrop.cc,v 1.14 2011/10/13 22:40:28 wmtan Exp $
 //
 
 // system include files

@@ -3,8 +3,6 @@
  *  
  *  All the code is under revision
  *
- *  $Date: 2010/08/04 18:44:36 $
- *  $Revision: 1.22 $
  *
  *  \author A. Vitelli - INFN Torino, V.Palichik
  *  \author ported by: R. Bellan - INFN Torino

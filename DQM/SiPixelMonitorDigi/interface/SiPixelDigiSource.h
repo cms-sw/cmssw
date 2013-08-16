@@ -16,7 +16,6 @@
 //
 // Original Author:  Vincenzo Chiochia
 //         Created:  
-// $Id: SiPixelDigiSource.h,v 1.26 2012/06/26 14:06:43 duggan Exp $
 //
 
 #include <memory>

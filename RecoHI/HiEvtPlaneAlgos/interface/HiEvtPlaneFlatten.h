@@ -10,7 +10,6 @@
 //
 // Original Author:  Stephen Sanders
 //         Created:  Mon Jun  7 14:40:12 EDT 2010
-// $Id: HiEvtPlaneFlatten.h,v 1.5 2012/02/15 10:33:36 eulisse Exp $
 //
 //
 

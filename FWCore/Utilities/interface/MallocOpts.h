@@ -7,7 +7,6 @@
 // Class  :     MallocOpts
 // 
 // Original Author:  Jim Kowalkowski
-// $Id: MallocOpts.h,v 1.1 2007/12/20 19:36:47 jbk Exp $
 //
 // ------------------ malloc option setter -----------------------
 //

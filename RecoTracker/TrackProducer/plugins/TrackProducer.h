@@ -4,8 +4,6 @@
 /** \class TrackProducer
  *  Produce Tracks from TrackCandidates
  *
- *  $Date: 2013/02/27 13:28:55 $
- *  $Revision: 1.2 $
  *  \author cerati
  */
 

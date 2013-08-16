@@ -1,8 +1,6 @@
 /*
  * \file EBDataCertificationTask.cc
  *
- * $Date: 2012/04/27 13:46:02 $
- * $Revision: 1.33 $
  * \author E. Di Marco
  *
 */

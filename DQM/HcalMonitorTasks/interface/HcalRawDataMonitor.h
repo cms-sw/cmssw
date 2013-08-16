@@ -27,8 +27,6 @@
 
 /** \class HcalRawDataMonitor
  *
- * $Date: 2012/06/21 13:40:22 $
- * $Revision: 1.6 $
  * \author J. St. John - Boston University
  */
 class HcalRawDataMonitor: public HcalBaseDQMonitor {

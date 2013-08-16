@@ -4,8 +4,6 @@
 /*
  * \file DQMDcsInfo.h
  *
- * $Date: 2012/08/02 07:59:10 $
- * $Revision: 1.3 $
  * \author A.Meyer - DESY
  *
 */

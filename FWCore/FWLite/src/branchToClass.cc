@@ -8,7 +8,6 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Aug  2 09:04:04 EDT 2006
-// $Id: branchToClass.cc,v 1.2 2007/06/14 21:03:37 wmtan Exp $
 //
 
 // system include files

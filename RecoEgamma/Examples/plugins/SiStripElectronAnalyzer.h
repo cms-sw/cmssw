@@ -16,7 +16,6 @@
 //
 // Original Author:
 //         Created:  Fri May 26 16:52:45 EDT 2006
-// $Id: SiStripElectronAnalyzer.h,v 1.3 2009/03/06 12:42:16 chamont Exp $
 //
 
 // system include files

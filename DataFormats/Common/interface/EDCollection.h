@@ -6,7 +6,6 @@
 EDCollection: A collection of homogeneous objects that can be used for an EDProduct,
 or as a base class for an EDProduct.
 
-$Id: EDCollection.h,v 1.6 2008/03/31 21:12:11 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 

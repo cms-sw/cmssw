@@ -4,8 +4,6 @@
 /*
  * \file HcalMonitorClient.h
  * 
- * $Date: 2011/04/12 18:25:42 $
- * $Revision: 1.49 $
  * \author J. Temple
  * 
  */

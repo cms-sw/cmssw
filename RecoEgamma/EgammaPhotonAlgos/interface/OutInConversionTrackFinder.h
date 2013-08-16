@@ -3,9 +3,6 @@
 /** \class OutInConversionTrackFinder
  **  
  **
- **  $Id: OutInConversionTrackFinder.h,v 1.10 2013/05/23 17:57:02 gartung Exp $ 
- **  $Date: 2013/05/23 17:57:02 $ 
- **  $Revision: 1.10 $
  **  \author Nancy Marinelli, U. of Notre Dame, US
  **
  ***/

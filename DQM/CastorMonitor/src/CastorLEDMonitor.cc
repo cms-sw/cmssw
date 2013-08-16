@@ -12,25 +12,32 @@
 //==================================================================//
 //======================= Constructor ==============================//
 //==================================================================//
-CastorLEDMonitor::CastorLEDMonitor() {
+CastorLEDMonitor::CastorLEDMonitor()
+  {
+
   doPerChannel_ = false;
   sigS0_=0;
   sigS1_=9;
-}
+  
+  }
 
 //==================================================================//
 //======================= Destructor ==============================//
 //==================================================================//
-CastorLEDMonitor::~CastorLEDMonitor() {}
-
-
+CastorLEDMonitor::~CastorLEDMonitor()
+  {
+  
+  }
+  
 //==========================================================//
 //========================= setup ==========================//
 //==========================================================//
 
-void CastorLEDMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe){
-
+void CastorLEDMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe)
+  {
   CastorBaseMonitor::setup(ps,dbe);
+
+  if(fVerbosity>0) std::cout<<"CastorLEDMonitor::setup (start)"<<std::endl;  
 
   baseFolder_ = rootFolder_+"CastorLEDMonitor";
 
@@ -41,43 +48,31 @@ void CastorLEDMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe){
   sigS0_ = ps.getUntrackedParameter<int>("FirstSignalBin", 0);
   sigS1_ = ps.getUntrackedParameter<int>("LastSignalBin", 9);
   adcThresh_ = ps.getUntrackedParameter<double>("LED_ADC_Thresh", 0);
-  std::cout << "LED Monitor threshold set to " << adcThresh_ << std::endl;
-  std::cout << "LED Monitor signal window set to " << sigS0_ <<"-"<< sigS1_ << std::endl;  
+  if(fVerbosity>1) std::cout << "LED Monitor threshold set to " << adcThresh_ << std::endl;
+  if(fVerbosity>1) std::cout << "LED Monitor signal window set to " << sigS0_ <<"-"<< sigS1_ << std::endl;  
 
-  if(sigS0_<0){
-    std::cout << "CastorLEDMonitor::setup, illegal range for first sample: " << sigS0_ << std::endl;
-    sigS0_=0;
-  }
-  if(sigS1_>9){
-    std::cout << "CastorLEDMonitor::setup, illegal range for last sample: " << sigS1_ << std::endl;
-    sigS1_=9;
-  }
+  
+  if(sigS0_<0)
+	{
+    	if(fVerbosity>1) { std::cout << "CastorLEDMonitor::setup, illegal range for first sample: " << sigS0_ << std::endl; }
+    	sigS0_=0;
+  	}
 
-  if(sigS0_ > sigS1_){ 
-    std::cout<< "CastorLEDMonitor::setup, illegal range for first: "<< sigS0_ << " and last sample: " << sigS1_ << std::endl;
-    sigS0_=0; sigS1_=9;
-  }
+  if(sigS1_>9)
+	{
+    	if(fVerbosity>1) { std::cout << "CastorLEDMonitor::setup, illegal range for last sample: " << sigS1_ << std::endl; }
+    	sigS1_=9;
+  	}
+
+  if(sigS0_ > sigS1_)
+	{ 
+    	if(fVerbosity>1) { std::cout<< "CastorLEDMonitor::setup, illegal range for first: "<< sigS0_ << " and last sample: " << sigS1_ << std::endl; }
+    	sigS0_=0; sigS1_=9;
+  	}
 
   ievt_=0;
 
-  if ( m_dbe ) {
-
-    m_dbe->setCurrentFolder(baseFolder_);
-    meEVT_ = m_dbe->bookInt("LED Task Event Number");    
-    meEVT_->Fill(ievt_);
-   
-    castHists.shapePED =  m_dbe->book1D("Castor Ped Subtracted Pulse Shape","Castor Ped Subtracted Pulse Shape",10,-0.5,9.5);
-    castHists.shapeALL =  m_dbe->book1D("Castor Average Pulse Shape","Castor Average Pulse Shape",10,-0.5,9.5);
-    castHists.energyALL =  m_dbe->book1D("Castor Average Pulse Energy","Castor Average Pulse Energy",500,0,500);
-    castHists.timeALL =  m_dbe->book1D("Castor Average Pulse Time","Castor Average Pulse Time",200,-1,10);
-    castHists.rms_shape =  m_dbe->book1D("Castor LED Shape RMS Values","Castor LED Shape RMS Values",100,0,5);
-    castHists.mean_shape =  m_dbe->book1D("Castor LED Shape Mean Values","Castor LED Shape Mean Values",100,-0.5,9.5);
-    castHists.rms_time =  m_dbe->book1D("Castor LED Time RMS Values","Castor LED Time RMS Values",100,0,5);
-    castHists.mean_time =  m_dbe->book1D("Castor LED Time Mean Values","Castor LED Time Mean Values",100,-1,10);
-    castHists.rms_energy =  m_dbe->book1D("Castor LED Energy RMS Values","Castor LED Energy RMS Values",100,0,500);
-    castHists.mean_energy =  m_dbe->book1D("Castor LED Energy Mean Values","Castor LED Energy Mean Values",100,0,1000);
-    
-  }
+  if(fVerbosity>0) std::cout<<"CastorLEDMonitor::setup (end)"<<std::endl;  
 
   return;
 }
@@ -119,29 +114,48 @@ void CastorLEDMonitor::createFEDmap(unsigned int fed){
 }
 
 
-//==========================================================//
-//========================= reset ==========================//
-//==========================================================//
+//=================================================================//
+//========================== beginRun =============================//
+//================================================================//
+void CastorLEDMonitor::beginRun(const edm::EventSetup& iSetup)
+  {
+  if(fVerbosity>0) std::cout<<"CastorLEDMonitor::beginRun (start)"<<std::endl;  
 
-void CastorLEDMonitor::reset(){
-  
-  MonitorElement* unpackedFEDS = m_dbe->get("Castor/FEDs Unpacked");
-  if(unpackedFEDS){
-    for(int b=1; b<=unpackedFEDS->getNbinsX(); b++){
-      if(unpackedFEDS->getBinContent(b)>0){
-	createFEDmap(700+(b-1));  
-      }
-    }
+  if (m_dbe !=NULL)
+	{
+    	m_dbe->setCurrentFolder(baseFolder_);
+    	meEVT_ = m_dbe->bookInt("LED Task Event Number");    
+    	meEVT_->Fill(ievt_);
+   
+    	castHists.shapePED =  m_dbe->book1D("Castor Ped Subtracted Pulse Shape","Castor Ped Subtracted Pulse Shape",10,-0.5,9.5);
+    	castHists.shapeALL =  m_dbe->book1D("Castor Average Pulse Shape","Castor Average Pulse Shape",10,-0.5,9.5);
+    	castHists.energyALL =  m_dbe->book1D("Castor Average Pulse Energy","Castor Average Pulse Energy",500,0,500);
+    	castHists.timeALL =  m_dbe->book1D("Castor Average Pulse Time","Castor Average Pulse Time",200,-1,10);
+    	castHists.rms_shape =  m_dbe->book1D("Castor LED Shape RMS Values","Castor LED Shape RMS Values",100,0,5);
+    	castHists.mean_shape =  m_dbe->book1D("Castor LED Shape Mean Values","Castor LED Shape Mean Values",100,-0.5,9.5);
+    	castHists.rms_time =  m_dbe->book1D("Castor LED Time RMS Values","Castor LED Time RMS Values",100,0,5);
+    	castHists.mean_time =  m_dbe->book1D("Castor LED Time Mean Values","Castor LED Time Mean Values",100,-1,10);
+    	castHists.rms_energy =  m_dbe->book1D("Castor LED Energy RMS Values","Castor LED Energy RMS Values",100,0,500);
+    	castHists.mean_energy =  m_dbe->book1D("Castor LED Energy Mean Values","Castor LED Energy Mean Values",100,0,1000); 
+  	}
+  else
+	{
+ 	if(fVerbosity>0) std::cout << "CastorLEDMonitor::beginRun - NO DQMStore service" << std::endl; 
+ 	}
+
+
+  if(fVerbosity>0) std::cout<<"CastorLEDMonitor::beginRun (end)"<<std::endl; 
   }
-}
+
 
 
 //==========================================================//
 //=================== processEvent  ========================//
 //==========================================================//
 
-void CastorLEDMonitor::processEvent( const CastorDigiCollection& castorDigis, const CastorDbService& cond){
-
+void CastorLEDMonitor::processEvent( const CastorDigiCollection& castorDigis, const CastorDbService& cond)
+  {
+  if(fVerbosity>0) std::cout<<"CastorLEDMonitor::processEvent (start)"<<std::endl;  
 
   meEVT_->Fill(ievt_);
 
@@ -150,6 +164,7 @@ void CastorLEDMonitor::processEvent( const CastorDigiCollection& castorDigis, co
     if(fVerbosity>0) std::cout<<"CastorLEDMonitor::processEvent DQMStore not instantiated!!!"<<std::endl;  
     return; 
   }
+
   float vals[10];
 
   
@@ -197,11 +212,13 @@ void CastorLEDMonitor::processEvent( const CastorDigiCollection& castorDigis, co
       if( doPerChannel_) perChanHists(digi.id(),vals,castHists.shape, castHists.time, castHists.energy, baseFolder_);
     }        
   } else {
-    if(fVerbosity > 0) std::cout << "CastorPSMonitor::processEvent NO Castor Digis !!!" << std::endl;
+    if(fVerbosity > 0) std::cout << "CastorLEDMonitor::processEvent NO Castor Digis !!!" << std::endl;
   }
  
 
   ievt_++;
+  
+  if(fVerbosity>0) std::cout<<"CastorLEDMonitor::processEvent (end)"<<std::endl;
   
   return;
 }
@@ -215,6 +232,24 @@ void CastorLEDMonitor::done(){
   ////---- keep empty for the moment
   return;
 }
+
+
+//==========================================================//
+//========================= reset ==========================//
+//==========================================================//
+
+void CastorLEDMonitor::reset(){
+  
+  MonitorElement* unpackedFEDS = m_dbe->get("Castor/FEDs Unpacked");
+  if(unpackedFEDS){
+    for(int b=1; b<=unpackedFEDS->getNbinsX(); b++){
+      if(unpackedFEDS->getBinContent(b)>0){
+	createFEDmap(700+(b-1));  
+      }
+    }
+  }
+}
+
 
 //==========================================================//
 //=================== perChanHists  ========================//

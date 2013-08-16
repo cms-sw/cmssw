@@ -3,8 +3,6 @@
 
 /** \file CosmicMuonSmoother
  *
- *  $Date: 2012/09/01 12:44:22 $
- *  $Revision: 1.7 $
  *  \author Chang Liu  -  Purdue University
  */
 

@@ -16,11 +16,15 @@ class PSimHit;
 class SimTrack;
 class SimVertex;
 
+namespace edm {
+  class ModuleCallingContext;
+}
+
 class PileUpEventPrincipal {
 public:
 
-  PileUpEventPrincipal(edm::EventPrincipal const& ep, int bcr, int bsp, int eventId, int vtxOffset) :
-    principal_(ep), bunchCrossing_(bcr), bunchCrossingXbunchSpace_(bcr*bsp), id_(bcr, eventId), vertexOffset_(vtxOffset), labels_() {}
+  PileUpEventPrincipal(edm::EventPrincipal const& ep, edm::ModuleCallingContext const* mcc, int bcr, int bsp, int eventId, int vtxOffset) :
+    principal_(ep), mcc_(mcc), bunchCrossing_(bcr), bunchCrossingXbunchSpace_(bcr*bsp), id_(bcr, eventId), vertexOffset_(vtxOffset), labels_() {}
 
   bool
   addLabel(edm::TypeID const& type, std::string const& label) const {
@@ -47,10 +51,10 @@ public:
 
   template<typename T>
   bool
-    getByLabel(edm::InputTag const& tag, edm::Handle<T>& result) const {
+  getByLabel(edm::InputTag const& tag, edm::Handle<T>& result) const {
     typedef typename T::value_type ItemType;
     typedef typename T::iterator iterator;
-    edm::BasicHandle bh = principal_.getByLabel(edm::PRODUCT_TYPE, edm::TypeID(typeid(T)), tag);
+    edm::BasicHandle bh = principal_.getByLabel(edm::PRODUCT_TYPE, edm::TypeID(typeid(T)), tag, nullptr, mcc_);
     convert_handle(bh, result);
     if(result.isValid() && addLabel(edm::TypeID(typeid(T)), tag.label())) {
       T& product = const_cast<T&>(*result.product());
@@ -62,7 +66,8 @@ public:
   }
 
 private: 
-  edm::EventPrincipal const& principal_;  
+  edm::EventPrincipal const& principal_;
+  edm::ModuleCallingContext const* mcc_;
   int bunchCrossing_;
   int bunchCrossingXbunchSpace_;
   EncodedEventId id_;

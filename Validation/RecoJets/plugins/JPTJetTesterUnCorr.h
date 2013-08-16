@@ -4,7 +4,6 @@
 // Producer for validation histograms for JPTJet objects
 // F. Ratnikov, Sept. 7, 2006
 // Modified by J F Novak July 10, 2008
-// $Id: JPTJetTesterUnCorr.h,v 1.4 2011/09/20 22:56:36 kovitang Exp $
 
 #include <string>
 

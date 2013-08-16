@@ -2,8 +2,8 @@
 #define Alignment_MuonAlignmentAlgorithms_CSCAlignmentCorrections_H
 
 /** \class CSCAlignmentCorrections
- *  $Date: 2010/05/27 19:40:03 $
- *  $Revision: 1.1 $
+ *  $Date: 2010/05/12 21:57:51 $
+ *  $Revision: 1.2 $
  *  \author J. Pivarski - Texas A&M University <pivarski@physics.tamu.edu>
  */
 

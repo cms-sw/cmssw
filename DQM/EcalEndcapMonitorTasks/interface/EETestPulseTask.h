@@ -4,8 +4,6 @@
 /*
  * \file EETestPulseTask.h
  *
- * $Date: 2012/04/27 13:46:13 $
- * $Revision: 1.17 $
  * \author G. Della Ricca
  *
 */

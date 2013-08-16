@@ -16,7 +16,6 @@
 //
 // Original Author:  mf and cdj
 //         Created:  Fri Aug  7 10:19:58 CDT 2009
-// $Id: ThreadQueue.h,v 1.1 2009/08/12 22:22:01 fischler Exp $
 //
 
 #include "FWCore/MessageLogger/interface/MessageLoggerQ.h"

@@ -9,8 +9,8 @@
  * To be used as base class for all 1D positional TrackingRecHits.
  * The coordinate measured is assumend to be the local "x"
  *
- *  $Date: 2007/07/25 10:35:48 $
- *  $Revision: 1.5 $
+ *  $Date: 2007/07/25 10:22:23 $
+ *  $Revision: 1.4 $
  *  \author S. Lacaprara, G. Cerminara
  */
 
@@ -39,10 +39,8 @@ class RecHit1D : public TrackingRecHit {
 
   ///Return the projection matrix
   virtual AlgebraicMatrix projectionMatrix() const {
-    if ( !isInitialized) initialize();
     return theProjectionMatrix;
   }
-
 
   /// Return the RecHit dimension
   virtual int dimension() const {
@@ -59,17 +57,6 @@ class RecHit1D : public TrackingRecHit {
 
 
  private:
-
-  static bool isInitialized;
-
-  static AlgebraicMatrix theProjectionMatrix;
-
-  void initialize() const;
-
+  static const AlgebraicMatrix theProjectionMatrix;
 };
 #endif
-
-
-
-
-

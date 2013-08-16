@@ -15,7 +15,6 @@ Implementation:
 //
 // Original Author: Zhen Xie
 //       
-// $Id: NormDML.h,v 1.6 2012/08/21 13:01:51 xiezhen Exp $
 #include <string>
 #include <vector>
 #include <map>

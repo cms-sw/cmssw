@@ -1,7 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
 #
-# $Id: multi5x5PreshowerClusteringSequence_cff.py,v 1.2 2011/05/24 14:33:48 argiro Exp $
 #
 #------------------
 #Preshower clustering:

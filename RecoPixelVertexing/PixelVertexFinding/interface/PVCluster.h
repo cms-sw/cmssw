@@ -6,8 +6,6 @@
  * (typedef) class is used by the Pixel standalone vertex finding
  * classes found in RecoPixelVertexing/PixelVertexFinding.
  *
- *  $Date: 2006/05/09 09:52:44 $
- *  $Revision: 1.2 $
  *  \author Aaron Dominguez (UNL)
  */
 #include "CommonTools/Clustering1D/interface/Cluster1D.h"

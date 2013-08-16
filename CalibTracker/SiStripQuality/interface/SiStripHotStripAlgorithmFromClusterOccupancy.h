@@ -13,7 +13,7 @@
 //
 // Original Author:  Domenico GIORDANO
 //         Created:  Wed Oct  3 12:11:10 CEST 2007
-// $Id: SiStripHotStripAlgorithmFromClusterOccupancy.h,v 1.10 2013/01/11 04:57:47 wmtan Exp $
+// $Id: SiStripHotStripAlgorithmFromClusterOccupancy.h,v 1.9 2010/11/04 14:12:13 muzaffar Exp $
 //
 //
 

@@ -51,16 +51,16 @@ namespace edm {
     FDEBUG(9) << "Product List: " << std::endl;
 
 
-    for(; i != e; ++i)  {
-        sd.push_back(**i);
-        FDEBUG(9) << "StreamOutput got product = " << (*i)->className()
+    for(auto const& selection : *selections_)  {
+        sd.push_back(*selection);
+        FDEBUG(9) << "StreamOutput got product = " << selection->className()
                   << std::endl;
     }
     Service<ConstProductRegistry> reg;
     sd.setBranchIDLists(branchIDLists);
     SendJobHeader::ParameterSetMap psetMap;
 
-    pset::fillMap(pset::Registry::instance(), psetMap);
+    pset::fillMap(*pset::Registry::instance(), psetMap);
     sd.setParameterSetMap(psetMap);
 
     typedef ProcessConfigurationRegistry::collection_type PCMap;
@@ -136,7 +136,8 @@ namespace edm {
   int StreamSerializer::serializeEvent(EventPrincipal const& eventPrincipal,
                                        ParameterSetID const& selectorConfig,
                                        bool use_compression, int compression_level,
-                                       SerializeDataBuffer &data_buffer) {
+                                       SerializeDataBuffer &data_buffer,
+                                       ModuleCallingContext const* mcc) {
     Parentage parentage;
 
     EventSelectionIDVector selectionIDs = eventPrincipal.eventSelectionIDs();
@@ -150,7 +151,7 @@ namespace edm {
       BranchDescription const& desc = **i;
       BranchID const& id = desc.branchID();
 
-      OutputHandle const oh = eventPrincipal.getForOutput(id, true);
+      OutputHandle const oh = eventPrincipal.getForOutput(id, true, mcc);
       if(!oh.productProvenance()) {
         // No product with this ID was put in the event.
         // Create and write the provenance.

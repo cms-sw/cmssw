@@ -8,8 +8,8 @@
  *  trigger for single objects of the same physics type, cutting on
  *  variables relating to their 4-momentum representation
  *
- *  $Date: 2012/02/24 13:13:47 $
- *  $Revision: 1.9 $
+ *  $Date: 2012/02/23 12:21:51 $
+ *  $Revision: 1.8 $
  *
  *  \author Martin Grunewald
  *
@@ -34,7 +34,8 @@ class HLTSinglet : public HLTFilter {
       virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct);
 
    private:
-      edm::InputTag inputTag_;  // input tag identifying product
+      edm::InputTag                     inputTag_;   // input tag identifying product
+      edm::EDGetTokenT<std::vector<T> > inputToken_; // token identifying product
       int    triggerType_ ;     // triggerType configured
       double min_E_;            // energy threshold in GeV 
       double min_Pt_;           // pt threshold in GeV 

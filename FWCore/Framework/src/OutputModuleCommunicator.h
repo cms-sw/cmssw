@@ -16,7 +16,6 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri, 05 Jul 2013 17:36:51 GMT
-// $Id$
 //
 
 // system include files
@@ -30,6 +29,9 @@
 
 // forward declarations
 namespace edm {
+
+  class ProcessContext;
+
   class OutputModuleCommunicator
   {
     
@@ -49,9 +51,9 @@ namespace edm {
     
     virtual void openFile(FileBlock const& fb) = 0;
     
-    virtual void writeRun(RunPrincipal const& rp) = 0;
+    virtual void writeRun(RunPrincipal const& rp, ProcessContext const*) = 0;
     
-    virtual void writeLumi(LuminosityBlockPrincipal const& lbp) = 0;
+    virtual void writeLumi(LuminosityBlockPrincipal const& lbp, ProcessContext const*) = 0;
     
     ///\return true if OutputModule has reached its limit on maximum number of events it wants to see
     virtual bool limitReached() const = 0;

@@ -6,8 +6,6 @@
  *  MuonChi2MeasurementEstimator inherits from the Chi2MeasurementEstimatorBase class and uses
  *  3 different estimators.
  *
- *  $Date: 2008/07/24 16:40:08 $
- *  $Revision: 1.3 $
  *  \author Giorgia Mila - INFN Torino
  */
 

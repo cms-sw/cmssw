@@ -20,7 +20,6 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri, 26 Apr 2013 19:39:10 GMT
-// $Id$
 //
 
 // system include files
@@ -52,6 +51,8 @@ namespace edm {
      */
     unsigned int value() const { return value_;}
     
+    static LuminosityBlockIndex invalidLuminosityBlockIndex();
+
   private:
     ///Only the LuminosityBlockPrincipal is allowed to make one of these
     friend class LuminosityBlockPrincipal;
@@ -63,6 +64,7 @@ namespace edm {
     // ---------- member data --------------------------------
     unsigned int value_;
     
+    static const unsigned int invalidValue_;    
   };
 }
 

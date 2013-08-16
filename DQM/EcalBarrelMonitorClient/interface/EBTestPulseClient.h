@@ -4,8 +4,6 @@
 /*
  * \file EBTestPulseClient.h
  *
- * $Date: 2010/02/14 20:56:23 $
- * $Revision: 1.85 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *

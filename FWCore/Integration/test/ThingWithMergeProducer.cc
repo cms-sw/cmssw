@@ -1,5 +1,4 @@
 
-// $Id: ThingWithMergeProducer.cc,v 1.7 2013/05/17 15:15:36 chrjones Exp $
 //
 // Puts some simple test objects in the event, run, and lumi
 // principals.  The values put into these objects are just

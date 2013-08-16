@@ -3,9 +3,6 @@
  * \file DQMDcsInfoClient.cc
  * \author Andreas Meyer
  * Last Update:
- * $Date: 2012/08/02 07:59:10 $
- * $Revision: 1.8 $
- * $Author: rovere $
  *
 */
 

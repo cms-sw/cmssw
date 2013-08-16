@@ -1,11 +1,8 @@
-// $Id: MonitorXMLParser.cc,v 1.9 2011/09/15 21:00:17 yiiyama Exp $
 
 /*!
   \file MonitorXMLParser.cc
   \brief monitor db xml elements parsing tool
   \author B. Gobbo
-  \version $Revision: 1.9 $
-  \date $Date: 2011/09/15 21:00:17 $
 */
 
 #include <xercesc/util/PlatformUtils.hpp>

@@ -4,8 +4,6 @@
 /** \class MultiTrackValidator
  *  Class that prodecs histrograms to validate Track Reconstruction performances
  *
- *  $Date: 2012/12/03 11:19:34 $
- *  $Revision: 1.52 $
  *  \author cerati
  */
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -46,6 +44,7 @@ class MultiTrackValidator : public edm::EDAnalyzer, protected MultiTrackValidato
   //(i.e. "denominator" of the efficiency ratio)
   TrackingParticleSelector tpSelector;				      
   CosmicTrackingParticleSelector cosmictpSelector;
+  edm::InputTag _simHitTpMapTag;
 };
 
 

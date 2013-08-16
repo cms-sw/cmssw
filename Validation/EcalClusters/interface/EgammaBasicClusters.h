@@ -9,7 +9,6 @@
      \\\author: Michael A. Balazs, Nov 2006
 */
 //
-// $Id: EgammaBasicClusters.h,v 1.8 2009/12/14 22:24:32 wmtan Exp $
 //
 #include <string>
 

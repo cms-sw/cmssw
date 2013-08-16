@@ -4,8 +4,8 @@
 /** \class LaserTrackingAction
  *  the Laser Tracking Action
  *
- *  $Date: 2011/09/16 06:40:35 $
- *  $Revision: 1.4 $
+ *  $Date: 2007/06/11 14:44:28 $
+ *  $Revision: 1.3 $
  *  \author Maarten Thomas
  */
 

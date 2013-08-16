@@ -7,8 +7,6 @@
  * out of the global muons from "muons" collection to restore
  * dropped links used as input for MuonIdProducer.
  *
- *  $Date: 2011/05/03 09:17:49 $
- *  $Revision: 1.2 $
  *  \author R. Bellan - UCSB <riccardo.bellan@cern.ch>
  */
 

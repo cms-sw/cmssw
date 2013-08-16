@@ -12,8 +12,8 @@
  *  single-object-type filters so that the access is thorugh
  *  RefToBases and polymorphic.
  *
- *  $Date: 2012/02/24 13:34:20 $
- *  $Revision: 1.9 $
+ *  $Date: 2012/02/23 11:48:34 $
+ *  $Revision: 1.8 $
  *
  *  \author Martin Grunewald
  *
@@ -24,6 +24,9 @@
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include<string>
 #include<vector>
+namespace trigger {
+  class TriggerFilterObjectWithRefs;
+}
 
 //
 // class declaration
@@ -45,6 +48,8 @@ class HLTDoublet : public HLTFilter {
       edm::InputTag originTag2_;  // input tag identifying original 2nd product
       edm::InputTag inputTag1_;   // input tag identifying filtered 1st product
       edm::InputTag inputTag2_;   // input tag identifying filtered 2nd product
+      edm::EDGetTokenT<trigger::TriggerFilterObjectWithRefs> inputToken1_;
+      edm::EDGetTokenT<trigger::TriggerFilterObjectWithRefs> inputToken2_;
       int triggerType1_;
       int triggerType2_;
       double min_Dphi_,max_Dphi_; // Delta phi window

@@ -13,7 +13,6 @@
 //
 // Original Author:  Igor Volobouev
 //         Created:  Thu Jun  2 18:49:49 CDT 2011
-// $Id: FFTJetEFlowSmoother.cc,v 1.1 2011/06/03 05:05:44 igv Exp $
 //
 //
 

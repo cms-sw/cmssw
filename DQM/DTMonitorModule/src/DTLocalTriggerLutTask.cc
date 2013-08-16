@@ -1,8 +1,6 @@
 /*
  * \file DTLocalLutTriggerTask.cc
  * 
- * $Date: 2011/06/10 13:23:26 $
- * $Revision: 1.1 $
  * \author D. Fasanella - INFN Bologna
  *
  */

@@ -48,7 +48,7 @@ process.load("EventFilter.L1GlobalTriggerRawToDigi.l1GtEvmUnpack_cfi")
 #if useRelValSample == True :
 #    evmGtInputTag = 'rawDataCollector'
 #else :
-#    evmGtInputTag = 'source'
+#    evmGtInputTag = 'rawDataCollector'
 
 evmGtInputTag = 'rawDataCollector'
 

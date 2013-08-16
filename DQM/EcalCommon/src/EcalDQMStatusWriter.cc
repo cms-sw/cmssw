@@ -1,8 +1,6 @@
 /*
  * \file EcalDQMStatusWriter.cc
  *
- * $Date: 2010/08/30 13:14:08 $
- * $Revision: 1.19 $
  * \author G. Della Ricca
  *
 */

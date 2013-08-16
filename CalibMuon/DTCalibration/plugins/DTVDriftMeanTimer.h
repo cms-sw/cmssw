@@ -5,7 +5,7 @@
  *  Concrete implementation of a DTVDriftBaseAlgo.
  *  Computes vDrift using the Mean Timer algorithm.
  *
- *  $Revision: 1.2 $
+ *  $Revision: 1.1 $
  *  \author A. Vilela Pereira
  */
 

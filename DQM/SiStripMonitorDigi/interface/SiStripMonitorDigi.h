@@ -8,8 +8,8 @@
 */
 // Original Author:  dkcira
 //         Created:  Sat Feb  4 20:49:51 CET 2006
-// $Id: SiStripMonitorDigi.h,v 1.31 2012/07/19 13:21:14 threus Exp $
 #include <memory>
+#include "FWCore/Utilities/interface/EDGetToken.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
@@ -24,6 +24,10 @@
 class DQMStore;
 class SiStripDCSStatus;
 class SiStripDetCabling;
+
+class EventWithHistory;
+class L1GlobalTriggerEvmReadoutRecord;
+class APVCyclePhaseCollection;
 
 class SiStripMonitorDigi : public edm::EDAnalyzer {
  public:
@@ -113,6 +117,7 @@ class SiStripMonitorDigi : public edm::EDAnalyzer {
 
   DQMStore* dqmStore_;
   edm::ParameterSet conf_;
+  std::vector<edm::EDGetTokenT<edm::DetSetVector<SiStripDigi> > > digiProducerTokenList;
   std::vector<edm::InputTag> digiProducerList;
   std::map<uint32_t, ModMEs> DigiMEs; // uint32_t me_type: 1=#digis/module; 2=adcs of hottest strip/module; 3= adcs of coolest strips/module.
   bool show_mechanical_structure_view, show_readout_view, show_control_view, select_all_detectors, calculate_strip_occupancy, reset_each_run;
@@ -195,6 +200,10 @@ class SiStripMonitorDigi : public edm::EDAnalyzer {
   std::string topDir;
   edm::InputTag historyProducer_;  
   edm::InputTag apvPhaseProducer_;
+
+  edm::EDGetTokenT<EventWithHistory> historyProducerToken_;
+  edm::EDGetTokenT<APVCyclePhaseCollection> apvPhaseProducerToken_;
+  edm::EDGetTokenT<L1GlobalTriggerEvmReadoutRecord> gtEvmToken_;
 
   SiStripDCSStatus* dcsStatus_;
 };

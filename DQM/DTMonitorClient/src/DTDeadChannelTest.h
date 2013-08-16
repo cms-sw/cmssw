@@ -6,8 +6,6 @@
  * *
  *  DQM Test Client
  *
- *  $Date: 2010/01/05 10:15:46 $
- *  $Revision: 1.7 $
  *  \author  G. Mila - INFN Torino
  *   
  */

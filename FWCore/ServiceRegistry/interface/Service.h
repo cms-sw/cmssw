@@ -16,7 +16,6 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Sep  7 15:17:17 EDT 2005
-// $Id: Service.h,v 1.2 2005/09/12 19:09:56 chrjones Exp $
 //
 
 // system include files

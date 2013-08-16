@@ -13,7 +13,6 @@
 //
 // Original Author:  Andrea Rizzi
 //         Created:  Wed Apr 12 11:12:49 CEST 2006
-// $Id: TrackProbabilityAnalyzer.cc,v 1.8 2007/10/06 19:31:01 arizzi Exp $
 //
 //
 

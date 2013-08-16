@@ -1,11 +1,8 @@
-// $Id: MonitorXMLParser.h,v 1.7 2008/04/03 05:51:36 dellaric Exp $
 
 /*!
   \file MonitorXMLParser.h
   \brief monitor db xml elements parsing tool
   \author B. Gobbo 
-  \version $Revision: 1.7 $
-  \date $Date: 2008/04/03 05:51:36 $
 */
 
 #ifndef MonitorXMLParser_h

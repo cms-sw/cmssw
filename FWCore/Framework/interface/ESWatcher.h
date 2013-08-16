@@ -16,7 +16,6 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Sep 22 18:19:24 EDT 2006
-// $Id: ESWatcher.h,v 1.3 2012/09/27 15:21:21 eulisse Exp $
 //
 
 // system include files

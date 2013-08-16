@@ -3,7 +3,6 @@
 Test program for edm::TypeIDBase class.
 Changed by Viji on 29-06-2005
 
-$Id: stdnamespaceadder_t.cppunit.cpp,v 1.4 2007/11/07 07:10:31 wmtan Exp $
  ----------------------------------------------------------------------*/
 
 #include <cassert>

@@ -16,7 +16,6 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Dec 14 15:16:07 CST 2009
-// $Id: ESHandle.h,v 1.2 2011/01/28 21:53:19 wmtan Exp $
 //
 
 // system include files

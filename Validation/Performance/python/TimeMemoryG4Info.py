@@ -1,17 +1,6 @@
-#G.Benelli Dec 21 2007
-#This fragment is used for the simulation (SIM) step
-#It includes a MessageLogger tweak to dump G4msg.log
-#in addition to the the SimpleMemoryCheck and Timing
-#services output for the log used by the Performance Suite profiling.
-#It is meant to be used with the cmsDriver.py option
-#--customise in the following fashion:
-#E.g.
-#./cmsDriver.py MinBias.cfi -n 50 --step=GEN,SIM --customise=Validation/Performance/TimeMemoryG4Info.py >& MinBias_GEN,SIM.log&
-#Note there is no need to specify the "python" directory in the path.
-
-
 import FWCore.ParameterSet.Config as cms
 def customise(process):
+
     #Adding SimpleMemoryCheck service:
     process.SimpleMemoryCheck=cms.Service("SimpleMemoryCheck",
                                           ignoreTotal=cms.untracked.int32(1),
@@ -67,11 +56,4 @@ def customise(process):
         wantSummary = cms.untracked.bool(True)
         )
 
-    #Add the configuration for the Igprof running to dump profile snapshots:
-    process.IgProfService = cms.Service("IgProfService",
-        reportFirstEvent            = cms.untracked.int32(1), #Dump first event for baseline studies
-        reportEventInterval         = cms.untracked.int32( ( (process.maxEvents.input.value()-1)/2) ), # dump in the middle of the run
-        reportToFileAtPostEvent     = cms.untracked.string("| gzip -c > IgProf.%I.gz")
-        )
-        
     return(process)

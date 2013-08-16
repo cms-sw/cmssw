@@ -39,6 +39,8 @@ class BTagPerformanceAnalyzerOnData : public edm::EDAnalyzer {
 
       ~BTagPerformanceAnalyzerOnData();
 
+      void beginRun(const edm::Run & run, const edm::EventSetup & es);
+
       virtual void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup);
 
       void endRun(const edm::Run & run, const edm::EventSetup & es);
@@ -53,7 +55,7 @@ class BTagPerformanceAnalyzerOnData : public edm::EDAnalyzer {
   };
 
   // Get histogram plotting options from configuration.
-  void bookHistos(const edm::ParameterSet& pSet);
+  void bookHistos();
   EtaPtBin getEtaPtBin(const int& iEta, const int& iPt);
 
   std::vector<std::string> tiDataFormatType;

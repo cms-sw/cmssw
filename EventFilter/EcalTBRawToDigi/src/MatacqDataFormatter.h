@@ -2,7 +2,7 @@
 #define MatacqTBDataFormatter_H
 /** \class MatacqDataFormatter
  *
- *  $Id: MatacqDataFormatter.h,v 1.5 2007/10/20 10:58:01 franzoni Exp $
+ *  $Id: MatacqTBDataFormatter.h,v 1.4 2006/09/21 12:22:36 pgras Exp $
  */
 
 #include <ostream>

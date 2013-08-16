@@ -8,8 +8,8 @@
  *  global sums such as the scalar sum of Et (a.k.a. H_T), available
  *  in the T=CaloMET or T=MET object.
  *
- *  $Date: 2012/02/24 13:13:46 $
- *  $Revision: 1.8 $
+ *  $Date: 2012/02/23 12:21:51 $
+ *  $Revision: 1.7 $
  *
  *  \author Martin Grunewald
  *
@@ -18,6 +18,7 @@
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "HLTrigger/HLTcore/interface/HLTFilter.h"
 #include<string>
+#include<vector>
 
 //
 // class declaration
@@ -35,7 +36,8 @@ class HLTGlobalSums : public HLTFilter {
 
    private:
       // configuration
-      edm::InputTag inputTag_; // input tag identifying MET product
+      edm::InputTag                     inputTag_;   // input tag identifying MET product
+      edm::EDGetTokenT<std::vector<T> > inputToken_; // token identifying MET product
       int triggerType_;        // triggerType configured
       std::string observable_; // which observable to cut on
       double min_,max_;        // cut: Min<=observable<=Max

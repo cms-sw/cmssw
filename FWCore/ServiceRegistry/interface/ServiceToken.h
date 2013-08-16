@@ -18,7 +18,6 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Sep  6 18:31:44 EDT 2005
-// $Id: ServiceToken.h,v 1.4 2006/08/08 00:37:37 chrjones Exp $
 //
 
 // system include files

@@ -1,4 +1,3 @@
-// $Id: HLTMonSimpleBTag.cc,v 1.4 2011/04/15 10:15:36 fblekman Exp $
 // See header file for information. 
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "DataFormats/Common/interface/Handle.h"

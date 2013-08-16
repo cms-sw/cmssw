@@ -1,4 +1,3 @@
-// Last commit: $Id: VpspScanHistosUsingDb.cc,v 1.21 2010/04/21 14:26:30 dstrom Exp $
 
 #include "DQM/SiStripCommissioningDbClients/interface/VpspScanHistosUsingDb.h"
 #include "CondFormats/SiStripObjects/interface/VpspScanAnalysis.h"

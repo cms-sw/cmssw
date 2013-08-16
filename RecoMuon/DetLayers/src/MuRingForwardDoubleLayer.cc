@@ -1,7 +1,5 @@
 /** \file
  *
- *  $Date: 2012/12/25 17:54:29 $
- *  $Revision: 1.6 $
  *  \author Rick Wilkinson
  */
 

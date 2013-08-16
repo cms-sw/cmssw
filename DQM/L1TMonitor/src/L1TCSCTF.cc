@@ -1,8 +1,6 @@
 /*
  * \file L1TCSCTF.cc
  *
- * $Date: 2012/11/01 11:06:04 $
- * $Revision: 1.41 $
  * \author J. Berryhill
  *
  */

@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2012/02/24 13:13:47 $
- *  $Revision: 1.15 $
+ *  $Date: 2012/02/23 12:21:51 $
+ *  $Revision: 1.14 $
  *
  *  \author Martin Grunewald
  *
@@ -77,6 +77,7 @@ int getObjectType(const l1extra::L1JetParticle & candidate) {
 template<typename T>
 HLTSinglet<T>::HLTSinglet(const edm::ParameterSet& iConfig) : HLTFilter(iConfig), 
   inputTag_    (iConfig.template getParameter<edm::InputTag>("inputTag")),
+  inputToken_  (consumes<std::vector<T> >(inputTag_)),
   triggerType_ (iConfig.template getParameter<int>("triggerType")),
   min_E_    (iConfig.template getParameter<double>       ("MinE"    )),
   min_Pt_   (iConfig.template getParameter<double>       ("MinPt"   )),
@@ -141,7 +142,7 @@ HLTSinglet<T>::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trig
 
    // get hold of collection of objects
    Handle<TCollection> objects;
-   iEvent.getByLabel (inputTag_,objects);
+   iEvent.getByToken(inputToken_,objects);
 
    // look at all objects, check cuts and add to filter object
    int n(0);

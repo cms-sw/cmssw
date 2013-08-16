@@ -1,6 +1,5 @@
 // Associate jets with tracks by simple "dR" criteria
 // Fedor Ratnikov (UMd), Aug. 28, 2007
-// $Id: JetTracksAssociationDRCalo.cc,v 1.10 2012/12/26 14:25:08 innocent Exp $
 
 #include "RecoJets/JetAssociationAlgorithms/interface/JetTracksAssociationDRCalo.h"
 

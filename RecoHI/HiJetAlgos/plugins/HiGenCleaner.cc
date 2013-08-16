@@ -13,7 +13,6 @@
 //
 // Original Author:  Yetkin Yilmaz
 //         Created:  Tue Jul 21 04:26:01 EDT 2009
-// $Id: HiGenCleaner.cc,v 1.3 2010/06/01 14:44:22 yilmaz Exp $
 //
 //
 

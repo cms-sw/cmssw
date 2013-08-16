@@ -7,7 +7,6 @@
 
  author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
 
- version $Id: BSpdfsFcn.cc,v 1.1 2006/12/15 20:00:37 yumiceva Exp $
 
 ________________________________________________________________**/
 

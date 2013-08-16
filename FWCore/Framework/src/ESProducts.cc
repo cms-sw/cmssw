@@ -8,7 +8,6 @@
 //
 // Author:      Chris Jones
 // Created:     Sun Apr 17 18:41:34 EDT 2005
-// $Id: ESProducts.cc,v 1.3 2005/10/01 18:06:28 chrjones Exp $
 //
 
 // system include files

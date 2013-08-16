@@ -16,7 +16,6 @@
 //
 // Author:      Chris Jones
 // Created:     Fri Jun 24 13:44:48 EDT 2005
-// $Id: GadgetRcd.h,v 1.1 2005/10/15 01:46:18 wmtan Exp $
 //
 
 #include "FWCore/Framework/interface/EventSetupRecordImplementation.h"

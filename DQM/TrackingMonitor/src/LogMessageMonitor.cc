@@ -49,7 +49,6 @@
 //
 // Original Author:  Mia Tosi,40 3-B32,+41227671609,
 //         Created:  Thu Mar  8 14:34:13 CET 2012
-// $Id: LogMessageMonitor.cc,v 1.4 2012/10/27 20:40:08 tosi Exp $
 //
 //
 
@@ -86,8 +85,12 @@ LogMessageMonitor::LogMessageMonitor(const edm::ParameterSet& iConfig)
   , doWarningsPlots_   ( iConfig.getParameter<bool>                     ("doWarningsPlots") )
   , doPUmonitoring_    ( iConfig.getParameter<bool>                     ("doPUmonitoring")  ) 
 {
+  
+  errorToken_ = consumes<std::vector<edm::ErrorSummaryEntry> >(edm::InputTag("logErrorHarvester") );
+  
+  edm::ConsumesCollector c{ consumesCollector() };
    //now do what ever initialization is needed
-  lumiDetails_         = new GetLumi( iConfig.getParameter<edm::ParameterSet>("BXlumiSetup") ); 
+  lumiDetails_         = new GetLumi( iConfig.getParameter<edm::ParameterSet>("BXlumiSetup"), c );
   genTriggerEventFlag_ = new GenericTriggerEventFlag(iConfig);
 }
 
@@ -121,7 +124,8 @@ LogMessageMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
   
     // Take the ErrorSummaryEntry container
   edm::Handle<std::vector<edm::ErrorSummaryEntry> >  errors;
-  iEvent.getByLabel("logErrorHarvester",errors);
+  //  iEvent.getByLabel("logErrorHarvester",errors);
+  iEvent.getByToken(errorToken_,errors);
   // Check that errors is valid
   if(!errors.isValid()) return; 
   // Compare severity level of error with ELseveritylevel instance el : "-e" should be the lowest error

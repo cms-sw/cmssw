@@ -13,9 +13,8 @@
  *          Joshua Swanson,
  *          Christian Veelken
  *
- * \version $Revision: 1.4 $
  *
- * $Id: EwkTauDQM.h,v 1.4 2010/10/01 10:05:20 lusito Exp $
+ * $Id: EwkTauDQM.h,v 1.3 2010/02/20 20:58:54 wmtan Exp $
  *
  */
 
@@ -60,9 +59,8 @@ class EwkTauDQM : public edm::EDAnalyzer
  * \author Joshua Swanson
  *        (modified by Christian Veelken)
  *
- * \version $Revision: 1.4 $
  *
- * $Id: EwkTauDQM.h,v 1.4 2010/10/01 10:05:20 lusito Exp $
+ * $Id: EwkTauDQM.h,v 1.3 2010/02/20 20:58:54 wmtan Exp $
  *
  */
 
@@ -207,9 +205,8 @@ class EwkElecTauHistManager
  * \author Letizia Lusito,
  *         Christian Veelken
  *
- * \version $Revision: 1.4 $
  *
- * $Id: EwkTauDQM.h,v 1.4 2010/10/01 10:05:20 lusito Exp $
+ * $Id: EwkTauDQM.h,v 1.3 2010/02/20 20:58:54 wmtan Exp $
  *
  */
 
@@ -348,9 +345,8 @@ MonitorElement* hVisMassFinal_;
  * 
  * \author Joshua Swanson
  *
- * \version $Revision: 1.4 $
  *
- * $Id: EwkTauDQM.h,v 1.4 2010/10/01 10:05:20 lusito Exp $
+ * $Id: EwkTauDQM.h,v 1.3 2010/02/20 20:58:54 wmtan Exp $
  *
  */
 

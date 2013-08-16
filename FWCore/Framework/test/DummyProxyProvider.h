@@ -16,7 +16,6 @@
 //
 // Author:      Chris Jones
 // Created:     Thu May 26 13:37:48 EDT 2005
-// $Id: DummyProxyProvider.h,v 1.7 2005/12/19 21:35:26 chrjones Exp $
 //
 
 // system include files

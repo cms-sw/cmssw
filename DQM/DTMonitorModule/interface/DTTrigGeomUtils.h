@@ -4,8 +4,6 @@
 /*
  * \file DTTrigGeomUtils.h
  *
- * $Date: 2009/08/03 16:08:37 $
- * $Revision: 1.2 $
  * \author C. Battilana - CIEMAT
  *
 */

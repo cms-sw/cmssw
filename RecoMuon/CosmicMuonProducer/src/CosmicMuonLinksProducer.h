@@ -3,8 +3,6 @@
 
 /** \file CosmicMuonLinksProducer
  *
- *  $Date: 2010/07/19 19:54:15 $
- *  $Revision: 1.2 $
  *  \author Chang Liu - Purdue University <chang.liu@cern.ch>
  */
 

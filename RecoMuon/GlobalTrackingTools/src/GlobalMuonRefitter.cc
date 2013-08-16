@@ -4,8 +4,6 @@
  *  Description:
  *
  *
- *  $Date: 2013/05/28 15:46:29 $
- *  $Revision: 1.23 $
  *
  *  Authors :
  *  P. Traczyk, SINS Warsaw

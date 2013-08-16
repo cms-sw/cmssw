@@ -13,7 +13,6 @@
 //
 // Original Author:  Vincenzo Chiochia & Andrew York
 //         Created:  
-// $Id: SiPixelClusterModule.cc,v 1.32 2012/02/20 12:42:03 duggan Exp $
 //
 //
 // Updated by: Lukas Wehrli

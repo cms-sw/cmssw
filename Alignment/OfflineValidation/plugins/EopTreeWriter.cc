@@ -13,7 +13,7 @@
 //
 // Original Author:  Holger Enderle
 //         Created:  Thu Dec  4 11:22:48 CET 2008
-// $Id: EopTreeWriter.cc,v 1.3 2012/03/02 07:46:48 mussgill Exp $
+// $Id: EopTreeWriter.cc,v 1.2 2011/11/30 07:45:28 mussgill Exp $
 //
 //
 
@@ -72,9 +72,9 @@ class EopTreeWriter : public edm::EDAnalyzer {
 
 
    private:
-      virtual void beginJob() ;
-      virtual void analyze(const edm::Event&, const edm::EventSetup&);
-      virtual void endJob() ;
+      virtual void beginJob() override ;
+      virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
+      virtual void endJob() override ;
 
       double getDistInCM(double eta1, double phi1, double eta2, double phi2);
 

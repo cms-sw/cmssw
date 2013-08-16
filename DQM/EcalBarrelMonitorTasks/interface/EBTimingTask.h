@@ -4,8 +4,6 @@
 /*
  * \file EBTimingTask.h
  *
- * $Date: 2012/04/27 13:46:01 $
- * $Revision: 1.24 $
  * \author G. Della Ricca
  *
 */

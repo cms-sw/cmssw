@@ -6,8 +6,6 @@
  * *
  *  RPCEfficiencyShiftHisto
  *
- *  $Date: 2010/08/16 10:16:09 $
- *  $Revision: 1.1 $
  *  \author Cesare Calabria
  *   
  */

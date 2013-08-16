@@ -2,8 +2,6 @@
 #define CosmicMuonTrajectoryBuilder_H
 /** \file CosmicMuonTrajectoryBuilder
  *
- *  $Date: 2010/03/05 21:43:00 $
- *  $Revision: 1.23 $
  *  \author Chang Liu  -  Purdue University
  */
 

@@ -12,7 +12,6 @@
 //----------------------------------------------------------------------
 
 //STARTHEADER
-// $Id: test-large-voronoi-area.cc,v 1.1 2011/07/11 12:02:16 stadie Exp $
 //
 //  2005-2011, Matteo Cacciari, Gavin Salam and Gregory Soyez
 //

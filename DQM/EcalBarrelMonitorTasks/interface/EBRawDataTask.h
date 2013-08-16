@@ -4,8 +4,6 @@
 /*
  * \file EBRawDataTask.h
  *
- * $Date: 2012/05/14 20:36:37 $
- * $Revision: 1.13 $
  * \author E. Di Marco
  *
 */

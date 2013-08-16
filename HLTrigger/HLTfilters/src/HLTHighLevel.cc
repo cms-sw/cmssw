@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2012/01/29 00:51:01 $
- *  $Revision: 1.20 $
+ *  $Date: 2012/01/21 14:56:59 $
+ *  $Revision: 1.19 $
  *
  *  \author Martin Grunewald
  *
@@ -28,6 +28,7 @@
 #include "CondFormats/DataRecord/interface/AlCaRecoTriggerBitsRcd.h"
 
 
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "HLTrigger/HLTfilters/interface/HLTHighLevel.h"
 
 //
@@ -35,6 +36,7 @@
 //
 HLTHighLevel::HLTHighLevel(const edm::ParameterSet& iConfig) :
   inputTag_     (iConfig.getParameter<edm::InputTag> ("TriggerResultsTag")),
+  inputToken_   (consumes<edm::TriggerResults>(inputTag_)),
   triggerNamesID_ (),
   andOr_        (iConfig.getParameter<bool> ("andOr")),
   throw_        (iConfig.getParameter<bool> ("throw")),
@@ -68,6 +70,22 @@ HLTHighLevel::~HLTHighLevel()
 //
 // member functions
 //
+
+void
+HLTHighLevel::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<edm::InputTag>("TriggerResultsTag",edm::InputTag("TriggerResults","","HLT"));
+  std::vector<std::string> hltPaths(0);
+  // # provide list of HLT paths (or patterns) you want
+  desc.add<std::vector<std::string> >("HLTPaths",hltPaths);
+  // # not empty => use read paths from AlCaRecoTriggerBitsRcd via this key
+  desc.add<std::string>("eventSetupPathsKey","");
+  // # how to deal with multiple triggers: True (OR) accept if ANY is true, False (AND) accept if ALL are true
+  desc.add<bool>("andOr",true);
+  // # throw exception on unknown path names
+  desc.add<bool>("throw",true);
+  descriptions.add("hltHighLevel", desc);
+}
 
 // Initialize the internal trigger path representation (names and indices) from the 
 // patterns specified in the configuration.
@@ -191,7 +209,7 @@ HLTHighLevel::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   // get hold of TriggerResults Object
   Handle<TriggerResults> trh;
-  iEvent.getByLabel(inputTag_, trh);
+  iEvent.getByToken(inputToken_, trh);
   if (trh.isValid()) {
     LogDebug("HLTHighLevel") << "TriggerResults found, number of HLT paths: " << trh->size();
   } else {

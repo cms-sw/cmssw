@@ -1,6 +1,5 @@
 import FWCore.ParameterSet.Config as cms
 
-# $Id: CaloTowersRec_cff.py,v 1.5 2008/09/20 17:41:45 oehler Exp $
 #
 # create calotowers here
 #

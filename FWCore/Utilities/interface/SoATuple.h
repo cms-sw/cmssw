@@ -81,7 +81,6 @@ Explicitly aligned types and defaultly aligned types can be freely mixed in any 
 //
 // Original Author:  Chris Jones
 //         Created:  Tue, 16 Apr 2013 20:34:31 GMT
-// $Id: SoATuple.h,v 1.4 2013/04/23 20:07:48 chrjones Exp $
 //
 
 // system include files

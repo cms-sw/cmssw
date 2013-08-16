@@ -8,7 +8,6 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Sep 15 09:47:48 EDT 2005
-// $Id: LoadAllDictionaries.cc,v 1.11 2012/07/24 05:01:00 wmtan Exp $
 //
 
 // system include files

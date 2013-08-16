@@ -4,9 +4,6 @@
 /** \class InOutConversionSeedFinder
  **  
  **
- **  $Id: InOutConversionSeedFinder.h,v 1.15 2012/05/29 08:23:53 muzaffar Exp $ 
- **  $Date: 2012/05/29 08:23:53 $ 
- **  $Revision: 1.15 $
  **  \author Nancy Marinelli, U. of Notre Dame, US
  **
  ***/

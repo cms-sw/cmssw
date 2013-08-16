@@ -16,7 +16,6 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Apr  3 16:43:29 EDT 2006
-// $Id: CloningPtr.h,v 1.6 2011/11/16 22:34:34 wmtan Exp $
 //
 
 // system include files

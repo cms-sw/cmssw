@@ -13,7 +13,6 @@
 //
 // Original Author:  Boris Mangano
 //         Created:  Mon Oct 16 10:38:20 CEST 2006
-// $Id: TrajectoryAnalyzer.cc,v 1.4 2010/02/25 00:33:36 wmtan Exp $
 //
 //
 

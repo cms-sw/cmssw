@@ -1,7 +1,6 @@
 //
 // Original Author:  Pietro Govoni
 //         Created:  Thu Aug 10 16:21:22 CEST 2006
-// $Id: IsTBH4Type.cc,v 1.4 2011/09/21 08:09:38 eulisse Exp $
 //
 //
 

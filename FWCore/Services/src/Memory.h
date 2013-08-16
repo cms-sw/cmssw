@@ -7,7 +7,6 @@
 // 
 //
 // Original Author:  Jim Kowalkowski
-// $Id: Memory.h,v 1.12 2012/05/06 19:11:56 chrjones Exp $
 //
 // Change Log
 //

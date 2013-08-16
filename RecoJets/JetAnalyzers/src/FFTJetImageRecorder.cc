@@ -13,7 +13,6 @@
 //
 // Original Author:  Igor Volobouev
 //         Created:  Thu Apr 21 15:52:11 CDT 2011
-// $Id: FFTJetImageRecorder.cc,v 1.1 2011/06/03 05:10:07 igv Exp $
 //
 //
 

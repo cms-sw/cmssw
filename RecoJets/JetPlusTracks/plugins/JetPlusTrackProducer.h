@@ -13,7 +13,6 @@
 //
 // Original Author:  Olga Kodolova,40 R-A12,+41227671273,
 //         Created:  Fri Feb 19 10:14:02 CET 2010
-// $Id: JetPlusTrackProducer.h,v 1.3 2013/04/30 09:02:47 kodolova Exp $
 //
 //
 

@@ -13,7 +13,6 @@
 //
 // Original Author:  Igor Volobouev
 //         Created:  Thu Jul 14 17:50:33 CDT 2011
-// $Id: FFTJetPFPileupCleaner.cc,v 1.5 2012/06/22 07:23:21 igv Exp $
 //
 //
 #include <cmath>

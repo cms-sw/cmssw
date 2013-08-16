@@ -3,9 +3,6 @@
 /** \class ConversionSeedFinder
  **  
  **
- **  $Id: ConversionSeedFinder.h,v 1.13 2011/07/28 19:37:35 vlimant Exp $ 
- **  $Date: 2011/07/28 19:37:35 $ 
- **  $Revision: 1.13 $
  **  \author Nancy Marinelli, U. of Notre Dame, US
  **
  ***/

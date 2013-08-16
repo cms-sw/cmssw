@@ -4,8 +4,6 @@
 /*
  * \file EBIntegrityClient.h
  *
- * $Date: 2012/04/27 13:45:57 $
- * $Revision: 1.79 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *

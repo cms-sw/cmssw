@@ -1,4 +1,3 @@
-// Last commit: $Id: SiStripCommissioningOfflineDbClient.h,v 1.10 2010/04/21 14:26:19 dstrom Exp $
 
 #ifndef DQM_SiStripCommissioningDbClients_SiStripCommissioningOfflineDbClient_H
 #define DQM_SiStripCommissioningDbClients_SiStripCommissioningOfflineDbClient_H

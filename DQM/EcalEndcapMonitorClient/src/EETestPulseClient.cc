@@ -1,8 +1,6 @@
 /*
  * \file EETestPulseClient.cc
  *
- * $Date: 2012/04/27 13:46:08 $
- * $Revision: 1.130 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *

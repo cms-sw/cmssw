@@ -5,16 +5,7 @@
 /*
  * \file L1TRCT.h
  *
- * $Date: 2012/04/04 09:56:36 $
- * $Revision: 1.9 $
  * \author P. Wittich
- * $Id: L1TRCT.h,v 1.9 2012/04/04 09:56:36 ghete Exp $
- * $Log: L1TRCT.h,v $
- * Revision 1.9  2012/04/04 09:56:36  ghete
- * Clean up L1TDEMON, add TriggerType hist to RCT, GCT, enable correlation condition tests in GT, clean up HCAL files.
- *
- * Revision 1.8  2012/03/29 21:16:48  rovere
- * Removed all instances of hltTriggerTypeFilter from L1T DQM Code.
  *
  * Revision 1.7  2009/11/19 14:34:14  puigh
  * modify beginJob

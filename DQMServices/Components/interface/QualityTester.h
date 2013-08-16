@@ -8,8 +8,6 @@
  * - they receive ME data from the SM 
  * - they are run together with the producers (standalone mode)
  *
- * $Date: 2010/01/27 13:11:57 $
- * $Revision: 1.11 $
  * \author M. Zanetti - CERN PH
  *
  */

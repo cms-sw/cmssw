@@ -1,4 +1,3 @@
-// $Id: PrunedRecombiner.cc,v 1.2 2011/04/25 04:19:54 srappocc Exp $
 ///////////////////////////////////////////////////////////////////////////////
 //
 // Implements the PrunedRecombiner class.  See PrunedRecombiner.hh

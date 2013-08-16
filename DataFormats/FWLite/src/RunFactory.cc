@@ -8,7 +8,6 @@
 //
 // Original Author:
 //         Created:  Wed Feb 10 11:15:18 CST 2010
-// $Id: RunFactory.cc,v 1.3 2010/07/24 14:14:48 wmtan Exp $
 //
 
 // system include files

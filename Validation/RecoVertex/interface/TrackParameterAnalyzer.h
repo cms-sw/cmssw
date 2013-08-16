@@ -13,7 +13,6 @@
 //
 // Original Author:  Wolfram Erdmann
 //         Created:  Fri Jun  2 10:54:05 CEST 2006
-// $Id: TrackParameterAnalyzer.h,v 1.13 2010/05/11 19:23:31 wmtan Exp $
 //
 //
 

@@ -4,8 +4,6 @@
 /*
  * \file EBClusterTask.h
  *
- * $Date: 2010/02/24 10:11:34 $
- * $Revision: 1.27 $
  * \author G. Della Ricca
  *
  */

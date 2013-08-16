@@ -13,7 +13,6 @@
 //
 // Original Author:  Brian Drell
 //         Created:  Tue May 22 23:54:16 CEST 2007
-// $Id: V0Analyzer.cc,v 1.16 2011/11/12 01:39:27 drell Exp $
 //
 //
 

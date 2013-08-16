@@ -1,11 +1,8 @@
-// $Id: EcalMonitorPrescaler.cc,v 1.16 2010/08/08 08:46:05 dellaric Exp $
 
 /*!
   \file EcalMonitorPrescaler.cc
   \brief Ecal specific Prescaler
   \author G. Della Ricca
-  \version $Revision: 1.16 $
-  \date $Date: 2010/08/08 08:46:05 $
 */
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"

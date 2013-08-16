@@ -12,14 +12,10 @@
 //
 // Author:      Chris D. Jones
 // Created:     Sun Sep 20 15:27:25 EDT 1998
-// $Id: HCTypeTag.cc,v 1.3 2010/01/25 23:23:31 chrjones Exp $
 //
 // Revision history
 //
 // $Log: HCTypeTag.cc,v $
-// Revision 1.3  2010/01/25 23:23:31  chrjones
-// modified to use the new 'findType' return value
-//
 // Revision 1.2  2010/01/23 02:03:42  chrjones
 // moved type lookup used by EventSetup to FWCore/Utilities to avoid unneeded external dependencies from FWCore/Framework
 //

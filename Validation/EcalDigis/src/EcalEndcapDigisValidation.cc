@@ -1,8 +1,6 @@
 /*
  * \file EcalEndcapDigisValidation.cc
  *
- * $Date: 2010/01/04 15:10:59 $
- * $Revision: 1.21 $
  * \author F. Cossutti
  *
 */

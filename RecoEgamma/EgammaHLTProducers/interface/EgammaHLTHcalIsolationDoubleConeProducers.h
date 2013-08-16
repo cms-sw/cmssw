@@ -8,7 +8,6 @@
 //
 // Original Author:  Monica Vazquez Acosta (CERN)
 //         Created:  Tue Jun 13 14:48:33 CEST 2006
-// $Id: EgammaHLTHcalIsolationDoubleConeProducers.h,v 1.1 2007/05/31 19:45:56 mpieri Exp $
 //
 //
 // mostly identical to EgammaHLTHcalIsolationRegionalProducers, but produces excludes  

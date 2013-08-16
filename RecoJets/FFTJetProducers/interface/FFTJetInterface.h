@@ -11,7 +11,6 @@
 //
 // Original Author:  Igor Volobouev
 //         Created:  June 29 2010
-// $Id: FFTJetInterface.h,v 1.3 2012/08/06 21:36:54 igv Exp $
 //
 //
 

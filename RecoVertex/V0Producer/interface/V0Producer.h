@@ -13,7 +13,6 @@
 //
 // Original Author:  Brian Drell
 //         Created:  Fri May 18 22:57:40 CEST 2007
-// $Id: V0Producer.h,v 1.8 2009/12/18 20:45:08 wmtan Exp $
 //
 //
 
@@ -52,7 +51,7 @@ private:
   virtual void endJob() ;
 
   edm::ParameterSet theParams;
-      
+  V0Fitter * theVees;      
 };
 
 #endif

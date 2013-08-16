@@ -13,8 +13,6 @@
 
 
     /** \class HcalSimpleReconstructor	
-     $Date: 2013/02/28 08:28:56 $
-    $Revision: 1.4 $
     \author E. Garcia - CSU
     ** Based on HcalSimpleReconstructor.h by J. Mans
     */

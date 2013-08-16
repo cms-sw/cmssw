@@ -8,7 +8,6 @@
 //
 // Author:      Chris Jones
 // Created:     Sat Apr 30 19:37:22 EDT 2005
-// $Id: DependentRecordIntervalFinder.cc,v 1.14 2012/09/26 11:36:04 eulisse Exp $
 //
 
 // system include files

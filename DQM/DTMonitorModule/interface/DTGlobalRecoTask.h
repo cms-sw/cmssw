@@ -4,8 +4,6 @@
 /*
  * \file DTGlobalRecoTask.h
  *
- * $Date: 2010/01/05 10:14:39 $
- * $Revision: 1.4 $
  * \author M. Zanetti - INFN Padova
  *
 */

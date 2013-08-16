@@ -1,4 +1,3 @@
-// Last commit: $Id: SiStripCommissioningOfflineDbClient.cc,v 1.26 2010/04/21 14:26:18 dstrom Exp $
 
 #include "DQM/SiStripCommissioningDbClients/plugins/SiStripCommissioningOfflineDbClient.h"
 #include "DataFormats/SiStripCommon/interface/SiStripEnumsAndStrings.h"

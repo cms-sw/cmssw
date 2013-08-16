@@ -3,9 +3,6 @@
 /** \class RecHitFilter
  **   simple filter of EcalRecHits
  **
- **  $Id: RecHitFilter.h,v 1.3 2013/04/19 07:24:06 argiro Exp $
- **  $Date: 2013/04/19 07:24:06 $
- **  $Revision: 1.3 $
  **  \author Shahram Rahatlou, University of Rome & INFN, May 2006
  **
  ***/

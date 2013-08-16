@@ -1,7 +1,5 @@
 /** \file
  *
- * $Date: 2006/10/26 07:48:21 $
- * $Revision: 1.2 $
  * \author Riccardo Bellan - INFN TO <riccardo.bellan@cern.ch>
  */
 

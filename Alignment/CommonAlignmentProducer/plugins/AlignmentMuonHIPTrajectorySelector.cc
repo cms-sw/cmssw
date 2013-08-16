@@ -13,7 +13,7 @@
 //
 // Original Author:  Jim Pivarski
 //         Created:  Wed Feb 20 10:56:46 CST 2008
-// $Id: AlignmentMuonHIPTrajectorySelector.cc,v 1.5 2010/02/11 00:10:23 wmtan Exp $
+// $Id: AlignmentMuonHIPTrajectorySelector.cc,v 1.4 2010/01/06 15:26:10 mussgill Exp $
 //
 //
 
@@ -58,7 +58,7 @@ class AlignmentMuonHIPTrajectorySelector : public edm::EDProducer {
       ~AlignmentMuonHIPTrajectorySelector();
 
    private:
-      virtual void produce(edm::Event&, const edm::EventSetup&);
+      virtual void produce(edm::Event&, const edm::EventSetup&) override;
       
       // ---------- member data --------------------------------
       edm::InputTag m_input;

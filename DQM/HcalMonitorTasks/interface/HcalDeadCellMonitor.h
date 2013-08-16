@@ -23,8 +23,6 @@
 
 /** \class HcalDeadCellMonitor
   *
-  * $Date: 2012/11/12 20:52:11 $
-  * $Revision: 1.62 $
   * \author J. Temple - Univ. of Maryland
   */
 

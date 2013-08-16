@@ -25,7 +25,6 @@
 //
 // Original Author:  Kyle Story, Freya Blekman (Cornell University)
 //         Created:  Fri Apr 18 11:58:33 CEST 2008
-// $Id: significanceAlgo.h,v 1.3 2012/09/11 11:40:12 veelken Exp $
 //
 //
 
@@ -41,14 +40,9 @@
 //  where Chisq_0 is the value of Chi squared at MET=0.
 //
 //
-// $Id: significanceAlgo.h,v 1.3 2012/09/11 11:40:12 veelken Exp $
 // 
 // Revision history
 // 
-// $Log: significanceAlgo.h,v $
-// Revision 1.3  2012/09/11 11:40:12  veelken
-// SigInputObj moved to DataFormats/METReco
-//
 // Revision 1.2  2009/10/21 11:27:11  fblekman
 // merged version with cvs head - includes new interfaces for MET significance to make it possible to correct MET objects later and also correct the signficance.
 //

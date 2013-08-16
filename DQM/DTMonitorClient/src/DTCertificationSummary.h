@@ -4,8 +4,6 @@
 /** \class DTCertificationSummary
  *  No description available.
  *
- *  $Date: 2010/01/22 15:32:04 $
- *  $Revision: 1.4 $
  *  \author G. Cerminara - INFN Torino
  */
 

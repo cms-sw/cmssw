@@ -14,8 +14,6 @@
  *   in the muon system and the tracker.
  *
  *
- *  $Date: 2013/01/06 19:16:51 $
- *  $Revision: 1.24 $
  *
  *  \author N. Neumeister 	 Purdue University
  *  \author C. Liu 		 Purdue University

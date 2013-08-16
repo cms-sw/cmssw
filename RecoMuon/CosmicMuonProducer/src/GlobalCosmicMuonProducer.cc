@@ -5,8 +5,6 @@
  *  reconstruct muons using dt,csc,rpc and tracker starting from cosmic muon
  *  tracks
  *
- * $Date: 2009/07/29 12:46:25 $
- * $Revision: 1.10 $
  * \author:  Chang Liu  - Purdue University <Chang.Liu@cern.ch>
 **/
 

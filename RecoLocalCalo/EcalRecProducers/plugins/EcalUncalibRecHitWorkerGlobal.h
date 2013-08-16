@@ -6,9 +6,6 @@
  *                           time using a ratio method                                                                                                                             
  *                           chi2 using express method  
  *
- *  $Id: EcalUncalibRecHitWorkerGlobal.h,v 1.21 2012/05/10 12:45:18 franzoni Exp $
- *  $Date: 2012/05/10 12:45:18 $
- *  $Revision: 1.21 $
  *  \author R. Bruneliere - A. Zabi
  */
 

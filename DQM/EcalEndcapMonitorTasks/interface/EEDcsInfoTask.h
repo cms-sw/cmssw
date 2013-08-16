@@ -4,8 +4,6 @@
 /*
  * \file EEDcsInfoTask.h
  *
- * $Date: 2011/06/27 08:35:13 $
- * $Revision: 1.10 $
  * \author E. Di Marco
  *
 */

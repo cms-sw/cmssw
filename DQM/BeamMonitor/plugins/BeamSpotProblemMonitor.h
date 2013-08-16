@@ -3,8 +3,6 @@
 
 /** \class BeamSpotProblemMonitor
  * *
- *  $Date: 2012/05/22 19:44:16 $
- *  $Revision: 1.1 $
  *  \author  Sushil S. Chauhan/UC Davis
  *      
  *

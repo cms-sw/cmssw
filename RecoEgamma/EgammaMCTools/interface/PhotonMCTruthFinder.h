@@ -13,8 +13,6 @@
 /** \class PhotonMCTruthFinder
  *   
  *        
- *  $Date: 2013/05/30 21:43:43 $
- *  $Revision: 1.4 $
  *  \author N. Marinelli  Notre Dame
  *
  */

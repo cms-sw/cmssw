@@ -6,7 +6,6 @@
 RefVectorIterator: An iterator for a RefVector
 Note: this is actually a *const_iterator*
 
-$Id: RefVectorIterator.h,v 1.10 2011/02/24 20:20:48 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 

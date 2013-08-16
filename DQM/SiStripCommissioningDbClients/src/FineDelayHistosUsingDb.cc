@@ -1,4 +1,3 @@
-// Last commit: $Id: FineDelayHistosUsingDb.cc,v 1.18 2009/11/10 14:49:02 lowette Exp $
 
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"

@@ -50,7 +50,7 @@ class MuonGeometrySVGTemplate : public edm::EDAnalyzer {
       ~MuonGeometrySVGTemplate();
 
    private:
-      virtual void analyze(const edm::Event&, const edm::EventSetup &iConfig);
+      virtual void analyze(const edm::Event&, const edm::EventSetup &iConfig) override;
 
       std::string m_wheelTemplateName;
 //       std::string m_disk1TemplateName;

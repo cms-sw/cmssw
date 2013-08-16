@@ -13,7 +13,6 @@
 //
 // Original Author:  Phillip R. Dudero
 //         Created:  Tue Jan 16 21:11:37 CST 2007
-// $Id: HcalQLPlotAnal.cc,v 1.5 2007/12/31 18:43:18 ratnik Exp $
 //
 //
 

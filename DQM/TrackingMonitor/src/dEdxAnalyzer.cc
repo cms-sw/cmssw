@@ -1,15 +1,9 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2012/10/16 10:07:42 $
- *  $Revision: 1.3 $
  *  \author Loic Quertenmont 
  */
 #include "DQM/TrackingMonitor/interface/dEdxAnalyzer.h"
-
-#include "DataFormats/TrackReco/interface/DeDxData.h"
-#include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/TrackReco/interface/TrackFwd.h"
 
 #include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
 #include "TrackingTools/Records/interface/TransientTrackRecord.h"
@@ -33,6 +27,14 @@ dEdxAnalyzer::dEdxAnalyzer(const edm::ParameterSet& iConfig)
   , doDeDxPlots_ ( conf_.getParameter<bool>("doDeDxPlots") )    
   , genTriggerEventFlag_( new GenericTriggerEventFlag(conf_) )
 {
+
+  trackInputTag_ = edm::InputTag(conf_.getParameter<std::string>("TracksForDeDx") );
+  trackToken_ = consumes<reco::TrackCollection>(trackInputTag_);
+
+  dEdxInputList_ = conf_.getParameter<std::vector<std::string> >("deDxProducers");
+  for (auto const& tag : dEdxInputList_) {
+    dEdxTokenList_.push_back(consumes<reco::DeDxDataValueMap>(edm::InputTag(tag) ) );
+  }
 }
 
 dEdxAnalyzer::~dEdxAnalyzer() 
@@ -67,8 +69,6 @@ void dEdxAnalyzer::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup)
 void dEdxAnalyzer::beginJob()
 {
     // parameters from the configuration
-    AlgoNames                  = conf_.getParameter<std::vector<std::string> >("deDxProducers");
-    TrackName                  = conf_.getParameter<std::string>("TracksForDeDx");
     std::string MEFolderName   = conf_.getParameter<std::string>("FolderName"); 
 
     // get binning from the configuration
@@ -101,8 +101,8 @@ void dEdxAnalyzer::beginJob()
     // ---------------------------------------------------------------------------------//
 
     if ( doDeDxPlots_ || doAllPlots_ ){
-      for(unsigned int i=0;i<AlgoNames.size();i++){
-         dqmStore_->setCurrentFolder(MEFolderName+"/"+ AlgoNames[i]);
+      for(unsigned int i=0;i<dEdxInputList_.size();i++){
+         dqmStore_->setCurrentFolder(MEFolderName+"/"+ dEdxInputList_[i]);
          dEdxMEsVector.push_back(dEdxMEs() );
 
          histname = "MIP_dEdxPerTrack_"; 
@@ -151,13 +151,14 @@ void dEdxAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
 
    if ( doDeDxPlots_ || doAllPlots_ ){
       edm::Handle<reco::TrackCollection> trackCollectionHandle;
-      iEvent.getByLabel(TrackName,trackCollectionHandle);
+      //      iEvent.getByLabel(TrackName,trackCollectionHandle);
+      iEvent.getByToken(trackToken_, trackCollectionHandle );
       if(!trackCollectionHandle.isValid())return;
 
-
-      for(unsigned int i=0;i<AlgoNames.size();i++){
+      for(unsigned int i=0;i<dEdxInputList_.size();i++){
          edm::Handle<reco::DeDxDataValueMap> dEdxObjectHandle;
-         iEvent.getByLabel(AlgoNames[i],dEdxObjectHandle);
+	 //         iEvent.getByLabel(AlgoNames[i],dEdxObjectHandle);
+	 iEvent.getByToken(dEdxTokenList_[i], dEdxObjectHandle );
          if(!dEdxObjectHandle.isValid())continue;
          const edm::ValueMap<reco::DeDxData> dEdxColl = *dEdxObjectHandle.product();
  

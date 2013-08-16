@@ -13,7 +13,6 @@
 //
 // Original Author:  Andres Felipe Osorio Oliveros
 //         Created:  Wed Sep 30 09:32:55 CEST 2009
-// $Id: RPCTTUMonitor.h,v 1.4 2010/04/26 14:07:38 dellaric Exp $
 //
 //
 

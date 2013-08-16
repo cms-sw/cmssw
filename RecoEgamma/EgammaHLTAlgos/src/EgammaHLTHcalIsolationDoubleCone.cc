@@ -9,7 +9,6 @@
 //     with an inner exclusion cone 
 // Original Author:  
 //         Created:  Tue Jun 13 12:16:41 CEST 2006
-// $Id: EgammaHLTHcalIsolationDoubleCone.cc,v 1.1 2007/05/31 19:38:50 mpieri Exp $
 //
 
 // include files

@@ -1,6 +1,5 @@
 #ifndef DataFormats_Common_IDVectorMap_h
 #define DataFormats_Common_IDVectorMap_h
-// $Id: IDVectorMap.h,v 1.12 2008/03/31 21:12:11 wmtan Exp $
 #include <map>
 
 namespace edm {

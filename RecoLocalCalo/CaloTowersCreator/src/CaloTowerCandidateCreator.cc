@@ -1,7 +1,6 @@
 // makes CaloTowerCandidates from CaloTowers
 // original author: L.Lista INFN
 // modifyed by: F.Ratnikov UMd
-// $Id: CaloTowerCandidateCreator.cc,v 1.10 2008/03/04 04:47:26 anastass Exp $
 #include <cmath>
 #include "DataFormats/RecoCandidate/interface/RecoCaloTowerCandidate.h"
 #include "DataFormats/CaloTowers/interface/CaloTower.h"

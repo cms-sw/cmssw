@@ -5,8 +5,6 @@
  * \file ZDCMonitorModule.h
  *
 
- * $Date: 2010/03/25 20:00:36 $
- * $Revision: 1.2 $
  * \author 
  *
 */

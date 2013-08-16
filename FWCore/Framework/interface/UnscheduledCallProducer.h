@@ -7,6 +7,8 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/OccurrenceTraits.h"
 #include "FWCore/Framework/src/Worker.h"
+#include "FWCore/ServiceRegistry/interface/ModuleCallingContext.h"
+#include "FWCore/ServiceRegistry/interface/ParentContext.h"
 
 #include <map>
 #include <string>
@@ -21,8 +23,9 @@ namespace edm {
       labelToWorkers_[aWorker->description().moduleLabel()] = aWorker;
     }
 
-    template <typename T>
-    void runNow(typename T::MyPrincipal& p, EventSetup const& es) {
+    template <typename T, typename U>
+    void runNow(typename T::MyPrincipal& p, EventSetup const& es, StreamID streamID,
+                typename T::Context const* topContext, U const* context) {
       //do nothing for event since we will run when requested
       if(!T::isEvent_) {
         for(std::map<std::string, Worker*>::iterator it = labelToWorkers_.begin(), itEnd=labelToWorkers_.end();
@@ -30,7 +33,8 @@ namespace edm {
             ++it) {
           CPUTimer timer;
           try {
-            it->second->doWork<T>(p, es, nullptr, &timer);
+            ParentContext parentContext(context);
+            it->second->doWork<T>(p, es, nullptr, &timer,streamID, parentContext, topContext);
           }
           catch (cms::Exception & ex) {
 	    std::ostringstream ost;
@@ -69,13 +73,16 @@ namespace edm {
     virtual bool tryToFillImpl(std::string const& moduleLabel,
                                EventPrincipal& event,
                                EventSetup const& eventSetup,
-                               CurrentProcessingContext const* iContext) {
+                               CurrentProcessingContext const* iContext,
+                               ModuleCallingContext const* mcc) {
       std::map<std::string, Worker*>::const_iterator itFound =
         labelToWorkers_.find(moduleLabel);
       if(itFound != labelToWorkers_.end()) {
         CPUTimer timer;
         try {
-          itFound->second->doWork<OccurrenceTraits<EventPrincipal, BranchActionBegin> >(event, eventSetup, iContext, &timer);
+          ParentContext parentContext(mcc);
+          itFound->second->doWork<OccurrenceTraits<EventPrincipal, BranchActionStreamBegin> >(event,
+              eventSetup, iContext, &timer,event.streamID(), parentContext, mcc->getStreamContext());
         }
         catch (cms::Exception & ex) {
 	  std::ostringstream ost;
@@ -95,3 +102,4 @@ namespace edm {
 }
 
 #endif
+

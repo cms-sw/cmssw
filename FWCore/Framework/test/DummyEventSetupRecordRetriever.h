@@ -16,7 +16,6 @@
 //
 // Author:      Chris Jones
 // Created:     Fri Apr 22 14:14:09 EDT 2005
-// $Id: DummyEventSetupRecordRetriever.h,v 1.10 2005/10/03 23:22:06 chrjones Exp $
 //
 
 // system include files

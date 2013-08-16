@@ -4,8 +4,6 @@
 /** \class MuonTrackResidualAnalyzer
  *  No description available.
  *
- *  $Date: 2010/02/20 21:02:36 $
- *  $Revision: 1.7 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */ 
 

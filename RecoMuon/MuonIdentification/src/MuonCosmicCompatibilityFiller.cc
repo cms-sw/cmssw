@@ -4,8 +4,6 @@
  *
  *  Description: class for cosmic muon identification
  *
- *  $Date: 2011/10/28 22:10:34 $
- *  $Revision: 1.4 $
  *
  *  \author: A. Everett, Purdue University
  *  \author: A. Svyatkovskiy, Purdue University

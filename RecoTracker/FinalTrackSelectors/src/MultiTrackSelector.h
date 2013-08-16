@@ -6,9 +6,7 @@
  * 
  * \author David Lange
  *
- * \version $Revision: 1.12 $
  *
- * $Id: MultiTrackSelector.h,v 1.12 2013/06/04 12:24:17 speer Exp $
  *
  */
 

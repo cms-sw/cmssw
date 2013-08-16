@@ -1,8 +1,6 @@
 /** \class PhysicsObjectsMonitor
  *  Analyzer of the StandAlone muon tracks
  *
- *  $Date: 2009/12/14 22:22:12 $
- *  $Revision: 1.9 $
  *  \author M. Mulders - CERN <martijn.mulders@cern.ch>
  *  Based on STAMuonAnalyzer by R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */

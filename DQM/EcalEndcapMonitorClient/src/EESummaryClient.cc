@@ -1,8 +1,6 @@
 /*
  * \file EESummaryClient.cc
  *
- * $Date: 2012/08/10 00:30:16 $
- * $Revision: 1.227 $
  * \author G. Della Ricca
  *
 */

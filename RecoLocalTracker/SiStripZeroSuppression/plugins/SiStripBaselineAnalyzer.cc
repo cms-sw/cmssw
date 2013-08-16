@@ -13,7 +13,6 @@
 //
 // Original Author:  Ivan Amos Cali
 //         Created:  Mon Jul 28 14:10:52 CEST 2008
-// $Id: SiStripBaselineAnalyzer.cc,v 1.8 2011/10/05 09:08:20 icali Exp $
 //
 //
  

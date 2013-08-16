@@ -8,7 +8,6 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Sep  5 19:52:01 EDT 2005
-// $Id: ValueExamplePlugin.cc,v 1.1 2007/04/09 23:04:28 chrjones Exp $
 //
 
 // system include files

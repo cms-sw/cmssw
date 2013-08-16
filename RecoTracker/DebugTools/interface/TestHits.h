@@ -17,7 +17,6 @@
 //
 // Original Author:  Giuseppe Cerati
 //         Created:  Tue Feb 13 17:29:10 CET 2007
-// $Id: TestHits.h,v 1.6 2010/02/11 00:14:35 wmtan Exp $
 //
 //
 #include <memory>

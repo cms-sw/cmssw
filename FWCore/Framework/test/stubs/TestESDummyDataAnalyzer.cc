@@ -13,7 +13,6 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Dec 22 11:02:00 EST 2005
-// $Id: TestESDummyDataAnalyzer.cc,v 1.7 2007/08/07 22:34:20 wmtan Exp $
 //
 //
 

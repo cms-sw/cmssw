@@ -1,6 +1,5 @@
 // \class JetTracksAssociationXtrpCalo
 // Associate jets with tracks by extrapolation to calo face
-// $Id: JetTracksAssociationXtrpCalo.h,v 1.2 2011/02/16 18:25:33 stadie Exp $
 
 #ifndef RecoJets_JetAssociationAlgorithms_JetTracksAssociationXtrpCalo_h
 #define RecoJets_JetAssociationAlgorithms_JetTracksAssociationXtrpCalo_h

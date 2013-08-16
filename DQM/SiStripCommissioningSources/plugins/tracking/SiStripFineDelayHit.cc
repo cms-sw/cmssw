@@ -13,7 +13,6 @@
 //
 // Original Author:  Christophe DELAERE
 //         Created:  Fri Nov 17 10:52:42 CET 2006
-// $Id: SiStripFineDelayHit.cc,v 1.18 2013/02/27 15:07:58 davidlt Exp $
 //
 //
 
@@ -35,7 +34,6 @@
 
 #include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/DetId/interface/DetId.h"
-#include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackExtra.h"
@@ -44,15 +42,11 @@
 #include "DataFormats/SiStripDetId/interface/TIBDetId.h"
 #include "DataFormats/SiStripDetId/interface/TIDDetId.h"
 #include "DataFormats/SiStripDetId/interface/TOBDetId.h"
-#include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
-#include "DataFormats/SiStripCluster/interface/SiStripClusterCollection.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHit.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DCollection.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2DCollection.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
-#include <DataFormats/SiStripCommon/interface/SiStripEventSummary.h>
 #include <DataFormats/SiStripCommon/interface/ConstantsForRunType.h>
-#include "DataFormats/SiStripDigi/interface/SiStripRawDigi.h"
 #include <DataFormats/SiStripCommon/interface/SiStripFedKey.h>
 #include <CondFormats/SiStripObjects/interface/FedChannelConnection.h>
 #include <CondFormats/SiStripObjects/interface/SiStripFedCabling.h>
@@ -95,12 +89,21 @@ SiStripFineDelayHit::SiStripFineDelayHit(const edm::ParameterSet& iConfig):event
    maxAngle_ = iConfig.getParameter<double>("MaxTrackAngle");
    minTrackP2_ = iConfig.getParameter<double>("MinTrackMomentum")*iConfig.getParameter<double>("MinTrackMomentum");
    maxClusterDistance_ = iConfig.getParameter<double>("MaxClusterDistance");
+   /*
    clusterLabel_ = iConfig.getParameter<edm::InputTag>("ClustersLabel");
    trackLabel_ = iConfig.getParameter<edm::InputTag>("TracksLabel");
    seedLabel_  = iConfig.getParameter<edm::InputTag>("SeedsLabel");
    inputModuleLabel_ = iConfig.getParameter<edm::InputTag>( "InputModuleLabel" ) ;
    digiLabel_ = iConfig.getParameter<edm::InputTag>("DigiLabel");
-   homeMadeClusters_ = iConfig.getParameter<bool>("NoClustering");
+   */
+   clustersToken_        = consumes<edmNew::DetSetVector<SiStripCluster> >(iConfig.getParameter<edm::InputTag>("ClustersLabel")      );
+   trackToken_           = consumes<std::vector<Trajectory> >             (iConfig.getParameter<edm::InputTag>("TracksLabel")        );
+   trackCollectionToken_ = consumes<reco::TrackCollection>                (iConfig.getParameter<edm::InputTag>("TracksLabel")        );
+   seedcollToken_        = consumes<TrajectorySeedCollection>             (iConfig.getParameter<edm::InputTag>("SeedsLabel")         );
+   inputModuleToken_     = consumes<SiStripEventSummary>                  (iConfig.getParameter<edm::InputTag>( "InputModuleLabel" ) );
+   digiToken_            = consumes<edm::DetSetVector<SiStripDigi> >      (iConfig.getParameter<edm::InputTag>("DigiLabel")          );
+
+   homeMadeClusters_  = iConfig.getParameter<bool>("NoClustering");
    explorationWindow_ = iConfig.getParameter<uint32_t>("ExplorationWindow");
    noTracking_ = iConfig.getParameter<bool>("NoTracking");
    mode_=0;
@@ -180,7 +183,8 @@ std::vector< std::pair<uint32_t,std::pair<double, double> > > SiStripFineDelayHi
     }
   } else {
     edm::Handle<TrajectorySeedCollection> seedcoll;
-    event_->getByLabel(seedLabel_,seedcoll);
+    //    event_->getByLabel(seedLabel_,seedcoll);
+    event_->getByToken(seedcollToken_,seedcoll);
     // use trajectories in event.
     hitangle = anglefinder_->findtrackangle(trajVec);
   }
@@ -351,7 +355,8 @@ SiStripFineDelayHit::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
    using namespace edm;
    // Retrieve commissioning information from "event summary"
    edm::Handle<SiStripEventSummary> runsummary;
-   iEvent.getByLabel( inputModuleLabel_, runsummary );
+   //   iEvent.getByLabel( inputModuleLabel_, runsummary );
+   iEvent.getByToken( inputModuleToken_, runsummary );
    if(runsummary->runType()==sistrip::APV_LATENCY) mode_ = 2; // LatencyScan
    else if(runsummary->runType()==sistrip::FINE_DELAY) mode_ = 1; // DelayScan
    else { 
@@ -369,7 +374,8 @@ SiStripFineDelayHit::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
    output.reserve(100);
    // access the tracks
    edm::Handle<reco::TrackCollection> trackCollection;
-   iEvent.getByLabel(trackLabel_,trackCollection);  
+   //   iEvent.getByLabel(trackLabel_,trackCollection);  
+   iEvent.getByToken(trackCollectionToken_,trackCollection);  
    const reco::TrackCollection *tracks=trackCollection.product();
    edm::ESHandle<TrackerGeometry> tracker;
    iSetup.get<TrackerDigiGeometryRecord>().get(tracker);
@@ -380,17 +386,20 @@ SiStripFineDelayHit::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
      edm::Handle< edm::DetSetVector<SiStripDigi> > hits;
      const edm::DetSetVector<SiStripDigi>* hitSet = NULL;
      if(homeMadeClusters_) {
-       iEvent.getByLabel(digiLabel_,hits);
+       //       iEvent.getByLabel(digiLabel_,hits);
+       iEvent.getByToken(digiToken_,hits);
        hitSet = hits.product();
      }
      // look at the clusters 
      edm::Handle<edmNew::DetSetVector<SiStripCluster> > clusters;
-     iEvent.getByLabel(clusterLabel_, clusters);
+     //     iEvent.getByLabel(clusterLabel_, clusters);
+     iEvent.getByToken(clustersToken_, clusters);
      const edmNew::DetSetVector<SiStripCluster>* clusterSet = clusters.product();
      // look at the trajectories if they are in the event
      std::vector<Trajectory> trajVec;
      edm::Handle<std::vector<Trajectory> > TrajectoryCollection;
-     iEvent.getByLabel(trackLabel_,TrajectoryCollection);
+     //     iEvent.getByLabel(trackLabel_,TrajectoryCollection);
+     iEvent.getByToken(trackToken_,TrajectoryCollection);
      trajVec = *(TrajectoryCollection.product());
      // loop on tracks
      for(reco::TrackCollection::const_iterator itrack = tracks->begin(); itrack<tracks->end(); itrack++) {
@@ -401,7 +410,8 @@ SiStripFineDelayHit::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
        if(mode_==1) {
          // Retrieve and decode commissioning information from "event summary"
          edm::Handle<SiStripEventSummary> summary;
-         iEvent.getByLabel( inputModuleLabel_, summary );
+	 //         iEvent.getByLabel( inputModuleLabel_, summary );
+	 iEvent.getByToken( inputModuleToken_, summary );
          uint32_t layerCode = (const_cast<SiStripEventSummary*>(summary.product())->layerScanned())>>16;
          StripSubdetector::SubDetector subdet = StripSubdetector::TIB;
          if(((layerCode>>6)&0x3)==0) subdet = StripSubdetector::TIB;
@@ -486,7 +496,8 @@ SiStripFineDelayHit::produceNoTracking(edm::Event& iEvent, const edm::EventSetup
    output.reserve(100);
    // Retrieve and decode commissioning information from "event summary"
    edm::Handle<SiStripEventSummary> summary;
-   iEvent.getByLabel( inputModuleLabel_, summary );
+   //   iEvent.getByLabel( inputModuleLabel_, summary );
+   iEvent.getByToken( inputModuleToken_, summary );
    uint32_t layerCode = (const_cast<SiStripEventSummary*>(summary.product())->layerScanned())>>16;
    StripSubdetector::SubDetector subdet = StripSubdetector::TIB;
    if(((layerCode>>6)&0x3)==0) subdet = StripSubdetector::TIB;
@@ -497,7 +508,8 @@ SiStripFineDelayHit::produceNoTracking(edm::Event& iEvent, const edm::EventSetup
    std::pair<uint32_t, uint32_t> mask = deviceMask(subdet,layerIdx);
    // look at the clusters 
    edm::Handle<edmNew::DetSetVector<SiStripCluster> > clusters;
-   iEvent.getByLabel(clusterLabel_,clusters);
+   //   iEvent.getByLabel(clusterLabel_,clusters);
+   iEvent.getByToken(clustersToken_,clusters);
    for (edmNew::DetSetVector<SiStripCluster>::const_iterator DSViter=clusters->begin(); DSViter!=clusters->end();DSViter++ ) {
      // check that we are in the layer of interest
      if(mode_==1 && ((DSViter->id() & mask.first) != mask.second) ) continue;

@@ -5,7 +5,6 @@
 // 
 // Original Authors:  Michael Schmitt, Richard Cavanaugh The University of Florida
 //          Created:  May 31, 2005
-// $Id: METAlgo.cc,v 1.15 2012/06/08 00:51:28 sakuma Exp $
 //
 
 //____________________________________________________________________________||

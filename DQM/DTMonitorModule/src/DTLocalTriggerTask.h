@@ -4,8 +4,6 @@
 /*
  * \file DTLocalTriggerTask.h
  *
- * $Date: 2012/09/24 16:08:07 $
- * $Revision: 1.5 $
  * \author M. Zanetti - INFN Padova
  *
 */

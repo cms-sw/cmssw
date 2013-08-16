@@ -8,7 +8,6 @@
      \\\author: Keti Kaadze, June 2007
 */
 //
-// $Id: EnergyScaleAnalyzer.h,v 1.5 2009/12/14 22:24:33 wmtan Exp $
 //
 
 

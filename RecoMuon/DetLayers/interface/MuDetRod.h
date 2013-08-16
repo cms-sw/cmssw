@@ -5,8 +5,6 @@
  *  A rod of aligned equal-sized non-overlapping detectors.  
  *  Designed for barrel muon DT/RPC chambers.
  *
- *  $Date: 2007/07/08 04:19:44 $
- *  $Revision: 1.5 $
  *  \author N. Amapane - INFN Torino
  *
  */

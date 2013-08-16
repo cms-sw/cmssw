@@ -13,7 +13,6 @@
 //
 // Original Author:  Rick Cavanaugh
 //         Created:  May 14, 2005
-// $Id: METProducer.h,v 1.32 2013/05/03 18:47:56 salee Exp $
 //
 //
 

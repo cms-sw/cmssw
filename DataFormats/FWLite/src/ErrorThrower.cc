@@ -8,7 +8,6 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Sep 23 10:06:39 EDT 2008
-// $Id: ErrorThrower.cc,v 1.3 2008/11/04 20:38:55 elmer Exp $
 //
 
 // system include files

@@ -1,5 +1,5 @@
 #!/bin/bash
-# $Id: monitoringSar.sh,v 1.2 2008/10/01 04:14:29 loizides Exp $
+# $Id: monitoringSar.sh,v 1.1 2008/09/30 03:59:24 loizides Exp $
 
 ##Let's define things first
 SAR_CMD="/usr/bin/sar"

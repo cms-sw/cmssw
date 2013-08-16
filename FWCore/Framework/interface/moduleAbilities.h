@@ -16,7 +16,6 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue, 07 May 2013 19:19:53 GMT
-// $Id: moduleAbilities.h,v 1.1 2013/05/17 14:49:43 chrjones Exp $
 //
 
 // system include files
@@ -89,6 +88,10 @@ namespace edm {
     typedef module::Empty Type;
   };
 
+  struct WatchInputFiles {
+    static constexpr module::Abilities kAbilities=module::Abilities::kWatchInputFiles;
+    typedef module::Empty Type;
+  };
   
   //Recursively checks VArgs template arguments looking for the ABILITY
   template<module::Abilities ABILITY, typename... VArgs> struct CheckAbility;

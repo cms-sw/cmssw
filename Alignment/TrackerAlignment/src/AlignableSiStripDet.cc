@@ -1,6 +1,6 @@
 /* 
- *  $Date: 2012/12/27 07:18:39 $
- *  $Revision: 1.10 $
+ *  $Date: 2011/09/05 16:59:07 $
+ *  $Revision: 1.9 $
  */
 
 #include "Alignment/TrackerAlignment/interface/AlignableSiStripDet.h"

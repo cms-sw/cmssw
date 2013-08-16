@@ -5,8 +5,6 @@
 *
 * \author Giuseppe Cerati, INFN
 *
-*  $Date: 2011/01/14 01:24:51 $
-*  $Revision: 1.2 $
 *
 */
 

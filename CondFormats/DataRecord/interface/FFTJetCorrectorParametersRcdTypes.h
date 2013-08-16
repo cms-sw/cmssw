@@ -17,7 +17,7 @@
 //
 // Author:      I. Volobouev
 // Created:     Tue Jul 31 19:49:12 CDT 2012
-// $Id: FFTJetCorrectorParametersRcdTypes.h,v 1.1 2012/11/06 20:20:02 igv Exp $
+// $Id$
 //
 
 #include "CondFormats/DataRecord/interface/FFTJetCorrectorParametersRcd.h"

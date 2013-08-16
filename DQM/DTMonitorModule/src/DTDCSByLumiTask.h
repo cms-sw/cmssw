@@ -4,8 +4,6 @@
 /*
  * \file DTDCSByLumiTask.h
  *
- * $Date: 2011/03/02 13:56:39 $
- * $Revision: 1.1 $
  * \author C. Battilana - CIEMAT
  * \author P. Bellan - INFN PD
  * \author A. Branca = INFN PD

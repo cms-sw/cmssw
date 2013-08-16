@@ -4,8 +4,6 @@
 /*
  * \file EcalBarrelMonitorModule.h
  *
- * $Date: 2012/04/26 07:44:00 $
- * $Revision: 1.61 $
  * \author G. Della Ricca
  *
 */

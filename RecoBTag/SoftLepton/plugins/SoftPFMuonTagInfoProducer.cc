@@ -27,10 +27,10 @@
 #include <cmath>
 
 SoftPFMuonTagInfoProducer::SoftPFMuonTagInfoProducer (const edm::ParameterSet& conf):
- PVerTag_(conf.getParameter<edm::InputTag>("primaryVertex") ),
- PFJet_  (conf.getParameter<edm::InputTag>("jets")  ),
  MuonId_ (conf.getParameter<int>          ("MuonId") )
 {
+	token_jets          = consumes<edm::View<reco::Jet> >(conf.getParameter<edm::InputTag>("jets"));
+	token_primaryVertex = consumes<reco::VertexCollection>(conf.getParameter<edm::InputTag>("primaryVertex"));
 	muonId=MuonId_;
 	produces<reco::SoftLeptonTagInfoCollection>();
 }
@@ -49,7 +49,7 @@ void SoftPFMuonTagInfoProducer::produce(edm::Event& iEvent, const edm::EventSetu
  	transientTrackBuilder=builder.product();
  
  	edm::Handle<reco::VertexCollection> PVCollection;
- 	iEvent.getByLabel(PVerTag_, PVCollection);
+	iEvent.getByToken(token_primaryVertex, PVCollection);
 // 	if(!PVCollection.isValid() || PVCollection->empty()) return;
  	if(!PVCollection.isValid()) return;
  	if(!PVCollection->empty()){
@@ -60,7 +60,7 @@ void SoftPFMuonTagInfoProducer::produce(edm::Event& iEvent, const edm::EventSetu
  	std::vector<edm::RefToBase<reco::Jet> > jets;
  
  	edm::Handle<edm::View<reco::Jet> > inputJets;
- 	iEvent.getByLabel(PFJet_, inputJets);
+ 	iEvent.getByToken(token_jets, inputJets);
  	unsigned int size = inputJets->size();
  	jets.resize(size);
  	for (unsigned int i = 0; i < size; i++){

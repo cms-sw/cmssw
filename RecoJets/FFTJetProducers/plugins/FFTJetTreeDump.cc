@@ -13,7 +13,6 @@
 //
 // Original Author:  Igor Volobouev
 //         Created:  Sun Jun 20 14:32:36 CDT 2010
-// $Id: FFTJetTreeDump.cc,v 1.2 2010/12/07 00:19:43 igv Exp $
 //
 //
 

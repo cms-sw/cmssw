@@ -6,7 +6,6 @@
      <Notes on implementation>
 */
 //
-// $Id: EcalSimpleTBAnalyzer.cc,v 1.10 2012/02/01 19:41:58 vskarupe Exp $
 //
 //
 

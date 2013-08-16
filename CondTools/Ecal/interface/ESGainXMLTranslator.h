@@ -1,7 +1,7 @@
 /**
    Translates a ESGain record to XML
 
-   \version $Id: ESGainXMLTranslator.h,v 1.1 2013/01/16 12:48:07 depasse Exp $
+   \version $Id: ESGainXMLTranslator.h,v 1. 2013/01/11 Exp $
    \date 11 Jan 2013
 */
 
@@ -15,7 +15,7 @@
 
 
 static const char CVSId__ESGainXMLTranslator[] = 
-"$Id: ESGainXMLTranslator.h,v 1.1 2013/01/16 12:48:07 depasse Exp $";
+"$Id: ESGainXMLTranslator.h,v 1.2 2009/06/30 14:40:11 argiro Exp $";
 
 
 class ESGain;

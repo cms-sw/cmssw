@@ -1,4 +1,3 @@
-// Last commit: $Id: OptoScanHistosUsingDb.cc,v 1.22 2010/04/21 14:26:27 dstrom Exp $
 
 #include "DQM/SiStripCommissioningDbClients/interface/OptoScanHistosUsingDb.h"
 #include "CondFormats/SiStripObjects/interface/OptoScanAnalysis.h"

@@ -8,7 +8,6 @@
      \\\author: Shahram Rahatlou, May 2006
 */
 //
-// $Id: EgammaSimpleAnalyzer.h,v 1.8 2009/12/18 20:45:01 wmtan Exp $
 //
 
 

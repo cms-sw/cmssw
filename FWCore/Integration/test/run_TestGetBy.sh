@@ -6,9 +6,11 @@ function die { echo Failure $1: status $2 ; exit $2 ; }
 
 pushd ${LOCAL_TMP_DIR}
 
-  cmsRun -p ${LOCAL_TEST_DIR}/${test}1_cfg.py || die "cmsRun ${test}1_cfg.py" $?
+  cmsRun -p ${LOCAL_TEST_DIR}/${test}1_cfg.py > testGetBy1.log || die "cmsRun ${test}1_cfg.py" $?
+  diff ${LOCAL_TMP_DIR}/testGetBy1.log ${LOCAL_TEST_DIR}/unit_test_outputs/testGetBy1.log || die "comparing testGetBy1.log" $?
 
-  cmsRun -p ${LOCAL_TEST_DIR}/${test}2_cfg.py || die "cmsRun ${test}2_cfg.py" $?
+  cmsRun -p ${LOCAL_TEST_DIR}/${test}2_cfg.py > testGetBy2.log || die "cmsRun ${test}2_cfg.py" $?
+  diff ${LOCAL_TMP_DIR}/testGetBy2.log ${LOCAL_TEST_DIR}/unit_test_outputs/testGetBy2.log || die "comparing testGetBy2.log" $?
 
   cmsRun -p ${LOCAL_TEST_DIR}/${test}3_cfg.py || die "cmsRun ${test}3_cfg.py" $?
 

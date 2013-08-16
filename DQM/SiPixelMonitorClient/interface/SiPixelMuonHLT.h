@@ -17,7 +17,6 @@
 //
 // Original Author:  Dan Duggan
 //         Created:
-// $Id: SiPixelMuonHLT.h,v 1.3 2011/05/20 17:17:24 wmtan Exp $
 //
 //////////////////////////////////////////////////////////
 

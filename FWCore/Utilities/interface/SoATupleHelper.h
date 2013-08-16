@@ -16,7 +16,6 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue, 16 Apr 2013 21:06:08 GMT
-// $Id: SoATupleHelper.h,v 1.4 2013/04/23 20:07:48 chrjones Exp $
 //
 
 // system include files

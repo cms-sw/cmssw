@@ -1,8 +1,6 @@
 /*
  * \file L1TRPCTF.cc
  *
- * $Date: 2011/11/15 13:31:37 $
- * $Revision: 1.33 $
  * \author J. Berryhill
  *
  */

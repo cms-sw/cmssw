@@ -1,8 +1,6 @@
 /*
  * \file EBSelectiveReadoutTask.cc
  *
- * $Date: 2012/04/27 13:46:03 $
- * $Revision: 1.58 $
  * \author P. Gras
  * \author E. Di Marco
  *

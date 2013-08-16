@@ -33,6 +33,8 @@
 
 namespace edm
 {
+  class ModuleCallingContext;
+
   class DataMixingGeneralTrackWorker
     {
     public:
@@ -47,7 +49,7 @@ namespace edm
 
       void putGeneralTrack(edm::Event &e) ;
       void addGeneralTrackSignals(const edm::Event &e); 
-      void addGeneralTrackPileups(const int bcr, const edm::EventPrincipal*,unsigned int EventId);
+      void addGeneralTrackPileups(const int bcr, const edm::EventPrincipal*,unsigned int EventId, ModuleCallingContext const*);
 
 
     private:

@@ -1,8 +1,6 @@
 /** \class MuonTrackFinder
  *  Concrete Track finder for the Muon Reco
  *
- *  $Date: 2010/03/24 19:50:19 $
- *  $Revision: 1.40 $
  *  \author R. Bellan - INFN Torino
  */
 

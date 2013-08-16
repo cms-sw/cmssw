@@ -2,7 +2,6 @@
 
 Test program for edm::signalslot::Signal class.
 
-$Id: signal_t.cppunit.cpp,v 1.1 2013/01/20 16:56:22 chrjones Exp $
  ----------------------------------------------------------------------*/
 
 #include <cassert>

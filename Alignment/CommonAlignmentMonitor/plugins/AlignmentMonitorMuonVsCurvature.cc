@@ -5,7 +5,7 @@
  * Original Author:  Jim Pivarski
  *         Created:  Fri Feb 19 21:45:02 CET 2010
  *
- * $Id: AlignmentMonitorMuonVsCurvature.cc,v 1.6 2011/10/12 22:59:47 khotilov Exp $
+ * $Id:$
  */
 
 #include "Alignment/CommonAlignmentMonitor/interface/AlignmentMonitorPluginFactory.h"
@@ -31,12 +31,12 @@ public:
   AlignmentMonitorMuonVsCurvature(const edm::ParameterSet& cfg);
   virtual ~AlignmentMonitorMuonVsCurvature() {}
 
-  void book();
+  void book() override;
 
-  void event(const edm::Event &iEvent, const edm::EventSetup &iSetup, const ConstTrajTrackPairCollection& iTrajTracks);
+  void event(const edm::Event &iEvent, const edm::EventSetup &iSetup, const ConstTrajTrackPairCollection& iTrajTracks) override;
   void processMuonResidualsFromTrack(MuonResidualsFromTrack &mrft, const Trajectory* traj = NULL);
 
-  void afterAlignment(const edm::EventSetup &iSetup) {}
+  void afterAlignment(const edm::EventSetup &iSetup) override {}
 
 private:
   

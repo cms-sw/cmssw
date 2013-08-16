@@ -5,8 +5,6 @@
 /*
  * \file DTAlbertoBenvenutiTask.h
  *
- * $Date: 2012/09/24 16:08:06 $
- * $Revision: 1.5 $
  * \author G. Mila - INFN Torino
  *
 */

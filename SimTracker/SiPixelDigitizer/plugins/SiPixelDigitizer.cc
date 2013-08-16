@@ -14,7 +14,7 @@
 // Original Author:  Michele Pioppi-INFN perugia
 //   Modifications: Freya Blekman - Cornell University
 //         Created:  Mon Sep 26 11:08:32 CEST 2005
-// $Id: SiPixelDigitizer.cc,v 1.9 2013/01/06 19:27:01 dlange Exp $
+// $Id: SiPixelDigitizer.cc,v 1.8 2012/10/24 18:47:23 eulisse Exp $
 //
 //
 

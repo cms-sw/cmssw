@@ -15,7 +15,6 @@ It also allows users to remove events in which the number of HBHE rechits exceed
 //
 // Original Author:  Jeff Temple (temple@cern.ch)
 //         Created:  Thu Nov 17 12:44:22 EST 2011
-// $Id: HcalLaserEventFilter.cc,v 1.6 2013/02/25 19:38:03 chrjones Exp $
 //
 //
 

@@ -116,14 +116,6 @@ namespace edm {
     output_ << "\trespondToCloseInputFile\n";
   }
 
-  void MockEventProcessor::respondToOpenOutputFiles() {
-    output_ << "\trespondToOpenOutputFiles\n";
-  }
-
-  void MockEventProcessor::respondToCloseOutputFiles() {
-    output_ << "\trespondToCloseOutputFiles\n";
-  }
-
   void MockEventProcessor::startingNewLoop() {
     output_ << "\tstartingNewLoop\n";
   }

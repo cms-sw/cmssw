@@ -1,6 +1,5 @@
 import FWCore.ParameterSet.Config as cms
 
-# $Id: TrigResRateMon_cfi.py,v 1.11 2011/10/05 18:29:44 lwming Exp $
 trRateMon = cms.EDAnalyzer("TrigResRateMon",
     dirname = cms.untracked.string("HLT/TrigResults/"),
     muonRecoCollectionName = cms.untracked.string("muons"),

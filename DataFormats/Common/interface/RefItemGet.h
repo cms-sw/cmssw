@@ -5,7 +5,6 @@
   
 RefItemGet: Free function to get pointer to a referenced item.
 
-$Id: RefItemGet.h,v 1.5 2011/06/29 21:32:30 chrjones Exp $
 
 ----------------------------------------------------------------------*/
 #include "DataFormats/Common/interface/RefCore.h"

@@ -10,6 +10,7 @@
 #include <string>
 
 // user include files
+#include "FWCore/Utilities/interface/EDGetToken.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -150,6 +151,10 @@ private:
   edm::ParameterSet Parameters;
   edm::InputTag Cluster_src_;
   
+  edm::EDGetTokenT<edmNew::DetSetVector<SiStripCluster> > clusterToken_;
+  edm::EDGetTokenT<reco::TrackCollection> trackToken_;
+  edm::EDGetTokenT<TrajTrackAssociationCollection> trackTrajToken_;
+
   bool Mod_On_;
   bool Trend_On_;
   bool OffHisto_On_;

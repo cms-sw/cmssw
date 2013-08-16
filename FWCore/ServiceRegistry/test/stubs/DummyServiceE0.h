@@ -15,7 +15,6 @@
 */
 //
 // Original Author:  David Dagenhart
-// $Id: DummyServiceE0.h,v 1.2 2010/03/09 16:24:54 wdd Exp $
 //
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"

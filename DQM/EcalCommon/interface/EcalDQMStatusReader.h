@@ -4,8 +4,6 @@
 /*
  * \file EcalDQMStatusReader.h
  *
- * $Date: 2010/08/09 09:00:10 $
- * $Revision: 1.3 $
  * \author G. Della Ricca
  *
 */

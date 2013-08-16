@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2007/08/10 22:24:54 $
- *  $Revision: 1.3 $
+ *  $Date: 2007/01/17 23:07:06 $
+ *  $Revision: 1.2 $
  *  \author S. Lacaprara, G. Cerminara
  */
 
@@ -38,21 +38,11 @@ AlgebraicSymMatrix RecHit1D::parametersError() const {
   return m;
 }
 
-
-
-// Initialize the projection matrix
-void RecHit1D::initialize() const {
-  theProjectionMatrix = AlgebraicMatrix( 1, 5, 0);
-  theProjectionMatrix[0][3] = 1;
-  
-  isInitialized = true;
+// Return an initialized matrix.
+static const AlgebraicMatrix initializeMatrix() {
+  AlgebraicMatrix matrix( 1, 5, 0);
+  matrix[0][3] = 1;
+  return matrix;
 }
 
-
-
-bool RecHit1D::isInitialized(false);
-
-
-
-AlgebraicMatrix RecHit1D::theProjectionMatrix;
-
+const AlgebraicMatrix RecHit1D::theProjectionMatrix(initializeMatrix());

@@ -4,8 +4,6 @@
 /*
  * \file L1TBPTX.h
  *
- * $Date: 2012/08/20 12:10:13 $
- * $Revision: 1.1 $
  * \author J. Pela
  *
 */

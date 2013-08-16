@@ -7,7 +7,7 @@
 
  Description: pre-select events that are worth considering in muon alignment 
 
- $Id: MuonAlignmentPreFilter.cc,v 1.1 2011/04/15 21:59:00 khotilov Exp $
+ $Id:$
 */
 
 #include <memory>
@@ -35,9 +35,9 @@ public:
   ~MuonAlignmentPreFilter() {}
 
 private:
-  virtual void beginJob() {}
-  virtual bool filter(edm::Event&, const edm::EventSetup&);
-  virtual void endJob() {}
+  virtual void beginJob() override {}
+  virtual bool filter(edm::Event&, const edm::EventSetup&) override;
+  virtual void endJob() override {}
 
   // ----------member data ---------------------------
 

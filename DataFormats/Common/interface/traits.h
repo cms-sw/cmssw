@@ -5,7 +5,6 @@
 
 Definition of traits templates used in the EDM.  
 
-$Id: traits.h,v 1.20 2008/05/16 01:07:23 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 

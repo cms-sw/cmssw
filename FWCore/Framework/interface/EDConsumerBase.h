@@ -16,7 +16,6 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue, 02 Apr 2013 21:35:53 GMT
-// $Id: EDConsumerBase.h,v 1.6 2013/06/07 17:58:31 chrjones Exp $
 //
 
 // system include files
@@ -38,6 +37,7 @@
 namespace edm {
   class ProductHolderIndexHelper;
   class ConsumesCollector;
+  template<typename T> class WillGetIfMatch;
   
   class EDConsumerBase
   {
@@ -52,6 +52,12 @@ namespace edm {
     void itemsToGet(BranchType, std::vector<ProductHolderIndex>&) const;
     void itemsMayGet(BranchType, std::vector<ProductHolderIndex>&) const;
     
+
+    ///\return true if the product corresponding to the index was registered via consumes or mayConsume call
+    bool registeredToConsume(ProductHolderIndex, BranchType) const;
+    
+    ///\return true of TypeID corresponds to a type specified in a consumesMany call
+    bool registeredToConsumeMany(TypeID const&, BranchType) const;
     // ---------- static member functions --------------------
     
     // ---------- member functions ---------------------------
@@ -67,6 +73,7 @@ namespace edm {
     
   protected:
     friend class ConsumesCollector;
+    template<typename T> friend class WillGetIfMatch;
     ///Use a ConsumesCollector to gather consumes information from helper functions
     ConsumesCollector consumesCollector();
     

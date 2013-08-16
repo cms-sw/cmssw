@@ -1,6 +1,5 @@
 // Original Author:  Ivan Amos Cali
 //         Created:  Mon Jul 28 14:10:52 CEST 2008
-// $Id: SiStripBaselineValidator.cc,v 1.3 2011/11/02 00:39:33 gowdy Exp $
 //
 //
  
@@ -18,9 +17,6 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "DataFormats/Common/interface/DetSet.h"
-#include "DataFormats/Common/interface/DetSetVector.h"
-#include "DataFormats/Common/interface/DetSetVectorNew.h"
-#include "DataFormats/SiStripDigi/interface/SiStripRawDigi.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 
 /*#include "DataFormats/TrackReco/interface/Track.h"
@@ -53,7 +49,7 @@ SiStripBaselineValidator::SiStripBaselineValidator(const edm::ParameterSet& conf
   createOutputFile_ = conf.getUntrackedParameter<bool>("saveFile",false);
   outputFile_   = conf.getParameter<std::string>("outputFile");
   dbe = &*edm::Service<DQMStore>();
-
+  moduleRawDigiToken_ = consumes<edm::DetSetVector<SiStripRawDigi> >(conf.getParameter<edm::InputTag>( "srcProcessedRawDigi" ) );
 
 
 
@@ -99,7 +95,8 @@ void SiStripBaselineValidator::analyze(const edm::Event& e, const edm::EventSetu
 
 
   edm::Handle< edm::DetSetVector<SiStripRawDigi> > moduleRawDigi;
-  e.getByLabel(srcProcessedRawDigi_,moduleRawDigi);
+  //  e.getByLabel(srcProcessedRawDigi_,moduleRawDigi);
+  e.getByToken( moduleRawDigiToken_, moduleRawDigi );
   edm::DetSetVector<SiStripRawDigi>::const_iterator itRawDigis = moduleRawDigi->begin();
  
   //  uint32_t Nmodule = moduleRawDigi->size();     

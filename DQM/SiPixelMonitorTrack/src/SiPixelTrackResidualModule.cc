@@ -9,7 +9,6 @@
 //
 // Original Author: Shan-Huei Chuang
 //         Created: Fri Mar 23 18:41:42 CET 2007
-// $Id: SiPixelTrackResidualModule.cc,v 1.10 2012/09/11 09:37:41 clseitz Exp $
 
 
 #include <string>

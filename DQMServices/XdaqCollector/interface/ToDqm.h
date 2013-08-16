@@ -1,4 +1,3 @@
-// $Id: ToDqm.h,v 1.3 2008/10/23 14:35:33 vpatras Exp $
 
 /*************************************************************************
  * XDAQ Components for Distributed Data Acquisition                      *

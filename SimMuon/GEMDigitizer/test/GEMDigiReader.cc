@@ -4,7 +4,7 @@
 /** \class GEMDigiReader
  *  Dumps GEM digis 
  *  
- *  $Id: GEMDigiReader.cc,v 1.1 2012/12/08 01:31:36 khotilov Exp $
+ *  $Id:$
  *  \authors: Vadim Khotilovich
  */
 

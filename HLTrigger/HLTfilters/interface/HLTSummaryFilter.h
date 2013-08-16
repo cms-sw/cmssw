@@ -9,8 +9,8 @@
  *  for objects in the TriggerSummaryAOD product, allowing to cut on
  *  variables relating to their 4-momentum representation
  *
- *  $Date: 2012/01/21 14:56:58 $
- *  $Revision: 1.2 $
+ *  $Date: 2009/09/25 13:04:00 $
+ *  $Revision: 1.1 $
  *
  *  \author Martin Grunewald
  *
@@ -23,6 +23,10 @@
 
 #include<string>
 
+namespace edm {
+  class ConfigurationDescriptions;
+}
+
 //
 // class declaration
 //
@@ -33,10 +37,12 @@ class HLTSummaryFilter : public HLTFilter {
 
       explicit HLTSummaryFilter(const edm::ParameterSet&);
       ~HLTSummaryFilter();
+      static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
       virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct);
 
    private:
-      edm::InputTag summaryTag_; // input tag identifying TriggerSummaryAOD
+      edm::InputTag                           summaryTag_;   // input tag identifying TriggerSummaryAOD
+      edm::EDGetTokenT<trigger::TriggerEvent> summaryToken_; // token identifying TriggerSummaryAOD
       edm::InputTag memberTag_;  // which packed-up collection or filter
       std::string   cut_;        // smart cut
       int           min_N_;      // number of objects passing cuts required

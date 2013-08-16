@@ -10,7 +10,6 @@
 */
 //
 // Original Author:  Monica Vazquez Acosta (CERN)
-// $Id: EgammaHLTPixelMatchElectronAlgo.cc,v 1.16 2012/01/23 12:52:30 sharper Exp $
 //
 //
 #include "RecoEgamma/EgammaHLTAlgos/interface/EgammaHLTPixelMatchElectronAlgo.h"

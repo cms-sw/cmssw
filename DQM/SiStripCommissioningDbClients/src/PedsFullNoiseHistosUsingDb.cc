@@ -1,4 +1,3 @@
-// Last commit: $Id: PedsFullNoiseHistosUsingDb.cc,v 1.5 2010/04/28 08:46:16 lowette Exp $
 
 #include "DQM/SiStripCommissioningDbClients/interface/PedsFullNoiseHistosUsingDb.h"
 #include "CondFormats/SiStripObjects/interface/PedsFullNoiseAnalysis.h"

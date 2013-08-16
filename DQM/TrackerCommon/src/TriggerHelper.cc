@@ -1,5 +1,4 @@
 //
-// $Id: TriggerHelper.cc,v 1.9 2010/03/27 12:09:12 dutta Exp $
 //
 
 

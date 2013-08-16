@@ -14,8 +14,6 @@ class HcalLogicalMap;
 /*
  * \file HcalBaseDQClient.h
  * 
- * $Date: 2012/11/12 23:26:18 $
- * $Revision: 1.9 $
  * \author J. Temple
  * \brief Hcal Monitor Client base class
  * based on code in EcalBarrelMonitorClient/interface/EBClient.h

@@ -5,8 +5,6 @@
  *
  * Class for DT Data Integrity.
  *  
- *  $Date: 2011/10/19 10:05:54 $
- *  $Revision: 1.31 $
  *
  * \author Marco Zanetti (INFN Padova), Gianluca Cerminara (INFN Torino)
  *

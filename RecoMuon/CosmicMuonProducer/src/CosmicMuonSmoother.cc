@@ -7,8 +7,6 @@
  *      within cylinders
  *
  *
- *  $Date: 2012/09/01 16:55:24 $
- *  $Revision: 1.23 $
  *  \author Chang Liu  -  Purdue University
  */
 

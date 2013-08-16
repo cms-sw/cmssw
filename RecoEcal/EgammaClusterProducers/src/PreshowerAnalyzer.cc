@@ -8,7 +8,6 @@
 //
 // Original Author:  Shahram Rahatlou
 //         Created:  10 May 200
-// $Id: PreshowerAnalyzer.cc,v 1.6 2009/12/18 20:45:01 wmtan Exp $
 //
 
 #include "RecoEcal/EgammaClusterProducers/interface/PreshowerAnalyzer.h"

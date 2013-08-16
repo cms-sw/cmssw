@@ -6,8 +6,6 @@
  * *
  *  DQM Base for TriggerTests
  *
- *  $Date: 2011/06/10 13:50:12 $
- *  $Revision: 1.10 $
  *  \author  C. Battilana S. Marcellini - INFN Bologna
  *   
  */

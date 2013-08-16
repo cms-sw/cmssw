@@ -16,7 +16,6 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Sep 15 09:47:42 EDT 2005
-// $Id: LoadAllDictionaries.h,v 1.5 2010/03/09 16:24:55 wdd Exp $
 //
 
 // system include files

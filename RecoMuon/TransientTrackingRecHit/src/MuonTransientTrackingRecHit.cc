@@ -1,7 +1,5 @@
 /** \file
  *
- *  $Date: 2012/05/01 09:45:52 $
- *  $Revision: 1.16 $
  */
 
 #include "RecoMuon/TransientTrackingRecHit/interface/MuonTransientTrackingRecHit.h"

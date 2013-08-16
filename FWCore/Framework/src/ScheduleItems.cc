@@ -7,7 +7,7 @@
 #include "FWCore/Framework/interface/Actions.h"
 #include "FWCore/Framework/interface/CommonParams.h"
 #include "FWCore/Framework/interface/ConstProductRegistry.h"
-#include "FWCore/Framework/interface/OutputModule.h"
+#include "FWCore/Framework/interface/SubProcess.h"
 #include "FWCore/Framework/interface/Schedule.h"
 #include "FWCore/Framework/interface/TriggerNamesService.h"
 #include "FWCore/Framework/src/SignallingProductRegistry.h"
@@ -29,34 +29,37 @@ namespace edm {
       processConfiguration_() {
   }
 
-  ScheduleItems::ScheduleItems(ProductRegistry const& preg, BranchIDListHelper const& branchIDListHelper, OutputModule const& om) :
+  ScheduleItems::ScheduleItems(ProductRegistry const& preg, BranchIDListHelper const& branchIDListHelper, SubProcess const& om) :
       actReg_(new ActivityRegistry),
       preg_(new SignallingProductRegistry(preg)),
       branchIDListHelper_(new BranchIDListHelper(branchIDListHelper)),
       act_table_(),
       processConfiguration_() {
-    for(ProductRegistry::ProductList::iterator it = preg_->productListUpdator().begin(), itEnd = preg_->productListUpdator().end(); it != itEnd; ++it) {
-      it->second.onDemand() = false;
-      it->second.produced() = false;
+
+    for(auto& item : preg_->productListUpdator()) {
+      BranchDescription& prod = item.second;
+      prod.setOnDemand(false);
+      prod.setProduced(false);
     }
 
     // Mark dropped branches as dropped in the product registry.
     std::set<BranchID> keptBranches;
     Selections const& keptVectorR = om.keptProducts()[InRun];
-    for(Selections::const_iterator it = keptVectorR.begin(), itEnd = keptVectorR.end(); it != itEnd; ++it) {
-      keptBranches.insert((*it)->branchID());
+    for(auto const& item : keptVectorR) {
+      keptBranches.insert(item->branchID());
     }
     Selections const& keptVectorL = om.keptProducts()[InLumi];
-    for(Selections::const_iterator it = keptVectorL.begin(), itEnd = keptVectorL.end(); it != itEnd; ++it) {
-      keptBranches.insert((*it)->branchID());
+    for(auto const& item : keptVectorL) {
+      keptBranches.insert(item->branchID());
     }
     Selections const& keptVectorE = om.keptProducts()[InEvent];
-    for(Selections::const_iterator it = keptVectorE.begin(), itEnd = keptVectorE.end(); it != itEnd; ++it) {
-      keptBranches.insert((*it)->branchID());
+    for(auto const& item : keptVectorE) {
+      keptBranches.insert(item->branchID());
     }
-    for(ProductRegistry::ProductList::const_iterator it = preg_->productList().begin(), itEnd = preg_->productList().end(); it != itEnd; ++it) {
-      if(keptBranches.find(it->second.branchID()) == keptBranches.end()) {
-        it->second.setDropped();
+    for(auto& item : preg_->productListUpdator()) {
+      BranchDescription& prod = item.second;
+      if(keptBranches.find(prod.branchID()) == keptBranches.end()) {
+        prod.setDropped(true);
       }
     }
   }
@@ -72,11 +75,9 @@ namespace edm {
     ServiceToken token(ServiceRegistry::createSet(pServiceSets, iToken, iLegacy, associate));
 
     //see if any of the Services have to have their PSets stored
-    for(std::vector<ParameterSet>::const_iterator it = pServiceSets.begin(), itEnd = pServiceSets.end();
-        it != itEnd;
-        ++it) {
-      if(it->exists("@save_config")) {
-        parameterSet.addParameter(it->getParameter<std::string>("@service_type"), *it);
+    for(auto const& item : pServiceSets) {
+      if(item.exists("@save_config")) {
+        parameterSet.addParameter(item.getParameter<std::string>("@service_type"), item);
       }
     }
     // Copy slots that hold all the registered callback functions like
@@ -125,7 +126,9 @@ namespace edm {
 
   std::auto_ptr<Schedule>
   ScheduleItems::initSchedule(ParameterSet& parameterSet,
-                              ParameterSet const* subProcessPSet) {
+                              ParameterSet const* subProcessPSet,
+                              StreamID streamID,
+                              ProcessContext const* processContext) {
     std::auto_ptr<Schedule> schedule(
         new Schedule(parameterSet,
                      ServiceRegistry::instance().get<service::TriggerNamesService>(),
@@ -134,7 +137,9 @@ namespace edm {
                      *act_table_,
                      actReg_,
                      processConfiguration_,
-                     subProcessPSet));
+                     subProcessPSet,
+                     streamID,
+                     processContext));
     return schedule;
   }
 

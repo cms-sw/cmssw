@@ -3,8 +3,6 @@
  
 /** \class EcalChannelKiller
   *
-  *  $Date: 2010/08/06 20:24:49 $
-  *  $Revision: 1.3 $
   */
  
 // system include files

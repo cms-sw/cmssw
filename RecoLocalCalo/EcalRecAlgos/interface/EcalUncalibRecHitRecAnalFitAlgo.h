@@ -5,9 +5,6 @@
   *  Template used to compute amplitude, pedestal, time jitter, chi2 of a pulse
   *  using an analytical fit
   *
-  *  $Id: EcalUncalibRecHitRecAnalFitAlgo.h,v 1.11 2009/03/27 18:07:38 ferriff Exp $
-  *  $Date: 2009/03/27 18:07:38 $
-  *  $Revision: 1.11 $
   *  \author A. Palma, Sh. Rahatlou Roma1
   */
 

@@ -5,7 +5,6 @@
 # language and the Python representation of the configuration
 # description that is used by the Data Management tools.
 #
-# $Id: complete.py,v 1.6 2007/09/21 01:14:33 chrjones Exp $
 #
 #------------------------------------------------------------
 

@@ -2,8 +2,6 @@
  *  Class:DQMGenericClient 
  *
  *
- *  $Date: 2013/05/23 16:16:28 $
- *  $Revision: 1.35 $
  * 
  *  \author Junghwan Goh - SungKyunKwan University
  */
@@ -23,6 +21,7 @@
 #include <TPRegexp.h>
 
 #include <cmath>
+#include <climits>
 #include <boost/tokenizer.hpp>
 
 using namespace std;
@@ -434,17 +433,24 @@ void DQMGenericClient::computeEfficiency(const string& startDir, const string& e
                    hReco->GetXaxis()->GetXbins()->GetArray());
 #if ROOT_VERSION_CODE >= ROOT_VERSION(5,27,0)
     for (int i=1; i <= hReco->GetNbinsX(); i++) {
+
       const double nReco = hReco->GetBinContent(i);
       const double nSim = hSim->GetBinContent(i);
-    
+      if(nSim > INT_MAX || nSim < INT_MIN || nReco > INT_MAX || nReco < INT_MIN)
+ 	{
+ 	  LogError("DQMGenericClient")  << "computeEfficiency() : "
+					<< "Overflow: bin content either too large or too small to be casted to int";
+ 	  return;
+ 	}
+
       if ( nSim == 0 || nReco > nSim ) continue;
       const double effVal = nReco/nSim;
 
-      const double errLo = TEfficiency::ClopperPearson((int)hSim->GetBinContent(i), 
-						       (int)hReco->GetBinContent(i),
+      const double errLo = TEfficiency::ClopperPearson((int)nSim, 
+						       (int)nReco,
 						       0.683,false);
-      const double errUp = TEfficiency::ClopperPearson((int)hSim->GetBinContent(i), 
-						       (int)hReco->GetBinContent(i),
+      const double errUp = TEfficiency::ClopperPearson((int)nSim, 
+						       (int)nReco,
 						       0.683,true);
       const double errVal = (effVal - errLo > errUp - effVal) ? effVal - errLo : errUp - effVal;
       efficHist->SetBinContent(i, effVal);
@@ -453,13 +459,23 @@ void DQMGenericClient::computeEfficiency(const string& startDir, const string& e
     }
 #else
     for (int i=1; i <= hReco->GetNbinsX(); i++) {
+
+      const double nReco = hReco->GetBinContent(i);
+      const double nSim = hSim->GetBinContent(i);
+      if(nSim > INT_MAX || nSim < INT_MIN || nReco > INT_MAX || nReco < INT_MIN)
+        {
+          LogError("DQMGenericClient")  << "computeEfficiency() : "
+                                        << "Overflow: bin content either too large or too small to be casted to int";
+          return;
+        }
+
       TGraphAsymmErrorsWrapper asymm;
       std::pair<double, double> efficiencyWithError;
-      efficiencyWithError = asymm.efficiency((int)hReco->GetBinContent(i), 
-                                             (int)hSim->GetBinContent(i));
+      efficiencyWithError = asymm.efficiency((int)nReco,
+                                             (int)nSim);
       double effVal = efficiencyWithError.first;
       double errVal = efficiencyWithError.second;
-      if ((int)hSim->GetBinContent(i) > 0) {
+      if ((int)nSim > 0) {
         efficHist->SetBinContent(i, effVal);
         efficHist->SetBinEntries(i, 1);
         efficHist->SetBinError(i, sqrt(effVal * effVal + errVal * errVal));

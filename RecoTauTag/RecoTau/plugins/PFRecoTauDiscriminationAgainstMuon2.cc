@@ -5,9 +5,7 @@
  * 
  * \author Christian Veelken, LLR
  *
- * \version $Revision: 1.10 $
  *
- * $Id: PFRecoTauDiscriminationAgainstMuon2.cc,v 1.10 2013/04/08 11:45:27 jez Exp $
  *
  */
 

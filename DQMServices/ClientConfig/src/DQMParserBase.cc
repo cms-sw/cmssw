@@ -7,8 +7,6 @@
  *
  *  Implementation of DQMParserBase
  *
- *  $Date: 2011/06/16 03:07:28 $
- *  $Revision: 1.8 $
  *  \author Ilaria Segoni
  */
 

@@ -8,7 +8,6 @@
  *
  * \author Ted Kolberg, ND
  * 
- * \version $Id: PositionCalc.h,v 1.14 2010/11/16 15:09:27 argiro Exp $
  *
  */
 

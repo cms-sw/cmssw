@@ -9,7 +9,6 @@
 
  author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
 
- version $Id: BeamSpotOnlineProducer.h,v 1.7 2010/09/10 12:13:16 vlimant Exp $
 
 ________________________________________________________________**/
 

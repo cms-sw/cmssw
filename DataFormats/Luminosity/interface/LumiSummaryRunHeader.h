@@ -13,7 +13,7 @@
  * \author Matevz Tadel
  * \date   2011-02-22
  *
- * $Id: LumiSummaryRunHeader.h,v 1.1 2011/02/22 16:23:57 matevz Exp $
+ * $Id$
  */
 
 #include <vector>

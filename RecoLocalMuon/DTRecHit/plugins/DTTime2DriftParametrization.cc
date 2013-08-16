@@ -1,8 +1,6 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2007/04/19 11:08:17 $
- *  $Revision: 1.1 $
  *  \author Pablo Garcia-Abia and Jesus Puerta (CIEMAT, Madrid), G. Cerminara - INFN Torino -
  */
 

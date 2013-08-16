@@ -18,7 +18,6 @@
 //
 // Author:      Chris Jones
 // Created:     Sat Apr 30 19:36:59 EDT 2005
-// $Id: DependentRecordIntervalFinder.h,v 1.10 2010/12/17 04:31:53 chrjones Exp $
 //
 
 // system include files

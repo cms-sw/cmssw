@@ -11,7 +11,6 @@
  **
  **
  **  $Id: PhotonPostprocessing
- **  $Date: 2013/06/11 15:57:19 $
  **  author:
  **   Nancy Marinelli, U. of Notre Dame, US
  **

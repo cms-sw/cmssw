@@ -3,8 +3,6 @@
  *  method, the vertex constraint. The vertex constraint is applyed using the Kalman Filter tools used for 
  *  the vertex reconstruction.
  *
- *  $Date: 2009/09/16 13:12:08 $
- *  $Revision: 1.41 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
 

@@ -1,4 +1,3 @@
-// $Id: testAssociationNew.cc,v 1.6 2008/12/18 04:53:08 wmtan Exp $
 #include <cppunit/extensions/HelperMacros.h>
 #include <algorithm>
 #include <iterator>

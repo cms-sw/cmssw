@@ -2,8 +2,6 @@
 
 /** \file DirectMuonNavigation
  *
- *  $Date: 2011/04/21 01:34:24 $
- *  $Revision: 1.19 $
  *  \author Chang Liu  -  Purdue University
  */
 

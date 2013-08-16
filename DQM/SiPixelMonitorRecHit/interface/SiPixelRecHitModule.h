@@ -18,7 +18,6 @@ detector segment (detID)
 //
 // Original Author:  Vincenzo Chiochia
 //         Created:  
-// $Id: SiPixelRecHitModule.h,v 1.8 2009/06/19 09:30:00 merkelp Exp $
 //
 //  Adapted by: Keith Rose
 //  for use in SiPixelMonitorRecHit package

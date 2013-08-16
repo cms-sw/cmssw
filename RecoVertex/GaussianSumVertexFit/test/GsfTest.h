@@ -10,12 +10,6 @@
  Implementation:
      <Notes on implementation>
 */
-//
-// Original Author:  Pascal Vanlaer
-//         Created:  Tue Feb 28 11:06:34 CET 2006
-// $Id: GsfTest.h,v 1.3 2010/01/21 10:52:45 adamwo Exp $
-//
-//
 
 
 // system include files
@@ -60,5 +54,7 @@ private:
   TFile*  rootFile_;
 
   std::string outputFile_; // output file
-  std::string trackLabel_; // label of track producer
+  edm::EDGetTokenT<reco::TrackCollection> token_tracks; 
+//   edm::EDGetTokenT<TrackingParticleCollection> token_TrackTruth;
+  edm::EDGetTokenT<TrackingVertexCollection> token_VertexTruth;
 };

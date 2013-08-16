@@ -4,8 +4,6 @@
 /*
  * \file EETimingTask.h
  *
- * $Date: 2011/09/15 21:54:51 $
- * $Revision: 1.22 $
  * \author G. Della Ricca
  *
 */

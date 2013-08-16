@@ -1,7 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
 #
-# $Id: preshowerClusteringSequence_cff.py,v 1.2 2008/04/21 03:24:16 rpw Exp $
 #
 #------------------
 #Preshower clustering:

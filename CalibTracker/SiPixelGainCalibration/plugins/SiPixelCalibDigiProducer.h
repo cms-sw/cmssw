@@ -15,7 +15,7 @@
 //
 // Original Author:  Freya Blekman
 //         Created:  Wed Oct 31 15:28:52 CET 2007
-// $Id: SiPixelCalibDigiProducer.h,v 1.13 2013/02/27 14:26:41 davidlt Exp $
+// $Id: SiPixelCalibDigiProducer.h,v 1.12 2010/02/11 00:10:31 wmtan Exp $
 //
 //
 

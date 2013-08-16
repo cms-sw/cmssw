@@ -1,6 +1,5 @@
 // Original Author:  Anne-Marie Magnan
 //         Created:  2010/02/25
-// $Id: SiStripSpyIdentifyRuns.cc,v 1.1 2012/10/15 09:02:47 threus Exp $
 //
 
 #include <sstream>
@@ -11,6 +10,8 @@
 #include <algorithm>
 #include <cassert>
 
+
+#include "FWCore/Utilities/interface/EDGetToken.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -56,7 +57,7 @@ namespace sistrip {
 
     //tag of spydata source collection
     edm::InputTag srcTag_;
-
+    edm::EDGetTokenT<FEDRawDataCollection> srcToken_;
     uint32_t prevRun_;
 
   };
@@ -75,7 +76,7 @@ namespace sistrip {
       srcTag_(iConfig.getParameter<edm::InputTag>("InputProductLabel")),
       prevRun_(0)
   {
-
+    srcToken_ = consumes<FEDRawDataCollection>(srcTag_);
   }
 
 
@@ -106,7 +107,8 @@ namespace sistrip {
     if (lRunNum == prevRun_) return;
 
     edm::Handle<FEDRawDataCollection> lHandle;
-    aEvt.getByLabel( srcTag_, lHandle ); 
+    //    aEvt.getByLabel( srcTag_, lHandle ); 
+    aEvt.getByToken( srcToken_, lHandle ); 
     const FEDRawDataCollection& buffers = *lHandle;
 
     for (unsigned int iFed(FEDNumbering::MINSiStripFEDID);

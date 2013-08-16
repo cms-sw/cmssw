@@ -13,8 +13,6 @@ class RandomNumberServiceHelper(object):
 
     Provide both user level and WM APIs.
 
-    Revision: "$Id: RandomServiceHelper.py,v 1.6 2012/10/30 11:18:57 fabiocos Exp $"
-    Version   "$Revision: 1.6 $"
     Author:   Dave Evans
     Modified: Eric Vaandering
     """

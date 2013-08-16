@@ -4,8 +4,6 @@
 /** \class MuonDetLayerMeasurements
  *  The class to access recHits and TrajectoryMeasurements from DetLayer.  
  *
- *  $Date: 2012/05/29 08:23:55 $
- *  $Revision: 1.21 $
  *  \author C. Liu, R. Bellan, N. Amapane
  *
  */

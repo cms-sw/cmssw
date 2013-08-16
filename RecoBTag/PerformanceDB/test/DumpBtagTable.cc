@@ -13,7 +13,6 @@
 // Modified: Francisco Yumiceva
 // Original Author:  Tommaso Boccali
 //         Created:  Tue Nov 25 15:50:50 CET 2008
-// $Id: DumpBtagTable.cc,v 1.1 2012/01/11 03:13:18 yumiceva Exp $
 //
 //
 

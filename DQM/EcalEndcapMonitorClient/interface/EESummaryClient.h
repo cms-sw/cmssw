@@ -4,8 +4,6 @@
 /*
  * \file EESummaryClient.h
  *
- * $Date: 2012/06/11 22:57:16 $
- * $Revision: 1.55 $
  * \author G. Della Ricca
  *
 */

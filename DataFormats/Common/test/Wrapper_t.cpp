@@ -1,5 +1,4 @@
 /*
- *  $Id: Wrapper_t.cpp,v 1.8 2008/03/31 21:12:11 wmtan Exp $
  *  CMSSW
  *
  */

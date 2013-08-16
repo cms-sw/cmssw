@@ -13,7 +13,7 @@
 //
 // Original Author:  Jim Pivarski
 //         Created:  Wed Dec 12 13:31:55 CST 2007
-// $Id: CSCOverlapsTrackPreparation.cc,v 1.9 2011/12/22 20:01:12 innocent Exp $
+// $Id: CSCOverlapsTrackPreparation.cc,v 1.8 2011/03/22 09:49:50 innocent Exp $
 //
 //
 
@@ -67,9 +67,9 @@ class CSCOverlapsTrackPreparation : public edm::EDProducer {
    private:
       enum {kNothing, kSimpleFit, kAllButOne, kExtrapolate};
 
-      virtual void beginJob();
-      virtual void produce(edm::Event&, const edm::EventSetup&);
-      virtual void endJob();
+      virtual void beginJob() override;
+      virtual void produce(edm::Event&, const edm::EventSetup&) override;
+      virtual void endJob() override;
       
       // ----------member data ---------------------------
       edm::InputTag m_src;

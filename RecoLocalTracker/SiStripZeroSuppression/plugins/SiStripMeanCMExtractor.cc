@@ -13,7 +13,6 @@
 //
 // Original Author:  Ivan Amos Cali,32 4-A08,+41227673039,
 //         Created:  Wed Oct 13 11:50:47 CEST 2010
-// $Id: SiStripMeanCMExtractor.cc,v 1.2 2010/11/04 14:12:31 edwenger Exp $
 //
 //
 

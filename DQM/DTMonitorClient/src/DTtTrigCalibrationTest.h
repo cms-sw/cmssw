@@ -5,8 +5,6 @@
  * *
  *  DQM Test Client
  *
- *  $Date: 2010/01/05 10:15:46 $
- *  $Revision: 1.8 $
  *  \author  M. Zanetti CERN
  *   
  */

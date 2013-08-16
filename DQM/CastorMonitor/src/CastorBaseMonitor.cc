@@ -25,24 +25,29 @@ CastorBaseMonitor::CastorBaseMonitor() {
 //==================================================================//
 CastorBaseMonitor::~CastorBaseMonitor() {}
 
-void CastorBaseMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe){
 
-  if(fVerbosity>0) std::cout << "CastorBaseMonitor::setup (start)" << std::endl;
-
-  m_dbe = NULL;
-  if(dbe != NULL) m_dbe = dbe;
-
-  //hotCells_ =  ps.getUntrackedParameter<std::vector<std::string> >( "HotCells" );
-  
-  ////---- Base folder for the contents of this job
-  std::string subsystemname = ps.getUntrackedParameter<std::string>("subSystemFolder", "Castor") ;
-  rootFolder_ = subsystemname + "/";
-  
+//==================================================================//
+//======================= Setup ====================================//
+//==================================================================//
+void CastorBaseMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe)
+  {
+  //get configuration parameters
   fVerbosity = ps.getUntrackedParameter<int>("debug",0); 
   makeDiagnostics=ps.getUntrackedParameter<bool>("makeDiagnosticPlots",false);
   showTiming = ps.getUntrackedParameter<bool>("showTiming",false);
 
- if(fVerbosity>0) std::cout << "CastorBaseMonitor::setup (end)" << std::endl;
+  if(fVerbosity>0) std::cout << "CastorBaseMonitor::setup (start)" << std::endl;
+
+  //hotCells_ =  ps.getUntrackedParameter<std::vector<std::string> >( "HotCells" );
+  
+  m_dbe = NULL;
+  if(dbe != NULL) m_dbe = dbe;
+
+  ////---- Base folder for the contents of this job
+  std::string subsystemname = ps.getUntrackedParameter<std::string>("subSystemFolder", "Castor") ;
+  rootFolder_ = subsystemname + "/";
+
+  if(fVerbosity>0) std::cout << "CastorBaseMonitor::setup (end)" << std::endl;
 
   return;
 }

@@ -7,8 +7,6 @@
  *  DQM Test Client to monitor Local Trigger
  *  position / direction assignement
  *
- *  $Date: 2011/06/10 13:50:12 $
- *  $Revision: 1.1 $
  *  \author  D.Fasanella - INFN Bologna
  *   
  */

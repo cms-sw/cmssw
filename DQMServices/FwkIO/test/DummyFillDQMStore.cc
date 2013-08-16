@@ -13,7 +13,6 @@
 //
 // Original Author:  Christopher Jones
 //         Created:  Fri Apr 29 18:05:50 CDT 2011
-// $Id: DummyFillDQMStore.cc,v 1.6 2013/02/01 16:38:32 wdd Exp $
 //
 //
 

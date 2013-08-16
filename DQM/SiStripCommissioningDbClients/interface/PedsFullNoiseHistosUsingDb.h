@@ -1,4 +1,3 @@
-// Last commit: $Id: PedsFullNoiseHistosUsingDb.h,v 1.4 2010/04/28 08:47:00 lowette Exp $
 
 #ifndef DQM_SiStripCommissioningClients_PedsFullNoiseHistosUsingDb_H
 #define DQM_SiStripCommissioningClients_PedsFullNoiseHistosUsingDb_H

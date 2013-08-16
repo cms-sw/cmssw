@@ -16,7 +16,7 @@
 //
 // Original Author:  TMF
 //         Created:  Wed Oct  3 10:28:12 CEST 2007
-// $Id: Constants.h,v 1.1 2009/02/05 10:09:55 fruboes Exp $
+// $Id$
 //
 #include <cmath>
 namespace RPCpg {

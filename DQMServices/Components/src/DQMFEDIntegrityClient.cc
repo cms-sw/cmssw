@@ -3,9 +3,6 @@
  * \file DQMFEDIntegrityClient.cc
  * \author M. Marienfeld
  * Last Update:
- * $Date: 2010/03/29 18:34:06 $
- * $Revision: 1.19 $
- * $Author: ameyer $
  *
  * Description: Summing up FED entries from all subdetectors.
  *

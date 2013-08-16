@@ -5,7 +5,6 @@
 // 
 // Original Authors:  R. Remington (UF), R. Cavanaugh (UIC/Fermilab)
 //          Created:  October 27, 2008
-// $Id: PFSpecificAlgo.cc,v 1.13 2012/06/10 16:37:16 sakuma Exp $
 //
 //
 //____________________________________________________________________________||

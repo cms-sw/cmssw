@@ -1,6 +1,5 @@
 // Associate jets with tracks by simple "dR" criteria
 // Fedor Ratnikov (UMd), Aug. 28, 2007
-// $Id: JetTracksAssociationXtrpCalo.cc,v 1.4 2011/02/26 05:59:34 dlange Exp $
 
 #include "RecoJets/JetAssociationAlgorithms/interface/JetTracksAssociationXtrpCalo.h"
 #include "DataFormats/GeometrySurface/interface/Cylinder.h"

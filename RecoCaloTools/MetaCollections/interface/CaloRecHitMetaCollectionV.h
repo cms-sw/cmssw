@@ -11,8 +11,6 @@
   * Virtual base class for a "meta collection" which references 
   * CaloRecHit-derived objects in their base collections.
   *
-  * $Date: 2007/08/07 14:55:00 $
-  * $Revision: 1.2 $
   * \author J. Mans - Minnesota
   */
 class CaloRecHitMetaCollectionV {

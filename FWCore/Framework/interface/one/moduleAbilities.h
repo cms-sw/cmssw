@@ -16,7 +16,6 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue, 07 May 2013 19:38:53 GMT
-// $Id: moduleAbilities.h,v 1.1 2013/05/17 14:49:45 chrjones Exp $
 //
 
 // system include files

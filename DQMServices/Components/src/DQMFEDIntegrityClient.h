@@ -4,8 +4,6 @@
  *
  * DQM FED Client
  *
- * $Date: 2010/03/29 18:34:06 $
- * $Revision: 1.8 $
  * \author  M. Marienfeld
  *
 */

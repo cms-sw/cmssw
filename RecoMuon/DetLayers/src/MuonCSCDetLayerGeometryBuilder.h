@@ -5,8 +5,6 @@
  *
  *  Build the CSC DetLayers.
  *
- *  $Date: 2007/06/14 23:48:22 $
- *  $Revision: 1.8 $
  *  \author N. Amapane - CERN
  */
 

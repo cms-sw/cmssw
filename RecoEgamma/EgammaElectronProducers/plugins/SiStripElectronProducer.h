@@ -16,7 +16,6 @@
 //
 // Original Author:  Jim Pivarski
 //         Created:  Fri May 26 16:11:37 EDT 2006
-// $Id: SiStripElectronProducer.h,v 1.1 2007/04/20 14:54:21 uberthon Exp $
 //
 
 // system include files

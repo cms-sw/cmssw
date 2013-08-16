@@ -4,8 +4,6 @@
 /** \class TrackProducerAlgorithm
  *  This class calls the Final Fit and builds the Tracks then produced by the TrackProducer or by the TrackRefitter
  *
- *  $Date: 2012/11/09 13:17:23 $
- *  $Revision: 1.29 $
  *  \author cerati
  */
 

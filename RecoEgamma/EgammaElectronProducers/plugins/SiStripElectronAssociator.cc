@@ -13,7 +13,6 @@
 //
 // Original Author:  Jim Pivarski
 //         Created:  Tue Aug  1 15:24:02 EDT 2006
-// $Id: SiStripElectronAssociator.cc,v 1.6 2010/03/06 12:45:47 sani Exp $
 //
 //
 

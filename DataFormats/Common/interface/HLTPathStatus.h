@@ -21,9 +21,6 @@
  *
  *  Note that n is limited, due to packing, to at most 2^(16-2)=16384.
  *
- *  $Date: 2012/09/27 15:31:10 $
- *  $Revision: 1.8 $
- *
  *  \author Martin Grunewald
  *
  */

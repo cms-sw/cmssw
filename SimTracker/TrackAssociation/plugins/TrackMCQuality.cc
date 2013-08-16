@@ -13,7 +13,6 @@
 //
 // Original Author:  Jean-Roch Vlimant
 //         Created:  Fri Mar 27 15:19:03 CET 2009
-// $Id: TrackMCQuality.cc,v 1.3 2013/01/09 03:49:01 dlange Exp $
 //
 //
 

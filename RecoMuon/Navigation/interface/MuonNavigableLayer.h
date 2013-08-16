@@ -7,8 +7,6 @@
  *  trackingRange defines an MuonEtaRange for an FTS, 
  *  which is used for search compatible DetLayers.
  *
- * $Date: 2007/01/29 16:24:17 $
- * $Revision: 1.8 $
  *
  * \author : Chang Liu - Purdue University <Chang.Liu@cern.ch>
  *

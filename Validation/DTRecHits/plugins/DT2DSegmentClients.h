@@ -5,8 +5,6 @@
  * *
  *  DQM Client to check the data integrity
  *
- *  $Date: 2009/11/04 13:36:39 $
- *  $Revision: 1.2 $
  *  \author S. Bolognesi - INFN TO
  *   
  */

@@ -6,8 +6,6 @@
  *
  *  DQM offline for quarkonia
  *
- *  $Date: 2011/06/01 15:09:38 $
- *  $Revision: 1.7 $
  *  \author S. Bolognesi, Eric - CERN
  */
 

@@ -3,8 +3,6 @@
  *   TeV muon reconstructor:
  *
  *
- *   $Date: 2013/01/06 19:17:48 $
- *   $Revision: 1.6 $
  *
  *   \author  Piotr Traczyk (SINS Warsaw)
  */

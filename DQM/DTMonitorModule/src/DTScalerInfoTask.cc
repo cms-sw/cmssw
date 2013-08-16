@@ -1,8 +1,6 @@
 /*
  * \file DTScalerInfoTask.cc
  * 
- * $Date: 2011/10/19 10:05:54 $
- * $Revision: 1.1 $
  * \author C. Battilana - CIEMAT
  *
 */

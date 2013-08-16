@@ -9,7 +9,6 @@
 
 #include <sstream>
 #include <exception>
-
 namespace edm {
 
 Maker::~Maker() {
@@ -21,7 +20,8 @@ Maker::createModuleDescription(WorkerParams const &p) const {
   ModuleDescription md(conf.id(),
 		       conf.getParameter<std::string>("@module_type"),
 		       conf.getParameter<std::string>("@module_label"),
-  		       p.processConfiguration_.get());
+  		       p.processConfiguration_.get(),
+                       ModuleDescription::getUniqueID());
   return md;
 }
 

@@ -1,4 +1,4 @@
-// $Id: DQMFolder.cc,v 1.3 2013/04/22 16:19:36 wmtan Exp $
+// $Id: DQMFolder.cc,v 1.2 2011/03/07 15:31:32 mommsen Exp $
 /// @file: DQMFolder.cc
 
 #include "EventFilter/StorageManager/interface/DQMFolder.h"

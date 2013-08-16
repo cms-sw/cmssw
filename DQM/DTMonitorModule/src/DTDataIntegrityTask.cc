@@ -1,8 +1,6 @@
 /*
  * \file DTDataIntegrityTask.cc
  * 
- * $Date: 2012/09/10 12:28:16 $
- * $Revision: 1.81 $
  * \author M. Zanetti (INFN Padova), S. Bolognesi (INFN Torino), G. Cerminara (INFN Torino)
  *
  */

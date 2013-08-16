@@ -5,9 +5,6 @@
  *
  *  Definition of common HLT enums
  *
- *  $Date: 2007/12/21 22:42:30 $
- *  $Revision: 1.3 $
- *
  *  \author Martin Grunewald
  *
  */

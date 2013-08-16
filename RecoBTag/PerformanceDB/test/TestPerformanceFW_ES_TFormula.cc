@@ -13,7 +13,6 @@
 //
 // Original Author:  Tommaso Boccali
 //         Created:  Tue Nov 25 15:50:50 CET 2008
-// $Id: TestPerformanceFW_ES_TFormula.cc,v 1.4 2013/01/31 17:54:44 msegala Exp $
 //
 //
 

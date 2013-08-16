@@ -7,8 +7,6 @@
  *  Description:
  *  utility class for the dynamical truncation algorithm
  *
- *  $Date: 2013/05/28 15:46:29 $
- *  $Revision: 1.4 $
  *
  *  Authors :
  *  D. Pagano & G. Bruno - UCL Louvain

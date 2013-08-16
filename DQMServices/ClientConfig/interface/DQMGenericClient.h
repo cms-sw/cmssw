@@ -6,8 +6,6 @@
  *
  *  DQM histogram post processor
  *
- *  $Date: 2013/05/23 16:16:28 $
- *  $Revision: 1.10 $
  *
  *  \author Junghwan Goh - SungKyunKwan University
  */

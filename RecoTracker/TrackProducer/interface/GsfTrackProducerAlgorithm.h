@@ -8,7 +8,6 @@
 //
 // Original Author:  Giuseppe Cerati
 //         Created:  Thu Mar  9 17:29:31 CET 2006
-// $Id: GsfTrackProducerAlgorithm.h,v 1.4 2007/08/23 20:59:33 ratnik Exp $
 //
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Event.h"

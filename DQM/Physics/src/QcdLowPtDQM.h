@@ -1,4 +1,3 @@
-// $Id: QcdLowPtDQM.h,v 1.11 2013/01/02 13:59:43 wmtan Exp $
 
 #ifndef QcdLowPtDQM_H
 #define QcdLowPtDQM_H

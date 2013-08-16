@@ -4,8 +4,6 @@
 /*
  * \file EEOccupancyClient.h
  *
- * $Date: 2010/01/25 21:12:25 $
- * $Revision: 1.22 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *

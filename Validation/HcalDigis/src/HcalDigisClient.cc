@@ -14,7 +14,6 @@
 //
 // Original Author:  Ali Fahim,22 R-013,+41227672649,
 //         Created:  Wed Mar 23 22:54:28 CET 2011
-// $Id: HcalDigisClient.cc,v 1.3 2012/08/15 12:47:37 abdullin Exp $
 //
 //
 

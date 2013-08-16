@@ -4,8 +4,6 @@
 /** \class GeneralBinFinderInR
  *  A R binfinder for a non-periodic group of detectors.
  *
- *  $Date: 2012/07/16 07:32:42 $
- *  $Revision: 1.3 $
  *  \author N. Amapane - INFN Torino
  */
 

@@ -13,7 +13,6 @@
 //
 // Original Author:  Brian Drell
 //         Created:  Wed Feb 18 17:21:04 MST 2009
-// $Id: V0Validator.cc,v 1.9.4.1 2013/05/14 15:26:38 speer Exp $
 //
 //
 

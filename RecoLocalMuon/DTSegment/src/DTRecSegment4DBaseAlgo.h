@@ -5,8 +5,6 @@
  *
  * Abstract algo class to reconstruct 4D-segments in chamber given a set of 2D-segment
  *
- * $Date: 2007/03/10 16:14:43 $
- * $Revision: 1.5 $
  * \author Riccardo Bellan - INFN TO <riccardo.bellan@cern.ch>
  */
 

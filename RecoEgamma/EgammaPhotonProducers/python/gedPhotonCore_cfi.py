@@ -2,7 +2,6 @@ import FWCore.ParameterSet.Config as cms
 
 #
 # producer for GEDphotonCore collection
-# $Id: gedPhotonCore_cfi.py,v 1.1 2013/05/07 12:35:01 nancy Exp $
 #
 gedPhotonCore = cms.EDProducer("GEDPhotonCoreProducer",
  #   conversionProducer = cms.InputTag("conversions"),

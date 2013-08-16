@@ -13,7 +13,6 @@
 //
 // Original Author:  Christophe DELAERE
 //         Created:  Fri Jan 18 12:17:46 CET 2008
-// $Id: SiStripCommissioningSeedFilter.cc,v 1.1 2008/07/07 16:24:08 delaer Exp $
 //
 //
 
@@ -24,7 +23,6 @@
 
 // user include files
 #include "DQM/SiStripCommissioningSources/interface/SiStripCommissioningSeedFilter.h"
-#include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 
 
 //
@@ -33,7 +31,8 @@
 SiStripCommissioningSeedFilter::SiStripCommissioningSeedFilter(const edm::ParameterSet& iConfig)
 {
    //now do what ever initialization is needed
-   inputModuleLabel_ = iConfig.getParameter<edm::InputTag>( "InputModuleLabel" ) ;
+  //   inputModuleLabel_ = iConfig.getParameter<edm::InputTag>( "InputModuleLabel" ) ;
+  seedcollToken_ = consumes<TrajectorySeedCollection>(iConfig.getParameter<edm::InputTag>( "InputModuleLabel" ) );
 }
 
 //
@@ -47,7 +46,8 @@ SiStripCommissioningSeedFilter::filter(edm::Event& iEvent, const edm::EventSetup
    using namespace edm;
    
    edm::Handle<TrajectorySeedCollection> seedcoll;
-   iEvent.getByLabel(inputModuleLabel_,seedcoll);
+   //   iEvent.getByLabel(inputModuleLabel_,seedcoll);
+   iEvent.getByToken(seedcollToken_,seedcoll);
    bool result = (*seedcoll).size()>0;
    return result;
 }

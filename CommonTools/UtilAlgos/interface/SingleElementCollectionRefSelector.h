@@ -7,9 +7,9 @@
  * 
  * \author Luca Lista, INFN
  *
- * \version $Revision: 1.2 $
+ * \version $Revision: 1.1 $
  *
- * $Id: SingleElementCollectionRefSelector.h,v 1.2 2013/02/28 00:28:05 wmtan Exp $
+ * $Id: SingleElementCollectionRefSelector.h,v 1.1 2009/03/03 13:07:28 llista Exp $
  *
  */
 #include "CommonTools/UtilAlgos/interface/SelectionAdderTrait.h"

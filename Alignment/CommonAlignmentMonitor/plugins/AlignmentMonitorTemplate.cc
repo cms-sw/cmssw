@@ -8,7 +8,7 @@
 //
 // Original Author:  Jim Pivarski
 //         Created:  Thu Mar 29 13:59:56 CDT 2007
-// $Id: AlignmentMonitorTemplate.cc,v 1.7 2011/09/04 17:08:14 mussgill Exp $
+// $Id: AlignmentMonitorTemplate.cc,v 1.6 2010/02/25 00:27:56 wmtan Exp $
 //
 
 // system include files
@@ -30,9 +30,9 @@ class AlignmentMonitorTemplate: public AlignmentMonitorBase {
       AlignmentMonitorTemplate(const edm::ParameterSet& cfg): AlignmentMonitorBase(cfg, "AlignmentMonitorTemplate") { };
       ~AlignmentMonitorTemplate() {};
 
-      void book();
-      void event(const edm::Event &iEvent, const edm::EventSetup &iSetup, const ConstTrajTrackPairCollection& iTrajTracks);
-      void afterAlignment(const edm::EventSetup &iSetup);
+      void book() override;
+      void event(const edm::Event &iEvent, const edm::EventSetup &iSetup, const ConstTrajTrackPairCollection& iTrajTracks) override;
+      void afterAlignment(const edm::EventSetup &iSetup) override;
 
    private:
       TH1F *m_hist, *m_ihist, *m_otherdir, *m_otherdir2;

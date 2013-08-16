@@ -16,7 +16,6 @@
 //
 // Original Author:  Peter Wittich
 //         Created:  May 2008
-// $Id: FourVectorHLT.h,v 1.6 2009/10/15 11:31:28 fwyzard Exp $
 //
 //
 

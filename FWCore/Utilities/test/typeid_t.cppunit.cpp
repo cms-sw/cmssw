@@ -3,7 +3,6 @@
 Test program for edm::TypeID class.
 Changed by Viji on 29-06-2005
 
-$Id: typeid_t.cppunit.cpp,v 1.1 2007/03/04 04:40:20 wmtan Exp $
  ----------------------------------------------------------------------*/
 
 #include <cassert>

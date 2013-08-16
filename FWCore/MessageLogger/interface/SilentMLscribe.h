@@ -16,7 +16,6 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Jul 30 09:57:52 CDT 2009
-// $Id: SilentMLscribe.h,v 1.1 2009/07/30 15:33:09 chrjones Exp $
 //
 
 // system include files

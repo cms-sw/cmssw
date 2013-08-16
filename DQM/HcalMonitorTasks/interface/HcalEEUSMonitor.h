@@ -29,8 +29,6 @@
 
 /** \class HcalEEUSMonitor
   *
-  * $Date: 2009/07/06 10:51:54 $
-  * $Revision: 1.3 $
   * \author J. Temple - Univ. of Maryland
   */
 

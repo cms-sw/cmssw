@@ -75,8 +75,11 @@ cmsRun geometryxmlwriter.py
 sed -i '{s/Flat10Percent/Flat20Percent/g}' geometryxmlwriter.py
 sed -i '{s/\/geflat10percent/\/geflat20percent/g}' geometryxmlwriter.py
 cmsRun geometryxmlwriter.py
-sed -i '{s/Flat20Percent/Flat10Services30Percent/g}' geometryxmlwriter.py
-sed -i '{s/\/geflat20percent/\/geflat10services30percent/g}' geometryxmlwriter.py
+sed -i '{s/Flat20Percent/Flat30Percent/g}' geometryxmlwriter.py
+sed -i '{s/\/geflat20percent/\/geflat30percent/g}' geometryxmlwriter.py
+cmsRun geometryxmlwriter.py
+sed -i '{s/Flat30Percent/Flat10Services30Percent/g}' geometryxmlwriter.py
+sed -i '{s/\/geflat30percent/\/geflat10services30percent/g}' geometryxmlwriter.py
 cmsRun geometryxmlwriter.py
 sed -i '{s/Flat10Services30Percent/Flat20Services30Percent/g}' geometryxmlwriter.py
 sed -i '{s/\/geflat10services30percent/\/geflat20services30percent/g}' geometryxmlwriter.py
@@ -87,6 +90,10 @@ cmsRun geometryxmlwriter.py
 
 sed -i '{s/Services30Percent/HFLibraryNoCastor/g}' geometryxmlwriter.py
 sed -i '{s/\/geservices30percent/\/gehflibrarynocastor/g}' geometryxmlwriter.py
+cmsRun geometryxmlwriter.py
+
+sed -i '{s/HFLibraryNoCastor/ZeroMaterial/g}' geometryxmlwriter.py
+sed -i '{s/\/gehflibrarynocastor/\/zeromaterial/g}' geometryxmlwriter.py
 cmsRun geometryxmlwriter.py
 
 # Read the one big XML file and output a record to the
@@ -137,8 +144,11 @@ cmsRun xmlgeometrywriter.py
 sed -i '{s/Flat10Percent/Flat20Percent/g}' xmlgeometrywriter.py
 sed -i '{s/\/geflat10percent/\/geflat20percent/g}' xmlgeometrywriter.py
 cmsRun xmlgeometrywriter.py
-sed -i '{s/Flat20Percent/Flat10Services30Percent/g}' xmlgeometrywriter.py
-sed -i '{s/\/geflat20percent/\/geflat10services30percent/g}' xmlgeometrywriter.py
+sed -i '{s/Flat20Percent/Flat30Percent/g}' xmlgeometrywriter.py
+sed -i '{s/\/geflat20percent/\/geflat30percent/g}' xmlgeometrywriter.py
+cmsRun xmlgeometrywriter.py
+sed -i '{s/Flat30Percent/Flat10Services30Percent/g}' xmlgeometrywriter.py
+sed -i '{s/\/geflat30percent/\/geflat10services30percent/g}' xmlgeometrywriter.py
 cmsRun xmlgeometrywriter.py
 sed -i '{s/Flat10Services30Percent/Flat20Services30Percent/g}' xmlgeometrywriter.py
 sed -i '{s/\/geflat10services30percent/\/geflat20services30percent/g}' xmlgeometrywriter.py
@@ -149,6 +159,10 @@ cmsRun xmlgeometrywriter.py
 
 sed -i '{s/Services30Percent/HFLibraryNoCastor/g}' xmlgeometrywriter.py
 sed -i '{s/\/geservices30percent/\/gehflibrarynocastor/g}' xmlgeometrywriter.py
+cmsRun xmlgeometrywriter.py
+
+sed -i '{s/HFLibraryNoCastor/ZeroMaterial/g}' xmlgeometrywriter.py
+sed -i '{s/\/gehflibrarynocastor/\/zeromaterial/g}' xmlgeometrywriter.py
 cmsRun xmlgeometrywriter.py
 
 # All the database objects were written into one database

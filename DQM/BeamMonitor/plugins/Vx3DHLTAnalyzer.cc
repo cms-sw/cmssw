@@ -13,8 +13,6 @@
 //
 // Original Author:  Mauro Dinardo,28 S-020,+41227673777,
 //         Created:  Tue Feb 23 13:15:31 CET 2010
-// $Id: Vx3DHLTAnalyzer.cc,v 1.106 2012/12/07 10:03:22 eulisse Exp $
-
 
 #include "DQM/BeamMonitor/plugins/Vx3DHLTAnalyzer.h"
 
@@ -1066,6 +1064,25 @@ void Vx3DHLTAnalyzer::endLuminosityBlock(const LuminosityBlock& lumiBlock,
 
 void Vx3DHLTAnalyzer::beginJob()
 {
+  // ### Set internal variables ###
+  reset("scratch");
+  prescaleHistory      = 1;
+  maxLumiIntegration   = 15;
+  minVxDoF             = 10.;
+  // For vertex fitter without track-weight: d.o.f. = 2*NTracks - 3
+  // For vertex fitter with track-weight:    d.o.f. = sum_NTracks(2*track_weight) - 3
+  internalDebug        = false;
+  considerVxCovariance = true;
+  pi = 3.141592653589793238;
+  // ##############################
+}
+
+
+void Vx3DHLTAnalyzer::endJob() { reset("scratch"); }
+
+
+void Vx3DHLTAnalyzer::beginRun()
+{
   DQMStore* dbe = 0;
   dbe = Service<DQMStore>().operator->();
  
@@ -1182,22 +1199,7 @@ void Vx3DHLTAnalyzer::beginJob()
       // - 0%  at the moment of creation of the histogram
       // - n%  numberGoodFits / numberFits
     }
-
-  // ### Set internal variables ###
-  reset("scratch");
-  prescaleHistory      = 1;
-  maxLumiIntegration   = 15;
-  minVxDoF             = 10.;
-  // For vertex fitter without track-weight: d.o.f. = 2*NTracks - 3
-  // For vertex fitter with track-weight:    d.o.f. = sum_NTracks(2*track_weight) - 3
-  internalDebug        = false;
-  considerVxCovariance = true;
-  pi = 3.141592653589793238;
-  // ##############################
 }
-
-
-void Vx3DHLTAnalyzer::endJob() { reset("scratch"); }
 
 
 // Define this as a plug-in

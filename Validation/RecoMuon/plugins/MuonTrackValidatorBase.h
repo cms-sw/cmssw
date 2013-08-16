@@ -4,8 +4,6 @@
 /** \class MuonTrackValidatorBase
  *  Base class for analyzers that produces histograms to validate Muon Track Reconstruction performances
  *
- *  $Date: 2011/02/07 11:02:26 $
- *  $Revision: 1.5 $
  */
 
 #include <memory>

@@ -1,8 +1,6 @@
 /*
  * \file EBLaserTask.cc
  *
- * $Date: 2012/04/27 13:46:02 $
- * $Revision: 1.139 $
  * \author G. Della Ricca
  *
 */

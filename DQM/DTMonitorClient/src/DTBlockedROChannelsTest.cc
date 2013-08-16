@@ -2,8 +2,6 @@
 /*
  * \file DTBlockedROChannelsTest.cc
  * 
- * $Date: 2012/03/13 09:00:51 $
- * $Revision: 1.14 $
  * \author G. Cerminara - University and INFN Torino
  *
  */

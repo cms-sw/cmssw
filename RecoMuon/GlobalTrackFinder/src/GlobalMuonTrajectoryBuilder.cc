@@ -12,8 +12,6 @@
  *   in the muon system and the tracker.
  *
  *
- *  $Date: 2010/11/19 22:06:13 $
- *  $Revision: 1.119 $
  *
  *  Authors :
  *  N. Neumeister            Purdue University

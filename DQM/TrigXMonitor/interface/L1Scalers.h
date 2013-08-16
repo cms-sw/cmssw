@@ -1,7 +1,6 @@
 // -*-c++-*-
 #ifndef L1Scalers_H
 #define L1Scalers_H
-// $Id: L1Scalers.h,v 1.15 2010/05/31 14:43:43 wteo Exp $
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"

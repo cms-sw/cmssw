@@ -1,8 +1,6 @@
 /*
  * \file QualityTester.cc
  *
- * $Date: 2010/07/20 02:58:28 $
- * $Revision: 1.19 $
  * \author M. Zanetti - CERN PH
  *
  */

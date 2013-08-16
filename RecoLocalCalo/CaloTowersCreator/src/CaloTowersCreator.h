@@ -14,8 +14,6 @@
 
 /** \class CaloTowersCreator
   *  
-  * $Date: 2011/05/20 18:43:38 $
-  * $Revision: 1.10 $
   * Original author: J. Mans - Minnesota
   */
 

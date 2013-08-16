@@ -13,7 +13,6 @@
 //
 // Original Authors:  Kyle Story, Freya Blekman (Cornell University)
 //          Created:  Fri Apr 18 11:58:33 CEST 2008
-// $Id: SignCaloSpecificAlgo.h,v 1.7 2012/09/17 17:54:30 veelken Exp $
 //
 // 
 #ifndef METProducers_SignCaloMETAlgo_h

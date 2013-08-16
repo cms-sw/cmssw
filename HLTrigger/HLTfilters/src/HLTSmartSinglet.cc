@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2012/02/24 13:13:47 $
- *  $Revision: 1.13 $
+ *  $Date: 2012/02/23 12:21:51 $
+ *  $Revision: 1.12 $
  *
  *  \author Martin Grunewald
  *
@@ -27,6 +27,7 @@
 template<typename T>
 HLTSmartSinglet<T>::HLTSmartSinglet(const edm::ParameterSet& iConfig) : HLTFilter(iConfig), 
   inputTag_    (iConfig.template getParameter<edm::InputTag>("inputTag")),
+  inputToken_  (consumes<std::vector<T> >(inputTag_)),
   triggerType_ (iConfig.template getParameter<int>("triggerType")),
   cut_      (iConfig.template getParameter<std::string>  ("cut"     )),
   min_N_    (iConfig.template getParameter<int>          ("MinN"    )),
@@ -85,7 +86,7 @@ HLTSmartSinglet<T>::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup,
 
    // get hold of collection of objects
    Handle<TCollection> objects;
-   iEvent.getByLabel (inputTag_,objects);
+   iEvent.getByLabel (inputToken_,objects);
 
    // look at all objects, check cuts and add to filter object
    int n(0);

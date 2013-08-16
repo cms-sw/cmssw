@@ -16,7 +16,6 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Sep 22 12:41:05 EDT 2006
-// $Id: ECGetterBase.h,v 1.1 2006/09/22 18:42:58 chrjones Exp $
 //
 
 // system include files

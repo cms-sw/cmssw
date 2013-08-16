@@ -5,8 +5,6 @@
  *  Abstract algorithmic class to compute drift distance and error 
  *  form a DT digi
  *
- *  $Date: 2007/03/10 16:14:40 $
- *  $Revision: 1.7 $
  *  \author N. Amapane & G. Cerminara - INFN Torino
  */
 

@@ -3,7 +3,6 @@
    Implementation of class EcalSeverityLevelAlgo
 
    \author Stefano Argiro
-   \version $Id: EcalSeverityLevelAlgo.cc,v 1.44 2011/07/14 13:49:10 zafar Exp $
    \date 10 Jan 2011
 */
 

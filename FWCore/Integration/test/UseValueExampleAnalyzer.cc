@@ -13,7 +13,6 @@ Implementation:
 //
 // Original Author:  Chris D Jones
 //         Created:  Thu Sep  8 03:55:42 EDT 2005
-// $Id: UseValueExampleAnalyzer.cc,v 1.4 2007/08/08 16:44:49 wmtan Exp $
 //
 //
 

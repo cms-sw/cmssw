@@ -8,7 +8,6 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Aug 19 13:20:41 EDT 2008
-// $Id: IntersectingIOVRecordIntervalFinder.cc,v 1.2 2008/09/03 13:41:51 chrjones Exp $
 //
 
 // system include files

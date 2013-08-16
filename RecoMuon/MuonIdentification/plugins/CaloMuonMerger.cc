@@ -1,5 +1,4 @@
 //
-// $Id: CaloMuonMerger.cc,v 1.6 2011/01/06 13:26:53 gpetrucc Exp $
 //
 
 /**
@@ -7,7 +6,6 @@
   \brief    Merges reco::CaloMuons, reco::Muons and optionally reco::Tracks avoiding innerTrack duplications in a single reco::Muon collection
             
   \author   Giovanni Petrucciani
-  \version  $Id: CaloMuonMerger.cc,v 1.6 2011/01/06 13:26:53 gpetrucc Exp $
 */
 
 

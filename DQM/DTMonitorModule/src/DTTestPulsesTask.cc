@@ -1,8 +1,6 @@
 /*
  * \file DTTestPulsesTask.cc
  * 
- * $Date: 2010/01/05 10:14:40 $
- * $Revision: 1.16 $
  * \author M. Zanetti - INFN Padova
  *
 */

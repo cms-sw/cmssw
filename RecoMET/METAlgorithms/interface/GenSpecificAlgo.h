@@ -13,7 +13,6 @@
 //
 // Original Authors:  R. Cavanaugh (taken from F.Ratnikov, UMd)
 //          Created:  June 6, 2006
-// $Id: GenSpecificAlgo.h,v 1.6 2013/05/03 18:52:47 salee Exp $
 //
 //
 #ifndef METProducers_GenMETInfo_h

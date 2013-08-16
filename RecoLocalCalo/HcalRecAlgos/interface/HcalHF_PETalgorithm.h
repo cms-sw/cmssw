@@ -15,8 +15,6 @@ class HcalSeverityLevelComputer;
    cell if the threshold exceeds a given maximum value R(Energy).
    Each cell must also pass ieta-dependent energy and ET cuts to be considered for flagging.
 
-   $Date: 2013/05/30 21:37:33 $
-   $Revision: 1.5 $
    \author J. Temple and D. Ferencek
 */
 

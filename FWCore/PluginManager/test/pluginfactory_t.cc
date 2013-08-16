@@ -8,7 +8,6 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Apr  4 13:38:29 EDT 2007
-// $Id: pluginfactory_t.cc,v 1.7 2009/02/19 00:16:59 wmtan Exp $
 //
 
 // system include files

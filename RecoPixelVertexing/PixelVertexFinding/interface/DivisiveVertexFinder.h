@@ -19,8 +19,6 @@
  average of the tracks. Weighted means weighted with the error
  of the data point.
 
- $Date: 2010/02/10 14:14:44 $
- $Revision: 1.7 $
  \author Aaron Dominguez (UNL)
 */
 #include <vector>

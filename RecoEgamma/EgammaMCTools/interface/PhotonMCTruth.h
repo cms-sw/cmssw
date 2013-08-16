@@ -12,8 +12,6 @@
  *  This class stores all the MC truth information needed about the
  *  conversion
  * 
- *  $Date: 2009/05/27 07:34:56 $
- *  $Revision: 1.9 $
  *  \author N. Marinelli  University of Notre Dame
  *
  */

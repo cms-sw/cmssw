@@ -13,7 +13,6 @@
 //
 // Original Author:  Christophe DELAERE
 //         Created:  Fri Jan 18 12:17:46 CET 2008
-// $Id: SiStripCommissioningBasicPrescaler.cc,v 1.1 2008/10/22 10:44:25 delaer Exp $
 //
 //
 

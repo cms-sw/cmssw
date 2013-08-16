@@ -15,8 +15,6 @@
 
     /** \class HcalSimpleReconstructor
 	
-    $Date: 2013/04/26 15:50:15 $
-    $Revision: 1.10 $
     \author J. Mans - Minnesota
     */
 class HcalTopology;

@@ -5,9 +5,6 @@
  *  Template used to compute amplitude, pedestal, time jitter, chi2 of a pulse
  *  using a ratio method
  *
- *  $Id: EcalUncalibRecHitRatioMethodAlgo.h,v 1.50 2012/06/11 21:02:13 wmtan Exp $
- *  $Date: 2012/06/11 21:02:13 $
- *  $Revision: 1.50 $
  *  \author A. Ledovskoy (Design) - M. Balazs (Implementation)
  */
 

@@ -16,7 +16,6 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Sat Apr  7 17:06:34 EDT 2007
-// $Id: standard.h,v 1.2 2007/04/12 12:51:12 wmtan Exp $
 //
 
 // system include files

@@ -10,7 +10,6 @@
 //
 // Original Author:  Ursula Berthon
 //         Created:  Fri Sep 23 11:38:38 CEST 2005
-// $Id: GlobalTest.cc,v 1.11 2012/10/10 14:39:02 wdd Exp $
 //
 //
 

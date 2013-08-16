@@ -4,8 +4,6 @@
 /*
  * \file DTTestPulsesTask.h
  *
- * $Date: 2010/01/05 10:14:39 $
- * $Revision: 1.8 $
  * \author M. Zanetti - INFN Padova
  *
 */

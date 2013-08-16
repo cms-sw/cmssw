@@ -21,7 +21,6 @@ If a space exists in either of these three fields, it will be replaced with a %,
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Apr  4 14:30:51 EDT 2007
-// $Id: CacheParser.h,v 1.3 2007/06/14 02:52:57 wmtan Exp $
 //
 
 // system include files

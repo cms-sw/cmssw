@@ -13,7 +13,7 @@
 //
 // Original Author:  Jim Pivarski,,,
 //         Created:  Sat Jan 24 16:20:28 CST 2009
-// $Id: MuonAlignmentFromReference.cc,v 1.41 2013/01/07 19:58:00 wmtan Exp $
+// $Id: MuonAlignmentFromReference.cc,v 1.39 2011/10/13 00:03:12 khotilov Exp $
 
 #include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentAlgorithmBase.h"
 
@@ -77,15 +77,15 @@ public:
       AlignableTracker* alignableTracker,
       AlignableMuon* alignableMuon,
       AlignableExtras* extras,
-      AlignmentParameterStore* alignmentParameterStore);
+      AlignmentParameterStore* alignmentParameterStore) override;
 
-  void startNewLoop() {};
+  void startNewLoop() override {};
 
-  void run(const edm::EventSetup& iSetup, const EventInfo &eventInfo);
+  void run(const edm::EventSetup& iSetup, const EventInfo &eventInfo) override;
 
   void processMuonResidualsFromTrack(MuonResidualsFromTrack &mrft);
 
-  void terminate(const edm::EventSetup& iSetup);
+  void terminate(const edm::EventSetup& iSetup) override;
 
 private:
   bool numeric(std::string s);

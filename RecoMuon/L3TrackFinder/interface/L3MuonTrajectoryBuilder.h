@@ -4,8 +4,6 @@
 /** \class L3MuonTrajectoryBuilder
  *  class to build muon trajectory
  *
- *  $Date: 2009/02/24 07:07:17 $
- *  $Revision: 1.9 $
  *
  *  \author N. Neumeister 	 Purdue University
  *  \author C. Liu 		 Purdue University

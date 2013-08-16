@@ -7,16 +7,7 @@
  *
  * Version 0.0. A.Savin 2008/04/26
  *
- * $Date: 2012/03/29 12:17:55 $
- * $Revision: 1.16 $
  * \author P. Wittich
- * $Id: L1TdeRCT.h,v 1.16 2012/03/29 12:17:55 ghete Exp $
- * $Log: L1TdeRCT.h,v $
- * Revision 1.16  2012/03/29 12:17:55  ghete
- * Add filtering of events in analyze, to be able to remove the trigger type filter from L1 DQM sequence.
- *
- * Revision 1.15  2011/10/24 14:41:23  asavin
- * L1TdeRCT includes bit histos + cut of 2 GeV on EcalTPG hist
  *
  * Revision 1.14  2011/10/13 09:29:16  swanson
  * Added exper bit monitoring

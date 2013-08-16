@@ -14,7 +14,6 @@
 //
 // Original Author:  Vincenzo Chiochia
 //         Created:  
-// $Id: SiPixelRecHitSource.cc,v 1.26 2010/04/10 08:12:27 elmer Exp $
 //
 //
 // Adapted by:  Keith Rose

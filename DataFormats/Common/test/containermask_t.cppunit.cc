@@ -1,4 +1,3 @@
-// $Id: containermask_t.cppunit.cc,v 1.1 2011/12/01 13:02:18 vlimant Exp $
 
 #include <algorithm>
 

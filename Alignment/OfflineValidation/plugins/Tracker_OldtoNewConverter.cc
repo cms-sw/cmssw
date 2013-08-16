@@ -13,7 +13,7 @@
 //
 // Original Author:  Nhan Tran
 //         Created:  Mon Jul 16m 16:56:34 CDT 2007
-// $Id: Tracker_OldtoNewConverter.cc,v 1.3 2011/09/15 08:12:03 mussgill Exp $
+// $Id: Tracker_OldtoNewConverter.cc,v 1.2 2010/01/04 18:24:37 mussgill Exp $
 //
 //
 
@@ -44,9 +44,9 @@ public:
 	
 	
 private:
-	virtual void beginJob();
-	virtual void analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup);
-	virtual void endJob() ;
+	virtual void beginJob() override;
+	virtual void analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) override;
+	virtual void endJob() override ;
 	
 	void createMap();
 	void addBranches();

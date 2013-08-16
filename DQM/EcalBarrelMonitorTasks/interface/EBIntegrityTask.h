@@ -4,8 +4,6 @@
 /*
  * \file EBIntegrityTask.h
  *
- * $Date: 2012/04/27 13:46:00 $
- * $Revision: 1.33 $
  * \author G. Della Ricca
  *
  */

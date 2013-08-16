@@ -10,12 +10,6 @@
  Implementation:
      <Notes on implementation>
 */
-//
-// Original Author:  Pascal Vanlaer
-//         Created:  Tue Feb 28 11:06:34 CET 2006
-// $Id: KineExample.h,v 1.4 2012/10/23 02:24:13 slava77 Exp $
-//
-//
 
 
 // system include files
@@ -68,5 +62,7 @@ private:
 //   TFile*  rootFile_;
 
   std::string outputFile_; // output file
-  std::string trackLabel_; // label of track producer
+  edm::EDGetTokenT<reco::TrackCollection> token_tracks; 
+//   edm::EDGetTokenT<TrackingParticleCollection> token_TrackTruth;
+  edm::EDGetTokenT<TrackingVertexCollection> token_VertexTruth;
 };

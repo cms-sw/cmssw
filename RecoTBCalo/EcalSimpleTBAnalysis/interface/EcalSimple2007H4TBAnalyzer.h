@@ -9,7 +9,6 @@
      <Notes on implementation>
 */
 //
-// $Id: EcalSimple2007H4TBAnalyzer.h,v 1.2 2010/01/04 15:09:12 ferriff Exp $
 //
 
 

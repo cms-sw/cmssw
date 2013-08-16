@@ -50,8 +50,6 @@ process.GEN = cms.OutputModule("PoolOutputModule",
 )
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.1 $'),
-    name = cms.untracked.string('$Source: /local/reps/CMSSW/CMSSW/Validation/MuonHits/python/GenMuonMinE100GeV_cfg.py,v $'),
     annotation = cms.untracked.string('gen. muons for muon subsystems validation scan')
 )
 process.outpath = cms.EndPath(process.GEN)

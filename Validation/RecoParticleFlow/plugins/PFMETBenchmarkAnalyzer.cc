@@ -14,7 +14,6 @@
 //
 // Original Author:  Michel Della Negra
 //         Created:  Wed Jan 23 10:11:13 CET 2008
-// $Id: PFMETBenchmarkAnalyzer.cc,v 1.4 2010/02/20 21:02:45 wmtan Exp $
 // Extensions by Joanna Weng
 //
 

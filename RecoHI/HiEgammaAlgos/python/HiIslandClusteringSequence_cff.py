@@ -1,7 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
 #
-# $Id: HiIslandClusteringSequence_cff.py,v 1.1 2010/10/26 10:29:41 yjlee Exp $
 #
 #------------------
 #Island clustering:

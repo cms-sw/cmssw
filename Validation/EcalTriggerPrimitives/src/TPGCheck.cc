@@ -13,8 +13,6 @@
 //
 // Original Author:  Muriel Cerutti
 //         Created:  Thu Oct 26 10:47:17 CEST 2006
-// $Id: TPGCheck.cc,v 1.3 2009/12/18 20:45:11 wmtan Exp $
-// $Id: TPGCheck.cc,v 1.3 2009/12/18 20:45:11 wmtan Exp $
 //
 
 

@@ -2,8 +2,6 @@
 /*
  * \file DTLocalTriggerSynchTask.cc
  * 
- * $Date: 2010/04/19 13:59:00 $
- * $Revision: 1.7 $
  * \author C. Battilana - CIEMAT
  *
 */

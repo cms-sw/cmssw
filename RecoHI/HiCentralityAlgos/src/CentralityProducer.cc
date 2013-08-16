@@ -13,7 +13,6 @@
 //
 // Original Author:  Yetkin Yilmaz, Young Soo Park
 //         Created:  Wed Jun 11 15:31:41 CEST 2008
-// $Id: CentralityProducer.cc,v 1.40 2012/12/26 23:38:37 wmtan Exp $
 //
 //
 

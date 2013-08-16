@@ -1,4 +1,3 @@
-// $Id: L1Scalers.cc,v 1.27 2011/12/31 12:26:03 eulisse Exp $
 #include <iostream>
 
 

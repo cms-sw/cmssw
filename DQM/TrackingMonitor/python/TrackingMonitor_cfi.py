@@ -11,7 +11,8 @@ TrackMon = cms.EDAnalyzer("TrackingMonitor",
     ClusterLabels    = cms.vstring('Tot'), # to decide which Seeds-Clusters correlation plots to have default is Total other options 'Strip', 'Pix'
     beamSpot         = cms.InputTag("offlineBeamSpot"),
     primaryVertex    = cms.InputTag('offlinePrimaryVertices'),
-
+    stripCluster     = cms.InputTag('siStripClusters'),
+    pixelCluster     = cms.InputTag('siPixelClusters'),                          
     BXlumiSetup      = BXlumiSetup.clone(),                              
 #    lumi             = cms.InputTag('lumiProducer'),
 #  # taken from 

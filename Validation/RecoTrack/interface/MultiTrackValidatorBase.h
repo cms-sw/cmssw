@@ -4,8 +4,6 @@
 /** \class MultiTrackValidatorBase
  *  Base class for analyzers that produces histrograms to validate Track Reconstruction performances
  *
- *  $Date: 2012/12/03 11:19:34 $
- *  $Revision: 1.30 $
  *  \author cerati
  */
 

@@ -1,8 +1,6 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2012/10/10 04:00:00 $
- *  $Revision: 1.32 $
  *  \author Michael B. Anderson, University of Wisconsin Madison
  */
 

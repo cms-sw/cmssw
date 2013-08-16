@@ -1,7 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
 #
-# $Id: fixedMatrixSuperClusters_cfi.py,v 1.2 2008/04/21 03:24:08 rpw Exp $
 #
 # Fixed Matrix SuperCluster producer
 fixedMatrixSuperClusters = cms.EDProducer("FixedMatrixSuperClusterProducer",

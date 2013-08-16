@@ -8,7 +8,6 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Jun 22 19:46:34 EDT 2005
-// $Id: DepOn2Record.cc,v 1.1 2006/06/05 15:01:33 chrjones Exp $
 //
 
 // system include files

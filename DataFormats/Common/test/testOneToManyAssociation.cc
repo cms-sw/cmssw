@@ -1,4 +1,3 @@
-// $Id: testOneToManyAssociation.cc,v 1.16 2007/01/22 23:56:59 wmtan Exp $
 #include <cppunit/extensions/HelperMacros.h>
 #include <algorithm>
 #include <iterator>

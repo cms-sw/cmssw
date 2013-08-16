@@ -13,7 +13,7 @@
 //
 // Original Author:  Johannes Hauk
 //         Created:  Sat Aug 22 10:31:34 CEST 2009
-// $Id: TrackerOfflineValidationSummary.cc,v 1.8 2013/01/07 20:46:23 wmtan Exp $
+// $Id: TrackerOfflineValidationSummary.cc,v 1.7 2012/06/30 09:09:47 eulisse Exp $
 //
 //
 
@@ -98,8 +98,8 @@ class TrackerOfflineValidationSummary : public edm::EDAnalyzer {
 	HarvestingHistos harvestingHistos;
       };
       
-      virtual void analyze(const edm::Event& evt, const edm::EventSetup&);
-      virtual void endJob() ;
+      virtual void analyze(const edm::Event& evt, const edm::EventSetup&) override;
+      virtual void endJob() override ;
       
       void fillTree(TTree& tree, std::map<int, TrackerOfflineValidationSummary::ModuleHistos>& moduleHist, 
 		TkOffTreeVariables& treeMem, const TrackerGeometry& tkgeom,

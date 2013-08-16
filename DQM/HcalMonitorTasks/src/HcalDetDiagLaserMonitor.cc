@@ -13,7 +13,6 @@
 //
 // Original Author:  Dmitry Vishnevskiy,591 R-013,+41227674265,
 //         Created:  Wed Mar  3 12:14:16 CET 2010
-// $Id: HcalDetDiagLaserMonitor.cc,v 1.21 2012/08/30 21:48:48 wdd Exp $
 //
 //
 

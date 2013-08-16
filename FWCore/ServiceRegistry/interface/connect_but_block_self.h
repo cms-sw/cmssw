@@ -17,7 +17,6 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Sep 22 20:42:32 CEST 2005
-// $Id: connect_but_block_self.h,v 1.4 2013/01/20 17:05:07 chrjones Exp $
 //
 
 // system include files

@@ -3,7 +3,6 @@
    Declaration of class EcalSeverityLevelAlgo
 
    \author Stefano Argiro
-   \version $Id: EcalSeverityLevelAlgo.h,v 1.30 2011/04/12 08:04:25 argiro Exp $
    \date 10 Jan 2011
 */
 

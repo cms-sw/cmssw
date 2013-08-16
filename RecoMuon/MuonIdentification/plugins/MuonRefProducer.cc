@@ -5,7 +5,6 @@
 // 
 //
 // Original Author:  Dmytro Kovalskyi
-// $Id: MuonRefProducer.cc,v 1.5 2010/03/25 14:08:49 jribnik Exp $
 //
 //
 

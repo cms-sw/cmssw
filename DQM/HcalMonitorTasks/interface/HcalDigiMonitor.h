@@ -24,8 +24,6 @@
 
 /** \class HcalDigiMonitor
   *  
-  * $Date: 2012/06/27 13:20:29 $
-  * $Revision: 1.71 $
   * \author J. Temple - Univ. of Maryland
   */
 

@@ -4,8 +4,6 @@
 /** \class MuRingForwardLayer
  *  A plane composed of disks (MuRingForwardDisk). Represents forward muon CSC/RPC stations.
  *
- *  $Date: 2007/06/14 17:22:41 $
- *  $Revision: 1.9 $
  *  \author N. Amapane - INFN Torino
  *
  */

@@ -2,8 +2,6 @@
  *  
  *  See header file for description of class
  *
- *  $Date: 2010/01/06 14:24:50 $
- *  $Revision: 1.8 $
  *  \author M. Strang SUNY-Buffalo
  */
 

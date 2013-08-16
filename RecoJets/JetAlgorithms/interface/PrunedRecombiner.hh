@@ -1,4 +1,3 @@
-// $Id: PrunedRecombiner.hh,v 1.1 2011/04/25 04:19:54 srappocc Exp $
 ///////////////////////////////////////////////////////////////////////////////
 //
 // The PrunedRecombiner class.  This class extends any Recombiner

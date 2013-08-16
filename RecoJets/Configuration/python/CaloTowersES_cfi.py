@@ -8,7 +8,6 @@ CaloTowerConstituentsMapBuilder.MapFile = "Geometry/CaloTopology/data/CaloTowerE
 ## import Geometry.HcalEventSetup.hcalTopologyConstants_cfi as hcalTopologyConstants_cfi
 ## caloTowerConstituentsMapBuilder.hcalTopologyConstants = cms.PSet(hcalTopologyConstants_cfi.hcalTopologyConstants)
 
-# $Id: CaloTowersES_cfi.py,v 1.8 2012/09/14 16:13:57 gruen Exp $
 #
 # Event Setup necessary for CaloTowers reconstruction
 #

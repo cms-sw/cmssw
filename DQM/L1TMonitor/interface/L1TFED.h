@@ -4,8 +4,6 @@
 /*
  * \file L1TFED.h
  *
- * $Date: 2010/04/06 01:14:01 $
- * $Revision: 1.7 $
  * \author J. Berryhill
  *
 */

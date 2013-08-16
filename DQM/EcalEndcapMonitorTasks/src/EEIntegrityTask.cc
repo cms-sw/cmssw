@@ -1,8 +1,6 @@
 /*
  * \file EEIntegrityTask.cc
  *
- * $Date: 2012/04/27 13:46:15 $
- * $Revision: 1.61 $
  * \author G. Della Ricca
  *
  */

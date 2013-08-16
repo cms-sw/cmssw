@@ -13,7 +13,6 @@
 //
 // Original Author:  Stephen Sanders
 //         Created:  Fri Jun 11 12:56:15 EDT 2010
-// $Id: MoveFlatParamsToDB.cc,v 1.2 2011/10/07 09:41:29 yilmaz Exp $
 //
 //
 

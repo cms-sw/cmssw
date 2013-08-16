@@ -13,7 +13,6 @@
 //
 // Original Author:  Brian Drell
 //         Created:  Wed Feb 18 17:21:04 MST 2009
-// $Id: V0Validator.h,v 1.6 2010/02/25 20:15:42 drell Exp $
 //
 //
 

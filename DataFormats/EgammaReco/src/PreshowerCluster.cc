@@ -1,5 +1,5 @@
 //
-// $Id: PreshowerCluster.cc,v 1.17 2013/04/22 22:53:03 wmtan Exp $
+// $Id: PreshowerCluster.cc,v 1.16 2009/01/27 09:53:06 ferriff Exp $
 //
 #include "DataFormats/EgammaReco/interface/PreshowerCluster.h"
 

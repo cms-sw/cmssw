@@ -13,7 +13,7 @@
 //
 // Original Author:  Nhan Tran
 //         Created:  Mon Jul 16m 16:56:34 CDT 2007
-// $Id: CosmicSplitterValidation.cc,v 1.12 2011/12/20 15:11:41 mussgill Exp $
+// $Id: CosmicSplitterValidation.cc,v 1.11 2010/03/29 13:18:43 mussgill Exp $
 //
 //
 
@@ -74,9 +74,9 @@ public:
 	
 	
 private:
-	virtual void beginJob();
-	virtual void analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup);
-	virtual void endJob() ;
+	virtual void beginJob() override;
+	virtual void analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) override;
+	virtual void endJob() override ;
 	
 	bool is_gold_muon(const edm::Event& e);
 	

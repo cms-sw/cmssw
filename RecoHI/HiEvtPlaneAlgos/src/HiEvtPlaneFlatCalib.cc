@@ -14,7 +14,6 @@
 //
 // Original Author:  Stephen Sanders
 //         Created:  Sat Jun 26 16:04:04 EDT 2010
-// $Id: HiEvtPlaneFlatCalib.cc,v 1.7 2012/02/15 11:04:09 eulisse Exp $
 //
 //
 

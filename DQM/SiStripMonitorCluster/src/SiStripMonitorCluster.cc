@@ -5,7 +5,6 @@
  */
 // Original Author:  Dorian Kcira
 //         Created:  Wed Feb  1 16:42:34 CET 2006
-// $Id: SiStripMonitorCluster.cc,v 1.87 2013/01/03 18:59:36 wmtan Exp $
 #include <vector>
 #include <numeric>
 #include <fstream>
@@ -21,8 +20,6 @@
 #include "CalibFormats/SiStripObjects/interface/SiStripGain.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripQuality.h"
 #include "DataFormats/SiStripCluster/interface/SiStripClusterCollection.h"
-#include "DataFormats/Common/interface/DetSetVector.h"
-#include "DataFormats/Common/interface/DetSetVectorNew.h"
 #include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
 #include "DQM/SiStripCommon/interface/SiStripFolderOrganizer.h"
 #include "DQM/SiStripCommon/interface/SiStripHistoId.h"
@@ -167,8 +164,12 @@ SiStripMonitorCluster::SiStripMonitorCluster(const edm::ParameterSet& iConfig)
 
 
   // Poducer name of input StripClusterCollection
+  clusterProducerStripToken_ = consumes<edmNew::DetSetVector<SiStripCluster> >(conf_.getParameter<edm::InputTag>("ClusterProducerStrip") );
+  clusterProducerPixToken_   = consumes<edmNew::DetSetVector<SiPixelCluster> >(conf_.getParameter<edm::InputTag>("ClusterProducerPix") );
+  /*
   clusterProducerStrip_ = conf_.getParameter<edm::InputTag>("ClusterProducerStrip");
   clusterProducerPix_ = conf_.getParameter<edm::InputTag>("ClusterProducerPix");
+  */
   // SiStrip Quality Label
   qualityLabel_  = conf_.getParameter<std::string>("StripQualityLabel");
   // cluster quality conditions 
@@ -180,10 +181,11 @@ SiStripMonitorCluster::SiStripMonitorCluster(const edm::ParameterSet& iConfig)
   widthUpperLimit_     = cluster_condition.getParameter<double>("maxWidth"); 
 
   // Event History Producer
-  historyProducer_ = conf_.getParameter<edm::InputTag>("HistoryProducer");
+  //  historyProducer_ = conf_.getParameter<edm::InputTag>("HistoryProducer");
+  historyProducerToken_ = consumes<EventWithHistory>(conf_.getParameter<edm::InputTag>("HistoryProducer") );
   // Apv Phase Producer
-  apvPhaseProducer_ = conf_.getParameter<edm::InputTag>("ApvPhaseProducer");
-
+  //  apvPhaseProducer_ = conf_.getParameter<edm::InputTag>("ApvPhaseProducer");
+  apvPhaseProducerToken_ = consumes<APVCyclePhaseCollection>(conf_.getParameter<edm::InputTag>("ApvPhaseProducer") );
   // Create DCS Status
   bool checkDCS    = conf_.getParameter<bool>("UseDCSFiltering");
   if (checkDCS) dcsStatus_ = new SiStripDCSStatus();
@@ -469,11 +471,13 @@ void SiStripMonitorCluster::analyze(const edm::Event& iEvent, const edm::EventSe
 
   // get collection of DetSetVector of clusters from Event
   edm::Handle< edmNew::DetSetVector<SiStripCluster> > cluster_detsetvektor;
-  iEvent.getByLabel(clusterProducerStrip_, cluster_detsetvektor);
+  //  iEvent.getByLabel(clusterProducerStrip_, cluster_detsetvektor);
+  iEvent.getByToken(clusterProducerStripToken_, cluster_detsetvektor);
 
   //get pixel clusters
   edm::Handle< edmNew::DetSetVector<SiPixelCluster> > cluster_detsetvektor_pix;
-  iEvent.getByLabel(clusterProducerPix_, cluster_detsetvektor_pix);
+  //  iEvent.getByLabel(clusterProducerPix_, cluster_detsetvektor_pix);
+  iEvent.getByToken(clusterProducerPixToken_, cluster_detsetvektor_pix);
 
   if (!cluster_detsetvektor.isValid()) return;
   
@@ -655,11 +659,13 @@ void SiStripMonitorCluster::analyze(const edm::Event& iEvent, const edm::EventSe
   
   //  EventHistory 
   edm::Handle<EventWithHistory> event_history;
-  iEvent.getByLabel(historyProducer_,event_history);
+  //  iEvent.getByLabel(historyProducer_,event_history);
+  iEvent.getByToken(historyProducerToken_,event_history);
   
   // Phase of APV
   edm::Handle<APVCyclePhaseCollection> apv_phase_collection;
-  iEvent.getByLabel(apvPhaseProducer_,apv_phase_collection);
+  //  iEvent.getByLabel(apvPhaseProducer_,apv_phase_collection);
+  iEvent.getByToken(apvPhaseProducerToken_,apv_phase_collection);
 
   if (event_history.isValid() 
         && !event_history.failedToGet()
@@ -1126,6 +1132,3 @@ int SiStripMonitorCluster::FindRegion(int nstrip,int npix){
   return region;
 
 }
-
-
-    

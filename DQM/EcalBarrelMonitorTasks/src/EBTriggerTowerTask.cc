@@ -1,8 +1,6 @@
 /*
  * \file EBTriggerTowerTask.cc
  *
- * $Date: 2012/04/27 13:46:03 $
- * $Revision: 1.111 $
  * \author G. Della Ricca
  * \author E. Di Marco
  *

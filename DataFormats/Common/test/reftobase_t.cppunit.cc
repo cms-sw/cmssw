@@ -1,4 +1,3 @@
-// $Id: reftobase_t.cppunit.cc,v 1.9 2010/09/01 19:47:35 chrjones Exp $
 #include <cppunit/extensions/HelperMacros.h>
 #include "DataFormats/Common/interface/RefToBase.h"
 #include "DataFormats/Common/interface/Ref.h"

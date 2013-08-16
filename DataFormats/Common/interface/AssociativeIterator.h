@@ -35,7 +35,6 @@
  *   }
  *
  *
- * \version $Id: AssociativeIterator.h,v 1.2 2009/11/04 15:30:19 wmtan Exp $
  *
  */
 

@@ -4,8 +4,6 @@
 /*
  * \file EESelectiveReadoutTask.h
  *
- * $Date: 2011/03/03 22:05:50 $
- * $Revision: 1.22 $
  * \author P. Gras
  * \author E. Di Marco
  *

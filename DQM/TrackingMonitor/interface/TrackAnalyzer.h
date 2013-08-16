@@ -8,10 +8,11 @@ Monitoring source for general quantities related to tracks.
 */
 // Original Author:  Suchandra Dutta, Giorgia Mila
 //         Created:  Thu 28 22:45:30 CEST 2008
-// $Id: TrackAnalyzer.h,v 1.16 2012/04/27 15:56:48 tosi Exp $
 
 #include <memory>
 #include <fstream>
+#include "FWCore/Utilities/interface/EDGetToken.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -20,13 +21,16 @@ Monitoring source for general quantities related to tracks.
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 
+#include "DataFormats/BeamSpot/interface/BeamSpot.h"
 
 class DQMStore;
 
+class BeamSpot;
 class TrackAnalyzer 
 {
     public:
         TrackAnalyzer(const edm::ParameterSet&);
+	TrackAnalyzer(const edm::ParameterSet&, edm::ConsumesCollector& iC);
         virtual ~TrackAnalyzer();
         virtual void beginJob(DQMStore * dqmStore_);
 
@@ -46,6 +50,8 @@ class TrackAnalyzer
 
         // ----------member data ---------------------------
 
+	edm::EDGetTokenT<reco::BeamSpot> beamSpotToken_;
+	
         edm::ParameterSet conf_;
 
         bool doTrackerSpecific_;

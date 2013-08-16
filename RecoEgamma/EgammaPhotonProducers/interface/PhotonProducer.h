@@ -3,9 +3,6 @@
 /** \class PhotonProducer
  **  
  **
- **  $Id: PhotonProducer.h,v 1.46 2013/02/27 20:33:00 eulisse Exp $ 
- **  $Date: 2013/02/27 20:33:00 $ 
- **  $Revision: 1.46 $
  **  \author Nancy Marinelli, U. of Notre Dame, US
  **
  ***/

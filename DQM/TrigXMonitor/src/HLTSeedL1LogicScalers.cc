@@ -1,5 +1,4 @@
 
-// $Id: HLTSeedL1LogicScalers.cc,v 1.9 2010/10/13 13:47:23 eulisse Exp $
 
 #include "DQM/TrigXMonitor/interface/HLTSeedL1LogicScalers.h"
 

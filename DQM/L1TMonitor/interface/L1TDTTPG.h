@@ -4,8 +4,6 @@
 /*
  * \file L1TDTTPG.h
  *
- * $Date: 2009/11/19 14:32:09 $
- * $Revision: 1.9 $
  * \author J. Berryhill
  *
  */

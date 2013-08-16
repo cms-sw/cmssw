@@ -5,8 +5,6 @@
  *
  *  Build the RPC DetLayers.
  *
- *  $Date: 2007/07/08 04:20:26 $
- *  $Revision: 1.9 $
  *  \author N. Amapane - CERN
  */
 

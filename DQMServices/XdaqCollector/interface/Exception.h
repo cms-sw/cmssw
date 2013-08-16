@@ -1,4 +1,3 @@
-// $Id: Exception.h,v 1.1 2008/07/01 13:22:26 ameyer Exp $
 
 /*************************************************************************
  * XDAQ Components for Distributed Data Acquisition                      *

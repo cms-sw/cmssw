@@ -1,7 +1,7 @@
 
 //
 // F.Ratnikov (UMd), Oct 28, 2005
-// $Id: HcalDbXml.cc,v 1.10 2012/11/12 20:53:38 dlange Exp $
+// $Id: HcalDbXml.cc,v 1.9 2008/11/10 10:13:28 rofierzy Exp $
 //
 #include <vector>
 #include <string>

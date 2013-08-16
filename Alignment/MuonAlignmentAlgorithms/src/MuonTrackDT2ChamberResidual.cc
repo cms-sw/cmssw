@@ -1,5 +1,5 @@
 /* 
- * $Id: MuonTrackDT2ChamberResidual.cc,v 1.1 2011/10/12 23:32:08 khotilov Exp $
+ * $Id: $
  */
 
 #include "Alignment/MuonAlignmentAlgorithms/interface/MuonTrackDT2ChamberResidual.h"

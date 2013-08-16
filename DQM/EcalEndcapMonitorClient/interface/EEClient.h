@@ -1,11 +1,8 @@
-// $Id: EEClient.h,v 1.21 2010/08/04 06:27:00 dellaric Exp $
 
 /*!
   \file EEClient.h
   \brief Ecal Barrel Monitor Client mom class
   \author B. Gobbo
-  \version $Revision: 1.21 $
-  \date $Date: 2010/08/04 06:27:00 $
 */
 
 

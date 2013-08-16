@@ -5,8 +5,6 @@
  *   information,<BR>
  *   starting from a standalone reonstructed muon.
  *
- *   $Date: 2010/11/19 22:06:12 $
- *   $Revision: 1.36 $
  *
  *   \author  R.Bellan - INFN TO
  */

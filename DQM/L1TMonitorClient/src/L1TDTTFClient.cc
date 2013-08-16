@@ -1,8 +1,6 @@
 /*
  * \file L1TDTTFClient.cc
  *
- * $Date: 2012/06/14 16:38:30 $
- * $Revision: 1.9 $
  * \author G. Codispoti
  *
  */

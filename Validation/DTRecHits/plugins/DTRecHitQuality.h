@@ -5,8 +5,6 @@
  *  Basic analyzer class which accesses 1D DTRecHits
  *  and plot resolution comparing reconstructed and simulated quantities
  *
- *  $Date: 2010/09/17 07:48:11 $
- *  $Revision: 1.10 $
  *  \author G. Cerminara - INFN Torino
  */
 

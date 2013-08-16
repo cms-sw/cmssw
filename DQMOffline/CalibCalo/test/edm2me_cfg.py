@@ -1,5 +1,5 @@
 #
-# $Id: edm2me_cfg.py,v 1.3 2009/05/07 12:54:54 argiro Exp $
+# $Id$
 # Author Stefano Argiro
 #
 # Extract histos from EDM root file

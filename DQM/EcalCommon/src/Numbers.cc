@@ -1,11 +1,8 @@
-// $Id: Numbers.cc,v 1.84 2012/04/27 13:46:04 yiiyama Exp $
 
 /*!
   \file Numbers.cc
   \brief Some "id" conversions
   \author B. Gobbo
-  \version $Revision: 1.84 $
-  \date $Date: 2012/04/27 13:46:04 $
 */
 
 #include <sstream>

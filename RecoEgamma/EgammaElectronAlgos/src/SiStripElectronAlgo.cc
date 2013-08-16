@@ -8,7 +8,6 @@
 //
 // Original Author:  Jim Pivarski
 //         Created:  Fri May 26 16:12:04 EDT 2006
-// $Id: SiStripElectronAlgo.cc,v 1.41 2013/01/02 18:59:12 dlange Exp $
 //
 
 // system include files

@@ -21,8 +21,6 @@
  * Reimplemented in terms of layer index, and bug fix: Tim.Cox@cern.ch <BR>
  * Ported to CMSSW 2006-04-03: Matteo.Sani@cern.ch <BR>
  *
- *  $Date: 2013/05/28 15:41:45 $
- *  $Revision: 1.11 $
  *  \author M. Sani
  */
 

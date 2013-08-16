@@ -16,7 +16,7 @@
 //
 // Author:      
 // Created:     Fri Mar 13 12:13:25 CET 2009
-// $Id: SiPixelLorentzAngleSimRcd.h,v 1.1 2009/03/19 15:54:43 fblekman Exp $
+// $Id$
 //
 
 #include "FWCore/Framework/interface/EventSetupRecordImplementation.h"

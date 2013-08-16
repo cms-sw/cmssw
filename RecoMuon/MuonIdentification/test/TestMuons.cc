@@ -6,8 +6,6 @@
  *
  * 
  *
- *  $Date: 2011/11/02 06:50:24 $
- *  $Revision: 1.7 $
  *  \author Dmytro Kovalskyi, R. Bellan - UCSB <riccardo.bellan@cern.ch> 
  */
 

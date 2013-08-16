@@ -13,7 +13,6 @@
 //
 // Original Author:  Giuseppe Cerati & Domenico Giordano
 //         Created:  Thu Mar 11 10:48:48 CET 2010
-// $Id: ConversionSeedFilter.cc,v 1.3 2013/02/27 14:58:16 muzaffar Exp $
 //
 //
 

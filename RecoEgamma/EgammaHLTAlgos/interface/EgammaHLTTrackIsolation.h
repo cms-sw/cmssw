@@ -15,7 +15,6 @@
 //
 // Original Author:  Monica Vazquez Acosta - CERN
 //         Created:  Tue Jun 13 12:19:32 CEST 2006
-// $Id: EgammaHLTTrackIsolation.h,v 1.6 2010/08/12 15:25:02 sharper Exp $
 //
 
 

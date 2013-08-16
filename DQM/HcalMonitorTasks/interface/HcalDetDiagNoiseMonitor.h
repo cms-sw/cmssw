@@ -23,8 +23,6 @@ class HcalDbService;
 
 /** \class HcalDetDiagNoiseMonitor
   *  
-  * $Date: 2012/11/12 20:52:11 $
-  * $Revision: 1.9 $
   * \author D. Vishnevskiy
   */
 

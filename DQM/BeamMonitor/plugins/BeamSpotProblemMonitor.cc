@@ -2,8 +2,6 @@
  * \file BeamSpotProblemMonitor.cc
  * \author Sushil S. Chauhan/UC Davis
  *        
- * $Date: 2012/12/10 05:07:33 $
- * $Revision: 1.3 $
  */
 
 

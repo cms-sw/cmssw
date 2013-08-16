@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2012/10/03 13:34:09 $
- *  $Revision: 1.68 $
+ *  $Date: 2012/10/03 06:24:00 $
+ *  $Revision: 1.67 $
  *
  *  \author Martin Grunewald
  *
@@ -49,19 +49,19 @@ HLTConfigProvider::HLTConfigProvider():
 //}
 
 HLTConfigProvider::HLTConfigCounterSentry::HLTConfigCounterSentry() {
-  HLTConfigDataRegistry::instance()->extra().increment();
+  HLTConfigDataRegistry::instance()->extraForUpdate().increment();
 }
 
 HLTConfigProvider::HLTConfigCounterSentry::HLTConfigCounterSentry(HLTConfigCounterSentry const&) {
-  HLTConfigDataRegistry::instance()->extra().increment();
+  HLTConfigDataRegistry::instance()->extraForUpdate().increment();
 }
 
 HLTConfigProvider::HLTConfigCounterSentry::HLTConfigCounterSentry(HLTConfigCounterSentry &&) {
-  HLTConfigDataRegistry::instance()->extra().increment();
+  HLTConfigDataRegistry::instance()->extraForUpdate().increment();
 }
 
 HLTConfigProvider::HLTConfigCounterSentry::~HLTConfigCounterSentry() {
-  HLTConfigDataRegistry::instance()->extra().decrement();
+  HLTConfigDataRegistry::instance()->extraForUpdate().decrement();
 }
 
 bool HLTConfigProvider::init(const edm::Run& iRun, 

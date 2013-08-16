@@ -38,7 +38,6 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Jan 20 14:26:21 CST 2010
-// $Id: typelookup.h,v 1.3 2012/05/16 15:38:29 chrjones Exp $
 //
 
 // system include files

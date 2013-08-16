@@ -1,7 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
 #
-# $Id: multi5x5SuperClusters_cfi.py,v 1.4 2011/07/20 08:46:00 argiro Exp $
 #
 # Multi5x5 SuperCluster producer
 multi5x5SuperClustersCleaned = cms.EDProducer("Multi5x5SuperClusterProducer",

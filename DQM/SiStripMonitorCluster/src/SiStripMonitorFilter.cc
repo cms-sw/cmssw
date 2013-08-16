@@ -21,6 +21,9 @@ SiStripMonitorFilter::SiStripMonitorFilter(const edm::ParameterSet& iConfig)
   FilterDirectory="FilterResults";
   dqmStore_  = edm::Service<DQMStore>().operator->();
   conf_ = iConfig;
+
+  filerDecisionToken_ = consumes<int>(conf_.getParameter<std::string>("FilterProducer") );
+
 }
 
 void SiStripMonitorFilter::beginJob(){
@@ -32,8 +35,12 @@ void SiStripMonitorFilter::beginJob(){
 void SiStripMonitorFilter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   // get from event
+  /*
   std::string FilterProducer = conf_.getParameter<std::string>("FilterProducer");
   edm::Handle<int> filter_decision; iEvent.getByLabel(FilterProducer, "", filter_decision); // filter decision
+  */
+  edm::Handle<int> filter_decision; iEvent.getByToken(filerDecisionToken_,filter_decision); // filter decision
+
   // trigger decision
   FilterDecision->Fill(*filter_decision);
 }

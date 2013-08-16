@@ -101,9 +101,10 @@ namespace edm
 
 	 EBDigiStorage_.insert(EBDigiMap::value_type( ( it->id() ), *it ));
 #ifdef DEBUG	 
-         LogDebug("DataMixingEMDigiWorker") << "processed EBDigi with rawId: "
-				      << it->id().rawId() << "\n"
-				      << " digi energy: " << it->energy();
+         // Commented out because this does not compile anymore	 
+         // LogDebug("DataMixingEMDigiWorker") << "processed EBDigi with rawId: "
+         //                                    << it->id().rawId() << "\n"
+         //                                    << " digi energy: " << it->energy();
 #endif
        }
      }
@@ -129,9 +130,10 @@ namespace edm
 
 	 EEDigiStorage_.insert(EEDigiMap::value_type( ( it->id() ), *it ));
 #ifdef DEBUG	 
-	 LogDebug("DataMixingEMDigiWorker") << "processed EEDigi with rawId: "
-				      << it->id().rawId() << "\n"
-				      << " digi energy: " << it->energy();
+         // Commented out because this does not compile anymore	 
+	 // LogDebug("DataMixingEMDigiWorker") << "processed EEDigi with rawId: "
+         //                                    << it->id().rawId() << "\n"
+         //                                    << " digi energy: " << it->energy();
 #endif
 
        }
@@ -161,9 +163,10 @@ namespace edm
 	 ESDigiStorage_.insert(ESDigiMap::value_type( ( it->id() ), *it ));
 	 
 #ifdef DEBUG	 
-         LogDebug("DataMixingEMDigiWorker") << "processed ESDigi with rawId: "
-				      << it->id().rawId() << "\n"
-				      << " digi energy: " << it->energy();
+         // Commented out because this does not compile anymore	 
+         // LogDebug("DataMixingEMDigiWorker") << "processed ESDigi with rawId: "
+         //                                    << it->id().rawId() << "\n"
+         //                                    << " digi energy: " << it->energy();
 #endif
 
        }
@@ -171,7 +174,8 @@ namespace edm
     
   } // end of addEMSignals
 
-  void DataMixingEMDigiWorker::addEMPileups(const int bcr, const EventPrincipal *ep, unsigned int eventNr, const edm::EventSetup& ES) {
+  void DataMixingEMDigiWorker::addEMPileups(const int bcr, const EventPrincipal *ep, unsigned int eventNr, const edm::EventSetup& ES,
+                                            ModuleCallingContext const* mcc) {
   
     LogInfo("DataMixingEMDigiWorker") <<"\n===============> adding pileups from event  "<<ep->id()<<" for bunchcrossing "<<bcr;
 
@@ -180,7 +184,7 @@ namespace edm
     // EB first
 
     boost::shared_ptr<Wrapper<EBDigiCollection>  const> EBDigisPTR = 
-          getProductByTag<EBDigiCollection>(*ep, EBPileInputTag_ );
+      getProductByTag<EBDigiCollection>(*ep, EBPileInputTag_, mcc);
  
    if(EBDigisPTR ) {
 
@@ -195,9 +199,10 @@ namespace edm
        	 EBDigiStorage_.insert(EBDigiMap::value_type( (it->id()), *it ));
 	 
 #ifdef DEBUG	 
-       	 LogDebug("DataMixingEMDigiWorker") << "processed EBDigi with rawId: "
-       		      << it->id().rawId() << "\n"
-       		      << " digi energy: " << it->energy();
+         // Commented out because this does not compile anymore	 
+       	 // LogDebug("DataMixingEMDigiWorker") << "processed EBDigi with rawId: "
+         //                                    << it->id().rawId() << "\n"
+         //                                    << " digi energy: " << it->energy();
 #endif
       }
     }
@@ -205,7 +210,7 @@ namespace edm
     // EE Next
 
     boost::shared_ptr<Wrapper<EEDigiCollection>  const> EEDigisPTR =
-          getProductByTag<EEDigiCollection>(*ep, EEPileInputTag_ );
+      getProductByTag<EEDigiCollection>(*ep, EEPileInputTag_, mcc);
 
     if(EEDigisPTR ) {
 
@@ -219,16 +224,17 @@ namespace edm
        EEDigiStorage_.insert(EEDigiMap::value_type( (it->id()), *it ));
 	 
 #ifdef DEBUG	 
-       LogDebug("DataMixingEMDigiWorker") << "processed EEDigi with rawId: "
-				      << it->id().rawId() << "\n"
-				      << " digi energy: " << it->energy();
+       // Commented out because this does not compile anymore	 
+       // LogDebug("DataMixingEMDigiWorker") << "processed EEDigi with rawId: "
+       //                                    << it->id().rawId() << "\n"
+       //                                    << " digi energy: " << it->energy();
 #endif
      }
    }
     // ES Next
 
     boost::shared_ptr<Wrapper<ESDigiCollection>  const> ESDigisPTR =
-      getProductByTag<ESDigiCollection>(*ep, ESPileInputTag_ );
+      getProductByTag<ESDigiCollection>(*ep, ESPileInputTag_, mcc);
 
     if(ESDigisPTR ) {
 
@@ -242,9 +248,10 @@ namespace edm
 	ESDigiStorage_.insert(ESDigiMap::value_type( (it->id()), *it ));
 
 #ifdef DEBUG
-	LogDebug("DataMixingEMDigiWorker") << "processed ESDigi with rawId: "
-					   << it->id().rawId() << "\n"
-					   << " digi energy: " << it->energy();
+        // Commented out because this does not compile anymore	 
+        // LogDebug("DataMixingEMDigiWorker") << "processed ESDigi with rawId: "
+        //                                    << it->id().rawId() << "\n"
+        //                                    << " digi energy: " << it->energy();
 #endif
       }
     }

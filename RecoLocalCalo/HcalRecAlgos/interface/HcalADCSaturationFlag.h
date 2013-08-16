@@ -18,8 +18,6 @@
     QIE's have 7 bits (for a maximum ADC value of 2^7=127).  
     Is it better to hard-code to 127, or to allow the user to change it?
        
-    $Date: 2010/10/22 03:02:53 $
-    $Revision: 1.2 $
     \author J. Temple -- University of Maryland
 */
    

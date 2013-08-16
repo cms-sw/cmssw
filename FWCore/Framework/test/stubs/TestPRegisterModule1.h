@@ -16,7 +16,6 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Sat Sep 24 10:57:48 CEST 2005
-// $Id: TestPRegisterModule1.h,v 1.1 2005/09/28 17:32:56 chrjones Exp $
 //
 
 // system include files

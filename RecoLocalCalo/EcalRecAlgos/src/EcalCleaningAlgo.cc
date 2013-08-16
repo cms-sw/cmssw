@@ -1,6 +1,5 @@
 /* Implementation of class EcalCleaningAlgo
    \author Stefano Argiro
-   \version $Id: EcalCleaningAlgo.cc,v 1.9 2011/05/17 12:07:23 argiro Exp $
    \date 20 Dec 2010
 */    
 

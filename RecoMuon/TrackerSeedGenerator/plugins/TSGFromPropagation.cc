@@ -2,8 +2,6 @@
 
 /** \class TSGFromPropagation
  *
- *  $Date: 2013/01/08 17:08:25 $
- *  $Revision: 1.40 $
  *  \author Chang Liu - Purdue University 
  */
 

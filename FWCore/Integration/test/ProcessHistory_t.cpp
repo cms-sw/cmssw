@@ -51,9 +51,9 @@ int main() try {
   pnl3.push_back(iHLT);
   pnl3.push_back(iRECO);
 
-  edm::ProcessHistoryID id1 = pnl1.id();
-  edm::ProcessHistoryID id2 = pnl2.id();
-  edm::ProcessHistoryID id3 = pnl3.id();
+  edm::ProcessHistoryID id1 = pnl1.setProcessHistoryID();
+  edm::ProcessHistoryID id2 = pnl2.setProcessHistoryID();
+  edm::ProcessHistoryID id3 = pnl3.setProcessHistoryID();
 
   assert(id1 != id2);
   assert(id2 != id3);
@@ -61,7 +61,7 @@ int main() try {
 
   edm::ProcessHistory pnl4;
   pnl4.push_back(iHLT);
-  edm::ProcessHistoryID id4 = pnl4.id();
+  edm::ProcessHistoryID id4 = pnl4.setProcessHistoryID();
   assert(pnl4 == pnl2);
   assert (id4 == id2);
 
@@ -80,14 +80,14 @@ int main() try {
   edm::ProcessConfiguration pc7(std::string("HLT"), psetID, std::string("xb500yz872djk999patch10"), edm::getPassID());
   edm::ProcessConfiguration pc8(std::string("HLT"), psetID, std::string("CMSSW_4_4_0_pre5"), edm::getPassID());
 
-  pc1.id();
-  pc2.id();
-  pc3.id();
-  pc4.id();
-  pc5.id();
-  pc6.id();
-  pc7.id();
-  pc8.id();
+  pc1.setProcessConfigurationID();
+  pc2.setProcessConfigurationID();
+  pc3.setProcessConfigurationID();
+  pc4.setProcessConfigurationID();
+  pc5.setProcessConfigurationID();
+  pc6.setProcessConfigurationID();
+  pc7.setProcessConfigurationID();
+  pc8.setProcessConfigurationID();
 
   pc1.reduce();
   pc2.reduce();
@@ -134,27 +134,27 @@ int main() try {
   phTestExpected.push_back(iRECOreduced);
 
   edm::ProcessHistory phTest = pnl3;
-  phTest.id();
+  phTest.setProcessHistoryID();
   phTest.reduce();
   assert(phTest == phTestExpected);
   assert(phTest.id() == phTestExpected.id());
   assert(phTest.id() != pnl3.id());
 
   edm::ProcessHistoryRegistry::instance()->insertMapped(pnl3);
-  edm::ProcessHistoryID reducedPHID = edm::ProcessHistoryRegistry::instance()->extra().reduceProcessHistoryID(pnl3.id());
+  edm::ProcessHistoryID reducedPHID = edm::ProcessHistoryRegistry::instance()->extraForUpdate().reduceProcessHistoryID(pnl3.id());
   assert(reducedPHID == phTest.id());
 
   // Repeat a few times to test the caching optimization in FullHistoryToReducedHistoryMap
   // (You have to watch in a debugger to really verify it is working properly)
-  reducedPHID = edm::ProcessHistoryRegistry::instance()->extra().reduceProcessHistoryID(pnl3.id());
+  reducedPHID = edm::ProcessHistoryRegistry::instance()->extraForUpdate().reduceProcessHistoryID(pnl3.id());
   assert(reducedPHID == phTest.id());
 
   edm::ProcessHistoryRegistry::instance()->insertMapped(pnl2);
-  reducedPHID = edm::ProcessHistoryRegistry::instance()->extra().reduceProcessHistoryID(pnl2.id());
+  reducedPHID = edm::ProcessHistoryRegistry::instance()->extraForUpdate().reduceProcessHistoryID(pnl2.id());
   pnl2.reduce();
   assert(reducedPHID == pnl2.id());
 
-  reducedPHID = edm::ProcessHistoryRegistry::instance()->extra().reduceProcessHistoryID(pnl3.id());
+  reducedPHID = edm::ProcessHistoryRegistry::instance()->extraForUpdate().reduceProcessHistoryID(pnl3.id());
   assert(reducedPHID == phTest.id());
 
   {
@@ -189,14 +189,14 @@ int main() try {
     ph3.push_back(pc3);
     ph4.push_back(pc4);
 
-    edm::ProcessHistoryID phid1 = ph1.id();
-    edm::ProcessHistoryID phid1a = ph1a.id();
-    edm::ProcessHistoryID phid1b = ph1b.id();
-    edm::ProcessHistoryID phid2 = ph2.id();
-    edm::ProcessHistoryID phid2a = ph2a.id();
-    edm::ProcessHistoryID phid2b = ph2b.id();
-    edm::ProcessHistoryID phid3 = ph3.id();
-    edm::ProcessHistoryID phid4 = ph4.id();
+    edm::ProcessHistoryID phid1 = ph1.setProcessHistoryID();
+    edm::ProcessHistoryID phid1a = ph1a.setProcessHistoryID();
+    edm::ProcessHistoryID phid1b = ph1b.setProcessHistoryID();
+    edm::ProcessHistoryID phid2 = ph2.setProcessHistoryID();
+    edm::ProcessHistoryID phid2a = ph2a.setProcessHistoryID();
+    edm::ProcessHistoryID phid2b = ph2b.setProcessHistoryID();
+    edm::ProcessHistoryID phid3 = ph3.setProcessHistoryID();
+    edm::ProcessHistoryID phid4 = ph4.setProcessHistoryID();
 
     edm::ProcessHistoryRegistry::instance()->insertMapped(ph1);
     edm::ProcessHistoryRegistry::instance()->insertMapped(ph1a);

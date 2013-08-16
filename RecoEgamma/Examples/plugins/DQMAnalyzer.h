@@ -9,7 +9,6 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: DQMAnalyzer.h,v 1.6 2012/09/13 20:08:31 wdd Exp $
 //
 //
 

@@ -9,8 +9,6 @@
  * SimTracker/TrackAssociation.  The association can then be used in
  * Validation packages, such as Validation/RecoMuon/MuonTrackValidator.cc
  *
- *  $Date: 2010/03/22 08:49:54 $
- *  $Revision: 1.3 $
  *
  *  \author Adam Everett        Purdue University
  */

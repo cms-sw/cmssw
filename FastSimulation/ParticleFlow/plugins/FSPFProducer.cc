@@ -14,7 +14,8 @@ using namespace reco;
 FSPFProducer::FSPFProducer(const edm::ParameterSet& iConfig) {
  
   labelPFCandidateCollection_ = iConfig.getParameter < edm::InputTag > ("pfCandidates");
-  
+
+  pfPatchInHF = iConfig.getParameter<bool>("pfPatchInHF");
   EM_HF_ScaleFactor = iConfig.getParameter< std::vector <double> >("EM_HF_ScaleFactor");
   HF_Ratio   = iConfig.getParameter<double>("HF_Ratio");
   par1       = iConfig.getParameter<double>("par1");
@@ -71,27 +72,31 @@ FSPFProducer::produce(Event& iEvent,
     
     // Second part: deal with HF, and put every candidate of the old collection in the new collection
     if(itCand->particleId() == reco::PFCandidate::egamma_HF){
-      n_em_HF++;
-      
-      if(fabs(itCand->eta())< 4.) vEta = 0;
-      else if(fabs(itCand->eta())<= 5.) vEta = 1;
-
-      if (vEta==0 || vEta==1) {
-	// copy these PFCandidates after the momentum rescaling
-	px = EM_HF_ScaleFactor[vEta]*itCand->px();
-	py = EM_HF_ScaleFactor[vEta]*itCand->py();
-	pz = EM_HF_ScaleFactor[vEta]*itCand->pz();
-	en = sqrt(px*px + py*py + pz*pz); 
-	math::XYZTLorentzVector momentum(px,py,pz,en);
-	reco::PFCandidate EMHF(itCand->charge(), momentum,  reco::PFCandidate::egamma_HF);
-	if(en>0.) pOutputCandidateCollection->push_back(EMHF);
-      }
+      if (pfPatchInHF) {
+	n_em_HF++;
+	
+	if(fabs(itCand->eta())< 4.) vEta = 0;
+	else if(fabs(itCand->eta())<= 5.) vEta = 1;
+	
+	if (vEta==0 || vEta==1) {
+	  // copy these PFCandidates after the momentum rescaling
+	  px = EM_HF_ScaleFactor[vEta]*itCand->px();
+	  py = EM_HF_ScaleFactor[vEta]*itCand->py();
+	  pz = EM_HF_ScaleFactor[vEta]*itCand->pz();
+	  en = sqrt(px*px + py*py + pz*pz); 
+	  math::XYZTLorentzVector momentum(px,py,pz,en);
+	  reco::PFCandidate EMHF(itCand->charge(), momentum,  reco::PFCandidate::egamma_HF);
+	  if(en>0.) pOutputCandidateCollection->push_back(EMHF);
+	}
+      } else pOutputCandidateCollection->push_back(*itCand);
     }
     
     else if(itCand->particleId() == reco::PFCandidate::h_HF){
-      // copy these PFCandidates to the new particles Collection only if hadron candidates are currently more than EM candidates
-      n_hadron_HF++;
-      if(n_em_HF < (n_hadron_HF*HF_Ratio)) pOutputCandidateCollection->push_back(*itCand);
+      if (pfPatchInHF) {
+	// copy these PFCandidates to the new particles Collection only if hadron candidates are currently more than EM candidates
+	n_hadron_HF++;
+	if(n_em_HF < (n_hadron_HF*HF_Ratio)) pOutputCandidateCollection->push_back(*itCand);
+      } else pOutputCandidateCollection->push_back(*itCand);
     }
 
     else  pOutputCandidateCollection->push_back(*itCand);

@@ -1,4 +1,3 @@
-// Last commit: $Id: NoiseHistosUsingDb.cc,v 1.6 2012/08/09 17:19:21 eulisse Exp $
 
 #include "DQM/SiStripCommissioningDbClients/interface/NoiseHistosUsingDb.h"
 #include "CondFormats/SiStripObjects/interface/NoiseAnalysis.h"

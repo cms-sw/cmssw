@@ -1,4 +1,3 @@
-// $Id: cloningptr_t.cppunit.cc,v 1.2 2007/08/06 22:16:53 wmtan Exp $
 #include <cppunit/extensions/HelperMacros.h>
 #include "DataFormats/Common/interface/CloningPtr.h"
 

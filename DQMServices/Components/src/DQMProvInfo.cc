@@ -2,9 +2,6 @@
  * \file DQMProvInfo.cc
  * \author A.Raval / A.Meyer - DESY
  * Last Update:
- * $Date: 2012/12/01 03:54:21 $
- * $Revision: 1.32 $
- * $Author: wmtan $
  *
  */
 

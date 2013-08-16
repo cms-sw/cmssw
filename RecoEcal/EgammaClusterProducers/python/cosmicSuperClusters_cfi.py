@@ -1,7 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
 #
-# $Id: cosmicSuperClusters_cfi.py,v 1.4 2009/11/26 17:52:42 dlevans Exp $
 #
 # Moved to Multi5x5SuperCluster producer
 cosmicSuperClusters = cms.EDProducer("Multi5x5SuperClusterProducer",

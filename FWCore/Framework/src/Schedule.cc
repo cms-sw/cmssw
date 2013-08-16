@@ -83,7 +83,8 @@ namespace edm {
       ModuleDescription md(trig_pset->id(),
                            "TriggerResultInserter",
                            "TriggerResults",
-                           processConfiguration.get());
+                           processConfiguration.get(),
+                           ModuleDescription::getUniqueID());
 
       areg->preModuleConstructionSignal_(md);
       std::unique_ptr<EDProducer> producer(new TriggerResultInserter(*trig_pset, trptr));
@@ -160,7 +161,7 @@ namespace edm {
         // No product was found matching the alias.
         // We throw an exception only if a module with the specified module label was created in this process.
         for(auto const& product : preg.productList()) {
-          if(moduleLabel == product.first.moduleLabel_ && processName == product.first.processName_) {
+          if(moduleLabel == product.first.moduleLabel() && processName == product.first.processName()) {
             throw Exception(errors::Configuration, "EDAlias does not match data\n")
               << "There are no products of type '" << friendlyClassName << "'\n"
               << "with module label '" << moduleLabel << "' and instance name '" << productInstanceName << "'.\n";
@@ -184,7 +185,7 @@ namespace edm {
             << "The module label alias '" << alias << "' and product instance alias '" << theInstanceAlias << "'\n"
             << "are used for multiple products of type '" << friendlyClassName << "'\n"
             << "One has module label '" << moduleLabel << "' and product instance name '" << productInstanceName << "',\n"
-            << "the other has module label '" << iter->second.moduleLabel_ << "' and product instance name '" << iter->second.productInstanceName_ << "'.\n";
+            << "the other has module label '" << iter->second.moduleLabel() << "' and product instance name '" << iter->second.productInstanceName() << "'.\n";
         }
       } else {
         auto prodIter = preg.productList().find(key);
@@ -234,20 +235,20 @@ namespace edm {
               bool match = false;
               BranchKey lowerBound(friendlyClassName, moduleLabel, empty, empty);
               for(ProductRegistry::ProductList::const_iterator it = preg.productList().lower_bound(lowerBound);
-                  it != preg.productList().end() && it->first.friendlyClassName_ == friendlyClassName && it->first.moduleLabel_ == moduleLabel;
+                  it != preg.productList().end() && it->first.friendlyClassName() == friendlyClassName && it->first.moduleLabel() == moduleLabel;
                   ++it) {
-                if(it->first.processName_ != processName) {
+                if(it->first.processName() != processName) {
                   continue;
                 }
                 match = true;
 
-                checkAndInsertAlias(friendlyClassName, moduleLabel, it->first.productInstanceName_, processName, alias, instanceAlias, preg, aliasMap, aliasKeys);
+                checkAndInsertAlias(friendlyClassName, moduleLabel, it->first.productInstanceName(), processName, alias, instanceAlias, preg, aliasMap, aliasKeys);
               }
               if(!match) {
                 // No product was found matching the alias.
                 // We throw an exception only if a module with the specified module label was created in this process.
                 for(auto const& product : preg.productList()) {
-                  if(moduleLabel == product.first.moduleLabel_ && processName == product.first.processName_) {
+                  if(moduleLabel == product.first.moduleLabel() && processName == product.first.processName()) {
                     throw Exception(errors::Configuration, "EDAlias parameter set mismatch\n")
                        << "There are no products of type '" << friendlyClassName << "'\n"
                        << "with module label '" << moduleLabel << "'.\n";
@@ -266,7 +267,7 @@ namespace edm {
       for(auto const& aliasEntry : aliasMap) {
         ProductRegistry::ProductList::const_iterator it = preg.productList().find(aliasEntry.first);
         assert(it != preg.productList().end()); 
-        preg.addLabelAlias(it->second, aliasEntry.second.moduleLabel_, aliasEntry.second.productInstanceName_);
+        preg.addLabelAlias(it->second, aliasEntry.second.moduleLabel(), aliasEntry.second.productInstanceName());
       }
 
     }
@@ -285,7 +286,9 @@ namespace edm {
                      ActionTable const& actions,
                      boost::shared_ptr<ActivityRegistry> areg,
                      boost::shared_ptr<ProcessConfiguration> processConfiguration,
-                     const ParameterSet* subProcPSet) :
+                     const ParameterSet* subProcPSet,
+                     StreamID streamID,
+                     ProcessContext const* processContext) :
     workerManager_(areg, actions),
     actReg_(areg),
     state_(Ready),
@@ -301,6 +304,8 @@ namespace edm {
     total_events_(),
     total_passed_(),
     stopwatch_(wantSummary_? new RunStopwatch::StopwatchPointer::element_type : static_cast<RunStopwatch::StopwatchPointer::element_type*> (nullptr)),
+    streamID_(streamID),
+    streamContext_(streamID_, processContext),
     endpathsAreActive_(true) {
 
     ParameterSet const& opts = proc_pset.getUntrackedParameterSet("options", ParameterSet());
@@ -391,8 +396,9 @@ namespace edm {
     processEDAliases(proc_pset, processConfiguration->processName(), preg);
 
     proc_pset.registerIt();
-    pset::Registry::instance()->extra().setID(proc_pset.id());
+    pset::Registry::instance()->extraForUpdate().setID(proc_pset.id());
     processConfiguration->setParameterSetID(proc_pset.id());
+    processConfiguration->setProcessConfigurationID();
 
     initializeEarlyDelete(opts,preg,subProcPSet);
     
@@ -414,13 +420,6 @@ namespace edm {
 
     loadMissingDictionaries();
 
-    preg.setFrozen();
-
-    for (auto c : all_output_communicators_) {
-      c->setEventSelectionInfo(outputModulePathPositions, preg.anyProductProduced());
-      c->selectProducts(preg);
-    }
-
     // Sanity check: make sure nobody has added a worker after we've
     // already relied on the WorkerManager being full.
     assert (all_workers_count == allWorkers().size());
@@ -428,6 +427,14 @@ namespace edm {
     ProcessConfigurationRegistry::instance()->insertMapped(*processConfiguration);
     branchIDListHelper.updateRegistries(preg);
     fillProductRegistryTransients(*processConfiguration, preg);
+
+    preg.setFrozen();
+
+    for (auto c : all_output_communicators_) {
+      c->setEventSelectionInfo(outputModulePathPositions, preg.anyProductProduced());
+      c->selectProducts(preg);
+    }
+
   } // Schedule::Schedule
 
   
@@ -824,7 +831,7 @@ namespace edm {
 
     // an empty path will cause an extra bit that is not used
     if (!tmpworkers.empty()) {
-      Path p(bitpos, name, tmpworkers, trptr, actionTable(), actReg_, false);
+      Path p(bitpos, name, tmpworkers, trptr, actionTable(), actReg_, false, &streamContext_);
       if (wantSummary_) {
         p.useStopwatch();
       }
@@ -849,7 +856,7 @@ namespace edm {
     }
 
     if (!tmpworkers.empty()) {
-      Path p(bitpos, name, tmpworkers, endpath_results_, actionTable(), actReg_, true);
+      Path p(bitpos, name, tmpworkers, endpath_results_, actionTable(), actReg_, true, &streamContext_);
       if (wantSummary_) {
         p.useStopwatch();
       }
@@ -1221,12 +1228,12 @@ namespace edm {
     for_all(all_output_communicators_, boost::bind(&OutputModuleCommunicator::openFile, _1, boost::cref(fb)));
   }
 
-  void Schedule::writeRun(RunPrincipal const& rp) {
-    for_all(all_output_communicators_, boost::bind(&OutputModuleCommunicator::writeRun, _1, boost::cref(rp)));
+  void Schedule::writeRun(RunPrincipal const& rp, ProcessContext const* processContext) {
+    for_all(all_output_communicators_, boost::bind(&OutputModuleCommunicator::writeRun, _1, boost::cref(rp), processContext));
   }
 
-  void Schedule::writeLumi(LuminosityBlockPrincipal const& lbp) {
-    for_all(all_output_communicators_, boost::bind(&OutputModuleCommunicator::writeLumi, _1, boost::cref(lbp)));
+  void Schedule::writeLumi(LuminosityBlockPrincipal const& lbp, ProcessContext const* processContext) {
+    for_all(all_output_communicators_, boost::bind(&OutputModuleCommunicator::writeLumi, _1, boost::cref(lbp), processContext));
   }
 
   bool Schedule::shouldWeCloseOutput() const {
@@ -1244,16 +1251,16 @@ namespace edm {
     for_all(allWorkers(), boost::bind(&Worker::respondToCloseInputFile, _1, boost::cref(fb)));
   }
 
-  void Schedule::respondToOpenOutputFiles(FileBlock const& fb) {
-    for_all(allWorkers(), boost::bind(&Worker::respondToOpenOutputFiles, _1, boost::cref(fb)));
-  }
-
-  void Schedule::respondToCloseOutputFiles(FileBlock const& fb) {
-    for_all(allWorkers(), boost::bind(&Worker::respondToCloseOutputFiles, _1, boost::cref(fb)));
-  }
-
   void Schedule::beginJob(ProductRegistry const& iRegistry) {
     workerManager_.beginJob(iRegistry);
+  }
+  
+  void Schedule::beginStream() {
+    workerManager_.beginStream(streamID_, streamContext_);
+  }
+  
+  void Schedule::endStream() {
+    workerManager_.endStream(streamID_, streamContext_);
   }
 
   void Schedule::preForkReleaseResources() {

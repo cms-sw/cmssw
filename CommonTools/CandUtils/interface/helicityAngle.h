@@ -11,9 +11,9 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Revision: 1.1 $
+ * \version $Revision: 1.7 $
  *
- * $Id: helicityAngle.h,v 1.1 2009/02/26 09:17:34 llista Exp $
+ * $Id: helicityAngle.h,v 1.7 2007/12/11 08:42:52 hegner Exp $
  *
  */
 #include "DataFormats/Candidate/interface/CandidateFwd.h"

@@ -16,7 +16,6 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Sep  5 19:51:59 EDT 2005
-// $Id: DummyService.h,v 1.2 2010/01/19 22:37:05 wdd Exp $
 //
 
 // system include files

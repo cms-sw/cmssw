@@ -27,7 +27,9 @@
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 namespace edm {
+   class ModuleCallingContext;
    class ParameterSet;
+
    class GetProductCheckerOutputModule : public OutputModule {
    public:
       // We do not take ownership of passed stream.
@@ -36,9 +38,9 @@ namespace edm {
       static void fillDescriptions(ConfigurationDescriptions& descriptions);
 
    private:
-      virtual void write(EventPrincipal const& e);
-      virtual void writeLuminosityBlock(LuminosityBlockPrincipal const&);
-      virtual void writeRun(RunPrincipal const&);
+      virtual void write(EventPrincipal const& e, edm::ModuleCallingContext const*) override;
+      virtual void writeLuminosityBlock(LuminosityBlockPrincipal const&, edm::ModuleCallingContext const*) override;
+      virtual void writeRun(RunPrincipal const&, edm::ModuleCallingContext const*) override;
    };
 
 //
@@ -77,7 +79,7 @@ namespace edm {
 //
 // member functions
 //
-   static void check(Principal const& p, std::string const& id) {
+   static void check(Principal const& p, std::string const& id, edm::ModuleCallingContext const* mcc) {
       for(Principal::const_iterator it = p.begin(), itEnd = p.end();
           it != itEnd;
           ++it) {
@@ -85,17 +87,18 @@ namespace edm {
            if (!(*it)->singleProduct()) continue;
 
             BranchID branchID = (*it)->branchDescription().branchID();
-            OutputHandle const oh = p.getForOutput(branchID, false);
+            OutputHandle const oh = p.getForOutput(branchID, false, mcc);
             
             if(0 != oh.desc() && oh.desc()->branchID() != branchID) {
                throw cms::Exception("BranchIDMissMatch") << "While processing " << id << " request for BranchID " << branchID << " returned BranchID " << oh.desc()->branchID() << "\n";
             }
-            
+           
             TypeID const& tid((*it)->branchDescription().unwrappedTypeID());
             BasicHandle bh = p.getByLabel(PRODUCT_TYPE, tid,
             (*it)->branchDescription().moduleLabel(),
             (*it)->branchDescription().productInstanceName(),
-            (*it)->branchDescription().processName());
+            (*it)->branchDescription().processName(),
+                                          nullptr, mcc);
             
             /*This doesn't appear to be an error, it just means the Product isn't available, which can be legitimate
             if(!bh.product()) {
@@ -110,20 +113,20 @@ namespace edm {
          }
       }
    }
-   void GetProductCheckerOutputModule::write(EventPrincipal const& e) {
+   void GetProductCheckerOutputModule::write(EventPrincipal const& e, edm::ModuleCallingContext const* mcc) {
       std::ostringstream str;
       str << e.id();
-      check(e, str.str());
+      check(e, str.str(), mcc);
    }
-   void GetProductCheckerOutputModule::writeLuminosityBlock(LuminosityBlockPrincipal const& l) {
+   void GetProductCheckerOutputModule::writeLuminosityBlock(LuminosityBlockPrincipal const& l, edm::ModuleCallingContext const* mcc) {
       std::ostringstream str;
       str << l.id();
-      check(l, str.str());
+      check(l, str.str(), mcc);
    }
-   void GetProductCheckerOutputModule::writeRun(RunPrincipal const& r) {
+   void GetProductCheckerOutputModule::writeRun(RunPrincipal const& r, edm::ModuleCallingContext const* mcc) {
       std::ostringstream str;
       str << r.id();
-      check(r, str.str());
+      check(r, str.str(), mcc);
    }
 
 //

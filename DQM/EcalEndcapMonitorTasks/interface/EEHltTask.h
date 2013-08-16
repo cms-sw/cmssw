@@ -4,8 +4,6 @@
 /*
  * \file EEHltTask.h
  *
- * $Date: 2010/03/26 11:24:50 $
- * $Revision: 1.6 $
  * \author G. Della Ricca
  *
 */

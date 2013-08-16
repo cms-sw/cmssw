@@ -5,8 +5,6 @@
  *
  * Algo for reconstructing 4d segment in DT using a combinatorial approach
  *  
- * $Date: 2009/03/10 16:09:13 $
- * $Revision: 1.11 $
  * \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  * \author Riccardo Bellan - INFN TO <riccardo.bellan@cern.ch>
  *

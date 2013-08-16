@@ -1,7 +1,6 @@
 #!/bin/sh
 
 #----------------------------------------------------------------------
-# $Id: run_all.sh,v 1.10 2005/07/27 16:49:57 wmtan Exp $
 #----------------------------------------------------------------------
 
 # no way to easily locate the test directory and the architecture/compiler

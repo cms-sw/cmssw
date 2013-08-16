@@ -16,7 +16,6 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Aug  6 16:06:01 CDT 2010
-// $Id: ProcessingController.h,v 1.2 2010/08/27 19:57:24 wdd Exp $
 //
 
 // system include files

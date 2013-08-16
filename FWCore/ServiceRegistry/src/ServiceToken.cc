@@ -8,7 +8,6 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Sep  8 04:26:12 EDT 2005
-// $Id: ServiceToken.cc,v 1.3 2006/08/08 00:37:39 chrjones Exp $
 //
 
 // system include files

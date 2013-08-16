@@ -2,8 +2,6 @@
 
 /** \file RecoMuon/
  *
- *  $Date: 2011/12/22 21:12:08 $
- *  $Revision: 1.5 $
  *  \author Adam Evertt, Jean-Roch Vlimant
  */
 

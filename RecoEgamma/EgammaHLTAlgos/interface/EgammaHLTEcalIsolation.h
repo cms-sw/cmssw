@@ -13,7 +13,6 @@
 //
 // Original Author:  Monica Vazquez Acosta
 //         Created:  Tue Jun 13 12:18:22 CEST 2006
-// $Id: EgammaHLTEcalIsolation.h,v 1.4 2013/05/30 21:48:56 gartung Exp $
 //
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"

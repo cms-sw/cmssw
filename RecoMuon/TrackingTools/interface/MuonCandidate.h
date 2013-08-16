@@ -4,8 +4,6 @@
 /** \class MuonCandidate
  *  Auxiliary class for muon candidates
  *
- *  $Date: 2008/04/15 12:03:09 $
- *  $Revision: 1.8 $
  *  \author N. Neumeister	Purdue University 
  */
 

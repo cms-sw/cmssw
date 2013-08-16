@@ -12,7 +12,6 @@ Implementation:
 */
 //
 // Original Author:  "Paolo Meridiani CERN CMG"
-// $Id: testEcalClusterSeverityAlgo.cc,v 1.6 2011/11/12 11:05:33 sani Exp $
 
 
 

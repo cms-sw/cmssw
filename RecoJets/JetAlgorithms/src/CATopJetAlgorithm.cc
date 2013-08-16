@@ -1,6 +1,5 @@
 // Original author: Brock Tweedie (JHU)
 // Ported to CMSSW by: Sal Rappoccio (JHU)
-// $Id: CATopJetAlgorithm.cc,v 1.14 2012/09/03 18:15:21 jpilot Exp $
 
 #include "RecoJets/JetAlgorithms/interface/CATopJetAlgorithm.h"
 #include "FWCore/Framework/interface/ESHandle.h"

@@ -6,8 +6,6 @@
  * *
  *  RPCEfficiencyPerRingLayer
  *
- *  $Date: 2011/05/20 09:03:22 $
- *  $Revision: 1.2 $
  *  \author Cesare Calabria
  *   
  */

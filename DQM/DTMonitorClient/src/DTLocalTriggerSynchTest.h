@@ -6,8 +6,6 @@
  * *
  *  DQM Test Client
  *
- *  $Date: 2010/01/07 10:51:14 $
- *  $Revision: 1.4 $
  *  \author  C. Battilana - CIEMAT
  *   
  */

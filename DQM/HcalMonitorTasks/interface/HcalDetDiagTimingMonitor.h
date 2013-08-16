@@ -17,8 +17,6 @@
 
 /** \class HcalDetDiagTimingMonitor
   *  
-  * $Date: 2010/03/25 11:00:57 $
-  * $Revision: 1.2 $
   * \author D. Vishnevskiy
   */
 

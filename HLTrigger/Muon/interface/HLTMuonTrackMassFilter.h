@@ -6,6 +6,7 @@
 */
 #include "HLTrigger/HLTcore/interface/HLTFilter.h"
 #include "DataFormats/RecoCandidate/interface/RecoChargedCandidateFwd.h"
+#include "DataFormats/BeamSpot/interface/BeamSpot.h"
 
 #include <vector>
 
@@ -27,10 +28,14 @@ private:
 		    const reco::RecoChargedCandidateRef& trackRef) const;
       
 private:
-  edm::InputTag beamspotTag_;   ///< beamspot used for quality cuts
-  edm::InputTag muonTag_;       ///< RecoChargedCandidateCollection (muons)
-  edm::InputTag trackTag_;      ///< RecoChargedCandidateCollection (tracks)
-  edm::InputTag prevCandTag_;   ///< filter objects from previous filter
+  edm::InputTag                    beamspotTag_;   ///< beamspot used for quality cuts
+  edm::EDGetTokenT<reco::BeamSpot> beamspotToken_; ///< beamspot used for quality cuts
+  edm::InputTag                                          muonTag_;   ///< RecoChargedCandidateCollection (muons)
+  edm::EDGetTokenT<reco::RecoChargedCandidateCollection> muonToken_; ///< RecoChargedCandidateCollection (muons)
+  edm::InputTag                                          trackTag_;   ///< RecoChargedCandidateCollection (tracks)
+  edm::EDGetTokenT<reco::RecoChargedCandidateCollection> trackToken_; ///< RecoChargedCandidateCollection (tracks)
+  edm::InputTag                                          prevCandTag_;   ///< filter objects from previous filter
+  edm::EDGetTokenT<trigger::TriggerFilterObjectWithRefs> prevCandToken_; ///< filter objects from previous filter
   std::vector<double> minMasses_; ///< lower mass limits
   std::vector<double> maxMasses_; ///< higher mass limits
   bool checkCharge_;            ///< check opposite charge?

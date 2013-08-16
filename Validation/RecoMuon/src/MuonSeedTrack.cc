@@ -2,8 +2,6 @@
  *  Class: MuonSeedTrack
  *
  * 
- *  $Date: 2011/12/22 20:44:37 $
- *  $Revision: 1.4 $
  *
  *  Authors :
  *  \author Adam Everett - Purdue University

@@ -9,8 +9,6 @@
 
 /** \class HcalRecHitMonitor
   *
-  * $Date: 2012/11/12 20:52:11 $
-  * $Revision: 1.53 $
   * \author J. Temple - Univ. of Maryland
   */
 

@@ -5,8 +5,6 @@
  * *
  *  DQM Test Client
  *
- *  $Date: 2011/06/08 22:32:43 $
- *  $Revision: 1.11 $
  *  \author Andreas Meyer CERN
  *  \author Jan Olzem DESY
  *   

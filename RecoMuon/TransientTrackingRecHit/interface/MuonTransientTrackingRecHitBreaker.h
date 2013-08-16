@@ -4,8 +4,6 @@
 /** \class MuonTransientTrackingRecHitBreaker
  *  No description available.
  *
- *  $Date: 2008/04/24 18:14:07 $
- *  $Revision: 1.1 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
 

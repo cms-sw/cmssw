@@ -4,8 +4,6 @@
 /*
  * \file EEDaqInfoTask.h
  *
- * $Date: 2011/06/27 08:35:13 $
- * $Revision: 1.5 $
  * \author E. Di Marco
  *
 */

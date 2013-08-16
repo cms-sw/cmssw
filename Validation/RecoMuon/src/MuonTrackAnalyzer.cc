@@ -1,8 +1,6 @@
 /** \class MuonTrackAnalyzer
  *  Analyzer of the Muon tracks
  *
- *  $Date: 2011/12/22 20:44:37 $
- *  $Revision: 1.9 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
 

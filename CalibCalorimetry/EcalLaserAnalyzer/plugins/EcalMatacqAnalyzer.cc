@@ -1,7 +1,7 @@
 /* 
  *  \class EcalMatacqAnalyzer
  *
- *  $Date: 2012/02/09 10:07:37 $
+ *  $Date: 2010/10/21 22:03:33 $
  *  primary author: Gautier Hamel De Monchenault - CEA/Saclay
  *  author: Julie Malcles - CEA/Saclay
  */

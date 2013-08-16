@@ -1,8 +1,6 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2006/10/26 15:37:08 $
- *  $Revision: 1.5 $
  *  \author M. Maggi -- INFN
  */
 

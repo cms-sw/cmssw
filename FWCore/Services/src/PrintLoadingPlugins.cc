@@ -8,7 +8,6 @@
 //
 // Original Author:  
 //         Created:  Thu Dec 13 15:00:49 EST 2007
-// $Id: PrintLoadingPlugins.cc,v 1.6 2013/01/20 17:01:21 chrjones Exp $
 //
 
 // system include files

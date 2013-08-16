@@ -8,7 +8,6 @@
 //
 // Author:      Chris Jones
 // Created:     Wed May 25 19:27:37 EDT 2005
-// $Id: LooperFactory.cc,v 1.5 2012/06/06 15:51:21 wdd Exp $
 //
 
 // system include files

@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Mon Feb 28 17:06:54 CET 2011
-// $Id: FWPSetTableManager.cc,v 1.18 2012/09/08 06:17:40 amraktad Exp $
+// $Id: FWPSetTableManager.cc,v 1.17 2012/09/08 04:47:56 matevz Exp $
 //
 
 #include <map>
@@ -122,7 +122,7 @@ void FWPSetTableManager::handlePSetEntry(edm::ParameterSetEntry& entry, const st
    data.type = 'P';
    data.module = m_modules.size() - 1;
    data.path = m_paths.size() - 1;
-   data.pset = & entry.pset();
+   data.pset = & entry.psetForUpdate();
    data.editable = false;
    m_parentStack.push_back(m_entries.size());
    m_entries.push_back(data);
@@ -159,10 +159,10 @@ void FWPSetTableManager::handleVPSetEntry(edm::VParameterSetEntry& entry, const 
       vdata.module = m_modules.size() - 1;
       vdata.path = m_paths.size() - 1;
       vdata.editable = false;
-      vdata.pset = &entry.vpset()[i];
+      vdata.pset = &entry.vpsetForUpdate()[i];
       m_parentStack.push_back(m_entries.size());
       m_entries.push_back(vdata);
-      handlePSet( & entry.vpset()[i]);
+      handlePSet( & entry.vpsetForUpdate()[i]);
       m_parentStack.pop_back();
    }
    m_parentStack.pop_back();

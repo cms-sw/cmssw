@@ -3,9 +3,6 @@
 /** \class ConversionTrackCandidateProducer
  **  
  **
- **  $Id: ConversionTrackCandidateProducer.h,v 1.19 2013/02/27 20:33:00 eulisse Exp $ 
- **  $Date: 2013/02/27 20:33:00 $ 
- **  $Revision: 1.19 $
  **  \author Nancy Marinelli, U. of Notre Dame, US
  **
  ***/

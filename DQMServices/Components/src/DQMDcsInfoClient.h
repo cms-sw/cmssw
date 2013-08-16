@@ -5,9 +5,6 @@
  * \class DQMDcsInfoClient
  * \author Andreas Meyer
  *
- * $Date: 2012/08/02 07:59:10 $
- * $Revision: 1.4 $
- * $Author: rovere $
  *
 */
 

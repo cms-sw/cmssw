@@ -16,7 +16,7 @@
 // Original Author:  Alexandre Spiridonov
 //         Created:  Fri Oct 16 15:59:05 CEST 2009
 //
-// $Id: GlobalTrackerMuonAlignment.cc,v 1.12 2013/04/12 13:16:37 innocent Exp $
+// $Id: GlobalTrackerMuonAlignment.cc,v 1.11 2012/07/16 12:17:53 eulisse Exp $
 //
 
 // system include files
@@ -145,9 +145,9 @@ class GlobalTrackerMuonAlignment : public edm::EDAnalyzer {
 
  private:
 
-  virtual void beginJob() ;
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void endJob() ;
+  virtual void beginJob() override ;
+  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
+  virtual void endJob() override ;
   
   // ----------member data ---------------------------
 

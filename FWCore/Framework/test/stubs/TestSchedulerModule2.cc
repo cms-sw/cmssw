@@ -3,11 +3,9 @@
    Test Module for testScheduler
 
    \author Stefano ARGIRO
-   \version $Id: TestSchedulerModule2.cc,v 1.14 2007/08/07 22:34:20 wmtan Exp $
    \date 19 May 2005
 */
 
-static const char CVSId[] = "$Id: TestSchedulerModule2.cc,v 1.14 2007/08/07 22:34:20 wmtan Exp $";
 
 
 #include "FWCore/Framework/interface/EDProducer.h"

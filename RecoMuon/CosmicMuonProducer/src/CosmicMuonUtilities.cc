@@ -1,8 +1,6 @@
 /** \file CosmicMuonUtilities
  *
  *
- *  $Date: 2010/03/07 21:28:57 $
- *  $Revision: 1.6 $
  *  \author Chang Liu  -  Purdue University
  */
 

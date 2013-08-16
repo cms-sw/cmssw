@@ -1,12 +1,14 @@
 <use   name="EventFilter/EcalRawToDigi"/>
 <use   name="root"/>
 <use   name="DataFormats/Candidate"/>
+<use   name="DataFormats/EcalRecHit"/>
 <use   name="DataFormats/L1GlobalMuonTrigger"/>
 <use   name="DataFormats/L1Trigger"/>
 <use   name="CondFormats/L1TObjects"/>
 <use   name="CondFormats/DataRecord"/>
 <use   name="FWCore/Utilities"/>
 <use   name="DataFormats/Common"/>
+<use   name="FWCore/Framework"/>
 <use   name="RecoEcal/EgammaCoreTools"/>
 <use   name="TrackingTools/Records"/>
 <use   name="TrackingTools/GeomPropagators"/>

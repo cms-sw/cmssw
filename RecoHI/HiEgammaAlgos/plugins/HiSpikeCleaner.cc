@@ -13,7 +13,6 @@
 //
 // Original Author:  Yong Kim,32 4-A08,+41227673039,
 //         Created:  Mon Nov  1 18:22:21 CET 2010
-// $Id: HiSpikeCleaner.cc,v 1.10 2012/01/28 10:43:20 eulisse Exp $
 //
 //
 

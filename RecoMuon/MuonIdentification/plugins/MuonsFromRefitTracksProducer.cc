@@ -3,7 +3,6 @@
   \brief    Replaces the kinematic information in the input muons with those of the chosen refit tracks.
 
   \author   Jordan Tucker
-  \version  $Id: MuonsFromRefitTracksProducer.cc,v 1.11 2011/11/01 16:02:16 bellan Exp $
 */
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"

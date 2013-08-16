@@ -7,7 +7,6 @@ TriggerReport: This struct contains all the information relevant to
 reporting on the behavior of the trigger.ed at the time of its
 creation.
 
-$Id: TriggerReport.h,v 1.2 2007/06/14 17:52:16 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 

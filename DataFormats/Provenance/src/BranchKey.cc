@@ -1,6 +1,5 @@
 /*----------------------------------------------------------------------
   
-$Id: BranchKey.cc,v 1.3 2007/11/22 16:44:54 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 #include <ostream>
@@ -10,8 +9,7 @@ $Id: BranchKey.cc,v 1.3 2007/11/22 16:44:54 wmtan Exp $
 #include "DataFormats/Provenance/interface/ConstBranchDescription.h"
 
 
-namespace edm
-{
+namespace edm {
   BranchKey::BranchKey(BranchDescription const& desc) :
     friendlyClassName_(desc.friendlyClassName()),
     moduleLabel_(desc.moduleLabel()),
@@ -27,12 +25,10 @@ namespace edm
   std::ostream&
   operator<<(std::ostream& os, BranchKey const& bk) {
     os << "BranchKey("
-       << bk.friendlyClassName_ << ", "
-       << bk.moduleLabel_ << ", "
-       << bk.productInstanceName_ << ", "
-       << bk.processName_ << ')';
+       << bk.friendlyClassName() << ", "
+       << bk.moduleLabel() << ", "
+       << bk.productInstanceName() << ", "
+       << bk.processName() << ')';
     return os;
   }
-
-  
 }

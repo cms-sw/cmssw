@@ -1,7 +1,6 @@
 // \class JetTracksAssociatorAtCaloFace JetTracksAssociatorAtCaloFace.cc 
 // Associate jet with tracks extrapolated to CALO face
 // Accommodated for Jet Package by: Fedor Ratnikov Sep.7, 2007
-// $Id: JetTracksAssociatorAtCaloFace.h,v 1.5 2013/02/27 20:42:22 eulisse Exp $
 //
 //
 #ifndef JetTracksAssociatorAtCaloFace_h

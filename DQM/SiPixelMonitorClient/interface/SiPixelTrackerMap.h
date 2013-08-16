@@ -15,7 +15,6 @@
 //
 // Original Author:  Dario Menasce
 //         Created:  
-// $Id: SiPixelTrackerMap.h,v 1.4 2008/05/01 14:35:05 merkelp Exp $
 //
 //
 

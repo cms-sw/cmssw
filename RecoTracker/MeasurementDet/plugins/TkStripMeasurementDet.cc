@@ -120,6 +120,7 @@ bool TkStripMeasurementDet::measurements( const TrajectoryStateOnSurface& stateO
   }
   
   if (!isEmpty()){
+    LogDebug("TkStripMeasurementDet")<<" found hit on this module "<<rawId();
     RecHitContainer rechits;
     std::vector<float>  diffs;
     if (recHits(stateOnThisDet,est,result.hits,result.distances)) return true;

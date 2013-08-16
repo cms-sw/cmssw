@@ -6,8 +6,6 @@
  *  Base class for Parsers used by DQM
  *
  *
- *  $Date: 2007/02/20 21:29:25 $
- *  $Revision: 1.2 $
  *  \author Petra Merkel
  */
 #include <xercesc/util/PlatformUtils.hpp>

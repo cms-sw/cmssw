@@ -44,25 +44,6 @@ void CastorChannelQualityMonitor::setup(const edm::ParameterSet& ps, DQMStore* d
    nThreshold_          = ps.getUntrackedParameter<double>("nThreshold", 0);
    dThreshold_          = ps.getUntrackedParameter<double>("dThreshold", 0);
 
-  if ( m_dbe !=NULL ) {    
-    ////---- create ReportSummary Map 
-    m_dbe->setCurrentFolder(rootFolder_+"CastorChannelQuality");
-    reportSummary    = m_dbe->bookFloat("RecHit Energy based reportSummary");
-    reportSummaryMap = m_dbe->book2D("RecHitEnergyBasedSummaryMap","RecHitEnergyBasedSummaryMap",14,0.0,14.0,16,0.0,16.0);
-    if(offline_){
-      h_reportSummaryMap =reportSummaryMap->getTH2F();
-      h_reportSummaryMap->SetOption("textcolz");
-      h_reportSummaryMap->GetXaxis()->SetTitle("module");
-      h_reportSummaryMap->GetYaxis()->SetTitle("sector");
-    }
-    
-    overallStatus = m_dbe->bookFloat("RecHit Energy based fraction of good channels");
-   } 
-
-  else{
-  if(fVerbosity>0) std::cout << "CastorChannelQualityMonitor::setup - NO DQMStore service" << std::endl; 
- }
-
   // baseFolder_ = rootFolder_+"CastorChannelQualityMonitor";
 
   if(fVerbosity>0) std::cout << "CastorChannelQualityMonitor::setup (start)" << std::endl;
@@ -81,7 +62,6 @@ void CastorChannelQualityMonitor::setup(const edm::ParameterSet& ps, DQMStore* d
   ievt_=0; counter1=0; counter2=0;  wcounter1=0.; wcounter2=0.; 
   ////---- initialize the fraction of good channels
   fraction=0.; 
-  overallStatus->Fill(fraction); reportSummary->Fill(fraction); 
   ////---- initialize status and number of good channels
   status = -99; numOK = 0; 
   ////---- initialize recHitPresent
@@ -95,21 +75,61 @@ void CastorChannelQualityMonitor::setup(const edm::ParameterSet& ps, DQMStore* d
 }
 
 
+//=================================================================//
+//========================== beginRun =============================//
+//================================================================//
+void CastorChannelQualityMonitor::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup)
+  {
+  if(fVerbosity>0) std::cout << "CastorChannelQualityMonitor::beginRun (start)" << std::endl;
+ 
+   if ( m_dbe !=NULL )
+	{    
+    	////---- create ReportSummary Map 
+    	m_dbe->setCurrentFolder(rootFolder_+"CastorChannelQuality");
+    	reportSummary    = m_dbe->bookFloat("RecHit Energy based reportSummary");
+    	reportSummaryMap = m_dbe->book2D("RecHitEnergyBasedSummaryMap","RecHitEnergyBasedSummaryMap",14,0.0,14.0,16,0.0,16.0);
+    	if(offline_)
+		{
+      		h_reportSummaryMap =reportSummaryMap->getTH2F();
+      		h_reportSummaryMap->SetOption("textcolz");
+      		h_reportSummaryMap->GetXaxis()->SetTitle("module");
+      		h_reportSummaryMap->GetYaxis()->SetTitle("sector");
+    		}
+    
+    	overallStatus = m_dbe->bookFloat("RecHit Energy based fraction of good channels");
+
+    	////---- initialize the fraction of good channels
+  	fraction=0.; 
+  	overallStatus->Fill(fraction); reportSummary->Fill(fraction); 
+
+   	}
+  else
+	{
+ 	if(fVerbosity>0) std::cout << "CastorChannelQualityMonitor::beginRun - NO DQMStore service" << std::endl; 
+ 	}
+ 
+ 
+ if(fVerbosity>0) std::cout << "CastorChannelQualityMonitor::beginRun (end)" << std::endl;
+
+
+ return;
+}
+
 
 
 //==========================================================//
 //================== processEvent ==========================//
 //==========================================================//
-void CastorChannelQualityMonitor::processEvent(const CastorRecHitCollection& castorHits){
-
-  if(fVerbosity>0) std::cout << "CastorChannelQualityMonitor::processEvent !!!" << std::endl;
+void CastorChannelQualityMonitor::processEvent(const CastorRecHitCollection& castorHits)
+  {
+  if(fVerbosity>0) std::cout << "CastorChannelQualityMonitor::processEvent (begin)" << std::endl;
 
   if(!m_dbe) { 
     if(fVerbosity>0) std::cout <<"CastorChannelQualityMonitor::processEvent => DQMStore is not instantiated !!!"<<std::endl;  
     return; 
   }
 
-  if(fVerbosity>0){
+  if(fVerbosity>1){
      std::cout << "CastorChannelQualityMonitor: Noisy Threshold is set to: "<< nThreshold_ << std::endl;
      std::cout << "CastorChannelQualityMonitor: Dead Threshold is set to: " << dThreshold_ << std::endl;
     }
@@ -124,7 +144,7 @@ void CastorChannelQualityMonitor::processEvent(const CastorRecHitCollection& cas
  for(CastorRecHitCollection::const_iterator recHit = castorHits.begin(); recHit != castorHits.end(); ++recHit){
 
     HcalCastorDetId CastorID = HcalCastorDetId(recHit->id());
-    if(fVerbosity>0) std::cout << "Castor ID = " << CastorID << std::endl;
+    if(fVerbosity>1) std::cout << "Castor ID = " << CastorID << std::endl;
     CastorRecHitCollection::const_iterator rh = castorHits.find(CastorID);
     ////---- obtain module, sector and energy of a rechit
     castorModule = CastorID.module();
@@ -180,11 +200,11 @@ void CastorChannelQualityMonitor::processEvent(const CastorRecHitCollection& cas
      ////---- evaluation
      if( averageEnergy >  nThreshold_ )  status= 0;   ////--- channel is noisy 
      if( averageEnergy < dThreshold_  ) { status= -1;  ////--- channel is dead 
-          if(fVerbosity>0) std::cout << "!!! dChannels ===> module="<< module+1 << " sector="<< sector+1 << std::endl;
+          if(fVerbosity>1) std::cout << "!!! dChannels ===> module="<< module+1 << " sector="<< sector+1 << std::endl;
 	  }
      if( averageEnergy <  nThreshold_ && averageEnergy > dThreshold_ )  status= 1; ////---- channel is good
 
-     if(fVerbosity>0)
+     if(fVerbosity>1)
       std::cout << "===> module="<< module+1 << " sector="<< sector+1 <<" *** average Energy=" 
 	   << averageEnergy << " => energy=" << energyArray[module][sector] << " events="
            << ievt_ << " aboveThr="<< double(aboveThr[module][sector]) <<std::endl;
@@ -200,11 +220,11 @@ void CastorChannelQualityMonitor::processEvent(const CastorRecHitCollection& cas
       ////---- evaluation
       if( wcounter1 > 0.85 )  status= 0; ////--- channel is noisy (85% of cases energy was above NoisyThreshold) 
       if( wcounter2 > 0.85 ) {status= -1;  ////--- channel is dead (85% of cases energy was below dThreshold)
-         if(fVerbosity>0) std::cout << "!!! dChannels ===> module="<< module+1 << " sector="<< sector+1 << std::endl; 
+         if(fVerbosity>1) std::cout << "!!! dChannels ===> module="<< module+1 << " sector="<< sector+1 << std::endl; 
 	}
       if( wcounter1 < 0.85 && wcounter2 <  0.85 ) status= 1; ////---- channel is good
 
-      if(fVerbosity>0)
+      if(fVerbosity>1)
         std::cout << "===> module="<< module+1 << " sector="<< sector+1 <<" *** counter1=" 
         << counter1 << " => counter2=" << counter2 << " events="<< ievt_ 
         << " wcounter1=" << wcounter1  << " wcounter2=" <<  wcounter2
@@ -223,7 +243,8 @@ void CastorChannelQualityMonitor::processEvent(const CastorRecHitCollection& cas
   overallStatus->Fill(fraction); reportSummary->Fill(fraction); 
   }
   
-  
-   return;
+  if(fVerbosity>0) std::cout << "CastorChannelQualityMonitor::processEvent (end)" << std::endl;
+
+  return;
 } 
  

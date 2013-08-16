@@ -62,7 +62,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 13:46:31 CST 2013
-// $Id: WaitingTaskList.h,v 1.1 2013/02/21 22:14:10 chrjones Exp $
+// $Id$
 //
 
 // system include files

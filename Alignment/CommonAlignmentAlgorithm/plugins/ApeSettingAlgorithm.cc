@@ -2,9 +2,9 @@
  * \file MillePedeAlignmentAlgorithm.cc
  *
  *  \author    : Gero Flucke/Ivan Reid
- *  date       : February 2009 *  $Revision: 1.12 $
- *  $Date: 2013/01/07 20:56:25 $
- *  (last update by $Author: wmtan $)
+ *  date       : February 2009 *  $Revision: 1.11 $
+ *  $Date: 2011/03/22 09:49:50 $
+ *  (last update by $Author: innocent $)
  */
 /*
  *# Parameters:
@@ -65,13 +65,13 @@ class ApeSettingAlgorithm : public AlignmentAlgorithmBase
   /// Call at beginning of job
   virtual void initialize(const edm::EventSetup &setup, 
 			  AlignableTracker *tracker, AlignableMuon *muon, AlignableExtras *extras,
-			  AlignmentParameterStore *store);
+			  AlignmentParameterStore *store) override;
 
   /// Call at end of job
-  virtual void terminate(const edm::EventSetup& iSetup);
+  virtual void terminate(const edm::EventSetup& iSetup) override;
 
   /// Run the algorithm
-  virtual void run(const edm::EventSetup &setup, const EventInfo &eventInfo);
+  virtual void run(const edm::EventSetup &setup, const EventInfo &eventInfo) override;
 
  private:
   edm::ParameterSet         theConfig;

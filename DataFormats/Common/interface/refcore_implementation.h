@@ -18,7 +18,6 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Nov  3 09:16:30 CDT 2011
-// $Id: refcore_implementation.h,v 1.1 2011/11/03 17:32:06 chrjones Exp $
 //
 
 // system include files

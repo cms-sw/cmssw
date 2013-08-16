@@ -1,7 +1,6 @@
 /*
  * \file EcalEndcapRecHitsValidation.cc
  *
- * $Date: 2011/10/31 16:09:19 $
  * \author C. Rovelli
  *
  */

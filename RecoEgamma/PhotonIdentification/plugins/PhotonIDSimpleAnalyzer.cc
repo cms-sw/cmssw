@@ -16,7 +16,6 @@
 //  Editing Author:  M.B. Anderson
 //
 //         Created:  Fri May 9 11:03:51 CDT 2008
-// $Id: PhotonIDSimpleAnalyzer.cc,v 1.10 2010/01/14 17:29:32 nancy Exp $
 //
 ///////////////////////////////////////////////////////////////////////
 //                    header file for this analyzer                  //

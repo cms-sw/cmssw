@@ -4,8 +4,6 @@
 /*
  * \file EEPedestalOnlineClient.h
  *
- * $Date: 2012/04/27 13:46:04 $
- * $Revision: 1.34 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *

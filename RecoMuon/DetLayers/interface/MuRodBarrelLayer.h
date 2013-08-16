@@ -4,8 +4,6 @@
 /** \class MuRodBarrelLayer
  *  A cylinder composed of rods. Represents barrel muon DT/RPC stations.
  *
- *  $Date: 2006/07/25 17:10:27 $
- *  $Revision: 1.8 $
  *  \author N. Amapane - INFN Torino
  *
  */

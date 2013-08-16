@@ -8,7 +8,6 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu, 09 May 2013 20:14:06 GMT
-// $Id: filterImplementors.cc,v 1.1 2013/05/17 14:49:46 chrjones Exp $
 //
 
 // system include files

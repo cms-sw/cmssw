@@ -4,7 +4,6 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: ValueMap.h,v 1.20 2011/05/07 15:21:37 innocent Exp $
  *
  */
 

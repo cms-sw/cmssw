@@ -4,8 +4,6 @@
 /*
  * \file EERawDataTask.h
  *
- * $Date: 2012/05/14 20:36:37 $
- * $Revision: 1.14 $
  * \author E. Di Marco
  *
 */

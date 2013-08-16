@@ -1,4 +1,3 @@
-// $Id: QcdLowPtDQM.cc,v 1.21 2013/01/03 18:59:34 wmtan Exp $
 
 #include "DQM/Physics/src/QcdLowPtDQM.h"
 #include "DataFormats/Common/interface/TriggerResults.h"

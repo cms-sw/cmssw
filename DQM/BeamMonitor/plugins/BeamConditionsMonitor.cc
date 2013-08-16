@@ -2,8 +2,6 @@
  * \file BeamConditionsMonitor.cc
  * \author Geng-yuan Jeng/UC Riverside
  *         Francisco Yumiceva/FNAL
- * $Date: 2010/07/20 20:23:27 $
- * $Revision: 1.9 $
  *
  */
 

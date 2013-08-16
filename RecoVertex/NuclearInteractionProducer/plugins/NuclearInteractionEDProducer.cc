@@ -1,6 +1,4 @@
 #include "RecoVertex/NuclearInteractionProducer/interface/NuclearInteractionEDProducer.h"
-#include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
-#include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "DataFormats/VertexReco/interface/NuclearInteractionFwd.h"
@@ -13,12 +11,15 @@
 
 
 NuclearInteractionEDProducer::NuclearInteractionEDProducer(const edm::ParameterSet& iConfig) : 
-conf_(iConfig), 
-primaryProducer_(iConfig.getParameter<std::string>("primaryProducer")),
-seedsProducer_(iConfig.getParameter<std::string>("seedsProducer")),
-secondaryProducer_(iConfig.getParameter<std::string>("secondaryProducer")),
-additionalSecondaryProducer_(iConfig.getParameter<std::string>("additionalSecondaryProducer"))
+conf_(iConfig)
 {
+  token_primaryTrack = consumes<reco::TrackCollection>(iConfig.getParameter<std::string>("primaryProducer"));
+  token_secondaryTrack = consumes<reco::TrackCollection>(iConfig.getParameter<std::string>("secondaryProducer"));
+  token_additionalSecTracks = consumes<reco::TrackCollection>(iConfig.getParameter<std::string>("additionalSecondaryProducer"));
+  token_primaryTrajectory = consumes<TrajectoryCollection>(iConfig.getParameter<std::string>("primaryProducer"));
+  token_refMapH = consumes<TrajTrackAssociationCollection>(iConfig.getParameter<std::string>("primaryProducer"));
+  token_nuclMapH = consumes<TrajectoryToSeedsMap>(iConfig.getParameter<std::string>("seedsProducer"));
+
   produces<reco::NuclearInteractionCollection>();
 }
 
@@ -48,29 +49,29 @@ NuclearInteractionEDProducer::produce(edm::Event& iEvent, const edm::EventSetup&
 
    /// Get the primary tracks
    edm::Handle<reco::TrackCollection>  primaryTrackCollection;
-   iEvent.getByLabel( primaryProducer_, primaryTrackCollection );
+   iEvent.getByToken(token_primaryTrack, primaryTrackCollection);
 
    /// Get the primary trajectories (produced by the Refitter)
    edm::Handle< TrajectoryCollection > primaryTrajectoryCollection;
-   iEvent.getByLabel( primaryProducer_, primaryTrajectoryCollection );
+   iEvent.getByToken(token_primaryTrajectory, primaryTrajectoryCollection);
 
    /// Get the AssociationMap between primary tracks and trajectories
    edm::Handle< TrajTrackAssociationCollection > refMapH;
-   iEvent.getByLabel( primaryProducer_, refMapH );
+   iEvent.getByToken(token_refMapH, refMapH);
    const TrajTrackAssociationCollection& refMap = *(refMapH.product());
 
    /// Get the AssociationMap between seeds and primary trajectories
    edm::Handle<TrajectoryToSeedsMap>  nuclMapH;
-   iEvent.getByLabel(seedsProducer_, nuclMapH);
+   iEvent.getByToken(token_nuclMapH, nuclMapH);
    const TrajectoryToSeedsMap& nuclMap = *(nuclMapH.product());
 
    /// Get the secondary tracks
    edm::Handle<reco::TrackCollection>  secondaryTrackCollection;
-   iEvent.getByLabel( secondaryProducer_, secondaryTrackCollection );
+   iEvent.getByToken(token_secondaryTrack, secondaryTrackCollection);
 
    // Get eventual additional secondary tracks
    edm::Handle<reco::TrackCollection>  additionalSecTracks;
-   iEvent.getByLabel( additionalSecondaryProducer_, additionalSecTracks); 
+   iEvent.getByToken(token_additionalSecTracks, additionalSecTracks);
 
    /// Definition of the output
    std::auto_ptr<reco::NuclearInteractionCollection> theNuclearInteractions(new reco::NuclearInteractionCollection);

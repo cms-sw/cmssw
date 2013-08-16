@@ -17,7 +17,6 @@
 //
 // Original Author:  Lorenzo AGOSTINO
 //         Created:  Wed Jan 16 15:55:28 CET 2008
-// $Id: HLTMonElectronConsumer.h,v 1.2 2009/10/15 11:31:28 fwyzard Exp $
 //
 //
 

@@ -1,6 +1,6 @@
 //emacs settings:-*- mode: c++; c-basic-offset: 2; indent-tabs-mode: nil -*-
 /*
- * $Id: LaserSorter.cc,v 1.19 2012/10/09 19:00:18 wdd Exp $
+ * $Id: LaserSorter.cc,v 1.18 2012/06/14 10:12:31 eulisse Exp $
  */
 
 /***************************************************

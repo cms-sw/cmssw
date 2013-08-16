@@ -1,4 +1,3 @@
-// Last commit: $Id: ApvTimingHistosUsingDb.h,v 1.13 2009/11/15 16:42:16 lowette Exp $
 
 #ifndef DQM_SiStripCommissioningClients_ApvTimingHistosUsingDb_H
 #define DQM_SiStripCommissioningClients_ApvTimingHistosUsingDb_H

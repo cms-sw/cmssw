@@ -1,11 +1,8 @@
-// $Id: Masks.cc,v 1.18 2012/04/27 13:46:04 yiiyama Exp $
 
 /*!
   \file Masks.cc
   \brief channel masking
   \author G. Della Ricca
-  \version $Revision: 1.18 $
-  \date $Date: 2012/04/27 13:46:04 $
 */
 
 #include <sstream>

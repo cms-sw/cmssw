@@ -13,7 +13,6 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Jan 03 11:02:00 EST 2013
-// $Id: TestTBBTasksAnalyzer.cc,v 1.2 2013/02/13 00:35:48 chrjones Exp $
 //
 //
 

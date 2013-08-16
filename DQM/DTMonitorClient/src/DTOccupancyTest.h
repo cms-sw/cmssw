@@ -6,8 +6,6 @@
  * *
  *  DQM Test Client
  *
- *  $Date: 2011/06/10 13:50:12 $
- *  $Revision: 1.9 $
  *  \author  G. Cerminara - University and INFN Torino
  *   
  */

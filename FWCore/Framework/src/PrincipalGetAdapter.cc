@@ -20,7 +20,9 @@ namespace edm {
 	ModuleDescription const& md)  :
     //putProducts_(),
     principal_(pcpl),
-    md_(md) {
+    md_(md),
+    consumer_(nullptr)
+  {
   }
 
   PrincipalGetAdapter::~PrincipalGetAdapter() {
@@ -99,7 +101,7 @@ namespace edm {
     << "() was called.\n"
     << "The index of the token was "<<token.index()<<".\n";
   }
-
+  
   BasicHandle
   PrincipalGetAdapter::makeFailToGetException(KindOfType kindOfType,
                                               TypeID const& productType,
@@ -140,20 +142,23 @@ namespace edm {
 
   BasicHandle
   PrincipalGetAdapter::getByLabel_(TypeID const& typeID,
-                                   InputTag const& tag) const {
-    return principal_.getByLabel(PRODUCT_TYPE, typeID, tag);
+                                   InputTag const& tag,
+                                   ModuleCallingContext const* mcc) const {
+    return principal_.getByLabel(PRODUCT_TYPE, typeID, tag, consumer_, mcc);
   }
 
   BasicHandle
   PrincipalGetAdapter::getByLabel_(TypeID const& typeID,
                                    std::string const& label,
   	                           std::string const& instance,
-  	                           std::string const& process) const {
-    return principal_.getByLabel(PRODUCT_TYPE, typeID, label, instance, process);
+  	                           std::string const& process,
+                                   ModuleCallingContext const* mcc) const {
+    return principal_.getByLabel(PRODUCT_TYPE, typeID, label, instance, process, consumer_, mcc);
   }
   
   BasicHandle
-  PrincipalGetAdapter::getByToken_(TypeID const& id, KindOfType kindOfType, EDGetToken token) const {
+  PrincipalGetAdapter::getByToken_(TypeID const& id, KindOfType kindOfType, EDGetToken token,
+                                   ModuleCallingContext const* mcc) const {
     ProductHolderIndex index = consumer_->indexFrom(token,InEvent,id);
     if( unlikely(index == ProductHolderIndexInvalid)) {
       return makeFailToGetException(kindOfType,id,token);
@@ -162,7 +167,7 @@ namespace edm {
       throwAmbiguousException(id, token);
     }
     bool ambiguous = false;
-    BasicHandle h = principal_.getByToken(kindOfType,id,index, token.willSkipCurrentProcess(), ambiguous);
+    BasicHandle h = principal_.getByToken(kindOfType,id,index, token.willSkipCurrentProcess(), ambiguous, mcc);
     if (ambiguous) {
       // This deals with ambiguities where the process is not specified
       throwAmbiguousException(id, token);
@@ -174,26 +179,32 @@ namespace edm {
 
   BasicHandle
   PrincipalGetAdapter::getMatchingSequenceByLabel_(TypeID const& typeID,
-                                                   InputTag const& tag) const {
-    return principal_.getByLabel(ELEMENT_TYPE, typeID, tag);    
+                                                   InputTag const& tag,
+                                                   ModuleCallingContext const* mcc) const {
+    return principal_.getByLabel(ELEMENT_TYPE, typeID, tag, consumer_, mcc);
   }
 
   BasicHandle
   PrincipalGetAdapter::getMatchingSequenceByLabel_(TypeID const& typeID,
                                                    std::string const& label,
                                                    std::string const& instance,
-                                                   std::string const& process) const {
-    return principal_.getByLabel(ELEMENT_TYPE,
-                                 typeID,
-                                 label,
-                                 instance,
-                                 process);
+                                                   std::string const& process,
+                                                   ModuleCallingContext const* mcc) const {
+    auto h= principal_.getByLabel(ELEMENT_TYPE,
+                                  typeID,
+                                  label,
+                                  instance,
+                                  process,
+                                  consumer_,
+                                  mcc);
+    return h;
   }
 
   void
   PrincipalGetAdapter::getManyByType_(TypeID const& tid,
-		  BasicHandleVec& results) const {
-    principal_.getManyByType(tid, results);
+                                      BasicHandleVec& results,
+                                      ModuleCallingContext const* mcc) const {
+    principal_.getManyByType(tid, results, consumer_, mcc);
   }
 
   ProcessHistory const&
@@ -203,7 +214,7 @@ namespace edm {
 
   ConstBranchDescription const&
   PrincipalGetAdapter::getBranchDescription(TypeID const& type,
-				     std::string const& productInstanceName) const {
+                                            std::string const& productInstanceName) const {
     ProductHolderIndexHelper const& productHolderIndexHelper = principal_.productLookup();
     ProductHolderIndex index = productHolderIndexHelper.index(PRODUCT_TYPE, type, md_.moduleLabel().c_str(),productInstanceName.c_str(), md_.processName().c_str());
     if(index == ProductHolderIndexInvalid) {
@@ -219,7 +230,7 @@ namespace edm {
 	<< principal_.productRegistry()
 	<< '\n';
     }
-    ProductHolderBase const*  phb = principal_.getProductByIndex(index, false, false);
+    ProductHolderBase const*  phb = principal_.getProductByIndex(index, false, false, nullptr);
     assert(phb != nullptr);
     return phb->branchDescription();
   }

@@ -13,7 +13,7 @@
 //
 // Original Author:  Dmytro Kovalskyi
 //         Created:  Fri Apr 21 10:59:41 PDT 2006
-// $Id: DetIdAssociator.cc,v 1.27 2012/12/06 16:48:09 eulisse Exp $
+// $Id: DetIdAssociator.cc,v 1.26 2011/04/07 09:18:47 innocent Exp $
 //
 //
 

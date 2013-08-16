@@ -16,7 +16,6 @@
 //
 // Author:      Chris Jones
 // Created:     Thu Mar 31 14:13:07 EST 2005
-// $Id: DataKeyTags.h,v 1.6 2010/01/15 20:35:48 chrjones Exp $
 //
 
 // system include files

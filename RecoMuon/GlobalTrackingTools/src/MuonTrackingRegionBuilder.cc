@@ -3,8 +3,6 @@
  *
  *  Build a TrackingRegion around a standalone muon 
  *
- *  $Date: 2012/11/11 16:55:48 $
- *  $Revision: 1.21 $
  *
  *  \author A. Everett - Purdue University
  *  \author A. Grelli -  Purdue University, Pavia University

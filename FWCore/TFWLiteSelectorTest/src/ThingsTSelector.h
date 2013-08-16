@@ -7,7 +7,6 @@
  *
  * \author Luca Lista, INFN
  *
- * $Id: ThingsTSelector.h,v 1.2 2011/03/03 16:28:47 chrjones Exp $
  */
 #include <TH1.h>
 #include "FWCore/TFWLiteSelector/interface/TFWLiteSelectorBasic.h"

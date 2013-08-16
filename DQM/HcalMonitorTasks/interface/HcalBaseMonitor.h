@@ -38,8 +38,6 @@
 
 /** \class HcalBaseMonitor
   *  
-  * $Date: 2010/11/24 18:55:24 $
-  * $Revision: 1.40 $
   * \author W. Fisher - FNAL
   */
 class HcalBaseMonitor {

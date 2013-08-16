@@ -13,7 +13,6 @@
 //
 // Original Authors:  R. Remington (UF), R. Cavanaugh (UIC/Fermilab)
 //          Created:  October 27, 2008
-// $Id: PFClusterSpecificAlgo.h,v 1.3 2012/06/11 04:27:43 sakuma Exp $
 //
 //
 #ifndef METAlgorithms_PFClusterMETInfo_h

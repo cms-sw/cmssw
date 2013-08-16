@@ -1,6 +1,5 @@
 import FWCore.ParameterSet.Config as cms
 
-# $Id: L1Scalers_cfi.py,v 1.11 2010/07/01 13:22:17 wteo Exp $
 
 l1s = cms.EDAnalyzer("L1Scalers",
                    l1GtData = cms.InputTag("l1GtUnpack","","HLT"),

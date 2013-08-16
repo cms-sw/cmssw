@@ -10,8 +10,6 @@ class CaloRecHitMetaCollectionItem;
 
 /** \class CaloRecHitMetaCollection
   *  
-  * $Date: 2006/01/17 19:51:48 $
-  * $Revision: 1.2 $
   * \author J. Mans - Minnesota
   */
 class CaloRecHitMetaCollection : public CaloRecHitMetaCollectionV {

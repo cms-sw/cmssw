@@ -1,4 +1,3 @@
-// $Id: EcalTools.cc,v 1.4 2011/05/19 14:39:29 argiro Exp $
 
 #include "RecoEcal/EgammaCoreTools/interface/EcalTools.h"
 #include "DataFormats/EcalDetId/interface/EBDetId.h"

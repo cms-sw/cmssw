@@ -2,8 +2,6 @@
  * \file BeamMonitor.cc
  * \author Geng-yuan Jeng/UC Riverside
  *         Francisco Yumiceva/FNAL
- * $Date: 2012/03/13 13:27:28 $
- * $Revision: 1.76 $
  */
 
 

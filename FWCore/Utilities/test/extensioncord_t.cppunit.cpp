@@ -3,7 +3,6 @@
 Test program for edm::ExtensionCord class.
 Created by Chris Jones on 22-09-2006
 
-$Id: extensioncord_t.cppunit.cpp,v 1.1 2006/09/22 18:42:55 chrjones Exp $
  ----------------------------------------------------------------------*/
 
 #include <cppunit/extensions/HelperMacros.h>

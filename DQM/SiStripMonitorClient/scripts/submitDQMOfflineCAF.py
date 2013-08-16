@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 
 #
-# $Id: submitDQMOfflineCAF.py,v 1.25 2009/01/23 16:17:19 vadler Exp $
 #
 
 ## CMSSW/DQM/SiStripMonitorClient/scripts/submitDQMOfflineCAF.py

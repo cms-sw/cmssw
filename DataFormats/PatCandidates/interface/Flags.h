@@ -1,7 +1,7 @@
 #ifndef DataFormats_PatCandidates_interface_Flags_h
 #define DataFormats_PatCandidates_interface_Flags_h
 //
-// $Id: Flags.h,v 1.4 2008/12/05 20:55:50 hegner Exp $
+// $Id: Flags.h,v 1.3 2008/10/19 17:02:01 gpetrucc Exp $
 //
 
 /**
@@ -9,7 +9,7 @@
   \brief    Flags used in PAT, and static translator from flags to strings 
 
   \author   Steven Lowette
-  \version  $Id: Flags.h,v 1.4 2008/12/05 20:55:50 hegner Exp $
+  \version  $Id: Flags.h,v 1.3 2008/10/19 17:02:01 gpetrucc Exp $
 */
 
 #include "DataFormats/Candidate/interface/Candidate.h"

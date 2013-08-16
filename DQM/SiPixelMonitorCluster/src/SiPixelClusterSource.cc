@@ -13,7 +13,6 @@
 //
 // Original Author:  Vincenzo Chiochia & Andrew York
 //         Created:  
-// $Id: SiPixelClusterSource.cc,v 1.29 2010/11/19 13:39:23 eulisse Exp $
 //
 //
 // Updated by: Lukas Wehrli

@@ -1,6 +1,6 @@
 // -*- C++ -*-
 //
-// Package:    __pkgname__
+// Package:    __subsys__/__pkgname__
 // Class:      __class__
 // 
 /*
@@ -13,7 +13,6 @@
 //
 // Original Author:  __author__
 //         Created:  __date__
-// __rcsid__
 //
 //
 

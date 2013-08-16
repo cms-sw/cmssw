@@ -5,8 +5,6 @@
  *  
  *  Class to fill dqm monitor elements from existing EDM file
  *
- *  $Date: 2010/01/06 14:24:50 $
- *  $Revision: 1.7 $
  *  \author M. Strang SUNY-Buffalo
  */
 

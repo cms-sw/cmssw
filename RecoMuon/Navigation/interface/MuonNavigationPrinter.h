@@ -6,8 +6,6 @@
  * Description:
  *  class to print the MuonNavigationSchool
  *
- * $Date: 2013/05/28 16:39:22 $
- * $Revision: 1.8 $
  *
  * \author : Stefano Lacaprara - INFN Padova <stefano.lacaprara@pd.infn.it>
  *

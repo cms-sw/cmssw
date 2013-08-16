@@ -16,7 +16,6 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Jun 24 13:23:12 EDT 2005
-// $Id: WhatsIt.h,v 1.2 2006/02/13 23:01:31 wmtan Exp $
 //
 
 // system include files

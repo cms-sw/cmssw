@@ -45,7 +45,6 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Jun 23 14:06:56 EDT 2005
-// $Id: eventsetup_dependsOn.h,v 1.10 2010/09/01 18:24:25 chrjones Exp $
 //
 
 // system include files

@@ -1,4 +1,3 @@
-// Last commit: $Id: VpspScanHistosUsingDb.h,v 1.10 2009/11/10 14:49:01 lowette Exp $
 
 #ifndef DQM_SiStripCommissioningClients_VpspScanHistosUsingDb_H
 #define DQM_SiStripCommissioningClients_VpspScanHistosUsingDb_H

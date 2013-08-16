@@ -5,8 +5,6 @@
  *  Abstract algorithmic class to compute Rec Hit
  *  form a RPC digi
  *
- *  $Date: 2008/12/04 16:03:26 $
- *  $Revision: 1.4 $
  *  \author M. Maggi -- INFN Bari
  */
 

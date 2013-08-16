@@ -46,11 +46,11 @@ namespace edm {
   }
 
   void WorkerManager::setOnDemandProducts(ProductRegistry& pregistry, std::set<std::string> const& unscheduledLabels) const {
-    for(auto& prod : pregistry.productList()) {
+    for(auto& prod : pregistry.productListUpdator()) {
       if(prod.second.produced() &&
           prod.second.branchType() == InEvent &&
           unscheduledLabels.end() != unscheduledLabels.find(prod.second.moduleLabel())) {
-        prod.second.setOnDemand();
+        prod.second.setOnDemand(true);
       }
     }
   }
@@ -93,6 +93,20 @@ namespace edm {
     
     for_all(allWorkers_, boost::bind(&Worker::beginJob, _1));
     loadMissingDictionaries();
+  }
+
+  void
+  WorkerManager::beginStream(StreamID iID, StreamContext& streamContext) {
+    for(auto& worker: allWorkers_) {
+      worker->beginStream(iID, streamContext);
+    }
+  }
+
+  void
+  WorkerManager::endStream(StreamID iID, StreamContext& streamContext) {
+    for(auto& worker: allWorkers_) {
+      worker->endStream(iID, streamContext);
+    }
   }
 
   void

@@ -13,7 +13,7 @@
 //
 // Original Author:  Jim Pivarski
 //         Created:  Wed Dec 12 13:31:55 CST 2007
-// $Id: TrackerToMuonPropagator.cc,v 1.5 2011/12/22 20:10:49 innocent Exp $
+// $Id: TrackerToMuonPropagator.cc,v 1.4 2010/01/04 15:36:54 mussgill Exp $
 //
 //
 
@@ -66,9 +66,9 @@ class TrackerToMuonPropagator : public edm::EDProducer {
       ~TrackerToMuonPropagator();
 
    private:
-      virtual void beginJob() ;
-      virtual void produce(edm::Event&, const edm::EventSetup&);
-      virtual void endJob() ;
+      virtual void beginJob() override ;
+      virtual void produce(edm::Event&, const edm::EventSetup&) override;
+      virtual void endJob() override ;
       
       // ----------member data ---------------------------
 

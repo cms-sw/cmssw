@@ -5,8 +5,6 @@
  * *
  *  Class that handles the SiPixel Quality Tests
  * 
- *  $Date: 2007/09/13 19:42:23 $
- *  $Revision: 1.1 $
  *  \author Suchandra Dutta
   */
 

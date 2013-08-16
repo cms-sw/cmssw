@@ -4,8 +4,6 @@
 /*
  * \file EBDataCertificationTask.h
  *
- * $Date: 2010/08/08 14:21:02 $
- * $Revision: 1.7 $
  * \author E. Di Marco
  *
 */

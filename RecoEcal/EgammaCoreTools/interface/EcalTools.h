@@ -3,7 +3,6 @@
    Declaration of class EcalTools
 
    \author Stefano Argiro
-   \version $Id: EcalTools.h,v 1.5 2011/05/19 14:41:38 argiro Exp $
    \date 11 Jan 2011
 */
 

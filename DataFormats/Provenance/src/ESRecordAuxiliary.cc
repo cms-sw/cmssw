@@ -8,7 +8,6 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Dec  3 16:17:49 CST 2009
-// $Id: ESRecordAuxiliary.cc,v 1.1 2009/12/16 17:40:01 chrjones Exp $
 //
 
 // system include files

@@ -10,8 +10,6 @@
  * \author J. Berryhill, I. Mikulec
  * \author Vasile Mihai Ghete - HEPHY Vienna
  *
- * $Date: 2012/05/31 16:52:42 $
- * $Revision: 1.12 $
  *
  */
 

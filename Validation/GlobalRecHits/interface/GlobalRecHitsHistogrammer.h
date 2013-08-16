@@ -7,8 +7,6 @@
  *  containing information about various sub-systems in global coordinates 
  *  with full geometry
  *
- *  $Date: 2009/12/18 20:45:11 $
- *  $Revision: 1.6 $
  *  \author M. Strang SUNY-Buffalo
  */
 

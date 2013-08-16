@@ -5,8 +5,8 @@
  *  A Kalman Updator that works in the measurement frame and uses
  *  only the X coordinate (the one perpendicular to the strip). Ported from ORCA.
  *
- *  $Date: 2013/01/10 11:55:10 $
- *  $Revision: 1.4 $
+ *  $Date: 2007/05/09 13:50:25 $
+ *  $Revision: 1.3 $
  *  \author todorov, cerati
  */
 

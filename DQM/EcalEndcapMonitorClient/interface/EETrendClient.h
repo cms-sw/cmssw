@@ -4,8 +4,6 @@
 /*
  * \file EETrendClient.h
  *
- * $Date: 2010/03/28 09:05:23 $
- * $Revision: 1.3 $
  * \author Dongwook Jang, Soon Yung Jun
  *
  */

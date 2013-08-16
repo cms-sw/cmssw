@@ -1,4 +1,3 @@
-// $Id: testIDVectorMap.cc,v 1.4 2008/12/18 04:53:08 wmtan Exp $
 #include <cppunit/extensions/HelperMacros.h>
 #include "DataFormats/Common/interface/IDVectorMap.h"
 #include "DataFormats/Common/interface/CopyPolicy.h"

@@ -1,4 +1,4 @@
-// $Id: SuperCluster.cc,v 1.18 2012/10/22 20:23:27 argiro Exp $
+// $Id: SuperCluster.cc,v 1.17 2011/02/17 22:42:03 argiro Exp $
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 using namespace reco;

@@ -9,8 +9,6 @@
  * Configured via the Producer's ParameterSet. <BR>
  * Presume this might become an abstract base class one day. <BR>
  *
- * $Date: 2006/05/08 17:45:31 $
- * $Revision: 1.3 $
  * \author M. Sani
  *
  *

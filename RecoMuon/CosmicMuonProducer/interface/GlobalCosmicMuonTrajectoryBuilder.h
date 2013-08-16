@@ -4,8 +4,6 @@
 /** \file GlobalCosmicMuonTrajectoryBuilder
  *  class to build combined trajectory from cosmic tracks in tk and mu
  *
- *  $Date: 2009/04/15 09:41:24 $
- *  $Revision: 1.15 $
  *  \author Chang Liu  -  Purdue University
  */
 

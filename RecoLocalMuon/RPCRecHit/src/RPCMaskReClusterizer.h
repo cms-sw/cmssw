@@ -2,8 +2,6 @@
 #define RecoLocalMuon_RPCMaskReClusterizer_h
 
 /** \Class RPCMaskReClusterizer
- *  $Date: 2008/12/04 17:11:11 $
- *  $Revision: 1.2 $
  *  \author J.C. Sanabria -- UniAndes, Bogota
  */
 

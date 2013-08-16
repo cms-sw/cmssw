@@ -8,8 +8,6 @@
  *  \author A. Vitelli - INFN Torino
  *  \author porting R. Bellan - INFN Torino
  *
- *  $Date: 2010/08/10 20:08:06 $
- *  $Revision: 1.12 $
  *  
  */
 

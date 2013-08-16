@@ -31,8 +31,6 @@
 
     /** \class HcalHitReconstructor
 	
-    $Date: 2013/02/28 08:28:56 $
-    $Revision: 1.21 $
     \author J. Temple & E. Yazgan
     ** Based on HcalSimpleReconstructor.h by J. Mans
     */

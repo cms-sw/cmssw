@@ -5,8 +5,6 @@
  *  Cluster of DTOccupancyPoint used bt DTOccupancyTest to spot problematic layers.
  *  Layers are clusterized in the plane average cell occupancy - RMS of the cell occupancies.
  *  
- *  $Date: 2008/10/16 09:33:39 $
- *  $Revision: 1.3 $
  *  \author G. Cerminara - INFN Torino
  */
 

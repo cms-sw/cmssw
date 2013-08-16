@@ -1,6 +1,5 @@
 import FWCore.ParameterSet.Config as cms
 
-# $Id: ak5JTA_cff.py,v 1.4 2012/07/11 14:12:14 srappocc Exp $
 from TrackPropagation.SteppingHelixPropagator.SteppingHelixPropagatorAlong_cfi import * ##propagator
 
 from RecoJets.JetAssociationProducers.j2tParametersCALO_cfi import *

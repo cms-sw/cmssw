@@ -1,4 +1,4 @@
-// $Id: ConfigurationDatabaseImplOracle.cc,v 1.4 2013/05/23 15:17:36 gartung Exp $
+// $Id: ConfigurationDatabaseImplOracle.cc,v 1.3 2010/08/06 20:24:11 wmtan Exp $
 
 #include "CaloOnlineTools/HcalOnlineDb/interface/ConfigurationDatabaseImplOracle.hh"
 

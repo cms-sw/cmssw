@@ -3,8 +3,6 @@
  * 
  * Analyzer to test Shower Containment Corrections
  *   
- * $Date: 2009/05/27 07:44:20 $
- * $Revision: 1.3 $
  * \author S. Argiro'
  *
 */

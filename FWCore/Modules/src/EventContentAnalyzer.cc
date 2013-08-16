@@ -31,6 +31,7 @@
 #include "FWCore/Utilities/interface/MemberWithDict.h"
 #include "FWCore/Utilities/interface/ObjectWithDict.h"
 #include "FWCore/Utilities/interface/TypeWithDict.h"
+#include "FWCore/Utilities/interface/TypeToGet.h"
 
 // system include files
 #include <algorithm>
@@ -293,10 +294,29 @@ namespace edm {
     getModuleLabels_(iConfig.getUntrackedParameter("getDataForModuleLabels", std::vector<std::string>())),
     getData_(iConfig.getUntrackedParameter("getData", false) || getModuleLabels_.size()>0),
     evno_(1),
-    listContent_(iConfig.getUntrackedParameter("listContent", true)){
+    listContent_(iConfig.getUntrackedParameter("listContent", true))
+  {
      //now do what ever initialization is needed
      sort_all(moduleLabels_);
      sort_all(getModuleLabels_);
+     if(getData_) {
+        callWhenNewProductsRegistered([this](edm::BranchDescription const& iBranch) {
+           if(getModuleLabels_.empty()) {
+              this->consumes(edm::TypeToGet{iBranch.unwrappedTypeID(),PRODUCT_TYPE},
+                             edm::InputTag{iBranch.moduleLabel(),iBranch.productInstanceName(),iBranch.processName()});
+           } else {
+              for (auto const& mod : this->getModuleLabels_) {
+                 if (iBranch.moduleLabel() == mod) {
+                    this->consumes(edm::TypeToGet{iBranch.unwrappedTypeID(),PRODUCT_TYPE},
+                                   edm::InputTag{mod,iBranch.productInstanceName(),iBranch.processName()});
+                    break;
+                 }
+              }
+           }
+        }
+        );
+     }
+      
   }
 
   EventContentAnalyzer::~EventContentAnalyzer() {

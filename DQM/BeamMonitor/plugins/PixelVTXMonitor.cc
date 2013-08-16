@@ -2,9 +2,6 @@
  * \file PixelVTXMonitor.cc
  * \author S. Dutta
  * Last Update:
- * $Date: 2011/08/30 06:21:16 $
- * $Revision: 1.6 $
- * $Author: dutta $
  *
  * Description: Pixel Vertex Monitoring for different HLT paths
  *

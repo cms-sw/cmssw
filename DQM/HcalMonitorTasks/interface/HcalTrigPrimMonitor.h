@@ -6,8 +6,6 @@
 
 /** \class HcalTrigPrimMonitor
   *  
-  * $Date: 2012/04/26 03:05:16 $
-  * $Revision: 1.26 $
   * \author W. Fisher - FNAL
   */
 

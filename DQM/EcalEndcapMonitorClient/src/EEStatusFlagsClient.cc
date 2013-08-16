@@ -1,8 +1,6 @@
 /*
  * \file EEStatusFlagsClient.cc
  *
- * $Date: 2012/04/27 13:46:08 $
- * $Revision: 1.51 $
  * \author G. Della Ricca
  *
 */

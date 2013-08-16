@@ -16,7 +16,6 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Sun Apr 16 20:32:13 EDT 2006
-// $Id: CPUTimer.h,v 1.4 2010/10/30 01:30:57 chrjones Exp $
 //
 
 // system include files

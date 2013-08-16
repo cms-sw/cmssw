@@ -4,8 +4,6 @@
 /** \class DirectMuonTrajectoryBuilder
  *  Class which takes a trajectory seed and fit its hits, returning a Trajectory container
  *
- *  $Date: 2008/10/06 13:41:50 $
- *  $Revision: 1.2 $
  *  \author R. Bellan - INFN Torino
  */
 

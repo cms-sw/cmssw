@@ -20,7 +20,6 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Mar  3 14:25:29 CST 2011
-// $Id: CMS_CLASS_VERSION.h,v 1.1 2011/03/03 22:04:46 chrjones Exp $
 //
 
 // system include files

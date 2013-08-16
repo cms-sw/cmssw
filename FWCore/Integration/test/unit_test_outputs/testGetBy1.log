@@ -1,0 +1,919 @@
+++ constructing source:IntSource
+Module type=IntSource, Module label=source, Parameter Set ID=031810a3ee2992e7936b85708f83a8b2
+++ construction finished:IntSource
+Module type=IntSource, Module label=source, Parameter Set ID=031810a3ee2992e7936b85708f83a8b2
+++ constructing module: intProducer
+++ construction finished: intProducer
+++ constructing module: a1
+++ construction finished: a1
+++ constructing module: a2
+++ construction finished: a2
+++ constructing module: a3
+++ construction finished: a3
+++ constructing module: TriggerResults
+++ construction finished: TriggerResults
+++ constructing module: out
+++ construction finished: out
+++ constructing module: intProducerA
+Module type=IntProducer, Module label=intProducerA, Parameter Set ID=38971365e8174cb2ccc12430661ba6d4
+++ construction finished: intProducerA
+Module type=IntProducer, Module label=intProducerA, Parameter Set ID=38971365e8174cb2ccc12430661ba6d4
+++ constructing module: intProducerU
+++ construction finished: intProducerU
+++ constructing module: intVectorProducer
+++ construction finished: intVectorProducer
+++ ModuleBeginJob: intProducer
+++ ModuleBeginJob finished: intProducer
+++ ModuleBeginJob: a1
+++ ModuleBeginJob finished: a1
+++ ModuleBeginJob: a2
+++ ModuleBeginJob finished: a2
+++ ModuleBeginJob: a3
+++ ModuleBeginJob finished: a3
+++ ModuleBeginJob: TriggerResults
+++ ModuleBeginJob finished: TriggerResults
+++ ModuleBeginJob: out
+++ ModuleBeginJob finished: out
+++ ModuleBeginJob: intProducerA
+Module type=IntProducer, Module label=intProducerA, Parameter Set ID=38971365e8174cb2ccc12430661ba6d4
+++ ModuleBeginJob finished: intProducerA
+Module type=IntProducer, Module label=intProducerA, Parameter Set ID=38971365e8174cb2ccc12430661ba6d4
+++ ModuleBeginJob: intProducerU
+++ ModuleBeginJob finished: intProducerU
+++ ModuleBeginJob: intVectorProducer
+++ ModuleBeginJob finished: intVectorProducer
+++ Job started
+++++ ModuleBeginStream: intProducer
+++++ ModuleBeginStream finished
+++++ ModuleBeginStream: a1
+++++ ModuleBeginStream finished
+++++ ModuleBeginStream: a2
+++++ ModuleBeginStream finished
+++++ ModuleBeginStream: a3
+++++ ModuleBeginStream finished
+++++ ModuleBeginStream: TriggerResults
+++++ ModuleBeginStream finished
+++++ ModuleBeginStream: out
+++++ ModuleBeginStream finished
+++++ ModuleBeginStream: intProducerA
+StreamContext: StreamID = 0 transition = BeginStream
+    run: 0 lumi: 0 event: 0
+    runIndex = 4294967295  luminosityBlockIndex = 4294967295  unixTime = 0 microsecondOffset = 0
+    ProcessContext: PROD1 3c616240b8a4afc0d41892991162754d
+Module type=IntProducer, Module label=intProducerA, Parameter Set ID=38971365e8174cb2ccc12430661ba6d4
+++++ ModuleBeginStream finished
+StreamContext: StreamID = 0 transition = BeginStream
+    run: 0 lumi: 0 event: 0
+    runIndex = 4294967295  luminosityBlockIndex = 4294967295  unixTime = 0 microsecondOffset = 0
+    ProcessContext: PROD1 3c616240b8a4afc0d41892991162754d
+Module type=IntProducer, Module label=intProducerA, Parameter Set ID=38971365e8174cb2ccc12430661ba6d4
+++++ ModuleBeginStream: intProducerU
+++++ ModuleBeginStream finished
+++++ ModuleBeginStream: intVectorProducer
+++++ ModuleBeginStream finished
+++++ source run
+++++ finished: source run
+++++ GlobalBeginRun run: 1 time: 1
+GlobalContext: transition = BeginRun
+    run: 1 luminosityBlock: 0
+    runIndex = 0  luminosityBlockIndex = 4294967295  unixTime = 0 microsecondOffset = 1
+    ProcessContext: PROD1 3c616240b8a4afc0d41892991162754d
+++++++ ModuleGlobalBeginRun: intProducerA
+GlobalContext: transition = BeginRun
+    run: 1 luminosityBlock: 0
+    runIndex = 0  luminosityBlockIndex = 4294967295  unixTime = 0 microsecondOffset = 1
+    ProcessContext: PROD1 3c616240b8a4afc0d41892991162754d
+ModuleCallingContext state = Running
+    moduleDescription: Module type=IntProducer, Module label=intProducerA, Parameter Set ID=38971365e8174cb2ccc12430661ba6d4
+    GlobalContext: transition = BeginRun
+    run: 1 luminosityBlock: 0
+    runIndex = 0  luminosityBlockIndex = 4294967295  unixTime = 0 microsecondOffset = 1
+    ProcessContext: PROD1 3c616240b8a4afc0d41892991162754d
+++++++ ModuleGlobalBeginRun finished: intProducerA
+GlobalContext: transition = BeginRun
+    run: 1 luminosityBlock: 0
+    runIndex = 0  luminosityBlockIndex = 4294967295  unixTime = 0 microsecondOffset = 1
+    ProcessContext: PROD1 3c616240b8a4afc0d41892991162754d
+ModuleCallingContext state = Running
+    moduleDescription: Module type=IntProducer, Module label=intProducerA, Parameter Set ID=38971365e8174cb2ccc12430661ba6d4
+    GlobalContext: transition = BeginRun
+    run: 1 luminosityBlock: 0
+    runIndex = 0  luminosityBlockIndex = 4294967295  unixTime = 0 microsecondOffset = 1
+    ProcessContext: PROD1 3c616240b8a4afc0d41892991162754d
+++++++ ModuleGlobalBeginRun: intProducerU
+++++++ ModuleGlobalBeginRun finished: intProducerU
+++++++ ModuleGlobalBeginRun: intVectorProducer
+++++++ ModuleGlobalBeginRun finished: intVectorProducer
+++++++ ModuleGlobalBeginRun: intProducer
+++++++ ModuleGlobalBeginRun finished: intProducer
+++++++ ModuleGlobalBeginRun: a1
+++++++ ModuleGlobalBeginRun finished: a1
+++++++ ModuleGlobalBeginRun: a2
+++++++ ModuleGlobalBeginRun finished: a2
+++++++ ModuleGlobalBeginRun: a3
+++++++ ModuleGlobalBeginRun finished: a3
+++++++ ModuleGlobalBeginRun: out
+++++++ ModuleGlobalBeginRun finished: out
+++++ GlobalBeginRun finished
+GlobalContext: transition = BeginRun
+    run: 1 luminosityBlock: 0
+    runIndex = 0  luminosityBlockIndex = 4294967295  unixTime = 0 microsecondOffset = 1
+    ProcessContext: PROD1 3c616240b8a4afc0d41892991162754d
+++++ GlobalBeginRun run: 1 time: 1
+GlobalContext: transition = BeginRun
+    run: 1 luminosityBlock: 0
+    runIndex = 0  luminosityBlockIndex = 4294967295  unixTime = 0 microsecondOffset = 1
+    ProcessContext: COPY 5ea2a17b2b2eaa97af73c630882cd994
+    parent ProcessContext: PROD1 3c616240b8a4afc0d41892991162754d
+++++ GlobalBeginRun finished
+GlobalContext: transition = BeginRun
+    run: 1 luminosityBlock: 0
+    runIndex = 0  luminosityBlockIndex = 4294967295  unixTime = 0 microsecondOffset = 1
+    ProcessContext: COPY 5ea2a17b2b2eaa97af73c630882cd994
+    parent ProcessContext: PROD1 3c616240b8a4afc0d41892991162754d
+++++ StreamBeginRun run: 1 time: 1
+StreamContext: StreamID = 0 transition = BeginRun
+    run: 1 lumi: 0 event: 0
+    runIndex = 0  luminosityBlockIndex = 4294967295  unixTime = 0 microsecondOffset = 1
+    ProcessContext: PROD1 3c616240b8a4afc0d41892991162754d
+++++++ ModuleStreamBeginRun: intProducerA
+StreamContext: StreamID = 0 transition = BeginRun
+    run: 1 lumi: 0 event: 0
+    runIndex = 0  luminosityBlockIndex = 4294967295  unixTime = 0 microsecondOffset = 1
+    ProcessContext: PROD1 3c616240b8a4afc0d41892991162754d
+ModuleCallingContext state = Running
+    moduleDescription: Module type=IntProducer, Module label=intProducerA, Parameter Set ID=38971365e8174cb2ccc12430661ba6d4
+    StreamContext: StreamID = 0 transition = BeginRun
+    run: 1 lumi: 0 event: 0
+    runIndex = 0  luminosityBlockIndex = 4294967295  unixTime = 0 microsecondOffset = 1
+    ProcessContext: PROD1 3c616240b8a4afc0d41892991162754d
+++++++ ModuleStreamBeginRun finished: intProducerA
+StreamContext: StreamID = 0 transition = BeginRun
+    run: 1 lumi: 0 event: 0
+    runIndex = 0  luminosityBlockIndex = 4294967295  unixTime = 0 microsecondOffset = 1
+    ProcessContext: PROD1 3c616240b8a4afc0d41892991162754d
+ModuleCallingContext state = Running
+    moduleDescription: Module type=IntProducer, Module label=intProducerA, Parameter Set ID=38971365e8174cb2ccc12430661ba6d4
+    StreamContext: StreamID = 0 transition = BeginRun
+    run: 1 lumi: 0 event: 0
+    runIndex = 0  luminosityBlockIndex = 4294967295  unixTime = 0 microsecondOffset = 1
+    ProcessContext: PROD1 3c616240b8a4afc0d41892991162754d
+++++++ ModuleStreamBeginRun: intProducerU
+++++++ ModuleStreamBeginRun finished: intProducerU
+++++++ ModuleStreamBeginRun: intVectorProducer
+++++++ ModuleStreamBeginRun finished: intVectorProducer
+++++++ ModuleStreamBeginRun: intProducer
+++++++ ModuleStreamBeginRun finished: intProducer
+++++++ ModuleStreamBeginRun: a1
+++++++ ModuleStreamBeginRun finished: a1
+++++++ ModuleStreamBeginRun: a2
+++++++ ModuleStreamBeginRun finished: a2
+++++++ ModuleStreamBeginRun: a3
+++++++ ModuleStreamBeginRun finished: a3
+++++++ ModuleStreamBeginRun: out
+++++++ ModuleStreamBeginRun finished: out
+++++ StreamBeginRun finished
+StreamContext: StreamID = 0 transition = BeginRun
+    run: 1 lumi: 0 event: 0
+    runIndex = 0  luminosityBlockIndex = 4294967295  unixTime = 0 microsecondOffset = 1
+    ProcessContext: PROD1 3c616240b8a4afc0d41892991162754d
+++++ StreamBeginRun run: 1 time: 1
+StreamContext: StreamID = 0 transition = BeginRun
+    run: 1 lumi: 0 event: 0
+    runIndex = 0  luminosityBlockIndex = 4294967295  unixTime = 0 microsecondOffset = 1
+    ProcessContext: COPY 5ea2a17b2b2eaa97af73c630882cd994
+    parent ProcessContext: PROD1 3c616240b8a4afc0d41892991162754d
+++++ StreamBeginRun finished
+StreamContext: StreamID = 0 transition = BeginRun
+    run: 1 lumi: 0 event: 0
+    runIndex = 0  luminosityBlockIndex = 4294967295  unixTime = 0 microsecondOffset = 1
+    ProcessContext: COPY 5ea2a17b2b2eaa97af73c630882cd994
+    parent ProcessContext: PROD1 3c616240b8a4afc0d41892991162754d
+++++ source lumi
+++++ finished: source lumi
+++++ GlobalBeginLumi run: 1 lumi: 1 time: 1
+GlobalContext: transition = BeginLuminosityBlock
+    run: 1 luminosityBlock: 1
+    runIndex = 0  luminosityBlockIndex = 0  unixTime = 0 microsecondOffset = 1
+    ProcessContext: PROD1 3c616240b8a4afc0d41892991162754d
+++++++ ModuleGlobalBeginLumi: intProducerA
+GlobalContext: transition = BeginLuminosityBlock
+    run: 1 luminosityBlock: 1
+    runIndex = 0  luminosityBlockIndex = 0  unixTime = 0 microsecondOffset = 1
+    ProcessContext: PROD1 3c616240b8a4afc0d41892991162754d
+ModuleCallingContext state = Running
+    moduleDescription: Module type=IntProducer, Module label=intProducerA, Parameter Set ID=38971365e8174cb2ccc12430661ba6d4
+    GlobalContext: transition = BeginLuminosityBlock
+    run: 1 luminosityBlock: 1
+    runIndex = 0  luminosityBlockIndex = 0  unixTime = 0 microsecondOffset = 1
+    ProcessContext: PROD1 3c616240b8a4afc0d41892991162754d
+++++++ ModuleGlobalBeginLumi finished: intProducerA
+GlobalContext: transition = BeginLuminosityBlock
+    run: 1 luminosityBlock: 1
+    runIndex = 0  luminosityBlockIndex = 0  unixTime = 0 microsecondOffset = 1
+    ProcessContext: PROD1 3c616240b8a4afc0d41892991162754d
+ModuleCallingContext state = Running
+    moduleDescription: Module type=IntProducer, Module label=intProducerA, Parameter Set ID=38971365e8174cb2ccc12430661ba6d4
+    GlobalContext: transition = BeginLuminosityBlock
+    run: 1 luminosityBlock: 1
+    runIndex = 0  luminosityBlockIndex = 0  unixTime = 0 microsecondOffset = 1
+    ProcessContext: PROD1 3c616240b8a4afc0d41892991162754d
+++++++ ModuleGlobalBeginLumi: intProducerU
+++++++ ModuleGlobalBeginLumi finished: intProducerU
+++++++ ModuleGlobalBeginLumi: intVectorProducer
+++++++ ModuleGlobalBeginLumi finished: intVectorProducer
+++++++ ModuleGlobalBeginLumi: intProducer
+++++++ ModuleGlobalBeginLumi finished: intProducer
+++++++ ModuleGlobalBeginLumi: a1
+++++++ ModuleGlobalBeginLumi finished: a1
+++++++ ModuleGlobalBeginLumi: a2
+++++++ ModuleGlobalBeginLumi finished: a2
+++++++ ModuleGlobalBeginLumi: a3
+++++++ ModuleGlobalBeginLumi finished: a3
+++++++ ModuleGlobalBeginLumi: out
+++++++ ModuleGlobalBeginLumi finished: out
+++++ GlobalBeginLumi finished
+GlobalContext: transition = BeginLuminosityBlock
+    run: 1 luminosityBlock: 1
+    runIndex = 0  luminosityBlockIndex = 0  unixTime = 0 microsecondOffset = 1
+    ProcessContext: PROD1 3c616240b8a4afc0d41892991162754d
+++++ GlobalBeginLumi run: 1 lumi: 1 time: 1
+GlobalContext: transition = BeginLuminosityBlock
+    run: 1 luminosityBlock: 1
+    runIndex = 0  luminosityBlockIndex = 0  unixTime = 0 microsecondOffset = 1
+    ProcessContext: COPY 5ea2a17b2b2eaa97af73c630882cd994
+    parent ProcessContext: PROD1 3c616240b8a4afc0d41892991162754d
+++++ GlobalBeginLumi finished
+GlobalContext: transition = BeginLuminosityBlock
+    run: 1 luminosityBlock: 1
+    runIndex = 0  luminosityBlockIndex = 0  unixTime = 0 microsecondOffset = 1
+    ProcessContext: COPY 5ea2a17b2b2eaa97af73c630882cd994
+    parent ProcessContext: PROD1 3c616240b8a4afc0d41892991162754d
+++++ StreamBeginLumi run: 1 lumi: 1 time: 1
+StreamContext: StreamID = 0 transition = BeginLuminosityBlock
+    run: 1 lumi: 1 event: 0
+    runIndex = 0  luminosityBlockIndex = 0  unixTime = 0 microsecondOffset = 1
+    ProcessContext: PROD1 3c616240b8a4afc0d41892991162754d
+++++++ ModuleStreamBeginLumi: intProducerA
+StreamContext: StreamID = 0 transition = BeginLuminosityBlock
+    run: 1 lumi: 1 event: 0
+    runIndex = 0  luminosityBlockIndex = 0  unixTime = 0 microsecondOffset = 1
+    ProcessContext: PROD1 3c616240b8a4afc0d41892991162754d
+ModuleCallingContext state = Running
+    moduleDescription: Module type=IntProducer, Module label=intProducerA, Parameter Set ID=38971365e8174cb2ccc12430661ba6d4
+    StreamContext: StreamID = 0 transition = BeginLuminosityBlock
+    run: 1 lumi: 1 event: 0
+    runIndex = 0  luminosityBlockIndex = 0  unixTime = 0 microsecondOffset = 1
+    ProcessContext: PROD1 3c616240b8a4afc0d41892991162754d
+++++++ ModuleStreamBeginLumi finished: intProducerA
+StreamContext: StreamID = 0 transition = BeginLuminosityBlock
+    run: 1 lumi: 1 event: 0
+    runIndex = 0  luminosityBlockIndex = 0  unixTime = 0 microsecondOffset = 1
+    ProcessContext: PROD1 3c616240b8a4afc0d41892991162754d
+ModuleCallingContext state = Running
+    moduleDescription: Module type=IntProducer, Module label=intProducerA, Parameter Set ID=38971365e8174cb2ccc12430661ba6d4
+    StreamContext: StreamID = 0 transition = BeginLuminosityBlock
+    run: 1 lumi: 1 event: 0
+    runIndex = 0  luminosityBlockIndex = 0  unixTime = 0 microsecondOffset = 1
+    ProcessContext: PROD1 3c616240b8a4afc0d41892991162754d
+++++++ ModuleStreamBeginLumi: intProducerU
+++++++ ModuleStreamBeginLumi finished: intProducerU
+++++++ ModuleStreamBeginLumi: intVectorProducer
+++++++ ModuleStreamBeginLumi finished: intVectorProducer
+++++++ ModuleStreamBeginLumi: intProducer
+++++++ ModuleStreamBeginLumi finished: intProducer
+++++++ ModuleStreamBeginLumi: a1
+++++++ ModuleStreamBeginLumi finished: a1
+++++++ ModuleStreamBeginLumi: a2
+++++++ ModuleStreamBeginLumi finished: a2
+++++++ ModuleStreamBeginLumi: a3
+++++++ ModuleStreamBeginLumi finished: a3
+++++++ ModuleStreamBeginLumi: out
+++++++ ModuleStreamBeginLumi finished: out
+++++ StreamBeginLumi finished
+
+StreamContext: StreamID = 0 transition = BeginLuminosityBlock
+    run: 1 lumi: 1 event: 0
+    runIndex = 0  luminosityBlockIndex = 0  unixTime = 0 microsecondOffset = 1
+    ProcessContext: PROD1 3c616240b8a4afc0d41892991162754d
+++++ StreamBeginLumi run: 1 lumi: 1 time: 1
+StreamContext: StreamID = 0 transition = BeginLuminosityBlock
+    run: 1 lumi: 1 event: 0
+    runIndex = 0  luminosityBlockIndex = 0  unixTime = 0 microsecondOffset = 1
+    ProcessContext: COPY 5ea2a17b2b2eaa97af73c630882cd994
+    parent ProcessContext: PROD1 3c616240b8a4afc0d41892991162754d
+++++ StreamBeginLumi finished
+
+StreamContext: StreamID = 0 transition = BeginLuminosityBlock
+    run: 1 lumi: 1 event: 0
+    runIndex = 0  luminosityBlockIndex = 0  unixTime = 0 microsecondOffset = 1
+    ProcessContext: COPY 5ea2a17b2b2eaa97af73c630882cd994
+    parent ProcessContext: PROD1 3c616240b8a4afc0d41892991162754d
+++++ source event
+++++ finished: source event
+++++ processing event run: 1 lumi: 1 event: 1 time:5000001
+StreamContext: StreamID = 0 transition = Event
+    run: 1 lumi: 1 event: 1
+    runIndex = 0  luminosityBlockIndex = 0  unixTime = 0 microsecondOffset = 5000001
+    ProcessContext: PROD1 3c616240b8a4afc0d41892991162754d
+++++++ processing path for event: p
+StreamContext: StreamID = 0 transition = Event
+    run: 1 lumi: 1 event: 1
+    runIndex = 0  luminosityBlockIndex = 0  unixTime = 0 microsecondOffset = 5000001
+    ProcessContext: PROD1 3c616240b8a4afc0d41892991162754d
+PathContext: pathName = p pathID = 0
+    StreamContext: StreamID = 0 transition = Event
+    run: 1 lumi: 1 event: 1
+    runIndex = 0  luminosityBlockIndex = 0  unixTime = 0 microsecondOffset = 5000001
+    ProcessContext: PROD1 3c616240b8a4afc0d41892991162754d
+++++++++ module for event: intProducer
+++++++++ finished module for event: intProducer
+++++++++ module for event: a1
+++++++++ finished module for event: a1
+++++++++ module for event: a2
+++++++++++ module for event: intProducerA
+StreamContext: StreamID = 0 transition = Event
+    run: 1 lumi: 1 event: 1
+    runIndex = 0  luminosityBlockIndex = 0  unixTime = 0 microsecondOffset = 5000001
+    ProcessContext: PROD1 3c616240b8a4afc0d41892991162754d
+ModuleCallingContext state = Running
+    moduleDescription: Module type=IntProducer, Module label=intProducerA, Parameter Set ID=38971365e8174cb2ccc12430661ba6d4
+    ModuleCallingContext state = Running
+    moduleDescription: Module type=TestFindProduct, Module label=a2, Parameter Set ID=d0c7845b00cb5918fdce8e715360b255
+    PathContext: pathName = p pathID = 0
+    StreamContext: StreamID = 0 transition = Event
+    run: 1 lumi: 1 event: 1
+    runIndex = 0  luminosityBlockIndex = 0  unixTime = 0 microsecondOffset = 5000001
+    ProcessContext: PROD1 3c616240b8a4afc0d41892991162754d
+++++++++++ finished module for event: intProducerA
+StreamContext: StreamID = 0 transition = Event
+    run: 1 lumi: 1 event: 1
+    runIndex = 0  luminosityBlockIndex = 0  unixTime = 0 microsecondOffset = 5000001
+    ProcessContext: PROD1 3c616240b8a4afc0d41892991162754d
+ModuleCallingContext state = Running
+    moduleDescription: Module type=IntProducer, Module label=intProducerA, Parameter Set ID=38971365e8174cb2ccc12430661ba6d4
+    ModuleCallingContext state = Running
+    moduleDescription: Module type=TestFindProduct, Module label=a2, Parameter Set ID=d0c7845b00cb5918fdce8e715360b255
+    PathContext: pathName = p pathID = 0
+    StreamContext: StreamID = 0 transition = Event
+    run: 1 lumi: 1 event: 1
+    runIndex = 0  luminosityBlockIndex = 0  unixTime = 0 microsecondOffset = 5000001
+    ProcessContext: PROD1 3c616240b8a4afc0d41892991162754d
+++++++++ finished module for event: a2
+++++++++ module for event: a3
+++++++++ finished module for event: a3
+++++++ path for event finished: p
+StreamContext: StreamID = 0 transition = Event
+    run: 1 lumi: 1 event: 1
+    runIndex = 0  luminosityBlockIndex = 0  unixTime = 0 microsecondOffset = 5000001
+    ProcessContext: PROD1 3c616240b8a4afc0d41892991162754d
+PathContext: pathName = p pathID = 0
+    StreamContext: StreamID = 0 transition = Event
+    run: 1 lumi: 1 event: 1
+    runIndex = 0  luminosityBlockIndex = 0  unixTime = 0 microsecondOffset = 5000001
+    ProcessContext: PROD1 3c616240b8a4afc0d41892991162754d
+++++++++ module for event: TriggerResults
+++++++++ finished module for event: TriggerResults
+++++++ processing path for event: e
+StreamContext: StreamID = 0 transition = Event
+    run: 1 lumi: 1 event: 1
+    runIndex = 0  luminosityBlockIndex = 0  unixTime = 0 microsecondOffset = 5000001
+    ProcessContext: PROD1 3c616240b8a4afc0d41892991162754d
+PathContext: pathName = e pathID = 0
+    StreamContext: StreamID = 0 transition = Event
+    run: 1 lumi: 1 event: 1
+    runIndex = 0  luminosityBlockIndex = 0  unixTime = 0 microsecondOffset = 5000001
+    ProcessContext: PROD1 3c616240b8a4afc0d41892991162754d
+++++++++ module for event: out
+++++++++++ module for event: intProducerU
+++++++++++ finished module for event: intProducerU
+++++++++++ module for event: intVectorProducer
+++++++++++ finished module for event: intVectorProducer
+++++++++ finished module for event: out
+++++++ path for event finished: e
+StreamContext: StreamID = 0 transition = Event
+    run: 1 lumi: 1 event: 1
+    runIndex = 0  luminosityBlockIndex = 0  unixTime = 0 microsecondOffset = 5000001
+    ProcessContext: PROD1 3c616240b8a4afc0d41892991162754d
+PathContext: pathName = e pathID = 0
+    StreamContext: StreamID = 0 transition = Event
+    run: 1 lumi: 1 event: 1
+    runIndex = 0  luminosityBlockIndex = 0  unixTime = 0 microsecondOffset = 5000001
+    ProcessContext: PROD1 3c616240b8a4afc0d41892991162754d
+++++ event finished
+StreamContext: StreamID = 0 transition = Event
+    run: 1 lumi: 1 event: 1
+    runIndex = 0  luminosityBlockIndex = 0  unixTime = 0 microsecondOffset = 5000001
+    ProcessContext: PROD1 3c616240b8a4afc0d41892991162754d
+++++ processing event run: 1 lumi: 1 event: 1 time:5000001
+StreamContext: StreamID = 0 transition = Event
+    run: 1 lumi: 1 event: 1
+    runIndex = 0  luminosityBlockIndex = 0  unixTime = 0 microsecondOffset = 5000001
+    ProcessContext: COPY 5ea2a17b2b2eaa97af73c630882cd994
+    parent ProcessContext: PROD1 3c616240b8a4afc0d41892991162754d
+++++ event finished
+StreamContext: StreamID = 0 transition = Event
+    run: 1 lumi: 1 event: 1
+    runIndex = 0  luminosityBlockIndex = 0  unixTime = 0 microsecondOffset = 5000001
+    ProcessContext: COPY 5ea2a17b2b2eaa97af73c630882cd994
+    parent ProcessContext: PROD1 3c616240b8a4afc0d41892991162754d
+++++ source event
+++++ finished: source event
+++++ processing event run: 1 lumi: 1 event: 2 time:10000001
+StreamContext: StreamID = 0 transition = Event
+    run: 1 lumi: 1 event: 2
+    runIndex = 0  luminosityBlockIndex = 0  unixTime = 0 microsecondOffset = 10000001
+    ProcessContext: PROD1 3c616240b8a4afc0d41892991162754d
+++++++ processing path for event: p
+StreamContext: StreamID = 0 transition = Event
+    run: 1 lumi: 1 event: 2
+    runIndex = 0  luminosityBlockIndex = 0  unixTime = 0 microsecondOffset = 10000001
+    ProcessContext: PROD1 3c616240b8a4afc0d41892991162754d
+PathContext: pathName = p pathID = 0
+    StreamContext: StreamID = 0 transition = Event
+    run: 1 lumi: 1 event: 2
+    runIndex = 0  luminosityBlockIndex = 0  unixTime = 0 microsecondOffset = 10000001
+    ProcessContext: PROD1 3c616240b8a4afc0d41892991162754d
+++++++++ module for event: intProducer
+++++++++ finished module for event: intProducer
+++++++++ module for event: a1
+++++++++ finished module for event: a1
+++++++++ module for event: a2
+++++++++++ module for event: intProducerA
+StreamContext: StreamID = 0 transition = Event
+    run: 1 lumi: 1 event: 2
+    runIndex = 0  luminosityBlockIndex = 0  unixTime = 0 microsecondOffset = 10000001
+    ProcessContext: PROD1 3c616240b8a4afc0d41892991162754d
+ModuleCallingContext state = Running
+    moduleDescription: Module type=IntProducer, Module label=intProducerA, Parameter Set ID=38971365e8174cb2ccc12430661ba6d4
+    ModuleCallingContext state = Running
+    moduleDescription: Module type=TestFindProduct, Module label=a2, Parameter Set ID=d0c7845b00cb5918fdce8e715360b255
+    PathContext: pathName = p pathID = 0
+    StreamContext: StreamID = 0 transition = Event
+    run: 1 lumi: 1 event: 2
+    runIndex = 0  luminosityBlockIndex = 0  unixTime = 0 microsecondOffset = 10000001
+    ProcessContext: PROD1 3c616240b8a4afc0d41892991162754d
+++++++++++ finished module for event: intProducerA
+StreamContext: StreamID = 0 transition = Event
+    run: 1 lumi: 1 event: 2
+    runIndex = 0  luminosityBlockIndex = 0  unixTime = 0 microsecondOffset = 10000001
+    ProcessContext: PROD1 3c616240b8a4afc0d41892991162754d
+ModuleCallingContext state = Running
+    moduleDescription: Module type=IntProducer, Module label=intProducerA, Parameter Set ID=38971365e8174cb2ccc12430661ba6d4
+    ModuleCallingContext state = Running
+    moduleDescription: Module type=TestFindProduct, Module label=a2, Parameter Set ID=d0c7845b00cb5918fdce8e715360b255
+    PathContext: pathName = p pathID = 0
+    StreamContext: StreamID = 0 transition = Event
+    run: 1 lumi: 1 event: 2
+    runIndex = 0  luminosityBlockIndex = 0  unixTime = 0 microsecondOffset = 10000001
+    ProcessContext: PROD1 3c616240b8a4afc0d41892991162754d
+++++++++ finished module for event: a2
+++++++++ module for event: a3
+++++++++ finished module for event: a3
+++++++ path for event finished: p
+StreamContext: StreamID = 0 transition = Event
+    run: 1 lumi: 1 event: 2
+    runIndex = 0  luminosityBlockIndex = 0  unixTime = 0 microsecondOffset = 10000001
+    ProcessContext: PROD1 3c616240b8a4afc0d41892991162754d
+PathContext: pathName = p pathID = 0
+    StreamContext: StreamID = 0 transition = Event
+    run: 1 lumi: 1 event: 2
+    runIndex = 0  luminosityBlockIndex = 0  unixTime = 0 microsecondOffset = 10000001
+    ProcessContext: PROD1 3c616240b8a4afc0d41892991162754d
+++++++++ module for event: TriggerResults
+++++++++ finished module for event: TriggerResults
+++++++ processing path for event: e
+StreamContext: StreamID = 0 transition = Event
+    run: 1 lumi: 1 event: 2
+    runIndex = 0  luminosityBlockIndex = 0  unixTime = 0 microsecondOffset = 10000001
+    ProcessContext: PROD1 3c616240b8a4afc0d41892991162754d
+PathContext: pathName = e pathID = 0
+    StreamContext: StreamID = 0 transition = Event
+    run: 1 lumi: 1 event: 2
+    runIndex = 0  luminosityBlockIndex = 0  unixTime = 0 microsecondOffset = 10000001
+    ProcessContext: PROD1 3c616240b8a4afc0d41892991162754d
+++++++++ module for event: out
+++++++++++ module for event: intProducerU
+++++++++++ finished module for event: intProducerU
+++++++++++ module for event: intVectorProducer
+++++++++++ finished module for event: intVectorProducer
+++++++++ finished module for event: out
+++++++ path for event finished: e
+StreamContext: StreamID = 0 transition = Event
+    run: 1 lumi: 1 event: 2
+    runIndex = 0  luminosityBlockIndex = 0  unixTime = 0 microsecondOffset = 10000001
+    ProcessContext: PROD1 3c616240b8a4afc0d41892991162754d
+PathContext: pathName = e pathID = 0
+    StreamContext: StreamID = 0 transition = Event
+    run: 1 lumi: 1 event: 2
+    runIndex = 0  luminosityBlockIndex = 0  unixTime = 0 microsecondOffset = 10000001
+    ProcessContext: PROD1 3c616240b8a4afc0d41892991162754d
+++++ event finished
+StreamContext: StreamID = 0 transition = Event
+    run: 1 lumi: 1 event: 2
+    runIndex = 0  luminosityBlockIndex = 0  unixTime = 0 microsecondOffset = 10000001
+    ProcessContext: PROD1 3c616240b8a4afc0d41892991162754d
+++++ processing event run: 1 lumi: 1 event: 2 time:10000001
+StreamContext: StreamID = 0 transition = Event
+    run: 1 lumi: 1 event: 2
+    runIndex = 0  luminosityBlockIndex = 0  unixTime = 0 microsecondOffset = 10000001
+    ProcessContext: COPY 5ea2a17b2b2eaa97af73c630882cd994
+    parent ProcessContext: PROD1 3c616240b8a4afc0d41892991162754d
+++++ event finished
+StreamContext: StreamID = 0 transition = Event
+    run: 1 lumi: 1 event: 2
+    runIndex = 0  luminosityBlockIndex = 0  unixTime = 0 microsecondOffset = 10000001
+    ProcessContext: COPY 5ea2a17b2b2eaa97af73c630882cd994
+    parent ProcessContext: PROD1 3c616240b8a4afc0d41892991162754d
+++++ source event
+++++ finished: source event
+++++ processing event run: 1 lumi: 1 event: 3 time:15000001
+StreamContext: StreamID = 0 transition = Event
+    run: 1 lumi: 1 event: 3
+    runIndex = 0  luminosityBlockIndex = 0  unixTime = 0 microsecondOffset = 15000001
+    ProcessContext: PROD1 3c616240b8a4afc0d41892991162754d
+++++++ processing path for event: p
+StreamContext: StreamID = 0 transition = Event
+    run: 1 lumi: 1 event: 3
+    runIndex = 0  luminosityBlockIndex = 0  unixTime = 0 microsecondOffset = 15000001
+    ProcessContext: PROD1 3c616240b8a4afc0d41892991162754d
+PathContext: pathName = p pathID = 0
+    StreamContext: StreamID = 0 transition = Event
+    run: 1 lumi: 1 event: 3
+    runIndex = 0  luminosityBlockIndex = 0  unixTime = 0 microsecondOffset = 15000001
+    ProcessContext: PROD1 3c616240b8a4afc0d41892991162754d
+++++++++ module for event: intProducer
+++++++++ finished module for event: intProducer
+++++++++ module for event: a1
+++++++++ finished module for event: a1
+++++++++ module for event: a2
+++++++++++ module for event: intProducerA
+StreamContext: StreamID = 0 transition = Event
+    run: 1 lumi: 1 event: 3
+    runIndex = 0  luminosityBlockIndex = 0  unixTime = 0 microsecondOffset = 15000001
+    ProcessContext: PROD1 3c616240b8a4afc0d41892991162754d
+ModuleCallingContext state = Running
+    moduleDescription: Module type=IntProducer, Module label=intProducerA, Parameter Set ID=38971365e8174cb2ccc12430661ba6d4
+    ModuleCallingContext state = Running
+    moduleDescription: Module type=TestFindProduct, Module label=a2, Parameter Set ID=d0c7845b00cb5918fdce8e715360b255
+    PathContext: pathName = p pathID = 0
+    StreamContext: StreamID = 0 transition = Event
+    run: 1 lumi: 1 event: 3
+    runIndex = 0  luminosityBlockIndex = 0  unixTime = 0 microsecondOffset = 15000001
+    ProcessContext: PROD1 3c616240b8a4afc0d41892991162754d
+++++++++++ finished module for event: intProducerA
+StreamContext: StreamID = 0 transition = Event
+    run: 1 lumi: 1 event: 3
+    runIndex = 0  luminosityBlockIndex = 0  unixTime = 0 microsecondOffset = 15000001
+    ProcessContext: PROD1 3c616240b8a4afc0d41892991162754d
+ModuleCallingContext state = Running
+    moduleDescription: Module type=IntProducer, Module label=intProducerA, Parameter Set ID=38971365e8174cb2ccc12430661ba6d4
+    ModuleCallingContext state = Running
+    moduleDescription: Module type=TestFindProduct, Module label=a2, Parameter Set ID=d0c7845b00cb5918fdce8e715360b255
+    PathContext: pathName = p pathID = 0
+    StreamContext: StreamID = 0 transition = Event
+    run: 1 lumi: 1 event: 3
+    runIndex = 0  luminosityBlockIndex = 0  unixTime = 0 microsecondOffset = 15000001
+    ProcessContext: PROD1 3c616240b8a4afc0d41892991162754d
+++++++++ finished module for event: a2
+++++++++ module for event: a3
+++++++++ finished module for event: a3
+++++++ path for event finished: p
+StreamContext: StreamID = 0 transition = Event
+    run: 1 lumi: 1 event: 3
+    runIndex = 0  luminosityBlockIndex = 0  unixTime = 0 microsecondOffset = 15000001
+    ProcessContext: PROD1 3c616240b8a4afc0d41892991162754d
+PathContext: pathName = p pathID = 0
+    StreamContext: StreamID = 0 transition = Event
+    run: 1 lumi: 1 event: 3
+    runIndex = 0  luminosityBlockIndex = 0  unixTime = 0 microsecondOffset = 15000001
+    ProcessContext: PROD1 3c616240b8a4afc0d41892991162754d
+++++++++ module for event: TriggerResults
+++++++++ finished module for event: TriggerResults
+++++++ processing path for event: e
+StreamContext: StreamID = 0 transition = Event
+    run: 1 lumi: 1 event: 3
+    runIndex = 0  luminosityBlockIndex = 0  unixTime = 0 microsecondOffset = 15000001
+    ProcessContext: PROD1 3c616240b8a4afc0d41892991162754d
+PathContext: pathName = e pathID = 0
+    StreamContext: StreamID = 0 transition = Event
+    run: 1 lumi: 1 event: 3
+    runIndex = 0  luminosityBlockIndex = 0  unixTime = 0 microsecondOffset = 15000001
+    ProcessContext: PROD1 3c616240b8a4afc0d41892991162754d
+++++++++ module for event: out
+++++++++++ module for event: intProducerU
+++++++++++ finished module for event: intProducerU
+++++++++++ module for event: intVectorProducer
+++++++++++ finished module for event: intVectorProducer
+++++++++ finished module for event: out
+++++++ path for event finished: e
+StreamContext: StreamID = 0 transition = Event
+    run: 1 lumi: 1 event: 3
+    runIndex = 0  luminosityBlockIndex = 0  unixTime = 0 microsecondOffset = 15000001
+    ProcessContext: PROD1 3c616240b8a4afc0d41892991162754d
+PathContext: pathName = e pathID = 0
+    StreamContext: StreamID = 0 transition = Event
+    run: 1 lumi: 1 event: 3
+    runIndex = 0  luminosityBlockIndex = 0  unixTime = 0 microsecondOffset = 15000001
+    ProcessContext: PROD1 3c616240b8a4afc0d41892991162754d
+++++ event finished
+StreamContext: StreamID = 0 transition = Event
+    run: 1 lumi: 1 event: 3
+    runIndex = 0  luminosityBlockIndex = 0  unixTime = 0 microsecondOffset = 15000001
+    ProcessContext: PROD1 3c616240b8a4afc0d41892991162754d
+++++ processing event run: 1 lumi: 1 event: 3 time:15000001
+StreamContext: StreamID = 0 transition = Event
+    run: 1 lumi: 1 event: 3
+    runIndex = 0  luminosityBlockIndex = 0  unixTime = 0 microsecondOffset = 15000001
+    ProcessContext: COPY 5ea2a17b2b2eaa97af73c630882cd994
+    parent ProcessContext: PROD1 3c616240b8a4afc0d41892991162754d
+++++ event finished
+StreamContext: StreamID = 0 transition = Event
+    run: 1 lumi: 1 event: 3
+    runIndex = 0  luminosityBlockIndex = 0  unixTime = 0 microsecondOffset = 15000001
+    ProcessContext: COPY 5ea2a17b2b2eaa97af73c630882cd994
+    parent ProcessContext: PROD1 3c616240b8a4afc0d41892991162754d
+++++ StreamEndLumi run: 1 lumi: 1 time: 15000001
+StreamContext: StreamID = 0 transition = EndLuminosityBlock
+    run: 1 lumi: 1 event: 0
+    runIndex = 0  luminosityBlockIndex = 0  unixTime = 0 microsecondOffset = 15000001
+    ProcessContext: PROD1 3c616240b8a4afc0d41892991162754d
+++++++ ModuleStreamEndLumi: intProducerA
+StreamContext: StreamID = 0 transition = EndLuminosityBlock
+    run: 1 lumi: 1 event: 0
+    runIndex = 0  luminosityBlockIndex = 0  unixTime = 0 microsecondOffset = 15000001
+    ProcessContext: PROD1 3c616240b8a4afc0d41892991162754d
+ModuleCallingContext state = Running
+    moduleDescription: Module type=IntProducer, Module label=intProducerA, Parameter Set ID=38971365e8174cb2ccc12430661ba6d4
+    StreamContext: StreamID = 0 transition = EndLuminosityBlock
+    run: 1 lumi: 1 event: 0
+    runIndex = 0  luminosityBlockIndex = 0  unixTime = 0 microsecondOffset = 15000001
+    ProcessContext: PROD1 3c616240b8a4afc0d41892991162754d
+++++++ ModuleStreamEndLumi finished: intProducerA
+StreamContext: StreamID = 0 transition = EndLuminosityBlock
+    run: 1 lumi: 1 event: 0
+    runIndex = 0  luminosityBlockIndex = 0  unixTime = 0 microsecondOffset = 15000001
+    ProcessContext: PROD1 3c616240b8a4afc0d41892991162754d
+ModuleCallingContext state = Running
+    moduleDescription: Module type=IntProducer, Module label=intProducerA, Parameter Set ID=38971365e8174cb2ccc12430661ba6d4
+    StreamContext: StreamID = 0 transition = EndLuminosityBlock
+    run: 1 lumi: 1 event: 0
+    runIndex = 0  luminosityBlockIndex = 0  unixTime = 0 microsecondOffset = 15000001
+    ProcessContext: PROD1 3c616240b8a4afc0d41892991162754d
+++++++ ModuleStreamEndLumi: intProducerU
+++++++ ModuleStreamEndLumi finished: intProducerU
+++++++ ModuleStreamEndLumi: intVectorProducer
+++++++ ModuleStreamEndLumi finished: intVectorProducer
+++++++ ModuleStreamEndLumi: intProducer
+++++++ ModuleStreamEndLumi finished: intProducer
+++++++ ModuleStreamEndLumi: a1
+++++++ ModuleStreamEndLumi finished: a1
+++++++ ModuleStreamEndLumi: a2
+++++++ ModuleStreamEndLumi finished: a2
+++++++ ModuleStreamEndLumi: a3
+++++++ ModuleStreamEndLumi finished: a3
+++++++ ModuleStreamEndLumi: out
+++++++ ModuleStreamEndLumi finished: out
+++++ StreamEndLumi finished
+StreamContext: StreamID = 0 transition = EndLuminosityBlock
+    run: 1 lumi: 1 event: 0
+    runIndex = 0  luminosityBlockIndex = 0  unixTime = 0 microsecondOffset = 15000001
+    ProcessContext: PROD1 3c616240b8a4afc0d41892991162754d
+++++ StreamEndLumi run: 1 lumi: 1 time: 0
+StreamContext: StreamID = 0 transition = EndLuminosityBlock
+    run: 1 lumi: 1 event: 0
+    runIndex = 0  luminosityBlockIndex = 0  unixTime = 0 microsecondOffset = 0
+    ProcessContext: COPY 5ea2a17b2b2eaa97af73c630882cd994
+    parent ProcessContext: PROD1 3c616240b8a4afc0d41892991162754d
+++++ StreamEndLumi finished
+StreamContext: StreamID = 0 transition = EndLuminosityBlock
+    run: 1 lumi: 1 event: 0
+    runIndex = 0  luminosityBlockIndex = 0  unixTime = 0 microsecondOffset = 0
+    ProcessContext: COPY 5ea2a17b2b2eaa97af73c630882cd994
+    parent ProcessContext: PROD1 3c616240b8a4afc0d41892991162754d
+++++ GlobalEndLumi run: 1 lumi: 1 time: 1
+GlobalContext: transition = EndLuminosityBlock
+    run: 1 luminosityBlock: 1
+    runIndex = 0  luminosityBlockIndex = 0  unixTime = 0 microsecondOffset = 1
+    ProcessContext: PROD1 3c616240b8a4afc0d41892991162754d
+++++++ ModuleGlobalEndLumi: intProducerA
+GlobalContext: transition = EndLuminosityBlock
+    run: 1 luminosityBlock: 1
+    runIndex = 0  luminosityBlockIndex = 0  unixTime = 0 microsecondOffset = 1
+    ProcessContext: PROD1 3c616240b8a4afc0d41892991162754d
+ModuleCallingContext state = Running
+    moduleDescription: Module type=IntProducer, Module label=intProducerA, Parameter Set ID=38971365e8174cb2ccc12430661ba6d4
+    GlobalContext: transition = EndLuminosityBlock
+    run: 1 luminosityBlock: 1
+    runIndex = 0  luminosityBlockIndex = 0  unixTime = 0 microsecondOffset = 1
+    ProcessContext: PROD1 3c616240b8a4afc0d41892991162754d
+++++++ ModuleGlobalEndLumi finished: intProducerA
+GlobalContext: transition = EndLuminosityBlock
+    run: 1 luminosityBlock: 1
+    runIndex = 0  luminosityBlockIndex = 0  unixTime = 0 microsecondOffset = 1
+    ProcessContext: PROD1 3c616240b8a4afc0d41892991162754d
+ModuleCallingContext state = Running
+    moduleDescription: Module type=IntProducer, Module label=intProducerA, Parameter Set ID=38971365e8174cb2ccc12430661ba6d4
+    GlobalContext: transition = EndLuminosityBlock
+    run: 1 luminosityBlock: 1
+    runIndex = 0  luminosityBlockIndex = 0  unixTime = 0 microsecondOffset = 1
+    ProcessContext: PROD1 3c616240b8a4afc0d41892991162754d
+++++++ ModuleGlobalEndLumi: intProducerU
+++++++ ModuleGlobalEndLumi finished: intProducerU
+++++++ ModuleGlobalEndLumi: intVectorProducer
+++++++ ModuleGlobalEndLumi finished: intVectorProducer
+++++++ ModuleGlobalEndLumi: intProducer
+++++++ ModuleGlobalEndLumi finished: intProducer
+++++++ ModuleGlobalEndLumi: a1
+++++++ ModuleGlobalEndLumi finished: a1
+++++++ ModuleGlobalEndLumi: a2
+++++++ ModuleGlobalEndLumi finished: a2
+++++++ ModuleGlobalEndLumi: a3
+++++++ ModuleGlobalEndLumi finished: a3
+++++++ ModuleGlobalEndLumi: out
+++++++ ModuleGlobalEndLumi finished: out
+++++ GlobalEndLumi finished
+GlobalContext: transition = EndLuminosityBlock
+    run: 1 luminosityBlock: 1
+    runIndex = 0  luminosityBlockIndex = 0  unixTime = 0 microsecondOffset = 1
+    ProcessContext: PROD1 3c616240b8a4afc0d41892991162754d
+++++ GlobalEndLumi run: 1 lumi: 1 time: 1
+GlobalContext: transition = EndLuminosityBlock
+    run: 1 luminosityBlock: 1
+    runIndex = 0  luminosityBlockIndex = 0  unixTime = 0 microsecondOffset = 1
+    ProcessContext: COPY 5ea2a17b2b2eaa97af73c630882cd994
+    parent ProcessContext: PROD1 3c616240b8a4afc0d41892991162754d
+++++ GlobalEndLumi finished
+GlobalContext: transition = EndLuminosityBlock
+    run: 1 luminosityBlock: 1
+    runIndex = 0  luminosityBlockIndex = 0  unixTime = 0 microsecondOffset = 1
+    ProcessContext: COPY 5ea2a17b2b2eaa97af73c630882cd994
+    parent ProcessContext: PROD1 3c616240b8a4afc0d41892991162754d
+++++ StreamEndRun run: 1 time: 15000001
+StreamContext: StreamID = 0 transition = EndRun
+    run: 1 lumi: 0 event: 0
+    runIndex = 0  luminosityBlockIndex = 4294967295  unixTime = 0 microsecondOffset = 15000001
+    ProcessContext: PROD1 3c616240b8a4afc0d41892991162754d
+++++++ ModuleStreamEndRun: intProducerA
+StreamContext: StreamID = 0 transition = EndRun
+    run: 1 lumi: 0 event: 0
+    runIndex = 0  luminosityBlockIndex = 4294967295  unixTime = 0 microsecondOffset = 15000001
+    ProcessContext: PROD1 3c616240b8a4afc0d41892991162754d
+ModuleCallingContext state = Running
+    moduleDescription: Module type=IntProducer, Module label=intProducerA, Parameter Set ID=38971365e8174cb2ccc12430661ba6d4
+    StreamContext: StreamID = 0 transition = EndRun
+    run: 1 lumi: 0 event: 0
+    runIndex = 0  luminosityBlockIndex = 4294967295  unixTime = 0 microsecondOffset = 15000001
+    ProcessContext: PROD1 3c616240b8a4afc0d41892991162754d
+++++++ ModuleStreamEndRun finished: intProducerA
+StreamContext: StreamID = 0 transition = EndRun
+    run: 1 lumi: 0 event: 0
+    runIndex = 0  luminosityBlockIndex = 4294967295  unixTime = 0 microsecondOffset = 15000001
+    ProcessContext: PROD1 3c616240b8a4afc0d41892991162754d
+ModuleCallingContext state = Running
+    moduleDescription: Module type=IntProducer, Module label=intProducerA, Parameter Set ID=38971365e8174cb2ccc12430661ba6d4
+    StreamContext: StreamID = 0 transition = EndRun
+    run: 1 lumi: 0 event: 0
+    runIndex = 0  luminosityBlockIndex = 4294967295  unixTime = 0 microsecondOffset = 15000001
+    ProcessContext: PROD1 3c616240b8a4afc0d41892991162754d
+++++++ ModuleStreamEndRun: intProducerU
+++++++ ModuleStreamEndRun finished: intProducerU
+++++++ ModuleStreamEndRun: intVectorProducer
+++++++ ModuleStreamEndRun finished: intVectorProducer
+++++++ ModuleStreamEndRun: intProducer
+++++++ ModuleStreamEndRun finished: intProducer
+++++++ ModuleStreamEndRun: a1
+++++++ ModuleStreamEndRun finished: a1
+++++++ ModuleStreamEndRun: a2
+++++++ ModuleStreamEndRun finished: a2
+++++++ ModuleStreamEndRun: a3
+++++++ ModuleStreamEndRun finished: a3
+++++++ ModuleStreamEndRun: out
+++++++ ModuleStreamEndRun finished: out
+++++ StreamEndRun finished
+StreamContext: StreamID = 0 transition = EndRun
+    run: 1 lumi: 0 event: 0
+    runIndex = 0  luminosityBlockIndex = 4294967295  unixTime = 0 microsecondOffset = 15000001
+    ProcessContext: PROD1 3c616240b8a4afc0d41892991162754d
+++++ StreamEndRun run: 1 time: 0
+StreamContext: StreamID = 0 transition = EndRun
+    run: 1 lumi: 0 event: 0
+    runIndex = 0  luminosityBlockIndex = 4294967295  unixTime = 0 microsecondOffset = 0
+    ProcessContext: COPY 5ea2a17b2b2eaa97af73c630882cd994
+    parent ProcessContext: PROD1 3c616240b8a4afc0d41892991162754d
+++++ StreamEndRun finished
+StreamContext: StreamID = 0 transition = EndRun
+    run: 1 lumi: 0 event: 0
+    runIndex = 0  luminosityBlockIndex = 4294967295  unixTime = 0 microsecondOffset = 0
+    ProcessContext: COPY 5ea2a17b2b2eaa97af73c630882cd994
+    parent ProcessContext: PROD1 3c616240b8a4afc0d41892991162754d
+++++ GlobalEndRun run: 1 time: 15000001
+GlobalContext: transition = EndRun
+    run: 1 luminosityBlock: 0
+    runIndex = 0  luminosityBlockIndex = 4294967295  unixTime = 0 microsecondOffset = 15000001
+    ProcessContext: PROD1 3c616240b8a4afc0d41892991162754d
+++++++ ModuleGlobalEndRun: intProducerA
+GlobalContext: transition = EndRun
+    run: 1 luminosityBlock: 0
+    runIndex = 0  luminosityBlockIndex = 4294967295  unixTime = 0 microsecondOffset = 15000001
+    ProcessContext: PROD1 3c616240b8a4afc0d41892991162754d
+ModuleCallingContext state = Running
+    moduleDescription: Module type=IntProducer, Module label=intProducerA, Parameter Set ID=38971365e8174cb2ccc12430661ba6d4
+    GlobalContext: transition = EndRun
+    run: 1 luminosityBlock: 0
+    runIndex = 0  luminosityBlockIndex = 4294967295  unixTime = 0 microsecondOffset = 15000001
+    ProcessContext: PROD1 3c616240b8a4afc0d41892991162754d
+++++++ ModuleGlobalEndRun finished: intProducerA
+GlobalContext: transition = EndRun
+    run: 1 luminosityBlock: 0
+    runIndex = 0  luminosityBlockIndex = 4294967295  unixTime = 0 microsecondOffset = 15000001
+    ProcessContext: PROD1 3c616240b8a4afc0d41892991162754d
+ModuleCallingContext state = Running
+    moduleDescription: Module type=IntProducer, Module label=intProducerA, Parameter Set ID=38971365e8174cb2ccc12430661ba6d4
+    GlobalContext: transition = EndRun
+    run: 1 luminosityBlock: 0
+    runIndex = 0  luminosityBlockIndex = 4294967295  unixTime = 0 microsecondOffset = 15000001
+    ProcessContext: PROD1 3c616240b8a4afc0d41892991162754d
+++++++ ModuleGlobalEndRun: intProducerU
+++++++ ModuleGlobalEndRun finished: intProducerU
+++++++ ModuleGlobalEndRun: intVectorProducer
+++++++ ModuleGlobalEndRun finished: intVectorProducer
+++++++ ModuleGlobalEndRun: intProducer
+++++++ ModuleGlobalEndRun finished: intProducer
+++++++ ModuleGlobalEndRun: a1
+++++++ ModuleGlobalEndRun finished: a1
+++++++ ModuleGlobalEndRun: a2
+++++++ ModuleGlobalEndRun finished: a2
+++++++ ModuleGlobalEndRun: a3
+++++++ ModuleGlobalEndRun finished: a3
+++++++ ModuleGlobalEndRun: out
+++++++ ModuleGlobalEndRun finished: out
+++++ GlobalEndRun finished
+GlobalContext: transition = EndRun
+    run: 1 luminosityBlock: 0
+    runIndex = 0  luminosityBlockIndex = 4294967295  unixTime = 0 microsecondOffset = 15000001
+    ProcessContext: PROD1 3c616240b8a4afc0d41892991162754d
+++++ GlobalEndRun run: 1 time: 0
+GlobalContext: transition = EndRun
+    run: 1 luminosityBlock: 0
+    runIndex = 0  luminosityBlockIndex = 4294967295  unixTime = 0 microsecondOffset = 0
+    ProcessContext: COPY 5ea2a17b2b2eaa97af73c630882cd994
+    parent ProcessContext: PROD1 3c616240b8a4afc0d41892991162754d
+++++ GlobalEndRun finished
+GlobalContext: transition = EndRun
+    run: 1 luminosityBlock: 0
+    runIndex = 0  luminosityBlockIndex = 4294967295  unixTime = 0 microsecondOffset = 0
+    ProcessContext: COPY 5ea2a17b2b2eaa97af73c630882cd994
+    parent ProcessContext: PROD1 3c616240b8a4afc0d41892991162754d
+++++ ModuleEndStream: 
+++++ ModuleEndStream finished
+++++ ModuleEndStream: 
+++++ ModuleEndStream finished
+++++ ModuleEndStream: 
+++++ ModuleEndStream finished
+++++ ModuleEndStream: 
+++++ ModuleEndStream finished
+++++ ModuleEndStream: 
+++++ ModuleEndStream finished
+++++ ModuleEndStream: 
+++++ ModuleEndStream finished
+++++ ModuleEndStream: 
+StreamContext: StreamID = 0 transition = EndStream
+    run: 0 lumi: 0 event: 0
+    runIndex = 4294967295  luminosityBlockIndex = 4294967295  unixTime = 0 microsecondOffset = 0
+    ProcessContext: PROD1 3c616240b8a4afc0d41892991162754d
+Module type=IntProducer, Module label=intProducerA, Parameter Set ID=38971365e8174cb2ccc12430661ba6d4
+++++ ModuleEndStream finished
+StreamContext: StreamID = 0 transition = EndStream
+    run: 0 lumi: 0 event: 0
+    runIndex = 4294967295  luminosityBlockIndex = 4294967295  unixTime = 0 microsecondOffset = 0
+    ProcessContext: PROD1 3c616240b8a4afc0d41892991162754d
+Module type=IntProducer, Module label=intProducerA, Parameter Set ID=38971365e8174cb2ccc12430661ba6d4
+++++ ModuleEndStream: 
+++++ ModuleEndStream finished
+++++ ModuleEndStream: 
+++++ ModuleEndStream finished
+++ ModuleEndJob: intProducer
+++ ModuleEndJob finished: intProducer
+++ ModuleEndJob: a1
+TestFindProduct sum = 12
+++ ModuleEndJob finished: a1
+++ ModuleEndJob: a2
+TestFindProduct sum = 300
+++ ModuleEndJob finished: a2
+++ ModuleEndJob: a3
+TestFindProduct sum = 300
+++ ModuleEndJob finished: a3
+++ ModuleEndJob: TriggerResults
+++ ModuleEndJob finished: TriggerResults
+++ ModuleEndJob: out
+++ ModuleEndJob finished: out
+++ ModuleEndJob: intProducerA
+Module type=IntProducer, Module label=intProducerA, Parameter Set ID=38971365e8174cb2ccc12430661ba6d4
+++ ModuleEndJob finished: intProducerA
+Module type=IntProducer, Module label=intProducerA, Parameter Set ID=38971365e8174cb2ccc12430661ba6d4
+++ ModuleEndJob: intProducerU
+++ ModuleEndJob finished: intProducerU
+++ ModuleEndJob: intVectorProducer
+++ ModuleEndJob finished: intVectorProducer
+++ Job ended

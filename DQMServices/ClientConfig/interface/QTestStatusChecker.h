@@ -7,8 +7,6 @@
  *  DQMStore) and fills string maps containing the alarms
  *
  * 
- *  $Date: 2013/05/23 16:16:28 $
- *  $Revision: 1.8 $
  *  \author Ilaria Segoni
   */
 

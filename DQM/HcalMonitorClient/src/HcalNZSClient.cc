@@ -11,8 +11,6 @@
 /*
  * \file HcalNZSClient.cc
  * 
- * $Date: 2012/06/18 08:23:10 $
- * $Revision: 1.5 $
  * \author J. Temple
  * \brief Hcal NZS Client class
  */

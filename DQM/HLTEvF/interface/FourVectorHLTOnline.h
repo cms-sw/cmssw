@@ -19,7 +19,6 @@
 // Rewritten by: Vladimir Rekovic
 //         Date:  May 2009
 //
-// $Id: FourVectorHLTOnline.h,v 1.18 2011/09/20 21:49:27 slaunwhj Exp $
 //
 //
 

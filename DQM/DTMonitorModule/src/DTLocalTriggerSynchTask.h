@@ -4,8 +4,6 @@
 /*
  * \file DTLocalTriggerSynchTask.h
  *
- * $Date: 2010/03/05 09:11:52 $
- * $Revision: 1.4 $
  * \author C. Battilana - CIEMAT
  *
 */

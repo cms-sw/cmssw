@@ -9,8 +9,6 @@ or could be subclassed renaming a function or two.
 This code began life in COMP/CRAB/python/LumiList.py
 """
 
-__revision__ = "$Id: LumiList.py,v 1.15 2011/11/02 16:06:57 ewv Exp $"
-__version__ = "$Revision: 1.15 $"
 
 import json
 import re

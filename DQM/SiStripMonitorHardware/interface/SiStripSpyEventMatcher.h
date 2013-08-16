@@ -170,7 +170,11 @@ namespace sistrip {
   template <class T> const T* SpyEventMatcher::getProduct(const edm::EventPrincipal& event, const edm::InputTag& tag)
   {
     LogDebug(mlLabel_) << "Retrieving product " << tag;
-    const boost::shared_ptr< const edm::Wrapper<T> > productWrapper = edm::getProductByTag<T>(event,tag);
+    // Note: The third argument to getProductByTag can be a nullptr
+    // as long as unscheduled execution of an EDProducer cannot occur
+    // as a result of this function call (and with the current implementation
+    // of SpyEventMatcher unscheduled execution never happens).
+    const boost::shared_ptr< const edm::Wrapper<T> > productWrapper = edm::getProductByTag<T>(event,tag,nullptr);
     if (productWrapper) {
       return productWrapper->product();
     } else {

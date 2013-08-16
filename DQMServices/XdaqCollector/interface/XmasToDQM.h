@@ -1,4 +1,3 @@
-// $Id: XmasToDQM.h,v 1.3 2012/10/25 06:07:57 davidlt Exp $
 
 /*************************************************************************
  * XDAQ Components for Distributed Data Acquisition                      *
