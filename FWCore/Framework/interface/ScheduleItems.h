@@ -10,7 +10,7 @@
 #include <vector>
 
 namespace edm {
-  class ActionTable;
+  class ExceptionToActionTable;
   class ActivityRegistry;
   class BranchIDListHelper;
   class CommonParams;
@@ -56,7 +56,7 @@ namespace edm {
     boost::shared_ptr<ActivityRegistry>           actReg_;
     std::unique_ptr<SignallingProductRegistry>    preg_;
     boost::shared_ptr<BranchIDListHelper>         branchIDListHelper_;
-    std::unique_ptr<ActionTable const>            act_table_;
+    std::unique_ptr<ExceptionToActionTable const>            act_table_;
     boost::shared_ptr<ProcessConfiguration>       processConfiguration_;
   };
 }

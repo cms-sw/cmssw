@@ -9,7 +9,7 @@
 namespace edm {
   // -----------------------------
 
-  WorkerManager::WorkerManager(boost::shared_ptr<ActivityRegistry> areg, ActionTable const& actions) :
+  WorkerManager::WorkerManager(boost::shared_ptr<ActivityRegistry> areg, ExceptionToActionTable const& actions) :
     workerReg_(areg),
     actionTable_(&actions),
     allWorkers_(),

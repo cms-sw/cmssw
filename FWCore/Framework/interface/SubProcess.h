@@ -216,7 +216,7 @@ namespace edm {
     boost::shared_ptr<ProductRegistry const>      parentPreg_;
     boost::shared_ptr<ProductRegistry const>	  preg_;
     boost::shared_ptr<BranchIDListHelper>         branchIDListHelper_;
-    std::unique_ptr<ActionTable const>            act_table_;
+    std::unique_ptr<ExceptionToActionTable const>            act_table_;
     boost::shared_ptr<ProcessConfiguration const> processConfiguration_;
     ProcessContext                                processContext_;
     PrincipalCache                                principalCache_;
