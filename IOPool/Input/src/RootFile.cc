@@ -15,7 +15,6 @@
 #include "DataFormats/Provenance/interface/FullHistoryToReducedHistoryMap.h"
 #include "DataFormats/Provenance/interface/ParameterSetBlob.h"
 #include "DataFormats/Provenance/interface/ParentageRegistry.h"
-#include "DataFormats/Provenance/interface/ProcessConfigurationRegistry.h"
 #include "DataFormats/Provenance/interface/ProcessHistoryID.h"
 #include "DataFormats/Provenance/interface/ProcessHistoryRegistry.h"
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
@@ -380,7 +379,6 @@ namespace edm {
     }
 
     ProcessHistoryRegistry::instance()->insertCollection(pHistVector);
-    ProcessConfigurationRegistry::instance()->insertCollection(processConfigurations_);
 
     eventTree_.trainCache(BranchTypeToAuxiliaryBranchName(InEvent).c_str());
 

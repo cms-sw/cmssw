@@ -61,10 +61,21 @@ namespace edm {
     return config.id();
   }
 
+  bool
+  Provenance::getProcessConfiguration(ProcessConfiguration& pc) const {
+    // Get the ProcessHistory for this event.
+    ProcessHistoryRegistry* phr = ProcessHistoryRegistry::instance();
+    ProcessHistory ph;
+    if (!phr->getMapped(processHistoryID(), ph)) {
+      return false;
+    }
+    return ph.getConfigurationForProcess(processName(), pc);
+  }
+
   ReleaseVersion
   Provenance::releaseVersion() const {
     ProcessConfiguration pc;
-    ProcessConfigurationRegistry::instance()->getMapped(processConfigurationID(), pc);
+    assert(getProcessConfiguration(pc));
     return pc.releaseVersion();
   }
 

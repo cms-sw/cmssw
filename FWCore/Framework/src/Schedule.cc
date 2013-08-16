@@ -424,7 +424,6 @@ namespace edm {
     // already relied on the WorkerManager being full.
     assert (all_workers_count == allWorkers().size());
 
-    ProcessConfigurationRegistry::instance()->insertMapped(*processConfiguration);
     branchIDListHelper.updateRegistries(preg);
     fillProductRegistryTransients(*processConfiguration, preg);
 

@@ -821,10 +821,8 @@ DQMRootSource::setupFile(unsigned int iIndex)
     std::string* pPassID = &passID;
     processHistoryTree->SetBranchAddress(kProcessConfigurationPassID,&pPassID);
 
-    edm::ProcessConfigurationRegistry* pcr = edm::ProcessConfigurationRegistry::instance();
-    assert(0!=pcr);
     edm::ProcessHistoryRegistry* phr = edm::ProcessHistoryRegistry::instance();
-    assert(0!=phr);
+    assert(nullptr != phr);
     std::vector<edm::ProcessConfiguration> configs;
     configs.reserve(5);
     m_historyIDs.clear();
@@ -842,7 +840,6 @@ DQMRootSource::setupFile(unsigned int iIndex)
       }
       edm::ParameterSetID psetID(parameterSetIDBlob);
       edm::ProcessConfiguration pc(processName, psetID,releaseVersion,passID);
-      pcr->insertMapped(pc);
       configs.push_back(pc);
     }
     if(not configs.empty()) {

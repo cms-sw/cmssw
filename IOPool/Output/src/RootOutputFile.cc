@@ -506,13 +506,17 @@ namespace edm {
   }
 
   void RootOutputFile::writeProcessConfigurationRegistry() {
-    typedef ProcessConfigurationRegistry::collection_type Map;
-    Map const& procConfigMap = ProcessConfigurationRegistry::instance()->data();
+    typedef ProcessHistoryRegistry::collection_type Map;
+    Map const& procHistoryMap = ProcessHistoryRegistry::instance()->data();
     ProcessConfigurationVector procConfigVector;
-    for(auto const& pc : procConfigMap) {
-      procConfigVector.push_back(pc.second);
+    for(auto const& ph : procHistoryMap) {
+      for(auto const& pc : ph.second) {
+        procConfigVector.push_back(pc);
+      }
     }
     sort_all(procConfigVector);
+    auto newEnd = unique(procConfigVector.begin(), procConfigVector.end());
+    procConfigVector.erase(newEnd, procConfigVector.end());
     ProcessConfigurationVector* p = &procConfigVector;
     TBranch* b = metaDataTree_->Branch(poolNames::processConfigurationBranchName().c_str(), &p, om_->basketSize(), 0);
     assert(b);

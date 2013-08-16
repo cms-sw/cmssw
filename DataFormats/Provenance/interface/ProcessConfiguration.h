@@ -8,6 +8,7 @@
 
 #include <iosfwd>
 #include <string>
+#include <vector>
 
 namespace edm {
   class ProcessConfiguration {
@@ -59,6 +60,8 @@ namespace edm {
     PassID passID_;
     Transients transient_;
   };
+
+  typedef std::vector<ProcessConfiguration> ProcessConfigurationVector;
 
   bool
   operator<(ProcessConfiguration const& a, ProcessConfiguration const& b);
