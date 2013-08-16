@@ -25,7 +25,7 @@ private:
   TrackProducerAlgorithm<reco::Track> theAlgo;
   enum Constraint { none, momentum, vertex, trackParameters };
   Constraint constraint_;
-  edm::InputTag trkconstrcoll_;
+  edm::EDGetToken trkconstrcoll_;
 
 };
 
