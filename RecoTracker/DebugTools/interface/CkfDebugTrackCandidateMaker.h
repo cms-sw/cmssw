@@ -7,7 +7,7 @@
 #include "FWCore/Framework/interface/EDProducer.h"
 
 namespace cms {
-  class CkfDebugTrackCandidateMaker : public CkfTrackCandidateMakerBase, public edm::EDProducer {
+  class CkfDebugTrackCandidateMaker : public edm::EDProducer, public CkfTrackCandidateMakerBase {
   public:
     CkfDebugTrackCandidateMaker(const edm::ParameterSet& conf) : CkfTrackCandidateMakerBase(conf, consumesCollector()) {
       produces<TrackCandidateCollection>();

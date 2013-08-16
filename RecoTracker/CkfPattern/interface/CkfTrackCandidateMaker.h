@@ -24,7 +24,7 @@ class TransientInitialStateEstimator;
 
 namespace cms
 {
-  class CkfTrackCandidateMaker : public CkfTrackCandidateMakerBase, public edm::EDProducer
+  class CkfTrackCandidateMaker : public edm::EDProducer, public CkfTrackCandidateMakerBase
   {
   public:
 
