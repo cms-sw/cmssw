@@ -19,7 +19,7 @@ def SetOptStat(h, op):
   stat.SetOptStat(op)
   return stat
     
-def getH(f, dir, name):
+def GetH(f, dir, name):
   """Get the histogram"""
   dir = "SimMuL1StrictAll"
   return f.Get("%s/%s;1"%(dir,name))

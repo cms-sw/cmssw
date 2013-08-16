@@ -1,4 +1,4 @@
-from triggerPlothelpers import *
+from triggerPlotHelpers import *
 
 ## ROOT modules
 from ROOT import *
