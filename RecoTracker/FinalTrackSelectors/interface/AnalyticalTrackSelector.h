@@ -58,6 +58,9 @@ namespace reco { namespace modules {
             /// eta restrictions
             double minEta_;
 	    double maxEta_;
+
+            edm::EDGetTokenT<std::vector<Trajectory> >        srcTraj_;
+            edm::EDGetTokenT<TrajTrackAssociationCollection > srcTass_;
 			
             /// storage
             std::auto_ptr<reco::TrackCollection> selTracks_;
