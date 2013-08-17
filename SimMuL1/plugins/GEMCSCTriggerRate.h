@@ -8,7 +8,6 @@
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
-
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -20,32 +19,36 @@
 
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
 #include "Geometry/CSCGeometry/interface/CSCGeometry.h"
-//#include <Geometry/CSCGeometry/interface/CSCLayer.h>
-#include "Geometry/DTGeometry/interface/DTGeometry.h"
-#include "Geometry/RPCGeometry/interface/RPCGeometry.h"
 
-#include "DataFormats/MuonDetId/interface/CSCDetId.h"
-//#include <DataFormats/L1CSCTrackFinder/interface/CSCTFConstants.h>
-#include <DataFormats/CSCDigi/interface/CSCALCTDigiCollection.h>
-#include <DataFormats/CSCDigi/interface/CSCCLCTDigiCollection.h>
-#include "DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigiCollection.h"
-#include <DataFormats/CSCDigi/interface/CSCWireDigiCollection.h>
-#include <DataFormats/CSCDigi/interface/CSCComparatorDigiCollection.h>
+#include "DataFormats/CSCDigi/interface/CSCALCTDigiCollection.h"
+#include "DataFormats/CSCDigi/interface/CSCCLCTDigiCollection.h"
+#include "DataFormats/CSCDigi/interface/CSCComparatorDigiCollection.h"
 
-#include <DataFormats/L1DTTrackFinder/interface/L1MuDTChambPhContainer.h>
+#include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambPhContainer.h"
 #include "DataFormats/L1CSCTrackFinder/interface/L1CSCTrackCollection.h"
-
 #include "DataFormats/L1GlobalMuonTrigger/interface/L1MuGMTReadoutCollection.h"
-
 #include "DataFormats/L1Trigger/interface/L1MuonParticleFwd.h"
 #include "DataFormats/L1Trigger/interface/L1MuonParticle.h"
+#include "DataFormats/L1Trigger/interface/L1MuonParticleFwd.h"
+#include "DataFormats/L1Trigger/interface/L1MuonParticle.h"
+#include "DataFormats/Math/interface/deltaPhi.h"
 
-#include <L1Trigger/CSCCommonTrigger/interface/CSCConstants.h>
-#include <L1Trigger/CSCTrackFinder/interface/CSCTFPtLUT.h>
+#include "L1Trigger/CSCCommonTrigger/interface/CSCConstants.h"
+#include "L1Trigger/CSCCommonTrigger/interface/CSCTriggerGeometry.h"
+#include "L1Trigger/CSCTrackFinder/interface/CSCTFPtLUT.h"
+#include "L1Trigger/CSCTrackFinder/interface/CSCTFSectorProcessor.h"
+#include "L1Trigger/CSCTrackFinder/interface/CSCSectorReceiverLUT.h"
+#include "L1Trigger/CSCTrackFinder/interface/CSCTrackFinderDataTypes.h"
+#include "L1Trigger/CSCTrackFinder/src/CSCTFDTReceiver.h"
 
 #include "CondFormats/L1TObjects/interface/L1MuTriggerScales.h"
 #include "CondFormats/L1TObjects/interface/L1MuTriggerPtScale.h"
+#include "CondFormats/DataRecord/interface/L1MuTriggerScalesRcd.h"
+#include "CondFormats/DataRecord/interface/L1MuTriggerPtScaleRcd.h"
 
+#include "SimMuon/CSCDigitizer/src/CSCDbStripConditions.h"
+
+#include "GEMCode/SimMuL1/interface/EtaRangeHelpers.h"
 #include "GEMCode/SimMuL1/interface/PSimHitMap.h"
 #include "GEMCode/SimMuL1/interface/MatchCSCMuL1.h"
 
@@ -53,21 +56,6 @@
 #include "TH1.h"
 #include "TH2.h"
 #include "TTree.h"
-
-
-
-class DTGeometry;
-class CSCGeometry;
-class RPCGeometry;
-class GEMGeometry;
-class MuonDetLayerGeometry;
-
-class CSCTFSectorProcessor;
-class CSCSectorReceiverLUT;
-class CSCTFDTReceiver;
-
-class CSCStripConditions;
-
 
 class GEMCSCTriggerRate : public edm::EDAnalyzer 
 {
@@ -77,9 +65,9 @@ public:
 
   ~GEMCSCTriggerRate();
 
-  virtual void beginJob();
-
   virtual void beginRun(const edm::Run&, const edm::EventSetup&);
+
+  virtual void beginJob();
 
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
 
@@ -126,6 +114,15 @@ private:
   edm::ESHandle< L1MuTriggerScales > muScales;
   edm::ESHandle< L1MuTriggerPtScale > muPtScale;
 
+  void bookALCTTree();
+  void bookCLCTTree();
+  void bookLCTTree();
+  void bookMPLCTTree();
+  void bookTFTrackTree();
+  void bookTFCandTree();
+  void bookGMTRegionalTree();
+  void bookGMTCandTree();
+
   void analyzeALCTRate(const edm::Event&);
   void analyzeCLCTRate(const edm::Event&);
   void analyzeLCTRate(const edm::Event&);
@@ -136,7 +133,6 @@ private:
   void analyzeGMTCandRate(const edm::Event&);
 
   // config parameters:
-  bool lightRun;
   bool defaultME1a;
 
   bool doStrictSimHitToTrackMatch_;
@@ -202,15 +198,11 @@ private:
   
   double minSimTrackDR_;
 
-  
   // members
   std::vector<MatchCSCMuL1*> matches;
   std::map<unsigned,unsigned> trkId2Index;
 
   const CSCGeometry* cscGeometry;
-  const DTGeometry* dtGeometry;
-  const RPCGeometry* rpcGeometry;
-  const GEMGeometry* gemGeometry;
 
   edm::ParameterSet gemMatchCfg_;
   std::vector<double> gemPTs_, gemDPhisOdd_, gemDPhisEven_;
@@ -593,29 +585,6 @@ private:
   TH1D * h_gmt_eta_dt_sing_gpt[N_PT_THRESHOLDS];
   TH1D * h_gmt_eta_rpcf_sing_gpt[N_PT_THRESHOLDS];
   TH1D * h_gmt_eta_rpcb_sing_gpt[N_PT_THRESHOLDS];
-
-  bool fill_debug_tree_;
-  TTree* dbg_tree;
-  void bookDbgTTree();
-  struct DbgStruct
-  {
-    int evtn;
-    int trkn;
-    float pt,eta,phi;
-    float tfpt, tfeta, tfphi;
-    int tfpt_packed, tfeta_packed, tfphi_packed;
-    int nseg, nseg_ok;
-    int dPhi12;
-    int dPhi23;
-    int meEtap, mePhip;
-    int mcStrip;
-    int mcWG;
-    int strip;
-    int wg;
-    int chamber;
-  };
-  DbgStruct dbg_;
-  void resetDbg(DbgStruct& d);
 };
 
 #endif
