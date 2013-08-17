@@ -1,44 +1,5 @@
 #include "GEMCode/SimMuL1/plugins/GEMCSCTriggerRate.h"
 
-struct MyALCT
-{
-  Int_t nlayers, bx;
-  Float_t pt, eta, phi;
-  Char_t hit; // hits in MEX/Y or GE1/1
-};
-
-struct MyCLCT
-{
-  Int_t nlayers, bx;
-  Float_t pt, eta, phi;
-  Char_t hit; // hits in MEX/Y or GE1/1
-};
-
-struct MyLCT
-{
-  Int_t nlayers, bx;
-  Float_t pt, eta, phi;
-  Char_t hit; // hits in MEX/Y or GE1/1
-};
-
-struct MyMPCLCT
-{
-  Int_t nlayers, bx;
-  Float_t pt, eta, phi;
-  Char_t hit; // hits in MEX/Y or GE1/1
-};
-
-struct MyTFTrack{};
-struct MyTFCand{};
-struct MyGMTRegional{};
-struct MyGMT{};
-
-namespace 
-{
-  const Double_t ETA_BIN = 0.0125 *2;
-  const Double_t PHI_BIN = 62.*M_PI/180./4096.; // 0.26 mrad
-}
-
 // ================================================================================================
 const std::string GEMCSCTriggerRate::csc_type[CSC_TYPES+1] = 
   { "ME1/1", "ME1/2", "ME1/3", "ME1/a", "ME2/1", "ME2/2", "ME3/1", "ME3/2", "ME4/1", "ME4/2", "ME1/T"};
@@ -48,87 +9,46 @@ const std::string GEMCSCTriggerRate::csc_type_a[CSC_TYPES+2] =
   { "N/A", "ME1/a", "ME1/b", "ME1/2", "ME1/3", "ME2/1", "ME2/2", "ME3/1", "ME3/2", "ME4/1", "ME4/2", "ME1/T"};
 const std::string GEMCSCTriggerRate::csc_type_a_[CSC_TYPES+2] =
   { "NA", "ME1A", "ME1B", "ME12", "ME13", "ME21", "ME22", "ME31", "ME32", "ME41", "ME42", "ME1T"};
-
-const int GEMCSCTriggerRate::NCHAMBERS[CSC_TYPES] = 
-  { 36,  36,  36,  36, 18,  36,  18,  36,  18,  36};
-
-const int GEMCSCTriggerRate::MAX_WG[CSC_TYPES] = 
-  { 48,  64,  32,  48, 112, 64,  96,  64,  96,  64};//max. number of wiregroups
-
-const int GEMCSCTriggerRate::MAX_HS[CSC_TYPES] = 
-  { 128, 160, 128, 96, 160, 160, 160, 160, 160, 160}; // max. # of halfstrips
-
-//const int GEMCSCTriggerRate::ptype[CSCConstants::NUM_CLCT_PATTERNS_PRE_TMB07]= 
-//  { -999,  3, -3,  2, -2,  1, -1,  0};  // "signed" pattern (== phiBend)
 const int GEMCSCTriggerRate::pbend[CSCConstants::NUM_CLCT_PATTERNS]= 
   { -999,  -5,  4, -4,  3, -3,  2, -2,  1, -1,  0}; // "signed" pattern (== phiBend)
-
-
 const double GEMCSCTriggerRate::PT_THRESHOLDS[N_PT_THRESHOLDS] = {0,10,20,30,40,50};
 const double GEMCSCTriggerRate::PT_THRESHOLDS_FOR_ETA[N_PT_THRESHOLDS] = {10,15,30,40,55,70};
 
 
 // ================================================================================================
 GEMCSCTriggerRate::GEMCSCTriggerRate(const edm::ParameterSet& iConfig):
-  //  theCSCSimHitMap("MuonCSCHits"), theDTSimHitMap("MuonDTHits"), theRPCSimHitMap("MuonRPCHits")
+  CSCTFSPset(iConfig.getParameter<edm::ParameterSet>("SectorProcessor")),
+  ptLUTset(CSCTFSPset.getParameter<edm::ParameterSet>("PTLUT")),
   ptLUT(0),
-  theCSCSimHitMap()
-{
-  simHitsFromCrossingFrame_ = iConfig.getUntrackedParameter<bool>("SimHitsFromCrossingFrame", false);
-  simHitsModuleName_        = iConfig.getUntrackedParameter<std::string>("SimHitsModuleName",    "g4SimHits");
-  simHitsCollectionName_    = iConfig.getUntrackedParameter<std::string>("SimHitsCollectionName","MuonCSCHits");
-  theCSCSimHitMap.setUseCrossingFrame(simHitsFromCrossingFrame_);
-  theCSCSimHitMap.setModuleName(simHitsModuleName_);
-  theCSCSimHitMap.setCollectionName(simHitsCollectionName_);
-
-  matchAllTrigPrimitivesInChamber_ = iConfig.getUntrackedParameter<bool>("matchAllTrigPrimitivesInChamber", false);
-
-  debugALCT     = iConfig.getUntrackedParameter<int>("debugALCT", 0);
-  debugCLCT     = iConfig.getUntrackedParameter<int>("debugCLCT", 0);
-  debugLCT      = iConfig.getUntrackedParameter<int>("debugLCT", 0);
-  debugMPLCT    = iConfig.getUntrackedParameter<int>("debugMPLCT", 0);
-  debugTFTRACK  = iConfig.getUntrackedParameter<int>("debugTFTRACK", 0);
-  debugTFCAND   = iConfig.getUntrackedParameter<int>("debugTFCAND", 0);
-  debugGMTCAND  = iConfig.getUntrackedParameter<int>("debugGMTCAND", 0);
-  debugL1EXTRA  = iConfig.getUntrackedParameter<int>("debugL1EXTRA", 0);
-  debugRATE     = iConfig.getUntrackedParameter<int>("debugRATE", 0);
-
-  minBX_    = iConfig.getUntrackedParameter< int >("minBX",-6);
-  maxBX_    = iConfig.getUntrackedParameter< int >("maxBX",6);
-  minTMBBX_ = iConfig.getUntrackedParameter< int >("minTMBBX",-6);
-  maxTMBBX_ = iConfig.getUntrackedParameter< int >("maxTMBBX",6);
-  minRateBX_    = iConfig.getUntrackedParameter< int >("minRateBX",-1);
-  maxRateBX_    = iConfig.getUntrackedParameter< int >("maxRateBX",1);
-
-  minBxALCT_ = iConfig.getUntrackedParameter< int >("minBxALCT",5);
-  maxBxALCT_ = iConfig.getUntrackedParameter< int >("maxBxALCT",7);
-  minBxCLCT_ = iConfig.getUntrackedParameter< int >("minBxCLCT",5);
-  maxBxCLCT_ = iConfig.getUntrackedParameter< int >("maxBxCLCT",7);
-  minBxLCT_ = iConfig.getUntrackedParameter< int >("minBxLCT",5);
-  maxBxLCT_ = iConfig.getUntrackedParameter< int >("maxBxLCT",7);
-  minBxMPLCT_ = iConfig.getUntrackedParameter< int >("minBxMPLCT",5);
-  maxBxMPLCT_ = iConfig.getUntrackedParameter< int >("maxBxMPLCT",7);
-
-  minBxGMT_ = iConfig.getUntrackedParameter< int >("minBxGMT",-1);
-  maxBxGMT_ = iConfig.getUntrackedParameter< int >("maxBxGMT",1);
-
-  centralBxOnlyGMT_ = iConfig.getUntrackedParameter< bool >("centralBxOnlyGMT",false);
-
-  doSelectEtaForGMTRates_ = iConfig.getUntrackedParameter< bool >("doSelectEtaForGMTRates",false);
-  
-  doME1a_ = iConfig.getUntrackedParameter< bool >("doME1a",false);
-
+  matchAllTrigPrimitivesInChamber_(iConfig.getUntrackedParameter<bool>("matchAllTrigPrimitivesInChamber", false)),
+  debugRATE(iConfig.getUntrackedParameter<int>("debugRATE", 0)),
+  minBX_(iConfig.getUntrackedParameter<int>("minBX",-6)),
+  maxBX_(iConfig.getUntrackedParameter<int>("maxBX",6)),
+  minTMBBX_(iConfig.getUntrackedParameter<int>("minTMBBX",-6)),
+  maxTMBBX_(iConfig.getUntrackedParameter<int>("maxTMBBX",6)),
+  minRateBX_(iConfig.getUntrackedParameter<int>("minRateBX",-1)),
+  maxRateBX_(iConfig.getUntrackedParameter<int>("maxRateBX",1)),
+  minBxALCT_(iConfig.getUntrackedParameter<int>("minBxALCT",5)),
+  maxBxALCT_(iConfig.getUntrackedParameter<int>("maxBxALCT",7)),
+  minBxCLCT_(iConfig.getUntrackedParameter<int>("minBxCLCT",5)),
+  maxBxCLCT_(iConfig.getUntrackedParameter<int>("maxBxCLCT",7)),
+  minBxLCT_(iConfig.getUntrackedParameter<int>("minBxLCT",5)),
+  maxBxLCT_(iConfig.getUntrackedParameter<int>("maxBxLCT",7)),
+  minBxMPLCT_(iConfig.getUntrackedParameter<int>("minBxMPLCT",5)),
+  maxBxMPLCT_(iConfig.getUntrackedParameter<int>("maxBxMPLCT",7)),
+  minBxGMT_(iConfig.getUntrackedParameter<int>("minBxGMT",-1)),
+  maxBxGMT_(iConfig.getUntrackedParameter<int>("maxBxGMT",1)),
+  centralBxOnlyGMT_(iConfig.getUntrackedParameter< bool >("centralBxOnlyGMT",false)),
+  doSelectEtaForGMTRates_(iConfig.getUntrackedParameter< bool >("doSelectEtaForGMTRates",false)),
+  doME1a_(iConfig.getUntrackedParameter< bool >("doME1a",false)),
   // special treatment of matching in ME1a for the case of the default emulator
-  defaultME1a = iConfig.getUntrackedParameter<bool>("defaultME1a", false);
-
-  edm::ParameterSet stripPSet = iConfig.getParameter<edm::ParameterSet>("strips");
-  theStripConditions = new CSCDbStripConditions(stripPSet);
-
-  CSCTFSPset = iConfig.getParameter<edm::ParameterSet>("SectorProcessor");
-  ptLUTset = CSCTFSPset.getParameter<edm::ParameterSet>("PTLUT");
+  defaultME1a(iConfig.getUntrackedParameter<bool>("defaultME1a", false))
+{
   edm::ParameterSet srLUTset = CSCTFSPset.getParameter<edm::ParameterSet>("SRLUT");
 
-  for(int e=0; e<2; e++) for (int s=0; s<6; s++) my_SPs[e][s] = NULL;
+  for(int e=0; e<2; e++) 
+    for (int s=0; s<6; s++) 
+      my_SPs[e][s] = NULL;
   
   bool TMB07 = true;
   for(int endcap = 1; endcap<=2; endcap++)
@@ -144,7 +64,6 @@ GEMCSCTriggerRate::GEMCSCTriggerRate(const edm::ParameterSet& iConfig):
       }
     }
   }
-
 
   my_dtrc = new CSCTFDTReceiver();
 
@@ -165,7 +84,6 @@ GEMCSCTriggerRate::GEMCSCTriggerRate(const edm::ParameterSet& iConfig):
 // ================================================================================================
 GEMCSCTriggerRate::~GEMCSCTriggerRate()
 {
-
   if(ptLUT) delete ptLUT;
   ptLUT = NULL;
 
@@ -182,9 +100,6 @@ GEMCSCTriggerRate::~GEMCSCTriggerRate()
   
   if(my_dtrc) delete my_dtrc;
   my_dtrc = NULL;
-
-  if (theStripConditions) delete theStripConditions;
-  theStripConditions = 0;
 }
 
 // ================================================================================================
@@ -195,7 +110,6 @@ GEMCSCTriggerRate::beginRun(const edm::Run &iRun, const edm::EventSetup &iSetup)
   iSetup.get<MuonGeometryRecord>().get(cscGeom);
   cscGeometry = &*cscGeom;
   CSCTriggerGeometry::setGeometry(cscGeometry);
-
 }
 
 // ================================================================================================
@@ -204,6 +118,8 @@ GEMCSCTriggerRate::beginJob()
 {
   edm::Service<TFileService> fs;
 
+  Double_t ETA_BIN = 0.0125 *2;
+  //Double_t PHI_BIN = 62.*M_PI/180./4096.; // 0.26 mrad
   int N_ETA_BINS=200;
   double ETA_START=-2.4999;
   double ETA_END = ETA_START + ETA_BIN*N_ETA_BINS;
@@ -228,8 +144,6 @@ GEMCSCTriggerRate::beginJob()
    1.85, 1.9, 1.95, 2, 2.05, 2.1, 2.15, 2.2, 2.25, 2.3,
    2.35, 2.4, 2.45};
   
-  
-
   h_rt_nalct = fs->make<TH1D>("h_rt_nalct","h_rt_nalct",101,-0.5, 100.5);
   h_rt_nclct = fs->make<TH1D>("h_rt_nclct","h_rt_nclct",101,-0.5, 100.5);
   h_rt_nlct = fs->make<TH1D>("h_rt_nlct","h_rt_nlct",101,-0.5, 100.5);
@@ -558,8 +472,6 @@ GEMCSCTriggerRate::beginJob()
   h_rt_tfcand_pt_vs_eta_3st = fs->make<TH2D>("h_rt_tfcand_pt_vs_eta_3st","h_rt_tfcand_pt_vs_eta_3st",600, 0.,150.,N_ETA_BINS, ETA_START, ETA_END);
   h_rt_tfcand_pt_vs_eta_3st1a = fs->make<TH2D>("h_rt_tfcand_pt_vs_eta_3st1a","h_rt_tfcand_pt_vs_eta_3st1a",600, 0.,150.,N_ETA_BINS, ETA_START, ETA_END);
 
-
-
   char label[200];
   for (int me=0; me<=CSC_TYPES; me++) 
   {
@@ -598,9 +510,6 @@ GEMCSCTriggerRate::beginJob()
     sprintf(label,"h_rt_mplct_bx_cscdet_%s",csc_type_[me].c_str());
     h_rt_mplct_bx_cscdet[me] = fs->make<TH1D>(label, label,13,-6.5, 6.5);
 
-//    sprintf(label,"_cscdet_%s",csc_type_[me].c_str());
-//    _cscdet[me] = fs->make<TH1D>(label, label, 15,-7.5, 7.5);
-
   }//for (int me=0; me<CSC_TYPES; me++) 
 
   h_rt_lct_per_sector = fs->make<TH1D>("h_rt_lct_per_sector","h_rt_lct_per_sector",20,0., 20.);
@@ -634,8 +543,6 @@ GEMCSCTriggerRate::beginJob()
     sprintf(label,"h_rt_mplct_per_sector_vs_bx_st%d",i+1);
     h_rt_mplct_per_sector_vs_bx_st[i]  = fs->make<TH2D>(label, label, 20,0., 20.,16,0,16);
 
-    //sprintf(label,"_st%d",i+1);
-    //_st[i]  = fs->make<TH2D>(label, label, 20,0., 20.,16,0,16);
   }
 
   h_rt_mplct_pattern = fs->make<TH1D>("h_rt_mplct_pattern","h_rt_mplct_pattern",13,-0.5, 12.5);
@@ -650,12 +557,6 @@ GEMCSCTriggerRate::beginJob()
 void 
 GEMCSCTriggerRate::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-  // get conditions for bad chambers (don't need random engine)
-  theStripConditions->initializeEvent(iSetup);
-  
-  // get SimHits
-  theCSCSimHitMap.fill(iEvent);
-
   // ALCTs and CLCTs
   edm::Handle< CSCCLCTDigiCollection > hclcts;
   iEvent.getByLabel("simCscTriggerPrimitiveDigis",  hclcts);
@@ -1821,245 +1722,246 @@ GEMCSCTriggerRate::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
     std::vector<L1MuRegionalCand> RPCbCands = rItr->getBrlRPCCands();
     std::vector<L1MuGMTExtendedCand> GMTCands = rItr->getGMTCands();
     for ( std::vector<L1MuGMTExtendedCand>::const_iterator  muItr = GMTCands.begin() ; muItr != GMTCands.end() ; ++muItr )
+    {
+      if( muItr->empty() ) continue;
+      
+      if ( muItr->bx() < minRateBX_ || muItr->bx() > maxRateBX_ )
       {
-	if( muItr->empty() ) continue;
-
-	if ( muItr->bx() < minRateBX_ || muItr->bx() > maxRateBX_ )
-	  {
-	    if (debugRATE) std::cout<<"discarding BX = "<< muItr->bx() <<std::endl;
-	    continue;
-	  }
-
-	MatchCSCMuL1::GMTCAND myGMTCand;
-	myGMTCand.init( &*muItr , muScales, muPtScale);
-	myGMTCand.dr = 999.;
-	if (doSelectEtaForGMTRates_ && myGMTCand.eta<0) continue;
-
-	myGMTCand.regcand = NULL;
-	myGMTCand.regcand_rpc = NULL;
-
-	float gpt = myGMTCand.pt;
-	float geta = fabs(myGMTCand.eta);
-
-	MatchCSCMuL1::GMTREGCAND * gmt_csc = NULL;
-	if (muItr->isFwd() && ( muItr->isMatchedCand() || !muItr->isRPC())) {
-	  L1MuRegionalCand rcsc = CSCCands[muItr->getDTCSCIndex()];
-	  unsigned my_i = 999;
-	  for (unsigned i=0; i< rtGMTREGCands.size(); i++)
-	    {
-	      if (rcsc.getDataWord()!=rtGMTREGCands[i].l1reg->getDataWord()) continue;
-	      my_i = i;
-	      break;
-	    }
-	  if (my_i<99) gmt_csc = &rtGMTREGCands[my_i];
-	  else std::cout<<"DOES NOT EXIST IN rtGMTREGCands! Should not happen!"<<std::endl;
-	  myGMTCand.regcand = gmt_csc;
-	  myGMTCand.ids = gmt_csc->ids;
-	}
-    
-	MatchCSCMuL1::GMTREGCAND * gmt_rpcf = NULL;
-	if (muItr->isFwd() && (muItr->isMatchedCand() || muItr->isRPC())) 
-	  {
-	    L1MuRegionalCand rrpcf = RPCfCands[muItr->getRPCIndex()];
-	    unsigned my_i = 999;
-	    for (unsigned i=0; i< rtGMTRPCfCands.size(); i++)
-	      {
-		if (rrpcf.getDataWord()!=rtGMTRPCfCands[i].l1reg->getDataWord()) continue;
-		my_i = i;
-		break;
-	      }
-	    if (my_i<99) gmt_rpcf = &rtGMTRPCfCands[my_i];
-	    else std::cout<<"DOES NOT EXIST IN rtGMTRPCfCands! Should not happen!"<<std::endl;
-	    myGMTCand.regcand_rpc = gmt_rpcf;
-	  }
-
-	MatchCSCMuL1::GMTREGCAND * gmt_rpcb = NULL;
-	if (!(muItr->isFwd()) && (muItr->isMatchedCand() || muItr->isRPC()))
-	  {
-	    L1MuRegionalCand rrpcb = RPCbCands[muItr->getRPCIndex()];
-	    unsigned my_i = 999;
-	    for (unsigned i=0; i< rtGMTRPCbCands.size(); i++)
-	      {
-		if (rrpcb.getDataWord()!=rtGMTRPCbCands[i].l1reg->getDataWord()) continue;
-		my_i = i;
-		break;
-	      }
-	    if (my_i<99) gmt_rpcb = &rtGMTRPCbCands[my_i];
-	    else std::cout<<"DOES NOT EXIST IN rtGMTRPCbCands! Should not happen!"<<std::endl;
-	    myGMTCand.regcand_rpc = gmt_rpcb;
-	  }
-
-	MatchCSCMuL1::GMTREGCAND * gmt_dt = NULL;
-	if (!(muItr->isFwd()) && (muItr->isMatchedCand() || !(muItr->isRPC())))
-	  {
-	    L1MuRegionalCand rdt = DTCands[muItr->getDTCSCIndex()];
-	    unsigned my_i = 999;
-	    for (unsigned i=0; i< rtGMTDTCands.size(); i++)
-	      {
-		if (rdt.getDataWord()!=rtGMTDTCands[i].l1reg->getDataWord()) continue;
-		my_i = i;
-		break;
-	      }
-	    if (my_i<99) gmt_dt = &rtGMTDTCands[my_i];
-	    else std::cout<<"DOES NOT EXIST IN rtGMTDTCands! Should not happen!"<<std::endl;
-	    myGMTCand.regcand = gmt_dt;
-	  }
-
-	if ( (gmt_csc != NULL && gmt_rpcf != NULL) && !muItr->isMatchedCand() ) std::cout<<"csc&rpcf but not matched!"<<std::endl;
-
-	bool eta_me42 = etaRangeHelpers::isME42EtaRegion(myGMTCand.eta);
-	bool eta_me42r = etaRangeHelpers::isME42RPCEtaRegion(myGMTCand.eta);
-	//if (geta>=1.2 && geta<=1.8) eta_me42 = 1;
-	bool eta_q = (geta > 1.2);
-
-	bool eta_me1b = etaRangeHelpers::isME1bEtaRegion(myGMTCand.eta);
-	//bool eta_me1b_whole = etaRangeHelpers::isME1bEtaRegion(myGMTCand.eta, 1.6, 2.14);
-	bool eta_no1a = (geta >= 1.2 && geta < 2.14);
-	//bool eta_csc = (geta > 0.9);
-	//
-
-	size_t n_stubs = 0;
-	if (gmt_csc) n_stubs = gmt_csc->nTFStubs;
-
-	bool has_me1_stub = false;
-	if (gmt_csc && gmt_csc->tfcand && gmt_csc->tfcand->tftrack)
-	  {
-	    has_me1_stub = gmt_csc->tfcand->tftrack->hasStub(1);
-	  }
-
-
-	if (eta_me42) h_rt_gmt_gq_42->Fill(muItr->quality());
-	if (eta_me42r) {
-	  int gtype = 0;
-	  if (muItr->isMatchedCand()) gtype = 6;
-	  else if (gmt_csc!=0) gtype = gmt_csc->l1reg->quality()+2;
-	  else if (gmt_rpcf!=0) gtype = gmt_rpcf->l1reg->quality()+1;
-	  if (gtype==0) std::cout<<"weird: gtype=0 That shouldn't happen!";
-	  h_rt_gmt_gq_vs_type_42r->Fill(muItr->quality(), gtype);
-	  h_rt_gmt_gq_vs_pt_42r->Fill(muItr->quality(), gpt);
-	  h_rt_gmt_gq_42r->Fill(muItr->quality());
-	}
-	h_rt_gmt_gq->Fill(muItr->quality());
-
-	h_rt_gmt_bx->Fill(muItr->bx());
-
-	//if (muItr->quality()<4) continue; // not good for single muon trigger!
-
-	bool isSingleTrigOk = muItr->useInSingleMuonTrigger(); // good for single trigger
-	bool isDoubleTrigOk = muItr->useInDiMuonTrigger(); // good for single trigger
-
-	bool isSingle6TrigOk = (muItr->quality() >= 6); // unmatched or matched CSC or DT
-
-	if (muItr->quality()<3) continue; // not good for neither single nor dimuon triggers
-
-	bool isCSC = (gmt_csc != NULL);
-	bool isDT  = (gmt_dt  != NULL);
-	bool isRPCf = (gmt_rpcf != NULL);
-	bool isRPCb = (gmt_rpcb != NULL);
-
-	if (isCSC && gmt_csc->tfcand != NULL && gmt_csc->tfcand->tftrack == NULL) std::cout<<"warning: gmt_csc->tfcand->tftrack == NULL"<<std::endl;
-	if (isCSC && gmt_csc->tfcand != NULL && gmt_csc->tfcand->tftrack != NULL && gmt_csc->tfcand->tftrack->l1trk == NULL)
-	  std::cout<<"warning: gmt_csc->tfcand->tftrack->l1trk == NULL"<<std::endl;
-	//bool isCSC2s = (isCSC && gmt_csc->tfcand != NULL && myGMTCand.ids.size()>=2);
-	//bool isCSC3s = (isCSC && gmt_csc->tfcand != NULL && myGMTCand.ids.size()>=3);
-	bool isCSC2s = (isCSC && gmt_csc->tfcand != NULL && gmt_csc->tfcand->tftrack != NULL && gmt_csc->tfcand->tftrack->nStubs()>=2);
-	bool isCSC3s = (isCSC && gmt_csc->tfcand != NULL && gmt_csc->tfcand->tftrack != NULL
-			&& ( (!eta_q && isCSC2s) || (eta_q && gmt_csc->tfcand->tftrack->nStubs()>=3) ) );
-	bool isCSC2q = (isCSC && gmt_csc->l1reg != NULL && gmt_csc->l1reg->quality()>=2);
-	bool isCSC3q = (isCSC && gmt_csc->l1reg != NULL
-			&& ( (!eta_q && isCSC2q) || (eta_q && gmt_csc->l1reg->quality()>=3) ) );
-
-	myGMTCand.isCSC = isCSC;
-	myGMTCand.isDT = isDT;
-	myGMTCand.isRPCf = isRPCf;
-	myGMTCand.isRPCb = isRPCb;
-	myGMTCand.isCSC2s = isCSC2s;
-	myGMTCand.isCSC3s = isCSC3s;
-	myGMTCand.isCSC2q = isCSC2q;
-	myGMTCand.isCSC3q = isCSC3q;
-
-	rtGMTCands.push_back(myGMTCand);
-
-
-	if (isCSC2q || isRPCf) {
-	  h_rt_gmt_pt_2q->Fill(gpt);
-	  if (eta_me42) {
-	    h_rt_gmt_pt_2q42->Fill(gpt);
-	    if (gpt > max_pt_me42_2q) max_pt_me42_2q = gpt;
-	    if (isSingleTrigOk && gpt > max_pt_me42_2q_sing) max_pt_me42_2q_sing = gpt;
-	  }
-	  if (eta_me42r) {
-	    h_rt_gmt_pt_2q42r->Fill(gpt);
-	    if (gpt > max_pt_me42r_2q) max_pt_me42r_2q = gpt;
-	    if (isSingleTrigOk && gpt > max_pt_me42r_2q_sing) max_pt_me42r_2q_sing = gpt;
-	  }
-	}
-	if (isCSC3q || isRPCf) {
-	  h_rt_gmt_pt_3q->Fill(gpt);
-	  if (eta_me42) {
-	    h_rt_gmt_pt_3q42->Fill(gpt);
-	    if (gpt > max_pt_me42_3q) max_pt_me42_3q = gpt;
-	    if (isSingleTrigOk && gpt > max_pt_me42_3q_sing) max_pt_me42_3q_sing = gpt;
-	  }
-	  if (eta_me42r) {
-	    h_rt_gmt_pt_3q42r->Fill(gpt);
-	    if (gpt > max_pt_me42r_3q) max_pt_me42r_3q = gpt;
-	    if (isSingleTrigOk && gpt > max_pt_me42r_3q_sing) max_pt_me42r_3q_sing = gpt;
-	  }
-	}
-
-	if (isCSC2s || isRPCf) {
-	  h_rt_gmt_pt_2st->Fill(gpt);
-	  if (eta_me42) {
-	    h_rt_gmt_pt_2s42->Fill(gpt);
-	    if (gpt > max_pt_me42_2s) max_pt_me42_2s = gpt;
-	    if (isSingleTrigOk && gpt > max_pt_me42_2s_sing) max_pt_me42_2s_sing = gpt;
-	  }
-	  if (eta_me42r) {
-	    h_rt_gmt_pt_2s42r->Fill(gpt);
-	    if (gpt > max_pt_me42r_2s) max_pt_me42r_2s = gpt;
-	    if (isSingleTrigOk && gpt > max_pt_me42r_2s_sing) max_pt_me42r_2s_sing = gpt;
-	  }
-	}
-	if (isCSC3s || isRPCf) {
-	  h_rt_gmt_pt_3st->Fill(gpt);
-	  if (eta_me42) {
-	    h_rt_gmt_pt_3s42->Fill(gpt);
-	    if (gpt > max_pt_me42_3s) max_pt_me42_3s = gpt;
-	    if (isSingleTrigOk && gpt > max_pt_me42_3s_sing) max_pt_me42_3s_sing = gpt;
-	  }
-	  if (eta_me42r) {
-	    h_rt_gmt_pt_3s42r->Fill(gpt);
-	    if (gpt > max_pt_me42r_3s) max_pt_me42r_3s = gpt;
-	    if (isSingleTrigOk && gpt > max_pt_me42r_3s_sing) max_pt_me42r_3s_sing = gpt;
-	  }
-	}
-
-	ngmt++;
-	h_rt_gmt_pt->Fill(gpt);
-	h_rt_gmt_eta->Fill(geta);
-	if (gpt > max_pt) {max_pt = gpt; max_pt_eta = geta;}
-	if (isDoubleTrigOk && gpt > max_pt_dbl) {max_pt_dbl = gpt; max_pt_eta_dbl = geta;}
-	if (isSingleTrigOk)
-	  {
-	    if (            gpt > max_pt_sing     ) { max_pt_sing = gpt;     max_pt_eta_sing = geta;}
-	    if (isCSC    && gpt > max_pt_sing_csc ) { max_pt_sing_csc = gpt; max_pt_eta_sing_csc = geta; }
-	    if ((isCSC||isDT) && gpt > max_pt_sing_dtcsc ) { max_pt_sing_dtcsc = gpt; max_pt_eta_sing_dtcsc = geta; }
-	    if (gpt > max_pt_sing_3s && ( !isCSC || isCSC3s ) ) {max_pt_sing_3s = gpt; max_pt_eta_sing_3s = geta;}
-	    if (eta_me1b && gpt > max_pt_sing_1b  ) { max_pt_sing_1b = gpt; /*max_pt_eta_sing_1b = geta;*/ }
-	    if (eta_no1a && gpt > max_pt_sing_no1a) { max_pt_sing_no1a = gpt; /*max_pt_eta_sing_no1a = geta;*/ }
-	  }
-	if (isSingle6TrigOk)
-	  {
-	    if (            gpt > max_pt_sing6     ) { max_pt_sing6 = gpt;     max_pt_eta_sing6 = geta;}
-	    if (isCSC    && gpt > max_pt_sing6_csc ) { max_pt_sing6_csc = gpt; max_pt_eta_sing6_csc = geta; }
-	    if (gpt > max_pt_sing6_3s && ( !isCSC || isCSC3s ) ) {max_pt_sing6_3s = gpt; max_pt_eta_sing6_3s = geta;}
-	    if (eta_me1b && gpt > max_pt_sing6_1b  ) { max_pt_sing6_1b = gpt; /*max_pt_eta_sing6_1b = geta;*/ }
-	    if (eta_no1a && gpt > max_pt_sing6_no1a) { max_pt_sing6_no1a = gpt; /*max_pt_eta_sing6_no1a = geta;*/ }
-	    if (eta_no1a && gpt > max_pt_sing6_3s1b_no1a && 
-		(!eta_me1b  || (eta_me1b && has_me1_stub && n_stubs >=3) ) ) { max_pt_sing6_3s1b_no1a = gpt; /*max_pt_eta_sing6_no1a = geta;*/ }
-	  }
+	if (debugRATE) std::cout<<"discarding BX = "<< muItr->bx() <<std::endl;
+	continue;
       }
+      
+      MatchCSCMuL1::GMTCAND myGMTCand;
+      myGMTCand.init( &*muItr , muScales, muPtScale);
+      myGMTCand.dr = 999.;
+      if (doSelectEtaForGMTRates_ && myGMTCand.eta<0) continue;
+      
+      myGMTCand.regcand = NULL;
+      myGMTCand.regcand_rpc = NULL;
+      
+      float gpt = myGMTCand.pt;
+      float geta = fabs(myGMTCand.eta);
+      
+      MatchCSCMuL1::GMTREGCAND * gmt_csc = NULL;
+      if (muItr->isFwd() && ( muItr->isMatchedCand() || !muItr->isRPC())) 
+      {
+	L1MuRegionalCand rcsc = CSCCands[muItr->getDTCSCIndex()];
+	unsigned my_i = 999;
+	for (unsigned i=0; i< rtGMTREGCands.size(); i++)
+	{
+	  if (rcsc.getDataWord()!=rtGMTREGCands[i].l1reg->getDataWord()) continue;
+	  my_i = i;
+	  break;
+	}
+	if (my_i<99) gmt_csc = &rtGMTREGCands[my_i];
+	else std::cout<<"DOES NOT EXIST IN rtGMTREGCands! Should not happen!"<<std::endl;
+	myGMTCand.regcand = gmt_csc;
+	myGMTCand.ids = gmt_csc->ids;
+      }
+      
+      MatchCSCMuL1::GMTREGCAND * gmt_rpcf = NULL;
+      if (muItr->isFwd() && (muItr->isMatchedCand() || muItr->isRPC())) 
+      {
+	L1MuRegionalCand rrpcf = RPCfCands[muItr->getRPCIndex()];
+	unsigned my_i = 999;
+	for (unsigned i=0; i< rtGMTRPCfCands.size(); i++)
+	{
+	  if (rrpcf.getDataWord()!=rtGMTRPCfCands[i].l1reg->getDataWord()) continue;
+	  my_i = i;
+	  break;
+	}
+	if (my_i<99) gmt_rpcf = &rtGMTRPCfCands[my_i];
+	else std::cout<<"DOES NOT EXIST IN rtGMTRPCfCands! Should not happen!"<<std::endl;
+	myGMTCand.regcand_rpc = gmt_rpcf;
+      }
+      
+      MatchCSCMuL1::GMTREGCAND * gmt_rpcb = NULL;
+      if (!(muItr->isFwd()) && (muItr->isMatchedCand() || muItr->isRPC()))
+      {
+	L1MuRegionalCand rrpcb = RPCbCands[muItr->getRPCIndex()];
+	unsigned my_i = 999;
+	for (unsigned i=0; i< rtGMTRPCbCands.size(); i++)
+	{
+	  if (rrpcb.getDataWord()!=rtGMTRPCbCands[i].l1reg->getDataWord()) continue;
+	  my_i = i;
+	  break;
+	}
+	if (my_i<99) gmt_rpcb = &rtGMTRPCbCands[my_i];
+	else std::cout<<"DOES NOT EXIST IN rtGMTRPCbCands! Should not happen!"<<std::endl;
+	myGMTCand.regcand_rpc = gmt_rpcb;
+      }
+      
+      MatchCSCMuL1::GMTREGCAND * gmt_dt = NULL;
+      if (!(muItr->isFwd()) && (muItr->isMatchedCand() || !(muItr->isRPC())))
+      {
+	L1MuRegionalCand rdt = DTCands[muItr->getDTCSCIndex()];
+	unsigned my_i = 999;
+	for (unsigned i=0; i< rtGMTDTCands.size(); i++)
+	  {
+	    if (rdt.getDataWord()!=rtGMTDTCands[i].l1reg->getDataWord()) continue;
+	    my_i = i;
+	    break;
+	  }
+	if (my_i<99) gmt_dt = &rtGMTDTCands[my_i];
+	else std::cout<<"DOES NOT EXIST IN rtGMTDTCands! Should not happen!"<<std::endl;
+	myGMTCand.regcand = gmt_dt;
+      }
+      
+      if ( (gmt_csc != NULL && gmt_rpcf != NULL) && !muItr->isMatchedCand() ) std::cout<<"csc&rpcf but not matched!"<<std::endl;
+      
+      bool eta_me42 = etaRangeHelpers::isME42EtaRegion(myGMTCand.eta);
+      bool eta_me42r = etaRangeHelpers::isME42RPCEtaRegion(myGMTCand.eta);
+      //if (geta>=1.2 && geta<=1.8) eta_me42 = 1;
+      bool eta_q = (geta > 1.2);
+      
+      bool eta_me1b = etaRangeHelpers::isME1bEtaRegion(myGMTCand.eta);
+      //bool eta_me1b_whole = etaRangeHelpers::isME1bEtaRegion(myGMTCand.eta, 1.6, 2.14);
+      bool eta_no1a = (geta >= 1.2 && geta < 2.14);
+      //bool eta_csc = (geta > 0.9);
+      //
+      
+      size_t n_stubs = 0;
+      if (gmt_csc) n_stubs = gmt_csc->nTFStubs;
+      
+      bool has_me1_stub = false;
+      if (gmt_csc && gmt_csc->tfcand && gmt_csc->tfcand->tftrack)
+      {
+	has_me1_stub = gmt_csc->tfcand->tftrack->hasStub(1);
+      }
+      
+      
+      if (eta_me42) h_rt_gmt_gq_42->Fill(muItr->quality());
+      if (eta_me42r) {
+	int gtype = 0;
+	if (muItr->isMatchedCand()) gtype = 6;
+	else if (gmt_csc!=0) gtype = gmt_csc->l1reg->quality()+2;
+	else if (gmt_rpcf!=0) gtype = gmt_rpcf->l1reg->quality()+1;
+	if (gtype==0) std::cout<<"weird: gtype=0 That shouldn't happen!";
+	h_rt_gmt_gq_vs_type_42r->Fill(muItr->quality(), gtype);
+	h_rt_gmt_gq_vs_pt_42r->Fill(muItr->quality(), gpt);
+	h_rt_gmt_gq_42r->Fill(muItr->quality());
+      }
+      h_rt_gmt_gq->Fill(muItr->quality());
+      
+      h_rt_gmt_bx->Fill(muItr->bx());
+      
+      //if (muItr->quality()<4) continue; // not good for single muon trigger!
+      
+      bool isSingleTrigOk = muItr->useInSingleMuonTrigger(); // good for single trigger
+      bool isDoubleTrigOk = muItr->useInDiMuonTrigger(); // good for single trigger
+      
+      bool isSingle6TrigOk = (muItr->quality() >= 6); // unmatched or matched CSC or DT
+      
+      if (muItr->quality()<3) continue; // not good for neither single nor dimuon triggers
+      
+      bool isCSC = (gmt_csc != NULL);
+      bool isDT  = (gmt_dt  != NULL);
+      bool isRPCf = (gmt_rpcf != NULL);
+      bool isRPCb = (gmt_rpcb != NULL);
+      
+      if (isCSC && gmt_csc->tfcand != NULL && gmt_csc->tfcand->tftrack == NULL) std::cout<<"warning: gmt_csc->tfcand->tftrack == NULL"<<std::endl;
+      if (isCSC && gmt_csc->tfcand != NULL && gmt_csc->tfcand->tftrack != NULL && gmt_csc->tfcand->tftrack->l1trk == NULL)
+	std::cout<<"warning: gmt_csc->tfcand->tftrack->l1trk == NULL"<<std::endl;
+      //bool isCSC2s = (isCSC && gmt_csc->tfcand != NULL && myGMTCand.ids.size()>=2);
+      //bool isCSC3s = (isCSC && gmt_csc->tfcand != NULL && myGMTCand.ids.size()>=3);
+      bool isCSC2s = (isCSC && gmt_csc->tfcand != NULL && gmt_csc->tfcand->tftrack != NULL && gmt_csc->tfcand->tftrack->nStubs()>=2);
+      bool isCSC3s = (isCSC && gmt_csc->tfcand != NULL && gmt_csc->tfcand->tftrack != NULL
+		      && ( (!eta_q && isCSC2s) || (eta_q && gmt_csc->tfcand->tftrack->nStubs()>=3) ) );
+      bool isCSC2q = (isCSC && gmt_csc->l1reg != NULL && gmt_csc->l1reg->quality()>=2);
+      bool isCSC3q = (isCSC && gmt_csc->l1reg != NULL
+		      && ( (!eta_q && isCSC2q) || (eta_q && gmt_csc->l1reg->quality()>=3) ) );
+      
+      myGMTCand.isCSC = isCSC;
+      myGMTCand.isDT = isDT;
+      myGMTCand.isRPCf = isRPCf;
+      myGMTCand.isRPCb = isRPCb;
+      myGMTCand.isCSC2s = isCSC2s;
+      myGMTCand.isCSC3s = isCSC3s;
+      myGMTCand.isCSC2q = isCSC2q;
+      myGMTCand.isCSC3q = isCSC3q;
+      
+      rtGMTCands.push_back(myGMTCand);
+      
+      
+      if (isCSC2q || isRPCf) {
+	h_rt_gmt_pt_2q->Fill(gpt);
+	if (eta_me42) {
+	  h_rt_gmt_pt_2q42->Fill(gpt);
+	  if (gpt > max_pt_me42_2q) max_pt_me42_2q = gpt;
+	  if (isSingleTrigOk && gpt > max_pt_me42_2q_sing) max_pt_me42_2q_sing = gpt;
+	}
+	if (eta_me42r) {
+	  h_rt_gmt_pt_2q42r->Fill(gpt);
+	  if (gpt > max_pt_me42r_2q) max_pt_me42r_2q = gpt;
+	  if (isSingleTrigOk && gpt > max_pt_me42r_2q_sing) max_pt_me42r_2q_sing = gpt;
+	}
+      }
+      if (isCSC3q || isRPCf) {
+	h_rt_gmt_pt_3q->Fill(gpt);
+	if (eta_me42) {
+	  h_rt_gmt_pt_3q42->Fill(gpt);
+	  if (gpt > max_pt_me42_3q) max_pt_me42_3q = gpt;
+	  if (isSingleTrigOk && gpt > max_pt_me42_3q_sing) max_pt_me42_3q_sing = gpt;
+	}
+	if (eta_me42r) {
+	  h_rt_gmt_pt_3q42r->Fill(gpt);
+	  if (gpt > max_pt_me42r_3q) max_pt_me42r_3q = gpt;
+	  if (isSingleTrigOk && gpt > max_pt_me42r_3q_sing) max_pt_me42r_3q_sing = gpt;
+	}
+      }
+
+      if (isCSC2s || isRPCf) {
+	h_rt_gmt_pt_2st->Fill(gpt);
+	if (eta_me42) {
+	  h_rt_gmt_pt_2s42->Fill(gpt);
+	  if (gpt > max_pt_me42_2s) max_pt_me42_2s = gpt;
+	  if (isSingleTrigOk && gpt > max_pt_me42_2s_sing) max_pt_me42_2s_sing = gpt;
+	}
+	if (eta_me42r) {
+	  h_rt_gmt_pt_2s42r->Fill(gpt);
+	  if (gpt > max_pt_me42r_2s) max_pt_me42r_2s = gpt;
+	  if (isSingleTrigOk && gpt > max_pt_me42r_2s_sing) max_pt_me42r_2s_sing = gpt;
+	}
+      }
+      if (isCSC3s || isRPCf) {
+	h_rt_gmt_pt_3st->Fill(gpt);
+	if (eta_me42) {
+	  h_rt_gmt_pt_3s42->Fill(gpt);
+	  if (gpt > max_pt_me42_3s) max_pt_me42_3s = gpt;
+	  if (isSingleTrigOk && gpt > max_pt_me42_3s_sing) max_pt_me42_3s_sing = gpt;
+	}
+	if (eta_me42r) {
+	  h_rt_gmt_pt_3s42r->Fill(gpt);
+	  if (gpt > max_pt_me42r_3s) max_pt_me42r_3s = gpt;
+	  if (isSingleTrigOk && gpt > max_pt_me42r_3s_sing) max_pt_me42r_3s_sing = gpt;
+	}
+      }
+
+      ngmt++;
+      h_rt_gmt_pt->Fill(gpt);
+      h_rt_gmt_eta->Fill(geta);
+      if (gpt > max_pt) {max_pt = gpt; max_pt_eta = geta;}
+      if (isDoubleTrigOk && gpt > max_pt_dbl) {max_pt_dbl = gpt; max_pt_eta_dbl = geta;}
+      if (isSingleTrigOk)
+	{
+	  if (            gpt > max_pt_sing     ) { max_pt_sing = gpt;     max_pt_eta_sing = geta;}
+	  if (isCSC    && gpt > max_pt_sing_csc ) { max_pt_sing_csc = gpt; max_pt_eta_sing_csc = geta; }
+	  if ((isCSC||isDT) && gpt > max_pt_sing_dtcsc ) { max_pt_sing_dtcsc = gpt; max_pt_eta_sing_dtcsc = geta; }
+	  if (gpt > max_pt_sing_3s && ( !isCSC || isCSC3s ) ) {max_pt_sing_3s = gpt; max_pt_eta_sing_3s = geta;}
+	  if (eta_me1b && gpt > max_pt_sing_1b  ) { max_pt_sing_1b = gpt; /*max_pt_eta_sing_1b = geta;*/ }
+	  if (eta_no1a && gpt > max_pt_sing_no1a) { max_pt_sing_no1a = gpt; /*max_pt_eta_sing_no1a = geta;*/ }
+	}
+      if (isSingle6TrigOk)
+	{
+	  if (            gpt > max_pt_sing6     ) { max_pt_sing6 = gpt;     max_pt_eta_sing6 = geta;}
+	  if (isCSC    && gpt > max_pt_sing6_csc ) { max_pt_sing6_csc = gpt; max_pt_eta_sing6_csc = geta; }
+	  if (gpt > max_pt_sing6_3s && ( !isCSC || isCSC3s ) ) {max_pt_sing6_3s = gpt; max_pt_eta_sing6_3s = geta;}
+	  if (eta_me1b && gpt > max_pt_sing6_1b  ) { max_pt_sing6_1b = gpt; /*max_pt_eta_sing6_1b = geta;*/ }
+	  if (eta_no1a && gpt > max_pt_sing6_no1a) { max_pt_sing6_no1a = gpt; /*max_pt_eta_sing6_no1a = geta;*/ }
+	  if (eta_no1a && gpt > max_pt_sing6_3s1b_no1a && 
+	      (!eta_me1b  || (eta_me1b && has_me1_stub && n_stubs >=3) ) ) { max_pt_sing6_3s1b_no1a = gpt; /*max_pt_eta_sing6_no1a = geta;*/ }
+	}
+    }
   }
   h_rt_ngmt->Fill(ngmt);
   if (max_pt_me42_2s>0) h_rt_gmt_ptmax_2s42->Fill(max_pt_me42_2s);
@@ -2123,6 +2025,14 @@ GEMCSCTriggerRate::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
 void  
 GEMCSCTriggerRate::bookALCTTree()
 {
+  edm::Service< TFileService > fs;
+  alct_tree_ = fs->make<TTree>("ALCTs", "ALCTs");
+  alct_tree_->Branch("charge",&alct_.nlayers);
+  alct_tree_->Branch("pt",&alct_.pt);
+  alct_tree_->Branch("eta",&alct_.eta);
+  alct_tree_->Branch("phi",&alct_.phi);
+  alct_tree_->Branch("endcap",&alct_.bx);
+  //  alct_tree_->Branch("gem_sh_layer1",&alct_.);
 }
 
 // ================================================================================================

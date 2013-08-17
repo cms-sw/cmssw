@@ -46,10 +46,7 @@
 #include "CondFormats/DataRecord/interface/L1MuTriggerScalesRcd.h"
 #include "CondFormats/DataRecord/interface/L1MuTriggerPtScaleRcd.h"
 
-#include "SimMuon/CSCDigitizer/src/CSCDbStripConditions.h"
-
 #include "GEMCode/SimMuL1/interface/EtaRangeHelpers.h"
-#include "GEMCode/SimMuL1/interface/PSimHitMap.h"
 #include "GEMCode/SimMuL1/interface/MatchCSCMuL1.h"
 
 // ROOT
@@ -57,18 +54,51 @@
 #include "TH2.h"
 #include "TTree.h"
 
+struct MyALCT
+{
+  Int_t nlayers, bx;
+  Float_t pt, eta, phi;
+  Char_t hit; // hits in MEX/Y or GE1/1
+};
+
+struct MyCLCT
+{
+  Int_t nlayers, bx;
+  Float_t pt, eta, phi;
+  Char_t hit; // hits in MEX/Y or GE1/1
+};
+
+struct MyLCT
+{
+  Int_t nlayers, bx;
+  Float_t pt, eta, phi;
+  Char_t hit; // hits in MEX/Y or GE1/1
+};
+
+struct MyMPCLCT
+{
+  Int_t nlayers, bx;
+  Float_t pt, eta, phi;
+  Char_t hit; // hits in MEX/Y or GE1/1
+};
+
+struct MyTFTrack{};
+struct MyTFCand{};
+struct MyGMTRegional{};
+struct MyGMT{};
+
 class GEMCSCTriggerRate : public edm::EDAnalyzer 
 {
-public:
-
+ public:
+  
   explicit GEMCSCTriggerRate(const edm::ParameterSet&);
-
+  
   ~GEMCSCTriggerRate();
 
   virtual void beginRun(const edm::Run&, const edm::EventSetup&);
 
   virtual void beginJob();
-
+  
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
 
   enum trig_cscs {MAX_STATIONS = 4, CSC_TYPES = 10};
@@ -77,15 +107,15 @@ public:
   static const std::string csc_type_[CSC_TYPES+1];
   static const std::string csc_type_a[CSC_TYPES+2];
   static const std::string csc_type_a_[CSC_TYPES+2];
-  static const int NCHAMBERS[CSC_TYPES];
-  static const int MAX_WG[CSC_TYPES];
-  static const int MAX_HS[CSC_TYPES];
   static const int pbend[CSCConstants::NUM_CLCT_PATTERNS];
 
   enum pt_thresh {N_PT_THRESHOLDS = 6};
   static const double PT_THRESHOLDS[N_PT_THRESHOLDS];
   static const double PT_THRESHOLDS_FOR_ETA[N_PT_THRESHOLDS];
-
+  
+ private:
+  
+  // functions
   int getCSCType(CSCDetId &id);
   int isME11(int t);
   int getCSCSpecsType(CSCDetId &id);
@@ -94,25 +124,11 @@ public:
   // From Ingo:
   // calculates the weight of the event to reproduce a min bias
   //spectrum, from G. Wrochna's note CMSS 1997/096
-  static void setupTFModeHisto(TH1D* h);
+  void setupTFModeHisto(TH1D* h);
+  void runCSCTFSP(const CSCCorrelatedLCTDigiCollection*, const L1MuDTChambPhContainer*);
 
   std::pair<float, float> intersectionEtaPhi(CSCDetId id, int wg, int hs);
   csctf::TrackStub buildTrackStub(const CSCCorrelatedLCTDigi &d, CSCDetId id);
-
-private:
-
-  edm::ParameterSet ptLUTset;
-  edm::ParameterSet CSCTFSPset;
-  CSCTFPtLUT* ptLUT;
-  CSCTFSectorProcessor* my_SPs[2][6];
-  CSCSectorReceiverLUT* srLUTs_[5][6][2];
-  CSCTFDTReceiver* my_dtrc;
-  void runCSCTFSP(const CSCCorrelatedLCTDigiCollection*, const L1MuDTChambPhContainer*);
-  unsigned long long  muScalesCacheID_;
-  unsigned long long  muPtScaleCacheID_;
-
-  edm::ESHandle< L1MuTriggerScales > muScales;
-  edm::ESHandle< L1MuTriggerPtScale > muPtScale;
 
   void bookALCTTree();
   void bookCLCTTree();
@@ -132,38 +148,22 @@ private:
   void analyzeGMTRegionalRate(const edm::Event&);
   void analyzeGMTCandRate(const edm::Event&);
 
+  // parameters
+  edm::ParameterSet CSCTFSPset;
+  edm::ParameterSet ptLUTset;
+  CSCTFPtLUT* ptLUT;
+  CSCTFSectorProcessor* my_SPs[2][6];
+  CSCSectorReceiverLUT* srLUTs_[5][6][2];
+  CSCTFDTReceiver* my_dtrc;
+  unsigned long long  muScalesCacheID_;
+  unsigned long long  muPtScaleCacheID_;
+
+  edm::ESHandle< L1MuTriggerScales > muScales;
+  edm::ESHandle< L1MuTriggerPtScale > muPtScale;
+
   // config parameters:
-  bool defaultME1a;
-
-  bool doStrictSimHitToTrackMatch_;
   bool matchAllTrigPrimitivesInChamber_;
-  int minNHitsShared_;
-  double minDeltaYAnode_;
-  double minDeltaYCathode_;
-  int minDeltaWire_;
-  int maxDeltaWire_;
-  int minDeltaStrip_;
-
-  // debugging switches:
-  int debugALLEVENT;
-  int debugINHISTOS;
-  int debugALCT;
-  int debugCLCT;
-  int debugLCT;
-  int debugMPLCT;
-  int debugTFTRACK;
-  int debugTFCAND;
-  int debugGMTCAND;
-  int debugL1EXTRA;
   int debugRATE;
-
-  double minSimTrPt_;
-  double minSimTrPhi_;
-  double maxSimTrPhi_;
-  double minSimTrEta_;
-  double maxSimTrEta_;
-  bool invertSimTrPhiEta_;
-  bool bestPtMatch_;
 
   int minBX_;
   int maxBX_;
@@ -184,39 +184,29 @@ private:
   int maxBxGMT_;
 
   bool centralBxOnlyGMT_;
-
   bool doSelectEtaForGMTRates_;
-
-  bool goodChambersOnly_;
-  
-  int lookAtTrackCondition_;
-  
-  bool doME1a_, naiveME1a_;
-
-  bool minNStWith4Hits_;
-  bool requireME1With4Hits_;
-  
-  double minSimTrackDR_;
-
-  // members
-  std::vector<MatchCSCMuL1*> matches;
-  std::map<unsigned,unsigned> trkId2Index;
+  bool doME1a_;
+  bool defaultME1a;
 
   const CSCGeometry* cscGeometry;
 
-  edm::ParameterSet gemMatchCfg_;
-  std::vector<double> gemPTs_, gemDPhisOdd_, gemDPhisEven_;
+  TTree* alct_tree_;
+  TTree* clct_tree_;
+  TTree* lct_tree_;
+  TTree* mplct_tree_;
+  TTree* tftrack_tree_;
+  TTree* tfcand_tree_;
+  TTree* gmtreg_tree_;
+  TTree* gmt_tree_;
 
-  // simhits for matching to simtracks:
-  bool simHitsFromCrossingFrame_;
-  std::string simHitsModuleName_;
-  std::string simHitsCollectionName_;
-
-  SimHitAnalysis::PSimHitMap theCSCSimHitMap;
-  //SimHitAnalysis::PSimHitMap theDTSimHitMap;
-  //SimHitAnalysis::PSimHitMap theRPCSimHitMap;
-
-  CSCStripConditions * theStripConditions;
+  MyALCT alct_;
+  MyALCT clct_;
+  MyALCT lct_;
+  MyALCT mplct_;
+  MyALCT tftrack_;
+  MyALCT tfcand_;
+  MyALCT gmtreg_;
+  MyALCT gmt_;
 
   // --- rate histograms ---
 
