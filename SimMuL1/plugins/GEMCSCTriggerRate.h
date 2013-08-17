@@ -56,36 +56,65 @@
 
 struct MyALCT
 {
-  Int_t nlayers, bx;
+  Int_t event, detId, bx, pattern;
   Float_t pt, eta, phi;
-  Char_t hit; // hits in MEX/Y or GE1/1
 };
 
 struct MyCLCT
 {
-  Int_t nlayers, bx;
+  Int_t event, detId, bx;
   Float_t pt, eta, phi;
-  Char_t hit; // hits in MEX/Y or GE1/1
 };
 
 struct MyLCT
 {
-  Int_t nlayers, bx;
+  Int_t event, detId, bx;
   Float_t pt, eta, phi;
-  Char_t hit; // hits in MEX/Y or GE1/1
+  Char_t hasGEM;
 };
 
 struct MyMPCLCT
 {
-  Int_t nlayers, bx;
+  Int_t event, detId, bx;
   Float_t pt, eta, phi;
-  Char_t hit; // hits in MEX/Y or GE1/1
+  Char_t hasGEM;
 };
 
-struct MyTFTrack{};
-struct MyTFCand{};
-struct MyGMTRegional{};
-struct MyGMT{};
+struct MyTFTrack
+{
+  Int_t event, bx;
+  Float_t pt, eta, phi;
+  Char_t hasME1a, hasME1b, hasME12, hasME13;
+  Char_t hasME21, hasME22;
+  Char_t hasME31, hasME32;
+  Char_t hasME41, hasME42;
+  Char_t hasGEM;
+};
+
+struct MyTFCand
+{
+  Int_t event, bx;
+  Float_t pt, eta, phi;
+  Char_t hasME1a, hasME1b, hasME12, hasME13;
+  Char_t hasME21, hasME22;
+  Char_t hasME31, hasME32;
+  Char_t hasME41, hasME42;
+  Char_t hasGEM;
+};
+
+struct MyGMTRegional
+{
+  Int_t event, bx;
+  Float_t pt, eta, phi;
+  Char_t hasCSC, hasRPC, hasDT, hasGEM;
+};
+
+struct MyGMT
+{
+  Int_t event, bx;
+  Float_t pt, eta, phi;
+  Char_t hasCSC, hasRPC, hasDT, hasGEM;
+};
 
 class GEMCSCTriggerRate : public edm::EDAnalyzer 
 {
@@ -133,7 +162,7 @@ class GEMCSCTriggerRate : public edm::EDAnalyzer
   void bookALCTTree();
   void bookCLCTTree();
   void bookLCTTree();
-  void bookMPLCTTree();
+  void bookMPCLCTTree();
   void bookTFTrackTree();
   void bookTFCandTree();
   void bookGMTRegionalTree();
@@ -142,7 +171,7 @@ class GEMCSCTriggerRate : public edm::EDAnalyzer
   void analyzeALCTRate(const edm::Event&);
   void analyzeCLCTRate(const edm::Event&);
   void analyzeLCTRate(const edm::Event&);
-  void analyzeMPLCTRate(const edm::Event&);
+  void analyzeMPCLCTRate(const edm::Event&);
   void analyzeTFTrackRate(const edm::Event&);
   void analyzeTFCandRate(const edm::Event&);
   void analyzeGMTRegionalRate(const edm::Event&);
@@ -200,13 +229,13 @@ class GEMCSCTriggerRate : public edm::EDAnalyzer
   TTree* gmt_tree_;
 
   MyALCT alct_;
-  MyALCT clct_;
-  MyALCT lct_;
-  MyALCT mplct_;
-  MyALCT tftrack_;
-  MyALCT tfcand_;
-  MyALCT gmtreg_;
-  MyALCT gmt_;
+  MyCLCT clct_;
+  MyLCT lct_;
+  MyMPCLCT mpclct_;
+  MyTFTrack tftrack_;
+  MyTFCand tfcand_;
+  MyGMTReg gmtreg_;
+  MyGMT gmt_;
 
   // --- rate histograms ---
 

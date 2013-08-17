@@ -20,7 +20,6 @@ GEMCSCTriggerRate::GEMCSCTriggerRate(const edm::ParameterSet& iConfig):
   CSCTFSPset(iConfig.getParameter<edm::ParameterSet>("SectorProcessor")),
   ptLUTset(CSCTFSPset.getParameter<edm::ParameterSet>("PTLUT")),
   ptLUT(0),
-  matchAllTrigPrimitivesInChamber_(iConfig.getUntrackedParameter<bool>("matchAllTrigPrimitivesInChamber", false)),
   debugRATE(iConfig.getUntrackedParameter<int>("debugRATE", 0)),
   minBX_(iConfig.getUntrackedParameter<int>("minBX",-6)),
   maxBX_(iConfig.getUntrackedParameter<int>("maxBX",6)),
@@ -74,7 +73,7 @@ GEMCSCTriggerRate::GEMCSCTriggerRate(const edm::ParameterSet& iConfig):
   bookALCTTree();
   bookCLCTTree();
   bookLCTTree();
-  bookMPLCTTree();
+  bookMPCLCTTree();
   bookTFTrackTree();
   bookTFCandTree();
   bookGMTRegionalTree();
@@ -675,7 +674,7 @@ GEMCSCTriggerRate::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
   analyzeALCTRate(iEvent);
   analyzeCLCTRate(iEvent);
   analyzeLCTRate(iEvent);
-  analyzeMPLCTRate(iEvent);
+  analyzeMPCLCTRate(iEvent);
   analyzeTFTrackRate(iEvent);
   analyzeTFCandRate(iEvent);
   analyzeGMTCandRate(iEvent);
@@ -2027,30 +2026,54 @@ GEMCSCTriggerRate::bookALCTTree()
 {
   edm::Service< TFileService > fs;
   alct_tree_ = fs->make<TTree>("ALCTs", "ALCTs");
-  alct_tree_->Branch("charge",&alct_.nlayers);
+  alct_tree_->Branch("event",&alct_.event);
+  alct_tree_->Branch("detId",&alct_.detId);
   alct_tree_->Branch("pt",&alct_.pt);
   alct_tree_->Branch("eta",&alct_.eta);
   alct_tree_->Branch("phi",&alct_.phi);
-  alct_tree_->Branch("endcap",&alct_.bx);
-  //  alct_tree_->Branch("gem_sh_layer1",&alct_.);
+  alct_tree_->Branch("bx",&alct_.bx);
 }
 
 // ================================================================================================
 void  
 GEMCSCTriggerRate::bookCLCTTree()
 {
+  edm::Service< TFileService > fs;
+  clct_tree_ = fs->make<TTree>("CLCTs", "CLCTs");
+  clct_tree_->Branch("event",&clct_.event);
+  clct_tree_->Branch("detId",&clct_.detId);
+  clct_tree_->Branch("pt",&clct_.pt);
+  clct_tree_->Branch("eta",&clct_.eta);
+  clct_tree_->Branch("phi",&clct_.phi);
+  clct_tree_->Branch("bx",&clct_.bx);
 }
 
 // ================================================================================================
 void  
 GEMCSCTriggerRate::bookLCTTree()
 {
+  // edm::Service< TFileService > fs;
+  // lct_tree_ = fs->make<TTree>("LCTs", "LCTs");
+  // lct_tree_->Branch("event",&lct_.event);
+  // lct_tree_->Branch("detId",&lct_.detId);
+  // lct_tree_->Branch("pt",&lct_.pt);
+  // lct_tree_->Branch("eta",&lct_.eta);
+  // lct_tree_->Branch("phi",&lct_.phi);
+  // lct_tree_->Branch("bx",&lct_.bx);
 }
 
 // ================================================================================================
 void  
-GEMCSCTriggerRate::bookMPLCTTree()
+GEMCSCTriggerRate::bookMPCLCTTree()
 {
+  // edm::Service< TFileService > fs;
+  // mpclct_tree_ = fs->make<TTree>("MPCLCTs", "MPCLCTs");
+  // mpclct_tree_->Branch("event",&mpclct_.event);
+  // mpclct_tree_->Branch("detId",&mpclct_.detId);
+  // mpclct_tree_->Branch("pt",&mpclct_.pt);
+  // mpclct_tree_->Branch("eta",&mpclct_.eta);
+  // mpclct_tree_->Branch("phi",&mpclct_.phi);
+  // mpclct_tree_->Branch("bx",&mpclct_.bx);
 }
 
 // ================================================================================================
@@ -2097,6 +2120,7 @@ GEMCSCTriggerRate::analyzeALCTRate(const edm::Event& iEvent)
     for (int me=0; me<=CSC_TYPES; me++) n_ch_alct_per_bx_cscdet[me][b]=0;
   }
   if (debugRATE) std::cout<< "----- statring nalct"<<std::endl;
+
   std::map< int , std::vector<const CSCALCTDigi*> > me11alcts;
   for (CSCALCTDigiCollection::DigiRangeIterator  adetUnitIt = alcts->begin(); adetUnitIt != alcts->end(); adetUnitIt++)
   {
@@ -2121,7 +2145,7 @@ GEMCSCTriggerRate::analyzeALCTRate(const edm::Event& iEvent)
 	}
 	
 	// store all ME11 alcts together so we can look at them later
-	// take into acstd::cout that 10<=WG<=15 alcts are present in both 1a and 1b
+	// take into acount that 10<=WG<=15 alcts are present in both 1a and 1b
 	if (csct==0) me11alcts[idd.rawId()].push_back(&(*digiIt));
 	if (csct==3 && (*digiIt).getKeyWG() < 10) 
         {
@@ -2189,12 +2213,71 @@ GEMCSCTriggerRate::analyzeALCTRate(const edm::Event& iEvent)
   
   if (debugRATE) std::cout<< "----- end nalct="<<nalct<<std::endl;
 
+  // start of the ntuplization
+  /*
+  // Loop on all ALCTs
+  for (auto adetUnitIt& : alcts);
+  {
+    CSCDetId detId((*adetUnitIt).first);
+    if (detId.endcap() != 1) continue;
+    alct_.event = iEvent.id().event();
+    alct_.detId = id;
+    auto range = (*adetUnitIt).second;
+    // loop on all ALCTs in that detId
+    for (auto digiIt& : range)
+    {
+      const int bx((*digiIt).getBX());
+      if (bx < minBxALCT_ || bx > maxBxALCT_)
+      {
+	if (debugRATE) std::cout<<"discarding BX = "<< bx-6 <<std::endl;
+	continue;
+      }
+      // central bx for CSC is 6!!!
+      alct_.bx = bx - 6;
+      alct_.pt = pt();
+      alct_.eta = eta();
+      alct_.phi = phi();
+      alct_.pattern =
+      alct_tree_->Fill();
+    }
+  */
 }
 
 // ================================================================================================
 void  
 GEMCSCTriggerRate::analyzeCLCTRate(const edm::Event& iEvent)
 {
+  edm::Handle< CSCCLCTDigiCollection > hclcts;
+  iEvent.getByLabel("simCscTriggerPrimitiveDigis",  hclcts);
+  const CSCCLCTDigiCollection* clcts = hclcts.product();
+
+  /*
+  // Loop on all CLCTs
+  for (auto adetUnitIt& : clcts);
+  {
+    CSCDetId detId((*adetUnitIt).first);
+    if (detId.endcap() != 1) continue;
+    clct_.event = iEvent.id().event();
+    clct_.detId = id;
+    auto range = (*adetUnitIt).second;
+    // loop on all CLCTs in that detId
+    for (auto digiIt& : range)
+    {
+      const int bx((*digiIt).getBX());
+      if (bx < minBxCLCT_ || bx > maxBxCLCT_)
+      {
+	if (debugRATE) std::cout<<"discarding BX = "<< bx-6 <<std::endl;
+	continue;
+      }
+      // central bx for CSC is 6!!!
+      clct_.bx = bx - 6;
+      clct_.pt = pt();
+      clct_.eta = eta();
+      clct_.phi = phi();
+      clct_.pattern =
+      clct_tree_->Fill();
+    }
+  */
 }
 
 // ================================================================================================
