@@ -62,7 +62,7 @@ struct MyALCT
 
 struct MyCLCT
 {
-  Int_t event, detId, bx;
+  Int_t event, detId, bx, pattern;
   Float_t pt, eta, phi;
 };
 
@@ -70,6 +70,7 @@ struct MyLCT
 {
   Int_t event, detId, bx;
   Float_t pt, eta, phi;
+  Int_t quality, strip;
   Char_t hasGEM;
 };
 
@@ -77,6 +78,7 @@ struct MyMPCLCT
 {
   Int_t event, detId, bx;
   Float_t pt, eta, phi;
+  Int_t quality, strip;
   Char_t hasGEM;
 };
 

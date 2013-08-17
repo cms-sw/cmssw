@@ -563,10 +563,11 @@ GEMCSCTriggerRate::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
 
   // strip&wire matching output  after TMB  and after MPC sorting
   edm::Handle< CSCCorrelatedLCTDigiCollection > lcts_tmb;
-  edm::Handle< CSCCorrelatedLCTDigiCollection > lcts_mpc;
   iEvent.getByLabel("simCscTriggerPrimitiveDigis",  lcts_tmb);
-  iEvent.getByLabel("simCscTriggerPrimitiveDigis", "MPCSORTED", lcts_mpc);
   const CSCCorrelatedLCTDigiCollection* lcts = lcts_tmb.product();
+
+  edm::Handle< CSCCorrelatedLCTDigiCollection > lcts_mpc;
+  iEvent.getByLabel("simCscTriggerPrimitiveDigis", "MPCSORTED", lcts_mpc);
   const CSCCorrelatedLCTDigiCollection* mplcts = lcts_mpc.product();
   
   // DT primitives for input to TF
@@ -2135,7 +2136,7 @@ GEMCSCTriggerRate::analyzeALCTRate(const edm::Event& iEvent)
     for (CSCALCTDigiCollection::const_iterator digiIt = range.first; digiIt != range.second; digiIt++) 
     {
       if ((*digiIt).isValid()) 
-      {
+      {o
 	int bx = (*digiIt).getBX();
 	//if ( bx-6 < minBX_ || bx-6 > maxBX_ )
 	if ( bx < minBxALCT_ || bx > maxBxALCT_ )
@@ -2220,8 +2221,6 @@ GEMCSCTriggerRate::analyzeALCTRate(const edm::Event& iEvent)
   {
     CSCDetId detId((*adetUnitIt).first);
     if (detId.endcap() != 1) continue;
-    alct_.event = iEvent.id().event();
-    alct_.detId = id;
     auto range = (*adetUnitIt).second;
     // loop on all ALCTs in that detId
     for (auto digiIt& : range)
@@ -2233,6 +2232,8 @@ GEMCSCTriggerRate::analyzeALCTRate(const edm::Event& iEvent)
 	continue;
       }
       // central bx for CSC is 6!!!
+      alct_.event = iEvent.id().event();
+      alct_.detId = id;
       alct_.bx = bx - 6;
       alct_.pt = pt();
       alct_.eta = eta();
@@ -2257,8 +2258,6 @@ GEMCSCTriggerRate::analyzeCLCTRate(const edm::Event& iEvent)
   {
     CSCDetId detId((*adetUnitIt).first);
     if (detId.endcap() != 1) continue;
-    clct_.event = iEvent.id().event();
-    clct_.detId = id;
     auto range = (*adetUnitIt).second;
     // loop on all CLCTs in that detId
     for (auto digiIt& : range)
@@ -2270,6 +2269,8 @@ GEMCSCTriggerRate::analyzeCLCTRate(const edm::Event& iEvent)
 	continue;
       }
       // central bx for CSC is 6!!!
+      clct_.event = iEvent.id().event();
+      clct_.detId = id;
       clct_.bx = bx - 6;
       clct_.pt = pt();
       clct_.eta = eta();
@@ -2284,12 +2285,91 @@ GEMCSCTriggerRate::analyzeCLCTRate(const edm::Event& iEvent)
 void  
 GEMCSCTriggerRate::analyzeLCTRate(const edm::Event& iEvent)
 {
+  /*
+  edm::Handle< CSCCorrelatedLCTDigiCollection > lcts_tmb;
+  iEvent.getByLabel("simCscTriggerPrimitiveDigis",  lcts_tmb);
+  const CSCCorrelatedLCTDigiCollection* lcts = lcts_tmb.product();
+
+  for (auto detUnitIt& : lcts);
+  {
+    CSCDetId detId((*adetUnitIt).first);
+    if (detId.endcap() != 1) continue;
+    auto range = (*adetUnitIt).second;
+    // loop on all CLCTs in that detId
+    for (auto digiIt& : range)
+    {
+      const int bx((*digiIt).getBX());
+      if (bx < minBxLCT_ || bx > maxBxLCT_)
+      {
+	if (debugRATE) std::cout<<"discarding BX = "<< bx-6 <<std::endl;
+	continue;
+      }
+      // central bx for CSC is 6!!!
+      lct_.event = iEvent.id().event();
+      lct_.detId = id;
+      lct_.bx = bx - 6;
+      // lct_.pt = pt();
+      // lct_.eta = eta();
+      // lct_.phi = phi();
+      lct_.quality = (*digiIt).getQuality();
+      lct_.strip = (*digiIt).getStrip();
+      lct_.triggerSector = id.triggerSector();
+      lct_.hasGEM = 
+      lct_tree_->Fill();
+    }
+  */
 }
 
 // ================================================================================================
 void  
-GEMCSCTriggerRate::analyzeMPLCTRate(const edm::Event& iEvent)
+GEMCSCTriggerRate::analyzeMPCLCTRate(const edm::Event& iEvent)
 {
+  /*
+  edm::Handle< CSCCorrelatedLCTDigiCollection > lcts_mpc;
+  iEvent.getByLabel("simCscTriggerPrimitiveDigis", "MPCSORTED", lcts_mpc);
+  const CSCCorrelatedLCTDigiCollection* mpclcts = lcts_mpc.product();
+
+  for (auto detUnitIt& : mpclcts);
+  {
+    CSCDetId detId((*adetUnitIt).first);
+    if (detId.endcap() != 1) continue;
+    auto range = (*adetUnitIt).second;
+    // loop on all CMpclcts in that detId
+    for (auto digiIt& : range)
+    {
+      const int bx((*digiIt).getBX());
+      if (bx < minBxMPCLCT_ || bx > maxBxMPCLCT_)
+      {
+	if (debugRATE) std::cout<<"discarding BX = "<< bx-6 <<std::endl;
+	continue;
+      }
+       // central bx for CSC is 6!!!
+      mpclct_.event = iEvent.id().event();
+      mpclct_.detId = id;
+      mpclct_.bx = bx - 6;
+      // mpclct_.pt = pt();
+      // mpclct_.eta = eta();
+      // mpclct_.phi = phi();
+      // mpclct_.lut_eta = eta();
+      // mpclct_.lut_phi = phi();
+      mpclct_.quality = (*digiIt).getQuality();
+      mpclct_.strip = (*digiIt).getStrip();
+      mpclct_.keyWG = (*digiIt).getKeyWG()
+      mpclct_.triggerSector = id.triggerSector();
+      mpclct_.hasGEM = ;
+      // auto etaphi = intersectionEtaPhi(id, (*digiIt).getKeyWG(), (*digiIt).getStrip());
+      // //float eta_lut = muScales->getRegionalEtaScale(2)->getCenter(gblEta.global_eta);
+      // //float phi_lut = normalizedPhi( muScales->getPhiScale()->getLowEdge(gblPhi.global_phi));
+      // csctf::TrackStub stub = buildTrackStub((*digiIt), id);
+      // float eta_lut = stub.etaValue();
+      // float phi_lut = stub.phiValue();
+  		  // std::cout<<"DBGSRLUT "<<id.endcap()<<" "<<id.station()<<" "<<id.ring()<<" "<<id.chamber()<<"  "<<(*digiIt).getKeyWG()<<" "<<(*digiIt).getStrip()<<"  "<<etaphi.first<<" "<<etaphi.second<<"  "<<eta_lut<<" "<<phi_lut<<"  "<<etaphi.first - eta_lut<<" "<<deltaPhi(etaphi.second, phi_lut)<<std::endl;
+      
+      mpclct_.
+      mpclct_tree_->Fill();
+    }
+  }
+*/
 }
 
 // ================================================================================================
