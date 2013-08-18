@@ -11,37 +11,12 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
 
-// Alignment
 #include "CondFormats/Alignment/interface/Alignments.h"
 #include "CondFormats/Alignment/interface/AlignTransform.h"
 
-// #include "Geometry/EcalAlgo/interface/EcalBarrelGeometry.h"
-// #include "Geometry/EcalAlgo/interface/EcalEndcapGeometry.h"
-// #include "Geometry/EcalAlgo/interface/EcalPreshowerGeometry.h"
-// #include "Geometry/HcalTowerAlgo/interface/HcalGeometry.h"
-// #include "Geometry/ForwardGeometry/interface/ZdcGeometry.h"
-// #include "Geometry/ForwardGeometry/interface/CastorGeometry.h"
-// #include "DataFormats/EcalDetId/interface/ESDetId.h"
-// #include "DataFormats/HcalDetId/interface/HcalDetId.h"
-// #include "DataFormats/HcalDetId/interface/HcalZDCDetId.h"
 #include "CondFormats/AlignmentRecord/interface/EBAlignmentRcd.h"
-// #include "CondFormats/AlignmentRecord/interface/EBAlignmentErrorRcd.h"
 #include "CondFormats/AlignmentRecord/interface/EEAlignmentRcd.h"
-// #include "CondFormats/AlignmentRecord/interface/EEAlignmentErrorRcd.h"
 #include "CondFormats/AlignmentRecord/interface/ESAlignmentRcd.h"
-// #include "CondFormats/AlignmentRecord/interface/ESAlignmentErrorRcd.h"
-// #include "CondFormats/AlignmentRecord/interface/HBAlignmentRcd.h"
-// #include "CondFormats/AlignmentRecord/interface/HBAlignmentErrorRcd.h"
-// #include "CondFormats/AlignmentRecord/interface/HEAlignmentRcd.h"
-// #include "CondFormats/AlignmentRecord/interface/HEAlignmentErrorRcd.h"
-// #include "CondFormats/AlignmentRecord/interface/HOAlignmentRcd.h"
-// #include "CondFormats/AlignmentRecord/interface/HOAlignmentErrorRcd.h"
-// #include "CondFormats/AlignmentRecord/interface/HFAlignmentRcd.h"
-// #include "CondFormats/AlignmentRecord/interface/HFAlignmentErrorRcd.h"
-// #include "CondFormats/AlignmentRecord/interface/ZDCAlignmentRcd.h"
-// #include "CondFormats/AlignmentRecord/interface/ZDCAlignmentErrorRcd.h"
-// #include "CondFormats/AlignmentRecord/interface/CastorAlignmentRcd.h"
-// #include "CondFormats/AlignmentRecord/interface/CastorAlignmentErrorRcd.h"
 
 class CaloAlignmentRcdWrite : public edm::EDAnalyzer
 {
@@ -100,5 +75,4 @@ void CaloAlignmentRcdWrite::analyze(const edm::Event& /*evt*/, const edm::EventS
    nEventCalls_++;
 }
 
-//define this as a plug-in
 DEFINE_FWK_MODULE(CaloAlignmentRcdWrite);
