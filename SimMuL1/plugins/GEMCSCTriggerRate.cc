@@ -557,6 +557,10 @@ void
 GEMCSCTriggerRate::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   // ALCTs and CLCTs
+  edm::Handle< CSCALCTDigiCollection > halcts;
+  iEvent.getByLabel("simCscTriggerPrimitiveDigis",  halcts);
+  const CSCALCTDigiCollection* alcts = halcts.product();
+
   edm::Handle< CSCCLCTDigiCollection > hclcts;
   iEvent.getByLabel("simCscTriggerPrimitiveDigis",  hclcts);
   const CSCCLCTDigiCollection* clcts = hclcts.product();
@@ -682,6 +686,112 @@ GEMCSCTriggerRate::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
 
 
   //============ RATE ALCT ==================
+
+  int nalct=0;
+  int nalct_per_bx[16];
+  int n_ch_alct_per_bx[16];
+  int n_ch_alct_per_bx_st[MAX_STATIONS][16];
+  int n_ch_alct_per_bx_cscdet[CSC_TYPES+1][16];
+  for (int b=0;b<16;b++)
+  {
+    nalct_per_bx[b] = n_ch_alct_per_bx[b] = 0;
+    for (int s=0; s<MAX_STATIONS; s++) n_ch_alct_per_bx_st[s][b]=0;
+    for (int me=0; me<=CSC_TYPES; me++) n_ch_alct_per_bx_cscdet[me][b]=0;
+  }
+  if (debugRATE) std::cout<< "----- statring nalct"<<std::endl;
+
+  std::map< int , std::vector<const CSCALCTDigi*> > me11alcts;
+  for (CSCALCTDigiCollection::DigiRangeIterator  adetUnitIt = alcts->begin(); adetUnitIt != alcts->end(); adetUnitIt++)
+  {
+    const CSCDetId& id = (*adetUnitIt).first;
+    //if (id.endcap() != 1) continue;
+    CSCDetId idd(id.rawId());
+    int csct = getCSCType( idd );
+    int cscst = getCSCSpecsType( idd );
+    //int is11 = isME11(csct);
+    int nalct_per_ch_bx[16]={0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+    const CSCALCTDigiCollection::Range& range = (*adetUnitIt).second;
+    for (CSCALCTDigiCollection::const_iterator digiIt = range.first; digiIt != range.second; digiIt++) 
+    {
+      if ((*digiIt).isValid()) 
+      {o
+	int bx = (*digiIt).getBX();
+	//if ( bx-6 < minBX_ || bx-6 > maxBX_ )
+	if ( bx < minBxALCT_ || bx > maxBxALCT_ )
+	{
+	  if (debugRATE) std::cout<<"discarding BX = "<< bx-6 <<std::endl;
+	  continue;
+	}
+	
+	// store all ME11 alcts together so we can look at them later
+	// take into acount that 10<=WG<=15 alcts are present in both 1a and 1b
+	if (csct==0) me11alcts[idd.rawId()].push_back(&(*digiIt));
+	if (csct==3 && (*digiIt).getKeyWG() < 10) 
+        {
+	  CSCDetId id11(idd.endcap(),1,1,idd.chamber());
+	  me11alcts[id11.rawId()].push_back(&(*digiIt));
+	}
+	
+	//        if (debugALCT) std::cout<<"raw ID "<<id.rawId()<<" "<<id<<"    NTrackHitsInChamber  nmhits  alctInfo.size  diff  " 
+	//                           <<trackHitsInChamber.size()<<" "<<nmhits<<" "<<alctInfo.size()<<"  "
+	//                           << nmhits-alctInfo.size() <<std::endl 
+	//                           << "  "<<(*digiIt)<<std::endl;
+	nalct++;
+	++nalct_per_bx[bx];
+	++nalct_per_ch_bx[bx];
+	h_rt_alct_bx->Fill( bx - 6 );
+	h_rt_alct_bx_cscdet[csct]->Fill( bx - 6 );
+	if (bx>=5 && bx<=7) h_rt_csctype_alct_bx567->Fill(cscst);
+	
+      } //if (alct_valid) 
+    }
+    for (int b=0;b<16;b++) 
+    {
+      if ( b < minBxALCT_ || b > maxBxALCT_ ) continue;
+      h_rt_n_per_ch_alct_vs_bx_cscdet[csct]->Fill(nalct_per_ch_bx[b],b);
+      if (nalct_per_ch_bx[b]>0) 
+      {
+	++n_ch_alct_per_bx[b];
+	++n_ch_alct_per_bx_st[id.station()-1][b];
+	++n_ch_alct_per_bx_cscdet[csct][b];
+      }
+    }
+  } // loop CSCALCTDigiCollection
+  //std::map< CSCDetId , std::vector<const CSCALCTDigi*> >::const_iterator mapIt = me11alcts.begin();
+  //for (;mapIt != me11alcts.end(); mapIt++){}
+  std::map< int , std::vector<const CSCALCTDigi*> >::const_iterator aMapIt = me11alcts.begin();
+  for (;aMapIt != me11alcts.end(); aMapIt++)
+  {
+    CSCDetId id(aMapIt->first);
+    int nalct_per_ch_bx[16]={0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+    for (size_t i=0; i<(aMapIt->second).size(); i++)
+    {
+      int bx = (aMapIt->second)[i]->getBX();
+      ++nalct_per_ch_bx[bx];
+    }
+    for (int b=0;b<16;b++)
+    {
+      if ( b < minBxALCT_ || b > maxBxALCT_ ) continue;
+      h_rt_n_per_ch_alct_vs_bx_cscdet[10]->Fill(nalct_per_ch_bx[b],b);
+      if (nalct_per_ch_bx[b]>0) ++n_ch_alct_per_bx_cscdet[10][b];
+    }
+  }
+  h_rt_nalct->Fill(nalct);
+  for (int b=0;b<16;b++) 
+  {
+    if (b < minBxALCT_ || b > maxBxALCT_) continue;
+    h_rt_nalct_vs_bx->Fill(nalct_per_bx[b],b);
+    h_rt_nalct_per_bx->Fill(nalct_per_bx[b]);
+    h_rt_n_ch_alct_per_bx->Fill(n_ch_alct_per_bx[b]);
+    for (int s=0; s<MAX_STATIONS; s++) 
+      h_rt_n_ch_alct_per_bx_st[s]->Fill(n_ch_alct_per_bx_st[s][b]);
+    for (int me=0; me<=CSC_TYPES; me++) 
+      h_rt_n_ch_alct_per_bx_cscdet[me]->Fill(n_ch_alct_per_bx_cscdet[me][b]);
+  }
+
+  
+  if (debugRATE) std::cout<< "----- end nalct="<<nalct<<std::endl;
+
 
 
   //============ RATE CLCT ==================
@@ -2109,115 +2219,10 @@ GEMCSCTriggerRate::analyzeALCTRate(const edm::Event& iEvent)
   iEvent.getByLabel("simCscTriggerPrimitiveDigis",  halcts);
   const CSCALCTDigiCollection* alcts = halcts.product();
 
-  int nalct=0;
-  int nalct_per_bx[16];
-  int n_ch_alct_per_bx[16];
-  int n_ch_alct_per_bx_st[MAX_STATIONS][16];
-  int n_ch_alct_per_bx_cscdet[CSC_TYPES+1][16];
-  for (int b=0;b<16;b++)
-  {
-    nalct_per_bx[b] = n_ch_alct_per_bx[b] = 0;
-    for (int s=0; s<MAX_STATIONS; s++) n_ch_alct_per_bx_st[s][b]=0;
-    for (int me=0; me<=CSC_TYPES; me++) n_ch_alct_per_bx_cscdet[me][b]=0;
-  }
-  if (debugRATE) std::cout<< "----- statring nalct"<<std::endl;
-
-  std::map< int , std::vector<const CSCALCTDigi*> > me11alcts;
-  for (CSCALCTDigiCollection::DigiRangeIterator  adetUnitIt = alcts->begin(); adetUnitIt != alcts->end(); adetUnitIt++)
-  {
-    const CSCDetId& id = (*adetUnitIt).first;
-    //if (id.endcap() != 1) continue;
-    CSCDetId idd(id.rawId());
-    int csct = getCSCType( idd );
-    int cscst = getCSCSpecsType( idd );
-    //int is11 = isME11(csct);
-    int nalct_per_ch_bx[16]={0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
-    const CSCALCTDigiCollection::Range& range = (*adetUnitIt).second;
-    for (CSCALCTDigiCollection::const_iterator digiIt = range.first; digiIt != range.second; digiIt++) 
-    {
-      if ((*digiIt).isValid()) 
-      {o
-	int bx = (*digiIt).getBX();
-	//if ( bx-6 < minBX_ || bx-6 > maxBX_ )
-	if ( bx < minBxALCT_ || bx > maxBxALCT_ )
-	{
-	  if (debugRATE) std::cout<<"discarding BX = "<< bx-6 <<std::endl;
-	  continue;
-	}
-	
-	// store all ME11 alcts together so we can look at them later
-	// take into acount that 10<=WG<=15 alcts are present in both 1a and 1b
-	if (csct==0) me11alcts[idd.rawId()].push_back(&(*digiIt));
-	if (csct==3 && (*digiIt).getKeyWG() < 10) 
-        {
-	  CSCDetId id11(idd.endcap(),1,1,idd.chamber());
-	  me11alcts[id11.rawId()].push_back(&(*digiIt));
-	}
-	
-	//        if (debugALCT) std::cout<<"raw ID "<<id.rawId()<<" "<<id<<"    NTrackHitsInChamber  nmhits  alctInfo.size  diff  " 
-	//                           <<trackHitsInChamber.size()<<" "<<nmhits<<" "<<alctInfo.size()<<"  "
-	//                           << nmhits-alctInfo.size() <<std::endl 
-	//                           << "  "<<(*digiIt)<<std::endl;
-	nalct++;
-	++nalct_per_bx[bx];
-	++nalct_per_ch_bx[bx];
-	h_rt_alct_bx->Fill( bx - 6 );
-	h_rt_alct_bx_cscdet[csct]->Fill( bx - 6 );
-	if (bx>=5 && bx<=7) h_rt_csctype_alct_bx567->Fill(cscst);
-	
-      } //if (alct_valid) 
-    }
-    for (int b=0;b<16;b++) 
-    {
-      if ( b < minBxALCT_ || b > maxBxALCT_ ) continue;
-      h_rt_n_per_ch_alct_vs_bx_cscdet[csct]->Fill(nalct_per_ch_bx[b],b);
-      if (nalct_per_ch_bx[b]>0) 
-      {
-	++n_ch_alct_per_bx[b];
-	++n_ch_alct_per_bx_st[id.station()-1][b];
-	++n_ch_alct_per_bx_cscdet[csct][b];
-      }
-    }
-  } // loop CSCALCTDigiCollection
-  //std::map< CSCDetId , std::vector<const CSCALCTDigi*> >::const_iterator mapIt = me11alcts.begin();
-  //for (;mapIt != me11alcts.end(); mapIt++){}
-  std::map< int , std::vector<const CSCALCTDigi*> >::const_iterator aMapIt = me11alcts.begin();
-  for (;aMapIt != me11alcts.end(); aMapIt++)
-  {
-    CSCDetId id(aMapIt->first);
-    int nalct_per_ch_bx[16]={0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
-    for (size_t i=0; i<(aMapIt->second).size(); i++)
-    {
-      int bx = (aMapIt->second)[i]->getBX();
-      ++nalct_per_ch_bx[bx];
-    }
-    for (int b=0;b<16;b++)
-    {
-      if ( b < minBxALCT_ || b > maxBxALCT_ ) continue;
-      h_rt_n_per_ch_alct_vs_bx_cscdet[10]->Fill(nalct_per_ch_bx[b],b);
-      if (nalct_per_ch_bx[b]>0) ++n_ch_alct_per_bx_cscdet[10][b];
-    }
-  }
-  h_rt_nalct->Fill(nalct);
-  for (int b=0;b<16;b++) 
-  {
-    if (b < minBxALCT_ || b > maxBxALCT_) continue;
-    h_rt_nalct_vs_bx->Fill(nalct_per_bx[b],b);
-    h_rt_nalct_per_bx->Fill(nalct_per_bx[b]);
-    h_rt_n_ch_alct_per_bx->Fill(n_ch_alct_per_bx[b]);
-    for (int s=0; s<MAX_STATIONS; s++) 
-      h_rt_n_ch_alct_per_bx_st[s]->Fill(n_ch_alct_per_bx_st[s][b]);
-    for (int me=0; me<=CSC_TYPES; me++) 
-      h_rt_n_ch_alct_per_bx_cscdet[me]->Fill(n_ch_alct_per_bx_cscdet[me][b]);
-  }
-
-  
-  if (debugRATE) std::cout<< "----- end nalct="<<nalct<<std::endl;
-
   // start of the ntuplization
   /*
   // Loop on all ALCTs
-  for (auto adetUnitIt& : alcts);
+  for (auto& adetUnitIt : alcts);
   {
     CSCDetId detId((*adetUnitIt).first);
     if (detId.endcap() != 1) continue;
@@ -2254,7 +2259,7 @@ GEMCSCTriggerRate::analyzeCLCTRate(const edm::Event& iEvent)
 
   /*
   // Loop on all CLCTs
-  for (auto adetUnitIt& : clcts);
+  for (auto& adetUnitIt : clcts);
   {
     CSCDetId detId((*adetUnitIt).first);
     if (detId.endcap() != 1) continue;
@@ -2290,7 +2295,7 @@ GEMCSCTriggerRate::analyzeLCTRate(const edm::Event& iEvent)
   iEvent.getByLabel("simCscTriggerPrimitiveDigis",  lcts_tmb);
   const CSCCorrelatedLCTDigiCollection* lcts = lcts_tmb.product();
 
-  for (auto detUnitIt& : lcts);
+  for (auto& detUnitIt : lcts);
   {
     CSCDetId detId((*adetUnitIt).first);
     if (detId.endcap() != 1) continue;
@@ -2329,7 +2334,7 @@ GEMCSCTriggerRate::analyzeMPCLCTRate(const edm::Event& iEvent)
   iEvent.getByLabel("simCscTriggerPrimitiveDigis", "MPCSORTED", lcts_mpc);
   const CSCCorrelatedLCTDigiCollection* mpclcts = lcts_mpc.product();
 
-  for (auto detUnitIt& : mpclcts);
+  for (auto& detUnitIt : mpclcts);
   {
     CSCDetId detId((*adetUnitIt).first);
     if (detId.endcap() != 1) continue;
@@ -2376,6 +2381,95 @@ GEMCSCTriggerRate::analyzeMPCLCTRate(const edm::Event& iEvent)
 void  
 GEMCSCTriggerRate::analyzeTFTrackRate(const edm::Event& iEvent)
 {
+  // tracks produced by TF
+  edm::Handle< L1CSCTrackCollection > hl1Tracks;
+  iEvent.getByLabel("simCsctfTrackDigis",hl1Tracks);
+  const L1CSCTrackCollection* l1Tracks = hl1Tracks.product();
+
+  for (auto& trk : l1Tracks)
+  {
+    const int bx(trk->first.bx());
+    if ( bx < minRateBX_ || bx > maxRateBX_ )
+    {
+      if (debugRATE) std::cout<<"discarding BX = "<< bx <<std::endl;
+      continue;
+    }
+    // retrieve the LCTs for this TFTrack by doing a matching procedure. 
+  // tftrack_.event = iEvent.id().event();
+  //  tftrack_.bx = bx;
+  // pt, eta, phi;
+  // hasME1a, hasME1b, hasME12, hasME13;
+  // hasME21, hasME22;
+  // hasME31, hasME32;
+  // hasME41, hasME42;
+  // hasGEM;
+    //   h_rt_tftrack_pt->Fill(myTFTrk.pt);
+    //   h_rt_tftrack_bx->Fill();
+
+  }
+
+
+    //   MatchCSCMuL1::TFTRACK myTFTrk;
+    //   myTFTrk.init( &(trk->first) , ptLUT, muScales, muPtScale);
+    //   myTFTrk.dr = 999.;
+
+    //   for (CSCCorrelatedLCTDigiCollection::DigiRangeIterator detUnitIt = trk->second.begin();
+    // 	   detUnitIt != trk->second.end(); detUnitIt++)
+    // 	{
+    // 	  const CSCDetId& id = (*detUnitIt).first;
+    // 	  CSCDetId cid = id;
+    // 	  const CSCCorrelatedLCTDigiCollection::Range& range = (*detUnitIt).second;
+    // 	  for (CSCCorrelatedLCTDigiCollection::const_iterator digiIt = range.first; digiIt != range.second; digiIt++)
+    // 	    {
+    // 	      if (!((*digiIt).isValid())) std::cout<<"ALARM!!! match TFCAND to TFTRACK in rates: not valid id="<<id.rawId()<<" "<<id<<std::endl;
+    // 	      bool me1a_case = (defaultME1a && id.station()==1 && id.ring()==1 && (*digiIt).getStrip() > 127);
+    // 	      if (me1a_case){
+    // 		CSCDetId id1a(id.endcap(),id.station(),4,id.chamber(),0);
+    // 		cid = id1a;
+    // 	      }
+    // 	      //if (id.station()==1 && id.ring()==4) std::cout<<"me1adigi check: "<<(*digiIt)<<" "<<std::endl;
+    // 	      myTFTrk.trgdigis.push_back( &*digiIt );
+    // 	      myTFTrk.trgids.push_back( cid );
+    // 	      myTFTrk.trgetaphis.push_back( intersectionEtaPhi(cid, (*digiIt).getKeyWG(), (*digiIt).getStrip()) );
+    // 	      myTFTrk.trgstubs.push_back( buildTrackStub((*digiIt), cid) );
+    // 	    }
+    // 	}
+
+    //   ntftrack++;
+    //   rtTFTracks.push_back(myTFTrk);
+
+    //   //    if (debugTFInef && inefTF) myTFTrk.print("(for inef checks)");
+    
+    //   if (myTFTrk.pt >= 20. && myTFTrk.hasStub(1) && myTFTrk.hasStub(2)){
+    // 	int i1=-1, i2=-1, k=0;
+    // 	for (auto id: myTFTrk.trgids)
+    // 	  {
+    // 	    if (id.station()==1) i1 = k;
+    // 	    if (id.station()==2) i2 = k;
+    // 	    ++k;
+    // 	  }
+    // 	if (i1>=0 && i2 >=0 ) {
+    // 	  auto etaphi1 = myTFTrk.trgetaphis[i1];
+    // 	  auto etaphi2 = myTFTrk.trgetaphis[i2];
+    // 	  auto d = myTFTrk.trgids[i1];
+    // 	  auto &stub = *(myTFTrk.trgdigis[i1]);
+    // 	  std::cout<<"DBGdeta12 "<<d.endcap()<<" "<<d.ring()<<" "<<d.chamber()<<"  "<<stub.getKeyWG()<<" "<<stub.getStrip()<<"  "<<myTFTrk.nStubs(1,1,1,1,1)<<" "<<myTFTrk.pt<<" "<<myTFTrk.eta<<"  "<<etaphi1.first<<" "<<etaphi2.first<<" "<<etaphi1.first-etaphi2.first<<"  "<<etaphi1.second<<" "<<etaphi2.second<<" "<<deltaPhi(etaphi1.second,etaphi2.second)<<std::endl;
+
+    // 	  if ( (etaphi1.first-etaphi2.first) > 0.1) {
+    // 	    myTFTrk.print("");
+    // 	    std::cout<<"############### CSCTFSPCoreLogic printout for large deta12 = "<<etaphi1.first-etaphi2.first<< " at "<<d.endcap()<<" "<<d.ring()<<" "<<d.chamber()<<std::endl;
+    // 	    runCSCTFSP(mplcts, dttrigs);
+    // 	    std::cout<<"############### end printout"<<std::endl;
+    // 	  }
+    // 	}
+    // 	else {
+    // 	  std::cout<<"myTFTrk.trgids corrupt"<<std::endl;
+    // 	  myTFTrk.print("");
+    // 	}
+    //   }
+
+    //   h_rt_tftrack_mode->Fill(myTFTrk.mode());
+    // }
 }
 
 // ================================================================================================
