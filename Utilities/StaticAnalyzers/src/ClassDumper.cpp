@@ -35,8 +35,10 @@ void ClassDumper::checkASTDecl(const clang::CXXRecordDecl *RD,clang::ento::Analy
 	
 // Dump the class members.
 	std::string err;
+	std::string dname(std::getenv("LOCALRT"));
 	std::string fname("/tmp/classes.txt.unsorted");
-	llvm::raw_fd_ostream output(fname.c_str(),err,llvm::raw_fd_ostream::F_Append);
+	std::string tname = dname + fname;
+	llvm::raw_fd_ostream output(tname.c_str(),err,llvm::raw_fd_ostream::F_Append);
 //	llvm::errs() <<"class " <<RD->getQualifiedNameAsString()<<"\n";
 	output <<"class " <<RD->getQualifiedNameAsString()<<"\n";
 	for (clang::RecordDecl::field_iterator I = RD->field_begin(), E = RD->field_end(); I != E; ++I)
@@ -135,11 +137,14 @@ void ClassDumperInherit::checkASTDecl(const clang::CXXRecordDecl *RD, clang::ent
 
 	clang::FileSystemOptions FSO;
 	clang::FileManager FM(FSO);
-	if (!FM.getFile("/tmp/classes.txt.dumperft") ) {
-		llvm::errs()<<"\n\nChecker cannot find /tmp/classes.txt.dumperft \n";
+	std::string dname(std::getenv("LOCALRT"));
+	std::string fname("/tmp/classes.txt.dumperft");
+	std::string tname = dname + fname;
+	if (!FM.getFile(tname) ) {
+		llvm::errs()<<"\n\nChecker cannot find $LOCALRT/tmp/classes.txt.dumperft \n";
 		exit(1);
 		}
-	llvm::MemoryBuffer * buffer = FM.getBufferForFile(FM.getFile("/tmp/classes.txt.dumperft"));
+	llvm::MemoryBuffer * buffer = FM.getBufferForFile(FM.getFile(tname));
 //	llvm::errs()<<"class "<<RD->getQualifiedNameAsString()<<"\n";
 
 	for (clang::CXXRecordDecl::base_class_const_iterator J=RD->bases_begin(), F=RD->bases_end();J != F; ++J)
