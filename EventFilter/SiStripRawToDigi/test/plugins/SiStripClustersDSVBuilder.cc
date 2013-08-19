@@ -73,7 +73,7 @@ void SiStripClustersDSVBuilder::clusterize(const LazyGetter& lazygetter, const R
 {
   /// create filler cache
 
-  DSVnew::FastFiller* filler = 0;
+  DSVnew::FastFiller* filler = NULL;
 
   /// fill DSVnew
 
@@ -97,10 +97,15 @@ void SiStripClustersDSVBuilder::clusterize(const LazyGetter& lazygetter, const R
   for (std::vector<SiStripCluster>::const_iterator icluster = lazygetter.begin_record();
        icluster!=lazygetter.end_record(); ++icluster){
 
+    /*
     const std::vector<uint8_t>& ampls = icluster->amplitudes();
-    double cluster_signal = 0.;
     for(size_t iamp=0; iamp<ampls.size(); iamp++)
       cluster_signal += ampls[iamp];
+    */
+
+    double cluster_signal = 0.;
+    for ( auto amplitude : icluster->amplitudes() )
+      cluster_signal += amplitude;
 
     if (cluster_signal==0)
       continue;
@@ -110,7 +115,7 @@ void SiStripClustersDSVBuilder::clusterize(const LazyGetter& lazygetter, const R
 
     if (idcache!=icluster->geographicalId()) {
 
-      if (filler) delete filler; 
+      if (filler!=NULL) delete filler; 
       filler = new DSVnew::FastFiller(dsv,icluster->geographicalId());
       idcache = icluster->geographicalId();
     }
