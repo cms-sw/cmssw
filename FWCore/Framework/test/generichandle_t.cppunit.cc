@@ -187,7 +187,7 @@ void testGenericHandle::getbyLabelTest() {
   edm::BranchDescription const& branchFromRegistry = it->second;
   boost::shared_ptr<edm::Parentage> entryDescriptionPtr(new edm::Parentage);
   edm::ProductProvenance prov(branchFromRegistry.branchID(), entryDescriptionPtr);
-  edm::ConstBranchDescription const desc(branchFromRegistry);
+  edm::BranchDescription const desc(branchFromRegistry);
   ep.put(desc, pprod, prov);
 
   edm::GenericHandle h("edmtest::DummyProduct");

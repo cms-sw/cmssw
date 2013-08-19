@@ -299,7 +299,7 @@ namespace edm {
              << " " << spi->desc()->branchID()
              << std::endl;
 
-        ConstBranchDescription branchDesc(*spi->desc());
+        BranchDescription const branchDesc(*spi->desc());
         // This ProductProvenance constructor inserts into the entry description registry
         ProductProvenance productProvenance(spi->branchID(), *spi->parents());
 

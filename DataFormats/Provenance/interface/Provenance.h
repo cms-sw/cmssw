@@ -14,7 +14,6 @@ existence.
 #include "DataFormats/Provenance/interface/ProcessConfigurationID.h"
 #include "DataFormats/Provenance/interface/ProcessHistoryID.h"
 #include "DataFormats/Provenance/interface/Parentage.h"
-#include "DataFormats/Provenance/interface/ConstBranchDescription.h"
 #include "DataFormats/Provenance/interface/ProductID.h"
 #include "DataFormats/Provenance/interface/ReleaseVersion.h"
 
@@ -38,14 +37,14 @@ namespace edm {
   public:
     Provenance();
 
-    Provenance(boost::shared_ptr<ConstBranchDescription> const& p, ProductID const& pid);
+    Provenance(boost::shared_ptr<BranchDescription const> const& p, ProductID const& pid);
 
     Parentage const& event() const {return parentage();}
-    BranchDescription const& product() const {return branchDescription_->me();}
+    BranchDescription const& product() const {return *branchDescription_;}
 
-    BranchDescription const& branchDescription() const {return branchDescription_->me();}
-    ConstBranchDescription const& constBranchDescription() const {return *branchDescription_;}
-    boost::shared_ptr<ConstBranchDescription> const& constBranchDescriptionPtr() const {return branchDescription_;}
+    BranchDescription const& branchDescription() const {return *branchDescription_;}
+    BranchDescription const& constBranchDescription() const {return *branchDescription_;}
+    boost::shared_ptr<BranchDescription const> const& constBranchDescriptionPtr() const {return branchDescription_;}
 
     ProductProvenance* resolve() const;
     ProductProvenance* productProvenance() const {
@@ -93,7 +92,7 @@ namespace edm {
       productID_ = pid;
     }
 
-    void setBranchDescription(boost::shared_ptr<ConstBranchDescription> const& p) {
+    void setBranchDescription(boost::shared_ptr<BranchDescription const> const& p) {
       branchDescription_ = p;
     }
 
@@ -102,7 +101,7 @@ namespace edm {
     void swap(Provenance&);
 
   private:
-    boost::shared_ptr<ConstBranchDescription> branchDescription_;
+    boost::shared_ptr<BranchDescription const> branchDescription_;
     ProductID productID_;
     ProcessHistoryID const* processHistoryID_; // Owned by Auxiliary
     mutable bool productProvenanceValid_;

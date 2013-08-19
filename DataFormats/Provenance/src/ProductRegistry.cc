@@ -264,7 +264,7 @@ namespace edm {
     for(auto const& product : productList_) {
       auto const& key = product.first;
       auto const& desc = product.second;
-      constProductList().insert(std::make_pair(key, ConstBranchDescription(desc)));
+      constProductList().insert(std::make_pair(key, BranchDescription(desc)));
     }
   }
 
@@ -278,7 +278,7 @@ namespace edm {
       auto const& key = product.first;
       auto const& desc = product.second;
 
-      constProductList().insert(std::make_pair(key, ConstBranchDescription(desc)));
+      constProductList().insert(std::make_pair(key, BranchDescription(desc)));
 
       if(desc.produced()) {
         setProductProduced(desc.branchType());

@@ -547,13 +547,13 @@ namespace edm {
       << "Contact a Framework developer\n";
   }
 
-  ConstBranchDescription const& NoProcessProductHolder::branchDescription_() const {
+  BranchDescription const& NoProcessProductHolder::branchDescription_() const {
     throw Exception(errors::LogicError)
       << "NoProcessProductHolder::branchDescription_() not implemented and should never be called.\n"
       << "Contact a Framework developer\n";
   }
 
-  void NoProcessProductHolder::resetBranchDescription_(boost::shared_ptr<ConstBranchDescription> bd) {
+  void NoProcessProductHolder::resetBranchDescription_(boost::shared_ptr<BranchDescription const> bd) {
     throw Exception(errors::LogicError)
       << "NoProcessProductHolder::resetBranchDescription_() not implemented and should never be called.\n"
       << "Contact a Framework developer\n";

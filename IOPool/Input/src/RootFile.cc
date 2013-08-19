@@ -360,7 +360,7 @@ namespace edm {
         it->second.init();
         daqProvenanceHelper_.reset(new DaqProvenanceHelper(it->second.unwrappedTypeID()));
         // Create the new branch description
-        BranchDescription const& newBD = daqProvenanceHelper_->constBranchDescription_.me();
+        BranchDescription const& newBD = daqProvenanceHelper_->constBranchDescription_;
         // Save info from the old and new branch descriptions
         daqProvenanceHelper_->saveInfo(it->second, newBD);
         // Map the new branch name to the old branch name.

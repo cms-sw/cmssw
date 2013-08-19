@@ -5,7 +5,7 @@
 #include <string>
 #include <vector>
 
-#include "DataFormats/Provenance/interface/ConstBranchDescription.h"
+#include "DataFormats/Provenance/interface/BranchDescription.h"
 #include "DataFormats/Provenance/interface/ParentageID.h"
 #include "DataFormats/Provenance/interface/ProcessConfiguration.h"
 #include "DataFormats/Provenance/interface/ProcessHistoryID.h"
@@ -34,7 +34,7 @@ namespace edm {
     ParentageID const& mapParentageID(ParentageID const& phid) const;
     BranchID const& mapBranchID(BranchID const& branchID) const;
 
-    ConstBranchDescription constBranchDescription_;
+    BranchDescription const constBranchDescription_;
     ProductProvenance dummyProvenance_;
     ParameterSet processParameterSet_;
 

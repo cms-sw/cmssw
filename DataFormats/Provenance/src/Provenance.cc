@@ -12,10 +12,10 @@
 
 namespace edm {
 
-  Provenance::Provenance() : Provenance{boost::shared_ptr<ConstBranchDescription>(), ProductID()} {
+  Provenance::Provenance() : Provenance{boost::shared_ptr<BranchDescription const>(), ProductID()} {
   }
 
-  Provenance::Provenance(boost::shared_ptr<ConstBranchDescription> const& p, ProductID const& pid) :
+  Provenance::Provenance(boost::shared_ptr<BranchDescription const> const& p, ProductID const& pid) :
     branchDescription_(p),
     productID_(pid),
     processHistoryID_(),
