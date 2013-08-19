@@ -21,7 +21,8 @@
 
 #include "CondFormats/DataRecord/interface/EcalChannelStatusRcd.h"
 #include "CondFormats/EcalObjects/interface/EcalChannelStatus.h"
-
+#include "CalibCalorimetry/EcalLaserCorrection/interface/EcalLaserDbService.h"
+#include "CalibCalorimetry/EcalLaserCorrection/interface/EcalLaserDbRecord.h"
 #include "RecoLocalCalo/EcalRecProducers/interface/EcalRecHitWorkerFactory.h"
 
 
@@ -279,6 +280,23 @@ EcalRecHitProducer::produce(edm::Event& evt, const edm::EventSetup& es)
         evt.put( ebRecHits, ebRechitCollection_ );
         evt.put( eeRecHits, eeRechitCollection_ );
 }
+
+
+void EcalRecHitProducer::endLuminosityBlock(edm::LuminosityBlock const& lb, 
+					    edm::EventSetup const& es){
+
+  edm::ESHandle<EcalLaserDbService> pLaser;
+  es.get<EcalLaserDbRecord>().get(pLaser);
+  
+  /// summary of errors in laser correction
+  pLaser->errorReport();
+
+}
+
+
+
+
+
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE( EcalRecHitProducer );
