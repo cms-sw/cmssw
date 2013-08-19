@@ -82,13 +82,10 @@ struct KDTreeNode
 
 template <typename DATA>
 struct KDTreeNodes {
-  struct Node {
-    Node(): median(0.0f), right(0) {}
-    float median;
-    int right;
-  };
-  std::vector<Node> nodes;
-  std::vector<KDTreeNodeInfo<DATA>> info;
+  std::vector<float> median; // or dimCurrent;
+  std::vector<int> right;
+  std::vector<float> dimOther;
+  std::vector<DATA> data;
 
   int poolSize;
   int poolPos;
@@ -99,8 +96,10 @@ struct KDTreeNodes {
   int size() const { return poolPos + 1; }
 
   void clear() {
-    nodes.clear();
-    info.clear();
+    median.clear();
+    right.clear();
+    dimOther.clear();
+    data.clear();
     poolSize = -1;
     poolPos = -1;
   }
@@ -115,16 +114,22 @@ struct KDTreeNodes {
 
   void build(int sizeData) {
     poolSize = sizeData*2-1;
-    nodes.resize(poolSize);
-    info.resize(poolSize);
+    median.resize(poolSize);
+    right.resize(poolSize);
+    dimOther.resize(poolSize);
+    data.resize(poolSize);
   };
 
-  bool isLeaf(int index) const {
+  constexpr bool isLeaf(int right) const {
     // Valid values of right are always >= 2
     // index 0 is the root, and 1 is the first left node
     // Exploit index values 0 and 1 to mark which of dim1/dim2 is the
     // current one in recSearch() at the depth of the leaf.
-    return nodes[index].right < 2;
+    return right < 2;
+  }
+
+  bool isLeafIndex(int index) const {
+    return isLeaf(right[index]);
   }
 };
 

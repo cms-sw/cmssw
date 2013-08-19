@@ -25,7 +25,7 @@ class KDTreeLinkerAlgo
   // Here we search in the KDTree for all points that would be 
   // contained in the given searchbox. The founded points are stored in resRecHitList.
   void search(const KDTreeBox				&searchBox,
-	      std::vector<KDTreeNodeInfo<DATA> >	&resRecHitList);
+	      std::vector<DATA>	&resRecHitList);
 
   // This reurns true if the tree is empty
   bool empty() {return nodePool_.empty();}
@@ -41,7 +41,7 @@ class KDTreeLinkerAlgo
   // The node pool allow us to do just 1 call to new for each tree building.
   KDTreeNodes<DATA> nodePool_;
   
-  std::vector<KDTreeNodeInfo<DATA> >	*closestNeighbour;
+  std::vector<DATA>	*closestNeighbour;
   std::vector<KDTreeNodeInfo<DATA> >	*initialEltList;
   
  private:
@@ -142,7 +142,7 @@ KDTreeLinkerAlgo<DATA>::medianSearch(int	low,
 template < typename DATA >
 void
 KDTreeLinkerAlgo<DATA>::search(const KDTreeBox		&trackBox,
-			 std::vector<KDTreeNodeInfo<DATA> > &recHits)
+			 std::vector<DATA> &recHits)
 {
   if (!empty()) {
     closestNeighbour = &recHits;
@@ -166,33 +166,30 @@ KDTreeLinkerAlgo<DATA>::recSearch(int	current,
   assert (!(((nodePool_.left[current] < 0) && (nodePool_.right[current] >= 0)) ||
             ((nodePool_.left[current] >= 0) && (nodePool_.right[current] < 0))));
   */
-    
-  if (nodePool_.isLeaf(current)) {
-    const KDTreeNodeInfo<DATA>& info = nodePool_.info[current];
+  int right = nodePool_.right[current];
 
-    int dimIndex = nodePool_.nodes[current].right; // 0 or 1
-    float dimCurr = info.dim[dimIndex];
-    float dimOther = info.dim[1-dimIndex];
+  if (nodePool_.isLeaf(right)) {
+    float dimCurr = nodePool_.median[current];
 
     // If point inside the rectangle/area
     // Use intentionally bit-wise & instead of logical && for better
     // performance. It is faster to always do all comparisons than to
     // allow use of branches to not do some if any of the first ones
     // is false.
-    if((dimCurr >= dimCurrMin) & (dimCurr <= dimCurrMax) &
-       (dimOther >= dimOtherMin) & (dimOther <= dimOtherMax))
-      closestNeighbour->push_back(info);
-
+    if((dimCurr >= dimCurrMin) & (dimCurr <= dimCurrMax)) {
+      float dimOther = nodePool_.dimOther[current];
+      if((dimOther >= dimOtherMin) & (dimOther <= dimOtherMax)) {
+        closestNeighbour->push_back(nodePool_.data[current]);
+      }
+    }
   } else {
-    const typename KDTreeNodes<DATA>::Node& node = nodePool_.nodes[current];
-    float median = node.median;
+    float median = nodePool_.median[current];
 
     if(dimCurrMin <= median) {
       int left = current+1;
       recSearch(left, dimOtherMin, dimOtherMax, dimCurrMin, dimCurrMax);
     }
     if(dimCurrMax > median) {
-      int right = node.right;
       recSearch(right, dimOtherMin, dimOtherMax, dimCurrMin, dimCurrMax);
     }
   }
@@ -257,10 +254,12 @@ KDTreeLinkerAlgo<DATA>::recBuild(int					low,
   // assert(portionSize > 0);
 
   if (portionSize == 1) { // Leaf case
-   
     int leaf = nodePool_.getNextNode();
-    nodePool_.info[leaf] = (*initialEltList)[low];
-    nodePool_.nodes[leaf].right = dimIndex;
+    const KDTreeNodeInfo<DATA>& info = (*initialEltList)[low];
+    nodePool_.right[leaf] = 0;
+    nodePool_.median[leaf] = info.dim[dimIndex]; // dimCurrent
+    nodePool_.dimOther[leaf] = info.dim[1-dimIndex];
+    nodePool_.data[leaf] = info.data;
     return leaf;
 
   } else { // Node case
@@ -272,8 +271,7 @@ KDTreeLinkerAlgo<DATA>::recBuild(int					low,
 
     // We create the node
     int nodeInd = nodePool_.getNextNode();
-    typename KDTreeNodes<DATA>::Node& node = nodePool_.nodes[nodeInd];
-    node.median = medianVal;
+    nodePool_.median[nodeInd] = medianVal;
 
     ++depth;
     ++medianId;
@@ -281,7 +279,7 @@ KDTreeLinkerAlgo<DATA>::recBuild(int					low,
     // We recursively build the son nodes
     int left = recBuild(low, medianId, depth);
     assert(nodeInd+1 == left);
-    node.right = recBuild(medianId, high, depth);
+    nodePool_.right[nodeInd] = recBuild(medianId, high, depth);
 
     return nodeInd;
   }
