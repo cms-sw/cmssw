@@ -13,7 +13,7 @@
 //
 // Original Author:  Nhan Tran
 //         Created:  Mon Jul 16m 16:56:34 CDT 2007
-// $Id: TrackerGeometryIntoNtuples.cc,v 1.5 2010/01/04 18:24:37 mussgill Exp $
+// $Id: TrackerGeometryIntoNtuples.cc,v 1.7 2011/09/15 08:03:31 mussgill Exp $
 //
 //
 
@@ -63,7 +63,6 @@ private:
 	
 	// ----------member data ---------------------------
 	//std::vector<AlignTransform> m_align;
-	Alignments* theAlignments;
 	AlignableTracker* theCurrentTracker;
 	
 	uint32_t m_rawid;
@@ -90,14 +89,20 @@ private:
 //
 // constructors and destructor
 //
-TrackerGeometryIntoNtuples::TrackerGeometryIntoNtuples(const edm::ParameterSet& iConfig)
+TrackerGeometryIntoNtuples::TrackerGeometryIntoNtuples(const edm::ParameterSet& iConfig) :
+  theCurrentTracker(0),
+  m_rawid(0),
+  m_x(0.), m_y(0.), m_z(0.),
+  m_alpha(0.), m_beta(0.), m_gamma(0.),
+  m_subdetid(0),
+  m_xx(0.), m_xy(0.), m_yy(0.), m_xz(0.), m_yz(0.), m_zz(0.)
 {
 	m_outputFile = iConfig.getUntrackedParameter< std::string > ("outputFile");
 	m_outputTreename = iConfig.getUntrackedParameter< std::string > ("outputTreename");
 	m_file = new TFile(m_outputFile.c_str(),"RECREATE");
 	m_tree = new TTree(m_outputTreename.c_str(),m_outputTreename.c_str());
 	//char errorTreeName[256];
-	//sprintf(errorTreeName, "%sErrors", m_outputTreename);
+	//snprintf(errorTreeName, sizeof(errorTreeName), "%sErrors", m_outputTreename);
 	//m_treeErrors = new TTree(errorTreeName,errorTreeName);
 	m_treeErrors = new TTree("alignTreeErrors","alignTreeErrors");
 	
@@ -105,7 +110,9 @@ TrackerGeometryIntoNtuples::TrackerGeometryIntoNtuples(const edm::ParameterSet& 
 
 
 TrackerGeometryIntoNtuples::~TrackerGeometryIntoNtuples()
-{}
+{
+  delete theCurrentTracker;
+}
 
 
 //
@@ -173,6 +180,8 @@ void TrackerGeometryIntoNtuples::analyze(const edm::Event& iEvent, const edm::Ev
 		
 	}
 	
+	delete theAlignments;
+
 	std::vector<AlignTransformError> alignErrors = alignmentErrors->m_alignError;
 	for (std::vector<AlignTransformError>::const_iterator i = alignErrors.begin(); i != alignErrors.end(); ++i){
 

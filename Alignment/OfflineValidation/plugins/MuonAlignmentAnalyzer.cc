@@ -3,8 +3,8 @@
  *  Makes histograms of high level Muon objects/quantities
  *  for Alignment Scenarios/DB comparison
  *
- *  $Date: 2010/09/23 12:06:42 $
- *  $Revision: 1.12 $
+ *  $Date: 2011/09/04 17:40:58 $
+ *  $Revision: 1.13 $
  *  \author J. Fernandez - Univ. Oviedo <Javier.Fernandez@cern.ch>
  */
 
@@ -48,6 +48,86 @@
 
 /// Constructor
 MuonAlignmentAnalyzer::MuonAlignmentAnalyzer(const edm::ParameterSet& pset):
+    hGBNmuons(0),
+    hSANmuons(0),
+    hSimNmuons(0),
+    hGBNmuons_Barrel(0),
+    hSANmuons_Barrel(0),
+    hSimNmuons_Barrel(0),
+    hGBNmuons_Endcap(0),
+    hSANmuons_Endcap(0),
+    hSimNmuons_Endcap(0),
+    hGBNhits(0),
+    hGBNhits_Barrel(0),
+    hGBNhits_Endcap(0),
+    hSANhits(0),
+    hSANhits_Barrel(0),
+    hSANhits_Endcap(0),
+    hGBChi2(0),
+    hSAChi2(0),
+    hGBChi2_Barrel(0),
+    hSAChi2_Barrel(0),
+    hGBChi2_Endcap(0),
+    hSAChi2_Endcap(0),
+    hGBInvM(0),
+    hSAInvM(0),
+    hSimInvM(0),
+    hGBInvM_Barrel(0),
+    hSAInvM_Barrel(0),
+    hSimInvM_Barrel(0),
+    hGBInvM_Endcap(0),
+    hSAInvM_Endcap(0),
+    hSimInvM_Endcap(0),
+    hGBInvM_Overlap(0),
+    hSAInvM_Overlap(0),
+    hSimInvM_Overlap(0),
+    hSAPTRec(0),
+    hGBPTRec(0),
+    hSimPT(0), 
+    hSAPTRec_Barrel(0),
+    hGBPTRec_Barrel(0),
+    hSimPT_Barrel(0), 
+    hSAPTRec_Endcap(0),
+    hGBPTRec_Endcap(0),
+    hSimPT_Endcap(0), 
+    hGBPTvsEta(0),
+    hGBPTvsPhi(0),
+    hSAPTvsEta(0),
+    hSAPTvsPhi(0),
+    hSimPTvsEta(0),
+    hSimPTvsPhi(0),
+    hSimPhivsEta(0),
+    hSAPhivsEta(0),
+    hGBPhivsEta(0),
+    hSAPTres(0),
+    hSAinvPTres(0),
+    hGBPTres(0),
+    hGBinvPTres(0),
+    hSAPTres_Barrel(0),
+    hSAPTres_Endcap(0),
+    hGBPTres_Barrel(0),
+    hGBPTres_Endcap(0),
+    hSAPTDiff(0),
+    hGBPTDiff(0),
+    hSAPTDiffvsEta(0),
+    hSAPTDiffvsPhi(0),
+    hGBPTDiffvsEta(0),
+    hGBPTDiffvsPhi(0),
+    hGBinvPTvsEta(0),
+    hGBinvPTvsPhi(0),
+    hSAinvPTvsEta(0),
+    hSAinvPTvsPhi(0),
+    hSAinvPTvsNhits(0),
+    hGBinvPTvsNhits(0),
+    hResidualLocalXDT(0), 
+    hResidualLocalPhiDT(0), 
+    hResidualLocalThetaDT(0), 
+    hResidualLocalYDT(0), 
+    hResidualLocalXCSC(0), 
+    hResidualLocalPhiCSC(0), 
+    hResidualLocalThetaCSC(0), 
+    hResidualLocalYCSC(0), 
+
     hResidualLocalXDT_W(5),
     hResidualLocalPhiDT_W(5),
     hResidualLocalThetaDT_W(5),
@@ -60,6 +140,16 @@ MuonAlignmentAnalyzer::MuonAlignmentAnalyzer(const edm::ParameterSet& pset):
     hResidualLocalPhiDT_MB(20),
     hResidualLocalThetaDT_MB(20),
     hResidualLocalYDT_MB(20),
+    
+    hResidualGlobalRPhiDT(0), 
+    hResidualGlobalPhiDT(0), 
+    hResidualGlobalThetaDT(0), 
+    hResidualGlobalZDT(0), 
+    hResidualGlobalRPhiCSC(0), 
+    hResidualGlobalPhiCSC(0), 
+    hResidualGlobalThetaCSC(0), 
+    hResidualGlobalRCSC(0), 
+
     hResidualGlobalRPhiDT_W(5),
     hResidualGlobalPhiDT_W(5),
     hResidualGlobalThetaDT_W(5),
@@ -71,9 +161,40 @@ MuonAlignmentAnalyzer::MuonAlignmentAnalyzer(const edm::ParameterSet& pset):
     hResidualGlobalRPhiDT_MB(20),
     hResidualGlobalPhiDT_MB(20),
     hResidualGlobalThetaDT_MB(20),
-    hResidualGlobalZDT_MB(20)
+    hResidualGlobalZDT_MB(20),
 
-
+    hprofLocalPositionCSC(0),
+    hprofLocalAngleCSC(0),
+    hprofLocalPositionRmsCSC(0),
+    hprofLocalAngleRmsCSC(0),
+    hprofGlobalPositionCSC(0),
+    hprofGlobalAngleCSC(0),
+    hprofGlobalPositionRmsCSC(0),
+    hprofGlobalAngleRmsCSC(0),
+    hprofLocalPositionDT(0),
+    hprofLocalAngleDT(0),
+    hprofLocalPositionRmsDT(0),
+    hprofLocalAngleRmsDT(0),
+    hprofGlobalPositionDT(0),
+    hprofGlobalAngleDT(0),
+    hprofGlobalPositionRmsDT(0),
+    hprofGlobalAngleRmsDT(0),
+    hprofLocalXDT(0),
+    hprofLocalPhiDT(0),
+    hprofLocalThetaDT(0),
+    hprofLocalYDT(0),
+    hprofLocalXCSC(0),
+    hprofLocalPhiCSC(0),
+    hprofLocalThetaCSC(0),
+    hprofLocalYCSC(0),
+    hprofGlobalRPhiDT(0),
+    hprofGlobalPhiDT(0),
+    hprofGlobalThetaDT(0),
+    hprofGlobalZDT(0),
+    hprofGlobalRPhiCSC(0),
+    hprofGlobalPhiCSC(0),
+    hprofGlobalThetaCSC(0),
+    hprofGlobalRCSC(0)
 {
     theSTAMuonTag = pset.getParameter<edm::InputTag>("StandAloneTrackCollectionTag");
     theGLBMuonTag = pset.getParameter<edm::InputTag>("GlobalMuonTrackCollectionTag");
@@ -667,7 +788,7 @@ void MuonAlignmentAnalyzer::beginJob(){
 
         char binLabel[15];
         for (int i=1;i<15;i++){
-            sprintf(binLabel, "Sec-%d", i );
+ 	    snprintf(binLabel, sizeof(binLabel), "Sec-%d", i );
             hprofGlobalPositionDT->GetXaxis()->SetBinLabel(i,binLabel);
             hprofGlobalAngleDT->GetXaxis()->SetBinLabel(i,binLabel);
             hprofGlobalPositionRmsDT->GetXaxis()->SetBinLabel(i,binLabel);
@@ -679,7 +800,7 @@ void MuonAlignmentAnalyzer::beginJob(){
         }
   
         for (int i=1;i<37;i++){
-            sprintf(binLabel, "Ch-%d", i );
+            snprintf(binLabel, sizeof(binLabel), "Ch-%d", i );
             hprofGlobalPositionCSC->GetXaxis()->SetBinLabel(i,binLabel);
             hprofGlobalAngleCSC->GetXaxis()->SetBinLabel(i,binLabel);
             hprofGlobalPositionRmsCSC->GetXaxis()->SetBinLabel(i,binLabel);
@@ -751,7 +872,7 @@ void MuonAlignmentAnalyzer::endJob(){
 
                 Int_t xbin=sector+14*nstation+14*4*nwheel;
 
-                sprintf(binLabel, "MB%d/%dS%d", wheel, station, sector );
+                snprintf(binLabel, sizeof(binLabel), "MB%d/%dS%d", wheel, station, sector );
 
                 hprofLocalXDT->SetMarkerStyle(21);
                 hprofLocalXDT->SetMarkerColor(kRed);
@@ -761,7 +882,7 @@ void MuonAlignmentAnalyzer::endJob(){
 
                 Int_t ybin=1+nwheel*8+nstation*2;
                 hprofLocalPositionDT->SetBinContent(sector,ybin,fabs(MeanRPhi));
-                sprintf(binLabel, "MB%d/%d_LocalX",wheel, station );
+                snprintf(binLabel, sizeof(binLabel), "MB%d/%d_LocalX",wheel, station );
                 hprofLocalPositionDT->GetYaxis()->SetBinLabel(ybin,binLabel);
                 hprofLocalPositionRmsDT->SetBinContent(sector,ybin,ErrorRPhi);
                 hprofLocalPositionRmsDT->GetYaxis()->SetBinLabel(ybin,binLabel);
@@ -789,7 +910,7 @@ void MuonAlignmentAnalyzer::endJob(){
                 else if(xbin<18) xbin=414+18*(((Int_t)(xbin-13)/3)*2+((Int_t)(xbin-13)/2))+chamber;
                 else xbin=522+chamber;
 
-                sprintf(binLabel, "ME%d/%dC%d", station, ring, chamber );
+                snprintf(binLabel, sizeof(binLabel), "ME%d/%dC%d", station, ring, chamber );
 
                 hprofLocalXCSC->SetMarkerStyle(21);
                 hprofLocalXCSC->SetMarkerColor(kRed);
@@ -803,7 +924,7 @@ void MuonAlignmentAnalyzer::endJob(){
                 else ybin = 10 -ybin;
                 ybin=2*ybin-1;
                 hprofLocalPositionCSC->SetBinContent(chamber,ybin,fabs(MeanRPhi));
-                sprintf(binLabel, "ME%d/%d_LocalX", station,ring );
+                snprintf(binLabel, sizeof(binLabel), "ME%d/%d_LocalX", station,ring );
                 hprofLocalPositionCSC->GetYaxis()->SetBinLabel(ybin,binLabel);
                 hprofLocalPositionRmsCSC->SetBinContent(chamber,ybin,ErrorRPhi);
                 hprofLocalPositionRmsCSC->GetYaxis()->SetBinLabel(ybin,binLabel);
@@ -825,7 +946,7 @@ void MuonAlignmentAnalyzer::endJob(){
 
                     Int_t xbin=sector+14*nstation+14*4*nwheel;
 
-                    sprintf(binLabel, "MB%d/%dS%d", wheel, station, sector );
+                    snprintf(binLabel, sizeof(binLabel), "MB%d/%dS%d", wheel, station, sector );
 
                     hprofLocalThetaDT->SetBinContent(xbin,MeanTheta);
                     hprofLocalThetaDT->SetBinError(xbin, ErrorTheta);
@@ -835,7 +956,7 @@ void MuonAlignmentAnalyzer::endJob(){
 
                     Int_t ybin=2+nwheel*8+nstation*2;
                     hprofLocalAngleDT->SetBinContent(sector,ybin,fabs(MeanTheta));
-                    sprintf(binLabel, "MB%d/%d_LocalTheta",wheel,station );
+                    snprintf(binLabel, sizeof(binLabel), "MB%d/%d_LocalTheta",wheel,station );
                     hprofLocalAngleDT->GetYaxis()->SetBinLabel(ybin,binLabel);
                     hprofLocalAngleRmsDT->SetBinContent(sector,ybin,ErrorTheta);
                     hprofLocalAngleRmsDT->GetYaxis()->SetBinLabel(ybin,binLabel);
@@ -858,7 +979,7 @@ void MuonAlignmentAnalyzer::endJob(){
 
                 Int_t xbin=sector+14*nstation+14*4*nwheel;
 
-                sprintf(binLabel, "MB%d/%dS%d", wheel, station, sector );
+                snprintf(binLabel, sizeof(binLabel), "MB%d/%dS%d", wheel, station, sector );
 
                 hprofLocalPhiDT->SetBinContent(xbin,MeanPhi);
                 hprofLocalPhiDT->SetBinError(xbin, ErrorPhi);
@@ -868,7 +989,7 @@ void MuonAlignmentAnalyzer::endJob(){
 	
                 Int_t ybin=1+nwheel*8+nstation*2;
                 hprofLocalAngleDT->SetBinContent(sector,ybin,fabs(MeanPhi));
-                sprintf(binLabel, "MB%d/%d_LocalPhi", wheel,station );
+                snprintf(binLabel, sizeof(binLabel), "MB%d/%d_LocalPhi", wheel,station );
                 hprofLocalAngleDT->GetYaxis()->SetBinLabel(ybin,binLabel);
                 hprofLocalAngleRmsDT->SetBinContent(sector,ybin,ErrorPhi);
                 hprofLocalAngleRmsDT->GetYaxis()->SetBinLabel(ybin,binLabel);
@@ -896,7 +1017,7 @@ void MuonAlignmentAnalyzer::endJob(){
                 else if(xbin<18) xbin=414+18*(((Int_t)(xbin-13)/3)*2+((Int_t)(xbin-13)/2))+chamber;
                 else xbin=522+chamber;
 
-                sprintf(binLabel, "ME%d/%dC%d", station, ring, chamber );
+                snprintf(binLabel, sizeof(binLabel), "ME%d/%dC%d", station, ring, chamber );
 
                 hprofLocalPhiCSC->SetMarkerStyle(21);
                 hprofLocalPhiCSC->SetMarkerColor(kRed);
@@ -910,7 +1031,7 @@ void MuonAlignmentAnalyzer::endJob(){
                 else ybin = 10 -ybin;
                 ybin=2*ybin-1;
                 hprofLocalAngleCSC->SetBinContent(chamber,ybin,fabs(MeanPhi));
-                sprintf(binLabel, "ME%d/%d_LocalPhi", station,ring );
+                snprintf(binLabel, sizeof(binLabel), "ME%d/%d_LocalPhi", station,ring );
                 hprofLocalAngleCSC->GetYaxis()->SetBinLabel(ybin,binLabel);
                 hprofLocalAngleRmsCSC->SetBinContent(chamber,ybin,ErrorPhi);
                 hprofLocalAngleRmsCSC->GetYaxis()->SetBinLabel(ybin,binLabel);
@@ -938,7 +1059,7 @@ void MuonAlignmentAnalyzer::endJob(){
                 else if(xbin<18) xbin=414+18*(((Int_t)(xbin-13)/3)*2+((Int_t)(xbin-13)/2))+chamber;
                 else xbin=522+chamber;
 
-                sprintf(binLabel, "ME%d/%dC%d", station, ring, chamber );
+                snprintf(binLabel, sizeof(binLabel), "ME%d/%dC%d", station, ring, chamber );
 
                 hprofLocalThetaCSC->SetMarkerStyle(21);
                 hprofLocalThetaCSC->SetMarkerColor(kRed);
@@ -952,7 +1073,7 @@ void MuonAlignmentAnalyzer::endJob(){
                 else ybin = 10 -ybin;
                 ybin=2*ybin;
                 hprofLocalAngleCSC->SetBinContent(chamber,ybin,fabs(MeanTheta));
-                sprintf(binLabel, "ME%d/%d_LocalTheta", station,ring );
+                snprintf(binLabel, sizeof(binLabel), "ME%d/%d_LocalTheta", station,ring );
                 hprofLocalAngleCSC->GetYaxis()->SetBinLabel(ybin,binLabel);
                 hprofLocalAngleRmsCSC->SetBinContent(chamber,ybin,ErrorTheta);
                 hprofLocalAngleRmsCSC->GetYaxis()->SetBinLabel(ybin,binLabel);
@@ -974,7 +1095,7 @@ void MuonAlignmentAnalyzer::endJob(){
 
                     Int_t xbin=sector+14*nstation+14*4*nwheel;
 
-                    sprintf(binLabel, "MB%d/%dS%d", wheel, station, sector );
+                    snprintf(binLabel, sizeof(binLabel), "MB%d/%dS%d", wheel, station, sector );
 
                     hprofLocalYDT->SetMarkerStyle(21);
                     hprofLocalYDT->SetMarkerColor(kRed);
@@ -984,7 +1105,7 @@ void MuonAlignmentAnalyzer::endJob(){
 
                     Int_t ybin=2+nwheel*8+nstation*2;
                     hprofLocalPositionDT->SetBinContent(sector,ybin,fabs(MeanZ));
-                    sprintf(binLabel, "MB%d/%d_LocalY", wheel,station );
+                    snprintf(binLabel, sizeof(binLabel), "MB%d/%d_LocalY", wheel,station );
                     hprofLocalPositionDT->GetYaxis()->SetBinLabel(ybin,binLabel);
                     hprofLocalPositionRmsDT->SetBinContent(sector,ybin,ErrorZ);
                     hprofLocalPositionRmsDT->GetYaxis()->SetBinLabel(ybin,binLabel);
@@ -1013,7 +1134,7 @@ void MuonAlignmentAnalyzer::endJob(){
                 else if(xbin<18) xbin=414+18*(((Int_t)(xbin-13)/3)*2+((Int_t)(xbin-13)/2))+chamber;
                 else xbin=522+chamber;
 
-                sprintf(binLabel, "ME%d/%dC%d", station, ring, chamber );
+                snprintf(binLabel, sizeof(binLabel), "ME%d/%dC%d", station, ring, chamber );
 
                 hprofLocalYCSC->SetMarkerStyle(21);
                 hprofLocalYCSC->SetMarkerColor(kRed);
@@ -1027,7 +1148,7 @@ void MuonAlignmentAnalyzer::endJob(){
                 else ybin = 10 -ybin;
                 ybin=2*ybin;
                 hprofLocalPositionCSC->SetBinContent(chamber,ybin,fabs(MeanR));
-                sprintf(binLabel, "ME%d/%d_LocalY", station,ring );
+                snprintf(binLabel, sizeof(binLabel), "ME%d/%d_LocalY", station,ring );
                 hprofLocalPositionCSC->GetYaxis()->SetBinLabel(ybin,binLabel);
                 hprofLocalPositionRmsCSC->SetBinContent(chamber,ybin,ErrorR);
                 hprofLocalPositionRmsCSC->GetYaxis()->SetBinLabel(ybin,binLabel);
@@ -1047,7 +1168,7 @@ void MuonAlignmentAnalyzer::endJob(){
 
                 Int_t xbin=sector+14*nstation+14*4*nwheel;
 
-                sprintf(binLabel, "MB%d/%dS%d", wheel, station, sector );
+                snprintf(binLabel, sizeof(binLabel), "MB%d/%dS%d", wheel, station, sector );
 
                 hprofGlobalRPhiDT->SetMarkerStyle(21);
                 hprofGlobalRPhiDT->SetMarkerColor(kRed);
@@ -1057,7 +1178,7 @@ void MuonAlignmentAnalyzer::endJob(){
 
                 Int_t ybin=1+nwheel*8+nstation*2;
                 hprofGlobalPositionDT->SetBinContent(sector,ybin,fabs(MeanRPhi));
-                sprintf(binLabel, "MB%d/%d_GlobalRPhi", wheel,station );
+                snprintf(binLabel, sizeof(binLabel), "MB%d/%d_GlobalRPhi", wheel,station );
                 hprofGlobalPositionDT->GetYaxis()->SetBinLabel(ybin,binLabel);
                 hprofGlobalPositionRmsDT->SetBinContent(sector,ybin,ErrorRPhi);
                 hprofGlobalPositionRmsDT->GetYaxis()->SetBinLabel(ybin,binLabel);
@@ -1085,7 +1206,7 @@ void MuonAlignmentAnalyzer::endJob(){
                 else if(xbin<18) xbin=414+18*(((Int_t)(xbin-13)/3)*2+((Int_t)(xbin-13)/2))+chamber;
                 else xbin=522+chamber;
 
-                sprintf(binLabel, "ME%d/%dC%d", station, ring, chamber );
+                snprintf(binLabel, sizeof(binLabel), "ME%d/%dC%d", station, ring, chamber );
 
                 hprofGlobalRPhiCSC->SetMarkerStyle(21);
                 hprofGlobalRPhiCSC->SetMarkerColor(kRed);
@@ -1099,7 +1220,7 @@ void MuonAlignmentAnalyzer::endJob(){
                 else ybin = 10 -ybin;
                 ybin=2*ybin-1;
                 hprofGlobalPositionCSC->SetBinContent(chamber,ybin,fabs(MeanRPhi));
-                sprintf(binLabel, "ME%d/%d_GlobalRPhi", station,ring );
+                snprintf(binLabel, sizeof(binLabel), "ME%d/%d_GlobalRPhi", station,ring );
                 hprofGlobalPositionCSC->GetYaxis()->SetBinLabel(ybin,binLabel);
                 hprofGlobalPositionRmsCSC->SetBinContent(chamber,ybin,ErrorRPhi);
                 hprofGlobalPositionRmsCSC->GetYaxis()->SetBinLabel(ybin,binLabel);
@@ -1121,7 +1242,7 @@ void MuonAlignmentAnalyzer::endJob(){
 
                     Int_t xbin=sector+14*nstation+14*4*nwheel;
 
-                    sprintf(binLabel, "MB%d/%dS%d", wheel, station, sector );
+                    snprintf(binLabel, sizeof(binLabel), "MB%d/%dS%d", wheel, station, sector );
 
                     hprofGlobalThetaDT->SetBinContent(xbin,MeanTheta);
                     hprofGlobalThetaDT->SetBinError(xbin, ErrorTheta);
@@ -1131,7 +1252,7 @@ void MuonAlignmentAnalyzer::endJob(){
 
                     Int_t ybin=2+nwheel*8+nstation*2;
                     hprofGlobalAngleDT->SetBinContent(sector,ybin,fabs(MeanTheta));
-                    sprintf(binLabel, "MB%d/%d_GlobalTheta", wheel,station );
+                    snprintf(binLabel, sizeof(binLabel), "MB%d/%d_GlobalTheta", wheel,station );
                     hprofGlobalAngleDT->GetYaxis()->SetBinLabel(ybin,binLabel);
                     hprofGlobalAngleRmsDT->SetBinContent(sector,ybin,ErrorTheta);
                     hprofGlobalAngleRmsDT->GetYaxis()->SetBinLabel(ybin,binLabel);
@@ -1153,7 +1274,7 @@ void MuonAlignmentAnalyzer::endJob(){
 
                 Int_t xbin=sector+14*nstation+14*4*nwheel;
 
-                sprintf(binLabel, "MB%d/%dS%d", wheel, station, sector );
+                snprintf(binLabel, sizeof(binLabel), "MB%d/%dS%d", wheel, station, sector );
 
                 hprofGlobalPhiDT->SetBinContent(xbin,MeanPhi);
                 hprofGlobalPhiDT->SetBinError(xbin, ErrorPhi);
@@ -1163,7 +1284,7 @@ void MuonAlignmentAnalyzer::endJob(){
 
                 Int_t ybin=1+nwheel*8+nstation*2;
                 hprofGlobalAngleDT->SetBinContent(sector,ybin,fabs(MeanPhi));
-                sprintf(binLabel, "MB%d/%d_GlobalPhi", wheel,station );
+                snprintf(binLabel, sizeof(binLabel), "MB%d/%d_GlobalPhi", wheel,station );
                 hprofGlobalAngleDT->GetYaxis()->SetBinLabel(ybin,binLabel);
                 hprofGlobalAngleRmsDT->SetBinContent(sector,ybin,ErrorPhi);
                 hprofGlobalAngleRmsDT->GetYaxis()->SetBinLabel(ybin,binLabel);
@@ -1191,7 +1312,7 @@ void MuonAlignmentAnalyzer::endJob(){
                 else if(xbin<18) xbin=414+18*(((Int_t)(xbin-13)/3)*2+((Int_t)(xbin-13)/2))+chamber;
                 else xbin=522+chamber;
 
-                sprintf(binLabel, "ME%d/%dC%d", station, ring, chamber );
+                snprintf(binLabel, sizeof(binLabel), "ME%d/%dC%d", station, ring, chamber );
 
                 hprofGlobalPhiCSC->SetMarkerStyle(21);
                 hprofGlobalPhiCSC->SetMarkerColor(kRed);
@@ -1205,7 +1326,7 @@ void MuonAlignmentAnalyzer::endJob(){
                 else ybin = 10 -ybin;
                 ybin=2*ybin-1;
                 hprofGlobalAngleCSC->SetBinContent(chamber,ybin,fabs(MeanPhi));
-                sprintf(binLabel, "ME%d/%d_GlobalPhi", station,ring );
+                snprintf(binLabel, sizeof(binLabel), "ME%d/%d_GlobalPhi", station,ring );
                 hprofGlobalAngleCSC->GetYaxis()->SetBinLabel(ybin,binLabel);
                 hprofGlobalAngleRmsCSC->SetBinContent(chamber,ybin,ErrorPhi);
                 hprofGlobalAngleRmsCSC->GetYaxis()->SetBinLabel(ybin,binLabel);
@@ -1233,7 +1354,7 @@ void MuonAlignmentAnalyzer::endJob(){
                 else if(xbin<18) xbin=414+18*(((Int_t)(xbin-13)/3)*2+((Int_t)(xbin-13)/2))+chamber;
                 else xbin=522+chamber;
 
-                sprintf(binLabel, "ME%d/%dC%d", station, ring, chamber );
+                snprintf(binLabel, sizeof(binLabel), "ME%d/%dC%d", station, ring, chamber );
 
                 hprofGlobalThetaCSC->SetMarkerStyle(21);
                 hprofGlobalThetaCSC->SetMarkerColor(kRed);
@@ -1247,7 +1368,7 @@ void MuonAlignmentAnalyzer::endJob(){
                 else ybin = 10 -ybin;
                 ybin=2*ybin;
                 hprofGlobalAngleCSC->SetBinContent(chamber,ybin,fabs(MeanTheta));
-                sprintf(binLabel, "ME%d/%d_GlobalTheta", station,ring );
+                snprintf(binLabel, sizeof(binLabel), "ME%d/%d_GlobalTheta", station,ring );
                 hprofGlobalAngleCSC->GetYaxis()->SetBinLabel(ybin,binLabel);
                 hprofGlobalAngleRmsCSC->SetBinContent(chamber,ybin,ErrorTheta);
                 hprofGlobalAngleRmsCSC->GetYaxis()->SetBinLabel(ybin,binLabel);
@@ -1269,7 +1390,7 @@ void MuonAlignmentAnalyzer::endJob(){
 
                     Int_t xbin=sector+14*nstation+14*4*nwheel;
 
-                    sprintf(binLabel, "MB%d/%dS%d", wheel, station, sector );
+                    snprintf(binLabel, sizeof(binLabel), "MB%d/%dS%d", wheel, station, sector );
 
                     hprofGlobalZDT->SetMarkerStyle(21);
                     hprofGlobalZDT->SetMarkerColor(kRed);
@@ -1280,7 +1401,7 @@ void MuonAlignmentAnalyzer::endJob(){
 
                     Int_t ybin=2+nwheel*8+nstation*2;
                     hprofGlobalPositionDT->SetBinContent(sector,ybin,fabs(MeanZ));
-                    sprintf(binLabel, "MB%d/%d_GlobalZ", wheel,station );
+                    snprintf(binLabel, sizeof(binLabel), "MB%d/%d_GlobalZ", wheel,station );
                     hprofGlobalPositionDT->GetYaxis()->SetBinLabel(ybin,binLabel);
                     hprofGlobalPositionRmsDT->SetBinContent(sector,ybin,ErrorZ);
                     hprofGlobalPositionRmsDT->GetYaxis()->SetBinLabel(ybin,binLabel);
@@ -1309,7 +1430,7 @@ void MuonAlignmentAnalyzer::endJob(){
                 else if(xbin<18) xbin=414+18*(((Int_t)(xbin-13)/3)*2+((Int_t)(xbin-13)/2))+chamber;
                 else xbin=522+chamber;
 
-                sprintf(binLabel, "ME%d/%dC%d", station, ring, chamber );
+                snprintf(binLabel, sizeof(binLabel), "ME%d/%dC%d", station, ring, chamber );
 
                 hprofGlobalRCSC->SetMarkerStyle(21);
                 hprofGlobalRCSC->SetMarkerColor(kRed);
@@ -1323,7 +1444,7 @@ void MuonAlignmentAnalyzer::endJob(){
                 else ybin = 10 -ybin;
                 ybin=2*ybin;
                 hprofGlobalPositionCSC->SetBinContent(chamber,ybin,fabs(MeanR));
-                sprintf(binLabel, "ME%d/%d_GlobalR", station,ring );
+                snprintf(binLabel, sizeof(binLabel), "ME%d/%d_GlobalR", station,ring );
                 hprofGlobalPositionCSC->GetYaxis()->SetBinLabel(ybin,binLabel);
                 hprofGlobalPositionRmsCSC->SetBinContent(chamber,ybin,ErrorR);
                 hprofGlobalPositionRmsCSC->GetYaxis()->SetBinLabel(ybin,binLabel);
@@ -1857,31 +1978,31 @@ void MuonAlignmentAnalyzer::analyze(const edm::Event & event, const edm::EventSe
                                     char nameOfHistoGlobalZ[50];
 	
                                     if(det==1){ // DT
-                                        sprintf(nameOfHistoLocalX, "ResidualLocalX_W%dMB%1dS%1d",wheel,station,sector );
-                                        sprintf(nameOfHistoLocalPhi, "ResidualLocalPhi_W%dMB%1dS%1d",wheel,station,sector);
-                                        sprintf(nameOfHistoGlobalRPhi, "ResidualGlobalRPhi_W%dMB%1dS%1d",wheel,station,sector );
-                                        sprintf(nameOfHistoGlobalPhi, "ResidualGlobalPhi_W%dMB%1dS%1d",wheel,station,sector);
-                                        sprintf(nameOfHistoLocalTheta, "ResidualLocalTheta_W%dMB%1dS%1d",wheel,station,sector);
-                                        sprintf(nameOfHistoLocalY, "ResidualLocalY_W%dMB%1dS%1d",wheel,station,sector);
+				        snprintf(nameOfHistoLocalX, sizeof(nameOfHistoLocalX), "ResidualLocalX_W%dMB%1dS%1d",wheel,station,sector );
+                                        snprintf(nameOfHistoLocalPhi, sizeof(nameOfHistoLocalPhi), "ResidualLocalPhi_W%dMB%1dS%1d",wheel,station,sector);
+                                        snprintf(nameOfHistoGlobalRPhi, sizeof(nameOfHistoGlobalRPhi), "ResidualGlobalRPhi_W%dMB%1dS%1d",wheel,station,sector );
+                                        snprintf(nameOfHistoGlobalPhi, sizeof(nameOfHistoGlobalPhi), "ResidualGlobalPhi_W%dMB%1dS%1d",wheel,station,sector);
+                                        snprintf(nameOfHistoLocalTheta, sizeof(nameOfHistoLocalTheta), "ResidualLocalTheta_W%dMB%1dS%1d",wheel,station,sector);
+                                        snprintf(nameOfHistoLocalY, sizeof(nameOfHistoLocalY), "ResidualLocalY_W%dMB%1dS%1d",wheel,station,sector);
                                         TH1F *histoLocalY = fs->make<TH1F>(nameOfHistoLocalY, nameOfHistoLocalY, nbins, -rangeY, rangeY);
                                         unitsLocalY.push_back(histoLocalY);
-                                        sprintf(nameOfHistoGlobalTheta, "ResidualGlobalTheta_W%dMB%1dS%1d",wheel,station,sector);
-                                        sprintf(nameOfHistoGlobalZ, "ResidualGlobalZ_W%dMB%1dS%1d",wheel,station,sector);
+                                        snprintf(nameOfHistoGlobalTheta, sizeof(nameOfHistoGlobalTheta), "ResidualGlobalTheta_W%dMB%1dS%1d",wheel,station,sector);
+                                        snprintf(nameOfHistoGlobalZ, sizeof(nameOfHistoGlobalZ), "ResidualGlobalZ_W%dMB%1dS%1d",wheel,station,sector);
                                         TH1F *histoGlobalZ = fs->make<TH1F>(nameOfHistoGlobalZ, nameOfHistoGlobalZ, nbins, -rangeY, rangeY);
                                         unitsGlobalRZ.push_back(histoGlobalZ);
 
                                     }
                                     else if(det==2){ //CSC
-                                        sprintf(nameOfHistoLocalX, "ResidualLocalX_ME%dR%1dC%1d",station,ring,chamber );
-                                        sprintf(nameOfHistoLocalPhi, "ResidualLocalPhi_ME%dR%1dC%1d",station,ring,chamber);
-                                        sprintf(nameOfHistoLocalTheta, "ResidualLocalTheta_ME%dR%1dC%1d",station,ring,chamber);
-                                        sprintf(nameOfHistoLocalY, "ResidualLocalY_ME%dR%1dC%1d",station,ring,chamber);
+                                        snprintf(nameOfHistoLocalX, sizeof(nameOfHistoLocalX), "ResidualLocalX_ME%dR%1dC%1d",station,ring,chamber );
+                                        snprintf(nameOfHistoLocalPhi, sizeof(nameOfHistoLocalPhi), "ResidualLocalPhi_ME%dR%1dC%1d",station,ring,chamber);
+                                        snprintf(nameOfHistoLocalTheta, sizeof(nameOfHistoLocalTheta), "ResidualLocalTheta_ME%dR%1dC%1d",station,ring,chamber);
+                                        snprintf(nameOfHistoLocalY, sizeof(nameOfHistoLocalY), "ResidualLocalY_ME%dR%1dC%1d",station,ring,chamber);
                                         TH1F *histoLocalY = fs->make<TH1F>(nameOfHistoLocalY, nameOfHistoLocalY, nbins, -rangeY, rangeY);
                                         unitsLocalY.push_back(histoLocalY);
-                                        sprintf(nameOfHistoGlobalRPhi, "ResidualGlobalRPhi_ME%dR%1dC%1d",station,ring,chamber );
-                                        sprintf(nameOfHistoGlobalPhi, "ResidualGlobalPhi_ME%dR%1dC%1d",station,ring,chamber);
-                                        sprintf(nameOfHistoGlobalTheta, "ResidualGlobalTheta_ME%dR%1dC%1d",station,ring,chamber);
-                                        sprintf(nameOfHistoGlobalR, "ResidualGlobalR_ME%dR%1dC%1d",station,ring,chamber);
+                                        snprintf(nameOfHistoGlobalRPhi, sizeof(nameOfHistoGlobalRPhi), "ResidualGlobalRPhi_ME%dR%1dC%1d",station,ring,chamber );
+                                        snprintf(nameOfHistoGlobalPhi, sizeof(nameOfHistoGlobalPhi), "ResidualGlobalPhi_ME%dR%1dC%1d",station,ring,chamber);
+                                        snprintf(nameOfHistoGlobalTheta, sizeof(nameOfHistoGlobalTheta), "ResidualGlobalTheta_ME%dR%1dC%1d",station,ring,chamber);
+                                        snprintf(nameOfHistoGlobalR, sizeof(nameOfHistoGlobalR), "ResidualGlobalR_ME%dR%1dC%1d",station,ring,chamber);
                                         TH1F *histoGlobalR = fs->make<TH1F>(nameOfHistoGlobalR, nameOfHistoGlobalR, nbins, -rangeY, rangeY);
                                         unitsGlobalRZ.push_back(histoGlobalR);
                                     }		    
