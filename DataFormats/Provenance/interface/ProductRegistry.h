@@ -12,7 +12,6 @@
 #include "DataFormats/Provenance/interface/BranchKey.h"
 #include "DataFormats/Provenance/interface/BranchListIndex.h"
 #include "DataFormats/Provenance/interface/BranchType.h"
-#include "DataFormats/Provenance/interface/ConstBranchDescription.h"
 #include "FWCore/Utilities/interface/ProductHolderIndex.h"
 
 #include "boost/array.hpp"
@@ -40,7 +39,7 @@ namespace edm {
 
     virtual ~ProductRegistry() {}
 
-    typedef std::map<BranchKey, ConstBranchDescription> ConstProductList;
+    typedef std::map<BranchKey, BranchDescription const> ConstProductList;
 
     void addProduct(BranchDescription const& productdesc, bool iFromListener = false);
 

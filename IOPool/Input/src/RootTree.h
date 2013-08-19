@@ -7,7 +7,7 @@ RootTree.h // used by ROOT input sources
 
 ----------------------------------------------------------------------*/
 
-#include "DataFormats/Provenance/interface/ConstBranchDescription.h"
+#include "DataFormats/Provenance/interface/BranchDescription.h"
 #include "DataFormats/Provenance/interface/ProvenanceFwd.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 
@@ -38,12 +38,12 @@ namespace edm {
     unsigned int const defaultNonEventLearningEntries = 1U;
     typedef Long64_t EntryNumber;
     struct BranchInfo {
-      BranchInfo(ConstBranchDescription const& prod) :
+      BranchInfo(BranchDescription const& prod) :
         branchDescription_(prod),
         productBranch_(0),
         provenanceBranch_(0),
         classCache_(0) {}
-      ConstBranchDescription branchDescription_;
+      BranchDescription const branchDescription_;
       TBranch* productBranch_;
       TBranch* provenanceBranch_; // For backward compatibility
       mutable TClass* classCache_;

@@ -107,8 +107,8 @@ namespace edm {
     //std::cerr << processParameterSet_.dump() << std::endl;
     // Now we need to set all the metadata
     // Add the products to the product registry  
-    productRegistry.copyProduct(eventProductBranchDescription_.me());
-    productRegistry.copyProduct(runProductBranchDescription_.me());
+    productRegistry.copyProduct(eventProductBranchDescription_);
+    productRegistry.copyProduct(runProductBranchDescription_);
 
     // Insert an entry for this process in the process history registry
     ProcessHistory ph;

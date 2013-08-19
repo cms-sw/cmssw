@@ -48,7 +48,7 @@ namespace edm {
   }
 
   ProductID
-  Event::makeProductID(ConstBranchDescription const& desc) const {
+  Event::makeProductID(BranchDescription const& desc) const {
     return eventPrincipal().branchIDToProductID(desc.originalBranchID());
   }
 

@@ -108,7 +108,7 @@ namespace edm {
 
   void
   EventPrincipal::put(
-        ConstBranchDescription const& bd,
+        BranchDescription const& bd,
         WrapperOwningHolder const& edp,
         ProductProvenance const& productProvenance) {
 
@@ -129,7 +129,7 @@ namespace edm {
 
   void
   EventPrincipal::putOnRead(
-        ConstBranchDescription const& bd,
+        BranchDescription const& bd,
         void const* product,
         ProductProvenance const& productProvenance) {
 

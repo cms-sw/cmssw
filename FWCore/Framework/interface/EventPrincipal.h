@@ -138,12 +138,12 @@ namespace edm {
     getByProductID(ProductID const& oid) const;
 
     void put(
-        ConstBranchDescription const& bd,
+        BranchDescription const& bd,
         WrapperOwningHolder const& edp,
         ProductProvenance const& productProvenance);
 
     void putOnRead(
-        ConstBranchDescription const& bd,
+        BranchDescription const& bd,
         void const* product,
         ProductProvenance const& productProvenance);
 
