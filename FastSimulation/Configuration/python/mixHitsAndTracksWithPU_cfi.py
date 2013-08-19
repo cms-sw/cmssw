@@ -37,29 +37,8 @@ simHcalUnsuppressedDigis = cms.EDAlias(
     )
 
 
-
-g4SimHits = cms.EDAlias(
-    famosSimHits = cms.VPSet(    cms.PSet(type = cms.string('PCaloHits')),
-                                 cms.PSet(type = cms.string('PSimHits')),
-                                 cms.PSet(type = cms.string('SimTracks')),
-                                 cms.PSet(type = cms.string('SimVertexs'))
-                          #mergedtruth = cms.PSet(trackingParticles)),
-                          #mergedtruthMuon = cms.PSet(trackingParticlesMuons)), ### comment out for the moment
-                                 ),
-    MuonSimHits = cms.VPSet(    cms.PSet(type = cms.string('PSimHits'))
-                                ),
-    g4SimHits = cms.VPSet(    cms.PSet(type = cms.string('PCaloHits'),
-                              fromProductInstance = cms.string(''),
-                              toProductInstance = cms.string('refined')) )
-    )
-
-
-
 from SimGeneral.MixingModule.ecalDigitizer_cfi import *
 from SimCalorimetry.EcalSimProducers.ecalDigiParameters_cff import *
-#simEcalUnsuppressedDigis.hitsProducer = cms.string('g4SimHits')
-#ecal_digi_parameters.hitsProducer = cms.string('g4SimHits')
-#ecalDigitizer.hitsProducer = cms.string('g4SimHits')
 
 import SimCalorimetry.HcalSimProducers.hcalUnsuppressedDigis_cfi 
 hcalSimBlockFastSim = SimCalorimetry.HcalSimProducers.hcalUnsuppressedDigis_cfi.hcalSimBlock.clone()
@@ -175,6 +154,9 @@ mix = cms.EDProducer("MixingModule",
     ),
     mixHepMC = cms.PSet(
     mixHepMCProducts
+    ),
+    mixRecoTracks = cms.PSet(
+    mixReconstructedTracks
     )
     )
 )
