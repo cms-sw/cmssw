@@ -12,12 +12,8 @@
 */
 //
 
-
-
-// system include files
 #include <memory>
 
-// user include files
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -41,9 +37,6 @@
 #include "Geometry/CaloTopology/interface/CaloSubdetectorTopology.h"
 
 #include "Geometry/HcalTowerAlgo/interface/HcalGeometry.h"
-
-#include "DataFormats/EcalDetId/interface/EcalScDetId.h"
-
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
@@ -100,7 +93,6 @@ class CaloGeometryAnalyzer : public edm::EDAnalyzer
 		      XorYorZ        iXYZ    ,
 		      double         diff      ) ;
       int pass_;
-      //  bool fullEcalDump_;
 
       EEDetId gid( unsigned int ix, 
 		   unsigned int iy,
@@ -140,22 +132,11 @@ class CaloGeometryAnalyzer : public edm::EDAnalyzer
 
       bool m_allOK ;
 };
-//
-// constants, enums and typedefs
-//
 
-//
-// static data member definitions
-//
-
-//
-// constructors and destructor
-//
 CaloGeometryAnalyzer::CaloGeometryAnalyzer( const edm::ParameterSet& /*iConfig*/ )
 {
-   //now do what ever initialization is needed
   pass_=0;
-  //  fullEcalDump_=iConfig.getUntrackedParameter<bool>("fullEcalDump",false);
+
   h_dPhi[0] = h_fs->make<TProfile>("dPhi:EB:index", "EB: dPhi vs index", 61200, -0.5, 61199.5, " " ) ;
   h_dPhiR[0]= h_fs->make<TProfile>("dPhi:EB:R", "EB: dPhi vs R", 100, 125, 135, " " ) ;
 
@@ -227,9 +208,6 @@ CaloGeometryAnalyzer::CaloGeometryAnalyzer( const edm::ParameterSet& /*iConfig*/
 
 CaloGeometryAnalyzer::~CaloGeometryAnalyzer()
 {
- 
-   // do anything here that needs to be done at desctruction time
-   // (e.g. close files, deallocate resources etc.)
 }
 
 void 
@@ -238,7 +216,7 @@ CaloGeometryAnalyzer::cmpset( const CaloSubdetectorGeometry* geom ,
 			      const double                   dR     ) 
 {
    typedef CaloSubdetectorGeometry::DetIdSet DetSet ;
-//   typedef std::vector< CaloSubdetectorGeometry::DetIdSet::value_type > DetVec ;
+
    const DetSet base ( geom->CaloSubdetectorGeometry::getCells( gp, dR ) ) ;
    const DetSet over ( geom->getCells( gp, dR ) ) ;
    if( over == base )
@@ -339,7 +317,6 @@ CaloGeometryAnalyzer::cmpset( const CaloSubdetectorGeometry* geom ,
       std::cout<<"------------- done with mismatch printout ---------------"<<std::endl ;
       }
    }
-//   assert( over == base ) ;
 }
 
 EEDetId
@@ -478,7 +455,7 @@ CaloGeometryAnalyzer::ctrcor( const DetId&            did     ,
       const EEDetId eeid ( did ) ;
       const int ix ( eeid.ix() ) ;
       const int iy ( eeid.iy() ) ;
-//      const int iz ( eeid.zside() ) ;
+
       fCtr << std::setw(4) << ix
 	   << std::setw(4) << iy ;
       fCor << std::setw(4) << ix
@@ -490,7 +467,6 @@ CaloGeometryAnalyzer::ctrcor( const DetId&            did     ,
       const int pl ( esid.plane() ) ;
       const int ix ( esid.six() ) ;
       const int iy ( esid.siy() ) ;
-//      const int iz ( esid.zside() ) ;
       const int st ( esid.strip() ) ;
       fCtr << std::setw(4) << pl
 	   << std::setw(4) << ix
@@ -511,7 +487,6 @@ CaloGeometryAnalyzer::ctrcor( const DetId&            did     ,
       const int ie ( hcid.ieta() ) ;
       const int ip ( hcid.iphi() ) ;
       const int de ( hcid.depth() ) ;
-//      const int iz ( hcid.zside() ) ;
       fCtr << std::setw(4) << ie
 	   << std::setw(4) << ip
 	   << std::setw(4) << de ;
@@ -753,7 +728,6 @@ CaloGeometryAnalyzer::buildHcal( const CaloGeometry& cg      ,
 	    f << "  box=geoManager->MakeBox(\"point\",dummyMedium,3.0,3.0,3.0);" << std::endl;
 	f << "  world->AddNode(box,"<< n << ",new TGeoHMatrix(TGeoTranslation(" << 
 	    cell->getPosition().x() << "," << cell->getPosition().y() << "," << cell->getPosition().z() << ")));" << std::endl;
-	//   f << (HcalDetId)(*i) << " " << cell->getPosition() << std::endl;
     }
     
     f << "  geoManager->CloseGeometry();" << std::endl;
@@ -791,8 +765,6 @@ CaloGeometryAnalyzer::build( const CaloGeometry& cg      ,
 
    const CaloSubdetectorGeometry* geom ( cg.getSubdetectorGeometry( det, subdetn ) );
 
-//   std::cout<<"############# parmgr size="<<geom->parMgrConst()->vecSize() << std::endl ;
-
    f << "{" << std::endl;
    f << "  TGeoManager* geoManager = new TGeoManager(\"ROOT\", \"" << name << "\");" << std::endl;
    f << "  TGeoMaterial* dummyMaterial = new TGeoMaterial(\"Vacuum\", 0,0,0); " << std::endl;
@@ -803,12 +775,8 @@ CaloGeometryAnalyzer::build( const CaloGeometry& cg      ,
    int n=0;
    const std::vector< DetId >& ids ( geom->getValidDetIds( det, subdetn ) ) ;
 
-//   std::cout<<"***************total number = "<<ids.size()<<std::endl ;
-
    const std::vector< DetId >& ids2 ( cg.getValidDetIds( det, subdetn ) ) ;
    
-//   std::cout<<"***OTHER METHOD****total number = "<<ids2.size()<<std::endl ;
-
    if( ids != ids2 )
    {
       std::cout<<"Methods differ! One gives size "
@@ -858,11 +826,9 @@ CaloGeometryAnalyzer::build( const CaloGeometry& cg      ,
 				  pos.y() - 0.1*pos.y()/posmag ,
 				  pos.z() - 0.1*pos.z()/posmag   ) ;
 
-      //assert( cell->inside( pointIn ) ) ;
       if( cell->inside( pointFr ) ) std::cout<<"Bad outside: "<<pointIn<<", " <<pointFr<<std::endl ;
       assert( cell->inside( pointIn ) ) ;
       assert( !cell->inside( pointFr ) ) ;
-
 
       const double deltaPhi ( geom->deltaPhi( id ) ) ;
       
@@ -891,8 +857,6 @@ CaloGeometryAnalyzer::build( const CaloGeometry& cg      ,
       h_dEta [detIndex]->Fill( cgid.denseIndex(), deltaEta ) ;
       h_dEtaR[detIndex]->Fill( ggp.perp(), deltaEta ) ;
 
-
-
       if( det == DetId::Ecal )
       {
 	 if (subdetn == EcalBarrel )
@@ -904,7 +868,6 @@ CaloGeometryAnalyzer::build( const CaloGeometry& cg      ,
 	    f << "  // Checking getClosestCell for position " 
 	      << gp
 	      << std::endl;
-
 
 	    const EBDetId ebid ( id ) ;
 	    for(unsigned int j ( 0 ) ; j !=4 ; ++j )
@@ -929,7 +892,6 @@ CaloGeometryAnalyzer::build( const CaloGeometry& cg      ,
 
 	    ovrTst( cg, geom, EBDetId(*i) , fOvr ) ;
 
-
 	    const unsigned int i1 ( EcalBarrelGeometry::alignmentTransformIndexLocal( ebid ) ) ;
 
 	    const DetId d1 ( EcalBarrelGeometry::detIdFromLocalAlignmentIndex( i1 ) ) ;
@@ -945,52 +907,6 @@ CaloGeometryAnalyzer::build( const CaloGeometry& cg      ,
 	    const int iy ( did.iy() ) ;
 	    const int iz ( did.zside() ) ;
 
-
-/*	    const int isc ( did.isc() ) ;
-	    //std::cout<<"ix, iy="<<ix<<", "<<iy<<std::endl;
-
-	    const EcalScDetId scId ( 1+(ix-1)/5,1+(iy-1)/5,iz ) ;
-	    const int isc2 ( scId.isc() ) ;
-	    const int isc2c ( scId.hashedIndex()+1 ) ;
-
-	    h_scindex->Fill( isc2c ) ;
-
-	    int isc3 ( -1 ) ;
-	    int icr ( 0 ) ;
-	    do
-	    {
-	       const int jx ( icr%5 + 1 ) ;
-	       const int jy ( icr/5 + 1 ) ;
-	       if( EEDetId::validDetId( ( scId.ix() - 1 )*5 + jx, 
-					( scId.iy() - 1 )*5 + jy, 
-					scId.zside() ) )
-	       {
-		  isc3 = EEDetId( ( scId.ix() - 1 )*5 + jx, 
-				  ( scId.iy() - 1 )*5 + jy, 
-				  scId.zside() ).isc() ;
-//		     + (scId.zside()+1)*316/2 ;
-	       }
-	       ++icr ;
-	    }
-	    while( icr<25 && isc3<0 ) ;
-	    //if( icr>1 ) std::cout<<"**************** Took extra tries: "<<icr-1<<std::endl;
-
-
-	    if( isc3 != isc2 )
-	    {
-	       std::cout<<"**** Supercrystal numbering conflict: isc3, isc2, ix, iy, zside = "
-			<<isc3 <<", "<<isc2 <<", "<<ix <<", "<<iy <<", "<<iz <<std::endl ;
-	    }
-//	    assert( isc3 == isc2 ) ;
-
-	    if( isc + (iz+1)*316/2 != isc2c )
-	    {
-	       std::cout<<"**** Supercrystal numbering conflict: isc, isc2, ix, iy, zside = "
-			<<isc <<", "<<isc2 <<", "<<ix <<", "<<iy <<", "<<iz <<std::endl ;
-	    }
-	    if( isc == 70 ) std::cout<<"********** Seeing SC=70"<<std::endl ;
-*/
-
 	    const unsigned int i1 ( EcalEndcapGeometry::alignmentTransformIndexLocal( did ) ) ;
 
 	    const DetId d1 ( EcalEndcapGeometry::detIdFromLocalAlignmentIndex( i1 ) ) ;
@@ -999,7 +915,6 @@ CaloGeometryAnalyzer::build( const CaloGeometry& cg      ,
 
 	    assert( i1 == i2 ) ;
 
-
 	    const TruncatedPyramid* tp ( dynamic_cast<const TruncatedPyramid*>(cell) ) ;
 	    f << "  // Checking getClosestCell for position " << tp->getPosition(0.) << std::endl;
 
@@ -1007,8 +922,6 @@ CaloGeometryAnalyzer::build( const CaloGeometry& cg      ,
 
 	    const EEDetId closestCell ( geom->getClosestCell( gp ) ) ;
 	    f << "  // Return position is " << closestCell << std::endl;
-
-//	    if( closestCell != did ) std::cout<<"eeid = "<<did<<", closest="<<closestCell<<std::endl ;
 
 	    assert( closestCell == did ) ;
 	    // test getCells against base class version every so often
@@ -1069,9 +982,6 @@ CaloGeometryAnalyzer::build( const CaloGeometry& cg      ,
 
 	    assert( ccIn == did ) ;
 	    assert( ccFr == did ) ;
-
-//	    if( ccBk != did ) std::cout<<"**eeid="<<did<<", ccBk="<<ccBk<<std::endl;
-
 	    assert( ccBk == did ) ;
 	    assert( ccXP == didXP ||
 		    !geom->getGeometry(didXP)->inside( pointXP ) ) ;
@@ -1090,7 +1000,6 @@ CaloGeometryAnalyzer::build( const CaloGeometry& cg      ,
 	    assert( ccMM == didMM ||
 		    !geom->getGeometry(didMM)->inside( pointMM ) ) ;
 
-
 	    ovrTst( cg, geom, EEDetId(*i) , fOvr ) ;
 	 }
 	 if (subdetn == EcalPreshower) 
@@ -1103,21 +1012,12 @@ CaloGeometryAnalyzer::build( const CaloGeometry& cg      ,
 	    f << "  // Return position is " << closestCell << std::endl;
 	    //sanity checks
             int o_zside = esid.zside();
-            //int o_plane = ESDetId(*i).plane();
-//            int o_six   = esid.six();
-//            int o_siy   = esid.siy();
-            //int o_strip = ESDetId(*i).strip();
 
-//            assert ((o_six <= 20 && cell->getPosition().x() < 0.) || (o_six > 20 && cell->getPosition().x() > 0.));
-//            assert ((o_siy <= 20 && cell->getPosition().y() < 0.) || (o_siy > 20 && cell->getPosition().y() > 0.));
             assert ((o_zside < 0 && cell->getPosition().z() < 0.) ||
 		    (o_zside > 0 && cell->getPosition().z() > 0.)        );
 
 	    if( closestCell != esid ) std::cout<<"** esid="<<esid<<", closest="<<closestCell<<std::endl ;
 
-//	    assert (closestCell == esid );
-
-	    
 	    const unsigned int i1 ( EcalPreshowerGeometry::alignmentTransformIndexLocal( esid ) ) ;
 
 	    const DetId d1 ( EcalPreshowerGeometry::detIdFromLocalAlignmentIndex( i1 ) ) ;
@@ -1196,7 +1096,7 @@ CaloGeometryAnalyzer::build( const CaloGeometry& cg      ,
 	    }
 	 }
 	 // test getCells against base class version every so often
-//	 if( 0 == closestCell.denseIndex()%30 )
+	 // if( 0 == closestCell.denseIndex()%30 )
 	 {
 	    cmpset( geom, gp,  2*deg ) ;
 	    cmpset( geom, gp,  5*deg ) ;
@@ -1233,7 +1133,7 @@ CaloGeometryAnalyzer::build( const CaloGeometry& cg      ,
 	    }
 	 }
 	 // test getCells against base class version every so often
-//	 if( 0 == closestCell.denseIndex()%30 )
+	 // if( 0 == closestCell.denseIndex()%30 )
 	 {
 	    cmpset( geom, gp,  2*deg ) ;
 	    cmpset( geom, gp,  5*deg ) ;
@@ -1249,7 +1149,6 @@ CaloGeometryAnalyzer::build( const CaloGeometry& cg      ,
 	 f << "  box=geoManager->MakeBox(\"point\",dummyMedium,3.0,3.0,3.0);" << std::endl;
       f << "  world->AddNode(box,"<< n << ",new TGeoHMatrix(TGeoTranslation(" << 
 	 cell->getPosition().x() << "," << cell->getPosition().y() << "," << cell->getPosition().z() << ")));" << std::endl;
-      //   f << (HcalDetId)(*i) << " " << cell->getPosition() << std::endl;
    }
    f << "  geoManager->CloseGeometry();" << std::endl;
    f << "world->Voxelize(\"\"); // now the new geometry is valid for tracking, so you can do \n // even raytracing \n //  if (!canvas) { \n    TCanvas* canvas=new TCanvas(\"EvtDisp\",\"EvtDisp\",500,500); \n //  } \n  canvas->Modified(); \n  canvas->Update();      \n  world->Draw(); \n";
@@ -1259,11 +1158,6 @@ CaloGeometryAnalyzer::build( const CaloGeometry& cg      ,
    fCor.close();
 }
 
-//
-// member functions
-//
-
-// ------------ method called to produce the data  ------------
 void
 CaloGeometryAnalyzer::analyze( const edm::Event& /*iEvent*/, const edm::EventSetup& iSetup )
 {
@@ -1274,7 +1168,6 @@ CaloGeometryAnalyzer::analyze( const edm::Event& /*iEvent*/, const edm::EventSet
    iSetup.get<IdealGeometryRecord>().get(pT);     
 
    const std::vector<DetId> allDetId ( pG->getValidDetIds() ) ;
-//   std::cout<<"Total number of DetIds in all subdets is = "<<allDetId.size()<<std::endl ;
 
    const std::vector<DetId>& deb ( pG->getValidDetIds(DetId::Ecal,EcalBarrel                     ));
    const std::vector<DetId>& dee ( pG->getValidDetIds(DetId::Ecal,EcalEndcap                     ));
@@ -1300,9 +1193,6 @@ CaloGeometryAnalyzer::analyze( const edm::Event& /*iEvent*/, const edm::EventSet
 			    dct.size() +
 			    dca.size() +
 			    dzd.size()   ) ;
-
-
-//   std::cout<<"Sum in all subdets is = "<<sum<<std::endl ;
 
    if( sum != allDetId.size() ) 
    {
@@ -1340,9 +1230,6 @@ CaloGeometryAnalyzer::analyze( const edm::Event& /*iEvent*/, const edm::EventSet
       build(*pG,*pT,DetId::Calo,CaloTowerDetId::SubdetId       ,"ct",7);
       build(*pG,*pT,DetId::Calo,HcalCastorDetId::SubdetectorId ,"ca",8);
       build(*pG,*pT,DetId::Calo,HcalZDCDetId::SubdetectorId    ,"zd",9);
-     //Test eeGetClosestCell in Florian Point
-//      std::cout << "Checking getClosestCell for position" << GlobalPoint(-38.9692,-27.5548,-317) << std::endl;
-//      std::cout << "Position of Closest Cell in EE " << dynamic_cast<const TruncatedPyramid*>(pG->getGeometry(EEDetId((*pG).getSubdetectorGeometry(DetId::Ecal,EcalEndcap)->getClosestCell(GlobalPoint(-38.9692,-27.5548,-317)))))->getPosition(0.) << std::endl;
 
       std::cout<<"\n\n*********** Validation of cell centers and corners "
 	       <<( m_allOK ? "SUCCEEDS!! " : "FAILS!! ")
@@ -1351,9 +1238,6 @@ CaloGeometryAnalyzer::analyze( const edm::Event& /*iEvent*/, const edm::EventSet
    }
 
    pass_++;
-      
 }
-
-//define this as a plug-in
 
 DEFINE_FWK_MODULE(CaloGeometryAnalyzer);
