@@ -67,7 +67,7 @@ public:
   void setConf(const edm::ParameterSet& conf){conf_=conf;}
 
   /// set label of source collection
-  void setSrc(const edm::InputTag& src, const edm::InputTag& bsSrc){src_=src;bsSrc_=bsSrc;}
+  void setSrc(const edm::EDGetToken& src, const edm::EDGetTokenT<reco::BeamSpot>& bsSrc){src_=src;bsSrc_=bsSrc;}
 
   /// set the aliases of produced collections
   void setAlias(std::string alias){
@@ -87,12 +87,12 @@ public:
   const edm::ParameterSet& getConf() const {return conf_;}
  private:
   edm::ParameterSet conf_;
-  edm::InputTag src_;
+  edm::EDGetToken src_;
  protected:
   std::string alias_;
   bool trajectoryInEvent_;
   edm::OrphanHandle<TrackCollection> rTracks_;
-  edm::InputTag bsSrc_;
+  edm::EDGetTokenT<reco::BeamSpot> bsSrc_;
 
   bool rekeyClusterRefs_;
   edm::InputTag clusterRemovalInfo_;

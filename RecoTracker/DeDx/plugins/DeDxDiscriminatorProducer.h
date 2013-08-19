@@ -65,8 +65,8 @@ private:
 
 
   // ----------member data ---------------------------
-  edm::InputTag                     m_trajTrackAssociationTag;
-  edm::InputTag                     m_tracksTag;
+  edm::EDGetTokenT<TrajTrackAssociationCollection>   m_trajTrackAssociationTag;
+  edm::EDGetTokenT<reco::TrackCollection>  m_tracksTag;
 
   bool usePixel;
   bool useStrip;

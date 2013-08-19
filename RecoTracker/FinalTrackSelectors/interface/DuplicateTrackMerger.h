@@ -62,7 +62,7 @@ namespace reco { namespace modules {
 	 float* gbrVals_;
 
 	 /// track input collection
-	 edm::InputTag trackSource_;
+	 edm::EDGetTokenT<reco::TrackCollection> trackSource_;
 	 /// MVA weights file
 	 std::string dbFileName_;
 	 bool useForestFromDB_;

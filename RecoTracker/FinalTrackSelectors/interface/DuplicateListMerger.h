@@ -25,6 +25,7 @@
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
 #include "DataFormats/TrackerRecHit2D/interface/BaseTrackerRecHit.h"
 #include "DataFormats/TrackerRecHit2D/interface/OmniClusterRef.h"
+#include "DataFormats/Common/interface/ValueMap.h"
 #include <vector>
 #include <algorithm>
 #include <string>
@@ -56,12 +57,25 @@ namespace reco { namespace modules {
 	 }
 
 	 /// track input collection
-	 edm::InputTag mergedTrackSource_;
-	 edm::InputTag originalTrackSource_;
-	 edm::InputTag candidateSource_;
+         struct ThreeTokens {
+            edm::InputTag tag;
+            edm::EDGetTokenT<reco::TrackCollection> tk;
+            edm::EDGetTokenT<std::vector<Trajectory> >        traj;
+            edm::EDGetTokenT<TrajTrackAssociationCollection > tass;
+            ThreeTokens() {}
+            ThreeTokens(const edm::InputTag &tag_, edm::EDGetTokenT<reco::TrackCollection> && tk_, edm::EDGetTokenT<std::vector<Trajectory> > && traj_, edm::EDGetTokenT<TrajTrackAssociationCollection > && tass_) :
+                tag(tag_), tk(tk_), traj(traj_), tass(tass_) {}
+         };
+         ThreeTokens threeTokens(const edm::InputTag &tag) {
+            return ThreeTokens(tag, consumes<reco::TrackCollection>(tag), consumes<std::vector<Trajectory> >(tag), consumes<TrajTrackAssociationCollection >(tag));
+         }
+         ThreeTokens mergedTrackSource_, originalTrackSource_;
+         edm::EDGetTokenT<edm::View<DuplicateRecord> > candidateSource_;
 
-	 edm::InputTag originalMVAVals_;
-	 edm::InputTag mergedMVAVals_;
+         edm::InputTag originalMVAVals_;
+         edm::InputTag mergedMVAVals_;
+         edm::EDGetTokenT<edm::ValueMap<float> > originalMVAValsToken_;
+         edm::EDGetTokenT<edm::ValueMap<float> > mergedMVAValsToken_;
 
 	 reco::TrackBase::TrackQuality qualityToSet_;
 	 unsigned int diffHitsCut_;

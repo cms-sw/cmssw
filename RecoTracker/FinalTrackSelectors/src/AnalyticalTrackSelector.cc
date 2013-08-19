@@ -46,13 +46,17 @@ AnalyticalTrackSelector::AnalyticalTrackSelector( const edm::ParameterSet & cfg 
     forest_ = 0;
     gbrVals_ = 0;  
 
-    src_ = cfg.getParameter<edm::InputTag>( "src" );
-    beamspot_ = cfg.getParameter<edm::InputTag>( "beamspot" );
+    src_ = consumes<reco::TrackCollection>(cfg.getParameter<edm::InputTag>( "src" ));
+    beamspot_ = consumes<reco::BeamSpot>(cfg.getParameter<edm::InputTag>( "beamspot" ));
     useVertices_ = cfg.getParameter<bool>( "useVertices" );
     useVtxError_ = cfg.getParameter<bool>( "useVtxError" );
-    vertices_ = useVertices_ ? cfg.getParameter<edm::InputTag>( "vertices" ) : edm::InputTag("NONE");
+    if (useVertices_) vertices_ = consumes<reco::VertexCollection>(cfg.getParameter<edm::InputTag>( "vertices" ));
     copyExtras_ = cfg.getUntrackedParameter<bool>("copyExtras", false);
     copyTrajectories_ = cfg.getUntrackedParameter<bool>("copyTrajectories", false);
+    if (copyTrajectories_) {
+        srcTraj_ = consumes<std::vector<Trajectory> >(cfg.getParameter<edm::InputTag>( "src" ));
+        srcTass_ = consumes<TrajTrackAssociationCollection>(cfg.getParameter<edm::InputTag>( "src" ));
+    }
     
     qualityToSet_.push_back( TrackBase::undefQuality );
     // parameters for vertex selection
@@ -153,7 +157,7 @@ void AnalyticalTrackSelector::produce( edm::Event& evt, const edm::EventSetup& e
 
   // looking for the beam spot
   edm::Handle<reco::BeamSpot> hBsp;
-  evt.getByLabel(beamspot_, hBsp);
+  evt.getByToken(beamspot_, hBsp);
   reco::BeamSpot vertexBeamSpot;
   vertexBeamSpot = *hBsp;
 	
@@ -162,14 +166,14 @@ void AnalyticalTrackSelector::produce( edm::Event& evt, const edm::EventSetup& e
   std::vector<Point> points;
   std::vector<float> vterr, vzerr;
   if (useVertices_) {
-      evt.getByLabel(vertices_, hVtx);
+      evt.getByToken(vertices_, hVtx);
       selectVertices(0,*hVtx, points, vterr, vzerr);
       // Debug 
       LogDebug("SelectVertex") << points.size() << " good pixel vertices";
   }
 
   // Get tracks 
-  evt.getByLabel( src_, hSrcTrack );
+  evt.getByToken( src_, hSrcTrack );
 
   selTracks_ = auto_ptr<TrackCollection>(new TrackCollection());
   rTracks_ = evt.getRefBeforePut<TrackCollection>();      
@@ -234,8 +238,8 @@ void AnalyticalTrackSelector::produce( edm::Event& evt, const edm::EventSetup& e
   if ( copyTrajectories_ ) {
     Handle< vector<Trajectory> > hTraj;
     Handle< TrajTrackAssociationCollection > hTTAss;
-    evt.getByLabel(src_, hTTAss);
-    evt.getByLabel(src_, hTraj);
+    evt.getByToken(srcTass_, hTTAss);
+    evt.getByToken(srcTraj_, hTraj);
     selTrajs_ = auto_ptr< vector<Trajectory> >(new vector<Trajectory>()); 
     rTrajectories_ = evt.getRefBeforePut< vector<Trajectory> >();
     selTTAss_ = auto_ptr< TrajTrackAssociationCollection >(new TrajTrackAssociationCollection());

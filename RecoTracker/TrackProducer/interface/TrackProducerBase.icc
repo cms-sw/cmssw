@@ -105,11 +105,11 @@ TrackProducerBase<T>::getFromEvt(edm::Event& theEvent,edm::Handle<TrackCandidate
   //
   LogDebug("TrackProducer") << 
     "get the TrackCandidateCollection from the event, source is " << src_<<"\n";
-    theEvent.getByLabel(src_,theTCCollection );  
+    theEvent.getByToken(src_,theTCCollection );  
 
   //get the BeamSpot
   edm::Handle<reco::BeamSpot> recoBeamSpotHandle;
-  theEvent.getByLabel(bsSrc_,recoBeamSpotHandle);
+  theEvent.getByToken(bsSrc_,recoBeamSpotHandle);
   bs = *recoBeamSpotHandle;
 }
 
@@ -121,11 +121,11 @@ TrackProducerBase<T>::getFromEvt(edm::Event& theEvent,edm::Handle<TrackCollectio
   //
   LogDebug("TrackProducer") << 
     "get the TrackCollection from the event, source is " << src_<<"\n";
-    theEvent.getByLabel(src_,theTCollection );  
+    theEvent.getByToken(src_,theTCollection );  
 
   //get the BeamSpot
   edm::Handle<reco::BeamSpot> recoBeamSpotHandle;
-  theEvent.getByLabel(bsSrc_,recoBeamSpotHandle);
+  theEvent.getByToken(bsSrc_,recoBeamSpotHandle);
   bs = *recoBeamSpotHandle;
 }
 
