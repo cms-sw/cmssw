@@ -34,8 +34,10 @@
 
 template<typename T>
 HLTJetTag<T>::HLTJetTag(const edm::ParameterSet & config) : HLTFilter(config),
-  m_Jets   (config.getParameter<edm::InputTag> ("Jets") ),
-  m_JetTags(config.getParameter<edm::InputTag> ("JetTags") ),
+  m_Jets   (config.getParameter<edm::InputTag>("Jets") ),
+  m_JetsToken(consumes<std::vector<T> >(m_Jets)),
+  m_JetTags(config.getParameter<edm::InputTag>("JetTags") ),
+  m_JetTagsToken(consumes<reco::JetTagCollection>(m_JetTags)),
   m_MinTag (config.getParameter<double>        ("MinTag") ),
   m_MaxTag (config.getParameter<double>        ("MaxTag") ),
   m_MinJets(config.getParameter<int>           ("MinJets") ),

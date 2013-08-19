@@ -11,7 +11,6 @@
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 
-
 class L3MumuTrackingRegion : public TrackingRegionProducer {
 
 public:
@@ -20,8 +19,10 @@ public:
 
     edm::ParameterSet regionPSet = cfg.getParameter<edm::ParameterSet>("RegionPSet");
 
-    theVertexSrc   = regionPSet.getParameter<std::string>("vertexSrc");
-    theInputTrkSrc = regionPSet.getParameter<edm::InputTag>("TrkSrc");
+    theVertexTag    = regionPSet.getParameter<edm::InputTag>("vertexSrc");
+    //    theVertexToken  = consumes<reco::VertexCollection>(theVertexTag);
+    theInputTrkTag  = regionPSet.getParameter<edm::InputTag>("TrkSrc");
+    //    theInputTrkToken= consumes<reco::TrackCollection>(theInputTrkTag);
 
     useVtxTks = regionPSet.getParameter<bool>("UseVtxTks");
 
@@ -59,9 +60,9 @@ public:
     // get highest Pt pixel vertex (if existing)
     double deltaZVertex =  theOriginHalfLength;
     double originz = theOriginZPos;
-    if (theVertexSrc.length()>1) {
+    if (theVertexTag.encode().length()>1) {
       edm::Handle<reco::VertexCollection> vertices;
-      ev.getByLabel(theVertexSrc,vertices);
+      ev.getByLabel(theVertexTag,vertices);
       const reco::VertexCollection vertCollection = *(vertices.product());
       reco::VertexCollection::const_iterator ci = vertCollection.begin();
       if (vertCollection.size()>0) {
@@ -89,7 +90,7 @@ public:
     }
 
     edm::Handle<reco::TrackCollection> trks;
-    ev.getByLabel(theInputTrkSrc, trks);
+    ev.getByLabel(theInputTrkTag, trks);
 
     for(reco::TrackCollection::const_iterator iTrk = trks->begin();iTrk != trks->end();iTrk++) {
       GlobalVector dirVector((iTrk)->px(),(iTrk)->py(),(iTrk)->pz());
@@ -106,8 +107,10 @@ public:
 
 private:
 
-  std::string theVertexSrc;
-  edm::InputTag theInputTrkSrc;
+  edm::InputTag                            theVertexTag;
+  edm::EDGetTokenT<reco::VertexCollection> theVertexToken;
+  edm::InputTag                            theInputTrkTag;
+  edm::EDGetTokenT<reco::TrackCollection>  theInputTrkToken;
 
   bool useVtxTks;
 
