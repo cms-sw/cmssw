@@ -1115,6 +1115,10 @@
       <item key="AidaPath" value="/REF/d10-x01-y01" sticky="true"/>
     </annotation>
     <dataPoint>
+      <measurement value="1.107080e+00" errorPlus="1.070800e-01" errorMinus="1.070800e-01"/>
+      <measurement value="6.248654e-04" errorPlus="1.0e10" errorMinus="1.0e10"/>
+    </dataPoint>
+    <dataPoint>
       <measurement value="1.321240e+00" errorPlus="1.070800e-01" errorMinus="1.070800e-01"/>
       <measurement value="3.248128e-03" errorPlus="8.562022e-04" errorMinus="8.562022e-04"/>
     </dataPoint>
@@ -1157,6 +1161,10 @@
       <item key="Title" value="Unfold Response aux \rightarrow aux" sticky="true"/>
       <item key="AidaPath" value="/REF/d11-x01-y01" sticky="true"/>
     </annotation>
+    <dataPoint>
+      <measurement value="1.107080e+00" errorPlus="1.070800e-01" errorMinus="1.070800e-01"/>
+      <measurement value="1.922091e-03" errorPlus="1.0e10" errorMinus="1.0e10"/>
+    </dataPoint>
     <dataPoint>
       <measurement value="1.321240e+00" errorPlus="1.070800e-01" errorMinus="1.070800e-01"/>
       <measurement value="7.439200e-03" errorPlus="1.979564e-03" errorMinus="1.979564e-03"/>
@@ -1201,6 +1209,10 @@
       <item key="AidaPath" value="/REF/ZJ2_3j_boosted" sticky="true"/>
     </annotation>
     <dataPoint>
+      <measurement errorPlus="1.070800e-01" value="1.107080e+00" errorMinus="1.070800e-01"/>
+      <measurement errorPlus="1.0e10" value="2.439245e-01" errorMinus="1.0e10"/>
+    </dataPoint>
+    <dataPoint>
       <measurement errorPlus="1.070800e-01" value="1.321240e+00" errorMinus="1.070800e-01"/>
       <measurement errorPlus="3.697542e-02" value="2.203887e-01" errorMinus="3.697542e-02"/>
     </dataPoint>
@@ -1243,6 +1255,10 @@
       <item key="Title" value="Unfold Response aux \rightarrow aux" sticky="true"/>
       <item key="AidaPath" value="/REF/ZJ0_3j_boosted" sticky="true"/>
     </annotation>
+    <dataPoint>
+      <measurement value="1.107080e+00" errorPlus="1.070800e-01" errorMinus="1.070800e-01"/>
+      <measurement value="2.678993e-03" errorPlus="1.0e10" errorMinus="1.0e10"/>
+    </dataPoint>
     <dataPoint>
       <measurement value="1.321240e+00" errorPlus="1.070800e-01" errorMinus="1.070800e-01"/>
       <measurement value="2.338446e-02" errorPlus="1.019354e-02" errorMinus="1.019354e-02"/>
@@ -1287,6 +1303,10 @@
       <item key="AidaPath" value="/REF/ZJ1_3j_boosted" sticky="true"/>
     </annotation>
     <dataPoint>
+      <measurement value="1.107080e+00" errorPlus="1.070800e-01" errorMinus="1.070800e-01"/>
+      <measurement value="2.636743e-01" errorPlus="1.0e10" errorMinus="1.0e10"/>
+    </dataPoint>
+    <dataPoint>
       <measurement value="1.321240e+00" errorPlus="1.070800e-01" errorMinus="1.070800e-01"/>
       <measurement value="3.345433e-01" errorPlus="4.579215e-02" errorMinus="4.579215e-02"/>
     </dataPoint>
@@ -1329,6 +1349,10 @@
       <item key="Title" value="Unfold Response aux \rightarrow aux" sticky="true"/>
       <item key="AidaPath" value="/REF/J1J2_3j_boosted" sticky="true"/>
     </annotation>
+    <dataPoint>
+      <measurement value="1.107080e+00" errorPlus="1.070800e-01" errorMinus="1.070800e-01"/>
+      <measurement value="4.291077e-01" errorPlus="1.0e10" errorMinus="1.0e10"/>
+    </dataPoint>
     <dataPoint>
       <measurement value="1.321240e+00" errorPlus="1.070800e-01" errorMinus="1.070800e-01"/>
       <measurement value="3.457126e-01" errorPlus="4.855760e-02" errorMinus="4.855760e-02"/>
@@ -1373,6 +1397,10 @@
       <item key="AidaPath" value="/REF/J1J3_3j_boosted" sticky="true"/>
     </annotation>  
     <dataPoint>
+      <measurement value="1.107080e+00" errorPlus="1.070800e-01" errorMinus="1.070800e-01"/>
+      <measurement value="4.646603e-01" errorPlus="1.0e10" errorMinus="1.0e10"/>
+    </dataPoint>
+    <dataPoint>
       <measurement value="1.321240e+00" errorPlus="1.070800e-01" errorMinus="1.070800e-01"/>
       <measurement value="4.562352e-01" errorPlus="6.118763e-02" errorMinus="6.118763e-02"/>
     </dataPoint>
@@ -1415,6 +1443,10 @@
       <item key="Title" value="Unfold Response aux \rightarrow aux" sticky="true"/>
       <item key="AidaPath" value="/REF/J2J3_3j_boosted" sticky="true"/>
     </annotation>
+    <dataPoint>
+      <measurement value="1.107080e+00" errorPlus="1.070800e-01" errorMinus="1.070800e-01"/>
+      <measurement value="4.614759e-01" errorPlus="1.0e10" errorMinus="1.0e10"/>
+    </dataPoint>
     <dataPoint>
       <measurement value="1.321240e+00" errorPlus="1.070800e-01" errorMinus="1.070800e-01"/>
       <measurement value="4.410187e-01" errorPlus="5.255285e-02" errorMinus="5.255285e-02"/>
