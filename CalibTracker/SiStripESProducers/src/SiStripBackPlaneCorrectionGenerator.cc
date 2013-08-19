@@ -23,9 +23,9 @@ SiStripBackPlaneCorrectionGenerator::~SiStripBackPlaneCorrectionGenerator() {
   edm::LogInfo("SiStripBackPlaneCorrectionGenerator") <<  "[SiStripBackPlaneCorrectionGenerator::~SiStripBackPlaneCorrectionGenerator]";
 }
 
-void SiStripBackPlaneCorrectionGenerator::createObject()
+SiStripBackPlaneCorrection*  SiStripBackPlaneCorrectionGenerator::createObject()
 {
-  obj_ = new SiStripBackPlaneCorrection();
+  SiStripBackPlaneCorrection* obj = new SiStripBackPlaneCorrection();
 
   edm::FileInPath fp_                 = _pset.getParameter<edm::FileInPath>("file");
   std::vector<double> valuePerModuleGeometry(_pset.getParameter<std::vector<double> >("BackPlaneCorrection_PerModuleGeometry"));
@@ -38,8 +38,9 @@ void SiStripBackPlaneCorrectionGenerator::createObject()
     if(moduleGeometry>valuePerModuleGeometry.size())edm::LogError("SiStripBackPlaneCorrectionGenerator")<<" BackPlaneCorrection_PerModuleGeometry only contains "<< valuePerModuleGeometry.size() << "elements and module is out of range"<<std::endl;
     float value =     valuePerModuleGeometry[moduleGeometry];
   
-    if (!obj_->putBackPlaneCorrection(*detit, value) ) {
+    if (!obj->putBackPlaneCorrection(*detit, value) ) {
       edm::LogError("SiStripBackPlaneCorrectionGenerator")<<" detid already exists"<<std::endl;
     }
   }
+  return obj;
 }

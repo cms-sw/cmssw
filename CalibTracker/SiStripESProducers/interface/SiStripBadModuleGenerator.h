@@ -13,11 +13,11 @@ class SiStripBadModuleGenerator : public SiStripCondObjBuilderBase<SiStripBadStr
   explicit SiStripBadModuleGenerator(const edm::ParameterSet&,const edm::ActivityRegistry&);
   ~SiStripBadModuleGenerator();
   
-  void getObj(SiStripBadStrip* & obj){createObject(); obj=obj_;}
+  void getObj(SiStripBadStrip* & obj){obj=createObject();}
 
  private:
   
-  void createObject();
+  SiStripBadStrip* createObject();
 
   void selectDetectors(const std::vector<uint32_t>& , std::vector<uint32_t>& );
 

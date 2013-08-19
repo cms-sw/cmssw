@@ -26,9 +26,9 @@ SiStripNoisesGenerator::~SiStripNoisesGenerator()
   edm::LogInfo("SiStripNoisesGenerator") <<  "[SiStripNoisesGenerator::~SiStripNoisesGenerator]";
 }
 
-void SiStripNoisesGenerator::createObject()
+SiStripNoises* SiStripNoisesGenerator::createObject()
 {    
-  obj_ = new SiStripNoises();
+  SiStripNoises* obj = new SiStripNoises();
 
   stripLengthMode_ = _pset.getParameter<bool>("StripLengthMode");
   
@@ -71,7 +71,7 @@ void SiStripNoisesGenerator::createObject()
       for( unsigned short j=0; j<128*nApvs; ++j ) {
 	noise = ( linearSlope*stripLength + linearQuote) / electronsPerADC_;
         if( count<printDebug_ ) printLog(detId, j, noise);
-        obj_->setData(noise, theSiStripVector);
+        obj->setData(noise, theSiStripVector);
       }
     }
     else {
@@ -82,15 +82,16 @@ void SiStripNoisesGenerator::createObject()
         noise = CLHEP::RandGauss::shoot(meanN, sigmaN);
         if( noise<=minimumPosValue_ ) noise = minimumPosValue_;
         if( count<printDebug_ ) printLog(detId, j, noise);
-        obj_->setData(noise, theSiStripVector);
+        obj->setData(noise, theSiStripVector);
       }
     }
     ++count;
     
-    if ( ! obj_->put(it->first,theSiStripVector) ) {
+    if ( ! obj->put(it->first,theSiStripVector) ) {
       edm::LogError("SiStripNoisesFakeESSource::produce ")<<" detid already exists"<<std::endl;
     }
   }
+  return obj;
 }
 
 std::pair<int, int> SiStripNoisesGenerator::subDetAndLayer( const uint32_t detId ) const
