@@ -171,6 +171,24 @@ if (BO->isAssignmentOp()) {
 		} else
 	if (clang::MemberExpr * ME = dyn_cast<clang::MemberExpr>(BO->getLHS())){
 			if (ME->isImplicitAccess()) ReportMember(ME);
+		} else
+	if (clang::UnaryOperator * UO = llvm::dyn_cast<clang::UnaryOperator>(BO->getLHS()->IgnoreParenImpCasts()) ) {
+		if (UO->getOpcode() == clang::UnaryOperatorKind::UO_Deref) {
+			if (clang::MemberExpr * ME = dyn_cast<clang::MemberExpr>(UO->getSubExpr()->IgnoreParenImpCasts())){
+				if (ME->isImplicitAccess()) ReportMember(ME);
+				}
+			if (clang::DeclRefExpr * DRE =dyn_cast<clang::DeclRefExpr>(UO->getSubExpr()->IgnoreParenImpCasts())){
+				if (const clang::VarDecl * D = llvm::dyn_cast<clang::VarDecl>(DRE->getDecl())) {
+					clang::QualType t =  D->getType();
+					const clang::Expr * E = llvm::dyn_cast<clang::Expr>(D->getInit());
+					if (E && t->isPointerType() ) {
+						const clang::MemberExpr * ME = dyn_cast<clang::MemberExpr>(E->IgnoreParenImpCasts());
+						if (ME && ME->isImplicitAccess()) ReportMember(ME);
+						}	
+						
+					} 		
+				}
+			}
 		}
 	}
 }
