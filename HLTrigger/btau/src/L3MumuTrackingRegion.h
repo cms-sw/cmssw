@@ -2,6 +2,8 @@
 #define HLTrigger_btau_L3MumuTrackingRegion_H 
 
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
+
 #include "RecoTracker/TkTrackingRegions/interface/TrackingRegionProducer.h"
 #include "RecoTracker/TkTrackingRegions/interface/GlobalTrackingRegion.h"
 #include "RecoTracker/TkTrackingRegions/interface/RectangularEtaPhiTrackingRegion.h"
@@ -15,14 +17,17 @@ class L3MumuTrackingRegion : public TrackingRegionProducer {
 
 public:
 
+  L3MumuTrackingRegion(const edm::ParameterSet& cfg, edm::ConsumesCollector && iC) :  L3MumuTrackingRegion(cfg) {
+    theVertexToken  = iC.consumes<reco::VertexCollection>(theVertexTag);
+    theInputTrkToken= iC.consumes<reco::TrackCollection>(theInputTrkTag);
+  }
+
   L3MumuTrackingRegion(const edm::ParameterSet& cfg) { 
 
     edm::ParameterSet regionPSet = cfg.getParameter<edm::ParameterSet>("RegionPSet");
 
     theVertexTag    = regionPSet.getParameter<edm::InputTag>("vertexSrc");
-    //    theVertexToken  = consumes<reco::VertexCollection>(theVertexTag);
     theInputTrkTag  = regionPSet.getParameter<edm::InputTag>("TrkSrc");
-    //    theInputTrkToken= consumes<reco::TrackCollection>(theInputTrkTag);
 
     useVtxTks = regionPSet.getParameter<bool>("UseVtxTks");
 
