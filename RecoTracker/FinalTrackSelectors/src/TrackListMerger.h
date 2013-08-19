@@ -27,6 +27,7 @@
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "DataFormats/Common/interface/ValueMap.h"
 
 namespace cms
 {
@@ -57,7 +58,31 @@ namespace cms
     bool copyExtras_;
     bool makeReKeyedSeeds_;
 
-    std::vector<edm::InputTag> trackProducers_;
+    struct TkEDGetTokenss  {
+        edm::InputTag tag;
+        edm::EDGetTokenT<reco::TrackCollection> tk;
+        edm::EDGetTokenT<std::vector<Trajectory> >        traj;
+        edm::EDGetTokenT<TrajTrackAssociationCollection > tass;
+        edm::EDGetTokenT<edm::ValueMap<int>   > tsel;
+        edm::EDGetTokenT<edm::ValueMap<float> > tmva;
+        TkEDGetTokenss() {}
+        TkEDGetTokenss(const edm::InputTag &tag_, edm::EDGetTokenT<reco::TrackCollection> && tk_, 
+                 edm::EDGetTokenT<std::vector<Trajectory> > && traj_, edm::EDGetTokenT<TrajTrackAssociationCollection > && tass_,
+                 edm::EDGetTokenT<edm::ValueMap<int> > &&tsel_, edm::EDGetTokenT<edm::ValueMap<float> > && tmva_) :
+            tag(tag_), tk(tk_), traj(traj_), tass(tass_), tsel(tsel_), tmva(tmva_) {}
+    };
+    TkEDGetTokenss edTokens(const edm::InputTag &tag, const edm::InputTag &seltag, const edm::InputTag &mvatag) {
+        return TkEDGetTokenss(tag, consumes<reco::TrackCollection>(tag), 
+                                consumes<std::vector<Trajectory> >(tag), consumes<TrajTrackAssociationCollection >(tag),
+                                consumes<edm::ValueMap<int> >(seltag), consumes<edm::ValueMap<float> >(mvatag));
+    }
+    TkEDGetTokenss edTokens(const edm::InputTag &tag, const edm::InputTag &mvatag) {
+        return TkEDGetTokenss(tag, consumes<reco::TrackCollection>(tag), 
+                                consumes<std::vector<Trajectory> >(tag), consumes<TrajTrackAssociationCollection >(tag),
+                                edm::EDGetTokenT<edm::ValueMap<int> >(), consumes<edm::ValueMap<float> >(mvatag));
+    }
+    std::vector<TkEDGetTokenss>      trackProducers_;
+
     double maxNormalizedChisq_;
     double minPT_;
     unsigned int minFound_;
@@ -70,8 +95,6 @@ namespace cms
     std::vector< std::vector< int> > listsToMerge_;
     std::vector<bool> promoteQuality_;
     std::vector<int> hasSelector_;
-    std::vector<edm::InputTag> selectors_;
-    std::vector<edm::InputTag> mvaStores_;
 
     bool allowFirstHitShare_;
     reco::TrackBase::TrackQuality qualityToSet_;

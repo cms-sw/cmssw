@@ -30,8 +30,10 @@ KalmanAlignmentTrackRefitter::KalmanAlignmentTrackRefitter( const edm::Parameter
   theDebugFlag( config.getUntrackedParameter<bool>( "debug", true ) )
 {
   TrackProducerBase< reco::Track >::setConf( config );
-  TrackProducerBase< reco::Track >::setSrc( config.getParameter< edm::InputTag >( "src" ),
-					    config.getParameter< edm::InputTag >( "bsSrc" ) );
+  // --- GPetrucc: I can't understand where anything is read from the event, and who's the consumer.
+  //               If there is one anywhere, it should do the consumes<T> calls and pass that to the setSrc
+  //TrackProducerBase< reco::Track >::setSrc( consumes<TrackCandidateCollection>(iConfig.getParameter<edm::InputTag>( "src" )), 
+  //                                          consumes<reco::BeamSpot>(iConfig.getParameter<edm::InputTag>( "beamSpot" )));
 }
 
 

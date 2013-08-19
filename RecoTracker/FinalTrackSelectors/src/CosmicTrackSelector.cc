@@ -6,8 +6,8 @@
 using reco::modules::CosmicTrackSelector;
 
 CosmicTrackSelector::CosmicTrackSelector( const edm::ParameterSet & cfg ) :
-  src_( cfg.getParameter<edm::InputTag>( "src" ) ),
-  beamspot_( cfg.getParameter<edm::InputTag>( "beamspot" ) ),
+  src_( consumes<reco::TrackCollection>( cfg.getParameter<edm::InputTag>( "src" ) ) ),
+  beamspot_( consumes<reco::BeamSpot>( cfg.getParameter<edm::InputTag>( "beamspot" ) ) ),
   copyExtras_(cfg.getUntrackedParameter<bool>("copyExtras", false)),
   copyTrajectories_(cfg.getUntrackedParameter<bool>("copyTrajectories", false)),
   keepAllTracks_( cfg.exists("keepAllTracks") ?
@@ -50,6 +50,8 @@ CosmicTrackSelector::CosmicTrackSelector( const edm::ParameterSet & cfg ) :
     produces<TrackingRecHitCollection>().setBranchAlias( alias + "RecHits");
   }
   if (copyTrajectories_) {
+    srcTraj_ = consumes<std::vector<Trajectory> >(cfg.getParameter<edm::InputTag>( "src" ));
+    srcTass_ = consumes<TrajTrackAssociationCollection>(cfg.getParameter<edm::InputTag>( "src" ));
     produces< std::vector<Trajectory> >().setBranchAlias( alias + "Trajectories");
     produces< TrajTrackAssociationCollection >().setBranchAlias( alias + "TrajectoryTrackAssociations");
   }
@@ -72,12 +74,12 @@ void CosmicTrackSelector::produce( edm::Event& evt, const edm::EventSetup& es )
   
   // looking for the beam spot
   edm::Handle<reco::BeamSpot> hBsp;
-  evt.getByLabel(beamspot_, hBsp);
+  evt.getByToken(beamspot_, hBsp);
   reco::BeamSpot vertexBeamSpot;
   vertexBeamSpot = *hBsp;
   
   // Get tracks 
-  evt.getByLabel( src_, hSrcTrack );
+  evt.getByToken( src_, hSrcTrack );
   
   selTracks_ = auto_ptr<TrackCollection>(new TrackCollection());
   rTracks_ = evt.getRefBeforePut<TrackCollection>();      
@@ -125,8 +127,8 @@ void CosmicTrackSelector::produce( edm::Event& evt, const edm::EventSetup& es )
   if ( copyTrajectories_ ) {
     Handle< vector<Trajectory> > hTraj;
     Handle< TrajTrackAssociationCollection > hTTAss;
-    evt.getByLabel(src_, hTTAss);
-    evt.getByLabel(src_, hTraj);
+    evt.getByToken(srcTass_, hTTAss);
+    evt.getByToken(srcTraj_, hTraj);
     selTrajs_ = auto_ptr< vector<Trajectory> >(new vector<Trajectory>()); 
     rTrajectories_ = evt.getRefBeforePut< vector<Trajectory> >();
     selTTAss_ = auto_ptr< TrajTrackAssociationCollection >(new TrajTrackAssociationCollection());
