@@ -15,6 +15,7 @@
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h"
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h" 
+#include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
 
 #include <ext/hash_map>
 
@@ -48,8 +49,8 @@ private:
   // ----------member data ---------------------------
   BaseDeDxEstimator*                m_estimator;
 
-  edm::InputTag                     m_trajTrackAssociationTag;
-  edm::InputTag                     m_tracksTag;
+  edm::EDGetTokenT<TrajTrackAssociationCollection>   m_trajTrackAssociationTag;
+  edm::EDGetTokenT<reco::TrackCollection>  m_tracksTag;
 
   bool usePixel;
   bool useStrip;

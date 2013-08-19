@@ -24,13 +24,13 @@ class TransientInitialStateEstimator;
 
 namespace cms
 {
-  class CkfTrajectoryMaker : public CkfTrackCandidateMakerBase, public edm::EDProducer
+  class CkfTrajectoryMaker : public edm::EDProducer, public CkfTrackCandidateMakerBase
   {
   public:
     typedef std::vector<Trajectory> TrajectoryCollection;
 
     explicit CkfTrajectoryMaker(const edm::ParameterSet& conf):
-      CkfTrackCandidateMakerBase(conf)
+      CkfTrackCandidateMakerBase(conf, consumesCollector())
     {
       theTrackCandidateOutput=conf.getParameter<bool>("trackCandidateAlso");
       theTrajectoryOutput=true;
