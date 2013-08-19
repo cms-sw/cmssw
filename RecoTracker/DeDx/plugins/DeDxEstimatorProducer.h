@@ -21,6 +21,7 @@
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2D.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2D.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHit.h"
+#include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
 
 #include "TFile.h"
 #include "TChain.h"
@@ -50,8 +51,8 @@ private:
   // ----------member data ---------------------------
   BaseDeDxEstimator*                m_estimator;
 
-  edm::InputTag                     m_trajTrackAssociationTag;
-  edm::InputTag                     m_tracksTag;
+  edm::EDGetTokenT<TrajTrackAssociationCollection>   m_trajTrackAssociationTag;
+  edm::EDGetTokenT<reco::TrackCollection>  m_tracksTag;
 
   bool usePixel;
   bool useStrip;
