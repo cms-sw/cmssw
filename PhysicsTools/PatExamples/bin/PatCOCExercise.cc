@@ -52,10 +52,7 @@ int main(int argc, char *argv[]){
 
   // book a set of histograms
   fwlite::TFileService fs = fwlite::TFileService(output_.c_str());
-  TFileDirectory theDir = fs.mkdir("analyzePatCleaning");
-  TH1F* emfAllJets_    = theDir.make<TH1F>("emfAllJets"    , "f_{emf}(All Jets)"    ,  20,  0.,  1.);
-  TH1F* emfCleanJets_  = theDir.make<TH1F>("emfCleanJets"  , "f_{emf}(Clean Jets)"  ,  20,  0.,  1.);
-  TH1F* emfOverlapJets_= theDir.make<TH1F>("emfOverlapJets", "f_{emf}(Overlap Jets)",  20,  0.,  1.);
+  TFileDirectory theDir = fs.mkdir("analyzePatCOC");
   TH1F* deltaRElecJet_ = theDir.make<TH1F>("deltaRElecJet" , "#DeltaR (elec, jet)"  ,  10,  0., 0.5);
   TH1F* elecOverJet_   = theDir.make<TH1F>("elecOverJet"   , "E_{elec}/E_{jet}"     , 100,  0.,  2.);
   TH1F* nOverlaps_     = theDir.make<TH1F>("nOverlaps"     , "Number of overlaps"   ,   5,  0.,  5.);
@@ -94,15 +91,11 @@ int main(int argc, char *argv[]){
     // loop over the jets in the event
     for( std::vector<pat::Jet>::const_iterator jet = jets->begin(); jet != jets->end(); jet++ ){
       if(jet->pt()>20 && jet==jets->begin()){
-	emfAllJets_->Fill( jet->emEnergyFraction() );
-	if(! jet->hasOverlaps(overlaps_)){
-	  emfCleanJets_->Fill( jet->emEnergyFraction() );
-	}
-	else{
+
+	if(jet->hasOverlaps(overlaps_)){
 	  //get all overlaps
 	  const reco::CandidatePtrVector overlaps = jet->overlaps(overlaps_);
 	  nOverlaps_->Fill( overlaps.size() );
-	  emfOverlapJets_->Fill( jet->emEnergyFraction() );
 	  //loop over the overlaps
 	  for( reco::CandidatePtrVector::const_iterator overlap = overlaps.begin(); overlap != overlaps.end(); overlap++){ 
 	    float deltaR = reco::deltaR( (*overlap)->eta(), (*overlap)->phi(), jet->eta(), jet->phi() );
