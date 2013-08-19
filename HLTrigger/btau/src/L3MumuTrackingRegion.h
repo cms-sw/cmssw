@@ -67,7 +67,7 @@ public:
     double originz = theOriginZPos;
     if (theVertexTag.encode().length()>1) {
       edm::Handle<reco::VertexCollection> vertices;
-      ev.getByLabel(theVertexTag,vertices);
+      if (!ev.getByToken(theVertexToken,vertices)) ev.getByLabel(theVertexTag,vertices);
       const reco::VertexCollection vertCollection = *(vertices.product());
       reco::VertexCollection::const_iterator ci = vertCollection.begin();
       if (vertCollection.size()>0) {
@@ -95,7 +95,7 @@ public:
     }
 
     edm::Handle<reco::TrackCollection> trks;
-    ev.getByLabel(theInputTrkTag, trks);
+    if (!ev.getByToken(theInputTrkToken,trks)) ev.getByLabel(theInputTrkTag, trks);
 
     for(reco::TrackCollection::const_iterator iTrk = trks->begin();iTrk != trks->end();iTrk++) {
       GlobalVector dirVector((iTrk)->px(),(iTrk)->py(),(iTrk)->pz());
