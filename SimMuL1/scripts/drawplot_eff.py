@@ -287,8 +287,8 @@ def gemTurnOn(filesDir, plotDir, eff, oddEven, ext):
     pt_labels = ["10 GeV/c","20 GeV/c","30 GeV/c","40 GeV/c"]
     dphis = [0.,0.,0.,0.]
 
-    marker_colors = [kRed, kViolet+1, kAzure+1, kGreen-2]
-    marker_styles = [20,21,23,24]
+    marker_colors = [kRed, kViolet+1, kAzure+2, kGreen-2]
+    marker_styles = [20,21,23,22]
 
     t = getTree("%sgem_csc_eff_pt2pt50_pad4.root"%(filesDir));
 
@@ -296,12 +296,21 @@ def gemTurnOn(filesDir, plotDir, eff, oddEven, ext):
     c.SetGridx(1)
     c.SetGridy(1)
     c.cd()
-
-
-    h = TH1F("","         GEM-CSC bending Angle: p_{T} measurement, CMS Simulation;p_{T} [GeV/c];Efficiency",50,0.,50.)
+#    h = TH1F("","         GEM-CSC bending Angle: p_{T} measurement, CMS Simulation;p_{T} [GeV/c];",50,0.,50.)
+    h = TH1F("","          GEM-CSC bending Angle                         CMS Simulation;p_{T} [GeV/c];",50,0.,50.)
+    superscript = "p_{T}>p_{T}^{min}"
+    subscript = "0"
+    h.GetYaxis().SetTitle("    |#Delta#phi_{{}^{(GEM,CSC)}}|<|#Delta#phi_{%s}^{%s}| Cut Efficiency"%(subscript,superscript));
+    h.GetYaxis().SetTitleOffset(.9)
     h.SetStats(0)
-    h.Draw("")
 
+    ## label sizes more leglible
+    h.GetXaxis().SetLabelSize(.05)
+    h.GetXaxis().SetLabelOffset(.005)
+    h.GetYaxis().SetLabelSize(.05)
+    h.GetYaxis().SetLabelOffset(.005)
+
+    h.Draw("")
     histoList = []
     for i in range(len(pt)):
         dphi = getDphi("%s"%(eff),"%s"%(pt[i]),"%s"%(oddEven))
@@ -315,28 +324,25 @@ def gemTurnOn(filesDir, plotDir, eff, oddEven, ext):
             denom_cut = ok_pad1_lct1_eta
             closeFar = "Far"
 
-        h2 = draw_eff(t, "GEM-CSC bending angle: momentum measurement;p_{T} [GeV/c];Efficiency", "h2", "(50,0.,50.)", "pt", 
+        h2 = draw_eff(t, "", "h2", "(50,0.,50.)", "pt", 
                          denom_cut, ok_dphi, marker_colors[i], marker_styles[i])
-        ## Eff. for track with LCT to have matched GEM pad
         histoList.append(h2)
         h2.SetMarkerSize(1)
         h2.Draw("same")
         
     
     ## add legend
-    ##    leg_header =  "    #Delta#phi(GEM,CSC) is %s%% efficient for"%(eff)
-    ##    leg.AddEntry(0, "%s chambers at pt"%(oddEven), "")
-    leg = TLegend(0.37,0.15,.93,0.6, "", "brNDC")
-    leg_header =  "    "
-    leg.AddEntry(0, 'High efficiency patterns:', "")
+    leg = TLegend(0.52,0.15,.93,0.57, "High efficiency patterns:", "brNDC")
     for n in range(len(pt)):
-        leg.AddEntry(histoList[n], "|#Delta#Phi_{(GEM,CSC)}|<%.4f (p_{T}^{th}>%s)"%(dphis[n],pt_labels[n]), "p")
+        superscript = "p_{T}>%s"%(pt_labels[n])
+        subscript = "0"
+        leg.AddEntry(histoList[n], "#Delta#phi_{%s}^{%s} = %.4f rad"%(subscript,superscript,dphis[n]), "p")
+
     leg.SetBorderSize(0)
     leg.SetMargin(0.1)
     leg.SetFillStyle(0)
     leg.SetFillStyle(1001)
     leg.SetFillColor(kWhite)
-    leg.SetHeader(leg_header)
     leg.SetTextSize(0.05)
     leg.Draw("same")
 
@@ -1031,8 +1037,8 @@ if __name__ == "__main__":
     etaMatchingEfficiencies("files/", "plots/efficiency/", ".png")
     """
     gemTurnOns("files/", "plots/efficiency/", ".pdf")
-    gemTurnOns("files/", "plots/efficiency/", ".eps")    
-    gemTurnOns("files/", "plots/efficiency/", ".png")
+#    gemTurnOns("files/", "plots/efficiency/", ".eps")    
+#    gemTurnOns("files/", "plots/efficiency/", ".png")
     """
     eff_hs("files/", "plots/efficiency/", ".pdf")
     eff_hs("files/", "plots/efficiency/", ".eps")    
