@@ -48,11 +48,14 @@ hcalDigitizer = cms.PSet(
     accumulatorType = cms.string("HcalDigiProducer"),
     makeDigiSimLinks = cms.untracked.bool(False))
 
+from FastSimulation.Tracking.recoTrackAccumulator_cfi import *
+
 from FastSimulation.Configuration.mixFastSimObjects_cfi import *
 
 mixSimCaloHits = cms.EDProducer("MixingModule",
                                 digitizers = cms.PSet(ecal = cms.PSet(ecalDigitizer),
-                                                      hcal = cms.PSet(hcalDigitizer)),
+                                                      hcal = cms.PSet(hcalDigitizer),
+                                                      tracker = cms.PSet(trackAccumulator)),
                                 LabelPlayback = cms.string(''),
                                 maxBunch = cms.int32(0),
                                 minBunch = cms.int32(0),
