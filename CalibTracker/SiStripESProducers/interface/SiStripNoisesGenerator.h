@@ -15,11 +15,11 @@ class SiStripNoisesGenerator : public SiStripCondObjBuilderBase<SiStripNoises> {
   explicit SiStripNoisesGenerator(const edm::ParameterSet&,const edm::ActivityRegistry&);
   ~SiStripNoisesGenerator();
   
-  void getObj(SiStripNoises* & obj){createObject(); obj=obj_;}
+  void getObj(SiStripNoises* & obj){obj=createObject();}
 
  private:
 
-  void createObject();
+  SiStripNoises*  createObject();
   /// Given the map and the detid it returns the corresponding layer/ring
   std::pair<int, int> subDetAndLayer(const uint32_t detit) const;
   /// Fills the parameters read from cfg and matching the name in the given map

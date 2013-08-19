@@ -47,9 +47,9 @@ void SiStripLorentzAngleGenerator::setUniform(const std::vector<double> & estima
   }
 }
 
-void SiStripLorentzAngleGenerator::createObject()
+SiStripLorentzAngle* SiStripLorentzAngleGenerator::createObject()
 {
-  obj_ = new SiStripLorentzAngle();
+  SiStripLorentzAngle* obj = new SiStripLorentzAngle();
 
   edm::FileInPath fp_                 = _pset.getParameter<edm::FileInPath>("file");
 
@@ -125,8 +125,10 @@ void SiStripLorentzAngleGenerator::createObject()
       }
     }
       
-    if ( ! obj_->putLorentzAngle(*detit, hallMobility_) ) {
+    if ( ! obj->putLorentzAngle(*detit, hallMobility_) ) {
       edm::LogError("SiStripLorentzAngleGenerator")<<" detid already exists"<<std::endl;
     }
   }
+  return obj;
 }
+

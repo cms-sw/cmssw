@@ -19,11 +19,11 @@ class SiStripApvGainGenerator : public SiStripCondObjBuilderBase<SiStripApvGain>
   explicit SiStripApvGainGenerator(const edm::ParameterSet&,const edm::ActivityRegistry&);
   ~SiStripApvGainGenerator();
   
-  void getObj(SiStripApvGain* & obj){createObject(); obj=obj_;}
+  void getObj(SiStripApvGain* & obj){obj=createObject();}
 
  private:
   
-  void createObject();
+  SiStripApvGain* createObject();
 
   
 };

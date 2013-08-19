@@ -13,11 +13,11 @@ class SiStripPedestalsGenerator : public SiStripCondObjBuilderBase<SiStripPedest
   explicit SiStripPedestalsGenerator(const edm::ParameterSet&,const edm::ActivityRegistry&);
   ~SiStripPedestalsGenerator();
   
-  void getObj(SiStripPedestals* & obj){createObject(); obj=obj_;}
+  void getObj(SiStripPedestals* & obj){obj=createObject();}
 
  private:
   
-  void createObject();
+  SiStripPedestals* createObject();
 
   
 };
