@@ -5,6 +5,7 @@
 
 #include <cassert>
 #include <vector>
+#include<algorithm>
 
 // Class that implements the KDTree partition of 2D space and 
 // a closest point search algorithme.
@@ -103,36 +104,17 @@ KDTreeLinkerAlgo<DATA>::medianSearch(int	low,
   int nbrElts = high - low;
   int median = (nbrElts & 1)	? nbrElts / 2 
 				: nbrElts / 2 - 1;
+
   median += low;
 
-  int l = low;
-  int m = high - 1;
-  
-  while (l < m) {
-    KDTreeNodeInfo<DATA> elt = (*initialEltList)[median];
-    int i = l;
-    int j = m;
+  // The even depth is associated to dim1 dimension
+  // The odd one to dim2 dimension
+  int dimIndex = treeDepth&1;
 
-    do {
-      // The even depth is associated to dim1 dimension
-      // The odd one to dim2 dimension
-      if (treeDepth & 1) {
-	while ((*initialEltList)[i].dim[1] < elt.dim[1]) i++;
-	while ((*initialEltList)[j].dim[1] > elt.dim[1]) j--;
-      } else {
-	while ((*initialEltList)[i].dim[0] < elt.dim[0]) i++;
-	while ((*initialEltList)[j].dim[0] > elt.dim[0]) j--;
-      }
-
-      if (i <= j){
-	std::swap((*initialEltList)[i], (*initialEltList)[j]);
-	i++; 
-	j--;
-      }
-    } while (i <= j);
-    if (j < median) l = i;
-    if (i > median) m = j;
-  }
+  auto beg = initialEltList->begin();
+  std::nth_element(beg+low, beg+median, beg+high, [=](const KDTreeNodeInfo<DATA>& a, const KDTreeNodeInfo<DATA>& b) {
+      return a.dim[dimIndex] < b.dim[dimIndex];
+    });
 
   return median;
 }
