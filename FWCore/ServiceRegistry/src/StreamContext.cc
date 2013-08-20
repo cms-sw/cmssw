@@ -1,4 +1,5 @@
 #include "FWCore/ServiceRegistry/interface/StreamContext.h"
+#include "FWCore/ServiceRegistry/interface/ProcessContext.h"
 
 #include <ostream>
 

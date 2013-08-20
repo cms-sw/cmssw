@@ -19,6 +19,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/ParameterSet/interface/Registry.h"
+#include "FWCore/ServiceRegistry/interface/PathContext.h"
 #include "FWCore/Utilities/interface/Algorithms.h"
 #include "FWCore/Utilities/interface/ConvertException.h"
 #include "FWCore/Utilities/interface/ExceptionCollector.h"
@@ -295,7 +296,6 @@ namespace edm {
     trig_name_list_(tns.getTrigPaths()),
     end_path_name_list_(tns.getEndPaths()),
     results_(new HLTGlobalStatus(trig_name_list_.size())),
-    endpath_results_(), // delay!
     results_inserter_(),
     all_output_communicators_(),
     trig_paths_(),
@@ -312,12 +312,10 @@ namespace edm {
     bool hasPath = false;
 
     int trig_bitpos = 0;
+    trig_paths_.reserve(trig_name_list_.size());
     vstring labelsOnTriggerPaths;
-    for (vstring::const_iterator i = trig_name_list_.begin(),
-           e = trig_name_list_.end();
-         i != e;
-         ++i) {
-      fillTrigPath(proc_pset, preg, processConfiguration, trig_bitpos, *i, results_, &labelsOnTriggerPaths);
+    for(auto const& trig_name : trig_name_list_) {
+      fillTrigPath(proc_pset, preg, processConfiguration, trig_bitpos, trig_name, results_, &labelsOnTriggerPaths);
       ++trig_bitpos;
       hasPath = true;
     }
@@ -330,13 +328,12 @@ namespace edm {
       addToAllWorkers(results_inserter_.get());
     }
 
-    TrigResPtr epptr(new HLTGlobalStatus(end_path_name_list_.size()));
-    endpath_results_ = epptr;
-
     // fill normal endpaths
-    vstring::iterator eib(end_path_name_list_.begin()), eie(end_path_name_list_.end());
-    for (int bitpos = 0; eib != eie; ++eib, ++bitpos) {
-      fillEndPath(proc_pset, preg, processConfiguration, bitpos, *eib);
+    int bitpos = 0;
+    end_paths_.reserve(end_path_name_list_.size());
+    for(auto const& end_path_name : end_path_name_list_) {
+      fillEndPath(proc_pset, preg, processConfiguration, bitpos, end_path_name);
+      ++bitpos;
     }
 
     //See if all modules were used
@@ -768,6 +765,7 @@ namespace edm {
     vstring modnames = proc_pset.getParameter<vstring>(name);
     PathWorkers tmpworkers;
 
+    unsigned int placeInPath = 0;
     for (auto const& name : modnames) {
 
       if (labelsOnPaths) labelsOnPaths->push_back(name);
@@ -808,7 +806,8 @@ namespace edm {
             << "or explicitly ignore it in the configuration by using cms.ignore().\n";
         }
       }
-      tmpworkers.emplace_back(worker, filterAction);
+      tmpworkers.emplace_back(worker, filterAction, placeInPath);
+      ++placeInPath;
     }
 
     out.swap(tmpworkers);
@@ -830,11 +829,10 @@ namespace edm {
 
     // an empty path will cause an extra bit that is not used
     if (!tmpworkers.empty()) {
-      Path p(bitpos, name, tmpworkers, trptr, actionTable(), actReg_, false, &streamContext_);
+      trig_paths_.emplace_back(bitpos, name, tmpworkers, trptr, actionTable(), actReg_, &streamContext_, PathContext::PathType::kPath);
       if (wantSummary_) {
-        p.useStopwatch();
+        trig_paths_.back().useStopwatch();
       }
-      trig_paths_.push_back(p);
     } else {
       empty_trig_paths_.push_back(bitpos);
       empty_trig_path_names_.push_back(name);
@@ -855,11 +853,10 @@ namespace edm {
     }
 
     if (!tmpworkers.empty()) {
-      Path p(bitpos, name, tmpworkers, endpath_results_, actionTable(), actReg_, true, &streamContext_);
+      end_paths_.emplace_back(bitpos, name, tmpworkers, TrigResPtr(), actionTable(), actReg_, &streamContext_, PathContext::PathType::kEndPath);
       if (wantSummary_) {
-        p.useStopwatch();
+        end_paths_.back().useStopwatch();
       }
-      end_paths_.push_back(p);
     }
     for_all(holder, boost::bind(&Schedule::addToAllWorkers, this, _1));
   }
@@ -1405,7 +1402,6 @@ namespace edm {
   void
   Schedule::resetAll() {
     results_->reset();
-    endpath_results_->reset();
   }
 
   void

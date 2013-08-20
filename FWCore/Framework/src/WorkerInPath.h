@@ -13,21 +13,23 @@
 
 #include "FWCore/Framework/src/Worker.h"
 #include "FWCore/Framework/src/RunStopwatch.h"
+#include "FWCore/ServiceRegistry/interface/ParentContext.h"
+#include "FWCore/ServiceRegistry/interface/PlaceInPathContext.h"
 
 namespace edm {
+
+  class PathContext;
   class StreamID;
 
   class WorkerInPath {
   public:
     enum FilterAction { Normal=0, Ignore, Veto };
 
-    explicit WorkerInPath(Worker*);
-    WorkerInPath(Worker*, FilterAction theAction);
+    WorkerInPath(Worker*, FilterAction theAction, unsigned int placeInPath);
 
     template <typename T>
     bool runWorker(typename T::MyPrincipal&, EventSetup const&,
 		   CurrentProcessingContext const* cpc, StreamID streamID,
-                   ParentContext const& parentContext,
                    typename T::Context const* context);
 
     std::pair<double,double> timeCpuReal() const {
@@ -50,6 +52,8 @@ namespace edm {
     FilterAction filterAction() const { return filterAction_; }
     Worker* getWorker() const { return worker_; }
 
+    void setPathContext(PathContext const* v) { placeInPathContext_.setPathContext(v); }
+
   private:
     RunStopwatch::StopwatchPointer stopwatch_;
 
@@ -60,12 +64,13 @@ namespace edm {
     
     FilterAction filterAction_;
     Worker* worker_;
+
+    PlaceInPathContext placeInPathContext_;
   };
 
   template <typename T>
   bool WorkerInPath::runWorker(typename T::MyPrincipal & ep, EventSetup const & es,
                                CurrentProcessingContext const* cpc, StreamID streamID,
-                               ParentContext const& parentContext,
                                typename T::Context const* context) {
 
     if (T::isEvent_) {
@@ -77,8 +82,13 @@ namespace edm {
 	// may want to change the return value from the worker to be 
 	// the Worker::FilterAction so conditions in the path will be easier to 
 	// identify
-	rc = worker_->doWork<T>(ep, es, cpc,stopwatch_.get(),streamID, parentContext, context);
-
+        if(T::isEvent_) {
+          ParentContext parentContext(&placeInPathContext_);          
+          rc = worker_->doWork<T>(ep, es, cpc,stopwatch_.get(),streamID, parentContext, context);
+        } else {
+          ParentContext parentContext(context);
+          rc = worker_->doWork<T>(ep, es, cpc,stopwatch_.get(),streamID, parentContext, context);
+        }
         // Ignore return code for non-event (e.g. run, lumi) calls
 	if (!T::isEvent_) rc = true;
 	else if (filterAction_ == Veto) rc = !rc;

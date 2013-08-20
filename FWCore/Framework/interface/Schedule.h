@@ -325,7 +325,6 @@ namespace edm {
     vstring                  end_path_name_list_;
 
     TrigResPtr               results_;
-    TrigResPtr               endpath_results_;
 
     WorkerPtr                results_inserter_;
     AllOutputModuleCommunicators         all_output_communicators_;
