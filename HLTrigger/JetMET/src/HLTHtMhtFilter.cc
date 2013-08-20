@@ -36,8 +36,8 @@ HLTHtMhtFilter::HLTHtMhtFilter(const edm::ParameterSet & iConfig) : HLTFilter(iC
 
   moduleLabel_ = iConfig.getParameter<std::string>("@module_label");
   for(unsigned int i=0;i<nOrs_;++i) {
-    m_theHtToken[i] = consumes<std::vector<reco::MET>>(htLabels_[i]);
-    m_theMhtToken[i] = consumes<std::vector<reco::MET>>(mhtLabels_[i]);
+    m_theHtToken.push_back(consumes<std::vector<reco::MET>>(htLabels_[i]));
+    m_theMhtToken.push_back(consumes<std::vector<reco::MET>>(mhtLabels_[i]));
   }
   produces<reco::METCollection>();
 }
