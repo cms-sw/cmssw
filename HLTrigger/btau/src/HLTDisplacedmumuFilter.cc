@@ -25,7 +25,9 @@
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "DataFormats/GeometryCommonDetAlgo/interface/GlobalError.h"
 
-#include "HLTDisplacedmumuFilter.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+
+#include "HLTrigger/btau/src/HLTDisplacedmumuFilter.h"
 #include "TMath.h"
 
 //
@@ -35,13 +37,16 @@ HLTDisplacedmumuFilter::HLTDisplacedmumuFilter(const edm::ParameterSet& iConfig)
   HLTFilter(iConfig),
   fastAccept_ (iConfig.getParameter<bool>("FastAccept")),
   minLxySignificance_ (iConfig.getParameter<double>("MinLxySignificance")),
-  maxLxySignificance_ (iConfig.existsAs<double>("MaxLxySignificance") ? iConfig.getParameter<double>("MaxLxySignificance") : -1. ),
+  maxLxySignificance_ (iConfig.getParameter<double>("MaxLxySignificance")),
   maxNormalisedChi2_ (iConfig.getParameter<double>("MaxNormalisedChi2")), 
   minVtxProbability_ (iConfig.getParameter<double>("MinVtxProbability")),
   minCosinePointingAngle_ (iConfig.getParameter<double>("MinCosinePointingAngle")),
   DisplacedVertexTag_(iConfig.getParameter<edm::InputTag>("DisplacedVertexTag")),
+  DisplacedVertexToken_(consumes<reco::VertexCollection>(DisplacedVertexTag_)),
   beamSpotTag_ (iConfig.getParameter<edm::InputTag> ("BeamSpotTag")),
-  MuonTag_ (iConfig.getParameter<edm::InputTag>("MuonTag"))
+  beamSpotToken_(consumes<reco::BeamSpot>(beamSpotTag_)),
+  MuonTag_ (iConfig.getParameter<edm::InputTag>("MuonTag")),
+  MuonToken_(consumes<reco::RecoChargedCandidateCollection>(MuonTag_))
 {
 }
 
@@ -51,6 +56,20 @@ HLTDisplacedmumuFilter::~HLTDisplacedmumuFilter()
 
 }
 
+void HLTDisplacedmumuFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  makeHLTFilterDescription(desc);
+  desc.add<bool>("FastAccept",false);
+  desc.add<double>("MinLxySignificance",0.0);
+  desc.add<double>("MaxLxySignificance",0.0);
+  desc.add<double>("MaxNormalisedChi2",10.0);
+  desc.add<double>("MinVtxProbability",0.0);
+  desc.add<double>("MinCosinePointingAngle",-2.0);
+  desc.add<edm::InputTag>("DisplacedVertexTag",edm::InputTag("hltDisplacedmumuVtx"));
+  desc.add<edm::InputTag>("BeamSpotTag",edm::InputTag("hltOnlineBeamSpot"));
+  desc.add<edm::InputTag>("MuonTag",edm::InputTag("hltL3MuonCandidates"));
+  descriptions.add("hltDisplacedmumuFilter", desc);
+ }
 
 // ------------ method called once each job just before starting event loop  ------------
 void HLTDisplacedmumuFilter::beginJob()
@@ -72,20 +91,20 @@ bool HLTDisplacedmumuFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup
   // get beam spot
   reco::BeamSpot vertexBeamSpot;
   edm::Handle<reco::BeamSpot> recoBeamSpotHandle;
-  iEvent.getByLabel(beamSpotTag_,recoBeamSpotHandle);
+  iEvent.getByToken(beamSpotToken_,recoBeamSpotHandle);
   vertexBeamSpot = *recoBeamSpotHandle;
  
   
   // get displaced vertices
   reco::VertexCollection displacedVertexColl;
   edm::Handle<reco::VertexCollection> displacedVertexCollHandle;
-  bool foundVertexColl = iEvent.getByLabel(DisplacedVertexTag_, displacedVertexCollHandle);
+  bool foundVertexColl = iEvent.getByToken(DisplacedVertexToken_, displacedVertexCollHandle);
   if(foundVertexColl) displacedVertexColl = *displacedVertexCollHandle;
   
  
   // get muon collection
   edm::Handle<reco::RecoChargedCandidateCollection> mucands;
-  iEvent.getByLabel (MuonTag_,mucands);
+  iEvent.getByToken(MuonToken_,mucands);
  
   // All HLT filters must create and fill an HLT filter object,
   // recording any reconstructed physics objects satisfying (or not)
