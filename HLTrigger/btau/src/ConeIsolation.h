@@ -19,22 +19,25 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "HLTrigger/btau/src/ConeIsolationAlgorithm.h"
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
 
 
 class ConeIsolation : public edm::EDProducer {
    public:
       explicit ConeIsolation(const edm::ParameterSet&);
       ~ConeIsolation();
-
-
+      static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
       virtual void produce(edm::Event&, const edm::EventSetup&);
- private:
-      ConeIsolationAlgorithm* m_algo;
-      edm::InputTag jetTrackSrc;
-      edm::InputTag vertexSrc;
-      bool usingVertex;
-      edm::InputTag beamSpotProducer;
+
+   private:
+      edm::InputTag                                          jetTrackTag;
+      edm::EDGetTokenT<reco::JetTracksAssociationCollection> jetTrackToken;
+      edm::InputTag                                          vertexTag;
+      edm::EDGetTokenT<reco::VertexCollection>               vertexToken;
+      edm::InputTag                                          beamSpotTag;
+      edm::EDGetTokenT<reco::BeamSpot>                       beamSpotToken;
       bool usingBeamSpot;
+      ConeIsolationAlgorithm* m_algo;
 };
 #endif
 

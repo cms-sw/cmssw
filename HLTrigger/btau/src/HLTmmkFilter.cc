@@ -4,6 +4,7 @@
 
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 
 #include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
 #include "DataFormats/RecoCandidate/interface/RecoChargedCandidate.h"
@@ -24,7 +25,7 @@
 
 #include "DataFormats/Math/interface/deltaPhi.h"
 
-#include "HLTmmkFilter.h"
+#include "HLTrigger/btau/src/HLTmmkFilter.h"
 
 using namespace edm;
 using namespace reco;
@@ -34,6 +35,8 @@ using namespace trigger;
 
 // ----------------------------------------------------------------------
 HLTmmkFilter::HLTmmkFilter(const edm::ParameterSet& iConfig) : HLTFilter(iConfig),
+  muCandTag_  (iConfig.getParameter<edm::InputTag>("MuCand")),
+  trkCandTag_  (iConfig.getParameter<edm::InputTag>("TrackCand")),
   thirdTrackMass_(iConfig.getParameter<double>("ThirdTrackMass")),
   maxEta_(iConfig.getParameter<double>("MaxEta")),
   minPt_(iConfig.getParameter<double>("MinPt")),
@@ -46,9 +49,6 @@ HLTmmkFilter::HLTmmkFilter(const edm::ParameterSet& iConfig) : HLTFilter(iConfig
   fastAccept_(iConfig.getParameter<bool>("FastAccept")),
   beamSpotTag_ (iConfig.getParameter<edm::InputTag> ("BeamSpotTag"))
 {
-  muCandLabel_   = iConfig.getParameter<edm::InputTag>("MuCand");
-  trkCandLabel_  = iConfig.getParameter<edm::InputTag>("TrackCand");
-  
   produces<VertexCollection>();
   produces<CandidateCollection>();
 }
@@ -59,6 +59,25 @@ HLTmmkFilter::~HLTmmkFilter() {
 
 }
 
+void
+HLTmmkFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  makeHLTFilterDescription(desc);
+  desc.add<edm::InputTag>("MuCand",edm::InputTag("hltMuTracks"));
+  desc.add<edm::InputTag>("TrackCand",edm::InputTag("hltMumukAllConeTracks"));
+  desc.add<double>("ThirdTrackMass",0.106);
+  desc.add<double>("MaxEta",2.5);
+  desc.add<double>("MinPt",3.0);
+  desc.add<double>("MinInvMass",1.2);
+  desc.add<double>("MaxInvMass",2.2);
+  desc.add<double>("MaxNormalisedChi2",10.0);
+  desc.add<double>("MinLxySignificance",3.0);
+  desc.add<double>("MinCosinePointingAngle",0.9);
+  desc.add<double>("MinD0Significance",0.0);
+  desc.add<bool>("FastAccept",false);
+  desc.add<edm::InputTag>("BeamSpotTag",edm::InputTag("hltOfflineBeamSpot"));
+  descriptions.add("hltmmkFilter",desc);
+}
 
 // ----------------------------------------------------------------------
 void HLTmmkFilter::beginJob() {
@@ -89,7 +108,7 @@ bool HLTmmkFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, 
 
   //get the beamspot position
   edm::Handle<reco::BeamSpot> recoBeamSpotHandle;
-  iEvent.getByLabel(beamSpotTag_,recoBeamSpotHandle);
+  iEvent.getByToken(beamSpotToken_,recoBeamSpotHandle);
   const reco::BeamSpot& vertexBeamSpot = *recoBeamSpotHandle;
 
   ESHandle<MagneticField> bFieldHandle;
@@ -106,15 +125,15 @@ bool HLTmmkFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, 
 	
   // get hold of muon trks
   Handle<RecoChargedCandidateCollection> mucands;
-  iEvent.getByLabel (muCandLabel_,mucands);
+  iEvent.getByToken(muCandToken_,mucands);
 
   // get track candidates around displaced muons
   Handle<RecoChargedCandidateCollection> trkcands;
-  iEvent.getByLabel (trkCandLabel_,trkcands);
+  iEvent.getByToken(trkCandToken_,trkcands);
   
   if (saveTags()) {
-    filterproduct.addCollectionTag(muCandLabel_);
-    filterproduct.addCollectionTag(trkCandLabel_);
+    filterproduct.addCollectionTag(muCandTag_);
+    filterproduct.addCollectionTag(trkCandTag_);
   }
   
   double e1,e2,e3;

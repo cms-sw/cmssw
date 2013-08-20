@@ -42,7 +42,8 @@ class HLTCollectionProducer : public edm::EDProducer {
     virtual void produce(edm::Event&, const edm::EventSetup&);
   
   private:
-    edm::InputTag    hltObject_;
+    edm::InputTag                                          hltObjectTag_;
+    edm::EDGetTokenT<trigger::TriggerFilterObjectWithRefs> hltObjectToken_;
     std::vector<int> triggerTypes_;
 };
 
@@ -52,7 +53,8 @@ class HLTCollectionProducer : public edm::EDProducer {
 //
 template <typename T>
 HLTCollectionProducer<T>::HLTCollectionProducer(const edm::ParameterSet& iConfig) :
-  hltObject_    ( iConfig.getParameter<edm::InputTag>("HLTObject") ),
+  hltObjectTag_ ( iConfig.getParameter<edm::InputTag>("HLTObject") ),
+  hltObjectToken_(consumes<trigger::TriggerFilterObjectWithRefs>(hltObjectTag_)),
   triggerTypes_ ( iConfig.getParameter<std::vector<int> >("TriggerTypes") )
 {
   produces< std::vector<T> >();
@@ -85,7 +87,7 @@ HLTCollectionProducer<T>::produce(edm::Event& iEvent, const edm::EventSetup& iSe
 
   // get hold of collection of TriggerFilterObjectsWithRefs
   edm::Handle<trigger::TriggerFilterObjectWithRefs> hltObject;
-  iEvent.getByLabel(hltObject_, hltObject);
+  iEvent.getByToken(hltObjectToken_, hltObject);
   std::vector<edm::Ref<std::vector<T> > > objectRefs;
 
   for (size_t t=0; t<triggerTypes_.size(); ++t) {
