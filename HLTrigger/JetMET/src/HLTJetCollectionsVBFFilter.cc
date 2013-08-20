@@ -41,7 +41,8 @@ HLTJetCollectionsVBFFilter<T>::HLTJetCollectionsVBFFilter(const edm::ParameterSe
    minNJets_(iConfig.getParameter<unsigned int> ("MinNJets")),
    triggerType_(iConfig.getParameter<int> ("TriggerType"))
 {
-  m_theJetToken = consumes<std::vector<T>>(inputTag_);
+  typedef std::vector<edm::RefVector<std::vector<T>,T,edm::refhelper::FindUsingAdvance<std::vector<T>,T> > > TCollectionVector;
+  m_theJetToken = consumes<TCollectionVector>(inputTag_);
 }
 
 template <typename T>

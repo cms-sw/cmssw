@@ -29,6 +29,7 @@ class HLTRHemisphere : public edm::EDFilter {
 
    public:
 
+
       explicit HLTRHemisphere(const edm::ParameterSet&);
       ~HLTRHemisphere();
       static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
@@ -36,7 +37,7 @@ class HLTRHemisphere : public edm::EDFilter {
 
    private:
       edm::EDGetTokenT<edm::View<reco::Jet>> m_theJetToken;
-      edm::EDGetTokenT<reco::RecoChargedCandidate> m_theMuonToken;
+      edm::EDGetTokenT<std::vector<reco::RecoChargedCandidate>> m_theMuonToken;
       edm::InputTag inputTag_; // input tag identifying product
       edm::InputTag muonTag_;  // input tag for the muon objects 
       bool doMuonCorrection_;   // do the muon corrections

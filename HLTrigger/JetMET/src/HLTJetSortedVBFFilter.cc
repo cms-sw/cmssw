@@ -17,6 +17,7 @@
 #include "DataFormats/Math/interface/deltaPhi.h"
 #include "DataFormats/Common/interface/RefToBase.h"
 #include "HLTrigger/JetMET/interface/HLTJetSortedVBFFilter.h"
+
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
@@ -43,7 +44,7 @@ HLTJetSortedVBFFilter<T>::HLTJetSortedVBFFilter(const edm::ParameterSet& iConfig
  ,triggerType_ (iConfig.getParameter<int>          ("triggerType" ))
 {
   m_theJetsToken = consumes<std::vector<T>>(inputJets_);
-  m_theJetTagsToken = consumes<std::vector<T>>(inputJetTags_);
+  m_theJetTagsToken = consumes<reco::JetTagCollection>(inputJetTags_);
 }
 
 

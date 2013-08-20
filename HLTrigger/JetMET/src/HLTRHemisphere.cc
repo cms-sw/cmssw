@@ -44,7 +44,7 @@ HLTRHemisphere::HLTRHemisphere(const edm::ParameterSet& iConfig) :
 		<< accNJJets_ << ".";
 
    m_theJetToken = consumes<edm::View<reco::Jet>>(inputTag_);
-   m_theMuonToken = consumes<reco::RecoChargedCandidate>(muonTag_);
+   m_theMuonToken = consumes<std::vector<reco::RecoChargedCandidate>>(muonTag_);
    //register your products
    produces<std::vector<math::XYZTLorentzVector> >();
 }

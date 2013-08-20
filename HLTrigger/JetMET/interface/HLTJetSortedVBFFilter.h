@@ -47,7 +47,7 @@ class HLTJetSortedVBFFilter : public HLTFilter {
       
  private:
   edm::EDGetTokenT<std::vector<T>> m_theJetsToken;
-  edm::EDGetTokenT<std::vector<T>> m_theJetTagsToken;
+  edm::EDGetTokenT<reco::JetTagCollection> m_theJetTagsToken;
   edm::InputTag inputJets_; 
   edm::InputTag inputJetTags_; 
   double mqq_;           
