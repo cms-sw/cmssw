@@ -53,6 +53,12 @@ FWItemValueGetter::FWItemValueGetter(const Reflex::Type& iType, const std::strin
       addEntry("y0", 2, "y", "cm");
       addEntry("z0", 2, "z", "cm");
    }
+   else if (strstr(iPurpose.c_str(), "Vertices") )
+   {
+      addEntry("x", 2, "x", "cm");
+      addEntry("y", 2, "y", "cm");
+      addEntry("z", 2, "z", "cm");
+   }
    else if (strstr(iPurpose.c_str(), "Conversion") )
    {
       addEntry("pairMomentum().rho()", 1, "pt", "GeV" );
