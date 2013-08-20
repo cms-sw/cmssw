@@ -9,9 +9,6 @@
 #include "DataFormats/JetReco/interface/CaloJet.h"
 #include "DataFormats/JetReco/interface/CaloJetCollection.h"
 
-#include "DataFormats/METReco/interface/CaloMET.h"
-#include "DataFormats/METReco/interface/CaloMETCollection.h"
-
 #include "DataFormats/MuonReco/interface/Muon.h"
 
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -20,9 +17,6 @@
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/Utilities/interface/InputTag.h"
-
-#include "TVector3.h"
-#include "TLorentzVector.h"
 
 #include "HLTrigger/JetMET/interface/HLTRFilter.h"
 
@@ -43,6 +37,8 @@ HLTRFilter::HLTRFilter(const edm::ParameterSet& iConfig) :
   
 
 {
+   m_theInputToken = consumes<std::vector<math::XYZTLorentzVector>>(inputTag_);
+   m_theMETToken = consumes<reco::CaloMETCollection>(inputMetTag_);
    LogDebug("") << "Inputs/minR/minMR/doRPrime/acceptNJ/R2Offset/MROffset/RMRCut : "
 		<< inputTag_.encode() << " "
 		<< inputMetTag_.encode() << " "
@@ -89,11 +85,11 @@ HLTRFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
    // get hold of collection of objects
    Handle< vector<math::XYZTLorentzVector> > hemispheres;
-   iEvent.getByLabel (inputTag_,hemispheres);
+   iEvent.getByToken (m_theInputToken,hemispheres);
 
    // get hold of the MET Collection
    Handle<CaloMETCollection> inputMet;
-   iEvent.getByLabel(inputMetTag_,inputMet);  
+   iEvent.getByToken(m_theMETToken,inputMet);
 
    // check the the input collections are available
    if (not hemispheres.isValid() or not inputMet.isValid())

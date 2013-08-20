@@ -9,16 +9,15 @@
 
 #include "DataFormats/Common/interface/Handle.h"
 
-#include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
-
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "DataFormats/JetReco/interface/CaloJetCollection.h"
 #include "DataFormats/METReco/interface/CaloMET.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 //
 // constructors and destructor
@@ -31,10 +30,21 @@ HLTPhi2METFilter::HLTPhi2METFilter(const edm::ParameterSet& iConfig) : HLTFilter
    maxDPhi_   = iConfig.getParameter<double> ("maxDeltaPhi");
    minEtjet1_= iConfig.getParameter<double> ("minEtJet1"); 
    minEtjet2_= iConfig.getParameter<double> ("minEtJet2"); 
+   m_theJetToken = consumes<reco::CaloJetCollection>(inputJetTag_);
+   m_theMETToken = consumes<trigger::TriggerFilterObjectWithRefs>(inputMETTag_);
 }
 
 HLTPhi2METFilter::~HLTPhi2METFilter(){}
 
+void HLTPhi2METFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<edm::InputTag>("inputJetTag",edm::InputTag("iterativeCone5CaloJets"));
+  desc.add<edm::InputTag>("inputMETTag",edm::InputTag("hlt1MET60"));
+  desc.add<bool>("saveTags",false);
+  desc.add<double>("minDeltaPhi",0.377);
+  desc.add<double>("minEtJet2",60.);
+  descriptions.add("hltPhi2METFilter",desc);
+}
 
 // ------------ method called to produce the data  ------------
 bool
@@ -52,9 +62,9 @@ HLTPhi2METFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, t
   }
 
   Handle<CaloJetCollection> recocalojets;
-  iEvent.getByLabel(inputJetTag_,recocalojets);
+  iEvent.getByToken(m_theJetToken,recocalojets);
   Handle<trigger::TriggerFilterObjectWithRefs> metcal;
-  iEvent.getByLabel(inputMETTag_,metcal);
+  iEvent.getByToken(m_theMETToken,metcal);
 
   // look at all candidates,  check cuts and add to filter object
   int n(0);

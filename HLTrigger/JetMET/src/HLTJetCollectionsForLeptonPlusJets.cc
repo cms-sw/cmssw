@@ -6,14 +6,10 @@
 #include "DataFormats/EgammaCandidates/interface/Electron.h"
 #include "DataFormats/RecoCandidate/interface/RecoChargedCandidate.h"
 #include "DataFormats/RecoCandidate/interface/RecoChargedCandidateFwd.h"
-#include "DataFormats/JetReco/interface/CaloJetCollection.h"
-#include "DataFormats/JetReco/interface/PFJetCollection.h"
 
 #include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
 
 #include "DataFormats/Common/interface/Handle.h"
-
-#include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
 
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "DataFormats/Math/interface/deltaR.h"
@@ -30,6 +26,8 @@ HLTJetCollectionsForLeptonPlusJets<jetType>::HLTJetCollectionsForLeptonPlusJets(
   using namespace edm;
   using namespace std;
   typedef vector<RefVector<vector<jetType>,jetType,refhelper::FindUsingAdvance<vector<jetType>,jetType> > > JetCollectionVector;
+  m_theLeptonToken = consumes<trigger::TriggerFilterObjectWithRefs>(hltLeptonTag);
+  m_theJetToken = consumes<std::vector<jetType>>(sourceJetTag);
   produces<JetCollectionVector> ();
 }
 
@@ -71,7 +69,7 @@ HLTJetCollectionsForLeptonPlusJets<jetType>::produce(edm::Event& iEvent, const e
   typedef edm::Ref<JetCollection> JetRef;
 
   Handle<trigger::TriggerFilterObjectWithRefs> PrevFilterOutput;
-  iEvent.getByLabel(hltLeptonTag,PrevFilterOutput);
+  iEvent.getByToken(m_theLeptonToken,PrevFilterOutput);
  
   //its easier on the if statement flow if I try everything at once, shouldnt add to timing
   vector<Ref<reco::RecoEcalCandidateCollection> > clusCands;
@@ -84,7 +82,7 @@ HLTJetCollectionsForLeptonPlusJets<jetType>::produce(edm::Event& iEvent, const e
   PrevFilterOutput->getObjects(trigger::TriggerMuon,muonCands);
 
   Handle<JetCollection> theJetCollectionHandle;
-  iEvent.getByLabel(sourceJetTag, theJetCollectionHandle);
+  iEvent.getByToken(m_theJetToken, theJetCollectionHandle);
   
   const JetCollection & theJetCollection = *theJetCollectionHandle;
   

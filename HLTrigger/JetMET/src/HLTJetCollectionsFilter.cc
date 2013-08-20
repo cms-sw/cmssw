@@ -17,8 +17,6 @@
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Math/interface/deltaPhi.h"
-#include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
-#include "DataFormats/HLTReco/interface/TriggerTypeDefs.h"
 #include "HLTrigger/JetMET/interface/HLTJetCollectionsFilter.h"
 
 //
@@ -34,6 +32,8 @@ HLTJetCollectionsFilter<jetType>::HLTJetCollectionsFilter(const edm::ParameterSe
   minNJets_(iConfig.getParameter<unsigned int> ("MinNJets")),
   triggerType_(iConfig.getParameter<int> ("triggerType"))
 {
+  typedef std::vector<edm::RefVector<std::vector<jetType>,jetType,edm::refhelper::FindUsingAdvance<std::vector<jetType>,jetType> > > JetCollectionVector;
+  m_theJetToken = consumes<JetCollectionVector>(inputTag_);
 }
 
 template <typename jetType>
@@ -72,7 +72,8 @@ HLTJetCollectionsFilter<jetType>::hltFilter(edm::Event& iEvent, const edm::Event
   if (saveTags()) filterproduct.addCollectionTag(originalTag_);
 
   Handle < JetCollectionVector > theJetCollectionsHandle;
-  iEvent.getByLabel(inputTag_, theJetCollectionsHandle);
+  iEvent.getByToken(m_theJetToken, theJetCollectionsHandle);
+  //  iEvent.getByLabel(inputTag_, theJetCollectionsHandle);
   const JetCollectionVector & theJetCollections = *theJetCollectionsHandle;
 
   // filter decision

@@ -4,14 +4,10 @@
 
 #include "DataFormats/RecoCandidate/interface/RecoEcalCandidate.h"
 #include "DataFormats/EgammaCandidates/interface/Electron.h"
-#include "DataFormats/JetReco/interface/CaloJetCollection.h"
-#include "DataFormats/JetReco/interface/PFJetCollection.h"
 
 #include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
 
 #include "DataFormats/Common/interface/Handle.h"
-
-#include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
 
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "TVector3.h"
@@ -33,6 +29,8 @@ HLTJetCollectionsForElePlusJets<T>::HLTJetCollectionsForElePlusJets(const edm::P
   //minDeltaEta_(iConfig.getParameter< double > ("MinDeltaEta"))
 {
   typedef std::vector<edm::RefVector<std::vector<T>,T,edm::refhelper::FindUsingAdvance<std::vector<T>,T> > > TCollectionVector;
+  m_theElectronToken = consumes<trigger::TriggerFilterObjectWithRefs>(hltElectronTag);
+  m_theJetToken = consumes<std::vector<T>>(sourceJetTag);
   produces<TCollectionVector> ();
 }
 
@@ -81,7 +79,8 @@ HLTJetCollectionsForElePlusJets<T>::produce(edm::Event& iEvent, const edm::Event
   typedef std::vector<edm::RefVector<std::vector<T>,T,edm::refhelper::FindUsingAdvance<std::vector<T>,T> > > TCollectionVector;
   
   edm::Handle<trigger::TriggerFilterObjectWithRefs> PrevFilterOutput;
-  iEvent.getByLabel(hltElectronTag,PrevFilterOutput);
+  iEvent.getByToken(m_theElectronToken,PrevFilterOutput);
+  //  iEvent.getByLabel(hltElectronTag,PrevFilterOutput);
  
   //its easier on the if statement flow if I try everything at once, shouldnt add to timing
   std::vector<edm::Ref<reco::RecoEcalCandidateCollection> > clusCands;
@@ -112,8 +111,7 @@ HLTJetCollectionsForElePlusJets<T>::produce(edm::Event& iEvent, const edm::Event
   }
   
   edm::Handle<TCollection> theJetCollectionHandle;
-  iEvent.getByLabel(sourceJetTag, theJetCollectionHandle);
-  //const TCollection* theJetCollection = theJetCollectionHandle.product();
+  iEvent.getByToken(m_theJetToken, theJetCollectionHandle);
   
   const TCollection & theJetCollection = *theJetCollectionHandle;
   

@@ -13,9 +13,6 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "DataFormats/JetReco/interface/CaloJetCollection.h"
-#include "DataFormats/JetReco/interface/PFJetCollection.h"
-
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 
@@ -44,6 +41,7 @@ HLTJetCollectionsVBFFilter<T>::HLTJetCollectionsVBFFilter(const edm::ParameterSe
    minNJets_(iConfig.getParameter<unsigned int> ("MinNJets")),
    triggerType_(iConfig.getParameter<int> ("TriggerType"))
 {
+  m_theJetToken = consumes<std::vector<T>>(inputTag_);
 }
 
 template <typename T>
@@ -86,7 +84,7 @@ HLTJetCollectionsVBFFilter<T>::hltFilter(edm::Event& iEvent, const edm::EventSet
   if (saveTags()) filterproduct.addCollectionTag(originalTag_);
 
   Handle<TCollectionVector> theJetCollectionsHandle;
-  iEvent.getByLabel(inputTag_,theJetCollectionsHandle);
+  iEvent.getByToken(m_theJetToken, theJetCollectionsHandle);
   const TCollectionVector & theJetCollections = *theJetCollectionsHandle;
   // filter decision
   bool accept(false);

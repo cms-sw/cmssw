@@ -7,16 +7,6 @@
 
 #include "DataFormats/Common/interface/Ref.h"
 
-#include "DataFormats/Common/interface/View.h"
-#include "DataFormats/JetReco/interface/CaloJet.h"
-#include "DataFormats/JetReco/interface/CaloJetCollection.h"
-
-#include "DataFormats/METReco/interface/CaloMET.h"
-#include "DataFormats/METReco/interface/CaloMETCollection.h"
-
-#include "DataFormats/MuonReco/interface/Muon.h"
-#include "DataFormats/RecoCandidate/interface/RecoChargedCandidate.h"
-
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -26,6 +16,8 @@
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/Utilities/interface/InputTag.h"
+
+#include "DataFormats/RecoCandidate/interface/RecoChargedCandidate.h"
 
 #include "HLTrigger/JetMET/interface/HLTRHemisphere.h"
 
@@ -51,6 +43,8 @@ HLTRHemisphere::HLTRHemisphere(const edm::ParameterSet& iConfig) :
 		<< max_NJ_ << "/"
 		<< accNJJets_ << ".";
 
+   m_theJetToken = consumes<edm::View<reco::Jet>>(inputTag_);
+   m_theMuonToken = consumes<reco::RecoChargedCandidate>(muonTag_);
    //register your products
    produces<std::vector<math::XYZTLorentzVector> >();
 }
@@ -92,11 +86,11 @@ HLTRHemisphere::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    // get hold of collection of objects
    //   Handle<CaloJetCollection> jets;
    Handle<View<Jet> > jets;
-   iEvent.getByLabel (inputTag_,jets);
+   iEvent.getByToken (m_theJetToken,jets);
 
    // get hold of the muons, if necessary
    Handle<vector<reco::RecoChargedCandidate> > muons;
-   if(doMuonCorrection_) iEvent.getByLabel( muonTag_,muons );
+   if(doMuonCorrection_) iEvent.getByToken( m_theMuonToken,muons );
 
    // The output Collection
    std::auto_ptr<vector<math::XYZTLorentzVector> > Hemispheres(new vector<math::XYZTLorentzVector> );

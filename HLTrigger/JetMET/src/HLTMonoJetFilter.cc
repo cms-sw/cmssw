@@ -9,7 +9,6 @@
 
 #include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/Common/interface/Handle.h"
-#include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
 #include "DataFormats/Math/interface/deltaPhi.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -32,6 +31,7 @@ HLTMonoJetFilter<T>::HLTMonoJetFilter(const edm::ParameterSet& iConfig) : HLTFil
   maxDeltaPhi_    (iConfig.template getParameter<double> ("maxDeltaPhi")),
   triggerType_    (iConfig.template getParameter<int> ("triggerType"))
 {
+  m_theObjectToken = consumes<std::vector<T>>(inputJetTag_);
   LogDebug("") << "HLTMonoJetFilter: Input/maxPtSecondJet/maxDeltaPhi/triggerType : "
 	       << inputJetTag_.encode() << " "
 	       << maxPtSecondJet_ << " " 
@@ -77,7 +77,7 @@ HLTMonoJetFilter<T>::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup
 
   // get hold of collection of objects
   Handle<TCollection> objects;
-  iEvent.getByLabel (inputJetTag_,objects);
+  iEvent.getByToken (m_theObjectToken,objects);
 
   // look at all candidates,  check cuts and add to filter object
   int n(0);

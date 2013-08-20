@@ -11,9 +11,6 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "DataFormats/METReco/interface/METFwd.h"
-#include "DataFormats/METReco/interface/MET.h"
-#include "DataFormats/METReco/interface/METCollection.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/Utilities/interface/InputTag.h"
@@ -27,6 +24,7 @@ HLTMhtFilter::HLTMhtFilter(const edm::ParameterSet& iConfig) : HLTFilter(iConfig
 {
   inputMhtTag_ = iConfig.getParameter< edm::InputTag > ("inputMhtTag");
   minMht_      = iConfig.getParameter<double> ("minMht");
+  m_theMhtToken = consumes<reco::METCollection>(inputMhtTag_);
 }
 
 HLTMhtFilter::~HLTMhtFilter(){}
@@ -54,6 +52,7 @@ bool
   METRef ref;
   
   Handle<METCollection> recomhts;
+  iEvent.getByToken(m_theMhtToken,recomhts);
   iEvent.getByLabel(inputMhtTag_,recomhts);
 
   // look at all candidates,  check cuts and add to filter object
