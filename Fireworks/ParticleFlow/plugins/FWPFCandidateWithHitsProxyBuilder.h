@@ -21,6 +21,8 @@ public:
 
    virtual void scaleProduct(TEveElementList* parent, FWViewType::EType type, const FWViewContext* vc);
 
+   virtual void setItem(const FWEventItem* iItem);
+
    REGISTER_PROXYBUILDER_METHODS();
 
 private:

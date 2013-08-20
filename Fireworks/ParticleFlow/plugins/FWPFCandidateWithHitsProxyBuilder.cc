@@ -14,6 +14,7 @@
 #include "Fireworks/Core/interface/BuilderUtils.h"
 #include "Fireworks/Core/interface/fwLog.h"
 #include "Fireworks/Core/interface/FWViewEnergyScale.h"
+#include "Fireworks/Core/interface/FWProxyBuilderConfiguration.h"
 #include "Fireworks/ParticleFlow/interface/setTrackTypePF.h"
 
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
@@ -25,8 +26,7 @@
 
 namespace
 {
-   const static std::string cname("particleFlowRecHitHCALUpgrade");
-
+static std::string kRecHitCollectionName = "RecHitCollection";
 void  addLineToLineSet(TEveStraightLineSet* ls, const float* p, int i1, int i2)
 {
    i1 *= 3;
@@ -78,6 +78,18 @@ void editBoxInLineSet(TEveChunkManager::iterator& li, const float* p)
 }
 
  //______________________________________________________________________________
+
+void FWPFCandidateWithHitsProxyBuilder::setItem(const FWEventItem* iItem)
+{
+
+   FWProxyBuilderBase::setItem(iItem);
+   if (iItem) {
+      std::string defn =  "particleFlowRecHitHCAL";
+      iItem->getConfig()->assertParam(kRecHitCollectionName, defn);
+   }
+}
+
+//______________________________________________________________________________
 void 
 FWPFCandidateWithHitsProxyBuilder::build(const FWEventItem* iItem, TEveElementList* product, const FWViewContext* vc)
 {
@@ -86,7 +98,6 @@ FWPFCandidateWithHitsProxyBuilder::build(const FWEventItem* iItem, TEveElementLi
    iItem->get( candidates );
    if( candidates == 0 ) return;
 
- 
    Int_t idx = 0;
    initPFRecHitsCollections();
    for( reco::PFCandidateCollection::const_iterator it = candidates->begin(), itEnd = candidates->end(); it != itEnd; ++it, ++idx)
@@ -128,21 +139,22 @@ void FWPFCandidateWithHitsProxyBuilder::initPFRecHitsCollections()
    m_collectionHCAL =0;
    try
    {
-      // edm::InputTag tag("particleFlowRecHitHCAL");
-      edm::InputTag tag(cname);
+      std::string scc = item()->getConfig()->value<std::string>(kRecHitCollectionName);
+      edm::InputTag tag(scc);
       item()->getEvent()->getByLabel(tag, handle_hits);
       if (handle_hits.isValid())
       {
          m_collectionHCAL = &*handle_hits;
+         fwLog(fwlog::kInfo) <<"FWPFCandidateWithHitsProxyBuilder, item " << item()->name() <<": Accessed collection with name " << scc << "." << std::endl;
       }
       else
       {
-         fwLog(fwlog::kError) <<"FWPFCandidateWithHitsProxyBuilder, item " << item()->name() <<": Failed to access collection with name " << cname << "." << std::endl;
+         fwLog(fwlog::kError) <<"FWPFCandidateWithHitsProxyBuilder, item " << item()->name() <<": Failed to access collection with name " << scc << "." << std::endl;
       }
    }
    catch (...)
    {
-      fwLog(fwlog::kError) <<"FWPFCandidateWithHitsProxyBuilder, item " << item()->name() <<": Failed to access collection with name " << cname << "." << std::endl;
+      fwLog(fwlog::kError) <<"FWPFCandidateWithHitsProxyBuilder, item " << item()->name() <<": Failed to access rechit collection \n";
    }
 }
 
@@ -322,7 +334,7 @@ void FWPFCandidateWithHitsProxyBuilder::addHitsForCandidate(const reco::PFCandid
                */
             }
             if (!hitsFound)
-               fwLog(fwlog::kWarning) << Form("Can't find matching hits with for HCAL block %d in %s collection. Number of hits %d.\n", elIdx, cname.c_str(), (int)hitsandfracs.size());
+               fwLog(fwlog::kWarning) << Form("Can't find matching hits with for HCAL block %d in RecHit collection. Number of hits %d.\n", elIdx, (int)hitsandfracs.size());
 
 
          }
