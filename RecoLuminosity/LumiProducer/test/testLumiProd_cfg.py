@@ -1,7 +1,15 @@
 import FWCore.ParameterSet.Config as cms
 
-process = cms.Process("dbprodtest")
+process.MessageLogger.categories.extend(["GetManyWithoutRegistration","GetByLabelWithoutRegistration"])
+_messageSettings = cms.untracked.PSet(
+                reportEvery = cms.untracked.int32(1),
+                            optionalPSet = cms.untracked.bool(True),
+                            limit = cms.untracked.int32(10000000)
+                        )
+process.MessageLogger.cerr.GetManyWithoutRegistration = _messageSettings
+process.MessageLogger.cerr.GetByLabelWithoutRegistration = _messageSettings
 
+process = cms.Process("dbprodtest")
 import FWCore.Framework.test.cmsExceptionsFatalOption_cff
 process.options = cms.untracked.PSet(
 #  wantSummary = cms.untracked.bool(True),

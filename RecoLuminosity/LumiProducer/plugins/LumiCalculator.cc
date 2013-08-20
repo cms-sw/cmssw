@@ -14,6 +14,8 @@
 #include <boost/regex.hpp>
 #include <iostream>
 #include <map>
+#include "FWCore/Utilities/interface/EDGetToken.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 struct hltPerPathInfo{
   hltPerPathInfo():prescale(0){}
   unsigned int prescale;
@@ -59,6 +61,8 @@ private:
 
 LumiCalculator::LumiCalculator(edm::ParameterSet const& pset):log_( new edm::LogInfo("LumiReport")),currentlumi_(0){
   showTrgInfo_=pset.getUntrackedParameter<bool>("showTriggerInfo",false);
+  consumes<LumiSummary,edm::InLumi>(edm::InputTag("lumiProducer",""));
+  consumes<LumiSummaryRunHeader,edm::InRun>(edm::InputTag("lumiProducer",""));
 }
 
 // -----------------------------------------------------------------
