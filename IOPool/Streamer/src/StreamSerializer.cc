@@ -10,9 +10,9 @@
 #include "DataFormats/Provenance/interface/Parentage.h"
 #include "DataFormats/Provenance/interface/ProductProvenance.h"
 #include "DataFormats/Provenance/interface/Selections.h"
-#include "DataFormats/Provenance/interface/ProcessConfigurationRegistry.h"
 #include "DataFormats/Provenance/interface/EventSelectionID.h"
 #include "DataFormats/Provenance/interface/BranchListIndex.h"
+#include "DataFormats/Provenance/interface/ProcessHistoryRegistry.h"
 #include "IOPool/Streamer/interface/ClassFiller.h"
 #include "IOPool/Streamer/interface/InitMsgBuilder.h"
 #include "FWCore/Framework/interface/ConstProductRegistry.h"
@@ -24,6 +24,7 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include "zlib.h"
+#include <algorithm>
 #include <cstdlib>
 #include <list>
 
@@ -63,13 +64,17 @@ namespace edm {
     pset::fillMap(*pset::Registry::instance(), psetMap);
     sd.setParameterSetMap(psetMap);
 
-    typedef ProcessConfigurationRegistry::collection_type PCMap;
-    PCMap const& procConfigMap = ProcessConfigurationRegistry::instance()->data();
+    typedef ProcessHistoryRegistry::collection_type Map;
+    Map const& procHistoryMap = ProcessHistoryRegistry::instance()->data();
     ProcessConfigurationVector procConfigVector;
-    for(PCMap::const_iterator i = procConfigMap.begin(), e = procConfigMap.end(); i != e; ++i) {
-      procConfigVector.push_back(i->second);
+    for(auto const& ph : procHistoryMap) {
+      for(auto const& pc : ph.second) {
+        procConfigVector.push_back(pc);
+      }
     }
     sort_all(procConfigVector);
+    auto newEnd = unique(procConfigVector.begin(), procConfigVector.end());
+    procConfigVector.erase(newEnd, procConfigVector.end());
     sd.setProcessConfigurations(procConfigVector);
 
     data_buffer.rootbuf_.Reset();
