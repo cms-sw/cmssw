@@ -394,7 +394,6 @@ TFWLiteSelectorBasic::setupNewFile(TFile& iFile) {
   }
 
   edm::ProcessHistoryRegistry::instance()->insertCollection(pHistVector);
-  edm::ProcessConfigurationRegistry::instance()->insertCollection(procConfigVector);
 
   m_->pointerToBranchBuffer_.erase(m_->pointerToBranchBuffer_.begin(),
                                    m_->pointerToBranchBuffer_.end());

@@ -64,6 +64,7 @@ namespace edm {
     std::string const& friendlyClassName() const {return product().friendlyClassName();}
     boost::shared_ptr<BranchMapper> const& store() const {return store_;}
     ProcessHistoryID const& processHistoryID() const {return *processHistoryID_;}
+    bool getProcessConfiguration(ProcessConfiguration& pc) const;
     ProcessConfigurationID processConfigurationID() const;
     ParameterSetID psetID() const;
     std::string moduleName() const;

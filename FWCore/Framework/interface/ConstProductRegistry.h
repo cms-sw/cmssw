@@ -22,6 +22,8 @@ Usage:
 #include <vector>
 #include <string>
 
+#include "boost/bind.hpp"
+
 // user include files
 #include "FWCore/Framework/src/SignallingProductRegistry.h"
 #include "FWCore/ServiceRegistry/interface/connect_but_block_self.h"

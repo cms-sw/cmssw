@@ -5,7 +5,6 @@
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
 #include "DataFormats/Provenance/interface/ParameterSetID.h"
 #include "DataFormats/Provenance/interface/ParentageRegistry.h"
-#include "DataFormats/Provenance/interface/ProcessConfigurationRegistry.h"
 #include "DataFormats/Provenance/interface/ProcessHistoryRegistry.h"
 
 #include "FWCore/Framework/interface/CommonParams.h"
@@ -677,7 +676,6 @@ namespace edm {
     psetRegistry->extraForUpdate().setID(ParameterSetID());
 
     ParentageRegistry::instance()->dataForUpdate().clear();
-    ProcessConfigurationRegistry::instance()->dataForUpdate().clear();
     ProcessHistoryRegistry::instance()->dataForUpdate().clear();
   }
 

@@ -2,7 +2,6 @@
 #include "DataFormats/Provenance/interface/EventSelectionID.h"
 #include "DataFormats/Provenance/interface/History.h"
 #include "DataFormats/Provenance/interface/ParameterSetBlob.h"
-#include "DataFormats/Provenance/interface/ProcessConfigurationRegistry.h"
 #include "DataFormats/Provenance/interface/ParameterSetID.h"
 #include "DataFormats/Provenance/interface/ProcessHistoryRegistry.h"
 #include "DataFormats/Provenance/interface/ProcessConfigurationID.h"
@@ -741,7 +740,7 @@ ProvenanceDumper::work_() {
   }
 
   meta->GetEntry(0);
-  assert(0 != pReg);
+  assert(nullptr != pReg);
 
   edm::pset::Registry& psetRegistry = *edm::pset::Registry::instance();
   for(ParameterSetMap::const_iterator i = psm_.begin(), iEnd = psm_.end(); i != iEnd; ++i) {
@@ -753,10 +752,10 @@ ProvenanceDumper::work_() {
 
   // backward compatibility
   if(!phm.empty()) {
-    for(edm::ProcessHistoryMap::const_iterator i = phm.begin(), e = phm.end(); i != e; ++i) {
-      phv_.push_back(i->second);
-      for(edm::ProcessConfigurationVector::const_iterator j = i->second.begin(), f = i->second.end(); j != f; ++j) {
-        phc_.push_back(*j);
+    for(auto const& history : phm) {
+      phv_.push_back(history.second);
+      for(auto const& process : history.second) {
+        phc_.push_back(process);
       }
     }
     edm::sort_all(phc_);
@@ -770,7 +769,7 @@ ProvenanceDumper::work_() {
 
   if(showDependencies_ || extendedAncestors_ || extendedDescendants_){
     TTree* parentageTree = dynamic_cast<TTree*>(inputFile_->Get(edm::poolNames::parentageTreeName().c_str()));
-    if(0 == parentageTree) {
+    if(nullptr == parentageTree) {
       std::cerr << "ERROR, no Parentage tree available so can not show dependencies/n";
       showDependencies_ = false;
       extendedAncestors_ = false;
