@@ -14,6 +14,8 @@
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "RecoMET/METAlgorithms/interface/HcalNoiseAlgo.h"
 
+#include "DataFormats/METReco/interface/HcalNoiseRBX.h"
+
 namespace edm {
    class ConfigurationDescriptions;
 }
@@ -27,6 +29,7 @@ class HLTHcalMETNoiseFilter : public edm::EDFilter {
   virtual bool filter(edm::Event&, const edm::EventSetup&);
   
  private:
+  edm::EDGetTokenT<reco::HcalNoiseRBXCollection> m_theHcalNoiseToken;
   // parameters
   edm::InputTag HcalNoiseRBXCollectionTag_;
   int severity_;

@@ -34,7 +34,10 @@ class PFJetsMatchedToFilteredCaloJetsProducer: public edm::EDProducer {
   std::vector<l1extra::L1JetParticleRef> jetCandRefVec;
   std::vector<l1extra::L1JetParticleRef> objL1CandRefVec;
   l1extra::L1JetParticleRef tauCandRef;
-    
+  
+  edm::EDGetTokenT<edm::View<reco::Candidate>> m_thePFJetToken;
+  edm::EDGetTokenT<trigger::TriggerFilterObjectWithRefs> m_theTriggerJetToken;
+
   edm::InputTag PFJetSrc;
   edm::InputTag CaloJetFilter;
   double DeltaR_;         // DeltaR(HLT,L1)

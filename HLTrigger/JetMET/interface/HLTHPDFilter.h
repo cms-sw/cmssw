@@ -12,6 +12,7 @@
 #include "FWCore/Framework/interface/EDFilter.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
+#include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
 
 namespace edm {
    class ConfigurationDescriptions;
@@ -26,6 +27,7 @@ class HLTHPDFilter : public edm::EDFilter {
       virtual bool filter(edm::Event&, const edm::EventSetup&);
 
    private:
+      edm::EDGetTokenT<HBHERecHitCollection> m_theRecHitCollectionToken;
       edm::InputTag mInputTag; // input tag for HCAL HBHE digis
       double mEnergyThreshold;
       double mHPDSpikeEnergyThreshold;

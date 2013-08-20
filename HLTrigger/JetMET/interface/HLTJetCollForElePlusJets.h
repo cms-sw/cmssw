@@ -27,6 +27,9 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+#include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
+#include "DataFormats/JetReco/interface/CaloJetCollection.h"
+#include "DataFormats/JetReco/interface/PFJetCollection.h"
 
 namespace edm {
    class ConfigurationDescriptions;
@@ -46,6 +49,8 @@ class HLTJetCollForElePlusJets: public edm::EDProducer {
   private:
     virtual void produce(edm::Event&, const edm::EventSetup&);
 
+    edm::EDGetTokenT<trigger::TriggerFilterObjectWithRefs> m_theElectronToken;
+    edm::EDGetTokenT<std::vector<T>> m_theJetToken;
     edm::InputTag hltElectronTag;
     edm::InputTag sourceJetTag;
 
