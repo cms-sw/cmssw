@@ -80,7 +80,6 @@ HLTJetCollectionsForElePlusJets<T>::produce(edm::Event& iEvent, const edm::Event
   
   edm::Handle<trigger::TriggerFilterObjectWithRefs> PrevFilterOutput;
   iEvent.getByToken(m_theElectronToken,PrevFilterOutput);
-  //  iEvent.getByLabel(hltElectronTag,PrevFilterOutput);
  
   //its easier on the if statement flow if I try everything at once, shouldnt add to timing
   std::vector<edm::Ref<reco::RecoEcalCandidateCollection> > clusCands;

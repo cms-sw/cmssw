@@ -27,7 +27,6 @@ void AnyJetToCaloJetProducer::produce(edm::Event& iEvent, const edm::EventSetup&
   
   edm::Handle<edm::View<reco::Jet> > jets;
   if(iEvent.getByToken(m_theGenericJetToken,jets)) {
-  //  if (iEvent.getByLabel( jetSrc_, jets )) {
     for(edm::View<reco::Jet>::const_iterator i = jets->begin(); i != jets->end(); i++ ) {
       reco::CaloJet jet(i->p4(), i->vertex(), reco::CaloJet::Specific());
       newjets->push_back(jet);

@@ -53,7 +53,6 @@ bool
   
   Handle<METCollection> recomhts;
   iEvent.getByToken(m_theMhtToken,recomhts);
-  iEvent.getByLabel(inputMhtTag_,recomhts);
 
   // look at all candidates,  check cuts and add to filter object
   int n(0), flag(0);

@@ -73,7 +73,6 @@ HLTJetCollectionsFilter<jetType>::hltFilter(edm::Event& iEvent, const edm::Event
 
   Handle < JetCollectionVector > theJetCollectionsHandle;
   iEvent.getByToken(m_theJetToken, theJetCollectionsHandle);
-  //  iEvent.getByLabel(inputTag_, theJetCollectionsHandle);
   const JetCollectionVector & theJetCollections = *theJetCollectionsHandle;
 
   // filter decision

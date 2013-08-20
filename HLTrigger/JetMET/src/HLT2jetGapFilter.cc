@@ -42,7 +42,7 @@ HLT2jetGapFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions)
   desc.add<double>("minEt",90.0);
   desc.add<double>("minEta",1.9);
   desc.add<bool>("saveTags",false);
-  descriptions.add("AnyJetToCaloJetProducer",desc);
+  descriptions.add("hlt2jetGapFilter",desc);
 }
 
 // ------------ method called to produce the data  ------------
