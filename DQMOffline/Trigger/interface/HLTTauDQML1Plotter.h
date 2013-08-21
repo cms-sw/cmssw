@@ -1,3 +1,4 @@
+// -*- c++ -*-
 /* HLTTau Path Analyzer
  Michail Bachtis
  University of Wisconsin - Madison
@@ -12,11 +13,15 @@
 #include "DataFormats/L1Trigger/interface/L1JetParticle.h"
 #include "DataFormats/L1Trigger/interface/L1JetParticleFwd.h"
 
+#include "FWCore/Framework/interface/ConsumesCollector.h"
+
 class HLTTauDQML1Plotter : public HLTTauDQMPlotter {
 public:
-    HLTTauDQML1Plotter( const edm::ParameterSet&, int, int, int, double, bool, double, std::string );
+    HLTTauDQML1Plotter(const edm::ParameterSet&, edm::ConsumesCollector&& cc, int, int, int, double, bool, double, std::string);
     ~HLTTauDQML1Plotter();
     const std::string name() { return name_; }
+
+    void beginRun();
     void analyze( const edm::Event&, const edm::EventSetup&, const std::map<int,LVColl>& );
     
 private:
@@ -24,7 +29,9 @@ private:
     
     //The filters
     edm::InputTag l1ExtraTaus_;
+    edm::EDGetTokenT<l1extra::L1JetParticleCollection> l1ExtraTausToken_;
     edm::InputTag l1ExtraJets_;
+    edm::EDGetTokenT<l1extra::L1JetParticleCollection> l1ExtraJetsToken_;
     
     bool doRefAnalysis_;
     double matchDeltaR_;

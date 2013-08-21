@@ -8,7 +8,7 @@ namespace {
   };
 }
 
-HLTTauDQML1Plotter::HLTTauDQML1Plotter( const edm::ParameterSet& ps, int etbins, int etabins, int phibins, double maxpt, bool ref, double dr, std::string dqmBaseFolder ) {
+HLTTauDQML1Plotter::HLTTauDQML1Plotter(const edm::ParameterSet& ps, edm::ConsumesCollector&& cc, int etbins, int etabins, int phibins, double maxpt, bool ref, double dr, std::string dqmBaseFolder) {
     //Initialize Plotter
     name_ = "HLTTauDQML1Plotter";
     
@@ -17,7 +17,9 @@ HLTTauDQML1Plotter::HLTTauDQML1Plotter( const edm::ParameterSet& ps, int etbins,
         triggerTag_       = ps.getUntrackedParameter<std::string>("DQMFolder");
         triggerTagAlias_  = ps.getUntrackedParameter<std::string>("Alias","");
         l1ExtraTaus_      = ps.getUntrackedParameter<edm::InputTag>("L1Taus");
+        l1ExtraTausToken_ = cc.consumes<l1extra::L1JetParticleCollection>(l1ExtraTaus_);
         l1ExtraJets_      = ps.getUntrackedParameter<edm::InputTag>("L1Jets");
+        l1ExtraJetsToken_ = cc.consumes<l1extra::L1JetParticleCollection>(l1ExtraJets_);
         doRefAnalysis_    = ref;
         dqmBaseFolder_    = dqmBaseFolder;
         matchDeltaR_      = dr;
@@ -32,7 +34,9 @@ HLTTauDQML1Plotter::HLTTauDQML1Plotter( const edm::ParameterSet& ps, int etbins,
       validity_ = false;
       return;
     }
-    
+}
+
+void HLTTauDQML1Plotter::beginRun() {
     if (store_) {
         //Create the histograms
         store_->setCurrentFolder(triggerTag());
@@ -102,6 +106,7 @@ HLTTauDQML1Plotter::HLTTauDQML1Plotter( const edm::ParameterSet& ps, int etbins,
     }
 }
 
+
 HLTTauDQML1Plotter::~HLTTauDQML1Plotter() {
 }
 
@@ -134,8 +139,8 @@ void HLTTauDQML1Plotter::analyze( const edm::Event& iEvent, const edm::EventSetu
     //Analyze L1 Objects (Tau+Jets)
     edm::Handle<l1extra::L1JetParticleCollection> taus;
     edm::Handle<l1extra::L1JetParticleCollection> jets;
-    iEvent.getByLabel(l1ExtraTaus_,taus);
-    iEvent.getByLabel(l1ExtraJets_,jets);
+    iEvent.getByToken(l1ExtraTausToken_, taus);
+    iEvent.getByToken(l1ExtraJetsToken_, jets);
     
     LVColl pathTaus;
     

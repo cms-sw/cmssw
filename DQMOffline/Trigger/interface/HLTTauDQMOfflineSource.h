@@ -17,6 +17,8 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "DataFormats/Math/interface/LorentzVector.h"
 #include "FWCore/Utilities/interface/Digest.h"
+#include "DataFormats/Common/interface/TriggerResults.h"
+
 
 //Plotters
 #include "DQMOffline/Trigger/interface/HLTTauDQML1Plotter.h"
@@ -28,6 +30,8 @@
 
 //Automatic Configuration
 #include "DQMOffline/Trigger/interface/HLTTauDQMAutomation.h"
+
+#include<memory>
 
 //
 // class declaration
@@ -66,7 +70,9 @@ private:
     std::string moduleName_;
     std::string hltProcessName_;
     edm::InputTag triggerResultsSrc_;
+    edm::EDGetTokenT<edm::TriggerResults> triggerResultsToken_;
     edm::InputTag triggerEventSrc_;
+    edm::EDGetTokenT<trigger::TriggerEvent> triggerEventToken_;
     edm::ParameterSet ps_;
     std::string dqmBaseFolder_;
     bool hltMenuChanged_;
@@ -77,7 +83,11 @@ private:
 
     //Reference
     bool doRefAnalysis_;
-    std::vector<edm::ParameterSet> refObjects_;
+    struct RefObject {
+      int objID;
+      edm::EDGetTokenT<LVColl> token;
+    };
+    std::vector<RefObject> refObjects_;
 
     int NPtBins_;
     int NEtaBins_;
@@ -100,7 +110,7 @@ private:
     void searchEventContent(std::vector<edm::InputTag>& eventContent, const edm::ParameterSet& pset);
 
     //Define Dummy vectors of Plotters
-    std::vector<HLTTauDQML1Plotter*> l1Plotters;
+    std::vector<std::unique_ptr<HLTTauDQML1Plotter>> l1Plotters_;
     std::vector<HLTTauDQMCaloPlotter*> caloPlotters;
     std::vector<HLTTauDQMTrkPlotter*> trackPlotters; 
     std::vector<HLTTauDQMPathPlotter*> pathPlotters;
