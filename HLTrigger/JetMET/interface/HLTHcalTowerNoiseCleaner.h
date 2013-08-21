@@ -12,6 +12,10 @@
 #include "FWCore/Framework/interface/EventSetup.h"   
 #include "RecoMET/METAlgorithms/interface/HcalNoiseAlgo.h"
 
+#include "DataFormats/CaloTowers/interface/CaloTower.h"
+#include "DataFormats/CaloTowers/interface/CaloTowerCollection.h"
+#include "DataFormats/METReco/interface/HcalNoiseRBX.h"
+
 namespace edm {
    class ConfigurationDescriptions;
 }
@@ -25,6 +29,8 @@ class HLTHcalTowerNoiseCleaner : public edm::EDProducer {
   virtual void produce(edm::Event&, const edm::EventSetup&);
 
  private:
+  edm::EDGetTokenT<reco::HcalNoiseRBXCollection> m_theHcalNoiseToken;
+  edm::EDGetTokenT<CaloTowerCollection> m_theCaloTowerCollectionToken;
   // parameters
   edm::InputTag HcalNoiseRBXCollectionTag_;
   edm::InputTag TowerCollectionTag_;

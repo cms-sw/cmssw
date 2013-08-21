@@ -14,11 +14,11 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "DataFormats/JetReco/interface/CaloJetCollection.h"
-
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 //
 // constructors and destructor
@@ -29,10 +29,20 @@ HLTRapGapFilter::HLTRapGapFilter(const edm::ParameterSet& iConfig) : HLTFilter(i
    absEtaMin_  = iConfig.getParameter<double> ("minEta");
    absEtaMax_  = iConfig.getParameter<double> ("maxEta"); 
    caloThresh_ = iConfig.getParameter<double> ("caloThresh"); 
+   m_theJetToken = consumes<reco::CaloJetCollection>(inputTag_);
 }
 
 HLTRapGapFilter::~HLTRapGapFilter(){}
 
+void HLTRapGapFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<edm::InputTag>("inputJetTag",edm::InputTag("iterativeCone5CaloJets"));
+  desc.add<bool>("saveTags",false);
+  desc.add<double>("minEta",3.0);
+  desc.add<double>("maxEta",5.0);
+  desc.add<double>("caloThresh",20.);
+  descriptions.add("hltRapGapFilter",desc);
+}
 
 // ------------ method called to produce the data  ------------
 bool
@@ -45,7 +55,7 @@ HLTRapGapFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, tr
   if (saveTags()) filterproduct.addCollectionTag(inputTag_);
 
   edm::Handle<CaloJetCollection> recocalojets;
-  iEvent.getByLabel(inputTag_,recocalojets);
+  iEvent.getByToken(m_theJetToken,recocalojets);
 
   // look at all candidates,  check cuts and add to filter object
   int n(0);

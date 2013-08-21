@@ -16,11 +16,12 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "DataFormats/JetReco/interface/CaloJetCollection.h"
-#include "DataFormats/METReco/interface/CaloMET.h"
-
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/Utilities/interface/InputTag.h" 
 
 
 //
@@ -35,10 +36,26 @@ HLTAcoFilter::HLTAcoFilter(const edm::ParameterSet& iConfig) : HLTFilter(iConfig
    minEtjet1_   = iConfig.getParameter<double> ("minEtJet1"); 
    minEtjet2_   = iConfig.getParameter<double> ("minEtJet2"); 
    AcoString_   = iConfig.getParameter<std::string> ("Acoplanar");
+
+   m_theJetToken = consumes<reco::CaloJetCollection>(inputJetTag_);
+   m_theMETToken = consumes<trigger::TriggerFilterObjectWithRefs>(inputMETTag_);
 }
 
 HLTAcoFilter::~HLTAcoFilter(){}
 
+void
+HLTAcoFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<edm::InputTag>("inputJetTag",edm::InputTag("IterativeCone5CaloJets"));
+  desc.add<edm::InputTag>("inputMETTag",edm::InputTag("MET"));
+  desc.add<double>("minDeltaPhi",0.0);
+  desc.add<double>("maxDeltaPhi",2.0);
+  desc.add<double>("minEtJet1",20.0);
+  desc.add<double>("minEtJet2",20.0);
+  desc.add<std::string>("Acoplanar","Jet1Jet2");
+  desc.add<bool>("saveTags",false);
+  descriptions.add("hltAcoFilter",desc);
+}
 
 // ------------ method called to produce the data  ------------
 bool
@@ -56,9 +73,9 @@ HLTAcoFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigg
   }
 
   Handle<CaloJetCollection> recocalojets;
-  iEvent.getByLabel(inputJetTag_,recocalojets);
+  iEvent.getByToken(m_theJetToken,recocalojets);
   Handle<trigger::TriggerFilterObjectWithRefs> metcal;
-  iEvent.getByLabel(inputMETTag_,metcal);
+  iEvent.getByToken(m_theMETToken,metcal);
 
   // look at all candidates,  check cuts and add to filter object
   int n(0);

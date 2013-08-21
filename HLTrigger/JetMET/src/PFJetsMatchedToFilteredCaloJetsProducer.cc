@@ -19,6 +19,9 @@ PFJetsMatchedToFilteredCaloJetsProducer::PFJetsMatchedToFilteredCaloJetsProducer
   CaloJetFilter = iConfig.getParameter<InputTag>("CaloJetFilter");
   DeltaR_ = iConfig.getParameter<double>("DeltaR");
   TriggerType_ = iConfig.getParameter<int>("TriggerType");
+
+  m_thePFJetToken = consumes<edm::View<reco::Candidate> >(PFJetSrc);
+  m_theTriggerJetToken = consumes<trigger::TriggerFilterObjectWithRefs>(CaloJetFilter);
   
   produces<PFJetCollection>();
 }
@@ -46,14 +49,13 @@ void PFJetsMatchedToFilteredCaloJetsProducer::produce(edm::Event& iEvent, const 
 	auto_ptr<PFJetCollection> pfjets(new PFJetCollection);
 	
 	//Getting HLT jets to be matched
-	edm::Handle<edm::View<Candidate> > PFJets;
-	iEvent.getByLabel( PFJetSrc, PFJets );
+	edm::Handle<edm::View<reco::Candidate> > PFJets;
+	iEvent.getByToken(m_thePFJetToken, PFJets );
 
 	//std::cout <<"Size of input PF jet collection "<<PFJets->size()<<std::endl;
 		
 	edm::Handle<trigger::TriggerFilterObjectWithRefs> TriggeredCaloJets;
-	iEvent.getByLabel(CaloJetFilter,TriggeredCaloJets);
-		
+	iEvent.getByToken(m_theTriggerJetToken,TriggeredCaloJets);
 		
 	jetRefVec.clear();
 		
