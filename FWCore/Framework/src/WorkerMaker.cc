@@ -61,16 +61,16 @@ Maker::validateEDMType(std::string const& edmType, WorkerParams const& p) const 
       << "It must use the same base type as the C++ class.\n";
   }
 }
-  
-std::unique_ptr<Worker> 
-Maker::makeWorker(WorkerParams const& p,
+
+std::shared_ptr<maker::ModuleHolder>
+Maker::makeModule(WorkerParams const& p,
                   signalslot::Signal<void(ModuleDescription const&)>& pre,
                   signalslot::Signal<void(ModuleDescription const&)>& post) const {
   ConfigurationDescriptions descriptions(baseType());
   fillDescriptions(descriptions);
   try {
     try {
-      descriptions.validate(*p.pset_, p.pset_->getParameter<std::string>("@module_label"));    
+      descriptions.validate(*p.pset_, p.pset_->getParameter<std::string>("@module_label"));
       validateEDMType(baseType(), p);
     }
     catch (cms::Exception& e) { throw; }
@@ -84,14 +84,15 @@ Maker::makeWorker(WorkerParams const& p,
     throwValidationException(p, iException);
   }
   p.pset_->registerIt();
-
-  ModuleDescription md = createModuleDescription(p);
   
-  std::unique_ptr<Worker> worker;
+  ModuleDescription md = createModuleDescription(p);
+  std::shared_ptr<maker::ModuleHolder> module;
   try {
     try {
-      pre(md);    
-      worker = makeWorker(p,md);
+      pre(md);
+      module = makeModule(*(p.pset_));
+      module->setModuleDescription(md);
+      module->registerProductsAndCallbacks(p.reg_);
       post(md);
     }
     catch (cms::Exception& e) { throw; }
@@ -104,12 +105,14 @@ Maker::makeWorker(WorkerParams const& p,
   catch(cms::Exception & iException){
     throwConfigurationException(md, post, iException);
   }
-  return worker;
-}
-  
-void 
-Maker::swapModule(Worker* w, ParameterSet const& p) {
-   implSwapModule(w,p);
+  return module;
 }
 
+std::unique_ptr<Worker> 
+Maker::makeWorker(WorkerParams const& p,
+                  std::shared_ptr<maker::ModuleHolder> mod) const {
+  
+  return makeWorker(p,mod->moduleDescription(),mod);
+}
+  
 } // end of edm::

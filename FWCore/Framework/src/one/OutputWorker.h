@@ -21,7 +21,7 @@ namespace edm {
 
   class OutputWorker : public WorkerT<OutputModuleBase> {
   public:
-    OutputWorker(std::unique_ptr<OutputModuleBase>&& mod,
+    OutputWorker(OutputModuleBase* mod,
 		 ModuleDescription const&,
 		 WorkerParams const&);
 

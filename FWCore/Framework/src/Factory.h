@@ -23,13 +23,19 @@ namespace edm {
 
     static Factory* get();
 
+    std::shared_ptr<maker::ModuleHolder> makeModule(const WorkerParams&,
+                                                    signalslot::Signal<void(const ModuleDescription&)>& pre,
+                                                    signalslot::Signal<void(const ModuleDescription&)>& post) const;
+
     std::unique_ptr<Worker> makeWorker(const WorkerParams&,
-                                     signalslot::Signal<void(const ModuleDescription&)>& pre,
-                                     signalslot::Signal<void(const ModuleDescription&)>& post) const;
+                                       std::shared_ptr<maker::ModuleHolder>) const;
+
+    std::shared_ptr<maker::ModuleHolder> makeReplacementModule(const edm::ParameterSet&) const;
 
 
   private:
     Factory();
+    Maker* findMaker(const WorkerParams& p) const;
     static Factory singleInstance_;
     mutable MakerMap makers_;
   };

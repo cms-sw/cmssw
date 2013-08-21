@@ -32,6 +32,10 @@ namespace edm {
   class ModuleCallingContext;
   class StreamID;
   
+  namespace maker {
+    template<typename T> class ModuleHolderT;
+  }
+
   namespace global {
     
     class EDAnalyzerBase : public EDConsumerBase
@@ -39,6 +43,7 @@ namespace edm {
       
     public:
       template <typename T> friend class edm::WorkerT;
+      template <typename T> friend class edm::maker::ModuleHolderT;
       typedef EDAnalyzerBase ModuleType;
       typedef WorkerT<EDAnalyzerBase> WorkerType;
 

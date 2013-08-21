@@ -16,10 +16,19 @@ namespace edm {
     unscheduled_(new UnscheduledCallProducer) {
   } // WorkerManager::WorkerManager
 
+  WorkerManager::WorkerManager(boost::shared_ptr<ModuleRegistry> modReg,
+                               boost::shared_ptr<ActivityRegistry> areg,
+                               ExceptionToActionTable const& actions) :
+  workerReg_(areg,modReg),
+  actionTable_(&actions),
+  allWorkers_(),
+  unscheduled_(new UnscheduledCallProducer) {
+  } // WorkerManager::WorkerManager
+
   Worker* WorkerManager::getWorker(ParameterSet& pset,
                                    ProductRegistry& preg,
                                    boost::shared_ptr<ProcessConfiguration const> processConfiguration,
-                                   std::string label) {
+                                   std::string const & label) {
     WorkerParams params(&pset, preg, processConfiguration, *actionTable_);
     return workerReg_.getWorker(params, label);
   }

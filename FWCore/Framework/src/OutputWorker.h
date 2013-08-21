@@ -20,7 +20,7 @@ namespace edm {
 
   class OutputWorker : public WorkerT<OutputModule> {
   public:
-    OutputWorker(std::unique_ptr<OutputModule>&& mod,
+    OutputWorker(OutputModule* mod,
 		 ModuleDescription const&,
 		 WorkerParams const&);
 

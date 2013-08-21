@@ -32,10 +32,15 @@ namespace edm {
 
   class ModuleCallingContext;
 
+  namespace maker {
+    template<typename T> class ModuleHolderT;
+  }
+
   typedef detail::TriggerResultsBasedEventSelector::handle_t Trig;
 
   class OutputModule : public EDConsumerBase {
   public:
+    template <typename T> friend class maker::ModuleHolderT;
     template <typename T> friend class WorkerT;
     friend class ClassicOutputModuleCommunicator;
     typedef OutputModule ModuleType;
@@ -86,6 +91,8 @@ namespace edm {
     CurrentProcessingContext const* currentContext() const;
 
     ModuleDescription const& description() const;
+    ModuleDescription const& moduleDescription() const { return moduleDescription_;
+    }
 
     ParameterSetID selectorConfig() const { return selector_config_id_; }
 

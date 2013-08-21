@@ -20,20 +20,32 @@ namespace edm {
   class Worker;
   class ActivityRegistry;
   struct WorkerParams;
+  class ModuleRegistry;
+  class ParameterSet;
+  namespace maker {
+    class ModuleHolder;
+  }
 
   /**
-     \class ModuleRegistry ModuleRegistry.h "edm/ModuleRegistry.h"
+     \class WorkerRegistry WorkerRegistry.h "edm/WorkerRegistry.h"
 
      \brief The Registry of all workers that where requested
      Holds all instances of workers. In this implementation, Workers 
      are owned.
   */
 
+  boost::shared_ptr<ModuleRegistry> makeModuleRegistry();
+  maker::ModuleHolder* replaceModule(boost::shared_ptr<ModuleRegistry>,
+                                     std::string const& iLabel,
+                                     edm::ParameterSet const&);
+  
   class WorkerRegistry {
 
   public:
 
     explicit WorkerRegistry(boost::shared_ptr<ActivityRegistry> areg);
+    WorkerRegistry(boost::shared_ptr<ActivityRegistry> areg,
+                   boost::shared_ptr<ModuleRegistry> iModReg);
     ~WorkerRegistry();
         
     WorkerRegistry(WorkerRegistry const&) = delete; // Disallow copying and moving
@@ -50,7 +62,9 @@ namespace edm {
     /// the container of workers
     typedef std::map<std::string, boost::shared_ptr<Worker> > WorkerMap;
 
-    /// internal map of registered workers (owned). 
+    boost::shared_ptr<ModuleRegistry> modRegistry_;
+    
+    /// internal map of registered workers (owned).
     WorkerMap m_workerMap;
     boost::shared_ptr<ActivityRegistry> actReg_;
      

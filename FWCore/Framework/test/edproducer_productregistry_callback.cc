@@ -164,10 +164,14 @@ void  testEDProducerProductRegistryCallback::testCircularRef() {
 
    signalslot::Signal<void(const ModuleDescription&)> aSignal;
 
-   std::unique_ptr<Worker> w1 = f->makeWorker(params1,aSignal,aSignal);
-   std::unique_ptr<Worker> wl1 = lM->makeWorker(paramsl1,aSignal,aSignal);
-   std::unique_ptr<Worker> wl2 = lM->makeWorker(paramsl2,aSignal,aSignal);
-   std::unique_ptr<Worker> w2 = f->makeWorker(params2,aSignal,aSignal);
+   auto m1 = f->makeModule(params1,aSignal,aSignal);
+   std::unique_ptr<Worker> w1 = f->makeWorker(params1,m1);
+   auto ml1 = lM->makeModule(paramsl1,aSignal,aSignal);
+   std::unique_ptr<Worker> wl1 = lM->makeWorker(paramsl1,ml1);
+   auto ml2 = lM->makeModule(paramsl2,aSignal,aSignal);
+   std::unique_ptr<Worker> wl2 = lM->makeWorker(paramsl2,ml2);
+   auto m2 = f->makeModule(params2,aSignal,aSignal);
+   std::unique_ptr<Worker> w2 = f->makeWorker(params2,m2);
 
    //Should be 5 products
    // 1 from the module 't1'
@@ -234,10 +238,14 @@ void  testEDProducerProductRegistryCallback::testCircularRef2() {
    edm::WorkerParams paramsl2(&l2, preg, pc, table);
    
    signalslot::Signal<void(const ModuleDescription&)> aSignal;
-   std::unique_ptr<Worker> wl1 = lM->makeWorker(paramsl1,aSignal,aSignal);
-   std::unique_ptr<Worker> wl2 = lM->makeWorker(paramsl2,aSignal,aSignal);
-   std::unique_ptr<Worker> w1 = f->makeWorker(params1,aSignal,aSignal);
-   std::unique_ptr<Worker> w2 = f->makeWorker(params2,aSignal,aSignal);
+   auto ml1 = lM->makeModule(paramsl1,aSignal,aSignal);
+   std::unique_ptr<Worker> wl1 = lM->makeWorker(paramsl1,ml1);
+   auto ml2 = lM->makeModule(paramsl2,aSignal,aSignal);
+   std::unique_ptr<Worker> wl2 = lM->makeWorker(paramsl2,ml2);
+   auto m1 = f->makeModule(params1,aSignal,aSignal);
+   std::unique_ptr<Worker> w1 = f->makeWorker(params1,m1);
+   auto m2 = f->makeModule(params2,aSignal,aSignal);
+   std::unique_ptr<Worker> w2 = f->makeWorker(params2,m2);
    
    //Would be 10 products
    // 1 from the module 't1'
@@ -306,10 +314,14 @@ void  testEDProducerProductRegistryCallback::testTwoListeners(){
    
    
    signalslot::Signal<void(const ModuleDescription&)> aSignal;
-   std::unique_ptr<Worker> w1 = f->makeWorker(params1,aSignal,aSignal);
-   std::unique_ptr<Worker> wl1 = lM->makeWorker(paramsl1,aSignal,aSignal);
-   std::unique_ptr<Worker> wl2 = lFM->makeWorker(paramsl2,aSignal,aSignal);
-   std::unique_ptr<Worker> w2 = f->makeWorker(params2,aSignal,aSignal);
+   auto m1 = f->makeModule(params1,aSignal,aSignal);
+   std::unique_ptr<Worker> w1 = f->makeWorker(params1,m1);
+   auto ml1 = lM->makeModule(paramsl1,aSignal,aSignal);
+   std::unique_ptr<Worker> wl1 = lM->makeWorker(paramsl1,ml1);
+   auto ml2 = lFM->makeModule(paramsl2,aSignal,aSignal);
+   std::unique_ptr<Worker> wl2 = lFM->makeWorker(paramsl2,ml2);
+   auto m2 = f->makeModule(params2,aSignal,aSignal);
+   std::unique_ptr<Worker> w2 = f->makeWorker(params2,m2);
 
    //Should be 8 products
    // 1 from the module 't1'

@@ -19,10 +19,10 @@ namespace edm {
   class ProcessContext;
 
   namespace one {
-    OutputWorker::OutputWorker(std::unique_ptr<OutputModuleBase>&& mod,
+    OutputWorker::OutputWorker(OutputModuleBase* mod,
                                ModuleDescription const& md,
                                WorkerParams const& wp):
-    WorkerT<OutputModuleBase>(std::move(mod), md, wp)
+    WorkerT<OutputModuleBase>(mod, md, wp)
     {
     }
     

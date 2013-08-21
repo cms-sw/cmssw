@@ -93,7 +93,7 @@ private:
   edm::ServiceToken serviceToken_;
   
   template<typename T>
-  void testTransitions(std::unique_ptr<T>&& iMod, Expectations const& iExpect);
+  void testTransitions(T* iMod, Expectations const& iExpect);
   
   class BasicOutputModule : public edm::one::OutputModule<> {
   public:
@@ -322,11 +322,10 @@ namespace {
 
 template<typename T>
 void
-testOneOutputModule::testTransitions(std::unique_ptr<T>&& iMod, Expectations const& iExpect) {
-  T* pMod = iMod.get();
-  edm::one::OutputWorker w{std::move(iMod),m_desc,m_params};
+testOneOutputModule::testTransitions(T* iMod, Expectations const& iExpect) {
+  edm::one::OutputWorker w{iMod,m_desc,m_params};
   for(auto& keyVal: m_transToFunc) {
-    testTransition(pMod,&w,keyVal.first,iExpect,keyVal.second);
+    testTransition(iMod,&w,keyVal.first,iExpect,keyVal.second);
   }
 }
 
@@ -340,7 +339,7 @@ void testOneOutputModule::basicTest()
   std::unique_ptr<BasicOutputModule> testProd{ new BasicOutputModule(pset) };
   
   CPPUNIT_ASSERT(0 == testProd->m_count);
-  testTransitions(std::move(testProd), {Trans::kEvent,Trans::kGlobalEndLuminosityBlock, Trans::kGlobalEndRun});
+  testTransitions(testProd.get(), {Trans::kEvent,Trans::kGlobalEndLuminosityBlock, Trans::kGlobalEndRun});
 }
 
 void testOneOutputModule::runTest()
@@ -352,7 +351,7 @@ void testOneOutputModule::runTest()
   std::unique_ptr<RunOutputModule> testProd{ new RunOutputModule(pset) };
   
   CPPUNIT_ASSERT(0 == testProd->m_count);
-  testTransitions(std::move(testProd), {Trans::kGlobalBeginRun, Trans::kEvent, Trans::kGlobalEndLuminosityBlock, Trans::kGlobalEndRun, Trans::kGlobalEndRun});
+  testTransitions(testProd.get(), {Trans::kGlobalBeginRun, Trans::kEvent, Trans::kGlobalEndLuminosityBlock, Trans::kGlobalEndRun, Trans::kGlobalEndRun});
 }
 
 void testOneOutputModule::lumiTest()
@@ -364,7 +363,7 @@ void testOneOutputModule::lumiTest()
   std::unique_ptr<LumiOutputModule> testProd{ new LumiOutputModule(pset) };
   
   CPPUNIT_ASSERT(0 == testProd->m_count);
-  testTransitions(std::move(testProd), {Trans::kGlobalBeginLuminosityBlock, Trans::kEvent, Trans::kGlobalEndLuminosityBlock, Trans::kGlobalEndLuminosityBlock, Trans::kGlobalEndRun});
+  testTransitions(testProd.get(), {Trans::kGlobalBeginLuminosityBlock, Trans::kEvent, Trans::kGlobalEndLuminosityBlock, Trans::kGlobalEndLuminosityBlock, Trans::kGlobalEndRun});
 }
 
 void testOneOutputModule::fileTest()
@@ -376,7 +375,7 @@ void testOneOutputModule::fileTest()
   std::unique_ptr<FileOutputModule> testProd{ new FileOutputModule(pset) };
   
   CPPUNIT_ASSERT(0 == testProd->m_count);
-  testTransitions(std::move(testProd), {Trans::kGlobalOpenInputFile, Trans::kEvent, Trans::kGlobalEndLuminosityBlock, Trans::kGlobalEndRun, Trans::kGlobalCloseInputFile});
+  testTransitions(testProd.get(), {Trans::kGlobalOpenInputFile, Trans::kEvent, Trans::kGlobalEndLuminosityBlock, Trans::kGlobalEndRun, Trans::kGlobalCloseInputFile});
 }
 
 void testOneOutputModule::resourceTest()
@@ -388,6 +387,6 @@ void testOneOutputModule::resourceTest()
   std::unique_ptr<ResourceOutputModule> testProd{ new ResourceOutputModule(pset) };
   
   CPPUNIT_ASSERT(0 == testProd->m_count);
-  testTransitions(std::move(testProd), {Trans::kEvent,Trans::kGlobalEndLuminosityBlock, Trans::kGlobalEndRun});
+  testTransitions(testProd.get(), {Trans::kEvent,Trans::kGlobalEndLuminosityBlock, Trans::kGlobalEndRun});
 }
 

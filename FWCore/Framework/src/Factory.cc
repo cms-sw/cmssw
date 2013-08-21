@@ -31,41 +31,64 @@ namespace edm {
     return &singleInstance_;
   }
 
-  std::unique_ptr<Worker> Factory::makeWorker(const WorkerParams& p,
-                                            signalslot::Signal<void(const ModuleDescription&)>& pre,
-                                            signalslot::Signal<void(const ModuleDescription&)>& post) const
+  Maker* Factory::findMaker(const WorkerParams& p) const
   {
     std::string modtype = p.pset_->getParameter<std::string>("@module_type");
     FDEBUG(1) << "Factory: module_type = " << modtype << std::endl;
     MakerMap::iterator it = makers_.find(modtype);
-
+    
     if(it == makers_.end())
-      {
-        std::unique_ptr<Maker> wm(MakerPluginFactory::get()->create(modtype));
+    {
+      std::unique_ptr<Maker> wm(MakerPluginFactory::get()->create(modtype));
+      
+      if(wm.get()==0)
+        throw edm::Exception(errors::Configuration,"UnknownModule")
+        << "Module " << modtype
+        << " with version " << p.processConfiguration_->releaseVersion()
+        << " was not registered.\n"
+        << "Perhaps your module type is misspelled or is not a "
+        << "framework plugin.\n"
+        << "Try running EdmPluginDump to obtain a list of "
+        << "available Plugins.";
+      
+      FDEBUG(1) << "Factory:  created worker of type " << modtype << std::endl;
+      
+      std::pair<MakerMap::iterator,bool> ret =
+      makers_.insert(std::pair<std::string,Maker*>(modtype,wm.get()));
+      
+      //	if(ret.second==false)
+      //	  throw runtime_error("Worker Factory map insert failed");
+      
+      it = ret.first;
+      wm.release();
+    }
+    return it->second;
+  }
+  
+  std::shared_ptr<maker::ModuleHolder> Factory::makeModule(const WorkerParams& p,
+                                            signalslot::Signal<void(const ModuleDescription&)>& pre,
+                                            signalslot::Signal<void(const ModuleDescription&)>& post) const
+  {
+    auto maker = findMaker(p);
+    auto mod(maker->makeModule(p,pre,post));
+    return mod;
+  }
 
-	if(wm.get()==0)
-	  throw edm::Exception(errors::Configuration,"UnknownModule")
-	    << "Module " << modtype
-	    << " with version " << p.processConfiguration_->releaseVersion()
-	    << " was not registered.\n"
-	    << "Perhaps your module type is misspelled or is not a "
-	    << "framework plugin.\n"
-	    << "Try running EdmPluginDump to obtain a list of "
-	    << "available Plugins.";
-	  
-	FDEBUG(1) << "Factory:  created worker of type " << modtype << std::endl;
+  std::shared_ptr<maker::ModuleHolder> Factory::makeReplacementModule(const edm::ParameterSet& p) const
+  {
+    std::string modtype = p.getParameter<std::string>("@module_type");
+    MakerMap::iterator it = makers_.find(modtype);
+    if(it != makers_.end()) {
+      return it->second->makeReplacementModule(p);
+    }
+    return std::shared_ptr<maker::ModuleHolder>{};
+  }
 
-	std::pair<MakerMap::iterator,bool> ret =
-	  makers_.insert(std::pair<std::string,Maker*>(modtype,wm.get()));
-
-	//	if(ret.second==false)
-	//	  throw runtime_error("Worker Factory map insert failed");
-
-	it = ret.first;
-	wm.release();
-      }
-
-    std::unique_ptr<Worker> w(it->second->makeWorker(p,pre,post));
+  std::unique_ptr<Worker> Factory::makeWorker(const WorkerParams& p,
+                                              std::shared_ptr<maker::ModuleHolder> iHolder) const
+  {
+    auto maker = findMaker(p);
+    auto w( maker->makeWorker(p,iHolder));
     return w;
   }
 

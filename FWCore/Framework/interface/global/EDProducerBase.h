@@ -33,12 +33,17 @@ namespace edm {
   class ModuleCallingContext;
   class StreamID;
   
+  namespace maker {
+    template<typename T> class ModuleHolderT;
+  }
+  
   namespace global {
     
     class EDProducerBase : public ProducerBase, public EDConsumerBase
     {
       
     public:
+      template <typename T> friend class edm::maker::ModuleHolderT;
       template <typename T> friend class edm::WorkerT;
       typedef EDProducerBase ModuleType;
       typedef WorkerT<EDProducerBase> WorkerType;

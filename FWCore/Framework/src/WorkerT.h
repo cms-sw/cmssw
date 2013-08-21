@@ -22,23 +22,20 @@ namespace edm {
   public:
     typedef T ModuleType;
     typedef WorkerT<T> WorkerType;
-    WorkerT(std::unique_ptr<T>&&,
+    WorkerT(T*,
             ModuleDescription const&,
             WorkerParams const&);
 
     virtual ~WorkerT();
 
   template<typename ModType>
-  static std::unique_ptr<T> makeModule(ModuleDescription const&,
-                                     ParameterSet const& pset) {
+  static std::unique_ptr<T> makeModule(ParameterSet const& pset) {
     std::unique_ptr<ModType> module = std::unique_ptr<ModType>(new ModType(pset));
     return std::unique_ptr<T>(module.release());
   }
 
-  void setModule( std::unique_ptr<T>&& iModule) {
-    module_ = std::move(iModule);
-     module_->setModuleDescription(description());
-     
+  void setModule( T* iModule) {
+    module_ = iModule;
   }
     
     virtual Types moduleType() const override;
@@ -115,7 +112,7 @@ namespace edm {
                                                unsigned int iNumberOfChildren) override;
      virtual std::string workerType() const override;
 
-    std::unique_ptr<T> module_;
+    T* module_;
   };
 
 }
