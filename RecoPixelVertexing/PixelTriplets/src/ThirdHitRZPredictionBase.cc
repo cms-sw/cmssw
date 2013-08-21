@@ -1,4 +1,4 @@
-#include "ThirdHitRZPredictionBase.h"
+#include "RecoPixelVertexing/PixelTriplets/interface/ThirdHitRZPredictionBase.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "TrackingTools/DetLayers/interface/BarrelDetLayer.h"
 #include "TrackingTools/DetLayers/interface/ForwardDetLayer.h"

@@ -59,6 +59,7 @@ bool SeedFromConsecutiveHitsCreator::initialKinematic(GlobalTrajectoryParameters
 
   TransientTrackingRecHit::ConstRecHitPointer tth1 = hits[0];
   TransientTrackingRecHit::ConstRecHitPointer tth2 = hits[1];
+  
   const GlobalPoint& vertexPos = region->origin();
 
   FastHelix helix(tth2->globalPosition(), tth1->globalPosition(), vertexPos, nomField,&*bfield);
