@@ -14,8 +14,8 @@ ulimit -m 2000000
 ulimit -v 2000000
 ulimit -t 3600
 export USER_LLVM_CHECKERS="-disable-checker unix -disable-checker threadsafety -disable-checker core -disable-checker security -disable-checker deadcode -disable-checker cms -enable-checker optional.ClassChecker"
-if [ ! -f /tmp/classes.txt ] 
+if [ ! -f ${CMSSW_BASE}/tmp/classes.txt ] 
 	then 
-	cp  -p ${CMSSW_BASE}/src/Utilities/StaticAnalyzers/scripts/classes.txt /tmp/classes.txt
+	cp  -p ${CMSSW_BASE}/src/Utilities/StaticAnalyzers/scripts/classes.txt ${CMSSW_BASE}/tmp/classes.txt
 fi
 scram b -k -j $J checker 2>&1 | tee /tmp/classchecker.log
