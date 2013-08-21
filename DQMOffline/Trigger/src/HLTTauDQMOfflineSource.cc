@@ -65,8 +65,6 @@ HLTTauDQMOfflineSource::HLTTauDQMOfflineSource( const edm::ParameterSet& ps ):
 
 HLTTauDQMOfflineSource::~HLTTauDQMOfflineSource() {
     //Clear the plotter collections
-    while (!caloPlotters.empty()) delete caloPlotters.back(), caloPlotters.pop_back();
-    while (!trackPlotters.empty()) delete trackPlotters.back(), trackPlotters.pop_back();
     while (!pathPlotters.empty()) delete pathPlotters.back(), pathPlotters.pop_back();
     while (!pathPlotters2.empty()) delete pathPlotters2.back(), pathPlotters2.pop_back();
     while (!litePathPlotters.empty()) delete litePathPlotters.back(), litePathPlotters.pop_back();
@@ -184,16 +182,6 @@ void HLTTauDQMOfflineSource::analyze(const Event& iEvent, const EventSetup& iSet
           if(l1Plotter->isValid())
             l1Plotter->analyze(iEvent, iSetup, refC);
         }
-        
-        //Calo Plotters
-        for ( unsigned int i = 0; i < caloPlotters.size(); ++i ) {
-            if (caloPlotters[i]->isValid()) caloPlotters[i]->analyze(iEvent,iSetup,refC);            
-        }
-        
-        //Track Plotters
-        for ( unsigned int i = 0; i < trackPlotters.size(); ++i ) {
-            if (trackPlotters[i]->isValid()) trackPlotters[i]->analyze(iEvent,iSetup,refC);
-        }
     } else {
         counterEvt_++;
     }
@@ -224,8 +212,6 @@ void HLTTauDQMOfflineSource::processPSet( const edm::ParameterSet& pset ) {
     doRefAnalysis_ = matching_.getUntrackedParameter<bool>("doMatching");
     
     //Clear the plotter collections first
-    while (!caloPlotters.empty()) delete caloPlotters.back(), caloPlotters.pop_back();
-    while (!trackPlotters.empty()) delete trackPlotters.back(), trackPlotters.pop_back();
     while (!pathPlotters.empty()) delete pathPlotters.back(), pathPlotters.pop_back();
     while (!pathPlotters2.empty()) delete pathPlotters2.back(), pathPlotters2.pop_back();
     while (!litePathPlotters.empty()) delete litePathPlotters.back(), litePathPlotters.pop_back();
@@ -243,21 +229,7 @@ void HLTTauDQMOfflineSource::processPSet( const edm::ParameterSet& pset ) {
             << e.what() << std::endl;
             continue;
         }
-        if (configtype == "Calo") {
-            try {
-                caloPlotters.push_back(new HLTTauDQMCaloPlotter(config_[i],NPtBins_,NEtaBins_,NPhiBins_,EtMax_,doRefAnalysis_,HLTMatchDr_,dqmBaseFolder_));
-            } catch ( cms::Exception &e ) {
-                edm::LogWarning("HLTTauDQMSource") << e.what() << std::endl;
-                continue;
-            }
-        } else if (configtype == "Track") {
-            try {
-                trackPlotters.push_back(new HLTTauDQMTrkPlotter(config_[i],NPtBins_,NEtaBins_,NPhiBins_,EtMax_,doRefAnalysis_,HLTMatchDr_,dqmBaseFolder_));    
-            } catch ( cms::Exception &e ) {
-                edm::LogWarning("HLTTauDQMSource") << e.what() << std::endl;
-                continue;
-            }
-        } else if (configtype == "Path") {
+        if (configtype == "Path") {
             try {
                 pathPlotters.push_back(new HLTTauDQMPathPlotter(config_[i],doRefAnalysis_,dqmBaseFolder_));
             } catch ( cms::Exception &e ) {

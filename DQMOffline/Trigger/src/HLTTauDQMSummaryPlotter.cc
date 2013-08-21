@@ -41,27 +41,6 @@ HLTTauDQMSummaryPlotter::HLTTauDQMSummaryPlotter( const edm::ParameterSet& ps, s
             bookEfficiencyHisto(triggerTag(),"L1JetEtaEff","EfficiencyHelpers/L1JetEtaEffNum");
             bookEfficiencyHisto(triggerTag(),"L1JetPhiEff","EfficiencyHelpers/L1JetPhiEffNum");
         }
-        
-        //L2 Summary
-        if ( type_ == "Calo" ) {
-            bookEfficiencyHisto(triggerTag(),"L2RecoTauEtEff","EfficiencyHelpers/L2RecoTauEtEffNum");
-            bookEfficiencyHisto(triggerTag(),"L2RecoTauEtaEff","EfficiencyHelpers/L2RecoTauEtaEffNum");
-            bookEfficiencyHisto(triggerTag(),"L2RecoTauPhiEff","EfficiencyHelpers/L2RecoTauPhiEffNum");
-            
-            bookEfficiencyHisto(triggerTag(),"L2IsoTauEtEff","EfficiencyHelpers/L2IsoTauEtEffNum");
-            bookEfficiencyHisto(triggerTag(),"L2IsoTauEtaEff","EfficiencyHelpers/L2IsoTauEtaEffNum");
-            bookEfficiencyHisto(triggerTag(),"L2IsoTauPhiEff","EfficiencyHelpers/L2IsoTauPhiEffNum");
-        }
-        
-        //L25/3 Summary
-        if ( type_ == "Track" ) {
-            bookEfficiencyHisto(triggerTag(),"L25TauEtEff","L25TauEtEffNum");
-            bookEfficiencyHisto(triggerTag(),"L25TauEtaEff","L25TauEtaEffNum");
-            bookEfficiencyHisto(triggerTag(),"L25TauPhiEff","L25TauPhiEffNum");
-            bookEfficiencyHisto(triggerTag(),"L3TauEtEff","L3TauEtEffNum");
-            bookEfficiencyHisto(triggerTag(),"L3TauEtaEff","L3TauEtaEffNum");
-            bookEfficiencyHisto(triggerTag(),"L3TauPhiEff","L3TauPhiEffNum");
-        }
     }
 }
 
@@ -100,27 +79,6 @@ void HLTTauDQMSummaryPlotter::plot() {
             plotEfficiencyHisto(triggerTag(),"L1MuonEtEff","EfficiencyHelpers/L1MuonEtEffNum","EfficiencyHelpers/L1MuonEtEffDenom");
             plotEfficiencyHisto(triggerTag(),"L1MuonEtaEff","EfficiencyHelpers/L1MuonEtaEffNum","EfficiencyHelpers/L1MuonEtaEffDenom");
             plotEfficiencyHisto(triggerTag(),"L1MuonPhiEff","EfficiencyHelpers/L1MuonPhiEffNum","EfficiencyHelpers/L1MuonPhiEffDenom");
-        }
-        
-        //L2 Summary
-        if ( type_ == "Calo" ) {
-            plotEfficiencyHisto(triggerTag(),"L2RecoTauEtEff","EfficiencyHelpers/L2RecoTauEtEffNum","EfficiencyHelpers/L2RecoTauEtEffDenom");
-            plotEfficiencyHisto(triggerTag(),"L2RecoTauEtaEff","EfficiencyHelpers/L2RecoTauEtaEffNum","EfficiencyHelpers/L2RecoTauEtaEffDenom");
-            plotEfficiencyHisto(triggerTag(),"L2RecoTauPhiEff","EfficiencyHelpers/L2RecoTauPhiEffNum","EfficiencyHelpers/L2RecoTauPhiEffDenom");
-            
-            plotEfficiencyHisto(triggerTag(),"L2IsoTauEtEff","EfficiencyHelpers/L2IsoTauEtEffNum","EfficiencyHelpers/L2IsoTauEtEffDenom");
-            plotEfficiencyHisto(triggerTag(),"L2IsoTauEtaEff","EfficiencyHelpers/L2IsoTauEtaEffNum","EfficiencyHelpers/L2IsoTauEtaEffDenom");
-            plotEfficiencyHisto(triggerTag(),"L2IsoTauPhiEff","EfficiencyHelpers/L2IsoTauPhiEffNum","EfficiencyHelpers/L2IsoTauPhiEffDenom");
-        }
-        
-        //L25/3 Summary
-        if ( type_ == "Track" ) {
-            plotEfficiencyHisto(triggerTag(),"L25TauEtEff","L25TauEtEffNum","L25TauEtEffDenom");
-            plotEfficiencyHisto(triggerTag(),"L25TauEtaEff","L25TauEtaEffNum","L25TauEtaEffDenom");
-            plotEfficiencyHisto(triggerTag(),"L25TauPhiEff","L25TauPhiEffNum","L25TauPhiEffDenom");
-            plotEfficiencyHisto(triggerTag(),"L3TauEtEff","L3TauEtEffNum","L3TauEtEffDenom");
-            plotEfficiencyHisto(triggerTag(),"L3TauEtaEff","L3TauEtaEffNum","L3TauEtaEffDenom");
-            plotEfficiencyHisto(triggerTag(),"L3TauPhiEff","L3TauPhiEffNum","L3TauPhiEffDenom");
         }
     }
 }      

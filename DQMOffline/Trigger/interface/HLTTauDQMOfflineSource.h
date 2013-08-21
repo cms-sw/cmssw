@@ -22,8 +22,6 @@
 
 //Plotters
 #include "DQMOffline/Trigger/interface/HLTTauDQML1Plotter.h"
-#include "DQMOffline/Trigger/interface/HLTTauDQMCaloPlotter.h"
-#include "DQMOffline/Trigger/interface/HLTTauDQMTrkPlotter.h"
 #include "DQMOffline/Trigger/interface/HLTTauDQMPathPlotter.h"
 #include "DQMOffline/Trigger/interface/HLTTauDQMPathPlotter2.h"
 #include "DQMOffline/Trigger/interface/HLTTauDQMLitePathPlotter.h"
@@ -111,8 +109,6 @@ private:
 
     //Define Dummy vectors of Plotters
     std::vector<std::unique_ptr<HLTTauDQML1Plotter>> l1Plotters_;
-    std::vector<HLTTauDQMCaloPlotter*> caloPlotters;
-    std::vector<HLTTauDQMTrkPlotter*> trackPlotters; 
     std::vector<HLTTauDQMPathPlotter*> pathPlotters;
     std::vector<HLTTauDQMPathPlotter2*> pathPlotters2;
     std::vector<HLTTauDQMLitePathPlotter*> litePathPlotters;
