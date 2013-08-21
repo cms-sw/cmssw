@@ -110,6 +110,6 @@ private:
     //Define Dummy vectors of Plotters
     std::vector<std::unique_ptr<HLTTauDQML1Plotter>> l1Plotters_;
     std::vector<HLTTauDQMPathPlotter*> pathPlotters;
-    std::vector<HLTTauDQMPathPlotter2*> pathPlotters2;
+    std::vector<std::unique_ptr<HLTTauDQMPathPlotter2>> pathPlotters2_;
     std::vector<HLTTauDQMLitePathPlotter*> litePathPlotters;
 };

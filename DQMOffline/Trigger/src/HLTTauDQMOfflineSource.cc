@@ -51,6 +51,13 @@ HLTTauDQMOfflineSource::HLTTauDQMOfflineSource( const edm::ParameterSet& ps ):
         edm::LogWarning("HLTTauDQMOfflineSource") << e.what() << std::endl;
         continue;
       }
+    } else if (configtype == "Path2") {
+      try {
+        pathPlotters2_.emplace_back(new HLTTauDQMPathPlotter2(pset, doRefAnalysis_, dqmBaseFolder_, hltProcessName_, nPtBins, nEtaBins, nPhiBins));
+      } catch ( cms::Exception &e ) {
+        edm::LogWarning("HLTTauDQMSource") << e.what() << std::endl;
+        continue;
+      }
     }
   }
 
@@ -66,7 +73,6 @@ HLTTauDQMOfflineSource::HLTTauDQMOfflineSource( const edm::ParameterSet& ps ):
 HLTTauDQMOfflineSource::~HLTTauDQMOfflineSource() {
     //Clear the plotter collections
     while (!pathPlotters.empty()) delete pathPlotters.back(), pathPlotters.pop_back();
-    while (!pathPlotters2.empty()) delete pathPlotters2.back(), pathPlotters2.pop_back();
     while (!litePathPlotters.empty()) delete litePathPlotters.back(), litePathPlotters.pop_back();
 }
 
@@ -81,6 +87,9 @@ void HLTTauDQMOfflineSource::beginRun( const edm::Run& iRun, const EventSetup& i
         if ( hltMenuChanged_ ) {
           for(auto& l1Plotter: l1Plotters_) {
             l1Plotter->beginRun();
+          }
+          for(auto& pathPlotter: pathPlotters2_) {
+            pathPlotter->beginRun(HLTCP_);
           }
 
             processPSet(ps_);
@@ -168,8 +177,9 @@ void HLTTauDQMOfflineSource::analyze(const Event& iEvent, const EventSetup& iSet
         for ( unsigned int i = 0; i < pathPlotters.size(); ++i ) {
             if (pathPlotters[i]->isValid()) pathPlotters[i]->analyze(iEvent,iSetup,refC);
         }
-        for ( unsigned int i = 0; i < pathPlotters2.size(); ++i ) {
-          if (pathPlotters2[i]->isValid()) pathPlotters2[i]->analyze(*triggerResultsHandle, *triggerEventHandle, refC);
+        for(auto& pathPlotter: pathPlotters2_) {
+          if(pathPlotter->isValid())
+            pathPlotter->analyze(*triggerResultsHandle, *triggerEventHandle, refC);
         }
         
         //Lite Path Plotters
@@ -213,7 +223,6 @@ void HLTTauDQMOfflineSource::processPSet( const edm::ParameterSet& pset ) {
     
     //Clear the plotter collections first
     while (!pathPlotters.empty()) delete pathPlotters.back(), pathPlotters.pop_back();
-    while (!pathPlotters2.empty()) delete pathPlotters2.back(), pathPlotters2.pop_back();
     while (!litePathPlotters.empty()) delete litePathPlotters.back(), litePathPlotters.pop_back();
     
     //Automatic Configuration
@@ -235,13 +244,6 @@ void HLTTauDQMOfflineSource::processPSet( const edm::ParameterSet& pset ) {
             } catch ( cms::Exception &e ) {
                 edm::LogWarning("HLTTauDQMSource") << e.what() << std::endl;
                 continue;
-            }
-        } else if (configtype == "Path2") {
-            try {
-              pathPlotters2.push_back(new HLTTauDQMPathPlotter2(config_[i], doRefAnalysis_, dqmBaseFolder_, HLTCP_, hltProcessName_, NPtBins_, NEtaBins_, NPhiBins_));
-            } catch ( cms::Exception &e ) {
-              edm::LogWarning("HLTTauDQMSource") << e.what() << std::endl;
-              continue;
             }
         } else if (configtype == "LitePath") {
             try {

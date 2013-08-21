@@ -149,9 +149,12 @@ namespace {
 }
 
 
-HLTTauDQMPathPlotter2::HLTTauDQMPathPlotter2(const edm::ParameterSet& pset, bool doRefAnalysis, const std::string& dqmBaseFolder, const HLTConfigProvider& HLTCP,
+HLTTauDQMPathPlotter2::HLTTauDQMPathPlotter2(const edm::ParameterSet& pset, bool doRefAnalysis, const std::string& dqmBaseFolder,
                                              const std::string& hltProcess, int ptbins, int etabins, int phibins):
   hltProcess_(hltProcess),
+  ptbins_(ptbins),
+  etabins_(etabins),
+  phibins_(phibins),
   doRefAnalysis_(doRefAnalysis)
 {
   dqmBaseFolder_ = dqmBaseFolder;
@@ -162,7 +165,10 @@ HLTTauDQMPathPlotter2::HLTTauDQMPathPlotter2(const edm::ParameterSet& pset, bool
   std::vector<boost::regex> ignoreFilterNames;
   try {
     triggerTag_         = pset.getUntrackedParameter<std::string>("DQMFolder");
-    regexs              = pset.getUntrackedParameter<std::vector<std::string> >("Path");
+    std::vector<std::string> regexsTmp = pset.getUntrackedParameter<std::vector<std::string> >("Path");
+    pathRegexs_.reserve(regexsTmp.size());
+    for(const std::string& str: regexsTmp)
+      pathRegexs_.emplace_back(str);
 
     std::vector<std::string> ignoreFilterTypesTmp;
     std::vector<std::string> ignoreFilterNamesTmp;
@@ -181,9 +187,16 @@ HLTTauDQMPathPlotter2::HLTTauDQMPathPlotter2(const edm::ParameterSet& pset, bool
     return;
   }
 
+  validity_ = true;
+}
+
+void HLTTauDQMPathPlotter2::beginRun(const HLTConfigProvider& HLTCP) {
+  if(!validity_)
+    return;
+
   // Identify the correct HLT path
   if(!HLTCP.inited()) {
-    edm::LogInfo("HLTTauDQMOffline") << "HLTTauDQMPathPlotter2::HLTTauDQMPathPlotter2(): HLTConfigProvider is not initialized!";
+    edm::LogInfo("HLTTauDQMOffline") << "HLTTauDQMPathPlotter2::beginRun(): HLTConfigProvider is not initialized!";
     validity_ = false;
     return;
   }
@@ -192,9 +205,8 @@ HLTTauDQMPathPlotter2::HLTTauDQMPathPlotter2(const edm::ParameterSet& pset, bool
   std::vector<HLTPath> foundPaths;
   try {
     const std::vector<std::string>& triggerNames = HLTCP.triggerNames();
-    for(const std::string& regexStr: regexs) {
+    for(const boost::regex& re: pathRegexs_) {
       //std::cout << regexStr << std::endl;
-      const boost::regex re(regexStr);
       boost::smatch what;
 
       for(const std::string& path: triggerNames) {
@@ -212,10 +224,10 @@ HLTTauDQMPathPlotter2::HLTTauDQMPathPlotter2(const edm::ParameterSet& pset, bool
   }
   if(foundPaths.empty()) {
     std::stringstream ss;
-    for(std::vector<std::string>::const_iterator iRegex = regexs.begin(); iRegex != regexs.end(); ++iRegex) {
-      if(iRegex != regexs.begin())
+    for(std::vector<boost::regex>::const_iterator iRegex = pathRegexs_.begin(); iRegex != pathRegexs_.end(); ++iRegex) {
+      if(iRegex != pathRegexs_.begin())
         ss << ",";
-      ss << *iRegex;
+      ss << iRegex->str();
     }
     edm::LogInfo("HLTTauDQMOffline") << "HLTTauDQMPathPlotter2::HLTTauDQMPathPlotter2(): did not find any paths matching to regexes " << ss.str();
     validity_ = false;
@@ -233,7 +245,7 @@ HLTTauDQMPathPlotter2::HLTTauDQMPathPlotter2(const edm::ParameterSet& pset, bool
   std::cout << "Chose path " << thePath->name() << std::endl;
 
   // Get the filters
-  filterIndices_ = thePath->interestingFilters(HLTCP, doRefAnalysis, ignoreFilterTypes, ignoreFilterNames);
+  filterIndices_ = thePath->interestingFilters(HLTCP, doRefAnalysis_, ignoreFilterTypes_, ignoreFilterNames_);
   std::cout << "  Filters" << std::endl;
   for(const FilterIndex& nameIndex: filterIndices_)
     std::cout << "    " << std::get<1>(nameIndex) << " " << std::get<0>(nameIndex) << "  " << HLTCP.moduleType(std::get<0>(nameIndex)) << std::endl;
@@ -252,12 +264,10 @@ HLTTauDQMPathPlotter2::HLTTauDQMPathPlotter2(const edm::ParameterSet& pset, bool
       hAcceptedEvents_->setBinLabel(i+1, std::get<0>(filterIndices_[i]));
     }
 
-    hTrigTauEt_ = store_->book1D("TrigTauEt",   "#tau E_{t}", ptbins,     0, 100);
-    hTrigTauEta_ = store_->book1D("TrigTauEta", "#tau #eta",  etabins, -2.5, 2.5);
-    hTrigTauPhi_ = store_->book1D("TrigTauPhi", "#tau #phi",  phibins, -3.2, 3.2);
+    hTrigTauEt_ = store_->book1D("TrigTauEt",   "#tau E_{t}", ptbins_,     0, 100);
+    hTrigTauEta_ = store_->book1D("TrigTauEta", "#tau #eta",  etabins_, -2.5, 2.5);
+    hTrigTauPhi_ = store_->book1D("TrigTauPhi", "#tau #phi",  phibins_, -3.2, 3.2);
   }
-
-  validity_ = true;
 }
 
 
