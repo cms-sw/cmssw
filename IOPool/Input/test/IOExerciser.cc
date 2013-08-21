@@ -22,6 +22,7 @@ to use this plugin.
 #include <memory>
 
 // user include files
+#include "FWCore/Common/interface/Provenance.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/OutputModule.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
@@ -32,7 +33,6 @@ to use this plugin.
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
-#include "DataFormats/Provenance/interface/Provenance.h"
 
 #include "TBranch.h"
 #include "TTree.h"

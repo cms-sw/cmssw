@@ -6,7 +6,6 @@
 
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/interface/FileBlock.h"
-#include "FWCore/ParameterSet/interface/FillProductRegistryTransients.h"
 #include "DataFormats/Provenance/interface/BranchDescription.h"
 #include "DataFormats/Provenance/interface/ProductProvenance.h"
 #include "DataFormats/Provenance/interface/EventAuxiliary.h"
@@ -74,7 +73,6 @@ namespace edm {
     if (subsequent) {
       ProductRegistry pReg;
       pReg.updateFromInput(descs);
-      fillProductRegistryTransients(header.processConfigurations(), pReg);
       std::string mergeInfo = reg.merge(pReg, std::string(), BranchDescription::Permissive);
       if (!mergeInfo.empty()) {
         throw cms::Exception("MismatchedInput","RootInputFileSequence::previousEvent()") << mergeInfo;
@@ -86,7 +84,6 @@ namespace edm {
       loadExtraClasses();
       if(!reg.frozen()) {
         reg.updateFromInput(descs);
-        fillProductRegistryTransients(header.processConfigurations(), reg);
       }
       branchIDListHelper.updateFromInput(header.branchIDLists());
     }

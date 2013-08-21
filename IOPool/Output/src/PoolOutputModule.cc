@@ -265,7 +265,6 @@ namespace edm {
     writeFileFormatVersion();
     writeFileIdentifier();
     writeIndexIntoFile();
-    writeProcessConfigurationRegistry();
     writeProcessHistoryRegistry();
     writeParameterSetRegistry();
     writeProductDescriptionRegistry();
@@ -283,7 +282,6 @@ namespace edm {
   void PoolOutputModule::writeFileFormatVersion() { rootOutputFile_->writeFileFormatVersion(); }
   void PoolOutputModule::writeFileIdentifier() { rootOutputFile_->writeFileIdentifier(); }
   void PoolOutputModule::writeIndexIntoFile() { rootOutputFile_->writeIndexIntoFile(); }
-  void PoolOutputModule::writeProcessConfigurationRegistry() { rootOutputFile_->writeProcessConfigurationRegistry(); }
   void PoolOutputModule::writeProcessHistoryRegistry() { rootOutputFile_->writeProcessHistoryRegistry(); }
   void PoolOutputModule::writeParameterSetRegistry() { rootOutputFile_->writeParameterSetRegistry(); }
   void PoolOutputModule::writeProductDescriptionRegistry() { rootOutputFile_->writeProductDescriptionRegistry(); }
