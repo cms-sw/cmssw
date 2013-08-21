@@ -6,7 +6,7 @@
 #include "DataFormats/Provenance/interface/BranchListIndex.h"
 #include "DataFormats/Provenance/interface/ProductIDToBranchID.h"
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
-#include "DataFormats/Provenance/interface/Provenance.h"
+#include "FWCore/Common/interface/Provenance.h"
 #include "FWCore/Framework/interface/DelayedReader.h"
 #include "FWCore/Framework/interface/ProductHolder.h"
 #include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"

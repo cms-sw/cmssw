@@ -53,7 +53,7 @@ class GsfElectronBaseProducer : public edm::EDProducer
 
     // check expected configuration of previous modules
     bool ecalSeedingParametersChecked_ ;
-    void checkEcalSeedingParameters( edm::ParameterSetID const & ) ;
+    void checkEcalSeedingParameters( edm::ParameterSet const & ) ;
 
  } ;
 

@@ -21,6 +21,7 @@
 #include <memory>
 
 // user include files
+#include "FWCore/Common/interface/Provenance.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 
@@ -119,7 +120,7 @@ ClusterAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
 
      //  Provenance Information
      const Provenance& prov = iEvent.getProvenance(class_.id());
-     edm::ParameterSet pSet=getParameterSet( prov.psetID() );   
+     const edm::ParameterSet& pSet = parameterSet(prov);   
 
      ProvInfo = "";
      ProvInfo_vars = "";

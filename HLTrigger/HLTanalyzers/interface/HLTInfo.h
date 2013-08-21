@@ -33,7 +33,7 @@
 
 //ccla
 #include "FWCore/Framework/interface/EventPrincipal.h"
-#include "DataFormats/Provenance/interface/Provenance.h"
+#include "FWCore/Common/interface/Provenance.h"
 
 /* #include "CalibFormats/CaloTPG/interface/CaloTPGTranscoder.h" */
 /* #include "CalibFormats/CaloTPG/interface/CaloTPGRecord.h" */

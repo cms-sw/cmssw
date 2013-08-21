@@ -142,7 +142,6 @@ namespace edm {
     void setPosition(IndexIntoFile::IndexIntoFileItr const& position);
 
   private:
-    void checkReleaseVersion();
     RootTreePtrArray& treePointers() {return treePointers_;}
     bool skipThisEntry();
     IndexIntoFile::EntryType getEntryTypeWithSkipping();
@@ -173,7 +172,6 @@ namespace edm {
     std::string const file_;
     std::string const logicalFile_;
     ProcessConfiguration const& processConfiguration_;
-    ProcessConfigurationVector processConfigurations_;
     boost::shared_ptr<InputFile> filePtr_;
     boost::shared_ptr<EventSkipperByID> eventSkipperByID_;
     FileFormatVersion fileFormatVersion_;

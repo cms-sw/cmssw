@@ -3,7 +3,7 @@
 // user include files
 
 #include "Calibration/HcalAlCaRecoProducers/src/ProducerAnalyzer.h"
-#include "DataFormats/Provenance/interface/Provenance.h"
+#include "FWCore/Common/interface/Provenance.h"
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "DataFormats/JetReco/interface/CaloJetCollection.h"
@@ -88,7 +88,7 @@ ProducerAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
   for( std::vector<Provenance const*>::const_iterator ip = theProvenance.begin();
                                                       ip != theProvenance.end(); ip++)
   {
-     cout<<" Print all module/label names "<<(**ip).moduleName()<<" "<<(**ip).moduleLabel()<<
+     cout<<" Print all module/label names "<<moduleName(**ip)<<" "<<(**ip).moduleLabel()<<
      " "<<(**ip).productInstanceName()<<endl;
   }
   

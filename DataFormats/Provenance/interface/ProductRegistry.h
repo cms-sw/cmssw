@@ -51,7 +51,6 @@ namespace edm {
 
     std::string merge(ProductRegistry const& other,
         std::string const& fileName,
-        BranchDescription::MatchMode parametersMustMatch = BranchDescription::Permissive,
         BranchDescription::MatchMode branchesMustMatch = BranchDescription::Permissive);
 
     void updateFromInput(ProductList const& other);

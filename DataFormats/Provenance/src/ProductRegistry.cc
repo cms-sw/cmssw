@@ -214,7 +214,6 @@ namespace edm {
   std::string
   ProductRegistry::merge(ProductRegistry const& other,
         std::string const& fileName,
-        BranchDescription::MatchMode parametersMustMatch,
         BranchDescription::MatchMode branchesMustMatch) {
     std::ostringstream differences;
 
@@ -245,9 +244,9 @@ namespace edm {
         }
         ++j;
       } else {
-        std::string difs = match(j->second, i->second, fileName, parametersMustMatch);
+        std::string difs = match(j->second, i->second, fileName);
         if(difs.empty()) {
-          if(parametersMustMatch == BranchDescription::Permissive) j->second.merge(i->second);
+          j->second.merge(i->second);
         } else {
           differences << difs;
         }

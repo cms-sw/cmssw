@@ -39,7 +39,6 @@
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"
 #include "FWCore/Framework/interface/RunPrincipal.h"
-#include "FWCore/ParameterSet/interface/FillProductRegistryTransients.h"
 #include "FWCore/ParameterSet/interface/Registry.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Utilities/interface/FriendlyName.h"
@@ -398,7 +397,6 @@ TFWLiteSelectorBasic::setupNewFile(TFile& iFile) {
   m_->pointerToBranchBuffer_.erase(m_->pointerToBranchBuffer_.begin(),
                                    m_->pointerToBranchBuffer_.end());
 
-  fillProductRegistryTransients(procConfigVector, *m_->reg_);
   std::auto_ptr<edm::ProductRegistry> newReg(new edm::ProductRegistry());
 
   edm::ProductRegistry::ProductList& prodList = m_->reg_->productListUpdator();

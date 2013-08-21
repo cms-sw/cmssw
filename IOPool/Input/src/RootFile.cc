@@ -26,7 +26,6 @@
 #include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"
 #include "FWCore/Framework/interface/RunPrincipal.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/ParameterSet/interface/FillProductRegistryTransients.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/Registry.h"
 #include "FWCore/Sources/interface/EventSkipperByID.h"
@@ -96,6 +95,22 @@ namespace edm {
       }
       return offset;
     }
+
+    void
+    checkReleaseVersion(std::vector<ProcessHistory> processHistoryVector, std::string const& fileName) {
+      std::string releaseVersion = getReleaseVersion();
+      releaseversion::DecomposedReleaseVersion currentRelease(releaseVersion);
+      for(auto const& ph : processHistoryVector) {
+        for(auto const& pc : ph) {
+          if(releaseversion::isEarlierRelease(currentRelease, pc.releaseVersion())) {
+            throw Exception(errors::FormatIncompatibility)
+              << "The release you are using, " << getReleaseVersion() << " , predates\n"
+              << "a release (" << pc.releaseVersion() << ") used in writing the input file, " << fileName <<".\n"
+              << "Forward compatibility cannot be supported.\n";
+          }
+        }
+      }
+    }
   }
 
   // This is a helper class for IndexIntoFile.
@@ -146,7 +161,6 @@ namespace edm {
       file_(fileName),
       logicalFile_(logicalFileName),
       processConfiguration_(processConfiguration),
-      processConfigurations_(),
       filePtr_(filePtr),
       eventSkipperByID_(eventSkipperByID),
       fileFormatVersion_(),
@@ -274,7 +288,9 @@ namespace edm {
       metaDataTree->SetBranchAddress(poolNames::processHistoryBranchName().c_str(), &pHistVectorPtr);
     }
 
-    ProcessConfigurationVector* procConfigVectorPtr = &processConfigurations_;
+    // backward compatibility
+    ProcessConfigurationVector processConfigurations;
+    ProcessConfigurationVector* procConfigVectorPtr = &processConfigurations;
     if(metaDataTree->FindBranch(poolNames::processConfigurationBranchName().c_str()) != nullptr) {
       metaDataTree->SetBranchAddress(poolNames::processConfigurationBranchName().c_str(), &procConfigVectorPtr);
     }
@@ -307,8 +323,6 @@ namespace edm {
     // Here we read the metadata tree
     roottree::getEntry(metaDataTree.get(), 0);
 
-    checkReleaseVersion();
-
     eventProcessHistoryIter_ = eventProcessHistoryIDs_.begin();
 
     // Here we read the event history tree, if we have one.
@@ -329,14 +343,14 @@ namespace edm {
     if(!fileFormatVersion().splitProductIDs()) {
       // Old provenance format input file.  Create a provenance adaptor.
       provenanceAdaptor_.reset(new ProvenanceAdaptor(
-            inputProdDescReg, pHistMap, pHistVector, processConfigurations_, psetIdConverter, true));
+            inputProdDescReg, pHistMap, pHistVector, processConfigurations, psetIdConverter, true));
       // Fill in the branchIDLists branch from the provenance adaptor
       branchIDLists_ = provenanceAdaptor_->branchIDLists();
     } else {
       if(!fileFormatVersion().triggerPathsTracked()) {
         // New provenance format, but change in ParameterSet Format. Create a provenance adaptor.
         provenanceAdaptor_.reset(new ProvenanceAdaptor(
-            inputProdDescReg, pHistMap, pHistVector, processConfigurations_, psetIdConverter, false));
+            inputProdDescReg, pHistMap, pHistVector, processConfigurations, psetIdConverter, false));
       }
       // New provenance format input file. The branchIDLists branch was read directly from the input file.
       if(metaDataTree->FindBranch(poolNames::branchIDListBranchName().c_str()) == nullptr) {
@@ -345,6 +359,8 @@ namespace edm {
       }
       branchIDLists_.reset(branchIDListsAPtr.release());
     }
+
+    checkReleaseVersion(pHistVector, file());
 
     if(labelRawDataLikeMC) {
       std::string const rawData("FEDRawDataCollection");
@@ -372,7 +388,7 @@ namespace edm {
         // Insert the new branch description into the product registry.
         inputProdDescReg.copyProduct(newBD);
         // Fix up other per file metadata.
-        daqProvenanceHelper_->fixMetaData(processConfigurations_, pHistVector);
+        daqProvenanceHelper_->fixMetaData(processConfigurations, pHistVector);
         daqProvenanceHelper_->fixMetaData(*branchIDLists_);
         daqProvenanceHelper_->fixMetaData(*branchChildren_);
       }
@@ -406,8 +422,6 @@ namespace edm {
       prod.init();
       treePointers_[prod.branchType()]->setPresence(prod, newBranchToOldBranch(prod.branchName()));
     }
-
-    fillProductRegistryTransients(processConfigurations_, inputProdDescReg);
 
     std::unique_ptr<ProductRegistry> newReg(new ProductRegistry);
 
@@ -1613,20 +1627,6 @@ namespace edm {
       if(!eventHistoryTree_) {
         throw Exception(errors::EventCorruption)
           << "Failed to find the event history tree.\n";
-      }
-    }
-  }
-
-  void
-  RootFile::checkReleaseVersion() {
-    std::string releaseVersion = getReleaseVersion();
-    releaseversion::DecomposedReleaseVersion currentRelease(releaseVersion);
-    for(auto const& pc : processConfigurations_) {
-      if(releaseversion::isEarlierRelease(currentRelease, pc.releaseVersion())) {
-        throw Exception(errors::FormatIncompatibility)
-          << "The release you are using, " << getReleaseVersion() << " , predates\n"
-          << "a release (" << pc.releaseVersion() << ") used in writing the input file, " << file() <<".\n"
-          << "Forward compatibility cannot be supported.\n";
       }
     }
   }

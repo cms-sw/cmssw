@@ -2,7 +2,7 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "DataFormats/Provenance/interface/ParameterSetID.h"
-#include "DataFormats/Provenance/interface/Provenance.h"
+#include "FWCore/Common/interface/Provenance.h"
 #include "FWCore/Common/interface/TriggerNames.h"
 #include "FWCore/Common/interface/TriggerResultsByName.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
@@ -164,25 +164,16 @@ namespace edmtest {
         }
       }
 
-      // The provenance of the TriggerResults object should also contain the
-      // parameter set ID for the parameter set that lists the trigger paths.
+      // The provenance of the TriggerResults object should also determine the
+      // ID for the parameter set that lists the trigger paths.
       // Test this by getting this parameter set and verifying the trigger
       // paths are the correct size.
       if(!streamerSource_) {
-        ParameterSetID trigpathsID = prod[0].provenance()->product().psetID();
-        pset::Registry* psetRegistry = pset::Registry::instance();
-        ParameterSet const* trigpset = psetRegistry->getMapped(trigpathsID);
-        if(0 != trigpset) {
-          Strings trigpaths = trigpset->getParameter<Strings>("@trigger_paths");
-          if(trigpaths.size() != expected_trigger_previous_.size()) {
-            std::cerr << "TestTriggerNames: Using provenance\n"
-                 << "Expected and actual previous trigger path not the same size" << std::endl;
-            abort();
-          }
-        }
-        else {
-          std::cerr << "TestTriggerNames: "
-               << "Could not find trigger_paths parameter set in registry" << std::endl;
+        ParameterSet const& trigpset = parameterSet(*prod[0].provenance());
+        Strings trigpaths = trigpset.getParameter<Strings>("@trigger_paths");
+        if(trigpaths.size() != expected_trigger_previous_.size()) {
+          std::cerr << "TestTriggerNames: Using provenance\n"
+                    << "Expected and actual previous trigger path not the same size" << std::endl;
           abort();
         }
       }

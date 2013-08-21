@@ -54,11 +54,6 @@ namespace edm {
     return *processConfigurationPtr_;
   }
 
-  ProcessConfigurationID
-  ModuleDescription::processConfigurationID() const {
-    return processConfiguration().id();
-  }
-
   std::string const&
   ModuleDescription::processName() const {
     return processConfiguration().processName();
