@@ -40,7 +40,7 @@ public:
     
 private:
   virtual 
-  bool hltFilter(edm::Event & event, const edm::EventSetup & setup, trigger::TriggerFilterObjectWithRefs & filterproduct);
+  bool hltFilter(edm::Event & event, const edm::EventSetup & setup, trigger::TriggerFilterObjectWithRefs & filterproduct) override;
 
   edm::InputTag m_inputTag;     // input vertex collection
   double        m_minNDoF;      // minimum vertex NDoF

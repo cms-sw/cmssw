@@ -51,9 +51,9 @@ class ZMuMuAnalyzer_cynematics : public edm::EDAnalyzer {
 public:
   ZMuMuAnalyzer_cynematics(const edm::ParameterSet& pset);
 private:
-  virtual void analyze(const edm::Event& event, const edm::EventSetup& setup);
+  virtual void analyze(const edm::Event& event, const edm::EventSetup& setup) override;
   bool isContained(const Candidate &, const Candidate &);
-  virtual void endJob();
+  virtual void endJob() override;
   
   OverlapChecker overlap_;
   InputTag zMuMu_;

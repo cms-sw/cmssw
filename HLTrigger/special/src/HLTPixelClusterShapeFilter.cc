@@ -27,7 +27,7 @@ private:
     float w;
   };
 
-  virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct);
+  virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) override;
   int getContainedHits(const std::vector<VertexHit> &hits, double z0, double &chi);
 
 };

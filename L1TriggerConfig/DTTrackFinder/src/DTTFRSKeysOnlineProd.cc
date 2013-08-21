@@ -34,7 +34,7 @@ class DTTFRSKeysOnlineProd : public L1ObjectKeysOnlineProdBase {
       DTTFRSKeysOnlineProd(const edm::ParameterSet&);
       ~DTTFRSKeysOnlineProd();
 
-      virtual void fillObjectKeys( ReturnType pL1TriggerKey ) ;
+      virtual void fillObjectKeys( ReturnType pL1TriggerKey ) override ;
    private:
       // ----------member data ---------------------------
 };

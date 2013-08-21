@@ -7,7 +7,7 @@ class L1GctTSCObjectKeysOnlineProd : public L1ObjectKeysOnlineProdBase {
          : L1ObjectKeysOnlineProdBase( iConfig ) {}
       ~L1GctTSCObjectKeysOnlineProd() {}
 
-      virtual void fillObjectKeys( ReturnType pL1TriggerKey ) ;
+      virtual void fillObjectKeys( ReturnType pL1TriggerKey ) override ;
    private:
 };
 

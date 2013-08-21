@@ -53,7 +53,7 @@ class RecoTauDiscriminatorRefSelectorImpl : public edm::EDFilter {
   public:
     explicit RecoTauDiscriminatorRefSelectorImpl(const edm::ParameterSet &pset);
     ~RecoTauDiscriminatorRefSelectorImpl() {}
-    bool filter(edm::Event &evt, const edm::EventSetup &es);
+    bool filter(edm::Event &evt, const edm::EventSetup &es) override;
   private:
     typedef typename T::OutputType OutputType;
     edm::InputTag src_;

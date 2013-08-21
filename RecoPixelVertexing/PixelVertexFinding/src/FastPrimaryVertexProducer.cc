@@ -76,7 +76,7 @@ class FastPrimaryVertexProducer : public edm::EDProducer {
       explicit FastPrimaryVertexProducer(const edm::ParameterSet&);
 
    private:
-      virtual void produce(edm::Event&, const edm::EventSetup&);
+      virtual void produce(edm::Event&, const edm::EventSetup&) override;
       edm::InputTag m_clusters;
       edm::InputTag m_jets;
       edm::InputTag m_beamSpot;

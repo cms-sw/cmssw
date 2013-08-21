@@ -33,7 +33,7 @@ namespace cond {
     {
       // here one can make stuff really complicated...
     }
-    void compute(Class const & it){
+    void compute(Class const & it) override{
     }
   private:
   
@@ -60,7 +60,7 @@ namespace cond {
 		//change me
 		typedef EcalMGPAGainRatio EcalObject;
 
-		type_vValues getValues( const std::vector<EcalObject> & vItems)
+		type_vValues getValues( const std::vector<EcalObject> & vItems) override
 		{
 			//change me
 			//unsigned int totalValues = 2; 

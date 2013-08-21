@@ -54,11 +54,11 @@ class HcalDAQInfo : public edm::EDAnalyzer {
       ~HcalDAQInfo();
 
    private:
-      virtual void beginJob();
-      virtual void analyze(const edm::Event&, const edm::EventSetup&);
-      virtual void endJob() ;
-      virtual void beginLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&) ;
-      virtual void endLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&) ;
+      virtual void beginJob() override;
+      virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
+      virtual void endJob() override ;
+      virtual void beginLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&) override ;
+      virtual void endLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&) override ;
 
    // ----------member data ---------------------------
 

@@ -38,8 +38,8 @@ public:
    FWConversionProxyBuilder() ;
    virtual ~FWConversionProxyBuilder();
 
-   virtual bool haveSingleProduct() const { return false; }
-   virtual void cleanLocal();
+   virtual bool haveSingleProduct() const override { return false; }
+   virtual void cleanLocal() override;
 
    REGISTER_PROXYBUILDER_METHODS();
 
@@ -47,7 +47,7 @@ private:
    FWConversionProxyBuilder( const FWConversionProxyBuilder& ); // stop default
    const FWConversionProxyBuilder& operator=( const FWConversionProxyBuilder& ); // stop default
   
-   virtual void buildViewType(const reco::Conversion& iData, unsigned int iIndex, TEveElement& oItemHolder, FWViewType::EType type , const FWViewContext*);
+   virtual void buildViewType(const reco::Conversion& iData, unsigned int iIndex, TEveElement& oItemHolder, FWViewType::EType type , const FWViewContext*) override;
 
    TEveElementList* requestCommon();
 

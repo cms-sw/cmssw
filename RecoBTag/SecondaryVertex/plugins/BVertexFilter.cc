@@ -43,7 +43,7 @@ class BVertexFilter : public edm::EDFilter {
       ~BVertexFilter();
 
    private:
-      virtual bool filter(edm::Event&, const edm::EventSetup&);
+      virtual bool filter(edm::Event&, const edm::EventSetup&) override;
       edm::EDGetTokenT<reco::VertexCollection> token_primaryVertex;
       edm::EDGetTokenT<reco::VertexCollection> token_secondaryVertex;
       reco::VertexFilter                      svFilter;

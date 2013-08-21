@@ -36,9 +36,9 @@ public:
 
 private:
 
-  virtual void produce(edm::Event&, const edm::EventSetup&);
-  virtual void beginJob();
-  virtual void endJob();
+  virtual void produce(edm::Event&, const edm::EventSetup&) override;
+  virtual void beginJob() override;
+  virtual void endJob() override;
 
   edm::InputTag muonTag_;
   edm::InputTag metTag_;

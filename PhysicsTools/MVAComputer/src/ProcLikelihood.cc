@@ -39,10 +39,10 @@ class ProcLikelihood : public VarProcessor {
 	               const MVAComputer *computer);
 	virtual ~ProcLikelihood() {}
 
-	virtual void configure(ConfIterator iter, unsigned int n);
-	virtual void eval(ValueIterator iter, unsigned int n) const;
+	virtual void configure(ConfIterator iter, unsigned int n) override;
+	virtual void eval(ValueIterator iter, unsigned int n) const override;
 	virtual std::vector<double> deriv(
-				ValueIterator iter, unsigned int n) const;
+				ValueIterator iter, unsigned int n) const override;
 
     private:
 	struct PDF {
@@ -64,8 +64,8 @@ class ProcLikelihood : public VarProcessor {
 			spline.set(values.size(), &values.front());
 		}
 
-		virtual double eval(double value) const;
-		virtual double deriv(double value) const;
+		virtual double eval(double value) const override;
+		virtual double deriv(double value) const override;
 
 		double		min, width;
 		Spline		spline;
@@ -75,8 +75,8 @@ class ProcLikelihood : public VarProcessor {
 		HistogramPDF(const Calibration::HistogramF *calib) :
 			histo(calib) {}
 
-		virtual double eval(double value) const;
-		virtual double deriv(double value) const;
+		virtual double eval(double value) const override;
+		virtual double deriv(double value) const override;
 
 		const Calibration::HistogramF	*histo;
 	};

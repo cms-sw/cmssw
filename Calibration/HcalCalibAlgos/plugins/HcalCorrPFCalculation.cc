@@ -44,9 +44,9 @@ class HcalCorrPFCalculation : public edm::EDAnalyzer {
  public:
   HcalCorrPFCalculation(edm::ParameterSet const& conf);
   ~HcalCorrPFCalculation();
-  virtual void analyze(edm::Event const& ev, edm::EventSetup const& c);
-  virtual void beginJob() ;
-  virtual void endJob() ;
+  virtual void analyze(edm::Event const& ev, edm::EventSetup const& c) override;
+  virtual void beginJob() override ;
+  virtual void endJob() override ;
  private:
   
   double RecalibFactor(HcalDetId id);

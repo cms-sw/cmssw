@@ -53,9 +53,9 @@ private:
     FFTJetImageRecorder(const FFTJetImageRecorder&);
     FFTJetImageRecorder& operator=(const FFTJetImageRecorder&);
 
-    virtual void beginJob() ;
-    virtual void analyze(const edm::Event&, const edm::EventSetup&);
-    virtual void endJob() ;
+    virtual void beginJob() override ;
+    virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
+    virtual void endJob() override ;
 
     edm::InputTag histoLabel;
     unsigned long counter;

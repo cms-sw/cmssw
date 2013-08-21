@@ -51,8 +51,8 @@ class PFTauMVADiscriminator : public PFTauDiscriminationProducerBase {
       typedef std::vector<MVAComputerFromDB>    MVAList;
       typedef std::map<int, MVAList::iterator> DecayModeToMVAMap;
 
-      void beginEvent(const edm::Event&, const edm::EventSetup&); // called at the beginning of each event
-      double discriminate(const PFTauRef&);             // called on every tau in input collection
+      void beginEvent(const edm::Event&, const edm::EventSetup&) override; // called at the beginning of each event
+      double discriminate(const PFTauRef&) override;             // called on every tau in input collection
 
    private:
       edm::InputTag                  pfTauDecayModeSrc_;

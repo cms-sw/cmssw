@@ -53,10 +53,10 @@ class CastorClusterProducer : public edm::EDProducer {
       ~CastorClusterProducer();
 
    private:
-      virtual void beginJob() ;
-      virtual void produce(edm::Event&, const edm::EventSetup&);
+      virtual void beginJob() override ;
+      virtual void produce(edm::Event&, const edm::EventSetup&) override;
       double phiangle (double testphi);
-      virtual void endJob() ;
+      virtual void endJob() override ;
       
       // ----------member data ---------------------------
       typedef math::XYZPointD Point;

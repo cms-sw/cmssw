@@ -53,11 +53,11 @@ class ZmumuPFEmbedder : public edm::EDProducer {
       ~ZmumuPFEmbedder();
 
    private:
-      virtual void beginJob() ;
-      virtual void produce(edm::Event&, const edm::EventSetup&);
+      virtual void beginJob() override ;
+      virtual void produce(edm::Event&, const edm::EventSetup&) override;
       void producePFCandColl(edm::Event&, const std::vector< reco::Particle::LorentzVector > * toBeAdded );
       void produceTrackColl(edm::Event&, const std::vector< reco::Particle::LorentzVector > * toBeAdded );
-      virtual void endJob() ;
+      virtual void endJob() override ;
       
       edm::InputTag _tracks;
       edm::InputTag _selectedMuons;

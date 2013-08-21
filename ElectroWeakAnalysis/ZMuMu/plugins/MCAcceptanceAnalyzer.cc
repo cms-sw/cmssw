@@ -55,8 +55,8 @@ class MCAcceptanceAnalyzer : public EDAnalyzer {
 public:
   MCAcceptanceAnalyzer(const ParameterSet& cfg);
 private:
-  void analyze(const Event&, const EventSetup&);
-  void endJob();
+  void analyze(const Event&, const EventSetup&) override;
+  void endJob() override;
   InputTag zToMuMu_, zToMuMuMC_, zToMuMuMatched_;
   long nZToMuMu_, selZToMuMu_, nZToMuMuMC_, selZToMuMuMC_, nZToMuMuMCMatched_, selZToMuMuMCMatched_, nZToMuMuMCDen_;
   ZSelector select_, select_OnlyMassCut_;

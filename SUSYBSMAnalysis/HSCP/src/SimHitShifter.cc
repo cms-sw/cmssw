@@ -112,15 +112,15 @@ class SimHitShifter : public edm::EDProducer {
       explicit SimHitShifter(const edm::ParameterSet&);
       ~SimHitShifter();
   //edm::ESHandle <RPCGeometry> rpcGeo;
-      virtual void beginRun(const edm::Run&, const edm::EventSetup&);
+      virtual void beginRun(const edm::Run&, const edm::EventSetup&) override;
       std::map<int,float> shiftinfo;
 
 
    private:
       std::string ShiftFileName;
       virtual void beginJob(const edm::Run&, const edm::EventSetup&) ;
-      virtual void produce(edm::Event&, const edm::EventSetup&);
-      virtual void endJob() ;
+      virtual void produce(edm::Event&, const edm::EventSetup&) override;
+      virtual void endJob() override ;
     
 };
 

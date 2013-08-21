@@ -59,7 +59,7 @@ public:
   
   // member functions
   void produce(edm::Event& iEvent,const edm::EventSetup& iSetup) override;
-  void endJob();
+  void endJob() override;
 
 private:  
   // member data

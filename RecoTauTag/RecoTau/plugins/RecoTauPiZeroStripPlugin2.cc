@@ -54,9 +54,9 @@ class RecoTauPiZeroStripPlugin2 : public RecoTauPiZeroBuilderPlugin
   explicit RecoTauPiZeroStripPlugin2(const edm::ParameterSet&);
   virtual ~RecoTauPiZeroStripPlugin2();
   // Return type is auto_ptr<PiZeroVector>
-  return_type operator()(const reco::PFJet&) const;
+  return_type operator()(const reco::PFJet&) const override;
   // Hook to update PV information
-  virtual void beginEvent();
+  virtual void beginEvent() override;
   
  private:
   typedef std::vector<reco::PFCandidatePtr> PFCandPtrs;

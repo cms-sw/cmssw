@@ -34,7 +34,7 @@ private:
    FWDTSegmentProxyBuilder( const FWDTSegmentProxyBuilder& );
    const FWDTSegmentProxyBuilder& operator=( const FWDTSegmentProxyBuilder& );
 
-   void build( const DTRecSegment4D& iData, unsigned int iIndex, TEveElement& oItemHolder, const FWViewContext* );
+   void build( const DTRecSegment4D& iData, unsigned int iIndex, TEveElement& oItemHolder, const FWViewContext* ) override;
 };
 
 void

@@ -426,7 +426,7 @@ namespace {
 		{
 		}
 
-		const std::string &data()
+		const std::string &data() override
 		{
 			switch(mode) {
 			    case kHeader:

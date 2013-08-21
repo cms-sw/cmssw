@@ -52,16 +52,16 @@ class Pythia8Hadronizer : public BaseHadronizer, public Py8InterfaceBase {
     Pythia8Hadronizer(const edm::ParameterSet &params);
    ~Pythia8Hadronizer();
  
-    bool initializeForInternalPartons();
+    bool initializeForInternalPartons() override;
     bool initializeForExternalPartons();
 	
-    bool generatePartonsAndHadronize();
+    bool generatePartonsAndHadronize() override;
     bool hadronize();
-    void finalizeEvent();
+    void finalizeEvent() override;
 
-    void statistics();
+    void statistics() override;
 
-    const char *classname() const { return "Pythia8Hadronizer"; }
+    const char *classname() const override { return "Pythia8Hadronizer"; }
 
   private:
 

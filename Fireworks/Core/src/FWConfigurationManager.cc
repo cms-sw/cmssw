@@ -241,7 +241,7 @@ public:
    /** Executes any transaction in the state machine which happens when the 
        xml parser finds an new element.
      */
-   virtual void startElement(const std::string &tag, Attributes &attributes)
+   virtual void startElement(const std::string &tag, Attributes &attributes) override
    {
       debug_config_state_machine("start", tag, m_state);
       if (m_state == IN_BEGIN_DOCUMENT)
@@ -280,7 +280,7 @@ public:
        policy of addKeyValue addition which would add empty
        FWConfiguration objects if done on startElement.
      */
-   virtual void endElement(const std::string &tag)
+   virtual void endElement(const std::string &tag) override
    {
       debug_config_state_machine("end", tag, m_state);
       if (m_state == IN_PUSHED_CONFIG || m_state == IN_POPPED_CONFIG)
@@ -311,7 +311,7 @@ public:
        This is mainly used to handle <string> element contents
        but also whitespace between tags.
      */
-   virtual void data(const std::string &data)
+   virtual void data(const std::string &data) override
    {
       debug_config_state_machine("data", data, m_state);
       // We ignore whitespace but complain about any text which is not 

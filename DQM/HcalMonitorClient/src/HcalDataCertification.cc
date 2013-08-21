@@ -49,12 +49,12 @@ class HcalDataCertification : public edm::EDAnalyzer {
       ~HcalDataCertification();
 
    private:
-      virtual void beginJob() ;
-      virtual void analyze(const edm::Event&, const edm::EventSetup&);
-      virtual void endJob() ;
-      virtual void beginLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&) ;
-      virtual void endLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&) ;
-      void endRun(const edm::Run & r, const edm::EventSetup & c);
+      virtual void beginJob() override ;
+      virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
+      virtual void endJob() override ;
+      virtual void beginLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&) override ;
+      virtual void endLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&) override ;
+      void endRun(const edm::Run & r, const edm::EventSetup & c) override;
   void CertifyHcal();
 
    // ----------member data ---------------------------

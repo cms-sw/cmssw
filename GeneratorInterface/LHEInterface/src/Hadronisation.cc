@@ -25,8 +25,8 @@ namespace {
 		~NoHadronisation() {}
 
 	    private:
-		void doInit() {}
-		std::auto_ptr<HepMC::GenEvent> doHadronisation()
+		void doInit() override {}
+		std::auto_ptr<HepMC::GenEvent> doHadronisation() override
 		{ return getRawEvent()->asHepMCEvent(); }
 };
 

@@ -56,7 +56,7 @@ class GenJetBCEnergyRatio : public edm::EDProducer
     typedef reco::JetFloatAssociation::Container JetBCEnergyRatioCollection;
 
   private:
-    virtual void produce(edm::Event&, const edm::EventSetup& );
+    virtual void produce(edm::Event&, const edm::EventSetup& ) override;
     Handle< View <Jet> > genjets;
     edm::InputTag m_genjetsSrc;
 

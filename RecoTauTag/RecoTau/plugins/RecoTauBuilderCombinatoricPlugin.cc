@@ -21,7 +21,7 @@ class RecoTauBuilderCombinatoricPlugin : public RecoTauBuilderPlugin {
     virtual ~RecoTauBuilderCombinatoricPlugin() {}
     virtual return_type operator() (const reco::PFJetRef& jet,
          const std::vector<RecoTauPiZero>& piZeros,
-         const std::vector<PFCandidatePtr>& regionalExtras) const;
+         const std::vector<PFCandidatePtr>& regionalExtras) const override;
   private:
     RecoTauQualityCuts qcuts_;
     bool usePFLeptonsAsChargedHadrons_;

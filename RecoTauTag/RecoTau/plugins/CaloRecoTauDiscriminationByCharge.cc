@@ -17,7 +17,7 @@ class CaloRecoTauDiscriminationByCharge : public CaloTauDiscriminationProducerBa
               iConfig.getParameter<bool>("ApplyOneOrThreeProngCut");
         }
     ~CaloRecoTauDiscriminationByCharge(){}
-    double discriminate(const reco::CaloTauRef& pfTau);
+    double discriminate(const reco::CaloTauRef& pfTau) override;
   private:
     uint32_t chargeReq_;
     bool oneOrThreeProng_;

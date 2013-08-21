@@ -10,9 +10,9 @@ namespace ecaldqm {
     TrigPrimClient(const edm::ParameterSet &, const edm::ParameterSet &);
     ~TrigPrimClient() {}
 
-    void bookMEs();
+    void bookMEs() override;
 
-    void producePlots();
+    void producePlots() override;
 
     enum MESets {
       //      kTiming,

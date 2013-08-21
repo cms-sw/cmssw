@@ -37,9 +37,9 @@ class RotationForOnline : public edm::EDAnalyzer {
    public:
       explicit RotationForOnline(const edm::ParameterSet&);
       ~RotationForOnline();
-      virtual void beginRun(const edm::Run&, const edm::EventSetup&) ;
-      virtual void analyze(const edm::Event&, const edm::EventSetup&);
-      virtual void endJob() ;
+      virtual void beginRun(const edm::Run&, const edm::EventSetup&) override ;
+      virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
+      virtual void endJob() override ;
 
 
    private:

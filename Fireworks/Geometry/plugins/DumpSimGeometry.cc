@@ -56,7 +56,7 @@ private:
   // virtual void beginJob();
   // virtual void endJob();
 
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
+  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
 };
 
 

@@ -35,7 +35,7 @@ class HLTTrackClusterRemover : public edm::EDProducer {
     public:
         HLTTrackClusterRemover(const edm::ParameterSet& iConfig) ;
         ~HLTTrackClusterRemover() ;
-        void produce(edm::Event &iEvent, const edm::EventSetup &iSetup) ;
+        void produce(edm::Event &iEvent, const edm::EventSetup &iSetup) override ;
     private:
         struct ParamBlock {
             ParamBlock() : isSet_(false), usesCharge_(false) {}

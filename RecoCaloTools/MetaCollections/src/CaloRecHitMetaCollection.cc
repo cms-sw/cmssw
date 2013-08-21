@@ -12,12 +12,12 @@ template <class T>
 class CaloRecHitMetaCollectionItemT : public CaloRecHitMetaCollectionItem {
 public:
   CaloRecHitMetaCollectionItemT(const T* coll, int start) : m_collection(coll),m_start(start) { }
-  virtual int find(const DetId& id) const {
+  virtual int find(const DetId& id) const override {
     typename T::const_iterator i;
     i=m_collection->find(id);
     return (i==m_collection->end())?(-1):(i-m_collection->begin()+m_start);
   }
-  virtual const CaloRecHit* at(int index) const {
+  virtual const CaloRecHit* at(int index) const override {
     return &((*m_collection)[index-m_start]);
   }
 private:

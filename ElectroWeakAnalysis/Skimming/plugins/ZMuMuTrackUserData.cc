@@ -28,7 +28,7 @@ class ZMuMuTrackUserData : public edm::EDProducer {
 public:
   ZMuMuTrackUserData( const edm::ParameterSet & );   
 private:
-  void produce( edm::Event &, const edm::EventSetup & );
+  void produce( edm::Event &, const edm::EventSetup & ) override;
   
   InputTag src_,beamSpot_, primaryVertices_;
   double ptThreshold_, etEcalThreshold_, etHcalThreshold_ ,dRVetoTrk_, dRTrk_, dREcal_ , dRHcal_;

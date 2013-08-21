@@ -19,7 +19,7 @@ class CaloRecoTauDiscriminationByNProngs
       booleanOutput = iConfig.getParameter<bool>("BooleanOutput");
     }
     ~CaloRecoTauDiscriminationByNProngs(){}
-    double discriminate(const reco::CaloTauRef&);
+    double discriminate(const reco::CaloTauRef&) override;
 
   private:
     uint32_t nprongs;

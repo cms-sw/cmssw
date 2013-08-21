@@ -59,8 +59,8 @@ class RecoTauObjectEmbedder : public RecoTauModifierPlugin {
         :RecoTauModifierPlugin(pset),
         jetMatchSrc_(pset.getParameter<edm::InputTag>("jetTruthMatch")) {}
     virtual ~RecoTauObjectEmbedder() {}
-    virtual void operator()(PFTau&) const;
-    virtual void beginEvent();
+    virtual void operator()(PFTau&) const override;
+    virtual void beginEvent() override;
   private:
     edm::InputTag jetMatchSrc_;
     edm::Handle<edm::Association<T> > jetMatch_;

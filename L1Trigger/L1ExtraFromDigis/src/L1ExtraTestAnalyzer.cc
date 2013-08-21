@@ -57,7 +57,7 @@ class L1ExtraTestAnalyzer : public edm::EDAnalyzer {
       ~L1ExtraTestAnalyzer();
 
 
-      virtual void analyze(const edm::Event&, const edm::EventSetup&);
+      virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
    private:
       // ----------member data ---------------------------
 

@@ -99,7 +99,7 @@ private:
 
   std::vector<type2BinningEntryType*> type2Binning_;
 
-  void produce(edm::Event&, const edm::EventSetup&);
+  void produce(edm::Event&, const edm::EventSetup&) override;
 
 };
 

@@ -22,7 +22,7 @@ public:
   ~HLTHcalTowerFilter();
   
 private:
-  virtual bool hltFilter(edm::Event &, const edm::EventSetup &, trigger::TriggerFilterObjectWithRefs & filterproduct);
+  virtual bool hltFilter(edm::Event &, const edm::EventSetup &, trigger::TriggerFilterObjectWithRefs & filterproduct) override;
   
   edm::InputTag inputTag_;    // input tag identifying product
   double min_E_HB_;           // energy threshold for HB in GeV

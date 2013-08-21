@@ -97,10 +97,10 @@ class SiStripSpyDisplayModule : public edm::EDAnalyzer {
     ~SiStripSpyDisplayModule();
 
   private:
-    virtual void beginRun(const edm::Run&, const edm::EventSetup&);
-    virtual void beginJob() ;
-    virtual void analyze(const edm::Event&, const edm::EventSetup&);
-    virtual void endJob() ;
+    virtual void beginRun(const edm::Run&, const edm::EventSetup&) override;
+    virtual void beginJob() override ;
+    virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
+    virtual void endJob() override ;
 
   Bool_t MakeRawDigiHist_(const edm::Handle< edm::DetSetVector<SiStripRawDigi> > & digi_handle,
                             uint32_t specifier,

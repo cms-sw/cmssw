@@ -30,8 +30,8 @@ class ProcOptional : public TrainProcessor {
 	             MVATrainer *trainer);
 	virtual ~ProcOptional();
 
-	virtual void configure(DOMElement *elem);
-	virtual Calibration::VarProcessor *getCalibration() const;
+	virtual void configure(DOMElement *elem) override;
+	virtual Calibration::VarProcessor *getCalibration() const override;
 
     private:
 	std::vector<double>	neutrals;
