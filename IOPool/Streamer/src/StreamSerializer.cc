@@ -64,19 +64,6 @@ namespace edm {
     pset::fillMap(*pset::Registry::instance(), psetMap);
     sd.setParameterSetMap(psetMap);
 
-    typedef ProcessHistoryRegistry::collection_type Map;
-    Map const& procHistoryMap = ProcessHistoryRegistry::instance()->data();
-    ProcessConfigurationVector procConfigVector;
-    for(auto const& ph : procHistoryMap) {
-      for(auto const& pc : ph.second) {
-        procConfigVector.push_back(pc);
-      }
-    }
-    sort_all(procConfigVector);
-    auto newEnd = unique(procConfigVector.begin(), procConfigVector.end());
-    procConfigVector.erase(newEnd, procConfigVector.end());
-    sd.setProcessConfigurations(procConfigVector);
-
     data_buffer.rootbuf_.Reset();
 
     RootDebug tracer(10,10);

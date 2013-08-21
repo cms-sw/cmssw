@@ -25,8 +25,6 @@ namespace edm {
     produced_(false),
     onDemand_(false),
     dropped_(false),
-    parameterSetIDs_(),
-    moduleNames_(),
     transient_(false),
     wrappedType_(),
     unwrappedType_(),
@@ -211,22 +209,8 @@ namespace edm {
     }
   }
 
-  ParameterSetID const&
-    BranchDescription::psetID() const {
-    assert(!parameterSetIDs().empty());
-    if(parameterSetIDs().size() != 1) {
-      throw cms::Exception("Ambiguous")
-        << "Your application requires all events on Branch '" << branchName()
-        << "'\n to have the same provenance. This file has events with mixed provenance\n"
-        << "on this branch.  Use a different input file.\n";
-    }
-    return parameterSetIDs().begin()->second;
-  }
-
   void
   BranchDescription::merge(BranchDescription const& other) {
-    transient_.parameterSetIDs_.insert(other.parameterSetIDs().begin(), other.parameterSetIDs().end());
-    transient_.moduleNames_.insert(other.moduleNames().begin(), other.moduleNames().end());
     branchAliases_.insert(other.branchAliases().begin(), other.branchAliases().end());
     if(splitLevel() == invalidSplitLevel) setSplitLevel(other.splitLevel());
     if(basketSize() == invalidBasketSize) setBasketSize(other.basketSize());
@@ -295,10 +279,6 @@ namespace edm {
     if(b.branchType() < a.branchType()) return false;
     if(a.branchID() < b.branchID()) return true;
     if(b.branchID() < a.branchID()) return false;
-    if(a.parameterSetIDs() < b.parameterSetIDs()) return true;
-    if(b.parameterSetIDs() < a.parameterSetIDs()) return false;
-    if(a.moduleNames() < b.moduleNames()) return true;
-    if(b.moduleNames() < a.moduleNames()) return false;
     if(a.branchAliases() < b.branchAliases()) return true;
     if(b.branchAliases() < a.branchAliases()) return false;
     if(a.present() < b.present()) return true;
@@ -322,15 +302,12 @@ namespace edm {
   operator==(BranchDescription const& a, BranchDescription const& b) {
     return combinable(a, b) &&
        (a.dropped() == b.dropped()) &&
-       (a.moduleNames() == b.moduleNames()) &&
-       (a.parameterSetIDs() == b.parameterSetIDs()) &&
        (a.branchAliases() == b.branchAliases());
   }
 
   std::string
   match(BranchDescription const& a, BranchDescription const& b,
-        std::string const& fileName,
-        BranchDescription::MatchMode m) {
+        std::string const& fileName) {
     std::ostringstream differences;
     if(a.branchName() != b.branchName()) {
       differences << "Branch name '" << b.branchName() << "' does not match '" << a.branchName() << "'.\n";
@@ -354,16 +331,6 @@ namespace edm {
     }
     if(!b.dropped() && a.dropped()) {
       differences << "Branch '" << a.branchName() << "' was dropped in the first input file but is present in '" << fileName << "'.\n";
-    }
-    if(m == BranchDescription::Strict) {
-        if(b.parameterSetIDs().size() > 1) {
-          differences << "Branch '" << b.branchName() << "' uses more than one parameter set in file '" << fileName << "'.\n";
-        } else if(a.parameterSetIDs().size() > 1) {
-          differences << "Branch '" << a.branchName() << "' uses more than one parameter set in previous files.\n";
-        } else if(a.parameterSetIDs() != b.parameterSetIDs()) {
-          differences << "Branch '" << b.branchName() << "' uses different parameter sets in file '" << fileName << "'.\n";
-          differences << "    than in previous files.\n";
-        }
     }
     return differences.str();
   }

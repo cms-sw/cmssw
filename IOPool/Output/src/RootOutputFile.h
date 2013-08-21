@@ -54,7 +54,6 @@ namespace edm {
     void writeFileFormatVersion();
     void writeFileIdentifier();
     void writeIndexIntoFile();
-    void writeProcessConfigurationRegistry();
     void writeProcessHistoryRegistry();
     void writeParameterSetRegistry();
     void writeProductDescriptionRegistry();

@@ -13,7 +13,7 @@ a set of related EDProducts. This is the storage unit of such information.
 #include "DataFormats/Common/interface/WrapperOwningHolder.h"
 #include "DataFormats/Provenance/interface/BranchDescription.h"
 #include "DataFormats/Provenance/interface/BranchID.h"
-#include "DataFormats/Provenance/interface/Provenance.h"
+#include "FWCore/Common/interface/Provenance.h"
 #include "FWCore/Utilities/interface/ProductHolderIndex.h"
 #include "FWCore/Utilities/interface/TypeID.h"
 

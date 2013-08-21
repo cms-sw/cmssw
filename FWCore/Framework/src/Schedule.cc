@@ -15,7 +15,6 @@
 #include "FWCore/Framework/src/WorkerMaker.h"
 #include "FWCore/Framework/src/WorkerT.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/ParameterSet/interface/FillProductRegistryTransients.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/ParameterSet/interface/Registry.h"
@@ -425,7 +424,6 @@ namespace edm {
     assert (all_workers_count == allWorkers().size());
 
     branchIDListHelper.updateRegistries(preg);
-    fillProductRegistryTransients(*processConfiguration, preg);
 
     preg.setFrozen();
 

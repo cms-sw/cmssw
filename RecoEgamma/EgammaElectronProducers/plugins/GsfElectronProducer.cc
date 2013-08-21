@@ -13,13 +13,13 @@
 
 #include "GsfElectronProducer.h"
 
+#include "FWCore/Common/interface/Provenance.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ParameterSet/interface/Registry.h"
 #include "CommonTools/Utils/interface/StringToEnumValue.h"
 
 #include "DataFormats/EcalRecHit/interface/EcalSeverityLevel.h"
@@ -106,17 +106,15 @@ void GsfElectronProducer::beginEvent( edm::Event & event, const edm::EventSetup 
     pfTranslatorParametersChecked_ = true ;
     edm::Handle<edm::ValueMap<float> > pfMva ;
     event.getByLabel(inputCfg_.pfMVA,pfMva) ;
-    checkPfTranslatorParameters(pfMva.provenance()->psetID()) ;
+    checkPfTranslatorParameters(edm::parameterSet(*pfMva.provenance())) ;
    }
 
   // call to base class
   GsfElectronBaseProducer::beginEvent(event,setup) ;
  }
 
-void GsfElectronProducer::checkPfTranslatorParameters( edm::ParameterSetID const & psetid )
+void GsfElectronProducer::checkPfTranslatorParameters( edm::ParameterSet const & pset )
  {
-  edm::ParameterSet pset ;
-  edm::pset::Registry::instance()->getMapped(psetid,pset) ;
   edm::ParameterSet mvaBlock = pset.getParameter<edm::ParameterSet>("MVACutBlock") ;
   double pfTranslatorMinMva = mvaBlock.getParameter<double>("MVACut") ;
   double pfTranslatorUndefined = -99. ;

@@ -65,16 +65,7 @@ namespace edm {
     boost::shared_ptr<BranchMapper> const& store() const {return store_;}
     ProcessHistoryID const& processHistoryID() const {return *processHistoryID_;}
     bool getProcessConfiguration(ProcessConfiguration& pc) const;
-    ProcessConfigurationID processConfigurationID() const;
-    ParameterSetID psetID() const;
-    std::string moduleName() const;
     ReleaseVersion releaseVersion() const;
-    std::map<ProcessConfigurationID, ParameterSetID> const& parameterSetIDs() const {
-      return product().parameterSetIDs();
-    }
-    std::map<ProcessConfigurationID, std::string> const& moduleNames() const {
-      return product().moduleNames();
-    }
     std::set<std::string> const& branchAliases() const {return product().branchAliases();}
 
     std::vector<BranchID> const& parents() const {return parentage().parents();}

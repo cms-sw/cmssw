@@ -54,7 +54,7 @@ namespace edm {
     ///If the id is invalid, will return the max unsigned int value.
     unsigned int id() const {return id_;}
     ProcessConfiguration const& processConfiguration() const;
-    ProcessConfigurationID processConfigurationID() const;
+
     std::string const& processName() const;
     std::string const& releaseVersion() const;
     std::string const& passID() const;

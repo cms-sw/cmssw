@@ -1,6 +1,6 @@
 
 #include "FWCore/Utilities/interface/InputTag.h"
-#include "DataFormats/Provenance/interface/Provenance.h"
+#include "FWCore/Common/interface/Provenance.h"
 
 #include <TBranch.h>
 
