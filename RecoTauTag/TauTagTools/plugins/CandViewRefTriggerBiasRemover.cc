@@ -26,7 +26,7 @@
 class CandViewRefTriggerBiasRemover : public edm::EDProducer {
   public:
     CandViewRefTriggerBiasRemover(const edm::ParameterSet &pset);
-    void produce(edm::Event&, const edm::EventSetup&);
+    void produce(edm::Event&, const edm::EventSetup&) override;
   private:
     edm::InputTag src_;
 };

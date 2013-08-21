@@ -41,7 +41,7 @@ class PartonSelector : public edm::EDProducer
 
   private:
 
-    virtual void produce(edm::Event&, const edm::EventSetup& ); 
+    virtual void produce(edm::Event&, const edm::EventSetup& ) override; 
     bool withLeptons;  // Optionally specify leptons
     bool withTop;      // Optionally include top quarks in the list 
     edm::InputTag   inputTagGenParticles_; // input collection

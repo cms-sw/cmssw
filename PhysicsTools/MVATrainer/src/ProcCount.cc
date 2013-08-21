@@ -25,8 +25,8 @@ class ProcCount : public TrainProcessor {
 	          MVATrainer *trainer);
 	virtual ~ProcCount();
 
-	virtual void configure(DOMElement *elem);
-	virtual Calibration::VarProcessor *getCalibration() const;
+	virtual void configure(DOMElement *elem) override;
+	virtual Calibration::VarProcessor *getCalibration() const override;
 
     private:
 	std::vector<double>	neutrals;

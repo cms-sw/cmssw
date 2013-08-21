@@ -17,7 +17,7 @@ class ParticleDecayProducer : public edm::EDProducer {
   ~ParticleDecayProducer();
 
  private:
-  virtual void produce(edm::Event&, const edm::EventSetup&);
+  virtual void produce(edm::Event&, const edm::EventSetup&) override;
   edm::InputTag genCandidates_;
   int motherPdgId_;
   std::vector<int> daughtersPdgId_;

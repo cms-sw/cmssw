@@ -36,7 +36,7 @@ class PFRecoTauTagInfoProducer : public EDProducer {
  public:
   explicit PFRecoTauTagInfoProducer(const edm::ParameterSet& iConfig);
   ~PFRecoTauTagInfoProducer();
-  virtual void produce(edm::Event&,const edm::EventSetup&);
+  virtual void produce(edm::Event&,const edm::EventSetup&) override;
  private:
   PFRecoTauTagInfoAlgorithm* PFRecoTauTagInfoAlgo_;
   edm::InputTag PFCandidateProducer_;

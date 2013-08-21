@@ -32,8 +32,8 @@ class CaloRecoTauDiscriminationByFlightPathSignificance : public CaloTauDiscrimi
       booleanOutput 		= iConfig.getParameter<bool>("BooleanOutput");
     }
     ~CaloRecoTauDiscriminationByFlightPathSignificance(){}
-    void beginEvent(const edm::Event&, const edm::EventSetup&);
-    double discriminate(const reco::CaloTauRef&);
+    void beginEvent(const edm::Event&, const edm::EventSetup&) override;
+    double discriminate(const reco::CaloTauRef&) override;
 
   private:
     double threeProngFlightPathSig(const CaloTauRef&);

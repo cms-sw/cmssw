@@ -20,9 +20,9 @@ class RecoTauTagInfoWorkaroundModifer : public RecoTauModifierPlugin {
   public:
     explicit RecoTauTagInfoWorkaroundModifer(const edm::ParameterSet &pset);
     virtual ~RecoTauTagInfoWorkaroundModifer() {}
-    void operator()(PFTau&) const;
+    void operator()(PFTau&) const override;
     // Called by base class
-    void beginEvent();
+    void beginEvent() override;
   private:
     edm::InputTag pfTauTagInfoSrc_;
     edm::Handle<PFTauTagInfoCollection> infos_;

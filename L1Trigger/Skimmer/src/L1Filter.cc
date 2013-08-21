@@ -27,8 +27,8 @@ public:
 
   virtual ~L1Filter();
 
-  virtual bool filter(edm::Event& e, edm::EventSetup const& c);
-  void endJob();
+  virtual bool filter(edm::Event& e, edm::EventSetup const& c) override;
+  void endJob() override;
  
 private:
 

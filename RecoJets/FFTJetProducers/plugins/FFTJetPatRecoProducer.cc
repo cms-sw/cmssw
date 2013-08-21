@@ -77,9 +77,9 @@ protected:
     typedef fftjet::ClusteringTreeSparsifier<fftjet::Peak,long> Sparsifier;
 
     // methods
-    void beginJob() ;
-    void produce(edm::Event&, const edm::EventSetup&);
-    void endJob() ;
+    void beginJob() override ;
+    void produce(edm::Event&, const edm::EventSetup&) override;
+    void endJob() override ;
 
     void buildKernelConvolver(const edm::ParameterSet&);
     fftjet::PeakFinder buildPeakFinder(const edm::ParameterSet&);

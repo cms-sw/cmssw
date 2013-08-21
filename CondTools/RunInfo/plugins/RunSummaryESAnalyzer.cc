@@ -35,7 +35,7 @@ namespace edmtest
     }
     // virtual void beginJob();
     // virtual void beginRun(const edm::Run&, const edm::EventSetup& context);
-    virtual void analyze(const edm::Event& e, const edm::EventSetup& c);
+    virtual void analyze(const edm::Event& e, const edm::EventSetup& c) override;
   private:
   };
    

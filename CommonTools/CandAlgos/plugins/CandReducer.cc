@@ -27,7 +27,7 @@ public:
   ~CandReducer();
 private:
   /// process one evevnt
-  void produce( edm::Event& evt, const edm::EventSetup& );
+  void produce( edm::Event& evt, const edm::EventSetup& ) override;
   /// label of source candidate collection
   edm::InputTag src_;
 };

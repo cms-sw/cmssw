@@ -20,7 +20,7 @@ public:
     produces<std::vector<reco::CandidateBaseRef> >();
   }
 private:
-  void produce(edm::Event & evt, const edm::EventSetup &) {
+  void produce(edm::Event & evt, const edm::EventSetup &) override {
     std::auto_ptr<std::vector<reco::CandidateBaseRef> > out(new std::vector<reco::CandidateBaseRef>);
     for(std::vector<edm::InputTag>::const_iterator i = src_.begin(); i != src_.end(); ++i) {
       edm::Handle<reco::CandidateView> src;

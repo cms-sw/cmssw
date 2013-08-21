@@ -8,7 +8,7 @@ class L1GctChannelMaskOnlineProd : public L1ConfigOnlineProdBase< L1GctChannelMa
          : L1ConfigOnlineProdBase< L1GctChannelMaskRcd, L1GctChannelMask >( iConfig ) {}
       ~L1GctChannelMaskOnlineProd() {}
 
-      virtual boost::shared_ptr< L1GctChannelMask > newObject( const std::string& objectKey ) ;
+      virtual boost::shared_ptr< L1GctChannelMask > newObject( const std::string& objectKey ) override ;
    private:
 };
 

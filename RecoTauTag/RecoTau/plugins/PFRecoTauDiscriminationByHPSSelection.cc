@@ -21,7 +21,7 @@ class PFRecoTauDiscriminationByHPSSelection
   public:
     explicit PFRecoTauDiscriminationByHPSSelection(const edm::ParameterSet&);
     ~PFRecoTauDiscriminationByHPSSelection();
-    double discriminate(const reco::PFTauRef&);
+    double discriminate(const reco::PFTauRef&) override;
 
   private:
     typedef StringObjectFunction<reco::PFTau> TauFunc;

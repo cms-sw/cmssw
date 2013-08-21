@@ -69,9 +69,9 @@ public:
   virtual ~ListGroups();
 
 private:
-  void analyze(const edm::Event &, const edm::EventSetup &);
-  void beginJob() {}
-  void endJob();
+  void analyze(const edm::Event &, const edm::EventSetup &) override;
+  void beginJob() override {}
+  void endJob() override;
 };
 
 ListGroups::ListGroups(const edm::ParameterSet &) {

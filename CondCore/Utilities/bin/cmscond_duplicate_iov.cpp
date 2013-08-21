@@ -30,7 +30,7 @@ namespace cond {
     public:
       DuplicateIOVUtilities();
       ~DuplicateIOVUtilities();
-      int execute();
+      int execute() override;
   };
 }
 

@@ -10,11 +10,11 @@ namespace ecaldqm {
     CertificationClient(const edm::ParameterSet &, const edm::ParameterSet &);
     ~CertificationClient() {}
 
-    void bookMEs();
+    void bookMEs() override;
 
-    void beginRun(const edm::Run &, const edm::EventSetup &);
+    void beginRun(const edm::Run &, const edm::EventSetup &) override;
 
-    void producePlots();
+    void producePlots() override;
 
     enum MESets {
       kCertificationMap,

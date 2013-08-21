@@ -45,9 +45,9 @@ class GSFElectronsMixer : public edm::EDProducer {
       ~GSFElectronsMixer();
 
    private:
-      virtual void beginJob() ;
-      virtual void produce(edm::Event&, const edm::EventSetup&);
-      virtual void endJob() ;
+      virtual void beginJob() override ;
+      virtual void produce(edm::Event&, const edm::EventSetup&) override;
+      virtual void endJob() override ;
       edm::InputTag _electrons1;
       edm::InputTag _electrons2;
 

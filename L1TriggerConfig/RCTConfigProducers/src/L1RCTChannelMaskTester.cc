@@ -45,7 +45,7 @@ public:
     }
     virtual ~L1RCTChannelMaskTester() {
     }
-    virtual void analyze(const edm::Event&, const edm::EventSetup&);
+    virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
 
 };
 

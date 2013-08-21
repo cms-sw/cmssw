@@ -35,7 +35,7 @@ class RecoTauPlotDiscriminator : public edm::EDAnalyzer {
   public:
     RecoTauPlotDiscriminator(const edm::ParameterSet& pset);
     virtual ~RecoTauPlotDiscriminator() {}
-    void analyze(const edm::Event &evt, const edm::EventSetup &es);
+    void analyze(const edm::Event &evt, const edm::EventSetup &es) override;
   private:
     edm::InputTag src_;
     typedef std::map<std::string, TH1*> HistoMap;

@@ -36,9 +36,9 @@ public:
   virtual ~AlpgenSource();
 
 private:
-  virtual bool setRunAndEventInfo(edm::EventID&, edm::TimeValue_t&);
-  virtual void produce(edm::Event &event);
-  virtual void beginRun(edm::Run &run);
+  virtual bool setRunAndEventInfo(edm::EventID&, edm::TimeValue_t&) override;
+  virtual void produce(edm::Event &event) override;
+  virtual void beginRun(edm::Run &run) override;
 
   /// Function to get parameter by name from AlpgenHeader.
   template<typename T>

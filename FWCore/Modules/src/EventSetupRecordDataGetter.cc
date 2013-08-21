@@ -44,9 +44,9 @@ public:
      ~EventSetupRecordDataGetter();
       
       
-     virtual void analyze(Event const&, EventSetup const&);
-     virtual void beginRun(Run const&, EventSetup const&);
-     virtual void beginLuminosityBlock(LuminosityBlock const&, EventSetup const&);
+     virtual void analyze(Event const&, EventSetup const&) override;
+     virtual void beginRun(Run const&, EventSetup const&) override;
+     virtual void beginLuminosityBlock(LuminosityBlock const&, EventSetup const&) override;
 
      static void fillDescriptions(ConfigurationDescriptions& descriptions);
 

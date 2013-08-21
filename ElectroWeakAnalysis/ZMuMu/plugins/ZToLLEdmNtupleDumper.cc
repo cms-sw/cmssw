@@ -40,7 +40,7 @@ public:
   ZToLLEdmNtupleDumper( const edm::ParameterSet & );
    
 private:
-  void produce( edm::Event &, const edm::EventSetup & );
+  void produce( edm::Event &, const edm::EventSetup & ) override;
     std::vector<std::string> zName_;
   std::vector<edm::InputTag> z_, zGenParticlesMatch_ ;
   edm::InputTag beamSpot_,  primaryVertices_;

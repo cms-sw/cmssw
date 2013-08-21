@@ -15,14 +15,14 @@ public:
 
 private:
 
-  virtual void analyze(const edm::Event& ev, const edm::EventSetup& iSetup) {
+  virtual void analyze(const edm::Event& ev, const edm::EventSetup& iSetup) override {
 
     edm::ESHandle<EcalElectronicsMapping> eleMap;
     iSetup.get< EcalMappingRcd >().get(eleMap);
     ecalElectronicsMap = eleMap.product();
   }
 
-  virtual void endJob() {
+  virtual void endJob() override {
 
     m_source.setElectronicsMap(ecalElectronicsMap);
     write();

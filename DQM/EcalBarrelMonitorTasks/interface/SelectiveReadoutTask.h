@@ -18,10 +18,10 @@ namespace ecaldqm {
     SelectiveReadoutTask(const edm::ParameterSet &, const edm::ParameterSet &);
     ~SelectiveReadoutTask();
 
-    void beginRun(const edm::Run &, const edm::EventSetup &);
-    void beginEvent(const edm::Event &, const edm::EventSetup &);
+    void beginRun(const edm::Run &, const edm::EventSetup &) override;
+    void beginEvent(const edm::Event &, const edm::EventSetup &) override;
 
-    void analyze(const void*, Collections);
+    void analyze(const void*, Collections) override;
 
     void runOnSource(const FEDRawDataCollection &);
     void runOnRawData(const EcalRawDataCollection &);

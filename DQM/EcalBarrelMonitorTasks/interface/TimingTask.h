@@ -12,9 +12,9 @@ namespace ecaldqm {
     TimingTask(const edm::ParameterSet &, const edm::ParameterSet &);
     ~TimingTask();
 
-    bool filterRunType(const std::vector<short>&);
+    bool filterRunType(const std::vector<short>&) override;
 
-    void analyze(const void*, Collections);
+    void analyze(const void*, Collections) override;
 
     void runOnRecHits(const EcalRecHitCollection &, Collections);
 

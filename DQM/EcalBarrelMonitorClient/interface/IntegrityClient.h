@@ -10,9 +10,9 @@ namespace ecaldqm {
     IntegrityClient(const edm::ParameterSet &, const edm::ParameterSet&);
     ~IntegrityClient() {}
 
-    void bookMEs();
+    void bookMEs() override;
 
-    void producePlots();
+    void producePlots() override;
 
     enum MESets {
       kQuality,

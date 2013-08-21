@@ -44,9 +44,9 @@ class EcalSimpleUncalibRecHitFilter : public HLTFilter {
       ~EcalSimpleUncalibRecHitFilter();
 
    private:
-      virtual void beginJob() ;
-      virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct);
-      virtual void endJob() ;
+      virtual void beginJob() override ;
+      virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) override;
+      virtual void endJob() override ;
       
       // ----------member data ---------------------------
 

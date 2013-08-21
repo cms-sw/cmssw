@@ -60,7 +60,7 @@ public:
   CMS_SHERPA_RNG(){randomEngine = &gen::getEngineReference();};
 private: 
   CLHEP::HepRandomEngine* randomEngine;
-  double Get();
+  double Get() override;
 };
 
 

@@ -36,8 +36,8 @@ class ZMuMuIsolationAnalyzer : public edm::EDAnalyzer {
 public:
   ZMuMuIsolationAnalyzer(const edm::ParameterSet& pset);
 private:
-  virtual void analyze(const edm::Event& event, const edm::EventSetup& setup);
-  virtual void endJob();
+  virtual void analyze(const edm::Event& event, const edm::EventSetup& setup) override;
+  virtual void endJob() override;
   InputTag src_muons;
   double dRVeto;
   double dRTrk, dREcal, dRHcal;

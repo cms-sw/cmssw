@@ -23,7 +23,7 @@ namespace Rivet {
     }
 
 
-    void init()
+    void init() override
       {
 
       //full final state
@@ -61,7 +61,7 @@ namespace Rivet {
 
       }
 
-    void analyze(const Event& event){
+    void analyze(const Event& event) override {
       const double weight = event.weight();
       //apply the Z finders
       const ZFinder& zfe = applyProjection<ZFinder>(event, "ZFE");
@@ -173,7 +173,7 @@ namespace Rivet {
       normalize(plot, factor*integral);  
     }
 
-    void finalize() 
+    void finalize() override 
       {
       normalizeNoOverflows(_histDeltaPhiZJ1,1.);
       normalizeNoOverflows(_histDeltaPhiZJ3,1.);

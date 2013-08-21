@@ -20,8 +20,8 @@ class RecoTauDiscriminantFromDiscriminator : public RecoTauDiscriminantPlugin{
   public:
     explicit RecoTauDiscriminantFromDiscriminator(
         const edm::ParameterSet& pset);
-    void beginEvent();
-    std::vector<double> operator()(const reco::PFTauRef& tau) const;
+    void beginEvent() override;
+    std::vector<double> operator()(const reco::PFTauRef& tau) const override;
   private:
     bool takeAbs_;
     double min_;

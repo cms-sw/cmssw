@@ -34,8 +34,8 @@ class PatBJetTrackAnalyzer : public edm::EDAnalyzer  {
 	~PatBJetTrackAnalyzer();
 
 	// virtual methods called from base class EDAnalyzer
-	virtual void beginJob();
-	virtual void analyze(const edm::Event &event, const edm::EventSetup &es);
+	virtual void beginJob() override;
+	virtual void analyze(const edm::Event &event, const edm::EventSetup &es) override;
 
     private:
 	// configuration parameters

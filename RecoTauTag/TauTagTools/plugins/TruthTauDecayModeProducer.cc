@@ -50,9 +50,9 @@ class TruthTauDecayModeProducer : public edm::EDProducer {
       ~TruthTauDecayModeProducer();
 
    private:
-      virtual void beginJob() ;
-      virtual void produce(edm::Event&, const edm::EventSetup&);
-      virtual void endJob() ;
+      virtual void beginJob() override ;
+      virtual void produce(edm::Event&, const edm::EventSetup&) override;
+      virtual void endJob() override ;
 
       //for signal, the module takes input from a PdgIdAndStatusCandViewSelector 
       //for background, the module takes input from a collection of GenJets

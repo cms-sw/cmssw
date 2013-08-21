@@ -16,8 +16,8 @@ class TCRecoTauDiscriminationAlgoComponent : public CaloTauDiscriminationProduce
 		tcTauAlgorithm = new TCTauAlgorithm(iConfig);
       	}
       	~TCRecoTauDiscriminationAlgoComponent(){} 
-      	double discriminate(const CaloTauRef& theCaloTauRef);
-	void beginEvent(const edm::Event&, const edm::EventSetup&);
+      	double discriminate(const CaloTauRef& theCaloTauRef) override;
+	void beginEvent(const edm::Event&, const edm::EventSetup&) override;
 
     private:
 	TCTauAlgorithm*  tcTauAlgorithm;

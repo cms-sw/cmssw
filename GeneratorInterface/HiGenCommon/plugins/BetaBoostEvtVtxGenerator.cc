@@ -55,7 +55,7 @@ public:
   /// return a new event vertex
   //virtual CLHEP::Hep3Vector * newVertex();
   virtual HepMC::FourVector* newVertex() ;
-  virtual void produce( edm::Event&, const edm::EventSetup& );
+  virtual void produce( edm::Event&, const edm::EventSetup& ) override;
   virtual TMatrixD* GetInvLorentzBoost();
 
 

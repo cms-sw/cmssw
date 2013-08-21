@@ -32,10 +32,10 @@ class FWCandidateLegoProxyBuilder : public FWSimpleProxyBuilderTemplate<reco::Ca
       virtual ~FWCandidateLegoProxyBuilder(){}
 
    // --------------------- Member Functions --------------------------
-      virtual bool havePerViewProduct( FWViewType::EType ) const { return true; }
-      virtual void scaleProduct( TEveElementList*, FWViewType::EType, const FWViewContext* );
+      virtual bool havePerViewProduct( FWViewType::EType ) const override { return true; }
+      virtual void scaleProduct( TEveElementList*, FWViewType::EType, const FWViewContext* ) override;
       virtual void localModelChanges( const FWModelId&, TEveElement*, FWViewType::EType,
-                                 const FWViewContext* );
+                                 const FWViewContext* ) override;
 
       REGISTER_PROXYBUILDER_METHODS();
 
@@ -45,7 +45,7 @@ class FWCandidateLegoProxyBuilder : public FWSimpleProxyBuilderTemplate<reco::Ca
       const FWCandidateLegoProxyBuilder& operator=( const FWCandidateLegoProxyBuilder& );
 
    // --------------------- Member Functions --------------------------
-      void build( const reco::Candidate&, unsigned int, TEveElement&, const FWViewContext* );
+      void build( const reco::Candidate&, unsigned int, TEveElement&, const FWViewContext* ) override;
 };
 #endif
 //=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_

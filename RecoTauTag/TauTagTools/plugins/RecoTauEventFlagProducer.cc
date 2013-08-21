@@ -22,7 +22,7 @@ class RecoTauEventFlagProducer : public edm::EDProducer {
       produces<int>();
     }
     ~RecoTauEventFlagProducer() {}
-    void produce(edm::Event& evt, const edm::EventSetup &es) {
+    void produce(edm::Event& evt, const edm::EventSetup &es) override {
       std::auto_ptr<int> toput(new int(flag_));
       evt.put(toput);
     }

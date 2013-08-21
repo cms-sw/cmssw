@@ -10,9 +10,9 @@ namespace ecaldqm {
     TimingClient(const edm::ParameterSet &, const edm::ParameterSet &);
     ~TimingClient() {}
 
-    void bookMEs();
+    void bookMEs() override;
 
-    void producePlots();
+    void producePlots() override;
 
     enum MESets {
       kQuality,

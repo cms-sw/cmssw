@@ -41,9 +41,9 @@ public:
 
 private:
 
-  virtual void beginRun(const edm::Run&, const edm::EventSetup&);
-    virtual void beginJob() ;
-    virtual void analyze(const edm::Event&, const edm::EventSetup&);
+  virtual void beginRun(const edm::Run&, const edm::EventSetup&) override;
+    virtual void beginJob() override ;
+    virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
 
     // Member data
 

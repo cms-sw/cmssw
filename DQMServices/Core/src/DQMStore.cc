@@ -2136,7 +2136,7 @@ DQMStore::save(const std::string &filename,
   {
   public:
     TFileNoSync(const char *file, const char *opt) : TFile(file, opt) {}
-    virtual Int_t SysSync(Int_t) { return 0; }
+    virtual Int_t SysSync(Int_t) override { return 0; }
   };
 
   // open output file, on 1st save recreate, later update

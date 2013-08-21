@@ -61,7 +61,7 @@ class JetTagMVAExtractor : public edm::EDAnalyzer {
 	~JetTagMVAExtractor();
 
 	virtual void analyze(const edm::Event &event,
-	                     const edm::EventSetup &es);
+	                     const edm::EventSetup &es) override;
 
     private:
 	typedef std::vector<Variable::Value> Values;

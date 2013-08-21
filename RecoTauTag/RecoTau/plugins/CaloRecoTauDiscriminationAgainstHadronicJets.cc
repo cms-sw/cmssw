@@ -19,8 +19,8 @@ class CaloRecoTauDiscriminationAgainstHadronicJets : public CaloTauDiscriminatio
           tcTauAlgorithm = new TCTauAlgorithm(iConfig);
         }
     ~CaloRecoTauDiscriminationAgainstHadronicJets(){}
-    double discriminate(const CaloTauRef& theCaloTauRef);
-    void beginEvent(const edm::Event&, const edm::EventSetup&);
+    double discriminate(const CaloTauRef& theCaloTauRef) override;
+    void beginEvent(const edm::Event&, const edm::EventSetup&) override;
 
   private:
     TCTauAlgorithm*  tcTauAlgorithm;

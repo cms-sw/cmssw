@@ -16,9 +16,9 @@ class PhysicsPerformanceDBWriterTFormula_fromfile_WPandPL : public edm::EDAnalyz
 {
 public:
   PhysicsPerformanceDBWriterTFormula_fromfile_WPandPL(const edm::ParameterSet&);
-  virtual void beginJob();
-  virtual void analyze(const edm::Event&, const edm::EventSetup&) {}
-  virtual void endJob() {}
+  virtual void beginJob() override;
+  virtual void analyze(const edm::Event&, const edm::EventSetup&) override {}
+  virtual void endJob() override {}
   ~PhysicsPerformanceDBWriterTFormula_fromfile_WPandPL() {}
 
 private:

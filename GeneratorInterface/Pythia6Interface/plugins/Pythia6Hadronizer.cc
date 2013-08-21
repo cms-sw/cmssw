@@ -61,17 +61,17 @@ class Pythia6ServiceWithCallback : public Pythia6Service {
      Pythia6ServiceWithCallback( const edm::ParameterSet& ps ) : Pythia6Service(ps) {}
 
   private:
-    void upInit()
+    void upInit() override
     { FortranCallback::getInstance()->fillHeader(); }
 
-    void upEvnt()
+    void upEvnt() override
     {
       FortranCallback::getInstance()->fillEvent(); 
       if ( Pythia6Hadronizer::getJetMatching() )
         Pythia6Hadronizer::getJetMatching()->beforeHadronisationExec();    
     }
 
-    bool upVeto()
+    bool upVeto() override
     { 
       if ( !Pythia6Hadronizer::getJetMatching() )
         return false;
