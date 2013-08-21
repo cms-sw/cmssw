@@ -36,7 +36,9 @@ using namespace trigger;
 // ----------------------------------------------------------------------
 HLTmmkFilter::HLTmmkFilter(const edm::ParameterSet& iConfig) : HLTFilter(iConfig),
   muCandTag_  (iConfig.getParameter<edm::InputTag>("MuCand")),
+  muCandToken_(consumes<reco::RecoChargedCandidateCollection>(muCandTag_)),
   trkCandTag_  (iConfig.getParameter<edm::InputTag>("TrackCand")),
+  trkCandToken_(consumes<reco::RecoChargedCandidateCollection>(trkCandTag_)),
   thirdTrackMass_(iConfig.getParameter<double>("ThirdTrackMass")),
   maxEta_(iConfig.getParameter<double>("MaxEta")),
   minPt_(iConfig.getParameter<double>("MinPt")),
@@ -47,7 +49,8 @@ HLTmmkFilter::HLTmmkFilter(const edm::ParameterSet& iConfig) : HLTFilter(iConfig
   minCosinePointingAngle_(iConfig.getParameter<double>("MinCosinePointingAngle")),
   minD0Significance_(iConfig.getParameter<double>("MinD0Significance")),
   fastAccept_(iConfig.getParameter<bool>("FastAccept")),
-  beamSpotTag_ (iConfig.getParameter<edm::InputTag> ("BeamSpotTag"))
+  beamSpotTag_ (iConfig.getParameter<edm::InputTag> ("BeamSpotTag")),
+  beamSpotToken_(consumes<reco::BeamSpot>(beamSpotTag_))
 {
   produces<VertexCollection>();
   produces<CandidateCollection>();
