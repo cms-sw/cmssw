@@ -17,3 +17,14 @@ DEFINE_FWK_MODULE(SeedCombiner);
 DEFINE_EDM_PLUGIN(SeedCreatorFactory, SeedFromConsecutiveHitsCreator, "SeedFromConsecutiveHitsCreator");
 DEFINE_EDM_PLUGIN(SeedCreatorFactory, SeedFromConsecutiveHitsStraightLineCreator, "SeedFromConsecutiveHitsStraightLineCreator");
 DEFINE_EDM_PLUGIN(SeedCreatorFactory, SeedFromConsecutiveHitsTripletOnlyCreator, "SeedFromConsecutiveHitsTripletOnlyCreator");
+
+#include "RecoTracker/TkTrackingRegions/interface/OrderedHitsGeneratorFactory.h"
+#include "RecoTracker/TkTrackingRegions/interface/OrderedHitsGenerator.h"
+#include "CombinedMultiHitGenerator.h"
+DEFINE_EDM_PLUGIN(OrderedHitsGeneratorFactory, CombinedMultiHitGenerator, "StandardMultiHitGenerator");
+
+
+#include "MultiHitGeneratorFromChi2.h"
+#include "RecoTracker/TkSeedGenerator/interface/MultiHitGeneratorFromPairAndLayers.h"
+#include "RecoTracker/TkSeedGenerator/interface/MultiHitGeneratorFromPairAndLayersFactory.h"
+DEFINE_EDM_PLUGIN(MultiHitGeneratorFromPairAndLayersFactory, MultiHitGeneratorFromChi2, "MultiHitGeneratorFromChi2");

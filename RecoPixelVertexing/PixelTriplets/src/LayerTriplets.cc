@@ -1,4 +1,4 @@
-#include "LayerTriplets.h"
+#include "RecoPixelVertexing/PixelTriplets/interface/LayerTriplets.h"
 
 using namespace ctfseeding;
 std::vector<LayerTriplets::LayerPairAndLayers> LayerTriplets::layers() const

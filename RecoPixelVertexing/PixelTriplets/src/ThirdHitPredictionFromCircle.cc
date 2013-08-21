@@ -5,7 +5,7 @@
 #include "RecoTracker/TkMSParametrization/interface/PixelRecoUtilities.h"
 #include "RecoTracker/TkMSParametrization/interface/PixelRecoRange.h"
 
-#include "ThirdHitPredictionFromCircle.h"
+#include "RecoPixelVertexing/PixelTriplets/interface/ThirdHitPredictionFromCircle.h"
 #include "FWCore/Utilities/interface/Likely.h"
 
 // there are tons of safety checks.
