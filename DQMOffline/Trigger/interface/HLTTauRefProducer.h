@@ -57,16 +57,17 @@ public:
   typedef math::XYZTLorentzVectorD LorentzVector;
   typedef std::vector<LorentzVector> LorentzVectorCollection;
   
-  edm::InputTag PFTaus_;
-  std::vector<edm::InputTag> PFTauDis_;
+  edm::EDGetTokenT<reco::PFTauCollection> PFTaus_;
+  std::vector<edm::EDGetTokenT<reco::PFTauDiscriminator> > PFTauDis_;
   bool doPFTaus_;
   double ptMinPFTau_;
   
   
-  edm::InputTag Electrons_;
+  edm::EDGetTokenT<reco::GsfElectronCollection> Electrons_;
   bool doElectrons_;
-  edm::InputTag e_idAssocProd_;
-  edm::InputTag e_ctfTrackCollection_;
+  edm::EDGetTokenT<reco::ElectronIDAssociationCollection> e_idAssocProd_;
+  edm::EDGetTokenT<reco::TrackCollection> e_ctfTrackCollection_;
+  edm::InputTag e_ctfTrackCollectionSrc_;
   double ptMinElectron_;
   bool e_doID_;
   bool e_doTrackIso_;
@@ -79,22 +80,22 @@ public:
   double e_zMmin_,e_zMmax_;
   double e_FromZet_;
 
-  edm::InputTag Photons_;
+  edm::EDGetTokenT<reco::PhotonCollection> Photons_;
   bool doPhotons_;
   double photonEcalIso_;
   double ptMinPhoton_;
 
 
-  edm::InputTag Muons_;
+  edm::EDGetTokenT<reco::MuonCollection> Muons_;
   bool doMuons_;
   double ptMinMuon_;
 
 
-  edm::InputTag Jets_;
+  edm::EDGetTokenT<reco::CaloJetCollection> Jets_;
   bool doJets_;
   double ptMinJet_;
 
-  edm::InputTag Towers_;
+  edm::EDGetTokenT<CaloTowerCollection> Towers_;
   bool doTowers_;
   double ptMinTower_;
   double towerIsol_;

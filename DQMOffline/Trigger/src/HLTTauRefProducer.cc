@@ -37,18 +37,24 @@ HLTTauRefProducer::HLTTauRefProducer(const edm::ParameterSet& iConfig)
   //One Parameter Set per Collection
 
   ParameterSet pfTau = iConfig.getUntrackedParameter<edm::ParameterSet>("PFTaus");
-  PFTaus_ = pfTau.getUntrackedParameter<InputTag>("PFTauProducer");
-  PFTauDis_ = pfTau.getUntrackedParameter<std::vector<InputTag> >("PFTauDiscriminators");
+  PFTaus_ = consumes<reco::PFTauCollection>(pfTau.getUntrackedParameter<InputTag>("PFTauProducer"));
+  auto discs = pfTau.getUntrackedParameter<std::vector<InputTag> >("PFTauDiscriminators");
+  for(edm::InputTag& tag: discs) {
+    PFTauDis_.push_back(consumes<reco::PFTauDiscriminator>(tag));
+  }
   doPFTaus_ = pfTau.getUntrackedParameter<bool>("doPFTaus",false);
   ptMinPFTau_= pfTau.getUntrackedParameter<double>("ptMin",15.);
 
   ParameterSet  electrons = iConfig.getUntrackedParameter<edm::ParameterSet>("Electrons");
-  Electrons_ = electrons.getUntrackedParameter<InputTag>("ElectronCollection");
+  Electrons_ = consumes<reco::GsfElectronCollection>(electrons.getUntrackedParameter<InputTag>("ElectronCollection"));
   doElectrons_ = electrons.getUntrackedParameter<bool>("doElectrons",false);
-  e_idAssocProd_ = electrons.getUntrackedParameter<InputTag>("IdCollection");
-  e_ctfTrackCollection_= electrons.getUntrackedParameter<InputTag>("TrackCollection");
-  ptMinElectron_= electrons.getUntrackedParameter<double>("ptMin",15.);
   e_doID_ = electrons.getUntrackedParameter<bool>("doID",false);
+  if(e_doID_) {
+    e_idAssocProd_ = consumes<reco::ElectronIDAssociationCollection>(electrons.getUntrackedParameter<InputTag>("IdCollection"));
+  }
+  e_ctfTrackCollectionSrc_ = electrons.getUntrackedParameter<InputTag>("TrackCollection");
+  e_ctfTrackCollection_ = consumes<reco::TrackCollection>(e_ctfTrackCollectionSrc_);
+  ptMinElectron_= electrons.getUntrackedParameter<double>("ptMin",15.);
   e_doTrackIso_ = electrons.getUntrackedParameter<bool>("doTrackIso",false);
   e_trackMinPt_= electrons.getUntrackedParameter<double>("ptMinTrack",1.5);
   e_lipCut_= electrons.getUntrackedParameter<double>("lipMinTrack",1.5);
@@ -57,23 +63,23 @@ HLTTauRefProducer::HLTTauRefProducer(const edm::ParameterSet& iConfig)
   e_isoMaxSumPt_= electrons.getUntrackedParameter<double>("MaxIsoVar",0.02);
 
   ParameterSet  muons = iConfig.getUntrackedParameter<edm::ParameterSet>("Muons");
-  Muons_ = muons.getUntrackedParameter<InputTag>("MuonCollection");
+  Muons_ = consumes<reco::MuonCollection>(muons.getUntrackedParameter<InputTag>("MuonCollection"));
   doMuons_ = muons.getUntrackedParameter<bool>("doMuons",false);
   ptMinMuon_= muons.getUntrackedParameter<double>("ptMin",15.);
 
   ParameterSet  jets = iConfig.getUntrackedParameter<edm::ParameterSet>("Jets");
-  Jets_ = jets.getUntrackedParameter<InputTag>("JetCollection");
+  Jets_ = consumes<reco::CaloJetCollection>(jets.getUntrackedParameter<InputTag>("JetCollection"));
   doJets_ = jets.getUntrackedParameter<bool>("doJets");
   ptMinJet_= jets.getUntrackedParameter<double>("etMin");
 
   ParameterSet  towers = iConfig.getUntrackedParameter<edm::ParameterSet>("Towers");
-  Towers_ = towers.getUntrackedParameter<InputTag>("TowerCollection");
+  Towers_ = consumes<CaloTowerCollection>(towers.getUntrackedParameter<InputTag>("TowerCollection"));
   doTowers_ = towers.getUntrackedParameter<bool>("doTowers");
   ptMinTower_= towers.getUntrackedParameter<double>("etMin");
   towerIsol_= towers.getUntrackedParameter<double>("towerIsolation");
 
   ParameterSet  photons = iConfig.getUntrackedParameter<edm::ParameterSet>("Photons");
-  Photons_ = photons.getUntrackedParameter<InputTag>("PhotonCollection");
+  Photons_ = consumes<reco::PhotonCollection>(photons.getUntrackedParameter<InputTag>("PhotonCollection"));
   doPhotons_ = photons.getUntrackedParameter<bool>("doPhotons");
   ptMinPhoton_= photons.getUntrackedParameter<double>("etMin");
   photonEcalIso_= photons.getUntrackedParameter<double>("ECALIso");
@@ -117,29 +123,23 @@ HLTTauRefProducer::doPFTaus(edm::Event& iEvent,const edm::EventSetup& iES)
       auto_ptr<LorentzVectorCollection> product_PFTaus(new LorentzVectorCollection);
       //Retrieve the collection
       edm::Handle<PFTauCollection> pftaus;
-      if(iEvent.getByLabel(PFTaus_,pftaus))
-	{
+      if(iEvent.getByToken(PFTaus_,pftaus)) {
 	  for(unsigned int i=0;i<pftaus->size();++i)
 	    if((*pftaus)[i].pt()>ptMinPFTau_&&fabs((*pftaus)[i].eta())<etaMax)
 	      {
 		reco::PFTauRef thePFTau(pftaus,i);
-		for(unsigned int j=0;j<PFTauDis_.size();++j)
-		{
-		  edm::Handle<PFTauDiscriminator> pftaudis;
-		  if(iEvent.getByLabel(PFTauDis_[j],pftaudis))
-		    {
-		      if((*pftaudis)[thePFTau]>0.5)
-			{
-			  LorentzVector vec((*pftaus)[i].px(),(*pftaus)[i].py(),(*pftaus)[i].pz(),(*pftaus)[i].energy());
-			  product_PFTaus->push_back(vec);
-			}
-		    }
-		}
-	      }
-	}
-
+                for(edm::EDGetTokenT<reco::PFTauDiscriminator>& token: PFTauDis_) {
+		  edm::Handle<reco::PFTauDiscriminator> pftaudis;
+		  if(iEvent.getByToken(token, pftaudis)) {
+                    if((*pftaudis)[thePFTau]>0.5) {
+                      LorentzVector vec((*pftaus)[i].px(),(*pftaus)[i].py(),(*pftaus)[i].pz(),(*pftaus)[i].energy());
+                      product_PFTaus->push_back(vec);
+                    }
+                  }
+                }
+              }
+      }
       iEvent.put(product_PFTaus,"PFTaus");
-      
 }
 
 
@@ -152,7 +152,7 @@ HLTTauRefProducer::doElectrons(edm::Event& iEvent,const edm::EventSetup& iES)
   edm::Handle<reco::ElectronIDAssociationCollection> pEleID;
   if(e_doID_){//UGLY HACK UNTIL GET ELETRON ID WORKING IN 210
    
-      iEvent.getByLabel(e_idAssocProd_,pEleID);
+      iEvent.getByToken(e_idAssocProd_, pEleID);
     
     if (!pEleID.isValid()){
       edm::LogInfo("")<< "Error! Can't get electronIDAssocProducer by label. ";
@@ -160,15 +160,15 @@ HLTTauRefProducer::doElectrons(edm::Event& iEvent,const edm::EventSetup& iES)
     }
   }
   edm::Handle<reco::TrackCollection> pCtfTracks;
-  iEvent.getByLabel(e_ctfTrackCollection_, pCtfTracks);
+  iEvent.getByToken(e_ctfTrackCollection_, pCtfTracks);
   if (!pCtfTracks.isValid()) {
-  edm::LogInfo("")<< "Error! Can't get " << e_ctfTrackCollection_.label() << " by label. ";
+  edm::LogInfo("")<< "Error! Can't get " << e_ctfTrackCollectionSrc_.label() << " by label. ";
   iEvent.put(product_Electrons,"Electrons"); 
   return;
   }
   const reco::TrackCollection * ctfTracks = pCtfTracks.product();
   edm::Handle<GsfElectronCollection> electrons;
-  if(iEvent.getByLabel(Electrons_,electrons))
+  if(iEvent.getByToken(Electrons_,electrons))
     for(size_t i=0;i<electrons->size();++i)
       {
 	edm::Ref<reco::GsfElectronCollection> electronRef(electrons,i);
@@ -221,7 +221,7 @@ HLTTauRefProducer::doMuons(edm::Event& iEvent,const edm::EventSetup& iES)
   auto_ptr<LorentzVectorCollection> product_Muons(new LorentzVectorCollection);
   //Retrieve the collection
   edm::Handle<MuonCollection> muons;
-      if(iEvent.getByLabel(Muons_,muons))
+      if(iEvent.getByToken(Muons_,muons))
    
       for(size_t i = 0 ;i<muons->size();++i)
 	{
@@ -245,7 +245,7 @@ HLTTauRefProducer::doJets(edm::Event& iEvent,const edm::EventSetup& iES)
       auto_ptr<LorentzVectorCollection> product_Jets(new LorentzVectorCollection);
       //Retrieve the collection
       edm::Handle<CaloJetCollection> jets;
-      if(iEvent.getByLabel(Jets_,jets))
+      if(iEvent.getByToken(Jets_,jets))
       for(size_t i = 0 ;i<jets->size();++i)
 	{
 	     if((*jets)[i].et()>ptMinJet_&&fabs((*jets)[i].eta())<etaMax)
@@ -263,7 +263,7 @@ HLTTauRefProducer::doTowers(edm::Event& iEvent,const edm::EventSetup& iES)
       auto_ptr<LorentzVectorCollection> product_Towers(new LorentzVectorCollection);
       //Retrieve the collection
       edm::Handle<CaloTowerCollection> towers;
-      if(iEvent.getByLabel(Towers_,towers))
+      if(iEvent.getByToken(Towers_,towers))
       for(size_t i = 0 ;i<towers->size();++i)
 	{
 	     if((*towers)[i].pt()>ptMinTower_&&fabs((*towers)[i].eta())<etaMax)
@@ -293,7 +293,7 @@ HLTTauRefProducer::doPhotons(edm::Event& iEvent,const edm::EventSetup& iES)
       auto_ptr<LorentzVectorCollection> product_Gammas(new LorentzVectorCollection);
       //Retrieve the collection
       edm::Handle<PhotonCollection> photons;
-      if(iEvent.getByLabel(Photons_,photons))
+      if(iEvent.getByToken(Photons_,photons))
       for(size_t i = 0 ;i<photons->size();++i)
 	if((*photons)[i].ecalRecHitSumEtConeDR04()<photonEcalIso_)
 	{
