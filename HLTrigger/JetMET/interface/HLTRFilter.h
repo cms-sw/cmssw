@@ -7,6 +7,11 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
+#include "DataFormats/METReco/interface/CaloMET.h"
+#include "DataFormats/METReco/interface/CaloMETCollection.h"
+#include "TVector3.h"
+#include "TLorentzVector.h"
+
 namespace edm {
    class ConfigurationDescriptions;
 }
@@ -28,6 +33,8 @@ class HLTRFilter : public edm::EDFilter {
       static double CalcR(double MR, TLorentzVector ja,TLorentzVector jb, edm::Handle<reco::CaloMETCollection> met, const std::vector<math::XYZTLorentzVector>& muons);
 
    private:
+      edm::EDGetTokenT<std::vector<math::XYZTLorentzVector>> m_theInputToken;
+      edm::EDGetTokenT<reco::CaloMETCollection> m_theMETToken;
       edm::InputTag inputTag_; // input tag identifying product
       edm::InputTag inputMetTag_; // input tag identifying MET product
       bool doMuonCorrection_;  // do the muon corrections

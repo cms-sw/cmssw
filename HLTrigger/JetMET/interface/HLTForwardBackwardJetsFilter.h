@@ -25,6 +25,7 @@ class HLTForwardBackwardJetsFilter : public HLTFilter {
       virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct);
 
    private:
+      edm::EDGetTokenT<std::vector<T>> m_theJetToken;
       edm::InputTag inputTag_; // input tag identifying jets
       double minPt_;
       double minEta_;

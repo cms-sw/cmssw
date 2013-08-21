@@ -7,6 +7,9 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 
+#include "DataFormats/JetReco/interface/PFJet.h"
+#include "DataFormats/JetReco/interface/PFJetCollection.h"
+
 class HLTPFJetIDProducer : public edm::EDProducer {
  public:
   explicit HLTPFJetIDProducer(const edm::ParameterSet&);
@@ -15,6 +18,7 @@ class HLTPFJetIDProducer : public edm::EDProducer {
   virtual void beginJob() ; 
   virtual void produce(edm::Event &, const edm::EventSetup&);
  private:
+  edm::EDGetTokenT<reco::PFJetCollection> m_thePFJetToken;
   edm::InputTag jetsInput_;
   double min_NHEF_;         // minimum Neutral Hadron Energy Fraction
   double max_NHEF_;         // maximum NHEF

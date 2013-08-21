@@ -9,6 +9,9 @@
 
 #include "DataFormats/HLTReco/interface/TriggerTypeDefs.h"
 #include "HLTrigger/HLTcore/interface/HLTFilter.h"
+#include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
+#include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
 
 namespace edm {
    class ConfigurationDescriptions;
@@ -28,6 +31,8 @@ class HLTMhtHtFilter : public HLTFilter {
       virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct);
 
    private:
+      edm::EDGetTokenT<std::vector<T>> m_theObjectToken;
+      edm::EDGetTokenT<reco::TrackCollection> m_theTrackToken;
       const edm::InputTag       inputJetTag_;   // input tag identifying jets
       const edm::InputTag       inputTracksTag_;
       const std::vector<double> minPtJet_;

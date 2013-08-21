@@ -12,6 +12,9 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 
+#include "DataFormats/Common/interface/View.h"
+#include "DataFormats/JetReco/interface/CaloJetCollection.h"
+
 //
 // class declaration
 //
@@ -25,6 +28,7 @@ class HLTMhtProducer : public edm::EDProducer {
       virtual void produce(edm::Event&, const edm::EventSetup&);
       
  private:
+      edm::EDGetTokenT<edm::View<reco::Jet>> m_theJetToken;
       edm::InputTag inputJetTag_; // input tag identifying jets
       double minPtJet_;
       double etaJet_;

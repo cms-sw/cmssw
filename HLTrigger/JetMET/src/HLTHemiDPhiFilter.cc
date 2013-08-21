@@ -18,8 +18,6 @@
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
-#include "TVector3.h"
-#include "TLorentzVector.h"
 //
 // constructors and destructor
 //
@@ -29,6 +27,7 @@ HLTHemiDPhiFilter::HLTHemiDPhiFilter(const edm::ParameterSet& iConfig) : HLTFilt
   accept_NJ_    (iConfig.getParameter<bool>       ("acceptNJ"   ))
 
 {
+  m_theHemiToken = consumes<std::vector<math::XYZTLorentzVector>>(inputTag_);
    LogDebug("") << "Inputs/minDphi/acceptNJ : "
 		<< inputTag_.encode() << " "	
 		<< min_dphi_ << " "
@@ -63,7 +62,7 @@ HLTHemiDPhiFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, 
 
    // get hold of collection of objects
    Handle< vector<math::XYZTLorentzVector> > hemispheres;
-   iEvent.getByLabel (inputTag_,hemispheres);
+   iEvent.getByToken (m_theHemiToken,hemispheres);
 
    // check the the input collections are available
    if (not hemispheres.isValid())
