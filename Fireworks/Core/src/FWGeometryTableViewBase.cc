@@ -14,7 +14,7 @@
 #include "Fireworks/Core/src/FWColorSelect.h"
 #include "Fireworks/Core/src/FWPopupMenu.cc"
 #include "Fireworks/Core/src/FWGeoTopNodeScene.h"
-#include "Fireworks/Core/src/FWEveDigitSetScalableMarker.cc"
+#include "Fireworks/Core/src/FWEveDigitSetScalableMarker.h"
 #include "Fireworks/Core/interface/CmsShowViewPopup.h"
 
 
