@@ -122,10 +122,6 @@ steps = Steps()
 steps['ProdMinBias']=merge([{'cfg':'MinBias_8TeV_cfi','--relval':'9000,300'},step1Defaults])
 steps['ProdTTbar']=merge([{'cfg':'TTbar_Tauola_8TeV_cfi','--relval':'9000,100'},step1Defaults])
 steps['ProdQCD_Pt_3000_3500']=merge([{'cfg':'QCD_Pt_3000_3500_8TeV_cfi','--relval':'9000,50'},step1Defaults])
-### Production test: 13 TeV equivalents
-steps['ProdMinBias_13']=merge([{'cfg':'MinBias_13TeV_cfi','--relval':'9000,300'},step1Defaults])
-steps['ProdTTbar_13']=merge([{'cfg':'TTbar_Tauola_13TeV_cfi','--relval':'9000,100'},step1Defaults])
-steps['ProdQCD_Pt_3000_3500_13']=merge([{'cfg':'QCD_Pt_3000_3500_13TeV_cfi','--relval':'9000,50'},step1Defaults])
 
 #### data ####
 #list of run to harvest for 2010A: 144086,144085,144084,144083,144011,139790,139789,139788,139787,138937,138934,138924,138923
@@ -247,14 +243,21 @@ def gen2015(fragment,howMuch):
     global step1Up2015Defaults
     return merge([{'cfg':fragment},howMuch,step1Up2015Defaults])
 
+### Production test: 13 TeV equivalents
+steps['ProdMinBias_13']=gen2015('MinBias_13TeV_cfi',Kby(9,100))
+#steps['ProdMinBias_1399']=merge([{'cfg':'MinBias_13TeV_cfi','--relval':'9000,300'},step1Up2015Defaults])  # LEGACY - to be removed after tests
+steps['ProdTTbar_13']=gen2015('TTbar_Tauola_13TeV_cfi',Kby(9,100))
+steps['ProdQCD_Pt_3000_3500_13']=gen2015('QCD_Pt_3000_3500_13TeV_cfi',Kby(9,100))
+
+
 steps['MinBias']=gen('MinBias_8TeV_cfi',Kby(9,300))
 steps['QCD_Pt_3000_3500']=gen('QCD_Pt_3000_3500_8TeV_cfi',Kby(9,25))
 steps['QCD_Pt_600_800']=gen('QCD_Pt_600_800_8TeV_cfi',Kby(9,50))
 steps['QCD_Pt_80_120']=gen('QCD_Pt_80_120_8TeV_cfi',Kby(9,100))
-steps['MinBias_13']=gen('MinBias_13TeV_cfi',Kby(9,300))
-steps['QCD_Pt_3000_3500_13']=gen('QCD_Pt_3000_3500_13TeV_cfi',Kby(9,25))
-steps['QCD_Pt_600_800_13']=gen('QCD_Pt_600_800_13TeV_cfi',Kby(9,50))
-steps['QCD_Pt_80_120_13']=gen('QCD_Pt_80_120_13TeV_cfi',Kby(9,100))
+steps['MinBias_13']=gen2015('MinBias_13TeV_cfi',Kby(9,300))
+steps['QCD_Pt_3000_3500_13']=gen2015('QCD_Pt_3000_3500_13TeV_cfi',Kby(9,25))
+steps['QCD_Pt_600_800_13']=gen2015('QCD_Pt_600_800_13TeV_cfi',Kby(9,50))
+steps['QCD_Pt_80_120_13']=gen2015('QCD_Pt_80_120_13TeV_cfi',Kby(9,100))
 
 steps['QCD_Pt_30_80_BCtoE_8TeV']=gen('QCD_Pt_30_80_BCtoE_8TeV',Kby(9000,100))
 steps['QCD_Pt_80_170_BCtoE_8TeV']=gen('QCD_Pt_80_170_BCtoE_8TeV',Kby(9000,100))
@@ -268,32 +271,42 @@ steps['SingleMuPt1']=gen('SingleMuPt1_cfi',Kby(25,1000))
 steps['SingleMuPt10']=gen('SingleMuPt10_cfi',Kby(25,500))
 steps['SingleMuPt100']=gen('SingleMuPt100_cfi',Kby(9,500))
 steps['SingleMuPt1000']=gen('SingleMuPt1000_cfi',Kby(9,500))
+steps['SingleElectronPt10_UP15']=gen2015('SingleElectronPt10_cfi',Kby(9,3000))
+steps['SingleElectronPt35_UP15']=gen2015('SingleElectronPt35_cfi',Kby(9,500))
+steps['SingleElectronPt1000_UP15']=gen2015('SingleElectronPt1000_cfi',Kby(9,50))
+steps['SingleElectronFlatPt1To100_UP15']=gen2015('SingleElectronFlatPt1To100_cfi',Mby(2,100))
+steps['SingleGammaPt10_UP15']=gen2015('SingleGammaPt10_cfi',Kby(9,3000))
+steps['SingleGammaPt35_UP15']=gen2015('SingleGammaPt35_cfi',Kby(9,500))
+steps['SingleMuPt1_UP15']=gen2015('SingleMuPt1_cfi',Kby(25,1000))
+steps['SingleMuPt10_UP15']=gen2015('SingleMuPt10_cfi',Kby(25,500))
+steps['SingleMuPt100_UP15']=gen2015('SingleMuPt100_cfi',Kby(9,500))
+steps['SingleMuPt1000_UP15']=gen2015('SingleMuPt1000_cfi',Kby(9,500))
 steps['TTbar']=gen('TTbar_Tauola_8TeV_cfi',Kby(9,100))
 steps['TTbarLepton']=gen('TTbarLepton_Tauola_8TeV_cfi',Kby(9,100))
 steps['ZEE']=gen('ZEE_8TeV_cfi',Kby(9,100))
 steps['Wjet_Pt_80_120']=gen('Wjet_Pt_80_120_8TeV_cfi',Kby(9,100))
 steps['Wjet_Pt_3000_3500']=gen('Wjet_Pt_3000_3500_8TeV_cfi',Kby(9,50))
 steps['LM1_sfts']=gen('LM1_sfts_8TeV_cfi',Kby(9,100))
-steps['QCD_FlatPt_15_3000']=gen('QCDForPF_8TeV_cfi',Kby(9,100))
+steps['QCD_FlatPt_15_3000']=gen('QCDForPF_8TeV_cfi',Kby(50,100))
 steps['QCD_FlatPt_15_3000HS']=gen('QCDForPF_8TeV_cfi',Kby(50,100))
-steps['TTbar_13']=gen('TTbar_Tauola_13TeV_cfi',Kby(9,100))
-steps['TTbarLepton_13']=gen('TTbarLepton_Tauola_13TeV_cfi',Kby(9,100))
-steps['TTbarLepton_13_OS']=gen('TTbarLepton_Tauola_13TeV_cfi',Kby(9,100))   ## debugging : this is old style => BAD
+steps['TTbar_13']=gen2015('TTbar_Tauola_13TeV_cfi',Kby(9,100))
+steps['TTbarLepton_13']=gen2015('TTbarLepton_Tauola_13TeV_cfi',Kby(9,100))
+#steps['TTbarLepton_13_OS']=gen2015('TTbarLepton_Tauola_13TeV_cfi',Kby(9,100))   ## debugging : this is old style => BAD
 ## debugging
-steps['TTbarLepton_13correct']=gen2015('TTbarLepton_Tauola_13TeV_cfi',Kby(9,100))
-steps['ZEE_13']=gen('ZEE_13TeV_cfi',Kby(9,100))
-steps['Wjet_Pt_80_120_13']=gen('Wjet_Pt_80_120_13TeV_cfi',Kby(9,100))
-steps['Wjet_Pt_3000_3500_13']=gen('Wjet_Pt_3000_3500_13TeV_cfi',Kby(9,50))
-steps['LM1_sfts_13']=gen('LM1_sfts_13TeV_cfi',Kby(9,100))
-steps['QCD_FlatPt_15_3000_13']=gen('QCDForPF_13TeV_cfi',Kby(9,100))
-steps['QCD_FlatPt_15_3000HS_13']=gen('QCDForPF_13TeV_cfi',Kby(50,100))
+# steps['TTbarLepton_13correct']=gen2015('TTbarLepton_Tauola_13TeV_cfi',Kby(9,100))         ##  to be removed after tests
+steps['ZEE_13']=gen2015('ZEE_13TeV_cfi',Kby(9,100))
+steps['Wjet_Pt_80_120_13']=gen2015('Wjet_Pt_80_120_13TeV_cfi',Kby(9,100))
+steps['Wjet_Pt_3000_3500_13']=gen2015('Wjet_Pt_3000_3500_13TeV_cfi',Kby(9,50))
+steps['LM1_sfts_13']=gen2015('LM1_sfts_13TeV_cfi',Kby(9,100))
+steps['QCD_FlatPt_15_3000_13']=gen2015('QCDForPF_13TeV_cfi',Kby(9,100))
+steps['QCD_FlatPt_15_3000HS_13']=gen2015('QCDForPF_13TeV_cfi',Kby(50,100))
 
 steps['ZpMM_2250_8TeV_Tauola']=gen('ZpMM_2250_8TeV_Tauola_cfi',Kby(9,100))
 steps['ZpEE_2250_8TeV_Tauola']=gen('ZpEE_2250_8TeV_Tauola_cfi',Kby(9,100))
 steps['ZpTT_1500_8TeV_Tauola']=gen('ZpTT_1500_8TeV_Tauola_cfi',Kby(9,100))
-steps['ZpMM_2250_13TeV_Tauola']=gen('ZpMM_2250_13TeV_Tauola_cfi',Kby(9,100))
-steps['ZpEE_2250_13TeV_Tauola']=gen('ZpEE_2250_13TeV_Tauola_cfi',Kby(9,100))
-steps['ZpTT_1500_13TeV_Tauola']=gen('ZpTT_1500_13TeV_Tauola_cfi',Kby(9,100))
+steps['ZpMM_2250_13TeV_Tauola']=gen2015('ZpMM_2250_13TeV_Tauola_cfi',Kby(9,100))
+steps['ZpEE_2250_13TeV_Tauola']=gen2015('ZpEE_2250_13TeV_Tauola_cfi',Kby(9,100))
+steps['ZpTT_1500_13TeV_Tauola']=gen2015('ZpTT_1500_13TeV_Tauola_cfi',Kby(9,100))
 
 def identitySim(wf):
     return merge([{'--restoreRND':'SIM','--process':'SIM2'},wf])
@@ -356,7 +369,7 @@ steps['SingleElectronE120EHCAL']=merge([{'cfg':'SingleElectronE120EHCAL_cfi'},ec
 steps['SinglePiE50HCAL']=merge([{'cfg':'SinglePiE50HCAL_cfi'},ecalHcal,Kby(25,250),step1Defaults])
 
 steps['MinBiasHS']=gen('MinBias_8TeV_cfi',Kby(25,300))
-steps['MinBiasHS_13']=gen('MinBias_13TeV_cfi',Kby(25,300))
+steps['MinBiasHS_13']=gen2015('MinBias_13TeV_cfi',Kby(25,300))
 steps['InclusiveppMuX']=gen('InclusiveppMuX_8TeV_cfi',Mby(11,45000))
 steps['SingleElectronFlatPt5To100']=gen('SingleElectronFlatPt5To100_cfi',Kby(25,250))
 steps['SinglePiPt1']=gen('SinglePiPt1_cfi',Kby(25,250))
@@ -380,25 +393,25 @@ steps['WM']=genS('WM_8TeV_cfi',Kby(9,200))
 steps['WpM']=genS('WpM_8TeV_cfi',Kby(9,200))
 steps['ZMM']=genS('ZMM_8TeV_cfi',Kby(18,300))
 steps['ZpMM']=genS('ZpMM_8TeV_cfi',Kby(9,200))
-steps['Higgs200ChargedTaus_13']=genS('H200ChargedTaus_Tauola_13TeV_cfi',Kby(9,100))
-steps['JpsiMM_13']=genS('JpsiMM_13TeV_cfi',Kby(66,1000))
-steps['WE_13']=genS('WE_13TeV_cfi',Kby(9,100))
-steps['WM_13']=genS('WM_13TeV_cfi',Kby(9,200))
-steps['WpM_13']=genS('WpM_13TeV_cfi',Kby(9,200))
-steps['ZMM_13']=genS('ZMM_13TeV_cfi',Kby(18,300))
-steps['ZpMM_13']=genS('ZpMM_13TeV_cfi',Kby(9,200))
+steps['Higgs200ChargedTaus_13']=gen2015('H200ChargedTaus_Tauola_13TeV_cfi',Kby(9,100))
+steps['JpsiMM_13']=gen2015('JpsiMM_13TeV_cfi',Kby(66,1000))
+steps['WE_13']=gen2015('WE_13TeV_cfi',Kby(9,100))
+steps['WM_13']=gen2015('WM_13TeV_cfi',Kby(9,200))
+steps['WpM_13']=gen2015('WpM_13TeV_cfi',Kby(9,200))
+steps['ZMM_13']=gen2015('ZMM_13TeV_cfi',Kby(18,300))
+steps['ZpMM_13']=gen2015('ZpMM_13TeV_cfi',Kby(9,200))
 
 steps['ZTT']=genS('ZTT_Tauola_All_hadronic_8TeV_cfi',Kby(9,150))
 steps['H130GGgluonfusion']=genS('H130GGgluonfusion_8TeV_cfi',Kby(9,100))
 steps['PhotonJets_Pt_10']=genS('PhotonJet_Pt_10_8TeV_cfi',Kby(9,150))
 steps['QQH1352T_Tauola']=genS('QQH1352T_Tauola_8TeV_cfi',Kby(9,100))
-steps['ZTT_13']=genS('ZTT_Tauola_All_hadronic_13TeV_cfi',Kby(9,150))
-steps['H130GGgluonfusion_13']=genS('H130GGgluonfusion_13TeV_cfi',Kby(9,100))
-steps['PhotonJets_Pt_10_13']=genS('PhotonJet_Pt_10_13TeV_cfi',Kby(9,150))
-steps['QQH1352T_Tauola_13']=genS('QQH1352T_Tauola_13TeV_cfi',Kby(9,100))
+steps['ZTT_13']=gen2015('ZTT_Tauola_All_hadronic_13TeV_cfi',Kby(9,150))
+steps['H130GGgluonfusion_13']=gen2015('H130GGgluonfusion_13TeV_cfi',Kby(9,100))
+steps['PhotonJets_Pt_10_13']=gen2015('PhotonJet_Pt_10_13TeV_cfi',Kby(9,150))
+steps['QQH1352T_Tauola_13']=gen2015('QQH1352T_Tauola_13TeV_cfi',Kby(9,100))
 steps['ZmumuJets_Pt_20_300']=gen('ZmumuJets_Pt_20_300_GEN_8TeV_cfg',Kby(25,100))
 steps['ADDMonoJet_d3MD3']=genS('ADDMonoJet_8TeV_d3MD3_cfi',Kby(9,100))
-steps['ADDMonoJet_d3MD3_13']=genS('ADDMonoJet_13TeV_d3MD3_cfi',Kby(9,100))
+steps['ADDMonoJet_d3MD3_13']=gen2015('ADDMonoJet_13TeV_d3MD3_cfi',Kby(9,100))
 
 steps['MinBias2INPUT']={'INPUT':InputInfo(dataSet='/RelValMinBias/%s/GEN-SIM'%(baseDataSetRelease[0],),location='STD')}
 steps['Higgs200ChargedTausINPUT']={'INPUT':InputInfo(dataSet='/RelValHiggs200ChargedTaus/%s/GEN-SIM'%(baseDataSetRelease[0],),location='STD')}
@@ -760,7 +773,7 @@ steps['QCDFlatPt153000FS_13']=merge([{'cfg':'QCDForPF_13TeV_cfi'},Kby(27,2000),s
 steps['QCD_Pt_80_120FS_13']=merge([{'cfg':'QCD_Pt_80_120_13TeV_cfi'},Kby(100,500),stCond,step1FastDefaults])
 steps['QCD_Pt_3000_3500FS_13']=merge([{'cfg':'QCD_Pt_3000_3500_13TeV_cfi'},Kby(100,500),stCond,step1FastDefaults])
 steps['H130GGgluonfusionFS_13']=merge([{'cfg':'H130GGgluonfusion_13TeV_cfi'},step1FastDefaults])
-
+#GF: include fast_sim_13 
 steps['TTbarSFS']=merge([{'cfg':'TTbar_Tauola_8TeV_cfi'},
                         {'-s':'GEN,SIM',
                          '--eventcontent':'FEVTDEBUG',
