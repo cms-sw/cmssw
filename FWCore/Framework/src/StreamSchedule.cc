@@ -78,27 +78,11 @@ namespace edm {
                  ExceptionToActionTable const& actions,
                  boost::shared_ptr<ActivityRegistry> areg,
                  boost::shared_ptr<ProcessConfiguration> processConfiguration,
-                 StreamSchedule::TrigResPtr trptr,
-                 std::unique_ptr<EDProducer>& oInserter) {
-
+                 TriggerResultInserter* inserter) {
       ParameterSet* trig_pset = proc_pset.getPSetForUpdate("@trigger_paths");
-      trig_pset->registerIt();
 
       WorkerParams work_args(trig_pset, preg, processConfiguration, actions);
-      ModuleDescription md(trig_pset->id(),
-                           "TriggerResultInserter",
-                           "TriggerResults",
-                           processConfiguration.get(),
-                           ModuleDescription::getUniqueID());
-
-      areg->preModuleConstructionSignal_(md);
-      maker::ModuleHolderT<TriggerResultInserter> holder(new TriggerResultInserter(*trig_pset, trptr));
-      holder.setModuleDescription(md);
-      holder.registerProductsAndCallbacks(&preg);
-      oInserter.reset(holder.release());
-      areg->postModuleConstructionSignal_(md);
-
-      StreamSchedule::WorkerPtr ptr(new WorkerT<EDProducer>(oInserter.get(), md, work_args));
+      StreamSchedule::WorkerPtr ptr(new TriggerResultInserter::WorkerType(inserter, inserter->moduleDescription(), work_args));
       ptr->setActivityRegistry(areg);
       return ptr;
     }
@@ -159,18 +143,18 @@ namespace edm {
 
   // -----------------------------
 
-  StreamSchedule::StreamSchedule(
+  StreamSchedule::StreamSchedule(TriggerResultInserter* inserter,
                                  boost::shared_ptr<ModuleRegistry> modReg,
-                     ParameterSet& proc_pset,
-                     service::TriggerNamesService& tns,
-                     ProductRegistry& preg,
-                     BranchIDListHelper& branchIDListHelper,
-                     ExceptionToActionTable const& actions,
-                     boost::shared_ptr<ActivityRegistry> areg,
-                     boost::shared_ptr<ProcessConfiguration> processConfiguration,
-                     bool allowEarlyDelete,
-                     StreamID streamID,
-                     ProcessContext const* processContext) :
+                                 ParameterSet& proc_pset,
+                                 service::TriggerNamesService& tns,
+                                 ProductRegistry& preg,
+                                 BranchIDListHelper& branchIDListHelper,
+                                 ExceptionToActionTable const& actions,
+                                 boost::shared_ptr<ActivityRegistry> areg,
+                                 boost::shared_ptr<ProcessConfiguration> processConfiguration,
+                                 bool allowEarlyDelete,
+                                 StreamID streamID,
+                                 ProcessContext const* processContext) :
     workerManager_(modReg,areg, actions),
     actReg_(areg),
     trig_name_list_(tns.getTrigPaths()),
@@ -201,8 +185,10 @@ namespace edm {
 
     if (hasPath) {
       // the results inserter stands alone
+      inserter->setTrigResultForStream(streamID.value(),results_);
+
       results_inserter_ = makeInserter(proc_pset, preg, actions, actReg_,
-                                       processConfiguration, results_, inserter_);
+                                       processConfiguration, inserter);
       addToAllWorkers(results_inserter_.get());
     }
 

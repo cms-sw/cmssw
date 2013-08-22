@@ -128,6 +128,7 @@ namespace edm {
   class WorkerInPath;
   class TriggerTimingReport;
   class ModuleRegistry;
+  class TriggerResultInserter;
   
   class StreamSchedule {
   public:
@@ -143,7 +144,8 @@ namespace edm {
 
     typedef std::vector<WorkerInPath> PathWorkers;
 
-    StreamSchedule(boost::shared_ptr<ModuleRegistry>,
+    StreamSchedule(TriggerResultInserter* inserter,
+                   boost::shared_ptr<ModuleRegistry>,
                    ParameterSet& proc_pset,
                    service::TriggerNamesService& tns,
                    ProductRegistry& pregistry,
@@ -285,7 +287,6 @@ namespace edm {
     TrigResPtr               results_;
 
     WorkerPtr                results_inserter_;
-    std::unique_ptr<EDProducer> inserter_;
     TrigPaths                trig_paths_;
     TrigPaths                end_paths_;
     std::vector<int>         empty_trig_paths_;

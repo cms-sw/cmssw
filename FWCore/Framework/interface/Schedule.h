@@ -98,13 +98,12 @@ namespace edm {
   class ExceptionCollector;
   class OutputModuleCommunicator;
   class ProcessContext;
-  class RunStopwatch;
-  class WorkerInPath;
   class PreallocationConfiguration;
   class StreamSchedule;
   class GlobalSchedule;
   class TriggerTimingReport;
   class ModuleRegistry;
+  class TriggerResultInserter;
   
   class Schedule {
   public:
@@ -237,6 +236,7 @@ namespace edm {
 
     void limitOutput(ParameterSet const& proc_pset, BranchIDLists const& branchIDLists);
 
+    std::shared_ptr<TriggerResultInserter> resultsInserter_;
     boost::shared_ptr<ModuleRegistry> moduleRegistry_;
     std::vector<std::shared_ptr<StreamSchedule>> streamSchedules_;
     //In the future, we will have one GlobalSchedule per simultaneous transition

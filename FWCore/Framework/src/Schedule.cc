@@ -11,6 +11,7 @@
 #include "FWCore/Framework/src/Factory.h"
 #include "FWCore/Framework/src/OutputModuleCommunicator.h"
 #include "FWCore/Framework/src/WorkerMaker.h"
+#include "FWCore/Framework/src/TriggerResultInserter.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
@@ -37,6 +38,36 @@ namespace edm {
     bool binary_search_string(std::vector<std::string> const& v, std::string const& s) {
       return std::binary_search(v.begin(), v.end(), s);
     }
+    
+    // Here we make the trigger results inserter directly.  This should
+    // probably be a utility in the WorkerRegistry or elsewhere.
+
+    std::shared_ptr<TriggerResultInserter>
+    makeInserter(ParameterSet& proc_pset,
+                 unsigned int iNStreams,
+                 ProductRegistry& preg,
+                 ExceptionToActionTable const& actions,
+                 boost::shared_ptr<ActivityRegistry> areg,
+                 boost::shared_ptr<ProcessConfiguration> processConfiguration) {
+      
+      ParameterSet* trig_pset = proc_pset.getPSetForUpdate("@trigger_paths");
+      trig_pset->registerIt();
+      
+      WorkerParams work_args(trig_pset, preg, processConfiguration, actions);
+      ModuleDescription md(trig_pset->id(),
+                           "TriggerResultInserter",
+                           "TriggerResults",
+                           processConfiguration.get(),
+                           ModuleDescription::getUniqueID());
+      
+      areg->preModuleConstructionSignal_(md);
+      maker::ModuleHolderT<TriggerResultInserter> holder(new TriggerResultInserter(*trig_pset, iNStreams));
+      holder.setModuleDescription(md);
+      holder.registerProductsAndCallbacks(&preg);
+      areg->postModuleConstructionSignal_(md);
+      return std::shared_ptr<TriggerResultInserter>{holder.release()};
+    }
+
     
     void
     checkAndInsertAlias(std::string const& friendlyClassName,
@@ -308,16 +339,17 @@ namespace edm {
                      const ParameterSet* subProcPSet,
                      PreallocationConfiguration const& config,
                      ProcessContext const* processContext) :
+  //Only create a resultsInserter if there is a trigger path
+  resultsInserter_{tns.getTrigPaths().empty()? std::shared_ptr<TriggerResultInserter>{} :makeInserter(proc_pset,config.numberOfStreams(),preg,actions,areg,processConfiguration)},
     moduleRegistry_(makeModuleRegistry()),
     all_output_communicators_(),
     wantSummary_(tns.wantSummary()),
     endpathsAreActive_(true)
   {
-
     assert(0<config.numberOfStreams());
     streamSchedules_.reserve(config.numberOfStreams());
     for(unsigned int i=0; i<config.numberOfStreams();++i) {
-      streamSchedules_.emplace_back(std::shared_ptr<StreamSchedule>{new StreamSchedule{moduleRegistry_,proc_pset,tns,preg,branchIDListHelper,actions,areg,processConfiguration,nullptr==subProcPSet,StreamID{i},processContext}});
+      streamSchedules_.emplace_back(std::shared_ptr<StreamSchedule>{new StreamSchedule{resultsInserter_.get(),moduleRegistry_,proc_pset,tns,preg,branchIDListHelper,actions,areg,processConfiguration,nullptr==subProcPSet,StreamID{i},processContext}});
     }
     
     //TriggerResults are injected automatically by StreamSchedules and are
