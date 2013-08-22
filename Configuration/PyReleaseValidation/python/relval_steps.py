@@ -317,7 +317,9 @@ steps['TTbar_ID']=identitySim(steps['TTbar'])
 baseDataSetRelease=[
     'CMSSW_6_2_0_pre8-PRE_ST62_V8-v1',
     'CMSSW_6_2_0_pre8-PRE_SH62_V15-v1',
-    'CMSSW_6_2_0_pre8-PRE_ST62_V8_FastSim-v1'
+    'CMSSW_6_2_0_pre8-PRE_ST62_V8_FastSim-v1',
+    'CMSSW_6_2_0_pre8-PRE_SH62_V15-v2',
+    'CMSSW_6_1_0_pre6-STARTHI61_V6-v1'
     ]
 
 # note: INPUT commands to be added once GEN-SIM w/ 13TeV+PostLS1Geo will be available 
@@ -715,8 +717,11 @@ hiDefaults={'--conditions':'auto:starthi_HIon',
 steps['HydjetQ_MinBias_2760GeV']=merge([{'-n':1},hiDefaults,genS('Hydjet_Quenched_MinBias_2760GeV_cfi',U500by1)])
 steps['HydjetQ_MinBias_2760GeVINPUT']={'INPUT':InputInfo(dataSet='/RelValHydjetQ_MinBias_2760GeV/%s/GEN-SIM'%(baseDataSetRelease[1],),location='STD',split=5)}
 steps['HydjetQ_B0_2760GeV']=merge([{'-n':1},hiDefaults,genS('Hydjet_Quenched_B0_2760GeV_cfi',U80by1)])
-steps['HydjetQ_B0_2760GeVINPUT']={'INPUT':InputInfo(dataSet='/RelValHydjetQ_B0_2760GeV/%s/GEN-SIM'%(baseDataSetRelease[1],),location='STD')}
-# add B3 and B5 here
+steps['HydjetQ_B0_2760GeVINPUT']={'INPUT':InputInfo(dataSet='/RelValHydjetQ_B0_2760GeV/%s/GEN-SIM'%(baseDataSetRelease[4],),location='STD')}
+steps['HydjetQ_B3_2760GeV']=merge([{'-n':1},hiDefaults,genS('Hydjet_Quenched_B3_2760GeV_cfi',U80by1)])
+steps['HydjetQ_B3_2760GeVINPUT']={'INPUT':InputInfo(dataSet='/RelValHydjetQ_B3_2760GeV/%s/GEN-SIM'%(baseDataSetRelease[3],),location='STD')}
+#steps['HydjetQ_B5_2760GeV']=merge([{'-n':1},hiDefaults,genS('Hydjet_Quenched_B5_2760GeV_cfi',U80by1)])
+#steps['HydjetQ_B5_2760GeVINPUT']={'INPUT':InputInfo(dataSet='/RelValHydjetQ_B5_2760GeV/%s/GEN-SIM'%(baseDataSetRelease[],),location='STD')}
 steps['HydjetQ_B8_2760GeV']=merge([{'-n':1},hiDefaults,genS('Hydjet_Quenched_B8_2760GeV_cfi',U80by1)])
 steps['HydjetQ_B8_2760GeVINPUT']={'INPUT':InputInfo(dataSet='/RelValHydjetQ_B8_2760GeV/%s/GEN-SIM'%(baseDataSetRelease[1],),location='CAF')}
 

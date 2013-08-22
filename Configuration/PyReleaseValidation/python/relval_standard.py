@@ -202,6 +202,8 @@ workflows[1345] = ['', ['ZpTT_1500_13TeV_Tauola','DIGIUP15','RECOUP15','HARVESTU
 workflows[140] = ['',['HydjetQ_MinBias_2760GeV','DIGIHI','RECOHI','HARVESTHI']]
 workflows[141] = ['',['HydjetQ_B0_2760GeV','DIGIHI','RECOHI','HARVESTHI']]
 workflows[142] = ['',['HydjetQ_B8_2760GeV','DIGIHI','RECOHI','HARVESTHI']]
+workflows[143] = ['',['HydjetQ_B3_2760GeV','DIGIHI','RECOHI','HARVESTHI']]
+#workflows[144] = ['',['HydjetQ_B5_2760GeV','DIGIHI','RECOHI','HARVESTHI']]
 
 ### pPb test ###
 workflows[280]= ['',['AMPT_PPb_5020GeV_MinimumBias','DIGI','RECO','HARVEST']]
