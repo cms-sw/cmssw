@@ -1,13 +1,15 @@
 import FWCore.ParameterSet.Config as cms
 
-pfJetDQMAnalyzer = cms.EDAnalyzer("PFJetDQMAnalyzer",
-    InputCollection = cms.InputTag('ak5PFJets'),
-    MatchCollection = cms.InputTag('ak5CaloJets'),
-    BenchmarkLabel  = cms.string('ParticleFlow/PFVsCalo'),
-    deltaRMax = cms.double(0.1),
+pfJetResDQMAnalyzer = cms.EDAnalyzer("PFJetDQMAnalyzer",
+    InputCollection = cms.InputTag('pfAllElectrons'),
+    MatchCollection = cms.InputTag('gensource'),
+    BenchmarkLabel  = cms.string('PFJetResValidation/PFElecVsGenElec'),
+    deltaRMax = cms.double(0.2),
     matchCharge = cms.bool(False),
     mode = cms.int32( 1 ),
     CreatePFractionHistos = cms.bool(False),
+    CreateReferenceHistos = cms.bool(True),
+    CreateEfficiencyHistos = cms.bool(False),
     ptMin = cms.double( 0.0 ),
     ptMax = cms.double( 999999 ),
     etaMin = cms.double(-10),
@@ -15,27 +17,28 @@ pfJetDQMAnalyzer = cms.EDAnalyzer("PFJetDQMAnalyzer",
     phiMin = cms.double(-3.14),
     phiMax = cms.double(3.14),
 # Histogram Parameters related to pt
-    VariablePtBins  = cms.vdouble(0.,1.,2.,5.,10.,20.,50.,100.,200.,400.,500.),
+    #VariablePtBins  = cms.vdouble(0.,1.,2.,5.,10.,20.,50.,100.,200.,400.,1000.),
+    VariablePtBins  = cms.vdouble(20,40,60,80,100,150,200,250,300,400,500,750), # must be = to the one in PFClient_cfi if you want to slice the TH2
     PtHistoParameter = cms.PSet(
       switchOn = cms.bool(True),
-      nBin = cms.int32(100),
+      nBin = cms.int32(50),
       xMin = cms.double(0.0),
-      xMax = cms.double(200.0)        
+      xMax = cms.double(100.0)        
     ),
     DeltaPtHistoParameter = cms.PSet(
       switchOn = cms.bool(True),
       nBin = cms.int32(100),
-      xMin = cms.double(-100.0),
-      xMax = cms.double(100.0)        
+      xMin = cms.double(-50.0),
+      xMax = cms.double(50.0)        
     ),
     DeltaPtOvPtHistoParameter = cms.PSet(
       switchOn = cms.bool(True),
-      BROn = cms.bool(False), BREtaMin = cms.double(0.0), BREtaMax = cms.double(1.4),
-      EROn = cms.bool(False), EREtaMin = cms.double(1.6), EREtaMax = cms.double(2.4),
+      BROn = cms.bool(True), BREtaMin = cms.double(0.0), BREtaMax = cms.double(1.4),
+      EROn = cms.bool(True), EREtaMin = cms.double(1.6), EREtaMax = cms.double(2.4),
       slicingOn = cms.bool(False),
-      nBin = cms.int32(200),
-      xMin = cms.double(-3.0),
-      xMax = cms.double(3.0)        
+      nBin = cms.int32(160), #200
+      xMin = cms.double(-1.0),
+      xMax = cms.double(1.0)        
     ),
 # Histogram Parameters related to Eta                               
     EtaHistoParameter = cms.PSet(
@@ -47,27 +50,28 @@ pfJetDQMAnalyzer = cms.EDAnalyzer("PFJetDQMAnalyzer",
     DeltaEtaHistoParameter = cms.PSet(
       switchOn = cms.bool(True),
       nBin = cms.int32(50),
-      xMin = cms.double(-0.2),
-      xMax = cms.double(0.2)        
+      xMin = cms.double(-0.5),
+      xMax = cms.double(0.5)        
     ),
 # Histogram Parameters related to Phi                               
     PhiHistoParameter = cms.PSet(
       switchOn = cms.bool(True),
-      nBin = cms.int32(64),
-      xMin = cms.double(-3.2),
-      xMax = cms.double(3.2)        
+      nBin = cms.int32(100),
+      xMin = cms.double(-3.1416),
+      xMax = cms.double(3.1416)        
     ),
     DeltaPhiHistoParameter = cms.PSet(
       switchOn = cms.bool(True),
       nBin = cms.int32(50),
-      xMin = cms.double(-0.2),
-      xMax = cms.double(0.2)        
-    ),
-    DeltaRHistoParameter = cms.PSet(
-      switchOn = cms.bool(True),
-      nBin = cms.int32(50), 
-      xMin = cms.double(0.0),
+      xMin = cms.double(-0.5),
       xMax = cms.double(0.5)        
+    ),
+# Histogram Parameters related to DeltaR     
+   DeltaRHistoParameter = cms.PSet(
+      switchOn = cms.bool(True),
+      nBin = cms.int32(150), 
+      xMin = cms.double(0.0),
+      xMax = cms.double(1.0)        
     ),
 # Histogram Parameters related to Charge                               
     ChargeHistoParameter = cms.PSet(
@@ -79,7 +83,7 @@ pfJetDQMAnalyzer = cms.EDAnalyzer("PFJetDQMAnalyzer",
 # parameter for event skim
     SkimParameter = cms.PSet(
       switchOn = cms.bool(False),
-      maximumNumberToBeStored = cms.int32(100), 
+      maximumNumberToBeStored = cms.int32(100),
       lowerCutOffOnResolution = cms.double(-1.5),
       upperCutOffOnResolution = cms.double(1.5)
     )

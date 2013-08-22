@@ -56,6 +56,7 @@ void PFMETDQMAnalyzer::analyze(edm::Event const& iEvent,
     float maxRes = 0.0;
     float minRes = 99.99;
     pfMETMonitor_.fillOne( (*metCollection)[0], (*matchedMetCollection)[0], minRes, maxRes);    
+    //pfMETMonitor_.fillOne( (*metCollection)[0], (*matchedMetCollection)[0], minRes, maxRes, pSet_);    
     edm::ParameterSet skimPS = pSet_.getParameter<edm::ParameterSet>("SkimParameter");
     if ( (skimPS.getParameter<bool>("switchOn")) && 
          (nBadEvents_ <= skimPS.getParameter<int32_t>("maximumNumberToBeStored")) ) {
