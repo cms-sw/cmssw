@@ -12,15 +12,15 @@ process.GlobalTag.globaltag = autoCond['startup']
 
 #process.Timing =cms.Service("Timing")
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(100)
+    input = cms.untracked.int32(50)
 )
 
 process.source = cms.Source(
     "PoolSource",
-    fileNames = cms.untracked.vstring(    
-    #'root://eoscms//eos/cms/store/relval/CMSSW_5_2_0_pre5/RelValQCD_FlatPt_15_3000/GEN-SIM-RECO/START52_V1-v1/0105/2AAA5F86-8D57-E111-B6E8-003048678B84.root',
-    #'root://eoscms//eos/cms/store/relval/CMSSW_5_2_0_pre5/RelValQCD_FlatPt_15_3000/GEN-SIM-RECO/START52_V1-v1/0105/38D32839-8A57-E111-849D-0026189438E4.root'
-    '/store/relval/CMSSW_6_1_0/SingleGammaPt300ExtRelVal610/GEN-SIM-RECO/START61_V8_NoPuCustomEvC-v1/00000/20A36721-9490-E211-AE58-003048F1CAA8.root'
+    fileNames = cms.untracked.vstring(
+    #'file:/tmp/lgray/FEDB497A-AB90-E211-BAEB-002590489DD0.root',
+    #'file:/tmp/lgray/FE329242-9490-E211-BBD9-003048F01174.root',
+    '/store/relval/CMSSW_6_1_0/SingleElePt300ExtRelVal610/GEN-SIM-RECO/START61_V8_NoPuCustomEvC-v1/00000/FEDB497A-AB90-E211-BAEB-002590489DD0.root'
     ),
     eventsToProcess = cms.untracked.VEventRange(),
     #eventsToProcess = cms.untracked.VEventRange('1:1217421-1:1217421'),
@@ -53,6 +53,7 @@ process.reco = cms.OutputModule("PoolOutputModule",
     fileName = cms.untracked.string('reco.root')
 )
 
+process.reco.outputCommands.append('keep *_particleFlowEGammaNew_*_*')
 # modify reconstruction sequence
 #process.hbhereflag = process.hbhereco.clone()
 #process.hbhereflag.hbheInput = 'hbhereco'
@@ -106,6 +107,16 @@ process.genReReco = cms.Sequence(process.generator+
                                  process.genMETParticles+
                                  process.recoGenMET+
                                  process.particleFlowSimParticle)
+## PFSC
+#modified ecal seeding to use PF-SCs and proper import to block.
+process.ecalDrivenElectronSeeds.barrelSuperClusters = cms.InputTag("particleFlowSuperClusterECAL",
+                                                                   "particleFlowSuperClusterECALBarrel")
+process.ecalDrivenElectronSeeds.endcapSuperClusters = cms.InputTag("particleFlowSuperClusterECAL",
+                                                                   "particleFlowSuperClusterECALEndcapWithPreshower")
+process.particleFlowBlock.useEGPhotons = cms.bool(False)
+process.particleFlowBlock.useSuperClusters = cms.bool(True)
+process.particleFlowBlock.SCbarrel = cms.InputTag("particleFlowSuperClusterECAL","particleFlowSuperClusterECALBarrel")
+process.particleFlowBlock.SCendcap = cms.InputTag("particleFlowSuperClusterECAL","particleFlowSuperClusterECALEndcapWithPreshower")
 
 #process.load("RecoParticleFlow.PFProducer.particleFlowCandidateChecker_cfi")
 #process.particleFlowCandidateChecker.pfCandidatesReco = cms.InputTag("particleFlow","","REPROD")
@@ -127,19 +138,22 @@ process.outpath = cms.EndPath(
 )
 
 # And the monitoring
-process.SimpleMemoryCheck = cms.Service("SimpleMemoryCheck",
-                                        ignoreTotal=cms.untracked.int32(1),
-                                        jobReportOutputOnly = cms.untracked.bool(True)
-                                        )
-process.Timing = cms.Service("Timing",
-                             summaryOnly = cms.untracked.bool(True)
-                             )
+#process.SimpleMemoryCheck = cms.Service("SimpleMemoryCheck",
+#                                        ignoreTotal=cms.untracked.int32(1),
+#                                        jobReportOutputOnly = cms.untracked.bool(True)
+#                                        )
+#process.Timing = cms.Service("Timing",
+#                             summaryOnly = cms.untracked.bool(True)
+#                             )
 
 # And the logger
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
+process.MessageLogger.cout = cms.untracked.PSet(
+    threshold = cms.untracked.string('INFO')
+    )
 process.options = cms.untracked.PSet(
     makeTriggerResults = cms.untracked.bool(True),
-    wantSummary = cms.untracked.bool(True),
+    #wantSummary = cms.untracked.bool(True),
     Rethrow = cms.untracked.vstring('Unknown', 
         'ProductNotFound', 
         'DictionaryNotFound', 
