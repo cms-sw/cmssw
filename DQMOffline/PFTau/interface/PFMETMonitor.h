@@ -35,13 +35,26 @@ class PFMETMonitor : public Benchmark {
   void fillOne(const reco::MET& met,
 	       const reco::MET& matchedMet, float& minVal, float& maxVal);
 
+  void fillOne(const reco::MET& met,
+	       const reco::MET& matchedMet, float& minVal, float& maxVal,
+	       const edm::ParameterSet & parameterSet);
+
  protected:
-  TH1F*   px_;
-  TH1F*   sumEt_;
-  TH1F*   delta_ex_;
-  TH2F*   delta_ex_VS_set_;
-  TH2F*   delta_set_VS_set_;
-  TH2F*   delta_set_Over_set_VS_set_;
+  TH1F* px_;
+  TH1F* sumEt_;
+  TH1F* delta_ex_;
+  TH2F* delta_ex_VS_set_;
+  TH2F* delta_set_VS_set_;
+  TH2F* delta_set_Over_set_VS_set_;
+
+  TProfile* profile_delta_ex_VS_set_;
+  TProfile* profile_delta_set_VS_set_;
+  TProfile* profile_delta_set_Over_set_VS_set_;
+
+  TProfile* profileRMS_delta_ex_VS_set_;
+  TProfile* profileRMS_delta_set_VS_set_;
+  TProfile* profileRMS_delta_set_Over_set_VS_set_;
+
 
   CandidateBenchmark      candBench_;
   MatchCandidateBenchmark matchCandBench_;
