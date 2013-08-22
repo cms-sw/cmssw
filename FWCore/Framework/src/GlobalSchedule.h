@@ -4,21 +4,15 @@
 /*
 */
 
-#include "DataFormats/Common/interface/HLTGlobalStatus.h"
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
 #include "FWCore/Framework/interface/ExceptionActions.h"
 #include "FWCore/Framework/interface/ExceptionHelpers.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/OccurrenceTraits.h"
-#include "FWCore/Framework/interface/UnscheduledCallProducer.h"
 #include "FWCore/Framework/interface/WorkerManager.h"
-#include "FWCore/Framework/src/RunStopwatch.h"
 #include "FWCore/Framework/src/Worker.h"
 #include "FWCore/Framework/src/WorkerRegistry.h"
 #include "FWCore/MessageLogger/interface/ExceptionMessages.h"
-#include "FWCore/MessageLogger/interface/JobReport.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/Algorithms.h"
 #include "FWCore/Utilities/interface/BranchType.h"
 #include "FWCore/Utilities/interface/ConvertException.h"
@@ -57,26 +51,17 @@ namespace edm {
     };
   }
 
-  namespace service {
-    class TriggerNamesService;
-  }
   class ActivityRegistry;
-  class BranchIDListHelper;
   class EventSetup;
   class ExceptionCollector;
-  class OutputModuleCommunicator;
   class ProcessContext;
-  class UnscheduledCallProducer;
   class PreallocationConfiguration;
   class ModuleRegistry;
   
   class GlobalSchedule {
   public:
     typedef std::vector<std::string> vstring;
-    typedef boost::shared_ptr<HLTGlobalStatus> TrigResPtr;
-    typedef boost::shared_ptr<Worker> WorkerPtr;
     typedef std::vector<Worker*> AllWorkers;
-    typedef std::vector<boost::shared_ptr<OutputModuleCommunicator>> AllOutputModuleCommunicators;
 
     typedef std::vector<Worker*> Workers;
 
@@ -122,6 +107,10 @@ namespace edm {
     }
 
   private:
+    
+    template<typename T>
+    void runNow(typename T::MyPrincipal& p, EventSetup const& es,
+                GlobalContext const* context);
 
     /// returns the action table
     ExceptionToActionTable const& actionTable() const {
@@ -147,12 +136,11 @@ namespace edm {
     GlobalScheduleSignalSentry<T> sentry(actReg_.get(), &ep, &es, &globalContext);
 
     // This call takes care of the unscheduled processing.
-    //workerManager_.processOneOccurrence<T>(ep, es, &globalContext, &globalContext, cleaningUpAfterException);
+    workerManager_.processOneOccurrence<T>(ep, es, StreamID::invalidStreamID(), &globalContext, &globalContext, cleaningUpAfterException);
 
     try {
       try {
-        //runTriggerPaths<T>(ep, es, &globalContext);
-        //if (endpathsAreActive_) runEndPaths<T>(ep, es, &globalContext);
+        runNow<T>(ep,es,&globalContext);
       }
       catch (cms::Exception& e) { throw; }
       catch(std::bad_alloc& bda) { convertException::badAllocToEDM(); }
@@ -170,26 +158,44 @@ namespace edm {
       throw;
     }
   }
-/*
-  template <typename T>
-  bool
-  GlobalSchedule::runTriggerPaths(typename T::MyPrincipal& ep, EventSetup const& es, typename T::Context const* context) {
-    for(auto& p : trig_paths_) {
-      p.processOneOccurrence<T>(ep, es, streamID_, context);
-    }
-    return results_->accept();
-  }
-
   template <typename T>
   void
-  GlobalSchedule::runEndPaths(typename T::MyPrincipal& ep, EventSetup const& es, typename T::Context const* context) {
-    // Note there is no state-checking safety controlling the
-    // activation/deactivation of endpaths.
-    for(auto& p : end_paths_) {
-      p.processOneOccurrence<T>(ep, es, streamID_, context);
+  GlobalSchedule::runNow(typename T::MyPrincipal& p, EventSetup const& es,
+              GlobalContext const* context) {
+    //do nothing for event since we will run when requested
+    for(auto & worker: allWorkers()) {
+      try {
+        ParentContext parentContext(context);
+        worker->doWork<T>(p, es, nullptr, nullptr,StreamID::invalidStreamID(), parentContext, context);
+      }
+      catch (cms::Exception & ex) {
+        std::ostringstream ost;
+        if (T::begin_ && T::branchType_ == InRun) {
+          ost << "Calling beginRun";
+        }
+        else if (T::begin_ && T::branchType_ == InLumi) {
+          ost << "Calling beginLuminosityBlock";
+        }
+        else if (!T::begin_ && T::branchType_ == InLumi) {
+          ost << "Calling endLuminosityBlock";
+        }
+        else if (!T::begin_ && T::branchType_ == InRun) {
+          ost << "Calling endRun";
+        }
+        else {
+          // It should be impossible to get here ...
+          ost << "Calling unknown function";
+        }
+        ost << " for unscheduled module " << worker->description().moduleName()
+        << "/'" << worker->description().moduleLabel() << "'";
+        ex.addContext(ost.str());
+        ost.str("");
+        ost << "Processing " << p.id();
+        ex.addContext(ost.str());
+        throw;
+      }
     }
   }
- */
 }
 
 #endif
