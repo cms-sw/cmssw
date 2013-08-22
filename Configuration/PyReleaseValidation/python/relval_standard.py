@@ -134,6 +134,7 @@ workflows[24] = ['', ['TTbarLepton','DIGI','RECO','HARVEST']]
 workflows[35] = ['', ['Wjet_Pt_80_120','DIGI','RECO','HARVEST']]
 workflows[36] = ['', ['Wjet_Pt_3000_3500','DIGI','RECO','HARVEST']]
 workflows[37] = ['', ['LM1_sfts','DIGI','RECO','HARVEST']]
+# the input for the following worrkflow when recycling is not valid dbs datasets
 workflows[38] = ['', ['QCD_FlatPt_15_3000HS','DIGI','RECO','HARVEST']]
 
 workflows[9]  = ['', ['Higgs200ChargedTaus','DIGI','RECO','HARVEST']]
