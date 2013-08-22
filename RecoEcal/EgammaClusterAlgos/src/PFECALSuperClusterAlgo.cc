@@ -106,7 +106,7 @@ namespace {
     const CalibClusterPtr the_seed;    
     PFECALSuperClusterAlgo::clustering_type _type;
     bool dynamic_dphi;
-    double etawidthSuperCluster_, phiwidthSuperCluster_;
+    double etawidthSuperCluster_ = .0 , phiwidthSuperCluster_ = .0;
     IsClustered(const CalibClusterPtr s, 
 		PFECALSuperClusterAlgo::clustering_type ct,
 		const bool dyn_dphi) : 
