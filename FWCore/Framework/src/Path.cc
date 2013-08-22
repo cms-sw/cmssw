@@ -11,12 +11,12 @@
 
 namespace edm {
   Path::Path(int bitpos, std::string const& path_name,
-	     WorkersInPath const& workers,
-	     TrigResPtr trptr,
-	     ExceptionToActionTable const& actions,
-	     boost::shared_ptr<ActivityRegistry> areg,
-	     bool isEndPath,
-             StreamContext const* streamContext):
+             WorkersInPath const& workers,
+             TrigResPtr trptr,
+             ExceptionToActionTable const& actions,
+             boost::shared_ptr<ActivityRegistry> areg,
+             StreamContext const* streamContext,
+             PathContext::PathType pathType) :
     stopwatch_(),
     timesRun_(),
     timesPassed_(),
@@ -29,10 +29,35 @@ namespace edm {
     actReg_(areg),
     act_table_(&actions),
     workers_(workers),
-    isEndPath_(isEndPath),
-    pathContext_(path_name, bitpos, streamContext) {
+    pathContext_(path_name, streamContext, bitpos, pathType) {
+
+    for (auto& workerInPath : workers_) {
+      workerInPath.setPathContext(&pathContext_);
+    }
   }
-  
+
+  Path::Path(Path const& r) :
+    stopwatch_(r.stopwatch_),
+    timesRun_(r.timesRun_),
+    timesPassed_(r.timesPassed_),
+    timesFailed_(r.timesFailed_),
+    timesExcept_(r.timesExcept_),
+    state_(r.state_),
+    bitpos_(r.bitpos_),
+    name_(r.name_),
+    trptr_(r.trptr_),
+    actReg_(r.actReg_),
+    act_table_(r.act_table_),
+    workers_(r.workers_),
+    earlyDeleteHelpers_(r.earlyDeleteHelpers_),
+    pathContext_(r.pathContext_) {
+
+    for (auto& workerInPath : workers_) {
+      workerInPath.setPathContext(&pathContext_);
+    }
+  }
+
+
   bool
   Path::handleWorkerFailure(cms::Exception & e,
 			    int nwrwue,
@@ -125,7 +150,7 @@ namespace edm {
 
   void
   Path::recordStatus(int nwrwue, bool isEvent) {
-    if(isEvent) {
+    if(isEvent && trptr_) {
       (*trptr_)[bitpos_]=HLTPathStatus(state_, nwrwue);    
     }
   }

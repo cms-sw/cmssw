@@ -90,6 +90,7 @@ class SiStripFEDMonitorPlugin : public edm::EDAnalyzer
   //histogram helper class
   FEDHistograms fedHists_;
   //folder name for histograms in DQMStore
+  std::string topFolderName_;
   std::string folderName_;
   //book detailed histograms even if they will be empty (for merging)
   bool fillAllDetailedHistograms_;
@@ -127,7 +128,7 @@ class SiStripFEDMonitorPlugin : public edm::EDAnalyzer
 
 SiStripFEDMonitorPlugin::SiStripFEDMonitorPlugin(const edm::ParameterSet& iConfig)
   : rawDataTag_(iConfig.getUntrackedParameter<edm::InputTag>("RawDataTag",edm::InputTag("source",""))),
-    folderName_(iConfig.getUntrackedParameter<std::string>("HistogramFolderName","SiStrip/ReadoutView/FedSummary")),
+    topFolderName_(iConfig.getUntrackedParameter<std::string>("TopFolderName","SiStrip")),
     fillAllDetailedHistograms_(iConfig.getUntrackedParameter<bool>("FillAllDetailedHistograms",false)),
     fillWithEvtNum_(iConfig.getUntrackedParameter<bool>("FillWithEventNumber",false)),
     printDebug_(iConfig.getUntrackedParameter<unsigned int>("PrintDebugMessages",1)),
@@ -138,6 +139,10 @@ SiStripFEDMonitorPlugin::SiStripFEDMonitorPlugin(const edm::ParameterSet& iConfi
     cablingCacheId_(0),
     maxFedBufferSize_(0)
 {
+  std::string subFolderName = iConfig.getUntrackedParameter<std::string>("HistogramFolderName","ReadoutView");
+  folderName_ = topFolderName_ + "/" + subFolderName;
+	      
+
   rawDataToken_ = consumes<FEDRawDataCollection>(rawDataTag_);
   heToken_      = consumes<EventWithHistory>(edm::InputTag("consecutiveHEs") );
 

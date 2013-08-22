@@ -283,7 +283,6 @@ namespace edm {
     vstring                  end_path_name_list_;
 
     TrigResPtr               results_;
-    TrigResPtr               endpath_results_;
 
     WorkerPtr                results_inserter_;
     std::unique_ptr<EDProducer> inserter_;

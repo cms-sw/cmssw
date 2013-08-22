@@ -51,8 +51,10 @@ namespace edm {
          TrigResPtr trptr,
          ExceptionToActionTable const& actions,
          boost::shared_ptr<ActivityRegistry> reg,
-         bool isEndPath,
-         StreamContext const* streamContext);
+         StreamContext const* streamContext,
+         PathContext::PathType pathType);
+
+    Path(Path const&);
 
     template <typename T>
     void processOneOccurrence(typename T::MyPrincipal&, EventSetup const&,
@@ -92,6 +94,11 @@ namespace edm {
 
     void useStopwatch();
   private:
+
+    // If you define this be careful about the pointer in the
+    // PlaceInPathContext object in the contained WorkerInPath objects.
+    Path const& operator=(Path const&) = delete; // stop default
+
     RunStopwatch::StopwatchPointer stopwatch_;
     int timesRun_;
     int timesPassed_;
@@ -108,8 +115,6 @@ namespace edm {
 
     WorkersInPath workers_;
     std::vector<EarlyDeleteHelper*> earlyDeleteHelpers_;
-
-    bool isEndPath_;
 
     PathContext pathContext_;
 
@@ -180,7 +185,7 @@ namespace edm {
 
     // nwrue =  numWorkersRunWithoutUnhandledException
     bool should_continue = true;
-    CurrentProcessingContext cpc(&name_, bitPosition(), isEndPath_);
+    CurrentProcessingContext cpc(&name_, bitPosition(), pathContext_.pathType() == PathContext::PathType::kEndPath);
 
     WorkersInPath::size_type idx = 0;
     // It seems likely that 'nwrwue' and 'idx' can never differ ---
@@ -194,11 +199,9 @@ namespace edm {
         try {
           cpc.activate(idx, i->getWorker()->descPtr());
           if(T::isEvent_) {
-            ParentContext parentContext(&pathContext_);
-            should_continue = i->runWorker<T>(ep, es, &cpc, streamID, parentContext, context);
+            should_continue = i->runWorker<T>(ep, es, &cpc, streamID, context);
           } else {
-            ParentContext parentContext(context);
-            should_continue = i->runWorker<T>(ep, es, &cpc, streamID, parentContext, context);
+            should_continue = i->runWorker<T>(ep, es, &cpc, streamID, context);
           }
         }
         catch (cms::Exception& e) { throw; }
