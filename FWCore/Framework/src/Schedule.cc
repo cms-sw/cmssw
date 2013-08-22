@@ -1,21 +1,16 @@
 #include "FWCore/Framework/interface/Schedule.h"
 
-#include "DataFormats/Provenance/interface/BranchIDListHelper.h"
 #include "DataFormats/Provenance/interface/ProcessConfiguration.h"
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "DataFormats/Provenance/interface/BranchIDListHelper.h"
 #include "FWCore/Framework/interface/OutputModuleDescription.h"
 #include "FWCore/Framework/interface/TriggerNamesService.h"
 #include "FWCore/Framework/interface/TriggerReport.h"
 #include "FWCore/Framework/interface/TriggerTimingReport.h"
 #include "FWCore/Framework/src/PreallocationConfiguration.h"
 #include "FWCore/Framework/src/Factory.h"
-#include "FWCore/Framework/interface/OutputModule.h"
 #include "FWCore/Framework/src/OutputModuleCommunicator.h"
-#include "FWCore/Framework/src/TriggerResultInserter.h"
-#include "FWCore/Framework/src/WorkerInPath.h"
 #include "FWCore/Framework/src/WorkerMaker.h"
-#include "FWCore/Framework/src/WorkerT.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
@@ -39,86 +34,10 @@
 
 namespace edm {
   namespace {
-
-    // Function template to transform each element in the input range to
-    // a value placed into the output range. The supplied function
-    // should take a const_reference to the 'input', and write to a
-    // reference to the 'output'.
-    template <typename InputIterator, typename ForwardIterator, typename Func>
-    void
-    transform_into(InputIterator begin, InputIterator end,
-                   ForwardIterator out, Func func) {
-      for (; begin != end; ++begin, ++out) func(*begin, *out);
-    }
-
-    // Function template that takes a sequence 'from', a sequence
-    // 'to', and a callable object 'func'. It and applies
-    // transform_into to fill the 'to' sequence with the values
-    // calcuated by the callable object, taking care to fill the
-    // outupt only if all calls succeed.
-    template <typename FROM, typename TO, typename FUNC>
-    void
-    fill_summary(FROM const& from, TO& to, FUNC func) {
-      if(to.size()!=from.size()) {
-        TO temp(from.size());
-        transform_into(from.begin(), from.end(), temp.begin(), func);
-        to.swap(temp);
-      } else {
-        transform_into(from.begin(), from.end(), to.begin(), func);
-      }
-    }
-
-    // -----------------------------
-
     bool binary_search_string(std::vector<std::string> const& v, std::string const& s) {
       return std::binary_search(v.begin(), v.end(), s);
     }
     
-    void
-    initializeBranchToReadingWorker(ParameterSet const& opts,
-                                    ProductRegistry const& preg,
-                                    std::multimap<std::string,Worker*>& branchToReadingWorker)
-    {
-      // See if any data has been marked to be deleted early (removing any duplicates)
-      auto vBranchesToDeleteEarly = opts.getUntrackedParameter<std::vector<std::string>>("canDeleteEarly",std::vector<std::string>());
-      if(not vBranchesToDeleteEarly.empty()) {
-        std::sort(vBranchesToDeleteEarly.begin(),vBranchesToDeleteEarly.end(),std::less<std::string>());
-        vBranchesToDeleteEarly.erase(std::unique(vBranchesToDeleteEarly.begin(),vBranchesToDeleteEarly.end()),
-                                     vBranchesToDeleteEarly.end());
-        
-        // Are the requested items in the product registry?
-        auto allBranchNames = preg.allBranchNames();
-        //the branch names all end with a period, which we do not want to compare with
-        for(auto & b:allBranchNames) {
-          b.resize(b.size()-1);
-        }
-        std::sort(allBranchNames.begin(),allBranchNames.end(),std::less<std::string>());
-        std::vector<std::string> temp;
-        temp.reserve(vBranchesToDeleteEarly.size());  
-        
-        std::set_intersection(vBranchesToDeleteEarly.begin(),vBranchesToDeleteEarly.end(),
-                              allBranchNames.begin(),allBranchNames.end(),
-                              std::back_inserter(temp));
-        vBranchesToDeleteEarly.swap(temp);
-        if(temp.size() != vBranchesToDeleteEarly.size()) {
-          std::vector<std::string> missingProducts;
-          std::set_difference(temp.begin(),temp.end(),
-                              vBranchesToDeleteEarly.begin(),vBranchesToDeleteEarly.end(),
-                              std::back_inserter(missingProducts));
-          LogInfo l("MissingProductsForCanDeleteEarly");
-          l<<"The following products in the 'canDeleteEarly' list are not available in this job and will be ignored.";
-          for(auto const& n:missingProducts){
-            l<<"\n "<<n;
-          }
-        }
-        //set placeholder for the branch, we will remove the nullptr if a
-        // module actually wants the branch.
-        for(auto const& branch:vBranchesToDeleteEarly) {
-          branchToReadingWorker.insert(std::make_pair(branch, static_cast<Worker*>(nullptr)));
-        }
-      }
-    }
-
     void
     checkAndInsertAlias(std::string const& friendlyClassName,
                         std::string const& moduleLabel,
@@ -275,19 +194,48 @@ namespace edm {
       
       std::set<std::string> modulesInConfigSet(modulesInConfig.begin(), modulesInConfig.end());
 
+      //need a list of all modules on paths in order to determine
+      // if an EDAnalyzer only appears on an end path
+      vstring scheduledPaths = proc_pset.getParameter<vstring>("@paths");
+      std::set<std::string> modulesOnPaths;
+      {
+        std::set<std::string> noEndPaths(scheduledPaths.begin(),scheduledPaths.end());
+        for(auto const& endPath: end_path_name_list) {
+          noEndPaths.erase(endPath);
+        }
+        {
+          vstring labels;
+          for(auto const& path: noEndPaths) {
+            labels = proc_pset.getParameter<vstring>(path);
+            modulesOnPaths.insert(labels.begin(),labels.end());
+          }
+        }
+      }
+      //Initially fill labelsToBeDropped with all module mentioned in
+      // the configuration but which are not being used by the system
       std::vector<std::string> labelsToBeDropped;
       labelsToBeDropped.reserve(modulesInConfigSet.size());
       std::set_difference(modulesInConfigSet.begin(),modulesInConfigSet.end(),
                           usedModuleLabels.begin(),usedModuleLabels.end(),
                           std::back_inserter(labelsToBeDropped));
 
+      const unsigned int sizeBeforeOutputModules = labelsToBeDropped.size();
       for (auto const& modLabel: usedModuleLabels) {
         edmType = proc_pset.getParameterSet(modLabel).getParameter<std::string>(moduleEdmType);
         if (edmType == outputModule) {
           outputModuleLabels.push_back(modLabel);
           labelsToBeDropped.push_back(modLabel);
         }
+        if(edmType == edAnalyzer) {
+          if(modulesOnPaths.end()==modulesOnPaths.find(modLabel)) {
+            labelsToBeDropped.push_back(modLabel);            
+          }
+        }
       }
+      //labelsToBeDropped must be sorted
+      std::inplace_merge(labelsToBeDropped.begin(),
+                         labelsToBeDropped.begin()+sizeBeforeOutputModules,
+                         labelsToBeDropped.end());
 
       // drop the parameter sets used to configure the modules
       for_all(labelsToBeDropped, boost::bind(&ParameterSet::eraseOrSetUntrackedParameterSet, boost::ref(proc_pset), _1));
@@ -332,7 +280,6 @@ namespace edm {
       sort_all(endPathsToBeDropped);
       
       // remove empty end paths from @paths
-      vstring scheduledPaths = proc_pset.getParameter<vstring>("@paths");
       endAfterRemove = std::remove_if(scheduledPaths.begin(), scheduledPaths.end(), boost::bind(binary_search_string, boost::ref(endPathsToBeDropped), _1));
       scheduledPaths.erase(endAfterRemove, scheduledPaths.end());
       proc_pset.addParameter<vstring>(std::string("@paths"), scheduledPaths);
@@ -388,59 +335,6 @@ namespace edm {
       proc_pset, preg,
       actions,areg,processConfiguration,processContext });
     
-      /*
-    //See if all modules were used
-    std::set<std::string> usedWorkerLabels;
-    for (auto const& worker : allWorkers()) {
-      usedWorkerLabels.insert(worker->description().moduleLabel());
-    }
-    std::vector<std::string> modulesInConfig(proc_pset.getParameter<std::vector<std::string> >("@all_modules"));
-    std::set<std::string> modulesInConfigSet(modulesInConfig.begin(), modulesInConfig.end());
-    std::vector<std::string> unusedLabels;
-    set_difference(modulesInConfigSet.begin(), modulesInConfigSet.end(),
-                   usedWorkerLabels.begin(), usedWorkerLabels.end(),
-                   back_inserter(unusedLabels));
-    //does the configuration say we should allow on demand?
-    bool allowUnscheduled = opts.getUntrackedParameter<bool>("allowUnscheduled", false);
-    std::set<std::string> unscheduledLabels;
-    std::vector<std::string>  shouldBeUsedLabels;
-    if (!unusedLabels.empty()) {
-      //Need to
-      // 1) create worker
-      // 2) if it is a WorkerT<EDProducer>, add it to our list
-      // 3) hand list to our delayed reader
-      for (auto const& label : unusedLabels) {
-        if (allowUnscheduled) {
-          bool isTracked;
-          ParameterSet* modulePSet(proc_pset.getPSetForUpdate(label, isTracked));
-          assert(isTracked);
-          assert(modulePSet != nullptr);
-          workerManager_.addToUnscheduledWorkers(*modulePSet, preg, processConfiguration, label, wantSummary_, unscheduledLabels, shouldBeUsedLabels);
-        } else {
-          //everthing is marked are unused so no 'on demand' allowed
-          shouldBeUsedLabels.push_back(label);
-        }
-      }
-      if (!shouldBeUsedLabels.empty()) {
-        std::ostringstream unusedStream;
-        unusedStream << "'" << shouldBeUsedLabels.front() << "'";
-        for (std::vector<std::string>::iterator itLabel = shouldBeUsedLabels.begin() + 1,
-              itLabelEnd = shouldBeUsedLabels.end();
-            itLabel != itLabelEnd;
-            ++itLabel) {
-          unusedStream << ",'" << *itLabel << "'";
-        }
-        LogInfo("path")
-          << "The following module labels are not assigned to any path:\n"
-          << unusedStream.str()
-          << "\n";
-      }
-    }
-    if (!unscheduledLabels.empty()) {
-      workerManager_.setOnDemandProducts(preg, unscheduledLabels);
-    }
-
-    */
     std::set<std::string> usedModuleLabels;
     for( auto const worker: allWorkers()) {
       usedModuleLabels.insert(worker->description().moduleLabel());
@@ -455,8 +349,6 @@ namespace edm {
     processConfiguration->setParameterSetID(proc_pset.id());
     processConfiguration->setProcessConfigurationID();
 
-    //initializeEarlyDelete(opts,preg,subProcPSet);
-    
     // This is used for a little sanity-check to make sure no code
     // modifications alter the number of workers at a later date.
     size_t all_workers_count = allWorkers().size();
