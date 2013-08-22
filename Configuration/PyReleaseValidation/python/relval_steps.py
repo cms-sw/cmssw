@@ -315,12 +315,6 @@ steps['SingleMuPt10_ID']=identitySim(steps['SingleMuPt10'])
 steps['TTbar_ID']=identitySim(steps['TTbar'])
 
 baseDataSetRelease=[
-#    'CMSSW_6_2_0_pre2-START61_V11_g496p1-v1',#'CMSSW_6_1_0_pre6-START61_V5-v1',#'CMSSW_6_0_0-START60_V4-v1',
-#    'CMSSW_6_2_0_pre2-STARTHI61_V13_g496p1-v1',#'CMSSW_6_1_0_pre6-STARTHI61_V6-v1',#'CMSSW_6_0_0-STARTHI60_V4-v1',
-#    'CMSSW_6_2_0_pre2-START61_V11_g496p1-v2',#'CMSSW_6_1_0_pre6-START61_V5-v2',#'CMSSW_6_0_0-PU_START60_V4-v1',
-#    'CMSSW_6_1_0_pre6-START61_V5_FastSim-v1',#'CMSSW_6_0_0-START60_V4_FastSim-v1'
-#    'CMSSW_6_2_0_pre2-START61_V11_g496p1-v3',
-#    'CMSSW_6_2_0_pre2-START61_V11_g496p1_02May2013-v1' ## this is a fuck up in the dataset naming
     'CMSSW_6_2_0_pre8-PRE_ST62_V8-v1',
     'CMSSW_6_2_0_pre8-PRE_SH62_V15-v1',
     'CMSSW_6_2_0_pre8-PRE_ST62_V8_FastSim-v1'
