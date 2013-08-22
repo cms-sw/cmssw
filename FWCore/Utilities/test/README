@@ -41,7 +41,7 @@ where
 
   a) LOCAL_TEST_DIR: The directory where the test source code is.
   b) LOCAL_TMP_DIR: The directory in which to create temporary files.
-  c) LOCAL_TOP_DIR: The directory that is the top of your local CVS
+  c) LOCAL_TOP_DIR: The directory that is the top of your local git 
      sandbox.
   d) LOCAL_TEST_BIN: The directory in which your test binary is
      found.
