@@ -18,8 +18,8 @@ class L3MumuTrackingRegion : public TrackingRegionProducer {
 public:
 
   L3MumuTrackingRegion(const edm::ParameterSet& cfg, edm::ConsumesCollector && iC) :  L3MumuTrackingRegion(cfg) {
-    theVertexToken  = iC.consumes<reco::VertexCollection>(theVertexTag);
-    theInputTrkToken= iC.consumes<reco::TrackCollection>(theInputTrkTag);
+    if (theVertex) theVertexToken  = iC.consumes<reco::VertexCollection>(theVertexTag);
+    if (!(theVertex && useVtxTks)) theInputTrkToken= iC.consumes<reco::TrackCollection>(theInputTrkTag);
   }
 
   L3MumuTrackingRegion(const edm::ParameterSet& cfg) { 
@@ -27,6 +27,7 @@ public:
     edm::ParameterSet regionPSet = cfg.getParameter<edm::ParameterSet>("RegionPSet");
 
     theVertexTag    = regionPSet.getParameter<edm::InputTag>("vertexSrc");
+    theVertex       = (theVertexTag.label().length()>1);
     theInputTrkTag  = regionPSet.getParameter<edm::InputTag>("TrkSrc");
 
     useVtxTks = regionPSet.getParameter<bool>("UseVtxTks");
@@ -65,7 +66,7 @@ public:
     // get highest Pt pixel vertex (if existing)
     double deltaZVertex =  theOriginHalfLength;
     double originz = theOriginZPos;
-    if (theVertexTag.encode().length()>1) {
+    if (theVertex) {
       edm::Handle<reco::VertexCollection> vertices;
       if (theVertexToken.isUnitialized() || (!ev.getByToken(theVertexToken,vertices))) ev.getByLabel(theVertexTag,vertices);
       const reco::VertexCollection vertCollection = *(vertices.product());
@@ -113,6 +114,7 @@ public:
 private:
 
   edm::InputTag                            theVertexTag;
+  bool                                     theVertex;
   edm::EDGetTokenT<reco::VertexCollection> theVertexToken;
   edm::InputTag                            theInputTrkTag;
   edm::EDGetTokenT<reco::TrackCollection>  theInputTrkToken;
