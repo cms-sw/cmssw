@@ -9,6 +9,7 @@
 FEDHistograms::FEDHistograms()
 {
   dqm_ = 0;
+  
 }
 
 FEDHistograms::~FEDHistograms()
@@ -19,6 +20,7 @@ void FEDHistograms::initialise(const edm::ParameterSet& iConfig,
 			       std::ostringstream* pDebugStream
 			       )
 {
+  
   getConfigForHistogram(fedEventSize_,"FedEventSize",iConfig,pDebugStream);
   getConfigForHistogram(fedMaxEventSizevsTime_,"FedMaxEventSizevsTime",iConfig,pDebugStream);
 
@@ -318,7 +320,7 @@ MonitorElement * FEDHistograms::getFedvsAPVpointer()
   return fedIdVsApvId_.monitorEle;
 }
 
-void FEDHistograms::bookTopLevelHistograms(DQMStore* dqm)
+void FEDHistograms::bookTopLevelHistograms(DQMStore* dqm, std::string topFolderName)
 {
   //get FED IDs
   const unsigned int siStripFedIdMin = FEDNumbering::MINSiStripFEDID;
@@ -374,6 +376,7 @@ void FEDHistograms::bookTopLevelHistograms(DQMStore* dqm)
   //lDirName << 
 
   const std::string lBaseDir = dqm_->pwd();
+  //  std::cout << "[FEDHistograms::bookTopLevelHistograms] lBaseDir: " << lBaseDir << std::endl;
 
   dqm_->setCurrentFolder(lBaseDir+"/FED");
 
@@ -744,7 +747,7 @@ void FEDHistograms::bookTopLevelHistograms(DQMStore* dqm)
   //book map after, as it creates a new folder...
   if (tkMapConfig_.enabled){
     //const std::string dqmPath = dqm_->pwd();
-    tkmapFED_ = new TkHistoMap("SiStrip/TkHisto","TkHMap_FractionOfBadChannels",0.,1);
+    tkmapFED_ = new TkHistoMap(topFolderName,"TkHMap_FractionOfBadChannels",0.,true);
   }
   else tkmapFED_ = 0;
 

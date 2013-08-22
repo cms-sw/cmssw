@@ -145,8 +145,10 @@ void SiStripWebInterface::handleAnalyserRequest(xgi::Input* in,xgi::Output* out,
     std::string sname = get_from_multimap(requestMap_,"StructureName");
     local_par.detId   = 999;
     local_par.type    = sname.substr(sname.find_first_of("/")+1,3);
-    if (sname.find("side_")!=std::string::npos) 
-            local_par.side = atoi((sname.substr(sname.find("side_")+5,1)).c_str());
+    if (sname.find("PLUS")!=std::string::npos)
+      local_par.side = 2;
+    else if (sname.find("MINUS")!=std::string::npos)
+      local_par.side = 1;
     else local_par.side = 999;
     local_par.layer   = atoi((sname.substr(sname.find_last_of("_")+1)).c_str());
     bool create_plot;
