@@ -23,7 +23,7 @@ namespace edm {
   class GlobalContext;
   class InternalContext;
   class ModuleDescription;
-  class PathContext;
+  class PlaceInPathContext;
   class StreamContext;
 
 
@@ -48,7 +48,7 @@ namespace edm {
     Type type() const { return parent_.type(); }
     ParentContext const& parent() const { return parent_; }
     ModuleCallingContext const* moduleCallingContext() const { return parent_.moduleCallingContext(); }
-    PathContext const* pathContext() const { return parent_.pathContext(); }
+    PlaceInPathContext const* placeInPathContext() const { return parent_.placeInPathContext(); }
     StreamContext const* streamContext() const { return parent_.streamContext(); }
     GlobalContext const* globalContext() const { return parent_.globalContext(); }
     InternalContext const* internalContext() const { return parent_.internalContext(); }

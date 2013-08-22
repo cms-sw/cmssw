@@ -17,13 +17,14 @@ information about the current state of global processing.
 
 #include "DataFormats/Provenance/interface/LuminosityBlockID.h"
 #include "DataFormats/Provenance/interface/Timestamp.h"
-#include "FWCore/ServiceRegistry/interface/ProcessContext.h"
 #include "FWCore/Utilities/interface/LuminosityBlockIndex.h"
 #include "FWCore/Utilities/interface/RunIndex.h"
 
 #include <iosfwd>
 
 namespace edm {
+
+  class ProcessContext;
 
   class GlobalContext {
 

@@ -2,7 +2,7 @@
 #include "FWCore/ServiceRegistry/interface/GlobalContext.h"
 #include "FWCore/ServiceRegistry/interface/InternalContext.h"
 #include "FWCore/ServiceRegistry/interface/ModuleCallingContext.h"
-#include "FWCore/ServiceRegistry/interface/PathContext.h"
+#include "FWCore/ServiceRegistry/interface/PlaceInPathContext.h"
 #include "FWCore/ServiceRegistry/interface/StreamContext.h"
 
 #include "FWCore/Utilities/interface/EDMException.h"
@@ -31,9 +31,9 @@ namespace edm {
     parent_.module = module;
   }
 
-  ParentContext::ParentContext(PathContext const* path) :
-    type_(Type::kPath) {
-    parent_.path = path;
+  ParentContext::ParentContext(PlaceInPathContext const* placeInPath) :
+    type_(Type::kPlaceInPath) {
+    parent_.placeInPath = placeInPath;
   }
 
   ParentContext::ParentContext(StreamContext const* stream) :
@@ -50,13 +50,13 @@ namespace edm {
     return parent_.module;
   }
 
-  PathContext const*
-  ParentContext::pathContext() const {
-    if(type_ != Type::kPath) {
+  PlaceInPathContext const*
+  ParentContext::placeInPathContext() const {
+    if(type_ != Type::kPlaceInPath) {
       throw Exception(errors::LogicError)
-        << "ParentContext::pathContext called for incorrect type of context";
+        << "ParentContext::placeInPathContext called for incorrect type of context";
     }
-    return parent_.path;
+    return parent_.placeInPath;
   }
 
   StreamContext const*
@@ -93,8 +93,8 @@ namespace edm {
       os << *pc.internalContext();
     } else if (pc.type() == ParentContext::Type::kModule && pc.moduleCallingContext()) {
       os << *pc.moduleCallingContext();
-    } else if (pc.type() == ParentContext::Type::kPath && pc.pathContext()) {
-      os << *pc.pathContext();
+    } else if (pc.type() == ParentContext::Type::kPlaceInPath && pc.placeInPathContext()) {
+      os << *pc.placeInPathContext();
     } else if (pc.type() == ParentContext::Type::kStream && pc.streamContext()) {
       os << *pc.streamContext();
     } else if (pc.type() == ParentContext::Type::kInvalid) {

@@ -15,6 +15,10 @@
 #include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
 #include "HLTrigger/HLTcore/interface/HLTFilter.h"
 
+#include "FWCore/ServiceRegistry/interface/PathContext.h"
+#include "FWCore/ServiceRegistry/interface/PlaceInPathContext.h"
+#include "FWCore/ServiceRegistry/interface/ModuleCallingContext.h"
+
 HLTFilter::HLTFilter(const edm::ParameterSet & config) :
   EDFilter(),
   saveTags_(config.getParameter<bool>("saveTags"))
@@ -32,7 +36,7 @@ HLTFilter::~HLTFilter()
 { }
 
 bool HLTFilter::filter(edm::Event & event, const edm::EventSetup & setup) {
-  std::auto_ptr<trigger::TriggerFilterObjectWithRefs> filterproduct( new trigger::TriggerFilterObjectWithRefs(path(), module()) );
+  std::auto_ptr<trigger::TriggerFilterObjectWithRefs> filterproduct( new trigger::TriggerFilterObjectWithRefs(path(event), module(event)) );
 
   // compute the result of the HLTFilter implementation
   bool result = hltFilter(event, setup, * filterproduct);
@@ -44,43 +48,24 @@ bool HLTFilter::filter(edm::Event & event, const edm::EventSetup & setup) {
   return result;
 }
 
-
-int HLTFilter::path() const {
-  int p(-2);
-  edm::CurrentProcessingContext const * cpc(currentContext());
-  if (cpc != 0)
-    p = cpc->pathInSchedule();
-  return p;
+int HLTFilter::path(edm::Event const& event) const {
+  return static_cast<int>(event.moduleCallingContext()->placeInPathContext()->pathContext()->pathID());
 }
 
-int HLTFilter::module() const {
-  int m(-2);
-  edm::CurrentProcessingContext const * cpc(currentContext());
-  if (cpc != 0)
-    m = cpc->slotInPath();
-  return m;
+int HLTFilter::module(edm::Event const& event) const {
+  return static_cast<int>(event.moduleCallingContext()->placeInPathContext()->placeInPath());
 }
 
-std::pair<int,int> HLTFilter::pmid() const {
-  std::pair<int,int> pm(-2, -2);
-  edm::CurrentProcessingContext const * cpc(currentContext());
-  if (cpc != 0)
-    pm = std::make_pair(cpc->pathInSchedule(), cpc->slotInPath());
-  return pm;
+std::pair<int,int> HLTFilter::pmid(edm::Event const& event) const {
+  edm::PlaceInPathContext const* placeInPathContext = event.moduleCallingContext()->placeInPathContext();
+  return std::make_pair(static_cast<int>(placeInPathContext->pathContext()->pathID()),
+                        static_cast<int>(placeInPathContext->placeInPath()));
 }
 
-const std::string* HLTFilter::pathName() const {
-  edm::CurrentProcessingContext const * cpc(currentContext());
-  if (cpc != 0)
-    return cpc->pathName();
-  else
-    return 0;
+const std::string* HLTFilter::pathName(edm::Event const& event) const {
+  return &event.moduleCallingContext()->placeInPathContext()->pathContext()->pathName();
 }
 
 const std::string* HLTFilter::moduleLabel() const {
-  edm::CurrentProcessingContext const * cpc(currentContext());
-  if (cpc != 0)
-    return cpc->moduleLabel();
-  else
-    return 0;
+  return &moduleDescription().moduleLabel();
 }

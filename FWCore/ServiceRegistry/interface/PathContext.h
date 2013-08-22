@@ -14,28 +14,38 @@ Services as an argument to their callback functions.
 // Original Author: W. David Dagenhart
 //         Created: 7/10/2013
 
-#include "FWCore/ServiceRegistry/interface/StreamContext.h"
-
 #include <iosfwd>
 #include <string>
 
 namespace edm {
 
+  class StreamContext;
+
   class PathContext {
   public:
 
+    enum class PathType {
+      kPath,
+      kEndPath
+    };
+
     PathContext(std::string const& pathName,
+                StreamContext const* streamContext,
                 unsigned int pathID,
-                StreamContext const* streamContext);
+                PathType pathType);
 
     std::string const& pathName() const { return pathName_; }
-    unsigned int pathID() const { return pathID_; }
     StreamContext const* streamContext() const { return streamContext_; }
+    unsigned int pathID() const { return pathID_; }
+    PathType pathType() const { return pathType_; }
+
+    bool isEndPath() const { return pathType_ == PathType::kEndPath; }
 
   private:
     std::string pathName_;
-    unsigned int pathID_;
     StreamContext const* streamContext_;
+    unsigned int pathID_;
+    PathType pathType_;
   };
 
   std::ostream& operator<<(std::ostream&, PathContext const&);
