@@ -18,7 +18,6 @@
 
 #include "DataFormats/Provenance/interface/EventID.h"
 #include "DataFormats/Provenance/interface/Timestamp.h"
-#include "FWCore/ServiceRegistry/interface/ProcessContext.h"
 #include "FWCore/Utilities/interface/LuminosityBlockIndex.h"
 #include "FWCore/Utilities/interface/RunIndex.h"
 #include "FWCore/Utilities/interface/StreamID.h"
@@ -26,6 +25,8 @@
 #include <iosfwd>
 
 namespace edm {
+
+  class ProcessContext;
 
   class StreamContext {
 

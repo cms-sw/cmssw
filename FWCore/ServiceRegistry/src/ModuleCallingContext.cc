@@ -1,6 +1,7 @@
 #include "FWCore/ServiceRegistry/interface/ModuleCallingContext.h"
 #include "FWCore/ServiceRegistry/interface/InternalContext.h"
 #include "FWCore/ServiceRegistry/interface/PathContext.h"
+#include "FWCore/ServiceRegistry/interface/PlaceInPathContext.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
 
@@ -37,8 +38,8 @@ namespace edm {
     while(mcc->type() == ParentContext::Type::kModule) {
       mcc = mcc->moduleCallingContext();
     }
-    if(mcc->type() == ParentContext::Type::kPath) {
-      return mcc->pathContext()->streamContext();
+    if(mcc->type() == ParentContext::Type::kPlaceInPath) {
+      return mcc->placeInPathContext()->pathContext()->streamContext();
     } else if (mcc->type() != ParentContext::Type::kStream) {
       throw Exception(errors::LogicError)
         << "ModuleCallingContext::getStreamContext() called in context not linked to a StreamContext\n";

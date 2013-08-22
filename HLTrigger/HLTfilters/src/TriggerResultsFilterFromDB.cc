@@ -91,7 +91,7 @@ void TriggerResultsFilterFromDB::parse(const std::string & expression) {
 }
 
 // read the triggerConditions from the database
-void TriggerResultsFilterFromDB::pathsFromSetup(const edm::EventSetup & setup)
+void TriggerResultsFilterFromDB::pathsFromSetup(const edm::Event & event, const edm::EventSetup & setup)
 {
   // Get map of strings to concatenated list of names of HLT paths from EventSetup:
   edm::ESHandle<AlCaRecoTriggerBits> triggerBits;
@@ -102,7 +102,7 @@ void TriggerResultsFilterFromDB::pathsFromSetup(const edm::EventSetup & setup)
   TriggerMap::const_iterator listIter = triggerMap.find(m_eventSetupPathsKey);
   if (listIter == triggerMap.end()) {
     throw cms::Exception("Configuration") << "TriggerResultsFilterFromDB [instance: " << * moduleLabel() 
-                                          << " - path: " << * pathName() 
+                                          << " - path: " << * pathName(event) 
                                           << "]: No triggerList with key " << m_eventSetupPathsKey << " in AlCaRecoTriggerBitsRcd";
   }
 
@@ -115,7 +115,7 @@ bool TriggerResultsFilterFromDB::hltFilter(edm::Event & event, const edm::EventS
 {
   // if the IOV has changed, re-read the triggerConditions from the database
   if (m_eventSetupWatcher.check(setup))
-    pathsFromSetup(setup);
+    pathsFromSetup(event, setup);
 
   if (not m_expression)
     // no valid expression has been parsed
