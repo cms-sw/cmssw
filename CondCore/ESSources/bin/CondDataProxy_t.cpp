@@ -51,7 +51,7 @@ namespace {
 
   class CondGetterFromTag : public cond::CondGetter {
   public:
-    CondGetterFromTag( cond::CondDB  db, std::string tag ) : 
+    CondGetterFromTag( const cond::CondDB&  db, std::string tag ) : 
       m_db(db), m_tag(tag){}
     virtual ~CondGetterFromTag(){}
 
