@@ -37,7 +37,7 @@ void RPCNumberingScheme::initMe ( const MuonDDDConstants& muonConstants ) {
 #endif
 }
 
-int RPCNumberingScheme::baseNumberToUnitNumber(const MuonBaseNumber num) {
+int RPCNumberingScheme::baseNumberToUnitNumber(const MuonBaseNumber& num) {
 
 #ifdef LOCAL_DEBUG
   std::cout << "RPCNumbering "<<num.getLevels()<<std::endl;

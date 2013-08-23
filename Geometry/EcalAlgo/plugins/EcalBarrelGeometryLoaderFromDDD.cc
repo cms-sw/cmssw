@@ -13,7 +13,7 @@ EcalBGL::fillGeom( EcalBarrelGeometry*         geom,
 		   const DetId&                id );
 template <>
 void 
-EcalBGL::fillNamedParams( DDFilteredView      fv,
+EcalBGL::fillNamedParams(const  DDFilteredView&      fv,
 			  EcalBarrelGeometry* geom );
 
 #include "Geometry/CaloEventSetup/interface/CaloGeometryLoader.icc"
@@ -79,9 +79,10 @@ EcalBGL::fillGeom( EcalBarrelGeometry*         geom,
 
 template <>
 void 
-EcalBGL::fillNamedParams( DDFilteredView      fv,
+EcalBGL::fillNamedParams(const DDFilteredView&      _fv,
 			  EcalBarrelGeometry* geom )
 {
+   DDFilteredView fv = _fv;
    bool doSubDets = fv.firstChild();
 
    while( doSubDets )

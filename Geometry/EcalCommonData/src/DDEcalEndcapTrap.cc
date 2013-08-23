@@ -82,8 +82,8 @@ DDEcalEndcapTrap::DDEcalEndcapTrap( const int hand,
 //}
 
 void 
-DDEcalEndcapTrap::rotate( const DDTranslation frontCentre, 
-			  const DDTranslation rearCentre   ) 
+DDEcalEndcapTrap::rotate( const DDTranslation& frontCentre, 
+			  const DDTranslation& rearCentre   ) 
 {
   //
   //  Rotate supercrystal to bring front and rear face centres to specified points
@@ -92,7 +92,7 @@ DDEcalEndcapTrap::rotate( const DDTranslation frontCentre,
 }
 
 void 
-DDEcalEndcapTrap::rotate(const DDRotationMatrix rot) 
+DDEcalEndcapTrap::rotate(const DDRotationMatrix& rot) 
 {
   //
   //  Rotate supercrystal by specified rotation about (0,0,0)
@@ -120,7 +120,7 @@ DDEcalEndcapTrap::translate()
 }
 
 void 
-DDEcalEndcapTrap::translate(const DDTranslation trans) 
+DDEcalEndcapTrap::translate(const DDTranslation& trans) 
 {
   //
   //  Translate supercrystal by specified amount
@@ -137,8 +137,8 @@ DDEcalEndcapTrap::translate(const DDTranslation trans)
 }
 
 void 
-DDEcalEndcapTrap::moveto( const DDTranslation frontCentre,
-			  const DDTranslation rearCentre   ) 
+DDEcalEndcapTrap::moveto( const DDTranslation& frontCentre,
+			  const DDTranslation& rearCentre   ) 
 {
   //
   //  Rotate (about X then about Y) and translate supercrystal to bring axis joining front and rear face centres parallel to line connecting specified points
@@ -234,7 +234,7 @@ DDEcalEndcapTrap::cornerPos(const int icorner)
 
 void 
 DDEcalEndcapTrap::cornerPos( const int           icorner, 
-			     const DDTranslation cornerxyz ) 
+			     const DDTranslation& cornerxyz ) 
 {
   //
   //  Save position of specified corner.
@@ -279,7 +279,7 @@ DDEcalEndcapTrap::rcentrePos()
 }
 
 double 
-DDEcalEndcapTrap::elevationAngle( const DDTranslation trans ) 
+DDEcalEndcapTrap::elevationAngle( const DDTranslation& trans ) 
 {
   //
   //  Return elevation angle (out of x-z plane) of a given translation (seen as a vector from the origin).
@@ -299,7 +299,7 @@ DDEcalEndcapTrap::elevationAngle()
 }
 
 double 
-DDEcalEndcapTrap::polarAngle(const DDTranslation trans) 
+DDEcalEndcapTrap::polarAngle(const DDTranslation& trans) 
 {
   //
   //  Return polar angle (from x to z) of a given translation (seen as a vector from the origin).
