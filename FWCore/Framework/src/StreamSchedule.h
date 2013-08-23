@@ -239,6 +239,10 @@ namespace edm {
       return workerManager_.allWorkers();
     }
     
+    unsigned int numberOfUnscheduledModules() const {
+      return number_of_unscheduled_modules_;
+    }
+    
   private:
     /// returns the action table
     ExceptionToActionTable const& actionTable() const {
@@ -307,13 +311,14 @@ namespace edm {
     // has been marked for early deletion
     std::vector<EarlyDeleteHelper> earlyDeleteHelpers_;
 
-    bool                           wantSummary_;
+    RunStopwatch::StopwatchPointer stopwatch_;
     int                            total_events_;
     int                            total_passed_;
-    RunStopwatch::StopwatchPointer stopwatch_;
-
+    unsigned int                   number_of_unscheduled_modules_;
+    
     StreamID                streamID_;
     StreamContext           streamContext_;
+    bool                           wantSummary_;
     volatile bool           endpathsAreActive_;
   };
 

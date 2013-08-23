@@ -362,6 +362,17 @@ namespace edm {
         modulesToUse.push_back(worker->description().moduleLabel());
       }
     }
+    //The unscheduled modules are at the end of the list, but we want them at the front
+    unsigned int n = streamSchedules_[0]->numberOfUnscheduledModules();
+    if(n>0) {
+      std::vector<std::string> temp;
+      temp.reserve(modulesToUse.size());
+      auto itBeginUnscheduled = modulesToUse.begin()+modulesToUse.size()-n;
+      std::copy(itBeginUnscheduled,modulesToUse.end(),
+                std::back_inserter(temp));
+      std::copy(modulesToUse.begin(),itBeginUnscheduled,std::back_inserter(temp));
+      temp.swap(modulesToUse);
+    }
     globalSchedule_.reset( new GlobalSchedule{ moduleRegistry_,
       modulesToUse,
       proc_pset, preg,

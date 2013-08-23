@@ -163,12 +163,13 @@ namespace edm {
     results_inserter_(),
     trig_paths_(),
     end_paths_(),
-    wantSummary_(tns.wantSummary()),
+    stopwatch_(wantSummary_? new RunStopwatch::StopwatchPointer::element_type : static_cast<RunStopwatch::StopwatchPointer::element_type*> (nullptr)),
     total_events_(),
     total_passed_(),
-    stopwatch_(wantSummary_? new RunStopwatch::StopwatchPointer::element_type : static_cast<RunStopwatch::StopwatchPointer::element_type*> (nullptr)),
+    number_of_unscheduled_modules_(0),
     streamID_(streamID),
     streamContext_(streamID_, processContext),
+    wantSummary_(tns.wantSummary()),
     endpathsAreActive_(true) {
 
     ParameterSet const& opts = proc_pset.getUntrackedParameterSet("options", ParameterSet());
@@ -248,6 +249,7 @@ namespace edm {
       }
     }
     if (!unscheduledLabels.empty()) {
+      number_of_unscheduled_modules_=unscheduledLabels.size();
       workerManager_.setOnDemandProducts(preg, unscheduledLabels);
     }
 
