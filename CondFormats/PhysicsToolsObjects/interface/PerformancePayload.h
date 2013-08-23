@@ -21,8 +21,8 @@ class PerformancePayload
   PerformancePayload(){}
   virtual ~PerformancePayload() {};
 
-  virtual float getResult(PerformanceResult::ResultType,BinningPointByMap) const = 0; // gets from the full payload
-  virtual bool isInPayload(PerformanceResult::ResultType,BinningPointByMap) const = 0;
+  virtual float getResult(PerformanceResult::ResultType,const BinningPointByMap&) const = 0; // gets from the full payload
+  virtual bool isInPayload(PerformanceResult::ResultType,const BinningPointByMap&) const = 0;
  protected:
 
 };

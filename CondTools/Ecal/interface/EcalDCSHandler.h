@@ -60,7 +60,7 @@ namespace popcon
 			uint16_t  updateHV( RunDCSHVDat* hv, uint16_t dbStatus, int modo=0) const ; 
 			uint16_t  updateLV( RunDCSLVDat* lv, uint16_t dbStatus) const ; 
 			bool  insertHVDataSetToOffline( const std::map<EcalLogicID, RunDCSHVDat>* dataset, EcalDCSTowerStatus* dcs_temp ) const;
-			bool  insertLVDataSetToOffline( const std::map<EcalLogicID, RunDCSLVDat>* dataset, EcalDCSTowerStatus* dcs_temp, std::vector<EcalLogicID> ) const;
+			bool  insertLVDataSetToOffline( const std::map<EcalLogicID, RunDCSLVDat>* dataset, EcalDCSTowerStatus* dcs_temp, const std::vector<EcalLogicID>& ) const;
 
 			void getNewObjects();
 			std::string id() const { return m_name;}

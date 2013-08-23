@@ -89,7 +89,7 @@ class HDQMSummary {
 		//
 		
 		// returns a vector of selected infos related to a given detId 
-		std::vector<float> getSummaryObj(uint32_t& detID, std::vector<std::string> list) const; 
+		std::vector<float> getSummaryObj(uint32_t& detID, const std::vector<std::string>& list) const; 
 		 
 		// returns a vector filled with "info elementName" for each detId 
 		// The order is SORTED according to the one used in getDetIds() !
@@ -104,7 +104,7 @@ class HDQMSummary {
 	
 		// INLINE METHODS ABOUT RUN, TIME VALUE...
 		//
-                inline void setUserDBContent(std::vector<std::string> userDBContent)  { userDBContent_ = userDBContent;}
+                inline void setUserDBContent(const std::vector<std::string>& userDBContent)  { userDBContent_ = userDBContent;}
 	        inline void setRunNr(int inputRunNr)                       { runNr_ = inputRunNr;      }
                 inline void setTimeValue(unsigned long long inputTimeValue){ timeValue_=inputTimeValue;}
                 

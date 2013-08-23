@@ -250,13 +250,13 @@ RPCRunIOV::toUNIX(int date, int time)
 
 // this methos filters data
 std::vector<RPCObImon::I_Item>
-RPCRunIOV::filterIMON(std::vector<RPCObImon::I_Item> imon, unsigned long long since, unsigned long long till)
+RPCRunIOV::filterIMON(const std::vector<RPCObImon::I_Item>& imon, unsigned long long since, unsigned long long till)
 {
 
   std::cout << std::endl << "=============================================" << std::endl;
   std::cout << std::endl << "============    FILTERING DATA    ===========" << std::endl;
   std::cout << std::endl << "=============================================" << std::endl << std::endl;
-  std::vector<RPCObImon::I_Item>::iterator it;
+  std::vector<RPCObImon::I_Item>::const_iterator it;
   RPCFw conv ("","","");
   int n = 0;
   for ( it=imon.begin(); it < imon.end(); it++ ) {
@@ -279,7 +279,7 @@ RPCRunIOV::filterIMON(std::vector<RPCObImon::I_Item> imon, unsigned long long si
 
 //-----------chamber Name -------------------------------------
 std::string
-RPCRunIOV::chamberName(chRAW ch){
+RPCRunIOV::chamberName(const chRAW& ch){
 
   using namespace std;
   string chambername, sector, station, DP, ring;

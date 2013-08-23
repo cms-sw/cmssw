@@ -54,7 +54,7 @@ namespace popcon
     void ConnectOnlineDB(std::string connect, std::string authPath);
     void DisconnectOnlineDB();
     void readEMap1();
-    int Compare2EMaps(Ref map1, RPCEMap* map2);
+    int Compare2EMaps(const Ref& map1, RPCEMap* map2);
 
 		private:
     RPCEMap * eMap;
