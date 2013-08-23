@@ -24,7 +24,7 @@ namespace edm {
     typedef WorkerT<T> WorkerType;
     WorkerT(T*,
             ModuleDescription const&,
-            WorkerParams const&);
+            ExceptionToActionTable const* actions);
 
     virtual ~WorkerT();
 

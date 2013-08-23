@@ -11,7 +11,7 @@
 #include "FWCore/Framework/src/OutputModuleCommunicator.h"
 #include "FWCore/Framework/src/TriggerResultInserter.h"
 #include "FWCore/Framework/src/WorkerInPath.h"
-#include "FWCore/Framework/src/WorkerMaker.h"
+#include "FWCore/Framework/src/ModuleHolder.h"
 #include "FWCore/Framework/src/WorkerT.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/FillProductRegistryTransients.h"
@@ -73,16 +73,10 @@ namespace edm {
     // probably be a utility in the WorkerRegistry or elsewhere.
 
     StreamSchedule::WorkerPtr
-    makeInserter(ParameterSet& proc_pset,
-                 ProductRegistry& preg,
-                 ExceptionToActionTable const& actions,
+    makeInserter(ExceptionToActionTable const& actions,
                  boost::shared_ptr<ActivityRegistry> areg,
-                 boost::shared_ptr<ProcessConfiguration> processConfiguration,
                  TriggerResultInserter* inserter) {
-      ParameterSet* trig_pset = proc_pset.getPSetForUpdate("@trigger_paths");
-
-      WorkerParams work_args(trig_pset, preg, processConfiguration, actions);
-      StreamSchedule::WorkerPtr ptr(new TriggerResultInserter::WorkerType(inserter, inserter->moduleDescription(), work_args));
+      StreamSchedule::WorkerPtr ptr(new TriggerResultInserter::WorkerType(inserter, inserter->moduleDescription(), &actions));
       ptr->setActivityRegistry(areg);
       return ptr;
     }
@@ -188,8 +182,7 @@ namespace edm {
       // the results inserter stands alone
       inserter->setTrigResultForStream(streamID.value(),results_);
 
-      results_inserter_ = makeInserter(proc_pset, preg, actions, actReg_,
-                                       processConfiguration, inserter);
+      results_inserter_ = makeInserter(actions, actReg_, inserter);
       addToAllWorkers(results_inserter_.get());
     }
 

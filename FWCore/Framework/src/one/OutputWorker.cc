@@ -21,8 +21,8 @@ namespace edm {
   namespace one {
     OutputWorker::OutputWorker(OutputModuleBase* mod,
                                ModuleDescription const& md,
-                               WorkerParams const& wp):
-    WorkerT<OutputModuleBase>(mod, md, wp)
+                               ExceptionToActionTable const* actions):
+    WorkerT<OutputModuleBase>(mod, md, actions)
     {
     }
     

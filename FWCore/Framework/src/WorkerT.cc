@@ -103,8 +103,8 @@ namespace edm{
 
   template<typename T>
   inline
-  WorkerT<T>::WorkerT(T* ed, ModuleDescription const& md, WorkerParams const& wp) :
-  Worker(md, wp),
+  WorkerT<T>::WorkerT(T* ed, ModuleDescription const& md, ExceptionToActionTable const* actions) :
+  Worker(md, actions),
   module_(ed) {
     assert(module_ != 0);
   }

@@ -34,11 +34,6 @@ namespace edm {
      are owned.
   */
 
-  boost::shared_ptr<ModuleRegistry> makeModuleRegistry();
-  maker::ModuleHolder* replaceModule(boost::shared_ptr<ModuleRegistry>,
-                                     std::string const& iLabel,
-                                     edm::ParameterSet const&);
-  
   class WorkerRegistry {
 
   public:

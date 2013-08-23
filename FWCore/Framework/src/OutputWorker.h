@@ -22,7 +22,7 @@ namespace edm {
   public:
     OutputWorker(OutputModule* mod,
 		 ModuleDescription const&,
-		 WorkerParams const&);
+		 ExceptionToActionTable const* iActions);
 
     virtual ~OutputWorker();
 

@@ -323,7 +323,7 @@ namespace {
 template<typename T>
 void
 testOneOutputModule::testTransitions(T* iMod, Expectations const& iExpect) {
-  edm::one::OutputWorker w{iMod,m_desc,m_params};
+  edm::one::OutputWorker w{iMod,m_desc,m_params.actions_};
   for(auto& keyVal: m_transToFunc) {
     testTransition(iMod,&w,keyVal.first,iExpect,keyVal.second);
   }

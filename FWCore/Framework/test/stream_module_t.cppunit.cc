@@ -95,7 +95,6 @@ private:
   edm::CurrentProcessingContext* m_context = nullptr;
   edm::ModuleDescription m_desc = {"Dummy","dummy"};
   edm::CPUTimer* m_timer = nullptr;
-  edm::WorkerParams m_params;
   
   template<typename T, typename U>
   void testTransitions(U* iMod, Expectations const& iExpect);
@@ -470,7 +469,7 @@ namespace {
 template<typename T, typename U>
 void
 testStreamModule::testTransitions(U* iMod, Expectations const& iExpect) {
-  edm::WorkerT<edm::stream::EDProducerAdaptorBase> w{iMod,m_desc,m_params};
+  edm::WorkerT<edm::stream::EDProducerAdaptorBase> w{iMod,m_desc,nullptr};
   for(auto& keyVal: m_transToFunc) {
     testTransition<T>(&w,keyVal.first,iExpect,keyVal.second);
   }

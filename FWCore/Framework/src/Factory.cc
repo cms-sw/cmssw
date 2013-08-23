@@ -31,7 +31,7 @@ namespace edm {
     return &singleInstance_;
   }
 
-  Maker* Factory::findMaker(const WorkerParams& p) const
+  Maker* Factory::findMaker(const MakeModuleParams& p) const
   {
     std::string modtype = p.pset_->getParameter<std::string>("@module_type");
     FDEBUG(1) << "Factory: module_type = " << modtype << std::endl;
@@ -65,7 +65,7 @@ namespace edm {
     return it->second;
   }
   
-  std::shared_ptr<maker::ModuleHolder> Factory::makeModule(const WorkerParams& p,
+  std::shared_ptr<maker::ModuleHolder> Factory::makeModule(const MakeModuleParams& p,
                                             signalslot::Signal<void(const ModuleDescription&)>& pre,
                                             signalslot::Signal<void(const ModuleDescription&)>& post) const
   {
@@ -83,13 +83,4 @@ namespace edm {
     }
     return std::shared_ptr<maker::ModuleHolder>{};
   }
-
-  std::unique_ptr<Worker> Factory::makeWorker(const WorkerParams& p,
-                                              std::shared_ptr<maker::ModuleHolder> iHolder) const
-  {
-    auto maker = findMaker(p);
-    auto w( maker->makeWorker(p,iHolder));
-    return w;
-  }
-
 }

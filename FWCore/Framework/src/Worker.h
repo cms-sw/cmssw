@@ -60,7 +60,7 @@ namespace edm {
     enum State { Ready, Pass, Fail, Exception };
     enum Types { kAnalyzer, kFilter, kProducer, kOutputModule};
 
-    Worker(ModuleDescription const& iMD, WorkerParams const& iWP);
+    Worker(ModuleDescription const& iMD, ExceptionToActionTable const* iActions);
     virtual ~Worker();
 
     Worker(Worker const&) = delete; // Disallow copying and moving

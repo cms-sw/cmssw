@@ -36,8 +36,8 @@ namespace edm {
       //Doesn't work in gcc4.7 using WorkerT<EDProducerAdaptorBase>::WorkerT;
       StreamWorker(T* iMod,
                    ModuleDescription const& iDesc,
-                   WorkerParams const& iParams):
-      WorkerT<T>(iMod, iDesc,iParams) {}
+                   ExceptionToActionTable const* iActions):
+      WorkerT<T>(iMod, iDesc,iActions) {}
 
 
       template<typename ModType>

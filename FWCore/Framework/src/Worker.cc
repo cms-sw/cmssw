@@ -76,7 +76,7 @@ private:
   }
 
   Worker::Worker(ModuleDescription const& iMD, 
-		 WorkerParams const& iWP) :
+		 ExceptionToActionTable const* iActions) :
     stopwatch_(),
     timesRun_(),
     timesVisited_(),
@@ -86,7 +86,7 @@ private:
     state_(Ready),
     md_(iMD),
     moduleCallingContext_(&md_),
-    actions_(iWP.actions_),
+    actions_(iActions),
     cached_exception_(),
     actReg_(),
     earlyDeleteHelper_(nullptr)

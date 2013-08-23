@@ -10,7 +10,8 @@
 #include "FWCore/Framework/src/PreallocationConfiguration.h"
 #include "FWCore/Framework/src/Factory.h"
 #include "FWCore/Framework/src/OutputModuleCommunicator.h"
-#include "FWCore/Framework/src/WorkerMaker.h"
+#include "FWCore/Framework/src/ModuleHolder.h"
+#include "FWCore/Framework/src/ModuleRegistry.h"
 #include "FWCore/Framework/src/TriggerResultInserter.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -61,7 +62,7 @@ namespace edm {
                            ModuleDescription::getUniqueID());
       
       areg->preModuleConstructionSignal_(md);
-      maker::ModuleHolderT<TriggerResultInserter> holder(new TriggerResultInserter(*trig_pset, iNStreams));
+      maker::ModuleHolderT<TriggerResultInserter> holder(new TriggerResultInserter(*trig_pset, iNStreams),static_cast<Maker const*>(nullptr));
       holder.setModuleDescription(md);
       holder.registerProductsAndCallbacks(&preg);
       areg->postModuleConstructionSignal_(md);
@@ -341,7 +342,7 @@ namespace edm {
                      ProcessContext const* processContext) :
   //Only create a resultsInserter if there is a trigger path
   resultsInserter_{tns.getTrigPaths().empty()? std::shared_ptr<TriggerResultInserter>{} :makeInserter(proc_pset,config.numberOfStreams(),preg,actions,areg,processConfiguration)},
-    moduleRegistry_(makeModuleRegistry()),
+    moduleRegistry_(new ModuleRegistry()),
     all_output_communicators_(),
     wantSummary_(tns.wantSummary()),
     endpathsAreActive_(true)
@@ -899,7 +900,7 @@ namespace edm {
       return false;
     }
     
-    auto newMod = replaceModule(moduleRegistry_,iLabel,iPSet);
+    auto newMod = moduleRegistry_->replaceModule(iLabel,iPSet);
 
     globalSchedule_->replaceModule(newMod,iLabel);
 
