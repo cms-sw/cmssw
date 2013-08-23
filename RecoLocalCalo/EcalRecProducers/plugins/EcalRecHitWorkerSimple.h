@@ -49,7 +49,11 @@ class EcalRecHitWorkerSimple : public EcalRecHitWorkerBaseClass {
                 std::vector<int> v_chstatus_;
                 edm::ESHandle<EcalLaserDbService> laser;
 
-		std::vector<int> v_DB_reco_flags_;
+		// Associate reco flagbit ( outer vector) to many db status flags (inner vector)
+		std::vector<std::vector<uint32_t> > v_DB_reco_flags_;
+
+		uint32_t setFlagBits(const std::vector<std::vector<uint32_t> >& map, 
+				     const uint32_t& status  );
 
                 bool killDeadChannels_;
                 bool laserCorrection_;

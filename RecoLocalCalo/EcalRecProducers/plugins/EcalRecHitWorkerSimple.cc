@@ -16,14 +16,35 @@ EcalRecHitWorkerSimple::EcalRecHitWorkerSimple(const edm::ParameterSet&ps) :
         EcalRecHitWorkerBaseClass(ps)
 {
         rechitMaker_ = new EcalRecHitSimpleAlgo();
-        v_chstatus_ = ps.getParameter<std::vector<int> >("ChannelStatusToBeExcluded");
-	v_DB_reco_flags_ = ps.getParameter<std::vector<int> >("flagsMapDBReco");
+        v_chstatus_ = 
+	  StringToEnumValue<EcalChannelStatusCode::Code>(ps.getParameter<std::vector<std::string> >("ChannelStatusToBeExcluded"));
         killDeadChannels_ = ps.getParameter<bool>("killDeadChannels");
         laserCorrection_ = ps.getParameter<bool>("laserCorrection");
 	EBLaserMIN_ = ps.getParameter<double>("EBLaserMIN");
 	EELaserMIN_ = ps.getParameter<double>("EELaserMIN");
 	EBLaserMAX_ = ps.getParameter<double>("EBLaserMAX");
 	EELaserMAX_ = ps.getParameter<double>("EELaserMAX");
+
+	
+	// Traslate string representation of flagsMapDBReco into enum values 
+	const edm::ParameterSet & p=ps.getParameter< edm::ParameterSet >("flagsMapDBReco");
+	std::vector<std::string> recoflagbitsStrings = p.getParameterNames();
+	v_DB_reco_flags_.resize(recoflagbitsStrings.size()); 
+
+	for (unsigned int i=0;i!=recoflagbitsStrings.size();++i){
+	  EcalRecHit::Flags recoflagbit = (EcalRecHit::Flags)
+	    StringToEnumValue<EcalRecHit::Flags>(recoflagbitsStrings[i]);
+	  std::vector<std::string> dbstatus_s =  
+	    p.getParameter<std::vector<std::string> >(recoflagbitsStrings[i]);
+	  std::vector<uint32_t> dbstatuses;
+	  for (unsigned int j=0; j!= dbstatus_s.size(); ++j){
+	    EcalChannelStatusCode::Code  dbstatus  = (EcalChannelStatusCode::Code)
+	      StringToEnumValue<EcalChannelStatusCode::Code>(dbstatus_s[j]);
+	    dbstatuses.push_back(dbstatus);
+	  }
+	  v_DB_reco_flags_[recoflagbit]=dbstatuses;
+	}  
+	
 
 }
 
@@ -48,7 +69,7 @@ EcalRecHitWorkerSimple::run( const edm::Event & evt,
         DetId detid=uncalibRH.id();
 
         EcalChannelStatusMap::const_iterator chit = chStatus->find(detid);
-        EcalChannelStatusCode chStatusCode = 1;
+        EcalChannelStatusCode chStatusCode;
         if ( chit != chStatus->end() ) {
                 chStatusCode = *chit;
         } else {
@@ -57,18 +78,19 @@ EcalRecHitWorkerSimple::run( const edm::Event & evt,
                         << "! something wrong with EcalChannelStatus in your DB? ";
         }
         if ( v_chstatus_.size() > 0) {
-                uint16_t code = chStatusCode.getStatusCode() & 0x001F;
-                std::vector<int>::const_iterator res = std::find( v_chstatus_.begin(), v_chstatus_.end(), code );
-                if ( res != v_chstatus_.end() ) {
-                        return false;
-                }
+                uint16_t code = chStatusCode.getDecodedStatusCode();
+                std::vector<int>::const_iterator res = 
+		    std::find( v_chstatus_.begin(), v_chstatus_.end(), code );
+                if ( res != v_chstatus_.end() ) return false;
+                
         }
 
         // find the proper flag for the recHit
         // from a configurable vector
         // (see cfg file for the association)
-        uint32_t recoFlag = 0;
-        uint16_t statusCode = chStatusCode.getStatusCode() & 0x001F;
+//        uint32_t recoFlag = 0;
+        uint16_t statusCode = chStatusCode.getDecodedStatusCode();
+#ifdef silly
         if ( statusCode < v_DB_reco_flags_.size() ) {
                 // not very nice...
                 recoFlag = v_DB_reco_flags_[ statusCode ];  
@@ -76,6 +98,8 @@ EcalRecHitWorkerSimple::run( const edm::Event & evt,
                 edm::LogError("EcalRecHitError") << "Flag " << statusCode 
                         << " in DB exceed the allowed range of " << v_DB_reco_flags_.size();
         }
+#endif
+	uint32_t flagBits = setFlagBits(v_DB_reco_flags_, statusCode);
 
 	float offsetTime = 0; // the global time phase
 	const EcalIntercalibConstantMap& icalMap = ical->getMap();  
@@ -117,15 +141,36 @@ EcalRecHitWorkerSimple::run( const edm::Event & evt,
           
 	 
         // make the rechit and put in the output collection
-	if (recoFlag<=EcalRecHit::kLeadingEdgeRecovered || !killDeadChannels_) {
-          EcalRecHit myrechit( rechitMaker_->makeRecHit(uncalibRH, icalconst * lasercalib, (itimeconst + offsetTime), /*recoflags_*/ 0) );	
-	  if (detid.subdetId() == EcalBarrel && (lasercalib < EBLaserMIN_ || lasercalib > EBLaserMAX_)) myrechit.setFlag(EcalRecHit::kPoorCalib);
-	  if (detid.subdetId() == EcalEndcap && (lasercalib < EELaserMIN_ || lasercalib > EELaserMAX_)) myrechit.setFlag(EcalRecHit::kPoorCalib);
-	  result.push_back(myrechit);
-	}
+#warning Review removed line if (recoFlag<=EcalRecHit::kLeadingEdgeRecovered || !killDeadChannels_)
+	//	if (recoFlag<=EcalRecHit::kLeadingEdgeRecovered || !killDeadChannels_) {
+	EcalRecHit myrechit( rechitMaker_->makeRecHit(uncalibRH, 
+						      icalconst * lasercalib, 
+						      (itimeconst + offsetTime), 
+						      /*recoflags_ 0*/ 
+						      flagBits) );
+	
+	if (detid.subdetId() == EcalBarrel && (lasercalib < EBLaserMIN_ || lasercalib > EBLaserMAX_)) 
+	  myrechit.setFlag(EcalRecHit::kPoorCalib);
+	if (detid.subdetId() == EcalEndcap && (lasercalib < EELaserMIN_ || lasercalib > EELaserMAX_)) 
+	  myrechit.setFlag(EcalRecHit::kPoorCalib);
+	result.push_back(myrechit);
+	//}
 
         return true;
 }
+
+// Take our association map of dbstatuses-> recHit flagbits and return the apporpriate flagbit word
+uint32_t EcalRecHitWorkerSimple::setFlagBits(const std::vector<std::vector<uint32_t> >& map, 
+					     const uint32_t& status  ){
+  
+  for (unsigned int i = 0; i!=map.size(); ++i){
+    if (std::find(map[i].begin(), map[i].end(),status)!= map[i].end()) 
+      return 0x1 << i;
+  }
+
+  return 0;
+}
+
 
 EcalRecHitWorkerSimple::~EcalRecHitWorkerSimple(){
 

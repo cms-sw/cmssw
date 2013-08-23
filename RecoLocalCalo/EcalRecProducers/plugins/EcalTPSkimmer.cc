@@ -82,7 +82,7 @@ EcalTPSkimmer::produce(edm::Event& evt, const edm::EventSetup& es)
                         chit = chStatus->find( id );
                         // check if the channel status means TP to be kept
                         if ( chit != chStatus->end() ) {
-                                code = (*chit).getStatusCode() & 0x001F;
+                                code = (*chit).getDecodedStatusCode();
                                 if ( std::find( chStatusToSelectTP_.begin(), chStatusToSelectTP_.end(), code ) != chStatusToSelectTP_.end() ) {
                                         // retrieve the TP DetId
                                         EcalTrigTowerDetId ttDetId( ((EBDetId)id).tower() );
@@ -107,7 +107,7 @@ EcalTPSkimmer::produce(edm::Event& evt, const edm::EventSetup& es)
                         chit = chStatus->find( id );
                         // check if the channel status means TP to be kept
                         if ( chit != chStatus->end() ) {
-                                code = (*chit).getStatusCode() & 0x001F;
+                                code = (*chit).getDecodedStatusCode() ;
                                 if ( std::find( chStatusToSelectTP_.begin(), chStatusToSelectTP_.end(), code ) != chStatusToSelectTP_.end() ) {
                                         // retrieve the TP DetId
                                         EcalTrigTowerDetId ttDetId = ttMap_->towerOf( id );

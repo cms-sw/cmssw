@@ -253,7 +253,7 @@ void EcalDetIdToBeRecoveredProducer::produce(edm::Event& ev, const edm::EventSet
         for ( EBDetIdCollection::const_iterator itId = ebSrpDetId.begin(); itId != ebSrpDetId.end(); ++itId ) {
                 EcalChannelStatusMap::const_iterator chit = chStatus_->find( *itId );
                 if ( chit != chStatus_->end() ) {
-                        const int flag = (*chit).getStatusCode() & 0x001F;
+                        const int flag = (*chit).getDecodedStatusCode();
                         if ( flag >= 10 && flag <= 12) { // FIXME -- avoid hardcoded values...
                                 ebDetIdToRecover->insert( *itId );
                         } else if ( flag == 13 || flag == 14 ) { // FIXME -- avoid hardcoded values...
@@ -269,7 +269,7 @@ void EcalDetIdToBeRecoveredProducer::produce(edm::Event& ev, const edm::EventSet
         for ( EEDetIdCollection::const_iterator itId = eeSrpDetId.begin(); itId != eeSrpDetId.end(); ++itId ) {
                 EcalChannelStatusMap::const_iterator chit = chStatus_->find( *itId );
                 if ( chit != chStatus_->end() ) {
-                        int flag = (*chit).getStatusCode() & 0x001F;
+                        int flag = (*chit).getDecodedStatusCode() ;
                         if ( flag >= 10 && flag <= 12) { // FIXME -- avoid hardcoded values...
                                 eeDetIdToRecover->insert( *itId );
                         } else if ( flag == 13 || flag == 14 ) { // FIXME -- avoid hardcoded values...

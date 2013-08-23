@@ -24,18 +24,15 @@ ecalRecHit = cms.EDProducer("EcalRecHitProducer",
 
     # apply laser corrections
     laserCorrection = cms.bool(True),
+                            
     # reco flags association to DB flag
-    # the vector index corresponds to the DB flag
-    # the value correspond to the reco flag
-    flagsMapDBReco = cms.vint32(
-             0,   0,   0,  0, # standard reco
-             4,               # faulty hardware (noisy)
-            -1,  -1,  -1,     # not yet assigned
-             4,   4,          # faulty hardware (fixed gain)
-             7,   7,   7,     # dead channel with trigger
-             8,               # dead FE
-             9                # dead or recovery failed
-            ),                        
+    flagsMapDBReco = cms.PSet(
+        kGood = cms.vstring('kOk','kDAC','kNoLaser','kNoisy'),
+        kNoisy = cms.vstring('kNNoisy','kFixedG6','kFixedG1'),
+        kLeadingEdgeRecovered = cms.vstring('kFixedG0','kNonRespondingIsolated','kDeadVFE'),
+        kNeighboursRecovered = cms.vstring('kNoData'),
+        kTowerRecovered = cms.vstring('kNoDataNoTP')
+        ),                        
                             
     # for channel recovery
     algoRecover = cms.string("EcalRecHitWorkerRecover"),

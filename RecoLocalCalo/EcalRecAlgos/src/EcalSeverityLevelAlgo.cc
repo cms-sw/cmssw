@@ -100,7 +100,7 @@ EcalSeverityLevelAlgo::severityLevel(const DetId& id,
   EcalChannelStatus::const_iterator chIt = chStatus_->find( id );
   uint16_t dbStatus = 0;
   if ( chIt != chStatus_->end() ) {
-    dbStatus = chIt->getStatusCode() & 0x1F;
+    dbStatus = chIt->getDecodedStatusCode();
   } else {
     edm::LogError("ObjectNotFound") << "No channel status found for xtal " 
 	 << id.rawId() 

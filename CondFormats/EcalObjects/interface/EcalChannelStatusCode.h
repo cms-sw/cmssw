@@ -3,7 +3,6 @@
 /**
  * Author: Paolo Meridiani
  * Created: 14 Nov 2006
- * $Id: EcalChannelStatusCode.h,v 1.3 2011/05/17 08:40:07 argiro Exp $
  **/
 
 
@@ -17,30 +16,58 @@
 
 class EcalChannelStatusCode {
 
+
+ public :
+
+    enum Code {
+      kOk=0,
+      kDAC,
+      kNoLaser,
+      kNoisy,
+      kNNoisy,
+      kNNNoisy,
+      kNNNNoisy,
+      kNNNNNoisy,
+      kFixedG6,
+      kFixedG1,
+      kFixedG0,
+      kNonRespondingIsolated,
+      kDeadVFE,
+      kNoData,
+      kNoDataNoTP      
+    };
+
+    enum Bits {
+      kHV=0,
+      kLV,
+      kDAQ,
+      kTP,
+      kTrigger,
+      kTemperature,
+      kNextToDead
+    };
+
   public:
-    EcalChannelStatusCode();
-    EcalChannelStatusCode(const EcalChannelStatusCode & codeStatus);
-    EcalChannelStatusCode(const uint16_t& encodedStatus) : status_(encodedStatus) {};
-    ~EcalChannelStatusCode();
+    EcalChannelStatusCode():status_(0){};
 
     //get Methods to be defined according to the final definition
 
     void print(std::ostream& s) const { s << "status is: " << status_; }
 
-    EcalChannelStatusCode& operator=(const EcalChannelStatusCode& rhs);
+    /// return coded status
     uint16_t getStatusCode() const { return status_; }
 
     /// Return the decoded status, i.e. the value giving the status code
     uint16_t getDecodedStatusCode() const { return status_&chStatusMask; }
 
-    bool isHVon() const {return status_& HVbitMask;}
-    bool isLVon() const {return status_& LVbitMask;}
-    
-    static const int chStatusMask      = 0x1F;
-    static const int HVbitMask         = 0x1<<5;
-    static const int LVbitMask         = 0x1<<6;
+    /// Check status of desired bit
+    bool checkBit(Bits bit) {return status_& (0x1<<(bit+kBitsOffset));}
 
+    static const int chStatusMask      = 0x1F;
+ 
   private:
+
+    static const int kBitsOffset= 5;
     /* bits 1-5 store a status code:
        	0 	channel ok 
   	1 	DAC settings problem, pedestal not in the design range 	
