@@ -120,11 +120,11 @@
     <use   name="FWCore/Framework"/>
     <use   name="FWCore/ParameterSet"/>
   </library>
-  <library   file="TestRunLumiSource.cc" name="TestRunLumiSource">
+  <library   file="ThrowingSource.cc" name="ThrowingSource">
     <flags   EDM_PLUGIN="1"/>
-    <use   name="DataFormats/Provenance"/>
     <use   name="FWCore/Framework"/>
     <use   name="FWCore/ParameterSet"/>
+    <use   name="FWCore/Sources"/>
   </library>
   <library   file="ThingSource.cc,ThingAlgorithm.cc" name="TestThingSource">
     <flags   EDM_PLUGIN="1"/>
