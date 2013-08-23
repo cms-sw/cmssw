@@ -2,9 +2,6 @@
 #include <sstream>
 #include "DQM/RPCMonitorDigi/interface/RPCMonitorDigi.h"
 #include "DQM/RPCMonitorDigi/interface/utils.h"
-///Data Format
-#include "DataFormats/Scalers/interface/DcsStatus.h"
-#include "DataFormats/MuonReco/interface/Muon.h"
 ///Geometry
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
@@ -26,14 +23,17 @@ RPCMonitorDigi::RPCMonitorDigi( const edm::ParameterSet& pset ):counter(0){
 
   useMuonDigis_=  pset.getUntrackedParameter<bool>("UseMuon", true);
   useRollInfo_=  pset.getUntrackedParameter<bool>("UseRollInfo", false);
-  muonLabel_ = pset.getParameter<edm::InputTag>("MuonLabel");
+
   muPtCut_  = pset.getUntrackedParameter<double>("MuonPtCut", 3.0); 
   muEtaCut_ = pset.getUntrackedParameter<double>("MuonEtaCut", 1.9); 
  
   subsystemFolder_ = pset.getUntrackedParameter<std::string>("RPCFolder", "RPC");
   globalFolder_ = pset.getUntrackedParameter<std::string>("GlobalFolder", "SummaryHistograms");
 
-  rpcRecHitLabel_ = pset.getParameter<edm::InputTag>("RecHitLabel");
+  //Parametersets for tokens
+  muonLabel_  = consumes<reco::CandidateView>(pset.getParameter<edm::InputTag>("MuonLabel")); 
+  rpcRecHitLabel_  = consumes<RPCRecHitCollection>(pset.getParameter<edm::InputTag>("RecHitLabel"));
+  scalersRawToDigiLabel_  = consumes<DcsStatusCollection>(pset.getParameter<edm::InputTag>("ScalersRawToDigiLabel"));
 
   numberOfDisks_ = pset.getUntrackedParameter<int>("NumberOfEndcapDisks", 3);
   numberOfInnerRings_ = pset.getUntrackedParameter<int>("NumberOfInnermostEndcapRings", 2);
@@ -119,7 +119,6 @@ void RPCMonitorDigi::beginRun(const edm::Run& r, const edm::EventSetup& iSetup){
     }
   }//end loop on geometry to book all MEs
 
-
   //Clear flags;
   dcs_ = true;
 }
@@ -146,7 +145,9 @@ void RPCMonitorDigi::analyze(const edm::Event& event,const edm::EventSetup& setu
  
   //Muons
   edm::Handle<reco::CandidateView> muonCands;
-  event.getByLabel(muonLabel_, muonCands);
+  event.getByToken(muonLabel_, muonCands);
+
+
   std::map<RPCDetId  , std::vector<RPCRecHit> > rechitMuon;
 
   int  numMuons = 0;
@@ -195,7 +196,7 @@ void RPCMonitorDigi::analyze(const edm::Event& event,const edm::EventSetup& setu
   
  //RecHits
   edm::Handle<RPCRecHitCollection> rpcHits;
-  event.getByLabel( rpcRecHitLabel_ , rpcHits);
+  event.getByToken( rpcRecHitLabel_ , rpcHits);
   std::map<RPCDetId  , std::vector<RPCRecHit> > rechitNoise;
 
   
@@ -504,7 +505,7 @@ void  RPCMonitorDigi::makeDcsInfo(const edm::Event& e) {
 
   edm::Handle<DcsStatusCollection> dcsStatus;
 
-  if ( ! e.getByLabel("scalersRawToDigi", dcsStatus) ){
+  if ( ! e.getByToken(scalersRawToDigiLabel_, dcsStatus) ){
     dcs_ = true;
     return;
   }

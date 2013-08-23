@@ -8,9 +8,8 @@ camilo.carrilloATcern.ch
 #include "DQM/RPCMonitorDigi/interface/RPCEfficiency.h"
 #include <sstream>
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "DataFormats/RPCRecHit/interface/RPCRecHitCollection.h"
-#include <DataFormats/DTRecHit/interface/DTRecSegment4DCollection.h>
-#include <DataFormats/CSCRecHit/interface/CSCSegmentCollection.h>
+#include "DataFormats/Common/interface/Handle.h"
+#include "FWCore/Framework/interface/ESHandle.h"
 #include <Geometry/RPCGeometry/interface/RPCGeomServ.h>
 #include <Geometry/CommonDetUnit/interface/GeomDet.h>
 #include <Geometry/Records/interface/MuonGeometryRecord.h>
@@ -48,16 +47,19 @@ RPCEfficiency::RPCEfficiency(const edm::ParameterSet& iConfig){
   MaxDrb4=iConfig.getUntrackedParameter<double>("MaxDrb4",150.);
 
 
-  //  muonRPCDigis=iConfig.getUntrackedParameter<std::string>("muonRPCDigis","muonRPCDigis");
-  cscSegments=iConfig.getParameter<edm::InputTag>("cscSegments");
-  dt4DSegments=iConfig.getParameter<edm::InputTag>("dt4DSegments");
-  RPCRecHitLabel_ = iConfig.getParameter<edm::InputTag>("RecHitLabel");
-
+  cscSegments= consumes<CSCSegmentCollection>(iConfig.getParameter<edm::InputTag>("cscSegments"));
+  dt4DSegments =  consumes<DTRecSegment4DCollection>(iConfig.getParameter<edm::InputTag>("dt4DSegments"));
+  RPCRecHitLabel_ =  consumes<RPCRecHitCollection>(iConfig.getParameter<edm::InputTag>("RecHitLabel"));
 
   folderPath=iConfig.getUntrackedParameter<std::string>("folderPath","RPC/RPCEfficiency/");
    
   EffSaveRootFile  = iConfig.getUntrackedParameter<bool>("EffSaveRootFile", false); 
   EffRootFileName  = iConfig.getUntrackedParameter<std::string>("EffRootFileName", "RPCEfficiency.root"); 
+
+}
+
+void RPCEfficiency::beginRun(const edm::Run& run, const edm::EventSetup& iSetup){
+ 
 
   //Interface
 
@@ -66,40 +68,25 @@ RPCEfficiency::RPCEfficiency(const edm::ParameterSet& iConfig){
   std::string folder;
   dbe->setCurrentFolder(folderPath);
   statistics = dbe->book1D("Statistics","All Statistics",33,0.5,33.5);
+
    
   statistics->setBinLabel(1,"Events ",1);
-  statistics->setBinLabel(2,"Events with DT seg",1);
-  statistics->setBinLabel(3,"1 DT seg",1);
-  statistics->setBinLabel(4,"2 DT seg",1);
-  statistics->setBinLabel(5,"3 DT seg",1);
-  statistics->setBinLabel(6,"4 DT seg",1);
-  statistics->setBinLabel(7,"5 DT seg",1);
-  statistics->setBinLabel(8,"6 DT seg",1);
-  statistics->setBinLabel(9,"7 DT seg",1);
-  statistics->setBinLabel(10,"8 DT seg",1);
-  statistics->setBinLabel(11,"9 DT seg",1);
-  statistics->setBinLabel(12,"10 DT seg",1);
-  statistics->setBinLabel(13,"11 DT seg",1);
-  statistics->setBinLabel(14,"12 DT seg",1);
-  statistics->setBinLabel(15,"13 DT seg",1);
-  statistics->setBinLabel(16,"14 DT seg",1);
-  statistics->setBinLabel(17,"15 DT seg",1);
+
+  statistics->setBinLabel(2,"Events with DT seg",1);  
+  std::stringstream sstr;
+  for( int i = 1; i<=15; i++ ){ //DT form bin 3 to bin 17
+    sstr.str("");
+    sstr<<i<<" DT seg";
+    statistics->setBinLabel(i+2, sstr.str() ,1);
+  }
+
   statistics->setBinLabel(18,"Events with CSC seg",1);
-  statistics->setBinLabel(16+3,"1 CSC seg",1);
-  statistics->setBinLabel(16+4,"2 CSC seg",1);
-  statistics->setBinLabel(16+5,"3 CSC seg",1);
-  statistics->setBinLabel(16+6,"4 CSC seg",1);
-  statistics->setBinLabel(16+7,"5 CSC seg",1);
-  statistics->setBinLabel(16+8,"6 CSC seg",1);
-  statistics->setBinLabel(16+9,"7 CSC seg",1);
-  statistics->setBinLabel(16+10,"8 CSC seg",1);
-  statistics->setBinLabel(16+11,"9 CSC seg",1);
-  statistics->setBinLabel(16+12,"10 CSC seg",1);
-  statistics->setBinLabel(16+13,"11 CSC seg",1);
-  statistics->setBinLabel(16+14,"12 CSC seg",1);
-  statistics->setBinLabel(16+15,"13 CSC seg",1);
-  statistics->setBinLabel(16+16,"14 CSC seg",1);
-  statistics->setBinLabel(16+17,"15 CSC seg",1);
+  for( int i = 1; i<=15; i++ ){ //CSC form bin 19 to bin 33
+    sstr.str("");
+    sstr<<i<<" CSC seg";
+    statistics->setBinLabel(i+18, sstr.str(),1);
+  }
+  
 
   if(debug) std::cout<<"booking Global histograms with "<<folderPath<<std::endl;
    
@@ -135,7 +122,8 @@ RPCEfficiency::RPCEfficiency(const edm::ParameterSet& iConfig){
   dbe->setCurrentFolder(folder);
 
   //Endcap   
- 
+
+
   hGlobalResClu1R3C = dbe->book1D("GlobalResidualsClu1R3C","RPC Residuals Ring 3 Roll C Cluster Size 1",101,-10.,10.);
   hGlobalResClu1R3B = dbe->book1D("GlobalResidualsClu1R3B","RPC Residuals Ring 3 Roll B Cluster Size 1",101,-10.,10.);
   hGlobalResClu1R3A = dbe->book1D("GlobalResidualsClu1R3A","RPC Residuals Ring 3 Roll A Cluster Size 1",101,-10.,10.);
@@ -157,10 +145,8 @@ RPCEfficiency::RPCEfficiency(const edm::ParameterSet& iConfig){
   hGlobalResClu3R2B = dbe->book1D("GlobalResidualsClu3R2B","RPC Residuals Ring 2 Roll B Cluster Size 3",101,-10.,10.);
   hGlobalResClu3R2A = dbe->book1D("GlobalResidualsClu3R2A","RPC Residuals Ring 2 Roll A Cluster Size 3",101,-10.,10.);
 
-}
 
-void RPCEfficiency::beginRun(const edm::Run& run, const edm::EventSetup& iSetup){
-  
+
   edm::ESHandle<RPCGeometry> rpcGeo;
   iSetup.get<MuonGeometryRecord>().get(rpcGeo);
   
@@ -278,7 +264,7 @@ void RPCEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
   
   if(debug) std::cout <<"\t Getting the RPC RecHits"<<std::endl;
   edm::Handle<RPCRecHitCollection> rpcHits;
-  iEvent.getByLabel(RPCRecHitLabel_,rpcHits);  
+  iEvent.getByToken(RPCRecHitLabel_,rpcHits);  
   
   if(!rpcHits.isValid()) return;
   
@@ -286,7 +272,7 @@ void RPCEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
     if(debug) std::cout<<"\t Getting the DT Segments"<<std::endl;
     edm::Handle<DTRecSegment4DCollection> all4DSegments;
     
-    iEvent.getByLabel(dt4DSegments, all4DSegments);
+    iEvent.getByToken(dt4DSegments, all4DSegments);
     
     if(all4DSegments.isValid()){
       
@@ -476,9 +462,9 @@ void RPCEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
   
   if(incldtMB4){
     edm::Handle<DTRecSegment4DCollection> all4DSegments;
-    iEvent.getByLabel(dt4DSegments, all4DSegments);
+    iEvent.getByToken(dt4DSegments, all4DSegments);
       
-      if(all4DSegments.isValid() && all4DSegments->size()>0){
+    if(all4DSegments.isValid() && all4DSegments->size()>0){
 
 	std::map<DTChamberId,int> DTSegmentCounter;
 	DTRecSegment4DCollection::const_iterator segment;  
@@ -689,7 +675,7 @@ void RPCEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
     if(debug) std::cout <<"\t Getting the CSC Segments"<<std::endl;
     edm::Handle<CSCSegmentCollection> allCSCSegments;
     
-    iEvent.getByLabel(cscSegments, allCSCSegments);
+    iEvent.getByToken(cscSegments, allCSCSegments);
       
     if(allCSCSegments.isValid()){ 
       if(allCSCSegments->size()>0){
