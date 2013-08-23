@@ -41,14 +41,14 @@ public:
     std::unique_ptr<ProcessHistory> processHistory1(new ProcessHistory);
     ProcessHistory& ph1 = *processHistory1;
     processHistory1->push_back(pc);
-    ProcessHistoryRegistry::instance()->insertMapped(ph1);
+    registerProcessHistory(ph1);
     fakePHID1 = ph1.id();
 
     std::unique_ptr<ProcessHistory> processHistory2(new ProcessHistory);
     ProcessHistory& ph2 = *processHistory2;
     processHistory2->push_back(pc);
     processHistory2->push_back(pc);
-    ProcessHistoryRegistry::instance()->insertMapped(ph2);
+    registerProcessHistory(ph2);
     fakePHID2 = ph2.id();
 
     std::unique_ptr<ProcessHistory> processHistory3(new ProcessHistory);
@@ -56,7 +56,7 @@ public:
     processHistory3->push_back(pc);
     processHistory3->push_back(pc);
     processHistory3->push_back(pc);
-    ProcessHistoryRegistry::instance()->insertMapped(ph3);
+    registerProcessHistory(ph3);
     fakePHID3 = ph3.id();
   }
 
