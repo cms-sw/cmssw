@@ -18,16 +18,18 @@
 
 
 // system include files
-#include <memory>
+//#include <memory>
 
 //... User include files
+
+
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
-
+#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
+
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 
 //... L1Trigger
@@ -73,7 +75,7 @@ public:
   ~ RPCTTUMonitor();
   
   int  discriminateGMT( const edm::Event& iEvent, const edm::EventSetup& iSetup );
-
+  
   void discriminateDecision( bool ,  bool , int );
   
 private:
@@ -98,15 +100,17 @@ private:
 
   bool m_dtTrigger;
   bool m_rpcTrigger;
-
+  
   std::vector<int> m_GMTcandidatesBx;
   std::vector<int> m_DTcandidatesBx;
   std::vector<int> m_RPCcandidatesBx;
+  
+  //    edm::InputTag m_rpcDigiLabel;
+  
+  edm::EDGetTokenT<L1GlobalTriggerReadoutRecord> m_gtReadoutLabel;
+  edm::EDGetTokenT<L1MuGMTReadoutCollection> m_gmtReadoutLabel;
+  edm::EDGetTokenT<L1GtTechnicalTriggerRecord> m_rpcTechTrigEmu;
 
-  edm::InputTag m_rpcDigiLabel;
-  edm::InputTag m_gtReadoutLabel;
-  edm::InputTag m_gmtReadoutLabel;
-  edm::InputTag m_rpcTechTrigEmu;
   
 };
 
