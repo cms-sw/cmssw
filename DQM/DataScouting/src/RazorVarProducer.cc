@@ -73,7 +73,9 @@ RazorVarProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 }
 
 double 
-RazorVarProducer::CalcMR(TLorentzVector ja, TLorentzVector jb){
+RazorVarProducer::CalcMR(const TLorentzVector& _ja, const TLorentzVector& _jb){
+  TLorentzVector ja = _ja;
+  TLorentzVector jb = _jb;
   if(ja.Pt()<=0.1) return -1;
 
   ja.SetPtEtaPhiM(ja.Pt(),ja.Eta(),ja.Phi(),0.0);
@@ -107,7 +109,7 @@ RazorVarProducer::CalcMR(TLorentzVector ja, TLorentzVector jb){
 }
 
 double 
-RazorVarProducer::CalcR(double MR, TLorentzVector ja, TLorentzVector jb, edm::Handle<reco::CaloMETCollection> inputMet, std::vector<math::XYZTLorentzVector> muons){
+RazorVarProducer::CalcR(double MR, const TLorentzVector& ja, const TLorentzVector& jb, edm::Handle<reco::CaloMETCollection> inputMet, const std::vector<math::XYZTLorentzVector>& muons){
   //now we can calculate MTR
   TVector3 met;
   met.SetPtEtaPhi((inputMet->front()).pt(),0.0,(inputMet->front()).phi());

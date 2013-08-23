@@ -74,7 +74,7 @@ class WebInterface
 
   /// Answers viewer requests
   void DrawGif(xgi::Input * in, xgi::Output * out) throw (xgi::exception::Exception);
-  void printMap(ME_MAP view_map, std::string id);
+  void printMap(const ME_MAP& view_map, std::string id);
 
   /// Adds widgets to the page
   void add(std::string, WebElement *);

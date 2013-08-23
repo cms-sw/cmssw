@@ -43,7 +43,7 @@ typedef std::vector<std::string> vstring;
 /// Constructor
 HLTMuonMatchAndPlot::HLTMuonMatchAndPlot(const ParameterSet & pset, 
                                          string hltPath, 
-                                         vector<string> moduleLabels) :
+                                         const vector<string>& moduleLabels) :
   hltProcessName_(pset.getParameter<string>("hltProcessName")),
   destination_(pset.getUntrackedParameter<string>("destination")),
   requiredTriggers_(pset.getUntrackedParameter<vstring>("requiredTriggers")),
@@ -383,7 +383,7 @@ void HLTMuonMatchAndPlot::analyze(const Event & iEvent,
 // Method to fill binning parameters from a vector of doubles.
 void 
 HLTMuonMatchAndPlot::fillEdges(size_t & nBins, float * & edges, 
-                               vector<double> binning) {
+                               const vector<double>& binning) {
 
   if (binning.size() < 3) {
     LogWarning("HLTMuonVal") << "Invalid binning parameters!"; 
@@ -416,7 +416,7 @@ HLTMuonMatchAndPlot::fillEdges(size_t & nBins, float * & edges,
 template <class T>
 void 
 HLTMuonMatchAndPlot::fillMapFromPSet(map<string, T> & m, 
-                                     ParameterSet pset, string target) {
+                                     const ParameterSet& pset, string target) {
 
   // Get the ParameterSet with name 'target' from 'pset'
   ParameterSet targetPset;

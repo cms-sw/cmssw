@@ -905,8 +905,9 @@ void HcalDeadCellMonitor::processEvent(const HBHERecHitCollection& hbHits,
 
 // Digi-based dead cell checks
 
-void HcalDeadCellMonitor::processEvent_HBHEdigi(const HBHEDataFrame digi)
+void HcalDeadCellMonitor::processEvent_HBHEdigi(const HBHEDataFrame& _digi)
 {
+  HBHEDataFrame digi = _digi;
   // Simply check whether a digi is present.  If so, increment occupancy counter.
   process_Digi(digi);
   return;

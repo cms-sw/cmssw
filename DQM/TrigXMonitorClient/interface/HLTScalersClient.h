@@ -193,7 +193,7 @@ private:
   std::string processName_;
   //HLTConfigProvider hltConfig_;
   std::deque<int> ignores_;
-  std::pair<double,double> getSlope_(CountLSFifo_t points);
+  std::pair<double,double> getSlope_(const CountLSFifo_t& points);
 private:
   bool debug_;
   int maxFU_;

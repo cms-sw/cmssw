@@ -86,8 +86,8 @@ class L1TLSBlock {
   L1TLSBlock();   
   // Destructor
   virtual ~L1TLSBlock();                     
-  LumiRangeList doBlocking(LumiTestDoubleList, double, BLOCKBY);
-  LumiRangeList doBlocking(LumiTestIntList, int,    BLOCKBY);
+  LumiRangeList doBlocking(const LumiTestDoubleList&, double, BLOCKBY);
+  LumiRangeList doBlocking(const LumiTestIntList&, int,    BLOCKBY);
   
   // Private Methods
  private:

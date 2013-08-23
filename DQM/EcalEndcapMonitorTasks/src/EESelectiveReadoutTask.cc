@@ -1234,7 +1234,7 @@ EESelectiveReadoutTask::getFIRWeights(const std::vector<double>&
 }
 
 void
-EESelectiveReadoutTask::configFirWeights(std::vector<double> weightsForZsFIR){
+EESelectiveReadoutTask::configFirWeights(const std::vector<double>& weightsForZsFIR){
   bool notNormalized  = false;
   bool notInt = false;
   for(unsigned i=0; i < weightsForZsFIR.size(); ++i){

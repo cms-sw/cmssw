@@ -82,8 +82,9 @@ void TopElectronHLTOfflineSource::beginJob()
 	}
 	//std::cout <<"done"<<std::endl;
 }
-void TopElectronHLTOfflineSource::setupHistos(std::vector<EleMEs> topEleHists)
+void TopElectronHLTOfflineSource::setupHistos(const std::vector<EleMEs>& _topEleHists)
 {
+	std::vector<EleMEs> topEleHists = _topEleHists;
 	for (size_t i = 0; i < eleMEs_.size(); ++i)
 	{
 		topEleHists.push_back(eleMEs_[i]);

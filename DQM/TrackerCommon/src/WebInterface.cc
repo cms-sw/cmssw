@@ -315,8 +315,9 @@ void WebInterface::DrawGif(xgi::Input * in, xgi::Output * out) throw (xgi::excep
 
 }
 
-void WebInterface::printMap(ME_MAP view_map, std::string id)
+void WebInterface::printMap(const ME_MAP& _view_map, std::string id)
 {
+  ME_MAP view_map = _view_map;
   view_map.print(id);
 }
 

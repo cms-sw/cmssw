@@ -53,7 +53,7 @@ class L1TOccupancyClient: public edm::EDAnalyzer {
     void analyze(const edm::Event& e, const edm::EventSetup& c) ;
   
     //DQM test routines
-    double xySymmetry(edm::ParameterSet ps, 
+    double xySymmetry(const edm::ParameterSet& ps, 
                      std::string test_name, 
                      std::vector<std::pair<int,double> >& deadChannels, 
                      std::vector<std::pair<int,double> >& statDev, 
@@ -86,7 +86,7 @@ class L1TOccupancyClient: public edm::EDAnalyzer {
                          int nBins, 
                          int axis, 
                          double avg, 
-                         edm::ParameterSet ps,
+                         const edm::ParameterSet& ps,
                          std::vector<std::pair<int,double> >& deadChannels);
 
     // Gets the bin-number of a bin with content and on axis
@@ -96,9 +96,9 @@ class L1TOccupancyClient: public edm::EDAnalyzer {
                                            int axis);  
 
     // Puts out the bad and masked channels of a specific test to h2f	
-    void printDeadChannels(std::vector<std::pair<int,double> > deadChannels, 
+    void printDeadChannels(const std::vector<std::pair<int,double> >& deadChannels, 
                            TH2F* h2f, 
-                           std::vector<std::pair<int,double> > statDev, 
+                           const std::vector<std::pair<int,double> >& statDev, 
                            std::string test_name); 
 
     // Gets the average (avrgMode=1 arithmetic, avrgMode=2 median) for a specific binStrip in histo h2f for a specific test

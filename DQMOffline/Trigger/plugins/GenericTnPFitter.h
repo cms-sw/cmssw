@@ -74,7 +74,7 @@ class AbstractFitter{
   double getEfficiency(){ return efficiency.getVal(); }
   double getEfficiencyError(){ return efficiency.getError(); }
   double getChi2(){ return chi2; }
-  void savePlot(TString name){
+  void savePlot(const TString& name){
     using namespace RooFit;
     RooPlot* frame = mass.frame(Name(name), Title("Failing and Passing Probe Distributions"));
     data->plotOn(frame,Cut("category==category::pass"),LineColor(kGreen),MarkerColor(kGreen));
@@ -87,7 +87,7 @@ class AbstractFitter{
     delete frame;
   }
 
-  TString calculateEfficiency(TH3 *pass, TH3 *all, int massDimension, TProfile2D* &eff, TProfile2D* &effChi2, TString plotName=""){
+  TString calculateEfficiency(TH3 *pass, TH3 *all, int massDimension, TProfile2D* &eff, TProfile2D* &effChi2, const TString& plotName=TString("")){
     //sort out the TAxis
     TAxis *par1Axis, *par2Axis, *massAxis;
     int par1C, par2C, massC;
@@ -169,7 +169,7 @@ class AbstractFitter{
     return "";//OK
   }
 
-  TString calculateEfficiency(TH2 *pass, TH2 *all, int massDimension, TProfile* &eff, TProfile* &effChi2, TString plotName=""){
+  TString calculateEfficiency(TH2 *pass, TH2 *all, int massDimension, TProfile* &eff, TProfile* &effChi2, const TString& plotName=TString("")){
     //sort out the TAxis
     TAxis *par1Axis, *massAxis;
     int par1C, massC;

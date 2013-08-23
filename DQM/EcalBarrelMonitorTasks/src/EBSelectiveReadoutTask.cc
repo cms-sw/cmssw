@@ -942,7 +942,7 @@ EBSelectiveReadoutTask::getFIRWeights(const std::vector<double>&
 }
 
 void
-EBSelectiveReadoutTask::configFirWeights(std::vector<double> weightsForZsFIR){
+EBSelectiveReadoutTask::configFirWeights(const std::vector<double>& weightsForZsFIR){
   bool notNormalized  = false;
   bool notInt = false;
   for(unsigned i=0; i < weightsForZsFIR.size(); ++i){

@@ -414,7 +414,7 @@ int HcalZDCMonitor::getTSMax(std::vector<double>fData)
 } // int HcalZDCMonitor::getTSMax()
 ------------------------------------------------------------------------------------
 */
-double HcalZDCMonitor::getTime(std::vector<double>fData, unsigned int ts_min, unsigned int ts_max, double &fSum) {
+double HcalZDCMonitor::getTime(const std::vector<double>& fData, unsigned int ts_min, unsigned int ts_max, double &fSum) {
   double weightedTime = 0.;
   double SumT = 0.; 
   double Time = -999.;

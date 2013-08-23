@@ -34,7 +34,7 @@ class Select : public WebElement
     {
     }
 
-  void setOptionsVector(std::vector<std::string> the_options_v)
+  void setOptionsVector(const std::vector<std::string>& the_options_v)
     {
       options_v = the_options_v;
     }
