@@ -170,14 +170,20 @@ CSCTFPtLUT::CSCTFPtLUT(const edm::ParameterSet& pset,
 
 ptdat CSCTFPtLUT::Pt(const ptadd& address) const
 {
+  std::cout << "Accessing pt " << std::endl;
   ptdat result;
   
   if(read_pt_lut_es) 
   {
     unsigned int shortAdd = (address.toint()& 0x1fffff);
-    ptdat tmp( theL1MuCSCPtLut_->pt(shortAdd) );
-  
-    result = tmp;
+
+    ptdat result( theL1MuCSCPtLut_->pt(shortAdd) );
+    //std::cout << "CSCTFPtLUT::Pt=" 
+    //          << theL1MuCSCPtLut_->pt(shortAdd)
+    //          << " -- "
+    //          << result.front_rank
+    //          << std::endl;  
+
   } 
   
   else if (read_pt_lut_file)
