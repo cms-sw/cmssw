@@ -1,5 +1,7 @@
 ++ constructing source:EmptySource
 ++ construction finished:EmptySource
+++ constructing module: TriggerResults
+++ construction finished: TriggerResults
 ++ constructing module: thingWithMergeProducer
 ++ construction finished: thingWithMergeProducer
 ++ constructing module: get
@@ -28,8 +30,6 @@
 ++ construction finished: getInt
 ++ constructing module: dependsOnNoPut
 ++ construction finished: dependsOnNoPut
-++ constructing module: TriggerResults
-++ construction finished: TriggerResults
 ++ constructing module: out
 ++ construction finished: out
 ++ ModuleBeginJob: thingWithMergeProducer
@@ -46,8 +46,6 @@
 ++ ModuleBeginJob finished: getInt
 ++ ModuleBeginJob: noPut
 ++ ModuleBeginJob finished: noPut
-++ ModuleBeginJob: TriggerResults
-++ ModuleBeginJob finished: TriggerResults
 ++ ModuleBeginJob: thingWithMergeProducer
 ++ ModuleBeginJob finished: thingWithMergeProducer
 ++ ModuleBeginJob: test
@@ -60,8 +58,6 @@
 ++ ModuleBeginJob finished: getInt
 ++ ModuleBeginJob: dependsOnNoPut
 ++ ModuleBeginJob finished: dependsOnNoPut
-++ ModuleBeginJob: TriggerResults
-++ ModuleBeginJob finished: TriggerResults
 ++ ModuleBeginJob: out
 ++ ModuleBeginJob finished: out
 ++ Job started
@@ -3791,8 +3787,6 @@
 ++ ModuleEndJob finished: getInt
 ++ ModuleEndJob: noPut
 ++ ModuleEndJob finished: noPut
-++ ModuleEndJob: TriggerResults
-++ ModuleEndJob finished: TriggerResults
 ++ ModuleEndJob: thingWithMergeProducer
 ++ ModuleEndJob finished: thingWithMergeProducer
 ++ ModuleEndJob: test
@@ -3805,8 +3799,6 @@
 ++ ModuleEndJob finished: getInt
 ++ ModuleEndJob: dependsOnNoPut
 ++ ModuleEndJob finished: dependsOnNoPut
-++ ModuleEndJob: TriggerResults
-++ ModuleEndJob finished: TriggerResults
 ++ ModuleEndJob: out
 ++ ModuleEndJob finished: out
 ++ Job ended

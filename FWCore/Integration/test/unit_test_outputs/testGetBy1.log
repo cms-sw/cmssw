@@ -2,6 +2,8 @@
 Module type=IntSource, Module label=source, Parameter Set ID=031810a3ee2992e7936b85708f83a8b2
 ++ construction finished:IntSource
 Module type=IntSource, Module label=source, Parameter Set ID=031810a3ee2992e7936b85708f83a8b2
+++ constructing module: TriggerResults
+++ construction finished: TriggerResults
 ++ constructing module: intProducer
 ++ construction finished: intProducer
 ++ constructing module: a1
@@ -10,8 +12,6 @@ Module type=IntSource, Module label=source, Parameter Set ID=031810a3ee2992e7936
 ++ construction finished: a2
 ++ constructing module: a3
 ++ construction finished: a3
-++ constructing module: TriggerResults
-++ construction finished: TriggerResults
 ++ constructing module: out
 ++ construction finished: out
 ++ constructing module: intProducerA
@@ -22,18 +22,6 @@ Module type=IntProducer, Module label=intProducerA, Parameter Set ID=38971365e81
 ++ construction finished: intProducerU
 ++ constructing module: intVectorProducer
 ++ construction finished: intVectorProducer
-++ ModuleBeginJob: intProducer
-++ ModuleBeginJob finished: intProducer
-++ ModuleBeginJob: a1
-++ ModuleBeginJob finished: a1
-++ ModuleBeginJob: a2
-++ ModuleBeginJob finished: a2
-++ ModuleBeginJob: a3
-++ ModuleBeginJob finished: a3
-++ ModuleBeginJob: TriggerResults
-++ ModuleBeginJob finished: TriggerResults
-++ ModuleBeginJob: out
-++ ModuleBeginJob finished: out
 ++ ModuleBeginJob: intProducerA
 Module type=IntProducer, Module label=intProducerA, Parameter Set ID=38971365e8174cb2ccc12430661ba6d4
 ++ ModuleBeginJob finished: intProducerA
@@ -42,6 +30,16 @@ Module type=IntProducer, Module label=intProducerA, Parameter Set ID=38971365e81
 ++ ModuleBeginJob finished: intProducerU
 ++ ModuleBeginJob: intVectorProducer
 ++ ModuleBeginJob finished: intVectorProducer
+++ ModuleBeginJob: intProducer
+++ ModuleBeginJob finished: intProducer
+++ ModuleBeginJob: a1
+++ ModuleBeginJob finished: a1
+++ ModuleBeginJob: a2
+++ ModuleBeginJob finished: a2
+++ ModuleBeginJob: a3
+++ ModuleBeginJob finished: a3
+++ ModuleBeginJob: out
+++ ModuleBeginJob finished: out
 ++ Job started
 ++++ ModuleBeginStream: intProducer
 ++++ ModuleBeginStream finished
@@ -899,6 +897,14 @@ Module type=IntProducer, Module label=intProducerA, Parameter Set ID=38971365e81
 ++++ ModuleEndStream finished
 ++++ ModuleEndStream: 
 ++++ ModuleEndStream finished
+++ ModuleEndJob: intProducerA
+Module type=IntProducer, Module label=intProducerA, Parameter Set ID=38971365e8174cb2ccc12430661ba6d4
+++ ModuleEndJob finished: intProducerA
+Module type=IntProducer, Module label=intProducerA, Parameter Set ID=38971365e8174cb2ccc12430661ba6d4
+++ ModuleEndJob: intProducerU
+++ ModuleEndJob finished: intProducerU
+++ ModuleEndJob: intVectorProducer
+++ ModuleEndJob finished: intVectorProducer
 ++ ModuleEndJob: intProducer
 ++ ModuleEndJob finished: intProducer
 ++ ModuleEndJob: a1
@@ -910,16 +916,6 @@ TestFindProduct sum = 300
 ++ ModuleEndJob: a3
 TestFindProduct sum = 300
 ++ ModuleEndJob finished: a3
-++ ModuleEndJob: TriggerResults
-++ ModuleEndJob finished: TriggerResults
 ++ ModuleEndJob: out
 ++ ModuleEndJob finished: out
-++ ModuleEndJob: intProducerA
-Module type=IntProducer, Module label=intProducerA, Parameter Set ID=38971365e8174cb2ccc12430661ba6d4
-++ ModuleEndJob finished: intProducerA
-Module type=IntProducer, Module label=intProducerA, Parameter Set ID=38971365e8174cb2ccc12430661ba6d4
-++ ModuleEndJob: intProducerU
-++ ModuleEndJob finished: intProducerU
-++ ModuleEndJob: intVectorProducer
-++ ModuleEndJob finished: intVectorProducer
 ++ Job ended
