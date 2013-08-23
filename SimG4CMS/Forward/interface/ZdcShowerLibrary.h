@@ -44,7 +44,7 @@ public:
 
   void                        initRun(G4ParticleTable * theParticleTable);
   std::vector<Hit>&           getHits(G4Step * aStep, bool & ok);
-  int                         getEnergyFromLibrary(G4ThreeVector posHit, G4ThreeVector momDir, double energy,
+  int                         getEnergyFromLibrary(const G4ThreeVector& posHit, const G4ThreeVector& momDir, double energy,
                                                    G4int parCode,HcalZDCDetId::Section section, bool side, int channel);
   int                         photonFluctuation(double eav, double esig,double edis);
   int                         encodePartID(G4int parCode);

@@ -13,7 +13,7 @@ GaussNoiseFP420::GaussNoiseFP420(int ns, float nrms, float th, bool aNpixel, int
 
 
 PileUpFP420::signal_map_type 
-GaussNoiseFP420::addNoise(PileUpFP420::signal_map_type in){
+GaussNoiseFP420::addNoise(const PileUpFP420::signal_map_type& in){
   
   PileUpFP420::signal_map_type _signal;  
   

@@ -45,7 +45,7 @@ class TrackAssociatorByChi2 : public TrackAssociatorBase {
   typedef std::vector< RecoToSimPair > RecoToSimPairAssociation;
 
   /// Constructor with PSet
-  TrackAssociatorByChi2(const edm::ESHandle<MagneticField> mF, edm::ParameterSet conf):
+  TrackAssociatorByChi2(const edm::ESHandle<MagneticField> mF, const edm::ParameterSet& conf):
     chi2cut(conf.getParameter<double>("chi2cut")),
     onlyDiagonal(conf.getParameter<bool>("onlyDiagonal")),
     bsSrc(conf.getParameter<edm::InputTag>("beamSpot")) {
@@ -57,7 +57,7 @@ class TrackAssociatorByChi2 : public TrackAssociatorBase {
   }
 
   /// Constructor with magnetic field, double, bool and InputTag
-  TrackAssociatorByChi2(const edm::ESHandle<MagneticField> mF, double chi2Cut, bool onlyDiag, edm::InputTag beamspotSrc){
+  TrackAssociatorByChi2(const edm::ESHandle<MagneticField> mF, double chi2Cut, bool onlyDiag, const edm::InputTag& beamspotSrc){
     chi2cut=chi2Cut;
     onlyDiagonal=onlyDiag;
     theMF=mF;  
@@ -70,9 +70,9 @@ class TrackAssociatorByChi2 : public TrackAssociatorBase {
   /// compare reco::TrackCollection and edm::SimTrackContainer iterators: returns the chi2
   double compareTracksParam(reco::TrackCollection::const_iterator, 
 			    edm::SimTrackContainer::const_iterator, 
-			    const math::XYZTLorentzVectorD, 
-			    GlobalVector,
-			    reco::TrackBase::CovarianceMatrix,
+			    const math::XYZTLorentzVectorD&, 
+			    const GlobalVector&,
+			    const reco::TrackBase::CovarianceMatrix&,
 			    const reco::BeamSpot&) const;
 
   /// compare collections reco to sim
@@ -95,8 +95,8 @@ class TrackAssociatorByChi2 : public TrackAssociatorBase {
 			    const reco::BeamSpot&) const;
 
   /// propagate the track parameters of TrackinParticle from production vertex to the point of closest approach to the beam line. 
-  std::pair<bool,reco::TrackBase::ParameterVector> parametersAtClosestApproach(Basic3DVector<double>,// vertex
-									       Basic3DVector<double>,// momAtVtx
+  std::pair<bool,reco::TrackBase::ParameterVector> parametersAtClosestApproach(const Basic3DVector<double>&,// vertex
+									       const Basic3DVector<double>&,// momAtVtx
 									       float,// charge
 									       const reco::BeamSpot&) const;//beam spot
   /// Association Reco To Sim with Collections

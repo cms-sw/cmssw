@@ -18,7 +18,7 @@ HcalTestNumberingScheme::~HcalTestNumberingScheme() {
   edm::LogInfo("HcalSim") << "Deleting HcalTestNumberingScheme";
 }
 
-uint32_t HcalTestNumberingScheme::getUnitID(const HcalNumberingFromDDD::HcalID 
+uint32_t HcalTestNumberingScheme::getUnitID(const HcalNumberingFromDDD::HcalID& 
 					    id) {
 
   //pack it into an integer

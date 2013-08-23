@@ -18,7 +18,7 @@ public:
   //-------------------------
   // Constructor, destructor
   //-------------------------
-  GflashHadronShowerProfile (edm::ParameterSet parSet);
+  GflashHadronShowerProfile (const edm::ParameterSet& parSet);
   virtual ~GflashHadronShowerProfile ();
 
   void initialize(int showerType, double energy, double globalTime, double charge,
@@ -34,7 +34,7 @@ protected:
   double hoProfile(double pathLength, double refDepth);
   void doCholeskyReduction(double **cc, double **vv, const int ndim);
   void getFluctuationVector(double *lowTriangle, double *correlationVector);
-  void setEnergyScale(double einc, Gflash3Vector ssp);
+  void setEnergyScale(double einc, const Gflash3Vector& ssp);
 
   int getNumberOfSpots(Gflash::CalorimeterNumber kCalor);
   double medianLateralArm(double depth, Gflash::CalorimeterNumber kCalor);

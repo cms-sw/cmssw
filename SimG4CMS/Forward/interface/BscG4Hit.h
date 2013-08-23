@@ -33,13 +33,13 @@ public:
 public:
   
   G4ThreeVector   getEntry() const;
-  void         setEntry(G4ThreeVector xyz);
+  void         setEntry(const G4ThreeVector& xyz);
   
   G4ThreeVector    getEntryLocalP() const;
-  void         setEntryLocalP(G4ThreeVector xyz1);
+  void         setEntryLocalP(const G4ThreeVector& xyz1);
 
   G4ThreeVector    getExitLocalP() const;
-  void         setExitLocalP(G4ThreeVector xyz1);
+  void         setExitLocalP(const G4ThreeVector& xyz1);
 
   double       getEM() const;
   void         setEM (double e);

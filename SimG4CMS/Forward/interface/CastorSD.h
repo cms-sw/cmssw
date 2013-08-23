@@ -42,7 +42,7 @@ private:
 
   void                    getFromLibrary(G4Step*);
   int                     setTrackID(G4Step*);
-  uint32_t                rotateUnitID(uint32_t, G4Track*, CastorShowerEvent);
+  uint32_t                rotateUnitID(uint32_t, G4Track*, const CastorShowerEvent&);
   CastorNumberingScheme * numberingScheme;
   CastorShowerLibrary *   showerLibrary;
   G4LogicalVolume         *lvC3EF, *lvC3HF, *lvC4EF, *lvC4HF;

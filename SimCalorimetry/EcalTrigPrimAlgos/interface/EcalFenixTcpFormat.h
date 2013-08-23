@@ -24,7 +24,7 @@ class EcalFenixTcpFormat  {
  public:
   EcalFenixTcpFormat(bool tccFormat, bool debug, bool famos, int binOfMax); 
   virtual ~EcalFenixTcpFormat();
-  virtual std::vector<int> process(std::vector<int>,std::vector<int>) {  std::vector<int> v;return v;}
+  virtual std::vector<int> process(const std::vector<int>&,const std::vector<int>&) {  std::vector<int> v;return v;}
   void process(std::vector<int> &Et, std::vector<int> &fgvb, std::vector<int> &sfgvb, int eTTotShift, std::vector<EcalTriggerPrimitiveSample> & out, std::vector<EcalTriggerPrimitiveSample> & outTcc, bool isInInnerRings) ;
   void setParameters(uint32_t towid,const EcalTPGLutGroup *ecaltpgLutGroup,const EcalTPGLutIdMap *ecaltpgLut, const EcalTPGTowerStatus *ecaltpgbadTT, const EcalTPGSpike * ecaltpgSpike);
 

@@ -42,9 +42,9 @@ public:
   inline void setTowerId(G4int tower)    {theTowerId = tower;}
   inline void setDepth(G4int depth)      {theDepth = depth;}
   inline void setNpe(G4int npe)          {theNpe = npe;}
-  inline void setPos(math::XYZPoint xyz) {theHitPos = xyz;}
+  inline void setPos(const math::XYZPoint& xyz) {theHitPos = xyz;}
   inline void setTime(G4double t)        {theTime = t; }
-  inline void setPhoton(std::vector<HFShowerPhoton> photon) {thePhoton = photon; }
+  inline void setPhoton(const std::vector<HFShowerPhoton>& photon) {thePhoton = photon; }
       
   inline G4int towerId()  const       {return theTowerId;}
   inline G4int depth()    const       {return theDepth;}
