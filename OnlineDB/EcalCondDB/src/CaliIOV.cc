@@ -25,7 +25,7 @@ CaliIOV::~CaliIOV()
 
 
 
-void CaliIOV::setSince(Tm since)
+void CaliIOV::setSince(const Tm& since)
 {
   if (since != m_since) {
     m_ID = 0;
@@ -42,7 +42,7 @@ Tm CaliIOV::getSince() const
 
 
 
-void CaliIOV::setTill(Tm till)
+void CaliIOV::setTill(const Tm& till)
 {
   if (till != m_till) {
     m_ID = 0;
@@ -59,7 +59,7 @@ Tm CaliIOV::getTill() const
 
 
 
-void CaliIOV::setCaliTag(CaliTag tag)
+void CaliIOV::setCaliTag(const CaliTag& tag)
 {
   if (tag != m_caliTag) {
     m_ID = 0;
@@ -212,7 +212,7 @@ int CaliIOV::writeDB()
 
 
 
-void CaliIOV::setByTm(CaliTag* tag, Tm eventTm)
+void CaliIOV::setByTm(CaliTag* tag, const Tm& eventTm)
   throw(std::runtime_error)
 {
   this->checkConnection();

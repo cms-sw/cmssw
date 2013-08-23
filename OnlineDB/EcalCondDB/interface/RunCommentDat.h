@@ -21,7 +21,7 @@ class RunCommentDat : public IDataItem {
   inline std::string getSource() const { return m_source; }
   inline void setComment(std::string x) { m_comment = x; }
   inline std::string getComment() const { return m_comment; }
-  inline void setDBTime(Tm x) {m_time=x;}
+  inline void setDBTime(const Tm& x) {m_time=x;}
   inline Tm getDBTime() const {return m_time;}
 
  private:

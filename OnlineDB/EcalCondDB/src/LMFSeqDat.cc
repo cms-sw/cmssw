@@ -212,7 +212,7 @@ std::map<int, LMFSeqDat> LMFSeqDat::fetchByRunIOV(int par,
   return fetchByRunIOV(pars, sql, method);
 }
 
-std::map<int, LMFSeqDat> LMFSeqDat::fetchByRunIOV(std::vector<std::string> pars, 
+std::map<int, LMFSeqDat> LMFSeqDat::fetchByRunIOV(const std::vector<std::string>& pars, 
 						  std::string sql,
 						  std::string method)
   throw(std::runtime_error)
@@ -300,7 +300,7 @@ std::map<int, LMFSeqDat> LMFSeqDat::fetchByRunNumber(int runno) {
 		       "fetchByRunNumber");
 }
 
-LMFSeqDat LMFSeqDat::fetchByRunNumber(int runno, Tm taken_at) {
+LMFSeqDat LMFSeqDat::fetchByRunNumber(int runno, const Tm& taken_at) {
   return fetchByRunNumber(runno, taken_at.str());
 }
 

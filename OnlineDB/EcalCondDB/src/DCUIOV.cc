@@ -25,7 +25,7 @@ DCUIOV::~DCUIOV()
 
 
 
-void DCUIOV::setSince(Tm since)
+void DCUIOV::setSince(const Tm& since)
 {
   if (since != m_since) {
     m_ID = 0;
@@ -42,7 +42,7 @@ Tm DCUIOV::getSince() const
 
 
 
-void DCUIOV::setTill(Tm till)
+void DCUIOV::setTill(const Tm& till)
 {
   if (till != m_till) {
     m_ID = 0;
@@ -59,7 +59,7 @@ Tm DCUIOV::getTill() const
 
 
 
-void DCUIOV::setDCUTag(DCUTag tag)
+void DCUIOV::setDCUTag(const DCUTag& tag)
 {
   if (tag != m_dcuTag) {
     m_ID = 0;
@@ -211,7 +211,7 @@ int DCUIOV::writeDB()
 
 
 
-void DCUIOV::setByTm(DCUTag* tag, Tm eventTm)
+void DCUIOV::setByTm(DCUTag* tag, const Tm& eventTm)
   throw(std::runtime_error)
 {
   this->checkConnection();

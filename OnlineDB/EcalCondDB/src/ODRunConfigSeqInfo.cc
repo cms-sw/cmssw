@@ -29,7 +29,7 @@ ODRunConfigSeqInfo::~ODRunConfigSeqInfo(){}
 
 //
 RunSeqDef ODRunConfigSeqInfo::getRunSeqDef() const {  return m_run_seq;}
-void ODRunConfigSeqInfo::setRunSeqDef(const RunSeqDef run_seq)
+void ODRunConfigSeqInfo::setRunSeqDef(const RunSeqDef& run_seq)
 {
   if (run_seq != m_run_seq) {
     m_run_seq = run_seq;

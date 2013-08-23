@@ -249,7 +249,7 @@ class EcalCondDBInterface : public EcalDBConnection {
   /**
    *   Return a DCU IOV object
    */
-  DCUIOV fetchDCUIOV(DCUTag* tag, Tm evenTm)
+  DCUIOV fetchDCUIOV(DCUTag* tag, const Tm& evenTm)
     throw(std::runtime_error);
 
 
@@ -266,31 +266,31 @@ class EcalCondDBInterface : public EcalDBConnection {
   /**
    *   Return a Calibration IOV object
    */
-  CaliIOV fetchCaliIOV(CaliTag* tag, Tm evenTm)
+  CaliIOV fetchCaliIOV(CaliTag* tag, const Tm& evenTm)
     throw(std::runtime_error);
 
 
  /**
    *   Return a Run List
    */
-  RunList fetchRunList(RunTag tag) throw(std::runtime_error);
-  RunList fetchRunList(RunTag tag, int min_run, int max_run) throw(std::runtime_error);
-  RunList fetchNonEmptyRunList(RunTag tag, int min_run, int max_run) throw(std::runtime_error);
-  RunList fetchNonEmptyGlobalRunList(RunTag tag, int min_run, int max_run) throw(std::runtime_error);
-  RunList fetchRunListByLocation(RunTag tag, int min_run, int max_run , const LocationDef locDef) throw(std::runtime_error);
-  RunList fetchGlobalRunListByLocation(RunTag tag, int min_run, int max_run , const LocationDef locDef) throw(std::runtime_error);
-  RunList fetchRunListLastNRuns(RunTag tag, int max_run, int n_runs) throw(std::runtime_error);
+  RunList fetchRunList(const RunTag& tag) throw(std::runtime_error);
+  RunList fetchRunList(const RunTag& tag, int min_run, int max_run) throw(std::runtime_error);
+  RunList fetchNonEmptyRunList(const RunTag& tag, int min_run, int max_run) throw(std::runtime_error);
+  RunList fetchNonEmptyGlobalRunList(const RunTag& tag, int min_run, int max_run) throw(std::runtime_error);
+  RunList fetchRunListByLocation(const RunTag& tag, int min_run, int max_run , const LocationDef& locDef) throw(std::runtime_error);
+  RunList fetchGlobalRunListByLocation(const RunTag& tag, int min_run, int max_run , const LocationDef& locDef) throw(std::runtime_error);
+  RunList fetchRunListLastNRuns(const RunTag& tag, int max_run, int n_runs) throw(std::runtime_error);
 
  /**
    *   Return a PTM Temp List
    */
 
-  DCSPTMTempList fetchDCSPTMTempList(EcalLogicID ecid)  throw(std::runtime_error);
-  DCSPTMTempList fetchDCSPTMTempList(EcalLogicID ecid, Tm start, Tm end) throw(std::runtime_error);
+  DCSPTMTempList fetchDCSPTMTempList(const EcalLogicID& ecid)  throw(std::runtime_error);
+  DCSPTMTempList fetchDCSPTMTempList(const EcalLogicID& ecid, const Tm& start, const Tm& end) throw(std::runtime_error);
 
-  MonRunList fetchMonRunList(RunTag tag, MonRunTag monruntag) throw(std::runtime_error);
-  MonRunList fetchMonRunList(RunTag tag, MonRunTag monruntag,int min_run, int max_run) throw(std::runtime_error);
-  MonRunList fetchMonRunListLastNRuns(RunTag tag, MonRunTag monruntag, int max_run, int n_runs) throw(std::runtime_error);
+  MonRunList fetchMonRunList(const RunTag& tag, const MonRunTag& monruntag) throw(std::runtime_error);
+  MonRunList fetchMonRunList(const RunTag& tag, const MonRunTag& monruntag,int min_run, int max_run) throw(std::runtime_error);
+  MonRunList fetchMonRunListLastNRuns(const RunTag& tag, const MonRunTag& monruntag, int max_run, int n_runs) throw(std::runtime_error);
 
 
 
@@ -380,7 +380,7 @@ class EcalCondDBInterface : public EcalDBConnection {
   }
 
  template<class DATT, class IOVT>
-  void insertDataSetVector( std::vector<EcalLogicID> ecid, std::vector<IOVT> run_iov, std::vector<DATT> data )
+  void insertDataSetVector( const std::vector<EcalLogicID>& ecid, const std::vector<IOVT>& run_iov, const std::vector<DATT>& data )
     throw(std::runtime_error)
   {
    
@@ -519,7 +519,7 @@ class EcalCondDBInterface : public EcalDBConnection {
    *  insert a config data set array fast
    */
   template<class DATT, class ICONF>
-  void insertConfigDataArraySet(const std::vector< DATT > data, ICONF* iconf)
+  void insertConfigDataArraySet(const std::vector< DATT >& data, ICONF* iconf)
     throw(std::runtime_error)
   {
     try {
@@ -599,7 +599,7 @@ class EcalCondDBInterface : public EcalDBConnection {
    *  Fetch a set of DCS data based on time stamp
    */
   template<class DATT>
-  void fetchDCSDataSet(std::list< std::pair< Tm, std::map<  EcalLogicID, DATT > > >* fillMap, Tm t)
+  void fetchDCSDataSet(std::list< std::pair< Tm, std::map<  EcalLogicID, DATT > > >* fillMap, const Tm& t)
     throw(std::runtime_error)
   {
     fillMap->clear();

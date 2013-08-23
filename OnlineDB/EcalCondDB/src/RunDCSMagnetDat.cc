@@ -29,7 +29,7 @@ RunDCSMagnetDat::~RunDCSMagnetDat()
 {
 }
 
-void RunDCSMagnetDat::setTime(Tm start)
+void RunDCSMagnetDat::setTime(const Tm& start)
 {
     m_time = start;
 }

@@ -82,7 +82,7 @@ class LMFLaserConfigDat : public LMFDat {
     LMFDat::setData(id, "LSR_DELAY_2", d2);
     return *this;
   }
-  LMFLaserConfigDat& setData(EcalLogicID &id, std::vector<float> v) {
+  LMFLaserConfigDat& setData(EcalLogicID &id, const std::vector<float>& v) {
     LMFDat::setData(id, v);
     return *this;
   }

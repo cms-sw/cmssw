@@ -110,7 +110,7 @@ void ODGolBiasCurrentDat::fetchData(std::vector< ODGolBiasCurrentDat >* p, ODGol
 
 //  ************************************************************************   // 
 
-void ODGolBiasCurrentDat::writeArrayDB(const std::vector< ODGolBiasCurrentDat > data, ODGolBiasCurrentInfo* iov)
+void ODGolBiasCurrentDat::writeArrayDB(const std::vector< ODGolBiasCurrentDat >& data, ODGolBiasCurrentInfo* iov)
     throw(std::runtime_error)
 {
   this->checkConnection();

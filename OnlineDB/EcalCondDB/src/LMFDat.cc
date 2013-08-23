@@ -126,7 +126,7 @@ void LMFDat::setWhereClause(std::string where) {
 }
 
 void LMFDat::setWhereClause(std::string where, 
-			    std::vector<std::string> parameters) {
+			    const std::vector<std::string>& parameters) {
   // to be used by experts to restrict the results of a query
   // in this case the where clause can contains positional parameter,
   // identified as :/I, :/S, :/F for, respectively, integer, string or
