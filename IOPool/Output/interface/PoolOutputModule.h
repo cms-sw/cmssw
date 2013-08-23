@@ -21,6 +21,8 @@
 
 class TTree;
 namespace edm {
+
+  class ModuleCallingContext;
   class ParameterSet;
   class RootOutputFile;
   class ConfigurationDescriptions;

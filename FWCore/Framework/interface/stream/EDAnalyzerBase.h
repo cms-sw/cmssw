@@ -53,11 +53,6 @@ namespace edm {
       static const std::string& baseType();
       
     protected:
-      // The returned pointer will be null unless the this is currently
-      // executing its event loop function ('analyze').
-      CurrentProcessingContext const* currentContext() const {
-        return current_context_;
-      }
 
       void callWhenNewProductsRegistered(std::function<void(BranchDescription const&)> const& func);
 
@@ -77,7 +72,6 @@ namespace edm {
       virtual void endStream(){}
 
       // ---------- member data --------------------------------
-      CurrentProcessingContext const* current_context_;
       std::function<void(BranchDescription const&)> callWhenNewProductsRegistered_;
 
     };

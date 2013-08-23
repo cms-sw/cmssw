@@ -59,6 +59,11 @@ namespace edm {
     StreamContext const* getStreamContext() const;
     GlobalContext const* getGlobalContext() const;
 
+    // This function will iterate up a series of linked context objects to
+    // find the highest level ModuleCallingContext. It will often return a
+    // pointer to itself.
+    ModuleCallingContext const* getTopModuleCallingContext() const;
+
   private:
 
     ModuleDescription const* moduleDescription_;

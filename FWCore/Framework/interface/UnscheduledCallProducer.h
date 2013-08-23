@@ -7,7 +7,6 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/OccurrenceTraits.h"
 #include "FWCore/Framework/src/Worker.h"
-#include "FWCore/ServiceRegistry/interface/ModuleCallingContext.h"
 #include "FWCore/ServiceRegistry/interface/ParentContext.h"
 
 #include <map>
@@ -15,6 +14,9 @@
 #include <sstream>
 
 namespace edm {
+
+  class ModuleCallingContext;
+
   class UnscheduledCallProducer : public UnscheduledHandler {
   public:
     UnscheduledCallProducer() : UnscheduledHandler(), labelToWorkers_() {}
@@ -34,7 +36,7 @@ namespace edm {
           CPUTimer timer;
           try {
             ParentContext parentContext(context);
-            it->second->doWork<T>(p, es, nullptr, &timer,streamID, parentContext, topContext);
+            it->second->doWork<T>(p, es, &timer,streamID, parentContext, topContext);
           }
           catch (cms::Exception & ex) {
 	    std::ostringstream ost;
@@ -73,7 +75,6 @@ namespace edm {
     virtual bool tryToFillImpl(std::string const& moduleLabel,
                                EventPrincipal& event,
                                EventSetup const& eventSetup,
-                               CurrentProcessingContext const* iContext,
                                ModuleCallingContext const* mcc) {
       std::map<std::string, Worker*>::const_iterator itFound =
         labelToWorkers_.find(moduleLabel);
@@ -82,7 +83,7 @@ namespace edm {
         try {
           ParentContext parentContext(mcc);
           itFound->second->doWork<OccurrenceTraits<EventPrincipal, BranchActionStreamBegin> >(event,
-              eventSetup, iContext, &timer,event.streamID(), parentContext, mcc->getStreamContext());
+              eventSetup, &timer,event.streamID(), parentContext, mcc->getStreamContext());
         }
         catch (cms::Exception & ex) {
 	  std::ostringstream ost;
