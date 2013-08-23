@@ -13,11 +13,11 @@ PFCandidateRefVector PFTauTagInfo::PFCands()const{
   return thePFCands;
 }
 const PFCandidateRefVector& PFTauTagInfo::PFChargedHadrCands() const {return PFChargedHadrCands_;}
-void  PFTauTagInfo::setPFChargedHadrCands(const PFCandidateRefVector x){PFChargedHadrCands_=x;}
+void  PFTauTagInfo::setPFChargedHadrCands(const PFCandidateRefVector& x){PFChargedHadrCands_=x;}
 const PFCandidateRefVector& PFTauTagInfo::PFNeutrHadrCands() const {return PFNeutrHadrCands_;}
-void  PFTauTagInfo::setPFNeutrHadrCands(const PFCandidateRefVector x){PFNeutrHadrCands_=x;}
+void  PFTauTagInfo::setPFNeutrHadrCands(const PFCandidateRefVector& x){PFNeutrHadrCands_=x;}
 const PFCandidateRefVector& PFTauTagInfo::PFGammaCands() const {return PFGammaCands_;}
-void  PFTauTagInfo::setPFGammaCands(const PFCandidateRefVector x){PFGammaCands_=x;}
+void  PFTauTagInfo::setPFGammaCands(const PFCandidateRefVector& x){PFGammaCands_=x;}
 
 const PFJetRef& PFTauTagInfo::pfjetRef()const{return PFJetRef_;}
 void PFTauTagInfo::setpfjetRef(const PFJetRef x){PFJetRef_=x;}

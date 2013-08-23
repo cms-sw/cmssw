@@ -47,7 +47,7 @@ namespace edm {
     
     // General purpose constructor from two Ptrs.
     template<typename C>
-    FwdPtr(Ptr<C> f, Ptr<C> b):
+    FwdPtr(const Ptr<C>& f, const Ptr<C>& b):
     ptr_(f), backPtr_(b)
     {}
     

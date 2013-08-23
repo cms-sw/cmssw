@@ -111,7 +111,7 @@ class DTRecSegment4D : public RecSegment {
   void setDirection(LocalVector dir) { theDirection = dir; }
 
   /// Set covariance matrix
-  void setCovMatrix(AlgebraicSymMatrix mat) { theCovMatrix = mat; }
+  void setCovMatrix(const AlgebraicSymMatrix& mat) { theCovMatrix = mat; }
 
   /// The (specific) DetId of the chamber on which the segment resides 
   virtual DTChamberId chamberId() const;

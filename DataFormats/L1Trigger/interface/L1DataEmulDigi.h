@@ -22,7 +22,7 @@ class L1DataEmulDigi {
   L1DataEmulDigi(int sid, int cid, double x1, double x2, double x3, int n);
   L1DataEmulDigi(int sid, int cid, double x1, double x2, double x3, int n,
 		 unsigned int dw, unsigned int ew, float dr, float er, 
-		 L1MonitorDigi dm, L1MonitorDigi em); 
+		 const L1MonitorDigi& dm, const L1MonitorDigi& em); 
   ~L1DataEmulDigi();
   
   void setSid (int sid) {m_sid = sid;}
@@ -32,7 +32,7 @@ class L1DataEmulDigi {
   void setType (int n) {m_type = n;}
   void setData(unsigned int d, unsigned int e) {m_data[0]=d; m_data[1]=e;}
   void setRank(float d, float e) {m_rank[0]=d; m_rank[1]=e;}
-  void setDEpair(L1MonitorDigi d, L1MonitorDigi e) 
+  void setDEpair(const L1MonitorDigi& d, const L1MonitorDigi& e) 
     {m_DEpair[0]=d; m_DEpair[1]=e; }
 
   int sid() const {return m_sid;}

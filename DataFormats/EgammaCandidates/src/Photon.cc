@@ -5,7 +5,7 @@
 using namespace reco;
 
 Photon::Photon( const LorentzVector & p4,
-		Point caloPos,
+		const Point& caloPos,
     const PhotonCoreRef & core,
 		const Point & vtx) :
     RecoCandidate( 0, p4, vtx, 22 ),
