@@ -32,7 +32,7 @@ namespace pos{
 		      unsigned int last, unsigned int step,
 		      unsigned int index, bool mixValuesAcrossROCs);
     PixelDACScanRange(std::string name, 
-		      std::vector<unsigned int> values,
+		      const std::vector<unsigned int>& values,
 		      unsigned int index, bool mixValuesAcrossROCs);
 
     std::string name() const { return name_;}

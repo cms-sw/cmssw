@@ -158,8 +158,8 @@ public :
     void SetMinEOverP(Float_t e)                    { MIN_EOVERP = e; }
     void SetMaxEOverP(Float_t e)                    { MAX_EOVERP = e; }
     void SetMaxTrkEmE(Float_t e)                    { MAX_TRK_EME = e; }
-    void SetCalibType(TString s)                    { CALIB_TYPE = s; }
-    void SetCalibMethod(TString s)                  { CALIB_METHOD = s; }  
+    void SetCalibType(const TString& s)                    { CALIB_TYPE = s; }
+    void SetCalibMethod(const TString& s)                  { CALIB_METHOD = s; }  
     void SetHbClusterSize(Int_t i)                  { HB_CLUSTER_SIZE = i; }      
     void SetHeClusterSize(Int_t i)                  { HE_CLUSTER_SIZE = i; }  
 
@@ -171,14 +171,14 @@ public :
     void SetMaxEtThirdJet(Float_t et)               { MAX_ET_THIRD_JET = et; }
     void SetMinDPhiDiJets(Float_t dphi)             { MIN_DPHI_DIJETS = dphi; }
     void SetApplyPhiSymCorFlag(Bool_t b)            { APPLY_PHI_SYM_COR_FLAG = b; }
-    void SetPhiSymCorFileName(TString filename)     { PHI_SYM_COR_FILENAME = filename; }
+    void SetPhiSymCorFileName(const TString& filename)     { PHI_SYM_COR_FILENAME = filename; }
     void SetMaxProbeJetEmFrac(Float_t f)            { MAX_PROBEJET_EMFRAC = f; }
     void SetMaxTagJetEmFrac(Float_t f)              { MAX_TAGJET_EMFRAC = f; }
     void SetMaxTagJetAbsEta(Float_t e)              { MAX_TAGJET_ABSETA = e; }
     void SetMinTagJetEt(Float_t e)                  { MIN_TAGJET_ET = e; }
     void SetMinProbeJetAbsEta(Float_t e)            { MIN_PROBEJET_ABSETA = e; }
-    void SetOutputCorCoefFileName(TString filename) { OUTPUT_COR_COEF_FILENAME = filename; }
-    void SetHistoFileName(TString filename)         { HISTO_FILENAME = filename; }
+    void SetOutputCorCoefFileName(const TString& filename) { OUTPUT_COR_COEF_FILENAME = filename; }
+    void SetHistoFileName(const TString& filename)         { HISTO_FILENAME = filename; }
 
 
     void SetCaloGeometry (const CaloGeometry* g, const HcalTopology* topo)    { theCaloGeometry = g; topo_=topo; }

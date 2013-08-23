@@ -1,8 +1,8 @@
 #include "Calibration/EcalCalibAlgos/interface/VFillMap.h"
 
 	VFillMap::VFillMap (int WindowX,int WindowY,
-			std::map<int,int> xtalReg,double minE,
-			double maxE, std::map<int,int> RingReg,
+			const std::map<int,int>& xtalReg,double minE,
+			double maxE, const std::map<int,int>& RingReg,
 			EcalIntercalibConstantMap * barrelMap,
 			EcalIntercalibConstantMap * endcapMap):
 	m_recoWindowSidex (WindowX),
