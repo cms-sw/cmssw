@@ -72,7 +72,7 @@ namespace edm
     //shmdt(shmBuffer_);
   }
 
-  void FUShmOutputModule::insertStreamAndDatasetInfo(edm::ParameterSet & streams, edm::ParameterSet datasets)
+  void FUShmOutputModule::insertStreamAndDatasetInfo(edm::ParameterSet & streams,const edm::ParameterSet& datasets)
   {
     if (numDatasets_) return;
     try {

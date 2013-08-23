@@ -74,7 +74,7 @@ namespace reco {
                 return std::pair<AnyMethodArgument,int>(t,-1);
             }
         public:
-            AnyMethodArgumentFixup(edm::TypeWithDict type) : 
+            AnyMethodArgumentFixup(const edm::TypeWithDict& type) : 
                 dataType_(type),
                 type_(type.typeInfo())
             {

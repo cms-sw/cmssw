@@ -37,7 +37,7 @@ private:
 	void getRawIDsAdvanced(const edm::Event& iEvent, const edm::EventSetup& iConfig, std::vector<uint32_t> * L, reco::Muon * muon, bool includeHCAL);
 	int determineMuonsToUse(const edm::Event& iEvent, const edm::EventSetup& iConfig, reco::Muon * muon1, reco::Muon * muon2);
 	int determineMuonsToUse_old(const edm::Event& iEvent, const edm::EventSetup& iConfig, reco::Muon * muon1, reco::Muon * muon2);
-	template < typename T > void ProductNotFound(const edm::Event& iEvent, edm::InputTag inputTag);
+	template < typename T > void ProductNotFound(const edm::Event& iEvent, const edm::InputTag& inputTag);
 	void transformMuMu2TauTau(reco::Muon * muon1, reco::Muon * muon2);
 	
 	// ----------member data ---------------------------

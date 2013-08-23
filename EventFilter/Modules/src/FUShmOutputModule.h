@@ -63,7 +63,7 @@ namespace edm
     FUShmOutputModule(edm::ParameterSet const& ps);
     ~FUShmOutputModule();
 
-    void insertStreamAndDatasetInfo(edm::ParameterSet & streams, edm::ParameterSet datasets/*std:std::string & moduleList*/);
+    void insertStreamAndDatasetInfo(edm::ParameterSet & streams,const edm::ParameterSet& datasets/*std:std::string & moduleList*/);
     void doOutputHeader(InitMsgBuilder const& initMessage);
     void doOutputEvent(EventMsgBuilder const& eventMessage);
     unsigned int getCounts(){

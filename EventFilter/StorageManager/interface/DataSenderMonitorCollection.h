@@ -195,7 +195,7 @@ namespace stor {
 
       explicit ResourceBrokerRecord
       (
-        ResourceBrokerKey rbKey,
+        const ResourceBrokerKey& rbKey,
         const utils::Duration_t& updateInterval
       ) :
         key(rbKey),

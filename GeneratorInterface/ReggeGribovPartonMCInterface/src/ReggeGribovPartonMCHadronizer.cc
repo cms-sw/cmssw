@@ -211,7 +211,7 @@ const char* ReggeGribovPartonMCHadronizer::classname() const
    return "gen::ReggeGribovPartonMCHadronizer";
 }
 
-bool ReggeGribovPartonMCHadronizer::declareStableParticles ( const std::vector<int> )
+bool ReggeGribovPartonMCHadronizer::declareStableParticles ( const std::vector<int>& )
 {
  return true;
  }
