@@ -93,7 +93,7 @@ class FourVectorHLTOnline : public edm::EDAnalyzer {
       // EndRun
       void endRun(const edm::Run& run, const edm::EventSetup& c);
       void fillHltMatrix(const edm::TriggerNames & triggerNames);
-      void setupHltMatrix(std::string label, std::vector<std::string>  paths);
+      void setupHltMatrix(std::string label, const std::vector<std::string>&  paths);
 
       void setupHltLsPlots();
       void setupHltBxPlots();
@@ -595,9 +595,9 @@ public:
      EtMin_= etMin; 
      DRMatch_= drMatch;
     }
-    void setTriggerType(std::vector<int> trigType) { triggerType_ = trigType; }
+    void setTriggerType(const std::vector<int>& trigType) { triggerType_ = trigType; }
     void pushTriggerType(int trigType) { triggerType_.push_back(trigType); }
-    void setL1TriggerType(std::vector<int> trigType) { l1triggerType_ = trigType; }
+    void setL1TriggerType(const std::vector<int>& trigType) { l1triggerType_ = trigType; }
     void pushL1TriggerType(int trigType) { l1triggerType_.push_back(trigType); }
     void setPath(FourVectorHLTOnline::PathInfoCollection::iterator v) { v_ = v; }
     void setReco(edm::Handle<T> offColl) { offColl_ = offColl; }

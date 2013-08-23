@@ -588,8 +588,9 @@ void HLTScalersClient::analyze(const edm::Event& e, const edm::EventSetup& c )
 // note that the data is in units of counts, ls number
 // but we return a value in Hz...
 std::pair<double,double>
-HLTScalersClient::getSlope_(HLTScalersClient::CountLSFifo_t points)
+HLTScalersClient::getSlope_(const HLTScalersClient::CountLSFifo_t& _points)
 {
+  HLTScalersClient::CountLSFifo_t points = _points;
   double slope, sigma_m;
   if ( points.size() < points.targetSize() ) {
     return std::pair<double,double>(-1,-1);

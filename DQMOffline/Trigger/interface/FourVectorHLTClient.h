@@ -67,7 +67,7 @@ private:
 
   void initialize();
   void calculateRatio(TH1F* effHist, TH1F* denHist); 
-  TString removeVersions(TString histVersion);
+  TString removeVersions(const TString& histVersion);
 
   TH1F * get1DHisto(std::string meName, DQMStore * dbi);
   TH2F * get2DHisto(std::string meName, DQMStore * dbi);

@@ -129,7 +129,7 @@ class TopElectronHLTOfflineSource : public edm::EDAnalyzer
 
     };
 
-  virtual void setupHistos(const std::vector<EleMEs>);
+  virtual void setupHistos(const std::vector<EleMEs>&);
   void fill(EleMEs& eleMEs, const edm::Event& iEvent, size_t eleIndex,  const std::vector<const trigger::TriggerObject*>& triggerJets, const std::vector<const trigger::TriggerObject*>& triggerElectrons, const reco::Vertex::Point& vertexPoint);
   
   

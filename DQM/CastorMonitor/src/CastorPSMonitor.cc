@@ -170,7 +170,7 @@ void CastorPSMonitor::beginRun(const edm::Run& iRun, const edm::EventSetup& iSet
 //================== processEvent ==========================//
 //==========================================================//
 
-void CastorPSMonitor::processEvent(const CastorDigiCollection& castorDigis, const CastorDbService& conditions, std::vector<HcalGenericDetId> listEMap, int iBunch, float PedSigmaInChannel[14][16])
+void CastorPSMonitor::processEvent(const CastorDigiCollection& castorDigis, const CastorDbService& conditions, const std::vector<HcalGenericDetId>& listEMap, int iBunch, float PedSigmaInChannel[14][16])
   {   
   if(fVerbosity>0) std::cout << "CastorPSMonitor::processEvent (begin)" << std::endl;
  

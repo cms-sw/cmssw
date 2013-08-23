@@ -75,7 +75,7 @@ class DTChamberEfficiency : public edm::EDAnalyzer
 
 
   void bookHistos();
-  MeasurementContainer segQualityCut(const MeasurementContainer seg_list) const;
+  MeasurementContainer segQualityCut(const MeasurementContainer& seg_list) const;
   bool chamberSelection(const DetId& idDetLay, reco::TransientTrack& trans_track) const;
   inline edm::ESHandle<Propagator> propagator() const;
 

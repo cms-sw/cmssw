@@ -80,8 +80,8 @@ class L1TMenuHelper {
     ~L1TMenuHelper();                             // Destructor
 
     // Get Lowest Unprescaled Single Object Triggers
-    std::map<std::string,std::string> getLUSOTrigger(std::map<std::string,bool> iCategories, int IndexRefPrescaleFactors);
-    std::map<std::string,std::string> testAlgos     (std::map<std::string,std::string>);
+    std::map<std::string,std::string> getLUSOTrigger(const std::map<std::string,bool>& iCategories, int IndexRefPrescaleFactors);
+    std::map<std::string,std::string> testAlgos     (const std::map<std::string,std::string>&);
     
 
     // To convert enum to strings
@@ -90,9 +90,9 @@ class L1TMenuHelper {
     std::string enumToStringL1GtConditionCategory(L1GtConditionCategory iConditionCategory);
 
     // Getters
-    int  getPrescaleByAlias(TString iCategory, TString iAlias);
-    unsigned int getEtaRangeByAlias(TString iCategory, TString iAlias);    
-    unsigned int getQualityAlias   (TString iCategory, TString iAlias);
+    int  getPrescaleByAlias(const TString& iCategory, const TString& iAlias);
+    unsigned int getEtaRangeByAlias(const TString& iCategory, const TString& iAlias);    
+    unsigned int getQualityAlias   (const TString& iCategory, const TString& iAlias);
 
   private:
 

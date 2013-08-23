@@ -484,8 +484,8 @@ void HLTMonBitSummary::endJob() {
 }
 
 
-void HLTMonBitSummary::configSelector(std::vector<std::string> selectTriggers, std::vector<std::string > & theSelectTriggers){
-
+void HLTMonBitSummary::configSelector(const std::vector<std::string>& _selectTriggers, std::vector<std::string > & theSelectTriggers){
+  std::vector<std::string> selectTriggers =  _selectTriggers;
   //get the configuration
   std::vector<std::string> validTriggerNames = hltConfig_.triggerNames(); 
   

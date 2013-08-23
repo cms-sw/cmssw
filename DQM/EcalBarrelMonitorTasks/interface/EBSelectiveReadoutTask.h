@@ -252,7 +252,7 @@ int dccIndex(int i, int j) const;
  * the hardware representation.
  * @param weightsForZsFIR weights from configuration file
  */
-void configFirWeights(std::vector<double> weightsForZsFIR);
+void configFirWeights(const std::vector<double>& weightsForZsFIR);
 
 /** Emulates the DCC zero suppression FIR filter. If one of the time sample
  * is not in gain 12, numeric_limits<int>::max() is returned.

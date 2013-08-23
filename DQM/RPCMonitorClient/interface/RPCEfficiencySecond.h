@@ -38,7 +38,7 @@ class RPCEfficiencySecond : public edm::EDAnalyzer {
    public:
       explicit RPCEfficiencySecond(const edm::ParameterSet&);
       ~RPCEfficiencySecond();
-      int rollY(std::string shortname,std::vector<std::string> rollNames);
+      int rollY(std::string shortname,const std::vector<std::string>& rollNames);
   
  /*  TFile * theFile; */
 /*   TFile * theFileout; */

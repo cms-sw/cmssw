@@ -347,8 +347,9 @@ DTCalibValidation::recHitPosition(const DTRecHit1D& recHit, const DTLayer* layer
 template  <typename type>
 void DTCalibValidation::compute(const DTGeometry *dtGeom,
                               const DTRecSegment4D& segment,
-                              std::map<DTWireId, std::vector<type> > recHitsPerWire,
+                              const std::map<DTWireId, std::vector<type> >& _recHitsPerWire,
                               int step) {
+  std::map<DTWireId, std::vector<type> > recHitsPerWire = _recHitsPerWire;
   bool computeResidual = true;
   
   // Get all 1D RecHits at step 3 within the 4D segment
