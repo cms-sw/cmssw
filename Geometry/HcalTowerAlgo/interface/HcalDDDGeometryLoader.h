@@ -41,7 +41,7 @@ private:
   void fill(HcalSubdetector, HcalDDDGeometry*, CaloSubdetectorGeometry*);
   
   void makeCell( const HcalDetId &, 
-		 HcalCellType, double, 
+		 const HcalCellType&, double, 
 		 double, CaloSubdetectorGeometry* geom) const;
   
   HcalNumberingFromDDD* numberingFromDDD;

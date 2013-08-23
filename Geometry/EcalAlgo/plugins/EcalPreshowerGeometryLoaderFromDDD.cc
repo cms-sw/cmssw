@@ -12,7 +12,7 @@ EcalPGL::fillGeom( EcalPreshowerGeometry*      geom ,
 		   const DetId&                id     );
 template <>
 void 
-EcalPGL::fillNamedParams( DDFilteredView         /*fv*/   ,
+EcalPGL::fillNamedParams(const DDFilteredView&         /*fv*/   ,
 			  EcalPreshowerGeometry* /*geom*/  );
 
 #include "Geometry/CaloEventSetup/interface/CaloGeometryLoader.icc"
@@ -72,7 +72,7 @@ EcalPGL::fillGeom( EcalPreshowerGeometry*      geom ,
 
 template <>
 void 
-EcalPGL::fillNamedParams( DDFilteredView         /*fv*/   ,
+EcalPGL::fillNamedParams(const DDFilteredView&         /*fv*/   ,
 			  EcalPreshowerGeometry* /*geom*/  )
 {
    // nothing yet for preshower
