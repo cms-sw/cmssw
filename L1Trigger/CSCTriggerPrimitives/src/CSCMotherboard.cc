@@ -514,11 +514,14 @@ std::vector<CSCCorrelatedLCTDigi> CSCMotherboard::getLCTs() {
   return tmpV;
 }
 
-void CSCMotherboard::correlateLCTs(CSCALCTDigi bestALCT,
-                                   CSCALCTDigi secondALCT,
-                                   CSCCLCTDigi bestCLCT,
-                                   CSCCLCTDigi secondCLCT) {
-
+void CSCMotherboard::correlateLCTs(const CSCALCTDigi& _bestALCT,
+                                   const CSCALCTDigi& _secondALCT,
+                                   const CSCCLCTDigi& _bestCLCT,
+                                   const CSCCLCTDigi& _secondCLCT) {
+  CSCALCTDigi bestALCT 	  = _bestALCT;
+  CSCALCTDigi secondALCT  = _secondALCT;
+  CSCCLCTDigi bestCLCT	  = _bestCLCT;
+  CSCCLCTDigi secondCLCT  = _secondCLCT;
   bool anodeBestValid     = bestALCT.isValid();
   bool anodeSecondValid   = secondALCT.isValid();
   bool cathodeBestValid   = bestCLCT.isValid();

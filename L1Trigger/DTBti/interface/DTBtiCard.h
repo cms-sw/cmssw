@@ -97,10 +97,10 @@ class DTBtiCard : public BTICache, public DTGeomSupplier {
      * Returns a DTBtiTrig corresponding to a DTBtiTrigData.
      * Creates the corresponding BTI chip if needed and stores the trigger
      */
-    DTBtiTrig* storeTrigger(DTBtiTrigData);
+    DTBtiTrig* storeTrigger(const DTBtiTrigData&);
 
     // run the trigger algorithm
-    virtual void reconstruct(const DTDigiCollection dtDigis) { clearCache();loadBTI(dtDigis); runBTI(); }
+    virtual void reconstruct(const DTDigiCollection& dtDigis) { clearCache();loadBTI(dtDigis); runBTI(); }
  
     /// Return bti chip configuration
     DTConfigBti* config_bti(DTBtiId& btiid) const;
@@ -111,7 +111,7 @@ class DTBtiCard : public BTICache, public DTGeomSupplier {
  private:
 
     /// store digi's in DTBtiChip's
-    void loadBTI(const DTDigiCollection dtDigis);
+    void loadBTI(const DTDigiCollection& dtDigis);
 
     /// run DTBtiChip algorithm
     void runBTI();

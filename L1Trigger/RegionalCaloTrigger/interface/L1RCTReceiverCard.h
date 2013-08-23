@@ -76,9 +76,9 @@ class L1RCTReceiverCard {
  
   std::vector<L1RCTRegion> regions;
   
-  unsigned short calcRegionSum(L1RCTRegion region);
-  unsigned short calcTauBit(L1RCTRegion region);
-  unsigned short calcMuonBit(L1RCTRegion region);
+  unsigned short calcRegionSum(const L1RCTRegion& region);
+  unsigned short calcTauBit(const L1RCTRegion& region);
+  unsigned short calcMuonBit(const L1RCTRegion& region);
   unsigned short crtNo;
   unsigned short cardNo;
 

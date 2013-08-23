@@ -325,7 +325,7 @@ DTTracoCard::tracoList() {
 }
 
 DTTracoTrig*
-DTTracoCard::storeTrigger(DTTracoTrigData td) {
+DTTracoCard::storeTrigger(const DTTracoTrigData& td) {
   DTTracoId tracoid = td.parentId();
   if(!(tracoid.wheel()==wheel() &&
        tracoid.sector()==sector() &&

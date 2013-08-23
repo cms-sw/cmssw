@@ -226,14 +226,14 @@ int DTConfigManager::getBXOffset() const {
 
 }
 
-void DTConfigManager::setDTConfigBti(DTBtiId btiid,DTConfigBti conf){
+void DTConfigManager::setDTConfigBti(DTBtiId btiid,const DTConfigBti& conf){
 
   DTChamberId chambid = btiid.SLId().chamberId();
   my_btimap[chambid][btiid] = conf;
 
 }  
 
-void DTConfigManager::setDTConfigTraco(DTTracoId tracoid,DTConfigTraco conf){
+void DTConfigManager::setDTConfigTraco(DTTracoId tracoid,const DTConfigTraco& conf){
 
   DTChamberId chambid = tracoid.ChamberId();
   my_tracomap[chambid][tracoid] = conf;

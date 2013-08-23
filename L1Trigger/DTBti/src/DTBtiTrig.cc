@@ -95,7 +95,7 @@ DTBtiTrig::DTBtiTrig(DTBtiChip* tparent,
 
 }
 
-DTBtiTrig::DTBtiTrig(DTBtiChip* parent, DTBtiTrigData data) :
+DTBtiTrig::DTBtiTrig(DTBtiChip* parent, const DTBtiTrigData& data) :
                              _tparent(parent), _data(data) {
 
   // reserve the appropriate amount of space for vectors

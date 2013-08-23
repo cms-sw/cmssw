@@ -515,13 +515,17 @@ bool CSCMotherboardME11::doesALCTCrossCLCT(CSCALCTDigi &a, CSCCLCTDigi &c, int m
 }
 
 
-void CSCMotherboardME11::correlateLCTs(CSCALCTDigi bestALCT,
-				   CSCALCTDigi secondALCT,
-				   CSCCLCTDigi bestCLCT,
-				   CSCCLCTDigi secondCLCT,
+void CSCMotherboardME11::correlateLCTs(const CSCALCTDigi& _bestALCT,
+				   const CSCALCTDigi& _secondALCT,
+				   const CSCCLCTDigi& _bestCLCT,
+				   const CSCCLCTDigi& _secondCLCT,
 				   CSCCorrelatedLCTDigi& lct1,
 				   CSCCorrelatedLCTDigi& lct2)
 {
+  CSCALCTDigi bestALCT = _bestALCT;
+  CSCALCTDigi secondALCT = _secondALCT;
+  CSCCLCTDigi bestCLCT = _bestCLCT;
+  CSCCLCTDigi secondCLCT = secondCLCT;
   bool anodeBestValid     = bestALCT.isValid();
   bool anodeSecondValid   = secondALCT.isValid();
   bool cathodeBestValid   = bestCLCT.isValid();
@@ -553,15 +557,19 @@ void CSCMotherboardME11::correlateLCTs(CSCALCTDigi bestALCT,
 }
 
 
-void CSCMotherboardME11::correlateLCTs(CSCALCTDigi bestALCT,
-				   CSCALCTDigi secondALCT,
-				   CSCCLCTDigi bestCLCT,
-				   CSCCLCTDigi secondCLCT,
+void CSCMotherboardME11::correlateLCTs(const CSCALCTDigi& _bestALCT,
+				   const CSCALCTDigi& _secondALCT,
+				   const CSCCLCTDigi& _bestCLCT,
+				   const CSCCLCTDigi& _secondCLCT,
 				   CSCCorrelatedLCTDigi& lct1,
 				   CSCCorrelatedLCTDigi& lct2,
                                    int me)
 {
   // assume that always anodeBestValid && cathodeBestValid
+  CSCALCTDigi bestALCT = _bestALCT;
+  CSCALCTDigi secondALCT = _secondALCT;
+  CSCCLCTDigi bestCLCT = _bestCLCT;
+  CSCCLCTDigi secondCLCT = secondCLCT;
   
   if (secondALCT == bestALCT) secondALCT.clear();
   if (secondCLCT == bestCLCT) secondCLCT.clear();
