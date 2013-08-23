@@ -1457,7 +1457,7 @@ void PixelCalibConfiguration::enablePixels(PixelFECConfigInterface* pixelFEC,
 					   unsigned int icols,
 					   pos::PixelROCMaskBits* masks,
 					   pos::PixelROCTrimBits* trims, 
-					   PixelHdwAddress theROC) const{
+					   const PixelHdwAddress& theROC) const{
 
   for (unsigned int irow=0;irow<rows_[irows].size();irow++){
     for (unsigned int icol=0;icol<cols_[icols].size();icol++){
@@ -1486,7 +1486,7 @@ void PixelCalibConfiguration::enablePixels(PixelFECConfigInterface* pixelFEC,
 void PixelCalibConfiguration::disablePixels(PixelFECConfigInterface* pixelFEC,
 			      unsigned int irows, unsigned int icols,
 			      pos::PixelROCTrimBits* trims, 
-			      PixelHdwAddress theROC) const{
+			      const PixelHdwAddress& theROC) const{
 
 	for (unsigned int irow=0;irow<rows_[irows].size();irow++){
 	    for (unsigned int icol=0;icol<cols_[icols].size();icol++){
@@ -1510,7 +1510,7 @@ void PixelCalibConfiguration::disablePixels(PixelFECConfigInterface* pixelFEC,
 
 void PixelCalibConfiguration::disablePixels(PixelFECConfigInterface* pixelFEC,
 					    pos::PixelROCTrimBits* trims, 
-					    PixelHdwAddress theROC) const{
+					    const PixelHdwAddress& theROC) const{
 
   //cout<<" disable ROC "<<theROC.hubaddress()<<" "<<theROC.rocid()<<endl;
   //FIXME This should be done with more efficient commands!

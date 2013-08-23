@@ -2170,7 +2170,7 @@ double ZeeCalibration::getEtaCorrection(const reco::GsfElectron* ele){
   return correction;                                                                                                                                              
 }
 
-std::pair<DetId, double> ZeeCalibration::getHottestDetId(std::vector<std::pair< DetId,float > > mySCRecHits, const EBRecHitCollection* ebhits, const EERecHitCollection* eehits){
+std::pair<DetId, double> ZeeCalibration::getHottestDetId(const std::vector<std::pair< DetId,float > >& mySCRecHits, const EBRecHitCollection* ebhits, const EERecHitCollection* eehits){
   
 
   double maxEnergy = -9999.;

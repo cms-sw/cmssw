@@ -331,7 +331,7 @@ EcalTPGParamBuilder::~EcalTPGParamBuilder()
 }
 
 
-bool EcalTPGParamBuilder::checkIfOK(EcalPedestals::Item item) 
+bool EcalTPGParamBuilder::checkIfOK(const EcalPedestals::Item& item) 
 {
   bool result=true;
   if( item.mean_x1 <150. || item.mean_x1 >250) result=false;

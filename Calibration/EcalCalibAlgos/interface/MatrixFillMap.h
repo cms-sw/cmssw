@@ -10,10 +10,10 @@ class MatrixFillMap : public VFillMap
 	//! ctor
 	MatrixFillMap (int ,
 		       int ,
-			std::map<int,int> ,
+			const std::map<int,int>& ,
 			double,
 			double, 
-			std::map<int,int>,
+			const std::map<int,int>&,
 			EcalIntercalibConstantMap *,
 			EcalIntercalibConstantMap *);
 	//! dtor

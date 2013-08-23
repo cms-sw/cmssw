@@ -133,7 +133,7 @@ class ZeeCalibration : public edm::ESProducerLooper {
 
   void printStatistics();
 
-  std::pair<DetId, double> getHottestDetId(std::vector<std::pair<DetId, float> > mySCRecHits, const EBRecHitCollection* ebhits , const EERecHitCollection* eehits);
+  std::pair<DetId, double> getHottestDetId(const std::vector<std::pair<DetId, float> >& mySCRecHits, const EBRecHitCollection* ebhits , const EERecHitCollection* eehits);
 
   bool xtalIsOnModuleBorder( EBDetId myEBDetId );
 

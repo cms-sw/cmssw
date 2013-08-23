@@ -70,7 +70,7 @@ public:
     double apvabsoluteOccupancy[6];
   };
 
-  void CalculateMeanAndRMS(std::vector<Apv>, std::pair<double,double>*, int);
+  void CalculateMeanAndRMS(const std::vector<Apv>&, std::pair<double,double>*, int);
 
   void AnalyzeOccupancy(SiStripQuality*, std::vector<Apv>&, std::pair<double,double>*, std::vector<unsigned int>&, edm::ESHandle<SiStripQuality>&);
 
