@@ -26,11 +26,11 @@ namespace reco{
     //get the PFCandidates which compose the PF jet and were filtered by RecoTauTag/TauTagTools/ TauTagTools::filteredPFChargedHadrCands(.,...), filteredPFNeutrHadrCands(.), filteredPFGammaCands(.) functions through RecoTauTag/RecoTauTag/ PFRecoTauTagInfoProducer EDProducer
     PFCandidateRefVector PFCands()const;
     const PFCandidateRefVector& PFChargedHadrCands()const;
-    void  setPFChargedHadrCands(const PFCandidateRefVector);
+    void  setPFChargedHadrCands(const PFCandidateRefVector&);
     const PFCandidateRefVector& PFNeutrHadrCands()const;
-    void  setPFNeutrHadrCands(const PFCandidateRefVector);
+    void  setPFNeutrHadrCands(const PFCandidateRefVector&);
     const PFCandidateRefVector& PFGammaCands()const;
-    void  setPFGammaCands(const PFCandidateRefVector);
+    void  setPFGammaCands(const PFCandidateRefVector&);
     
     //the reference to the PFJet
     const PFJetRef& pfjetRef()const;

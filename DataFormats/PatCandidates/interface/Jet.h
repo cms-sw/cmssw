@@ -240,17 +240,17 @@ namespace pat {
 	return specificPF_[0];
       }
       /// set the calo specific part of the jet
-      void setCaloSpecific(CaloSpecific newCaloSpecific) {
+      void setCaloSpecific(const CaloSpecific& newCaloSpecific) {
 	if (specificCalo_.empty()) throw cms::Exception("Type Mismatch") << "This PAT jet was not made from a CaloJet.\n";
 	specificCalo_[0] = newCaloSpecific;
       }
       /// set the jpt specific part of the jet
-      void setJPTSpecific(JPTSpecific newJPTSpecific) {
+      void setJPTSpecific(const JPTSpecific& newJPTSpecific) {
 	if (specificJPT_.empty()) throw cms::Exception("Type Mismatch") << "This PAT jet was not made from a JPTJet.\n";
 	specificJPT_[0] = newJPTSpecific;
       }
       /// set the pf specific part of the jet
-      void setPFSpecific(PFSpecific newPFSpecific) {
+      void setPFSpecific(const PFSpecific& newPFSpecific) {
 	if (specificPF_.empty()) throw cms::Exception("Type Mismatch") << "This PAT jet was not made from a PFJet.\n";
 	specificPF_[0] = newPFSpecific;
       }
@@ -455,7 +455,7 @@ namespace pat {
 
       /// Update bare FwdPtr and FwdRef "forward" pointers while keeping the
       /// "back" pointers the same (i.e. the ref "forwarding")
-      void updateFwdCaloTowerFwdPtr( unsigned int index, edm::Ptr<CaloTower> updateFwd ) {
+      void updateFwdCaloTowerFwdPtr( unsigned int index, const edm::Ptr<CaloTower>& updateFwd ) {
 	if ( index < caloTowersFwdPtr_.size() ) {
 	  caloTowersFwdPtr_[index] = CaloTowerFwdPtrVector::value_type( updateFwd, caloTowersFwdPtr_[index].backPtr() );
 	} else {
@@ -463,7 +463,7 @@ namespace pat {
 	}
       }
 
-      void updateFwdPFCandidateFwdPtr( unsigned int index, edm::Ptr<reco::PFCandidate> updateFwd ) {
+      void updateFwdPFCandidateFwdPtr( unsigned int index, const edm::Ptr<reco::PFCandidate>& updateFwd ) {
 	if ( index < pfCandidatesFwdPtr_.size() ) {
 	  pfCandidatesFwdPtr_[index] = reco::PFCandidateFwdPtrVector::value_type( updateFwd, pfCandidatesFwdPtr_[index].backPtr() );
 	} else {
@@ -472,7 +472,7 @@ namespace pat {
       }
 
 
-      void updateFwdTagInfoFwdPtr( unsigned int index, edm::Ptr<reco::BaseTagInfo> updateFwd ) {
+      void updateFwdTagInfoFwdPtr( unsigned int index, const edm::Ptr<reco::BaseTagInfo>& updateFwd ) {
 	if ( index < tagInfosFwdPtr_.size() ) {
 	  tagInfosFwdPtr_[index] = TagInfoFwdPtrCollection::value_type( updateFwd, tagInfosFwdPtr_[index].backPtr() );
 	} else {
