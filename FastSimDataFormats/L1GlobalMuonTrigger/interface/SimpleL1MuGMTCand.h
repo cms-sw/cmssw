@@ -110,7 +110,7 @@ class SimpleL1MuGMTCand : public L1MuGMTExtendedCand {
     unsigned int phiRegionIndex() const { return phi(); }
 
     // set and get the 4-momentum of the original (generator) particle
-    void setMomentum(LorentzVector m) { myMomentum = m; }
+    void setMomentum(const LorentzVector& m) { myMomentum = m; }
     const LorentzVector getMomentum() const { return myMomentum; }
 
     /// assignment operator

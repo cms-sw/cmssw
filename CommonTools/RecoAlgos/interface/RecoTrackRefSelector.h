@@ -31,7 +31,7 @@ class RecoTrackRefSelector : public RecoTrackSelector {
   
   RecoTrackRefSelector ( double ptMin, double minRapidity, double maxRapidity,
 		         double tip, double lip, int minHit, int min3DHit, double maxChi2, 
-    		         std::vector<std::string> quality , std::vector<std::string> algorithm ) :
+    		         const std::vector<std::string>& quality , const std::vector<std::string>& algorithm ) :
           RecoTrackSelector ( ptMin, minRapidity, maxRapidity,
    		              tip, lip, minHit, min3DHit, maxChi2, 
                               quality , algorithm ) {}

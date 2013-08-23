@@ -43,7 +43,7 @@ public:
 
   CosmicTrackingParticleSelector ( double ptMin,double minRapidity,double maxRapidity,
 				   double tip,double lip,int minHit, bool chargedOnly, 
-				   std::vector<int> pdgId = std::vector<int>()) :
+				   const std::vector<int>& pdgId = std::vector<int>()) :
     ptMin_( ptMin ), minRapidity_( minRapidity ), maxRapidity_( maxRapidity ),
     tip_( tip ), lip_( lip ), minHit_( minHit ), chargedOnly_(chargedOnly), pdgId_( pdgId ) { }
 
