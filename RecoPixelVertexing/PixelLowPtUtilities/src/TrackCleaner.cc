@@ -138,8 +138,8 @@ bool TrackCleaner::isCompatible(const DetId & i1,
 
 /*****************************************************************************/
 bool TrackCleaner::canBeMerged
-  (vector<const TrackingRecHit *> recHitsA,
-   vector<const TrackingRecHit *> recHitsB,
+  (const vector<const TrackingRecHit *>& recHitsA,
+   const vector<const TrackingRecHit *>& recHitsB,
    const TrackerTopology *tTopo)
 {
  bool ok = true;

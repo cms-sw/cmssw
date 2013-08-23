@@ -68,8 +68,8 @@ class MuonMETAlgo
 					  
   static void  correctMETforMuon(double& deltax, double& deltay,
 				 double bfield, int muonCharge,
-				 const math::XYZTLorentzVector muonP4,
-				 const math::XYZPoint muonVertex,
+				 const math::XYZTLorentzVector& muonP4,
+				 const math::XYZPoint& muonVertex,
 				 MuonMETInfo&);
     
 };

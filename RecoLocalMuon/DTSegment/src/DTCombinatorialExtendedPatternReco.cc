@@ -89,7 +89,7 @@ void DTCombinatorialExtendedPatternReco::setES(const edm::EventSetup& setup){
   theUpdator->setES(setup);
 }
 
-void DTCombinatorialExtendedPatternReco::setClusters(vector<DTSLRecCluster> clusters) {
+void DTCombinatorialExtendedPatternReco::setClusters(const vector<DTSLRecCluster>& clusters) {
   theClusters = clusters;
 }
 

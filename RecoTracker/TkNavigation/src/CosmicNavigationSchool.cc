@@ -21,7 +21,7 @@
 
 using namespace std;
 
-CosmicNavigationSchool::CosmicNavigationSchoolConfiguration::CosmicNavigationSchoolConfiguration(const edm::ParameterSet conf){
+CosmicNavigationSchool::CosmicNavigationSchoolConfiguration::CosmicNavigationSchoolConfiguration(const edm::ParameterSet& conf){
   noPXB=conf.getParameter<bool>("noPXB");
   noPXF=conf.getParameter<bool>("noPXF");
   noTIB=conf.getParameter<bool>("noTIB");

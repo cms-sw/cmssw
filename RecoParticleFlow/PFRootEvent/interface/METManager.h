@@ -44,10 +44,10 @@ class METManager {
 		      const double DeltaPhicut, const double MET1cut) const;
 
   /// propagate the Jet Energy Corrections to the MET
-  void propagateJECtoMET1(const std::vector<reco::CaloJet> caloJets,
-		    const std::vector<reco::CaloJet> corr_caloJets);
-  void propagateJECtoMET2(const std::vector<reco::CaloJet> caloJets,
-		    const std::vector<reco::CaloJet> corr_caloJets);
+  void propagateJECtoMET1(const std::vector<reco::CaloJet>& caloJets,
+		    const std::vector<reco::CaloJet>& corr_caloJets);
+  void propagateJECtoMET2(const std::vector<reco::CaloJet>& caloJets,
+		    const std::vector<reco::CaloJet>& corr_caloJets);
 
   void SetIgnoreParticlesIDs(const std::vector<unsigned int>*);
   void SetSpecificIdCut(const std::vector<unsigned int>*, const std::vector<double>*);
@@ -62,8 +62,8 @@ class METManager {
   /// private functions
   reco::MET computeGenMET( const reco::GenParticleCollection* ) const;
   reco::MET recomputePFMET( const reco::PFCandidateCollection&) const;
-  reco::MET propagateJEC(const reco::MET&, const std::vector<reco::CaloJet> caloJets,
-			 const std::vector<reco::CaloJet> corr_caloJets) const;
+  reco::MET propagateJEC(const reco::MET&, const std::vector<reco::CaloJet>& caloJets,
+			 const std::vector<reco::CaloJet>& corr_caloJets) const;
 
   /// data members
   reco::MET MET1_;

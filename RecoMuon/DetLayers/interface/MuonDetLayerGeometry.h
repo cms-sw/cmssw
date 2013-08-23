@@ -75,15 +75,15 @@ class MuonDetLayerGeometry : public DetLayerGeometry{
   /// Add CSC layers 
   /// csclayers.first=forward (+Z), csclayers.second=backward (-Z)
   /// both vectors are ASSUMED to be sorted inside-out
-  void addCSCLayers(std::pair<std::vector<DetLayer*>, std::vector<DetLayer*> > csclayers);
+  void addCSCLayers(const std::pair<std::vector<DetLayer*>, std::vector<DetLayer*> >& csclayers);
 
   //. Add DT layers; dtlayers is ASSUMED to be sorted inside-out
-  void addDTLayers(std::vector<DetLayer*> dtlayers);
+  void addDTLayers(const std::vector<DetLayer*>& dtlayers);
 
   /// Add RPC layers
   /// endcapRPCLayers.first=forward (+Z), endcapRPCLayers.second=backward (-Z)
   /// All three vectors are ASSUMED to be sorted inside-out
-  void addRPCLayers(std::vector<DetLayer*> barrelRPCLayers, std::pair<std::vector<DetLayer*>, std::vector<DetLayer*> > endcapRPCLayers);
+  void addRPCLayers(const std::vector<DetLayer*>& barrelRPCLayers, const std::pair<std::vector<DetLayer*>, std::vector<DetLayer*> >& endcapRPCLayers);
 
   
   DetId makeDetLayerId(const DetLayer* detLayer) const;

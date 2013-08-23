@@ -53,7 +53,7 @@ class Conv4HitsReco2 {
 	bool RegisterBadConverge() { if (fCutSatisfied==1) return true; else return false;};
 
 	private:
-	void LocalTransformation(math::XYZVector v11, math::XYZVector v12, math::XYZVector v21, math::XYZVector v22,
+	void LocalTransformation(const math::XYZVector& v11, const math::XYZVector& v12, const math::XYZVector& v21, const math::XYZVector& v22,
 				 math::XYZVector &V11, math::XYZVector &V12, math::XYZVector &V21, math::XYZVector &V22,
 				 double Phi);
 	math::XYZVector fHitv11, fHitv12, fHitv21, fHitv22;
