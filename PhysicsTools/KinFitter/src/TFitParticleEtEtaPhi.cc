@@ -63,7 +63,7 @@ TFitParticleEtEtaPhi::TFitParticleEtEtaPhi(const TString &name, const TString &t
   init(pini, theCovMatrix);
 }
 
-TAbsFitParticle* TFitParticleEtEtaPhi::clone( TString newname ) const {
+TAbsFitParticle* TFitParticleEtEtaPhi::clone( const TString& newname ) const {
   // Returns a copy of itself
   
   TAbsFitParticle* myclone = new TFitParticleEtEtaPhi( *this );
