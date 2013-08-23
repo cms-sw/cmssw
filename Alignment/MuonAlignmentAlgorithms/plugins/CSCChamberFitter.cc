@@ -194,7 +194,7 @@ bool CSCChamberFitter::isFrame(int i) const {
   return false;
 }
 
-double CSCChamberFitter::chi2(AlgebraicVector A, double lambda) const {
+double CSCChamberFitter::chi2(const AlgebraicVector& A, double lambda) const {
   double sumFixed = 0.;
 
   if (m_fixed == -1) {

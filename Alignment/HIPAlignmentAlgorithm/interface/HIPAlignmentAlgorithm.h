@@ -50,12 +50,12 @@ class HIPAlignmentAlgorithm : public AlignmentAlgorithmBase
 
   // private member functions
 
-  bool processHit1D(const AlignableDetOrUnitPtr alidet,
+  bool processHit1D(const AlignableDetOrUnitPtr& alidet,
 		    const Alignable* ali,
 		    const TrajectoryStateOnSurface & tsos,
 		    const TransientTrackingRecHit* hit);
 
-  bool processHit2D(const AlignableDetOrUnitPtr alidet,
+  bool processHit2D(const AlignableDetOrUnitPtr& alidet,
 		    const Alignable* ali,
 		    const TrajectoryStateOnSurface & tsos,
 		    const TransientTrackingRecHit* hit);

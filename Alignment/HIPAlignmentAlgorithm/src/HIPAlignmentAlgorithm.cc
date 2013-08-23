@@ -431,7 +431,7 @@ void HIPAlignmentAlgorithm::terminate(const edm::EventSetup& iSetup)
 	
 }
 
-bool HIPAlignmentAlgorithm::processHit1D(const AlignableDetOrUnitPtr alidet,
+bool HIPAlignmentAlgorithm::processHit1D(const AlignableDetOrUnitPtr& alidet,
 					 const Alignable* ali,
 					 const TrajectoryStateOnSurface & tsos,
 					 const TransientTrackingRecHit* hit)
@@ -547,7 +547,7 @@ bool HIPAlignmentAlgorithm::processHit1D(const AlignableDetOrUnitPtr alidet,
   return true;
 }
 
-bool HIPAlignmentAlgorithm::processHit2D(const AlignableDetOrUnitPtr alidet,
+bool HIPAlignmentAlgorithm::processHit2D(const AlignableDetOrUnitPtr& alidet,
 					 const Alignable* ali,
 					 const TrajectoryStateOnSurface & tsos,
 					 const TransientTrackingRecHit* hit)

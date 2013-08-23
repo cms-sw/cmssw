@@ -24,7 +24,7 @@ public:
   virtual void displaceOriginal( ALIdouble disp );
   virtual void displaceOriginalOriginal( ALIdouble disp );
   virtual ALIdouble valueDisplaced() const;
-  ALIdouble checkDiff( CLHEP::Hep3Vector axis, CLHEP::Hep3Vector axisOrig,std::vector<double> localrot, std::vector<double> localrotorig ) const;
+  ALIdouble checkDiff( const CLHEP::Hep3Vector& axis, const CLHEP::Hep3Vector& axisOrig,const std::vector<double>& localrot, const std::vector<double>& localrotorig ) const;
 };
 
 #endif
