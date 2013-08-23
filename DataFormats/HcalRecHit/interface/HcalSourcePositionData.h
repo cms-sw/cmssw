@@ -1,6 +1,8 @@
 #ifndef DATAFORMATS_HCALRECHIT_HCALSOURCEPOSITIONDATA_H
 #define DATAFORMATS_HCALRECHIT_HCALSOURCEPOSITIONDATA_H 1
 
+#include <string>
+
 #include "DataFormats/CaloRecHit/interface/CaloRecHit.h"
 
 class HcalSourcePositionData {
@@ -14,15 +16,20 @@ public:
   inline int indexCounter() const { return indexCounter_; }
   inline int reelCounter() const { return reelCounter_; } 
   inline int motorCurrent() const { return motorCurrent_; }
-  inline int speed() const { return speed_; } 
+  inline int speed() const { return -1; } // no longer implemented
+  inline int motorVoltage() const { return motorVoltage_; }
   inline int tubeId() const { return tubeId_; }
   inline int driverId() const { return driverId_; }
   inline int sourceId() const { return sourceId_; }
+  inline std::string tubeNameFromCoord() const { return tubeNameFromCoord_; }
+  inline std::string tubeNameFromSD() const { return tubeNameFromSD_; }
+  inline std::string lastCommand() const { return lastCommand_; }
+  inline std::string message() const { return message_; }
 
   void getDriverTimestamp(int& seconds, int& useconds) const;
   void getDAQTimestamp(int& seconds, int& useconds) const;
 
-  void set(      int message_counter,
+  void set(int message_counter,
 		 int timestamp1_sec,
 		 int timestamp1_usec,
 		 int timestamp2_sec,
@@ -31,10 +38,15 @@ public:
 		 int index_counter,
 		 int reel_counter,
 		 int motor_current,
-		 int speed,
+		 int motor_voltage,
 		 int tube_id,
 		 int driver_id,
-                 int source_id);
+     int source_id,
+     std::string tubeNameFromCoord,
+     std::string tubeNameFromSD,
+     std::string lastCommand,
+     std::string message);
+
 private:
   int messageCounter_;
   int indexCounter_;
@@ -45,10 +57,14 @@ private:
   int timestamp2_usec_;
   int status_;
   int motorCurrent_;
-  int speed_;
+  int motorVoltage_;
   int tubeId_;
   int driverId_;
   int sourceId_;
+  std::string tubeNameFromCoord_;
+  std::string tubeNameFromSD_;
+  std::string lastCommand_;
+  std::string message_;
 };
 
 std::ostream& operator<<(std::ostream& s, const HcalSourcePositionData& hspd);
