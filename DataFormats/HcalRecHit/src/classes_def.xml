@@ -17,8 +17,8 @@
    <class name="HcalCalibRecHit" ClassVersion="10">
     <version ClassVersion="10" checksum="1085028533"/>
    </class>
-   <class name="HcalSourcePositionData" ClassVersion="10">
-    <version ClassVersion="10" checksum="741265236"/>
+   <class name="HcalSourcePositionData" ClassVersion="11">
+    <version ClassVersion="11" checksum="913740682"/>
    </class>
    <class name="std::vector<HBHERecHit>"/>
    <class name="std::vector<HORecHit>"/>
