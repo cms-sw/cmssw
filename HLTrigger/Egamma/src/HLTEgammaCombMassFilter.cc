@@ -58,7 +58,7 @@ bool HLTEgammaCombMassFilter::hltFilter(edm::Event& iEvent, const edm::EventSetu
   return accept;
 }
 
-void  HLTEgammaCombMassFilter::getP4OfLegCands(const edm::Event& iEvent,edm::InputTag filterTag,std::vector<math::XYZTLorentzVector>& p4s)
+void  HLTEgammaCombMassFilter::getP4OfLegCands(const edm::Event& iEvent,const edm::InputTag& filterTag,std::vector<math::XYZTLorentzVector>& p4s)
 { 
   edm::Handle<trigger::TriggerFilterObjectWithRefs> filterOutput;
   iEvent.getByLabel(filterTag,filterOutput);

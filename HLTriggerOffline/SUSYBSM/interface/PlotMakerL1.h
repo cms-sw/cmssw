@@ -44,7 +44,7 @@
 class PlotMakerL1 {
 
  public:
-  PlotMakerL1(edm::ParameterSet objectList);
+  PlotMakerL1(const edm::ParameterSet& objectList);
   virtual ~PlotMakerL1(){};
 
   void handleObjects(const edm::Event&);
