@@ -17,6 +17,9 @@
 #include "FWCore/Framework/interface/one/OutputModule.h"
 
 namespace edm {
+
+  class ModuleCallingContext;
+
   namespace one {
     namespace outputmodule {
       void RunWatcher::doBeginRun_(RunPrincipal const& rp, ModuleCallingContext const* mcc) {

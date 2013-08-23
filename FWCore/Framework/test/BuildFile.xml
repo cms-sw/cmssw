@@ -8,8 +8,10 @@
 <library   file="stubs/TestOutputModule.cc" name="TestOutputModule">
   <flags   EDM_PLUGIN="1"/>
   <use   name="DataFormats/Common"/>
+  <use   name="DataFormats/Provenance"/>
   <use   name="FWCore/Framework"/>
   <use   name="FWCore/ParameterSet"/>
+  <use   name="FWCore/ServiceRegistry"/>
 </library>
 <library   file="stubs/TestFilterModule.cc" name="TestFilterModule">
   <flags   EDM_PLUGIN="1"/>
@@ -250,15 +252,6 @@
   <use   name="FWCore/Framework"/>
   <use   name="FWCore/ParameterSet"/>
   <use   name="FWCore/ServiceRegistry"/>
-  <use   name="FWCore/Utilities"/>
-</bin>
-<bin   name="TestFWCoreFrameworkCurrentProcessingContext" file="CurrentProcessingContext_t.cpp">
-  <use   name="DataFormats/Provenance"/>
-  <use   name="FWCore/Framework"/>
-  <use   name="FWCore/Utilities"/>
-</bin>
-<bin   name="TestFWCoreFrameworkCPCSentry" file="CPCSentry_t.cpp">
-  <use   name="FWCore/Framework"/>
   <use   name="FWCore/Utilities"/>
 </bin>
 <bin   name="TestFWCoreFrameworkRegistryTemplate" file="RegistryTemplate_t.cpp">

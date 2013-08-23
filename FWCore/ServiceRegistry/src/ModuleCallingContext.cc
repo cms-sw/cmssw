@@ -28,16 +28,7 @@ namespace edm {
 
   StreamContext const*
   ModuleCallingContext::getStreamContext() const {
-    ModuleCallingContext const* mcc = this;
-    while(mcc->type() == ParentContext::Type::kModule) {
-      mcc = mcc->moduleCallingContext();
-    }
-    if(mcc->type() == ParentContext::Type::kInternal) {
-      mcc = mcc->internalContext()->moduleCallingContext();
-    }
-    while(mcc->type() == ParentContext::Type::kModule) {
-      mcc = mcc->moduleCallingContext();
-    }
+    ModuleCallingContext const* mcc = getTopModuleCallingContext();
     if(mcc->type() == ParentContext::Type::kPlaceInPath) {
       return mcc->placeInPathContext()->pathContext()->streamContext();
     } else if (mcc->type() != ParentContext::Type::kStream) {
@@ -49,6 +40,16 @@ namespace edm {
 
   GlobalContext const*
   ModuleCallingContext::getGlobalContext() const {
+    ModuleCallingContext const* mcc = getTopModuleCallingContext();
+    if (mcc->type() != ParentContext::Type::kGlobal) {
+      throw Exception(errors::LogicError)
+        << "ModuleCallingContext::getGlobalContext() called in context not linked to a GlobalContext\n";
+    }
+    return mcc->globalContext();
+  }
+
+  ModuleCallingContext const*
+  ModuleCallingContext::getTopModuleCallingContext() const {
     ModuleCallingContext const* mcc = this;
     while(mcc->type() == ParentContext::Type::kModule) {
       mcc = mcc->moduleCallingContext();
@@ -59,11 +60,7 @@ namespace edm {
     while(mcc->type() == ParentContext::Type::kModule) {
       mcc = mcc->moduleCallingContext();
     }
-    if (mcc->type() != ParentContext::Type::kGlobal) {
-      throw Exception(errors::LogicError)
-        << "ModuleCallingContext::getGlobalContext() called in context not linked to a GlobalContext\n";
-    }
-    return mcc->globalContext();
+    return mcc;
   }
 
   std::ostream& operator<<(std::ostream& os, ModuleCallingContext const& mcc) {

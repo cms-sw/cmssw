@@ -11,7 +11,6 @@
   can be kept for each worker.
 */
 
-#include "FWCore/Framework/interface/CurrentProcessingContext.h"
 #include "FWCore/Framework/src/WorkerInPath.h"
 #include "FWCore/Framework/src/Worker.h"
 #include "DataFormats/Common/interface/HLTenums.h"
@@ -33,9 +32,11 @@
 
 namespace edm {
   class EventPrincipal;
+  class ModuleDescription;
   class RunPrincipal;
   class LuminosityBlockPrincipal;
   class EarlyDeleteHelper;
+  class StreamContext;
   class StreamID;
 
   class Path {
@@ -125,14 +126,15 @@ namespace edm {
                              bool isEvent,
                              bool begin,
                              BranchType branchType,
-                             CurrentProcessingContext const& cpc,
+                             ModuleDescription const&,
                              std::string const& id);
     static void exceptionContext(cms::Exception & ex,
                                  bool isEvent,
                                  bool begin,
                                  BranchType branchType,
-                                 CurrentProcessingContext const& cpc,
-                                 std::string const& id);
+                                 ModuleDescription const&,
+                                 std::string const& id,
+                                 PathContext const&);
     void recordStatus(int nwrwue, bool isEvent);
     void updateCounters(bool succeed, bool isEvent);
     
@@ -185,23 +187,17 @@ namespace edm {
 
     // nwrue =  numWorkersRunWithoutUnhandledException
     bool should_continue = true;
-    CurrentProcessingContext cpc(&name_, bitPosition(), pathContext_.pathType() == PathContext::PathType::kEndPath);
 
-    WorkersInPath::size_type idx = 0;
-    // It seems likely that 'nwrwue' and 'idx' can never differ ---
-    // if so, we should remove one of them!.
     for (WorkersInPath::iterator i = workers_.begin(), end = workers_.end();
           i != end && should_continue;
-          ++i, ++idx) {
+          ++i) {
       ++nwrwue;
-      assert (static_cast<int>(idx) == nwrwue);
       try {
         try {
-          cpc.activate(idx, i->getWorker()->descPtr());
           if(T::isEvent_) {
-            should_continue = i->runWorker<T>(ep, es, &cpc, streamID, context);
+            should_continue = i->runWorker<T>(ep, es, streamID, context);
           } else {
-            should_continue = i->runWorker<T>(ep, es, &cpc, streamID, context);
+            should_continue = i->runWorker<T>(ep, es, streamID, context);
           }
         }
         catch (cms::Exception& e) { throw; }
@@ -215,7 +211,8 @@ namespace edm {
         // handleWorkerFailure may throw a new exception.
 	std::ostringstream ost;
         ost << ep.id();
-        should_continue = handleWorkerFailure(ex, nwrwue, T::isEvent_, T::begin_, T::branchType_, cpc, ost.str());
+        should_continue = handleWorkerFailure(ex, nwrwue, T::isEvent_, T::begin_, T::branchType_,
+                                              i->getWorker()->description(), ost.str());
       }
     }
     if (not should_continue) {
