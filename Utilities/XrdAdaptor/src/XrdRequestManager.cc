@@ -26,6 +26,24 @@
 #define XRD_ADAPTOR_SOURCE_QUALITY_FUDGE 100
 #endif
 
+#ifdef __MACH__
+#include <mach/clock.h>
+#include <mach/mach.h>
+#define GET_CLOCK_MONOTONIC(ts) \
+{ \
+  clock_serv_t cclock; \
+  mach_timespec_t mts; \
+  host_get_clock_service(mach_host_self(), SYSTEM_CLOCK, &cclock); \
+  clock_get_time(cclock, &mts); \
+  mach_port_deallocate(mach_task_self(), cclock); \
+  ts.tv_sec = mts.tv_sec; \
+  ts.tv_nsec = mts.tv_nsec; \
+}
+#else
+#define GET_CLOCK_MONOTONIC(ts) \
+  clock_gettime(CLOCK_MONOTONIC, &ts);
+#endif
+
 using namespace XrdAdaptor;
 
 long long timeDiffMS(const timespec &a, const timespec &b)
@@ -59,7 +77,7 @@ RequestManager::RequestManager(const std::string &filename, XrdCl::OpenFlags::Fl
   }
 
   timespec ts;
-  clock_gettime(CLOCK_MONOTONIC, &ts);
+  GET_CLOCK_MONOTONIC(ts);
 
   std::shared_ptr<Source> source(new Source(ts, std::move(file)));
   {
@@ -227,7 +245,7 @@ RequestManager::handle(std::shared_ptr<XrdAdaptor::ClientRequest> c_ptr)
 {
   assert(c_ptr.get());
   timespec now;
-  clock_gettime(CLOCK_MONOTONIC, &now);
+  GET_CLOCK_MONOTONIC(now);
   checkSources(now, c_ptr->getSize());
 
   std::shared_ptr<Source> source = nullptr;
@@ -315,7 +333,7 @@ XrdAdaptor::RequestManager::handle(std::shared_ptr<std::vector<IOPosBuffer> > io
     std::lock_guard<std::recursive_mutex> sentry(m_source_mutex);
 
     timespec now;
-    clock_gettime(CLOCK_MONOTONIC, &now);
+    GET_CLOCK_MONOTONIC(now);
 
     edm::CPUTimer timer;
     timer.start();
@@ -401,7 +419,7 @@ RequestManager::requestFailure(std::shared_ptr<XrdAdaptor::ClientRequest> c_ptr)
     {
         std::shared_future<std::shared_ptr<Source> > future = m_open_handler.open();
         timespec now;
-        clock_gettime(CLOCK_MONOTONIC, &now);
+        GET_CLOCK_MONOTONIC(now);
         m_lastSourceCheck = now;
         // Note we only wait for 60 seconds here.  This is because we've already failed
         // once and the likelihood the program has some inconsistent state is decent.
@@ -535,7 +553,7 @@ XrdAdaptor::RequestManager::OpenHandler::HandleResponseWithHosts(XrdCl::XRootDSt
     if (status->IsOK())
     {
         timespec now;
-        clock_gettime(CLOCK_MONOTONIC, &now);
+        GET_CLOCK_MONOTONIC(now);
         std::shared_ptr<Source> source(new Source(now, std::move(m_file)));
         m_promise.set_value(source);
         m_manager.handleOpen(*status, source);

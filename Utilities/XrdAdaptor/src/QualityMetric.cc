@@ -8,7 +8,21 @@
 #ifdef __MACH__
 #include <mach/clock.h>
 #include <mach/mach.h>
+#define GET_CLOCK_MONOTONIC(ts) \
+{ \
+  clock_serv_t cclock; \
+  mach_timespec_t mts; \
+  host_get_clock_service(mach_host_self(), SYSTEM_CLOCK, &cclock); \
+  clock_get_time(cclock, &mts); \
+  mach_port_deallocate(mach_task_self(), cclock); \
+  ts.tv_sec = mts.tv_sec; \
+  ts.tv_nsec = mts.tv_nsec; \
+}
+#else
+#define GET_CLOCK_MONOTONIC(ts) \
+  clock_gettime(CLOCK_MONOTONIC, &ts);
 #endif
+
 
 using namespace XrdAdaptor;
 
@@ -16,18 +30,7 @@ QualityMetricWatch::QualityMetricWatch(QualityMetric *parent1, QualityMetric *pa
     : m_parent1(parent1), m_parent2(parent2)
 {
     // TODO: just assuming success.
-#ifdef __MACH__
-    clock_serv_t cclock;
-    mach_timespec_t mts;
-
-    host_get_clock_service(mach_host_self(), SYSTEM_CLOCK, &cclock);
-    clock_get_time(cclock, &mts);
-    mach_port_deallocate(mach_task_self(), cclock);
-    m_start.tv_sec = mts.tv_sec;
-    m_start.tv_nsec = mts.tv_nsec;
-#else
-    clock_gettime(CLOCK_MONOTONIC, &m_start);
-#endif
+    GET_CLOCK_MONOTONIC(m_start);
 }
 
 QualityMetricWatch::~QualityMetricWatch()
@@ -35,17 +38,8 @@ QualityMetricWatch::~QualityMetricWatch()
     if (m_parent1 && m_parent2)
     {
         timespec stop;
-#ifdef __MACH__
-        clock_serv_t cclock;
-        mach_timespec_t mts;
-        host_get_clock_service(mach_host_self(), SYSTEM_CLOCK, &cclock);
-        clock_get_time(cclock, &mts);
-        mach_port_deallocate(mach_task_self(), cclock);
-        stop.tv_sec = mts.tv_sec;
-        stop.tv_nsec = mts.tv_nsec;
-#else
-        clock_gettime(CLOCK_MONOTONIC, &stop);
-#endif
+        GET_CLOCK_MONOTONIC(stop);
+
         int ms = 1000*(stop.tv_sec - m_start.tv_sec) + (stop.tv_nsec - m_start.tv_nsec)/1e6;
         edm::LogVerbatim("XrdAdaptorInternal") << "Finished timer after " << ms << std::endl;
         m_parent1->finishWatch(stop, ms);
