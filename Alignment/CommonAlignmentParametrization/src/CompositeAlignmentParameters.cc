@@ -258,7 +258,7 @@ CompositeAlignmentParameters::selectedDerivativesLegacy( const TrajectoryStateOn
 //__________________________________________________________________________________________________
 // finds Alignable corresponding to AlignableDet
 Alignable* 
-CompositeAlignmentParameters::alignableFromAlignableDet(AlignableDetOrUnitPtr adet) const
+CompositeAlignmentParameters::alignableFromAlignableDet(const AlignableDetOrUnitPtr& adet) const
 {
 
   AlignableDetToAlignableMap::const_iterator iali =

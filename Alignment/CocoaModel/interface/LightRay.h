@@ -41,7 +41,7 @@ public:
   void reflect( const ALIPlane& plane);
 
   //----- Deviate a LightRay because of refraction when it passes from a medium of refraction index  refra_ind1 to a medium of refraction index  refra_ind2
-  void refract( const ALIPlane plate, const ALIdouble refra_ind1, const ALIdouble refra_ind2);
+  void refract( const ALIPlane& plate, const ALIdouble refra_ind1, const ALIdouble refra_ind2);
 
   //----- shift 
   void shiftAndDeviateWhileTraversing( const OpticalObject* opto, char behav );

@@ -32,7 +32,7 @@ class AlignableCSCEndcap : public AlignableComposite
 
  public:
 
-  AlignableCSCEndcap( const std::vector<AlignableCSCStation*> cscStations );
+  AlignableCSCEndcap( const std::vector<AlignableCSCStation*>& cscStations );
 
   ~AlignableCSCEndcap();
   
