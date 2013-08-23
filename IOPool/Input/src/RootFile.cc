@@ -337,10 +337,7 @@ namespace edm {
       for(auto const& psetEntry : psetMap) {
         ParameterSet pset(psetEntry.second.pset());
         pset.setID(psetEntry.first);
-        // For thread safety, don't update registries when a secondary source opens a file.
-        if(inputType != InputType::SecondarySource) {
-          psetRegistry.insertMapped(pset);
-        }
+        psetRegistry.insertMapped(pset);
       }
     }
     if(!fileFormatVersion().splitProductIDs()) {
@@ -397,10 +394,7 @@ namespace edm {
       }
     }
 
-    // For thread safety, don't update registries when a secondary source opens a file.
-    if(inputType != InputType::SecondarySource) {
-      ProcessHistoryRegistry::instance()->insertCollection(pHistVector);
-    }
+    ProcessHistoryRegistry::instance()->insertCollection(pHistVector);
 
     eventTree_.trainCache(BranchTypeToAuxiliaryBranchName(InEvent).c_str());
 
@@ -408,7 +402,7 @@ namespace edm {
 
     // Here, we make the class that will make the ProvenanceReader
     // It reads whatever trees it needs.
-    provenanceReaderMaker_.reset(makeProvenanceReaderMaker(inputType).release());
+    provenanceReaderMaker_.reset(makeProvenanceReaderMaker().release());
 
     // Merge into the hashed registries.
     if(eventSkipperByID_ && eventSkipperByID_->somethingToSkip()) {
@@ -490,7 +484,7 @@ namespace edm {
   }
 
   void
-  RootFile::readEntryDescriptionTree(EntryDescriptionMap& entryDescriptionMap, InputType::InputType inputType) {
+  RootFile::readEntryDescriptionTree(EntryDescriptionMap& entryDescriptionMap) {
     // Called only for old format files.
     // We use a smart pointer so the tree will be deleted after use, and not kept for the life of the file.
     std::unique_ptr<TTree> entryDescriptionTree(dynamic_cast<TTree*>(filePtr_->Get(poolNames::entryDescriptionTreeName().c_str())));
@@ -526,17 +520,14 @@ namespace edm {
           daqProvenanceHelper_->parentageIDMap_.insert(std::make_pair(oldID, newID));
         }
       }
-      // For thread safety, don't update registries when a secondary source opens a file.
-      if(inputType != InputType::SecondarySource) {
-        registry.insertMapped(parents);
-      }
+      registry.insertMapped(parents);
     }
     entryDescriptionTree->SetBranchAddress(poolNames::entryDescriptionIDBranchName().c_str(), nullptr);
     entryDescriptionTree->SetBranchAddress(poolNames::entryDescriptionBranchName().c_str(), nullptr);
   }
 
   void
-  RootFile::readParentageTree(InputType::InputType inputType) {
+  RootFile::readParentageTree() {
     // New format file
     // We use a smart pointer so the tree will be deleted after use, and not kept for the life of the file.
     std::unique_ptr<TTree> parentageTree(dynamic_cast<TTree*>(filePtr_->Get(poolNames::parentageTreeName().c_str())));
@@ -562,10 +553,7 @@ namespace edm {
           daqProvenanceHelper_->parentageIDMap_.insert(std::make_pair(oldID, newID));
         }
       }
-      // For thread safety, don't update registries when a secondary source opens a file.
-      if(inputType != InputType::SecondarySource) {
-        registry.insertMapped(parents);
-      }
+      registry.insertMapped(parents);
       parentageIDLookup_.push_back(parents.id());
     }
     parentageTree->SetBranchAddress(poolNames::parentageBranchName().c_str(), nullptr);
@@ -1724,16 +1712,16 @@ namespace edm {
   }
 
   std::unique_ptr<MakeProvenanceReader>
-  RootFile::makeProvenanceReaderMaker(InputType::InputType inputType) {
+  RootFile::makeProvenanceReaderMaker() {
     if(fileFormatVersion_.storedProductProvenanceUsed()) {
-      readParentageTree(inputType);
+      readParentageTree();
       return std::unique_ptr<MakeProvenanceReader>(new MakeReducedProvenanceReader(parentageIDLookup_));
     } else if(fileFormatVersion_.splitProductIDs()) {
-      readParentageTree(inputType);
+      readParentageTree();
       return std::unique_ptr<MakeProvenanceReader>(new MakeFullProvenanceReader);
     } else if(fileFormatVersion_.perEventProductIDs()) {
       std::unique_ptr<EntryDescriptionMap> entryDescriptionMap(new EntryDescriptionMap);
-      readEntryDescriptionTree(*entryDescriptionMap, inputType);
+      readEntryDescriptionTree(*entryDescriptionMap);
       return std::unique_ptr<MakeProvenanceReader>(new MakeOldProvenanceReader(std::move(entryDescriptionMap)));
     } else {
       return std::unique_ptr<MakeProvenanceReader>(new MakeDummyProvenanceReader);

@@ -158,15 +158,15 @@ namespace edm {
     void overrideRunNumber(EventID& id, bool isRealData);
     std::string const& newBranchToOldBranch(std::string const& newBranch) const;
     void dropOnInput(ProductRegistry& reg, ProductSelectorRules const& rules, bool dropDescendants, InputType::InputType inputType);
-    void readParentageTree(InputType::InputType inputType);
-    void readEntryDescriptionTree(EntryDescriptionMap&, InputType::InputType inputType); // backward compatibility
+    void readParentageTree();
+    void readEntryDescriptionTree(EntryDescriptionMap&); // backward compatibility
     void readEventHistoryTree();
     bool isDuplicateEvent();
 
     void initializeDuplicateChecker(std::vector<boost::shared_ptr<IndexIntoFile> > const& indexesIntoFiles,
                                     std::vector<boost::shared_ptr<IndexIntoFile> >::size_type currentIndexIntoFile);
 
-    std::unique_ptr<MakeProvenanceReader> makeProvenanceReaderMaker(InputType::InputType inputType);
+    std::unique_ptr<MakeProvenanceReader> makeProvenanceReaderMaker();
     boost::shared_ptr<BranchMapper> makeBranchMapper();
 
     std::string const file_;
