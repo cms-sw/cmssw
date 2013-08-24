@@ -45,6 +45,14 @@ namespace edm {
     
     maker::ModuleHolder* replaceModule(std::string const& iModuleLabel,
                                        edm::ParameterSet const& iPSet);
+    
+    template <typename F>
+    void forAllModuleHolders(F iFunc) {
+      for(auto const& labelMod: labelToModule_) {
+        maker::ModuleHolder* t = labelMod.second.get();
+        iFunc(t);
+      }
+    }
   private:
     std::map<std::string,std::shared_ptr<maker::ModuleHolder>> labelToModule_;
   };
