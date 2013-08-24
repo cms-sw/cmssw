@@ -397,15 +397,12 @@ namespace edm {
     // modifications alter the number of workers at a later date.
     size_t all_workers_count = allWorkers().size();
 
-    for (auto w : allWorkers()) {
-
-      // All the workers should be in all_workers_ by this point. Thus
-      // we can now fill all_output_communicators_.
-      auto comm = w->createOutputModuleCommunicator();
+    moduleRegistry_->forAllModuleHolders([this](maker::ModuleHolder* iHolder){
+      auto comm = iHolder->createOutputModuleCommunicator();
       if (comm) {
         all_output_communicators_.emplace_back(boost::shared_ptr<OutputModuleCommunicator>{comm.release()});
-      }
-    }
+      }      
+    });
     // Now that the output workers are filled in, set any output limits or information.
     limitOutput(proc_pset, branchIDListHelper.branchIDLists());
 

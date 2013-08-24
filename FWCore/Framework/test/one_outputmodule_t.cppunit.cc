@@ -11,7 +11,7 @@
 #include <map>
 #include <functional>
 #include "FWCore/Framework/interface/one/OutputModule.h"
-#include "FWCore/Framework/src/OutputModuleCommunicator.h"
+#include "FWCore/Framework/src/OutputModuleCommunicatorT.h"
 #include "FWCore/Framework/src/WorkerT.h"
 #include "FWCore/Framework/interface/OccurrenceTraits.h"
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
@@ -71,7 +71,7 @@ private:
     kEndJob
   };
   
-  std::map<Trans,std::function<void(edm::Worker*)>> m_transToFunc;
+  std::map<Trans,std::function<void(edm::Worker*,edm::OutputModuleCommunicator*)>> m_transToFunc;
   typedef std::vector<Trans> Expectations;
   
   edm::ProcessConfiguration m_procConfig;
@@ -232,46 +232,42 @@ m_ep()
   m_ep->setLuminosityBlockPrincipal(m_lbp);
 
   //For each transition, bind a lambda which will call the proper method of the Worker
-  m_transToFunc[Trans::kGlobalOpenInputFile] = [this](edm::Worker* iBase) {
+  m_transToFunc[Trans::kGlobalOpenInputFile] = [this](edm::Worker* iBase, edm::OutputModuleCommunicator*) {
     edm::FileBlock fb;
     iBase->respondToOpenInputFile(fb);
   };
 
 
-  m_transToFunc[Trans::kGlobalBeginRun] = [this](edm::Worker* iBase) {
+  m_transToFunc[Trans::kGlobalBeginRun] = [this](edm::Worker* iBase, edm::OutputModuleCommunicator*) {
     typedef edm::OccurrenceTraits<edm::RunPrincipal, edm::BranchActionGlobalBegin> Traits;
     edm::ParentContext parentContext;
     iBase->doWork<Traits>(*m_rp,*m_es,m_timer, edm::StreamID::invalidStreamID(), parentContext, nullptr); };
   
-  m_transToFunc[Trans::kGlobalBeginLuminosityBlock] = [this](edm::Worker* iBase) {
+  m_transToFunc[Trans::kGlobalBeginLuminosityBlock] = [this](edm::Worker* iBase, edm::OutputModuleCommunicator*) {
     typedef edm::OccurrenceTraits<edm::LuminosityBlockPrincipal, edm::BranchActionGlobalBegin> Traits;
     edm::ParentContext parentContext;
     iBase->doWork<Traits>(*m_lbp,*m_es,m_timer, edm::StreamID::invalidStreamID(), parentContext, nullptr); };
   
-  m_transToFunc[Trans::kEvent] = [this](edm::Worker* iBase) {
+  m_transToFunc[Trans::kEvent] = [this](edm::Worker* iBase, edm::OutputModuleCommunicator*) {
     typedef edm::OccurrenceTraits<edm::EventPrincipal, edm::BranchActionStreamBegin> Traits;
     edm::ParentContext parentContext;
     iBase->doWork<Traits>(*m_ep,*m_es,m_timer, edm::StreamID::invalidStreamID(), parentContext, nullptr); };
 
-  m_transToFunc[Trans::kGlobalEndLuminosityBlock] = [this](edm::Worker* iBase) {
+  m_transToFunc[Trans::kGlobalEndLuminosityBlock] = [this](edm::Worker* iBase, edm::OutputModuleCommunicator* iComm) {
     typedef edm::OccurrenceTraits<edm::LuminosityBlockPrincipal, edm::BranchActionGlobalEnd> Traits;
     edm::ParentContext parentContext;
     iBase->doWork<Traits>(*m_lbp,*m_es,m_timer, edm::StreamID::invalidStreamID(), parentContext, nullptr);
-    auto b =iBase->createOutputModuleCommunicator();
-    CPPUNIT_ASSERT(b.get());
-    b->writeLumi(*m_lbp, nullptr);
+    iComm->writeLumi(*m_lbp, nullptr);
   };
 
-  m_transToFunc[Trans::kGlobalEndRun] = [this](edm::Worker* iBase) {
+  m_transToFunc[Trans::kGlobalEndRun] = [this](edm::Worker* iBase, edm::OutputModuleCommunicator* iComm) {
     typedef edm::OccurrenceTraits<edm::RunPrincipal, edm::BranchActionGlobalEnd> Traits;
     edm::ParentContext parentContext;
     iBase->doWork<Traits>(*m_rp,*m_es,m_timer, edm::StreamID::invalidStreamID(), parentContext, nullptr);
-    auto b = iBase->createOutputModuleCommunicator();
-    CPPUNIT_ASSERT(b.get());
-    b->writeRun(*m_rp, nullptr);
+    iComm->writeRun(*m_rp, nullptr);
   };
   
-  m_transToFunc[Trans::kGlobalCloseInputFile] = [this](edm::Worker* iBase) {
+  m_transToFunc[Trans::kGlobalCloseInputFile] = [this](edm::Worker* iBase, edm::OutputModuleCommunicator*) {
     edm::FileBlock fb;
     iBase->respondToCloseInputFile(fb);
   };
@@ -306,9 +302,9 @@ m_ep()
 namespace {
   template<typename T>
   void
-  testTransition(T* iMod, edm::Worker* iWorker, testOneOutputModule::Trans iTrans, testOneOutputModule::Expectations const& iExpect, std::function<void(edm::Worker*)> iFunc) {
+  testTransition(T* iMod, edm::Worker* iWorker, edm::OutputModuleCommunicator* iComm, testOneOutputModule::Trans iTrans, testOneOutputModule::Expectations const& iExpect, std::function<void(edm::Worker*, edm::OutputModuleCommunicator*)> iFunc) {
     assert(0==iMod->m_count);
-    iFunc(iWorker);
+    iFunc(iWorker,iComm);
     auto count = std::count(iExpect.begin(),iExpect.end(),iTrans);
     if(count != iMod->m_count) {
       std::cout<<"For trans " <<static_cast<std::underlying_type<testOneOutputModule::Trans>::type >(iTrans)<< " expected "<<count<<" and got "<<iMod->m_count<<std::endl;
@@ -322,9 +318,10 @@ namespace {
 template<typename T>
 void
 testOneOutputModule::testTransitions(T* iMod, Expectations const& iExpect) {
-  edm::one::OutputWorker w{iMod,m_desc,m_params.actions_};
+  edm::WorkerT<edm::one::OutputModuleBase> w{iMod,m_desc,m_params.actions_};
+  edm::OutputModuleCommunicatorT<edm::one::OutputModuleBase> comm(iMod);
   for(auto& keyVal: m_transToFunc) {
-    testTransition(iMod,&w,keyVal.first,iExpect,keyVal.second);
+    testTransition(iMod,&w,&comm,keyVal.first,iExpect,keyVal.second);
   }
 }
 

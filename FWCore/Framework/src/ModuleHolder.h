@@ -23,6 +23,7 @@
 
 // user include files
 #include "FWCore/Framework/src/WorkerT.h"
+#include "FWCore/Framework/src/OutputModuleCommunicatorT.h"
 
 // forward declarations
 namespace edm {
@@ -43,6 +44,8 @@ namespace edm {
       virtual void setModuleDescription(ModuleDescription const& iDesc) = 0;
       virtual void registerProductsAndCallbacks(ProductRegistry*)=0;
       virtual void replaceModuleFor(Worker*) const = 0;
+
+      virtual std::unique_ptr<OutputModuleCommunicator> createOutputModuleCommunicator() = 0;
     protected:
       void * m_mod;
       Maker const* m_maker;
@@ -73,6 +76,12 @@ namespace edm {
         m_mod = nullptr;
         return m;
       }
+      
+      std::unique_ptr<OutputModuleCommunicator>
+      createOutputModuleCommunicator() {
+        return std::move(OutputModuleCommunicatorT<T>::createIfNeeded(this->module()));
+      }
+
     };
   }
 }

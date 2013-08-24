@@ -280,7 +280,8 @@ namespace edm {
     void addToAllWorkers(Worker* w);
     
     void resetEarlyDelete();
-    void initializeEarlyDelete(edm::ParameterSet const& opts,
+    void initializeEarlyDelete(ModuleRegistry & modReg,
+                               edm::ParameterSet const& opts,
                                edm::ProductRegistry const& preg, 
                                bool allowEarlyDelete);
 

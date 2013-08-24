@@ -7,7 +7,17 @@
 #include "FWCore/Framework/src/OutputModuleCommunicator.h"
 
 namespace edm {
-
+  class OutputModule;
+  
+  namespace one {
+    class OutputModuleBase;
+  }
+  namespace impl {
+    std::unique_ptr<edm::OutputModuleCommunicator> createCommunicatorIfNeeded(void *);
+    std::unique_ptr<edm::OutputModuleCommunicator> createCommunicatorIfNeeded(::edm::OutputModule *);
+    std::unique_ptr<edm::OutputModuleCommunicator> createCommunicatorIfNeeded(::edm::one::OutputModuleBase *);
+  }
+  
   template <typename T>
   
   class OutputModuleCommunicatorT : public edm::OutputModuleCommunicator {
@@ -44,6 +54,10 @@ namespace edm {
     
     virtual ModuleDescription const& description() const override;
 
+    static std::unique_ptr<edm::OutputModuleCommunicator> createIfNeeded(T* iMod) {
+      return std::move(impl::createCommunicatorIfNeeded(iMod));
+      return std::move(std::unique_ptr<edm::OutputModuleCommunicator>{});
+    }
 
   private:
     inline T& module() const { return *module_;}

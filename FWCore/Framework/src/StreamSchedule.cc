@@ -13,6 +13,7 @@
 #include "FWCore/Framework/src/WorkerInPath.h"
 #include "FWCore/Framework/src/ModuleHolder.h"
 #include "FWCore/Framework/src/WorkerT.h"
+#include "FWCore/Framework/src/ModuleRegistry.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
@@ -246,12 +247,13 @@ namespace edm {
     }
 
 
-    initializeEarlyDelete(opts,preg,allowEarlyDelete);
+    initializeEarlyDelete(*modReg, opts,preg,allowEarlyDelete);
     
   } // StreamSchedule::StreamSchedule
 
   
-  void StreamSchedule::initializeEarlyDelete(edm::ParameterSet const& opts, edm::ProductRegistry const& preg, 
+  void StreamSchedule::initializeEarlyDelete(ModuleRegistry & modReg,
+                                             edm::ParameterSet const& opts, edm::ProductRegistry const& preg,
                                        bool allowEarlyDelete) {
     //for now, if have a subProcess, don't allow early delete
     // In the future we should use the SubProcess's 'keep list' to decide what can be kept
@@ -271,8 +273,10 @@ namespace edm {
     unsigned int upperLimitOnReadingWorker =0;
     unsigned int upperLimitOnIndicies = 0;
     unsigned int nUniqueBranchesToDelete=branchToReadingWorker.size();
-    for (auto w :allWorkers()) {
-      auto comm = w->createOutputModuleCommunicator();
+    
+    //talk with output modules first
+    modReg.forAllModuleHolders([this, &branchToReadingWorker,&nUniqueBranchesToDelete](maker::ModuleHolder* iHolder){
+      auto comm = iHolder->createOutputModuleCommunicator();
       if (comm) {
         if(branchToReadingWorker.size()>0) {
           //If an OutputModule needs a product, we can't delete it early
@@ -286,26 +290,30 @@ namespace edm {
             }
           }
         }
-      } else {
-        if(branchToReadingWorker.size()>0) {
-          //determine if this module could read a branch we want to delete early
-          auto pset = pset::Registry::instance()->getMapped(w->description().parameterSetID());
-          if(0!=pset) {
-            auto branches = pset->getUntrackedParameter<std::vector<std::string>>("mightGet",kEmpty);
-            if(not branches.empty()) {
-              ++upperLimitOnReadingWorker;
-            }
-            for(auto const& branch:branches){ 
-              auto found = branchToReadingWorker.equal_range(branch);
-              if(found.first != found.second) {
-                ++upperLimitOnIndicies;
-                ++reserveSizeForWorker[w];
-                if(nullptr == found.first->second) {
-                  found.first->second = w;
-                } else {
-                  branchToReadingWorker.insert(make_pair(found.first->first,w));
-                }
-              }
+      }
+    });
+    
+    if(branchToReadingWorker.size()==0) {
+      return;
+    }
+    
+    for (auto w :allWorkers()) {
+      //determine if this module could read a branch we want to delete early
+      auto pset = pset::Registry::instance()->getMapped(w->description().parameterSetID());
+      if(0!=pset) {
+        auto branches = pset->getUntrackedParameter<std::vector<std::string>>("mightGet",kEmpty);
+        if(not branches.empty()) {
+          ++upperLimitOnReadingWorker;
+        }
+        for(auto const& branch:branches){
+          auto found = branchToReadingWorker.equal_range(branch);
+          if(found.first != found.second) {
+            ++upperLimitOnIndicies;
+            ++reserveSizeForWorker[w];
+            if(nullptr == found.first->second) {
+              found.first->second = w;
+            } else {
+              branchToReadingWorker.insert(make_pair(found.first->first,w));
             }
           }
         }

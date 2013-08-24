@@ -95,6 +95,18 @@ namespace edm {
   ModuleDescription const& OutputModuleCommunicatorT<T>::description() const {
     return module().description();
   }
+  
+  namespace impl {
+    std::unique_ptr<edm::OutputModuleCommunicator> createCommunicatorIfNeeded(void *) {
+      return std::move(std::unique_ptr<edm::OutputModuleCommunicator>{});
+    }
+    std::unique_ptr<edm::OutputModuleCommunicator> createCommunicatorIfNeeded(::edm::OutputModule * iMod){
+      return std::move(std::unique_ptr<edm::OutputModuleCommunicator>{ new OutputModuleCommunicatorT<edm::OutputModule>(iMod) });
+    }
+    std::unique_ptr<edm::OutputModuleCommunicator> createCommunicatorIfNeeded(::edm::one::OutputModuleBase * iMod){
+      return std::move(std::unique_ptr<edm::OutputModuleCommunicator>{ new OutputModuleCommunicatorT<edm::one::OutputModuleBase>(iMod) });
+    }
+  }
 }
 
 #include "FWCore/Framework/interface/OutputModule.h"

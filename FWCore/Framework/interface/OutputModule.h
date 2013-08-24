@@ -44,7 +44,7 @@ namespace edm {
     template <typename T> friend class WorkerT;
     template <typename T> friend class OutputModuleCommunicatorT;
     typedef OutputModule ModuleType;
-    typedef OutputWorker WorkerType;
+    typedef WorkerT<OutputModule> WorkerType;
 
     explicit OutputModule(ParameterSet const& pset);
     virtual ~OutputModule();
@@ -175,7 +175,7 @@ namespace edm {
     void doPreForkReleaseResources();
     void doPostForkReacquireResources(unsigned int iChildIndex, unsigned int iNumberOfChildren);
 
-    std::string workerType() const {return "OutputWorker";}
+    std::string workerType() const {return "WorkerT<OutputModule>";}
 
     /// Tell the OutputModule that is must end the current file.
     void doCloseFile();
@@ -223,9 +223,4 @@ namespace edm {
     bool limitReached() const {return remainingEvents_ == 0;}
   };
 }
-
-//this is included after the class definition since this header also needs to know about OutputModule
-// we put this here since all OutputModules need this header to create their plugin
-#include "FWCore/Framework/src/OutputWorker.h"
-
 #endif

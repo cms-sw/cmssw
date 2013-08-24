@@ -52,8 +52,7 @@ namespace edm {
   class ProductHolderIndexHelper;
   class StreamID;
   class StreamContext;
-  class OutputModuleCommunicator;
-
+  
   namespace workerhelper {
     template< typename O> class CallImpl;
   }
@@ -89,9 +88,6 @@ namespace edm {
     void pathFinished(EventPrincipal&);
     void postDoEvent(EventPrincipal&);
 
-    ///\return nullptr if Worker is not wrapping an OutputModule
-    virtual std::unique_ptr<OutputModuleCommunicator> createOutputModuleCommunicator();
-    
     ModuleDescription const& description() const {return md_;}
     ModuleDescription const* descPtr() const {return &md_; }
     ///The signals are required to live longer than the last call to 'doWork'
