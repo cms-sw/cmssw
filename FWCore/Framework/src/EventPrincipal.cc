@@ -293,7 +293,7 @@ namespace edm {
         << "https://twiki.cern.ch/twiki/bin/view/CMSPublic/SWGuideUnscheduledExecution#Circular_Dependence_Errors.";
     }
 
-    moduleLabelsRunning_.push_back(moduleLabel);
+    UnscheduledSentry sentry(&moduleLabelsRunning_, moduleLabel);
 
     if(unscheduledHandler_) {
       if(mcc == nullptr) {
@@ -304,7 +304,6 @@ namespace edm {
       }
       unscheduledHandler_->tryToFill(moduleLabel, *const_cast<EventPrincipal*>(this), mcc);
     }
-    moduleLabelsRunning_.pop_back();
     return true;
   }
 }

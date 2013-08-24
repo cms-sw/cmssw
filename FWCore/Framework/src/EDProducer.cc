@@ -4,7 +4,6 @@
 ----------------------------------------------------------------------*/
 
 #include "FWCore/Framework/interface/EDProducer.h"
-#include "FWCore/Framework/src/CPCSentry.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "FWCore/Framework/interface/Run.h"
@@ -17,7 +16,6 @@ namespace edm {
   EDProducer::EDProducer() :
       ProducerBase(),
       moduleDescription_(),
-      current_context_(nullptr),
       previousParentage_(),
       previousParentageId_() { }
 
@@ -25,9 +23,7 @@ namespace edm {
 
   bool
   EDProducer::doEvent(EventPrincipal& ep, EventSetup const& c,
-		      CurrentProcessingContext const* cpc,
                       ModuleCallingContext const* mcc) {
-    detail::CPCSentry sentry(current_context_, cpc);
     Event e(ep, moduleDescription_, mcc);
     e.setConsumer(this);
     this->produce(e, c);
@@ -47,9 +43,7 @@ namespace edm {
 
   void
   EDProducer::doBeginRun(RunPrincipal& rp, EventSetup const& c,
-			 CurrentProcessingContext const* cpc,
                          ModuleCallingContext const* mcc) {
-    detail::CPCSentry sentry(current_context_, cpc);
     Run r(rp, moduleDescription_, mcc);
     r.setConsumer(this);
     Run const& cnstR = r;
@@ -59,9 +53,7 @@ namespace edm {
 
   void
   EDProducer::doEndRun(RunPrincipal& rp, EventSetup const& c,
-		       CurrentProcessingContext const* cpc,
                        ModuleCallingContext const* mcc) {
-    detail::CPCSentry sentry(current_context_, cpc);
     Run r(rp, moduleDescription_, mcc);
     r.setConsumer(this);
     Run const& cnstR = r;
@@ -71,9 +63,7 @@ namespace edm {
 
   void
   EDProducer::doBeginLuminosityBlock(LuminosityBlockPrincipal& lbp, EventSetup const& c,
-			             CurrentProcessingContext const* cpc,
                                      ModuleCallingContext const* mcc) {
-    detail::CPCSentry sentry(current_context_, cpc);
     LuminosityBlock lb(lbp, moduleDescription_, mcc);
     lb.setConsumer(this);
     LuminosityBlock const& cnstLb = lb;
@@ -83,9 +73,7 @@ namespace edm {
 
   void
   EDProducer::doEndLuminosityBlock(LuminosityBlockPrincipal& lbp, EventSetup const& c,
-			           CurrentProcessingContext const* cpc,
                                    ModuleCallingContext const* mcc) {
-    detail::CPCSentry sentry(current_context_, cpc);
     LuminosityBlock lb(lbp, moduleDescription_, mcc);
     lb.setConsumer(this);
     LuminosityBlock const& cnstLb = lb;
@@ -113,11 +101,6 @@ namespace edm {
     postForkReacquireResources(iChildIndex, iNumberOfChildren);
   }
   
-  CurrentProcessingContext const*
-  EDProducer::currentContext() const {
-    return current_context_;
-  }
-
   void
   EDProducer::fillDescriptions(ConfigurationDescriptions& descriptions) {
     ParameterSetDescription desc;

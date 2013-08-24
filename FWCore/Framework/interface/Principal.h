@@ -43,6 +43,7 @@ pointer to a ProductHolder, when queried.
 namespace edm {
 
   class HistoryAppender;
+  class ModuleCallingContext;
   class ProductHolderIndexHelper;
   class EDConsumerBase;
 

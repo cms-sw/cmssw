@@ -74,7 +74,9 @@
 #include "FWCore/MessageLogger/interface/ExceptionMessages.h"
 #include "FWCore/MessageLogger/interface/JobReport.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ServiceRegistry/interface/GlobalContext.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/ServiceRegistry/interface/StreamContext.h"
 #include "FWCore/Utilities/interface/Algorithms.h"
 #include "FWCore/Utilities/interface/BranchType.h"
 #include "FWCore/Utilities/interface/ConvertException.h"
@@ -91,6 +93,16 @@
 #include <sstream>
 
 namespace edm {
+
+  class ActivityRegistry;
+  class BranchIDListHelper;
+  class EventSetup;
+  class ExceptionCollector;
+  class OutputModuleCommunicator;
+  class ProcessContext;
+  class RunStopwatch;
+  class UnscheduledCallProducer;
+  class WorkerInPath;
 
   namespace {
     template <typename T>
@@ -116,15 +128,7 @@ namespace edm {
   namespace service {
     class TriggerNamesService;
   }
-  class ActivityRegistry;
-  class BranchIDListHelper;
-  class EventSetup;
-  class ExceptionCollector;
-  class OutputModuleCommunicator;
-  class ProcessContext;
-  class RunStopwatch;
-  class UnscheduledCallProducer;
-  class WorkerInPath;
+
   class Schedule {
   public:
     typedef std::vector<std::string> vstring;
@@ -407,7 +411,7 @@ namespace edm {
         try {
           CPUTimer timer;
           ParentContext parentContext(&streamContext_);
-          if (results_inserter_.get()) results_inserter_->doWork<T>(ep, es, nullptr, &timer,streamID_, parentContext, &streamContext_);
+          if (results_inserter_.get()) results_inserter_->doWork<T>(ep, es, &timer,streamID_, parentContext, &streamContext_);
         }
         catch (cms::Exception & ex) {
           if (T::isEvent_) {

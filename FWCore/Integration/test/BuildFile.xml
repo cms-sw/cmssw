@@ -225,6 +225,7 @@
   </library>
   <library   file="ESTestProducers.cc,ESTestAnalyzers.cc" name="ESTestModules">
     <flags   EDM_PLUGIN="1"/>
+    <use   name="DataFormats/Provenance"/>
     <use   name="FWCore/Framework"/>
     <use   name="FWCore/Integration"/>
     <use   name="FWCore/MessageLogger"/>

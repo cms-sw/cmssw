@@ -4,8 +4,12 @@
 
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
+#include "DataFormats/Provenance/interface/ModuleDescription.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/ServiceRegistry/interface/ModuleCallingContext.h"
 
+
+#include <cassert>
 #include <string>
 #include <iostream>
 #include <algorithm>
@@ -62,8 +66,8 @@ namespace edmtest
 
   private:
     virtual void write(edm::EventPrincipal const& e, ModuleCallingContext const*) override;
-    virtual void writeLuminosityBlock(edm::LuminosityBlockPrincipal const&, ModuleCallingContext const*) override {}
-    virtual void writeRun(edm::RunPrincipal const&, ModuleCallingContext const*) override {}
+    virtual void writeLuminosityBlock(edm::LuminosityBlockPrincipal const&, ModuleCallingContext const*) override;
+    virtual void writeRun(edm::RunPrincipal const&, ModuleCallingContext const*) override;
     virtual void endJob() override;
 
     std::string name_;
@@ -89,7 +93,8 @@ namespace edmtest
 
   void TestOutputModule::write(edm::EventPrincipal const& e, ModuleCallingContext const* mcc)
   {
-    assert(currentContext() != 0);
+    assert(mcc != nullptr);
+    assert(mcc->moduleDescription()->moduleLabel() == description().moduleLabel());
 
     Trig prod;
 
@@ -164,12 +169,20 @@ namespace edmtest
     else std::cout <<"\nSUCCESS: Found Matching Bits"<< std::endl;
   }
 
+  void TestOutputModule::writeLuminosityBlock(edm::LuminosityBlockPrincipal const&, ModuleCallingContext const* mcc) {
+    assert(mcc != nullptr);
+    assert(mcc->moduleDescription()->moduleLabel() == description().moduleLabel());
+  }
+
+  void TestOutputModule::writeRun(edm::RunPrincipal const&, ModuleCallingContext const* mcc) {
+    assert(mcc != nullptr);
+    assert(mcc->moduleDescription()->moduleLabel() == description().moduleLabel());
+  }
+
   void TestOutputModule::endJob()
   {
-    assert( currentContext() == 0 );
   }
 }
-
 using edmtest::TestOutputModule;
 
 DEFINE_FWK_MODULE(TestOutputModule);

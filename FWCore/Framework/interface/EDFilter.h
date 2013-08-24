@@ -30,7 +30,7 @@ namespace edm {
     typedef EDFilter ModuleType;
     typedef WorkerT<EDFilter> WorkerType;
     
-     EDFilter() : ProducerBase() , moduleDescription_(), current_context_(nullptr), 
+     EDFilter() : ProducerBase() , moduleDescription_(),
      previousParentage_(), previousParentageId_() {
     }
     virtual ~EDFilter();
@@ -43,28 +43,18 @@ namespace edm {
     // Warning: the returned moduleDescription will be invalid during construction
     ModuleDescription const& moduleDescription() const { return moduleDescription_; }
 
-  protected:
-    // The returned pointer will be null unless the this is currently
-    // executing its event loop function ('filter').
-    CurrentProcessingContext const* currentContext() const;
-
   private:    
     bool doEvent(EventPrincipal& ep, EventSetup const& c,
-                 CurrentProcessingContext const* cpc,
                  ModuleCallingContext const* mcc);
     void doBeginJob();
     void doEndJob();    
     void doBeginRun(RunPrincipal& rp, EventSetup const& c,
-                    CurrentProcessingContext const* cpc,
                     ModuleCallingContext const* mcc);
     void doEndRun(RunPrincipal& rp, EventSetup const& c,
-                  CurrentProcessingContext const* cpc,
                   ModuleCallingContext const* mcc);
     void doBeginLuminosityBlock(LuminosityBlockPrincipal& lbp, EventSetup const& c,
-                                CurrentProcessingContext const* cpc,
                                 ModuleCallingContext const* mcc);
     void doEndLuminosityBlock(LuminosityBlockPrincipal& lbp, EventSetup const& c,
-                              CurrentProcessingContext const* cpc,
                               ModuleCallingContext const* mcc);
     void doRespondToOpenInputFile(FileBlock const& fb);
     void doRespondToCloseInputFile(FileBlock const& fb);
@@ -94,7 +84,6 @@ namespace edm {
       moduleDescription_ = md;
     }
     ModuleDescription moduleDescription_;
-    CurrentProcessingContext const* current_context_;
     std::vector<BranchID> previousParentage_;
     ParentageID previousParentageId_;
   };

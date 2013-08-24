@@ -25,7 +25,6 @@ namespace edm {
   class EDLooperBase;
   class HistoryAppender;
   class IOVSyncValue;
-  class ModuleCallingContext;
   class ParameterSet;
   class ProductRegistry;
   namespace eventsetup {

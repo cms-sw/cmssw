@@ -59,7 +59,6 @@ namespace edm {
       // ---------- member functions ---------------------------
       
     protected:
-      using EDAnalyzerBase::currentContext;
       using EDAnalyzerBase::callWhenNewProductsRegistered;
       
     private:

@@ -69,16 +69,10 @@ namespace edm {
       virtual void endStream(){}
 
       // ---------- member data --------------------------------
-      CurrentProcessingContext const* current_context_;
 
       std::vector<BranchID> previousParentage_;
       ParentageID previousParentageId_;
-
     };
-    
   }
 }
-
-
-
 #endif
