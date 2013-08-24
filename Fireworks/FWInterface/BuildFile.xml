@@ -1,6 +1,9 @@
 <use name="FWCore/PluginManager"/>
 <use name="FWCore/Framework"/>
 <use name="DataFormats/Provenance"/>
+<use name="DataFormats/TrackReco"/>
+<use name="TrackingTools/TrajectoryState"/>
+<use name="TrackingTools/PatternTools"/>
 <use name="CondFormats/DataRecord"/>
 <use name="CondFormats/RunInfo"/>
 <use name="Fireworks/Core"/>
