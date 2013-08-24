@@ -42,7 +42,7 @@ namespace edm {
   public:
     template <typename T> friend class maker::ModuleHolderT;
     template <typename T> friend class WorkerT;
-    friend class ClassicOutputModuleCommunicator;
+    template <typename T> friend class OutputModuleCommunicatorT;
     typedef OutputModule ModuleType;
     typedef OutputWorker WorkerType;
 
