@@ -58,14 +58,8 @@ namespace edm {
       // Warning: the returned moduleDescription will be invalid during construction
       ModuleDescription const& moduleDescription() const { return moduleDescription_; }
 
-    protected:
-      // The returned pointer will be null unless the this is currently
-      // executing its event loop function ('produce').
-      CurrentProcessingContext const* currentContext() const;
-      
     private:
       bool doEvent(EventPrincipal& ep, EventSetup const& c,
-                   CurrentProcessingContext const* cpcp,
                    ModuleCallingContext const*);
       void doBeginJob();
       void doEndJob();
@@ -75,36 +69,28 @@ namespace edm {
       void doStreamBeginRun(StreamID id,
                             RunPrincipal& ep,
                             EventSetup const& c,
-                            CurrentProcessingContext const* cpcp,
                             ModuleCallingContext const*);
       void doStreamEndRun(StreamID id,
                           RunPrincipal& ep,
                           EventSetup const& c,
-                          CurrentProcessingContext const* cpcp,
                           ModuleCallingContext const*);
       void doStreamBeginLuminosityBlock(StreamID id,
                                         LuminosityBlockPrincipal& ep,
                                         EventSetup const& c,
-                                        CurrentProcessingContext const* cpcp,
                                         ModuleCallingContext const*);
       void doStreamEndLuminosityBlock(StreamID id,
                                       LuminosityBlockPrincipal& ep,
                                       EventSetup const& c,
-                                      CurrentProcessingContext const* cpcp,
                                       ModuleCallingContext const*);
 
       
       void doBeginRun(RunPrincipal& rp, EventSetup const& c,
-                      CurrentProcessingContext const* cpc,
                       ModuleCallingContext const*);
       void doEndRun(RunPrincipal& rp, EventSetup const& c,
-                    CurrentProcessingContext const* cpc,
                     ModuleCallingContext const*);
       void doBeginLuminosityBlock(LuminosityBlockPrincipal& lbp, EventSetup const& c,
-                                  CurrentProcessingContext const* cpc,
                                   ModuleCallingContext const*);
       void doEndLuminosityBlock(LuminosityBlockPrincipal& lbp, EventSetup const& c,
-                                CurrentProcessingContext const* cpc,
                                 ModuleCallingContext const*);
       
       //For now, the following are just dummy implemenations with no ability for users to override
@@ -151,7 +137,6 @@ namespace edm {
         moduleDescription_ = md;
       }
       ModuleDescription moduleDescription_;
-      CurrentProcessingContext const* current_context_; //Change in future
       std::vector<BranchID> previousParentage_; //Per stream in the future?
       ParentageID previousParentageId_;
     };

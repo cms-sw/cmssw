@@ -64,10 +64,10 @@ namespace edm {
                             bool isEvent,
                             bool begin,
                             BranchType branchType,
-                            CurrentProcessingContext const& cpc,
+                            ModuleDescription const& desc,
                             std::string const& id) {
 
-    exceptionContext(e, isEvent, begin, branchType, cpc, id);
+    exceptionContext(e, isEvent, begin, branchType, desc, id, pathContext_);
 
     bool should_continue = true;
 
@@ -107,8 +107,9 @@ namespace edm {
                          bool isEvent,
                          bool begin,
                          BranchType branchType,
-                         CurrentProcessingContext const& cpc,
-                         std::string const& id) {
+                         ModuleDescription const& desc,
+                         std::string const& id,
+                         PathContext const& pathContext) {
     std::ostringstream ost;
     if (isEvent) {
       ost << "Calling event method";
@@ -129,18 +130,10 @@ namespace edm {
       // It should be impossible to get here ...
       ost << "Calling unknown function";
     }
-    if (cpc.moduleDescription()) {
-      ost << " for module " << cpc.moduleDescription()->moduleName() << "/'" << cpc.moduleDescription()->moduleLabel() << "'";
-    }
+    ost << " for module " << desc.moduleName() << "/'" << desc.moduleLabel() << "'";
     ex.addContext(ost.str());
     ost.str("");
-    ost << "Running path '";
-    if (cpc.pathName()) {
-      ost << *cpc.pathName() << "'";
-    }
-    else {
-      ost << "unknown'";
-    }
+    ost << "Running path '" << pathContext.pathName() << "'";
     ex.addContext(ost.str());
     ost.str("");
     ost << "Processing ";

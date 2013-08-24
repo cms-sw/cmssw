@@ -9,7 +9,6 @@
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/src/WorkerT.h"
 #include "FWCore/Framework/interface/ExceptionActions.h"
-#include "FWCore/Framework/interface/CurrentProcessingContext.h"
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
 #include "FWCore/Framework/src/WorkerMaker.h"
 #include "FWCore/Framework/src/MakeModuleParams.h"
@@ -33,10 +32,6 @@ TestMod::TestMod(ParameterSet const&)
 
 void TestMod::produce(Event&, EventSetup const&)
 {
-  edm::CurrentProcessingContext const* p = currentContext();
-  CPPUNIT_ASSERT( p != 0 );
-  CPPUNIT_ASSERT( p->moduleDescription() != 0 );
-  CPPUNIT_ASSERT( p->moduleLabel() != 0 );
 }
 
 // ----------------------------------------------

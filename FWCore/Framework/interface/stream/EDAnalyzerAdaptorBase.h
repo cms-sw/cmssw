@@ -82,7 +82,6 @@ namespace edm {
       const EDAnalyzerAdaptorBase& operator=(const EDAnalyzerAdaptorBase&); // stop default
       
       bool doEvent(EventPrincipal& ep, EventSetup const& c,
-                   CurrentProcessingContext const* cpcp,
                    ModuleCallingContext const*) ;
       void doBeginJob();
       virtual void doEndJob() = 0;
@@ -92,43 +91,34 @@ namespace edm {
       void doStreamBeginRun(StreamID id,
                             RunPrincipal& ep,
                             EventSetup const& c,
-                            CurrentProcessingContext const* cpcp,
                             ModuleCallingContext const*);
       virtual void setupRun(EDAnalyzerBase*, RunIndex) = 0;
       void doStreamEndRun(StreamID id,
                           RunPrincipal& ep,
                           EventSetup const& c,
-                          CurrentProcessingContext const* cpcp,
                           ModuleCallingContext const*);
       virtual void streamEndRunSummary(EDAnalyzerBase*,edm::Run const&, edm::EventSetup const&) = 0;
 
       void doStreamBeginLuminosityBlock(StreamID id,
                                         LuminosityBlockPrincipal& ep,
                                         EventSetup const& c,
-                                        CurrentProcessingContext const* cpcp,
                                         ModuleCallingContext const*);
       virtual void setupLuminosityBlock(EDAnalyzerBase*, LuminosityBlockIndex) = 0;
       void doStreamEndLuminosityBlock(StreamID id,
                                       LuminosityBlockPrincipal& ep,
                                       EventSetup const& c,
-                                      CurrentProcessingContext const* cpcp,
                                       ModuleCallingContext const*);
       virtual void streamEndLuminosityBlockSummary(EDAnalyzerBase*,edm::LuminosityBlock const&, edm::EventSetup const&) = 0;
-      
-      
+
       virtual void doBeginRun(RunPrincipal& rp, EventSetup const& c,
-                              CurrentProcessingContext const* cpc,
                               ModuleCallingContext const*)=0;
       virtual void doEndRun(RunPrincipal& rp, EventSetup const& c,
-                            CurrentProcessingContext const* cpc,
                             ModuleCallingContext const*)=0;
       virtual void doBeginLuminosityBlock(LuminosityBlockPrincipal& lbp, EventSetup const& c,
-                                          CurrentProcessingContext const* cpc,
                                           ModuleCallingContext const*)=0;
       virtual void doEndLuminosityBlock(LuminosityBlockPrincipal& lbp, EventSetup const& c,
-                                        CurrentProcessingContext const* cpc,
                                         ModuleCallingContext const*)=0;
-      
+
       //For now, the following are just dummy implemenations with no ability for users to override
       void doRespondToOpenInputFile(FileBlock const& fb);
       void doRespondToCloseInputFile(FileBlock const& fb);
@@ -140,11 +130,9 @@ namespace edm {
         moduleDescription_ = md;
       }
       ModuleDescription moduleDescription_;
-      
-      std::vector<EDAnalyzerBase*> m_streamModules;
 
+      std::vector<EDAnalyzerBase*> m_streamModules;
     };
   }
 }
-
 #endif

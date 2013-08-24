@@ -82,7 +82,6 @@ private:
   boost::shared_ptr<edm::LuminosityBlockPrincipal> m_lbp;
   boost::shared_ptr<edm::RunPrincipal> m_rp;
   edm::EventSetup* m_es = nullptr;
-  edm::CurrentProcessingContext* m_context = nullptr;
   edm::ModuleDescription m_desc = {"Dummy","dummy"};
   edm::CPUTimer* m_timer = nullptr;
   edm::WorkerParams m_params;
@@ -242,22 +241,22 @@ m_ep()
   m_transToFunc[Trans::kGlobalBeginRun] = [this](edm::Worker* iBase) {
     typedef edm::OccurrenceTraits<edm::RunPrincipal, edm::BranchActionGlobalBegin> Traits;
     edm::ParentContext parentContext;
-    iBase->doWork<Traits>(*m_rp,*m_es,m_context,m_timer, edm::StreamID::invalidStreamID(), parentContext, nullptr); };
+    iBase->doWork<Traits>(*m_rp,*m_es,m_timer, edm::StreamID::invalidStreamID(), parentContext, nullptr); };
   
   m_transToFunc[Trans::kGlobalBeginLuminosityBlock] = [this](edm::Worker* iBase) {
     typedef edm::OccurrenceTraits<edm::LuminosityBlockPrincipal, edm::BranchActionGlobalBegin> Traits;
     edm::ParentContext parentContext;
-    iBase->doWork<Traits>(*m_lbp,*m_es,m_context,m_timer, edm::StreamID::invalidStreamID(), parentContext, nullptr); };
+    iBase->doWork<Traits>(*m_lbp,*m_es,m_timer, edm::StreamID::invalidStreamID(), parentContext, nullptr); };
   
   m_transToFunc[Trans::kEvent] = [this](edm::Worker* iBase) {
     typedef edm::OccurrenceTraits<edm::EventPrincipal, edm::BranchActionStreamBegin> Traits;
     edm::ParentContext parentContext;
-    iBase->doWork<Traits>(*m_ep,*m_es,m_context,m_timer, edm::StreamID::invalidStreamID(), parentContext, nullptr); };
+    iBase->doWork<Traits>(*m_ep,*m_es,m_timer, edm::StreamID::invalidStreamID(), parentContext, nullptr); };
 
   m_transToFunc[Trans::kGlobalEndLuminosityBlock] = [this](edm::Worker* iBase) {
     typedef edm::OccurrenceTraits<edm::LuminosityBlockPrincipal, edm::BranchActionGlobalEnd> Traits;
     edm::ParentContext parentContext;
-    iBase->doWork<Traits>(*m_lbp,*m_es,m_context,m_timer, edm::StreamID::invalidStreamID(), parentContext, nullptr);
+    iBase->doWork<Traits>(*m_lbp,*m_es,m_timer, edm::StreamID::invalidStreamID(), parentContext, nullptr);
     auto b =iBase->createOutputModuleCommunicator();
     CPPUNIT_ASSERT(b.get());
     b->writeLumi(*m_lbp, nullptr);
@@ -266,7 +265,7 @@ m_ep()
   m_transToFunc[Trans::kGlobalEndRun] = [this](edm::Worker* iBase) {
     typedef edm::OccurrenceTraits<edm::RunPrincipal, edm::BranchActionGlobalEnd> Traits;
     edm::ParentContext parentContext;
-    iBase->doWork<Traits>(*m_rp,*m_es,m_context,m_timer, edm::StreamID::invalidStreamID(), parentContext, nullptr);
+    iBase->doWork<Traits>(*m_rp,*m_es,m_timer, edm::StreamID::invalidStreamID(), parentContext, nullptr);
     auto b = iBase->createOutputModuleCommunicator();
     CPPUNIT_ASSERT(b.get());
     b->writeRun(*m_rp, nullptr);

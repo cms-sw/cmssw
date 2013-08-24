@@ -170,6 +170,19 @@ namespace edm {
 
   private:
 
+    class UnscheduledSentry {
+    public:
+      UnscheduledSentry(std::vector<std::string>* moduleLabelsRunning, std::string const& moduleLabel) :
+        moduleLabelsRunning_(moduleLabelsRunning) {
+        moduleLabelsRunning_->push_back(moduleLabel);
+      }
+      ~UnscheduledSentry() {
+        moduleLabelsRunning_->pop_back();
+      }
+    private:
+      std::vector<std::string>* moduleLabelsRunning_;
+    };
+
     EventAuxiliary aux_;
 
     boost::shared_ptr<LuminosityBlockPrincipal> luminosityBlockPrincipal_;

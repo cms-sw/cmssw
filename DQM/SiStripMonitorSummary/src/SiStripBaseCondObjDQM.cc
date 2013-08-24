@@ -49,7 +49,7 @@ SiStripBaseCondObjDQM::SiStripBaseCondObjDQM(const edm::EventSetup & eSetup,
 //======================================
 // -----
 void SiStripBaseCondObjDQM::analysis(const edm::EventSetup & eSetup_){
- 
+
   cacheID_current=  getCache(eSetup_);
   
   if (cacheID_memory == cacheID_current) return;
@@ -64,8 +64,8 @@ void SiStripBaseCondObjDQM::analysis(const edm::EventSetup & eSetup_){
 
   selectModules(activeDetIds);
 
-  if(Mod_On_ )                                            { fillModMEs(activeDetIds, eSetup_); }
-  if(SummaryOnLayerLevel_On_ || SummaryOnStringLevel_On_ ){ fillSummaryMEs(activeDetIds, eSetup_);}
+  if(Mod_On_ )                                            { fillModMEs    (activeDetIds, eSetup_); }
+  if(SummaryOnLayerLevel_On_ || SummaryOnStringLevel_On_ ){ fillSummaryMEs(activeDetIds, eSetup_); }
 
   std::string filename = hPSet_.getParameter<std::string>("TkMapName");
   if (filename!=""){
@@ -164,113 +164,145 @@ std::vector<uint32_t> SiStripBaseCondObjDQM::getCabledModules() {
 //#FIXME : very long method. please factorize it
  
 void SiStripBaseCondObjDQM::selectModules(std::vector<uint32_t> & detIds_){
-   
-  ModulesToBeExcluded_     = fPSet_.getParameter< std::vector<unsigned int> >("ModulesToBeExcluded");
-  ModulesToBeIncluded_     = fPSet_.getParameter< std::vector<unsigned int> >("ModulesToBeIncluded");
-  SubDetectorsToBeExcluded_= fPSet_.getParameter< std::vector<std::string> >("SubDetectorsToBeExcluded");  
-
-  // vectors to be sorted otherwise the intersection is non computed properly
-
-  std::sort(ModulesToBeExcluded_.begin(),ModulesToBeExcluded_.end());
-  std::sort(ModulesToBeIncluded_.begin(),ModulesToBeIncluded_.end());
-
-  if(fPSet_.getParameter<bool>("restrictModules") 
-     && ModulesToBeExcluded_.size()==0 
-     && ModulesToBeIncluded_.size()==0 ){
-    edm::LogWarning("SiStripBaseCondObjDQM") 
-       << "[SiStripBaseCondObjDQM::selectModules] PLEASE CHECK : no modules to be exclude/included in your cfg"
-       << std::endl; 
-  }
-
- 
- 
   
-  // --> detIds to start with
-
+  edm::LogInfo("SiStripBaseCondObjDQM") << "[SiStripBaseCondObjDQM::selectModules] input detIds_: " << detIds_.size() << std::endl;
+  
   if( fPSet_.getParameter<bool>("restrictModules")){
-      
-    if( ModulesToBeIncluded_.size()>0 ){
-     std::vector<uint32_t> tmp;
-     tmp.clear();
-     set_intersection( detIds_.begin(), detIds_.end(),  
-                       ModulesToBeIncluded_.begin(), ModulesToBeIncluded_.end(),
-		       inserter(tmp,tmp.begin()));
-     swap(detIds_,tmp);
-   }
+
+    std::map<unsigned int, std::string> m_included_subdets;
+    std::map<unsigned int, DetIdSelector> m_included_subdetsels;
+    std::vector<edm::ParameterSet> included_subdets = fPSet_.getParameter<std::vector<edm::ParameterSet> >("ModulesToBeIncluded_DetIdSelector");
+    for(std::vector<edm::ParameterSet>::const_iterator wsdps = included_subdets.begin();wsdps!=included_subdets.end();++wsdps) {
+      m_included_subdets   [wsdps->getParameter<unsigned int>("detSelection")] = wsdps->getParameter<std::string>("detLabel");
+      m_included_subdetsels[wsdps->getParameter<unsigned int>("detSelection")] = 
+	DetIdSelector(wsdps->getUntrackedParameter<std::vector<std::string> >("selection",std::vector<std::string>()));
+    }
     
-  }
-
-  
-
-  // -----
-  // *** exclude modules ***
-  
-  if( fPSet_.getParameter<bool>("restrictModules") ){
+    std::vector<uint32_t> modulesToBeIncluded;
+    for(std::vector<uint32_t>::const_iterator detid=detIds_.begin();detid!=detIds_.end();++detid) {
+      for(std::map<unsigned int,DetIdSelector>::const_iterator detidsel=m_included_subdetsels.begin();detidsel!=m_included_subdetsels.end();++detidsel) {
+	DetIdSelector detIdSel = detidsel->second;
+	if(detIdSel.isSelected(*detid)) {
+	  modulesToBeIncluded.push_back(*detid);
+	  //	  std::cout << "detId: " << *detid << " is selected" << std::endl;
+	}
+      }
+    }
+    
+    // -----
+    // *** exclude modules ***
+    std::map<unsigned int, std::string> m_excluded_subdets;
+    std::map<unsigned int, DetIdSelector> m_excluded_subdetsels;
+    std::vector<edm::ParameterSet> excluded_subdets = fPSet_.getParameter<std::vector<edm::ParameterSet> >("ModulesToBeExcluded_DetIdSelector");
+    for(std::vector<edm::ParameterSet>::const_iterator wsdps = excluded_subdets.begin();wsdps!=excluded_subdets.end();++wsdps) {
+      m_excluded_subdets   [wsdps->getParameter<unsigned int>("detSelection")] = wsdps->getParameter<std::string>("detLabel");
+      m_excluded_subdetsels[wsdps->getParameter<unsigned int>("detSelection")] = 
+	DetIdSelector(wsdps->getUntrackedParameter<std::vector<std::string> >("selection",std::vector<std::string>()));
+    }
+    
+    std::vector<uint32_t> modulesToBeExcluded;
+    for(std::vector<uint32_t>::const_iterator detid=detIds_.begin();detid!=detIds_.end();++detid) {
+      for(std::map<unsigned int,DetIdSelector>::const_iterator detidsel=m_excluded_subdetsels.begin();detidsel!=m_excluded_subdetsels.end();++detidsel) {
+	DetIdSelector detIdSel = detidsel->second;
+	if(detIdSel.isSelected(*detid)) {
+	  modulesToBeExcluded.push_back(*detid);
+	}
+      }
+    }
+    
+    ModulesToBeExcluded_     = fPSet_.getParameter< std::vector<unsigned int> >("ModulesToBeExcluded");
+    ModulesToBeIncluded_     = fPSet_.getParameter< std::vector<unsigned int> >("ModulesToBeIncluded");
+    SubDetectorsToBeExcluded_= fPSet_.getParameter< std::vector<std::string> >("SubDetectorsToBeExcluded");  
+    
+    // vectors to be sorted otherwise the intersection is non computed properly
+    
+    std::sort(ModulesToBeExcluded_.begin(),ModulesToBeExcluded_.end());
+    std::sort(ModulesToBeIncluded_.begin(),ModulesToBeIncluded_.end());
+    
+    if (modulesToBeExcluded.size()==0  && modulesToBeIncluded.size()==0 &&
+	ModulesToBeExcluded_.size()==0 && ModulesToBeIncluded_.size()==0 )
+      edm::LogWarning("SiStripBaseCondObjDQM") 
+	<< "[SiStripBaseCondObjDQM::selectModules] PLEASE CHECK : no modules to be exclude/included in your cfg"
+	<< std::endl; 
+    
+    
+    modulesToBeIncluded.insert(modulesToBeIncluded.end(),ModulesToBeIncluded_.begin(),ModulesToBeIncluded_.end());
+    edm::LogInfo("SiStripBaseCondObjDQM") << "[SiStripBaseCondObjDQM::selectModules] modulesToBeIncluded: " << modulesToBeIncluded.size() << std::endl;
+    modulesToBeExcluded.insert(modulesToBeExcluded.end(),ModulesToBeExcluded_.begin(),ModulesToBeExcluded_.end());
+    edm::LogInfo("SiStripBaseCondObjDQM") << "[SiStripBaseCondObjDQM::selectModules] modulesToBeExcluded: " << modulesToBeExcluded.size() << std::endl;
+    
+    // apply modules selection
+    if( modulesToBeIncluded.size()>0 ){
+      std::vector<uint32_t> tmp;
+      // The intersection of two sets is formed only by the elements that are present in both sets
+      set_intersection( detIds_.begin(), detIds_.end(),  
+			modulesToBeIncluded.begin(), modulesToBeIncluded.end(),
+			inserter(tmp,tmp.begin()));
+      swap(detIds_,tmp);
+    }
     
     std::sort(detIds_.begin(),detIds_.end());
-
-    for( std::vector<uint32_t>::const_iterator modIter_  = ModulesToBeExcluded_.begin(); 
-                                               modIter_ != ModulesToBeExcluded_.end(); modIter_++){
-      
-      std::vector<uint32_t>::iterator detIter_=std::lower_bound(detIds_.begin(),detIds_.end(),*modIter_);
-      detIds_.erase(detIter_);
-      detIter_--;
-     
-    }
-  
-  }
-  // *** exclude modules ***
-  // -----
-   
-
-  // -----
-  // *** restrict to a particular subdetector ***
-   
-  if( *(SubDetectorsToBeExcluded_.begin()) !="none" ){
-    
-    std::vector<uint32_t> tmp;
-
-    SiStripSubStructure substructure_;
-    
-    for( std::vector<std::string>::const_iterator modIter_  = SubDetectorsToBeExcluded_.begin(); 
-                                                 modIter_ != SubDetectorsToBeExcluded_.end(); modIter_++){
-      tmp.clear();
-
-      if (*modIter_=="TIB")     { substructure_.getTIBDetectors(detIds_, tmp, 0,0,0,0);}
-      else if (*modIter_=="TOB") { substructure_.getTOBDetectors(detIds_, tmp, 0,0,0);}
-      else if (*modIter_=="TID") { substructure_.getTIDDetectors(detIds_, tmp, 0,0,0,0);}
-      else if (*modIter_=="TEC") { substructure_.getTECDetectors(detIds_, tmp, 0,0,0,0,0,0);}
-      else {
-        edm::LogWarning("SiStripBaseCondObjDQM") 
-       << "[SiStripBaseCondObjDQM::selectModules] PLEASE CHECK : no correct (name) subdetector to be excluded in your cfg"
-       << std::endl; 
+    if(modulesToBeExcluded.size()>0) {
+      for( std::vector<uint32_t>::const_iterator mod = modulesToBeExcluded.begin(); 
+	   mod != modulesToBeExcluded.end(); mod++){
+	
+	std::vector<uint32_t>::iterator detid=std::lower_bound(detIds_.begin(),detIds_.end(),*mod);
+	if (detid!=detIds_.end())
+	  detIds_.erase(detid);
+	detid--;
       }
-
-      std::vector<uint32_t>::iterator iterBegin_=std::lower_bound(detIds_.begin(),
-	                                                          detIds_.end(),
-								  *min_element(tmp.begin(), tmp.end()));
-								  
-      std::vector<uint32_t>::iterator iterEnd_=std::lower_bound(detIds_.begin(),
-	                                                        detIds_.end(),
-								*max_element(tmp.begin(), tmp.end()));
-								
-      for(std::vector<uint32_t>::iterator detIter_ = iterEnd_;
-                                         detIter_!= iterBegin_-1;detIter_--){
+    }
+    
+    // -----
+    // *** restrict to a particular subdetector ***
+    
+    if( *(SubDetectorsToBeExcluded_.begin()) !="none" ){
+      
+      std::vector<uint32_t> tmp;
+      
+      SiStripSubStructure substructure_;
+      
+      for( std::vector<std::string>::const_iterator modIter_  = SubDetectorsToBeExcluded_.begin(); 
+	   modIter_ != SubDetectorsToBeExcluded_.end(); modIter_++){
+	tmp.clear();
+	
+	if (*modIter_=="TIB")     { substructure_.getTIBDetectors(detIds_, tmp, 0,0,0,0);}
+	else if (*modIter_=="TOB") { substructure_.getTOBDetectors(detIds_, tmp, 0,0,0);}
+	else if (*modIter_=="TID") { substructure_.getTIDDetectors(detIds_, tmp, 0,0,0,0);}
+	else if (*modIter_=="TEC") { substructure_.getTECDetectors(detIds_, tmp, 0,0,0,0,0,0);}
+	else {
+	  edm::LogWarning("SiStripBaseCondObjDQM") 
+	    << "[SiStripBaseCondObjDQM::selectModules] PLEASE CHECK : no correct (name) subdetector to be excluded in your cfg"
+	    << std::endl; 
+	}
+	
+	std::vector<uint32_t>::iterator iterBegin_=std::lower_bound(detIds_.begin(),
+								    detIds_.end(),
+								    *min_element(tmp.begin(), tmp.end()));
+	
+	std::vector<uint32_t>::iterator iterEnd_=std::lower_bound(detIds_.begin(),
+								  detIds_.end(),
+								  *max_element(tmp.begin(), tmp.end()));
+	
+	for(std::vector<uint32_t>::iterator detIter_ = iterEnd_;
+	    detIter_!= iterBegin_-1;detIter_--){
 	  detIds_.erase(detIter_);
-      } 
-
-    } // loop SubDetectorsToBeExcluded_
+	} 
+	
+      } // loop SubDetectorsToBeExcluded_
+    }
+    
   }
-
+  edm::LogInfo("SiStripBaseCondObjDQM") << "[SiStripBaseCondObjDQM::selectModules] output detIds_: " << detIds_.size() << std::endl;
   
   // -----
   // *** fill only one Module per layer ***
-
+  
   if(fPSet_.getParameter<std::string>("ModulesToBeFilled") == "onlyOneModulePerLayer"){
-   
+    
     std::vector<uint32_t> tmp;
     std::vector<uint32_t> layerDetIds;
-
+    
     SiStripSubStructure substructure_;
     
     for(unsigned int i=1; i<5 ; i++){
@@ -300,11 +332,11 @@ void SiStripBaseCondObjDQM::selectModules(std::vector<uint32_t> & detIds_){
     
     detIds_.clear();
     detIds_=layerDetIds;
-
+    
   }
   // -----
-
-   
+  
+  
 } //selectModules
 // -----
 
@@ -528,10 +560,10 @@ void SiStripBaseCondObjDQM::bookSummaryProfileMEs(SiStripBaseCondObjDQM::ModMEs&
   int nStrip, nApv, layerId_;    
   
   if(CondObj_name_ == "lorentzangle" && SummaryOnStringLevel_On_) { layerId_= getStringNameAndId(detId_,tTopo).second;}
-  else                                                          { layerId_= getLayerNameAndId(detId_,tTopo).second;}
+  else                                                            { layerId_= getLayerNameAndId(detId_,tTopo).second;}
 
 
-  if( CondObj_name_ == "pedestal" || CondObj_name_ == "noise"|| CondObj_name_ == "lowthreshold" || CondObj_name_ == "highthreshold" ){ // plot in strip number
+  if( CondObj_name_ == "pedestal" || CondObj_name_ == "noise" || CondObj_name_ == "lowthreshold" || CondObj_name_ == "highthreshold" ){ // plot in strip number
     
     if( (layerId_ > 610 && layerId_ < 620) || // TID & TEC have 768 strips at maximum
         (layerId_ > 620 && layerId_ < 630) ||
@@ -635,7 +667,7 @@ void SiStripBaseCondObjDQM::bookSummaryProfileMEs(SiStripBaseCondObjDQM::ModMEs&
   int subdetectorId_ = ((detId_>>25)&0x7);
   
  
-  if( subdetectorId_<3 ||subdetectorId_>6 ){ 
+  if( subdetectorId_<3 || subdetectorId_>6 ){ 
     edm::LogError("SiStripBaseCondObjDQM")
        << "[SiStripBaseCondObjDQM::bookSummaryProfileMEs] WRONG INPUT : no such subdetector type : "
        << subdetectorId_ << " no folder set!" 
@@ -842,7 +874,7 @@ void SiStripBaseCondObjDQM::bookSummaryMEs(SiStripBaseCondObjDQM::ModMEs& CondOb
   int subdetectorId_ = ((detId_>>25)&0x7);
   
  
-  if( subdetectorId_<3 ||subdetectorId_>6 ){ 
+  if( subdetectorId_<3 || subdetectorId_>6 ){ 
     edm::LogError("SiStripBaseCondObjDQM")
        << "[SiStripBaseCondObjDQM::bookSummaryMEs] WRONG INPUT : no such subdetector type : "
        << subdetectorId_ << " no folder set!" 
@@ -1157,6 +1189,7 @@ void SiStripBaseCondObjDQM::fillTkMap(const uint32_t& detid, const float& value)
 
 //==========================
 void SiStripBaseCondObjDQM::saveTkMap(const std::string& TkMapname, double minValue, double maxValue){
+
   if(tkMapScaler.size()!=0){
     //check that saturation is below x%  below minValue and above minValue, and in case re-arrange.
     float th=hPSet_.getParameter<double>("saturatedFraction");
@@ -1185,27 +1218,25 @@ void SiStripBaseCondObjDQM::saveTkMap(const std::string& TkMapname, double minVa
     
     //reset maxValue;
     if(maxValue<imax){
-      edm::LogInfo("")<< "Resetting TkMap maxValue from " << maxValue << " to " << imax;
+      edm::LogInfo("SiStripBaseCondObjDQM") << "Resetting TkMap maxValue from " << maxValue << " to " << imax;
       maxValue=imax;
     }
     //reset minValue;
     if(minValue>imin){
-      edm::LogInfo("")<< "Resetting TkMap minValue from " << minValue << " to " << imin;
+        edm::LogInfo("SiStripBaseCondObjDQM") << "Resetting TkMap minValue from " << minValue << " to " << imin;
       minValue=imin;
     }
   }
-
+  
   tkMap->save(false, minValue, maxValue, TkMapname.c_str(),4500,2400);
   tkMap->setPalette(1); tkMap->showPalette(true);
-
+  
 }
 
 
 //==========================
 void SiStripBaseCondObjDQM::end(){
-  edm::LogInfo("SiStripBaseCondObjDQM") 
-    << "SiStripBase::end"
-    << std::endl; 
+  edm::LogInfo("SiStripBaseCondObjDQM") << "SiStripBaseCondObjDQM::end" << std::endl; 
 }
 
 //==========================
@@ -1219,7 +1250,7 @@ void SiStripBaseCondObjDQM::fillModMEs(const std::vector<uint32_t> & selectedDet
   ModMEs CondObj_ME;
  
   for(std::vector<uint32_t>::const_iterator detIter_=selectedDetIds.begin();
-                                           detIter_!=selectedDetIds.end();++detIter_){
+      detIter_!=selectedDetIds.end();++detIter_){
     fillMEsForDet(CondObj_ME,*detIter_,tTopo);
   }
 }
@@ -1237,12 +1268,14 @@ void SiStripBaseCondObjDQM::fillSummaryMEs(const std::vector<uint32_t> & selecte
     fillMEsForLayer(/*SummaryMEsMap_,*/ *detIter_,tTopo);    
   }
 
-  for (std::map<uint32_t, ModMEs>::iterator iter=SummaryMEsMap_.begin(); iter!=SummaryMEsMap_.end(); iter++){
+  for (std::map<uint32_t, ModMEs>::iterator iter=SummaryMEsMap_.begin();
+       iter!=SummaryMEsMap_.end(); iter++){
 
     ModMEs selME;
     selME = iter->second;
 
-    if(hPSet_.getParameter<bool>("FillSummaryProfileAtLayerLevel") && fPSet_.getParameter<bool>("OutputSummaryProfileAtLayerLevelAsImage")){
+    if(hPSet_.getParameter<bool>("FillSummaryProfileAtLayerLevel") &&
+       fPSet_.getParameter<bool>("OutputSummaryProfileAtLayerLevelAsImage")){
 
       if( CondObj_fillId_ =="onlyProfile" || CondObj_fillId_ =="ProfileAndCumul"){
 
@@ -1253,7 +1286,8 @@ void SiStripBaseCondObjDQM::fillSummaryMEs(const std::vector<uint32_t> & selecte
 	c1.Print(name.c_str());
       }
     }
-    if(hPSet_.getParameter<bool>("FillSummaryAtLayerLevel") && fPSet_.getParameter<bool>("OutputSummaryAtLayerLevelAsImage")){
+    if(hPSet_.getParameter<bool>("FillSummaryAtLayerLevel") &&
+       fPSet_.getParameter<bool>("OutputSummaryAtLayerLevelAsImage")){
 
       TCanvas c1("c1");
       selME.SummaryDistr->getTH1()->Draw();
@@ -1261,7 +1295,8 @@ void SiStripBaseCondObjDQM::fillSummaryMEs(const std::vector<uint32_t> & selecte
       name+=".png";
       c1.Print(name.c_str());
     }
-    if(hPSet_.getParameter<bool>("FillCumulativeSummaryAtLayerLevel") && fPSet_.getParameter<bool>("OutputCumulativeSummaryAtLayerLevelAsImage")){
+    if(hPSet_.getParameter<bool>("FillCumulativeSummaryAtLayerLevel") &&
+       fPSet_.getParameter<bool>("OutputCumulativeSummaryAtLayerLevelAsImage")){
 
       if( CondObj_fillId_ =="onlyCumul" || CondObj_fillId_ =="ProfileAndCumul"){
 
@@ -1274,5 +1309,4 @@ void SiStripBaseCondObjDQM::fillSummaryMEs(const std::vector<uint32_t> & selecte
     }
 
   }
- 
 }

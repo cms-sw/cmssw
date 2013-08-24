@@ -17,6 +17,7 @@ service.  Prints them to an output file named testRandomNumberService.txt.
 
 #include "DataFormats/Provenance/interface/EventAuxiliary.h"
 #include "DataFormats/Provenance/interface/LuminosityBlockAuxiliary.h"
+#include "DataFormats/Provenance/interface/ModuleDescription.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
@@ -162,7 +163,7 @@ TestRandomNumberServiceAnalyzer::analyze(edm::Event const& iEvent, edm::EventSet
     } else {
       outFile.open(filename.c_str(), std::ofstream::app);
     }
-    outFile << *currentContext()->moduleLabel() << "\n";
+    outFile << moduleDescription().moduleLabel() << "\n";
     outFile << rng->mySeed() << "\n";
     outFile << rng->getEngine().name() << "\n";
 
@@ -190,7 +191,7 @@ TestRandomNumberServiceAnalyzer::analyze(edm::Event const& iEvent, edm::EventSet
     } else {
       outFile.open(filename.c_str(), std::ofstream::app);
     }
-    outFile << *currentContext()->moduleLabel() << "\n";
+    outFile << moduleDescription().moduleLabel() << "\n";
     outFile << rng->mySeed() << "\n";
     outFile << rng->getEngine().name() << "\n";
 
@@ -219,7 +220,7 @@ TestRandomNumberServiceAnalyzer::analyze(edm::Event const& iEvent, edm::EventSet
     } else {
       outFile.open(filename.c_str(), std::ofstream::app);
     }
-    outFile << *currentContext()->moduleLabel() << "\n";
+    outFile << moduleDescription().moduleLabel() << "\n";
     outFile << rng->mySeed() << "\n";
     outFile << rng->getEngine().name() << "\n";
 

@@ -15,6 +15,9 @@ WorkerT: Code common to all workers.
 #include <memory>
 
 namespace edm {
+
+  class ModuleCallingContext;
+
   UnscheduledHandler* getUnscheduledHandler(EventPrincipal const& ep);
 
   template<typename T>
@@ -51,22 +54,18 @@ namespace edm {
     template<typename D>
     void callWorkerStreamBegin(D, StreamID id, RunPrincipal& rp,
                                EventSetup const& c,
-                               CurrentProcessingContext const* cpc,
                                ModuleCallingContext const* mcc);
     template<typename D>
     void callWorkerStreamEnd(D, StreamID id, RunPrincipal& rp,
                              EventSetup const& c,
-                             CurrentProcessingContext const* cpc,
                              ModuleCallingContext const* mcc);
     template<typename D>
     void callWorkerStreamBegin(D, StreamID id, LuminosityBlockPrincipal& rp,
                                EventSetup const& c,
-                               CurrentProcessingContext const* cpc,
                                ModuleCallingContext const* mcc);
     template<typename D>
     void callWorkerStreamEnd(D, StreamID id, LuminosityBlockPrincipal& rp,
                              EventSetup const& c,
-                             CurrentProcessingContext const* cpc,
                              ModuleCallingContext const* mcc);
     
   protected:
@@ -75,31 +74,22 @@ namespace edm {
 
   private:
     virtual bool implDo(EventPrincipal& ep, EventSetup const& c,
-                        CurrentProcessingContext const* cpc,
                         ModuleCallingContext const* mcc) override;
     virtual bool implDoBegin(RunPrincipal& rp, EventSetup const& c,
-                             CurrentProcessingContext const* cpc,
                              ModuleCallingContext const* mcc) override;
     virtual bool implDoStreamBegin(StreamID id, RunPrincipal& rp, EventSetup const& c,
-                                   CurrentProcessingContext const* cpc,
                                    ModuleCallingContext const* mcc) override;
     virtual bool implDoStreamEnd(StreamID id, RunPrincipal& rp, EventSetup const& c,
-                                 CurrentProcessingContext const* cpc,
                                  ModuleCallingContext const* mcc) override;
     virtual bool implDoEnd(RunPrincipal& rp, EventSetup const& c,
-                           CurrentProcessingContext const* cpc,
                            ModuleCallingContext const* mcc) override;
     virtual bool implDoBegin(LuminosityBlockPrincipal& lbp, EventSetup const& c,
-                             CurrentProcessingContext const* cpc,
                              ModuleCallingContext const* mcc) override;
     virtual bool implDoStreamBegin(StreamID id, LuminosityBlockPrincipal& lbp, EventSetup const& c,
-                                   CurrentProcessingContext const* cpc,
                                    ModuleCallingContext const* mcc) override;
     virtual bool implDoStreamEnd(StreamID id, LuminosityBlockPrincipal& lbp, EventSetup const& c,
-                                 CurrentProcessingContext const* cpc,
                                  ModuleCallingContext const* mcc) override;
     virtual bool implDoEnd(LuminosityBlockPrincipal& lbp, EventSetup const& c,
-                           CurrentProcessingContext const* cpc,
                            ModuleCallingContext const* mcc) override;
     virtual void implBeginJob() override;
     virtual void implEndJob() override;

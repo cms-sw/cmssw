@@ -98,10 +98,6 @@ namespace edm {
       
       Trig getTriggerResults(EventPrincipal const& ep, ModuleCallingContext const*) const;
       
-      // The returned pointer will be null unless the this is currently
-      // executing its event loop function ('write').
-      CurrentProcessingContext const* currentContext() const;
-      
       ModuleDescription const& description() const;
       
       ParameterSetID selectorConfig() const { return selector_config_id_; }
@@ -109,15 +105,15 @@ namespace edm {
       void doBeginJob();
       void doEndJob();
       bool doEvent(EventPrincipal const& ep, EventSetup const& c,
-                   CurrentProcessingContext const* cpc, ModuleCallingContext const*);
+                   ModuleCallingContext const*);
       bool doBeginRun(RunPrincipal const& rp, EventSetup const& c,
-                      CurrentProcessingContext const* cpc, ModuleCallingContext const*);
+                      ModuleCallingContext const*);
       bool doEndRun(RunPrincipal const& rp, EventSetup const& c,
-                    CurrentProcessingContext const* cpc, ModuleCallingContext const*);
+                    ModuleCallingContext const*);
       bool doBeginLuminosityBlock(LuminosityBlockPrincipal const& lbp, EventSetup const& c,
-                                  CurrentProcessingContext const* cpc, ModuleCallingContext const*);
+                                  ModuleCallingContext const*);
       bool doEndLuminosityBlock(LuminosityBlockPrincipal const& lbp, EventSetup const& c,
-                                CurrentProcessingContext const* cpc, ModuleCallingContext const*);
+                                ModuleCallingContext const*);
       
       void setEventSelectionInfo(std::map<std::string, std::vector<std::pair<std::string, int> > > const& outputModulePathPositions,
                                  bool anyProductProduced);
@@ -159,9 +155,6 @@ namespace edm {
       ProductSelectorRules productSelectorRules_;
       ProductSelector productSelector_;
       ModuleDescription moduleDescription_;
-      
-      // We do not own the pointed-to CurrentProcessingContext.
-      CurrentProcessingContext const* current_context_;
       
       bool wantAllEvents_;
       mutable detail::TriggerResultsBasedEventSelector selectors_;

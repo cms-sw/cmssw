@@ -24,6 +24,7 @@ is the DataBlock.
 namespace edm {
 
   class HistoryAppender;
+  class ModuleCallingContext;
   class UnscheduledHandler;
 
   class RunPrincipal : public Principal {

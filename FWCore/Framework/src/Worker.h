@@ -25,11 +25,14 @@ the worker is reset().
 #include "FWCore/MessageLogger/interface/ExceptionMessages.h"
 #include "FWCore/Framework/src/WorkerParams.h"
 #include "FWCore/Framework/interface/ExceptionActions.h"
-#include "FWCore/Framework/interface/CurrentProcessingContext.h"
 #include "FWCore/Framework/interface/OccurrenceTraits.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
+#include "FWCore/ServiceRegistry/interface/InternalContext.h"
 #include "FWCore/ServiceRegistry/interface/ModuleCallingContext.h"
+#include "FWCore/ServiceRegistry/interface/ParentContext.h"
+#include "FWCore/ServiceRegistry/interface/PathContext.h"
+#include "FWCore/ServiceRegistry/interface/PlaceInPathContext.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/ConvertException.h"
 #include "FWCore/Utilities/interface/BranchType.h"
@@ -50,7 +53,6 @@ namespace edm {
   class StreamID;
   class StreamContext;
   class OutputModuleCommunicator;
-  class ParentContext;
 
   namespace workerhelper {
     template< typename O> class CallImpl;
@@ -68,7 +70,6 @@ namespace edm {
 
     template <typename T>
     bool doWork(typename T::MyPrincipal&, EventSetup const& c,
-		CurrentProcessingContext const* cpc,
                 CPUTimer *const timer,
                 StreamID stream,
                 ParentContext const& parentContext,
@@ -129,31 +130,22 @@ namespace edm {
     template<typename O> friend class workerhelper::CallImpl;
     virtual std::string workerType() const = 0;
     virtual bool implDo(EventPrincipal&, EventSetup const& c,
-			    CurrentProcessingContext const* cpc,
-                            ModuleCallingContext const* mcc) = 0;
+                        ModuleCallingContext const* mcc) = 0;
     virtual bool implDoBegin(RunPrincipal& rp, EventSetup const& c,
-			     CurrentProcessingContext const* cpc,
                              ModuleCallingContext const* mcc) = 0;
     virtual bool implDoStreamBegin(StreamID id, RunPrincipal& rp, EventSetup const& c,
-                                   CurrentProcessingContext const* cpc,
                                    ModuleCallingContext const* mcc) = 0;
     virtual bool implDoStreamEnd(StreamID id, RunPrincipal& rp, EventSetup const& c,
-                                 CurrentProcessingContext const* cpc,
                                  ModuleCallingContext const* mcc) = 0;
     virtual bool implDoEnd(RunPrincipal& rp, EventSetup const& c,
-                           CurrentProcessingContext const* cpc,
                            ModuleCallingContext const* mcc) = 0;
     virtual bool implDoBegin(LuminosityBlockPrincipal& lbp, EventSetup const& c,
-                             CurrentProcessingContext const* cpc,
                              ModuleCallingContext const* mcc) = 0;
     virtual bool implDoStreamBegin(StreamID id, LuminosityBlockPrincipal& lbp, EventSetup const& c,
-                                   CurrentProcessingContext const* cpc,
                                    ModuleCallingContext const* mcc) = 0;
     virtual bool implDoStreamEnd(StreamID id, LuminosityBlockPrincipal& lbp, EventSetup const& c,
-                                 CurrentProcessingContext const* cpc,
                                  ModuleCallingContext const* mcc) = 0;
     virtual bool implDoEnd(LuminosityBlockPrincipal& lbp, EventSetup const& c,
-                           CurrentProcessingContext const* cpc,
                            ModuleCallingContext const* mcc) = 0;
     virtual void implBeginJob() = 0;
     virtual void implEndJob() = 0;
@@ -194,17 +186,14 @@ namespace edm {
       ModuleSignalSentry(ActivityRegistry *a,
                          ModuleDescription& md,
                          typename T::Context const* context,
-                         ModuleCallingContext* moduleCallingContext,
-                         ParentContext const& parentContext) :
+                         ModuleCallingContext* moduleCallingContext) :
         a_(a), md_(&md), context_(context), moduleCallingContext_(moduleCallingContext) {
 
-        moduleCallingContext_->setContext(ModuleCallingContext::State::kRunning, parentContext);
 	if(a_) T::preModuleSignal(a_, md_, context, moduleCallingContext_);
       }
 
       ~ModuleSignalSentry() {
 	if(a_) T::postModuleSignal(a_, md_, context_, moduleCallingContext_);
-        moduleCallingContext_->setContext(ModuleCallingContext::State::kInvalid, ParentContext());
       }
 
     private:
@@ -214,43 +203,70 @@ namespace edm {
       ModuleCallingContext* moduleCallingContext_;
     };
 
+    class ModuleContextSentry {
+    public:
+      ModuleContextSentry(ModuleCallingContext* moduleCallingContext,
+                          ParentContext const& parentContext) :
+        moduleCallingContext_(moduleCallingContext) {
+        moduleCallingContext_->setContext(ModuleCallingContext::State::kRunning, parentContext);
+      }
+      ~ModuleContextSentry() {
+        moduleCallingContext_->setContext(ModuleCallingContext::State::kInvalid, ParentContext());
+      }
+    private:
+      ModuleCallingContext* moduleCallingContext_;
+    };
+
     template <typename T>
     void exceptionContext(typename T::MyPrincipal const& principal,
                           cms::Exception& ex,
-                          CurrentProcessingContext const* cpc) {
+                          ModuleCallingContext const* mcc) {
+
+      ModuleCallingContext const* imcc = mcc;
+      while(imcc->type() == ParentContext::Type::kModule) {
+	std::ostringstream iost;
+        iost << "Calling method for unscheduled module " 
+             << imcc->moduleDescription()->moduleName() << "/'"
+             << imcc->moduleDescription()->moduleLabel() << "'";
+        ex.addContext(iost.str());
+        imcc = imcc->moduleCallingContext();
+      }
+      if(imcc->type() == ParentContext::Type::kInternal) {
+        std::ostringstream iost;
+        iost << "Calling method for unscheduled module " 
+             << imcc->moduleDescription()->moduleName() << "/'"
+             << imcc->moduleDescription()->moduleLabel() << "' (probably inside some kind of mixing module)";
+        ex.addContext(iost.str());
+        imcc = imcc->internalContext()->moduleCallingContext();
+      }
+      while(imcc->type() == ParentContext::Type::kModule) {
+        std::ostringstream iost;
+        iost << "Calling method for unscheduled module " 
+             << imcc->moduleDescription()->moduleName() << "/'"
+             << imcc->moduleDescription()->moduleLabel() << "'";
+        ex.addContext(iost.str());
+        imcc = imcc->moduleCallingContext();
+      }
       std::ostringstream ost;
       if (T::isEvent_) {
         ost << "Calling event method";
       }
-      else if (T::begin_ && T::branchType_ == InRun) {
-        ost << "Calling beginRun";
-      }
-      else if (T::begin_ && T::branchType_ == InLumi) {
-        ost << "Calling beginLuminosityBlock";
-      }
-      else if (!T::begin_ && T::branchType_ == InLumi) {
-        ost << "Calling endLuminosityBlock";
-      }
-      else if (!T::begin_ && T::branchType_ == InRun) {
-        ost << "Calling endRun";
-      }
       else {
-        // It should be impossible to get here ...
+        // It should be impossible to get here, because
+        // this function only gets called when the IgnoreCompletely
+        // exception behavior is active, which can only be true
+        // for events.
         ost << "Calling unknown function";
       }
-      if (cpc && cpc->moduleDescription()) {
-        ost << " for module " << cpc->moduleDescription()->moduleName() << "/'" << cpc->moduleDescription()->moduleLabel() << "'";
-      }
+      ost << " for module " << imcc->moduleDescription()->moduleName() << "/'" << imcc->moduleDescription()->moduleLabel() << "'";
       ex.addContext(ost.str());
-      ost.str("");
-      ost << "Running path '";
-      if (cpc && cpc->pathName()) {
-        ost << *cpc->pathName() << "'";
+
+      if (imcc->type() == ParentContext::Type::kPlaceInPath) {
+        ost.str("");
+        ost << "Running path '";
+        ost << imcc->placeInPathContext()->pathContext()->pathName() << "'";
+        ex.addContext(ost.str());
       }
-      else {
-        ost << "unknown'";
-      }
-      ex.addContext(ost.str());
       ost.str("");
       ost << "Processing ";
       ost << principal.id();
@@ -263,8 +279,8 @@ namespace edm {
     class CallImpl<OccurrenceTraits<EventPrincipal, BranchActionStreamBegin>> {
     public:
       static bool call(Worker* iWorker, StreamID, EventPrincipal& ep, EventSetup const& es,
-                       CurrentProcessingContext const* cpc, ModuleCallingContext const* mcc) {
-        return iWorker->implDo(ep,es,cpc, mcc);
+                       ModuleCallingContext const* mcc) {
+        return iWorker->implDo(ep,es, mcc);
       }
     };
     
@@ -272,32 +288,32 @@ namespace edm {
     class CallImpl<OccurrenceTraits<RunPrincipal, BranchActionGlobalBegin>>{
     public:
       static bool call(Worker* iWorker,StreamID, RunPrincipal& ep, EventSetup const& es,
-                       CurrentProcessingContext const* cpc, ModuleCallingContext const* mcc) {
-        return iWorker->implDoBegin(ep,es,cpc, mcc);
+                       ModuleCallingContext const* mcc) {
+        return iWorker->implDoBegin(ep,es, mcc);
       }
     };
     template<>
     class CallImpl<OccurrenceTraits<RunPrincipal, BranchActionStreamBegin>>{
     public:
       static bool call(Worker* iWorker,StreamID id, RunPrincipal& ep, EventSetup const& es,
-                       CurrentProcessingContext const* cpc, ModuleCallingContext const* mcc) {
-        return iWorker->implDoStreamBegin(id,ep,es,cpc, mcc);
+                       ModuleCallingContext const* mcc) {
+        return iWorker->implDoStreamBegin(id,ep,es, mcc);
       }
     };
     template<>
     class CallImpl<OccurrenceTraits<RunPrincipal, BranchActionGlobalEnd>>{
     public:
       static bool call(Worker* iWorker,StreamID, RunPrincipal& ep, EventSetup const& es,
-                       CurrentProcessingContext const* cpc, ModuleCallingContext const* mcc) {
-        return iWorker->implDoEnd(ep,es,cpc, mcc);
+                       ModuleCallingContext const* mcc) {
+        return iWorker->implDoEnd(ep,es, mcc);
       }
     };
     template<>
     class CallImpl<OccurrenceTraits<RunPrincipal, BranchActionStreamEnd>>{
     public:
       static bool call(Worker* iWorker,StreamID id, RunPrincipal& ep, EventSetup const& es,
-                       CurrentProcessingContext const* cpc, ModuleCallingContext const* mcc) {
-        return iWorker->implDoStreamEnd(id,ep,es,cpc, mcc);
+                       ModuleCallingContext const* mcc) {
+        return iWorker->implDoStreamEnd(id,ep,es, mcc);
       }
     };
     
@@ -305,16 +321,16 @@ namespace edm {
     class CallImpl<OccurrenceTraits<LuminosityBlockPrincipal, BranchActionGlobalBegin>>{
     public:
       static bool call(Worker* iWorker,StreamID, LuminosityBlockPrincipal& ep, EventSetup const& es,
-                       CurrentProcessingContext const* cpc, ModuleCallingContext const* mcc) {
-        return iWorker->implDoBegin(ep,es,cpc, mcc);
+                       ModuleCallingContext const* mcc) {
+        return iWorker->implDoBegin(ep,es, mcc);
       }
     };
     template<>
     class CallImpl<OccurrenceTraits<LuminosityBlockPrincipal, BranchActionStreamBegin>>{
     public:
       static bool call(Worker* iWorker,StreamID id, LuminosityBlockPrincipal& ep, EventSetup const& es,
-                       CurrentProcessingContext const* cpc, ModuleCallingContext const* mcc) {
-        return iWorker->implDoStreamBegin(id,ep,es,cpc, mcc);
+                       ModuleCallingContext const* mcc) {
+        return iWorker->implDoStreamBegin(id,ep,es, mcc);
       }
     };
     
@@ -322,16 +338,16 @@ namespace edm {
     class CallImpl<OccurrenceTraits<LuminosityBlockPrincipal, BranchActionGlobalEnd>>{
     public:
       static bool call(Worker* iWorker,StreamID, LuminosityBlockPrincipal& ep, EventSetup const& es,
-                       CurrentProcessingContext const* cpc, ModuleCallingContext const* mcc) {
-        return iWorker->implDoEnd(ep,es,cpc, mcc);
+                       ModuleCallingContext const* mcc) {
+        return iWorker->implDoEnd(ep,es, mcc);
       }
     };
     template<>
     class CallImpl<OccurrenceTraits<LuminosityBlockPrincipal, BranchActionStreamEnd>>{
     public:
       static bool call(Worker* iWorker,StreamID id, LuminosityBlockPrincipal& ep, EventSetup const& es,
-                       CurrentProcessingContext const* cpc, ModuleCallingContext const* mcc) {
-        return iWorker->implDoStreamEnd(id,ep,es,cpc, mcc);
+                       ModuleCallingContext const* mcc) {
+        return iWorker->implDoStreamEnd(id,ep,es, mcc);
       }
     };
   }
@@ -339,7 +355,6 @@ namespace edm {
   template <typename T>
   bool Worker::doWork(typename T::MyPrincipal& ep, 
                       EventSetup const& es,
-                      CurrentProcessingContext const* cpc,
                       CPUTimer* const iTimer,
                       StreamID streamID,
                       ParentContext const& parentContext,
@@ -365,10 +380,11 @@ namespace edm {
 
     if (T::isEvent_) ++timesRun_;
 
+    ModuleContextSentry moduleContextSentry(&moduleCallingContext_, parentContext);
     try {
       try {
-        ModuleSignalSentry<T> cpp(actReg_.get(), md_, context, &moduleCallingContext_, parentContext);
-        rc = workerhelper::CallImpl<T>::call(this,streamID,ep,es,cpc, &moduleCallingContext_);
+        ModuleSignalSentry<T> cpp(actReg_.get(), md_, context, &moduleCallingContext_);
+        rc = workerhelper::CallImpl<T>::call(this,streamID,ep,es, &moduleCallingContext_);
 
         if (rc) {
           state_ = Pass;
@@ -398,16 +414,19 @@ namespace edm {
       // If we are processing an endpath and the module was scheduled, treat SkipEvent or FailPath
       // as IgnoreCompletely, so any subsequent OutputModules are still run.
       // For unscheduled modules only treat FailPath as IgnoreCompletely but still allow SkipEvent to throw
-      if (cpc && cpc->isEndPath()) {
-        if ((action == exception_actions::SkipEvent && !cpc->isUnscheduled()) ||
-             action == exception_actions::FailPath) action = exception_actions::IgnoreCompletely;
+      ModuleCallingContext const* top_mcc = moduleCallingContext_.getTopModuleCallingContext();
+      if(top_mcc->type() == ParentContext::Type::kPlaceInPath &&
+         top_mcc->placeInPathContext()->pathContext()->isEndPath()) {
+
+          if ((action == exception_actions::SkipEvent && moduleCallingContext_.type() == ParentContext::Type::kPlaceInPath) ||
+               action == exception_actions::FailPath) action = exception_actions::IgnoreCompletely;
       }
       switch(action) {
         case exception_actions::IgnoreCompletely:
           rc = true;
           ++timesPassed_;
 	  state_ = Pass;
-          exceptionContext<T>(ep, ex, cpc);
+          exceptionContext<T>(ep, ex, &moduleCallingContext_);
           edm::printCmsExceptionWarning("IgnoreCompletely", ex);
 	  break;
         default:

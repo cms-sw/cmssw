@@ -67,7 +67,6 @@ namespace edm {
       const EDFilterAdaptorBase& operator=(const EDFilterAdaptorBase&) =delete; // stop default
       
       bool doEvent(EventPrincipal& ep, EventSetup const& c,
-                   CurrentProcessingContext const* cpcp,
                    ModuleCallingContext const*) ;
     };
   }
