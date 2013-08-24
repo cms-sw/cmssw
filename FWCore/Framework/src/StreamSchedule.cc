@@ -14,7 +14,6 @@
 #include "FWCore/Framework/src/ModuleHolder.h"
 #include "FWCore/Framework/src/WorkerT.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/ParameterSet/interface/FillProductRegistryTransients.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/ParameterSet/interface/Registry.h"
