@@ -39,7 +39,7 @@ namespace edm {
     void setLumiSection();
 
   private:
-    Selections const* selections_;
+    SelectedProducts const* selections_;
 
     int maxEventSize_;
     bool useCompression_;

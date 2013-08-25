@@ -45,7 +45,7 @@ namespace edm {
     
     virtual void configure(edm::OutputModuleDescription const& desc) override;
     
-    virtual edm::SelectionsArray const& keptProducts() const override;
+    virtual edm::SelectedProductsForBranchType const& keptProducts() const override;
     
     virtual void selectProducts(edm::ProductRegistry const& preg) override;
     
