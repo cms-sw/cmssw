@@ -34,15 +34,14 @@ namespace edm {
       
     public:
       //Doesn't work in gcc4.7 using WorkerT<EDProducerAdaptorBase>::WorkerT;
-      StreamWorker(std::unique_ptr<T>&& iMod,
+      StreamWorker(T* iMod,
                    ModuleDescription const& iDesc,
-                   WorkerParams const& iParams):
-      WorkerT<T>(std::move(iMod), iDesc,iParams) {}
+                   ExceptionToActionTable const* iActions):
+      WorkerT<T>(iMod, iDesc,iActions) {}
 
 
       template<typename ModType>
-      static std::unique_ptr<T> makeModule(ModuleDescription const&,
-                                                               ParameterSet const& pset) {
+      static std::unique_ptr<T> makeModule(ParameterSet const& pset) {
         typedef typename BaseToAdaptor<T,ModType>::Type Adaptor;
         std::unique_ptr<Adaptor> module = std::unique_ptr<Adaptor>(new Adaptor(pset));
         return std::unique_ptr<T>(module.release());

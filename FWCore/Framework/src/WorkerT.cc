@@ -101,12 +101,10 @@ namespace edm{
 
   template<typename T>
   inline
-  WorkerT<T>::WorkerT(std::unique_ptr<T>&& ed, ModuleDescription const& md, WorkerParams const& wp) :
-  Worker(md, wp),
-  module_(std::move(ed)) {
-    assert(module_.get() != 0);
-    module_->setModuleDescription(md);
-    module_->registerProductsAndCallbacks(module_.get(), wp.reg_);
+  WorkerT<T>::WorkerT(T* ed, ModuleDescription const& md, ExceptionToActionTable const* actions) :
+  Worker(md, actions),
+  module_(ed) {
+    assert(module_ != 0);
   }
   
   template<typename T>

@@ -31,6 +31,9 @@
 namespace edm {
 
   class ModuleCallingContext;
+  namespace maker {
+    template<typename T> class ModuleHolderT;
+  }
 
   namespace one {
 
@@ -38,6 +41,7 @@ namespace edm {
     {
       
     public:
+      template <typename T> friend class edm::maker::ModuleHolderT;
       template <typename T> friend class edm::WorkerT;
       typedef EDProducerBase ModuleType;
       typedef WorkerT<EDProducerBase> WorkerType;

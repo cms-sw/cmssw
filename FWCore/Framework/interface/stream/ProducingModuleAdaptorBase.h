@@ -41,6 +41,10 @@ namespace edm {
   class ProductHolderIndexHelper;
   class EDConsumerBase;
   
+  namespace maker {
+    template<typename T> class ModuleHolderT;
+  }
+  
   namespace stream {
     template<typename T>
     class ProducingModuleAdaptorBase
@@ -48,6 +52,7 @@ namespace edm {
       
     public:
       template <typename U> friend class edm::WorkerT;
+      template <typename U> friend class edm::maker::ModuleHolderT;
 
       ProducingModuleAdaptorBase();
       virtual ~ProducingModuleAdaptorBase();
@@ -57,7 +62,7 @@ namespace edm {
       // ---------- static member functions --------------------
       
       // ---------- member functions ---------------------------
-      const ModuleDescription moduleDescription() { return moduleDescription_;}
+      const ModuleDescription& moduleDescription() { return moduleDescription_;}
       
       void
       registerProductsAndCallbacks(ProducingModuleAdaptorBase const*, ProductRegistry* reg);

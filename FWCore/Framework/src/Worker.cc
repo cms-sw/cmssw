@@ -4,7 +4,6 @@
 
 #include "FWCore/Framework/src/Worker.h"
 #include "FWCore/Framework/src/EarlyDeleteHelper.h"
-#include "FWCore/Framework/src/OutputModuleCommunicator.h"
 #include "FWCore/ServiceRegistry/interface/StreamContext.h"
 
 namespace edm {
@@ -76,7 +75,7 @@ private:
   }
 
   Worker::Worker(ModuleDescription const& iMD, 
-		 WorkerParams const& iWP) :
+		 ExceptionToActionTable const* iActions) :
     stopwatch_(),
     timesRun_(),
     timesVisited_(),
@@ -86,7 +85,7 @@ private:
     state_(Ready),
     md_(iMD),
     moduleCallingContext_(&md_),
-    actions_(iWP.actions_),
+    actions_(iActions),
     cached_exception_(),
     actReg_(),
     earlyDeleteHelper_(nullptr)
@@ -94,11 +93,6 @@ private:
   }
 
   Worker::~Worker() {
-  }
-
-  std::unique_ptr<OutputModuleCommunicator>
-  Worker::createOutputModuleCommunicator() {
-    return std::move(std::unique_ptr<OutputModuleCommunicator>{});
   }
 
   void Worker::setActivityRegistry(boost::shared_ptr<ActivityRegistry> areg) {
