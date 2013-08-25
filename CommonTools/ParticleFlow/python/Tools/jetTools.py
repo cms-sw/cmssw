@@ -18,4 +18,6 @@ def jetAlgo( algo ):
         jetAlgo.doAreaFastjet = cms.bool(False)
         
     jetAlgo.src = 'pfNoElectronJME'
+    jetAlgo.doPVCorrection = True
+    jetAlgo.srcPVs = cms.InputTag("goodOfflinePrimaryVertices")
     return jetAlgo    
