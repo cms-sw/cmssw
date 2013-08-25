@@ -21,9 +21,13 @@ EDProducts into an Event.
 namespace edm {
 
   class ModuleCallingContext;
+  namespace maker {
+    template<typename T> class ModuleHolderT;
+  }
 
   class EDProducer : public ProducerBase, public EDConsumerBase {
   public:
+    template <typename T> friend class maker::ModuleHolderT;
     template <typename T> friend class WorkerT;
     typedef EDProducer ModuleType;
     typedef WorkerT<EDProducer> WorkerType;

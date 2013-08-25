@@ -4,30 +4,28 @@ Module type=PoolSource, Module label=source, Parameter Set ID=079a79e873959edf4f
 ++++ finished: open input file: file:testGetBy1.root usedFallBack = 0
 ++ construction finished:PoolSource
 Module type=PoolSource, Module label=source, Parameter Set ID=079a79e873959edf4ff4f335f14507fa
+++ constructing module: TriggerResults
+++ construction finished: TriggerResults
 ++ constructing module: intProducer
 Module type=IntProducer, Module label=intProducer, Parameter Set ID=0e62dace196ea2e10cdd947af547d0ea
 ++ construction finished: intProducer
 Module type=IntProducer, Module label=intProducer, Parameter Set ID=0e62dace196ea2e10cdd947af547d0ea
-++ constructing module: TriggerResults
-++ construction finished: TriggerResults
 ++ constructing module: out
 ++ construction finished: out
 ++ constructing module: intProducerU
 ++ construction finished: intProducerU
 ++ constructing module: intVectorProducer
 ++ construction finished: intVectorProducer
-++ ModuleBeginJob: intProducer
-Module type=IntProducer, Module label=intProducer, Parameter Set ID=0e62dace196ea2e10cdd947af547d0ea
-++ ModuleBeginJob finished: intProducer
-Module type=IntProducer, Module label=intProducer, Parameter Set ID=0e62dace196ea2e10cdd947af547d0ea
-++ ModuleBeginJob: TriggerResults
-++ ModuleBeginJob finished: TriggerResults
-++ ModuleBeginJob: out
-++ ModuleBeginJob finished: out
 ++ ModuleBeginJob: intProducerU
 ++ ModuleBeginJob finished: intProducerU
 ++ ModuleBeginJob: intVectorProducer
 ++ ModuleBeginJob finished: intVectorProducer
+++ ModuleBeginJob: intProducer
+Module type=IntProducer, Module label=intProducer, Parameter Set ID=0e62dace196ea2e10cdd947af547d0ea
+++ ModuleBeginJob finished: intProducer
+Module type=IntProducer, Module label=intProducer, Parameter Set ID=0e62dace196ea2e10cdd947af547d0ea
+++ ModuleBeginJob: out
+++ ModuleBeginJob finished: out
 ++ Job started
 ++++ ModuleBeginStream: intProducer
 StreamContext: StreamID = 0 transition = BeginStream
@@ -638,16 +636,14 @@ Module type=IntProducer, Module label=intProducer, Parameter Set ID=0e62dace196e
 ++++ ModuleEndStream finished
 ++++ ModuleEndStream: 
 ++++ ModuleEndStream finished
-++ ModuleEndJob: intProducer
-Module type=IntProducer, Module label=intProducer, Parameter Set ID=0e62dace196ea2e10cdd947af547d0ea
-++ ModuleEndJob finished: intProducer
-Module type=IntProducer, Module label=intProducer, Parameter Set ID=0e62dace196ea2e10cdd947af547d0ea
-++ ModuleEndJob: TriggerResults
-++ ModuleEndJob finished: TriggerResults
-++ ModuleEndJob: out
-++ ModuleEndJob finished: out
 ++ ModuleEndJob: intProducerU
 ++ ModuleEndJob finished: intProducerU
 ++ ModuleEndJob: intVectorProducer
 ++ ModuleEndJob finished: intVectorProducer
+++ ModuleEndJob: intProducer
+Module type=IntProducer, Module label=intProducer, Parameter Set ID=0e62dace196ea2e10cdd947af547d0ea
+++ ModuleEndJob finished: intProducer
+Module type=IntProducer, Module label=intProducer, Parameter Set ID=0e62dace196ea2e10cdd947af547d0ea
+++ ModuleEndJob: out
+++ ModuleEndJob finished: out
 ++ Job ended

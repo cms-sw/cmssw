@@ -14,8 +14,13 @@ namespace edm {
 
   class ModuleCallingContext;
 
+  namespace maker {
+    template<typename T> class ModuleHolderT;
+  }
+
   class EDAnalyzer : public EDConsumerBase {
   public:
+    template <typename T> friend class maker::ModuleHolderT;
     template <typename T> friend class WorkerT;
     typedef EDAnalyzer ModuleType;
     typedef WorkerT<EDAnalyzer> WorkerType;

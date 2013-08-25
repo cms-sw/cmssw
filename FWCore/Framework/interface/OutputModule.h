@@ -32,14 +32,19 @@ namespace edm {
 
   class ModuleCallingContext;
 
+  namespace maker {
+    template<typename T> class ModuleHolderT;
+  }
+
   typedef detail::TriggerResultsBasedEventSelector::handle_t Trig;
 
   class OutputModule : public EDConsumerBase {
   public:
+    template <typename T> friend class maker::ModuleHolderT;
     template <typename T> friend class WorkerT;
-    friend class ClassicOutputModuleCommunicator;
+    template <typename T> friend class OutputModuleCommunicatorT;
     typedef OutputModule ModuleType;
-    typedef OutputWorker WorkerType;
+    typedef WorkerT<OutputModule> WorkerType;
 
     explicit OutputModule(ParameterSet const& pset);
     virtual ~OutputModule();
@@ -82,6 +87,8 @@ namespace edm {
     Trig getTriggerResults(EventPrincipal const& ep, ModuleCallingContext const*) const;
 
     ModuleDescription const& description() const;
+    ModuleDescription const& moduleDescription() const { return moduleDescription_;
+    }
 
     ParameterSetID selectorConfig() const { return selector_config_id_; }
 
@@ -168,7 +175,7 @@ namespace edm {
     void doPreForkReleaseResources();
     void doPostForkReacquireResources(unsigned int iChildIndex, unsigned int iNumberOfChildren);
 
-    std::string workerType() const {return "OutputWorker";}
+    std::string workerType() const {return "WorkerT<OutputModule>";}
 
     /// Tell the OutputModule that is must end the current file.
     void doCloseFile();
@@ -216,9 +223,4 @@ namespace edm {
     bool limitReached() const {return remainingEvents_ == 0;}
   };
 }
-
-//this is included after the class definition since this header also needs to know about OutputModule
-// we put this here since all OutputModules need this header to create their plugin
-#include "FWCore/Framework/src/OutputWorker.h"
-
 #endif

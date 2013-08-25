@@ -23,6 +23,7 @@ namespace edm {
   class ExceptionCollector;
   class StreamID;
   class StreamContext;
+  class ModuleRegistry;
   
   class WorkerManager {
   public:
@@ -30,6 +31,9 @@ namespace edm {
 
     WorkerManager(boost::shared_ptr<ActivityRegistry> actReg, ExceptionToActionTable const& actions);
 
+    WorkerManager(boost::shared_ptr<ModuleRegistry> modReg,
+                  boost::shared_ptr<ActivityRegistry> actReg,
+                  ExceptionToActionTable const& actions);
     void addToUnscheduledWorkers(ParameterSet& pset,
                       ProductRegistry& preg,
                       boost::shared_ptr<ProcessConfiguration> processConfiguration,
@@ -64,7 +68,7 @@ namespace edm {
     Worker* getWorker(ParameterSet& pset,
                       ProductRegistry& preg,
                       boost::shared_ptr<ProcessConfiguration const> processConfiguration,
-                      std::string label);
+                      std::string const& label);
 
   private:
 

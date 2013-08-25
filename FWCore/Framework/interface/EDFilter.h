@@ -21,11 +21,15 @@ These products should be informational products about the filter decision.
 #include <vector>
 
 namespace edm {
+  namespace maker {
+    template<typename T> class ModuleHolderT;
+  }
 
   class ModuleCallingContext;
 
   class EDFilter : public ProducerBase, public EDConsumerBase {
   public:
+    template <typename T> friend class maker::ModuleHolderT;
     template <typename T> friend class WorkerT;
     typedef EDFilter ModuleType;
     typedef WorkerT<EDFilter> WorkerType;

@@ -38,6 +38,10 @@ namespace edm {
   class ProductHolderIndexHelper;
   class EDConsumerBase;
 
+  namespace maker {
+    template<typename T> class ModuleHolderT;
+  }
+  
   namespace stream {
     class EDAnalyzerBase;
     class EDAnalyzerAdaptorBase
@@ -45,6 +49,7 @@ namespace edm {
       
     public:
       template <typename T> friend class edm::WorkerT;
+      template <typename T> friend class edm::maker::ModuleHolderT;
 
       EDAnalyzerAdaptorBase();
       virtual ~EDAnalyzerAdaptorBase();

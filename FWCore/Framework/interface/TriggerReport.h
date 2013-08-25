@@ -17,17 +17,17 @@ namespace edm {
 
   struct EventSummary
   {
-    int totalEvents;
-    int totalEventsPassed;
-    int totalEventsFailed;
+    int totalEvents = 0;
+    int totalEventsPassed = 0;
+    int totalEventsFailed = 0;
   };
 
   struct ModuleInPathSummary
   {
-    int timesVisited;
-    int timesPassed;
-    int timesFailed;
-    int timesExcept;
+    int timesVisited = 0;
+    int timesPassed = 0;
+    int timesFailed = 0;
+    int timesExcept = 0;
 
     std::string moduleLabel;
   };
@@ -35,11 +35,11 @@ namespace edm {
 
   struct PathSummary
   {
-    int bitPosition;
-    int timesRun;
-    int timesPassed;
-    int timesFailed;
-    int timesExcept;
+    int bitPosition = 0;
+    int timesRun = 0;
+    int timesPassed = 0;
+    int timesFailed = 0;
+    int timesExcept = 0;
 
     std::string name;
     std::vector<ModuleInPathSummary> moduleInPathSummaries;
@@ -47,11 +47,11 @@ namespace edm {
 
   struct WorkerSummary
   {
-    int timesVisited;
-    int timesRun;
-    int timesPassed;
-    int timesFailed;
-    int timesExcept;
+    int timesVisited = 0;
+    int timesRun = 0;
+    int timesPassed = 0;
+    int timesFailed = 0;
+    int timesExcept = 0;
 
     std::string moduleLabel;
   };

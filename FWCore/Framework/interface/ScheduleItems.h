@@ -22,6 +22,7 @@ namespace edm {
   class Schedule;
   class SignallingProductRegistry;
   class StreamID;
+  class PreallocationConfiguration;
 
   struct ScheduleItems {
     ScheduleItems();
@@ -47,7 +48,7 @@ namespace edm {
     std::auto_ptr<Schedule>
     initSchedule(ParameterSet& parameterSet,
                  ParameterSet const* subProcessPSet,
-                 StreamID streamID,
+                 PreallocationConfiguration const& iAllocConfig,
                  ProcessContext const*);
 
     void
