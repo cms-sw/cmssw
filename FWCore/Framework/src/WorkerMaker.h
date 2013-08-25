@@ -93,7 +93,7 @@ protected:
                                                      maker::ModuleHolder const* mod) const {
     typedef T UserType;
     typedef typename UserType::ModuleType ModuleType;
-    typedef typename UserType::WorkerType WorkerType;
+    typedef edm::WorkerT<ModuleType> WorkerType;
 
     maker::ModuleHolderT<ModuleType> const* h = dynamic_cast<maker::ModuleHolderT<ModuleType> const*>(mod);
     return std::unique_ptr<Worker>(new WorkerType(h->module(), md, actions));

@@ -39,7 +39,6 @@ namespace edm {
 
     public:
       typedef EDAnalyzerAdaptorBase ModuleType;
-      typedef WorkerT<EDAnalyzerAdaptorBase> WorkerType;
 
 
       EDAnalyzerBase();

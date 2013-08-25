@@ -76,7 +76,7 @@ namespace edm {
     makeInserter(ExceptionToActionTable const& actions,
                  boost::shared_ptr<ActivityRegistry> areg,
                  TriggerResultInserter* inserter) {
-      StreamSchedule::WorkerPtr ptr(new TriggerResultInserter::WorkerType(inserter, inserter->moduleDescription(), &actions));
+      StreamSchedule::WorkerPtr ptr(new edm::WorkerT<TriggerResultInserter::ModuleType>(inserter, inserter->moduleDescription(), &actions));
       ptr->setActivityRegistry(areg);
       return ptr;
     }

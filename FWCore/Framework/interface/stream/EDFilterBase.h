@@ -42,7 +42,6 @@ namespace edm {
 
     public:
       typedef EDFilterAdaptorBase ModuleType;
-      typedef WorkerT<EDFilterAdaptorBase> WorkerType;
 
 
       EDFilterBase();

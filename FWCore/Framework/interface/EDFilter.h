@@ -32,7 +32,6 @@ namespace edm {
     template <typename T> friend class maker::ModuleHolderT;
     template <typename T> friend class WorkerT;
     typedef EDFilter ModuleType;
-    typedef WorkerT<EDFilter> WorkerType;
     
      EDFilter() : ProducerBase() , moduleDescription_(),
      previousParentage_(), previousParentageId_() {

@@ -43,7 +43,6 @@ namespace edm {
 
     public:
       typedef EDProducerAdaptorBase ModuleType;
-      typedef WorkerT<EDProducerAdaptorBase> WorkerType;
 
       EDProducerBase();
       virtual ~EDProducerBase();

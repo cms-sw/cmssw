@@ -44,7 +44,6 @@ namespace edm {
     template <typename T> friend class WorkerT;
     template <typename T> friend class OutputModuleCommunicatorT;
     typedef OutputModule ModuleType;
-    typedef WorkerT<OutputModule> WorkerType;
 
     explicit OutputModule(ParameterSet const& pset);
     virtual ~OutputModule();
