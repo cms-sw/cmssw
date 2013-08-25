@@ -127,8 +127,6 @@ ConfigurableAnalysis::~ConfigurableAnalysis()
 // ------------ method called to produce the data  ------------
 bool ConfigurableAnalysis::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-  using namespace edm;
-
   //will the filter pass or not.
   bool majorGlobalAccept=false;
 
