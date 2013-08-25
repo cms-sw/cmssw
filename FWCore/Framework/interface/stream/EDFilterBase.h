@@ -42,10 +42,7 @@ namespace edm {
 
     public:
       typedef EDFilterAdaptorBase ModuleType;
-      //WorkerType is used to call the 'makeModule<T>' call which constructs
-      // the actual module. We can use the StreamWorker to create the actual
-      // module which holds the various stream modules
-      typedef StreamWorker<EDFilterAdaptorBase> WorkerType;
+      typedef WorkerT<EDFilterAdaptorBase> WorkerType;
 
 
       EDFilterBase();

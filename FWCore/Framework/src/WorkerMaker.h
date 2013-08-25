@@ -8,6 +8,7 @@
 #include "FWCore/Framework/src/WorkerT.h"
 #include "FWCore/Framework/src/MakeModuleParams.h"
 #include "FWCore/Framework/src/ModuleHolder.h"
+#include "FWCore/Framework/src/MakeModuleHelper.h"
 
 #include "FWCore/Utilities/interface/Signal.h"
 
@@ -30,6 +31,7 @@ namespace edm {
 
     std::shared_ptr<maker::ModuleHolder> makeReplacementModule(edm::ParameterSet const& p) const { return makeModule(p);}
 protected:
+      
     ModuleDescription createModuleDescription(MakeModuleParams const& p) const;
 
     void throwConfigurationException(ModuleDescription const& md,
@@ -49,6 +51,8 @@ protected:
                                                maker::ModuleHolder const* mod) const = 0;
     virtual const std::string& baseType() const =0;
   };
+  
+  
 
   template <class T>
   class WorkerMaker : public Maker {
@@ -77,9 +81,11 @@ protected:
   {
     typedef T UserType;
     typedef typename UserType::ModuleType ModuleType;
-    typedef typename UserType::WorkerType WorkerType;
+    typedef MakeModuleHelper<ModuleType> MakerHelperType;
     
-    return std::shared_ptr<maker::ModuleHolder>(new maker::ModuleHolderT<ModuleType>{WorkerType::template makeModule<UserType>(p).release(),this});
+    
+    
+    return std::shared_ptr<maker::ModuleHolder>(new maker::ModuleHolderT<ModuleType>{MakerHelperType::template makeModule<UserType>(p).release(),this});
   }
   
   template <class T>
