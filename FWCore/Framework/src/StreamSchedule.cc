@@ -157,7 +157,7 @@ namespace edm {
     results_inserter_(),
     trig_paths_(),
     end_paths_(),
-    stopwatch_(wantSummary_? new RunStopwatch::StopwatchPointer::element_type : static_cast<RunStopwatch::StopwatchPointer::element_type*> (nullptr)),
+    stopwatch_(tns.wantSummary() ? new RunStopwatch::StopwatchPointer::element_type : static_cast<RunStopwatch::StopwatchPointer::element_type*> (nullptr)),
     total_events_(),
     total_passed_(),
     number_of_unscheduled_modules_(0),
