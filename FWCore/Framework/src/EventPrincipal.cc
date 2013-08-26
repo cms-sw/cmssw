@@ -23,7 +23,7 @@ namespace edm {
         boost::shared_ptr<BranchIDListHelper const> branchIDListHelper,
         ProcessConfiguration const& pc,
         HistoryAppender* historyAppender,
-        StreamID const& streamID) :
+        unsigned int streamIndex) :
     Base(reg, reg->productLookup(InEvent), pc, InEvent, historyAppender),
           aux_(),
           luminosityBlockPrincipal_(),
@@ -34,7 +34,7 @@ namespace edm {
           branchIDListHelper_(branchIDListHelper),
           branchListIndexes_(new BranchListIndexes),
           branchListIndexToProcessIndex_(),
-          streamID_(streamID){}
+          streamID_(streamIndex){}
 
   void
   EventPrincipal::clearEventPrincipal() {
