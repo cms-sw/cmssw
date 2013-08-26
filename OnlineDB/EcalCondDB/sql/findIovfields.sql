@@ -7,7 +7,7 @@
  * Usage:
  * 1. Run this script with the command @findIovfields
  * 
- * Copyright (C) by Giovanni.Organtini@roma1.infn.it 2009
+ * Giovanni.Organtini@roma1.infn.it 2009
  *
  */
 

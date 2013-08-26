@@ -13,7 +13,7 @@
 
 //STARTHEADER
 //
-// Copyright (c) 2005-2011, Matteo Cacciari, Gavin Salam and Gregory Soyez
+//  2005-2011, Matteo Cacciari, Gavin Salam and Gregory Soyez
 //
 //----------------------------------------------------------------------
 // This file is part of FastJet.

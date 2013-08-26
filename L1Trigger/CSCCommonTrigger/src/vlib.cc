@@ -1,4 +1,4 @@
-// Copyright (c) 2002 Alexander Madorsky, University of Florida/Physics. All rights reserved.
+// Alexander Madorsky, University of Florida/Physics.
 
 
 #include <L1Trigger/CSCCommonTrigger/interface/vlib.h>

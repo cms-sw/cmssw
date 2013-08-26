@@ -19,7 +19,6 @@
  * History:
  *   
  *
- * Copyright (C) 2010 FNAL 
  ********************************************************************/
 
 //// Following are the 2 irreducible free parameters of the fit:

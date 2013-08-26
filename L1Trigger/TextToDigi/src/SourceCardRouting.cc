@@ -1,6 +1,6 @@
 /*
   SourceCardRouting library
-  Copyright Andrew Rose 2007
+  Andrew Rose 2007
 */
 
 // Prototype class definition
