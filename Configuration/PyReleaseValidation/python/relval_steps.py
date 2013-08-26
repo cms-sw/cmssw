@@ -909,7 +909,7 @@ step2Upgpixphase1Defaults = {'-s':'DIGI,L1,DIGI2RAW',
 steps['DIGIUP']=merge([step2Upgpixphase1Defaults])
 
 #for 2015
-step2Upg2015Defaults = {'-s':'DIGI,L1,DIGI2RAW',
+step2Upg2015Defaults = {'-s':'DIGI,L1,DIGI2RAW,HLT:@relval,RAW2DIGI,L1Reco',
                  '--conditions':'auto:upgradePLS1', 
                  '--datatier':'GEN-SIM-DIGI-RAW',
                  '-n':'10',
