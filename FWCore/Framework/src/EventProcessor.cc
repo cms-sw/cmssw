@@ -677,14 +677,16 @@ namespace edm {
 
     FDEBUG(2) << parameterSet << std::endl;
 
-    // Reusable event principal
-    boost::shared_ptr<EventPrincipal> ep(new EventPrincipal(preg_,
-                                                            branchIDListHelper_,
-                                                            *processConfiguration_,
-                                                            historyAppender_.get(),
-                                                            StreamID{0}));
-    principalCache_.insert(ep);
-      
+    principalCache_.setNumberOfConcurrentPrincipals(preallocations_);
+    for(unsigned int index = 0; index<preallocations_.numberOfStreams(); ++index ) {
+      // Reusable event principal
+      boost::shared_ptr<EventPrincipal> ep(new EventPrincipal(preg_,
+                                                              branchIDListHelper_,
+                                                              *processConfiguration_,
+                                                              historyAppender_.get(),
+                                                              index));
+      principalCache_.insert(ep,index);
+    }
     // initialize the subprocess, if there is one
     if(subProcessParameterSet) {
       subProcess_.reset(new SubProcess(*subProcessParameterSet, *parameterSet, preg_, branchIDListHelper_, *espController_, *actReg_, token, serviceregistry::kConfigurationOverrides, preallocations_, &processContext_));
@@ -1701,7 +1703,7 @@ namespace edm {
                 if(size < preg_->size()) {
                   principalCache_.adjustIndexesAfterProductRegistryAddition();
                 }
-                principalCache_.adjustEventToNewProductRegistry(preg_);
+                principalCache_.adjustEventsToNewProductRegistry(preg_);
               }
             } 
             itemType = (more ? input_->nextItemType() : InputSource::IsStop);
@@ -1884,7 +1886,7 @@ namespace edm {
     if(size < preg_->size()) {
       principalCache_.adjustIndexesAfterProductRegistryAddition();
     }
-    principalCache_.adjustEventToNewProductRegistry(preg_);
+    principalCache_.adjustEventsToNewProductRegistry(preg_);
     if(numberOfForkedChildren_ > 0) {
         fb_->setNotFastClonable(FileBlock::ParallelProcesses);
     }
@@ -2198,8 +2200,8 @@ namespace edm {
 
   void EventProcessor::readAndProcessEvent() {
     //TODO this will have to become per stream
-    StreamContext streamContext(StreamID{0}, &processContext_);
-    EventPrincipal *pep = input_->readEvent(principalCache_.eventPrincipal(), &streamContext);
+    StreamContext streamContext(principalCache_.eventPrincipal(0).streamID(), &processContext_);
+    EventPrincipal *pep = input_->readEvent(principalCache_.eventPrincipal(0), &streamContext);
     FDEBUG(1) << "\treadEvent\n";
     assert(pep != 0);
     pep->setLuminosityBlockPrincipal(principalCache_.lumiPrincipalPtr());
@@ -2227,7 +2229,7 @@ namespace edm {
       EDLooperBase::Status status = EDLooperBase::kContinue;
       do {
 
-        StreamContext streamContext(StreamID{0}, &processContext_);
+        StreamContext streamContext(pep->streamID(), &processContext_);
         status = looper_->doDuringLoop(*pep, esp_->eventSetup(), pc, &streamContext);
 
         bool succeeded = true;

@@ -22,6 +22,7 @@
 #include "FWCore/Framework/interface/TriggerNamesService.h"
 #include "FWCore/Framework/src/EventSetupsController.h"
 #include "FWCore/Framework/src/SignallingProductRegistry.h"
+#include "FWCore/Framework/src/PreallocationConfiguration.h"
 #include "FWCore/ParameterSet/interface/IllegalParameters.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/ExceptionCollector.h"
@@ -139,9 +140,12 @@ namespace edm {
     processContext_.setProcessConfiguration(processConfiguration_.get());
     processContext_.setParentProcessContext(parentProcessContext);
 
-    boost::shared_ptr<EventPrincipal> ep(new EventPrincipal(preg_, branchIDListHelper_, *processConfiguration_, historyAppender_.get(),
-                                                            StreamID::invalidStreamID()));
-    principalCache_.insert(ep);
+    principalCache_.setNumberOfConcurrentPrincipals(preallocConfig);
+    for(unsigned int index = 0; index < preallocConfig.numberOfStreams(); ++index) {
+      boost::shared_ptr<EventPrincipal> ep(new EventPrincipal(preg_, branchIDListHelper_, *processConfiguration_, historyAppender_.get(),
+                                                            index));
+      principalCache_.insert(ep,index);
+    }
 
     if(subProcessParameterSet) {
       subProcess_.reset(new SubProcess(*subProcessParameterSet, topLevelParameterSet, preg_, branchIDListHelper_, esController, *items.actReg_, newToken, iLegacy, preallocConfig, &processContext_));
@@ -281,7 +285,7 @@ namespace edm {
       esids->push_back(selector_config_id_);
     }
 
-    EventPrincipal& ep = principalCache_.eventPrincipal();
+    EventPrincipal& ep = principalCache_.eventPrincipal(principal.streamID().value());
     ep.setStreamID(principal.streamID());
     ep.fillEventPrincipal(aux,
                           esids,
