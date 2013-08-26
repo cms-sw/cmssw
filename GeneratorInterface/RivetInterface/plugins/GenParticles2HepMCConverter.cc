@@ -98,6 +98,8 @@ void GenParticles2HepMCConverter::produce(edm::Event& event, const edm::EventSet
   hepmc_event->set_alphaQED(genEventInfoHandle->alphaQED());
   hepmc_event->set_alphaQCD(genEventInfoHandle->alphaQCD());
 
+  hepmc_event->weights() = genEventInfoHandle->weights();
+
   // Set PDF
   const gen::PdfInfo* pdf = genEventInfoHandle->pdf();
   const int pdf_id1 = pdf->id.first, pdf_id2 = pdf->id.second;
