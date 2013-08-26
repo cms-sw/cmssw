@@ -5,7 +5,7 @@
 // V2.1 - Change to strip specific names and remove un-necessary definitions
 //
 // Created by Morris Swartz on 10/11/10.
-// Copyright 2010 __TheJohnsHopkinsUniversity__. All rights reserved.
+// 2010 __TheJohnsHopkinsUniversity__. 
 //
 //
  

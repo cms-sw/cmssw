@@ -2,7 +2,7 @@
                           main.cpp  -  description
                              -------------------
     begin                : Wed Oct 24 17:36:15 PDT 2001
-    copyright            : (C) 2001 by Michael Case
+    author               : Michael Case
     email                : case@ucdhep.ucdavis.edu
  ***************************************************************************/
 
