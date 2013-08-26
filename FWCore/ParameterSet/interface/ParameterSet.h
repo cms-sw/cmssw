@@ -107,10 +107,10 @@ namespace edm {
     ParameterSet const&
     getParameterSet(char const*) const;
 
-    ParameterSet const&
+    ParameterSet
     getUntrackedParameterSet(std::string const& name, ParameterSet const& defaultValue) const;
 
-    ParameterSet const&
+    ParameterSet
     getUntrackedParameterSet(char const* name, ParameterSet const& defaultValue) const;
 
     ParameterSet const&
@@ -125,10 +125,10 @@ namespace edm {
     VParameterSet const&
     getParameterSetVector(char const* name) const;
 
-    VParameterSet const&
+    VParameterSet
     getUntrackedParameterSetVector(std::string const& name, VParameterSet const& defaultValue) const;
 
-    VParameterSet const&
+    VParameterSet
     getUntrackedParameterSetVector(char const* name, VParameterSet const& defaultValue) const;
 
     VParameterSet const&
