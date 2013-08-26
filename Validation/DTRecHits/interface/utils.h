@@ -15,7 +15,7 @@ class Tutils {
   void setStyle(TH2 *histo);
   void plotAndProfileX (TH2* h2, float min, float max, bool profile=false);
  private:
-  TStyle * getStyle(TString name);
+  TStyle * getStyle(const TString& name);
   TStyle * mystyle;
   
 };
