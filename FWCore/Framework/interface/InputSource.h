@@ -78,7 +78,8 @@ namespace edm {
       IsRun,
       IsLumi,
       IsEvent,
-      IsRepeat
+      IsRepeat,
+      IsSynchronize
     };
 
     enum ProcessingMode {
@@ -101,7 +102,8 @@ namespace edm {
     static const std::string& baseType();
     static void fillDescription(ParameterSetDescription& desc);
     static void prevalidate(ConfigurationDescriptions& );
-    
+
+    /// Advances the source to the next item
     ItemType nextItemType();
 
     /// Read next event
