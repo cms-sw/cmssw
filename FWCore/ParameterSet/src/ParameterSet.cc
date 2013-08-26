@@ -2363,12 +2363,12 @@ namespace edm {
     return retrieveParameterSet(name).pset();
   }
 
-  ParameterSet const&
+  ParameterSet
   ParameterSet::getUntrackedParameterSet(std::string const& name, ParameterSet const& defaultValue) const {
     return getUntrackedParameterSet(name.c_str(), defaultValue);
   }
 
-  ParameterSet const&
+  ParameterSet
   ParameterSet::getUntrackedParameterSet(char const* name, ParameterSet const& defaultValue) const {
     ParameterSetEntry const* entryPtr = retrieveUntrackedParameterSet(name);
     if(entryPtr == 0) {
@@ -2401,12 +2401,12 @@ namespace edm {
     return retrieveVParameterSet(name).vpset();
   }
 
-  VParameterSet const&
+  VParameterSet
   ParameterSet::getUntrackedParameterSetVector(std::string const& name, VParameterSet const& defaultValue) const {
     return getUntrackedParameterSetVector(name.c_str(), defaultValue);
   }
 
-  VParameterSet const&
+  VParameterSet
   ParameterSet::getUntrackedParameterSetVector(char const* name, VParameterSet const& defaultValue) const {
     VParameterSetEntry const* entryPtr = retrieveUntrackedVParameterSet(name);
     return entryPtr == 0 ? defaultValue : entryPtr->vpset();
