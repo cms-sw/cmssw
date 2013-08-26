@@ -24,7 +24,9 @@ function getPathList() {
 }
 
 function makeCreateConfig() {
-  [ -d $CMSSW_BASE/src/EventFilter/ConfigDB ]                                            || addpkg EventFilter/ConfigDB $CONFDB_TAG
+  [ -d $CMSSW_BASE/src/EventFilter/ConfigDB ]                                            || { git clone https://github.com/cms-sw/hlt-confdb.git;
+           mkdir $CMSSW_BASE/src/EventFilter;
+           mv hlt-confdb $CMSSW_BASE/src/EventFilter/ConfigDB; }
   [ -f $CMSSW_BASE/src/EventFilter/ConfigDB/classes/confdb/db/ConfDBCreateConfig.class ] || ant -f $CMSSW_BASE/src/EventFilter/ConfigDB/build.xml gui
 }
 
@@ -49,7 +51,7 @@ function runCreateConfig() {
   loadConfiguration "$1"
   java \
     -Xmx1024m \
-    -classpath "$CMSSW_BASE/src/EventFilter/ConfigDB/ext/ojdbc14.jar:$CMSSW_BASE/src/EventFilter/ConfigDB/lib/cmssw-evf-confdb-gui.jar" \
+    -classpath "$CMSSW_BASE/src/EventFilter/ConfigDB/ext/ojdbc6.jar:$CMSSW_BASE/src/EventFilter/ConfigDB/lib/cmssw-evf-confdb-gui.jar" \
     confdb.db.ConfDBCreateConfig \
     --dbHost $DBHOST \
     --dbName $DBNAME \
