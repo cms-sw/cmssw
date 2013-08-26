@@ -168,27 +168,42 @@ void GenParticles2HepMCConverter::produce(edm::Event& event, const edm::EventSet
   for ( unsigned int i=2, n=genParticlesHandle->size(); i<n; ++i )
   {
     const reco::Candidate* p = &genParticlesHandle->at(i);
-    const reco::Candidate* elder = p;
-    if ( p->numberOfMothers() != 0 ) elder = p->mother(0)->daughter(0);
-
     HepMC::GenVertex* vertex = 0;
-    if ( particleToVertexMap.find(elder) == particleToVertexMap.end() )
+    const unsigned int nMothers = p->numberOfMothers();
+
+    // Need special care for orphan particles
+    if ( nMothers == 0 )
     {
-      vertex = new HepMC::GenVertex(FourVector(elder->vertex()));
+      vertex = new HepMC::GenVertex(FourVector(p->vertex()));
       hepmc_event->add_vertex(vertex);
-      particleToVertexMap[elder] = vertex;
+      particleToVertexMap[p] = vertex;
+      continue;
+    }
+
+    // Connect mother-daughters for the other cases
+    for ( unsigned int j=0; j<nMothers; ++j )
+    {
+      // Connection to mother defines vertex
+      const reco::Candidate* elder = p->mother(j)->daughter(0);
+      if ( particleToVertexMap.find(elder) == particleToVertexMap.end() )
+      {
+        vertex = new HepMC::GenVertex(FourVector(elder->vertex()));
+        hepmc_event->add_vertex(vertex);
+        particleToVertexMap[elder] = vertex;
+      }
+      else
+      {
+        vertex = particleToVertexMap[elder];
+      }
+
+      // Vertex is found. Now connect each other
       for ( unsigned int j=0, m=elder->numberOfMothers(); j<m; ++j )
       {
         const reco::Candidate* mother = elder->mother(j);
         vertex->add_particle_in(genCandToHepMCMap[mother]);
       }
+      vertex->add_particle_out(hepmc_particles[i]);
     }
-    else
-    {
-      vertex = particleToVertexMap[elder];
-    }
-
-    vertex->add_particle_out(hepmc_particles[i]);
   }
 
   // Finalize HepMC event record
