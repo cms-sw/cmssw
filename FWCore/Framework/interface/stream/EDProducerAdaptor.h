@@ -23,17 +23,32 @@
 // user include files
 #include "FWCore/Framework/interface/stream/EDProducerAdaptorBase.h"
 #include "FWCore/Framework/interface/stream/ProducingModuleAdaptor.h"
-#include "FWCore/Framework/interface/stream/StreamWorker.h"
+#include "FWCore/Framework/src/MakeModuleHelper.h"
 // forward declarations
 
 namespace edm {
   namespace stream {
+    template<typename ABase, typename ModType> struct BaseToAdaptor;
+
     template<typename T> using EDProducerAdaptor = ProducingModuleAdaptor<T,EDProducerBase, EDProducerAdaptorBase>;
 
     template<typename ModType> struct BaseToAdaptor<EDProducerAdaptorBase,ModType> {
       typedef EDProducerAdaptor<ModType> Type;
     };
   }
+  
+  template<>
+  class MakeModuleHelper<edm::stream::EDProducerAdaptorBase>
+  {
+    typedef edm::stream::EDProducerAdaptorBase Base;
+  public:
+    template<typename ModType>
+    static std::unique_ptr<Base> makeModule(ParameterSet const& pset) {
+      typedef typename stream::BaseToAdaptor<Base,ModType>::Type Adaptor;
+      std::unique_ptr<Adaptor> module = std::unique_ptr<Adaptor>(new Adaptor(pset));
+      return std::unique_ptr<Base>(module.release());
+    }
+  };
 }
 
 #endif

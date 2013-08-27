@@ -31,12 +31,6 @@ namespace edm {
 
     virtual ~WorkerT();
 
-  template<typename ModType>
-  static std::unique_ptr<T> makeModule(ParameterSet const& pset) {
-    std::unique_ptr<ModType> module = std::unique_ptr<ModType>(new ModType(pset));
-    return std::unique_ptr<T>(module.release());
-  }
-
   void setModule( T* iModule) {
     module_ = iModule;
   }

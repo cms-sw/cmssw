@@ -30,9 +30,9 @@
 
 // forward declarations
 namespace edm {
+  template<typename T> class WorkerT;
   namespace stream {
     class EDProducerAdaptorBase;
-    template<typename T> class StreamWorker;
     template<typename> class ProducingModuleAdaptorBase;
     
     class EDProducerBase : public edm::ProducerBase, public edm::EDConsumerBase
@@ -43,10 +43,6 @@ namespace edm {
 
     public:
       typedef EDProducerAdaptorBase ModuleType;
-      //WorkerType is used to call the 'makeModule<T>' call which constructs
-      // the actual module. We can use the StreamWorker to create the actual
-      // module which holds the various stream modules
-      typedef StreamWorker<EDProducerAdaptorBase> WorkerType;
 
       EDProducerBase();
       virtual ~EDProducerBase();
