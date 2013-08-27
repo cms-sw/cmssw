@@ -76,8 +76,6 @@ void GenParticles2HepMCConverter::beginRun(edm::Run& run, const edm::EventSetup&
   // const double xsecLOErr = genRunInfoHandle->externalXSecLO().error();
   // const double xsecNLO = genRunInfoHandle->externalXSecNLO().value();
   // const double xsecNLOErr = genRunInfoHandle->externalXSecNLO().error();
-  
-  eventSetup.getData(pTable_);
 }
 
 void GenParticles2HepMCConverter::produce(edm::Event& event, const edm::EventSetup& eventSetup)
@@ -90,6 +88,8 @@ void GenParticles2HepMCConverter::produce(edm::Event& event, const edm::EventSet
 
   edm::Handle<GenEventInfoProduct> genEventInfoHandle;
   event.getByLabel(genEventInfoLabel_, genEventInfoHandle);
+
+  eventSetup.getData(pTable_);
 
   HepMC::GenEvent* hepmc_event = new HepMC::GenEvent();
   hepmc_event->set_event_number(event.id().event());
