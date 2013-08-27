@@ -28,12 +28,13 @@
 #include "FWCore/Framework/interface/stream/EDAnalyzerAdaptorBase.h"
 #include "FWCore/Framework/interface/stream/callAbilities.h"
 #include "FWCore/Framework/interface/stream/dummy_helpers.h"
-#include "FWCore/Framework/interface/stream/StreamWorker.h"
+#include "FWCore/Framework/src/MakeModuleHelper.h"
 
 // forward declarations
 
 namespace edm {
   namespace stream {
+
     namespace impl {
       template<typename T, typename G>
       std::unique_ptr<G> makeGlobal(edm::ParameterSet const& iPSet, G const*) {
@@ -57,7 +58,8 @@ namespace edm {
       }
     }
 
-    //Needed for StreamWorker<T>
+    template<typename ABase, typename ModType> struct BaseToAdaptor;
+
     template<typename T> class EDAnalyzerAdaptor;
     template<typename ModType> struct BaseToAdaptor<EDAnalyzerAdaptorBase,ModType> {
       typedef EDAnalyzerAdaptor<ModType> Type;
@@ -190,6 +192,20 @@ namespace edm {
       typename impl::choose_shared_vec<typename T::LuminosityBlockSummaryCache>::type m_lumiSummaries;
     };
   }
+  
+  template<>
+  class MakeModuleHelper<edm::stream::EDAnalyzerAdaptorBase>
+  {
+    typedef edm::stream::EDAnalyzerAdaptorBase Base;
+  public:
+    template<typename ModType>
+    static std::unique_ptr<Base> makeModule(ParameterSet const& pset) {
+      typedef typename stream::BaseToAdaptor<Base,ModType>::Type Adaptor;
+      std::unique_ptr<Adaptor> module = std::unique_ptr<Adaptor>(new Adaptor(pset));
+      return std::unique_ptr<Base>(module.release());
+    }
+  };
+
 }
 
 #endif

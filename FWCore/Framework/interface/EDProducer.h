@@ -30,7 +30,6 @@ namespace edm {
     template <typename T> friend class maker::ModuleHolderT;
     template <typename T> friend class WorkerT;
     typedef EDProducer ModuleType;
-    typedef WorkerT<EDProducer> WorkerType;
 
     EDProducer ();
     virtual ~EDProducer();
