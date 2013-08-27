@@ -76,7 +76,7 @@ namespace edm {
   void OutputModuleCommunicatorT<T>::configure(OutputModuleDescription const& desc) {module().configure(desc);}
   
   template<typename T>
-  edm::SelectionsArray const& OutputModuleCommunicatorT<T>::keptProducts() const {
+  edm::SelectedProductsForBranchType const& OutputModuleCommunicatorT<T>::keptProducts() const {
     return module().keptProducts();
   }
   
