@@ -153,7 +153,7 @@ void GEDPhotonCoreProducer::produce(edm::Event &theEvent, const edm::EventSetup&
 } 
 
 
-void GEDPhotonCoreProducer::createSingleLegConversions(reco::CaloClusterPtr sc,  std::vector<reco::TrackRef>  conv, std::vector<float> mva,  reco::ConversionCollection &oneLegConversions) {
+void GEDPhotonCoreProducer::createSingleLegConversions(reco::CaloClusterPtr sc,  const std::vector<reco::TrackRef>&  conv, const std::vector<float>& mva,  reco::ConversionCollection &oneLegConversions) {
   // this method translates the single track into the Conversion Data Format
 
   math::Error<3>::type error;

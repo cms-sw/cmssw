@@ -41,7 +41,7 @@
 // constructors and destructor
 //
 HcalQLPlotAnalAlgos::HcalQLPlotAnalAlgos(const char *outputFilename,
-					 edm::ParameterSet histoParams)
+					 const edm::ParameterSet& histoParams)
 {
   triggerID_=HcalQLPlotHistoMgr::UNKNOWN;
 

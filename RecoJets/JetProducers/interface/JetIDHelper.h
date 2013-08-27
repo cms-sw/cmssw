@@ -84,8 +84,8 @@ namespace reco {
 			      std::vector< double > &RBX_energies,
 			      const int iDbg = 0);
 
-      unsigned int nCarrying( double fraction, std::vector< double > descending_energies );
-      unsigned int hitsInNCarrying( double fraction, std::vector< subtower > descending_towers );
+      unsigned int nCarrying( double fraction, const std::vector< double >& descending_energies );
+      unsigned int hitsInNCarrying( double fraction, const std::vector< subtower >& descending_towers );
       
       enum Region{
 	unknown_region = -1,

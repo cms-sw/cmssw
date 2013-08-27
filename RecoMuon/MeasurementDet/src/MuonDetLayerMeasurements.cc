@@ -21,9 +21,9 @@ typedef MuonTransientTrackingRecHit::MuonRecHitContainer MuonRecHitContainer;
 
 
 
-MuonDetLayerMeasurements::MuonDetLayerMeasurements(edm::InputTag dtlabel, 
-						   edm::InputTag csclabel, 
-						   edm::InputTag rpclabel,
+MuonDetLayerMeasurements::MuonDetLayerMeasurements(const edm::InputTag& dtlabel, 
+						   const edm::InputTag& csclabel, 
+						   const edm::InputTag& rpclabel,
 						   bool enableDT, bool enableCSC, bool enableRPC): 
   theDTRecHitLabel(dtlabel),
   theCSCRecHitLabel(csclabel),

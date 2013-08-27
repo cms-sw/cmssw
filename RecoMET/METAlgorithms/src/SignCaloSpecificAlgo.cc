@@ -148,7 +148,7 @@ SignCaloSpecificAlgo::makeVectorOutOfCaloTowers(edm::Handle<edm::View<reco::Cand
 ////////////////
 //
 // Basic MET algorithm. gets towers, does sum. Very similar to standard MET.
-void SignCaloSpecificAlgo::calculateBaseCaloMET(edm::Handle<edm::View<reco::Candidate> > towers, CommonMETData met,const metsig::SignAlgoResolutions& resolutions, bool noHF, double globalThreshold)
+void SignCaloSpecificAlgo::calculateBaseCaloMET(edm::Handle<edm::View<reco::Candidate> > towers, const CommonMETData& met,const metsig::SignAlgoResolutions& resolutions, bool noHF, double globalThreshold)
 { 
 
   //retreive calo tower information from candidates

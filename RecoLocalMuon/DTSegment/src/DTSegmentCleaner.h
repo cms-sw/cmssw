@@ -43,14 +43,14 @@ class DTSegmentCleaner{
 
     /* Operations */ 
     /// do the cleaning
-    std::vector<DTSegmentCand*> clean(std::vector<DTSegmentCand*> inputCands) const ;
+    std::vector<DTSegmentCand*> clean(const std::vector<DTSegmentCand*>& inputCands) const ;
 
   private:
     /// solve the conflicts
-    std::vector<DTSegmentCand*> solveConflict(std::vector<DTSegmentCand*> inputCands) const ;
+    std::vector<DTSegmentCand*> solveConflict(const std::vector<DTSegmentCand*>& inputCands) const ;
 
     /// ghost  suppression
-    std::vector<DTSegmentCand*> ghostBuster(std::vector<DTSegmentCand*> inputCands) const ;
+    std::vector<DTSegmentCand*> ghostBuster(const std::vector<DTSegmentCand*>& inputCands) const ;
 
     int nSharedHitsMax;
     int nUnSharedHitsMin;

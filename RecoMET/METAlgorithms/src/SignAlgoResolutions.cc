@@ -301,7 +301,7 @@ void metsig::SignAlgoResolutions::addResolutions(const edm::ParameterSet &iConfi
   return;
 }
 
-void metsig::SignAlgoResolutions::addfunction(resolutionType type, resolutionFunc func, functionPars parameters){
+void metsig::SignAlgoResolutions::addfunction(resolutionType type, resolutionFunc func, const functionPars& parameters){
 
   functionCombo mypair(type,func);
   functionmap_[mypair]=parameters;

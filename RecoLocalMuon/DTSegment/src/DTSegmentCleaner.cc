@@ -34,7 +34,7 @@ DTSegmentCleaner::~DTSegmentCleaner() {
 }
 
 /* Operations */ 
-vector<DTSegmentCand*> DTSegmentCleaner::clean(vector<DTSegmentCand*> inputCands) const {
+vector<DTSegmentCand*> DTSegmentCleaner::clean(const std::vector<DTSegmentCand*>& inputCands) const {
   if (inputCands.size()<2) return inputCands;
   //   cout << "[DTSegmentCleaner] # of candidates: " << inputCands.size() << endl;
   vector<DTSegmentCand*> result = solveConflict(inputCands);
@@ -44,15 +44,15 @@ vector<DTSegmentCand*> DTSegmentCleaner::clean(vector<DTSegmentCand*> inputCands
   return result;
 }
 
-vector<DTSegmentCand*> DTSegmentCleaner::solveConflict(vector<DTSegmentCand*> inputCands) const {
+vector<DTSegmentCand*> DTSegmentCleaner::solveConflict(const std::vector<DTSegmentCand*>& inputCands) const {
   vector<DTSegmentCand*> result;
 
   vector<DTSegmentCand*> ghosts;
 
 
-  for (vector<DTSegmentCand*>::iterator cand=inputCands.begin();
+  for (vector<DTSegmentCand*>::const_iterator cand=inputCands.begin();
        cand!=inputCands.end(); ++cand) {
-    for (vector<DTSegmentCand*>::iterator cand2 = cand+1 ; cand2!=inputCands.end() ; ++cand2) {
+    for (vector<DTSegmentCand*>::const_iterator cand2 = cand+1 ; cand2!=inputCands.end() ; ++cand2) {
 
       DTSegmentCand::AssPointCont confHits=(*cand)->conflictingHitPairs(*(*cand2));
 
@@ -114,11 +114,11 @@ vector<DTSegmentCand*> DTSegmentCleaner::solveConflict(vector<DTSegmentCand*> in
   }
 
  
-  vector<DTSegmentCand*>::iterator cand=inputCands.begin();
+  vector<DTSegmentCand*>::const_iterator cand=inputCands.begin();
   while ( cand < inputCands.end() ) {
     if ((*cand)->good()) result.push_back(*cand);
     else {
-      vector<DTSegmentCand*>::iterator badCand=cand;
+      vector<DTSegmentCand*>::const_iterator badCand=cand;
       delete *badCand;
     }
     ++cand;
@@ -127,11 +127,11 @@ vector<DTSegmentCand*> DTSegmentCleaner::solveConflict(vector<DTSegmentCand*> in
 }
 
 vector<DTSegmentCand*> 
-DTSegmentCleaner::ghostBuster(vector<DTSegmentCand*> inputCands) const {
+DTSegmentCleaner::ghostBuster(const std::vector<DTSegmentCand*>& inputCands) const {
   vector<DTSegmentCand*> ghosts;
-  for (vector<DTSegmentCand*>::iterator cand=inputCands.begin();
+  for (vector<DTSegmentCand*>::const_iterator cand=inputCands.begin();
        cand!=inputCands.end(); ++cand) {
-    for (vector<DTSegmentCand*>::iterator cand2=cand+1;
+    for (vector<DTSegmentCand*>::const_iterator cand2=cand+1;
          cand2!=inputCands.end(); ++cand2) {
       unsigned int nSharedHits=(*cand)->nSharedHitPairs(*(*cand2));
       // cout << "Sharing " << (**cand) << " " << (**cand2) << " " << nSharedHits
