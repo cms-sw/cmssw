@@ -39,6 +39,7 @@ namespace edm {
 
   void setModule( T* iModule) {
     module_ = iModule;
+    resetModuleDescription(&(module_->moduleDescription()));
   }
     
     virtual Types moduleType() const override;
