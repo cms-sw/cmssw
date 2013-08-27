@@ -30,7 +30,7 @@ class GEDPhotonCoreProducer : public edm::EDProducer {
 
  private:
 
-  void createSingleLegConversions( reco::CaloClusterPtr, std::vector<reco::TrackRef>, std::vector<float>,  reco::ConversionCollection &oneLegConversions  );
+  void createSingleLegConversions( reco::CaloClusterPtr, const std::vector<reco::TrackRef>&, const std::vector<float>&,  reco::ConversionCollection &oneLegConversions  );
 
   std::string GEDPhotonCoreCollection_;
   std::string PFConversionCollection_;

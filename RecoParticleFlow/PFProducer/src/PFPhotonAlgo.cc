@@ -916,7 +916,8 @@ void PFPhotonAlgo::RunPFPhoton(const reco::PFBlockRef&  blockRef,
   return;
 }
 
-float PFPhotonAlgo::EvaluateResMVA(reco::PFCandidate photon, std::vector<reco::CaloCluster>PFClusters){
+float PFPhotonAlgo::EvaluateResMVA(const reco::PFCandidate& photon, const std::vector<reco::CaloCluster>& _PFClusters){
+  std::vector<reco::CaloCluster> PFClusters = _PFClusters;
   float BDTG=1;
   PFPhoEta_=photon.eta();
   PFPhoPhi_=photon.phi();
@@ -1020,7 +1021,8 @@ float PFPhotonAlgo::EvaluateResMVA(reco::PFCandidate photon, std::vector<reco::C
    
 }
 
-float PFPhotonAlgo::EvaluateGCorrMVA(reco::PFCandidate photon, std::vector<CaloCluster>PFClusters){
+float PFPhotonAlgo::EvaluateGCorrMVA(const reco::PFCandidate& photon, const std::vector<CaloCluster>& _PFClusters){
+  std::vector<CaloCluster> PFClusters = _PFClusters;
   float BDTG=1;
   PFPhoEta_=photon.eta();
   PFPhoPhi_=photon.phi();
@@ -1168,7 +1170,7 @@ float PFPhotonAlgo::EvaluateGCorrMVA(reco::PFCandidate photon, std::vector<CaloC
   
 }
 
-double PFPhotonAlgo::ClustersPhiRMS(std::vector<reco::CaloCluster>PFClusters, float PFPhoPhi){
+double PFPhotonAlgo::ClustersPhiRMS(const std::vector<reco::CaloCluster>& PFClusters, float PFPhoPhi){
   double PFClustPhiRMS=0;
   double delPhi2=0;
   double delPhiSum=0;

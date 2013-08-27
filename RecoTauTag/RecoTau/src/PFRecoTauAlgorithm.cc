@@ -519,7 +519,7 @@ PFTau PFRecoTauAlgorithm::buildPFTau(const PFTauTagInfoRef& myPFTauTagInfoRef, c
 }
 
 bool
-PFRecoTauAlgorithm::checkPos(std::vector<math::XYZPoint> CalPos,math::XYZPoint CandPos) const{
+PFRecoTauAlgorithm::checkPos(const std::vector<math::XYZPoint>& CalPos,const math::XYZPoint& CandPos) const{
    bool flag = false;
    for (unsigned int i=0;i<CalPos.size();i++) {
       if (CalPos[i] == CandPos) {

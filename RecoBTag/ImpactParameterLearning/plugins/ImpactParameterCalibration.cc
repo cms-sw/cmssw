@@ -76,7 +76,7 @@ class ImpactParameterCalibration : public edm::EDAnalyzer {
       virtual void initFromFirstES(const edm::EventSetup&);
       edm::ParameterSet config;
       bool m_needInitFromES;
-   TrackProbabilityCalibration * fromXml(edm::FileInPath xmlCalibration);
+   TrackProbabilityCalibration * fromXml(const edm::FileInPath& xmlCalibration);
 
    static TrackProbabilityCategoryData createCategory(double  pmin,double  pmax,
                  double  etamin,  double  etamax,
@@ -341,7 +341,8 @@ ImpactParameterCalibration::beginJob()
 
 }
 
-TrackProbabilityCalibration * ImpactParameterCalibration::fromXml(edm::FileInPath xmlCalibration)   
+TrackProbabilityCalibration * ImpactParameterCalibration::fromXml(const edm::FileInPath& xmlCalibration)   
+
 {
      std::ifstream xmlFile(xmlCalibration.fullPath().c_str());
         if (!xmlFile.good())

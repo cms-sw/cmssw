@@ -55,7 +55,7 @@ namespace metsig {
     
   private:
     double getfunc(const resolutionType & type,const resolutionFunc & func,  std::vector<double> & x) const;
-    void addfunction(const resolutionType type, const resolutionFunc func, std::vector<double> parameters);
+    void addfunction(const resolutionType type, const resolutionFunc func, const std::vector<double>& parameters);
     void initializeJetResolutions( const edm::ParameterSet &iConfig );
     
     typedef std::pair<metsig::resolutionType, metsig::resolutionFunc> functionCombo;

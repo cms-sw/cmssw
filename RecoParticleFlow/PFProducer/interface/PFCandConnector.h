@@ -60,7 +60,7 @@ class PFCandConnector {
        }
 
 
-       void setParameters(bool bCorrect, bool bCalibPrimary, double dptRel_PrimaryTrack, double dptRel_MergedTrack, double ptErrorSecondary, std::vector<double> nuclCalibFactors);
+       void setParameters(bool bCorrect, bool bCalibPrimary, double dptRel_PrimaryTrack, double dptRel_MergedTrack, double ptErrorSecondary, const std::vector<double>& nuclCalibFactors);
        void setDebug( bool debug ) {debug_ = debug;}
 
        

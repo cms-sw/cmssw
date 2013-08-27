@@ -69,7 +69,7 @@ void PixelVertexProducerClusters::beginRun
 
 /*****************************************************************************/
 int PixelVertexProducerClusters::getContainedHits
-  (vector<VertexHit> hits, float z0, float & chi)
+  (const vector<VertexHit>& hits, float z0, float & chi)
 {
   int n = 0;
   chi = 0.;

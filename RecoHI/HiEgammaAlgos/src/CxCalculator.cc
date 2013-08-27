@@ -35,7 +35,7 @@ double CxCalculator::getJurassicArea( double r1, double r2, double width) {
 
 
 
-CxCalculator::CxCalculator (const edm::Event &iEvent, const edm::EventSetup &iSetup, edm::InputTag barrelLabel, edm::InputTag endcapLabel)
+CxCalculator::CxCalculator (const edm::Event &iEvent, const edm::EventSetup &iSetup,const edm::InputTag& barrelLabel,const edm::InputTag& endcapLabel)
 {
 //InputTag("islandBasicClusters:islandBarrelBasicClusters")
 //InputTag("islandBasicClusters:islandEndcapBasicClusters")

@@ -38,7 +38,7 @@ class CaloSpecificAlgo
 {
 
  public:
-  reco::CaloMET addInfo(edm::Handle<edm::View<reco::Candidate> > towers, CommonMETData met, bool noHF, double globalThreshold);
+  reco::CaloMET addInfo(edm::Handle<edm::View<reco::Candidate> > towers, const CommonMETData& met, bool noHF, double globalThreshold);
 
  private:
   typedef math::XYZTLorentzVector LorentzVector;

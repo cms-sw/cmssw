@@ -63,7 +63,7 @@ class DTCombinatorialExtendedPatternReco : private DTRecSegment2DBaseAlgo {
     virtual void setES(const edm::EventSetup& setup);
 
     // pass clusters to algo
-    void setClusters(std::vector<DTSLRecCluster> clusters);
+    void setClusters(const std::vector<DTSLRecCluster>& clusters);
 
   protected:
 
