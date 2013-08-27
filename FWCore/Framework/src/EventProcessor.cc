@@ -619,8 +619,6 @@ namespace edm {
       //bad
     }
      */
-    preallocations_ = PreallocationConfiguration(nThreads,nStreams,nConcurrentLumis,nConcurrentRuns);
-    
     //forking
     ParameterSet const& forking = optionsPset.getUntrackedParameterSet("multiProcesses", ParameterSet());
     numberOfForkedChildren_ = forking.getUntrackedParameter<int>("maxChildProcesses", 0);
@@ -659,7 +657,14 @@ namespace edm {
     if(looper_) {
       looper_->setActionTable(items.act_table_.get());
       looper_->attachTo(*items.actReg_);
+
+      //For now loopers make us run only 1 transition at a time
+      nStreams=1;
+      nConcurrentLumis=1;
+      nConcurrentRuns=1;
     }
+    
+    preallocations_ = PreallocationConfiguration(nThreads,nStreams,nConcurrentLumis,nConcurrentRuns);
 
     // initialize the input source
     input_ = makeInput(*parameterSet, *common, *items.preg_, items.branchIDListHelper_, items.actReg_, items.processConfiguration_);
@@ -2209,17 +2214,19 @@ namespace edm {
     assert(principalCache_.lumiPrincipalPtr()->run() == pep->run());
     assert(principalCache_.lumiPrincipalPtr()->luminosityBlock() == pep->luminosityBlock());
 
-    IOVSyncValue ts(pep->id(), pep->time());
-    espController_->eventSetupForInstance(ts);
+    //We can only update IOVs on Lumi boundaries
+    //IOVSyncValue ts(pep->id(), pep->time());
+    //espController_->eventSetupForInstance(ts);
     EventSetup const& es = esp_->eventSetup();
     {
       typedef OccurrenceTraits<EventPrincipal, BranchActionStreamBegin> Traits;
       schedule_->processOneEvent<Traits>(0,*pep, es);
       if(hasSubProcess()) {
-        subProcess_->doEvent(*pep, ts);
+        subProcess_->doEvent(*pep);
       }
     }
 
+    //NOTE: If we have a looper we only have one Stream
     if(looper_) {
       bool randomAccess = input_->randomAccess();
       ProcessingController::ForwardState forwardState = input_->forwardState();
