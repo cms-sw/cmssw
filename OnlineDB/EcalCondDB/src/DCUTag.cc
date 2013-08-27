@@ -49,7 +49,7 @@ LocationDef DCUTag::getLocationDef() const
 
 
 
-void DCUTag::setLocationDef(const LocationDef locDef)
+void DCUTag::setLocationDef(const LocationDef& locDef)
 {
   if (locDef != m_locDef) {
     m_ID = 0;

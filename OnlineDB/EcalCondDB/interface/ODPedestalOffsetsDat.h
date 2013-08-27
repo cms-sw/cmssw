@@ -49,7 +49,7 @@ class ODPedestalOffsetsDat : public IODConfig {
   void writeDB(const ODPedestalOffsetsDat* item, ODFEPedestalOffsetInfo* iov )
     throw(std::runtime_error);
 
-  void writeArrayDB(const std::vector< ODPedestalOffsetsDat > data, ODFEPedestalOffsetInfo* iov)
+  void writeArrayDB(const std::vector< ODPedestalOffsetsDat >& data, ODFEPedestalOffsetInfo* iov)
     throw(std::runtime_error);
 
 

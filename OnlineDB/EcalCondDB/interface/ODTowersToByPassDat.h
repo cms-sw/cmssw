@@ -43,7 +43,7 @@ class ODTowersToByPassDat : public IODConfig {
   void writeDB(const ODTowersToByPassDat* item, ODTowersToByPassInfo* iov )
     throw(std::runtime_error);
 
-  void writeArrayDB(const std::vector< ODTowersToByPassDat > data, ODTowersToByPassInfo* iov)
+  void writeArrayDB(const std::vector< ODTowersToByPassDat >& data, ODTowersToByPassInfo* iov)
     throw(std::runtime_error);
 
 

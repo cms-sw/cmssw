@@ -37,7 +37,7 @@ class ODTTCFConfig : public IODConfig {
   inline void setReg30( int x ) { m_reg_30 = x; } 
   inline int getReg30( ) { return m_reg_30; } 
 
-  void setParameters(std::map<std::string,std::string> my_keys_map);
+  void setParameters(const std::map<std::string,std::string>& my_keys_map);
   
  private:
   void prepareWrite()  throw(std::runtime_error);

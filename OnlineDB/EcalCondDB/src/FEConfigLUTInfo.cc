@@ -81,12 +81,12 @@ void FEConfigLUTInfo::prepareWrite()
 
 }
 
-void FEConfigLUTInfo::setParameters(std::map<string,string> my_keys_map){
+void FEConfigLUTInfo::setParameters(const std::map<string,string>& my_keys_map){
   
   // parses the result of the XML parser that is a map of 
   // string string with variable name variable value 
   
-  for( std::map<std::string, std::string >::iterator ci=
+  for( std::map<std::string, std::string >::const_iterator ci=
 	 my_keys_map.begin(); ci!=my_keys_map.end(); ci++ ) {
     
     if(ci->first==  "VERSION") setVersion(atoi(ci->second.c_str()) );

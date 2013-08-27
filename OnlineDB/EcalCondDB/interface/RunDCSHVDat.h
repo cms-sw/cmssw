@@ -41,16 +41,16 @@ class RunDCSHVDat : public IDataItem {
   int getTimeStatus() {return m_tstatus;}
   void setTimeStatus(int t ) {m_tstatus=t; } 
  private:
-  void setStatusForBarrel(RunDCSHVDat&, Tm);
-  void setStatusForEndcaps(RunDCSHVDat&, Tm);
+  void setStatusForBarrel(RunDCSHVDat&, const Tm&);
+  void setStatusForEndcaps(RunDCSHVDat&, const Tm&);
   ResultSet* getBarrelRset();
-  ResultSet* getBarrelRset(Tm timeStart) ;
+  ResultSet* getBarrelRset(const Tm& timeStart) ;
 
   ResultSet* getEndcapAnodeRset();
   ResultSet* getEndcapDynodeRset();
 
-  ResultSet* getEndcapAnodeRset(Tm timestart);
-  ResultSet* getEndcapDynodeRset(Tm timestart);
+  ResultSet* getEndcapAnodeRset(const Tm& timestart);
+  ResultSet* getEndcapDynodeRset(const Tm& timestart);
   int nowMicroseconds();
   void fillTheMap(ResultSet *, std::map< EcalLogicID, RunDCSHVDat >* );
   //  void fillTheMapByTime(ResultSet *, std::list< std::pair< Tm, std::map< EcalLogicID, RunDCSHVDat > > >* ) ;
@@ -69,7 +69,7 @@ class RunDCSHVDat : public IDataItem {
   void fetchLastData(std::map< EcalLogicID, RunDCSHVDat >* fillMap)
      throw(std::runtime_error);
 
-  void fetchHistoricalData(std::list< std::pair<Tm, std::map< EcalLogicID, RunDCSHVDat > > >* fillMap, Tm timeStart  )
+  void fetchHistoricalData(std::list< std::pair<Tm, std::map< EcalLogicID, RunDCSHVDat > > >* fillMap, const Tm& timeStart  )
     throw(std::runtime_error);
 
 

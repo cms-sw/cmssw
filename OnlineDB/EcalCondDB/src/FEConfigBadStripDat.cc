@@ -104,7 +104,7 @@ void FEConfigBadStripDat::fetchData(std::vector< FEConfigBadStripDat >* p, FECon
 
 //  ************************************************************************   // 
 
-void FEConfigBadStripDat::writeArrayDB(const std::vector< FEConfigBadStripDat > data, FEConfigBadStripInfo* iov)
+void FEConfigBadStripDat::writeArrayDB(const std::vector< FEConfigBadStripDat >& data, FEConfigBadStripInfo* iov)
     throw(std::runtime_error)
 {
   this->checkConnection();

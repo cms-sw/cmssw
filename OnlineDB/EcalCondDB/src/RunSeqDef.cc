@@ -34,7 +34,7 @@ RunTypeDef RunSeqDef::getRunTypeDef() const
   return m_runType;
 }
 
-void RunSeqDef::setRunTypeDef(const RunTypeDef runTypeDef)
+void RunSeqDef::setRunTypeDef(const RunTypeDef& runTypeDef)
 {
     m_runType = runTypeDef;
 }

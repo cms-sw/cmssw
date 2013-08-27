@@ -19,7 +19,7 @@ RunList::~RunList()
 {
 }
 
-void RunList::setRunTag(RunTag tag)
+void RunList::setRunTag(const RunTag& tag)
 {
   if (tag != m_runTag) {
     m_runTag = tag;
@@ -262,7 +262,7 @@ void RunList::fetchLastNRuns( int max_run, int n_runs  )
 
 
 
-void RunList::fetchRunsByLocation (int min_run, int max_run, const LocationDef locDef )
+void RunList::fetchRunsByLocation (int min_run, int max_run, const LocationDef& locDef )
   throw(std::runtime_error)
 {
 
@@ -351,7 +351,7 @@ void RunList::fetchRunsByLocation (int min_run, int max_run, const LocationDef l
 
 }
 
-void RunList::fetchGlobalRunsByLocation (int min_run, int max_run, const LocationDef locDef )
+void RunList::fetchGlobalRunsByLocation (int min_run, int max_run, const LocationDef& locDef )
   throw(std::runtime_error)
 {
 
