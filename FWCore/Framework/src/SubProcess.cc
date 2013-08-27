@@ -469,8 +469,8 @@ namespace edm {
 
   void
   SubProcess::propagateProducts(BranchType type, Principal const& parentPrincipal, Principal& principal) const {
-    Selections const& keptVector = keptProducts()[type];
-    for(Selections::const_iterator it = keptVector.begin(), itEnd = keptVector.end(); it != itEnd; ++it) {
+    SelectedProducts const& keptVector = keptProducts()[type];
+    for(SelectedProducts::const_iterator it = keptVector.begin(), itEnd = keptVector.end(); it != itEnd; ++it) {
       ProductHolderBase const* parentProductHolder = parentPrincipal.getProductHolder((*it)->branchID(), false, false, nullptr);
       if(parentProductHolder != 0) {
         ProductData const& parentData = parentProductHolder->productData();

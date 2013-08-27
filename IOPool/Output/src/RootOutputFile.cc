@@ -610,7 +610,7 @@ namespace edm {
   }
 
   void
-  RootOutputFile::setBranchAliases(TTree* tree, Selections const& branches) const {
+  RootOutputFile::setBranchAliases(TTree* tree, SelectedProducts const& branches) const {
     if(tree && tree->GetNbranches() != 0) {
       for(auto const& selection : branches) {
         BranchDescription const& pd = *selection;
