@@ -95,6 +95,9 @@ namespace edm {
       
       BranchIDLists const* branchIDLists() const;
       
+      const ModuleDescription& moduleDescription() const {
+        return moduleDescription_;
+      }
     protected:
       
       Trig getTriggerResults(EventPrincipal const& ep, ModuleCallingContext const*) const;

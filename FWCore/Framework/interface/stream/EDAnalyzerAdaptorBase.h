@@ -59,7 +59,7 @@ namespace edm {
       // ---------- static member functions --------------------
       
       // ---------- member functions ---------------------------
-      const ModuleDescription moduleDescription() { return moduleDescription_;}
+      const ModuleDescription& moduleDescription() { return moduleDescription_;}
       
       std::string workerType() const { return "WorkerT<EDAnalyzerAdaptorBase>";}
       void
