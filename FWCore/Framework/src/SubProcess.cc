@@ -310,9 +310,9 @@ namespace edm {
     rpp->fillRunPrincipal(principal.reader());
     principalCache_.insert(rpp);
 
-    FullHistoryToReducedHistoryMap& phidConverter(ProcessHistoryRegistry::instance()->extraForUpdate());
-    ProcessHistoryID const& parentInputReducedPHID = phidConverter.reduceProcessHistoryID(principal.aux().processHistoryID());
-    ProcessHistoryID const& inputReducedPHID       = phidConverter.reduceProcessHistoryID(principal.processHistoryID());
+    FullHistoryToReducedHistoryMap const& phidConverter(ProcessHistoryRegistry::instance()->extra());
+    ProcessHistoryID const& parentInputReducedPHID = phidConverter.reducedProcessHistoryID(principal.aux().processHistoryID());
+    ProcessHistoryID const& inputReducedPHID       = phidConverter.reducedProcessHistoryID(principal.processHistoryID());
 
     parentToChildPhID_.insert(std::make_pair(parentInputReducedPHID,inputReducedPHID));
 
@@ -470,12 +470,12 @@ namespace edm {
   void
   SubProcess::propagateProducts(BranchType type, Principal const& parentPrincipal, Principal& principal) const {
     SelectedProducts const& keptVector = keptProducts()[type];
-    for(SelectedProducts::const_iterator it = keptVector.begin(), itEnd = keptVector.end(); it != itEnd; ++it) {
-      ProductHolderBase const* parentProductHolder = parentPrincipal.getProductHolder((*it)->branchID(), false, false, nullptr);
-      if(parentProductHolder != 0) {
+    for(auto const& item : keptVector) {
+      ProductHolderBase const* parentProductHolder = parentPrincipal.getProductHolder(item->branchID(), false, false, nullptr);
+      if(parentProductHolder != nullptr) {
         ProductData const& parentData = parentProductHolder->productData();
-        ProductHolderBase const* productHolder = principal.getProductHolder((*it)->branchID(), false, false, nullptr);
-        if(productHolder != 0) {
+        ProductHolderBase const* productHolder = principal.getProductHolder(item->branchID(), false, false, nullptr);
+        if(productHolder != nullptr) {
           ProductData& thisData = const_cast<ProductData&>(productHolder->productData());
           //Propagate the per event(run)(lumi) data for this product to the subprocess.
           //First, the product itself.
