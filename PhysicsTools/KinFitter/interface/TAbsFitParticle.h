@@ -13,7 +13,7 @@ public :
   TAbsFitParticle();
   TAbsFitParticle(const TString &name, const TString &title);
   virtual ~TAbsFitParticle();
-  virtual TAbsFitParticle* clone( TString newname = "" ) const = 0;
+  virtual TAbsFitParticle* clone( const TString& newname = "" ) const = 0;
 
   // returns derivative dP/dy with P=(p,E) and y=(par1, par2, par3, ...) 
   // the free parameters of the fit. The columns of the matrix contain 

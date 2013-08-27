@@ -49,7 +49,7 @@ inline std::string stringify(const T& t)
     return "err";
   return o.str();
 } 
-Double_t SideBandSubtract::getYield(std::vector<SbsRegion> Regions, RooAbsPdf *PDF)
+Double_t SideBandSubtract::getYield(const std::vector<SbsRegion>& Regions, RooAbsPdf *PDF)
 {
   if(PDF==NULL || SeparationVariable==NULL)
     return 0.0;
@@ -335,7 +335,7 @@ SideBandSubtract::SideBandSubtract(RooAbsPdf *model_shape,
 				   RooAbsPdf *bkg_shape, 
 				   RooDataSet* data,
 				   RooRealVar* sep_var,
-				   vector<TH1F*> base,
+				   const vector<TH1F*>& base,
 				   bool verb
 				   )
   : BackgroundPDF(bkg_shape), 

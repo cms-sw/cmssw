@@ -68,7 +68,7 @@ TFitParticleEMomDev::TFitParticleEMomDev(const TString &name, const TString &tit
   init(pini, theCovMatrix);
 }
 
-TAbsFitParticle* TFitParticleEMomDev::clone( TString newname ) const {
+TAbsFitParticle* TFitParticleEMomDev::clone( const TString& newname ) const {
   // Returns a copy of itself
   
   TAbsFitParticle* myclone = new TFitParticleEMomDev( *this );

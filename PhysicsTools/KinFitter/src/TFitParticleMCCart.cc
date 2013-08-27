@@ -62,7 +62,7 @@ TFitParticleMCCart::TFitParticleMCCart(const TString &name, const TString &title
   init(p, M, theCovMatrix);
 }
 
-TAbsFitParticle* TFitParticleMCCart::clone( TString newname ) const {
+TAbsFitParticle* TFitParticleMCCart::clone( const TString& newname ) const {
   // Returns a copy of itself
 
   TAbsFitParticle* myclone = new TFitParticleMCCart( *this );
