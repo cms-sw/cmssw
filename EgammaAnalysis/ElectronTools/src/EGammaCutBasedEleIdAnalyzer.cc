@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Dave Evans,510 1-015,+41227679496,
 //         Created:  Tue Apr 10 11:17:29 CEST 2012
-// $Id: EGammaCutBasedEleIdAnalyzer.cc,v 1.2 2012/04/11 15:24:16 dlevans Exp $
+// $Id: EGammaCutBasedEleIdAnalyzer.cc,v 1.1 2012/12/03 20:51:02 tjkim Exp $
 //
 //
 

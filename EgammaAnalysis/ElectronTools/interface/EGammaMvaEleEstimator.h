@@ -63,12 +63,14 @@ class EGammaMvaEleEstimator{
     void bindVariables();
     
 #ifndef STANDALONE
+    // for kTrig and kNonTrig algorithm  
     Double_t mvaValue(const reco::GsfElectron& ele, 
                       const reco::Vertex& vertex, 
                       const TransientTrackBuilder& transientTrackBuilder,
                       EcalClusterLazyTools myEcalCluster,
                       bool printDebug = kFALSE);
 
+    // for kTrigNoIP algorithm
     Double_t mvaValue(const reco::GsfElectron& ele, 
                       const reco::Vertex& vertex, 
 		      double rho,
@@ -120,6 +122,7 @@ class EGammaMvaEleEstimator{
                          Bool_t printDebug = kFALSE );
 #endif
   
+    // for kTrig algo
     Double_t mvaValue(Double_t fbrem, 
                       Double_t kfchi2,
                       Int_t    kfhits,
@@ -144,6 +147,7 @@ class EGammaMvaEleEstimator{
                       Double_t pt,
                       Bool_t printDebug = kFALSE );
  
+    // for kTrigNoIP algo
     Double_t mvaValue(Double_t fbrem, 
                       Double_t kfchi2,
                       Int_t    kfhits,
@@ -167,6 +171,7 @@ class EGammaMvaEleEstimator{
                       Double_t pt,
                       Bool_t printDebug = kFALSE );
 
+    // for kNonTrig algo
     Double_t mvaValue(Double_t fbrem, 
                       Double_t kfchi2,
                       Int_t    kfhits,
