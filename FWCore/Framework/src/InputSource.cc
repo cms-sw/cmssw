@@ -601,7 +601,7 @@ namespace edm {
   InputSource::reducedProcessHistoryID() const {
     assert(runAuxiliary());
     //THREADUNSAFE this is modifying global state
-    return ProcessHistoryRegistry::instance()->extraForUpdate().reduceProcessHistoryID(runAuxiliary()->processHistoryID());
+    return ProcessHistoryRegistry::instance()->extra().reducedProcessHistoryID(runAuxiliary()->processHistoryID());
   }
 
   RunNumber_t

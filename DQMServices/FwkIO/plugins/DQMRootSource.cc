@@ -833,8 +833,8 @@ DQMRootSource::setupFile(unsigned int iIndex)
         if(not configs.empty()) {
           edm::ProcessHistory ph(configs);
           m_historyIDs.push_back(ph.id());
-          phr->insertMapped(ph);
-          m_reducedHistoryIDs.push_back(phr->extraForUpdate().reduceProcessHistoryID(ph.id()));
+          registerProcessHistory(ph);
+          m_reducedHistoryIDs.push_back(phr->extra().reducedProcessHistoryID(ph.id()));
         }
         configs.clear();
       }
@@ -845,8 +845,8 @@ DQMRootSource::setupFile(unsigned int iIndex)
     if(not configs.empty()) {
       edm::ProcessHistory ph(configs);
       m_historyIDs.push_back(ph.id());
-      phr->insertMapped( ph);
-      m_reducedHistoryIDs.push_back(phr->extraForUpdate().reduceProcessHistoryID(ph.id()));
+      registerProcessHistory(ph);
+      m_reducedHistoryIDs.push_back(phr->extra().reducedProcessHistoryID(ph.id()));
       //std::cout <<"inserted "<<ph.id()<<std::endl;
     }
   }

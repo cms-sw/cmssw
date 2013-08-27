@@ -81,7 +81,7 @@ namespace edm {
     // Insert an entry for this process in the process history registry
     ProcessHistory ph;
     ph.emplace_back(constBranchDescription_.processName(), processParameterSet_.id(), getReleaseVersion(), getPassID());
-    ProcessHistoryRegistry::instance()->insertMapped(ph);
+    registerProcessHistory(ph);
 
     // Save the process history ID for use every event.
     return ph.setProcessHistoryID();
