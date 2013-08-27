@@ -19,7 +19,7 @@
 class Plotter {
  public:
   Plotter(){}
-  Plotter(edm::ParameterSet iConfig){}
+  Plotter(const edm::ParameterSet& iConfig){}
   virtual ~Plotter(){}
 
   virtual void setDir(std::string dir) =0;
@@ -30,7 +30,7 @@ class Plotter {
 
 class VariablePlotter : public Plotter {
  public:
-  VariablePlotter(edm::ParameterSet iConfig) : currentDir_("youDidNotSetDirectoryFirst") {
+  VariablePlotter(const edm::ParameterSet& iConfig) : currentDir_("youDidNotSetDirectoryFirst") {
     //create the master copy, never filled, just to make copies
 
     //    make TH1

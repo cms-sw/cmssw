@@ -25,7 +25,7 @@ namespace funct {
   template<typename A, typename B>
   struct Composition {
     typedef CompositionStruct<A, B> type;
-    static type compose(const A& a, const B b) { return type(a, b); }
+    static type compose(const A& a, const B& b) { return type(a, b); }
   };
 
   template<typename A, typename B>

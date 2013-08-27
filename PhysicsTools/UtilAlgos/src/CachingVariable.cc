@@ -32,7 +32,7 @@ CachingVariable::evalType VariablePower::eval( const edm::Event & iEvent) const 
   return std::make_pair(true,p);
 }
 
-VariableComputer::VariableComputer(CachingVariable::CachingVariableFactoryArg arg) : arg_(arg) {
+VariableComputer::VariableComputer(const CachingVariable::CachingVariableFactoryArg& arg) : arg_(arg) {
   if (arg_.iConfig.exists("separator")) separator_ = arg_.iConfig.getParameter<std::string>("separator");
   else separator_ ="_";
   
@@ -82,7 +82,7 @@ void VariableComputer::doesNotCompute(std::string var) const{
 }
 
 
-ComputedVariable::ComputedVariable(CachingVariableFactoryArg arg ) : 
+ComputedVariable::ComputedVariable(const CachingVariableFactoryArg& arg ) : 
   CachingVariable("ComputedVariable",arg.n,arg.iConfig){
   // instanciate the computer
     std::string computerType = arg.iConfig.getParameter<std::string>("computer");
@@ -90,7 +90,7 @@ ComputedVariable::ComputedVariable(CachingVariableFactoryArg arg ) :
     //there is a memory leak here, because the object we are in is not register anywhere. since it happens once per job, this is not a big deal.
 }
 
-VariableComputerTest::VariableComputerTest(CachingVariable::CachingVariableFactoryArg arg) : VariableComputer(arg){
+VariableComputerTest::VariableComputerTest(const CachingVariable::CachingVariableFactoryArg& arg) : VariableComputer(arg){
   declare("toto");
   declare("tutu");
   declare("much");

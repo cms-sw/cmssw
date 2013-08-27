@@ -223,7 +223,7 @@ namespace edm {
 		     std::string GenHistName,
 		     std::string DataHistName);
     
-    LumiReWeighting( std::vector< float > MC_distr, std::vector< float > Lumi_distr);
+    LumiReWeighting( const std::vector< float >& MC_distr, const std::vector< float >& Lumi_distr);
 
     LumiReWeighting ( ) { } ;
 
