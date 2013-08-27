@@ -31,7 +31,7 @@ public:
     m_value.push_back(value);
   };
 
-  void insertMode(std::vector<double> coefficient, std::vector<std::string> modename, std::vector<long> modeid, double error) {
+  void insertMode(const std::vector<double>& coefficient, const std::vector<std::string>& modename, const std::vector<long>& modeid, double error) {
     m_coefficient.push_back(coefficient);
     m_modename.push_back(modename);
     m_modeid.push_back(modeid);

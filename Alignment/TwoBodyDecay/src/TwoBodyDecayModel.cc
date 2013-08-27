@@ -66,13 +66,13 @@ AlgebraicMatrix TwoBodyDecayModel::curvilinearToCartesianJacobian( double rho, d
 }
 
 
-AlgebraicMatrix TwoBodyDecayModel::curvilinearToCartesianJacobian( AlgebraicVector curv, double zMagField )
+AlgebraicMatrix TwoBodyDecayModel::curvilinearToCartesianJacobian( const AlgebraicVector& curv, double zMagField )
 {
   return this->curvilinearToCartesianJacobian( curv[0], curv[1], curv[2], zMagField );
 }
 
 
-AlgebraicVector TwoBodyDecayModel::convertCurvilinearToCartesian( AlgebraicVector curv, double zMagField )
+AlgebraicVector TwoBodyDecayModel::convertCurvilinearToCartesian( const AlgebraicVector& curv, double zMagField )
 {
   double rt = fabs( zMagField/curv[0] );
 

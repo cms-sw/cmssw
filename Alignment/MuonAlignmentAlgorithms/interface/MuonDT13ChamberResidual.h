@@ -14,7 +14,7 @@ class MuonDT13ChamberResidual: public MuonHitsChamberResidual
 {
 public:
   MuonDT13ChamberResidual(edm::ESHandle<GlobalTrackingGeometry> globalGeometry, AlignableNavigator *navigator,
-                          DetId chamberId, AlignableDetOrUnitPtr chamberAlignable);
+                          DetId chamberId, const AlignableDetOrUnitPtr& chamberAlignable);
   
   // for DT13, the residual is chamber local x
   // for DT13, the resslope is dresx/dz, or tan(phi_y)

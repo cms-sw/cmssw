@@ -138,7 +138,7 @@ class GlobalTrackerMuonAlignment : public edm::EDAnalyzer {
 		     GlobalVector&, GlobalVector&, AlgebraicVector4&, 
 		     TrajectoryStateOnSurface&, TrajectoryStateOnSurface&);
   void writeGlPosRcd(CLHEP::HepVector& d3); 
-  inline double CLHEP_dot(CLHEP::HepVector a, CLHEP::HepVector b)
+  inline double CLHEP_dot(const CLHEP::HepVector& a, const CLHEP::HepVector& b)
   {
     return a(1)*b(1)+a(2)*b(2)+a(3)*b(3);
   }

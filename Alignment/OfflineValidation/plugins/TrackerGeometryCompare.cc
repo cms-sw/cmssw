@@ -753,7 +753,7 @@ void TrackerGeometryCompare::diffCommonTrackerSystem(Alignable *refAli, Alignabl
 	
 }
 
-void TrackerGeometryCompare::fillTree(Alignable *refAli, AlgebraicVector diff, const TrackerTopology* tTopo){
+void TrackerGeometryCompare::fillTree(Alignable *refAli, const AlgebraicVector& diff, const TrackerTopology* tTopo){
 	
 	_id = refAli->id();
 	_level = refAli->alignableObjectId();

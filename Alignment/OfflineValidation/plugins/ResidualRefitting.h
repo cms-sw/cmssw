@@ -322,9 +322,9 @@ class ResidualRefitting : public edm::EDAnalyzer{
 //	void dumpRecoMuonColl(reco::MuonCollection::const_iterator muon); //
 //	void dumpRecoTrack(reco::TrackCollection::const_iterator muon);
 	void dumpTrackRef(reco::TrackRef muon, std::string str); 
-	void dumpTrackExtrap(ResidualRefitting::storage_trackExtrap track);
-	void dumpTrackHits(ResidualRefitting::storage_trackHit hit);
-	void dumpMuonRecHits(ResidualRefitting::storage_hit hit);
+	void dumpTrackExtrap(const ResidualRefitting::storage_trackExtrap& track);
+	void dumpTrackHits(const ResidualRefitting::storage_trackHit& hit);
+	void dumpMuonRecHits(const ResidualRefitting::storage_hit& hit);
 
 	int ReturnSector(DetId detid);
 	int ReturnStation(DetId detid);
