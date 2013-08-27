@@ -145,7 +145,7 @@ void HcalDDDGeometryLoader::fill(HcalSubdetector          subdet,
 
 void
 HcalDDDGeometryLoader::makeCell( const HcalDetId& detId,
-				 HcalCellType hcalCell,
+				 const HcalCellType& hcalCell,
 				 double phi, 
 				 double dphi,
 				 CaloSubdetectorGeometry* geom) const {

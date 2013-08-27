@@ -43,8 +43,8 @@ class DDEcalEndcapAlgo : public DDAlgorithm {
       void execute(DDCompactView& cpv);
 
       //  New methods for SC geometry
-      void EEPositionCRs( const DDName        pName,
-			  const DDTranslation offset,
+      void EEPositionCRs( const DDName&        pName,
+			  const DDTranslation& offset,
 			  const int iSCType,
 			  DDCompactView& cpv );
 
