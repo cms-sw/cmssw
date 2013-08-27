@@ -1347,15 +1347,13 @@ namespace edm {
   // the branch containing this EDProduct. That will be done by the Delayed Reader,
   //  when it is asked to do so.
   //
-  EventPrincipal*
+  void
   RootFile::readEvent(EventPrincipal& cache) {
     assert(indexIntoFileIter_ != indexIntoFileEnd_);
     assert(indexIntoFileIter_.getEntryType() == IndexIntoFile::kEvent);
     // Set the entry in the tree, and read the event at that entry.
     eventTree_.setEntryNumber(indexIntoFileIter_.entry());
-    EventPrincipal* ep = readCurrentEvent(cache);
-
-    assert(ep != nullptr);
+    assert(readCurrentEvent(cache));
     assert(eventAux().run() == indexIntoFileIter_.run() + forcedRunOffset_);
     assert(eventAux().luminosityBlock() == indexIntoFileIter_.lumi());
 
@@ -1366,14 +1364,13 @@ namespace edm {
     assert(reducedPHID == indexIntoFile_.processHistoryID(indexIntoFileIter_.processHistoryIDIndex()));
 
     ++indexIntoFileIter_;
-    return ep;
   }
 
   // Reads event at the current entry in the event tree
-  EventPrincipal*
+  bool
   RootFile::readCurrentEvent(EventPrincipal& cache) {
     if(!eventTree_.current()) {
-      return nullptr;
+      return false;
     }
     fillThisEventAuxiliary();
     if(!fileFormatVersion().lumiInEventID()) {
@@ -1393,7 +1390,7 @@ namespace edm {
 
     // report event read from file
     filePtr_->eventReadFromFile(eventID().run(), eventID().event());
-    return &cache;
+    return true;
   }
 
   void
@@ -1471,21 +1468,20 @@ namespace edm {
     return runAuxiliary;
   }
 
-  boost::shared_ptr<RunPrincipal>
+  void
   RootFile::readRun_(boost::shared_ptr<RunPrincipal> runPrincipal) {
     assert(indexIntoFileIter_ != indexIntoFileEnd_);
     assert(indexIntoFileIter_.getEntryType() == IndexIntoFile::kRun);
     // Begin code for backward compatibility before the existence of run trees.
     if(!runTree_.isValid()) {
       ++indexIntoFileIter_;
-      return runPrincipal;
+      return;
     }
     // End code for backward compatibility before the existence of run trees.
     runPrincipal->fillRunPrincipal(runTree_.rootDelayedReader());
     // Read in all the products now.
     runPrincipal->readImmediate();
     ++indexIntoFileIter_;
-    return runPrincipal;
   }
 
   boost::shared_ptr<LuminosityBlockAuxiliary>
@@ -1532,14 +1528,14 @@ namespace edm {
     return lumiAuxiliary;
   }
 
-  boost::shared_ptr<LuminosityBlockPrincipal>
-  RootFile::readLumi(boost::shared_ptr<LuminosityBlockPrincipal> lumiPrincipal) {
+  void
+  RootFile::readLuminosityBlock_(boost::shared_ptr<LuminosityBlockPrincipal> lumiPrincipal) {
     assert(indexIntoFileIter_ != indexIntoFileEnd_);
     assert(indexIntoFileIter_.getEntryType() == IndexIntoFile::kLumi);
     // Begin code for backward compatibility before the existence of lumi trees.
     if(!lumiTree_.isValid()) {
       ++indexIntoFileIter_;
-      return lumiPrincipal;
+      return;
     }
     // End code for backward compatibility before the existence of lumi trees.
     lumiTree_.setEntryNumber(indexIntoFileIter_.entry());
@@ -1547,7 +1543,6 @@ namespace edm {
     // Read in all the products now.
     lumiPrincipal->readImmediate();
     ++indexIntoFileIter_;
-    return lumiPrincipal;
   }
 
   bool

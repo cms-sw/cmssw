@@ -263,7 +263,7 @@ namespace edm {
     setEventCached();
   }
 
-  EventPrincipal *
+  void
   StreamerInputSource::read(EventPrincipal& eventPrincipal) {
     if(adjustEventToNewProductRegistry_) {
       eventPrincipal.adjustIndexesAfterProductRegistryAddition();
@@ -307,8 +307,6 @@ namespace edm {
     }
 
     FDEBUG(10) << "Size = " << eventPrincipal.size() << std::endl;
-
-    return &eventPrincipal;
   }
 
   /**
@@ -383,7 +381,7 @@ namespace edm {
   }
 
   void
-  StreamerInputSource::ProductGetter::setEventPrincipal(EventPrincipal *ep) {
+  StreamerInputSource::ProductGetter::setEventPrincipal(EventPrincipal* ep) {
     eventPrincipal_ = ep;
   }
 

@@ -283,98 +283,81 @@ namespace edm {
     return std::unique_ptr<FileBlock>(new FileBlock);
   }
 
-  boost::shared_ptr<RunPrincipal>
-  InputSource::readAndCacheRun(HistoryAppender& historyAppender) {
+  void
+  InputSource::readRun(boost::shared_ptr<RunPrincipal> runPrincipal, HistoryAppender& historyAppender) {
     RunSourceSentry sentry(*this);
-    boost::shared_ptr<RunPrincipal> rp(new RunPrincipal(runAuxiliary(), productRegistry_, processConfiguration(), &historyAppender,0));
-    callWithTryCatchAndPrint<boost::shared_ptr<RunPrincipal> >( [this,&rp](){ return readRun_(rp); }, "Calling InputSource::readRun_" );
-    return rp;
+    callWithTryCatchAndPrint<void>( [this,&runPrincipal](){ readRun_(runPrincipal); }, "Calling InputSource::readRun_" );
   }
 
   void
   InputSource::readAndMergeRun(boost::shared_ptr<RunPrincipal> rp) {
     RunSourceSentry sentry(*this);
-    callWithTryCatchAndPrint<boost::shared_ptr<RunPrincipal> >( [this,&rp](){ return readRun_(rp); }, "Calling InputSource::readRun_" );
+    callWithTryCatchAndPrint<void>( [this,&rp](){ readRun_(rp); }, "Calling InputSource::readRun_" );
   }
 
-  boost::shared_ptr<LuminosityBlockPrincipal>
-  InputSource::readAndCacheLumi(HistoryAppender& historyAppender) {
+  void
+  InputSource::readLuminosityBlock(boost::shared_ptr<LuminosityBlockPrincipal> lumiPrincipal, HistoryAppender& historyAppender) {
     LumiSourceSentry sentry(*this);
-    boost::shared_ptr<LuminosityBlockPrincipal> lbp(
-      new LuminosityBlockPrincipal(luminosityBlockAuxiliary(),
-                                   productRegistry_,
-                                   processConfiguration(),
-                                   &historyAppender,0));
-    callWithTryCatchAndPrint<boost::shared_ptr<LuminosityBlockPrincipal> >( [this,&lbp](){ return readLuminosityBlock_(lbp); },
-                                                                            "Calling InputSource::readLuminosityBlock_" );
+    callWithTryCatchAndPrint<void>( [this,&lumiPrincipal](){ readLuminosityBlock_(lumiPrincipal); }, "Calling InputSource::readLuminosityBlock_" );
     if(remainingLumis_ > 0) {
       --remainingLumis_;
     }
-    return lbp;
   }
 
   void
   InputSource::readAndMergeLumi(boost::shared_ptr<LuminosityBlockPrincipal> lbp) {
     LumiSourceSentry sentry(*this);
-    callWithTryCatchAndPrint<boost::shared_ptr<LuminosityBlockPrincipal> >( [this,&lbp](){ return readLuminosityBlock_(lbp); },
-                                                                            "Calling InputSource::readLuminosityBlock_" );
+    callWithTryCatchAndPrint<void>( [this,&lbp](){ readLuminosityBlock_(lbp); }, "Calling InputSource::readLuminosityBlock_" );
     if(remainingLumis_ > 0) {
       --remainingLumis_;
     }
   }
 
-  boost::shared_ptr<RunPrincipal>
+  void
   InputSource::readRun_(boost::shared_ptr<RunPrincipal> runPrincipal) {
     // Note: For the moment, we do not support saving and restoring the state of the
     // random number generator if random numbers are generated during processing of runs
     // (e.g. beginRun(), endRun())
     runPrincipal->fillRunPrincipal();
-    return runPrincipal;
   }
 
-  boost::shared_ptr<LuminosityBlockPrincipal>
+  void
   InputSource::readLuminosityBlock_(boost::shared_ptr<LuminosityBlockPrincipal> lumiPrincipal) {
     lumiPrincipal->fillLuminosityBlockPrincipal();
-    return lumiPrincipal;
   }
 
-  EventPrincipal*
+  void
   InputSource::readEvent(EventPrincipal& ep, StreamContext* streamContext) {
     assert(state_ == IsEvent);
     assert(!eventLimitReached());
 
-    EventPrincipal* result = callWithTryCatchAndPrint<EventPrincipal*>( [this,&ep](){ return readEvent_(ep); }, "Calling InputSource::readEvent_" );
+    callWithTryCatchAndPrint<void>( [this,&ep](){ readEvent_(ep); }, "Calling InputSource::readEvent_" );
     if(receiver_) {
       --numberOfEventsBeforeBigSkip_;
     }
 
-    if(result != 0) {
-
-      Event event(*result, moduleDescription(), nullptr);
-      postRead(event);
-      if(remainingEvents_ > 0) --remainingEvents_;
-      ++readCount_;
-      setTimestamp(result->time());
-      issueReports(result->id());
-    }
-    return result;
+    Event event(ep, moduleDescription(), nullptr);
+    postRead(event);
+    if(remainingEvents_ > 0) --remainingEvents_;
+    ++readCount_;
+    setTimestamp(ep.time());
+    issueReports(ep.id());
   }
 
-  EventPrincipal*
+  bool
   InputSource::readEvent(EventPrincipal& ep, EventID const& eventID, StreamContext* streamContext) {
-    EventPrincipal* result = 0;
+    bool result = false;
 
     if(!limitReached()) {
-      //result = callWithTryCatchAndPrint<EventPrincipal*>( [this,ep,&eventID](){ return readIt(eventID, ep); }, "Calling InputSource::readIt" );
+      //result = callWithTryCatchAndPrint<bool>( [this,ep,&eventID](){ return readIt(eventID, ep); }, "Calling InputSource::readIt" );
       result = readIt(eventID, ep);
+      if(result) {
 
-      if(result != 0) {
-
-        Event event(*result, moduleDescription(), nullptr);
+        Event event(ep, moduleDescription(), nullptr);
         postRead(event);
         if(remainingEvents_ > 0) --remainingEvents_;
         ++readCount_;
-        issueReports(result->id());
+        issueReports(ep.id());
       }
     }
     return result;
@@ -423,7 +406,7 @@ namespace edm {
     // At some point we may want to initiate checkpointing here
   }
 
-  EventPrincipal*
+  bool
   InputSource::readIt(EventID const&, EventPrincipal&) {
     throw Exception(errors::LogicError)
       << "InputSource::readIt()\n"

@@ -85,13 +85,13 @@ namespace edm {
 
     void reportOpened(std::string const& inputType);
     void close();
-    EventPrincipal* readCurrentEvent(EventPrincipal& cache);
-    EventPrincipal* readEvent(EventPrincipal& cache);
+    bool readCurrentEvent(EventPrincipal& cache);
+    void readEvent(EventPrincipal& cache);
 
     boost::shared_ptr<LuminosityBlockAuxiliary> readLuminosityBlockAuxiliary_();
     boost::shared_ptr<RunAuxiliary> readRunAuxiliary_();
-    boost::shared_ptr<RunPrincipal> readRun_(boost::shared_ptr<RunPrincipal> runPrincipal);
-    boost::shared_ptr<LuminosityBlockPrincipal> readLumi(boost::shared_ptr<LuminosityBlockPrincipal> lumiPrincipal);
+    void readRun_(boost::shared_ptr<RunPrincipal> runPrincipal);
+    void readLuminosityBlock_(boost::shared_ptr<LuminosityBlockPrincipal> lumiPrincipal);
     std::string const& file() const {return file_;}
     boost::shared_ptr<ProductRegistry const> productRegistry() const {return productRegistry_;}
     boost::shared_ptr<BranchIDListHelper const> branchIDListHelper() const {return branchIDListHelper_;}

@@ -2127,14 +2127,16 @@ namespace edm {
     }
   }
 
-  statemachine::Run EventProcessor::readAndCacheRun() {
+  statemachine::Run EventProcessor::readRun() {
     if (principalCache_.hasRunPrincipal()) {
       throw edm::Exception(edm::errors::LogicError)
-        << "EventProcessor::readAndCacheRun\n"
+        << "EventProcessor::readRun\n"
         << "Illegal attempt to insert run into cache\n"
         << "Contact a Framework Developer\n";
     }
-    principalCache_.insert(input_->readAndCacheRun(*historyAppender_));
+    boost::shared_ptr<RunPrincipal> rp(new RunPrincipal(input_->runAuxiliary(), preg_, *processConfiguration_, historyAppender_.get(), 0));
+    input_->readRun(rp, *historyAppender_);
+    principalCache_.insert(rp);
     return statemachine::Run(input_->reducedProcessHistoryID(), input_->run());
   }
 
@@ -2144,22 +2146,24 @@ namespace edm {
     return statemachine::Run(input_->reducedProcessHistoryID(), input_->run());
   }
 
-  int EventProcessor::readAndCacheLumi() {
+  int EventProcessor::readLuminosityBlock() {
     if (principalCache_.hasLumiPrincipal()) {
       throw edm::Exception(edm::errors::LogicError)
-        << "EventProcessor::readAndCacheRun\n"
+        << "EventProcessor::readRun\n"
         << "Illegal attempt to insert lumi into cache\n"
         << "Contact a Framework Developer\n";
     }
     if (!principalCache_.hasRunPrincipal()) {
       throw edm::Exception(edm::errors::LogicError)
-        << "EventProcessor::readAndCacheRun\n"
+        << "EventProcessor::readRun\n"
         << "Illegal attempt to insert lumi into cache\n"
         << "Run is invalid\n"
         << "Contact a Framework Developer\n";
     }
-    principalCache_.insert(input_->readAndCacheLumi(*historyAppender_));
-    principalCache_.lumiPrincipalPtr()->setRunPrincipal(principalCache_.runPrincipalPtr());
+    boost::shared_ptr<LuminosityBlockPrincipal> lbp(new LuminosityBlockPrincipal(input_->luminosityBlockAuxiliary(), preg_, *processConfiguration_, historyAppender_.get(), 0));
+    input_->readLuminosityBlock(lbp, *historyAppender_);
+    lbp->setRunPrincipal(principalCache_.runPrincipalPtr());
+    principalCache_.insert(lbp);
     return input_->luminosityBlock();
   }
 
@@ -2196,9 +2200,9 @@ namespace edm {
   void EventProcessor::readAndProcessEvent() {
     //TODO this will have to become per stream
     StreamContext streamContext(StreamID{0}, &processContext_);
-    EventPrincipal *pep = input_->readEvent(principalCache_.eventPrincipal(), &streamContext);
+    input_->readEvent(principalCache_.eventPrincipal(), &streamContext);
     FDEBUG(1) << "\treadEvent\n";
-    assert(pep != 0);
+    EventPrincipal* pep = &principalCache_.eventPrincipal();
     pep->setLuminosityBlockPrincipal(principalCache_.lumiPrincipalPtr());
     assert(pep->luminosityBlockPrincipalPtrValid());
     assert(principalCache_.lumiPrincipalPtr()->run() == pep->run());

@@ -39,9 +39,9 @@ class LHERunInfoProduct;
 	virtual void beginRun(edm::Run &run) override;
 	virtual void endRun(edm::Run &run) override;
  	virtual bool setRunAndEventInfo(edm::EventID&, edm::TimeValue_t&) override;
-	virtual boost::shared_ptr<edm::RunPrincipal> readRun_(boost::shared_ptr<edm::RunPrincipal> runPrincipal) override;
-	virtual boost::shared_ptr<edm::LuminosityBlockPrincipal> readLuminosityBlock_(boost::shared_ptr<edm::LuminosityBlockPrincipal> lumiPrincipal) override;
-	virtual edm::EventPrincipal* readEvent_(edm::EventPrincipal& eventPrincipal) override;
+	virtual void readRun_(boost::shared_ptr<edm::RunPrincipal> runPrincipal) override;
+	virtual void readLuminosityBlock_(boost::shared_ptr<edm::LuminosityBlockPrincipal> lumiPrincipal) override;
+	virtual void readEvent_(edm::EventPrincipal& eventPrincipal) override;
         virtual void produce(edm::Event&) {}
 
 	void nextEvent();

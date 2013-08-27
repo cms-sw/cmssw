@@ -79,19 +79,17 @@ void LHESource::nextEvent()
 }
 
 // This is the only way we can now access the run principal.
-boost::shared_ptr<edm::RunPrincipal>
+void
 LHESource::readRun_(boost::shared_ptr<edm::RunPrincipal> runPrincipal) {
   runAuxiliary()->setProcessHistoryID(phid_);
   runPrincipal->fillRunPrincipal();
   runPrincipal_ = runPrincipal;
-  return runPrincipal;
 }
 
-boost::shared_ptr<edm::LuminosityBlockPrincipal>
+void
 LHESource::readLuminosityBlock_(boost::shared_ptr<edm::LuminosityBlockPrincipal> lumiPrincipal) {
   luminosityBlockAuxiliary()->setProcessHistoryID(phid_);
   lumiPrincipal->fillLuminosityBlockPrincipal();
-  return lumiPrincipal;
 }
 
 void LHESource::beginRun(edm::Run&)
@@ -142,7 +140,7 @@ bool LHESource::setRunAndEventInfo(edm::EventID&, edm::TimeValue_t&)
         return true;
 }
 
-edm::EventPrincipal*
+void
 LHESource::readEvent_(edm::EventPrincipal& eventPrincipal) {
 	assert(eventCached() || processingMode() != RunsLumisAndEvents);
 	EventSourceSentry sentry(*this);
@@ -191,7 +189,6 @@ LHESource::readEvent_(edm::EventPrincipal& eventPrincipal) {
 	partonLevel.reset();
 
 	resetEventCached();
-	return &eventPrincipal;
 }
 
 DEFINE_FWK_INPUT_SOURCE(LHESource);

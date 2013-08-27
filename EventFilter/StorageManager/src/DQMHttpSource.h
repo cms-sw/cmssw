@@ -54,7 +54,7 @@ namespace edm
     void setEventAuxiliary(std::unique_ptr<EventAuxiliary> aux) {
       eventAuxiliary_ = std::move(aux);
     }
-    virtual EventPrincipal* read(EventPrincipal& eventPrincipal);
+    virtual void read(EventPrincipal& eventPrincipal);
     virtual bool checkNextEvent();
     void initializeDQMStore();
 
