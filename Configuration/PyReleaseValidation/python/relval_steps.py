@@ -889,12 +889,22 @@ step2Defaults = {
                   '--eventcontent': 'FEVTDEBUGHLT',
                   '--conditions'  : 'auto:startup',
                   }
-
+#for 2015
+step2Upg2015Defaults = {'-s':'DIGI,L1,DIGI2RAW,HLT:@relval,RAW2DIGI,L1Reco',
+                 '--conditions':'auto:upgradePLS1', 
+                 '--datatier':'GEN-SIM-DIGI-RAW',
+                 '-n':'10',
+                 '--eventcontent':'FEVTDEBUGHLT',
+                 '--customise': 'SLHCUpgradeSimulations/Configuration/postLS1Customs.customisePostLS1',
+                 '--geometry' : 'Extended2015'
+                  }
+steps['DIGIUP15']=merge([step2Upg2015Defaults]) # todo: remove UP from label
 
 steps['DIGIPROD1']=merge([{'--eventcontent':'RAWSIM','--datatier':'GEN-SIM-RAW'},step2Defaults])
 steps['DIGI']=merge([step2Defaults])
 #steps['DIGI2']=merge([stCond,step2Defaults])
 steps['DIGICOS']=merge([{'--scenario':'cosmics','--eventcontent':'FEVTDEBUG','--datatier':'GEN-SIM-DIGI-RAW'},stCond,step2Defaults])
+steps['DIGIHAL']=merge([{'--scenario':'cosmics','--eventcontent':'FEVTDEBUG','--datatier':'GEN-SIM-DIGI-RAW'},step2Upg2015Defaults])
 
 steps['DIGIPU1']=merge([PU,step2Defaults])
 steps['REDIGIPU']=merge([{'-s':'reGEN,reDIGI,L1,DIGI2RAW,HLT:@relval,RAW2DIGI,L1Reco'},steps['DIGIPU1']])
@@ -919,17 +929,6 @@ step2Upgpixphase1Defaults = {'-s':'DIGI,L1,DIGI2RAW',
                  '--geometry' : 'ExtendedPhaseIPixel'
                   }
 steps['DIGIUP']=merge([step2Upgpixphase1Defaults])
-
-#for 2015
-step2Upg2015Defaults = {'-s':'DIGI,L1,DIGI2RAW,HLT:@relval,RAW2DIGI,L1Reco',
-                 '--conditions':'auto:upgradePLS1', 
-                 '--datatier':'GEN-SIM-DIGI-RAW',
-                 '-n':'10',
-                 '--eventcontent':'FEVTDEBUGHLT',
-                 '--customise': 'SLHCUpgradeSimulations/Configuration/postLS1Customs.customisePostLS1',
-                 '--geometry' : 'Extended2015'
-                  }
-steps['DIGIUP15']=merge([step2Upg2015Defaults]) # todo: remove UP from label
 
 #for 2017
 step2Upg2017Defaults = {'-s':'DIGI,L1,DIGI2RAW',
@@ -1025,6 +1024,19 @@ steps['DIGIPU']=merge([{'--process':'REDIGI'},steps['DIGIPU1']])
 #wmsplit['DIGIPU']=4
 #wmsplit['DIGIPU1']=4
 
+#for 2015
+step3Up2015Defaults = {'-s':'RAW2DIGI,L1Reco,RECO,EI,VALIDATION,DQM',
+                 '--conditions':'auto:upgradePLS1', 
+                 '--datatier':'GEN-SIM-RECO,DQM',
+                 '-n':'10',
+                 '--eventcontent':'FEVTDEBUGHLT,DQM',
+                 '--customise' : 'SLHCUpgradeSimulations/Configuration/postLS1Customs.customisePostLS1',
+                 '--geometry' : 'Extended2015'
+                 }
+                             
+steps['RECOUP15']=merge([step3Up2015Defaults]) # todo: remove UP from label
+
+
 steps['RECODreHLT']=merge([{'--hltProcess':'reHLT','--conditions':'auto:com10_%s'%menu},steps['RECOD']])
 #wmsplit['RECODreHLT']=2
 
@@ -1032,6 +1044,7 @@ steps['RECO']=merge([step3Defaults])
 steps['RECODBG']=merge([{'--eventcontent':'RECODEBUG,DQM'},steps['RECO']])
 steps['RECOPROD1']=merge([{ '-s' : 'RAW2DIGI,L1Reco,RECO,EI', '--datatier' : 'GEN-SIM-RECO,AODSIM', '--eventcontent' : 'RECOSIM,AODSIM'},step3Defaults])
 steps['RECOCOS']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,ALCA:MuAlCalIsolatedMu,DQM','--scenario':'cosmics'},stCond,step3Defaults])
+steps['RECOHAL']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,ALCA:MuAlCalIsolatedMu,DQM','--scenario':'cosmics'},step3Up2015Defaults])
 steps['RECOMIN']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,EI,ALCA:SiStripCalZeroBias+SiStripCalMinBias+EcalCalPhiSym+EcalCalPi0Calib+EcalCalEtaCalib,VALIDATION,DQM'},stCond,step3Defaults])
 
 steps['RECODDQM']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,EI,DQM:@common+@muon+@hcal+@jetmet+@ecal'},steps['RECOD']])
@@ -1069,19 +1082,6 @@ step3Upgpixphase1Defaults = {'-s':'RAW2DIGI,L1Reco,RECO,EI,VALIDATION,DQM',
                              
 
 steps['RECOUP']=merge([step3Upgpixphase1Defaults])
-
-
-#for 2015
-step3Up2015Defaults = {'-s':'RAW2DIGI,L1Reco,RECO,EI,VALIDATION,DQM',
-                 '--conditions':'auto:upgradePLS1', 
-                 '--datatier':'GEN-SIM-RECO,DQM',
-                 '-n':'10',
-                 '--eventcontent':'FEVTDEBUGHLT,DQM',
-                 '--customise' : 'SLHCUpgradeSimulations/Configuration/postLS1Customs.customisePostLS1',
-                 '--geometry' : 'Extended2015'
-                 }
-                             
-steps['RECOUP15']=merge([step3Up2015Defaults]) # todo: remove UP from label
 
 #for 2017
 step3Up2017Defaults = {'-s':'RAW2DIGI,L1Reco,RECO,EI,VALIDATION,DQM',
@@ -1122,6 +1122,13 @@ step4Defaults = {
                   '--datatier'    : 'ALCARECO',
                   '--eventcontent': 'ALCARECO',
                   }
+step4Up2015Defaults = { 
+                        '-s'            : 'ALCA:TkAlMuonIsolated+TkAlMinBias+EcalCalElectron+HcalCalIsoTrk+MuAlOverlaps',
+                        '-n'            : 1000,
+                        '--conditions'  : 'auto:upgradePLS1',
+                        '--datatier'    : 'ALCARECO',
+                        '--eventcontent': 'ALCARECO',
+                  }
 
 steps['RERECOPU']=steps['RERECOPU1']
 
@@ -1129,6 +1136,7 @@ steps['ALCATT']=merge([{'--filein':'file:step3.root'},step4Defaults])
 steps['ALCAMIN']=merge([{'-s':'ALCA:TkAlMinBias','--filein':'file:step3.root'},stCond,step4Defaults])
 steps['ALCACOS']=merge([{'-s':'ALCA:TkAlCosmics0T+MuAlGlobalCosmics+HcalCalHOCosmics'},stCond,step4Defaults])
 steps['ALCABH']=merge([{'-s':'ALCA:TkAlBeamHalo+MuAlBeamHaloOverlaps+MuAlBeamHalo'},stCond,step4Defaults])
+steps['ALCAHAL']=merge([{'-s':'ALCA:TkAlBeamHalo+MuAlBeamHaloOverlaps+MuAlBeamHalo'},step4Up2015Defaults])
 steps['ALCAELE']=merge([{'-s':'ALCA:EcalCalElectron','--filein':'file:step3.root'},stCond,step4Defaults])
 
 steps['ALCAHARVD']={'-s':'ALCAHARVEST:BeamSpotByRun+BeamSpotByLumi+SiStripQuality',
@@ -1179,6 +1187,11 @@ steps['HARVEST']={'-s':'HARVESTING:validationHarvesting+dqmHarvesting',
                    '--scenario':'pp'}
 steps['HARVESTCOS']={'-s':'HARVESTING:dqmHarvesting',
                      '--conditions':'auto:startup',
+                     '--mc':'',
+                     '--filein':'file:step3_inDQM.root',
+                   '--scenario':'cosmics'}
+steps['HARVESTHAL']={'-s':'HARVESTING:dqmHarvesting',
+                     '--conditions':'auto:upgradePLS1',
                      '--mc':'',
                      '--filein':'file:step3_inDQM.root',
                    '--scenario':'cosmics'}
