@@ -42,7 +42,8 @@ namespace {
   typedef std::list< reco::PFBlockRef >::iterator IBR;
 }
 
-PFEGammaProducer::PFEGammaProducer(const edm::ParameterSet& iConfig) {
+PFEGammaProducer::PFEGammaProducer(const edm::ParameterSet& iConfig):
+  primaryVertex_(reco::Vertex()) {
   PFEGammaAlgo::PFEGConfigInfo algo_config;
 
   inputTagBlocks_ 
@@ -446,19 +447,14 @@ PFEGammaProducer::setPFEGParameters(PFEGammaAlgo::PFEGConfigInfo& cfg) {
     throw std::invalid_argument( err );
   }
 
-  //for MVA pass PV if there is one in the collection otherwise pass a dummy    
-  reco::Vertex dummy;  
-  if(useVertices_)  
-    {  
-      dummy = primaryVertex_;  
-    }  
-  else { // create a dummy PV  
+  //for MVA pass PV if there is one in the collection otherwise pass a dummy  
+  if(!useVertices_) { // create a dummy PV  
     reco::Vertex::Error e;  
     e(0, 0) = 0.0015 * 0.0015;  
     e(1, 1) = 0.0015 * 0.0015;  
     e(2, 2) = 15. * 15.;  
     reco::Vertex::Point p(0, 0, 0);  
-    dummy = reco::Vertex(p, e, 0, 0, 0);  
+    primaryVertex_ = reco::Vertex(p, e, 0, 0, 0);  
   }  
   // pv=&dummy;  
   //if(! usePFPhotons_) return;  
@@ -472,7 +468,7 @@ PFEGammaProducer::setPFEGParameters(PFEGammaAlgo::PFEGConfigInfo& cfg) {
     err += "'";  
     throw std::invalid_argument( err );  
   }  
-  cfg.primaryVtx = &dummy;  
+  cfg.primaryVtx = &primaryVertex_;  
   pfeg_.reset(new PFEGammaAlgo(cfg));
 }
 
