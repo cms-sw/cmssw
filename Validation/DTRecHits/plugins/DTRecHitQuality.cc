@@ -439,11 +439,11 @@ DTRecHitQuality::recHitDistFromWire(const DTRecHit1D& recHit, const DTLayer* lay
 
 template  <typename type>
 void DTRecHitQuality::compute(const DTGeometry *dtGeom,
-                              const std::map<DTWireId, std::vector<PSimHit> >& _simHitsPerWire,
-                              const std::map<DTWireId, std::vector<type> >& _recHitsPerWire,
+                              std::map<DTWireId, std::vector<PSimHit> >& simHitsPerWire,
+                              std::map<DTWireId, std::vector<type> >& recHitsPerWire,
                               int step) {
-  std::map<DTWireId, std::vector<PSimHit> > simHitsPerWire = _simHitsPerWire;
-  std::map<DTWireId, std::vector<type> > recHitsPerWire = _recHitsPerWire;
+//  std::map<DTWireId, std::vector<PSimHit> > simHitsPerWire = _simHitsPerWire;
+//  std::map<DTWireId, std::vector<type> > recHitsPerWire = _recHitsPerWire;
   // Loop over cells with a muon SimHit
   for(map<DTWireId, vector<PSimHit> >::const_iterator wireAndSHits = simHitsPerWire.begin();
       wireAndSHits != simHitsPerWire.end();
