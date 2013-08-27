@@ -54,7 +54,7 @@ class LMFTestPulseConfigDat : public LMFDat {
     LMFDat::setData(id, "PN_VINJ", pnv);
     return *this;
   }
-  LMFTestPulseConfigDat& setData(EcalLogicID &id, std::vector<float> v) {
+  LMFTestPulseConfigDat& setData(EcalLogicID &id, const std::vector<float>& v) {
     LMFDat::setData(id, v);
     return *this;
   }

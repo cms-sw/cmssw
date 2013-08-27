@@ -122,7 +122,7 @@ class SiStripPartition {
 
  private:
   
-  Versions versions( std::vector<uint32_t> );
+  Versions versions( const std::vector<uint32_t>& );
 
  private:
 

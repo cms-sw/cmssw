@@ -129,7 +129,7 @@ int  RunDCSLVDat::nowMicroseconds() {
 }
 
 
-void RunDCSLVDat::setStatusForBarrel(RunDCSLVDat &dat, Tm sinceTm) {
+void RunDCSLVDat::setStatusForBarrel(RunDCSLVDat &dat, const Tm& sinceTm) {
   int t_now_gmt_micros = nowMicroseconds();
 
   if (fabs(dat.getLV() - dat.getLVNominal())*1000 > maxLVDifferenceEB) {
@@ -149,7 +149,7 @@ void RunDCSLVDat::setStatusForBarrel(RunDCSLVDat &dat, Tm sinceTm) {
 
 }
 
-void  RunDCSLVDat::setStatusForEndcaps(RunDCSLVDat &dat, Tm sinceTm) {
+void  RunDCSLVDat::setStatusForEndcaps(RunDCSLVDat &dat, const Tm& sinceTm) {
   int t_now_gmt_micros = nowMicroseconds();
 
   if (fabs(dat.getLV() - dat.getLVNominal())*1000 > maxLVDifferenceEE) {

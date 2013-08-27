@@ -33,14 +33,14 @@ class FEConfigLUTInfo : public  IODConfig {
 
 
   Tm getDBTime() const{  return m_db_time;}
-  void setDBTime(Tm x) { m_db_time=x; } 
+  void setDBTime(const Tm& x) { m_db_time=x; } 
 
 
   // Methods from IUniqueDBObject
   int fetchID() throw(std::runtime_error);
   int fetchNextId() throw(std::runtime_error);
   void setByID(int id) throw(std::runtime_error);
-  void setParameters(std::map<std::string,std::string> my_keys_map);
+  void setParameters(const std::map<std::string,std::string>& my_keys_map);
 
   // operators
   inline bool operator==(const FEConfigLUTInfo &r) const {  return (m_ID   == r.m_ID ); }

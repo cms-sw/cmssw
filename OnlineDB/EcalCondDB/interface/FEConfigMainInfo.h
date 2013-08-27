@@ -30,7 +30,7 @@ class FEConfigMainInfo : public IODConfig {
   inline int getId() const { return m_ID; }
 
   Tm getDBTime() const{  return m_db_time;}
-  void setDBTime(Tm x) { m_db_time=x; } 
+  void setDBTime(const Tm& x) { m_db_time=x; } 
 
 
 void setDescription(std::string x) { m_description = x;}

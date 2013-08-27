@@ -153,7 +153,7 @@ int LMFRunIOV::getLmr() const {
   return getInt("lmr");
 }
 
-LMFRunIOV& LMFRunIOV::setSubRunStart(Tm start) {
+LMFRunIOV& LMFRunIOV::setSubRunStart(const Tm& start) {
   setString("subrun_start", start.str());
   return *this;
 }
@@ -164,7 +164,7 @@ Tm LMFRunIOV::getSubRunStart() const {
   return t;
 }
 
-LMFRunIOV& LMFRunIOV::setSubRunEnd(Tm stop) {
+LMFRunIOV& LMFRunIOV::setSubRunEnd(const Tm& stop) {
   setString("subrun_end", stop.str());
   return *this;
 }
@@ -315,7 +315,7 @@ std::string LMFRunIOV::writeDBSql(Statement *stmt)
   return sql;
 }
 
-std::list<LMFRunIOV> LMFRunIOV::fetchBySequence(vector<int> par, 
+std::list<LMFRunIOV> LMFRunIOV::fetchBySequence(const vector<int>& par, 
 						const std::string &sql,
 						const std::string &method) 
   throw(std::runtime_error)

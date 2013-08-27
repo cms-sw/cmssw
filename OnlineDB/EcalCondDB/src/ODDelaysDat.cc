@@ -105,7 +105,7 @@ void ODDelaysDat::fetchData(std::vector< ODDelaysDat >* p, int iovID)
 
 //  ************************************************************************   // 
 
-void ODDelaysDat::writeArrayDB(const std::vector< ODDelaysDat > data, ODFEDelaysInfo* iov)
+void ODDelaysDat::writeArrayDB(const std::vector< ODDelaysDat >& data, ODFEDelaysInfo* iov)
     throw(std::runtime_error)
 {
   this->checkConnection();

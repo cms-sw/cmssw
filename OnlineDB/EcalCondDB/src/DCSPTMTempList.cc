@@ -28,7 +28,7 @@ DCSPTMTempList::~DCSPTMTempList()
 }
 
 
-void DCSPTMTempList::fetchValuesForECID(EcalLogicID ecid)
+void DCSPTMTempList::fetchValuesForECID(const EcalLogicID& ecid)
   throw(std::runtime_error)
 {
 
@@ -93,7 +93,7 @@ void DCSPTMTempList::fetchValuesForECID(EcalLogicID ecid)
 
 }
 
-void DCSPTMTempList::fetchValuesForECIDAndTime(EcalLogicID ecid, Tm start, Tm end)
+void DCSPTMTempList::fetchValuesForECIDAndTime(const EcalLogicID& ecid, const Tm& start, const Tm& end)
   throw(std::runtime_error)
 {
 
