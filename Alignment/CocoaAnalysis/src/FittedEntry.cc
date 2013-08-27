@@ -73,10 +73,10 @@ FittedEntry::FittedEntry( ALIstring name, float value, float sigma)
 
 
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@2
-FittedEntry::FittedEntry( std::vector<FittedEntry*> vFEntry )
+FittedEntry::FittedEntry( const std::vector<FittedEntry*>& _vFEntry )
 {
   //----- Average the entries
-
+  std::vector<FittedEntry*> vFEntry = _vFEntry;
   std::vector<FittedEntry*>::iterator ite;
   //--- First check that all entries are from the same OptO and Entry
   theOptOName = (vFEntry[0]->getOptOName() );

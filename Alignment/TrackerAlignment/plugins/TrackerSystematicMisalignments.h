@@ -40,7 +40,7 @@ private:
 	
 	void applySystematicMisalignment( Alignable* ); 
 	//align::GlobalVector findSystematicMis( align::PositionType );
-	align::GlobalVector findSystematicMis( align::PositionType, const bool blindToZ, const bool blindToR );
+	align::GlobalVector findSystematicMis( const align::PositionType&, const bool blindToZ, const bool blindToR );
 	
 	AlignableTracker* theAlignableTracker;
 	

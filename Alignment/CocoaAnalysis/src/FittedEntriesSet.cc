@@ -33,7 +33,7 @@ FittedEntriesSet::FittedEntriesSet( MatrixMeschach* AtWAMatrix )
 
 
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@2
-FittedEntriesSet::FittedEntriesSet( std::vector<ALIstring> wl )
+FittedEntriesSet::FittedEntriesSet( const std::vector<ALIstring>& wl )
 {
   //- theTime = Model::MeasurementsTime();
   theDate = wl[0];
@@ -47,7 +47,7 @@ FittedEntriesSet::FittedEntriesSet( std::vector<ALIstring> wl )
 }
 
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-FittedEntriesSet::FittedEntriesSet( std::vector<FittedEntriesSet*> vSets )
+FittedEntriesSet::FittedEntriesSet( const std::vector<FittedEntriesSet*>& vSets )
 {
   theDate = "99/99/99";
   theTime = "99:99";
@@ -134,7 +134,7 @@ void FittedEntriesSet::CreateCorrelationMatrix( const ALIuint nent )
 
 
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@2
-void FittedEntriesSet::FillEntriesFromFile( std::vector<ALIstring> wl)
+void FittedEntriesSet::FillEntriesFromFile( const std::vector<ALIstring>& wl)
 {
 
   ALIuint siz = wl.size();
@@ -147,7 +147,7 @@ void FittedEntriesSet::FillEntriesFromFile( std::vector<ALIstring> wl)
 
 
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@2
-void FittedEntriesSet::FillEntriesAveragingSets( std::vector<FittedEntriesSet*> vSets )
+void FittedEntriesSet::FillEntriesAveragingSets( const std::vector<FittedEntriesSet*>& vSets )
 {
 
   std::vector<FittedEntry*> vFEntry;

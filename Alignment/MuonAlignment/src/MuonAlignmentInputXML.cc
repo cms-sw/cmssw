@@ -224,7 +224,7 @@ void MuonAlignmentInputXML::recursiveGetId(std::map<unsigned int, Alignable*> &a
    }
 }
 
-void MuonAlignmentInputXML::fillAliToIdeal(std::map<Alignable*, Alignable*> &alitoideal, const align::Alignables alignables, const align::Alignables ideals) const {
+void MuonAlignmentInputXML::fillAliToIdeal(std::map<Alignable*, Alignable*> &alitoideal, const align::Alignables& alignables, const align::Alignables& ideals) const {
    align::Alignables::const_iterator alignable = alignables.begin();
    align::Alignables::const_iterator ideal = ideals.begin();
 

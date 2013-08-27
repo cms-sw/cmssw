@@ -106,7 +106,7 @@ void MuonAlignment::moveAlignableGlobalCoord( DetId& detid, align::Scalars& disp
 
 //____________________________________________________________________________________
 //
-void MuonAlignment::recursiveList(align::Alignables alignables, align::Alignables &theList) {
+void MuonAlignment::recursiveList(const align::Alignables& alignables, align::Alignables &theList) {
    for (align::Alignables::const_iterator alignable = alignables.begin();  alignable != alignables.end();  ++alignable) {
       recursiveList((*alignable)->components(), theList);
       theList.push_back(*alignable);
@@ -115,7 +115,7 @@ void MuonAlignment::recursiveList(align::Alignables alignables, align::Alignable
 
 //____________________________________________________________________________________
 //
-void MuonAlignment::recursiveMap(align::Alignables alignables, std::map<align::ID, Alignable*> &theMap) {
+void MuonAlignment::recursiveMap(const align::Alignables& alignables, std::map<align::ID, Alignable*> &theMap) {
    for (align::Alignables::const_iterator alignable = alignables.begin();  alignable != alignables.end();  ++alignable) {
       unsigned int rawId = (*alignable)->geomDetId().rawId();
       if (rawId != 0) {
@@ -127,7 +127,7 @@ void MuonAlignment::recursiveMap(align::Alignables alignables, std::map<align::I
 
 //____________________________________________________________________________________
 //
-void MuonAlignment::recursiveStructureMap(align::Alignables alignables, std::map<std::pair<align::StructureType, align::ID>, Alignable*> &theMap) {
+void MuonAlignment::recursiveStructureMap(const align::Alignables& alignables, std::map<std::pair<align::StructureType, align::ID>, Alignable*> &theMap) {
    for (align::Alignables::const_iterator alignable = alignables.begin();  alignable != alignables.end();  ++alignable) {
       theMap[std::pair<align::StructureType, align::ID>((*alignable)->alignableObjectId(), (*alignable)->id())] = *alignable;
       recursiveStructureMap((*alignable)->components(), theMap);
