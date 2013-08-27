@@ -1,0 +1,34 @@
+#! /bin/bash
+
+if [ -z "$CMSSW_BASE" ]; then
+  echo "Please set up a CMSSW development area and run 'cmsenv'"
+  exit 1
+fi
+
+# if not already present, check out and build the ConfDB converter
+if ! [ -d "$CMSSW_BASE/hlt-confdb/.git" ]; then
+  mkdir -p "$CMSSW_BASE/hlt-confdb"
+  git clone "https://github.com/cms-sw/hlt-confdb.git" "$CMSSW_BASE/hlt-confdb" 1>&2
+fi
+if ! [ -f "$CMSSW_BASE/hlt-confdb/lib/cmssw-evf-confdb-converter.jar" ]; then
+  ant -f "$CMSSW_BASE/hlt-confdb/build.xml" converter 1>&2
+fi
+
+if [ -n "$1" ]; then
+  if [[ "$1" =~ hltdev:(/.+) ]]; then
+    # read a configuration from HLTDEV
+    java -cp $CMSSW_BASE/hlt-confdb/ext/ojdbc6.jar:$CMSSW_BASE/hlt-confdb/lib/cmssw-evf-confdb-converter.jar confdb.converter.BrowserConverter -t oracle -h cmsr1-s.cern.ch -d cms_cond.cern.ch -u cms_hltdev_reader -s "convertme!"  --configName "${BASH_REMATCH[1]}"
+  elif [[ "$1" =~ orcoff:(/.+) ]]; then 
+    # read a configuration from ORCOFF
+    java -cp $CMSSW_BASE/hlt-confdb/ext/ojdbc6.jar:$CMSSW_BASE/hlt-confdb/lib/cmssw-evf-confdb-converter.jar confdb.converter.BrowserConverter -t oracle -h cmsr1-s.cern.ch -d cms_cond.cern.ch -u cms_hlt_gui_r     -s "convertme!"  --configName "${BASH_REMATCH[1]}"
+  elif [[ "$1" =~ run:([1-9][0-9]+) ]]; then
+    # read the configuration corresponding to a specific run number from ORCOFF
+    #java -cp $CMSSW_BASE/hlt-confdb/ext/ojdbc6.jar:$CMSSW_BASE/hlt-confdb/lib/cmssw-evf-confdb-converter.jar confdb.converter.BrowserConverter -t oracle -h cmsr1-s.cern.ch -d cms_cond.cern.ch -u cms_hlt_gui_r     -s "convertme!"  --runNumber  "${BASH_REMATCH[1]}"
+    echo "Selecting by run number is not supported yet, sorry."
+    exit 1
+  else
+    # by default, read a configuration from HLTDEV
+    java -cp $CMSSW_BASE/hlt-confdb/ext/ojdbc6.jar:$CMSSW_BASE/hlt-confdb/lib/cmssw-evf-confdb-converter.jar confdb.converter.BrowserConverter -t oracle -h cmsr1-s.cern.ch -d cms_cond.cern.ch -u cms_hltdev_reader -s "convertme!"  --configName "$1"
+  fi
+fi
+
