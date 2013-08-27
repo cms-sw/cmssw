@@ -80,13 +80,13 @@ int ESElectronicsMapper::getFED(int zside, int plane, int x, int y) {
   return fed_[zside-1][plane-1][x-1][y-1]; 
 } 
 
-std::vector<int> ESElectronicsMapper::GetListofFEDs(const std::vector<int> eeFEDs) const {
+std::vector<int> ESElectronicsMapper::GetListofFEDs(const std::vector<int>& eeFEDs) const {
   std::vector<int> esFEDs;
   GetListofFEDs(eeFEDs, esFEDs);
   return esFEDs;
 }
 
-void ESElectronicsMapper::GetListofFEDs(std::vector<int> eeFEDs, std::vector<int> & esFEDs) const {
+void ESElectronicsMapper::GetListofFEDs(const std::vector<int>& eeFEDs, std::vector<int> & esFEDs) const {
 
   for (unsigned int i=0; i<eeFEDs.size(); ++i) {
     std::map< int, std::vector<int> >::const_iterator itr = ee_es_map_.find(eeFEDs[i]);

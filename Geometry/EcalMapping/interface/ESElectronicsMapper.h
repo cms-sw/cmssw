@@ -20,8 +20,8 @@ class ESElectronicsMapper {
 
   int getFED(const ESDetId& id);
   int getFED(int zside, int plane, int x, int y);
-  std::vector<int> GetListofFEDs(const std::vector<int> eeFEDs) const ;
-  void GetListofFEDs(std::vector<int> eeFEDs, std::vector<int> & esFEDs) const ;
+  std::vector<int> GetListofFEDs(const std::vector<int>& eeFEDs) const ;
+  void GetListofFEDs(const std::vector<int>& eeFEDs, std::vector<int> & esFEDs) const ;
   int getKCHIP(const ESDetId& id);
   int getKCHIP(int zside, int plane, int x, int y);
 
