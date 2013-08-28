@@ -1,0 +1,38 @@
+<?xml version='1.0'?>
+<!-- example configuration file for the L1TMonitorClient -->
+<configuration>
+  <SummaryList>
+    <Title>
+      Default Summary
+    </Title>
+    <MonitorElement>
+      <Name>
+	Collector/GlobalDQM/L1TMonitor/L1TECALTPG/EcalTpOccEtaPhi
+      </Name>
+      <Option>
+	colz
+      </Option>
+    </MonitorElement>
+    <!-- This one has no options -->
+    <MonitorElement>
+      <Name>
+	Collector/GlobalDQM/L1TMonitor/L1TRCT/RctIsoEmEtEtaPhi
+      </Name>
+    </MonitorElement>
+  </SummaryList>
+  <SummaryList>
+    <Title>
+      Second Summary
+    </Title>
+    <MonitorElement>
+      <Name>
+      Collector/GlobalDQM/L1TMonitor/L1TECALTPG/EcalTpOccEtaPhi
+      </Name>
+    </MonitorElement>
+    <MonitorElement>
+      <Name>
+      Collector/GlobalDQM/L1TMonitor/L1TRCT/RctIsoEmEtEtaPhi
+      </Name>
+    </MonitorElement>
+  </SummaryList>
+</configuration>
