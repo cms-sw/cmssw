@@ -17,7 +17,7 @@ using namespace edm;
 using namespace reco;
 using namespace std;
 
-RecoSelector::RecoSelector(edm::ParameterSet userCut_params)
+RecoSelector::RecoSelector(const edm::ParameterSet& userCut_params)
 {
 
   name                   = userCut_params.getParameter<string>("name");
