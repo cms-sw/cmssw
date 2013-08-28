@@ -5,8 +5,8 @@
  *  
  *  Class to fill Event Generator dqm monitor elements; works on HepMCProduct
  *
- *  $Date: 2010/07/02 13:34:23 $
- *  $Revision: 1.3 $
+ *  $Date: 2013/03/06 01:51:10 $
+ *  $Revision: 1.19 $
  *
  */
 
@@ -31,6 +31,8 @@
 #include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
 #include "TLorentzVector.h"
 
+#include "Validation/EventGenerator/interface/WeightManager.h"
+
 class TauValidation : public edm::EDAnalyzer
 {
     public:
@@ -39,7 +41,10 @@ class TauValidation : public edm::EDAnalyzer
                electron,
                muon,
                pi,
+               rho,
+	       a1,
                K,
+	       Kstar,
 	       pi1pi0,
                pinpi0,
                tripi,
@@ -47,6 +52,8 @@ class TauValidation : public edm::EDAnalyzer
 	       stable};
 	// tau mother particles 
 	enum  {other,
+	       B,
+	       D,
 	       gamma,
 	       Z,
 	       W,
@@ -65,23 +72,32 @@ class TauValidation : public edm::EDAnalyzer
 	virtual void endRun(const edm::Run&, const edm::EventSetup&);
 
     private:
-	int tauMother(const HepMC::GenParticle*);
-	int tauProngs(const HepMC::GenParticle*);
-	int tauDecayChannel(const HepMC::GenParticle*);
-	void rtau(const HepMC::GenParticle*,int,int);
-	void spinEffects(const HepMC::GenParticle*,int,int);
-	double leadingPionMomentum(const HepMC::GenParticle*);
+	int tauMother(const HepMC::GenParticle*, double weight);
+	int tauProngs(const HepMC::GenParticle*, double weight);
+	int tauDecayChannel(const HepMC::GenParticle*, double weight=0.0);
+	int findMother(const HepMC::GenParticle*);
+	bool isLastTauinChain(const HepMC::GenParticle* tau);
+	void rtau(const HepMC::GenParticle*,int,int, double weight);
+	void spinEffects(const HepMC::GenParticle*,int,int,std::vector<HepMC::GenParticle*> &part,double weight);
+	void spinEffectsZ(const HepMC::GenParticle* boson, double weight);
+	double leadingPionMomentum(const HepMC::GenParticle*, double weight);
 	double visibleTauEnergy(const HepMC::GenParticle*);
 	TLorentzVector leadingPionP4(const HepMC::GenParticle*);
 	TLorentzVector motherP4(const HepMC::GenParticle*);
-	void photons(const HepMC::GenParticle*);
+	void photons(const HepMC::GenParticle*, double weight);
+	void findTauList(const HepMC::GenParticle* tau,std::vector<const HepMC::GenParticle*> &TauList);
+	void findFSRandBrem(const HepMC::GenParticle* p, bool doBrem, std::vector<const HepMC::GenParticle*> &ListofFSR,
+			   std::vector<const HepMC::GenParticle*> &ListofBrem);
+	void FindPhotosFSR(const HepMC::GenParticle* p,std::vector<const HepMC::GenParticle*> &ListofFSR,double &BosonScale);
+	const HepMC::GenParticle* GetMother(const HepMC::GenParticle* tau);
+	const std::vector<HepMC::GenParticle*> GetMothers(const HepMC::GenParticle* boson);
+	double Zstoa(double zs);
+
+        WeightManager _wmanager;
 
     	edm::InputTag hepmcCollection_;
 
 	double tauEtCut;
-
-	double tauPtSum,photonFromTauPtSum;
-	int    nTaus,nTausWithPhotons;
 
   	/// PDT table
   	edm::ESHandle<HepPDT::ParticleDataTable> fPDGTable ;
@@ -89,11 +105,22 @@ class TauValidation : public edm::EDAnalyzer
   	///ME's "container"
   	DQMStore *dbe;
 
-        MonitorElement *nEvt;
-  	MonitorElement *TauPt, *TauEta, *TauProngs, *TauDecayChannels, *TauMothers, 
-                       *TauRtauW, *TauRtauHpm,
-                       *TauSpinEffectsW, *TauSpinEffectsHpm,
-	               *TauPhotons;
+        MonitorElement *nTaus, *nPrimeTaus;
+  	MonitorElement *TauPt, *TauEta, *TauPhi, *TauProngs, *TauDecayChannels, *TauMothers, 
+	  *TauRtauW, *TauRtauHpm,
+	  *TauSpinEffectsW_X, *TauSpinEffectsW_UpsilonRho, *TauSpinEffectsW_UpsilonA1,*TauSpinEffectsW_eX,*TauSpinEffectsW_muX,
+	  *TauSpinEffectsHpm_X, *TauSpinEffectsHpm_UpsilonRho, *TauSpinEffectsHpm_UpsilonA1,*TauSpinEffectsHpm_eX,*TauSpinEffectsHpm_muX, 
+	  *TauSpinEffectsZ_MVis, *TauSpinEffectsZ_Zs, *TauSpinEffectsZ_Xf, *TauSpinEffectsZ_Xb, 
+	  *TauSpinEffectsZ_eX, *TauSpinEffectsZ_muX,
+	  *TauSpinEffectsH_MVis, *TauSpinEffectsH_Zs, *TauSpinEffectsH_Xf, *TauSpinEffectsH_Xb,
+	  *TauSpinEffectsH_eX, *TauSpinEffectsH_muX,
+	  *TauBremPhotonsN,*TauBremPhotonsPt,*TauBremPhotonsPtSum,*TauFSRPhotonsN,*TauFSRPhotonsPt,*TauFSRPhotonsPtSum;
+	unsigned int NJAKID;
+	MonitorElement *JAKID;
+	std::vector<std::vector<MonitorElement *> > JAKInvMass;
+
+	int zsbins;
+	double zsmin,zsmax;
 };
 
 #endif
