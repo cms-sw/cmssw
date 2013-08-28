@@ -439,11 +439,9 @@ DTRecHitQuality::recHitDistFromWire(const DTRecHit1D& recHit, const DTLayer* lay
 
 template  <typename type>
 void DTRecHitQuality::compute(const DTGeometry *dtGeom,
-                              std::map<DTWireId, std::vector<PSimHit> >& simHitsPerWire,
-                              std::map<DTWireId, std::vector<type> >& recHitsPerWire,
+                              const std::map<DTWireId, std::vector<PSimHit> >& simHitsPerWire,
+                              const std::map<DTWireId, std::vector<type> >& recHitsPerWire,
                               int step) {
-//  std::map<DTWireId, std::vector<PSimHit> > simHitsPerWire = _simHitsPerWire;
-//  std::map<DTWireId, std::vector<type> > recHitsPerWire = _recHitsPerWire;
   // Loop over cells with a muon SimHit
   for(map<DTWireId, vector<PSimHit> >::const_iterator wireAndSHits = simHitsPerWire.begin();
       wireAndSHits != simHitsPerWire.end();
@@ -488,7 +486,7 @@ void DTRecHitQuality::compute(const DTGeometry *dtGeom,
     } else {
       recHitReconstructed = true;
       // vector<type> recHits = (*wireAndRecHits).second;
-      vector<type> recHits = recHitsPerWire[wireId];
+      vector<type> recHits = recHitsPerWire.at(wireId);
       if(debug)
         cout << "   " << recHits.size() << " RecHits, Step " << step << " in channel: " << wireId << endl;
 
