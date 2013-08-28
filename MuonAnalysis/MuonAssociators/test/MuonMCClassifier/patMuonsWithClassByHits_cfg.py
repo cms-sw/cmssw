@@ -5,23 +5,18 @@ process = cms.Process("PATMuon")
 process.load("FWCore.MessageService.MessageLogger_cfi")
 process.MessageLogger.cerr.FwkReport.reportEvery = 100
 
-process.load("Configuration.StandardSequences.Geometry_cff")
+process.load('Configuration.StandardSequences.Services_cff')
+process.load("Configuration.StandardSequences.GeometryDB_cff")
 process.load("Configuration.StandardSequences.MagneticField_38T_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
+process.load("Configuration.StandardSequences.Reconstruction_cff")
 
-process.load("SimGeneral.MixingModule.mixNoPU_cfi")
-process.load("SimGeneral.TrackingAnalysis.trackingParticlesNoSimHits_cfi")    # On RECO
-process.load("SimMuon.MCTruth.MuonAssociatorByHitsESProducer_NoSimHits_cfi")  # On RECO
-
-process.GlobalTag.globaltag = 'START3X_V26A::All'
+process.GlobalTag.globaltag = 'PRE_ST62_V8::All'
 
 from Configuration.EventContent.EventContent_cff import *
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
-        #'rfio:/castor/cern.ch/user/g/gpetrucc/900GeV/MC/Feb9Skims/MC_CollisionEvents_MuonSkim_1.root',
-        #'rfio:/castor/cern.ch/user/g/gpetrucc/900GeV/MC/Feb9Skims/MC_CollisionEvents_MuonSkim_2.root',
-        #'rfio:/castor/cern.ch/user/g/gpetrucc/900GeV/MC/Feb9Skims/MC_CollisionEvents_MuonSkim_3.root',
-        'root://pcmssd12.cern.ch//data/gpetrucc/Feb9Skims/MC_CollisionEvents_MuonSkim_1.root'
+        '/store/relval/CMSSW_6_2_0/RelValTTbar/GEN-SIM-RECO/PU_PRE_ST62_V8-v2/00000/E03F79C5-A7EC-E211-A92E-003048F00520.root',
     ),
     inputCommands = RECOSIMEventContent.outputCommands,            # keep only RECO out of RAW+RECO, for tests
     dropDescendantsOfDroppedBranches = cms.untracked.bool(False),  # keep only RECO out of RAW+RECO, for tests
@@ -30,10 +25,6 @@ process.source = cms.Source("PoolSource",
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
 process.options   = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) )
 
-process.load('L1TriggerConfig.L1GtConfigProducers.L1GtTriggerMaskTechTrigConfig_cff')
-from HLTrigger.HLTfilters.hltLevel1GTSeed_cfi import hltLevel1GTSeed
-hltLevel1GTSeed.L1TechTriggerSeeding = cms.bool(True)
-process.bscFilter = hltLevel1GTSeed.clone(L1SeedsLogicalExpression = cms.string('(40 OR 41) AND NOT (36 OR 37 OR 38 OR 39)'))
 process.oneGoodVertexFilter = cms.EDFilter("VertexSelector",
    src = cms.InputTag("offlinePrimaryVertices"),
    cut = cms.string("!isFake && ndof >= 4 && abs(z) <= 15 && position.Rho <= 2"),
@@ -46,11 +37,11 @@ process.noScraping = cms.EDFilter("FilterOutScraping",
     thresh = cms.untracked.double(0.25)
 )
 process.countCollisionEvents = cms.EDProducer("EventCountProducer")
-process.preFilter = cms.Sequence(process.bscFilter * process.oneGoodVertexFilter * process.noScraping * process.countCollisionEvents )
+process.preFilter = cms.Sequence(process.oneGoodVertexFilter * process.noScraping * process.countCollisionEvents )
 
 process.mergedTruth = cms.EDProducer("GenPlusSimParticleProducer",
         src           = cms.InputTag("g4SimHits"), # use "famosSimHits" for FAMOS
-        setStatus     = cms.int32(5),             # set status = 8 for GEANT GPs
+        setStatus     = cms.int32(5),             # set status = 5 for GEANT GPs
         filter        = cms.vstring("pt > 0.0"),  # just for testing (optional)
         genParticles   = cms.InputTag("genParticles") # original genParticle list
 )
@@ -76,6 +67,9 @@ process.patMuons = PhysicsTools.PatAlgos.producersLayer1.muonProducer_cfi.patMuo
     embedTrack          = True,
     embedCombinedMuon   = True,
     embedStandAloneMuon = True,
+    embedPFCandidate    = False,
+    embedCaloMETMuonCorrs = cms.bool(False),
+    embedTcMETMuonCorrs   = cms.bool(False),
     # then switch off some features we don't need
     #addTeVRefits = False, ## <<--- this doesn't work. PAT bug ??
     embedPickyMuon = False,
@@ -85,6 +79,11 @@ process.patMuons = PhysicsTools.PatAlgos.producersLayer1.muonProducer_cfi.patMuo
     addGenMatch = False,       
     embedGenMatch = False,
 )
+# Reset all these; the default in muonProducer_cfi is not empty, but wrong
+process.patMuons.userData.userInts.src    = []
+process.patMuons.userData.userFloats.src  = []
+process.patMuons.userData.userCands.src   = []
+process.patMuons.userData.userClasses.src = []
 
 process.load("MuonAnalysis.MuonAssociators.muonClassificationByHits_cfi")
 
