@@ -10,7 +10,7 @@ namespace edm {
   namespace {
     class ModuleBeginJobSignalSentry {
 public:
-      ModuleBeginJobSignalSentry(ActivityRegistry* a, ModuleDescription& md):a_(a), md_(&md) {
+      ModuleBeginJobSignalSentry(ActivityRegistry* a, ModuleDescription const& md):a_(a), md_(&md) {
         if(a_) a_->preModuleBeginJobSignal_(*md_);
       }
       ~ModuleBeginJobSignalSentry() {
@@ -18,12 +18,12 @@ public:
       }
 private:
       ActivityRegistry* a_;
-      ModuleDescription* md_;
+      ModuleDescription const* md_;
     };
 
     class ModuleEndJobSignalSentry {
 public:
-      ModuleEndJobSignalSentry(ActivityRegistry* a, ModuleDescription& md):a_(a), md_(&md) {
+      ModuleEndJobSignalSentry(ActivityRegistry* a, ModuleDescription const& md):a_(a), md_(&md) {
         if(a_) a_->preModuleEndJobSignal_(*md_);
       }
       ~ModuleEndJobSignalSentry() {
@@ -31,7 +31,7 @@ public:
       }
 private:
       ActivityRegistry* a_;
-      ModuleDescription* md_;
+      ModuleDescription const* md_;
     };
 
     class ModuleBeginStreamSignalSentry {
@@ -83,8 +83,7 @@ private:
     timesFailed_(),
     timesExcept_(),
     state_(Ready),
-    md_(iMD),
-    moduleCallingContext_(&md_),
+    moduleCallingContext_(&iMD),
     actions_(iActions),
     cached_exception_(),
     actReg_(),
@@ -103,10 +102,15 @@ private:
     earlyDeleteHelper_=iHelper;
   }
   
+  void Worker::resetModuleDescription(ModuleDescription const* iDesc) {
+    ModuleCallingContext temp(iDesc,moduleCallingContext_.state(),moduleCallingContext_.parent());
+    moduleCallingContext_ = temp;
+  }
+  
   void Worker::beginJob() {
     try {
       try {
-        ModuleBeginJobSignalSentry cpp(actReg_.get(), md_);
+        ModuleBeginJobSignalSentry cpp(actReg_.get(), description());
         implBeginJob();
       }
       catch (cms::Exception& e) { throw; }
@@ -119,7 +123,7 @@ private:
     catch(cms::Exception& ex) {
       state_ = Exception;
       std::ostringstream ost;
-      ost << "Calling beginJob for module " << md_.moduleName() << "/'" << md_.moduleLabel() << "'";
+      ost << "Calling beginJob for module " << description().moduleName() << "/'" << description().moduleLabel() << "'";
       ex.addContext(ost.str());
       throw;
     }
@@ -128,7 +132,7 @@ private:
   void Worker::endJob() {
     try {
       try {
-        ModuleEndJobSignalSentry cpp(actReg_.get(), md_);
+        ModuleEndJobSignalSentry cpp(actReg_.get(), description());
         implEndJob();
       }
       catch (cms::Exception& e) { throw; }
@@ -141,7 +145,7 @@ private:
     catch(cms::Exception& ex) {
       state_ = Exception;
       std::ostringstream ost;
-      ost << "Calling endJob for module " << md_.moduleName() << "/'" << md_.moduleLabel() << "'";
+      ost << "Calling endJob for module " << description().moduleName() << "/'" << description().moduleLabel() << "'";
       ex.addContext(ost.str());
       throw;
     }
@@ -155,7 +159,7 @@ private:
         streamContext.setRunIndex(RunIndex::invalidRunIndex());
         streamContext.setLuminosityBlockIndex(LuminosityBlockIndex::invalidLuminosityBlockIndex());
         streamContext.setTimestamp(Timestamp());
-        ModuleBeginStreamSignalSentry beginSentry(actReg_.get(), streamContext, md_);
+        ModuleBeginStreamSignalSentry beginSentry(actReg_.get(), streamContext, description());
         implBeginStream(id);
       }
       catch (cms::Exception& e) { throw; }
@@ -168,7 +172,7 @@ private:
     catch(cms::Exception& ex) {
       state_ = Exception;
       std::ostringstream ost;
-      ost << "Calling beginStream for module " << md_.moduleName() << "/'" << md_.moduleLabel() << "'";
+      ost << "Calling beginStream for module " << description().moduleName() << "/'" << description().moduleLabel() << "'";
       ex.addContext(ost.str());
       throw;
     }
@@ -182,7 +186,7 @@ private:
         streamContext.setRunIndex(RunIndex::invalidRunIndex());
         streamContext.setLuminosityBlockIndex(LuminosityBlockIndex::invalidLuminosityBlockIndex());
         streamContext.setTimestamp(Timestamp());
-        ModuleEndStreamSignalSentry endSentry(actReg_.get(), streamContext, md_);
+        ModuleEndStreamSignalSentry endSentry(actReg_.get(), streamContext, description());
         implEndStream(id);
       }
       catch (cms::Exception& e) { throw; }
@@ -195,7 +199,7 @@ private:
     catch(cms::Exception& ex) {
       state_ = Exception;
       std::ostringstream ost;
-      ost << "Calling endStream for module " << md_.moduleName() << "/'" << md_.moduleLabel() << "'";
+      ost << "Calling endStream for module " << description().moduleName() << "/'" << description().moduleLabel() << "'";
       ex.addContext(ost.str());
       throw;
     }
