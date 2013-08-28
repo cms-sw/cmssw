@@ -39,11 +39,10 @@ class PreshowerClusterShapeProducer : public edm::EDProducer {
 
   //clustering parameters:
 
-  edm::InputTag preshHitProducer_;   // name of module/plugin/producer producing hits
-  edm::InputTag endcapSClusterProducer_; // likewise for producer of endcap superclusters
-
-//  std::string photonCorrCollectionProducer_;
-//  std::string correctedPhotonCollection_;
+  edm::EDGetTokenT<EcalRecHitCollection> preshHitToken_; // name of module/plugin/producer 
+                                                         // producing hits
+  edm::EDGetTokenT<reco::SuperClusterCollection> endcapSClusterToken_; // likewise for producer 
+                                                                       // of endcap superclusters
 
   std::string PreshowerClusterShapeCollectionX_;
   std::string PreshowerClusterShapeCollectionY_;

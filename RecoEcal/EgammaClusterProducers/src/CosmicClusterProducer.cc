@@ -47,14 +47,12 @@ CosmicClusterProducer::CosmicClusterProducer(const edm::ParameterSet& ps)
 
   
   // Parameters to identify the hit collections
-  barrelHitProducer_    = ps.getParameter<std::string>("barrelHitProducer");
-  endcapHitProducer_    = ps.getParameter<std::string>("endcapHitProducer");
-  barrelHitCollection_  = ps.getParameter<std::string>("barrelHitCollection");
-  endcapHitCollection_  = ps.getParameter<std::string>("endcapHitCollection");
-  barrelUHitProducer_   = ps.getParameter<std::string>("barrelUnHitProducer");
-  endcapUHitProducer_   = ps.getParameter<std::string>("endcapUnHitProducer");
-  barrelUHitCollection_ = ps.getParameter<std::string>("barrelUnHitCollection");
-  endcapUHitCollection_ = ps.getParameter<std::string>("endcapUnHitCollection");
+  ebHitsToken_    = consumes<EcalRecHitCollection>(ps.getParameter<edm::InputTag>("barrelHits"));
+  eeHitsToken_    = consumes<EcalRecHitCollection>(ps.getParameter<edm::InputTag>("endcapHits"));
+  
+  ebUHitsToken_    = consumes<EcalUncalibratedRecHitCollection>(ps.getParameter<edm::InputTag>("barrelUncalibHits"));
+  eeUHitsToken_    = consumes<EcalUncalibratedRecHitCollection>(ps.getParameter<edm::InputTag>("endcapUncalibHits"));
+  
 
   // The names of the produced cluster collections
   barrelClusterCollection_  = ps.getParameter<std::string>("barrelClusterCollection");
@@ -107,70 +105,31 @@ CosmicClusterProducer::~CosmicClusterProducer()
 
 void CosmicClusterProducer::produce(edm::Event& evt, const edm::EventSetup& es)
 {
-  clusterizeECALPart(evt, es, endcapHitProducer_, endcapHitCollection_, endcapUHitProducer_, endcapUHitCollection_, endcapClusterCollection_, endcapClusterShapeAssociation_, CosmicClusterAlgo::endcap); 
-  clusterizeECALPart(evt, es, barrelHitProducer_, barrelHitCollection_, barrelUHitProducer_, barrelUHitCollection_, barrelClusterCollection_, barrelClusterShapeAssociation_, CosmicClusterAlgo::barrel);
+  clusterizeECALPart(evt, es, eeHitsToken_,eeUHitsToken_, endcapClusterCollection_, endcapClusterShapeAssociation_, CosmicClusterAlgo::endcap); 
+  clusterizeECALPart(evt, es, eeHitsToken_,eeUHitsToken_, barrelClusterCollection_, barrelClusterShapeAssociation_, CosmicClusterAlgo::barrel);
   nEvt_++;
 }
 
 
-const EcalRecHitCollection * CosmicClusterProducer::getCollection(edm::Event& evt,
-                                                                  const std::string& hitProducer_,
-                                                                  const std::string& hitCollection_)
-{
-  edm::Handle<EcalRecHitCollection> rhcHandle;
-  try
-    {
-      evt.getByLabel(hitProducer_, hitCollection_, rhcHandle);
-      if (!(rhcHandle.isValid())) 
-	{
-	  std::cout << "could not get a handle on the EcalRecHitCollection!" << std::endl;
-	  return 0;
-	}
-    }
-  catch ( cms::Exception& ex ) 
-    {
-      edm::LogError("CosmicClusterProducerError") << "Error! can't get the product " << hitCollection_.c_str() ;
-      return 0;
-    }
-  return rhcHandle.product();
-}
-
-const EcalUncalibratedRecHitCollection * CosmicClusterProducer::getUCollection(edm::Event& evt,
-                                                                  const std::string& hitProducer_,
-                                                                  const std::string& hitCollection_)
-{
-  edm::Handle<EcalUncalibratedRecHitCollection> rhcHandle;
-  try
-    {
-      evt.getByLabel(hitProducer_, hitCollection_, rhcHandle);
-      if (!(rhcHandle.isValid())) 
-	{
-	  std::cout << "could not get a handle on the EcalUncalibratedRecHitCollection!" << std::endl;
-	  return 0;
-	}
-    }
-  catch ( cms::Exception& ex ) 
-    {
-      edm::LogError("CosmicClusterProducerError") << "Error! can't get the product " << hitCollection_.c_str() ;
-      return 0;
-    }
-  return rhcHandle.product();
-}
 
 
 void CosmicClusterProducer::clusterizeECALPart(edm::Event &evt, const edm::EventSetup &es,
-                                               const std::string& hitProducer,
-                                               const std::string& hitCollection,
-											   const std::string& uhitProducer,
-                                               const std::string& uhitCollection,
+                                               const edm::EDGetTokenT<EcalRecHitCollection>& hitsToken,
+                                               const edm::EDGetTokenT<EcalUncalibratedRecHitCollection>& uhitsToken,             
                                                const std::string& clusterCollection,
 					       const std::string& clusterShapeAssociation,
                                                const CosmicClusterAlgo::EcalPart& ecalPart)
 {
   // get the hit collection from the event:
 
-  const EcalRecHitCollection *hitCollection_p = getCollection(evt, hitProducer, hitCollection);
-  const EcalUncalibratedRecHitCollection *uhitCollection_p = getUCollection(evt, uhitProducer, uhitCollection);
+  edm::Handle<EcalRecHitCollection> hits_h;
+  edm::Handle<EcalUncalibratedRecHitCollection> uhits_h;
+  
+  evt.getByToken(hitsToken,hits_h);
+  evt.getByToken(uhitsToken,uhits_h);
+
+  const EcalRecHitCollection *hitCollection_p = hits_h.product();
+  const EcalUncalibratedRecHitCollection *uhitCollection_p = uhits_h.product();
 
   // get the geometry and topology from the event setup:
   edm::ESHandle<CaloGeometry> geoHandle;

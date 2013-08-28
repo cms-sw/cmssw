@@ -13,7 +13,7 @@
 
 // Reconstruction Classes
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
-#include "DataFormats/EgammaReco/interface/BasicClusterFwd.h"
+
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
 
@@ -24,11 +24,11 @@
 Multi5x5SuperClusterProducer::Multi5x5SuperClusterProducer(const edm::ParameterSet& ps)
 {
 
-  endcapClusterProducer_ = ps.getParameter<std::string>("endcapClusterProducer");
-  barrelClusterProducer_ = ps.getParameter<std::string>("barrelClusterProducer");
+  eeClustersToken_ = 
+	  consumes<reco::BasicClusterCollection>(ps.getParameter<std::string>("endcapClusterTag"));
+  ebClustersToken_ = 
+	  consumes<reco::BasicClusterCollection>(ps.getParameter<std::string>("barrelClusterTag"));
 
-  endcapClusterCollection_ = ps.getParameter<std::string>("endcapClusterCollection");
-  barrelClusterCollection_ = ps.getParameter<std::string>("barrelClusterCollection");
 
   endcapSuperclusterCollection_ = ps.getParameter<std::string>("endcapSuperclusterCollection");
   barrelSuperclusterCollection_ = ps.getParameter<std::string>("barrelSuperclusterCollection");
@@ -82,23 +82,23 @@ Multi5x5SuperClusterProducer::endJob() {
 void Multi5x5SuperClusterProducer::produce(edm::Event& evt, const edm::EventSetup& es)
 {
   if(doEndcaps_)
-    produceSuperclustersForECALPart(evt, endcapClusterProducer_, endcapClusterCollection_, endcapSuperclusterCollection_);
+    produceSuperclustersForECALPart(evt, eeClustersToken_, endcapSuperclusterCollection_);
 
   if(doBarrel_)
-    produceSuperclustersForECALPart(evt, barrelClusterProducer_, barrelClusterCollection_, barrelSuperclusterCollection_);
+    produceSuperclustersForECALPart(evt, ebClustersToken_, barrelSuperclusterCollection_);
 
   nEvt_++;
 }
 
 
-void Multi5x5SuperClusterProducer::produceSuperclustersForECALPart(edm::Event& evt, 
-							   std::string clusterProducer, 
-							   std::string clusterCollection,
-							   std::string superclusterCollection)
+void Multi5x5SuperClusterProducer::
+produceSuperclustersForECALPart(edm::Event& evt, 
+								const edm::EDGetTokenT<reco::BasicClusterCollection>& clustersToken,
+								std::string superclusterCollection)
 {
   // get the cluster collection out and turn it to a BasicClusterRefVector:
   reco::CaloClusterPtrVector *clusterPtrVector_p = new reco::CaloClusterPtrVector;
-  getClusterPtrVector(evt, clusterProducer, clusterCollection, clusterPtrVector_p);
+  getClusterPtrVector(evt, clustersToken, clusterPtrVector_p);
 
   // run the brem recovery and get the SC collection
   std::auto_ptr<reco::SuperClusterCollection> 
@@ -119,24 +119,13 @@ void Multi5x5SuperClusterProducer::produceSuperclustersForECALPart(edm::Event& e
 }
 
 
-void Multi5x5SuperClusterProducer::getClusterPtrVector(edm::Event& evt, std::string clusterProducer_, std::string clusterCollection_, reco::CaloClusterPtrVector *clusterPtrVector_p)
+void Multi5x5SuperClusterProducer::getClusterPtrVector(edm::Event& evt, 
+													   const edm::EDGetTokenT<reco::BasicClusterCollection>& clustersToken, 
+													   reco::CaloClusterPtrVector *clusterPtrVector_p)
 {  
   edm::Handle<reco::BasicClusterCollection> bccHandle;
-  try
-    {
-      evt.getByLabel(clusterProducer_, clusterCollection_, bccHandle);
-      if (!(bccHandle.isValid()))
-	{
-	  edm::LogError("Multi5x5SuperClusterProducerError") << "could not get a handle on the BasicCluster Collection!";
-	  clusterPtrVector_p = 0;
-	}
-    } 
-  catch ( cms::Exception& ex )
-    {
-      edm::LogError("Multi5x5SuperClusterProducerError") << "Error! can't get the product " << clusterCollection_.c_str(); 
-      clusterPtrVector_p = 0;
-    }
-
+  evt.getByToken(clustersToken, bccHandle);
+  
   const reco::BasicClusterCollection *clusterCollection_p = bccHandle.product();
   for (unsigned int i = 0; i < clusterCollection_p->size(); i++)
     {

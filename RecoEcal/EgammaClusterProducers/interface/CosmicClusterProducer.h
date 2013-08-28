@@ -41,15 +41,11 @@ class CosmicClusterProducer : public edm::EDProducer
 
       CosmicClusterAlgo::VerbosityLevel verbosity;
 
-      std::string barrelHitProducer_;
-      std::string endcapHitProducer_;
-      std::string barrelHitCollection_;
-      std::string endcapHitCollection_;
+      edm::EDGetTokenT<EcalRecHitCollection> ebHitsToken_;
+      edm::EDGetTokenT<EcalRecHitCollection> eeHitsToken_;
 
-	  std::string barrelUHitProducer_;
-      std::string endcapUHitProducer_;
-      std::string barrelUHitCollection_;
-      std::string endcapUHitCollection_;
+      edm::EDGetTokenT<EcalUncalibratedRecHitCollection> ebUHitsToken_;
+      edm::EDGetTokenT<EcalUncalibratedRecHitCollection> eeUHitsToken_;
 	  
       std::string barrelClusterCollection_;
       std::string endcapClusterCollection_;
@@ -67,19 +63,10 @@ class CosmicClusterProducer : public edm::EDProducer
 
       bool counterExceeded() const { return ((nEvt_ > nMaxPrintout_) || (nMaxPrintout_ < 0)); }
 
-      const EcalRecHitCollection * getCollection(edm::Event& evt,
-                                                 const std::string& hitProducer_,
-                                                 const std::string& hitCollection_);
-
-	  const EcalUncalibratedRecHitCollection * getUCollection(edm::Event& evt,
-                                                 const std::string& hitProducer_,
-                                                 const std::string& hitCollection_);
-												 
+      											 
       void clusterizeECALPart(edm::Event &evt, const edm::EventSetup &es,
-                              const std::string& hitProducer,
-                              const std::string& hitCollection,
-							  const std::string& uhitProducer,
-                              const std::string& uhitCollection,
+			      const edm::EDGetTokenT<EcalRecHitCollection>& hitsToken,
+			      const edm::EDGetTokenT<EcalUncalibratedRecHitCollection>& uhitsToken,       
                               const std::string& clusterCollection,
 			      const std::string& clusterShapeAssociation,
                               const CosmicClusterAlgo::EcalPart& ecalPart);
