@@ -81,4 +81,5 @@ private:
   bool fVerbose;
   edm::EDGetTokenT<reco::BeamSpot> bsToken;
   edm::EDGetTokenT<reco::TrackCollection> trkToken;
+
 };
