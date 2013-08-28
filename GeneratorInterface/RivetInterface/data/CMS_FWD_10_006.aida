@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<!DOCTYPE aida SYSTEM "http://aida.freehep.org/schemas/3.3/aida.dtd">
+<aida version="3.3">
+  <implementation version="1.1" package="FreeHEP"/>
+  <dataPointSet name="d01-x01-y01" dimension="2"
+    path="/REF/CMS_FWD_10_006" title="Forward Jet Pt Spectrum">
+    <annotation>
+      <item key="Title" value="" sticky="true"/>
+      <item key="AidaPath" value="ForwardJet" sticky="true"/>
+      <item key="FullPath" value="/cfjet.aidaForwardJet" sticky="true"/>
+    </annotation>
+    <dataPoint>
+      <measurement errorPlus="5.000000e+00" value="4.000000e+01" errorMinus="5.000000e+00"/>
+      <measurement errorPlus="2.090229e+02" value="2.108533e+04" errorMinus="2.090229e+02"/>
+    </dataPoint>
+    <dataPoint>
+      <measurement errorPlus="6.000000e+00" value="5.100000e+01" errorMinus="6.000000e+00"/>
+      <measurement errorPlus="1.199316e+02" value="9.125694e+03" errorMinus="1.199316e+02"/>
+    </dataPoint>
+    <dataPoint>
+      <measurement errorPlus="7.500000e+00" value="6.450000e+01" errorMinus="7.500000e+00"/>
+      <measurement errorPlus="5.921291e+01" value="2.937573e+03" errorMinus="5.921291e+01"/>
+    </dataPoint>
+    <dataPoint>
+      <measurement errorPlus="9.000000e+00" value="8.100000e+01" errorMinus="9.000000e+00"/>
+      <measurement errorPlus="2.616695e+01" value="6.959797e+02" errorMinus="2.616695e+01"/>
+    </dataPoint>
+    <dataPoint>
+      <measurement errorPlus="1.500000e+01" value="1.050000e+02" errorMinus="1.500000e+01"/>
+      <measurement errorPlus="7.896594e+00" value="1.119053e+02" errorMinus="7.896594e+00"/>
+    </dataPoint>
+    <dataPoint>
+      <measurement errorPlus="1.500000e+01" value="1.350000e+02" errorMinus="1.500000e+01"/>
+      <measurement errorPlus="2.379109e+00" value="9.777733e+00" errorMinus="2.379109e+00"/>
+    </dataPoint>
+  </dataPointSet>
+  <dataPointSet name="d02-x01-y01" dimension="2"
+    path="/REF/CMS_FWD_10_006" title="Forward Jet Pt Spectrum">
+    <annotation>
+      <item key="Title" value="" sticky="true"/>
+      <item key="AidaPath" value="CentralJet" sticky="true"/>
+      <item key="FullPath" value="/cfjet.aidaCentralJet" sticky="true"/>
+    </annotation>
+    <dataPoint>
+      <measurement errorPlus="5.000000e+00" value="4.000000e+01" errorMinus="5.000000e+00"/>
+      <measurement errorPlus="1.084187e+02" value="1.027318e+04" errorMinus="1.084187e+02"/>
+    </dataPoint>
+    <dataPoint>
+      <measurement errorPlus="6.000000e+00" value="5.100000e+01" errorMinus="6.000000e+00"/>
+      <measurement errorPlus="6.549460e+01" value="5.167215e+03" errorMinus="6.549460e+01"/>
+    </dataPoint>
+    <dataPoint>
+      <measurement errorPlus="7.500000e+00" value="6.450000e+01" errorMinus="7.500000e+00"/>
+      <measurement errorPlus="3.476121e+01" value="1.891232e+03" errorMinus="3.476121e+01"/>
+    </dataPoint>
+    <dataPoint>
+      <measurement errorPlus="9.000000e+00" value="8.100000e+01" errorMinus="9.000000e+00"/>
+      <measurement errorPlus="1.693172e+01" value="5.861695e+02" errorMinus="1.693172e+01"/>
+    </dataPoint>
+    <dataPoint>
+      <measurement errorPlus="1.500000e+01" value="1.050000e+02" errorMinus="1.500000e+01"/>
+      <measurement errorPlus="6.220245e+00" value="1.339735e+02" errorMinus="6.220245e+00"/>
+    </dataPoint>
+    <dataPoint>
+      <measurement errorPlus="1.500000e+01" value="1.350000e+02" errorMinus="1.500000e+01"/>
+      <measurement errorPlus="2.970510e+00" value="2.804353e+01" errorMinus="2.970510e+00"/>
+    </dataPoint>
+  </dataPointSet>
+</aida>

@@ -1,0 +1,18 @@
+#     ZSP corrections JETS for Iterative Cone R=0.5
+#
+#     Simulation Release CMSSW_2_1_7, Reconstruction Release CMSSW_2_2_X,
+#     CaloTowers using Scheme B cell energy cuts, No Pileup.
+#
+#     ECAL and HCAL RecHIts without ZSP
+#     File provided by Marguerite Tonjes in September 2009
+#     0PU
+ 0.5 1 1. 0.0312244 -3768.75 90. 
+ 1.0 1 1. 0.0251042 -3619.68 90. 
+ 1.5 1 1. 0.0373505 -3638.26 90. 
+ 2.0 1 1. 0.0377377 -3708.65 90. 
+ 2.5 1 1. 0.0204394 -1032.91 50. 
+ 3.0 1 1. 0.0124062 -623.101 40.
+ 3.5 1 1. 0.  0.  40.
+ 4.0 1 1. 0.  0.  40.
+ 4.5 1 1. 0.  0.  40.
+ 5.0 1 1. 0.  0.  40.

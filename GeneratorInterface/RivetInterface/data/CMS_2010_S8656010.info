@@ -1,0 +1,50 @@
+Name: CMS_2010_S8656010
+Year: 2010
+Summary: Charged particle transverse momentum and pseudorapidity spectra from 
+   proton-proton collisions at 7000 GeV.
+Experiment: CMS
+Collider: LHC
+SpiresID: 8656010
+Status: VALIDATED
+Authors:
+ - A. Knutsson
+References:
+ - Phys.Rev.Lett.105:022002,2010
+ - doi:10.1103/PhysRevLett.105.022002
+ - arXiv:1005.3299 [hep-ex]
+RunInfo:
+   Non-single-diffractive (NSD) events only.  Should include double-diffractive (DD) events
+   and non-diffractive (ND) events but NOT single-diffractive (SD) events. For example, in 
+   Pythia6 the SD processes to be turned off are 92 and 93, and in Pythia8 the SD processes 
+   are 103 and 104 (also called SoftQCD:singleDiffractive).
+NumEvents: 200000
+Beams: [p+, p+]
+Energies: [7000]
+Description: 
+   Charged particle spectra are measured in proton-proton collisions at center-of-mass
+   energies 7000 GeV. The spectra are normalized to all non-single-diffractive
+   (NSD) events using corrections for trigger and selection efficiency, acceptance, and
+   branching ratios.  There are transverse-momentum (pT) spectra from 0.1 to 2 GeV in bins
+   of pseudorapidity (eta) and the pT spectrum from 0.1 to 6 GeV for |eta|<2.4.  The eta spectra
+   come from the average of three methods and cover |eta|<2.5 and are corrected to include
+   all pT.
+  
+   The data were corrected according to the SD/DD/ND content of the CMS
+   trigger, as predicted by pythia6. The uncertainties connected with
+   correct or uncorrect modelling of diffraction were included in the
+   systematic errors. 
+BibKey: Khachatryan:2010us
+BibTeX: '@Article{Khachatryan:2010us,
+     author    = "Khachatryan, Vardan and others",
+ collaboration = "CMS",
+     title     = "{Transverse-momentum and pseudorapidity distributions of
+                  charged hadrons in pp collisions at sqrt(s) = 7 TeV}",
+     journal   = "Phys. Rev. Lett.",
+     volume    = "105",
+     year      = "2010",
+     pages     = "022002",
+     eprint    = "1005.3299",
+     archivePrefix = "arXiv",
+     primaryClass  =  "hep-ex",
+     doi       = "10.1103/PhysRevLett.105.022002",
+     SLACcitation  = "%%CITATION = 1005.3299;%%"}'
