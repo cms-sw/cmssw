@@ -100,7 +100,7 @@ namespace popcon {
       void physicsMasking();
 
       // to read the daq configuration
-      void daqOut(RunIOV myRun);
+      void daqOut(const RunIOV& myRun);
 
       // real analysis
       void pedAnalysis( std::map<EcalLogicID, MonPedestalsDat> dataset_mon, std::map<EcalLogicID, MonCrystalConsistencyDat> wrongGain_mon );

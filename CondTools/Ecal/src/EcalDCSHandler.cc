@@ -501,7 +501,7 @@ int * popcon::EcalDCSHandler::LVLogicIDToDetID(int sm, int chan) const {
 }
 
 
-bool popcon::EcalDCSHandler::insertLVDataSetToOffline( const std::map<EcalLogicID, RunDCSLVDat>* dataset, EcalDCSTowerStatus* dcs_temp , std::vector<EcalLogicID> my_EELVchan ) const
+bool popcon::EcalDCSHandler::insertLVDataSetToOffline( const std::map<EcalLogicID, RunDCSLVDat>* dataset, EcalDCSTowerStatus* dcs_temp , const std::vector<EcalLogicID>& my_EELVchan ) const
 {
   bool result= false; 
   if (dataset->size() == 0) {

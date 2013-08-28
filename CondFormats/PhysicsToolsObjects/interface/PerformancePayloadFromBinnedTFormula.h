@@ -17,24 +17,24 @@ class PerformancePayloadFromBinnedTFormula : public PerformancePayload {
 
   static int InvalidPos;
 
-  PerformancePayloadFromBinnedTFormula(std::vector<PerformanceResult::ResultType> r, std::vector<BinningVariables::BinningVariablesType> b  ,  std::vector<PhysicsTFormulaPayload> in) : pls(in), results_(r), variables_(b) {}
+  PerformancePayloadFromBinnedTFormula(const std::vector<PerformanceResult::ResultType>& r, const std::vector<BinningVariables::BinningVariablesType>& b  , const std::vector<PhysicsTFormulaPayload>& in) : pls(in), results_(r), variables_(b) {}
 
   PerformancePayloadFromBinnedTFormula(){}
   virtual ~PerformancePayloadFromBinnedTFormula(){
     compiledFormulas_.clear();
   }
 
-  float getResult(PerformanceResult::ResultType,BinningPointByMap) const ; // gets from the full payload
+  float getResult(PerformanceResult::ResultType,const BinningPointByMap&) const ; // gets from the full payload
   
   virtual bool isParametrizedInVariable(const BinningVariables::BinningVariablesType p)  const {
     return (limitPos(p) != PerformancePayloadFromBinnedTFormula::InvalidPos);
   }
   
-  virtual bool isInPayload(PerformanceResult::ResultType,BinningPointByMap) const ;
+  virtual bool isInPayload(PerformanceResult::ResultType,const BinningPointByMap&) const ;
   
   const std::vector<PhysicsTFormulaPayload> & formulaPayloads() const {return pls;}
   
-  void printFormula(PerformanceResult::ResultType res, BinningPointByMap) const;
+  void printFormula(PerformanceResult::ResultType res, const BinningPointByMap&) const;
   
 
  protected:
@@ -57,9 +57,9 @@ class PerformancePayloadFromBinnedTFormula : public PerformancePayload {
   }
 
 
-  bool isOk(BinningPointByMap p, unsigned int & ) const; 
+  bool isOk(const BinningPointByMap& p, unsigned int & ) const; 
 
-  TFormula * getFormula(PerformanceResult::ResultType,BinningPointByMap) const;
+  TFormula * getFormula(PerformanceResult::ResultType,const BinningPointByMap&) const;
 
   void check() const;
   //
