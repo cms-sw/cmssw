@@ -54,7 +54,7 @@ class HcalDeadCellMonitor: public HcalBaseDQMonitor {
  private:
   void zeroCounters(bool resetpresent=false);
 
-  void processEvent_HBHEdigi(const HBHEDataFrame& digi);
+  void processEvent_HBHEdigi(HBHEDataFrame digi);
   template<class T> void process_Digi(T& digi);
   template<class T> void process_RecHit(T& rechit);
 

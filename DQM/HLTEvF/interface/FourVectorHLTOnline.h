@@ -93,7 +93,7 @@ class FourVectorHLTOnline : public edm::EDAnalyzer {
       // EndRun
       void endRun(const edm::Run& run, const edm::EventSetup& c);
       void fillHltMatrix(const edm::TriggerNames & triggerNames);
-      void setupHltMatrix(std::string label, const std::vector<std::string>&  paths);
+      void setupHltMatrix(std::string label, std::vector<std::string> paths);
 
       void setupHltLsPlots();
       void setupHltBxPlots();

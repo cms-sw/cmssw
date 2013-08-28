@@ -656,8 +656,7 @@ TProfile *  FourVectorHLTClient::get1DProfile(string meName, DQMStore * dbi)
   return me_->getTProfile();
 }
 
-TString FourVectorHLTClient::removeVersions(const TString& _histVersion) {
-  TString histVersion = _histVersion;
+TString FourVectorHLTClient::removeVersions(TString histVersion) {
   for (int ii = 100; ii >= 0; ii--) {
     string ver = "_v";
     string version ="";

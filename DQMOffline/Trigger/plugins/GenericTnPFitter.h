@@ -87,7 +87,7 @@ class AbstractFitter{
     delete frame;
   }
 
-  TString calculateEfficiency(TH3 *pass, TH3 *all, int massDimension, TProfile2D* &eff, TProfile2D* &effChi2, const TString& plotName=TString("")){
+  TString calculateEfficiency(TH3 *pass, TH3 *all, int massDimension, TProfile2D* &eff, TProfile2D* &effChi2, TString plotName=""){
     //sort out the TAxis
     TAxis *par1Axis, *par2Axis, *massAxis;
     int par1C, par2C, massC;
@@ -169,7 +169,7 @@ class AbstractFitter{
     return "";//OK
   }
 
-  TString calculateEfficiency(TH2 *pass, TH2 *all, int massDimension, TProfile* &eff, TProfile* &effChi2, const TString& plotName=TString("")){
+  TString calculateEfficiency(TH2 *pass, TH2 *all, int massDimension, TProfile* &eff, TProfile* &effChi2, TString plotName=""){
     //sort out the TAxis
     TAxis *par1Axis, *massAxis;
     int par1C, massC;

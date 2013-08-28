@@ -417,8 +417,7 @@ namespace cscdqm {
    * @param  bit Status bit to set
    * @param  value Value to be set
    */
-  void Summary::SetValue(const Address& _adr, const HWStatusBit bit, const int value) {
-    Address adr = _adr;
+  void Summary::SetValue(Address adr, const HWStatusBit bit, const int value) {
     if (!adr.mask.side) {
       adr.mask.side = true;
       for (adr.side = 1; adr.side <= N_SIDES; adr.side++) SetValue(adr, bit, value);
@@ -549,9 +548,8 @@ namespace cscdqm {
    * @param  adr Address to watch efficiency for
    * @return Subdetector efficiency rate (0..1)
    */
-  const double Summary::GetEfficiencyHW(const Address& _adr) const { 
+  const double Summary::GetEfficiencyHW(Address adr) const { 
     double sum = 0.0;
-    Address adr = _adr; 
     if (!adr.mask.side) {
       adr.mask.side = true;
       for (adr.side = 1; adr.side <= N_SIDES; adr.side++) sum += GetEfficiencyHW(adr);
@@ -645,9 +643,8 @@ namespace cscdqm {
    * @param  adr Address to calculate
    * @return Area in eta/phi space
    */
-  const double Summary::GetReportingArea(const Address& _adr) const { 
+  const double Summary::GetReportingArea(Address adr) const { 
     double sum = 0.0;
-    Address adr = _adr;
     if (!adr.mask.side) {
       adr.mask.side = true;
       for (adr.side = 1; adr.side <= N_SIDES; adr.side++) sum += GetReportingArea(adr);
@@ -732,8 +729,7 @@ namespace cscdqm {
    * @param  adr Address of atomic element to return value from
    * @return Value of the requested element
    */
-  const HWStatusBitSet Summary::GetValue(const Address& _adr) const {
-    Address adr = _adr;
+  const HWStatusBitSet Summary::GetValue(Address adr) const {
     HWStatusBitSet state;
     state.reset();
   

@@ -62,8 +62,7 @@ L1TMenuHelper::~L1TMenuHelper(){}
 // Method: fetLUSOTrigger
 //   * Get Lowest Unprescaled Single Object Triggers and Energy Sums
 //-------------------------------------------------------------------------------------
-map<string,string> L1TMenuHelper::getLUSOTrigger(const map<string,bool>& _iCategories, int IndexRefPrescaleFactors){
-  map<string,bool> iCategories =  _iCategories;
+map<string,string> L1TMenuHelper::getLUSOTrigger(map<string,bool> iCategories, int IndexRefPrescaleFactors){
   map<string,string> out;
 
   // Getting information from the menu
@@ -321,8 +320,7 @@ map<string,string> L1TMenuHelper::getLUSOTrigger(const map<string,bool>& _iCateg
 
 }
 
-map<string,string> L1TMenuHelper::testAlgos(const map<string,string>& _iAlgos){
-  map<string,string> iAlgos = _iAlgos;
+map<string,string> L1TMenuHelper::testAlgos(map<string,string> iAlgos){
   // Getting information from the menu
   const AlgorithmMap *theAlgoMap = &m_l1GtMenu->gtAlgorithmAliasMap();
 

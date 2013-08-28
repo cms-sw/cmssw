@@ -73,9 +73,7 @@ RazorVarProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 }
 
 double 
-RazorVarProducer::CalcMR(const TLorentzVector& _ja, const TLorentzVector& _jb){
-  TLorentzVector ja = _ja;
-  TLorentzVector jb = _jb;
+RazorVarProducer::CalcMR(TLorentzVector ja, TLorentzVector jb){
   if(ja.Pt()<=0.1) return -1;
 
   ja.SetPtEtaPhiM(ja.Pt(),ja.Eta(),ja.Phi(),0.0);

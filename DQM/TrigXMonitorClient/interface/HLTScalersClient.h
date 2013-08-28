@@ -93,7 +93,7 @@ public:
       std::deque<CountLS_t>(),
       targetSize_(sz)
     {}
-    unsigned int targetSize() { return targetSize_; };
+    unsigned int targetSize() const { return targetSize_; };
     double getCount(int ls)
     {
       CountLSFifo_t::iterator p = std::find(this->begin(), this->end(),

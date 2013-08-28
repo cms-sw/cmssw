@@ -588,9 +588,8 @@ void HLTScalersClient::analyze(const edm::Event& e, const edm::EventSetup& c )
 // note that the data is in units of counts, ls number
 // but we return a value in Hz...
 std::pair<double,double>
-HLTScalersClient::getSlope_(const HLTScalersClient::CountLSFifo_t& _points)
+HLTScalersClient::getSlope_(const HLTScalersClient::CountLSFifo_t& points)
 {
-  HLTScalersClient::CountLSFifo_t points = _points;
   double slope, sigma_m;
   if ( points.size() < points.targetSize() ) {
     return std::pair<double,double>(-1,-1);
@@ -609,7 +608,7 @@ HLTScalersClient::getSlope_(const HLTScalersClient::CountLSFifo_t& _points)
     double xsq = 0;
     double y = 0;
     double n = double(points.size());
-    for ( CountLSFifo_t::iterator i(points.begin());
+    for ( auto i(points.begin());
 	  i != points.end(); ++i ) {
        if ( debug_ ) 
 	 std::cout << "x = " << i->first << ", y = " << i->second 
@@ -624,7 +623,7 @@ HLTScalersClient::getSlope_(const HLTScalersClient::CountLSFifo_t& _points)
     // now get the uncertainty on the slope. Need intercept for this.
     double intercept = (xsq*y - xy*x)/(n*xsq-x*x);
     double sigma_ysq = 0;
-    for ( CountLSFifo_t::iterator i(points.begin());
+    for ( auto i (points.begin());
 	  i != points.end(); ++i ) {
       sigma_ysq += pow(( i->second - slope * i->first  - intercept),2.);
     }

@@ -484,8 +484,7 @@ void HLTMonBitSummary::endJob() {
 }
 
 
-void HLTMonBitSummary::configSelector(const std::vector<std::string>& _selectTriggers, std::vector<std::string > & theSelectTriggers){
-  std::vector<std::string> selectTriggers =  _selectTriggers;
+void HLTMonBitSummary::configSelector(const std::vector<std::string>& selectTriggers, std::vector<std::string > & theSelectTriggers){
   //get the configuration
   std::vector<std::string> validTriggerNames = hltConfig_.triggerNames(); 
   
@@ -493,7 +492,7 @@ void HLTMonBitSummary::configSelector(const std::vector<std::string>& _selectTri
   //remove all path names that are not valid
   while(!goodToGo && selectTriggers.size()!=0){
     goodToGo=true;
-    for (std::vector<std::string>::iterator j=selectTriggers.begin();j!=selectTriggers.end();++j){
+    for ( auto j=selectTriggers.begin();j!=selectTriggers.end();++j){
       //bool goodOne = false;
       //check if trigger name is valid
       //use of wildcard
