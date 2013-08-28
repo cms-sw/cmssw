@@ -5,7 +5,6 @@
  */
 // Original Author:  Dorian Kcira
 //         Created:  Wed Feb  1 16:42:34 CET 2006
-// $Id: SiStripMonitorCluster.cc,v 1.87 2013/01/03 18:59:36 wmtan Exp $
 #include <vector>
 #include <numeric>
 #include <fstream>
@@ -60,11 +59,11 @@ SiStripMonitorCluster::SiStripMonitorCluster(const edm::ParameterSet& iConfig)
 
   // Detector Partitions
   SubDetPhasePartMap["TIB"]        = "TI";
-  SubDetPhasePartMap["TID__side__1"] = "TI";
-  SubDetPhasePartMap["TID__side__2"] = "TI";
+  SubDetPhasePartMap["TID__MINUS"] = "TI";
+  SubDetPhasePartMap["TID__PLUS"]  = "TI";
   SubDetPhasePartMap["TOB"]        = "TO";
-  SubDetPhasePartMap["TEC__side__1"] = "TM";
-  SubDetPhasePartMap["TEC__side__2"] = "TP";
+  SubDetPhasePartMap["TEC__MINUS"] = "TM";
+  SubDetPhasePartMap["TEC__PLUS"]  = "TP";
 
   //get on/off option for every cluster from cfi
   edm::ParameterSet ParametersnClusters =  conf_.getParameter<edm::ParameterSet>("TH1nClusters");
@@ -256,8 +255,10 @@ void SiStripMonitorCluster::createMEs(const edm::EventSetup& es){
 
     // Create TkHistoMap for Cluster
     if (clustertkhistomapon) {
-      if (topFolderName_ == "SiStrip") tkmapcluster = new TkHistoMap("SiStrip/TkHistoMap","TkHMap_NumberOfCluster",0.,1);
-      else tkmapcluster = new TkHistoMap(topFolderName_+"/TkHistoMap","TkHMap_NumberOfCluster",0.,0);
+      //      std::cout << "[SiStripMonitorCluster::createMEs] topFolderName_: " << topFolderName_ << "     ";
+      if ( (topFolderName_ == "SiStrip") or (std::string::npos != topFolderName_.find("HLT")) )
+	tkmapcluster = new TkHistoMap(topFolderName_,"TkHMap_NumberOfCluster",0.,true);
+      else tkmapcluster = new TkHistoMap(topFolderName_+"/TkHistoMap","TkHMap_NumberOfCluster",0.,false);
     }    
 
     // loop over detectors and book MEs

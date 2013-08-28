@@ -65,13 +65,13 @@ class ApeSettingAlgorithm : public AlignmentAlgorithmBase
   /// Call at beginning of job
   virtual void initialize(const edm::EventSetup &setup, 
 			  AlignableTracker *tracker, AlignableMuon *muon, AlignableExtras *extras,
-			  AlignmentParameterStore *store);
+			  AlignmentParameterStore *store) override;
 
   /// Call at end of job
-  virtual void terminate(const edm::EventSetup& iSetup);
+  virtual void terminate(const edm::EventSetup& iSetup) override;
 
   /// Run the algorithm
-  virtual void run(const edm::EventSetup &setup, const EventInfo &eventInfo);
+  virtual void run(const edm::EventSetup &setup, const EventInfo &eventInfo) override;
 
  private:
   edm::ParameterSet         theConfig;

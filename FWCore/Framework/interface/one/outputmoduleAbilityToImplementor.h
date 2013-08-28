@@ -30,6 +30,7 @@
 
 namespace edm {
   class FileBlock;
+  class ModuleCallingContext;
   
   namespace one {
     namespace outputmodule {

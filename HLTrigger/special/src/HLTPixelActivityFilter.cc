@@ -10,7 +10,7 @@ public:
   ~HLTPixelActivityFilter();
 
 private:
-  virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct);
+  virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) override;
 
   edm::InputTag inputTag_;          // input tag identifying product containing pixel clusters
   unsigned int  min_clusters_;      // minimum number of clusters

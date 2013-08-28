@@ -15,7 +15,6 @@ Description: Produces reco::PFTauDecayModes corresponding to MonteCarlo objects
 //
 // Original Author:  Evan K. Friis, UC Davis (friis@physics.ucdavis.edu)
 //         Created:  Thu Sep 1 06:19:05 PST 2008
-// $Id: TruthTauDecayModeProducer.cc,v 1.5 2009/09/02 23:04:50 friis Exp $
 //
 //
 
@@ -51,9 +50,9 @@ class TruthTauDecayModeProducer : public edm::EDProducer {
       ~TruthTauDecayModeProducer();
 
    private:
-      virtual void beginJob() ;
-      virtual void produce(edm::Event&, const edm::EventSetup&);
-      virtual void endJob() ;
+      virtual void beginJob() override ;
+      virtual void produce(edm::Event&, const edm::EventSetup&) override;
+      virtual void endJob() override ;
 
       //for signal, the module takes input from a PdgIdAndStatusCandViewSelector 
       //for background, the module takes input from a collection of GenJets

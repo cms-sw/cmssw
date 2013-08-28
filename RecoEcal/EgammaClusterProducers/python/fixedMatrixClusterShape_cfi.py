@@ -1,6 +1,5 @@
 import FWCore.ParameterSet.Config as cms
 
-# $Id: fixedMatrixClusterShape.cfi,v 1.2 2008/03/27 18:05:29 dlevans Exp $
 # Preshower cluster producer
 fixedMatrixPreshowerClusterShape = cms.EDProducer("PreshowerClusterShapeProducer",
     preshStripEnergyCut = cms.double(0.0),

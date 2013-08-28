@@ -12,20 +12,21 @@ SiStripConfObjectGenerator::~SiStripConfObjectGenerator()
   edm::LogInfo("SiStripConfObjectGenerator") << "[SiStripConfObjectGenerator::~SiStripConfObjectGenerator]";
 }
 
-void SiStripConfObjectGenerator::createObject()
+SiStripConfObject* SiStripConfObjectGenerator::createObject()
 {
   parameters_ = _pset.getParameter<std::vector<edm::ParameterSet> >("Parameters");
   std::vector<edm::ParameterSet>::const_iterator parIt = parameters_.begin();
-  obj_ = new SiStripConfObject();
+  SiStripConfObject* obj = new SiStripConfObject();
   for( ; parIt != parameters_.end(); ++parIt ) {
     if( parIt->getParameter<std::string>("ParameterType") == "int" ) {
-      obj_->put(parIt->getParameter<std::string>("ParameterName"), parIt->getParameter<int32_t>("ParameterValue"));
+      obj->put(parIt->getParameter<std::string>("ParameterName"), parIt->getParameter<int32_t>("ParameterValue"));
     }
     else if( parIt->getParameter<std::string>("ParameterType") == "double" ) {
-      obj_->put(parIt->getParameter<std::string>("ParameterName"), parIt->getParameter<double>("ParameterValue"));
+      obj->put(parIt->getParameter<std::string>("ParameterName"), parIt->getParameter<double>("ParameterValue"));
     }
     if( parIt->getParameter<std::string>("ParameterType") == "string" ) {
-      obj_->put(parIt->getParameter<std::string>("ParameterName"), parIt->getParameter<std::string>("ParameterValue"));
+      obj->put(parIt->getParameter<std::string>("ParameterName"), parIt->getParameter<std::string>("ParameterValue"));
     }
   }
+  return obj;
 }

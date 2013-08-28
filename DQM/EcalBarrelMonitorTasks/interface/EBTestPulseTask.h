@@ -4,8 +4,6 @@
 /*
  * \file EBTestPulseTask.h
  *
- * $Date: 2009/10/26 17:33:47 $
- * $Revision: 1.33 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *

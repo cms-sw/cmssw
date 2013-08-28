@@ -42,10 +42,10 @@ public:
 
 
 private:
-   virtual void beginJob();
-   virtual void analyze(edm::Event const&, edm::EventSetup const&);
-   virtual void endJob();
-   virtual void postForkReacquireResources(unsigned int iChildIndex, unsigned int iNumberOfChildren);
+   virtual void beginJob() override;
+   virtual void analyze(edm::Event const&, edm::EventSetup const&) override;
+   virtual void endJob() override;
+   virtual void postForkReacquireResources(unsigned int iChildIndex, unsigned int iNumberOfChildren) override;
 
    // ----------member data ---------------------------
    std::vector<edm::EventID> ids_;

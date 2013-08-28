@@ -4,7 +4,6 @@
 ----------------------------------------------------------------------*/
 
 #include "FWCore/Framework/interface/EDFilter.h"
-#include "FWCore/Framework/src/CPCSentry.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "FWCore/Framework/interface/Run.h"
@@ -19,9 +18,7 @@ namespace edm {
 
   bool
   EDFilter::doEvent(EventPrincipal& ep, EventSetup const& c,
-		    CurrentProcessingContext const* cpc,
                     ModuleCallingContext const* mcc) {
-    detail::CPCSentry sentry(current_context_, cpc);
     bool rc = false;
     Event e(ep, moduleDescription_, mcc);
     e.setConsumer(this);
@@ -41,9 +38,7 @@ namespace edm {
 
   void
   EDFilter::doBeginRun(RunPrincipal& rp, EventSetup const& c,
-		       CurrentProcessingContext const* cpc,
                        ModuleCallingContext const* mcc) {
-    detail::CPCSentry sentry(current_context_, cpc);
     Run r(rp, moduleDescription_, mcc);
     r.setConsumer(this);
     Run const& cnstR=r;
@@ -54,9 +49,7 @@ namespace edm {
 
   void
   EDFilter::doEndRun(RunPrincipal& rp, EventSetup const& c,
-		     CurrentProcessingContext const* cpc,
                      ModuleCallingContext const* mcc) {
-    detail::CPCSentry sentry(current_context_, cpc);
     Run r(rp, moduleDescription_, mcc);
     r.setConsumer(this);
     Run const& cnstR=r;
@@ -67,9 +60,7 @@ namespace edm {
 
   void
   EDFilter::doBeginLuminosityBlock(LuminosityBlockPrincipal& lbp, EventSetup const& c,
-                                   CurrentProcessingContext const* cpc,
                                    ModuleCallingContext const* mcc) {
-    detail::CPCSentry sentry(current_context_, cpc);
     LuminosityBlock lb(lbp, moduleDescription_, mcc);
     lb.setConsumer(this);
     LuminosityBlock const& cnstLb = lb;
@@ -79,9 +70,7 @@ namespace edm {
 
   void
   EDFilter::doEndLuminosityBlock(LuminosityBlockPrincipal& lbp, EventSetup const& c,
-			         CurrentProcessingContext const* cpc,
                                  ModuleCallingContext const* mcc) {
-    detail::CPCSentry sentry(current_context_, cpc);
     LuminosityBlock lb(lbp, moduleDescription_, mcc);
     lb.setConsumer(this);
     LuminosityBlock const& cnstLb = lb;
@@ -108,11 +97,6 @@ namespace edm {
   void 
   EDFilter::doPostForkReacquireResources(unsigned int iChildIndex, unsigned int iNumberOfChildren) {
     postForkReacquireResources(iChildIndex, iNumberOfChildren);
-  }
-  
-  CurrentProcessingContext const*
-  EDFilter::currentContext() const {
-    return current_context_;
   }
   
   void

@@ -3,7 +3,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
-#include <assert.h>
+#include <cassert>
 #include <iostream>
 #include <string>
 

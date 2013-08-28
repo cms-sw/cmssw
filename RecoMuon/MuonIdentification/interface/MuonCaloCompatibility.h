@@ -13,7 +13,6 @@
 */
 //
 // Original Author:  Ingo Bloch
-// $Id: MuonCaloCompatibility.h,v 1.2 2009/10/19 14:42:07 dmytro Exp $
 //
 //
 

@@ -12,6 +12,11 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 
+#include "DataFormats/Common/interface/View.h"
+#include "DataFormats/JetReco/interface/CaloJetCollection.h"
+#include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
+
 
 namespace edm {
    class ConfigurationDescriptions;
@@ -28,6 +33,10 @@ class HLTHtMhtProducer : public edm::EDProducer {
     virtual void produce(edm::Event & iEvent, const edm::EventSetup & iSetup);
 
   private:
+
+    edm::EDGetTokenT<edm::View<reco::Jet>> m_theJetToken;
+    edm::EDGetTokenT<reco::TrackCollection> m_theTrackToken;
+    edm::EDGetTokenT<reco::PFCandidateCollection> m_thePfCandidateToken;
 
     bool usePt_;
     bool useTracks_;

@@ -3,6 +3,8 @@
 #include "DataFormats/Provenance/interface/ProcessHistory.h"
 #include "DataFormats/Provenance/interface/ProcessHistoryRegistry.h"
 #include "DataFormats/Provenance/interface/ProductProvenance.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/Registry.h"
 
 #include <algorithm>
 
@@ -12,10 +14,10 @@
 
 namespace edm {
 
-  Provenance::Provenance() : Provenance{boost::shared_ptr<ConstBranchDescription>(), ProductID()} {
+  Provenance::Provenance() : Provenance{boost::shared_ptr<BranchDescription const>(), ProductID()} {
   }
 
-  Provenance::Provenance(boost::shared_ptr<ConstBranchDescription> const& p, ProductID const& pid) :
+  Provenance::Provenance(boost::shared_ptr<BranchDescription const> const& p, ProductID const& pid) :
     branchDescription_(p),
     productID_(pid),
     processHistoryID_(),
@@ -27,7 +29,7 @@ namespace edm {
   ProductProvenance*
   Provenance::resolve() const {
     if(!store_) {
-      return 0;
+      return nullptr;
     }
     if (!productProvenanceValid_) {
       ProductProvenance const* prov  = store_->branchIDToProvenance(branchDescription_->branchID());
@@ -39,65 +41,22 @@ namespace edm {
     return productProvenancePtr_.get();
   }
 
-  ProcessConfigurationID
-  Provenance::processConfigurationID() const {
-    if (parameterSetIDs().size() == 1) {
-      return parameterSetIDs().begin()->first;
-    }
-    if (moduleNames().size() == 1) {
-      return moduleNames().begin()->first;
-    }
+  bool
+  Provenance::getProcessConfiguration(ProcessConfiguration& pc) const {
     // Get the ProcessHistory for this event.
     ProcessHistoryRegistry* phr = ProcessHistoryRegistry::instance();
     ProcessHistory ph;
     if (!phr->getMapped(processHistoryID(), ph)) {
-      return ProcessConfigurationID();
+      return false;
     }
-
-    ProcessConfiguration config;
-    if (!ph.getConfigurationForProcess(processName(), config)) {
-      return ProcessConfigurationID();
-    }
-    return config.id();
+    return ph.getConfigurationForProcess(processName(), pc);
   }
 
   ReleaseVersion
   Provenance::releaseVersion() const {
     ProcessConfiguration pc;
-    ProcessConfigurationRegistry::instance()->getMapped(processConfigurationID(), pc);
+    assert(getProcessConfiguration(pc));
     return pc.releaseVersion();
-  }
-
-  ParameterSetID
-  Provenance::psetID() const {
-    if (product().parameterSetID().isValid()) {
-      return product().parameterSetID();
-    }
-    if (parameterSetIDs().size() == 1) {
-      return parameterSetIDs().begin()->second;
-    }
-    std::map<ProcessConfigurationID, ParameterSetID>::const_iterator it =
-        parameterSetIDs().find(processConfigurationID());
-    if (it == parameterSetIDs().end()) {
-      return ParameterSetID();
-    }
-    return it->second;
-  }
-
-  std::string
-  Provenance::moduleName() const {
-    if (!product().moduleName().empty()) {
-      return product().moduleName();
-    }
-    if (moduleNames().size() == 1) {
-      return moduleNames().begin()->second;
-    }
-    std::map<ProcessConfigurationID, std::string>::const_iterator it =
-        moduleNames().find(processConfigurationID());
-    if (it == moduleNames().end()) {
-      return std::string();
-    }
-    return it->second;
   }
 
   void
@@ -106,7 +65,7 @@ namespace edm {
     // first pass.
     product().write(os);
     ProductProvenance* pp = productProvenance();
-    if (pp != 0) {
+    if (pp != nullptr) {
       pp->write(os);
     }
   }

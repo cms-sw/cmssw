@@ -7,8 +7,6 @@
  *  can be high.
  *  This is still a preliminary implementation.
  *
- *  $Date: 2008/10/17 22:36:09 $
- *  $Revision: 1.1 $
  *  \author R. Bellan - CERN <riccardo.bellan@cern.ch>
  */
 

@@ -13,7 +13,6 @@
 //
 // Original Author:  Brian Drell
 //         Created:  Fri May 18 22:57:40 CEST 2007
-// $Id: V0Producer.cc,v 1.11 2009/12/18 20:45:10 wmtan Exp $
 //
 //
 

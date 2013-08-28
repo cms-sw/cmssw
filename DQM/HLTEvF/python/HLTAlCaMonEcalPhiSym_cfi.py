@@ -1,7 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
 #
-# $Id: EcalPhiSymHLTVal_cfi.py,v 1.2 2009/01/20 09:56:41 nuno Exp $
 #
 # \author Stefano Argiro
 #

@@ -2,7 +2,6 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: MCTrackMatcher.cc,v 1.7.2.1 2013/05/14 14:47:44 speer Exp $
  *
  */
 #include "FWCore/Framework/interface/EDProducer.h"
@@ -18,7 +17,7 @@ class MCTrackMatcher : public edm::EDProducer {
   MCTrackMatcher( const edm::ParameterSet & );
 
  private:
-  void produce( edm::Event& evt, const edm::EventSetup& es );
+  void produce( edm::Event& evt, const edm::EventSetup& es ) override;
   std::string associator_;
   edm::InputTag tracks_, genParticles_, trackingParticles_;
   typedef edm::Association<reco::GenParticleCollection> GenParticleMatch;

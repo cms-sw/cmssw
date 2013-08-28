@@ -1,5 +1,5 @@
 
-#include <assert.h>
+#include <cassert>
 #include <string.h>
 
 #include "ReadRepacker.h"

@@ -108,7 +108,7 @@ namespace cond {
       // here one can make stuff really complicated...
     }
 
-    void compute(Class const & it){
+    void compute(Class const & it) override{
       std::vector<float> res;
       extractor(m_what.how())(it,m_what.which(),res);
       swap(res);
@@ -136,7 +136,7 @@ namespace cond {
 		//change me
 		typedef EcalDAQStatusCode EcalObject;
 
-		type_vValues getValues( const std::vector<EcalObject> & vItems)
+		type_vValues getValues( const std::vector<EcalObject> & vItems) override
 		{
 			type_vValues vValues(total_values);
 			

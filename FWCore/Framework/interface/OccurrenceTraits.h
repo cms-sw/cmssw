@@ -7,6 +7,7 @@ OccurrenceTraits:
 
 ----------------------------------------------------------------------*/
 
+#include "DataFormats/Provenance/interface/LuminosityBlockID.h"
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
 #include "FWCore/Framework/interface/BranchActionType.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
@@ -21,10 +22,14 @@ OccurrenceTraits:
 #include "FWCore/ServiceRegistry/interface/ParentContext.h"
 #include "FWCore/ServiceRegistry/interface/PathContext.h"
 #include "FWCore/ServiceRegistry/interface/StreamContext.h"
+#include "FWCore/Utilities/interface/LuminosityBlockIndex.h"
 
 #include<string>
 
 namespace edm {
+
+  class ProcessContext;
+
   template <typename T, BranchActionType B> class OccurrenceTraits;
 
   template <>

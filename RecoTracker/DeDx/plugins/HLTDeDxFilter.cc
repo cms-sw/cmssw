@@ -40,6 +40,8 @@ HLTDeDxFilter::HLTDeDxFilter(const edm::ParameterSet& iConfig) : HLTFilter(iConf
   maxETA_       = iConfig.getParameter<double> ("maxETA");
   inputTracksTag_ = iConfig.getParameter< edm::InputTag > ("inputTracksTag");
   inputdedxTag_   = iConfig.getParameter< edm::InputTag > ("inputDeDxTag");
+  inputTracksToken_ = consumes<reco::TrackCollection>(iConfig.getParameter< edm::InputTag > ("inputTracksTag"));
+  inputdedxToken_   = consumes<edm::ValueMap<reco::DeDxData> >(iConfig.getParameter< edm::InputTag > ("inputDeDxTag"));
 
   thisModuleTag_ = edm::InputTag(iConfig.getParameter<std::string>("@module_label")); 
  
@@ -83,11 +85,11 @@ bool
   }
 
   edm::Handle<reco::TrackCollection> trackCollectionHandle;
-  iEvent.getByLabel(inputTracksTag_,trackCollectionHandle);
+  iEvent.getByToken(inputTracksToken_,trackCollectionHandle);
   reco::TrackCollection trackCollection = *trackCollectionHandle.product();
   
   edm::Handle<edm::ValueMap<reco::DeDxData> > dEdxTrackHandle;
-  iEvent.getByLabel(inputdedxTag_, dEdxTrackHandle);
+  iEvent.getByToken(inputdedxToken_, dEdxTrackHandle);
   const edm::ValueMap<reco::DeDxData> dEdxTrack = *dEdxTrackHandle.product();
 
   bool accept=false;

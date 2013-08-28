@@ -2,9 +2,6 @@
  * \file DQMLumiMonitor.cc
  * \author S. Dutta
  * Last Update:
- * $Date: 2012/04/20 06:49:07 $
- * $Revision: 1.5 $
- * $Author: dutta $
  *
  * Description: Pixel Luminosity Monitoring 
  *

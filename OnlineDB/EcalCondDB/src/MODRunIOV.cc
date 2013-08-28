@@ -33,7 +33,7 @@ void MODRunIOV::setID(int id)
 
 
 
-void MODRunIOV::setRunIOV(RunIOV iov)
+void MODRunIOV::setRunIOV(const RunIOV& iov)
 {
   if (iov != m_runIOV) {
     m_ID = 0;
@@ -64,7 +64,7 @@ run_t MODRunIOV::getSubRunNumber() const
 
 
 
-void MODRunIOV::setSubRunStart(Tm start)
+void MODRunIOV::setSubRunStart(const Tm& start)
 {
   if (start != m_subRunStart) {
     m_ID = 0;
@@ -81,7 +81,7 @@ Tm MODRunIOV::getSubRunStart() const
 
 
 
-void MODRunIOV::setSubRunEnd(Tm end)
+void MODRunIOV::setSubRunEnd(const Tm& end)
 {
   if (end != m_subRunEnd) {
     m_ID = 0;

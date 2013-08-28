@@ -63,7 +63,7 @@ class LHEReader::FileSource : public LHEReader::Source {
 
 	~FileSource() {}
 
-	XMLDocument *createReader(XMLDocument::Handler &handler)
+	XMLDocument *createReader(XMLDocument::Handler &handler) override
 	{ return new XMLDocument(fileStream, handler); }
 
     private:
@@ -85,7 +85,7 @@ class LHEReader::StringSource : public LHEReader::Source {
 
 	~StringSource() {}
 
-	XMLDocument *createReader(XMLDocument::Handler &handler)
+	XMLDocument *createReader(XMLDocument::Handler &handler) override
 	{ return new XMLDocument(fileStream, handler); }
 
     private:
@@ -114,14 +114,14 @@ class LHEReader::XMLHandler : public XMLDocument::Handler {
 	void startElement(const XMLCh *const uri,
 	                  const XMLCh *const localname,
 	                  const XMLCh *const qname,
-	                  const Attributes &attributes);
+	                  const Attributes &attributes) override;
 
 	void endElement(const XMLCh *const uri,
 	                const XMLCh *const localname,
-	                const XMLCh *const qname);
+	                const XMLCh *const qname) override;
 
-	void characters(const XMLCh *const data, const unsigned int length);
-	void comment(const XMLCh *const data, const unsigned int length);
+	void characters(const XMLCh *const data, const unsigned int length) override;
+	void comment(const XMLCh *const data, const unsigned int length) override;
 
     private:
 	friend class LHEReader;

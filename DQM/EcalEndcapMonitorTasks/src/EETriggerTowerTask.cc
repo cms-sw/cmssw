@@ -1,8 +1,6 @@
 /*
  * \file EETriggerTowerTask.cc
  *
- * $Date: 2011/10/28 14:15:47 $
- * $Revision: 1.78 $
  * \author G. Della Ricca
  * \author E. Di Marco
  *

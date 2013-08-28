@@ -7,10 +7,8 @@
 
 #include "HLTrigger/JetMET/interface/HLTMhtProducer.h"
 #include "DataFormats/Common/interface/Handle.h"
-#include "DataFormats/Common/interface/View.h"
 #include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "DataFormats/JetReco/interface/CaloJetCollection.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "DataFormats/Math/interface/deltaPhi.h"
 #include "DataFormats/Math/interface/LorentzVector.h"
@@ -34,6 +32,7 @@ HLTMhtProducer::HLTMhtProducer(const edm::ParameterSet& iConfig)
   etaJet_= iConfig.getParameter<double> ("etaJet");
   usePt_= iConfig.getParameter<bool>("usePt");
 
+  m_theJetToken = consumes<edm::View<reco::Jet>>(inputJetTag_);
   //register your products
   produces<reco::METCollection>();
 }
@@ -63,7 +62,7 @@ void
   
   //Handle<CaloJetCollection> recocalojets;
   edm::Handle<edm::View<reco::Jet> > jets;
-  iEvent.getByLabel(inputJetTag_,jets);
+  iEvent.getByToken(m_theJetToken,jets);
 
   // look at all candidates,  check cuts and add to result object
   double mhtx=0., mhty=0., mht;

@@ -19,10 +19,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
-#include "FWCore/ServiceRegistry/interface/GlobalContext.h"
-#include "FWCore/ServiceRegistry/interface/ModuleCallingContext.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/ServiceRegistry/interface/StreamContext.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/Utilities/interface/do_nothing_deleter.h"
@@ -604,7 +601,7 @@ namespace edm {
   InputSource::reducedProcessHistoryID() const {
     assert(runAuxiliary());
     //THREADUNSAFE this is modifying global state
-    return ProcessHistoryRegistry::instance()->extraForUpdate().reduceProcessHistoryID(runAuxiliary()->processHistoryID());
+    return ProcessHistoryRegistry::instance()->extra().reducedProcessHistoryID(runAuxiliary()->processHistoryID());
   }
 
   RunNumber_t

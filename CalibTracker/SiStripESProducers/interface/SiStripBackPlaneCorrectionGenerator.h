@@ -19,11 +19,11 @@ class SiStripBackPlaneCorrectionGenerator : public SiStripCondObjBuilderBase<SiS
   explicit SiStripBackPlaneCorrectionGenerator(const edm::ParameterSet&,const edm::ActivityRegistry&);
   ~SiStripBackPlaneCorrectionGenerator();
   
-  void getObj(SiStripBackPlaneCorrection* & obj){createObject(); obj=obj_;}
+  void getObj(SiStripBackPlaneCorrection* & obj){obj=createObject();}
 
  private:
 
-  void createObject();
+  SiStripBackPlaneCorrection*  createObject();
 };
 
 #endif 

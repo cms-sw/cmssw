@@ -13,7 +13,7 @@ output stream.
 #include "DataFormats/Provenance/interface/BranchIDList.h"
 #include "DataFormats/Provenance/interface/ParentageID.h"
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
-#include "DataFormats/Provenance/interface/Selections.h"
+#include "DataFormats/Provenance/interface/SelectedProducts.h"
 
 #include "FWCore/Framework/interface/TriggerResultsBasedEventSelector.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -32,14 +32,18 @@ namespace edm {
 
   class ModuleCallingContext;
 
+  namespace maker {
+    template<typename T> class ModuleHolderT;
+  }
+
   typedef detail::TriggerResultsBasedEventSelector::handle_t Trig;
 
   class OutputModule : public EDConsumerBase {
   public:
+    template <typename T> friend class maker::ModuleHolderT;
     template <typename T> friend class WorkerT;
-    friend class ClassicOutputModuleCommunicator;
+    template <typename T> friend class OutputModuleCommunicatorT;
     typedef OutputModule ModuleType;
-    typedef OutputWorker WorkerType;
 
     explicit OutputModule(ParameterSet const& pset);
     virtual ~OutputModule();
@@ -59,7 +63,7 @@ namespace edm {
 
     void selectProducts(ProductRegistry const& preg);
     std::string const& processName() const {return process_name_;}
-    SelectionsArray const& keptProducts() const {return keptProducts_;}
+    SelectedProductsForBranchType const& keptProducts() const {return keptProducts_;}
     std::array<bool, NumBranchTypes> const& hasNewlyDroppedBranch() const {return hasNewlyDroppedBranch_;}
 
     static void fillDescription(ParameterSetDescription & desc);
@@ -81,30 +85,23 @@ namespace edm {
     // event.
     Trig getTriggerResults(EventPrincipal const& ep, ModuleCallingContext const*) const;
 
-    // The returned pointer will be null unless the this is currently
-    // executing its event loop function ('write').
-    CurrentProcessingContext const* currentContext() const;
-
     ModuleDescription const& description() const;
+    ModuleDescription const& moduleDescription() const { return moduleDescription_;
+    }
 
     ParameterSetID selectorConfig() const { return selector_config_id_; }
 
     void doBeginJob();
     void doEndJob();
     bool doEvent(EventPrincipal const& ep, EventSetup const& c,
-                 CurrentProcessingContext const* cpc,
                  ModuleCallingContext const* mcc);
     bool doBeginRun(RunPrincipal const& rp, EventSetup const& c,
-                    CurrentProcessingContext const* cpc,
                     ModuleCallingContext const* mcc);
     bool doEndRun(RunPrincipal const& rp, EventSetup const& c,
-                  CurrentProcessingContext const* cpc,
                   ModuleCallingContext const* mcc);
     bool doBeginLuminosityBlock(LuminosityBlockPrincipal const& lbp, EventSetup const& c,
-                                CurrentProcessingContext const* cpc,
                                 ModuleCallingContext const* mcc);
     bool doEndLuminosityBlock(LuminosityBlockPrincipal const& lbp, EventSetup const& c,
-                              CurrentProcessingContext const* cpc,
                               ModuleCallingContext const* mcc);
 
     void setEventSelectionInfo(std::map<std::string, std::vector<std::pair<std::string, int> > > const& outputModulePathPositions,
@@ -140,16 +137,13 @@ namespace edm {
     // the branches we are to write.
     //
     // We do not own the BranchDescriptions to which we point.
-    SelectionsArray keptProducts_;
+    SelectedProductsForBranchType keptProducts_;
     std::array<bool, NumBranchTypes> hasNewlyDroppedBranch_;
 
     std::string process_name_;
     ProductSelectorRules productSelectorRules_;
     ProductSelector productSelector_;
     ModuleDescription moduleDescription_;
-
-    // We do not own the pointed-to CurrentProcessingContext.
-    CurrentProcessingContext const* current_context_;
 
     bool wantAllEvents_;
     mutable detail::TriggerResultsBasedEventSelector selectors_;
@@ -180,7 +174,7 @@ namespace edm {
     void doPreForkReleaseResources();
     void doPostForkReacquireResources(unsigned int iChildIndex, unsigned int iNumberOfChildren);
 
-    std::string workerType() const {return "OutputWorker";}
+    std::string workerType() const {return "WorkerT<OutputModule>";}
 
     /// Tell the OutputModule that is must end the current file.
     void doCloseFile();
@@ -228,9 +222,4 @@ namespace edm {
     bool limitReached() const {return remainingEvents_ == 0;}
   };
 }
-
-//this is included after the class definition since this header also needs to know about OutputModule
-// we put this here since all OutputModules need this header to create their plugin
-#include "FWCore/Framework/src/OutputWorker.h"
-
 #endif

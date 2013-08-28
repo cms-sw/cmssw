@@ -1,12 +1,12 @@
 #include "RecoTracker/ConversionSeedGenerators/interface/IdealHelixParameters.h"
 
 void IdealHelixParameters::
-setData(const reco::Track* track,  math::XYZPoint ref){
+setData(const reco::Track* track,  const math::XYZPoint& ref){
   setData(track,math::XYZVector(ref.x(),ref.y(),ref.z())); 
 }
 
 void IdealHelixParameters::
-setData(const reco::Track* track,  math::XYZVector refPoint){
+setData(const reco::Track* track,  const math::XYZVector& refPoint){
 
   if(track!=0 && _track!=track){
     _track=track;
@@ -163,7 +163,7 @@ evalTangentPoint(){
 }
 
 bool IdealHelixParameters::
-isTangentPointDistanceLessThan(float rMax, const reco::Track* track, const math::XYZVector refPoint){
+isTangentPointDistanceLessThan(float rMax, const reco::Track* track, const math::XYZVector& refPoint){
 
   setData(track,refPoint);   
   if(GetTangentPoint().r()==0){

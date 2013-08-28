@@ -50,32 +50,32 @@ public:
       atEvent_     = ps.getUntrackedParameter<std::string>("reportToFileAtEvent", atEvent_);
     }
 
-  virtual void beginJob()
+  virtual void beginJob() override
     { makeDump(atBeginJob_); }
 
-  virtual void endJob(void)
+  virtual void endJob(void) override
     { makeDump(atEndJob_); }
 
-  virtual void analyze(const edm::Event &e, const edm::EventSetup &)
+  virtual void analyze(const edm::Event &e, const edm::EventSetup &) override
     {
       nevent_ = e.id().event();
       if (prescale_ > 0 && (++nrecord_ % prescale_) == 1)
         makeDump(atEvent_);
     }
 
-  virtual void beginRun(const edm::Run &r, const edm::EventSetup &)
+  virtual void beginRun(const edm::Run &r, const edm::EventSetup &) override
     { nrun_ = r.run(); makeDump(atBeginRun_); }
 
-  virtual void endRun(const edm::Run &, const edm::EventSetup &)
+  virtual void endRun(const edm::Run &, const edm::EventSetup &) override
     { makeDump(atEndRun_); }
 
-  virtual void beginLuminosityBlock(const edm::LuminosityBlock &l, const edm::EventSetup &)
+  virtual void beginLuminosityBlock(const edm::LuminosityBlock &l, const edm::EventSetup &) override
     { nlumi_ = l.luminosityBlock(); makeDump(atBeginLumi_); }
 
-  virtual void endLuminosityBlock(const edm::LuminosityBlock &l, const edm::EventSetup &)
+  virtual void endLuminosityBlock(const edm::LuminosityBlock &l, const edm::EventSetup &) override
     { makeDump(atEndLumi_); }
 
-  virtual void respondToOpenInputFile(const edm::FileBlock &)
+  virtual void respondToOpenInputFile(const edm::FileBlock &) override
     { ++nfile_; makeDump(atInputFile_); }
 
 private:

@@ -8,7 +8,6 @@
 */
 // Original Author:  dkcira
 //         Created:  Sat Feb  4 20:49:51 CET 2006
-// $Id: SiStripMonitorDigi.h,v 1.31 2012/07/19 13:21:14 threus Exp $
 #include <memory>
 #include "FWCore/Utilities/interface/EDGetToken.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -41,6 +40,8 @@ class SiStripMonitorDigi : public edm::EDAnalyzer {
   virtual void endRun(const edm::Run&, const edm::EventSetup&);
   virtual void beginLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&);
   virtual void endLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&);
+
+  std::string topFolderName_;
 
   struct ModMEs{
 	
@@ -185,9 +186,19 @@ class SiStripMonitorDigi : public edm::EDAnalyzer {
   bool globalswitchapvshotsApvon;
 
 
-  int xLumiProf;
+  //  int xLumiProf;
   bool isStableBeams;
-  int nFEDConnected;
+  int ignoreFirstNLumisections_;
+  int integrateNLumisections_;
+  int SBDeclaredAt;
+  bool SBTransitionDone;
+  int nFedTIB;
+  int nFedTIDp;
+  int nFedTIDm;
+  int nFedTECp;
+  int nFedTECm;
+  int nFedTOB;
+  //  int nFEDConnected;
 
   bool Mod_On_;
 
@@ -198,7 +209,6 @@ class SiStripMonitorDigi : public edm::EDAnalyzer {
   
   bool createTrendMEs;
 
-  std::string topDir;
   edm::InputTag historyProducer_;  
   edm::InputTag apvPhaseProducer_;
 

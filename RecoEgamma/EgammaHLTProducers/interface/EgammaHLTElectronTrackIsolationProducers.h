@@ -8,7 +8,6 @@
 //
 // Original Author:  Monica Vazquez Acosta (CERN)
 //
-// $Id: EgammaHLTElectronTrackIsolationProducers.h,v 1.3 2011/12/19 11:16:45 sani Exp $
 //
 //
 

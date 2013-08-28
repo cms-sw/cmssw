@@ -46,8 +46,8 @@ public:
 
   virtual ~JetConstituentSelector() {}
 
-    virtual void beginJob() {}
-    virtual void endJob() {}
+    virtual void beginJob() override {}
+    virtual void endJob() override {}
     
     virtual bool filter(edm::Event& iEvent, const edm::EventSetup& iSetup) override {
 

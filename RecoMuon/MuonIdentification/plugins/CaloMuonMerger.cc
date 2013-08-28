@@ -1,5 +1,4 @@
 //
-// $Id: CaloMuonMerger.cc,v 1.5 2010/08/07 18:22:35 zgecse Exp $
 //
 
 /**
@@ -7,7 +6,6 @@
   \brief    Merges reco::CaloMuons, reco::Muons and optionally reco::Tracks avoiding innerTrack duplications in a single reco::Muon collection
             
   \author   Giovanni Petrucciani
-  \version  $Id: CaloMuonMerger.cc,v 1.5 2010/08/07 18:22:35 zgecse Exp $
 */
 
 
@@ -27,7 +25,7 @@ public:
   explicit CaloMuonMerger(const edm::ParameterSet & iConfig);
   virtual ~CaloMuonMerger() { }
 
-  virtual void produce(edm::Event & iEvent, const edm::EventSetup & iSetup);
+  virtual void produce(edm::Event & iEvent, const edm::EventSetup & iSetup) override;
 
 private:
   edm::InputTag muons_;

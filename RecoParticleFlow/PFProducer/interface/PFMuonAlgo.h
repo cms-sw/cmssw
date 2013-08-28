@@ -189,7 +189,7 @@ class PFMuonAlgo {
     TrackMETComparator(double METX,double METY) {metx_ = METX; mety_=METY;}
     ~TrackMETComparator() {}
     
-    bool operator()(MuonTrackTypePair mu1,MuonTrackTypePair mu2) {
+    bool operator()(const MuonTrackTypePair& mu1,const MuonTrackTypePair& mu2) {
       return pow(metx_+mu1.first->px(),2)+pow(mety_+mu1.first->py(),2) < pow(metx_+mu2.first->px(),2)+pow(mety_+mu2.first->py(),2);
     }
   private:
@@ -224,7 +224,7 @@ class PFMuonAlgo {
     TrackPtErrorSorter() {}
     ~TrackPtErrorSorter() {}
 
-    bool operator()(MuonTrackTypePair mu1,MuonTrackTypePair mu2) {
+    bool operator()(const MuonTrackTypePair& mu1,const MuonTrackTypePair& mu2) {
       return mu1.first->ptError()/mu1.first->pt() < mu2.first->ptError()/mu2.first->pt();
     }
   };

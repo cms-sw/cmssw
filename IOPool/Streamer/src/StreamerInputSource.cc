@@ -6,7 +6,6 @@
 
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/interface/FileBlock.h"
-#include "FWCore/ParameterSet/interface/FillProductRegistryTransients.h"
 #include "DataFormats/Provenance/interface/BranchDescription.h"
 #include "DataFormats/Provenance/interface/ProductProvenance.h"
 #include "DataFormats/Provenance/interface/EventAuxiliary.h"
@@ -28,7 +27,6 @@
 #include "FWCore/Utilities/interface/Adler32Calculator.h"
 
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
-#include "DataFormats/Provenance/interface/ProcessConfigurationRegistry.h"
 #include "DataFormats/Provenance/interface/ProcessHistoryRegistry.h"
 #include "FWCore/Utilities/interface/DebugMacros.h"
 
@@ -75,7 +73,6 @@ namespace edm {
     if (subsequent) {
       ProductRegistry pReg;
       pReg.updateFromInput(descs);
-      fillProductRegistryTransients(header.processConfigurations(), pReg);
       std::string mergeInfo = reg.merge(pReg, std::string(), BranchDescription::Permissive);
       if (!mergeInfo.empty()) {
         throw cms::Exception("MismatchedInput","RootInputFileSequence::previousEvent()") << mergeInfo;
@@ -87,7 +84,6 @@ namespace edm {
       loadExtraClasses();
       if(!reg.frozen()) {
         reg.updateFromInput(descs);
-        fillProductRegistryTransients(header.processConfigurations(), reg);
       }
       branchIDListHelper.updateFromInput(header.branchIDLists());
     }
@@ -95,11 +91,9 @@ namespace edm {
 
   void
   StreamerInputSource::declareStreamers(SendDescs const& descs) {
-    SendDescs::const_iterator i(descs.begin()), e(descs.end());
-
-    for(; i != e; ++i) {
+    for(auto const& item : descs) {
         //pi->init();
-        std::string const real_name = wrappedClassName(i->className());
+        std::string const real_name = wrappedClassName(item.className());
         FDEBUG(6) << "declare: " << real_name << std::endl;
         loadCap(real_name);
     }
@@ -108,11 +102,9 @@ namespace edm {
 
   void
   StreamerInputSource::buildClassCache(SendDescs const& descs) {
-    SendDescs::const_iterator i(descs.begin()), e(descs.end());
-
-    for(; i != e; ++i) {
+    for(auto const& item : descs) {
         //pi->init();
-        std::string const real_name = wrappedClassName(i->className());
+        std::string const real_name = wrappedClassName(item.className());
         FDEBUG(6) << "BuildReadData: " << real_name << std::endl;
         doBuildRealData(real_name);
     }
@@ -158,7 +150,7 @@ namespace edm {
     RootDebug tracer(10,10);
     std::auto_ptr<SendJobHeader> sd((SendJobHeader*)xbuf.ReadObjectAny(desc));
 
-    if(sd.get()==0) {
+    if(sd.get() == nullptr) {
         throw cms::Exception("StreamTranslation","Registry deserialization error")
           << "Could not read the initial product registry list\n";
     }
@@ -174,21 +166,16 @@ namespace edm {
   void
   StreamerInputSource::deserializeAndMergeWithRegistry(InitMsgView const& initView, bool subsequent) {
      std::auto_ptr<SendJobHeader> sd = deserializeRegistry(initView);
-     ProcessConfigurationVector const& pcv = sd->processConfigurations();
      mergeIntoRegistry(*sd, productRegistryUpdate(), *branchIDListHelper(), subsequent);
      if (subsequent) {
        adjustEventToNewProductRegistry_ = true;
      }
      SendJobHeader::ParameterSetMap const& psetMap = sd->processParameterSet();
      pset::Registry& psetRegistry = *pset::Registry::instance();
-     for (SendJobHeader::ParameterSetMap::const_iterator i = psetMap.begin(), iEnd = psetMap.end(); i != iEnd; ++i) {
-       ParameterSet pset(i->second.pset());
-       pset.setID(i->first);
+     for (auto const& item : psetMap) {
+       ParameterSet pset(item.second.pset());
+       pset.setID(item.first);
        psetRegistry.insertMapped(pset);
-     }
-     ProcessConfigurationRegistry& pcReg = *ProcessConfigurationRegistry::instance();
-     for (ProcessConfigurationVector::const_iterator it = pcv.begin(), itEnd = pcv.end(); it != itEnd; ++it) {
-       pcReg.insertMapped(*it);
      }
   }
 
@@ -254,7 +241,7 @@ namespace edm {
         throw cms::Exception("StreamTranslation","Event deserialization error")
           << "got a null event from input stream\n";
     }
-    ProcessHistoryRegistry::instance()->insertMapped(sendEvent_->processHistory());
+    registerProcessHistory(sendEvent_->processHistory());
 
     FDEBUG(5) << "Got event: " << sendEvent_->aux().id() << " " << sendEvent_->products().size() << std::endl;
     if(runAuxiliary().get() == 0 || runAuxiliary()->run() != sendEvent_->aux().run()) {
@@ -288,31 +275,31 @@ namespace edm {
 
     // no process name list handling
 
-    SendProds & sps = sendEvent_->products();
-    for(SendProds::iterator spi = sps.begin(), spe = sps.end(); spi != spe; ++spi) {
+    SendProds& sps = sendEvent_->products();
+    for(auto& spitem : sps) {
         FDEBUG(10) << "check prodpair" << std::endl;
-        if(spi->desc() == 0)
+        if(spitem.desc() == 0)
           throw cms::Exception("StreamTranslation","Empty Provenance");
         FDEBUG(5) << "Prov:"
-             << " " << spi->desc()->className()
-             << " " << spi->desc()->productInstanceName()
-             << " " << spi->desc()->branchID()
+             << " " << spitem.desc()->className()
+             << " " << spitem.desc()->productInstanceName()
+             << " " << spitem.desc()->branchID()
              << std::endl;
 
-        ConstBranchDescription branchDesc(*spi->desc());
+        BranchDescription const branchDesc(*spitem.desc());
         // This ProductProvenance constructor inserts into the entry description registry
-        ProductProvenance productProvenance(spi->branchID(), *spi->parents());
+        ProductProvenance productProvenance(spitem.branchID(), *spitem.parents());
 
-        if(spi->prod() != 0) {
-          FDEBUG(10) << "addproduct next " << spi->branchID() << std::endl;
-          eventPrincipal.putOnRead(branchDesc, spi->prod(), productProvenance);
+        if(spitem.prod() != 0) {
+          FDEBUG(10) << "addproduct next " << spitem.branchID() << std::endl;
+          eventPrincipal.putOnRead(branchDesc, spitem.prod(), productProvenance);
           FDEBUG(10) << "addproduct done" << std::endl;
         } else {
-          FDEBUG(10) << "addproduct empty next " << spi->branchID() << std::endl;
-          eventPrincipal.putOnRead(branchDesc, spi->prod(), productProvenance);
+          FDEBUG(10) << "addproduct empty next " << spitem.branchID() << std::endl;
+          eventPrincipal.putOnRead(branchDesc, spitem.prod(), productProvenance);
           FDEBUG(10) << "addproduct empty done" << std::endl;
         }
-        spi->clear();
+        spitem.clear();
     }
 
     FDEBUG(10) << "Size = " << eventPrincipal.size() << std::endl;

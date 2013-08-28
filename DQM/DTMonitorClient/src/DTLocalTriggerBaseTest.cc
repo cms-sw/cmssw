@@ -1,8 +1,6 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2010/01/26 17:46:03 $
- *  $Revision: 1.16 $
  *  \author C. Battilana S. Marcellini - INFN Bologna
  */
 

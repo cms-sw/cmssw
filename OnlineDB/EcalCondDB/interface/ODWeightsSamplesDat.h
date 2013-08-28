@@ -40,7 +40,7 @@ class ODWeightsSamplesDat : public IODConfig {
   void writeDB(const ODWeightsSamplesDat* item, ODFEWeightsInfo* iov )
     throw(std::runtime_error);
 
-  void writeArrayDB(const std::vector< ODWeightsSamplesDat > data, ODFEWeightsInfo* iov)
+  void writeArrayDB(const std::vector< ODWeightsSamplesDat >& data, ODFEWeightsInfo* iov)
     throw(std::runtime_error);
 
 

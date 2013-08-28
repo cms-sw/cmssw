@@ -13,7 +13,6 @@
 //
 // Original Author:  Hans Van Haevermaet, Benoit Roland
 //         Created:  Wed Jul  9 14:00:40 CEST 2008
-// $Id: CastorCellProducer.cc,v 1.5 2010/06/29 11:30:28 hvanhaev Exp $
 //
 //
 
@@ -48,9 +47,9 @@ class CastorCellProducer : public edm::EDProducer {
       ~CastorCellProducer();
 
    private:
-      virtual void beginJob() ;
-      virtual void produce(edm::Event&, const edm::EventSetup&);
-      virtual void endJob() ;
+      virtual void beginJob() override ;
+      virtual void produce(edm::Event&, const edm::EventSetup&) override;
+      virtual void endJob() override ;
       
       // member data
       typedef math::XYZPointD Point;

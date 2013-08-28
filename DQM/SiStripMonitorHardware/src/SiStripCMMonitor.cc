@@ -10,7 +10,6 @@
 */
 //
 //         Created:  2009/07/22
-// $Id: SiStripCMMonitor.cc,v 1.3 2013/01/03 18:59:36 wmtan Exp $
 //
 
 #include <sstream>
@@ -73,9 +72,9 @@ class SiStripCMMonitorPlugin : public edm::EDAnalyzer
     double Counter;
   };
 
-  virtual void beginJob();
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void endJob();
+  virtual void beginJob() override;
+  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
+  virtual void endJob() override;
 
   //update the cabling if necessary
   void updateCabling(const edm::EventSetup& eventSetup);

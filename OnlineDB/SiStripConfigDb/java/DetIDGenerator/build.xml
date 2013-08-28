@@ -53,7 +53,6 @@
            use="true"
            windowtitle="DetID Generator documentation">
     <doctitle><![CDATA[<h1>DetID Generator</h1>]]></doctitle>
-    <bottom><![CDATA[<i>Copyright &#169; 2006 Institut de Physique Nucleaire de Lyon/IN2P3/CNRS All Rights Reserved.</i>]]></bottom>
     <tag name="todo" scope="all" description="To do:" />
   </javadoc>
 </target>

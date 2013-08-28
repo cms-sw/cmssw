@@ -3,8 +3,8 @@
 #include "DataFormats/Provenance/interface/BranchDescription.h"
 #include "DataFormats/Provenance/interface/BranchID.h"
 #include "DataFormats/Provenance/interface/BranchIDListHelper.h"
-#include "DataFormats/Provenance/interface/Selections.h"
-#include "FWCore/Framework/interface/Actions.h"
+#include "DataFormats/Provenance/interface/SelectedProducts.h"
+#include "FWCore/Framework/interface/ExceptionActions.h"
 #include "FWCore/Framework/interface/CommonParams.h"
 #include "FWCore/Framework/interface/ConstProductRegistry.h"
 #include "FWCore/Framework/interface/SubProcess.h"
@@ -44,15 +44,15 @@ namespace edm {
 
     // Mark dropped branches as dropped in the product registry.
     std::set<BranchID> keptBranches;
-    Selections const& keptVectorR = om.keptProducts()[InRun];
+    SelectedProducts const& keptVectorR = om.keptProducts()[InRun];
     for(auto const& item : keptVectorR) {
       keptBranches.insert(item->branchID());
     }
-    Selections const& keptVectorL = om.keptProducts()[InLumi];
+    SelectedProducts const& keptVectorL = om.keptProducts()[InLumi];
     for(auto const& item : keptVectorL) {
       keptBranches.insert(item->branchID());
     }
-    Selections const& keptVectorE = om.keptProducts()[InEvent];
+    SelectedProducts const& keptVectorE = om.keptProducts()[InEvent];
     for(auto const& item : keptVectorE) {
       keptBranches.insert(item->branchID());
     }
@@ -113,7 +113,7 @@ namespace edm {
 
   boost::shared_ptr<CommonParams>
   ScheduleItems::initMisc(ParameterSet& parameterSet) {
-    act_table_.reset(new ActionTable(parameterSet));
+    act_table_.reset(new ExceptionToActionTable(parameterSet));
     std::string processName = parameterSet.getParameter<std::string>("@process_name");
     processConfiguration_.reset(new ProcessConfiguration(processName, getReleaseVersion(), getPassID()));
     boost::shared_ptr<CommonParams>
@@ -127,7 +127,7 @@ namespace edm {
   std::auto_ptr<Schedule>
   ScheduleItems::initSchedule(ParameterSet& parameterSet,
                               ParameterSet const* subProcessPSet,
-                              StreamID streamID,
+                              PreallocationConfiguration const& config,
                               ProcessContext const* processContext) {
     std::auto_ptr<Schedule> schedule(
         new Schedule(parameterSet,
@@ -138,7 +138,7 @@ namespace edm {
                      actReg_,
                      processConfiguration_,
                      subProcessPSet,
-                     streamID,
+                     config,
                      processContext));
     return schedule;
   }

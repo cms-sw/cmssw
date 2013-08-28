@@ -81,13 +81,13 @@ private:
     // ---------- private methods -----------------------
 
     /// EDFilter accept method
-    virtual bool filter(edm::Event&, const edm::EventSetup &);
+    virtual bool filter(edm::Event&, const edm::EventSetup &) override;
 
     /// EDFilter beginJob method
-    virtual void beginJob(void);
+    virtual void beginJob(void) override;
 
     /// EDFilter endJob method
-    virtual void endJob(void);
+    virtual void endJob(void) override;
 
     /// check if the requested category has a valid entry
     bool knownCategory(const std::string & category);

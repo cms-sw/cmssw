@@ -443,7 +443,7 @@ TMatrixD DTMuonMillepede::getbcsMatrix(int wh, int st, int se) {
   
 }
 
-TMatrixD DTMuonMillepede::getMatrixFromFile(TString Code, int wh, int st, int se, int mf) {
+TMatrixD DTMuonMillepede::getMatrixFromFile(const TString& Code, int wh, int st, int se, int mf) {
 	    
   TString MtxFileName = "./LocalMillepedeMatrix_"; MtxFileName += mf; MtxFileName += ".root";
   if (mf==-1) MtxFileName = "./LocalMillepedeMatrix.root";

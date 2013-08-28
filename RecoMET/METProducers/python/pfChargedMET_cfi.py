@@ -1,5 +1,4 @@
 import FWCore.ParameterSet.Config as cms
-# $Id: $
 
 ##____________________________________________________________________________||
 particleFlowForChargedMET = cms.EDProducer(

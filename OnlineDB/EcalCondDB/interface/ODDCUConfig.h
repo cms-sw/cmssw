@@ -24,7 +24,7 @@ class ODDCUConfig : public IODConfig {
   inline void setId(int id) { m_ID = id; }
   inline int getId() const { return m_ID; }
 
-  void setParameters(std::map<std::string,std::string> my_keys_map);
+  void setParameters(const std::map<std::string,std::string>& my_keys_map);
   
  private:
   void prepareWrite()  throw(std::runtime_error);

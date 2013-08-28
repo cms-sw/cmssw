@@ -43,7 +43,7 @@ public:
     ~HLTHcalSimpleRecHitFilter();
     
 private:
-    virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct);
+    virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) override;
     
     // ----------member data ---------------------------
     edm::InputTag HcalRecHitCollection_;

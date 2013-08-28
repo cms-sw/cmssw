@@ -11,7 +11,7 @@ namespace cond {
     public:
       SchemaLogDbUtilities();
       ~SchemaLogDbUtilities();
-      int execute();
+      int execute() override;
   };
 }
 

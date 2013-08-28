@@ -53,9 +53,9 @@ class UEDMultiLeptonFilter : public edm::EDFilter {
       ~UEDMultiLeptonFilter();
 
    private:
-      virtual void beginJob() ;
-      virtual bool filter(edm::Event&, const edm::EventSetup&);
-      virtual void endJob() ;
+      virtual void beginJob() override ;
+      virtual bool filter(edm::Event&, const edm::EventSetup&) override;
+      virtual void endJob() override ;
       bool isLepton(HepMC::GenVertex::particles_out_const_iterator part);      
       bool isLeptonPlus(HepMC::GenVertex::particles_out_const_iterator part);
       bool isLeptonMinus(HepMC::GenVertex::particles_out_const_iterator part);      

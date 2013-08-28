@@ -26,8 +26,8 @@
 #include "FWCore/Utilities/interface/TypeID.h"
 
 static const edm::ProductID s_id;
-static edm::ConstBranchDescription s_branch = edm::ConstBranchDescription(edm::BranchDescription());
-static const edm::Provenance s_prov(boost::shared_ptr<edm::ConstBranchDescription>(&s_branch, edm::do_nothing_deleter()), s_id);
+static edm::BranchDescription const s_branch = edm::BranchDescription(edm::BranchDescription());
+static const edm::Provenance s_prov(boost::shared_ptr<edm::BranchDescription const>(&s_branch, edm::do_nothing_deleter()), s_id);
 
 namespace fwlite
 {

@@ -14,7 +14,7 @@ class LStoreStorageMaker : public StorageMaker
       @a mode bits.  No temporary files are downloaded.  */
   virtual Storage *open (const std::string &proto,
              const std::string &path,
-             int mode)
+             int mode) override
   {
 	std::string fullpath = proto + ":" + path;
     return new LStoreFile (fullpath, mode);
@@ -36,7 +36,7 @@ class LStoreStorageMaker : public StorageMaker
 
   virtual bool check (const std::string &proto,
               const std::string &path,
-              IOOffset *size = 0)
+              IOOffset *size = 0) override
   {
 	std::string fullpath = proto + ":" + path;
 	try {

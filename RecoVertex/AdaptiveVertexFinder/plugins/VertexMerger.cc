@@ -18,7 +18,7 @@ class VertexMerger : public edm::EDProducer {
     public:
 	VertexMerger(const edm::ParameterSet &params);
 
-	virtual void produce(edm::Event &event, const edm::EventSetup &es);
+	virtual void produce(edm::Event &event, const edm::EventSetup &es) override;
 
     private:
 	bool trackFilter(const reco::TrackRef &track) const;

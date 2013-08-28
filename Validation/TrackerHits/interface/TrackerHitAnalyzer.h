@@ -4,8 +4,6 @@
 /*
  * \file TrackerHitAnalyzer.h
  *
- * $Date: 2010/02/20 21:02:53 $
- * $Revision: 1.6 $
  * \author F. Cossutti
  *
 */

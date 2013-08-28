@@ -35,9 +35,9 @@ class MuonAlignment {
       void moveAlignableLocalCoord( DetId& , align::Scalars& , align::Scalars& );
       void moveAlignableGlobalCoord( DetId& , align::Scalars& , align::Scalars& );
 
-      void recursiveList(align::Alignables alignables, align::Alignables &theList);
-      void recursiveMap(align::Alignables alignables, std::map<align::ID, Alignable*> &theMap);
-      void recursiveStructureMap(align::Alignables alignables, std::map<std::pair<align::StructureType, align::ID>, Alignable*> &theMap);
+      void recursiveList(const align::Alignables& alignables, align::Alignables &theList);
+      void recursiveMap(const align::Alignables& alignables, std::map<align::ID, Alignable*> &theMap);
+      void recursiveStructureMap(const align::Alignables& alignables, std::map<std::pair<align::StructureType, align::ID>, Alignable*> &theMap);
 
       void copyAlignmentToSurvey(double shiftErr, double angleErr);
       void fillGapsInSurvey(double shiftErr, double angleErr);

@@ -3,7 +3,6 @@
 //  DispatchProcessingDemo
 //
 //  Created by Chris Jones on 9/27/11.
-//  Copyright 2011 FNAL. All rights reserved.
 //
 
 #include <iostream>

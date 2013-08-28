@@ -22,7 +22,7 @@ class GsfElectronProducer : public GsfElectronBaseProducer
 
     // check expected configuration of previous modules
     bool pfTranslatorParametersChecked_ ;
-    void checkPfTranslatorParameters( edm::ParameterSetID const & ) ;
+    void checkPfTranslatorParameters( edm::ParameterSet const & ) ;
  } ;
 
 #endif

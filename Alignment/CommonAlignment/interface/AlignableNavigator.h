@@ -34,7 +34,7 @@ public:
   explicit AlignableNavigator(AlignableExtras* extras, Alignable* tracker, Alignable* muon = 0);
 
   /// Constructor from list of Alignbable
-  explicit AlignableNavigator( std::vector<Alignable*> alignables );
+  explicit AlignableNavigator( const std::vector<Alignable*>& alignables );
 
   typedef std::map<DetId, AlignableDetOrUnitPtr> MapType;
   typedef MapType::value_type PairType;

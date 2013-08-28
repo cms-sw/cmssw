@@ -35,6 +35,8 @@ namespace edmtest
 
   TestExpressLumiProducer::TestExpressLumiProducer(edm::ParameterSet const& ps)
   {
+    consumes<LumiSummary,edm::InLumi>(edm::InputTag("expressLumiProducer",""));
+    consumes<LumiDetails,edm::InLumi>(edm::InputTag("expressLumiProducer",""));
   }
 
   // -----------------------------------------------------------------

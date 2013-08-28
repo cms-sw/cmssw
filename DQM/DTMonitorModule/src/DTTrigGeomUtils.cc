@@ -1,8 +1,6 @@
 /*
  * \file DTTrigGeomUtils.cc
  * 
- * $Date: 2009/07/29 10:46:44 $
- * $Revision: 1.1 $
  * \author C. Battilana - CIEMAT
  *
 */

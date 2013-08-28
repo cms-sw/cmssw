@@ -32,8 +32,6 @@ class SimTrack;
  **  
  **
  **  $Id: ElectronConversionRejectionValidator
- **  $Date: 2011/07/11 17:53:34 $ 
- **  $Revision: 1.2 $
  **  \author J.Bendavid
  **
  ***/

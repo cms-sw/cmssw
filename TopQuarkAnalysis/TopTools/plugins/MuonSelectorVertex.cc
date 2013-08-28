@@ -14,7 +14,7 @@ class MuonSelectorVertex : public edm::EDProducer {
 
     explicit MuonSelectorVertex( const edm::ParameterSet & iConfig );
     ~ MuonSelectorVertex() {};
-    virtual void produce( edm::Event & iEvent, const edm::EventSetup & iSetup );
+    virtual void produce( edm::Event & iEvent, const edm::EventSetup & iSetup ) override;
 
   private:
 

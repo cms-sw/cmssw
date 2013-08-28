@@ -9,7 +9,6 @@
 //
 // Original Author:  Traczyk Piotr
 //         Created:  Thu Oct 11 15:01:28 CEST 2007
-// $Id: DTTimingExtractor.h,v 1.8 2011/02/24 15:41:53 farrell3 Exp $
 //
 //
 

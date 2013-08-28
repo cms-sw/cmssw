@@ -81,7 +81,7 @@ private:
 	//compares two geometries
 	void compareGeometries(Alignable* refAli, Alignable* curAli, const TrackerTopology* tTopo);
 	//filling the ROOT file
-	void fillTree(Alignable *refAli, AlgebraicVector diff, // typedef CLHEP::HepVector      AlgebraicVector; 
+	void fillTree(Alignable *refAli, const AlgebraicVector& diff, // typedef CLHEP::HepVector      AlgebraicVector; 
                       const TrackerTopology* tTopo); 
 	//for filling identifiers
 	void fillIdentifiers( int subdetlevel, int rawid, const TrackerTopology* tTopo);

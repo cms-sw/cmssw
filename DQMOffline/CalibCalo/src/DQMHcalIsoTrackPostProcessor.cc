@@ -18,9 +18,9 @@ class DQMHcalIsoTrackPostProcessor : public edm::EDAnalyzer {
   DQMHcalIsoTrackPostProcessor(const edm::ParameterSet& pset);
   ~DQMHcalIsoTrackPostProcessor() {};
 
-  void analyze(const edm::Event& event, const edm::EventSetup& eventSetup) {};
-  void endRun(edm::Run const&, edm::EventSetup const&);
-  void endJob();
+  void analyze(const edm::Event& event, const edm::EventSetup& eventSetup) override {};
+  void endRun(edm::Run const&, edm::EventSetup const&) override;
+  void endJob() override;
 
  private:
 

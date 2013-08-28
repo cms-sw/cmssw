@@ -7,8 +7,6 @@
  *   L2 muon reconstruction
  *
  *
- *   $Date: 2012/01/24 10:58:56 $
- *   $Revision: 1.15 $
  *
  *   \author  A.Everett, R.Bellan, J. Alcaraz
  *

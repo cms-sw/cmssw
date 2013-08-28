@@ -40,7 +40,7 @@ class DTEtaPatternLutOnlineProd :
       ~DTEtaPatternLutOnlineProd();
 
   virtual boost::shared_ptr< L1MuDTEtaPatternLut > newObject(
-    const std::string& objectKey ) ;
+    const std::string& objectKey ) override ;
 
    private:
       // ----------member data ---------------------------

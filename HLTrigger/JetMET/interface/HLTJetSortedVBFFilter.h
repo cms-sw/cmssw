@@ -16,6 +16,9 @@
  */
 
 #include "DataFormats/HLTReco/interface/TriggerTypeDefs.h"
+#include "DataFormats/JetReco/interface/CaloJetCollection.h"
+#include "DataFormats/BTauReco/interface/JetTag.h"
+#include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
 #include "HLTrigger/HLTcore/interface/HLTFilter.h"
 #include<string>
 
@@ -43,6 +46,8 @@ class HLTJetSortedVBFFilter : public HLTFilter {
   virtual bool hltFilter(edm::Event&, const edm::EventSetup&,trigger::TriggerFilterObjectWithRefs& filterproduct);
       
  private:
+  edm::EDGetTokenT<std::vector<T>> m_theJetsToken;
+  edm::EDGetTokenT<reco::JetTagCollection> m_theJetTagsToken;
   edm::InputTag inputJets_; 
   edm::InputTag inputJetTags_; 
   double mqq_;           

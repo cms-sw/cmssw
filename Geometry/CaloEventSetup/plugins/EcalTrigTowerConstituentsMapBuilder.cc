@@ -16,41 +16,24 @@
 //
 //
 
-
-// user include files
 #include "Geometry/CaloEventSetup/plugins/EcalTrigTowerConstituentsMapBuilder.h"
 #include "DataFormats/EcalDetId/interface/EcalTrigTowerDetId.h"
-#include "DataFormats/EcalDetId/interface/EBDetId.h"
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
 
-#include <iostream>
 #include <fstream>
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-//
-// constructors and destructor
-//
 EcalTrigTowerConstituentsMapBuilder::EcalTrigTowerConstituentsMapBuilder(const edm::ParameterSet& iConfig) :
   mapFile_(iConfig.getUntrackedParameter<std::string>("MapFile",""))
 {
-  //the following line is needed to tell the framework what
-  // data is being produced
   setWhatProduced(this);
-  
-  //now do what ever other initialization is needed
 }
-
 
 EcalTrigTowerConstituentsMapBuilder::~EcalTrigTowerConstituentsMapBuilder()
 { 
 }
 
-//
-// member functions
-//
-
-// ------------ method called to produce the data  ------------
 EcalTrigTowerConstituentsMapBuilder::ReturnType
 EcalTrigTowerConstituentsMapBuilder::produce(const IdealGeometryRecord& iRecord)
 {
@@ -77,21 +60,10 @@ void EcalTrigTowerConstituentsMapBuilder::parseTextMap(const std::string& filena
     f.get(line,80,'\n');            // read 80 characters to end of line
     f.get(ch);                      // eat out the '\n'
     // extract the numbers
-/*
-  int mod,cry;
-    int nread = sscanf (line, " %d %d %d %d",&mod,&cry,&ietaTower,&iphiTower);
-    if (nread == 4 )
-      {
-	EEDetId eeid(mod,cry,1,EEDetId::SCCRYSTALMODE);
-	EcalTrigTowerDetId etid(1,EcalEndcap,ietaTower-45+17,iphiTower);
-	//	std::cout << eeid << "\n->" << etid << std::endl;
-	theMap.assign(DetId(eeid),etid);
-      }
-*/
+
     int nread = sscanf (line, " %d %d %d %d %d",&ix,&iy,&iz,&ietaTower, &iphiTower);
     if (nread == 5) {
       EEDetId eeid(ix,iy,iz,0);
-      // std::cout << "-- manu ix eta phi " << DetId(eeid).rawId() << " " << iz << " " << ietaTower << " " << iphiTower << std::endl;
       EcalTrigTowerDetId etid(iz,EcalEndcap,ietaTower,iphiTower);
       theMap.assign(DetId(eeid),etid);
     }
@@ -103,19 +75,6 @@ void EcalTrigTowerConstituentsMapBuilder::parseTextMap(const std::string& filena
   // Next info line
   f.get(line,80,'\n');            // read 80 characters to end of line
   f.get(ch);                      // eat out the '\n'
-  // extract the numbers
-  //   int nTE;
-  //   sscanf (line, " %d",&nTE);
-  //   nTowEta_e=nTE;
-  //   while ((ch = f.peek()) != EOF) {
-  //     f.get(line,80,'\n');            // read 80 characters to end of line
-  //     f.get(ch);                      // eat out the '\n'
-  //     // extract the numbers
-  //     float bound;
-  //     sscanf (line, " %f", &bound);
-  //     eta_boundaries.push_back(bound);
-  //   }
-  
   f.close();
   return;
 }

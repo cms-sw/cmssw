@@ -31,7 +31,7 @@ namespace edm {
 
   void
   RunPrincipal::put(
-        ConstBranchDescription const& bd,
+        BranchDescription const& bd,
         WrapperOwningHolder const& edp) {
 
     // Assert commented out for LHESource.

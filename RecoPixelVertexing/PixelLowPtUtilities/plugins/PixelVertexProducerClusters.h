@@ -14,7 +14,7 @@ class PixelVertexProducerClusters : public edm::EDProducer
 public:
   explicit PixelVertexProducerClusters(const edm::ParameterSet& ps);
   ~PixelVertexProducerClusters();
-  int getContainedHits(std::vector<VertexHit> hits, float z0, float & chi);
+  int getContainedHits(const std::vector<VertexHit>& hits, float z0, float & chi);
   virtual void produce(edm::Event& ev, const edm::EventSetup& es) override;
  
 private:

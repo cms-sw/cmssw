@@ -10,7 +10,6 @@
 //
 // Original Author:  Stephen Sanders
 //         Created:  Mon Jun  7 14:40:12 EDT 2010
-// $Id: HiEvtPlaneFlatten.h,v 1.3 2011/10/07 09:41:29 yilmaz Exp $
 //
 //
 

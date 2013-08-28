@@ -25,7 +25,7 @@ public:
   FWDTRecHitProxyBuilder( void ) {}
   virtual ~FWDTRecHitProxyBuilder( void ) {}
 	
-  virtual bool haveSingleProduct() const { return false; }
+  virtual bool haveSingleProduct() const override { return false; }
    
   REGISTER_PROXYBUILDER_METHODS();
 
@@ -35,7 +35,7 @@ private:
   // Disable default assignment operator
   const FWDTRecHitProxyBuilder& operator=( const FWDTRecHitProxyBuilder& );
 
-  virtual void buildViewType( const DTRecHit1DPair& iData, unsigned int iIndex, TEveElement& oItemHolder, FWViewType::EType type , const FWViewContext* );
+  virtual void buildViewType( const DTRecHit1DPair& iData, unsigned int iIndex, TEveElement& oItemHolder, FWViewType::EType type , const FWViewContext* ) override;
 };
 
 void

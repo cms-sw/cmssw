@@ -35,10 +35,15 @@ void ClassDumper::checkASTDecl(const clang::CXXRecordDecl *RD,clang::ento::Analy
 	
 // Dump the class members.
 	std::string err;
+	const char * pPath = std::getenv("LOCALRT");
+	std::string dname(""); 
+	if ( pPath != NULL ) dname = std::string(pPath);
 	std::string fname("/tmp/classes.txt.unsorted");
-	llvm::raw_fd_ostream output(fname.c_str(),err,llvm::raw_fd_ostream::F_Append);
+	std::string tname = dname + fname;
+	llvm::raw_fd_ostream output(tname.c_str(),err,llvm::raw_fd_ostream::F_Append);
+	std::string rname = RD->getQualifiedNameAsString();
 //	llvm::errs() <<"class " <<RD->getQualifiedNameAsString()<<"\n";
-	output <<"class " <<RD->getQualifiedNameAsString()<<"\n";
+	output <<"class " << rname <<"\n";
 	for (clang::RecordDecl::field_iterator I = RD->field_begin(), E = RD->field_end(); I != E; ++I)
 	{
 		clang::QualType qual;
@@ -79,7 +84,9 @@ void ClassDumperCT::checkASTDecl(const clang::ClassTemplateDecl *TD,clang::ento:
 	const clang::SourceManager &SM = BR.getSourceManager();
 	clang::ento::PathDiagnosticLocation DLoc =clang::ento::PathDiagnosticLocation::createBegin( TD, SM );
 	if ( SM.isInSystemHeader(DLoc.asLocation()) || SM.isInExternCSystemHeader(DLoc.asLocation()) ) return;
-	if (TD->getTemplatedDecl()->getQualifiedNameAsString() == "edm::Wrapper" ) 
+	
+	std::string tname = TD->getTemplatedDecl()->getQualifiedNameAsString();
+	if ( tname == "edm::Wrapper" || tname == "edm::RunCache" || tname == "edm::LuminosityBlockCache" || tname == "edm::GlobalCache" ) 
 		{
 //		llvm::errs()<<"\n";
 		for (ClassTemplateDecl::spec_iterator I = const_cast<clang::ClassTemplateDecl *>(TD)->spec_begin(), 
@@ -135,11 +142,16 @@ void ClassDumperInherit::checkASTDecl(const clang::CXXRecordDecl *RD, clang::ent
 
 	clang::FileSystemOptions FSO;
 	clang::FileManager FM(FSO);
-	if (!FM.getFile("/tmp/classes.txt.dumperft") ) {
-		llvm::errs()<<"\n\nChecker cannot find /tmp/classes.txt.dumperft \n";
+	const char * pPath = std::getenv("LOCALRT");
+	std::string dname(""); 
+	if ( pPath != NULL ) dname = std::string(pPath);
+	std::string fname("/tmp/classes.txt.dumperft");
+	std::string tname = dname + fname;
+	if (!FM.getFile(tname) ) {
+		llvm::errs()<<"\n\nChecker cannot find $LOCALRT/tmp/classes.txt.dumperft \n";
 		exit(1);
 		}
-	llvm::MemoryBuffer * buffer = FM.getBufferForFile(FM.getFile("/tmp/classes.txt.dumperft"));
+	llvm::MemoryBuffer * buffer = FM.getBufferForFile(FM.getFile(tname));
 //	llvm::errs()<<"class "<<RD->getQualifiedNameAsString()<<"\n";
 
 	for (clang::CXXRecordDecl::base_class_const_iterator J=RD->bases_begin(), F=RD->bases_end();J != F; ++J)
@@ -147,18 +159,22 @@ void ClassDumperInherit::checkASTDecl(const clang::CXXRecordDecl *RD, clang::ent
 		const clang::CXXRecordDecl * BRD = J->getType()->getAsCXXRecordDecl();
 		if (!BRD) continue;
 		std::string name = BRD->getQualifiedNameAsString();
-//		llvm::errs() << " class " << RD->getQualifiedNameAsString() << " inherits from "<<name <<"\n";
+		std::string ename = "edm::global::";
+		llvm::errs() << " class " << RD->getQualifiedNameAsString() << " inherits from "<<name <<"\n";
 		llvm::StringRef Rname("class "+name);
-		if (buffer->getBuffer().find(Rname) != llvm::StringRef::npos )
+		if ((buffer->getBuffer().find(Rname) != llvm::StringRef::npos )|| (name.substr(0,ename.length()) == ename) )
 			{
 			std::string err;
+			const char * pPath = std::getenv("LOCALRT");
+			std::string dname(""); 
+			if ( pPath != NULL ) dname = std::string(pPath);
 			std::string fname("/tmp/classes.txt.unsorted");
-			llvm::raw_fd_ostream output(fname.c_str(),err,llvm::raw_fd_ostream::F_Append);
+			std::string tname = dname + fname;
+			llvm::raw_fd_ostream output(tname.c_str(),err,llvm::raw_fd_ostream::F_Append);
 			output <<"class " <<RD->getQualifiedNameAsString()<<"\n";
-
 			llvm::SmallString<100> buf;
 			llvm::raw_svector_ostream os(buf);
-			os << " class " << RD->getQualifiedNameAsString() << " inherits from "<<name <<"\n";
+//			os << " class " << RD->getQualifiedNameAsString() << " inherits from "<<name <<"\n";
 			llvm::errs()<<os.str();
 //			clang::ento::PathDiagnosticLocation ELoc =clang::ento::PathDiagnosticLocation::createBegin( RD, SM );
 //			clang::SourceLocation SL = RD->getLocStart();

@@ -49,7 +49,7 @@ public:
   virtual ~HcalEmptyEventFilter();
   
 private:
-  virtual bool filter(edm::Event&, const edm::EventSetup&);
+  virtual bool filter(edm::Event&, const edm::EventSetup&) override;
   
   // ----------member data ---------------------------
   

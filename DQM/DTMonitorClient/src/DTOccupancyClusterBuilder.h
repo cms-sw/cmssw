@@ -5,8 +5,6 @@
  *  Build clusters of layer occupancies (DTOccupancyCluster) to spot problematic layers.
  *  It's used by DTOccupancyTest.
  *
- *  $Date: 2008/07/02 16:50:27 $
- *  $Revision: 1.2 $
  *  \author G. Cerminara - INFN Torino
  */
 

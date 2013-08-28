@@ -18,7 +18,7 @@ class DistortedMuonProducerFromDB : public edm::EDProducer {
    private:
       virtual void beginRun(const edm::Run&, const edm::EventSetup&) override;
       virtual void produce(edm::Event&, const edm::EventSetup&) override;
-      virtual void endJob() ;
+      virtual void endJob() override ;
 
       edm::InputTag muonTag_;
       edm::InputTag genMatchMapTag_;

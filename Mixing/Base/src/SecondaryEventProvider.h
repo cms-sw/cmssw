@@ -17,7 +17,7 @@ namespace edm {
   public:
     SecondaryEventProvider(std::vector<ParameterSet>& psets,
              ProductRegistry& pregistry,
-             ActionTable const& actions,
+             ExceptionToActionTable const& actions,
              boost::shared_ptr<ProcessConfiguration> processConfiguration);
 
     void beginRun(RunPrincipal& run, const edm::EventSetup& setup, ModuleCallingContext const*);

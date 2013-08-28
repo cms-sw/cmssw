@@ -42,7 +42,7 @@ class FEConfigBadXTDat : public IODConfig {
   void writeDB(const FEConfigBadXTDat* item, FEConfigBadXTInfo* iov )
     throw(std::runtime_error);
 
-  void writeArrayDB(const std::vector< FEConfigBadXTDat > data, FEConfigBadXTInfo* iov)
+  void writeArrayDB(const std::vector< FEConfigBadXTDat >& data, FEConfigBadXTInfo* iov)
     throw(std::runtime_error);
 
 

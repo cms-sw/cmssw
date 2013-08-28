@@ -23,9 +23,9 @@ public:
   virtual ~HepMCEventWriter();
   
 protected:
-  virtual void beginRun(const edm::Run &run, const edm::EventSetup &es);
-  virtual void endRun(const edm::Run &run, const edm::EventSetup &es);
-  virtual void analyze(const edm::Event &event, const edm::EventSetup &es);
+  virtual void beginRun(const edm::Run &run, const edm::EventSetup &es) override;
+  virtual void endRun(const edm::Run &run, const edm::EventSetup &es) override;
+  virtual void analyze(const edm::Event &event, const edm::EventSetup &es) override;
   
 private:
   HepMC::IO_GenEvent* _output;

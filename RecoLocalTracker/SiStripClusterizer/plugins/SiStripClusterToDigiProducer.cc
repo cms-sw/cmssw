@@ -32,7 +32,7 @@ class SiStripClusterToDigiProducer : public edm::EDProducer  {
 public:
 
   explicit SiStripClusterToDigiProducer(const edm::ParameterSet& conf);
-  void produce(edm::Event&, const edm::EventSetup&);
+  void produce(edm::Event&, const edm::EventSetup&) override;
 
 private:
 

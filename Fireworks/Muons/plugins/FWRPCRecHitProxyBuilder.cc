@@ -25,7 +25,7 @@ public:
    FWRPCRecHitProxyBuilder() {}
    virtual ~FWRPCRecHitProxyBuilder() {}
   
-   virtual bool haveSingleProduct() const 
+   virtual bool haveSingleProduct() const override 
     { 
       return false; 
     }
@@ -40,7 +40,7 @@ private:
                              unsigned int iIndex, 
                              TEveElement& oItemHolder, 
                              FWViewType::EType type, 
-                             const FWViewContext*);
+                             const FWViewContext*) override;
 };
 
 

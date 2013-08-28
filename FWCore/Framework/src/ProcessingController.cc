@@ -8,7 +8,6 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Aug  9 09:33:31 CDT 2010
-// $Id: ProcessingController.cc,v 1.1 2010/08/09 21:04:56 chrjones Exp $
 //
 
 // system include files

@@ -10,7 +10,7 @@
 using namespace edm;
 using namespace reco;
 
-TxyCalculator::TxyCalculator(const edm::Event &iEvent, const edm::EventSetup &iSetup, edm::InputTag trackLabel)
+TxyCalculator::TxyCalculator(const edm::Event &iEvent, const edm::EventSetup &iSetup, const edm::InputTag& trackLabel)
 { 
    // Get reconstructed tracks
    iEvent.getByLabel(trackLabel, recCollection); // !!
@@ -35,7 +35,7 @@ int TxyCalculator::getNumAllTracks(double ptCut)
 }
 
 
-int TxyCalculator::getNumLocalTracks(const reco::Photon p, double detaCut, double ptCut)
+int TxyCalculator::getNumLocalTracks(const reco::Photon& p, double detaCut, double ptCut)
 {
   using namespace edm;
   using namespace reco;
@@ -55,7 +55,7 @@ int TxyCalculator::getNumLocalTracks(const reco::Photon p, double detaCut, doubl
   return nTracks;
 }
 
-double TxyCalculator::getTxy(const reco::Photon p, double x, double y)
+double TxyCalculator::getTxy(const reco::Photon& p, double x, double y)
 {
    using namespace edm;
    using namespace reco;
@@ -89,7 +89,7 @@ double TxyCalculator::getTxy(const reco::Photon p, double x, double y)
    return txy;
 }
 
-double TxyCalculator::getHollSxy(const reco::Photon p, double thePtCut, double outerR, double innerR)
+double TxyCalculator::getHollSxy(const reco::Photon& p, double thePtCut, double outerR, double innerR)
 {
    using namespace edm;
    using namespace reco;

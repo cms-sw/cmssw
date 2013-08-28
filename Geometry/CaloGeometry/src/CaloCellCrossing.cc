@@ -1,5 +1,6 @@
 #include "Geometry/CaloGeometry/interface/Line3D.h"
 #include "Geometry/CaloGeometry/interface/CaloCellCrossing.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 CaloCellCrossing::CaloCellCrossing( const GlobalPoint&              gp ,
 				    const GlobalVector&             gv ,
@@ -22,7 +23,7 @@ CaloCellCrossing::CaloCellCrossing( const GlobalPoint&              gp ,
    const HepLine3D line ( HepGeom::Point3D<double> (  gp.x(), gp.y(), gp.z() ), 
 			  HepGeom::Vector3D<double> ( gv.x(), gv.y(), gv.z() ), eps ) ;
 
-//   std::cout<<"*** Line: pt="<<line.pt()<<", unitvec="<<line.uv()<<std::endl ;
+   LogDebug("CaloCellCrossing") << "*** Line: pt=" << line.pt() << ", unitvec=" << line.uv();
 
    const DetIds& ids ( 0 == di ? sg->getValidDetIds( det, subdet ) : *di ) ;
 //------------------------------------------------------------
@@ -41,7 +42,7 @@ CaloCellCrossing::CaloCellCrossing( const GlobalPoint&              gp ,
 	    eps < HepGeom::Vector3D<double> ( fr - line.pt() ).dot( line.uv() ) ) &&
 	  bCut2 > line.dist2( fr ) ) // first loose cut
       {
-//	 std::cout<<"*** fr="<<fr<<", bCut ="<<sqrt(bCut2)<<", dis="<<line.dist(fr)<<std::endl ;
+         LogDebug("CaloCellCrossing") << "*** fr=" << fr << ", bCut =" << sqrt(bCut2) << ", dis=" << line.dist(fr);
 	 const HepGeom::Point3D<double>  cv[8] = 
 	    { HepGeom::Point3D<double> ( gc[0].x(), gc[0].y(), gc[0].z() ) ,
 	      HepGeom::Point3D<double> ( gc[1].x(), gc[1].y(), gc[1].z() ) ,
@@ -55,10 +56,9 @@ CaloCellCrossing::CaloCellCrossing( const GlobalPoint&              gp ,
 				       cv[4]+cv[5]+cv[6]+cv[7]) ) ;
 	 const double dCut2 ( bCut2/4. ) ;
 	 if( dCut2 > line.dist2( ctr ) ) // tighter cut
-//	 if( 1 > line.dist2( ctr ) ) // tighter cut
 	 {
-//	    std::cout<<"** 2nd cut: ctr="<<ctr
-//		     <<", dist="<<line.dist(ctr)<<std::endl ;
+            LogDebug("CaloCellCrossing") << "** 2nd cut: ctr=" << ctr
+					 << ", dist=" << line.dist(ctr);
 	    static const unsigned int nc[6][4] = 
 	       { { 0,1,2,3 }, { 0,4,5,1 }, { 0,4,7,3 },
 		 { 6,7,4,5 }, { 6,2,3,7 }, { 6,2,1,5 } } ;
@@ -68,23 +68,22 @@ CaloCellCrossing::CaloCellCrossing( const GlobalPoint&              gp ,
 	       const HepGeom::Plane3D<double>  pl ( cv[ic[0]], cv[ic[1]], cv[ic[2]] ) ;
 	       bool parallel ;
 	       const HepGeom::Point3D<double>  pt ( line.point( pl, parallel ) ) ;
-//	       std::cout<<"***Face: "<<face<<", pt="<<pt<<std::endl ;
+               LogDebug("CaloCellCrossing")<<"***Face: "<<face<<", pt="<<pt;
 	       if( !parallel )
 	       {
-//		  std::cout<<"Not parallel"<<std::endl ;
+		  LogDebug("CaloCellCrossing")<<"Not parallel";
 		  const HepLine3D la ( cv[ic[0]], cv[ic[1]], eps ) ;
 		  const HepLine3D lb ( cv[ic[2]], cv[ic[3]], eps ) ;
-
-//		  std::cout<<"la.point="<<la.point(pt)<<std::endl ;
+		  LogDebug("CaloCellCrossing")<<"la.point="<<la.point(pt);
 
 //		  const double dot (  ( la.point( pt ) - pt ).dot( ( lb.point( pt ) - pt ) ) ) ;
-//		  std::cout<<"***Dot1="<<dot<<std::endl;
+//		  LogDebug("CaloCellCrossing")<<"***Dot1="<<dot;
 		  if( eps > ( la.point( pt ) - pt ).dot( ( lb.point( pt ) - pt ) ) )
 		  {
 		     const HepLine3D lc ( cv[ic[0]], cv[ic[3]], eps ) ;
 		     const HepLine3D ld ( cv[ic[1]], cv[ic[2]], eps ) ;
 //		     const double dot (  ( lc.point( pt ) - pt ).dot( ( ld.point( pt ) - pt ) ) ) ;
-//		     std::cout<<"***Dot2="<<dot<<std::endl;
+//		     LogDebug("CaloCellCrossing")<<"***Dot2="<<dot;
 		     if( eps > ( lc.point( pt ) - pt ).dot( ( ld.point( pt ) - pt ) ) )
 		     {
 			if( 0 == found )
@@ -114,10 +113,10 @@ CaloCellCrossing::CaloCellCrossing( const GlobalPoint&              gp ,
 			      if( eps < dist1 && 
 				  eps < dist2    )
 			      {
-				 std::cout << "********For DetId = " << dId 
-					   << " distances too big: "
-					   << dist1 << ", " << dist2
-					   << std::endl ;
+				 edm::LogWarning("CaloCellCrossing") << "********For DetId = " << dId 
+								     << " distances too big: "
+								     << dist1 << ", " << dist2;
+				  
 			      }
 			   }
 			}

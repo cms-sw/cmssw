@@ -16,9 +16,6 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/Math/interface/deltaPhi.h"
 #include "DataFormats/Common/interface/Handle.h"
-#include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
-#include "DataFormats/JetReco/interface/CaloJetCollection.h"
-#include "DataFormats/JetReco/interface/PFJetCollection.h"
 #include "HLTrigger/JetMET/interface/HLTAlphaTFilter.h"
 #include "HLTrigger/JetMET/interface/AlphaT.h"
 
@@ -48,6 +45,8 @@ HLTAlphaTFilter<T>::HLTAlphaTFilter(const edm::ParameterSet& iConfig) : HLTFilte
     }
 
   //register your products
+  m_theRecoJetToken = consumes<std::vector<T>>(inputJetTag_);
+  m_theFastJetToken = consumes<std::vector<T>>(inputJetTagFastJet_);
 }
 
 template<typename T>
@@ -103,14 +102,14 @@ bool HLTAlphaTFilter<T>::hltFilter(edm::Event& iEvent, const edm::EventSetup& iS
   TRef ref;
   // Get the Candidates
   Handle<TCollection> recojets;
-  iEvent.getByLabel(inputJetTag_,recojets);
+  iEvent.getByToken(m_theRecoJetToken,recojets);
 
   // We have to also look at the L1 FastJet Corrections, at the same time we look at our other jets.
   // We calcualte our HT from the FastJet collection and AlphaT from the standard collection.
   CaloJetRef ref_FastJet;
   // Get the Candidates
   Handle<TCollection> recojetsFastJet;
-  iEvent.getByLabel(inputJetTagFastJet_,recojetsFastJet);
+  iEvent.getByToken(m_theFastJetToken,recojetsFastJet);
 
 
 

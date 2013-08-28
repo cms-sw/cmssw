@@ -24,7 +24,7 @@ class MuonHitsChamberResidual : public MuonChamberResidual
 public:
   
   MuonHitsChamberResidual(edm::ESHandle<GlobalTrackingGeometry> globalGeometry, AlignableNavigator *navigator,
-                          DetId chamberId, AlignableDetOrUnitPtr chamberAlignable);
+                          DetId chamberId, const AlignableDetOrUnitPtr& chamberAlignable);
   
   void segment_fit();
   

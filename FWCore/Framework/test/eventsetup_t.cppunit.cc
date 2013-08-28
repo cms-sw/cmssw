@@ -9,7 +9,7 @@
 
 #include <iostream>
 
-#include <cppunit/extensions/HelperMacros.h>
+#include "cppunit/extensions/HelperMacros.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 

@@ -16,6 +16,7 @@ configured in the user's main() function, and is set running.
 #include "FWCore/Framework/interface/IEventProcessor.h"
 #include "FWCore/Framework/src/PrincipalCache.h"
 #include "FWCore/Framework/src/SignallingProductRegistry.h"
+#include "FWCore/Framework/src/PreallocationConfiguration.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
@@ -40,7 +41,7 @@ namespace statemachine {
 
 namespace edm {
 
-  class ActionTable;
+  class ExceptionToActionTable;
   class BranchIDListHelper;
   class EDLooperBase;
   class HistoryAppender;
@@ -316,7 +317,7 @@ namespace edm {
     std::unique_ptr<InputSource>                  input_;
     std::unique_ptr<eventsetup::EventSetupsController> espController_;
     boost::shared_ptr<eventsetup::EventSetupProvider> esp_;
-    std::unique_ptr<ActionTable const>          act_table_;
+    std::unique_ptr<ExceptionToActionTable const>          act_table_;
     boost::shared_ptr<ProcessConfiguration const>       processConfiguration_;
     ProcessContext                                processContext_;
     std::auto_ptr<Schedule>                       schedule_;
@@ -356,6 +357,8 @@ namespace edm {
     unsigned int                                  numberOfSequentialEventsPerChild_;
     bool                                          setCpuAffinity_;
     bool                                          continueAfterChildFailure_;
+    
+    PreallocationConfiguration                    preallocations_;
     
     typedef std::set<std::pair<std::string, std::string> > ExcludedData;
     typedef std::map<std::string, ExcludedData> ExcludedDataMap;

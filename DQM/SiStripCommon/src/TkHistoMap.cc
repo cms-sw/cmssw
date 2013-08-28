@@ -97,18 +97,21 @@ std::string TkHistoMap::folderDefinition(std::string& path, std::string& MapName
   std::string folder=path;
   std::string name=MapName+std::string("_");
   fullName=name+tkdetmap_->getLayerName(layer);
-  
+  //  std::cout << "[TkHistoMap::folderDefinition] fullName: " << fullName << std::endl;
+
   if(mechanicalView){
     std::stringstream ss;
 
     SiStripFolderOrganizer folderOrg;
-    
+    folderOrg.setSiStripFolderName(path);
+
     SiStripDetId::SubDetector subDet;
     uint32_t subdetlayer, side;
     tkdetmap_->getSubDetLayerSide(layer,subDet,subdetlayer,side);
     folderOrg.getSubDetLayerFolderName(ss,subDet,subdetlayer,side);
     
     folder = ss.str();
+    //    std::cout << "[TkHistoMap::folderDefinition] folder: " << folder << std::endl;
   }
   dqmStore_->setCurrentFolder(folder);
   return folder;

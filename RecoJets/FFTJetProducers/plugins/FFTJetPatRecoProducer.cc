@@ -13,7 +13,6 @@
 //
 // Original Author:  Igor Volobouev
 //         Created:  Tue Jun 15 12:45:45 CDT 2010
-// $Id: FFTJetPatRecoProducer.cc,v 1.4 2011/07/05 06:28:02 igv Exp $
 //
 //
 
@@ -78,9 +77,9 @@ protected:
     typedef fftjet::ClusteringTreeSparsifier<fftjet::Peak,long> Sparsifier;
 
     // methods
-    void beginJob() ;
-    void produce(edm::Event&, const edm::EventSetup&);
-    void endJob() ;
+    void beginJob() override ;
+    void produce(edm::Event&, const edm::EventSetup&) override;
+    void endJob() override ;
 
     void buildKernelConvolver(const edm::ParameterSet&);
     fftjet::PeakFinder buildPeakFinder(const edm::ParameterSet&);

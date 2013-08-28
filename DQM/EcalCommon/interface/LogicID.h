@@ -5,8 +5,6 @@
   \file LogicID.h
   \brief Cache logicID vector from database
   \author B. Gobbo 
-  \version $Revision: 1.13 $
-  \date $Date: 2010/08/20 19:09:03 $
 */
 
 #include <vector>

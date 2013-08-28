@@ -1,6 +1,4 @@
 #include "HLTrigger/JetMET/interface/HLTPFJetIDProducer.h"
-#include "DataFormats/JetReco/interface/PFJet.h"
-#include "DataFormats/JetReco/interface/PFJetCollection.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
@@ -17,6 +15,7 @@ HLTPFJetIDProducer::HLTPFJetIDProducer(const edm::ParameterSet& iConfig) :
   max_CHEF_     (iConfig.getParameter<double>("max_CHEF")),
   min_pt_       (iConfig.getParameter<double>("min_pt"))
 {
+  m_thePFJetToken = consumes<reco::PFJetCollection>(jetsInput_);
   produces< reco::PFJetCollection > ();
 }
 
@@ -49,7 +48,7 @@ void HLTPFJetIDProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
 {
 
   edm::Handle<reco::PFJetCollection> pfjets;
-  iEvent.getByLabel(jetsInput_, pfjets);
+  iEvent.getByToken(m_thePFJetToken,pfjets);
 
   std::auto_ptr<reco::PFJetCollection> result (new reco::PFJetCollection);
 

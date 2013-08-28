@@ -1,6 +1,5 @@
 //
 // Original Author:  Fedor Ratnikov Dec 27, 2006
-// $Id: ZSPJPTJetCorrector.h,v 1.2 2010/03/08 10:35:36 kodolova Exp $
 //
 // MC Jet Corrector
 //

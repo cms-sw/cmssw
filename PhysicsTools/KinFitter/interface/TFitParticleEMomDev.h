@@ -20,7 +20,7 @@ public :
 	       TLorentzVector* pini,
 	       const TMatrixD* theCovMatrix);
   virtual ~TFitParticleEMomDev();
-  virtual TAbsFitParticle* clone( TString newname = "" ) const;
+  virtual TAbsFitParticle* clone( const TString& newname = "" ) const;
 
   // returns derivative dP/dy with P=(p,E) and y=(par1, par2, par3, ...) 
   // the free parameters of the fit. The columns of the matrix contain 

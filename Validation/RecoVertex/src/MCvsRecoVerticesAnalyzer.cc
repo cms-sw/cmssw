@@ -13,7 +13,6 @@
 //
 // Original Author:  Andrea Venturi
 //         Created:  Thu Dec 16 16:32:56 CEST 2010
-// $Id: MCvsRecoVerticesAnalyzer.cc,v 1.4 2011/11/26 00:51:42 venturia Exp $
 //
 //
 

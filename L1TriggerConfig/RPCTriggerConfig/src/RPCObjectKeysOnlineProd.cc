@@ -34,7 +34,7 @@ class RPCObjectKeysOnlineProd : public L1ObjectKeysOnlineProdBase {
       RPCObjectKeysOnlineProd(const edm::ParameterSet&);
       ~RPCObjectKeysOnlineProd();
 
-      virtual void fillObjectKeys( ReturnType pL1TriggerKey ) ;
+      virtual void fillObjectKeys( ReturnType pL1TriggerKey ) override ;
    private:
       // ----------member data ---------------------------
   bool m_enableL1RPCConfig ;

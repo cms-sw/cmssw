@@ -4,7 +4,7 @@
 namespace fit {
   template<typename Function>
   struct RootMinuitFuncEvaluator {
-    static double evaluate(const Function f) {
+    static double evaluate(const Function& f) {
       return f();
     }
   };

@@ -8,18 +8,18 @@ class SimpleClusterProbabilitySeedComparitor : public SeedComparitor {
     public:
         SimpleClusterProbabilitySeedComparitor(const edm::ParameterSet &cfg) ;
         virtual ~SimpleClusterProbabilitySeedComparitor() ; 
-        virtual void init(const edm::EventSetup& es) {}
-        virtual bool compatible(const SeedingHitSet  &hits, const TrackingRegion & region) const { return true; }
-        virtual bool compatible(const TrajectorySeed &seed) const { return true; }
+        virtual void init(const edm::EventSetup& es) override {}
+        virtual bool compatible(const SeedingHitSet  &hits, const TrackingRegion & region) const override { return true; }
+        virtual bool compatible(const TrajectorySeed &seed) const override { return true; }
         virtual bool compatible(const TrajectoryStateOnSurface &,
-                const TransientTrackingRecHit::ConstRecHitPointer &hit) const ;
+                const TransientTrackingRecHit::ConstRecHitPointer &hit) const override ;
         virtual bool compatible(const SeedingHitSet  &hits, 
                 const GlobalTrajectoryParameters &helixStateAtVertex,
                 const FastHelix                  &helix,
-                const TrackingRegion & region) const { return true; }
+                const TrackingRegion & region) const override { return true; }
         virtual bool compatible(const SeedingHitSet  &hits, 
                 const GlobalTrajectoryParameters &straightLineStateAtVertex,
-                const TrackingRegion & region) const { return true; }
+                const TrackingRegion & region) const override { return true; }
 
 
     private:

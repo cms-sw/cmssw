@@ -31,6 +31,10 @@ namespace edm {
 
   class ModuleCallingContext;
 
+  namespace maker {
+    template<typename T> class ModuleHolderT;
+  }
+
   namespace one {
 
     class EDAnalyzerBase : public EDConsumerBase
@@ -38,8 +42,9 @@ namespace edm {
       
     public:
       template <typename T> friend class edm::WorkerT;
+      template <typename T> friend class edm::maker::ModuleHolderT;
+      
       typedef EDAnalyzerBase ModuleType;
-      typedef WorkerT<EDAnalyzerBase> WorkerType;
 
       
       EDAnalyzerBase();
@@ -53,30 +58,22 @@ namespace edm {
       ModuleDescription const& moduleDescription() const { return moduleDescription_; }
 
     protected:
-      // The returned pointer will be null unless the this is currently
-      // executing its event loop function ('produce').
-      CurrentProcessingContext const* currentContext() const;
       
       void callWhenNewProductsRegistered(std::function<void(BranchDescription const&)> const& func);
 
     private:
       bool doEvent(EventPrincipal& ep, EventSetup const& c,
-                   CurrentProcessingContext const* cpcp,
                    ModuleCallingContext const*);
       void doBeginJob();
       void doEndJob();
       
       void doBeginRun(RunPrincipal& rp, EventSetup const& c,
-                      CurrentProcessingContext const* cpc,
                       ModuleCallingContext const*);
       void doEndRun(RunPrincipal& rp, EventSetup const& c,
-                    CurrentProcessingContext const* cpc,
                     ModuleCallingContext const*);
       void doBeginLuminosityBlock(LuminosityBlockPrincipal& lbp, EventSetup const& c,
-                                  CurrentProcessingContext const* cpc,
                                   ModuleCallingContext const*);
       void doEndLuminosityBlock(LuminosityBlockPrincipal& lbp, EventSetup const& c,
-                                CurrentProcessingContext const* cpc,
                                 ModuleCallingContext const*);
       
       //For now, the following are just dummy implemenations with no ability for users to override
@@ -102,13 +99,8 @@ namespace edm {
         moduleDescription_ = md;
       }
       ModuleDescription moduleDescription_;
-      CurrentProcessingContext const* current_context_;
       std::function<void(BranchDescription const&)> callWhenNewProductsRegistered_;
-
     };
-    
   }
 }
-
-
 #endif

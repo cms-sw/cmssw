@@ -1,14 +1,6 @@
 #include "HLTrigger/JetMET/interface/HLTJetL1MatchProducer.h"
-#include "DataFormats/JetReco/interface/CaloJet.h"
-#include "DataFormats/JetReco/interface/CaloJetCollection.h"
-#include "DataFormats/JetReco/interface/PFJet.h"
-#include "DataFormats/JetReco/interface/PFJetCollection.h"
-#include "DataFormats/JetReco/interface/TrackJetCollection.h"
-#include "DataFormats/JetReco/interface/BasicJetCollection.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
-#include "DataFormats/L1Trigger/interface/L1JetParticleFwd.h"
-#include "DataFormats/L1Trigger/interface/L1JetParticle.h"
 #include "DataFormats/Math/interface/deltaPhi.h"
 
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
@@ -27,6 +19,10 @@ HLTJetL1MatchProducer<T>::HLTJetL1MatchProducer(const edm::ParameterSet& iConfig
   DeltaR_ = iConfig.template getParameter<double>("DeltaR");
 
   typedef std::vector<T> TCollection;
+  m_theJetToken = consumes<TCollection>(jetsInput_);
+  m_theL1TauJetToken = consumes<l1extra::L1JetParticleCollection>(L1TauJets_);
+  m_theL1CenJetToken = consumes<l1extra::L1JetParticleCollection>(L1CenJets_);
+  m_theL1ForJetToken = consumes<l1extra::L1JetParticleCollection>(L1ForJets_);
   produces<TCollection> ();
 
 }
@@ -61,19 +57,19 @@ void HLTJetL1MatchProducer<T>::produce(edm::Event& iEvent, const edm::EventSetup
   typedef std::vector<T> TCollection;
 
   edm::Handle<TCollection> jets;
-  iEvent.getByLabel(jetsInput_, jets);
+  iEvent.getByToken(m_theJetToken, jets);
 
   std::auto_ptr<TCollection> result (new TCollection);
 
 
   edm::Handle<l1extra::L1JetParticleCollection> l1TauJets;
-  iEvent.getByLabel(L1TauJets_,l1TauJets);
+  iEvent.getByToken(m_theL1TauJetToken,l1TauJets);
 
   edm::Handle<l1extra::L1JetParticleCollection> l1CenJets;
-  iEvent.getByLabel(L1CenJets_,l1CenJets);
+  iEvent.getByToken(m_theL1CenJetToken,l1CenJets);
 
   edm::Handle<l1extra::L1JetParticleCollection> l1ForJets;
-  iEvent.getByLabel(L1ForJets_,l1ForJets);
+  iEvent.getByToken(m_theL1ForJetToken,l1ForJets);
 
   typename TCollection::const_iterator jet_iter;
   for (jet_iter = jets->begin(); jet_iter != jets->end(); ++jet_iter) {

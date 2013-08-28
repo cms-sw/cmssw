@@ -18,7 +18,7 @@ public:
 protected:
   typedef MSLayer::DataX0 DataX0;
   static const DataX0 & getDataX0(const MSLayer & l) { return l.theX0Data; }
-  static void  setDataX0(MSLayer & l, DataX0 x0Data) { l.theX0Data = x0Data; }  
+  static void  setDataX0(MSLayer & l, const DataX0& x0Data) { l.theX0Data = x0Data; }  
 };
 
 #endif

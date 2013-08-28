@@ -13,7 +13,6 @@ is determined entirely from the BranchKey.
 
 namespace edm {
   class BranchDescription;
-  class ConstBranchDescription;
 
   class BranchKey {
   public:
@@ -29,7 +28,6 @@ namespace edm {
     {}
 
     explicit BranchKey(BranchDescription const& desc);
-    explicit BranchKey(ConstBranchDescription const& desc);
 
     std::string const& friendlyClassName() const {return friendlyClassName_;}
     std::string const& moduleLabel() const {return moduleLabel_;}

@@ -177,6 +177,7 @@
 
  <class name="edm::ModuleDescription" ClassVersion="10">
   <version ClassVersion="10" checksum="2128621099"/>
+   <field name="id_" transient="true"/>
    <field name="processConfigurationPtr_" transient="true"/>
  </class>
  <class name="std::pair<edm::ModuleDescriptionID,edm::ModuleDescription>"/>

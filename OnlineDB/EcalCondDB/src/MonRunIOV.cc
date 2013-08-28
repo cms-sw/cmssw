@@ -33,7 +33,7 @@ void MonRunIOV::setID(int id)
     m_ID = id;
 }
 
-void MonRunIOV::setMonRunTag(MonRunTag tag)
+void MonRunIOV::setMonRunTag(const MonRunTag& tag)
 {
   if (tag != m_monRunTag) {
     m_ID = 0;
@@ -50,7 +50,7 @@ MonRunTag MonRunIOV::getMonRunTag() const
 
 
 
-void MonRunIOV::setRunIOV(RunIOV iov)
+void MonRunIOV::setRunIOV(const RunIOV& iov)
 {
   if (iov != m_runIOV) {
     m_ID = 0;
@@ -81,7 +81,7 @@ run_t MonRunIOV::getSubRunNumber() const
 
 
 
-void MonRunIOV::setSubRunStart(Tm start)
+void MonRunIOV::setSubRunStart(const Tm& start)
 {
   if (start != m_subRunStart) {
     m_ID = 0;
@@ -98,7 +98,7 @@ Tm MonRunIOV::getSubRunStart() const
 
 
 
-void MonRunIOV::setSubRunEnd(Tm end)
+void MonRunIOV::setSubRunEnd(const Tm& end)
 {
   if (end != m_subRunEnd) {
     m_ID = 0;

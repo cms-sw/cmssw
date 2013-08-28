@@ -56,7 +56,7 @@ public:
   FWDTDigiProxyBuilder( void ) {}
   virtual ~FWDTDigiProxyBuilder( void ) {}
 
-  virtual bool haveSingleProduct( void ) const { return false; }
+  virtual bool haveSingleProduct( void ) const override { return false; }
 	   
   REGISTER_PROXYBUILDER_METHODS();
 	
@@ -66,7 +66,7 @@ private:
   // Disable default assignment operator
   const FWDTDigiProxyBuilder& operator=( const FWDTDigiProxyBuilder& );
 	
-  virtual void buildViewType( const FWEventItem* iItem, TEveElementList* product, FWViewType::EType, const FWViewContext* );
+  virtual void buildViewType( const FWEventItem* iItem, TEveElementList* product, FWViewType::EType, const FWViewContext* ) override;
 };
 
 void

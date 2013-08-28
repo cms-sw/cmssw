@@ -36,6 +36,7 @@ HLTForwardBackwardJetsFilter<T>::HLTForwardBackwardJetsFilter(const edm::Paramet
   nTot_     (iConfig.template getParameter<unsigned int>("nTot")),
   triggerType_ (iConfig.template getParameter<int> ("triggerType"))
 {
+  m_theJetToken = consumes<std::vector<T>>(inputTag_);
   LogDebug("") << "HLTForwardBackwardJetsFilter: Input/minPt/minEta/maxEta/triggerType : "
 	       << inputTag_.encode() << " "
 	       << minPt_ << " " 
@@ -84,7 +85,7 @@ HLTForwardBackwardJetsFilter<T>::hltFilter(edm::Event& iEvent, const edm::EventS
 
   // get hold of collection of objects
   Handle<TCollection> objects;
-  iEvent.getByLabel(inputTag_,objects);
+  iEvent.getByToken(m_theJetToken,objects);
   
   // look at all candidates,  check cuts and add to filter object
   unsigned int nPosJets(0);

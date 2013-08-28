@@ -17,7 +17,7 @@ using namespace reco;
 #define PI 3.141592653589793238462643383279502884197169399375105820974945
 
 
-RxCalculator::RxCalculator (const edm::Event &iEvent, const edm::EventSetup &iSetup, edm::InputTag hbheLabel, edm::InputTag hfLabel, edm::InputTag hoLabel)
+RxCalculator::RxCalculator (const edm::Event &iEvent, const edm::EventSetup &iSetup,const edm::InputTag& hbheLabel,const edm::InputTag& hfLabel,const edm::InputTag& hoLabel)
 {
    Handle<HFRecHitCollection> hfhandle;
    iEvent.getByLabel(hfLabel, hfhandle);

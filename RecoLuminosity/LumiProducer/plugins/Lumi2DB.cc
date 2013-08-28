@@ -34,9 +34,9 @@ namespace lumi{
   public:
     const static unsigned int COMMITLSINTERVAL=500; //commit interval in LS,totalrow=nls*(1+nalgo)
     Lumi2DB(const std::string& dest);
-    virtual unsigned long long retrieveData( unsigned int );
-    virtual const std::string dataType() const;
-    virtual const std::string sourceType() const;
+    virtual unsigned long long retrieveData( unsigned int ) override;
+    virtual const std::string dataType() const override;
+    virtual const std::string sourceType() const override;
     virtual ~Lumi2DB();
   
     struct LumiSource{

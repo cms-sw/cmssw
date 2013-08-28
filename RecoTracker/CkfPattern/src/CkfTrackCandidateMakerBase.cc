@@ -41,7 +41,7 @@ using namespace edm;
 using namespace std;
 
 namespace cms{
-  CkfTrackCandidateMakerBase::CkfTrackCandidateMakerBase(edm::ParameterSet const& conf) : 
+  CkfTrackCandidateMakerBase::CkfTrackCandidateMakerBase(edm::ParameterSet const& conf, edm::ConsumesCollector && iC) : 
 
     conf_(conf),
     theTrackCandidateOutput(true),
@@ -66,7 +66,7 @@ namespace cms{
     //    if (!conf.exists("src"))
     //      theSeedLabel = InputTag(conf_.getParameter<std::string>("SeedProducer"),conf_.getParameter<std::string>("SeedLabel"));
     //    else
-      theSeedLabel= conf.getParameter<edm::InputTag>("src");
+      theSeedLabel= iC.consumes<edm::View<TrajectorySeed> >(conf.getParameter<edm::InputTag>("src"));
       if ( conf.exists("maxSeedsBeforeCleaning") ) 
 	   maxSeedsBeforeCleaning_=conf.getParameter<unsigned int>("maxSeedsBeforeCleaning");
 
@@ -157,7 +157,7 @@ namespace cms{
     // Step B: Retrieve seeds
     
     edm::Handle<View<TrajectorySeed> > collseed;
-    e.getByLabel(theSeedLabel, collseed);
+    e.getByToken(theSeedLabel, collseed);
     
     // Step C: Create empty output collection
     std::auto_ptr<TrackCandidateCollection> output(new TrackCandidateCollection);    

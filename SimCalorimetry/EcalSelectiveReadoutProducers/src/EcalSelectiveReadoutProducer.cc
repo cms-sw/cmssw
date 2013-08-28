@@ -1,4 +1,5 @@
 #include "SimCalorimetry/EcalSelectiveReadoutProducers/interface/EcalSelectiveReadoutProducer.h"
+#include "FWCore/Common/interface/Provenance.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
@@ -339,7 +340,7 @@ EcalSelectiveReadoutProducer::getBinOfMax(const edm::Event& evt,
 					  int& binOfMax) const{
   bool rc;
   const edm::Provenance p=evt.getProvenance(noZsDigiId);
-  edm::ParameterSet result = getParameterSet(p.psetID());
+  const edm::ParameterSet& result = parameterSet(p);
   vector<string> ebDigiParamList = result.getParameterNames();
   string bofm("binOfMaximum");
   if(find(ebDigiParamList.begin(), ebDigiParamList.end(), bofm)

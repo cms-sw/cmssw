@@ -38,21 +38,11 @@ AlgebraicSymMatrix RecHit1D::parametersError() const {
   return m;
 }
 
-
-
-// Initialize the projection matrix
-void RecHit1D::initialize() const {
-  theProjectionMatrix = AlgebraicMatrix( 1, 5, 0);
-  theProjectionMatrix[0][3] = 1;
-  
-  isInitialized = true;
+// Return an initialized matrix.
+static const AlgebraicMatrix initializeMatrix() {
+  AlgebraicMatrix matrix( 1, 5, 0);
+  matrix[0][3] = 1;
+  return matrix;
 }
 
-
-
-bool RecHit1D::isInitialized(false);
-
-
-
-AlgebraicMatrix RecHit1D::theProjectionMatrix;
-
+const AlgebraicMatrix RecHit1D::theProjectionMatrix(initializeMatrix());

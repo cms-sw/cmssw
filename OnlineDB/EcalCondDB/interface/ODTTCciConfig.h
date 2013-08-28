@@ -42,7 +42,7 @@ class ODTTCciConfig : public IODConfig {
   inline unsigned char* getTTCciClob() const { return m_ttcci_clob; }
   inline void setSize(unsigned int id) { m_size = id; }
   inline unsigned int getSize() const { return m_size; }
-  void setParameters(std::map<std::string,std::string> my_keys_map);
+  void setParameters(const std::map<std::string,std::string>& my_keys_map);
 
   
  private:

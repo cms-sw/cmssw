@@ -26,7 +26,7 @@ class MuonTransientTrackingRecHitBuilder: public TransientTrackingRecHitBuilder 
   
   RecHitPointer build(const TrackingRecHit * p) const;
   
-  ConstRecHitContainer build(const trackingRecHit_iterator start, const trackingRecHit_iterator stop) const;
+  ConstRecHitContainer build(const trackingRecHit_iterator& start, const trackingRecHit_iterator& stop) const;
   
  private:
   edm::ESHandle<GlobalTrackingGeometry> theTrackingGeometry;

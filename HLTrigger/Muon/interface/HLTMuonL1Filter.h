@@ -36,10 +36,12 @@ class HLTMuonL1Filter : public HLTFilter {
 
   private:
     /// input tag identifying the product containing muons
-    edm::InputTag candTag_;
+    edm::InputTag                                       candTag_;
+    edm::EDGetTokenT<l1extra::L1MuonParticleCollection> candToken_;
 
     /// input tag identifying the product containing refs to muons passing the previous level
-    edm::InputTag previousCandTag_;
+    edm::InputTag                                          previousCandTag_;
+    edm::EDGetTokenT<trigger::TriggerFilterObjectWithRefs> previousCandToken_;
 
     /// max Eta cut
     double maxEta_;
@@ -77,7 +79,8 @@ class HLTMuonL1Filter : public HLTFilter {
     bool isSingleSegmentCSC(const l1extra::L1MuonParticleRef &);
 
     /// input tag identifying the product containing CSCTF tracks
-    edm::InputTag csctfTag_;
+    edm::InputTag                          csctfTag_;
+    edm::EDGetTokenT<L1CSCTrackCollection> csctfToken_;
     
     /// handle for CSCTFtracks
     edm::Handle<L1CSCTrackCollection> csctfTracks_;

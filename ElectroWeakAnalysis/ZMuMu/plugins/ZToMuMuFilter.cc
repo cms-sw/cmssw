@@ -10,7 +10,7 @@ class ZToMuMuFilter : public edm::EDFilter {
 public:
   ZToMuMuFilter(const edm::ParameterSet &);
 private:
-  virtual bool filter(edm::Event&, const edm::EventSetup&);
+  virtual bool filter(edm::Event&, const edm::EventSetup&) override;
   edm::InputTag zCands_, muIso1_, muIso2_;
   double ptMin_, etaMin_, etaMax_, massMin_, massMax_, isoMax_;
 };

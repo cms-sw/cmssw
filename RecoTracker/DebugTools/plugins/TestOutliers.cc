@@ -13,7 +13,6 @@
 //
 // Original Author:  Giuseppe Cerati
 //         Created:  Mon Sep 17 10:31:30 CEST 2007
-// $Id: TestOutliers.cc,v 1.15 2013/01/02 21:11:56 dlange Exp $
 //
 //
 
@@ -63,8 +62,8 @@ public:
 
 private:
   virtual void beginRun(edm::Run & run, const edm::EventSetup&) ;
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void endJob() ;
+  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
+  virtual void endJob() override ;
 
   // ----------member data ---------------------------
   edm::InputTag trackTagsOut_; //used to select what tracks to read from configuration file

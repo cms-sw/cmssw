@@ -26,14 +26,14 @@ public:
   /// Produce the reference trajectories.
   virtual const ReferenceTrajectoryCollection trajectories(const edm::EventSetup &setup,
 							   const ConstTrajTrackPairCollection &tracks,
-							   const reco::BeamSpot &beamSpot) const;
+							   const reco::BeamSpot &beamSpot) const override;
 
   virtual const ReferenceTrajectoryCollection trajectories(const edm::EventSetup &setup,
 							   const ConstTrajTrackPairCollection &tracks,
 							   const ExternalPredictionCollection &external,
-							   const reco::BeamSpot &beamSpot) const;
+							   const reco::BeamSpot &beamSpot) const override;
 
-  virtual ReferenceTrajectoryFactory* clone() const { return new ReferenceTrajectoryFactory(*this); }
+  virtual ReferenceTrajectoryFactory* clone() const override { return new ReferenceTrajectoryFactory(*this); }
 
 protected:
   ReferenceTrajectoryFactory(const ReferenceTrajectoryFactory &other);

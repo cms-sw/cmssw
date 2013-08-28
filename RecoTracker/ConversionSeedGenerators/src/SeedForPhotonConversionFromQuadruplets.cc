@@ -1066,7 +1066,7 @@ bool SeedForPhotonConversionFromQuadruplets::similarQuadExist(Quad & thisQuad, s
 
 }
 
-double SeedForPhotonConversionFromQuadruplets::DeltaPhiManual(math::XYZVector v1, math::XYZVector v2){
+double SeedForPhotonConversionFromQuadruplets::DeltaPhiManual(const math::XYZVector& v1, const math::XYZVector& v2){
 
 	double  kTWOPI     = 2.*kPI_;
 	double DeltaPhiMan=v1.Phi()-v2.Phi();

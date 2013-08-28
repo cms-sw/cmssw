@@ -13,7 +13,6 @@
 //
 // Original Author:  Radek Ofierzynski
 //         Created:  Wed Jan 21 13:46:27 CET 2009
-// $Id: HcalSevLvlAnalyzer.cc,v 1.3 2009/02/20 17:26:37 rofierzy Exp $
 //
 //
 

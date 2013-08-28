@@ -17,7 +17,6 @@
 //
 // Original Author:  Colin BERNET
 //         Created:  Mon Nov 13 11:06:39 CET 2006
-// $Id: TauHadronDecayFilter.h,v 1.1 2010/11/29 16:09:27 pjanot Exp $
 //
 //
 

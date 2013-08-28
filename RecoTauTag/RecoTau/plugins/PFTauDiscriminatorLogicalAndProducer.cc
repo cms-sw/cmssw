@@ -20,7 +20,7 @@ class PFTauDiscriminatorLogicalAndProducer : public PFTauDiscriminationProducerB
    public:
       explicit PFTauDiscriminatorLogicalAndProducer(const edm::ParameterSet&);
       ~PFTauDiscriminatorLogicalAndProducer(){};
-      double discriminate(const PFTauRef& pfTau);
+      double discriminate(const PFTauRef& pfTau) override;
    private:
       double passResult_;
 };

@@ -22,7 +22,7 @@ class RunList  : public IDBObject {
 
   // Methods for user data
   
-  void setRunTag(RunTag tag);
+  void setRunTag(const RunTag& tag);
   RunTag getRunTag() const;
   std::vector<RunIOV> getRuns() ;
   
@@ -35,8 +35,8 @@ class RunList  : public IDBObject {
   void fetchRuns(int min_run, int max_run) throw(std::runtime_error);
   void fetchRuns(int min_run, int max_run, bool withTriggers, bool withGlobalTriggers) throw(std::runtime_error);
   void fetchLastNRuns( int max_run, int n_runs  ) throw(std::runtime_error);
-  void fetchRunsByLocation (int min_run, int max_run, const LocationDef locDef )  throw(std::runtime_error);
-  void fetchGlobalRunsByLocation(int min_run, int max_run, const LocationDef locDef )  throw(std::runtime_error);
+  void fetchRunsByLocation (int min_run, int max_run, const LocationDef& locDef )  throw(std::runtime_error);
+  void fetchGlobalRunsByLocation(int min_run, int max_run, const LocationDef& locDef )  throw(std::runtime_error);
 
 
  private:

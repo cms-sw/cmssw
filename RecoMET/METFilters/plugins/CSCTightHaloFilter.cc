@@ -13,7 +13,7 @@ class CSCTightHaloFilter : public edm::EDFilter {
 
   private:
 
-    virtual bool filter(edm::Event & iEvent, const edm::EventSetup & iSetup);
+    virtual bool filter(edm::Event & iEvent, const edm::EventSetup & iSetup) override;
 
     const bool taggingMode_;
 };

@@ -6,7 +6,7 @@
 #include "DataFormats/Provenance/interface/BranchListIndex.h"
 #include "DataFormats/Provenance/interface/ProductIDToBranchID.h"
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
-#include "DataFormats/Provenance/interface/Provenance.h"
+#include "FWCore/Common/interface/Provenance.h"
 #include "FWCore/Framework/interface/DelayedReader.h"
 #include "FWCore/Framework/interface/ProductHolder.h"
 #include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"
@@ -108,7 +108,7 @@ namespace edm {
 
   void
   EventPrincipal::put(
-        ConstBranchDescription const& bd,
+        BranchDescription const& bd,
         WrapperOwningHolder const& edp,
         ProductProvenance const& productProvenance) {
 
@@ -129,7 +129,7 @@ namespace edm {
 
   void
   EventPrincipal::putOnRead(
-        ConstBranchDescription const& bd,
+        BranchDescription const& bd,
         void const* product,
         ProductProvenance const& productProvenance) {
 
@@ -293,7 +293,7 @@ namespace edm {
         << "https://twiki.cern.ch/twiki/bin/view/CMSPublic/SWGuideUnscheduledExecution#Circular_Dependence_Errors.";
     }
 
-    moduleLabelsRunning_.push_back(moduleLabel);
+    UnscheduledSentry sentry(&moduleLabelsRunning_, moduleLabel);
 
     if(unscheduledHandler_) {
       if(mcc == nullptr) {
@@ -304,7 +304,6 @@ namespace edm {
       }
       unscheduledHandler_->tryToFill(moduleLabel, *const_cast<EventPrincipal*>(this), mcc);
     }
-    moduleLabelsRunning_.pop_back();
     return true;
   }
 }

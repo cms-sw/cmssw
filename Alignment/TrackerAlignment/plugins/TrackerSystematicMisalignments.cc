@@ -194,7 +194,7 @@ void TrackerSystematicMisalignments::applySystematicMisalignment(Alignable* ali)
 	}
 }	 
 
-align::GlobalVector TrackerSystematicMisalignments::findSystematicMis( align::PositionType globalPos, const bool blindToZ, const bool blindToR ){
+align::GlobalVector TrackerSystematicMisalignments::findSystematicMis( const align::PositionType& globalPos, const bool blindToZ, const bool blindToR ){
 //align::GlobalVector TrackerSystematicMisalignments::findSystematicMis( align::PositionType globalPos ){
 	// calculates shift for the current alignable
 	// all corrections are calculated w.r.t. the original geometry	

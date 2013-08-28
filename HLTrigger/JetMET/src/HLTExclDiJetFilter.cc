@@ -9,7 +9,6 @@
 
 #include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/Common/interface/Handle.h"
-#include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
 #include "DataFormats/CaloTowers/interface/CaloTowerCollection.h"
 //#include "DataFormats/JetReco/interface/CaloJetCollection.h"
 //#include "DataFormats/Math/interface/deltaPhi.h"
@@ -37,6 +36,7 @@ HLTExclDiJetFilter<T>::HLTExclDiJetFilter(const edm::ParameterSet& iConfig) :
   HF_OR_       (iConfig.template getParameter<bool> ("HF_OR")),
   triggerType_    (iConfig.template getParameter<int> ("triggerType"))
 {
+  m_theJetToken = consumes<std::vector<T>>(inputJetTag_);
   LogDebug("") << "HLTExclDiJetFilter: Input/minPtJet/minHFe/HF_OR/triggerType : "
 	       << inputJetTag_.encode() << " "
 	       << minPtJet_ << " " 
@@ -78,7 +78,7 @@ HLTExclDiJetFilter<T>::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSet
   if (saveTags()) filterproduct.addCollectionTag(inputJetTag_);
 
   Handle<TCollection> recojets; //recojets can be any jet collections
-  iEvent.getByLabel(inputJetTag_,recojets);
+  iEvent.getByToken(m_theJetToken,recojets);
 
   // look at all candidates,  check cuts and add to filter object
   int n(0);

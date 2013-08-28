@@ -35,6 +35,10 @@
 namespace edm {
 
   class ModuleCallingContext;
+  
+  namespace maker {
+    template<typename T> class ModuleHolderT;
+  }
 
   namespace stream {
     class EDFilterBase;
@@ -42,6 +46,7 @@ namespace edm {
     {
       
     public:
+      template <typename T> friend class edm::maker::ModuleHolderT;
       template <typename T> friend class edm::WorkerT;
 
       EDFilterAdaptorBase();
@@ -62,7 +67,6 @@ namespace edm {
       const EDFilterAdaptorBase& operator=(const EDFilterAdaptorBase&) =delete; // stop default
       
       bool doEvent(EventPrincipal& ep, EventSetup const& c,
-                   CurrentProcessingContext const* cpcp,
                    ModuleCallingContext const*) ;
     };
   }

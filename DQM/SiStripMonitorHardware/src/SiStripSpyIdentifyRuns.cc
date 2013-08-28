@@ -1,6 +1,5 @@
 // Original Author:  Anne-Marie Magnan
 //         Created:  2010/02/25
-// $Id: SiStripSpyIdentifyRuns.cc,v 1.1 2012/10/15 09:02:47 threus Exp $
 //
 
 #include <sstream>
@@ -45,9 +44,9 @@ namespace sistrip {
 
   private:
 
-    virtual void beginJob();
-    virtual void analyze(const edm::Event&, const edm::EventSetup&);
-    virtual void endJob();
+    virtual void beginJob() override;
+    virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
+    virtual void endJob() override;
 
     void writeRunInFile(const unsigned int aRunNumber);
  

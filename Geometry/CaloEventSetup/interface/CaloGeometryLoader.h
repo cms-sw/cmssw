@@ -49,7 +49,7 @@ private:
 		     const Alignments*     alignments ,
 		     const Alignments*     globals       ) ;
       
-  void fillNamedParams( DDFilteredView fv,
+  void fillNamedParams( const DDFilteredView& fv,
 			T*             geom ) ;
       
   void fillGeom( T*                    geom ,

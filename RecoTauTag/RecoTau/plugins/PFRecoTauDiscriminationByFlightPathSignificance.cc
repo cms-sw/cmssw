@@ -36,8 +36,8 @@ class PFRecoTauDiscriminationByFlightPathSignificance
 
     ~PFRecoTauDiscriminationByFlightPathSignificance(){}
 
-    void beginEvent(const edm::Event&, const edm::EventSetup&);
-    double discriminate(const reco::PFTauRef&);
+    void beginEvent(const edm::Event&, const edm::EventSetup&) override;
+    double discriminate(const reco::PFTauRef&) override;
 
   private:
     double threeProngFlightPathSig(const PFTauRef&);

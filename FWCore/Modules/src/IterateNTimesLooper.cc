@@ -30,9 +30,9 @@ namespace edm {
       // ---------- static member functions --------------------
 
       // ---------- member functions ---------------------------
-      virtual void startingNewLoop(unsigned int);
-      virtual Status duringLoop(Event const&, EventSetup const&);
-      virtual Status endOfLoop(EventSetup const&, unsigned int);
+      virtual void startingNewLoop(unsigned int) override;
+      virtual Status duringLoop(Event const&, EventSetup const&) override;
+      virtual Status endOfLoop(EventSetup const&, unsigned int) override;
 
     private:
       IterateNTimesLooper(IterateNTimesLooper const&); // stop default

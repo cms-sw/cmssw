@@ -15,7 +15,6 @@
 // user include files
 #include "FWCore/Framework/interface/stream/EDFilterAdaptorBase.h"
 #include "FWCore/Framework/interface/stream/EDFilterBase.h"
-#include "FWCore/Framework/src/CPCSentry.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "FWCore/Framework/interface/Run.h"
@@ -47,11 +46,9 @@ namespace edm {
     
     bool
     EDFilterAdaptorBase::doEvent(EventPrincipal& ep, EventSetup const& c,
-                                 CurrentProcessingContext const* cpcp,
                                  ModuleCallingContext const* mcc) {
       assert(ep.streamID()<m_streamModules.size());
       auto mod = m_streamModules[ep.streamID()];
-      detail::CPCSentry sentry(mod->current_context_, cpcp);
       Event e(ep, moduleDescription(), mcc);
       e.setConsumer(mod);
       bool result = mod->filter(e, c);
@@ -62,4 +59,3 @@ namespace edm {
     template class edm::stream::ProducingModuleAdaptorBase<edm::stream::EDFilterBase>;
   }
 }
-

@@ -2,8 +2,6 @@
 /**
  *  CosmicMuonSeedGenerator
  *
- *  $Date: 2011/12/22 21:12:27 $
- *  $Revision: 1.7 $
  *
  *  \author Chang Liu - Purdue University 
  *

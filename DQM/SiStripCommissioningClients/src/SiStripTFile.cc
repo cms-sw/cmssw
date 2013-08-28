@@ -1,4 +1,3 @@
-// Last commit: $Id: SiStripTFile.cc,v 1.3 2008/02/21 14:19:05 bainbrid Exp $
 
 #include "DQM/SiStripCommissioningClients/interface/SiStripTFile.h"
 #include "DataFormats/SiStripCommon/interface/SiStripEnumsAndStrings.h"

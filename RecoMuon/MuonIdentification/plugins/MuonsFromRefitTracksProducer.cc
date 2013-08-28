@@ -3,7 +3,6 @@
   \brief    Replaces the kinematic information in the input muons with those of the chosen refit tracks.
 
   \author   Jordan Tucker
-  \version  $Id: MuonsFromRefitTracksProducer.cc,v 1.10 2010/06/28 08:47:42 dmytro Exp $
 */
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -70,9 +69,9 @@ public:
   ~MuonsFromRefitTracksProducer() {}
 
 private:
-  virtual void beginJob() {}
-  virtual void produce(edm::Event&, const edm::EventSetup&);
-  virtual void endJob() {}
+  virtual void beginJob() override {}
+  virtual void produce(edm::Event&, const edm::EventSetup&) override;
+  virtual void endJob() override {}
 
   // Store the track-to-track map(s) used when using TeV refit tracks.
   bool storeMatchMaps(const edm::Event& event);

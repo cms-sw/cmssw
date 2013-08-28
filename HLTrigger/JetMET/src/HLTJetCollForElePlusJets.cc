@@ -2,17 +2,11 @@
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 
-#include "DataFormats/RecoCandidate/interface/RecoEcalCandidate.h"
-#include "DataFormats/EgammaCandidates/interface/Electron.h"
-#include "DataFormats/JetReco/interface/CaloJetCollection.h"
-#include "DataFormats/JetReco/interface/PFJetCollection.h"
-
-#include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
-
 #include "DataFormats/Common/interface/Handle.h"
 
-#include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
-
+#include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
+#include "DataFormats/RecoCandidate/interface/RecoEcalCandidate.h"
+#include "DataFormats/EgammaCandidates/interface/Electron.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "TVector3.h"
 
@@ -31,6 +25,8 @@ HLTJetCollForElePlusJets<T>::HLTJetCollForElePlusJets(const edm::ParameterSet& i
   minDeltaEta_(iConfig.getParameter< double > ("MinDeltaEta"))
 {
   typedef std::vector<T> TCollection;
+  m_theElectronToken = consumes<trigger::TriggerFilterObjectWithRefs>(hltElectronTag);
+  m_theJetToken = consumes<TCollection>(sourceJetTag);
   produces<TCollection>();
 }
 
@@ -77,7 +73,7 @@ HLTJetCollForElePlusJets<T>::produce(edm::Event& iEvent, const edm::EventSetup& 
   typedef std::vector<edm::RefVector<std::vector<T>,T,edm::refhelper::FindUsingAdvance<std::vector<T>,T> > > TCollectionVector;
 
   edm::Handle<trigger::TriggerFilterObjectWithRefs> PrevFilterOutput;
-  iEvent.getByLabel(hltElectronTag,PrevFilterOutput);
+  iEvent.getByToken(m_theElectronToken,PrevFilterOutput);
  
   //its easier on the if statement flow if I try everything at once, shouldnt add to timing
   std::vector<edm::Ref<reco::RecoEcalCandidateCollection> > clusCands;
@@ -108,8 +104,8 @@ HLTJetCollForElePlusJets<T>::produce(edm::Event& iEvent, const edm::EventSetup& 
   }
   
   edm::Handle<TCollection> theJetCollectionHandle;
-  iEvent.getByLabel(sourceJetTag, theJetCollectionHandle);
-  
+  iEvent.getByToken(m_theJetToken, theJetCollectionHandle);
+ 
   const TCollection & theJetCollection = *theJetCollectionHandle;
   
   std::auto_ptr< TCollection >  theFilteredJetCollection(new TCollection);

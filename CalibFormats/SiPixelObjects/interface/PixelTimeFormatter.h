@@ -1,7 +1,5 @@
 /*************************************************************************
  * XDAQ Components for Pixel Online Software                             *
- * Copyright (C) 2007, I.N.F.N. Milano Bicocca                           *
- * All rights reserved.                                                  *
  * Authors: Dario Menasce, Marco Rovere                                  *
  ************************************************************************/
 

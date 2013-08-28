@@ -5,8 +5,6 @@
  *  Basic analyzer class which accesses CSCSegment
  *  and plot efficiency of the builder
  *
- *  $Date: 2008/01/24 02:28:25 $
- *  $Revision: 1.9 $
  *  \author M. Sani
  */
 

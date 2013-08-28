@@ -43,6 +43,7 @@ pointer to a ProductHolder, when queried.
 namespace edm {
 
   class HistoryAppender;
+  class ModuleCallingContext;
   class ProductHolderIndexHelper;
   class EDConsumerBase;
 
@@ -74,15 +75,15 @@ namespace edm {
 
     void adjustIndexesAfterProductRegistryAddition();
 
-    void addScheduledProduct(boost::shared_ptr<ConstBranchDescription> bd);
+    void addScheduledProduct(boost::shared_ptr<BranchDescription const> bd);
 
-    void addSourceProduct(boost::shared_ptr<ConstBranchDescription> bd);
+    void addSourceProduct(boost::shared_ptr<BranchDescription const> bd);
 
-    void addInputProduct(boost::shared_ptr<ConstBranchDescription> bd);
+    void addInputProduct(boost::shared_ptr<BranchDescription const> bd);
 
-    void addUnscheduledProduct(boost::shared_ptr<ConstBranchDescription> bd);
+    void addUnscheduledProduct(boost::shared_ptr<BranchDescription const> bd);
 
-    void addAliasedProduct(boost::shared_ptr<ConstBranchDescription> bd);
+    void addAliasedProduct(boost::shared_ptr<BranchDescription const> bd);
 
     void fillPrincipal(ProcessHistoryID const& hist, DelayedReader* reader);
 

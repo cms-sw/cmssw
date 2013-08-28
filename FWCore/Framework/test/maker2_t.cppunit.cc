@@ -8,15 +8,14 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/src/WorkerT.h"
-#include "FWCore/Framework/interface/Actions.h"
-#include "FWCore/Framework/interface/CurrentProcessingContext.h"
+#include "FWCore/Framework/interface/ExceptionActions.h"
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
 #include "FWCore/Framework/src/WorkerMaker.h"
-#include "FWCore/Framework/src/WorkerParams.h"
+#include "FWCore/Framework/src/MakeModuleParams.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include <cppunit/extensions/HelperMacros.h>
+#include "cppunit/extensions/HelperMacros.h"
 
 using namespace edm;
 
@@ -33,10 +32,6 @@ TestMod::TestMod(ParameterSet const&)
 
 void TestMod::produce(Event&, EventSetup const&)
 {
-  edm::CurrentProcessingContext const* p = currentContext();
-  CPPUNIT_ASSERT( p != 0 );
-  CPPUNIT_ASSERT( p->moduleDescription() != 0 );
-  CPPUNIT_ASSERT( p->moduleLabel() != 0 );
 }
 
 // ----------------------------------------------
@@ -71,16 +66,18 @@ void testmaker2::maker2Test()
   p2.addParameter("@module_edm_type",std::string("EDProducer") );
   p2.registerIt();
 
-  edm::ActionTable table;
+  edm::ExceptionToActionTable table;
 
   edm::ProductRegistry preg;
   boost::shared_ptr<ProcessConfiguration> pc(new ProcessConfiguration("PROD", edm::ParameterSetID(), edm::getReleaseVersion(), edm::getPassID()));
-  edm::WorkerParams params1(&p1, preg, pc, table);
-  edm::WorkerParams params2(&p2, preg, pc, table);
+  edm::MakeModuleParams params1(&p1, preg, pc);
+  edm::MakeModuleParams params2(&p2, preg, pc);
 
   signalslot::Signal<void(const ModuleDescription&)> aSignal;
-  std::unique_ptr<Worker> w1 = f->makeWorker(params1,aSignal,aSignal);
-  std::unique_ptr<Worker> w2 = f->makeWorker(params2,aSignal,aSignal);
+  auto m1 = f->makeModule(params1,aSignal,aSignal);
+  std::unique_ptr<Worker> w1 = m1->makeWorker(&table);
+  auto m2 = f->makeModule(params2,aSignal,aSignal);
+  std::unique_ptr<Worker> w2 = m2->makeWorker(&table);
 
 //  return 0;
 }

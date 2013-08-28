@@ -1,7 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
 #
-# $Id: fixedMatrixPreshowerClusteringSequence.cff,v 1.1 2008/03/03 21:46:00 dlevans Exp $
 #
 #------------------
 #Preshower clustering:

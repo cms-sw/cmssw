@@ -37,7 +37,7 @@ public:
   L1RCT_RSKeysOnlineProd(const edm::ParameterSet& iConfig);
   ~L1RCT_RSKeysOnlineProd() {}
 
-      virtual void fillObjectKeys( ReturnType pL1TriggerKey ) ;
+      virtual void fillObjectKeys( ReturnType pL1TriggerKey ) override ;
    private:
       // ----------member data ---------------------------
        bool m_enableL1RCTChannelMask;

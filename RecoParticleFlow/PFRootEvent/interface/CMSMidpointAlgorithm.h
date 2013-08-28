@@ -17,7 +17,6 @@
  * \version   2nd Version Apr. 6, 2005  Modifications toward integration in new EDM.
  * \version   3rd Version Oct. 19, 2005 Modified to work with real CaloTowers from Jeremy Mans
  * \version   F.Ratnikov, Mar. 8, 2006. Work from Candidate
- * $Id: CMSMidpointAlgorithm.h,v 1.8 2007/05/03 21:20:09 fedor Exp $
  *
  ************************************************************/
 

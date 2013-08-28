@@ -33,7 +33,7 @@ class TopBottomClusterInfoProducer : public edm::EDProducer {
 public:
   TopBottomClusterInfoProducer(const edm::ParameterSet& iConfig) ;
   ~TopBottomClusterInfoProducer() ;
-  void produce(edm::Event &iEvent, const edm::EventSetup &iSetup) ;
+  void produce(edm::Event &iEvent, const edm::EventSetup &iSetup) override ;
   
 private:
   edm::InputTag stripClustersOld_, pixelClustersOld_;

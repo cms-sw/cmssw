@@ -39,10 +39,6 @@ namespace edm {
 
     public:
       typedef EDAnalyzerAdaptorBase ModuleType;
-      //WorkerType is used to call the 'makeModule<T>' call which constructs
-      // the actual module. We can use the StreamWorker to create the actual
-      // module which holds the various stream modules
-      typedef StreamWorker<EDAnalyzerAdaptorBase> WorkerType;
 
 
       EDAnalyzerBase();
@@ -53,11 +49,6 @@ namespace edm {
       static const std::string& baseType();
       
     protected:
-      // The returned pointer will be null unless the this is currently
-      // executing its event loop function ('analyze').
-      CurrentProcessingContext const* currentContext() const {
-        return current_context_;
-      }
 
       void callWhenNewProductsRegistered(std::function<void(BranchDescription const&)> const& func);
 
@@ -77,7 +68,6 @@ namespace edm {
       virtual void endStream(){}
 
       // ---------- member data --------------------------------
-      CurrentProcessingContext const* current_context_;
       std::function<void(BranchDescription const&)> callWhenNewProductsRegistered_;
 
     };

@@ -49,7 +49,7 @@ namespace { // anonymous
 		virtual ~XMLInputSourceWrapper() {}
 
 		virtual XERCES_CPP_NAMESPACE_QUALIFIER BinInputStream*
-							makeStream() const
+							makeStream() const override
 		{ return new T(*obj); }
 
 	    private:
@@ -64,10 +64,10 @@ namespace { // anonymous
 	        STLInputStream(std::istream &in) : in(in) {}
 	        virtual ~STLInputStream() {}
 
-	        virtual unsigned int curPos() const { return pos; }
+	        virtual unsigned int curPos() const override { return pos; }
 
 	        virtual unsigned int readBytes(XMLByte *const buf,
-	                                       const unsigned int size);
+	                                       const unsigned int size) override;
 
 	    private:
 	        std::istream    &in;

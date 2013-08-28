@@ -17,8 +17,8 @@ class RecoTauDistanceFromTruthPlugin : public reco::tau::RecoTauCleanerPlugin {
   public:
     RecoTauDistanceFromTruthPlugin(const edm::ParameterSet& pset);
     virtual ~RecoTauDistanceFromTruthPlugin() {}
-    double operator()(const reco::PFTauRef&) const;
-    void beginEvent();
+    double operator()(const reco::PFTauRef&) const override;
+    void beginEvent() override;
   private:
     edm::InputTag matchingSrc_;
     typedef edm::Association<reco::GenJetCollection> GenJetAssociation;

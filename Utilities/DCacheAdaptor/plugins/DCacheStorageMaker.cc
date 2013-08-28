@@ -31,7 +31,7 @@ public:
       @a mode bits.  No temporary files are downloaded.  */
   virtual Storage *open (const std::string &proto,
 			 const std::string &path,
-			 int mode)
+			 int mode) override
   {
     StorageFactory *f = StorageFactory::get();
     StorageFactory::ReadHint readHint = f->readHint();
@@ -48,7 +48,7 @@ public:
   }
 
   virtual void stagein (const std::string &proto,
-		        const std::string &path)
+		        const std::string &path) override
   {
     std::string npath = normalise(proto, path);
     if (dc_stage(npath.c_str(), 0, 0) != 0) {
@@ -63,7 +63,7 @@ public:
 
   virtual bool check (const std::string &proto,
 		      const std::string &path,
-		      IOOffset *size = 0)
+		      IOOffset *size = 0) override
   {
     std::string testpath (normalise (proto, path));
     if (dc_access (testpath.c_str (), R_OK) != 0)
@@ -81,7 +81,7 @@ public:
     return true;
   }
 
-  virtual void setTimeout(unsigned int timeout) {
+  virtual void setTimeout(unsigned int timeout) override {
     if (timeout != 0) dc_setOpenTimeout(timeout);
   }
 };

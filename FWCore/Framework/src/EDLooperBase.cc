@@ -17,7 +17,7 @@
 #include "FWCore/Framework/interface/EventSetupProvider.h"
 #include "FWCore/Utilities/interface/Algorithms.h"
 #include "FWCore/MessageLogger/interface/ExceptionMessages.h"
-#include "FWCore/Framework/interface/Actions.h"
+#include "FWCore/Framework/interface/ExceptionActions.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Framework/interface/ScheduleInfo.h"
 #include "FWCore/ServiceRegistry/interface/GlobalContext.h"
@@ -57,8 +57,8 @@ namespace edm {
     }
     catch(cms::Exception& e) {
       e.addContext("Calling the 'duringLoop' method of a looper");
-      actions::ActionCodes action = (act_table_->find(e.category()));
-      if (action != actions::Rethrow) {
+      exception_actions::ActionCodes action = (act_table_->find(e.category()));
+      if (action != exception_actions::Rethrow) {
         edm::printCmsExceptionWarning("SkipEvent", e);
       }
       else {

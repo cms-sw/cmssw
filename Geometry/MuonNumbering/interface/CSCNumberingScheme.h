@@ -23,7 +23,7 @@ class CSCNumberingScheme : public MuonNumberingScheme {
   CSCNumberingScheme( const DDCompactView& cpv );
   ~CSCNumberingScheme(){};
   
-  virtual int baseNumberToUnitNumber(const MuonBaseNumber);
+  virtual int baseNumberToUnitNumber(const MuonBaseNumber&);
   
  private:
 

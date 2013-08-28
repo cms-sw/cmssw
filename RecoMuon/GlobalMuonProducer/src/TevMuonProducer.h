@@ -9,8 +9,6 @@
  *   starting from a standalone reonstructed muon.
  *
  *
- *   $Date: 2008/04/29 13:52:39 $
- *   $Revision: 1.1 $
  *
  *   \author  R.Bellan - INFN TO
  */

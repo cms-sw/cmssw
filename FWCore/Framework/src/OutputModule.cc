@@ -9,12 +9,10 @@
 #include "DataFormats/Provenance/interface/BranchKey.h"
 #include "DataFormats/Provenance/interface/ParentageRegistry.h"
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
-#include "FWCore/Framework/interface/CurrentProcessingContext.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/interface/OutputModuleDescription.h"
 #include "FWCore/Framework/interface/TriggerNamesService.h"
-#include "FWCore/Framework/src/CPCSentry.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
@@ -35,7 +33,6 @@ namespace edm {
     productSelectorRules_(pset, "outputCommands", "OutputModule"),
     productSelector_(),
     moduleDescription_(),
-    current_context_(nullptr),
     wantAllEvents_(false),
     selectors_(),
     selector_config_id_(),
@@ -176,9 +173,7 @@ namespace edm {
   bool
   OutputModule::doEvent(EventPrincipal const& ep,
                         EventSetup const&,
-                        CurrentProcessingContext const* cpc,
                         ModuleCallingContext const* mcc) {
-    detail::CPCSentry sentry(current_context_, cpc);
     detail::TRBESSentry products_sentry(selectors_);
 
     FDEBUG(2) << "writeEvent called\n";
@@ -215,9 +210,7 @@ namespace edm {
   bool
   OutputModule::doBeginRun(RunPrincipal const& rp,
                            EventSetup const&,
-                           CurrentProcessingContext const* cpc,
                            ModuleCallingContext const* mcc) {
-    detail::CPCSentry sentry(current_context_, cpc);
     FDEBUG(2) << "beginRun called\n";
     beginRun(rp, mcc);
     return true;
@@ -226,9 +219,7 @@ namespace edm {
   bool
   OutputModule::doEndRun(RunPrincipal const& rp,
                          EventSetup const&,
-                         CurrentProcessingContext const* cpc,
                          ModuleCallingContext const* mcc) {
-    detail::CPCSentry sentry(current_context_, cpc);
     FDEBUG(2) << "endRun called\n";
     endRun(rp, mcc);
     return true;
@@ -244,9 +235,7 @@ namespace edm {
   bool
   OutputModule::doBeginLuminosityBlock(LuminosityBlockPrincipal const& lbp,
                                        EventSetup const&,
-                                       CurrentProcessingContext const* cpc,
                                        ModuleCallingContext const* mcc) {
-    detail::CPCSentry sentry(current_context_, cpc);
     FDEBUG(2) << "beginLuminosityBlock called\n";
     beginLuminosityBlock(lbp, mcc);
     return true;
@@ -255,9 +244,7 @@ namespace edm {
   bool
   OutputModule::doEndLuminosityBlock(LuminosityBlockPrincipal const& lbp,
                                      EventSetup const&,
-                                     CurrentProcessingContext const* cpc,
                                      ModuleCallingContext const* mcc) {
-    detail::CPCSentry sentry(current_context_, cpc);
     FDEBUG(2) << "endLuminosityBlock called\n";
     endLuminosityBlock(lbp, mcc);
     return true;
@@ -330,11 +317,6 @@ namespace edm {
       return branchIDLists_.get();
     }
     return origBranchIDLists_;
-  }
-
-  CurrentProcessingContext const*
-  OutputModule::currentContext() const {
-    return current_context_;
   }
 
   ModuleDescription const&

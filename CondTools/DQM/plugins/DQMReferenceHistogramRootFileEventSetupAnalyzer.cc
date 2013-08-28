@@ -26,8 +26,8 @@ namespace edmtest {
     explicit DQMReferenceHistogramRootFileEventSetupAnalyzer(const edm::ParameterSet & pset);
     explicit DQMReferenceHistogramRootFileEventSetupAnalyzer(int i);
     virtual ~DQMReferenceHistogramRootFileEventSetupAnalyzer();
-    virtual void analyze(const edm::Event& event, const edm::EventSetup& setup);
-    virtual void beginRun(edm::Run const&, edm::EventSetup const&) ;
+    virtual void analyze(const edm::Event& event, const edm::EventSetup& setup) override;
+    virtual void beginRun(edm::Run const&, edm::EventSetup const&) override ;
   private:
     bool init_ ;
   };

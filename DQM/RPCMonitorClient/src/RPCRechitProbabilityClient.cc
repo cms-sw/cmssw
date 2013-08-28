@@ -11,7 +11,7 @@
 
 RPCRecHitProbabilityClient::RPCRecHitProbabilityClient(const edm::ParameterSet& iConfig){
 
-  edm::LogVerbatim ("rpcdqmclient") << "[RPCRecHitProbabilityClient]: Constructor";
+ edm::LogVerbatim ("rpcdqmclient") << "[RPCRecHitProbabilityClient]: Constructor";
 
   
   std::string subsystemFolder= iConfig.getUntrackedParameter<std::string>("RPCFolder", "RPC");

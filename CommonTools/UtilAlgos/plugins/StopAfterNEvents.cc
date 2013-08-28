@@ -6,7 +6,7 @@ public:
   StopAfterNEvents( const edm::ParameterSet & );
   ~StopAfterNEvents();
 private:
-  bool filter( edm::Event &, edm::EventSetup const& );
+  bool filter( edm::Event &, edm::EventSetup const& ) override;
   const int nMax_;
   int n_;
   const bool verbose_;

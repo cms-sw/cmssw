@@ -19,7 +19,6 @@ through the MessageLogger.
 
 //
 // Original Author:  Marc Paterno
-// $Id: JobReportService.h,v 1.3 2010/03/09 16:24:55 wdd Exp $
 //
 
 #include <string>

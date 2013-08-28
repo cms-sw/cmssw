@@ -33,7 +33,7 @@ namespace edm {
   std::ostream& operator<<(std::ostream& os, ProcessContext const& pc) {
     os << "ProcessContext: ";
     if(pc.processConfiguration()) {
-      os << *pc.processConfiguration() << "\n";
+      os << pc.processConfiguration()->processName() <<  " " << pc.processConfiguration()->parameterSetID()<< "\n";
     } else {
       os << "invalid\n";
       return os;

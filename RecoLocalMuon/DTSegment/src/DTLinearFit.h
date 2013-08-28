@@ -7,8 +7,6 @@
  *  
  * detailed description
  *
- * $Date: 2006/03/30 16:53:17 $
- * $Revision: 1.1 $
  * \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  *
  */

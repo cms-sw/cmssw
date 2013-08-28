@@ -2,7 +2,7 @@
 
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "DataFormats/Provenance/interface/ProcessHistoryRegistry.h"
-#include "DataFormats/Provenance/interface/Provenance.h"
+#include "FWCore/Common/interface/Provenance.h"
 #include "FWCore/Common/interface/TriggerResultsByName.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
@@ -48,7 +48,7 @@ namespace edm {
   }
 
   ProductID
-  Event::makeProductID(ConstBranchDescription const& desc) const {
+  Event::makeProductID(BranchDescription const& desc) const {
     return eventPrincipal().branchIDToProductID(desc.originalBranchID());
   }
 

@@ -9,9 +9,9 @@
 
 #include <boost/shared_ptr.hpp>
 
-#include <HepMC/GenEvent.h>
-#include <HepMC/GenVertex.h>
-#include <HepMC/PdfInfo.h>
+#include "HepMC/GenEvent.h"
+#include "HepMC/GenVertex.h"
+#include "HepMC/PdfInfo.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 

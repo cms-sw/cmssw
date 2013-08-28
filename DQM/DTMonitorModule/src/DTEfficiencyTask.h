@@ -8,8 +8,6 @@
  *  All histos are produced per Layer
  *
  *
- *  $Date: 2008/03/01 00:39:54 $
- *  $Revision: 1.6 $
  *  \author G. Mila - INFN Torino
  */
 

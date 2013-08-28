@@ -32,7 +32,7 @@ class AlignableCSCStation : public AlignableComposite
 
  public:
 
-  AlignableCSCStation( const std::vector<AlignableCSCRing*> cscRings );
+  AlignableCSCStation( const std::vector<AlignableCSCRing*>& cscRings );
 
   ~AlignableCSCStation();
   

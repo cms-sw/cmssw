@@ -169,10 +169,10 @@ class JetTagMVATreeTrainer : public edm::EDAnalyzer {
 	~JetTagMVATreeTrainer();
 
 	virtual void beginRun(const edm::Run &run,
-	                      const edm::EventSetup &es);
+	                      const edm::EventSetup &es) override;
 
 	virtual void analyze(const edm::Event &event,
-	                     const edm::EventSetup &es);
+	                     const edm::EventSetup &es) override;
 
     protected:
 	bool isSignalFlavour(int flavour) const;

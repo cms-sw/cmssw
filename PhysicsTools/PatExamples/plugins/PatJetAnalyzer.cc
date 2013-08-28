@@ -50,7 +50,7 @@ public:
   
 private:
   /// everything that needs to be done during the even loop
-  virtual void analyze(const edm::Event& event, const edm::EventSetup& setup);
+  virtual void analyze(const edm::Event& event, const edm::EventSetup& setup) override;
 
   /// check if histogram was booked
   bool booked(const std::string histName) const { return hists_.find(histName.c_str())!=hists_.end(); };

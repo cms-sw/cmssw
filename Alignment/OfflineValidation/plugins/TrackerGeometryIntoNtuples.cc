@@ -76,7 +76,7 @@ public:
 	
 	
 private:
-	virtual void analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup);
+	virtual void analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) override;
 	
 	void addBranches();
 	

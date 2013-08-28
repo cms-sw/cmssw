@@ -21,7 +21,7 @@ class SideBandSubtract
 {
  private:
   void print_plot(RooRealVar* printVar, std::string outname);
-  Double_t getYield(std::vector<SbsRegion> Regions, RooAbsPdf *PDF);
+  Double_t getYield(const std::vector<SbsRegion>& Regions, RooAbsPdf *PDF);
   RooAbsPdf *BackgroundPDF;
   RooAbsPdf *ModelPDF;
   RooDataSet* Data;
@@ -49,7 +49,7 @@ class SideBandSubtract
 		   RooAbsPdf *bkg_shape, 
 		   RooDataSet* data, 
 		   RooRealVar* sep_var, 
-		   std::vector<TH1F*> base, 
+		   const std::vector<TH1F*>& base, 
 		   bool verb);
   ~SideBandSubtract();
   void addSignalRegion(Double_t min, Double_t max);

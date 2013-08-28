@@ -30,7 +30,7 @@ public:
 
 private:
 
-    virtual void analyze(const edm::Event&, const edm::EventSetup&);
+    virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
 
     // Member data
 
