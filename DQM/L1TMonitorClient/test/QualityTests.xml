@@ -1,0 +1,65 @@
+<TESTSCONFIGURATION>
+
+<QTEST name="meanInRange">
+	<TYPE>ContentsYRange</TYPE>	
+	<PARAM name="ymin">0</PARAM>
+	<PARAM name="ymax">0.1</PARAM>
+	<PARAM name="error">0.30</PARAM>
+	<PARAM name="warning">0.70</PARAM>
+</QTEST>
+
+<QTEST name="dttfQualityInRange">
+      <TYPE>ContentsXRange</TYPE> 
+      <PARAM name="error">0.7</PARAM> 
+      <PARAM name="warning">0.9</PARAM> 
+      <PARAM name="xmin">4</PARAM> 
+      <PARAM name="xmax">7</PARAM> 
+</QTEST>
+
+<QTEST name="dttfPTinRange">
+	<TYPE>ContentsXRange</TYPE>	
+	<PARAM name="xmin">5.0</PARAM>
+	<PARAM name="xmax">15.0</PARAM>
+	<PARAM name="error">0.30</PARAM>
+	<PARAM name="warning">0.70</PARAM>
+</QTEST>
+
+<QTEST name="dttfPhiTest">
+        <TYPE>MeanWithinExpected</TYPE>
+        <PARAM name="error">0.05</PARAM>
+        <PARAM name="warning">0.5</PARAM>
+        <PARAM name="mean">0.0</PARAM>
+        <PARAM name="useRMS">0</PARAM>
+        <PARAM name="useSigma">0</PARAM>
+        <PARAM name="useRange">1</PARAM>
+        <PARAM name="xmin">-0.015</PARAM>
+        <PARAM name="xmax">0.015</PARAM>
+</QTEST>
+
+
+<LINK name="*PhiProfile*">
+	<TestName activate="false">meanInRange</TestName>
+</LINK>
+
+<LINK name="*dttf_p_pt*">
+	<TestName activate="true">dttfPTinRange</TestName>
+</LINK>
+
+<LINK name="*dttf_p_qual*">
+	<TestName activate="true">dttfQualityInRange</TestName>
+</LINK>
+
+<LINK name="*dttf_p_phi*">
+	<TestName activate="true">dttfPhiTest</TestName>
+</LINK>
+
+<LINK name="*_TPG_phi_qual*">
+	<TestName activate="true">dttfQualityInRange</TestName>
+</LINK>
+
+<LINK name="*newME*">
+	<TestName activate="true">dttfQualityInRange</TestName>
+</LINK>
+
+
+</TESTSCONFIGURATION>
