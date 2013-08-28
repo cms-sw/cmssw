@@ -85,8 +85,7 @@ namespace muon {
    bool isLooseMuon(const reco::Muon&);
    bool isSoftMuon(const reco::Muon&, const reco::Vertex&);
    enum TunePType{defaultTuneP, improvedTuneP};
-   bool isHighPtMuon(const reco::Muon&, const reco::Vertex&, TunePType = muon::improvedTuneP);
-   reco::TrackRef improvedMuonBestTrack(const reco::Muon&, TunePType);
+   bool isHighPtMuon(const reco::Muon&, const reco::Vertex&, TunePType);
 
    // determine if station was crossed well withing active volume
    unsigned int RequiredStationMask( const reco::Muon& muon,

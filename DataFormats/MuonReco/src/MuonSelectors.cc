@@ -776,14 +776,6 @@ bool muon::isHighPtMuon(const reco::Muon& muon, const reco::Vertex& vtx, TunePTy
   else return false;
 }
 
-reco::TrackRef muon::improvedMuonBestTrack(const reco::Muon& muon, TunePType tunePType){
-  reco::TrackRef cktTrack;
-  if(tunePType == improvedTuneP){ 
-    cktTrack = (muon::tevOptimized(muon, 200, 17., 40., 0.25)).first;}
-  else if (tunePType == defaultTuneP){
-    cktTrack = (muon::tevOptimized(muon, 200, 4., 6., -1)).first;}
-  return cktTrack;
-}
 
 int muon::sharedSegments( const reco::Muon& mu, const reco::Muon& mu2, unsigned int segmentArbitrationMask ) {
     int ret = 0;
