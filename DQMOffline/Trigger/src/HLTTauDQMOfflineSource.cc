@@ -58,6 +58,13 @@ HLTTauDQMOfflineSource::HLTTauDQMOfflineSource( const edm::ParameterSet& ps ):
         edm::LogWarning("HLTTauDQMSource") << e.what() << std::endl;
         continue;
       }
+    } else if (configtype == "PathSummary") {
+      try {
+        pathSummaryPlotters_.emplace_back(new HLTTauDQMPathSummaryPlotter(pset, dqmBaseFolder_));
+      } catch ( cms::Exception &e ) {
+        edm::LogWarning("HLTTauDQMSource") << e.what() << std::endl;
+        continue;
+      }
     }
   }
 
@@ -88,8 +95,15 @@ void HLTTauDQMOfflineSource::beginRun( const edm::Run& iRun, const EventSetup& i
           for(auto& l1Plotter: l1Plotters_) {
             l1Plotter->beginRun();
           }
+          std::vector<const HLTTauDQMPath *> pathObjects;
+          pathObjects.reserve(pathPlotters2_.size());
           for(auto& pathPlotter: pathPlotters2_) {
             pathPlotter->beginRun(HLTCP_);
+            if(pathPlotter->isValid())
+              pathObjects.push_back(pathPlotter->getPathObject());
+          }
+          for(auto& pathSummaryPlotter: pathSummaryPlotters_) {
+            pathSummaryPlotter->beginRun(pathObjects);
           }
 
             processPSet(ps_);
@@ -185,6 +199,10 @@ void HLTTauDQMOfflineSource::analyze(const Event& iEvent, const EventSetup& iSet
         //Lite Path Plotters
         for ( unsigned int i = 0; i < litePathPlotters.size(); ++i ) {
             if (litePathPlotters[i]->isValid()) litePathPlotters[i]->analyze(iEvent,iSetup,refC);
+        }
+        for(auto& pathSummaryPlotter: pathSummaryPlotters_) {
+          if(pathSummaryPlotter->isValid())
+            pathSummaryPlotter->analyze(*triggerResultsHandle);
         }
         
         //L1 Plotters

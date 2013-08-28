@@ -29,6 +29,8 @@ public:
   void analyze(const edm::TriggerResults& triggerResults, const trigger::TriggerEvent& triggerEvent, const std::map<int, LVColl>& refCollection);
   const std::string name() { return "foo"; }
 
+  const HLTTauDQMPath *getPathObject() const { return &hltPath_; }
+
   typedef std::tuple<std::string, size_t> FilterIndex;
 private:
   const std::string hltProcess_;

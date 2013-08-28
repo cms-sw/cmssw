@@ -25,6 +25,7 @@
 #include "DQMOffline/Trigger/interface/HLTTauDQMPathPlotter.h"
 #include "DQMOffline/Trigger/interface/HLTTauDQMPathPlotter2.h"
 #include "DQMOffline/Trigger/interface/HLTTauDQMLitePathPlotter.h"
+#include "DQMOffline/Trigger/interface/HLTTauDQMPathSummaryPlotter.h"
 
 //Automatic Configuration
 #include "DQMOffline/Trigger/interface/HLTTauDQMAutomation.h"
@@ -112,4 +113,5 @@ private:
     std::vector<HLTTauDQMPathPlotter*> pathPlotters;
     std::vector<std::unique_ptr<HLTTauDQMPathPlotter2>> pathPlotters2_;
     std::vector<HLTTauDQMLitePathPlotter*> litePathPlotters;
+    std::vector<std::unique_ptr<HLTTauDQMPathSummaryPlotter>> pathSummaryPlotters_;
 };
