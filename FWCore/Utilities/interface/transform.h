@@ -6,9 +6,10 @@
 namespace edm {
 
   // helper template function to build a vector applying a transformation to the elements of an input vector
-  template <typename ReturnType, typename InputType, typename Function>
-  std::vector<ReturnType> vector_transform(std::vector<InputType> const & input, Function predicate)
+  template <typename InputType, typename Function>
+  auto vector_transform(std::vector<InputType> const & input, Function predicate) -> std::vector<decltype(predicate(input.front()))>
   {
+    using ReturnType = decltype(predicate(input.front()));
     std::vector<ReturnType> output;
     output.reserve( input.size() );
     for (auto const & element : input)
