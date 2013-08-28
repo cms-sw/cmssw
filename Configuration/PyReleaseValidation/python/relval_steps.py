@@ -481,7 +481,7 @@ steps['ZmumuJets_Pt_20_300INPUT']={'INPUT':InputInfo(dataSet='/RelValZmumuJets_P
 
 steps['Cosmics']=merge([{'cfg':'UndergroundCosmicMu_cfi.py','--scenario':'cosmics'},Kby(666,100000),step1Defaults])
 steps['BeamHalo']=merge([{'cfg':'BeamHalo_cfi.py','--scenario':'cosmics'},Kby(9,100),step1Defaults])
-steps['BeamHalo_13']=merge([{'cfg':'BeamHalo_13TeV_cfi.py','--scenario':'cosmics'},Kby(9,100),step1Defaults])
+steps['BeamHalo_13']=merge([{'cfg':'BeamHalo_13TeV_cfi.py','--scenario':'cosmics'},Kby(9,100),step1Up2015Defaults])
 
 steps['CosmicsINPUT']={'INPUT':InputInfo(dataSet='/RelValCosmics/%s/GEN-SIM'%(baseDataSetRelease[0],),location='STD')}
 steps['BeamHaloINPUT']={'INPUT':InputInfo(dataSet='/RelValBeamHalo/%s/GEN-SIM'%(baseDataSetRelease[0],),location='STD')}
@@ -1033,6 +1033,14 @@ step3Up2015Defaults = {'-s':'RAW2DIGI,L1Reco,RECO,EI,VALIDATION,DQM',
                  '--customise' : 'SLHCUpgradeSimulations/Configuration/postLS1Customs.customisePostLS1',
                  '--geometry' : 'Extended2015'
                  }
+step3Up2015Hal = {'-s'           :'RAW2DIGI,L1Reco,RECO,EI,VALIDATION,DQM',
+                 '--conditions'  :'auto:upgradePLS1', 
+                 '--eventcontent':'RECOSIM,AODSIM',
+                 '-n'            :'10',
+                 '--datatier'    : 'GEN-SIM-RECO,DQM',
+                 '--customise'   : 'SLHCUpgradeSimulations/Configuration/postLS1Customs.customisePostLS1',
+                 '--geometry'    : 'Extended2015'
+                 }
                              
 steps['RECOUP15']=merge([step3Up2015Defaults]) # todo: remove UP from label
 
@@ -1044,7 +1052,7 @@ steps['RECO']=merge([step3Defaults])
 steps['RECODBG']=merge([{'--eventcontent':'RECODEBUG,DQM'},steps['RECO']])
 steps['RECOPROD1']=merge([{ '-s' : 'RAW2DIGI,L1Reco,RECO,EI', '--datatier' : 'GEN-SIM-RECO,AODSIM', '--eventcontent' : 'RECOSIM,AODSIM'},step3Defaults])
 steps['RECOCOS']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,ALCA:MuAlCalIsolatedMu,DQM','--scenario':'cosmics'},stCond,step3Defaults])
-steps['RECOHAL']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,ALCA:MuAlCalIsolatedMu,DQM','--scenario':'cosmics'},step3Up2015Defaults])
+steps['RECOHAL']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,ALCA:MuAlCalIsolatedMu,DQM','--scenario':'cosmics'},step3Up2015Hal])
 steps['RECOMIN']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,EI,ALCA:SiStripCalZeroBias+SiStripCalMinBias+EcalCalPhiSym+EcalCalPi0Calib+EcalCalEtaCalib,VALIDATION,DQM'},stCond,step3Defaults])
 
 steps['RECODDQM']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,EI,DQM:@common+@muon+@hcal+@jetmet+@ecal'},steps['RECOD']])
