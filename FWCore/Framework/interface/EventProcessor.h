@@ -303,6 +303,15 @@ namespace edm {
     }
 
     void possiblyContinueAfterForkChildFailure();
+    
+    //read the next event using Stream iStreamIndex
+    void readEvent(unsigned int iStreamIndex);
+
+    //process the already read event using Stream iStreamIndex
+    void processEvent(unsigned int iStreamIndex);
+
+    //returns true if an asynchronous stop was requested
+    bool checkForAsyncStopRequest(StatusCode&);
     //------------------------------------------------------------------
     //
     // Data members below.
