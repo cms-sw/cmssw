@@ -66,25 +66,13 @@ void MCTrackMatcher::produce(Event& evt, const EventSetup& es) {
     RecoToSimCollection::const_iterator f = associations.find(track);
     if ( f != associations.end() ) {
       TrackingParticleRef tp = f->val.front().first;
-      const HepMC::GenParticle * particle = 0;
       TrackingParticle::genp_iterator j, b = tp->genParticle_begin(), e = tp->genParticle_end();
       for( j = b; j != e; ++ j ) {
-#warning "This file has been modified just to get it to compile without any regard as to whether it still functions as intended"
-#ifdef REMOVED_JUST_TO_GET_IT_TO_COMPILE__THIS_CODE_NEEDS_TO_BE_CHECKED
-	const HepMC::GenParticle * p = j->get();
+	const reco::GenParticle * p = j->get();
 	if (p->status() == 1) {
-	  particle = p; break;
+	  indices[i] = j->key();
+	  break;
 	}
-#endif
-      }
-      if( particle != 0 ) {
-	int barCode = particle->barcode();
-	vector<int>::const_iterator 
-	  b = barCodes->begin(), e = barCodes->end(), f = find( b, e, barCode );
-	if(f == e) throw edm::Exception(errors::InvalidReference)
-	  << "found matching particle with barcode" << *f
-	  << " which has not been found in " << genParticles_;
-	indices[i] = *f;
       }
     }
   }
