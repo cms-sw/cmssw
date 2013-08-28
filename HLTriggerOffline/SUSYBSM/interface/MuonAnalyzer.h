@@ -35,7 +35,7 @@
 class MuonAnalyzerSBSM {
 
  public:
-  MuonAnalyzerSBSM(edm::InputTag, edm::InputTag);
+  MuonAnalyzerSBSM(const edm::InputTag&, const edm::InputTag&);
   virtual ~MuonAnalyzerSBSM(){};
 
   void InitializePlots(DQMStore *, const std::string);

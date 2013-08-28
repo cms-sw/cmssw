@@ -17,7 +17,7 @@ using namespace edm;
 using namespace reco;
 using namespace std;
 
-McSelector::McSelector(edm::ParameterSet userCut_params)
+McSelector::McSelector(const edm::ParameterSet& userCut_params)
 {
   //******************** PLEASE PAY ATTENTION: number of electron and muons is strictly equal, for jets, taus and photons the requirement is >= ********************
   name     = userCut_params.getParameter<string>("name");
