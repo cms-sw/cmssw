@@ -44,7 +44,7 @@ namespace popcon
     void ConnectOnlineDB(std::string connect, std::string authPath);
     void DisconnectOnlineDB();
     void readHwConfig1();
-    int Compare2Configs(Ref set1, L1RPCHwConfig* set2);
+    int Compare2Configs(const Ref& set1, L1RPCHwConfig* set2);
 
                 private:
     L1RPCHwConfig * disabledDevs;

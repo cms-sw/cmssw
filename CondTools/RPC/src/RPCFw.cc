@@ -1618,7 +1618,7 @@ coral::TimeStamp RPCFw::UTtoT(long long utime)
 
 
 //----------------------------------------------------------------------------------------------
-unsigned long long RPCFw::TtoUT(coral::TimeStamp time) 
+unsigned long long RPCFw::TtoUT(const coral::TimeStamp& time) 
 {
   
   long long utime = (time.year()-1970)*31536000+static_cast<int>(trunc((time.year()-1972)/4))*86400+
@@ -1640,7 +1640,7 @@ unsigned long long RPCFw::TtoUT(coral::TimeStamp time)
 
 
 
-bool RPCFw::isMajor(coral::TimeStamp fir, coral::TimeStamp sec) 
+bool RPCFw::isMajor(const coral::TimeStamp& fir, const coral::TimeStamp& sec) 
 {
 
   double first  = fir.year()*1e10+fir.month()+1e8+fir.day()*1e6+fir.hour()*1e4+fir.minute()*1e2+fir.second();
