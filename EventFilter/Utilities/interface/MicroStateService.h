@@ -1,5 +1,5 @@
 #ifndef EvFMicroStateService_H
-#define EvFMicroStateService_H 1
+#define EvFMicroStateServiceH 1
 
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -21,37 +21,20 @@ namespace evf{
     class MicroStateService
     {
     public:
+      enum Microstate { mInvalid = 0, mFwkOvh, mIdle, mInput, mInputDone, mDqm, mCOUNT}; 
+      // the names of the states - some of them are never reached in an online app
+      static const edm::ModuleDescription reservedMicroStateNames[mCOUNT];
       MicroStateService(const edm::ParameterSet&,edm::ActivityRegistry&);
-      ~MicroStateService();
+      virtual ~MicroStateService();
       
-      std::string getMicroState1();
+      virtual std::string getMicroState1(){return default_return_;}
       
-      std::string const &getMicroState2();
+      virtual std::string const &getMicroState2(){return default_return_;}
 
-      void postBeginJob();     
-
-      void postEndJob();
+      virtual void setMicroState(Microstate m)=0;
       
-      void preEventProcessing(const edm::EventID&, const edm::Timestamp&);
-      void postEventProcessing(const edm::Event&, const edm::EventSetup&);
-      
-      void preSource();
-      void postSource();
-      
-      
-      void preModule(const edm::ModuleDescription&);
-      void postModule(const edm::ModuleDescription&);
-
-      void setMicroState(std::string const *);
-      
-    private:
-
-      std::string microstate1_;
-      const std::string init;
-      const std::string done;
-      const std::string input;
-      const std::string fwkovh;
-      const std::string *microstate2_;
+    protected:
+      static const std::string default_return_;
       boost::mutex lock_;
     };
 
