@@ -1758,6 +1758,9 @@ namespace edm {
             else if(itemType == InputSource::IsEvent) {
               machine->process_event(statemachine::Event());
             }
+            else if(itemType == InputSource::IsSynchronize) {
+              //For now, we don't have to do anything
+            }
             // This should be impossible
             else {
               throw Exception(errors::LogicError)
