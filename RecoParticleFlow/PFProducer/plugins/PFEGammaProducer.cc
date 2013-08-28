@@ -54,6 +54,9 @@ PFEGammaProducer::PFEGammaProducer(const edm::ParameterSet& iConfig):
   algo_config.useReg
     =  iConfig.getParameter<bool>("usePhotonReg");
 
+  useVerticesForNeutral_
+    = iConfig.getParameter<bool>("useVerticesForNeutral"); 
+
   useRegressionFromDB_
     = iConfig.getParameter<bool>("useRegressionFromDB"); 
 
@@ -448,7 +451,7 @@ PFEGammaProducer::setPFEGParameters(PFEGammaAlgo::PFEGConfigInfo& cfg) {
   }
 
   //for MVA pass PV if there is one in the collection otherwise pass a dummy  
-  if(!useVertices_) { // create a dummy PV  
+  if(!useVerticesForNeutral_) { // create a dummy PV  
     reco::Vertex::Error e;  
     e(0, 0) = 0.0015 * 0.0015;  
     e(1, 1) = 0.0015 * 0.0015;  
@@ -498,7 +501,7 @@ void PFEGammaProducer::setPFPhotonRegWeights(
 void
 PFEGammaProducer::setPFVertexParameters(bool useVertex,
                               const reco::VertexCollection*  primaryVertices) {
-  useVertices_ = useVertex;
+  useVerticesForNeutral_ = useVertex;
 
   //Set the vertices for muon cleaning
 //  pfmu_->setInputsForCleaning(primaryVertices);
