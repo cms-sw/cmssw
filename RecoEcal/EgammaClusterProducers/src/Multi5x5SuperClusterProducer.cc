@@ -25,9 +25,9 @@ Multi5x5SuperClusterProducer::Multi5x5SuperClusterProducer(const edm::ParameterS
 {
 
   eeClustersToken_ = 
-	  consumes<reco::BasicClusterCollection>(ps.getParameter<std::string>("endcapClusterTag"));
+	  consumes<reco::BasicClusterCollection>(ps.getParameter<edm::InputTag>("endcapClusterTag"));
   ebClustersToken_ = 
-	  consumes<reco::BasicClusterCollection>(ps.getParameter<std::string>("barrelClusterTag"));
+	  consumes<reco::BasicClusterCollection>(ps.getParameter<edm::InputTag>("barrelClusterTag"));
 
 
   endcapSuperclusterCollection_ = ps.getParameter<std::string>("endcapSuperclusterCollection");
