@@ -1,0 +1,2 @@
+{1 JetEta 1 JetPt [0]+[1]*log10(x)+[2]*pow(log10(x),2)+[3]*pow(log10(x),3)+[4]*pow(log10(x),4)+[5]*pow(log10(x),5) Correction L2Relative}
+     -5.191     5.191          8      1.0     350.     1.     0            0            0            0            0

@@ -1,0 +1,282 @@
+09-Dec-2009 19:35:08 CET  Initiating request to open file rfio:/castor/cern.ch/user/x/xiezhen/MinBiasPromptSkimProcessed-122314.root
+09-Dec-2009 19:35:18 CET  Successfully opened file rfio:/castor/cern.ch/user/x/xiezhen/MinBiasPromptSkimProcessed-122314.root
+09-Dec-2009 19:35:19 CET  Closed file rfio:/castor/cern.ch/user/x/xiezhen/MinBiasPromptSkimProcessed-122314.root
+%MSG-i LumiReport:  AfterModEndJob PostEndRun
+====== Lumi Section 10 ======
+	 Luminosity -0.0187146
+	 Deadtime corrected Luminosity -0.00458275
+====== Lumi Section 11 ======
+	 Luminosity 0.00924454
+	 Deadtime corrected Luminosity 0.00914393
+====== Lumi Section 12 ======
+	 Luminosity 0.00589927
+	 Deadtime corrected Luminosity 0.00583624
+====== Lumi Section 13 ======
+	 Luminosity -0.0206695
+	 Deadtime corrected Luminosity -0.0204487
+====== Lumi Section 14 ======
+	 Luminosity 0.00952514
+	 Deadtime corrected Luminosity 0.00942338
+====== Lumi Section 15 ======
+	 Luminosity -0.00610251
+	 Deadtime corrected Luminosity -0.00603731
+====== Lumi Section 16 ======
+	 Luminosity 0.00719878
+	 Deadtime corrected Luminosity 0.00712186
+====== Lumi Section 17 ======
+	 Luminosity 0.0068783
+	 Deadtime corrected Luminosity 0.00680482
+====== Lumi Section 18 ======
+	 Luminosity -0.0051033
+	 Deadtime corrected Luminosity -0.00504878
+====== Lumi Section 19 ======
+	 Luminosity -0.00743271
+	 Deadtime corrected Luminosity -0.00735329
+====== Lumi Section 20 ======
+	 Luminosity 0.00130081
+	 Deadtime corrected Luminosity 0.00128691
+====== Lumi Section 21 ======
+	 Luminosity -0.0107133
+	 Deadtime corrected Luminosity -0.0105988
+====== Lumi Section 22 ======
+	 Luminosity 0.0187173
+	 Deadtime corrected Luminosity 0.0185173
+====== Lumi Section 23 ======
+	 Luminosity -0.00255998
+	 Deadtime corrected Luminosity -0.00253263
+====== Lumi Section 24 ======
+	 Luminosity 0.00117751
+	 Deadtime corrected Luminosity 0.00116493
+====== Lumi Section 25 ======
+	 Luminosity -0.00439287
+	 Deadtime corrected Luminosity -0.00434594
+====== Lumi Section 26 ======
+	 Luminosity -0.000559516
+	 Deadtime corrected Luminosity -0.000553538
+====== Lumi Section 27 ======
+	 Luminosity 0.00834759
+	 Deadtime corrected Luminosity 0.0082584
+====== Lumi Section 28 ======
+	 Luminosity 0.00438416
+	 Deadtime corrected Luminosity 0.00433732
+====== Lumi Section 29 ======
+	 Luminosity -0.00900861
+	 Deadtime corrected Luminosity -0.00891237
+====== Lumi Section 30 ======
+	 Luminosity 0.00372024
+	 Deadtime corrected Luminosity 0.00368049
+====== Lumi Section 31 ======
+	 Luminosity 0.000651621
+	 Deadtime corrected Luminosity 0.000644659
+====== Lumi Section 32 ======
+	 Luminosity 0.00182571
+	 Deadtime corrected Luminosity 0.00180621
+====== Lumi Section 33 ======
+	 Luminosity 0.00166471
+	 Deadtime corrected Luminosity 0.00164692
+====== Lumi Section 34 ======
+	 Luminosity -0.0103847
+	 Deadtime corrected Luminosity -0.0102738
+====== Lumi Section 35 ======
+	 Luminosity 0.00915926
+	 Deadtime corrected Luminosity 0.0090614
+====== Lumi Section 36 ======
+	 Luminosity 0.00183911
+	 Deadtime corrected Luminosity 0.00181946
+====== Lumi Section 37 ======
+	 Luminosity -0.013349
+	 Deadtime corrected Luminosity -0.0132063
+====== Lumi Section 38 ======
+	 Luminosity -0.00532565
+	 Deadtime corrected Luminosity -0.00526875
+====== Lumi Section 39 ======
+	 Luminosity -0.00557405
+	 Deadtime corrected Luminosity -0.0055145
+====== Lumi Section 40 ======
+	 Luminosity -0.00278771
+	 Deadtime corrected Luminosity -0.00275793
+====== Lumi Section 41 ======
+	 Luminosity 0.00616777
+	 Deadtime corrected Luminosity 0.00610187
+====== Lumi Section 42 ======
+	 Luminosity 0.00209736
+	 Deadtime corrected Luminosity 0.00207495
+====== Lumi Section 43 ======
+	 Luminosity -0.0123094
+	 Deadtime corrected Luminosity -0.0121779
+====== Lumi Section 44 ======
+	 Luminosity -0.00775479
+	 Deadtime corrected Luminosity -0.00767194
+====== Lumi Section 45 ======
+	 Luminosity -0.00775479
+	 Deadtime corrected Luminosity -0.00767194
+================ Run Summary 122314================
+  CMS Recorded Lumi (e+28cm^-2) : -0.0362261
+  Effective Lumi (e+28cm^-2) per trigger path: 
+
+  0  AlCa_RPCMuonNoHits - L1_SingleMuOpen : -0.0362261
+
+  1  AlCa_RPCMuonNormalisation - L1_SingleMuOpen : -0.0362261
+
+  2  HLT_BTagIP_Jet50U - L1_SingleJet30U : -0.0362261
+
+  3  HLT_BTagMu_Jet10U - L1_Mu3_Jet6U : -0.0362261
+
+  4  HLT_BackwardBSC - 38 : -0.0362261
+
+  5  HLT_CSCBeamHalo - L1_SingleMuBeamHalo : -0.0362261
+
+  6  HLT_CSCBeamHaloOverlapRing1 - L1_SingleMuBeamHalo : -0.0362261
+
+  7  HLT_CSCBeamHaloOverlapRing2 - L1_SingleMuBeamHalo : -0.0362261
+
+  8  HLT_CSCBeamHaloRing2or3 - L1_SingleMuBeamHalo : -0.0362261
+
+  9  HLT_DiJetAve15U_8E29 - L1_SingleJet6U : -0.0362261
+
+  10  HLT_DiJetAve30U_8E29 - L1_SingleJet20U : -0.0362261
+
+  11  HLT_DoubleEle5_SW_L1R - L1_DoubleEG5 : -0.0362261
+
+  12  HLT_DoubleLooseIsoTau15 - L1_DoubleTauJet14U : -0.0362261
+
+  13  HLT_DoubleMu0 - L1_DoubleMuOpen : -0.0362261
+
+  14  HLT_DoubleMu3 - L1_DoubleMu3 : -0.0362261
+
+  15  HLT_DoublePhoton10_L1R - L1_DoubleEG5 : -0.0362261
+
+  16  HLT_DoublePhoton5_Jpsi_L1R - L1_SingleEG8 : -0.0362261
+
+  17  HLT_DoublePhoton5_Upsilon_L1R - L1_SingleEG8 : -0.0362261
+
+  18  HLT_DoublePhoton5_eeRes_L1R - L1_SingleEG8 : -0.0362261
+
+  19  HLT_EgammaSuperClusterOnly_L1R - L1_SingleEG5 : -0.0362261
+
+  20  HLT_Ele10_LW_EleId_L1R - L1_SingleEG5 : -0.0362261
+
+  21  HLT_Ele10_LW_L1R - L1_SingleEG5 : -0.0362261
+
+  22  HLT_Ele15_LW_L1R - L1_SingleEG8 : -0.0362261
+
+  23  HLT_Ele15_SC10_LW_L1R - L1_SingleEG8 : -0.0362261
+
+  24  HLT_Ele15_SiStrip_L1R - L1_SingleEG8 : -0.0362261
+
+  25  HLT_Ele20_LW_L1R - L1_SingleEG8 : -0.0362261
+
+  26  HLT_ForwardBSC - 36 : -0.0362261
+
+  27  HLT_FwdJet20U - L1_IsoEG10_Jet6U_ForJet6U : -0.0362261
+
+  28  HLT_GlobalRunHPDNoise - L1_SingleJet10U_NotBptxC : -0.0362261
+
+  29  HLT_HT100U - L1_HTT50 : -0.0362261
+
+  30  HLT_HighMultiplicityBSC - 35 : -0.0362261
+
+  31  HLT_IsoMu3 - L1_SingleMu3 : -0.0362261
+
+  32  HLT_Jet15U - L1_SingleJet6U : -0.0362261
+
+  33  HLT_Jet30U - L1_SingleJet20U : -0.0362261
+
+  34  HLT_Jet50U - L1_SingleJet30U : -0.0362261
+
+  35  HLT_L1DoubleEG5 - L1_DoubleEG5 : -0.0362261
+
+  36  HLT_L1DoubleMuOpen - L1_DoubleMuOpen : -0.0362261
+
+  37  HLT_L1Jet6U - L1_SingleJet6U : -0.0362261
+
+  38  HLT_L1MET20 - L1_ETM20 : -0.0362261
+
+  39  HLT_L1Mu - L1_SingleMu7 : -0.0362261
+
+  40  HLT_L1Mu14_L1ETM30 - L1_SingleMu14 : -0.0362261
+
+  41  HLT_L1Mu14_L1SingleEG10 - L1_SingleMu14 : -0.0362261
+
+  42  HLT_L1Mu14_L1SingleJet6U - L1_SingleMu14 : -0.0362261
+
+  43  HLT_L1Mu20 - L1_SingleMu20 : -0.0362261
+
+  44  HLT_L1MuOpen - L1_SingleMuOpen : -0.0362261
+
+  45  HLT_L1MuOpen_NoBPTX - L1_SingleMuOpen : -0.0362261
+
+  46  HLT_L1SingleEG2 - L1_SingleEG2 : -0.0362261
+
+  47  HLT_L1SingleEG20_NoBPTX - L1_SingleEG20 : -0.0362261
+
+  48  HLT_L1SingleEG2_NoBPTX - L1_SingleEG2 : -0.0362261
+
+  49  HLT_L1SingleEG5 - L1_SingleEG5 : -0.0362261
+
+  50  HLT_L1SingleEG5_NoBPTX - L1_SingleEG5 : -0.0362261
+
+  51  HLT_L1SingleEG8 - L1_SingleEG8 : -0.0362261
+
+  52  HLT_L1SingleForJet - L1_SingleForJet2U : -0.0362261
+
+  53  HLT_L1_BPTX_MinusOnly - 6 : -0.0362261
+
+  54  HLT_L1_BPTX_MinusOnly1kHz - 6 : -0.0362261
+
+  55  HLT_L1_BPTX_PlusOnly - 5 : -0.0362261
+
+  56  HLT_L1_BPTX_PlusOnly1kHz - 5 : -0.0362261
+
+  57  HLT_L2Mu0_NoVertex - L1_SingleMu0 : -0.0362261
+
+  58  HLT_L2Mu11 - L1_SingleMu7 : -0.0362261
+
+  59  HLT_L2Mu9 - L1_SingleMu7 : -0.0362261
+
+  60  HLT_MET100 - L1_ETM70 : -0.0362261
+
+  61  HLT_MET45 - L1_ETM30 : -0.0362261
+
+  62  HLT_MinBias - L1_MinBias_HTT10 : -0.0362261
+
+  63  HLT_MinBiasBSC_OR - 34 : -0.0362261
+
+  64  HLT_Mu5 - L1_SingleMu3 : -0.0362261
+
+  65  HLT_Mu9 - L1_SingleMu7 : -0.0362261
+
+  66  HLT_Photon10_L1R - L1_SingleEG5 : -0.0362261
+
+  67  HLT_Photon15_L1R - L1_SingleEG8 : -0.0362261
+
+  68  HLT_Photon15_LooseEcalIso_L1R - L1_SingleEG8 : -0.0362261
+
+  69  HLT_Photon15_TrackIso_L1R - L1_SingleEG8 : -0.0362261
+
+  70  HLT_Photon20_L1R - L1_SingleEG8 : -0.0362261
+
+  71  HLT_Photon30_L1R_8E29 - L1_SingleEG8 : -0.0362261
+
+  72  HLT_QuadJet15U - L1_QuadJet6U : -0.0362261
+
+  73  HLT_RPCBarrelCosmics - 24 : -0.0362261
+
+  74  HLT_SingleLooseIsoTau20 - L1_SingleTauJet20U : -0.0362261
+
+  75  HLT_SplashBSC - 42 : -0.0362261
+
+  76  HLT_SplashEcalSumET - L1_SingleEG5 : -0.0362261
+
+  77  HLT_StoppedHSCP_8E29 - L1_SingleJet10U_NotBptxC : -0.0362261
+
+  78  HLT_TkMu3_NoVertex - L1_SingleMu0 : -0.0362261
+
+  79  HLT_TrackerCosmics - 25 : -0.0362261
+
+  80  HLT_ZeroBias - L1_ZeroBias : -0.0362261
+
+  81  HLT_ZeroBias1kHz - L1_ZeroBias : -0.0362261
+
+
+%MSG

@@ -1,0 +1,114 @@
+#!/bin/csh
+#
+if ( $#argv < 1 ) then
+  echo "Usage: ./run_tb06 [run_number]"
+  exit 0
+endif
+set run = $1
+#
+cat >! tb06_run${run}.cfg <<%
+process RECO = {
+   service = MessageLogger
+    {
+    untracked vstring destinations = { "cout" }
+    untracked vstring categories = {  "DDLParser", "FwkJob", "FwkReport"}
+    untracked PSet cout = {string threshold = "INFO"
+                            PSet INFO        = { int32 limit = 10000 }
+                            PSet DDLParser = { int32 limit = 0 }
+                            PSet FwkJob = { int32 limit =10 }
+                            PSet FwkReport = { int32 limit = 20 }
+                            }
+    }
+
+    source = HcalTBSource {
+            untracked vstring fileNames = {
+            'file:/bigspool/cmsmoe3/HTB_${run}.root'}
+            untracked int32 maxEvents = 1000
+            untracked vstring streams = { 'HCAL_DCC700:700','HCAL_Trigger','HCAL_SlowData','HCAL_TDC:5' }
+//            untracked vstring streams = { 'HCAL_DCC700:700','HCAL_Trigger','HCAL_SlowData','HCAL_QADCTDC' }
+	}
+
+        module unpacker = HcalRawToDigi {
+                int32 firstSample = 5
+                int32 lastSample = 14
+                untracked int32 HcalFirstFED = 700
+                untracked vint32 FEDs = { 700 }
+                bool FilterDataQuality = false
+                bool FilterAmplitude = false
+                int32 FilterAmpBegin = 4
+                int32 FilterAmpEnd = 7
+                double FilterAmpLevel = 22.0
+        }
+
+        module tbunpacker = HcalTBObjectUnpacker {
+               untracked int32 HcalTriggerFED = 1
+               untracked int32 HcalSlowDataFED = -1
+               untracked int32 HcalTDCFED = -1
+               untracked int32 HcalQADCFED = -1 //4
+               untracked int32 HcalSourcePositionFED = -1
+               untracked int32 HcalQADCTDC = -1 //8
+               untracked bool IncludeUnmatchedHits = false
+        }
+
+        module myfilter = HcalTBTriggerFilter {
+                bool AllowPedestal = true
+                bool AllowPedestalInSpill = true
+                bool AllowPedestalOutSpill = true
+                bool AllowLaser = false
+                bool AllowLED = false
+                bool AllowBeam = false
+        }
+
+	module analpeds = HcalPedestalAnalyzer {
+//               untracked string inputPedestalsSource = 'peds_tb06_000099.txt'
+//               untracked string inputPedestalWidthsSource = 'widths_tb06_000099.txt'
+//               untracked string inputPedestalsSource = 'oracle://devdb10/CMS_COND_HCAL'
+//               untracked string inputPedestalWidthsSource = 'oracle://devdb10/CMS_COND_HCAL'
+//               untracked string inputPedestalsTag = 'MICHAL_02_PEDESTALS'
+//               untracked string inputPedestalWidthsTag = 'MICHAL_02_PEDESTAL_WIDTHS'
+//               untracked int32  inputPedestalsRun = 1
+               untracked string outputPedestalsDest = 'peds_tb06_${run}.txt'
+               untracked string outputPedestalWidthsDest = 'widths_tb06_${run}.txt'
+               untracked string outputFileHist = 'peds_tb06_${run}.root'
+               untracked int32 nevtsample = 9999999
+               untracked int32 hiSaveflag = 1
+               untracked int32 pedValflag = 0
+	}
+
+        module analleds = HcalLedAnalyzer {
+//               untracked string inputPedestalsSource = 'peds_tb06_000099.txt'
+               untracked string outputFileHist = 'led_tb06_${run}.root'
+               untracked string outputFileText = 'led_tb06_${run}.txt'
+               untracked int32 analysisflag = 2
+               untracked int32 nevtsample = 9999999
+               untracked int32 hiSaveflag = 1
+               untracked int32 firstTS = 0
+               untracked int32 lastTS = 9
+        }
+
+	path p = { unpacker, analpeds }
+
+// stuff for the calibration system
+
+  es_module = HcalDbProducer {}
+
+  es_source es_hardcode = HcalHardcodeCalibrations {untracked vstring toGet = {"Pedestals", "PedestalWidths", "Gains", "GainWidths", "QIEShape", "QIEData", "ChannelQuality"}}
+
+  es_source es_ascii = HcalTextCalibrations { VPSet input = {
+//    {string object = "ElectronicsMap" FileInPath file ='CalibCalorimetry/HcalStandardModules/test/emap_mtcc_mod.txt'}
+    {string object = "ElectronicsMap" FileInPath file ='CalibCalorimetry/HcalStandardModules/test/emap_tb06_v1.txt'}
+   }  
+  }
+
+}
+%
+#
+# uncomment the following 4 lines to read from DB
+#setenv CORAL_AUTH_USER CMS_COND_HCAL
+#setenv CORAL_AUTH_PASSWORD hcal_cern200603
+#setenv POOL_CATALOG relationalcatalog_oracle://devdb10/CMS_COND_GENERAL
+#setenv CONNECT oracle://devdb10/${CORAL_AUTH_USER}
+#
+cmsRun -p moe3.cfg >&! run${run}.log
+/bin/rm tb06_run${run}.cfg
+#

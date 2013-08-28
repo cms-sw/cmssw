@@ -1,0 +1,102 @@
+% $Id: smreviewdoc2.tex,v 1.7 2008/05/26 20:01:03 gbauer Exp $
+
+\documentclass[12pt]{cmspaper}
+\input epsf
+\usepackage{graphicx}
+%==========================================================
+\usepackage{epic,rotating,epsfig}
+\usepackage{amssymb}
+\usepackage{amsmath}
+\usepackage{pstricks,pst-grad}
+%
+% Units
+%
+\def\cm{\hbox{$\;\hbox{\rm cm}$}}
+%
+%newcommand{\TeVcc}{\ensuremath{\,\mathrm{Te\kern -0.1em V\!/c}^2}}
+%\newcommand{\GeVcc}{\ensuremath{\,\mathrm{Ge\kern -0.1em V\!/c}^2}}
+%\newcommand{\MeVcc}{\ensuremath{\,\mathrm{Me\kern -0.1em V\!/c}^2}}
+%\newcommand{\GeVc}{\ensuremath{\mathrm{Ge\kern -0.1em V}\!/c}}
+%
+\newcommand{\GeV}{\ensuremath{\mathrm{Ge\kern -0.1em V}}}
+\newcommand{\TeVcc}{\ensuremath{\,\mathrm{Te\kern -0.1em V\!/c}^2}}
+\newcommand{\GeVcc}{\ensuremath{\,\mathrm{Ge\kern -0.1em V\!/c}^2}}
+\newcommand{\MeVcc}{\ensuremath{\,\mathrm{Me\kern -0.1em V\!/c}^2}}
+\newcommand{\GeVc}{\ensuremath{\mathrm{Ge\kern -0.1em V}\!/c}}
+\newcommand{\nanob}{\mbox{{\rm ~nb}~}}
+\newcommand{\fb}{\ensuremath{\mathrm{fb}}}
+\newcommand{\pb}{\ensuremath{\mathrm{pb}}}
+\newcommand{\ifb}{\ensuremath{\mathrm{fb^{-1}}}}
+\newcommand{\ipb}{\ensuremath{\mathrm{pb^{-1}}}}
+%
+% Special user made math symbols
+%
+\newcommand{\lsim}{\raisebox{-1.5mm}{$\:\stackrel{\textstyle{<}}{\textstyle{\sim}}\:$}}
+\newcommand{\gsim}{\raisebox{-1.5mm}{$\:\stackrel{\textstyle{>}}{\textstyle{\sim}}\:$}}
+%
+%==========================================================
+\begin{document}
+
+%==============================================================================
+% title page for few authors
+
+\begin{titlepage}
+
+% select one of the following and type in the proper number:
+%  \cmsnote{2005/000}
+ % \internalnote{2007/000}
+%  \conferencereport{2005/000}
+   %\date{7 November 2007}
+   \date{\today}
+
+  \title{The CMS Storage Manager\\
+\Large 
+ --- {\it Review Documentation for May 2008} ---}
+
+  \begin{Authlist}
+    W.~Badgett, K.~Biery, H.~Cheung, J.~Kowalkowski, 
+    E.~Sexton-Kennedy, D.~Shpakov
+       \Instfoot{fermilab}{Fermilab, Batavia, IL, USA}
+    G.Bauer, C.~Loizides, C.~Paus, M. Rudolph 
+       \Instfoot{mit}{MIT, Cambridge, MA, USA}
+  \end{Authlist}
+
+% if needed, use the following:
+\collaboration{Storage Manager Working Group}
+%\collaboration{CMS collaboration}
+
+
+  \begin{abstract}
+The CMS Storage Manager system is designed to store raw data on a storage medium close to the
+experiment, give real-time access to a fraction of the collected data for monitoring purposes, and
+collect non-event monitoring data. The original baseline design specifications for the system 
+are a total storage capacity
+of 250 TB and a maximum throughput of 1 GB/s. This note presents the hardware and software
+architecture of  the Storage Manager system, describes  upgrade plans and operational 
+needs are discussed. 
+  \end{abstract} 
+
+% if needed, use the following:
+%\conference{Presented at {\it Physics Rumours}, Coconut Island, April 1, 2005}
+%\submitted{Submitted to {\it Physics Rumours}}
+%\note{Working version}
+  
+\end{titlepage}
+
+\setcounter{page}{2}%JPP
+%==============================================================================
+
+\input{Introduction/introduction.tex}
+
+\input{Hardware/hardware.tex}
+
+\input{Software/software.tex}
+
+\input{Performance/performance.tex}
+
+
+\input{Operations/operations.tex}
+
+
+
+\end{document}

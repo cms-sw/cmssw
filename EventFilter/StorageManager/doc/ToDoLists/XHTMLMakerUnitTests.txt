@@ -1,0 +1,46 @@
+This file contains a summary of the unit tests that we discussed for the
+XHTMLMaker class (and the Xerces library routines that it uses).
+
+The model that Marc described put the calls to XMLPlatformUtils::Initialize()
+and XMLPlatformUtils::Terminate() in a "monitor pattern" class
+(XHTMLMonitor?) and removed them from XHTMLMaker itself.  Then, the
+SM callback code would use a model like the following:
+
+void StorageManager::defaultWebPage(xgi::Input *in, xgi::Output *out)
+{
+    XHTMLMonitor theMonitor;
+    XHTMLMaker maker;
+
+    _webPageHelper.defaultWebPage(
+        maker,
+        out,
+        fsm_.stateName()->toString(),
+        _statReporter,
+        pool_,
+        nLogicalDisk_,
+        filePath_
+    );
+
+    // possibly create another maker for a different web page
+}
+
+The unit tests are the following:
+
+1) Verify that repeated (paired) calls to XMLPlatformUtils::Initialize()
+   and XMLPlatformUtils::Terminate() work.  That is, web pages generated
+   between each initialize and terminate call are correct.
+
+2) Verify that a call to XMLPlatformUtils::Initialize() followed by
+   the building of two web pages works.  (Did I get this right?)
+
+3) Verify that the calling of XMLPlatformUtils::Terminate() in one thread
+   doesn't affect the building of web page in another thread.
+
+4) Verify that two threads can call XMLPlatformUtils::Initialize(),
+   generate correct web page content, and call XMLPlatformUtils::Terminate()
+   simultaneously.  
+
+NOTE that while it may be easier to implement some of these tests using
+direct calls to Xerces library routines, variants of tests #1 and #4 using
+the real XHTMLMonitor and XHTMLMaker classes should definitely be included
+in the tests.

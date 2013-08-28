@@ -1,0 +1,5 @@
+Block MASS   #
+#  PDG code   mass                 particle
+      2000015   303.27     # ~tR
+     -2000015   303.27   # ~TR
+Block
