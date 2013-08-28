@@ -3,11 +3,8 @@
 #define DQMOffline_Trigger_HLTTauDQMPathPlotter2_h
 
 #include "DQMOffline/Trigger/interface/HLTTauDQMPlotter.h"
+#include "DQMOffline/Trigger/interface/HLTTauDQMPath.h"
 
-#include<vector>
-#include<tuple>
-
-#include <boost/regex.hpp>
 
 namespace edm {
   class Event;
@@ -40,13 +37,7 @@ private:
   const int phibins_;
   const bool doRefAnalysis_;
 
-  std::vector<boost::regex> pathRegexs_;
-  std::vector<boost::regex> ignoreFilterTypes_;
-  std::vector<boost::regex> ignoreFilterNames_;
-
-  std::vector<FilterIndex> filterIndices_;
-  std::string pathName_;
-  unsigned int pathIndex_;
+  HLTTauDQMPath hltPath_;
 
   MonitorElement *hAcceptedEvents_;
   MonitorElement *hTrigTauEt_;
