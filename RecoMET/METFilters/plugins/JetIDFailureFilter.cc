@@ -17,7 +17,7 @@ class JetIDFailureFilter : public edm::EDFilter {
 
   private:
 
-    virtual bool filter(edm::Event & iEvent, const edm::EventSetup & iSetup);
+    virtual bool filter(edm::Event & iEvent, const edm::EventSetup & iSetup) override;
 
     const edm::InputTag theJetLabel_;
     const double minJetPt_, maxJetEta_, maxNeutHadF_, maxNeutEmF_;

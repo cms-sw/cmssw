@@ -313,7 +313,7 @@ void VirtualJetProducer::produce(edm::Event& iEvent,const edm::EventSetup& iSetu
   LogDebug("VirtualJetProducer") << "Entered produce\n";
   //determine signal vertex2
   vertex_=reco::Jet::Point(0,0,0);
-  if (makeCaloJet(jetTypeE)&&doPVCorrection_) {
+  if ( (makeCaloJet(jetTypeE) || makePFJet(jetTypeE)) &&doPVCorrection_) {
     LogDebug("VirtualJetProducer") << "Adding PV info\n";
     edm::Handle<reco::VertexCollection> pvCollection;
     iEvent.getByLabel(srcPVs_,pvCollection);

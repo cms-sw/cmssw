@@ -5,9 +5,7 @@
  * 
  * \author Christian Veelken, LLR
  *
- * \version $Revision: 1.9 $
  *
- * $Id: PFRecoTauDiscriminationAgainstMuon2.cc,v 1.9 2013/04/08 08:31:04 veelken Exp $
  *
  */
 
@@ -55,9 +53,9 @@ class PFRecoTauDiscriminationAgainstMuon2 : public PFTauDiscriminationProducerBa
    }
   ~PFRecoTauDiscriminationAgainstMuon2() {} 
 
-  void beginEvent(const edm::Event&, const edm::EventSetup&);
+  void beginEvent(const edm::Event&, const edm::EventSetup&) override;
 
-  double discriminate(const reco::PFTauRef&);
+  double discriminate(const reco::PFTauRef&) override;
 
  private:  
   std::string moduleLabel_;

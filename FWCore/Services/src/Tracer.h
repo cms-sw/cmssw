@@ -16,7 +16,6 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Sep  8 14:35:45 EDT 2005
-// $Id: Tracer.h,v 1.12 2010/01/19 22:37:06 wdd Exp $
 //
 
 // system include files
@@ -142,6 +141,8 @@ public:
 private:
          std::string indention_;
          unsigned int depth_;
+         std::string dumpContextForLabel_;
+         bool dumpNonModuleContext_;
       };
    }
 }

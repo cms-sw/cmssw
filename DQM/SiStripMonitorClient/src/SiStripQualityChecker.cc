@@ -32,10 +32,10 @@ SiStripQualityChecker::SiStripQualityChecker(edm::ParameterSet const& ps):pSet_(
 
   SubDetFolderMap.insert(std::pair<std::string, std::string>("TIB",  "TIB"));
   SubDetFolderMap.insert(std::pair<std::string, std::string>("TOB",  "TOB"));
-  SubDetFolderMap.insert(std::pair<std::string, std::string>("TECF", "TEC/side_2"));
-  SubDetFolderMap.insert(std::pair<std::string, std::string>("TECB", "TEC/side_1"));
-  SubDetFolderMap.insert(std::pair<std::string, std::string>("TIDF", "TID/side_2"));
-  SubDetFolderMap.insert(std::pair<std::string, std::string>("TIDB", "TID/side_1"));
+  SubDetFolderMap.insert(std::pair<std::string, std::string>("TECF", "TEC/PLUS"));
+  SubDetFolderMap.insert(std::pair<std::string, std::string>("TECB", "TEC/MINUS"));
+  SubDetFolderMap.insert(std::pair<std::string, std::string>("TIDF", "TID/PLUS"));
+  SubDetFolderMap.insert(std::pair<std::string, std::string>("TIDB", "TID/MINUS"));
   badModuleList.clear();
 
   if(!edm::Service<TkDetMap>().isAvailable()){

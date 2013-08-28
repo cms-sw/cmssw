@@ -13,7 +13,6 @@
 //
 // Original Author:  Igor Volobouev
 //         Created:  Mon Aug  6 11:03:38 CDT 2012
-// $Id: FFTJetCorrectionProducer.cc,v 1.1 2012/07/19 16:42:59 igv Exp $
 //
 //
 
@@ -97,9 +96,9 @@ public:
     ~FFTJetCorrectionProducer();
 
 private:
-    virtual void beginJob() ;
-    virtual void produce(edm::Event&, const edm::EventSetup&);
-    virtual void endJob() ;
+    virtual void beginJob() override ;
+    virtual void produce(edm::Event&, const edm::EventSetup&) override;
+    virtual void endJob() override ;
 
     template <typename Jet>
     void makeProduces(const std::string& alias, const std::string& tag);

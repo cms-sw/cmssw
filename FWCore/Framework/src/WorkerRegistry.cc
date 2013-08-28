@@ -5,22 +5,32 @@
    \author Stefano ARGIRO
    \date 18 May 2005
 */
-
+#include <memory>
 #include "FWCore/Framework/src/WorkerRegistry.h"
 #include "FWCore/Framework/src/Worker.h"
-#include "FWCore/Framework/src/Factory.h"
+#include "FWCore/Framework/src/ModuleHolder.h"
+#include "FWCore/Framework/src/MakeModuleParams.h"
+#include "FWCore/Framework/src/ModuleRegistry.h"
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 
 namespace edm {
-
+  
   WorkerRegistry::WorkerRegistry(boost::shared_ptr<ActivityRegistry> areg) :
+    modRegistry_(new ModuleRegistry),
     m_workerMap(),
     actReg_(areg)
   {
   }
+  
+  WorkerRegistry::WorkerRegistry(boost::shared_ptr<ActivityRegistry> areg,
+                                 boost::shared_ptr<ModuleRegistry> modReg):
+  modRegistry_(modReg),
+  m_workerMap(),
+  actReg_(areg)
+  {
+  }
 
   WorkerRegistry:: ~WorkerRegistry() {
-    m_workerMap.clear();
   }
 
   void WorkerRegistry::clear() {
@@ -33,14 +43,15 @@ namespace edm {
   
     // if the worker is not there, make it
     if (workerIt == m_workerMap.end()){
-    
-      auto workerPtr=
-        Factory::get()->makeWorker(p,actReg_->preModuleConstructionSignal_,
-                                   actReg_->postModuleConstructionSignal_);
+      MakeModuleParams mmp(p.pset_,*p.reg_,p.processConfiguration_);
+      auto modulePtr = modRegistry_->getModule(mmp,moduleLabel,
+                                               actReg_->preModuleConstructionSignal_,
+                                               actReg_->postModuleConstructionSignal_);
+      auto workerPtr= modulePtr->makeWorker(p.actions_);
     
       workerPtr->setActivityRegistry(actReg_);
 
-      // Transfer ownership of worker to the registry 
+      // Transfer ownership of worker to the registry
       m_workerMap[moduleLabel].reset(workerPtr.release());
       return m_workerMap[moduleLabel].get(); 
     } 

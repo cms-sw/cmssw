@@ -3,13 +3,13 @@
 
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterFunctionFactory.h"
 
+#include "FWCore/Common/interface/Provenance.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ParameterSet/interface/Registry.h"
 #include "CommonTools/Utils/interface/StringToEnumValue.h"
 
 #include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
@@ -356,7 +356,7 @@ void GsfElectronBaseProducer::beginEvent( edm::Event & event, const edm::EventSe
      }
     else
      {
-      checkEcalSeedingParameters(seeds.provenance()->psetID()) ;
+      checkEcalSeedingParameters(edm::parameterSet(*seeds.provenance())) ;
      }
    }
 
@@ -396,10 +396,8 @@ void GsfElectronBaseProducer::endEvent()
   algo_->endEvent() ;
  }
 
-void GsfElectronBaseProducer::checkEcalSeedingParameters( edm::ParameterSetID const & psetid )
+void GsfElectronBaseProducer::checkEcalSeedingParameters( edm::ParameterSet const & pset )
  {
-  edm::ParameterSet pset ;
-  edm::pset::Registry::instance()->getMapped(psetid,pset) ;
   edm::ParameterSet seedConfiguration = pset.getParameter<edm::ParameterSet>("SeedConfiguration") ;
   //edm::ParameterSet orderedHitsFactoryPSet = seedConfiguration.getParameter<edm::ParameterSet>("OrderedHitsFactoryPSet") ;
   //edm::ParameterSet seedParameters = seedConfiguration.getParameter<edm::ParameterSet>("ecalDrivenElectronSeedsParameters") ;

@@ -50,7 +50,7 @@ LocationDef CaliTag::getLocationDef() const
 
 
 
-void CaliTag::setLocationDef(const LocationDef locDef)
+void CaliTag::setLocationDef(const LocationDef& locDef)
 {
   if (locDef != m_locDef) {
     m_ID = 0;

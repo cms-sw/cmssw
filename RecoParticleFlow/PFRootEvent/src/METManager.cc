@@ -259,20 +259,20 @@ void METManager::coutTailEvents(const int entry, const double DeltaMETcut, const
   }
 }
 
-void METManager::propagateJECtoMET1(const std::vector<reco::CaloJet> caloJets,
-		    const std::vector<reco::CaloJet> corr_caloJets)
+void METManager::propagateJECtoMET1(const std::vector<reco::CaloJet>& caloJets,
+		    const std::vector<reco::CaloJet>& corr_caloJets)
 {
   MET1_=propagateJEC(MET1_,caloJets,corr_caloJets);
 }
 
-void METManager::propagateJECtoMET2(const std::vector<reco::CaloJet> caloJets,
-		    const std::vector<reco::CaloJet> corr_caloJets)
+void METManager::propagateJECtoMET2(const std::vector<reco::CaloJet>& caloJets,
+		    const std::vector<reco::CaloJet>& corr_caloJets)
 {
   MET2_=propagateJEC(MET2_,caloJets,corr_caloJets);
 }
 
-reco::MET METManager::propagateJEC(const reco::MET &MET, const std::vector<reco::CaloJet> caloJets,
-			 const std::vector<reco::CaloJet> corr_caloJets) const
+reco::MET METManager::propagateJEC(const reco::MET &MET, const std::vector<reco::CaloJet>& caloJets,
+			 const std::vector<reco::CaloJet>& corr_caloJets) const
 {
 
   //std::cout << "FL : MET = " << MET.pt() << std::endl;

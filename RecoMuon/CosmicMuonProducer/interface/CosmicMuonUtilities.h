@@ -4,8 +4,6 @@
 /** \file CosmicMuonUtilities
  *  contain those methods that are commonly used
  *
- *  $Date: 2007/03/08 20:01:29 $
- *  $Revision: 1.1 $
  *  \author Chang Liu  -  Purdue University
  */
 

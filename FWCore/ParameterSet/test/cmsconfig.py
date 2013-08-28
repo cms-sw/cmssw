@@ -1,6 +1,5 @@
 #------------------------------------------------------------
 #
-# $Id: cmsconfig.py,v 1.16 2006/08/31 16:47:14 lsexton Exp $
 #
 # cmsconfig: a class to provide convenient access to the Python form
 # of a parsed CMS configuration file.

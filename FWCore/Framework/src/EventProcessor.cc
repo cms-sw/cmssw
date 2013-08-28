@@ -2,11 +2,9 @@
 #include "FWCore/Framework/interface/EventProcessor.h"
 
 #include "DataFormats/Provenance/interface/BranchIDListHelper.h"
-#include "DataFormats/Provenance/interface/EntryDescriptionRegistry.h"
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
 #include "DataFormats/Provenance/interface/ParameterSetID.h"
 #include "DataFormats/Provenance/interface/ParentageRegistry.h"
-#include "DataFormats/Provenance/interface/ProcessConfigurationRegistry.h"
 #include "DataFormats/Provenance/interface/ProcessHistoryRegistry.h"
 
 #include "FWCore/Framework/interface/CommonParams.h"
@@ -292,7 +290,8 @@ namespace edm {
     ModuleDescription md(main_input->id(),
                          main_input->getParameter<std::string>("@module_type"),
                          "source",
-                         processConfiguration.get());
+                         processConfiguration.get(),
+                         ModuleDescription::getUniqueID());
 
     InputSourceDescription isdesc(md, preg, branchIDListHelper, areg, common.maxEventsInput_, common.maxLumisInput_);
     areg->preSourceConstructionSignal_(md);
@@ -565,6 +564,9 @@ namespace edm {
    
     ROOT::Cintex::Cintex::Enable();
 
+    // register the empty parentage vector , once and for all
+    ParentageRegistry::instance()->insertMapped(Parentage());
+
     // register the empty parameter set, once and for all.
     ParameterSet().registerIt();
 
@@ -579,6 +581,47 @@ namespace edm {
     fileMode_ = optionsPset.getUntrackedParameter<std::string>("fileMode", "");
     emptyRunLumiMode_ = optionsPset.getUntrackedParameter<std::string>("emptyRunLumiMode", "");
     forceESCacheClearOnNewRun_ = optionsPset.getUntrackedParameter<bool>("forceEventSetupCacheClearOnNewRun", false);
+    //threading
+    unsigned int nThreads=1;
+    if(optionsPset.existsAs<unsigned int>("numberOfThreads",false)) {
+      nThreads = optionsPset.getUntrackedParameter<unsigned int>("numberOfThreads");
+    }
+    unsigned int nStreams =1;
+    /*
+    if(optionsPset.existsAs<unsigned int>("numberOfStreams",false)) {
+      nThreads = optionsPset.getUntrackedParameter<unsigned int>("numberOfStreams");
+    }
+    bool nRunsSet = false;
+     */
+    unsigned int nConcurrentRuns =1;
+    /*
+    if(nRunsSet = optionsPset.existsAs<unsigned int>("numberOfConcurrentRuns",false)) {
+    nThreads = optionsPset.getUntrackedParameter<unsigned int>("numberOfConcurrentRuns");
+    }
+     */
+    unsigned int nConcurrentLumis =1;
+    /*
+    if(optionsPset.existsAs<unsigned int>("numberOfConcurrentLuminosityBlocks",false)) {
+    nThreads = optionsPset.getUntrackedParameter<unsigned int>("numberOfConcurrentLuminosityBlocks");
+    } else {
+      nConcurrentLumis = nConcurrentRuns;
+    }
+     */
+    //Check that relationships between threading parameters makes sense
+    /*
+    if(nThreads<nStreams) {
+      //bad
+    }
+    if(nConcurrentRuns>nStreams) {
+      //bad
+    }
+    if(nConcurrentRuns>nConcurrentLumis) {
+      //bad
+    }
+     */
+    preallocations_ = PreallocationConfiguration(nThreads,nStreams,nConcurrentLumis,nConcurrentRuns);
+    
+    //forking
     ParameterSet const& forking = optionsPset.getUntrackedParameterSet("multiProcesses", ParameterSet());
     numberOfForkedChildren_ = forking.getUntrackedParameter<int>("maxChildProcesses", 0);
     numberOfSequentialEventsPerChild_ = forking.getUntrackedParameter<unsigned int>("maxSequentialEventsPerChild", 1);
@@ -622,7 +665,7 @@ namespace edm {
     input_ = makeInput(*parameterSet, *common, *items.preg_, items.branchIDListHelper_, items.actReg_, items.processConfiguration_);
 
     // intialize the Schedule
-    schedule_ = items.initSchedule(*parameterSet,subProcessParameterSet.get(),StreamID{0},&processContext_);
+    schedule_ = items.initSchedule(*parameterSet,subProcessParameterSet.get(),preallocations_,&processContext_);
 
     // set the data members
     act_table_ = std::move(items.act_table_);
@@ -644,7 +687,7 @@ namespace edm {
       
     // initialize the subprocess, if there is one
     if(subProcessParameterSet) {
-      subProcess_.reset(new SubProcess(*subProcessParameterSet, *parameterSet, preg_, branchIDListHelper_, *espController_, *actReg_, token, serviceregistry::kConfigurationOverrides, &processContext_));
+      subProcess_.reset(new SubProcess(*subProcessParameterSet, *parameterSet, preg_, branchIDListHelper_, *espController_, *actReg_, token, serviceregistry::kConfigurationOverrides, preallocations_, &processContext_));
     }
   }
 
@@ -673,9 +716,7 @@ namespace edm {
     psetRegistry->dataForUpdate().clear();
     psetRegistry->extraForUpdate().setID(ParameterSetID());
 
-    EntryDescriptionRegistry::instance()->dataForUpdate().clear();
     ParentageRegistry::instance()->dataForUpdate().clear();
-    ProcessConfigurationRegistry::instance()->dataForUpdate().clear();
     ProcessHistoryRegistry::instance()->dataForUpdate().clear();
   }
 
@@ -724,8 +765,10 @@ namespace edm {
     if(hasSubProcess()) subProcess_->doBeginJob();
     actReg_->postBeginJobSignal_();
     
-    schedule_->beginStream();
-    if(hasSubProcess()) subProcess_->doBeginStream(schedule_->streamID());
+    for(unsigned int i=0; i<preallocations_.numberOfStreams();++i) {
+      schedule_->beginStream(i);
+      if(hasSubProcess()) subProcess_->doBeginStream(i);
+    }
   }
 
   void
@@ -740,11 +783,12 @@ namespace edm {
     ServiceRegistry::Operate operate(serviceToken_);
 
     //NOTE: this really should go elsewhere in the future
-    c.call([this](){this->schedule_->endStream();});
-    if(hasSubProcess()) {
-      c.call([this](){ this->subProcess_->doEndStream(this->schedule_->streamID()); } );
+    for(unsigned int i=0; i<preallocations_.numberOfStreams();++i) {
+      c.call([this,i](){this->schedule_->endStream(i);});
+      if(hasSubProcess()) {
+        c.call([this,i](){ this->subProcess_->doEndStream(i); } );
+      }
     }
-    
     schedule_->endJob(c);
     if(hasSubProcess()) {
       c.call(boost::bind(&SubProcess::doEndJob, subProcess_.get()));
@@ -1961,9 +2005,11 @@ namespace edm {
     }
     {
       typedef OccurrenceTraits<RunPrincipal, BranchActionStreamBegin> Traits;
-      schedule_->processOneStream<Traits>(runPrincipal, es);
-      if(hasSubProcess()) {
-        subProcess_->doStreamBeginRun(schedule_->streamID(), runPrincipal, ts);
+      for(unsigned int i=0; i<preallocations_.numberOfStreams();++i) {
+        schedule_->processOneStream<Traits>(i,runPrincipal, es);
+        if(hasSubProcess()) {
+          subProcess_->doStreamBeginRun(i, runPrincipal, ts);
+        }
       }
     }
     FDEBUG(1) << "\tstreamBeginRun " << run.runNumber() << "\n";
@@ -1980,10 +2026,12 @@ namespace edm {
     espController_->eventSetupForInstance(ts);
     EventSetup const& es = esp_->eventSetup();
     {
-      typedef OccurrenceTraits<RunPrincipal, BranchActionStreamEnd> Traits;
-      schedule_->processOneStream<Traits>(runPrincipal, es, cleaningUpAfterException);
-      if(hasSubProcess()) {
-        subProcess_->doStreamEndRun(schedule_->streamID(),runPrincipal, ts, cleaningUpAfterException);
+      for(unsigned int i=0; i<preallocations_.numberOfStreams();++i) {
+        typedef OccurrenceTraits<RunPrincipal, BranchActionStreamEnd> Traits;
+        schedule_->processOneStream<Traits>(i,runPrincipal, es, cleaningUpAfterException);
+        if(hasSubProcess()) {
+          subProcess_->doStreamEndRun(i,runPrincipal, ts, cleaningUpAfterException);
+        }
       }
     }
     FDEBUG(1) << "\tstreamEndRun " << run.runNumber() << "\n";
@@ -2030,10 +2078,12 @@ namespace edm {
       looper_->doBeginLuminosityBlock(lumiPrincipal, es, &processContext_);
     }
     {
-      typedef OccurrenceTraits<LuminosityBlockPrincipal, BranchActionStreamBegin> Traits;
-      schedule_->processOneStream<Traits>(lumiPrincipal, es);
-      if(hasSubProcess()) {
-        subProcess_->doStreamBeginLuminosityBlock(schedule_->streamID(),lumiPrincipal, ts);
+      for(unsigned int i=0; i<preallocations_.numberOfStreams();++i) {
+        typedef OccurrenceTraits<LuminosityBlockPrincipal, BranchActionStreamBegin> Traits;
+        schedule_->processOneStream<Traits>(i,lumiPrincipal, es);
+        if(hasSubProcess()) {
+          subProcess_->doStreamBeginLuminosityBlock(i,lumiPrincipal, ts);
+        }
       }
     }
     FDEBUG(1) << "\tstreamBeginLumi " << run << "/" << lumi << "\n";
@@ -2052,10 +2102,12 @@ namespace edm {
     espController_->eventSetupForInstance(ts);
     EventSetup const& es = esp_->eventSetup();
     {
-      typedef OccurrenceTraits<LuminosityBlockPrincipal, BranchActionStreamEnd> Traits;
-      schedule_->processOneStream<Traits>(lumiPrincipal, es, cleaningUpAfterException);
-      if(hasSubProcess()) {
-        subProcess_->doStreamEndLuminosityBlock(schedule_->streamID(),lumiPrincipal, ts, cleaningUpAfterException);
+      for(unsigned int i=0; i<preallocations_.numberOfStreams();++i) {
+        typedef OccurrenceTraits<LuminosityBlockPrincipal, BranchActionStreamEnd> Traits;
+        schedule_->processOneStream<Traits>(i,lumiPrincipal, es, cleaningUpAfterException);
+        if(hasSubProcess()) {
+          subProcess_->doStreamEndLuminosityBlock(i,lumiPrincipal, ts, cleaningUpAfterException);
+        }
       }
     }
     FDEBUG(1) << "\tendLumi " << run << "/" << lumi << "\n";
@@ -2142,6 +2194,7 @@ namespace edm {
   }
 
   void EventProcessor::readAndProcessEvent() {
+    //TODO this will have to become per stream
     StreamContext streamContext(StreamID{0}, &processContext_);
     EventPrincipal *pep = input_->readEvent(principalCache_.eventPrincipal(), &streamContext);
     FDEBUG(1) << "\treadEvent\n";
@@ -2156,7 +2209,7 @@ namespace edm {
     EventSetup const& es = esp_->eventSetup();
     {
       typedef OccurrenceTraits<EventPrincipal, BranchActionStreamBegin> Traits;
-      schedule_->processOneEvent<Traits>(*pep, es);
+      schedule_->processOneEvent<Traits>(0,*pep, es);
       if(hasSubProcess()) {
         subProcess_->doEvent(*pep, ts);
       }

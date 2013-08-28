@@ -28,7 +28,7 @@ namespace {
             
       // ---------- member functions ---------------------------
       virtual
-      void  runCommand(edm::MessageLoggerQ::OpCode  opcode, void * operand);
+      void  runCommand(edm::MessageLoggerQ::OpCode  opcode, void * operand) override;
       
    private:
       SilentMLscribe(const SilentMLscribe&); // stop default

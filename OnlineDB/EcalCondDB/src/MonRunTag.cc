@@ -46,7 +46,7 @@ MonVersionDef MonRunTag::getMonVersionDef() const
 }
 
 
-void MonRunTag::setMonVersionDef(MonVersionDef ver)
+void MonRunTag::setMonVersionDef(const MonVersionDef& ver)
 {
   if (ver != m_monVersionDef) {
     m_ID = 0;

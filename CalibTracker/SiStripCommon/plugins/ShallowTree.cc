@@ -3,16 +3,15 @@
 #include "FWCore/Framework/interface/ConstProductRegistry.h" 
 #include "FWCore/Framework/interface/ProductSelector.h"
 #include "FWCore/Framework/interface/ProductSelectorRules.h"
-#include "DataFormats/Provenance/interface/Selections.h"
 
 #include <map>
-#include "boost/foreach.hpp"
 #include <TBranch.h>
 
 void ShallowTree::
 analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  BOOST_FOREACH( BranchConnector* connector, connectors)
+  for( BranchConnector* connector: connectors) {
     connector->connect(iEvent);
+ }
   tree->Fill();
 }
 
@@ -57,14 +56,14 @@ beginJob() {
 
 
   edm::Service<edm::ConstProductRegistry> reg;
-  edm::Selections allBranches = reg->allBranchDescriptions();
+  auto allBranches = reg->allBranchDescriptions();
   edm::ProductSelectorRules productSelectorRules_(pset, "outputCommands", "ShallowTree");
   edm::ProductSelector productSelector_;
   productSelector_.initialize(productSelectorRules_, allBranches);
 
   std::set<std::string> branchnames;
 
-  BOOST_FOREACH( const edm::Selections::value_type& selection, allBranches) {
+  for( auto const& selection : allBranches) {
     if(productSelector_.selected(*selection)) {
 
       //Check for duplicate branch names
@@ -106,8 +105,9 @@ beginJob() {
 	{
 	  std::string leafstring = "";
 	  typedef std::pair<std::string, LEAFTYPE> pair_t;
-	  BOOST_FOREACH( const pair_t& leaf, leafmap) 
+	  for( const pair_t& leaf: leafmap) { 
 	    leafstring+= "\t" + leaf.first + "\n";
+     }
 
 	  throw edm::Exception(edm::errors::Configuration)
 	    << "class ShallowTree does not handle leaves of type " << selection->className() << " like\n"

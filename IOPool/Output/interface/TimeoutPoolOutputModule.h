@@ -16,6 +16,7 @@
 #include "IOPool/Output/interface/PoolOutputModule.h"
 
 namespace edm {
+  class ModuleCallingContext;
   class ParameterSet;
 
   class TimeoutPoolOutputModule : public PoolOutputModule {

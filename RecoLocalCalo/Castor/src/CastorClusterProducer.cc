@@ -12,7 +12,6 @@
 //
 // Original Author:  Hans Van Haevermaet, Benoit Roland
 //         Created:  Wed Jul  9 14:00:40 CEST 2008
-// $Id: CastorClusterProducer.cc,v 1.9 2010/10/26 04:16:21 wmtan Exp $
 //
 //
 
@@ -54,10 +53,10 @@ class CastorClusterProducer : public edm::EDProducer {
       ~CastorClusterProducer();
 
    private:
-      virtual void beginJob() ;
-      virtual void produce(edm::Event&, const edm::EventSetup&);
+      virtual void beginJob() override ;
+      virtual void produce(edm::Event&, const edm::EventSetup&) override;
       double phiangle (double testphi);
-      virtual void endJob() ;
+      virtual void endJob() override ;
       
       // ----------member data ---------------------------
       typedef math::XYZPointD Point;

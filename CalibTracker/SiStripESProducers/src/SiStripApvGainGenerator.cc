@@ -17,9 +17,9 @@ SiStripApvGainGenerator::~SiStripApvGainGenerator() {
   edm::LogInfo("SiStripApvGainGenerator") <<  "[SiStripApvGainGenerator::~SiStripApvGainGenerator]";
 }
 
-void SiStripApvGainGenerator::createObject(){
+SiStripApvGain* SiStripApvGainGenerator::createObject(){
     
-  obj_ = new SiStripApvGain();
+  SiStripApvGain* obj = new SiStripApvGain();
 
   std::string genMode = _pset.getParameter<std::string>("genMode");
 
@@ -58,7 +58,8 @@ void SiStripApvGainGenerator::createObject(){
     }
     count++;
     SiStripApvGain::Range range(theSiStripVector.begin(),theSiStripVector.end());
-    if ( ! obj_->put(it->first,range) )
+    if ( ! obj->put(it->first,range) )
       edm::LogError("SiStripApvGainGenerator")<<" detid already exists"<<std::endl;
   }
+  return obj;
 }

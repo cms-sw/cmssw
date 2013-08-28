@@ -1,8 +1,6 @@
-// $Id: XmasToDQM.cc,v 1.4 2008/10/23 14:37:00 vpatras Exp $
 
 /*************************************************************************
  * XDAQ Components for Distributed Data Acquisition                      *
- * Copyright (C) 2000-2004, CERN.			                 *
  * All rights reserved.                                                  *
  * Authors: J. Gutleber and L. Orsini					 *
  *                                                                       *

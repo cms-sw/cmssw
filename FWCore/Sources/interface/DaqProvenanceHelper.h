@@ -5,7 +5,7 @@
 #include <string>
 #include <vector>
 
-#include "DataFormats/Provenance/interface/ConstBranchDescription.h"
+#include "DataFormats/Provenance/interface/BranchDescription.h"
 #include "DataFormats/Provenance/interface/ParentageID.h"
 #include "DataFormats/Provenance/interface/ProcessConfiguration.h"
 #include "DataFormats/Provenance/interface/ProcessHistoryID.h"
@@ -26,7 +26,7 @@ namespace edm {
       newBranchID_ = newBD.branchID();
     }
     bool matchProcesses(ProcessConfiguration const& pc, ProcessHistory const& ph) const;
-    void fixMetaData(std::vector<ProcessConfiguration>& pcv, std::vector<ProcessHistory>& phv);
+    void fixMetaData(ProcessConfigurationVector& pcv, std::vector<ProcessHistory>& phv);
     void fixMetaData(std::vector<BranchID>& branchIDs) const;
     void fixMetaData(BranchIDLists const&) const;
     void fixMetaData(BranchChildren& branchChildren) const;
@@ -34,7 +34,7 @@ namespace edm {
     ParentageID const& mapParentageID(ParentageID const& phid) const;
     BranchID const& mapBranchID(BranchID const& branchID) const;
 
-    ConstBranchDescription constBranchDescription_;
+    BranchDescription const constBranchDescription_;
     ProductProvenance dummyProvenance_;
     ParameterSet processParameterSet_;
 

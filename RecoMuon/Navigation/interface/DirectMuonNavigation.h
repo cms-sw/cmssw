@@ -5,8 +5,6 @@
  *  do a straight line extrapolation to
  *  find out compatible DetLayers with a given FTS 
  *
- *  $Date: 2007/03/08 18:39:21 $
- *  $Revision: 1.5 $
  *  \author Chang Liu  -  Purdue University
  */
 

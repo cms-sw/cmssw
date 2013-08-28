@@ -6,6 +6,7 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
+#include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
 
 class QualityFilter : public edm::EDProducer {
  public:
@@ -19,7 +20,8 @@ class QualityFilter : public edm::EDProducer {
   // ----------member data ---------------------------
  private:
   
-  edm::InputTag tkTag; 
+  edm::EDGetTokenT<std::vector<Trajectory> >       trajTag; 
+  edm::EDGetTokenT<TrajTrackAssociationCollection> tassTag; 
   reco::TrackBase::TrackQuality trackQuality_;
   bool copyExtras_;  
 };

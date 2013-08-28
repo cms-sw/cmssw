@@ -11,6 +11,8 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
+#include "DataFormats/RPCDigi/interface/RPCDigiCollection.h"
+
 #include "DQMServices/Core/interface/DQMStore.h"
 
 class RPCMon_SS_Dbx_Global : public edm::EDAnalyzer {
@@ -21,7 +23,7 @@ class RPCMon_SS_Dbx_Global : public edm::EDAnalyzer {
 
    private:
       virtual void beginJob();
-      void beginRun(const edm::Run& , const edm::EventSetup& );
+      virtual void beginRun(const edm::Run& , const edm::EventSetup& );
       virtual void analyze(const edm::Event&, const edm::EventSetup&);
       virtual void endJob();
 
@@ -30,7 +32,7 @@ class RPCMon_SS_Dbx_Global : public edm::EDAnalyzer {
       std::string rootFileName_;
  DQMStore* dbe_;
  int   numberOfRings_;
-      edm::InputTag rpcDigiCollectionTag_;
+      edm::EDGetTokenT<RPCDigiCollection> rpcDigiCollectionTag_;
 };
 
 #endif

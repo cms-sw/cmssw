@@ -2,7 +2,7 @@
 #include <iostream>
 
 
-#include <cppunit/extensions/HelperMacros.h>
+#include "cppunit/extensions/HelperMacros.h"
 
 // ----------------------------------------------
 class testmaker: public CppUnit::TestFixture
@@ -46,7 +46,7 @@ void testmaker::makerTest()
 
     std::cerr << p1->getParameter<std::string>("@module_type");
 
-    edm::ActionTable table;
+    edm::ExceptionToActionTable table;
 
     edm::ProductRegistry preg;
 

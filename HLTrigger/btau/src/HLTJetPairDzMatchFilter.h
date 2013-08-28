@@ -27,7 +27,8 @@ class HLTJetPairDzMatchFilter : public HLTFilter {
     
   private:
 
-    edm::InputTag m_jetSrc;
+    edm::InputTag                     m_jetTag;
+    edm::EDGetTokenT<std::vector<T> > m_jetToken;
     double m_jetMinPt;
     double m_jetMaxEta;
     double m_jetMinDR;

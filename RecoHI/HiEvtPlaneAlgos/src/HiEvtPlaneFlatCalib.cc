@@ -14,7 +14,6 @@
 //
 // Original Author:  Stephen Sanders
 //         Created:  Sat Jun 26 16:04:04 EDT 2010
-// $Id: HiEvtPlaneFlatCalib.cc,v 1.6 2012/02/15 10:33:36 eulisse Exp $
 //
 //
 
@@ -82,9 +81,9 @@ class HiEvtPlaneFlatCalib : public edm::EDAnalyzer {
       ~HiEvtPlaneFlatCalib();
 
    private:
-      virtual void beginJob() ;
-      virtual void analyze(const edm::Event&, const edm::EventSetup&);
-      virtual void endJob() ;
+      virtual void beginJob() override ;
+      virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
+      virtual void endJob() override ;
       
       // ----------member data ---------------------------
   edm::Service<TFileService> fs;

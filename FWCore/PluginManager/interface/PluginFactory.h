@@ -48,7 +48,7 @@ class PluginFactory<R*(Args...)> : public PluginFactoryBase
           PluginFactory<R*(Args...)>::get()->registerPMaker(this,iName);
         }
         virtual R* create(Args... args) const {
-          return new TPlug(args...);
+          return new TPlug(std::forward<Args>(args)...);
         }
       };
 
@@ -56,7 +56,7 @@ class PluginFactory<R*(Args...)> : public PluginFactoryBase
       virtual const std::string& category() const ;
       
       R* create(const std::string& iName, Args... args) const {
-        return reinterpret_cast<PMakerBase*>(PluginFactoryBase::findPMaker(iName)->second.front().first)->create(args...);
+        return reinterpret_cast<PMakerBase*>(PluginFactoryBase::findPMaker(iName)->second.front().first)->create(std::forward<Args>(args)...);
       }
 
       ///like above but returns 0 if iName is unknown

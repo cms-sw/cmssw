@@ -16,6 +16,9 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 namespace edm {
+
+  class ModuleCallingContext;
+
   class AsciiOutputModule : public OutputModule {
   public:
     // We do not take ownership of passed stream.

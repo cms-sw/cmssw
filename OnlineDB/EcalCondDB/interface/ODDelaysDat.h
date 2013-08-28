@@ -39,7 +39,7 @@ class ODDelaysDat : public IODConfig {
   void writeDB(const ODDelaysDat* item, ODFEDelaysInfo* iov )
     throw(std::runtime_error);
 
-  void writeArrayDB(const std::vector< ODDelaysDat > data, ODFEDelaysInfo* iov)
+  void writeArrayDB(const std::vector< ODDelaysDat >& data, ODFEDelaysInfo* iov)
     throw(std::runtime_error);
 
 

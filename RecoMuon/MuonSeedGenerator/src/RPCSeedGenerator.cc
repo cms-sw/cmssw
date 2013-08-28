@@ -13,7 +13,6 @@ Implementation:
 //
 // Original Author:  Haiyun Teng
 //         Created:  Wed Oct 29 17:24:36 CET 2008
-// $Id: RPCSeedGenerator.cc,v 1.7 2010/02/16 17:08:43 wmtan Exp $
 //
 //
 

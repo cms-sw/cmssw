@@ -26,12 +26,9 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "DataFormats/Candidate/interface/Candidate.h"
-#include "DataFormats/METReco/interface/HcalNoiseRBX.h"
 #include "DataFormats/JetReco/interface/Jet.h"
 #include "DataFormats/JetReco/interface/CaloJet.h"
-#include "DataFormats/CaloTowers/interface/CaloTower.h"
 #include "DataFormats/CaloTowers/interface/CaloTowerDetId.h"
-#include "DataFormats/CaloTowers/interface/CaloTowerCollection.h"
 #include "DataFormats/Math/interface/LorentzVector.h"
 #include "DataFormats/Math/interface/Point3D.h"
 
@@ -85,6 +82,9 @@ HLTHcalTowerNoiseCleaner::HLTHcalTowerNoiseCleaner(const edm::ParameterSet& iCon
   for(int i = 0; i < (int)TS4TS5LowerThresholdTemp.size() && i < (int)TS4TS5LowerCutTemp.size(); i++)
      TS4TS5LowerCut_.push_back(std::pair<double, double>(TS4TS5LowerThresholdTemp[i], TS4TS5LowerCutTemp[i]));
   sort(TS4TS5LowerCut_.begin(), TS4TS5LowerCut_.end());
+
+  m_theHcalNoiseToken = consumes<reco::HcalNoiseRBXCollection>(HcalNoiseRBXCollectionTag_);
+  m_theCaloTowerCollectionToken = consumes<CaloTowerCollection>(TowerCollectionTag_);
 
   produces<CaloTowerCollection>();
 }
@@ -143,7 +143,7 @@ void HLTHcalTowerNoiseCleaner::produce(edm::Event& iEvent, const edm::EventSetup
 
   //get the calo MET / MHT
   edm::Handle<CaloTowerCollection> tower_h;
-  iEvent.getByLabel(TowerCollectionTag_,tower_h);
+  iEvent.getByToken(m_theCaloTowerCollectionToken,tower_h);
   
   std::set<unsigned int> noisyTowers;
 
@@ -155,7 +155,7 @@ void HLTHcalTowerNoiseCleaner::produce(edm::Event& iEvent, const edm::EventSetup
   
   // get the RBXs produced by RecoMET/METProducers/HcalNoiseInfoProducer
   edm::Handle<HcalNoiseRBXCollection> rbxs_h;
-  iEvent.getByLabel(HcalNoiseRBXCollectionTag_,rbxs_h);
+  iEvent.getByToken(m_theHcalNoiseToken,rbxs_h);
   if(!rbxs_h.isValid()) {
     edm::LogWarning("HLTHcalTowerNoiseCleaner") << "Could not find HcalNoiseRBXCollection product named "
 					      << HcalNoiseRBXCollectionTag_ << "." << std::endl;

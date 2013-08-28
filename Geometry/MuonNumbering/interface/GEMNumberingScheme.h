@@ -16,7 +16,7 @@ public:
 
   virtual ~GEMNumberingScheme(){};
   
-  virtual int baseNumberToUnitNumber(const MuonBaseNumber);
+  virtual int baseNumberToUnitNumber(const MuonBaseNumber&);
   
 private:
   void initMe ( const MuonDDDConstants& muonConstants );

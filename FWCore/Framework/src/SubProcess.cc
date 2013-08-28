@@ -40,6 +40,7 @@ namespace edm {
                          ActivityRegistry& parentActReg,
                          ServiceToken const& token,
                          serviceregistry::ServiceLegacy iLegacy,
+                         PreallocationConfiguration const& preallocConfig,
                          ProcessContext const* parentProcessContext) :
       serviceToken_(),
       parentPreg_(parentProductRegistry),
@@ -128,7 +129,7 @@ namespace edm {
     esp_ = esController.makeProvider(*processParameterSet_);
 
     // intialize the Schedule
-    schedule_ = items.initSchedule(*processParameterSet_,subProcessParameterSet.get(),StreamID{0},&processContext_);
+    schedule_ = items.initSchedule(*processParameterSet_,subProcessParameterSet.get(),preallocConfig,&processContext_);
 
     // set the items
     act_table_ = std::move(items.act_table_);
@@ -143,7 +144,7 @@ namespace edm {
     principalCache_.insert(ep);
 
     if(subProcessParameterSet) {
-      subProcess_.reset(new SubProcess(*subProcessParameterSet, topLevelParameterSet, preg_, branchIDListHelper_, esController, *items.actReg_, newToken, iLegacy, &processContext_));
+      subProcess_.reset(new SubProcess(*subProcessParameterSet, topLevelParameterSet, preg_, branchIDListHelper_, esController, *items.actReg_, newToken, iLegacy, preallocConfig, &processContext_));
     }
   }
 
@@ -290,7 +291,7 @@ namespace edm {
     ep.setLuminosityBlockPrincipal(principalCache_.lumiPrincipalPtr());
     propagateProducts(InEvent, principal, ep);
     typedef OccurrenceTraits<EventPrincipal, BranchActionStreamBegin> Traits;
-    schedule_->processOneEvent<Traits>(ep, esp_->eventSetupForInstance(ts));
+    schedule_->processOneEvent<Traits>(ep.streamID().value(),ep, esp_->eventSetupForInstance(ts));
     if(subProcess_.get()) subProcess_->doEvent(ep, ts);
     ep.clearEventPrincipal();
   }
@@ -408,61 +409,59 @@ namespace edm {
   }
   
   void
-  SubProcess::doBeginStream(StreamID iID) {
+  SubProcess::doBeginStream(unsigned int iID) {
     ServiceRegistry::Operate operate(serviceToken_);
-    assert(iID == schedule_->streamID());
-    schedule_->beginStream();
+    schedule_->beginStream(iID);
     if(subProcess_.get()) subProcess_->doBeginStream(iID);
   }
 
   void
-  SubProcess::doEndStream(StreamID iID) {
+  SubProcess::doEndStream(unsigned int iID) {
     ServiceRegistry::Operate operate(serviceToken_);
-    assert(iID == schedule_->streamID());
-    schedule_->endStream();
+    schedule_->endStream(iID);
     if(subProcess_.get()) subProcess_->doEndStream(iID);
   }
 
   void
-  SubProcess::doStreamBeginRun(StreamID id, RunPrincipal const& principal, IOVSyncValue const& ts) {
+  SubProcess::doStreamBeginRun(unsigned int id, RunPrincipal const& principal, IOVSyncValue const& ts) {
     ServiceRegistry::Operate operate(serviceToken_);
     {
       RunPrincipal& rp = *principalCache_.runPrincipalPtr();
       typedef OccurrenceTraits<RunPrincipal, BranchActionStreamBegin> Traits;
-      schedule_->processOneStream<Traits>(rp, esp_->eventSetupForInstance(ts));
+      schedule_->processOneStream<Traits>(id,rp, esp_->eventSetupForInstance(ts));
       if(subProcess_.get()) subProcess_->doStreamBeginRun(id,rp, ts);
     }
   }
   
   void
-  SubProcess::doStreamEndRun(StreamID id, RunPrincipal const& principal, IOVSyncValue const& ts, bool cleaningUpAfterException) {
+  SubProcess::doStreamEndRun(unsigned int id, RunPrincipal const& principal, IOVSyncValue const& ts, bool cleaningUpAfterException) {
     ServiceRegistry::Operate operate(serviceToken_);
     {
       RunPrincipal& rp = *principalCache_.runPrincipalPtr();
       typedef OccurrenceTraits<RunPrincipal, BranchActionStreamEnd> Traits;
-      schedule_->processOneStream<Traits>(rp, esp_->eventSetupForInstance(ts),cleaningUpAfterException);
+      schedule_->processOneStream<Traits>(id,rp, esp_->eventSetupForInstance(ts),cleaningUpAfterException);
       if(subProcess_.get()) subProcess_->doStreamEndRun(id,rp, ts,cleaningUpAfterException);
     }
   }
   
   void
-  SubProcess::doStreamBeginLuminosityBlock(StreamID id, LuminosityBlockPrincipal const& principal, IOVSyncValue const& ts) {
+  SubProcess::doStreamBeginLuminosityBlock(unsigned int id, LuminosityBlockPrincipal const& principal, IOVSyncValue const& ts) {
     ServiceRegistry::Operate operate(serviceToken_);
     {
       LuminosityBlockPrincipal& lbp = *principalCache_.lumiPrincipalPtr();
       typedef OccurrenceTraits<LuminosityBlockPrincipal, BranchActionStreamBegin> Traits;
-      schedule_->processOneStream<Traits>(lbp, esp_->eventSetupForInstance(ts));
+      schedule_->processOneStream<Traits>(id,lbp, esp_->eventSetupForInstance(ts));
       if(subProcess_.get()) subProcess_->doStreamBeginLuminosityBlock(id,lbp, ts);
     }
   }
   
   void
-  SubProcess::doStreamEndLuminosityBlock(StreamID id, LuminosityBlockPrincipal const& principal, IOVSyncValue const& ts, bool cleaningUpAfterException) {
+  SubProcess::doStreamEndLuminosityBlock(unsigned int id, LuminosityBlockPrincipal const& principal, IOVSyncValue const& ts, bool cleaningUpAfterException) {
     ServiceRegistry::Operate operate(serviceToken_);
     {
       LuminosityBlockPrincipal& lbp = *principalCache_.lumiPrincipalPtr();
       typedef OccurrenceTraits<LuminosityBlockPrincipal, BranchActionStreamEnd> Traits;
-      schedule_->processOneStream<Traits>(lbp, esp_->eventSetupForInstance(ts),cleaningUpAfterException);
+      schedule_->processOneStream<Traits>(id,lbp, esp_->eventSetupForInstance(ts),cleaningUpAfterException);
       if(subProcess_.get()) subProcess_->doStreamEndLuminosityBlock(id,lbp, ts,cleaningUpAfterException);
     }
   }
@@ -470,8 +469,8 @@ namespace edm {
 
   void
   SubProcess::propagateProducts(BranchType type, Principal const& parentPrincipal, Principal& principal) const {
-    Selections const& keptVector = keptProducts()[type];
-    for(Selections::const_iterator it = keptVector.begin(), itEnd = keptVector.end(); it != itEnd; ++it) {
+    SelectedProducts const& keptVector = keptProducts()[type];
+    for(SelectedProducts::const_iterator it = keptVector.begin(), itEnd = keptVector.end(); it != itEnd; ++it) {
       ProductHolderBase const* parentProductHolder = parentPrincipal.getProductHolder((*it)->branchID(), false, false, nullptr);
       if(parentProductHolder != 0) {
         ProductData const& parentData = parentProductHolder->productData();

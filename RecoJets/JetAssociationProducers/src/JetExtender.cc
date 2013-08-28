@@ -3,7 +3,6 @@
 // Combines different Jet associations into single compact object
 // which extends basic Jet information
 // Fedor Ratnikov Sep. 10, 2007
-// $Id: JetExtender.cc,v 1.3 2007/09/20 22:32:41 fedor Exp $
 //
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 

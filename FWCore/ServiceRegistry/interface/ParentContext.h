@@ -21,7 +21,7 @@ namespace edm {
   class GlobalContext;
   class InternalContext;
   class ModuleCallingContext;
-  class PathContext;
+  class PlaceInPathContext;
   class StreamContext;
 
   class ParentContext {
@@ -31,7 +31,7 @@ namespace edm {
       kGlobal,
       kInternal,
       kModule,
-      kPath,
+      kPlaceInPath,
       kStream,
       kInvalid
     };
@@ -40,7 +40,7 @@ namespace edm {
     ParentContext(GlobalContext const*);
     ParentContext(InternalContext const*);
     ParentContext(ModuleCallingContext const*);
-    ParentContext(PathContext const*);
+    ParentContext(PlaceInPathContext const*);
     ParentContext(StreamContext const*);
 
     Type type() const { return type_; }
@@ -48,7 +48,7 @@ namespace edm {
     GlobalContext const* globalContext() const;
     InternalContext const* internalContext() const;
     ModuleCallingContext const* moduleCallingContext() const;
-    PathContext const* pathContext() const;
+    PlaceInPathContext const* placeInPathContext() const;
     StreamContext const* streamContext() const;
 
   private:
@@ -58,7 +58,7 @@ namespace edm {
       GlobalContext const* global;
       InternalContext const* internal;
       ModuleCallingContext const* module;
-      PathContext const* path;
+      PlaceInPathContext const* placeInPath;
       StreamContext const* stream;
     } parent_;
   };

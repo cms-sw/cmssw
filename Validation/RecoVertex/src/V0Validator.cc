@@ -13,7 +13,6 @@
 //
 // Original Author:  Brian Drell
 //         Created:  Wed Feb 18 17:21:04 MST 2009
-// $Id: V0Validator.cc,v 1.9 2012/07/09 08:47:02 eulisse Exp $
 //
 //
 

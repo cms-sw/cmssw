@@ -13,7 +13,6 @@
 //
 // Original Author:  Igor Volobouev
 //         Created:  Thu Jul 14 17:50:33 CDT 2011
-// $Id: FFTJetPFPileupCleaner.cc,v 1.1 2011/07/15 04:26:34 igv Exp $
 //
 //
 #include <cmath>
@@ -51,9 +50,9 @@ public:
 
 protected:
     // methods
-    void beginJob();
-    void produce(edm::Event&, const edm::EventSetup&);
-    void endJob();
+    void beginJob() override;
+    void produce(edm::Event&, const edm::EventSetup&) override;
+    void endJob() override;
 
 private:
     FFTJetPFPileupCleaner();

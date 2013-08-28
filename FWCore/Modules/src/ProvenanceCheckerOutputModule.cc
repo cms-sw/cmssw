@@ -24,7 +24,10 @@
 // user include files
 
 namespace edm {
+
+   class ModuleCallingContext;
    class ParameterSet;
+
    class ProvenanceCheckerOutputModule : public OutputModule {
    public:
       // We do not take ownership of passed stream.

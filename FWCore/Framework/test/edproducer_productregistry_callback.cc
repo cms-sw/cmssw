@@ -8,7 +8,7 @@
 
 
 #include <iostream>
-#include <cppunit/extensions/HelperMacros.h>
+#include "cppunit/extensions/HelperMacros.h"
 #include "boost/shared_ptr.hpp"
 #include "FWCore/Utilities/interface/GetPassID.h"
 #include "FWCore/Version/interface/GetReleaseVersion.h"
@@ -17,11 +17,11 @@
 #include "FWCore/Framework/interface/ConstProductRegistry.h"
 
 #include "FWCore/Framework/interface/EDProducer.h"
-#include "FWCore/Framework/interface/Actions.h"
+#include "FWCore/Framework/interface/ExceptionActions.h"
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
 #include "DataFormats/Provenance/interface/ProcessConfiguration.h"
 #include "FWCore/Framework/src/WorkerMaker.h"
-#include "FWCore/Framework/src/WorkerParams.h"
+#include "FWCore/Framework/src/MakeModuleParams.h"
 #include "FWCore/Framework/src/WorkerT.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -137,14 +137,14 @@ void  testEDProducerProductRegistryCallback::testCircularRef() {
    p2.addParameter("@module_edm_type",std::string("EDProducer") );
    p2.registerIt();
    
-   edm::ActionTable table;
+   edm::ExceptionToActionTable table;
    
    edm::ParameterSet dummyProcessPset;
    dummyProcessPset.registerIt();
    boost::shared_ptr<ProcessConfiguration> pc(new ProcessConfiguration("PROD", dummyProcessPset.id(), edm::getReleaseVersion(), edm::getPassID()));
 
-   edm::WorkerParams params1(&p1, preg, pc, table);
-   edm::WorkerParams params2(&p2, preg, pc, table);
+   edm::MakeModuleParams params1(&p1, preg, pc);
+   edm::MakeModuleParams params2(&p2, preg, pc);
    
    std::auto_ptr<Maker> lM(new WorkerMaker<ListenMod>);
    ParameterSet l1;
@@ -159,15 +159,19 @@ void  testEDProducerProductRegistryCallback::testCircularRef() {
    l2.addParameter("@module_edm_type",std::string("EDProducer") );
    l2.registerIt();
 
-   edm::WorkerParams paramsl1(&l1, preg, pc, table);
-   edm::WorkerParams paramsl2(&l2, preg, pc, table);
+   edm::MakeModuleParams paramsl1(&l1, preg, pc);
+   edm::MakeModuleParams paramsl2(&l2, preg, pc);
 
    signalslot::Signal<void(const ModuleDescription&)> aSignal;
 
-   std::unique_ptr<Worker> w1 = f->makeWorker(params1,aSignal,aSignal);
-   std::unique_ptr<Worker> wl1 = lM->makeWorker(paramsl1,aSignal,aSignal);
-   std::unique_ptr<Worker> wl2 = lM->makeWorker(paramsl2,aSignal,aSignal);
-   std::unique_ptr<Worker> w2 = f->makeWorker(params2,aSignal,aSignal);
+   auto m1 = f->makeModule(params1,aSignal,aSignal);
+   std::unique_ptr<Worker> w1 = m1->makeWorker(&table);
+   auto ml1 = lM->makeModule(paramsl1,aSignal,aSignal);
+   std::unique_ptr<Worker> wl1 = ml1->makeWorker(&table);
+   auto ml2 = lM->makeModule(paramsl2,aSignal,aSignal);
+   std::unique_ptr<Worker> wl2 = ml2->makeWorker(&table);
+   auto m2 = f->makeModule(params2,aSignal,aSignal);
+   std::unique_ptr<Worker> w2 = m2->makeWorker(&table);
 
    //Should be 5 products
    // 1 from the module 't1'
@@ -208,14 +212,14 @@ void  testEDProducerProductRegistryCallback::testCircularRef2() {
    p2.addParameter("@module_edm_type",std::string("EDProducer") );
    p2.registerIt();
    
-   edm::ActionTable table;
+   edm::ExceptionToActionTable table;
    
    edm::ParameterSet dummyProcessPset;
    dummyProcessPset.registerIt();
    boost::shared_ptr<ProcessConfiguration> pc(new ProcessConfiguration("PROD", dummyProcessPset.id(), edm::getReleaseVersion(), edm::getPassID()));
 
-   edm::WorkerParams params1(&p1, preg, pc, table);
-   edm::WorkerParams params2(&p2, preg, pc, table);
+   edm::MakeModuleParams params1(&p1, preg, pc);
+   edm::MakeModuleParams params2(&p2, preg, pc);
    
    std::auto_ptr<Maker> lM(new WorkerMaker<ListenMod>);
    ParameterSet l1;
@@ -230,14 +234,18 @@ void  testEDProducerProductRegistryCallback::testCircularRef2() {
    l2.addParameter("@module_edm_type",std::string("EDProducer") );
    l2.registerIt();
    
-   edm::WorkerParams paramsl1(&l1, preg, pc, table);
-   edm::WorkerParams paramsl2(&l2, preg, pc, table);
+   edm::MakeModuleParams paramsl1(&l1, preg, pc);
+   edm::MakeModuleParams paramsl2(&l2, preg, pc);
    
    signalslot::Signal<void(const ModuleDescription&)> aSignal;
-   std::unique_ptr<Worker> wl1 = lM->makeWorker(paramsl1,aSignal,aSignal);
-   std::unique_ptr<Worker> wl2 = lM->makeWorker(paramsl2,aSignal,aSignal);
-   std::unique_ptr<Worker> w1 = f->makeWorker(params1,aSignal,aSignal);
-   std::unique_ptr<Worker> w2 = f->makeWorker(params2,aSignal,aSignal);
+   auto ml1 = lM->makeModule(paramsl1,aSignal,aSignal);
+   std::unique_ptr<Worker> wl1 = ml1->makeWorker(&table);
+   auto ml2 = lM->makeModule(paramsl2,aSignal,aSignal);
+   std::unique_ptr<Worker> wl2 = ml2->makeWorker(&table);
+   auto m1 = f->makeModule(params1,aSignal,aSignal);
+   std::unique_ptr<Worker> w1 = m1->makeWorker(&table);
+   auto m2 = f->makeModule(params2,aSignal,aSignal);
+   std::unique_ptr<Worker> w2 = m2->makeWorker(&table);
    
    //Would be 10 products
    // 1 from the module 't1'
@@ -278,14 +286,14 @@ void  testEDProducerProductRegistryCallback::testTwoListeners(){
    p2.addParameter("@module_edm_type",std::string("EDProducer") );
    p2.registerIt();
    
-   edm::ActionTable table;
+   edm::ExceptionToActionTable table;
    
    edm::ParameterSet dummyProcessPset;
    dummyProcessPset.registerIt();
    boost::shared_ptr<ProcessConfiguration> pc(new ProcessConfiguration("PROD", dummyProcessPset.id(), edm::getReleaseVersion(), edm::getPassID()));
 
-   edm::WorkerParams params1(&p1, preg, pc, table);
-   edm::WorkerParams params2(&p2, preg, pc, table);
+   edm::MakeModuleParams params1(&p1, preg, pc);
+   edm::MakeModuleParams params2(&p2, preg, pc);
    
    std::auto_ptr<Maker> lM(new WorkerMaker<ListenMod>);
    ParameterSet l1;
@@ -301,15 +309,19 @@ void  testEDProducerProductRegistryCallback::testTwoListeners(){
    l2.addParameter("@module_edm_type",std::string("EDProducer") );
    l2.registerIt();
    
-   edm::WorkerParams paramsl1(&l1, preg, pc, table);
-   edm::WorkerParams paramsl2(&l2, preg, pc, table);
+   edm::MakeModuleParams paramsl1(&l1, preg, pc);
+   edm::MakeModuleParams paramsl2(&l2, preg, pc);
    
    
    signalslot::Signal<void(const ModuleDescription&)> aSignal;
-   std::unique_ptr<Worker> w1 = f->makeWorker(params1,aSignal,aSignal);
-   std::unique_ptr<Worker> wl1 = lM->makeWorker(paramsl1,aSignal,aSignal);
-   std::unique_ptr<Worker> wl2 = lFM->makeWorker(paramsl2,aSignal,aSignal);
-   std::unique_ptr<Worker> w2 = f->makeWorker(params2,aSignal,aSignal);
+   auto m1 = f->makeModule(params1,aSignal,aSignal);
+   std::unique_ptr<Worker> w1 = m1->makeWorker(&table);
+   auto ml1 = lM->makeModule(paramsl1,aSignal,aSignal);
+   std::unique_ptr<Worker> wl1 = ml1->makeWorker(&table);
+   auto ml2 = lFM->makeModule(paramsl2,aSignal,aSignal);
+   std::unique_ptr<Worker> wl2 = ml2->makeWorker(&table);
+   auto m2 = f->makeModule(params2,aSignal,aSignal);
+   std::unique_ptr<Worker> w2 = m2->makeWorker(&table);
 
    //Should be 8 products
    // 1 from the module 't1'

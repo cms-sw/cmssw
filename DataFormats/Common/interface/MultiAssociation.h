@@ -45,7 +45,6 @@
  * With respect to ValueMap / Association, there is one extra int32 for each key (but we don't store null values)
  *
  * Its backbone is given by edm::helper::IndexRangeAssociation, that maps keys to ranges, and is not templated.
- * \version $Id: MultiAssociation.h,v 1.2 2011/03/08 18:47:15 chrjones Exp $
  *
  */
 

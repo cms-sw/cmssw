@@ -107,7 +107,7 @@ void ODVfeToRejectDat::fetchData(std::vector< ODVfeToRejectDat >* p, ODVfeToReje
 
 //  ************************************************************************   // 
 
-void ODVfeToRejectDat::writeArrayDB(const std::vector< ODVfeToRejectDat > data, ODVfeToRejectInfo* iov)
+void ODVfeToRejectDat::writeArrayDB(const std::vector< ODVfeToRejectDat >& data, ODVfeToRejectInfo* iov)
     throw(std::runtime_error)
 {
   this->checkConnection();

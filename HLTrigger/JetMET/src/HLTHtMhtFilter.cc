@@ -10,8 +10,6 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
 
-#include "DataFormats/METReco/interface/MET.h"
-
 
 HLTHtMhtFilter::HLTHtMhtFilter(const edm::ParameterSet & iConfig) : HLTFilter(iConfig),
   htLabels_  ( iConfig.getParameter<std::vector<edm::InputTag> >("htLabels") ),
@@ -37,6 +35,10 @@ HLTHtMhtFilter::HLTHtMhtFilter(const edm::ParameterSet & iConfig) : HLTFilter(iC
   }
 
   moduleLabel_ = iConfig.getParameter<std::string>("@module_label");
+  for(unsigned int i=0;i<nOrs_;++i) {
+    m_theHtToken.push_back(consumes<std::vector<reco::MET>>(htLabels_[i]));
+    m_theMhtToken.push_back(consumes<std::vector<reco::MET>>(mhtLabels_[i]));
+  }
   produces<reco::METCollection>();
 }
 
@@ -74,10 +76,10 @@ bool HLTHtMhtFilter::hltFilter(edm::Event & iEvent, const edm::EventSetup & iSet
 
     // read in the HT and mHT
     edm::Handle<std::vector<reco::MET> > hht;
-    iEvent.getByLabel(htLabels_[i], hht);
+    iEvent.getByToken(m_theHtToken[i], hht);
     double ht = (*hht)[0].sumEt();
     edm::Handle<std::vector<reco::MET> > hmht;
-    iEvent.getByLabel(mhtLabels_[i], hmht);
+    iEvent.getByToken(m_theMhtToken[i], hmht);
     double mht = (*hmht)[0].pt();
 
     // check if the event passes this cut set

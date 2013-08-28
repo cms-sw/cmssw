@@ -30,13 +30,13 @@ public:
 private:
   std::string m_dqm_path;
 
-  void analyze(const edm::Event & event, const edm::EventSetup & setup);
-  void beginJob();
-  void endJob();
-  void beginRun(edm::Run const & run, edm::EventSetup const & setup);
-  void endRun  (edm::Run const & run, edm::EventSetup const & setup);
-  void beginLuminosityBlock(edm::LuminosityBlock const & lumi, edm::EventSetup const & setup);
-  void endLuminosityBlock  (edm::LuminosityBlock const & lumi, edm::EventSetup const & setup);
+  void analyze(const edm::Event & event, const edm::EventSetup & setup) override;
+  void beginJob() override;
+  void endJob() override;
+  void beginRun(edm::Run const & run, edm::EventSetup const & setup) override;
+  void endRun  (edm::Run const & run, edm::EventSetup const & setup) override;
+  void beginLuminosityBlock(edm::LuminosityBlock const & lumi, edm::EventSetup const & setup) override;
+  void endLuminosityBlock  (edm::LuminosityBlock const & lumi, edm::EventSetup const & setup) override;
 
 private:
   void fillSummaryPlots();

@@ -10,6 +10,8 @@ public:
 
   static ConstRecHitPointer nullPtr() { return ConstRecHitPointer();}
 
+  SeedingHitSet() {}
+
   SeedingHitSet(ConstRecHitPointer const & one, ConstRecHitPointer const & two) 
   // : theRecHits{{one,two,ConstRecHitPointer()}}
   {
@@ -36,9 +38,8 @@ public:
   
   ~SeedingHitSet(){}
   
-  
-  unsigned int size() const { return theRecHits[3].get() ? 4 : (theRecHits[2].get() ? 3 : 2); }
-  
+  unsigned int size() const { return theRecHits[3].get() ? 4 : (theRecHits[2].get() ? 3 : ( theRecHits[1].get() ? 2 : 0 ) ); }
+
   ConstRecHitPointer const &  get(unsigned int i) const { return theRecHits[i]; }
   ConstRecHitPointer const & operator[](unsigned int i) const { return theRecHits[i]; }
   

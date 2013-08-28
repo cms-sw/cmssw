@@ -14,7 +14,7 @@ public:
    FWGenParticleLegoProxyBuilder() {}
    virtual ~FWGenParticleLegoProxyBuilder() {}
 
-  virtual void setItem(const FWEventItem* iItem)
+  virtual void setItem(const FWEventItem* iItem) override
   {
     FWProxyBuilderBase::setItem(iItem);
     if (iItem)
@@ -32,7 +32,7 @@ private:
 
    const FWGenParticleLegoProxyBuilder& operator=(const FWGenParticleLegoProxyBuilder&); // stop default
    
-   void build(const reco::GenParticle& iData, unsigned int iIndex,TEveElement& oItemHolder, const FWViewContext*);
+   void build(const reco::GenParticle& iData, unsigned int iIndex,TEveElement& oItemHolder, const FWViewContext*) override;
 };
 
 //______________________________________________________________________________

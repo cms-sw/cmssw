@@ -41,8 +41,8 @@ class RunDCSLVDat : public IDataItem {
   void setTimeStatus(int t ) {m_tstatus=t; } 
 
  private:
-  void setStatusForBarrel(RunDCSLVDat&, Tm);
-  void setStatusForEndcaps(RunDCSLVDat&, Tm);
+  void setStatusForBarrel(RunDCSLVDat&, const Tm&);
+  void setStatusForEndcaps(RunDCSLVDat&, const Tm&);
   ResultSet* getBarrelRset();
   ResultSet* getEndcapRset();
   int nowMicroseconds();

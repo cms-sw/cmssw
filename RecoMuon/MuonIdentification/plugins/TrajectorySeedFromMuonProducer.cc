@@ -1,5 +1,4 @@
 // -*- C++ -*-
-// $Id: TrajectorySeedFromMuonProducer.cc,v 1.1 2010/06/22 13:19:57 dmytro Exp $
 //
 // Authors: Y.Gao (FNAL)
 //
@@ -50,7 +49,7 @@ class TrajectorySeedFromMuonProducer : public edm::EDProducer
 
 public:
     explicit TrajectorySeedFromMuonProducer( const edm::ParameterSet & );   
-    virtual void produce(edm::Event&, const edm::EventSetup&);
+    virtual void produce(edm::Event&, const edm::EventSetup&) override;
 
 private:
     edm::InputTag  muonCollectionTag_;

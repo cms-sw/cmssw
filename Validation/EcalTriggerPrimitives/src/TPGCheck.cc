@@ -13,8 +13,6 @@
 //
 // Original Author:  Muriel Cerutti
 //         Created:  Thu Oct 26 10:47:17 CEST 2006
-// $Id: TPGCheck.cc,v 1.2 2009/03/27 16:38:31 ebecheva Exp $
-// $Id: TPGCheck.cc,v 1.2 2009/03/27 16:38:31 ebecheva Exp $
 //
 
 
@@ -51,9 +49,9 @@ class TPGCheck : public edm::EDAnalyzer {
 
 
    private:
-      virtual void beginJob() ;
-      virtual void analyze(const edm::Event&, const edm::EventSetup&);
-      virtual void endJob() ;
+      virtual void beginJob() override ;
+      virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
+      virtual void endJob() override ;
 
       // ----------member data ---------------------------
       TH1I *ecal_et_[2];

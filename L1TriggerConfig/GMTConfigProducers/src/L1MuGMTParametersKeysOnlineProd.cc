@@ -28,7 +28,7 @@ class L1MuGMTParametersKeysOnlineProd : public L1ObjectKeysOnlineProdBase {
       }
       ~L1MuGMTParametersKeysOnlineProd() {}
 
-      virtual void fillObjectKeys( ReturnType pL1TriggerKey ) ;
+      virtual void fillObjectKeys( ReturnType pL1TriggerKey ) override ;
    private:
 };
 

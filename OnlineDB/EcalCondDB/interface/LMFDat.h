@@ -136,7 +136,7 @@ class LMFDat : public LMFUnique {
 
   virtual bool isValid();
   void setWhereClause(std::string w);
-  void setWhereClause(std::string w, std::vector<std::string> p);
+  void setWhereClause(std::string w, const std::vector<std::string>& p);
  protected:
   void getNeighbour(LMFDat *dat, int which) throw(std::runtime_error);
   int writeDB() throw(std::runtime_error);

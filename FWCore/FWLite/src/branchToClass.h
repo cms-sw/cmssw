@@ -16,7 +16,6 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Aug  2 09:04:02 EDT 2006
-// $Id$
 //
 
 // system include files

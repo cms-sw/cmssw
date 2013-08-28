@@ -77,7 +77,7 @@ namespace  {
       m_type(iTypeID),
       m_record(iRecord){}
       
-      virtual const void* getImpl(const edm::eventsetup::EventSetupRecord&, const edm::eventsetup::DataKey& iKey) {
+      virtual const void* getImpl(const edm::eventsetup::EventSetupRecord&, const edm::eventsetup::DataKey& iKey) override {
          assert(iKey.type() == m_type);
          
          FWLiteESGenericHandle h(m_type);
@@ -89,7 +89,7 @@ namespace  {
          return h.m_data;
       }
       
-      virtual void invalidateCache() {
+      virtual void invalidateCache() override {
       }
       
    private:
@@ -110,7 +110,7 @@ public:
    
    // ---------- member functions ---------------------------
    virtual void newInterval(const edm::eventsetup::EventSetupRecordKey& iRecordType,
-                            const edm::ValidityInterval& iInterval);
+                            const edm::ValidityInterval& iInterval) override;
    
    
 private:
@@ -119,14 +119,14 @@ private:
    const FWLiteESSource& operator=(const FWLiteESSource&); // stop default
    
    virtual void registerProxies(const edm::eventsetup::EventSetupRecordKey& iRecordKey ,
-                                KeyedProxies& aProxyList);
+                                KeyedProxies& aProxyList) override;
    
    
    virtual void setIntervalFor(const edm::eventsetup::EventSetupRecordKey&,
                                const edm::IOVSyncValue& , 
-                               edm::ValidityInterval&);
+                               edm::ValidityInterval&) override;
    
-   virtual void delaySettingRecords();
+   virtual void delaySettingRecords() override;
    
    // ---------- member data --------------------------------
    std::auto_ptr<TFile> m_file;

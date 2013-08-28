@@ -59,9 +59,9 @@ public:
   explicit HcalLuttoDB(const edm::ParameterSet&);
   ~HcalLuttoDB();
   
-  virtual void beginJob() ;
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void endJob() ;
+  virtual void beginJob() override ;
+  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
+  virtual void endJob() override ;
 
 private:
   void writeoutlut1(HcalDetId id, HcalElectronicsId eid, const std::vector<unsigned short>& lut, std::ostream& os);

@@ -14,7 +14,6 @@
 
 // user include files
 #include "FWCore/Framework/interface/stream/ProducingModuleAdaptorBase.h"
-#include "FWCore/Framework/src/CPCSentry.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "FWCore/Framework/interface/Run.h"
 #include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"
@@ -120,11 +119,9 @@ namespace edm {
     ProducingModuleAdaptorBase<T>::doStreamBeginRun(StreamID id,
                                                     RunPrincipal& rp,
                                                     EventSetup const& c,
-                                                    CurrentProcessingContext const* cpcp,
                                                     ModuleCallingContext const* mcc)
     {
       auto mod = m_streamModules[id];
-      detail::CPCSentry sentry(mod->current_context_, cpcp);
       setupRun(mod, rp.index());
       
       Run r(rp, moduleDescription_, mcc);
@@ -137,11 +134,9 @@ namespace edm {
     ProducingModuleAdaptorBase<T>::doStreamEndRun(StreamID id,
                                                   RunPrincipal& rp,
                                                   EventSetup const& c,
-                                                  CurrentProcessingContext const* cpcp,
                                                   ModuleCallingContext const* mcc)
     {
       auto mod = m_streamModules[id];
-      detail::CPCSentry sentry(mod->current_context_, cpcp);
       Run r(rp, moduleDescription_, mcc);
       r.setConsumer(mod);
       mod->endRun(r, c);
@@ -153,10 +148,8 @@ namespace edm {
     ProducingModuleAdaptorBase<T>::doStreamBeginLuminosityBlock(StreamID id,
                                                                 LuminosityBlockPrincipal& lbp,
                                                                 EventSetup const& c,
-                                                                CurrentProcessingContext const* cpcp,
                                                                 ModuleCallingContext const* mcc) {
       auto mod = m_streamModules[id];
-      detail::CPCSentry sentry(mod->current_context_, cpcp);
       setupLuminosityBlock(mod,lbp.index());
       
       LuminosityBlock lb(lbp, moduleDescription_, mcc);
@@ -169,11 +162,9 @@ namespace edm {
     ProducingModuleAdaptorBase<T>::doStreamEndLuminosityBlock(StreamID id,
                                                               LuminosityBlockPrincipal& lbp,
                                                               EventSetup const& c,
-                                                              CurrentProcessingContext const* cpcp,
                                                               ModuleCallingContext const* mcc)
     {
       auto mod = m_streamModules[id];
-      detail::CPCSentry sentry(mod->current_context_, cpcp);
       LuminosityBlock lb(lbp, moduleDescription_, mcc);
       lb.setConsumer(mod);
       mod->endLuminosityBlock(lb, c);

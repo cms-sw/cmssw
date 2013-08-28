@@ -21,6 +21,10 @@ using namespace edm;
 namespace {
   const std::string ClusterType__BOX("Box");
   const std::string ClusterType__Mustache("Mustache");
+
+  const std::string EnergyWeight__Raw("Raw");
+  const std::string EnergyWeight__CalibratedNoPS("CalibratedNoPS");
+  const std::string EnergyWeight__CalibratedTotal("CalibratedTotal");
 }
 
 PFECALSuperClusterProducer::PFECALSuperClusterProducer(const edm::ParameterSet& iConfig)
@@ -39,10 +43,25 @@ PFECALSuperClusterProducer::PFECALSuperClusterProducer(const edm::ParameterSet& 
       << "You have not chosen a valid clustering type," 
       << " please choose from \"Box\" or \"Mustache\"!";
   }
+
+  std::string _weightname = iConfig.getParameter<std::string>("EnergyWeight");
+  if( _weightname == EnergyWeight__Raw ) {
+    _theenergyweight = PFECALSuperClusterAlgo::kRaw;
+  } else if ( _weightname == EnergyWeight__CalibratedNoPS ) {
+    _theenergyweight = PFECALSuperClusterAlgo::kCalibratedNoPS;
+  } else if ( _weightname == EnergyWeight__CalibratedTotal) {
+    _theenergyweight = PFECALSuperClusterAlgo::kCalibratedTotal;
+  } else {
+    throw cms::Exception("InvalidClusteringType") 
+      << "You have not chosen a valid energy weighting scheme," 
+      << " please choose from \"Raw\", \"CalibratedNoPS\", or"
+      << " \"CalibratedTotal\"!";
+  }
   
 
   // parameters for clustering
-  
+  bool seedThresholdIsET = iConfig.getParameter<bool>("seedThresholdIsET");
+
   bool useDynamicDPhi = iConfig.getParameter<bool>("useDynamicDPhiWindow");
 
   double threshPFClusterSeedBarrel = iConfig.getParameter<double>("thresh_PFClusterSeedBarrel");
@@ -71,6 +90,8 @@ PFECALSuperClusterProducer::PFECALSuperClusterProducer(const edm::ParameterSet& 
 
   superClusterAlgo_.setVerbosityLevel(verbose_);
   superClusterAlgo_.setClusteringType(_theclusteringtype);
+  superClusterAlgo_.setEnergyWeighting(_theenergyweight);
+  superClusterAlgo_.setUseETForSeeding(seedThresholdIsET);
   superClusterAlgo_.setUseDynamicDPhi(useDynamicDPhi);
 
   superClusterAlgo_.setThreshPFClusterSeedBarrel( threshPFClusterSeedBarrel );
@@ -104,8 +125,10 @@ PFECALSuperClusterProducer::PFECALSuperClusterProducer(const edm::ParameterSet& 
 
 
   
-  inputTagPFClusters_ = iConfig.getParameter<InputTag>("PFClusters");
-  inputTagPFClustersES_ = iConfig.getParameter<InputTag>("PFClustersES");
+  inputTagPFClusters_ = 
+    consumes<edm::View<reco::PFCluster> >(iConfig.getParameter<InputTag>("PFClusters"));
+  inputTagPFClustersES_ = 
+    consumes<edm::View<reco::PFCluster> >(iConfig.getParameter<InputTag>("PFClustersES"));
 
   PFBasicClusterCollectionBarrel_ = iConfig.getParameter<string>("PFBasicClusterCollectionBarrel");
   PFSuperClusterCollectionBarrel_ = iConfig.getParameter<string>("PFSuperClusterCollectionBarrel");
@@ -116,8 +139,9 @@ PFECALSuperClusterProducer::PFECALSuperClusterProducer(const edm::ParameterSet& 
   PFBasicClusterCollectionPreshower_ = iConfig.getParameter<string>("PFBasicClusterCollectionPreshower");
   PFSuperClusterCollectionEndcapWithPreshower_ = iConfig.getParameter<string>("PFSuperClusterCollectionEndcapWithPreshower");
 
-  produces<reco::SuperClusterCollection>(PFSuperClusterCollectionBarrel_);
+  produces<reco::SuperClusterCollection>(PFSuperClusterCollectionBarrel_);  
   produces<reco::SuperClusterCollection>(PFSuperClusterCollectionEndcapWithPreshower_);   
+  produces<reco::SuperCluster::EEtoPSAssociation>("eetops");
 }
 
 
@@ -133,10 +157,10 @@ void PFECALSuperClusterProducer::produce(edm::Event& iEvent,
 
   //Load the pfcluster collections
   edm::Handle<edm::View<reco::PFCluster> > pfclustersHandle;
-  iEvent.getByLabel( inputTagPFClusters_, pfclustersHandle );  
+  iEvent.getByToken( inputTagPFClusters_, pfclustersHandle );  
 
   edm::Handle<edm::View<reco::PFCluster> > preshowerpfclustersHandle;
-  iEvent.getByLabel( inputTagPFClustersES_,  preshowerpfclustersHandle);
+  iEvent.getByToken( inputTagPFClustersES_,  preshowerpfclustersHandle);
 
 
   // do clustering
@@ -149,6 +173,8 @@ void PFECALSuperClusterProducer::produce(edm::Event& iEvent,
 	     PFSuperClusterCollectionBarrel_);
   iEvent.put(superClusterAlgo_.getEEOutputSCCollection(), 
 	     PFSuperClusterCollectionEndcapWithPreshower_);
+  iEvent.put(superClusterAlgo_.getEEtoPSAssociation(), 
+	     "eetops");
 }
   
 

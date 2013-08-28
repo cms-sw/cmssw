@@ -16,7 +16,7 @@ public:
    //    gVirtualX->GrabKey(fId, 0l, kAnyModifier, kTRUE);
    // }
 
-   virtual void PoppedUp()
+   virtual void PoppedUp() override
    {
       TGPopupMenu::PoppedUp();
       gVirtualX->SetInputFocus(fId);
@@ -24,13 +24,13 @@ public:
       
    }
 
-   virtual void PoppedDown()
+   virtual void PoppedDown() override
    {
       gVirtualX->GrabKey(fId, 0l, kAnyModifier, kFALSE);
       TGPopupMenu::PoppedDown();
    }
 
-   virtual Bool_t HandleKey(Event_t* event)
+   virtual Bool_t HandleKey(Event_t* event) override
    {
       if (event->fType != kGKeyPress) return kTRUE;
 

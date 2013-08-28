@@ -8,7 +8,7 @@
 
 #include <algorithm>
 
-#include "ThirdHitRZPredictionBase.h"
+#include "RecoPixelVertexing/PixelTriplets/interface/ThirdHitRZPredictionBase.h"
 
 template<class Propagator>
 class ThirdHitRZPrediction : public ThirdHitRZPredictionBase {

@@ -58,8 +58,8 @@ DeDxEstimatorProducerPixelTripplet::DeDxEstimatorProducerPixelTripplet(const edm
    MaxNrStrips         = iConfig.getUntrackedParameter<unsigned>("maxNrStrips"        ,  255);
    MinTrackHits        = iConfig.getUntrackedParameter<unsigned>("MinTrackHits"       ,  4);
 
-   m_tracksTag = iConfig.getParameter<edm::InputTag>("tracks");
-   m_trajTrackAssociationTag   = iConfig.getParameter<edm::InputTag>("trajectoryTrackAssociation");
+   m_tracksTag = consumes<reco::TrackCollection>(iConfig.getParameter<edm::InputTag>("tracks"));
+   m_trajTrackAssociationTag   = consumes<TrajTrackAssociationCollection>(iConfig.getParameter<edm::InputTag>("trajectoryTrackAssociation"));
 
    usePixel = iConfig.getParameter<bool>("UsePixel"); 
    useStrip = iConfig.getParameter<bool>("UseStrip");
@@ -137,7 +137,7 @@ void DeDxEstimatorProducerPixelTripplet::produce(edm::Event& iEvent, const edm::
   ValueMap<DeDxData>::Filler filler(*trackDeDxEstimateAssociation);
 
   Handle<TrackCollection> trackCollHandle;
-  iEvent.getByLabel(m_trajTrackAssociationTag, trackCollHandle);
+  iEvent.getByToken(m_trajTrackAssociationTag, trackCollHandle);
   const TrackCollection trackColl = *trackCollHandle.product();
 
   size_t n =  trackColl.size();

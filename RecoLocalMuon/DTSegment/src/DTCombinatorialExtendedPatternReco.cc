@@ -1,7 +1,5 @@
 /** \file
  *
- * $Date: 2008/04/04 15:23:01 $
- * $Revision: 1.17 $
  * \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  * \author Riccardo Bellan - INFN TO <riccardo.bellan@cern.ch>
  */
@@ -91,7 +89,7 @@ void DTCombinatorialExtendedPatternReco::setES(const edm::EventSetup& setup){
   theUpdator->setES(setup);
 }
 
-void DTCombinatorialExtendedPatternReco::setClusters(vector<DTSLRecCluster> clusters) {
+void DTCombinatorialExtendedPatternReco::setClusters(const vector<DTSLRecCluster>& clusters) {
   theClusters = clusters;
 }
 

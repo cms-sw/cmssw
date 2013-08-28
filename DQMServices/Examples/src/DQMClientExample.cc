@@ -3,9 +3,6 @@
  * \author M. Zanetti - CERN
  *
  * Last Update:
- * $Date: 2009/10/13 18:20:26 $
- * $Revision: 1.15 $
- * $Author: ameyer $
  *
  */
 

@@ -2,8 +2,6 @@
  *  
  *  Class to fill dqm monitor elements from existing EDM file
  *
- *  $Date: 2013/06/04 19:05:18 $
- *  $Revision: 1.29 $
  */
  
 #include "Validation/EventGenerator/interface/TauValidation.h"

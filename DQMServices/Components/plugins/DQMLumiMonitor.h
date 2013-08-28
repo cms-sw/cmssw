@@ -3,8 +3,6 @@
  *
  * DQM Luminosity Monitoring 
  *
- * $Date: 2012/04/11 07:16:51 $
- * $Revision: 1.2 $
  * \author  S. Dutta
  *
 */

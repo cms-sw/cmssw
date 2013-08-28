@@ -43,7 +43,7 @@ class LogErrorEventFilter : public edm::one::EDFilter<edm::one::WatchRuns,
         virtual void endLuminosityBlockProduce(edm::LuminosityBlock &lumi, const edm::EventSetup &iSetup) override;
         virtual void beginRun(const edm::Run &run, const edm::EventSetup &iSetup) override;
         virtual void endRun(const edm::Run &run, const edm::EventSetup &iSetup) override;
-        virtual void endJob();
+        virtual void endJob() override;
 
     private:
         typedef edm::ErrorSummaryEntry              Error;

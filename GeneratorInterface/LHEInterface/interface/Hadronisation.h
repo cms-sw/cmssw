@@ -8,7 +8,7 @@
 #include <boost/shared_ptr.hpp>
 #include <sigc++/signal.h>
 
-#include <HepMC/GenEvent.h>
+#include "HepMC/GenEvent.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/PluginManager/interface/PluginFactory.h"

@@ -24,8 +24,8 @@ class DCSPTMTempList  : public IDBObject {
   std::vector<DCSPTMTemp> getList() ;
   
   // this fills the vector 
-  void fetchValuesForECIDAndTime(EcalLogicID ecid, Tm start, Tm end) throw(std::runtime_error);
-  void fetchValuesForECID(EcalLogicID ecid) throw(std::runtime_error);
+  void fetchValuesForECIDAndTime(const EcalLogicID& ecid, const Tm& start, const Tm& end) throw(std::runtime_error);
+  void fetchValuesForECID(const EcalLogicID& ecid) throw(std::runtime_error);
 
 
  private:

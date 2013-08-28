@@ -28,7 +28,7 @@ private:
    // Disable default assignment operator
    const FWPSimHitProxyBuilder& operator=( const FWPSimHitProxyBuilder& );
 
-   void build( const PSimHit& iData, unsigned int iIndex, TEveElement& oItemHolder, const FWViewContext* );
+   void build( const PSimHit& iData, unsigned int iIndex, TEveElement& oItemHolder, const FWViewContext* ) override;
 };
 
 void

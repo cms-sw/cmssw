@@ -4,8 +4,6 @@
 /*
  * \file L1TDTTF.h
  *
- * $Date: 2010/10/27 08:08:52 $
- * $Revision: 1.13 $
  * \author J. Berryhill
  *
  */

@@ -31,8 +31,8 @@ class RecoTauImpactParameterSignificancePlugin : public RecoTauModifierPlugin {
     explicit RecoTauImpactParameterSignificancePlugin(
         const edm::ParameterSet& pset);
     virtual ~RecoTauImpactParameterSignificancePlugin() {}
-    void operator()(PFTau& tau) const;
-    virtual void beginEvent();
+    void operator()(PFTau& tau) const override;
+    virtual void beginEvent() override;
   private:
     RecoTauVertexAssociator vertexAssociator_;
     const TransientTrackBuilder *builder_;

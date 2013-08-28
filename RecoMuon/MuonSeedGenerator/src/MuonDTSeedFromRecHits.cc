@@ -2,8 +2,6 @@
  *  See header file for a description of this class.
  *
  *
- *  $Date: 2010/04/09 00:59:14 $
- *  $Revision: 1.18 $
  *  \author A. Vitelli - INFN Torino, V.Palichik
  *  \author porting  R. Bellan
  *

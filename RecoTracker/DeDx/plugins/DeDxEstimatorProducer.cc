@@ -15,7 +15,6 @@
 //         Created:  Thu May 31 14:09:02 CEST 2007
 //    Code Updates:  loic Quertenmont (querten)
 //         Created:  Thu May 10 14:09:02 CEST 2008
-// $Id: DeDxEstimatorProducer.cc,v 1.2 2012/01/17 13:46:51 innocent Exp $
 //
 //
 
@@ -63,8 +62,8 @@ DeDxEstimatorProducer::DeDxEstimatorProducer(const edm::ParameterSet& iConfig)
    MaxNrStrips         = iConfig.getUntrackedParameter<unsigned>("maxNrStrips"        ,  255);
    MinTrackHits        = iConfig.getUntrackedParameter<unsigned>("MinTrackHits"       ,  4);
 
-   m_tracksTag = iConfig.getParameter<edm::InputTag>("tracks");
-   m_trajTrackAssociationTag   = iConfig.getParameter<edm::InputTag>("trajectoryTrackAssociation");
+   m_tracksTag = consumes<reco::TrackCollection>(iConfig.getParameter<edm::InputTag>("tracks"));
+   m_trajTrackAssociationTag   = consumes<TrajTrackAssociationCollection>(iConfig.getParameter<edm::InputTag>("trajectoryTrackAssociation"));
 
    usePixel = iConfig.getParameter<bool>("UsePixel"); 
    useStrip = iConfig.getParameter<bool>("UseStrip");
@@ -138,11 +137,11 @@ void DeDxEstimatorProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
   ValueMap<DeDxData>::Filler filler(*trackDeDxEstimateAssociation);
 
   Handle<TrajTrackAssociationCollection> trajTrackAssociationHandle;
-  iEvent.getByLabel(m_trajTrackAssociationTag, trajTrackAssociationHandle);
+  iEvent.getByToken(m_trajTrackAssociationTag, trajTrackAssociationHandle);
   const TrajTrackAssociationCollection & TrajToTrackMap = *trajTrackAssociationHandle.product();
 
   edm::Handle<reco::TrackCollection> trackCollectionHandle;
-  iEvent.getByLabel(m_tracksTag,trackCollectionHandle);
+  iEvent.getByToken(m_tracksTag,trackCollectionHandle);
 
   size_t n =  TrajToTrackMap.size();
   std::vector<DeDxData> dedxEstimate(n);

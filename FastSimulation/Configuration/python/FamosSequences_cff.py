@@ -272,6 +272,7 @@ if(CaloMode==0):
         cms.SequencePlaceholder("mix")
         )
     lowLevelRecoSequence = cms.Sequence(
+        siTrackerGaussianSmearingRecHits+
         caloRecHits
         )
     famosSimulationSequence = cms.Sequence(
@@ -295,6 +296,7 @@ elif(CaloMode==1):
         cms.SequencePlaceholder("mix")
         )
     lowLevelRecoSequence = cms.Sequence(
+        siTrackerGaussianSmearingRecHits+
         caloDigis+
         caloRecHits 
         )

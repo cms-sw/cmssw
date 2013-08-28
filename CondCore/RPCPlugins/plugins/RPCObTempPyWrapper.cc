@@ -165,7 +165,7 @@ namespace cond {
       // ask to make average on selected channels...
     }
 
-    void compute(Class const & it){
+    void compute(Class const & it) override{
       std::vector<float> res;
       extractor(m_what.how())(it,m_what.which(),res,m_what.startTime(),m_what.endTime());
       swap(res);

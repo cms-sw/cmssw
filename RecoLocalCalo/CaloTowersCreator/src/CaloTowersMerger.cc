@@ -13,7 +13,6 @@
 //
 // Original Author:  Jean-Roch Vlimant,40 3-A28,+41227671209,
 //         Created:  Thu Nov  4 16:36:30 CET 2010
-// $Id: CaloTowersMerger.cc,v 1.1 2010/11/04 17:42:53 vlimant Exp $
 //
 //
 
@@ -49,12 +48,12 @@ class CaloTowersMerger : public edm::EDProducer {
       explicit CaloTowersMerger(const edm::ParameterSet&);
       ~CaloTowersMerger();
 
-  CaloTower mergedTower(CaloTower t1, CaloTower t2);
+  CaloTower mergedTower(const CaloTower& t1, const CaloTower& t2);
 
    private:
-      virtual void beginJob() ;
-      virtual void produce(edm::Event&, const edm::EventSetup&);
-      virtual void endJob() ;
+      virtual void beginJob() override ;
+      virtual void produce(edm::Event&, const edm::EventSetup&) override;
+      virtual void endJob() override ;
       
       // ----------member data ---------------------------
 
@@ -186,7 +185,7 @@ CaloTowersMerger::endJob() {
 // This functionlaity it to be used only for testing the effects 
 // of rejected bad hits.
 
-CaloTower CaloTowersMerger::mergedTower(const CaloTower rt, const CaloTower et) {
+CaloTower CaloTowersMerger::mergedTower(const CaloTower& rt, const CaloTower& et) {
 
   double newOuterE = 0;
 

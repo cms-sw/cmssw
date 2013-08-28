@@ -10,7 +10,6 @@
 // Original Author:  A. Kyriakis NCSR "Demokritos" Athens
 //                    D Maletic, "Vinca" Belgrade
 //         Created:   Mar 27 13:22:06 CEST 2009
-// $Id: SimplePi0DiscAnalyzer.h,v 1.2 2010/10/19 17:34:56 wmtan Exp $
 //
 //
 

@@ -40,7 +40,6 @@ namespace edm {
     fileIter_(fileIterEnd_),
     fileIterLastOpened_(fileIterEnd_),
     rootFile_(),
-    parametersMustMatch_(BranchDescription::Permissive),
     branchesMustMatch_(BranchDescription::Permissive),
     flatDistribution_(),
     indexesIntoFiles_(fileCatalogItems().size()),
@@ -88,9 +87,6 @@ namespace edm {
         break;
       }
     }
-
-    std::string parametersMustMatch = pset.getUntrackedParameter<std::string>("parametersMustMatch", std::string("permissive"));
-    if(parametersMustMatch == std::string("strict")) parametersMustMatch_ = BranchDescription::Strict;
 
     std::string branchesMustMatch = pset.getUntrackedParameter<std::string>("branchesMustMatch", std::string("permissive"));
     if(branchesMustMatch == std::string("strict")) branchesMustMatch_ = BranchDescription::Strict;
@@ -310,7 +306,6 @@ namespace edm {
       // make sure the new product registry is compatible with the main one
       std::string mergeInfo = productRegistryUpdate().merge(*rootFile_->productRegistry(),
                                                             fileIter_->fileName(),
-                                                            parametersMustMatch_,
                                                             branchesMustMatch_);
       if(!mergeInfo.empty()) {
         throw Exception(errors::MismatchedInputFiles,"RootInputFileSequence::nextFile()") << mergeInfo;
@@ -335,7 +330,6 @@ namespace edm {
       // make sure the new product registry is compatible to the main one
       std::string mergeInfo = productRegistryUpdate().merge(*rootFile_->productRegistry(),
                                                             fileIter_->fileName(),
-                                                            parametersMustMatch_,
                                                             branchesMustMatch_);
       if(!mergeInfo.empty()) {
         throw Exception(errors::MismatchedInputFiles,"RootInputFileSequence::previousEvent()") << mergeInfo;
@@ -758,9 +752,6 @@ namespace edm {
     desc.addUntracked<bool>("dropDescendantsOfDroppedBranches", true)
         ->setComment("If True, also drop on input any descendent of any branch dropped on input.");
     std::string defaultString("permissive");
-    desc.addUntracked<std::string>("parametersMustMatch", defaultString)
-        ->setComment("'strict':     Values of tracked parameters must be unique across all input files.\n"
-                     "'permissive': Values of tracked parameters may differ across or within files.");
     desc.addUntracked<std::string>("branchesMustMatch", defaultString)
         ->setComment("'strict':     Branches in each input file must match those in the first file.\n"
                      "'permissive': Branches in each input file may be any subset of those in the first file.");

@@ -9,18 +9,18 @@ class CombinedSeedComparitor : public SeedComparitor {
     public:
         CombinedSeedComparitor(const edm::ParameterSet &cfg) ;
         virtual ~CombinedSeedComparitor() ; 
-        virtual void init(const edm::EventSetup& es) ;
-        virtual bool compatible(const SeedingHitSet  &hits, const TrackingRegion & region) const ;
-        virtual bool compatible(const TrajectorySeed &seed) const ;
+        virtual void init(const edm::EventSetup& es) override ;
+        virtual bool compatible(const SeedingHitSet  &hits, const TrackingRegion & region) const override ;
+        virtual bool compatible(const TrajectorySeed &seed) const override ;
         virtual bool compatible(const TrajectoryStateOnSurface &,  
-                const TransientTrackingRecHit::ConstRecHitPointer &hit) const ;
+                const TransientTrackingRecHit::ConstRecHitPointer &hit) const override ;
         virtual bool compatible(const SeedingHitSet  &hits, 
                 const GlobalTrajectoryParameters &helixStateAtVertex,
                 const FastHelix                  &helix,
-                const TrackingRegion & region) const ;
+                const TrackingRegion & region) const override ;
         virtual bool compatible(const SeedingHitSet  &hits, 
                 const GlobalTrajectoryParameters &straightLineStateAtVertex,
-                const TrackingRegion & region) const ;
+                const TrackingRegion & region) const override ;
 
     private:
         boost::ptr_vector<SeedComparitor> comparitors_;

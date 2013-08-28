@@ -23,7 +23,7 @@
 #include <iostream>
 
 void hello(const char * hi) {
-  std::cout << "IN " << hi << std::endl;
+  //std::cout << "IN " << hi << std::endl;
 }
 
 TestBeginEndJobAnalyzer::TestBeginEndJobAnalyzer(const edm::ParameterSet& /* iConfig */) {

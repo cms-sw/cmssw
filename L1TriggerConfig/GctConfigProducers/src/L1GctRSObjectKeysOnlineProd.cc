@@ -6,7 +6,7 @@ class L1GctRSObjectKeysOnlineProd : public L1ObjectKeysOnlineProdBase {
       L1GctRSObjectKeysOnlineProd(const edm::ParameterSet& iConfig) ;
       ~L1GctRSObjectKeysOnlineProd() {}
 
-      virtual void fillObjectKeys( ReturnType pL1TriggerKey ) ;
+      virtual void fillObjectKeys( ReturnType pL1TriggerKey ) override ;
    private:
       bool m_enableL1GctChannelMask ;
 };

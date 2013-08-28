@@ -18,7 +18,8 @@ GsfTrackRefitter::GsfTrackRefitter(const edm::ParameterSet& iConfig):
   theAlgo(iConfig)
 {
   setConf(iConfig);
-  setSrc( iConfig.getParameter<edm::InputTag>( "src" ), iConfig.getParameter<edm::InputTag>( "beamSpot" ));
+  setSrc( consumes<reco::GsfTrackCollection>(iConfig.getParameter<edm::InputTag>( "src" )), 
+          consumes<reco::BeamSpot>(iConfig.getParameter<edm::InputTag>( "beamSpot" )));
   setAlias( iConfig.getParameter<std::string>( "@module_label" ) );
   std::string  constraint_str = iConfig.getParameter<std::string>( "constraint" );
 
@@ -26,7 +27,7 @@ GsfTrackRefitter::GsfTrackRefitter(const edm::ParameterSet& iConfig):
 //   else if (constraint_str == "momentum") constraint_ = momentum;
   else if (constraint_str == "vertex") {
     constraint_ = vertex;
-    gsfTrackVtxConstraintTag_ = iConfig.getParameter<edm::InputTag>("gsfTrackVtxConstraintTag");
+    gsfTrackVtxConstraintTag_ = consumes<GsfTrackVtxConstraintAssociationCollection>(iConfig.getParameter<edm::InputTag>("gsfTrackVtxConstraintTag"));
   } else {
     edm::LogError("GsfTrackRefitter")<<"constraint: "<<constraint_str<<" not understood. Set it to 'momentum', 'vertex' or leave it empty";    
     throw cms::Exception("GsfTrackRefitter") << "unknown type of contraint! Set it to 'momentum', 'vertex' or leave it empty";    
@@ -89,9 +90,9 @@ void GsfTrackRefitter::produce(edm::Event& theEvent, const edm::EventSetup& setu
   case vertex :
     {
       edm::Handle<GsfTrackVtxConstraintAssociationCollection> theTCollectionWithConstraint;
-      theEvent.getByLabel(gsfTrackVtxConstraintTag_, theTCollectionWithConstraint);
+      theEvent.getByToken(gsfTrackVtxConstraintTag_, theTCollectionWithConstraint);
       edm::Handle<reco::BeamSpot> recoBeamSpotHandle;
-      theEvent.getByLabel(bsSrc_,recoBeamSpotHandle);
+      theEvent.getByToken(bsSrc_,recoBeamSpotHandle);
       bs = *recoBeamSpotHandle;      
       if (theTCollectionWithConstraint.failedToGet()){
 	edm::LogError("TrackRefitter")<<"could not get TrackVtxConstraintAssociationCollection product."; break;}

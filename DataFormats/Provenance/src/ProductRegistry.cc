@@ -18,6 +18,7 @@
 #include "FWCore/Utilities/interface/TypeWithDict.h"
 #include "FWCore/Utilities/interface/WrappedClassName.h"
 
+#include <cassert>
 #include <iterator>
 #include <limits>
 #include <sstream>
@@ -213,7 +214,6 @@ namespace edm {
   std::string
   ProductRegistry::merge(ProductRegistry const& other,
         std::string const& fileName,
-        BranchDescription::MatchMode parametersMustMatch,
         BranchDescription::MatchMode branchesMustMatch) {
     std::ostringstream differences;
 
@@ -244,9 +244,9 @@ namespace edm {
         }
         ++j;
       } else {
-        std::string difs = match(j->second, i->second, fileName, parametersMustMatch);
+        std::string difs = match(j->second, i->second, fileName);
         if(difs.empty()) {
-          if(parametersMustMatch == BranchDescription::Permissive) j->second.merge(i->second);
+          j->second.merge(i->second);
         } else {
           differences << difs;
         }
@@ -263,7 +263,7 @@ namespace edm {
     for(auto const& product : productList_) {
       auto const& key = product.first;
       auto const& desc = product.second;
-      constProductList().insert(std::make_pair(key, ConstBranchDescription(desc)));
+      constProductList().insert(std::make_pair(key, BranchDescription(desc)));
     }
   }
 
@@ -277,7 +277,7 @@ namespace edm {
       auto const& key = product.first;
       auto const& desc = product.second;
 
-      constProductList().insert(std::make_pair(key, ConstBranchDescription(desc)));
+      constProductList().insert(std::make_pair(key, BranchDescription(desc)));
 
       if(desc.produced()) {
         setProductProduced(desc.branchType());

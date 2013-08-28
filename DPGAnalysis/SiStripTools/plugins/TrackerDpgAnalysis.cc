@@ -130,7 +130,7 @@ class TrackerDpgAnalysis : public edm::EDAnalyzer {
    private:
       virtual void beginRun(const edm::Run&, const edm::EventSetup&) override;
       virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
-      virtual void endJob() ;
+      virtual void endJob() override ;
 
       // ----------member data ---------------------------
       static const int nMaxPVs_ = 50;

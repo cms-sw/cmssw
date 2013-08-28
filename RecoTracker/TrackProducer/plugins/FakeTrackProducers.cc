@@ -1,6 +1,5 @@
 
 //
-// $Id: FakeTrackProducers.cc,v 1.1 2012/09/12 15:59:34 gpetrucc Exp $
 //
 
 /**
@@ -8,7 +7,6 @@
   \brief    Matcher of reconstructed objects to other reconstructed objects using the tracks inside them 
             
   \author   Giovanni Petrucciani
-  \version  $Id: FakeTrackProducers.cc,v 1.1 2012/09/12 15:59:34 gpetrucc Exp $
 */
 
 

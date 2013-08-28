@@ -11,7 +11,7 @@ namespace edm {
     prov_() {
   }
 
-  ProductData::ProductData(boost::shared_ptr<ConstBranchDescription> bd) :
+  ProductData::ProductData(boost::shared_ptr<BranchDescription const> bd) :
     wrapper_(),
     prov_(bd, ProductID()) {
   }
@@ -23,7 +23,7 @@ namespace edm {
   }
 
   void
-  ProductData::resetBranchDescription(boost::shared_ptr<ConstBranchDescription> bd) {
+  ProductData::resetBranchDescription(boost::shared_ptr<BranchDescription const> bd) {
     prov_.setBranchDescription(bd);
   }
 }

@@ -15,7 +15,7 @@
  * 3. Run @MKPARTITION, crossing your fingers and spelling verses
  *    from any ORACLE tutorial
  * 
- * Copyright (C) by Giovanni.Organtini@roma1.infn.it 2009
+ * Giovanni.Organtini@roma1.infn.it 2009
  *
  */
 

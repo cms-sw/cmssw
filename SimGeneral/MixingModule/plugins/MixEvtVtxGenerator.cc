@@ -41,7 +41,7 @@ class MixEvtVtxGenerator : public edm::EDProducer
   explicit MixEvtVtxGenerator( const edm::ParameterSet& );
   virtual ~MixEvtVtxGenerator();
   
-  virtual void produce( edm::Event&, const edm::EventSetup& );
+  virtual void produce( edm::Event&, const edm::EventSetup& ) override;
   
   virtual HepMC::FourVector* getVertex(edm::Event&);
   virtual HepMC::FourVector* getRecVertex(edm::Event&);

@@ -47,9 +47,9 @@ class RecoTauPiZeroStripPlugin : public RecoTauPiZeroBuilderPlugin {
     explicit RecoTauPiZeroStripPlugin(const edm::ParameterSet& pset);
     virtual ~RecoTauPiZeroStripPlugin() {}
     // Return type is auto_ptr<PiZeroVector>
-    return_type operator()(const reco::PFJet& jet) const;
+    return_type operator()(const reco::PFJet& jet) const override;
     // Hook to update PV information
-    virtual void beginEvent();
+    virtual void beginEvent() override;
 
   private:
     RecoTauQualityCuts qcuts_;

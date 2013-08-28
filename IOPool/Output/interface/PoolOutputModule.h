@@ -21,6 +21,8 @@
 
 class TTree;
 namespace edm {
+
+  class ModuleCallingContext;
   class ParameterSet;
   class RootOutputFile;
   class ConfigurationDescriptions;
@@ -117,7 +119,6 @@ namespace edm {
     void writeFileFormatVersion();
     void writeFileIdentifier();
     void writeIndexIntoFile();
-    void writeProcessConfigurationRegistry();
     void writeProcessHistoryRegistry();
     void writeParameterSetRegistry();
     void writeProductDescriptionRegistry();

@@ -34,7 +34,7 @@ protected:
   void walk(std::map<int,bool> &touched, int alignable) const;
   long alignableId(std::string alignable) const;
   bool isFrame(int i) const;
-  double chi2(AlgebraicVector A, double lambda) const;
+  double chi2(const AlgebraicVector& A, double lambda) const;
   double lhsVector(int k) const;
   double hessian(int k, int l, double lambda) const;
 

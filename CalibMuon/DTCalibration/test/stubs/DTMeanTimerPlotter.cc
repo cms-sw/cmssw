@@ -10,10 +10,10 @@
 //#include "CalibMuon/DTCalibration/src/vDriftHistos.h"
 
 #include <iostream>
-#include <stdio.h>
+#include <cstdio>
 #include <sstream>
 #include <string>
-#include <math.h>
+#include <cmath>
 
 #include "TFile.h"
 #include "TCanvas.h"

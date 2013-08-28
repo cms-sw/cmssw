@@ -23,6 +23,10 @@
 #include <memory>
 
 #include "HLTrigger/HLTcore/interface/HLTFilter.h"
+namespace edm {
+  class ConfigurationDescriptions;
+}
+#include "DataFormats/RecoCandidate/interface/RecoChargedCandidateFwd.h"
 
 // ----------------------------------------------------------------------
 
@@ -35,10 +39,11 @@ class FreeTrajectoryState;
 class MagneticField;
 	
 class HLTmmkkFilter : public HLTFilter {
+
  public:
   explicit HLTmmkkFilter(const edm::ParameterSet&);
   ~HLTmmkkFilter();
-  
+  static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);  
  private:
   virtual void beginJob() ;
   virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct);
@@ -46,8 +51,10 @@ class HLTmmkkFilter : public HLTFilter {
   virtual int overlap(const reco::Candidate&, const reco::Candidate&);
   virtual FreeTrajectoryState initialFreeState( const reco::Track&,const MagneticField*);
   
-  edm::InputTag muCandLabel_;
-  edm::InputTag trkCandLabel_; 
+  edm::InputTag                                          muCandTag_;
+  edm::EDGetTokenT<reco::RecoChargedCandidateCollection> muCandToken_;
+  edm::InputTag                                          trkCandTag_;
+  edm::EDGetTokenT<reco::RecoChargedCandidateCollection> trkCandToken_;
   
   const double thirdTrackMass_;
   const double fourthTrackMass_;
@@ -60,7 +67,8 @@ class HLTmmkkFilter : public HLTFilter {
   const double minCosinePointingAngle_;
   const double minD0Significance_;
   const bool fastAccept_;
-  edm::InputTag beamSpotTag_;
+  edm::InputTag                    beamSpotTag_;
+  edm::EDGetTokenT<reco::BeamSpot> beamSpotToken_;
 
 };
 #endif

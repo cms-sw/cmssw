@@ -7,8 +7,6 @@
  * class is used by the pixel vertexing to make a PVCluster and is
  * used by other PVCluster-related classes
  *
- *  $Date: 2006/06/05 23:23:34 $
- *  $Revision: 1.3 $
  *  \author Aaron Dominguez (UNL)
  */
 #include "DataFormats/GeometryCommonDetAlgo/interface/Measurement1D.h"

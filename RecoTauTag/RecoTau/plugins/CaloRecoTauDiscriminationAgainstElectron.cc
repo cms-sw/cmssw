@@ -24,8 +24,8 @@ class CaloRecoTauDiscriminationAgainstElectron : public  CaloTauDiscriminationPr
          ApplyCut_leadTrackavoidsECALcrack_          = iConfig.getParameter<bool>("ApplyCut_leadTrackavoidsECALcrack");
       }
       ~CaloRecoTauDiscriminationAgainstElectron(){} 
-      double discriminate(const CaloTauRef& theCaloTauRef);
-      void beginEvent(const edm::Event& event, const edm::EventSetup& eventSetup);
+      double discriminate(const CaloTauRef& theCaloTauRef) override;
+      void beginEvent(const edm::Event& event, const edm::EventSetup& eventSetup) override;
    private:  
       edm::ESHandle<MagneticField> theMagneticField;
       edm::InputTag CaloTauProducer_;

@@ -6,8 +6,6 @@
  *  Class to take dqm monitor elements and convert into a
  *  ROOT dataformat stored in Run tree of edm file
  *
- *  $Date: 2010/09/14 09:12:54 $
- *  $Revision: 1.18 $
  *  \author M. Strang SUNY-Buffalo
  */
 

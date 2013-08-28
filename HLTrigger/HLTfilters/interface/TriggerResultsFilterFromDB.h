@@ -46,7 +46,7 @@ public:
 
 private:
   /// read the triggerConditions from the database
-  void pathsFromSetup(const edm::EventSetup & setup);
+  void pathsFromSetup(const edm::Event &, const edm::EventSetup & setup);
 
   /// parse the logical expression into functionals
   void parse(const std::string & expression);

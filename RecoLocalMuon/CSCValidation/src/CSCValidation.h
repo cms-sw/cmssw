@@ -131,7 +131,7 @@ public:
   // for noise module
   struct ltrh
   {
-    bool operator()(const CSCRecHit2D rh1, const CSCRecHit2D rh2) const
+    bool operator()(const CSCRecHit2D& rh1, const CSCRecHit2D& rh2) const
     {
       return ((rh1.localPosition()).x()-(rh2.localPosition()).x()) < 0;
     }
@@ -177,7 +177,7 @@ private:
   // some useful functions
   bool   filterEvents(edm::Handle<CSCRecHit2DCollection> recHits, edm::Handle<CSCSegmentCollection> cscSegments,
                       edm::Handle<reco::TrackCollection> saMuons);
-  float  fitX(CLHEP::HepMatrix sp, CLHEP::HepMatrix ep);
+  float  fitX(const CLHEP::HepMatrix& sp, const CLHEP::HepMatrix& ep);
   float  getSignal(const CSCStripDigiCollection& stripdigis, CSCDetId idRH, int centerStrip);
   float  getthisSignal(const CSCStripDigiCollection& stripdigis, CSCDetId idRH, int centerStrip);
   int    getWidth(const CSCStripDigiCollection& stripdigis, CSCDetId idRH, int centerStrip);

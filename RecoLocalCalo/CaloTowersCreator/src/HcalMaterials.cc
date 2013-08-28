@@ -18,7 +18,7 @@ float HcalMaterials::getValue (DetId fId, float energy) {
   return value;
 }
 
-void HcalMaterials::putValue (DetId fId, std::pair< std::vector <float>,std::vector <float> > fArray) {
+void HcalMaterials::putValue (DetId fId, const std::pair< std::vector <float>,std::vector <float> >& fArray) {
   Item item (fId.rawId (), fArray);
   mItems.push_back (item);
 }

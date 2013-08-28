@@ -3,8 +3,6 @@
  *
  * DQM FED Client
  *
- * $Date: 2011/08/10 05:14:06 $
- * $Revision: 1.1 $
  * \author  S. Dutta
  *
 */

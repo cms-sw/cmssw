@@ -2,8 +2,6 @@
  *
  *  Implementation of  QTestHandle
  *
- *  $Date: 2008/11/24 20:07:27 $
- *  $Revision: 1.12 $
  *  \author Ilaria Segoni
  */
 

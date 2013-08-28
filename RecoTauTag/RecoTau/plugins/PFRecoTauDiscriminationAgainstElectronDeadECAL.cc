@@ -10,9 +10,7 @@
  * \authors Lauri Andreas Wendland,
  *          Christian Veelken
  *
- * \version $Revision: 1.1 $
  *
- * $Id: PFRecoTauDiscriminationAgainstElectronDeadECAL.cc,v 1.1 2012/11/22 18:02:15 veelken Exp $
  *
  */
 
@@ -47,12 +45,12 @@ class PFRecoTauDiscriminationAgainstElectronDeadECAL : public PFTauDiscriminatio
   }
   ~PFRecoTauDiscriminationAgainstElectronDeadECAL() {}
 
-  void beginEvent(const edm::Event& evt, const edm::EventSetup& es)
+  void beginEvent(const edm::Event& evt, const edm::EventSetup& es) override
   {
     updateBadTowers(es);
   }
 
-  double discriminate(const PFTauRef& pfTau)
+  double discriminate(const PFTauRef& pfTau) override
   {
     //std::cout << "<PFRecoTauDiscriminationAgainstElectronDeadECAL::discriminate>:" << std::endl;
     //std::cout << " moduleLabel = " << moduleLabel_ << std::endl;

@@ -43,7 +43,7 @@ class L1CaloHcalScaleConfigOnlineProd :
       ~L1CaloHcalScaleConfigOnlineProd();
 
   virtual boost::shared_ptr< L1CaloHcalScale > newObject(
-    const std::string& objectKey ) ;
+    const std::string& objectKey ) override ;
 
 
    private:

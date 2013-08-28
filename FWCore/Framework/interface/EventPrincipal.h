@@ -138,12 +138,12 @@ namespace edm {
     getByProductID(ProductID const& oid) const;
 
     void put(
-        ConstBranchDescription const& bd,
+        BranchDescription const& bd,
         WrapperOwningHolder const& edp,
         ProductProvenance const& productProvenance);
 
     void putOnRead(
-        ConstBranchDescription const& bd,
+        BranchDescription const& bd,
         void const* product,
         ProductProvenance const& productProvenance);
 
@@ -169,6 +169,19 @@ namespace edm {
                                  ModuleCallingContext const* mcc) const override;
 
   private:
+
+    class UnscheduledSentry {
+    public:
+      UnscheduledSentry(std::vector<std::string>* moduleLabelsRunning, std::string const& moduleLabel) :
+        moduleLabelsRunning_(moduleLabelsRunning) {
+        moduleLabelsRunning_->push_back(moduleLabel);
+      }
+      ~UnscheduledSentry() {
+        moduleLabelsRunning_->pop_back();
+      }
+    private:
+      std::vector<std::string>* moduleLabelsRunning_;
+    };
 
     EventAuxiliary aux_;
 

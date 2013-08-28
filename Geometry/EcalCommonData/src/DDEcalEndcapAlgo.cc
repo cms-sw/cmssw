@@ -467,8 +467,8 @@ DDEcalEndcapAlgo::EECreateCR()
 }
 
 void 
-DDEcalEndcapAlgo::EEPositionCRs( const DDName        pName, 
-				 const DDTranslation /*offset*/, 
+DDEcalEndcapAlgo::EEPositionCRs( const DDName&        pName, 
+				 const DDTranslation& /*offset*/, 
 				 const int           iSCType,
 				 DDCompactView&      cpv      ) 
 {

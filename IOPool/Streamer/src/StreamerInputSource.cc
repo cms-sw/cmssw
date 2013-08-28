@@ -6,7 +6,6 @@
 
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/interface/FileBlock.h"
-#include "FWCore/ParameterSet/interface/FillProductRegistryTransients.h"
 #include "DataFormats/Provenance/interface/BranchDescription.h"
 #include "DataFormats/Provenance/interface/ProductProvenance.h"
 #include "DataFormats/Provenance/interface/EventAuxiliary.h"
@@ -28,7 +27,6 @@
 #include "FWCore/Utilities/interface/Adler32Calculator.h"
 
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
-#include "DataFormats/Provenance/interface/ProcessConfigurationRegistry.h"
 #include "DataFormats/Provenance/interface/ProcessHistoryRegistry.h"
 #include "FWCore/Utilities/interface/DebugMacros.h"
 
@@ -75,7 +73,6 @@ namespace edm {
     if (subsequent) {
       ProductRegistry pReg;
       pReg.updateFromInput(descs);
-      fillProductRegistryTransients(header.processConfigurations(), pReg);
       std::string mergeInfo = reg.merge(pReg, std::string(), BranchDescription::Permissive);
       if (!mergeInfo.empty()) {
         throw cms::Exception("MismatchedInput","RootInputFileSequence::previousEvent()") << mergeInfo;
@@ -87,7 +84,6 @@ namespace edm {
       loadExtraClasses();
       if(!reg.frozen()) {
         reg.updateFromInput(descs);
-        fillProductRegistryTransients(header.processConfigurations(), reg);
       }
       branchIDListHelper.updateFromInput(header.branchIDLists());
     }
@@ -174,7 +170,6 @@ namespace edm {
   void
   StreamerInputSource::deserializeAndMergeWithRegistry(InitMsgView const& initView, bool subsequent) {
      std::auto_ptr<SendJobHeader> sd = deserializeRegistry(initView);
-     ProcessConfigurationVector const& pcv = sd->processConfigurations();
      mergeIntoRegistry(*sd, productRegistryUpdate(), *branchIDListHelper(), subsequent);
      if (subsequent) {
        adjustEventToNewProductRegistry_ = true;
@@ -185,10 +180,6 @@ namespace edm {
        ParameterSet pset(i->second.pset());
        pset.setID(i->first);
        psetRegistry.insertMapped(pset);
-     }
-     ProcessConfigurationRegistry& pcReg = *ProcessConfigurationRegistry::instance();
-     for (ProcessConfigurationVector::const_iterator it = pcv.begin(), itEnd = pcv.end(); it != itEnd; ++it) {
-       pcReg.insertMapped(*it);
      }
   }
 
@@ -299,7 +290,7 @@ namespace edm {
              << " " << spi->desc()->branchID()
              << std::endl;
 
-        ConstBranchDescription branchDesc(*spi->desc());
+        BranchDescription const branchDesc(*spi->desc());
         // This ProductProvenance constructor inserts into the entry description registry
         ProductProvenance productProvenance(spi->branchID(), *spi->parents());
 

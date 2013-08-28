@@ -15,7 +15,6 @@
 // user include files
 #include "FWCore/Framework/interface/stream/EDProducerAdaptorBase.h"
 #include "FWCore/Framework/interface/stream/EDProducerBase.h"
-#include "FWCore/Framework/src/CPCSentry.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "FWCore/Framework/interface/Run.h"
@@ -47,11 +46,9 @@ namespace edm {
     
     bool
     EDProducerAdaptorBase::doEvent(EventPrincipal& ep, EventSetup const& c,
-                                   CurrentProcessingContext const* cpcp,
                                    ModuleCallingContext const* mcc) {
       assert(ep.streamID()<m_streamModules.size());
       auto mod = m_streamModules[ep.streamID()];
-      detail::CPCSentry sentry(mod->current_context_, cpcp);
       Event e(ep, moduleDescription(), mcc);
       e.setConsumer(mod);
       mod->produce(e, c);

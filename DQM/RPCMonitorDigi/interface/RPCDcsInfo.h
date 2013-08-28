@@ -11,6 +11,9 @@
 #include <DQMServices/Core/interface/DQMStore.h>
 #include <DQMServices/Core/interface/MonitorElement.h>
 
+///Data Format
+#include "DataFormats/Scalers/interface/DcsStatus.h"
+
 class RPCDcsInfo: public edm::EDAnalyzer{
 
 public:
@@ -33,7 +36,6 @@ private:
   void makeDcsInfo(const edm::Event& e);  
 
   DQMStore *dbe_;
- std::string   scalersRawToDigiLabel_ ;
   edm::ParameterSet parameters_;
   std::string subsystemname_;
   std::string dcsinfofolder_;
@@ -41,6 +43,7 @@ private:
   bool dcs;
    // histograms
   MonitorElement * DCSbyLS_ ;
+  edm::EDGetTokenT<DcsStatusCollection> scalersRawToDigiLabel_;
   
 };
 

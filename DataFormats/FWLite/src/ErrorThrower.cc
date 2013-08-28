@@ -8,7 +8,6 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Sep 23 10:06:39 EDT 2008
-// $Id: ErrorThrower.cc,v 1.2 2008/09/23 16:35:07 dsr Exp $
 //
 
 // system include files
@@ -29,14 +28,14 @@ namespace {
       NoProductErrorThrower(const std::type_info& iType, const char*iModule, const char*iInstance, const char*iProcess):
       type_(&iType), module_(iModule), instance_(iInstance), process_(iProcess) {}
       
-      void throwIt() const {
+      void throwIt() const override {
 
          edm::TypeID type(*type_);
          throw edm::Exception(edm::errors::ProductNotFound)<<"A branch was found for \n  type ='"<<type.className()<<"'\n  module='"<<module_
          <<"'\n  productInstance='"<<((0!=instance_)?instance_:"")<<"'\n  process='"<<((0!=process_)?process_:"")<<"'\n"
          "but no data is available for this Event";
       }
-      virtual ErrorThrower* clone() const {
+      virtual ErrorThrower* clone() const override {
          return new NoProductErrorThrower(*this);
       }
 
@@ -52,14 +51,14 @@ namespace {
       NoBranchErrorThrower(const std::type_info& iType, const char*iModule, const char*iInstance, const char*iProcess):
       type_(&iType), module_(iModule), instance_(iInstance), process_(iProcess) {}
       
-      void throwIt() const {
+      void throwIt() const override {
          
          edm::TypeID type(*type_);
          throw edm::Exception(edm::errors::ProductNotFound)<<"No branch was found for \n  type ='"<<type.className()<<"'\n  module='"<<module_
          <<"'\n  productInstance='"<<((0!=instance_)?instance_:"")<<"'\n  process='"<<((0!=process_)?process_:"")<<"'";
       }
       
-      virtual ErrorThrower* clone() const {
+      virtual ErrorThrower* clone() const override {
          return new NoBranchErrorThrower(*this);
       }
       
@@ -71,11 +70,11 @@ namespace {
    };
    
    class UnsetErrorThrower : public ErrorThrower {
-      void throwIt() const {
+      void throwIt() const override {
          throw cms::Exception("UnsetHandle")<<"The fwlite::Handle was never set";
       }
       
-      virtual ErrorThrower* clone() const {
+      virtual ErrorThrower* clone() const override {
          return new UnsetErrorThrower(*this);
       }
       

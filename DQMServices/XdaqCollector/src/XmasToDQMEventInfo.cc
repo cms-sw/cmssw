@@ -2,9 +2,6 @@
  * \file DQMEventInfo.cc
  * \author M. Zanetti - CERN PH
  * Last Update:
- * $Date: 2009/09/06 11:34:28 $
- * $Revision: 1.3 $
- * $Author: ameyer $
  *
  */
 

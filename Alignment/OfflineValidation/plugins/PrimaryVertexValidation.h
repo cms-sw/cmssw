@@ -94,7 +94,7 @@ class PrimaryVertexValidation : public edm::EDAnalyzer {
   std::pair<Double_t,Double_t> getMedian(TH1F *histo);
   std::pair<Double_t,Double_t> getMAD(TH1F *histo);
   std::pair<std::pair<Double_t,Double_t>, std::pair<Double_t,Double_t> > fitResiduals(TH1 *hist);
-  void FillTrendPlot(TH1F* trendPlot, TH1F *residualsPlot[100], TString fitPar_, TString var_);
+  void FillTrendPlot(TH1F* trendPlot, TH1F *residualsPlot[100], const TString& fitPar_, const TString& var_);
 
   inline double square(double x){
     return x*x;

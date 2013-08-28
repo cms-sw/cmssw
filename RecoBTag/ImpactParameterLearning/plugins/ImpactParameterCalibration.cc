@@ -13,7 +13,6 @@
 //
 // Original Author:  Jeremy Andrea/Andrea Rizzi
 //         Created:  Mon Aug  6 16:10:38 CEST 2007
-// $Id: ImpactParameterCalibration.cc,v 1.14 2010/02/11 00:13:30 wmtan Exp $
 //
 //
 // system include files
@@ -70,14 +69,14 @@ class ImpactParameterCalibration : public edm::EDAnalyzer {
 
 
    private:
-      virtual void beginJob() ;
-      virtual void analyze(const edm::Event&, const edm::EventSetup&);
-      virtual void endJob() ;
+      virtual void beginJob() override ;
+      virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
+      virtual void endJob() override ;
 
       virtual void initFromFirstES(const edm::EventSetup&);
       edm::ParameterSet config;
       bool m_needInitFromES;
-   TrackProbabilityCalibration * fromXml(edm::FileInPath xmlCalibration);
+   TrackProbabilityCalibration * fromXml(const edm::FileInPath& xmlCalibration);
 
    static TrackProbabilityCategoryData createCategory(double  pmin,double  pmax,
                  double  etamin,  double  etamax,
@@ -342,7 +341,8 @@ ImpactParameterCalibration::beginJob()
 
 }
 
-TrackProbabilityCalibration * ImpactParameterCalibration::fromXml(edm::FileInPath xmlCalibration)   
+TrackProbabilityCalibration * ImpactParameterCalibration::fromXml(const edm::FileInPath& xmlCalibration)   
+
 {
      std::ifstream xmlFile(xmlCalibration.fullPath().c_str());
         if (!xmlFile.good())

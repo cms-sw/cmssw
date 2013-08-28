@@ -6,9 +6,7 @@
  * 
  * \author Paolo Azzurri, Giovanni Petrucciani 
  *
- * \version $Revision: 1.21 $
  *
- * $Id: AnalyticalTrackSelector.h,v 1.21 2012/03/19 12:44:20 dmytro Exp $
  *
  */
 
@@ -58,6 +56,9 @@ namespace reco { namespace modules {
             /// eta restrictions
             double minEta_;
 	    double maxEta_;
+
+            edm::EDGetTokenT<std::vector<Trajectory> >        srcTraj_;
+            edm::EDGetTokenT<TrajTrackAssociationCollection > srcTass_;
 			
             /// storage
             std::auto_ptr<reco::TrackCollection> selTracks_;

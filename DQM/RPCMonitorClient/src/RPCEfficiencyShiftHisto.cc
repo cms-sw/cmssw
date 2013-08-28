@@ -3,7 +3,6 @@
 //         Created:  Tue Jul 20 12:58:43 CEST 2010
 
 // Reviewed : Anna Cimmino  Tue Aug 16 10:20  2010
-// $Id: RPCEfficiencyShiftHisto.cc,v 1.1 2010/08/16 10:16:10 cimmino Exp $
 
 
 // user include files

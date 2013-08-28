@@ -34,7 +34,7 @@ namespace cms {
 }
 
 namespace edm {
-  class ConstBranchDescription;
+  class BranchDescription;
   class WrapperInterfaceBase;
   class OutputHandle {
   public:
@@ -49,7 +49,7 @@ namespace edm {
       productProvenance_(h.productProvenance_),
       whyFailed_(h.whyFailed_){}
 
-    OutputHandle(WrapperHolder const& product, ConstBranchDescription const* desc, ProductProvenance* productProvenance) :
+    OutputHandle(WrapperHolder const& product, BranchDescription const* desc, ProductProvenance* productProvenance) :
       product_(product),
       desc_(desc),
       productProvenance_(productProvenance) {}
@@ -102,13 +102,13 @@ namespace edm {
       return productProvenance_;
     }
 
-    ConstBranchDescription const* desc() const {
+    BranchDescription const* desc() const {
       return desc_;
     }
 
   private:
     WrapperHolder product_;
-    ConstBranchDescription const* desc_;
+    BranchDescription const* desc_;
     ProductProvenance* productProvenance_;
     boost::shared_ptr<cms::Exception> whyFailed_;
   };

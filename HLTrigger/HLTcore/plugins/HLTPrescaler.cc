@@ -7,8 +7,10 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 
-#include "FWCore/Framework/interface/CurrentProcessingContext.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
+#include "FWCore/ServiceRegistry/interface/PathContext.h"
+#include "FWCore/ServiceRegistry/interface/PlaceInPathContext.h"
+#include "FWCore/ServiceRegistry/interface/ModuleCallingContext.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
@@ -73,7 +75,7 @@ bool HLTPrescaler::filter(edm::Event& iEvent, const edm::EventSetup&)
     bool needsInit (eventCount_==0);
 
     if (prescaleService_) {
-      std::string const & pathName = * currentContext()->pathName();
+      std::string const & pathName = iEvent.moduleCallingContext()->placeInPathContext()->pathContext()->pathName();
       const unsigned int oldSet(prescaleSet_);
       const unsigned int oldPrescale(prescaleFactor_);
 

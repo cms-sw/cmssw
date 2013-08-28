@@ -25,12 +25,12 @@ class DCSPTMTemp  : public IDBObject {
   float getTemperature() ;
   void setTemperature(float temp);
 
-  void setStart(Tm start);
+  void setStart(const Tm& start);
   Tm getStart() const;
-  void setEnd(Tm end);
+  void setEnd(const Tm& end);
   Tm getEnd() const;
   EcalLogicID getEcalLogicID() const;
-  void setEcalLogicID(EcalLogicID ecid);
+  void setEcalLogicID(const EcalLogicID& ecid);
 
   
  private:

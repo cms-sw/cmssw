@@ -22,8 +22,8 @@
 #include "FWCore/Framework/interface/NoRecordException.h"
 #include "FWCore/Framework/interface/print_eventsetup_record_dependencies.h"
 
-#include <cppunit/extensions/HelperMacros.h>
-#include <string.h>
+#include "cppunit/extensions/HelperMacros.h"
+#include <cstring>
 
 
 using namespace edm::eventsetup;

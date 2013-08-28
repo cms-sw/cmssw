@@ -477,7 +477,7 @@
 
 
 	//Auxiliar
-	void MuonMillepedeAlgorithm::printM(AlgebraicMatrix m)
+	void MuonMillepedeAlgorithm::printM(const AlgebraicMatrix& m)
 	{
 	  //for(int i = 0; i < m.num_row(); ++i)
 	  // {
@@ -489,9 +489,9 @@
 	  //}
 	}
 
-	void MuonMillepedeAlgorithm::updateInfo(AlgebraicMatrix m_invCov,
-						 AlgebraicMatrix m_weightRes,
-						 AlgebraicMatrix m_res,
+	void MuonMillepedeAlgorithm::updateInfo(const AlgebraicMatrix& m_invCov,
+						 const AlgebraicMatrix& m_weightRes,
+						 const AlgebraicMatrix& m_res,
 						 std::string id)
 	{
 

@@ -4,8 +4,6 @@
 /*
  * \file EELaserClient.h
  *
- * $Date: 2010/02/14 14:35:46 $
- * $Revision: 1.37 $
  * \author G. Della Ricca
  *
 */

@@ -16,7 +16,7 @@ public :
   TFitParticleEScaledMomDev(const TString &name, const TString &title,
 		      TLorentzVector* pini, const TMatrixD* theCovMatrix);
   virtual ~TFitParticleEScaledMomDev();
-  virtual TAbsFitParticle* clone( TString newname = "" ) const;
+  virtual TAbsFitParticle* clone( const TString& newname = "" ) const;
 
   // returns derivative dP/dy with P=(p,E) and y=(r, theta, phi, ...) 
   // the free parameters of the fit. The columns of the matrix contain 

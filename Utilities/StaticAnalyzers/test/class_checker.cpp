@@ -9,7 +9,38 @@ static int const* g_ptr_staticConst = &g_staticConst;
 static int g_static;
 static int * g_ptr_static = &g_static;
 
+class ClassTest {
+   public:
+      explicit ClassTest();
+      ~ClassTest();
 
+void testConst() const;
+
+   private:
+
+      mutable int m_testMutable;
+      int * m_testPointer;
+      int m_testInteger;
+
+};
+
+void
+ClassTest::testConst() const
+{
+    // 1) reported by class checker
+    m_testMutable = 23;
+
+    // 2) compiles, not reported
+    (*m_testPointer) = 23;
+
+    // 3) compiles, not reported
+    int * localPtr = m_testPointer;
+    (*localPtr) = 23;
+
+    // 4) will not compile
+    // error: invalid conversion from 'const int*' to 'int*'
+    //int * localPtrToInt = &m_testInteger;
+} 
 
 class Foo
 {

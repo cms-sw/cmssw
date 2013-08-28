@@ -37,8 +37,11 @@ using namespace trigger;
 
 HLTMuonL3PreFilter::HLTMuonL3PreFilter(const ParameterSet& iConfig) : HLTFilter(iConfig),
    beamspotTag_   (iConfig.getParameter< edm::InputTag > ("BeamSpotTag")),
+   beamspotToken_ (consumes<reco::BeamSpot>(beamspotTag_)),
    candTag_   (iConfig.getParameter<InputTag > ("CandTag")),
+   candToken_ (consumes<reco::RecoChargedCandidateCollection>(candTag_)),
    previousCandTag_   (iConfig.getParameter<InputTag > ("PreviousCandTag")),
+   previousCandToken_ (consumes<trigger::TriggerFilterObjectWithRefs>(previousCandTag_)), 
    min_N_     (iConfig.getParameter<int> ("MinN")),
    max_Eta_   (iConfig.getParameter<double> ("MaxEta")),
    min_Nhits_ (iConfig.getParameter<int> ("MinNhits")),
@@ -114,7 +117,7 @@ HLTMuonL3PreFilter::hltFilter(Event& iEvent, const EventSetup& iSetup, trigger::
    // get hold of trks
    Handle<RecoChargedCandidateCollection> mucands;
    if (saveTags()) filterproduct.addCollectionTag(candTag_);
-   iEvent.getByLabel (candTag_,mucands);
+   iEvent.getByToken(candToken_,mucands);
    // sort them by L2Track
    std::map<reco::TrackRef, std::vector<RecoChargedCandidateRef> > L2toL3s;
    unsigned int maxI = mucands->size();
@@ -127,10 +130,10 @@ HLTMuonL3PreFilter::hltFilter(Event& iEvent, const EventSetup& iSetup, trigger::
    }
 
    Handle<TriggerFilterObjectWithRefs> previousLevelCands;
-   iEvent.getByLabel (previousCandTag_,previousLevelCands);
+   iEvent.getByToken(previousCandToken_,previousLevelCands);
    BeamSpot beamSpot;
    Handle<BeamSpot> recoBeamSpotHandle;
-   iEvent.getByLabel(beamspotTag_,recoBeamSpotHandle);
+   iEvent.getByToken(beamspotToken_,recoBeamSpotHandle);
    beamSpot = *recoBeamSpotHandle;
 
 

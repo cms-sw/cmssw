@@ -8,7 +8,6 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu, 09 May 2013 20:14:06 GMT
-// $Id$
 //
 
 // system include files
@@ -18,6 +17,9 @@
 #include "FWCore/Framework/interface/one/OutputModule.h"
 
 namespace edm {
+
+  class ModuleCallingContext;
+
   namespace one {
     namespace outputmodule {
       void RunWatcher::doBeginRun_(RunPrincipal const& rp, ModuleCallingContext const* mcc) {

@@ -101,7 +101,7 @@ void ODBadTTDat::fetchData(std::vector< ODBadTTDat >* p, ODBadTTInfo* iov)
 
 //  ************************************************************************   // 
 
-void ODBadTTDat::writeArrayDB(const std::vector< ODBadTTDat > data, ODBadTTInfo* iov)
+void ODBadTTDat::writeArrayDB(const std::vector< ODBadTTDat >& data, ODBadTTInfo* iov)
     throw(std::runtime_error)
 {
   this->checkConnection();

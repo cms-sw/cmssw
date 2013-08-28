@@ -8,6 +8,7 @@
 #include "TTreeIndex.h"
 #include "TTreeCache.h"
 
+#include <cassert>
 #include <iostream>
 
 namespace edm {
@@ -116,7 +117,7 @@ namespace edm {
       assert(isValid());
       //use the translated branch name
       TBranch* branch = tree_->GetBranch(oldBranchName.c_str());
-      roottree::BranchInfo info = roottree::BranchInfo(ConstBranchDescription(prod));
+      roottree::BranchInfo info = roottree::BranchInfo(BranchDescription(prod));
       info.productBranch_ = 0;
       if (prod.present()) {
         info.productBranch_ = branch;

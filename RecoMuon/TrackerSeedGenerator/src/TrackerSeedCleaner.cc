@@ -2,8 +2,6 @@
  * \class TrackerSeedCleaner
  *  Reference class for seeds cleaning
  *  Seeds Cleaner based on sharedHits cleaning, direction cleaning and pt cleaning
- *  $Date: 2010/12/25 19:01:41 $
- *  $Revision: 1.9 $
     \author A. Grelli -  Purdue University, Pavia University
  */
 

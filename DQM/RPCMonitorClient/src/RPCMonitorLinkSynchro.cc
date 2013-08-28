@@ -29,26 +29,16 @@
 
 RPCMonitorLinkSynchro::RPCMonitorLinkSynchro( const edm::ParameterSet& cfg) 
     : theConfig(cfg),
-      theSynchroStat(RPCLinkSynchroStat(theConfig.getUntrackedParameter<bool>("useFirstHitOnly", false))),
-      rpcRawSynchroProdItemTag_(cfg.getParameter<edm::InputTag>("rpcRawSynchroProdItemTag"))
+      theSynchroStat(RPCLinkSynchroStat(theConfig.getUntrackedParameter<bool>("useFirstHitOnly", false)))
+
 { 
+
+  rpcRawSynchroProdItemTag_=consumes<RPCRawSynchro::ProdItem>(cfg.getParameter<edm::InputTag>("rpcRawSynchroProdItemTag"));
+
 }
 
-RPCMonitorLinkSynchro::~RPCMonitorLinkSynchro()
-{ 
-}
-
-void RPCMonitorLinkSynchro::beginRun(const edm::Run&, const edm::EventSetup& es)
-{
-  if (theCablingWatcher.check(es)) {
-    edm::ESTransientHandle<RPCEMap> readoutMapping;
-    es.get<RPCEMapRcd>().get(readoutMapping);
-    RPCReadOutMapping * cabling = readoutMapping->convert();
-    edm::LogInfo("RPCMonitorLinkSynchro") << "RPCMonitorLinkSynchro - record has CHANGED!!, read map, VERSION: " << cabling->version();
-    theSynchroStat.init(cabling, theConfig.getUntrackedParameter<bool>("dumpDelays"));
-    delete cabling;
-  }
-}
+RPCMonitorLinkSynchro::~RPCMonitorLinkSynchro(){ }
+void RPCMonitorLinkSynchro::beginJob(){}
 
 void RPCMonitorLinkSynchro::endLuminosityBlock(const edm::LuminosityBlock& ls, const edm::EventSetup& es)
 {
@@ -57,8 +47,20 @@ void RPCMonitorLinkSynchro::endLuminosityBlock(const edm::LuminosityBlock& ls, c
   hm.fill(me_delaySummary->getTH1F(), me_delaySpread->getTH2F(), me_topOccup->getTH2F(), me_topSpread->getTH2F());
 }
 
-void RPCMonitorLinkSynchro::beginJob()
-{
+
+
+
+void RPCMonitorLinkSynchro::beginRun(const edm::Run&, const edm::EventSetup& es){
+
+  if (theCablingWatcher.check(es)) {
+    edm::ESTransientHandle<RPCEMap> readoutMapping;
+    es.get<RPCEMapRcd>().get(readoutMapping);
+    RPCReadOutMapping * cabling = readoutMapping->convert();
+    edm::LogInfo("RPCMonitorLinkSynchro") << "RPCMonitorLinkSynchro - record has CHANGED!!, read map, VERSION: " << cabling->version();
+    theSynchroStat.init(cabling, theConfig.getUntrackedParameter<bool>("dumpDelays"));
+    delete cabling;
+  }
+
   DQMStore* dmbe = edm::Service<DQMStore>().operator->();
   dmbe->setCurrentFolder("RPC/LinkMonitor/");
 
@@ -107,7 +109,7 @@ void RPCMonitorLinkSynchro::endJob()
 void RPCMonitorLinkSynchro::analyze(const edm::Event& ev, const edm::EventSetup& es)
 {
   edm::Handle<RPCRawSynchro::ProdItem> synchroCounts;
-  ev.getByLabel(rpcRawSynchroProdItemTag_, synchroCounts);
+  ev.getByToken(rpcRawSynchroProdItemTag_, synchroCounts);
   std::vector<LinkBoardElectronicIndex> problems;
   const RPCRawSynchro::ProdItem &vItem = select(*synchroCounts.product(), ev,es);
   theSynchroStat.add(vItem, problems);

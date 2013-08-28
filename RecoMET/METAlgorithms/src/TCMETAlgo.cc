@@ -526,7 +526,7 @@ bool TCMETAlgo::closeToElectron( const reco::TrackRef track ){
 
 //--------------------------------------------------------------------
 
-bool TCMETAlgo::nearGoodShowerTrack( const reco::TrackRef track , std::vector<int> goodShowerTracks ){
+bool TCMETAlgo::nearGoodShowerTrack( const reco::TrackRef track , const std::vector<int>& goodShowerTracks ){
   
   //checks if 'track' is within dR < deltaRShower_ of any good shower tracks
   float eta1 = track->eta();
@@ -791,7 +791,7 @@ void TCMETAlgo::correctSumEtForMuon( const unsigned int index ) {
 
 //correct MET for track
 
-void TCMETAlgo::correctMETforTrack( const reco::TrackRef track , TH2D* rf , const TVector3 outerTrackPosition) {
+void TCMETAlgo::correctMETforTrack( const reco::TrackRef track , TH2D* rf , const TVector3& outerTrackPosition) {
 
      if( track->pt() < minpt_ ) {
 
@@ -824,7 +824,7 @@ void TCMETAlgo::correctMETforTrack( const reco::TrackRef track , TH2D* rf , cons
 
 //correct sumEt for track
 
-void TCMETAlgo::correctSumEtForTrack( const reco::TrackRef track  , TH2D* rf , const TVector3 outerTrackPosition) {
+void TCMETAlgo::correctSumEtForTrack( const reco::TrackRef track  , TH2D* rf , const TVector3& outerTrackPosition) {
 
      if( track->pt() < minpt_ ) {
 	  sumEt += track->pt();

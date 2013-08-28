@@ -13,7 +13,6 @@
 //
 // Original Author:  Igor Volobouev
 //         Created:  Thu Apr 21 15:52:11 CDT 2011
-// $Id: FFTJetPileupAnalyzer.cc,v 1.11 2011/07/05 07:51:28 igv Exp $
 //
 //
 
@@ -63,9 +62,9 @@ private:
     // PileupSummaryInfo and fill out the ntuple
     void analyzePileup(const std::vector<PileupSummaryInfo>& pInfo);
 
-    virtual void beginJob() ;
-    virtual void analyze(const edm::Event&, const edm::EventSetup&);
-    virtual void endJob() ;
+    virtual void beginJob() override ;
+    virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
+    virtual void endJob() override ;
 
     edm::InputTag histoLabel;
     edm::InputTag summaryLabel;

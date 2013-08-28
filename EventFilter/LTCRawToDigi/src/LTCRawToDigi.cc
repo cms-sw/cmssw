@@ -46,7 +46,7 @@ class LTCRawToDigi : public edm::EDProducer {
       ~LTCRawToDigi();
 
 
-      virtual void produce(edm::Event&, const edm::EventSetup&);
+      virtual void produce(edm::Event&, const edm::EventSetup&) override;
    private:
       // ----------member data ---------------------------
 };

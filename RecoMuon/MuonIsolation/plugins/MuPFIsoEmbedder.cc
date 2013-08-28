@@ -13,7 +13,6 @@
 //
 // Original Author:  Michail Bachtis,32 3-B16,+41227675567,
 //         Created:  Thu Jun  9 01:36:17 CEST 2011
-// $Id: MuPFIsoEmbedder.cc,v 1.2 2012/07/21 00:33:38 bachtis Exp $
 //
 //
 
@@ -45,7 +44,7 @@ class MuPFIsoEmbedder : public edm::EDProducer {
       static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
    private:
-      virtual void produce(edm::Event&, const edm::EventSetup&);
+      virtual void produce(edm::Event&, const edm::EventSetup&) override;
       
 
       // ----------member data ---------------------------

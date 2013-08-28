@@ -27,7 +27,7 @@
 #include "DataFormats/Provenance/interface/ProductProvenance.h"
 #include "DataFormats/Provenance/interface/StoredProductProvenance.h"
 #include "DataFormats/Provenance/interface/RunAuxiliary.h"
-#include "DataFormats/Provenance/interface/Selections.h"
+#include "DataFormats/Provenance/interface/SelectedProducts.h"
 #include "IOPool/Output/interface/PoolOutputModule.h"
 #include "IOPool/Output/src/RootOutputTree.h"
 
@@ -54,7 +54,6 @@ namespace edm {
     void writeFileFormatVersion();
     void writeFileIdentifier();
     void writeIndexIntoFile();
-    void writeProcessConfigurationRegistry();
     void writeProcessHistoryRegistry();
     void writeParameterSetRegistry();
     void writeProductDescriptionRegistry();
@@ -78,7 +77,7 @@ namespace edm {
     //-------------------------------
     // Private functions
 
-    void setBranchAliases(TTree* tree, Selections const& branches) const;
+    void setBranchAliases(TTree* tree, SelectedProducts const& branches) const;
 
     void fillBranches(BranchType const& branchType,
                       Principal const& principal,

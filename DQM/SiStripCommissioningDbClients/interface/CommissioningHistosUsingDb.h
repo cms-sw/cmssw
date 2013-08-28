@@ -1,4 +1,3 @@
-// Last commit: $Id: CommissioningHistosUsingDb.h,v 1.15 2009/11/15 16:42:16 lowette Exp $
 
 #ifndef DQM_SiStripCommissioningClients_CommissioningHistosUsingDb_H
 #define DQM_SiStripCommissioningClients_CommissioningHistosUsingDb_H

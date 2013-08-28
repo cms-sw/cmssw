@@ -1,7 +1,7 @@
 #include "DataFormats/Provenance/interface/Parentage.h"
 #include "DataFormats/Provenance/interface/BranchID.h"
 #include "FWCore/Utilities/interface/Exception.h"
-#include <assert.h>
+#include <cassert>
 #include <iostream>
 
 int main() {

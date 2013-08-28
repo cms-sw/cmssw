@@ -13,7 +13,7 @@ public:
       @a mode bits.  No temporary files are downloaded.  */
   virtual Storage *open (const std::string &proto,
 			 const std::string &path,
-			 int mode)
+			 int mode) override
   {
     // The important part here is not the cache size (which will get
     // auto-adjusted), but the fact the cache is set to something non-zero.
@@ -36,7 +36,7 @@ public:
     return f->wrapNonLocalFile(file, proto, std::string(), mode);
   }
 
-  virtual void stagein (const std::string &proto, const std::string &path)
+  virtual void stagein (const std::string &proto, const std::string &path) override
   {
     std::string fullpath(proto + ":" + path);
     XrdClientAdmin admin(fullpath.c_str());
@@ -50,7 +50,7 @@ public:
 
   virtual bool check (const std::string &proto,
 		      const std::string &path,
-		      IOOffset *size = 0)
+		      IOOffset *size = 0) override
   {
     std::string fullpath(proto + ":" + path);
     XrdClientAdmin admin(fullpath.c_str());
@@ -72,7 +72,7 @@ public:
     return true;
   }
 
-  virtual void setDebugLevel (unsigned int level)
+  virtual void setDebugLevel (unsigned int level) override
   {
     EnvPutInt("DebugLevel", level);
   }

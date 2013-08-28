@@ -608,15 +608,15 @@ testeventprocessor::activityRegistryTest() {
 
   typedef std::vector<edm::ModuleDescription const*> ModuleDescs;
   ModuleDescs allModules = proc.getAllModuleDescriptions();
-  CPPUNIT_ASSERT(2 == allModules.size()); // TestMod and TriggerResultsInserter
-  std::cout << "\nModuleDescriptions in testeventprocessor::activityRegistryTest()---\n";
+  CPPUNIT_ASSERT(1 == allModules.size()); // TestMod
+  //std::cout << "\nModuleDescriptions in testeventprocessor::activityRegistryTest()---\n";
   for (ModuleDescs::const_iterator i = allModules.begin(), e = allModules.end();
        i != e ;
        ++i) {
     CPPUNIT_ASSERT(*i != 0);
-    std::cout << **i << '\n';
+    //std::cout << **i << '\n';
   }
-  std::cout << "--- end of ModuleDescriptions\n";
+  //std::cout << "--- end of ModuleDescriptions\n";
 
   CPPUNIT_ASSERT(5 == proc.totalEvents());
   CPPUNIT_ASSERT(5 == proc.totalEventsPassed());

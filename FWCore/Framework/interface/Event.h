@@ -47,7 +47,7 @@ For its usage, see "FWCore/Framework/interface/PrincipalGetAdapter.h"
 
 namespace edm {
 
-  class ConstBranchDescription;
+  class BranchDescription;
   class ModuleCallingContext;
   class TriggerResultsByName;
   class TriggerResults;
@@ -200,7 +200,7 @@ namespace edm {
 
     ModuleCallingContext const* moduleCallingContext() const { return moduleCallingContext_; }
 
-    typedef std::vector<std::pair<WrapperOwningHolder, ConstBranchDescription const*> > ProductPtrVec;
+    typedef std::vector<std::pair<WrapperOwningHolder, BranchDescription const*> > ProductPtrVec;
 
   private:
     EventPrincipal const&
@@ -210,7 +210,7 @@ namespace edm {
     eventPrincipal();
 
     ProductID
-    makeProductID(ConstBranchDescription const& desc) const;
+    makeProductID(BranchDescription const& desc) const;
 
     //override used by EventBase class
     virtual BasicHandle getByLabelImpl(std::type_info const& iWrapperType, std::type_info const& iProductType, InputTag const& iTag) const;
@@ -276,7 +276,7 @@ namespace edm {
     void do_it(ptrvec_t& /*ignored*/,
                ptrvec_t& used,
                WrapperOwningHolder const& edp,
-               ConstBranchDescription const* desc) const {
+               BranchDescription const* desc) const {
       used.emplace_back(edp, desc);
     }
   };
@@ -288,7 +288,7 @@ namespace edm {
     void do_it(ptrvec_t& used,
                ptrvec_t& /*ignored*/,
                WrapperOwningHolder const& edp,
-               ConstBranchDescription const* desc) const {
+               BranchDescription const* desc) const {
       used.emplace_back(edp, desc);
     }
   };
@@ -341,7 +341,7 @@ namespace edm {
       DoNotPostInsert<PROD> >::type maybe_inserter;
     maybe_inserter(product.get());
 
-    ConstBranchDescription const& desc =
+    BranchDescription const& desc =
       provRecorder_.getBranchDescription(TypeID(*product), productInstanceName);
 
     WrapperOwningHolder edp(new Wrapper<PROD>(product), Wrapper<PROD>::getInterface());
@@ -366,7 +366,7 @@ namespace edm {
   RefProd<PROD>
   Event::getRefBeforePut(std::string const& productInstanceName) {
     PROD* p = 0;
-    ConstBranchDescription const& desc =
+    BranchDescription const& desc =
       provRecorder_.getBranchDescription(TypeID(*p), productInstanceName);
 
     //should keep track of what Ref's have been requested and make sure they are 'put'

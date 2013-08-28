@@ -12,12 +12,12 @@ is the storage unit of such information.
 #include "boost/shared_ptr.hpp"
 
 namespace edm {
-  class ConstBranchDescription;
+  class BranchDescription;
   class WrapperOwningHolder;
   struct ProductData {
     ProductData();
 
-    explicit ProductData(boost::shared_ptr<ConstBranchDescription> bd);
+    explicit ProductData(boost::shared_ptr<BranchDescription const> bd);
 
     // For use by FWLite
     ProductData(void const* product, Provenance const& prov);
@@ -26,7 +26,7 @@ namespace edm {
       return prov_.product().getInterface();
     }
 
-    boost::shared_ptr<ConstBranchDescription> const& branchDescription() const {
+    boost::shared_ptr<BranchDescription const> const& branchDescription() const {
       return prov_.constBranchDescriptionPtr();
     }
 
@@ -35,7 +35,7 @@ namespace edm {
        prov_.swap(other.prov_);
     }
 
-    void resetBranchDescription(boost::shared_ptr<ConstBranchDescription> bd);
+    void resetBranchDescription(boost::shared_ptr<BranchDescription const> bd);
 
     void resetProductData() {
       wrapper_.reset();

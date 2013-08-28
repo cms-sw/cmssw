@@ -16,7 +16,6 @@
 //
 // Original Author:  Kyle Story, Freya Blekman (Cornell University)
 //         Created:  Fri Apr 18 11:58:33 CEST 2008
-// $Id: SignAlgoResolutions.h,v 1.7 2013/03/22 01:19:36 sakuma Exp $
 //
 //
 
@@ -56,7 +55,7 @@ namespace metsig {
     
   private:
     double getfunc(const resolutionType & type,const resolutionFunc & func,  std::vector<double> & x) const;
-    void addfunction(const resolutionType type, const resolutionFunc func, std::vector<double> parameters);
+    void addfunction(const resolutionType type, const resolutionFunc func, const std::vector<double>& parameters);
     void initializeJetResolutions( const edm::ParameterSet &iConfig );
     
     typedef std::pair<metsig::resolutionType, metsig::resolutionFunc> functionCombo;

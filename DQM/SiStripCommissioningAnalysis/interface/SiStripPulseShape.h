@@ -11,7 +11,6 @@
 //
 // Original Author:  Christophe Delaere
 //         Created:  Thu Nov  5 17:02:15 CEST 2006
-// $Id: SiStripPulseShape.h,v 1.2 2007/09/06 21:36:22 delaer Exp $
 //
 //
 

@@ -568,7 +568,7 @@ bool JetPlusTrackCorrector::getElectrons( const edm::Event& event,
 
 // -----------------------------------------------------------------------------
 //
-bool JetPlusTrackCorrector::failTrackQuality( TrackRefs::const_iterator itrk ) const { 
+bool JetPlusTrackCorrector::failTrackQuality( TrackRefs::const_iterator& itrk ) const { 
 //  if ( useTrackQuality_ && !(*itrk)->quality(trackQuality_) ) { return true; }
 //  else { return false; }
     
@@ -590,7 +590,7 @@ bool JetPlusTrackCorrector::failTrackQuality( TrackRefs::const_iterator itrk ) c
 // -----------------------------------------------------------------------------
 //
 bool JetPlusTrackCorrector::findTrack( const JetTracks& jet_tracks,
-				       TrackRefs::const_iterator itrk,
+				       TrackRefs::const_iterator& itrk,
 				       TrackRefs::iterator& it ) const { 
   it = find( jet_tracks.caloFace_.begin(),
 	     jet_tracks.caloFace_.end(),
@@ -604,7 +604,7 @@ bool JetPlusTrackCorrector::findTrack( const JetTracks& jet_tracks,
 bool JetPlusTrackCorrector::findTrack( const MatchedTracks& pions, 
 				       const MatchedTracks& muons,
 				       const MatchedTracks& elecs,
-				       TrackRefs::const_iterator itrk ) const { 
+				       TrackRefs::const_iterator& itrk ) const { 
   TrackRefs::iterator ip = find( pions.inVertexInCalo_.begin(),
 				 pions.inVertexInCalo_.end(),
 				 *itrk );
@@ -1060,7 +1060,7 @@ JetPlusTrackCorrector::P4 JetPlusTrackCorrector::pionEfficiency( const P4& jet,
 
 // -----------------------------------------------------------------------------
 //
-bool JetPlusTrackCorrector::matchMuons( TrackRefs::const_iterator itrk, 
+bool JetPlusTrackCorrector::matchMuons( TrackRefs::const_iterator& itrk, 
 					const edm::Handle<RecoMuons>& muons ) const {
   
   if ( muons->empty() ) { return false; }
@@ -1092,7 +1092,7 @@ bool JetPlusTrackCorrector::matchMuons( TrackRefs::const_iterator itrk,
 
 // -----------------------------------------------------------------------------
 //
-bool JetPlusTrackCorrector::matchElectrons( TrackRefs::const_iterator itrk, 
+bool JetPlusTrackCorrector::matchElectrons( TrackRefs::const_iterator& itrk, 
 					    const edm::Handle<RecoElectrons>& elecs,
 					    const edm::Handle<RecoElectronIds>& elec_ids ) const {
   

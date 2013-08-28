@@ -33,7 +33,7 @@ ODRunConfigInfo::~ODRunConfigInfo(){}
 
 //
 RunTypeDef ODRunConfigInfo::getRunTypeDef() const {  return m_runTypeDef;}
-void ODRunConfigInfo::setRunTypeDef(const RunTypeDef runTypeDef)
+void ODRunConfigInfo::setRunTypeDef(const RunTypeDef& runTypeDef)
 {
   if (runTypeDef != m_runTypeDef) {
     m_ID = 0;
@@ -42,7 +42,7 @@ void ODRunConfigInfo::setRunTypeDef(const RunTypeDef runTypeDef)
 }
 //
 RunModeDef ODRunConfigInfo::getRunModeDef() const {  return m_runModeDef;}
-void ODRunConfigInfo::setRunModeDef(const RunModeDef runModeDef)
+void ODRunConfigInfo::setRunModeDef(const RunModeDef& runModeDef)
 {
   if (runModeDef != m_runModeDef) {
     m_ID = 0;

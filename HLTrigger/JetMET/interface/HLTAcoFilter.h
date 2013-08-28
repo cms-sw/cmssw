@@ -11,6 +11,14 @@
 #include <string>
 #include <string.h>
 #include <cmath>
+
+#include "DataFormats/JetReco/interface/CaloJetCollection.h"
+#include "DataFormats/METReco/interface/CaloMET.h"
+
+namespace edm {
+   class ConfigurationDescriptions;
+}
+
 //
 // class declaration
 //
@@ -20,9 +28,14 @@ class HLTAcoFilter : public HLTFilter {
    public:
       explicit HLTAcoFilter(const edm::ParameterSet&);
       ~HLTAcoFilter();
+      static void fillDescriptions(edm::ConfigurationDescriptions & descriptions); 
       virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct);
 
    private:
+
+      edm::EDGetTokenT<reco::CaloJetCollection> m_theJetToken;
+      edm::EDGetTokenT<trigger::TriggerFilterObjectWithRefs> m_theMETToken;
+
       edm::InputTag inputJetTag_; // input tag identifying jets
       edm::InputTag inputMETTag_; // input tag identifying for MET
       double minEtjet1_;

@@ -10,7 +10,7 @@
   <version ClassVersion="10" checksum="747121728"/>
  </class>
  <class name="edm::SendJobHeader" ClassVersion="10">
-  <version ClassVersion="10" checksum="442578358"/>
+  <version ClassVersion="10" checksum="1238072397"/>
  </class>
  <class name="std::vector<edm::BranchDescription>"/>
 </lcgdict>

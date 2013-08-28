@@ -39,7 +39,7 @@ namespace Rivet {
     }
 
 
-    void init() {
+    void init() override {
 
 #if EXPERIMENT==0
       VisibleFinalState fs(-5.0, 5.0, 0.*GeV);
@@ -119,7 +119,7 @@ namespace Rivet {
     }
 
 
-    void analyze(const Event & event) {
+    void analyze(const Event & event) override {
       const double weight = event.weight();
 
       _h_sigmacut->fill(0, weight);
@@ -291,7 +291,7 @@ namespace Rivet {
     }
 
     /// Finalize
-    void finalize() {
+    void finalize() override {
       AIDA::IHistogramFactory& hf = histogramFactory();
       const string dir = histoDir();
 

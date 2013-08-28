@@ -1,9 +1,6 @@
 /** \class EcalRecHitProducer
  *   produce ECAL rechits from uncalibrated rechits
  *
- *  $Id: EcalRecHitProducer.cc,v 1.16 2011/05/17 10:26:34 vlimant Exp $
- *  $Date: 2011/05/17 10:26:34 $
- *  $Revision: 1.16 $
  *  \author Shahram Rahatlou, University of Rome & INFN, March 2006
  *
  **/

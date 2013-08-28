@@ -3,6 +3,8 @@
 
 #include "TROOT.h"
 
+#include <cassert>
+
 namespace edm {
   void 
   StreamedProductStreamer::operator()(TBuffer& R__b, void *objp) {

@@ -10,7 +10,6 @@
 //
 // Original Author:  Nicholas Cripps
 //         Created:  2008/09/16
-// $Id: SiStripFEDDataCheck.cc,v 1.3 2013/01/03 18:59:36 wmtan Exp $
 //
 //
 #include <memory>
@@ -55,9 +54,9 @@ class SiStripFEDCheckPlugin : public edm::EDAnalyzer
   explicit SiStripFEDCheckPlugin(const edm::ParameterSet&);
   ~SiStripFEDCheckPlugin();
  private:
-  virtual void beginJob();
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void endJob();
+  virtual void beginJob() override;
+  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
+  virtual void endJob() override;
   virtual void endRun();
 
   bool hasFatalError(const FEDRawData& fedData, unsigned int fedId) const;

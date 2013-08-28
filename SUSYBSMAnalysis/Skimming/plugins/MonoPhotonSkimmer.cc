@@ -46,9 +46,9 @@ class MonoPhotonSkimmer : public edm::EDFilter {
       ~MonoPhotonSkimmer();
 
    private:
-      virtual void beginJob() ;
+      virtual void beginJob() override ;
       virtual bool filter(edm::Event&, const edm::EventSetup&) override;
-      virtual void endJob() ;
+      virtual void endJob() override ;
       
       // ----------member data ---------------------------
       edm::InputTag _phoTag;

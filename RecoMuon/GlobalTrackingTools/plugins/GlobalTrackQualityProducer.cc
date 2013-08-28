@@ -5,7 +5,6 @@
 //
 //
 // Original Author:  Adam Everett
-// $Id: GlobalTrackQualityProducer.cc,v 1.8 2012/12/06 14:45:38 eulisse Exp $
 //
 //
 

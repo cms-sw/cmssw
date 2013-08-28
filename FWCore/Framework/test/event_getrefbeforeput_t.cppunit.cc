@@ -26,7 +26,7 @@ Test of the EventPrincipal class.
 #include "FWCore/Utilities/interface/TypeWithDict.h"
 #include "FWCore/Version/interface/GetReleaseVersion.h"
 
-#include <cppunit/extensions/HelperMacros.h>
+#include "cppunit/extensions/HelperMacros.h"
 
 #include "boost/shared_ptr.hpp"
 
@@ -86,7 +86,7 @@ void testEventGetRefBeforePut::failGetProductNotRegisteredTest() {
      pset.registerIt();
      boost::shared_ptr<edm::ProcessConfiguration> processConfiguration(
       new edm::ProcessConfiguration());
-     edm::ModuleDescription modDesc(pset.id(), "Blah", "blahs", processConfiguration.get());
+     edm::ModuleDescription modDesc(pset.id(), "Blah", "blahs", processConfiguration.get(), edm::ModuleDescription::getUniqueID());
      edm::Event event(ep, modDesc, nullptr);
 
      std::string label("this does not exist");

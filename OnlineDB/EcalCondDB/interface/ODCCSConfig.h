@@ -64,7 +64,7 @@ class ODCCSConfig : public IODConfig {
 
 
   int fetchNextId() throw(std::runtime_error);
-  void setParameters(std::map<std::string,std::string> my_keys_map);
+  void setParameters(const std::map<std::string,std::string>& my_keys_map);
   
  private:
   void prepareWrite()  throw(std::runtime_error);

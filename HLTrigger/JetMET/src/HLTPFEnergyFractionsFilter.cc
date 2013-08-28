@@ -16,9 +16,6 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "DataFormats/JetReco/interface/PFJet.h"
-#include "DataFormats/JetReco/interface/PFJetCollection.h"
-
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 
@@ -42,6 +39,7 @@ HLTPFEnergyFractionsFilter::HLTPFEnergyFractionsFilter(const edm::ParameterSet& 
   min_NHEF_              = iConfig.getParameter<double> ("min_NHEF");
   max_NHEF_              = iConfig.getParameter<double> ("max_NHEF");
   triggerType_           = iConfig.getParameter<int> ("triggerType");
+  m_thePFJetToken = consumes<reco::PFJetCollection>(inputPFJetTag_);
 }
 
 HLTPFEnergyFractionsFilter::~HLTPFEnergyFractionsFilter(){}
@@ -78,7 +76,7 @@ HLTPFEnergyFractionsFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup&
   
   // PFJets
   edm::Handle<PFJetCollection> recopfjets;
-  iEvent.getByLabel(inputPFJetTag_,recopfjets);
+  iEvent.getByToken(m_thePFJetToken,recopfjets);
 
   //Checking
   bool accept(false); 

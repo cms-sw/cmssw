@@ -16,10 +16,12 @@
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EDFilter.h"
-#include "FWCore/Framework/interface/CurrentProcessingContext.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
+
+#include <string>
+#include <utility>
 
 //
 // class decleration
@@ -47,10 +49,10 @@ public:
   }
 
 public:
-  int path() const;
-  int module() const;
-  std::pair<int,int> pmid() const;
-  const std::string* pathName() const;
+  int path(edm::Event const&) const;
+  int module(edm::Event const&) const;
+  std::pair<int,int> pmid(edm::Event const&) const;
+  const std::string* pathName(edm::Event const&) const;
   const std::string* moduleLabel() const;
 };
 

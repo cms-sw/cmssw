@@ -13,7 +13,6 @@
 //
 // Original Author:  Andrea Venturi
 //         Created:  Thu Dec 16 16:32:56 CEST 2010
-// $Id: MCVerticesAnalyzer.cc,v 1.6 2011/11/12 16:49:19 venturia Exp $
 //
 //
 

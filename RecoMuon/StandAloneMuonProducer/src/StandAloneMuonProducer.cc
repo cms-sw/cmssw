@@ -6,8 +6,6 @@
  *   starting from internal seeds (L2 muon track segments).
  *
  *
- *   $Date: 2008/10/06 14:03:43 $
- *   $Revision: 1.31 $
  *
  *   \author  R.Bellan - INFN TO
  */

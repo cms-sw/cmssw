@@ -2,7 +2,6 @@
 Verilog++ SP.
 \author A. Madorsky
 */
-// Copyright (c) 2002, Alexander Madorsky, University of Florida/Physics. All rights reserved.
 
 
 #ifndef _VMAC_H_FILE_

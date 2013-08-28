@@ -23,7 +23,7 @@ public:
   class CosmicNavigationSchoolConfiguration{
   public:
     CosmicNavigationSchoolConfiguration() : noPXB(false), noPXF(false), noTOB(false), noTIB(false), noTEC(false), noTID(false) , self(false), allSelf(false) {}
-    CosmicNavigationSchoolConfiguration(const edm::ParameterSet conf);
+    CosmicNavigationSchoolConfiguration(const edm::ParameterSet& conf);
     bool noPXB;
     bool noPXF;
     bool noTOB;

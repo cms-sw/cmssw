@@ -38,7 +38,7 @@ void tnp::ProbeFlag::fill(const reco::CandidateBaseRef &probe) const {
     }
 }
 
-tnp::BaseTreeFiller::BaseTreeFiller(const char *name, const edm::ParameterSet iConfig) {
+tnp::BaseTreeFiller::BaseTreeFiller(const char *name, const edm::ParameterSet& iConfig) {
     // make trees as requested
     edm::Service<TFileService> fs;
     tree_ = fs->make<TTree>(name,name);

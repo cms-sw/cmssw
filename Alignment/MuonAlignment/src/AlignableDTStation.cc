@@ -12,7 +12,7 @@
 
 
 /// The constructor simply copies the vector of DT Chambers and computes the surface from them
-AlignableDTStation::AlignableDTStation( const std::vector<AlignableDTChamber*> dtChambers ) 
+AlignableDTStation::AlignableDTStation( const std::vector<AlignableDTChamber*>& dtChambers ) 
    : AlignableComposite(dtChambers[0]->id(), align::AlignableDTStation)
 {
 

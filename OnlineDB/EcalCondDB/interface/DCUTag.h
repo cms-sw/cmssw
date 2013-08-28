@@ -23,7 +23,7 @@ class DCUTag : public ITag {
   void setGeneralTag(std::string tag);
 
   LocationDef getLocationDef() const;
-  void setLocationDef(const LocationDef locDef);
+  void setLocationDef(const LocationDef& locDef);
 
   // Methods using ID
   int fetchID() throw(std::runtime_error);

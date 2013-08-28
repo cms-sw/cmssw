@@ -40,7 +40,7 @@ Test program for edm::Event.
 #include "FWCore/Version/interface/GetReleaseVersion.h"
 #include "Utilities/Testing/interface/CppUnit_testdriver.icpp"
 
-#include <cppunit/extensions/HelperMacros.h>
+#include "cppunit/extensions/HelperMacros.h"
 
 #include "Cintex/Cintex.h"
 
@@ -207,7 +207,7 @@ testEvent::registerProduct(std::string const& tag,
                            product_type
                         );
 
-  moduleDescriptions_[tag] = ModuleDescription(moduleParams.id(), moduleClassName, moduleLabel, processX.get());
+  moduleDescriptions_[tag] = ModuleDescription(moduleParams.id(), moduleClassName, moduleLabel, processX.get(),ModuleDescription::getUniqueID());
   availableProducts_->addProduct(branch);
 }
 
@@ -275,7 +275,7 @@ testEvent::testEvent() :
 
   boost::shared_ptr<ProcessConfiguration> processX(new ProcessConfiguration(process));
   processConfigurations_.push_back(processX);
-  currentModuleDescription_.reset(new ModuleDescription(moduleParams.id(), moduleClassName, moduleLabel, processX.get()));
+    currentModuleDescription_.reset(new ModuleDescription(moduleParams.id(), moduleClassName, moduleLabel, processX.get(),ModuleDescription::getUniqueID()));
 
   std::string productInstanceName("int1");
 

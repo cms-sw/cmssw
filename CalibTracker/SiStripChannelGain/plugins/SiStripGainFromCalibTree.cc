@@ -115,9 +115,9 @@ class SiStripGainFromCalibTree : public ConditionDBWriter<SiStripApvGain> {
 
 
    private:
-      virtual void algoBeginJob      (const edm::EventSetup&);
-      virtual void algoEndJob        ();
-      virtual void algoAnalyze       (const edm::Event &, const edm::EventSetup &);
+      virtual void algoBeginJob      (const edm::EventSetup&) override;
+      virtual void algoEndJob        () override;
+      virtual void algoAnalyze       (const edm::Event &, const edm::EventSetup &) override;
 
               void algoAnalyzeTheTree();
               void algoComputeMPVandGain();
@@ -129,7 +129,7 @@ class SiStripGainFromCalibTree : public ConditionDBWriter<SiStripApvGain> {
               void MakeCalibrationMap();
 
 
-      SiStripApvGain* getNewObject();
+      SiStripApvGain* getNewObject() override;
       edm::Service<TFileService> tfs;
 
       double       MinNrEntries;

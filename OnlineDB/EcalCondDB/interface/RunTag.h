@@ -23,10 +23,10 @@ class RunTag : public ITag {
   void setGeneralTag(std::string tag);
 
   LocationDef getLocationDef() const;
-  void setLocationDef(const LocationDef locDef);
+  void setLocationDef(const LocationDef& locDef);
 
   RunTypeDef getRunTypeDef() const;
-  void setRunTypeDef(const RunTypeDef runTypeDef);
+  void setRunTypeDef(const RunTypeDef& runTypeDef);
 
   // Methods using ID
   int fetchID() throw(std::runtime_error);

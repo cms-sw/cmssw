@@ -8,21 +8,22 @@
 
 namespace edm
 {
-  TriggerResultInserter::TriggerResultInserter(const ParameterSet& pset, const TrigResPtr& trptr) :
-    trptr_(trptr),
-    pset_id_(pset.id())
+  TriggerResultInserter::TriggerResultInserter(const ParameterSet& pset, unsigned int iNStreams) :
+  resultsPerStream_(iNStreams),
+  pset_id_(pset.id())
   {
     produces<TriggerResults>();
   }
 
-  TriggerResultInserter::~TriggerResultInserter()
-  {
-  }  
+  void
+  TriggerResultInserter::setTrigResultForStream(unsigned int iStreamIndex, const TrigResPtr& trptr) {
+    resultsPerStream_[iStreamIndex] =trptr;
+  }
 
-  void TriggerResultInserter::produce(edm::Event& e, edm::EventSetup const&)
+  void TriggerResultInserter::produce(StreamID id, edm::Event& e, edm::EventSetup const&) const
   {
     std::auto_ptr<TriggerResults>
-      results(new TriggerResults(*trptr_, pset_id_));
+      results(new TriggerResults(*resultsPerStream_[id.value()], pset_id_));
 
     e.put(results);
   }

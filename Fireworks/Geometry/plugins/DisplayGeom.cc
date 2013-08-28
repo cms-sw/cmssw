@@ -61,10 +61,10 @@ protected:
 
   
 private:
-   virtual void beginJob() ;
-   virtual void analyze(const edm::Event&, const edm::EventSetup&);
+   virtual void beginJob() override ;
+   virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
 
-   virtual void endJob() ;
+   virtual void endJob() override ;
 
    edm::Service<EveService>  m_eve;
 

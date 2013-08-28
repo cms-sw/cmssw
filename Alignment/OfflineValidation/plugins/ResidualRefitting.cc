@@ -1234,7 +1234,7 @@ FreeTrajectoryState ResidualRefitting::freeTrajStateMuon(reco::TrackRef muon){
 // 
 // dump Track Extrapolation
 //
-void ResidualRefitting::dumpTrackExtrap(ResidualRefitting::storage_trackExtrap track) {
+void ResidualRefitting::dumpTrackExtrap(const ResidualRefitting::storage_trackExtrap& track) {
 	std::cout<<"\n\nExtrapolation Dump:\n";
 	for (unsigned int i = 0; i < (unsigned int)track.n_; i++) {
 		
@@ -1258,7 +1258,7 @@ void ResidualRefitting::dumpTrackExtrap(ResidualRefitting::storage_trackExtrap t
 //
 // dump Muon Rec Hits
 //
-void ResidualRefitting::dumpMuonRecHits(ResidualRefitting::storage_hit hit) {
+void ResidualRefitting::dumpMuonRecHits(const ResidualRefitting::storage_hit& hit) {
 	std::cout<<"Muon Rec Hits Dump:\n";
 	for (unsigned int i = 0; i < (unsigned int)hit.n_; i++) {
 		
@@ -1281,7 +1281,7 @@ void ResidualRefitting::dumpMuonRecHits(ResidualRefitting::storage_hit hit) {
 //
 // dump Tracker Rec Hits
 //
-void ResidualRefitting::dumpTrackHits(ResidualRefitting::storage_trackHit hit) {
+void ResidualRefitting::dumpTrackHits(const ResidualRefitting::storage_trackHit& hit) {
 	std::cout<<"Tracker Rec Hits Dump:\n";
 	for (unsigned int i = 0; i < (unsigned int)hit.n_; i++) {
 		

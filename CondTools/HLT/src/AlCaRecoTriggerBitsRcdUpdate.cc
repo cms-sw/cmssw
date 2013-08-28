@@ -34,7 +34,7 @@ public:
   explicit  AlCaRecoTriggerBitsRcdUpdate(const edm::ParameterSet& cfg);
   ~AlCaRecoTriggerBitsRcdUpdate() {}
   
-  virtual void analyze(const edm::Event& evt, const edm::EventSetup& evtSetup);
+  virtual void analyze(const edm::Event& evt, const edm::EventSetup& evtSetup) override;
   
 private:
   typedef std::map<std::string, std::string> TriggerMap;

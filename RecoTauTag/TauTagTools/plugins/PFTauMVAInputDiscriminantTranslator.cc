@@ -37,7 +37,7 @@ class PFTauMVAInputDiscriminantTranslator : public edm::EDProducer {
     };
 
     PFTauMVAInputDiscriminantTranslator(const edm::ParameterSet&);
-    void produce(edm::Event&, const edm::EventSetup&);
+    void produce(edm::Event&, const edm::EventSetup&) override;
 
   private:
     edm::InputTag pfTauSource_;

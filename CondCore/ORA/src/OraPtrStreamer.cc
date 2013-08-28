@@ -115,7 +115,7 @@ namespace ora {
       }
       
     public:
-      void* load() const {
+      void* load() const override {
         if(!m_valid){
           throwException("Ptr Loader has been invalidate.",
                          "RelationalPtrLoader::load");
@@ -123,11 +123,11 @@ namespace ora {
         return m_buffer.read( m_fullId );
       }
 
-      void invalidate(){
+      void invalidate() override{
         m_valid = false;
       }
 
-      bool isValid() const{
+      bool isValid() const override{
         return m_valid;
       }
       

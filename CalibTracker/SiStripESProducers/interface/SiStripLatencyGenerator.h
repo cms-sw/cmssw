@@ -17,11 +17,11 @@ class SiStripLatencyGenerator : public SiStripCondObjBuilderBase<SiStripLatency>
   explicit SiStripLatencyGenerator(const edm::ParameterSet&,const edm::ActivityRegistry&);
   ~SiStripLatencyGenerator();
 
-  void getObj(SiStripLatency* & obj){createObject(); obj=obj_;}
+  void getObj(SiStripLatency* & obj){obj=createObject();}
 
  private:
 
-  void createObject();
+  SiStripLatency* createObject();
 
 };
 

@@ -1,8 +1,6 @@
 /*
  * \file EEClusterTask.cc
  *
- * $Date: 2011/08/30 09:28:42 $
- * $Revision: 1.83 $
  * \author G. Della Ricca
  * \author E. Di Marco
  *

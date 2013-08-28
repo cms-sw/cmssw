@@ -34,7 +34,7 @@ class L2TauJetsMerger: public edm::EDProducer {
       public:
 	SorterByPt() {}
 	~SorterByPt() {}
-	bool operator()(reco::CaloJet jet1 , reco::CaloJet jet2)
+	bool operator()(const reco::CaloJet& jet1 , const reco::CaloJet& jet2)
 	{
 	  return jet1.pt()>jet2.pt();
 	}

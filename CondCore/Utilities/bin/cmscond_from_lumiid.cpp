@@ -9,7 +9,7 @@ namespace cond {
     public:
       FromLumiIdUtilities();
       ~FromLumiIdUtilities();
-      int execute();
+      int execute() override;
   };
 }
 

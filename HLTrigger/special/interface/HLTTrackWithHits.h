@@ -54,7 +54,7 @@ private:
     }
       
     bool answer=(count>=minN_ && count<=maxN_);
-    LogDebug("HLTTrackWithHits")<<module()<<" sees: "<<s<<" objects. Only: "<<count<<" satisfy the hit requirement. Filter answer is: "<<(answer?"true":"false")<<std::endl;
+    LogDebug("HLTTrackWithHits")<<module(iEvent)<<" sees: "<<s<<" objects. Only: "<<count<<" satisfy the hit requirement. Filter answer is: "<<(answer?"true":"false")<<std::endl;
     return answer;
   }
  

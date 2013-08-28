@@ -20,7 +20,7 @@ class CandOneToManyDeltaRMatcher : public edm::EDProducer {
   CandOneToManyDeltaRMatcher( const edm::ParameterSet & );
   ~CandOneToManyDeltaRMatcher();
  private:
-  void produce( edm::Event&, const edm::EventSetup& );
+  void produce( edm::Event&, const edm::EventSetup& ) override;
   
   edm::InputTag source_;
   edm::InputTag matched_;

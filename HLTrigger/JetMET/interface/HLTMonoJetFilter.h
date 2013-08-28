@@ -9,6 +9,7 @@
 
 #include "DataFormats/HLTReco/interface/TriggerTypeDefs.h"
 #include "HLTrigger/HLTcore/interface/HLTFilter.h"
+#include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
 
 namespace edm {
    class ConfigurationDescriptions;
@@ -29,6 +30,7 @@ class HLTMonoJetFilter : public HLTFilter {
 
    private:
       edm::InputTag inputJetTag_;   // input tag identifying jets
+      edm::EDGetTokenT<std::vector<T>> m_theObjectToken;
       double maxPtSecondJet_;
       double maxDeltaPhi_;
       int    triggerType_;

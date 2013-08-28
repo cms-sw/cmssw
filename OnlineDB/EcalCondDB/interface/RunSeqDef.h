@@ -23,7 +23,7 @@ class RunSeqDef : public IDef {
   void setRunSeq(std::string runseq);
 
   RunTypeDef getRunTypeDef() const;
-  void setRunTypeDef(const RunTypeDef runTypeDef);
+  void setRunTypeDef(const RunTypeDef& runTypeDef);
 
 
 

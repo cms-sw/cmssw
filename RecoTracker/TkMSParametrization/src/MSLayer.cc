@@ -30,7 +30,7 @@ ostream& operator<<( ostream& s, const MSLayer::DataX0 & d)
 }
 //----------------------------------------------------------------------
 //MP
-MSLayer::MSLayer(const DetLayer* layer, DataX0 dataX0)
+MSLayer::MSLayer(const DetLayer* layer, const DataX0& dataX0)
   : theFace(layer->location()), theSeqNum(layer->seqNum()), theX0Data(dataX0)
 {
   const BarrelDetLayer* bl; const ForwardDetLayer * fl;
@@ -57,7 +57,7 @@ MSLayer::MSLayer(const DetLayer* layer, DataX0 dataX0)
 }
 //----------------------------------------------------------------------
 MSLayer::MSLayer(Location part, float position, Range range, float halfThickness,
-		 DataX0 dataX0)
+    const DataX0& dataX0)
   : theFace(part), 
     thePosition(position), 
     theRange(range), 

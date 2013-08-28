@@ -9,7 +9,6 @@
 
 #include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/Common/interface/Handle.h"
-#include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
 #include "DataFormats/Math/interface/deltaPhi.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -33,6 +32,7 @@ HLTDiJetAveFilter<T>::HLTDiJetAveFilter(const edm::ParameterSet& iConfig) : HLTF
   minDphi_     (iConfig.template getParameter<double> ("minDphi")),
   triggerType_ (iConfig.template getParameter<int> ("triggerType"))
 {
+  m_theJetToken = consumes<std::vector<T>>(inputJetTag_);
   LogDebug("") << "HLTDiJetAveFilter: Input/minPtAve/minPtJet3/minDphi/triggerType : "
 	       << inputJetTag_.encode() << " "
 	       << minPtAve_ << " " 
@@ -75,7 +75,7 @@ HLTDiJetAveFilter<T>::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetu
 
   // get hold of collection of objects
   Handle<TCollection> objects;
-  iEvent.getByLabel (inputJetTag_,objects);
+  iEvent.getByToken (m_theJetToken,objects);
   
   // look at all candidates,  check cuts and add to filter object
   int n(0);

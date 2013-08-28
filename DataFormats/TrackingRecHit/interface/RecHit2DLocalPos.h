@@ -22,7 +22,6 @@ public:
   virtual AlgebraicSymMatrix parametersError() const;
 
   virtual AlgebraicMatrix projectionMatrix() const {
-    if ( !isInitialized) initialize();
     return theProjectionMatrix;
   }
 
@@ -38,12 +37,7 @@ public:
 
 private:
 
-  static bool isInitialized;
-
-  static AlgebraicMatrix theProjectionMatrix;
-
-  void initialize() const;
-
+  static const AlgebraicMatrix theProjectionMatrix;
 };
 
 #endif

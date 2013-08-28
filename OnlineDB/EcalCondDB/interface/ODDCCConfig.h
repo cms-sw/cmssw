@@ -44,7 +44,7 @@ class ODDCCConfig : public IODConfig {
   inline void setDCCWeightsMode(std::string x) { m_wei = x; }
   inline std::string getDCCWeightsMode() const { return m_wei; }
 
-  void setParameters(std::map<std::string,std::string> my_keys_map);
+  void setParameters(const std::map<std::string,std::string>& my_keys_map);
   
  private:
   void prepareWrite()  throw(std::runtime_error);
