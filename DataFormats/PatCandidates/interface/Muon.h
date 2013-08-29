@@ -161,7 +161,7 @@ namespace pat {
       /// make sure you know what you are doing. If you use the default tuneP for the momentum assignment 
       /// then use defaultTuneP. Insted if you use the newly optimized version (present in release 537 and above)
       /// then use improvedTuneP. 
-      bool isHighPtMuon(const reco::Vertex&, muon::TunePType) const;
+      bool isHighPtMuon(const reco::Vertex&, reco::TunePType) const;
 
       // ---- overload of isolation functions ----
       /// Overload of pat::Lepton::trackIso(); returns the value of
