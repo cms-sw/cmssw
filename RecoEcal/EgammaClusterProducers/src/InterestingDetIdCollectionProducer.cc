@@ -4,14 +4,12 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 
-#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
 
 #include "DataFormats/DetId/interface/DetIdCollection.h"
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
-#include "DataFormats/EgammaReco/interface/BasicClusterFwd.h"
 
 #include "Geometry/CaloEventSetup/interface/CaloTopologyRecord.h"
 #include "Geometry/CaloTopology/interface/CaloTopology.h"
@@ -26,8 +24,10 @@
 InterestingDetIdCollectionProducer::InterestingDetIdCollectionProducer(const edm::ParameterSet& iConfig) 
 {
 
-  recHitsLabel_ = iConfig.getParameter< edm::InputTag > ("recHitsLabel");
-  basicClusters_ = iConfig.getParameter< edm::InputTag > ("basicClustersLabel");
+  recHitsToken_ = 
+	  consumes<EcalRecHitCollection>(iConfig.getParameter< edm::InputTag > ("recHitsLabel"));
+  basicClustersToken_ = 
+	  consumes<reco::BasicClusterCollection>(iConfig.getParameter< edm::InputTag >("basicClustersLabel"));
 
   interestingDetIdCollection_ = iConfig.getParameter<std::string>("interestingDetIdCollection");
   
@@ -44,9 +44,6 @@ InterestingDetIdCollectionProducer::InterestingDetIdCollectionProducer(const edm
   keepNextToBoundary_ = iConfig.getParameter<bool>("keepNextToBoundary");
 }
 
-
-InterestingDetIdCollectionProducer::~InterestingDetIdCollectionProducer()
-{}
 
 void InterestingDetIdCollectionProducer::beginRun (edm::Run const& run, const edm::EventSetup & iSetup)  
 {
@@ -69,11 +66,11 @@ InterestingDetIdCollectionProducer::produce (edm::Event& iEvent,
 
    // take BasicClusters
   Handle<reco::BasicClusterCollection> pClusters;
-  iEvent.getByLabel(basicClusters_, pClusters);
+  iEvent.getByToken(basicClustersToken_, pClusters);
   
   // take EcalRecHits
   Handle<EcalRecHitCollection> recHitsHandle;
-  iEvent.getByLabel(recHitsLabel_,recHitsHandle);
+  iEvent.getByToken(recHitsToken_,recHitsHandle);
 
   //Create empty output collections
   std::vector<DetId> indexToStore;

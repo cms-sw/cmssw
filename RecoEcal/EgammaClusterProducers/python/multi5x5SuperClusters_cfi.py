@@ -7,9 +7,11 @@ import FWCore.ParameterSet.Config as cms
 multi5x5SuperClustersCleaned = cms.EDProducer("Multi5x5SuperClusterProducer",
     barrelSuperclusterCollection = cms.string('multi5x5BarrelSuperClusters'),
     endcapEtaSearchRoad = cms.double(0.14),
-    barrelClusterCollection = cms.string('multi5x5BarrelBasicClustersCleaned'),
+    barrelClusterTag = cms.InputTag('multi5x5BasicClusters',
+									'multi5x5BarrelBasicClustersCleaned'),
     dynamicPhiRoad = cms.bool(False),
-    endcapClusterProducer = cms.string('multi5x5BasicClustersCleaned'),
+    endcapClusterTag= cms.InputTag('multi5x5BasicClustersCleaned',
+								   'multi5x5EndcapBasicClusters'),
     barrelPhiSearchRoad = cms.double(0.8),
     endcapPhiSearchRoad = cms.double(0.6),
     seedTransverseEnergyThreshold = cms.double(1.0),
@@ -34,8 +36,7 @@ multi5x5SuperClustersCleaned = cms.EDProducer("Multi5x5SuperClusterProducer",
         )
     ),
     doEndcaps = cms.bool(True),
-    endcapClusterCollection = cms.string('multi5x5EndcapBasicClusters'),
-    barrelClusterProducer = cms.string('multi5x5BasicClusters')
+  
 )
 
 

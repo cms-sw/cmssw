@@ -34,7 +34,7 @@ EcalTPSkimmer::EcalTPSkimmer(const edm::ParameterSet& ps)
         chStatusToSelectTP_ = ps.getParameter<std::vector<uint32_t> >("chStatusToSelectTP");
 
         tpOutputCollection_ = ps.getParameter<std::string>("tpOutputCollection");
-        tpInputCollection_  = ps.getParameter<edm::InputTag>("tpInputCollection");
+        tpInputToken_       = consumes<EcalTrigPrimDigiCollection>(ps.getParameter<edm::InputTag>("tpInputCollection"));
 
         produces< EcalTrigPrimDigiCollection >(tpOutputCollection_);
 }
@@ -64,14 +64,9 @@ EcalTPSkimmer::produce(edm::Event& evt, const edm::EventSetup& es)
         es.get<EcalChannelStatusRcd>().get(chStatus);
 
         edm::Handle<EcalTrigPrimDigiCollection> tpIn;
-        evt.getByLabel(tpInputCollection_, tpIn);
+        evt.getByToken(tpInputToken_, tpIn);
 
-        if ( ! tpIn.isValid() ) {
-                edm::LogError("EcalTPSkimmer") << "Can't get the product " << tpInputCollection_.instance()
-                        << " with label " << tpInputCollection_.label();
-                return;
-        }
-
+   
         if ( doBarrel_ ) {
                 EcalChannelStatusMap::const_iterator chit;
                 uint16_t code = 0;

@@ -9,8 +9,9 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
+#include "DataFormats/EgammaReco/interface/BasicClusterFwd.h"
 
-#include "FWCore/Utilities/interface/InputTag.h"
 
 // $Id$
 
@@ -21,17 +22,15 @@ class UncleanSCRecoveryProducer : public edm::EDProducer
 
       UncleanSCRecoveryProducer(const edm::ParameterSet& ps);
 
-      ~UncleanSCRecoveryProducer();
-
       virtual void produce(edm::Event&, const edm::EventSetup&);
       
   private:
       // the clean collection      
-      edm::InputTag  cleanBcCollection_; 
-      edm::InputTag  cleanScCollection_; 
+      edm::EDGetTokenT<reco::BasicClusterCollection>  cleanBcCollection_; 
+      edm::EDGetTokenT<reco::SuperClusterCollection>  cleanScCollection_; 
       // the uncleaned collection
-      edm::InputTag uncleanBcCollection_;
-      edm::InputTag uncleanScCollection_;
+      edm::EDGetTokenT<reco::BasicClusterCollection>  uncleanBcCollection_;
+      edm::EDGetTokenT<reco::SuperClusterCollection>  uncleanScCollection_;
       // the names of the products to be produced:
       std::string  bcCollection_;     
       std::string  scCollection_;     

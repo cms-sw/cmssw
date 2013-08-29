@@ -27,7 +27,7 @@ namespace edm {
 class EcalUncalibRecHitWorkerRatio : public EcalUncalibRecHitWorkerBaseClass {
 
         public:
-                EcalUncalibRecHitWorkerRatio(const edm::ParameterSet&);
+                EcalUncalibRecHitWorkerRatio(const edm::ParameterSet&, edm::ConsumesCollector& c);
                 virtual ~EcalUncalibRecHitWorkerRatio() {};
 
                 void set(const edm::EventSetup& es);
