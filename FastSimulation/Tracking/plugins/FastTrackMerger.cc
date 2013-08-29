@@ -320,14 +320,14 @@ FastTrackMerger::produce(edm::Event& e, const edm::EventSetup& es) {
 	//==== add more cuts on the trajectory (emulate the Trajectory Filter) 
 
 #ifdef FAMOS_DEBUG
-	if(aTrajectoryRef->lostHits() > theMaxLostHits )
+	if((unsigned)aTrajectoryRef->lostHits() > theMaxLostHits )
 	  std::cout << "\tmaxLostHits= " << aTrajectoryRef->lostHits() << "\tCUT =" << theMaxLostHits << std::endl;
 #endif
 
 	if((unsigned)aTrajectoryRef->lostHits() > theMaxLostHits ) continue;
 
 #ifdef FAMOS_DEBUG
-	if(aTrajectoryRef->foundHits() < theMinimumNumberOfHits )
+	if((unsigned)aTrajectoryRef->foundHits() < theMinimumNumberOfHits )
 	  std::cout << "\tMinimumNumberOfHits = " <<  aTrajectoryRef->foundHits() << "\tCUT = " <<theMinimumNumberOfHits <<  std::endl;
 #endif
 	
