@@ -39,9 +39,9 @@ HLTNVFilter::~HLTNVFilter(){}
 
 void HLTNVFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
+  makeHLTFilterDescription(desc);
   desc.add<edm::InputTag>("inputJetTag",edm::InputTag("iterativeCone5CaloJets"));
   desc.add<edm::InputTag>("inputMETTag",edm::InputTag("hlt1MET60"));
-  desc.add<bool>("saveTags",false);
   desc.add<double>("minEtJet2",20.);
   desc.add<double>("minEtJet1",80.);
   desc.add<double>("minNV",0.1);

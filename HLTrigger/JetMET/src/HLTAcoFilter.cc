@@ -46,6 +46,7 @@ HLTAcoFilter::~HLTAcoFilter(){}
 void
 HLTAcoFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
+  makeHLTFilterDescription(desc);
   desc.add<edm::InputTag>("inputJetTag",edm::InputTag("IterativeCone5CaloJets"));
   desc.add<edm::InputTag>("inputMETTag",edm::InputTag("MET"));
   desc.add<double>("minDeltaPhi",0.0);
@@ -53,7 +54,6 @@ HLTAcoFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   desc.add<double>("minEtJet1",20.0);
   desc.add<double>("minEtJet2",20.0);
   desc.add<std::string>("Acoplanar","Jet1Jet2");
-  desc.add<bool>("saveTags",false);
   descriptions.add("hltAcoFilter",desc);
 }
 
