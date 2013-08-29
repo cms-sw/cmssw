@@ -4,6 +4,7 @@
 
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
+#include "DataFormats/HLTReco/interface/TriggerEvent.h"
 
 #include<cstdio>
 #include<sstream>
@@ -143,10 +144,91 @@ namespace {
 
     std::vector<int> thresholds_;
   };
+
+
+  int getParameterSafe(const HLTConfigProvider& HLTCP, const std::string& filterName, const std::string& parameterName) {
+    const edm::ParameterSet& pset = HLTCP.modulePSet(filterName);
+    if(pset.existsAs<int>(parameterName))
+      return pset.getParameter<int>(parameterName);
+    else {
+      edm::LogWarning("HLTTauDQMOfflineSource") << "No parameter '" << parameterName << "' in configuration of filter " << filterName << " pset " << pset.dump() << std::endl;
+      return 0;
+    }
+  }
+
+  struct TauLeptonMultiplicity {
+    TauLeptonMultiplicity(): tau(0), lepton(0) {}
+    int tau;
+    int lepton;
+  };
+  TauLeptonMultiplicity inferTauLeptonMultiplicity(const HLTConfigProvider& HLTCP, const std::string& filterName, const std::string& moduleType) {
+    TauLeptonMultiplicity n;
+
+    if(moduleType == "HLTLevel1GTSeed") {
+      if(filterName.find("SingleMu") != std::string::npos) {
+        n.lepton = 1;
+      }
+      else if(filterName.find("SingleEG") != std::string::npos) {
+        n.lepton = 1;
+      }
+      else if(filterName.find("DoubleTau") != std::string::npos) {
+        n.tau = 2;
+      }
+    }
+    else if(moduleType == "HLT1CaloJet") {
+      //const edm::ParameterSet& pset = HLTCP.modulePSet(filterName);
+      //pset.getParameter<int>("triggerType") == trigger::TriggerTau) {
+      if(getParameterSafe(HLTCP, filterName, "triggerType") == trigger::TriggerTau) {
+        //n.tau = pset.getParameter<int>("MinN");
+        n.tau = getParameterSafe(HLTCP, filterName, "MinN");
+      }
+    }
+    else if(moduleType == "HLTCaloJetTag") {
+      //const edm::ParameterSet& pset = HLTCP.modulePSet(filterName);
+      //if(pset.getParameter<int>("triggerType") == trigger::TriggerTau) {
+      if(getParameterSafe(HLTCP, filterName, "TriggerType") == trigger::TriggerTau) {
+        //n.tau = pset.getParameter<int>("MinJets");
+        n.tau = getParameterSafe(HLTCP, filterName, "MinJets");
+      }
+    }
+    else if(moduleType == "HLT1PFTau") {
+      //n.tau = HLTCP.modulePSet(filterName).getParameter<int>("MinN");
+      n.tau = getParameterSafe(HLTCP, filterName, "MinN");
+    }
+    else if(moduleType == "HLTPFTauPairDzMatchFilter") {
+      n.tau = 2;
+    }
+    else if(moduleType == "HLTElectronGenericFilter") {
+      //n.lepton = HLTCP.modulePSet(filterName).getParameter<int>("ncandcut");
+      n.lepton = getParameterSafe(HLTCP, filterName, "ncandcut");
+    }
+    else if(moduleType == "HLTMuonIsoFilter") {
+      n.lepton = HLTCP.modulePSet(filterName).getParameter<int>("MinN");
+    }
+    else if(moduleType == "HLT2ElectronTau" || moduleType == "HLT2ElectronPFTau" ||
+            moduleType == "HLT2MuonPFTau") {
+      //int num = HLTCP.modulePSet(filterName).getParameter<int>("MinN");
+      int num = getParameterSafe(HLTCP, filterName, "MinN");
+      n.tau = num;
+      n.lepton = num;
+    }
+    else if(moduleType == "HLTPrescaler" || moduleType == "HLT1CaloMET") {
+      // ignore
+    }
+    else {
+      edm::LogWarning("HLTTauDQMOfflineSource") << "HLTTauDQMPath.cc, inferTauLeptonMultiplicity(): module type '" << moduleType << "' not recognized, filter '" << filterName << "' will be ignored for offline matching." << std::endl;
+    }
+
+    return n;
+  }
 }
 
 
-HLTTauDQMPath::HLTTauDQMPath(bool doRefAnalysis): doRefAnalysis_(doRefAnalysis), pathIndex_(0) {}
+HLTTauDQMPath::HLTTauDQMPath(const std::string& hltProcess, bool doRefAnalysis):
+  hltProcess_(hltProcess),
+  doRefAnalysis_(doRefAnalysis),
+  pathIndex_(0)
+{}
 HLTTauDQMPath::~HLTTauDQMPath() {}
 
 void HLTTauDQMPath::initialize(const edm::ParameterSet& pset) {
@@ -211,12 +293,31 @@ bool HLTTauDQMPath::beginRun(const HLTConfigProvider& HLTCP) {
   // Get the filters
   filterIndices_ = thePath->interestingFilters(HLTCP, doRefAnalysis_, ignoreFilterTypes_, ignoreFilterNames_);
   std::cout << "  Filters" << std::endl;
-  for(const FilterIndex& nameIndex: filterIndices_)
-    std::cout << "    " << std::get<1>(nameIndex) << " " << std::get<0>(nameIndex) << "  " << HLTCP.moduleType(std::get<0>(nameIndex)) << std::endl;
+  // Set the filter multiplicity counts
+  filterTauN_.clear();
+  filterLeptonN_.clear();
+  filterTauN_.reserve(filterIndices_.size());
+  filterLeptonN_.reserve(filterIndices_.size());
+  for(size_t i=0; i<filterIndices_.size(); ++i) {
+    const std::string& filterName = std::get<0>(filterIndices_[i]);
+    const std::string& moduleType = HLTCP.moduleType(filterName);
+
+    TauLeptonMultiplicity n = inferTauLeptonMultiplicity(HLTCP, filterName, moduleType);
+    filterTauN_.push_back(n.tau);
+    filterLeptonN_.push_back(n.lepton);
+
+    std::cout << "    " << std::get<1>(filterIndices_[i])
+              << " " << filterName
+              << " " << moduleType
+              << " ntau " << n.tau
+              << " nlep " << n.lepton
+              << std::endl;
+  }
 
   // Set path index
   pathName_ = thePath->name();
   pathIndex_ = HLTCP.triggerIndex(thePath->name());
+
 
   return true;
 }
@@ -243,4 +344,23 @@ int HLTTauDQMPath::lastPassedFilter(const edm::TriggerResults& triggerResults) c
     }
   }
   return lastPassedFilter;
+}
+
+void HLTTauDQMPath::getFilterObjects(const trigger::TriggerEvent& triggerEvent, size_t i, std::vector<Object>& retval) const {
+  trigger::size_type filterIndex = triggerEvent.filterIndex(edm::InputTag(getFilterName(i), "", hltProcess_));
+  if(filterIndex != triggerEvent.sizeFilters()) {
+    const trigger::Keys& keys = triggerEvent.filterKeys(filterIndex);
+    const trigger::Vids& ids = triggerEvent.filterIds(filterIndex);
+    const trigger::TriggerObjectCollection& triggerObjects = triggerEvent.getObjects();
+    //std::cout << "Filter name " << getFilterName(i) << std::endl;
+    for(size_t i=0; i<keys.size(); ++i) {
+      const trigger::TriggerObject& object = triggerObjects[keys[i]];
+      retval.emplace_back(Object{object, ids[i]});
+      //std::cout << "  object id " <<  object.id() << std::endl;
+    }
+  }
+}
+
+bool HLTTauDQMPath::offlineMatching(size_t i, const std::vector<Object>& triggerObjects, const std::map<int, LVColl>& offlineObjects, double dR) const {
+  return true;
 }
