@@ -6,6 +6,7 @@
  
 #include "Validation/EventGenerator/interface/DrellYanValidation.h"
 #include "Validation/EventGenerator/interface/HepMCValidationHelper.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "TLorentzVector.h"
 
 #include "CLHEP/Units/defs.h"
@@ -16,13 +17,15 @@
 using namespace edm;
 
 DrellYanValidation::DrellYanValidation(const edm::ParameterSet& iPSet): 
-  _wmanager(iPSet),
+  wmanager_(iPSet,consumesCollector()),
   hepmcCollection_(iPSet.getParameter<edm::InputTag>("hepmcCollection")),
   _flavor(iPSet.getParameter<int>("decaysTo")),
   _name(iPSet.getParameter<std::string>("name")) 
 {    
   dbe = 0;
   dbe = edm::Service<DQMStore>().operator->();
+
+  hepmcCollectionToken_=consumes<HepMCProduct>(hepmcCollection_);
 }
 
 DrellYanValidation::~DrellYanValidation() {}
@@ -79,12 +82,12 @@ void DrellYanValidation::analyze(const edm::Event& iEvent,const edm::EventSetup&
 
   ///Gathering the HepMCProduct information
   edm::Handle<HepMCProduct> evt;
-  iEvent.getByLabel(hepmcCollection_, evt);
+  iEvent.getByToken(hepmcCollectionToken_, evt);
 
   //Get EVENT
   const HepMC::GenEvent *myGenEvent = evt->GetEvent();
 
-  double weight = _wmanager.weight(iEvent);
+  double weight = wmanager_.weight(iEvent);
 
   //std::cout << "weight: " << weight << std::endl;
 

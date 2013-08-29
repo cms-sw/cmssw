@@ -18,7 +18,7 @@
 using namespace edm;
 
 TauValidation::TauValidation(const edm::ParameterSet& iPSet): 
-  _wmanager(iPSet)
+  wmanager_(iPSet,consumesCollector())
   ,hepmcCollection_(iPSet.getParameter<edm::InputTag>("hepmcCollection"))
   ,tauEtCut(iPSet.getParameter<double>("tauEtCutForRtau"))
   ,NJAKID(22)
@@ -28,6 +28,8 @@ TauValidation::TauValidation(const edm::ParameterSet& iPSet):
 {    
   dbe = 0;
   dbe = edm::Service<DQMStore>().operator->();
+
+  hepmcCollectionToken_=consumes<HepMCProduct>(hepmcCollection_);
 }
 
 TauValidation::~TauValidation() {}
@@ -159,22 +161,12 @@ void TauValidation::analyze(const edm::Event& iEvent,const edm::EventSetup& iSet
 { 
     ///Gathering the HepMCProduct information
   edm::Handle<HepMCProduct> evt;
-  iEvent.getByLabel(hepmcCollection_, evt);
+  iEvent.getByToken(hepmcCollectionToken_, evt);
 
   //Get EVENT
   HepMC::GenEvent *myGenEvent = new HepMC::GenEvent(*(evt->GetEvent()));
 
-  double weight = _wmanager.weight(iEvent);
-
-  //////////////////////////////////////////////
-  /*
-  edm::Handle<double> WT;
-  iEvent.getByLabel(edm::InputTag("TauSpinnerGen","TauSpinnerWT"),WT);
-  weight = 1.0;
-  if(*(WT.product())>1e-3 && *(WT.product())<=10.0) weight=(*(WT.product()));
-  else {weight=1.0;}
-  */
-  ///////////////////////////////////////////////
+  double weight =   wmanager_.weight(iEvent);
 
   // find taus
   for(HepMC::GenEvent::particle_const_iterator iter = myGenEvent->particles_begin(); iter != myGenEvent->particles_end(); iter++) {
