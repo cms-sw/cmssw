@@ -14,6 +14,7 @@ configured in the user's main() function, and is set running.
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/IEventProcessor.h"
+#include "FWCore/Framework/interface/InputSource.h"
 #include "FWCore/Framework/src/PrincipalCache.h"
 #include "FWCore/Framework/src/SignallingProductRegistry.h"
 #include "FWCore/Framework/src/PreallocationConfiguration.h"
@@ -368,6 +369,10 @@ namespace edm {
     bool                                          continueAfterChildFailure_;
     
     PreallocationConfiguration                    preallocations_;
+    
+    bool                                          asyncStopRequestedWhileProcessingEvents_;
+    InputSource::ItemType                         nextItemTypeFromProcessingEvents_;
+    StatusCode                                    asyncStopStatusCodeFromProcessingEvents_;
     
     typedef std::set<std::pair<std::string, std::string> > ExcludedData;
     typedef std::map<std::string, ExcludedData> ExcludedDataMap;

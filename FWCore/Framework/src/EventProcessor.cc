@@ -445,7 +445,10 @@ namespace edm {
     numberOfForkedChildren_(0),
     numberOfSequentialEventsPerChild_(1),
     setCpuAffinity_(false),
-    eventSetupDataToExcludeFromPrefetching_() {
+  asyncStopRequestedWhileProcessingEvents_(false),
+  nextItemTypeFromProcessingEvents_(InputSource::IsEvent),
+    eventSetupDataToExcludeFromPrefetching_()
+  {
     boost::shared_ptr<ParameterSet> parameterSet = PythonProcessDesc(config).parameterSet();
     boost::shared_ptr<ProcessDesc> processDesc(new ProcessDesc(parameterSet));
     processDesc->addServices(defaultServices, forcedServices);
@@ -496,7 +499,10 @@ namespace edm {
     numberOfForkedChildren_(0),
     numberOfSequentialEventsPerChild_(1),
     setCpuAffinity_(false),
-    eventSetupDataToExcludeFromPrefetching_() {
+    asyncStopRequestedWhileProcessingEvents_(false),
+    nextItemTypeFromProcessingEvents_(InputSource::IsEvent),
+    eventSetupDataToExcludeFromPrefetching_()
+  {
     init(processDesc, token, legacy);
   }
 
@@ -543,7 +549,10 @@ namespace edm {
     numberOfForkedChildren_(0),
     numberOfSequentialEventsPerChild_(1),
     setCpuAffinity_(false),
-    eventSetupDataToExcludeFromPrefetching_() {
+    asyncStopRequestedWhileProcessingEvents_(false),
+    nextItemTypeFromProcessingEvents_(InputSource::IsEvent),
+    eventSetupDataToExcludeFromPrefetching_()
+{
     if(isPython) {
       boost::shared_ptr<ParameterSet> parameterSet = PythonProcessDesc(config).parameterSet();
       boost::shared_ptr<ProcessDesc> processDesc(new ProcessDesc(parameterSet));
@@ -1711,6 +1720,7 @@ namespace edm {
     StateSentry toerror(this);
 
     StatusCode returnCode=epSuccess;
+    asyncStopStatusCodeFromProcessingEvents_=epSuccess;
     std::auto_ptr<statemachine::Machine> machine;
     {
       beginJob(); //make sure this was called
@@ -1724,6 +1734,8 @@ namespace edm {
       ServiceRegistry::Operate operate(serviceToken_);
 
       machine = createStateMachine();
+      nextItemTypeFromProcessingEvents_=InputSource::IsEvent;
+      asyncStopRequestedWhileProcessingEvents_=false;
       try {
         try {
           
@@ -1753,38 +1765,19 @@ namespace edm {
               break;
             }
             
-            //While all the following item type are isEvent, process them right here
-            if(itemType == InputSource::IsEvent and numberOfForkedChildren_ == 0) {
-              bool asyncStopRequested = false;
-              do {
-                readEvent(0);
-                processEvent(0);
-                if(shouldWeStop()) {
-                  break;
-                }
-                itemType = input_->nextItemType();
-                if((asyncStopRequested=checkForAsyncStopRequest(returnCode))) {
-                  break;
-                }
-              } while (itemType == InputSource::IsEvent);
-              if(asyncStopRequested) {
+            if(itemType == InputSource::IsEvent) {
+              machine->process_event(statemachine::Event());
+              if(asyncStopRequestedWhileProcessingEvents_) {
                 forceLooperToEnd_ = true;
                 machine->process_event(statemachine::Stop());
                 forceLooperToEnd_ = false;
+                returnCode = asyncStopStatusCodeFromProcessingEvents_;
                 break;
               }
+              itemType = nextItemTypeFromProcessingEvents_;
             }
             
             if(itemType == InputSource::IsEvent) {
-              if(numberOfForkedChildren_ > 0) {
-                machine->process_event(statemachine::Event());
-              } else {
-                //We broke out of the loop early so check
-                // to see if we signaled for a stop 
-                if(shouldWeStop()) {
-                  machine->process_event(statemachine::Stop());
-                }
-              }
             }
             else if(itemType == InputSource::IsStop) {
               machine->process_event(statemachine::Stop());
@@ -2237,8 +2230,28 @@ namespace edm {
   }
 
   void EventProcessor::readAndProcessEvent() {
-    readEvent(0);
-    processEvent(0);
+    if(numberOfForkedChildren_>0) {
+      readEvent(0);
+      processEvent(0);
+      return;
+    }
+    InputSource::ItemType itemType = InputSource::IsEvent;
+
+    //While all the following item types are isEvent, process them right here
+    asyncStopRequestedWhileProcessingEvents_ = false;
+    do {
+      readEvent(0);
+      processEvent(0);
+      
+      if(shouldWeStop()) {
+        break;
+      }
+      itemType = input_->nextItemType();
+      if((asyncStopRequestedWhileProcessingEvents_=checkForAsyncStopRequest(asyncStopStatusCodeFromProcessingEvents_))) {
+        break;
+      }
+    } while (itemType == InputSource::IsEvent);
+    nextItemTypeFromProcessingEvents_ = itemType;
   }
   void EventProcessor::readEvent(unsigned int iStreamIndex) {
     //TODO this will have to become per stream
