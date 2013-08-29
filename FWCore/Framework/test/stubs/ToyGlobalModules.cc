@@ -33,7 +33,7 @@ namespace global {
 	trans_(p.getParameter<int>("transitions")) {
     }
     const unsigned int trans_; 
-    mutable unsigned int m_count;
+    mutable std::atomic<unsigned int> m_count = 0;
 
     void produce(edm::StreamID, edm::Event&, edm::EventSetup const&) const override {
       ++m_count;
@@ -75,7 +75,7 @@ namespace global {
 	trans_(p.getParameter<int>("transitions")) {
     }
     const unsigned int trans_; 
-    mutable unsigned int m_count = 0;
+    mutable std::atomic<unsigned int> m_count = 0;
     void produce(edm::StreamID, edm::Event&, edm::EventSetup const&) const override {
       ++m_count;
     }
@@ -105,7 +105,7 @@ namespace global {
 	trans_(p.getParameter<int>("transitions")) {
     }
     const unsigned int trans_; 
-    mutable unsigned int m_count = 0;
+    mutable std::atomic<unsigned int> m_count = 0;
     void produce(edm::StreamID, edm::Event&, edm::EventSetup const&) const override {
       ++m_count;
     }
@@ -134,7 +134,7 @@ namespace global {
 	trans_(p.getParameter<int>("transitions")) {
     }
     const unsigned int trans_; 
-    mutable unsigned int m_count = 0;
+    mutable std::atomic<unsigned int> m_count = 0;
     void produce(edm::StreamID, edm::Event&, edm::EventSetup const&) const override {
       ++m_count;
     }
@@ -166,7 +166,7 @@ namespace global {
 	trans_(p.getParameter<int>("transitions")) {	
     }
     const unsigned int trans_; 
-    mutable unsigned int m_count = 0;
+    mutable std::atomic<unsigned int> m_count = 0;
     void produce(edm::StreamID, edm::Event&, edm::EventSetup const&) const override {
       ++m_count;
     }
@@ -199,7 +199,7 @@ namespace global {
 	trans_(p.getParameter<int>("transitions")) {
     }
     const unsigned int trans_; 
-    mutable unsigned int m_count = 0;
+    mutable std::atomic<unsigned int> m_count = 0;
     void analyze(edm::StreamID, const edm::Event&, const edm::EventSetup&) const override {
       ++m_count;
     }
@@ -240,7 +240,7 @@ namespace global {
 	trans_(p.getParameter<int>("transitions")) {
     }
     const unsigned int trans_; 
-    mutable unsigned int m_count = 0;
+    mutable std::atomic<unsigned int> m_count = 0;
     void analyze(edm::StreamID, const edm::Event&, const edm::EventSetup&) const override {
       ++m_count;
     }
@@ -270,7 +270,7 @@ namespace global {
 	trans_(p.getParameter<int>("transitions")) {
     }
     const unsigned int trans_; 
-    mutable unsigned int m_count = 0;
+    mutable std::atomic<unsigned int> m_count = 0;
     void analyze(edm::StreamID, const edm::Event&, const edm::EventSetup&) const override {
       ++m_count;
     }
@@ -299,7 +299,7 @@ namespace global {
 	trans_(p.getParameter<int>("transitions")) {
     }
     const unsigned int trans_; 
-    mutable unsigned int m_count = 0;
+    mutable std::atomic<unsigned int> m_count = 0;
     void analyze(edm::StreamID, const edm::Event&, const edm::EventSetup&) const override {
       ++m_count;
     }
@@ -332,7 +332,7 @@ namespace global {
 	trans_(p.getParameter<int>("transitions")) {	
     }
     const unsigned int trans_; 
-    mutable unsigned int m_count = 0;
+    mutable std::atomic<unsigned int> m_count = 0;
     void analyze(edm::StreamID, const edm::Event&, const edm::EventSetup&) const override {
       ++m_count;
     }
@@ -365,7 +365,7 @@ namespace global {
 	trans_(p.getParameter<int>("transitions")) {
     }
     const unsigned int trans_; 
-    mutable unsigned int m_count = 0;
+    mutable std::atomic<unsigned int> m_count = 0;
     bool filter(edm::StreamID, edm::Event&, edm::EventSetup const&) const override {
       ++m_count;
       return true;
@@ -407,7 +407,7 @@ namespace global {
 	trans_(p.getParameter<int>("transitions")) {
     }
     const unsigned int trans_; 
-    mutable unsigned int m_count = 0;
+    mutable std::atomic<unsigned int> m_count = 0;
     bool filter(edm::StreamID, edm::Event&, edm::EventSetup const&) const override {
       ++m_count;
       return true;
@@ -438,7 +438,7 @@ namespace global {
 	trans_(p.getParameter<int>("transitions")) {
     }
     const unsigned int trans_; 
-    mutable unsigned int m_count = 0;
+    mutable std::atomic<unsigned int> m_count = 0;
     bool filter(edm::StreamID, edm::Event&, edm::EventSetup const&) const override {
       ++m_count;
       return true;
@@ -468,7 +468,7 @@ namespace global {
 	trans_(p.getParameter<int>("transitions")) {
     }
     const unsigned int trans_; 
-    mutable unsigned int m_count = 0;
+    mutable std::atomic<unsigned int> m_count = 0;
     bool filter(edm::StreamID, edm::Event&, edm::EventSetup const&) const override {
       ++m_count;
       return true;
@@ -502,7 +502,7 @@ namespace global {
 	trans_(p.getParameter<int>("transitions")) {	
     }
     const unsigned int trans_; 
-    mutable unsigned int m_count = 0;
+    mutable std::atomic<unsigned int> m_count = 0;
     bool filter(edm::StreamID, edm::Event&, edm::EventSetup const&) const override {
       ++m_count;
       return true;
