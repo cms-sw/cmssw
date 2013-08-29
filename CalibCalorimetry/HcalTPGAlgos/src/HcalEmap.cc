@@ -10,7 +10,6 @@
 //
 // Original Author:  Gena Kukartsev, kukarzev@fnal.gov
 //         Created:  Tue Oct 14 14:30:20 CDT 2009
-// $Id: HcalEmap.cc,v 1.1 2009/04/14 22:49:05 kukartse Exp $
 //
 
 #include <stdio.h>

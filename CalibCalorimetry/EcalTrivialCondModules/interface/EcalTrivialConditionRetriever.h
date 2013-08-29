@@ -1,5 +1,4 @@
 //
-// $Id: EcalTrivialConditionRetriever.h,v 1.35 2013/03/11 09:47:58 fra Exp $
 // Created: 2 Mar 2006
 //          Shahram Rahatlou, University of Rome & INFN
 //

@@ -14,7 +14,6 @@
      <Notes on implementation>
 */
 //
-// $Id: ZeeCalibration.h,v 1.13 2010/02/16 22:47:45 wdd Exp $
 //
 //
 

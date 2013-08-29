@@ -2,8 +2,6 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date:  $
- *  $Revision:  $
  */
 
 #include "CalibMuon/DTCalibration/interface/DTRecHitSegmentResidual.h"

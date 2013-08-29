@@ -9,7 +9,6 @@
 //  Anton Anastassov (Northwestern)
 //  Email: aa@fnal.gov
 //
-// $Id: hcalCalib.h,v 1.5 2009/10/26 01:48:57 anastass Exp $
 //
 ///////////////////////////////////////////////////////////////
 

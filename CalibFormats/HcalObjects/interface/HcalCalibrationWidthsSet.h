@@ -7,8 +7,6 @@
 
 /** \class HcalCalibrationWidthsSet
   *  
-  * $Date: 2007/12/20 01:39:52 $
-  * $Revision: 1.1 $
   * \author R.Ofierzynski
   */
 class HcalCalibrationWidthsSet {

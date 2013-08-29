@@ -13,7 +13,6 @@
 //
 // Original Author:  Freya Blekman
 //         Created:  Wed Oct 31 15:28:52 CET 2007
-// $Id: SiPixelCalibDigiProducer.cc,v 1.17 2008/11/18 12:21:23 fblekman Exp $
 //
 //
 

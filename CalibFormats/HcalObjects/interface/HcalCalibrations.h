@@ -5,8 +5,6 @@
     
     Container for retrieved calibration constants for HCAL
    $Author: ratnikov
-   $Date: 2009/05/06 22:22:41 $
-   $Revision: 1.8 $
 */
 class HcalCalibrations {
  public:

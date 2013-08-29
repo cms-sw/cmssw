@@ -1,7 +1,5 @@
 /** \class DTTPAnalyzer
  *
- *  $Date: 2010/11/19 14:02:08 $
- *  $Revision: 1.2 $
  *  \author A. Vilela Pereira
  */
 

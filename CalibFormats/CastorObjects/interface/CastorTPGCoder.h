@@ -18,8 +18,6 @@ namespace edm {
   * Note : whether the coder produces E or ET is determined by the specific
   * implementation of the coder.
   *
-  * $Date: 2008/03/04 10:04:15 $
-  * $Revision: 1.1 $
   * \author J. Mans - Minnesota
   */
 class CastorTPGCoder {

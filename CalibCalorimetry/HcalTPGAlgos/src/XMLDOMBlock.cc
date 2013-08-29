@@ -8,7 +8,6 @@
 //
 // Original Author:  Gena Kukartsev
 //         Created:  Thu Sep 27 01:43:42 CEST 2007
-// $Id: XMLDOMBlock.cc,v 1.4 2009/10/25 21:19:45 kvtsang Exp $
 //
 
 // system include files

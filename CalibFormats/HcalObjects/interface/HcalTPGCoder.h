@@ -19,8 +19,6 @@ namespace edm {
   * Note : whether the coder produces E or ET is determined by the specific
   * implementation of the coder.
   *
-  * $Date: 2007/02/19 15:34:55 $
-  * $Revision: 1.5 $
   * \author J. Mans - Minnesota
   */
 class HcalTPGCoder {

@@ -5,8 +5,6 @@
     
     Container for retrieved calibration constants for HCAL
    $Author: ratnikov
-   $Date: 2009/05/19 16:06:08 $
-   $Revision: 1.6 $
 */
 
 HcalCalibrations::HcalCalibrations (const float fGain [4], const float fPedestal [4], 

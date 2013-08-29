@@ -1,6 +1,5 @@
 //
 // Original Author:  Fedor Ratnikov Oct 21, 2005
-// $Id: HcalHardcodeCalibrations.h,v 1.25 2013/04/23 15:41:27 abdullin Exp $
 //
 // ESSource to generate default HCAL calibration objects 
 //
