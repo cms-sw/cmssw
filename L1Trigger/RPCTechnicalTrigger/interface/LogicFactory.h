@@ -1,4 +1,3 @@
-// $Id: LogicFactory.h,v 1.1 2009/02/05 13:46:21 aosorio Exp $
 #ifndef LOGICFACTORY_H 
 #define LOGICFACTORY_H 1
 

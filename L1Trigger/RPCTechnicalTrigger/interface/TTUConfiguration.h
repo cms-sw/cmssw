@@ -1,4 +1,3 @@
-// $Id: TTUConfiguration.h,v 1.3 2009/08/19 15:04:01 aosorio Exp $
 #ifndef INTERFACE_TTUCONFIGURATION_H 
 #define INTERFACE_TTUCONFIGURATION_H 1
 

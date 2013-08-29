@@ -5,8 +5,6 @@
 //   Description:  GMT Merger
 //
 //
-//   $Date $
-//   $Revision $
 //
 //   Author :
 //   H. Sakulin                   HEPHY Vienna

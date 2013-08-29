@@ -11,7 +11,6 @@
 //
 // Original Author:  Gregory Heath
 //         Created:  Mon Mar 12 16:36:35 CET 2007
-// $Id: L1GctTest.h,v 1.11 2010/02/23 10:20:52 heath Exp $
 //
 //
 

@@ -12,8 +12,6 @@
  *
  * \author: Vasile Mihai Ghete - HEPHY Vienna
  *
- * $Date$
- * $Revision$
  *
  * The CMSSW implementation of the L1 Global Trigger emulator
  * uses concepts and code from the ORCA L1 Global Trigger simulation,

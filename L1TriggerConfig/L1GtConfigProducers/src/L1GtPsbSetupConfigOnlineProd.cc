@@ -10,8 +10,6 @@
  * \author: Vasile Mihai Ghete - HEPHY Vienna
  * \author: Thomas Themel      - HEPHY Vienna
  *
- * $Date$
- * $Revision$
  *
  */
 

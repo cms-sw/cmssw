@@ -7,7 +7,6 @@
 //
 //   Author List: S. Valuev, UCLA.
 //
-//   $Id: CSCTriggerPrimitivesProducer.cc,v 1.15.2.1 2012/05/16 00:31:23 khotilov Exp $
 //
 //   Modifications:
 //

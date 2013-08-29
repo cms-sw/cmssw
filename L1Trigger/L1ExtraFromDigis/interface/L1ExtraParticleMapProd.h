@@ -12,7 +12,6 @@
 //
 // Original Author:  
 //         Created:  Tue Oct 17 00:14:00 EDT 2006
-// $Id: L1ExtraParticleMapProd.h,v 1.10 2009/03/26 03:58:27 wsun Exp $
 //
 
 // system include files

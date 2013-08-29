@@ -12,8 +12,6 @@
  *   
  * \author: G.P. Di Giovanni - University of Florida
  * 
- * $Date$
- * $Revision$
  *
  */
 

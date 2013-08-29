@@ -19,7 +19,6 @@
 //                Porting from ORCA by S. Valuev (Slava.Valuev@cern.ch),
 //                May 2006.
 //
-//   $Id: CSCCathodeLCTProcessor.cc,v 1.44.2.6 2012/10/18 04:51:49 khotilov Exp $
 //
 //   Modifications: 
 //

@@ -5,8 +5,6 @@
 //   Description: DT/CSC cancel-out unit
 //
 //
-//   $Date: 2007/03/23 18:51:35 $
-//   $Revision: 1.3 $
 //
 //   Author :
 //   H. Sakulin                CERN EP 

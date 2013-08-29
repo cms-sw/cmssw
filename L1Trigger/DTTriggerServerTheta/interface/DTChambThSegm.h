@@ -5,8 +5,6 @@
  *   Muon Chamber Trigger Theta candidate 
  *
  *
- *   $Date: 2007/05/04 10:20:23 $
- *   $Revision: 1.4 $
  * 
  *   \author C. Grandi
  */
