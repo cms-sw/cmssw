@@ -9,19 +9,23 @@
 
 using namespace edm;
 
-WeightManager::WeightManager(const ParameterSet& iConfig):
+WeightManager::WeightManager(const ParameterSet& iConfig,edm::ConsumesCollector iC):
 _useHepMC(iConfig.getParameter<bool>("UseWeightFromHepMC"))
 {
-  if (_useHepMC)
+  if (_useHepMC){
     _hepmcCollection = iConfig.getParameter<InputTag>("hepmcCollection");
-  else  
+    hepmcCollectionToken_=iC.consumes<HepMCProduct>(_hepmcCollection);
+  }
+  else{
     _genEventInfos = iConfig.getParameter<std::vector<InputTag> >("genEventInfos");
+    for(unsigned int i=0; i<_genEventInfos.size();i++) genEventInfosTokens_.push_back(iC.consumes<std::vector<InputTag> >(_genEventInfos[i]));
+  }
 }
 
 double WeightManager::weight(const Event& iEvent){
   if (_useHepMC){
     edm::Handle<HepMCProduct> evt;
-    iEvent.getByLabel(_hepmcCollection, evt);
+    iEvent.getByToken(hepmcCollectionToken_, evt);
     const HepMC::GenEvent *myGenEvent = evt->GetEvent();
 
     double weight = 1.;
@@ -30,9 +34,9 @@ double WeightManager::weight(const Event& iEvent){
     return weight;
   } else {
     double weight = 1.;
-    for (unsigned int i = 0; i < _genEventInfos.size(); ++i){
+    for (unsigned int i = 0; i < genEventInfosTokens_.size(); ++i){
       edm::Handle<GenEventInfoProduct> info;
-      iEvent.getByLabel(_genEventInfos[i], info);
+      iEvent.getByToken(genEventInfosTokens_[i], info);
       weight *= info->weight();
     }
     return weight;
