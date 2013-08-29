@@ -51,6 +51,7 @@ PATMuonProducer::PATMuonProducer(const edm::ParameterSet & iConfig) : useUserDat
   muonSrc_ = iConfig.getParameter<edm::InputTag>( "muonSource" );
   // embedding of tracks
   embedBestTrack_ = iConfig.getParameter<bool>( "embedMuonBestTrack" );
+  embedImprovedBestTrack_ = iConfig.getParameter<bool>( "embedImprovedMuonBestTrack" );
   embedTrack_ = iConfig.getParameter<bool>( "embedTrack" );
   embedCombinedMuon_ = iConfig.getParameter<bool>( "embedCombinedMuon"   );
   embedStandAloneMuon_ = iConfig.getParameter<bool>( "embedStandAloneMuon" );
@@ -374,7 +375,8 @@ void PATMuonProducer::fillMuon( Muon& aMuon, const MuonBaseRef& muonRef, const r
   // as the pat::Muon momentum
   if (useParticleFlow_) 
     aMuon.setP4( aMuon.pfCandidateRef()->p4() );
-  if (embedBestTrack_)      aMuon.embedMuonBestTrack();
+  if (embedBestTrack_)         aMuon.embedMuonBestTrack();
+  if (embedImprovedBestTrack_) aMuon.embedImprovedMuonBestTrack();
   if (embedTrack_)          aMuon.embedTrack();
   if (embedStandAloneMuon_) aMuon.embedStandAloneMuon();
   if (embedCombinedMuon_)   aMuon.embedCombinedMuon();
@@ -449,6 +451,7 @@ void PATMuonProducer::fillDescriptions(edm::ConfigurationDescriptions & descript
 
   // embedding
   iDesc.add<bool>("embedMuonBestTrack", true)->setComment("embed muon best track");
+  iDesc.add<bool>("embedImprovedMuonBestTrack", true)->setComment("embed muon best track, new tuneP (only 53X)");
   iDesc.add<bool>("embedTrack", true)->setComment("embed external track");
   iDesc.add<bool>("embedStandAloneMuon", true)->setComment("embed external stand-alone muon");
   iDesc.add<bool>("embedCombinedMuon", false)->setComment("embed external combined muon");

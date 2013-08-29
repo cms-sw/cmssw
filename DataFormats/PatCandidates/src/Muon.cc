@@ -16,6 +16,8 @@ using namespace pat;
 /// default constructor
 Muon::Muon() :
     Lepton<reco::Muon>(),
+    embeddedMuonBestTrack_(false),
+    embeddedImprovedMuonBestTrack_(false),
     embeddedTrack_(false),
     embeddedStandAloneMuon_(false),
     embeddedCombinedMuon_(false),
@@ -40,6 +42,8 @@ Muon::Muon() :
 /// constructor from reco::Muon
 Muon::Muon(const reco::Muon & aMuon) :
     Lepton<reco::Muon>(aMuon),
+    embeddedMuonBestTrack_(false),
+    embeddedImprovedMuonBestTrack_(false),
     embeddedTrack_(false),
     embeddedStandAloneMuon_(false),
     embeddedCombinedMuon_(false),
@@ -64,6 +68,8 @@ Muon::Muon(const reco::Muon & aMuon) :
 /// constructor from ref to reco::Muon
 Muon::Muon(const edm::RefToBase<reco::Muon> & aMuonRef) :
     Lepton<reco::Muon>(aMuonRef),
+    embeddedMuonBestTrack_(false),
+    embeddedImprovedMuonBestTrack_(false),
     embeddedTrack_(false),
     embeddedStandAloneMuon_(false),
     embeddedCombinedMuon_(false),
@@ -88,6 +94,8 @@ Muon::Muon(const edm::RefToBase<reco::Muon> & aMuonRef) :
 /// constructor from ref to reco::Muon
 Muon::Muon(const edm::Ptr<reco::Muon> & aMuonRef) :
     Lepton<reco::Muon>(aMuonRef),
+    embeddedMuonBestTrack_(false),
+    embeddedImprovedMuonBestTrack_(false),
     embeddedTrack_(false),
     embeddedStandAloneMuon_(false),
     embeddedCombinedMuon_(false),
@@ -95,7 +103,7 @@ Muon::Muon(const edm::Ptr<reco::Muon> & aMuonRef) :
     embeddedCaloMETMuonCorrs_(false),
     embeddedPickyMuon_(false),
     embeddedTpfmsMuon_(false),
-    embeddedDytMuon_(false),
+    embeddedDytMuon_(false),    
     embeddedPFCandidate_(false),
     pfCandidateRef_(),
     cachedNormChi2_(false),
