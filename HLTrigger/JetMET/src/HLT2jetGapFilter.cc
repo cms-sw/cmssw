@@ -38,10 +38,10 @@ HLT2jetGapFilter::~HLT2jetGapFilter(){}
 void
 HLT2jetGapFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
+  makeHLTFilterDescription(desc);
   desc.add<edm::InputTag>("inputTag",edm::InputTag("iterativeCone5CaloJets"));
   desc.add<double>("minEt",90.0);
   desc.add<double>("minEta",1.9);
-  desc.add<bool>("saveTags",false);
   descriptions.add("hlt2jetGapFilter",desc);
 }
 

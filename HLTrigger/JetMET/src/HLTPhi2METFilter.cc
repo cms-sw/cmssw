@@ -38,9 +38,9 @@ HLTPhi2METFilter::~HLTPhi2METFilter(){}
 
 void HLTPhi2METFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
+  makeHLTFilterDescription(desc);
   desc.add<edm::InputTag>("inputJetTag",edm::InputTag("iterativeCone5CaloJets"));
   desc.add<edm::InputTag>("inputMETTag",edm::InputTag("hlt1MET60"));
-  desc.add<bool>("saveTags",false);
   desc.add<double>("minDeltaPhi",0.377);
   desc.add<double>("minEtJet2",60.);
   descriptions.add("hltPhi2METFilter",desc);

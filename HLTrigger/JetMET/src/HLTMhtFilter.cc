@@ -31,8 +31,8 @@ HLTMhtFilter::~HLTMhtFilter(){}
 
 void HLTMhtFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
+  makeHLTFilterDescription(desc);
   desc.add<edm::InputTag>("inputMhtTag",edm::InputTag("hltMht30"));
-  desc.add<bool>("saveTags",false);
   desc.add<double>("minMht",0.0);
   descriptions.add("hltMhtFilter",desc);
 }
