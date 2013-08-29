@@ -2,6 +2,7 @@
 #define DataFormats_SiStripDetId_PXFDetId_H
 
 #include <ostream>
+#include <iostream>
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
 
@@ -34,42 +35,72 @@ class PXFDetId : public DetId {
   }
   
   
-  /// positive or negative id
-  unsigned int side() const{
+  /// Side: positive or negative id
+  unsigned int side() const
+  {
     return int((id_>>sideStartBit_) & sideMask_);
   }
   
-  /// disk id
-  unsigned int disk() const{
+  /// Disk id
+  unsigned int disk() const
+  {
     return int((id_>>diskStartBit_) & diskMask_);
   }
   
-  /// blade id
+  /// Blade id **NP Changed to handle blade/ring ambiguity
   unsigned int blade() const
-    { return ((id_>>bladeStartBit_) & bladeMask_) ;}
-  
- /// panel id
-  unsigned int panel() const
-    { return ((id_>>panelStartBit_) & panelMask_) ;}
+  {
+    //if (this->disk() < 4) // For Phase2BE
+      return ((id_>>bladeStartBit_) & bladeMask_);
+    //else
+    //{
+    //  std::cerr << "W A R N I N G! Attempting to get PXF::blade() from Outer Tracker Endcap" << std::endl;
+    //  return 9999999;
+    //}
+  }
 
-  /// det id
+  /// Ring id **NP Phase 2 tracker mod
+  unsigned int ring() const
+  {
+    if (this->disk() > 3)
+      return ((id_>>bladeStartBit_) & bladeMask_);
+    else
+    {
+      std::cerr << "W A R N I N G! Attempting to get PXF::ring() from Outer Tracker Endcap" << std::endl;
+      return 9999999;
+    }
+  }
+
+
+  
+  /// Panel id
+  unsigned int panel() const
+  {
+    return ((id_>>panelStartBit_) & panelMask_);
+  }
+
+  /// Module id
   unsigned int module() const
-    { return ((id_>>moduleStartBit_) & moduleMask_) ;}
+  {
+    return ((id_>>moduleStartBit_) & moduleMask_);
+  }
   
  private:
   /// two bits would be enough, but  we could use the number "0" as a wildcard
   static const unsigned int sideStartBit_=   23;
-  static const unsigned int diskStartBit_=   16;
-  static const unsigned int bladeStartBit_=  10;
-  static const unsigned int panelStartBit_=  8;
+  static const unsigned int diskStartBit_=   18;//16;
+  static const unsigned int bladeStartBit_=  12;//10;
+  static const unsigned int panelStartBit_=  10;//8;
   static const unsigned int moduleStartBit_= 2;
+  static const unsigned int typeStartBit_ = 0;
   /// two bits would be enough, but  we could use the number "0" as a wildcard
-  
+
   static const unsigned int sideMask_=     0x3;
   static const unsigned int diskMask_=     0xF;
   static const unsigned int bladeMask_=    0x3F;
   static const unsigned int panelMask_=    0x3;
-  static const unsigned int moduleMask_=   0x3F;
+  static const unsigned int moduleMask_=   0xFF;//0x3F;
+  static const unsigned int typeMask_ = 0x3;
 };
 
 #endif

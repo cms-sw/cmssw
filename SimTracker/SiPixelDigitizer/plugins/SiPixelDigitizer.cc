@@ -122,7 +122,7 @@ namespace cms
   //
 
   void
-  SiPixelDigitizer::accumulatePixelHits(edm::Handle<std::vector<PSimHit> > hSimHits) {
+  SiPixelDigitizer::accumulatePixelHits(edm::Handle<std::vector<PSimHit> > hSimHits, const TrackerTopology *tTopo) {
     if(hSimHits.isValid()) {
        std::set<unsigned int> detIds;
        std::vector<PSimHit> const& simHits = *hSimHits.product();
@@ -137,7 +137,8 @@ namespace cms
              GlobalVector bfield = pSetup->inTesla(pixdet->surface().position());
              LogDebug ("PixelDigitizer ") << "B-field(T) at " << pixdet->surface().position() << "(cm): " 
                                           << pSetup->inTesla(pixdet->surface().position());
-             _pixeldigialgo->accumulateSimHits(it, itEnd, pixdet, bfield);
+
+             _pixeldigialgo->accumulateSimHits(it, itEnd, pixdet, bfield, tTopo);
            }
          }
        }
@@ -173,24 +174,33 @@ namespace cms
   void
   SiPixelDigitizer::accumulate(edm::Event const& iEvent, edm::EventSetup const& iSetup) {
     // Step A: Get Inputs
+    edm::ESHandle<TrackerTopology> tTopoHand;
+    iSetup.get<IdealGeometryRecord>().get(tTopoHand);
+    const TrackerTopology *tTopo=tTopoHand.product();
+
+
     for(vstring::const_iterator i = trackerContainers.begin(), iEnd = trackerContainers.end(); i != iEnd; ++i) {
       edm::Handle<std::vector<PSimHit> > simHits;
       edm::InputTag tag(hitsProducer, *i);
 
       iEvent.getByLabel(tag, simHits);
-      accumulatePixelHits(simHits);
+      accumulatePixelHits(simHits, tTopo);
     }
   }
 
   void
   SiPixelDigitizer::accumulate(PileUpEventPrincipal const& iEvent, edm::EventSetup const& iSetup) {
     // Step A: Get Inputs
+    edm::ESHandle<TrackerTopology> tTopoHand;
+    iSetup.get<IdealGeometryRecord>().get(tTopoHand);
+    const TrackerTopology *tTopo=tTopoHand.product();
+
     for(vstring::const_iterator i = trackerContainers.begin(), iEnd = trackerContainers.end(); i != iEnd; ++i) {
       edm::Handle<std::vector<PSimHit> > simHits;
       edm::InputTag tag(hitsProducer, *i);
 
       iEvent.getByLabel(tag, simHits);
-      accumulatePixelHits(simHits);
+      accumulatePixelHits(simHits,tTopo);
     }
   }
 

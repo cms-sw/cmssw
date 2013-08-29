@@ -7,6 +7,7 @@
 #include "DataFormats/DetId/interface/DetId.h"
 #include <vector>
 
+#include "Geometry/TrackerNumberingBuilder/plugins/TrackerStablePhiSort.h"
 
 void CmsTrackerPanelBuilder::buildComponent(DDFilteredView& fv, GeometricDet* g, std::string s){
 
@@ -24,8 +25,18 @@ void CmsTrackerPanelBuilder::buildComponent(DDFilteredView& fv, GeometricDet* g,
 void CmsTrackerPanelBuilder::sortNS(DDFilteredView& fv, GeometricDet* det){
  GeometricDet::GeometricDetContainer & comp = det->components();
 
- if (comp.front()->type()==GeometricDet::DetUnit) 
-   std::sort(comp.begin(),comp.end(),LessR()); 
+ if (comp.front()->type()==GeometricDet::DetUnit){ 
+
+   // NP** Phase 2 Sort Modules within Rings
+   if( fabs( comp[0]->translation().z() ) > 1000 ) {
+     //std::cerr<<"PHASE 2!!!"<<std::endl;
+     TrackerStablePhiSort(comp.begin(), comp.end(), ExtractPhi());
+     stable_sort(comp.begin(), comp.end() ,PhiSortNP());
+   }
+   else
+     // original one
+     std::sort(comp.begin(),comp.end(),LessR());
+ }
  else
    edm::LogError("CmsTrackerPanelBuilder")<<"ERROR - wrong SubDet to sort..... "<<det->components().front()->type(); 
 

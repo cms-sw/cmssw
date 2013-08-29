@@ -7,8 +7,12 @@
 //This code produces histograms to compare FastSim MatchedRecHits to FullSim RecHits.
 
 // Numbering scheme
-#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
+#include "DataFormats/SiPixelDetId/interface/PXFDetId.h"
+#include "DataFormats/SiStripDetId/interface/TIBDetId.h"
+#include "DataFormats/SiStripDetId/interface/TIDDetId.h"
+#include "DataFormats/SiStripDetId/interface/TOBDetId.h"
+#include "DataFormats/SiStripDetId/interface/TECDetId.h"
 
 #include "FastSimulation/TrackingRecHitProducer/test/GSRecHitValidation.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -121,7 +125,7 @@ void GSRecHitValidation::beginJob(){
     //Layers 1+2
     //all pixel
     //all glued -> rphi, sas and matched for all
-    if (i < 3) {
+    if (i < 4) {
       //PXB
       hMap["PXB_Res_x_"+index] =    new TH1F("PXB_Res_x_"+index,    "PXB_Res_x_"+index,    100,  -PXB_Res_AxisLim,    PXB_Res_AxisLim);
       hMap["PXB_Res_y_"+index] =    new TH1F("PXB_Res_y_"+index,    "PXB_Res_y_"+index,    100,  -PXB_Res_AxisLim,    PXB_Res_AxisLim);
@@ -201,10 +205,10 @@ void GSRecHitValidation::beginJob(){
       hMap["TEC_matched_Pull_y_"+index] = new TH1F("TEC_matched_Pull_y_"+index, "TEC_matched_Pull_y_"+index, 100, -TEC_Pull_y_AxisLim,    TEC_Pull_y_AxisLim);
     }
     
-    //Layer 3
+    //Layer 4
     //PXF gone, only PXB
     //rphi single sided for all
-    if(i==3){
+    if(i==4){
       //PXB
       hMap["PXB_Res_x_"+index] =    new TH1F("PXB_Res_x_"+index,    "PXB_Res_x_"+index,    100,  -PXB_Res_AxisLim,    PXB_Res_AxisLim);
       hMap["PXB_Res_y_"+index] =    new TH1F("PXB_Res_y_"+index,    "PXB_Res_y_"+index,    100,  -PXB_Res_AxisLim,    PXB_Res_AxisLim);
@@ -227,9 +231,9 @@ void GSRecHitValidation::beginJob(){
       hMap["TOB_rphi_Pull_x_"+index] =    new TH1F("TOB_rphi_Pull_x_"+index,    "TOB_rphi_Pull_x_"+index,    100, -TOB_Pull_x_AxisLim,    TOB_Pull_x_AxisLim);
       
       //TID
-      hMap["TID_rphi_Res_x_"+index] =     new TH1F("TID_rphi_Res_x_"+index,     "TID_rphi_Res_x_"+index,     100, -TID_Res_x_AxisLim,     TID_Res_x_AxisLim);
-      hMap["TID_rphi_Pos_x_"+index] =     new TH1F("TID_rphi_Pos_x_"+index,     "TID_rphi_Pos_x_"+index,     100, -TID_Pos_x_AxisLim,     TID_Pos_x_AxisLim);
-      hMap["TID_rphi_Pull_x_"+index] =    new TH1F("TID_rphi_Pull_x_"+index,    "TID_rphi_Pull_x_"+index,    100, -TID_Pull_x_AxisLim,    TID_Pull_x_AxisLim);
+      //      hMap["TID_rphi_Res_x_"+index] =     new TH1F("TID_rphi_Res_x_"+index,     "TID_rphi_Res_x_"+index,     100, -TID_Res_x_AxisLim,     TID_Res_x_AxisLim);
+      //     hMap["TID_rphi_Pos_x_"+index] =     new TH1F("TID_rphi_Pos_x_"+index,     "TID_rphi_Pos_x_"+index,     100, -TID_Pos_x_AxisLim,     TID_Pos_x_AxisLim);
+      //     hMap["TID_rphi_Pull_x_"+index] =    new TH1F("TID_rphi_Pull_x_"+index,    "TID_rphi_Pull_x_"+index,    100, -TID_Pull_x_AxisLim,    TID_Pull_x_AxisLim);
       
       //TEC
       hMap["TEC_rphi_Res_x_"+index] =     new TH1F("TEC_rphi_Res_x_"+index,     "TEC_rphi_Res_x_"+index,     100, -TEC_Res_x_AxisLim,     TEC_Res_x_AxisLim);
@@ -237,25 +241,25 @@ void GSRecHitValidation::beginJob(){
       hMap["TEC_rphi_Pull_x_"+index] =    new TH1F("TEC_rphi_Pull_x_"+index,    "TEC_rphi_Pull_x_"+index,    100, -TEC_Pull_x_AxisLim,    TEC_Pull_x_AxisLim);
     }
 
-    //Layer 4
-    //no pixels
-    //TID gone, other rphi single sided
-    if(i==4){
-      //TIB
-      hMap["TIB_rphi_Res_x_"+index] =     new TH1F("TIB_rphi_Res_x_"+index,     "TIB_rphi_Res_x_"+index,     100, -TIB_Res_x_AxisLim,     TIB_Res_x_AxisLim);
-      hMap["TIB_rphi_Pos_x_"+index] =     new TH1F("TIB_rphi_Pos_x_"+index,     "TIB_rphi_Pos_x_"+index,     100, -TIB_Pos_x_AxisLim,     TIB_Pos_x_AxisLim);
-      hMap["TIB_rphi_Pull_x_"+index] =    new TH1F("TIB_rphi_Pull_x_"+index,    "TIB_rphi_Pull_x_"+index,    100, -TIB_Pull_x_AxisLim,    TIB_Pull_x_AxisLim);
+ //    //Layer 5
+//     //no pixels
+//     //TID gone, other rphi single sided
+//     if(i==5){
+//       //TIB
+// //       hMap["TIB_rphi_Res_x_"+index] =     new TH1F("TIB_rphi_Res_x_"+index,     "TIB_rphi_Res_x_"+index,     100, -TIB_Res_x_AxisLim,     TIB_Res_x_AxisLim);
+// //       hMap["TIB_rphi_Pos_x_"+index] =     new TH1F("TIB_rphi_Pos_x_"+index,     "TIB_rphi_Pos_x_"+index,     100, -TIB_Pos_x_AxisLim,     TIB_Pos_x_AxisLim);
+// //       hMap["TIB_rphi_Pull_x_"+index] =    new TH1F("TIB_rphi_Pull_x_"+index,    "TIB_rphi_Pull_x_"+index,    100, -TIB_Pull_x_AxisLim,    TIB_Pull_x_AxisLim);
       
-      //TOB
-      hMap["TOB_rphi_Res_x_"+index] =     new TH1F("TOB_rphi_Res_x_"+index,     "TOB_rphi_Res_x_"+index,     100, -TOB_Res_x_AxisLim,     TOB_Res_x_AxisLim);
-      hMap["TOB_rphi_Pos_x_"+index] =     new TH1F("TOB_rphi_Pos_x_"+index,     "TOB_rphi_Pos_x_"+index,     100, -TOB_Pos_x_AxisLim,     TOB_Pos_x_AxisLim);
-      hMap["TOB_rphi_Pull_x_"+index] =    new TH1F("TOB_rphi_Pull_x_"+index,    "TOB_rphi_Pull_x_"+index,    100, -TOB_Pull_x_AxisLim,    TOB_Pull_x_AxisLim);
+//       //TOB
+//       hMap["TOB_rphi_Res_x_"+index] =     new TH1F("TOB_rphi_Res_x_"+index,     "TOB_rphi_Res_x_"+index,     100, -TOB_Res_x_AxisLim,     TOB_Res_x_AxisLim);
+//       hMap["TOB_rphi_Pos_x_"+index] =     new TH1F("TOB_rphi_Pos_x_"+index,     "TOB_rphi_Pos_x_"+index,     100, -TOB_Pos_x_AxisLim,     TOB_Pos_x_AxisLim);
+//       hMap["TOB_rphi_Pull_x_"+index] =    new TH1F("TOB_rphi_Pull_x_"+index,    "TOB_rphi_Pull_x_"+index,    100, -TOB_Pull_x_AxisLim,    TOB_Pull_x_AxisLim);
       
-      //TEC
-      hMap["TEC_rphi_Res_x_"+index] =     new TH1F("TEC_rphi_Res_x_"+index,     "TEC_rphi_Res_x_"+index,     100, -TEC_Res_x_AxisLim,     TEC_Res_x_AxisLim);
-      hMap["TEC_rphi_Pos_x_"+index] =     new TH1F("TEC_rphi_Pos_x_"+index,     "TEC_rphi_Pos_x_"+index,     100, -TEC_Pos_x_AxisLim,     TEC_Pos_x_AxisLim);
-      hMap["TEC_rphi_Pull_x_"+index] =    new TH1F("TEC_rphi_Pull_x_"+index,    "TEC_rphi_Pull_x_"+index,    100, -TEC_Pull_x_AxisLim,    TEC_Pull_x_AxisLim);
-    }
+//       //TEC
+//       hMap["TEC_rphi_Res_x_"+index] =     new TH1F("TEC_rphi_Res_x_"+index,     "TEC_rphi_Res_x_"+index,     100, -TEC_Res_x_AxisLim,     TEC_Res_x_AxisLim);
+//       hMap["TEC_rphi_Pos_x_"+index] =     new TH1F("TEC_rphi_Pos_x_"+index,     "TEC_rphi_Pos_x_"+index,     100, -TEC_Pos_x_AxisLim,     TEC_Pos_x_AxisLim);
+//       hMap["TEC_rphi_Pull_x_"+index] =    new TH1F("TEC_rphi_Pull_x_"+index,    "TEC_rphi_Pull_x_"+index,    100, -TEC_Pull_x_AxisLim,    TEC_Pull_x_AxisLim);
+//     }
     
     //Layer 5
     //no pixels
@@ -319,14 +323,8 @@ void GSRecHitValidation::analyze(const edm::Event& event, const edm::EventSetup&
   setup.get<TrackerDigiGeometryRecord>().get(theG);
   const TrackerGeometry &tracker(*theG);
   trackerG = &tracker;
-
-  //Retrieve tracker topology from geometry
-  edm::ESHandle<TrackerTopology> tTopoHand;
-  setup.get<IdealGeometryRecord>().get(tTopoHand);
-  const TrackerTopology *tTopo=tTopoHand.product();
-
   
-  std::cout << "Event ID = "<< event.id() << std::endl ;
+  //  std::cout << "Event ID = "<< event.id() << std::endl ;
   
   // Get PSimHit's of the Event
   edm::Handle<CrossingFrame<PSimHit> > cf_simhit; 
@@ -366,6 +364,9 @@ void GSRecHitValidation::analyze(const edm::Event& event, const edm::EventSetup&
     
     // count rechits
     unsigned int subdet = iterrechit->geographicalId().subdetId();
+
+    //    std::cout<< "Hit from track = " << (int)iterrechit->simtrackId() << "Subdet number = "<< subdet << std::endl;
+
     iTotalRecHits++;
     if(subdet==1 || subdet==2) iPixRecHits++;
     else if(subdet==3|| subdet==4 || subdet==5 || subdet == 6) iStripRecHits++;
@@ -384,19 +385,19 @@ void GSRecHitValidation::analyze(const edm::Event& event, const edm::EventSetup&
 	//mono
 	if(iterrechit->monoHit()->geographicalId().rawId() == isim->detUnitId()) {
 	  if((int)iterrechit->monoHit()->simtrackId() == (int)isim->trackId()) {
-	    cout << "Mono Hit." << endl;
+	    // cout << "Mono Hit." << endl;
 	    matchedSimHits++;
 	    simHit = const_cast<PSimHit*>(&(*isim));  
-	    fillHitsPlots("", &(*iterrechit), simHit,tTopo);
+	    fillHitsPlots("", &(*iterrechit), simHit);
 	  }
 	}
 	//stereo
 	if(iterrechit->stereoHit()->geographicalId().rawId() == isim->detUnitId()) {
 	  if((int)iterrechit->stereoHit()->simtrackId() == (int)isim->trackId()) {
-	    cout << "Stereo Hit." << endl;
+	    //  cout << "Stereo Hit." << endl;
 	    matchedSimHits++;
 	    simHit = const_cast<PSimHit*>(&(*isim));  
-	    fillHitsPlots("", &(*iterrechit), simHit,tTopo);
+	    fillHitsPlots("", &(*iterrechit), simHit);
 	  }
 	}
       }
@@ -404,10 +405,10 @@ void GSRecHitValidation::analyze(const edm::Event& event, const edm::EventSetup&
       //single
       else if(iterrechit->geographicalId().rawId() == isim->detUnitId()) { 
 	if((int)iterrechit->simtrackId()== (int) isim->trackId()) {
-	  cout << "Single Hit." << endl;
+	  //	  cout << "Single Hit." << endl;
 	  matchedSimHits++;
 	  simHit = const_cast<PSimHit*>(&(*isim));  
-	  fillHitsPlots("", &(*iterrechit), simHit,tTopo);
+	  fillHitsPlots("", &(*iterrechit), simHit);
 	}
       }
       
@@ -434,7 +435,7 @@ void GSRecHitValidation::analyze(const edm::Event& event, const edm::EventSetup&
 
 
 
-void GSRecHitValidation::fillHitsPlots(TString prefix, const SiTrackerGSMatchedRecHit2D *rechit, PSimHit *simhit, const TrackerTopology *tTopo){
+void GSRecHitValidation::fillHitsPlots(TString prefix, const SiTrackerGSMatchedRecHit2D *rechit, PSimHit *simhit){
   
   //For knowing whether rechit is mono, stereo or single.
   int isMono = 0;
@@ -571,8 +572,8 @@ void GSRecHitValidation::fillHitsPlots(TString prefix, const SiTrackerGSMatchedR
     
     // PXB
   case 1: {
-    
-    unsigned int theLayer = tTopo->pxbLayer(simhit->detUnitId());
+    PXBDetId module(simhit->detUnitId());
+    unsigned int theLayer = module.layer();
     TString layer = ""; layer+=theLayer;
     hMap[prefix+"PXB_RecPos_x_"+layer]->Fill(xRec);
     hMap[prefix+"PXB_RecPos_y_"+layer]->Fill(yRec);
@@ -588,8 +589,8 @@ void GSRecHitValidation::fillHitsPlots(TString prefix, const SiTrackerGSMatchedR
     
     //PXF
   case 2:    {
-    
-    unsigned int theDisk = tTopo->pxfDisk(simhit->detUnitId());
+    PXFDetId module(simhit->detUnitId());
+    unsigned int theDisk = module.disk();
     TString layer = ""; layer+=theDisk;
     hMap[prefix+"PXF_RecPos_x_"+layer]->Fill(xRec);
     hMap[prefix+"PXF_RecPos_y_"+layer]->Fill(yRec);
@@ -607,8 +608,8 @@ void GSRecHitValidation::fillHitsPlots(TString prefix, const SiTrackerGSMatchedR
     // TIB
   case 3:
     {
-      
-      unsigned int theLayer  = tTopo->tibLayer(simhit->detUnitId());
+      TIBDetId module(simhit->detUnitId());
+      unsigned int theLayer  = module.layer();
       TString layer=""; layer+=theLayer;
       if ((isMono == 1)||(isSingle==1)) {
 	hMap[prefix+"TIB_rphi_Pos_x_"+layer] ->Fill(xRec);
@@ -631,8 +632,8 @@ void GSRecHitValidation::fillHitsPlots(TString prefix, const SiTrackerGSMatchedR
     // TID
   case 4: 
     { 
-      
-      unsigned int theRing  = tTopo->tidRing(simhit->detUnitId());
+      TIDDetId module(simhit->detUnitId());
+      unsigned int theRing  = module.ring();
       TString ring=""; ring+=theRing;
       
       if ((isMono == 1)||(isSingle==1)) {
@@ -656,8 +657,8 @@ void GSRecHitValidation::fillHitsPlots(TString prefix, const SiTrackerGSMatchedR
     // TOB
   case 5:
     {
-      
-      unsigned int theLayer  = tTopo->tobLayer(simhit->detUnitId());
+      TOBDetId module(simhit->detUnitId());
+      unsigned int theLayer  = module.layer();
       TString layer=""; layer+=theLayer;
       
       if ((isMono == 1)||(isSingle==1)) {
@@ -681,8 +682,8 @@ void GSRecHitValidation::fillHitsPlots(TString prefix, const SiTrackerGSMatchedR
     // TEC
   case 6:
     {
-      
-      unsigned int theRing  = tTopo->tecRing(simhit->detUnitId());
+      TECDetId module(simhit->detUnitId());
+      unsigned int theRing  = module.ring();
       TString ring=""; ring+=theRing;
       
       if ((isMono == 1)||(isSingle==1)) {

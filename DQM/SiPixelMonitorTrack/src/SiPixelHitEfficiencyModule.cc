@@ -24,7 +24,9 @@
 
 // Data Formats
 #include "DataFormats/SiPixelDetId/interface/PixelBarrelName.h"
+#include "DataFormats/SiPixelDetId/interface/PixelBarrelNameUpgrade.h"
 #include "DataFormats/SiPixelDetId/interface/PixelEndcapName.h"
+#include "DataFormats/SiPixelDetId/interface/PixelEndcapNameUpgrade.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
@@ -49,14 +51,18 @@ SiPixelHitEfficiencyModule::~SiPixelHitEfficiencyModule() {
 }
 
 
-void SiPixelHitEfficiencyModule::book(const edm::ParameterSet& iConfig, int type) {
+void SiPixelHitEfficiencyModule::book(const edm::ParameterSet& iConfig, int type, bool isUpgrade) {
   DQMStore* dbe = edm::Service<DQMStore>().operator->();
 
   bool barrel = DetId(id_).subdetId() == static_cast<int>(PixelSubdetector::PixelBarrel);
   bool endcap = DetId(id_).subdetId() == static_cast<int>(PixelSubdetector::PixelEndcap);
   bool isHalfModule = false;
   if(barrel){
+    if (!isUpgrade) {
     isHalfModule = PixelBarrelName(DetId(id_)).isHalfModule(); 
+    } else if (isUpgrade) {
+      isHalfModule = PixelBarrelNameUpgrade(DetId(id_)).isHalfModule(); 
+    }
   }
 
   edm::InputTag src = iConfig.getParameter<edm::InputTag>("src");
@@ -140,7 +146,9 @@ void SiPixelHitEfficiencyModule::book(const edm::ParameterSet& iConfig, int type
   }
 
   if(type==1 && barrel){
-    uint32_t DBladder = PixelBarrelName(DetId(id_)).ladderName();
+    uint32_t DBladder;
+    if (!isUpgrade) { DBladder = PixelBarrelName(DetId(id_)).ladderName(); }
+    else if (isUpgrade) { DBladder = PixelBarrelNameUpgrade(DetId(id_)).ladderName(); }
     char sladder[80]; sprintf(sladder,"Ladder_%02i",DBladder);
     hisID = src.label() + "_" + sladder;
     if(isHalfModule) hisID += "H";
@@ -198,7 +206,9 @@ void SiPixelHitEfficiencyModule::book(const edm::ParameterSet& iConfig, int type
   }
   
   if(type==2 && barrel){
-    uint32_t DBlayer = PixelBarrelName(DetId(id_)).layerName();
+    uint32_t DBlayer;
+    if (!isUpgrade) { DBlayer = PixelBarrelName(DetId(id_)).layerName(); }
+    else if (isUpgrade) { DBlayer = PixelBarrelNameUpgrade(DetId(id_)).layerName(); }
     char slayer[80]; sprintf(slayer,"Layer_%i",DBlayer);
     hisID = src.label() + "_" + slayer;
 
@@ -255,7 +265,9 @@ void SiPixelHitEfficiencyModule::book(const edm::ParameterSet& iConfig, int type
   }
   
   if(type==3 && barrel){
-    uint32_t DBmodule = PixelBarrelName(DetId(id_)).moduleName();
+    uint32_t DBmodule;
+    if (!isUpgrade) { DBmodule = PixelBarrelName(DetId(id_)).moduleName(); }
+    else if (isUpgrade) { DBmodule = PixelBarrelNameUpgrade(DetId(id_)).moduleName(); }
     char smodule[80]; sprintf(smodule,"Ring_%i",DBmodule);
     hisID = src.label() + "_" + smodule;
     
@@ -311,7 +323,9 @@ void SiPixelHitEfficiencyModule::book(const edm::ParameterSet& iConfig, int type
   }
   
   if(type==4 && endcap){
-    uint32_t blade= PixelEndcapName(DetId(id_)).bladeName();
+    uint32_t blade;
+    if (!isUpgrade) { blade= PixelEndcapName(DetId(id_)).bladeName(); }
+    else if (isUpgrade) { blade= PixelEndcapNameUpgrade(DetId(id_)).bladeName(); }
     
     char sblade[80]; sprintf(sblade, "Blade_%02i",blade);
     hisID = src.label() + "_" + sblade;
@@ -368,7 +382,9 @@ void SiPixelHitEfficiencyModule::book(const edm::ParameterSet& iConfig, int type
   }
   
   if(type==5 && endcap){
-    uint32_t disk = PixelEndcapName(DetId(id_)).diskName();
+    uint32_t disk;
+    if (!isUpgrade) { disk = PixelEndcapName(DetId(id_)).diskName(); }
+    else if (isUpgrade) { disk = PixelEndcapNameUpgrade(DetId(id_)).diskName(); }
     
     char sdisk[80]; sprintf(sdisk, "Disk_%i",disk);
     hisID = src.label() + "_" + sdisk;
@@ -426,8 +442,16 @@ void SiPixelHitEfficiencyModule::book(const edm::ParameterSet& iConfig, int type
     
    
   if(type==6 && endcap){
-    uint32_t panel= PixelEndcapName(DetId(id_)).pannelName();
-    uint32_t module= PixelEndcapName(DetId(id_)).plaquetteName();
+    uint32_t panel;
+    uint32_t module;
+    if (!isUpgrade) {
+      panel= PixelEndcapName(DetId(id_)).pannelName();
+      module= PixelEndcapName(DetId(id_)).plaquetteName();
+    } else if (isUpgrade) {
+      panel= PixelEndcapNameUpgrade(DetId(id_)).pannelName();
+      module= PixelEndcapNameUpgrade(DetId(id_)).plaquetteName();
+    }
+    
     char slab[80]; sprintf(slab, "Panel_%i_Ring_%i",panel, module);
     hisID = src.label() + "_" + slab;
     

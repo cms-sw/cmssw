@@ -35,14 +35,14 @@ PixelBlade::PixelBlade(vector<const GeomDet*>& frontDets,
 			  << this->position().z() << " , "
 			  << this->position().perp() << " , "
 			  << theDiskSector->innerRadius() << " , "
-			  << theDiskSector->outerRadius() ;
+			  << theDiskSector->outerRadius();
 
   for(vector<const GeomDet*>::const_iterator it=theFrontDets.begin(); 
       it!=theFrontDets.end(); it++){
     LogDebug("TkDetLayers") << "frontDet phi,z,r: " 
 			    << (*it)->position().phi() << " , "
 			    << (*it)->position().z()   << " , "
-			    << (*it)->position().perp() ;;
+			    << (*it)->position().perp() ;
   }
 
   for(vector<const GeomDet*>::const_iterator it=theBackDets.begin(); 
@@ -50,7 +50,7 @@ PixelBlade::PixelBlade(vector<const GeomDet*>& frontDets,
     LogDebug("TkDetLayers") << "backDet phi,z,r: " 
 			    << (*it)->position().phi() << " , "
 			    << (*it)->position().z()   << " , "
-			    << (*it)->position().perp() ;
+			    << (*it)->position().perp();
   }
   //-----------------------------------
 
@@ -76,6 +76,9 @@ PixelBlade::groupedCompatibleDetsV( const TrajectoryStateOnSurface& tsos,
 					  const Propagator& prop,
 					   const MeasurementEstimator& est,
 					   std::vector<DetGroup> & result) const{
+
+
+
  SubLayerCrossings  crossings; 
   crossings = computeCrossings( tsos, prop.propagationDirection());
   if(! crossings.isValid()) return;
@@ -118,7 +121,6 @@ PixelBlade::computeCrossings( const TrajectoryStateOnSurface& startingState,
   HelixPlaneCrossing::PositionType startPos( startingState.globalPosition());
   HelixPlaneCrossing::DirectionType startDir( startingState.globalMomentum());
   double rho( startingState.transverseCurvature());
-
   HelixArbitraryPlaneCrossing crossing( startPos, startDir, rho, propDir);
 
   pair<bool,double> innerPath = crossing.pathLength( *theFrontDiskSector);
@@ -128,9 +130,13 @@ PixelBlade::computeCrossings( const TrajectoryStateOnSurface& startingState,
   //Code for use of binfinder
   //int innerIndex = theInnerBinFinder.binIndex(gInnerPoint.perp());  
   //float innerDist = fabs( theInnerBinFinder.binPosition(innerIndex) - gInnerPoint.z());
-  int innerIndex = findBin(gInnerPoint.perp(),0);
+
+  //  int innerIndex = findBin(gInnerPoint.perp(),0);
+  int innerIndex = findBin2(gInnerPoint,0);
+
   float innerDist = fabs( findPosition(innerIndex,0).perp() - gInnerPoint.perp());
   SubLayerCrossing innerSLC( 0, innerIndex, gInnerPoint);
+
 
   pair<bool,double> outerPath = crossing.pathLength( *theBackDiskSector);
   if (!outerPath.first) return SubLayerCrossings();
@@ -139,7 +145,9 @@ PixelBlade::computeCrossings( const TrajectoryStateOnSurface& startingState,
   //Code for use of binfinder
   //int outerIndex = theOuterBinFinder.binIndex(gOuterPoint.perp());
   //float outerDist = fabs( theOuterBinFinder.binPosition(outerIndex) - gOuterPoint.perp());
-  int outerIndex  = findBin(gOuterPoint.perp(),1);
+  //  int outerIndex  = findBin(gOuterPoint.perp(),1);
+  int outerIndex  = findBin2(gOuterPoint,1);
+
   float outerDist = fabs( findPosition(outerIndex,1).perp() - gOuterPoint.perp());
   SubLayerCrossing outerSLC( 1, outerIndex, gOuterPoint);
 
@@ -163,6 +171,7 @@ PixelBlade::addClosest( const TrajectoryStateOnSurface& tsos,
 {
 
   const vector<const GeomDet*>& sBlade( subBlade( crossing.subLayerIndex()));
+
   return CompatibleDetToGroupAdder().add( *sBlade[crossing.closestDetIndex()], 
 					  tsos, prop, est, result);
 }
@@ -248,6 +257,7 @@ PixelBlade::findBin( float R,int diskSectorIndex) const
 {
   vector<const GeomDet*> localDets = diskSectorIndex==0 ? theFrontDets : theBackDets;
   
+
   int theBin = 0;
   float rDiff = fabs( R - localDets.front()->surface().position().perp());;
   for (vector<const GeomDet*>::const_iterator i=localDets.begin(); i !=localDets.end(); i++){
@@ -256,6 +266,29 @@ PixelBlade::findBin( float R,int diskSectorIndex) const
       rDiff = testDiff;
       theBin = i - localDets.begin();
     }
+  }
+  return theBin;
+}
+
+int 
+PixelBlade::findBin2( GlobalPoint thispoint,int diskSectorIndex) const 
+{
+  vector<const GeomDet*> localDets = diskSectorIndex==0 ? theFrontDets : theBackDets;
+  
+
+
+  int theBin = 0;
+  int i_index=0;
+  float sDiff = (thispoint - localDets.front()->surface().position()).mag();
+
+  for (vector<const GeomDet*>::const_iterator i=localDets.begin(); i !=localDets.end(); i++){
+    float testDiff = ( thispoint - (**i).surface().position()).mag();
+    
+    if ( testDiff < sDiff) {
+      sDiff = testDiff;
+      theBin = i - localDets.begin();
+    }
+    i_index++;
   }
   return theBin;
 }

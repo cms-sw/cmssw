@@ -40,7 +40,7 @@ class SiPixelRawDataErrorModule {
   typedef edm::DetSet<SiPixelRawDataError>::const_iterator    ErrorIterator;
 
   /// Book histograms
-  void book(const edm::ParameterSet& iConfig, int type=0);
+  void book(const edm::ParameterSet& iConfig, int type=0, bool isUpgrade=false);
   /// Book FED histograms
   void bookFED(const edm::ParameterSet& iConfig);
   /// Fill histograms
