@@ -60,6 +60,9 @@ class TauSpinnerCMS : public edm::EDProducer
   int MotherPDGID_,Ipol_,nonSM2_,nonSMN_;
   static bool isTauSpinnerConfigure;
 
+  edm::EDGetTokenT<HepMCProduct> EvtHandleToken_;
+  edm::EDGetTokenT<reco::GenParticleCollection> gensrcToken_;
+
   // Additional funtionms for Reco (not provided by Tauola/TauSpinner authors)
   int readParticlesfromReco(edm::Event& e,SimpleParticle &X,SimpleParticle &tau,SimpleParticle &tau2,
 			    std::vector<SimpleParticle> &tau_daughters,std::vector<SimpleParticle> &tau2_daughters);
@@ -67,5 +70,6 @@ class TauSpinnerCMS : public edm::EDProducer
   void GetRecoDaughters(const reco::GenParticle *Particle,std::vector<SimpleParticle> &daughters,int parentpdgid);
   bool isFirst(const reco::GenParticle *Particle);
   double roundOff_;
+
 }; 
 #endif
