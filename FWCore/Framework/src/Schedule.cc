@@ -374,14 +374,19 @@ namespace edm {
       std::copy(modulesToUse.begin(),itBeginUnscheduled,std::back_inserter(temp));
       temp.swap(modulesToUse);
     }
-    globalSchedule_.reset( new GlobalSchedule{ moduleRegistry_,
+    globalSchedule_.reset( new GlobalSchedule{ resultsInserter_.get(),
+      moduleRegistry_,
       modulesToUse,
       proc_pset, preg,
       actions,areg,processConfiguration,processContext });
     
+    //TriggerResults is not in the top level ParameterSet so the call to
+    // reduceParameterSet would fail to find it. Just remove it up front.
     std::set<std::string> usedModuleLabels;
     for( auto const worker: allWorkers()) {
-      usedModuleLabels.insert(worker->description().moduleLabel());
+      if(worker->description().moduleLabel() != kTriggerResults) {
+        usedModuleLabels.insert(worker->description().moduleLabel());
+      }
     }
     std::vector<std::string> modulesInConfig(proc_pset.getParameter<std::vector<std::string> >("@all_modules"));
     std::map<std::string, std::vector<std::pair<std::string, int> > > outputModulePathPositions;

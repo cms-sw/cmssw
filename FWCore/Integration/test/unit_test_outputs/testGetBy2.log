@@ -26,6 +26,8 @@ Module type=IntProducer, Module label=intProducer, Parameter Set ID=0e62dace196e
 Module type=IntProducer, Module label=intProducer, Parameter Set ID=0e62dace196ea2e10cdd947af547d0ea
 ++ ModuleBeginJob: out
 ++ ModuleBeginJob finished: out
+++ ModuleBeginJob: TriggerResults
+++ ModuleBeginJob finished: TriggerResults
 ++ Job started
 ++++ ModuleBeginStream: intProducer
 StreamContext: StreamID = 0 transition = BeginStream
@@ -82,6 +84,8 @@ ModuleCallingContext state = Running
     ProcessContext: PROD2 c301df4e8d1235b0ad4e7c2cf9431532
 ++++++ ModuleGlobalBeginRun: out
 ++++++ ModuleGlobalBeginRun finished: out
+++++++ ModuleGlobalBeginRun: TriggerResults
+++++++ ModuleGlobalBeginRun finished: TriggerResults
 ++++ GlobalBeginRun finished
 GlobalContext: transition = BeginRun
     run: 1 luminosityBlock: 0
@@ -160,6 +164,8 @@ ModuleCallingContext state = Running
     ProcessContext: PROD2 c301df4e8d1235b0ad4e7c2cf9431532
 ++++++ ModuleGlobalBeginLumi: out
 ++++++ ModuleGlobalBeginLumi finished: out
+++++++ ModuleGlobalBeginLumi: TriggerResults
+++++++ ModuleGlobalBeginLumi finished: TriggerResults
 ++++ GlobalBeginLumi finished
 GlobalContext: transition = BeginLuminosityBlock
     run: 1 luminosityBlock: 1
@@ -533,6 +539,8 @@ ModuleCallingContext state = Running
     ProcessContext: PROD2 c301df4e8d1235b0ad4e7c2cf9431532
 ++++++ ModuleGlobalEndLumi: out
 ++++++ ModuleGlobalEndLumi finished: out
+++++++ ModuleGlobalEndLumi: TriggerResults
+++++++ ModuleGlobalEndLumi finished: TriggerResults
 ++++ GlobalEndLumi finished
 GlobalContext: transition = EndLuminosityBlock
     run: 1 luminosityBlock: 1
@@ -609,6 +617,8 @@ ModuleCallingContext state = Running
     ProcessContext: PROD2 c301df4e8d1235b0ad4e7c2cf9431532
 ++++++ ModuleGlobalEndRun: out
 ++++++ ModuleGlobalEndRun finished: out
+++++++ ModuleGlobalEndRun: TriggerResults
+++++++ ModuleGlobalEndRun finished: TriggerResults
 ++++ GlobalEndRun finished
 GlobalContext: transition = EndRun
     run: 1 luminosityBlock: 0
@@ -646,4 +656,6 @@ Module type=IntProducer, Module label=intProducer, Parameter Set ID=0e62dace196e
 Module type=IntProducer, Module label=intProducer, Parameter Set ID=0e62dace196ea2e10cdd947af547d0ea
 ++ ModuleEndJob: out
 ++ ModuleEndJob finished: out
+++ ModuleEndJob: TriggerResults
+++ ModuleEndJob finished: TriggerResults
 ++ Job ended
