@@ -32,4 +32,7 @@
 <library   file="BeamSpotFromDB.cc" name="BeamSpotFromDB">
   <flags   EDM_PLUGIN="1"/>
 </library>
+<library   file="BeamSpotFromSimProducer.cc" name="BeamSpotFromSimProducer">
+  <flags   EDM_PLUGIN="1"/>
+</library>
 
