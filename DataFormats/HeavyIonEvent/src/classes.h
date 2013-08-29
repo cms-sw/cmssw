@@ -1,6 +1,7 @@
 #include "DataFormats/HeavyIonEvent/interface/Centrality.h"
 #include "DataFormats/HeavyIonEvent/interface/EvtPlane.h"
 #include "DataFormats/HeavyIonEvent/interface/HeavyIon.h"
+#include "DataFormats/HeavyIonEvent/interface/VoronoiBackground.h"
 #include "DataFormats/Common/interface/Wrapper.h"
 
 namespace { 
@@ -17,6 +18,12 @@ namespace {
 
      reco::EvtPlaneCollection evcol;
      edm::Wrapper<reco::EvtPlaneCollection> wevcol;
+
+     reco::VoronoiBackground vor;
+     edm::Wrapper<reco::VoronoiBackground> wvor;
+
+     reco::VoronoiMap pfvorvmap;
+     edm::Wrapper<reco::VoronoiMap> pfwvorvmap;
 
      edm::Wrapper<pat::HeavyIon >              w_v_p_hi;
 
