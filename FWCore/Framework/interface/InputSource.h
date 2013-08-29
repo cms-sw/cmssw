@@ -108,10 +108,10 @@ namespace edm {
 
     /// Read next event
     /// Indicate inability to get a new event by returning a null ptr.
-    EventPrincipal* readEvent(EventPrincipal& ep, StreamContext *);
+    void readEvent(EventPrincipal& ep, StreamContext *);
 
     /// Read a specific event
-    EventPrincipal* readEvent(EventPrincipal& ep, EventID const&, StreamContext *);
+    bool readEvent(EventPrincipal& ep, EventID const&, StreamContext *);
 
     /// Read next luminosity block Auxilary
     boost::shared_ptr<LuminosityBlockAuxiliary> readLuminosityBlockAuxiliary();
@@ -120,13 +120,13 @@ namespace edm {
     boost::shared_ptr<RunAuxiliary> readRunAuxiliary();
 
     /// Read next run (new run)
-    boost::shared_ptr<RunPrincipal> readAndCacheRun(HistoryAppender& historyAppender);
+    void readRun(boost::shared_ptr<RunPrincipal> runPrincipal, HistoryAppender& historyAppender);
 
     /// Read next run (same as a prior run)
     void readAndMergeRun(boost::shared_ptr<RunPrincipal> rp);
 
     /// Read next luminosity block (new lumi)
-    boost::shared_ptr<LuminosityBlockPrincipal> readAndCacheLumi(HistoryAppender& historyAppender);
+    void readLuminosityBlock(boost::shared_ptr<LuminosityBlockPrincipal> lumiPrincipal, HistoryAppender& historyAppender);
 
     /// Read next luminosity block (same as a prior lumi)
     void readAndMergeLumi(boost::shared_ptr<LuminosityBlockPrincipal> lbp);
@@ -375,11 +375,10 @@ namespace edm {
     ItemType nextItemType_();
     virtual boost::shared_ptr<RunAuxiliary> readRunAuxiliary_() = 0;
     virtual boost::shared_ptr<LuminosityBlockAuxiliary> readLuminosityBlockAuxiliary_() = 0;
-    virtual boost::shared_ptr<RunPrincipal> readRun_(boost::shared_ptr<RunPrincipal> runPrincipal);
-    virtual boost::shared_ptr<LuminosityBlockPrincipal> readLuminosityBlock_(
-        boost::shared_ptr<LuminosityBlockPrincipal> lumiPrincipal);
-    virtual EventPrincipal* readEvent_(EventPrincipal& eventPrincipal) = 0;
-    virtual EventPrincipal* readIt(EventID const&, EventPrincipal& eventPrincipal);
+    virtual void readRun_(boost::shared_ptr<RunPrincipal> runPrincipal);
+    virtual void readLuminosityBlock_(boost::shared_ptr<LuminosityBlockPrincipal> lumiPrincipal);
+    virtual void readEvent_(EventPrincipal& eventPrincipal) = 0;
+    virtual bool readIt(EventID const&, EventPrincipal& eventPrincipal);
     virtual std::unique_ptr<FileBlock> readFile_();
     virtual void closeFile_() {}
     virtual bool goToEvent_(EventID const& eventID);

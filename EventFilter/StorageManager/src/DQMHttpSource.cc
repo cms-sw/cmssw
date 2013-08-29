@@ -61,16 +61,14 @@ namespace edm
     return true;
   }
 
-  EventPrincipal* DQMHttpSource::read(EventPrincipal& eventPrincipal)
+  void DQMHttpSource::read(EventPrincipal& eventPrincipal)
   {
     // make a fake event principal containing no data but the evId and runId from DQMEvent
     // and the time stamp from the event at update
-    EventPrincipal* e = makeEvent(
+    makeEvent(
       eventPrincipal,
       eventAuxiliary()
     );
-
-    return e;
   }
 
   

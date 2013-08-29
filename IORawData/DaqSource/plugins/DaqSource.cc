@@ -589,7 +589,7 @@ namespace edm {
     return luminosityBlockAuxiliary();
   }
 
-  EventPrincipal*
+  void
   DaqSource::readEvent_(EventPrincipal& eventPrincipal) {
     //    std::cout << "assert not newRun " << std::endl;
     assert(!newRun());
@@ -628,7 +628,6 @@ namespace edm {
     // The commit is needed to complete the "put" transaction.
     e.commit_();
 */
-    return &eventPrincipal;
   }
 
   void
@@ -638,7 +637,7 @@ namespace edm {
         << "Contact a Framework developer.\n";
   }
 
-  EventPrincipal*
+  bool
   DaqSource::readIt(EventID const&) {
       throw edm::Exception(errors::LogicError,"DaqSource::readIt(EventID const& eventID)")
         << "Random access read cannot be used for DaqSource.\n"

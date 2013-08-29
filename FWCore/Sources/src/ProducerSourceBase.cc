@@ -56,7 +56,7 @@ namespace edm {
     return boost::shared_ptr<LuminosityBlockAuxiliary>(new LuminosityBlockAuxiliary(eventID_.run(), eventID_.luminosityBlock(), ts, Timestamp::invalidTimestamp()));
   }
 
-  EventPrincipal *
+  void
   ProducerSourceBase::readEvent_(EventPrincipal& eventPrincipal) {
     assert(eventCached() || processingMode() != RunsLumisAndEvents);
     EventSourceSentry sentry(*this);
@@ -66,7 +66,6 @@ namespace edm {
     produce(e);
     e.commit_();
     resetEventCached();
-    return &eventPrincipal;
   }
 
   void

@@ -44,11 +44,11 @@ namespace edm {
     RootInputFileSequence& operator=(RootInputFileSequence const&) = delete; // Disallow copying and moving
 
     typedef boost::shared_ptr<RootFile> RootFileSharedPtr;
-    EventPrincipal* readEvent(EventPrincipal& cache);
+    void readEvent(EventPrincipal& cache);
     boost::shared_ptr<LuminosityBlockAuxiliary> readLuminosityBlockAuxiliary_();
-    boost::shared_ptr<LuminosityBlockPrincipal> readLuminosityBlock_(boost::shared_ptr<LuminosityBlockPrincipal> lumiPrincipal);
+    void readLuminosityBlock_(boost::shared_ptr<LuminosityBlockPrincipal> lumiPrincipal);
     boost::shared_ptr<RunAuxiliary> readRunAuxiliary_();
-    boost::shared_ptr<RunPrincipal> readRun_(boost::shared_ptr<RunPrincipal> runPrincipal);
+    void readRun_(boost::shared_ptr<RunPrincipal> runPrincipal);
     std::unique_ptr<FileBlock> readFile_();
     void closeFile_();
     void endJob();
@@ -58,11 +58,11 @@ namespace edm {
     bool skipToItem(RunNumber_t run, LuminosityBlockNumber_t lumi, EventNumber_t event, bool currentFileFirst = true);
     bool skipToItemInNewFile(RunNumber_t run, LuminosityBlockNumber_t lumi, EventNumber_t event);
     void rewind_();
-    EventPrincipal* readOneRandom(EventPrincipal& cache);
-    EventPrincipal* readOneRandomWithID(EventPrincipal& cache, LuminosityBlockID const& id);
-    EventPrincipal* readOneSequential(EventPrincipal& cache);
-    EventPrincipal* readOneSequentialWithID(EventPrincipal& cache, LuminosityBlockID const& id);
-    EventPrincipal* readOneSpecified(EventPrincipal& cache, EventID const& id);
+    void readOneRandom(EventPrincipal& cache);
+    bool readOneRandomWithID(EventPrincipal& cache, LuminosityBlockID const& id);
+    bool readOneSequential(EventPrincipal& cache);
+    bool readOneSequentialWithID(EventPrincipal& cache, LuminosityBlockID const& id);
+    void readOneSpecified(EventPrincipal& cache, EventID const& id);
 
     void dropUnwantedBranches_(std::vector<std::string> const& wantedBranches);
     boost::shared_ptr<ProductRegistry const> fileProductRegistry() const;
