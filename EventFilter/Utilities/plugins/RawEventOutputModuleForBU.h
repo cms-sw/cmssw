@@ -5,6 +5,7 @@
 #include "FWCore/Framework/interface/OutputModule.h"
 #include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/ServiceRegistry/interface/ModuleCallingContext.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "DataFormats/FEDRawData/interface/FEDRawData.h"
@@ -31,11 +32,11 @@ class RawEventOutputModuleForBU : public edm::OutputModule
   ~RawEventOutputModuleForBU();
 
  private:
-  virtual void write(edm::EventPrincipal const& e);
+  virtual void write(edm::EventPrincipal const& e, edm::ModuleCallingContext const*);
   virtual void beginRun(edm::RunPrincipal const&);
   virtual void endRun(edm::RunPrincipal const&);
-  virtual void writeRun(const edm::RunPrincipal&){}
-  virtual void writeLuminosityBlock(const edm::LuminosityBlockPrincipal&){}
+  virtual void writeRun(const edm::RunPrincipal&, edm::ModuleCallingContext const*){}
+  virtual void writeLuminosityBlock(const edm::LuminosityBlockPrincipal&, edm::ModuleCallingContext const*){}
 
   virtual void beginLuminosityBlock(edm::LuminosityBlockPrincipal const&);
   virtual void endLuminosityBlock(edm::LuminosityBlockPrincipal const&);
@@ -73,7 +74,8 @@ template <class Consumer>
 RawEventOutputModuleForBU<Consumer>::~RawEventOutputModuleForBU() {}
 
 template <class Consumer>
-void RawEventOutputModuleForBU<Consumer>::write(edm::EventPrincipal const& e) {
+void RawEventOutputModuleForBU<Consumer>::write(edm::EventPrincipal const& e, edm::ModuleCallingContext const *mcc)
+{
 
   unsigned int ls = e.luminosityBlock();
   totevents++;
@@ -85,7 +87,7 @@ void RawEventOutputModuleForBU<Consumer>::write(edm::EventPrincipal const& e) {
   }
   // serialize the FEDRawDataCollection into the format that we expect for
   // FRDEventMsgView objects (may be better ways to do this)
-  edm::Event event(const_cast<edm::EventPrincipal&>(e), description());
+  edm::Event event(const_cast<edm::EventPrincipal&>(e), description(),mcc);
   edm::Handle<FEDRawDataCollection> fedBuffers;
   event.getByLabel(label_, instance_, fedBuffers);
 

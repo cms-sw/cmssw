@@ -10,15 +10,11 @@
 #include <vector>
 #include <string>
 
-namespace xgi{
-  class Input;
-  class Output;
-}
 
 #include <string>
 
 namespace evf{
-    class ExceptionGenerator : public edm::EDAnalyzer, public evf::ModuleWeb
+    class ExceptionGenerator : public edm::EDAnalyzer
     {
     public:
       static const int menu_items = 14;
@@ -31,10 +27,6 @@ namespace evf{
       void analyze(const edm::Event & e, const edm::EventSetup& c);
       void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&);
 
-      void defaultWebPage(xgi::Input *in, xgi::Output *out); 
-      void publish(xdata::InfoSpace *);
-      virtual void publishForkInfo(moduleweb::ForkInfoObj *forkInfoObj);
-      
     private:
       int actionId_;
       unsigned int intqualifier_;
