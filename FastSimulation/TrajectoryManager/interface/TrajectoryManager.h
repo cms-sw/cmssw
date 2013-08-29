@@ -41,7 +41,7 @@ class TrackerInteractionGeometry;
 class TrackerLayer;
 class ParticlePropagator;
 class FSimEvent;
-//class Histos;
+class Histos;
 class RandomEngine;
 class TrajectoryStateOnSurface;
 class DetLayer;
@@ -51,7 +51,6 @@ class MagneticField;
 class MagneticFieldMap;
 class GeometricSearchTracker;
 class TrackerGeometry;
-class TrackerTopology;
 
 namespace edm { 
   class ParameterSet;
@@ -78,13 +77,13 @@ class TrajectoryManager
   ~TrajectoryManager();
   
   /// Does the real job
-  void reconstruct(const TrackerTopology *tTopo);
+  void reconstruct();
 
   /// Create a vector of PSimHits 
   void createPSimHits(const TrackerLayer& layer,
 		      const ParticlePropagator& P_before,
 		      std::map<double,PSimHit>& theHitMap,
-		      int trackID, int partID, const TrackerTopology *tTopo);
+		      int trackID, int partID);
 
 /// Propagate the particle through the calorimeters
   void propagateToCalorimeters(ParticlePropagator& PP, 
@@ -128,11 +127,11 @@ class TrajectoryManager
   /// and there
   void makePSimHits( const GeomDet* det, const TrajectoryStateOnSurface& ts,
 		     std::map<double,PSimHit>& theHitMap,
-		     int tkID, float el, float thick, int pID, const TrackerTopology *tTopo);
+		     int tkID, float el, float thick, int pID);
   /// and there
   std::pair<double,PSimHit> makeSinglePSimHit( const GeomDetUnit& det,
 					       const TrajectoryStateOnSurface& ts, 
-					       int tkID, float el, float thick, int pID, const TrackerTopology *tTopo) const;
+					       int tkID, float el, float thick, int pID) const;
 
   /// Returns the DetLayer pointer corresponding to the FAMOS layer 
   const DetLayer* detLayer( const TrackerLayer& layer, float zpos) const;
@@ -159,11 +158,9 @@ class TrajectoryManager
   std::vector<const DetLayer*>                theLayerMap;
   int                                         theNegLayerOffset;
 
-  //  Histos* myHistos;
+  Histos* myHistos;
 
   const RandomEngine* random;
-
-  bool use_hardcoded;
 
 };
 #endif
