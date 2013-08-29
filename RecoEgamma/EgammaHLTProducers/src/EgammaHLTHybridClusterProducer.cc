@@ -45,8 +45,8 @@ EgammaHLTHybridClusterProducer::EgammaHLTHybridClusterProducer(const edm::Parame
 
   basicclusterCollection_ = ps.getParameter<std::string>("basicclusterCollection");
   superclusterCollection_ = ps.getParameter<std::string>("superclusterCollection");
-  hitproducer_ = ps.getParameter<edm::InputTag>("ecalhitproducer");
-  hitcollection_ =ps.getParameter<std::string>("ecalhitcollection");
+  hitcollection_ = ps.getParameter<edm::InputTag>("ecalhitcollection");
+  hittoken_ = consumes<EcalRecHitCollection>(hitcollection_);
   
   // L1 matching parameters
   l1TagIsolated_    = consumes<l1extra::L1EmParticleCollection>(ps.getParameter< edm::InputTag > ("l1TagIsolated"));
@@ -116,9 +116,9 @@ void EgammaHLTHybridClusterProducer::produce(edm::Event& evt, const edm::EventSe
 {
   // get the hit collection from the event:
   edm::Handle<EcalRecHitCollection> rhcHandle;
-  //  evt.getByType(rhcHandle);
-  evt.getByLabel(hitproducer_.label(), hitcollection_, rhcHandle);
-  if (!(rhcHandle.isValid())) 
+  evt.getByToken(hittoken_, rhcHandle);
+  
+  if (!(rhcHandle.isValid()))  
     {
       edm::LogError("ProductNotFound")<< "could not get a handle on the EcalRecHitCollection!" << std::endl;
       return;
@@ -140,13 +140,13 @@ void EgammaHLTHybridClusterProducer::produce(edm::Event& evt, const edm::EventSe
   es.get<EcalSeverityLevelAlgoRcd>().get(sevlv);
   const EcalSeverityLevelAlgo* sevLevel = sevlv.product();
  
-  if(hitcollection_ == "EcalRecHitsEB") {
+  if(hitcollection_.instance() == "EcalRecHitsEB") {
     geometry_p = geometry.getSubdetectorGeometry(DetId::Ecal, EcalBarrel);
     topology.reset(new EcalBarrelTopology(geoHandle));
-  } else if(hitcollection_ == "EcalRecHitsEE") {
+  } else if(hitcollection_.instance() == "EcalRecHitsEE") {
     geometry_p = geometry.getSubdetectorGeometry(DetId::Ecal, EcalEndcap);
     topology.reset(new EcalEndcapTopology(geoHandle));
-  } else if(hitcollection_ == "EcalRecHitsPS") {
+  } else if(hitcollection_.instance() == "EcalRecHitsPS") {
     geometry_p = geometry.getSubdetectorGeometry(DetId::Ecal, EcalPreshower);
     topology.reset(new EcalPreshowerTopology (geoHandle));
   } else throw(std::runtime_error("\n\nHybrid Cluster Producer encountered invalied ecalhitcollection type.\n\n"));

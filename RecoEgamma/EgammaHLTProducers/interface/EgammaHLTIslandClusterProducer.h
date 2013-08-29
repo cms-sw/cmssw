@@ -34,10 +34,10 @@ class EgammaHLTIslandClusterProducer : public edm::EDProducer {
   bool doEndcaps_;
   bool doIsolated_;
   
-  edm::InputTag barrelHitProducer_;
-  edm::InputTag endcapHitProducer_;
-  std::string barrelHitCollection_;
-  std::string endcapHitCollection_;
+  edm::InputTag barrelHitCollection_;
+  edm::InputTag endcapHitCollection_;
+  edm::EDGetTokenT<EcalRecHitCollection> barrelHitToken_;
+  edm::EDGetTokenT<EcalRecHitCollection> endcapHitToken_;
   
   std::string barrelClusterCollection_;
   std::string endcapClusterCollection_;
@@ -57,13 +57,11 @@ class EgammaHLTIslandClusterProducer : public edm::EDProducer {
   bool counterExceeded() const { return ((nEvt_ > nMaxPrintout_) || (nMaxPrintout_ < 0)); }
   
   const EcalRecHitCollection * getCollection(edm::Event& evt,
-					     const std::string& hitProducer_,
-					     const std::string& hitCollection_);
+					     edm::EDGetTokenT<EcalRecHitCollection>& hitToken);
   
   
   void clusterizeECALPart(edm::Event &evt, const edm::EventSetup &es,
-			  const std::string& hitProducer,
-			  const std::string& hitCollection,
+			  edm::EDGetTokenT<EcalRecHitCollection>& hitToken,
 			  const std::string& clusterCollection,
 			  const std::vector<EcalEtaPhiRegion>& regions,
 			  const IslandClusterAlgo::EcalPart& ecalPart);

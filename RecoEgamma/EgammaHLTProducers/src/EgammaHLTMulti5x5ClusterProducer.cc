@@ -40,10 +40,10 @@ EgammaHLTMulti5x5ClusterProducer::EgammaHLTMulti5x5ClusterProducer(const edm::Pa
   doIsolated_ = ps.getParameter<bool>("doIsolated");
   
   // Parameters to identify the hit collections
-  barrelHitProducer_   = ps.getParameter<edm::InputTag>("barrelHitProducer");
-  endcapHitProducer_   = ps.getParameter<edm::InputTag>("endcapHitProducer");
-  barrelHitCollection_ = ps.getParameter<std::string>("barrelHitCollection");
-  endcapHitCollection_ = ps.getParameter<std::string>("endcapHitCollection");
+  barrelHitCollection_   = ps.getParameter<edm::InputTag>("barrelHitProducer");
+  endcapHitCollection_   = ps.getParameter<edm::InputTag>("endcapHitProducer");
+  barrelHitToken_ = consumes<EcalRecHitCollection>( barrelHitCollection_);
+  endcapHitToken_ = consumes<EcalRecHitCollection>( endcapHitCollection_);
 
   // The names of the produced cluster collections
   barrelClusterCollection_  = ps.getParameter<std::string>("barrelClusterCollection");
@@ -203,32 +203,26 @@ void EgammaHLTMulti5x5ClusterProducer::produce(edm::Event& evt, const edm::Event
   }
 
 
-  if (doEndcaps_ 
-      //&&endcapRegions.size()!=0
-      ) {
-
-    clusterizeECALPart(evt, es, endcapHitProducer_.label(), endcapHitCollection_, endcapClusterCollection_, endcapRegions, reco::CaloID::DET_ECAL_ENDCAP);//old
-   }
-  if (doBarrel_ 
-      //&& barrelRegions.size()!=0
-      ) {
-    clusterizeECALPart(evt, es, barrelHitProducer_.label(), barrelHitCollection_, barrelClusterCollection_, barrelRegions, reco::CaloID::DET_ECAL_BARREL);//old
- 
+  if (doEndcaps_) {
+    clusterizeECALPart(evt, es, endcapHitToken_, endcapClusterCollection_, endcapRegions, reco::CaloID::DET_ECAL_ENDCAP);
+  }
+  if (doBarrel_) {
+    clusterizeECALPart(evt, es, barrelHitToken_, barrelClusterCollection_, barrelRegions, reco::CaloID::DET_ECAL_BARREL);
   }
   nEvt_++;
 }
 
 
 const EcalRecHitCollection * EgammaHLTMulti5x5ClusterProducer::getCollection(edm::Event& evt,
-									     const std::string& hitProducer_,
-									     const std::string& hitCollection_) {
+									     edm::EDGetTokenT<EcalRecHitCollection>& hitToken) {
+
   edm::Handle<EcalRecHitCollection> rhcHandle;
-  evt.getByLabel(hitProducer_, hitCollection_, rhcHandle);
+  evt.getByToken(hitToken, rhcHandle);
   
   if (!(rhcHandle.isValid())) 
     {
       std::cout << "could not get a handle on the EcalRecHitCollection!" << std::endl;
-      edm::LogError("EgammaHLTMulti5x5ClusterProducerError") << "Error! can't get the product " << hitCollection_.c_str() ;
+      edm::LogError("EgammaHLTMulti5x5ClusterProducerError") << "Error! can't get the product ";
       return 0;
     } 
   return rhcHandle.product();
@@ -236,14 +230,13 @@ const EcalRecHitCollection * EgammaHLTMulti5x5ClusterProducer::getCollection(edm
 
 
 void EgammaHLTMulti5x5ClusterProducer::clusterizeECALPart(edm::Event &evt, const edm::EventSetup &es,
-							  const std::string& hitProducer,
-							  const std::string& hitCollection,
+							  edm::EDGetTokenT<EcalRecHitCollection>& hitToken,
 							  const std::string& clusterCollection,
 							  const std::vector<EcalEtaPhiRegion>& regions,
 							  const reco::CaloID::Detectors detector) {
 
   // get the hit collection from the event:
-  const EcalRecHitCollection *hitCollection_p = getCollection(evt, hitProducer, hitCollection);
+  const EcalRecHitCollection *hitCollection_p = getCollection(evt, hitToken);
 
   // get the geometry and topology from the event setup:
   edm::ESHandle<CaloGeometry> geoHandle;

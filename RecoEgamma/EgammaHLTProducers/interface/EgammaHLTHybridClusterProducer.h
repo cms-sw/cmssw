@@ -28,11 +28,11 @@ class EgammaHLTHybridClusterProducer : public edm::EDProducer  {
   
   bool doIsolated_;
   
-  std::string  basicclusterCollection_;
+  std::string basicclusterCollection_;
   std::string superclusterCollection_;
-  edm::InputTag hitproducer_;
-  std::string hitcollection_;
-  
+  edm::EDGetTokenT<EcalRecHitCollection> hittoken_;
+  edm::InputTag hitcollection_;
+
   edm::EDGetTokenT<l1extra::L1EmParticleCollection> l1TagIsolated_;
   edm::EDGetTokenT<l1extra::L1EmParticleCollection> l1TagNonIsolated_;
   //edm::InputTag l1Tag_;

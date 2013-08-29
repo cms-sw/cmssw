@@ -73,7 +73,8 @@ EcalListOfFEDSProducer::EcalListOfFEDSProducer(const edm::ParameterSet& pset) {
  
  TheMapping = new EcalElectronicsMapping();
  first_ = true;
- 
+
+ consumesMany<EcalListOfFEDS>();
  produces<EcalListOfFEDS>(OutputLabel_);
 }
 

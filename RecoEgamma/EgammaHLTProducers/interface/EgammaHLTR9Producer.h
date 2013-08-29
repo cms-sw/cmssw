@@ -28,6 +28,9 @@
 #include "DataFormats/RecoCandidate/interface/RecoEcalCandidate.h"
 #include "DataFormats/RecoCandidate/interface/RecoEcalCandidateFwd.h"
 
+#include "DataFormats/EcalRecHit/interface/EcalRecHit.h"
+#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
+
 class EgammaHLTR9Producer : public edm::EDProducer {
    public:
       explicit EgammaHLTR9Producer(const edm::ParameterSet&);
@@ -41,6 +44,8 @@ class EgammaHLTR9Producer : public edm::EDProducer {
   edm::EDGetTokenT<reco::RecoEcalCandidateCollection> recoEcalCandidateProducer_;
   edm::InputTag ecalRechitEBTag_;
   edm::InputTag ecalRechitEETag_;
+  edm::EDGetTokenT<EcalRecHitCollection> ecalRechitEBToken_;
+  edm::EDGetTokenT<EcalRecHitCollection> ecalRechitEEToken_;
   bool useSwissCross_;
   
   edm::ParameterSet conf_;

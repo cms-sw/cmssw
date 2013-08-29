@@ -76,6 +76,7 @@ ESListOfFEDSProducer::ESListOfFEDSProducer(const edm::ParameterSet& pset) {
   
   TheESMapping = new ESElectronicsMapper(pset);
   
+  consumesMany<ESListOfFEDS>();
   produces<ESListOfFEDS>(OutputLabel_);
 }
 

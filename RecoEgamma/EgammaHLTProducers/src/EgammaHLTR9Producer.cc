@@ -18,24 +18,26 @@ EgammaHLTR9Producer::EgammaHLTR9Producer(const edm::ParameterSet& config) : conf
   recoEcalCandidateProducer_ = consumes<reco::RecoEcalCandidateCollection>(conf_.getParameter<edm::InputTag>("recoEcalCandidateProducer"));
   ecalRechitEBTag_ = conf_.getParameter< edm::InputTag > ("ecalRechitEB");
   ecalRechitEETag_ = conf_.getParameter< edm::InputTag > ("ecalRechitEE");
+  ecalRechitEBToken_ = consumes<EcalRecHitCollection>(ecalRechitEBTag_);
+  ecalRechitEEToken_ = consumes<EcalRecHitCollection>(ecalRechitEETag_);
+
   useSwissCross_   = conf_.getParameter< bool > ("useSwissCross");
+
   //register your products
   produces < reco::RecoEcalCandidateIsolationMap >();
 }
 
-EgammaHLTR9Producer::~EgammaHLTR9Producer(){}
-
+EgammaHLTR9Producer::~EgammaHLTR9Producer()
+{}
 
 // ------------ method called to produce the data  ------------
-void
-EgammaHLTR9Producer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
-{
+void EgammaHLTR9Producer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   
   // Get the HLT filtered objects
   edm::Handle<reco::RecoEcalCandidateCollection> recoecalcandHandle;
   iEvent.getByToken(recoEcalCandidateProducer_,recoecalcandHandle);
 
-  EcalClusterLazyTools lazyTools( iEvent, iSetup, ecalRechitEBTag_, ecalRechitEETag_ );
+  EcalClusterLazyTools lazyTools(iEvent, iSetup, ecalRechitEBTag_, ecalRechitEETag_);
   
   reco::RecoEcalCandidateIsolationMap r9Map;
    
@@ -47,7 +49,7 @@ EgammaHLTR9Producer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
     if (useSwissCross_){
       edm::Handle< EcalRecHitCollection > pEBRecHits;
-      iEvent.getByLabel( ecalRechitEBTag_, pEBRecHits );
+      iEvent.getByToken(ecalRechitEBToken_, pEBRecHits);
       r9 = -1;
     }
     else{
