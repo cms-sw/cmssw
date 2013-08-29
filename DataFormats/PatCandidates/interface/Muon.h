@@ -52,9 +52,6 @@ namespace pat {
 
     public:
 
-    //enum TunePType{defaultTuneP, improvedTuneP};
-
-
       /// default constructor
       Muon();
       /// constructor from a reco muon
