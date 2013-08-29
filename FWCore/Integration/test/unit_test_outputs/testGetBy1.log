@@ -40,6 +40,8 @@ Module type=IntProducer, Module label=intProducerA, Parameter Set ID=38971365e81
 ++ ModuleBeginJob finished: a3
 ++ ModuleBeginJob: out
 ++ ModuleBeginJob finished: out
+++ ModuleBeginJob: TriggerResults
+++ ModuleBeginJob finished: TriggerResults
 ++ Job started
 ++++ ModuleBeginStream: intProducer
 ++++ ModuleBeginStream finished
@@ -112,6 +114,8 @@ ModuleCallingContext state = Running
 ++++++ ModuleGlobalBeginRun finished: a3
 ++++++ ModuleGlobalBeginRun: out
 ++++++ ModuleGlobalBeginRun finished: out
+++++++ ModuleGlobalBeginRun: TriggerResults
+++++++ ModuleGlobalBeginRun finished: TriggerResults
 ++++ GlobalBeginRun finished
 GlobalContext: transition = BeginRun
     run: 1 luminosityBlock: 0
@@ -230,6 +234,8 @@ ModuleCallingContext state = Running
 ++++++ ModuleGlobalBeginLumi finished: a3
 ++++++ ModuleGlobalBeginLumi: out
 ++++++ ModuleGlobalBeginLumi finished: out
+++++++ ModuleGlobalBeginLumi: TriggerResults
+++++++ ModuleGlobalBeginLumi finished: TriggerResults
 ++++ GlobalBeginLumi finished
 GlobalContext: transition = BeginLuminosityBlock
     run: 1 luminosityBlock: 1
@@ -736,6 +742,8 @@ ModuleCallingContext state = Running
 ++++++ ModuleGlobalEndLumi finished: a3
 ++++++ ModuleGlobalEndLumi: out
 ++++++ ModuleGlobalEndLumi finished: out
+++++++ ModuleGlobalEndLumi: TriggerResults
+++++++ ModuleGlobalEndLumi finished: TriggerResults
 ++++ GlobalEndLumi finished
 GlobalContext: transition = EndLuminosityBlock
     run: 1 luminosityBlock: 1
@@ -852,6 +860,8 @@ ModuleCallingContext state = Running
 ++++++ ModuleGlobalEndRun finished: a3
 ++++++ ModuleGlobalEndRun: out
 ++++++ ModuleGlobalEndRun finished: out
+++++++ ModuleGlobalEndRun: TriggerResults
+++++++ ModuleGlobalEndRun finished: TriggerResults
 ++++ GlobalEndRun finished
 GlobalContext: transition = EndRun
     run: 1 luminosityBlock: 0
@@ -918,4 +928,6 @@ TestFindProduct sum = 300
 ++ ModuleEndJob finished: a3
 ++ ModuleEndJob: out
 ++ ModuleEndJob finished: out
+++ ModuleEndJob: TriggerResults
+++ ModuleEndJob finished: TriggerResults
 ++ Job ended
