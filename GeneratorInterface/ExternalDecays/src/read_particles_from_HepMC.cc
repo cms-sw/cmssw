@@ -1,4 +1,5 @@
 #include "GeneratorInterface/ExternalDecays/interface/read_particles_from_HepMC.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 /*******************************************************************************
   Get daughters of HepMC::GenParticle
@@ -118,7 +119,8 @@ int readParticlesFromHepMC(const HepMC::GenEvent *event, SimpleParticle &X, Simp
           else if(!hTau2) hTau2 = *it2;
           else
           {
-	    std::cout<<"TauSpiner: three taus in one decay"<<std::endl;
+	    edm::LogInfo("TauSpinnerCMSSW::read_particles_from_HepMC") << "TauSpiner: three taus in one decay" << std::endl;
+	    //std::cout<<"TauSpiner: three taus in one decay"<<std::endl;
             return 1;
           }
         }
@@ -127,7 +129,9 @@ int readParticlesFromHepMC(const HepMC::GenEvent *event, SimpleParticle &X, Simp
           if(!hTau2) hTau2 = *it2;
           else
           {
-            std::cout<<"TauSpiner: two neutrinos or two taus and neutrino in one decay"<<std::endl; 
+	    edm::LogInfo("TauSpinnerCMSSW::read_particles_from_HepMC") << "TauSpiner: two neutrinos or two taus and neutrino in one decay" 
+								       << std::endl;
+            //std::cout<<"TauSpiner: two neutrinos or two taus and neutrino in one decay"<<std::endl; 
             return 1;
           }
         }
@@ -141,6 +145,7 @@ int readParticlesFromHepMC(const HepMC::GenEvent *event, SimpleParticle &X, Simp
 
   if(!hTau || !hTau2)
   {
+    //edm::LogInfo("TauSpinnerCMSSW::read_particles_from_HepMC") << "TauSpiner: boson found but no proper tau pair or tau + neutrino found."<<std::endl;
     //std::cout<<"TauSpiner: boson found but no proper tau pair or tau + neutrino found."<<std::endl;
     return 1;
   }
