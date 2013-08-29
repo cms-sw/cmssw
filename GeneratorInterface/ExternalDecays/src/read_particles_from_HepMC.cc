@@ -5,9 +5,9 @@
 
   Recursively searches for final-state daughters of 'x'
 *******************************************************************************/
-inline vector<SimpleParticle> *getDaughters(HepMC::GenParticle *x)
+inline std::vector<SimpleParticle> *getDaughters(HepMC::GenParticle *x)
 {
-  vector<SimpleParticle> *daughters = new vector<SimpleParticle>();
+  std::vector<SimpleParticle> *daughters = new std::vector<SimpleParticle>();
   if(!x->end_vertex()) return daughters;
 
   // Check decay products of 'x'
@@ -20,7 +20,7 @@ inline vector<SimpleParticle> *getDaughters(HepMC::GenParticle *x)
     // all of its daughters.
     if( pp->end_vertex() && pp->pdg_id()!=111)
     {
-      vector<SimpleParticle> *sub_daughters = getDaughters(pp);
+      std::vector<SimpleParticle> *sub_daughters = getDaughters(pp);
       daughters->insert(daughters->end(),sub_daughters->begin(),sub_daughters->end());
       
       delete sub_daughters;
@@ -84,7 +84,7 @@ inline bool isFirst(HepMC::GenParticle *x){
       Event will continue to be processed
       with next function call. 
 *******************************************************************************/
-int readParticlesFromHepMC(const HepMC::GenEvent *event, SimpleParticle &X, SimpleParticle &tau, SimpleParticle &tau2, vector<SimpleParticle> &tau_daughters, vector<SimpleParticle> &tau2_daughters)
+int readParticlesFromHepMC(const HepMC::GenEvent *event, SimpleParticle &X, SimpleParticle &tau, SimpleParticle &tau2, std::vector<SimpleParticle> &tau_daughters, std::vector<SimpleParticle> &tau2_daughters)
 {
   if(event==NULL) return 1;
 
@@ -118,7 +118,7 @@ int readParticlesFromHepMC(const HepMC::GenEvent *event, SimpleParticle &X, Simp
           else if(!hTau2) hTau2 = *it2;
           else
           {
-            cout<<"TauSpiner: three taus in one decay"<<endl;
+	    std::cout<<"TauSpiner: three taus in one decay"<<std::endl;
             return 1;
           }
         }
@@ -127,7 +127,7 @@ int readParticlesFromHepMC(const HepMC::GenEvent *event, SimpleParticle &X, Simp
           if(!hTau2) hTau2 = *it2;
           else
           {
-            cout<<"TauSpiner: two neutrinos or two taus and neutrino in one decay"<<endl; 
+            std::cout<<"TauSpiner: two neutrinos or two taus and neutrino in one decay"<<std::endl; 
             return 1;
           }
         }
@@ -141,7 +141,7 @@ int readParticlesFromHepMC(const HepMC::GenEvent *event, SimpleParticle &X, Simp
 
   if(!hTau || !hTau2)
   {
-    //cout<<"TauSpiner: boson found but no proper tau pair or tau + neutrino found."<<endl;
+    //std::cout<<"TauSpiner: boson found but no proper tau pair or tau + neutrino found."<<std::endl;
     return 1;
   }
 
@@ -169,7 +169,7 @@ int readParticlesFromHepMC(const HepMC::GenEvent *event, SimpleParticle &X, Simp
   tau2.setPdgid(hTau2->pdg_id());
 
   // Create list of tau daughters
-  vector<SimpleParticle> *buf = getDaughters(hTau);
+  std::vector<SimpleParticle> *buf = getDaughters(hTau);
   tau_daughters.clear();
   tau_daughters.insert(tau_daughters.end(),buf->begin(),buf->end());
   
