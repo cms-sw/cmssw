@@ -85,6 +85,11 @@ namespace pat {
       /// reference to the Best Track reconstructed in both tracked and muon detector (reimplemented from reco::Muon), after new tuneP
       reco::TrackRef improvedMuonBestTrack();
 
+      // get reference to the Improved Best Track
+      virtual MuonTrackType improvedMuonBestTrackType() const {return improvedMuonBestTrackType_;}
+      // set reference to the Improved Best Track
+      virtual void setImprovedBestTrack(MuonTrackType muonType) {improvedMuonBestTrackType_ = muonType;}
+
       /// set reference to Track selected to be the best measurement of the muon parameters (reimplemented from reco::Muon)
       void embedMuonBestTrack();
       /// set reference to Track selected to be the best measurement of the muon parameters (reimplemented from reco::Muon), after new tuneP
@@ -246,6 +251,7 @@ namespace pat {
       /// best muon track, after new tuneP
       bool embeddedImprovedMuonBestTrack_;
       std::vector<reco::Track> improvedMuonBestTrack_;
+      MuonTrackType improvedMuonBestTrackType_;
       /// track of inner track detector
       bool embeddedTrack_;
       std::vector<reco::Track> track_;
