@@ -66,7 +66,7 @@ HLTTauDQMPathPlotter2::~HLTTauDQMPathPlotter2() {}
 void HLTTauDQMPathPlotter2::analyze(const edm::TriggerResults& triggerResults, const trigger::TriggerEvent& triggerEvent, const std::map<int, LVColl>& refCollection) {
 
   // Events per filter
-  int lastPassedFilter = hltPath_.lastPassedFilter(triggerResults);
+  const int lastPassedFilter = hltPath_.lastPassedFilter(triggerResults);
   if(doRefAnalysis_) {
     std::vector<HLTTauDQMPath::Object> objs;
     //std::cout << "Last passed filter " << lastPassedFilter << " " << (lastPassedFilter >= 0 ? hltPath_.getFilterName(lastPassedFilter) : "") << std::endl;
@@ -97,23 +97,14 @@ void HLTTauDQMPathPlotter2::analyze(const edm::TriggerResults& triggerResults, c
   // Triggered tau kinematics
   if(hltPath_.fired(triggerResults)) {
     //std::cout << "Path " << pathName_ << std::endl;
-    trigger::size_type filterIndex = triggerEvent.filterIndex(edm::InputTag(hltPath_.getLastFilterName(), "", hltProcess_));
-    if(filterIndex != triggerEvent.sizeFilters()) {
-      const trigger::Keys& keys = triggerEvent.filterKeys(filterIndex);
-      const trigger::Vids& ids = triggerEvent.filterIds(filterIndex);
-      const trigger::TriggerObjectCollection& triggerObjects = triggerEvent.getObjects();
-      for(size_t i=0; i<keys.size(); ++i) {
-        if(ids[i] == trigger::TriggerTau) {
-          const trigger::TriggerObject& object = triggerObjects[keys[i]];
-          hTrigTauEt_->Fill(object.pt());
-          hTrigTauEta_->Fill(object.eta());
-          hTrigTauPhi_->Fill(object.phi());
-        }
-        //std::cout << "Id " << object.id() << " pt " << object.pt() << " id2 " << ids[i] << std::endl;
-      }
-    }
-    else {
-      //std::cout << "No index for filter " << std::get<0>(filterIndices_.back()) << std::endl;
+    std::vector<HLTTauDQMPath::Object> objs;
+    hltPath_.getFilterObjects(triggerEvent, lastPassedFilter, objs);
+    for(const HLTTauDQMPath::Object& obj: objs) {
+      if(obj.id != trigger::TriggerTau)
+        continue;
+      hTrigTauEt_->Fill(obj.object.pt());
+      hTrigTauEta_->Fill(obj.object.eta());
+      hTrigTauPhi_->Fill(obj.object.phi());
     }
   }
 }
