@@ -32,7 +32,7 @@ process.maxEvents = cms.untracked.PSet(
     )
 
 #my analyzer
-process.demo = cms.EDAnalyzer("ElectronAnalyzer")
+process.demo = cms.EDAnalyzer("ElectronTestAnalyzer")
 
 process.TFileService = cms.Service(
     "TFileService",

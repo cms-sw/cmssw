@@ -1,9 +1,9 @@
 // -*- C++ -*-
 //
-// Package:    ElectronAnalyzer
-// Class:      ElectronAnalyzer
-// 
-/**\class ElectronAnalyzer
+// Package:    ElectronTestAnalyzer
+// Class:      ElectronTestAnalyzer
+//
+/**\class ElectronTestAnalyzer
 
  Description: <one line class summary>
 
@@ -37,7 +37,7 @@
 #include "DataFormats/EgammaReco/interface/ElectronSeed.h"
 #include "DataFormats/EgammaReco/interface/ElectronSeedFwd.h"
 #include "DataFormats/CaloRecHit/interface/CaloClusterFwd.h"
-#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h" 
+#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 #include "RecoParticleFlow/PFProducer/interface/Utils.h"
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterLazyTools.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
@@ -66,10 +66,10 @@
 using namespace edm;
 using namespace reco;
 using namespace std;
-class ElectronAnalyzer : public edm::EDAnalyzer {
+class ElectronTestAnalyzer : public edm::EDAnalyzer {
    public:
-      explicit ElectronAnalyzer(const edm::ParameterSet&);
-      ~ElectronAnalyzer();
+      explicit ElectronTestAnalyzer(const edm::ParameterSet&);
+      ~ElectronTestAnalyzer();
 
 
    private:
@@ -77,27 +77,27 @@ class ElectronAnalyzer : public edm::EDAnalyzer {
       virtual void analyze(const edm::Event&, const edm::EventSetup&);
       virtual void endJob() ;
       virtual void myBindVariables();
-      virtual void myVar(const reco::GsfElectron& ele, 
-			 const reco::Vertex& vertex, 
+      virtual void myVar(const reco::GsfElectron& ele,
+			 const reco::Vertex& vertex,
 			 const TransientTrackBuilder& transientTrackBuilder,
 			 EcalClusterLazyTools myEcalCluster,
 			 bool printDebug = kFALSE);
 			 virtual void evaluate_mvas(const edm::Event& iEvent, const edm::EventSetup& iSetup);
 
   bool trainTrigPresel(const reco::GsfElectron& ele);
-  
+
   ParameterSet conf_;
 
   EGammaMvaEleEstimator* myMVATrigV0;
   EGammaMvaEleEstimator* myMVATrigNoIPV0;
   EGammaMvaEleEstimator* myMVANonTrigV0;
-  
+
   TMVA::Reader             *myTMVAReader;
   Float_t                   myMVAVar_fbrem;
   Float_t                   myMVAVar_kfchi2;
   Float_t                   myMVAVar_kfhits;
   Float_t                   myMVAVar_gsfchi2;
-  
+
   Float_t                   myMVAVar_deta;
   Float_t                   myMVAVar_dphi;
   Float_t                   myMVAVar_detacalo;
@@ -130,7 +130,7 @@ class ElectronAnalyzer : public edm::EDAnalyzer {
 
 
   TH1F* h_mva_nonTrig,*h_mva_trig, *h_mva_trigNonIp;
-  TH1F* h_fbrem; 
+  TH1F* h_fbrem;
   TH1F* h_kfchi2;
   TH1F* h_kfhits;
   TH1F* h_gsfchi2;
@@ -165,14 +165,14 @@ class ElectronAnalyzer : public edm::EDAnalyzer {
 //
 // constructors and destructor
 //
-ElectronAnalyzer::ElectronAnalyzer(const edm::ParameterSet& iConfig):
+ElectronTestAnalyzer::ElectronTestAnalyzer(const edm::ParameterSet& iConfig):
   conf_(iConfig)
 
 {
   Bool_t manualCat = true;
 
   ev = 0;
-  
+
   // NOTE: it is better if you copy the MVA weight files locally
 
   std::vector<std::string> catWTrigV0;
@@ -188,7 +188,7 @@ ElectronAnalyzer::ElectronAnalyzer(const edm::ParameterSet& iConfig):
 			EGammaMvaEleEstimator::kTrig,
 			manualCat,
 			catWTrigV0);
-  
+
   std::vector<std::string> catWTrigNoIPV0;
   catWTrigNoIPV0.push_back("../data/Electrons_BDTG_TrigNoIPV0_2012_Cat1.weights.xml");
   catWTrigNoIPV0.push_back("../data/Electrons_BDTG_TrigNoIPV0_2012_Cat2.weights.xml");
@@ -252,9 +252,9 @@ ElectronAnalyzer::ElectronAnalyzer(const edm::ParameterSet& iConfig):
 }
 
 
-ElectronAnalyzer::~ElectronAnalyzer()
+ElectronTestAnalyzer::~ElectronTestAnalyzer()
 {
- 
+
    // do anything here that needs to be done at desctruction time
    // (e.g. close files, deallocate resources etc.)
 
@@ -267,10 +267,10 @@ ElectronAnalyzer::~ElectronAnalyzer()
 
 // ------------ method called to for each event  ------------
 void
-ElectronAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
+ElectronTestAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
 
-	ElectronAnalyzer::evaluate_mvas(iEvent, iSetup);
+	ElectronTestAnalyzer::evaluate_mvas(iEvent, iSetup);
 
   InputTag gsfEleLabel(string("gsfElectrons"));
   Handle<GsfElectronCollection> theEGammaCollection;
@@ -295,8 +295,8 @@ ElectronAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
   iEvent.getByLabel(eventrho,rhoPtr);
   _Rho=*rhoPtr;
 
-  
-  
+
+
   Vertex dummy;
   const Vertex *pv = &dummy;
   if (thePrimaryVertexColl->size() != 0) {
@@ -309,17 +309,17 @@ ElectronAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
     Vertex::Point p(0, 0, 0);
     dummy = Vertex(p, e, 0, 0, 0);
   }
-  
+
 
   InputTag  reducedEBRecHitCollection(string("reducedEcalRecHitsEB"));
   InputTag  reducedEERecHitCollection(string("reducedEcalRecHitsEE"));
 
   EcalClusterLazyTools lazyTools(iEvent, iSetup, reducedEBRecHitCollection, reducedEERecHitCollection);
-  
+
   edm::ESHandle<TransientTrackBuilder> builder;
   iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder", builder);
   TransientTrackBuilder thebuilder = *(builder.product());
-  
+
 
   bool debug = true;
   bool debugMVAclass = false;
@@ -327,9 +327,9 @@ ElectronAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 
   ev++;
 
- 
 
-  // Validation from generator events 
+
+  // Validation from generator events
 
   for(size_t i(0); i < genParticles->size(); i++)
   {
@@ -339,12 +339,12 @@ ElectronAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
     float ptmc = genPtcl.pt();
 
 
-    if(abs(genPtcl.pdgId())==11 && 
+    if(abs(genPtcl.pdgId())==11 &&
        genPtcl.status()==1       &&
-       ptmc > 10.               && 
+       ptmc > 10.               &&
        fabs(etamc) < 2.5 ){
- 
-      
+
+
       for (uint j=0; j<theEGamma.size();j++) {
 	float etareco = theEGamma[j].eta();
 	float phireco = theEGamma[j].phi();
@@ -352,7 +352,7 @@ ElectronAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	float dphi = Utils::mpi_pi(phimc - phireco);
 	float dR = sqrt(deta*deta + dphi*dphi);
 
-	
+
 
 	if(dR < 0.1) {
 
@@ -361,7 +361,7 @@ ElectronAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	  myVar((theEGamma[j]),*pv,thebuilder,lazyTools,debugMyVar);
 	  myBindVariables();
 
-	  h_fbrem->Fill(myMVAVar_fbrem); 
+	  h_fbrem->Fill(myMVAVar_fbrem);
 	  h_kfchi2->Fill(myMVAVar_kfchi2);
 	  h_kfhits->Fill( myMVAVar_kfhits);
 	  h_gsfchi2->Fill(myMVAVar_gsfchi2);
@@ -386,8 +386,8 @@ ElectronAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	  h_EoPout->Fill(myMVAVar_EoPout);
 	  h_PreShowerOverRaw->Fill(myMVAVar_PreShowerOverRaw);
 	  h_pt->Fill(myMVAVar_pt);
-	  
-	  
+
+
 
 	  if(debug)
 	    cout << "************************* New Good Event:: " << ev << " *************************" << endl;
@@ -405,7 +405,7 @@ ElectronAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	  double mvaNonTrigMthd2 = -11;
 
 	  mvaNonTrigMthd1 = myMVANonTrigV0->mvaValue((theEGamma[j]),*pv,thebuilder,lazyTools,debugMVAclass);
-	  mvaNonTrigMthd2 = myMVANonTrigV0->mvaValue( myMVAVar_fbrem, 
+	  mvaNonTrigMthd2 = myMVANonTrigV0->mvaValue( myMVAVar_fbrem,
 							       myMVAVar_kfchi2,
 							       myMVAVar_kfhits,
 							       myMVAVar_gsfchi2,
@@ -431,14 +431,14 @@ ElectronAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 							       debugMyVar);
 	  h_mva_nonTrig->Fill(mvaNonTrigMthd1);
 
-	  if(debug)		
+	  if(debug)
 	    cout << "Non-Triggering:: MyMVA Method-1 " << mvaNonTrigMthd1 << " MyMVA Method-2 " << mvaNonTrigMthd2 <<endl;
 
 	  if(elePresel) {
 	    mvaTrigNonIp = myMVATrigNoIPV0->mvaValue( (theEGamma[j]), *pv, _Rho,/*thebuilder,*/lazyTools, debugMVAclass);
 
 	    mvaTrigMthd1 = myMVATrigV0->mvaValue((theEGamma[j]),*pv,thebuilder,lazyTools,debugMVAclass);
-	    mvaTrigMthd2 = myMVATrigV0->mvaValue( myMVAVar_fbrem, 
+	    mvaTrigMthd2 = myMVATrigV0->mvaValue( myMVAVar_fbrem,
 						    myMVAVar_kfchi2,
 						    myMVAVar_kfhits,
 						    myMVAVar_gsfchi2,
@@ -468,41 +468,41 @@ ElectronAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	    h_mva_trigNonIp->Fill(mvaTrigNonIp);
 	  }
 
-	  if(debug)	
-	    cout << "Triggering:: ElePreselection " << elePresel  
-		 << " MyMVA Method-1 " << mvaTrigMthd1 
+	  if(debug)
+	    cout << "Triggering:: ElePreselection " << elePresel
+		 << " MyMVA Method-1 " << mvaTrigMthd1
 	  << " MyMVA Method-2 " << mvaTrigMthd2 << endl;
-	} 
+	}
       } // End Loop on RECO electrons
     } // End if MC electrons selection
-  } //End Loop Generator Particles 
+  } //End Loop Generator Particles
 
 }
 // ------------ method called once each job just before starting event loop  ------------
-void ElectronAnalyzer::myVar(const reco::GsfElectron& ele, 
-			     const reco::Vertex& vertex, 
-			     const TransientTrackBuilder& transientTrackBuilder,					
+void ElectronTestAnalyzer::myVar(const reco::GsfElectron& ele,
+			     const reco::Vertex& vertex,
+			     const TransientTrackBuilder& transientTrackBuilder,
 			     EcalClusterLazyTools myEcalCluster,
 			     bool printDebug) {
-  
 
-  
-  bool validKF= false; 
+
+
+  bool validKF= false;
   reco::TrackRef myTrackRef = ele.closestCtfTrackRef();
   validKF = (myTrackRef.isAvailable());
-  validKF = (myTrackRef.isNonnull());  
+  validKF = (myTrackRef.isNonnull());
 
   myMVAVar_fbrem           =  ele.fbrem();
   myMVAVar_kfchi2          =  (validKF) ? myTrackRef->normalizedChi2() : 0 ;
-  myMVAVar_kfhits          =  (validKF) ? myTrackRef->hitPattern().trackerLayersWithMeasurement() : -1. ; 
-  //  myMVAVar_kfhits          =  (validKF) ? myTrackRef->numberOfValidHits() : -1. ;   // for analysist save also this  
-  myMVAVar_gsfchi2         =  ele.gsfTrack()->normalizedChi2();  // to be checked 
-  
+  myMVAVar_kfhits          =  (validKF) ? myTrackRef->hitPattern().trackerLayersWithMeasurement() : -1. ;
+  //  myMVAVar_kfhits          =  (validKF) ? myTrackRef->numberOfValidHits() : -1. ;   // for analysist save also this
+  myMVAVar_gsfchi2         =  ele.gsfTrack()->normalizedChi2();  // to be checked
+
 
   myMVAVar_deta            =  ele.deltaEtaSuperClusterTrackAtVtx();
   myMVAVar_dphi            =  ele.deltaPhiSuperClusterTrackAtVtx();
   myMVAVar_detacalo        =  ele.deltaEtaSeedClusterTrackAtCalo();
-  myMVAVar_dphicalo        =  ele.deltaPhiSeedClusterTrackAtCalo();   
+  myMVAVar_dphicalo        =  ele.deltaPhiSeedClusterTrackAtCalo();
 
   myMVAVar_see             =  ele.sigmaIetaIeta();    //EleSigmaIEtaIEta
   std::vector<float> vCov = myEcalCluster.localCovariances(*(ele.superCluster()->seed())) ;
@@ -513,7 +513,7 @@ void ElectronAnalyzer::myVar(const reco::GsfElectron& ele,
   myMVAVar_e1x5e5x5        =  (ele.e5x5()) !=0. ? 1.-(ele.e1x5()/ele.e5x5()) : -1. ;
   myMVAVar_R9              =  myEcalCluster.e3x3(*(ele.superCluster()->seed())) / ele.superCluster()->rawEnergy();
   myMVAVar_nbrems          =  fabs(ele.numberOfBrems());
-  
+
   myMVAVar_HoE             =  ele.hadronicOverEm();
   myMVAVar_EoP             =  ele.eSuperClusterOverP();
   myMVAVar_IoEmIoP         =  (1.0/ele.ecalEnergy()) - (1.0 / ele.p());  // in the future to be changed with ele.gsfTrack()->p()
@@ -521,134 +521,134 @@ void ElectronAnalyzer::myVar(const reco::GsfElectron& ele,
   myMVAVar_EoPout          =  ele.eSeedClusterOverPout();
   myMVAVar_PreShowerOverRaw=  ele.superCluster()->preshowerEnergy() / ele.superCluster()->rawEnergy();
 
-  
-  myMVAVar_eta             =  ele.superCluster()->eta();         
-  myMVAVar_pt              =  ele.pt();                          
- 
+
+  myMVAVar_eta             =  ele.superCluster()->eta();
+  myMVAVar_pt              =  ele.pt();
+
 
 
   //d0
   if (ele.gsfTrack().isNonnull()) {
-    myMVAVar_d0 = (-1.0)*ele.gsfTrack()->dxy(vertex.position()); 
+    myMVAVar_d0 = (-1.0)*ele.gsfTrack()->dxy(vertex.position());
   } else if (ele.closestCtfTrackRef().isNonnull()) {
-    myMVAVar_d0 = (-1.0)*ele.closestCtfTrackRef()->dxy(vertex.position()); 
+    myMVAVar_d0 = (-1.0)*ele.closestCtfTrackRef()->dxy(vertex.position());
   } else {
     myMVAVar_d0 = -9999.0;
   }
-  
+
   //default values for IP3D
-  myMVAVar_ip3d = -999.0; 
+  myMVAVar_ip3d = -999.0;
   // myMVAVar_ip3dSig = 0.0;
   if (ele.gsfTrack().isNonnull()) {
     const double gsfsign   = ( (-ele.gsfTrack()->dxy(vertex.position()))   >=0 ) ? 1. : -1.;
-    
-    const reco::TransientTrack &tt = transientTrackBuilder.build(ele.gsfTrack()); 
+
+    const reco::TransientTrack &tt = transientTrackBuilder.build(ele.gsfTrack());
     const std::pair<bool,Measurement1D> &ip3dpv =  IPTools::absoluteImpactParameter3D(tt,vertex);
     if (ip3dpv.first) {
       double ip3d = gsfsign*ip3dpv.second.value();
-	//double ip3derr = ip3dpv.second.error();  
-      myMVAVar_ip3d = ip3d; 
+	//double ip3derr = ip3dpv.second.error();
+      myMVAVar_ip3d = ip3d;
       // myMVAVar_ip3dSig = ip3d/ip3derr;
     }
   }
 
 
   if(printDebug) {
-    cout << " My Local Variables " << endl; 
-    cout << " fbrem " <<  myMVAVar_fbrem  
-      	 << " kfchi2 " << myMVAVar_kfchi2  
-	 << " mykfhits " << myMVAVar_kfhits  
-	 << " gsfchi2 " << myMVAVar_gsfchi2  
-	 << " deta " <<  myMVAVar_deta  
-	 << " dphi " << myMVAVar_dphi  
-      	 << " detacalo " << myMVAVar_detacalo  
-	 << " dphicalo " << myMVAVar_dphicalo  
-	 << " see " << myMVAVar_see  
-	 << " spp " << myMVAVar_spp  
-	 << " etawidth " << myMVAVar_etawidth  
-	 << " phiwidth " << myMVAVar_phiwidth  
-	 << " e1x5e5x5 " << myMVAVar_e1x5e5x5  
-	 << " R9 " << myMVAVar_R9  
-	 << " mynbrems " << myMVAVar_nbrems  
-	 << " HoE " << myMVAVar_HoE  
-	 << " EoP " << myMVAVar_EoP  
-	 << " IoEmIoP " << myMVAVar_IoEmIoP  
-	 << " eleEoPout " << myMVAVar_eleEoPout  
-	 << " EoPout " << myMVAVar_EoPout  
-	 << " PreShowerOverRaw " << myMVAVar_PreShowerOverRaw  
-	 << " d0 " << myMVAVar_d0  
-	 << " ip3d " << myMVAVar_ip3d  
-	 << " eta " << myMVAVar_eta  
+    cout << " My Local Variables " << endl;
+    cout << " fbrem " <<  myMVAVar_fbrem
+      	 << " kfchi2 " << myMVAVar_kfchi2
+	 << " mykfhits " << myMVAVar_kfhits
+	 << " gsfchi2 " << myMVAVar_gsfchi2
+	 << " deta " <<  myMVAVar_deta
+	 << " dphi " << myMVAVar_dphi
+      	 << " detacalo " << myMVAVar_detacalo
+	 << " dphicalo " << myMVAVar_dphicalo
+	 << " see " << myMVAVar_see
+	 << " spp " << myMVAVar_spp
+	 << " etawidth " << myMVAVar_etawidth
+	 << " phiwidth " << myMVAVar_phiwidth
+	 << " e1x5e5x5 " << myMVAVar_e1x5e5x5
+	 << " R9 " << myMVAVar_R9
+	 << " mynbrems " << myMVAVar_nbrems
+	 << " HoE " << myMVAVar_HoE
+	 << " EoP " << myMVAVar_EoP
+	 << " IoEmIoP " << myMVAVar_IoEmIoP
+	 << " eleEoPout " << myMVAVar_eleEoPout
+	 << " EoPout " << myMVAVar_EoPout
+	 << " PreShowerOverRaw " << myMVAVar_PreShowerOverRaw
+	 << " d0 " << myMVAVar_d0
+	 << " ip3d " << myMVAVar_ip3d
+	 << " eta " << myMVAVar_eta
 	 << " pt " << myMVAVar_pt << endl;
   }
   return;
 }
-void ElectronAnalyzer::myBindVariables() {
+void ElectronTestAnalyzer::myBindVariables() {
 
-  // this binding is needed for variables that sometime diverge. 
+  // this binding is needed for variables that sometime diverge.
 
 
   if(myMVAVar_fbrem < -1.)
-    myMVAVar_fbrem = -1.;	
-  
+    myMVAVar_fbrem = -1.;
+
   myMVAVar_deta = fabs(myMVAVar_deta);
   if(myMVAVar_deta > 0.06)
     myMVAVar_deta = 0.06;
-  
-  
+
+
   myMVAVar_dphi = fabs(myMVAVar_dphi);
   if(myMVAVar_dphi > 0.6)
     myMVAVar_dphi = 0.6;
-  
-  
+
+
   if(myMVAVar_EoPout > 20.)
     myMVAVar_EoPout = 20.;
-  
+
   if(myMVAVar_EoP > 20.)
     myMVAVar_EoP = 20.;
-  
+
   if(myMVAVar_eleEoPout > 20.)
     myMVAVar_eleEoPout = 20.;
-  
-  
+
+
   myMVAVar_detacalo = fabs(myMVAVar_detacalo);
   if(myMVAVar_detacalo > 0.2)
     myMVAVar_detacalo = 0.2;
-  
-  
+
+
   myMVAVar_dphicalo = fabs(myMVAVar_dphicalo);
   if(myMVAVar_dphicalo > 0.4)
     myMVAVar_dphicalo = 0.4;
-  
-  
+
+
   if(myMVAVar_e1x5e5x5 < -1.)
     myMVAVar_e1x5e5x5 = -1;
-  
+
   if(myMVAVar_e1x5e5x5 > 2.)
-    myMVAVar_e1x5e5x5 = 2.; 
-  
-  
-  
+    myMVAVar_e1x5e5x5 = 2.;
+
+
+
   if(myMVAVar_R9 > 5)
     myMVAVar_R9 = 5;
-  
+
   if(myMVAVar_gsfchi2 > 200.)
     myMVAVar_gsfchi2 = 200;
-  
-  
+
+
   if(myMVAVar_kfchi2 > 10.)
     myMVAVar_kfchi2 = 10.;
-  
-  
+
+
   // Needed for a bug in CMSSW_420, fixed in more recent CMSSW versions
   if(isnan(myMVAVar_spp))
-    myMVAVar_spp = 0.;	
-  
-  
+    myMVAVar_spp = 0.;
+
+
   return;
 }
-bool ElectronAnalyzer::trainTrigPresel(const reco::GsfElectron& ele) {
-  
+bool ElectronTestAnalyzer::trainTrigPresel(const reco::GsfElectron& ele) {
+
   bool myTrigPresel = false;
   if(fabs(ele.superCluster()->eta()) < 1.479) {
     if(ele.sigmaIetaIeta() < 0.014 &&
@@ -668,25 +668,25 @@ bool ElectronAnalyzer::trainTrigPresel(const reco::GsfElectron& ele) {
        ele.gsfTrack()->trackerExpectedHitsInner().numberOfLostHits() == 0)
       myTrigPresel = true;
   }
-  
-  
+
+
   return myTrigPresel;
 }
-void 
-ElectronAnalyzer::beginJob(const edm::EventSetup&)
+void
+ElectronTestAnalyzer::beginJob(const edm::EventSetup&)
 {
 
   ev = 0;
 }
 
 // ------------ method called once each job just after ending the event loop  ------------
-void 
-ElectronAnalyzer::endJob() {
+void
+ElectronTestAnalyzer::endJob() {
   cout << " endJob:: #events " << ev << endl;
 }
 
 void
-ElectronAnalyzer::evaluate_mvas(const edm::Event& iEvent, const edm::EventSetup& iSetup)
+ElectronTestAnalyzer::evaluate_mvas(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
 
 
@@ -694,14 +694,15 @@ ElectronAnalyzer::evaluate_mvas(const edm::Event& iEvent, const edm::EventSetup&
   iEvent.getByLabel("offlinePrimaryVertices", hVertex);
   const reco::VertexCollection *pvCol = hVertex.product();
 
-  Handle<double> hRho;
-  edm::InputTag tag("kt6PFJets","rho");
-  iEvent.getByLabel(tag,hRho);
-  double Rho = *hRho;
-
-  Handle<reco::PFCandidateCollection> hPfCandProduct;
-	iEvent.getByLabel("particleFlow", hPfCandProduct);
-  const reco::PFCandidateCollection &inPfCands = *(hPfCandProduct.product());
+// FIXME: unused variable giving compilation warnings/errors
+//   Handle<double> hRho;
+//   edm::InputTag tag("kt6PFJets","rho");
+//   iEvent.getByLabel(tag,hRho);
+//   double Rho = *hRho;
+//
+//   Handle<reco::PFCandidateCollection> hPfCandProduct;
+// 	iEvent.getByLabel("particleFlow", hPfCandProduct);
+//   const reco::PFCandidateCollection &inPfCands = *(hPfCandProduct.product());
 
   InputTag gsfEleLabel(string("gsfElectrons"));
   Handle<GsfElectronCollection> theEGammaCollection;
@@ -709,14 +710,14 @@ ElectronAnalyzer::evaluate_mvas(const edm::Event& iEvent, const edm::EventSetup&
   const GsfElectronCollection inElectrons = *(theEGammaCollection.product());
 
   Handle<reco::MuonCollection> hMuonProduct;
-  iEvent.getByLabel("muons", hMuonProduct);  
-  const reco::MuonCollection inMuons = *(hMuonProduct.product());  
+  iEvent.getByLabel("muons", hMuonProduct);
+  const reco::MuonCollection inMuons = *(hMuonProduct.product());
 
 
   reco::MuonCollection IdentifiedMuons;
   reco::GsfElectronCollection IdentifiedElectrons;
 
-  for (reco::GsfElectronCollection::const_iterator iE = inElectrons.begin(); 
+  for (reco::GsfElectronCollection::const_iterator iE = inElectrons.begin();
        iE != inElectrons.end(); ++iE) {
 
     double electronTrackZ = 0;
@@ -724,23 +725,23 @@ ElectronAnalyzer::evaluate_mvas(const edm::Event& iEvent, const edm::EventSetup&
       electronTrackZ = iE->gsfTrack()->dz(pvCol->at(0).position());
     } else if (iE->closestCtfTrackRef().isNonnull()) {
       electronTrackZ = iE->closestCtfTrackRef()->dz(pvCol->at(0).position());
-    }    
+    }
     if(fabs(electronTrackZ) > 0.2)  continue;
 
-    
-    if(fabs(iE->superCluster()->eta())<1.479) {     
+
+    if(fabs(iE->superCluster()->eta())<1.479) {
       if(iE->pt() > 20) {
         if(iE->sigmaIetaIeta()       > 0.01)  continue;
         if(fabs(iE->deltaEtaSuperClusterTrackAtVtx()) > 0.007) continue;
         if(fabs(iE->deltaPhiSuperClusterTrackAtVtx()) > 0.8)  continue;
-        if(iE->hadronicOverEm()       > 0.15)  continue;    
+        if(iE->hadronicOverEm()       > 0.15)  continue;
       } else {
         if(iE->sigmaIetaIeta()       > 0.012)  continue;
         if(fabs(iE->deltaEtaSuperClusterTrackAtVtx()) > 0.007) continue;
         if(fabs(iE->deltaPhiSuperClusterTrackAtVtx()) > 0.8)  continue;
-        if(iE->hadronicOverEm()       > 0.15) continue;    
-      } 
-    } else {     
+        if(iE->hadronicOverEm()       > 0.15) continue;
+      }
+    } else {
       if(iE->pt() > 20) {
         if(iE->sigmaIetaIeta()       > 0.03)  continue;
         if(fabs(iE->deltaEtaSuperClusterTrackAtVtx()) > 0.010) continue;
@@ -754,13 +755,13 @@ ElectronAnalyzer::evaluate_mvas(const edm::Event& iEvent, const edm::EventSetup&
     IdentifiedElectrons.push_back(*iE);
   }
 
-  for (reco::MuonCollection::const_iterator iM = inMuons.begin(); 
+  for (reco::MuonCollection::const_iterator iM = inMuons.begin();
        iM != inMuons.end(); ++iM) {
 
     if(!(iM->innerTrack().isNonnull())) {
       continue;
-    } 
-        
+    }
+
     if(!(iM->isGlobalMuon() || iM->isTrackerMuon())) continue;
     if(iM->innerTrack()->numberOfValidHits() < 11 ) continue;
 
@@ -769,31 +770,31 @@ ElectronAnalyzer::evaluate_mvas(const edm::Event& iEvent, const edm::EventSetup&
 
   InputTag  reducedEBRecHitCollection(string("reducedEcalRecHitsEB"));
   InputTag  reducedEERecHitCollection(string("reducedEcalRecHitsEE"));
-	
+
 	EcalClusterLazyTools lazyTools(iEvent, iSetup, reducedEBRecHitCollection, reducedEERecHitCollection);
-  
+
   edm::ESHandle<TransientTrackBuilder> builder;
   iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder", builder);
   TransientTrackBuilder thebuilder = *(builder.product());
 
- for (reco::GsfElectronCollection::const_iterator iE = inElectrons.begin(); 
+ for (reco::GsfElectronCollection::const_iterator iE = inElectrons.begin();
        iE != inElectrons.end(); ++iE) {
 
 		GsfElectron ele = *iE;
-	
- 		double idmva = myMVATrigV0->mvaValue(ele, 
-					pvCol->at(0), 
-					thebuilder,					
+
+ 		double idmva = myMVATrigV0->mvaValue(ele,
+					pvCol->at(0),
+					thebuilder,
 					lazyTools);
 
-																	 
+
 		cout << "idmva = " << idmva << endl;
-	
+
 	}
-																	 
+
 
 }
 
 
 //define this as a plug-in
-DEFINE_FWK_MODULE(ElectronAnalyzer);
+DEFINE_FWK_MODULE(ElectronTestAnalyzer);
