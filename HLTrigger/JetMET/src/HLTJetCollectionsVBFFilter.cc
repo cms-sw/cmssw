@@ -52,9 +52,9 @@ template <typename T>
 void
 HLTJetCollectionsVBFFilter<T>::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
+  makeHLTFilterDescription(desc);
   desc.add<edm::InputTag>("inputTag",edm::InputTag("hltIterativeCone5CaloJets"));
   desc.add<edm::InputTag>("originalTag",edm::InputTag("hltIterativeCone5CaloJets"));
-  desc.add<bool>("saveTags",false);
   desc.add<double>("SoftJetPt",25.0);
   desc.add<double>("HardJetPt",35.0);
   desc.add<double>("MinDeltaEta",3.0);

@@ -41,6 +41,7 @@ HLTHemiDPhiFilter::~HLTHemiDPhiFilter()
 void
 HLTHemiDPhiFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
+  makeHLTFilterDescription(desc);
   desc.add<edm::InputTag>("inputTag",edm::InputTag("hltRHemisphere"));
   desc.add<double>("minDPhi",2.9415);
   desc.add<bool>("acceptNJ",true);

@@ -93,6 +93,7 @@ HLTMuonTrimuonL3Filter::~HLTMuonTrimuonL3Filter()
 void
 HLTMuonTrimuonL3Filter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
+  makeHLTFilterDescription(desc);
   desc.add<edm::InputTag>("BeamSpotTag",edm::InputTag("hltOfflineBeamSpot"));
   desc.add<edm::InputTag>("CandTag",edm::InputTag("hltL3MuonCandidates"));
   desc.add<edm::InputTag>("PreviousCandTag",edm::InputTag(""));
@@ -112,7 +113,6 @@ HLTMuonTrimuonL3Filter::fillDescriptions(edm::ConfigurationDescriptions& descrip
   desc.add<double>("MinPtBalance",-1.0);
   desc.add<double>("MaxPtBalance",999999.0);
   desc.add<double>("NSigmaPt",0.0);
-  desc.add<bool>("saveTags",false);
   desc.add<double>("MaxDCAMuMu",99999.9);
   desc.add<double>("MaxRapidityTriplet",999999.0);
   descriptions.add("hltMuonTrimuonL3Filter",desc);

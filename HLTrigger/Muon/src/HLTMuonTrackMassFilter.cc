@@ -103,13 +103,13 @@ HLTMuonTrackMassFilter::HLTMuonTrackMassFilter(const edm::ParameterSet& iConfig)
 void
 HLTMuonTrackMassFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
+  makeHLTFilterDescription(desc);
   desc.add<edm::InputTag>("BeamSpotTag",edm::InputTag("hltOfflineBeamSpot"));
   desc.add<edm::InputTag>("CandTag",edm::InputTag("hltL3MuonCandidates"));
   //  desc.add<edm::InputTag>("TrackTag",edm::InputTag("hltMuTkMuJpsiTrackerMuonCands"));
   desc.add<edm::InputTag>("TrackTag",edm::InputTag(""));
   //  desc.add<edm::InputTag>("PreviousCandTag",edm::InputTag("hltMu0TkMuJpsiTrackMassFiltered"));
   desc.add<edm::InputTag>("PreviousCandTag",edm::InputTag(""));
-  desc.add<bool>("saveTags",false);
   {
     std::vector<double> temp1;
     temp1.reserve(1);
