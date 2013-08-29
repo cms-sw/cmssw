@@ -10,6 +10,7 @@
 
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
+#include "DataFormats/MuonReco/interface/MuonCocktails.h"
 
 #include "DataFormats/TrackReco/interface/TrackToTrackMap.h"
 
@@ -212,19 +213,16 @@ void PATMuonProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetu
 	// get the tracks
 	reco::TrackRef innerTrack = muonBaseRef->innerTrack();
 	reco::TrackRef globalTrack= muonBaseRef->globalTrack();
-	reco::TrackRef bestTrack  = muonBaseRef->muonBestTrack();
-	reco::TrackRef chosenTrack = innerTrack;
-	// Make sure the collection it points to is there
-	if ( bestTrack.isNonnull() && bestTrack.isAvailable() ) 
-	  chosenTrack = bestTrack;
+	reco::TrackRef bestTrack  = muon::muonBestTrack(*muonBaseRef, reco::defaultTuneP).first;
 
-	if ( chosenTrack.isNonnull() && chosenTrack.isAvailable() ) {
-	  unsigned int nhits = chosenTrack->numberOfValidHits(); // ????
+	// Make sure the collection it points to is there
+	if ( bestTrack.isNonnull() && bestTrack.isAvailable() ) {
+	  unsigned int nhits = bestTrack->numberOfValidHits(); // ????
 	  aMuon.setNumberOfValidHits( nhits );
 
-	  reco::TransientTrack tt = trackBuilder->build(chosenTrack);
+	  reco::TransientTrack tt = trackBuilder->build(bestTrack);
 	  embedHighLevel( aMuon, 
-			  chosenTrack,
+			  bestTrack,
 			  tt,
 			  primaryVertex,
 			  primaryVertexIsValid,
@@ -233,7 +231,7 @@ void PATMuonProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetu
 
 	  // Correct to PV, or beam spot
 	  if ( !usePV_ ) {
-	    double corr_d0 = -1.0 * chosenTrack->dxy( beamPoint );
+	    double corr_d0 = -1.0 * bestTrack->dxy( beamPoint );
 	    aMuon.setDB( corr_d0, -1.0 );
 	  } else {
 	    std::pair<bool,Measurement1D> result = IPTools::absoluteTransverseImpactParameter(tt, primaryVertex);
@@ -311,18 +309,16 @@ void PATMuonProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetu
 	// get the tracks
 	reco::TrackRef innerTrack = itMuon->innerTrack();
 	reco::TrackRef globalTrack= itMuon->globalTrack();
-	reco::TrackRef bestTrack  = itMuon->muonBestTrack();
-	reco::TrackRef chosenTrack = innerTrack;
+	reco::TrackRef bestTrack  = muon::muonBestTrack(*itMuon, reco::defaultTuneP).first;
+
 	// Make sure the collection it points to is there
-	if ( bestTrack.isNonnull() && bestTrack.isAvailable() )
-	  chosenTrack = bestTrack;
-	if ( chosenTrack.isNonnull() && chosenTrack.isAvailable() ) {
-	  unsigned int nhits = chosenTrack->numberOfValidHits(); // ????
+	if ( bestTrack.isNonnull() && bestTrack.isAvailable() ) {
+	  unsigned int nhits = bestTrack->numberOfValidHits(); // ????
 	  aMuon.setNumberOfValidHits( nhits );
 
-	  reco::TransientTrack tt = trackBuilder->build(chosenTrack);
+	  reco::TransientTrack tt = trackBuilder->build(bestTrack);
 	  embedHighLevel( aMuon, 
-			  chosenTrack,
+			  bestTrack,
 			  tt,
 			  primaryVertex,
 			  primaryVertexIsValid,
@@ -331,7 +327,7 @@ void PATMuonProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetu
 
 	  // Correct to PV, or beam spot
 	  if ( !usePV_ ) {
-	    double corr_d0 = -1.0 * chosenTrack->dxy( beamPoint );
+	    double corr_d0 = -1.0 * bestTrack->dxy( beamPoint );
 	    aMuon.setDB( corr_d0, -1.0 );
 	  } else {
 	    std::pair<bool,Measurement1D> result = IPTools::absoluteTransverseImpactParameter(tt, primaryVertex);

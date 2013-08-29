@@ -740,12 +740,12 @@ bool muon::isSoftMuon(const reco::Muon& muon, const reco::Vertex& vtx){
   return muID && layers && ip && chi2;
 }
 
-bool muon::isHighPtMuon(const reco::Muon& muon, const reco::Vertex& vtx, TunePType tunePType){
+bool muon::isHighPtMuon(const reco::Muon& muon, const reco::Vertex& vtx, reco::TunePType tunePType){
 
   bool muID =  muon.isGlobalMuon() && muon.globalTrack()->hitPattern().numberOfValidMuonHits() >0 && (muon.numberOfMatchedStations() > 1);
   if(!muID) return false;
 
-  if(tunePType == improvedTuneP){ 
+  if(tunePType == reco::improvedTuneP){ 
   // Get the optimized track
     reco::TrackRef cktTrack = (muon::tevOptimized(muon, 200, 17., 40., 0.25)).first;
 
@@ -763,7 +763,7 @@ bool muon::isHighPtMuon(const reco::Muon& muon, const reco::Vertex& vtx, TunePTy
 
     return muID && hits && momQuality && ip;}
 
-  else if(tunePType == defaultTuneP){
+  else if(tunePType == reco::defaultTuneP){
   // Get the optimized track
     reco::TrackRef cktTrack = (muon::tevOptimized(muon, 200, 4., 6., -1)).first;
 
