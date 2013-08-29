@@ -4,8 +4,6 @@
 /** \class DTDigiSyncFromTable
  *  Digi offsets taken from a synchronization table.
  *
- *  $Date: 2006/01/20 15:49:00 $
- *  $Revision: 1.2 $
  *  \author N. Amapane, R. Bellan - INFN Torino
  */
 

@@ -5,7 +5,6 @@
 // Object to store correlated noise data for one HPD 
 // Project: HPD noise library
 // Author: F.Ratnikov UMd, Jan. 15, 2008
-// $Id: HPDNoiseData.h,v 1.3 2008/04/24 18:12:21 rpw Exp $
 // --------------------------------------------------------
 
 #include "TObject.h"

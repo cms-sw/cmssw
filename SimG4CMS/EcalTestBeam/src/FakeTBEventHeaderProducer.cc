@@ -1,7 +1,6 @@
 /*
  * \file FakeTBEventHeaderProducer.cc
  *
- * $Id: FakeTBEventHeaderProducer.cc,v 1.4 2007/10/31 09:32:27 crovelli Exp $
  *
  */
 

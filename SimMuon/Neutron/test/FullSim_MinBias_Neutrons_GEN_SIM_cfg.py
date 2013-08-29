@@ -2,7 +2,6 @@
 # An example configuration for production of
 # a SIM level sample of neutron hits in muon systems
 #
-# $Id: $
 
 import FWCore.ParameterSet.Config as cms
 

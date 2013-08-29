@@ -13,7 +13,6 @@
     <usage>
 
 */
-// $Id: $
 //
 
 // system include files

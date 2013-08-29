@@ -8,7 +8,6 @@
 //
 // Original Author:  Emilia Lubenova Becheva
 //         Created:  Wed Apr 22 16:54:31 CEST 2009
-// $Id: SecSourceAnalyzer.h,v 1.4 2011/07/14 15:01:10 wsun Exp $
 //
 //
 

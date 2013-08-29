@@ -2,7 +2,6 @@
 // Object to store all timeslices of noise signal frame
 // Project: HPD noise library
 // Author: F.Ratnikov UMd, Jan. 15, 2008
-// $Id: HPDNoiseDataFrame.cc,v 1.1 2008/01/16 02:12:41 fedor Exp $
 // --------------------------------------------------------
 
 #include "SimCalorimetry/HcalSimAlgos/interface/HPDNoiseDataFrame.h"
