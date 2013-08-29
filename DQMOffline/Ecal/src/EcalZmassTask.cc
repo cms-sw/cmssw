@@ -13,7 +13,6 @@ Implementation:
 //
 // Original Author:  Vieri Candelise
 //         Created:  Wed May 11 14:53:26 CEST 2011
-// $Id: EcalZmassTask.cc,v 1.5 2012/02/28 16:39:18 yiiyama Exp $
 //
 //
 

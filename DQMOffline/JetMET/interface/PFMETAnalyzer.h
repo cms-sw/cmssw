@@ -6,8 +6,6 @@
  *
  *  DQM monitoring source for PFMET
  *
- *  $Date: 2012/05/20 13:11:46 $
- *  $Revision: 1.29 $
  *  \author K. Hatakeyama - Rockefeller University
  *          A.Apresyan - Caltech 
  */

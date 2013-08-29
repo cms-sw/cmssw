@@ -7,8 +7,6 @@
  *  DQMOffline Test Client
  *       check the recostruction efficiency of Sta/Glb on eta, phi parameters
  *
- *  $Date: 2009/11/12 17:27:35 $
- *  $Revision: 1.4 $
  *  \author  G. Mila - INFN Torino
  *   
  */

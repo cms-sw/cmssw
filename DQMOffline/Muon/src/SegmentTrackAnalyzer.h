@@ -6,8 +6,6 @@
  *
  *  DQM monitoring source for segments associated to the muon track
  *
- *  $Date: 2009/01/29 14:47:01 $
- *  $Revision: 1.7 $
  *  \author G. Mila - INFN Torino
  */
 
