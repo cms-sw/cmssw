@@ -2,8 +2,7 @@
 #include "FastSimulation/TrackerSetup/interface/TrackerInteractionGeometry.h"
 
 TrackerRecHit::TrackerRecHit(const SiTrackerGSMatchedRecHit2D* theHit, 
-			     const TrackerGeometry* theGeometry,
-			     const TrackerTopology* tTopo) :
+			     const TrackerGeometry* theGeometry) :
   theSplitHit(0),
   theMatchedHit(theHit),
   theSubDetId(0),
@@ -14,12 +13,11 @@ TrackerRecHit::TrackerRecHit(const SiTrackerGSMatchedRecHit2D* theHit,
   theLargerError(0.)
      
 { 
-  init(theGeometry, tTopo);
+  init(theGeometry);
 }
 
 TrackerRecHit::TrackerRecHit(const SiTrackerGSRecHit2D* theHit, 
-			     const TrackerGeometry* theGeometry,
-			     const TrackerTopology* tTopo ) :
+			     const TrackerGeometry* theGeometry) :
   theSplitHit(theHit),
   theMatchedHit(0),
   theSubDetId(0),
@@ -30,45 +28,45 @@ TrackerRecHit::TrackerRecHit(const SiTrackerGSRecHit2D* theHit,
   theLargerError(0.)
      
 { 
-  init(theGeometry,tTopo);
+  init(theGeometry);
 }
 
 void
-TrackerRecHit::init(const TrackerGeometry* theGeometry, const TrackerTopology *tTopo) { 
+TrackerRecHit::init(const TrackerGeometry* theGeometry) { 
 
   const DetId& theDetId = hit()->geographicalId();
   theGeomDet = theGeometry->idToDet(theDetId);
   theSubDetId = theDetId.subdetId(); 
   if ( theSubDetId == StripSubdetector::TIB) { 
-     
-    theLayerNumber = tTopo->tibLayer(theDetId);
+    TIBDetId tibid(theDetId.rawId()); 
+    theLayerNumber = tibid.layer();
     theCylinderNumber = TrackerInteractionGeometry::TIB+theLayerNumber;
     forward = false;
   } else if ( theSubDetId ==  StripSubdetector::TOB ) { 
-     
-    theLayerNumber = tTopo->tobLayer(theDetId);
+    TOBDetId tobid(theDetId.rawId()); 
+    theLayerNumber = tobid.layer();
     theCylinderNumber = TrackerInteractionGeometry::TOB+theLayerNumber;
     forward = false;
   } else if ( theSubDetId ==  StripSubdetector::TID) { 
-    
-    theLayerNumber = tTopo->tidWheel(theDetId);
+    TIDDetId tidid(theDetId.rawId());
+    theLayerNumber = tidid.wheel();
     theCylinderNumber = TrackerInteractionGeometry::TID+theLayerNumber;
-    theRingNumber = tTopo->tidRing(theDetId);
+    theRingNumber = tidid.ring();
     forward = true;
   } else if ( theSubDetId ==  StripSubdetector::TEC ) { 
-     
-    theLayerNumber = tTopo->tecWheel(theDetId); 
+    TECDetId tecid(theDetId.rawId()); 
+    theLayerNumber = tecid.wheel(); 
     theCylinderNumber = TrackerInteractionGeometry::TEC+theLayerNumber;
-    theRingNumber = tTopo->tecRing(theDetId);
+    theRingNumber = tecid.ring();
     forward = true;
   } else if ( theSubDetId ==  PixelSubdetector::PixelBarrel ) { 
-     
-    theLayerNumber = tTopo->pxbLayer(theDetId); 
+    PXBDetId pxbid(theDetId.rawId()); 
+    theLayerNumber = pxbid.layer(); 
     theCylinderNumber = TrackerInteractionGeometry::PXB+theLayerNumber;
     forward = false;
   } else if ( theSubDetId ==  PixelSubdetector::PixelEndcap ) { 
-     
-    theLayerNumber = tTopo->pxfDisk(theDetId);  
+    PXFDetId pxfid(theDetId.rawId()); 
+    theLayerNumber = pxfid.disk();  
     theCylinderNumber = TrackerInteractionGeometry::PXD+theLayerNumber;
     forward = true;
   }
@@ -359,30 +357,49 @@ TrackerRecHit::makesATripletWith(const TrackerRecHit& anotherHit,
     ( ( theSubDetId == 1 && theLayerNumber == 1 ) && 
       ( anotherSubDetId == 1 && anotherLayerNumber == 2) && ( 
       ( yetAnotherSubDetId == 1 && yetAnotherLayerNumber == 3) || 
+      ( yetAnotherSubDetId == 1 && yetAnotherLayerNumber == 4) || 
       ( yetAnotherSubDetId == 2 && yetAnotherLayerNumber == 1) || 
+      ( yetAnotherSubDetId == 2 && yetAnotherLayerNumber == 2) || 
       ( yetAnotherSubDetId == 3 && yetAnotherLayerNumber == 1) ) ) || 
     // First hit on PXB1, second on PXB3 
     ( ( theSubDetId == 1 && theLayerNumber == 1 ) &&
-      ( anotherSubDetId == 1 && anotherLayerNumber == 3) && 
-      ( yetAnotherSubDetId == 3 && yetAnotherLayerNumber == 1) ) || 
+      ( anotherSubDetId == 1 && anotherLayerNumber == 3) && (
+      ( yetAnotherSubDetId == 2 && yetAnotherLayerNumber == 1) || 
+      ( yetAnotherSubDetId == 1 && yetAnotherLayerNumber == 4) || 
+      ( yetAnotherSubDetId == 3 && yetAnotherLayerNumber == 1) ) ) || 
     // First hit on PXB2, second on PXB3 
     ( ( theSubDetId == 1 && theLayerNumber == 2 ) &&
-      ( anotherSubDetId == 1 && anotherLayerNumber == 3) && 
-      ( yetAnotherSubDetId == 3 && yetAnotherLayerNumber == 1) ) || 
+      ( anotherSubDetId == 1 && anotherLayerNumber == 3) && (
+      ( yetAnotherSubDetId == 2 && yetAnotherLayerNumber == 1) || 
+      ( yetAnotherSubDetId == 1 && yetAnotherLayerNumber == 4) || 
+      ( yetAnotherSubDetId == 3 && yetAnotherLayerNumber == 1) ) ) || 
+
+    // First Hit on PXB2, second on PXD1
+    ( ( theSubDetId == 1 && theLayerNumber == 2 ) &&
+      ( anotherSubDetId == 2 && anotherLayerNumber == 1) && (  
+      ( yetAnotherSubDetId == 2 && yetAnotherLayerNumber == 2) ) ) || 
+
     // First Hit on PXB1, second on PXD1
     ( ( theSubDetId == 1 && theLayerNumber == 1 ) &&
       ( anotherSubDetId == 2 && anotherLayerNumber == 1) && ( 
       ( yetAnotherSubDetId == 2 && yetAnotherLayerNumber == 2) || 
+      ( yetAnotherSubDetId == 2 && yetAnotherLayerNumber == 3) || 
       ( yetAnotherSubDetId == 4 && yetAnotherLayerNumber == 1) || 
       ( yetAnotherSubDetId == 4 && yetAnotherLayerNumber == 2) ) ) || 
+
+    // First Hit on PXB1, second on PXD2
+    ( ( theSubDetId == 1 && theLayerNumber == 1 ) &&
+      ( anotherSubDetId == 2 && anotherLayerNumber == 2) && ( 
+      ( yetAnotherSubDetId == 2 && yetAnotherLayerNumber == 3) ) ) || 
     // First Hit on PXD1, second on PXD2
     ( ( theSubDetId == 2 && theLayerNumber == 1 ) && 
       ( anotherSubDetId == 2 && anotherLayerNumber == 2 ) && (
+      ( yetAnotherSubDetId == 2 && yetAnotherLayerNumber == 3 ) ||
       ( yetAnotherSubDetId == 6 && yetAnotherLayerNumber == 1 ) ||
       ( yetAnotherSubDetId == 6 && yetAnotherLayerNumber == 2 ) ) ) ||
     // First hit on TIB1 (pixel less)
     ( ( theSubDetId == 3 && theLayerNumber == 1 ) && 
-      ( anotherSubDetId == 3 && anotherLayerNumber == 2 ) && 
+      ( anotherSubDetId == 3 && anotherLayerNumber == 2 ) &&  
       ( yetAnotherSubDetId == 3 && yetAnotherLayerNumber == 3 ) );
   
   return isAProperTriplet;
