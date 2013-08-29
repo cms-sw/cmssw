@@ -1,7 +1,5 @@
 /** \file
  *
- *  $Date: 2013/03/02 12:37:47 $
- *  $Revision: 1.39 $
  *  \authors: G. Bevilacqua, N. Amapane, G. Cerminara, R. Bellan
  */
 

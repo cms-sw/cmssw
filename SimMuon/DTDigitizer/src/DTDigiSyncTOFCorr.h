@@ -19,8 +19,6 @@
  *     nominal IP to the 3D center of the SL. Use this, unless you 
  *     really know what you are doing.
  *
- *  $Date: 2006/01/25 11:07:39 $
- *  $Revision: 1.3 $
  *  \author N. Amapane, R. Bellan - INFN Torino
  */
 

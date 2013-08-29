@@ -17,7 +17,6 @@ service.
 //
 // Original Author:  W. David Dagenhart, Fermilab
 //         Created:  Tue Oct  3 09:56:36 CDT 2006
-// $Id: RandomEngineState.h,v 1.1 2006/10/17 20:45:52 wdd Exp $
 //
 
 #include <vector>

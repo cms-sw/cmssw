@@ -14,7 +14,6 @@
 //
 // Original Author:  d.k.
 //         Created:  Jan CET 2006
-// $Id: PixelSimHitsTestForward.cc,v 1.5 2009/11/13 14:14:23 fambrogl Exp $
 //
 //
 // system include files

@@ -1,7 +1,6 @@
 /*
  * \file FakeTBHodoscopeRawInfoProducer.cc
  *
- * $Id: FakeTBHodoscopeRawInfoProducer.cc,v 1.2 2006/06/05 13:57:23 fabiocos Exp $
  *
  */
 

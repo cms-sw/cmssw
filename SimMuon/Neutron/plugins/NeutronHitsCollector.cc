@@ -15,7 +15,6 @@
 //
 // Original Author:  Vadim Khotilovich
 //         Created:  Mon Aug 09 19:11:42 CST 2010
-// $Id:  $
 //
 //
 

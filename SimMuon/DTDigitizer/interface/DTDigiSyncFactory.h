@@ -8,8 +8,6 @@
  *  are accessed via ComponentFactoryByName
  *
  *
- *  $Date: 2007/04/08 03:59:12 $
- *  $Revision: 1.2 $
  *  \author R. Bellan - INFN Torino
  */
 
