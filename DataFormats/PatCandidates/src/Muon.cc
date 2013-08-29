@@ -204,20 +204,70 @@ reco::TrackRef Muon::dytTrack() const {
   }
 }
 
-reco::TrackRef Muon::muonBestTrack() const { 
+reco::TrackRef Muon::muonBestTrack(){ 
   if (embeddedMuonBestTrack_) {
     return reco::TrackRef(&muonBestTrack_,0);
   } else {
-    return reco::Muon::muonBestTrack(); 
+    
+    reco::TrackRef newBestTrack;
+    
+    if(isGlobalMuon()){
+      if(muon::cocktailInputIsOK(*this)){
+	reco::Muon::MuonTrackTypePair tuneP = muon::tevOptimized(*this, 200, 4., 6., -1);   
+	newBestTrack = tuneP.first;
+	setBestTrack(tuneP.second);
+      }
+      else{
+	reco::Muon::MuonTrackTypePair sigmaS = muon::sigmaSwitch(combinedMuon(),innerTrack());
+	newBestTrack = sigmaS.first;
+	setBestTrack(sigmaS.second);	
+      }
+    }
+    else if(!isGlobalMuon() && isTrackerMuon()){
+      newBestTrack = innerTrack();
+      setBestTrack(reco::Muon::InnerTrack);
+    }
+    else if(!isGlobalMuon() && !isTrackerMuon() && isStandAloneMuon()){
+      newBestTrack = outerTrack();
+      setBestTrack(reco::Muon::OuterTrack);
+    }
+    else edm::LogError("PATMuonProducer|improvedMuonBestTrack") << "Orphan best track this must not happend!";
+    
+    return newBestTrack;
   }
 }
 
 
-reco::TrackRef Muon::improvedMuonBestTrack() const { 
+reco::TrackRef Muon::improvedMuonBestTrack() { 
   if (embeddedImprovedMuonBestTrack_) {
     return reco::TrackRef(&improvedMuonBestTrack_,0);
   } else {
-    return muon::tevOptimized(*this,  200, 17., 40., 0.25).first;
+    
+    reco::TrackRef newBestTrack;
+    
+    if(isGlobalMuon()){
+      if(muon::cocktailInputIsOK(*this)){
+	reco::Muon::MuonTrackTypePair tuneP = muon::tevOptimized(*this,  200, 17., 40., 0.25);   
+	newBestTrack = tuneP.first;
+	setBestTrack(tuneP.second);
+      }
+      else{
+	reco::Muon::MuonTrackTypePair sigmaS = muon::sigmaSwitch(combinedMuon(),innerTrack());
+	newBestTrack = sigmaS.first;
+	setBestTrack(sigmaS.second);	
+      }
+    }
+    else if(!isGlobalMuon() && isTrackerMuon()){
+      newBestTrack = innerTrack();
+      setBestTrack(reco::Muon::InnerTrack);
+    }
+    else if(!isGlobalMuon() && !isTrackerMuon() && isStandAloneMuon()){
+      newBestTrack = outerTrack();
+      setBestTrack(reco::Muon::OuterTrack);
+    }
+    else edm::LogError("PATMuonProducer|improvedMuonBestTrack") << "Orphan best track this must not happend!";
+    
+    return newBestTrack;
   }
 }
 
@@ -242,7 +292,7 @@ reco::CandidatePtr Muon::sourceCandidatePtr( size_type i ) const {
 
 /// embed the Track selected to be the best measurement of the muon parameters
 void Muon::embedMuonBestTrack() {
-  muonBestTrack_.clear();
+  muonBestTrack_.clear();  embeddedMuonBestTrack_ = false;
   if (reco::Muon::muonBestTrack().isNonnull()) {
       muonBestTrack_.push_back(*reco::Muon::muonBestTrack());
       embeddedMuonBestTrack_ = true;
@@ -251,15 +301,16 @@ void Muon::embedMuonBestTrack() {
 
 /// embed the Track selected to be the best measurement of the muon parameters
 void Muon::embedImprovedMuonBestTrack() {
-  improvedMuonBestTrack_.clear(); 
-  if(muon::cocktailInputIsOK(*this)){
-    reco::TrackRef newBestTrack = muon::tevOptimized(*this,  200, 17., 40., 0.25).first;
-    if(newBestTrack.isNonnull()){
-      improvedMuonBestTrack_.push_back(*newBestTrack);
-      embeddedImprovedMuonBestTrack_ = true;
-    }
-  }
+  improvedMuonBestTrack_.clear(); embeddedImprovedMuonBestTrack_ = false;
+  
+  if(improvedMuonBestTrack().isNonnull()){
+    improvedMuonBestTrack_.push_back(*improvedMuonBestTrack());
+    embeddedImprovedMuonBestTrack_ = true;
+  } 
+  else
+    edm::LogError("PATMuonProducer|embedImprovedMuonBestTrack") << "Orphan best track this must not happend!";
 }
+
 
 /// embed the Track reconstructed in the tracker only
 void Muon::embedTrack() {
