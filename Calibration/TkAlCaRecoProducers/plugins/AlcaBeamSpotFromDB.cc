@@ -6,7 +6,6 @@
 
  author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
 
- version $Id: AlcaBeamSpotFromDB.cc,v 1.3 2010/07/20 02:58:20 wmtan Exp $
 
 ________________________________________________________________**/
 

@@ -5,7 +5,6 @@
  *  Concrete implementation of a DTTTrigBaseCorrection.
  *  Computes t0-seg correction for tTrig
  *
- *  $Revision: 1.2 $
  *  \author A. Vilela Pereira
  */
 

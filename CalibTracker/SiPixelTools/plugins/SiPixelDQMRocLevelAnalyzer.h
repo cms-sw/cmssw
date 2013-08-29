@@ -16,7 +16,6 @@
 //
 // Original Author:  Lukas Wehrli
 //         Created:  Thu Sep 30 14:03:02 CEST 2008
-// $Id: SiPixelDQMRocLevelAnalyzer.h,v 1.3 2010/01/13 09:35:58 ursl Exp $
 //
 //
 

@@ -13,7 +13,6 @@
 //
 // Original Author:  M. De Mattia
 //         Created:  26/10/2010
-// $Id: SiStripDelayESProducer.cc,v 1.9 2010/02/09 08:39:33 demattia Exp $
 //
 //
 

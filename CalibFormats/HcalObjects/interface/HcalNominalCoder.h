@@ -7,8 +7,6 @@
     
     Simple coder which uses the QIESample to convert to fC
 
-   $Date: 2006/09/25 21:59:23 $
-   $Revision: 1.4 $
 */
 class HcalNominalCoder : public HcalCoder {
 public:

@@ -2,10 +2,6 @@
 
     \brief save (read) CLHEP::HepMatrix to (from) text files 
 
-    $Date: 2008/02/25 17:40:25 $
-    $Revision: 1.2 $
-    $Id: matrixSaver.h,v 1.2 2008/02/25 17:40:25 malberti Exp $ 
-    \author $Author: malberti $
 */
 
 #ifndef __CINT__

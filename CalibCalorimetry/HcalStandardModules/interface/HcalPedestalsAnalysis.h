@@ -1,4 +1,3 @@
-// $Id: HcalPedestalsAnalysis.h,v 1.14 2012/10/09 15:43:32 wdd Exp $
 
 #ifndef HcalPedestalsAnalysis_H
 #define HcalPedestalsAnalysis_H

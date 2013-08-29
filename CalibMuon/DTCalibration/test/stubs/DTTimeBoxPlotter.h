@@ -6,8 +6,6 @@
  *  The time box rising edge can be fitted using exactly the same code that is
  *  used by the calibration application.
  *
- *  $Date: 2006/07/21 12:26:32 $
- *  $Revision: 1.3 $
  *  \author G. Cerminara - INFN Torino
  */
 

@@ -13,7 +13,6 @@
 //
 // Original Author:  Gordon KAUSSEN
 //         Created:  Wed Jan 28 09:11:10 CEST 2009
-// $Id: SiStripBadAPVandHotStripAlgorithmFromClusterOccupancy.h,v 1.2 2011/02/14 18:19:38 kaussen Exp $
 //
 //
 

@@ -13,7 +13,6 @@
 //
 // Original Author:  Lorenzo AGOSTINO
 //         Created:  Tue Jul 18 12:17:01 CEST 2006
-// $Id: miscalibExample.cc,v 1.7 2010/01/04 15:07:18 ferriff Exp $
 //
 //
 

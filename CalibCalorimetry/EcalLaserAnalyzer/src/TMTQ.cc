@@ -1,7 +1,6 @@
 /* 
  *  \class TMTQ
  *
- *  $Date: 2010/10/21 22:54:31 $
  *  \author: Julie Malcles - CEA/Saclay
  */
 

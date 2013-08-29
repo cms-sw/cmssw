@@ -13,7 +13,6 @@
 //
 // Original Author:  Freya Blekman
 //         Created:  Mon Nov  5 16:56:35 CET 2007
-// $Id: SimpleTestPrintOutPixelCalibAnalyzer.h,v 1.1 2008/08/08 08:46:27 fblekman Exp $
 //
 //
 

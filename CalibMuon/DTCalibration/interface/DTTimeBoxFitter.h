@@ -5,8 +5,6 @@
  *  Fit the rising edge of the time box with the integral
  *  of a gaussian returning the mean value and the sigma.
  *
- *  $Date: 2008/06/06 17:09:51 $
- *  $Revision: 1.6 $
  *  \author G. Cerminara - INFN Torino
  */
 

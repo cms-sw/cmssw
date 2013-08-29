@@ -2,8 +2,6 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2010/10/14 12:42:57 $
- *  $Revision: 1.9 $
  *  \author L. Uplegger F. Yumiceva - Fermilab
  */
 

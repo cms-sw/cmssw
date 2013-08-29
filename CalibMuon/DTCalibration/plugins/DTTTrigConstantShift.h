@@ -5,7 +5,6 @@
  *  Concrete implementation of a DTTTrigBaseCorrection.
  *  Applies constant shift to tTrig values
  *
- *  $Revision: 1.3 $
  *  \author A. Vilela Pereira
  */
 

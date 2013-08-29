@@ -1,6 +1,5 @@
 // -*- C++ -*-
 // Original Author:  Fedor Ratnikov
-// $Id: CastorHardcodeCalibrations.cc,v 1.5 2011/05/09 19:35:15 mundim Exp $
 // Adapted for CASTOR by L. Mundim
 //
 
