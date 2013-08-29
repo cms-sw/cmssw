@@ -81,9 +81,9 @@ namespace pat {
       /// reference to Track reconstructed in both tracked and muon detector (reimplemented from reco::Muon)
       reco::TrackRef globalTrack() const { return combinedMuon(); }
       /// reference to the Best Track reconstructed in both tracked and muon detector (reimplemented from reco::Muon), old (default bt deprecated) tuneP
-      reco::TrackRef muonBestTrack() const;
+      reco::TrackRef muonBestTrack();
       /// reference to the Best Track reconstructed in both tracked and muon detector (reimplemented from reco::Muon), after new tuneP
-      reco::TrackRef improvedMuonBestTrack() const;
+      reco::TrackRef improvedMuonBestTrack();
 
       /// set reference to Track selected to be the best measurement of the muon parameters (reimplemented from reco::Muon)
       void embedMuonBestTrack();

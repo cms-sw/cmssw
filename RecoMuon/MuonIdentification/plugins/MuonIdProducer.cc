@@ -255,6 +255,7 @@ reco::Muon MuonIdProducer::makeMuon(edm::Event& iEvent, const edm::EventSetup& i
    reco::Muon aMuon( makeMuon( *(track.get()) ) );
 
    aMuon.setMuonTrack(type,track);
+   aMuon.setBestTrack(type);
    return aMuon;
 }
 
