@@ -20,62 +20,62 @@ process.source = cms.Source("EmptySource",
 
 process.Tracer = cms.Service("Tracer")
 
-process.SIP = cms.EDProducer("StreamIntGProducer",
+process.SIP = cms.EDProducer("edmtest::global::StreamIntProducer",
     transitions = cms.int32(7)
 )
 
-process.RIP = cms.EDProducer("RunIntGProducer",
+process.RIP = cms.EDProducer("edmtest::global::RunIntProducer",
     transitions = cms.int32(3)
 )
 
-process.LIP = cms.EDProducer("LumiIntGProducer",
+process.LIP = cms.EDProducer("edmtest::global::LumiIntProducer",
     transitions = cms.int32(3)
 )
 
-process.RSIP = cms.EDProducer("RunSummaryIntGProducer",
+process.RSIP = cms.EDProducer("edmtest::global::RunSummaryIntProducer",
     transitions = cms.int32(4)
 )
 
-process.LSIP = cms.EDProducer("LumiSummaryIntGProducer",
+process.LSIP = cms.EDProducer("edmtest::global::LumiSummaryIntProducer",
     transitions = cms.int32(4)
 )
-process.SIA = cms.EDAnalyzer("StreamIntGAnalzer",
+process.SIA = cms.EDAnalyzer("edmtest::global::StreamIntAnalzer",
     transitions = cms.int32(7)
 )
 
-process.RIA = cms.EDAnalyzer("RunIntGAnalzer",
+process.RIA = cms.EDAnalyzer("edmtest::global::RunIntAnalzer",
     transitions = cms.int32(3)
 )
 
-process.LIA = cms.EDAnalyzer("LumiIntGAnalzer",
+process.LIA = cms.EDAnalyzer("edmtest::global::LumiIntAnalzer",
     transitions = cms.int32(3)
 )
 
-process.RSIA = cms.EDAnalyzer("RunSummaryIntGAnalzer",
+process.RSIA = cms.EDAnalyzer("edmtest::global::RunSummaryIntAnalzer",
     transitions = cms.int32(4)
 )
 
-process.LSIA = cms.EDAnalyzer("LumiSummaryIntGAnalzer",
+process.LSIA = cms.EDAnalyzer("edmtest::global::LumiSummaryIntAnalzer",
     transitions = cms.int32(4)
 )
 
-process.SIF = cms.EDFilter("StreamIntGFilter",
+process.SIF = cms.EDFilter("edmtest::global::StreamIntFilter",
     transitions = cms.int32(7)
 )
 
-process.RIF = cms.EDFilter("RunIntGFilter",
+process.RIF = cms.EDFilter("edmtest::global::RunIntFilter",
     transitions = cms.int32(3)
 )
 
-process.LIF = cms.EDFilter("LumiIntGFilter",
+process.LIF = cms.EDFilter("edmtest::global::LumiIntFilter",
     transitions = cms.int32(3)
 )
 
-process.RSIF = cms.EDFilter("RunSummaryIntGFilter",
+process.RSIF = cms.EDFilter("edmtest::global::RunSummaryIntFilter",
     transitions = cms.int32(4)
 )
 
-process.LSIF = cms.EDFilter("LumiSummaryIntGFilter",
+process.LSIF = cms.EDFilter("edmtest::global::LumiSummaryIntFilter",
     transitions = cms.int32(4)
 )
 
