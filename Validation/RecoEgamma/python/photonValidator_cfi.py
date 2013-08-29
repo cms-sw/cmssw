@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
-import SimTracker.TrackAssociation.quickTrackAssociatorByHits_cfi
-trackAssociatorByHitsForPhotonValidation = SimTracker.TrackAssociation.quickTrackAssociatorByHits_cfi.quickTrackAssociatorByHits.clone()
+import SimTracker.TrackAssociation.TrackAssociatorByHits_cfi
+trackAssociatorByHitsForPhotonValidation = SimTracker.TrackAssociation.TrackAssociatorByHits_cfi.TrackAssociatorByHits.clone()
 trackAssociatorByHitsForPhotonValidation.ComponentName = cms.string('trackAssociatorByHitsForPhotonValidation')
 trackAssociatorByHitsForPhotonValidation.Cut_RecoToSim = 0.5
 trackAssociatorByHitsForPhotonValidation.Quality_SimToReco = 0.5
