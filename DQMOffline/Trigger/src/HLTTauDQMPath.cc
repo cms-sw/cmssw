@@ -5,6 +5,7 @@
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "DataFormats/HLTReco/interface/TriggerEvent.h"
+#include "DataFormats/Math/interface/deltaR.h"
 
 #include<cstdio>
 #include<sstream>
@@ -221,6 +222,14 @@ namespace {
 
     return n;
   }
+
+  template <typename T1, typename T2>
+  bool deltaRmatch(const T1& obj, const std::vector<T2>& coll, double dR) {
+    for(const T2& refObj: coll)
+      if(reco::deltaR(obj, refObj) < dR)
+        return true;
+    return false;
+  }
 }
 
 
@@ -362,5 +371,43 @@ void HLTTauDQMPath::getFilterObjects(const trigger::TriggerEvent& triggerEvent, 
 }
 
 bool HLTTauDQMPath::offlineMatching(size_t i, const std::vector<Object>& triggerObjects, const std::map<int, LVColl>& offlineObjects, double dR) const {
+  if(filterTauN_[i] > 0) {
+    std::map<int, LVColl>::const_iterator tauFound = offlineObjects.find(15);
+    if(tauFound == offlineObjects.end())
+      return false;
+
+    int matchedObjects = 0;
+    for(const Object& trgObj: triggerObjects) {
+      if(trgObj.id != trigger::TriggerTau)
+        continue;
+
+      if(deltaRmatch(trgObj.object, tauFound->second, dR))
+        ++matchedObjects;
+    }
+    if(matchedObjects < filterTauN_[i])
+      return false;
+  }
+  if(filterLeptonN_[i] > 0) {
+    std::map<int, LVColl>::const_iterator eleFound = offlineObjects.find(11);
+    std::map<int, LVColl>::const_iterator muFound = offlineObjects.find(13);
+
+    int matchedObjects = 0;
+    for(const Object& trgObj: triggerObjects) {
+      if(trgObj.id == trigger::TriggerElectron) {
+        if(eleFound == offlineObjects.end())
+          return false;
+        if(deltaRmatch(trgObj.object, eleFound->second, dR))
+          ++matchedObjects;
+      }
+      else if(trgObj.id == trigger::TriggerMuon) {
+        if(muFound == offlineObjects.end())
+          return false;
+        if(deltaRmatch(trgObj.object, muFound->second, dR))
+          ++matchedObjects;
+      }
+    }
+    if(matchedObjects < filterLeptonN_[i])
+      return false;
+  }
   return true;
 }

@@ -53,7 +53,7 @@ HLTTauDQMOfflineSource::HLTTauDQMOfflineSource( const edm::ParameterSet& ps ):
       }
     } else if (configtype == "Path2") {
       try {
-        pathPlotters2_.emplace_back(new HLTTauDQMPathPlotter2(pset, doRefAnalysis_, dqmBaseFolder_, hltProcessName_, nPtBins, nEtaBins, nPhiBins));
+        pathPlotters2_.emplace_back(new HLTTauDQMPathPlotter2(pset, doRefAnalysis_, dqmBaseFolder_, hltProcessName_, nPtBins, nEtaBins, nPhiBins, HLTMatchDr_));
       } catch ( cms::Exception &e ) {
         edm::LogWarning("HLTTauDQMSource") << e.what() << std::endl;
         continue;

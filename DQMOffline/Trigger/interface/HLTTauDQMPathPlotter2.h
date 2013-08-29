@@ -21,7 +21,8 @@ class HLTConfigProvider;
 class HLTTauDQMPathPlotter2: public HLTTauDQMPlotter {
 public:
   HLTTauDQMPathPlotter2(const edm::ParameterSet& pset, bool doRefAnalysis, const std::string& dqmBaseFolder,
-                        const std::string& hltProcess, int ptbins, int etabins, int phibins);
+                        const std::string& hltProcess, int ptbins, int etabins, int phibins,
+                        double hltMatchDr);
   ~HLTTauDQMPathPlotter2();
 
   void beginRun(const HLTConfigProvider& HLTCP);
@@ -37,6 +38,7 @@ private:
   const int ptbins_;
   const int etabins_;
   const int phibins_;
+  const double hltMatchDr_;
   const bool doRefAnalysis_;
 
   HLTTauDQMPath hltPath_;
