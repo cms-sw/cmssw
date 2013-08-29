@@ -1,8 +1,6 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2012/04/20 14:37:48 $
- *  $Revision: 1.10 $
  *  \author A.Apresyan - Caltech
  */
 
