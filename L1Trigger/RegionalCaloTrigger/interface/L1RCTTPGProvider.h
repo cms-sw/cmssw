@@ -13,7 +13,6 @@
 //
 // Original Author:  Michail Bachtis
 //         Created:  Tue Mar 10 18:29:22 CDT 2009
-// $Id: L1RCTTPGProvider.h,v 1.1 2009/03/31 04:15:04 bachtis Exp $
 //
 //
 

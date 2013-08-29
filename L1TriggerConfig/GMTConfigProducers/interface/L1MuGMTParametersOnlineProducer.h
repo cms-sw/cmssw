@@ -6,7 +6,6 @@
 //                 by reading them from the online database.
 //
 //   $Date$
-//   $Revision$
 //
 //   Author :
 //   Thomas Themel

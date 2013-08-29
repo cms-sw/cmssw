@@ -18,7 +18,6 @@
  * \author: W. David Dagenhart
  * 
  * $Date$
- * $Revision$
  *
  */
 

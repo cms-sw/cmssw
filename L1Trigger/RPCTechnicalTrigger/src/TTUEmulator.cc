@@ -1,4 +1,3 @@
-// $Id: TTUEmulator.cc,v 1.15 2009/09/26 13:39:17 elmer Exp $
 // Include files 
 
 

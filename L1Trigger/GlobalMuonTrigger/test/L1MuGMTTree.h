@@ -6,8 +6,6 @@
  *   Description:  Build GMT Tree
 */
 //                
-//   $Date: 2009/12/18 20:44:58 $
-//   $Revision: 1.8 $
 //
 //   I. Mikulec            HEPHY Vienna
 //

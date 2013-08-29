@@ -9,7 +9,6 @@
  * \author: Thomas Themel - HEPHY Vienna
  * 
  * $Date$
- * $Revision$
  *
  */
 

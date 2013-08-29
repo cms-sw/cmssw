@@ -13,7 +13,6 @@
 //
 // Original Author:  Jim Brooke
 //         Created:  Thu May 18 16:45:23 CEST 2006
-// $Id: DumpGctDigis.h,v 1.3 2007/10/25 17:59:28 frazier Exp $
 //
 //
 

@@ -1,4 +1,3 @@
-// $Id: TTUConfigurator.cc,v 1.2 2009/10/29 20:04:02 ghete Exp $
 // Include files 
 
 

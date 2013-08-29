@@ -5,8 +5,6 @@
 //   Description: Sector Processor container 
 //
 //
-//   $Date: 2008/10/17 12:41:48 $
-//   $Revision: 1.4 $
 //
 //   Author :
 //   N. Neumeister             CERN EP

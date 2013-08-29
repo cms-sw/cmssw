@@ -4,8 +4,6 @@
  *   Contains active DTTracoChips
  *
  *
- *   $Date: 2008/09/05 15:56:27 $
- *   $Revision: 1.9 $
  *
  *   \author C. Grandi, S. Vanini 
  *

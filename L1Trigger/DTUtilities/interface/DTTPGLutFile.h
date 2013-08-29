@@ -5,8 +5,6 @@
  *   Auxiliary class to handle Look-up table files
  *
  *
- *   $Date: 2006/09/18 10:19:32 $
- *   $Revision: 1.2 $
  *
  *   \author   N. Neumeister            CERN EP
  */

@@ -6,7 +6,6 @@
 //
 //
 //   $Date $
-//   $Revision $
 //
 //   Author :
 //   H. Sakulin                   HEPHY Vienna

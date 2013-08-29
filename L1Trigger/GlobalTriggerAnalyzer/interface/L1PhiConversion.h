@@ -11,7 +11,6 @@
  * \author: Vasile Mihai Ghete   - HEPHY Vienna
  *
  * $Date$
- * $Revision$
  *
  */
 

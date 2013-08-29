@@ -8,7 +8,6 @@
 //
 // Original Author:  Tomasz Fruboes
 //         Created:  Tue Feb 26 15:13:10 CET 2008
-// $Id: RPCStripsRing.cc,v 1.2 2009/09/15 13:49:41 fruboes Exp $
 //
 
 // system include files

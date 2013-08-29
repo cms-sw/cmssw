@@ -16,7 +16,6 @@
  * \author: Vasile Mihai Ghete   - HEPHY Vienna - CMSSW version
  *
  * $Date$
- * $Revision$
  *
  */
 

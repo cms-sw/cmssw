@@ -11,7 +11,6 @@
  *
  * \author Slava Valuev, UCLA.
  *
- * $Id: CSCTriggerPrimitivesBuilder.h,v 1.8.2.2 2012/10/18 05:04:21 khotilov Exp $
  *
  */
 

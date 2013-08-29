@@ -13,7 +13,6 @@
 //
 // Original Author:  Werner Man-Li Sun
 //         Created:  Thu Oct  2 21:43:50 CEST 2008
-// $Id: DTTFTSCObjectKeysOnlineProd.cc,v 1.1 2009/05/14 11:19:40 troco Exp $
 //
 //
 

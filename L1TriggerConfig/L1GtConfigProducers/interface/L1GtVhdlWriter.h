@@ -13,7 +13,6 @@
  * \author: Philipp Wagner
  *
  * $Date$
- * $Revision$
  *
  */
 

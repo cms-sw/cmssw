@@ -23,7 +23,6 @@
  * in ORCA).
  * Porting from ORCA by S. Valuev (Slava.Valuev@cern.ch), May 2006.
  *
- * $Id: CSCCathodeLCTProcessor.h,v 1.25.2.3 2012/10/18 04:51:49 khotilov Exp $
  *
  */
 

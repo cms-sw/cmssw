@@ -10,7 +10,6 @@
  * \author: Ivan Mikulec
  *
  * $Date$
- * $Revision$
  *
  */
 
