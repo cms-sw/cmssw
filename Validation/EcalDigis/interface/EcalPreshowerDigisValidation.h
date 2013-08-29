@@ -4,8 +4,6 @@
 /*
  * \file EcalPreshowerDigisValidation.h
  *
- * $Date: 2008/02/29 20:48:25 $
- * $Revision: 1.7 $
  * \author F. Cossutti
  *
 */

@@ -9,7 +9,6 @@
 //
 // Original Author:  Traczyk Piotr
 //         Created:  Thu Oct 11 15:01:28 CEST 2007
-// $Id: CSCTimingExtractor.h,v 1.3 2010/07/01 08:48:11 ptraczyk Exp $
 //
 //
 

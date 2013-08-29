@@ -12,6 +12,9 @@
  */
 
 #include "HLTrigger/HLTcore/interface/HLTFilter.h"
+#include "DataFormats/BeamSpot/interface/BeamSpot.h"
+#include "DataFormats/RecoCandidate/interface/RecoChargedCandidateFwd.h"
+#include "HLTrigger/Muon/interface/HLTMuonL2ToL1Map.h"
 
 namespace edm {
    class ConfigurationDescriptions;
@@ -27,16 +30,20 @@ class HLTMuonL2PreFilter : public HLTFilter {
 
   private:
     /// input tag of the beam spot
-    edm::InputTag beamSpotTag_ ;
+    edm::InputTag                    beamSpotTag_ ;
+    edm::EDGetTokenT<reco::BeamSpot> beamSpotToken_ ;
 
     /// input tag of L2 muons
-    edm::InputTag candTag_;
+    edm::InputTag                                          candTag_;
+    edm::EDGetTokenT<reco::RecoChargedCandidateCollection> candToken_;
 
     /// input tag of the preceeding L1 filter in the path
-    edm::InputTag previousCandTag_;
+    edm::InputTag                                          previousCandTag_;
+    edm::EDGetTokenT<trigger::TriggerFilterObjectWithRefs> previousCandToken_;
 
     /// input tag of the map from the L2 seed to the sister L2 seeds of cleaned tracks
-    edm::InputTag seedMapTag_;
+    edm::InputTag             seedMapTag_;
+    edm::EDGetTokenT<SeedMap> seedMapToken_;
 
     /// minimum number of muons to fire the trigger
     int minN_;

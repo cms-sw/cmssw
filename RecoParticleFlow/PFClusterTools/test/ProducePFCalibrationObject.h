@@ -4,8 +4,6 @@
 /** \class ProducePFCalibrationObject
  *  No description available.
  *
- *  $Date: $
- *  $Revision: $
  *  \author G. Cerminara - CERN
  */
 #include "FWCore/Framework/interface/EDAnalyzer.h"

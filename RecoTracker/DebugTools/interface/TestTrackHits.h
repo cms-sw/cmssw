@@ -15,7 +15,6 @@
 //
 // Original Author:  Giuseppe Cerati
 //         Created:  Tue Feb 13 17:29:10 CET 2007
-// $Id: TestTrackHits.h,v 1.7 2009/03/04 13:34:24 vlimant Exp $
 //
 //
 

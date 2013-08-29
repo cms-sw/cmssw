@@ -4,8 +4,6 @@
  *  Description:
  *
  *
- *  $Date: 2006/11/23 11:54:19 $
- *  $Revision: 1.5 $
  *
  *  Authors :
  *  A. Everett               Purdue University

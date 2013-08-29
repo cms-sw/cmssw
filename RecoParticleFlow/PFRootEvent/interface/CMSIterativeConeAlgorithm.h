@@ -8,7 +8,6 @@
  * Documented in CMS NOTE-2006/036
  *
  * \author A.Ulyanov, ITEP
- * $Id: CMSIterativeConeAlgorithm.h,v 1.7 2007/04/18 22:04:31 fedor Exp $
  ************************************************************/
 
 

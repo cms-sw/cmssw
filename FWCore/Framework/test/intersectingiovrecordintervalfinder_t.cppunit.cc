@@ -17,7 +17,7 @@
 #include "FWCore/Framework/test/DummyRecord.h"
 #include "FWCore/Framework/test/DummyFinder.h"
 
-#include <cppunit/extensions/HelperMacros.h>
+#include "cppunit/extensions/HelperMacros.h"
 using namespace edm::eventsetup;
 
 class testintersectingiovrecordintervalfinder: public CppUnit::TestFixture

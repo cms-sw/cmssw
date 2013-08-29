@@ -4,7 +4,6 @@
 /// Algorithm to make jet flavor specific information from transient protojet
 /// Author: F.Ratnikov, UMd
 /// Mar. 8, 2006
-/// $Id: JetMaker.h,v 1.10 2007/09/20 21:05:01 fedor Exp $
 
 #include "DataFormats/JetReco/interface/CaloJet.h"
 #include "DataFormats/JetReco/interface/PFJet.h"

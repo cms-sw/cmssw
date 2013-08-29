@@ -1,8 +1,6 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2012/10/16 10:07:41 $
- *  $Revision: 1.3 $
  *  \author Jeremy Andrea
  */
 
@@ -62,7 +60,9 @@ TrackEfficiencyMonitor::TrackEfficiencyMonitor(const edm::ParameterSet& iConfig)
   theTKTracksLabel_    = iConfig.getParameter<edm::InputTag>("TKTrackCollection");
   theSTATracksLabel_   = iConfig.getParameter<edm::InputTag>("STATrackCollection");
   
- 
+  theTKTracksToken_  = consumes<reco::TrackCollection>(theTKTracksLabel_);
+  theSTATracksToken_ = consumes<reco::TrackCollection>(theSTATracksLabel_);
+
   conf_ = iConfig;
 }
 
@@ -263,9 +263,11 @@ void TrackEfficiencyMonitor::analyze(const edm::Event& iEvent, const edm::EventS
    
 
   edm::Handle<reco::TrackCollection> tkTracks;
-  iEvent.getByLabel(theTKTracksLabel_, tkTracks);
+  //  iEvent.getByLabel(theTKTracksLabel_, tkTracks);
+  iEvent.getByToken(theTKTracksToken_, tkTracks);
   edm::Handle<reco::TrackCollection> staTracks;
-  iEvent.getByLabel(theSTATracksLabel_, staTracks);
+  //  iEvent.getByLabel(theSTATracksLabel_, staTracks);
+  iEvent.getByToken(theSTATracksToken_, staTracks);
   edm::ESHandle<NavigationSchool> nav;
   iSetup.get<NavigationSchoolRecord>().get("CosmicNavigationSchool", nav); 
   NavigationSetter setter(*nav.product());

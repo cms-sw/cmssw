@@ -1,9 +1,6 @@
 #ifndef RecoEcal_EgammaClusterProducers_PiZeroDiscriminatorProducer_h
 #define RecoEcal_EgammaClusterProducers_PiZeroDiscriminatorProducer_h
 
-// $Author: akyriaki $
-// $Id: PiZeroDiscriminatorProducer.h,v 1.3 2007/06/25 09:16:03 akyriaki Exp $
-// $Date: 2007/06/25 09:16:03 $
 
 #include <memory>
 

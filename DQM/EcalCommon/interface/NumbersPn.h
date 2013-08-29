@@ -4,8 +4,6 @@
 /*!
   \file NumbersPn.h
   \brief Some "id" conversions
-  \version $Revision: 1.10 $
-  \date $Date: 2010/08/20 19:09:04 $
 */
 
 #include <string>

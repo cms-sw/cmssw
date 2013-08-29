@@ -4,8 +4,6 @@
 /** \class MuonTrajectoryBuilder
  *  Base class for the Muon reco Trajectory Builder 
  *
- *  $Date: 2008/02/04 14:53:03 $
- *  $Revision: 1.20 $
  *  \author R. Bellan - INFN Torino
  */
 

@@ -4,9 +4,6 @@
 /** \class EcalRecHitProducer
  *   produce ECAL rechits from uncalibrated rechits
  *
- *  $Id: EcalRecHitProducer.h,v 1.5 2013/06/13 12:24:56 argiro Exp $
- *  $Date: 2013/06/13 12:24:56 $
- *  $Revision: 1.5 $
  *  \author Shahram Rahatlou, University of Rome & INFN, March 2006
  *
  **/

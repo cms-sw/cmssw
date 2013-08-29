@@ -37,6 +37,9 @@
 #include "Fireworks/Tracks/plugins/FWTrackHitsDetailView.h"
 #include "Fireworks/Tracks/interface/TrackUtils.h"
 
+// boost includes
+#include "boost/bind.hpp"
+
 FWTrackHitsDetailView::FWTrackHitsDetailView ():
   m_modules(0),
   m_moduleLabels(0),

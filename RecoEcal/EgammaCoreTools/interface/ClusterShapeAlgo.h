@@ -7,7 +7,6 @@
  *
  * \author Michael A. Balazs, UVa
  * 
- * \version $Id: ClusterShapeAlgo.h,v 1.16 2007/08/07 12:13:30 rahatlou Exp $
  *
  */
 

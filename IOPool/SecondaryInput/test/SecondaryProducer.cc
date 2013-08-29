@@ -51,9 +51,8 @@ namespace edm {
         firstEvent_(true),
         firstLoop_(true),
         expectedEventNumber_(1) {
-    ParameterSet emptyPSet;
-    emptyPSet.registerIt();
-    processConfiguration_->setParameterSetID(emptyPSet.id());
+    processConfiguration_->setParameterSetID(ParameterSet::emptyParameterSetID());
+    processConfiguration_->setProcessConfigurationID();
  
     productRegistry_->setFrozen();
 
@@ -106,6 +105,7 @@ namespace edm {
                                                     "EventNumber",
                                                     "",
                                                     "",
+                                                    nullptr,
                                                     nullptr);
     assert(bhandle.isValid());
     Handle<edmtest::IntProduct> handle;
@@ -120,6 +120,7 @@ namespace edm {
                                                "Thing",
                                                "",
                                                "",
+                                               nullptr,
                                                nullptr);
     assert(bh.isValid());
     if(!(bh.interface()->dynamicTypeInfo() == typeid(TC))) {

@@ -4,8 +4,6 @@
 /** \class Histograms
  *  No description available.
  *
- *  $Date: 2008/03/02 20:26:22 $
- *  $Revision: 1.4 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
 

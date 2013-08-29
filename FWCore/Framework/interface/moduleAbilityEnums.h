@@ -16,7 +16,6 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue, 07 May 2013 18:11:24 GMT
-// $Id$
 //
 
 // system include files
@@ -41,7 +40,8 @@ namespace edm {
       kEndLuminosityBlockProducer,
       kOneSharedResources,
       kOneWatchRuns,
-      kOneWatchLuminosityBlocks
+      kOneWatchLuminosityBlocks,
+      kWatchInputFiles
     };
     
     namespace AbilityBits {
@@ -56,7 +56,8 @@ namespace edm {
         kEndRunProducer=128,
         kOneSharedResources=256,
         kOneWatchRuns=512,
-        kOneWatchLuminosityBlocks=1024
+        kOneWatchLuminosityBlocks=1024,
+        kWatchInputFiles=2048
       };
     }
     

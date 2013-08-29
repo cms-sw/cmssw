@@ -8,8 +8,8 @@
 */
 // Original Author:  dkcira
 //         Created:  Wed Feb  1 16:47:14 CET 2006
-// $Id: SiStripMonitorCluster.h,v 1.42 2012/07/19 15:46:18 tosi Exp $
 #include <memory>
+#include "FWCore/Utilities/interface/EDGetToken.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -22,9 +22,15 @@
 
 #include <vector>
 
+#include "DataFormats/Common/interface/DetSetVector.h"
+#include "DataFormats/Common/interface/DetSetVectorNew.h"
+
 class DQMStore;
 class SiStripDetCabling;
 class SiStripCluster;
+class SiPixelCluster;
+class EventWithHistory;
+class APVCyclePhaseCollection;
 class SiStripDCSStatus;
 class GenericTriggerEventFlag;
 
@@ -184,10 +190,17 @@ class SiStripMonitorCluster : public edm::EDAnalyzer {
   std::string topFolderName_;
   std::string qualityLabel_;
 
+  /*
   edm::InputTag clusterProducerStrip_;
   edm::InputTag clusterProducerPix_;
   edm::InputTag historyProducer_;  
   edm::InputTag apvPhaseProducer_;
+  */
+
+  edm::EDGetTokenT<edmNew::DetSetVector<SiStripCluster> >         clusterProducerStripToken_;
+  edm::EDGetTokenT<edmNew::DetSetVector<SiPixelCluster> >         clusterProducerPixToken_;
+  edm::EDGetTokenT<EventWithHistory>        historyProducerToken_;
+  edm::EDGetTokenT<APVCyclePhaseCollection> apvPhaseProducerToken_;
 
   bool   applyClusterQuality_;
   double sToNLowerLimit_;  

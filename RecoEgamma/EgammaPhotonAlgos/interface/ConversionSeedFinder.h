@@ -3,9 +3,6 @@
 /** \class ConversionSeedFinder
  **  
  **
- **  $Id: ConversionSeedFinder.h,v 1.12 2010/12/11 09:48:47 innocent Exp $ 
- **  $Date: 2010/12/11 09:48:47 $ 
- **  $Revision: 1.12 $
  **  \author Nancy Marinelli, U. of Notre Dame, US
  **
  ***/

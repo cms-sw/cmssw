@@ -8,7 +8,6 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue May  3 11:13:47 CDT 2011
-// $Id: DQMRootSource.cc,v 1.31 2013/04/24 22:48:01 wmtan Exp $
 //
 
 // system include files
@@ -800,9 +799,7 @@ DQMRootSource::setupFile(unsigned int iIndex)
     for(unsigned int index = 0; index != parameterSetTree->GetEntries();++index)
     {
       parameterSetTree->GetEntry(index);
-      cms::Digest dg(blob);
-      edm::ParameterSetID psID(dg.digest().toString());
-      edm::ParameterSet temp(blob,psID);
+      edm::ParameterSet::registerFromString(blob);
     } 
   }
 
@@ -839,7 +836,7 @@ DQMRootSource::setupFile(unsigned int iIndex)
           edm::ProcessHistory ph(configs);
           m_historyIDs.push_back(ph.id());
           phr->insertMapped(ph);
-          m_reducedHistoryIDs.push_back(phr->extra().reduceProcessHistoryID(ph.id()));
+          m_reducedHistoryIDs.push_back(phr->extraForUpdate().reduceProcessHistoryID(ph.id()));
         }
         configs.clear();
       }
@@ -852,7 +849,7 @@ DQMRootSource::setupFile(unsigned int iIndex)
       edm::ProcessHistory ph(configs);
       m_historyIDs.push_back(ph.id());
       phr->insertMapped( ph);
-      m_reducedHistoryIDs.push_back(phr->extra().reduceProcessHistoryID(ph.id()));
+      m_reducedHistoryIDs.push_back(phr->extraForUpdate().reduceProcessHistoryID(ph.id()));
       //std::cout <<"inserted "<<ph.id()<<std::endl;
     }
   }

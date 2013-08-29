@@ -3,7 +3,7 @@
 
 #include <boost/shared_ptr.hpp>
 
-#include <HepMC/GenEvent.h>
+#include "HepMC/GenEvent.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"

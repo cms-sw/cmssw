@@ -4,10 +4,10 @@
 #include "DataFormats/Provenance/interface/BranchID.h"
 #include "DataFormats/Provenance/interface/BranchIDListHelper.h"
 #include "DataFormats/Provenance/interface/Selections.h"
-#include "FWCore/Framework/interface/Actions.h"
+#include "FWCore/Framework/interface/ExceptionActions.h"
 #include "FWCore/Framework/interface/CommonParams.h"
 #include "FWCore/Framework/interface/ConstProductRegistry.h"
-#include "FWCore/Framework/interface/OutputModule.h"
+#include "FWCore/Framework/interface/SubProcess.h"
 #include "FWCore/Framework/interface/Schedule.h"
 #include "FWCore/Framework/interface/TriggerNamesService.h"
 #include "FWCore/Framework/src/SignallingProductRegistry.h"
@@ -29,7 +29,7 @@ namespace edm {
       processConfiguration_() {
   }
 
-  ScheduleItems::ScheduleItems(ProductRegistry const& preg, BranchIDListHelper const& branchIDListHelper, OutputModule const& om) :
+  ScheduleItems::ScheduleItems(ProductRegistry const& preg, BranchIDListHelper const& branchIDListHelper, SubProcess const& om) :
       actReg_(new ActivityRegistry),
       preg_(new SignallingProductRegistry(preg)),
       branchIDListHelper_(new BranchIDListHelper(branchIDListHelper)),
@@ -113,7 +113,7 @@ namespace edm {
 
   boost::shared_ptr<CommonParams>
   ScheduleItems::initMisc(ParameterSet& parameterSet) {
-    act_table_.reset(new ActionTable(parameterSet));
+    act_table_.reset(new ExceptionToActionTable(parameterSet));
     std::string processName = parameterSet.getParameter<std::string>("@process_name");
     processConfiguration_.reset(new ProcessConfiguration(processName, getReleaseVersion(), getPassID()));
     boost::shared_ptr<CommonParams>
@@ -127,7 +127,8 @@ namespace edm {
   std::auto_ptr<Schedule>
   ScheduleItems::initSchedule(ParameterSet& parameterSet,
                               ParameterSet const* subProcessPSet,
-                              StreamID streamID) {
+                              StreamID streamID,
+                              ProcessContext const* processContext) {
     std::auto_ptr<Schedule> schedule(
         new Schedule(parameterSet,
                      ServiceRegistry::instance().get<service::TriggerNamesService>(),
@@ -137,7 +138,8 @@ namespace edm {
                      actReg_,
                      processConfiguration_,
                      subProcessPSet,
-                     streamID));
+                     streamID,
+                     processContext));
     return schedule;
   }
 

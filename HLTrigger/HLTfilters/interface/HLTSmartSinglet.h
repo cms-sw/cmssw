@@ -39,7 +39,8 @@ class HLTSmartSinglet : public HLTFilter {
       virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct);
 
    private:
-      edm::InputTag inputTag_; // input tag identifying product
+      edm::InputTag                     inputTag_;   // input tag identifying product
+      edm::EDGetTokenT<std::vector<T> > inputToken_; // token identifying product      
       int triggerType_;        // triggerType
       std::string   cut_;      // smart cut
       int           min_N_;    // number of objects passing cuts required

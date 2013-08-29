@@ -16,7 +16,6 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Sep  5 13:33:00 EDT 2005
-// $Id: ServicePluginFactory.h,v 1.2 2007/02/07 13:29:18 chrjones Exp $
 //
 
 // system include files

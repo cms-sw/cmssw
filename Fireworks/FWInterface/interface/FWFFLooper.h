@@ -57,9 +57,7 @@ public:
    void postBeginJob();
    void postEndJob();
 
-   virtual void beginRun(const edm::Run&, const edm::EventSetup&);
-   virtual void doBeginLuminosityBlock(edm::LuminosityBlockPrincipal&,edm::EventSetup const&);
-   virtual void doEndLuminosityBlock(edm::LuminosityBlockPrincipal&, edm::EventSetup const&);
+   virtual void beginRun(const edm::Run&, const edm::EventSetup&) override;
 
    void display(const std::string& info="");
 
@@ -74,9 +72,9 @@ public:
 
    void quit();
 
-   virtual void startingNewLoop(unsigned int);
-   virtual edm::EDLooperBase::Status endOfLoop(const edm::EventSetup&, unsigned int);
-   virtual edm::EDLooperBase::Status duringLoop(const edm::Event&, const edm::EventSetup&, edm::ProcessingController&); 
+   virtual void startingNewLoop(unsigned int) override;
+   virtual edm::EDLooperBase::Status endOfLoop(const edm::EventSetup&, unsigned int) override;
+   virtual edm::EDLooperBase::Status duringLoop(const edm::Event&, const edm::EventSetup&, edm::ProcessingController&) override; 
    void requestChanges(const std::string &, const edm::ParameterSet &);
 
    void remakeGeometry(const DisplayGeomRecord& dgRec);

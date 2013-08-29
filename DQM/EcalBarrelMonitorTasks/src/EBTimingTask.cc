@@ -1,8 +1,6 @@
 /*
  * \file EBTimingTask.cc
  *
- * $Date: 2011/09/15 21:54:51 $
- * $Revision: 1.73 $
  * \author G. Della Ricca
  *
 */

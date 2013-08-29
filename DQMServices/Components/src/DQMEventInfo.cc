@@ -2,9 +2,6 @@
  * \file DQMEventInfo.cc
  * \author M. Zanetti - CERN PH
  * Last Update:
- * $Date: 2010/07/20 19:36:27 $
- * $Revision: 1.32 $
- * $Author: wmtan $
  *
  */
 #include "DQMEventInfo.h"

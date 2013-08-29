@@ -9,8 +9,6 @@
  *
  *   Implementation of muon b-tagging cutting on the lepton's transverse momentum relative to the jet axis
  *
- *   $Date: 2008/10/01 12:35:34 $
- *   $Revision: 1.3 $
  *
  *   \author Andrea 'fwyzard' Bocci, Universita' di Firenze
  */

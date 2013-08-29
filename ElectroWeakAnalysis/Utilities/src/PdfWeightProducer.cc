@@ -28,6 +28,7 @@ class PdfWeightProducer : public edm::EDProducer {
       virtual void endJob() ;
 
       std::string fixPOWHEG_;
+      bool useFirstAsDefault_;
       edm::InputTag genTag_;
       edm::InputTag pdfInfoTag_;
       std::vector<std::string> pdfSetNames_;
@@ -50,6 +51,7 @@ namespace LHAPDF {
 /////////////////////////////////////////////////////////////////////////////////////
 PdfWeightProducer::PdfWeightProducer(const edm::ParameterSet& pset) :
  fixPOWHEG_(pset.getUntrackedParameter<std::string> ("FixPOWHEG", "")),
+ useFirstAsDefault_(pset.getUntrackedParameter<bool>("useFirstAsDefault",false)),
  genTag_(pset.getUntrackedParameter<edm::InputTag> ("GenTag", edm::InputTag("genParticles"))),
  pdfInfoTag_(pset.getUntrackedParameter<edm::InputTag> ("PdfInfoTag", edm::InputTag("generator"))),
  pdfSetNames_(pset.getUntrackedParameter<std::vector<std::string> > ("PdfSetNames"))
@@ -106,6 +108,11 @@ void PdfWeightProducer::produce(edm::Event& iEvent, const edm::EventSetup&) {
       int id2 = pdfstuff->pdf()->id.second;
       double x2 = pdfstuff->pdf()->x.second;
       double pdf2 = pdfstuff->pdf()->xPDF.second; 
+      if (useFirstAsDefault_ && pdf1 == -1. && pdf2 == -1. ) {
+         LHAPDF::usePDFMember(1,0);
+         pdf1 = LHAPDF::xfx(1, x1, Q, id1)/x1;
+         pdf2 = LHAPDF::xfx(1, x2, Q, id2)/x2;
+      }
 
       // Ad-hoc fix for POWHEG
       if (fixPOWHEG_!="") {

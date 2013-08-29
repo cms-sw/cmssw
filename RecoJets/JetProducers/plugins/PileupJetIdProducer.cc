@@ -13,7 +13,6 @@ Implementation:
 //
 // Original Author:  Pasquale Musella,40 2-A12,+41227671706,
 //         Created:  Wed Apr 18 15:48:47 CEST 2012
-// $Id: PileupJetIdProducer.cc,v 1.2 2012/09/20 15:43:30 veelken Exp $
 //
 //
 

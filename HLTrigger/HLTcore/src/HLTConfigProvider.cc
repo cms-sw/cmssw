@@ -49,19 +49,19 @@ HLTConfigProvider::HLTConfigProvider():
 //}
 
 HLTConfigProvider::HLTConfigCounterSentry::HLTConfigCounterSentry() {
-  HLTConfigDataRegistry::instance()->extra().increment();
+  HLTConfigDataRegistry::instance()->extraForUpdate().increment();
 }
 
 HLTConfigProvider::HLTConfigCounterSentry::HLTConfigCounterSentry(HLTConfigCounterSentry const&) {
-  HLTConfigDataRegistry::instance()->extra().increment();
+  HLTConfigDataRegistry::instance()->extraForUpdate().increment();
 }
 
 HLTConfigProvider::HLTConfigCounterSentry::HLTConfigCounterSentry(HLTConfigCounterSentry &&) {
-  HLTConfigDataRegistry::instance()->extra().increment();
+  HLTConfigDataRegistry::instance()->extraForUpdate().increment();
 }
 
 HLTConfigProvider::HLTConfigCounterSentry::~HLTConfigCounterSentry() {
-  HLTConfigDataRegistry::instance()->extra().decrement();
+  HLTConfigDataRegistry::instance()->extraForUpdate().decrement();
 }
 
 bool HLTConfigProvider::init(const edm::Run& iRun, 

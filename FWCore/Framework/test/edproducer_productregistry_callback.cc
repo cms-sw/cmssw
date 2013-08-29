@@ -8,7 +8,7 @@
 
 
 #include <iostream>
-#include <cppunit/extensions/HelperMacros.h>
+#include "cppunit/extensions/HelperMacros.h"
 #include "boost/shared_ptr.hpp"
 #include "FWCore/Utilities/interface/GetPassID.h"
 #include "FWCore/Version/interface/GetReleaseVersion.h"
@@ -17,7 +17,7 @@
 #include "FWCore/Framework/interface/ConstProductRegistry.h"
 
 #include "FWCore/Framework/interface/EDProducer.h"
-#include "FWCore/Framework/interface/Actions.h"
+#include "FWCore/Framework/interface/ExceptionActions.h"
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
 #include "DataFormats/Provenance/interface/ProcessConfiguration.h"
 #include "FWCore/Framework/src/WorkerMaker.h"
@@ -137,7 +137,7 @@ void  testEDProducerProductRegistryCallback::testCircularRef() {
    p2.addParameter("@module_edm_type",std::string("EDProducer") );
    p2.registerIt();
    
-   edm::ActionTable table;
+   edm::ExceptionToActionTable table;
    
    edm::ParameterSet dummyProcessPset;
    dummyProcessPset.registerIt();
@@ -208,7 +208,7 @@ void  testEDProducerProductRegistryCallback::testCircularRef2() {
    p2.addParameter("@module_edm_type",std::string("EDProducer") );
    p2.registerIt();
    
-   edm::ActionTable table;
+   edm::ExceptionToActionTable table;
    
    edm::ParameterSet dummyProcessPset;
    dummyProcessPset.registerIt();
@@ -278,7 +278,7 @@ void  testEDProducerProductRegistryCallback::testTwoListeners(){
    p2.addParameter("@module_edm_type",std::string("EDProducer") );
    p2.registerIt();
    
-   edm::ActionTable table;
+   edm::ExceptionToActionTable table;
    
    edm::ParameterSet dummyProcessPset;
    dummyProcessPset.registerIt();

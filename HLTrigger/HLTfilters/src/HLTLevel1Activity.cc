@@ -28,6 +28,8 @@
 #include "CondFormats/DataRecord/interface/L1GtTriggerMaskTechTrigRcd.h"
 #include "CondFormats/DataRecord/interface/L1GtTriggerMaskAlgoTrigRcd.h"
 
+#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
+
 // FIXME: these should come form the L1 configuration at runtime
 #define PHYSICS_BITS_SIZE    128
 #define TECHNICAL_BITS_SIZE   64
@@ -44,7 +46,8 @@ public:
   virtual bool filter(edm::Event&, const edm::EventSetup&);
 
 private:
-  edm::InputTag     m_gtReadoutRecord;
+  edm::InputTag                                  m_gtReadoutRecordTag;
+  edm::EDGetTokenT<L1GlobalTriggerReadoutRecord> m_gtReadoutRecordToken;
   std::vector<int>  m_bunchCrossings;
   std::vector<bool> m_selectPhysics;
   std::vector<bool> m_selectTechnical;
@@ -64,13 +67,13 @@ private:
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "CondFormats/L1TObjects/interface/L1GtTriggerMask.h"
-#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
 
 //
 // constructors and destructor
 //
 HLTLevel1Activity::HLTLevel1Activity(const edm::ParameterSet & config) :
-  m_gtReadoutRecord( config.getParameter<edm::InputTag>     ("L1GtReadoutRecordTag") ),
+  m_gtReadoutRecordTag( config.getParameter<edm::InputTag>     ("L1GtReadoutRecordTag") ),
+  m_gtReadoutRecordToken(consumes<L1GlobalTriggerReadoutRecord>(m_gtReadoutRecordTag)),
   m_bunchCrossings(  config.getParameter<std::vector<int> > ("bunchCrossings") ),
   m_selectPhysics(   PHYSICS_BITS_SIZE ),
   m_selectTechnical( TECHNICAL_BITS_SIZE ),
@@ -156,7 +159,7 @@ HLTLevel1Activity::filter(edm::Event& event, const edm::EventSetup& setup)
 
   // access the L1 decisions
   edm::Handle<L1GlobalTriggerReadoutRecord> h_gtReadoutRecord;
-  event.getByLabel(m_gtReadoutRecord, h_gtReadoutRecord);
+  event.getByToken(m_gtReadoutRecordToken, h_gtReadoutRecord);
 
   // compare the results with the requested bits, and return true as soon as the first match is found
   BOOST_FOREACH(int bx, m_bunchCrossings) {

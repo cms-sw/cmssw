@@ -28,6 +28,7 @@ to keep the EventPrincipal class from having too much 'physical' coupling with t
 // forward declarations
 namespace edm {
    class CurrentProcessingContext;
+   class ModuleCallingContext;
    class UnscheduledHandlerSentry;
 
    class UnscheduledHandler {
@@ -47,7 +48,8 @@ namespace edm {
       // ---------- member functions ---------------------------
       ///returns true if found an EDProducer and ran it
       bool tryToFill(std::string const& label,
-                     EventPrincipal& iEvent);
+                     EventPrincipal& iEvent,
+                     ModuleCallingContext const* mcc);
 
       void setEventSetup(EventSetup const& iSetup) {
          m_setup = &iSetup;
@@ -59,7 +61,8 @@ namespace edm {
       virtual bool tryToFillImpl(std::string const&,
                                  EventPrincipal&,
                                  EventSetup const&,
-                                 CurrentProcessingContext const*) = 0;
+                                 CurrentProcessingContext const*,
+                                 ModuleCallingContext const* mcc) = 0;
       // ---------- member data --------------------------------
       EventSetup const* m_setup;
       CurrentProcessingContext const* m_context;

@@ -10,6 +10,7 @@
 <use name="DataFormats/MuonDetId"/>
 <use name="DataFormats/SiPixelDetId"/>
 <use name="DataFormats/Scalers"/>
+<use name="DataFormats/TrackReco"/>
 <use name="FWCore/Common"/>
 <use name="FWCore/FWLite"/>
 <use name="FWCore/PluginManager"/>

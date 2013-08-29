@@ -11,6 +11,7 @@
 #include <memory>
 
 // user include files
+#include "FWCore/Utilities/interface/EDGetToken.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 
@@ -32,6 +33,7 @@ class SiStripMonitorFilter : public edm::EDAnalyzer {
        virtual void endJob() ;
 
    private:
+       edm::EDGetTokenT<int> filerDecisionToken_;       
        DQMStore* dqmStore_;
        edm::ParameterSet conf_;
        MonitorElement * FilterDecision;

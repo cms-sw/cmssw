@@ -1,6 +1,6 @@
 
 #include "FWCore/Framework/src/Path.h"
-#include "FWCore/Framework/interface/Actions.h"
+#include "FWCore/Framework/interface/ExceptionActions.h"
 #include "FWCore/Framework/src/EarlyDeleteHelper.h"
 #include "FWCore/Utilities/interface/Algorithms.h"
 #include "FWCore/MessageLogger/interface/ExceptionMessages.h"
@@ -13,9 +13,10 @@ namespace edm {
   Path::Path(int bitpos, std::string const& path_name,
 	     WorkersInPath const& workers,
 	     TrigResPtr trptr,
-	     ActionTable const& actions,
+	     ExceptionToActionTable const& actions,
 	     boost::shared_ptr<ActivityRegistry> areg,
-	     bool isEndPath):
+	     bool isEndPath,
+             StreamContext const* streamContext):
     stopwatch_(),
     timesRun_(),
     timesPassed_(),
@@ -28,7 +29,8 @@ namespace edm {
     actReg_(areg),
     act_table_(&actions),
     workers_(workers),
-    isEndPath_(isEndPath) {
+    isEndPath_(isEndPath),
+    pathContext_(path_name, bitpos, streamContext) {
   }
   
   bool
@@ -48,9 +50,9 @@ namespace edm {
     // different exception behavior
     
     // If not processing an event, always rethrow.
-    actions::ActionCodes action = (isEvent ? act_table_->find(e.category()) : actions::Rethrow);
+    exception_actions::ActionCodes action = (isEvent ? act_table_->find(e.category()) : exception_actions::Rethrow);
     switch(action) {
-      case actions::FailPath: {
+      case exception_actions::FailPath: {
 	  should_continue = false;
           edm::printCmsExceptionWarning("FailPath", e);
 	  break;
@@ -59,7 +61,7 @@ namespace edm {
 	  if (isEvent) ++timesExcept_;
 	  state_ = hlt::Exception;
 	  recordStatus(nwrwue, isEvent);
-	  if (action == actions::Rethrow) {
+	  if (action == exception_actions::Rethrow) {
 	    std::string pNF = Exception::codeToString(errors::ProductNotFound);
             if (e.category() == pNF) {
 	      std::ostringstream ost;

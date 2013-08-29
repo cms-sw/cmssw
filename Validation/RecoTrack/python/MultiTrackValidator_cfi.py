@@ -44,6 +44,7 @@ multiTrackValidator = cms.EDAnalyzer(
     sim = cms.string('g4SimHits'),
     parametersDefiner = cms.string('LhcParametersDefinerForTP'),          # collision like tracks
     # parametersDefiner = cms.string('CosmicParametersDefinerForTP'),     # cosmics tracks
+    simHitTpMapTag = cms.InputTag("simHitTPAssocProducer"),               # needed by CosmicParametersDefinerForTP
 
     ### reco input configuration ###
     label = cms.VInputTag(cms.InputTag("generalTracks")),

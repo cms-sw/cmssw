@@ -8,7 +8,7 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/src/WorkerT.h"
-#include "FWCore/Framework/interface/Actions.h"
+#include "FWCore/Framework/interface/ExceptionActions.h"
 #include "FWCore/Framework/interface/CurrentProcessingContext.h"
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
 #include "FWCore/Framework/src/WorkerMaker.h"
@@ -16,7 +16,7 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include <cppunit/extensions/HelperMacros.h>
+#include "cppunit/extensions/HelperMacros.h"
 
 using namespace edm;
 
@@ -71,7 +71,7 @@ void testmaker2::maker2Test()
   p2.addParameter("@module_edm_type",std::string("EDProducer") );
   p2.registerIt();
 
-  edm::ActionTable table;
+  edm::ExceptionToActionTable table;
 
   edm::ProductRegistry preg;
   boost::shared_ptr<ProcessConfiguration> pc(new ProcessConfiguration("PROD", edm::ParameterSetID(), edm::getReleaseVersion(), edm::getPassID()));

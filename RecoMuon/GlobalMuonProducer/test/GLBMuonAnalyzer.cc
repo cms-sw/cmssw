@@ -1,8 +1,6 @@
 /** \class GLBMuonAnalyzer
  *  Analyzer of the Global muon tracks
  *
- *  $Date: 2009/10/31 05:19:43 $
- *  $Revision: 1.4 $
  *  \author R. Bellan  - INFN Torino       <riccardo.bellan@cern.ch>
  *  \author A. Everett - Purdue University <adam.everett@cern.ch>
  */

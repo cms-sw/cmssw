@@ -16,7 +16,7 @@ namespace edm {
   public:
     EventAux() : processHistoryID_(), id_(), time_(), luminosityBlockID_() {}
     ~EventAux() {}
-    mutable ProcessHistoryID processHistoryID_;
+    ProcessHistoryID processHistoryID_;
     EventID id_;
     Timestamp time_;
     LuminosityBlockNumber_t luminosityBlockID_;

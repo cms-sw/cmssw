@@ -1,8 +1,6 @@
 /*
  * \file EBRawDataTask.cc
  *
- * $Date: 2012/05/14 20:43:15 $
- * $Revision: 1.47 $
  * \author E. Di Marco
  *
 */

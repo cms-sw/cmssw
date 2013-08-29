@@ -12,7 +12,7 @@
 #include "FWCore/Framework/test/stubs/TestPRegisterModule2.h"
 #include "DataFormats/TestObjects/interface/ToyProducts.h"
 #include "FWCore/Version/interface/GetReleaseVersion.h"
-#include <cppunit/extensions/HelperMacros.h>
+#include "cppunit/extensions/HelperMacros.h"
 #include <cassert>
 #include <memory>
 #include <string>

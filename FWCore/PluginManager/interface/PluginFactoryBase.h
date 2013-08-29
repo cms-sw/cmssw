@@ -17,7 +17,6 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Apr  4 12:24:44 EDT 2007
-// $Id: PluginFactoryBase.h,v 1.7 2009/10/26 14:06:45 eulisse Exp $
 //
 
 // system include files

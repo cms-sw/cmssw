@@ -1,8 +1,6 @@
 /*
  * \file EcalBarrelDigisValidation.cc
  *
- * $Date: 2008/10/29 10:54:11 $
- * $Revision: 1.19 $
  * \author F. Cossutti
  *
 */

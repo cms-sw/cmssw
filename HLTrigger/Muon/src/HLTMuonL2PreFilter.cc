@@ -26,9 +26,13 @@
 
 HLTMuonL2PreFilter::HLTMuonL2PreFilter(const edm::ParameterSet& iConfig): HLTFilter(iConfig),
   beamSpotTag_( iConfig.getParameter<edm::InputTag>("BeamSpotTag") ),
+  beamSpotToken_(consumes<reco::BeamSpot>(beamSpotTag_)),
   candTag_( iConfig.getParameter<edm::InputTag >("CandTag") ),
+  candToken_(consumes<reco::RecoChargedCandidateCollection>(candTag_)),
   previousCandTag_( iConfig.getParameter<edm::InputTag >("PreviousCandTag") ),
+  previousCandToken_(consumes<trigger::TriggerFilterObjectWithRefs>(previousCandTag_)),
   seedMapTag_( iConfig.getParameter<edm::InputTag >("SeedMapTag") ),
+  seedMapToken_(consumes<SeedMap>(seedMapTag_)),
   minN_( iConfig.getParameter<int>("MinN") ),
   maxEta_( iConfig.getParameter<double>("MaxEta") ),
   absetaBins_( iConfig.getParameter<std::vector<double> >("AbsEtaBins") ), 
@@ -149,15 +153,15 @@ bool HLTMuonL2PreFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iS
 
   // get hold of all muon candidates available at this level
   Handle<RecoChargedCandidateCollection> allMuons;
-  iEvent.getByLabel(candTag_, allMuons);
+  iEvent.getByToken(candToken_, allMuons);
 
   // get hold of the beam spot
   Handle<BeamSpot> beamSpotHandle;
-  iEvent.getByLabel(beamSpotTag_, beamSpotHandle);
+  iEvent.getByToken(beamSpotToken_, beamSpotHandle);
   BeamSpot::Point beamSpot = beamSpotHandle->position();
 
   // get the L2 to L1 map object for this event
-  HLTMuonL2ToL1Map mapL2ToL1(previousCandTag_, seedMapTag_, iEvent);
+  HLTMuonL2ToL1Map mapL2ToL1(previousCandToken_, seedMapToken_, iEvent);
 
   // number of eta bins for cut on number of stations
   const std::vector<double>::size_type nAbsetaBins = absetaBins_.size();
@@ -171,12 +175,12 @@ bool HLTMuonL2PreFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iS
     if(!mapL2ToL1.isTriggeredByL1(mu)) continue;
 
     // eta cut
-    if(fabs(mu->eta()) > maxEta_) continue;
+    if(std::abs(mu->eta()) > maxEta_) continue;
 
     // cut on number of stations
     bool failNstations(false), failNhits(false), failNchambers(false);
     for(unsigned int i=0; i<nAbsetaBins; ++i) {
-      if( fabs(mu->eta())<absetaBins_[i] ) {
+      if( std::abs(mu->eta())<absetaBins_[i] ) {
 	if(mu->hitPattern().muonStationsWithAnyHits() < minNstations_[i]) {
 	  failNstations=true;
 	}
@@ -194,20 +198,20 @@ bool HLTMuonL2PreFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iS
     if(failNstations || failNhits || failNchambers) continue;
 
     //dr cut
-    if(fabs(mu->dxy(beamSpot)) > maxDr_) continue;
+    if(std::abs(mu->dxy(beamSpot)) > maxDr_) continue;
 
     //dr cut
-    if(fabs(mu->dxy(beamSpot)) < minDr_) continue;
+    if(std::abs(mu->dxy(beamSpot)) < minDr_) continue;
 
     //dz cut
-    if(fabs(mu->dz(beamSpot)) > maxDz_) continue;
+    if(std::abs(mu->dz(beamSpot)) > maxDz_) continue;
 
     // dxy significance cut (safeguard against bizarre values)
-    if (min_DxySig_ > 0 && (mu->dxyError() <= 0 || fabs(mu->dxy(beamSpot)/mu->dxyError()) < min_DxySig_)) continue;
+    if (min_DxySig_ > 0 && (mu->dxyError() <= 0 || std::abs(mu->dxy(beamSpot)/mu->dxyError()) < min_DxySig_)) continue;
 
     // Pt threshold cut
     double pt = mu->pt();
-    double abspar0 = fabs(mu->parameter(0));
+    double abspar0 = std::abs(mu->parameter(0));
     double ptLx = pt;
     // convert 50% efficiency threshold to 90% efficiency threshold
     if(abspar0 > 0) ptLx += nSigmaPt_*mu->error(0)/abspar0*pt;
@@ -244,7 +248,7 @@ bool HLTMuonL2PreFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iS
       ss<<setprecision(2)
         <<cand-allMuons->begin()
         <<'\t'<<scientific<<mu->charge()*mu->pt()
-        <<'\t'<<scientific<<mu->charge()*mu->pt()*(1. + ((mu->parameter(0) != 0) ? nSigmaPt_*mu->error(0)/fabs(mu->parameter(0)) : 0.))
+        <<'\t'<<scientific<<mu->charge()*mu->pt()*(1. + ((mu->parameter(0) != 0) ? nSigmaPt_*mu->error(0)/std::abs(mu->parameter(0)) : 0.))
         <<'\t'<<fixed<<mu->eta()
         <<'\t'<<fixed<<mu->phi()
         <<'\t'<<mu->hitPattern().muonStationsWithAnyHits()

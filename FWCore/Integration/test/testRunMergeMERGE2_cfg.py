@@ -241,8 +241,6 @@ process.test = cms.EDAnalyzer("TestMergeResults",
 
     expectedRespondToOpenInputFile = cms.untracked.int32(6),
     expectedRespondToCloseInputFile = cms.untracked.int32(6),
-    expectedRespondToOpenOutputFiles = cms.untracked.int32(1),
-    expectedRespondToCloseOutputFiles = cms.untracked.int32(1),
 
     expectedInputFileNames = cms.untracked.vstring(
         'file:testRunMerge0.root', 

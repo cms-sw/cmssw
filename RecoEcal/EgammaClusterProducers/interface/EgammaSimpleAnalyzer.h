@@ -8,7 +8,6 @@
      \\\author: Shahram Rahatlou, May 2006
 */
 //
-// $Id: EgammaSimpleAnalyzer.h,v 1.7 2007/03/25 22:58:19 futyand Exp $
 //
 
 

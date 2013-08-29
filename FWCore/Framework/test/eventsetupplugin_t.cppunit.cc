@@ -9,11 +9,10 @@
 // Author:      Chris Jones
 // Created:     Thu May 26 11:01:19 EDT 2005
 // Changed:     Viji Sundararajan 28-Jun-2005
-// $Id: eventsetupplugin_t.cppunit.cc,v 1.11 2012/03/27 19:52:30 wdd Exp $
 //
 
 // system include files
-#include <cppunit/extensions/HelperMacros.h>
+#include "cppunit/extensions/HelperMacros.h"
 // user include files
 #include "FWCore/PluginManager/interface/PluginManager.h"
 #include "FWCore/PluginManager/interface/standard.h"

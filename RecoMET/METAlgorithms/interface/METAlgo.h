@@ -13,7 +13,6 @@
 //
 // Original Authors:  Michael Schmitt, Richard Cavanaugh The University of Florida
 //          Created:  May 14, 2005
-// $Id: METAlgo.h,v 1.11 2012/06/07 23:55:30 sakuma Exp $
 //
 //
 #ifndef METAlgo_h

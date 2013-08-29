@@ -3,9 +3,6 @@
 /** \class PhotonCoreProducer
  **  
  **
- **  $Id: PhotonCoreProducer.h,v 1.3 2010/02/22 19:30:49 nancy Exp $ 
- **  $Date: 2010/02/22 19:30:49 $ 
- **  $Revision: 1.3 $
  **  \author Nancy Marinelli, U. of Notre Dame, US
  **
  ***/

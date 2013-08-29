@@ -3,9 +3,9 @@
 // -*- C++ -*-
 //
 // Package:     FWCore/Framework
-// Class  :     producerAbilities
+// Class  :     implementors
 // 
-/**\file producerAbilities.h "FWCore/Framework/interface/one/implementors"
+/**\file implementors.h "FWCore/Framework/interface/one/implementors.h"
 
  Description: Base classes used to implement the interfaces for the edm::one::* module  abilities
 
@@ -16,7 +16,6 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu, 09 May 2013 18:40:17 GMT
-// $Id$
 //
 
 // system include files
@@ -33,11 +32,12 @@ namespace edm {
          
          class SharedResourcesUser {
          public:
-            SharedResourcesUser() = default;
+            template< typename... Args>
+            SharedResourcesUser(Args...) {}
             SharedResourcesUser(SharedResourcesUser const&) = delete;
             SharedResourcesUser& operator=(SharedResourcesUser const&) = delete;
             
-            virtual ~SharedResourcesUser() = default;
+            virtual ~SharedResourcesUser() {}
             
          protected:
             static const std::string kUnknownResource;

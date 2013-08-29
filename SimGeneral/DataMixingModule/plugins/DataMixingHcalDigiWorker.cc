@@ -124,9 +124,10 @@ namespace edm
 	 HBHEDigiStorage_.insert(HBHEDigiMap::value_type( ( it->id() ), tool ));
 	 
 #ifdef DEBUG	 
-         LogDebug("DataMixingHcalDigiWorker") << "processed HBHEDigi with rawId: "
-				      << it->id() << "\n"
-				      << " digi energy: " << it->energy();
+         // Commented out because this does not compile anymore	 
+         // LogDebug("DataMixingHcalDigiWorker") << "processed HBHEDigi with rawId: "
+         //                                      << it->id() << "\n"
+         //                                      << " digi energy: " << it->energy();
 #endif
 
        }
@@ -165,9 +166,10 @@ namespace edm
 	 HODigiStorage_.insert(HODigiMap::value_type( ( it->id() ), tool ));
 	 
 #ifdef DEBUG	 
-         LogDebug("DataMixingHcalDigiWorker") << "processed HODigi with rawId: "
-				      << it->id() << "\n"
-				      << " digi energy: " << it->energy();
+         // Commented out because this does not compile anymore	 
+         // LogDebug("DataMixingHcalDigiWorker") << "processed HODigi with rawId: "
+         //                                      << it->id() << "\n"
+         //                                      << " digi energy: " << it->energy();
 #endif
 
        }
@@ -206,9 +208,10 @@ namespace edm
 	 HFDigiStorage_.insert(HFDigiMap::value_type( ( it->id() ), tool ));
 	 
 #ifdef DEBUG	 
-         LogDebug("DataMixingHcalDigiWorker") << "processed HFDigi with rawId: "
-				      << it->id() << "\n"
-				      << " digi energy: " << it->energy();
+         // Commented out because this does not compile anymore	 
+         // LogDebug("DataMixingHcalDigiWorker") << "processed HFDigi with rawId: "
+         //                                      << it->id() << "\n"
+         //                                      << " digi energy: " << it->energy();
 #endif
 
        }
@@ -249,9 +252,10 @@ namespace edm
 	   ZDCDigiStorage_.insert(ZDCDigiMap::value_type( ( it->id() ), tool ));
 	 
 #ifdef DEBUG	 
-	   LogDebug("DataMixingHcalDigiWorker") << "processed ZDCDigi with rawId: "
-						<< it->id() << "\n"
-						<< " digi energy: " << it->energy();
+           // Commented out because this does not compile anymore	 
+           // LogDebug("DataMixingHcalDigiWorker") << "processed ZDCDigi with rawId: "
+           //                                      << it->id() << "\n"
+           //                                      << " digi energy: " << it->energy();
 #endif
 
 	 }
@@ -260,7 +264,8 @@ namespace edm
     
   } // end of addHCalSignals
 
-  void DataMixingHcalDigiWorker::addHcalPileups(const int bcr, const EventPrincipal *ep, unsigned int eventNr,const edm::EventSetup& ES) {
+  void DataMixingHcalDigiWorker::addHcalPileups(const int bcr, const EventPrincipal *ep, unsigned int eventNr,const edm::EventSetup& ES,
+                                                ModuleCallingContext const* mcc) {
   
     LogDebug("DataMixingHcalDigiWorker") <<"\n===============> adding pileups from event  "<<ep->id()<<" for bunchcrossing "<<bcr;
 
@@ -272,8 +277,9 @@ namespace edm
 
     // HBHE first
 
+
     boost::shared_ptr<Wrapper<HBHEDigiCollection>  const> HBHEDigisPTR = 
-          getProductByTag<HBHEDigiCollection>(*ep, HBHEPileInputTag_ );
+      getProductByTag<HBHEDigiCollection>(*ep, HBHEPileInputTag_, mcc);
  
     if(HBHEDigisPTR ) {
 
@@ -298,16 +304,17 @@ namespace edm
 	 HBHEDigiStorage_.insert(HBHEDigiMap::value_type( (it->id()), tool ));
 	 
 #ifdef DEBUG	 
-	 LogDebug("DataMixingHcalDigiWorker") << "processed HBHEDigi with rawId: "
-				      << it->id() << "\n"
-				      << " digi energy: " << it->energy();
+         // Commented out because this does not compile anymore	 
+	 // LogDebug("DataMixingHcalDigiWorker") << "processed HBHEDigi with rawId: "
+         //                                      << it->id() << "\n"
+         //                                      << " digi energy: " << it->energy();
 #endif
        }
     }
     // HO Next
 
     boost::shared_ptr<Wrapper<HODigiCollection>  const> HODigisPTR = 
-          getProductByTag<HODigiCollection>(*ep, HOPileInputTag_ );
+      getProductByTag<HODigiCollection>(*ep, HOPileInputTag_, mcc);
  
     if(HODigisPTR ) {
 
@@ -332,9 +339,10 @@ namespace edm
 	 HODigiStorage_.insert(HODigiMap::value_type( (it->id()), tool ));
 	 
 #ifdef DEBUG	 
-	 LogDebug("DataMixingHcalDigiWorker") << "processed HODigi with rawId: "
-				      << it->id() << "\n"
-				      << " digi energy: " << it->energy();
+         // Commented out because this does not compile anymore	 
+	 // LogDebug("DataMixingHcalDigiWorker") << "processed HODigi with rawId: "
+         //                                      << it->id() << "\n"
+         //                                      << " digi energy: " << it->energy();
 #endif
        }
     }
@@ -343,7 +351,7 @@ namespace edm
     // HF Next
 
     boost::shared_ptr<Wrapper<HFDigiCollection>  const> HFDigisPTR = 
-          getProductByTag<HFDigiCollection>(*ep, HFPileInputTag_ );
+      getProductByTag<HFDigiCollection>(*ep, HFPileInputTag_, mcc);
  
     if(HFDigisPTR ) {
 
@@ -368,9 +376,10 @@ namespace edm
 	 HFDigiStorage_.insert(HFDigiMap::value_type( (it->id()), tool ));
 	 
 #ifdef DEBUG	 
-	 LogDebug("DataMixingHcalDigiWorker") << "processed HFDigi with rawId: "
-				      << it->id() << "\n"
-				      << " digi energy: " << it->energy();
+         // Commented out because this does not compile anymore	 
+	 // LogDebug("DataMixingHcalDigiWorker") << "processed HFDigi with rawId: "
+         //                                      << it->id() << "\n"
+         //                                      << " digi energy: " << it->energy();
 #endif
        }
     }
@@ -382,7 +391,7 @@ namespace edm
 
 
       boost::shared_ptr<Wrapper<ZDCDigiCollection>  const> ZDCDigisPTR = 
-	getProductByTag<ZDCDigiCollection>(*ep, ZDCPileInputTag_ );
+	getProductByTag<ZDCDigiCollection>(*ep, ZDCPileInputTag_, mcc);
  
       if(ZDCDigisPTR ) {
 
@@ -406,10 +415,11 @@ namespace edm
 
 	  ZDCDigiStorage_.insert(ZDCDigiMap::value_type( (it->id()), tool ));
 	 
-#ifdef DEBUG	 
-	  LogDebug("DataMixingHcalDigiWorker") << "processed ZDCDigi with rawId: "
-					       << it->id() << "\n"
-					       << " digi energy: " << it->energy();
+#ifdef DEBUG
+          // Commented out because this does not compile anymore	 
+	  // LogDebug("DataMixingHcalDigiWorker") << "processed ZDCDigi with rawId: "
+          //                                      << it->id() << "\n"
+          //                                      << " digi energy: " << it->energy();
 #endif
 	}
       }

@@ -7,8 +7,9 @@
     when the value_ptr = 0;
   */
 
-#include "FWCore/Utilities/interface/value_ptr.h"
+#include "FWCore/Utilities/interface/atomic_value_ptr.h"
 #include "DataFormats/Provenance/interface/ParameterSetID.h"
+
 namespace cms {
   class Digest;
 }
@@ -18,8 +19,7 @@ namespace edm {
   // forward declaration
   class ParameterSet;
 
-  class ParameterSetEntry
-  {
+  class ParameterSetEntry {
   public:
     // default ctor for serialization
     ParameterSetEntry();
@@ -38,12 +38,13 @@ namespace edm {
 
     ParameterSetID id() const {return theID_;}
   
-    /// returns the PSet, reconstituting it from the
-    /// Registry, if necessary
+    /// returns the PSet
     ParameterSet const& pset() const;
-    ParameterSet& pset();
+    ParameterSet& psetForUpdate();
+    /// reconstitutes the PSet from the registry
+    void fillPSet() const;
 
-    void updateID() const;
+    void updateID();
 
     std::string dump(unsigned int indent = 0) const;
     friend std::ostream & operator<<(std::ostream & os, ParameterSetEntry const& psetEntry);
@@ -53,10 +54,9 @@ namespace edm {
     bool isTracked_;
     // can be internally reconstituted from the ID, in an
     // ostensibly const function
-    mutable value_ptr<ParameterSet> thePSet_;
+    mutable atomic_value_ptr<ParameterSet> thePSet_;
 
-    // mutable so save() can serialize it as late as possible
-    mutable ParameterSetID theID_;
+    ParameterSetID theID_;
   };
 
 }

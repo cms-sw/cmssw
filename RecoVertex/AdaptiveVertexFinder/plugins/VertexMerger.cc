@@ -23,18 +23,16 @@ class VertexMerger : public edm::EDProducer {
     private:
 	bool trackFilter(const reco::TrackRef &track) const;
 
-//	edm::InputTag				primaryVertexCollection;
-	edm::InputTag				secondaryVertexCollection;
+	edm::EDGetTokenT<reco::VertexCollection> token_secondaryVertex;
 	double					maxFraction;
 	double					minSignificance;
 };
 
 VertexMerger::VertexMerger(const edm::ParameterSet &params) :
-//	primaryVertexCollection(params.getParameter<edm::InputTag>("primaryVertices")),
-	secondaryVertexCollection(params.getParameter<edm::InputTag>("secondaryVertices")),
 	maxFraction(params.getParameter<double>("maxFraction")),
 	minSignificance(params.getParameter<double>("minSignificance"))
 {
+	token_secondaryVertex = consumes<reco::VertexCollection>(params.getParameter<edm::InputTag>("secondaryVertices"));
 	produces<reco::VertexCollection>();
 }
 
@@ -65,7 +63,7 @@ void VertexMerger::produce(edm::Event &event, const edm::EventSetup &es)
 	using namespace reco;
 
 	edm::Handle<VertexCollection> secondaryVertices;
-	event.getByLabel(secondaryVertexCollection, secondaryVertices);
+	event.getByToken(token_secondaryVertex, secondaryVertices);
 
         VertexDistance3D dist;
 	std::auto_ptr<VertexCollection> recoVertices(new VertexCollection);

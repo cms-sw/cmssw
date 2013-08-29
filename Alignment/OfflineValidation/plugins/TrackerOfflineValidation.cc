@@ -191,8 +191,8 @@ private:
   // 
   // ------------- private member function -------------
   // 
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void endJob();
+  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
+  virtual void endJob() override;
   
   virtual void checkBookHists(const edm::EventSetup& setup);
 

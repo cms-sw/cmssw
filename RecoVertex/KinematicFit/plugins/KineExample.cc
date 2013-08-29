@@ -35,12 +35,14 @@ using namespace std;
 KineExample::KineExample(const edm::ParameterSet& iConfig)
   : theConfig(iConfig)
 {
-  trackLabel_ = iConfig.getParameter<std::string>("TrackLabel");
+  token_tracks = consumes<TrackCollection>(iConfig.getParameter<string>("TrackLabel"));
   outputFile_ = iConfig.getUntrackedParameter<std::string>("outputFile");
   kvfPSet = iConfig.getParameter<edm::ParameterSet>("KVFParameters");
 //   rootFile_ = TFile::Open(outputFile_.c_str(),"RECREATE");
   edm::LogInfo("RecoVertex/KineExample")
     << "Initializing KVF TEST analyser  - Output file: " << outputFile_ <<"\n";
+//   token_TrackTruth = consumes<TrackingParticleCollection>(edm::InputTag("trackingtruth", "TrackTruth"));
+  token_VertexTruth = consumes<TrackingVertexCollection>(edm::InputTag("trackingtruth", "VertexTruth"));
 }
 
 
@@ -75,7 +77,7 @@ KineExample::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   // get RECO tracks from the event
   // `tks` can be used as a ptr to a reco::TrackCollection
   edm::Handle<reco::TrackCollection> tks;
-  iEvent.getByLabel(trackLabel_, tks);
+  iEvent.getByToken(token_tracks, tks);
   if (!tks.isValid()) {
     cout
       << "Couln't find track collection: " << iEvent.id()
@@ -208,7 +210,7 @@ KineExample::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 //       // For the analysis: compare to your SimVertex
 //       TrackingVertex sv = getSimVertex(iEvent);
 //   edm::Handle<TrackingParticleCollection>  TPCollectionH ;
-//   iEvent.getByLabel("trackingtruth","TrackTruth",TPCollectionH);
+//   iEvent.getByToken(token_TrackTruth, TPCollectionH);
 //   const TrackingParticleCollection tPC = *(TPCollectionH.product());
 //       reco::RecoToSimCollection recSimColl=associatorForParamAtPca->associateRecoToSim(tks,
 // 									      TPCollectionH,
@@ -288,7 +290,7 @@ TrackingVertex KineExample::getSimVertex(const edm::Event& iEvent) const
 {
    // get the simulated vertices
   edm::Handle<TrackingVertexCollection>  TVCollectionH ;
-  iEvent.getByLabel("trackingtruth","VertexTruth",TVCollectionH);
+  iEvent.getByToken(token_VertexTruth,TVCollectionH);
   const TrackingVertexCollection tPC = *(TVCollectionH.product());
 
 //    Handle<edm::SimVertexContainer> simVtcs;
