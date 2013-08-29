@@ -200,13 +200,13 @@ float EcalLaserDbService::getLaserCorrection (DetId const & xid, edm::Timestamp 
     float interpolatedLaserResponse = p_i/apdpnref + (t-t_i)*(p_f-p_i)/apdpnref/(t_f-t_i); 
     float interpolatedLinearResponse = lp_i/apdpnref + (t-lt_i)*(lp_f-lp_i)/apdpnref/(lt_f-lt_i); // FIXED BY FC
 
-    if(interpolatedLinearResponse >2 || interpolatedLinearResponse <0.1) interpolatedLinearResponse=1;
+    if(interpolatedLinearResponse >2 || interpolatedLinearResponse <0.1) 
+		interpolatedLinearResponse=1;
     if ( interpolatedLaserResponse <= 0. ) {
-      //edm::LogWarning("EcalLaserDbService") << "The interpolated laser correction is <= zero! (" 
-      //              << interpolatedLaserResponse << "). Using 1. as correction factor.";
-      channelsWithInvalidCorrection_[xid.rawId()] =
-	channelsWithInvalidCorrection_[xid.rawId()] + 1;
-      return correctionFactor;
+		ErrorMapT::accessor a;
+		channelsWithInvalidCorrection_.insert(a,xid.rawId());
+		a->second +=1; 
+		return correctionFactor;
     } else {
 
       float interpolatedTransparencyResponse = interpolatedLaserResponse / interpolatedLinearResponse;
@@ -236,7 +236,8 @@ void EcalLaserDbService::errorReport () const {
   error << "EcalLaserDbService::errorReport " <<  
            "Error Type: Interpolated correction <=0 " << std::endl;
 
-   map<uint32_t,int>::const_iterator iter;
+   ErrorMapT::const_iterator iter;
+
    for (iter=channelsWithInvalidCorrection_.begin();
         iter != channelsWithInvalidCorrection_.end();
         ++iter) {
