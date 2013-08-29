@@ -13,7 +13,6 @@
 //
 // Original Author:  Tommaso Boccali
 //         Created:  Tue Jul 26 08:47:57 CEST 2005
-// $Id: SimHitTrackerAnalyzer.cc,v 1.14 2007/10/09 12:21:38 fabiocos Exp $
 //
 //
 

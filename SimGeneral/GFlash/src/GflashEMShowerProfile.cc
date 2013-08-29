@@ -1,5 +1,4 @@
 //
-// $Id: GflashEMShowerProfile.cc,v 1.4 2010/04/30 19:09:28 dwjang Exp $
 // initial setup : Soon Jun & Dongwook Jang
 // Translated from Fortran code.
 //

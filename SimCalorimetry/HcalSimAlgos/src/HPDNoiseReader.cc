@@ -2,7 +2,6 @@
 // Engine to read HPD noise events from the library
 // Project: HPD noise library
 // Author: F.Ratnikov UMd, Jan. 15, 2008
-// $Id: HPDNoiseReader.cc,v 1.3 2008/07/21 18:30:03 tyetkin Exp $
 // --------------------------------------------------------
 
 #include "SimCalorimetry/HcalSimAlgos/interface/HPDNoiseReader.h"

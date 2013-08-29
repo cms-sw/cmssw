@@ -8,7 +8,6 @@
 //
 // Original Author:  Mike Hildreth, Notre Dame
 //         Created:  
-// $Id: PileupSummaryInfo.cc,v 1.4 2011/05/23 17:33:06 mikeh Exp $
 //
 
 #include "SimDataFormats/PileupSummaryInfo/interface/PileupSummaryInfo.h"

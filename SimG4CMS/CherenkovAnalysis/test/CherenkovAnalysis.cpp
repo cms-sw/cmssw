@@ -13,7 +13,6 @@ Implementation:
 //
 // Original Author:  Frederic Ronga
 //         Created:  Wed Mar 12 17:39:55 CET 2008
-// $Id: CherenkovAnalysis.cpp,v 1.5 2010/01/12 07:11:39 hegner Exp $
 //
 //
 

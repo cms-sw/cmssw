@@ -5,7 +5,6 @@
 // Engine to store HPD noise events in the library
 // Project: HPD noise library
 // Author: F.Ratnikov UMd, Jan. 15, 2008
-// $Id: HPDNoiseMaker.h,v 1.2 2008/01/17 23:35:52 fedor Exp $
 // --------------------------------------------------------
 
 #include <string>
