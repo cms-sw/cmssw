@@ -24,7 +24,7 @@ HLTTauDQMSummaryPlotter::HLTTauDQMSummaryPlotter( const edm::ParameterSet& ps, s
         }
         
         //Lite Path Summary 
-        if ( type_ == "LitePath" ) {
+        else if ( type_ == "LitePath" ) {
             bookEfficiencyHisto(triggerTag(),"PathEfficiency","MatchedPathTriggerBits");
             bookEfficiencyHisto(triggerTag(),"TrigTauEtEff","EfficiencyHelpers/TrigTauEtEffNum");
             bookEfficiencyHisto(triggerTag(),"TrigTauEtaEff","EfficiencyHelpers/TrigTauEtaEffNum");
@@ -32,7 +32,7 @@ HLTTauDQMSummaryPlotter::HLTTauDQMSummaryPlotter( const edm::ParameterSet& ps, s
         }
         
         //L1 Summary
-        if ( type_ == "L1" ) {
+        else if ( type_ == "L1" ) {
             bookEfficiencyHisto(triggerTag(),"L1TauEtEff","EfficiencyHelpers/L1TauEtEffNum");
             bookEfficiencyHisto(triggerTag(),"L1TauEtaEff","EfficiencyHelpers/L1TauEtaEffNum");
             bookEfficiencyHisto(triggerTag(),"L1TauPhiEff","EfficiencyHelpers/L1TauPhiEffNum");
@@ -40,6 +40,10 @@ HLTTauDQMSummaryPlotter::HLTTauDQMSummaryPlotter( const edm::ParameterSet& ps, s
             bookEfficiencyHisto(triggerTag(),"L1JetEtEff","EfficiencyHelpers/L1JetEtEffNum");
             bookEfficiencyHisto(triggerTag(),"L1JetEtaEff","EfficiencyHelpers/L1JetEtaEffNum");
             bookEfficiencyHisto(triggerTag(),"L1JetPhiEff","EfficiencyHelpers/L1JetPhiEffNum");
+        }
+
+        else if(type_ == "PathSummary") {
+          bookFractionHisto(triggerTag(), "PathTriggerBits");
         }
     }
 }
@@ -55,7 +59,7 @@ void HLTTauDQMSummaryPlotter::plot() {
         }
         
         //Lite Path Summary 
-        if ( type_ == "LitePath" ) {
+        else if ( type_ == "LitePath" ) {
             plotEfficiencyHisto(triggerTag(),"PathEfficiency","MatchedPathTriggerBits","RefEvents");
             plotEfficiencyHisto(triggerTag(),"TrigTauEtEff","EfficiencyHelpers/TrigTauEtEffNum","EfficiencyHelpers/TrigTauEtEffDenom");
             plotEfficiencyHisto(triggerTag(),"TrigTauEtaEff","EfficiencyHelpers/TrigTauEtaEffNum","EfficiencyHelpers/TrigTauEtaEffDenom");
@@ -63,7 +67,7 @@ void HLTTauDQMSummaryPlotter::plot() {
         }
         
         //L1 Summary
-        if ( type_ == "L1" ) {
+        else if ( type_ == "L1" ) {
             plotEfficiencyHisto(triggerTag(),"L1TauEtEff","EfficiencyHelpers/L1TauEtEffNum","EfficiencyHelpers/L1TauEtEffDenom");
             plotEfficiencyHisto(triggerTag(),"L1TauEtaEff","EfficiencyHelpers/L1TauEtaEffNum","EfficiencyHelpers/L1TauEtaEffDenom");
             plotEfficiencyHisto(triggerTag(),"L1TauPhiEff","EfficiencyHelpers/L1TauPhiEffNum","EfficiencyHelpers/L1TauPhiEffDenom");
@@ -79,6 +83,10 @@ void HLTTauDQMSummaryPlotter::plot() {
             plotEfficiencyHisto(triggerTag(),"L1MuonEtEff","EfficiencyHelpers/L1MuonEtEffNum","EfficiencyHelpers/L1MuonEtEffDenom");
             plotEfficiencyHisto(triggerTag(),"L1MuonEtaEff","EfficiencyHelpers/L1MuonEtaEffNum","EfficiencyHelpers/L1MuonEtaEffDenom");
             plotEfficiencyHisto(triggerTag(),"L1MuonPhiEff","EfficiencyHelpers/L1MuonPhiEffNum","EfficiencyHelpers/L1MuonPhiEffDenom");
+        }
+
+        else if(type_ == "PathSummary") {
+          plotFractionHisto(triggerTag(), "PathTriggerBits");
         }
     }
 }      
@@ -209,6 +217,47 @@ void HLTTauDQMSummaryPlotter::plotTriggerBitEfficiencyHistos( std::string folder
             }
         }
     }
+}
+
+void HLTTauDQMSummaryPlotter::bookFractionHisto(const std::string& folder, const std::string& name) {
+  if(!store_->dirExists(folder))
+    return;
+
+  MonitorElement *me_accEv = store_->get(folder+"/helpers/"+name);
+  if(!me_accEv)
+    return;
+
+  store_->setCurrentFolder(folder);
+  const TH1F *h = me_accEv->getTH1F();
+  const TAxis *xaxis = h->GetXaxis();
+  //MonitorElement *tmp = store_->bookProfile("PathTriggerBits", "Accepted/all events per path", h->GetNbinsX(), xaxis->GetXmin(), xaxis->GetXmax(), 105,0,1.05);
+  MonitorElement *me_tmp = store_->book1D("PathTriggerBits", "Accepted/all events per path;;Fraction of accepted events", h->GetNbinsX(), xaxis->GetXmin(), xaxis->GetXmax());
+  for(int bin=1; bin<=h->GetNbinsX(); ++bin) {
+    me_tmp->setBinLabel(bin, xaxis->GetBinLabel(bin));
+  }
+}
+
+void HLTTauDQMSummaryPlotter::plotFractionHisto(const std::string& folder, const std::string& name) {
+  MonitorElement *me_accEv = store_->get(folder+"/helpers/"+name);
+  if(!me_accEv)
+    return;
+
+  MonitorElement *me_allEv = store_->get(folder+"/helpers/InputEvents");
+  if(!me_allEv)
+    return;
+  float allEvents = me_allEv->getTH1F()->GetBinContent(1);
+  if(allEvents == 0.0f) // protect against division by zero
+    return;
+
+  MonitorElement *me_result = store_->get(folder+"/"+"PathTriggerBits");
+  if(!me_result)
+    return;
+
+  const TH1F *accEv = me_accEv->getTH1F();
+  TH1F *result = me_result->getTH1F();
+  for(int bin=1; bin <= result->GetNbinsX(); ++bin) {
+    result->SetBinContent(bin, accEv->GetBinContent(bin)/allEvents);
+  }
 }
 
 std::pair<double,double> HLTTauDQMSummaryPlotter::calcEfficiency( float num, float denom ) {
