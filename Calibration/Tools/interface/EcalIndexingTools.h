@@ -6,7 +6,6 @@
  * Alessandro Palma 19/03/2008
  ********************************************/
 
-// $Id: $
 
 class EcalIndexingTools
 {

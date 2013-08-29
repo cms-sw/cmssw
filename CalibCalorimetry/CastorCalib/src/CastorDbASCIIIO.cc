@@ -1,6 +1,5 @@
 //
 // F.Ratnikov (UMd), Oct 28, 2005
-// $Id: CastorDbASCIIIO.cc,v 1.7 2012/01/12 14:15:44 muzaffar Exp $
 //
 #include <vector>
 #include <string>

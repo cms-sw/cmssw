@@ -1,8 +1,6 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/12/09 22:44:10 $
- *  $Revision: 1.4 $
  *  \author S. Bolognesi
  */
 

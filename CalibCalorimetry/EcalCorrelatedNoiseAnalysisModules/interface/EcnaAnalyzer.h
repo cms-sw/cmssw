@@ -16,7 +16,6 @@
 //
 // Original Author:  Bernard Fabbro
 //         Created:  Fri Jun  2 10:27:01 CEST 2006
-// $Id: EcnaAnalyzer.h,v 1.2 2011/03/21 14:57:41 fabbro Exp $
 //
 //
 

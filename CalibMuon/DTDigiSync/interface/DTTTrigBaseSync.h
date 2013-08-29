@@ -4,8 +4,6 @@
 /** \class DTTTrigBaseSync
  *  Base class to define the offsets for 1D DT RecHit building
  *
- *  $Date: 2007/03/07 18:32:31 $
- *  $Revision: 1.2 $
  *  \author G. Cerminara - INFN Torino
  */
 

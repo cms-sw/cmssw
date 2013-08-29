@@ -14,7 +14,6 @@
 // Original Author:  Dmytro Kovalskyi
 // Modified for ECAL+HCAL by:  Michal Szleper
 //         Created:  Fri Apr 21 10:59:41 PDT 2006
-// $Id: TrackAssociator.cc,v 1.7 2009/05/27 11:37:34 fabiocos Exp $
 //
 //
 

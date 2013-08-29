@@ -1,8 +1,6 @@
 
 /** \file MinL3Algorithm.cc
  *
- * $Date: 2007/03/19 10:06:47 $
- * $Revision: 1.5 $
  * \author R.Ofierzynski, CERN
  */
 

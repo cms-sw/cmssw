@@ -4,8 +4,6 @@
 /** \class DTT0Analyzer
  *  Plot the t0 from the DB
  *
- *  $Date: 2007/03/28 17:19:28 $
- *  $Revision: 1.1 $
  *  \author S. Bolognesi - INFN Torino
  */
 

@@ -10,7 +10,6 @@
 
      
  \author  Paolo Meridiani
- \id $Id: EcalGlobalShowerContainmentCorrectionsVsEtaESProducer.cc,v 1.1 2007/07/13 17:44:28 meridian Exp $
 */
 
 // system include files

@@ -5,8 +5,6 @@
  *  Produces histograms from v-drift computation in
  *  segment fit to be used for v-drift calibration
  *
- *  $Date: 2010/11/18 20:59:10 $
- *  $Revision: 1.1 $
  *  \author A. Vilela Pereira
  */
 

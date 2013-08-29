@@ -2,8 +2,6 @@
     
     basic linearization function for HCAL QIE
    $Author: ratnikov
-   $Date: 2005/08/18 23:41:41 $
-   $Revision: 1.1 $
 */
 
 #include <iostream>

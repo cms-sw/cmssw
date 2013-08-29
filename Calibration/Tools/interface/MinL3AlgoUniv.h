@@ -8,8 +8,6 @@
  *    will be invented to identify Subdetector parts
  *  The bookkeeping of the cluster size and its elements has to be done by the user.
  *
- * $Date: 2007/08/22 16:46:34 $
- * $Revision: 1.1 $
  * \author R.Ofierzynski, CERN
  */
 

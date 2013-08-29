@@ -6,8 +6,6 @@
  *  a txt file of the same format of ORCA MuBarDigiParameters
  *  (see DTCalibrationMap for details)
  *
- *  $Date: 2008/10/03 08:53:22 $
- *  $Revision: 1.7 $
  *  \author G. Cerminara - INFN Torino
  */
 

@@ -5,7 +5,6 @@
  *  Concrete implementation of a DTTTrigBaseCorrection.
  *  Matches tTrig values for RPhi SL's
  *
- *  $Revision: 1.2 $
  *  \author A. Vilela Pereira
  */
 

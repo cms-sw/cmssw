@@ -5,7 +5,6 @@
  *  Concrete implementation of a DTTTrigBaseCorrection.
  *  Computes residual correction for tTrig
  *
- *  $Revision: 1.5 $
  *  \author A. Vilela Pereira
  */
 
