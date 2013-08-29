@@ -5,7 +5,22 @@
 #   SimMuon/MCTruth             V02-05-00-03 (35X) or V02-06-00+ (37X+)
 
 from SimGeneral.MixingModule.mixNoPU_cfi                          import *
-from SimGeneral.TrackingAnalysis.trackingParticlesNoSimHits_cfi   import * 
+trackingParticlesNoSimHits = mix.clone(
+    digitizers = cms.PSet(
+        mergedtruth = mix.digitizers.mergedtruth.clone(
+            simHitCollections = cms.PSet(
+                pixel = cms.VInputTag(),
+                tracker = cms.VInputTag(),
+                muon = cms.VInputTag(),
+            )
+        ),
+    ),
+    mixObjects = cms.PSet(
+        mixHepMC    = mix.mixObjects.mixHepMC.clone(),
+        mixVertices = mix.mixObjects.mixVertices.clone(),
+        mixTracks   = mix.mixObjects.mixTracks.clone(),
+    ),
+)
 from SimMuon.MCTruth.MuonAssociatorByHitsESProducer_NoSimHits_cfi import * 
 
 classByHitsTM = cms.EDProducer("MuonMCClassifier",
@@ -13,7 +28,7 @@ classByHitsTM = cms.EDProducer("MuonMCClassifier",
     muonPreselection = cms.string("isTrackerMuon"),  #
     #muonPreselection = cms.string("muonID('TrackerMuonArbitrated')"), # You might want this
     trackType = cms.string("segments"),  # or 'inner','outer','global'
-    trackingParticles = cms.InputTag("mergedtruthNoSimHits"),         
+    trackingParticles = cms.InputTag("trackingParticlesNoSimHits","MergedTrackTruth"),         
     associatorLabel   = cms.string("muonAssociatorByHits_NoSimHits"),
     decayRho  = cms.double(200), # to classifiy differently decay muons included in ppMuX
     decayAbsZ = cms.double(400), # and decay muons that could not be in ppMuX
@@ -34,7 +49,7 @@ classByHitsSta = classByHitsTM.clone(
 
 
 muonClassificationByHits = cms.Sequence(
-    mix +
+    #mix +
     trackingParticlesNoSimHits +
     ( classByHitsTM      +
       classByHitsTMLSAT  +

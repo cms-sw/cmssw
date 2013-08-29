@@ -26,7 +26,7 @@ namespace edm {
 
     if (inputPHID.isValid()) {
       inputProcessHistory = registry->getMapped(inputPHID);
-      if (inputProcessHistory == 0) {
+      if (inputProcessHistory == nullptr) {
         throw Exception(errors::LogicError)
           << "HistoryAppender::appendToProcessHistory\n"
           << "Input ProcessHistory not found in registry\n"
@@ -38,7 +38,7 @@ namespace edm {
     newProcessHistory = *inputProcessHistory;
     checkProcessHistory(newProcessHistory, pc);
     newProcessHistory.push_back(pc);
-    registry->insertMapped(newProcessHistory);
+    registerProcessHistory(newProcessHistory);
     ProcessHistoryID newProcessHistoryID = newProcessHistory.setProcessHistoryID();
     CachedHistory newValue(inputProcessHistory,
                            registry->getMapped(newProcessHistoryID),
@@ -53,8 +53,8 @@ namespace edm {
   HistoryAppender::checkProcessHistory(ProcessHistory const& ph,
                                        ProcessConfiguration const& pc) const {
     std::string const& processName = pc.processName();
-    for (ProcessHistory::const_iterator it = ph.begin(), itEnd = ph.end(); it != itEnd; ++it) {
-      if (processName == it->processName()) {
+    for (auto const& process : ph) {
+      if (processName == process.processName()) {
         throw edm::Exception(errors::Configuration, "Duplicate Process.")
           << "The process name " << processName << " was already in the ProcessHistory.\n"
           << "Please modify the configuration file to use a distinct process name.\n";

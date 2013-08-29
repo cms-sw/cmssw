@@ -72,7 +72,7 @@ bool HLTEgammaAllCombMassFilter::hltFilter(edm::Event& iEvent, const edm::EventS
   return accept;
 }
 
-void  HLTEgammaAllCombMassFilter::getP4OfLegCands(const edm::Event& iEvent,edm::InputTag filterTag,std::vector<math::XYZTLorentzVector>& p4s)
+void  HLTEgammaAllCombMassFilter::getP4OfLegCands(const edm::Event& iEvent,const edm::InputTag& filterTag,std::vector<math::XYZTLorentzVector>& p4s)
 { 
   edm::Handle<trigger::TriggerFilterObjectWithRefs> filterOutput;
   iEvent.getByLabel(filterTag,filterOutput);

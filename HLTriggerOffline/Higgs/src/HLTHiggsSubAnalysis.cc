@@ -113,42 +113,21 @@ HLTHiggsSubAnalysis::~HLTHiggsSubAnalysis()
 	for(std::map<unsigned int,StringCutObjectSelector<reco::GenParticle>* >::iterator it = _genSelectorMap.begin();
 			it != _genSelectorMap.end(); ++it)
 	{
-		if( it->second != 0)
-		{
-			delete it->second;
-			it->second =0;
-		}
+		delete it->second;
+		it->second =0;
 	}
-	if( _recMuonSelector != 0)
-	{
-		delete _recMuonSelector;
-		_recMuonSelector =0;
-	}
-	if( _recElecSelector != 0)
-	{
-		delete _recElecSelector;
-		_recElecSelector =0;
-	}
-	if( _recPhotonSelector != 0)
-	{
-		delete _recPhotonSelector;
-		_recPhotonSelector =0;
-	}
-	if( _recCaloMETSelector != 0)
-	{
-		delete _recCaloMETSelector;
-		_recCaloMETSelector =0;
-	}
-	if( _recPFTauSelector != 0)
-	{
-		delete _recPFTauSelector;
-		_recPFTauSelector =0;
-	}
-	if( _recTrackSelector != 0)
-	{
-		delete _recTrackSelector;
-		_recTrackSelector =0;
-	}
+	delete _recMuonSelector;
+	_recMuonSelector =0;
+	delete _recElecSelector;
+	_recElecSelector =0;
+	delete _recPhotonSelector;
+	_recPhotonSelector =0;
+	delete _recCaloMETSelector;
+	_recCaloMETSelector =0;
+	delete _recPFTauSelector;
+	_recPFTauSelector =0;
+	delete _recTrackSelector;
+	_recTrackSelector =0;
 }
 
 
@@ -599,7 +578,7 @@ void HLTHiggsSubAnalysis::bookHist(const std::string & source,
 			edges[i] = _parametersTurnOn[i];
 		}
 	    	h = new TH1F(name.c_str(), title.c_str(), nBins, edges);
-		delete edges;
+		delete[] edges;
       	}
       	else 
 	{

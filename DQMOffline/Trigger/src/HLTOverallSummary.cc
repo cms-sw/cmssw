@@ -8,7 +8,6 @@
 // Original Author: Jason Slaunwhite
 //           
 //         Created:  Thu Jan 22 13:42:28CET 2009
-// $Id: HLTOverallSummary.cc,v 1.5 2010/01/12 14:11:20 dellaric Exp $
 //
 
 // system include files

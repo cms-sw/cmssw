@@ -2,8 +2,6 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2011/08/10 15:59:09 $
- *  $Revision: 1.12 $
  *  \author G. Mila - INFN Torino
  */
 

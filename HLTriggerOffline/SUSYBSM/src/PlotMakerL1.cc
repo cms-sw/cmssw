@@ -22,7 +22,7 @@ using namespace reco;
 using namespace std;
 using namespace l1extra;
 
-PlotMakerL1::PlotMakerL1(edm::ParameterSet PlotMakerL1Input)
+PlotMakerL1::PlotMakerL1(const edm::ParameterSet& PlotMakerL1Input)
 {
   m_l1extra      	 = PlotMakerL1Input.getParameter<string>("l1extramc");
 

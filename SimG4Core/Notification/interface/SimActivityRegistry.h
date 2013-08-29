@@ -16,7 +16,6 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Sun Nov 13 11:43:40 EST 2005
-// $Id: SimActivityRegistry.h,v 1.6 2007/10/24 17:16:51 chrjones Exp $
 //
 
 // system include files

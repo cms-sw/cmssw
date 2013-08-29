@@ -43,7 +43,7 @@ public:
   double getSignificance(){return significance_;}
   TMatrixD getSignificanceMatrix()const {return matrix_;}
 
-  void calculateBaseCaloMET(edm::Handle<edm::View<reco::Candidate> > towers,  CommonMETData met, const metsig::SignAlgoResolutions & resolutions, bool noHF, double globalthreshold);
+  void calculateBaseCaloMET(edm::Handle<edm::View<reco::Candidate> > towers,  const CommonMETData& met, const metsig::SignAlgoResolutions & resolutions, bool noHF, double globalthreshold);
   
  private:
   

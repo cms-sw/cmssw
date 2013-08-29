@@ -28,7 +28,7 @@ MuonDetLayerGeometry::~MuonDetLayerGeometry(){
   }
 }
 
-void MuonDetLayerGeometry::addCSCLayers(pair<vector<DetLayer*>, vector<DetLayer*> > csclayers) {
+void MuonDetLayerGeometry::addCSCLayers(const pair<vector<DetLayer*>, vector<DetLayer*> >& csclayers) {
     
   vector<DetLayer*>::const_iterator it;
   for(it=csclayers.first.begin(); it!=csclayers.first.end(); it++) {
@@ -52,7 +52,7 @@ void MuonDetLayerGeometry::addCSCLayers(pair<vector<DetLayer*>, vector<DetLayer*
   }    
 }    
 
-void MuonDetLayerGeometry::addRPCLayers(vector<DetLayer*> barrelLayers, pair<vector<DetLayer*>, vector<DetLayer*> > endcapLayers) {
+void MuonDetLayerGeometry::addRPCLayers(const vector<DetLayer*>& barrelLayers, const pair<vector<DetLayer*>, vector<DetLayer*> >& endcapLayers) {
   
   vector<DetLayer*>::const_iterator it;
   
@@ -88,7 +88,7 @@ void MuonDetLayerGeometry::addRPCLayers(vector<DetLayer*> barrelLayers, pair<vec
   
 }    
 
-void MuonDetLayerGeometry::addDTLayers(vector<DetLayer*> dtlayers) {
+void MuonDetLayerGeometry::addDTLayers(const vector<DetLayer*>& dtlayers) {
 
     vector<DetLayer*>::const_iterator it;
     for(it=dtlayers.begin(); it!=dtlayers.end(); it++) {

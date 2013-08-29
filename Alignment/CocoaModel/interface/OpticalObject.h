@@ -242,9 +242,9 @@ class OpticalObject
     return theCurrentMeas;
   }
 
-  std::vector<double> getRotationAnglesInOptOFrame( const OpticalObject* optoAncestor, std::vector< Entry* > entries ) const;
-  std::vector<double> getLocalRotationAngles(  std::vector< Entry* > entries ) const;
-  std::vector<double> getRotationAnglesFromMatrix( CLHEP::HepRotation& rmLocal, std::vector< Entry* > entries ) const;
+  std::vector<double> getRotationAnglesInOptOFrame( const OpticalObject* optoAncestor, const std::vector< Entry* >& entries ) const;
+  std::vector<double> getLocalRotationAngles(  const std::vector< Entry* >& entries ) const;
+  std::vector<double> getRotationAnglesFromMatrix( CLHEP::HepRotation& rmLocal, const std::vector< Entry* >& entries ) const;
   double diff2pi( double ang1, double ang2 );
   bool eq2ang( double ang1, double ang2 );
   double approxTo0( double val );
@@ -298,7 +298,7 @@ private:
   void SetCentreGlobFromCentreLocal();
   void SetRMLocalFromEntryValues();
   void SetRMGlobFromRMLocal();
-  void SetRMGlobFromRMLocalOriginalOriginal( CLHEP::HepRotation rmoriori );
+  void SetRMGlobFromRMLocalOriginalOriginal( const CLHEP::HepRotation& rmoriori );
   // Calculate local rot axis with new rm glob
   void calculateLocalRotationAxisInGlobal();
 

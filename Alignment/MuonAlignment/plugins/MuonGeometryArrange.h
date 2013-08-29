@@ -73,7 +73,7 @@ private:
 	void compareGeometries(Alignable* refAli, Alignable* curAli,
                 Alignable* curAliCopy2);
 	//filling the ROOT file
-	void fillTree(Alignable *refAli, AlgebraicVector diff);
+	void fillTree(Alignable *refAli, const AlgebraicVector& diff);
 	//void createDBGeometry(const edm::EventSetup& iSetup);
 	void createROOTGeometry(const edm::EventSetup& iSetup);
 	void makeGraph(int sizeI, float smi, float sma, float minV,

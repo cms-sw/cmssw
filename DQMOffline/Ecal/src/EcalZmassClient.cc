@@ -13,7 +13,6 @@
 //
 // Original Author:  Vieri Candelise
 //         Created:  Mon Jun 13 09:49:08 CEST 2011
-// $Id: EcalZmassClient.cc,v 1.2 2012/01/28 11:53:18 yiiyama Exp $
 //
 //
 

@@ -23,11 +23,11 @@ using namespace reco;
 //____________________________________________________________________________||
 
 //____________________________________________________________________________||
-reco::CaloMET CaloSpecificAlgo::addInfo(edm::Handle<edm::View<Candidate> > towers, CommonMETData met, bool noHF, double globalThreshold)
+reco::CaloMET CaloSpecificAlgo::addInfo(edm::Handle<edm::View<Candidate> > towers, const CommonMETData& umet, bool noHF, double globalThreshold)
 { 
   SpecificCaloMETData specific;
   initializeSpecificCaloMETData(specific);
-
+  CommonMETData met = umet;
   double totalEt = 0.0; 
   double totalEm = 0.0;
 

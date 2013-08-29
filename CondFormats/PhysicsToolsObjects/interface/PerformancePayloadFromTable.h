@@ -18,20 +18,20 @@ class PerformancePayloadFromTable : public PerformancePayload {
 
   //PerformancePayloadFromTable(int stride_, std::string columns_,std::vector<float> table) : PerformancePayload(stride_, columns_, table) {}
 
-    PerformancePayloadFromTable(std::vector<PerformanceResult::ResultType> r, std::vector<BinningVariables::BinningVariablesType> b , int stride_,std::vector<float> table) : 
+    PerformancePayloadFromTable(const std::vector<PerformanceResult::ResultType>& r, const std::vector<BinningVariables::BinningVariablesType>& b , int stride_,const std::vector<float>& table) : 
       pl(stride_, table),
       results_(r), binning_(b) {}
 
   PerformancePayloadFromTable(){}
 virtual ~PerformancePayloadFromTable(){}
 
-  float getResult(PerformanceResult::ResultType,BinningPointByMap) const ; // gets from the full payload
+  float getResult(PerformanceResult::ResultType,const BinningPointByMap&) const ; // gets from the full payload
 
   virtual bool isParametrizedInVariable(const BinningVariables::BinningVariablesType p)  const {
     return (minPos(p) != PerformancePayloadFromTable::InvalidPos);
   }
   
-  virtual bool isInPayload(PerformanceResult::ResultType,BinningPointByMap) const ;
+  virtual bool isInPayload(PerformanceResult::ResultType,const BinningPointByMap&) const ;
 
 const PhysicsPerformancePayload & payLoad() const {return pl;}
 
@@ -61,7 +61,7 @@ const PhysicsPerformancePayload & payLoad() const {return pl;}
       
   }
 
-  bool matches(BinningPointByMap, PhysicsPerformancePayload::Row &) const;
+  bool matches(const BinningPointByMap&, PhysicsPerformancePayload::Row &) const;
 
   PhysicsPerformancePayload pl;
 

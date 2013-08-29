@@ -46,7 +46,6 @@ namespace edm {
       template <typename T> friend class edm::maker::ModuleHolderT;
       template <typename T> friend class edm::WorkerT;
       typedef EDFilterBase ModuleType;
-      typedef WorkerT<EDFilterBase> WorkerType;
 
       EDFilterBase();
       virtual ~EDFilterBase();

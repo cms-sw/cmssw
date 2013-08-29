@@ -42,7 +42,7 @@ class PFSpecificAlgo
   PFSpecificAlgo() : doSignificance(false) { }
   
   void runSignificance(metsig::SignAlgoResolutions & resolutions, edm::Handle<edm::View<reco::PFJet> > jets);
-  reco::PFMET addInfo(edm::Handle<edm::View<reco::Candidate> > PFCandidates, CommonMETData met);
+  reco::PFMET addInfo(edm::Handle<edm::View<reco::Candidate> > PFCandidates, const CommonMETData& met);
 
  private:
   typedef math::XYZTLorentzVector LorentzVector;

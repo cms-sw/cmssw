@@ -265,7 +265,7 @@ vector<const GeomDet *> ValidHitPairFilter::getCloseDets
 
 /*****************************************************************************/
 bool ValidHitPairFilter::operator() 
-  (const reco::Track * track, vector<const TrackingRecHit *> recHits,
+  (const reco::Track * track, const vector<const TrackingRecHit *>& recHits,
    const TrackerTopology *tTopo) const
 {
   bool hasGap = true;

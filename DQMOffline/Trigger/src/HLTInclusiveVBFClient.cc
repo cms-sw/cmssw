@@ -1,6 +1,4 @@
 /*
- *  $Date: 2012/04/07 16:30:00 $
- *  $Revision: 1.0 $
  *  \author N. Srimanobhas
  */
 

@@ -20,7 +20,7 @@ namespace fit {
   template<class Function>
   class RootMinuit {
   public:
-    RootMinuit(Function f, bool verbose = false) : 
+    RootMinuit(const Function& f, bool verbose = false) : 
       initialized_(false), minValue_(0), verbose_(verbose) { 
       f_ = f;
     }

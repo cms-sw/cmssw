@@ -3,7 +3,6 @@
 /*
  * \file TBHodoActiveVolumeRawInfoProducer.h
  *
- * $Id: TBHodoActiveVolumeRawInfoProducer.h,v 1.3 2007/04/08 03:37:31 wmtan Exp $
  *
  */
 

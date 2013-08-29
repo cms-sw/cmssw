@@ -12,7 +12,7 @@ PhysicsPerformancePayload::Row PhysicsPerformancePayload::getRow(int n) const{
   return temp;
 }
 
-PhysicsPerformancePayload::PhysicsPerformancePayload(int stride, std::vector<float> table) : stride_(stride), 
+PhysicsPerformancePayload::PhysicsPerformancePayload(int stride, const std::vector<float>& table) : stride_(stride), 
 														  table_(table)
 {}
 

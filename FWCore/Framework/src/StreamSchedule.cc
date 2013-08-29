@@ -76,7 +76,7 @@ namespace edm {
     makeInserter(ExceptionToActionTable const& actions,
                  boost::shared_ptr<ActivityRegistry> areg,
                  TriggerResultInserter* inserter) {
-      StreamSchedule::WorkerPtr ptr(new TriggerResultInserter::WorkerType(inserter, inserter->moduleDescription(), &actions));
+      StreamSchedule::WorkerPtr ptr(new edm::WorkerT<TriggerResultInserter::ModuleType>(inserter, inserter->moduleDescription(), &actions));
       ptr->setActivityRegistry(areg);
       return ptr;
     }
@@ -281,7 +281,7 @@ namespace edm {
         if(branchToReadingWorker.size()>0) {
           //If an OutputModule needs a product, we can't delete it early
           // so we should remove it from our list
-          SelectionsArray const&kept = comm->keptProducts();
+          SelectedProductsForBranchType const&kept = comm->keptProducts();
           for( auto const& item: kept[InEvent]) {
             auto found = branchToReadingWorker.equal_range(item->branchName());
             if(found.first !=found.second) {

@@ -23,7 +23,6 @@ namespace edm {
     template <typename T> friend class maker::ModuleHolderT;
     template <typename T> friend class WorkerT;
     typedef EDAnalyzer ModuleType;
-    typedef WorkerT<EDAnalyzer> WorkerType;
 
     EDAnalyzer() : moduleDescription_() {}
     virtual ~EDAnalyzer();

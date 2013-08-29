@@ -45,7 +45,6 @@ namespace edm {
       template <typename T> friend class edm::maker::ModuleHolderT;
       
       typedef EDAnalyzerBase ModuleType;
-      typedef WorkerT<EDAnalyzerBase> WorkerType;
 
       
       EDAnalyzerBase();

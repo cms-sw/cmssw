@@ -409,7 +409,7 @@ namespace edm {
     }
 
     // Store the reduced ID in the IndexIntoFile
-    ProcessHistoryID reducedPHID = ProcessHistoryRegistry::instance()->extraForUpdate().reduceProcessHistoryID(e.processHistoryID());
+    ProcessHistoryID reducedPHID = ProcessHistoryRegistry::instance()->extra().reducedProcessHistoryID(e.processHistoryID());
     // Add event to index
     indexIntoFile_.addEntry(reducedPHID, pEventAux_->run(), pEventAux_->luminosityBlock(), pEventAux_->event(), eventEntryNumber_);
     ++eventEntryNumber_;
@@ -426,7 +426,7 @@ namespace edm {
     // Use the updated process historyID
     lumiAux_.setProcessHistoryID(lb.processHistoryID());
     // Store the reduced ID in the IndexIntoFile
-    ProcessHistoryID reducedPHID = ProcessHistoryRegistry::instance()->extraForUpdate().reduceProcessHistoryID(lb.processHistoryID());
+    ProcessHistoryID reducedPHID = ProcessHistoryRegistry::instance()->extra().reducedProcessHistoryID(lb.processHistoryID());
     // Add lumi to index.
     indexIntoFile_.addEntry(reducedPHID, lumiAux_.run(), lumiAux_.luminosityBlock(), 0U, lumiEntryNumber_);
     ++lumiEntryNumber_;
@@ -441,7 +441,7 @@ namespace edm {
     // Use the updated process historyID
     runAux_.setProcessHistoryID(r.processHistoryID());
     // Store the reduced ID in the IndexIntoFile
-    ProcessHistoryID reducedPHID = ProcessHistoryRegistry::instance()->extraForUpdate().reduceProcessHistoryID(r.processHistoryID());
+    ProcessHistoryID reducedPHID = ProcessHistoryRegistry::instance()->extra().reducedProcessHistoryID(r.processHistoryID());
     // Add run to index.
     indexIntoFile_.addEntry(reducedPHID, runAux_.run(), 0U, 0U, runEntryNumber_);
     ++runEntryNumber_;
@@ -610,7 +610,7 @@ namespace edm {
   }
 
   void
-  RootOutputFile::setBranchAliases(TTree* tree, Selections const& branches) const {
+  RootOutputFile::setBranchAliases(TTree* tree, SelectedProducts const& branches) const {
     if(tree && tree->GetNbranches() != 0) {
       for(auto const& selection : branches) {
         BranchDescription const& pd = *selection;

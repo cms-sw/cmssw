@@ -3,7 +3,7 @@
 #include "DataFormats/Provenance/interface/BranchDescription.h"
 #include "DataFormats/Provenance/interface/BranchID.h"
 #include "DataFormats/Provenance/interface/BranchIDListHelper.h"
-#include "DataFormats/Provenance/interface/Selections.h"
+#include "DataFormats/Provenance/interface/SelectedProducts.h"
 #include "FWCore/Framework/interface/ExceptionActions.h"
 #include "FWCore/Framework/interface/CommonParams.h"
 #include "FWCore/Framework/interface/ConstProductRegistry.h"
@@ -44,15 +44,15 @@ namespace edm {
 
     // Mark dropped branches as dropped in the product registry.
     std::set<BranchID> keptBranches;
-    Selections const& keptVectorR = om.keptProducts()[InRun];
+    SelectedProducts const& keptVectorR = om.keptProducts()[InRun];
     for(auto const& item : keptVectorR) {
       keptBranches.insert(item->branchID());
     }
-    Selections const& keptVectorL = om.keptProducts()[InLumi];
+    SelectedProducts const& keptVectorL = om.keptProducts()[InLumi];
     for(auto const& item : keptVectorL) {
       keptBranches.insert(item->branchID());
     }
-    Selections const& keptVectorE = om.keptProducts()[InEvent];
+    SelectedProducts const& keptVectorE = om.keptProducts()[InEvent];
     for(auto const& item : keptVectorE) {
       keptBranches.insert(item->branchID());
     }

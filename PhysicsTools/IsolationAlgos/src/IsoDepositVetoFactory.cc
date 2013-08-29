@@ -40,7 +40,7 @@ namespace reco { namespace isodeposit {
 
     class NumCrystalEtaPhiVeto : public AbsVeto {
         public:
-            NumCrystalEtaPhiVeto(math::XYZVectorD dir, double iEta, double iPhi) :
+            NumCrystalEtaPhiVeto(const math::XYZVectorD& dir, double iEta, double iPhi) :
                 vetoDir_(dir.eta(),dir.phi()), 
                 iEta_(iEta), 
                 iPhi_(iPhi) {}

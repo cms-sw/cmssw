@@ -31,7 +31,7 @@
 #include "DataFormats/Provenance/interface/BranchIDList.h"
 #include "DataFormats/Provenance/interface/ParentageID.h"
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
-#include "DataFormats/Provenance/interface/Selections.h"
+#include "DataFormats/Provenance/interface/SelectedProducts.h"
 
 #include "FWCore/Framework/interface/TriggerResultsBasedEventSelector.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -61,7 +61,6 @@ namespace edm {
       template <typename T> friend class ::edm::WorkerT;
       template <typename T> friend class ::edm::OutputModuleCommunicatorT;
       typedef OutputModuleBase ModuleType;
-      typedef edm::WorkerT<OutputModuleBase> WorkerType;
       
       explicit OutputModuleBase(ParameterSet const& pset);
       virtual ~OutputModuleBase();
@@ -81,7 +80,7 @@ namespace edm {
       
       void selectProducts(ProductRegistry const& preg);
       std::string const& processName() const {return process_name_;}
-      SelectionsArray const& keptProducts() const {return keptProducts_;}
+      SelectedProductsForBranchType const& keptProducts() const {return keptProducts_;}
       std::array<bool, NumBranchTypes> const& hasNewlyDroppedBranch() const {return hasNewlyDroppedBranch_;}
       
       static void fillDescription(ParameterSetDescription & desc);
@@ -95,6 +94,9 @@ namespace edm {
       
       BranchIDLists const* branchIDLists() const;
       
+      const ModuleDescription& moduleDescription() const {
+        return moduleDescription_;
+      }
     protected:
       
       Trig getTriggerResults(EventPrincipal const& ep, ModuleCallingContext const*) const;
@@ -149,7 +151,7 @@ namespace edm {
       // the branches we are to write.
       //
       // We do not own the BranchDescriptions to which we point.
-      SelectionsArray keptProducts_;
+      SelectedProductsForBranchType keptProducts_;
       std::array<bool, NumBranchTypes> hasNewlyDroppedBranch_;
       
       std::string process_name_;

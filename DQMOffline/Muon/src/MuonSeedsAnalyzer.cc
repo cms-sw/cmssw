@@ -4,7 +4,6 @@
  *
  *  $Date: 2008/03/25
  18:37:05 $
- *  $Revision: 1.14 $
  *  \author G. Mila - INFN Torino
  */
 

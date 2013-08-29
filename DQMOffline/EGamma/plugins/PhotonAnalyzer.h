@@ -84,7 +84,6 @@
  **  
  **
  **  $Id: PhotonAnalyzer
- **  $Date: 2012/02/08 16:03:29 $ 
  **  authors: 
  **   Nancy Marinelli, U. of Notre Dame, US  
  **   Jamie Antonelli, U. of Notre Dame, US

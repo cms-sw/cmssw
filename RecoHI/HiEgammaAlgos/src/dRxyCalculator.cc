@@ -10,14 +10,14 @@
 using namespace edm;
 using namespace reco;
 
-dRxyCalculator::dRxyCalculator(const edm::Event &iEvent, const edm::EventSetup &iSetup, edm::InputTag trackLabel)
+dRxyCalculator::dRxyCalculator(const edm::Event &iEvent, const edm::EventSetup &iSetup,const edm::InputTag& trackLabel)
 {
    // Get reconstructed tracks
    iEvent.getByLabel(trackLabel, recCollection); // !!
 
 } 
 
-double dRxyCalculator::getDRxy(const reco::Photon p, double x, double y)
+double dRxyCalculator::getDRxy(const reco::Photon& p, double x, double y)
 {
    using namespace edm;
    using namespace reco;

@@ -37,7 +37,7 @@ class HcalFlagHFDigiTimeParam{
 			  unsigned int fSamplesToAdd, 
 			  unsigned int fExpectedPeak, 
 			  double fminEThreshold, 
-			  std::vector<double> fcoef): 
+			  const std::vector<double>& fcoef): 
     mId(fId), 
     mHFdigiflagFirstSample(fFirstSample), 
     mHFdigiflagSamplesToAdd(fSamplesToAdd), 

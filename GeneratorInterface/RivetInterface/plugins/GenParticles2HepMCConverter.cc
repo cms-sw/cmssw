@@ -76,8 +76,6 @@ void GenParticles2HepMCConverter::beginRun(edm::Run& run, const edm::EventSetup&
   // const double xsecLOErr = genRunInfoHandle->externalXSecLO().error();
   // const double xsecNLO = genRunInfoHandle->externalXSecNLO().value();
   // const double xsecNLOErr = genRunInfoHandle->externalXSecNLO().error();
-  
-  eventSetup.getData(pTable_);
 }
 
 void GenParticles2HepMCConverter::produce(edm::Event& event, const edm::EventSetup& eventSetup)
@@ -91,12 +89,16 @@ void GenParticles2HepMCConverter::produce(edm::Event& event, const edm::EventSet
   edm::Handle<GenEventInfoProduct> genEventInfoHandle;
   event.getByLabel(genEventInfoLabel_, genEventInfoHandle);
 
+  eventSetup.getData(pTable_);
+
   HepMC::GenEvent* hepmc_event = new HepMC::GenEvent();
   hepmc_event->set_event_number(event.id().event());
   hepmc_event->set_signal_process_id(genEventInfoHandle->signalProcessID());
   hepmc_event->set_event_scale(genEventInfoHandle->qScale());
   hepmc_event->set_alphaQED(genEventInfoHandle->alphaQED());
   hepmc_event->set_alphaQCD(genEventInfoHandle->alphaQCD());
+
+  hepmc_event->weights() = genEventInfoHandle->weights();
 
   // Set PDF
   const gen::PdfInfo* pdf = genEventInfoHandle->pdf();
@@ -122,6 +124,7 @@ void GenParticles2HepMCConverter::produce(edm::Event& event, const edm::EventSet
   {
     const reco::Candidate* p = &genParticlesHandle->at(i);
     HepMC::GenParticle* hepmc_particle = new HepMC::GenParticle(FourVector(p->p4()), p->pdgId(), p->status());
+    hepmc_particle->suggest_barcode(i+1);
 
     // Assign particle's generated mass from the standard particle data table
     double particleMass = pTable_->particle(p->pdgId())->mass();
@@ -165,27 +168,29 @@ void GenParticles2HepMCConverter::produce(edm::Event& event, const edm::EventSet
   for ( unsigned int i=2, n=genParticlesHandle->size(); i<n; ++i )
   {
     const reco::Candidate* p = &genParticlesHandle->at(i);
-    const reco::Candidate* elder = p;
-    if ( p->numberOfMothers() != 0 ) elder = p->mother(0)->daughter(0);
 
-    HepMC::GenVertex* vertex = 0;
-    if ( particleToVertexMap.find(elder) == particleToVertexMap.end() )
+    // Connect mother-daughters for the other cases
+    for ( unsigned int j=0, nMothers=p->numberOfMothers(); j<nMothers; ++j )
     {
-      vertex = new HepMC::GenVertex(FourVector(elder->vertex()));
-      hepmc_event->add_vertex(vertex);
-      particleToVertexMap[elder] = vertex;
-      for ( unsigned int j=0, m=elder->numberOfMothers(); j<m; ++j )
+      // Mother-daughter hierarchy defines vertex
+      const reco::Candidate* elder = p->mother(j)->daughter(0);
+      HepMC::GenVertex* vertex;
+      if ( particleToVertexMap.find(elder) == particleToVertexMap.end() )
       {
-        const reco::Candidate* mother = elder->mother(j);
-        vertex->add_particle_in(genCandToHepMCMap[mother]);
+        vertex = new HepMC::GenVertex(FourVector(elder->vertex()));
+        hepmc_event->add_vertex(vertex);
+        particleToVertexMap[elder] = vertex;
       }
-    }
-    else
-    {
-      vertex = particleToVertexMap[elder];
-    }
+      else
+      {
+        vertex = particleToVertexMap[elder];
+      }
 
-    vertex->add_particle_out(hepmc_particles[i]);
+      // Vertex is found. Now connect each other
+      const reco::Candidate* mother = p->mother(j);
+      vertex->add_particle_in(genCandToHepMCMap[mother]);
+      vertex->add_particle_out(hepmc_particles[i]);
+    }
   }
 
   // Finalize HepMC event record

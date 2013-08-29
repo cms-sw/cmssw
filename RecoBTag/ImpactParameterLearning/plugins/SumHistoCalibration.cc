@@ -89,7 +89,7 @@ class SumHistoCalibration : public edm::EDAnalyzer {
       virtual void endJob() override ;
       edm::ParameterSet config;
 
-   TrackProbabilityCalibration * fromXml(edm::FileInPath xmlCalibration);
+   TrackProbabilityCalibration * fromXml(const edm::FileInPath& xmlCalibration);
 
   
   std::vector<std::string>  m_xmlilelist2d;
@@ -178,7 +178,7 @@ SumHistoCalibration::beginJob()
   
 }
 
-TrackProbabilityCalibration * SumHistoCalibration::fromXml(edm::FileInPath xmlCalibration)   
+TrackProbabilityCalibration * SumHistoCalibration::fromXml(const edm::FileInPath& xmlCalibration)   
 {
   std::ifstream xmlFile(xmlCalibration.fullPath().c_str());
   if (!xmlFile.good())

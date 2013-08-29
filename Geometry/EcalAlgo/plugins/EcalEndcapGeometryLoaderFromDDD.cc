@@ -13,7 +13,7 @@ EcalEGL::fillGeom( EcalEndcapGeometry*         geom,
 		   const DetId&                id );
 template <>
 void 
-EcalEGL::fillNamedParams( DDFilteredView      fv,
+EcalEGL::fillNamedParams( const DDFilteredView&      fv,
 			  EcalEndcapGeometry* geom );
 
 #include "Geometry/CaloEventSetup/interface/CaloGeometryLoader.icc"
@@ -77,9 +77,10 @@ EcalEGL::fillGeom( EcalEndcapGeometry*         geom,
 
 template <>
 void 
-EcalEGL::fillNamedParams( DDFilteredView      fv,
+EcalEGL::fillNamedParams(const DDFilteredView&      _fv,
 			  EcalEndcapGeometry* geom )
 {
+   DDFilteredView fv = _fv;
    bool doSubDets = fv.firstChild();
    while (doSubDets)
    {

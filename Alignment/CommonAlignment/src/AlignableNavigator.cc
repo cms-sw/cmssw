@@ -64,12 +64,12 @@ AlignableNavigator::AlignableNavigator(AlignableExtras* extras, Alignable* track
 }
 
 //_____________________________________________________________________________
-AlignableNavigator::AlignableNavigator( std::vector<Alignable*> alignables )
+AlignableNavigator::AlignableNavigator( const std::vector<Alignable*>& alignables )
 {
   theMap.clear();
 
   unsigned int numNonDets = 0;
-  for ( std::vector<Alignable*>::iterator it = alignables.begin(); it != alignables.end(); ++it ) {
+  for ( std::vector<Alignable*>::const_iterator it = alignables.begin(); it != alignables.end(); ++it ) {
     numNonDets += this->recursiveGetId(*it);
   }
   if (numNonDets) {

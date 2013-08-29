@@ -1,12 +1,14 @@
 <lcgdict>
    <class name="HBHERecHit" ClassVersion="12">
     <version ClassVersion="12" checksum="3812633329"/>
+    <version ClassVersion="10" checksum="3145355338"/>
    </class>
    <class name="HORecHit" ClassVersion="10">
     <version ClassVersion="10" checksum="1697427050"/>
    </class>
    <class name="HFRecHit" ClassVersion="12">
     <version ClassVersion="12" checksum="1242817974"/>
+    <version ClassVersion="10" checksum="1310006561"/>
    </class>
    <class name="ZDCRecHit" ClassVersion="11">
     <version ClassVersion="11" checksum="2452340764"/>

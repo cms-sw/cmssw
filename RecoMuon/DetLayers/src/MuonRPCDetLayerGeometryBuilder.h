@@ -38,7 +38,7 @@ class MuonRPCDetLayerGeometryBuilder {
   static void makeBarrelRods(std::vector<const GeomDet *> & geomDets,
                              std::vector<const DetRod*> & result);
   static bool isFront(const RPCDetId & rpcId);
-  static MuRingForwardDoubleLayer* buildLayer(int endcap,std::vector<int> rings, int station,int layer, std::vector<int>& rolls,const RPCGeometry& geo);          
+  static MuRingForwardDoubleLayer* buildLayer(int endcap,const std::vector<int>& rings, int station,int layer, std::vector<int>& rolls,const RPCGeometry& geo);          
     
 };
 #endif

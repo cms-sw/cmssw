@@ -608,7 +608,7 @@ testeventprocessor::activityRegistryTest() {
 
   typedef std::vector<edm::ModuleDescription const*> ModuleDescs;
   ModuleDescs allModules = proc.getAllModuleDescriptions();
-  CPPUNIT_ASSERT(1 == allModules.size()); // TestMod
+  CPPUNIT_ASSERT(2 == allModules.size()); // TestMod & TriggerResults
   //std::cout << "\nModuleDescriptions in testeventprocessor::activityRegistryTest()---\n";
   for (ModuleDescs::const_iterator i = allModules.begin(), e = allModules.end();
        i != e ;

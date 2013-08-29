@@ -19,7 +19,7 @@ class CxCalculator
 {
   public:
   
-   CxCalculator(const edm::Event &iEvent, const edm::EventSetup &iSetup, edm::InputTag barrelLabel, edm::InputTag endcapLabel) ;
+   CxCalculator(const edm::Event &iEvent, const edm::EventSetup &iSetup,const edm::InputTag& barrelLabel,const edm::InputTag& endcapLabel) ;
   
    double getJurassicArea( double r1, double r2, double width) ;
    double getBCMax(const reco::SuperClusterRef clus,int i);

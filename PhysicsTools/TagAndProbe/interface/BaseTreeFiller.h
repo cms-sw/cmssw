@@ -127,7 +127,7 @@ class ProbeFlag {
 class BaseTreeFiller : boost::noncopyable {
     public:
         /// specify the name of the TTree, and the configuration for it
-        BaseTreeFiller(const char *name, const edm::ParameterSet config);
+        BaseTreeFiller(const char *name, const edm::ParameterSet& config);
 
         /// Add branches to an existing TTree managed by another BaseTreeFiller
         BaseTreeFiller(BaseTreeFiller &main, const edm::ParameterSet &iConfig, const std::string &branchNamePrefix);

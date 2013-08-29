@@ -211,10 +211,10 @@ private:
 			    const reco::Vertex& primaryvtx, 
 			    unsigned int track_index);
   
-  double ClustersPhiRMS(std::vector<reco::CaloCluster>PFClusters, float PFPhoPhi);
+  double ClustersPhiRMS(const std::vector<reco::CaloCluster>&PFClusters, float PFPhoPhi);
   float EvaluateLCorrMVA(reco::PFClusterRef clusterRef );
-  float EvaluateGCorrMVA(reco::PFCandidate, std::vector<reco::CaloCluster>PFClusters);
-  float EvaluateResMVA(reco::PFCandidate,std::vector<reco::CaloCluster>PFClusters );
+  float EvaluateGCorrMVA(const reco::PFCandidate&, const std::vector<reco::CaloCluster>& PFClusters);
+  float EvaluateResMVA(const reco::PFCandidate&,const std::vector<reco::CaloCluster>& PFClusters );
   std::vector<int> getPFMustacheClus(int nClust, std::vector<float>& ClustEt, std::vector<float>& ClustEta, std::vector<float>& ClustPhi);
   void EarlyConversion(
 		       //std::auto_ptr< reco::PFCandidateCollection > 

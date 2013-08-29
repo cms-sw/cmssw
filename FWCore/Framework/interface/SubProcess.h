@@ -13,7 +13,7 @@
 #include "FWCore/ServiceRegistry/interface/ServiceToken.h"
 #include "FWCore/Utilities/interface/BranchType.h"
 
-#include "DataFormats/Provenance/interface/Selections.h"
+#include "DataFormats/Provenance/interface/SelectedProducts.h"
 
 #include "boost/shared_ptr.hpp"
 
@@ -49,7 +49,7 @@ namespace edm {
     
     //From OutputModule
     void selectProducts(ProductRegistry const& preg);
-    SelectionsArray const& keptProducts() const {return keptProducts_;}
+    SelectedProductsForBranchType const& keptProducts() const {return keptProducts_;}
 
     void doBeginJob();
     void doEndJob();
@@ -233,7 +233,7 @@ namespace edm {
     // the branches we are to write.
     //
     // We do not own the BranchDescriptions to which we point.
-    SelectionsArray keptProducts_;
+    SelectedProductsForBranchType keptProducts_;
     ProductSelectorRules productSelectorRules_;
     ProductSelector productSelector_;
 

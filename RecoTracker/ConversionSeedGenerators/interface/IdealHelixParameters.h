@@ -30,10 +30,10 @@ class IdealHelixParameters{
   ~IdealHelixParameters(){};
 
   void setMagnField(const MagneticField* magnField){_magnField=magnField;}
-  void setData(const reco::Track* track, math::XYZVector refPoint=math::XYZVector(0,0,0));
-  void setData(const reco::Track* track, math::XYZPoint ref);
+  void setData(const reco::Track* track, const math::XYZVector& refPoint=math::XYZVector(0,0,0));
+  void setData(const reco::Track* track, const math::XYZPoint& ref);
 
-  bool isTangentPointDistanceLessThan(float rmax, const reco::Track* track, const math::XYZVector refPoint);
+  bool isTangentPointDistanceLessThan(float rmax, const reco::Track* track, const math::XYZVector& refPoint);
 
   math::XYZVector   GetCircleCenter() const {return _circleCenter;}
   math::XYZVector   GetTangentPoint() const {return _tangentPoint;}

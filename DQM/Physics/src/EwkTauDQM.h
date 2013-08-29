@@ -14,7 +14,6 @@
  *          Christian Veelken
  *
  *
- * $Id: EwkTauDQM.h,v 1.3 2010/02/20 20:58:54 wmtan Exp $
  *
  */
 
@@ -60,7 +59,6 @@ class EwkTauDQM : public edm::EDAnalyzer
  *        (modified by Christian Veelken)
  *
  *
- * $Id: EwkTauDQM.h,v 1.3 2010/02/20 20:58:54 wmtan Exp $
  *
  */
 
@@ -206,7 +204,6 @@ class EwkElecTauHistManager
  *         Christian Veelken
  *
  *
- * $Id: EwkTauDQM.h,v 1.3 2010/02/20 20:58:54 wmtan Exp $
  *
  */
 
@@ -346,7 +343,6 @@ MonitorElement* hVisMassFinal_;
  * \author Joshua Swanson
  *
  *
- * $Id: EwkTauDQM.h,v 1.3 2010/02/20 20:58:54 wmtan Exp $
  *
  */
 

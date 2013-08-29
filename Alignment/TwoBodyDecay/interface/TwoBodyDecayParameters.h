@@ -28,7 +28,7 @@ public:
   TwoBodyDecayParameters( const AlgebraicVector & param, const AlgebraicSymMatrix & cov ) :
     theParameters( param ), theCovariance( cov ) {}
 
-  TwoBodyDecayParameters( AlgebraicVector param ) :
+  TwoBodyDecayParameters( const AlgebraicVector& param ) :
     theParameters( param ), theCovariance( AlgebraicSymMatrix() ) {}
 
   TwoBodyDecayParameters( const TwoBodyDecayParameters & other ) :

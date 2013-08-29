@@ -6,8 +6,6 @@
  *
  *  DQM monitoring source for CaloMET
  *
- *  $Date: 2012/04/20 14:37:07 $
- *  $Revision: 1.8 $
  *  \author A.Apresyan - Caltech
  */
 
