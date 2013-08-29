@@ -1,0 +1,30 @@
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
+ <SpecParSection label="trackerProdCuts_mtcc.xml" eval="true">
+  <SpecPar name="tracker-dead">
+   <PartSelector path="//Tracker"/>
+   <Parameter name="CMSCutsRegion" value="TrackerDeadRegion" eval="false"/>
+   <Parameter name="ProdCutsForElectrons" value="10*cm"/>
+   <Parameter name="ProdCutsForPositrons" value="10*cm"/>
+   <Parameter name="ProdCutsForGamma" value="10*cm"/>
+  </SpecPar>
+  <SpecPar name="tracker-sens">
+   <PartSelector path="//TIBActiveRphi0"/>
+   <PartSelector path="//TIBActiveSter0"/>
+   <PartSelector path="//TIBActiveRphi2"/>
+   <PartSelector path="//TOBActiveRphi0"/>
+   <PartSelector path="//TOBActiveSter0"/>
+   <PartSelector path="//TOBActiveRphi2"/>
+   <PartSelector path="//TOBActiveRphi4"/>
+   <PartSelector path="//TECModule3RphiActive"/>
+   <PartSelector path="//TECModule4RphiActive"/>
+   <PartSelector path="//TECModule4StereoActive"/>
+   <PartSelector path="//TECModule5RphiActive"/>
+   <PartSelector path="//TECModule6RphiActive"/>
+   <Parameter name="CMSCutsRegion" value="TrackerSensRegion" eval="false"/>
+   <Parameter name="ProdCutsForElectrons" value="0.1*mm"/>
+   <Parameter name="ProdCutsForPositrons" value="0.1*mm"/>
+   <Parameter name="ProdCutsForGamma" value="0.1*mm"/>
+  </SpecPar>
+ </SpecParSection>
+</DDDefinition>
