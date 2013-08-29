@@ -12,6 +12,7 @@
  */
 
 #include "DataFormats/MuonReco/interface/Muon.h"
+#include "DataFormats/MuonReco/interface/MuonFwd.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/TrackReco/interface/TrackToTrackMap.h"
 
@@ -122,6 +123,6 @@ namespace muon {
 			     muon.pickyTrack());
   }
   
+  reco::Muon::MuonTrackTypePair muonBestTrack(const reco::Muon& muon, reco::TunePType tunePType);
 }
-
 #endif

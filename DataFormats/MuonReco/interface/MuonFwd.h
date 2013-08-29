@@ -27,6 +27,9 @@ namespace reco {
   class CaloMuon;
   /// collection of Muon objects
   typedef std::vector<CaloMuon> CaloMuonCollection;
+
+  // For tuneP selection
+  enum TunePType{defaultTuneP, improvedTuneP};
 }
 
 #endif
