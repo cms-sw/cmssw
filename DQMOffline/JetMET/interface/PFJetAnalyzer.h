@@ -6,8 +6,6 @@
  *
  *  DQM monitoring source for PFlow Jets
  *
- *  $Date: 2012/03/06 11:39:21 $
- *  $Revision: 1.10 $
  *  \author F. Chlebana - Fermilab
  */
 

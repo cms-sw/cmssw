@@ -7,8 +7,6 @@
  *  DQMOffline Test Client
  *       check the residuals of the track parameters comparing STA/tracker only/global muons
  *
- *  $Date: 2009/11/12 17:27:55 $
- *  $Revision: 1.4 $
  *  \author  G. Mila - INFN Torino
  *   
  */
