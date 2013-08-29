@@ -251,11 +251,13 @@ void Muon::embedMuonBestTrack() {
 
 /// embed the Track selected to be the best measurement of the muon parameters
 void Muon::embedImprovedMuonBestTrack() {
-  improvedMuonBestTrack_.clear();
-  reco::TrackRef newBestTrack = muon::tevOptimized(*this,  200, 17., 40., 0.25).first;
-  if (newBestTrack.isNonnull()) {
+  improvedMuonBestTrack_.clear(); 
+  if(muon::cocktailInputIsOK(*this)){
+    reco::TrackRef newBestTrack = muon::tevOptimized(*this,  200, 17., 40., 0.25).first;
+    if(newBestTrack.isNonnull()){
       improvedMuonBestTrack_.push_back(*newBestTrack);
       embeddedImprovedMuonBestTrack_ = true;
+    }
   }
 }
 
