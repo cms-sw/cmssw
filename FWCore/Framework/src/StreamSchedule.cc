@@ -141,6 +141,7 @@ namespace edm {
                                  boost::shared_ptr<ModuleRegistry> modReg,
                                  ParameterSet& proc_pset,
                                  service::TriggerNamesService& tns,
+                                 PreallocationConfiguration const& prealloc,
                                  ProductRegistry& preg,
                                  BranchIDListHelper& branchIDListHelper,
                                  ExceptionToActionTable const& actions,
@@ -173,7 +174,7 @@ namespace edm {
     trig_paths_.reserve(trig_name_list_.size());
     vstring labelsOnTriggerPaths;
       for (auto const& trig_name : trig_name_list_) {
-      fillTrigPath(proc_pset, preg, processConfiguration, trig_bitpos, trig_name, results_, &labelsOnTriggerPaths);
+      fillTrigPath(proc_pset, preg, &prealloc, processConfiguration, trig_bitpos, trig_name, results_, &labelsOnTriggerPaths);
       ++trig_bitpos;
       hasPath = true;
     }
@@ -190,7 +191,7 @@ namespace edm {
     int bitpos = 0;
     end_paths_.reserve(end_path_name_list_.size());
       for (auto const& end_path_name : end_path_name_list_) {
-      fillEndPath(proc_pset, preg, processConfiguration, bitpos, end_path_name);
+      fillEndPath(proc_pset, preg, &prealloc, processConfiguration, bitpos, end_path_name);
       ++bitpos;
     }
 
@@ -220,7 +221,7 @@ namespace edm {
           ParameterSet* modulePSet(proc_pset.getPSetForUpdate(label, isTracked));
           assert(isTracked);
           assert(modulePSet != nullptr);
-          workerManager_.addToUnscheduledWorkers(*modulePSet, preg, processConfiguration, label, wantSummary_, unscheduledLabels, shouldBeUsedLabels);
+          workerManager_.addToUnscheduledWorkers(*modulePSet, preg, &prealloc, processConfiguration, label, wantSummary_, unscheduledLabels, shouldBeUsedLabels);
         } else {
           //everthing is marked are unused so no 'on demand' allowed
           shouldBeUsedLabels.push_back(label);
@@ -408,12 +409,13 @@ namespace edm {
   }
 
   void StreamSchedule::fillWorkers(ParameterSet& proc_pset,
-                             ProductRegistry& preg,
-                             boost::shared_ptr<ProcessConfiguration const> processConfiguration,
-                             std::string const& name,
-                             bool ignoreFilters,
-                             PathWorkers& out,
-                             vstring* labelsOnPaths) {
+                                   ProductRegistry& preg,
+                                   PreallocationConfiguration const* prealloc,
+                                   boost::shared_ptr<ProcessConfiguration const> processConfiguration,
+                                   std::string const& name,
+                                   bool ignoreFilters,
+                                   PathWorkers& out,
+                                   vstring* labelsOnPaths) {
     vstring modnames = proc_pset.getParameter<vstring>(name);
     PathWorkers tmpworkers;
 
@@ -443,7 +445,7 @@ namespace edm {
       }
       assert(isTracked);
 
-      Worker* worker = workerManager_.getWorker(*modpset, preg, processConfiguration, moduleLabel);
+      Worker* worker = workerManager_.getWorker(*modpset, preg, prealloc, processConfiguration, moduleLabel);
       if (ignoreFilters && filterAction != WorkerInPath::Ignore && worker->moduleType()==Worker::kFilter) {
         // We have a filter on an end path, and the filter is not explicitly ignored.
         // See if the filter is allowed.
@@ -466,13 +468,14 @@ namespace edm {
   }
 
   void StreamSchedule::fillTrigPath(ParameterSet& proc_pset,
-                              ProductRegistry& preg,
-                              boost::shared_ptr<ProcessConfiguration const> processConfiguration,
-                              int bitpos, std::string const& name, TrigResPtr trptr,
-                              vstring* labelsOnTriggerPaths) {
+                                    ProductRegistry& preg,
+                                    PreallocationConfiguration const* prealloc,
+                                    boost::shared_ptr<ProcessConfiguration const> processConfiguration,
+                                    int bitpos, std::string const& name, TrigResPtr trptr,
+                                    vstring* labelsOnTriggerPaths) {
     PathWorkers tmpworkers;
     Workers holder;
-    fillWorkers(proc_pset, preg, processConfiguration, name, false, tmpworkers, labelsOnTriggerPaths);
+    fillWorkers(proc_pset, preg, prealloc, processConfiguration, name, false, tmpworkers, labelsOnTriggerPaths);
 
     for (PathWorkers::iterator wi(tmpworkers.begin()),
           we(tmpworkers.end()); wi != we; ++wi) {
@@ -493,11 +496,12 @@ namespace edm {
   }
 
   void StreamSchedule::fillEndPath(ParameterSet& proc_pset,
-                             ProductRegistry& preg,
-                             boost::shared_ptr<ProcessConfiguration const> processConfiguration,
-                             int bitpos, std::string const& name) {
+                                   ProductRegistry& preg,
+                                   PreallocationConfiguration const* prealloc,
+                                   boost::shared_ptr<ProcessConfiguration const> processConfiguration,
+                                   int bitpos, std::string const& name) {
     PathWorkers tmpworkers;
-    fillWorkers(proc_pset, preg, processConfiguration, name, true, tmpworkers, 0);
+    fillWorkers(proc_pset, preg, prealloc, processConfiguration, name, true, tmpworkers, 0);
     Workers holder;
 
     for (PathWorkers::iterator wi(tmpworkers.begin()), we(tmpworkers.end()); wi != we; ++wi) {

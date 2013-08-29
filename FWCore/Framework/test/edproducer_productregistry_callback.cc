@@ -15,6 +15,7 @@
 
 #include "FWCore/Framework/src/SignallingProductRegistry.h"
 #include "FWCore/Framework/interface/ConstProductRegistry.h"
+#include "FWCore/Framework/src/PreallocationConfiguration.h"
 
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/ExceptionActions.h"
@@ -138,13 +139,14 @@ void  testEDProducerProductRegistryCallback::testCircularRef() {
    p2.registerIt();
    
    edm::ExceptionToActionTable table;
-   
+   edm::PreallocationConfiguration prealloc;
+  
    edm::ParameterSet dummyProcessPset;
    dummyProcessPset.registerIt();
    boost::shared_ptr<ProcessConfiguration> pc(new ProcessConfiguration("PROD", dummyProcessPset.id(), edm::getReleaseVersion(), edm::getPassID()));
 
-   edm::MakeModuleParams params1(&p1, preg, pc);
-   edm::MakeModuleParams params2(&p2, preg, pc);
+   edm::MakeModuleParams params1(&p1, preg, &prealloc, pc);
+   edm::MakeModuleParams params2(&p2, preg, &prealloc, pc);
    
    std::auto_ptr<Maker> lM(new WorkerMaker<ListenMod>);
    ParameterSet l1;
@@ -159,8 +161,8 @@ void  testEDProducerProductRegistryCallback::testCircularRef() {
    l2.addParameter("@module_edm_type",std::string("EDProducer") );
    l2.registerIt();
 
-   edm::MakeModuleParams paramsl1(&l1, preg, pc);
-   edm::MakeModuleParams paramsl2(&l2, preg, pc);
+   edm::MakeModuleParams paramsl1(&l1, preg, &prealloc, pc);
+   edm::MakeModuleParams paramsl2(&l2, preg, &prealloc, pc);
 
    signalslot::Signal<void(const ModuleDescription&)> aSignal;
 
@@ -213,13 +215,14 @@ void  testEDProducerProductRegistryCallback::testCircularRef2() {
    p2.registerIt();
    
    edm::ExceptionToActionTable table;
-   
+   edm::PreallocationConfiguration prealloc;
+  
    edm::ParameterSet dummyProcessPset;
    dummyProcessPset.registerIt();
    boost::shared_ptr<ProcessConfiguration> pc(new ProcessConfiguration("PROD", dummyProcessPset.id(), edm::getReleaseVersion(), edm::getPassID()));
 
-   edm::MakeModuleParams params1(&p1, preg, pc);
-   edm::MakeModuleParams params2(&p2, preg, pc);
+   edm::MakeModuleParams params1(&p1, preg, &prealloc, pc);
+   edm::MakeModuleParams params2(&p2, preg, &prealloc, pc);
    
    std::auto_ptr<Maker> lM(new WorkerMaker<ListenMod>);
    ParameterSet l1;
@@ -234,8 +237,8 @@ void  testEDProducerProductRegistryCallback::testCircularRef2() {
    l2.addParameter("@module_edm_type",std::string("EDProducer") );
    l2.registerIt();
    
-   edm::MakeModuleParams paramsl1(&l1, preg, pc);
-   edm::MakeModuleParams paramsl2(&l2, preg, pc);
+   edm::MakeModuleParams paramsl1(&l1, preg, &prealloc, pc);
+   edm::MakeModuleParams paramsl2(&l2, preg, &prealloc, pc);
    
    signalslot::Signal<void(const ModuleDescription&)> aSignal;
    auto ml1 = lM->makeModule(paramsl1,aSignal,aSignal);
@@ -287,13 +290,14 @@ void  testEDProducerProductRegistryCallback::testTwoListeners(){
    p2.registerIt();
    
    edm::ExceptionToActionTable table;
-   
+   edm::PreallocationConfiguration prealloc;
+  
    edm::ParameterSet dummyProcessPset;
    dummyProcessPset.registerIt();
    boost::shared_ptr<ProcessConfiguration> pc(new ProcessConfiguration("PROD", dummyProcessPset.id(), edm::getReleaseVersion(), edm::getPassID()));
 
-   edm::MakeModuleParams params1(&p1, preg, pc);
-   edm::MakeModuleParams params2(&p2, preg, pc);
+   edm::MakeModuleParams params1(&p1, preg, &prealloc, pc);
+   edm::MakeModuleParams params2(&p2, preg, &prealloc, pc);
    
    std::auto_ptr<Maker> lM(new WorkerMaker<ListenMod>);
    ParameterSet l1;
@@ -309,8 +313,8 @@ void  testEDProducerProductRegistryCallback::testTwoListeners(){
    l2.addParameter("@module_edm_type",std::string("EDProducer") );
    l2.registerIt();
    
-   edm::MakeModuleParams paramsl1(&l1, preg, pc);
-   edm::MakeModuleParams paramsl2(&l2, preg, pc);
+   edm::MakeModuleParams paramsl1(&l1, preg, &prealloc, pc);
+   edm::MakeModuleParams paramsl2(&l2, preg, &prealloc, pc);
    
    
    signalslot::Signal<void(const ModuleDescription&)> aSignal;
