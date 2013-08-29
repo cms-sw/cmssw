@@ -30,7 +30,8 @@
    <version ClassVersion="15" checksum="990589145"/>
    <version ClassVersion="10" checksum="1662079993"/>
   </class>
-  <class name="pat::Muon"  ClassVersion="13">
+  <class name="pat::Muon"  ClassVersion="14">
+   <version ClassVersion="14" checksum="1011546643"/>
    <version ClassVersion="13" checksum="1020022799"/>
    <version ClassVersion="12" checksum="462627330"/>
    <version ClassVersion="11" checksum="489577659"/>

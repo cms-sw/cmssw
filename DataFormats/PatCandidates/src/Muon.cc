@@ -18,6 +18,7 @@ Muon::Muon() :
     Lepton<reco::Muon>(),
     embeddedMuonBestTrack_(false),
     embeddedImprovedMuonBestTrack_(false),
+    improvedMuonBestTrackType_(reco::Muon::None),
     embeddedTrack_(false),
     embeddedStandAloneMuon_(false),
     embeddedCombinedMuon_(false),
@@ -44,6 +45,7 @@ Muon::Muon(const reco::Muon & aMuon) :
     Lepton<reco::Muon>(aMuon),
     embeddedMuonBestTrack_(false),
     embeddedImprovedMuonBestTrack_(false),
+    improvedMuonBestTrackType_(reco::Muon::None),
     embeddedTrack_(false),
     embeddedStandAloneMuon_(false),
     embeddedCombinedMuon_(false),
@@ -70,6 +72,7 @@ Muon::Muon(const edm::RefToBase<reco::Muon> & aMuonRef) :
     Lepton<reco::Muon>(aMuonRef),
     embeddedMuonBestTrack_(false),
     embeddedImprovedMuonBestTrack_(false),
+    improvedMuonBestTrackType_(reco::Muon::None),
     embeddedTrack_(false),
     embeddedStandAloneMuon_(false),
     embeddedCombinedMuon_(false),
@@ -96,6 +99,7 @@ Muon::Muon(const edm::Ptr<reco::Muon> & aMuonRef) :
     Lepton<reco::Muon>(aMuonRef),
     embeddedMuonBestTrack_(false),
     embeddedImprovedMuonBestTrack_(false),
+    improvedMuonBestTrackType_(reco::Muon::None),
     embeddedTrack_(false),
     embeddedStandAloneMuon_(false),
     embeddedCombinedMuon_(false),
@@ -220,7 +224,7 @@ reco::TrackRef Muon::improvedMuonBestTrack() {
     return reco::TrackRef(&improvedMuonBestTrack_,0);
   } else {
     reco::Muon::MuonTrackTypePair newBestTrack = muon::muonBestTrack(*this, reco::improvedTuneP);
-    setBestTrack(newBestTrack.second);
+    setImprovedBestTrack(newBestTrack.second);
     return newBestTrack.first;
   } 
 }
