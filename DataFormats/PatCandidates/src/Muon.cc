@@ -266,7 +266,7 @@ void Muon::embedImprovedMuonBestTrack() {
     embeddedImprovedMuonBestTrack_ = true;
   } 
   else
-    edm::LogError("PATMuonProducer|embedImprovedMuonBestTrack") << "Orphan best track this must not happend!";
+    edm::LogError("PATMuon|embedImprovedMuonBestTrack") << "Orphan best track this must not happend!";
 }
 
 
