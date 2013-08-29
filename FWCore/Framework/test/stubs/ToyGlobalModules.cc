@@ -1,7 +1,7 @@
 
 /*----------------------------------------------------------------------
 
-Toy edm::global modules of Ints for testing purposes only.
+Toy edm::global modules of ints for testing purposes only.
 
 ----------------------------------------------------------------------*/
 #include <iostream>
@@ -27,12 +27,14 @@ Toy edm::global modules of Ints for testing purposes only.
 namespace edmtest {
 namespace global {
 
-  class StreamIntProducer : public edm::global::EDProducer<edm::StreamCache<int>> {
+  class StreamIntGProducer : public edm::global::EDProducer<edm::StreamCache<int>> {
   public:
-    explicit StreamIntProducer(edm::ParameterSet const& p) :
-	m_count(p.getParameter<int>("ivalue")) {
+    explicit StreamIntGProducer(edm::ParameterSet const& p) :
+	trans_(p.getParameter<int>("transitions")) {
     }
-    mutable unsigned int m_count = 0;
+    const unsigned int trans_; 
+    mutable unsigned int m_count;
+
     void produce(edm::StreamID, edm::Event&, edm::EventSetup const&) const override {
       ++m_count;
     }
@@ -57,16 +59,22 @@ namespace global {
     void endStream(edm::StreamID) const override {
       ++m_count;
     }
-    ~StreamIntProducer() {
-      std::cout << "StreamIntProducer transitions " << m_count <<" \n";
+    ~StreamIntGProducer() {
+      if(m_count != trans_) {
+        throw cms::Exception("transitions")
+          << "StreamIntGProducer transitions " 
+          << m_count << " but it was supposed to be " << trans_;
+      }
+      //std::cout << "StreamIntGProducer transitions " << m_count << " but it was supposed to be " << trans_ <<"\n";
     }
   };
   
-  class RunIntProducer : public edm::global::EDProducer<edm::RunCache<int>> {
+  class RunIntGProducer : public edm::global::EDProducer<edm::RunCache<int>> {
   public:
-    explicit RunIntProducer(edm::ParameterSet const& p) :
-	m_count(p.getParameter<int>("ivalue")) {
+    explicit RunIntGProducer(edm::ParameterSet const& p) :
+	trans_(p.getParameter<int>("transitions")) {
     }
+    const unsigned int trans_; 
     mutable unsigned int m_count = 0;
     void produce(edm::StreamID, edm::Event&, edm::EventSetup const&) const override {
       ++m_count;
@@ -80,17 +88,23 @@ namespace global {
     void globalEndRun(edm::Run const&, edm::EventSetup const&) const override {
       ++m_count;
     }
-    ~RunIntProducer() {
-      std::cout << "RunIntProducer transitions " << m_count <<" \n";
+    ~RunIntGProducer() {
+       if(m_count != trans_) {
+        throw cms::Exception("transitions")
+          << "RunIntGProducer transitions " 
+          << m_count << " but it was supposed to be " << trans_;
+      }
+       //std::cout << "RunIntGProducer transitions " << m_count << " but it was supposed to be " << trans_ <<"\n";
     }
   };
 
 
-  class LumiIntProducer : public edm::global::EDProducer<edm::LuminosityBlockCache<int>> {
+  class LumiIntGProducer : public edm::global::EDProducer<edm::LuminosityBlockCache<int>> {
   public:
-    explicit LumiIntProducer(edm::ParameterSet const& p) :
-	m_count(p.getParameter<int>("ivalue")) {
+    explicit LumiIntGProducer(edm::ParameterSet const& p) :
+	trans_(p.getParameter<int>("transitions")) {
     }
+    const unsigned int trans_; 
     mutable unsigned int m_count = 0;
     void produce(edm::StreamID, edm::Event&, edm::EventSetup const&) const override {
       ++m_count;
@@ -104,17 +118,22 @@ namespace global {
     void globalEndLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) const override {
       ++m_count;
     }
-    ~LumiIntProducer() {
-      std::cout << "LumiIntProducer transitions " << m_count <<" \n";
+    ~LumiIntGProducer() {
+       if(m_count != trans_) {
+        throw cms::Exception("transitions")
+          << "LumiIntGProducer transitions " 
+          << m_count<< " but it was supposed to be " << trans_;
+       }
+       //std::cout << "LumiIntGProducer transitions " << m_count<< " but it was supposed to be " << trans_ <<"\n";
     }
   };
   
-  class RunSummaryIntProducer : public edm::global::EDProducer<edm::RunSummaryCache<int>> {
+  class RunSummaryIntGProducer : public edm::global::EDProducer<edm::RunSummaryCache<int>> {
   public:
-    explicit RunSummaryIntProducer(edm::ParameterSet const& p) :
-	m_count(p.getParameter<int>("ivalue")) {
+    explicit RunSummaryIntGProducer(edm::ParameterSet const& p) :
+	trans_(p.getParameter<int>("transitions")) {
     }
- 
+    const unsigned int trans_; 
     mutable unsigned int m_count = 0;
     void produce(edm::StreamID, edm::Event&, edm::EventSetup const&) const override {
       ++m_count;
@@ -132,16 +151,21 @@ namespace global {
     void globalEndRunSummary(edm::Run const&, edm::EventSetup const&, int*) const override {
       ++m_count;
     }
-    ~RunSummaryIntProducer() {
-      std::cout << "RunSummaryIntProducer transitions " << m_count <<" \n";
+    ~RunSummaryIntGProducer() {
+     if(m_count != trans_) {
+        throw cms::Exception("transitions")
+          << "RunSummaryIntGProducer transitions "
+          << m_count<< " but it was supposed to be " << trans_;
+      }
     }
   };
 
-  class LumiSummaryIntProducer : public edm::global::EDProducer<edm::LuminosityBlockSummaryCache<int>> {
+  class LumiSummaryIntGProducer : public edm::global::EDProducer<edm::LuminosityBlockSummaryCache<int>> {
   public:
-    explicit LumiSummaryIntProducer(edm::ParameterSet const& p) :
-	m_count(p.getParameter<int>("ivalue")) {	
+    explicit LumiSummaryIntGProducer(edm::ParameterSet const& p) :
+	trans_(p.getParameter<int>("transitions")) {	
     }
+    const unsigned int trans_; 
     mutable unsigned int m_count = 0;
     void produce(edm::StreamID, edm::Event&, edm::EventSetup const&) const override {
       ++m_count;
@@ -159,16 +183,22 @@ namespace global {
     void globalEndLuminosityBlockSummary(edm::LuminosityBlock const&, edm::EventSetup const&, int*) const override {
       ++m_count;
     }
-    ~LumiSummaryIntProducer() {
-      std::cout << "LumiSummaryIntProducer transitions " << m_count <<" \n";
+    ~LumiSummaryIntGProducer() {
+     if(m_count != trans_) {
+        throw cms::Exception("transitions")
+          << "LumiSummaryIntGProducer transitions " 
+          << m_count<< " but it was supposed to be " << trans_;
+      }
+      //std::cout << "LumiSummaryIntGProducer transitions " << m_count<< " but it was supposed to be " << trans_ <<"\n";
     }
   };
 
-  class StreamIntAnalyzer : public edm::global::EDAnalyzer<edm::StreamCache<int>> {
+  class StreamIntGAnalzer : public edm::global::EDAnalyzer<edm::StreamCache<int>> {
   public:
-    explicit StreamIntAnalyzer(edm::ParameterSet const& p) :
-	m_count(p.getParameter<int>("ivalue")) {
+    explicit StreamIntGAnalzer(edm::ParameterSet const& p) :
+	trans_(p.getParameter<int>("transitions")) {
     }
+    const unsigned int trans_; 
     mutable unsigned int m_count = 0;
     void analyze(edm::StreamID, const edm::Event&, const edm::EventSetup&) const override {
       ++m_count;
@@ -194,16 +224,22 @@ namespace global {
     void endStream(edm::StreamID) const override {
       ++m_count;
     }
-    ~StreamIntAnalyzer() {
-      std::cout << "StreamIntAnalyzer transitions " << m_count <<" \n";
+    ~StreamIntGAnalzer() {
+      if(m_count != trans_) {
+        throw cms::Exception("transitions")
+          << "StreamIntGAnalzer transitions "
+          << m_count<< " but it was supposed to be " << trans_;
+      }
+      //std::cout << "StreamIntGAnalzer transitions "<< m_count<< " but it was supposed to be " << trans_ <<"\n";
     }
   };
   
-  class RunIntAnalyzer : public edm::global::EDAnalyzer<edm::RunCache<int>> {
+  class RunIntGAnalzer : public edm::global::EDAnalyzer<edm::RunCache<int>> {
   public:
-    explicit RunIntAnalyzer(edm::ParameterSet const& p) :
-	m_count(p.getParameter<int>("ivalue")) {
+    explicit RunIntGAnalzer(edm::ParameterSet const& p) :
+	trans_(p.getParameter<int>("transitions")) {
     }
+    const unsigned int trans_; 
     mutable unsigned int m_count = 0;
     void analyze(edm::StreamID, const edm::Event&, const edm::EventSetup&) const override {
       ++m_count;
@@ -217,17 +253,23 @@ namespace global {
     void globalEndRun(edm::Run const&, edm::EventSetup const&) const override {
       ++m_count;
     }
-    ~RunIntAnalyzer() {
-      std::cout << "RunIntAnalyzer transitions " << m_count <<" \n";
+    ~RunIntGAnalzer() {
+      if(m_count != trans_) {
+        throw cms::Exception("transitions")
+          << "RunIntGAnalzer transitions "
+          << m_count<< " but it was supposed to be " << trans_;
+      }
+      //std::cout << "RunIntGAnalzer transitions "<< m_count<< " but it was supposed to be " << trans_ <<"\n";
     }
   };
 
 
-  class LumiIntAnalyzer : public edm::global::EDAnalyzer<edm::LuminosityBlockCache<int>> {
+  class LumiIntGAnalzer : public edm::global::EDAnalyzer<edm::LuminosityBlockCache<int>> {
   public:
-    explicit LumiIntAnalyzer(edm::ParameterSet const& p) :
-	m_count(p.getParameter<int>("ivalue")) {
+    explicit LumiIntGAnalzer(edm::ParameterSet const& p) :
+	trans_(p.getParameter<int>("transitions")) {
     }
+    const unsigned int trans_; 
     mutable unsigned int m_count = 0;
     void analyze(edm::StreamID, const edm::Event&, const edm::EventSetup&) const override {
       ++m_count;
@@ -241,17 +283,22 @@ namespace global {
     void globalEndLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) const override {
       ++m_count;
     }
-    ~LumiIntAnalyzer () {
-      std::cout << "LumiIntAnalyzer transitions " << m_count <<" \n";
+    ~LumiIntGAnalzer () {
+      if(m_count != trans_) {
+        throw cms::Exception("transitions")
+          << "LumiIntGAnalzer transitions "
+          << m_count<< " but it was supposed to be " << trans_;
+      }
+      //std::cout << "LumiIntGAnalzer transitions "<< m_count<< " but it was supposed to be " << trans_ <<"\n";
     }
   };
   
-  class RunSummaryIntAnalyzer : public edm::global::EDAnalyzer<edm::RunSummaryCache<int>> {
+  class RunSummaryIntGAnalzer : public edm::global::EDAnalyzer<edm::RunSummaryCache<int>> {
   public:
-    explicit RunSummaryIntAnalyzer(edm::ParameterSet const& p) :
-	m_count(p.getParameter<int>("ivalue")) {
+    explicit RunSummaryIntGAnalzer(edm::ParameterSet const& p) :
+	trans_(p.getParameter<int>("transitions")) {
     }
- 
+    const unsigned int trans_; 
     mutable unsigned int m_count = 0;
     void analyze(edm::StreamID, const edm::Event&, const edm::EventSetup&) const override {
       ++m_count;
@@ -269,16 +316,22 @@ namespace global {
     void globalEndRunSummary(edm::Run const&, edm::EventSetup const&, int*) const override {
       ++m_count;
     }
-    ~RunSummaryIntAnalyzer() {
-      std::cout << "RunSummaryIntAnalyzer transitions " << m_count <<" \n";
+    ~RunSummaryIntGAnalzer() {
+      if(m_count != trans_) {
+        throw cms::Exception("transitions")
+          << "RunSummaryIntGAnalzer transitions "
+          << m_count<< " but it was supposed to be " << trans_;
+      }
+      //std::cout << "RunSummaryIntGAnalzer transitions " << m_count<< " but it was supposed to be " << trans_ <<"\n";
     }
   };
 
-  class LumiSummaryIntAnalyzer : public edm::global::EDAnalyzer<edm::LuminosityBlockSummaryCache<int>> {
+  class LumiSummaryIntGAnalzer : public edm::global::EDAnalyzer<edm::LuminosityBlockSummaryCache<int>> {
   public:
-    explicit LumiSummaryIntAnalyzer(edm::ParameterSet const& p) :
-	m_count(p.getParameter<int>("ivalue")) {	
+    explicit LumiSummaryIntGAnalzer(edm::ParameterSet const& p) :
+	trans_(p.getParameter<int>("transitions")) {	
     }
+    const unsigned int trans_; 
     mutable unsigned int m_count = 0;
     void analyze(edm::StreamID, const edm::Event&, const edm::EventSetup&) const override {
       ++m_count;
@@ -296,16 +349,22 @@ namespace global {
     void globalEndLuminosityBlockSummary(edm::LuminosityBlock const&, edm::EventSetup const&, int*) const override {
       ++m_count;
     }
-    ~LumiSummaryIntAnalyzer() {
-      std::cout << "LumiSummaryIntAnalyzer transitions " << m_count <<" \n";
+    ~LumiSummaryIntGAnalzer() {
+      if(m_count != trans_) {
+        throw cms::Exception("transitions")
+          << "LumiSummaryIntGAnalzer transitions "
+          << m_count<< " but it was supposed to be " << trans_;
+      }
+      //std::cout << "LumiSummaryIntGAnalzer transitions " << m_count<< " but it was supposed to be " << trans_ <<"\n";
     }
   };
 
-  class StreamIntFilter : public edm::global::EDFilter<edm::StreamCache<int>> {
+  class StreamIntGFilter : public edm::global::EDFilter<edm::StreamCache<int>> {
   public:
-    explicit StreamIntFilter(edm::ParameterSet const& p) :
-	m_count(p.getParameter<int>("ivalue")) {
+    explicit StreamIntGFilter(edm::ParameterSet const& p) :
+	trans_(p.getParameter<int>("transitions")) {
     }
+    const unsigned int trans_; 
     mutable unsigned int m_count = 0;
     bool filter(edm::StreamID, edm::Event&, edm::EventSetup const&) const override {
       ++m_count;
@@ -332,16 +391,22 @@ namespace global {
     void endStream(edm::StreamID) const override {
       ++m_count;
     }
-    ~StreamIntFilter() {
-      std::cout << "StreamIntFilter transitions " << m_count <<" \n";
+    ~StreamIntGFilter() {
+      if(m_count != trans_) {
+        throw cms::Exception("transitions")
+          << "StreamIntGFilter transitions "
+          << m_count<< " but it was supposed to be " << trans_;
+      }
+      //std::cout << "StreamIntGFilter transitions " << m_count<< " but it was supposed to be " << trans_ <<"\n";
     }
   };
   
-  class RunIntFilter : public edm::global::EDFilter<edm::RunCache<int>> {
+  class RunIntGFilter : public edm::global::EDFilter<edm::RunCache<int>> {
   public:
-    explicit RunIntFilter(edm::ParameterSet const& p) :
-	m_count(p.getParameter<int>("ivalue")) {
+    explicit RunIntGFilter(edm::ParameterSet const& p) :
+	trans_(p.getParameter<int>("transitions")) {
     }
+    const unsigned int trans_; 
     mutable unsigned int m_count = 0;
     bool filter(edm::StreamID, edm::Event&, edm::EventSetup const&) const override {
       ++m_count;
@@ -356,17 +421,23 @@ namespace global {
     void globalEndRun(edm::Run const&, edm::EventSetup const&) const override {
       ++m_count;
     }
-    ~RunIntFilter() {
-      std::cout << "RunIntFilter transitions " << m_count <<" \n";
+    ~RunIntGFilter() {
+      if(m_count != trans_) {
+        throw cms::Exception("transitions")
+          << "RunIntGFilter transitions "     
+          << m_count<< " but it was supposed to be " << trans_;
+      }
+      //std::cout << "RunIntGFilter transitions " << m_count<< " but it was supposed to be " << trans_ <<"\n";
     }
   };
 
 
-  class LumiIntFilter : public edm::global::EDFilter<edm::LuminosityBlockCache<int>> {
+  class LumiIntGFilter : public edm::global::EDFilter<edm::LuminosityBlockCache<int>> {
   public:
-    explicit LumiIntFilter(edm::ParameterSet const& p) :
-	m_count(p.getParameter<int>("ivalue")) {
+    explicit LumiIntGFilter(edm::ParameterSet const& p) :
+	trans_(p.getParameter<int>("transitions")) {
     }
+    const unsigned int trans_; 
     mutable unsigned int m_count = 0;
     bool filter(edm::StreamID, edm::Event&, edm::EventSetup const&) const override {
       ++m_count;
@@ -381,17 +452,22 @@ namespace global {
     void globalEndLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) const override {
       ++m_count;
     }
-    ~LumiIntFilter() {
-      std::cout << "LumiIntFilter transitions " << m_count <<" \n";
+    ~LumiIntGFilter() {
+      if(m_count != trans_) {
+        throw cms::Exception("transitions")
+          << "LumiIntGFilter transitions " 
+          << m_count<< " but it was supposed to be " << trans_;
+      }
+      //std::cout << "LumiIntGFilter transitions " << m_count<< " but it was supposed to be "<< trans_ <<"\n";
     }
   };
   
-  class RunSummaryIntFilter : public edm::global::EDFilter<edm::RunSummaryCache<int>> {
+  class RunSummaryIntGFilter : public edm::global::EDFilter<edm::RunSummaryCache<int>> {
   public:
-    explicit RunSummaryIntFilter(edm::ParameterSet const& p) :
-	m_count(p.getParameter<int>("ivalue")) {
+    explicit RunSummaryIntGFilter(edm::ParameterSet const& p) :
+	trans_(p.getParameter<int>("transitions")) {
     }
- 
+    const unsigned int trans_; 
     mutable unsigned int m_count = 0;
     bool filter(edm::StreamID, edm::Event&, edm::EventSetup const&) const override {
       ++m_count;
@@ -410,16 +486,22 @@ namespace global {
     void globalEndRunSummary(edm::Run const&, edm::EventSetup const&, int*) const override {
       ++m_count;
     }
-    ~RunSummaryIntFilter() {
-      std::cout << "RunSummaryIntFilter transitions " << m_count <<" \n";
+    ~RunSummaryIntGFilter() {
+      if(m_count != trans_) {
+        throw cms::Exception("transitions")
+          << "RunSummaryIntGFilter transitions " 
+          << m_count<< " but it was supposed to be " << trans_;
+      }
+      //std::cout << "RunSummaryIntGFilter transitions " << m_count << " but it was supposed to be " << trans_ <<"\n";
     }
   };
 
-  class LumiSummaryIntFilter : public edm::global::EDFilter<edm::LuminosityBlockSummaryCache<int>> {
+  class LumiSummaryIntGFilter : public edm::global::EDFilter<edm::LuminosityBlockSummaryCache<int>> {
   public:
-    explicit LumiSummaryIntFilter(edm::ParameterSet const& p) :
-	m_count(p.getParameter<int>("ivalue")) {	
+    explicit LumiSummaryIntGFilter(edm::ParameterSet const& p) :
+	trans_(p.getParameter<int>("transitions")) {	
     }
+    const unsigned int trans_; 
     mutable unsigned int m_count = 0;
     bool filter(edm::StreamID, edm::Event&, edm::EventSetup const&) const override {
       ++m_count;
@@ -438,49 +520,54 @@ namespace global {
     void globalEndLuminosityBlockSummary(edm::LuminosityBlock const&, edm::EventSetup const&, int*) const override {
       ++m_count;
     }
-    ~LumiSummaryIntFilter() {
-      std::cout << "LumiSummaryIntFilter transitions " << m_count <<" \n";
+    ~LumiSummaryIntGFilter() {
+      if(m_count != trans_) {
+        throw cms::Exception("transitions")
+          << "LumiSummaryIntGFilter transitions "     
+          << m_count<< " but it was supposed to be " << trans_;
+      }
+      //std::cout << "LumiSummaryIntGFilter transitions " << m_count<< " but it was supposed to be " << trans_ <<"\n";
     }
   };
 
 }
 }
 
-//using edmtest::global::IntProducer;
-using edmtest::global::StreamIntProducer;
-using edmtest::global::RunIntProducer;
-using edmtest::global::LumiIntProducer;
-using edmtest::global::RunSummaryIntProducer;
-using edmtest::global::LumiSummaryIntProducer;
-//DEFINE_FWK_MODULE(IntProducer);
-DEFINE_FWK_MODULE(StreamIntProducer);
-DEFINE_FWK_MODULE(RunIntProducer);
-DEFINE_FWK_MODULE(LumiIntProducer);
-DEFINE_FWK_MODULE(RunSummaryIntProducer);
-DEFINE_FWK_MODULE(LumiSummaryIntProducer);
-//using edmtest::global::IntAnalyzer;
-using edmtest::global::StreamIntAnalyzer;
-using edmtest::global::RunIntAnalyzer;
-using edmtest::global::LumiIntAnalyzer;
-using edmtest::global::RunSummaryIntAnalyzer;
-using edmtest::global::LumiSummaryIntAnalyzer;
-//DEFINE_FWK_MODULE(IntAnalyzer);
-DEFINE_FWK_MODULE(StreamIntAnalyzer);
-DEFINE_FWK_MODULE(RunIntAnalyzer);
-DEFINE_FWK_MODULE(LumiIntAnalyzer);
-DEFINE_FWK_MODULE(RunSummaryIntAnalyzer);
-DEFINE_FWK_MODULE(LumiSummaryIntAnalyzer);
-//using edmtest::global::IntFilter;
-using edmtest::global::StreamIntFilter;
-using edmtest::global::RunIntFilter;
-using edmtest::global::LumiIntFilter;
-using edmtest::global::RunSummaryIntFilter;
-using edmtest::global::LumiSummaryIntFilter;
-//DEFINE_FWK_MODULE(IntFilter);
-DEFINE_FWK_MODULE(StreamIntFilter);
-DEFINE_FWK_MODULE(RunIntFilter);
-DEFINE_FWK_MODULE(LumiIntFilter);
-DEFINE_FWK_MODULE(RunSummaryIntFilter);
-DEFINE_FWK_MODULE(LumiSummaryIntFilter);
+//using edmtest::global::IntGProducer;
+using edmtest::global::StreamIntGProducer;
+using edmtest::global::RunIntGProducer;
+using edmtest::global::LumiIntGProducer;
+using edmtest::global::RunSummaryIntGProducer;
+using edmtest::global::LumiSummaryIntGProducer;
+//DEFINE_FWK_MODULE(IntGProducer);
+DEFINE_FWK_MODULE(StreamIntGProducer);
+DEFINE_FWK_MODULE(RunIntGProducer);
+DEFINE_FWK_MODULE(LumiIntGProducer);
+DEFINE_FWK_MODULE(RunSummaryIntGProducer);
+DEFINE_FWK_MODULE(LumiSummaryIntGProducer);
+//using edmtest::global::IntGAnalzer;
+using edmtest::global::StreamIntGAnalzer;
+using edmtest::global::RunIntGAnalzer;
+using edmtest::global::LumiIntGAnalzer;
+using edmtest::global::RunSummaryIntGAnalzer;
+using edmtest::global::LumiSummaryIntGAnalzer;
+//DEFINE_FWK_MODULE(IntGAnalzer);
+DEFINE_FWK_MODULE(StreamIntGAnalzer);
+DEFINE_FWK_MODULE(RunIntGAnalzer);
+DEFINE_FWK_MODULE(LumiIntGAnalzer);
+DEFINE_FWK_MODULE(RunSummaryIntGAnalzer);
+DEFINE_FWK_MODULE(LumiSummaryIntGAnalzer);
+//using edmtest::global::IntGFilter;
+using edmtest::global::StreamIntGFilter;
+using edmtest::global::RunIntGFilter;
+using edmtest::global::LumiIntGFilter;
+using edmtest::global::RunSummaryIntGFilter;
+using edmtest::global::LumiSummaryIntGFilter;
+//DEFINE_FWK_MODULE(IntGFilter);
+DEFINE_FWK_MODULE(StreamIntGFilter);
+DEFINE_FWK_MODULE(RunIntGFilter);
+DEFINE_FWK_MODULE(LumiIntGFilter);
+DEFINE_FWK_MODULE(RunSummaryIntGFilter);
+DEFINE_FWK_MODULE(LumiSummaryIntGFilter);
 
 

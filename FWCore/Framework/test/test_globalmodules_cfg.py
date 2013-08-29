@@ -9,72 +9,74 @@ process.options = cms.untracked.PSet(
 )
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(3)
+    input = cms.untracked.int32(1)
 )
 process.source = cms.Source("EmptySource",
     timeBetweenEvents = cms.untracked.uint64(10),
-    firstTime = cms.untracked.uint64(1000000)
+    firstTime = cms.untracked.uint64(1000000),
+    numberEventsInRun = cms.untracked.uint32(1),
+    numberEventsInLuminosityBlock = cms.untracked.uint32(1) 
 )
 
 process.Tracer = cms.Service("Tracer")
 
-process.SIP = cms.EDProducer("StreamIntProducer",
-    ivalue = cms.int32(0)
+process.SIP = cms.EDProducer("StreamIntGProducer",
+    transitions = cms.int32(7)
 )
 
-process.RIP = cms.EDProducer("RunIntProducer",
-    ivalue = cms.int32(0)
+process.RIP = cms.EDProducer("RunIntGProducer",
+    transitions = cms.int32(3)
 )
 
-process.LIP = cms.EDProducer("LumiIntProducer",
-    ivalue = cms.int32(0)
+process.LIP = cms.EDProducer("LumiIntGProducer",
+    transitions = cms.int32(3)
 )
 
-process.RSIP = cms.EDProducer("RunSummaryIntProducer",
-    ivalue = cms.int32(0)
+process.RSIP = cms.EDProducer("RunSummaryIntGProducer",
+    transitions = cms.int32(4)
 )
 
-process.LSIP = cms.EDProducer("LumiSummaryIntProducer",
-    ivalue = cms.int32(0)
+process.LSIP = cms.EDProducer("LumiSummaryIntGProducer",
+    transitions = cms.int32(4)
 )
-process.SIA = cms.EDAnalyzer("StreamIntAnalyzer",
-    ivalue = cms.int32(0)
-)
-
-process.RIA = cms.EDAnalyzer("RunIntAnalyzer",
-    ivalue = cms.int32(0)
+process.SIA = cms.EDAnalyzer("StreamIntGAnalzer",
+    transitions = cms.int32(7)
 )
 
-process.LIA = cms.EDAnalyzer("LumiIntAnalyzer",
-    ivalue = cms.int32(0)
+process.RIA = cms.EDAnalyzer("RunIntGAnalzer",
+    transitions = cms.int32(3)
 )
 
-process.RSIA = cms.EDAnalyzer("RunSummaryIntAnalyzer",
-    ivalue = cms.int32(0)
+process.LIA = cms.EDAnalyzer("LumiIntGAnalzer",
+    transitions = cms.int32(3)
 )
 
-process.LSIA = cms.EDAnalyzer("LumiSummaryIntAnalyzer",
-    ivalue = cms.int32(0)
+process.RSIA = cms.EDAnalyzer("RunSummaryIntGAnalzer",
+    transitions = cms.int32(4)
 )
 
-process.SIF = cms.EDFilter("StreamIntFilter",
-    ivalue = cms.int32(0)
+process.LSIA = cms.EDAnalyzer("LumiSummaryIntGAnalzer",
+    transitions = cms.int32(4)
 )
 
-process.RIF = cms.EDFilter("RunIntFilter",
-    ivalue = cms.int32(0)
+process.SIF = cms.EDFilter("StreamIntGFilter",
+    transitions = cms.int32(7)
 )
 
-process.LIF = cms.EDFilter("LumiIntFilter",
-    ivalue = cms.int32(0)
+process.RIF = cms.EDFilter("RunIntGFilter",
+    transitions = cms.int32(3)
 )
 
-process.RSIF = cms.EDFilter("RunSummaryIntFilter",
-    ivalue = cms.int32(0)
+process.LIF = cms.EDFilter("LumiIntGFilter",
+    transitions = cms.int32(3)
 )
 
-process.LSIF = cms.EDFilter("LumiSummaryIntFilter",
-    ivalue = cms.int32(0)
+process.RSIF = cms.EDFilter("RunSummaryIntGFilter",
+    transitions = cms.int32(4)
+)
+
+process.LSIF = cms.EDFilter("LumiSummaryIntGFilter",
+    transitions = cms.int32(4)
 )
 
 
