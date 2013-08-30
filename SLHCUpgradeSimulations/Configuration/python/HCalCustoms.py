@@ -170,8 +170,6 @@ def customise_Reco(process):
     process.sc7JetID.hfRecHitsColl = cms.InputTag("hfUpgradeReco")
     process.sc7JetID.hbheRecHitsColl = cms.InputTag("hbheUpgradeReco")
     process.hfEMClusters.hits = cms.InputTag("hfUpgradeReco")
-    process.caloRecoTauProducer.TrackAssociatorParameters.HBHERecHitCollectionLabel = cms.InputTag("hbheUpgradeReco")
-    process.caloRecoTauProducer.HFRecHitCollection=cms.InputTag("hfUpgradeReco")
     
     process.muons1stStep.TrackAssociatorParameters.HBHERecHitCollectionLabel=cms.InputTag("hbheUpgradeReco")
     process.muons1stStep.CaloExtractorPSet.TrackAssociatorParameters.HBHERecHitCollectionLabel=cms.InputTag("hbheUpgradeReco")
@@ -190,12 +188,8 @@ def customise_Reco(process):
     process.reducedHcalRecHits.hfTag=cms.InputTag("hfUpgradeReco")
     process.reducedHcalRecHits.hbheTag=cms.InputTag("hbheUpgradeReco")
 
-    process.caloRecoTauProducer.HBHERecHitCollection=cms.InputTag("hbheUpgradeReco")
-    process.caloRecoTauProducer.HFRecHitCollection=cms.InputTag("hfUpgradeReco")
-    
     process.load("RecoLocalCalo.HcalRecProducers.HBHEUpgradeReconstructor_cfi")
     process.load("RecoLocalCalo.HcalRecProducers.HFUpgradeReconstructor_cfi")
-###    process.load("RecoLocalCalo.HcalRecProducers.HcalSimpleReconstructor_ho_cfi") 
 
     process.reconstruction_step.replace(process.hfreco,process.hfUpgradeReco)
     process.reconstruction_step.remove(process.hbhereco)
