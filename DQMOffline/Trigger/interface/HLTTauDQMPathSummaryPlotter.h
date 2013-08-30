@@ -23,7 +23,7 @@ public:
 
   void beginRun(const std::vector<const HLTTauDQMPath *>& pathObjects);
 
-  void analyze(const edm::TriggerResults& triggerResults, const trigger::TriggerEvent& triggerEvent, const std::map<int, LVColl>& refCollection);
+  void analyze(const edm::TriggerResults& triggerResults, const trigger::TriggerEvent& triggerEvent, const HLTTauDQMOfflineObjects& refCollection);
 private:
   const double hltMatchDr_;
   const bool doRefAnalysis_;

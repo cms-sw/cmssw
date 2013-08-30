@@ -39,7 +39,7 @@ void HLTTauDQMPathSummaryPlotter::beginRun(const std::vector<const HLTTauDQMPath
   }
 }
 
-void HLTTauDQMPathSummaryPlotter::analyze(const edm::TriggerResults& triggerResults, const trigger::TriggerEvent& triggerEvent, const std::map<int, LVColl>& refCollection) {
+void HLTTauDQMPathSummaryPlotter::analyze(const edm::TriggerResults& triggerResults, const trigger::TriggerEvent& triggerEvent, const HLTTauDQMOfflineObjects& refCollection) {
   all_events->Fill(0.5);
 
   if(doRefAnalysis_) {

@@ -1,3 +1,4 @@
+// -*- c++ -*-
 #ifndef HLTTauDQMPlotter_h
 #define HLTTauDQMPlotter_h
 
@@ -21,6 +22,13 @@
 
 typedef math::XYZTLorentzVectorD LV;
 typedef std::vector<LV> LVColl;
+
+struct HLTTauDQMOfflineObjects {
+  typedef math::XYZTLorentzVectorD LV;
+  std::vector<LV> electrons;
+  std::vector<LV> muons;
+  std::vector<LV> taus;
+};
 
 //Virtual base class for HLT-Tau-DQM Plotters
 class HLTTauDQMPlotter {

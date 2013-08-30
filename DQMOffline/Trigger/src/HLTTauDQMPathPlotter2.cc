@@ -58,13 +58,23 @@ void HLTTauDQMPathPlotter2::beginRun(const HLTConfigProvider& HLTCP) {
     hTrigTauEt_ = store_->book1D("TrigTauEt",   "#tau E_{t}", ptbins_,     0, 100);
     hTrigTauEta_ = store_->book1D("TrigTauEta", "#tau #eta",  etabins_, -2.5, 2.5);
     hTrigTauPhi_ = store_->book1D("TrigTauPhi", "#tau #phi",  phibins_, -3.2, 3.2);
+
+    hMass_ = 0;
+    if(doRefAnalysis_) {
+      const int lastFilter = hltPath_.filtersSize()-1;
+      const int ntaus = hltPath_.getFilterNTaus(lastFilter);
+      const int nleps = hltPath_.getFilterNLeptons(lastFilter);
+      if(ntaus+nleps == 2) {
+        hMass_ = store_->book1D("OfflineMass", "Invariant mass of offline "+triggerTag_, 100, 0, 500);
+      }
+    }
   }
 }
 
 
 HLTTauDQMPathPlotter2::~HLTTauDQMPathPlotter2() {}
 
-void HLTTauDQMPathPlotter2::analyze(const edm::TriggerResults& triggerResults, const trigger::TriggerEvent& triggerEvent, const std::map<int, LVColl>& refCollection) {
+void HLTTauDQMPathPlotter2::analyze(const edm::TriggerResults& triggerResults, const trigger::TriggerEvent& triggerEvent, const HLTTauDQMOfflineObjects& refCollection) {
 
   std::vector<HLTTauDQMPath::Object> triggerObjs;
   std::vector<HLTTauDQMPath::Object> matchedTriggerObjs;

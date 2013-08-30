@@ -19,6 +19,7 @@ namespace trigger {
   class TriggerEvent;
   class TriggerObject;
 }
+class HLTTauDQMOfflineObjects;
 
 class HLTTauDQMPath {
 public:
@@ -48,6 +49,8 @@ public:
 
   size_t filtersSize() const { return filterIndices_.size(); }
   const std::string& getFilterName(size_t i) const { return std::get<0>(filterIndices_[i]); }
+  int getFilterNTaus(size_t i) const { return filterTauN_[i]; }
+  int getFilterNLeptons(size_t i) const {return filterLeptonN_[i]; }
 
   bool isFirstFilterL1Seed() const { return isFirstL1Seed_; }
   const std::string& getLastFilterName() const { return std::get<0>(filterIndices_.back()); }
@@ -59,7 +62,7 @@ public:
   void getFilterObjects(const trigger::TriggerEvent& triggerEvent, size_t i, std::vector<Object>& retval) const;
 
   // i = filter index
-  bool offlineMatching(size_t i, const std::vector<Object>& triggerObjects, const std::map<int, LVColl>& offlineObjects, double dR, std::vector<Object>& matchedTriggerObjects, LVColl& matchedOfflineObjects) const;
+  bool offlineMatching(size_t i, const std::vector<Object>& triggerObjects, const HLTTauDQMOfflineObjects& offlineObjects, double dR, std::vector<Object>& matchedTriggerObjects, LVColl& matchedOfflineObjects) const;
 
   typedef std::tuple<std::string, size_t> FilterIndex;
 private:

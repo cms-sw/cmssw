@@ -27,7 +27,7 @@ public:
 
   void beginRun(const HLTConfigProvider& HLTCP);
 
-  void analyze(const edm::TriggerResults& triggerResults, const trigger::TriggerEvent& triggerEvent, const std::map<int, LVColl>& refCollection);
+  void analyze(const edm::TriggerResults& triggerResults, const trigger::TriggerEvent& triggerEvent, const HLTTauDQMOfflineObjects& refCollection);
   const std::string name() { return "foo"; }
 
   const HLTTauDQMPath *getPathObject() const { return &hltPath_; }
@@ -48,6 +48,7 @@ private:
   MonitorElement *hTrigTauEt_;
   MonitorElement *hTrigTauPhi_;
   MonitorElement *hTrigTauEta_;
+  MonitorElement *hMass_;
 };
 
 #endif

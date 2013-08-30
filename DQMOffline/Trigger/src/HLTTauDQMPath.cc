@@ -1,4 +1,5 @@
 #include "DQMOffline/Trigger/interface/HLTTauDQMPath.h"
+#include "DQMOffline/Trigger/interface/HLTTauDQMPlotter.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -384,23 +385,16 @@ void HLTTauDQMPath::getFilterObjects(const trigger::TriggerEvent& triggerEvent, 
   }
 }
 
-bool HLTTauDQMPath::offlineMatching(size_t i, const std::vector<Object>& triggerObjects, const std::map<int, LVColl>& offlineObjects, double dR, std::vector<Object>& matchedTriggerObjects, LVColl& matchedOfflineObjects) const {
+bool HLTTauDQMPath::offlineMatching(size_t i, const std::vector<Object>& triggerObjects, const HLTTauDQMOfflineObjects& offlineObjects, double dR, std::vector<Object>& matchedTriggerObjects, LVColl& matchedOfflineObjects) const {
   bool isL1 = (i==0 && isFirstL1Seed_);
   if(filterTauN_[i] > 0) {
-    //std::cout << " requiring " << filterTauN_[i] << " taus" << std::endl;
-    std::map<int, LVColl>::const_iterator tauFound = offlineObjects.find(15);
-    if(tauFound == offlineObjects.end())
-      return false;
-
-    //std::cout << " found " << tauFound->second.size() << " offline taus" << std::endl;
-
     int matchedObjects = 0;
     for(const Object& trgObj: triggerObjects) {
       //std::cout << "trigger object id " << trgObj.id << std::endl;
       if(! ((isL1 && (trgObj.id == trigger::TriggerL1TauJet || trgObj.id == trigger::TriggerL1CenJet))
             || trgObj.id == trigger::TriggerTau) )
         continue;
-      if(deltaRmatch(trgObj.object, tauFound->second, dR, matchedOfflineObjects)) {
+      if(deltaRmatch(trgObj.object, offlineObjects.taus, dR, matchedOfflineObjects)) {
         ++matchedObjects;
         matchedTriggerObjects.emplace_back(trgObj);
       }
@@ -409,26 +403,19 @@ bool HLTTauDQMPath::offlineMatching(size_t i, const std::vector<Object>& trigger
       return false;
   }
   if(filterLeptonN_[i] > 0) {
-    std::map<int, LVColl>::const_iterator eleFound = offlineObjects.find(11);
-    std::map<int, LVColl>::const_iterator muFound = offlineObjects.find(13);
-
     int matchedObjects = 0;
     for(const Object& trgObj: triggerObjects) {
       //std::cout << "trigger object id " << trgObj.id << std::endl;
       if((isL1 && (trgObj.id == trigger::TriggerL1NoIsoEG || trgObj.id == trigger::TriggerL1IsoEG))
          || trgObj.id == trigger::TriggerElectron) {
-        if(eleFound == offlineObjects.end())
-          return false;
-        if(deltaRmatch(trgObj.object, eleFound->second, dR, matchedOfflineObjects)) {
+        if(deltaRmatch(trgObj.object, offlineObjects.electrons, dR, matchedOfflineObjects)) {
           ++matchedObjects;
           matchedTriggerObjects.emplace_back(trgObj);
         }
       }
       else if((isL1 && trgObj.id == trigger::TriggerL1Mu)
               || trgObj.id == trigger::TriggerMuon) {
-        if(muFound == offlineObjects.end())
-          return false;
-        if(deltaRmatch(trgObj.object, muFound->second, dR, matchedOfflineObjects)) {
+        if(deltaRmatch(trgObj.object, offlineObjects.muons, dR, matchedOfflineObjects)) {
           ++matchedObjects;
           matchedTriggerObjects.emplace_back(trgObj);
         }

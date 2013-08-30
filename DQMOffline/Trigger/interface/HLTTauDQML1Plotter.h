@@ -22,7 +22,7 @@ public:
     const std::string name() { return name_; }
 
     void beginRun();
-    void analyze( const edm::Event&, const edm::EventSetup&, const std::map<int,LVColl>& );
+    void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup, const HLTTauDQMOfflineObjects& refC);
     
 private:
     void endJob() ;

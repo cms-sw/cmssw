@@ -169,7 +169,7 @@ void HLTTauDQMOfflineSource::analyze(const Event& iEvent, const EventSetup& iSet
 
 
         //Create match collections
-        std::map<int,LVColl> refC;
+        HLTTauDQMOfflineObjects refC;
         if (doRefAnalysis_) {
           for(RefObject& refObj: refObjects_) {
             edm::Handle<LVColl> collHandle;
@@ -177,19 +177,23 @@ void HLTTauDQMOfflineSource::analyze(const Event& iEvent, const EventSetup& iSet
             if(!collHandle.isValid())
               continue;
 
-            std::map<int,LVColl>::iterator it = refC.find(refObj.objID);
-            if(it == refC.end()) {
-              refC.insert(std::pair<int,LVColl>(refObj.objID, *collHandle));
+            if(refObj.objID == 11) {
+              refC.electrons.insert(refC.electrons.end(), collHandle->begin(), collHandle->end());
             }
-            else {
-              it->second.insert(it->second.end(), collHandle->begin(), collHandle->end());
+            else if(refObj.objID == 13) {
+              refC.muons.insert(refC.muons.end(), collHandle->begin(), collHandle->end());
+            }
+            else if(refObj.objID == 15) {
+              refC.taus.insert(refC.taus.end(), collHandle->begin(), collHandle->end());
             }
           }
         }
         
         //Path Plotters
         for ( unsigned int i = 0; i < pathPlotters.size(); ++i ) {
-            if (pathPlotters[i]->isValid()) pathPlotters[i]->analyze(iEvent,iSetup,refC);
+          //if (pathPlotters[i]->isValid()) pathPlotters[i]->analyze(iEvent,iSetup,refC);
+          //if (pathPlotters[i]->isValid()) pathPlotters[i]->analyze(iEvent, iSetup, HLTCP_, refC);
+            //if (pathPlotters[i]->isValid()) pathPlotters[i]->analyze(*triggerEventHandle, refC);
         }
         for(auto& pathPlotter: pathPlotters2_) {
           if(pathPlotter->isValid())
@@ -198,7 +202,7 @@ void HLTTauDQMOfflineSource::analyze(const Event& iEvent, const EventSetup& iSet
         
         //Lite Path Plotters
         for ( unsigned int i = 0; i < litePathPlotters.size(); ++i ) {
-            if (litePathPlotters[i]->isValid()) litePathPlotters[i]->analyze(iEvent,iSetup,refC);
+          //if (litePathPlotters[i]->isValid()) litePathPlotters[i]->analyze(iEvent,iSetup,refC);
         }
         for(auto& pathSummaryPlotter: pathSummaryPlotters_) {
           if(pathSummaryPlotter->isValid())
