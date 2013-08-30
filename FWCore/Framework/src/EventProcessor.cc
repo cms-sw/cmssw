@@ -594,24 +594,33 @@ namespace edm {
     unsigned int nThreads=1;
     if(optionsPset.existsAs<unsigned int>("numberOfThreads",false)) {
       nThreads = optionsPset.getUntrackedParameter<unsigned int>("numberOfThreads");
+      if(nThreads == 0) {
+        nThreads = 1;
+      }
     }
+    /* TODO: when we support having each stream run in a different thread use this default
+    unsigned int nStreams =nThreads;
+     */
     unsigned int nStreams =1;
-    /*
     if(optionsPset.existsAs<unsigned int>("numberOfStreams",false)) {
-      nThreads = optionsPset.getUntrackedParameter<unsigned int>("numberOfStreams");
+      nStreams = optionsPset.getUntrackedParameter<unsigned int>("numberOfStreams");
+      if(nStreams==0) {
+        nStreams = nThreads;
+      }
     }
+    /*
     bool nRunsSet = false;
      */
     unsigned int nConcurrentRuns =1;
     /*
     if(nRunsSet = optionsPset.existsAs<unsigned int>("numberOfConcurrentRuns",false)) {
-    nThreads = optionsPset.getUntrackedParameter<unsigned int>("numberOfConcurrentRuns");
+    nConcurrentRuns = optionsPset.getUntrackedParameter<unsigned int>("numberOfConcurrentRuns");
     }
      */
     unsigned int nConcurrentLumis =1;
     /*
     if(optionsPset.existsAs<unsigned int>("numberOfConcurrentLuminosityBlocks",false)) {
-    nThreads = optionsPset.getUntrackedParameter<unsigned int>("numberOfConcurrentLuminosityBlocks");
+    nConcurrentLumis = optionsPset.getUntrackedParameter<unsigned int>("numberOfConcurrentLuminosityBlocks");
     } else {
       nConcurrentLumis = nConcurrentRuns;
     }
@@ -673,7 +682,7 @@ namespace edm {
       nConcurrentRuns=1;
     }
     
-    preallocations_ = PreallocationConfiguration(nThreads,nStreams,nConcurrentLumis,nConcurrentRuns);
+    preallocations_ = PreallocationConfiguration{nThreads,nStreams,nConcurrentLumis,nConcurrentRuns};
 
     // initialize the input source
     input_ = makeInput(*parameterSet, *common, *items.preg_, items.branchIDListHelper_, items.actReg_, items.processConfiguration_);
@@ -2239,9 +2248,14 @@ namespace edm {
 
     //While all the following item types are isEvent, process them right here
     asyncStopRequestedWhileProcessingEvents_ = false;
+    
+    //We will round-robin which stream to use
+    unsigned int nextStreamIndex=0;
+    const unsigned int kNumStreams = preallocations_.numberOfStreams();
     do {
-      readEvent(0);
-      processEvent(0);
+      readEvent(nextStreamIndex);
+      processEvent(nextStreamIndex);
+      nextStreamIndex = (nextStreamIndex+1) % kNumStreams;
       
       if(shouldWeStop()) {
         break;
