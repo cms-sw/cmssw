@@ -67,6 +67,11 @@
   <use   name="FWCore/Framework"/>
   <use   name="FWCore/ParameterSet"/>
 </library>
+<library   file="stubs/ToyGlobalModules.cc" name="TestToyGlobalModules">
+  <flags   EDM_PLUGIN="1"/>
+  <use   name="FWCore/Framework"/>
+  <use   name="FWCore/ParameterSet"/>
+</library>
 <library   file="stubs/TestSchedulerModule1.cc" name="TestSchedulerModule1">
   <flags   EDM_PLUGIN="1"/>
   <use   name="FWCore/Framework"/>
