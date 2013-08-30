@@ -19,22 +19,26 @@ math::XYZTLorentzVector applyMassConstraint(
 class PFRecoTauDiscriminationByHPSSelection
   : public PFTauDiscriminationProducerBase {
   public:
-    explicit PFRecoTauDiscriminationByHPSSelection(
-        const edm::ParameterSet& pset);
-
-    ~PFRecoTauDiscriminationByHPSSelection() {}
+    explicit PFRecoTauDiscriminationByHPSSelection(const edm::ParameterSet&);
+    ~PFRecoTauDiscriminationByHPSSelection();
     double discriminate(const reco::PFTauRef&);
 
   private:
-    struct DecayModeCuts {
+    typedef StringObjectFunction<reco::PFTau> TauFunc;
+
+    struct DecayModeCuts 
+    {
+      DecayModeCuts()
+	: maxMass_(0)
+      {}
+      ~DecayModeCuts() {} // CV: maxMass object gets deleted by PFRecoTauDiscriminationByHPSSelection destructor
       double minMass_;
-      double maxMass_;
+      TauFunc* maxMass_;
       double minPi0Mass_;
       double maxPi0Mass_;
       double assumeStripMass_;
     };
 
-    typedef StringObjectFunction<reco::PFTau> TauFunc;
     typedef std::pair<unsigned int, unsigned int> IntPair;
     typedef std::pair<double, double> DoublePair;
     typedef std::map<IntPair, DecayModeCuts> DecayModeCutMap;
@@ -45,9 +49,10 @@ class PFRecoTauDiscriminationByHPSSelection
     double minPt_;
 };
 
-PFRecoTauDiscriminationByHPSSelection::PFRecoTauDiscriminationByHPSSelection(
-    const edm::ParameterSet& pset):PFTauDiscriminationProducerBase(pset),
-    signalConeFun_(pset.getParameter<std::string>("coneSizeFormula")) {
+PFRecoTauDiscriminationByHPSSelection::PFRecoTauDiscriminationByHPSSelection(const edm::ParameterSet& pset)
+  : PFTauDiscriminationProducerBase(pset),
+    signalConeFun_(pset.getParameter<std::string>("coneSizeFormula")) 
+{
   // Get the matchign cut
   matchingCone_ = pset.getParameter<double>("matchingCone");
   minPt_ = pset.getParameter<double>("minTauPt");
@@ -58,13 +63,13 @@ PFRecoTauDiscriminationByHPSSelection::PFRecoTauDiscriminationByHPSSelection(
     // The mass window(s)
     DecayModeCuts cuts;
     cuts.minMass_ = dm.getParameter<double>("minMass");
-    cuts.maxMass_ = dm.getParameter<double>("maxMass");
+    cuts.maxMass_ = new TauFunc(dm.getParameter<std::string>("maxMass"));
     if (dm.exists("minPi0Mass")) {
       cuts.minPi0Mass_ = dm.getParameter<double>("minPi0Mass");
       cuts.maxPi0Mass_ = dm.getParameter<double>("maxPi0Mass");
     } else {
-      cuts.minPi0Mass_ = -1.0;
-      cuts.maxPi0Mass_ = 1e9;
+      cuts.minPi0Mass_ = -1.e3;
+      cuts.maxPi0Mass_ = 1.e9;
     }
     if (dm.exists("assumeStripMass")) {
       cuts.assumeStripMass_ = dm.getParameter<double>("assumeStripMass");
@@ -81,8 +86,19 @@ PFRecoTauDiscriminationByHPSSelection::PFRecoTauDiscriminationByHPSSelection(
   }
 }
 
+PFRecoTauDiscriminationByHPSSelection::~PFRecoTauDiscriminationByHPSSelection()
+{
+  for ( DecayModeCutMap::iterator it = decayModeCuts_.begin();
+	it != decayModeCuts_.end(); ++it ) {
+    delete it->second.maxMass_;
+  }
+}
+
 double
-PFRecoTauDiscriminationByHPSSelection::discriminate(const reco::PFTauRef& tau) {
+PFRecoTauDiscriminationByHPSSelection::discriminate(const reco::PFTauRef& tau) 
+{
+  //std::cout << "<PFRecoTauDiscriminationByHPSSelection::discriminate>:" << std::endl;
+
   // Check if we pass the min pt
   if (tau->pt() < minPt_)
     return 0.0;
@@ -95,9 +111,10 @@ PFRecoTauDiscriminationByHPSSelection::discriminate(const reco::PFTauRef& tau) {
   if (massWindowIter == decayModeCuts_.end()) {
     return 0.0;
   }
-  const DecayModeCuts &massWindow = massWindowIter->second;
+  const DecayModeCuts& massWindow = massWindowIter->second;
 
   math::XYZTLorentzVector tauP4 = tau->p4();
+  //std::cout << "tau: Pt = " << tauP4.pt() << ", eta = " << tauP4.eta() << ", phi = " << tauP4.phi() << ", mass = " << tauP4.mass() << std::endl;
   // Find the total pizero p4
   reco::Candidate::LorentzVector stripsP4;
   BOOST_FOREACH(const reco::RecoTauPiZero& cand, 
@@ -118,9 +135,11 @@ PFRecoTauDiscriminationByHPSSelection::discriminate(const reco::PFTauRef& tau) {
       stripsP4 += correction;
     }
   }
+  //std::cout << "strips: Pt = " << stripsP4.pt() << ", eta = " << stripsP4.eta() << ", phi = " << stripsP4.phi() << ", mass = " << stripsP4.mass() << std::endl;
 
   // Check if tau fails mass cut
-  if (tauP4.M() > massWindow.maxMass_ || tauP4.M() < massWindow.minMass_) {
+  double maxMass_value = (*massWindow.maxMass_)(*tau);
+  if (tauP4.M() > maxMass_value || tauP4.M() < massWindow.minMass_) {
     return 0.0;
   }
 
@@ -131,6 +150,7 @@ PFRecoTauDiscriminationByHPSSelection::discriminate(const reco::PFTauRef& tau) {
   }
 
   // Check if tau passes matching cone cut
+  //std::cout << "dR(tau, jet) = " << deltaR(tauP4, tau->jetRef()->p4()) << std::endl;
   if (deltaR(tauP4, tau->jetRef()->p4()) > matchingCone_) {
     return 0.0;
   }
@@ -140,12 +160,14 @@ PFRecoTauDiscriminationByHPSSelection::discriminate(const reco::PFTauRef& tau) {
   // Check if any charged objects fail the signal cone cut
   BOOST_FOREACH(const reco::PFCandidateRef& cand,
                 tau->signalPFChargedHadrCands()) {
+    //std::cout << "dR(tau, signalPFChargedHadr) = " << deltaR(cand->p4(), tauP4) << std::endl;
     if (deltaR(cand->p4(), tauP4) > cone_size)
       return 0.0;
   }
   // Now check the pizeros
   BOOST_FOREACH(const reco::RecoTauPiZero& cand,
                 tau->signalPiZeroCandidates()) {
+    //std::cout << "dR(tau, signalPiZero) = " << deltaR(cand.p4(), tauP4) << std::endl;
     if (deltaR(cand.p4(), tauP4) > cone_size)
       return 0.0;
   }
