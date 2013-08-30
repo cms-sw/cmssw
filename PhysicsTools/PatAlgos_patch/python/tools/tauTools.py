@@ -194,7 +194,8 @@ tancTauIDSources = [
 
 # Hadron-plus-strip(s) (HPS) Tau Discriminators
 hpsTauIDSources = [
-    ("decayModeFinding", "DiscriminationByDecayModeFinding"),
+    ("decayModeFindingNewDMs", "DiscriminationByDecayModeFindingNewDMs"),
+    ("decayModeFindingOldDMs", "DiscriminationByDecayModeFindingOldDMs"),
     ("byLooseIsolation", "DiscriminationByLooseIsolation"),
     ("byVLooseCombinedIsolationDeltaBetaCorr", "DiscriminationByVLooseCombinedIsolationDBSumPtCorr"),
     ("byLooseCombinedIsolationDeltaBetaCorr", "DiscriminationByLooseCombinedIsolationDBSumPtCorr"),
@@ -219,24 +220,28 @@ hpsTauIDSources = [
     ("byMediumIsolationMVA3oldDMwoLT", "DiscriminationByMediumIsolationMVA3oldDMwoLT"),
     ("byTightIsolationMVA3oldDMwoLT", "DiscriminationByTightIsolationMVA3oldDMwoLT"),
     ("byVTightIsolationMVA3oldDMwoLT", "DiscriminationByVTightIsolationMVA3oldDMwoLT"),
+    ("byVVTightIsolationMVA3oldDMwoLT", "DiscriminationByVVTightIsolationMVA3oldDMwoLT"),
     ("byIsolationMVA3oldDMwLTraw", "DiscriminationByIsolationMVA3oldDMwLTraw"),
     ("byVLooseIsolationMVA3oldDMwLT", "DiscriminationByVLooseIsolationMVA3oldDMwLT"),
     ("byLooseIsolationMVA3oldDMwLT", "DiscriminationByLooseIsolationMVA3oldDMwLT"),
     ("byMediumIsolationMVA3oldDMwLT", "DiscriminationByMediumIsolationMVA3oldDMwLT"),
     ("byTightIsolationMVA3oldDMwLT", "DiscriminationByTightIsolationMVA3oldDMwLT"),
-    ("byVTightIsolationMVA3oldDMwLT", "DiscriminationByVTightIsolationMVA3oldDMwLT"),    
+    ("byVTightIsolationMVA3oldDMwLT", "DiscriminationByVTightIsolationMVA3oldDMwLT"),
+    ("byVVTightIsolationMVA3oldDMwLT", "DiscriminationByVVTightIsolationMVA3oldDMwLT"),
     ("byIsolationMVA3newDMwoLTraw", "DiscriminationByIsolationMVA3newDMwoLTraw"),
     ("byVLooseIsolationMVA3newDMwoLT", "DiscriminationByVLooseIsolationMVA3newDMwoLT"),
     ("byLooseIsolationMVA3newDMwoLT", "DiscriminationByLooseIsolationMVA3newDMwoLT"),
     ("byMediumIsolationMVA3newDMwoLT", "DiscriminationByMediumIsolationMVA3newDMwoLT"),
     ("byTightIsolationMVA3newDMwoLT", "DiscriminationByTightIsolationMVA3newDMwoLT"),
     ("byVTightIsolationMVA3newDMwoLT", "DiscriminationByVTightIsolationMVA3newDMwoLT"),
+    ("byVVTightIsolationMVA3newDMwoLT", "DiscriminationByVVTightIsolationMVA3newDMwoLT"),
     ("byIsolationMVA3newDMwLTraw", "DiscriminationByIsolationMVA3newDMwLTraw"),
     ("byVLooseIsolationMVA3newDMwLT", "DiscriminationByVLooseIsolationMVA3newDMwLT"),
     ("byLooseIsolationMVA3newDMwLT", "DiscriminationByLooseIsolationMVA3newDMwLT"),
     ("byMediumIsolationMVA3newDMwLT", "DiscriminationByMediumIsolationMVA3newDMwLT"),
     ("byTightIsolationMVA3newDMwLT", "DiscriminationByTightIsolationMVA3newDMwLT"),
-    ("byVTightIsolationMVA3newDMwLT", "DiscriminationByVTightIsolationMVA3newDMwLT"),   
+    ("byVTightIsolationMVA3newDMwLT", "DiscriminationByVTightIsolationMVA3newDMwLT"),
+    ("byVVTightIsolationMVA3newDMwLT", "DiscriminationByVVTightIsolationMVA3newDMwLT"),
     ("againstElectronLoose", "DiscriminationByLooseElectronRejection"),
     ("againstElectronMedium", "DiscriminationByMediumElectronRejection"),
     ("againstElectronTight", "DiscriminationByTightElectronRejection"),
@@ -252,6 +257,20 @@ hpsTauIDSources = [
     ("againstElectronMediumMVA4", "DiscriminationByMVA4MediumElectronRejection"),
     ("againstElectronTightMVA4", "DiscriminationByMVA4TightElectronRejection"),
     ("againstElectronVTightMVA4", "DiscriminationByMVA4VTightElectronRejection"),
+    ("againstElectronMVA5raw", "DiscriminationByMVA5rawElectronRejection"),
+    ("againstElectronMVA5category", "DiscriminationByMVA5rawElectronRejection:category"),
+    ("againstElectronVLooseMVA5", "DiscriminationByMVA5VLooseElectronRejection"),
+    ("againstElectronLooseMVA5", "DiscriminationByMVA5LooseElectronRejection"),
+    ("againstElectronMediumMVA5", "DiscriminationByMVA5MediumElectronRejection"),
+    ("againstElectronTightMVA5", "DiscriminationByMVA5TightElectronRejection"),
+    ("againstElectronVTightMVA5", "DiscriminationByMVA5VTightElectronRejection"),
+    ("againstElectronMVA6raw", "DiscriminationByMVA6rawElectronRejection"),
+    ("againstElectronMVA6category", "DiscriminationByMVA6rawElectronRejection:category"),
+    ("againstElectronVLooseMVA6", "DiscriminationByMVA6VLooseElectronRejection"),
+    ("againstElectronLooseMVA6", "DiscriminationByMVA6LooseElectronRejection"),
+    ("againstElectronMediumMVA6", "DiscriminationByMVA6MediumElectronRejection"),
+    ("againstElectronTightMVA6", "DiscriminationByMVA6TightElectronRejection"),
+    ("againstElectronVTightMVA6", "DiscriminationByMVA6VTightElectronRejection"),
     ("againstElectronDeadECAL", "DiscriminationByDeadECALElectronRejection"),
     ("againstMuonLoose", "DiscriminationByLooseMuonRejection"),
     ("againstMuonMedium", "DiscriminationByMediumMuonRejection"),
@@ -261,10 +280,10 @@ hpsTauIDSources = [
     ("againstMuonTight2", "DiscriminationByTightMuonRejection2"),
     ("againstMuonLoose3", "DiscriminationByLooseMuonRejection3"),
     ("againstMuonTight3", "DiscriminationByTightMuonRejection3"),
-    ("againstMuonMVA3raw", "DiscriminationByMVArawMuonRejection"),
-    ("againstMuonMVALoose", "DiscriminationByMVALooseMuonRejection"),
-    ("againstMuonMVAMedium", "DiscriminationByMVAMediumMuonRejection"),
-    ("againstMuonMVATight", "DiscriminationByMVATightMuonRejection") ]
+    ("againstMuonMVAraw", "DiscriminationByMVArawMuonRejection"),
+    ("againstMuonLooseMVA", "DiscriminationByMVALooseMuonRejection"),
+    ("againstMuonMediumMVA", "DiscriminationByMVAMediumMuonRejection"),
+    ("againstMuonTightMVA", "DiscriminationByMVATightMuonRejection") ]
 
 # Discriminators of new HPS + TaNC combined Tau id. algorithm
 hpsTancTauIDSources = [
@@ -367,8 +386,8 @@ def switchToPFTauHPS(process,
     ## adapt cleanPatTaus
     if hasattr(process, "cleanPatTaus" + patTauLabel + postfix):
         getattr(process, "cleanPatTaus" + patTauLabel + postfix).preselection = \
-      'pt > 15 & abs(eta) < 2.3 & tauID("decayModeFinding") > 0.5 & tauID("byLooseIsolation") > 0.5' \
-     + ' & tauID("againstMuonTight") > 0.5 & tauID("againstElectronLoose") > 0.5'
+      'pt > 20 & abs(eta) < 2.3 & tauID("decayModeFindingOldDMs") > 0.5 & tauID("byLooseCombinedIsolationDeltaBetaCorr3Hits") > 0.5' \
+     + ' & tauID("againstMuonTight3") > 0.5 & tauID("againstElectronLoose") > 0.5'
 
 # switch to hadron-plus-strip(s) (HPS) PFTau collection
 def switchToPFTauHPSpTaNC(process,

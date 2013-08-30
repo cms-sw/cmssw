@@ -194,7 +194,8 @@ tancTauIDSources = [
 
 # Hadron-plus-strip(s) (HPS) Tau Discriminators
 hpsTauIDSources = [
-    ("decayModeFinding", "DiscriminationByDecayModeFinding"),
+    ("decayModeFindingNewDMs", "DiscriminationByDecayModeFindingNewDMs"),
+    ("decayModeFindingOldDMs", "DiscriminationByDecayModeFindingOldDMs"),
     ("byLooseIsolation", "DiscriminationByLooseIsolation"),
     ("byVLooseCombinedIsolationDeltaBetaCorr", "DiscriminationByVLooseCombinedIsolationDBSumPtCorr"),
     ("byLooseCombinedIsolationDeltaBetaCorr", "DiscriminationByLooseCombinedIsolationDBSumPtCorr"),
@@ -256,6 +257,20 @@ hpsTauIDSources = [
     ("againstElectronMediumMVA4", "DiscriminationByMVA4MediumElectronRejection"),
     ("againstElectronTightMVA4", "DiscriminationByMVA4TightElectronRejection"),
     ("againstElectronVTightMVA4", "DiscriminationByMVA4VTightElectronRejection"),
+    ("againstElectronMVA5raw", "DiscriminationByMVA5rawElectronRejection"),
+    ("againstElectronMVA5category", "DiscriminationByMVA5rawElectronRejection:category"),
+    ("againstElectronVLooseMVA5", "DiscriminationByMVA5VLooseElectronRejection"),
+    ("againstElectronLooseMVA5", "DiscriminationByMVA5LooseElectronRejection"),
+    ("againstElectronMediumMVA5", "DiscriminationByMVA5MediumElectronRejection"),
+    ("againstElectronTightMVA5", "DiscriminationByMVA5TightElectronRejection"),
+    ("againstElectronVTightMVA5", "DiscriminationByMVA5VTightElectronRejection"),
+    ("againstElectronMVA6raw", "DiscriminationByMVA6rawElectronRejection"),
+    ("againstElectronMVA6category", "DiscriminationByMVA6rawElectronRejection:category"),
+    ("againstElectronVLooseMVA6", "DiscriminationByMVA6VLooseElectronRejection"),
+    ("againstElectronLooseMVA6", "DiscriminationByMVA6LooseElectronRejection"),
+    ("againstElectronMediumMVA6", "DiscriminationByMVA6MediumElectronRejection"),
+    ("againstElectronTightMVA6", "DiscriminationByMVA6TightElectronRejection"),
+    ("againstElectronVTightMVA6", "DiscriminationByMVA6VTightElectronRejection"),
     ("againstElectronDeadECAL", "DiscriminationByDeadECALElectronRejection"),
     ("againstMuonLoose", "DiscriminationByLooseMuonRejection"),
     ("againstMuonMedium", "DiscriminationByMediumMuonRejection"),
@@ -371,8 +386,8 @@ def switchToPFTauHPS(process,
     ## adapt cleanPatTaus
     if hasattr(process, "cleanPatTaus" + patTauLabel + postfix):
         getattr(process, "cleanPatTaus" + patTauLabel + postfix).preselection = \
-      'pt > 15 & abs(eta) < 2.3 & tauID("decayModeFinding") > 0.5 & tauID("byLooseIsolation") > 0.5' \
-     + ' & tauID("againstMuonTight") > 0.5 & tauID("againstElectronLoose") > 0.5'
+      'pt > 20 & abs(eta) < 2.3 & tauID("decayModeFindingOldDMs") > 0.5 & tauID("byLooseCombinedIsolationDeltaBetaCorr3Hits") > 0.5' \
+     + ' & tauID("againstMuonTight3") > 0.5 & tauID("againstElectronLoose") > 0.5'
 
 # switch to hadron-plus-strip(s) (HPS) PFTau collection
 def switchToPFTauHPSpTaNC(process,
