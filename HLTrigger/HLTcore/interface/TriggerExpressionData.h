@@ -92,7 +92,9 @@ public:
   ) :
     // configuration
     m_hltResultsTag(hltResultsTag),
+    m_hltResultsToken(),
     m_l1tResultsTag(l1tResultsTag),
+    m_l1tResultsToken(),
     m_daqPartitions(daqPartitions),
     m_l1tIgnoreMask(l1tIgnoreMask),
     m_l1techIgnorePrescales(l1techIgnorePrescales),
