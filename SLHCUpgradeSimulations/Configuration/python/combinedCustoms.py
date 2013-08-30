@@ -11,6 +11,9 @@ from SLHCUpgradeSimulations.Configuration.phase2TkCustoms_LB_4LPS_2L2S import l1
 from SLHCUpgradeSimulations.Configuration.customise_mixing import customise_NoCrossing
 from SLHCUpgradeSimulations.Configuration.phase1TkCustoms import customise as customisePhase1Tk
 from SLHCUpgradeSimulations.Configuration.HCalCustoms import customise_HcalPhase1, customise_HcalPhase0
+from SLHCUpgradeSimulations.Configuration.gemCustoms import customise as customise_gem
+from SLHCUpgradeSimulations.Configuration.fastsimCustoms import customiseDefault as fastCustomiseDefault
+from SLHCUpgradeSimulations.Configuration.fastsimCustoms import customisePhase2 as fastCustomisePhase2
 
 import SLHCUpgradeSimulations.Configuration.aging as aging
 
@@ -54,6 +57,11 @@ def cust_2019(process):
     process=fixRPCConditions(process)
     return process
 
+def cust_2019WithGem(process):
+    process=cust_2019(process)
+    process=customise_gem(process)
+    return process
+
 def noCrossing(process):
     process=customise_NoCrossing(process)
     return process
@@ -73,7 +81,7 @@ def fixRPCConditions(process):
 
 ##### clone aging.py here 
 def agePixel(process,lumi):
-    process=process.agePixel(process,lumi)
+    process=aging.agePixel(process,lumi)
     return process
 
 def ageHcal(process,lumi):
@@ -309,3 +317,10 @@ def fixEcalConditions_3000(process):
         )
                                     )
     return process
+
+def fastsimDefault(process):
+    return fastCustomiseDefault(process)
+
+def fastsimPhase2(process):
+    return fastCustomisePhase2(process)
+
