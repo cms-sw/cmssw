@@ -19,7 +19,6 @@
 //
 // Original Author:  Gena Kukartsev, kukarzev@fnal.gov
 //         Created:  Tue Nov 06 14:30:33 CDT 2007
-// $Id: LMap.h,v 1.6 2009/08/05 16:23:31 kukartse Exp $
 //
 
 // system include files

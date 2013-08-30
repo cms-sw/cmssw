@@ -8,7 +8,6 @@
 //
 // Original Author:  Gena Kukartsev
 //         Created:  Mon Jul 13 12:15:33 CEST 2009
-// $Id: HcalChannelIterator.cc,v 1.5 2010/08/06 20:24:11 wmtan Exp $
 //
 
 #include <fstream>
