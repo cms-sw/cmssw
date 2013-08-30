@@ -8,6 +8,7 @@
 // $Id: MuonSelectors.h,v 1.14.2.1.4.1 2013/04/26 11:02:08 bachtis Exp $
 
 #include "DataFormats/MuonReco/interface/Muon.h"
+#include "DataFormats/MuonReco/interface/MuonFwd.h"
 #include "TMath.h"
 #include <string>
 
@@ -84,9 +85,7 @@ namespace muon {
    bool isTightMuon(const reco::Muon&, const reco::Vertex&);
    bool isLooseMuon(const reco::Muon&);
    bool isSoftMuon(const reco::Muon&, const reco::Vertex&);
-   enum TunePType{defaultTuneP, improvedTuneP};
-   bool isHighPtMuon(const reco::Muon&, const reco::Vertex&, TunePType = muon::improvedTuneP);
-   reco::TrackRef improvedMuonBestTrack(const reco::Muon&, TunePType);
+   bool isHighPtMuon(const reco::Muon&, const reco::Vertex&, reco::TunePType);
 
    // determine if station was crossed well withing active volume
    unsigned int RequiredStationMask( const reco::Muon& muon,

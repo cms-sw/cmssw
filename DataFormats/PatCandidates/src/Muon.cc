@@ -6,6 +6,7 @@
 #include "DataFormats/MuonReco/interface/MuonSelectors.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "FWCore/Utilities/interface/Exception.h"
+#include "DataFormats/MuonReco/interface/MuonCocktails.h"
 
 #include <limits>
 
@@ -15,6 +16,9 @@ using namespace pat;
 /// default constructor
 Muon::Muon() :
     Lepton<reco::Muon>(),
+    embeddedMuonBestTrack_(false),
+    embeddedImprovedMuonBestTrack_(false),
+    improvedMuonBestTrackType_(reco::Muon::None),
     embeddedTrack_(false),
     embeddedStandAloneMuon_(false),
     embeddedCombinedMuon_(false),
@@ -39,6 +43,9 @@ Muon::Muon() :
 /// constructor from reco::Muon
 Muon::Muon(const reco::Muon & aMuon) :
     Lepton<reco::Muon>(aMuon),
+    embeddedMuonBestTrack_(false),
+    embeddedImprovedMuonBestTrack_(false),
+    improvedMuonBestTrackType_(reco::Muon::None),
     embeddedTrack_(false),
     embeddedStandAloneMuon_(false),
     embeddedCombinedMuon_(false),
@@ -63,6 +70,9 @@ Muon::Muon(const reco::Muon & aMuon) :
 /// constructor from ref to reco::Muon
 Muon::Muon(const edm::RefToBase<reco::Muon> & aMuonRef) :
     Lepton<reco::Muon>(aMuonRef),
+    embeddedMuonBestTrack_(false),
+    embeddedImprovedMuonBestTrack_(false),
+    improvedMuonBestTrackType_(reco::Muon::None),
     embeddedTrack_(false),
     embeddedStandAloneMuon_(false),
     embeddedCombinedMuon_(false),
@@ -87,6 +97,9 @@ Muon::Muon(const edm::RefToBase<reco::Muon> & aMuonRef) :
 /// constructor from ref to reco::Muon
 Muon::Muon(const edm::Ptr<reco::Muon> & aMuonRef) :
     Lepton<reco::Muon>(aMuonRef),
+    embeddedMuonBestTrack_(false),
+    embeddedImprovedMuonBestTrack_(false),
+    improvedMuonBestTrackType_(reco::Muon::None),
     embeddedTrack_(false),
     embeddedStandAloneMuon_(false),
     embeddedCombinedMuon_(false),
@@ -94,7 +107,7 @@ Muon::Muon(const edm::Ptr<reco::Muon> & aMuonRef) :
     embeddedCaloMETMuonCorrs_(false),
     embeddedPickyMuon_(false),
     embeddedTpfmsMuon_(false),
-    embeddedDytMuon_(false),
+    embeddedDytMuon_(false),    
     embeddedPFCandidate_(false),
     pfCandidateRef_(),
     cachedNormChi2_(false),
@@ -195,6 +208,28 @@ reco::TrackRef Muon::dytTrack() const {
   }
 }
 
+reco::TrackRef Muon::muonBestTrack(){ 
+  if (embeddedMuonBestTrack_) {
+    return reco::TrackRef(&muonBestTrack_,0);
+  } else {   
+    reco::Muon::MuonTrackTypePair newBestTrack = muon::muonBestTrack(*this, reco::defaultTuneP);
+    setBestTrack(newBestTrack.second);
+    return newBestTrack.first;
+  }
+}
+
+
+reco::TrackRef Muon::improvedMuonBestTrack() { 
+  if (embeddedImprovedMuonBestTrack_) {
+    return reco::TrackRef(&improvedMuonBestTrack_,0);
+  } else {
+    reco::Muon::MuonTrackTypePair newBestTrack = muon::muonBestTrack(*this, reco::improvedTuneP);
+    setImprovedBestTrack(newBestTrack.second);
+    return newBestTrack.first;
+  } 
+}
+
+
 /// reference to the source IsolatedPFCandidates
 reco::PFCandidateRef Muon::pfCandidateRef() const {
   if (embeddedPFCandidate_) {
@@ -215,13 +250,24 @@ reco::CandidatePtr Muon::sourceCandidatePtr( size_type i ) const {
 
 /// embed the Track selected to be the best measurement of the muon parameters
 void Muon::embedMuonBestTrack() {
-  muonBestTrack_.clear();
+  muonBestTrack_.clear();  embeddedMuonBestTrack_ = false;
   if (reco::Muon::muonBestTrack().isNonnull()) {
       muonBestTrack_.push_back(*reco::Muon::muonBestTrack());
       embeddedMuonBestTrack_ = true;
   }
 }
 
+/// embed the Track selected to be the best measurement of the muon parameters
+void Muon::embedImprovedMuonBestTrack() {
+  improvedMuonBestTrack_.clear(); embeddedImprovedMuonBestTrack_ = false;
+  
+  if(improvedMuonBestTrack().isNonnull()){
+    improvedMuonBestTrack_.push_back(*improvedMuonBestTrack());
+    embeddedImprovedMuonBestTrack_ = true;
+  } 
+  else
+    edm::LogError("PATMuon|embedImprovedMuonBestTrack") << "Orphan best track this must not happend!";
+}
 
 
 /// embed the Track reconstructed in the tracker only
@@ -392,66 +438,24 @@ double Muon::segmentCompatibility(reco::Muon::ArbitrationType arbitrationType) c
    return muon::segmentCompatibility(*this, arbitrationType);
 }
 
+
+
 // Selectors
 bool Muon::isTightMuon(const reco::Vertex&vtx) const {
-  return muon::isTightMuon(*this,vtx);
+  return muon::isTightMuon(*this, vtx);
+}
+
+bool Muon::isLooseMuon() const {
+  return muon::isLooseMuon(*this);
+
+}
+
+bool Muon::isSoftMuon(const reco::Vertex& vtx) const {
+  return muon::isSoftMuon(*this, vtx);
 }
 
 
-// Backport from version CMSSW_6_0_0 of DataFormats/MuonReco/*/MuonSelectors.*
-bool Muon::isLooseMuon() const{
-  return isPFMuon() && (isGlobalMuon() || isTrackerMuon());
-}
-
-// Backport from version CMSSW_6_0_0 of DataFormats/MuonReco/*/MuonSelectors.*
-bool Muon::isSoftMuon(const reco::Vertex& vtx) const{
-
-  bool muID = muon::isGoodMuon(*this,muon::TMOneStationTight);
-
-  if(!muID) return false;
-  
-  bool layers = innerTrack()->hitPattern().trackerLayersWithMeasurement() > 5 &&
-    innerTrack()->hitPattern().pixelLayersWithMeasurement() > 1;
-
-  bool chi2 = innerTrack()->normalizedChi2() < 1.8;  
-  
-  bool ip = fabs(innerTrack()->dxy(vtx.position())) < 3. && fabs(innerTrack()->dz(vtx.position())) < 30.;
-  
-  return muID && layers && ip && chi2 ;
-}
-
-
-
-#include "DataFormats/MuonReco/interface/MuonCocktails.h"
-
-// Backport from version CMSSW_6_0_0 of DataFormats/MuonReco/*/MuonSelectors.*
-bool Muon::isHighPtMuon(const reco::Vertex& vtx, TunePType tunePType) const{
-  bool muID =   isGlobalMuon() && globalTrack()->hitPattern().numberOfValidMuonHits() >0 && (numberOfMatchedStations() > 1);
-  if(!muID) return false;
-
-  if(tunePType == improvedTuneP){    
-    // Get the optimized track
-    reco::TrackRef cktTrack = (muon::tevOptimized(*this, 200, 17., 40., 0.25)).first;
-    bool momQuality = cktTrack->ptError()/cktTrack->pt() < 0.3;
-    
-    bool hits = innerTrack()->hitPattern().trackerLayersWithMeasurement() > 5 &&
-      innerTrack()->hitPattern().numberOfValidPixelHits() > 0; 
-  
-    bool ip = fabs(cktTrack->dxy(vtx.position())) < 0.2 && fabs(cktTrack->dz(vtx.position())) < 0.5;
-
-    return muID && hits && momQuality && ip;
-  }
-  else if(tunePType == defaultTuneP){
-    // Get the optimized track
-    reco::TrackRef cktTrack = (muon::tevOptimized(*this, 200, 4., 6., -1)).first;
-    
-    bool hits = innerTrack()->hitPattern().trackerLayersWithMeasurement() > 8 &&
-      innerTrack()->hitPattern().numberOfValidPixelHits() > 0; 
-    
-    bool ip = fabs(cktTrack->dxy(vtx.position())) < 0.2 && fabs(cktTrack->dz(vtx.position())) < 0.5;
-
-    return muID && hits && ip;
-  }
-  else return false;
+bool Muon::isHighPtMuon(const reco::Vertex& vtx, reco::TunePType type) const{
+  return muon::isHighPtMuon(*this, vtx, type);
 }
 

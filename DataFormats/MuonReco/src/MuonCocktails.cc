@@ -1,7 +1,7 @@
 #include "TMath.h"
 #include "DataFormats/MuonReco/interface/MuonCocktails.h"
 #include "DataFormats/TrackReco/interface/Track.h"
-
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 //
 // Return the TeV-optimized refit track (aka the cocktail or Tune P) or
 // the tracker track if either the optimized pT or tracker pT is below the pT threshold
@@ -162,4 +162,26 @@ reco::Muon::MuonTrackTypePair muon::TMR(const reco::TrackRef& trackerTrack,
     return make_pair(trackerTrack,reco::Muon::InnerTrack);
   else
     return make_pair(reco::TrackRef(),reco::Muon::None); 
+}
+
+reco::Muon::MuonTrackTypePair muon::muonBestTrack(const reco::Muon& muon, reco::TunePType tunePType){
+  
+  reco::Muon::MuonTrackTypePair newBestTrack;
+  
+  if(muon.isGlobalMuon()){
+    if(muon::cocktailInputIsOK(muon)){
+      if(tunePType == reco::improvedTuneP)          newBestTrack = muon::tevOptimized(muon,  200, 17., 40., 0.25);   
+      else if (tunePType == reco::defaultTuneP)     newBestTrack = muon::tevOptimized(muon,  200,  4.,  6., -1);
+      else edm::LogError("MuonCocktails|muonBestTrack") << "TuneP configuration not known";
+    }
+    else                                      newBestTrack = muon::sigmaSwitch(muon.combinedMuon(),muon.innerTrack());
+  } 
+  else{
+    if(muon.isTrackerMuon())                  newBestTrack = std::make_pair(muon.innerTrack(), muon.InnerTrack);
+    else if(!muon.isTrackerMuon() && muon.isStandAloneMuon())
+                                              newBestTrack = std::make_pair(muon.outerTrack(), muon.OuterTrack);
+    else 
+      edm::LogError("MuonCocktails|muonBestTrack") << "Orphan best track this must not happend!";
+  }      
+  return newBestTrack;
 }

@@ -52,9 +52,6 @@ namespace pat {
 
     public:
 
-      enum TunePType{defaultTuneP, improvedTuneP};
-
-
       /// default constructor
       Muon();
       /// constructor from a reco muon
@@ -83,9 +80,20 @@ namespace pat {
       reco::TrackRef combinedMuon() const;
       /// reference to Track reconstructed in both tracked and muon detector (reimplemented from reco::Muon)
       reco::TrackRef globalTrack() const { return combinedMuon(); }
+      /// reference to the Best Track reconstructed in both tracked and muon detector (reimplemented from reco::Muon), old (default bt deprecated) tuneP
+      reco::TrackRef muonBestTrack();
+      /// reference to the Best Track reconstructed in both tracked and muon detector (reimplemented from reco::Muon), after new tuneP
+      reco::TrackRef improvedMuonBestTrack();
+
+      // get reference to the Improved Best Track
+      virtual MuonTrackType improvedMuonBestTrackType() const {return improvedMuonBestTrackType_;}
+      // set reference to the Improved Best Track
+      virtual void setImprovedBestTrack(MuonTrackType muonType) {improvedMuonBestTrackType_ = muonType;}
 
       /// set reference to Track selected to be the best measurement of the muon parameters (reimplemented from reco::Muon)
       void embedMuonBestTrack();
+      /// set reference to Track selected to be the best measurement of the muon parameters (reimplemented from reco::Muon), after new tuneP
+      void embedImprovedMuonBestTrack();
       /// set reference to Track reconstructed in the tracker only (reimplemented from reco::Muon)
       void embedTrack();
       /// set reference to Track reconstructed in the muon detector only (reimplemented from reco::Muon)
@@ -158,7 +166,7 @@ namespace pat {
       /// make sure you know what you are doing. If you use the default tuneP for the momentum assignment 
       /// then use defaultTuneP. Insted if you use the newly optimized version (present in release 537 and above)
       /// then use improvedTuneP. 
-      bool isHighPtMuon(const reco::Vertex&, TunePType) const;
+      bool isHighPtMuon(const reco::Vertex&, reco::TunePType) const;
 
       // ---- overload of isolation functions ----
       /// Overload of pat::Lepton::trackIso(); returns the value of
@@ -240,6 +248,10 @@ namespace pat {
       /// best muon track
       bool embeddedMuonBestTrack_;
       std::vector<reco::Track> muonBestTrack_;
+      /// best muon track, after new tuneP
+      bool embeddedImprovedMuonBestTrack_;
+      std::vector<reco::Track> improvedMuonBestTrack_;
+      MuonTrackType improvedMuonBestTrackType_;
       /// track of inner track detector
       bool embeddedTrack_;
       std::vector<reco::Track> track_;
