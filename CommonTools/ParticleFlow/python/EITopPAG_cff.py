@@ -51,14 +51,17 @@ pfMuonsFromVertexEI = pfMuonsFromVertex.clone( src = cms.InputTag('pfAllMuonsEI'
 pfIsolatedMuonsEI = cms.EDFilter(
     "PFCandidateFwdPtrCollectionStringFilter",
     src = cms.InputTag("pfMuonsFromVertexEI"),
-    cut = cms.string("pt > 5 & muonRef.isAvailable() & "\
-                     "muonRef.pfIsolationR04().sumChargedHadronPt + "\
-                     "muonRef.pfIsolationR04().sumNeutralHadronEt + "\
-                     "muonRef.pfIsolationR04().sumPhotonEt "\
-                     " < 0.15 * pt "
-        ),
+    cut = cms.string('''abs(eta)<2.5 && pt>10. && muonRef.isAvailable() &&
+    (muonRef.pfIsolationR04().sumChargedHadronPt+
+    max(0.,muonRef.pfIsolationR04().sumNeutralHadronEt+
+    muonRef.pfIsolationR04().sumPhotonEt-
+    0.50*muonRef.pfIsolationR04().sumPUPt))/pt < 0.20 && 
+    (muonRef.isPFMuon && (muonRef.isGlobalMuon || muonRef.isTrackerMuon) )'''
+    ),
     makeClones = cms.bool(True)
 )
+
+
 
 pfNoMuon.topCollection    = 'pfIsolatedMuonsEI'
 pfNoMuon.bottomCollection = 'pfNoPileUpEI'
@@ -81,18 +84,20 @@ pfAllElectronsEI = cms.EDFilter(
 
 pfElectronsFromVertexEI = pfElectronsFromVertex.clone( src = cms.InputTag('pfAllElectronsEI') )
 
-
 pfIsolatedElectronsEI = cms.EDFilter(
     "PFCandidateFwdPtrCollectionStringFilter",
     src = cms.InputTag("pfElectronsFromVertexEI"),
-    cut = cms.string(" pt > 5 & gsfElectronRef.isAvailable() & gsfTrackRef.trackerExpectedHitsInner.numberOfLostHits<2 & "\
-                     "gsfElectronRef.pfIsolationVariables().sumChargedHadronPt + "\
-                     "gsfElectronRef.pfIsolationVariables().sumNeutralHadronEt + "\
-                     "gsfElectronRef.pfIsolationVariables().sumPhotonEt "\
-                     " < 0.2 * pt "
-        ),
+    cut = cms.string('''abs(eta)<2.5 && pt>20. &&
+    gsfTrackRef.isAvailable() &&
+    gsfTrackRef.trackerExpectedHitsInner.numberOfLostHits<2 &&
+    (gsfElectronRef.pfIsolationVariables().sumChargedHadronPt+
+    max(0.,gsfElectronRef.pfIsolationVariables().sumNeutralHadronEt+
+    gsfElectronRef.pfIsolationVariables().sumPhotonEt-
+    0.5*gsfElectronRef.pfIsolationVariables().sumPUPt))/pt < 0.15
+    '''),
     makeClones = cms.bool(True)
 )
+
 
 
 pfNoElectron.topCollection    = 'pfIsolatedElectronsEI'
