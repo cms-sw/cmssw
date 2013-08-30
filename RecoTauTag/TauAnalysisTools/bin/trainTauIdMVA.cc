@@ -89,7 +89,8 @@ int main(int argc, char* argv[])
     TObjString* item = dynamic_cast<TObjString*>(reweightOption_items->At(iItem));
     assert(item);
     std::string item_string = item->GetString().Data();
-    if      ( item_string == "signal"     ) reweightOption   = kReweight_or_KILLsignal;
+    if      ( item_string == "none"       ) continue;
+    else if ( item_string == "signal"     ) reweightOption   = kReweight_or_KILLsignal;
     else if ( item_string == "background" ) reweightOption   = kReweight_or_KILLbackground;
     else if ( item_string == "flat"       ) reweightOption   = kReweight_or_KILLflat;
     else if ( item_string == "min"        ) reweightOption   = kReweight_or_KILLmin;
@@ -203,15 +204,19 @@ int main(int argc, char* argv[])
   }
   if ( (applyPtReweighting || applyEtaReweighting) && reweight_or_KILL == kReweight && 
        (reweightOption == kReweight_or_KILLsignal || reweightOption == kReweight_or_KILLflat || reweightOption == kReweight_or_KILLmin) ) {
-    factory->SetSignalWeightExpression(Form("ptVsEtaReweight*%s", branchNameEvtWeight.data()));
+    std::string signalWeightExpression = "ptVsEtaReweight";
+    if ( branchNameEvtWeight != "" ) signalWeightExpression.append("*").append(branchNameEvtWeight);
+    factory->SetSignalWeightExpression(signalWeightExpression.data());
   } else {
-    factory->SetSignalWeightExpression(Form("%s", branchNameEvtWeight.data()));
+    if ( branchNameEvtWeight != "" ) factory->SetSignalWeightExpression(branchNameEvtWeight.data());
   }
   if ( (applyPtReweighting || applyEtaReweighting) && reweight_or_KILL == kReweight && 
        (reweightOption == kReweight_or_KILLbackground || reweightOption == kReweight_or_KILLflat || reweightOption == kReweight_or_KILLmin) ) {
-    factory->SetBackgroundWeightExpression(Form("ptVsEtaReweight*%s", branchNameEvtWeight.data()));
+    std::string backgroundWeightExpression = "ptVsEtaReweight";
+    if ( branchNameEvtWeight != "" ) backgroundWeightExpression.append("*").append(branchNameEvtWeight);
+    factory->SetBackgroundWeightExpression(backgroundWeightExpression.data());
   } else {
-    factory->SetBackgroundWeightExpression(Form("%s", branchNameEvtWeight.data()));
+    if ( branchNameEvtWeight != "" ) factory->SetBackgroundWeightExpression(branchNameEvtWeight.data());
   }
 
   TCut cut = "";

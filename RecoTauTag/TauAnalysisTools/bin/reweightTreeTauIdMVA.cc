@@ -62,8 +62,10 @@ namespace
     Float_t eta;
     inputTree->SetBranchAddress(branchNameEta.data(), &eta);
     
-    Float_t evtWeight;
-    inputTree->SetBranchAddress(branchNameEvtWeight.data(), &evtWeight);
+    Float_t evtWeight = 1.0;
+    if ( branchNameEvtWeight != "" ) {
+      inputTree->SetBranchAddress(branchNameEvtWeight.data(), &evtWeight);
+    }
     
     int numEntries = inputTree->GetEntries();
     for ( int iEntry = 0; iEntry < numEntries; ++iEntry ) {
@@ -111,8 +113,16 @@ namespace
     for ( int iBinX = 1; iBinX <= numBinsX; ++iBinX ) {
       for ( int iBinY = 1; iBinY <= numBinsY; ++iBinY ) {
 	double binContent_signal = histogram_signal->GetBinContent(iBinX, iBinY);
+	double binError_signal = histogram_signal->GetBinError(iBinX, iBinY);
 	double binContent_background = histogram_background->GetBinContent(iBinX, iBinY);
-	histogram_min->SetBinContent(iBinX, iBinY, TMath::Min(binContent_signal, binContent_background));
+	double binError_background = histogram_background->GetBinError(iBinX, iBinY);
+	if ( binContent_signal < binContent_background ) {
+	  histogram_min->SetBinContent(iBinX, iBinY, binContent_signal);
+	  histogram_min->SetBinError(iBinX, iBinY, binError_signal);
+	} else {
+	  histogram_min->SetBinContent(iBinX, iBinY, binContent_background);
+	  histogram_min->SetBinError(iBinX, iBinY, binError_background);
+	}
       }
     }
   }
@@ -173,7 +183,8 @@ int main(int argc, char* argv[])
     TObjString* item = dynamic_cast<TObjString*>(reweightOption_items->At(iItem));
     assert(item);
     std::string item_string = item->GetString().Data();
-    if      ( item_string == "signal"     ) reweightOption   = kReweight_or_KILLsignal;
+    if      ( item_string == "none"       ) continue;
+    else if ( item_string == "signal"     ) reweightOption   = kReweight_or_KILLsignal;
     else if ( item_string == "background" ) reweightOption   = kReweight_or_KILLbackground;
     else if ( item_string == "flat"       ) reweightOption   = kReweight_or_KILLflat;
     else if ( item_string == "min"        ) reweightOption   = kReweight_or_KILLmin;
@@ -187,6 +198,9 @@ int main(int argc, char* argv[])
   vstring spectatorVariables = cfgReweightTreeTauIdMVA.getParameter<vstring>("spectatorVariables");
 
   std::string branchNameEvtWeight = cfgReweightTreeTauIdMVA.getParameter<std::string>("branchNameEvtWeight");
+
+  bool keepAllBranches = cfgReweightTreeTauIdMVA.getParameter<bool>("keepAllBranches");
+  bool checkBranchesForNaNs = cfgReweightTreeTauIdMVA.getParameter<bool>("checkBranchesForNaNs");
 
   fwlite::InputSource inputFiles(cfg); 
   int maxEvents = inputFiles.maxEvents();
@@ -245,6 +259,22 @@ int main(int argc, char* argv[])
   branchesToKeep_expressions.push_back(branchNamePt);
   branchesToKeep_expressions.push_back(branchNameEta);
   branchesToKeep_expressions.insert(branchesToKeep_expressions.end(), spectatorVariables.begin(), spectatorVariables.end());
+
+  if ( keepAllBranches ) {
+    TTree* inputTree = 0;
+    if      ( saveOption == kSaveSignal     ) inputTree = inputTree_signal;
+    else if ( saveOption == kSaveBackground ) inputTree = inputTree_background;
+    if ( inputTree ) {
+      TObjArray* branches = inputTree->GetListOfBranches();
+      int numBranches = branches->GetEntries();
+      for ( int iBranch = 0; iBranch < numBranches; ++iBranch ) {
+	TBranch* branch = dynamic_cast<TBranch*>(branches->At(iBranch));
+	assert(branch);
+	std::string branchName = branch->GetName();
+	branchesToKeep_expressions.push_back(branchName);
+      }
+    }
+  }
 
 //--- check if signal or background entries are to be reweighted such that
 //    Pt and eta distributions of tau candidates match
@@ -327,7 +357,7 @@ int main(int argc, char* argv[])
 	"", branchesToKeep_expressions, 
 	0, branchNamePt, branchNameEta, "",
 	reweight_or_KILL, applyPtReweighting_signal, applyEtaReweighting_signal, histogramLogPt_reweight_signal, histogramAbsEta_reweight_signal, histogramLogPtVsAbsEta_reweight_signal,
-	maxEvents, reportEvery);
+	maxEvents, checkBranchesForNaNs, reportEvery);
       std::cout << "--> output Tree for signal contains " << outputTree_signal->GetEntries() << " Entries." << std::endl;
 
       //std::cout << "output Tree:" << std::endl;
@@ -335,7 +365,9 @@ int main(int argc, char* argv[])
       //outputTree_signal->Scan("*", "", "", 20, 0);
 
       std::cout << "writing output Tree to file = " << outputFileName << "." << std::endl;
-      //outputTree_signal->Write(); // CV: done automatically by ROOT when outputFile gets closed
+      outputTree_signal->Write(); // CV: **not** done automatically by ROOT when outputFile gets closed
+                                  //    (unless Tree is written to file explicitely, some entries may be missing, 
+                                  //     which happened to be the most interesting high Pt events that were processed at the end of the job !!)
     }
     if ( saveOption == kSaveBackground ) {
       bool reweightBackground = (reweightOption == kReweight_or_KILLbackground || reweightOption == kReweight_or_KILLflat || reweightOption == kReweight_or_KILLmin);
@@ -346,7 +378,7 @@ int main(int argc, char* argv[])
 	"", branchesToKeep_expressions, 
 	0, branchNamePt, branchNameEta, "",
 	reweight_or_KILL, applyPtReweighting_background, applyEtaReweighting_background, histogramLogPt_reweight_background, histogramAbsEta_reweight_background, histogramLogPtVsAbsEta_reweight_background,
-	maxEvents, reportEvery);
+	maxEvents, checkBranchesForNaNs, reportEvery);
       std::cout << "--> output Tree for background contains " << outputTree_background->GetEntries() << " Entries." << std::endl;
   
       //std::cout << "output Tree:" << std::endl;
@@ -354,7 +386,9 @@ int main(int argc, char* argv[])
       //outputTree_background->Scan("*", "", "", 20, 0);
 
       std::cout << "writing output Tree to file = " << outputFileName << "." << std::endl;
-      //outputTree_background->Write(); // CV: done automatically by ROOT when outputFile gets closed
+      outputTree_background->Write(); // CV: **not** done automatically by ROOT when outputFile gets closed
+                                      //    (unless Tree is written to file explicitely, some entries may be missing, 
+                                      //     which happened to be the most interesting high Pt events that were processed at the end of the job !!)
     }
     delete outputFile;
 
@@ -367,8 +401,8 @@ int main(int argc, char* argv[])
     if ( histogramLogPt_signal                      ) histogramLogPt_signal->Write();
     if ( histogramAbsEta_signal                     ) histogramAbsEta_signal->Write();
     if ( histogramLogPtVsAbsEta_signal              ) histogramLogPtVsAbsEta_signal->Write();
-    if ( histogramLogPt_signal                      ) histogramLogPt_reweight_signal->Write();
-    if ( histogramAbsEta_signal                     ) histogramAbsEta_reweight_signal->Write();
+    if ( histogramLogPt_reweight_signal             ) histogramLogPt_reweight_signal->Write();
+    if ( histogramAbsEta_reweight_signal            ) histogramAbsEta_reweight_signal->Write();
     if ( histogramLogPtVsAbsEta_signal              ) histogramLogPtVsAbsEta_reweight_signal->Write();
     if ( histogramLogPt_background                  ) histogramLogPt_background->Write();
     if ( histogramAbsEta_background                 ) histogramAbsEta_background->Write();

@@ -391,7 +391,7 @@ int main(int argc, char* argv[])
     preselection_signal, branchesToKeep_expressions, 
     false, "", "", "", 
     -1, false, false, 0, 0, 0,
-    maxEvents, reportEvery);
+    maxEvents, true, reportEvery);
   std::cout << "--> " << preselectedTree_signal->GetEntries() << " signal Entries pass preselection." << std::endl;
   std::vector<plotEntryType*> plotEntries_signal;
   for ( std::vector<pdouble>::const_iterator tauPtBin = tauPtBins.begin();
@@ -415,7 +415,7 @@ int main(int argc, char* argv[])
     preselection_background, branchesToKeep_expressions, 
     false, "", "", "", 
     -1, false, false, 0, 0, 0,
-    maxEvents, reportEvery);
+    maxEvents, true, reportEvery);
   std::cout << "--> " << preselectedTree_background->GetEntries() << " background Entries pass preselection." << std::endl;
   std::vector<plotEntryType*> plotEntries_background;
   for ( std::vector<pdouble>::const_iterator tauPtBin = tauPtBins.begin();

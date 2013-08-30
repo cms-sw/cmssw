@@ -75,6 +75,9 @@ int main(int argc, char* argv[])
 
   std::string branchNameEvtWeight = cfgPreselectTreeTauIdMVA.getParameter<std::string>("branchNameEvtWeight");
 
+  bool keepAllBranches = cfgPreselectTreeTauIdMVA.getParameter<bool>("keepAllBranches");
+  bool checkBranchesForNaNs = cfgPreselectTreeTauIdMVA.getParameter<bool>("checkBranchesForNaNs");
+
   int applyEventPruning = cfgPreselectTreeTauIdMVA.getParameter<int>("applyEventPruning");
 
   fwlite::InputSource inputFiles(cfg); 
@@ -116,6 +119,17 @@ int main(int argc, char* argv[])
   if ( branchNameNumMatches != "" ) branchesToKeep_expressions.push_back(branchNameNumMatches);
   branchesToKeep_expressions.insert(branchesToKeep_expressions.end(), spectatorVariables.begin(), spectatorVariables.end());
 
+  if ( keepAllBranches ) {
+    TObjArray* branches = inputTree->GetListOfBranches();
+    int numBranches = branches->GetEntries();
+    for ( int iBranch = 0; iBranch < numBranches; ++iBranch ) {
+      TBranch* branch = dynamic_cast<TBranch*>(branches->At(iBranch));
+      assert(branch);
+      std::string branchName = branch->GetName();
+      branchesToKeep_expressions.push_back(branchName);
+    }
+  }
+
   std::cout << "input Tree contains " << inputTree->GetEntries() << " Entries in " << inputTree->GetListOfFiles()->GetEntries() << " files." << std::endl;
   std::cout << "preselecting Entries: preselection = '" << preselection << "'" << std::endl;
   TFile* outputFile = new TFile(outputFileName.data(), "RECREATE");
@@ -124,7 +138,7 @@ int main(int argc, char* argv[])
     preselection, branchesToKeep_expressions, 
     applyEventPruning, branchNamePt, branchNameEta, branchNameNumMatches,
     -1, false, false, 0, 0, 0,
-    maxEvents, reportEvery);
+    maxEvents, checkBranchesForNaNs, reportEvery);
   std::cout << "--> " << outputTree->GetEntries() << " Entries pass preselection." << std::endl;
 
   std::cout << "output Tree:" << std::endl;
