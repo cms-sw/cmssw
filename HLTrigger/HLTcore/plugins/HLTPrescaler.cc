@@ -7,6 +7,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "FWCore/ServiceRegistry/interface/PathContext.h"
 #include "FWCore/ServiceRegistry/interface/PlaceInPathContext.h"
@@ -34,10 +35,11 @@ HLTPrescaler::HLTPrescaler(edm::ParameterSet const& iConfig) :
   , eventCount_(0)
   , acceptCount_(0)
   , offsetCount_(0)
-  , offsetPhase_(iConfig.existsAs<unsigned int>("offset") ? iConfig.getParameter<unsigned int>("offset") : 0)
+  , offsetPhase_(iConfig.getParameter<unsigned int>("offset"))
   , prescaleService_(0)
   , newLumi_(true)
-  , gtDigi_ (iConfig.getParameter<edm::InputTag>("L1GtReadoutRecordTag"))
+  , gtDigiTag_ (iConfig.getParameter<edm::InputTag>("L1GtReadoutRecordTag"))
+  , gtDigiToken_ (consumes<L1GlobalTriggerReadoutRecord>(gtDigiTag_))
 {
   if(edm::Service<edm::service::PrescaleService>().isAvailable())
     prescaleService_ = edm::Service<edm::service::PrescaleService>().operator->();
@@ -55,6 +57,13 @@ HLTPrescaler::~HLTPrescaler()
 ////////////////////////////////////////////////////////////////////////////////
 // implementation of member functions
 ////////////////////////////////////////////////////////////////////////////////
+
+void HLTPrescaler::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<unsigned int>("offset",0);
+  desc.add<edm::InputTag>("L1GtReadoutRecordTag",edm::InputTag("hltGtDigis"));
+  descriptions.add("hltPrescaler", desc);
+}
 
 //______________________________________________________________________________
 void HLTPrescaler::beginLuminosityBlock(edm::LuminosityBlock const& lb,
@@ -80,7 +89,7 @@ bool HLTPrescaler::filter(edm::Event& iEvent, const edm::EventSetup&)
       const unsigned int oldPrescale(prescaleFactor_);
 
       edm::Handle<L1GlobalTriggerReadoutRecord> handle;
-      iEvent.getByLabel(gtDigi_ , handle);
+      iEvent.getByToken(gtDigiToken_,handle);
       if (handle.isValid()) {
         prescaleSet_ = handle->gtFdlWord().gtPrescaleFactorIndexAlgo();
         // gtPrescaleFactorIndexTech() is also available

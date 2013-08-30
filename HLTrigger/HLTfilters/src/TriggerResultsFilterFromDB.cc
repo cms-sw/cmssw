@@ -36,7 +36,7 @@ TriggerResultsFilterFromDB::TriggerResultsFilterFromDB(const edm::ParameterSet &
   m_eventSetupPathsKey(config.getParameter<std::string>("eventSetupPathsKey")),
   m_eventSetupWatcher(),
   m_expression(0),
-  m_eventCache(config)
+											   m_eventCache(config,consumesCollector())
 {
 }
 

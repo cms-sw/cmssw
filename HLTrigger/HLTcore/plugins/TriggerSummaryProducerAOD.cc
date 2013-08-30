@@ -10,11 +10,12 @@
  */
 
 #include "HLTrigger/HLTcore/interface/TriggerSummaryProducerAOD.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Common/interface/OrphanHandle.h"
 #include "DataFormats/HLTReco/interface/TriggerEvent.h"
 #include "DataFormats/Provenance/interface/Provenance.h"
-
 #include "FWCore/Framework/interface/ProcessMatch.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -154,6 +155,12 @@ namespace {
       }
     }
   }
+}
+
+void TriggerSummaryProducerAOD::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<std::string>("processName","@");
+  descriptions.add("triggerSummaryProducerAOD", desc);
 }
 
 // ------------ method called to produce the data  ------------
