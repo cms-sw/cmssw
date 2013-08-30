@@ -43,7 +43,7 @@ Implementation:
 //
 
 class HLTCSCActivityFilter : public HLTFilter {
- public:
+public:
   explicit HLTCSCActivityFilter(const edm::ParameterSet&);
   virtual ~HLTCSCActivityFilter();
   static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);   

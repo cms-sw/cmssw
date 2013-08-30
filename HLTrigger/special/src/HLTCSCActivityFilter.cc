@@ -49,7 +49,7 @@ HLTCSCActivityFilter::fillDescriptions(edm::ConfigurationDescriptions& descripti
   desc.add<bool>("skipStationRing",true);
   desc.add<int>("skipRingNumber",1);
   desc.add<int>("skipStationNumber",4);
-  //  descriptions.add("hltCSCActivityFilter",desc);
+  descriptions.add("hltCSCActivityFilter",desc);
 }
 
 //
