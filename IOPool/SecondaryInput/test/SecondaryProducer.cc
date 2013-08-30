@@ -63,9 +63,10 @@ namespace edm {
 
   void SecondaryProducer::beginJob() {
     eventPrincipal_.reset(new EventPrincipal(secInput_->productRegistry(),
-                                            secInput_->branchIDListHelper(),
-                                            *processConfiguration_,
-                                             nullptr, StreamID::invalidStreamID()));
+                                             secInput_->branchIDListHelper(),
+                                             *processConfiguration_,
+                                             nullptr,
+                                             StreamID::invalidStreamID()));
 
   }
 

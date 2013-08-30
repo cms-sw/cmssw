@@ -47,10 +47,10 @@ namespace edm {
    private:
 
     void defaultWebPage(xgi::Input *in, xgi::Output *out); 
-    virtual EventPrincipal* readEvent_(EventPrincipal& eventPrincipal);
+    virtual void readEvent_(EventPrincipal& eventPrincipal);
     virtual boost::shared_ptr<LuminosityBlockAuxiliary> readLuminosityBlockAuxiliary_();
     virtual boost::shared_ptr<RunAuxiliary> readRunAuxiliary_();
-    virtual EventPrincipal* readIt(EventID const& eventID);
+    virtual bool readIt(EventID const& eventID);
     virtual void skip(int offset);
     virtual void setLumi(LuminosityBlockNumber_t lb);
     virtual void setRun(RunNumber_t r);

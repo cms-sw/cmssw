@@ -15,11 +15,12 @@
 
 namespace edm {
   class BranchChildren;
+  class ProcessHistoryRegistry;
   struct DaqProvenanceHelper {
     typedef std::map<ProcessHistoryID, ProcessHistoryID> ProcessHistoryIDMap;
     typedef std::map<ParentageID, ParentageID> ParentageIDMap;
     explicit DaqProvenanceHelper(TypeID const& rawDataType);
-    ProcessHistoryID daqInit(ProductRegistry& productRegistry) const;
+    ProcessHistoryID daqInit(ProductRegistry& productRegistry, ProcessHistoryRegistry& processHistoryRegistry) const;
     void saveInfo(BranchDescription const& oldBD, BranchDescription const& newBD) {
       oldProcessName_ = oldBD.processName();
       oldBranchID_ = oldBD.branchID();

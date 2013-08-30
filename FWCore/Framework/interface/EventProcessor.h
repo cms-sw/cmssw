@@ -255,9 +255,9 @@ namespace edm {
     virtual void beginLumi(ProcessHistoryID const& phid, RunNumber_t run, LuminosityBlockNumber_t lumi);
     virtual void endLumi(ProcessHistoryID const& phid, RunNumber_t run, LuminosityBlockNumber_t lumi, bool cleaningUpAfterException);
 
-    virtual statemachine::Run readAndCacheRun();
+    virtual statemachine::Run readRun();
     virtual statemachine::Run readAndMergeRun();
-    virtual int readAndCacheLumi();
+    virtual int readLuminosityBlock();
     virtual int readAndMergeLumi();
     virtual void writeRun(statemachine::Run const& run);
     virtual void deleteRunFromCache(statemachine::Run const& run);

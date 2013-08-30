@@ -44,6 +44,7 @@ namespace edm {
 
   class HistoryAppender;
   class ModuleCallingContext;
+  class ProcessHistoryRegistry;
   class ProductHolderIndexHelper;
   class EDConsumerBase;
 
@@ -85,7 +86,7 @@ namespace edm {
 
     void addAliasedProduct(boost::shared_ptr<BranchDescription const> bd);
 
-    void fillPrincipal(ProcessHistoryID const& hist, DelayedReader* reader);
+    void fillPrincipal(ProcessHistoryID const& hist, ProcessHistoryRegistry& phr, DelayedReader* reader);
 
     void clearPrincipal();
 
@@ -233,6 +234,8 @@ namespace edm {
                                  ModuleCallingContext const*) const {}
 
     virtual bool isComplete_() const {return true;}
+
+    ProcessHistoryRegistry* processHistoryRegistry_; 
 
     ProcessHistory const* processHistoryPtr_;
 

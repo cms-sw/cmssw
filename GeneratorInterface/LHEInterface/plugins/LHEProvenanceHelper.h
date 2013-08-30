@@ -11,12 +11,13 @@ namespace lhef {
 }
 
 namespace edm {
+  class ProcessHistoryRegistry;
   class ProductRegistry;
   class TypeID;
   struct LHEProvenanceHelper {
     explicit LHEProvenanceHelper(TypeID const& eventProductType, TypeID const& runProductType);
     void lheAugment(lhef::LHERunInfo const* runInfo);
-    ProcessHistoryID lheInit(ProductRegistry& productRegistry);
+    ProcessHistoryID lheInit(ProductRegistry& productRegistry, ProcessHistoryRegistry& processHistoryRegistry);
     BranchDescription const eventProductBranchDescription_;
     BranchDescription const runProductBranchDescription_;
     ProductProvenance eventProductProvenance_;

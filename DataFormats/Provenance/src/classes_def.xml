@@ -170,11 +170,6 @@
  <class name="std::vector<edm::EventProcessHistoryID>"/>
  <class name="edm::ModuleDescriptionID"/>
 
- <class name="std::map<edm::ProcessConfigurationID,std::string>"/>
- <class name="std::pair<edm::ProcessConfigurationID,std::string>"/>
- <class name="std::map<edm::ProcessConfigurationID,edm::ParameterSetID>"/>
- <class name="std::pair<edm::ProcessConfigurationID,edm::ParameterSetID>"/>
-
  <class name="edm::ModuleDescription" ClassVersion="10">
   <version ClassVersion="10" checksum="2128621099"/>
    <field name="id_" transient="true"/>

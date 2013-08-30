@@ -1,6 +1,5 @@
 #include "DataFormats/Provenance/interface/Provenance.h"
 #include "DataFormats/Provenance/interface/ProcessConfiguration.h"
-#include "DataFormats/Provenance/interface/ProcessHistory.h"
 #include "DataFormats/Provenance/interface/ProcessHistoryRegistry.h"
 #include "DataFormats/Provenance/interface/ProductProvenance.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -20,7 +19,7 @@ namespace edm {
   Provenance::Provenance(boost::shared_ptr<BranchDescription const> const& p, ProductID const& pid) :
     branchDescription_(p),
     productID_(pid),
-    processHistoryID_(),
+    processHistory_(),
     productProvenanceValid_(false),
     productProvenancePtr_(new ProductProvenance),
     store_() {
@@ -43,13 +42,7 @@ namespace edm {
 
   bool
   Provenance::getProcessConfiguration(ProcessConfiguration& pc) const {
-    // Get the ProcessHistory for this event.
-    ProcessHistoryRegistry* phr = ProcessHistoryRegistry::instance();
-    ProcessHistory ph;
-    if (!phr->getMapped(processHistoryID(), ph)) {
-      return false;
-    }
-    return ph.getConfigurationForProcess(processName(), pc);
+    return processHistory_->getConfigurationForProcess(processName(), pc);
   }
 
   ReleaseVersion
@@ -90,7 +83,7 @@ namespace edm {
   Provenance::swap(Provenance& iOther) {
     branchDescription_.swap(iOther.branchDescription_);
     productID_.swap(iOther.productID_);
-    std::swap(processHistoryID_, iOther.processHistoryID_);
+    std::swap(processHistory_, iOther.processHistory_);
     std::swap(productProvenanceValid_, iOther.productProvenanceValid_);
     productProvenancePtr_.swap(iOther.productProvenancePtr_);
     store_.swap(iOther.store_);

@@ -241,7 +241,7 @@ namespace edm {
         throw cms::Exception("StreamTranslation","Event deserialization error")
           << "got a null event from input stream\n";
     }
-    registerProcessHistory(sendEvent_->processHistory());
+    processHistoryRegistryUpdate().registerProcessHistory(sendEvent_->processHistory());
 
     FDEBUG(5) << "Got event: " << sendEvent_->aux().id() << " " << sendEvent_->products().size() << std::endl;
     if(runAuxiliary().get() == 0 || runAuxiliary()->run() != sendEvent_->aux().run()) {
@@ -259,7 +259,7 @@ namespace edm {
     setEventCached();
   }
 
-  EventPrincipal *
+  void
   StreamerInputSource::read(EventPrincipal& eventPrincipal) {
     if(adjustEventToNewProductRegistry_) {
       eventPrincipal.adjustIndexesAfterProductRegistryAddition();
@@ -270,7 +270,7 @@ namespace edm {
     boost::shared_ptr<EventSelectionIDVector> ids(new EventSelectionIDVector(sendEvent_->eventSelectionIDs()));
     boost::shared_ptr<BranchListIndexes> indexes(new BranchListIndexes(sendEvent_->branchListIndexes()));
     branchIDListHelper()->fixBranchListIndexes(*indexes);
-    eventPrincipal.fillEventPrincipal(sendEvent_->aux(), ids, indexes);
+    eventPrincipal.fillEventPrincipal(sendEvent_->aux(), processHistoryRegistryForUpdate(), ids, indexes);
     productGetter_.setEventPrincipal(&eventPrincipal);
 
     // no process name list handling
@@ -303,8 +303,6 @@ namespace edm {
     }
 
     FDEBUG(10) << "Size = " << eventPrincipal.size() << std::endl;
-
-    return &eventPrincipal;
   }
 
   /**
@@ -379,7 +377,7 @@ namespace edm {
   }
 
   void
-  StreamerInputSource::ProductGetter::setEventPrincipal(EventPrincipal *ep) {
+  StreamerInputSource::ProductGetter::setEventPrincipal(EventPrincipal* ep) {
     eventPrincipal_ = ep;
   }
 

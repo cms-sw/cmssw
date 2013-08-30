@@ -11,8 +11,7 @@ existence.
 #include "DataFormats/Provenance/interface/BranchDescription.h"
 #include "DataFormats/Provenance/interface/BranchMapper.h"
 #include "DataFormats/Provenance/interface/ParameterSetID.h"
-#include "DataFormats/Provenance/interface/ProcessConfigurationID.h"
-#include "DataFormats/Provenance/interface/ProcessHistoryID.h"
+#include "DataFormats/Provenance/interface/ProcessHistory.h"
 #include "DataFormats/Provenance/interface/Parentage.h"
 #include "DataFormats/Provenance/interface/ProductID.h"
 #include "DataFormats/Provenance/interface/ReleaseVersion.h"
@@ -63,7 +62,7 @@ namespace edm {
     std::string const& productInstanceName() const {return product().productInstanceName();}
     std::string const& friendlyClassName() const {return product().friendlyClassName();}
     boost::shared_ptr<BranchMapper> const& store() const {return store_;}
-    ProcessHistoryID const& processHistoryID() const {return *processHistoryID_;}
+    ProcessHistory const& processHistory() const {return *processHistory_;}
     bool getProcessConfiguration(ProcessConfiguration& pc) const;
     ReleaseVersion releaseVersion() const;
     std::set<std::string> const& branchAliases() const {return product().branchAliases();}
@@ -74,7 +73,7 @@ namespace edm {
 
     void setStore(boost::shared_ptr<BranchMapper> store) const {store_ = store;}
 
-    void setProcessHistoryID(ProcessHistoryID const& phid) {processHistoryID_ = &phid;}
+    void setProcessHistory(ProcessHistory const& ph) {processHistory_ = &ph;}
 
     ProductID const& productID() const {return productID_;}
 
@@ -95,7 +94,7 @@ namespace edm {
   private:
     boost::shared_ptr<BranchDescription const> branchDescription_;
     ProductID productID_;
-    ProcessHistoryID const* processHistoryID_; // Owned by Auxiliary
+    ProcessHistory const* processHistory_; // We don't own this
     mutable bool productProvenanceValid_;
     mutable boost::shared_ptr<ProductProvenance> productProvenancePtr_;
     mutable boost::shared_ptr<BranchMapper> store_;

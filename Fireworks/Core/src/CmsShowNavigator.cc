@@ -2,7 +2,6 @@
 //
 // Package:     newVersion
 // Class  :     CmsShowNavigator
-// $Id: CmsShowNavigator.cc,v 1.113 2012/07/06 23:33:29 amraktad Exp $
 //
 
 #include "DataFormats/FWLite/interface/Event.h"
@@ -11,7 +10,8 @@
 #include "Fireworks/Core/interface/FWEventItem.h"
 
 // system include files
-#include <boost/regex.hpp>
+#include "boost/bind.hpp"
+#include "boost/regex.hpp"
 #include "TROOT.h"
 #include "TTree.h"
 #include "TFile.h"
@@ -21,9 +21,9 @@
 #include "TBranch.h"
 #include "TAxis.h"
 
-#include  <TApplication.h>
-#include  <TSystem.h>
-#include  <TObject.h>
+#include  "TApplication.h"
+#include  "TSystem.h"
+#include  "TObject.h"
 
 // user include files
 #include "Fireworks/Core/interface/CmsShowNavigator.h"

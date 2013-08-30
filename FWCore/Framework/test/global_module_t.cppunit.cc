@@ -13,6 +13,7 @@
 #include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/Framework/src/WorkerT.h"
 #include "FWCore/Framework/interface/OccurrenceTraits.h"
+#include "DataFormats/Provenance/interface/ProcessHistoryRegistry.h"
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
 #include "DataFormats/Provenance/interface/BranchIDListHelper.h"
 #include "FWCore/Framework/interface/HistoryAppender.h"
@@ -337,7 +338,8 @@ m_ep()
   m_ep.reset(new edm::EventPrincipal(m_prodReg,
                                      m_idHelper,
                                      m_procConfig,nullptr));
-  m_ep->fillEventPrincipal(eventAux);
+  edm::ProcessHistoryRegistry phr;
+  m_ep->fillEventPrincipal(eventAux, phr);
   m_ep->setLuminosityBlockPrincipal(m_lbp);
 
 

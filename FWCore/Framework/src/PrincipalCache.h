@@ -24,6 +24,7 @@ Original Author: W. David Dagenhart
 */
 
 #include "DataFormats/Provenance/interface/ProcessHistoryID.h"
+#include "DataFormats/Provenance/interface/ProcessHistoryRegistry.h"
 #include "DataFormats/Provenance/interface/RunID.h"
 #include "DataFormats/Provenance/interface/LuminosityBlockID.h"
 
@@ -72,6 +73,8 @@ namespace edm {
 
     void adjustIndexesAfterProductRegistryAddition();
 
+    void setProcessHistoryRegistry(ProcessHistoryRegistry const& phr) {processHistoryRegistry_ = &phr;}
+
   private:
 
     void throwRunMissing() const;
@@ -82,6 +85,9 @@ namespace edm {
     boost::shared_ptr<RunPrincipal> runPrincipal_;
     boost::shared_ptr<LuminosityBlockPrincipal> lumiPrincipal_;
     boost::shared_ptr<EventPrincipal> eventPrincipal_;
+
+    // This is just an accessor to the registry owned by the input source. 
+    ProcessHistoryRegistry const* processHistoryRegistry_; // We don't own this
 
     // These are intentionally not cleared so that when inserting
     // the next principal the conversion from full ProcessHistoryID_

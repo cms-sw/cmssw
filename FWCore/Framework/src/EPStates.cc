@@ -218,7 +218,7 @@ namespace statemachine {
   void HandleRuns::setupCurrentRun() {
 
     runException_ = true;
-    currentRun_ = ep_.readAndCacheRun();
+    currentRun_ = ep_.readRun();
     runException_ = false;
 
     if(context<Machine>().emptyRunLumiMode() != doNotHandleEmptyRunsAndLumis) {
@@ -410,7 +410,7 @@ namespace statemachine {
     Run const& run = context<HandleRuns>().currentRun();
     assert(run != INVALID_RUN);
     lumiException_ = true;
-    currentLumi_ = HandleLumis::LumiID(run.processHistoryID(), run.runNumber(), ep_.readAndCacheLumi());
+    currentLumi_ = HandleLumis::LumiID(run.processHistoryID(), run.runNumber(), ep_.readLuminosityBlock());
 
     if(context<Machine>().emptyRunLumiMode() == handleEmptyRunsAndLumis) {
       assert(context<HandleRuns>().beginRunCalled());
