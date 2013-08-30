@@ -15,13 +15,13 @@
    \brief    Template class to fill the TtEvent structure
 
    Template class to fill the TtEvent structure for:
-   
+
    * TtSemiLeptonicEvent
    * TtFullLeptonicEvent
    * TtFullHadronicEvent
-   
-   event hypothesis, genEvent and extra information (if 
-   available) are read from the event and contracted into 
+
+   event hypothesis, genEvent and extra information (if
+   available) are read from the event and contracted into
    the TtEvent
 */
 
@@ -34,7 +34,7 @@ class TtEvtBuilder : public edm::EDProducer {
   explicit TtEvtBuilder(const edm::ParameterSet&);
   /// default destructor
   ~TtEvtBuilder(){};
-  
+
  private:
 
   /// produce function (this one is not even accessible for
@@ -71,15 +71,15 @@ class TtEvtBuilder : public edm::EDProducer {
   /// input parameters for the kKinSolution
   /// hypothesis class extras
   edm::ParameterSet kinSolution_;
-  edm::InputTag solWeight_;  
-  edm::InputTag wrongCharge_;   
+  edm::InputTag solWeight_;
+  edm::InputTag wrongCharge_;
   /// input parameters for the kGenMatch
-  /// hypothesis class extras 
+  /// hypothesis class extras
   edm::ParameterSet genMatch_;
   edm::InputTag sumPt_;
   edm::InputTag sumDR_;
   /// input parameters for the kMVADisc
-  /// hypothesis class extras 
+  /// hypothesis class extras
   edm::ParameterSet mvaDisc_;
   edm::InputTag meth_;
   edm::InputTag disc_;
@@ -112,7 +112,7 @@ TtEvtBuilder<C>::TtEvtBuilder(const edm::ParameterSet& cfg) :
     kinSolution_  = cfg.getParameter<edm::ParameterSet>("kinSolution");
     solWeight_    = kinSolution_.getParameter<edm::InputTag>("solWeight");
     wrongCharge_  = kinSolution_.getParameter<edm::InputTag>("wrongCharge");
-  }  
+  }
   // parameter subsets for kGenMatch
   if( cfg.exists("genMatch") ) {
     genMatch_ = cfg.getParameter<edm::ParameterSet>("genMatch");
@@ -126,7 +126,7 @@ TtEvtBuilder<C>::TtEvtBuilder(const edm::ParameterSet& cfg) :
     disc_    = mvaDisc_.getParameter<edm::InputTag>("disc");
   }
   // produces a TtEventEvent for:
-  //  * TtSemiLeptonicEvent 
+  //  * TtSemiLeptonicEvent
   //  * TtFullLeptonicEvent
   //  * TtFullHadronicEvent
   // from hypotheses and associated extra information
@@ -144,17 +144,18 @@ TtEvtBuilder<C>::produce(edm::Event& evt, const edm::EventSetup& setup)
 
   // set genEvent (if available)
   edm::Handle<TtGenEvent> genEvt;
-  if( evt.getByLabel(genEvt_, genEvt) )
-    ttEvent.setGenEvent(genEvt);
+  if ( genEvt_.label().size() > 0 )
+    if( evt.getByLabel(genEvt_, genEvt) )
+      ttEvent.setGenEvent(genEvt);
 
-  // add event hypotheses for all given 
+  // add event hypotheses for all given
   // hypothesis classes to the TtEvent
   typedef std::vector<edm::InputTag>::const_iterator EventHypo;
   for(EventHypo h=hyps_.begin(); h!=hyps_.end(); ++h){
-    edm::Handle<int> key; 
+    edm::Handle<int> key;
     evt.getByLabel(h->label(), "Key", key);
 
-    edm::Handle<std::vector<TtEvent::HypoCombPair> > hypMatchVec; 
+    edm::Handle<std::vector<TtEvent::HypoCombPair> > hypMatchVec;
     evt.getByLabel(*h, hypMatchVec);
 
     typedef std::vector<TtEvent::HypoCombPair>::const_iterator HypMatch;
@@ -168,7 +169,7 @@ TtEvtBuilder<C>::produce(edm::Event& evt, const edm::EventSetup& setup)
     edm::Handle<std::vector<double> > fitChi2;
     evt.getByLabel(fitChi2_, fitChi2);
     ttEvent.setFitChi2( *fitChi2 );
-    
+
     edm::Handle<std::vector<double> > fitProb;
     evt.getByLabel(fitProb_, fitProb);
     ttEvent.setFitProb( *fitProb );
@@ -179,15 +180,15 @@ TtEvtBuilder<C>::produce(edm::Event& evt, const edm::EventSetup& setup)
     edm::Handle<std::vector<double> > hitFitChi2;
     evt.getByLabel(hitFitChi2_, hitFitChi2);
     ttEvent.setHitFitChi2( *hitFitChi2 );
-    
+
     edm::Handle<std::vector<double> > hitFitProb;
     evt.getByLabel(hitFitProb_, hitFitProb);
     ttEvent.setHitFitProb( *hitFitProb );
-    
+
     edm::Handle<std::vector<double> > hitFitMT;
     evt.getByLabel(hitFitMT_, hitFitMT);
     ttEvent.setHitFitMT( *hitFitMT );
-    
+
     edm::Handle<std::vector<double> > hitFitSigMT;
     evt.getByLabel(hitFitSigMT_, hitFitSigMT);
     ttEvent.setHitFitSigMT( *hitFitSigMT );
@@ -236,15 +237,15 @@ template <>
 void TtEvtBuilder<TtFullLeptonicEvent>::fillSpecific(TtFullLeptonicEvent& ttEvent, const edm::Event& evt)
 {
 
-  // set kKinSolution extras  
+  // set kKinSolution extras
   if( ttEvent.isHypoAvailable(TtEvent::kKinSolution) ) {
     edm::Handle<std::vector<double> > solWeight;
     evt.getByLabel(solWeight_, solWeight);
     ttEvent.setSolWeight( *solWeight );
-    
+
     edm::Handle<bool> wrongCharge;
     evt.getByLabel(wrongCharge_, wrongCharge);
-    ttEvent.setWrongCharge( *wrongCharge );   
+    ttEvent.setWrongCharge( *wrongCharge );
   }
 
 }
@@ -255,7 +256,7 @@ void TtEvtBuilder<TtSemiLeptonicEvent>::fillSpecific(TtSemiLeptonicEvent& ttEven
 
   typedef std::vector<edm::InputTag>::const_iterator EventHypo;
   for(EventHypo h=hyps_.begin(); h!=hyps_.end(); ++h){
-    edm::Handle<int> key; 
+    edm::Handle<int> key;
     evt.getByLabel(h->label(), "Key", key);
 
     // set number of real neutrino solutions for all hypotheses
