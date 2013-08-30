@@ -18,8 +18,7 @@
 //Plotters
 #include "DQMOffline/Trigger/interface/HLTTauDQMSummaryPlotter.h"
 
-//Automatic Configuration
-#include "DQMOffline/Trigger/interface/HLTTauDQMAutomation.h"
+#include<memory>
 
 class HLTTauPostProcessor : public edm::EDAnalyzer {
 public:
@@ -49,10 +48,6 @@ protected:
     void harvest();
     
 private:
-    //Helper function to retrieve data from the parameter set
-    void processPSet( const edm::ParameterSet& pset );
-    
-    edm::ParameterSet ps_;
     std::vector<edm::ParameterSet> setup_;
     std::string dqmBaseFolder_;
     bool hltMenuChanged_;
@@ -61,11 +56,8 @@ private:
     double L1MatchDr_;
     double HLTMatchDr_;
     
-    HLTConfigProvider HLTCP_;
-    HLTTauDQMAutomation automation_;
-        
     bool runAtEndJob_;
     bool runAtEndRun_;
         
-    std::vector<HLTTauDQMSummaryPlotter*> summaryPlotters_;
+    std::vector<std::unique_ptr<HLTTauDQMSummaryPlotter>> summaryPlotters_;
 };

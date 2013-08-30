@@ -18,17 +18,12 @@
 #include "DataFormats/Math/interface/LorentzVector.h"
 #include "FWCore/Utilities/interface/Digest.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
-
+#include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
 
 //Plotters
 #include "DQMOffline/Trigger/interface/HLTTauDQML1Plotter.h"
-#include "DQMOffline/Trigger/interface/HLTTauDQMPathPlotter.h"
 #include "DQMOffline/Trigger/interface/HLTTauDQMPathPlotter2.h"
-#include "DQMOffline/Trigger/interface/HLTTauDQMLitePathPlotter.h"
 #include "DQMOffline/Trigger/interface/HLTTauDQMPathSummaryPlotter.h"
-
-//Automatic Configuration
-#include "DQMOffline/Trigger/interface/HLTTauDQMAutomation.h"
 
 #include<memory>
 
@@ -78,7 +73,6 @@ private:
     bool verbose_;
     
     HLTConfigProvider HLTCP_;
-    HLTTauDQMAutomation automation_;
 
     //Reference
     bool doRefAnalysis_;
@@ -110,8 +104,6 @@ private:
 
     //Define Dummy vectors of Plotters
     std::vector<std::unique_ptr<HLTTauDQML1Plotter>> l1Plotters_;
-    std::vector<HLTTauDQMPathPlotter*> pathPlotters;
     std::vector<std::unique_ptr<HLTTauDQMPathPlotter2>> pathPlotters2_;
-    std::vector<HLTTauDQMLitePathPlotter*> litePathPlotters;
     std::vector<std::unique_ptr<HLTTauDQMPathSummaryPlotter>> pathSummaryPlotters_;
 };

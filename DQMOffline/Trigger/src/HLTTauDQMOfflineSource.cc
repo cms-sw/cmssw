@@ -1,5 +1,7 @@
 #include "DQMOffline/Trigger/interface/HLTTauDQMOfflineSource.h"
 
+#include "DataFormats/HLTReco/interface/TriggerEvent.h"
+
 using namespace std;
 using namespace edm;
 using namespace reco;
@@ -20,7 +22,6 @@ HLTTauDQMOfflineSource::HLTTauDQMOfflineSource( const edm::ParameterSet& ps ):
   dqmBaseFolder_(ps.getUntrackedParameter<std::string>("DQMBaseFolder")),
   hltMenuChanged_(true),
   verbose_(ps.getUntrackedParameter<bool>("Verbose",false)),
-  automation_(hltProcessName_, L1MatchDr_, HLTMatchDr_),
   L1MatchDr_(ps.getUntrackedParameter<double>("L1MatchDeltaR",0.5)),
   HLTMatchDr_(ps.getUntrackedParameter<double>("HLTMatchDeltaR",0.2)),
   counterEvt_(0)
@@ -78,9 +79,6 @@ HLTTauDQMOfflineSource::HLTTauDQMOfflineSource( const edm::ParameterSet& ps ):
 }
 
 HLTTauDQMOfflineSource::~HLTTauDQMOfflineSource() {
-    //Clear the plotter collections
-    while (!pathPlotters.empty()) delete pathPlotters.back(), pathPlotters.pop_back();
-    while (!litePathPlotters.empty()) delete litePathPlotters.back(), litePathPlotters.pop_back();
 }
 
 //--------------------------------------------------------
@@ -190,20 +188,11 @@ void HLTTauDQMOfflineSource::analyze(const Event& iEvent, const EventSetup& iSet
         }
         
         //Path Plotters
-        for ( unsigned int i = 0; i < pathPlotters.size(); ++i ) {
-          //if (pathPlotters[i]->isValid()) pathPlotters[i]->analyze(iEvent,iSetup,refC);
-          //if (pathPlotters[i]->isValid()) pathPlotters[i]->analyze(iEvent, iSetup, HLTCP_, refC);
-            //if (pathPlotters[i]->isValid()) pathPlotters[i]->analyze(*triggerEventHandle, refC);
-        }
         for(auto& pathPlotter: pathPlotters2_) {
           if(pathPlotter->isValid())
             pathPlotter->analyze(*triggerResultsHandle, *triggerEventHandle, refC);
         }
         
-        //Lite Path Plotters
-        for ( unsigned int i = 0; i < litePathPlotters.size(); ++i ) {
-          //if (litePathPlotters[i]->isValid()) litePathPlotters[i]->analyze(iEvent,iSetup,refC);
-        }
         for(auto& pathSummaryPlotter: pathSummaryPlotters_) {
           if(pathSummaryPlotter->isValid())
             pathSummaryPlotter->analyze(*triggerResultsHandle, *triggerEventHandle, refC);
@@ -235,47 +224,7 @@ void HLTTauDQMOfflineSource::endJob() {
 void HLTTauDQMOfflineSource::processPSet( const edm::ParameterSet& pset ) {
     //Get General Monitoring Parameters
     config_        = pset.getParameter<std::vector<edm::ParameterSet> >("MonitorSetup");
-    matching_      = pset.getParameter<edm::ParameterSet>("Matching");
-    NPtBins_       = pset.getUntrackedParameter<int>("PtHistoBins",20);
-    NEtaBins_      = pset.getUntrackedParameter<int>("EtaHistoBins",25);
-    NPhiBins_      = pset.getUntrackedParameter<int>("PhiHistoBins",32);
-    EtMax_         = pset.getUntrackedParameter<double>("EtHistoMax",100);
     prescaleEvt_   = pset.getUntrackedParameter<int>("prescaleEvt", -1);
-    doRefAnalysis_ = matching_.getUntrackedParameter<bool>("doMatching");
-    
-    //Clear the plotter collections first
-    while (!pathPlotters.empty()) delete pathPlotters.back(), pathPlotters.pop_back();
-    while (!litePathPlotters.empty()) delete litePathPlotters.back(), litePathPlotters.pop_back();
-    
-    //Automatic Configuration
-    automation_.AutoCompleteConfig( config_, HLTCP_ );
-
-    //Read The Configuration
-    for ( unsigned int i = 0; i < config_.size(); ++i ) {
-        std::string configtype;
-        try {
-            configtype = config_[i].getUntrackedParameter<std::string>("ConfigType");
-        } catch ( cms::Exception &e ) {
-            edm::LogWarning("HLTTauDQMOfflineSource")
-            << e.what() << std::endl;
-            continue;
-        }
-        if (configtype == "Path") {
-            try {
-                pathPlotters.push_back(new HLTTauDQMPathPlotter(config_[i],doRefAnalysis_,dqmBaseFolder_));
-            } catch ( cms::Exception &e ) {
-                edm::LogWarning("HLTTauDQMSource") << e.what() << std::endl;
-                continue;
-            }
-        } else if (configtype == "LitePath") {
-            try {
-                litePathPlotters.push_back(new HLTTauDQMLitePathPlotter(config_[i],NPtBins_,NEtaBins_,NPhiBins_,EtMax_,doRefAnalysis_,HLTMatchDr_,dqmBaseFolder_));   
-            } catch ( cms::Exception &e ) {
-                edm::LogWarning("HLTTauDQMSource") << e.what() << std::endl;
-                continue;
-            }
-        }
-    }
 }
 
 unsigned int HLTTauDQMOfflineSource::countParameters( const edm::ParameterSet& pset ) {
