@@ -1,3 +1,4 @@
+/*
  *
  * authors: Ph. Gras (CEA/Saclay), F. Cavallari (INFN/Roma)
  *          some code copied from CalibCalorimetry/EcalTPGTools code
