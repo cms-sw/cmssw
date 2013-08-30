@@ -20,7 +20,8 @@
 template<typename T>
 HLTJetPairDzMatchFilter<T>::HLTJetPairDzMatchFilter(const edm::ParameterSet& conf) : HLTFilter(conf)
 { 
-  m_jetSrc	= conf.getParameter<edm::InputTag>("JetSrc");
+  m_jetTag	= conf.getParameter<edm::InputTag>("JetSrc");
+  m_jetToken    = consumes<std::vector<T> >(m_jetTag);
   m_jetMinPt	= conf.getParameter<double>("JetMinPt");
   m_jetMaxEta	= conf.getParameter<double>("JetMaxEta");
   m_jetMinDR	= conf.getParameter<double>("JetMinDR");
@@ -63,7 +64,7 @@ bool HLTJetPairDzMatchFilter<T>::hltFilter(edm::Event& ev, const edm::EventSetup
 
   // The resuilting filter object to store in the Event
 
-  if (saveTags()) filterproduct.addCollectionTag(m_jetSrc);
+  if (saveTags()) filterproduct.addCollectionTag(m_jetTag);
 
   // Ref to Candidate object to be recorded in the filter object
   TRef ref;
@@ -71,7 +72,7 @@ bool HLTJetPairDzMatchFilter<T>::hltFilter(edm::Event& ev, const edm::EventSetup
   // *** Pick up L2 tau jets which have been equipped with some meaningful vertices before that ***
 
   edm::Handle<TCollection> jetsHandle;
-  ev.getByLabel( m_jetSrc, jetsHandle );
+  ev.getByToken(m_jetToken, jetsHandle );
   const TCollection & jets = *jetsHandle;
   const size_t n_jets = jets.size();
 

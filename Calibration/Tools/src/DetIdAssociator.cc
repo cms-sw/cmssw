@@ -14,7 +14,6 @@
 // Original Author:  Dmytro Kovalskyi
 // Modified for ECAL+HCAL by:  Michal Szleper
 //         Created:  Fri Apr 21 10:59:41 PDT 2006
-// $Id: DetIdAssociator.cc,v 1.6 2009/04/08 12:34:29 argiro Exp $
 //
 //
 

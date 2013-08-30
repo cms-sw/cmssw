@@ -62,7 +62,7 @@ namespace edm {
       readCount_(0),
       processingMode_(RunsLumisAndEvents),
       moduleDescription_(desc.moduleDescription_),
-      productRegistry_(createSharedPtrToStatic<ProductRegistry const>(desc.productRegistry_)),
+      productRegistry_(createSharedPtrToStatic<ProductRegistry>(desc.productRegistry_)),
       branchIDListHelper_(desc.branchIDListHelper_),
       primary_(pset.getParameter<std::string>("@module_label") == std::string("@main_input")),
       processGUID_(primary_ ? createGlobalIdentifier() : std::string()),
@@ -339,7 +339,7 @@ namespace edm {
   }
 
   EventPrincipal*
-  InputSource::readEvent(EventPrincipal& ep) {
+  InputSource::readEvent(EventPrincipal& ep, StreamContext* streamContext) {
     assert(state_ == IsEvent);
     assert(!eventLimitReached());
 
@@ -349,7 +349,8 @@ namespace edm {
     }
 
     if(result != 0) {
-      Event event(*result, moduleDescription());
+
+      Event event(*result, moduleDescription(), nullptr);
       postRead(event);
       if(remainingEvents_ > 0) --remainingEvents_;
       ++readCount_;
@@ -360,7 +361,7 @@ namespace edm {
   }
 
   EventPrincipal*
-  InputSource::readEvent(EventPrincipal& ep, EventID const& eventID) {
+  InputSource::readEvent(EventPrincipal& ep, EventID const& eventID, StreamContext* streamContext) {
     EventPrincipal* result = 0;
 
     if(!limitReached()) {
@@ -368,7 +369,8 @@ namespace edm {
       result = readIt(eventID, ep);
 
       if(result != 0) {
-        Event event(*result, moduleDescription());
+
+        Event event(*result, moduleDescription(), nullptr);
         postRead(event);
         if(remainingEvents_ > 0) --remainingEvents_;
         ++readCount_;
@@ -491,33 +493,33 @@ namespace edm {
   }
 
   void
-  InputSource::doBeginRun(RunPrincipal& rp) {
-    Run run(rp, moduleDescription());
+  InputSource::doBeginRun(RunPrincipal& rp, ProcessContext const* processContext) {
+    Run run(rp, moduleDescription(), nullptr);
     callWithTryCatchAndPrint<void>( [this,&run](){ beginRun(run); }, "Calling InputSource::beginRun" );
     run.commit_();
   }
 
   void
-  InputSource::doEndRun(RunPrincipal& rp, bool cleaningUpAfterException) {
+  InputSource::doEndRun(RunPrincipal& rp, bool cleaningUpAfterException, ProcessContext const* processContext) {
     rp.setEndTime(time_);
     rp.setComplete();
-    Run run(rp, moduleDescription());
+    Run run(rp, moduleDescription(), nullptr);
     callWithTryCatchAndPrint<void>( [this,&run](){ endRun(run); }, "Calling InputSource::endRun", cleaningUpAfterException );
     run.commit_();
   }
 
   void
-  InputSource::doBeginLumi(LuminosityBlockPrincipal& lbp) {
-    LuminosityBlock lb(lbp, moduleDescription());
+  InputSource::doBeginLumi(LuminosityBlockPrincipal& lbp, ProcessContext const* processContext) {
+    LuminosityBlock lb(lbp, moduleDescription(), nullptr);
     callWithTryCatchAndPrint<void>( [this,&lb](){ beginLuminosityBlock(lb); }, "Calling InputSource::beginLuminosityBlock" );
     lb.commit_();
   }
 
   void
-  InputSource::doEndLumi(LuminosityBlockPrincipal& lbp, bool cleaningUpAfterException) {
+  InputSource::doEndLumi(LuminosityBlockPrincipal& lbp, bool cleaningUpAfterException, ProcessContext const* processContext) {
     lbp.setEndTime(time_);
     lbp.setComplete();
-    LuminosityBlock lb(lbp, moduleDescription());
+    LuminosityBlock lb(lbp, moduleDescription(), nullptr);
     callWithTryCatchAndPrint<void>( [this,&lb](){ endLuminosityBlock(lb); }, "Calling InputSource::endLuminosityBlock", cleaningUpAfterException );
     lb.commit_();
   }
@@ -598,7 +600,8 @@ namespace edm {
   ProcessHistoryID const&
   InputSource::reducedProcessHistoryID() const {
     assert(runAuxiliary());
-    return ProcessHistoryRegistry::instance()->extra().reduceProcessHistoryID(runAuxiliary()->processHistoryID());
+    //THREADUNSAFE this is modifying global state
+    return ProcessHistoryRegistry::instance()->extra().reducedProcessHistoryID(runAuxiliary()->processHistoryID());
   }
 
   RunNumber_t
@@ -633,21 +636,29 @@ namespace edm {
      sentry_(source.actReg()->preSourceRunSignal_, source.actReg()->postSourceRunSignal_) {
   }
 
-  InputSource::FileOpenSentry::FileOpenSentry(InputSource const& source) :
-     sentry_(source.actReg()->preOpenFileSignal_, source.actReg()->postOpenFileSignal_) {
+  InputSource::FileOpenSentry::FileOpenSentry(InputSource const& source,
+                                              std::string const& lfn,
+                                              bool usedFallback) :
+    post_(source.actReg()->postOpenFileSignal_),
+    lfn_(lfn),
+    usedFallback_(usedFallback) {
+     source.actReg()->preOpenFileSignal_(lfn, usedFallback);
   }
 
-  InputSource::FileCloseSentry::FileCloseSentry(InputSource const& source) :
-     post_(source.actReg()->postCloseFileSignal_) {
-     source.actReg()->preCloseFileSignal_("", false);
+  InputSource::FileOpenSentry::~FileOpenSentry() {
+    post_(lfn_, usedFallback_);
   }
 
-  InputSource::FileCloseSentry::FileCloseSentry(InputSource const& source, std::string const& lfn, bool usedFallback) :
-     post_(source.actReg()->postCloseFileSignal_) {
-     source.actReg()->preCloseFileSignal_(lfn, usedFallback);
+  InputSource::FileCloseSentry::FileCloseSentry(InputSource const& source,
+                                                std::string const& lfn,
+                                                bool usedFallback) :
+    post_(source.actReg()->postCloseFileSignal_),
+    lfn_(lfn),
+    usedFallback_(usedFallback) {
+    source.actReg()->preCloseFileSignal_(lfn, usedFallback);
   }
 
   InputSource::FileCloseSentry::~FileCloseSentry() {
-     post_();
+    post_(lfn_, usedFallback_);
   }
 }

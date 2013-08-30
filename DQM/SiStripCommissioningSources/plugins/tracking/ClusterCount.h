@@ -15,7 +15,6 @@
 //
 // Original Author:  Christophe DELAERE
 //         Created:  Tue May 27 11:11:05 CEST 2008
-// $Id: ClusterCount.h,v 1.2 2010/01/04 16:40:10 lowette Exp $
 //
 //
 
@@ -24,6 +23,7 @@
 #include <memory>
 
 // user include files
+#include "FWCore/Utilities/interface/EDGetToken.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 
@@ -54,7 +54,8 @@ class ClusterCount : public edm::EDAnalyzer {
       virtual void analyze(const edm::Event&, const edm::EventSetup&);
 
       // ----------member data ---------------------------
-      edm::InputTag clusterLabel_;
+      //      edm::InputTag clusterLabel_;
+      edm::EDGetTokenT<edm::DetSetVector<SiStripCluster> > clusterToken_;
 
 };
 

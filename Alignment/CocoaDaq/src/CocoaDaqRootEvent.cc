@@ -79,7 +79,7 @@ void AliDaqEventHeader::DumpIt()
 
 //-----------------------------------------------------------------------------
 
-void AliDaqPosition2D::DumpIt(TString Name)
+void AliDaqPosition2D::DumpIt(const TString& Name)
 {
   TString dashes = "------------------------------";
   TString line = dashes+Name+dashes;
@@ -96,7 +96,7 @@ void AliDaqPosition2D::DumpIt(TString Name)
 
 //-----------------------------------------------------------------------------
 
-void AliDaqPositionCOPS::DumpIt(TString Name)
+void AliDaqPositionCOPS::DumpIt(const TString& Name)
 {
   TString dashes = "------------------------------";
   TString line = dashes+Name+dashes;
@@ -117,7 +117,7 @@ void AliDaqPositionCOPS::DumpIt(TString Name)
 
 //-----------------------------------------------------------------------------
 
-void AliDaqTilt::DumpIt(TString Name)
+void AliDaqTilt::DumpIt(const TString& Name)
 {
   TString dashes = "------------------------------";
   TString line = dashes+Name+dashes;
@@ -132,7 +132,7 @@ void AliDaqTilt::DumpIt(TString Name)
 
 //-----------------------------------------------------------------------------
 
-void AliDaqDistance::DumpIt(TString Name)
+void AliDaqDistance::DumpIt(const TString& Name)
 {
   TString dashes = "------------------------------";
   TString line = dashes+Name+dashes;
@@ -147,7 +147,7 @@ void AliDaqDistance::DumpIt(TString Name)
 
 //-----------------------------------------------------------------------------
 
-void AliDaqTemperature::DumpIt(TString Name)
+void AliDaqTemperature::DumpIt(const TString& Name)
 {
   TString dashes = "------------------------------";
   TString line = dashes+Name+dashes;

@@ -2,7 +2,7 @@
 
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "DataFormats/Provenance/interface/ProcessHistoryRegistry.h"
-#include "DataFormats/Provenance/interface/Provenance.h"
+#include "FWCore/Common/interface/Provenance.h"
 #include "FWCore/Common/interface/TriggerResultsByName.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
@@ -14,13 +14,14 @@ namespace edm {
 
   std::string const Event::emptyString_;
 
-  Event::Event(EventPrincipal& ep, ModuleDescription const& md) :
+  Event::Event(EventPrincipal& ep, ModuleDescription const& md, ModuleCallingContext const* moduleCallingContext) :
       provRecorder_(ep, md),
       aux_(ep.aux()),
-      luminosityBlock_(ep.luminosityBlockPrincipalPtrValid() ? new LuminosityBlock(ep.luminosityBlockPrincipal(), md) : 0),
+      luminosityBlock_(ep.luminosityBlockPrincipalPtrValid() ? new LuminosityBlock(ep.luminosityBlockPrincipal(), md, moduleCallingContext) : 0),
       gotBranchIDs_(),
       gotViews_(),
-      streamID_(ep.streamID())
+      streamID_(ep.streamID()),
+      moduleCallingContext_(moduleCallingContext)
   {
   }
 
@@ -47,7 +48,7 @@ namespace edm {
   }
 
   ProductID
-  Event::makeProductID(ConstBranchDescription const& desc) const {
+  Event::makeProductID(BranchDescription const& desc) const {
     return eventPrincipal().branchIDToProductID(desc.originalBranchID());
   }
 
@@ -68,12 +69,12 @@ namespace edm {
 
   Provenance
   Event::getProvenance(BranchID const& bid) const {
-    return provRecorder_.principal().getProvenance(bid);
+    return provRecorder_.principal().getProvenance(bid, moduleCallingContext_);
   }
 
   Provenance
   Event::getProvenance(ProductID const& pid) const {
-    return eventPrincipal().getProvenance(pid);
+    return eventPrincipal().getProvenance(pid, moduleCallingContext_);
   }
 
   void
@@ -198,7 +199,7 @@ namespace edm {
 
   BasicHandle
   Event::getByLabelImpl(std::type_info const&, std::type_info const& iProductType, const InputTag& iTag) const {
-    BasicHandle h = provRecorder_.getByLabel_(TypeID(iProductType), iTag);
+    BasicHandle h = provRecorder_.getByLabel_(TypeID(iProductType), iTag, moduleCallingContext_);
     if(h.isValid()) {
       addToGotBranchIDs(*(h.provenance()));
     }

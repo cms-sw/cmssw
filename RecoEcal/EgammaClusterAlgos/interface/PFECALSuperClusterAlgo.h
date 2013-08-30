@@ -35,18 +35,11 @@ class TH2F;
   Additional Authors (Mustache): Y. Gershtein, R. Patel, L. Gray
   \date July 2012
 */
-// hash function for edm::Ptr<reco::PFCluster
-namespace std {
-  template <> struct hash<edm::Ptr<reco::PFCluster> > {
-    size_t operator()(const edm::Ptr<reco::PFCluster> & x) const {
-      return hash<ptrdiff_t>()((ptrdiff_t)x.get());
-    }
-  };
-}
 
 class PFECALSuperClusterAlgo {  
  public:
   enum clustering_type{kBOX=1, kMustache=2};
+  enum energy_weight{kRaw, kCalibratedNoPS, kCalibratedTotal};
 
   // simple class for associating calibrated energies
   class CalibratedPFCluster {
@@ -78,6 +71,10 @@ class PFECALSuperClusterAlgo {
   
   void setClusteringType(clustering_type thetype) { _clustype = thetype; } 
 
+  void setEnergyWeighting(energy_weight thetype) { _eweight = thetype; } 
+
+  void setUseETForSeeding(bool useET) { threshIsET_ = useET; } 
+
   void setUseDynamicDPhi(bool useit) { _useDynamicDPhi = useit; } 
 
   void setThreshPFClusterSeedBarrel(double thresh){ threshPFClusterSeedBarrel_ = thresh;}
@@ -106,7 +103,9 @@ class PFECALSuperClusterAlgo {
   std::auto_ptr<reco::SuperClusterCollection>
     getEBOutputSCCollection() { return superClustersEB_; }
   std::auto_ptr<reco::SuperClusterCollection>
-    getEEOutputSCCollection() { return superClustersEE_; }  
+    getEEOutputSCCollection() { return superClustersEE_; } 
+  std::auto_ptr<reco::SuperCluster::EEtoPSAssociation>
+    getEEtoPSAssociation() { return EEtoPS_; } 
 
   void loadAndSortPFClusters(const edm::View<reco::PFCluster>& ecalclusters,
 			     const edm::View<reco::PFCluster>& psclusters);
@@ -117,12 +116,12 @@ class PFECALSuperClusterAlgo {
 
   CalibratedClusterPtrVector _clustersEB;
   CalibratedClusterPtrVector _clustersEE;
-  std::unordered_map<edm::Ptr<reco::PFCluster>, 
-    edm::PtrVector<reco::PFCluster> > _psclustersforee;
   std::auto_ptr<reco::SuperClusterCollection> superClustersEB_;
   std::auto_ptr<reco::SuperClusterCollection> superClustersEE_;
+  std::auto_ptr<reco::SuperCluster::EEtoPSAssociation> EEtoPS_;
   std::shared_ptr<PFEnergyCalibration> _pfEnergyCalibration;
   clustering_type _clustype;
+  energy_weight   _eweight;
   void buildAllSuperClusters(CalibratedClusterPtrVector&,
 			     double seedthresh);
   void buildSuperCluster(CalibratedClusterPtr&,
@@ -152,7 +151,8 @@ class PFECALSuperClusterAlgo {
   bool _useDynamicDPhi;
 
   bool applyCrackCorrections_;
-  
+  bool threshIsET_;
+
   bool usePS;
 
 };

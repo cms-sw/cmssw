@@ -39,7 +39,7 @@ private:
   edm::InputTag src_;
   std::vector<edm::InputTag> srcCorrections_;
 
-  void produce(edm::Event& evt, const edm::EventSetup& es)
+  void produce(edm::Event& evt, const edm::EventSetup& es) override
   {
     edm::Handle<METCollection> srcMETCollection;
     evt.getByLabel(src_, srcMETCollection);

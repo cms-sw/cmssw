@@ -13,7 +13,6 @@
 //
 // Original Author:  Igor Volobouev
 //         Created:  Sun Jun 20 14:32:36 CDT 2010
-// $Id: FFTJetTreeDump.cc,v 1.1 2010/12/06 17:33:19 igv Exp $
 //
 //
 
@@ -64,9 +63,9 @@ private:
     FFTJetTreeDump(const FFTJetTreeDump&);
     FFTJetTreeDump& operator=(const FFTJetTreeDump&);
 
-    virtual void beginJob() ;
-    virtual void analyze(const edm::Event&, const edm::EventSetup&);
-    virtual void endJob() ;
+    virtual void beginJob() override ;
+    virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
+    virtual void endJob() override ;
 
     template<class Real>
     void processTreeData(const edm::Event&, std::ofstream&);

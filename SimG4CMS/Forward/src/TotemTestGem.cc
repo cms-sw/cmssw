@@ -8,7 +8,6 @@
 //
 // Original Author: 
 //         Created:  Tue May 16 10:14:34 CEST 2006
-// $Id: TotemTestGem.cc,v 1.2 2006/11/16 16:54:12 sunanda Exp $
 //
 
 // system include files

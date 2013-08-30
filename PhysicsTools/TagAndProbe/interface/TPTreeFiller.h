@@ -6,7 +6,7 @@
 namespace tnp {
 class TPTreeFiller : public BaseTreeFiller {
     public:
-        TPTreeFiller(const edm::ParameterSet config);
+        TPTreeFiller(const edm::ParameterSet& config);
         ~TPTreeFiller();
 
         // We declare 'const' the methods which don't change the configuration

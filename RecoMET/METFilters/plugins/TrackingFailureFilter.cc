@@ -18,7 +18,7 @@ class TrackingFailureFilter : public edm::EDFilter {
 
   private:
 
-    virtual bool filter(edm::Event & iEvent, const edm::EventSetup & iSetup);
+    virtual bool filter(edm::Event & iEvent, const edm::EventSetup & iSetup) override;
     
     const edm::InputTag jetSrc_, trackSrc_, vertexSrc_;
     const double dzTrVtxMax_, dxyTrVtxMax_, minSumPtOverHT_;

@@ -16,13 +16,13 @@
 //
 // Original Author:  dutta
 //         Created:  Sat Feb  4 20:49:51 CET 2006
-// $Id: SiStripMonitorRawData.h,v 1.4 2008/03/01 00:38:25 dutta Exp $
 //
 
 // system include files
 #include <memory>
 
 // user include files
+#include "FWCore/Utilities/interface/EDGetToken.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -54,6 +54,8 @@ class SiStripMonitorRawData : public edm::EDAnalyzer {
   
   
  private:
+  edm::EDGetTokenT<edm::DetSetVector<SiStripRawDigi> > digiToken_;
+
   MonitorElement* BadFedNumber;
   
   DQMStore* dqmStore_;

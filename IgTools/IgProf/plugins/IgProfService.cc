@@ -141,12 +141,12 @@ void IgProfService::postEndJob() {
   makeDump(atPostEndJob_); 
 }
 
-void IgProfService::postOpenFile () {
+void IgProfService::postOpenFile (std::string const&, bool) {
   ++nfileopened_; 
   makeDump(atPostOpenFile_);
 }  
 
-void IgProfService::postCloseFile () {
+void IgProfService::postCloseFile (std::string const&, bool) {
   ++nfileclosed_; 
   makeDump(atPostCloseFile_);
 }  

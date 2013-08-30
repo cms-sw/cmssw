@@ -42,7 +42,7 @@ class MuonMillepedeAlgorithm : public AlignmentAlgorithmBase
   /// Run the algorithm
   void run(const edm::EventSetup& setup, const EventInfo &eventInfo);
 
-  void updateInfo(AlgebraicMatrix, AlgebraicMatrix, AlgebraicMatrix, std::string);
+  void updateInfo(const AlgebraicMatrix&, const AlgebraicMatrix&, const AlgebraicMatrix&, std::string);
  
   void toTMat(AlgebraicMatrix *, TMatrixD *);
 
@@ -52,7 +52,7 @@ class MuonMillepedeAlgorithm : public AlignmentAlgorithmBase
 
   // private data members
  
-  void printM(AlgebraicMatrix ); 
+  void printM(const AlgebraicMatrix& ); 
   
   AlignmentParameterStore* theAlignmentParameterStore;
   std::vector<Alignable*> theAlignables;

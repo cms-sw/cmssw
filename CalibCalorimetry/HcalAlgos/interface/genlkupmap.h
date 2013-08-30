@@ -1,7 +1,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "CalibCalorimetry/HcalAlgos/interface/HcalShapeIntegrator.h"
 #include <algorithm> // for "max","min"
-#include <math.h>
+#include <cmath>
 #include <iostream>
 #include <boost/scoped_ptr.hpp>
 

@@ -1,8 +1,6 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2012/08/23 13:27:32 $
- *  $Revision: 1.3 $
  *  \author:  Mia Tosi,40 3-B32,+41227671609 
  */
 
@@ -24,6 +22,18 @@ GetLumi::GetLumi(const edm::InputTag& lumiInputTag, double lumiScale)
 {
 }
 
+GetLumi::GetLumi(const edm::ParameterSet& iConfig, edm::ConsumesCollector& iC) : GetLumi(iConfig)
+{
+  lumiDetailsToken_ = iC.consumes<LumiDetails>(lumiInputTag_);
+  lumiSummaryToken_ = iC.consumes<LumiSummary,edm::InLumi>(lumiInputTag_);
+}
+
+GetLumi::GetLumi(const edm::InputTag& lumiInputTag, double lumiScale, edm::ConsumesCollector& iC) : GetLumi(lumiInputTag,lumiScale)
+{
+  lumiDetailsToken_ = iC.consumes<LumiDetails>(lumiInputTag_);
+  lumiSummaryToken_ = iC.consumes<LumiSummary,edm::InLumi>(lumiInputTag_);
+}
+
 GetLumi::~GetLumi()
 {
 }
@@ -36,7 +46,9 @@ GetLumi::getRawValue(const edm::Event& iEvent)
   // DPGAnalysis/SiStripTools/src/DigiLumiCorrHistogramMaker.cc
   // the scale factor 6.37 should follow the lumi prescriptions
   edm::Handle<LumiDetails> lumi;
-  iEvent.getLuminosityBlock().getByLabel(lumiInputTag_,lumi);
+  //  iEvent.getLuminosityBlock().getByLabel(lumiInputTag_,lumi);
+  iEvent.getLuminosityBlock().getByToken(lumiSummaryToken_,lumi);
+  
 
   double bxlumi = -1.;
   if(lumi->isValid()) {
@@ -67,7 +79,8 @@ GetLumi::getRawValue(edm::LuminosityBlock const& lumiBlock,
   // accumulate HF data at every LS as it is closed. 
   // note: lumi unit from DIPLumiSummary and Detail is microbarns
   edm::Handle<LumiSummary> lumiSummary_;
-  lumiBlock.getByLabel(lumiInputTag_, lumiSummary_);
+  //  lumiBlock.getByLabel(lumiInputTag_, lumiSummary_);
+  lumiBlock.getByToken(lumiSummaryToken_, lumiSummary_);
   if(lumiSummary_->isValid()){
     lumi = lumiSummary_->avgInsDelLumi();
     intDelLumi = lumiSummary_->intgDelLumi();

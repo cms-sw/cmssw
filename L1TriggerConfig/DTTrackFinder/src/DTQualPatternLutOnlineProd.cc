@@ -40,7 +40,7 @@ class DTQualPatternLutOnlineProd :
       ~DTQualPatternLutOnlineProd();
 
   virtual boost::shared_ptr< L1MuDTQualPatternLut > newObject(
-    const std::string& objectKey ) ;
+    const std::string& objectKey ) override ;
 
    private:
       // ----------member data ---------------------------

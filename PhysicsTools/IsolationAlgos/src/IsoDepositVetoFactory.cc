@@ -12,10 +12,10 @@ namespace reco { namespace isodeposit {
             // creates SwitchingEcalVeto from another AbsVeto (which becomes owned by this veto) 
             SwitchingEcalVeto(AbsVeto *veto, bool isBarrel) :
                 veto_(veto), barrel_(isBarrel) {}
-            virtual bool veto(double eta, double phi, float value) const {
+            virtual bool veto(double eta, double phi, float value) const override {
                 return (fabs(eta) < 1.479) == (barrel_) ? veto_->veto(eta,phi,value) : false;
             }
-            virtual void centerOn(double eta, double phi) {
+            virtual void centerOn(double eta, double phi) override {
 	      veto_->centerOn(eta,phi);
 	    }
         private:
@@ -26,21 +26,21 @@ namespace reco { namespace isodeposit {
     class NumCrystalVeto : public AbsVeto {
         public:
             NumCrystalVeto(Direction dir, double iR) : vetoDir_(dir), iR_(iR) {}
-            virtual bool veto(double eta, double phi, float value) const {
+            virtual bool veto(double eta, double phi, float value) const override {
                 if( fabs(vetoDir_.eta()) < 1.479) {
                     return ( vetoDir_.deltaR(Direction(eta,phi)) < 0.0174*iR_ );
                 } else {
                     return ( vetoDir_.deltaR(Direction(eta,phi)) < 0.00864*fabs(sinh(eta))*iR_ );
                 }
             }
-            virtual void centerOn(double eta, double phi) { vetoDir_ = Direction(eta,phi); }
+            virtual void centerOn(double eta, double phi) override { vetoDir_ = Direction(eta,phi); }
         private:
             Direction vetoDir_; float iR_;
     };
 
     class NumCrystalEtaPhiVeto : public AbsVeto {
         public:
-            NumCrystalEtaPhiVeto(math::XYZVectorD dir, double iEta, double iPhi) :
+            NumCrystalEtaPhiVeto(const math::XYZVectorD& dir, double iEta, double iPhi) :
                 vetoDir_(dir.eta(),dir.phi()), 
                 iEta_(iEta), 
                 iPhi_(iPhi) {}
@@ -48,7 +48,7 @@ namespace reco { namespace isodeposit {
                 vetoDir_(dir.eta(),dir.phi()), 
                 iEta_(iEta), 
                 iPhi_(iPhi) {}
-            virtual bool veto(double eta, double phi, float value) const {
+            virtual bool veto(double eta, double phi, float value) const override {
                 double dPhi = phi - vetoDir_.phi();
                 double dEta = eta - vetoDir_.eta();
                 while( dPhi < -M_PI )   dPhi += 2*M_PI;
@@ -60,7 +60,7 @@ namespace reco { namespace isodeposit {
                              (fabs(dPhi) < 0.00864*fabs(sinh(eta))*iPhi_) );
                 }
             }
-            virtual void centerOn(double eta, double phi) { vetoDir_ = Direction(eta,phi); }
+            virtual void centerOn(double eta, double phi) override { vetoDir_ = Direction(eta,phi); }
         private:
             Direction vetoDir_;
             double iEta_, iPhi_;

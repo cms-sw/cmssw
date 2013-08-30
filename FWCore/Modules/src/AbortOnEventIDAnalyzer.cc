@@ -43,9 +43,9 @@ public:
 
 
 private:
-   virtual void beginJob();
-   virtual void analyze(edm::Event const&, edm::EventSetup const&);
-   virtual void endJob();
+   virtual void beginJob() override;
+   virtual void analyze(edm::Event const&, edm::EventSetup const&) override;
+   virtual void endJob() override;
 
    // ----------member data ---------------------------
    std::vector<edm::EventID> ids_;

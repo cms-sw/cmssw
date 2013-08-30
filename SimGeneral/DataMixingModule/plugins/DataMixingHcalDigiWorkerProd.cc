@@ -59,7 +59,8 @@ namespace edm {
 
   } // end of addHcalSignals
 
-  void DataMixingHcalDigiWorkerProd::addHcalPileups(const int bcr, const EventPrincipal *ep, unsigned int eventNr,const edm::EventSetup& ES) {
+  void DataMixingHcalDigiWorkerProd::addHcalPileups(const int bcr, const EventPrincipal *ep, unsigned int eventNr,const edm::EventSetup& ES,
+                                                    edm::ModuleCallingContext const* mcc) {
   
     LogDebug("DataMixingHcalDigiWorkerProd") <<"\n===============> adding pileups from event  "<<ep->id()<<" for bunchcrossing "<<bcr;
 
@@ -68,9 +69,9 @@ namespace edm {
     theHFSignalGenerator.initializeEvent(ep, &ES);
     theZDCSignalGenerator.initializeEvent(ep, &ES);
 
-    theHBHESignalGenerator.fill();
-    theHOSignalGenerator.fill();
-    theHFSignalGenerator.fill();
+    theHBHESignalGenerator.fill(mcc);
+    theHOSignalGenerator.fill(mcc);
+    theHFSignalGenerator.fill(mcc);
   }
 
   void DataMixingHcalDigiWorkerProd::putHcal(edm::Event &e,const edm::EventSetup& ES) {

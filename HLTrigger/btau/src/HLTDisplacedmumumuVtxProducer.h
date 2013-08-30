@@ -23,13 +23,15 @@
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include <vector>
 
-
+namespace edm {
+  class ConfigurationDescriptions;
+}
 
 class HLTDisplacedmumumuVtxProducer : public edm::EDProducer {
  public:
   explicit HLTDisplacedmumumuVtxProducer(const edm::ParameterSet&);
   ~HLTDisplacedmumumuVtxProducer();
-  
+  static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
   virtual void beginJob() ;
   virtual void produce(edm::Event&, const edm::EventSetup&);
   virtual void endJob() ;
@@ -37,8 +39,10 @@ class HLTDisplacedmumumuVtxProducer : public edm::EDProducer {
  private:  
   bool checkPreviousCand(const reco::TrackRef& trackref, std::vector<reco::RecoChargedCandidateRef>& ref2);
 
-  edm::InputTag src_;
-  edm::InputTag previousCandTag_;
+  edm::InputTag                                          srcTag_;
+  edm::EDGetTokenT<reco::RecoChargedCandidateCollection> srcToken_;
+  edm::InputTag                                          previousCandTag_;
+  edm::EDGetTokenT<trigger::TriggerFilterObjectWithRefs> previousCandToken_;
   double maxEta_;
   double minPt_;
   double minPtTriplet_;

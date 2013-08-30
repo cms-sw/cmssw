@@ -5,7 +5,6 @@
  *  Concrete implementation of a DTTTrigBaseCorrection.
  *  Fills missing tTrig values in DB 
  *
- *  $Revision: 1.3 $
  *  \author A. Vilela Pereira
  */
 

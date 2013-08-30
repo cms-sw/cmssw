@@ -3,7 +3,6 @@
  * \author Luca Lista, INFN
  * \author Victor E. Bazterra, UIC
  *
- * \version $Id: GenTrackMatcher.cc,v 1.5 2008/07/10 05:54:44 bazterra Exp $
  *
  */
 
@@ -25,7 +24,7 @@ public:
     GenTrackMatcher( const edm::ParameterSet & );
 
 private:
-    void produce( edm::Event& evt, const edm::EventSetup& es );
+    void produce( edm::Event& evt, const edm::EventSetup& es ) override;
     TrackHistory tracer_;
     edm::InputTag tracks_, genParticles_;
     typedef edm::Association<reco::GenParticleCollection> GenParticleMatch;

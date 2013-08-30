@@ -13,7 +13,6 @@
 //
 // Original Author:  Martijn Gosselink,,,
 //         Created:  Thu May 10 17:15:16 CEST 2012
-// $Id: TTbar_GenLepAnalyzer.cc,v 1.3 2012/05/24 18:20:45 mgosseli Exp $
 //
 //
 // Added to: Validation/EventGenerator by Ian M. Nugent June 28, 2012

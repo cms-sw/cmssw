@@ -44,7 +44,7 @@ class PatZToMuMuAnalyzer : public edm::EDAnalyzer {
   
  private:
   /// everything that needs to be done during the event loop
-  virtual void analyze(const edm::Event& event, const edm::EventSetup& setup);
+  virtual void analyze(const edm::Event& event, const edm::EventSetup& setup) override;
 
   /// calculate the mass of the Z boson from the tracker momenta by hand
   double mass(const math::XYZVector& t1, const math::XYZVector& t2) const;

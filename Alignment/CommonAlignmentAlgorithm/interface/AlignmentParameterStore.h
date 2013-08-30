@@ -66,7 +66,7 @@ public:
 /*   Alignable* alignableFromGeomDet( const GeomDet* geomDet ) const; */
 
   /// get Alignable corresponding to given AlignableDet (non-const ref. argument since might be returned)
-  Alignable* alignableFromAlignableDet( AlignableDetOrUnitPtr alignableDet ) const;
+  Alignable* alignableFromAlignableDet( const AlignableDetOrUnitPtr& alignableDet ) const;
 
   /// Obsolete: Use AlignableNavigator::alignableDetFromDetId and alignableFromAlignableDet
 /*   Alignable* alignableFromDetId(const unsigned int& detId) const; */

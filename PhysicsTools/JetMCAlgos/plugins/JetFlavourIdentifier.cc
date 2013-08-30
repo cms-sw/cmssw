@@ -93,7 +93,7 @@ class JetFlavourIdentifier : public edm::EDProducer
     ~JetFlavourIdentifier();
 
   private:
-    virtual void produce(edm::Event&, const edm::EventSetup& );
+    virtual void produce(edm::Event&, const edm::EventSetup& ) override;
 
     JetFlavour::Leptons findLeptons(const GenParticleRef &);
     std::vector<const reco::Candidate*> findCandidates(const reco::Candidate*, int);

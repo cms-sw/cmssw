@@ -38,9 +38,13 @@
 
 HLTMuonTrackMassFilter::HLTMuonTrackMassFilter(const edm::ParameterSet& iConfig) : HLTFilter(iConfig),
   beamspotTag_(iConfig.getParameter<edm::InputTag>("BeamSpotTag")),
+  beamspotToken_(consumes<reco::BeamSpot>(beamspotTag_)),
   muonTag_(iConfig.getParameter<edm::InputTag>("CandTag")),
+  muonToken_(consumes<reco::RecoChargedCandidateCollection>(muonTag_)),
   trackTag_(iConfig.getParameter<edm::InputTag>("TrackTag")),
+  trackToken_(consumes<reco::RecoChargedCandidateCollection>(trackTag_)),
   prevCandTag_(iConfig.getParameter<edm::InputTag>("PreviousCandTag")),
+  prevCandToken_(consumes<trigger::TriggerFilterObjectWithRefs>(prevCandTag_)),
   minMasses_(iConfig.getParameter< std::vector<double> >("MinMasses")),
   maxMasses_(iConfig.getParameter< std::vector<double> >("MaxMasses")),
   checkCharge_(iConfig.getParameter<bool>("checkCharge")),
@@ -99,13 +103,13 @@ HLTMuonTrackMassFilter::HLTMuonTrackMassFilter(const edm::ParameterSet& iConfig)
 void
 HLTMuonTrackMassFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
+  makeHLTFilterDescription(desc);
   desc.add<edm::InputTag>("BeamSpotTag",edm::InputTag("hltOfflineBeamSpot"));
   desc.add<edm::InputTag>("CandTag",edm::InputTag("hltL3MuonCandidates"));
   //  desc.add<edm::InputTag>("TrackTag",edm::InputTag("hltMuTkMuJpsiTrackerMuonCands"));
   desc.add<edm::InputTag>("TrackTag",edm::InputTag(""));
   //  desc.add<edm::InputTag>("PreviousCandTag",edm::InputTag("hltMu0TkMuJpsiTrackMassFiltered"));
   desc.add<edm::InputTag>("PreviousCandTag",edm::InputTag(""));
-  desc.add<bool>("saveTags",false);
   {
     std::vector<double> temp1;
     temp1.reserve(1);
@@ -143,7 +147,7 @@ HLTMuonTrackMassFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSe
   // Beamspot
   //
   edm::Handle<reco::BeamSpot> beamspotHandle;
-  iEvent.getByLabel(beamspotTag_,beamspotHandle);
+  iEvent.getByToken(beamspotToken_,beamspotHandle);
   reco::BeamSpot::Point beamspot(beamspotHandle->position());
   // Needed for DCA calculation
   edm::ESHandle<MagneticField> bFieldHandle;
@@ -152,17 +156,17 @@ HLTMuonTrackMassFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSe
   // Muons
   //
   edm::Handle<reco::RecoChargedCandidateCollection> muonHandle;
-  iEvent.getByLabel(muonTag_,muonHandle);
+  iEvent.getByToken(muonToken_,muonHandle);
   //
   // Tracks
   //
   edm::Handle<reco::RecoChargedCandidateCollection> trackHandle;
-  iEvent.getByLabel(trackTag_,trackHandle);
+  iEvent.getByToken(trackToken_,trackHandle);
   //
   // Muons from previous filter
   //
   edm::Handle<trigger::TriggerFilterObjectWithRefs> prevCandHandle;
-  iEvent.getByLabel(prevCandTag_,prevCandHandle);
+  iEvent.getByToken(prevCandToken_,prevCandHandle);
   std::vector<reco::RecoChargedCandidateRef> prevMuonRefs;
   prevCandHandle->getObjects(trigger::TriggerMuon,prevMuonRefs);
   std::vector<reco::RecoChargedCandidateRef> prevTrackRefs;

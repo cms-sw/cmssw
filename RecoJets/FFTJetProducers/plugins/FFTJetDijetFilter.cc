@@ -13,7 +13,6 @@
 //
 // Original Author:  Igor Volobouev
 //         Created:  Thu Jul 18 19:19:40 CDT 2012
-// $Id: FFTJetDijetFilter.cc,v 1.1 2012/06/21 19:19:40 igv Exp $
 //
 //
 #include <cmath>
@@ -62,9 +61,9 @@ private:
     FFTJetDijetFilter(const FFTJetDijetFilter&);
     FFTJetDijetFilter& operator=(const FFTJetDijetFilter&);
 
-    void beginJob();
-    bool filter(edm::Event& iEvent, const edm::EventSetup& iSetup);
-    void endJob();
+    void beginJob() override;
+    bool filter(edm::Event& iEvent, const edm::EventSetup& iSetup) override;
+    void endJob() override;
 
     template<class Ptr>
     inline void checkConfig(const Ptr& ptr, const char* message) const

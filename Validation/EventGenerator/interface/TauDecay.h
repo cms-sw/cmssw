@@ -11,7 +11,6 @@
 //
 // Original Author:  Ian Nugent  
 //         Created:  Fri Nov 18 13:49:02 CET 2011
-// $Id: TauDecay.h,v 1.1 2012/02/10 10:08:13 inugent Exp $
 //
 //
 #ifndef TauDecay_h

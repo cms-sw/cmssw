@@ -33,7 +33,7 @@ class NearbyCandCountComputer : public edm::EDProducer {
         explicit NearbyCandCountComputer(const edm::ParameterSet & iConfig);
         virtual ~NearbyCandCountComputer() ;
 
-        virtual void produce(edm::Event & iEvent, const edm::EventSetup & iSetup);
+        virtual void produce(edm::Event & iEvent, const edm::EventSetup & iSetup) override;
 
     private:
         edm::InputTag probes_;            

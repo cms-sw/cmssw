@@ -27,7 +27,7 @@ interrupt (int /*sig*/)
 class DQMCollector : public DQMBasicNet
 {
 public:
-  bool shouldStop(void)
+  bool shouldStop(void) override
     {
       return s_stop != 0;
     }

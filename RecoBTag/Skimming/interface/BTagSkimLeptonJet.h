@@ -5,8 +5,6 @@
  *
  *
  *
- * $Date: 2007/08/13 15:33:02 $
- * $Revision: 1.2 $
  *
  * \author Francisco Yumiceva, FERMILAB
  *

@@ -41,7 +41,7 @@ class L1RCTChannelMaskOnlineProd :
     : L1ConfigOnlineProdBase< L1RCTChannelMaskRcd, L1RCTChannelMask > (iConfig) {}
   ~L1RCTChannelMaskOnlineProd() {}
   
-  virtual boost::shared_ptr< L1RCTChannelMask > newObject(const std::string& objectKey ) ;
+  virtual boost::shared_ptr< L1RCTChannelMask > newObject(const std::string& objectKey ) override ;
 
 
    private:

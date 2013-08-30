@@ -40,7 +40,6 @@ namespace edm {
     fileIter_(fileIterEnd_),
     fileIterLastOpened_(fileIterEnd_),
     rootFile_(),
-    parametersMustMatch_(BranchDescription::Permissive),
     branchesMustMatch_(BranchDescription::Permissive),
     flatDistribution_(),
     indexesIntoFiles_(fileCatalogItems().size()),
@@ -88,9 +87,6 @@ namespace edm {
         break;
       }
     }
-
-    std::string parametersMustMatch = pset.getUntrackedParameter<std::string>("parametersMustMatch", std::string("permissive"));
-    if(parametersMustMatch == std::string("strict")) parametersMustMatch_ = BranchDescription::Strict;
 
     std::string branchesMustMatch = pset.getUntrackedParameter<std::string>("branchesMustMatch", std::string("permissive"));
     if(branchesMustMatch == std::string("strict")) branchesMustMatch_ = BranchDescription::Strict;
@@ -191,6 +187,7 @@ namespace edm {
     }
 
     lfn_ = fileIter_->logicalFileName().empty() ? fileIter_->fileName() : fileIter_->logicalFileName();
+    usedFallback_ = false;
 
     // Determine whether we have a fallback URL specified; if so, prepare it;
     // Only valid if it is non-empty and differs from the original filename.
@@ -200,7 +197,7 @@ namespace edm {
     boost::shared_ptr<InputFile> filePtr;
     try {
       std::unique_ptr<InputSource::FileOpenSentry>
-        sentry(inputType_ == InputType::Primary ? new InputSource::FileOpenSentry(input_) : 0);
+        sentry(inputType_ == InputType::Primary ? new InputSource::FileOpenSentry(input_, lfn_, usedFallback_) : 0);
       filePtr.reset(new InputFile(gSystem->ExpandPathName(fileIter_->fileName().c_str()), "  Initiating request to open file "));
     }
     catch (cms::Exception const& e) {
@@ -223,10 +220,10 @@ namespace edm {
     }
     if(!filePtr && (hasFallbackUrl)) {
       try {
-        std::unique_ptr<InputSource::FileOpenSentry>
-          sentry(inputType_ == InputType::Primary ? new InputSource::FileOpenSentry(input_) : 0);
-        filePtr.reset(new InputFile(gSystem->ExpandPathName(fallbackName.c_str()), "  Fallback request to file "));
         usedFallback_ = true;
+        std::unique_ptr<InputSource::FileOpenSentry>
+          sentry(inputType_ == InputType::Primary ? new InputSource::FileOpenSentry(input_, lfn_, usedFallback_) : 0);
+        filePtr.reset(new InputFile(gSystem->ExpandPathName(fallbackName.c_str()), "  Fallback request to file "));
       }
       catch (cms::Exception const& e) {
         if(!skipBadFiles) {
@@ -309,7 +306,6 @@ namespace edm {
       // make sure the new product registry is compatible with the main one
       std::string mergeInfo = productRegistryUpdate().merge(*rootFile_->productRegistry(),
                                                             fileIter_->fileName(),
-                                                            parametersMustMatch_,
                                                             branchesMustMatch_);
       if(!mergeInfo.empty()) {
         throw Exception(errors::MismatchedInputFiles,"RootInputFileSequence::nextFile()") << mergeInfo;
@@ -334,7 +330,6 @@ namespace edm {
       // make sure the new product registry is compatible to the main one
       std::string mergeInfo = productRegistryUpdate().merge(*rootFile_->productRegistry(),
                                                             fileIter_->fileName(),
-                                                            parametersMustMatch_,
                                                             branchesMustMatch_);
       if(!mergeInfo.empty()) {
         throw Exception(errors::MismatchedInputFiles,"RootInputFileSequence::previousEvent()") << mergeInfo;
@@ -757,9 +752,6 @@ namespace edm {
     desc.addUntracked<bool>("dropDescendantsOfDroppedBranches", true)
         ->setComment("If True, also drop on input any descendent of any branch dropped on input.");
     std::string defaultString("permissive");
-    desc.addUntracked<std::string>("parametersMustMatch", defaultString)
-        ->setComment("'strict':     Values of tracked parameters must be unique across all input files.\n"
-                     "'permissive': Values of tracked parameters may differ across or within files.");
     desc.addUntracked<std::string>("branchesMustMatch", defaultString)
         ->setComment("'strict':     Branches in each input file must match those in the first file.\n"
                      "'permissive': Branches in each input file may be any subset of those in the first file.");

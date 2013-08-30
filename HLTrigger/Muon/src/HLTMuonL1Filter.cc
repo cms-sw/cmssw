@@ -31,12 +31,15 @@
 //
 HLTMuonL1Filter::HLTMuonL1Filter(const edm::ParameterSet& iConfig) : HLTFilter(iConfig),
   candTag_( iConfig.getParameter<edm::InputTag>("CandTag") ),
+  candToken_( consumes<l1extra::L1MuonParticleCollection>(candTag_)),
   previousCandTag_( iConfig.getParameter<edm::InputTag>("PreviousCandTag") ),
+  previousCandToken_( consumes<trigger::TriggerFilterObjectWithRefs>(previousCandTag_)),
   maxEta_( iConfig.getParameter<double>("MaxEta") ),
   minPt_( iConfig.getParameter<double>("MinPt") ),
   minN_( iConfig.getParameter<int>("MinN") ),
   excludeSingleSegmentCSC_( iConfig.getParameter<bool>("ExcludeSingleSegmentCSC") ),
   csctfTag_( iConfig.getParameter<edm::InputTag>("CSCTFtag") ),
+  csctfToken_(consumes<L1CSCTrackCollection>(csctfTag_)),
   l1MuTriggerScales_(0),
   m_scalesCacheID_(0)
 {
@@ -80,6 +83,7 @@ HLTMuonL1Filter::~HLTMuonL1Filter()
 void
 HLTMuonL1Filter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
+  makeHLTFilterDescription(desc);
   desc.add<edm::InputTag>("CandTag",edm::InputTag("hltL1extraParticles"));
   //  desc.add<edm::InputTag>("PreviousCandTag",edm::InputTag("hltL1sL1DoubleMuOpen"));
   desc.add<edm::InputTag>("PreviousCandTag",edm::InputTag(""));
@@ -89,7 +93,6 @@ HLTMuonL1Filter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) 
   desc.add<bool>("ExcludeSingleSegmentCSC",false);
   //  desc.add<edm::InputTag>("CSCTFtag",edm::InputTag("unused"));
   desc.add<edm::InputTag>("CSCTFtag",edm::InputTag("csctfDigis"));
-  desc.add<bool>("saveTags",false);
   {
     std::vector<int> temp1;
     temp1.reserve(0);
@@ -115,11 +118,11 @@ bool HLTMuonL1Filter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetu
 
   // get hold of all muons
   Handle<L1MuonParticleCollection> allMuons;
-  iEvent.getByLabel(candTag_, allMuons);
+  iEvent.getByToken(candToken_, allMuons);
 
   // get hold of CSCTF raw tracks
   if( excludeSingleSegmentCSC_ ) {
-    iEvent.getByLabel(csctfTag_, csctfTracks_);
+    iEvent.getByToken(csctfToken_, csctfTracks_);
     // update scales if necessary
     if( iSetup.get<L1MuTriggerScalesRcd>().cacheIdentifier() != m_scalesCacheID_ ){
       LogDebug("HLTMuonL1Filter")<<"Changing trigger scales";
@@ -132,7 +135,7 @@ bool HLTMuonL1Filter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetu
 
   // get hold of muons that fired the previous level
   Handle<TriggerFilterObjectWithRefs> previousLevelCands;
-  iEvent.getByLabel(previousCandTag_, previousLevelCands);
+  iEvent.getByToken(previousCandToken_, previousLevelCands);
   vector<L1MuonParticleRef> prevMuons;
   previousLevelCands->getObjects(TriggerL1Mu, prevMuons);
    

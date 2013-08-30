@@ -26,7 +26,7 @@ class RunDCSMagnetDat : public IDataItem {
   inline void setMagnetCurrent(float t) { m_current = t; }
   inline float getMagnetCurrent() const { return m_current; }
 
-  void setTime(Tm start);
+  void setTime(const Tm& start);
   Tm getTime() const;
 
  private:

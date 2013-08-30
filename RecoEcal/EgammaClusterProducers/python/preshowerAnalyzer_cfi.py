@@ -3,7 +3,6 @@ import FWCore.ParameterSet.Config as cms
 #
 #  simple analyzer to make histos within a framework job off the super clusters in the event
 #  Author: Shahram Rahatlou, University of Rome & INFN
-#  $Id: preshowerAnalyzer_cfi.py,v 1.3 2009/05/15 21:04:51 ymaravin Exp $
 #
 preshowerAnalyzer = cms.EDAnalyzer("PreshowerAnalyzer",
     islandEndcapSuperClusterProducer2 = cms.string('correctedEndcapSuperClustersWithPreshower'),

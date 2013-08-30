@@ -9,7 +9,7 @@ namespace lumi{
     ~fPoly(){}
     void initialize(const std::map< std::string , float >& coeffmap,
 		    const std::map< unsigned int, float >& afterglowmap);
-    virtual float getCorrection(float luminonorm,float intglumi,unsigned int nBXs)const;
+    virtual float getCorrection(float luminonorm,float intglumi,unsigned int nBXs)const override;
   };
 }//ns lumi
 

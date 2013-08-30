@@ -839,7 +839,7 @@ void OpticalObject::SetRMGlobFromRMLocal()
 }
 
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-void OpticalObject::SetRMGlobFromRMLocalOriginalOriginal( CLHEP::HepRotation rmoriori )
+void OpticalObject::SetRMGlobFromRMLocalOriginalOriginal( const CLHEP::HepRotation& rmoriori )
 {
 
   theRmGlobOriginalOriginal = rmoriori;
@@ -1742,13 +1742,13 @@ const CLHEP::HepRotation OpticalObject::rmLocal() const
 }
 
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-std::vector<double> OpticalObject::getLocalRotationAngles( std::vector< Entry* > entries ) const
+std::vector<double> OpticalObject::getLocalRotationAngles( const std::vector< Entry* >& entries ) const
 {
   return getRotationAnglesInOptOFrame( theParent, entries );
 }
 
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-std::vector<double> OpticalObject::getRotationAnglesInOptOFrame( const OpticalObject* optoAncestor, std::vector< Entry* > entries ) const
+std::vector<double> OpticalObject::getRotationAnglesInOptOFrame( const OpticalObject* optoAncestor, const std::vector< Entry* >& entries ) const
 {
   CLHEP::HepRotation rmParent = optoAncestor->rmGlob();  //ORIGINAL ?????????????????
   CLHEP::HepRotation rmLocal = rmParent.inverse() * theRmGlob;
@@ -1774,7 +1774,7 @@ std::vector<double> OpticalObject::getRotationAnglesInOptOFrame( const OpticalOb
 
 
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-std::vector<double> OpticalObject::getRotationAnglesFromMatrix( CLHEP::HepRotation& rmLocal, std::vector< Entry* > entries ) const
+std::vector<double> OpticalObject::getRotationAnglesFromMatrix( CLHEP::HepRotation& rmLocal,const std::vector< Entry* >& entries ) const
 {
   std::vector<double> newang(3);
   double angleX = entries[3]->value()+entries[3]->valueDisplacementByFitting();

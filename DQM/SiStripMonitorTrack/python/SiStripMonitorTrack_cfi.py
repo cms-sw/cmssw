@@ -4,6 +4,7 @@ import FWCore.ParameterSet.Config as cms
 SiStripMonitorTrack = cms.EDAnalyzer(
     "SiStripMonitorTrack",
     
+    TopFolderName = cms.string('SiStrip'),
     TrackProducer = cms.string('generalTracks'),
     TrackLabel    = cms.string(''),
     TrajectoryInEvent = cms.bool(True),

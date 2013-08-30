@@ -13,9 +13,9 @@ class DistortedMETProducer : public edm::EDProducer {
       ~DistortedMETProducer();
 
    private:
-      virtual void beginJob() ;
+      virtual void beginJob() override ;
       virtual void produce(edm::Event&, const edm::EventSetup&) override;
-      virtual void endJob() ;
+      virtual void endJob() override ;
 
       edm::InputTag metTag_;
       double metScaleShift_; // relative shift (0. => no shift)

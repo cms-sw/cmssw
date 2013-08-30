@@ -9,7 +9,7 @@ public:
   explicit HLTDynamicPrescaler(edm::ParameterSet const & configuration);
   ~HLTDynamicPrescaler();
 
-  bool filter(edm::Event & event, edm::EventSetup const & setup);
+  bool filter(edm::Event & event, edm::EventSetup const & setup) override;
 
 private:
   unsigned int m_count;     // event counter

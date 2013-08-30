@@ -98,7 +98,7 @@ class L2TauNarrowConeIsolationProducer : public edm::EDProducer {
 
         struct CrystalPtComparator
       	{
-      	  bool operator()( const math::PtEtaPhiELorentzVector v1, const math::PtEtaPhiELorentzVector v2) const
+      	  bool operator()( const math::PtEtaPhiELorentzVector& v1, const math::PtEtaPhiELorentzVector& v2) const
       	    {
       	      return v1.pt() > v2.pt(); 
       	    }

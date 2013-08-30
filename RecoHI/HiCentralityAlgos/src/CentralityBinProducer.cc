@@ -13,7 +13,6 @@
 //
 // Original Author:  Yetkin Yilmaz
 //         Created:  Thu Aug 12 05:34:11 EDT 2010
-// $Id: CentralityBinProducer.cc,v 1.3 2010/09/06 11:40:34 vlimant Exp $
 //
 //
 
@@ -45,9 +44,9 @@ class CentralityBinProducer : public edm::EDProducer {
       ~CentralityBinProducer();
 
    private:
-      virtual void beginJob() ;
-      virtual void produce(edm::Event&, const edm::EventSetup&);
-      virtual void endJob() ;
+      virtual void beginJob() override ;
+      virtual void produce(edm::Event&, const edm::EventSetup&) override;
+      virtual void endJob() override ;
       
       // ----------member data ---------------------------
 

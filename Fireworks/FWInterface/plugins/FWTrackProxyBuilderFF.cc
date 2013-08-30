@@ -40,14 +40,14 @@ public:
 
    REGISTER_PROXYBUILDER_METHODS();
    
-   virtual void setItem(const FWEventItem* iItem);
-   virtual bool visibilityModelChanges(const FWModelId&, TEveElement*, FWViewType::EType, const FWViewContext*);
+   virtual void setItem(const FWEventItem* iItem) override;
+   virtual bool visibilityModelChanges(const FWModelId&, TEveElement*, FWViewType::EType, const FWViewContext*) override;
    
 private:
    FWTrackProxyBuilderFF(const FWTrackProxyBuilderFF&); // stop default
    const FWTrackProxyBuilderFF& operator=(const FWTrackProxyBuilderFF&); // stop default
 
-   void build(const FWEventItem* iItem, TEveElementList* product, const FWViewContext*);
+   void build(const FWEventItem* iItem, TEveElementList* product, const FWViewContext*) override;
    void buildTrack(TrajTrackAssociationCollection::const_iterator it, TEveCompound* comp);
 
    

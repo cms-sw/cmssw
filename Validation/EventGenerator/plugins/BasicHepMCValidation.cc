@@ -2,8 +2,6 @@
  *  
  *  Class to fill dqm monitor elements from existing EDM file
  *
- *  $Date: 2011/10/30 09:16:22 $
- *  $Revision: 1.7 $
  */
  
 #include "Validation/EventGenerator/interface/BasicHepMCValidation.h"

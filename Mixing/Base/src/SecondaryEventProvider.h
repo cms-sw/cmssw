@@ -11,18 +11,20 @@
 #include <vector>
 
 namespace edm {
+  class ModuleCallingContext;
+
   class SecondaryEventProvider {
   public:
     SecondaryEventProvider(std::vector<ParameterSet>& psets,
              ProductRegistry& pregistry,
-             ActionTable const& actions,
+             ExceptionToActionTable const& actions,
              boost::shared_ptr<ProcessConfiguration> processConfiguration);
 
-    void beginRun(RunPrincipal& run, const edm::EventSetup& setup);
-    void beginLuminosityBlock(LuminosityBlockPrincipal& lumi, const edm::EventSetup& setup);
+    void beginRun(RunPrincipal& run, const edm::EventSetup& setup, ModuleCallingContext const*);
+    void beginLuminosityBlock(LuminosityBlockPrincipal& lumi, const edm::EventSetup& setup, ModuleCallingContext const*);
 
-    void endRun(RunPrincipal& run, const edm::EventSetup& setup);
-    void endLuminosityBlock(LuminosityBlockPrincipal& lumi, const edm::EventSetup& setup);
+    void endRun(RunPrincipal& run, const edm::EventSetup& setup, ModuleCallingContext const*);
+    void endLuminosityBlock(LuminosityBlockPrincipal& lumi, const edm::EventSetup& setup, ModuleCallingContext const*);
 
     void setupPileUpEvent(EventPrincipal& ep, const EventSetup& setup);
 

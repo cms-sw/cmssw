@@ -25,9 +25,9 @@ private:
   FWBeamSpotProxyBuilder( const FWBeamSpotProxyBuilder& );
   // Disable default assignment operator
   const FWBeamSpotProxyBuilder& operator=( const FWBeamSpotProxyBuilder& );
-  virtual void localModelChanges(const FWModelId& iId, TEveElement* parent, FWViewType::EType viewType, const FWViewContext* vc);
+  virtual void localModelChanges(const FWModelId& iId, TEveElement* parent, FWViewType::EType viewType, const FWViewContext* vc) override;
 
-  virtual void build( const reco::BeamSpot& iData, unsigned int iIndex, TEveElement& oItemHolder, const FWViewContext* );
+  virtual void build( const reco::BeamSpot& iData, unsigned int iIndex, TEveElement& oItemHolder, const FWViewContext* ) override;
 };
 
 void FWBeamSpotProxyBuilder::localModelChanges(const FWModelId& iId, TEveElement* parent, FWViewType::EType viewType, const FWViewContext* vc)

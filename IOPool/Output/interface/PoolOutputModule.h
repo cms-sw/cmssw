@@ -21,6 +21,8 @@
 
 class TTree;
 namespace edm {
+
+  class ModuleCallingContext;
   class ParameterSet;
   class RootOutputFile;
   class ConfigurationDescriptions;
@@ -99,31 +101,31 @@ namespace edm {
 
   protected:
     ///allow inheriting classes to override but still be able to call this method in the overridden version
-    virtual bool shouldWeCloseFile() const;
-    virtual void write(EventPrincipal const& e);
+    virtual bool shouldWeCloseFile() const override;
+    virtual void write(EventPrincipal const& e, ModuleCallingContext const*) override;
   private:
-    virtual void openFile(FileBlock const& fb);
-    virtual void respondToOpenInputFile(FileBlock const& fb);
-    virtual void respondToCloseInputFile(FileBlock const& fb);
-    virtual void writeLuminosityBlock(LuminosityBlockPrincipal const& lb);
-    virtual void writeRun(RunPrincipal const& r);
-    virtual void postForkReacquireResources(unsigned int iChildIndex, unsigned int iNumberOfChildren);
-    virtual bool isFileOpen() const;
-    virtual void doOpenFile();
-    virtual void beginJob();
+    virtual void openFile(FileBlock const& fb) override;
+    virtual void respondToOpenInputFile(FileBlock const& fb) override;
+    virtual void respondToCloseInputFile(FileBlock const& fb) override;
+    virtual void writeLuminosityBlock(LuminosityBlockPrincipal const& lb, ModuleCallingContext const*) override;
+    virtual void writeRun(RunPrincipal const& r, ModuleCallingContext const*) override;
+    virtual void postForkReacquireResources(unsigned int iChildIndex, unsigned int iNumberOfChildren) override;
+    virtual bool isFileOpen() const override;
+    virtual void reallyOpenFile() override;
+    virtual void reallyCloseFile() override;
+    virtual void beginJob() override;
 
-    virtual void startEndFile();
-    virtual void writeFileFormatVersion();
-    virtual void writeFileIdentifier();
-    virtual void writeIndexIntoFile();
-    virtual void writeProcessConfigurationRegistry();
-    virtual void writeProcessHistoryRegistry();
-    virtual void writeParameterSetRegistry();
-    virtual void writeProductDescriptionRegistry();
-    virtual void writeParentageRegistry();
-    virtual void writeBranchIDListRegistry();
-    virtual void writeProductDependencies();
-    virtual void finishEndFile();
+    void startEndFile();
+    void writeFileFormatVersion();
+    void writeFileIdentifier();
+    void writeIndexIntoFile();
+    void writeProcessHistoryRegistry();
+    void writeParameterSetRegistry();
+    void writeProductDescriptionRegistry();
+    void writeParentageRegistry();
+    void writeBranchIDListRegistry();
+    void writeProductDependencies();
+    void finishEndFile();
 
     void fillSelectedItemList(BranchType branchtype, TTree* theInputTree);
     void beginInputFile(FileBlock const& fb);

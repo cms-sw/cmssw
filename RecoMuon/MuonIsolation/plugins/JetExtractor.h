@@ -8,9 +8,6 @@
  *  All work is done by TrackDetectorAssociator. Because of the heavy
  *  weight of the tool, all extractions can (should?) be placed in a single place.
  *  
- *  $Date: 2008/03/02 21:13:13 $
- *  $Revision: 1.4 $
- *  $Id: JetExtractor.h,v 1.4 2008/03/02 21:13:13 slava77 Exp $
  *  \author S. Krutelyov
  */
 

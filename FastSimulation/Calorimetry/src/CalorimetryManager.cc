@@ -1,3 +1,4 @@
+//updated by Reza Goldouzian
 //Framework headers 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -608,7 +609,11 @@ void CalorimetryManager::HDShowerSimulation(const FSimTrack& myTrack){//,
   double eint  = moment.e();
   double eGen  = myTrack.hcalEntrance().e();
 
-  double emeas = 0.;  
+  double emeas = 0.;
+  double pmip= myHDResponse_->getMIPfraction(eGen, pathEta);
+//  std::cout << " CalorimetryManager onHcal " <<  pmip  << std::endl;
+
+ 
   //double emeas = -0.000001; 
 
   //===========================================================================
@@ -704,6 +709,7 @@ void CalorimetryManager::HDShowerSimulation(const FSimTrack& myTrack){//,
 			   &myHcalHitMaker,
 			   onECAL,
 			   eGen,
+                           pmip,
 			   dbe);
 	status = theShower.compute();
         mip    = theShower.getmip();

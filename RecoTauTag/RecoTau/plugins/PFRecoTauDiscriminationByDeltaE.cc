@@ -24,8 +24,8 @@ class PFRecoTauDiscriminationByDeltaE : public PFTauDiscriminationProducerBase  
 
       	~PFRecoTauDiscriminationByDeltaE(){}
 
-	void beginEvent(const edm::Event&, const edm::EventSetup&);
-	double discriminate(const reco::PFTauRef&);
+	void beginEvent(const edm::Event&, const edm::EventSetup&) override;
+	double discriminate(const reco::PFTauRef&) override;
 
     private:
 	double DeltaE(const PFTauRef&);

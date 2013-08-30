@@ -20,13 +20,13 @@ MonRunList::~MonRunList()
 {
 }
 
-void MonRunList::setRunTag(RunTag tag)
+void MonRunList::setRunTag(const RunTag& tag)
 {
   if (tag != m_runTag) {
     m_runTag = tag;
   }
 }
-void MonRunList::setMonRunTag(MonRunTag tag)
+void MonRunList::setMonRunTag(const MonRunTag& tag)
 {
   if (tag != m_monrunTag) {
     m_monrunTag = tag;

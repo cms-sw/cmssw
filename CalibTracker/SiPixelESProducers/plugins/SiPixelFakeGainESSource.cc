@@ -13,7 +13,6 @@
 //
 // Original Author:  Vincenzo Chiochia
 //         Created:  Fri Apr 27 12:31:25 CEST 2007
-// $Id: SiPixelFakeGainESSource.cc,v 1.5 2008/01/22 19:15:07 muzaffar Exp $
 //
 //
 

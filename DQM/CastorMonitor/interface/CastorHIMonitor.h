@@ -12,6 +12,7 @@ public:
   ~CastorHIMonitor(); 
 
   void setup(const edm::ParameterSet& ps, DQMStore* dbe);
+  void beginRun(const edm::EventSetup& iSetup);
   void processEvent(const CastorRecHitCollection& castorHits, const CastorDigiCollection& cast, const CastorDbService& cond);
   void reset();
 
@@ -20,7 +21,6 @@ private:
   bool doPerChannel_;
   // float occThresh_;
   int ievt_;
-
 
 
  ////--- CASTOR channels
@@ -47,8 +47,6 @@ private:
 
  ////---- total energy deposited in the whole CASTOR  
  float EtotalCASTOR;
-
-
 
  
   ////---- define Monitoring elements
@@ -159,8 +157,6 @@ private:
  MonitorElement* meEtotalEMvsHAD;
 
 
-
-
 ////---- charge in sectors
  MonitorElement* meChargeSector1;  
  MonitorElement* meChargeSector2;  
@@ -262,22 +258,6 @@ private:
  MonitorElement* meChargeTotalHAD;
 ////--- total charge ratio EM/HAD per event 
  MonitorElement* meChargeTotalEMvsHAD;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 };
 

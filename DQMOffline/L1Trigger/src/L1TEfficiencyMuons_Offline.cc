@@ -1,8 +1,6 @@
  /*
   * \file L1TEfficiencyMuons_Offline.cc
   *
-  * $Date: 2012/11/26 17:10:19 $
-  * $Revision: 1.1 $
   * \author J. Pela, C. Battilana
   *
   */

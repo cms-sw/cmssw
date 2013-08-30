@@ -41,7 +41,7 @@ using namespace edm;
 using namespace std;
 
 namespace cms{
-  CkfTrackCandidateMakerBase::CkfTrackCandidateMakerBase(edm::ParameterSet const& conf) : 
+  CkfTrackCandidateMakerBase::CkfTrackCandidateMakerBase(edm::ParameterSet const& conf, edm::ConsumesCollector && iC) : 
 
     conf_(conf),
     theTrackCandidateOutput(true),
@@ -66,7 +66,7 @@ namespace cms{
     //    if (!conf.exists("src"))
     //      theSeedLabel = InputTag(conf_.getParameter<std::string>("SeedProducer"),conf_.getParameter<std::string>("SeedLabel"));
     //    else
-      theSeedLabel= conf.getParameter<edm::InputTag>("src");
+      theSeedLabel= iC.consumes<edm::View<TrajectorySeed> >(conf.getParameter<edm::InputTag>("src"));
       if ( conf.exists("maxSeedsBeforeCleaning") ) 
 	   maxSeedsBeforeCleaning_=conf.getParameter<unsigned int>("maxSeedsBeforeCleaning");
 
@@ -157,7 +157,7 @@ namespace cms{
     // Step B: Retrieve seeds
     
     edm::Handle<View<TrajectorySeed> > collseed;
-    e.getByLabel(theSeedLabel, collseed);
+    e.getByToken(theSeedLabel, collseed);
     
     // Step C: Create empty output collection
     std::auto_ptr<TrackCandidateCollection> output(new TrackCandidateCollection);    
@@ -188,7 +188,9 @@ namespace cms{
       // Loop over seeds
       size_t collseed_size = collseed->size(); 
       for (size_t j = 0; j < collseed_size; j++){
-       
+
+	LogDebug("CkfPattern") << "======== Begin to look for trajectories from seed " << j << " ========"<<endl;
+	
 	// Check if seed hits already used by another track
 	if (theSeedCleaner && !theSeedCleaner->good( &((*collseed)[j])) ) {
           LogDebug("CkfTrackCandidateMakerBase")<<" Seed cleaning kills seed "<<j;

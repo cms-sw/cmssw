@@ -9,6 +9,7 @@
 
 #include "DataFormats/HLTReco/interface/TriggerTypeDefs.h"
 #include "HLTrigger/HLTcore/interface/HLTFilter.h"
+#include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
 
 namespace edm {
    class ConfigurationDescriptions;
@@ -29,6 +30,7 @@ class HLTJetVBFFilter : public HLTFilter {
 
    private:
       edm::InputTag inputTag_; // input tag identifying jets
+      edm::EDGetTokenT<std::vector<T>> m_theObjectToken;
       double minPtLow_;
       double minPtHigh_;
       bool   etaOpposite_;

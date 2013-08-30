@@ -10,6 +10,7 @@
 #include <string>
 
 // user include files
+#include "FWCore/Utilities/interface/EDGetToken.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -49,6 +50,7 @@
 class SiStripDCSStatus;
 class GenericTriggerEventFlag;
 class TrackerTopology;
+
 //
 // class declaration
 //
@@ -80,6 +82,9 @@ private:
   MonitorElement * bookMETrend(const char*, const char*);
   // internal evaluation of monitorables
   void AllClusters(const edm::Event& ev, const edm::EventSetup& es); 
+  void trackStudyFromTrack(edm::Handle<reco::TrackCollection > trackCollectionHandle, const edm::EventSetup& es);
+  void trackStudyFromTrajectory(edm::Handle<TrajTrackAssociationCollection> TItkAssociatorCollection, const edm::EventSetup& es);
+  void trajectoryStudy(const edm::Ref<std::vector<Trajectory> > traj, reco::TrackRef trackref, const edm::EventSetup& es);
   void trackStudy(const edm::Event& ev, const edm::EventSetup& es);
   //  LocalPoint project(const GeomDet *det,const GeomDet* projdet,LocalPoint position,LocalVector trackdirection)const;
   bool clusterInfos(SiStripClusterInfo* cluster, const uint32_t& detid, const TrackerTopology* tTopo, enum ClusterFlags flags, LocalVector LV);	
@@ -102,6 +107,8 @@ private:
   std::string histname; 
   LocalVector LV;
   float iOrbitSec;
+
+  std::string topFolderName_;
   
   //******* TkHistoMaps
   TkHistoMap *tkhisto_StoNCorrOnTrack, *tkhisto_NumOnTrack, *tkhisto_NumOffTrack;  
@@ -150,6 +157,10 @@ private:
   edm::ParameterSet Parameters;
   edm::InputTag Cluster_src_;
   
+  edm::EDGetTokenT<edmNew::DetSetVector<SiStripCluster> > clusterToken_;
+  edm::EDGetTokenT<reco::TrackCollection> trackToken_;
+  edm::EDGetTokenT<TrajTrackAssociationCollection> trackTrajToken_;
+
   bool Mod_On_;
   bool Trend_On_;
   bool OffHisto_On_;

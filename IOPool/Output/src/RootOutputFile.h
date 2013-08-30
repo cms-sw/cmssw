@@ -27,7 +27,7 @@
 #include "DataFormats/Provenance/interface/ProductProvenance.h"
 #include "DataFormats/Provenance/interface/StoredProductProvenance.h"
 #include "DataFormats/Provenance/interface/RunAuxiliary.h"
-#include "DataFormats/Provenance/interface/Selections.h"
+#include "DataFormats/Provenance/interface/SelectedProducts.h"
 #include "IOPool/Output/interface/PoolOutputModule.h"
 #include "IOPool/Output/src/RootOutputTree.h"
 
@@ -35,7 +35,9 @@ class TTree;
 class TFile;
 
 namespace edm {
+  class ModuleCallingContext;
   class PoolOutputModule;
+
 
   class RootOutputFile {
   public:
@@ -45,14 +47,13 @@ namespace edm {
     explicit RootOutputFile(PoolOutputModule* om, std::string const& fileName,
                             std::string const& logicalFileName);
     ~RootOutputFile() {}
-    void writeOne(EventPrincipal const& e);
+    void writeOne(EventPrincipal const& e, ModuleCallingContext const*);
     //void endFile();
-    void writeLuminosityBlock(LuminosityBlockPrincipal const& lb);
-    void writeRun(RunPrincipal const& r);
+    void writeLuminosityBlock(LuminosityBlockPrincipal const& lb, ModuleCallingContext const*);
+    void writeRun(RunPrincipal const& r, ModuleCallingContext const*);
     void writeFileFormatVersion();
     void writeFileIdentifier();
     void writeIndexIntoFile();
-    void writeProcessConfigurationRegistry();
     void writeProcessHistoryRegistry();
     void writeParameterSetRegistry();
     void writeProductDescriptionRegistry();
@@ -76,16 +77,18 @@ namespace edm {
     //-------------------------------
     // Private functions
 
-    void setBranchAliases(TTree* tree, Selections const& branches) const;
+    void setBranchAliases(TTree* tree, SelectedProducts const& branches) const;
 
     void fillBranches(BranchType const& branchType,
                       Principal const& principal,
-                      StoredProductProvenanceVector* productProvenanceVecPtr);
+                      StoredProductProvenanceVector* productProvenanceVecPtr,
+                      ModuleCallingContext const*);
 
      void insertAncestors(ProductProvenance const& iGetParents,
                           EventPrincipal const& principal,
                           bool produced,
-                          std::set<StoredProductProvenance>& oToFill);
+                          std::set<StoredProductProvenance>& oToFill,
+                          ModuleCallingContext const*);
 
     bool insertProductProvenance(const ProductProvenance&,
                                  std::set<StoredProductProvenance>& oToInsert);

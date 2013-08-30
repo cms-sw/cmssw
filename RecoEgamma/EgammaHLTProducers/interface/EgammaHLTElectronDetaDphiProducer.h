@@ -8,7 +8,6 @@
 //
 // Original Author:  Roberto Covarelli (CERN)
 //
-// $Id: EgammaHLTElectronDetaDphiProducer.h,v 1.5 2012/02/10 22:41:25 dmytro Exp $
 //
 //
 

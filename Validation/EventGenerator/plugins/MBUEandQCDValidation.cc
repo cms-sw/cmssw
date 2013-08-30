@@ -2,8 +2,6 @@
  *  
  *  Class to fill dqm monitor elements from existing EDM file
  *
- *  $Date: 2010/09/09 11:49:20 $
- *  $Revision: 1.3 $
  */
  
 #include "Validation/EventGenerator/interface/MBUEandQCDValidation.h"

@@ -15,7 +15,6 @@
 //
 // Original Author:  Vincent ROBERFROID
 //         Created:  Fri Aug 10 12:05:36 CET 2007
-// $Id: NuclearInteractionEDProducer.h,v 1.9 2008/04/16 12:14:04 roberfro Exp $
 //
 //
 
@@ -40,6 +39,7 @@
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "RecoTracker/NuclearSeedGenerator/interface/TrajectoryToSeedMap.h"
 #include "TrackingTools/Records/interface/TransientTrackRecord.h"
+#include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
 
 #include "DataFormats/VertexReco/interface/NuclearInteraction.h"
 
@@ -65,10 +65,12 @@ public:
 
       // ----------member data ---------------------------
       edm::ParameterSet conf_;
-      std::string primaryProducer_;
-      std::string seedsProducer_;
-      std::string secondaryProducer_;
-      std::string additionalSecondaryProducer_;
+      edm::EDGetTokenT<reco::TrackCollection>	 token_primaryTrack; 
+      edm::EDGetTokenT<reco::TrackCollection>	 token_secondaryTrack; 
+      edm::EDGetTokenT<reco::TrackCollection>	 token_additionalSecTracks; 
+      edm::EDGetTokenT<TrajectoryCollection> token_primaryTrajectory; 
+      edm::EDGetTokenT<TrajTrackAssociationCollection> token_refMapH; 
+      edm::EDGetTokenT<TrajectoryToSeedsMap> token_nuclMapH; 
 
       std::auto_ptr< NuclearVertexBuilder >  vertexBuilder;
       std::auto_ptr< NuclearLikelihood >     likelihoodCalculator;

@@ -3,8 +3,6 @@
 
 /** \file CosmicMuonProducer
  *
- *  $Date: 2006/07/03 01:11:19 $
- *  $Revision: 1.2 $
  *  \author Chang Liu
  */
 

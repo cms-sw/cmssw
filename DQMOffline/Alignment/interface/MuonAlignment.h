@@ -6,8 +6,6 @@
  *
  *  DQM muon alignment analysis monitoring
  *
- *  $Date: 2010/02/11 00:11:11 $
- *  $Revision: 1.3 $
  *  \author J. Fernandez - Univ. Oviedo <Javier.Fernandez@cern.ch>
  */
 

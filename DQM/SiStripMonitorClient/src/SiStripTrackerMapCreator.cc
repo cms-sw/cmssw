@@ -263,11 +263,11 @@ void SiStripTrackerMapCreator::printBadModuleList(std::map<unsigned int,std::str
   edm::LogVerbatim("BadModuleList") << "Number of bad modules in total:";
   edm::LogVerbatim("BadModuleList") << "--------------------------------------------------------------";
   edm::LogVerbatim("BadModuleList") << "TIB: " << ntib;
-  edm::LogVerbatim("BadModuleList") << "TID/side_1: " << ntids1;
-  edm::LogVerbatim("BadModuleList") << "TID/side_2: " << ntids2;
+  edm::LogVerbatim("BadModuleList") << "TID/MINUS: " << ntids1;
+  edm::LogVerbatim("BadModuleList") << "TID/PLUS: " << ntids2;
   edm::LogVerbatim("BadModuleList") << "TOB: " << ntob;
-  edm::LogVerbatim("BadModuleList") << "TEC/side_1: " << ntecs1;
-  edm::LogVerbatim("BadModuleList") << "TEC/side_2: " << ntecs2;
+  edm::LogVerbatim("BadModuleList") << "TEC/MINUS: " << ntecs1;
+  edm::LogVerbatim("BadModuleList") << "TEC/PLUS: " << ntecs2;
   edm::LogVerbatim("BadModuleList") << "-------------------------------";
   edm::LogVerbatim("BadModuleList") ;
   edm::LogVerbatim("BadModuleList") << "List of bad modules per partition:";
@@ -283,13 +283,13 @@ void SiStripTrackerMapCreator::printBadModuleList(std::map<unsigned int,std::str
     if(!tidSide1Done && badmod->first >= tidSide1First) {
       tidSide1Done = true;
       edm::LogVerbatim("BadModuleList") ;
-      edm::LogVerbatim("BadModuleList") << "SubDetector TID/side_1";
+      edm::LogVerbatim("BadModuleList") << "SubDetector TID/MINUS";
       edm::LogVerbatim("BadModuleList") ;
     }
     if(!tidSide2Done && badmod->first >= tidSide2First) {
       tidSide2Done = true;
       edm::LogVerbatim("BadModuleList") ;
-      edm::LogVerbatim("BadModuleList") << "SubDetector TID/side_2";
+      edm::LogVerbatim("BadModuleList") << "SubDetector TID/PLUS";
       edm::LogVerbatim("BadModuleList") ;
     }
     if(!tobDone && badmod->first >= tobFirst) {
@@ -301,13 +301,13 @@ void SiStripTrackerMapCreator::printBadModuleList(std::map<unsigned int,std::str
     if(!tecSide1Done && badmod->first >= tecSide1First) {
       tecSide1Done = true;
       edm::LogVerbatim("BadModuleList") ;
-      edm::LogVerbatim("BadModuleList") << "SubDetector TEC/side_1";
+      edm::LogVerbatim("BadModuleList") << "SubDetector TEC/MINUS";
       edm::LogVerbatim("BadModuleList") ;
     }
     if(!tecSide2Done && badmod->first >= tecSide2First) {
       tecSide2Done = true;
       edm::LogVerbatim("BadModuleList") ;
-      edm::LogVerbatim("BadModuleList") << "SubDetector TEC/side_2";
+      edm::LogVerbatim("BadModuleList") << "SubDetector TEC/PLUS";
       edm::LogVerbatim("BadModuleList") ;
     }
     edm::LogVerbatim("BadModuleList") << badmod->second;
@@ -343,10 +343,10 @@ void SiStripTrackerMapCreator::setTkMapFromHistogram(DQMStore* dqm_store, std::s
   std::vector<std::string> subdet_folder;
   subdet_folder.push_back("TIB");
   subdet_folder.push_back("TOB");
-  subdet_folder.push_back("TEC/side_1");
-  subdet_folder.push_back("TEC/side_2");
-  subdet_folder.push_back("TID/side_1");
-  subdet_folder.push_back("TID/side_2");
+  subdet_folder.push_back("TEC/MINUS");
+  subdet_folder.push_back("TEC/PLUS");
+  subdet_folder.push_back("TID/MINUS");
+  subdet_folder.push_back("TID/PLUS");
 
   nDet     = 0;
   tkMapMax_ = 0.0; 

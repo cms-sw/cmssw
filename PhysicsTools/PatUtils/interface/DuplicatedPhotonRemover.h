@@ -62,21 +62,21 @@ namespace pat {
             std::auto_ptr< std::vector<size_t> > duplicatesBySuperCluster(const edm::View<reco::Photon> &photons) const ;
             std::auto_ptr< std::vector<size_t> > duplicatesBySuperCluster(const reco::PhotonCollection &photons) const ;
             std::auto_ptr< pat::OverlapList > electronsBySeed(const reco::PhotonCollection &photons, 
-                    const reco::GsfElectronCollection electrons) const ;
+                    const reco::GsfElectronCollection& electrons) const ;
             std::auto_ptr< pat::OverlapList > electronsBySeed(const edm::View<reco::Photon> &photons, 
-                    const reco::GsfElectronCollection electrons) const ;
+                    const reco::GsfElectronCollection& electrons) const ;
             std::auto_ptr< pat::OverlapList > electronsBySuperCluster(const edm::View<reco::Photon> &photons, 
-                    const reco::GsfElectronCollection electrons) const ;
+                    const reco::GsfElectronCollection& electrons) const ;
             std::auto_ptr< pat::OverlapList > electronsBySuperCluster(const reco::PhotonCollection &photons, 
-                    const reco::GsfElectronCollection electrons) const ;
+                    const reco::GsfElectronCollection& electrons) const ;
             std::auto_ptr< pat::OverlapList > electronsBySeed(const reco::PhotonCollection &photons, 
-                    const edm::View<reco::GsfElectron> electrons) const ;
+                    const edm::View<reco::GsfElectron>& electrons) const ;
             std::auto_ptr< pat::OverlapList > electronsBySeed(const edm::View<reco::Photon> &photons, 
-                    const edm::View<reco::GsfElectron> electrons) const ;
+                    const edm::View<reco::GsfElectron>& electrons) const ;
             std::auto_ptr< pat::OverlapList > electronsBySuperCluster(const edm::View<reco::Photon> &photons, 
-                    const edm::View<reco::GsfElectron> electrons) const ;
+                    const edm::View<reco::GsfElectron>& electrons) const ;
             std::auto_ptr< pat::OverlapList > electronsBySuperCluster(const reco::PhotonCollection &photons, 
-                    const edm::View<reco::GsfElectron> electrons) const ;
+                    const edm::View<reco::GsfElectron>& electrons) const ;
     };
 }
 

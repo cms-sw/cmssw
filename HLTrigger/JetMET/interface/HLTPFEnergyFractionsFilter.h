@@ -18,6 +18,9 @@
 
 #include "HLTrigger/HLTcore/interface/HLTFilter.h"
 
+#include "DataFormats/JetReco/interface/PFJet.h"
+#include "DataFormats/JetReco/interface/PFJetCollection.h"
+
 namespace edm {
    class ConfigurationDescriptions;
 }
@@ -36,6 +39,7 @@ class HLTPFEnergyFractionsFilter : public HLTFilter {
       virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct);
 
    private:
+      edm::EDGetTokenT<reco::PFJetCollection> m_thePFJetToken;
       edm::InputTag inputPFJetTag_;   // input tag identifying pfjets
       unsigned int nJet_;           // No. of jet to check with this filter 
       double min_CEEF_;

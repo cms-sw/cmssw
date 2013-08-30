@@ -6,6 +6,8 @@
 <use   name="rivet"/>
 <use   name="gsl"/>
 <use   name="DQMServices/Core"/>
+<use   name="SimGeneral/HepPDTRecord"/>
+<use   name="DataFormats/HepMCCandidate"/>
 <library   file="*.cc" name="GeneratorInterfaceRivetInterface_plugins">
   <flags   EDM_PLUGIN="1"/>
 </library>

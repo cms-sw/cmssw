@@ -26,8 +26,10 @@
 #include "DataFormats/Math/interface/deltaR.h"
 
 HLTDiMuonGlbTrkFilter::HLTDiMuonGlbTrkFilter(const edm::ParameterSet& iConfig) : HLTFilter(iConfig) {
-  m_muons             = iConfig.getParameter<edm::InputTag>("inputMuonCollection");
-  m_cands             = iConfig.getParameter<edm::InputTag>("inputCandCollection");
+  m_muonsTag          = iConfig.getParameter<edm::InputTag>("inputMuonCollection");
+  m_muonsToken        = consumes<reco::MuonCollection>(m_muonsTag);
+  m_candsTag          = iConfig.getParameter<edm::InputTag>("inputCandCollection");
+  m_candsToken        = consumes<reco::RecoChargedCandidateCollection>(m_candsTag);
   m_minTrkHits        = iConfig.getParameter<int>("minTrkHits");
   m_minMuonHits       = iConfig.getParameter<int>("minMuonHits");
   m_maxNormalizedChi2 = iConfig.getParameter<double>("maxNormalizedChi2");
@@ -43,6 +45,7 @@ HLTDiMuonGlbTrkFilter::HLTDiMuonGlbTrkFilter(const edm::ParameterSet& iConfig) :
 void
 HLTDiMuonGlbTrkFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
+  makeHLTFilterDescription(desc);
   desc.add<edm::InputTag>("inputMuonCollection",edm::InputTag(""));
   desc.add<edm::InputTag>("inputCandCollection",edm::InputTag(""));
   desc.add<int>("minTrkHits",-1);
@@ -55,7 +58,6 @@ HLTDiMuonGlbTrkFilter::fillDescriptions(edm::ConfigurationDescriptions& descript
   desc.add<double>("minPtMuon1",17);
   desc.add<double>("minPtMuon2",8);
   desc.add<double>("minMass",1);
-  desc.add<bool>("saveTags",true);
   descriptions.add("hltDiMuonGlbTrkFilter",desc);
 }
 
@@ -63,10 +65,10 @@ bool
 HLTDiMuonGlbTrkFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct)
 {
   edm::Handle<reco::MuonCollection> muons;
-  iEvent.getByLabel(m_muons,muons);
+  iEvent.getByToken(m_muonsToken,muons);
   edm::Handle<reco::RecoChargedCandidateCollection> cands;
-  iEvent.getByLabel(m_cands,cands);
-  if ( saveTags() ) filterproduct.addCollectionTag(m_cands);
+  iEvent.getByToken(m_candsToken,cands);
+  if ( saveTags() ) filterproduct.addCollectionTag(m_candsTag);
   if ( cands->size() != muons->size() )
     throw edm::Exception(edm::errors::Configuration) << "Both input collection must be aligned and represent same physical muon objects";
   std::vector<unsigned int> filteredMuons;

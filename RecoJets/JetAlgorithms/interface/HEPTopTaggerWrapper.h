@@ -1,4 +1,4 @@
-// Copyright (c) 2011 Christopher Vermilion
+//  2011 Christopher Vermilion
 //
 //----------------------------------------------------------------------
 //  This file is free software; you can redistribute it and/or modify

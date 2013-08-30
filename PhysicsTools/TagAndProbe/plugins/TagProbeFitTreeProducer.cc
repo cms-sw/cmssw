@@ -55,8 +55,8 @@ class TagProbeFitTreeProducer : public edm::EDAnalyzer {
 
 
    private:
-      virtual void analyze(const edm::Event&, const edm::EventSetup&);
-      virtual void endJob() ;
+      virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
+      virtual void endJob() override ;
 
       //---- MC truth information
       /// Is this sample MC?

@@ -23,7 +23,7 @@ class CaliTag : public ITag {
   void setGeneralTag(std::string tag);
 
   LocationDef getLocationDef() const;
-  void setLocationDef(const LocationDef locDef);
+  void setLocationDef(const LocationDef& locDef);
 
   std::string getMethod() const;
   void setMethod(std::string method);

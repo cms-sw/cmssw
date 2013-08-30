@@ -13,7 +13,6 @@
 //
 // Original Author:  Igor Volobouev
 //         Created:  Thu Jun 21 19:19:40 CDT 2012
-// $Id: FFTJetVertexAdder.cc,v 1.1 2012/06/21 19:19:40 igv Exp $
 //
 //
 
@@ -51,9 +50,9 @@ public:
 
 protected:
     // methods
-    void beginJob();
-    void produce(edm::Event&, const edm::EventSetup&);
-    void endJob();
+    void beginJob() override;
+    void produce(edm::Event&, const edm::EventSetup&) override;
+    void endJob() override;
 
 private:
     FFTJetVertexAdder();

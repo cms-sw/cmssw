@@ -1,5 +1,4 @@
-// $Id: cloningptr_t.cppunit.cc,v 1.1 2006/04/04 01:54:48 chrjones Exp $
-#include <cppunit/extensions/HelperMacros.h>
+#include "cppunit/extensions/HelperMacros.h"
 #include "DataFormats/Common/interface/CloningPtr.h"
 
 #include <vector>

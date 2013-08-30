@@ -13,7 +13,6 @@
 //
 // Original Author:  Grigory Safronov
 //         Created:  Thu Jun  7 17:21:58 MSD 2007
-// $Id: EcalIsolatedParticleCandidateProducer.cc,v 1.8 2008/05/13 20:51:01 heltsley Exp $
 //
 //
 

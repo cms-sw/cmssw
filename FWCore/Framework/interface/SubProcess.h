@@ -2,13 +2,18 @@
 #define FWCore_Framework_SubProcess_h
 
 #include "FWCore/Framework/interface/EventSetupProvider.h"
-#include "FWCore/Framework/interface/OutputModule.h"
 #include "FWCore/Framework/src/PrincipalCache.h"
 #include "FWCore/Framework/interface/ScheduleItems.h"
 #include "FWCore/Framework/interface/Schedule.h"
+#include "FWCore/Framework/interface/TriggerResultsBasedEventSelector.h"
+#include "FWCore/Framework/interface/ProductSelectorRules.h"
+#include "FWCore/Framework/interface/ProductSelector.h"
+#include "FWCore/ServiceRegistry/interface/ProcessContext.h"
 #include "FWCore/ServiceRegistry/interface/ServiceLegacy.h"
 #include "FWCore/ServiceRegistry/interface/ServiceToken.h"
 #include "FWCore/Utilities/interface/BranchType.h"
+
+#include "DataFormats/Provenance/interface/SelectedProducts.h"
 
 #include "boost/shared_ptr.hpp"
 
@@ -22,10 +27,12 @@ namespace edm {
   class IOVSyncValue;
   class ParameterSet;
   class ProductRegistry;
+  class PreallocationConfiguration;
+  
   namespace eventsetup {
     class EventSetupsController;
   }
-  class SubProcess : public OutputModule {
+  class SubProcess {
   public:
     SubProcess(ParameterSet& parameterSet,
                ParameterSet const& topLevelParameterSet,
@@ -34,17 +41,18 @@ namespace edm {
                eventsetup::EventSetupsController& esController,
                ActivityRegistry& parentActReg,
                ServiceToken const& token,
-               serviceregistry::ServiceLegacy iLegacy);
+               serviceregistry::ServiceLegacy iLegacy,
+               PreallocationConfiguration const& preallocConfig,
+               ProcessContext const* parentProcessContext);
 
     virtual ~SubProcess();
+    
+    //From OutputModule
+    void selectProducts(ProductRegistry const& preg);
+    SelectedProductsForBranchType const& keptProducts() const {return keptProducts_;}
 
-    using OutputModule::doBeginJob;
-    using OutputModule::doEndJob;
-    using OutputModule::doBeginRun;
-    using OutputModule::doEndRun;
-    using OutputModule::doBeginLuminosityBlock;
-    using OutputModule::doEndLuminosityBlock;
-    using OutputModule::doEvent;
+    void doBeginJob();
+    void doEndJob();
 
     void doEvent(EventPrincipal const& principal, IOVSyncValue const& ts);
 
@@ -56,6 +64,18 @@ namespace edm {
 
     void doEndLuminosityBlock(LuminosityBlockPrincipal const& principal, IOVSyncValue const& ts, bool cleaningUpAfterException);
 
+    
+    void doBeginStream(unsigned int);
+    void doEndStream(unsigned int);
+    void doStreamBeginRun(unsigned int iID, RunPrincipal const& principal, IOVSyncValue const& ts);
+    
+    void doStreamEndRun(unsigned int iID, RunPrincipal const& principal, IOVSyncValue const& ts, bool cleaningUpAfterException);
+    
+    void doStreamBeginLuminosityBlock(unsigned int iID, LuminosityBlockPrincipal const& principal, IOVSyncValue const& ts);
+    
+    void doStreamEndLuminosityBlock(unsigned int iID, LuminosityBlockPrincipal const& principal, IOVSyncValue const& ts, bool cleaningUpAfterException);
+
+    
     // Write the luminosity block
     void writeLumi(ProcessHistoryID const& parentPhID, int runNumber, int lumiNumber);
 
@@ -95,20 +115,6 @@ namespace edm {
       ServiceRegistry::Operate operate(serviceToken_);
       schedule_->respondToCloseInputFile(fb);
       if(subProcess_.get()) subProcess_->respondToCloseInputFile(fb);
-    }
-
-    // Call respondToOpenOutputFiles() on all Modules
-    void respondToOpenOutputFiles(FileBlock const& fb) {
-      ServiceRegistry::Operate operate(serviceToken_);
-      schedule_->respondToOpenOutputFiles(fb);
-      if(subProcess_.get()) subProcess_->respondToOpenOutputFiles(fb);
-    }
-
-    // Call respondToCloseOutputFiles() on all Modules
-    void respondToCloseOutputFiles(FileBlock const& fb) {
-      ServiceRegistry::Operate operate(serviceToken_);
-      schedule_->respondToCloseOutputFiles(fb);
-      if(subProcess_.get()) subProcess_->respondToCloseOutputFiles(fb);
     }
 
     // Call shouldWeCloseFile() on all OutputModules.
@@ -192,40 +198,55 @@ namespace edm {
     }
 
   private:
-    struct ESInfo {
-      ESInfo(IOVSyncValue const& ts, eventsetup::EventSetupProvider& esp);
-      IOVSyncValue const& ts_;
-      EventSetup const& es_;
-    };
-
-    virtual void beginJob();
-    virtual void endJob();
-    virtual void write(EventPrincipal const& e);
-    virtual void beginRun(RunPrincipal const& r);
-    virtual void endRun(RunPrincipal const& r);
-    virtual void beginLuminosityBlock(LuminosityBlockPrincipal const& lb);
-    virtual void endLuminosityBlock(LuminosityBlockPrincipal const& lb);
-    virtual void writeRun(RunPrincipal const&) { throw 0; }
-    virtual void writeLuminosityBlock(LuminosityBlockPrincipal const&) { throw 0; }
+     void beginJob();
+     void endJob();
+     void process(EventPrincipal const& e, IOVSyncValue const& ts);
+     void beginRun(RunPrincipal const& r, IOVSyncValue const& ts);
+     void endRun(RunPrincipal const& r, IOVSyncValue const& ts, bool cleaningUpAfterException);
+     void beginLuminosityBlock(LuminosityBlockPrincipal const& lb, IOVSyncValue const& ts);
+     void endLuminosityBlock(LuminosityBlockPrincipal const& lb, IOVSyncValue const& ts, bool cleaningUpAfterException);
 
     void propagateProducts(BranchType type, Principal const& parentPrincipal, Principal& principal) const;
     void fixBranchIDListsForEDAliases(std::map<BranchID::value_type, BranchID::value_type> const& droppedBranchIDToKeptBranchID);
 
+    std::map<BranchID::value_type, BranchID::value_type> const& droppedBranchIDToKeptBranchID() {
+      return droppedBranchIDToKeptBranchID_;
+    }
+
+    
     ServiceToken                                  serviceToken_;
     boost::shared_ptr<ProductRegistry const>      parentPreg_;
     boost::shared_ptr<ProductRegistry const>	  preg_;
     boost::shared_ptr<BranchIDListHelper>         branchIDListHelper_;
-    std::unique_ptr<ActionTable const>            act_table_;
+    std::unique_ptr<ExceptionToActionTable const>            act_table_;
     boost::shared_ptr<ProcessConfiguration const> processConfiguration_;
+    ProcessContext                                processContext_;
     PrincipalCache                                principalCache_;
     boost::shared_ptr<eventsetup::EventSetupProvider> esp_;
     std::auto_ptr<Schedule>                       schedule_;
     std::map<ProcessHistoryID, ProcessHistoryID>  parentToChildPhID_;
     std::unique_ptr<HistoryAppender>              historyAppender_;
-    std::auto_ptr<ESInfo>                         esInfo_;
     std::auto_ptr<SubProcess>                     subProcess_;
-    bool                                          cleaningUpAfterException_;
     std::unique_ptr<ParameterSet>                 processParameterSet_;
+
+    // keptProducts_ are pointers to the BranchDescription objects describing
+    // the branches we are to write.
+    //
+    // We do not own the BranchDescriptions to which we point.
+    SelectedProductsForBranchType keptProducts_;
+    ProductSelectorRules productSelectorRules_;
+    ProductSelector productSelector_;
+
+
+    //EventSelection
+    bool wantAllEvents_;
+    ParameterSetID selector_config_id_;
+    mutable detail::TriggerResultsBasedEventSelector selectors_;
+
+    // needed because of possible EDAliases.
+    // filled in only if key and value are different.
+    std::map<BranchID::value_type, BranchID::value_type> droppedBranchIDToKeptBranchID_;
+
   };
 
   // free function

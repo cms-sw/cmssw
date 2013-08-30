@@ -39,10 +39,8 @@ class RecHit1D : public TrackingRecHit {
 
   ///Return the projection matrix
   virtual AlgebraicMatrix projectionMatrix() const {
-    if ( !isInitialized) initialize();
     return theProjectionMatrix;
   }
-
 
   /// Return the RecHit dimension
   virtual int dimension() const {
@@ -59,17 +57,6 @@ class RecHit1D : public TrackingRecHit {
 
 
  private:
-
-  static bool isInitialized;
-
-  static AlgebraicMatrix theProjectionMatrix;
-
-  void initialize() const;
-
+  static const AlgebraicMatrix theProjectionMatrix;
 };
 #endif
-
-
-
-
-

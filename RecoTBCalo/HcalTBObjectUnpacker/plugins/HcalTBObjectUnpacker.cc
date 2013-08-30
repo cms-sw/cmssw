@@ -81,7 +81,7 @@ using namespace std;
     if (doTiming_) produces<HcalTBTiming>();
 //    if (doBeamADC_) produces<HcalTBBeamCounters>();
     if (doBeamADC_) {produces<HcalTBBeamCounters>();qadcUnpacker_.setCalib(calibLines_);}
-//    if (doSourcePos_) produces<HcalSourcePositionData>();
+    if (doSourcePos_) produces<HcalSourcePositionData>();
     if(doTiming_||doEventPosition_)tdcUnpacker_.setCalib(calibLines_);
   }
 

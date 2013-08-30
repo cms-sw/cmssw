@@ -16,7 +16,6 @@
 //
 // Original Author:  
 //         Created:  Tue Nov 22 16:41:33 EST 2005
-// $Id: G4StepStatistics.h,v 1.6 2009/02/27 16:56:23 gbenelli Exp $
 //
 
 // system include files

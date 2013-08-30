@@ -31,12 +31,15 @@ namespace edmtest
 
     virtual void analyze(edm::Event const& e, edm::EventSetup const& c);
     virtual void endLuminosityBlock(LuminosityBlock const& lumiBlock, EventSetup const& c);
+
   };
 
   // -----------------------------------------------------------------
 
   TestLumiProducer::TestLumiProducer(edm::ParameterSet const& ps)
   {
+    consumes<LumiSummary,edm::InLumi>(edm::InputTag("lumiProducer",""));
+    consumes<LumiDetails,edm::InLumi>(edm::InputTag("lumiProducer",""));
   }
 
   // -----------------------------------------------------------------

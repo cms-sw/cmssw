@@ -14,6 +14,8 @@
 #include <boost/regex.hpp>
 #include <iostream>
 #include <map>
+#include "FWCore/Utilities/interface/EDGetToken.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 struct hltPerPathInfo{
   hltPerPathInfo():prescale(0){}
   unsigned int prescale;
@@ -36,13 +38,13 @@ public:
   virtual ~LumiCalculator();
 
 private:  
-  virtual void beginJob();
-  virtual void beginRun(const edm::Run& run, const edm::EventSetup& c);
-  virtual void analyze(edm::Event const& e, edm::EventSetup const& c);
+  virtual void beginJob() override;
+  virtual void beginRun(const edm::Run& run, const edm::EventSetup& c) override;
+  virtual void analyze(edm::Event const& e, edm::EventSetup const& c) override;
   virtual void endLuminosityBlock(edm::LuminosityBlock const& lumiBlock, 
-				  edm::EventSetup const& c);
-  virtual void endRun(edm::Run const&, edm::EventSetup const&);
-  virtual void endJob();
+				  edm::EventSetup const& c) override;
+  virtual void endRun(edm::Run const&, edm::EventSetup const&) override;
+  virtual void endJob() override;
   std::vector<std::string> splitpathstr(const std::string& strValue,const std::string separator);
   HLTConfigProvider hltConfig_;
   std::multimap<std::string,std::string> trgpathMmap_;//key:hltpath,value:l1bit
@@ -59,6 +61,8 @@ private:
 
 LumiCalculator::LumiCalculator(edm::ParameterSet const& pset):log_( new edm::LogInfo("LumiReport")),currentlumi_(0){
   showTrgInfo_=pset.getUntrackedParameter<bool>("showTriggerInfo",false);
+  consumes<LumiSummary,edm::InLumi>(edm::InputTag("lumiProducer",""));
+  consumes<LumiSummaryRunHeader,edm::InRun>(edm::InputTag("lumiProducer",""));
 }
 
 // -----------------------------------------------------------------

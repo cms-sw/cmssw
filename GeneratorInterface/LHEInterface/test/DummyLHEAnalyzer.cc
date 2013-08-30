@@ -9,6 +9,7 @@
 #include "SimDataFormats/GeneratorProducts/interface/LHERunInfoProduct.h"
 #include "SimDataFormats/GeneratorProducts/interface/LHEEventProduct.h"
 #include "FWCore/Utilities/interface/EDMException.h"
+#include <iomanip>
 #include <iostream>
 using namespace std;
 using namespace edm;

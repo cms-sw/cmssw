@@ -5,8 +5,6 @@
  *  Find the R binning of a list of detector according to several 
  *  definitions.
  *
- *  $Date: 2006/07/10 22:05:13 $
- *  $Revision: 1.4 $
  *  \author N. Amapane - INFN Torino
  */
 
@@ -27,9 +25,10 @@ public:
   typedef ForwardDetRing Det; //FIXME!!!
   typedef geomsort::ExtractR<Det,float> DetR;
 
-  RBorderFinder(std::vector<const Det*> theDets) 
-    : theNbins(theDets.size()), isRPeriodic_(false), isROverlapping_(false)
+  RBorderFinder(const std::vector<const Det*>& utheDets) 
+    : theNbins(utheDets.size()), isRPeriodic_(false), isROverlapping_(false)
   {
+    std::vector<const Det*> theDets = utheDets;
     precomputed_value_sort(theDets.begin(), theDets.end(), DetR());
 
     std::vector<ConstReferenceCountingPointer<BoundDisk> > disks(theNbins);

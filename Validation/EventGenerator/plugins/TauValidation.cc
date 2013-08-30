@@ -2,8 +2,6 @@
  *  
  *  Class to fill dqm monitor elements from existing EDM file
  *
- *  $Date: 2013/02/25 16:42:41 $
- *  $Revision: 1.27 $
  */
  
 #include "Validation/EventGenerator/interface/TauValidation.h"
@@ -159,8 +157,7 @@ void TauValidation::beginRun(const edm::Run& iRun,const edm::EventSetup& iSetup)
 void TauValidation::endRun(const edm::Run& iRun,const edm::EventSetup& iSetup){return;}
 void TauValidation::analyze(const edm::Event& iEvent,const edm::EventSetup& iSetup)
 { 
-  
-  ///Gathering the HepMCProduct information
+    ///Gathering the HepMCProduct information
   edm::Handle<HepMCProduct> evt;
   iEvent.getByLabel(hepmcCollection_, evt);
 
@@ -176,10 +173,8 @@ void TauValidation::analyze(const edm::Event& iEvent,const edm::EventSetup& iSet
   weight = 1.0;
   if(*(WT.product())>1e-3 && *(WT.product())<=10.0) weight=(*(WT.product()));
   else {weight=1.0;}
-  std::cout << "WT " << (*(WT.product())) << std::endl;
   */
   ///////////////////////////////////////////////
-
 
   // find taus
   for(HepMC::GenEvent::particle_const_iterator iter = myGenEvent->particles_begin(); iter != myGenEvent->particles_end(); iter++) {
@@ -205,55 +200,59 @@ void TauValidation::analyze(const edm::Event& iEvent,const edm::EventSetup& iSet
 	//
         TauDecay_CMSSW TD;
         unsigned int jak_id, TauBitMask;
-        TD.AnalyzeTau((*iter),jak_id,TauBitMask,false,false);
-        JAKID->Fill(jak_id,weight);
-	if(jak_id<=NJAKID){
-	  int tcharge=(*iter)->pdg_id()/abs((*iter)->pdg_id());
-	  std::vector<HepMC::GenParticle*> part=TD.Get_TauDecayProducts();
-	  spinEffects(*iter,mother,jak_id,part,weight);
-	  TLorentzVector LVQ(0,0,0,0);
-	  TLorentzVector LVS12(0,0,0,0);
-	  TLorentzVector LVS13(0,0,0,0);
-	  TLorentzVector LVS23(0,0,0,0);
-	  bool haspart1=false;
-	  for(unsigned int i=0;i<part.size();i++){
-	    if(TD.isTauFinalStateParticle(part.at(i)->pdg_id()) &&
-	       abs(part.at(i)->pdg_id())!=PdtPdgMini::nu_e &&
-	     abs(part.at(i)->pdg_id())!=PdtPdgMini::nu_mu &&
-	       abs(part.at(i)->pdg_id())!=PdtPdgMini::nu_tau ){
-	      TLorentzVector LV(part.at(i)->momentum().px(),part.at(i)->momentum().py(),part.at(i)->momentum().pz(),part.at(i)->momentum().e());
-	      LVQ+=LV;
-	      if(jak_id==TauDecay::JAK_A1_3PI ||
-		 jak_id==TauDecay::JAK_KPIK ||
-		 jak_id==TauDecay::JAK_KPIPI
-		 ){
-		if((tcharge==part.at(i)->pdg_id()/abs(part.at(i)->pdg_id()) && TD.nProng(TauBitMask)==3) || (jak_id==TauDecay::JAK_A1_3PI && TD.nProng(TauBitMask)==1 && abs(part.at(i)->pdg_id())==PdtPdgMini::pi_plus) ){
-		  LVS13+=LV;
-		  LVS23+=LV;
-		}
-		else{
-		  LVS12+=LV;
-		  if(!haspart1 && ((jak_id==TauDecay::JAK_A1_3PI)  || (jak_id!=TauDecay::JAK_A1_3PI && abs(part.at(i)->pdg_id())==PdtPdgMini::K_plus) )){
+        if(TD.AnalyzeTau((*iter),jak_id,TauBitMask,false,false)){
+	  JAKID->Fill(jak_id,weight);
+	  if(jak_id<=NJAKID){
+	    int tcharge=(*iter)->pdg_id()/abs((*iter)->pdg_id());
+	    std::vector<HepMC::GenParticle*> part=TD.Get_TauDecayProducts();
+	    spinEffects(*iter,mother,jak_id,part,weight);
+	    TLorentzVector LVQ(0,0,0,0);
+	    TLorentzVector LVS12(0,0,0,0);
+	    TLorentzVector LVS13(0,0,0,0);
+	    TLorentzVector LVS23(0,0,0,0);
+	    bool haspart1=false;
+	    for(unsigned int i=0;i<part.size();i++){
+	      if(TD.isTauFinalStateParticle(part.at(i)->pdg_id()) &&
+		 abs(part.at(i)->pdg_id())!=PdtPdgMini::nu_e &&
+		 abs(part.at(i)->pdg_id())!=PdtPdgMini::nu_mu &&
+		 abs(part.at(i)->pdg_id())!=PdtPdgMini::nu_tau ){
+		TLorentzVector LV(part.at(i)->momentum().px(),part.at(i)->momentum().py(),part.at(i)->momentum().pz(),part.at(i)->momentum().e());
+		LVQ+=LV;
+		if(jak_id==TauDecay::JAK_A1_3PI ||
+		   jak_id==TauDecay::JAK_KPIK ||
+		   jak_id==TauDecay::JAK_KPIPI
+		   ){
+		  if((tcharge==part.at(i)->pdg_id()/abs(part.at(i)->pdg_id()) && TD.nProng(TauBitMask)==3) || (jak_id==TauDecay::JAK_A1_3PI && TD.nProng(TauBitMask)==1 && abs(part.at(i)->pdg_id())==PdtPdgMini::pi_plus) ){
 		    LVS13+=LV;
-		    haspart1=true;
+		    LVS23+=LV;
 		  }
 		  else{
-		    LVS23+=LV;
+		    LVS12+=LV;
+		    if(!haspart1 && ((jak_id==TauDecay::JAK_A1_3PI)  || (jak_id!=TauDecay::JAK_A1_3PI && abs(part.at(i)->pdg_id())==PdtPdgMini::K_plus) )){
+		      LVS13+=LV;
+		      haspart1=true;
+		    }
+		    else{
+		      LVS23+=LV;
+		    }
 		  }
 		}
 	      }
 	    }
+	    part.clear();
+	    JAKInvMass.at(jak_id).at(0)->Fill(LVQ.M(),weight);
+	    if(jak_id==TauDecay::JAK_A1_3PI ||
+	       jak_id==TauDecay::JAK_KPIK ||
+	       jak_id==TauDecay::JAK_KPIPI
+	       ){
+	      JAKInvMass.at(jak_id).at(1)->Fill(LVS13.M(),weight);
+	      JAKInvMass.at(jak_id).at(2)->Fill(LVS23.M(),weight);
+	      JAKInvMass.at(jak_id).at(3)->Fill(LVS12.M(),weight);
+	    }
 	  }
-	  part.clear();
-	  JAKInvMass.at(jak_id).at(0)->Fill(LVQ.M(),weight);
-	  if(jak_id==TauDecay::JAK_A1_3PI ||
-	     jak_id==TauDecay::JAK_KPIK ||
-	     jak_id==TauDecay::JAK_KPIPI
-	     ){
-	    JAKInvMass.at(jak_id).at(1)->Fill(LVS13.M(),weight);
-	    JAKInvMass.at(jak_id).at(2)->Fill(LVS23.M(),weight);
-	    JAKInvMass.at(jak_id).at(3)->Fill(LVS12.M(),weight);
-	  }
+	}
+	else{
+	  JAKID->Fill(jak_id,weight);  
 	}
       }
     }

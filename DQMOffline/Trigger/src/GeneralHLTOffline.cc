@@ -12,7 +12,6 @@ Implementation:
 //
 // Original Author:  Jason Michael Slaunwhite,512 1-008,`+41227670494,
 //         Created:  Fri Aug  5 10:34:47 CEST 2011
-// $Id: GeneralHLTOffline.cc,v 1.11 2013/02/02 16:24:44 rovere Exp $
 //
 //
 
@@ -51,15 +50,15 @@ class GeneralHLTOffline : public edm::EDAnalyzer {
   ~GeneralHLTOffline();
 
  private:
-  virtual void beginJob();
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void endJob();
-  virtual void beginRun(edm::Run const&, edm::EventSetup const&);
-  virtual void endRun(edm::Run const&, edm::EventSetup const&);
+  virtual void beginJob() override;
+  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
+  virtual void endJob() override;
+  virtual void beginRun(edm::Run const&, edm::EventSetup const&) override;
+  virtual void endRun(edm::Run const&, edm::EventSetup const&) override;
   virtual void beginLuminosityBlock(edm::LuminosityBlock const&,
-                                    edm::EventSetup const&);
+                                    edm::EventSetup const&) override;
   virtual void endLuminosityBlock(edm::LuminosityBlock const&,
-                                  edm::EventSetup const&);
+                                  edm::EventSetup const&) override;
   virtual void setupHltMatrix(const std::string &, int);
   virtual void fillHltMatrix(const std::string &,
                              const std::string &,

@@ -10,7 +10,7 @@ public:
   ~HLTTrackSeedMultiplicityFilter();
 
 private:
-  virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct);
+  virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) override;
 
   edm::InputTag inputTag_;       // input tag identifying product containing track seeds
   unsigned int  min_seeds_;      // minimum number of track seeds

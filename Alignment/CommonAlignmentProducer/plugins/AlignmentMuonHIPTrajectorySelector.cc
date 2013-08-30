@@ -58,7 +58,7 @@ class AlignmentMuonHIPTrajectorySelector : public edm::EDProducer {
       ~AlignmentMuonHIPTrajectorySelector();
 
    private:
-      virtual void produce(edm::Event&, const edm::EventSetup&);
+      virtual void produce(edm::Event&, const edm::EventSetup&) override;
       
       // ---------- member data --------------------------------
       edm::InputTag m_input;

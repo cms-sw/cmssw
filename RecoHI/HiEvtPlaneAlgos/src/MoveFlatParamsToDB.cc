@@ -13,7 +13,6 @@
 //
 // Original Author:  Stephen Sanders
 //         Created:  Fri Jun 11 12:56:15 EDT 2010
-// $Id: MoveFlatParamsToDB.cc,v 1.1 2011/09/24 14:02:09 ssanders Exp $
 //
 //
 
@@ -76,9 +75,9 @@ public:
   
   
 private:
-  virtual void beginJob() ;
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void endJob() ;
+  virtual void beginJob() override ;
+  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
+  virtual void endJob() override ;
 //   edm::Service<TFileService> fs;
   TFile * inFile;
   //Hard coded limit of 100 different reaction planes

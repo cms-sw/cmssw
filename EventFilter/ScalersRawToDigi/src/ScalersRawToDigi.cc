@@ -41,7 +41,7 @@ class ScalersRawToDigi : public edm::EDProducer
     explicit ScalersRawToDigi(const edm::ParameterSet&);
     ~ScalersRawToDigi();
 
-    virtual void produce(edm::Event&, const edm::EventSetup&);
+    virtual void produce(edm::Event&, const edm::EventSetup&) override;
 
   private:
     edm::InputTag inputTag_;

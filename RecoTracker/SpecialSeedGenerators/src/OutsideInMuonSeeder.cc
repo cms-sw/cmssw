@@ -1,6 +1,5 @@
 
 //
-// $Id: OutsideInMuonSeeder.cc,v 1.1 2012/09/12 15:58:08 gpetrucc Exp $
 //
 
 /**
@@ -8,7 +7,6 @@
   \brief    Matcher of reconstructed objects to other reconstructed objects using the tracks inside them 
             
   \author   Giovanni Petrucciani
-  \version  $Id: OutsideInMuonSeeder.cc,v 1.1 2012/09/12 15:58:08 gpetrucc Exp $
 */
 
 

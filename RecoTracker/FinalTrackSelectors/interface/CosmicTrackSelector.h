@@ -6,9 +6,7 @@
  * 
  * \author Paolo Azzurri, Giovanni Petrucciani 
  *
- * \version $Revision: 1.2 $
  *
- * $Id: CosmicTrackSelector.h,v 1.2 2010/02/20 21:01:19 wmtan Exp $
  *
  */
 
@@ -49,12 +47,14 @@ namespace reco { namespace modules {
 		     // return class, or -1 if rejected
 		     bool select (const reco::BeamSpot &vertexBeamSpot, const reco::Track &tk);
 		     // source collection label
-		     edm::InputTag src_;
-		     edm::InputTag beamspot_;
+                     edm::EDGetTokenT<reco::TrackCollection> src_;
+                     edm::EDGetTokenT<reco::BeamSpot> beamspot_;
 		     // copy only the tracks, not extras and rechits (for AOD)
 		     bool copyExtras_;
 		     // copy also trajectories and trajectory->track associations
 		     bool copyTrajectories_;
+                     edm::EDGetTokenT<std::vector<Trajectory> >        srcTraj_;
+                     edm::EDGetTokenT<TrajTrackAssociationCollection > srcTass_;
 		     
 		     // save all the tracks
 		     bool keepAllTracks_;

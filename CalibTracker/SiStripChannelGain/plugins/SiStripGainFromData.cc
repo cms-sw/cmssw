@@ -87,13 +87,13 @@ class SiStripGainFromData : public ConditionDBWriter<SiStripApvGain> {
 
 
    private:
-      virtual void algoBeginJob(const edm::EventSetup&) ;
-      virtual void algoEndJob() ;
-      virtual void algoBeginRun(const edm::Run &, const edm::EventSetup &);
+      virtual void algoBeginJob(const edm::EventSetup&) override ;
+      virtual void algoEndJob() override ;
+      virtual void algoBeginRun(const edm::Run &, const edm::EventSetup &) override;
 //      virtual void algoBeginRun(const edm::Event& iEvent, const edm::EventSetup& iSetup);
-      virtual void algoAnalyze(const edm::Event &, const edm::EventSetup &);
+      virtual void algoAnalyze(const edm::Event &, const edm::EventSetup &) override;
 
-      SiStripApvGain* getNewObject();
+      SiStripApvGain* getNewObject() override;
       DQMStore* dqmStore_;
       DQMStore* dqmStore_infile;
 

@@ -35,8 +35,6 @@ class DetId;
 
 /** \class CaloTowersCreationAlgo
   *  
-  * $Date: 2011/03/18 19:10:07 $
-  * $Revision: 1.20 $
   * \author R. Wilkinson - Caltech
   */
 

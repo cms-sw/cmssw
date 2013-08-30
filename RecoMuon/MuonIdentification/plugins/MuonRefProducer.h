@@ -13,7 +13,6 @@
 */
 //
 // Original Author:  Dmytro Kovalskyi
-// $Id: MuonRefProducer.h,v 1.2 2007/07/26 00:27:03 dmytro Exp $
 //
 
 

@@ -2,8 +2,6 @@
 #define TopHLTDiMuonDQMClient_H
 
 /*
- *  $Date: 2010/08/04 13:24:49 $
- *  $Revision: 2.10 $
  *  \author M. Marienfeld - DESY Hamburg
  */
 

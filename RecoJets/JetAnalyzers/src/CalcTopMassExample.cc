@@ -57,7 +57,7 @@ class calcTopMass : public edm::EDAnalyzer {
   public:
     explicit calcTopMass(const edm::ParameterSet & );
     ~calcTopMass() {};
-    virtual void analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup);
+    virtual void analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup) override;
   private:
     edm::InputTag sourcePartons_;
     edm::InputTag sourceByRefer_;

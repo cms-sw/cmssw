@@ -109,7 +109,7 @@ namespace popcon {
     cond::LogDBEntry const & logDBEntry() const { return *m_logDBEntry; }
     
     
-    void initialize (cond::DbSession dbSession,
+    void initialize (const cond::DbSession& dbSession,
 		     cond::TagInfo const & tagInfo, cond::LogDBEntry const & logDBEntry) { 
       m_session = dbSession;
       m_tagInfo = &tagInfo;
@@ -117,7 +117,7 @@ namespace popcon {
     }
     
     // this is the only mandatory interface
-    std::pair<Container const *, std::string const>  operator()(cond::DbSession session,
+    std::pair<Container const *, std::string const>  operator()(const cond::DbSession& session,
 								cond::TagInfo const & tagInfo, 
 								cond::LogDBEntry const & logDBEntry) const {
       const_cast<self*>(this)->initialize(session, tagInfo, logDBEntry);

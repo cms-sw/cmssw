@@ -11,8 +11,8 @@ namespace edm {
     ~EmptySource();
     static void fillDescriptions(ConfigurationDescriptions& descriptions);
   private:
-    virtual bool setRunAndEventInfo(EventID& id, TimeValue_t& time);
-    virtual void produce(Event &);
+    virtual bool setRunAndEventInfo(EventID& id, TimeValue_t& time) override;
+    virtual void produce(Event &) override;
   };
 
   EmptySource::EmptySource(ParameterSet const& pset,

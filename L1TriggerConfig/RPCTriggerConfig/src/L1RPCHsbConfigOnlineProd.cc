@@ -32,7 +32,7 @@ class L1RPCHsbConfigOnlineProd : public L1ConfigOnlineProdBase< L1RPCHsbConfigRc
       ~L1RPCHsbConfigOnlineProd();
 
   virtual boost::shared_ptr< L1RPCHsbConfig > newObject(
-    const std::string& objectKey ) ;
+    const std::string& objectKey ) override ;
 
    private:
       // ----------member data ---------------------------

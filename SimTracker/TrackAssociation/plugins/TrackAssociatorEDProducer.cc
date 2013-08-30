@@ -1,7 +1,6 @@
 //
 // Original Author:  Stefano Magni
 //         Created:  Fri Mar  9 10:52:11 CET 2007
-// $Id: TrackAssociatorEDProducer.cc,v 1.7 2009/11/13 14:15:53 fambrogl Exp $
 //
 //
 
@@ -36,9 +35,9 @@ public:
   ~TrackAssociatorEDProducer();
   
 private:
-  virtual void beginJob() {}
-  virtual void produce(edm::Event&, const edm::EventSetup&);
-  virtual void endJob() ;
+  virtual void beginJob() override {}
+  virtual void produce(edm::Event&, const edm::EventSetup&) override;
+  virtual void endJob() override ;
   
   edm::ESHandle<TrackAssociatorBase> theAssociator;
   bool first;

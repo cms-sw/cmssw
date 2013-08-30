@@ -4,11 +4,11 @@ namespace cond {
   public:
     OracleProxy(){}
     ~OracleProxy(){}
-    void initialize( const DbConnection& ){
+    void initialize( const DbConnection& ) override{
     }
-    std::string getRealConnectString( const std::string &userconnect ) const{ return userconnect;}
-    std::string getRealConnectString( const std::string &userconnect, const std::string& ) const{ return userconnect;}
-    bool isTransactional() const { return true;}
+    std::string getRealConnectString( const std::string &userconnect ) const override{ return userconnect;}
+    std::string getRealConnectString( const std::string &userconnect, const std::string& ) const override{ return userconnect;}
+    bool isTransactional() const override { return true;}
   };
 }//ns cond
 

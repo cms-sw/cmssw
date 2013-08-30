@@ -6,8 +6,6 @@
  *
  *  DQM monitoring source for Calo Jets
  *
- *  $Date: 2012/03/06 11:39:21 $
- *  $Revision: 1.16 $
  *  \author F. Chlebana - Fermilab
  */
 

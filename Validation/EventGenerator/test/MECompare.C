@@ -1,6 +1,4 @@
 // F. Cossutti 
-// $Date:$
-// $Revision:$
 //
 // ROOT macro for graphical compariosn of Monitor Elements in a user
 // supplied directory between two files with the same histogram content

@@ -1,6 +1,5 @@
 #include "DQM/RPCMonitorClient/interface/RPCMonitorRaw.h"
 
-
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -11,7 +10,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "CondFormats/RPCObjects/interface/LinkBoardElectronicIndex.h"
-#include "DataFormats/RPCDigi/interface/RPCRawDataCounts.h"
+
 #include "DataFormats/RPCDigi/interface/ReadoutError.h"
 #include "DQM/RPCMonitorClient/interface/RPCRawDataCountsHistoMaker.h"
 
@@ -26,10 +25,10 @@
 
 typedef std::map< std::pair<int,int>, int>::const_iterator IT;
 
-RPCMonitorRaw::RPCMonitorRaw(const edm::ParameterSet& cfg)
-  : theConfig(cfg),
-    rpcRawDataCountsTag_(cfg.getParameter<edm::InputTag>("rpcRawDataCountsTag"))
-{
+RPCMonitorRaw::RPCMonitorRaw(const edm::ParameterSet& cfg):theConfig(cfg){
+  
+  rpcRawDataCountsTag_ = consumes<RPCRawDataCounts>(cfg.getParameter<edm::InputTag>("rpcRawDataCountsTag"));
+  
   for (unsigned int i=0; i<10;i++) theWatchedErrorHistoPos[i]=0;
   std::vector<int> algos = cfg.getUntrackedParameter<std::vector<int> >("watchedErrors");
   for (std::vector<int>::const_iterator it=algos.begin();it!= algos.end(); ++it) {
@@ -40,9 +39,10 @@ RPCMonitorRaw::RPCMonitorRaw(const edm::ParameterSet& cfg)
 
 RPCMonitorRaw::~RPCMonitorRaw() { LogTrace("") << "RPCMonitorRaw destructor"; }
 
-void RPCMonitorRaw::beginJob()
-{
+void RPCMonitorRaw::beginJob(){}
 
+
+void RPCMonitorRaw::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup){
 // Get DQM interface
   DQMStore* theDMBE = edm::Service<DQMStore>().operator->();
   
@@ -105,7 +105,7 @@ void RPCMonitorRaw::analyze(const  edm::Event& ev, const edm::EventSetup& es)
 {
 
   edm::Handle<RPCRawDataCounts> rawCounts;
-  ev.getByLabel(rpcRawDataCountsTag_, rawCounts);
+  ev.getByToken(rpcRawDataCountsTag_, rawCounts);
   const RPCRawDataCounts & counts = *rawCounts.product(); 
 
   //

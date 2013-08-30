@@ -7,8 +7,6 @@
  *
  *  \author R. Wilkinson
  *
- *  $Date: 2008/10/17 23:17:08 $
- *  $Revision: 1.2 $
  *  
  */
 

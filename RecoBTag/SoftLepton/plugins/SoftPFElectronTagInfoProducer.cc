@@ -25,10 +25,13 @@
 #include <cmath>
 #include "RecoEgamma/EgammaTools/interface/ConversionTools.h"
 
-SoftPFElectronTagInfoProducer::SoftPFElectronTagInfoProducer (const edm::ParameterSet& conf):
- PVerTag_(conf.getParameter<edm::InputTag>("primaryVertex") ),
- PFJet_  (conf.getParameter<edm::InputTag>("jets")  )
+SoftPFElectronTagInfoProducer::SoftPFElectronTagInfoProducer (const edm::ParameterSet& conf)
 {
+	token_jets          = consumes<edm::View<reco::Jet> >(conf.getParameter<edm::InputTag>("jets"));
+	token_primaryVertex = consumes<reco::VertexCollection>(conf.getParameter<edm::InputTag>("primaryVertex"));
+	token_BeamSpot      = consumes<reco::BeamSpot>(edm::InputTag("offlineBeamSpot"));
+	token_allConversions= consumes<reco::ConversionCollection>(edm::InputTag("allConversions"));
+
         produces<reco::SoftLeptonTagInfoCollection>();
 }
 
@@ -46,7 +49,7 @@ void SoftPFElectronTagInfoProducer::produce(edm::Event& iEvent, const edm::Event
  	transientTrackBuilder=builder.product();
  
  	edm::Handle<reco::VertexCollection> PVCollection;
- 	iEvent.getByLabel(PVerTag_, PVCollection);
+	iEvent.getByToken(token_primaryVertex, PVCollection);
 // 	if(!PVCollection.isValid() || PVCollection->empty()) return;
  	if(!PVCollection.isValid()) return;
  	if(!PVCollection->empty()){
@@ -55,16 +58,16 @@ void SoftPFElectronTagInfoProducer::produce(edm::Event& iEvent, const edm::Event
 	}else goodvertex = false; 
 	
   edm::Handle<reco::BeamSpot> bsHandle;
-  iEvent.getByLabel("offlineBeamSpot", bsHandle);
+  iEvent.getByToken(token_BeamSpot, bsHandle);
   const reco::BeamSpot &beamspot = *bsHandle.product();
 
   edm::Handle<reco::ConversionCollection> hConversions;
-  iEvent.getByLabel("allConversions", hConversions);
+  iEvent.getByToken(token_allConversions, hConversions);
  
  	std::vector<edm::RefToBase<reco::Jet> > jets;
  
  	edm::Handle<edm::View<reco::Jet> > inputJets;
- 	iEvent.getByLabel(PFJet_, inputJets);
+ 	iEvent.getByToken(token_jets, inputJets);
  	unsigned int size = inputJets->size();
  	jets.resize(size);
  	for (unsigned int i = 0; i < size; i++){

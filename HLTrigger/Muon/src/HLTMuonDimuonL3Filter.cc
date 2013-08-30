@@ -42,9 +42,12 @@ using namespace trigger;
 // constructors and destructor
 //
 HLTMuonDimuonL3Filter::HLTMuonDimuonL3Filter(const edm::ParameterSet& iConfig) : HLTFilter(iConfig),
-   beamspotTag_   (iConfig.getParameter< edm::InputTag > ("BeamSpotTag")),
-   candTag_     (iConfig.getParameter< edm::InputTag > ("CandTag")),
+   beamspotTag_       (iConfig.getParameter< edm::InputTag > ("BeamSpotTag")),
+   beamspotToken_     (consumes<reco::BeamSpot>(beamspotTag_)),
+   candTag_           (iConfig.getParameter< edm::InputTag > ("CandTag")),
+   candToken_         (consumes<reco::RecoChargedCandidateCollection>(candTag_)),
    previousCandTag_   (iConfig.getParameter<InputTag > ("PreviousCandTag")),
+   previousCandToken_ (consumes<trigger::TriggerFilterObjectWithRefs>(previousCandTag_)),
    fast_Accept_ (iConfig.getParameter<bool> ("FastAccept")),
    max_Eta_     (iConfig.getParameter<double> ("MaxEta")),
    min_Nhits_   (iConfig.getParameter<int> ("MinNhits")),
@@ -93,6 +96,7 @@ HLTMuonDimuonL3Filter::~HLTMuonDimuonL3Filter()
 void
 HLTMuonDimuonL3Filter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
+  makeHLTFilterDescription(desc);
   desc.add<edm::InputTag>("BeamSpotTag",edm::InputTag("hltOfflineBeamSpot"));
   desc.add<edm::InputTag>("CandTag",edm::InputTag("hltL3MuonCandidates"));
   //  desc.add<edm::InputTag>("PreviousCandTag",edm::InputTag("hltDiMuonL2PreFiltered0"));
@@ -122,7 +126,6 @@ HLTMuonDimuonL3Filter::fillDescriptions(edm::ConfigurationDescriptions& descript
   desc.add<double>("MinPtBalance",-1.0);
   desc.add<double>("MaxPtBalance",999999.0);
   desc.add<double>("NSigmaPt",0.0);
-  desc.add<bool>("saveTags",false);
   desc.add<double>("MaxDCAMuMu",99999.9);
   desc.add<double>("MaxRapidityPair",999999.0);
   desc.add<bool>("CutCowboys",false);
@@ -154,7 +157,7 @@ HLTMuonDimuonL3Filter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSet
    // get hold of trks
    Handle<RecoChargedCandidateCollection> mucands;
    if (saveTags()) filterproduct.addCollectionTag(candTag_);
-   iEvent.getByLabel (candTag_,mucands);
+   iEvent.getByToken(candToken_,mucands);
    // sort them by L2Track
    std::map<reco::TrackRef, std::vector<RecoChargedCandidateRef> > L2toL3s;
    unsigned int maxI = mucands->size();
@@ -166,10 +169,10 @@ HLTMuonDimuonL3Filter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSet
    }
 
    Handle<TriggerFilterObjectWithRefs> previousLevelCands;
-   iEvent.getByLabel (previousCandTag_,previousLevelCands);
+   iEvent.getByToken(previousCandToken_,previousLevelCands);
    BeamSpot beamSpot;
    Handle<BeamSpot> recoBeamSpotHandle;
-   iEvent.getByLabel(beamspotTag_,recoBeamSpotHandle);
+   iEvent.getByToken(beamspotToken_,recoBeamSpotHandle);
    beamSpot = *recoBeamSpotHandle;
 
    // Needed for DCA calculation

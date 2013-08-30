@@ -1,8 +1,4 @@
 /** 
-    $Date: 2008/03/10 13:54:05 $
-    $Revision: 1.3 $
-    $Id: InvMatrixUtils.cc,v 1.3 2008/03/10 13:54:05 elmer Exp $ 
-    \author $Author: elmer $
 */
 
 #include "Calibration/Tools/interface/InvMatrixUtils.h"

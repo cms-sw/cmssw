@@ -10,7 +10,7 @@ namespace ecaldqm {
     SelectiveReadoutClient(const edm::ParameterSet &, const edm::ParameterSet &);
     ~SelectiveReadoutClient() {}
 
-    void producePlots();
+    void producePlots() override;
 
     enum MESets {
       kFRDropped,

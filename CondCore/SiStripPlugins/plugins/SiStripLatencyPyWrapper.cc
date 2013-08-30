@@ -22,7 +22,7 @@ namespace cond {
     {
       // here one can make stuff really complicated...
     }
-    void compute(Class const & it){
+    void compute(Class const & it) override{
     }
   private:
   

@@ -1,13 +1,8 @@
 /*
  * \file L1TGCT.cc
  *
- * $Date: 2012/03/29 21:16:48 $
- * $Revision: 1.56 $
  * \author J. Berryhill
  *
- * $Log: L1TGCT.cc,v $
- * Revision 1.56  2012/03/29 21:16:48  rovere
- * Removed all instances of hltTriggerTypeFilter from L1T DQM Code.
  *
  * Revision 1.55  2010/06/28 09:29:30  tapper
  * Reduced number of bins.

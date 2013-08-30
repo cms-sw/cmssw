@@ -32,7 +32,7 @@ void GEMNumberingScheme::initMe ( const MuonDDDConstants& muonConstants ) {
 #endif
 }
 
-int GEMNumberingScheme::baseNumberToUnitNumber(const MuonBaseNumber num) {
+int GEMNumberingScheme::baseNumberToUnitNumber(const MuonBaseNumber& num) {
 
 #ifdef LOCAL_DEBUG
   std::cout << "GEMNumbering "<<num.getLevels()<<std::endl;

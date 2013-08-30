@@ -2,7 +2,6 @@
  *
  *  \author Roberto Covarelli (CERN)
  * 
- * $Id: EgammaHLTGsfTrackVarProducer.cc,v 1.1 2012/01/23 12:56:38 sharper Exp $
  *
  */
 

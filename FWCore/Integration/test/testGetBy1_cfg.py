@@ -2,6 +2,11 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("PROD1")
 
+process.Tracer = cms.Service('Tracer',
+                             dumpContextForLabel = cms.untracked.string('intProducerA'),
+                             dumpNonModuleContext = cms.untracked.bool(True)
+)
+
 process.options = cms.untracked.PSet( allowUnscheduled = cms.untracked.bool(True) )
 
 process.source = cms.Source("IntSource")
@@ -58,3 +63,11 @@ process.intVectorProducer = cms.EDProducer("IntVectorProducer",
 process.p = cms.Path(process.intProducer * process.a1 * process.a2 * process.a3)
 
 process.e = cms.EndPath(process.out)
+
+copyProcess = cms.Process("COPY")
+process.subProcess = cms.SubProcess(copyProcess,
+    outputCommands = cms.untracked.vstring(
+        "keep *", 
+        "drop *_intProducerA_*_*"
+    )
+)

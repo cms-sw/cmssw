@@ -31,7 +31,7 @@ class DTMuonMillepede : public DTMuonLocalAlignment {
   
   TMatrixD getbcsMatrix(int, int, int);
 
-  TMatrixD getMatrixFromFile(TString Code, int , int, int, int);
+  TMatrixD getMatrixFromFile(const TString& Code, int , int, int, int);
 
   TMatrixD getCqcMatrix(int, int, int);
   

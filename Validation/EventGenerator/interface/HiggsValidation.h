@@ -5,8 +5,6 @@
  *  
  *  Class to fill Event Generator dqm monitor elements; works on HepMCProduct
  *
- *  $Date: 2012/06/25 14:51:48 $
- *  $Revision: 1.1 $
  *
  */
 #include <iostream>

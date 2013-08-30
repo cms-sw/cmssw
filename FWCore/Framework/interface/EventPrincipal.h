@@ -35,6 +35,7 @@ namespace edm {
   class EventID;
   class HistoryAppender;
   class LuminosityBlockPrincipal;
+  class ModuleCallingContext;
   class RunPrincipal;
   class UnscheduledHandler;
 
@@ -131,18 +132,18 @@ namespace edm {
     BranchListIndexes const& branchListIndexes() const;
 
     Provenance
-    getProvenance(ProductID const& pid) const;
+    getProvenance(ProductID const& pid, ModuleCallingContext const* mcc) const;
 
     BasicHandle
     getByProductID(ProductID const& oid) const;
 
     void put(
-        ConstBranchDescription const& bd,
+        BranchDescription const& bd,
         WrapperOwningHolder const& edp,
         ProductProvenance const& productProvenance);
 
     void putOnRead(
-        ConstBranchDescription const& bd,
+        BranchDescription const& bd,
         void const* product,
         ProductProvenance const& productProvenance);
 
@@ -160,11 +161,27 @@ namespace edm {
 
     BranchID pidToBid(ProductID const& pid) const;
 
-    virtual bool unscheduledFill(std::string const& moduleLabel) const override;
+    virtual bool unscheduledFill(std::string const& moduleLabel,
+                                 ModuleCallingContext const* mcc) const override;
 
-    virtual void resolveProduct_(ProductHolderBase const& phb, bool fillOnDemand) const override;
+    virtual void resolveProduct_(ProductHolderBase const& phb,
+                                 bool fillOnDemand,
+                                 ModuleCallingContext const* mcc) const override;
 
   private:
+
+    class UnscheduledSentry {
+    public:
+      UnscheduledSentry(std::vector<std::string>* moduleLabelsRunning, std::string const& moduleLabel) :
+        moduleLabelsRunning_(moduleLabelsRunning) {
+        moduleLabelsRunning_->push_back(moduleLabel);
+      }
+      ~UnscheduledSentry() {
+        moduleLabelsRunning_->pop_back();
+      }
+    private:
+      std::vector<std::string>* moduleLabelsRunning_;
+    };
 
     EventAuxiliary aux_;
 

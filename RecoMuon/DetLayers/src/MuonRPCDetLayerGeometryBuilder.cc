@@ -106,7 +106,7 @@ MuonRPCDetLayerGeometryBuilder::buildEndcapLayers(const RPCGeometry& geo) {
 
 
 MuRingForwardDoubleLayer* 
-MuonRPCDetLayerGeometryBuilder::buildLayer(int endcap,std::vector<int> rings, int station,
+MuonRPCDetLayerGeometryBuilder::buildLayer(int endcap,const std::vector<int>& rings, int station,
 					   int layer,
 					   vector<int>& rolls,
 					   const RPCGeometry& geo) {
@@ -116,7 +116,7 @@ MuonRPCDetLayerGeometryBuilder::buildLayer(int endcap,std::vector<int> rings, in
   vector<const ForwardDetRing*> frontRings, backRings;
 
 
-  for (std::vector<int>::iterator ring=rings.begin(); ring<rings.end();++ring){ 
+  for (std::vector<int>::const_iterator ring=rings.begin(); ring<rings.end();++ring){ 
     for (vector<int>::iterator roll = rolls.begin(); roll!=rolls.end(); ++roll) {    
       vector<const GeomDet*> frontDets, backDets;
       for(int sector = RPCDetId::minSectorForwardId; sector <= RPCDetId::maxSectorForwardId; ++sector) {

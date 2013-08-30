@@ -28,6 +28,7 @@ Test program for edm::Event.
 #include "FWCore/Framework/interface/EDConsumerBase.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/RootAutoLibraryLoader/interface/RootAutoLibraryLoader.h"
+#include "FWCore/ServiceRegistry/interface/ModuleCallingContext.h"
 #include "FWCore/Utilities/interface/Algorithms.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Utilities/interface/GetPassID.h"
@@ -39,7 +40,7 @@ Test program for edm::Event.
 #include "FWCore/Version/interface/GetReleaseVersion.h"
 #include "Utilities/Testing/interface/CppUnit_testdriver.icpp"
 
-#include <cppunit/extensions/HelperMacros.h>
+#include "cppunit/extensions/HelperMacros.h"
 
 #include "Cintex/Cintex.h"
 
@@ -206,7 +207,7 @@ testEvent::registerProduct(std::string const& tag,
                            product_type
                         );
 
-  moduleDescriptions_[tag] = ModuleDescription(moduleParams.id(), moduleClassName, moduleLabel, processX.get());
+  moduleDescriptions_[tag] = ModuleDescription(moduleParams.id(), moduleClassName, moduleLabel, processX.get(),ModuleDescription::getUniqueID());
   availableProducts_->addProduct(branch);
 }
 
@@ -223,7 +224,8 @@ testEvent::addProduct(std::auto_ptr<T> product,
       << "Failed to find a module description for tag: "
       << tag << '\n';
 
-  Event temporaryEvent(*principal_, description->second);
+  ModuleCallingContext mcc(&description->second);
+  Event temporaryEvent(*principal_, description->second, &mcc);
   OrphanHandle<T> h = temporaryEvent.put(product, productLabel);
   ProductID id = h.id();
   ProducerBase::commitEvent(temporaryEvent);
@@ -273,7 +275,7 @@ testEvent::testEvent() :
 
   boost::shared_ptr<ProcessConfiguration> processX(new ProcessConfiguration(process));
   processConfigurations_.push_back(processX);
-  currentModuleDescription_.reset(new ModuleDescription(moduleParams.id(), moduleClassName, moduleLabel, processX.get()));
+    currentModuleDescription_.reset(new ModuleDescription(moduleParams.id(), moduleClassName, moduleLabel, processX.get(),ModuleDescription::getUniqueID()));
 
   std::string productInstanceName("int1");
 
@@ -340,7 +342,7 @@ void testEvent::setUp() {
   processHistory->push_back(processEarly);
   processHistory->push_back(processLate);
 
-  ProcessHistoryRegistry::instance()->insertMapped(ph);
+  registerProcessHistory(ph);
 
   ProcessHistoryID processHistoryID = ph.id();
 
@@ -374,8 +376,8 @@ void testEvent::setUp() {
   principal_.reset(new edm::EventPrincipal(preg, branchIDListHelper_, pc, &historyAppender_,edm::StreamID::invalidStreamID()));
   principal_->fillEventPrincipal(eventAux);
   principal_->setLuminosityBlockPrincipal(lbp);
-  currentEvent_.reset(new Event(*principal_, *currentModuleDescription_));
-
+  ModuleCallingContext mcc(currentModuleDescription_.get());
+  currentEvent_.reset(new Event(*principal_, *currentModuleDescription_, &mcc));
 }
 
 void
@@ -574,13 +576,13 @@ void testEvent::getByLabel() {
 
   }
 
-  BasicHandle bh = principal_->getByLabel(PRODUCT_TYPE, TypeID(typeid(edmtest::IntProduct)), "modMulti", "int1", "LATE",nullptr);
+  BasicHandle bh = principal_->getByLabel(PRODUCT_TYPE, TypeID(typeid(edmtest::IntProduct)), "modMulti", "int1", "LATE",nullptr, nullptr);
   convert_handle(bh, h);
   CPPUNIT_ASSERT(h->value == 100);
-  BasicHandle bh2(principal_->getByLabel(PRODUCT_TYPE, TypeID(typeid(edmtest::IntProduct)), "modMulti", "int1", "nomatch",nullptr));
+  BasicHandle bh2(principal_->getByLabel(PRODUCT_TYPE, TypeID(typeid(edmtest::IntProduct)), "modMulti", "int1", "nomatch",nullptr, nullptr));
   CPPUNIT_ASSERT(!bh2.isValid());
 
-  boost::shared_ptr<Wrapper<edmtest::IntProduct> const> ptr = getProductByTag<edmtest::IntProduct>(*principal_, inputTag);
+  boost::shared_ptr<Wrapper<edmtest::IntProduct> const> ptr = getProductByTag<edmtest::IntProduct>(*principal_, inputTag, nullptr);
   CPPUNIT_ASSERT(ptr->product()->value == 200);
 }
 
@@ -726,7 +728,7 @@ void testEvent::deleteProduct() {
       id = iDesc.branchID();
     }});
 
-  const ProductHolderBase* phb = principal_->getProductHolder(id,false,false);
+  const ProductHolderBase* phb = principal_->getProductHolder(id,false,false,nullptr);
   CPPUNIT_ASSERT(phb != nullptr);
   
   CPPUNIT_ASSERT(!phb->productWasDeleted());  

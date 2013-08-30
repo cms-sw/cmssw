@@ -29,7 +29,6 @@
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
-#include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
 #include <iostream>
 
 HLTHcalLaserFilter::HLTHcalLaserFilter(const edm::ParameterSet& iConfig) :
@@ -43,6 +42,8 @@ HLTHcalLaserFilter::HLTHcalLaserFilter(const edm::ParameterSet& iConfig) :
 
 {
   //maxAllowedHFcalib_=10;
+
+    m_theCalibToken = consumes<HcalCalibDigiCollection>(hcalDigiCollection_);
 }
 
 
@@ -72,7 +73,7 @@ HLTHcalLaserFilter::fillDescriptions(edm::ConfigurationDescriptions& description
 bool HLTHcalLaserFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   edm::Handle<HcalCalibDigiCollection> hCalib;
-  iEvent.getByLabel(hcalDigiCollection_, hCalib);
+  iEvent.getByToken(m_theCalibToken, hCalib);
 
   int numHFcalib=0;
 

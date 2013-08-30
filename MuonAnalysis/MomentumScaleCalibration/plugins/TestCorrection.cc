@@ -66,8 +66,8 @@ public:
 
 private:
   virtual void initialize(const edm::EventSetup&);
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void endJob() {};
+  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
+  virtual void endJob() override {};
   template<typename T>
   std::vector<reco::LeafCandidate> fillMuonCollection (const std::vector<T>& tracks) {
     std::vector<reco::LeafCandidate> muons;

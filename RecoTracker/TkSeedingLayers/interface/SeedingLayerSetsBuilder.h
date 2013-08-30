@@ -24,6 +24,7 @@ private:
   std::vector<std::vector<std::string> > layerNamesInSets(
     const std::vector<std::string> & namesPSet) ;
   edm::ParameterSet layerConfig(const std::string & nameLayer,const edm::ParameterSet& cfg) const;
+  std::map<std::string,int> nameToId;
 
 private:
   struct LayerSpec { 
@@ -36,6 +37,7 @@ private:
     bool useSimpleRphiHitsCleaner;
     bool skipClusters; edm::InputTag clustersToSkip;
     bool useProjection;
+    double minAbsZ;
     std::string print() const;
   }; 
   std::vector<std::vector<LayerSpec> > theLayersInSets;

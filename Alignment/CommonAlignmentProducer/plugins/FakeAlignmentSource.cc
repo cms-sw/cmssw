@@ -86,7 +86,7 @@ public:
  protected:
   /// provide (dummy) IOV
   virtual void setIntervalFor( const edm::eventsetup::EventSetupRecordKey& /*dummy*/,
-			       const edm::IOVSyncValue& ioSyncVal, edm::ValidityInterval& iov);
+			       const edm::IOVSyncValue& ioSyncVal, edm::ValidityInterval& iov) override;
 
  private:
 

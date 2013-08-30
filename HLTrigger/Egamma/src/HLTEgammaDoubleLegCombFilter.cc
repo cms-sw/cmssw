@@ -102,7 +102,7 @@ void  HLTEgammaDoubleLegCombFilter::matchCands(const std::vector<math::XYZPoint>
 }
 
 //we use position and p3 interchangably here, we only use eta/phi so its alright
-void  HLTEgammaDoubleLegCombFilter::getP3OfLegCands(const edm::Event& iEvent,edm::InputTag filterTag,std::vector<math::XYZPoint>& p3s)
+void  HLTEgammaDoubleLegCombFilter::getP3OfLegCands(const edm::Event& iEvent,const edm::InputTag& filterTag,std::vector<math::XYZPoint>& p3s)
 { 
   edm::Handle<trigger::TriggerFilterObjectWithRefs> filterOutput;
   iEvent.getByLabel(filterTag,filterOutput);

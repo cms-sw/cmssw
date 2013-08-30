@@ -1,8 +1,6 @@
 /*
  * \file DTTriggerEfficiencyTask.cc
  * 
- * $Date: 2011/09/29 10:29:46 $
- * $Revision: 1.8 $
  * \author C.Battilana - CIEMAT
  *
  */

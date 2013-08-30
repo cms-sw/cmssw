@@ -28,8 +28,6 @@
  **  
  **
  **  $Id: PhotonValidator
- **  $Date: 2012/05/25 16:47:30 $ 
- **  $Revision: 1.2 $
  **  \author Nancy Marinelli, U. of Notre Dame, US
  **
  ***/

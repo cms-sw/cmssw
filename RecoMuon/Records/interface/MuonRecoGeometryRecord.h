@@ -5,8 +5,6 @@
  *
  *  Record to hold muon reconstruction geometries.
  *
- *  $Date: $
- *  $Revision: $
  *  \author N. Amapane - CERN
  */
 

@@ -7,7 +7,6 @@
 Description: A essource/esproducer for lumi correction factor and run parameters needed to deduce the corrections
       Author: Zhen Xie
 */
-// $Id: LumiCorrectionSource.cc,v 1.14 2012/09/11 15:46:57 xiezhen Exp $
 
 //#include <memory>
 //#include "boost/shared_ptr.hpp"

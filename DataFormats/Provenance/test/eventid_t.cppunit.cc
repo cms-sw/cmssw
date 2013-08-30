@@ -6,7 +6,7 @@
  *
  */
 
-#include <cppunit/extensions/HelperMacros.h>
+#include "cppunit/extensions/HelperMacros.h"
 
 #include "DataFormats/Provenance/interface/EventID.h"
 

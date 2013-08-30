@@ -8,7 +8,6 @@
 //
 // Original Author:  Louis James Antonelli
 //         Created:  Thu Jan 22 13:42:28CET 2009
-// $Id: PhotonDataCertification.cc,v 1.8 2010/07/20 02:58:27 wmtan Exp $
 //
 
 

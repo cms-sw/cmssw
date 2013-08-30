@@ -45,7 +45,7 @@ maxAngleRatio, std::string builderName);
   void getRanges(float rORz           , float phi[],float rz[]);
 
   bool isCompatibleWithMultipleScattering
-    (GlobalPoint g3, std::vector<const TrackingRecHit*> h,
+    (GlobalPoint g3, const std::vector<const TrackingRecHit*>& h,
      std::vector<GlobalVector>& localDirs, const edm::EventSetup& es);
 
 private:

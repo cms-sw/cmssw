@@ -8,7 +8,6 @@
 //
 // Original Author:
 //         Created:  Wed Feb 10 11:15:18 CST 2010
-// $Id: EventHistoryGetter.cc,v 1.1 2010/02/12 15:26:08 ewv Exp $
 //
 
 // user include files

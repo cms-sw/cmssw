@@ -190,7 +190,8 @@ namespace edm
     
   } // end of addEMSignals
 
-  void DataMixingHcalWorker::addHcalPileups(const int bcr, const EventPrincipal *ep, unsigned int eventNr) {
+  void DataMixingHcalWorker::addHcalPileups(const int bcr, const EventPrincipal *ep, unsigned int eventNr,
+                                            ModuleCallingContext const* mcc) {
   
     LogDebug("DataMixingHcalWorker") <<"\n===============> adding pileups from event  "<<ep->id()<<" for bunchcrossing "<<bcr;
 
@@ -199,7 +200,7 @@ namespace edm
     // HBHE first
 
     boost::shared_ptr<Wrapper<HBHERecHitCollection>  const> HBHERecHitsPTR =
-      getProductByTag<HBHERecHitCollection>(*ep, HBHEPileRecHitInputTag_ );
+      getProductByTag<HBHERecHitCollection>(*ep, HBHEPileRecHitInputTag_, mcc);
 
     if(HBHERecHitsPTR ) {
 
@@ -224,7 +225,7 @@ namespace edm
     // HO Next
 
     boost::shared_ptr<Wrapper<HORecHitCollection>  const> HORecHitsPTR =
-      getProductByTag<HORecHitCollection>(*ep, HOPileRecHitInputTag_ );
+      getProductByTag<HORecHitCollection>(*ep, HOPileRecHitInputTag_, mcc);
 
     if(HORecHitsPTR ) {
 
@@ -249,7 +250,7 @@ namespace edm
     // HF Next
 
     boost::shared_ptr<Wrapper<HFRecHitCollection>  const> HFRecHitsPTR =
-      getProductByTag<HFRecHitCollection>(*ep, HFPileRecHitInputTag_ );
+      getProductByTag<HFRecHitCollection>(*ep, HFPileRecHitInputTag_, mcc);
 
     if(HFRecHitsPTR ) {
 
@@ -274,7 +275,7 @@ namespace edm
     // ZDC Next
 
     boost::shared_ptr<Wrapper<ZDCRecHitCollection>  const> ZDCRecHitsPTR =
-      getProductByTag<ZDCRecHitCollection>(*ep, ZDCPileRecHitInputTag_ );
+      getProductByTag<ZDCRecHitCollection>(*ep, ZDCPileRecHitInputTag_, mcc);
 
     if(ZDCRecHitsPTR ) {
 

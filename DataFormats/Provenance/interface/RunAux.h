@@ -15,7 +15,7 @@ namespace edm {
   public:
     RunAux() : processHistoryID_(), id_() {}
     ~RunAux() {}
-    mutable ProcessHistoryID processHistoryID_;
+    ProcessHistoryID processHistoryID_;
     RunNumber_t id_;
   };
   void conversion(RunAux const& from, RunAuxiliary & to);

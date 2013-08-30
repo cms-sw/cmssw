@@ -13,7 +13,6 @@
 //
 // Original Author:  Vieri Candelise
 //         Created:  Mon Jun 13 09:49:08 CEST 2011
-// $Id: EcalZmassClient.cc,v 1.2 2012/01/28 11:53:18 yiiyama Exp $
 //
 //
 
@@ -63,21 +62,21 @@ public:
 
 private:
   virtual void
-  beginJob ();
+  beginJob () override;
   virtual void
-  analyze (const edm::Event &, const edm::EventSetup &);
+  analyze (const edm::Event &, const edm::EventSetup &) override;
   virtual void
-  endJob ();
+  endJob () override;
 
   virtual void
-  beginRun (edm::Run const &, edm::EventSetup const &);
+  beginRun (edm::Run const &, edm::EventSetup const &) override;
   virtual void
-  endRun (edm::Run const &, edm::EventSetup const &);
+  endRun (edm::Run const &, edm::EventSetup const &) override;
   virtual void
   beginLuminosityBlock (edm::LuminosityBlock const &,
-			edm::EventSetup const &);
+			edm::EventSetup const &) override;
   virtual void
-  endLuminosityBlock (edm::LuminosityBlock const &, edm::EventSetup const &);
+  endLuminosityBlock (edm::LuminosityBlock const &, edm::EventSetup const &) override;
 
   // ----------member data ---------------------------
 

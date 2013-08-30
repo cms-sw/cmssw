@@ -23,7 +23,7 @@ namespace edmtest
     virtual ~FillInfoESAnalyzer() {  
       std::cout<<"~FillInfoESAnalyzer "<<std::endl;
     }
-    virtual void analyze(const edm::Event& e, const edm::EventSetup& c);
+    virtual void analyze(const edm::Event& e, const edm::EventSetup& c) override;
   };
    
   void

@@ -64,6 +64,7 @@ SeedingLayerSetsBuilder::SeedingLayerSetsBuilder(const edm::ParameterSet & cfg)
 
   map<string,LayerSpec> mapConfig; // for debug printout only!
 
+  int layerSetId = 0;
   for (IT it = layerNamesInSets.begin(); it != layerNamesInSets.end(); it++) {
     vector<LayerSpec> layersInSet;
     for (IS is = it->begin(); is != it->end(); is++) {
@@ -129,8 +130,15 @@ SeedingLayerSetsBuilder::SeedingLayerSetsBuilder(const edm::ParameterSet & cfg)
 
       layer.useSimpleRphiHitsCleaner = cfgLayer.exists("useSimpleRphiHitsCleaner") ? cfgLayer.getParameter<bool>("useSimpleRphiHitsCleaner") : true; 
 
+      layer.minAbsZ = cfgLayer.exists("MinAbsZ") ? cfgLayer.getParameter<double>("MinAbsZ") : 0.;
+
       layersInSet.push_back(layer);
       mapConfig[layer.name]=layer;
+      if (nameToId.find(layer.name)==nameToId.end()) {
+	std::string name = layer.name;
+	nameToId.insert( std::pair<std::string,int>(name,layerSetId) );
+	layerSetId++;	
+      }
     }
     theLayersInSets.push_back(layersInSet);
   }
@@ -210,16 +218,16 @@ SeedingLayerSets SeedingLayerSetsBuilder::layers(const edm::EventSetup& es) cons
       //
       // BPIX
       //
-      if (name.substr(0,4) == "BPix") {
-        idLayer = atoi(name.substr(4,1).c_str());
+      if (name.find("BPix") != string::npos) {
+        idLayer = atoi(name.substr(name.find("BPix")+4,1).c_str());
         side=SeedingLayer::Barrel;
         detLayer=bpx[idLayer-1]; 
       }
       //
       // FPIX
       //
-      else if (name.substr(0,4) == "FPix") {
-        idLayer = atoi(name.substr(4,1).c_str());
+      else if (name.find("FPix") != string::npos) {
+        idLayer = atoi(name.substr(name.find("FPix")+4,1).c_str());
         if ( name.find("pos") != string::npos ) {
           side = SeedingLayer::PosEndcap;
           detLayer = fpx_pos[idLayer-1];
@@ -231,16 +239,16 @@ SeedingLayerSets SeedingLayerSetsBuilder::layers(const edm::EventSetup& es) cons
       //
       // TIB
       //
-      else if (name.substr(0,3) == "TIB") {
-        idLayer = atoi(name.substr(3,1).c_str());
+      else if (name.find("TIB") != string::npos) {
+        idLayer = atoi(name.substr(name.find("TIB")+3,1).c_str());
         side=SeedingLayer::Barrel;
         detLayer=tib[idLayer-1];
       }
       //
       // TID
       //
-      else if (name.substr(0,3) == "TID") {
-        idLayer = atoi(name.substr(3,1).c_str());
+      else if (name.find("TID") != string::npos) {
+        idLayer = atoi(name.substr(name.find("TID")+3,1).c_str());
         if ( name.find("pos") != string::npos ) {
           side = SeedingLayer::PosEndcap;
           detLayer = tid_pos[idLayer-1];
@@ -252,16 +260,16 @@ SeedingLayerSets SeedingLayerSetsBuilder::layers(const edm::EventSetup& es) cons
       //
       // TOB
       //
-      else if (name.substr(0,3) == "TOB") {
-        idLayer = atoi(name.substr(3,1).c_str());
+      else if (name.find("TOB") != string::npos) {
+        idLayer = atoi(name.substr(name.find("TOB")+3,1).c_str());
         side=SeedingLayer::Barrel;
         detLayer=tob[idLayer-1];
       }
       //
       // TEC
       //
-      else if (name.substr(0,3) == "TEC") {
-        idLayer = atoi(name.substr(3,1).c_str());
+      else if (name.find("TEC") != string::npos) {
+        idLayer = atoi(name.substr(name.find("TEC")+3,1).c_str());
         if ( name.find("pos") != string::npos ) {
           side = SeedingLayer::PosEndcap;
           detLayer = tec_pos[idLayer-1];
@@ -281,11 +289,12 @@ SeedingLayerSets SeedingLayerSetsBuilder::layers(const edm::EventSetup& es) cons
           extractor = new HitExtractorPIX(side,idLayer,layer.pixelHitProducer);
         } else {
           HitExtractorSTRP extSTRP(detLayer,side,idLayer);
-          if (layer.useMatchedRecHits) extSTRP.useMatchedHits(layer.matchedRecHits);
-          if (layer.useRPhiRecHits)    extSTRP.useRPhiHits(layer.rphiRecHits);
+	  if (layer.useMatchedRecHits) extSTRP.useMatchedHits(layer.matchedRecHits);
+	  if (layer.useRPhiRecHits)    extSTRP.useRPhiHits(layer.rphiRecHits);
           if (layer.useStereoRecHits)  extSTRP.useStereoHits(layer.stereoRecHits);
           if (layer.useRingSelector)   extSTRP.useRingSelector(layer.minRing,layer.maxRing);
 	  extSTRP.useSimpleRphiHitsCleaner(layer.useSimpleRphiHitsCleaner);
+	  if (layer.minAbsZ>0.) extSTRP.setMinAbsZ(layer.minAbsZ);
 	  if (layer.skipClusters && !layer.useProjection)
 	    extSTRP.setNoProjection();
           extractor = extSTRP.clone();
@@ -301,11 +310,17 @@ SeedingLayerSets SeedingLayerSetsBuilder::layers(const edm::EventSetup& es) cons
         edm::ESHandle<TransientTrackingRecHitBuilder> builder;
         es.get<TransientRecHitRecord>().get(layer.hitBuilder, builder);
 
+	auto it = nameToId.find(name);
+	if (it==nameToId.end()) {
+	  edm::LogError("SeedingLayerSetsBuilder")<<"nameToId map mismatch! Could not find: "<<name;
+	  return result;
+	}
+	int layerSetId = it->second;
         if (layer.useErrorsFromParam) {
-          set.push_back( SeedingLayer( name, detLayer, builder.product(), 
-                                       extractor, true, layer.hitErrorRPhi,layer.hitErrorRZ));
+          set.push_back( SeedingLayer( name, layerSetId, detLayer, builder.product(), 
+                                       extractor, true, layer.hitErrorRPhi,layer.hitErrorRZ));	  
         } else {
-          set.push_back( SeedingLayer( name, detLayer, builder.product(), extractor));
+          set.push_back( SeedingLayer( name, layerSetId, detLayer, builder.product(), extractor));
         }
       }
     

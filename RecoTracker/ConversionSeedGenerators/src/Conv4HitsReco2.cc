@@ -52,7 +52,7 @@ void Conv4HitsReco2::Refresh(math::XYZVector &vPhotVertex, math::XYZVector &h1, 
 	fPhiE = 0.;
 }
 
-void Conv4HitsReco2::LocalTransformation(math::XYZVector v11, math::XYZVector v12, math::XYZVector v21, math::XYZVector v22,
+void Conv4HitsReco2::LocalTransformation(const math::XYZVector& v11, const math::XYZVector& v12, const math::XYZVector& v21, const math::XYZVector& v22,
 				 	 math::XYZVector &V11, math::XYZVector &V12, math::XYZVector &V21, math::XYZVector &V22,
 				 	 double NextPhi) 
 {

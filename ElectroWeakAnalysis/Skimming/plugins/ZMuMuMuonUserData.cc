@@ -29,7 +29,7 @@ class ZMuMuMuonUserData : public edm::EDProducer {
 public:
   ZMuMuMuonUserData( const edm::ParameterSet & );   
 private:
-  void produce( edm::Event &, const edm::EventSetup & );
+  void produce( edm::Event &, const edm::EventSetup & ) override;
   
   InputTag src_,beamSpot_, primaryVertices_;
   double alpha_, beta_; 

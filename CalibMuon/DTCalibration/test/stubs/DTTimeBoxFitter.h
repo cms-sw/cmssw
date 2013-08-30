@@ -4,8 +4,6 @@
 /** \class DTTimeBoxFitter
  *  No description available.
  *
- *  $Date: $
- *  $Revision: $
  *  \author G. Cerminara - INFN Torino
  */
 

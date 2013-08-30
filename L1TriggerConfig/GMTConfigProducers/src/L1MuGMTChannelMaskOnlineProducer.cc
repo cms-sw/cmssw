@@ -8,7 +8,7 @@ class L1MuGMTChannelMaskOnlineProducer : public L1ConfigOnlineProdBase< L1MuGMTC
          : L1ConfigOnlineProdBase< L1MuGMTChannelMaskRcd, L1MuGMTChannelMask >( iConfig ) {}
       ~L1MuGMTChannelMaskOnlineProducer() {}
 
-      virtual boost::shared_ptr< L1MuGMTChannelMask > newObject( const std::string& objectKey ) ;
+      virtual boost::shared_ptr< L1MuGMTChannelMask > newObject( const std::string& objectKey ) override ;
    private:
 };
 

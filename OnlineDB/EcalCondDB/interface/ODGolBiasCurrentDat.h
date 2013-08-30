@@ -46,7 +46,7 @@ class ODGolBiasCurrentDat : public IODConfig {
   void writeDB(const ODGolBiasCurrentDat* item, ODGolBiasCurrentInfo* iov )
     throw(std::runtime_error);
 
-  void writeArrayDB(const std::vector< ODGolBiasCurrentDat > data, ODGolBiasCurrentInfo* iov)
+  void writeArrayDB(const std::vector< ODGolBiasCurrentDat >& data, ODGolBiasCurrentInfo* iov)
     throw(std::runtime_error);
 
 

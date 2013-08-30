@@ -24,6 +24,7 @@
 #include "DataFormats/Common/interface/PtrVectorBase.h"
 
 // system include files
+#include "boost/static_assert.hpp"
 #include "boost/type_traits/is_base_of.hpp"
 #include <typeinfo>
 #include <vector>

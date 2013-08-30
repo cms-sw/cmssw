@@ -2,8 +2,6 @@
  *
  *  Implementation of QTestConfigure
  *
- *  $Date: 2013/05/23 16:16:29 $
- *  $Revision: 1.27 $
  *  \author Ilaria Segoni
  */
 #include "FWCore/MessageLogger/interface/MessageLogger.h"

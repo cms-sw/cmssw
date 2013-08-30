@@ -13,7 +13,6 @@ Implementation:
 //
 // Original Author:  Frank Golf
 //         Created:  Sun Mar 15 11:33:20 CDT 2009
-// $Id: MuonTCMETValueMapProducer.cc,v 1.9 2011/02/21 10:09:21 benhoob Exp $
 //
 //
 

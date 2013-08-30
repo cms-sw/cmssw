@@ -77,15 +77,15 @@ public:
       AlignableTracker* alignableTracker,
       AlignableMuon* alignableMuon,
       AlignableExtras* extras,
-      AlignmentParameterStore* alignmentParameterStore);
+      AlignmentParameterStore* alignmentParameterStore) override;
 
-  void startNewLoop() {};
+  void startNewLoop() override {};
 
-  void run(const edm::EventSetup& iSetup, const EventInfo &eventInfo);
+  void run(const edm::EventSetup& iSetup, const EventInfo &eventInfo) override;
 
   void processMuonResidualsFromTrack(MuonResidualsFromTrack &mrft);
 
-  void terminate(const edm::EventSetup& iSetup);
+  void terminate(const edm::EventSetup& iSetup) override;
 
 private:
   bool numeric(std::string s);

@@ -2,8 +2,6 @@
 #define CalibMuon_DTCalibration_DTSegmentSelector_h
 
 /*
- *  $Date: 2010/11/18 10:35:51 $
- *  $Revision: 1.3 $
  *  \author A. Vilela Pereira
  */
 

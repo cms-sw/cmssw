@@ -27,7 +27,7 @@ class RecoTauMVATrainer : public edm::EDAnalyzer {
   public:
     explicit RecoTauMVATrainer(const edm::ParameterSet &pset);
     virtual ~RecoTauMVATrainer() {};
-    virtual void analyze(const edm::Event &evt, const edm::EventSetup &es);
+    virtual void analyze(const edm::Event &evt, const edm::EventSetup &es) override;
   private:
     typedef std::vector<edm::InputTag> VInputTag;
     reco::tau::RecoTauMVAHelper mva_;

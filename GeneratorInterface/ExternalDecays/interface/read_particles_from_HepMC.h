@@ -8,7 +8,6 @@
 
 #include "TauSpinner/SimpleParticle.h"
 #include <vector>
-using namespace std;
 using namespace TauSpinner;
  
 /** Read HepMC::GenEvent.
@@ -29,12 +28,12 @@ using namespace TauSpinner;
   0 - event processed correctly 
   1 - empty event or no decay found in the event
 */
-int readParticlesFromHepMC(const HepMC::GenEvent *event, SimpleParticle &X, SimpleParticle &tau, SimpleParticle &tau2, vector<SimpleParticle> &tau_daughters, vector<SimpleParticle> &tau2_daughters);
+int readParticlesFromHepMC(const HepMC::GenEvent *event, SimpleParticle &X, SimpleParticle &tau, SimpleParticle &tau2, std::vector<SimpleParticle> &tau_daughters, std::vector<SimpleParticle> &tau2_daughters);
 
 /** Get daughters of HepMC::GenParticle
 
   Recursively searches for final-state daughters of 'x' */
-vector<SimpleParticle> *getDaughters(HepMC::GenParticle *x);
+std::vector<SimpleParticle> *getDaughters(HepMC::GenParticle *x);
 
 /** Find last self
 

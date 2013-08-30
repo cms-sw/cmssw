@@ -8,7 +8,6 @@
 //
 // Original Author:  Monica Vazquez Acosta - CERN
 //         Created:  Tue Jun 13 12:16:41 CEST 2006
-// $Id: EgammaHLTHcalIsolation.cc,v 1.3 2007/03/23 17:02:14 ghezzi Exp $
 //
 
 // include files

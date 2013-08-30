@@ -2,7 +2,6 @@ import FWCore.ParameterSet.Config as cms
 
 #
 # producer to apply corrections to photons
-# $Id: correctedPhotons.cfi,v 1.8 2008/02/08 17:30:18 nancy Exp $
 #
 correctedPhotons = cms.EDProducer("PhotonCorrectionProducer",
     algoCollection = cms.string('E9ESCPtdr E1E9Ptdr EtaPtdr PhiPtdr'),

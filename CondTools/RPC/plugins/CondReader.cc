@@ -21,7 +21,7 @@ public:
   CondReader(const edm::ParameterSet& iConfig);
     
   ~CondReader();
-  void analyze(const edm::Event& evt, const edm::EventSetup& evtSetup);
+  void analyze(const edm::Event& evt, const edm::EventSetup& evtSetup) override;
 
 private:
   unsigned long long since;

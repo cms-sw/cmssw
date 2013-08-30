@@ -1253,7 +1253,7 @@ void TKinFitter::print() {
 
 }
 
-void TKinFitter::printMatrix(const TMatrixD &matrix, const TString name) {
+void TKinFitter::printMatrix(const TMatrixD &matrix, const TString& name) {
   // produce a tabular printout for matrices
   // this function is a modified version of Root's TMatrixTBase<Element>::Print method
   // which could not be used together with the MessageLogger

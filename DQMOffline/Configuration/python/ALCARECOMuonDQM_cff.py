@@ -3,7 +3,6 @@
 #
 # Author Stefano Argiro'
 #
-# $Id: ALCARECOMuonDQM_cff.py,v 1.2 2010/03/08 10:39:32 argiro Exp $
 #
 #
 

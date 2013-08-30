@@ -1,8 +1,4 @@
 /** 
-    $Date: 2008/09/11 15:22:43 $
-    $Revision: 1.3 $
-    $Id: BlockSolver.cc,v 1.3 2008/09/11 15:22:43 govoni Exp $ 
-    \author $Author: govoni $
 */
 
 #include "Calibration/Tools/interface/BlockSolver.h"

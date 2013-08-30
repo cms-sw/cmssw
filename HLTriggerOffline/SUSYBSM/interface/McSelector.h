@@ -34,7 +34,7 @@ class McSelector {
  public:
   
   //Constructor
-  McSelector(edm::ParameterSet userCut_params);
+  McSelector(const edm::ParameterSet& userCut_params);
   //Destructor
   virtual ~McSelector(){};
 

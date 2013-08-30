@@ -5,8 +5,9 @@ int PerformancePayloadFromTFormula::InvalidPos=-1;
 #include <iostream>
 using namespace std;
 
-float PerformancePayloadFromTFormula::getResult(PerformanceResult::ResultType r ,BinningPointByMap p) const {
+float PerformancePayloadFromTFormula::getResult(PerformanceResult::ResultType r ,const BinningPointByMap& _p) const {
   check();
+  BinningPointByMap p = _p;
   //
   // which formula to use?
   //
@@ -30,8 +31,8 @@ float PerformancePayloadFromTFormula::getResult(PerformanceResult::ResultType r 
   return formula->EvalPar(values);
 }
 
-bool PerformancePayloadFromTFormula::isOk(BinningPointByMap p) const {
-  
+bool PerformancePayloadFromTFormula::isOk(const BinningPointByMap& _p) const {
+  BinningPointByMap p = _p;
   std::vector<BinningVariables::BinningVariablesType> t = myBinning();
   
   for (std::vector<BinningVariables::BinningVariablesType>::const_iterator it = t.begin(); it != t.end();++it){
@@ -44,7 +45,7 @@ bool PerformancePayloadFromTFormula::isOk(BinningPointByMap p) const {
   return true;
 }
 
-bool PerformancePayloadFromTFormula::isInPayload(PerformanceResult::ResultType res,BinningPointByMap point) const {
+bool PerformancePayloadFromTFormula::isInPayload(PerformanceResult::ResultType res,const BinningPointByMap& point) const {
   check();
   // first, let's see if it is available at all
   if (resultPos(res) == PerformancePayloadFromTFormula::InvalidPos) return false;

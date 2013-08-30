@@ -1,6 +1,6 @@
 
 #include "FWCore/Framework/src/Path.h"
-#include "FWCore/Framework/interface/Actions.h"
+#include "FWCore/Framework/interface/ExceptionActions.h"
 #include "FWCore/Framework/src/EarlyDeleteHelper.h"
 #include "FWCore/Utilities/interface/Algorithms.h"
 #include "FWCore/MessageLogger/interface/ExceptionMessages.h"
@@ -11,11 +11,12 @@
 
 namespace edm {
   Path::Path(int bitpos, std::string const& path_name,
-	     WorkersInPath const& workers,
-	     TrigResPtr trptr,
-	     ActionTable const& actions,
-	     boost::shared_ptr<ActivityRegistry> areg,
-	     bool isEndPath):
+             WorkersInPath const& workers,
+             TrigResPtr trptr,
+             ExceptionToActionTable const& actions,
+             boost::shared_ptr<ActivityRegistry> areg,
+             StreamContext const* streamContext,
+             PathContext::PathType pathType) :
     stopwatch_(),
     timesRun_(),
     timesPassed_(),
@@ -28,19 +29,45 @@ namespace edm {
     actReg_(areg),
     act_table_(&actions),
     workers_(workers),
-    isEndPath_(isEndPath) {
+    pathContext_(path_name, streamContext, bitpos, pathType) {
+
+    for (auto& workerInPath : workers_) {
+      workerInPath.setPathContext(&pathContext_);
+    }
   }
-  
+
+  Path::Path(Path const& r) :
+    stopwatch_(r.stopwatch_),
+    timesRun_(r.timesRun_),
+    timesPassed_(r.timesPassed_),
+    timesFailed_(r.timesFailed_),
+    timesExcept_(r.timesExcept_),
+    state_(r.state_),
+    bitpos_(r.bitpos_),
+    name_(r.name_),
+    trptr_(r.trptr_),
+    actReg_(r.actReg_),
+    act_table_(r.act_table_),
+    workers_(r.workers_),
+    earlyDeleteHelpers_(r.earlyDeleteHelpers_),
+    pathContext_(r.pathContext_) {
+
+    for (auto& workerInPath : workers_) {
+      workerInPath.setPathContext(&pathContext_);
+    }
+  }
+
+
   bool
   Path::handleWorkerFailure(cms::Exception & e,
 			    int nwrwue,
                             bool isEvent,
                             bool begin,
                             BranchType branchType,
-                            CurrentProcessingContext const& cpc,
+                            ModuleDescription const& desc,
                             std::string const& id) {
 
-    exceptionContext(e, isEvent, begin, branchType, cpc, id);
+    exceptionContext(e, isEvent, begin, branchType, desc, id, pathContext_);
 
     bool should_continue = true;
 
@@ -48,9 +75,9 @@ namespace edm {
     // different exception behavior
     
     // If not processing an event, always rethrow.
-    actions::ActionCodes action = (isEvent ? act_table_->find(e.category()) : actions::Rethrow);
+    exception_actions::ActionCodes action = (isEvent ? act_table_->find(e.category()) : exception_actions::Rethrow);
     switch(action) {
-      case actions::FailPath: {
+      case exception_actions::FailPath: {
 	  should_continue = false;
           edm::printCmsExceptionWarning("FailPath", e);
 	  break;
@@ -59,7 +86,7 @@ namespace edm {
 	  if (isEvent) ++timesExcept_;
 	  state_ = hlt::Exception;
 	  recordStatus(nwrwue, isEvent);
-	  if (action == actions::Rethrow) {
+	  if (action == exception_actions::Rethrow) {
 	    std::string pNF = Exception::codeToString(errors::ProductNotFound);
             if (e.category() == pNF) {
 	      std::ostringstream ost;
@@ -80,8 +107,9 @@ namespace edm {
                          bool isEvent,
                          bool begin,
                          BranchType branchType,
-                         CurrentProcessingContext const& cpc,
-                         std::string const& id) {
+                         ModuleDescription const& desc,
+                         std::string const& id,
+                         PathContext const& pathContext) {
     std::ostringstream ost;
     if (isEvent) {
       ost << "Calling event method";
@@ -102,18 +130,10 @@ namespace edm {
       // It should be impossible to get here ...
       ost << "Calling unknown function";
     }
-    if (cpc.moduleDescription()) {
-      ost << " for module " << cpc.moduleDescription()->moduleName() << "/'" << cpc.moduleDescription()->moduleLabel() << "'";
-    }
+    ost << " for module " << desc.moduleName() << "/'" << desc.moduleLabel() << "'";
     ex.addContext(ost.str());
     ost.str("");
-    ost << "Running path '";
-    if (cpc.pathName()) {
-      ost << *cpc.pathName() << "'";
-    }
-    else {
-      ost << "unknown'";
-    }
+    ost << "Running path '" << pathContext.pathName() << "'";
     ex.addContext(ost.str());
     ost.str("");
     ost << "Processing ";
@@ -123,7 +143,7 @@ namespace edm {
 
   void
   Path::recordStatus(int nwrwue, bool isEvent) {
-    if(isEvent) {
+    if(isEvent && trptr_) {
       (*trptr_)[bitpos_]=HLTPathStatus(state_, nwrwue);    
     }
   }

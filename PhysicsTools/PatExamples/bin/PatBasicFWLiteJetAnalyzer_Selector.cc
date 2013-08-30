@@ -98,7 +98,7 @@ public:
 
   virtual ~JetIDStudiesSelector() {}
 
-  virtual bool operator()( edm::EventBase const & event, pat::strbitset & ret){
+  virtual bool operator()( edm::EventBase const & event, pat::strbitset & ret) override{
 
     pat::strbitset retCaloJet = jetSel_->getBitTemplate();
     pat::strbitset retPFJet = pfJetSel_->getBitTemplate();

@@ -3,6 +3,7 @@
 #include "DQM/SiStripMonitorHardware/interface/SiStripSpyEventMatcher.h"
 #ifdef SiStripMonitorHardware_BuildEventMatchingCode
 
+#include "FWCore/Utilities/interface/EDGetToken.h"
 #include "boost/cstdint.hpp"
 #include "FWCore/Framework/interface/EDFilter.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -31,8 +32,8 @@ namespace sistrip {
     public:
       SpyEventMatcherModule(const edm::ParameterSet& config);
       virtual ~SpyEventMatcherModule();
-      virtual void beginJob();
-      virtual bool filter(edm::Event& event, const edm::EventSetup& eventSetup);  
+      virtual void beginJob() override;
+      virtual bool filter(edm::Event& event, const edm::EventSetup& eventSetup) override;  
     private:
       void findL1IDandAPVAddress(const edm::Event& event, const SiStripFedCabling& cabling, uint32_t& l1ID, uint8_t& apvAddress) const;
       void copyData(const uint32_t eventId, const uint8_t apvAddress, const SpyEventMatcher::SpyEventList* matches, edm::Event& event,
@@ -42,6 +43,7 @@ namespace sistrip {
       const bool filterNonMatchingEvents_;
       const bool doMerge_;
       const edm::InputTag primaryStreamRawDataTag_;
+    edm::EDGetTokenT<FEDRawDataCollection> primaryStreamRawDataToken_;
       std::auto_ptr<SpyEventMatcher> spyEventMatcher_;
       std::auto_ptr<SpyUtilities> utils_;
   };
@@ -59,6 +61,7 @@ namespace sistrip {
       spyEventMatcher_(new SpyEventMatcher(config)),
       utils_(new SpyUtilities)
   {
+    primaryStreamRawDataToken_ = consumes<FEDRawDataCollection>(primaryStreamRawDataTag_);
     if (doMerge_) {
       produces<FEDRawDataCollection>("RawSpyData");
       produces< std::vector<uint32_t> >("SpyTotalEventCount");
@@ -105,7 +108,8 @@ namespace sistrip {
   void SpyEventMatcherModule::findL1IDandAPVAddress(const edm::Event& event, const SiStripFedCabling& cabling, uint32_t& l1ID, uint8_t& apvAddress) const
   {
     edm::Handle<FEDRawDataCollection> fedRawDataHandle;
-    event.getByLabel(primaryStreamRawDataTag_,fedRawDataHandle);
+    //    event.getByLabel(primaryStreamRawDataTag_,fedRawDataHandle);
+    event.getByToken(primaryStreamRawDataToken_,fedRawDataHandle);
     const FEDRawDataCollection& fedRawData = *fedRawDataHandle;
     for (std::vector<uint16_t>::const_iterator iFedId = cabling.feds().begin(); iFedId != cabling.feds().end(); ++iFedId) {
       const FEDRawData& data = fedRawData.FEDData(*iFedId);

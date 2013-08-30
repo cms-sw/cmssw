@@ -13,7 +13,6 @@
 //
 // Original Author:  Georgios Daskalakis
 //         Created:  Thu Apr 12 17:01:03 CEST 2007
-// $Id: EcalDeadChannelRecoveryProducers.cc,v 1.6 2010/08/06 20:24:55 wmtan Exp $
 //
 //
 

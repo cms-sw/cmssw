@@ -107,7 +107,7 @@ void ODTowersToByPassDat::fetchData(std::vector< ODTowersToByPassDat >* p, ODTow
 
 //  ************************************************************************   // 
 
-void ODTowersToByPassDat::writeArrayDB(const std::vector< ODTowersToByPassDat > data, ODTowersToByPassInfo* iov)
+void ODTowersToByPassDat::writeArrayDB(const std::vector< ODTowersToByPassDat >& data, ODTowersToByPassInfo* iov)
     throw(std::runtime_error)
 {
   this->checkConnection();

@@ -7,6 +7,16 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
+#include "DataFormats/Common/interface/View.h"
+#include "DataFormats/JetReco/interface/CaloJet.h"
+#include "DataFormats/JetReco/interface/CaloJetCollection.h"
+
+#include "DataFormats/METReco/interface/CaloMET.h"
+#include "DataFormats/METReco/interface/CaloMETCollection.h"
+
+#include "DataFormats/MuonReco/interface/Muon.h"
+#include "DataFormats/RecoCandidate/interface/RecoChargedCandidate.h"
+
 namespace edm {
    class ConfigurationDescriptions;
 }
@@ -19,12 +29,15 @@ class HLTRHemisphere : public edm::EDFilter {
 
    public:
 
+
       explicit HLTRHemisphere(const edm::ParameterSet&);
       ~HLTRHemisphere();
       static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
       virtual bool filter(edm::Event&, const edm::EventSetup&);
 
    private:
+      edm::EDGetTokenT<edm::View<reco::Jet>> m_theJetToken;
+      edm::EDGetTokenT<std::vector<reco::RecoChargedCandidate>> m_theMuonToken;
       edm::InputTag inputTag_; // input tag identifying product
       edm::InputTag muonTag_;  // input tag for the muon objects 
       bool doMuonCorrection_;   // do the muon corrections

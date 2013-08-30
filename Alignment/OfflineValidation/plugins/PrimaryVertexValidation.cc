@@ -1341,7 +1341,7 @@ std::pair<std::pair<Double_t,Double_t>, std::pair<Double_t,Double_t>  > PrimaryV
 }
 
 //*************************************************************
-void PrimaryVertexValidation::FillTrendPlot(TH1F* trendPlot, TH1F* residualsPlot[100], TString fitPar_, TString var_)
+void PrimaryVertexValidation::FillTrendPlot(TH1F* trendPlot, TH1F* residualsPlot[100], const TString& fitPar_, const TString& var_)
 //*************************************************************
 {
  

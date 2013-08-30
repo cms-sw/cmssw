@@ -8,6 +8,8 @@
  */
 
 #include "HLTrigger/HLTcore/interface/HLTFilter.h"
+#include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
+#include "DataFormats/JetReco/interface/CaloJetCollection.h"
 
 //
 // class declaration
@@ -19,8 +21,12 @@ class HLTNVFilter : public HLTFilter {
       explicit HLTNVFilter(const edm::ParameterSet&);
       ~HLTNVFilter();
       virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct);
+      static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
    private:
+      edm::EDGetTokenT<reco::CaloJetCollection> m_theJetToken;
+      edm::EDGetTokenT<trigger::TriggerFilterObjectWithRefs> m_theMETToken;
+
       edm::InputTag inputJetTag_; // input tag identifying jets
       edm::InputTag inputMETTag_; // input tag identifying for MET
       double minEtjet1_;

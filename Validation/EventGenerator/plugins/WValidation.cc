@@ -2,8 +2,6 @@
  *  
  *  Class to fill dqm monitor elements from existing EDM file
  *
- *  $Date: 2011/01/24 18:27:40 $
- *  $Revision: 1.4 $
  */
  
 #include "Validation/EventGenerator/interface/WValidation.h"

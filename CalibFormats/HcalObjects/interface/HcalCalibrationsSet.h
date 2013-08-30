@@ -7,8 +7,6 @@
 
 /** \class HcalCalibrationsSet
   *  
-  * $Date: $
-  * $Revision: $
   * \author J. Mans - Minnesota
   */
 class HcalCalibrationsSet {

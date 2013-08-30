@@ -28,7 +28,7 @@ Test of GenericHandle class.
 #include "FWCore/Utilities/interface/TypeWithDict.h"
 #include "FWCore/Version/interface/GetReleaseVersion.h"
 
-#include <cppunit/extensions/HelperMacros.h>
+#include "cppunit/extensions/HelperMacros.h"
 
 #include <iostream>
 #include <memory>
@@ -101,7 +101,7 @@ void testGenericHandle::failgetbyLabelTest() {
      edm::ParameterSet pset;
      pset.registerIt();
      edm::ModuleDescription modDesc(pset.id(), "Blah", "blahs");
-     edm::Event event(ep, modDesc);
+     edm::Event event(ep, modDesc, nullptr);
 
      std::string label("this does not exist");
      event.getByLabel(label,h);
@@ -187,7 +187,7 @@ void testGenericHandle::getbyLabelTest() {
   edm::BranchDescription const& branchFromRegistry = it->second;
   boost::shared_ptr<edm::Parentage> entryDescriptionPtr(new edm::Parentage);
   edm::ProductProvenance prov(branchFromRegistry.branchID(), entryDescriptionPtr);
-  edm::ConstBranchDescription const desc(branchFromRegistry);
+  edm::BranchDescription const desc(branchFromRegistry);
   ep.put(desc, pprod, prov);
 
   edm::GenericHandle h("edmtest::DummyProduct");
@@ -200,8 +200,8 @@ void testGenericHandle::getbyLabelTest() {
 
     edm::ParameterSet pset;
     pset.registerIt();
-    edm::ModuleDescription modDesc(pset.id(), "Blah", "blahs", processConfiguration.get());
-    edm::Event event(ep, modDesc);
+    edm::ModuleDescription modDesc(pset.id(), "Blah", "blahs", processConfiguration.get(),edm::ModuleDescription::getUniqueID());
+    edm::Event event(ep, modDesc, nullptr);
 
     event.getByLabel(label, productInstanceName,h);
   }

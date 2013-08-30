@@ -8,7 +8,7 @@ class IsolationProducerForTracks : public edm::EDProducer {
 public:
   IsolationProducerForTracks(const edm::ParameterSet & );
 private:
-  void produce(edm::Event& event, const edm::EventSetup& setup);
+  void produce(edm::Event& event, const edm::EventSetup& setup) override;
 
   edm::InputTag tracks_;
   edm::InputTag highPtTracks_;

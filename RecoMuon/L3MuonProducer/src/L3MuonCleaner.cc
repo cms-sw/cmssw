@@ -15,7 +15,7 @@ class L3MuonCleaner : public edm::EDProducer {
  public:
   L3MuonCleaner(const edm::ParameterSet&);
   virtual ~L3MuonCleaner(){}
-  virtual void produce(edm::Event&, const edm::EventSetup&);
+  virtual void produce(edm::Event&, const edm::EventSetup&) override;
  private:
   edm::InputTag m_input; 
   int m_minTrkHits;

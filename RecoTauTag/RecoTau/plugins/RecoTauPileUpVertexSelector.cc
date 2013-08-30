@@ -41,7 +41,7 @@ class RecoTauPileUpVertexSelector : public edm::EDFilter {
   public:
     explicit RecoTauPileUpVertexSelector(const edm::ParameterSet &pset);
     ~RecoTauPileUpVertexSelector() {}
-    bool filter(edm::Event& evt, const edm::EventSetup& es);
+    bool filter(edm::Event& evt, const edm::EventSetup& es) override;
   private:
     edm::InputTag src_;
     VertexTrackPtSumFilter vtxFilter_;

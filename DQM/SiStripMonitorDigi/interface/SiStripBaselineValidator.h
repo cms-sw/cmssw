@@ -2,6 +2,7 @@
 #define SiStripMonitorDigi_SiStripBaselineValidator_h
 
 // framework & common header files
+#include "FWCore/Utilities/interface/EDGetToken.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -14,6 +15,10 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 
+
+#include "DataFormats/Common/interface/DetSetVector.h"
+#include "DataFormats/Common/interface/DetSetVectorNew.h"
+#include "DataFormats/SiStripDigi/interface/SiStripRawDigi.h"
 
 #include <iostream>
 #include <stdlib.h>
@@ -32,7 +37,6 @@
 //using namespace reco;
 
 class DQMStore;
-
 class SiStripBaselineValidator : public edm::EDAnalyzer
 {
  public:
@@ -51,6 +55,7 @@ class SiStripBaselineValidator : public edm::EDAnalyzer
   MonitorElement *h1ADC_vs_strip_;
 
   edm::InputTag srcProcessedRawDigi_;
+  edm::EDGetTokenT<edm::DetSetVector<SiStripRawDigi> > moduleRawDigiToken_;
  // edm::InputTag hiSelectedTracks;
   std::string outputFile_;
   bool createOutputFile_;
