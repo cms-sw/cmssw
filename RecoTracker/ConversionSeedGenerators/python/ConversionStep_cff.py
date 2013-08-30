@@ -233,7 +233,6 @@ convCkfTrajectoryBuilder = RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilderESP
     ComponentName = 'convCkfTrajectoryBuilder',
     trajectoryFilterName = 'convCkfTrajectoryFilter',
     minNrOfHitsForRebuild = 3,
-    clustersToSkip = cms.InputTag('convClusters'),
     maxCand = 2
     )
 
@@ -241,6 +240,7 @@ convCkfTrajectoryBuilder = RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilderESP
 import RecoTracker.CkfPattern.CkfTrackCandidates_cfi
 convTrackCandidates = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.ckfTrackCandidates.clone(
     src = cms.InputTag('photonConvTrajSeedFromSingleLeg:convSeedCandidates'),
+    clustersToSkip = cms.InputTag('convClusters'),
     TrajectoryBuilder = 'convCkfTrajectoryBuilder'
 )
 

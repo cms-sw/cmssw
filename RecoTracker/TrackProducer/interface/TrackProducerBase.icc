@@ -25,6 +25,7 @@
 #include <TrackingTools/KalmanUpdators/interface/Chi2MeasurementEstimator.h>
 #include <TrackingTools/DetLayers/interface/GeometricSearchDet.h> 
 #include <RecoTracker/MeasurementDet/interface/MeasurementTracker.h>
+#include <RecoTracker/MeasurementDet/interface/MeasurementTrackerEvent.h>
 #include <TrackingTools/MeasurementDet/interface/MeasurementDet.h>
 #include "RecoTracker/Record/interface/CkfComponentsRecord.h"
 
@@ -134,7 +135,7 @@ TrackProducerBase<T>::getFromEvt(edm::Event& theEvent,edm::Handle<TrackCollectio
 
 template <class T> void
 TrackProducerBase<T>::setSecondHitPattern(Trajectory* traj, T& track, 
-					  const Propagator* prop, const MeasurementTracker* measTk){
+					  const Propagator* prop, const MeasurementTrackerEvent* measTk){
   using namespace std;
   /// have to clone the propagator in order to change its propagation direction. Have to remember to delete the clone!!
   Propagator* localProp = prop->clone();
@@ -204,9 +205,9 @@ TrackProducerBase<T>::setSecondHitPattern(Trajectory* traj, T& track,
       vector< GeometricSearchDet::DetWithState > detWithState = (*it)->compatibleDets(innerTSOS,*localProp,estimator);
       if(!detWithState.size()) continue;
       DetId id = detWithState.front().first->geographicalId();
-      const MeasurementDet* measDet = measTk->idToDet(id);	
+      MeasurementDetWithData measDet = measTk->idToDet(id);	
       //if(measDet->isActive() && !measDet->hasBadComponents(detWithState.front().second)){	
-      if(measDet->isActive()){	  
+      if(measDet.isActive()){	  
 	InvalidTrackingRecHit  tmpHit(id,TrackingRecHit::missing);
 	track.setTrackerExpectedHitsInner(tmpHit,counter); counter++;
 	//cout << "WARNING: this hit is marked as lost because the detector was marked as active" << endl;
@@ -228,9 +229,9 @@ TrackProducerBase<T>::setSecondHitPattern(Trajectory* traj, T& track,
       vector< GeometricSearchDet::DetWithState > detWithState = (*it)->compatibleDets(outerTSOS,*localProp,estimator);
       if(!detWithState.size()) continue;
       DetId id = detWithState.front().first->geographicalId();
-      const MeasurementDet* measDet = measTk->idToDet(id);	
+      MeasurementDetWithData measDet = measTk->idToDet(id);	
       //if(measDet->isActive() && !measDet->hasBadComponents(detWithState.front().second)){	
-      if(measDet->isActive()){	  
+      if(measDet.isActive()){	  
 	InvalidTrackingRecHit  tmpHit(id,TrackingRecHit::missing);
 	track.setTrackerExpectedHitsOuter(tmpHit,counter); counter++;
 	//cout << "WARNING: this hit is marked as lost because the detector was marked as active" << endl;

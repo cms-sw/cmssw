@@ -31,9 +31,9 @@
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "Geometry/Records/interface/GlobalTrackingGeometryRecord.h"
 #include "RecoTracker/MeasurementDet/interface/MeasurementTracker.h"
+#include "RecoTracker/MeasurementDet/interface/MeasurementTrackerEvent.h"
 #include "TrackingTools/MeasurementDet/interface/MeasurementDet.h"
 #include "RecoTracker/TkDetLayers/interface/GeometricSearchTracker.h"
-#include "RecoTracker/Record/interface/CkfComponentsRecord.h"
 #include "TrackingTools/KalmanUpdators/interface/KFUpdator.h"
 #include "TrackingTools/PatternTools/interface/TrajectoryStateUpdator.h"
 #include "TrackingTools/KalmanUpdators/interface/Chi2MeasurementEstimatorBase.h"
@@ -69,6 +69,7 @@ class OutsideInMuonSeeder : public edm::EDProducer {
 
       std::string trackerPropagatorName_;
       std::string muonPropagatorName_; 
+      edm::EDGetTokenT<MeasurementTrackerEvent> measurementTrackerTag_;
       std::string measurementTrackerName_; 
       std::string estimatorName_; 
       std::string updatorName_; 
@@ -79,7 +80,6 @@ class OutsideInMuonSeeder : public edm::EDProducer {
       edm::ESHandle<Propagator>             muonPropagator_;
       edm::ESHandle<Propagator>             trackerPropagator_;
       edm::ESHandle<GlobalTrackingGeometry> geometry_;
-      edm::ESHandle<MeasurementTracker>     measurementTracker_;
       edm::ESHandle<Chi2MeasurementEstimatorBase>   estimator_;
       edm::ESHandle<TrajectoryStateUpdator>         updator_;
 
@@ -89,7 +89,7 @@ class OutsideInMuonSeeder : public edm::EDProducer {
       /// Surface used to make a TSOS at the PCA to the beamline
       Plane::PlanePointer dummyPlane_;
 
-      int doLayer(const GeometricSearchDet &layer, const TrajectoryStateOnSurface &state, std::vector<TrajectorySeed> &out) const ;
+      int doLayer(const GeometricSearchDet &layer, const TrajectoryStateOnSurface &state, std::vector<TrajectorySeed> &out, const MeasurementTrackerEvent &mte) const ;
       void doDebug(const reco::Track &tk) const;
 
 };
@@ -103,6 +103,7 @@ OutsideInMuonSeeder::OutsideInMuonSeeder(const edm::ParameterSet & iConfig) :
     errorRescaling_(iConfig.getParameter<double>("errorRescaleFactor")),
     trackerPropagatorName_(iConfig.getParameter<std::string>("trackerPropagator")),
     muonPropagatorName_(iConfig.getParameter<std::string>("muonPropagator")),
+    measurementTrackerTag_(consumes<MeasurementTrackerEvent>(edm::InputTag("MeasurementTrackerEvent"))),
     estimatorName_(iConfig.getParameter<std::string>("hitCollector")),
     minEtaForTEC_(iConfig.getParameter<double>("minEtaForTEC")),
     maxEtaForTOB_(iConfig.getParameter<double>("maxEtaForTOB")),
@@ -110,7 +111,6 @@ OutsideInMuonSeeder::OutsideInMuonSeeder(const edm::ParameterSet & iConfig) :
     dummyPlane_(Plane::build(Plane::PositionType(), Plane::RotationType()))
 {
     produces<std::vector<TrajectorySeed> >(); 
-    measurementTrackerName_ = "";
     updatorName_ = "KFUpdator";
 }
 
@@ -118,15 +118,16 @@ void
 OutsideInMuonSeeder::produce(edm::Event & iEvent, const edm::EventSetup & iSetup) {
     using namespace edm;
     using namespace std;
+
     iSetup.get<IdealMagneticFieldRecord>().get(magfield_);
     iSetup.get<TrackingComponentsRecord>().get(trackerPropagatorName_, trackerPropagator_);
     iSetup.get<TrackingComponentsRecord>().get(muonPropagatorName_, muonPropagator_);
     iSetup.get<GlobalTrackingGeometryRecord>().get(geometry_);
-    iSetup.get<CkfComponentsRecord>().get(measurementTracker_);
     iSetup.get<TrackingComponentsRecord>().get(estimatorName_,estimator_);  
     iSetup.get<TrackingComponentsRecord>().get(updatorName_,updator_);  
 
-    measurementTracker_->update(iEvent);
+    Handle<MeasurementTrackerEvent> measurementTracker;
+    iEvent.getByToken(measurementTrackerTag_, measurementTracker);
 
     Handle<View<reco::Muon> > src;
     iEvent.getByLabel(src_, src);
@@ -155,31 +156,31 @@ OutsideInMuonSeeder::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
             state = trajectoryStateTransform::innerStateOnSurface(tk, *geometry_, magfield_.product());
         }
         if (std::abs(tk.eta()) < maxEtaForTOB_) {
-            std::vector< BarrelDetLayer * > const & tob = measurementTracker_->geometricSearchTracker()->tobLayers();
+            std::vector< BarrelDetLayer * > const & tob = measurementTracker->geometricSearchTracker()->tobLayers();
             int iLayer = 6, found = 0;
             for (std::vector<BarrelDetLayer *>::const_reverse_iterator it = tob.rbegin(), ed = tob.rend(); it != ed; ++it, --iLayer) {
                 if (debug_) std::cout << "\n ==== Trying TOB " << iLayer << " ====" << std::endl;
-                if (doLayer(**it, state, *out)) {
+                if (doLayer(**it, state, *out, *measurementTracker)) {
                     if (++found == layersToTry_) break;
                 }
             }
         }
         if (tk.eta() > minEtaForTEC_) {
             int iLayer = 9, found = 0;
-            std::vector< ForwardDetLayer * > const & tec = measurementTracker_->geometricSearchTracker()->posTecLayers();
+            std::vector< ForwardDetLayer * > const & tec = measurementTracker->geometricSearchTracker()->posTecLayers();
             for (std::vector<ForwardDetLayer *>::const_reverse_iterator it = tec.rbegin(), ed = tec.rend(); it != ed; ++it, --iLayer) {
                 if (debug_) std::cout << "\n ==== Trying TEC " << +iLayer << " ====" << std::endl;
-                if (doLayer(**it, state, *out)) {
+                if (doLayer(**it, state, *out, *measurementTracker)) {
                     if (++found == layersToTry_) break;
                 }
             }
         }
         if (tk.eta() < -minEtaForTEC_) {
             int iLayer = 9, found = 0;
-            std::vector< ForwardDetLayer * > const & tec = measurementTracker_->geometricSearchTracker()->negTecLayers();
+            std::vector< ForwardDetLayer * > const & tec = measurementTracker->geometricSearchTracker()->negTecLayers();
             for (std::vector<ForwardDetLayer *>::const_reverse_iterator it = tec.rbegin(), ed = tec.rend(); it != ed; ++it, --iLayer) {
                 if (debug_) std::cout << "\n ==== Trying TEC " << -iLayer << " ====" << std::endl;
-                if (doLayer(**it, state, *out)) {
+                if (doLayer(**it, state, *out, *measurementTracker)) {
                     if (++found == layersToTry_) break;
                 }
             }
@@ -192,7 +193,7 @@ OutsideInMuonSeeder::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
 }
 
 int
-OutsideInMuonSeeder::doLayer(const GeometricSearchDet &layer, const TrajectoryStateOnSurface &state, std::vector<TrajectorySeed> &out) const {
+OutsideInMuonSeeder::doLayer(const GeometricSearchDet &layer, const TrajectoryStateOnSurface &state, std::vector<TrajectorySeed> &out, const MeasurementTrackerEvent &measurementTracker) const {
     TrajectoryStateOnSurface onLayer(state);
     onLayer.rescaleError(errorRescaling_);
     std::vector< GeometricSearchDet::DetWithState > dets;
@@ -206,10 +207,10 @@ OutsideInMuonSeeder::doLayer(const GeometricSearchDet &layer, const TrajectorySt
 
     std::vector<TrajectoryMeasurement> meas;
     for (std::vector<GeometricSearchDet::DetWithState>::const_iterator it = dets.begin(), ed = dets.end(); it != ed; ++it) {
-        const MeasurementDet *det = measurementTracker_->idToDet(it->first->geographicalId());
-        if (det == 0) { std::cerr << "BOGUS detid " << it->first->geographicalId().rawId() << std::endl; continue; }
+        MeasurementDetWithData det = measurementTracker.idToDet(it->first->geographicalId());
+        if (det.isNull()) { std::cerr << "BOGUS detid " << it->first->geographicalId().rawId() << std::endl; continue; }
         if (!it->second.isValid()) continue;
-        std::vector < TrajectoryMeasurement > mymeas = det->fastMeasurements(it->second, state, *trackerPropagator_, *estimator_);
+        std::vector < TrajectoryMeasurement > mymeas = det.fastMeasurements(it->second, state, *trackerPropagator_, *estimator_);
         if (debug_) std::cout << "Query on detector " << it->first->geographicalId().rawId() << " returned " << mymeas.size() << " measurements." << std::endl;
         for (std::vector<TrajectoryMeasurement>::const_iterator it2 = mymeas.begin(), ed2 = mymeas.end(); it2 != ed2; ++it2) {
             if (it2->recHit()->isValid()) meas.push_back(*it2);

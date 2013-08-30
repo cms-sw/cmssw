@@ -23,23 +23,23 @@ public:
   void init(const MeasurementDet* monoDet,
 	    const MeasurementDet* stereoDet);
 
-  virtual RecHitContainer recHits( const TrajectoryStateOnSurface&) const;
+  virtual RecHitContainer recHits( const TrajectoryStateOnSurface&, const MeasurementTrackerEvent & data) const;
 
   const GluedGeomDet& specificGeomDet() const {return static_cast<GluedGeomDet const&>(fastGeomDet());}
 
  virtual bool measurements( const TrajectoryStateOnSurface& stateOnThisDet,
-			     const MeasurementEstimator& est,
+			     const MeasurementEstimator& est, const MeasurementTrackerEvent & data,
 			    TempMeasurements & result) const;
 
   const TkStripMeasurementDet* monoDet() const{ return theMonoDet;} 
   const TkStripMeasurementDet* stereoDet() const{ return theStereoDet;} 
 
   /// return TRUE if both mono and stereo components are active
-  bool isActive() const {return monoDet()->isActive() && stereoDet()->isActive(); }
+  bool isActive(const MeasurementTrackerEvent & data) const {return monoDet()->isActive(data) && stereoDet()->isActive(data); }
  	  	 
   /// return TRUE if at least one of the mono and stereo components has badChannels
-  bool hasBadComponents( const TrajectoryStateOnSurface &tsos ) const {
-    return (monoDet()->hasBadComponents(tsos) || stereoDet()->hasBadComponents(tsos));}
+  bool hasBadComponents( const TrajectoryStateOnSurface &tsos, const MeasurementTrackerEvent & data ) const {
+    return (monoDet()->hasBadComponents(tsos,data) || stereoDet()->hasBadComponents(tsos,data));}
 
 private:
   const SiStripRecHitMatcher*       theMatcher;
@@ -49,10 +49,10 @@ private:
 
 
   template<typename Collector>
-  void doubleMatch(const TrajectoryStateOnSurface& ts, Collector & collector) const  dso_internal;
+  void doubleMatch(const TrajectoryStateOnSurface& ts, const MeasurementTrackerEvent & data, Collector & collector) const  dso_internal;
 
   template<typename Collector>
-  void collectRecHits(const TrajectoryStateOnSurface&, Collector &coll) const dso_internal;
+  void collectRecHits(const TrajectoryStateOnSurface&, const MeasurementTrackerEvent & data, Collector &coll) const dso_internal;
 
   class dso_internal  HitCollectorForRecHits {
   public:
@@ -127,7 +127,7 @@ private:
 
   template<typename HitCollector>
   void
-  projectOnGluedDet( HitCollector & collector, 
+  projectOnGluedDet( HitCollector & collector,
                      const RecHitContainer& hits,
                      const GlobalVector & gdir ) const  dso_internal;
 

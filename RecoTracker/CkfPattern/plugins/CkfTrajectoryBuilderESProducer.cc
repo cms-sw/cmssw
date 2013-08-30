@@ -40,7 +40,6 @@ CkfTrajectoryBuilderESProducer::produce(const CkfComponentsRecord& iRecord)
   std::string propagatorOppositeName = pset_.getParameter<std::string>("propagatorOpposite");   
   std::string estimatorName          = pset_.getParameter<std::string>("estimator"); 
   std::string recHitBuilderName      = pset_.getParameter<std::string>("TTRHBuilder");     
-  std::string measurementTrackerName = pset_.getParameter<std::string>("MeasurementTrackerName");     
   std::string filterName = pset_.getParameter<std::string>("trajectoryFilterName");
   
 
@@ -49,7 +48,6 @@ CkfTrajectoryBuilderESProducer::produce(const CkfComponentsRecord& iRecord)
   edm::ESHandle<Propagator>             propagatorOppositeHandle;
   edm::ESHandle<Chi2MeasurementEstimatorBase>   estimatorHandle;
   edm::ESHandle<TransientTrackingRecHitBuilder> recHitBuilderHandle;
-  edm::ESHandle<MeasurementTracker>             measurementTrackerHandle;
   edm::ESHandle<TrajectoryFilter> filterHandle;
 
   iRecord.getRecord<TrackingComponentsRecord>().get(updatorName,updatorHandle);
@@ -57,7 +55,6 @@ CkfTrajectoryBuilderESProducer::produce(const CkfComponentsRecord& iRecord)
   iRecord.getRecord<TrackingComponentsRecord>().get(propagatorOppositeName,propagatorOppositeHandle);
   iRecord.getRecord<TrackingComponentsRecord>().get(estimatorName,estimatorHandle);  
   iRecord.getRecord<TransientRecHitRecord>().get(recHitBuilderName,recHitBuilderHandle);  
-  iRecord.get(measurementTrackerName, measurementTrackerHandle);
   iRecord.get(filterName, filterHandle);
 
   _trajectoryBuilder  = 
@@ -67,7 +64,6 @@ CkfTrajectoryBuilderESProducer::produce(const CkfComponentsRecord& iRecord)
 								  propagatorOppositeHandle.product(),
 								  estimatorHandle.product(),
 								  recHitBuilderHandle.product(),
-								  measurementTrackerHandle.product(),
 								  filterHandle.product()) );  
   return _trajectoryBuilder;
 }

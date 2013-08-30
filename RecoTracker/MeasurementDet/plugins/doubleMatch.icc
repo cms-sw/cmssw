@@ -56,7 +56,7 @@ namespace {
 
 
 template<typename Collector>
-void TkGluedMeasurementDet::doubleMatch(const TrajectoryStateOnSurface& ts, Collector & collector) const {
+void TkGluedMeasurementDet::doubleMatch(const TrajectoryStateOnSurface& ts, const MeasurementTrackerEvent &data, Collector & collector) const {
 
 
   GlobalVector glbDir = (ts.isValid() ? ts.globalMomentum() : position()-GlobalPoint(0,0,0));
@@ -75,24 +75,24 @@ void TkGluedMeasurementDet::doubleMatch(const TrajectoryStateOnSurface& ts, Coll
   // mono does not require "projection"
   if (collector.filter()) {
     //TrajectoryStateOnSurface mts = fastProp(ts,geomDet().surface(),theMonoDet->geomDet().surface());
-    theMonoDet->recHits(ts,collector.estimator(),monoHits,diffs); 
+    theMonoDet->recHits(ts,collector.estimator(),data,monoHits,diffs); 
     // print("mono", mts,ts);
     mf = monoHits.size();
   }
   else
-    monoHits = theMonoDet->recHits( ts);
+    monoHits = theMonoDet->recHits(ts, data);
 
   // stereo in principle requires "projection"
   TrajectoryStateOnSurface pts = ts;
   diffs.clear();
   if (collector.filter()) {
     TrajectoryStateOnSurface pts = fastProp(ts,geomDet().surface(),theStereoDet->geomDet().surface());
-    theStereoDet->recHits(pts,collector.estimator(),stereoHits,diffs);
+    theStereoDet->recHits(pts,collector.estimator(),data,stereoHits,diffs);
     // print("stereo", pts,ts);
     sf = stereoHits.size();
   }
   else
-    stereoHits= theStereoDet->recHits(pts);
+    stereoHits= theStereoDet->recHits(pts,data);
 
 
   if (collector.filter()) {
@@ -103,7 +103,7 @@ void TkGluedMeasurementDet::doubleMatch(const TrajectoryStateOnSurface& ts, Coll
 
   if (stereoHits.empty()&&monoHits.empty()) return;
 
-  if( (!theStereoDet->isActive()) ||
+  if( (!theStereoDet->isActive(data)) ||
        ((!collector.filter())&&stereoHits.empty())
       ) {
     // make mono TTRHs and project them
@@ -111,7 +111,7 @@ void TkGluedMeasurementDet::doubleMatch(const TrajectoryStateOnSurface& ts, Coll
     return;
   }
   
-  if (  (!theMonoDet->isActive()) ||
+  if (  (!theMonoDet->isActive(data)) ||
 	((!collector.filter())&&monoHits.empty())
 	) {
     // make stereo TTRHs and project them

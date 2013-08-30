@@ -1,6 +1,7 @@
 #include "RecoTracker/CkfPattern/interface/BaseCkfTrajectoryBuilder.h"
 
 #include "RecoTracker/MeasurementDet/interface/MeasurementTracker.h"
+#include "RecoTracker/MeasurementDet/interface/MeasurementTrackerEvent.h"
 #include "RecoTracker/TkDetLayers/interface/GeometricSearchTracker.h"
 #include "RecoTracker/TransientTrackingRecHit/interface/TkTransientTrackingRecHitBuilder.h"
 #include "TrackingTools/TrajectoryFiltering/interface/TrajectoryFilter.h"
@@ -26,28 +27,21 @@ BaseCkfTrajectoryBuilder(const edm::ParameterSet&              conf,
 			 const Propagator*                     propagatorOpposite,
 			 const Chi2MeasurementEstimatorBase*   estimator,
 			 const TransientTrackingRecHitBuilder* recHitBuilder,
-			 const MeasurementTracker*             measurementTracker,
 			 const TrajectoryFilter*               filter,
                          const TrajectoryFilter*               inOutFilter):
   theUpdator(updator),
   thePropagatorAlong(propagatorAlong),thePropagatorOpposite(propagatorOpposite),
   theEstimator(estimator),theTTRHBuilder(recHitBuilder),
-  theMeasurementTracker(measurementTracker),
-  theLayerMeasurements(new LayerMeasurements(theMeasurementTracker)),
+  theMeasurementTracker(0),
   theForwardPropagator(0),theBackwardPropagator(0),
   theFilter(filter),
   theInOutFilter(inOutFilter)
 {
-  if (conf.exists("clustersToSkip")){
-    skipClusters_=true;
-    clustersToSkip_=conf.getParameter<edm::InputTag>("clustersToSkip");
-  }
-  else
-    skipClusters_=false;
+  if (conf.exists("clustersToSkip")) std::cerr << "ERROR: " << typeid(*this).name() << " with label " << conf.getParameter<std::string>("@module_label") << " has a clustersToSkip parameter set" << std::endl;
 }
- 
+
+
 BaseCkfTrajectoryBuilder::~BaseCkfTrajectoryBuilder(){
-  delete theLayerMeasurements;
 }
 
 
@@ -236,16 +230,18 @@ BaseCkfTrajectoryBuilder::findStateAndLayers(const TempTrajectory& traj) const{
 }
 
 
+void BaseCkfTrajectoryBuilder::setData(const MeasurementTrackerEvent *data) 
+{
+    // possibly do some sanity check here
+    theMeasurementTracker = data;
+}
 
 void BaseCkfTrajectoryBuilder::setEvent(const edm::Event& event) const
-  {
-    theMeasurementTracker->update(event);
-    if (skipClusters_)
-      theMeasurementTracker->setClusterToSkip(clustersToSkip_,event);
-  }
+{
+    std::cerr << "ERROR SetEvent called on " << typeid(*this).name() << ( theMeasurementTracker ? " with valid " : "witout any ") << "MeasurementTrackerEvent" << std::endl;
+}
 
 void BaseCkfTrajectoryBuilder::unset() const
 {
-  if (skipClusters_)
-    theMeasurementTracker->unsetClusterToSkip();
+    std::cerr << "ERROR unSet called on " << typeid(*this).name() << ( theMeasurementTracker ? " with valid " : "witout any ") << "MeasurementTrackerEvent" << std::endl;
 }

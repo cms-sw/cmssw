@@ -38,6 +38,8 @@
 #include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
 #include "TrackingTools/MaterialEffects/interface/PropagatorWithMaterial.h"
 
+#include "RecoTracker/MeasurementDet/interface/MeasurementTrackerEvent.h"
+
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <vector>
@@ -73,6 +75,9 @@ ElectronSeedGenerator::ElectronSeedGenerator(const edm::ParameterSet &pset)
   // use of a theMeasurementTrackerName
   if (pset.exists("measurementTrackerName"))
    { theMeasurementTrackerName = pset.getParameter<std::string>("measurementTrackerName") ; }
+  if (pset.existsAs<edm::InputTag>("measurementTrackerEvent")) {
+    theMeasurementTrackerEventTag = pset.getParameter<edm::InputTag>("measurementTrackerEvent");
+  }
 
   // use of reco vertex
   if (pset.exists("useRecoVertex"))
@@ -256,6 +261,13 @@ void  ElectronSeedGenerator::run
   theSetup= &setup;
   NavigationSetter theSetter(*theNavigationSchool);
 
+
+  // Step A: set Event for the TrajectoryBuilder
+  edm::Handle<MeasurementTrackerEvent> data;
+  e.getByLabel(theMeasurementTrackerEventTag, data);
+  myMatchEle->setEvent(*data);
+  myMatchPos->setEvent(*data);
+
   // get initial TrajectorySeeds if necessary
   //  if (fromTrackerSeeds_) e.getByLabel(initialSeeds_, theInitialSeedColl);
 
@@ -267,7 +279,8 @@ void  ElectronSeedGenerator::run
   if (useRecoVertex_) e.getByLabel(verticesTag_,theVertices);
 
   if (!fromTrackerSeeds_)
-   { theMeasurementTracker->update(e) ; }
+   { throw cms::Exception("NotSupported") << "Here in ElectronSeedGenerator " << __FILE__ << ":" << __LINE__ << " I would like to do theMeasurementTracker->update(e); but that no longer makes sense.\n"; 
+   }
 
   for  (unsigned int i=0;i<sclRefs.size();++i) {
     // Find the seeds

@@ -47,7 +47,6 @@ navigationSchoolName(iConfig.getParameter<std::string>("NavigationSchool"))
    thePropagator = prop.product();
    theEstimator = est.product();
    theMeasurementTracker = measurementTrackerHandle.product();
-   theLayerMeasurements = new LayerMeasurements(theMeasurementTracker);
    theGeomSearchTracker = theGeomSearchTrackerHandle.product();
 
    LogDebug("NuclearSeedGenerator") << "New NuclearInteractionFinder instance with parameters : \n"
@@ -62,21 +61,14 @@ navigationSchoolName(iConfig.getParameter<std::string>("NavigationSchool"))
    thePrimaryHelix = new TangentHelix();
 }
 //----------------------------------------------------------------------
-void NuclearInteractionFinder::setEvent(const edm::Event& event) const
-{
-   theMeasurementTracker->update(event);
-}
-
-//----------------------------------------------------------------------
 NuclearInteractionFinder::~NuclearInteractionFinder() {
-  delete theLayerMeasurements;
   delete nuclTester;
   delete currentSeed;
   delete thePrimaryHelix;
 }
 
 //----------------------------------------------------------------------
-bool  NuclearInteractionFinder::run(const Trajectory& traj) {
+bool  NuclearInteractionFinder::run(const Trajectory& traj, const MeasurementTrackerEvent &event) {
 
         if(traj.empty() || !traj.isValid()) return false;
 
@@ -88,6 +80,7 @@ bool  NuclearInteractionFinder::run(const Trajectory& traj) {
         nuclTester->reset( measurements.size() );
         allSeeds.clear();
 
+        LayerMeasurements layerMeasurements(*theMeasurementTracker, event);
 
         if(traj.direction()==alongMomentum)  {
                 std::reverse(measurements.begin(), measurements.end());
@@ -106,7 +99,7 @@ bool  NuclearInteractionFinder::run(const Trajectory& traj) {
 	   // check only the maxHits outermost hits of the primary track
 	   if(nuclTester->nHitsChecked() > maxHits) break;
 
-           nuclTester->push_back(*it_meas, findCompatibleMeasurements(*it_meas, rescaleErrorFactor));
+           nuclTester->push_back(*it_meas, findCompatibleMeasurements(*it_meas, rescaleErrorFactor, layerMeasurements));
 
            LogDebug("NuclearSeedGenerator") << "Number of compatible meas:" << (nuclTester->back()).size() << "\n"
                                                 << "Mean distance between hits :" << nuclTester->meanHitDistance() << "\n"
@@ -147,17 +140,17 @@ void NuclearInteractionFinder::definePrimaryHelix(std::vector<TrajectoryMeasurem
 }
 //----------------------------------------------------------------------
 std::vector<TrajectoryMeasurement>
-NuclearInteractionFinder::findCompatibleMeasurements(const TM& lastMeas, double rescale) const
+NuclearInteractionFinder::findCompatibleMeasurements(const TM& lastMeas, double rescale, const LayerMeasurements & layerMeasurements) const
 {
   TSOS currentState = lastMeas.updatedState();
   LogDebug("NuclearSeedGenerator") << "currentState :" << currentState << "\n";
 
   TSOS newState = rescaleError(rescale, currentState);
-  return findMeasurementsFromTSOS(newState, lastMeas.recHit()->geographicalId());
+  return findMeasurementsFromTSOS(newState, lastMeas.recHit()->geographicalId(), layerMeasurements);
 }
 //----------------------------------------------------------------------
 std::vector<TrajectoryMeasurement>
-NuclearInteractionFinder::findMeasurementsFromTSOS(const TSOS& currentState, DetId detid) const {
+NuclearInteractionFinder::findMeasurementsFromTSOS(const TSOS& currentState, DetId detid, const LayerMeasurements & layerMeasurements) const {
 
   using namespace std;
   int invalidHits = 0;
@@ -181,7 +174,7 @@ NuclearInteractionFinder::findMeasurementsFromTSOS(const TSOS& currentState, Det
   for (vector<const DetLayer*>::iterator il = nl.begin();
        il != nl.end(); il++) {
     vector<TM> tmp =
-      theLayerMeasurements->measurements((**il),currentState, *thePropagator, *theEstimator);
+      layerMeasurements.measurements((**il),currentState, *thePropagator, *theEstimator);
     if ( !tmp.empty()) {
       if ( result.empty()) result = tmp;
       else {
@@ -228,8 +221,10 @@ std::auto_ptr<TrajectorySeedCollection> NuclearInteractionFinder::getPersistentS
    return output;
 }
 //----------------------------------------------------------------------
-void NuclearInteractionFinder::improveSeeds() {
+void NuclearInteractionFinder::improveSeeds(const MeasurementTrackerEvent &event) {
         std::vector<SeedFromNuclearInteraction> newSeedCollection;
+
+        LayerMeasurements layerMeasurements(*theMeasurementTracker, event);
 
         // loop on all actual seeds
         for(std::vector<SeedFromNuclearInteraction>::const_iterator it_seed = allSeeds.begin(); it_seed != allSeeds.end(); it_seed++) {
@@ -237,7 +232,7 @@ void NuclearInteractionFinder::improveSeeds() {
 	      if( !it_seed->isValid() ) continue;
 
               // find compatible TM in an outer layer
-              std::vector<TM> thirdTMs = findMeasurementsFromTSOS( it_seed->updatedTSOS() , it_seed->outerHitDetId() );
+              std::vector<TM> thirdTMs = findMeasurementsFromTSOS( it_seed->updatedTSOS() , it_seed->outerHitDetId(), layerMeasurements );
 
               // loop on those new TMs
               for(std::vector<TM>::const_iterator tm = thirdTMs.begin(); tm!= thirdTMs.end(); tm++) {

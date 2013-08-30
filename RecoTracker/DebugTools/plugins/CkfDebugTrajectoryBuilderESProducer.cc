@@ -60,8 +60,7 @@ CkfDebugTrajectoryBuilderESProducer::produce(const CkfComponentsRecord& iRecord)
 								       propagatorAlongHandle.product(),
 								       propagatorOppositeHandle.product(),
 								       estimatorHandle.product(),
-								       recHitBuilderHandle.product(),
-								       measurementTrackerHandle.product()) );  
+								       recHitBuilderHandle.product()));  
   //  CkfDebugger dbg( es, theMeasurementTracker);
   //   _trajectoryBuilder->setDebugger( dbg);
   return _trajectoryBuilder;

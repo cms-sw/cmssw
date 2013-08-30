@@ -19,6 +19,7 @@
 
 #include "RecoMuon/TrackerSeedGenerator/interface/TrackerSeedGenerator.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -27,6 +28,7 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "Geometry/CommonDetUnit/interface/GlobalTrackingGeometry.h"
 #include <RecoTracker/MeasurementDet/interface/MeasurementTracker.h>
+#include <RecoTracker/MeasurementDet/interface/MeasurementTrackerEvent.h>
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "TrackingTools/GeomPropagators/interface/Propagator.h"
 
@@ -86,6 +88,9 @@ private:
 
   edm::ESHandle<MeasurementTracker> theMeasurementTracker;
   edm::ESHandle<GeometricSearchTracker> theGeometricSearchTracker;
+
+  edm::InputTag theMeasurementTrackerEventTag;
+  const MeasurementTrackerEvent * theMeasurementTrackerEvent;
 
   TrajectoryStateUpdator * theUpdator;
   const MuonServiceProxy * theProxyService;

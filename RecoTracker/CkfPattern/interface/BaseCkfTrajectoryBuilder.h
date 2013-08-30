@@ -16,6 +16,7 @@ class FreeTrajectoryState;
 class IntermediateTrajectoryCleaner;
 class LayerMeasurements;
 class MeasurementTracker;
+class MeasurementTrackerEvent;
 class MeasurementEstimator;
 class NavigationSchool;
 class Propagator;
@@ -63,10 +64,10 @@ public:
 			   const Propagator*                     propagatorOpposite,
 			   const Chi2MeasurementEstimatorBase*   estimator,
 			   const TransientTrackingRecHitBuilder* RecHitBuilder,
-			   const MeasurementTracker*             measurementTracker,
 			   const TrajectoryFilter*               filter,
 			   const TrajectoryFilter*               inOutFilter = 0);
 
+  BaseCkfTrajectoryBuilder(const BaseCkfTrajectoryBuilder &other) = default ;
   virtual ~BaseCkfTrajectoryBuilder();
 
   // new interface returning the start Trajectory...
@@ -79,8 +80,11 @@ public:
 				    TrajectoryContainer& result) const { assert(0==1);}
 
 
-  virtual void setEvent(const edm::Event& event) const;
+  virtual void setEvent(const edm::Event& event) const ;
   virtual void unset() const;
+
+  // Return a clone of this, with the data pointer set
+  virtual BaseCkfTrajectoryBuilder * clone(const MeasurementTrackerEvent *data) const = 0;
 
   virtual void setDebugger( CkfDebugger * dbg) const {;}
  
@@ -93,12 +97,12 @@ public:
  protected:    
   //methods for dubugging 
   virtual bool analyzeMeasurementsDebugger(Trajectory& traj, const std::vector<TrajectoryMeasurement>& meas,
-					   const MeasurementTracker* theMeasurementTracker, 
+					   const MeasurementTrackerEvent* theMeasurementTracker, 
 					   const Propagator* theForwardPropagator, 
 					   const Chi2MeasurementEstimatorBase* theEstimator, 
 					   const TransientTrackingRecHitBuilder * theTTRHBuilder) const {return true;} 
   virtual bool analyzeMeasurementsDebugger(TempTrajectory& traj, const std::vector<TrajectoryMeasurement>& meas,
-					   const MeasurementTracker* theMeasurementTracker, 
+					   const MeasurementTrackerEvent* theMeasurementTracker, 
 					   const Propagator* theForwardPropagator, 
 					   const Chi2MeasurementEstimatorBase* theEstimator, 
 					   const TransientTrackingRecHitBuilder * theTTRHBuilder) const {return true;} 
@@ -127,7 +131,8 @@ public:
  private:
   void seedMeasurements(const TrajectorySeed& seed, TempTrajectory & result) const;
 
-
+ protected:
+  void setData(const MeasurementTrackerEvent *data) ;
 
  protected:
   const TrajectoryStateUpdator*         theUpdator;
@@ -135,8 +140,7 @@ public:
   const Propagator*                     thePropagatorOpposite;
   const Chi2MeasurementEstimatorBase*   theEstimator;
   const TransientTrackingRecHitBuilder* theTTRHBuilder;
-  const MeasurementTracker*             theMeasurementTracker;
-  const LayerMeasurements*              theLayerMeasurements;
+  const MeasurementTrackerEvent*        theMeasurementTracker;
 
   // these may change from seed to seed
   mutable const Propagator*             theForwardPropagator;
@@ -153,9 +157,6 @@ public:
   //  TrajectoryFilter*              theMaxHitsCondition;
   const TrajectoryFilter* theFilter; /** Filter used at end of complete tracking */
   const TrajectoryFilter* theInOutFilter; /** Filter used at end of in-out tracking */
-
-  bool skipClusters_;
-  edm::InputTag clustersToSkip_;
 };
 
 

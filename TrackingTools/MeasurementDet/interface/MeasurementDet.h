@@ -12,6 +12,7 @@
 class TrajectoryStateOnSurface;
 class Propagator;
 class MeasurementEstimator;
+class MeasurementTrackerEvent;
 
 class MeasurementDet {
 public:
@@ -20,13 +21,13 @@ public:
 
   MeasurementDet( const GeomDet* gdet) : theGeomDet(gdet) {}
 
-  virtual RecHitContainer recHits( const TrajectoryStateOnSurface&) const = 0;
+  virtual RecHitContainer recHits( const TrajectoryStateOnSurface&, const MeasurementTrackerEvent &) const = 0;
 
   // use a MeasurementEstimator to filter the hits (same algo as below..)
   // default as above 
-  virtual bool recHits( const TrajectoryStateOnSurface& stateOnThisDet, const MeasurementEstimator&,
+  virtual bool recHits( const TrajectoryStateOnSurface& stateOnThisDet, const MeasurementEstimator&, const MeasurementTrackerEvent & data,
 			RecHitContainer & result, std::vector<float> &) const {
-    result = recHits(stateOnThisDet);
+    result = recHits(stateOnThisDet, data);
     return !result.empty();
   }
 
@@ -40,10 +41,11 @@ public:
   fastMeasurements( const TrajectoryStateOnSurface& stateOnThisDet, 
 		    const TrajectoryStateOnSurface&, 
 		    const Propagator&, 
-		    const MeasurementEstimator& est) const {
+		    const MeasurementEstimator& est,
+                    const MeasurementTrackerEvent & data) const {
 
     TempMeasurements tmps;
-    measurements(stateOnThisDet, est, tmps);
+    measurements(stateOnThisDet, est, data, tmps);
     std::vector<TrajectoryMeasurement> result;
     result.reserve(tmps.size());
     int index[tmps.size()];  tmps.sortIndex(index);
@@ -57,6 +59,7 @@ public:
   // return false if missing ( if inactive is true and one hit)
   virtual bool measurements( const TrajectoryStateOnSurface& stateOnThisDet,
 			     const MeasurementEstimator& est,
+                             const MeasurementTrackerEvent & data,
 			     TempMeasurements & result) const =0;
 
 
@@ -67,8 +70,8 @@ public:
 
   const Surface::PositionType& position() const {return geomDet().position();}
 
-  virtual bool isActive() const=0;
-  virtual bool hasBadComponents(const TrajectoryStateOnSurface &tsos) const=0;
+  virtual bool isActive(const MeasurementTrackerEvent & data) const=0;
+  virtual bool hasBadComponents(const TrajectoryStateOnSurface &tsos, const MeasurementTrackerEvent & data) const=0;
 
  private:
 

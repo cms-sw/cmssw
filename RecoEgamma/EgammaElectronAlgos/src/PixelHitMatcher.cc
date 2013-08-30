@@ -6,6 +6,7 @@
 #include "TrackingTools/DetLayers/interface/DetLayer.h"
 #include "TrackingTools/MeasurementDet/interface/LayerMeasurements.h"
 #include "RecoTracker/MeasurementDet/interface/MeasurementTracker.h"
+#include "RecoTracker/MeasurementDet/interface/MeasurementTrackerEvent.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/GeometryCommonDetAlgo/interface/PerpendicularBoundPlaneBuilder.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -24,7 +25,7 @@ PixelHitMatcher::PixelHitMatcher
    meas1stBLayer(phi1min,phi1max,0.,0.), meas2ndBLayer(phi2minB,phi2maxB,z2minB,z2maxB),
    meas1stFLayer(phi1min,phi1max,0.,0.), meas2ndFLayer(phi2minF,phi2maxF,r2minF,r2maxF),
    startLayers(),
-   prop1stLayer(0), prop2ndLayer(0),theGeometricSearchTracker(0),theLayerMeasurements(0),vertex_(0.),
+   prop1stLayer(0), prop2ndLayer(0),theGeometricSearchTracker(0),theTrackerEvent(0),theTracker(0),vertex_(0.),
    searchInTIDTEC_(searchInTIDTEC), useRecoVertex_(false)
  {
   meas1stFLayer.setRRangeI(rMinI,rMaxI) ;
@@ -35,7 +36,6 @@ PixelHitMatcher::~PixelHitMatcher()
  {
   delete prop1stLayer ;
   delete prop2ndLayer ;
-  delete theLayerMeasurements ;
  }
 
 void PixelHitMatcher::set1stLayer( float dummyphi1min, float dummyphi1max )
@@ -59,6 +59,11 @@ void PixelHitMatcher::set2ndLayer( float dummyphi2minB, float dummyphi2maxB, flo
 void PixelHitMatcher::setUseRecoVertex( bool val )
  { useRecoVertex_ = val ; }
 
+void PixelHitMatcher::setEvent( const MeasurementTrackerEvent & trackerData ) 
+ {
+    theTrackerEvent = & trackerData;
+    theLayerMeasurements = LayerMeasurements(*theTracker,*theTrackerEvent);
+ }
 void PixelHitMatcher::setES
  ( const MagneticField * magField,
    const MeasurementTracker * theMeasurementTracker,
@@ -66,10 +71,9 @@ void PixelHitMatcher::setES
  {
   if (theMeasurementTracker)
    {
+    theTracker = theMeasurementTracker;
     theGeometricSearchTracker=theMeasurementTracker->geometricSearchTracker() ;
     startLayers.setup(theGeometricSearchTracker) ;
-    if (theLayerMeasurements ) delete theLayerMeasurements ;
-    theLayerMeasurements = new LayerMeasurements(theMeasurementTracker) ;
    }
 
   theMagField = magField ;
@@ -279,7 +283,7 @@ PixelHitMatcher::compatibleHits
 
   if (tsos.isValid()) {
     vector<TrajectoryMeasurement> pixelMeasurements =
-      theLayerMeasurements->measurements(**firstLayer,tsos,
+      theLayerMeasurements.measurements(**firstLayer,tsos,
 					 *prop1stLayer, meas1stBLayer);
 
     LogDebug("") <<"[PixelHitMatcher::compatibleHits] nbr of hits compatible with extrapolation to first layer: " << pixelMeasurements.size();
@@ -310,7 +314,7 @@ PixelHitMatcher::compatibleHits
     firstLayer++;
 
     vector<TrajectoryMeasurement> pixel2Measurements =
-      theLayerMeasurements->measurements(**firstLayer,tsos,
+      theLayerMeasurements.measurements(**firstLayer,tsos,
 					 *prop1stLayer, meas1stBLayer);
 
     for (aMeas m=pixel2Measurements.begin(); m!=pixel2Measurements.end(); m++){
@@ -351,7 +355,7 @@ PixelHitMatcher::compatibleHits
       if (i==1 && xmeas.z() > 100. ) continue;
 
       vector<TrajectoryMeasurement> pixelMeasurements =
-	theLayerMeasurements->measurements(**flayer, tsosfwd,
+	theLayerMeasurements.measurements(**flayer, tsosfwd,
 					   *prop1stLayer, meas1stFLayer);
 
       for (aMeas m=pixelMeasurements.begin(); m!=pixelMeasurements.end(); m++){
@@ -372,7 +376,7 @@ PixelHitMatcher::compatibleHits
 	flayer++;
 
 	vector<TrajectoryMeasurement> pixel2Measurements =
-	  theLayerMeasurements->measurements(**flayer, tsosfwd,
+	  theLayerMeasurements.measurements(**flayer, tsosfwd,
 					     *prop1stLayer, meas1stFLayer);
 
 	for (aMeas m=pixel2Measurements.begin(); m!=pixel2Measurements.end(); m++){
@@ -428,7 +432,7 @@ PixelHitMatcher::compatibleHits
 
     FreeTrajectoryState secondFTS=myFTS(theMagField,hitPos,vertexPred,energy, charge);
 
-    PixelMatchNextLayers secondHit(theLayerMeasurements, newLayer, secondFTS,
+    PixelMatchNextLayers secondHit(&theLayerMeasurements, newLayer, secondFTS,
 				   prop2ndLayer, &meas2ndBLayer,&meas2ndFLayer,
 				   tTopo,searchInTIDTEC_);
     vector<CLHEP::Hep3Vector> predictions = secondHit.predictionInNextLayers();

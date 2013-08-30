@@ -1,5 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
+from RecoTracker.MeasurementDet.MeasurementTrackerEventProducer_cfi import *
 # Iterative steps
 from RecoTracker.IterativeTracking.iterativeTk_cff import *
 from RecoTracker.IterativeTracking.ElectronSeeds_cff import *

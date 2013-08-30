@@ -60,6 +60,7 @@
 class PropagatorWithMaterial;
 class KFUpdator;
 class MeasurementTracker;
+class MeasurementTrackerEvent;
 class NavigationSchool;
 
 class SiStripElectronSeedGenerator
@@ -101,6 +102,7 @@ private:
   }
 
   void findSeedsFromCluster(edm::Ref<reco::SuperClusterCollection>, edm::Handle<reco::BeamSpot>,
+                            const MeasurementTrackerEvent &trackerData,
 			    reco::ElectronSeedCollection&);
 
   int whichSubdetector(std::vector<const SiStripMatchedRecHit2D*>::const_iterator hit);
@@ -133,6 +135,7 @@ private:
 
   std::string theMeasurementTrackerName;
   const MeasurementTracker* theMeasurementTracker;
+  edm::InputTag theMeasurementTrackerEventTag;
   const edm::EventSetup *theSetup;
   
   PRecHitContainer recHits_;

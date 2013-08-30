@@ -11,6 +11,7 @@ gsfTrackProducer = cms.EDProducer("GsfTrackProducer",
     Propagator = cms.string('fwdElectronPropagator'),
     NavigationSchool = cms.string('SimpleNavigationSchool'),
     MeasurementTracker = cms.string(''),                   
+    MeasurementTrackerEvent = cms.InputTag('MeasurementTrackerEvent'),                   
     GeometricInnerState = cms.bool(False),
     AlgorithmName = cms.string('gsf')
 )

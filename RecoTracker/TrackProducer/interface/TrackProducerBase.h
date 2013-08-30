@@ -67,7 +67,9 @@ public:
   void setConf(const edm::ParameterSet& conf){conf_=conf;}
 
   /// set label of source collection
-  void setSrc(const edm::EDGetToken& src, const edm::EDGetTokenT<reco::BeamSpot>& bsSrc){src_=src;bsSrc_=bsSrc;}
+  void setSrc(const edm::EDGetToken& src, const edm::EDGetTokenT<reco::BeamSpot>& bsSrc, const edm::EDGetTokenT<MeasurementTrackerEvent> &mteSrc) {
+    src_ = src; bsSrc_ = bsSrc; mteSrc_ = mteSrc;
+  }
 
   /// set the aliases of produced collections
   void setAlias(std::string alias){
@@ -82,7 +84,7 @@ public:
   }
 
   void setSecondHitPattern(Trajectory* traj, T& track, 
-			   const Propagator* prop, const MeasurementTracker* measTk );
+			   const Propagator* prop, const MeasurementTrackerEvent* measTk );
 
   const edm::ParameterSet& getConf() const {return conf_;}
  private:
@@ -93,6 +95,7 @@ public:
   bool trajectoryInEvent_;
   edm::OrphanHandle<TrackCollection> rTracks_;
   edm::EDGetTokenT<reco::BeamSpot> bsSrc_;
+  edm::EDGetTokenT<MeasurementTrackerEvent> mteSrc_;
 
   bool rekeyClusterRefs_;
   edm::InputTag clusterRemovalInfo_;

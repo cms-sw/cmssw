@@ -26,7 +26,6 @@ ConversionSeedFinder::ConversionSeedFinder(const edm::ParameterSet& config ):
 
 void ConversionSeedFinder::setEvent(const edm::Event& evt  )  {
  
-  theMeasurementTracker_->update(evt);
   theTrackerGeom_= this->getMeasurementTracker()->geomTracker();
 
   //get the BeamSpot
@@ -34,7 +33,7 @@ void ConversionSeedFinder::setEvent(const edm::Event& evt  )  {
   evt.getByLabel("offlineBeamSpot",recoBeamSpotHandle);
   theBeamSpot_ = *recoBeamSpotHandle;
 
-
+  evt.getByLabel(edm::InputTag("MeasurementTrackerEvent"), theTrackerData_);
 
 }
 

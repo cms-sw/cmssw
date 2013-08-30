@@ -44,10 +44,16 @@ public:
 		       const Propagator*                     propagatorOpposite,
 		       const Chi2MeasurementEstimatorBase*   estimator,
 		       const TransientTrackingRecHitBuilder* recHitBuilder,
-		       const MeasurementTracker*             measurementTracker,
 		       const TrajectoryFilter*               filter);
 
   ~CkfTrajectoryBuilder() {}
+
+  // Return a clone of this, with the data pointer set
+  virtual CkfTrajectoryBuilder * clone(const MeasurementTrackerEvent *data) const {
+    CkfTrajectoryBuilder *ret = new CkfTrajectoryBuilder(*this);
+    ret->setData(data);
+    return ret;
+  }
   
   /// trajectories building starting from a seed
   virtual TrajectoryContainer trajectories(const TrajectorySeed& seed) const;

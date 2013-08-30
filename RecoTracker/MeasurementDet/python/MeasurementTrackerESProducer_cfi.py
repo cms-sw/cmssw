@@ -1,15 +1,9 @@
 import FWCore.ParameterSet.Config as cms
 
 MeasurementTracker = cms.ESProducer("MeasurementTrackerESProducer",
-    skipClusters = cms.InputTag(""),
     ComponentName = cms.string(''),
     OnDemand = cms.bool(False),
     Regional = cms.bool(False),
-
-    pixelClusterProducer = cms.string('siPixelClusters'),
-    stripClusterProducer = cms.string('siStripClusters'),
-    #stripLazyGetterProducer label only matters if Regional=true
-    stripLazyGetterProducer = cms.string(''),
 
     PixelCPE = cms.string('PixelCPEGeneric'),
     StripCPE = cms.string('StripCPEfromTrackAngle'),
@@ -36,9 +30,6 @@ MeasurementTracker = cms.ESProducer("MeasurementTrackerESProducer",
     UsePixelROCQualityDB      = cms.bool(True),            ## Use DB info at the ROC level
     DebugPixelROCQualityDB    = cms.untracked.bool(False), ## dump out info om module status
 
-    # One or more DetIdCollections of modules to mask on the fly for a given event
-    inactivePixelDetectorLabels = cms.VInputTag(cms.InputTag('siPixelDigis')),
-    inactiveStripDetectorLabels = cms.VInputTag(cms.InputTag('siStripDigis')),
     switchOffPixelsIfEmpty = cms.bool(True), # let's keep it like this, for cosmics                                    
 )
 

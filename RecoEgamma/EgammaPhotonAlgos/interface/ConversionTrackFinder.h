@@ -41,7 +41,7 @@ class ConversionTrackFinder {
 
   /// Initialize EventSetup objects at each event
   void setEventSetup( const edm::EventSetup& es ) ; 
-  void setEvent(const  edm::Event& e ) ; 
+  void setTrajectoryBuilder(const TrajectoryBuilder & builder) ; 
 
 
  private:

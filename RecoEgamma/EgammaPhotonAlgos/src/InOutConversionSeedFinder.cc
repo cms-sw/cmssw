@@ -12,6 +12,8 @@
 #include "TrackingTools/TrajectoryParametrization/interface/GlobalTrajectoryParameters.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
+#include "RecoTracker/MeasurementDet/interface/MeasurementTrackerEvent.h"
+
 //
 //
 //
@@ -469,7 +471,7 @@ void InOutConversionSeedFinder::findSeeds(const TrajectoryStateOnSurface & start
     
    //std::cout << "InOutConversionSeedFinder::findSeed propagationDirection " << int(thePropagatorAlongMomentum_->propagationDirection() ) << "\n";               
     /// Rememeber that this alwyas give back at least one dummy-innvalid it which prevents from everything getting stopped
-    LayerMeasurements theLayerMeasurements_(this->getMeasurementTracker() );
+    LayerMeasurements theLayerMeasurements_( *this->getMeasurementTracker(), *theTrackerData_ );
 
     theFirstMeasurements_ = theLayerMeasurements_.measurements( *layer, tsos, *thePropagatorAlongMomentum_, *newEstimator);
     
@@ -641,7 +643,8 @@ void InOutConversionSeedFinder::completeSeed(const TrajectoryMeasurement & m1,
  //std::cout << "InOutConversionSeedFinder::completeSeed TSOS " << tsos << "\n";   
  //std::cout << "InOutConversionSeedFinder::completeSeed propagationDirection  " << int(propagator->propagationDirection() ) << "\n";               
  //std::cout << "InOutConversionSeedFinder::completeSeed pointer to estimator " << newEstimator << "\n";
-  LayerMeasurements theLayerMeasurements_(this->getMeasurementTracker() );
+
+  LayerMeasurements theLayerMeasurements_( *this->getMeasurementTracker(), *theTrackerData_ );
   std::vector<TrajectoryMeasurement> measurements = theLayerMeasurements_.measurements( *layer, tsos, *propagator, *newEstimator);
  //std::cout << "InOutConversionSeedFinder::completeSeed Found " << measurements.size() << " second hits " <<  "\n"; 
   delete newEstimator;

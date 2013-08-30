@@ -44,6 +44,7 @@
 #include "DataFormats/DetId/interface/DetIdCollection.h"
 #include "TrackingTools/DetLayers/interface/DetLayer.h"
 #include "RecoTracker/MeasurementDet/interface/MeasurementTracker.h"
+#include "RecoTracker/MeasurementDet/interface/MeasurementTrackerEvent.h"
 
 #include "RecoTracker/Record/interface/CkfComponentsRecord.h"
 #include "AnalysisDataFormats/SiStripClusterInfo/interface/SiStripClusterInfo.h"
@@ -191,6 +192,9 @@ void HitEff::analyze(const edm::Event& e, const edm::EventSetup& es){
 
   ESHandle<MeasurementTracker> measurementTrackerHandle;
   es.get<CkfComponentsRecord>().get(measurementTrackerHandle);
+
+  edm::Handle<MeasurementTrackerEvent> measurementTrackerEvent;
+  e.getByLabel("MeasurementTrackerEvent", measurementTrackerEvent);
 
   edm::ESHandle<Chi2MeasurementEstimatorBase> est;
   es.get<TrackingComponentsRecord>().get("Chi2",est);
@@ -364,7 +368,7 @@ void HitEff::analyze(const edm::Event& e, const edm::EventSetup& es){
 	  std::vector< BarrelDetLayer*> barrelTOBLayers = measurementTrackerHandle->geometricSearchTracker()->tobLayers() ;
 	  const DetLayer* tob6 = barrelTOBLayers[barrelTOBLayers.size()-1];
 	  const MeasurementEstimator* estimator = est.product();
-	  const LayerMeasurements* theLayerMeasurements = new LayerMeasurements(&*measurementTrackerHandle);
+	  const LayerMeasurements* theLayerMeasurements = new LayerMeasurements(*measurementTrackerHandle, *measurementTrackerEvent);
 	  const TrajectoryStateOnSurface tsosTOB5 = itm->updatedState();
 	  vector<TrajectoryMeasurement> tmp = theLayerMeasurements->measurements(*tob6, tsosTOB5, *thePropagator, *estimator);
 	  
@@ -400,7 +404,7 @@ void HitEff::analyze(const edm::Event& e, const edm::EventSetup& es){
 	  const DetLayer* tec9neg = negTecLayers[negTecLayers.size()-1];
 	  
 	  const MeasurementEstimator* estimator = est.product();
-	  const LayerMeasurements* theLayerMeasurements = new LayerMeasurements(&*measurementTrackerHandle);
+	  const LayerMeasurements* theLayerMeasurements = new LayerMeasurements(*measurementTrackerHandle, *measurementTrackerEvent);
 	  const TrajectoryStateOnSurface tsosTEC9 = itm->updatedState();
 	  
 	  // check if track on positive or negative z

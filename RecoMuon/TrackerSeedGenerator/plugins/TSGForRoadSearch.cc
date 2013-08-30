@@ -49,6 +49,9 @@ TSGForRoadSearch::TSGForRoadSearch(const edm::ParameterSet & par){
   else {
     theAdjustAtIp =false;
     theErrorMatrixAdjuster=0;}
+
+  theMeasurementTrackerEventTag = par.getParameter<edm::InputTag>("MeasurementTrackerEvent");
+  theMeasurementTrackerEvent = 0;
 }
 TSGForRoadSearch::~TSGForRoadSearch(){
   delete theChi2Estimator;
@@ -68,6 +71,10 @@ void TSGForRoadSearch::setEvent(const edm::Event &event){
     if (!theMeasurementTracker.isValid())/*abort*/{edm::LogError(theCategory)<<"measurement tracker geometry not found ";}
   }
   theProxyService->eventSetup().get<TrackerRecoGeometryRecord>().get(theGeometricSearchTracker);
+
+  edm::Handle<MeasurementTrackerEvent> data;
+  event.getByLabel(theMeasurementTrackerEventTag, data);
+  theMeasurementTrackerEvent = &*data;
 }
 
 
@@ -409,8 +416,8 @@ void TSGForRoadSearch::pushTrajectorySeed(const reco::Track & muon, std::vector<
       bool aBareTS=false;
       const GeomDet * gd = DWSit->first;
       if (!gd){edm::LogError(theCategory)<<"GeomDet is not valid."; continue;}
-      const MeasurementDet * md= theMeasurementTracker->idToDet(gd->geographicalId());
-      std::vector<TrajectoryMeasurement> tmp = md->fastMeasurements(DWSit->second,DWSit->second,*theProxyService->propagator(thePropagatorCompatibleName),*theChi2Estimator);
+      MeasurementDetWithData md = theMeasurementTrackerEvent->idToDet(gd->geographicalId());
+      std::vector<TrajectoryMeasurement> tmp = md.fastMeasurements(DWSit->second,DWSit->second,*theProxyService->propagator(thePropagatorCompatibleName),*theChi2Estimator);
       //make a trajectory seed for each of them
 
       for (std::vector<TrajectoryMeasurement>::iterator Mit = tmp.begin(); Mit!=tmp.end();++Mit){

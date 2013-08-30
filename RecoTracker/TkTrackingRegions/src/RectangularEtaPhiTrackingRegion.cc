@@ -25,6 +25,7 @@
 
 #include "RecoTracker/Record/interface/CkfComponentsRecord.h"
 #include "RecoTracker/MeasurementDet/interface/MeasurementTracker.h"
+#include "RecoTracker/MeasurementDet/interface/MeasurementTrackerEvent.h"
 #include "TrackingTools/MeasurementDet/interface/LayerMeasurements.h"
 #include "TrackingTools/PatternTools/interface/TrajectoryMeasurement.h"
 #include "DataFormats/GeometrySurface/interface/BoundPlane.h"
@@ -338,12 +339,9 @@ TrackingRegion::Hits RectangularEtaPhiTrackingRegion::hits(
   // propagator
   StraightLinePropagator prop( magField, alongMomentum);
 
-  edm::ESHandle<MeasurementTracker> measurementTrackerESH;
-  es.get<CkfComponentsRecord>().get(theMeasurementTrackerName, measurementTrackerESH); 
-  const MeasurementTracker * measurementTracker = measurementTrackerESH.product(); 
-  measurementTracker->update(ev);
-
-  LayerMeasurements lm(measurementTracker);
+  edm::Handle<MeasurementTrackerEvent> mte;
+  ev.getByLabel(edm::InputTag(theMeasurementTrackerName), mte);
+  LayerMeasurements lm(mte->measurementTracker(), *mte);
    
   vector<TrajectoryMeasurement> meas = lm.measurements(*detLayer, tsos, prop, findDetAndHits);
   typedef vector<TrajectoryMeasurement>::const_iterator IM;

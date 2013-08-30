@@ -25,6 +25,7 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 
 #include "RecoTracker/MeasurementDet/interface/MeasurementTracker.h"
+#include "RecoTracker/MeasurementDet/interface/MeasurementTrackerEvent.h"
 #include "RecoTracker/TkDetLayers/interface/GeometricSearchTracker.h"
 
 #include "MagneticField/Engine/interface/MagneticField.h"
@@ -56,10 +57,10 @@ private:
 
   /// Find compatible TM of a TM with error rescaled by rescaleFactor
   std::vector<TrajectoryMeasurement>
-         findCompatibleMeasurements( const TM& lastMeas, double rescaleFactor) const;
+         findCompatibleMeasurements( const TM& lastMeas, double rescaleFactor, const LayerMeasurements & layerMeasurements) const;
 
   std::vector<TrajectoryMeasurement>
-         findMeasurementsFromTSOS(const TSOS& currentState, DetId detid) const;
+         findMeasurementsFromTSOS(const TSOS& currentState, DetId detid, const LayerMeasurements & layerMeasurements) const;
 
   /// Calculate the parameters of the circle representing the primary track at the interaction point
   void definePrimaryHelix(std::vector<TrajectoryMeasurement>::const_iterator it_meas);
@@ -73,16 +74,13 @@ public:
   virtual ~NuclearInteractionFinder();
 
   /// Run the Finder
-  bool  run(const Trajectory& traj);
+  bool  run(const Trajectory& traj, const MeasurementTrackerEvent &event );
 
-  /// define the measurement (to be called for each event)
-  void  setEvent(const edm::Event& event) const;
+  /// Improve the seeds with a third RecHit
+  void  improveSeeds( const MeasurementTrackerEvent &event );
 
   /// Fill 'output' with persistent nuclear seeds
   std::auto_ptr<TrajectorySeedCollection>  getPersistentSeeds();
-
-  /// Improve the seeds with a third RecHit
-  void  improveSeeds();
 
   TrajectoryStateOnSurface rescaleError(float rescale, const TSOS& state) const;
 
@@ -93,7 +91,6 @@ private:
   const Propagator*               thePropagator;
   const MeasurementEstimator*     theEstimator;
   const MeasurementTracker*       theMeasurementTracker;
-  const LayerMeasurements*        theLayerMeasurements;
   const GeometricSearchTracker*   theGeomSearchTracker;
   const NavigationSchool*         theNavigationSchool;
   edm::ESHandle<MagneticField>    theMagField;

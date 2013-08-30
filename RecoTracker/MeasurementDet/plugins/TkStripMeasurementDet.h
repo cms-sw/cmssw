@@ -2,7 +2,8 @@
 #define TkStripMeasurementDet_H
 
 #include "TrackingTools/MeasurementDet/interface/MeasurementDet.h"
-#include "TkMeasurementDetSet.h"
+#include "RecoTracker/MeasurementDet/interface/MeasurementTrackerEvent.h"
+#include "RecoTracker/MeasurementDet/src/TkMeasurementDetSet.h"
 
 #include "RecoLocalTracker/ClusterParameterEstimator/interface/StripClusterParameterEstimator.h"
 #include "DataFormats/TrackerRecHit2D/interface/OmniClusterRef.h"
@@ -39,55 +40,54 @@ public:
   
   virtual ~TkStripMeasurementDet(){}
   
-  TkStripMeasurementDet( const GeomDet* gdet, StMeasurementDetSet & dets);
-
+  TkStripMeasurementDet( const GeomDet* gdet, StMeasurementConditionSet & conditionSet );
 
   void setIndex(int i) { index_=i;}
   
-  void update( const detset &detSet ) { 
-    theDets().update(index(),detSet);
+  void update( StMeasurementDetSet & theDets, const detset &detSet ) const { 
+    theDets.update(index(),detSet);
   }
-  void update( std::vector<SiStripCluster>::const_iterator begin ,std::vector<SiStripCluster>::const_iterator end ) { 
-    theDets().update(index(), begin, end);
+  void update( StMeasurementDetSet & theDets, std::vector<SiStripCluster>::const_iterator begin ,std::vector<SiStripCluster>::const_iterator end ) const { 
+    theDets.update(index(), begin, end);
   }
   
-  bool isRegional() const { return theDets().isRegional();}
+  bool isRegional() const { return conditionSet().isRegional();}
   
-  void setEmpty(){ theDets().setEmpty(index()); }
+  void setEmpty(StMeasurementDetSet & theDets) const { theDets.setEmpty(index()); }
   
-  bool  isEmpty() const {return theDets().empty(index());}
+  bool  isEmpty(const StMeasurementDetSet & theDets) const {return theDets.empty(index());}
   
   int index() const { return index_;}
 
-  unsigned int rawId() const { return theDets().id(index()); }
-  unsigned char subId() const { return theDets().subId(index());}
+  unsigned int rawId() const { return conditionSet().id(index()); }
+  unsigned char subId() const { return conditionSet().subId(index());}
   
   
-  const detset & theSet() const {return theDets().detSet(index());}
-  const detset & detSet() const {return theDets().detSet(index());}
-  detset & detSet() { return theDets().detSet(index());}
-  unsigned int beginClusterI() const {return theDets().beginClusterI(index());}
-  unsigned int endClusterI() const {return theDets().endClusterI(index());}
+  const detset & theSet(const StMeasurementDetSet & theDets) const {return theDets.detSet(index());}
+  const detset & detSet(const StMeasurementDetSet & theDets) const {return theDets.detSet(index());}
+  detset & detSet(StMeasurementDetSet & theDets) const { return theDets.detSet(index());}
+  unsigned int beginClusterI(const StMeasurementDetSet & theDets) const {return theDets.beginClusterI(index());}
+  unsigned int endClusterI(const StMeasurementDetSet & theDets) const {return theDets.endClusterI(index());}
   
-  int  size() const {return endClusterI() - beginClusterI() ; }
+  int  size(const StMeasurementDetSet & theDets) const {return endClusterI(theDets) - beginClusterI(theDets) ; }
   
   
   /** \brief Is this module active in reconstruction? It must be both 'setActiveThisEvent' and 'setActive'. */
-  bool isActive() const { return theDets().isActive(index()); }
+  bool isActive(const MeasurementTrackerEvent & data) const { return data.stripData().isActive(index()); }
   
   //TO BE IMPLEMENTED
-  bool hasBadComponents( const TrajectoryStateOnSurface &tsos ) const {return false;}
+  bool hasBadComponents( const TrajectoryStateOnSurface &tsos, const MeasurementTrackerEvent & data ) const {return false;}
   
   
   
-  virtual RecHitContainer recHits( const TrajectoryStateOnSurface&) const;
-  void simpleRecHits( const TrajectoryStateOnSurface& ts, std::vector<SiStripRecHit2D> &result) const ;
+  virtual RecHitContainer recHits( const TrajectoryStateOnSurface&, const MeasurementTrackerEvent & data) const;
+  void simpleRecHits( const TrajectoryStateOnSurface& ts, const MeasurementTrackerEvent & data, std::vector<SiStripRecHit2D> &result) const ;
   
-  virtual bool recHits( const TrajectoryStateOnSurface& stateOnThisDet, const MeasurementEstimator& est,
+  virtual bool recHits( const TrajectoryStateOnSurface& stateOnThisDet, const MeasurementEstimator& est, const MeasurementTrackerEvent & data,
 			RecHitContainer & result, std::vector<float> & diffs) const;
   
   virtual bool measurements( const TrajectoryStateOnSurface& stateOnThisDet,
-			     const MeasurementEstimator& est,
+			     const MeasurementEstimator& est, const MeasurementTrackerEvent & data,
 			     TempMeasurements & result) const;
   
   const StripGeomDetUnit& specificGeomDet() const {return static_cast<StripGeomDetUnit const &>(fastGeomDet());}
@@ -114,11 +114,11 @@ public:
   
 
   template<class ClusterRefT>
-  bool filteredRecHits( const ClusterRefT& cluster, const TrajectoryStateOnSurface& ltp,  const MeasurementEstimator& est, 
+  bool filteredRecHits( const ClusterRefT& cluster, const TrajectoryStateOnSurface& ltp,  const MeasurementEstimator& est, const std::vector<bool> & skipClusters,
 			RecHitContainer & result, std::vector<float> & diffs) const {
     if (isMasked(*cluster)) return true;
     const GeomDetUnit& gdu( specificGeomDet());
-    if (!accept(cluster)) return true;
+    if (!accept(cluster, skipClusters)) return true;
     VLocalValues const & vlv = cpe()->localParametersV( *cluster, gdu, ltp);
     bool isCompatible(false);
     for(auto vl : vlv) {
@@ -136,65 +136,50 @@ public:
 
 
   
-  /** \brief Turn on/off the module for reconstruction, for the full run or lumi (using info from DB, usually).
-      This also resets the 'setActiveThisEvent' to true */
-  void setActive(bool active) { theDets().setActive(index(),active);}
+  /** \brief Turn on/off the module for reconstruction, for the full run or lumi (using info from DB, usually). */
+  void setActiveThisPeriod(StMeasurementDetSet & theDets, bool active) { conditionSet().setActive(index(),active);}
+
   /** \brief Turn on/off the module for reconstruction for one events.
       This per-event flag is cleared by any call to 'update' or 'setEmpty'  */
-  void setActiveThisEvent(bool active) {  theDets().setActiveThisEvent(index(),active); }
+  void setActiveThisEvent(StMeasurementDetSet & theDets, bool active) const {  theDets.setActiveThisEvent(index(),active); }
   
   /** \brief does this module have at least one bad strip, APV or channel? */
   bool hasAllGoodChannels() const { return (!hasAny128StripBad()) && badStripBlocks().empty(); }
   
   /** \brief Sets the status of a block of 128 strips (or all blocks if idx=-1) */
   void set128StripStatus(bool good, int idx=-1) {
-    theDets().set128StripStatus(index(),good,idx);
+    conditionSet().set128StripStatus(index(),good,idx);
   }
   
-  typedef StMeasurementDetSet::BadStripCuts BadStripCuts;
+  typedef StMeasurementConditionSet::BadStripCuts BadStripCuts;
   
   /** \brief return true if there are 'enough' good strips in the utraj +/- 3 uerr range.*/
   bool testStrips(float utraj, float uerr) const;
   
-  typedef StMeasurementDetSet::BadStripBlock BadStripBlock;
+  typedef StMeasurementConditionSet::BadStripBlock BadStripBlock;
   
-  std::vector<BadStripBlock> & getBadStripBlocks() { return theDets().getBadStripBlocks(index()); }
-  std::vector<BadStripBlock> const & badStripBlocks() const { return theDets().badStripBlocks(index()); }
+  std::vector<BadStripBlock> & getBadStripBlocks() { return conditionSet().getBadStripBlocks(index()); }
+  std::vector<BadStripBlock> const & badStripBlocks() const { return conditionSet().badStripBlocks(index()); }
 
-  bool maskBad128StripBlocks() const { return theDets().maskBad128StripBlocks();}
-  
-
+  bool maskBad128StripBlocks() const { return conditionSet().maskBad128StripBlocks();}
   
 private:
-  
-  StMeasurementDetSet  & theDets() { return *theDets_;}
-  StMeasurementDetSet  & theDets() const { return *theDets_;}
-  
-  StMeasurementDetSet * theDets_;
   int index_;
+  StMeasurementConditionSet * theDetConditions;
+  StMeasurementConditionSet & conditionSet() { return *theDetConditions; }
+  const StMeasurementConditionSet & conditionSet() const { return *theDetConditions; }
   
+  const StripClusterParameterEstimator* cpe() const { return  conditionSet().stripCPE(); }
 
-
-  edm::Handle<edmNew::DetSetVector<SiStripCluster> > const & handle() const { return theDets().handle();}
-  edm::Handle<edm::LazyGetter<SiStripCluster> > const & regionalHandle() const { return theDets().regionalHandle();}
-  
-  const StripClusterParameterEstimator* cpe() const { return  theDets().stripCPE(); }
-  
-  
-  const std::vector<bool> & skipClusters() const {  return  theDets().clusterToSkip();}
-  
   // --- regional unpacking
+  int totalStrips() const { return conditionSet().totalStrips(index()); }
+  BadStripCuts const & badStripCuts() const { return conditionSet().badStripCuts(index());}
   
-  int totalStrips() const { return theDets().totalStrips(index()); }
-  BadStripCuts const & badStripCuts() const { return theDets().badStripCuts(index());}
-  
-  bool hasAny128StripBad() const { return  theDets().hasAny128StripBad(index()); } 
-  
-  
+  bool hasAny128StripBad() const { return  conditionSet().hasAny128StripBad(index()); } 
   
   
   inline bool isMasked(const SiStripCluster &cluster) const {
-    return theDets().isMasked(index(), cluster);
+    return conditionSet().isMasked(index(), cluster);
   }
   
 
@@ -213,22 +198,22 @@ private:
   
   
 public:
-  inline bool accept(SiStripClusterRef const & r) const {
-    if(skipClusters().empty()) return true;
-    if (r.key()>=skipClusters().size()){
-      edm::LogError("WrongStripMasking")<<r.key()<<" is larger than: "<<skipClusters().size()<<" no skipping done";
+  inline bool accept(SiStripClusterRef const & r, const std::vector<bool> & skipClusters) const {
+    if(skipClusters.empty()) return true;
+    if (r.key()>=skipClusters.size()){
+      edm::LogError("WrongStripMasking")<<r.key()<<" is larger than: "<<skipClusters.size()<<" no skipping done";
       return true;
     }
-    return (not (skipClusters()[r.key()]));
+    return (not (skipClusters[r.key()]));
   }
-  inline bool accept(SiStripRegionalClusterRef const &r) const{
-    if(skipClusters().empty()) return true;
-    if (r.key()>=skipClusters().size()){
-      LogDebug("TkStripMeasurementDet")<<r.key()<<" is larger than: "<<skipClusters().size()
+  inline bool accept(SiStripRegionalClusterRef const &r, const std::vector<bool> & skipClusters) const{
+    if(skipClusters.empty()) return true;
+    if (r.key()>=skipClusters.size()){
+      LogDebug("TkStripMeasurementDet")<<r.key()<<" is larger than: "<<skipClusters.size()
 				       <<"\n This must be a new cluster, and therefore should not be skiped most likely.";
       return true;
     }
-    return (not (skipClusters()[r.key()]));
+    return (not (skipClusters[r.key()]));
   }
 
 };

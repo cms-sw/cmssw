@@ -13,6 +13,7 @@
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
 #include "TrackingTools/DetLayers/interface/DetLayer.h"
 #include "TrackingTools/MeasurementDet/interface/LayerMeasurements.h"
+#include "RecoTracker/MeasurementDet/interface/MeasurementTrackerEvent.h"
 //
 
 //
@@ -290,8 +291,8 @@ void OutInConversionSeedFinder::startSeed(const FreeTrajectoryState & fts) const
       TSOS tsos(fts, layer->surface() );
       
       LogDebug("OutInConversionSeedFinder") << "OutInSeedFinder::startSeed  after  TSOS tsos(fts, layer->surface() ) " << "\n";
-      
-      LayerMeasurements theLayerMeasurements_(this->getMeasurementTracker() );
+       
+      LayerMeasurements theLayerMeasurements_( *this->getMeasurementTracker(), *theTrackerData_ );
       theFirstMeasurements_ = theLayerMeasurements_.measurements( *layer, tsos, *thePropagatorAlongMomentum_, *newEstimator);
       
       //std::cout << "OutInSeedFinder::startSeed  after  theFirstMeasurements_   " << theFirstMeasurements_.size() <<  "\n";
@@ -412,7 +413,7 @@ void OutInConversionSeedFinder::completeSeed(const TrajectoryMeasurement & m1,
   LogDebug("OutInConversionSeedFinder") << "OutInConversionSeedFinder::completeSeed propagationDirection  " << int(propagator->propagationDirection() ) << "\n";               
   LogDebug("OutInConversionSeedFinder") << "OutInConversionSeedFinder::completeSeed pointer to estimator " << newEstimator << "\n";
 
-  LayerMeasurements theLayerMeasurements_(this->getMeasurementTracker() );
+  LayerMeasurements theLayerMeasurements_( *this->getMeasurementTracker(), *theTrackerData_ );
   std::vector<TrajectoryMeasurement> measurements = theLayerMeasurements_.measurements( *layer, tsos, *propagator, *newEstimator);
   //std::cout << "OutInConversionSeedFinder::completeSeed Found " << measurements.size() << " second hits " << "\n";
   delete newEstimator;

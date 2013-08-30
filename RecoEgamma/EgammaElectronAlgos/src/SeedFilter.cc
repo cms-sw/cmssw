@@ -69,7 +69,7 @@ SeedFilter::SeedFilter(const edm::ParameterSet& conf)
                                     SeedCreatorFactory::get()->create("SeedFromConsecutiveHitsCreator", creatorPSet)
 				                  	       );
   beamSpotTag_ = conf.getParameter<edm::InputTag>("beamSpot") ;
-  measurementTrackerName_ = conf.getParameter<std::string>("measurementTrackerName") ;
+  measurementTrackerName_ = conf.getParameter<edm::InputTag>("measurementTrackerEvent").encode() ;
  }
 
 SeedFilter::~SeedFilter() {

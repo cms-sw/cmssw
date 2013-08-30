@@ -20,6 +20,7 @@ ckfInOutTracksFromConversions = cms.EDProducer("TrackProducerWithSCAssociation",
     beamSpot = cms.InputTag("offlineBeamSpot"),
     NavigationSchool = cms.string('SimpleNavigationSchool'),
     MeasurementTracker = cms.string(''),                              
+    MeasurementTrackerEvent = cms.InputTag('MeasurementTrackerEvent'),                   
 )
 
 

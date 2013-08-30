@@ -1,12 +1,14 @@
 #ifndef RecoTracker_MeasurementDet_MeasurementTrackerSiStripRefGetterProducer_H
 #define RecoTracker_MeasurementDet_MeasurementTrackerSiStripRefGetterProducer_H
 
+#include "MeasurementTrackerEventProducer.h"
 
 /** \class MeasurementTrackerSiStripRefGetterProducer
  * module to allow for unpack on demand
  * retrieves a SiStripLazyGetter from the event
- * retrieves a MeasurementTrackerOD from the event 
+ * retrieves a MeasurementTrackerOD from the event setup
  * produces a SiStripRefGetter, defined by MeasurementTrackerOD::define(...)
+ * produces a MeasurementTrackerEvent and puts it into the event
  * 
  *
  * \author Jean-Roch Vlimant  UCSB
@@ -29,7 +31,7 @@
 #include <memory>
 #include "boost/bind.hpp"
 
-class MeasurementTrackerSiStripRefGetterProducer : public edm::EDProducer {
+class MeasurementTrackerSiStripRefGetterProducer : public MeasurementTrackerEventProducer {
   
  public:
 
@@ -43,15 +45,13 @@ class MeasurementTrackerSiStripRefGetterProducer : public edm::EDProducer {
   virtual void produce( edm::Event&, const edm::EventSetup& ) override;
   
  private: 
+  void updateStrips( const edm::Event& event, StMeasurementDetSet & theStDets, std::vector<bool> & stripClustersToSkip ) const ;
 
   /// Input module label of SiStripLazyGetter
   edm::InputTag inputModuleLabel_;
 
   /// Cabling 
   edm::ESHandle<SiStripRegionCabling> cabling_;
-
-  /// name of the defined Measurement Tracker On Demand
-  std::string measurementTrackerName_;
 };
 
 #endif 

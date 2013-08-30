@@ -15,9 +15,10 @@
 #include "TrackingTools/PatternTools/interface/TrajectoryMeasurement.h"
 #include "TrackingTools/PatternTools/interface/TrajectoryStateUpdator.h"
 #include "RecoMuon/TrackingTools/interface/MuonErrorMatrix.h"
+#include "RecoTracker/MeasurementDet/interface/MeasurementTrackerEvent.h"
+#include "TrackingTools/MeasurementDet/interface/LayerMeasurements.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 
-class LayerMeasurements;
 class Chi2MeasurementEstimator;
 class Propagator;
 class MeasurementTracker;
@@ -52,7 +53,7 @@ private:
 
   TrajectoryStateOnSurface outerTkState(const TrackCand&) const;
 
-  const LayerMeasurements* tkLayerMeasurements() const { return theTkLayerMeasurements; } 
+  const LayerMeasurements* tkLayerMeasurements() const { return &theTkLayerMeasurements; } 
 
   const TrajectoryStateUpdator* updator() const {return theUpdator;}
 
@@ -108,12 +109,14 @@ private:
 
   std::string theCategory;
 
-  const LayerMeasurements*  theTkLayerMeasurements;
+  LayerMeasurements  theTkLayerMeasurements;
 
   edm::ESHandle<GeometricSearchTracker> theTracker;
 
   std::string theMeasTrackerName;
   edm::ESHandle<MeasurementTracker> theMeasTracker;
+  edm::InputTag theMeasurementTrackerEventTag;
+  edm::Handle<MeasurementTrackerEvent> theMeasTrackerEvent;
 
   const DirectTrackerNavigation* theNavigation;
 

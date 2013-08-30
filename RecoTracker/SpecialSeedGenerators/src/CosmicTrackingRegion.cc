@@ -2,6 +2,7 @@
 #include "TrackingTools/KalmanUpdators/interface/EtaPhiMeasurementEstimator.h"
 #include "RecoTracker/Record/interface/CkfComponentsRecord.h"
 #include "RecoTracker/MeasurementDet/interface/MeasurementTracker.h"
+#include "RecoTracker/MeasurementDet/interface/MeasurementTrackerEvent.h"
 
 #include "TrackingTools/MeasurementDet/interface/LayerMeasurements.h"
 #include "TrackingTools/PatternTools/interface/TrajectoryMeasurement.h"
@@ -100,8 +101,9 @@ TrackingRegion::Hits CosmicTrackingRegion::hits(const edm::Event& ev,
   edm::ESHandle<MeasurementTracker> measurementTrackerESH;
   es.get<CkfComponentsRecord>().get(measurementTrackerName_,measurementTrackerESH);
   const MeasurementTracker * measurementTracker = measurementTrackerESH.product(); 
-  measurementTracker->update(ev);
-  LayerMeasurements lm(measurementTracker);
+  edm::Handle<MeasurementTrackerEvent> mte;
+  ev.getByLabel(edm::InputTag("MeasurementTrackerEvent"), mte);
+  LayerMeasurements lm(*measurementTracker, *mte);
   vector<TrajectoryMeasurement> meas = lm.measurements(*detLayer, tsos, prop, est);
   LogDebug("CosmicTrackingRegion") << "Number of Trajectory measurements = " << meas.size()
 				   <<" but the last one is always an invalid hit, by construction.";
