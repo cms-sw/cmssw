@@ -22,52 +22,50 @@
 
 class BtoCharmDecayVertexMerger : public edm::EDProducer {
     public:
-	BtoCharmDecayVertexMerger(const edm::ParameterSet &params);
+       BtoCharmDecayVertexMerger(const edm::ParameterSet &params);
 
-	virtual void produce(edm::Event &event, const edm::EventSetup &es);
+       virtual void produce(edm::Event &event, const edm::EventSetup &es);
 
     private:
+       edm::EDGetTokenT<reco::VertexCollection>  token_primaryVertex;
+       edm::EDGetTokenT<reco::VertexCollection>  token_secondaryVertex;
+       reco::Vertex                              pv;
+       // double                                    maxFraction;
+       // double                                    minSignificance;
 
- 
-  edm::InputTag				primaryVertexCollection;
-  edm::InputTag				secondaryVertexCollection;
-  reco::Vertex pv;
-  //	double					maxFraction;
-  //	double					minSignificance;
+       double minDRForUnique, vecSumIMCUTForUnique, minCosPAtomerge, maxPtreltomerge;
 
-  double minDRForUnique, vecSumIMCUTForUnique, minCosPAtomerge, maxPtreltomerge; 
+       // a vertex proxy for sorting using stl
+       struct vertexProxy{
+         reco::Vertex vert;
+         double invm;
+         size_t ntracks;
+       };
 
-  // a vertex proxy for sorting using stl
-  struct vertexProxy{
-    reco::Vertex vert; 
-    double invm;
-    size_t ntracks;
-  };
+       // comparison operator for vertexProxy, used in sorting
+       friend bool operator<(vertexProxy v1, vertexProxy v2){
+         if(v1.ntracks>2 && v2.ntracks<3) return true;
+         if(v1.ntracks<3 && v2.ntracks>2) return false;
+         return (v1.invm>v2.invm);
+       }
 
-  // comparison operator for vertexProxy, used in sorting
-  friend bool operator<(vertexProxy v1, vertexProxy v2){
-    if(v1.ntracks>2 && v2.ntracks<3) return true;
-    if(v1.ntracks<3 && v2.ntracks>2) return false;
-    return (v1.invm>v2.invm);
-  }
-
-  void resolveBtoDchain(std::vector<vertexProxy>& coll, unsigned int i, unsigned int k);
-  GlobalVector flightDirection(reco::Vertex &pv, reco::Vertex &sv);
+       void resolveBtoDchain(std::vector<vertexProxy>& coll, unsigned int i, unsigned int k);
+       GlobalVector flightDirection(reco::Vertex &pv, reco::Vertex &sv);
 };
 
 
 
 BtoCharmDecayVertexMerger::BtoCharmDecayVertexMerger(const edm::ParameterSet &params) :
-	primaryVertexCollection(params.getParameter<edm::InputTag>("primaryVertices")),
-	secondaryVertexCollection(params.getParameter<edm::InputTag>("secondaryVertices")),
-	minDRForUnique(params.getUntrackedParameter<double>("minDRUnique",0.4)),
-	vecSumIMCUTForUnique(params.getUntrackedParameter<double>("minvecSumIMifsmallDRUnique",5.5)), 
-	minCosPAtomerge(params.getUntrackedParameter<double>("minCosPAtomerge",0.99)),
-	maxPtreltomerge(params.getUntrackedParameter<double>("maxPtreltomerge",7777.0))
-						    //	maxFraction(params.getParameter<double>("maxFraction")),
-						    //	minSignificance(params.getParameter<double>("minSignificance"))
+       token_primaryVertex(consumes<reco::VertexCollection>(params.getParameter<edm::InputTag>("primaryVertices"))),
+       token_secondaryVertex(consumes<reco::VertexCollection>(params.getParameter<edm::InputTag>("secondaryVertices"))),
+       minDRForUnique(params.getUntrackedParameter<double>("minDRUnique",0.4)),
+       vecSumIMCUTForUnique(params.getUntrackedParameter<double>("minvecSumIMifsmallDRUnique",5.5)),
+       minCosPAtomerge(params.getUntrackedParameter<double>("minCosPAtomerge",0.99)),
+       maxPtreltomerge(params.getUntrackedParameter<double>("maxPtreltomerge",7777.0))
+       // maxFraction(params.getParameter<double>("maxFraction")),
+       // minSignificance(params.getParameter<double>("minSignificance"))
 {
-	produces<reco::VertexCollection>();
+       produces<reco::VertexCollection>();
 }
 //-----------------------
 void BtoCharmDecayVertexMerger::produce(edm::Event &iEvent, const edm::EventSetup &iSetup){
@@ -75,7 +73,7 @@ void BtoCharmDecayVertexMerger::produce(edm::Event &iEvent, const edm::EventSetu
   using namespace reco;
   // PV
   edm::Handle<reco::VertexCollection> PVcoll;
-  iEvent.getByLabel(primaryVertexCollection, PVcoll);
+  iEvent.getByToken(token_primaryVertex, PVcoll);
 
   if(PVcoll->size()!=0) {
 
@@ -83,23 +81,23 @@ void BtoCharmDecayVertexMerger::produce(edm::Event &iEvent, const edm::EventSetu
   pv = pvc[0];
 
   // get the IVF collection
-  edm::Handle<VertexCollection> secondaryVertices;
-  iEvent.getByLabel(secondaryVertexCollection, secondaryVertices);
-  
- 
+  edm::Handle<reco::VertexCollection> secondaryVertices;
+  iEvent.getByToken(token_secondaryVertex, secondaryVertices);
 
-  //loop over vertices,  fill into own collection for sorting 
-  std::vector<vertexProxy> vertexProxyColl; 
+
+
+  //loop over vertices,  fill into own collection for sorting
+  std::vector<vertexProxy> vertexProxyColl;
   for(std::vector<reco::Vertex>::const_iterator sv = secondaryVertices->begin();
       sv != secondaryVertices->end(); ++sv) {
     vertexProxy vtx = {*sv,(*sv).p4().M(),(*sv).tracksSize()};
     vertexProxyColl.push_back( vtx );
   }
-  
+
   // sort the vertices by mass and track multiplicity
-  sort( vertexProxyColl.begin(), vertexProxyColl.end()); 
-  
-  
+  sort( vertexProxyColl.begin(), vertexProxyColl.end());
+
+
   // loop forward over all vertices
   for(unsigned int iVtx=0; iVtx < vertexProxyColl.size(); iVtx++){
 
@@ -107,13 +105,13 @@ void BtoCharmDecayVertexMerger::produce(edm::Event &iEvent, const edm::EventSetu
     // check all vertices against each other for B->D chain
     for(unsigned int kVtx=vertexProxyColl.size()-1; kVtx>iVtx; kVtx--){
       // remove D vertices from the collection and add the tracks to the original one
-      resolveBtoDchain(vertexProxyColl, iVtx, kVtx); 
+      resolveBtoDchain(vertexProxyColl, iVtx, kVtx);
     }
   }
 
   // now create new vertex collection and add to event
   VertexCollection *bvertices = new VertexCollection();
-  for(std::vector<vertexProxy>::iterator it=vertexProxyColl.begin(); it!=vertexProxyColl.end(); it++) bvertices->push_back((*it).vert); 
+  for(std::vector<vertexProxy>::iterator it=vertexProxyColl.begin(); it!=vertexProxyColl.end(); it++) bvertices->push_back((*it).vert);
   std::auto_ptr<VertexCollection> bvertColl(bvertices);
   iEvent.put(bvertColl);
   }
@@ -134,13 +132,13 @@ void BtoCharmDecayVertexMerger::resolveBtoDchain(std::vector<vertexProxy>& coll,
   reco::SecondaryVertex sv1(pv, coll[i].vert, momentum1 , true);
   reco::SecondaryVertex sv2(pv, coll[k].vert, momentum2 , true);
 
- 
+
   // find out which one is near and far
   reco::SecondaryVertex svNear = sv1;
   reco::SecondaryVertex svFar  = sv2;
   GlobalVector momentumNear  = momentum1;
   GlobalVector momentumFar   = momentum2;
-  
+
   // swap if it is the other way around
   if(sv1.dist3d().value() >= sv2.dist3d().value()){
     svNear = sv2;
@@ -151,10 +149,10 @@ void BtoCharmDecayVertexMerger::resolveBtoDchain(std::vector<vertexProxy>& coll,
   GlobalVector nearToFar = flightDirection( svNear, svFar);
   GlobalVector pvToNear  = flightDirection( pv, svNear);
 
-  double cosPA =  nearToFar.dot(momentumFar) / momentumFar.mag()/ nearToFar.mag();  
-  double cosa  =  pvToNear. dot(momentumFar) / pvToNear.mag()   / momentumFar.mag(); 
-  double ptrel = sqrt(1.0 - cosa*cosa)* momentumFar.mag();  
-  
+  double cosPA =  nearToFar.dot(momentumFar) / momentumFar.mag()/ nearToFar.mag();
+  double cosa  =  pvToNear. dot(momentumFar) / pvToNear.mag()   / momentumFar.mag();
+  double ptrel = sqrt(1.0 - cosa*cosa)* momentumFar.mag();
+
   double vertexDeltaR = Geom::deltaR(flightDirection(pv, sv1), flightDirection(pv, sv2) );
 
   // create a set of all tracks from both vertices, avoid double counting by using a std::set<>
@@ -173,60 +171,60 @@ void BtoCharmDecayVertexMerger::resolveBtoDchain(std::vector<vertexProxy>& coll,
       trackrefs.insert(t);
     }
   }
-  
+
   // now calculate one LorentzVector from the track momenta
   ROOT::Math::LorentzVector<ROOT::Math::PxPyPzM4D<double> > mother;
   for(std::set<reco::TrackRef>::const_iterator it = trackrefs.begin(); it!= trackrefs.end(); it++){
     ROOT::Math::LorentzVector<ROOT::Math::PxPyPzM4D<double> >  temp ( (*it)->px(),(*it)->py(),(*it)->pz(), 0.13957 );
     mother += temp;
   }
- 
+
 
   //   check if criteria for merging are fulfilled
   if(vertexDeltaR<minDRForUnique && mother.M()<vecSumIMCUTForUnique && cosPA>minCosPAtomerge && fabs(ptrel)<maxPtreltomerge ) {
-    
-    
+
+
     // add tracks of second vertex which are missing to first vertex
     // loop over the second
     bool bFoundDuplicate=false;
     for(reco::Vertex::trackRef_iterator ti = sv2.tracks_begin(); ti!=sv2.tracks_end(); ti++){
       reco::Vertex::trackRef_iterator it = find(sv1.tracks_begin(), sv1.tracks_end(), *ti);
-      if (it==sv1.tracks_end()) coll[i].vert.add( *ti, sv2.refittedTrack(*ti), sv2.trackWeight(*ti) );     
+      if (it==sv1.tracks_end()) coll[i].vert.add( *ti, sv2.refittedTrack(*ti), sv2.trackWeight(*ti) );
       else bFoundDuplicate=true;
     }
     // in case a duplicate track is found, need to create the full track list in the vertex from scratch because we need to modify the weight.
     // the weight must be the larger one, otherwise we may have outliers which are not real outliers
-    
+
     if(bFoundDuplicate){
       // create backup track containers from main vertex
       std::vector<TrackBaseRef > tracks_;
       std::vector<Track> refittedTracks_;
       std::vector<float> weights_;
       for(reco::Vertex::trackRef_iterator it = coll[i].vert.tracks_begin(); it!=coll[i].vert.tracks_end(); it++) {
-	tracks_.push_back( *it);
-	refittedTracks_.push_back( coll[i].vert.refittedTrack(*it));
-	weights_.push_back( coll[i].vert.trackWeight(*it) );
+       tracks_.push_back( *it);
+       refittedTracks_.push_back( coll[i].vert.refittedTrack(*it));
+       weights_.push_back( coll[i].vert.trackWeight(*it) );
       }
       // delete tracks and add all tracks back, and check in which vertex the weight is larger
       coll[i].vert.removeTracks();
       std::vector<Track>::iterator it2 = refittedTracks_.begin();
       std::vector<float>::iterator it3 = weights_.begin();
       for(reco::Vertex::trackRef_iterator it = tracks_.begin(); it!=tracks_.end(); it++, it2++, it3++){
-	float weight = *it3;
-	float weight2= sv2.trackWeight(*it);
-	Track refittedTrackWithLargerWeight = *it2;
-	if( weight2 >weight) { 
-	  weight = weight2;
-	  refittedTrackWithLargerWeight = sv2.refittedTrack(*it);
-	}
-	coll[i].vert.add(*it , refittedTrackWithLargerWeight  , weight);
+       float weight = *it3;
+       float weight2= sv2.trackWeight(*it);
+       Track refittedTrackWithLargerWeight = *it2;
+       if( weight2 >weight) {
+         weight = weight2;
+         refittedTrackWithLargerWeight = sv2.refittedTrack(*it);
+       }
+       coll[i].vert.add(*it , refittedTrackWithLargerWeight  , weight);
       }
     }
-    
+
     // remove the second vertex from the collection
     coll.erase( coll.begin() + k  );
   }
-  
+
 }
 //-------------
 

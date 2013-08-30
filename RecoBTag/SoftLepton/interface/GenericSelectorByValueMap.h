@@ -11,6 +11,8 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
+#include "DataFormats/Common/interface/ValueMap.h"
+#include "DataFormats/Common/interface/View.h"
 
 namespace edm {
 
@@ -44,8 +46,8 @@ private:
 
   void produce(edm::Event & event, edm::EventSetup const & setup);
 
-  edm::InputTag m_electrons;
-  edm::InputTag m_selection;
+  edm::EDGetTokenT<edm::View<candidate_type> >      token_electrons;
+  edm::EDGetTokenT<edm::ValueMap<selection_type> >  token_selection;
 
   cut_type m_cut;
 };
@@ -58,8 +60,6 @@ private:
 #include <memory>
 
 #include "DataFormats/Common/interface/Handle.h"
-#include "DataFormats/Common/interface/ValueMap.h"
-#include "DataFormats/Common/interface/View.h"
 #include "DataFormats/Common/interface/Ptr.h"
 #include "DataFormats/Common/interface/PtrVector.h"
 #include "DataFormats/Common/interface/RefToBaseVector.h"
@@ -70,8 +70,8 @@ namespace edm {
 
 template <typename T, typename C>
 GenericSelectorByValueMap<T,C>::GenericSelectorByValueMap(edm::ParameterSet const & config) :
-  m_electrons(config.getParameter<edm::InputTag>("input")),
-  m_selection(config.getParameter<edm::InputTag>("selection")),
+  token_electrons(consumes<edm::View<candidate_type> >(config.getParameter<edm::InputTag>("input"))),
+  token_selection(consumes<edm::ValueMap<selection_type> >(config.getParameter<edm::InputTag>("selection"))),
   m_cut(config.getParameter<cut_type>("cut"))
 {
   // register the product
@@ -87,18 +87,18 @@ void GenericSelectorByValueMap<T, C>::produce(edm::Event & event, const edm::Eve
 
   // read the collection of GsfElectrons from the Event
   edm::Handle<edm::View<candidate_type> > h_electrons;
-  event.getByLabel(m_electrons, h_electrons);
+  event.getByToken(token_electrons, h_electrons);
   edm::View<candidate_type> const & electrons = * h_electrons;
 
   // read the selection map from the Event
   edm::Handle<edm::ValueMap<selection_type> > h_selection;
-  event.getByLabel(m_selection, h_selection);
+  event.getByToken(token_selection, h_selection);
   edm::ValueMap<selection_type> const & selectionMap = * h_selection;
- 
+
   for (unsigned int i = 0; i < electrons.size(); ++i) {
     edm::RefToBase<candidate_type> ptr = electrons.refAt(i);
     if (selectionMap[ptr] > m_cut)
-     candidates->push_back(ptr); 
+     candidates->push_back(ptr);
   }
 
   // put the product in the event
