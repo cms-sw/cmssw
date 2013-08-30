@@ -10,18 +10,23 @@ class HLTTauDQMPath;
 namespace edm {
   class TriggerResults;
 }
+namespace trigger {
+  class TriggerEvent;
+}
 
 class HLTTauDQMPathSummaryPlotter : public HLTTauDQMPlotter {
 public:
     
-  HLTTauDQMPathSummaryPlotter(const edm::ParameterSet& pset, const std::string& dqmBaseFolder);
+  HLTTauDQMPathSummaryPlotter(const edm::ParameterSet& pset, bool doRefAnalysis, const std::string& dqmBaseFolder, double hltMatchDr);
   ~HLTTauDQMPathSummaryPlotter();
   const std::string name() { return "foo"; }
 
   void beginRun(const std::vector<const HLTTauDQMPath *>& pathObjects);
 
-  void analyze(const edm::TriggerResults& triggerResults);
+  void analyze(const edm::TriggerResults& triggerResults, const trigger::TriggerEvent& triggerEvent, const std::map<int, LVColl>& refCollection);
 private:
+  const double hltMatchDr_;
+  const bool doRefAnalysis_;
 
   std::vector<const HLTTauDQMPath *> pathObjects_;
 

@@ -1,7 +1,10 @@
 #include "DQMOffline/Trigger/interface/HLTTauDQMPathSummaryPlotter.h"
 #include "DQMOffline/Trigger/interface/HLTTauDQMPath.h"
 
-HLTTauDQMPathSummaryPlotter::HLTTauDQMPathSummaryPlotter( const edm::ParameterSet& pset, const std::string& dqmBaseFolder) {
+HLTTauDQMPathSummaryPlotter::HLTTauDQMPathSummaryPlotter(const edm::ParameterSet& pset, bool doRefAnalysis, const std::string& dqmBaseFolder, double hltMatchDr):
+  hltMatchDr_(hltMatchDr),
+  doRefAnalysis_(doRefAnalysis)
+{
   dqmBaseFolder_ = dqmBaseFolder;
 
   try {
@@ -36,13 +39,34 @@ void HLTTauDQMPathSummaryPlotter::beginRun(const std::vector<const HLTTauDQMPath
   }
 }
 
-void HLTTauDQMPathSummaryPlotter::analyze(const edm::TriggerResults& triggerResults) {
+void HLTTauDQMPathSummaryPlotter::analyze(const edm::TriggerResults& triggerResults, const trigger::TriggerEvent& triggerEvent, const std::map<int, LVColl>& refCollection) {
   all_events->Fill(0.5);
 
-  for(size_t i=0; i<pathObjects_.size(); ++i) {
-    const HLTTauDQMPath *path = pathObjects_[i];
-    if(path->fired(triggerResults)) {
-      accepted_events->Fill(i+0.5);
+  if(doRefAnalysis_) {
+    std::vector<HLTTauDQMPath::Object> triggerObjs;
+    std::vector<HLTTauDQMPath::Object> matchedTriggerObjs;
+    LVColl matchedOfflineObjs;
+
+    for(size_t i=0; i<pathObjects_.size(); ++i) {
+      const HLTTauDQMPath *path = pathObjects_[i];
+      if(path->fired(triggerResults)) {
+        triggerObjs.clear();
+        matchedTriggerObjs.clear();
+        matchedOfflineObjs.clear();
+        int lastFilter = path->filtersSize()-1;
+        path->getFilterObjects(triggerEvent, lastFilter, triggerObjs);
+        if(path->offlineMatching(lastFilter, triggerObjs, refCollection, hltMatchDr_, matchedTriggerObjs, matchedOfflineObjs)) {
+          accepted_events->Fill(i+0.5);
+        }
+      }
+    }
+  }
+  else {
+    for(size_t i=0; i<pathObjects_.size(); ++i) {
+      const HLTTauDQMPath *path = pathObjects_[i];
+      if(path->fired(triggerResults)) {
+        accepted_events->Fill(i+0.5);
+      }
     }
   }
 }

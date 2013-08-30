@@ -60,7 +60,7 @@ HLTTauDQMOfflineSource::HLTTauDQMOfflineSource( const edm::ParameterSet& ps ):
       }
     } else if (configtype == "PathSummary") {
       try {
-        pathSummaryPlotters_.emplace_back(new HLTTauDQMPathSummaryPlotter(pset, dqmBaseFolder_));
+        pathSummaryPlotters_.emplace_back(new HLTTauDQMPathSummaryPlotter(pset, doRefAnalysis_, dqmBaseFolder_, HLTMatchDr_));
       } catch ( cms::Exception &e ) {
         edm::LogWarning("HLTTauDQMSource") << e.what() << std::endl;
         continue;
@@ -202,7 +202,7 @@ void HLTTauDQMOfflineSource::analyze(const Event& iEvent, const EventSetup& iSet
         }
         for(auto& pathSummaryPlotter: pathSummaryPlotters_) {
           if(pathSummaryPlotter->isValid())
-            pathSummaryPlotter->analyze(*triggerResultsHandle);
+            pathSummaryPlotter->analyze(*triggerResultsHandle, *triggerEventHandle, refC);
         }
         
         //L1 Plotters
