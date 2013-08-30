@@ -24,6 +24,8 @@ Implementation:
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "HLTrigger/HLTcore/interface/HLTFilter.h"
 
 #include "DataFormats/CSCDigi/interface/CSCStripDigi.h"
@@ -41,16 +43,19 @@ Implementation:
 //
 
 class HLTCSCActivityFilter : public HLTFilter {
-public:
+ public:
   explicit HLTCSCActivityFilter(const edm::ParameterSet&);
   virtual ~HLTCSCActivityFilter();
+  static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);   
   
 private:
   virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct);
-    edm::InputTag m_cscStripDigiTag;
-    bool m_MESR;
-    int  m_RingNumb;
-    int  m_StationNumb;
+
+  edm::EDGetTokenT<CSCStripDigiCollection> m_cscStripDigiToken;
+  edm::InputTag m_cscStripDigiTag;
+  bool m_MESR;
+  int  m_RingNumb;
+  int  m_StationNumb;
 };
 
 #endif
