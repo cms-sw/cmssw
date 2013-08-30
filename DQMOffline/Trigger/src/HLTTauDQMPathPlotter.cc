@@ -1,9 +1,9 @@
-#include "DQMOffline/Trigger/interface/HLTTauDQMPathPlotter2.h"
+#include "DQMOffline/Trigger/interface/HLTTauDQMPathPlotter.h"
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
 #include "DataFormats/HLTReco/interface/TriggerEvent.h"
 #include "DataFormats/HLTReco/interface/TriggerTypeDefs.h"
 
-HLTTauDQMPathPlotter2::HLTTauDQMPathPlotter2(const edm::ParameterSet& pset, bool doRefAnalysis, const std::string& dqmBaseFolder,
+HLTTauDQMPathPlotter::HLTTauDQMPathPlotter(const edm::ParameterSet& pset, bool doRefAnalysis, const std::string& dqmBaseFolder,
                                              const std::string& hltProcess, int ptbins, int etabins, int phibins,
                                              double l1MatchDr, double hltMatchDr):
   hltProcess_(hltProcess),
@@ -22,20 +22,20 @@ HLTTauDQMPathPlotter2::HLTTauDQMPathPlotter2(const edm::ParameterSet& pset, bool
     triggerTag_         = pset.getUntrackedParameter<std::string>("DQMFolder");
     hltPath_.initialize(pset);
   } catch(cms::Exception& e) {
-    edm::LogInfo("HLTTauDQMOffline") << "HLTTauDQMPathPlotter2::HLTTauDQMPathPlotter2(): " << e.what();
+    edm::LogInfo("HLTTauDQMOffline") << "HLTTauDQMPathPlotter::HLTTauDQMPathPlotter(): " << e.what();
     validity_ = false;
     return;
   }
   validity_ = true;
 }
 
-void HLTTauDQMPathPlotter2::beginRun(const HLTConfigProvider& HLTCP) {
+void HLTTauDQMPathPlotter::beginRun(const HLTConfigProvider& HLTCP) {
   if(!validity_)
     return;
 
   // Identify the correct HLT path
   if(!HLTCP.inited()) {
-    edm::LogInfo("HLTTauDQMOffline") << "HLTTauDQMPathPlotter2::beginRun(): HLTConfigProvider is not initialized!";
+    edm::LogInfo("HLTTauDQMOffline") << "HLTTauDQMPathPlotter::beginRun(): HLTConfigProvider is not initialized!";
     validity_ = false;
     return;
   }
@@ -72,9 +72,9 @@ void HLTTauDQMPathPlotter2::beginRun(const HLTConfigProvider& HLTCP) {
 }
 
 
-HLTTauDQMPathPlotter2::~HLTTauDQMPathPlotter2() {}
+HLTTauDQMPathPlotter::~HLTTauDQMPathPlotter() {}
 
-void HLTTauDQMPathPlotter2::analyze(const edm::TriggerResults& triggerResults, const trigger::TriggerEvent& triggerEvent, const HLTTauDQMOfflineObjects& refCollection) {
+void HLTTauDQMPathPlotter::analyze(const edm::TriggerResults& triggerResults, const trigger::TriggerEvent& triggerEvent, const HLTTauDQMOfflineObjects& refCollection) {
 
   std::vector<HLTTauDQMPath::Object> triggerObjs;
   std::vector<HLTTauDQMPath::Object> matchedTriggerObjs;
