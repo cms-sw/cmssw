@@ -26,19 +26,9 @@ public:
     ~HLTTauPostProcessor();
     
 protected:
-    /// BeginJob
-    void beginJob();
-    
-    /// BeginRun
-    void beginRun(const edm::Run& r, const edm::EventSetup& c);
-    
     /// Fake Analyze
     void analyze(const edm::Event& e, const edm::EventSetup& c) ;
     
-    ///Luminosity Block 
-    void beginLuminosityBlock(const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& iSetup);
-    /// DQM Client Diagnostic
-    void endLuminosityBlock(const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& iSetup);
     /// EndRun
     void endRun(const edm::Run& r, const edm::EventSetup& iSetup);
     
@@ -48,16 +38,7 @@ protected:
     void harvest();
     
 private:
-    std::vector<edm::ParameterSet> setup_;
-    std::string dqmBaseFolder_;
-    bool hltMenuChanged_;
-    std::string hltProcessName_;
-    
-    double L1MatchDr_;
-    double HLTMatchDr_;
-    
-    bool runAtEndJob_;
-    bool runAtEndRun_;
-        
-    std::vector<std::unique_ptr<HLTTauDQMSummaryPlotter>> summaryPlotters_;
+  std::vector<std::unique_ptr<HLTTauDQMSummaryPlotter>> summaryPlotters_;
+  const bool runAtEndJob_;
+  const bool runAtEndRun_;
 };

@@ -5,9 +5,11 @@
 
 class HLTTauDQMSummaryPlotter : public HLTTauDQMPlotter {
 public:
-    HLTTauDQMSummaryPlotter ( const edm::ParameterSet&, std::string );
+    HLTTauDQMSummaryPlotter(const edm::ParameterSet& ps, const std::string& dqmBaseFolder);
     ~HLTTauDQMSummaryPlotter();
     const std::string name() { return name_; }
+
+    void bookPlots();
     void plot();
     
 private:

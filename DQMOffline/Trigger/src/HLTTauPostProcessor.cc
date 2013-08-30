@@ -3,40 +3,21 @@
 using namespace std;
 using namespace edm;
 
-HLTTauPostProcessor::HLTTauPostProcessor( const edm::ParameterSet& ps ) 
+HLTTauPostProcessor::HLTTauPostProcessor(const edm::ParameterSet& ps):
+  runAtEndJob_(ps.getUntrackedParameter<bool>("runAtEndJob",false)),
+  runAtEndRun_(ps.getUntrackedParameter<bool>("runAtEndRun",true))
 {
-    dqmBaseFolder_  = ps.getUntrackedParameter<std::string>("DQMBaseFolder");
-    hltProcessName_ = ps.getUntrackedParameter<std::string>("HLTProcessName","HLT");
-    L1MatchDr_      = ps.getUntrackedParameter<double>("L1MatchDeltaR",0.5);
-    HLTMatchDr_     = ps.getUntrackedParameter<double>("HLTMatchDeltaR",0.2);
-    runAtEndJob_    = ps.getUntrackedParameter<bool>("runAtEndJob",false);
-    runAtEndRun_    = ps.getUntrackedParameter<bool>("runAtEndRun",true);
-    hltMenuChanged_ = true;
-    //Get parameters
-    setup_ = ps.getParameter<std::vector<edm::ParameterSet> >("Setup");
+  std::string dqmBaseFolder = ps.getUntrackedParameter<std::string>("DQMBaseFolder");
+  for(const edm::ParameterSet& pset: ps.getParameter<std::vector<edm::ParameterSet> >("Setup")) {
+    summaryPlotters_.emplace_back(new HLTTauDQMSummaryPlotter(pset, dqmBaseFolder));
+  }
 }
 
 HLTTauPostProcessor::~HLTTauPostProcessor()
 {
 }
 
-void HLTTauPostProcessor::beginJob()
-{
-}
-
-void HLTTauPostProcessor::beginRun( const edm::Run& iRun, const edm::EventSetup& iSetup )
-{
-}
-
-void HLTTauPostProcessor::beginLuminosityBlock( const LuminosityBlock& lumiSeg, const EventSetup& context )
-{
-}
-
 void HLTTauPostProcessor::analyze( const Event& iEvent, const EventSetup& iSetup )
-{
-}
-
-void HLTTauPostProcessor::endLuminosityBlock( const LuminosityBlock& lumiSeg, const EventSetup& context )
 {
 }
 
@@ -52,15 +33,10 @@ void HLTTauPostProcessor::endJob()
 
 void HLTTauPostProcessor::harvest()
 {    
-    //Clear the plotter collection first
-    summaryPlotters_.clear();
-    
-    //Read the configuration
-    for ( unsigned int i = 0; i < setup_.size(); ++i ) {
-        summaryPlotters_.emplace_back(new HLTTauDQMSummaryPlotter(setup_[i],dqmBaseFolder_));
+  for(auto& plotter: summaryPlotters_) {
+    if(plotter->isValid()) {
+      plotter->bookPlots();
+      plotter->plot();
     }
-    
-    for ( unsigned int i = 0; i < summaryPlotters_.size(); ++i ) {
-        if (summaryPlotters_[i]->isValid()) summaryPlotters_[i]->plot();
-    }
+  }
 }

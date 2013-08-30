@@ -1,6 +1,6 @@
 #include "DQMOffline/Trigger/interface/HLTTauDQMSummaryPlotter.h"
 
-HLTTauDQMSummaryPlotter::HLTTauDQMSummaryPlotter( const edm::ParameterSet& ps, std::string dqmBaseFolder ) {
+HLTTauDQMSummaryPlotter::HLTTauDQMSummaryPlotter(const edm::ParameterSet& ps, const std::string& dqmBaseFolder) {
     //Initialize Plotter
     name_ = "HLTTauDQMSummaryPlotter";
     
@@ -12,11 +12,14 @@ HLTTauDQMSummaryPlotter::HLTTauDQMSummaryPlotter( const edm::ParameterSet& ps, s
         dqmBaseFolder_   = dqmBaseFolder;
         validity_        = true;
     } catch ( cms::Exception &e ) {
-        edm::LogInfo("HLTTauDQMSummaryPlotter::HLTTauDQMSummaryPlotter") << e.what() << std::endl;
-        validity_ = false;
-        return;
+      edm::LogInfo("HLTTauDQMOfflineSource") << "DQMSummaryPlotter::HLTTauDQMSummaryPlotter(): " << e.what() << std::endl;
+      validity_ = false;
     }
-    
+}
+
+HLTTauDQMSummaryPlotter::~HLTTauDQMSummaryPlotter() {}
+
+void HLTTauDQMSummaryPlotter::bookPlots() {
     if (store_) {
         //Path Summary 
         if ( type_ == "Path" ) {
@@ -46,9 +49,6 @@ HLTTauDQMSummaryPlotter::HLTTauDQMSummaryPlotter( const edm::ParameterSet& ps, s
           bookFractionHisto(triggerTag(), "PathTriggerBits");
         }
     }
-}
-
-HLTTauDQMSummaryPlotter::~HLTTauDQMSummaryPlotter() {
 }
 
 void HLTTauDQMSummaryPlotter::plot() {
