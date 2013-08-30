@@ -24,6 +24,7 @@
 #include "DataFormats/Provenance/interface/IndexIntoFile.h"
 #include "DataFormats/Provenance/interface/LuminosityBlockAuxiliary.h"
 #include "DataFormats/Provenance/interface/ParentageID.h"
+#include "DataFormats/Provenance/interface/ProcessHistoryRegistry.h"
 #include "DataFormats/Provenance/interface/ProductProvenance.h"
 #include "DataFormats/Provenance/interface/StoredProductProvenance.h"
 #include "DataFormats/Provenance/interface/RunAuxiliary.h"
@@ -124,6 +125,7 @@ namespace edm {
     RootOutputTree runTree_;
     RootOutputTreePtrArray treePointers_;
     bool dataTypeReported_;
+    ProcessHistoryRegistry processHistoryRegistry_;
     std::map<ParentageID,unsigned int> parentageIDs_;
     std::set<BranchID> branchesWithStoredHistory_;
   };

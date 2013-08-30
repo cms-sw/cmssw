@@ -9,6 +9,7 @@
 namespace edm {
 
   class ProcessConfiguration;
+  class ProcessHistoryRegistry;
 
   class CachedHistory {
   public:
@@ -44,7 +45,8 @@ namespace edm {
     // does not need to repeat the same calculations many times.
     CachedHistory const&
     appendToProcessHistory(ProcessHistoryID const& inputPHID,
-                           ProcessConfiguration const& pc);
+                           ProcessConfiguration const& pc,
+                           ProcessHistoryRegistry& processHistoryRegistry);
 
   private:
     HistoryAppender(HistoryAppender const&);

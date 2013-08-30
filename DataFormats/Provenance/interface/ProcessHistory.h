@@ -76,7 +76,7 @@ namespace edm {
       phid() = ProcessHistoryID();
     }
 
-    void reduce();
+    ProcessHistory& reduce();
 
     void initializeTransients() {transient_.reset();}
 

@@ -23,13 +23,13 @@ namespace edm {
     static void fillDescription(ParameterSetDescription& description);
 
   protected:
-    EventPrincipal* makeEvent(EventPrincipal& eventPrincipal, EventAuxiliary const& eventAuxiliary);
+    void makeEvent(EventPrincipal& eventPrincipal, EventAuxiliary const& eventAuxiliary);
     virtual bool checkNextEvent() = 0;
-    virtual EventPrincipal* read(EventPrincipal& eventPrincipal) = 0;
+    virtual void read(EventPrincipal& eventPrincipal) = 0;
     void setInputFileTransitionsEachEvent() {inputFileTransitionsEachEvent_ = true;}
 
   private:
-    virtual EventPrincipal* readEvent_(EventPrincipal& eventPrincipal) override;
+    virtual void readEvent_(EventPrincipal& eventPrincipal) override;
     virtual boost::shared_ptr<LuminosityBlockAuxiliary> readLuminosityBlockAuxiliary_() override;
     virtual boost::shared_ptr<RunAuxiliary> readRunAuxiliary_() override;
     virtual void reset_();

@@ -40,7 +40,7 @@ namespace edm {
         unsigned int iRunIndex);
     ~RunPrincipal() {}
 
-    void fillRunPrincipal(DelayedReader* reader = 0);
+    void fillRunPrincipal(ProcessHistoryRegistry& processHistoryRegistry, DelayedReader* reader = 0);
 
     /** Multiple Runs may be processed simultaneously. The
      return value can be used to identify a particular Run.

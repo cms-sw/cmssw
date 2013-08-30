@@ -69,14 +69,14 @@ namespace edm {
 
       virtual WrapperHolder getIt(edm::ProductID const& id) const;
 
-      void setEventPrincipal(EventPrincipal *ep);
+      void setEventPrincipal(EventPrincipal* ep);
 
     private:
       // We don't own the principal.  The lifetime must be managed externally.
       EventPrincipal const* eventPrincipal_;
     };
 
-    virtual EventPrincipal* read(EventPrincipal& eventPrincipal);
+    virtual void read(EventPrincipal& eventPrincipal);
 
     virtual void setRun(RunNumber_t r);
 
