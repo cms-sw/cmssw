@@ -39,8 +39,8 @@ def customise_Digi(process):
     process.mix.digitizers.pixel.AddPixelInefficiencyFromPython = cms.bool(False)
     process.mix.digitizers.strip.ROUList = cms.vstring("g4SimHitsTrackerHitsPixelBarrelLowTof",
                          'g4SimHitsTrackerHitsPixelEndcapLowTof')
-    process.digitisation_step.remove(process.simSiStripDigiSimLink)
-    process.mergedtruth.simHitCollections.tracker = []
+#    process.digitisation_step.remove(process.simSiStripDigiSimLink)
+#    process.mergedtruth.simHitCollections.tracker = []
     return process
 
 
