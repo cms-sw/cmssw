@@ -31,6 +31,7 @@ namespace edm {
   class ModuleDescription;
   class ProductRegistry;
   class ExceptionToActionTable;
+  class PreallocationConfiguration;
 
   namespace maker {
     class ModuleHolder {
@@ -42,6 +43,7 @@ namespace edm {
       
       virtual ModuleDescription const& moduleDescription() const = 0;
       virtual void setModuleDescription(ModuleDescription const& iDesc) = 0;
+      virtual void preallocate(PreallocationConfiguration const& ) = 0;
       virtual void registerProductsAndCallbacks(ProductRegistry*)=0;
       virtual void replaceModuleFor(Worker*) const = 0;
 
@@ -68,6 +70,10 @@ namespace edm {
       void setModuleDescription(ModuleDescription const& iDesc) override {
         module()->setModuleDescription(iDesc);
       }
+      void preallocate(PreallocationConfiguration const& iPrealloc) override {
+        module()->doPreallocate(iPrealloc);
+      }
+
       void registerProductsAndCallbacks(ProductRegistry* iReg) override {
         module()->registerProductsAndCallbacks(module(),iReg);
       }

@@ -344,6 +344,7 @@ namespace edm {
   resultsInserter_{tns.getTrigPaths().empty()? std::shared_ptr<TriggerResultInserter>{} :makeInserter(proc_pset,prealloc,preg,actions,areg,processConfiguration)},
     moduleRegistry_(new ModuleRegistry()),
     all_output_communicators_(),
+    preallocConfig_(prealloc),
     wantSummary_(tns.wantSummary()),
     endpathsAreActive_(true)
   {
@@ -902,7 +903,7 @@ namespace edm {
       return false;
     }
     
-    auto newMod = moduleRegistry_->replaceModule(iLabel,iPSet);
+    auto newMod = moduleRegistry_->replaceModule(iLabel,iPSet,preallocConfig_);
 
     globalSchedule_->replaceModule(newMod,iLabel);
 

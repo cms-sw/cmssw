@@ -11,6 +11,8 @@
 #include <functional>
 #include "FWCore/Framework/src/Worker.h"
 #include "FWCore/Framework/src/WorkerT.h"
+#include "FWCore/Framework/src/ModuleHolder.h"
+#include "FWCore/Framework/src/PreallocationConfiguration.h"
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/stream/EDProducerAdaptor.h"
 #include "FWCore/Framework/interface/OccurrenceTraits.h"
@@ -448,7 +450,11 @@ namespace {
   template<typename T>
   std::unique_ptr<edm::stream::EDProducerAdaptorBase> createModule() {
     edm::ParameterSet pset;
-    return std::unique_ptr<edm::stream::EDProducerAdaptorBase>(new edm::stream::EDProducerAdaptor<T>(pset));
+    std::unique_ptr<edm::stream::EDProducerAdaptorBase> retValue(new edm::stream::EDProducerAdaptor<T>(pset));
+    edm::maker::ModuleHolderT<edm::stream::EDProducerAdaptorBase> h(retValue.get(),nullptr);
+    h.preallocate(edm::PreallocationConfiguration{});
+    h.release();
+    return retValue;
   }
   template<typename T>
   void

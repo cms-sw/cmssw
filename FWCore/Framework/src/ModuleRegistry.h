@@ -31,6 +31,7 @@ namespace edm {
   class ParameterSet;
   class MakeModuleParams;
   class ModuleDescription;
+  class PreallocationConfiguration;
   namespace maker {
     class ModuleHolder;
   }
@@ -44,7 +45,8 @@ namespace edm {
                                                    signalslot::Signal<void(ModuleDescription const&)>& iPost);
     
     maker::ModuleHolder* replaceModule(std::string const& iModuleLabel,
-                                       edm::ParameterSet const& iPSet);
+                                       edm::ParameterSet const& iPSet,
+                                       edm::PreallocationConfiguration const&);
     
     template <typename F>
     void forAllModuleHolders(F iFunc) {

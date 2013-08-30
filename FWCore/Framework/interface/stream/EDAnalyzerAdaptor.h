@@ -70,7 +70,8 @@ namespace edm {
     {
       
     public:
-      EDAnalyzerAdaptor( edm::ParameterSet const& iPSet)
+      EDAnalyzerAdaptor( edm::ParameterSet const& iPSet):
+      m_pset(&iPSet)
       {
         m_runs.resize(1);
         m_lumis.resize(1);
@@ -78,7 +79,6 @@ namespace edm {
         m_lumiSummaries.resize(1);
         typename T::GlobalCache const* dummy=nullptr;
         m_global.reset( impl::makeGlobal<T>(iPSet,dummy).release());
-        this->createStreamModules([this,&iPSet] () -> EDAnalyzerBase* {return impl::makeStreamModule<T>(iPSet,m_global.get());});
       }
       ~EDAnalyzerAdaptor() {
       }
@@ -98,6 +98,11 @@ namespace edm {
       typedef CallGlobalLuminosityBlock<T> MyGlobalLuminosityBlock;
       typedef CallGlobalLuminosityBlockSummary<T> MyGlobalLuminosityBlockSummary;
       
+      void setupStreamModules() override final {
+        this->createStreamModules([this] () -> EDAnalyzerBase* {return impl::makeStreamModule<T>(*m_pset,m_global.get());});
+        m_pset= nullptr;
+      }
+
       void doEndJob() override final {
         MyGlobal::endJob(m_global.get());
       }
@@ -190,6 +195,7 @@ namespace edm {
       typename impl::choose_shared_vec<typename T::LuminosityBlockCache const>::type m_lumis;
       typename impl::choose_shared_vec<typename T::RunSummaryCache>::type m_runSummaries;
       typename impl::choose_shared_vec<typename T::LuminosityBlockSummaryCache>::type m_lumiSummaries;
+      ParameterSet const* m_pset;
     };
   }
   

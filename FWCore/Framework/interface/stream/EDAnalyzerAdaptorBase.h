@@ -37,6 +37,7 @@ namespace edm {
   class ModuleCallingContext;
   class ProductHolderIndexHelper;
   class EDConsumerBase;
+  class PreallocationConfiguration;
 
   namespace maker {
     template<typename T> class ModuleHolderT;
@@ -66,7 +67,9 @@ namespace edm {
       registerProductsAndCallbacks(EDAnalyzerAdaptorBase const*, ProductRegistry* reg);
     protected:
       template<typename T> void createStreamModules(T iFunc) {
-        m_streamModules[0] = iFunc();
+        for(auto& m: m_streamModules) {
+          m = iFunc();
+        }
       }
       
       //Same interface as EDConsumerBase
@@ -83,6 +86,9 @@ namespace edm {
       
       bool doEvent(EventPrincipal& ep, EventSetup const& c,
                    ModuleCallingContext const*) ;
+      void doPreallocate(PreallocationConfiguration const&);
+      
+      virtual void setupStreamModules() = 0;
       void doBeginJob();
       virtual void doEndJob() = 0;
       
