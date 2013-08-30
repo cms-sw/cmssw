@@ -7,14 +7,14 @@ version = 'tauId_v1_13'
 inputFilePath  = "/data2/veelken/CMSSW_5_3_x/Ntuples/tauIdMVATraining/%s/" % version
 inputFilePath += "user/veelken/CMSSW_5_3_x/Ntuples/tauIdMVATraining/%s/" % version
 
-outputFilePath = "/data1/veelken/tmp/tauIdMVATraining/%s_4/" % version
+outputFilePath = "/data1/veelken/tmp/tauIdMVATraining/%s_5/" % version
 
 preselection_oldDMs = \
-    '(recTauDecayMode == 0 || recTauDecayMode == 1 || recTauDecayMode == 2 || recTauDecayMode == 10)' \
+    'decayModeFindingNewDMs > 0.5' \
   + ' && numSelectedOfflinePrimaryVertices >= 1 && TMath::Abs(recTauVtxZ - selectedOfflinePrimaryVertexZ) < 0.4 && recJetLooseId > 0.5' \
   + ' && leadPFChargedHadrCandPt > 1.'
 preselection_newDMs = \
-    '(recTauDecayMode == 0 || recTauDecayMode == 1 || recTauDecayMode == 2 || recTauDecayMode == 5 || recTauDecayMode == 6 || recTauDecayMode == 10)' \
+    'decayModeFindingOldDMs > 0.5' \
   + ' && numSelectedOfflinePrimaryVertices >= 1 && TMath::Abs(recTauVtxZ - selectedOfflinePrimaryVertexZ) < 0.4 && recJetLooseId > 0.5' \
   + ' && leadPFChargedHadrCandPt > 1.'  
 
@@ -1139,7 +1139,7 @@ if not len(inputFileNames_signal) > 0:
     raise ValueError("Failed to find signal samples !!")
 inputFileNames_background = getInputFileNames(inputFilePath, backgroundSamples)
 if not len(inputFileNames_background) > 0:
-    raise ValueError("Failed to find signal samples !!")
+    raise ValueError("Failed to find background samples !!")
 
 inputFileNames = []
 inputFileNames.extend(inputFileNames_signal)

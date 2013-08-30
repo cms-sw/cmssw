@@ -70,6 +70,9 @@ class PFRecoTauChargedHadronFromPFCandidatePlugin : public PFRecoTauChargedHadro
   double dRmergePhotonWrtOther_;
   int minBlockElementMatchesPhoton_;
   int maxUnmatchedBlockElementsPhoton_;
+  double minMergeNeutralHadronEt_;
+  double minMergeGammaEt_;
+  double minMergeChargedHadronPt_;
 
   int verbosity_;
 };
@@ -96,6 +99,9 @@ PFRecoTauChargedHadronFromPFCandidatePlugin::PFRecoTauChargedHadronFromPFCandida
   dRmergePhotonWrtOther_ = pset.getParameter<double>("dRmergePhotonWrtOther");
   minBlockElementMatchesPhoton_ = pset.getParameter<int>("minBlockElementMatchesPhoton");
   maxUnmatchedBlockElementsPhoton_ = pset.getParameter<int>("maxUnmatchedBlockElementsPhoton");
+  minMergeNeutralHadronEt_ = pset.getParameter<double>("minMergeNeutralHadronEt");
+  minMergeGammaEt_ = pset.getParameter<double>("minMergeGammaEt"); 
+  minMergeChargedHadronPt_ = pset.getParameter<double>("minMergeChargedHadronPt"); 
 
   verbosity_ = ( pset.exists("verbosity") ) ?
     pset.getParameter<int>("verbosity") : 0;
@@ -194,37 +200,43 @@ PFRecoTauChargedHadronFromPFCandidatePlugin::return_type PFRecoTauChargedHadronF
 
     reco::PFCandidate::ParticleType chargedPFCandidateType = chargedHadron->chargedPFCandidate_->particleId();
 
-    std::vector<reco::PFCandidatePtr> jetConstituents = jet.getPFConstituents();
-    for ( std::vector<reco::PFCandidatePtr>::const_iterator jetConstituent = jetConstituents.begin();
-	  jetConstituent != jetConstituents.end(); ++jetConstituent ) {
-      // CV: take care of not double-counting energy in case "charged" PFCandidate is in fact a PFNeutralHadron
-      if ( (*jetConstituent) == chargedHadron->chargedPFCandidate_ ) continue;
+    if ( chargedHadron->pt() > minMergeChargedHadronPt_ ) {
+      std::vector<reco::PFCandidatePtr> jetConstituents = jet.getPFConstituents();
+      for ( std::vector<reco::PFCandidatePtr>::const_iterator jetConstituent = jetConstituents.begin();
+	    jetConstituent != jetConstituents.end(); ++jetConstituent ) {
+	// CV: take care of not double-counting energy in case "charged" PFCandidate is in fact a PFNeutralHadron
+	if ( (*jetConstituent) == chargedHadron->chargedPFCandidate_ ) continue;
+	
+	reco::PFCandidate::ParticleType jetConstituentType = (*jetConstituent)->particleId();
+	if ( !(jetConstituentType == reco::PFCandidate::h0 || jetConstituentType == reco::PFCandidate::gamma) ) continue;
 
-      reco::PFCandidate::ParticleType jetConstituentType = (*jetConstituent)->particleId();
-      if ( !(jetConstituentType == reco::PFCandidate::h0 || jetConstituentType == reco::PFCandidate::gamma) ) continue;
-
-      double dR = deltaR((*jetConstituent)->positionAtECALEntrance(), chargedHadron->positionAtECALEntrance_);
-      double dRmerge = -1.;      
-      int minBlockElementMatches = 1000;
-      int maxUnmatchedBlockElements = 0;
-      if ( jetConstituentType == reco::PFCandidate::h0 ) {
-	if      ( chargedPFCandidateType == reco::PFCandidate::h  ) dRmerge = dRmergeNeutralHadronWrtChargedHadron_;
-	else if ( chargedPFCandidateType == reco::PFCandidate::h0 ) dRmerge = dRmergeNeutralHadronWrtNeutralHadron_;
-	else if ( chargedPFCandidateType == reco::PFCandidate::e  ) dRmerge = dRmergeNeutralHadronWrtElectron_;
-	else                                                        dRmerge = dRmergeNeutralHadronWrtOther_;
-	minBlockElementMatches = minBlockElementMatchesNeutralHadron_;
-	maxUnmatchedBlockElements = maxUnmatchedBlockElementsNeutralHadron_;
-      } else if ( jetConstituentType == reco::PFCandidate::gamma ) {
-	if      ( chargedPFCandidateType == reco::PFCandidate::h  ) dRmerge = dRmergePhotonWrtChargedHadron_;
-	else if ( chargedPFCandidateType == reco::PFCandidate::h0 ) dRmerge = dRmergePhotonWrtNeutralHadron_;
-	else if ( chargedPFCandidateType == reco::PFCandidate::e  ) dRmerge = dRmergePhotonWrtElectron_;
-	else                                                        dRmerge = dRmergePhotonWrtOther_;
-	minBlockElementMatches = minBlockElementMatchesPhoton_;
-	maxUnmatchedBlockElements = maxUnmatchedBlockElementsPhoton_;
-      }
-      if ( dR < dRmerge || isMatchedByBlockElement(**jetConstituent, *chargedHadron->chargedPFCandidate_, minBlockElementMatches, minBlockElementMatches, maxUnmatchedBlockElements) ) {
-	chargedHadron->neutralPFCandidates_.push_back(*jetConstituent);
-	chargedHadron->addDaughter(*jetConstituent);
+	double dR = deltaR((*jetConstituent)->positionAtECALEntrance(), chargedHadron->positionAtECALEntrance_);
+	double dRmerge = -1.;      
+	int minBlockElementMatches = 1000;
+	int maxUnmatchedBlockElements = 0;
+	double minMergeEt = 1.e+6;
+	if ( jetConstituentType == reco::PFCandidate::h0 ) {
+	  if      ( chargedPFCandidateType == reco::PFCandidate::h  ) dRmerge = dRmergeNeutralHadronWrtChargedHadron_;
+	  else if ( chargedPFCandidateType == reco::PFCandidate::h0 ) dRmerge = dRmergeNeutralHadronWrtNeutralHadron_;
+	  else if ( chargedPFCandidateType == reco::PFCandidate::e  ) dRmerge = dRmergeNeutralHadronWrtElectron_;
+	  else                                                        dRmerge = dRmergeNeutralHadronWrtOther_;
+	  minBlockElementMatches = minBlockElementMatchesNeutralHadron_;
+	  maxUnmatchedBlockElements = maxUnmatchedBlockElementsNeutralHadron_;
+	  minMergeEt = minMergeNeutralHadronEt_;
+	} else if ( jetConstituentType == reco::PFCandidate::gamma ) {
+	  if      ( chargedPFCandidateType == reco::PFCandidate::h  ) dRmerge = dRmergePhotonWrtChargedHadron_;
+	  else if ( chargedPFCandidateType == reco::PFCandidate::h0 ) dRmerge = dRmergePhotonWrtNeutralHadron_;
+	  else if ( chargedPFCandidateType == reco::PFCandidate::e  ) dRmerge = dRmergePhotonWrtElectron_;
+	  else                                                        dRmerge = dRmergePhotonWrtOther_;
+	  minBlockElementMatches = minBlockElementMatchesPhoton_;
+	  maxUnmatchedBlockElements = maxUnmatchedBlockElementsPhoton_;
+	  minMergeEt = minMergeGammaEt_;
+	}
+	if ( (*jetConstituent)->et() > minMergeEt && 
+	     (dR < dRmerge || isMatchedByBlockElement(**jetConstituent, *chargedHadron->chargedPFCandidate_, minBlockElementMatches, minBlockElementMatches, maxUnmatchedBlockElements)) ) {
+	  chargedHadron->neutralPFCandidates_.push_back(*jetConstituent);
+	  chargedHadron->addDaughter(*jetConstituent);
+	}
       }
     }
 

@@ -10,11 +10,11 @@ inputFilePath += "user/veelken/CMSSW_5_3_x/Ntuples/antiMuonDiscrMVATraining/%s/"
 outputFilePath = "/data1/veelken/tmp/antiMuonDiscrMVATraining/%s/" % version
 
 preselection_oldDMs = \
-    '(recTauDecayMode == 0 || recTauDecayMode == 1 || recTauDecayMode == 2 recTauDecayMode == 10)' \
+    'decayModeFindingNewDMs > 0.5' \
   + ' && numSelectedOfflinePrimaryVertices >= 1 && TMath::Abs(recTauVtxZ - selectedOfflinePrimaryVertexZ) < 0.4 && recJetLooseId > 0.5' \
   + ' && leadPFChargedHadrCandPt > 1. && byLooseCombinedIsolationDeltaBetaCorr3Hits > 0.5'
 preselection_newDMs = \
-    '(recTauDecayMode == 0 || recTauDecayMode == 1 || recTauDecayMode == 2 || recTauDecayMode == 5 || recTauDecayMode == 6 || recTauDecayMode == 10)' \
+    'decayModeFindingOldDMs > 0.5' \
   + ' && numSelectedOfflinePrimaryVertices >= 1 && TMath::Abs(recTauVtxZ - selectedOfflinePrimaryVertexZ) < 0.4 && recJetLooseId > 0.5' \
   + ' && leadPFChargedHadrCandPt > 1. && byLooseCombinedIsolationDeltaBetaCorr3Hits > 0.5'  
 
@@ -289,7 +289,7 @@ for massPoint in mssmHiggsMassPoints:
     backgroundSamples.append(bbSampleName)
 DrellYanMassPoints = [ 120, 200, 400, 500, 700, 800, 1000, 1500, 2000 ]
 for massPoint in DrellYanMassPoints:
-    sampleName = "DY%1.0ftoMuNu" % massPoint
+    sampleName = "DY%1.0ftoMuMu" % massPoint
     backgroundSamples.append(sampleName)
 
 execDir = "%s/bin/%s/" % (os.environ['CMSSW_BASE'], os.environ['SCRAM_ARCH'])
@@ -327,7 +327,7 @@ if not len(inputFileNames_signal) > 0:
     raise ValueError("Failed to find signal samples !!")
 inputFileNames_background = getInputFileNames(inputFilePath, backgroundSamples)
 if not len(inputFileNames_background) > 0:
-    raise ValueError("Failed to find signal samples !!")
+    raise ValueError("Failed to find background samples !!")
 
 inputFileNames = []
 inputFileNames.extend(inputFileNames_signal)

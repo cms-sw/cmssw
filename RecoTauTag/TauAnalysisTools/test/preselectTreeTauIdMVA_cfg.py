@@ -99,6 +99,9 @@ process.preselectTreeTauIdMVA = cms.PSet(
 
     applyEventPruning = cms.int32(1),
 
+    keepAllBranches = cms.bool(False),
+    checkBranchesForNaNs = cms.bool(True),
+
     inputVariables = cms.vstring(
         ##'TMath::Log(TMath::Max(1., recTauPt))/F',
         'TMath::Abs(recTauEta)/F',

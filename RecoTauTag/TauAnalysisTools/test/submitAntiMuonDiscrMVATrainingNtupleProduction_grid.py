@@ -97,7 +97,7 @@ for massPoint in ZprimeMassPoints:
         'total_number_of_events'             : -1,
         'type'                               : 'SignalMC'
     }
-WprimeMassPoints = [ 900, 1000, 1100, 1200, 1300, 1400, 1500, 1600, 1700, 1800, 1900, 2000, 2100, 2200, 2300, 2400, 2500, 2600, 2700, 2800, 2900, 3000, 3200, 3500, 4000 ]
+WprimeMassPoints = [ 900, 1000, 1100, 1200, 1300, 1400, 1500, 1600, 1700, 1800, 1900, 2000, 2100, 2200, 2300, 2400, 2500, 2600, 2700, 2800, 2900, 3000, 3200, 3500, 3700, 4000 ]
 for massPoint in WprimeMassPoints:
     sampleName = "Wprime%1.0ftoTauNu" % massPoint
     samples[sampleName] = {
@@ -118,7 +118,7 @@ for massPoint in ZprimeMassPoints:
         'total_number_of_events'             : -1,
         'type'                               : 'BackgroundMC'
     }
-WprimeMassPoints = [ 900, 1000, 1100, 1200, 1300, 1400, 1500, 1600, 1700, 1800, 1900, 2000, 2100, 2200, 2300, 2400, 2500, 2600, 2700, 2800, 2900, 3000, 3200, 3500, 4000 ]
+WprimeMassPoints = [ 900, 1000, 1100, 1200, 1300, 1400, 1500, 1600, 1700, 1800, 1900, 2000, 2100, 2200, 2300, 2400, 2500, 2600, 2700, 2800, 2900, 3000, 3200, 3500, 3700, 4000 ]
 for massPoint in WprimeMassPoints:
     sampleName = "Wprime%1.0ftoMuNu" % massPoint
     samples[sampleName] = {

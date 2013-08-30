@@ -64,6 +64,7 @@ struct branchEntryType
   char branchType_;
   Float_t valueF_;
   Int_t valueI_;
+  ULong64_t valueL_;
 };
 
 bool isPrunedEventByPt(double pt, int eventPruningLevel)
@@ -96,8 +97,10 @@ TTree* preselectTree(TTree* inputTree, const std::string& outputTreeName,
 		     const std::string& preselection, const std::vector<std::string>& branchesToKeep_expressions,
 		     int applyEventPruning, const std::string& branchNamePt, const std::string& branchNameEta, const std::string& branchNameNumMatches, 
 		     int reweight_or_KILL, bool applyPtReweighting, bool applyEtaReweighting, TH1* histogramLogPt, TH1* histogramAbsEta, TH2* histogramLogPtVsAbsEta,
-		     int maxEvents, unsigned reportEvery)
+		     int maxEvents, bool checkForNaNs, unsigned reportEvery)
 {
+  std::cout << "<preselectTree>:" << std::endl;
+
   if      ( applyPtReweighting && applyEtaReweighting ) assert(histogramLogPtVsAbsEta);
   else if ( applyPtReweighting                        ) assert(histogramLogPt);
   else if (                       applyEtaReweighting ) assert(histogramAbsEta);
@@ -116,6 +119,7 @@ TTree* preselectTree(TTree* inputTree, const std::string& outputTreeName,
     bool isBranchToKeep = false;
     for ( std::vector<std::string>::const_iterator branchToKeep = branchesToKeep_expressions.begin();
 	  branchToKeep != branchesToKeep_expressions.end(); ++branchToKeep ) {
+      if ( (*branchToKeep) == "" ) continue;     
       if ( branchToKeep->find(branch->GetName()) != std::string::npos ) {
 	std::string branchToKeep_substring(*branchToKeep, branchToKeep->find(branch->GetName()));
 	std::string pattern = std::string(branch->GetName()).append("[a-zA-Z0-9]+").append(".*");
@@ -140,6 +144,9 @@ TTree* preselectTree(TTree* inputTree, const std::string& outputTreeName,
 	} else if ( branchEntry->branchType_ == 'I' ) {
 	  inputTree->SetBranchAddress(branchEntry->branchName_.data(), &branchEntry->valueI_);
 	  outputTree->Branch(branchEntry->branchName_.data(), &branchEntry->valueI_, branchEntry->branchName_and_Type_.data());
+	} else if ( branchEntry->branchType_ == 'l' ) {
+	  inputTree->SetBranchAddress(branchEntry->branchName_.data(), &branchEntry->valueL_);
+	  outputTree->Branch(branchEntry->branchName_.data(), &branchEntry->valueL_, branchEntry->branchName_and_Type_.data());
         } else {
 	  throw cms::Exception("preselectTree") 
 	    << "Branch = " << branchEntry->branchName_ << " is of unsupported Type = " << branchEntry->branchName_and_Type_ << " !!\n";
@@ -232,17 +239,19 @@ TTree* preselectTree(TTree* inputTree, const std::string& outputTreeName,
 
       if ( !(inputTreePreselection->EvalInstance() > 0.5) ) continue;
     }
-    
+
     // CV: check if any branch contains NaN
-    bool isNaN = false;
-    for ( std::vector<branchEntryType*>::const_iterator branchEntry = branchesToKeep.begin();
-	  branchEntry != branchesToKeep.end(); ++branchEntry ) {
-      if ( (*branchEntry)->branchType_ == 'F' && !std::isfinite((*branchEntry)->valueF_) ) {
-	std::cerr << "Entry #" << iEntry << ": Branch = " << (*branchEntry)->branchName_ << " contains NaN --> skipping !!" << std::endl;
-	isNaN = true;
+    if ( checkForNaNs ) {
+      bool isNaN = false;
+      for ( std::vector<branchEntryType*>::const_iterator branchEntry = branchesToKeep.begin();
+	    branchEntry != branchesToKeep.end(); ++branchEntry ) {
+	if ( (*branchEntry)->branchType_ == 'F' && !std::isfinite((*branchEntry)->valueF_) ) {
+	  std::cerr << "Entry #" << iEntry << ": Branch = " << (*branchEntry)->branchName_ << " contains NaN --> skipping !!" << std::endl;
+	  isNaN = true;
+	}
       }
+      if ( isNaN ) continue;
     }
-    if ( isNaN ) continue;
 
     Float_t absEta = TMath::Abs(eta);
     Float_t logPt = TMath::Log(TMath::Max((Float_t)1., pt));
@@ -253,16 +262,20 @@ TTree* preselectTree(TTree* inputTree, const std::string& outputTreeName,
     } else if ( applyEtaReweighting ) {
       ptVsEtaReweight = histogramAbsEta->GetBinContent(histogramAbsEta->FindBin(absEta));
     } 
+    //std::cout << "Pt = " << pt << ", eta = " << eta << ": ptVsEtaReweight = " << ptVsEtaReweight << std::endl;
     if ( ptVsEtaReweight > 1.e+2 || !std::isfinite(ptVsEtaReweight) ) ptVsEtaReweight = 1.e+2;
     bool skipEvent = false;
     if ( reweight_or_KILL == kKILL ) {
       static TRandom3 rnd;
       double u = rnd.Rndm();
-      if ( u > ptVsEtaReweight ) skipEvent = true;
+      if ( u > ptVsEtaReweight ) {
+	//std::cout << "u = " << u << " --> skipping event." << std::endl;
+	skipEvent = true;	
+      }
       ptVsEtaReweight = 1.0;
     }
     if ( skipEvent ) continue;
-    
+
     outputTree->Fill();
     ++selectedEntries;
   }

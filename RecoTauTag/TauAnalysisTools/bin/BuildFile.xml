@@ -55,4 +55,36 @@
   <use   name="roottmva"/>
   <use   name="rootgraphics"/>
 </bin>
-
+<bin   file="extendTreeAntiElectronDiscrMVA.cc" name="extendTreeAntiElectronDiscrMVA">
+  <use   name="FWCore/FWLite"/>
+  <use   name="FWCore/ParameterSet"/>
+  <use   name="FWCore/PythonParameterSet"/>
+  <use   name="FWCore/Utilities"/>
+  <use   name="CondFormats/EgammaObjects"/>
+  <use   name="DataFormats/Candidate"/>
+  <use   name="PhysicsTools/FWLite"/>
+  <use   name="root"/>
+  <use   name="roottmva"/>
+</bin>
+<bin   file="computeWPcutsAntiElectronDiscrMVA.cc" name="computeWPcutsAntiElectronDiscrMVA">
+  <use   name="FWCore/FWLite"/>
+  <use   name="FWCore/ParameterSet"/>
+  <use   name="FWCore/PythonParameterSet"/>
+  <use   name="FWCore/Utilities"/>
+  <use   name="CondFormats/EgammaObjects"/>
+  <use   name="DataFormats/Candidate"/>
+  <use   name="PhysicsTools/FWLite"/>
+  <use   name="root"/>
+  <use   name="roottmva"/>
+</bin>
+<bin   file="computeBDTGmappedAntiElectronDiscrMVA.cc" name="computeBDTGmappedAntiElectronDiscrMVA">
+  <use   name="FWCore/FWLite"/>
+  <use   name="FWCore/ParameterSet"/>
+  <use   name="FWCore/PythonParameterSet"/>
+  <use   name="FWCore/Utilities"/>
+  <use   name="CondFormats/EgammaObjects"/>
+  <use   name="DataFormats/Candidate"/>
+  <use   name="PhysicsTools/FWLite"/>
+  <use   name="root"/>
+  <use   name="roottmva"/>
+</bin>

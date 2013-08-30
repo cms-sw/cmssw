@@ -14,27 +14,26 @@ pfRecoTauDiscriminationAgainstElectronMVA4GBR = cms.EDProducer(
 
     method = cms.string("BDTG"),
 
-    gbrFile = \
-      cms.FileInPath('RecoTauTag/RecoTau/data/gbrDiscriminationAgainstElectronMVA4_v18.root'),
+    gbrFile = cms.FileInPath('RecoTauTag/RecoTau/data/gbrDiscriminationAgainstElectronMVA4_v18.root'),
     
     returnMVA = cms.bool(True),
 
-    minMVANoEleMatchWOgWOgsfBL   = cms.double(0.0),
-    minMVANoEleMatchWOgWgsfBL    = cms.double(0.0),
-    minMVANoEleMatchWgWOgsfBL    = cms.double(0.0),
-    minMVANoEleMatchWgWgsfBL     = cms.double(0.0),
-    minMVAWOgWOgsfBL             = cms.double(0.0),
-    minMVAWOgWgsfBL              = cms.double(0.0),
-    minMVAWgWOgsfBL              = cms.double(0.0),
-    minMVAWgWgsfBL               = cms.double(0.0),
-    minMVANoEleMatchWOgWOgsfEC   = cms.double(0.0),
-    minMVANoEleMatchWOgWgsfEC    = cms.double(0.0),
-    minMVANoEleMatchWgWOgsfEC    = cms.double(0.0),
-    minMVANoEleMatchWgWgsfEC     = cms.double(0.0),
-    minMVAWOgWOgsfEC             = cms.double(0.0),
-    minMVAWOgWgsfEC              = cms.double(0.0),
-    minMVAWgWOgsfEC              = cms.double(0.0),
-    minMVAWgWgsfEC               = cms.double(0.0),
+    minMVANoEleMatchWOgWOgsfBL = cms.double(0.0),
+    minMVANoEleMatchWOgWgsfBL  = cms.double(0.0),
+    minMVANoEleMatchWgWOgsfBL  = cms.double(0.0),
+    minMVANoEleMatchWgWgsfBL   = cms.double(0.0),
+    minMVAWOgWOgsfBL           = cms.double(0.0),
+    minMVAWOgWgsfBL            = cms.double(0.0),
+    minMVAWgWOgsfBL            = cms.double(0.0),
+    minMVAWgWgsfBL             = cms.double(0.0),
+    minMVANoEleMatchWOgWOgsfEC = cms.double(0.0),
+    minMVANoEleMatchWOgWgsfEC  = cms.double(0.0),
+    minMVANoEleMatchWgWOgsfEC  = cms.double(0.0),
+    minMVANoEleMatchWgWgsfEC   = cms.double(0.0),
+    minMVAWOgWOgsfEC           = cms.double(0.0),
+    minMVAWOgWgsfEC            = cms.double(0.0),
+    minMVAWgWOgsfEC            = cms.double(0.0),
+    minMVAWgWgsfEC             = cms.double(0.0),
 
     srcGsfElectrons = cms.InputTag('gsfElectrons')
 )

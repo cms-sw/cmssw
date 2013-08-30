@@ -16,7 +16,7 @@ PFTauQualityCuts = cms.PSet(
         minTrackHits                 = cms.uint32(3),    # total track hits
         minGammaEt                   = cms.double(0.5),  # filter PFgammas below given Pt
         #useTracksInsteadOfPFHadrons  = cms.bool(False),  # if true, use generalTracks, instead of PFChargedHadrons
-        minNeutralHadronEt           = cms.double(20.)
+        minNeutralHadronEt           = cms.double(30.)
     ),
     isolationQualityCuts = cms.PSet(
         minTrackPt                   = cms.double(1.0),

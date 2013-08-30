@@ -203,7 +203,7 @@ double PFRecoTauDiscriminationAgainstElectronMVA4GBR::discriminate(const PFTauRe
 	  //// Veto taus that go to Ecal crack
 
 	  double mvaCut = 999.;
-	  if ( TMath::Abs(thePFTauRef->eta()) < 1.5 ) { // Barrel
+	  if ( TMath::Abs(TauEtaAtEcalEntrance) < 1.479 ) { // Barrel
 	    if        ( numSignalPFGammaCands == 0 && !hasGsfTrack ) {
 	      category = 4.;
 	      mvaCut = minMVAWOgWOgsfBL_;
@@ -272,7 +272,7 @@ double PFRecoTauDiscriminationAgainstElectronMVA4GBR::discriminate(const PFTauRe
       //// Veto taus that go to Ecal crack
       
       double mvaCut = 999.;
-      if ( TMath::Abs(thePFTauRef->eta()) < 1.5 ) { // Barrel
+      if ( TMath::Abs(TauEtaAtEcalEntrance) < 1.479 ) { // Barrel
 	if        ( numSignalPFGammaCands == 0 && !hasGsfTrack ) {
 	  category = 0.;
 	  mvaCut = minMVANoEleMatchWOgWOgsfBL_;

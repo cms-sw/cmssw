@@ -99,7 +99,10 @@ process.preselectTreeTauIdMVA = cms.PSet(
     
     branchNameEvtWeight = cms.string('evtWeight'),
 
-    applyEventPruning = cms.int32(1),
+    applyEventPruning = cms.int32(0),
+
+    keepAllBranches = cms.bool(False),
+    checkBranchesForNaNs = cms.bool(True),
 
     inputVariables = cms.vstring(
         'TMath::Abs(TMath::ACos(TMath::Cos(12.*recTauPhi))/12.)/F',

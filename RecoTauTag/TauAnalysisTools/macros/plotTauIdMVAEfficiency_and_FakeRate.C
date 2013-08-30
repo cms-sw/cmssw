@@ -33,8 +33,18 @@ enum { kTauEta, kTauAbsEta };
 
 void normalizeHistogram(TH1* histogram)
 {
+  if ( !histogram->GetSumw2N() ) histogram->Sumw2();
+
+  int numBins = histogram->GetNbinsX();
+  for ( int iBin = 1; iBin <= numBins; ++iBin ) {
+    double binContent = histogram->GetBinContent(iBin);
+    double binError = histogram->GetBinError(iBin);
+    double binWidth = histogram->GetBinWidth(iBin);
+    histogram->SetBinContent(iBin, binContent/binWidth);
+    histogram->SetBinError(iBin, binError/binWidth);
+  }
+
   if ( histogram->Integral() > 0. ) {
-    if ( !histogram->GetSumw2N() ) histogram->Sumw2();
     histogram->Scale(1./histogram->Integral());
   } 
 }
@@ -442,6 +452,9 @@ void showDistribution(const TString& title, double canvasSizeX, double canvasSiz
 //-------------------------------------------------------------------------------
 TGraph* compMVAcut(const TH2* histogramMVAoutput_vs_Pt, const TH1* histogramPt, double Efficiency_or_FakeRate)
 {
+  //std::cout << "<compMVAcut>:" << std::endl;
+  //std::cout << " Efficiency_or_FakeRate = " << Efficiency_or_FakeRate << std::endl;
+
   const TAxis* xAxis = histogramMVAoutput_vs_Pt->GetXaxis();
   int numBinsX = xAxis->GetNbins();
 
@@ -478,21 +491,22 @@ TGraph* compMVAcut(const TH2* histogramMVAoutput_vs_Pt, const TH1* histogramPt, 
       normalization += histogramMVAoutput_vs_Pt->GetBinContent(iBinX, iBinY);
     }
     // CV: skip bins of low statistics
-    //if ( normalization < 100 ) {
-    //  std::cout << "Warning: bin @ x = " << xAxis->GetBinCenter(iBinX) << " has low statistics (normalization = " << normalization << ") --> skipping !!" << std::endl;
-    //  continue;
-    //}
+    if ( normalization < 1.e-6 ) {
+      std::cout << "Warning: bin @ x = " << xAxis->GetBinCenter(iBinX) << " has low statistics (normalization = " << normalization << ") --> skipping !!" << std::endl;
+      continue;
+    }
     
     double y = -1.;
 
     double runningSum = 0.;
     for ( int iBinY = numBinsY; iBinY >= 1; --iBinY ) {
       double binContent_normalized = histogramMVAoutput_vs_Pt->GetBinContent(iBinX, iBinY)/normalization;
-      if ( (runningSum + binContent_normalized) > Efficiency_or_FakeRate ) {
+      if ( (runningSum + binContent_normalized) >= Efficiency_or_FakeRate ) {
 	y = yAxis->GetBinUpEdge(iBinY) - ((Efficiency_or_FakeRate - runningSum)/binContent_normalized)*yAxis->GetBinWidth(iBinY);
 	//std::cout << "iBinY = " << iBinY << " (yCenter = " << yAxis->GetBinCenter(iBinY) << "): binContent = " << binContent_normalized << std::endl;
 	//std::cout << "--> setting y = " << y << std::endl;
-	assert(y >= yAxis->GetBinLowEdge(iBinY));
+	const double epsilon = 1.e-6;
+	assert(y >= (yAxis->GetBinLowEdge(iBinY) - epsilon));
 	break;
       } else {
 	runningSum += binContent_normalized;
@@ -650,9 +664,9 @@ struct plotEntryType
   }
   void bookHistograms()
   {
-    const int ptNumBins = 26;
+    const int ptNumBins = 31;
     double ptBinning[ptNumBins + 1] = { 
-      20., 22.5, 25., 27.5, 30., 32.5, 35., 37.5, 40., 45., 50., 55., 60., 70., 80., 90., 100., 125., 150., 175., 200., 250., 300., 400., 500., 1000., 5000.
+      20., 22.5, 25., 27.5, 30., 32.5, 35., 37.5, 40., 45., 50., 55., 60., 70., 80., 90., 100., 125., 150., 175., 200., 250., 300., 400., 500., 600., 700., 800., 1000., 1200., 1500., 5000.
     };    
     std::string histogramNamePt_numerator = Form("histogramPt_%s_numerator", name_.data());
     histogramPt_numerator_ = new TH1D(histogramNamePt_numerator.data(), histogramNamePt_numerator.data(), ptNumBins, ptBinning);
@@ -705,13 +719,11 @@ struct plotEntryType
   TH1* histogramPt_;
 };
 
-void fillPlots(const std::string& inputFileName, plotEntryType* plots_signal, plotEntryType* plots_background, 
+void fillPlots(const std::string& inputFileName, const std::string& treeName, plotEntryType* plots_signal, plotEntryType* plots_background, 
 	       double mvaCut, 
 	       int tauPtMode, int tauEtaMode,
 	       TFormula* mvaOutput_normalization)
 {
-  std::string treeName = "TrainTree";
-  
   int classId_signal     = 0;
   int classId_background = 1;
 
@@ -794,8 +806,6 @@ void fillPlots(const std::string& inputFileName, plotEntryType* plots_signal, pl
     else if ( classId == classId_background ) plots_background->fillHistograms(mvaOutput_normalized, recTauPt, recTauAbsEta, numVertices, evtWeight);
   }
 
-  
-
   delete tree;
 
   delete inputFile;
@@ -840,17 +850,21 @@ void plotTauIdMVAEfficiency_and_FakeRate()
   gROOT->SetBatch(true);
 
   std::vector<mvaEntryType*> mvaEntries;
-  mvaEntries.push_back(new mvaEntryType("/data1/veelken/tmp/tauIdMVATraining/tauId_v1_6/trainTauIdMVA_mvaIsolation3HitsDeltaR04opt1b.root",     "opt1b",   0.80, kLogTauPt, kTauAbsEta));
-  mvaEntries.push_back(new mvaEntryType("/data1/veelken/tmp/tauIdMVATraining/tauId_v1_6/trainTauIdMVA_mvaIsolation3HitsDeltaR04opt1c.root",     "opt1c",   0.80, kTauPt, kTauAbsEta));
-  mvaEntries.push_back(new mvaEntryType("/data1/veelken/tmp/tauIdMVATraining/tauId_v1_13_4/trainTauIdMVA_mvaIsolation3HitsDeltaR05opt2a.root",   "opt2a",   0.80, kLogTauPt, kTauAbsEta));
-  mvaEntries.push_back(new mvaEntryType("/data1/veelken/tmp/tauIdMVATraining/tauId_v1_13_4/trainTauIdMVA_mvaIsolation3HitsDeltaR05opt2aLT.root", "opt2aLT", 0.80, kLogTauPt, kTauAbsEta));
-  mvaEntries.push_back(new mvaEntryType("/data1/veelken/tmp/tauIdMVATraining/tauId_v1_13_4/trainTauIdMVA_mvaIsolation3HitsDeltaR05opt2b.root",   "opt2b",   0.80, kLogTauPt, kTauAbsEta));
-  mvaEntries.push_back(new mvaEntryType("/data1/veelken/tmp/tauIdMVATraining/tauId_v1_13_4/trainTauIdMVA_mvaIsolation3HitsDeltaR05opt2bLT.root", "opt2bLT", 0.80, kLogTauPt, kTauAbsEta));
+  //mvaEntries.push_back(new mvaEntryType("/data1/veelken/tmp/tauIdMVATraining/tauId_v1_6/trainTauIdMVA_mvaIsolation3HitsDeltaR04opt1b.root",     "opt1b",   0.80, kLogTauPt, kTauAbsEta));
+  //mvaEntries.push_back(new mvaEntryType("/data1/veelken/tmp/tauIdMVATraining/tauId_v1_6/trainTauIdMVA_mvaIsolation3HitsDeltaR04opt1c.root",     "opt1c",   0.80, kTauPt, kTauAbsEta));
+  mvaEntries.push_back(new mvaEntryType("/data1/veelken/tmp/tauIdMVATraining/tauId_v1_13_5/trainTauIdMVA_mvaIsolation3HitsDeltaR05opt2a.root",   "opt2a",   0.80, kLogTauPt, kTauAbsEta));
+  mvaEntries.push_back(new mvaEntryType("/data1/veelken/tmp/tauIdMVATraining/tauId_v1_13_5/trainTauIdMVA_mvaIsolation3HitsDeltaR05opt2aLT.root", "opt2aLT", 0.80, kLogTauPt, kTauAbsEta));
+  mvaEntries.push_back(new mvaEntryType("/data1/veelken/tmp/tauIdMVATraining/tauId_v1_13_5/trainTauIdMVA_mvaIsolation3HitsDeltaR05opt2b.root",   "opt2b",   0.80, kLogTauPt, kTauAbsEta));
+  mvaEntries.push_back(new mvaEntryType("/data1/veelken/tmp/tauIdMVATraining/tauId_v1_13_5/trainTauIdMVA_mvaIsolation3HitsDeltaR05opt2bLT.root", "opt2bLT", 0.80, kLogTauPt, kTauAbsEta));
 
   for ( std::vector<mvaEntryType*>::iterator mvaEntry = mvaEntries.begin();
 	mvaEntry != mvaEntries.end(); ++mvaEntry ) {
     std::cout << "processing " << (*mvaEntry)->legendEntry_ << std::endl;
-    fillPlots((*mvaEntry)->inputFileName_, (*mvaEntry)->plots_signal_, (*mvaEntry)->plots_background_, 
+    fillPlots((*mvaEntry)->inputFileName_, "TrainTree", (*mvaEntry)->plots_signal_, (*mvaEntry)->plots_background_, 
+	      (*mvaEntry)->mvaCut_, 
+	      (*mvaEntry)->tauPtMode_, (*mvaEntry)->tauEtaMode_, 
+	      (*mvaEntry)->mvaOutput_normalization_);
+    fillPlots((*mvaEntry)->inputFileName_, "TestTree", (*mvaEntry)->plots_signal_, (*mvaEntry)->plots_background_, 
 	      (*mvaEntry)->mvaCut_, 
 	      (*mvaEntry)->tauPtMode_, (*mvaEntry)->tauEtaMode_, 
 	      (*mvaEntry)->mvaOutput_normalization_);
@@ -1008,6 +1022,14 @@ void plotTauIdMVAEfficiency_and_FakeRate()
     graphEfficiencyEq60percent->Write();
     graphEfficiencyEq50percent->Write();
     graphEfficiencyEq40percent->Write();
+    //(*mvaEntry)->plots_signal_->histogramPt_numerator_->Write();
+    //(*mvaEntry)->plots_signal_->histogramPt_denominator_->Write();
+    //(*mvaEntry)->plots_signal_->histogramEta_numerator_->Write();
+    //(*mvaEntry)->plots_signal_->histogramEta_denominator_->Write();
+    //(*mvaEntry)->plots_background_->histogramPt_numerator_->Write();
+    //(*mvaEntry)->plots_background_->histogramPt_denominator_->Write();
+    //(*mvaEntry)->plots_background_->histogramEta_numerator_->Write();
+    //(*mvaEntry)->plots_background_->histogramEta_denominator_->Write();
     (*mvaEntry)->mvaOutput_normalization_->Write();
     delete outputFile_effGraphs;
 

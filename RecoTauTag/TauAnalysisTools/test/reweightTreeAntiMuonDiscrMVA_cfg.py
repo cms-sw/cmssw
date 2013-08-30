@@ -33,6 +33,9 @@ process.reweightTreeTauIdMVA = cms.PSet(
     
     branchNameEvtWeight = cms.string('evtWeight'),
 
+    keepAllBranches = cms.bool(False),
+    checkBranchesForNaNs = cms.bool(True),
+
     inputVariables = cms.vstring(
         'TMath::Abs(TMath::ACos(TMath::Cos(12.*recTauPhi))/12.)/F',
         'TMath::Abs(recTauEta)/F',

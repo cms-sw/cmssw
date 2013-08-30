@@ -11,30 +11,34 @@ process.source = cms.Source("EmptySource")
 process.gbrForestWriter = cms.EDAnalyzer("GBRForestWriter",
     jobs = cms.VPSet(
         cms.PSet(
-            inputFileName = cms.string('/data1/veelken/tmp/antiMuonDiscrMVATraining/antiMuonDiscr_v1_8/mvaAntiMuonDiscrOpt2_BDTG.weights.xml'),                                                           
-            inputFileType = cms.string("XML"),
-            inputVariables = cms.vstring(
-                'TMath::Abs(recTauEta)',
-                'TMath::Sqrt(TMath::Max(0., recTauCaloEnECAL))',
-                'TMath::Sqrt(TMath::Max(0., recTauCaloEnHCAL))',
-                'leadPFChargedHadrCandPt/recTauPt',
-                'TMath::Sqrt(TMath::Max(0., leadPFChargedHadrCandCaloEnECAL))',
-                'TMath::Sqrt(TMath::Max(0., leadPFChargedHadrCandCaloEnHCAL))',
-                'numMatches',
-                'numHitsDT1 + numHitsCSC1 + numHitsRPC1',
-                'numHitsDT2 + numHitsCSC2 + numHitsRPC2',
-                'numHitsDT3 + numHitsCSC3 + numHitsRPC3',
-                'numHitsDT4 + numHitsCSC4 + numHitsRPC4'
+            categories = cms.VPSet(
+                cms.PSet(
+                    inputFileName = cms.string('/data1/veelken/tmp/antiMuonDiscrMVATraining/antiMuonDiscr_v1_8/mvaAntiMuonDiscrOpt2_BDTG.weights.xml'),
+                    inputFileType = cms.string("XML"),
+                    inputVariables = cms.vstring(
+                        'TMath::Abs(recTauEta)',
+                        'TMath::Sqrt(TMath::Max(0., recTauCaloEnECAL))',
+                        'TMath::Sqrt(TMath::Max(0., recTauCaloEnHCAL))',
+                        'leadPFChargedHadrCandPt/recTauPt',
+                        'TMath::Sqrt(TMath::Max(0., leadPFChargedHadrCandCaloEnECAL))',
+                        'TMath::Sqrt(TMath::Max(0., leadPFChargedHadrCandCaloEnHCAL))',
+                        'numMatches',
+                        'numHitsDT1 + numHitsCSC1 + numHitsRPC1',
+                        'numHitsDT2 + numHitsCSC2 + numHitsRPC2',
+                        'numHitsDT3 + numHitsCSC3 + numHitsRPC3',
+                        'numHitsDT4 + numHitsCSC4 + numHitsRPC4'
+                    ),
+                    spectatorVariables = cms.vstring(
+                        'recTauPt',
+                        'recTauDecayMode',
+                        'leadPFChargedHadrCandPt',
+                        'byLooseCombinedIsolationDeltaBetaCorr3Hits',
+                        'genMuonPt',
+                        'numOfflinePrimaryVertices'
+                    ),
+                    gbrForestName = cms.string("againstMuonMVA")
+                )
             ),
-            spectatorVariables = cms.vstring(
-                'recTauPt',
-                'recTauDecayMode',
-                'leadPFChargedHadrCandPt',
-                'byLooseCombinedIsolationDeltaBetaCorr3Hits',
-                'genMuonPt',
-                'numOfflinePrimaryVertices'
-            ),
-            gbrForestName = cms.string("againstMuonMVA"),
             outputFileType = cms.string("GBRForest"),                                      
             outputFileName = cms.string("gbrDiscriminationAgainstMuonMVA.root")
         )

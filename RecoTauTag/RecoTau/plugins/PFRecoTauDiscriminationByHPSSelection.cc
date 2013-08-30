@@ -51,6 +51,8 @@ class PFRecoTauDiscriminationByHPSSelection : public PFTauDiscriminationProducer
   DecayModeCutMap decayModeCuts_;
   double matchingCone_;
   double minPt_;
+
+  bool requireTauChargedHadronsToBeChargedPFCands_;
   
   int verbosity_;
 };
@@ -100,6 +102,7 @@ PFRecoTauDiscriminationByHPSSelection::PFRecoTauDiscriminationByHPSSelection(con
             cuts
           ));
   }
+  requireTauChargedHadronsToBeChargedPFCands_ = pset.getParameter<bool>("requireTauChargedHadronsToBeChargedPFCands");
   verbosity_ = pset.exists("verbosity") ?
     pset.getParameter<int>("verbosity") : 0;
 }
@@ -260,6 +263,25 @@ PFRecoTauDiscriminationByHPSSelection::discriminate(const reco::PFTauRef& tau)
 	std::cout << " fails signal-cone cut for strip(s)." << std::endl;
       }
       return 0.0;
+    }
+  }
+
+  if ( requireTauChargedHadronsToBeChargedPFCands_ ) {
+    BOOST_FOREACH(const reco::PFRecoTauChargedHadron& cand, tau->signalTauChargedHadronCandidates()) {
+      if ( verbosity_ ) {
+	std::string algo_string;
+	if      ( cand.algo() == reco::PFRecoTauChargedHadron::kChargedPFCandidate ) algo_string = "ChargedPFCandidate";
+	else if ( cand.algo() == reco::PFRecoTauChargedHadron::kTrack              ) algo_string = "Track";
+	else if ( cand.algo() == reco::PFRecoTauChargedHadron::kPFNeutralHadron    ) algo_string = "PFNeutralHadron";
+	else                                                                         algo_string = "Undefined";
+	std::cout << "algo(signalPFChargedHadr) = " << algo_string << std::endl;
+      }
+      if ( !(cand.algo() == reco::PFRecoTauChargedHadron::kChargedPFCandidate) ) {
+	if ( verbosity_ ) {
+	  std::cout << " fails cut on PFRecoTauChargedHadron algo." << std::endl;
+	}
+	return 0.0;
+      }
     }
   }
 

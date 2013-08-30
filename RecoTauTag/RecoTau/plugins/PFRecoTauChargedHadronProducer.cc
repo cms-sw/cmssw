@@ -31,6 +31,7 @@
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
 #include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
 #include "DataFormats/Common/interface/Association.h"
 #include "DataFormats/Math/interface/deltaR.h"
@@ -206,7 +207,11 @@ void PFRecoTauChargedHadronProducer::produce(edm::Event& evt, const edm::EventSe
       const reco::Track* track = 0;
       if ( nextChargedHadron->getChargedPFCandidate().isNonnull() ) {
 	const reco::PFCandidatePtr& chargedPFCand = nextChargedHadron->getChargedPFCandidate();
-	if      ( chargedPFCand->trackRef().isNonnull()    ) track = chargedPFCand->trackRef().get();
+	const reco::Track* track = 0;
+	if ( chargedPFCand->trackRef().isNonnull() ) track = chargedPFCand->trackRef().get();
+	else if ( chargedPFCand->muonRef().isNonnull() && chargedPFCand->muonRef()->innerTrack().isNonnull()  ) track = chargedPFCand->muonRef()->innerTrack().get();
+	else if ( chargedPFCand->muonRef().isNonnull() && chargedPFCand->muonRef()->globalTrack().isNonnull() ) track = chargedPFCand->muonRef()->globalTrack().get();
+	else if ( chargedPFCand->muonRef().isNonnull() && chargedPFCand->muonRef()->outerTrack().isNonnull()  ) track = chargedPFCand->muonRef()->outerTrack().get();
 	else if ( chargedPFCand->gsfTrackRef().isNonnull() ) track = chargedPFCand->gsfTrackRef().get();
       } 
       if ( nextChargedHadron->getTrack().isNonnull() && !track ) {
