@@ -1,5 +1,4 @@
 //
-// $Id: TtSemiEvtSolution.cc,v 1.28 2009/10/09 12:59:25 llista Exp $
 //
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"

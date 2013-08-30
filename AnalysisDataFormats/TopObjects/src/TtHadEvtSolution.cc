@@ -1,5 +1,4 @@
 //
-// $Id: TtHadEvtSolution.cc,v 1.8 2008/11/14 19:20:51 rwolf Exp $
 // adapted TtSemiEvtSolution.cc,v 1.13 2007/07/05 23:43:08 lowette Exp 
 // for fully hadronic channel
 
