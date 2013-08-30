@@ -5,11 +5,12 @@
 
 HLTTauDQMPathPlotter2::HLTTauDQMPathPlotter2(const edm::ParameterSet& pset, bool doRefAnalysis, const std::string& dqmBaseFolder,
                                              const std::string& hltProcess, int ptbins, int etabins, int phibins,
-                                             double hltMatchDr):
+                                             double l1MatchDr, double hltMatchDr):
   hltProcess_(hltProcess),
   ptbins_(ptbins),
   etabins_(etabins),
   phibins_(phibins),
+  l1MatchDr_(l1MatchDr),
   hltMatchDr_(hltMatchDr),
   doRefAnalysis_(doRefAnalysis),
   hltPath_(hltProcess, doRefAnalysis_)
@@ -65,26 +66,28 @@ HLTTauDQMPathPlotter2::~HLTTauDQMPathPlotter2() {}
 
 void HLTTauDQMPathPlotter2::analyze(const edm::TriggerResults& triggerResults, const trigger::TriggerEvent& triggerEvent, const std::map<int, LVColl>& refCollection) {
 
+  std::vector<HLTTauDQMPath::Object> triggerObjs;
+  std::vector<HLTTauDQMPath::Object> matchedTriggerObjs;
+  LVColl matchedOfflineObjs;
+
   // Events per filter
   const int lastPassedFilter = hltPath_.lastPassedFilter(triggerResults);
+  //std::cout << "Last passed filter " << lastPassedFilter << " " << (lastPassedFilter >= 0 ? hltPath_.getFilterName(lastPassedFilter) : "") << std::endl;
   if(doRefAnalysis_) {
-    std::vector<HLTTauDQMPath::Object> objs;
-    //std::cout << "Last passed filter " << lastPassedFilter << " " << (lastPassedFilter >= 0 ? hltPath_.getFilterName(lastPassedFilter) : "") << std::endl;
+    double matchDr = hltPath_.isFirstFilterL1Seed() ? l1MatchDr_ : hltMatchDr_;
     for(int i=0; i<=lastPassedFilter; ++i) {
-      //std::cout << "Filter name " << hltPath_.getFilterName(i) << std::endl;
-      hltPath_.getFilterObjects(triggerEvent, i, objs);
-      /*
-      for(const HLTTauDQMPath::Object& obj: objs)
-        //std::cout << "  object id " << obj.id << std::endl;
-        */
-      if(!hltPath_.offlineMatching(i, objs, refCollection, hltMatchDr_)) {
-        //std::cout << "  offline matching: false" << std::endl;
+      triggerObjs.clear();
+      matchedTriggerObjs.clear();
+      matchedOfflineObjs.clear();
+      hltPath_.getFilterObjects(triggerEvent, i, triggerObjs);
+      //std::cout << "Filter name " << hltPath_.getFilterName(i) << " nobjs " << triggerObjs.size() << std::endl;
+      bool matched = hltPath_.offlineMatching(i, triggerObjs, refCollection, matchDr, matchedTriggerObjs, matchedOfflineObjs);
+      //std::cout << "  offline matching: " << matched << std::endl;
+      matchDr = hltMatchDr_;
+      if(!matched)
         break;
-      }
-      //std::cout << "  offline matching: true" << std::endl;
 
       hAcceptedEvents_->Fill(i+0.5);
-      objs.clear();
     }
   }
   else {
@@ -96,10 +99,19 @@ void HLTTauDQMPathPlotter2::analyze(const edm::TriggerResults& triggerResults, c
 
   // Triggered tau kinematics
   if(hltPath_.fired(triggerResults)) {
-    //std::cout << "Path " << pathName_ << std::endl;
-    std::vector<HLTTauDQMPath::Object> objs;
-    hltPath_.getFilterObjects(triggerEvent, lastPassedFilter, objs);
-    for(const HLTTauDQMPath::Object& obj: objs) {
+    triggerObjs.clear();
+    matchedTriggerObjs.clear();
+    matchedOfflineObjs.clear();
+    hltPath_.getFilterObjects(triggerEvent, lastPassedFilter, triggerObjs);
+    if(doRefAnalysis_) {
+      bool matched = hltPath_.offlineMatching(lastPassedFilter, triggerObjs, refCollection, hltMatchDr_, matchedTriggerObjs, matchedOfflineObjs);
+      if(matched)
+        triggerObjs.swap(matchedTriggerObjs);
+      else
+        triggerObjs.clear();
+    }
+
+    for(const HLTTauDQMPath::Object& obj: triggerObjs) {
       if(obj.id != trigger::TriggerTau)
         continue;
       hTrigTauEt_->Fill(obj.object.pt());

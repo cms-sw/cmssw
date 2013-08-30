@@ -224,10 +224,22 @@ namespace {
   }
 
   template <typename T1, typename T2>
-  bool deltaRmatch(const T1& obj, const std::vector<T2>& coll, double dR) {
-    for(const T2& refObj: coll)
-      if(reco::deltaR(obj, refObj) < dR)
-        return true;
+  bool deltaRmatch(const T1& obj, const std::vector<T2>& refColl, double dR, std::vector<T2>& matchedRefs) {
+    double minDr = 2*dR;
+    size_t found = refColl.size();
+    //std::cout << "Matching with DR " << dR << ", obj eta " << obj.eta() << " phi " << obj.phi() << std::endl;
+    for(size_t i=0; i<refColl.size(); ++i) {
+      double dr = reco::deltaR(obj, refColl[i]);
+      //std::cout << "  " << i << " ref eta " << refColl[i].eta() << " phi " << refColl[i].phi() << " dr " << dr << std::endl;
+      if(dr < minDr) {
+        minDr = dr;
+        found = i;
+      }
+    }
+    if(found < refColl.size()) {
+      matchedRefs.emplace_back(refColl[found]);
+      return true;
+    }
     return false;
   }
 }
@@ -236,7 +248,8 @@ namespace {
 HLTTauDQMPath::HLTTauDQMPath(const std::string& hltProcess, bool doRefAnalysis):
   hltProcess_(hltProcess),
   doRefAnalysis_(doRefAnalysis),
-  pathIndex_(0)
+  pathIndex_(0),
+  isFirstL1Seed_(false)
 {}
 HLTTauDQMPath::~HLTTauDQMPath() {}
 
@@ -301,6 +314,7 @@ bool HLTTauDQMPath::beginRun(const HLTConfigProvider& HLTCP) {
 
   // Get the filters
   filterIndices_ = thePath->interestingFilters(HLTCP, doRefAnalysis_, ignoreFilterTypes_, ignoreFilterNames_);
+  isFirstL1Seed_ = HLTCP.moduleType(std::get<0>(filterIndices_[0])) == "HLTLevel1GTSeed";
   std::cout << "  Filters" << std::endl;
   // Set the filter multiplicity counts
   filterTauN_.clear();
@@ -370,19 +384,26 @@ void HLTTauDQMPath::getFilterObjects(const trigger::TriggerEvent& triggerEvent, 
   }
 }
 
-bool HLTTauDQMPath::offlineMatching(size_t i, const std::vector<Object>& triggerObjects, const std::map<int, LVColl>& offlineObjects, double dR) const {
+bool HLTTauDQMPath::offlineMatching(size_t i, const std::vector<Object>& triggerObjects, const std::map<int, LVColl>& offlineObjects, double dR, std::vector<Object>& matchedTriggerObjects, LVColl& matchedOfflineObjects) const {
+  bool isL1 = (i==0 && isFirstL1Seed_);
   if(filterTauN_[i] > 0) {
+    //std::cout << " requiring " << filterTauN_[i] << " taus" << std::endl;
     std::map<int, LVColl>::const_iterator tauFound = offlineObjects.find(15);
     if(tauFound == offlineObjects.end())
       return false;
 
+    //std::cout << " found " << tauFound->second.size() << " offline taus" << std::endl;
+
     int matchedObjects = 0;
     for(const Object& trgObj: triggerObjects) {
-      if(trgObj.id != trigger::TriggerTau)
+      //std::cout << "trigger object id " << trgObj.id << std::endl;
+      if(! ((isL1 && (trgObj.id == trigger::TriggerL1TauJet || trgObj.id == trigger::TriggerL1CenJet))
+            || trgObj.id == trigger::TriggerTau) )
         continue;
-
-      if(deltaRmatch(trgObj.object, tauFound->second, dR))
+      if(deltaRmatch(trgObj.object, tauFound->second, dR, matchedOfflineObjects)) {
         ++matchedObjects;
+        matchedTriggerObjects.emplace_back(trgObj);
+      }
     }
     if(matchedObjects < filterTauN_[i])
       return false;
@@ -393,17 +414,24 @@ bool HLTTauDQMPath::offlineMatching(size_t i, const std::vector<Object>& trigger
 
     int matchedObjects = 0;
     for(const Object& trgObj: triggerObjects) {
-      if(trgObj.id == trigger::TriggerElectron) {
+      //std::cout << "trigger object id " << trgObj.id << std::endl;
+      if((isL1 && (trgObj.id == trigger::TriggerL1NoIsoEG || trgObj.id == trigger::TriggerL1IsoEG))
+         || trgObj.id == trigger::TriggerElectron) {
         if(eleFound == offlineObjects.end())
           return false;
-        if(deltaRmatch(trgObj.object, eleFound->second, dR))
+        if(deltaRmatch(trgObj.object, eleFound->second, dR, matchedOfflineObjects)) {
           ++matchedObjects;
+          matchedTriggerObjects.emplace_back(trgObj);
+        }
       }
-      else if(trgObj.id == trigger::TriggerMuon) {
+      else if((isL1 && trgObj.id == trigger::TriggerL1Mu)
+              || trgObj.id == trigger::TriggerMuon) {
         if(muFound == offlineObjects.end())
           return false;
-        if(deltaRmatch(trgObj.object, muFound->second, dR))
+        if(deltaRmatch(trgObj.object, muFound->second, dR, matchedOfflineObjects)) {
           ++matchedObjects;
+          matchedTriggerObjects.emplace_back(trgObj);
+        }
       }
     }
     if(matchedObjects < filterLeptonN_[i])
