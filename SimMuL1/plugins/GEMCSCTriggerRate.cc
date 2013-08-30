@@ -29,11 +29,12 @@
 #include "DataFormats/MuonDetId/interface/GEMDetId.h"
 #include "Geometry/GEMGeometry/interface/GEMGeometry.h"
 #include "GEMCode/GEMValidation/src/SimTrackMatchManager.h"
-
+#include "GEMCode/SimMuL1/interface/Helpers.h"
 using namespace std;
 using namespace reco;
 using namespace edm;
 
+using namespace SimMuL1_helpers;
 namespace 
 {
   const Double_t ETA_BIN = 0.0125 *2;

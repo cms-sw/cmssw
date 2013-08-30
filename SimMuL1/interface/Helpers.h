@@ -1,7 +1,7 @@
 #ifndef SimMuL1_Helpers_h
 #define SimMuL1_Helpers_h
 
-namespace helpers
+namespace SimMuL1_helpers
 {
 bool
 isME1bEtaRegion(float eta, float eta_min = 1.64, float eta_max = 2.14)
