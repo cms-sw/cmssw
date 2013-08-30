@@ -1,2 +1,4 @@
 __init__.py
 *.pyc
+PhysicsTools/PatAlgos/test/*.log
+PhysicsTools/PatAlgos/test/*.root
