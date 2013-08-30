@@ -8,7 +8,7 @@
 
 using namespace std;
 
-version 3.1 02-13-07 
+/*version 3.1 02-13-07 
 
 author Kevin Klapoetke - Minnesota*/
 
