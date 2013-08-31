@@ -173,6 +173,10 @@ Pythia8Hadronizer::Pythia8Hadronizer(const edm::ParameterSet &params) :
   if( params.exists( "reweightGen" ) )
     fReweightUserHook = new PtHatReweightUserHook();
 
+  if( params.exists( "useUserHook" ) )
+    throw edm::Exception(edm::errors::Configuration,"Pythia8Interface")
+      <<" Obsolete parameter: useUserHook \n Please use the actual one instead \n";
+
   // PS matching prototype
   //
   if ( params.exists("jetMatching") )
@@ -283,6 +287,14 @@ bool Pythia8Hadronizer::initializeForInternalPartons()
 
   fMasterGen->settings.listChanged();
 
+  if ( pythiaPylistVerbosity > 10 )
+  {
+    if ( pythiaPylistVerbosity == 11 || pythiaPylistVerbosity == 13 )
+           fMasterGen->settings.listAll();
+    if ( pythiaPylistVerbosity == 12 || pythiaPylistVerbosity == 13 )
+           fMasterGen->particleData.listAll();
+  }
+
   return true;
 }
 
@@ -315,8 +327,15 @@ bool Pythia8Hadronizer::initializeForExternalPartons()
 
   }
   
-   return true;
+  if ( pythiaPylistVerbosity > 10 )
+  {
+    if ( pythiaPylistVerbosity == 11 || pythiaPylistVerbosity == 13 )
+           fMasterGen->settings.listAll();
+    if ( pythiaPylistVerbosity == 12 || pythiaPylistVerbosity == 13 )
+           fMasterGen->particleData.listAll();
+  }
 
+  return true;
 }
 
 #if 0
