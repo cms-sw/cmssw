@@ -171,8 +171,8 @@ private:
 
   /// ///////////////// ///
   /// MANDATORY METHODS ///
-  virtual void beginRun( edm::Run& run, const edm::EventSetup& iSetup );
-  virtual void endRun( edm::Run& run, const edm::EventSetup& iSetup );
+  virtual void beginRun( const edm::Run& run, const edm::EventSetup& iSetup );
+  virtual void endRun( const edm::Run& run, const edm::EventSetup& iSetup );
   virtual void produce( edm::Event& iEvent, const edm::EventSetup& iSetup );
 };
 
@@ -200,7 +200,7 @@ L1TrackProducer::~L1TrackProducer()
 
 //////////
 // END JOB
-void L1TrackProducer::endRun(edm::Run& run, const edm::EventSetup& iSetup)
+void L1TrackProducer::endRun(const edm::Run& run, const edm::EventSetup& iSetup)
 {
   /// Things to be done at the exit of the event Loop 
 
@@ -208,7 +208,7 @@ void L1TrackProducer::endRun(edm::Run& run, const edm::EventSetup& iSetup)
 
 ////////////
 // BEGIN JOB
-void L1TrackProducer::beginRun(edm::Run& run, const edm::EventSetup& iSetup )
+void L1TrackProducer::beginRun(const edm::Run& run, const edm::EventSetup& iSetup )
 {
   eventnum=0;
   std::cout << "L1TrackProducer" << std::endl;

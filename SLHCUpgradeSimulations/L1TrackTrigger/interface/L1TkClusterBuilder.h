@@ -53,8 +53,8 @@ class L1TkClusterBuilder : public edm::EDProducer
     unsigned int                                           ADCThreshold;  
 
     /// Mandatory methods
-    virtual void beginRun( edm::Run& run, const edm::EventSetup& iSetup );
-    virtual void endRun( edm::Run& run, const edm::EventSetup& iSetup );
+    virtual void beginRun( const edm::Run& run, const edm::EventSetup& iSetup );
+    virtual void endRun( const edm::Run& run, const edm::EventSetup& iSetup );
     virtual void produce( edm::Event& iEvent, const edm::EventSetup& iSetup );
 
     /// Get hits
@@ -95,7 +95,7 @@ L1TkClusterBuilder< T >::~L1TkClusterBuilder(){}
 
 /// Begin run
 template< typename T >
-void L1TkClusterBuilder< T >::beginRun( edm::Run& run, const edm::EventSetup& iSetup )
+void L1TkClusterBuilder< T >::beginRun( const edm::Run& run, const edm::EventSetup& iSetup )
 {
   /// Get the geometry
   edm::ESHandle< StackedTrackerGeometry > StackedTrackerGeomHandle;
@@ -115,7 +115,7 @@ void L1TkClusterBuilder< T >::beginRun( edm::Run& run, const edm::EventSetup& iS
 
 /// End run
 template< typename T >
-void L1TkClusterBuilder< T >::endRun( edm::Run& run, const edm::EventSetup& iSetup ){}
+void L1TkClusterBuilder< T >::endRun( const edm::Run& run, const edm::EventSetup& iSetup ){}
 
 /// Implement the producer
 template< typename T >

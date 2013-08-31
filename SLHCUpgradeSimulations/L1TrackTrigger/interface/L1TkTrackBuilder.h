@@ -56,8 +56,8 @@ class L1TkTrackBuilder : public edm::EDProducer
 
     /// ///////////////// ///
     /// MANDATORY METHODS ///
-    virtual void beginRun( edm::Run& run, const edm::EventSetup& iSetup );
-    virtual void endRun( edm::Run& run, const edm::EventSetup& iSetup );
+    virtual void beginRun( const edm::Run& run, const edm::EventSetup& iSetup );
+    virtual void endRun( const edm::Run& run, const edm::EventSetup& iSetup );
     virtual void produce( edm::Event& iEvent, const edm::EventSetup& iSetup );
 
 }; /// Close class
@@ -84,7 +84,7 @@ L1TkTrackBuilder< T >::~L1TkTrackBuilder() {}
 
 /// Begin run
 template< typename T >
-void L1TkTrackBuilder< T >::beginRun( edm::Run& run, const edm::EventSetup& iSetup )
+void L1TkTrackBuilder< T >::beginRun( const edm::Run& run, const edm::EventSetup& iSetup )
 {
   /// Get the tracking algorithm 
   iSetup.get< TrackingAlgorithmRecord >().get( TrackingAlgoHandle );
@@ -96,7 +96,7 @@ void L1TkTrackBuilder< T >::beginRun( edm::Run& run, const edm::EventSetup& iSet
 
 /// End run
 template< typename T >
-void L1TkTrackBuilder< T >::endRun( edm::Run& run, const edm::EventSetup& iSetup ) {}
+void L1TkTrackBuilder< T >::endRun( const edm::Run& run, const edm::EventSetup& iSetup ) {}
 
 /// Implement the producer
 template< typename T >

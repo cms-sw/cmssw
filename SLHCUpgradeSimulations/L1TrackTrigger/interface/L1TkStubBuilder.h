@@ -54,8 +54,8 @@ class L1TkStubBuilder : public edm::EDProducer
     edm::InputTag                                           L1TkClustersInputTag;
 
     /// Mandatory methods
-    virtual void beginRun( edm::Run& run, const edm::EventSetup& iSetup );
-    virtual void endRun( edm::Run& run, const edm::EventSetup& iSetup );
+    virtual void beginRun( const edm::Run& run, const edm::EventSetup& iSetup );
+    virtual void endRun( const edm::Run& run, const edm::EventSetup& iSetup );
     virtual void produce( edm::Event& iEvent, const edm::EventSetup& iSetup );
 
 }; /// Close class
@@ -81,7 +81,7 @@ L1TkStubBuilder< T >::~L1TkStubBuilder(){}
 
 /// Begin run
 template< typename T >
-void L1TkStubBuilder< T >::beginRun( edm::Run& run, const edm::EventSetup& iSetup )
+void L1TkStubBuilder< T >::beginRun( const edm::Run& run, const edm::EventSetup& iSetup )
 {
   /// Get the geometry references
   edm::ESHandle< StackedTrackerGeometry > StackedTrackerGeomHandle;
@@ -106,7 +106,7 @@ void L1TkStubBuilder< T >::beginRun( edm::Run& run, const edm::EventSetup& iSetu
 
 /// End run
 template< typename T >
-void L1TkStubBuilder< T >::endRun( edm::Run& run, const edm::EventSetup& iSetup ){}
+void L1TkStubBuilder< T >::endRun( const edm::Run& run, const edm::EventSetup& iSetup ){}
 
 /// Implement the producer
 template< typename T >
