@@ -59,7 +59,7 @@ PFRecHitProducer::~PFRecHitProducer() {}
 
 // ------------ method called once each job just before starting event loop  ------------
 void 
-PFRecHitProducer::beginRun(edm::Run& run,
+PFRecHitProducer::beginRun(const edm::Run& run,
 			   const EventSetup& es) {
 
   // get the HCAL RecHits correction factors
@@ -86,11 +86,6 @@ PFRecHitProducer::beginRun(edm::Run& run,
   es.get<IdealGeometryRecord>().get(cttopo);
   theTowerConstituentsMap = cttopo.product();
 }
-
-// ------------ method called once each job just after ending the event loop  ------------
-void 
-PFRecHitProducer::endRun() {}
-
 
 
 //define this as a plug-in
