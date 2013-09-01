@@ -110,6 +110,7 @@ namespace edm {
       TFWLiteSelectorMembers() :
       tree_(0),
       reg_(new ProductRegistry()),
+      phreg_(new ProcessHistoryRegistry()),
       branchIDListHelper_(new BranchIDListHelper()),
       processNames_(),
       reader_(new FWLiteDelayedReader),
@@ -124,6 +125,7 @@ namespace edm {
       }
       TTree* tree_;
       boost::shared_ptr<ProductRegistry> reg_;
+      boost::shared_ptr<ProcessHistoryRegistry> phreg_;
       boost::shared_ptr<BranchIDListHelper> branchIDListHelper_;
       ProcessHistory processNames_;
       boost::shared_ptr<FWLiteDelayedReader> reader_;
@@ -286,7 +288,7 @@ TFWLiteSelectorBasic::Process(Long64_t iEntry) {
                 new edm::LuminosityBlockAuxiliary(rp->run(), 1, aux.time(), aux.time()));
          boost::shared_ptr<edm::LuminosityBlockPrincipal>lbp(
                 new edm::LuminosityBlockPrincipal(lumiAux, m_->reg_, m_->pc_, nullptr,0));
-         m_->ep_->fillEventPrincipal(*eaux, eventSelectionIDs_, branchListIndexes_, m_->mapper_, m_->reader_.get());
+         m_->ep_->fillEventPrincipal(*eaux, *m_->phreg_, eventSelectionIDs_, branchListIndexes_, m_->mapper_, m_->reader_.get());
          lbp->setRunPrincipal(rp);
          m_->ep_->setLuminosityBlockPrincipal(lbp);
          m_->processNames_ = m_->ep_->processHistory();
@@ -392,7 +394,9 @@ TFWLiteSelectorBasic::setupNewFile(TFile& iFile) {
     psetRegistry.insertMapped(pset);
   }
 
-  edm::ProcessHistoryRegistry::instance()->insertCollection(pHistVector);
+  for(auto const& ph : pHistVector) {
+     m_->phreg_->registerProcessHistory(ph);
+  }
 
   m_->pointerToBranchBuffer_.erase(m_->pointerToBranchBuffer_.begin(),
                                    m_->pointerToBranchBuffer_.end());

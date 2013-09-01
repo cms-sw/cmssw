@@ -6,10 +6,10 @@ Machine parameters:  mode = NOMERGE  emptyRunLumiMode = handleEmptyRunsAndLumis
 	respondToOpenInputFile
 	openOutputFiles
     *** nextItemType: Run 1 ***
-	readAndCacheRun 1
+	readRun 1
 	beginRun 1
     *** nextItemType: Lumi 1 ***
-	readAndCacheLumi 1
+	readLuminosityBlock 1
 	beginLumi 1/1
     *** nextItemType: Event ***
 	readEvent
@@ -22,10 +22,10 @@ Machine parameters:  mode = NOMERGE  emptyRunLumiMode = handleEmptyRunsAndLumis
 	endRun 1
 	writeRun 1
 	deleteRunFromCache 1
-	readAndCacheRun 2
+	readRun 2
 	beginRun 2
     *** nextItemType: Lumi 1 ***
-	readAndCacheLumi 1
+	readLuminosityBlock 1
 	beginLumi 2/1
     *** nextItemType: Event ***
 	readEvent
@@ -45,10 +45,10 @@ Machine parameters:  mode = NOMERGE  emptyRunLumiMode = handleEmptyRunsAndLumis
 	respondToOpenInputFile
 	openOutputFiles
     *** nextItemType: Run 1 ***
-	readAndCacheRun 1
+	readRun 1
 	beginRun 1
     *** nextItemType: Lumi 2 ***
-	readAndCacheLumi 2
+	readLuminosityBlock 2
 	beginLumi 1/2
     *** nextItemType: Event ***
 	readEvent
@@ -74,10 +74,10 @@ Machine parameters:  mode = NOMERGE  emptyRunLumiMode = handleEmptyRuns
 	respondToOpenInputFile
 	openOutputFiles
     *** nextItemType: Run 1 ***
-	readAndCacheRun 1
+	readRun 1
 	beginRun 1
     *** nextItemType: Lumi 1 ***
-	readAndCacheLumi 1
+	readLuminosityBlock 1
     *** nextItemType: Event ***
 	beginLumi 1/1
 	readEvent
@@ -90,10 +90,10 @@ Machine parameters:  mode = NOMERGE  emptyRunLumiMode = handleEmptyRuns
 	endRun 1
 	writeRun 1
 	deleteRunFromCache 1
-	readAndCacheRun 2
+	readRun 2
 	beginRun 2
     *** nextItemType: Lumi 1 ***
-	readAndCacheLumi 1
+	readLuminosityBlock 1
     *** nextItemType: Event ***
 	beginLumi 2/1
 	readEvent
@@ -113,10 +113,10 @@ Machine parameters:  mode = NOMERGE  emptyRunLumiMode = handleEmptyRuns
 	respondToOpenInputFile
 	openOutputFiles
     *** nextItemType: Run 1 ***
-	readAndCacheRun 1
+	readRun 1
 	beginRun 1
     *** nextItemType: Lumi 2 ***
-	readAndCacheLumi 2
+	readLuminosityBlock 2
     *** nextItemType: Event ***
 	beginLumi 1/2
 	readEvent
@@ -142,9 +142,9 @@ Machine parameters:  mode = NOMERGE  emptyRunLumiMode = doNotHandleEmptyRunsAndL
 	respondToOpenInputFile
 	openOutputFiles
     *** nextItemType: Run 1 ***
-	readAndCacheRun 1
+	readRun 1
     *** nextItemType: Lumi 1 ***
-	readAndCacheLumi 1
+	readLuminosityBlock 1
     *** nextItemType: Event ***
 	beginRun 1
 	beginLumi 1/1
@@ -158,9 +158,9 @@ Machine parameters:  mode = NOMERGE  emptyRunLumiMode = doNotHandleEmptyRunsAndL
 	endRun 1
 	writeRun 1
 	deleteRunFromCache 1
-	readAndCacheRun 2
+	readRun 2
     *** nextItemType: Lumi 1 ***
-	readAndCacheLumi 1
+	readLuminosityBlock 1
     *** nextItemType: Event ***
 	beginRun 2
 	beginLumi 2/1
@@ -181,9 +181,9 @@ Machine parameters:  mode = NOMERGE  emptyRunLumiMode = doNotHandleEmptyRunsAndL
 	respondToOpenInputFile
 	openOutputFiles
     *** nextItemType: Run 1 ***
-	readAndCacheRun 1
+	readRun 1
     *** nextItemType: Lumi 2 ***
-	readAndCacheLumi 2
+	readLuminosityBlock 2
     *** nextItemType: Event ***
 	beginRun 1
 	beginLumi 1/2
@@ -210,10 +210,10 @@ Machine parameters:  mode = FULLMERGE  emptyRunLumiMode = handleEmptyRunsAndLumi
 	respondToOpenInputFile
 	openOutputFiles
     *** nextItemType: Run 1 ***
-	readAndCacheRun 1
+	readRun 1
 	beginRun 1
     *** nextItemType: Lumi 1 ***
-	readAndCacheLumi 1
+	readLuminosityBlock 1
 	beginLumi 1/1
     *** nextItemType: Event ***
 	readEvent
@@ -226,10 +226,10 @@ Machine parameters:  mode = FULLMERGE  emptyRunLumiMode = handleEmptyRunsAndLumi
 	endRun 1
 	writeRun 1
 	deleteRunFromCache 1
-	readAndCacheRun 2
+	readRun 2
 	beginRun 2
     *** nextItemType: Lumi 1 ***
-	readAndCacheLumi 1
+	readLuminosityBlock 1
 	beginLumi 2/1
     *** nextItemType: Event ***
 	readEvent
@@ -248,10 +248,10 @@ Machine parameters:  mode = FULLMERGE  emptyRunLumiMode = handleEmptyRunsAndLumi
 	endRun 2
 	writeRun 2
 	deleteRunFromCache 2
-	readAndCacheRun 1
+	readRun 1
 	beginRun 1
     *** nextItemType: Lumi 2 ***
-	readAndCacheLumi 2
+	readLuminosityBlock 2
 	beginLumi 1/2
     *** nextItemType: Event ***
 	readEvent
@@ -277,10 +277,10 @@ Machine parameters:  mode = FULLMERGE  emptyRunLumiMode = handleEmptyRuns
 	respondToOpenInputFile
 	openOutputFiles
     *** nextItemType: Run 1 ***
-	readAndCacheRun 1
+	readRun 1
 	beginRun 1
     *** nextItemType: Lumi 1 ***
-	readAndCacheLumi 1
+	readLuminosityBlock 1
     *** nextItemType: Event ***
 	beginLumi 1/1
 	readEvent
@@ -293,10 +293,10 @@ Machine parameters:  mode = FULLMERGE  emptyRunLumiMode = handleEmptyRuns
 	endRun 1
 	writeRun 1
 	deleteRunFromCache 1
-	readAndCacheRun 2
+	readRun 2
 	beginRun 2
     *** nextItemType: Lumi 1 ***
-	readAndCacheLumi 1
+	readLuminosityBlock 1
     *** nextItemType: Event ***
 	beginLumi 2/1
 	readEvent
@@ -315,10 +315,10 @@ Machine parameters:  mode = FULLMERGE  emptyRunLumiMode = handleEmptyRuns
 	endRun 2
 	writeRun 2
 	deleteRunFromCache 2
-	readAndCacheRun 1
+	readRun 1
 	beginRun 1
     *** nextItemType: Lumi 2 ***
-	readAndCacheLumi 2
+	readLuminosityBlock 2
     *** nextItemType: Event ***
 	beginLumi 1/2
 	readEvent
@@ -344,9 +344,9 @@ Machine parameters:  mode = FULLMERGE  emptyRunLumiMode = doNotHandleEmptyRunsAn
 	respondToOpenInputFile
 	openOutputFiles
     *** nextItemType: Run 1 ***
-	readAndCacheRun 1
+	readRun 1
     *** nextItemType: Lumi 1 ***
-	readAndCacheLumi 1
+	readLuminosityBlock 1
     *** nextItemType: Event ***
 	beginRun 1
 	beginLumi 1/1
@@ -360,9 +360,9 @@ Machine parameters:  mode = FULLMERGE  emptyRunLumiMode = doNotHandleEmptyRunsAn
 	endRun 1
 	writeRun 1
 	deleteRunFromCache 1
-	readAndCacheRun 2
+	readRun 2
     *** nextItemType: Lumi 1 ***
-	readAndCacheLumi 1
+	readLuminosityBlock 1
     *** nextItemType: Event ***
 	beginRun 2
 	beginLumi 2/1
@@ -382,9 +382,9 @@ Machine parameters:  mode = FULLMERGE  emptyRunLumiMode = doNotHandleEmptyRunsAn
 	endRun 2
 	writeRun 2
 	deleteRunFromCache 2
-	readAndCacheRun 1
+	readRun 1
     *** nextItemType: Lumi 2 ***
-	readAndCacheLumi 2
+	readLuminosityBlock 2
     *** nextItemType: Event ***
 	beginRun 1
 	beginLumi 1/2

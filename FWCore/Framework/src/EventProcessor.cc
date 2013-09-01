@@ -697,6 +697,7 @@ namespace edm {
     branchIDListHelper_ = items.branchIDListHelper_;
     processConfiguration_ = items.processConfiguration_;
     processContext_.setProcessConfiguration(processConfiguration_.get());
+    principalCache_.setProcessHistoryRegistry(input_->processHistoryRegistry());
 
     FDEBUG(2) << parameterSet << std::endl;
 
@@ -712,7 +713,17 @@ namespace edm {
     }
     // initialize the subprocess, if there is one
     if(subProcessParameterSet) {
-      subProcess_.reset(new SubProcess(*subProcessParameterSet, *parameterSet, preg_, branchIDListHelper_, *espController_, *actReg_, token, serviceregistry::kConfigurationOverrides, preallocations_, &processContext_));
+      subProcess_.reset(new SubProcess(*subProcessParameterSet,
+                                       *parameterSet,
+                                       preg_,
+                                       input_->processHistoryRegistryForUpdate(),
+                                       branchIDListHelper_,
+                                       *espController_,
+                                       *actReg_,
+                                       token,
+                                       serviceregistry::kConfigurationOverrides,
+                                       preallocations_,
+                                       &processContext_));
     }
   }
 
@@ -742,7 +753,6 @@ namespace edm {
     psetRegistry->extraForUpdate().setID(ParameterSetID());
 
     ParentageRegistry::instance()->dataForUpdate().clear();
-    ProcessHistoryRegistry::instance()->dataForUpdate().clear();
   }
 
   void
@@ -2172,45 +2182,57 @@ namespace edm {
     }
   }
 
-  statemachine::Run EventProcessor::readAndCacheRun() {
+  statemachine::Run EventProcessor::readRun() {
     if (principalCache_.hasRunPrincipal()) {
       throw edm::Exception(edm::errors::LogicError)
-        << "EventProcessor::readAndCacheRun\n"
+        << "EventProcessor::readRun\n"
         << "Illegal attempt to insert run into cache\n"
         << "Contact a Framework Developer\n";
     }
-    principalCache_.insert(input_->readAndCacheRun(*historyAppender_));
+    boost::shared_ptr<RunPrincipal> rp(new RunPrincipal(input_->runAuxiliary(),
+                                                        preg_,
+                                                        *processConfiguration_,
+                                                        historyAppender_.get(),
+                                                        0));
+    input_->readRun(*rp, *historyAppender_);
+    principalCache_.insert(rp);
     return statemachine::Run(input_->reducedProcessHistoryID(), input_->run());
   }
 
   statemachine::Run EventProcessor::readAndMergeRun() {
     principalCache_.merge(input_->runAuxiliary(), preg_);
-    input_->readAndMergeRun(principalCache_.runPrincipalPtr());
+    input_->readAndMergeRun(*principalCache_.runPrincipalPtr());
     return statemachine::Run(input_->reducedProcessHistoryID(), input_->run());
   }
 
-  int EventProcessor::readAndCacheLumi() {
+  int EventProcessor::readLuminosityBlock() {
     if (principalCache_.hasLumiPrincipal()) {
       throw edm::Exception(edm::errors::LogicError)
-        << "EventProcessor::readAndCacheRun\n"
+        << "EventProcessor::readRun\n"
         << "Illegal attempt to insert lumi into cache\n"
         << "Contact a Framework Developer\n";
     }
     if (!principalCache_.hasRunPrincipal()) {
       throw edm::Exception(edm::errors::LogicError)
-        << "EventProcessor::readAndCacheRun\n"
+        << "EventProcessor::readRun\n"
         << "Illegal attempt to insert lumi into cache\n"
         << "Run is invalid\n"
         << "Contact a Framework Developer\n";
     }
-    principalCache_.insert(input_->readAndCacheLumi(*historyAppender_));
-    principalCache_.lumiPrincipalPtr()->setRunPrincipal(principalCache_.runPrincipalPtr());
+    boost::shared_ptr<LuminosityBlockPrincipal> lbp(new LuminosityBlockPrincipal(input_->luminosityBlockAuxiliary(),
+                                                                                 preg_,
+                                                                                 *processConfiguration_,
+                                                                                 historyAppender_.get(),
+                                                                                 0));
+    input_->readLuminosityBlock(*lbp, *historyAppender_);
+    lbp->setRunPrincipal(principalCache_.runPrincipalPtr());
+    principalCache_.insert(lbp);
     return input_->luminosityBlock();
   }
 
   int EventProcessor::readAndMergeLumi() {
     principalCache_.merge(input_->luminosityBlockAuxiliary(), preg_);
-    input_->readAndMergeLumi(principalCache_.lumiPrincipalPtr());
+    input_->readAndMergeLumi(*principalCache_.lumiPrincipalPtr());
     return input_->luminosityBlock();
   }
 
@@ -2276,7 +2298,6 @@ namespace edm {
   }
   void EventProcessor::processEvent(unsigned int iStreamIndex) {
     auto pep = &(principalCache_.eventPrincipal(iStreamIndex));
-  
     pep->setLuminosityBlockPrincipal(principalCache_.lumiPrincipalPtr());
     assert(pep->luminosityBlockPrincipalPtrValid());
     assert(principalCache_.lumiPrincipalPtr()->run() == pep->run());

@@ -9,6 +9,7 @@ Test of GenericHandle class.
 #include "DataFormats/Provenance/interface/EventAuxiliary.h"
 #include "DataFormats/Provenance/interface/LuminosityBlockAuxiliary.h"
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
+#include "DataFormats/Provenance/interface/ProcessHistoryRegistry.h"
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
 #include "DataFormats/Provenance/interface/RunAuxiliary.h"
 #include "DataFormats/Provenance/interface/Timestamp.h"
@@ -93,7 +94,8 @@ void testGenericHandle::failgetbyLabelTest() {
   branchIDListHelper->updateRegistries(*preg);
   edm::EventAuxiliary eventAux(id, uuid, time, true);
   edm::EventPrincipal ep(preg, branchIDListHelper, pc, &historyAppender_,edm::StreamID::invalidStreamID());
-  ep.fillEventPrincipal(eventAux);
+  edm::ProcessHistoryRegistry phr; 
+  ep.fillEventPrincipal(eventAux, phr);
   ep.setLuminosityBlockPrincipal(lbp);
   edm::GenericHandle h("edmtest::DummyProduct");
   bool didThrow=true;
@@ -182,7 +184,8 @@ void testGenericHandle::getbyLabelTest() {
   lbp->setRunPrincipal(rp);
   edm::EventAuxiliary eventAux(col, uuid, fakeTime, true);
   edm::EventPrincipal ep(pregc, branchIDListHelper, pc, &historyAppender_,edm::StreamID::invalidStreamID());
-  ep.fillEventPrincipal(eventAux);
+  edm::ProcessHistoryRegistry phr; 
+  ep.fillEventPrincipal(eventAux, phr);
   ep.setLuminosityBlockPrincipal(lbp);
   edm::BranchDescription const& branchFromRegistry = it->second;
   boost::shared_ptr<edm::Parentage> entryDescriptionPtr(new edm::Parentage);

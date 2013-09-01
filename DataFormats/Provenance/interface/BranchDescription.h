@@ -10,7 +10,6 @@ This description also applies to every product instance on the branch.
 #include "DataFormats/Provenance/interface/BranchID.h"
 #include "DataFormats/Provenance/interface/BranchType.h"
 #include "DataFormats/Provenance/interface/ParameterSetID.h"
-#include "DataFormats/Provenance/interface/ProcessConfigurationID.h"
 #include "DataFormats/Provenance/interface/ProductID.h"
 #include "DataFormats/Provenance/interface/ProvenanceFwd.h"
 #include "FWCore/Utilities/interface/TypeID.h"

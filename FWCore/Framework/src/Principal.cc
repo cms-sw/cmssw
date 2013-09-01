@@ -300,9 +300,9 @@ namespace edm {
   // "Zero" the principal so it can be reused for another Event.
   void
   Principal::clearPrincipal() {
-    processHistoryPtr_ = 0;
+    processHistoryPtr_ = nullptr;
     processHistoryID_ = ProcessHistoryID();
-    reader_ = 0;
+    reader_ = nullptr;
     for(auto const& prod : *this) {
       prod->resetProductData();
     }
@@ -322,24 +322,26 @@ namespace edm {
   
   // Set the principal for the Event, Lumi, or Run.
   void
-  Principal::fillPrincipal(ProcessHistoryID const& hist, DelayedReader* reader) {
+  Principal::fillPrincipal(ProcessHistoryID const& hist,
+                           ProcessHistoryRegistry& processHistoryRegistry,
+                           DelayedReader* reader) {
     if(reader) {
       reader_ = reader;
     }
 
-    ProcessHistory const* inputProcessHistory = 0;
+    ProcessHistory const* inputProcessHistory = nullptr;
     if (historyAppender_ && productRegistry().anyProductProduced()) {
       CachedHistory const& cachedHistory = 
         historyAppender_->appendToProcessHistory(hist,
-                                                *processConfiguration_);
+                                                *processConfiguration_,
+                                                processHistoryRegistry);
       processHistoryPtr_ = cachedHistory.processHistory();
       processHistoryID_ = cachedHistory.processHistoryID();
       inputProcessHistory = cachedHistory.inputProcessHistory();
     }
     else {
       if (hist.isValid()) {
-        ProcessHistoryRegistry* registry = ProcessHistoryRegistry::instance();
-        inputProcessHistory = registry->getMapped(hist);
+        inputProcessHistory = processHistoryRegistry.getMapped(hist);
         if (inputProcessHistory == 0) {
           throw Exception(errors::LogicError)
             << "Principal::fillPrincipal\n"

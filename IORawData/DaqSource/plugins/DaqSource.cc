@@ -124,7 +124,7 @@ namespace edm {
     if(lumiSegmentSizeInSeconds_ != 0) gettimeofday(&startOfLastLumi,0);
 
     // Initialize metadata, and save the process history ID for use every event.
-    phid_ = daqProvenanceHelper_.daqInit(productRegistryUpdate());
+    phid_ = daqProvenanceHelper_.daqInit(productRegistryUpdate(), processHistoryRegistryForUpdate());
 
   }
   
@@ -589,7 +589,7 @@ namespace edm {
     return luminosityBlockAuxiliary();
   }
 
-  EventPrincipal*
+  void
   DaqSource::readEvent_(EventPrincipal& eventPrincipal) {
     //    std::cout << "assert not newRun " << std::endl;
     assert(!newRun());
@@ -613,8 +613,8 @@ namespace edm {
 			    EventAuxiliary::invalidStoreNumber,
 			    orbitNumber_);
     eventAux.setProcessHistoryID(phid_);
-    eventPrincipal.fillEventPrincipal(eventAux);
-    
+    eventPrincipal.fillEventPrincipal(eventAux, processHistoryRegistryForUpdate());
+   
     // have fedCollection managed by a std::auto_ptr<>
     std::auto_ptr<FEDRawDataCollection> bare_product(fedCollection_);
 
@@ -628,7 +628,6 @@ namespace edm {
     // The commit is needed to complete the "put" transaction.
     e.commit_();
 */
-    return &eventPrincipal;
   }
 
   void
@@ -638,7 +637,7 @@ namespace edm {
         << "Contact a Framework developer.\n";
   }
 
-  EventPrincipal*
+  bool
   DaqSource::readIt(EventID const&) {
       throw edm::Exception(errors::LogicError,"DaqSource::readIt(EventID const& eventID)")
         << "Random access read cannot be used for DaqSource.\n"

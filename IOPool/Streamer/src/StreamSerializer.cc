@@ -12,7 +12,6 @@
 #include "DataFormats/Provenance/interface/SelectedProducts.h"
 #include "DataFormats/Provenance/interface/EventSelectionID.h"
 #include "DataFormats/Provenance/interface/BranchListIndex.h"
-#include "DataFormats/Provenance/interface/ProcessHistoryRegistry.h"
 #include "IOPool/Streamer/interface/ClassFiller.h"
 #include "IOPool/Streamer/interface/InitMsgBuilder.h"
 #include "FWCore/Framework/interface/ConstProductRegistry.h"

@@ -1,5 +1,4 @@
 #include "DataFormats/Provenance/interface/IndexIntoFile.h"
-#include "DataFormats/Provenance/interface/FullHistoryToReducedHistoryMap.h"
 #include "DataFormats/Provenance/interface/ProcessHistoryRegistry.h"
 #include "FWCore/Utilities/interface/Algorithms.h"
 #include "FWCore/Utilities/interface/EDMException.h"
@@ -321,9 +320,7 @@ namespace edm {
   }
 
   void
-  IndexIntoFile::reduceProcessHistoryIDs() {
-
-    FullHistoryToReducedHistoryMap const& phidConverter(ProcessHistoryRegistry::instance()->extra());
+  IndexIntoFile::reduceProcessHistoryIDs(ProcessHistoryRegistry const& processHistoryRegistry) {
 
     std::vector<ProcessHistoryID> reducedPHIDs;
 
@@ -334,7 +331,7 @@ namespace edm {
     std::vector<int> phidIndexConverter;
     for(auto const& phid : processHistoryIDs_) {
 
-      ProcessHistoryID const& reducedPHID = phidConverter.reducedProcessHistoryID(phid);
+      ProcessHistoryID const& reducedPHID = processHistoryRegistry.reducedProcessHistoryID(phid);
       mapEntry.first = reducedPHID;
       insertResult = reducedPHIDToIndex.insert(mapEntry);
 

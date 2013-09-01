@@ -37,6 +37,7 @@ namespace edm {
     SubProcess(ParameterSet& parameterSet,
                ParameterSet const& topLevelParameterSet,
                boost::shared_ptr<ProductRegistry const> parentProductRegistry,
+               ProcessHistoryRegistry& processHistoryRegistry,
                boost::shared_ptr<BranchIDListHelper const> parentBranchIDListHelper,
                eventsetup::EventSetupsController& esController,
                ActivityRegistry& parentActReg,
@@ -46,6 +47,9 @@ namespace edm {
                ProcessContext const* parentProcessContext);
 
     virtual ~SubProcess();
+
+    SubProcess(SubProcess const&) = delete; // Disallow copying and moving
+    SubProcess& operator=(SubProcess const&) = delete; // Disallow copying and moving
     
     //From OutputModule
     void selectProducts(ProductRegistry const& preg);
@@ -217,8 +221,9 @@ namespace edm {
     ServiceToken                                  serviceToken_;
     boost::shared_ptr<ProductRegistry const>      parentPreg_;
     boost::shared_ptr<ProductRegistry const>	  preg_;
+    ProcessHistoryRegistry&                       processHistoryRegistry_;
     boost::shared_ptr<BranchIDListHelper>         branchIDListHelper_;
-    std::unique_ptr<ExceptionToActionTable const>            act_table_;
+    std::unique_ptr<ExceptionToActionTable const> act_table_;
     boost::shared_ptr<ProcessConfiguration const> processConfiguration_;
     ProcessContext                                processContext_;
     PrincipalCache                                principalCache_;

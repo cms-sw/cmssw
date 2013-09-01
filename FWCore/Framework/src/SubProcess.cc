@@ -4,7 +4,6 @@
 #include "DataFormats/Provenance/interface/BranchID.h"
 #include "DataFormats/Provenance/interface/BranchIDListHelper.h"
 #include "DataFormats/Provenance/interface/EventSelectionID.h"
-#include "DataFormats/Provenance/interface/FullHistoryToReducedHistoryMap.h"
 #include "DataFormats/Provenance/interface/ProcessHistoryID.h"
 #include "DataFormats/Provenance/interface/ProcessHistoryRegistry.h"
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
@@ -36,6 +35,7 @@ namespace edm {
   SubProcess::SubProcess(ParameterSet& parameterSet,
                          ParameterSet const& topLevelParameterSet,
                          boost::shared_ptr<ProductRegistry const> parentProductRegistry,
+                         ProcessHistoryRegistry& processHistoryRegistry,
                          boost::shared_ptr<BranchIDListHelper const> parentBranchIDListHelper,
                          eventsetup::EventSetupsController& esController,
                          ActivityRegistry& parentActReg,
@@ -46,6 +46,7 @@ namespace edm {
       serviceToken_(),
       parentPreg_(parentProductRegistry),
       preg_(),
+      processHistoryRegistry_(processHistoryRegistry),
       branchIDListHelper_(),
       act_table_(),
       processConfiguration_(),
@@ -135,6 +136,7 @@ namespace edm {
     // set the items
     act_table_ = std::move(items.act_table_);
     preg_.reset(items.preg_.release());
+    principalCache_.setProcessHistoryRegistry(processHistoryRegistry_);
     branchIDListHelper_ = items.branchIDListHelper_;
     processConfiguration_ = items.processConfiguration_;
     processContext_.setProcessConfiguration(processConfiguration_.get());
@@ -142,13 +144,25 @@ namespace edm {
 
     principalCache_.setNumberOfConcurrentPrincipals(preallocConfig);
     for(unsigned int index = 0; index < preallocConfig.numberOfStreams(); ++index) {
-      boost::shared_ptr<EventPrincipal> ep(new EventPrincipal(preg_, branchIDListHelper_, *processConfiguration_, historyAppender_.get(),
-                                                            index));
+      boost::shared_ptr<EventPrincipal> ep(new EventPrincipal(preg_,
+                                                              branchIDListHelper_,
+                                                              *processConfiguration_,
+                                                              historyAppender_.get(),
+                                                              index));
       principalCache_.insert(ep,index);
     }
-
     if(subProcessParameterSet) {
-      subProcess_.reset(new SubProcess(*subProcessParameterSet, topLevelParameterSet, preg_, branchIDListHelper_, esController, *items.actReg_, newToken, iLegacy, preallocConfig, &processContext_));
+      subProcess_.reset(new SubProcess(*subProcessParameterSet,
+                                       topLevelParameterSet,
+                                       preg_,
+                                       processHistoryRegistry_,
+                                       branchIDListHelper_,
+                                       esController,
+                                       *items.actReg_,
+                                       newToken,
+                                       iLegacy,
+                                       preallocConfig,
+                                       &processContext_));
     }
   }
 
@@ -288,6 +302,7 @@ namespace edm {
     EventPrincipal& ep = principalCache_.eventPrincipal(principal.streamID().value());
     ep.setStreamID(principal.streamID());
     ep.fillEventPrincipal(aux,
+                          processHistoryRegistry_,
                           esids,
                           boost::shared_ptr<BranchListIndexes>(new BranchListIndexes(principal.branchListIndexes())),
                           principal.branchMapperPtr(),
@@ -311,12 +326,11 @@ namespace edm {
     boost::shared_ptr<RunAuxiliary> aux(new RunAuxiliary(principal.aux()));
     aux->setProcessHistoryID(principal.processHistoryID());
     boost::shared_ptr<RunPrincipal> rpp(new RunPrincipal(aux, preg_, *processConfiguration_, historyAppender_.get(),principal.index()));
-    rpp->fillRunPrincipal(principal.reader());
+    rpp->fillRunPrincipal(processHistoryRegistry_, principal.reader());
     principalCache_.insert(rpp);
 
-    FullHistoryToReducedHistoryMap const& phidConverter(ProcessHistoryRegistry::instance()->extra());
-    ProcessHistoryID const& parentInputReducedPHID = phidConverter.reducedProcessHistoryID(principal.aux().processHistoryID());
-    ProcessHistoryID const& inputReducedPHID       = phidConverter.reducedProcessHistoryID(principal.processHistoryID());
+    ProcessHistoryID const& parentInputReducedPHID = processHistoryRegistry_.reducedProcessHistoryID(principal.aux().processHistoryID());
+    ProcessHistoryID const& inputReducedPHID       = processHistoryRegistry_.reducedProcessHistoryID(principal.processHistoryID());
 
     parentToChildPhID_.insert(std::make_pair(parentInputReducedPHID,inputReducedPHID));
 
@@ -370,7 +384,7 @@ namespace edm {
     boost::shared_ptr<LuminosityBlockAuxiliary> aux(new LuminosityBlockAuxiliary(principal.aux()));
     aux->setProcessHistoryID(principal.processHistoryID());
     boost::shared_ptr<LuminosityBlockPrincipal> lbpp(new LuminosityBlockPrincipal(aux, preg_, *processConfiguration_, historyAppender_.get(),principal.index()));
-    lbpp->fillLuminosityBlockPrincipal(principal.reader());
+    lbpp->fillLuminosityBlockPrincipal(processHistoryRegistry_, principal.reader());
     lbpp->setRunPrincipal(principalCache_.runPrincipalPtr());
     principalCache_.insert(lbpp);
     LuminosityBlockPrincipal& lbp = *principalCache_.lumiPrincipalPtr();
@@ -486,7 +500,7 @@ namespace edm {
           thisData.wrapper_ = parentData.wrapper_;
           // Then the product ID and the ProcessHistory 
           thisData.prov_.setProductID(parentData.prov_.productID());
-          thisData.prov_.setProcessHistoryID(parentData.prov_.processHistoryID());
+          thisData.prov_.setProcessHistory(parentData.prov_.processHistory());
           // Then the store, in case the product needs reading in a subprocess.
           thisData.prov_.setStore(parentData.prov_.store());
           // And last, the other per event provenance.

@@ -13,19 +13,18 @@ namespace edm {
 
   CachedHistory const&
   HistoryAppender::appendToProcessHistory(ProcessHistoryID const& inputPHID,
-                                          ProcessConfiguration const& pc) {
+                                          ProcessConfiguration const& pc,
+                                          ProcessHistoryRegistry& processHistoryRegistry)  {
 
     if (previous_ != historyMap_.end() && inputPHID == previous_->first) return previous_->second;
 
     HistoryMap::iterator iter = historyMap_.find(inputPHID);
     if (iter != historyMap_.end()) return iter->second;
 
-    ProcessHistoryRegistry* registry = ProcessHistoryRegistry::instance();
-
     ProcessHistory const* inputProcessHistory = &emptyHistory_;
 
     if (inputPHID.isValid()) {
-      inputProcessHistory = registry->getMapped(inputPHID);
+      inputProcessHistory = processHistoryRegistry.getMapped(inputPHID);
       if (inputProcessHistory == nullptr) {
         throw Exception(errors::LogicError)
           << "HistoryAppender::appendToProcessHistory\n"
@@ -38,10 +37,10 @@ namespace edm {
     newProcessHistory = *inputProcessHistory;
     checkProcessHistory(newProcessHistory, pc);
     newProcessHistory.push_back(pc);
-    registerProcessHistory(newProcessHistory);
+    processHistoryRegistry.registerProcessHistory(newProcessHistory);
     ProcessHistoryID newProcessHistoryID = newProcessHistory.setProcessHistoryID();
     CachedHistory newValue(inputProcessHistory,
-                           registry->getMapped(newProcessHistoryID),
+                           processHistoryRegistry.getMapped(newProcessHistoryID),
                            newProcessHistoryID);
     std::pair<ProcessHistoryID, CachedHistory> newEntry(inputPHID, newValue);
     std::pair<HistoryMap::iterator, bool> result = historyMap_.insert(newEntry);
