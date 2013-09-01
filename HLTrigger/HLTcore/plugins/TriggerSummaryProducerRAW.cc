@@ -10,6 +10,7 @@
  */
 
 #include "HLTrigger/HLTcore/interface/TriggerSummaryProducerRAW.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Common/interface/OrphanHandle.h"
@@ -57,6 +58,12 @@ TriggerSummaryProducerRAW::~TriggerSummaryProducerRAW()
 //
 // member functions
 //
+
+void TriggerSummaryProducerRAW::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<std::string>("processName","@");
+  descriptions.add("triggerSummaryProducerRAW", desc);
+}
 
 // ------------ method called to produce the data  ------------
 void
