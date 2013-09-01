@@ -25,6 +25,7 @@ def LoadCommandlineOptions(argv):
   parser.add_option('--fakeRate','-f',action="store_true", dest="fakeRate", default=False, help="Sets the fake rate options and put the correct label (implies --logScale)")
   parser.add_option('--testLabel','-t',metavar='testLabel', type=str,help='Sets the label to put in the plots for test file',dest='testLabel',default = None)
   parser.add_option('--refLabel','-r',metavar='refLabel', type=str,help='Sets the label to put in the plots for ref file',dest='refLabel',default = None)
+  parser.add_option('--sampleLabel','-s',metavar='sampleLabel', type=str,help='Sets the label to indicate the sample used',dest='sampleLabel',default = None)
   parser.add_option('--maxLogX',metavar='number', type=float,help='Sets the maximum of the scale in log scale both in the main and in the sub pad (requires --logScale or -f to work)',dest='maxLogX',default = 100)
   parser.add_option('--minLogX',metavar='number', type=float,help='Sets the minimum of the scale in log scale (requires --logScale or -f to work)',dest='minLogX',default = 0.001)
   parser.add_option('--minLogY',metavar='number', type=float,help='Sets the minimum of the scale in log scale (requires --logScale or -f to work)',dest='minLogY',default = 0.0001)
@@ -39,7 +40,7 @@ def LoadCommandlineOptions(argv):
   parser.add_option('--normalize',action="store_true", dest="normalize", default=False, help="plot normalized")
   parser.add_option('--maxRange',metavar='number',type=float, dest="maxRange", default=1.6, help="Sets the maximum range in linear plots")
   parser.add_option('--maxXaxis',metavar='number',type=float, dest="maxXaxis", default=800, help="Sets the maximum range on x axis in the main pad")
-  parser.add_option('--minXaxis',metavar='number',type=float, dest="minXaxis", default=0, help="Sets the minimum range on x axis in the main pad")
+  parser.add_option('--minXaxis',metavar='number',type=float,help="Sets the minimum range on x axis in the main pad",dest="minXaxis", default=-3)
   parser.add_option('--maxYaxis',metavar='number',type=float, dest="maxYaxis", default=2, help="Sets the maximum range on Y axis in the main pad")
   parser.add_option('--minYaxis',metavar='number',type=float, dest="minYaxis", default=0, help="Sets the minimum range on Y axis in the main pad")
   parser.add_option('--rebin', dest="rebin", type=int, default=-1, help="Sets the rebinning scale")
@@ -174,7 +175,7 @@ def Rebin(tfile, histoPath, rebinVal):
     parents = FindParents(histoPath)
     num = tfile.Get(parents[0])
     if type(num) != TH1F:
-        print 'Looking for '+num
+        print 'Looking for ' + num
         print 'Plot now found! What the hell are you doing? Exiting...'
         sys.exit()
     denSingle = tfile.Get(parents[1])
@@ -226,7 +227,7 @@ def optimizeRangeMainPad(argv, pad, hists, maxLogX_, minX_, maxX_, maxLogY_, min
       minY = 0.001
   else:
     if minY < 0.7:
-      minY = 0 #start from zero if possible
+      minY = minY #start from zero if possible
     if maxY <= 1.1 and maxY > 0.7:
       maxY = 1.2 #prefere fixed range for easy comparison
   hists[0].SetAxisRange(minY, maxY, "Y")
@@ -245,7 +246,7 @@ def optimizeRangeMainPad(argv, pad, hists, maxLogX_, minX_, maxX_, maxLogY_, min
       minX = 0.001
   else:
     if minX < 0.7:
-      minX = 0 #start from zero if possible
+      minX = minX #start from zero if possible
     if maxX <= 1.1 and maxX > 0.7:
       maxX = 1.2 #prefere fixed range for easy comparison
   hists[0].SetAxisRange(minX, maxX, "X")
@@ -265,7 +266,7 @@ def optimizeRangeSubPad(argv, pad, hists, maxLogX_, minX_, maxX_, minYRatio_, ma
       minX = 0.001
   else:
     if minX < 0.7:
-      minX = 0 #start from zero if possible
+      minX = minX #start from zero if possible
     if maxX <= 1.1 and maxX > 0.7:
       maxX = 1.2 #prefere fixed range for easy comparison
   hists[0].SetAxisRange(minX, maxX, "X")
@@ -401,8 +402,10 @@ def main(argv=None):
   #effPad.SetRightMargin(0.07)
   effPad.Draw()
   header = ''
+  if options.sampleLabel != None:
+    header += 'Sample: '+options.sampleLabel
   if options.testLabel != None:
-    header += 'Dots: '+options.testLabel
+    header += ' Dots: '+options.testLabel
   if options.refLabel != None:
     header += ' Line: '+options.refLabel
   DrawTitle(header)
@@ -438,7 +441,7 @@ def main(argv=None):
       testH.GetXaxis().SetTitle(label+': '+testH.GetXaxis().GetTitle())
     testH.GetXaxis().SetTitleOffset(1.1)
     testH.GetXaxis().SetRangeUser(options.minXaxis,options.maxXaxis)
-    testH.GetYaxis().SetTitleOffset(1.5)
+    testH.GetYaxis().SetTitleOffset(1.1)
     #testH.GetYaxis().SetTitleSize(0.08)
     #testH.GetYaxis().CenterTitle()
     testH.SetMarkerSize(1)
@@ -494,8 +497,8 @@ def main(argv=None):
     if drawStats:
       text = statsBox.AddText(statTemplate % ('Line',refH.GetMean(), refH.GetRMS()) )
       text.SetTextColor(color)
-    refH.SetFillColor(color)
-    refH.SetFillStyle(3001)
+    #refH.SetFillColor(color)
+    #refH.SetFillStyle(3001)
     if scaleToIntegral:
         entries = testH.GetEntries()
         if entries > 0:
@@ -504,7 +507,7 @@ def main(argv=None):
         refH.Sumw2()
         if entries > 0:
           refH.Scale(1./entries)
-    refH.Draw('same e3')
+    refH.Draw('same hist')
     divHistos.append(Divide(testH,refH))
 
     if options.maxLogY > 0:
