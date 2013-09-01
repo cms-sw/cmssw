@@ -124,9 +124,10 @@ namespace edm {
       }
 
       void doBeginRun(RunPrincipal& rp,
-                      EventSetup const& c) override final {
+                      EventSetup const& c,
+                      ModuleCallingContext const* mcc) override final {
         if(T::HasAbility::kRunCache or T::HasAbility::kRunSummaryCache) {
-          Run r(rp, moduleDescription());
+          Run r(rp, moduleDescription(), mcc);
           r.setConsumer(consumer());
           Run const& cnstR = r;
           RunIndex ri = rp.index();
@@ -136,11 +137,12 @@ namespace edm {
         }
       }
       void doEndRun(RunPrincipal& rp,
-                    EventSetup const& c) override final
+                    EventSetup const& c,
+                    ModuleCallingContext const* mcc) override final
       {
         if(T::HasAbility::kRunCache or T::HasAbility::kRunSummaryCache) {
           
-          Run r(rp, moduleDescription());
+          Run r(rp, moduleDescription(), mcc);
           r.setConsumer(consumer());
 
           RunIndex ri = rp.index();
@@ -150,10 +152,12 @@ namespace edm {
         }
       }
 
-      void doBeginLuminosityBlock(LuminosityBlockPrincipal& lbp, EventSetup const& c) override final
+      void doBeginLuminosityBlock(LuminosityBlockPrincipal& lbp,
+                                  EventSetup const& c,
+                                  ModuleCallingContext const* mcc) override final
       {
         if(T::HasAbility::kLuminosityBlockCache or T::HasAbility::kLuminosityBlockSummaryCache) {
-          LuminosityBlock lb(lbp, moduleDescription());
+          LuminosityBlock lb(lbp, moduleDescription(), mcc);
           lb.setConsumer(consumer());
           LuminosityBlock const& cnstLb = lb;
           LuminosityBlockIndex li = lbp.index();
@@ -166,10 +170,11 @@ namespace edm {
         
       }
       void doEndLuminosityBlock(LuminosityBlockPrincipal& lbp,
-                                EventSetup const& c) override final {
+                                EventSetup const& c,
+                                ModuleCallingContext const* mcc) override final {
         if(T::HasAbility::kLuminosityBlockCache or T::HasAbility::kLuminosityBlockSummaryCache) {
           
-          LuminosityBlock lb(lbp, moduleDescription());
+          LuminosityBlock lb(lbp, moduleDescription(), mcc);
           lb.setConsumer(consumer());
           
           LuminosityBlockIndex li = lbp.index();
