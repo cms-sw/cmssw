@@ -22,7 +22,6 @@
 #include "DataFormats/Provenance/interface/EventID.h"
 #include "DataFormats/Provenance/interface/ParameterSetBlob.h"
 #include "DataFormats/Provenance/interface/ParameterSetID.h"
-#include "DataFormats/Provenance/interface/ProcessHistoryRegistry.h"
 #include "DataFormats/Provenance/interface/ProcessHistoryID.h"
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
 #include "FWCore/Framework/interface/ConstProductRegistry.h"
@@ -92,6 +91,7 @@ namespace edm {
       runTree_(filePtr_, InRun, om_->splitLevel(), om_->treeMaxVirtualSize()),
       treePointers_(),
       dataTypeReported_(false),
+      processHistoryRegistry_(),
       parentageIDs_(),
       branchesWithStoredHistory_() {
 #if ROOT_VERSION_CODE >= ROOT_VERSION(5,30,0)
@@ -408,8 +408,10 @@ namespace edm {
       dataTypeReported_ = true;
     }
 
+    // Store the process history.
+    processHistoryRegistry_.registerProcessHistory(e.processHistory());
     // Store the reduced ID in the IndexIntoFile
-    ProcessHistoryID reducedPHID = ProcessHistoryRegistry::instance()->extra().reducedProcessHistoryID(e.processHistoryID());
+    ProcessHistoryID reducedPHID = processHistoryRegistry_.reducedProcessHistoryID(e.processHistoryID());
     // Add event to index
     indexIntoFile_.addEntry(reducedPHID, pEventAux_->run(), pEventAux_->luminosityBlock(), pEventAux_->event(), eventEntryNumber_);
     ++eventEntryNumber_;
@@ -425,8 +427,10 @@ namespace edm {
     lumiAux_ = lb.aux();
     // Use the updated process historyID
     lumiAux_.setProcessHistoryID(lb.processHistoryID());
+    // Store the process history.
+    processHistoryRegistry_.registerProcessHistory(lb.processHistory());
     // Store the reduced ID in the IndexIntoFile
-    ProcessHistoryID reducedPHID = ProcessHistoryRegistry::instance()->extra().reducedProcessHistoryID(lb.processHistoryID());
+    ProcessHistoryID reducedPHID = processHistoryRegistry_.reducedProcessHistoryID(lb.processHistoryID());
     // Add lumi to index.
     indexIntoFile_.addEntry(reducedPHID, lumiAux_.run(), lumiAux_.luminosityBlock(), 0U, lumiEntryNumber_);
     ++lumiEntryNumber_;
@@ -440,8 +444,10 @@ namespace edm {
     runAux_ = r.aux();
     // Use the updated process historyID
     runAux_.setProcessHistoryID(r.processHistoryID());
+    // Store the process history.
+    processHistoryRegistry_.registerProcessHistory(r.processHistory());
     // Store the reduced ID in the IndexIntoFile
-    ProcessHistoryID reducedPHID = ProcessHistoryRegistry::instance()->extra().reducedProcessHistoryID(r.processHistoryID());
+    ProcessHistoryID reducedPHID = processHistoryRegistry_.reducedProcessHistoryID(r.processHistoryID());
     // Add run to index.
     indexIntoFile_.addEntry(reducedPHID, runAux_.run(), 0U, 0U, runEntryNumber_);
     ++runEntryNumber_;
@@ -506,10 +512,8 @@ namespace edm {
   }
 
   void RootOutputFile::writeProcessHistoryRegistry() {
-    typedef ProcessHistoryRegistry::collection_type Map;
-    Map const& procHistoryMap = ProcessHistoryRegistry::instance()->data();
     ProcessHistoryVector procHistoryVector;
-    for(auto const& ph : procHistoryMap) {
+    for(auto const& ph : processHistoryRegistry_) {
       procHistoryVector.push_back(ph.second);
     }
     ProcessHistoryVector* p = &procHistoryVector;

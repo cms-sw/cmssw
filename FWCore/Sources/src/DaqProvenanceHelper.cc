@@ -1,4 +1,5 @@
 #include <algorithm>
+#include <cassert>
 #include <vector>
 
 #include "FWCore/Sources/interface/DaqProvenanceHelper.h"
@@ -73,7 +74,7 @@ namespace edm {
   }
 
   ProcessHistoryID
-  DaqProvenanceHelper::daqInit(ProductRegistry& productRegistry) const {
+  DaqProvenanceHelper::daqInit(ProductRegistry& productRegistry, ProcessHistoryRegistry& processHistoryRegistry) const {
     // Now we need to set all the metadata
     // Add the product to the product registry  
     productRegistry.copyProduct(constBranchDescription_);
@@ -81,7 +82,7 @@ namespace edm {
     // Insert an entry for this process in the process history registry
     ProcessHistory ph;
     ph.emplace_back(constBranchDescription_.processName(), processParameterSet_.id(), getReleaseVersion(), getPassID());
-    registerProcessHistory(ph);
+    processHistoryRegistry.registerProcessHistory(ph);
 
     // Save the process history ID for use every event.
     return ph.setProcessHistoryID();

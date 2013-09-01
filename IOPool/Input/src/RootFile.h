@@ -40,6 +40,7 @@ namespace edm {
   class DaqProvenanceHelper;
   class DuplicateChecker;
   class EventSkipperByID;
+  class ProcessHistoryRegistry;
   class ProductSelectorRules;
   class InputFile;
   class ProvenanceReaderBase;
@@ -72,6 +73,7 @@ namespace edm {
              boost::shared_ptr<BranchIDListHelper> branchIDListHelper,
              boost::shared_ptr<DuplicateChecker> duplicateChecker,
              bool dropDescendantsOfDroppedProducts,
+             ProcessHistoryRegistry& processHistoryRegistry,
              std::vector<boost::shared_ptr<IndexIntoFile> > const& indexesIntoFiles,
              std::vector<boost::shared_ptr<IndexIntoFile> >::size_type currentIndexIntoFile,
              std::vector<ProcessHistoryID>& orderedProcessHistoryIDs,
@@ -85,13 +87,13 @@ namespace edm {
 
     void reportOpened(std::string const& inputType);
     void close();
-    EventPrincipal* readCurrentEvent(EventPrincipal& cache);
-    EventPrincipal* readEvent(EventPrincipal& cache);
+    bool readCurrentEvent(EventPrincipal& cache);
+    void readEvent(EventPrincipal& cache);
 
     boost::shared_ptr<LuminosityBlockAuxiliary> readLuminosityBlockAuxiliary_();
     boost::shared_ptr<RunAuxiliary> readRunAuxiliary_();
-    boost::shared_ptr<RunPrincipal> readRun_(boost::shared_ptr<RunPrincipal> runPrincipal);
-    boost::shared_ptr<LuminosityBlockPrincipal> readLumi(boost::shared_ptr<LuminosityBlockPrincipal> lumiPrincipal);
+    void readRun_(RunPrincipal& runPrincipal);
+    void readLuminosityBlock_(LuminosityBlockPrincipal& lumiPrincipal);
     std::string const& file() const {return file_;}
     boost::shared_ptr<ProductRegistry const> productRegistry() const {return productRegistry_;}
     boost::shared_ptr<BranchIDListHelper const> branchIDListHelper() const {return branchIDListHelper_;}
@@ -172,6 +174,7 @@ namespace edm {
     std::string const file_;
     std::string const logicalFile_;
     ProcessConfiguration const& processConfiguration_;
+    ProcessHistoryRegistry* processHistoryRegistry_;  // We don't own this
     boost::shared_ptr<InputFile> filePtr_;
     boost::shared_ptr<EventSkipperByID> eventSkipperByID_;
     FileFormatVersion fileFormatVersion_;

@@ -180,6 +180,7 @@ The interface is too complex for general use.
 
 namespace edm {
 
+  class ProcessHistoryRegistry;
   class RootFile;
 
   class IndexIntoFile {
@@ -983,7 +984,7 @@ namespace edm {
       /// Used for backward compatibility to convert objects created with releases
       /// that used the full ProcessHistoryID in IndexIntoFile to use the reduced
       /// ProcessHistoryID.
-      void reduceProcessHistoryIDs();
+      void reduceProcessHistoryIDs(ProcessHistoryRegistry const& processHistoryRegistry);
 
       //*****************************************************************************
       //*****************************************************************************

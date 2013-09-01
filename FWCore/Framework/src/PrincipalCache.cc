@@ -98,7 +98,7 @@ namespace edm {
         << "Contact a Framework Developer\n";
     }
     if (inputProcessHistoryID_ != aux->processHistoryID()) {
-      if (reducedInputProcessHistoryID_ != ProcessHistoryRegistry::instance()->extra().reducedProcessHistoryID(aux->processHistoryID())) {
+      if (reducedInputProcessHistoryID_ != processHistoryRegistry_->reducedProcessHistoryID(aux->processHistoryID())) {
         throw edm::Exception(edm::errors::LogicError)
           << "PrincipalCache::merge\n"
           << "Illegal attempt to merge run into cache\n"
@@ -128,7 +128,7 @@ namespace edm {
         << "Contact a Framework Developer\n";
     }
     if (inputProcessHistoryID_ != aux->processHistoryID()) {
-      if (reducedInputProcessHistoryID_ != ProcessHistoryRegistry::instance()->extra().reducedProcessHistoryID(aux->processHistoryID())) {
+      if (reducedInputProcessHistoryID_ != processHistoryRegistry_->reducedProcessHistoryID(aux->processHistoryID())) {
         throw edm::Exception(edm::errors::LogicError)
           << "PrincipalCache::merge\n"
           << "Illegal attempt to merge run into cache\n"
@@ -158,7 +158,7 @@ namespace edm {
         << "Contact a Framework Developer\n";
     }
     if (inputProcessHistoryID_ != rp->aux().processHistoryID()) {
-      reducedInputProcessHistoryID_ = ProcessHistoryRegistry::instance()->extra().reducedProcessHistoryID(rp->aux().processHistoryID());
+      reducedInputProcessHistoryID_ = processHistoryRegistry_->reducedProcessHistoryID(rp->aux().processHistoryID());
       inputProcessHistoryID_ = rp->aux().processHistoryID();
     }
     run_ = rp->run();
@@ -180,7 +180,7 @@ namespace edm {
         << "Contact a Framework Developer\n";
     }
     if (inputProcessHistoryID_ != lbp->aux().processHistoryID()) {
-      if (reducedInputProcessHistoryID_ != ProcessHistoryRegistry::instance()->extra().reducedProcessHistoryID(lbp->aux().processHistoryID())) {
+      if (reducedInputProcessHistoryID_ != processHistoryRegistry_->reducedProcessHistoryID(lbp->aux().processHistoryID())) {
         throw edm::Exception(edm::errors::LogicError)
           << "PrincipalCache::insert\n"
           << "Illegal attempt to insert lumi into cache\n"

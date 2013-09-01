@@ -36,6 +36,7 @@ namespace edm {
   class HistoryAppender;
   class LuminosityBlockPrincipal;
   class ModuleCallingContext;
+  class ProcessHistoryRegistry;
   class RunPrincipal;
   class UnscheduledHandler;
 
@@ -56,6 +57,7 @@ namespace edm {
     ~EventPrincipal() {}
 
     void fillEventPrincipal(EventAuxiliary const& aux,
+        ProcessHistoryRegistry& processHistoryRegistry,
         boost::shared_ptr<EventSelectionIDVector> eventSelectionIDs = boost::shared_ptr<EventSelectionIDVector>(),
         boost::shared_ptr<BranchListIndexes> branchListIndexes = boost::shared_ptr<BranchListIndexes>(),
         boost::shared_ptr<BranchMapper> mapper = boost::shared_ptr<BranchMapper>(new BranchMapper),

@@ -8,7 +8,6 @@ ModuleDescription: The description of a producer module.
 ----------------------------------------------------------------------*/
 #include "DataFormats/Provenance/interface/ParameterSetID.h"
 #include "DataFormats/Provenance/interface/ProcessConfiguration.h"
-#include "DataFormats/Provenance/interface/ProcessConfigurationID.h"
 
 #include "boost/shared_ptr.hpp"
 

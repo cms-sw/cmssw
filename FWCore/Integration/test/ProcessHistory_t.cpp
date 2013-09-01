@@ -34,6 +34,7 @@ bool checkRunOrLumiEntry(edm::IndexIntoFile::RunOrLumiEntry const& rl,
 }
 
 int main() try {
+  edm::ProcessHistoryRegistry processHistoryRegistry;
   edm::ParameterSet dummyPset;
   edm::ParameterSetID psetID;
   dummyPset.registerIt();
@@ -140,12 +141,12 @@ int main() try {
   assert(phTest.id() == phTestExpected.id());
   assert(phTest.id() != pnl3.id());
 
-  registerProcessHistory(pnl3);
-  edm::ProcessHistoryID reducedPHID = edm::ProcessHistoryRegistry::instance()->extra().reducedProcessHistoryID(pnl3.id());
+  processHistoryRegistry.registerProcessHistory(pnl3);
+  edm::ProcessHistoryID reducedPHID = processHistoryRegistry.reducedProcessHistoryID(pnl3.id());
   assert(reducedPHID == phTest.id());
 
-  registerProcessHistory(pnl2);
-  reducedPHID = edm::ProcessHistoryRegistry::instance()->extra().reducedProcessHistoryID(pnl2.id());
+  processHistoryRegistry.registerProcessHistory(pnl2);
+  reducedPHID = processHistoryRegistry.reducedProcessHistoryID(pnl2.id());
   pnl2.reduce();
   assert(reducedPHID == pnl2.id());
 
@@ -190,14 +191,14 @@ int main() try {
     edm::ProcessHistoryID phid3 = ph3.setProcessHistoryID();
     edm::ProcessHistoryID phid4 = ph4.setProcessHistoryID();
 
-    edm::registerProcessHistory(ph1);
-    edm::registerProcessHistory(ph1a);
-    edm::registerProcessHistory(ph1b);
-    edm::registerProcessHistory(ph2);
-    edm::registerProcessHistory(ph2a);
-    edm::registerProcessHistory(ph2b);
-    edm::registerProcessHistory(ph3);
-    edm::registerProcessHistory(ph4);
+    processHistoryRegistry.registerProcessHistory(ph1);
+    processHistoryRegistry.registerProcessHistory(ph1a);
+    processHistoryRegistry.registerProcessHistory(ph1b);
+    processHistoryRegistry.registerProcessHistory(ph2);
+    processHistoryRegistry.registerProcessHistory(ph2a);
+    processHistoryRegistry.registerProcessHistory(ph2b);
+    processHistoryRegistry.registerProcessHistory(ph3);
+    processHistoryRegistry.registerProcessHistory(ph4);
 
     edm::IndexIntoFile indexIntoFile;
     indexIntoFile.addEntry(phid1, 1, 0, 0, 0);
@@ -207,7 +208,7 @@ int main() try {
 
     indexIntoFile.sortVector_Run_Or_Lumi_Entries();
 
-    indexIntoFile.reduceProcessHistoryIDs();
+    indexIntoFile.reduceProcessHistoryIDs(processHistoryRegistry);
 
     edm::ProcessHistory rph1 = ph1;
     edm::ProcessHistory rph1a = ph1a;
@@ -261,7 +262,7 @@ int main() try {
     std::vector<edm::ProcessHistoryID> const& v1 = indexIntoFile1.processHistoryIDs();
     assert(v1.size() == 8U);
 
-    indexIntoFile1.reduceProcessHistoryIDs();
+    indexIntoFile1.reduceProcessHistoryIDs(processHistoryRegistry);
 
     std::vector<edm::ProcessHistoryID> const& rv1 = indexIntoFile1.processHistoryIDs();
     assert(rv1.size() == 4U);

@@ -120,10 +120,10 @@ namespace edm {
     Provenance* provenance() const;
 
     // Initializes the event independent portion of the provenance, plus the process history ID, the product ID, and the mapper.
-    void setProvenance(boost::shared_ptr<BranchMapper> mapper, ProcessHistoryID const& phid, ProductID const& pid) { setProvenance_(mapper, phid, pid); }
+    void setProvenance(boost::shared_ptr<BranchMapper> mapper, ProcessHistory const& ph, ProductID const& pid) { setProvenance_(mapper, ph, pid); }
 
-    // Initializes the process history ID.
-    void setProcessHistoryID(ProcessHistoryID const& phid) { setProcessHistoryID_(phid); }
+    // Initializes the process history.
+    void setProcessHistory(ProcessHistory const& ph) { setProcessHistory_(ph); }
 
     // Write the product to the stream.
     void write(std::ostream& os) const;
@@ -193,8 +193,8 @@ namespace edm {
     virtual BranchDescription const& branchDescription_() const = 0;
     virtual void resetBranchDescription_(boost::shared_ptr<BranchDescription const> bd) = 0;
     virtual std::string const& resolvedModuleLabel_() const = 0;
-    virtual void setProvenance_(boost::shared_ptr<BranchMapper> mapper, ProcessHistoryID const& phid, ProductID const& pid) = 0;
-    virtual void setProcessHistoryID_(ProcessHistoryID const& phid) = 0;
+    virtual void setProvenance_(boost::shared_ptr<BranchMapper> mapper, ProcessHistory const& ph, ProductID const& pid) = 0;
+    virtual void setProcessHistory_(ProcessHistory const& ph) = 0;
     virtual ProductProvenance* productProvenancePtr_() const = 0;
     virtual void resetProductData_() = 0;
     virtual bool singleProduct_() const = 0;
@@ -247,8 +247,8 @@ namespace edm {
       virtual BranchDescription const& branchDescription_() const {return *productData().branchDescription();}
       virtual void resetBranchDescription_(boost::shared_ptr<BranchDescription const> bd) {productData().resetBranchDescription(bd);}
       virtual std::string const& resolvedModuleLabel_() const {return moduleLabel();}
-      virtual void setProvenance_(boost::shared_ptr<BranchMapper> mapper, ProcessHistoryID const& phid, ProductID const& pid);
-      virtual void setProcessHistoryID_(ProcessHistoryID const& phid);
+      virtual void setProvenance_(boost::shared_ptr<BranchMapper> mapper, ProcessHistory const& ph, ProductID const& pid);
+      virtual void setProcessHistory_(ProcessHistory const& ph);
       virtual ProductProvenance* productProvenancePtr_() const;
       virtual void resetProductData_();
       virtual bool singleProduct_() const;
@@ -297,8 +297,8 @@ namespace edm {
       virtual BranchDescription const& branchDescription_() const {return *productData().branchDescription();}
       virtual void resetBranchDescription_(boost::shared_ptr<BranchDescription const> bd) {productData().resetBranchDescription(bd);}
       virtual std::string const& resolvedModuleLabel_() const {return moduleLabel();}
-      virtual void setProvenance_(boost::shared_ptr<BranchMapper> mapper, ProcessHistoryID const& phid, ProductID const& pid);
-      virtual void setProcessHistoryID_(ProcessHistoryID const& phid);
+      virtual void setProvenance_(boost::shared_ptr<BranchMapper> mapper, ProcessHistory const& ph, ProductID const& pid);
+      virtual void setProcessHistory_(ProcessHistory const& ph);
       virtual ProductProvenance* productProvenancePtr_() const;
       virtual void resetProductData_();
       virtual bool singleProduct_() const;
@@ -423,8 +423,8 @@ namespace edm {
       virtual BranchDescription const& branchDescription_() const {return *bd_;}
       virtual void resetBranchDescription_(boost::shared_ptr<BranchDescription const> bd) {bd_ = bd;}
       virtual std::string const& resolvedModuleLabel_() const {return realProduct_.moduleLabel();}
-      virtual void setProvenance_(boost::shared_ptr<BranchMapper> mapper, ProcessHistoryID const& phid, ProductID const& pid);
-      virtual void setProcessHistoryID_(ProcessHistoryID const& phid);
+      virtual void setProvenance_(boost::shared_ptr<BranchMapper> mapper, ProcessHistory const& ph, ProductID const& pid);
+      virtual void setProcessHistory_(ProcessHistory const& ph);
       virtual ProductProvenance* productProvenancePtr_() const;
       virtual void resetProductData_();
       virtual bool singleProduct_() const;
@@ -461,8 +461,8 @@ namespace edm {
       virtual BranchDescription const& branchDescription_() const;
       virtual void resetBranchDescription_(boost::shared_ptr<BranchDescription const> bd);
       virtual std::string const& resolvedModuleLabel_() const {return moduleLabel();}
-      virtual void setProvenance_(boost::shared_ptr<BranchMapper> mapper, ProcessHistoryID const& phid, ProductID const& pid);
-      virtual void setProcessHistoryID_(ProcessHistoryID const& phid);
+      virtual void setProvenance_(boost::shared_ptr<BranchMapper> mapper, ProcessHistory const& ph, ProductID const& pid);
+      virtual void setProcessHistory_(ProcessHistory const& ph);
       virtual ProductProvenance* productProvenancePtr_() const;
       virtual void resetProductData_();
       virtual bool singleProduct_() const;

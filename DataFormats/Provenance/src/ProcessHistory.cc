@@ -48,12 +48,13 @@ namespace edm {
     return false;				    
   }
 
-  void
+  ProcessHistory&
   ProcessHistory::reduce() {
     phid() = ProcessHistoryID();
     for(auto& item : data_) {
       item.reduce();
     }
+    return *this;
   }
 
   bool

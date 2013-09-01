@@ -42,7 +42,7 @@ LHESource::LHESource(const edm::ParameterSet &params,
         nextEvent();
         lheProvenanceHelper_.lheAugment(runInfo.get());
 	// Initialize metadata, and save the process history ID for use every event.
-	phid_ = lheProvenanceHelper_.lheInit(productRegistryUpdate());
+	phid_ = lheProvenanceHelper_.lheInit(productRegistryUpdate(), processHistoryRegistryForUpdate());
 
         // These calls are not wanted, because the principals are used for putting the products.
 	//produces<LHEEventProduct>();
@@ -79,19 +79,17 @@ void LHESource::nextEvent()
 }
 
 // This is the only way we can now access the run principal.
-boost::shared_ptr<edm::RunPrincipal>
-LHESource::readRun_(boost::shared_ptr<edm::RunPrincipal> runPrincipal) {
+void
+LHESource::readRun_(edm::RunPrincipal& runPrincipal) {
   runAuxiliary()->setProcessHistoryID(phid_);
-  runPrincipal->fillRunPrincipal();
-  runPrincipal_ = runPrincipal;
-  return runPrincipal;
+  runPrincipal.fillRunPrincipal(processHistoryRegistryForUpdate());
+  runPrincipal_ = &runPrincipal;
 }
 
-boost::shared_ptr<edm::LuminosityBlockPrincipal>
-LHESource::readLuminosityBlock_(boost::shared_ptr<edm::LuminosityBlockPrincipal> lumiPrincipal) {
+void
+LHESource::readLuminosityBlock_(edm::LuminosityBlockPrincipal& lumiPrincipal) {
   luminosityBlockAuxiliary()->setProcessHistoryID(phid_);
-  lumiPrincipal->fillLuminosityBlockPrincipal();
-  return lumiPrincipal;
+  lumiPrincipal.fillLuminosityBlockPrincipal(processHistoryRegistryForUpdate());
 }
 
 void LHESource::beginRun(edm::Run&)
@@ -130,7 +128,7 @@ void LHESource::endRun(edm::Run&)
                 edm::WrapperOwningHolder rdp(new edm::Wrapper<LHERunInfoProduct>(product), edm::Wrapper<LHERunInfoProduct>::getInterface());
 		runPrincipal_->put(lheProvenanceHelper_.runProductBranchDescription_, rdp);
 	}
-	runPrincipal_.reset();
+	runPrincipal_ = nullptr;
 }
 
 bool LHESource::setRunAndEventInfo(edm::EventID&, edm::TimeValue_t&)
@@ -142,13 +140,13 @@ bool LHESource::setRunAndEventInfo(edm::EventID&, edm::TimeValue_t&)
         return true;
 }
 
-edm::EventPrincipal*
+void
 LHESource::readEvent_(edm::EventPrincipal& eventPrincipal) {
 	assert(eventCached() || processingMode() != RunsLumisAndEvents);
 	EventSourceSentry sentry(*this);
 	edm::EventAuxiliary aux(eventID(), processGUID(), edm::Timestamp(presentTime()), false);
 	aux.setProcessHistoryID(phid_);
-	eventPrincipal.fillEventPrincipal(aux);
+	eventPrincipal.fillEventPrincipal(aux, processHistoryRegistryForUpdate());
 
 	std::auto_ptr<LHEEventProduct> product(
 			new LHEEventProduct(*partonLevel->getHEPEUP()));
@@ -191,7 +189,6 @@ LHESource::readEvent_(edm::EventPrincipal& eventPrincipal) {
 	partonLevel.reset();
 
 	resetEventCached();
-	return &eventPrincipal;
 }
 
 DEFINE_FWK_INPUT_SOURCE(LHESource);
