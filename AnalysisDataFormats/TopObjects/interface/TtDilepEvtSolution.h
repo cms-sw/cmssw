@@ -1,5 +1,4 @@
 //
-// $Id: TtDilepEvtSolution.h,v 1.22 2008/12/18 21:20:10 rwolf Exp $
 //
 
 #ifndef TopObjects_TtDilepEvtSolution_h
