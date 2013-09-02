@@ -1,5 +1,5 @@
 //
-// $Id: Muon.cc,v 1.32.2.2 2012/12/25 09:10:37 bellan Exp $
+// $Id: Muon.cc,v 1.32.2.3 2013/01/24 13:17:36 bellan Exp $
 //
 
 #include "DataFormats/PatCandidates/interface/Muon.h"
@@ -434,7 +434,7 @@ bool Muon::isHighPtMuon(const reco::Vertex& vtx, TunePType tunePType) const{
     reco::TrackRef cktTrack = (muon::tevOptimized(*this, 200, 17., 40., 0.25)).first;
     bool momQuality = cktTrack->ptError()/cktTrack->pt() < 0.3;
     
-    bool hits = innerTrack()->hitPattern().trackerLayersWithMeasurement() > 8 &&
+    bool hits = innerTrack()->hitPattern().trackerLayersWithMeasurement() > 5 &&
       innerTrack()->hitPattern().numberOfValidPixelHits() > 0; 
   
     bool ip = fabs(cktTrack->dxy(vtx.position())) < 0.2 && fabs(cktTrack->dz(vtx.position())) < 0.5;
@@ -445,7 +445,7 @@ bool Muon::isHighPtMuon(const reco::Vertex& vtx, TunePType tunePType) const{
     // Get the optimized track
     reco::TrackRef cktTrack = (muon::tevOptimized(*this, 200, 4., 6., -1)).first;
     
-    bool hits = innerTrack()->hitPattern().trackerLayersWithMeasurement() > 5 &&
+    bool hits = innerTrack()->hitPattern().trackerLayersWithMeasurement() > 8 &&
       innerTrack()->hitPattern().numberOfValidPixelHits() > 0; 
     
     bool ip = fabs(cktTrack->dxy(vtx.position())) < 0.2 && fabs(cktTrack->dz(vtx.position())) < 0.5;

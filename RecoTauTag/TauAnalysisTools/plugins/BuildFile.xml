@@ -9,7 +9,6 @@
 <use name="DataFormats/Common"/>
 <use name="FWCore/ServiceRegistry"/>
 <use name="CommonTools/UtilAlgos"/>
-<use name="L1Trigger/UCT2015"/>
 <use name="PhysicsTools/UtilAlgos"/>
 <use name="boost"/>
 <use name="FWCore/Utilities"/>

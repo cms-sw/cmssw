@@ -1,5 +1,5 @@
 //
-// $Id: MET.cc,v 1.15 2010/08/09 14:39:02 mbluj Exp $
+// $Id: MET.cc,v 1.16 2013/02/19 16:18:45 vadler Exp $
 //
 
 #include "DataFormats/PatCandidates/interface/MET.h"
@@ -58,25 +58,25 @@ void MET::setGenMET(const reco::GenMET & gm) {
 //! return uncorrrection related stuff
 unsigned int MET::nCorrections() const { checkUncor_(); return nCorrections_; }
 
-float MET::corEx(UncorrectionType ix) const { 
+float MET::corEx(UncorrectionType ix) const {
   if (ix == uncorrNONE) return 0;
-  checkUncor_(); return uncorInfo_[ix].corEx; 
+  checkUncor_(); return uncorInfo_[ix].corEx;
 }
-float MET::corEy(UncorrectionType ix) const { 
+float MET::corEy(UncorrectionType ix) const {
   if (ix == uncorrNONE) return 0;
-  checkUncor_(); return uncorInfo_[ix].corEy; 
+  checkUncor_(); return uncorInfo_[ix].corEy;
 }
-float MET::corSumEt(UncorrectionType ix) const { 
+float MET::corSumEt(UncorrectionType ix) const {
   if (ix == uncorrNONE) return 0;
-  checkUncor_(); return uncorInfo_[ix].corSumEt; 
+  checkUncor_(); return uncorInfo_[ix].corSumEt;
 }
-float MET::uncorrectedPt(UncorrectionType ix) const { 
+float MET::uncorrectedPt(UncorrectionType ix) const {
   if (ix == uncorrNONE) return pt();
-  checkUncor_(); return uncorInfo_[ix].pt; 
+  checkUncor_(); return uncorInfo_[ix].pt;
 }
-float MET::uncorrectedPhi(UncorrectionType ix) const { 
+float MET::uncorrectedPhi(UncorrectionType ix) const {
   if (ix == uncorrNONE) return phi();
-  checkUncor_(); return uncorInfo_[ix].phi; 
+  checkUncor_(); return uncorInfo_[ix].phi;
 }
 
 
@@ -128,7 +128,7 @@ void MET::checkUncor_() const {
   ix = uncorrTAU;
   uncorInfo_[ix] = UncorInfo();
   if (nCorrections_ >=3 ){
-    unsigned int iC = 1;
+    unsigned int iC = 2;
     uncorInfo_[ix].corEx +=    corrs[iC].mex;
     uncorInfo_[ix].corEy +=    corrs[iC].mey;
     uncorInfo_[ix].corSumEt += corrs[iC].sumet;
@@ -141,5 +141,5 @@ void MET::setPtPhi_(UncorInfo& uci) const {
   float lpx = px() - uci.corEx;
   float lpy = py() - uci.corEy;
   uci.pt = sqrt(lpx*lpx + lpy*lpy);
-  uci.phi = atan2(lpy, lpx);  
+  uci.phi = atan2(lpy, lpx);
 }

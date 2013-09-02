@@ -7,7 +7,6 @@
 <use name="FWCore/ServiceRegistry"/>
 <use name="CommonTools/UtilAlgos"/>
 <use name="PhysicsTools/UtilAlgos"/>
-<use name="L1Trigger/UCT2015"/>
 
 <export>
    <lib name="1"/>

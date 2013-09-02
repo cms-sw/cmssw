@@ -1,5 +1,5 @@
 //
-// $Id: Electron.cc,v 1.33 2012/10/04 11:00:10 beaudett Exp $
+// $Id: Electron.cc,v 1.34 2013/04/01 17:52:02 tjkim Exp $
 //
 
 #include "DataFormats/PatCandidates/interface/Electron.h"
@@ -15,6 +15,7 @@ Electron::Electron() :
     embeddedGsfElectronCore_(false),
     embeddedGsfTrack_(false),
     embeddedSuperCluster_(false),
+    embeddedPflowSuperCluster_(false),
     embeddedTrack_(false),
     embeddedSeedCluster_(false),
     embeddedRecHits_(false),
@@ -43,6 +44,7 @@ Electron::Electron(const reco::GsfElectron & anElectron) :
     embeddedGsfElectronCore_(false),
     embeddedGsfTrack_(false),
     embeddedSuperCluster_(false),
+    embeddedPflowSuperCluster_(false),
     embeddedTrack_(false),
     embeddedSeedCluster_(false),
     embeddedRecHits_(false),
@@ -61,6 +63,7 @@ Electron::Electron(const edm::RefToBase<reco::GsfElectron> & anElectronRef) :
     embeddedGsfElectronCore_(false),
     embeddedGsfTrack_(false),
     embeddedSuperCluster_(false),
+    embeddedPflowSuperCluster_(false),
     embeddedTrack_(false), 
     embeddedSeedCluster_(false),
     embeddedRecHits_(false),
@@ -79,6 +82,7 @@ Electron::Electron(const edm::Ptr<reco::GsfElectron> & anElectronRef) :
     embeddedGsfElectronCore_(false),
     embeddedGsfTrack_(false),
     embeddedSuperCluster_(false),
+    embeddedPflowSuperCluster_(false),
     embeddedTrack_(false),
     embeddedSeedCluster_(false),
     embeddedRecHits_(false),
@@ -151,6 +155,15 @@ reco::SuperClusterRef Electron::superCluster() const {
   }
 }
 
+/// override the reco::GsfElectron::pflowSuperCluster method, to access the internal storage of the supercluster
+reco::SuperClusterRef Electron::pflowSuperCluster() const {
+  if (embeddedPflowSuperCluster_) {
+    return reco::SuperClusterRef(&pflowSuperCluster_, 0);
+  } else {
+    return reco::GsfElectron::pflowSuperCluster();
+  }
+}
+
 /// direct access to the seed cluster
 reco::CaloClusterPtr Electron::seed() const {
   if(embeddedSeedCluster_){
@@ -202,6 +215,15 @@ void Electron::embedSuperCluster() {
   }
 }
 
+/// Stores the electron's SuperCluster (reco::SuperClusterRef) internally
+void Electron::embedPflowSuperCluster() {
+  pflowSuperCluster_.clear();
+  if (reco::GsfElectron::pflowSuperCluster().isNonnull()) {
+      pflowSuperCluster_.push_back(*reco::GsfElectron::pflowSuperCluster());
+      embeddedPflowSuperCluster_ = true;
+  }
+}
+
 /// Stores the electron's SeedCluster (reco::BasicClusterPtr) internally
 void Electron::embedSeedCluster() {
   seedCluster_.clear();
@@ -211,6 +233,53 @@ void Electron::embedSeedCluster() {
   }
 }
 
+/// Stores the electron's BasicCluster (reco::CaloCluster) internally
+void Electron::embedBasicClusters() {
+  basicClusters_.clear();
+  if (reco::GsfElectron::superCluster().isNonnull()){
+    reco::CaloCluster_iterator itscl = reco::GsfElectron::superCluster()->clustersBegin();
+    reco::CaloCluster_iterator itsclE = reco::GsfElectron::superCluster()->clustersEnd();
+    for(;itscl!=itsclE;++itscl){
+      basicClusters_.push_back( **itscl ) ;
+    } 
+  }
+}
+
+/// Stores the electron's PreshowerCluster (reco::CaloCluster) internally
+void Electron::embedPreshowerClusters() {
+  preshowerClusters_.clear();
+  if (reco::GsfElectron::superCluster().isNonnull()){
+    reco::CaloCluster_iterator itscl = reco::GsfElectron::superCluster()->preshowerClustersBegin();
+    reco::CaloCluster_iterator itsclE = reco::GsfElectron::superCluster()->preshowerClustersEnd();
+    for(;itscl!=itsclE;++itscl){
+      preshowerClusters_.push_back( **itscl ) ;
+    }
+  }
+}
+
+/// Stores the electron's PflowBasicCluster (reco::CaloCluster) internally
+void Electron::embedPflowBasicClusters() {
+  pflowBasicClusters_.clear();
+  if (reco::GsfElectron::pflowSuperCluster().isNonnull()){
+    reco::CaloCluster_iterator itscl = reco::GsfElectron::pflowSuperCluster()->clustersBegin();
+    reco::CaloCluster_iterator itsclE = reco::GsfElectron::pflowSuperCluster()->clustersEnd();
+    for(;itscl!=itsclE;++itscl){
+      pflowBasicClusters_.push_back( **itscl ) ;
+    }
+  }
+}
+
+/// Stores the electron's PflowPreshowerCluster (reco::CaloCluster) internally
+void Electron::embedPflowPreshowerClusters() {
+  pflowPreshowerClusters_.clear();
+  if (reco::GsfElectron::pflowSuperCluster().isNonnull()){
+    reco::CaloCluster_iterator itscl = reco::GsfElectron::pflowSuperCluster()->preshowerClustersBegin();
+    reco::CaloCluster_iterator itsclE = reco::GsfElectron::pflowSuperCluster()->preshowerClustersEnd();
+    for(;itscl!=itsclE;++itscl){
+      pflowPreshowerClusters_.push_back( **itscl ) ;
+    }
+  }
+}
 
 /// method to store the electron's track internally
 void Electron::embedTrack() {

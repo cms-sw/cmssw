@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 # prepare reco information
 from PhysicsTools.PatAlgos.recoLayer0.pfCandidateIsoDepositSelection_cff import *
 from PhysicsTools.PatAlgos.recoLayer0.tauIsolation_cff import *
-#from PhysicsTools.PatAlgos.recoLayer0.tauDiscriminators_cff import *
+from PhysicsTools.PatAlgos.recoLayer0.tauDiscriminators_cff import *
 # CV: do **not** load PhysicsTools/PatAlgos/python/recoLayer0/tauJetCorrections_cff
 #     in order to avoid triggering FileInPath to SQLlite file
 #       CondFormats/JetMETObjects/data/TauJec11_V1.db
@@ -18,16 +18,40 @@ from PhysicsTools.PatAlgos.mcMatchLayer0.tauMatch_cfi import *
 # produce object
 from PhysicsTools.PatAlgos.producersLayer1.tauProducer_cfi import *
 
-makePatTaus = cms.Sequence(
+#check whether we have defined update or not
+updateDiscriminators=True
+try:
+    from RecoTauTag.Configuration.updateHPSPFTaus_cff import *
+except ImportError:
+    updateDiscriminators=False
+
+if updateDiscriminators:
+    makePatTaus = cms.Sequence(
     # reco pre-production
-    patPFCandidateIsoDepositSelection *
-    patPFTauIsolation *
-    #patTauJetCorrections *
-    # pat specifics
-    tauMatch *
-    tauGenJets *
-    tauGenJetsSelectorAllHadrons *
-    tauGenJetMatch *
-    # object production
-    patTaus
-)
+        patHPSPFTauDiscriminationUpdate *
+        patPFCandidateIsoDepositSelection *
+        patPFTauIsolation *
+        #patTauJetCorrections *
+        # pat specifics
+        tauMatch *
+        tauGenJets *
+        tauGenJetsSelectorAllHadrons *
+        tauGenJetMatch *
+        # object production
+        patTaus
+        )
+else:
+    makePatTaus = cms.Sequence(
+        # reco pre-production
+        patPFCandidateIsoDepositSelection *
+        patPFTauIsolation *
+        #patTauJetCorrections *
+        # pat specifics
+        tauMatch *
+        tauGenJets *
+        tauGenJetsSelectorAllHadrons *
+        tauGenJetMatch *
+        # object production
+        patTaus
+        )
+    

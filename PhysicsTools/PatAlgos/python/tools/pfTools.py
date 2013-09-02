@@ -487,7 +487,7 @@ def switchToPFJets(process, input=cms.InputTag('pfNoTau'), algo='AK5', postfix =
             # do correct treatment for TypeI MET corrections
             if type1:
                 for mod in getattr(process,'patPF2PATSequence'+postfix).moduleNames():
-                    if mod.startswith("kt6"):
+                    if mod.startswith("kt6") and mod.endswith("Jets"+postfix):
                         prefix = mod.replace(postfix,'')
                         prefix = prefix.replace('kt6PFJets','')
                         prefix = prefix.replace('kt6CaloJets','')

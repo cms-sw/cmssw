@@ -116,105 +116,142 @@ class RunBTagging(ConfigToolBase):
         seTILabel = 'softElectronTagInfos'        + label + postfix
         smTILabel = 'softMuonTagInfos'            + label + postfix
 
-        ## produce tag infos
-        #setattr( process, ipTILabel, btag.impactParameterTagInfos.clone(jetTracks = cms.InputTag(jtaLabel)) )
-        #setattr( process, svTILabel, btag.secondaryVertexTagInfos.clone(trackIPTagInfos = cms.InputTag(ipTILabel)) )
-        #setattr( process, nvTILabel, nbtag.secondaryVertexNegativeTagInfos.clone(trackIPTagInfos = cms.InputTag(ipTILabel)) )
-        #setattr( process, seTILabel, btag.softElectronTagInfos.clone(jets = jetCollection) )
-        #setattr( process, smTILabel, btag.softMuonTagInfos.clone(jets = jetCollection) )
-
         ## make VInputTag from strings
         def vit(*args) : return cms.VInputTag( *[ cms.InputTag(x) for x in args ] )
 
         ## produce btags
         print
         print "The btaginfo below will be written to the jet collection in the PATtuple (default is all, see PatAlgos/PhysicsTools/python/tools/jetTools.py)"
-        print
-        for TagInfo in btagInfo:
-                print TagInfo
-
-                if TagInfo=='impactParameterTagInfos':
-                        setattr( process, ipTILabel, btag.impactParameterTagInfos.clone(jetTracks = cms.InputTag(jtaLabel)) )
-                if TagInfo=='secondaryVertexTagInfos':
-                        setattr( process, svTILabel, btag.secondaryVertexTagInfos.clone(trackIPTagInfos = cms.InputTag(ipTILabel)) )
-                if TagInfo=='softMuonTagInfos':
-                        setattr( process, smTILabel, btag.softMuonTagInfos.clone(jets = jetCollection) )
-                if TagInfo=='softElectronTagInfos':
-                        setattr( process, seTILabel, btag.softElectronTagInfos.clone(jets = jetCollection) )
-                if TagInfo=='secondaryVertexNegativeTagInfos':
-                        setattr( process, nvTILabel, btag.secondaryVertexNegativeTagInfos.clone(trackIPTagInfos = cms.InputTag(ipTILabel)) )
-                if TagInfo=='inclusiveSecondaryVertexFinderTagInfos':
-                        setattr( process, ivfTILabel, btag.inclusiveSecondaryVertexFinderTagInfos.clone(trackIPTagInfos = cms.InputTag(ipTILabel)) )
+        for tagInfo in btagInfo:
+                print tagInfo
+                if tagInfo=='impactParameterTagInfos':
+                    if not hasattr( process, ipTILabel ):
+                        tagInfoMod=getattr(btag,tagInfo).clone(jetTracks = cms.InputTag(jtaLabel))
+                        setattr( process, ipTILabel, tagInfoMod )
+                    else:
+                        getattr( process, ipTILabel ).jetTracks = cms.InputTag(jtaLabel)
+                if tagInfo=='secondaryVertexTagInfos':
+                    if not hasattr( process, svTILabel ):
+                        tagInfoMod=getattr(btag,tagInfo).clone(trackIPTagInfos = cms.InputTag(ipTILabel))
+                        setattr( process, svTILabel, tagInfoMod )
+                    else:
+                        getattr( process, svTILabel ).trackIPTagInfos = cms.InputTag(ipTILabel)
+                if tagInfo=='softMuonTagInfos':
+                    if not hasattr( process, smTILabel ):
+                        tagInfoMod=getattr(btag,tagInfo).clone(jets = jetCollection)
+                        setattr( process, smTILabel, tagInfoMod )
+                    else:
+                        getattr( process, smTILabel ).jets = jetCollection
+                if tagInfo=='softElectronTagInfos':
+                    if not hasattr( process, seTILabel ):
+                        tagInfoMod=getattr(btag,tagInfo).clone(jets = jetCollection)
+                        setattr( process, seTILabel, tagInfoMod )
+                    else:
+                        getattr( process, seTILabel ).jets = jetCollection
+                if tagInfo=='secondaryVertexNegativeTagInfos':
+                    if not hasattr( process, nvTILabel ):
+                        tagInfoMod=getattr(btag,tagInfo).clone(trackIPTagInfos = cms.InputTag(ipTILabel))
+                        setattr( process, nvTILabel, tagInfoMod )
+                    else:
+                        getattr( process, nvTILabel ).trackIPTagInfos = cms.InputTag(ipTILabel)
+                if tagInfo=='inclusiveSecondaryVertexFinderTagInfos':
+                    if not hasattr( process, ivfTILabel ):
+                        tagInfoMod=getattr(btag,tagInfo).clone(trackIPTagInfos = cms.InputTag(ipTILabel))
+                        setattr( process, ivfTILabel, tagInfoMod )
+                    else:
+                        getattr( process, ivfTILabel ).trackIPTagInfos = cms.InputTag(ipTILabel)
 
         print
         print "The bdiscriminators below will be written to the jet collection in the PATtuple (default is all, see PatAlgos/PhysicsTools/python/tools/jetTools.py)"
         for tag in btagdiscriminators:
-                print  tag
+                print tag
                 if tag == 'jetBProbabilityBJetTags' or tag == 'jetProbabilityBJetTags' or tag == 'trackCountingHighPurBJetTags' or tag == 'trackCountingHighEffBJetTags' or tag == 'negativeTrackCountingHighEffJetTags' or  tag =='negativeTrackCountingHighPurJetTags' :
-                        tagInfo=getattr(btag,tag).clone(tagInfos = vit(ipTILabel))
-                        setattr(process, tag+label+postfix, tagInfo)
+                    if not hasattr(process, tag+label+postfix):
+                        tagMod=getattr(btag,tag).clone(tagInfos = vit(ipTILabel))
+                        setattr(process, tag+label+postfix, tagMod)
+                    else:
+                        getattr(process, tag+label+postfix).tagInfos = vit(ipTILabel)
 
                 if tag == 'simpleSecondaryVertexHighEffBJetTags' or tag == 'simpleSecondaryVertexHighPurBJetTags':
-#                       tagInfo=getattr(btag,tag).clone(tagInfos = vit(ipTILabel,svTILabel))
-                        tagInfo=getattr(btag,tag).clone(tagInfos = vit(svTILabel))
-                        setattr(process, tag+label+postfix, tagInfo)
+                    if not hasattr(process, tag+label+postfix):
+#                       tagMod=getattr(btag,tag).clone(tagInfos = vit(ipTILabel,svTILabel))
+                        tagMod=getattr(btag,tag).clone(tagInfos = vit(svTILabel))
+                        setattr(process, tag+label+postfix, tagMod)
+                    else:
+                        #getattr(process, tag+label+postfix).tagInfos = vit(ipTILabel,svTILabel)
+                        getattr(process, tag+label+postfix).tagInfos = vit(svTILabel)
 
                 if tag == 'combinedSecondaryVertexBJetTags' or tag == 'combinedSecondaryVertexMVABJetTags':
-                        tagInfo=getattr(btag,tag).clone(tagInfos = vit(ipTILabel,svTILabel))
-                        setattr(process, tag+label+postfix, tagInfo)
+                    if not hasattr(process, tag+label+postfix):
+                        tagMod=getattr(btag,tag).clone(tagInfos = vit(ipTILabel,svTILabel))
+                        setattr(process, tag+label+postfix, tagMod)
+                    else:
+                        getattr(process, tag+label+postfix).tagInfos = vit(ipTILabel,svTILabel)
 
                 if tag == 'softMuonBJetTags' or tag == 'softMuonByPtBJetTags' or tag == 'softMuonByIP3dBJetTags' :
-                        tagInfo=getattr(btag,tag).clone(tagInfos = vit(smTILabel))
-                        setattr(process, tag+label+postfix, tagInfo)
+                    if not hasattr(process, tag+label+postfix):
+                        tagMod=getattr(btag,tag).clone(tagInfos = vit(smTILabel))
+                        setattr(process, tag+label+postfix, tagMod)
+                    else:
+                        getattr(process, tag+label+postfix).tagInfos = vit(smTILabel)
 
                 if tag == 'simpleSecondaryVertexNegativeHighEffBJetTags' or tag == 'simpleSecondaryVertexNegativeHighPurBJetTags':
-                        tagInfo=getattr(btag,tag).clone(tagInfos = vit(nvTILabel))
-                        setattr(process, tag+label+postfix, tagInfo)
+                    if not hasattr(process, tag+label+postfix):
+                        tagMod=getattr(btag,tag).clone(tagInfos = vit(nvTILabel))
+                        setattr(process, tag+label+postfix, tagMod)
+                    else:
+                        getattr(process, tag+label+postfix).tagInfos = vit(nvTILabel)
 
                 if tag == 'combinedInclusiveSecondaryVertexBJetTags' :
-                        tagInfo=getattr(btag,tag).clone(tagInfos = vit(ipTILabel,ivfTILabel))
-                        setattr(process, tag+label+postfix, tagInfo)
+                    if not hasattr(process, tag+label+postfix):
+                        tagMod=getattr(btag,tag).clone(tagInfos = vit(ipTILabel,ivfTILabel))
+                        setattr(process, tag+label+postfix, tagMod)
+                    else:
+                        getattr(process, tag+label+postfix).tagInfos = vit(ipTILabel,ivfTILabel)
 
                 if tag == 'combinedMVABJetTags' :
-                        tagInfo=getattr(btag,tag).clone(tagInfos = vit(ipTILabel, ivfTILabel,smTILabel,seTILabel))
-                        setattr(process, tag+label+postfix, tagInfo)
-
+                    if not hasattr(process, tag+label+postfix):
+                        tagMod=getattr(btag,tag).clone(tagInfos = vit(ipTILabel, ivfTILabel,smTILabel,seTILabel))
+                        setattr(process, tag+label+postfix, tagMod)
+                    else:
+                        getattr(process, tag+label+postfix).tagInfos = vit(ipTILabel, ivfTILabel,smTILabel,seTILabel)
 
 
         ## define vector of (output) labels
         labels = { 'jta'      : jtaLabel,
-                   #'tagInfos' : (ipTILabel,svTILabel,seTILabel,smTILabel),
-                #'tagInfos' : (ipTILabel,svTILabel,smTILabel),
-                #'tagInfos' : [ for y in btagInfo],
                  'tagInfos' : [(y + label + postfix) for y in btagInfo],
-                #'tagInfos' : (ipTILabel,svTILabel,smTILabel),
-                'jetTags'  : [ (x + label+postfix) for x in btagdiscriminators]
-
+                 'jetTags'  : [ (x + label+postfix) for x in btagdiscriminators]
                    }
 
+        ## add a combined b-tag sequence to the process
+        seq = cms.Sequence()
+        for x in labels['tagInfos']:
+            seq += getattr(process, x)
+        for x in labels['jetTags']:
+            seq += getattr(process, x)
+        if not hasattr( process, 'btagging'+label+postfix ):
+            setattr( process, 'btagging'+label+postfix, seq )
+        else:
+            oldSeq = getattr( process, 'btagging'+label+postfix )
+            oldLabel = oldSeq.label()
+            for obj in listSequences( oldSeq ):
+                removeIfInSequence( process, obj.label(), oldLabel )
+            for obj in listModules( oldSeq ):
+                removeIfInSequence( process, obj.label(), oldLabel )
+            listModules(oldSeq)
+            for obj in listModules( seq ):
+                oldSeq += obj
+            seq = None
 
-
-
-        ## extend an existing sequence by otherLabels
-        def mkseq(process, firstlabel, *otherlabels):
-            seq = getattr(process, firstlabel)
-            for x in otherlabels: seq += getattr(process, x)
-            return cms.Sequence(seq)
-
-        ## add tag infos to the process
-        setattr( process, 'btaggingTagInfos'+label+postfix, mkseq(process, *(labels['tagInfos']) ) )
-        ## add b tags to the process
-        setattr( process, 'btaggingJetTags'+label+postfix,  mkseq(process, *(labels['jetTags'])  ) )
-        ## add a combined sequence to the process
-        seq = mkseq(process, 'btaggingTagInfos'+label+postfix, 'btaggingJetTags' + label + postfix)
-        setattr( process, 'btagging'+label+postfix, seq )
         ## return the combined sequence and the labels defined above
-        if seTILabel in seq.moduleNames():
-            setattr( process, 'softElectronCands', btag.softElectronCands )
-            seq.replace( getattr( process, seTILabel ), ( process.softElectronCands * getattr( process, seTILabel ) ) )
-        if ivfTILabel in seq.moduleNames():
-            process.load( 'RecoVertex.AdaptiveVertexFinder.inclusiveVertexing_cff' )
-            seq.replace( getattr( process, ivfTILabel ), ( process.inclusiveVertexing * getattr( process, ivfTILabel ) ) )
+        if seTILabel in getattr( process, 'btagging'+label+postfix ).moduleNames():
+            if not hasattr( process, 'softElectronCands' ):
+                setattr( process, 'softElectronCands', btag.softElectronCands )
+            getattr( process, 'btagging'+label+postfix ).replace( getattr( process, seTILabel ), ( process.softElectronCands * getattr( process, seTILabel ) ) )
+        if ivfTILabel in getattr( process, 'btagging'+label+postfix ).moduleNames():
+            if not hasattr( process, 'inclusiveVertexing' ):
+                process.load( 'RecoVertex.AdaptiveVertexFinder.inclusiveVertexing_cff' )
+            getattr( process, 'btagging'+label+postfix ).replace( getattr( process, ivfTILabel ), ( process.inclusiveVertexing * getattr( process, ivfTILabel ) ) )
 
         if hasattr(process, "addAction"):
             process.enableRecording()
@@ -443,7 +480,9 @@ class AddJetCollection(ConfigToolBase):
             ## add b tagging sequence
             (btagSeq, btagLabels) = runBTagging(process, jetCollection, postfixLabel,"", btagInfo,btagdiscriminators)
             ## add b tagging sequence before running the allLayer1Jets modules
-            process.patDefaultSequence.replace(getattr(process,jtaLabel), getattr(process,jtaLabel)+btagSeq)
+            ## nedded only after first call to runBTagging(), existing sequence modified in place otherwise
+            if not btagSeq == None:
+                process.patDefaultSequence.replace(getattr(process,jtaLabel), getattr(process,jtaLabel)+btagSeq)
             ## replace corresponding tags for pat jet production
             l1Jets.trackAssociationSource = cms.InputTag(btagLabels['jta'])
             l1Jets.tagInfoSources = cms.VInputTag( *[ cms.InputTag(x) for x in btagLabels['tagInfos'] ] )
@@ -750,7 +789,10 @@ class SwitchJetCollection(ConfigToolBase):
             ## replace jet track association
             process.load("RecoJets.JetAssociationProducers.ak5JTA_cff")
             from RecoJets.JetAssociationProducers.ak5JTA_cff import ak5JetTracksAssociatorAtVertex
-            setattr(process, "jetTracksAssociatorAtVertex"+postfix, ak5JetTracksAssociatorAtVertex.clone(jets = jetCollection))
+            if not hasattr(process, "jetTracksAssociatorAtVertex"+postfix):
+                setattr(process, "jetTracksAssociatorAtVertex"+postfix, ak5JetTracksAssociatorAtVertex.clone(jets = jetCollection))
+            else:
+                getattr(process, "jetTracksAssociatorAtVertex"+postfix).jets = jetCollection
             getattr(process, "patDefaultSequence"+postfix).replace(
                 applyPostfix(process, "patJetCharge", postfix),
                 getattr(process, "jetTracksAssociatorAtVertex" + postfix) #module with postfix that is not n patDefaultSequence
@@ -771,13 +813,14 @@ class SwitchJetCollection(ConfigToolBase):
         if (doBTagging):
             ## replace b tagging sequence; add postfix label 'AOD' as crab will
             ## crash when confronted with empy labels
-            ##(btagSeq, btagLabels) = runBTagging(process, jetCollection, 'AOD',postfix)
             (btagSeq, btagLabels) = runBTagging(process, jetCollection,"AOD",postfix,btagInfo,btagdiscriminators)
 	    ## add b tagging sequence before running the allLayer1Jets modules
-            getattr(process, "patDefaultSequence"+postfix).replace(
-                getattr( process,"jetTracksAssociatorAtVertex"+postfix),
-                getattr( process,"jetTracksAssociatorAtVertex"+postfix) + btagSeq
-                )
+            ## nedded only after first call to runBTagging(), existing sequence modified in place otherwise
+            if not btagSeq == None:
+                getattr(process, "patDefaultSequence"+postfix).replace(
+                    getattr( process,"jetTracksAssociatorAtVertex"+postfix),
+                    getattr( process,"jetTracksAssociatorAtVertex"+postfix) + btagSeq
+                    )
 
             ## replace corresponding tags for pat jet production
             applyPostfix(process, "patJets", postfix).trackAssociationSource = btagLabels['jta']
