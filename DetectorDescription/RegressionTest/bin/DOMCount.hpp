@@ -55,7 +55,6 @@
  */
 
 /*
- * $Log: DOMCount.hpp,v $
  * Revision 1.2  2003/11/26 09:50:57  liendl
  * DOMCount for xerces-2.3
  *
