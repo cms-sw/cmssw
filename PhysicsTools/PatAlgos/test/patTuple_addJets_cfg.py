@@ -62,7 +62,7 @@ addJetCollection(process,cms.InputTag('kt6PFJets'),
                  'KT6', 'PF',
                  doJTA        = True,
                  doBTagging   = False,
-                 jetCorrLabel = ('KT6PF', cms.vstring()), # currently not available
+                 #jetCorrLabel = ('KT6PF', cms.vstring()), # currently not available
                  doType1MET   = False,
                  doL1Cleaning = True,
                  doL1Counters = False,
