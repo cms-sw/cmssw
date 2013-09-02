@@ -2,7 +2,7 @@
 //
 // Package:    SoftLepton
 // Class:      SoftLepton
-// 
+//
 /**\class SoftLepton SoftLepton.cc RecoBTag/SoftLepton/src/SoftLepton.cc
 
  Description: CMSSW EDProducer for soft lepton b tagging.
@@ -19,43 +19,15 @@
 #include <utility>
 #include <cmath>
 
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Utilities/interface/EDMException.h"
-#include "DataFormats/Provenance/interface/ProductID.h"
-#include "DataFormats/Common/interface/RefToBase.h"
-#include "DataFormats/Common/interface/ValueMap.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 
 // ROOT::Math vectors (aka math::XYZVector)
 #include "DataFormats/Math/interface/LorentzVector.h"
-#include "DataFormats/Math/interface/Vector3D.h"
 #include "Math/GenVector/PxPyPzM4D.h"
 #include "Math/GenVector/VectorUtil.h"
 #include "Math/GenVector/Boost.h"
 
-#include "DataFormats/GeometryVector/interface/GlobalVector.h"
-#include "DataFormats/VertexReco/interface/Vertex.h"
-#include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
-#include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/MuonReco/interface/Muon.h"
-#include "DataFormats/MuonReco/interface/MuonFwd.h"
-#include "DataFormats/MuonReco/interface/MuonSelectors.h"
-#include "DataFormats/EgammaCandidates/interface/Electron.h"
-#include "DataFormats/EgammaCandidates/interface/ElectronFwd.h"
-#include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
-#include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
-#include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
-#include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
-#include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
-#include "DataFormats/JetReco/interface/Jet.h"
-#include "DataFormats/JetReco/interface/JetTracksAssociation.h"
-#include "DataFormats/BTauReco/interface/SoftLeptonTagInfo.h"
 
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
@@ -85,22 +57,31 @@ typedef edm::View<reco::Muon>        MuonView;
 const reco::Vertex SoftLepton::s_nominalBeamSpot(
   reco::Vertex::Point( 0, 0, 0 ),
   reco::Vertex::Error( ROOT::Math::SVector<double,6>( 0.0015 * 0.0015, //          0.0,        0.0
-                                                                  0.0, 0.0015 * 0.0015, //     0.0  
+                                                                  0.0, 0.0015 * 0.0015, //     0.0
                                                                   0.0,             0.0, 15. * 15. ) ),
   1, 1, 0 );
 
 // ------------ c'tor --------------------------------------------------------------------
 SoftLepton::SoftLepton(const edm::ParameterSet & iConfig) :
-  m_jets(          iConfig.getParameter<edm::InputTag>( "jets" ) ),
-  m_primaryVertex( iConfig.getParameter<edm::InputTag>( "primaryVertex" ) ),
-  m_leptons(       iConfig.getParameter<edm::InputTag>( "leptons" ) ),
-  m_leptonCands(   iConfig.exists("leptonCands") ? iConfig.getParameter<edm::InputTag>( "leptonCands" ) : edm::InputTag() ),
-  m_leptonId(      iConfig.exists("leptonId") ? iConfig.getParameter<edm::InputTag>( "leptonId" ) : edm::InputTag() ),
+  m_jets(              iConfig.getParameter<edm::InputTag>( "jets" ) ),
+  token_jtas(          mayConsume<reco::JetTracksAssociationCollection>( iConfig.getParameter<edm::InputTag>( "jets" ) ) ),
+  token_jets(          mayConsume<edm::View<reco::Jet> >( iConfig.getParameter<edm::InputTag>( "jets" ) ) ),
+  token_primaryVertex( consumes<reco::VertexCollection>( iConfig.getParameter<edm::InputTag>( "primaryVertex" ) ) ),
+  m_leptons(           iConfig.getParameter<edm::InputTag>( "leptons" ) ),
+  token_gsfElectrons(  mayConsume<GsfElectronView>( iConfig.getParameter<edm::InputTag>( "leptons" ) ) ),
+  token_electrons(     mayConsume<ElectronView>( iConfig.getParameter<edm::InputTag>( "leptons" ) ) ),
+  token_pfElectrons(   mayConsume<reco::PFCandidateCollection>( iConfig.getParameter<edm::InputTag>( "leptons" ) ) ),
+  token_muons(         mayConsume<MuonView>( iConfig.getParameter<edm::InputTag>( "leptons" ) ) ),
+  token_tracks(        mayConsume<edm::View<reco::Track> >( iConfig.getParameter<edm::InputTag>( "leptons" ) ) ),
+  m_leptonCands(       iConfig.exists("leptonCands") ? iConfig.getParameter<edm::InputTag>( "leptonCands" ) : edm::InputTag() ),
+  token_leptonCands(   mayConsume<edm::ValueMap<float> >( iConfig.exists("leptonCands") ? iConfig.getParameter<edm::InputTag>( "leptonCands" ) : edm::InputTag() ) ),
+  m_leptonId(          iConfig.exists("leptonId") ? iConfig.getParameter<edm::InputTag>( "leptonId" ) : edm::InputTag() ),
+  token_leptonId(      mayConsume<edm::ValueMap<float> >( iConfig.exists("leptonId") ? iConfig.getParameter<edm::InputTag>( "leptonId" ) : edm::InputTag() ) ),
   m_transientTrackBuilder( 0 ),
-  m_refineJetAxis( iConfig.getParameter<unsigned int>( "refineJetAxis" ) ),
-  m_deltaRCut(     iConfig.getParameter<double>( "leptonDeltaRCut" ) ),
-  m_chi2Cut(       iConfig.getParameter<double>( "leptonChi2Cut" ) ),
-  m_muonSelection( (muon::SelectionType) iConfig.getParameter<unsigned int>( "muonSelection" ) )
+  m_refineJetAxis(     iConfig.getParameter<unsigned int>( "refineJetAxis" ) ),
+  m_deltaRCut(         iConfig.getParameter<double>( "leptonDeltaRCut" ) ),
+  m_chi2Cut(           iConfig.getParameter<double>( "leptonChi2Cut" ) ),
+  m_muonSelection(     (muon::SelectionType) iConfig.getParameter<unsigned int>( "muonSelection" ) )
 {
   produces<reco::SoftLeptonTagInfoCollection>();
 }
@@ -127,7 +108,7 @@ SoftLepton::produce(edm::Event & event, const edm::EventSetup & setup) {
   do { {
     // look for a JetTracksAssociationCollection
     edm::Handle<reco::JetTracksAssociationCollection> h_jtas;
-    event.getByLabel(m_jets, h_jtas);
+    event.getByToken(token_jtas, h_jtas);
     if (h_jtas.isValid()) {
       unsigned int size = h_jtas->size();
       jets.resize(size);
@@ -141,7 +122,7 @@ SoftLepton::produce(edm::Event & event, const edm::EventSetup & setup) {
   } { // else...
     // look for a View<Jet>
     edm::Handle<edm::View<reco::Jet> > h_jets;
-    event.getByLabel(m_jets, h_jets);
+    event.getByToken(token_jets, h_jets);
     if (h_jets.isValid()) {
       unsigned int size = h_jets->size();
       jets.resize(size);
@@ -153,11 +134,11 @@ SoftLepton::produce(edm::Event & event, const edm::EventSetup & setup) {
   } { // else...
     throw edm::Exception(edm::errors::NotFound) << "Object " << m_jets << " of type among (\"reco::JetTracksAssociationCollection\", \"edm::View<reco::Jet>\") not found";
   } } while (false);
-  
+
   // input primary vetex
   reco::Vertex vertex;
   Handle<reco::VertexCollection> h_primaryVertex;
-  event.getByLabel(m_primaryVertex, h_primaryVertex);
+  event.getByToken(token_primaryVertex, h_primaryVertex);
   if (h_primaryVertex.isValid() and not h_primaryVertex->empty())
     vertex = h_primaryVertex->front();
   else
@@ -167,10 +148,10 @@ SoftLepton::produce(edm::Event & event, const edm::EventSetup & setup) {
   // input leptons (can be of different types)
   Leptons leptons;
 
-  Handle< ValueMap<float> > h_leptonCands;
+  Handle<edm::ValueMap<float> > h_leptonCands;
   bool haveLeptonCands = !(m_leptonCands == edm::InputTag());
   if (haveLeptonCands)
-    event.getByLabel(m_leptonCands, h_leptonCands);
+    event.getByToken(token_leptonCands, h_leptonCands);
 
   // try to access the input collection as a collection of GsfElectrons, Muons or Tracks
 
@@ -178,7 +159,7 @@ SoftLepton::produce(edm::Event & event, const edm::EventSetup & setup) {
   do { {
     // look for View<GsfElectron>
     Handle<GsfElectronView> h_electrons;
-    event.getByLabel(m_leptons, h_electrons);
+    event.getByToken(token_gsfElectrons, h_electrons);
 
     if (h_electrons.isValid()) {
       leptonId = SoftLeptonProperties::quality::egammaElectronId;
@@ -194,7 +175,7 @@ SoftLepton::produce(edm::Event & event, const edm::EventSetup & setup) {
     // look for View<Electron>
     // FIXME: is this obsolete?
     Handle<ElectronView> h_electrons;
-    event.getByLabel(m_leptons, h_electrons);
+    event.getByToken(token_electrons, h_electrons);
     if (h_electrons.isValid()) {
       leptonId = SoftLeptonProperties::quality::egammaElectronId;
       for (ElectronView::const_iterator electron = h_electrons->begin(); electron != h_electrons->end(); ++electron) {
@@ -208,7 +189,7 @@ SoftLepton::produce(edm::Event & event, const edm::EventSetup & setup) {
     // look for PFElectrons
     // FIXME: is this obsolete?
     Handle<reco::PFCandidateCollection> h_electrons;
-    event.getByLabel(m_leptons, h_electrons);
+    event.getByToken(token_pfElectrons, h_electrons);
     if (h_electrons.isValid()) {
       leptonId = SoftLeptonProperties::quality::egammaElectronId;
       for (reco::PFCandidateCollection::const_iterator electron = h_electrons->begin(); electron != h_electrons->end(); ++electron) {
@@ -228,7 +209,7 @@ SoftLepton::produce(edm::Event & event, const edm::EventSetup & setup) {
   } { // else
     // look for View<Muon>
     Handle<MuonView> h_muons;
-    event.getByLabel(m_leptons, h_muons);
+    event.getByToken(token_muons, h_muons);
     if (h_muons.isValid()) {
       for (MuonView::const_iterator muon = h_muons->begin(); muon != h_muons->end(); ++muon) {
         // FIXME -> turn this selection into a muonCands input?
@@ -250,9 +231,9 @@ SoftLepton::produce(edm::Event & event, const edm::EventSetup & setup) {
       break;
     }
   } { // else
-    // look for edm::View<Track> 
+    // look for edm::View<Track>
     Handle<edm::View<reco::Track> > h_tracks;
-    event.getByLabel(m_leptons, h_tracks);
+    event.getByToken(token_tracks, h_tracks);
     if (h_tracks.isValid()) {
       for (unsigned int i = 0; i < h_tracks->size(); i++) {
         LeptonIds &id = leptons[h_tracks->refAt(i)];
@@ -266,8 +247,8 @@ SoftLepton::produce(edm::Event & event, const edm::EventSetup & setup) {
   } } while (false);
 
   if (!(m_leptonId == edm::InputTag())) {
-    Handle< ValueMap<float> > h_leptonId;
-    event.getByLabel(m_leptonId, h_leptonId);
+    Handle<edm::ValueMap<float> > h_leptonId;
+    event.getByToken(token_leptonId, h_leptonId);
 
     for (Leptons::iterator lepton = leptons.begin(); lepton != leptons.end(); ++lepton)
       lepton->second[leptonId] = (*h_leptonId)[lepton->first];
@@ -313,7 +294,7 @@ reco::SoftLeptonTagInfo SoftLepton::tag (
     properties.etaRel   = relativeEta( lepton_momentum, axis );
     properties.ratio    = lepton_momentum.R() / axis.R();
     properties.ratioRel = lepton_momentum.Dot(axis) / axis.Mag2();
- 
+
     for(LeptonIds::const_iterator iter = lepton->second.begin(); iter != lepton->second.end(); ++iter)
       properties.setQuality(static_cast<SoftLeptonProperties::quality::Generic>(iter->first), iter->second);
 
@@ -375,7 +356,7 @@ GlobalVector SoftLepton::refineJetAxis (
 
     if (sum_pT > 1.)    // avoid the case of only the lepton-track with small rounding errors
       axis = math::RhoEtaPhiVector( axis.rho(), axis.eta() + sum_eta_by_pT / sum_pT, axis.phi() + sum_phi_by_pT / sum_pT);
-    
+
   } else if (m_refineJetAxis == AXIS_CHARGED_SUM or
              m_refineJetAxis == AXIS_CHARGED_SUM_NOLEPTON) {
     math::XYZVector sum;
@@ -397,13 +378,13 @@ GlobalVector SoftLepton::refineJetAxis (
   } else if(m_refineJetAxis == AXIS_CALORIMETRIC_NOLEPTON) {
     axis -= exclude->momentum();
   }
-  
+
   return GlobalVector(axis.x(), axis.y(), axis.z());
 }
 
 double SoftLepton::relativeEta(const math::XYZVector& vector, const math::XYZVector& axis) {
   double mag = vector.r() * axis.r();
-  double dot = vector.Dot(axis); 
+  double dot = vector.Dot(axis);
   return -log((mag - dot)/(mag + dot)) / 2;
 }
 
@@ -415,4 +396,4 @@ double SoftLepton::boostedPPar(const math::XYZVector& vector, const math::XYZVec
   ROOT::Math::LorentzVector<ROOT::Math::PxPyPzM4D<double> > jet( axis.r(), 0., 0., jet_mass );
   ROOT::Math::BoostX boost( -jet.Beta() );
   return boost(lepton).x();
-} 
+}
