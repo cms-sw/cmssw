@@ -41,18 +41,18 @@ namespace reco {
  
    /// default constructor. Sets energy and position to zero
     CaloCluster() : 
-      energy_(0), 
+      energy_(0), calibratedEnergy_(-1.0), 
       algoID_( undefined ), flags_(0) {}
 
     /// constructor with algoId, to be used in all child classes
     CaloCluster(AlgoID algoID) : 
-      energy_(0), 
+      energy_(0), calibratedEnergy_(-1.0), 
       algoID_( algoID ), flags_(0) {}
 
     CaloCluster( double energy,
                  const math::XYZPoint& position,
                  const CaloID& caloID) :
-      energy_ (energy), position_ (position), caloID_(caloID),algoID_( undefined ), flags_(0) {}
+      energy_ (energy), calibratedEnergy_(-1.0), position_ (position), caloID_(caloID),algoID_( undefined ), flags_(0) {}
 
 
     /// resets the CaloCluster (position, energy, hitsAndFractions)
@@ -61,7 +61,7 @@ namespace reco {
      /// constructor from values 
      CaloCluster( double energy,  
  		 const math::XYZPoint& position ) : 
-       energy_ (energy), position_ (position),algoID_( undefined ), flags_(0) {} 
+       energy_ (energy), calibratedEnergy_(-1.0), position_ (position),algoID_( undefined ), flags_(0) {} 
 
 
     CaloCluster( double energy,
@@ -69,7 +69,7 @@ namespace reco {
 		 const CaloID& caloID,
                  const AlgoID& algoID,
                  uint32_t flags = 0) :
-      energy_ (energy), position_ (position), 
+      energy_ (energy), calibratedEnergy_(-1.0), position_ (position), 
       caloID_(caloID), algoID_(algoID) {
       flags_=flags&flagsMask_;
     }
@@ -81,7 +81,7 @@ namespace reco {
                  const AlgoId algoId,
 		 const DetId seedId = DetId(0),
                  uint32_t flags = 0) :
-      energy_ (energy), position_ (position), caloID_(caloID), 
+      energy_ (energy), calibratedEnergy_(-1.0), position_ (position), caloID_(caloID), 
       hitsAndFractions_(usedHitsAndFractions), algoID_(algoId),seedId_(seedId){
       flags_=flags&flagsMask_;
     }
@@ -94,7 +94,7 @@ namespace reco {
                  const std::vector<DetId > &usedHits,
                  const AlgoId algoId,
                  uint32_t flags = 0) :
-      energy_ (energy), position_ (position),  algoID_(algoId)
+      energy_(energy), calibratedEnergy_(-1.0), position_ (position),  algoID_(algoId)
        {
           hitsAndFractions_.reserve(usedHits.size());
           for(size_t i = 0; i < usedHits.size(); i++) hitsAndFractions_.push_back(std::pair< DetId, float > ( usedHits[i],1.));
@@ -107,6 +107,7 @@ namespace reco {
 
 
     void setEnergy(double energy){energy_ = energy;}
+    void setCalibratedEnergy(double cenergy){calibratedEnergy_ = cenergy;}
     
     void setPosition(const math::XYZPoint& p){position_ = p;}
 
@@ -118,6 +119,7 @@ namespace reco {
 
     /// cluster energy
     double energy() const { return energy_; }
+    double calibratedEnergy() const { return calibratedEnergy_; }
 
     /// cluster centroid position
     const math::XYZPoint & position() const { return position_; }
@@ -202,6 +204,7 @@ namespace reco {
 
     /// cluster energy
     double              energy_;
+    double              calibratedEnergy_;
 
     /// cluster centroid position
     math::XYZPoint      position_;

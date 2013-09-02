@@ -2,8 +2,9 @@
   <class name="CaloRecHit" ClassVersion="10">
    <version ClassVersion="10" checksum="582597904"/>
   </class>
-  <class name="reco::CaloCluster" ClassVersion="10">
+  <class name="reco::CaloCluster" ClassVersion="11">
    <version ClassVersion="10" checksum="3936140"/>
+   <version ClassVersion="11" checksum="2867259993"/>
   </class>
 
   <class name="edm::RefToBase<CaloRecHit>"/>
