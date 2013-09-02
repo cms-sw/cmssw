@@ -12,7 +12,7 @@
 
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
-#include "CommonTools/RecoAlgos/interface/TrackingParticleSelector.h"
+#include "SimGeneral/TrackingAnalysis/interface/TrackingParticleSelector.h"
 #include "CommonTools/CandAlgos/interface/GenParticleCustomSelector.h"
 
 #include "DQMServices/Core/interface/MonitorElement.h"

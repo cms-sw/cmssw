@@ -9,7 +9,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "CommonTools/RecoAlgos/interface/TrackingParticleSelector.h"
+#include "SimGeneral/TrackingAnalysis/interface/TrackingParticleSelector.h"
 
 #include "SimDataFormats/CrossingFrame/interface/CrossingFrame.h"
 #include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
