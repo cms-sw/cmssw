@@ -24,25 +24,27 @@ setenv FASTSIM False
 setenv UPGRADE False
 ## TYPE options: Photons, GEDPhotons
 setenv TYPE Photons
+#setenv TYPE GEDPhotons
 ## ANALYZERNAME options: PhotonValidator, oldpfPhotonValidator, pfPhotonValidator
 setenv ANALYZERNAME PhotonValidator
+#setenv ANALYZERNAME pfPhotonValidator
 
 setenv CMSSWver1 6_2_0
 setenv CMSSWver2 6_2_0
 setenv OLDRELEASE 6_2_0
 setenv NEWRELEASE 6_2_0
-setenv OLDPRERELEASE pre5
-setenv NEWPRERELEASE pre6_patch1
+setenv OLDPRERELEASE pre8 
+setenv NEWPRERELEASE 
 setenv UPGRADEVER  UPG2017
 setenv LHCENERGY   14
 
 
 if ( $STARTUP == True &&  $FASTSIM == False) then
-setenv OLDGLOBALTAG PRE_ST61_V1-v1
-setenv NEWGLOBALTAG PRE_ST62_V6-v1
+setenv OLDGLOBALTAG PRE_ST62_V8-v1
+setenv NEWGLOBALTAG PRE_ST62_V8-v3
 else if (  $STARTUP == True  && $FASTSIM == True) then
-setenv OLDGLOBALTAG START61_V11_FastSim-v1
-setenv NEWGLOBALTAG PRE_ST61_V1_FastSim-v1
+setenv OLDGLOBALTAG PRE_ST62_V8_FastSim-v1
+setenv NEWGLOBALTAG PRE_ST62_V8_FastSim-v3
 endif
 
 
@@ -50,17 +52,17 @@ endif
 
 setenv OLDRELEASE ${OLDRELEASE}_${OLDPRERELEASE}
 #setenv OLDRELEASE ${OLDRELEASE}
-setenv NEWRELEASE ${NEWRELEASE}_${NEWPRERELEASE}
-#setenv NEWRELEASE ${NEWRELEASE}
+#setenv NEWRELEASE ${NEWRELEASE}_${NEWPRERELEASE}
+setenv NEWRELEASE ${NEWRELEASE}
 
 #setenv WorkDir1   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver1}/src/Validation/RecoEgamma/test
 #setenv WorkDir2   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver2}_${NEWPRERELEASE}/src/Validation/RecoEgamma/test
 
-setenv WorkDir1   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver1}_${OLDPRERELEASE}/src/Validation/RecoEgamma/test
-setenv WorkDir2   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver2}_${NEWPRERELEASE}/src/Validation/RecoEgamma/test
-
 #setenv WorkDir1   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver1}_${OLDPRERELEASE}/src/Validation/RecoEgamma/test
-#setenv WorkDir2   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver2}/src/Validation/RecoEgamma/test
+#setenv WorkDir2   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver2}_${NEWPRERELEASE}/src/Validation/RecoEgamma/test
+
+setenv WorkDir1   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver1}_${OLDPRERELEASE}/src/Validation/RecoEgamma/test
+setenv WorkDir2   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver2}/src/Validation/RecoEgamma/test
 
 #setenv WorkDir1   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver1}/src/Validation/RecoEgamma/test
 #setenv WorkDir2   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver2}/src/Validation/RecoEgamma/test
@@ -353,12 +355,6 @@ EOF
 
 
 cat > unscaledhistosForPhotons <<EOF
-pEResVsR9All
-pEResVsR9Barrel
-pEResVsR9Endcap
-scpEResVsR9All
-scpEResVsR9Barrel
-scpEResVsR9Endcap
 pEResVsEtAll
 pEResVsEtBarrel
 pEResVsEtEndcap
@@ -383,25 +379,6 @@ pnewHoverEVsEtAll
 EOF
 
 
-
-cat > 2dhistosForPhotons <<EOF
-  R9VsEtaAll
-  R1VsEtaAll
-  R2VsEtaAll
-  R9VsEtAll
-  R1VsEtAll
-  R2VsEtAll
-  sigmaIetaIetaVsEtAll
-  isoTrkSolidConeDR04VsEtAll
-  nTrkSolidConeDR04VsEtAll
-  eResVsR9All
-  eResVsR9Barrel
-  eResVsR9Endcap
-  sceResVsR9All
-  sceResVsR9Barrel
-  sceResVsR9Endcap
-
-EOF
 
 
 
@@ -796,33 +773,6 @@ EOF
 end
 
 
-
-
-
-foreach i (`cat 2dhistosForPhotons`)
-  cat > temp$N.C <<EOF
-TCanvas *c$i = new TCanvas("c$i");
-c$i->SetFillColor(10);
-//file_old->cd("DQMData/EgammaV/${ANALYZERNAME}/Photons");
-file_old->cd("$HISTOPATHNAME_Photons");
-$i->SetStats(0);
-$i->SetMinimum(0.);
-$i->SetMarkerColor(kPink+8);
-$i->SetMarkerStyle(2);
-$i->SetMarkerSize(0.2);
-$i->Draw();
-//file_new->cd("DQMData/EgammaV/${ANALYZERNAME}/Photons");
-file_new->cd("$HISTOPATHNAME_Photons");
-$i->SetStats(0);
-$i->SetMarkerColor(kBlack);
-$i->SetMarkerStyle(2);
-$i->SetMarkerSize(0.2);
-$i->Draw("same");
-c$i->SaveAs("gifs/$i.gif");
-
-EOF
-  setenv N `expr $N + 1`
-end
 
 
 
@@ -1266,7 +1216,6 @@ rm  validationPlotsTemplate.html
 
 rm scaledhistosForPhotons
 rm unscaledhistosForPhotons
-rm 2dhistosForPhotons
 rm scaledhistosForConvertedPhotons
 rm scaledhistosForConvertedPhotonsLogScale
 rm unscaledhistosForConvertedPhotons
