@@ -37,7 +37,7 @@ process.p = cms.Path(
 #   process.GlobalTag.globaltag =  ...    ##  (according to https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideFrontierConditions)
 #                                         ##
 #from PhysicsTools.PatAlgos.patInputFiles_cff import filesRelValProdTTbarAODSIM
-process.source.fileNames = cms.untracked.vstring('/store/relval/CMSSW_5_2_7-START52_V10/RelValProdTTbar/AODSIM/v1/00000/D2C6F8A5-A106-E211-B958-0018F3D095EE.root')
+process.source.fileNames = cms.untracked.vstring('/store/relval/CMSSW_5_3_6-START53_V14/RelValProdTTbar/AODSIM/v2/00000/76ED0FA6-1E2A-E211-B8F1-001A92971B72.root')
 #                                         ##
 process.maxEvents.input = 100
 #                                         ##
