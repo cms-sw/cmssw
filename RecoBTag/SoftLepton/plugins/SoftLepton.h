@@ -5,7 +5,7 @@
 //
 // Package:    SoftLepton
 // Class:      SoftLepton
-// 
+//
 /**\class SoftLepton SoftLepton.h RecoBTag/SoftLepton/plugin/SoftLepton.h
 
  Description: CMSSW EDProducer wrapper for sot lepton b tagging.
@@ -24,19 +24,26 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EDProducer.h"
-#include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/Common/interface/RefToBase.h"
 #include "DataFormats/Math/interface/Vector3D.h"
 #include "DataFormats/GeometryVector/interface/GlobalVector.h"
 #include "DataFormats/JetReco/interface/Jet.h"
+#include "DataFormats/JetReco/interface/JetTracksAssociation.h"
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
-#include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "DataFormats/Common/interface/ValueMap.h"
+#include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
+#include "DataFormats/EgammaCandidates/interface/Electron.h"
+#include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
+#include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/MuonReco/interface/MuonSelectors.h"
 #include "DataFormats/BTauReco/interface/SoftLeptonTagInfo.h"
+
 
 class TransientTrackBuilder;
 
@@ -82,16 +89,25 @@ protected:
       const math::XYZVector& vector,
       const math::XYZVector& axis
   );
-  
+
 private:
   virtual void produce(edm::Event & event, const edm::EventSetup & setup);
 
-  // configuration   
-  const edm::InputTag m_jets;
-  const edm::InputTag m_primaryVertex;
-  const edm::InputTag m_leptons;
-  const edm::InputTag m_leptonCands;
-  const edm::InputTag m_leptonId;
+  // configuration
+  const edm::InputTag                                           m_jets;
+  const edm::EDGetTokenT<reco::JetTracksAssociationCollection>  token_jtas;
+  const edm::EDGetTokenT<edm::View<reco::Jet> >                 token_jets;
+  const edm::EDGetTokenT<reco::VertexCollection>                token_primaryVertex;
+  const edm::InputTag                                           m_leptons;
+  const edm::EDGetTokenT<edm::View<reco::GsfElectron> >         token_gsfElectrons;
+  const edm::EDGetTokenT<edm::View<reco::Electron> >            token_electrons;
+  const edm::EDGetTokenT<reco::PFCandidateCollection>           token_pfElectrons;
+  const edm::EDGetTokenT<edm::View<reco::Muon> >                token_muons;
+  const edm::EDGetTokenT<edm::View<reco::Track> >               token_tracks;
+  const edm::InputTag                                           m_leptonCands;
+  const edm::EDGetTokenT<edm::ValueMap<float> >                  token_leptonCands;
+  const edm::InputTag                                           m_leptonId;
+  const edm::EDGetTokenT<edm::ValueMap<float> >                  token_leptonId;
 
   // service used to make transient tracks from tracks
   const TransientTrackBuilder * m_transientTrackBuilder;
@@ -100,7 +116,7 @@ private:
   unsigned int  m_refineJetAxis;
   double        m_deltaRCut;
   double        m_chi2Cut;
-  
+
   // specific for reco::Muons
   muon::SelectionType m_muonSelection;
 
