@@ -8,7 +8,6 @@
 //
 // Original Author:  Gena Kukartsev
 //         Created:  Sun Aug 16 20:44:05 CEST 2009
-// $Id: HcalO2OManager.cc,v 1.42 2011/12/20 15:11:58 eulisse Exp $
 //
 
 

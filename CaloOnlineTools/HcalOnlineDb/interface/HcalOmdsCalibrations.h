@@ -1,7 +1,6 @@
 //
 // Original Author:  Gena Kukartsev Mar 11, 2009
 // Adapted from HcalTextCalibrations
-// $Id$
 //
 //
 #include <map>
