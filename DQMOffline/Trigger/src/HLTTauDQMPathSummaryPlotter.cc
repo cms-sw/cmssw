@@ -45,7 +45,7 @@ void HLTTauDQMPathSummaryPlotter::analyze(const edm::TriggerResults& triggerResu
   if(doRefAnalysis_) {
     std::vector<HLTTauDQMPath::Object> triggerObjs;
     std::vector<HLTTauDQMPath::Object> matchedTriggerObjs;
-    LVColl matchedOfflineObjs;
+    HLTTauDQMOfflineObjects matchedOfflineObjs;
 
     for(size_t i=0; i<pathObjects_.size(); ++i) {
       const HLTTauDQMPath *path = pathObjects_[i];

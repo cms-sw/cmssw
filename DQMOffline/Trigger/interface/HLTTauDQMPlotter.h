@@ -24,6 +24,11 @@ typedef math::XYZTLorentzVectorD LV;
 typedef std::vector<LV> LVColl;
 
 struct HLTTauDQMOfflineObjects {
+  void clear() {
+    electrons.clear();
+    muons.clear();
+    taus.clear();
+  };
   typedef math::XYZTLorentzVectorD LV;
   std::vector<LV> electrons;
   std::vector<LV> muons;

@@ -385,7 +385,7 @@ void HLTTauDQMPath::getFilterObjects(const trigger::TriggerEvent& triggerEvent, 
   }
 }
 
-bool HLTTauDQMPath::offlineMatching(size_t i, const std::vector<Object>& triggerObjects, const HLTTauDQMOfflineObjects& offlineObjects, double dR, std::vector<Object>& matchedTriggerObjects, LVColl& matchedOfflineObjects) const {
+bool HLTTauDQMPath::offlineMatching(size_t i, const std::vector<Object>& triggerObjects, const HLTTauDQMOfflineObjects& offlineObjects, double dR, std::vector<Object>& matchedTriggerObjects, HLTTauDQMOfflineObjects& matchedOfflineObjects) const {
   bool isL1 = (i==0 && isFirstL1Seed_);
   if(filterTauN_[i] > 0) {
     int matchedObjects = 0;
@@ -394,7 +394,7 @@ bool HLTTauDQMPath::offlineMatching(size_t i, const std::vector<Object>& trigger
       if(! ((isL1 && (trgObj.id == trigger::TriggerL1TauJet || trgObj.id == trigger::TriggerL1CenJet))
             || trgObj.id == trigger::TriggerTau) )
         continue;
-      if(deltaRmatch(trgObj.object, offlineObjects.taus, dR, matchedOfflineObjects)) {
+      if(deltaRmatch(trgObj.object, offlineObjects.taus, dR, matchedOfflineObjects.taus)) {
         ++matchedObjects;
         matchedTriggerObjects.emplace_back(trgObj);
       }
@@ -408,14 +408,14 @@ bool HLTTauDQMPath::offlineMatching(size_t i, const std::vector<Object>& trigger
       //std::cout << "trigger object id " << trgObj.id << std::endl;
       if((isL1 && (trgObj.id == trigger::TriggerL1NoIsoEG || trgObj.id == trigger::TriggerL1IsoEG))
          || trgObj.id == trigger::TriggerElectron) {
-        if(deltaRmatch(trgObj.object, offlineObjects.electrons, dR, matchedOfflineObjects)) {
+        if(deltaRmatch(trgObj.object, offlineObjects.electrons, dR, matchedOfflineObjects.electrons)) {
           ++matchedObjects;
           matchedTriggerObjects.emplace_back(trgObj);
         }
       }
       else if((isL1 && trgObj.id == trigger::TriggerL1Mu)
               || trgObj.id == trigger::TriggerMuon) {
-        if(deltaRmatch(trgObj.object, offlineObjects.muons, dR, matchedOfflineObjects)) {
+        if(deltaRmatch(trgObj.object, offlineObjects.muons, dR, matchedOfflineObjects.muons)) {
           ++matchedObjects;
           matchedTriggerObjects.emplace_back(trgObj);
         }
@@ -424,5 +424,10 @@ bool HLTTauDQMPath::offlineMatching(size_t i, const std::vector<Object>& trigger
     if(matchedObjects < filterLeptonN_[i])
       return false;
   }
+  // Sort offline objects by pt
+  std::sort(matchedOfflineObjects.taus.begin(), matchedOfflineObjects.taus.end(), [](const LV& a, const LV&b) { return a.pt() > b.pt();});
+  std::sort(matchedOfflineObjects.electrons.begin(), matchedOfflineObjects.electrons.end(), [](const LV& a, const LV&b) { return a.pt() > b.pt();});
+  std::sort(matchedOfflineObjects.muons.begin(), matchedOfflineObjects.muons.end(), [](const LV& a, const LV&b) { return a.pt() > b.pt();});
+
   return true;
 }

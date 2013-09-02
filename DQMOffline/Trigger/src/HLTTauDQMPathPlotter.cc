@@ -59,7 +59,8 @@ void HLTTauDQMPathPlotter::beginRun(const HLTConfigProvider& HLTCP) {
     hTrigTauEta_ = store_->book1D("TrigTauEta", "#tau #eta",  etabins_, -2.5, 2.5);
     hTrigTauPhi_ = store_->book1D("TrigTauPhi", "#tau #phi",  phibins_, -3.2, 3.2);
 
-    hMass_ = 0;
+    // Book di-object invariant mass histogram only for mu+tau, ele+tau, and di-tau paths
+    hMass_ = nullptr;
     if(doRefAnalysis_) {
       const int lastFilter = hltPath_.filtersSize()-1;
       const int ntaus = hltPath_.getFilterNTaus(lastFilter);
@@ -78,7 +79,7 @@ void HLTTauDQMPathPlotter::analyze(const edm::TriggerResults& triggerResults, co
 
   std::vector<HLTTauDQMPath::Object> triggerObjs;
   std::vector<HLTTauDQMPath::Object> matchedTriggerObjs;
-  LVColl matchedOfflineObjs;
+  HLTTauDQMOfflineObjects matchedOfflineObjs;
 
   // Events per filter
   const int lastPassedFilter = hltPath_.lastPassedFilter(triggerResults);
@@ -107,7 +108,6 @@ void HLTTauDQMPathPlotter::analyze(const edm::TriggerResults& triggerResults, co
   }
 
 
-  // Triggered tau kinematics
   if(hltPath_.fired(triggerResults)) {
     triggerObjs.clear();
     matchedTriggerObjs.clear();
@@ -115,12 +115,29 @@ void HLTTauDQMPathPlotter::analyze(const edm::TriggerResults& triggerResults, co
     hltPath_.getFilterObjects(triggerEvent, lastPassedFilter, triggerObjs);
     if(doRefAnalysis_) {
       bool matched = hltPath_.offlineMatching(lastPassedFilter, triggerObjs, refCollection, hltMatchDr_, matchedTriggerObjs, matchedOfflineObjs);
+      // Di-object invariant mass
+      if(hMass_ && matched) {
+        if(hltPath_.getFilterNTaus(lastPassedFilter) == 2) {
+          // Di-tau (matchedOfflineObjs are already sorted)
+          hMass_->Fill( (matchedOfflineObjs.taus[0]+matchedOfflineObjs.taus[1]).M() );
+        }
+        // Electron+tau
+        else if(!matchedOfflineObjs.electrons.empty()) {
+          hMass_->Fill( (matchedOfflineObjs.taus[0]+matchedOfflineObjs.electrons[0]).M() );
+        }
+        // Muon+tau
+        else if(!matchedOfflineObjs.muons.empty()) {
+          hMass_->Fill( (matchedOfflineObjs.taus[0]+matchedOfflineObjs.muons[0]).M() );
+        }
+      }
+
       if(matched)
         triggerObjs.swap(matchedTriggerObjs);
       else
         triggerObjs.clear();
     }
 
+    // Triggered tau kinematics
     for(const HLTTauDQMPath::Object& obj: triggerObjs) {
       if(obj.id != trigger::TriggerTau)
         continue;
