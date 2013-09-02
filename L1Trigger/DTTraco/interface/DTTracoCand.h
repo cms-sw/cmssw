@@ -5,8 +5,6 @@
  *   Implementation of DTTracoChip candidate 
  * 
  *
- *   $Date: 2007/04/27 08:41:29 $
- *   $Revision: 1.2 $
  *
  *   \author C. Grandi, S. Vanini
  *

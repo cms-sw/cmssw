@@ -4,8 +4,6 @@
 //
 //   Description:  A class to produce the L1 GMT emulator scales record in the event setup
 //
-//   $Date: 2007/03/23 15:43:02 $
-//   $Revision: 1.1 $
 //
 //   Author :
 //   I. Mikulec

@@ -16,7 +16,6 @@
 //
 // Original Author:  Werner Sun
 //         Created:  Fri May 30 18:25:56 CEST 2008
-// $Id: L1CaloInputScalesProducer.h,v 1.1 2008/05/30 19:29:26 wsun Exp $
 //
 
 // system include files

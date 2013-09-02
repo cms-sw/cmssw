@@ -1,4 +1,3 @@
-// $Id: RBCId.h,v 1.3 2009/01/30 15:42:47 aosorio Exp $
 #ifndef RBCID_H 
 #define RBCID_H 1
 

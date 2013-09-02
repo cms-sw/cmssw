@@ -1,4 +1,3 @@
-// $Id: TTUBasicConfig.cc,v 1.6 2009/08/09 11:11:37 aosorio Exp $
 // Include files 
 
 

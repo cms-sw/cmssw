@@ -1,4 +1,3 @@
-// $Id: RBCTestLogic.h,v 1.1 2009/05/16 19:43:30 aosorio Exp $
 #ifndef RBCTESTLOGIC_H 
 #define RBCTESTLOGIC_H 1
 

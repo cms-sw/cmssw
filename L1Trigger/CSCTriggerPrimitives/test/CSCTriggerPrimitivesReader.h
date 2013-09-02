@@ -8,7 +8,6 @@
  *
  * \author Slava Valuev, UCLA.
  *
- * $Id: CSCTriggerPrimitivesReader.h,v 1.18.2.1 2012/05/16 00:31:26 khotilov Exp $
  *
  */
 

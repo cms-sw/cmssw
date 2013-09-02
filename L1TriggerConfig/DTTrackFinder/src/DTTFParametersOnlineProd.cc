@@ -13,7 +13,6 @@
 //
 // Original Author:  Werner Man-Li Sun
 //         Created:  Fri Oct  3 00:26:52 CEST 2008
-// $Id: DTTFParametersOnlineProd.cc,v 1.6 2009/05/18 08:22:25 troco Exp $
 //
 //
 

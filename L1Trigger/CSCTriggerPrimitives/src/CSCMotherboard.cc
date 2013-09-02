@@ -27,7 +27,6 @@
 //                Based on code by Nick Wisniewski (nw@its.caltech.edu)
 //                and a framework by Darin Acosta (acosta@phys.ufl.edu).
 //
-//   $Id: CSCMotherboard.cc,v 1.33.2.3 2012/10/18 04:59:25 khotilov Exp $
 //
 //   Modifications: Numerous later improvements by Jason Mumford and
 //                  Slava Valuev (see cvs in ORCA).

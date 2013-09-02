@@ -13,7 +13,6 @@
 //
 // Original Author:  pts/140
 //         Created:  Wed Jun 25 16:40:01 CEST 2008
-// $Id: L1CaloInputScaleTester.h,v 1.1 2008/07/14 17:22:35 jleonard Exp $
 //
 //
 

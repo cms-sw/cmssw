@@ -14,7 +14,6 @@
 //
 // Original Author:  Jim Brooke
 //         Created:  Tue Nov 21 14:49:14 CET 2006
-// $Id: FakeGctInputTester.h,v 1.2 2007/03/28 07:54:50 heath Exp $
 //
 //
 

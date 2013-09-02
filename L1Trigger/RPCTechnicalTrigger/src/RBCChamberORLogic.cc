@@ -1,4 +1,3 @@
-// $Id: RBCChamberORLogic.cc,v 1.6 2009/07/01 22:52:06 aosorio Exp $
 // Include files 
 
 
