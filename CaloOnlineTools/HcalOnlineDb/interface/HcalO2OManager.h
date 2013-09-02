@@ -16,7 +16,6 @@
 //
 // Original Author:  Gena Kukartsev
 //         Created:  Sun Aug 16 20:45:38 CEST 2009
-// $Id$
 //
 
 #include<vector>

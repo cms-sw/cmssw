@@ -3,8 +3,6 @@
  * dummy module  for the test of  DaqFileInputService
  *   
  * 
- * $Date: 2010/01/04 15:07:39 $
- * $Revision: 1.3 $
  * \author Keti Kaadze
  * \author G. Franzoni
  *

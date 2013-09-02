@@ -13,7 +13,6 @@
 //
 // Original Author:  Seth COOPER
 //         Created:  Th Nov 22 5:46:22 CEST 2007
-// $Id: EcalURecHitHists.h,v 1.4 2008/04/22 21:08:24 scooper Exp $
 //
 //
 
