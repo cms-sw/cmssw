@@ -1,0 +1,2 @@
+1. Put the "TriggerEfficiencyTree.root" file from the MatchTool into this directory
+2. Adjust files "MakeEffPlot.C/h" and run it to get trigger efficiency plots.

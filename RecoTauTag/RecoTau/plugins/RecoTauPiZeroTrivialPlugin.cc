@@ -40,7 +40,7 @@ RecoTauPiZeroTrivialPlugin::RecoTauPiZeroTrivialPlugin(
 
 RecoTauPiZeroBuilderPlugin::return_type RecoTauPiZeroTrivialPlugin::operator()(
     const reco::PFJet& jet) const {
-  std::vector<PFCandidatePtr> pfGammaCands = qcuts_.filterRefs(pfGammas(jet));
+  std::vector<PFCandidatePtr> pfGammaCands = qcuts_.filterCandRefs(pfGammas(jet));
   PiZeroVector output;
   output.reserve(pfGammaCands.size());
 

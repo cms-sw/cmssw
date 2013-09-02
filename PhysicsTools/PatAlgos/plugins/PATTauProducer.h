@@ -1,5 +1,5 @@
 //
-// $Id: PATTauProducer.h,v 1.23 2011/09/26 12:36:30 veelken Exp $
+// $Id: PATTauProducer.h,v 1.23.12.1 2013/05/31 14:54:23 veelken Exp $
 //
 
 #ifndef PhysicsTools_PatAlgos_PATTauProducer_h
@@ -13,7 +13,7 @@
    a collection of objects of TauType.
 
   \author   Steven Lowette, Christophe Delaere
-  \version  $Id: PATTauProducer.h,v 1.23 2011/09/26 12:36:30 veelken Exp $
+  \version  $Id: PATTauProducer.h,v 1.23.12.1 2013/05/31 14:54:23 veelken Exp $
 */
 
 
@@ -59,6 +59,7 @@ namespace pat {
 
       // configurables
       edm::InputTag tauSrc_;
+      edm::InputTag tauTransverseImpactParameterSrc_;
       bool embedIsolationTracks_;
       bool embedLeadTrack_;
       bool embedSignalTracks_;

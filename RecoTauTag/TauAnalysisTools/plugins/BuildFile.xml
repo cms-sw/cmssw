@@ -1,0 +1,16 @@
+<library   file="*.cc" name="RecoTauTagTauAnalysisToolsPlugins">
+  <flags EDM_PLUGIN="1"/>
+<use name="RecoTauTag/TauAnalysisTools"/>
+<use name="FWCore/Framework"/>
+<use name="FWCore/PluginManager"/>
+<use name="FWCore/ParameterSet"/>
+<use name="DQMServices/Core"/>
+<use name="DataFormats/PatCandidates"/>
+<use name="DataFormats/Common"/>
+<use name="FWCore/ServiceRegistry"/>
+<use name="CommonTools/UtilAlgos"/>
+<use name="PhysicsTools/UtilAlgos"/>
+<use name="boost"/>
+<use name="FWCore/Utilities"/>
+</library>
+

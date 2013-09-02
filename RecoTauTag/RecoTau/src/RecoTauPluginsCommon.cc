@@ -14,9 +14,10 @@ RecoTauEventHolderPlugin::RecoTauEventHolderPlugin(const edm::ParameterSet& pset
   :RecoTauNamedPlugin(pset),evt_(NULL),es_(NULL) {}
 
 const edm::Event* RecoTauEventHolderPlugin::evt() const { return evt_; }
+edm::Event* RecoTauEventHolderPlugin::evt() { return evt_; }
 const edm::EventSetup* RecoTauEventHolderPlugin::evtSetup() const { return es_; }
 
-void RecoTauEventHolderPlugin::setup(const edm::Event& evt, const edm::EventSetup& es)
+void RecoTauEventHolderPlugin::setup(edm::Event& evt, const edm::EventSetup& es)
 {
   evt_ = &evt;
   es_ = &es;

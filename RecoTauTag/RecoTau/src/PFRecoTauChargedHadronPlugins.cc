@@ -1,0 +1,6 @@
+#include "RecoTauTag/RecoTau/interface/PFRecoTauChargedHadronPlugins.h"
+
+#include "FWCore/Framework/interface/MakerMacros.h"
+
+EDM_REGISTER_PLUGINFACTORY(PFRecoTauChargedHadronQualityPluginFactory, "PFRecoTauChargedHadronQualityPluginFactory");
+EDM_REGISTER_PLUGINFACTORY(PFRecoTauChargedHadronBuilderPluginFactory, "PFRecoTauChargedHadronBuilderPluginFactory");
