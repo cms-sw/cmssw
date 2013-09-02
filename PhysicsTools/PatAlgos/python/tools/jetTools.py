@@ -3,6 +3,140 @@ from FWCore.GuiBrowsers.ConfigToolBase import *
 from PhysicsTools.PatAlgos.tools.helpers import *
 
 
+_defaultBTagInfos =['impactParameterTagInfos'
+                   ,'secondaryVertexTagInfos'
+                   #,'secondaryVertexNegativeTagInfos'
+                   #,'softMuonTagInfos'
+                   #,'softPFMuonsTagInfos'
+                   #,'softPFElectronsTagInfos'
+                   #,'inclusiveSecondaryVertexFinderTagInfos'
+                   #,'inclusiveSecondaryVertexFinderFilteredTagInfos'
+                   ]
+_allowedBTagInfos =['impactParameterTagInfos'
+                   ,'secondaryVertexTagInfos'
+                   ,'secondaryVertexNegativeTagInfos'
+                   ,'softMuonTagInfos'
+                   ,'softPFMuonsTagInfos'
+                   ,'softPFElectronsTagInfos'
+                   ,'inclusiveSecondaryVertexFinderTagInfos'
+                   ,'inclusiveSecondaryVertexFinderFilteredTagInfos'
+                   ]
+_defaultBTagDiscriminators =['jetBProbabilityBJetTags'
+                            ,'jetProbabilityBJetTags'
+                            ,'trackCountingHighPurBJetTags'
+                            ,'trackCountingHighEffBJetTags'
+                            #,'negativeOnlyJetBProbabilityJetTags'
+                            #,'negativeOnlyJetProbabilityJetTags'
+                            #,'negativeTrackCountingHighEffJetTags'
+                            #,'negativeTrackCountingHighPurJetTags'
+                            #,'positiveOnlyJetBProbabilityJetTags'
+                            #,'positiveOnlyJetProbabilityJetTags'
+                            ,'simpleSecondaryVertexHighEffBJetTags'
+                            ,'simpleSecondaryVertexHighPurBJetTags'
+                            #,'simpleSecondaryVertexNegativeHighEffBJetTags'
+                            #,'simpleSecondaryVertexNegativeHighPurBJetTags'
+                            ,'combinedSecondaryVertexBJetTags'
+                            #,'combinedSecondaryVertexPositiveBJetTags'
+                            #,'combinedSecondaryVertexV1BJetTags'
+                            #,'combinedSecondaryVertexV1PositiveBJetTags'
+                            #,'combinedSecondaryVertexMVABJetTags'
+                            #,'combinedSecondaryVertexNegativeBJetTags'
+                            #,'combinedSecondaryVertexV1NegativeBJetTags'
+                            #,'softPFMuonBJetTags'
+                            #,'softPFMuonByPtBJetTags'
+                            #,'softPFMuonByIP3dBJetTags'
+                            #,'softPFMuonByIP2dBJetTags'
+                            #,'positiveSoftPFMuonBJetTags'
+                            #,'positiveSoftPFMuonByPtBJetTags'
+                            #,'positiveSoftPFMuonByIP3dBJetTags'
+                            #,'positiveSoftPFMuonByIP2dBJetTags'
+                            #,'negativeSoftPFMuonBJetTags'
+                            #,'negativeSoftPFMuonByPtBJetTags'
+                            #,'negativeSoftPFMuonByIP3dBJetTags'
+                            #,'negativeSoftPFMuonByIP2dBJetTags'
+                            #,'softPFElectronBJetTags'
+                            #,'softPFElectronByPtBJetTags'
+                            #,'softPFElectronByIP3dBJetTags'
+                            #,'softPFElectronByIP2dBJetTags'
+                            #,'positiveSoftPFElectronBJetTags'
+                            #,'positiveSoftPFElectronByPtBJetTags'
+                            #,'positiveSoftPFElectronByIP3dBJetTags'
+                            #,'positiveSoftPFElectronByIP2dBJetTags'
+                            #,'negativeSoftPFElectronBJetTags'
+                            #,'negativeSoftPFElectronByPtBJetTags'
+                            #,'negativeSoftPFElectronByIP3dBJetTags'
+                            #,'negativeSoftPFElectronByIP2dBJetTags'
+                            #,'simpleInclusiveSecondaryVertexHighEffBJetTags'
+                            #,'simpleInclusiveSecondaryVertexHighPurBJetTags'
+                            #,'doubleSecondaryVertexHighEffBJetTags'
+                            #,'combinedInclusiveSecondaryVertexBJetTags'
+                            #,'combinedInclusiveSecondaryVertexPositiveBJetTags'
+                            #,'combinedMVABJetTags'
+                            #,'positiveCombinedMVABJetTags'
+                            #,'negativeCombinedMVABJetTags'
+                            #,'combinedSecondaryVertexSoftPFLeptonV1BJetTags'
+                            #,'positiveCombinedSecondaryVertexSoftPFLeptonV1BJetTags'
+                            #,'negativeCombinedSecondaryVertexSoftPFLeptonV1BJetTags'
+                            ]
+_allowedBTagDiscriminators =['jetBProbabilityBJetTags'
+                            ,'jetProbabilityBJetTags'
+                            ,'trackCountingHighPurBJetTags'
+                            ,'trackCountingHighEffBJetTags'
+                            ,'negativeOnlyJetBProbabilityJetTags'
+                            ,'negativeOnlyJetProbabilityJetTags'
+                            ,'negativeTrackCountingHighEffJetTags'
+                            ,'negativeTrackCountingHighPurJetTags'
+                            ,'positiveOnlyJetBProbabilityJetTags'
+                            ,'positiveOnlyJetProbabilityJetTags'
+                            ,'simpleSecondaryVertexHighEffBJetTags'
+                            ,'simpleSecondaryVertexHighPurBJetTags'
+                            ,'simpleSecondaryVertexNegativeHighEffBJetTags'
+                            ,'simpleSecondaryVertexNegativeHighPurBJetTags'
+                            ,'combinedSecondaryVertexBJetTags'
+                            ,'combinedSecondaryVertexPositiveBJetTags'
+                            ,'combinedSecondaryVertexV1BJetTags'
+                            ,'combinedSecondaryVertexV1PositiveBJetTags'
+                            ,'combinedSecondaryVertexMVABJetTags'
+                            ,'combinedSecondaryVertexNegativeBJetTags'
+                            ,'combinedSecondaryVertexV1NegativeBJetTags'
+                            ,'softPFMuonBJetTags'
+                            ,'softPFMuonByPtBJetTags'
+                            ,'softPFMuonByIP3dBJetTags'
+                            ,'softPFMuonByIP2dBJetTags'
+                            ,'positiveSoftPFMuonBJetTags'
+                            ,'positiveSoftPFMuonByPtBJetTags'
+                            ,'positiveSoftPFMuonByIP3dBJetTags'
+                            ,'positiveSoftPFMuonByIP2dBJetTags'
+                            ,'negativeSoftPFMuonBJetTags'
+                            ,'negativeSoftPFMuonByPtBJetTags'
+                            ,'negativeSoftPFMuonByIP3dBJetTags'
+                            ,'negativeSoftPFMuonByIP2dBJetTags'
+                            ,'softPFElectronBJetTags'
+                            ,'softPFElectronByPtBJetTags'
+                            ,'softPFElectronByIP3dBJetTags'
+                            ,'softPFElectronByIP2dBJetTags'
+                            ,'positiveSoftPFElectronBJetTags'
+                            ,'positiveSoftPFElectronByPtBJetTags'
+                            ,'positiveSoftPFElectronByIP3dBJetTags'
+                            ,'positiveSoftPFElectronByIP2dBJetTags'
+                            ,'negativeSoftPFElectronBJetTags'
+                            ,'negativeSoftPFElectronByPtBJetTags'
+                            ,'negativeSoftPFElectronByIP3dBJetTags'
+                            ,'negativeSoftPFElectronByIP2dBJetTags'
+                            ,'simpleInclusiveSecondaryVertexHighEffBJetTags'
+                            ,'simpleInclusiveSecondaryVertexHighPurBJetTags'
+                            ,'doubleSecondaryVertexHighEffBJetTags'
+                            ,'combinedInclusiveSecondaryVertexBJetTags'
+                            ,'combinedInclusiveSecondaryVertexPositiveBJetTags'
+                            ,'combinedMVABJetTags'
+                            ,'positiveCombinedMVABJetTags'
+                            ,'negativeCombinedMVABJetTags'
+                            ,'combinedSecondaryVertexSoftPFLeptonV1BJetTags'
+                            ,'positiveCombinedSecondaryVertexSoftPFLeptonV1BJetTags'
+                            ,'negativeCombinedSecondaryVertexSoftPFLeptonV1BJetTags'
+                            ]
+
+
 class RunBTagging(ConfigToolBase):
 
     """ Define sequence to run b tagging on AOD input for a given jet
@@ -24,8 +158,8 @@ class RunBTagging(ConfigToolBase):
         self.addParameter(self._defaultParameters,'jetCollection',self._defaultValue, 'input jet collection',Type=cms.InputTag)
         self.addParameter(self._defaultParameters,'label',self._defaultValue, 'postfix label to identify new sequence/modules', Type=str)
         self.addParameter(self._defaultParameters,'postfix',"", "postfix of default sequence (do not confuse with 'label')")
-        self.addParameter(self._defaultParameters,'btagInfo',['impactParameterTagInfos','secondaryVertexTagInfos','softMuonTagInfos','secondaryVertexNegativeTagInfos','secondaryVertexNegativeTagInfos','inclusiveSecondaryVertexFinderTagInfos','softElectronTagInfos'],"input btag info",allowedValues=['impactParameterTagInfos','secondaryVertexTagInfos','softMuonTagInfos','secondaryVertexNegativeTagInfos','inclusiveSecondaryVertexFinderTagInfos','softElectronTagInfos'],Type=list)
-        self.addParameter(self._defaultParameters,'btagdiscriminators',['jetBProbabilityBJetTags', 'jetProbabilityBJetTags','trackCountingHighPurBJetTags','trackCountingHighEffBJetTags','simpleSecondaryVertexHighEffBJetTags','simpleSecondaryVertexHighPurBJetTags','combinedSecondaryVertexBJetTags','combinedSecondaryVertexMVABJetTags','softMuonBJetTags','softMuonByPtBJetTags','softMuonByIP3dBJetTags','simpleSecondaryVertexNegativeHighEffBJetTags','simpleSecondaryVertexNegativeHighPurBJetTags','negativeTrackCountingHighEffJetTags','negativeTrackCountingHighPurJetTags','combinedInclusiveSecondaryVertexBJetTags','combinedMVABJetTags'],"input btag discriminators", allowedValues=['jetBProbabilityBJetTags', 'jetProbabilityBJetTags', 'trackCountingHighPurBJetTags', 'trackCountingHighEffBJetTags', 'simpleSecondaryVertexHighEffBJetTags','simpleSecondaryVertexHighPurBJetTags','combinedSecondaryVertexBJetTags','combinedSecondaryVertexMVABJetTags','softMuonBJetTags','softMuonByPtBJetTags','softMuonByIP3dBJetTags','simpleSecondaryVertexNegativeHighEffBJetTags','simpleSecondaryVertexNegativeHighPurBJetTags','negativeTrackCountingHighEffJetTags','negativeTrackCountingHighPurJetTags','combinedInclusiveSecondaryVertexBJetTags','combinedMVABJetTags'],Type=list)
+        self.addParameter(self._defaultParameters,'btagInfo',_defaultBTagInfos,"input btag info",allowedValues=_allowedBTagInfos,Type=list)
+        self.addParameter(self._defaultParameters,'btagdiscriminators',_defaultBTagDiscriminators,"input btag discriminators",allowedValues=_allowedBTagDiscriminators,Type=list)
 
         self._parameters=copy.deepcopy(self._defaultParameters)
         self._comment = ""
@@ -91,13 +225,10 @@ class RunBTagging(ConfigToolBase):
             raise ValueError, "label for re-running b tagging is not allowed to be empty"
 
         ## import track associator & b tag configuration
-        process.load("RecoJets.JetAssociationProducers.ak5JTA_cff")
+        ###process.load("RecoJets.JetAssociationProducers.ak5JTA_cff")
         from RecoJets.JetAssociationProducers.ak5JTA_cff import ak5JetTracksAssociatorAtVertex
         process.load("RecoBTag.Configuration.RecoBTag_cff")
         import RecoBTag.Configuration.RecoBTag_cff as btag
-
-        # add negative tag infos
-        import PhysicsTools.PatAlgos.recoLayer0.bTagging_cff as nbtag
 
         ## define jetTracksAssociator; for switchJetCollection
         ## the label is 'AOD' as empty labels will lead to crashes
@@ -109,21 +240,25 @@ class RunBTagging(ConfigToolBase):
         if (not label == 'AOD'):
             jtaLabel  += label
         ## define tag info labels (compare with jetProducer_cfi.py)
-        ipTILabel = 'impactParameterTagInfos'     + label + postfix
-        svTILabel = 'secondaryVertexTagInfos'     + label + postfix
-        ivfTILabel = 'inclusiveSecondaryVertexFinderTagInfos'     + label + postfix
-        nvTILabel = 'secondaryVertexNegativeTagInfos'     + label + postfix
-        seTILabel = 'softElectronTagInfos'        + label + postfix
-        smTILabel = 'softMuonTagInfos'            + label + postfix
+        ipTILabel      = 'impactParameterTagInfos'                        + label + postfix
+        svTILabel      = 'secondaryVertexTagInfos'                        + label + postfix
+        ivfTILabel     = 'inclusiveSecondaryVertexFinderTagInfos'         + label + postfix
+        ivfFiltTILabel = 'inclusiveSecondaryVertexFinderFilteredTagInfos' + label + postfix
+        nvTILabel      = 'secondaryVertexNegativeTagInfos'                + label + postfix
+        smTILabel      = 'softMuonTagInfos'                               + label + postfix
+        spfmTILabel    = 'softPFMuonsTagInfos'                            + label + postfix
+        spfeTILabel    = 'softPFElectronsTagInfos'                        + label + postfix
 
         ## make VInputTag from strings
         def vit(*args) : return cms.VInputTag( *[ cms.InputTag(x) for x in args ] )
 
         ## produce btags
+        btagInfoRun = []
         print
         print "The btaginfo below will be written to the jet collection in the PATtuple (default is all, see PatAlgos/PhysicsTools/python/tools/jetTools.py)"
         for tagInfo in btagInfo:
-                print tagInfo
+            print tagInfo
+            if hasattr( btag, tagInfo ):
                 if tagInfo=='impactParameterTagInfos':
                     if not hasattr( process, ipTILabel ):
                         tagInfoMod=getattr(btag,tagInfo).clone(jetTracks = cms.InputTag(jtaLabel))
@@ -142,12 +277,18 @@ class RunBTagging(ConfigToolBase):
                         setattr( process, smTILabel, tagInfoMod )
                     else:
                         getattr( process, smTILabel ).jets = jetCollection
-                if tagInfo=='softElectronTagInfos':
-                    if not hasattr( process, seTILabel ):
+                if tagInfo=='softPFMuonsTagInfos':
+                    if not hasattr( process, spfmTILabel ):
                         tagInfoMod=getattr(btag,tagInfo).clone(jets = jetCollection)
-                        setattr( process, seTILabel, tagInfoMod )
+                        setattr( process, spfmTILabel, tagInfoMod )
                     else:
-                        getattr( process, seTILabel ).jets = jetCollection
+                        getattr( process, spfmTILabel ).jets = jetCollection
+                if tagInfo=='softPFElectronsTagInfos':
+                    if not hasattr( process, spfeTILabel ):
+                        tagInfoMod=getattr(btag,tagInfo).clone(jets = jetCollection)
+                        setattr( process, spfeTILabel, tagInfoMod )
+                    else:
+                        getattr( process, spfeTILabel ).jets = jetCollection
                 if tagInfo=='secondaryVertexNegativeTagInfos':
                     if not hasattr( process, nvTILabel ):
                         tagInfoMod=getattr(btag,tagInfo).clone(trackIPTagInfos = cms.InputTag(ipTILabel))
@@ -160,67 +301,150 @@ class RunBTagging(ConfigToolBase):
                         setattr( process, ivfTILabel, tagInfoMod )
                     else:
                         getattr( process, ivfTILabel ).trackIPTagInfos = cms.InputTag(ipTILabel)
+                if tagInfo=='inclusiveSecondaryVertexFinderFilteredTagInfos':
+                    if not hasattr( process, ivfFiltTILabel ):
+                        tagInfoMod=getattr(btag,tagInfo).clone(trackIPTagInfos = cms.InputTag(ipTILabel))
+                        setattr( process, ivfFiltTILabel, tagInfoMod )
+                    else:
+                        getattr( process, ivfFiltTILabel ).trackIPTagInfos = cms.InputTag(ipTILabel)
+                btagInfoRun.append( tagInfo )
+            else:
+                print '  --> ignored, since not available via RecoBTag/Configuration/python/RecoBTag_cff.py!'
 
+        btagdiscriminatorsRun = []
         print
         print "The bdiscriminators below will be written to the jet collection in the PATtuple (default is all, see PatAlgos/PhysicsTools/python/tools/jetTools.py)"
         for tag in btagdiscriminators:
-                print tag
-                if tag == 'jetBProbabilityBJetTags' or tag == 'jetProbabilityBJetTags' or tag == 'trackCountingHighPurBJetTags' or tag == 'trackCountingHighEffBJetTags' or tag == 'negativeTrackCountingHighEffJetTags' or  tag =='negativeTrackCountingHighPurJetTags' :
-                    if not hasattr(process, tag+label+postfix):
-                        tagMod=getattr(btag,tag).clone(tagInfos = vit(ipTILabel))
-                        setattr(process, tag+label+postfix, tagMod)
+            print tag
+            if hasattr( btag, tag ):
+                if tag == 'jetBProbabilityBJetTags' or tag == 'jetProbabilityBJetTags' or tag == 'trackCountingHighPurBJetTags' or tag == 'trackCountingHighEffBJetTags' or tag == 'negativeOnlyJetBProbabilityJetTags' or tag == 'negativeOnlyJetProbabilityJetTags' or tag == 'negativeTrackCountingHighEffJetTags' or  tag =='negativeTrackCountingHighPurJetTags' or tag == 'positiveOnlyJetBProbabilityJetTags' or tag == 'positiveOnlyJetProbabilityJetTags':
+                    if hasattr( process, ipTILabel ):
+                        if not hasattr(process, tag+label+postfix):
+                            tagMod=getattr(btag,tag).clone(tagInfos = vit(ipTILabel))
+                            setattr(process, tag+label+postfix, tagMod)
+                        else:
+                            getattr(process, tag+label+postfix).tagInfos = vit(ipTILabel)
+                        btagdiscriminatorsRun.append( tag )
                     else:
-                        getattr(process, tag+label+postfix).tagInfos = vit(ipTILabel)
+                        print '  --> ignored, since input %s not available!'%( vit(ipTILabel) )
 
                 if tag == 'simpleSecondaryVertexHighEffBJetTags' or tag == 'simpleSecondaryVertexHighPurBJetTags':
-                    if not hasattr(process, tag+label+postfix):
-#                       tagMod=getattr(btag,tag).clone(tagInfos = vit(ipTILabel,svTILabel))
-                        tagMod=getattr(btag,tag).clone(tagInfos = vit(svTILabel))
-                        setattr(process, tag+label+postfix, tagMod)
+                    if hasattr( process, svTILabel ):
+                        if not hasattr(process, tag+label+postfix):
+                            tagMod=getattr(btag,tag).clone(tagInfos = vit(svTILabel))
+                            setattr(process, tag+label+postfix, tagMod)
+                        else:
+                            getattr(process, tag+label+postfix).tagInfos = vit(svTILabel)
+                        btagdiscriminatorsRun.append( tag )
                     else:
-                        #getattr(process, tag+label+postfix).tagInfos = vit(ipTILabel,svTILabel)
-                        getattr(process, tag+label+postfix).tagInfos = vit(svTILabel)
+                        print '  --> ignored, since input %s not available!'%( vit(svTILabel) )
 
-                if tag == 'combinedSecondaryVertexBJetTags' or tag == 'combinedSecondaryVertexMVABJetTags':
-                    if not hasattr(process, tag+label+postfix):
-                        tagMod=getattr(btag,tag).clone(tagInfos = vit(ipTILabel,svTILabel))
-                        setattr(process, tag+label+postfix, tagMod)
+                if tag == 'combinedSecondaryVertexBJetTags' or tag == 'combinedSecondaryVertexPositiveBJetTags' or tag == 'combinedSecondaryVertexV1BJetTags' or tag == 'combinedSecondaryVertexV1PositiveBJetTags' or tag == 'combinedSecondaryVertexMVABJetTags':
+                    if hasattr( process, ipTILabel ) and hasattr( process, svTILabel ):
+                        if not hasattr(process, tag+label+postfix):
+                            tagMod=getattr(btag,tag).clone(tagInfos = vit(ipTILabel,svTILabel))
+                            setattr(process, tag+label+postfix, tagMod)
+                        else:
+                            getattr(process, tag+label+postfix).tagInfos = vit(ipTILabel,svTILabel)
+                        btagdiscriminatorsRun.append( tag )
                     else:
-                        getattr(process, tag+label+postfix).tagInfos = vit(ipTILabel,svTILabel)
+                        print '  --> ignored, since input %s not available!'%( vit(ipTILabel,svTILabel) )
 
-                if tag == 'softMuonBJetTags' or tag == 'softMuonByPtBJetTags' or tag == 'softMuonByIP3dBJetTags' :
-                    if not hasattr(process, tag+label+postfix):
-                        tagMod=getattr(btag,tag).clone(tagInfos = vit(smTILabel))
-                        setattr(process, tag+label+postfix, tagMod)
+                if tag == 'combinedSecondaryVertexNegativeBJetTags' or tag == 'combinedSecondaryVertexV1NegativeBJetTags':
+                    if hasattr( process, ipTILabel ) and hasattr( process, nvTILabel ):
+                        if not hasattr(process, tag+label+postfix):
+                            tagMod=getattr(btag,tag).clone(tagInfos = vit(ipTILabel,nvTILabel))
+                            setattr(process, tag+label+postfix, tagMod)
+                        else:
+                            getattr(process, tag+label+postfix).tagInfos = vit(ipTILabel,nvTILabel)
+                        btagdiscriminatorsRun.append( tag )
                     else:
-                        getattr(process, tag+label+postfix).tagInfos = vit(smTILabel)
+                        print '  --> ignored, since input %s not available!'%( vit(ipTILabel,nvTILabel) )
+
+                if tag == 'softPFMuonBJetTags' or tag == 'softPFMuonByPtBJetTags' or tag == 'softPFMuonByIP3dBJetTags' or tag == 'softPFMuonByIP2dBJetTags' or tag == 'positiveSoftPFMuonBJetTags' or tag == 'positiveSoftPFMuonByPtBJetTags' or tag == 'positiveSoftPFMuonByIP3dBJetTags' or tag == 'positiveSoftPFMuonByIP2dBJetTags' or tag == 'negativeSoftPFMuonBJetTags' or tag == 'negativeSoftPFMuonByPtBJetTags' or tag == 'negativeSoftPFMuonByIP3dBJetTags' or tag == 'negativeSoftPFMuonByIP2dBJetTags':
+                    if hasattr( process, spfmTILabel ):
+                        if not hasattr(process, tag+label+postfix):
+                            tagMod=getattr(btag,tag).clone(tagInfos = vit(spfmTILabel))
+                            setattr(process, tag+label+postfix, tagMod)
+                        else:
+                            getattr(process, tag+label+postfix).tagInfos = vit(spfmTILabel)
+                        btagdiscriminatorsRun.append( tag )
+                    else:
+                        print '  --> ignored, since input %s not available!'%( vit(spfmTILabel) )
+
+                if tag == 'softPFElectronBJetTags' or tag == 'softPFElectronByPtBJetTags' or tag == 'softPFElectronByIP3dBJetTags' or tag == 'softPFElectronByIP2dBJetTags' or tag == 'positiveSoftPFElectronBJetTags' or tag == 'positiveSoftPFElectronByPtBJetTags' or tag == 'positiveSoftPFElectronByIP3dBJetTags' or tag == 'positiveSoftPFElectronByIP2dBJetTags' or tag == 'negativeSoftPFElectronBJetTags' or tag == 'negativeSoftPFElectronByPtBJetTags' or tag == 'negativeSoftPFElectronByIP3dBJetTags' or tag == 'negativeSoftPFElectronByIP2dBJetTags':
+                    if hasattr( process, spfeTILabel ):
+                        if not hasattr(process, tag+label+postfix):
+                            tagMod=getattr(btag,tag).clone(tagInfos = vit(spfeTILabel))
+                            setattr(process, tag+label+postfix, tagMod)
+                        else:
+                            getattr(process, tag+label+postfix).tagInfos = vit(spfeTILabel)
+                        btagdiscriminatorsRun.append( tag )
+                    else:
+                        print '  --> ignored, since input %s not available!'%( vit(spfeTILabel) )
 
                 if tag == 'simpleSecondaryVertexNegativeHighEffBJetTags' or tag == 'simpleSecondaryVertexNegativeHighPurBJetTags':
-                    if not hasattr(process, tag+label+postfix):
-                        tagMod=getattr(btag,tag).clone(tagInfos = vit(nvTILabel))
-                        setattr(process, tag+label+postfix, tagMod)
+                    if hasattr( process, nvTILabel ):
+                        if not hasattr(process, tag+label+postfix):
+                            tagMod=getattr(btag,tag).clone(tagInfos = vit(nvTILabel))
+                            setattr(process, tag+label+postfix, tagMod)
+                        else:
+                            getattr(process, tag+label+postfix).tagInfos = vit(nvTILabel)
+                        btagdiscriminatorsRun.append( tag )
                     else:
-                        getattr(process, tag+label+postfix).tagInfos = vit(nvTILabel)
+                        print '  --> ignored, since input %s not available!'%( vit(nvTILabel) )
 
-                if tag == 'combinedInclusiveSecondaryVertexBJetTags' :
-                    if not hasattr(process, tag+label+postfix):
-                        tagMod=getattr(btag,tag).clone(tagInfos = vit(ipTILabel,ivfTILabel))
-                        setattr(process, tag+label+postfix, tagMod)
+                if tag == 'simpleInclusiveSecondaryVertexHighEffBJetTags' or tag == 'simpleInclusiveSecondaryVertexHighPurBJetTags' or tag == 'doubleSecondaryVertexHighEffBJetTags':
+                    if hasattr( process, ivfFiltTILabel ):
+                        if not hasattr(process, tag+label+postfix):
+                            tagMod=getattr(btag,tag).clone(tagInfos = vit(ivfFiltTILabel))
+                            setattr(process, tag+label+postfix, tagMod)
+                        else:
+                            getattr(process, tag+label+postfix).tagInfos = vit(ivfFiltTILabel)
+                        btagdiscriminatorsRun.append( tag )
                     else:
-                        getattr(process, tag+label+postfix).tagInfos = vit(ipTILabel,ivfTILabel)
+                        print '  --> ignored, since input %s not available!'%( vit(ivfFiltTILabel) )
 
-                if tag == 'combinedMVABJetTags' :
-                    if not hasattr(process, tag+label+postfix):
-                        tagMod=getattr(btag,tag).clone(tagInfos = vit(ipTILabel, ivfTILabel,smTILabel,seTILabel))
-                        setattr(process, tag+label+postfix, tagMod)
+                if tag == 'combinedInclusiveSecondaryVertexBJetTags' or tag == 'combinedInclusiveSecondaryVertexPositiveBJetTags':
+                    if hasattr( process, ipTILabel ) and hasattr( process, ivfTILabel ):
+                        if not hasattr(process, tag+label+postfix):
+                            tagMod=getattr(btag,tag).clone(tagInfos = vit(ipTILabel,ivfTILabel))
+                            setattr(process, tag+label+postfix, tagMod)
+                        else:
+                            getattr(process, tag+label+postfix).tagInfos = vit(ipTILabel,ivfTILabel)
+                        btagdiscriminatorsRun.append( tag )
                     else:
-                        getattr(process, tag+label+postfix).tagInfos = vit(ipTILabel, ivfTILabel,smTILabel,seTILabel)
+                        print '  --> ignored, since input %s not available!'%( vit(ipTILabel,ivfTILabel) )
+
+                if tag == 'combinedMVABJetTags' or tag == 'positiveCombinedMVABJetTags' or tag == 'negativeCombinedMVABJetTags':
+                    if hasattr( process, ipTILabel ) and hasattr( process, ivfTILabel ) and hasattr( process, spfmTILabel ) and hasattr( process, spfeTILabel ):
+                        if not hasattr(process, tag+label+postfix):
+                            tagMod=getattr(btag,tag).clone(tagInfos = vit(ipTILabel, ivfTILabel,spfmTILabel,spfeTILabel))
+                            setattr(process, tag+label+postfix, tagMod)
+                        else:
+                            getattr(process, tag+label+postfix).tagInfos = vit(ipTILabel, ivfTILabel,spfmTILabel,spfeTILabel)
+                        btagdiscriminatorsRun.append( tag )
+                    else:
+                        print '  --> ignored, since input %s not available!'%( vit(ipTILabel, ivfTILabel,spfmTILabel,spfeTILabel) )
+
+                if tag == 'combinedSecondaryVertexSoftPFLeptonV1BJetTags' or tag == 'positiveCombinedSecondaryVertexSoftPFLeptonV1BJetTags' or tag == 'negativeCombinedSecondaryVertexSoftPFLeptonV1BJetTags':
+                    if hasattr( process, ipTILabel ) and hasattr( process, svTILabel ) and hasattr( process, spfmTILabel ) and hasattr( process, spfeTILabel ):
+                        if not hasattr(process, tag+label+postfix):
+                            tagMod=getattr(btag,tag).clone(tagInfos = vit(ipTILabel,svTILabel,spfmTILabel,spfeTILabel))
+                            setattr(process, tag+label+postfix, tagMod)
+                        else:
+                            getattr(process, tag+label+postfix).tagInfos = vit(ipTILabel,svTILabel,spfmTILabel,spfeTILabel)
+                        btagdiscriminatorsRun.append( tag )
+                    else:
+                        print '  --> ignored, since input %s not available!'%( vit(ipTILabel,svTILabel,spfmTILabel,spfeTILabel) )
+            else:
+                print '  --> ignored, since not available via RecoBTag/Configuration/python/RecoBTag_cff.py!'
 
 
         ## define vector of (output) labels
         labels = { 'jta'      : jtaLabel,
-                 'tagInfos' : [(y + label + postfix) for y in btagInfo],
-                 'jetTags'  : [ (x + label+postfix) for x in btagdiscriminators]
+                 'tagInfos' : [(y + label + postfix) for y in btagInfoRun],
+                 'jetTags'  : [ (x + label+postfix) for x in btagdiscriminatorsRun]
                    }
 
         ## add a combined b-tag sequence to the process
@@ -244,14 +468,20 @@ class RunBTagging(ConfigToolBase):
             seq = None
 
         ## return the combined sequence and the labels defined above
-        if seTILabel in getattr( process, 'btagging'+label+postfix ).moduleNames():
-            if not hasattr( process, 'softElectronCands' ):
-                setattr( process, 'softElectronCands', btag.softElectronCands )
-            getattr( process, 'btagging'+label+postfix ).replace( getattr( process, seTILabel ), ( process.softElectronCands * getattr( process, seTILabel ) ) )
         if ivfTILabel in getattr( process, 'btagging'+label+postfix ).moduleNames():
             if not hasattr( process, 'inclusiveVertexing' ):
                 process.load( 'RecoVertex.AdaptiveVertexFinder.inclusiveVertexing_cff' )
-            getattr( process, 'btagging'+label+postfix ).replace( getattr( process, ivfTILabel ), ( process.inclusiveVertexing * getattr( process, ivfTILabel ) ) )
+            if hasattr( process, 'inclusiveVertexing' ):
+                getattr( process, 'btagging'+label+postfix ).replace( getattr( process, ivfTILabel ), ( process.inclusiveVertexing * getattr( process, ivfTILabel ) ) )
+        if ivfFiltTILabel in getattr( process, 'btagging'+label+postfix ).moduleNames():
+            if not hasattr( process, 'inclusiveVertexing' ):
+                process.load( 'RecoVertex.AdaptiveVertexFinder.inclusiveVertexing_cff' )
+            if not hasattr( process, 'inclusiveMergedVerticesFiltered' ):
+                process.load( 'RecoBTag.SecondaryVertex.secondaryVertex_cff' )
+            if not hasattr( process, 'bToCharmDecayVertexMerged' ):
+                process.load( 'RecoBTag.SecondaryVertex.bToCharmDecayVertexMerger_cfi' )
+            if hasattr( process, 'inclusiveVertexing' ) and hasattr( process, 'inclusiveMergedVerticesFiltered' ) and hasattr( process, 'bToCharmDecayVertexMerged' ):
+                getattr( process, 'btagging'+label+postfix ).replace( getattr( process, ivfFiltTILabel ), ( process.inclusiveVertexing * process.inclusiveMergedVerticesFiltered * process.bToCharmDecayVertexMerged * getattr( process, ivfFiltTILabel ) ) )
 
         if hasattr(process, "addAction"):
             process.enableRecording()
@@ -277,8 +507,8 @@ class AddJetCollection(ConfigToolBase):
         self.addParameter(self._defaultParameters,'jetCollection',self._defaultValue,'Input jet collection', cms.InputTag)
         self.addParameter(self._defaultParameters,'algoLabel',self._defaultValue, "label to indicate the jet algorithm (e.g.'AK5')",str)
         self.addParameter(self._defaultParameters,'typeLabel',self._defaultValue, "label to indicate the type of constituents (e.g. 'Calo', 'Pflow', 'Jpt', ...)",str)
-        self.addParameter(self._defaultParameters,'btagInfo',['impactParameterTagInfos','secondaryVertexTagInfos','softMuonTagInfos','secondaryVertexNegativeTagInfos','secondaryVertexNegativeTagInfos','inclusiveSecondaryVertexFinderTagInfos','softElectronTagInfos'],"input btag info",allowedValues=['impactParameterTagInfos','secondaryVertexTagInfos','softMuonTagInfos','secondaryVertexNegativeTagInfos','inclusiveSecondaryVertexFinderTagInfos','softElectronTagInfos'],Type=list)
-        self.addParameter(self._defaultParameters,'btagdiscriminators',['jetBProbabilityBJetTags', 'jetProbabilityBJetTags','trackCountingHighPurBJetTags','trackCountingHighEffBJetTags','simpleSecondaryVertexHighEffBJetTags','simpleSecondaryVertexHighPurBJetTags','combinedSecondaryVertexBJetTags','combinedSecondaryVertexMVABJetTags','softMuonBJetTags','softMuonByPtBJetTags','softMuonByIP3dBJetTags','simpleSecondaryVertexNegativeHighEffBJetTags','simpleSecondaryVertexNegativeHighPurBJetTags','negativeTrackCountingHighEffJetTags','negativeTrackCountingHighPurJetTags','combinedInclusiveSecondaryVertexBJetTags','combinedMVABJetTags'],"input btag discriminators", allowedValues=['jetBProbabilityBJetTags', 'jetProbabilityBJetTags', 'trackCountingHighPurBJetTags', 'trackCountingHighEffBJetTags', 'simpleSecondaryVertexHighEffBJetTags','simpleSecondaryVertexHighPurBJetTags','combinedSecondaryVertexBJetTags','combinedSecondaryVertexMVABJetTags','softMuonBJetTags','softMuonByPtBJetTags','softMuonByIP3dBJetTags','simpleSecondaryVertexNegativeHighEffBJetTags','simpleSecondaryVertexNegativeHighPurBJetTags','negativeTrackCountingHighEffJetTags','negativeTrackCountingHighPurJetTags','combinedInclusiveSecondaryVertexBJetTags','combinedMVABJetTags'],Type=list)
+        self.addParameter(self._defaultParameters,'btagInfo',_defaultBTagInfos,"input btag info",allowedValues=_allowedBTagInfos,Type=list)
+        self.addParameter(self._defaultParameters,'btagdiscriminators',_defaultBTagDiscriminators,"input btag discriminators",allowedValues=_allowedBTagDiscriminators,Type=list)
         self.addParameter(self._defaultParameters,'doJTA',True, "run b tagging sequence for new jet collection and add it to the new pat jet collection")
         self.addParameter(self._defaultParameters,'doBTagging',True, 'run JetTracksAssociation and JetCharge and add it to the new pat jet collection (will autom. be true if doBTagging is set to true)')
         self.addParameter(self._defaultParameters,'jetCorrLabel',None, "payload and list of new jet correction labels, such as (\'AK5Calo\',[\'L2Relative\', \'L3Absolute\'])", tuple,acceptNoneValue=True )
@@ -290,7 +520,7 @@ class AddJetCollection(ConfigToolBase):
         self.addParameter(self._defaultParameters,'jetIdLabel',"ak5", " specify the label prefix of the xxxJetID object; in general it is the jet collection tag like ak5, kt4 sc5, aso. For more information have a look to SWGuidePATTools#add_JetCollection")
         self.addParameter(self._defaultParameters,'standardAlgo',"AK5", "standard algorithm label of the collection from which the clones for the new jet collection will be taken from (note that this jet collection has to be available in the event before hand)")
         self.addParameter(self._defaultParameters,'standardType',"Calo", "standard constituent type label of the collection from which the clones for the new jet collection will be taken from (note that this jet collection has to be available in the event before hand)")
-        self.addParameter(self._defaultParameters, 'outputModules', ['out'], "output module labels, empty list of label indicates no output, default: ['out']")
+        self.addParameter(self._defaultParameters,'outputModules', ['out'], "output module labels, empty list of label indicates no output, default: ['out']")
 
         self._parameters=copy.deepcopy(self._defaultParameters)
         self._comment = ""
@@ -459,7 +689,7 @@ class AddJetCollection(ConfigToolBase):
 
         if (doJTA or doBTagging):
             ## add clone of jet track association
-            process.load("RecoJets.JetAssociationProducers.ak5JTA_cff")
+            ###process.load("RecoJets.JetAssociationProducers.ak5JTA_cff")
             from RecoJets.JetAssociationProducers.ak5JTA_cff import ak5JetTracksAssociatorAtVertex
             ## add jet track association module to processes
             jtaLabel = 'jetTracksAssociatorAtVertex'+algoLabel+typeLabel
@@ -669,8 +899,8 @@ class SwitchJetCollection(ConfigToolBase):
     def __init__(self):
         ConfigToolBase.__init__(self)
         self.addParameter(self._defaultParameters,'jetCollection',self._defaultValue,'Input jet collection', cms.InputTag)
-        self.addParameter(self._defaultParameters,'btagInfo',['impactParameterTagInfos','secondaryVertexTagInfos','softMuonTagInfos','secondaryVertexNegativeTagInfos','secondaryVertexNegativeTagInfos','inclusiveSecondaryVertexFinderTagInfos','softElectronTagInfos'],"input btag info",allowedValues=['impactParameterTagInfos','secondaryVertexTagInfos','softMuonTagInfos','secondaryVertexNegativeTagInfos','inclusiveSecondaryVertexFinderTagInfos','softElectronTagInfos'],Type=list)
-        self.addParameter(self._defaultParameters,'btagdiscriminators',['jetBProbabilityBJetTags', 'jetProbabilityBJetTags','trackCountingHighPurBJetTags','trackCountingHighEffBJetTags','simpleSecondaryVertexHighEffBJetTags','simpleSecondaryVertexHighPurBJetTags','combinedSecondaryVertexBJetTags','combinedSecondaryVertexMVABJetTags','softMuonBJetTags','softMuonByPtBJetTags','softMuonByIP3dBJetTags','simpleSecondaryVertexNegativeHighEffBJetTags','simpleSecondaryVertexNegativeHighPurBJetTags','negativeTrackCountingHighEffJetTags','negativeTrackCountingHighPurJetTags','combinedInclusiveSecondaryVertexBJetTags','combinedMVABJetTags'],"input btag discriminators", allowedValues=['jetBProbabilityBJetTags', 'jetProbabilityBJetTags', 'trackCountingHighPurBJetTags', 'trackCountingHighEffBJetTags', 'simpleSecondaryVertexHighEffBJetTags','simpleSecondaryVertexHighPurBJetTags','combinedSecondaryVertexBJetTags','combinedSecondaryVertexMVABJetTags','softMuonBJetTags','softMuonByPtBJetTags','softMuonByIP3dBJetTags','simpleSecondaryVertexNegativeHighEffBJetTags','simpleSecondaryVertexNegativeHighPurBJetTags','negativeTrackCountingHighEffJetTags','negativeTrackCountingHighPurJetTags','combinedInclusiveSecondaryVertexBJetTags','combinedMVABJetTags'],Type=list)
+        self.addParameter(self._defaultParameters,'btagInfo',_defaultBTagInfos,"input btag info",allowedValues=_allowedBTagInfos,Type=list)
+        self.addParameter(self._defaultParameters,'btagdiscriminators',_defaultBTagDiscriminators,"input btag discriminators",allowedValues=_allowedBTagDiscriminators,Type=list)
 	self.addParameter(self._defaultParameters,'doJTA',True, "run b tagging sequence for new jet collection and add it to the new pat jet collection")
         self.addParameter(self._defaultParameters,'doBTagging',True, 'run JetTracksAssociation and JetCharge and add it to the new pat jet collection (will autom. be true if doBTagging is set to true)')
         self.addParameter(self._defaultParameters,'jetCorrLabel',None, "payload and list of new jet correction labels, such as (\'AK5Calo\',[\'L2Relative\', \'L3Absolute\'])", tuple,acceptNoneValue=True )
@@ -787,7 +1017,7 @@ class SwitchJetCollection(ConfigToolBase):
 
         if (doJTA or doBTagging):
             ## replace jet track association
-            process.load("RecoJets.JetAssociationProducers.ak5JTA_cff")
+            ###process.load("RecoJets.JetAssociationProducers.ak5JTA_cff")
             from RecoJets.JetAssociationProducers.ak5JTA_cff import ak5JetTracksAssociatorAtVertex
             if not hasattr(process, "jetTracksAssociatorAtVertex"+postfix):
                 setattr(process, "jetTracksAssociatorAtVertex"+postfix, ak5JetTracksAssociatorAtVertex.clone(jets = jetCollection))
