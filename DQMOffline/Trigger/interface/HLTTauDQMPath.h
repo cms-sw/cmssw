@@ -50,7 +50,8 @@ public:
   size_t filtersSize() const { return filterIndices_.size(); }
   const std::string& getFilterName(size_t i) const { return std::get<0>(filterIndices_[i]); }
   int getFilterNTaus(size_t i) const { return filterTauN_[i]; }
-  int getFilterNLeptons(size_t i) const {return filterLeptonN_[i]; }
+  int getFilterNElectrons(size_t i) const {return filterElectronN_[i]; }
+  int getFilterNMuons(size_t i) const {return filterMuonN_[i]; }
 
   bool isFirstFilterL1Seed() const { return isFirstL1Seed_; }
   const std::string& getLastFilterName() const { return std::get<0>(filterIndices_.back()); }
@@ -75,7 +76,8 @@ private:
 
   std::vector<FilterIndex> filterIndices_;
   std::vector<int> filterTauN_;
-  std::vector<int> filterLeptonN_;
+  std::vector<int> filterElectronN_;
+  std::vector<int> filterMuonN_;
   std::string pathName_;
   unsigned int pathIndex_;
   bool isFirstL1Seed_;

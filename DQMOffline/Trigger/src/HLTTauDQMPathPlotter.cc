@@ -64,8 +64,9 @@ void HLTTauDQMPathPlotter::beginRun(const HLTConfigProvider& HLTCP) {
     if(doRefAnalysis_) {
       const int lastFilter = hltPath_.filtersSize()-1;
       const int ntaus = hltPath_.getFilterNTaus(lastFilter);
-      const int nleps = hltPath_.getFilterNLeptons(lastFilter);
-      if(ntaus+nleps == 2) {
+      const int neles = hltPath_.getFilterNElectrons(lastFilter);
+      const int nmus = hltPath_.getFilterNMuons(lastFilter);
+      if(ntaus+neles+nmus == 2) {
         hMass_ = store_->book1D("OfflineMass", "Invariant mass of offline "+triggerTag_, 100, 0, 500);
       }
     }
@@ -117,16 +118,17 @@ void HLTTauDQMPathPlotter::analyze(const edm::TriggerResults& triggerResults, co
       bool matched = hltPath_.offlineMatching(lastPassedFilter, triggerObjs, refCollection, hltMatchDr_, matchedTriggerObjs, matchedOfflineObjs);
       // Di-object invariant mass
       if(hMass_ && matched) {
-        if(hltPath_.getFilterNTaus(lastPassedFilter) == 2) {
+        const int ntaus = hltPath_.getFilterNTaus(lastPassedFilter);
+        if(ntaus == 2) {
           // Di-tau (matchedOfflineObjs are already sorted)
           hMass_->Fill( (matchedOfflineObjs.taus[0]+matchedOfflineObjs.taus[1]).M() );
         }
         // Electron+tau
-        else if(!matchedOfflineObjs.electrons.empty()) {
+        else if(ntaus == 1 && hltPath_.getFilterNElectrons(lastPassedFilter) == 1) {
           hMass_->Fill( (matchedOfflineObjs.taus[0]+matchedOfflineObjs.electrons[0]).M() );
         }
         // Muon+tau
-        else if(!matchedOfflineObjs.muons.empty()) {
+        else if(ntaus == 1 && hltPath_.getFilterNMuons(lastPassedFilter) == 1) {
           hMass_->Fill( (matchedOfflineObjs.taus[0]+matchedOfflineObjs.muons[0]).M() );
         }
       }
