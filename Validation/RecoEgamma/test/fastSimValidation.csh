@@ -17,19 +17,19 @@
 
 #=============BEGIN CONFIGURATION=================
 setenv TYPE Photons
-setenv CMSSWver1 6_2_0
-setenv RELEASE 6_2_0
-setenv PRERELEASE 
+setenv CMSSWver1 7_0_0
+setenv RELEASE 7_0_0
+setenv PRERELEASE pre1
 
-setenv FULLGLOBALTAG PRE_ST62_V8-v3
-setenv FASTGLOBALTAG PRE_ST62_V8_FastSim-v3
+setenv FULLGLOBALTAG PRE_ST62_V8-v1
+setenv FASTGLOBALTAG PRE_ST62_V8_FastSim-v1
 
-#setenv RELEASE ${RELEASE}_${PRERELEASE}
-setenv RELEASE ${RELEASE}
+setenv RELEASE ${RELEASE}_${PRERELEASE}
+#setenv RELEASE ${RELEASE}
 
 
-setenv WorkDir1   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver1}/src/Validation/RecoEgamma/test
-#setenv WorkDir1   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver1}_${PRERELEASE}/src/Validation/RecoEgamma/test
+#setenv WorkDir1   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver1}/src/Validation/RecoEgamma/test
+setenv WorkDir1   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver1}_${PRERELEASE}/src/Validation/RecoEgamma/test
 
 
 #Name of sample (affects output directory name and htmldescription only) 
