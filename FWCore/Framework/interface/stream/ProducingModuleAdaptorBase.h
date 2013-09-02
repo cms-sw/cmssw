@@ -40,6 +40,7 @@ namespace edm {
   class ModuleCallingContext;
   class ProductHolderIndexHelper;
   class EDConsumerBase;
+  class PreallocationConfiguration;
   
   namespace maker {
     template<typename T> class ModuleHolderT;
@@ -75,7 +76,9 @@ namespace edm {
 
     protected:
       template<typename F> void createStreamModules(F iFunc) {
-        m_streamModules[0] = iFunc();
+        for(auto& m: m_streamModules) {
+          m = iFunc();
+        }
       }
       
       void commit(Run& iRun) {
@@ -97,8 +100,8 @@ namespace edm {
       
       const ProducingModuleAdaptorBase& operator=(const ProducingModuleAdaptorBase&) = delete; // stop default
 
-      //Inheriting classes must implement this function for the Worker class
-      //bool doEvent(EventPrincipal& ep, EventSetup const& c) ;
+      void doPreallocate(PreallocationConfiguration const&);
+      virtual void setupStreamModules() = 0;
       void doBeginJob();
       virtual void doEndJob() = 0;
       

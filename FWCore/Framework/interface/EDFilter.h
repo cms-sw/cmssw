@@ -26,6 +26,7 @@ namespace edm {
   }
 
   class ModuleCallingContext;
+  class PreallocationConfiguration;
 
   class EDFilter : public ProducerBase, public EDConsumerBase {
   public:
@@ -49,6 +50,7 @@ namespace edm {
   private:    
     bool doEvent(EventPrincipal& ep, EventSetup const& c,
                  ModuleCallingContext const* mcc);
+    void doPreallocate(PreallocationConfiguration const&) {}
     void doBeginJob();
     void doEndJob();    
     void doBeginRun(RunPrincipal& rp, EventSetup const& c,

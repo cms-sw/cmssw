@@ -31,6 +31,7 @@
 
 namespace edm {
   class ModuleCallingContext;
+  class PreallocationConfiguration;
   class StreamID;
   
   namespace maker {
@@ -60,6 +61,7 @@ namespace edm {
     private:
       bool doEvent(EventPrincipal& ep, EventSetup const& c,
                    ModuleCallingContext const*);
+      void doPreallocate(PreallocationConfiguration const&);
       void doBeginJob();
       void doEndJob();
       
@@ -108,6 +110,7 @@ namespace edm {
       virtual void beginJob() {}
       virtual void endJob(){}
 
+      virtual void preallocStreams(unsigned int);
       virtual void doBeginStream_(StreamID id);
       virtual void doEndStream_(StreamID id);
       virtual void doStreamBeginRun_(StreamID id, Run const& rp, EventSetup const& c);

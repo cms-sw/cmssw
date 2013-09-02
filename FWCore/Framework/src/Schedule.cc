@@ -45,7 +45,7 @@ namespace edm {
 
     std::shared_ptr<TriggerResultInserter>
     makeInserter(ParameterSet& proc_pset,
-                 unsigned int iNStreams,
+                 PreallocationConfiguration const& iPrealloc,
                  ProductRegistry& preg,
                  ExceptionToActionTable const& actions,
                  boost::shared_ptr<ActivityRegistry> areg,
@@ -54,7 +54,7 @@ namespace edm {
       ParameterSet* trig_pset = proc_pset.getPSetForUpdate("@trigger_paths");
       trig_pset->registerIt();
       
-      WorkerParams work_args(trig_pset, preg, processConfiguration, actions);
+      WorkerParams work_args(trig_pset, preg, &iPrealloc, processConfiguration, actions);
       ModuleDescription md(trig_pset->id(),
                            "TriggerResultInserter",
                            "TriggerResults",
@@ -62,7 +62,7 @@ namespace edm {
                            ModuleDescription::getUniqueID());
       
       areg->preModuleConstructionSignal_(md);
-      maker::ModuleHolderT<TriggerResultInserter> holder(new TriggerResultInserter(*trig_pset, iNStreams),static_cast<Maker const*>(nullptr));
+      maker::ModuleHolderT<TriggerResultInserter> holder(new TriggerResultInserter(*trig_pset, iPrealloc.numberOfStreams()),static_cast<Maker const*>(nullptr));
       holder.setModuleDescription(md);
       holder.registerProductsAndCallbacks(&preg);
       areg->postModuleConstructionSignal_(md);
@@ -338,19 +338,20 @@ namespace edm {
                      boost::shared_ptr<ActivityRegistry> areg,
                      boost::shared_ptr<ProcessConfiguration> processConfiguration,
                      const ParameterSet* subProcPSet,
-                     PreallocationConfiguration const& config,
+                     PreallocationConfiguration const& prealloc,
                      ProcessContext const* processContext) :
   //Only create a resultsInserter if there is a trigger path
-  resultsInserter_{tns.getTrigPaths().empty()? std::shared_ptr<TriggerResultInserter>{} :makeInserter(proc_pset,config.numberOfStreams(),preg,actions,areg,processConfiguration)},
+  resultsInserter_{tns.getTrigPaths().empty()? std::shared_ptr<TriggerResultInserter>{} :makeInserter(proc_pset,prealloc,preg,actions,areg,processConfiguration)},
     moduleRegistry_(new ModuleRegistry()),
     all_output_communicators_(),
+    preallocConfig_(prealloc),
     wantSummary_(tns.wantSummary()),
     endpathsAreActive_(true)
   {
-    assert(0<config.numberOfStreams());
-    streamSchedules_.reserve(config.numberOfStreams());
-    for(unsigned int i=0; i<config.numberOfStreams();++i) {
-      streamSchedules_.emplace_back(std::shared_ptr<StreamSchedule>{new StreamSchedule{resultsInserter_.get(),moduleRegistry_,proc_pset,tns,preg,branchIDListHelper,actions,areg,processConfiguration,nullptr==subProcPSet,StreamID{i},processContext}});
+    assert(0<prealloc.numberOfStreams());
+    streamSchedules_.reserve(prealloc.numberOfStreams());
+    for(unsigned int i=0; i<prealloc.numberOfStreams();++i) {
+      streamSchedules_.emplace_back(std::shared_ptr<StreamSchedule>{new StreamSchedule{resultsInserter_.get(),moduleRegistry_,proc_pset,tns,prealloc, preg,branchIDListHelper,actions,areg,processConfiguration,nullptr==subProcPSet,StreamID{i},processContext}});
     }
     
     //TriggerResults are injected automatically by StreamSchedules and are
@@ -377,7 +378,7 @@ namespace edm {
     globalSchedule_.reset( new GlobalSchedule{ resultsInserter_.get(),
       moduleRegistry_,
       modulesToUse,
-      proc_pset, preg,
+      proc_pset, preg, prealloc,
       actions,areg,processConfiguration,processContext });
     
     //TriggerResults is not in the top level ParameterSet so the call to
@@ -902,7 +903,7 @@ namespace edm {
       return false;
     }
     
-    auto newMod = moduleRegistry_->replaceModule(iLabel,iPSet);
+    auto newMod = moduleRegistry_->replaceModule(iLabel,iPSet,preallocConfig_);
 
     globalSchedule_->replaceModule(newMod,iLabel);
 

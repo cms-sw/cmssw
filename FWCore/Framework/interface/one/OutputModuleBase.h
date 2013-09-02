@@ -45,6 +45,7 @@
 namespace edm {
 
   class ModuleCallingContext;
+  class PreallocationConfiguration;
   template <typename T> class OutputModuleCommunicatorT;
   
   namespace maker {
@@ -104,7 +105,9 @@ namespace edm {
       ModuleDescription const& description() const;
       
       ParameterSetID selectorConfig() const { return selector_config_id_; }
-      
+
+      void doPreallocate(PreallocationConfiguration const&) {}
+
       void doBeginJob();
       void doEndJob();
       bool doEvent(EventPrincipal const& ep, EventSetup const& c,

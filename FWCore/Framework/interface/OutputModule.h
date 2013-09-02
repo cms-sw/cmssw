@@ -31,6 +31,7 @@ output stream.
 namespace edm {
 
   class ModuleCallingContext;
+  class PreallocationConfiguration;
 
   namespace maker {
     template<typename T> class ModuleHolderT;
@@ -90,6 +91,8 @@ namespace edm {
     }
 
     ParameterSetID selectorConfig() const { return selector_config_id_; }
+
+    void doPreallocate(PreallocationConfiguration const&) {}
 
     void doBeginJob();
     void doEndJob();

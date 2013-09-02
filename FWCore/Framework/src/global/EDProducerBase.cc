@@ -18,6 +18,7 @@
 #include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "FWCore/Framework/interface/Run.h"
 #include "FWCore/Framework/src/edmodule_mightGet_config.h"
+#include "FWCore/Framework/src/PreallocationConfiguration.h"
 
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
@@ -53,6 +54,11 @@ namespace edm {
       this->produce(e.streamID(), e, c);
       commit_(e,&previousParentage_, &previousParentageId_);
       return true;
+    }
+
+    void
+    EDProducerBase::doPreallocate(PreallocationConfiguration const& iPrealloc) {
+      preallocStreams(iPrealloc.numberOfStreams());
     }
     
     void
@@ -184,6 +190,7 @@ namespace edm {
       //postForkReacquireResources(iChildIndex, iNumberOfChildren);
     }
     
+    void EDProducerBase::preallocStreams(unsigned int) {}
     void EDProducerBase::doBeginStream_(StreamID id){}
     void EDProducerBase::doEndStream_(StreamID id) {}
     void EDProducerBase::doStreamBeginRun_(StreamID id, Run const& rp, EventSetup const& c) {}

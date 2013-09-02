@@ -106,6 +106,7 @@ namespace edm {
   class TriggerTimingReport;
   class ModuleRegistry;
   class TriggerResultInserter;
+  class PreallocationConfiguration;
 
   namespace service {
     class TriggerNamesService;
@@ -150,6 +151,7 @@ namespace edm {
                    boost::shared_ptr<ModuleRegistry>,
                    ParameterSet& proc_pset,
                    service::TriggerNamesService& tns,
+                   PreallocationConfiguration const& prealloc,
                    ProductRegistry& pregistry,
                    BranchIDListHelper& branchIDListHelper,
                    ExceptionToActionTable const& actions,
@@ -264,16 +266,19 @@ namespace edm {
 
     void fillWorkers(ParameterSet& proc_pset,
                      ProductRegistry& preg,
+                     PreallocationConfiguration const* prealloc,
                      boost::shared_ptr<ProcessConfiguration const> processConfiguration,
                      std::string const& name, bool ignoreFilters, PathWorkers& out,
                      vstring* labelsOnPaths);
     void fillTrigPath(ParameterSet& proc_pset,
                       ProductRegistry& preg,
+                      PreallocationConfiguration const* prealloc,
                       boost::shared_ptr<ProcessConfiguration const> processConfiguration,
                       int bitpos, std::string const& name, TrigResPtr,
                       vstring* labelsOnTriggerPaths);
     void fillEndPath(ParameterSet& proc_pset,
                      ProductRegistry& preg,
+                     PreallocationConfiguration const* prealloc,
                      boost::shared_ptr<ProcessConfiguration const> processConfiguration,
                      int bitpos, std::string const& name);
 

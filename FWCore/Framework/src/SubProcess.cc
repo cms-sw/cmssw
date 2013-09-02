@@ -21,6 +21,7 @@
 #include "FWCore/Framework/interface/TriggerNamesService.h"
 #include "FWCore/Framework/src/EventSetupsController.h"
 #include "FWCore/Framework/src/SignallingProductRegistry.h"
+#include "FWCore/Framework/src/PreallocationConfiguration.h"
 #include "FWCore/ParameterSet/interface/IllegalParameters.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/ExceptionCollector.h"
@@ -141,13 +142,15 @@ namespace edm {
     processContext_.setProcessConfiguration(processConfiguration_.get());
     processContext_.setParentProcessContext(parentProcessContext);
 
-    boost::shared_ptr<EventPrincipal> ep(new EventPrincipal(preg_,
-                                                            branchIDListHelper_,
-                                                            *processConfiguration_,
-                                                            historyAppender_.get(),
-                                                            StreamID::invalidStreamID()));
-    principalCache_.insert(ep);
-
+    principalCache_.setNumberOfConcurrentPrincipals(preallocConfig);
+    for(unsigned int index = 0; index < preallocConfig.numberOfStreams(); ++index) {
+      boost::shared_ptr<EventPrincipal> ep(new EventPrincipal(preg_,
+                                                              branchIDListHelper_,
+                                                              *processConfiguration_,
+                                                              historyAppender_.get(),
+                                                              index));
+      principalCache_.insert(ep,index);
+    }
     if(subProcessParameterSet) {
       subProcess_.reset(new SubProcess(*subProcessParameterSet,
                                        topLevelParameterSet,
@@ -268,7 +271,7 @@ namespace edm {
   }
 
   void
-  SubProcess::doEvent(EventPrincipal const& ep, IOVSyncValue const& ts) {
+  SubProcess::doEvent(EventPrincipal const& ep) {
     ServiceRegistry::Operate operate(serviceToken_);
     /* BEGIN relevant bits from OutputModule::doEvent */
     detail::TRBESSentry products_sentry(selectors_);
@@ -281,12 +284,12 @@ namespace edm {
         return;
       }
     }
-    process(ep,ts);
+    process(ep);
     /* END relevant bits from OutputModule::doEvent */
   }
 
   void
-  SubProcess::process(EventPrincipal const& principal, IOVSyncValue const& ts) {
+  SubProcess::process(EventPrincipal const& principal) {
     EventAuxiliary aux(principal.aux());
     aux.setProcessHistoryID(principal.processHistoryID());
 
@@ -296,7 +299,7 @@ namespace edm {
       esids->push_back(selector_config_id_);
     }
 
-    EventPrincipal& ep = principalCache_.eventPrincipal();
+    EventPrincipal& ep = principalCache_.eventPrincipal(principal.streamID().value());
     ep.setStreamID(principal.streamID());
     ep.fillEventPrincipal(aux,
                           processHistoryRegistry_,
@@ -307,8 +310,8 @@ namespace edm {
     ep.setLuminosityBlockPrincipal(principalCache_.lumiPrincipalPtr());
     propagateProducts(InEvent, principal, ep);
     typedef OccurrenceTraits<EventPrincipal, BranchActionStreamBegin> Traits;
-    schedule_->processOneEvent<Traits>(ep.streamID().value(),ep, esp_->eventSetupForInstance(ts));
-    if(subProcess_.get()) subProcess_->doEvent(ep, ts);
+    schedule_->processOneEvent<Traits>(ep.streamID().value(),ep, esp_->eventSetup());
+    if(subProcess_.get()) subProcess_->doEvent(ep);
     ep.clearEventPrincipal();
   }
 

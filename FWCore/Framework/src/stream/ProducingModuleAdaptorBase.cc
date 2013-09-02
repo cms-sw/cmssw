@@ -18,7 +18,7 @@
 #include "FWCore/Framework/interface/Run.h"
 #include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"
 #include "FWCore/Framework/interface/RunPrincipal.h"
-
+#include "FWCore/Framework/src/PreallocationConfiguration.h"
 
 //
 // constants, enums and typedefs
@@ -36,7 +36,6 @@ namespace edm {
     template< typename T>
     ProducingModuleAdaptorBase<T>::ProducingModuleAdaptorBase()
     {
-      m_streamModules.resize(1);
     }
     
     template< typename T>
@@ -50,6 +49,15 @@ namespace edm {
     //
     // member functions
     //
+    
+    template< typename T>
+    void
+    ProducingModuleAdaptorBase<T>::doPreallocate(PreallocationConfiguration const& iPrealloc) {
+      m_streamModules.resize(iPrealloc.numberOfStreams(),
+                             static_cast<T*>(nullptr));
+      setupStreamModules();
+    }
+
     template< typename T>
     void
     ProducingModuleAdaptorBase<T>::registerProductsAndCallbacks(ProducingModuleAdaptorBase const*, ProductRegistry* reg) {

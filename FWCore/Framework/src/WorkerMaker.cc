@@ -92,6 +92,7 @@ namespace edm {
         pre(md);
         module = makeModule(*(p.pset_));
         module->setModuleDescription(md);
+        module->preallocate(*(p.preallocate_));
         module->registerProductsAndCallbacks(p.reg_);
         post(md);
       }

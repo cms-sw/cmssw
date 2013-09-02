@@ -72,6 +72,7 @@ namespace edm {
                    std::vector<std::string> const& modulesToUse,
                    ParameterSet& proc_pset,
                    ProductRegistry& pregistry,
+                   PreallocationConfiguration const& prealloc,
                    ExceptionToActionTable const& actions,
                    boost::shared_ptr<ActivityRegistry> areg,
                    boost::shared_ptr<ProcessConfiguration> processConfiguration,
