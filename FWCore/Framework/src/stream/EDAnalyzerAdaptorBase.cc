@@ -22,6 +22,7 @@
 #include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"
 #include "FWCore/Framework/interface/RunPrincipal.h"
 
+#include "FWCore/Framework/src/PreallocationConfiguration.h"
 
 using namespace edm::stream;
 //
@@ -37,7 +38,6 @@ using namespace edm::stream;
 //
 EDAnalyzerAdaptorBase::EDAnalyzerAdaptorBase()
 {
-  m_streamModules.resize(1);
 }
 
 // EDAnalyzerAdaptorBase::EDAnalyzerAdaptorBase(const EDAnalyzerAdaptorBase& rhs)
@@ -67,6 +67,13 @@ EDAnalyzerAdaptorBase::~EDAnalyzerAdaptorBase()
 //
 // member functions
 //
+void
+EDAnalyzerAdaptorBase::doPreallocate(PreallocationConfiguration const& iPrealloc) {
+  m_streamModules.resize(iPrealloc.numberOfStreams(),
+                         static_cast<stream::EDAnalyzerBase*>(nullptr));
+  setupStreamModules();
+}
+
 void
 EDAnalyzerAdaptorBase::registerProductsAndCallbacks(EDAnalyzerAdaptorBase const*, ProductRegistry* reg) {
   for(auto mod : m_streamModules) {

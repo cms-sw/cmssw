@@ -24,6 +24,7 @@ namespace edm {
   class StreamID;
   class StreamContext;
   class ModuleRegistry;
+  class PreallocationConfiguration;
   
   class WorkerManager {
   public:
@@ -35,12 +36,13 @@ namespace edm {
                   boost::shared_ptr<ActivityRegistry> actReg,
                   ExceptionToActionTable const& actions);
     void addToUnscheduledWorkers(ParameterSet& pset,
-                      ProductRegistry& preg,
-                      boost::shared_ptr<ProcessConfiguration> processConfiguration,
-                      std::string label,
-                      bool useStopwatch,
-                      std::set<std::string>& unscheduledLabels,
-                      std::vector<std::string>& shouldBeUsedLabels);
+                                 ProductRegistry& preg,
+                                 PreallocationConfiguration const* prealloc,
+                                 boost::shared_ptr<ProcessConfiguration> processConfiguration,
+                                 std::string label,
+                                 bool useStopwatch,
+                                 std::set<std::string>& unscheduledLabels,
+                                 std::vector<std::string>& shouldBeUsedLabels);
 
     void setOnDemandProducts(ProductRegistry& pregistry, std::set<std::string> const& unscheduledLabels) const;
 
@@ -67,6 +69,7 @@ namespace edm {
 
     Worker* getWorker(ParameterSet& pset,
                       ProductRegistry& preg,
+                      PreallocationConfiguration const* prealloc,
                       boost::shared_ptr<ProcessConfiguration const> processConfiguration,
                       std::string const& label);
 

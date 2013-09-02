@@ -25,7 +25,7 @@
 // forward declarations
 namespace edm {
   class Schedule;
-  class EventProcessor;
+  class EventPrincipal;
   
   class StreamID
   {
@@ -52,7 +52,7 @@ namespace edm {
   private:
     ///Only a Schedule is allowed to create one of these
     friend class Schedule;
-    friend class EventProcessor;
+    friend class EventPrincipal;
     explicit StreamID(unsigned int iValue) : value_(iValue) {}
     
     StreamID() = delete;

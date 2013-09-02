@@ -13,6 +13,7 @@
 namespace edm {
 
   class ModuleCallingContext;
+  class PreallocationConfiguration;
 
   namespace maker {
     template<typename T> class ModuleHolderT;
@@ -41,6 +42,7 @@ namespace edm {
   private:
     bool doEvent(EventPrincipal const& ep, EventSetup const& c,
                  ModuleCallingContext const* mcc);
+    void doPreallocate(PreallocationConfiguration const&) {}
     void doBeginJob();
     void doEndJob();
     bool doBeginRun(RunPrincipal const& rp, EventSetup const& c,

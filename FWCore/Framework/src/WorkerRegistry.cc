@@ -43,7 +43,7 @@ namespace edm {
   
     // if the worker is not there, make it
     if (workerIt == m_workerMap.end()){
-      MakeModuleParams mmp(p.pset_,*p.reg_,p.processConfiguration_);
+      MakeModuleParams mmp(p.pset_,*p.reg_,p.preallocate_,p.processConfiguration_);
       auto modulePtr = modRegistry_->getModule(mmp,moduleLabel,
                                                actReg_->preModuleConstructionSignal_,
                                                actReg_->postModuleConstructionSignal_);
