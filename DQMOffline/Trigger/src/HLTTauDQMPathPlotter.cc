@@ -50,7 +50,7 @@ void HLTTauDQMPathPlotter::beginRun(const HLTConfigProvider& HLTCP) {
     store_->setCurrentFolder(triggerTag());
     store_->removeContents();
 
-    hAcceptedEvents_ = store_->book1D("EventsPerFilter","Accepted Events per filter;;entries", hltPath_.filtersSize(), 0, hltPath_.filtersSize());
+    hAcceptedEvents_ = store_->book1D("EventsPerFilter", "Accepted Events per filter;;entries", hltPath_.filtersSize(), 0, hltPath_.filtersSize());
     for(size_t i=0; i<hltPath_.filtersSize(); ++i) {
       hAcceptedEvents_->setBinLabel(i+1, hltPath_.getFilterName(i));
     }

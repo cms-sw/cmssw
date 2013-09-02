@@ -23,7 +23,7 @@ void HLTTauDQMSummaryPlotter::bookPlots() {
     if (store_) {
         //Path Summary 
         if ( type_ == "Path" ) {
-            bookTriggerBitEfficiencyHistos(triggerTag(),"MatchedTriggerBits");
+            bookTriggerBitEfficiencyHistos(triggerTag(), "EventsPerFilter");
         }
         
         //Lite Path Summary 
@@ -55,7 +55,7 @@ void HLTTauDQMSummaryPlotter::plot() {
     if (store_) {
         //Path Summary 
         if ( type_ == "Path" ) {
-            plotTriggerBitEfficiencyHistos(triggerTag(),"MatchedTriggerBits");
+            plotTriggerBitEfficiencyHistos(triggerTag(), "EventsPerFilter");
         }
         
         //Lite Path Summary 
@@ -168,9 +168,13 @@ void HLTTauDQMSummaryPlotter::bookTriggerBitEfficiencyHistos( std::string folder
         MonitorElement * eff = store_->get(folder+"/"+histo);
         
         if ( eff ) {
-            store_->bookProfile("EfficiencyRefInput","Efficiency with Matching",eff->getNbinsX()-1,0,eff->getNbinsX()-1,100,0,1);
-            store_->bookProfile("EfficiencyRefL1","Efficiency with Matching Ref to L1",eff->getNbinsX()-2,0,eff->getNbinsX()-2,100,0,1);
-            store_->bookProfile("EfficiencyRefPrevious","Efficiency with Matching Ref to Previous",eff->getNbinsX()-1,0,eff->getNbinsX()-1,100,0,1);
+          //store_->bookProfile("EfficiencyRefInput","Efficiency with Matching",eff->getNbinsX()-1,0,eff->getNbinsX()-1,100,0,1);
+          //store_->bookProfile("EfficiencyRefL1","Efficiency with Matching Ref to L1",eff->getNbinsX()-2,0,eff->getNbinsX()-2,100,0,1);
+          MonitorElement *me_prev = store_->bookProfile("EfficiencyRefPrevious","Efficiency to Previous",eff->getNbinsX()-1,0,eff->getNbinsX()-1,100,0,1);
+          const TAxis *xaxis = eff->getTH1F()->GetXaxis();
+          for(int bin=1; bin < eff->getNbinsX(); ++bin) {
+            me_prev->setBinLabel(bin, xaxis->GetBinLabel(bin));
+          }
         }
     }
 }
@@ -179,12 +183,14 @@ void HLTTauDQMSummaryPlotter::plotTriggerBitEfficiencyHistos( std::string folder
     if ( store_->dirExists(folder) ) {
         store_->setCurrentFolder(folder);
         MonitorElement * eff = store_->get(folder+"/"+histo);
-        MonitorElement * effRefTruth = store_->get(folder+"/EfficiencyRefInput");
-        MonitorElement * effRefL1 = store_->get(folder+"/EfficiencyRefL1");
+        //MonitorElement * effRefTruth = store_->get(folder+"/EfficiencyRefInput");
+        //MonitorElement * effRefL1 = store_->get(folder+"/EfficiencyRefL1");
         MonitorElement * effRefPrevious = store_->get(folder+"/EfficiencyRefPrevious");
         
-        if ( eff && effRefTruth && effRefL1 && effRefPrevious ) {
+        //if ( eff && effRefTruth && effRefL1 && effRefPrevious ) {
+        if (eff && effRefPrevious) {
             //Calculate efficiencies with ref to matched objects
+          /*
             for ( int i = 2; i <= eff->getNbinsX(); ++i ) {
                 double efficiency = calcEfficiency(eff->getBinContent(i),eff->getBinContent(1)).first;
                 double err = calcEfficiency(eff->getBinContent(i),eff->getBinContent(1)).second;
@@ -205,6 +211,7 @@ void HLTTauDQMSummaryPlotter::plotTriggerBitEfficiencyHistos( std::string folder
                 effRefL1->getTProfile()->SetBinError(i-2,sqrt(efficiency*efficiency+err*err));
                 effRefL1->setBinLabel(i-2,eff->getTH1F()->GetXaxis()->GetBinLabel(i));
             }
+          */
             //Calculate efficiencies with ref to previous
             for ( int i = 2; i <= eff->getNbinsX(); ++i ) {
                 double efficiency = calcEfficiency(eff->getBinContent(i),eff->getBinContent(i-1)).first;
