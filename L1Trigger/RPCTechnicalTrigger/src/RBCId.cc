@@ -1,4 +1,3 @@
-// $Id: RBCId.cc,v 1.7 2009/01/30 15:42:48 aosorio Exp $
 // Include files 
 
 // local

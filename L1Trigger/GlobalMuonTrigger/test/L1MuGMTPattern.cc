@@ -5,8 +5,6 @@
 //   Description:   Create GMT HW test patterns
 //                  
 //                
-//   $Date: 2008/02/05 10:31:02 $
-//   $Revision: 1.1 $
 //
 //   I. Mikulec            HEPHY Vienna
 //

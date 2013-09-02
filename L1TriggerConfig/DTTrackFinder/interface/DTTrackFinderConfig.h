@@ -5,8 +5,6 @@
  *   L1 DT Track Finder ESProducer
  *
  *
- *   $Date: 2008/05/14 14:52:08 $
- *   $Revision: 1.2 $
  *
  *   J. Troconiz              UAM Madrid
  */

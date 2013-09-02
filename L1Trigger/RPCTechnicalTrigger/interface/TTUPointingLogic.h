@@ -1,4 +1,3 @@
-// $Id: $
 #ifndef TTUPOINTINGLOGIC_H 
 #define TTUPOINTINGLOGIC_H 1
 

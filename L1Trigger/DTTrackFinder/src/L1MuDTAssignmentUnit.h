@@ -9,8 +9,6 @@
  *   found by the Track Assembler
  *
  *
- *   $Date: 2007/02/27 11:44:00 $
- *   $Revision: 1.2 $
  *
  *   N. Neumeister            CERN EP
  *   J. Troconiz              UAM Madrid

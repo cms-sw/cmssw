@@ -1,4 +1,3 @@
-// $Id: RPCData.cc,v 1.3 2009/10/26 12:52:15 aosorio Exp $
 // Include files 
 
 

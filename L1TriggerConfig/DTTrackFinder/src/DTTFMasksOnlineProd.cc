@@ -13,7 +13,6 @@
 //
 // Original Author:  J. Troconiz - UAM Madrid
 //         Created:  Fri Apr  3 00:26:52 CEST 2009
-// $Id: DTTFMasksOnlineProd.cc,v 1.2 2009/05/18 08:22:25 troco Exp $
 //
 //
 

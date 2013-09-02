@@ -1,4 +1,3 @@
-// $Id: RBCProcessRPCDigis.cc,v 1.5 2009/12/25 07:05:21 elmer Exp $
 // Include files 
 
 

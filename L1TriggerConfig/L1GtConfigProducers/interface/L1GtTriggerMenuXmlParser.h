@@ -13,8 +13,6 @@
  * \author: Vasile Mihai Ghete - HEPHY Vienna
  * \author  M. Eder            - HEPHY Vienna - ORCA version, reduced functionality
  *
- * $Date$
- * $Revision$
  *
  */
 

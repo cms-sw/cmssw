@@ -12,8 +12,6 @@
  * \author: M. Fierro            - HEPHY Vienna - ORCA version
  * \author: Vasile Mihai Ghete   - HEPHY Vienna - CMSSW version
  *
- * $Date$
- * $Revision$
  *
  */
 

@@ -3,8 +3,6 @@
 /**  \class DTTSCand
  *    A Trigger Server Candidate
  *
- *   $Date: 2007/04/27 08:55:47 $
- *   $Revision: 1.4 $
  *
  *   \author C. Grandi, D. Bonacorsi, S. Marcellini
  */

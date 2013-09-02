@@ -5,8 +5,6 @@
 //   Description:  A class to produce the L1 GMT emulator parameters in the event setup
 //                 by reading them from the online database.
 //
-//   $Date$
-//   $Revision$
 //
 //   Author :
 //   Thomas Themel

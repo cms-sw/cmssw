@@ -3,7 +3,6 @@
 /**   \class: DTSC.h
  *
  *
- *   $Date: 2007/03/09 15:17:40 $
  *
  *   Implementation of Sector Collector trigger algorithm
  *

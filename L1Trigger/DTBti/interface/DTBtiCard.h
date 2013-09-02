@@ -4,8 +4,6 @@
  *     Contains active DTBtiChips
  *
  *
- *   $Date: 2009/11/12 14:33:15 $
- *   $Revision: 1.11 $
  *
  *   \author C. Grandi, S. Vanini
  *
