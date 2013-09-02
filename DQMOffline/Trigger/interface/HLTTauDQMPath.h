@@ -65,6 +65,8 @@ public:
   // i = filter index
   bool offlineMatching(size_t i, const std::vector<Object>& triggerObjects, const HLTTauDQMOfflineObjects& offlineObjects, double dR, std::vector<Object>& matchedTriggerObjects, HLTTauDQMOfflineObjects& matchedOfflineObjects) const;
 
+  bool goodOfflineEvent(size_t i, const HLTTauDQMOfflineObjects& offlineObjects) const;
+
   typedef std::tuple<std::string, size_t> FilterIndex;
 private:
   const std::string hltProcess_;

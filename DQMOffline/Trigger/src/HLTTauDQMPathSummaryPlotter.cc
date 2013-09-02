@@ -28,7 +28,7 @@ void HLTTauDQMPathSummaryPlotter::beginRun(const std::vector<const HLTTauDQMPath
     store_->setCurrentFolder(triggerTag()+"/helpers");
     store_->removeContents();
 
-    all_events = store_->book1D("InputEvents", "All events", 1, 0, 1);
+    all_events = store_->book1D("RefEvents", "All events", pathObjects_.size(), 0, pathObjects_.size());
     accepted_events = store_->book1D("PathTriggerBits","Accepted Events per Path;;entries", pathObjects_.size(), 0, pathObjects_.size());
     for(size_t i=0; i<pathObjects_.size(); ++i) {
       accepted_events->setBinLabel(i+1, pathObjects_[i]->getPathName());
@@ -40,8 +40,6 @@ void HLTTauDQMPathSummaryPlotter::beginRun(const std::vector<const HLTTauDQMPath
 }
 
 void HLTTauDQMPathSummaryPlotter::analyze(const edm::TriggerResults& triggerResults, const trigger::TriggerEvent& triggerEvent, const HLTTauDQMOfflineObjects& refCollection) {
-  all_events->Fill(0.5);
-
   if(doRefAnalysis_) {
     std::vector<HLTTauDQMPath::Object> triggerObjs;
     std::vector<HLTTauDQMPath::Object> matchedTriggerObjs;
@@ -49,11 +47,15 @@ void HLTTauDQMPathSummaryPlotter::analyze(const edm::TriggerResults& triggerResu
 
     for(size_t i=0; i<pathObjects_.size(); ++i) {
       const HLTTauDQMPath *path = pathObjects_[i];
+      const int lastFilter = path->filtersSize()-1;
+
+      if(path->goodOfflineEvent(lastFilter, refCollection)) {
+        all_events->Fill(i+0.5);
+      }
       if(path->fired(triggerResults)) {
         triggerObjs.clear();
         matchedTriggerObjs.clear();
         matchedOfflineObjs.clear();
-        int lastFilter = path->filtersSize()-1;
         path->getFilterObjects(triggerEvent, lastFilter, triggerObjs);
         if(path->offlineMatching(lastFilter, triggerObjs, refCollection, hltMatchDr_, matchedTriggerObjs, matchedOfflineObjs)) {
           accepted_events->Fill(i+0.5);
@@ -64,6 +66,7 @@ void HLTTauDQMPathSummaryPlotter::analyze(const edm::TriggerResults& triggerResu
   else {
     for(size_t i=0; i<pathObjects_.size(); ++i) {
       const HLTTauDQMPath *path = pathObjects_[i];
+      all_events->Fill(i+0.5);
       if(path->fired(triggerResults)) {
         accepted_events->Fill(i+0.5);
       }

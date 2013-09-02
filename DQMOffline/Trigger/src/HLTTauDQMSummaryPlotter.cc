@@ -46,7 +46,7 @@ void HLTTauDQMSummaryPlotter::bookPlots() {
         }
 
         else if(type_ == "PathSummary") {
-          bookFractionHisto(triggerTag(), "PathTriggerBits");
+          bookEfficiencyHisto(triggerTag(), "PathEfficiency", "helpers/PathTriggerBits");
         }
     }
 }
@@ -86,7 +86,7 @@ void HLTTauDQMSummaryPlotter::plot() {
         }
 
         else if(type_ == "PathSummary") {
-          plotFractionHisto(triggerTag(), "PathTriggerBits");
+          plotEfficiencyHisto(triggerTag(), "PathEfficiency", "helpers/PathTriggerBits", "helpers/RefEvents");
         }
     }
 }      
@@ -217,47 +217,6 @@ void HLTTauDQMSummaryPlotter::plotTriggerBitEfficiencyHistos( std::string folder
             }
         }
     }
-}
-
-void HLTTauDQMSummaryPlotter::bookFractionHisto(const std::string& folder, const std::string& name) {
-  if(!store_->dirExists(folder))
-    return;
-
-  MonitorElement *me_accEv = store_->get(folder+"/helpers/"+name);
-  if(!me_accEv)
-    return;
-
-  store_->setCurrentFolder(folder);
-  const TH1F *h = me_accEv->getTH1F();
-  const TAxis *xaxis = h->GetXaxis();
-  //MonitorElement *tmp = store_->bookProfile("PathTriggerBits", "Accepted/all events per path", h->GetNbinsX(), xaxis->GetXmin(), xaxis->GetXmax(), 105,0,1.05);
-  MonitorElement *me_tmp = store_->book1D("PathTriggerBits", "Accepted/all events per path;;Fraction of accepted events", h->GetNbinsX(), xaxis->GetXmin(), xaxis->GetXmax());
-  for(int bin=1; bin<=h->GetNbinsX(); ++bin) {
-    me_tmp->setBinLabel(bin, xaxis->GetBinLabel(bin));
-  }
-}
-
-void HLTTauDQMSummaryPlotter::plotFractionHisto(const std::string& folder, const std::string& name) {
-  MonitorElement *me_accEv = store_->get(folder+"/helpers/"+name);
-  if(!me_accEv)
-    return;
-
-  MonitorElement *me_allEv = store_->get(folder+"/helpers/InputEvents");
-  if(!me_allEv)
-    return;
-  float allEvents = me_allEv->getTH1F()->GetBinContent(1);
-  if(allEvents == 0.0f) // protect against division by zero
-    return;
-
-  MonitorElement *me_result = store_->get(folder+"/"+"PathTriggerBits");
-  if(!me_result)
-    return;
-
-  const TH1F *accEv = me_accEv->getTH1F();
-  TH1F *result = me_result->getTH1F();
-  for(int bin=1; bin <= result->GetNbinsX(); ++bin) {
-    result->SetBinContent(bin, accEv->GetBinContent(bin)/allEvents);
-  }
 }
 
 std::pair<double,double> HLTTauDQMSummaryPlotter::calcEfficiency( float num, float denom ) {

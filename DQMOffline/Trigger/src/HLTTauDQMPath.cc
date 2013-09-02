@@ -449,3 +449,9 @@ bool HLTTauDQMPath::offlineMatching(size_t i, const std::vector<Object>& trigger
 
   return true;
 }
+
+bool HLTTauDQMPath::goodOfflineEvent(size_t i, const HLTTauDQMOfflineObjects& offlineObjects) const {
+  return (static_cast<size_t>(getFilterNTaus(i)) <= offlineObjects.taus.size() &&
+          static_cast<size_t>(getFilterNElectrons(i)) <= offlineObjects.electrons.size() &&
+          static_cast<size_t>(getFilterNMuons(i)) <= offlineObjects.muons.size());
+}
