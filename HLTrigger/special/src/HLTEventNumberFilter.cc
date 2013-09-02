@@ -25,11 +25,13 @@ Implementation:
 
 // user include files
 #include "HLTrigger/special/interface/HLTEventNumberFilter.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 //
 // constructors and destructor
 //
-HLTEventNumberFilter::HLTEventNumberFilter(const edm::ParameterSet& iConfig) : HLTFilter(iConfig) 
+HLTEventNumberFilter::HLTEventNumberFilter(const edm::ParameterSet& iConfig) 
 {
   //now do what ever initialization is needed
 
@@ -46,6 +48,13 @@ HLTEventNumberFilter::~HLTEventNumberFilter()
 
 }
 
+void
+HLTEventNumberFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<int>("period",4096);
+  desc.add<bool>("invert",true);
+  descriptions.add("HLTEventNumberFilter",desc);
+}
 
 //
 // member functions
@@ -53,7 +62,7 @@ HLTEventNumberFilter::~HLTEventNumberFilter()
 
 // ------------ method called on each new Event  ------------
 bool
-HLTEventNumberFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct)
+HLTEventNumberFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   using namespace edm;
 

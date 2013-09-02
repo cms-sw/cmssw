@@ -31,9 +31,9 @@ Implementation:
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
-#include "DataFormats/FEDRawData/interface/FEDRawData.h"
-#include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 #include "DataFormats/HcalDigi/interface/HcalCalibrationEventTypes.h"
 #include "EventFilter/HcalRawToDigi/interface/HcalDCCHeader.h"
@@ -50,6 +50,7 @@ HLTHcalCalibTypeFilter::HLTHcalCalibTypeFilter(const edm::ParameterSet& iConfig)
   DataInputTag_ = iConfig.getParameter<edm::InputTag>("InputTag") ;
   Summary_      = iConfig.getUntrackedParameter<bool>("FilterSummary",false) ;
   CalibTypes_   = iConfig.getParameter< std::vector<int> >("CalibTypes") ; 
+  DataInputToken_ = consumes<FEDRawDataCollection>(DataInputTag_);
 }
 
 
@@ -61,6 +62,15 @@ HLTHcalCalibTypeFilter::~HLTHcalCalibTypeFilter()
 
 }
 
+void
+HLTHcalCalibTypeFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<edm::InputTag>("rawData",edm::InputTag("source"));
+  std::vector<int> temp; for (int i=1; i<=5; i++) temp.push_back(i);
+  desc.add<std::vector<int> >("CalibTypes", temp);
+  desc.add<bool>("FilterSummary",false);
+  descriptions.add("HLTHcalCalibTypeFilter",desc);
+}
 
 //
 // member functions
@@ -73,7 +83,7 @@ HLTHcalCalibTypeFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup
   using namespace edm;
   
   edm::Handle<FEDRawDataCollection> rawdata;  
-  iEvent.getByLabel(DataInputTag_,rawdata);
+  iEvent.getByToken(DataInputToken_,rawdata);
   
   // checking FEDs for calibration information
   int calibType = -1 ; int numEmptyFEDs = 0 ; 
