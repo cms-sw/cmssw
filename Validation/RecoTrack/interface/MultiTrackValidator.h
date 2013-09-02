@@ -46,6 +46,7 @@ class MultiTrackValidator : public edm::EDAnalyzer, protected MultiTrackValidato
   //(i.e. "denominator" of the efficiency ratio)
   TrackingParticleSelector tpSelector;				      
   CosmicTrackingParticleSelector cosmictpSelector;
+  edm::InputTag _simHitTpMapTag;
 };
 
 
