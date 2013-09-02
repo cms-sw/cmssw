@@ -2,7 +2,7 @@
 
 # ConfDB configurations to use
 TABLES="2011 5E33v4 7E33v2 7E33v3 7E33v4 8E33v2"
-HLT_2011="/online/collisions/2011/5e33/v3.5/HLT/V4"
+HLT_2011="/online/collisions/2011/5e33/v3.5/HLT/V9"
 HLT_5E33v4="/online/collisions/2012/5e33/v4.4/HLT/V12"
 HLT_7E33v2="/online/collisions/2012/7e33/v2.2/HLT/V7"
 HLT_7E33v3="/online/collisions/2012/7e33/v3.0/HLT/V21"
