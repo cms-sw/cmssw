@@ -119,7 +119,7 @@ TH1D* setHistoRatio(TH1D* num, TH1D* denom, TString title = "", double ymin=0.4,
 
 
 
-void addRatioPlotLegend(TH1* h)
+void addRatioPlotLegend(TH1* h, TString k)
 {
   TLegend* leg = new TLegend(0.17,0.4,.47,0.5,NULL,"brNDC");
   leg->SetMargin(0.1);
@@ -127,7 +127,7 @@ void addRatioPlotLegend(TH1* h)
   leg->SetTextSize(0.1);
   leg->SetFillStyle(1001);
   leg->SetFillColor(kWhite);
-  leg->AddEntry(h, "GEM+CSC/CSC tight","P");
+  leg->AddEntry(h, "(GEM+CSC)/CSC #geq" + k + " stubs","P");
   leg->Draw("same");
 }
 
@@ -139,9 +139,9 @@ void addRatePlotLegend(TH1* h, TH1* i, TH1* j, TString k, TString l)
   leg->SetTextSize(0.04);
   leg->SetFillStyle(1001);
   leg->SetFillColor(kWhite);
-  leg->AddEntry(h,"CSC, loose","f");
-  leg->AddEntry(i,"CSC, tight","f");
-  leg->AddEntry(j,"GEM+CSC Integrated Trigger","f");
+  leg->AddEntry(h,"CSC #geq" + k + " stubs (anywhere)","l");
+  leg->AddEntry(i,"CSC #geq" + k + " stubs (one in ME1/b)","l");
+  leg->AddEntry(j,"GEM+CSC integrated trigger","l");
   leg->Draw("same");
 }
 
@@ -156,6 +156,19 @@ void addRatePlots(TH1* h, TH1* i, TH1* j, Color_t col1, Color_t col2, Color_t co
     i->SetFillStyle(sty2);
     j->SetFillStyle(sty3);
 
+    // Slava's proposal
+    h->SetFillStyle(0);
+    i->SetFillStyle(0);
+    j->SetFillStyle(0);
+
+    h->SetLineStyle(1);
+    i->SetLineStyle(4);
+    j->SetLineStyle(2);
+
+    h->SetLineWidth(2);
+    i->SetLineWidth(2);
+    j->SetLineWidth(2);
+
     h->GetYaxis()->SetRangeUser(miny,maxy);
     i->GetYaxis()->SetRangeUser(miny,maxy);
     j->GetYaxis()->SetRangeUser(miny,maxy);
@@ -164,7 +177,7 @@ void addRatePlots(TH1* h, TH1* i, TH1* j, Color_t col1, Color_t col2, Color_t co
     TH1* j_clone = j->Clone("j_clone");
     TH1* i_clone2 = i->Clone("i_clone2");
     TH1* j_clone2 = j->Clone("j_clone2");
-
+    /*
     for (int ii=0; ii<=14; ++ii){
       i_clone2->SetBinContent(ii,0);
       j_clone2->SetBinContent(ii,0);
@@ -176,8 +189,9 @@ void addRatePlots(TH1* h, TH1* i, TH1* j, Color_t col1, Color_t col2, Color_t co
       j_clone2->SetBinContent(ii,0);
       i_clone2->SetBinError(ii,0);
       j_clone2->SetBinError(ii,0);
- 
-    }
+      j_clone2->GetXaxis()->SetRangeUser(1.62,2.12);
+      i_clone2->GetXaxis()->SetRangeUser(1.62,2.12);
+     }
     
     for (int ii=15; ii<=25; ++ii){
       i_clone->SetBinContent(ii,0);
@@ -185,14 +199,15 @@ void addRatePlots(TH1* h, TH1* i, TH1* j, Color_t col1, Color_t col2, Color_t co
       i_clone->SetBinError(ii,0);
       j_clone->SetBinError(ii,0);
     }
+    */
     
-    j_clone->SetFillStyle(sty4);
+    // j_clone->SetFillStyle(sty4);
 
     i_clone->Draw("hist e1 same");
     j_clone->Draw("hist e1 same");
     h->Draw("hist e1 same");
-    i_clone2->Draw("hist e1 same");
-    j_clone2->Draw("hist e1 same");
+    // i_clone2->Draw("hist e1 same");
+    // j_clone2->Draw("hist e1 same");
 }
 
 void setPad1Attributes(TPad* pad1)
@@ -237,12 +252,14 @@ void produceRateVsEtaPlot(TH1D* h, TH1D* i, TH1D* j, Color_t col1, Color_t col2,
   setPad2Attributes(pad2);
   TH1D* gem_ratio = setHistoRatio(j, i, "", 0.01,2.0, col2);
   gem_ratio->Draw("Pe");
-  addRatioPlotLegend(gem_ratio);
+  gem_ratio->GetYaxis()->SetNdivisions(3);
+  
+  addRatioPlotLegend(gem_ratio, k);
   
   c->SaveAs(plots + "rates_vs_eta__minpt" + l + "__PU100__def_" + k + "s_" + k + "s1b_" + k + "s1bgem" + ext);
 }
 
-void produceRateVsEtaPlotsForApproval()
+void produceRateVsEtaPlotsForApproval(TString ext, TString plots)
 {
   gStyle->SetOptStat(0);
   gStyle->SetTitleStyle(0);
@@ -257,11 +274,8 @@ void produceRateVsEtaPlotsForApproval()
   TString f_g98_pt30 = gem_dir + "hp_minbias_6_0_1_POSTLS161_V12__pu100_w3_gem98_pt30_pat2.root";
   TString f_g98_pt40 = gem_dir + "hp_minbias_6_0_1_POSTLS161_V12__pu100_w3_gem98_pt40_pat2.root";
 
-
   // general stuff
   TString hdir = "SimMuL1StrictAll";
-  TString ext = ".pdf";
-  TString plots = "plots/rate_vs_eta/";
 
   // colors - same colors as for rate vs pt plots!!
   Color_t col1 = kViolet+1;
@@ -270,12 +284,13 @@ void produceRateVsEtaPlotsForApproval()
 
   // styles
   Style_t sty1 = 3345;
-  Style_t sty2 = 2003;
+  Style_t sty2 = 3003;
   Style_t sty3 = 2002;
 
   // Declaration of histograms
   TString vs_eta_minpt = "10";
-  TString ttl = "        L1 Single Muon Trigger                   CMS Simulation;L1 muon candidate #eta;rate [kHz]";
+  //  TString ttl = "        L1 Single Muon Trigger                   CMS Simulation Preliminary;L1 muon candidate #eta;rate [kHz]";
+  TString ttl = "                                              CMS Simulation Preliminary;L1 muon candidate #eta;rate [kHz]";
   TH1D* h_rt_tf10_2s   = setHistoEta(f_def, "h_rt_gmt_csc_ptmax" + vs_eta_minpt + "_eta_2s", "_hAll100", ttl, col1, 1, 2);
   TH1D* h_rt_tf10_2s1b   = setHistoEta(f_def, "h_rt_gmt_csc_ptmax" + vs_eta_minpt + "_eta_2s_2s1b", "_hAll100", ttl, col2, 1, 2);
   TH1D* h_rt_tf10_gpt10_2s1b   = setHistoEta(f_g98_pt10, "h_rt_gmt_csc_ptmax" + vs_eta_minpt + "_eta_2s_2s1b", "_hAll100", ttl, col3, 1, 2);
@@ -335,7 +350,13 @@ void produceRateVsEtaPlotsForApproval()
 		       col1,col2,col3,sty1,sty2,sty3,3355,miny,6,"3","30",plots,ext);
 }
 
-
+void produceRateVsEtaPlotsForApproval()
+{
+  //  produceRateVsEtaPlotsForApproval(".C", "plots/rate_vs_eta/");
+  //produceRateVsEtaPlotsForApproval(".png", "plots/rate_vs_eta/");
+  produceRateVsEtaPlotsForApproval(".pdf", "plots/rate_vs_eta/");
+  //produceRateVsEtaPlotsForApproval(".C", "plots/rate_vs_eta/");
+}
 /*
 void gem_rate_draw()
 {

@@ -34,7 +34,7 @@ gStyle.SetPadBottomMargin(0.13)
 
 gStyle.SetMarkerStyle(1)
 
-
+#_______________________________________________________________________________
 def getTree(fileName):
     """Get tree for given filename"""
 
@@ -56,14 +56,278 @@ def getTree(fileName):
     return tree
 
 
-def eff_halfStrip(f_name,p_name):
-    """efficiency vs half-strip  - separate odd-even"""
+#_______________________________________________________________________________
+def getDphi(eff,pt,evenOdd):
+    """Return the delta Phi cut value"""
+
+    return dphi_lct_pad["%s"%(eff)]["%s"%(pt)]["%s"%(evenOdd)]
+
+
+#_______________________________________________________________________________
+def gemTurnOn(filesDir, plotDir, eff, oddEven, ext):
+    """Produce GEM turn-on curve"""
+    
+    pt = ["pt10","pt20","pt30","pt40"]    
+    pt_labels = ["10","20","30","40"]
+#    pt_labels = ["10 GeV/c","20 GeV/c","30 GeV/c","40 GeV/c"]
+    dphis = [0.,0.,0.,0.]
+
+    marker_colors = [kRed, kViolet+1, kAzure+2, kGreen-2]
+    marker_styles = [20,21,23,22]
+
+    t = getTree("%sgem_csc_eff_pt2pt50_pad4.root"%(filesDir));
+
+    c = TCanvas("c","c",800,600)
+    c.SetGridx(1)
+    c.SetGridy(1)
+    c.cd()
+    h = TH1F("","          GEM-CSC bending Angle                         CMS Simulation Preliminary;Generated muon p_{T} [GeV/c];",50,0.,50.)
+    superscript = "p_{T}>p_{T}^{min}"
+    subscript = "0"
+    h.GetYaxis().SetTitle("    |#Delta#phi_{{}^{(GEM,CSC)}}|<|#Delta#phi_{0}^{WP}| Cut Efficiency");
+##    h.GetYaxis().SetTitle("    |#Delta#phi_{{}^{(GEM,CSC)}}|<|#Delta#phi_{%s}^{%s}| Cut Efficiency"%(subscript,superscript));
+    h.GetYaxis().SetTitleOffset(.9)
+    h.SetStats(0)
+
+    ## label sizes more leglible
+    h.GetXaxis().SetLabelSize(.05)
+    h.GetXaxis().SetLabelOffset(.005)
+    h.GetYaxis().SetLabelSize(.05)
+    h.GetYaxis().SetLabelOffset(.005)
+
+    h.Draw("")
+    histoList = []
+    for i in range(len(pt)):
+        dphi = getDphi("%s"%(eff),"%s"%(pt[i]),"%s"%(oddEven))
+        dphis[i] = dphi
+        if oddEven=="even":
+            ok_dphi = TCut("TMath::Abs(dphi_pad_even) < %f"%(dphi))
+            denom_cut = ok_pad2_lct2_eta
+            closeFar = "Close"
+        else:
+            ok_dphi = TCut("TMath::Abs(dphi_pad_odd) < %f"%(dphi))
+            denom_cut = ok_pad1_lct1_eta
+            closeFar = "Far"
+
+        h2 = draw_eff(t, "", "h2", "(50,0.,50.)", "pt", 
+                         denom_cut, ok_dphi, marker_colors[i], marker_styles[i])
+        histoList.append(h2)
+        h2.SetMarkerSize(1)
+        h2.Draw("same")
+    
+    ## add legend
+    leg = TLegend(0.52,0.17,.93,0.57, "High efficiency patterns:", "brNDC")
+    for n in range(len(pt)):
+#        superscript = "p_{T}>%s"%(pt_labels[n])
+        superscript = "\"%s\""%(pt_labels[n])
+        subscript = "0"
+        #leg.AddEntry(histoList[n], "#Delta#phi_{%s}^{%s} = %.1f mrad"%(subscript,superscript,dphis[n]*1000), "p")
+        leg.AddEntry(histoList[n], "WP = %s"%(pt_labels[n]), "p")
+
+
+    leg.SetBorderSize(0)
+    leg.SetMargin(0.1)
+    leg.SetFillStyle(0)
+    leg.SetFillStyle(1001)
+    leg.SetFillColor(kWhite)
+    leg.SetTextSize(0.05)
+    leg.Draw("same")
+
+    ## Adding additional information - top right
+    """
+    tex2 = TLatex(.75,.82,'   L1 Trigger')
+    tex2.SetTextSize(0.05)
+    tex2.SetNDC()
+    tex2.Draw("same")
+    """
+
+    tex3 = TLatex(.735,.82,'1.64<|#eta|<2.14')
+    tex3.SetTextSize(0.05)
+    tex3.SetNDC()
+    tex3.Draw("same")
+
+    ## hardcore nitpicking over here!
+    if closeFar == "Close":
+        xpos = 0.57
+    else:
+        xpos = 0.611
+
+    tex = TLatex(xpos,.75,'"%s" chamber pairs'%(closeFar))
+    tex.Draw("same")
+    tex.SetTextSize(0.05)
+    tex.SetNDC()
+
+    ## save the file
+    c.SaveAs("%sGEM_turnon_%s_%s%s"%(plotDir, eff,oddEven,ext))
+
+
+#_______________________________________________________________________________
+def efficiency_1(f_name, p_name, pt, overlap):
+    """efficiency vs half-strip  - separate odd-even""" 
+ 
+    """
+    gStyle->SetTitleStyle(0);
+    gStyle->SetTitleAlign(13); // coord in top left
+    gStyle->SetTitleX(0.);
+    gStyle->SetTitleY(1.);
+    gStyle->SetTitleW(1);
+    gStyle->SetTitleH(0.058);
+    gStyle->SetTitleBorderSize(0);
+    
+    gStyle->SetPadLeftMargin(0.126);
+    gStyle->SetPadRightMargin(0.04);
+    gStyle->SetPadTopMargin(0.06);
+    gStyle->SetPadBottomMargin(0.13);
+    gStyle->SetOptStat(0);
+    gStyle->SetMarkerStyle(1);
+    """
+
+    ok_eta = "TMath::Abs(eta)>1.64 && TMath::Abs(eta)<2.12"
+    if (overlap):
+        cut1 = ok_pad1_overlap
+        cut2 = ok_pad2_overlap
+    else:
+      cut1 = ok_pad1
+      cut2 = ok_pad2
+
+    t = getTree(f_name)
+    ho = draw_eff(t, "         GEM reconstruction efficiency               CMS Simulation Preliminary;LCT half-strip number;Efficiency", 
+                  "h_odd", "(130,0.5,130.5)", "hs_lct_odd", TCut("%s&&%s"(ok_lct1.GetTitle), ok_eta.GetTitle()), cut1, "", kRed)
+    he = draw_eff(t, "         GEM reconstruction efficiency               CMS Simulation Preliminary;LCT half-strip number;Efficiency", 
+                  "h_evn", "(130,0.5,130.5)", "hs_lct_even", TCut("%s&&%s"(ok_lct1.GetTitle), ok_eta.GetTitle()), cut2, "same")
+    ho.SetMinimum(0.)
+    ho.GetXaxis().SetLabelSize(0.05)
+    ho.GetYaxis().SetLabelSize(0.05)
+    
+    leg = TLegend(0.25,0.23,.75,0.5, "", "brNDC");
+    leg.SetBorderSize(0)
+    leg.SetFillStyle(0)
+    leg.SetTextSize(0.06)
+    leg.AddEntry(0,"muon p_{T} = %s GeV/c"%(pt),"")
+    leg.AddEntry(he, "\"Close\" chamber pairs","l")
+    leg.AddEntry(ho, "\"Far\" chamber pairs","l")
+    leg.Draw();
+    
+    tex2 = TLatex(.67,.8,"   L1 Trigger")
+    tex2.SetTextSize(0.05)
+    tex2.SetNDC()
+    tex2.Draw()
+    
+    tex = TLatex(.66,.73,"1.64<|#eta|<2.12")
+    tex.SetTextSize(0.05)
+    tex.SetNDC()
+    tex.Draw()
+    
+## this has to be fixed
+    gPad.Print(p_name)
+
+
+"""
+void efficiency_2(TString f_name, TString p_name, TString pt, bool overlap)
+{
+  // efficiency vs half-strip  - including overlaps in odd&even
+  TCut ok_eta = "TMath::Abs(eta)>1.64 && TMath::Abs(eta)<2.12";
+  TCut cut1;
+  TCut cut2;
+  if (overlap)
+  {
+    cut1 = ok_pad1_overlap;
+    cut2 = ok_pad2_overlap;
+  }
+  else
+  {
+    cut1 = ok_pad1;
+    cut2 = ok_pad2;
+  }
+  
+  TTree *t = getTree(f_name);
+  TH1F* ho = draw_eff(t, "         GEM reconstruction efficiency               CMS Simulation Preliminary;local #phi [deg];Efficiency", "h_odd", "(130,-5,5)", "fmod(180*phi/TMath::Pi(),5)", ok_lct1 && ok_eta , cut1, "", kRed);
+  TH1F* he = draw_eff(t, "         GEM reconstruction efficiency               CMS Simulation Preliminary;local #phi [deg];Efficiency", "h_evn", "(130,-5,5)", "fmod(180*phi/TMath::Pi(),5)", ok_lct2 && ok_eta , cut2, "same");
+  ho->SetMinimum(0.);
+  ho->GetXaxis()->SetLabelSize(0.05);
+  ho->GetYaxis()->SetLabelSize(0.05);
+
+  TLegend *leg = new TLegend(0.25,0.23,.75,0.5, NULL, "brNDC");
+  leg->SetBorderSize(0);
+  leg->SetFillStyle(0);
+  leg->SetTextSize(0.06);
+  leg->AddEntry((TObject*)0,"muon p_{T} = " + pt + " GeV/c",""); 
+  leg->AddEntry(he, "\"Close\" chamber pairs","l");
+  leg->AddEntry(ho, "\"Far\" chamber pairs","l");
+  leg->Draw();
+
+  // Print additional information
+  TLatex* tex2 = new TLatex(.67,.8,"   L1 Trigger");
+  tex2->SetTextSize(0.05);
+  tex2->SetNDC();
+  tex2->Draw();
+    
+  TLatex *  tex = new TLatex(.66,.73,"1.64<|#eta|<2.12");
+  tex->SetTextSize(0.05);
+  tex->SetNDC();
+  tex->Draw();
+
+  gPad->Print(p_name);
+}
+"""
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+def efficiency_1(f_name, p_name, overlap):
+    """Efficiency to match LCT to GEM pad vs half-strip for even and odd numbered chambers. Option to include chamber overlaps"""
    
     t = getTree(f_name)
+    if overlap:
+        cut1 = ok_pad1_overlap
+        cut2 = ok_pad2_overlap
+    else:
+        cut1 = ok_pad1
+        cut2 = ok_pad2
+
     ho = draw_eff(t, "Efficiency for track with LCT to have GEM pad in chamber;LCT half-strip;Efficiency",
-                  "h_odd", "(130,0.5,130.5)", "hs_lct_odd", TCut("%s && %s" %(ok_lct1.GetTitle(),ok_eta.GetTitle())), ok_pad1, kRed, 5)
+                  "h_odd", "(130,0.5,130.5)", "hs_lct_odd", TCut("%s && %s" %(ok_lct1.GetTitle(),ok_eta.GetTitle())), cut1, kRed, 5)
     he = draw_eff(t, "Efficiency for track with LCT to have GEM pad in chamber;LCT half-strip;Efficiency",
-                  "h_evn", "(130,0.5,130.5)", "hs_lct_even", TCut("%s && %s" %(ok_lct2.GetTitle(),ok_eta.GetTitle())), ok_pad2, kBlue, 5)
+                  "h_evn", "(130,0.5,130.5)", "hs_lct_even", TCut("%s && %s" %(ok_lct2.GetTitle(),ok_eta.GetTitle())), cut2, kBlue, 5)
 
     c = TCanvas("c","c",700,500)
     c.Clear()
@@ -77,6 +341,7 @@ def eff_halfStrip(f_name,p_name):
     h.Draw()
     ho.Draw("same")
     he.Draw("same")
+
     pt = f_name[f_name.find('pt'):]
     pt = pt[2:]
     pt = pt[:pt.find('_pad')]
@@ -90,53 +355,9 @@ def eff_halfStrip(f_name,p_name):
     leg.AddEntry(he,"even chambers","l")
     leg.Draw("same")
     c.SaveAs(p_name)
-
-def eff_halfStrip_overlap(f_name, p_name):
-    """efficiency vs half-strip  - including overlaps in odd&even"""
-
-    t = getTree(f_name)
-    ho = draw_eff(t, "Efficiency for track with LCT to have GEM pad in chamber;LCT half-strip;Efficiency",
-                  "h_odd", "(130,0.5,130.5)", "hs_lct_odd", TCut("%s && %s" %(ok_lct1.GetTitle(),ok_eta.GetTitle())), ok_pad1_overlap, kRed, 5)
-    he = draw_eff(t, "Efficiency for track with LCT to have GEM pad in chamber;LCT half-strip;Efficiency",
-                  "h_evn", "(130,0.5,130.5)", "hs_lct_even", TCut("%s && %s" %(ok_lct2.GetTitle(),ok_eta.GetTitle())), ok_pad2_overlap, kBlue, 5)
-
-    c = TCanvas("c","c",700,500)
-    c.Clear()
-    c.SetGridx(1);
-    c.SetGridy(1);
-    h = TH1F("","Efficiency for track with LCT to have GEM pad in chamber",130,0.5,130.5)
-    h.SetTitle("Efficiency for track with LCT to have GEM pad in chamber")
-    h.GetXaxis().SetTitle("LCT half-strip")
-    h.GetYaxis().SetTitle("Efficiency")
-    h.SetStats(0)
-    h.Draw()
-    ho.Draw("same")
-    he.Draw("same")
-
-##     fo = TF1("fo", "pol0", 6., 123.)
-##     fe = TF1("fe", "pol0", 6., 123.)
-##     ho.Fit("fo")
-##     he.Fit("fe")
-    
-    pt = f_name[f_name.find('pt'):]
-    pt = pt[2:]
-    pt = pt[:pt.find('_pad')]
-    leg = TLegend(0.40,0.2,.7,0.5,"","brNDC")
-    leg.SetBorderSize(0)
-    leg.SetFillStyle(0)
-    leg.SetTextSize(.05)
-    leg.AddEntry(0, "p_{T} = %s GeV/c"%(pt), "")
-    leg.AddEntry(0, "a pad spans 4 strips", "")
-    leg.AddEntry(ho,"odd chambers","l")
-    leg.AddEntry(he,"even chambers","l")
-## leg.AddEntry(ho, Form("odd chambers (%0.2f #pm %0.2f)%%", 100.*fo.GetParameter(0), 100.*fo.GetParError(0)),"l");
-## leg.AddEntry(he, Form("even chambers (%0.1f #pm %0.1f)%%", 100.*fe.GetParameter(0), 100.*fe.GetParError(0)),"l");
-    leg.Draw("same")
-    c.SaveAs(p_name)
-
 
 def drawplot_eff_eta(f_name, plotDir, ext = ".pdf"):
-    """efficiency vs eta"""
+    """Efficiency to match LCT to GEM pad vs LCT eta for even and odd numbered chambers. Option to include chamber overlaps"""
     
     c = TCanvas("c","c",700,500)
     c.Clear()
@@ -274,120 +495,7 @@ def etaMatchingEfficiencies(filesDir, plotDir, ext = ".pdf"):
     drawplot_eff_eta("%sgem_csc_delta_pt40_pad4.root"%(filesDir), plotDir, ext)
 
 
-def getDphi(eff,pt,evenOdd):
-    """Return the delta Phi cut value"""
 
-    return dphi_lct_pad["%s"%(eff)]["%s"%(pt)]["%s"%(evenOdd)]
-
-
-def gemTurnOn(filesDir, plotDir, eff, oddEven, ext):
-    """Produce GEM turn-on curve"""
-    
-    pt = ["pt10","pt20","pt30","pt40"]    
-    pt_labels = ["10 GeV/c","20 GeV/c","30 GeV/c","40 GeV/c"]
-    dphis = [0.,0.,0.,0.]
-
-    marker_colors = [kRed, kViolet+1, kAzure+2, kGreen-2]
-    marker_styles = [20,21,23,22]
-
-    t = getTree("%sgem_csc_eff_pt2pt50_pad4.root"%(filesDir));
-
-    c = TCanvas("c","c",800,600)
-    c.SetGridx(1)
-    c.SetGridy(1)
-    c.cd()
-#    h = TH1F("","         GEM-CSC bending Angle: p_{T} measurement, CMS Simulation;p_{T} [GeV/c];",50,0.,50.)
-    h = TH1F("","          GEM-CSC bending Angle                         CMS Simulation;p_{T} [GeV/c];",50,0.,50.)
-    superscript = "p_{T}>p_{T}^{min}"
-    subscript = "0"
-    h.GetYaxis().SetTitle("    |#Delta#phi_{{}^{(GEM,CSC)}}|<|#Delta#phi_{%s}^{%s}| Cut Efficiency"%(subscript,superscript));
-    h.GetYaxis().SetTitleOffset(.9)
-    h.SetStats(0)
-
-    ## label sizes more leglible
-    h.GetXaxis().SetLabelSize(.05)
-    h.GetXaxis().SetLabelOffset(.005)
-    h.GetYaxis().SetLabelSize(.05)
-    h.GetYaxis().SetLabelOffset(.005)
-
-    h.Draw("")
-    histoList = []
-    for i in range(len(pt)):
-        dphi = getDphi("%s"%(eff),"%s"%(pt[i]),"%s"%(oddEven))
-        dphis[i] = dphi
-        if oddEven=="even":
-            ok_dphi = TCut("TMath::Abs(dphi_pad_even) < %f"%(dphi))
-            denom_cut = ok_pad2_lct2_eta
-            closeFar = "Close"
-        else:
-            ok_dphi = TCut("TMath::Abs(dphi_pad_odd) < %f"%(dphi))
-            denom_cut = ok_pad1_lct1_eta
-            closeFar = "Far"
-
-        h2 = draw_eff(t, "", "h2", "(50,0.,50.)", "pt", 
-                         denom_cut, ok_dphi, marker_colors[i], marker_styles[i])
-        histoList.append(h2)
-        h2.SetMarkerSize(1)
-        h2.Draw("same")
-        
-    
-    ## add legend
-    leg = TLegend(0.52,0.15,.93,0.57, "High efficiency patterns:", "brNDC")
-    for n in range(len(pt)):
-        superscript = "p_{T}>%s"%(pt_labels[n])
-        subscript = "0"
-        leg.AddEntry(histoList[n], "#Delta#phi_{%s}^{%s} = %.4f rad"%(subscript,superscript,dphis[n]), "p")
-
-    leg.SetBorderSize(0)
-    leg.SetMargin(0.1)
-    leg.SetFillStyle(0)
-    leg.SetFillStyle(1001)
-    leg.SetFillColor(kWhite)
-    leg.SetTextSize(0.05)
-    leg.Draw("same")
-
-    ## Adding additional information - top right
-    tex2 = TLatex(.75,.82,'   L1 Trigger')
-    tex2.SetTextSize(0.05)
-    tex2.SetNDC()
-    tex2.Draw("same")
-
-    tex3 = TLatex(.735,.75,'1.64<|#eta|<2.14')
-    tex3.SetTextSize(0.05)
-    tex3.SetNDC()
-    tex3.Draw("same")
-
-    ## hardcore nitpicking over here!
-    if closeFar == "Close":
-        xpos = 0.57
-    else:
-        xpos = 0.611
-
-    tex = TLatex(xpos,.68,'"%s" chamber pairs'%(closeFar))
-    tex.Draw("same")
-    tex.SetTextSize(0.05)
-    tex.SetNDC()
-
-
-    ## save the file
-    c.SaveAs("%sGEM_turnon_%s_%s%s"%(plotDir, eff,oddEven,ext))
-
-
-def gemTurnOns(filesDir, plotDir, ext):
-    """Produce the GEM turn-on curves"""
-
-    """
-    gemTurnOn(filesDir, plotDir, "95", "even", ext)
-    gemTurnOn(filesDir, plotDir, "95", "odd",  ext)
-    """
-    gemTurnOn(filesDir, plotDir, "98", "even", ext)
-    gemTurnOn(filesDir, plotDir, "98", "odd",  ext)
-    """
-    gemTurnOn(filesDir, plotDir, "99", "even", ext)
-    gemTurnOn(filesDir, plotDir, "99", "odd",  ext)
-    """
-
-##double mymod(double x, double y) {return fmod(x,y);}
 
 
 def eff_hs_1(filesDir, plotDir, f_name, ext):
@@ -746,286 +854,6 @@ def eff_hs(filesDir, plotDir, ext):
 ## nm.Draw()
 ## nmlct.Draw("same")
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-## --------------------------- 2012  Oct 30 -----------------------
-
-## .L shFunctions.C
-
-## //fname="shtree_std_pt100.root";  suff = "std_pt100";
-## fname="shtree_POSTLS161_pt100.root";  suff = "postls1_pt100";
-
-
-## TFile *f = TFile::Open(fname)
-## tree = (TTree *) f.Get("neutronAna/CSCSimHitsTree");
-
-## TCanvas c1("c1","c1",1200,600);
-## c1.SetBorderSize(0);
-## c1.SetLeftMargin(0.084);
-## c1.SetRightMargin(0.033);
-## c1.SetTopMargin(0.089);
-## c1.SetBottomMargin(0.086);
-## c1.SetGridy();
-## c1.SetTickx(1);
-## c1.SetTicky(1);
-## gStyle.SetOptStat(0);
-
-
-
-
-## TH2D *hc = new TH2D("hc","Strip readout channels closest to SimHit",21,-10.5,10.5,82,0,82);
-## hc.Draw()
-## setupH2DType(hc);
-## hc.GetYaxis().SetTitle("readout channel #");
-
-## tree.Draw("sh.chan:(3-2*id.e)*id.t","","same", 10000000, 0);
-## g = (TGraph*)gPad.FindObject("Graph");
-## g.SetMarkerColor(kBlue);
-## g.SetMarkerStyle(2);
-## g.SetMarkerSize(0.4);
-## gPad.Modified()
-
-## c1.Print((string("chan_")+suff+".png").c_str())
-
-
-
-
-## TH2D *hc = new TH2D("hc","Strips closest to SimHit",21,-10.5,10.5,82,0,82)
-## for(int b=1; b<=hc.GetXaxis().GetNbins(); ++b) hc.GetXaxis().SetBinLabel(b, types2[b].c_str())
-## hc.Draw()
-## setupH2DType(hc);
-## hc.GetYaxis().SetTitle("strip #");
-
-## tree.Draw("sh.s:(3-2*id.e)*id.t","","same", 10000000, 0);
-## g = (TGraph*)gPad.FindObject("Graph");
-## g.SetMarkerColor(kBlue);
-## g.SetMarkerStyle(2);
-## g.SetMarkerSize(0.4);
-## gPad.Modified()
-
-## c1.Print((string("strip_")+suff+".png").c_str())
-
-
-
-## TH2D *hc = new TH2D("hc","Wire groups closest to SimHit",21,-10.5,10.5,115,-1,114)
-## for(int b=1; b<=hc.GetXaxis().GetNbins(); ++b) hc.GetXaxis().SetBinLabel(b, types2[b].c_str())
-## hc.Draw()
-## setupH2DType(hc);
-## hc.GetYaxis().SetTitle("wiregroup #");
-## hc.GetYaxis().SetNdivisions(1020);
-
-
-## tree.Draw("sh.w:(3-2*id.e)*id.t","","same", 10000000, 0);
-## g = (TGraph*)gPad.FindObject("Graph");
-## g.SetMarkerColor(kBlue);
-## g.SetMarkerStyle(2);
-## g.SetMarkerSize(0.4);
-## gPad.Modified()
-
-## c1.Print((string("wg_")+suff+".png").c_str())
-
-
-
-
-
-## .L shFunctions.C
-## //fname="shtree_POSTLS161_pt100.root";  suff = "postls1_pt100";
-## //fname="shtree_POSTLS161_pt10.root";  suff = "postls1_pt10";
-## fname="shtree_POSTLS161_pt1000.root";  suff = "postls1_pt1000";
-## TFile *f = TFile::Open(fname)
-
-## globalPosfromTree("+ME1", f, 1, 1, "rphi_+ME1_postls1.png")
-## globalPosfromTree("+ME2", f, 1, 2, "rphi_+ME2_postls1.png")
-## globalPosfromTree("+ME3", f, 1, 3, "rphi_+ME3_postls1.png")
-## globalPosfromTree("+ME4", f, 1, 4, "rphi_+ME4_postls1.png")
-## globalPosfromTree("-ME1", f, 2, 1, "rphi_-ME1_postls1.png")
-## globalPosfromTree("-ME2", f, 2, 2, "rphi_-ME2_postls1.png")
-## globalPosfromTree("-ME3", f, 2, 3, "rphi_-ME3_postls1.png")
-## globalPosfromTree("-ME4", f, 2, 4, "rphi_-ME4_postls1.png")
-
-## .L shFunctions.C
-## fname="shtree_std_pt100.root";  suff = "std_pt100";
-## TFile *f = TFile::Open(fname)
-## globalPosfromTree("+ME1", f, 1, 1, "rphi_+ME1_std.png")
-## globalPosfromTree("+ME2", f, 1, 2, "rphi_+ME2_std.png")
-## globalPosfromTree("+ME3", f, 1, 3, "rphi_+ME3_std.png")
-## globalPosfromTree("+ME4", f, 1, 4, "rphi_+ME4_std.png")
-## globalPosfromTree("-ME1", f, 2, 1, "rphi_-ME1_std.png")
-## globalPosfromTree("-ME2", f, 2, 2, "rphi_-ME2_std.png")
-## globalPosfromTree("-ME3", f, 2, 3, "rphi_-ME3_std.png")
-## globalPosfromTree("-ME4", f, 2, 4, "rphi_-ME4_std.png")
-
-
-
-
-
-
-## fname="shtree_std_pt100.root";  suff = "std_pt100";
-## //fname="shtree_POSTLS161_pt100.root";  suff = "postls1_pt100";
-
-
-## TFile *f = TFile::Open(fname)
-## tree = (TTree *) f.Get("neutronAna/CSCSimHitsTree");
-
-## TCanvas c1("c1","c1",900,900);
-## c1.SetBorderSize(0);
-## c1.SetLeftMargin(0.13);
-## c1.SetRightMargin(0.012);
-## c1.SetTopMargin(0.022);
-## c1.SetBottomMargin(0.111);
-## c1.SetGridy();
-## c1.SetTickx(1);
-## c1.SetTicky(1);
-## gStyle.SetOptStat(0);
-
-
-
-## TH2D *hc = new TH2D("hc",";z, cm;r, cm",2,560,1070,82,70,710);
-## hc.Draw()
-## h.GetXaxis().SetTickLength(0.02);
-## h.GetYaxis().SetTickLength(0.02);
-
-## tree.Draw("sh.r:sh.gz","","same", 10000000, 0);
-## g = (TGraph*)gPad.FindObject("Graph");
-## g.SetMarkerColor(kBlue);
-## g.SetMarkerStyle(1);
-## g.SetMarkerSize(0.1);
-## gPad.Modified()
-
-## c1.Print((string("rz_+ME_")+suff+".png").c_str())
-
-
-
-## TH2D *hc = new TH2D("hc",";z, cm;r, cm",2,-1070,-560,82,70,710);
-## hc.Draw()
-## h.GetXaxis().SetTickLength(0.02);
-## h.GetYaxis().SetTickLength(0.02);
-
-## tree.Draw("sh.r:sh.gz","","same", 10000000, 0);
-## g = (TGraph*)gPad.FindObject("Graph");
-## g.SetMarkerColor(kBlue);
-## g.SetMarkerStyle(1);
-## g.SetMarkerSize(0.1);
-## gPad.Modified()
-
-## c1.Print((string("rz_-ME_")+suff+".png").c_str())
-
-
-
-
-
-
-
-## TFile *f1 = TFile::Open("shtree_std_pt100.root")
-## t1 = (TTree *) f1.Get("neutronAna/CSCSimHitsTree");
-## TFile *f2 = TFile::Open("shtree_POSTLS161_pt100.root")
-## t2 = (TTree *) f2.Get("neutronAna/CSCSimHitsTree");
-
-## TCanvas c1("c1","c1",900,900);
-## c1.SetBorderSize(0);
-## c1.SetLeftMargin(0.13);
-## c1.SetRightMargin(0.023);
-## c1.SetTopMargin(0.081);
-## c1.SetBottomMargin(0.13);
-## c1.SetGridy();
-## c1.SetTickx(1);
-## c1.SetTicky(1);
-## c1.SetLogy(1);
-## gStyle.SetOptStat(0);
-
-## t1.Draw("TMath::Log10(sh.e*1000000)>>htmp(100,-2.5,2.5)","","", 10000000, 0);
-## htmp.SetTitle("SimHit energy loss");
-## htmp.SetXTitle("log_{10}E_{loss}, eV");
-## htmp.SetYTitle("entries");
-## htmp.SetLineWidth(2);
-## htmp.GetXaxis().SetNdivisions(509);
-## t2.Draw("TMath::Log10(sh.e*1000000)>>htmp2(100,-2.5,2.5)","","same", 10000000, 0);
-## htmp2.SetLineWidth(2);
-## htmp2.SetLineStyle(7);
-## htmp2.SetLineColor(kRed);
-## scale = htmp.GetEntries()/(1.*htmp2.GetEntries());
-## htmp2.Scale(scale);
-## gPad.Modified();
-
-## TLegend *leg1 = new TLegend(0.17,0.7,0.47,0.85,NULL,"brNDC");
-## leg1.SetBorderSize(0);
-## leg1.SetFillStyle(0);
-## leg1.AddEntry(htmp,"6_0_0_patch1","l");
-## leg1.AddEntry(htmp2,"POSTLS161","l");
-## leg1.Draw();
-
-## c1.Print("sh_eloss.png")
-
-
-
-
-
-## TFile *f1 = TFile::Open("shtree_std_pt100.root")
-## t1 = (TTree *) f1.Get("neutronAna/CSCSimHitsTree");
-## TFile *f2 = TFile::Open("shtree_POSTLS161_pt100.root")
-## t2 = (TTree *) f2.Get("neutronAna/CSCSimHitsTree");
-
-## TCanvas c1("c1","c1",900,900);
-## c1.SetBorderSize(0);
-## c1.SetLeftMargin(0.13);
-## c1.SetRightMargin(0.023);
-## c1.SetTopMargin(0.081);
-## c1.SetBottomMargin(0.13);
-## c1.SetGridy();
-## c1.SetTickx(1);
-## c1.SetTicky(1);
-## //c1.SetLogy(1);
-## gStyle.SetOptStat(0);
-
-## t1.Draw("sh.t>>htmp(200,0,50.)","","", 10000000, 0);
-## htmp.SetTitle("SimHit TOF");
-## htmp.SetXTitle("TOF, ns");
-## htmp.SetYTitle("entries");
-## htmp.SetLineWidth(2);
-## t2.Draw("sh.t>>htmp2(200,0,50)","","same", 10000000, 0);
-## htmp2.SetLineWidth(2);
-## htmp2.SetLineStyle(7);
-## htmp2.SetLineColor(kRed);
-## scale = htmp.GetEntries()/(1.*htmp2.GetEntries());
-## htmp2.Scale(scale);
-## gPad.Modified();
-
-## TLegend *leg1 = new TLegend(0.17,0.7,0.47,0.85,NULL,"brNDC");
-## leg1.SetBorderSize(0);
-## leg1.SetFillStyle(0);
-## leg1.AddEntry(htmp,"6_0_0_patch1","l");
-## leg1.AddEntry(htmp2,"POSTLS161","l");
-## leg1.Draw();
-
-## c1.Print("sh_tof.png")
-
-## */
-
 if __name__ == "__main__":  
     """
     halfStripEfficiencies("files/", "plots/efficiency/", ".pdf")
@@ -1036,11 +864,11 @@ if __name__ == "__main__":
     etaMatchingEfficiencies("files/", "plots/efficiency/", ".eps")
     etaMatchingEfficiencies("files/", "plots/efficiency/", ".png")
     """
-    gemTurnOns("files/", "plots/efficiency/", ".pdf")
-#    gemTurnOns("files/", "plots/efficiency/", ".eps")    
-#    gemTurnOns("files/", "plots/efficiency/", ".png")
-    """
-    eff_hs("files/", "plots/efficiency/", ".pdf")
-    eff_hs("files/", "plots/efficiency/", ".eps")    
-    eff_hs("files/", "plots/efficiency/", ".png")
-    """
+    gemTurnOn("files/", "plots/efficiency/", "98", "even", ".pdf")
+    gemTurnOn("files/", "plots/efficiency/", "98", "odd", ".pdf")
+    gemTurnOn("files/", "plots/efficiency/", "98", "even", ".png")
+    gemTurnOn("files/", "plots/efficiency/", "98", "odd", ".png")
+
+
+#    efficiency_1("files/", "plots/efficiency/", "20", False, ".pdf") 
+    
