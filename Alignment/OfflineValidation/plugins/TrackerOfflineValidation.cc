@@ -13,7 +13,7 @@
 //
 // Original Author:  Erik Butz
 //         Created:  Tue Dec 11 14:03:05 CET 2007
-// $Id: TrackerOfflineValidation.cc,v 1.48 2011/06/14 19:57:55 mussgill Exp $
+// $Id: TrackerOfflineValidation.cc,v 1.51 2011/07/27 15:45:48 wanx Exp $
 //
 //
 
@@ -95,7 +95,8 @@ private:
 		      ResXprimeHisto(), NormResXprimeHisto(), 
 		      ResYprimeHisto(), NormResYprimeHisto(),
                       ResXvsXProfile(), ResXvsYProfile(),
-                      ResYvsXProfile(), ResYvsYProfile() {} 
+                      ResYvsXProfile(), ResYvsYProfile(),
+                      LocalX(), LocalY() {} 
     TH1* ResHisto;
     TH1* NormResHisto;
     TH1* ResYHisto;
@@ -737,9 +738,11 @@ TrackerOfflineValidation::bookHists(DirectoryWrapper& tfd, const Alignable& ali,
       histStruct.ResXvsXProfile = this->bookTProfile(moduleLevelHistsTransient, tfd,
 						     resxvsxprofilename.str().c_str(),resxvsxprofiletitle.str().c_str(),
 						     nbins, xmin, xmax, ymin, ymax);
+      histStruct.ResXvsXProfile->Sumw2(); // to be filled with weights, so uncertainties need sum of square of weights
       histStruct.ResXvsYProfile = this->bookTProfile(moduleLevelHistsTransient, tfd,
 						     resxvsyprofilename.str().c_str(),resxvsyprofiletitle.str().c_str(),
 						     nbins, xmin, xmax, ymin, ymax);
+      histStruct.ResXvsYProfile->Sumw2(); // to be filled with weights, so uncertainties need sum of square of weights
     }
 
     if( this->isPixel(subdetandlayer.first) || stripYResiduals_ ) {
@@ -764,9 +767,11 @@ TrackerOfflineValidation::bookHists(DirectoryWrapper& tfd, const Alignable& ali,
 	histStruct.ResYvsXProfile = this->bookTProfile(moduleLevelHistsTransient, tfd,
 						       resyvsxprofilename.str().c_str(),resyvsxprofiletitle.str().c_str(),
 						       nbins, xmin, xmax, ymin, ymax);
+	histStruct.ResYvsXProfile->Sumw2(); // to be filled with weights, so uncertainties need sum of square of weights
 	histStruct.ResYvsYProfile = this->bookTProfile(moduleLevelHistsTransient, tfd,
 						       resyvsyprofilename.str().c_str(),resyvsyprofiletitle.str().c_str(),
 						       nbins, xmin, xmax, ymin, ymax);
+	histStruct.ResYvsYProfile->Sumw2(); // to be filled with weights, so uncertainties need sum of square of weights
       }
     }
   }
