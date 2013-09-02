@@ -109,6 +109,45 @@ void AntiElectronIDMVA2::bookMVAs()
 {
   //TMVA::Tools::Instance();
 
+  GammadEta_ = 0.;
+  GammadPhi_ = 0.;
+  GammadPt_ = 0.;
+
+  Tau_EtaAtEcalEntrance_ = 0.;
+  Tau_Pt_ = 0.;
+  Tau_HasGsf_ = 0.; 
+  Tau_EmFraction_ = 0.; 
+  Tau_NumChargedCands_ = 0.;
+  Tau_NumGammaCands_ = 0.; 
+  Tau_HadrHoP_ = 0.; 
+  Tau_HadrEoP_ = 0.; 
+  Tau_VisMass_ = 0.; 
+  Tau_GammaEtaMom_ = 0.;
+  Tau_GammaPhiMom_ = 0.;
+  Tau_GammaEnFrac_ = 0.;
+  Tau_HadrMva_ = 0.; 
+
+  Elec_Eta_ = 0.;
+  Elec_Pt_ = 0.;
+  Elec_PFMvaOutput_ = 0.;
+  Elec_Ee_ = 0.;
+  Elec_Egamma_ = 0.;
+  Elec_Pin_ = 0.;
+  Elec_Pout_ = 0.;
+  Elec_EtotOverPin_ = 0.;
+  Elec_EeOverPout_ = 0.;
+  Elec_EgammaOverPdif_ = 0.;
+  Elec_EarlyBrem_ = 0.;
+  Elec_LateBrem_ = 0.;
+  Elec_Fbrem_ = 0.;
+  Elec_Chi2KF_ = 0.;
+  Elec_Chi2GSF_ = 0.;
+  Elec_NumHits_ = 0.;
+  Elec_GSFTrackResol_ = 0.;
+  Elec_GSFTracklnPt_ = 0.;
+  Elec_GSFTrackEta_ = 0.;
+
+
   TMVA::Reader* readerNoEleMatch_BL = new TMVA::Reader( "!Color:Silent:Error" );
   readerNoEleMatch_BL->AddVariable("Tau_EtaAtEcalEntrance", &Tau_EtaAtEcalEntrance_);
   readerNoEleMatch_BL->AddVariable("Tau_Pt", &Tau_Pt_);
