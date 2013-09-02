@@ -9,7 +9,6 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: TrackExtra.h,v 1.29 2010/07/12 08:51:10 hegner Exp $
  *
  */
 #include <Rtypes.h>

@@ -3,7 +3,6 @@
    test file for FEDRawData library
 
    \author Stefano ARGIRO
-   \version $Id: FEDRawData_t.cpp,v 1.2 2006/03/27 10:08:21 argiro Exp $
    \date 28 Jun 2005
 */
 

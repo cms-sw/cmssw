@@ -10,7 +10,6 @@
     
    DetId for an Ecal Trigger tower
 
-   $Id: EcalTrigTowerDetId.h,v 1.9 2009/01/16 23:51:34 heltsley Exp $
 */
 
 

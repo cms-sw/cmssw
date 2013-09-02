@@ -14,8 +14,6 @@
  *  using the static build() method. 
  *  (The normal constructor will become private in the future).
  *
- *  $Date: 2012/12/26 18:19:39 $
- *  $Revision: 1.8 $
  */
 
 class Disk GCC11_FINAL : public Plane {

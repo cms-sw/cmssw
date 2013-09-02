@@ -1,4 +1,3 @@
-// Last commit: $Id: ConstantsForRunType.h,v 1.10 2009/02/10 21:45:54 lowette Exp $
 
 #ifndef DataFormats_SiStripCommon_ConstantsForRunType_H
 #define DataFormats_SiStripCommon_ConstantsForRunType_H

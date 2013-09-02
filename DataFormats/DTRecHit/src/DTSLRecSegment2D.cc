@@ -1,7 +1,5 @@
 /** \file
  *
- *  $Date: 2006/06/29 17:18:27 $
- *  $Revision: 1.2 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
 #include "DataFormats/DTRecHit/interface/DTSLRecSegment2D.h"

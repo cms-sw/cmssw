@@ -3,7 +3,6 @@
 // \class ElectronIsolationAssociation
 // 
 // \short association of Isolation to an Electron
-// $Id: ElectronIsolationAssociation.h,v 1.1 2006/10/20 12:59:03 rahatlou Exp $
 //
 
 #include "DataFormats/Common/interface/AssociationMap.h"

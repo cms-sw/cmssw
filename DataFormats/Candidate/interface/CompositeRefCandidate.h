@@ -9,7 +9,6 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: CompositeRefCandidate.h,v 1.24 2008/12/05 12:15:18 hegner Exp $
  *
  */
 

@@ -1,5 +1,4 @@
 //
-// $Id: Particle.h,v 1.5 2008/10/08 19:04:42 gpetrucc Exp $
 //
 
 #ifndef DataFormats_PatCandidates_Particle_h
@@ -13,7 +12,6 @@
    namespace.
 
   \author   Steven Lowette, Giovanni Petrucciani
-  \version  $Id: Particle.h,v 1.5 2008/10/08 19:04:42 gpetrucc Exp $
 */
 
 #include "DataFormats/Candidate/interface/LeafCandidate.h"

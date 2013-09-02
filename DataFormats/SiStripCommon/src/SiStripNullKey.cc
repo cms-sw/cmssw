@@ -1,4 +1,3 @@
-// Last commit: $Id: SiStripNullKey.cc,v 1.4 2008/02/06 14:32:54 bainbrid Exp $
 
 #include "DataFormats/SiStripCommon/interface/SiStripNullKey.h"
 #include "DataFormats/SiStripCommon/interface/SiStripEnumsAndStrings.h"

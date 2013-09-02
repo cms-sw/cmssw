@@ -1,4 +1,3 @@
-// $Id: RecoEcalCandidate.cc,v 1.5 2006/05/31 12:45:46 llista Exp $
 #include "DataFormats/RecoCandidate/interface/RecoEcalCandidate.h"
 
 using namespace reco;

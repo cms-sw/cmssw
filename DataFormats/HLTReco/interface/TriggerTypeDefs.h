@@ -5,8 +5,6 @@
  *
  *  Misc. common simple typedefs
  *
- *  $Date: 2009/04/07 12:26:08 $
- *  $Revision: 1.9 $
  *
  *  \author Martin Grunewald
  *

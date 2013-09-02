@@ -1,5 +1,4 @@
 //
-// $Id: GenericParticle.cc,v 1.3 2008/07/08 20:56:48 gpetrucc Exp $
 //
 
 #include "DataFormats/PatCandidates/interface/GenericParticle.h"

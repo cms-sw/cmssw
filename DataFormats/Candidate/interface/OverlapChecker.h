@@ -6,9 +6,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Revision: 1.2 $
  *
- * $Id: MuonCandidateProducer.h,v 1.2 2006/03/03 13:40:21 llista Exp $
  *
  */
 

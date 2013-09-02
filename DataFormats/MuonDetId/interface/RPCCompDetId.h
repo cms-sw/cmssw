@@ -13,7 +13,6 @@
 //
 // Author:      Marcello Maggi
 // Created:     Wed Nov  2 12:09:10 CET 2011
-// $Id$
 //
 #include <DataFormats/DetId/interface/DetId.h>
 #include <FWCore/Utilities/interface/Exception.h>

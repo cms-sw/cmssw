@@ -10,7 +10,6 @@
  *
  * \author  N. Marinelli Univ. of Notre Dame
  * 
- * \version $Id: PhotonCore.h,v 1.5 2011/02/20 23:11:17 nancy Exp $
  * $Log $
  */
 #include "DataFormats/EgammaCandidates/interface/ConversionFwd.h"

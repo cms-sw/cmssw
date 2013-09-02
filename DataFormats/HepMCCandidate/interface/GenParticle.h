@@ -6,7 +6,6 @@
  *
  * \author: Luca Lista, INFN
  *
- * \version $Id: GenParticle.h,v 1.5.2.1 2009/09/03 15:15:05 srappocc Exp $
  */
 #include "DataFormats/Candidate/interface/CompositeRefCandidateT.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticleFwd.h"
