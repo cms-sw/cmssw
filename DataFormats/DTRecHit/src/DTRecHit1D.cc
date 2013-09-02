@@ -1,7 +1,5 @@
 /** \file
  *
- *  $Date: 2007/08/02 05:35:47 $
- *  $Revision: 1.5 $
  *  \author G. Cerminara - INFN Torino
  */
 

@@ -11,8 +11,6 @@
  *   as sort rank and indices of the contributing muons.
 */
 //
-//   $Date $
-//   $Revision $
 //
 //   Author :
 //   H. Sakulin                  HEPHY Vienna

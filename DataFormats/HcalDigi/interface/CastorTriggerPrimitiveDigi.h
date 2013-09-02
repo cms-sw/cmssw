@@ -8,8 +8,6 @@
 
 /** \class CastorTriggerPrimitiveDigi
     
-$Date: 2010/04/14 13:15:56 $
-$Revision: 1.10 $
 \author A. Campbell - DESY
 */
 class CastorTriggerPrimitiveDigi {

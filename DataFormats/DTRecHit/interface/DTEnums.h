@@ -4,8 +4,6 @@
 /** \class DTEnums
  *  Define some useful enums for DTs
  *
- *  $Date: $
- *  $Revision: $
  *  \author G. Cerminara - INFN Torino
  */
 

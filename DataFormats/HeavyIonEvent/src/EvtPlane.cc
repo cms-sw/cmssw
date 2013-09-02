@@ -1,5 +1,4 @@
 // //
-// // $Id: EvtPlane.cc,v 1.3 2009/09/08 10:50:57 edwenger Exp $
 // //
 // 
 // #include "DataFormats/HeavyIonEvent/interface/EvtPlane.h"
@@ -23,7 +22,6 @@
 
 
 //
-// $Id: EvtPlane.cc,v 1.3 2009/09/08 10:50:57 edwenger Exp $
 //
 
 #include "DataFormats/HeavyIonEvent/interface/EvtPlane.h"

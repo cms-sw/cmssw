@@ -1,5 +1,4 @@
 //
-// $Id: TriggerObject.cc,v 1.11 2010/12/16 18:39:17 vadler Exp $
 //
 
 #include "DataFormats/PatCandidates/interface/TriggerObject.h"

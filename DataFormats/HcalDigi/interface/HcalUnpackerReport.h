@@ -9,8 +9,6 @@
 
 /** \class HcalUnpackerReport
   *  
-  * $Date: 2009/02/12 17:21:44 $
-  * $Revision: 1.5 $
   * \author J. Mans - Minnesota
   */
 class HcalUnpackerReport {

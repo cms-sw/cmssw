@@ -4,8 +4,6 @@
 /** \class DTLayerId
  *  DetUnit identifier for DT layers
  *
- *  $Date: 2006/01/19 15:42:58 $
- *  $Revision: 1.2 $
  *  \author G. Cerminara - INFN Torino
  */
 

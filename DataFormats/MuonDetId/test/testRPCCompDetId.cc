@@ -3,7 +3,6 @@
    test file for RPCCompDetId
 
    \author Stefano ARGIRO
-   \version $Id: testRPCCompDetId.cc,v 1.5 2011/01/14 03:35:58 sunanda Exp $
    \date 27 Jul 2005
 */
 

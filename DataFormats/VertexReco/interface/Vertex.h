@@ -15,7 +15,6 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: Vertex.h,v 1.38 2010/11/17 17:13:42 dlange Exp $
  *
  */
 #include <Rtypes.h>

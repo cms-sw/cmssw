@@ -1,5 +1,4 @@
 //
-// $Id: MET.h,v 1.19 2009/03/09 11:20:55 slava77 Exp $
 //
 
 #ifndef DataFormats_PatCandidates_MET_h
@@ -16,7 +15,6 @@
    https://hypernews.cern.ch/HyperNews/CMS/get/physTools.html
 
   \author   Steven Lowette, Giovanni Petrucciani, Frederic Ronga, Slava Krutelyov
-  \version  $Id: MET.h,v 1.19 2009/03/09 11:20:55 slava77 Exp $
 */
 
 

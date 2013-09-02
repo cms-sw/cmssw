@@ -4,7 +4,6 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: VertexPrint.h,v 1.1 2006/04/28 16:55:09 vanlaer Exp $
  * 
  */
 #include "FWCore/Utilities/interface/Verbosity.h"

@@ -1,4 +1,3 @@
-// Last commit: $Id: ConstantsForCommissioningAnalysis.h,v 1.14 2010/02/03 18:28:43 dstrom Exp $
 
 #ifndef DataFormats_SiStripCommon_ConstantsForCommissioningAnalysis_H
 #define DataFormats_SiStripCommon_ConstantsForCommissioningAnalysis_H

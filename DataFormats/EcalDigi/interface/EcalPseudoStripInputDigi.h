@@ -10,7 +10,6 @@
 
 /** \class EcalPseudoStripInputDigi
       
-$Id : $
 */
 
 class EcalPseudoStripInputDigi {

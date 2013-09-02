@@ -9,8 +9,6 @@
  * To be used as base class for all 1D positional TrackingRecHits.
  * The coordinate measured is assumend to be the local "x"
  *
- *  $Date: 2007/07/25 10:22:23 $
- *  $Revision: 1.4 $
  *  \author S. Lacaprara, G. Cerminara
  */
 

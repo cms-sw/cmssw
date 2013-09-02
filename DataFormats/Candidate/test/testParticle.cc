@@ -1,4 +1,3 @@
-// $Id: testParticle.cc,v 1.6 2007/10/23 17:27:05 llista Exp $
 #include <cppunit/extensions/HelperMacros.h>
 #include "DataFormats/Candidate/interface/Particle.h"
 #include <iostream>

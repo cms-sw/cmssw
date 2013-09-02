@@ -10,7 +10,6 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: TrackExtraBase.h,v 1.5 2006/07/24 19:33:39 tboccali Exp $
  *
  */
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHitFwd.h"
