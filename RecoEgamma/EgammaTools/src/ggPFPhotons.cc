@@ -473,7 +473,6 @@ std::pair<double, double>ggPFPhotons::SuperClusterSize(reco::SuperCluster sc,
   EcalRecHitCollection::const_iterator ee;
   double MaxEta=-99;
   double MaxPhi=-99;
-  double MaxR=-99;
   for(;cit!=sc.clustersEnd();++cit){
     std::vector< std::pair<DetId, float> >bcCells=(*cit)->hitsAndFractions();
     DetId seedXtalId = bcCells[0].first ;
