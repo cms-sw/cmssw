@@ -109,7 +109,6 @@ namespace edm {
     ItemType nextItemType();
 
     /// Read next event
-    /// Indicate inability to get a new event by returning a null ptr.
     void readEvent(EventPrincipal& ep, StreamContext *);
 
     /// Read a specific event
