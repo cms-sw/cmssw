@@ -210,7 +210,6 @@ void
 TrackerOfflineValidationSummary::endJob()
 {
   AlignableTracker aliTracker(&(*tkGeom_));
-  AlignableObjectId aliobjid;
   
   TTree* tree = new TTree("TkOffVal","TkOffVal");
   
