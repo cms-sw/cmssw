@@ -45,7 +45,7 @@ particleFlowClusterECAL = cms.EDProducer("PFClusterProducer",
     useCornerCells = cms.bool(True),
     # enable cleaning of RBX and HPD (HCAL only);             
     cleanRBXandHPDs = cms.bool(False),
-    PositionCalcType = cms.string('PFPositionCalc'),
+    PositionCalcType = cms.string('EGPositionCalc'),
     # e/gamma position calc config  
     PositionCalcConfig = cms.PSet( T0_barl = cms.double(7.4),
                                    T0_endc = cms.double(3.1),
