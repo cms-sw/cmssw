@@ -199,6 +199,7 @@ HLTEcalResonanceFilter::fillDescriptions(edm::ConfigurationDescriptions& descrip
   preshowerSelection.add<double>("preshCalibPlaneY",0.7);
   preshowerSelection.add<double>("preshCalibGamma",0.024);
   preshowerSelection.add<double>("preshCalibMIP",9.0E-5);
+  preshowerSelection.add<std::string>("debugLevelES","");  // *** This is not needed and shoul be better removed !
   desc.add<edm::ParameterSetDescription>("preshowerSelection",preshowerSelection);
 
   desc.add<int>("debugLevel",0);
