@@ -35,28 +35,27 @@
    <version ClassVersion="11" checksum="489577659"/>
    <version ClassVersion="10" checksum="2367573922"/>
   </class>
-  <class name="pat::Tau"  ClassVersion="13">
+  <class name="pat::Tau"  ClassVersion="12">
    <field name="isolationTracksTransientRefVector_" transient="true"/>
    <field name="isolationTracksTransientRefVectorFixed_" transient="true"/>
    <field name="signalTracksTransientRefVector_" transient="true"/>
    <field name="signalTracksTransientRefVectorFixed_" transient="true"/>
-    field name="signalPFCandsTransientPtrs_" transient="true"/>
+   <field name="signalPFCandsTransientPtrs_" transient="true"/>
    <field name="signalPFCandsPtrsFixed_" transient="true"/>
-   <field name="signalPFChargedHadrCandsTransientPtrs_"   transient="true"/>
+   <field name="signalPFChargedHadrCandsTransientPtrs_" transient="true"/>
    <field name="signalPFChargedHadrCandsPtrsFixed_" transient="true"/>
-   <field name="signalPFNeutralHadrCandsTransientPtrs_"   transient="true"/>
+   <field name="signalPFNeutralHadrCandsTransientPtrs_" transient="true"/>
    <field name="signalPFNeutralHadrCandsPtrsFixed_" transient="true"/>
    <field name="signalPFGammaCandsTransientPtrs_" transient="true"/>
    <field name="signalPFGammaCandsPtrsFixed_" transient="true"/>
    <field name="isolationPFCandsTransientPtrs_" transient="true"/>
    <field name="isolationPFCandsPtrsFixed_" transient="true"/>
-   <field name="isolationPFChargedHadrCandsTransientPtrs_"   transient="true"/>
-   <field name="isolationPFChargedHadrCandsPtrsFixed_"   transient="true"/>
-   <field name="isolationPFNeutralHadrCandsTransientPtrs_"   transient="true"/>
-   <field name="isolationPFNeutralHadrCandsPtrsFixed_"   transient="true"/>
-   <field name="isolationPFGammaCandsTransientPtrs_"   transient="true"/>
+   <field name="isolationPFChargedHadrCandsTransientPtrs_" transient="true"/>
+   <field name="isolationPFChargedHadrCandsPtrsFixed_" transient="true"/>
+   <field name="isolationPFNeutralHadrCandsTransientPtrs_" transient="true"/>
+   <field name="isolationPFNeutralHadrCandsPtrsFixed_" transient="true"/>
+   <field name="isolationPFGammaCandsTransientPtrs_" transient="true"/>
    <field name="isolationPFGammaCandsPtrsFixed_" transient="true"/>
-   <version ClassVersion="13" checksum="2412440462"/>
    <version ClassVersion="12" checksum="2900944238"/>
    <version ClassVersion="11" checksum="3100353428"/>
    <version ClassVersion="10" checksum="2244564938"/>
