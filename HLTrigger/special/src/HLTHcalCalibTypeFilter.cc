@@ -68,7 +68,7 @@ HLTHcalCalibTypeFilter::fillDescriptions(edm::ConfigurationDescriptions& descrip
   desc.add<edm::InputTag>("InputTag",edm::InputTag("source"));
   std::vector<int> temp; for (int i=1; i<=5; i++) temp.push_back(i);
   desc.add<std::vector<int> >("CalibTypes", temp);
-  desc.add<bool>("FilterSummary",false);
+  desc.addUntracked<bool>("FilterSummary",false);
   descriptions.add("hltHcalCalibTypeFilter",desc);
 }
 
