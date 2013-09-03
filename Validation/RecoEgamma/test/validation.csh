@@ -20,14 +20,14 @@
 setenv RUNTYPE Central
 #setenv RUNTYPE Local
 setenv STARTUP True
-setenv FASTSIM True
+setenv FASTSIM False
 setenv UPGRADE False
 ## TYPE options: Photons, GEDPhotons
-setenv TYPE Photons
-#setenv TYPE GEDPhotons
+#setenv TYPE Photons
+setenv TYPE GEDPhotons
 ## ANALYZERNAME options: PhotonValidator, oldpfPhotonValidator, pfPhotonValidator
-setenv ANALYZERNAME PhotonValidator
-#setenv ANALYZERNAME pfPhotonValidator
+#setenv ANALYZERNAME PhotonValidator
+setenv ANALYZERNAME pfPhotonValidator
 
 setenv CMSSWver1 6_2_0
 setenv CMSSWver2 7_0_0
@@ -40,7 +40,7 @@ setenv LHCENERGY   14
 
 
 if ( $STARTUP == True &&  $FASTSIM == False) then
-setenv OLDGLOBALTAG PRE_ST62_V8-v2
+setenv OLDGLOBALTAG PRE_ST62_V8-v3
 setenv NEWGLOBALTAG PRE_ST62_V8-v1
 else if (  $STARTUP == True  && $FASTSIM == True) then
 setenv OLDGLOBALTAG PRE_ST62_V8_FastSim-v3
@@ -71,9 +71,9 @@ setenv WorkDir2   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver
 
 setenv PU False
 #setenv SAMPLE SingleGammaPt10
-#setenv SAMPLE SingleGammaPt35
+setenv SAMPLE SingleGammaPt35
 ##setenv SAMPLE SingleGammaFlatPt10_100
-setenv SAMPLE H130GGgluonfusion
+#setenv SAMPLE H130GGgluonfusion
 #setenv SAMPLE PhotonJets_Pt_10
 #setenv SAMPLE GammaJets_Pt_80_120
 #setenv SAMPLE QCD_Pt_80_120
@@ -1053,7 +1053,7 @@ end
 
 
 
-
+if ($ANALYZERNAME == pfPhotonValidator)  goto skippingHistosForTracks
 foreach i (`cat scaledhistosForTracks`)
   cat > temp$N.C <<EOF
 TCanvas *c$i = new TCanvas("c$i");
@@ -1091,6 +1091,8 @@ c$i->SaveAs("gifs/$i.gif");
 EOF
   setenv N `expr $N + 1`
 end
+
+
 
 foreach i (`cat unscaledhistosForTracks`)
   cat > temp$N.C <<EOF
@@ -1140,7 +1142,8 @@ EOF
   setenv N `expr $N + 1`
 end
 
-
+skippingHistosForTracks:
+  echo "Skipping histograms which are not defined for pfPhotons"
 
 
 
