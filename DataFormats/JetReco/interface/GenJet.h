@@ -12,7 +12,6 @@
  * \author Fedor Ratnikov, UMd
  *
  * \version   Original March 31, 2006 by F.R.
- * \version   $Id: GenJet.h,v 1.18 2008/02/16 14:31:07 oehler Exp $
  ************************************************************/
 
 

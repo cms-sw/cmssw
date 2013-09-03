@@ -13,7 +13,6 @@
  * \author Matevz Tadel
  * \date   2011-02-22
  *
- * $Id$
  */
 
 #include <vector>

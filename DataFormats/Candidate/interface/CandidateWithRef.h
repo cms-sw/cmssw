@@ -6,7 +6,6 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: CandidateWithRef.h,v 1.1 2006/11/20 14:51:25 llista Exp $
  *
  */
 #include "DataFormats/CaloRecHit/interface/CaloRecHit.h"

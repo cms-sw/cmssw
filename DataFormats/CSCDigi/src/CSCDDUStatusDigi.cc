@@ -2,8 +2,6 @@
  * 
  *  Digi for CSC DDU info available in DDU
  *
- *  $Date: 2010/06/11 15:44:22 $
- *  $Revision: 1.6 $
  *
  */
 #include "DataFormats/CSCDigi/interface/CSCDDUStatusDigi.h"

@@ -3,7 +3,6 @@
    test file for CSCDetId
 
    \author Stefano ARGIRO
-   \version $Id: testCSCDetId.cc,v 1.4 2006/02/13 14:28:45 ptc Exp $
    \date 27 Jul 2005
 */
 

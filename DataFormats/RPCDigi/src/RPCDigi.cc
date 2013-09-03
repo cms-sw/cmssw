@@ -1,7 +1,5 @@
 /** \file
  * 
- *  $Date: 2006/05/16 14:36:29 $
- *  $Revision: 1.7 $
  *
  * \author Ilaria Segoni
  */

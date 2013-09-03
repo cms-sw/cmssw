@@ -1,5 +1,4 @@
 // F.R.
-// $Id: GenericJetCollection.h,v 1.4.6.1 2010/01/20 17:07:37 srappocc Exp $
 #ifndef JetReco_GenericJetCollection_h
 #define JetReco_GenericJetCollection_h
 

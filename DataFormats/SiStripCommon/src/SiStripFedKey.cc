@@ -1,4 +1,3 @@
-// Last commit: $Id: SiStripFedKey.cc,v 1.16 2009/10/23 13:07:17 lowette Exp $
 
 #include "DataFormats/SiStripCommon/interface/SiStripFedKey.h"
 #include "DataFormats/SiStripCommon/interface/Constants.h" 

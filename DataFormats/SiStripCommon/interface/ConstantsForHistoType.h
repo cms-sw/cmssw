@@ -1,4 +1,3 @@
-// Last commit: $Id: ConstantsForHistoType.h,v 1.1 2007/06/19 12:16:52 bainbrid Exp $
 
 #ifndef DataFormats_SiStripCommon_ConstantsForHistoType_H
 #define DataFormats_SiStripCommon_ConstantsForHistoType_H

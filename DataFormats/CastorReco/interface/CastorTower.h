@@ -6,7 +6,6 @@
  *
  * \author Hans Van Haevermaet, University of Antwerp
  *
- * \version $Id: CastorTower.h,v 1.5 2010/07/03 19:11:59 hvanhaev Exp $
  *
  */
 #include <vector>

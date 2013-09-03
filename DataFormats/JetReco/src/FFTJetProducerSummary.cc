@@ -1,4 +1,3 @@
-// $Id: FFTJetProducerSummary.cc,v 1.0 2010/11/11 20:29:52 igv Exp $
 
 #include <algorithm>
 

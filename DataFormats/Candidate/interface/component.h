@@ -6,7 +6,6 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: component.h,v 1.6 2006/11/13 15:01:32 llista Exp $
  *
  */
 #include "FWCore/Utilities/interface/Exception.h"

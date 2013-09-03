@@ -7,7 +7,6 @@
  *
  * \author Shahram Rahatlou, INFN
  *
- * \version $Id: CaloCluster.h,v 1.22 2011/02/17 22:41:23 argiro Exp $
  * Comments:
  * modified AlgoId enumeration to include cleaning status flags
  * In summary:

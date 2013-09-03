@@ -1,5 +1,4 @@
 //
-// $Id: GenericParticle.h,v 1.8 2009/10/15 17:37:53 rwolf Exp $
 //
 
 #ifndef DataFormats_PatCandidates_GenericParticle_h
@@ -13,7 +12,6 @@
    namespace.
 
   \author   Giovanni Petrucciani
-  \version  $Id: GenericParticle.h,v 1.8 2009/10/15 17:37:53 rwolf Exp $
 */
 
 #include "DataFormats/PatCandidates/interface/PATObject.h"

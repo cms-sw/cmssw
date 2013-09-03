@@ -10,7 +10,6 @@
  * are bit-packed into a 8-bit word.
  *
  * Original author: A. Bonato
- * $Id$
  */
 
 class AlignmentClusterFlag

@@ -4,8 +4,6 @@
 /** \class CSCStripDigiCollection
  *  ED
  *
- *  $Date: 2005/10/07 17:40:53 $
- *  $Revision: 1.1 $
  *  \author Michael Schmitt, Northwestern
  */
 

@@ -1,4 +1,3 @@
-// @(#)root/smatrix:$Id: CholeskyDecomp.h,v 1.2 2009/06/28 06:27:28 innocent Exp $
 // Author: M. Schiller    2009
 #error "CholeskyDecomp is now in ROOT"
 #ifndef ROOT_Math_CholeskyDecomp

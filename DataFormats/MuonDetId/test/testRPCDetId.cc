@@ -3,7 +3,6 @@
    test file for RPCDetId
 
    \author Stefano ARGIRO
-   \version $Id: testRPCDetId.cc,v 1.4 2006/09/13 09:00:22 trentad Exp $
    \date 27 Jul 2005
 */
 
