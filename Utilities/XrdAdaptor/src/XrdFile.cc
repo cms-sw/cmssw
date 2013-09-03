@@ -150,10 +150,10 @@ XrdFile::open (const char *name,
   auto file = getActiveFile();
   XrdCl::XRootDStatus status;
   XrdCl::StatInfo *statInfo = NULL;
-  if (! (status = file->Stat(true, statInfo)).IsOK()) {
+  if (! (status = file->Stat(false, statInfo)).IsOK()) {
     edm::Exception ex(edm::errors::FileOpenError);
     ex << "XrdCl::File::Stat(name='" << name
-       << ") => error '" << status.ToString()
+       << ") => error '" << status.ToStr()
        << "' (errno=" << status.errNo << ", code=" << status.code << ")";
     ex.addContext("Calling XrdFile::open()");
     addConnection(ex);
@@ -343,7 +343,7 @@ XrdFile::write (const void *from, IOSize n)
   if (!s.IsOK()) {
     cms::Exception ex("FileWriteError");
     ex << "XrdFile::write(name='" << m_name << "', n=" << n
-       << ") failed with error '" << s.ToString()
+       << ") failed with error '" << s.ToStr()
        << "' (errno=" << s.errNo << ", code=" << s.code << ")";
     ex.addContext("Calling XrdFile::write()");
     addConnection(ex);
@@ -374,7 +374,7 @@ XrdFile::write (const void *from, IOSize n, IOOffset pos)
   if (!s.IsOK()) {
     cms::Exception ex("FileWriteError");
     ex << "XrdFile::write(name='" << m_name << "', n=" << n
-       << ") failed with error '" << s.ToString()
+       << ") failed with error '" << s.ToStr()
        << "' (errno=" << s.errNo << ", code=" << s.code << ")";
     ex.addContext("Calling XrdFile::write()");
     addConnection(ex);

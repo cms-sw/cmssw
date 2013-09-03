@@ -49,7 +49,7 @@ XrdAdaptor::ClientRequest::HandleResponse(XrdCl::XRootDStatus *stat, XrdCl::AnyO
         edm::LogWarning("XrdAdaptorInternal") << "XrdRequestManager::handle(name='"
           << m_manager.getFilename() << ") failure when reading from "
           << (source ? source->ID() : "(unknown source)")
-          << "; failed with error '" << status->ToString() << "' (errno="
+          << "; failed with error '" << status->ToStr() << "' (errno="
           << status->errNo << ", code=" << status->code << ").";
         m_failure_count++;
         try
@@ -67,7 +67,7 @@ XrdAdaptor::ClientRequest::HandleResponse(XrdCl::XRootDStatus *stat, XrdCl::AnyO
         {
             edm::Exception ex(edm::errors::FileReadError);
             ex << "XrdRequestManager::handle(name='" << m_manager.getFilename()
-               << ") failed with error '" << status->ToString()
+               << ") failed with error '" << status->ToStr()
                << "' (errno=" << status->errNo << ", code="
                << status->code << ").  Unknown exception occurred when running"
                << " connection recovery.";

@@ -48,7 +48,7 @@ Source::~Source()
   XrdCl::XRootDStatus status;
   if (! (status = m_fh->Close()).IsOK())
     edm::LogWarning("XrdFileWarning")
-      << "Source::~Source() failed with error '" << status.ToString()
+      << "Source::~Source() failed with error '" << status.ToStr()
       << "' (errno=" << status.errNo << ", code=" << status.code << ")";
   m_fh.reset();
 }
