@@ -56,7 +56,7 @@ HLTL1NumberFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("rawData",edm::InputTag("source"));
   desc.add<bool>("invert",true);
-  descriptions.add("HLTL1NumberFilter",desc);
+  descriptions.add("hltL1NumberFilter",desc);
 }
 //
 // member functions

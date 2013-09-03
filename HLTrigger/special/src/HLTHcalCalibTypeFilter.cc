@@ -69,7 +69,7 @@ HLTHcalCalibTypeFilter::fillDescriptions(edm::ConfigurationDescriptions& descrip
   std::vector<int> temp; for (int i=1; i<=5; i++) temp.push_back(i);
   desc.add<std::vector<int> >("CalibTypes", temp);
   desc.add<bool>("FilterSummary",false);
-  descriptions.add("HLTHcalCalibTypeFilter",desc);
+  descriptions.add("hltHcalCalibTypeFilter",desc);
 }
 
 //

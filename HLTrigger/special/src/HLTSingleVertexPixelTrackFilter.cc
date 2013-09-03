@@ -11,12 +11,8 @@
 #include "DataFormats/Common/interface/RefToBase.h"
 #include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
 #include "DataFormats/HLTReco/interface/TriggerTypeDefs.h"
-#include "DataFormats/VertexReco/interface/Vertex.h"
-#include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h" 
-#include "DataFormats/RecoCandidate/interface/RecoChargedCandidate.h"
-#include "DataFormats/RecoCandidate/interface/RecoChargedCandidateFwd.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -33,10 +29,27 @@ HLTSingleVertexPixelTrackFilter::HLTSingleVertexPixelTrackFilter(const edm::Para
     min_trks_  (iConfig.getParameter<int>("MinTrks")),
     min_sep_  (iConfig.getParameter<double>("MinSep"))
 {
+  pixelVerticesToken_ = consumes<reco::VertexCollection>(pixelVerticesTag_);
+  pixelTracksToken_ = consumes<reco::RecoChargedCandidateCollection>(pixelTracksTag_);
 }
 
 HLTSingleVertexPixelTrackFilter::~HLTSingleVertexPixelTrackFilter()
 {
+}
+
+void
+HLTSingleVertexPixelTrackFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  makeHLTFilterDescription(desc);
+  desc.add<edm::InputTag>("vertexCollection",edm::InputTag("hltPixelVerticesForMinBias"));
+  desc.add<edm::InputTag>("trackCollection",edm::InputTag("hltPixelCands"));
+  desc.add<double>("MinPt",0.2);
+  desc.add<double>("MaxPt",10000.0);
+  desc.add<double>("MaxEta",1.0);
+  desc.add<double>("MaxVz",10.0);
+  desc.add<int>("MinTrks",30);
+  desc.add<double>("MinSep",0.12);
+  descriptions.add("hltSingleVertexPixelTrackFilter",desc);
 }
 
 //
@@ -62,7 +75,7 @@ bool HLTSingleVertexPixelTrackFilter::hltFilter(edm::Event& iEvent, const edm::E
 
    // get hold of products from Event
    edm::Handle<reco::VertexCollection> vertexCollection;
-   iEvent.getByLabel( pixelVerticesTag_, vertexCollection );
+   iEvent.getByToken( pixelVerticesToken_, vertexCollection );
    if(vertexCollection.isValid())
    {
      const reco::VertexCollection * vertices = vertexCollection.product();
@@ -85,7 +98,7 @@ bool HLTSingleVertexPixelTrackFilter::hltFilter(edm::Event& iEvent, const edm::E
        }
 
        edm::Handle<reco::RecoChargedCandidateCollection> trackCollection;
-       iEvent.getByLabel(pixelTracksTag_,trackCollection);
+       iEvent.getByToken(pixelTracksToken_,trackCollection);
        if(trackCollection.isValid())
        {
           const reco::RecoChargedCandidateCollection * tracks = trackCollection.product();

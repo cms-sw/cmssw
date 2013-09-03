@@ -53,7 +53,7 @@ HLTEventNumberFilter::fillDescriptions(edm::ConfigurationDescriptions& descripti
   edm::ParameterSetDescription desc;
   desc.add<int>("period",4096);
   desc.add<bool>("invert",true);
-  descriptions.add("HLTEventNumberFilter",desc);
+  descriptions.add("hltEventNumberFilter",desc);
 }
 
 //

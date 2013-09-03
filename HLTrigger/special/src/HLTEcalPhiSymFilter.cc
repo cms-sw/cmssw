@@ -49,7 +49,7 @@ HLTEcalPhiSymFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptio
   desc.add<double>("eCut_endcap_high",999999.);
   desc.add<std::string>("phiSymBarrelHitCollection","phiSymEcalRecHitsEB");
   desc.add<std::string>("phiSymEndcapHitCollection","phiSymEcalRecHitsEE");
-  descriptions.add("hltEcalPhiSymFilter",desc);
+  descriptions.add("alCaPhiSymStream",desc);
 }
 
 

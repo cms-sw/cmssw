@@ -66,7 +66,7 @@ HLTHcalNZSFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions)
   makeHLTFilterDescription(desc);
   desc.add<edm::InputTag>("InputTag",edm::InputTag("source"));
   desc.add<bool>("FilterSummary",false);
-  descriptions.add("HLTHLTHcalNZSFilter",desc);
+  descriptions.add("hltHcalNZSFilter",desc);
 }
 
 //

@@ -44,7 +44,7 @@ HLTHcalPhiSymFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptio
   desc.add<std::string>("phiSymHOHitCollection","phiSymHcalRecHitsHO");
   desc.add<std::string>("phiSymHBHEHitCollection","phiSymHcalRecHitsHBHE");
   desc.add<std::string>("phiSymHFHitCollection","phiSymHcalRecHitsHF");
-  descriptions.add("HLTHcalPhiSymFilter",desc);
+  descriptions.add("alCaHcalPhiSymStream",desc);
 }
 
 // ------------ method called to produce the data  ------------
