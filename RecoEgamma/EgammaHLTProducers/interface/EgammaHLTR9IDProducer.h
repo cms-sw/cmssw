@@ -19,31 +19,29 @@
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDProducer.h"
-
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-//
-// class declaration
-//
+#include "DataFormats/RecoCandidate/interface/RecoEcalCandidate.h"
+#include "DataFormats/RecoCandidate/interface/RecoEcalCandidateIsolation.h"
+
+class RecoEcalCandidateProducers;
 
 class EgammaHLTR9IDProducer : public edm::EDProducer {
-   public:
-      explicit EgammaHLTR9IDProducer(const edm::ParameterSet&);
-      ~EgammaHLTR9IDProducer();
-
-
-      virtual void produce(edm::Event&, const edm::EventSetup&);
-   private:
-      // ----------member data ---------------------------
-
-  edm::InputTag recoEcalCandidateProducer_;
+public:
+  explicit EgammaHLTR9IDProducer(const edm::ParameterSet&);
+  ~EgammaHLTR9IDProducer();
+  
+  
+  virtual void produce(edm::Event&, const edm::EventSetup&);
+private:
+  // ----------member data ---------------------------
+  
+  edm::EDGetTokenT<reco::RecoEcalCandidateCollection> recoEcalCandidateProducer_;
   edm::InputTag ecalRechitEBTag_;
   edm::InputTag ecalRechitEETag_;
   
   edm::ParameterSet conf_;
-
 };
 

@@ -24,6 +24,8 @@
 
 #include "Geometry/EcalMapping/interface/EcalElectronicsMapping.h"
 #include "Geometry/CaloTopology/interface/EcalTrigTowerConstituentsMap.h"
+#include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
+
 
 class EcalDetIdToBeRecoveredProducer : public edm::EDProducer {
 
@@ -46,22 +48,22 @@ class EcalDetIdToBeRecoveredProducer : public edm::EDProducer {
                  * InputTag for collections
                  */
                 // SRP collections
-                edm::InputTag ebSrFlagCollection_;
-                edm::InputTag eeSrFlagCollection_;
+		edm::EDGetTokenT<EBSrFlagCollection> ebSrFlagToken_; 
+		edm::EDGetTokenT<EESrFlagCollection> eeSrFlagToken_; 
 
                 // Integrity for xtal data
-                edm::InputTag ebIntegrityGainErrorsCollection_;
-                edm::InputTag ebIntegrityGainSwitchErrorsCollection_;
-                edm::InputTag ebIntegrityChIdErrorsCollection_;
+		edm::EDGetTokenT<EBDetIdCollection> ebIntegrityGainErrorsToken_; 
+                edm::EDGetTokenT<EBDetIdCollection> ebIntegrityGainSwitchErrorsToken_;
+                edm::EDGetTokenT<EBDetIdCollection> ebIntegrityChIdErrorsToken_;
 
                 // Integrity for xtal data - EE specific (to be rivisited towards EB+EE common collection)
-                edm::InputTag eeIntegrityGainErrorsCollection_;
-                edm::InputTag eeIntegrityGainSwitchErrorsCollection_;
-                edm::InputTag eeIntegrityChIdErrorsCollection_;
+                edm::EDGetTokenT<EEDetIdCollection> eeIntegrityGainErrorsToken_;
+                edm::EDGetTokenT<EEDetIdCollection> eeIntegrityGainSwitchErrorsToken_;
+                edm::EDGetTokenT<EEDetIdCollection> eeIntegrityChIdErrorsToken_;
 
                 // Integrity Errors
-                edm::InputTag integrityTTIdErrorsCollection_;
-                edm::InputTag integrityBlockSizeErrorsCollection_;
+                edm::EDGetTokenT<EcalElectronicsIdCollection> integrityTTIdErrorsToken_;
+                edm::EDGetTokenT<EcalElectronicsIdCollection> integrityBlockSizeErrorsToken_;
 
                 /*
                  * output collections

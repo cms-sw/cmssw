@@ -48,10 +48,12 @@ using namespace std;
 PreshowerClusterProducer::PreshowerClusterProducer(const edm::ParameterSet& ps) {
 
   // use configuration file to setup input/output collection names 
-  preshHitProducer_   = ps.getParameter<edm::InputTag>("preshRecHitProducer");
+  preshHitsToken_   = 
+	  consumes<EcalRecHitCollection>(ps.getParameter<edm::InputTag>("preshRecHitProducer"));
   
   // Name of a SuperClusterCollection to make associations:
-  endcapSClusterProducer_   = ps.getParameter<edm::InputTag>("endcapSClusterProducer");
+  endcapSClusterToken_   = 
+	  consumes<reco::SuperClusterCollection>(ps.getParameter<edm::InputTag>("endcapSClusterProducer"));
   
   // Output collections:
   preshClusterCollectionX_ = ps.getParameter<std::string>("preshClusterCollectionX");
@@ -107,11 +109,11 @@ void PreshowerClusterProducer::produce(edm::Event& evt, const edm::EventSetup& e
     topology_p  = new EcalPreshowerTopology(geoHandle);
   
   // fetch the product (pSuperClusters)
-  evt.getByLabel(endcapSClusterProducer_, pSuperClusters);   
+  evt.getByToken(endcapSClusterToken_, pSuperClusters);   
   const reco::SuperClusterCollection* SClusts = pSuperClusters.product();
   
   // fetch the product (RecHits)
-  evt.getByLabel( preshHitProducer_, pRecHits);
+  evt.getByToken( preshHitsToken_, pRecHits);
   // pointer to the object in the product
   const EcalRecHitCollection* rechits = pRecHits.product(); // EcalRecHitCollection hit_collection = *rhcHandle;
   

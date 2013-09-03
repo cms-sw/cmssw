@@ -13,7 +13,6 @@
 
 // Reconstruction Classes
 #include "DataFormats/EcalRecHit/interface/EcalRecHit.h"
-#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
 #include "DataFormats/EgammaReco/interface/BasicClusterFwd.h"
@@ -47,10 +46,10 @@ IslandClusterProducer::IslandClusterProducer(const edm::ParameterSet& ps)
   else                                   verbosity = IslandClusterAlgo::pERROR;
 
   // Parameters to identify the hit collections
-  barrelHitProducer_   = ps.getParameter<std::string>("barrelHitProducer");
-  endcapHitProducer_   = ps.getParameter<std::string>("endcapHitProducer");
-  barrelHitCollection_ = ps.getParameter<std::string>("barrelHitCollection");
-  endcapHitCollection_ = ps.getParameter<std::string>("endcapHitCollection");
+  barrelRecHits_   = 
+	  consumes<EcalRecHitCollection>(ps.getParameter<edm::InputTag>("barrelHits"));
+  endcapRecHits_   = 
+	  consumes<EcalRecHitCollection>(ps.getParameter<edm::InputTag>("endcapHits"));
 
   // The names of the produced cluster collections
   barrelClusterCollection_  = ps.getParameter<std::string>("barrelClusterCollection");
@@ -96,37 +95,26 @@ IslandClusterProducer::~IslandClusterProducer()
 
 void IslandClusterProducer::produce(edm::Event& evt, const edm::EventSetup& es)
 {
-  clusterizeECALPart(evt, es, endcapHitProducer_, endcapHitCollection_, endcapClusterCollection_, endcapClusterShapeAssociation_, IslandClusterAlgo::endcap); 
-  clusterizeECALPart(evt, es, barrelHitProducer_, barrelHitCollection_, barrelClusterCollection_, barrelClusterShapeAssociation_, IslandClusterAlgo::barrel);
+  clusterizeECALPart(evt, es, endcapRecHits_, endcapClusterCollection_, endcapClusterShapeAssociation_, IslandClusterAlgo::endcap); 
+  clusterizeECALPart(evt, es, barrelRecHits_, barrelClusterCollection_, barrelClusterShapeAssociation_, IslandClusterAlgo::barrel);
   nEvt_++;
 }
 
 
-const EcalRecHitCollection * IslandClusterProducer::getCollection(edm::Event& evt,
-                                                                  const std::string& hitProducer_,
-                                                                  const std::string& hitCollection_)
+const EcalRecHitCollection * IslandClusterProducer::getCollection(edm::Event& evt,const edm::EDGetTokenT<EcalRecHitCollection>& token)
 {
   edm::Handle<EcalRecHitCollection> rhcHandle;
-  evt.getByLabel(hitProducer_, hitCollection_, rhcHandle);
-  if (!(rhcHandle.isValid())) 
-    {
-      std::cout << "could not get a handle on the EcalRecHitCollection!" << std::endl;
-      edm::LogError("IslandClusterProducerError") << "Error! can't get the product " << hitCollection_.c_str() ;
-      return 0;
-    } else {
-    return rhcHandle.product();
-  }
+  evt.getByToken(token, rhcHandle);
+  return rhcHandle.product();
+  
 }
 
-void IslandClusterProducer::clusterizeECALPart(edm::Event &evt, const edm::EventSetup &es,
-                                               const std::string& hitProducer,
-                                               const std::string& hitCollection,
-                                               const std::string& clusterCollection,
+void IslandClusterProducer::clusterizeECALPart(edm::Event &evt, const edm::EventSetup &es,const edm::EDGetTokenT<EcalRecHitCollection>& token,                                              const std::string& clusterCollection,
 					       const std::string& clusterShapeAssociation,
                                                const IslandClusterAlgo::EcalPart& ecalPart)
 {
   // get the hit collection from the event:
-  const EcalRecHitCollection *hitCollection_p = getCollection(evt, hitProducer, hitCollection);
+  const EcalRecHitCollection *hitCollection_p = getCollection(evt,token);
 
   // get the geometry and topology from the event setup:
   edm::ESHandle<CaloGeometry> geoHandle;

@@ -7,34 +7,15 @@
  */
 
 #include "RecoEgamma/EgammaHLTProducers/interface/EgammaHLTPhotonTrackIsolationProducersRegional.h"
-
-// Framework
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "DataFormats/Common/interface/Handle.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/Utilities/interface/Exception.h"
-
-#include "DataFormats/RecoCandidate/interface/RecoEcalCandidate.h"
 #include "DataFormats/RecoCandidate/interface/RecoEcalCandidateIsolation.h"
 
-#include "DataFormats/Common/interface/RefToBase.h"
-#include "DataFormats/Common/interface/Ref.h"
-#include "DataFormats/Common/interface/RefProd.h"
-
-#include "DataFormats/TrackReco/interface/TrackFwd.h"
-#include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
-
-
-
 
 EgammaHLTPhotonTrackIsolationProducersRegional::EgammaHLTPhotonTrackIsolationProducersRegional(const edm::ParameterSet& config) : conf_(config)
 {
 
-  recoEcalCandidateProducer_    = conf_.getParameter<edm::InputTag>("recoEcalCandidateProducer");
-  trackProducer_                = conf_.getParameter<edm::InputTag>("trackProducer");
+  recoEcalCandidateProducer_    = consumes<reco::RecoEcalCandidateCollection> (conf_.getParameter<edm::InputTag>("recoEcalCandidateProducer"));
+  trackProducer_                = consumes<reco::TrackCollection>(conf_.getParameter<edm::InputTag>("trackProducer"));
 
   countTracks_                  = conf_.getParameter<bool>("countTracks");
 
@@ -43,9 +24,9 @@ EgammaHLTPhotonTrackIsolationProducersRegional::EgammaHLTPhotonTrackIsolationPro
   egTrkIsoZSpan_                = conf_.getParameter<double>("egTrkIsoZSpan");
   egTrkIsoRSpan_                = conf_.getParameter<double>("egTrkIsoRSpan");
   egTrkIsoVetoConeSize_         = conf_.getParameter<double>("egTrkIsoVetoConeSize");
- double egTrkIsoStripBarrel    = conf_.getParameter<double>("egTrkIsoStripBarrel");
+  double egTrkIsoStripBarrel    = conf_.getParameter<double>("egTrkIsoStripBarrel");
   double egTrkIsoStripEndcap    = conf_.getParameter<double>("egTrkIsoStripEndcap");
-
+  
   test_ = new EgammaHLTTrackIsolation(egTrkIsoPtMin_,egTrkIsoConeSize_,
 				      egTrkIsoZSpan_,egTrkIsoRSpan_,egTrkIsoVetoConeSize_,
 				      egTrkIsoStripBarrel,egTrkIsoStripEndcap);
@@ -56,13 +37,7 @@ EgammaHLTPhotonTrackIsolationProducersRegional::EgammaHLTPhotonTrackIsolationPro
 
 }
 
-
 EgammaHLTPhotonTrackIsolationProducersRegional::~EgammaHLTPhotonTrackIsolationProducersRegional(){delete test_;}
-
-
-//
-// member functions
-//
 
 // ------------ method called to produce the data  ------------
 void
@@ -71,32 +46,28 @@ EgammaHLTPhotonTrackIsolationProducersRegional::produce(edm::Event& iEvent, cons
 
   // Get the HLT filtered objects
   edm::Handle<reco::RecoEcalCandidateCollection> recoecalcandHandle;
-  iEvent.getByLabel(recoEcalCandidateProducer_,recoecalcandHandle);
+  iEvent.getByToken(recoEcalCandidateProducer_,recoecalcandHandle);
 
  // Get the barrel hcal hits
   edm::Handle<reco::TrackCollection> trackHandle;
-  iEvent.getByLabel(trackProducer_, trackHandle);
+  iEvent.getByToken(trackProducer_, trackHandle);
   const reco::TrackCollection* trackCollection = trackHandle.product();
 
-
   reco::RecoEcalCandidateIsolationMap isoMap;
-
-
-
- for(reco::RecoEcalCandidateCollection::const_iterator iRecoEcalCand = recoecalcandHandle->begin(); iRecoEcalCand != recoecalcandHandle->end(); iRecoEcalCand++){
+  
+  for(unsigned int iRecoEcalCand=0; iRecoEcalCand<recoecalcandHandle->size(); iRecoEcalCand++) {
     
-    reco::RecoEcalCandidateRef recoecalcandref(recoecalcandHandle,iRecoEcalCand -recoecalcandHandle ->begin());
-    const reco::RecoCandidate *tempiRecoEcalCand = &(*recoecalcandref);
+    reco::RecoEcalCandidateRef recoecalcandref(recoecalcandHandle, iRecoEcalCand);
 
     bool usePhotonVertex = false;
      
     float isol;
     if (countTracks_) {
-      isol = test_->photonTrackCount(tempiRecoEcalCand,trackCollection,usePhotonVertex);
+      isol = test_->photonTrackCount(&(*recoecalcandref), trackCollection, usePhotonVertex);
     } else {
-      isol = test_->photonPtSum(tempiRecoEcalCand,trackCollection,usePhotonVertex);
+      isol = test_->photonPtSum(&(*recoecalcandref), trackCollection, usePhotonVertex);
     }
-
+    
     isoMap.insert(recoecalcandref, isol);
 
   }
@@ -105,6 +76,3 @@ EgammaHLTPhotonTrackIsolationProducersRegional::produce(edm::Event& iEvent, cons
   iEvent.put(isolMap);
 
 }
-
-//define this as a plug-in
-//DEFINE_FWK_MODULE(EgammaHLTTrackIsolationProducers);
