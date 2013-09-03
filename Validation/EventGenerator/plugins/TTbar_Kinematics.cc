@@ -6,10 +6,15 @@
 
 using namespace edm;
 TTbar_Kinematics::TTbar_Kinematics(const edm::ParameterSet& iConfig) :
-  genEventInfoProductTag_(iConfig.getParameter<edm::InputTag>("genEventInfoProductTag"))
+  genEventInfoProductTag_(iConfig.getParameter<edm::InputTag>("genEventInfoProductTag")),
+  genEvt_(iConfig.getParameter<edm::InputTag>("genEvt"))
 {
   dbe = 0;
   dbe = edm::Service<DQMStore>().operator->();
+
+  genEventInfoProductTagToken_=consumes<GenEventInfoProduct>(genEventInfoProductTag_); 
+  genEvtToken_=consumes<TtGenEvent>(genEvt_);
+
 }
 
 
@@ -33,13 +38,13 @@ TTbar_Kinematics::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 
   // --- the MC weights ---
   Handle<GenEventInfoProduct> evt_info;
-  iEvent.getByLabel(genEventInfoProductTag_, evt_info);
+  iEvent.getByToken(genEventInfoProductTagToken_, evt_info);
   if(!evt_info.isValid()) return;
   weight = evt_info->weight() ;
 
   // --- get TopQuarkAnalysis TtGenEvent
   Handle<TtGenEvent> genEvt;
-  iEvent.getByLabel("genEvt", genEvt);
+  iEvent.getByToken(genEvtToken_, genEvt);
 
   if(!genEvt.isValid())return;
 

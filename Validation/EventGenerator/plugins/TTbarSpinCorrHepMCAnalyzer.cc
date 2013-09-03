@@ -9,6 +9,10 @@ TTbarSpinCorrHepMCAnalyzer::TTbarSpinCorrHepMCAnalyzer(const edm::ParameterSet& 
 {
   dbe = 0;
   dbe = edm::Service<DQMStore>().operator->();
+
+  genEventInfoProductTagToken_=consumes<GenEventInfoProduct>(genEventInfoProductTag_);
+  genParticlesTagToken_=consumes<reco::GenParticleCollection>(genParticlesTag_);
+
 }
 
 
@@ -33,7 +37,7 @@ TTbarSpinCorrHepMCAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSe
 
   // --- the MC weights ---
   Handle<GenEventInfoProduct> evt_info;
-  iEvent.getByLabel(genEventInfoProductTag_, evt_info);
+  iEvent.getByToken(genEventInfoProductTagToken_, evt_info);
   if (evt_info.failedToGet())
     return;
 
@@ -41,7 +45,7 @@ TTbarSpinCorrHepMCAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSe
   
   // --- get genParticles ---
   Handle<reco::GenParticleCollection> genParticles;
-  iEvent.getByLabel(genParticlesTag_, genParticles);   
+  iEvent.getByToken(genParticlesTagToken_, genParticles);   
 
   const reco::GenParticle * _lepton   (0) ;
   const reco::GenParticle * _leptonBar(0) ;

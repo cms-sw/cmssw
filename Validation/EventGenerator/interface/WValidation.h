@@ -31,7 +31,7 @@
 #include "Validation/EventGenerator/interface/WeightManager.h"
 
 
-class WValidation : public edm::EDAnalyzer
+class WValidation : public  edm::EDAnalyzer
 {
   public:
 	explicit WValidation(const edm::ParameterSet&);
@@ -44,9 +44,8 @@ class WValidation : public edm::EDAnalyzer
 
   private:
 
-  WeightManager _wmanager;
-
-  edm::InputTag hepmcCollection_;
+	WeightManager wmanager_;
+	edm::InputTag hepmcCollection_;
 
   /// PDT table
   edm::ESHandle<HepPDT::ParticleDataTable> fPDGTable ;
@@ -65,6 +64,7 @@ class WValidation : public edm::EDAnalyzer
   /// decay flavor name
   std::string _name;
 
+  edm::EDGetTokenT<edm::HepMCProduct> hepmcCollectionToken_;
 };
 
 #endif

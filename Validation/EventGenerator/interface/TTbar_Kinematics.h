@@ -77,8 +77,8 @@ class TTbar_Kinematics : public edm::EDAnalyzer {
       ///ME's "container"
       DQMStore *dbe;
 
-      edm::InputTag hepmcCollection_;
-      edm::InputTag genEventInfoProductTag_;
+  edm::InputTag hepmcCollection_;
+  edm::InputTag genEventInfoProductTag_,genEvt_;
 
 
       double weight ;
@@ -119,6 +119,9 @@ class TTbar_Kinematics : public edm::EDAnalyzer {
       MonitorElement* hBottomMassEta         ;
       MonitorElement* hBottomMassY           ;
       MonitorElement* hBottomMassDeltaY      ;
+
+  edm::EDGetTokenT<GenEventInfoProduct> genEventInfoProductTagToken_;
+  edm::EDGetTokenT<TtGenEvent> genEvtToken_;
 
 };
 

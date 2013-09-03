@@ -10,7 +10,7 @@
 using namespace edm;
 
 DuplicationChecker::DuplicationChecker(const edm::ParameterSet& iPSet):
-  _wmanager(iPSet),
+  wmanager_(iPSet,consumesCollector()),
   generatedCollection_(iPSet.getParameter<edm::InputTag>("hepmcCollection")),
   searchForLHE_(iPSet.getParameter<bool>("searchForLHE"))
 { 
@@ -21,6 +21,10 @@ DuplicationChecker::DuplicationChecker(const edm::ParameterSet& iPSet):
   dbe = edm::Service<DQMStore>().operator->();
 
   xBjorkenHistory.clear();
+
+  if (searchForLHE_) lheEventProductToken_=consumes<LHEEventProduct>(lheEventProduct_);
+  else generatedCollectionToken_=consumes<HepMCProduct>(generatedCollection_);
+
 }
 
 DuplicationChecker::~DuplicationChecker() 
@@ -49,7 +53,7 @@ void DuplicationChecker::analyze(const edm::Event& iEvent,const edm::EventSetup&
   if (searchForLHE_) {
 
     Handle<LHEEventProduct> evt;
-    iEvent.getByLabel(lheEventProduct_, evt);
+    iEvent.getByToken(lheEventProductToken_, evt);
 
     const lhef::HEPEUP hepeup_ = evt->hepeup();
 
@@ -61,10 +65,10 @@ void DuplicationChecker::analyze(const edm::Event& iEvent,const edm::EventSetup&
   }
   else {
     //change teh weight in this case
-    weight = _wmanager.weight(iEvent);
+    weight = wmanager_.weight(iEvent);
 
     edm::Handle<HepMCProduct> evt;
-    iEvent.getByLabel(generatedCollection_, evt);
+    iEvent.getByToken(generatedCollectionToken_, evt);
 
     const HepMC::PdfInfo *pdf = evt->GetEvent()->pdf_info();    
     if(pdf){

@@ -42,9 +42,7 @@ class BasicHepMCHeavyIonValidation : public edm::EDAnalyzer
 		virtual void endRun(const edm::Run&, const edm::EventSetup&);
 
 	private:
-
-		WeightManager _wmanager;
-
+		WeightManager wmanager_;
 		edm::InputTag hepmcCollection_;
 		bool QWdebug_;
 
@@ -74,7 +72,7 @@ class BasicHepMCHeavyIonValidation : public edm::EDAnalyzer
 		MonitorElement* sigma_inel_NN;		// nucleon-nucleon inelastic 
 							// (including diffractive) cross-section
 
-
+		edm::EDGetTokenT<edm::HepMCProduct> hepmcCollectionToken_;
 };
 
 #endif

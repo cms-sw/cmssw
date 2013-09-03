@@ -79,4 +79,8 @@ private:
   MonitorElement* _h_llpairM  ;
 
   edm::InputTag genEventInfoProductTag_,genParticlesTag_;
+
+  edm::EDGetTokenT<GenEventInfoProduct> genEventInfoProductTagToken_;
+  edm::EDGetTokenT<reco::GenParticleCollection> genParticlesTagToken_;
+
 };

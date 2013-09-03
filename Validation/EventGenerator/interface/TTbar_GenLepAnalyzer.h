@@ -79,6 +79,9 @@ class TTbar_GenLepAnalyzer : public edm::EDAnalyzer {
       bool do_e_, do_mu_, do_tau_, do_nu_e_, do_nu_mu_, do_nu_tau_;
       double pt_cut_, eta_cut_;
       int pdgid;
+
+  edm::EDGetTokenT<edm::View<reco::Candidate> > lepsToken_;
+
 };
 
 #endif
