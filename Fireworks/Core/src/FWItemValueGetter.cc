@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Sun Nov 30 16:15:43 EST 2008
-// $Id: FWItemValueGetter.cc,v 1.9.2.1 2012/12/03 06:26:28 amraktad Exp $
+// $Id: FWItemValueGetter.cc,v 1.11 2012/12/02 09:49:59 amraktad Exp $
 //
 
 // system include files
@@ -52,6 +52,12 @@ FWItemValueGetter::FWItemValueGetter(const Reflex::Type& iType, const std::strin
       addEntry("x0", 2, "x", "cm");
       addEntry("y0", 2, "y", "cm");
       addEntry("z0", 2, "z", "cm");
+   }
+   else if (strstr(iPurpose.c_str(), "Vertices") )
+   {
+      addEntry("x", 2, "x", "cm");
+      addEntry("y", 2, "y", "cm");
+      addEntry("z", 2, "z", "cm");
    }
    else if (strstr(iPurpose.c_str(), "Conversion") )
    {

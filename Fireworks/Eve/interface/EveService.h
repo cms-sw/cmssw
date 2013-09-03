@@ -1,11 +1,11 @@
-#ifndef Fireworks_Geometry_EveService_h
-#define Fireworks_Geometry_EveService_h
+#ifndef Fireworks_Eve_EveService_h
+#define Fireworks_Eve_EveService_h
 // -*- C++ -*-
 //
 // Package:     Fireworks/Eve
 // Class  :     EveService
 // 
-/**\class EveService EveService.h Fireworks/Geometry/interface/EveService.h
+/**\class EveService EveService.h Fireworks/Eve/interface/EveService.h
 
  Description: [one line class summary]
 
@@ -16,7 +16,7 @@
 //
 // Original Author:  Matevz Tadel
 //         Created:  Fri Jun 25 18:56:52 CEST 2010
-// $Id: EveService.h,v 1.5 2010/07/15 13:02:02 matevz Exp $
+// $Id: EveService.h,v 1.6 2013/06/25 03:48:24 matevz Exp $
 //
 
 #include <string>

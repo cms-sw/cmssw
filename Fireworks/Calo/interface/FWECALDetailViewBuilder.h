@@ -45,6 +45,8 @@ public:
    // draw the ecal information with the preset colors
    // (if any colors have been preset)
    TEveCaloLego* build();
+   
+   TEveCaloData* buildCaloData(bool xyEE);
 
    // set colors of some predefined detids
    void setColor(Color_t color, const std::vector<DetId> &detIds);
@@ -65,7 +67,7 @@ private:
 
    // fill data
    void fillData(const EcalRecHitCollection *hits,
-                 TEveCaloDataVec *data);
+                 TEveCaloDataVec *data, bool xyEE);
    const edm::EventBase *m_event;                               // the event
    const FWGeometry     *m_geom;                                // the geometry
    float m_eta;                                                 // eta position view centred on
