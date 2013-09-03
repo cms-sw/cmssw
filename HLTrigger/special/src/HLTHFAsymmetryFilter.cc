@@ -24,7 +24,7 @@ HLTHFAsymmetryFilter::fillDescriptions(edm::ConfigurationDescriptions& descripti
     setComment(" # minimum energy for a cluster to be selected");
   desc.add<double>("OS_Asym_max",0.2)->
     setComment(" # Opposite side asymmetry maximum value");
-  desc.add<double>("OS_Asym_min",0.8)->
+  desc.add<double>("SS_Asym_min",0.8)->
     setComment(" # Same side asymmetry minimum value");
   descriptions.add("hltHFAsymmetryFilter",desc);
 }

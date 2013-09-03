@@ -86,7 +86,8 @@ HLTPixelClusterShapeFilter::fillDescriptions(edm::ConfigurationDescriptions& des
   desc.add<double>("minZ",-20.0); 
   desc.add<double>("maxZ",20.05); 
   desc.add<double>("zStep",0.2);
-  desc.add<std::vector<double> >("clusterPars",std::vector<double>(0.0,0.0045));
+  std::vector<double> temp; temp.push_back(0.0); temp.push_back(0.0045);
+  desc.add<std::vector<double> >("clusterPars",temp);
   desc.add<int>("nhitsTrunc",150.);
   desc.add<double>("clusterTrunc",2.0);
   descriptions.add("hltPixelClusterShapeFilter",desc);
