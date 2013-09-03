@@ -42,9 +42,7 @@ class BasicHepMCValidation : public edm::EDAnalyzer
 	virtual void endRun(const edm::Run&, const edm::EventSetup&);
 
     private:
-
-        WeightManager _wmanager;
-
+	WeightManager wmanager_;
     edm::InputTag hepmcCollection_;
 
 	/// PDT table
@@ -117,6 +115,8 @@ class BasicHepMCValidation : public edm::EDAnalyzer
     MonitorElement *DeltaPx;
     MonitorElement *DeltaPy;
     MonitorElement *DeltaPz;
+
+    edm::EDGetTokenT<edm::HepMCProduct> hepmcCollectionToken_;
 
 };
 

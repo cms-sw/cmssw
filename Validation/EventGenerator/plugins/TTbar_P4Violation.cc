@@ -11,9 +11,10 @@
 //
 // constructors and destructor
 //
-TTbar_P4Violation::TTbar_P4Violation(const edm::ParameterSet& iConfig)
+TTbar_P4Violation::TTbar_P4Violation(const edm::ParameterSet& iConfig):
+  genEvt_(iConfig.getParameter<edm::InputTag>("genEvt"))
 {
-   //now do what ever initialization is needed
+  genEvtToken_=consumes<TtGenEvent>(genEvt_);
 
 }
 
@@ -39,7 +40,7 @@ TTbar_P4Violation::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
    // --- get TopQuarkAnalysis TtGenEvent
    Handle<TtGenEvent> genEvt;
-   iEvent.getByLabel("genEvt", genEvt);
+   iEvent.getByToken(genEvtToken_, genEvt);
 
    if(!genEvt.isValid()) return false;
 

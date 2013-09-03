@@ -52,6 +52,8 @@ class TTbar_P4Violation : public edm::EDFilter {
       virtual void endJob() ;
       
       // ----------member data ---------------------------
+  edm::InputTag genEvt_;
+  edm::EDGetTokenT<TtGenEvent> genEvtToken_;
 };
 
 #endif
