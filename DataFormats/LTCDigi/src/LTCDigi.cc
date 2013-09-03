@@ -1,4 +1,3 @@
-// $Id: LTCDigi.cc,v 1.3 2006/06/09 21:56:18 wittich Exp $
 #include "DataFormats/LTCDigi/interface/LTCDigi.h"
 
 

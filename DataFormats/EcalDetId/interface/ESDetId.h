@@ -9,7 +9,6 @@
 
    Det id for a preshower (endcap) strip
     
-   $Id: ESDetId.h,v 1.7 2008/06/25 22:11:14 heltsley Exp $
 */
 
 class ESDetId : public DetId {

@@ -7,8 +7,6 @@
 
 /** \class HFRecHit
  *  
- * $Date: 2013/03/07 18:30:46 $
- * $Revision: 1.5 $
  *\author J. Mans - Minnesota
  */
 class HFRecHit : public CaloRecHit {

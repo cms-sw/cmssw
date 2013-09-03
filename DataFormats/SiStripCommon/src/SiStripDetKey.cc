@@ -1,4 +1,3 @@
-// Last commit: $Id: SiStripDetKey.cc,v 1.11 2009/12/10 08:44:16 elmer Exp $
 
 #include "DataFormats/SiStripCommon/interface/SiStripDetKey.h"
 #include "DataFormats/SiStripCommon/interface/Constants.h" 

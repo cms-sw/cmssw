@@ -1,4 +1,3 @@
-// Last commit: $Id: ConstantsForDqm.h,v 1.12 2009/10/22 15:57:40 lowette Exp $
 
 #ifndef DataFormats_SiStripCommon_ConstantsForDqm_H
 #define DataFormats_SiStripCommon_ConstantsForDqm_H

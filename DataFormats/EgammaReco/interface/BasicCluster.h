@@ -7,7 +7,6 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: BasicCluster.h,v 1.15 2008/05/22 14:27:32 ferriff Exp $
  *
  */
 #include "DataFormats/Math/interface/Point3D.h"

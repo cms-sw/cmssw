@@ -6,7 +6,6 @@
  *
  * \author Hans Van Haevermaet, University of Antwerp
  *
- * \version $Id: CastorEgamma.h,v 1.4 2010/02/18 13:47:07 hvanhaev Exp $
  *
  */
 #include <vector>

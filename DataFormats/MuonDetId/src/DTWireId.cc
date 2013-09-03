@@ -2,7 +2,6 @@
  * Impl of DTWireId
  *
  * \author G. Cerminara - INFN Torino
- * \version $Id: DTWireId.cc,v 1.2 2006/01/19 15:42:59 cerminar Exp $
  * \date 02 Aug 2005
 */
 

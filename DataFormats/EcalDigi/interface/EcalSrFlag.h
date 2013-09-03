@@ -1,5 +1,4 @@
 // -*- Mode: C++; c-basic-offset: 2; indent-tabs-mode: t; tab-width: 8; -*-
-//$Id: EcalSrFlag.h,v 1.4 2007/03/27 09:55:01 meridian Exp $
 
 #ifndef ECALSRFLAG
 #define ECALSRFLAG

@@ -8,9 +8,7 @@
  * \authors Phil Harris, CERN
  *          Christian Veelken, LLR
  *
- * \version $Revision: 1.2 $
  *
- * $Id: MVAMEtData.h,v 1.2 2012/05/25 15:34:39 veelken Exp $
  *
  */
 

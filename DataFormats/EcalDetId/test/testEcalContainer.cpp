@@ -2,7 +2,6 @@
    \file
    Test suit for EcalContainer
 
-   \version $Id: testEcalContainer.cpp,v 1.3 2008/01/31 10:39:44 muzaffar Exp $
 
    \note This test is not exaustive     
 */

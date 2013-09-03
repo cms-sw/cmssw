@@ -7,7 +7,6 @@
  *
  * \author Piotr Traczyk, CERN
  *
- * \version $Id: MuonTimeExtra.h,v 1.1 2009/03/13 22:58:14 ptraczyk Exp $
  *
  */
 

@@ -2,8 +2,6 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2007/01/17 23:07:06 $
- *  $Revision: 1.2 $
  *  \author S. Lacaprara, G. Cerminara
  */
 

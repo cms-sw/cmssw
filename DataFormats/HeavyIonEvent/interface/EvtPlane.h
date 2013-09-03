@@ -1,6 +1,5 @@
 
 //
-// $Id: EvtPlane.h,v 1.3 2009/09/08 10:50:57 edwenger Exp $
 //
 
 #ifndef DataFormats_EvtPlane_h

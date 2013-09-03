@@ -1,5 +1,4 @@
 //
-// $Id: Centrality.h,v 1.11 2010/08/14 17:06:50 nart Exp $
 //
 
 #ifndef DataFormats_Centrality_h

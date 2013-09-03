@@ -1,4 +1,3 @@
-// $Id: SuperCluster.cc,v 1.17 2011/02/17 22:42:03 argiro Exp $
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include <algorithm>

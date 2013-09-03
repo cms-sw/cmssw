@@ -6,7 +6,6 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: FitQuality.h,v 1.1 2007/06/27 09:06:52 llista Exp $
  *
  */
 

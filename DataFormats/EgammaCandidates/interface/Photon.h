@@ -7,7 +7,6 @@
  * stores isolation, shower shape and additional info
  * needed for identification
  * 
- * \version $Id: Photon.h,v 1.47 2012/03/21 22:11:05 slava77 Exp $
  *
  */
 #include "DataFormats/RecoCandidate/interface/RecoCandidate.h"

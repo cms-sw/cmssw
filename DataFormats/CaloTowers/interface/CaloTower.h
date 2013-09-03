@@ -13,8 +13,6 @@
 
 /** \class CaloTower
     
-$Date: 2010/09/23 07:16:56 $
-$Revision: 1.17 $
 \author J. Mans - Minnesota
 */
 

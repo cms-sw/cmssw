@@ -1,6 +1,5 @@
 // CaloJet.cc
 // Fedor Ratnikov UMd
-// $Id: CaloJet.cc,v 1.21 2008/10/14 12:26:58 oehler Exp $
 #include <sstream>
 
 #include "FWCore/Utilities/interface/Exception.h"

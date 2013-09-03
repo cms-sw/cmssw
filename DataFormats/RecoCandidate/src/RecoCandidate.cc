@@ -1,4 +1,3 @@
-// $Id: RecoCandidate.cc,v 1.14 2008/07/18 15:48:32 gpetrucc Exp $
 #include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
 #include "FWCore/Utilities/interface/Exception.h"

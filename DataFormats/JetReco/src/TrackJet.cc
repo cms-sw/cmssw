@@ -1,4 +1,3 @@
-// $Id: TrackJet.cc,v 1.1 2009/11/25 19:07:50 srappocc Exp $
 
 #include "DataFormats/JetReco/interface/TrackJet.h"
 
