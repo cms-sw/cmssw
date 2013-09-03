@@ -111,22 +111,17 @@ GenericTriggerSelectionParameters = cms.PSet(
    verbosityLevel = cms.uint32(0) #0: complete silence (default), needed for T0 processing;
 )
 
-proc.PFTausHighEfficiencyLeadingPionBothProngs = cms.EDAnalyzer("TauTagValidation",
+proc.templateAnalyzer = cms.EDAnalyzer(
+   "TauTagValidation",
    StandardMatchingParameters,
    GenericTriggerSelection = GenericTriggerSelectionParameters,
-   ExtensionName           = cms.string("LeadingPion"),
-   TauProducer             = cms.InputTag('shrinkingConePFTauProducer'),
+   ExtensionName           = cms.string(""),
+   TauProducer             = cms.InputTag(''),
    discriminators          = cms.VPSet(
-    cms.PSet( discriminator = cms.string("shrinkingConePFTauDiscriminationByLeadingTrackFinding"),selectionCut = cms.double(0.5),plotStep = cms.bool(True)),
-    cms.PSet( discriminator = cms.string("shrinkingConePFTauDiscriminationByLeadingPionPtCut"),selectionCut = cms.double(0.5),plotStep = cms.bool(False)), #not plotted
-    cms.PSet( discriminator = cms.string("shrinkingConePFTauDiscriminationByTrackIsolationUsingLeadingPion"),selectionCut = cms.double(0.5),plotStep = cms.bool(True)),
-    cms.PSet( discriminator = cms.string("shrinkingConePFTauDiscriminationByECALIsolationUsingLeadingPion"),selectionCut = cms.double(0.5),plotStep = cms.bool(True)),
-    cms.PSet( discriminator = cms.string("shrinkingConePFTauDiscriminationAgainstElectron"),selectionCut = cms.double(0.5),plotStep = cms.bool(True)),
-    cms.PSet( discriminator = cms.string("shrinkingConePFTauDiscriminationAgainstMuon"),selectionCut = cms.double(0.5),plotStep = cms.bool(True))
- )
+   )
 )
 
-proc.RunHPSValidation = proc.PFTausHighEfficiencyLeadingPionBothProngs.clone()
+proc.RunHPSValidation = proc.templateAnalyzer.clone()
 proc.RunHPSValidation.ExtensionName = ""
 #RunHPSValidation.TauPtCut = cms.double(15.)
 proc.RunHPSValidation.TauProducer   = cms.InputTag('hpsPFTauProducer')
@@ -150,7 +145,6 @@ proc.RunHPSValidation.discriminators = cms.VPSet(
 )
 
 proc.TauValNumeratorAndDenominator = cms.Sequence(
-      proc.PFTausHighEfficiencyLeadingPionBothProngs+
       proc.RunHPSValidation
    )
 

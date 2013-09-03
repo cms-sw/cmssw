@@ -8,13 +8,15 @@
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 #include "RecoTauTag/RecoTau/interface/AntiElectronIDMVA.h"
 
+#include <string>
+
 using namespace reco;
 
 class PFRecoTauDiscriminationAgainstElectronMVA : public PFTauDiscriminationProducerBase  {
    public:
       explicit PFRecoTauDiscriminationAgainstElectronMVA(const edm::ParameterSet& iConfig):PFTauDiscriminationProducerBase(iConfig) {
 
-         method_                           = iConfig.getParameter<std::string>("method");
+ 	 method_                           = iConfig.getParameter<std::string>("method");
 	 inputFileName1prongBL_            = iConfig.getParameter<edm::FileInPath>("inputFileName1prongBL");
 	 inputFileName1prongStripsWgsfBL_  = iConfig.getParameter<edm::FileInPath>("inputFileName1prongStripsWgsfBL");
 	 inputFileName1prongStripsWOgsfBL_ = iConfig.getParameter<edm::FileInPath>("inputFileName1prongStripsWOgsfBL");
@@ -45,32 +47,29 @@ class PFRecoTauDiscriminationAgainstElectronMVA : public PFTauDiscriminationProd
 
       double discriminate(const PFTauRef& thePFTauRef);
 
-  ~PFRecoTauDiscriminationAgainstElectronMVA(){ delete mva_;}
+      ~PFRecoTauDiscriminationAgainstElectronMVA() { delete mva_; }
 
-   private:
+  private:
 
-  std::string method_ ;
-  edm::FileInPath inputFileName1prongBL_;
-  edm::FileInPath inputFileName1prongStripsWgsfBL_;
-  edm::FileInPath inputFileName1prongStripsWOgsfBL_;
-  edm::FileInPath inputFileName1prongEC_;
-  edm::FileInPath inputFileName1prongStripsWgsfEC_;
-  edm::FileInPath inputFileName1prongStripsWOgsfEC_;
-  AntiElectronIDMVA* mva_;
-  bool returnMVA_ ;
-  double minMVA1prongBL_ ;
-  double minMVA1prongStripsWgsfBL_ ;
-  double minMVA1prongStripsWOgsfBL_ ;
-  double minMVA1prongEC_ ;
-  double minMVA1prongStripsWgsfEC_ ;
-  double minMVA1prongStripsWOgsfEC_;
-
-
+      std::string method_ ;
+      edm::FileInPath inputFileName1prongBL_;
+      edm::FileInPath inputFileName1prongStripsWgsfBL_;
+      edm::FileInPath inputFileName1prongStripsWOgsfBL_;
+      edm::FileInPath inputFileName1prongEC_;
+      edm::FileInPath inputFileName1prongStripsWgsfEC_;
+      edm::FileInPath inputFileName1prongStripsWOgsfEC_;
+      AntiElectronIDMVA* mva_;
+      bool returnMVA_ ;
+      double minMVA1prongBL_ ;
+      double minMVA1prongStripsWgsfBL_ ;
+      double minMVA1prongStripsWOgsfBL_ ;
+      double minMVA1prongEC_ ;
+      double minMVA1prongStripsWgsfEC_ ;
+      double minMVA1prongStripsWOgsfEC_;
 };
 
 double PFRecoTauDiscriminationAgainstElectronMVA::discriminate(const PFTauRef& thePFTauRef)
 {
-
   double mva          = -1.0;
   double workingPoint =  0.0;
 
@@ -90,8 +89,6 @@ double PFRecoTauDiscriminationAgainstElectronMVA::discriminate(const PFTauRef& t
   }
 
   return ( returnMVA_ ? mva : workingPoint);
-
 }
-
 
 DEFINE_FWK_MODULE(PFRecoTauDiscriminationAgainstElectronMVA);
