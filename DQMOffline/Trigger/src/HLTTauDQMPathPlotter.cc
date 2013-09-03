@@ -6,7 +6,7 @@
 HLTTauDQMPathPlotter::HLTTauDQMPathPlotter(const edm::ParameterSet& pset, bool doRefAnalysis, const std::string& dqmBaseFolder,
                                              const std::string& hltProcess, int ptbins, int etabins, int phibins,
                                              double l1MatchDr, double hltMatchDr):
-  hltProcess_(hltProcess),
+  HLTTauDQMPlotter(pset, dqmBaseFolder),
   ptbins_(ptbins),
   etabins_(etabins),
   phibins_(phibins),
@@ -15,49 +15,50 @@ HLTTauDQMPathPlotter::HLTTauDQMPathPlotter(const edm::ParameterSet& pset, bool d
   doRefAnalysis_(doRefAnalysis),
   hltPath_(hltProcess, doRefAnalysis_)
 {
-  dqmBaseFolder_ = dqmBaseFolder;
+  if(!configValid_)
+    return;
 
   // Parse configuration
   try {
-    triggerTag_         = pset.getUntrackedParameter<std::string>("DQMFolder");
     hltPath_.initialize(pset);
   } catch(cms::Exception& e) {
     edm::LogInfo("HLTTauDQMOffline") << "HLTTauDQMPathPlotter::HLTTauDQMPathPlotter(): " << e.what();
-    validity_ = false;
+    configValid_ = false;
     return;
   }
-  validity_ = true;
+  configValid_ = true;
 }
 
 void HLTTauDQMPathPlotter::beginRun(const HLTConfigProvider& HLTCP) {
-  if(!validity_)
+  if(!configValid_)
     return;
 
   // Identify the correct HLT path
   if(!HLTCP.inited()) {
     edm::LogInfo("HLTTauDQMOffline") << "HLTTauDQMPathPlotter::beginRun(): HLTConfigProvider is not initialized!";
-    validity_ = false;
+    runValid_ = false;
     return;
   }
 
   // Search path candidates
-  validity_ = hltPath_.beginRun(HLTCP);
-  if(!validity_)
+  runValid_ = hltPath_.beginRun(HLTCP);
+  if(!runValid_)
     return;
 
   // Book histograms
-  if(store_) {
-    store_->setCurrentFolder(triggerTag());
-    store_->removeContents();
+  edm::Service<DQMStore> store;
+  if(store.isAvailable()) {
+    store->setCurrentFolder(triggerTag());
+    store->removeContents();
 
-    hAcceptedEvents_ = store_->book1D("EventsPerFilter", "Accepted Events per filter;;entries", hltPath_.filtersSize(), 0, hltPath_.filtersSize());
+    hAcceptedEvents_ = store->book1D("EventsPerFilter", "Accepted Events per filter;;entries", hltPath_.filtersSize(), 0, hltPath_.filtersSize());
     for(size_t i=0; i<hltPath_.filtersSize(); ++i) {
       hAcceptedEvents_->setBinLabel(i+1, hltPath_.getFilterName(i));
     }
 
-    hTrigTauEt_ = store_->book1D("TrigTauEt",   "#tau E_{t}", ptbins_,     0, 100);
-    hTrigTauEta_ = store_->book1D("TrigTauEta", "#tau #eta",  etabins_, -2.5, 2.5);
-    hTrigTauPhi_ = store_->book1D("TrigTauPhi", "#tau #phi",  phibins_, -3.2, 3.2);
+    hTrigTauEt_ = store->book1D("TrigTauEt",   "#tau E_{t}", ptbins_,     0, 100);
+    hTrigTauEta_ = store->book1D("TrigTauEta", "#tau #eta",  etabins_, -2.5, 2.5);
+    hTrigTauPhi_ = store->book1D("TrigTauPhi", "#tau #phi",  phibins_, -3.2, 3.2);
 
     // Book di-object invariant mass histogram only for mu+tau, ele+tau, and di-tau paths
     hMass_ = nullptr;
@@ -67,10 +68,13 @@ void HLTTauDQMPathPlotter::beginRun(const HLTConfigProvider& HLTCP) {
       const int neles = hltPath_.getFilterNElectrons(lastFilter);
       const int nmus = hltPath_.getFilterNMuons(lastFilter);
       if(ntaus+neles+nmus == 2) {
-        hMass_ = store_->book1D("OfflineMass", "Invariant mass of offline "+triggerTag_, 100, 0, 500);
+        hMass_ = store->book1D("OfflineMass", "Invariant mass of offline "+dqmFolder_, 100, 0, 500);
       }
     }
+    runValid_ = true;
   }
+  else
+    runValid_ = false;
 }
 
 

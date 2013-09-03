@@ -1,26 +1,35 @@
 #include "DQMOffline/Trigger/interface/HLTTauDQMSummaryPlotter.h"
 
-HLTTauDQMSummaryPlotter::HLTTauDQMSummaryPlotter(const edm::ParameterSet& ps, const std::string& dqmBaseFolder) {
-    //Initialize Plotter
-    name_ = "HLTTauDQMSummaryPlotter";
+HLTTauDQMSummaryPlotter::HLTTauDQMSummaryPlotter(const edm::ParameterSet& ps, const std::string& dqmBaseFolder):
+  HLTTauDQMPlotter(ps, dqmBaseFolder),
+  store_(nullptr)
+{
+  if(!configValid_)
+    return;
+
+  // no run concept in summary plotter
+  runValid_ = true;
     
-    //Process PSet
-    try {
-        triggerTag_      = ps.getUntrackedParameter<std::string>("DQMFolder");
-        triggerTagAlias_ = ps.getUntrackedParameter<std::string>("Alias","");
-        type_            = ps.getUntrackedParameter<std::string>("ConfigType");
-        dqmBaseFolder_   = dqmBaseFolder;
-        validity_        = true;
-    } catch ( cms::Exception &e ) {
-      edm::LogInfo("HLTTauDQMOfflineSource") << "DQMSummaryPlotter::HLTTauDQMSummaryPlotter(): " << e.what() << std::endl;
-      validity_ = false;
-    }
+  //Process PSet
+  try {
+    type_ = ps.getUntrackedParameter<std::string>("ConfigType");
+  } catch ( cms::Exception &e ) {
+    edm::LogInfo("HLTTauDQMOfflineSource") << "HLTTauDQMSummaryPlotter::HLTTauDQMSummaryPlotter(): " << e.what() << std::endl;
+    configValid_ = false;
+    return;
+  }
+  configValid_ = true;
 }
 
 HLTTauDQMSummaryPlotter::~HLTTauDQMSummaryPlotter() {}
 
 void HLTTauDQMSummaryPlotter::bookPlots() {
-    if (store_) {
+  if(!configValid_)
+    return;
+
+  edm::Service<DQMStore> store;
+  if(store.isAvailable()) {
+    store_ = store.operator->();
         //Path Summary 
         if ( type_ == "Path" ) {
             bookTriggerBitEfficiencyHistos(triggerTag(), "EventsPerFilter");
@@ -48,11 +57,14 @@ void HLTTauDQMSummaryPlotter::bookPlots() {
         else if(type_ == "PathSummary") {
           bookEfficiencyHisto(triggerTag(), "PathEfficiency", "helpers/PathTriggerBits");
         }
-    }
+  }
+  store_ = nullptr;
 }
 
 void HLTTauDQMSummaryPlotter::plot() {
-    if (store_) {
+  edm::Service<DQMStore> store;
+  if(store.isAvailable()) {
+    store_ = store.operator->();
         //Path Summary 
         if ( type_ == "Path" ) {
             plotTriggerBitEfficiencyHistos(triggerTag(), "EventsPerFilter");
@@ -88,7 +100,8 @@ void HLTTauDQMSummaryPlotter::plot() {
         else if(type_ == "PathSummary") {
           plotEfficiencyHisto(triggerTag(), "PathEfficiency", "helpers/PathTriggerBits", "helpers/RefEvents");
         }
-    }
+  }
+  store_ = nullptr;
 }      
 
 void HLTTauDQMSummaryPlotter::bookEfficiencyHisto( std::string folder, std::string name, std::string hist1 ) {

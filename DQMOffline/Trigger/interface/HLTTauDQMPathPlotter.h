@@ -18,23 +18,23 @@ namespace trigger {
 
 class HLTConfigProvider;
 
-class HLTTauDQMPathPlotter: public HLTTauDQMPlotter {
+class HLTTauDQMPathPlotter: private HLTTauDQMPlotter {
 public:
   HLTTauDQMPathPlotter(const edm::ParameterSet& pset, bool doRefAnalysis, const std::string& dqmBaseFolder,
                         const std::string& hltProcess, int ptbins, int etabins, int phibins,
                         double l1MatchDr, double hltMatchDr);
   ~HLTTauDQMPathPlotter();
 
+  using HLTTauDQMPlotter::isValid;
+
   void beginRun(const HLTConfigProvider& HLTCP);
 
   void analyze(const edm::TriggerResults& triggerResults, const trigger::TriggerEvent& triggerEvent, const HLTTauDQMOfflineObjects& refCollection);
-  const std::string name() { return "foo"; }
 
   const HLTTauDQMPath *getPathObject() const { return &hltPath_; }
 
   typedef std::tuple<std::string, size_t> FilterIndex;
 private:
-  const std::string hltProcess_;
   const int ptbins_;
   const int etabins_;
   const int phibins_;

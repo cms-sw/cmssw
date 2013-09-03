@@ -2,40 +2,38 @@
 #include "DQMOffline/Trigger/interface/HLTTauDQMPath.h"
 
 HLTTauDQMPathSummaryPlotter::HLTTauDQMPathSummaryPlotter(const edm::ParameterSet& pset, bool doRefAnalysis, const std::string& dqmBaseFolder, double hltMatchDr):
+  HLTTauDQMPlotter(pset, dqmBaseFolder),
   hltMatchDr_(hltMatchDr),
   doRefAnalysis_(doRefAnalysis)
-{
-  dqmBaseFolder_ = dqmBaseFolder;
-
-  try {
-    triggerTag_         = pset.getUntrackedParameter<std::string>("DQMFolder");
-  } catch(cms::Exception& e) {
-    edm::LogInfo("HLTTauDQMOffline") << "HLTTauDQMPathSummaryPlotter::HLTTauDQMPathSummaryPlotter(): " << e.what();
-    validity_ = false;
-    return;
-  }
-  validity_ = true;
-}
+{}
 
 HLTTauDQMPathSummaryPlotter::~HLTTauDQMPathSummaryPlotter() {
 }
 
 void HLTTauDQMPathSummaryPlotter::beginRun(const std::vector<const HLTTauDQMPath *>& pathObjects) {
+  if(!configValid_)
+    return;
+
   pathObjects_ = pathObjects;
 
-  if (store_) {
+  edm::Service<DQMStore> store;
+  if (store.isAvailable()) {
     //Create the histograms
-    store_->setCurrentFolder(triggerTag()+"/helpers");
-    store_->removeContents();
+    store->setCurrentFolder(triggerTag()+"/helpers");
+    store->removeContents();
 
-    all_events = store_->book1D("RefEvents", "All events", pathObjects_.size(), 0, pathObjects_.size());
-    accepted_events = store_->book1D("PathTriggerBits","Accepted Events per Path;;entries", pathObjects_.size(), 0, pathObjects_.size());
+    all_events = store->book1D("RefEvents", "All events", pathObjects_.size(), 0, pathObjects_.size());
+    accepted_events = store->book1D("PathTriggerBits","Accepted Events per Path;;entries", pathObjects_.size(), 0, pathObjects_.size());
     for(size_t i=0; i<pathObjects_.size(); ++i) {
       accepted_events->setBinLabel(i+1, pathObjects_[i]->getPathName());
     }
 
-    store_->setCurrentFolder(triggerTag());
-    store_->removeContents();
+    store->setCurrentFolder(triggerTag());
+    store->removeContents();
+    runValid_ = true;
+  }
+  else {
+    runValid_ = false;
   }
 }
 

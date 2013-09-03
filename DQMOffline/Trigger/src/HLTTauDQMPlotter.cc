@@ -1,9 +1,20 @@
 #include "DQMOffline/Trigger/interface/HLTTauDQMPlotter.h"
 
-HLTTauDQMPlotter::HLTTauDQMPlotter() {
-    //Declare DQM Store
-    store_ = edm::Service<DQMStore>().operator->();
-    validity_ = false;
+#include "Math/GenVector/VectorUtil.h"
+
+HLTTauDQMPlotter::HLTTauDQMPlotter(const edm::ParameterSet& pset, const std::string& dqmBaseFolder):
+  dqmFullFolder_(dqmBaseFolder),
+  configValid_(false),
+  runValid_(false)
+{
+  try {
+    dqmFolder_ = pset.getUntrackedParameter<std::string>("DQMFolder");
+    dqmFullFolder_ += dqmFolder_;
+    configValid_  = true;
+  } catch ( cms::Exception &e ) {
+    edm::LogInfo("HLTTauDQMOfflineSource") << "HLTTauDQMPlotter::HLTTauDQMPlotter(): " << e.what() << std::endl;
+    configValid_ = false;
+  }
 }
 
 HLTTauDQMPlotter::~HLTTauDQMPlotter() {
@@ -21,43 +32,4 @@ std::pair<bool,LV> HLTTauDQMPlotter::match( const LV& jet, const LVColl& McInfo,
         }
     }
     return std::pair<bool,LV>(matched,out);
-}
-
-std::string HLTTauDQMPlotter::triggerTag() {
-    if ( triggerTagAlias_ != "" ) {
-        return dqmBaseFolder_+triggerTagAlias_;
-    }
-    return dqmBaseFolder_+triggerTag_;
-}
-
-
-
-HLTTauDQMPlotter::FilterObject::FilterObject( const edm::ParameterSet& ps ) {
-    validity_ = false;
-    try {
-        FilterName_ = ps.getUntrackedParameter<edm::InputTag>("FilterName");
-        MatchDeltaR_ = ps.getUntrackedParameter<double>("MatchDeltaR",0.5);
-        NTriggeredTaus_ = ps.getUntrackedParameter<unsigned int>("NTriggeredTaus");
-        TauType_ = ps.getUntrackedParameter<int>("TauType");
-        NTriggeredLeptons_ = ps.getUntrackedParameter<unsigned int>("NTriggeredLeptons");
-        LeptonType_ = ps.getUntrackedParameter<int>("LeptonType");
-        Alias_ = ps.getUntrackedParameter<std::string>("Alias",FilterName_.label());
-        validity_ = true;
-    } catch ( cms::Exception &e ) {
-        edm::LogInfo("HLTTauDQMPlotter::FilterObject") << e.what() << std::endl;
-    }
-}
-
-HLTTauDQMPlotter::FilterObject::~FilterObject() {
-}
-
-int HLTTauDQMPlotter::FilterObject::leptonId() {
-    if ( LeptonType_ == trigger::TriggerL1IsoEG || LeptonType_ == trigger::TriggerL1NoIsoEG || LeptonType_ == trigger::TriggerElectron || std::abs(LeptonType_) == 11 ) {
-        return 11;
-    } else if ( LeptonType_ == trigger::TriggerL1Mu || LeptonType_ == trigger::TriggerMuon || std::abs(LeptonType_) == 13 ) {
-        return 13;
-    } else if ( LeptonType_ == trigger::TriggerL1TauJet || LeptonType_ == trigger::TriggerL1CenJet || LeptonType_ == trigger::TriggerTau || std::abs(LeptonType_) == 15 ) {
-        return 15;
-    }
-    return 0;
 }

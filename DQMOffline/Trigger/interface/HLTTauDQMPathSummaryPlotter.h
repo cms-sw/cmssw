@@ -14,12 +14,13 @@ namespace trigger {
   class TriggerEvent;
 }
 
-class HLTTauDQMPathSummaryPlotter : public HLTTauDQMPlotter {
+class HLTTauDQMPathSummaryPlotter: private HLTTauDQMPlotter {
 public:
     
   HLTTauDQMPathSummaryPlotter(const edm::ParameterSet& pset, bool doRefAnalysis, const std::string& dqmBaseFolder, double hltMatchDr);
   ~HLTTauDQMPathSummaryPlotter();
-  const std::string name() { return "foo"; }
+
+  using HLTTauDQMPlotter::isValid;
 
   void beginRun(const std::vector<const HLTTauDQMPath *>& pathObjects);
 
