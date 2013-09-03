@@ -25,6 +25,8 @@ class EcalRecHitProducer : public edm::EDProducer {
                 explicit EcalRecHitProducer(const edm::ParameterSet& ps);
                 ~EcalRecHitProducer();
                 virtual void produce(edm::Event& evt, const edm::EventSetup& es);
+		virtual void endLuminosityBlock(edm::LuminosityBlock const& lb, 
+						edm::EventSetup const& es);
 
         private:
 

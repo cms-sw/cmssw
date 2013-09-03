@@ -6,7 +6,7 @@
 #define EcalLaserDbService_h
 
 #include <memory>
-#include <map>
+#include <tbb/concurrent_hash_map.h>
 
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
@@ -38,12 +38,17 @@ class EcalLaserDbService {
   void setAPDPNData (const EcalLaserAPDPNRatios* fItem) {mAPDPNRatios_ = fItem;}
   void setLinearCorrectionsData (const EcalLinearCorrections* fItem) {mLinearCorrections_ = fItem;}
 
+  void errorReport () const;
+
  private:
 
   const EcalLaserAlphas* mAlphas_;
   const EcalLaserAPDPNRatiosRef* mAPDPNRatiosRef_;
   const EcalLaserAPDPNRatios* mAPDPNRatios_;  
   const EcalLinearCorrections* mLinearCorrections_;  
+
+  typedef tbb::concurrent_hash_map<uint32_t,int> ErrorMapT;
+  mutable ErrorMapT channelsWithInvalidCorrection_;
 
 };
 
