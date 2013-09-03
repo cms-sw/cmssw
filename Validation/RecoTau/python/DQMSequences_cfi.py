@@ -88,8 +88,7 @@ for newAttr in newProcAttributes:
     locals()[newAttr] = getattr(proc,newAttr)
 
 pfTauRunDQMValidationSingleMu = cms.Sequence(
-    TauValNumeratorAndDenominatorRealDataAtSingleMu+
-    TauValNumeratorAndDenominatorRealMuonsDataAtSingleMu+
+    GeneralMuSequenceAtSingleMu+
     dqmInfoTauV
     )
 

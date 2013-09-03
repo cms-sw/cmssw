@@ -9,15 +9,21 @@
 namespace reco { namespace tau {
 
 namespace {
-// Get the KF track if it exists.  Otherwise, see if it has a GSF track.
-const reco::TrackBaseRef getTrack(const PFCandidate& cand) {
-  if (cand.trackRef().isNonnull())
-    return reco::TrackBaseRef(cand.trackRef());
-  else if (cand.gsfTrackRef().isNonnull()) {
-    return reco::TrackBaseRef(cand.gsfTrackRef());
+  // Get the KF track if it exists.  Otherwise, see if it has a GSF track.
+  reco::Track const * getTrack(const PFCandidate& cand) {
+    reco::Track const * ret = cand.trackRef().get();
+    if (!ret) ret = cand.gsfTrackRef().get();
+    return ret;
   }
-  return reco::TrackBaseRef();
-}
+  // slow!
+  const reco::TrackBaseRef getTrackRef(const PFCandidate& cand) {
+    if (cand.trackRef().isNonnull())
+      return reco::TrackBaseRef(cand.trackRef());
+    else if (cand.gsfTrackRef().isNonnull()) {
+      return reco::TrackBaseRef(cand.gsfTrackRef());
+    }
+    return reco::TrackBaseRef();
+  }
 }
 
 // Quality cut implementations
@@ -33,13 +39,13 @@ bool etMin(const PFCandidate& cand, double cut) {
 
 bool trkPixelHits(const PFCandidate& cand, int cut) {
   // For some reason, the number of hits is signed
-  TrackBaseRef trk = getTrack(cand);
+  auto trk = getTrack(cand);
   if (!trk) return false;
   return trk->hitPattern().numberOfValidPixelHits() >= cut;
 }
 
 bool trkTrackerHits(const PFCandidate& cand, int cut) {
-  TrackBaseRef trk = getTrack(cand);
+  auto trk = getTrack(cand);
   if (!trk) return false;
   return trk->hitPattern().numberOfValidHits() >= cut;
 }
@@ -52,7 +58,7 @@ bool trkTransverseImpactParameter(const PFCandidate& cand,
         "RecoTauQualityCuts is invalid. - trkTransverseImpactParameter";
     return false;
   }
-  TrackBaseRef trk = getTrack(cand);
+  auto trk = getTrack(cand);
   if (!trk) return false;
   return std::abs(trk->dxy((*pv)->position())) <= cut;
 }
@@ -65,7 +71,7 @@ bool trkLongitudinalImpactParameter(const PFCandidate& cand,
         "RecoTauQualityCuts is invalid. - trkLongitudinalImpactParameter";
     return false;
   }
-  TrackBaseRef trk = getTrack(cand);
+  auto trk = getTrack(cand);
   if (!trk) return false;
   double difference = std::abs(trk->dz((*pv)->position()));
   //std::cout << "QCUTS LIP: track vz: " << trk->vz() <<
@@ -81,7 +87,7 @@ bool trkLongitudinalImpactParameterWrtTrack(const PFCandidate& cand,
         "RecoTauQualityCuts is invalid. - trkLongitudinalImpactParameterWrtTrack";
     return false;
   }
-  TrackBaseRef candTrk = getTrack(cand);
+  auto candTrk = getTrack(cand);
   if (!candTrk) return false;
   double difference = std::abs((*trk)->vz() - candTrk->vz());
   return difference <= cut;
@@ -95,14 +101,14 @@ bool minTrackVertexWeight(const PFCandidate& cand, const reco::VertexRef* pv,
         "RecoTauQualityCuts is invalid. - minTrackVertexWeight";
     return false;
   }
-  TrackBaseRef trk = getTrack(cand);
+  auto trk = getTrackRef(cand);
   if (!trk) return false;
   double weight = (*pv)->trackWeight(trk);
   return weight >= cut;
 }
 
 bool trkChi2(const PFCandidate& cand, double cut) {
-  TrackBaseRef trk = getTrack(cand);
+  auto trk = getTrack(cand);
   if (!trk) return false;
   return trk->normalizedChi2() <= cut;
 }
@@ -133,7 +139,7 @@ bool mapAndCutByType(const PFCandidate& cand,
 
 }  // end qcuts implementation namespace
 
-RecoTauQualityCuts::RecoTauQualityCuts(const edm::ParameterSet &qcuts) {
+    RecoTauQualityCuts::RecoTauQualityCuts(const edm::ParameterSet &qcuts) {
   // Setup all of our predicates
   QCutFuncCollection chargedHadronCuts;
   QCutFuncCollection gammaCuts;
@@ -293,13 +299,13 @@ std::pair<edm::ParameterSet, edm::ParameterSet> factorizePUQCuts(
 
 void RecoTauQualityCuts::setLeadTrack(
     const reco::PFCandidate& leadCand) const {
-  leadTrack_ = getTrack(leadCand);
+  leadTrack_ = getTrackRef(leadCand);
 }
 
 void RecoTauQualityCuts::setLeadTrack(
     const reco::PFCandidateRef& leadCand) const {
   if (leadCand.isNonnull()) {
-    leadTrack_ = getTrack(*leadCand);
+    leadTrack_ = getTrackRef(*leadCand);
   } else {
     // Set null
     leadTrack_ = reco::TrackBaseRef();
