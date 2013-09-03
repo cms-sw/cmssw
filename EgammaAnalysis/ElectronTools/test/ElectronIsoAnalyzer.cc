@@ -2,7 +2,7 @@
 //
 // Package:    ElectronIsoAnalyzer
 // Class:      ElectronIsoAnalyzer
-// 
+//
 /**\class ElectronIsoAnalyzer
 
  Description: <one line class summary>
@@ -56,32 +56,32 @@ class ElectronIsoAnalyzer : public edm::EDAnalyzer {
       virtual void beginJob(const edm::EventSetup&) ;
       virtual void analyze(const edm::Event&, const edm::EventSetup&);
       virtual void endJob() ;
- 
+
 
   ParameterSet conf_;
 
- 
+
   unsigned int ev;
       // ----------member data ---------------------------
   bool verbose_;
   edm::InputTag inputTagGsfElectrons_;
   edm::InputTag rhoIsoInputTag_;
-  std::vector<edm::InputTag> inputTagIsoValElectrons_;   
-  typedef std::vector< edm::Handle< edm::ValueMap<double> > > IsoValues; 
+  std::vector<edm::InputTag> inputTagIsoValElectrons_;
+  typedef std::vector< edm::Handle< edm::ValueMap<double> > > IsoValues;
   ElectronEffectiveArea::ElectronEffectiveAreaTarget effAreaTarget_;
   ElectronEffectiveArea::ElectronEffectiveAreaType   effAreaGammaPlusNeutralHad_;
-  std::string rho_; 
+  std::string rho_;
   std::string deltaR_;
 
 
   // Control histos
-  TH1F* chargedBarrel_   ; 
-  TH1F* photonBarrel_    ; 
-  TH1F* neutralBarrel_   ; 
-    
-  TH1F* chargedEndcaps_  ; 
-  TH1F* photonEndcaps_   ; 
-  TH1F* neutralEndcaps_  ; 
+  TH1F* chargedBarrel_   ;
+  TH1F* photonBarrel_    ;
+  TH1F* neutralBarrel_   ;
+
+  TH1F* chargedEndcaps_  ;
+  TH1F* photonEndcaps_   ;
+  TH1F* neutralEndcaps_  ;
 
   TH1F* sumBarrel_       ;
   TH1F* sumEndcaps_      ;
@@ -112,13 +112,13 @@ ElectronIsoAnalyzer::ElectronIsoAnalyzer(const edm::ParameterSet& iConfig):
 
   verbose_                    = iConfig.getUntrackedParameter<bool>("verbose", false);
   inputTagGsfElectrons_       = iConfig.getParameter<edm::InputTag>("Electrons");
-  inputTagIsoValElectrons_    = iConfig.getParameter< std::vector<edm::InputTag> >("IsoValElectrons");   
-  deltaR_                     = iConfig.getParameter<std::string>("deltaR");  
+  inputTagIsoValElectrons_    = iConfig.getParameter< std::vector<edm::InputTag> >("IsoValElectrons");
+  deltaR_                     = iConfig.getParameter<std::string>("deltaR");
   std::string eaTarget        = iConfig.getParameter<std::string>("effectiveAreaTarget");
   rhoIsoInputTag_             = iConfig.getParameter<edm::InputTag>("rhoIsoInputTag");
 
   if      (eaTarget == "NoCorr")     effAreaTarget_ = ElectronEffectiveArea::kEleEANoCorr;
-  else if (eaTarget == "Data2011")   effAreaTarget_ = ElectronEffectiveArea::kEleEAData2011;   // default for HZZ 
+  else if (eaTarget == "Data2011")   effAreaTarget_ = ElectronEffectiveArea::kEleEAData2011;   // default for HZZ
   else if (eaTarget == "Data2012")   effAreaTarget_ = ElectronEffectiveArea::kEleEAData2012;   // default for HWW
   else if (eaTarget == "Summer11MC") effAreaTarget_ = ElectronEffectiveArea::kEleEASummer11MC;
   else if (eaTarget == "Fall11MC")   effAreaTarget_ = ElectronEffectiveArea::kEleEAFall11MC;
@@ -130,16 +130,16 @@ ElectronIsoAnalyzer::ElectronIsoAnalyzer(const edm::ParameterSet& iConfig):
     effAreaGammaPlusNeutralHad_ = ElectronEffectiveArea::kEleGammaAndNeutralHadronIso04;
   } else throw cms::Exception("Configuration") << "Unsupported deltaR " << deltaR_ << "\n";
 
-  
+
   edm::Service<TFileService> fs;
   chargedBarrel_    = fs->make<TH1F>("chargedBarrel",";Sum pT/pT" ,100,0,4);
   photonBarrel_     = fs->make<TH1F>("photonBarrel",";Sum pT/pT", 100,0,4);
   neutralBarrel_    = fs->make<TH1F>("neutralBarrel",";Sum pT/pT", 100,0,4);
-  		      
+
   chargedEndcaps_   = fs->make<TH1F>("chargedEndcaps",";Sum pT/pT",100,0,4);
   photonEndcaps_    = fs->make<TH1F>("photonEndcaps",";Sum pT/pT",100,0,4);
   neutralEndcaps_   = fs->make<TH1F>("neutralEndcaps",";Sum pT/pT",100,0,4);
-  		      
+
   sumBarrel_        = fs->make<TH1F>("allbarrel",";Sum pT/pT",100,0,4);
   sumEndcaps_       = fs->make<TH1F>("allendcaps",";Sum pT/pT",100,0,4);
 
@@ -155,7 +155,7 @@ ElectronIsoAnalyzer::ElectronIsoAnalyzer(const edm::ParameterSet& iConfig):
 
 ElectronIsoAnalyzer::~ElectronIsoAnalyzer()
 {
- 
+
    // do anything here that needs to be done at desctruction time
    // (e.g. close files, deallocate resources etc.)
 
@@ -171,9 +171,9 @@ void
 ElectronIsoAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
 
-  
 
- 
+
+
   Handle<GsfElectronCollection> theEGammaCollection;
   iEvent.getByLabel(inputTagGsfElectrons_,theEGammaCollection);
   const GsfElectronCollection theEGamma = *(theEGammaCollection.product());
@@ -186,37 +186,37 @@ ElectronIsoAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 
   unsigned nTypes=3;
   IsoValues  electronIsoValues(nTypes);
-  
+
   for (size_t j = 0; j<inputTagIsoValElectrons_.size(); ++j) {
     iEvent.getByLabel(inputTagIsoValElectrons_[j], electronIsoValues[j]);
   }
 
   unsigned nele=theEGammaCollection->size();
-  
+
   for(unsigned iele=0; iele<nele;++iele) {
     reco::GsfElectronRef myElectronRef(theEGammaCollection,iele);
-    
+
     const IsoValues * myIsoValues = &electronIsoValues;
-    
+
     double charged =  (*(*myIsoValues)[0])[myElectronRef];
     double photon = (*(*myIsoValues)[1])[myElectronRef];
     double neutral = (*(*myIsoValues)[2])[myElectronRef];
-    
+
     float abseta = fabs(myElectronRef->superCluster()->eta());
-    
+
     float eff_area_phnh = ElectronEffectiveArea::GetElectronEffectiveArea(effAreaGammaPlusNeutralHad_, abseta, effAreaTarget_);
-    
-    double myRho = max<double>(0.d,rhoIso);
-    
+
+    double myRho = max<double>(0.,rhoIso);
+
     float myPfIsoPuCorr = charged + max<float>(0.f, (photon+neutral) - eff_area_phnh*myRho);
 
 
-    if(verbose_) { 
-      
+    if(verbose_) {
+
       std::cout << " run " << iEvent.id().run() << " lumi " << iEvent.id().luminosityBlock() << " event " << iEvent.id().event();
-      std::cout << " pt " <<  myElectronRef->pt() << " eta " << myElectronRef->eta() << " phi " << myElectronRef->phi() 
+      std::cout << " pt " <<  myElectronRef->pt() << " eta " << myElectronRef->eta() << " phi " << myElectronRef->phi()
 		<< " charge " << myElectronRef->charge()<< " : " << std::endl;;
-      
+
       // print values also from alternate code
       std::cout << " ChargedIso " << charged << std::endl;
       std::cout << " PhotonIso " <<  photon << std::endl;
@@ -230,7 +230,7 @@ ElectronIsoAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
       sumBarrel_->Fill((charged+photon+neutral)/myElectronRef->pt());
       sumCorrBarrel_->Fill(myPfIsoPuCorr/myElectronRef->pt());
       missHitsBarrel_->Fill(myElectronRef->gsfTrack()->trackerExpectedHitsInner().numberOfHits());
-      
+
     } else {
       chargedEndcaps_ ->Fill(charged/myElectronRef->pt());
       photonEndcaps_->Fill(photon/myElectronRef->pt());
@@ -243,7 +243,7 @@ ElectronIsoAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 
 }
 // ------------ method called once each job just before starting event loop  ------------
-void 
+void
 ElectronIsoAnalyzer::beginJob(const edm::EventSetup&)
 {
 
@@ -251,7 +251,7 @@ ElectronIsoAnalyzer::beginJob(const edm::EventSetup&)
 }
 
 // ------------ method called once each job just after ending the event loop  ------------
-void 
+void
 ElectronIsoAnalyzer::endJob() {
   cout << " endJob:: #events " << ev << endl;
 }
