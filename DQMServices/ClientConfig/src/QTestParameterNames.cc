@@ -29,7 +29,7 @@ QTestParameterNames::QTestParameterNames(){
 
 	this->constructMap(CompareToMedianROOT::getAlgoName(), "MinRel", "MaxRel", "UseEmptyBins", "MinAbs", "MaxAbs");
 	this->constructMap(CompareLastFilledBinROOT::getAlgoName(), "AvVal", "MinVal", "MaxVal");
-
+	this->constructMap(CheckVarianceROOT::getAlgoName());
 }
   
 

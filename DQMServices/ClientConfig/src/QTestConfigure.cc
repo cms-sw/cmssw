@@ -58,7 +58,8 @@ bool QTestConfigure::enableTests(
       this->EnableCompareToMedianTest(testName, params, bei);
     if(!std::strcmp(testType.c_str(),CompareLastFilledBin::getAlgoName().c_str()))
       this->EnableCompareLastFilledBinTest(testName, params, bei);
-
+    if(!std::strcmp(testType.c_str(),CheckVariance::getAlgoName().c_str()))
+      this->EnableCheckVarianceTest(testName, params, bei);
   }
   return false;
 }
@@ -353,6 +354,24 @@ void QTestConfigure::EnableCompareLastFilledBinTest(std::string testName,
   me_qc1->setAverage(avVal);
   me_qc1->setMin(minVal);
   me_qc1->setMax(maxVal);
+}
+void QTestConfigure::EnableCheckVarianceTest(std::string testName, 
+					     const std::map<std::string, std::string>& params, 
+					     DQMStore *bei){
+  QCriterion * qc1;
+  if(! bei->getQCriterion(testName) ){
+    testsConfigured.push_back(testName);
+    qc1 = bei->createQTest(CheckVariance::getAlgoName(),testName);
+  }else{
+    qc1 = bei->getQCriterion(testName);
+    
+  }
+  CheckVariance * me_qc1 = (CheckVariance *) qc1;
+  
+  double warning = atof(findOrDefault(params, "warning", "0"));
+  double error   = atof(findOrDefault(params, "error", "0"));
+  me_qc1->setWarningProb(warning);
+  me_qc1->setErrorProb(error);
 }
 
 /* void QTestConfigure::EnableContentsWithinExpectedASTest(std::string testName, std::map<std::string, std::string> params, DQMStore *bei){

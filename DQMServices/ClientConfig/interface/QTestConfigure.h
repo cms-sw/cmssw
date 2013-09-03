@@ -90,6 +90,10 @@ class QTestConfigure{
   ///Creates EnableCompareLastFilledBinTest test  
   void EnableCompareLastFilledBinTest(std::string testName, const std::map<std::string, std::string>& params, DQMStore *bei);
 
+  ///Creates CheckVariance test
+  void EnableCheckVarianceTest(std::string testName,
+			       const std::map<std::string,std::string>& params, DQMStore * bei);
+
   const char * findOrDefault(const std::map<std::string, std::string> &,
                              const char *,
                              const char *) const;

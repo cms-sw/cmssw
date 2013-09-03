@@ -328,6 +328,7 @@ DQMStore::initializeFrom(const edm::ParameterSet& pset) {
   initQCriterion<ContentsWithinExpected>(qalgos_);
   initQCriterion<CompareToMedian>(qalgos_);
   initQCriterion<CompareLastFilledBin>(qalgos_);
+  initQCriterion<CheckVariance>(qalgos_);
 
   scaleFlag_ = pset.getUntrackedParameter<double>("ScalingFlag", 0.0);
   if (verbose_ > 0)
