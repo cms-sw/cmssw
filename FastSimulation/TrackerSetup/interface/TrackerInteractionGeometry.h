@@ -168,8 +168,6 @@ class TrackerInteractionGeometry
   std::vector<double> fudgeMax;
   std::vector<double> fudgeFactor;
   /// The following list gives the thicknesses of the various layers.
-  std::vector<MediumProperties*> _mediumProperties;
-
   /// The beam pipe
   MediumProperties *_theMPBeamPipe;
   /// The barrel pixel layers
@@ -223,6 +221,11 @@ class TrackerInteractionGeometry
   MediumProperties *_theMPBarrelOutside;
   MediumProperties *_theMPEndcapOutside;
   MediumProperties *_theMPEndcapOutside2;
+
+  std::vector<MediumProperties *> _mediumProperties;
+
+  //use hardcoded pre-Phase I upgrade tracker geometry or use flexible geometry
+  bool use_hardcoded;
 
 };
 #endif
