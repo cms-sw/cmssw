@@ -112,14 +112,16 @@ HLTDTActivityFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptio
   desc.add<bool>("processDigis",true);
   desc.add<bool>("orTPG",true);
   desc.add<bool>("orRPC",true);
-  desc.add<bool>("orDigi",false);  // && of trig & digi info
+  desc.add<bool>("orDigi",false)->
+    setComment(" # && of trig & digi info");  
   desc.add<int>("minDCCBX",-1);
   desc.add<int>("maxDCCBX",1);
   desc.add<int>("minDDUBX",8);
   desc.add<int>("maxDDUBX",13);
   desc.add<int>("minRPCBX",-1);
   desc.add<int>("maxRPCBX",1);
-  desc.add<int>("minTPGQual",2.);  // 0-1=L 2-3=H 4=LL 5=HL 6=HH
+  desc.add<int>("minTPGQual",2.)->
+    setComment(" # 0-1=L 2-3=H 4=LL 5=HL 6=HH");
   desc.add<int>("maxStation",3.);
   desc.add<int>("minChamberLayers",5);
   desc.add<int>("minActiveChambs",1);

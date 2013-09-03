@@ -71,9 +71,9 @@ void
 HLTCaloTowerFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   makeHLTFilterDescription(desc);
-  desc.add<edm::InputTag>("input",edm::InputTag("hltTowerMakerForEcal"));
-  desc.add<double>("MinPt",3.);
-  desc.add<double>("MaxEta",3.);
+  desc.add<edm::InputTag>("inputTag",edm::InputTag("hltTowerMakerForEcal"));
+  desc.add<double>("MinPt",3.0);
+  desc.add<double>("MaxEta",3.0);
   desc.add<unsigned int>("MinN",1);
   descriptions.add("hltCaloTowerFilter",desc);
 }

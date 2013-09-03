@@ -54,7 +54,8 @@ HLTL1NumberFilter::~HLTL1NumberFilter()
 void
 HLTL1NumberFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
-  desc.add<edm::InputTag>("rawData",edm::InputTag("source"));
+  desc.add<edm::InputTag>("rawInput",edm::InputTag("source"));
+  desc.add<unsigned int>("period",4096);
   desc.add<bool>("invert",true);
   descriptions.add("hltL1NumberFilter",desc);
 }
