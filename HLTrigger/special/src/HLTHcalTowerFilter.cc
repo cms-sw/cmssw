@@ -97,9 +97,6 @@ HLTHcalTowerFilter::fillDescriptions(edm::ConfigurationDescriptions& description
   desc.add<int>("MinN_HF",-1);
   desc.add<int>("MinN_HFM",-1);
   desc.add<int>("MinN_HFP",-1);
-  desc.add<bool>("doCoincidence",true);
-  std::vector<unsigned int> temp;
-  desc.add<std::vector<unsigned int> >("maskedChannels",temp);
   descriptions.add("hltHcalTowerFilter",desc);
 }
 

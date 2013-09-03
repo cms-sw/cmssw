@@ -20,9 +20,12 @@ void
 HLTHFAsymmetryFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("HFHitCollection",edm::InputTag("hltHfreco"));
-  desc.add<double>("ECut_HF",3.0);
-  desc.add<double>("OS_Asym_max",0.2);
-  desc.add<double>("OS_Asym_min",0.8);
+  desc.add<double>("ECut_HF",3.0)->
+    setComment(" # minimum energy for a cluster to be selected");
+  desc.add<double>("OS_Asym_max",0.2)->
+    setComment(" # Opposite side asymmetry maximum value");
+  desc.add<double>("OS_Asym_min",0.8)->
+    setComment(" # Same side asymmetry minimum value");
   descriptions.add("hltHFAsymmetryFilter",desc);
 }
 

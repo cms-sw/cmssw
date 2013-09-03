@@ -59,7 +59,7 @@ HLTPixelActivityFilter::fillDescriptions(edm::ConfigurationDescriptions& descrip
   makeHLTFilterDescription(desc);
   desc.add<edm::InputTag>("inputTag",edm::InputTag("hltSiPixelClusters"));
   desc.add<unsigned int>("minClusters",3);
-  desc.add<unsigned int>("maxlusters",0);
+  desc.add<unsigned int>("maxClusters",0);
   descriptions.add("hltPixelActivityFilter",desc);
 }
 

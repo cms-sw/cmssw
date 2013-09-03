@@ -26,8 +26,6 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EDFilter.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
-#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "DataFormats/Provenance/interface/EventID.h"
 
@@ -39,7 +37,6 @@ class HLTLogMonitorFilter : public edm::EDFilter {
 public:
     explicit HLTLogMonitorFilter(const edm::ParameterSet &);
     ~HLTLogMonitorFilter();
-    static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
     struct CategoryEntry {
       uint32_t threshold;       // configurable threshold, after which messages in this Category start to be logarithmically prescaled
@@ -142,16 +139,6 @@ HLTLogMonitorFilter::HLTLogMonitorFilter(const edm::ParameterSet & config) :
 
 HLTLogMonitorFilter::~HLTLogMonitorFilter()
 {
-}
-
-
-void
-HLTLogMonitorFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
-  edm::ParameterSetDescription desc;
-  edm::ParameterSetDescription categories;
-  desc.add<edm::ParameterSetDescription>("categories",categories);
-  desc.add<unsigned int>("default_threshold",10);
-  descriptions.add("hltLogMonitorFilter",desc);
 }
 
 //

@@ -141,6 +141,10 @@ HLTEcalResonanceFilter::fillDescriptions(edm::ConfigurationDescriptions& descrip
   desc.add<edm::InputTag>("preshRecHitProducer",edm::InputTag("hltEcalRegionalPi0EtaRecHit","EcalRecHitsES"));
   desc.add<edm::InputTag>("barrelClusters",edm::InputTag("hltSimple3x3Clusters","Simple3x3ClustersBarrel"));
   desc.add<edm::InputTag>("endcapClusters",edm::InputTag("hltSimple3x3Clusters","Simple3x3ClustersEndcap"));
+  desc.add<bool>("useRecoFlag",false);
+  desc.add<int>("flagLevelRecHitsToUse",1);
+  desc.add<bool>("useDBStatus",true);
+  desc.add<int>("statusLevelRecHitsToUse",1);
 
   desc.add<bool>("doSelBarrel",true);
   edm::ParameterSetDescription barrelSelection;

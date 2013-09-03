@@ -84,10 +84,14 @@ HLTFEDSizeFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions)
   edm::ParameterSetDescription desc;
   makeHLTFilterDescription(desc);
   desc.add<edm::InputTag>("rawData",edm::InputTag("source","",""));
-  desc.add<unsigned int>("threshold",0);
-  desc.add<unsigned int>("firstFED",0);
-  desc.add<unsigned int>("lastFED",39);
-  desc.add<bool>("requireAllFEDs",false);
+  desc.add<unsigned int>("threshold",0)->
+    setComment(" # 0 is pass-through, 1 means *FED ispresent*, higher values are just FED size");
+  desc.add<unsigned int>("firstFED",0)->
+    setComment(" # first FED, inclusive");
+  desc.add<unsigned int>("lastFED",39)->
+    setComment(" # last FED, inclusive");
+  desc.add<bool>("requireAllFEDs",false)->
+    setComment(" # if True, *all* FEDs must be above threshold; if False, only *one* is required");
   descriptions.add("hltFEDSizeFilter",desc);
 }
 

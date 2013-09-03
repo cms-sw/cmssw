@@ -103,7 +103,8 @@ HLTHcalSimpleRecHitFilter::fillDescriptions(edm::ConfigurationDescriptions& desc
   desc.add<int>("minNHitsPos",1);
   desc.add<bool>("doCoincidence",true);
   std::vector<unsigned int> temp;
-  desc.add<std::vector<unsigned int> >("maskedChannels",temp);
+  desc.add<std::vector<unsigned int> >("maskedChannels",temp)->
+    setComment(" # now by raw detid, not hashed id");
   descriptions.add("hltHcalSimpleRecHitFilter",desc);
 }
 

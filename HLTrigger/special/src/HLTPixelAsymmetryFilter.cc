@@ -37,10 +37,10 @@ HLTPixelAsymmetryFilter::fillDescriptions(edm::ConfigurationDescriptions& descri
   edm::ParameterSetDescription desc;
   makeHLTFilterDescription(desc);
   desc.add<edm::InputTag>("inputTag",edm::InputTag("hltSiPixelClusters"));
-  desc.add<double>("minAsym",0.);        // minimum asymmetry 
-  desc.add<double>("maxAsym",1.);        // maximum asymmetry
-  desc.add<double>("minCharge",4000.);   // minimum charge for a cluster to be selected (in e-)
-  desc.add<double>("minBarrel",10000.);  // minimum average charge in the barrel (bpix, in e-)
+  desc.add<double>("MinAsym",0.);        // minimum asymmetry 
+  desc.add<double>("MaxAsym",1.);        // maximum asymmetry
+  desc.add<double>("MinCharge",4000.);   // minimum charge for a cluster to be selected (in e-)
+  desc.add<double>("MinBarrel",10000.);  // minimum average charge in the barrel (bpix, in e-)
   descriptions.add("hltPixelAsymmetryFilter",desc);
 }
 
