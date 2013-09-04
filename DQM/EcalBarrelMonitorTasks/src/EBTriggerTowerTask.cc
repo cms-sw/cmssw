@@ -9,7 +9,6 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "DataFormats/Common/interface/TriggerResults.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 
@@ -52,10 +51,10 @@ EBTriggerTowerTask::EBTriggerTowerTask(const edm::ParameterSet& ps) {
   reserveArray(meEmulMatch_);
   reserveArray(meVetoEmulError_);
 
-  realCollection_ =  ps.getParameter<edm::InputTag>("EcalTrigPrimDigiCollectionReal");
-  emulCollection_ =  ps.getParameter<edm::InputTag>("EcalTrigPrimDigiCollectionEmul");
-  EBDigiCollection_ = ps.getParameter<edm::InputTag>("EBDigiCollection");
-  HLTResultsCollection_ = ps.getParameter<edm::InputTag>("HLTResultsCollection");
+  realCollection_ =  consumes<EcalTrigPrimDigiCollection>(ps.getParameter<edm::InputTag>("EcalTrigPrimDigiCollectionReal"));
+  emulCollection_ =  consumes<EcalTrigPrimDigiCollection>(ps.getParameter<edm::InputTag>("EcalTrigPrimDigiCollectionEmul"));
+  EBDigiCollection_ = consumes<EBDigiCollection>(ps.getParameter<edm::InputTag>("EBDigiCollection"));
+  HLTResultsCollection_ = consumes<edm::TriggerResults>(ps.getParameter<edm::InputTag>("HLTResultsCollection"));
 
   HLTCaloHLTBit_ = ps.getUntrackedParameter<std::string>("HLTCaloHLTBit", "");
   HLTMuonHLTBit_ = ps.getUntrackedParameter<std::string>("HLTMuonHLTBit", "");
@@ -279,7 +278,7 @@ void EBTriggerTowerTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
   edm::Handle<EcalTrigPrimDigiCollection> realDigis;
 
-  if ( e.getByLabel(realCollection_, realDigis) ) {
+  if ( e.getByToken(realCollection_, realDigis) ) {
 
     int nebtpd = realDigis->size();
     LogDebug("EBTriggerTowerTask") << "event " << ievt_ <<" trigger primitive digi collection size: " << nebtpd;
@@ -290,24 +289,16 @@ void EBTriggerTowerTask::analyze(const edm::Event& e, const edm::EventSetup& c){
                   meVetoReal_);
 
   } else {
-    edm::LogWarning("EBTriggerTowerTask") << realCollection_ << " not available";
+    edm::LogWarning("EBTriggerTowerTask") << "realCollection not available";
   }
 
   edm::Handle<EcalTrigPrimDigiCollection> emulDigis;
 
-  if ( e.getByLabel(emulCollection_, emulDigis) ) {
+  if ( e.getByToken(emulCollection_, emulDigis) ) {
 
     edm::Handle<edm::TriggerResults> hltResults;
 
-    if ( !e.getByLabel(HLTResultsCollection_, hltResults) ) {
-      HLTResultsCollection_ = edm::InputTag(HLTResultsCollection_.label(), HLTResultsCollection_.instance(), "HLT");
-    }
-
-    if ( !e.getByLabel(HLTResultsCollection_, hltResults) ) {
-      HLTResultsCollection_ = edm::InputTag(HLTResultsCollection_.label(), HLTResultsCollection_.instance(), "FU");
-    }
-
-    if ( e.getByLabel(HLTResultsCollection_, hltResults) ) {
+    if ( e.getByToken(HLTResultsCollection_, hltResults) ) {
 
       processDigis( e,
                     emulDigis,
@@ -317,11 +308,11 @@ void EBTriggerTowerTask::analyze(const edm::Event& e, const edm::EventSetup& c){
                     hltResults);
 
     } else {
-      edm::LogWarning("EBTriggerTowerTask") << HLTResultsCollection_ << " not available";
+      edm::LogWarning("EBTriggerTowerTask") << "HLTResultsCollection not available";
     }
 
   } else {
-    edm::LogInfo("EBTriggerTowerTask") << emulCollection_ << " not available";
+    edm::LogInfo("EBTriggerTowerTask") << "emulCollection not available";
   }
 
 }
@@ -346,7 +337,7 @@ EBTriggerTowerTask::processDigis( const edm::Event& e, const edm::Handle<EcalTri
 
     edm::Handle<EBDigiCollection> crystalDigis;
 
-    if ( e.getByLabel(EBDigiCollection_, crystalDigis) ) {
+    if ( e.getByToken(EBDigiCollection_, crystalDigis) ) {
 
       for ( EBDigiCollection::const_iterator cDigiItr = crystalDigis->begin(); cDigiItr != crystalDigis->end(); ++cDigiItr ) {
 
@@ -361,7 +352,7 @@ EBTriggerTowerTask::processDigis( const edm::Event& e, const edm::Handle<EcalTri
       }
 
     } else {
-      edm::LogWarning("EBTriggerTowerTask") << EBDigiCollection_ << " not available";
+      edm::LogWarning("EBTriggerTowerTask") << "EBDigiCollection not available";
     }
 
   }

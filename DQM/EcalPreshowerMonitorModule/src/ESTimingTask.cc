@@ -11,7 +11,6 @@
 #include "DataFormats/EcalDetId/interface/ESDetId.h"
 #include "DataFormats/EcalDigi/interface/ESDataFrame.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
-#include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 #include "CondFormats/DataRecord/interface/ESGainRcd.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "DQMServices/Core/interface/DQMStore.h"
@@ -42,8 +41,7 @@ double fitf(double *x, double *par) {
 
 ESTimingTask::ESTimingTask(const edm::ParameterSet& ps) {
 
-  rechitlabel_ = ps.getParameter<InputTag>("RecHitLabel");
-  digilabel_   = ps.getParameter<InputTag>("DigiLabel");
+  digilabel_   = consumes<ESDigiCollection>(ps.getParameter<InputTag>("DigiLabel"));
   prefixME_    = ps.getUntrackedParameter<string>("prefixME", "EcalPreshower"); 
   
   dqmStore_	= Service<DQMStore>().operator->();
@@ -106,7 +104,7 @@ void ESTimingTask::analyze(const edm::Event& e, const edm::EventSetup& iSetup) {
   //  double para[10];
   //double tx[3] = {-5., 20., 45.};
   Handle<ESDigiCollection> digis;
-  if ( e.getByLabel(digilabel_, digis) ) {
+  if ( e.getByToken(digilabel_, digis) ) {
     
     for (ESDigiCollection::const_iterator digiItr = digis->begin(); digiItr != digis->end(); ++digiItr) {
       
@@ -168,7 +166,7 @@ void ESTimingTask::analyze(const edm::Event& e, const edm::EventSetup& iSetup) {
       
     }
   } else {
-    LogWarning("ESTimingTask") << digilabel_ << " not available";
+    LogWarning("ESTimingTask") << "DigiCollection not available";
   }
   
   if (htESP_->GetEntries() > 0 && htESM_->GetEntries() > 0)

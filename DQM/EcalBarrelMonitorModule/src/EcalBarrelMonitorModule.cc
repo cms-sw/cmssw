@@ -6,11 +6,8 @@
  *
 */
 
-#include "DataFormats/EcalRawData/interface/EcalRawDataCollections.h"
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 #include "DataFormats/EcalDigi/interface/EBDataFrame.h"
-#include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
-#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 
 #include "DQMServices/Core/interface/MonitorElement.h"
 
@@ -40,10 +37,10 @@ EcalBarrelMonitorModule::EcalBarrelMonitorModule(const edm::ParameterSet& ps){
 
   init_ = false;
 
-  EcalRawDataCollection_ = ps.getParameter<edm::InputTag>("EcalRawDataCollection");
-  EBDigiCollection_ = ps.getParameter<edm::InputTag>("EBDigiCollection");
-  EcalRecHitCollection_ = ps.getParameter<edm::InputTag>("EcalRecHitCollection");
-  EcalTrigPrimDigiCollection_ = ps.getParameter<edm::InputTag>("EcalTrigPrimDigiCollection");
+  EcalRawDataCollection_ = consumes<EcalRawDataCollection>(ps.getParameter<edm::InputTag>("EcalRawDataCollection"));
+  EBDigiCollection_ = consumes<EBDigiCollection>(ps.getParameter<edm::InputTag>("EBDigiCollection"));
+  EcalRecHitCollection_ = consumes<EcalRecHitCollection>(ps.getParameter<edm::InputTag>("EcalRecHitCollection"));
+  EcalTrigPrimDigiCollection_ = consumes<EcalTrigPrimDigiCollection>(ps.getParameter<edm::InputTag>("EcalTrigPrimDigiCollection"));
 
   // this should come from the event header
   runNumber_ = ps.getUntrackedParameter<int>("runNumber", 0);
@@ -383,10 +380,10 @@ void EcalBarrelMonitorModule::analyze(const edm::Event& e, const edm::EventSetup
 
   edm::Handle<EcalRawDataCollection> dcchs;
 
-  if ( e.getByLabel(EcalRawDataCollection_, dcchs) ) {
+  if ( e.getByToken(EcalRawDataCollection_, dcchs) ) {
 
     if ( dcchs->size() == 0 ) {
-      LogDebug("EcalBarrelMonitorModule") << EcalRawDataCollection_ << " is empty";
+      LogDebug("EcalBarrelMonitorModule") << "EcalRawDataCollection is empty";
       return;
     }
 
@@ -429,7 +426,7 @@ void EcalBarrelMonitorModule::analyze(const edm::Event& e, const edm::EventSetup
     if ( evtType_ < 0 || evtType_ > 22 ) evtType_ = -1;
     if ( meEvtType_ ) meEvtType_->Fill(evtType_+0.5, 1./36.);
 
-    edm::LogWarning("EcalBarrelMonitorModule") << EcalRawDataCollection_ << " not available";
+    edm::LogWarning("EcalBarrelMonitorModule") << "EcalRawDataCollection not available";
 
   }
 
@@ -457,7 +454,7 @@ void EcalBarrelMonitorModule::analyze(const edm::Event& e, const edm::EventSetup
 
   edm::Handle<EBDigiCollection> digis;
 
-  if ( e.getByLabel(EBDigiCollection_, digis) ) {
+  if ( e.getByToken(EBDigiCollection_, digis) ) {
 
     int nebd = digis->size();
     LogDebug("EcalBarrelMonitorModule") << "event " << ievt_ << " digi collection size " << nebd;
@@ -488,13 +485,13 @@ void EcalBarrelMonitorModule::analyze(const edm::Event& e, const edm::EventSetup
 
   } else {
 
-    edm::LogWarning("EcalBarrelMonitorModule") << EBDigiCollection_ << " not available";
+    edm::LogWarning("EcalBarrelMonitorModule") << "EBDigiCollection not available";
 
   }
 
   edm::Handle<EcalRecHitCollection> hits;
 
-  if ( e.getByLabel(EcalRecHitCollection_, hits) ) {
+  if ( e.getByToken(EcalRecHitCollection_, hits) ) {
 
     int nebh = hits->size();
     LogDebug("EcalBarrelMonitorModule") << "event " << ievt_ << " hits collection size " << nebh;
@@ -542,13 +539,13 @@ void EcalBarrelMonitorModule::analyze(const edm::Event& e, const edm::EventSetup
 
   } else {
 
-    edm::LogWarning("EcalBarrelMonitorModule") << EcalRecHitCollection_ << " not available";
+    edm::LogWarning("EcalBarrelMonitorModule") << "EcalRecHitCollection not available";
 
   }
 
   edm::Handle<EcalTrigPrimDigiCollection> tpdigis;
 
-  if ( e.getByLabel(EcalTrigPrimDigiCollection_, tpdigis) ) {
+  if ( e.getByToken(EcalTrigPrimDigiCollection_, tpdigis) ) {
 
     int nebtpd = 0;
     int counter[36] = { 0 };
@@ -581,7 +578,7 @@ void EcalBarrelMonitorModule::analyze(const edm::Event& e, const edm::EventSetup
 
   } else {
 
-    edm::LogWarning("EcalBarrelMonitorModule") << EcalTrigPrimDigiCollection_ << " not available";
+    edm::LogWarning("EcalBarrelMonitorModule") << "EcalTrigPrimDigiCollection not available";
 
   }
 

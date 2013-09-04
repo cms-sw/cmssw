@@ -17,7 +17,6 @@
 
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 #include "DataFormats/EcalDigi/interface/EBDataFrame.h"
-#include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 
 #include "DQM/EcalCommon/interface/Numbers.h"
 
@@ -37,7 +36,7 @@ EBPedestalOnlineTask::EBPedestalOnlineTask(const edm::ParameterSet& ps){
 
   mergeRuns_ = ps.getUntrackedParameter<bool>("mergeRuns", false);
 
-  EBDigiCollection_ = ps.getParameter<edm::InputTag>("EBDigiCollection");
+  EBDigiCollection_ = consumes<EBDigiCollection>(ps.getParameter<edm::InputTag>("EBDigiCollection"));
 
   for (int i = 0; i < 36; i++) {
     mePedMapG12_[i] = 0;
@@ -146,7 +145,7 @@ void EBPedestalOnlineTask::analyze(const edm::Event& e, const edm::EventSetup& c
 
   edm::Handle<EBDigiCollection> digis;
 
-  if ( e.getByLabel(EBDigiCollection_, digis) ) {
+  if ( e.getByToken(EBDigiCollection_, digis) ) {
 
     int nebd = digis->size();
     LogDebug("EBPedestalOnlineTask") << "event " << ievt_ << " digi collection size " << nebd;
@@ -199,7 +198,7 @@ void EBPedestalOnlineTask::analyze(const edm::Event& e, const edm::EventSetup& c
 
   } else {
 
-    edm::LogWarning("EBPedestalOnlineTask") << EBDigiCollection_ << " not available";
+    edm::LogWarning("EBPedestalOnlineTask") << "EBDigiCollection not available";
 
   }
 

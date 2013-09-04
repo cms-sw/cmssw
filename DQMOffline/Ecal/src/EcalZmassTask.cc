@@ -67,7 +67,8 @@ private:
   virtual void beginLuminosityBlock (edm::LuminosityBlock const &, edm::EventSetup const &) override;
   virtual void endLuminosityBlock (edm::LuminosityBlock const &, edm::EventSetup const &) override;
 
-  const edm::InputTag theElectronCollectionLabel;
+  const edm::EDGetTokenT<reco::GsfElectronCollection> electronCollectionToken_;
+  const edm::EDGetTokenT<reco::GsfTrackCollection> trackCollectionToken_;
 
   const std::string prefixME_;
 
@@ -88,7 +89,8 @@ private:
 };
 
 EcalZmassTask::EcalZmassTask (const edm::ParameterSet & parameters) :
-  theElectronCollectionLabel(parameters.getParameter < edm::InputTag > ("electronCollection")),
+  electronCollectionToken_(consumes<reco::GsfElectronCollection>(parameters.getParameter < edm::InputTag > ("electronCollection"))),
+  trackCollectionToken_(consumes<reco::GsfTrackCollection>(parameters.getParameter<edm::InputTag>("trackCollection"))),
   prefixME_(parameters.getUntrackedParameter < std::string > ("prefixME", ""))
 {
 }
@@ -104,12 +106,12 @@ EcalZmassTask::analyze (const edm::Event & iEvent,
 {
   using namespace edm;
   Handle < reco::GsfElectronCollection > electronCollection;
-  iEvent.getByLabel (theElectronCollectionLabel, electronCollection);
+  iEvent.getByToken (electronCollectionToken_, electronCollection);
   if (!electronCollection.isValid ()) return;
 
   //get GSF Tracks
   Handle < reco::GsfTrackCollection > gsftracks_h;
-  iEvent.getByLabel ("electronGsfTracks", gsftracks_h);
+  iEvent.getByToken (trackCollectionToken_, gsftracks_h);
 
   bool isIsolatedBarrel;
   bool isIDBarrel;

@@ -20,13 +20,9 @@
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 
-// ROOT include
-#include "TFile.h"
-#include "TH1.h"
-#include "TH2.h"
-#include "TProfile.h"
-#include "TProfile2D.h"
-
+#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
+#include "DataFormats/EgammaReco/interface/BasicClusterFwd.h"
+#include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
 
 // Less than operator for sorting EcalRecHits according to energy.
 class ecalRecHitLess : public std::binary_function<EcalRecHit, EcalRecHit, bool>
@@ -90,10 +86,10 @@ class EBRecoSummary : public edm::EDAnalyzer {
       protected:
 
 	 // ----------member data ---------------------------
-	 edm::InputTag recHitCollection_EB_;
-         edm::InputTag redRecHitCollection_EB_;
-         edm::InputTag basicClusterCollection_EB_;
-	 edm::InputTag superClusterCollection_EB_;
+	 edm::EDGetTokenT<EcalRecHitCollection> recHitCollection_EB_;
+         edm::EDGetTokenT<EcalRecHitCollection> redRecHitCollection_EB_;
+         edm::EDGetTokenT<reco::BasicClusterCollection> basicClusterCollection_EB_;
+	 edm::EDGetTokenT<reco::SuperClusterCollection> superClusterCollection_EB_;
 	 
 	 double ethrEB_;
 

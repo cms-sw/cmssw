@@ -18,11 +18,8 @@
 
 #include "DQMServices/Core/interface/DQMStore.h"
 
-#include "DataFormats/EcalRawData/interface/EcalRawDataCollections.h"
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 #include "DataFormats/EcalRecHit/interface/EcalUncalibratedRecHit.h"
-#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
-#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerEvmReadoutRecord.h"
 
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgo.h"
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgoRcd.h"
@@ -45,10 +42,10 @@ EBTimingTask::EBTimingTask(const edm::ParameterSet& ps){
 
   energyThreshold_ = ps.getUntrackedParameter<double>("energyTreshold",1.0);
 
-  EcalRawDataCollection_ = ps.getParameter<edm::InputTag>("EcalRawDataCollection");
-  EcalRecHitCollection_ = ps.getParameter<edm::InputTag>("EcalRecHitCollection");
+  EcalRawDataCollection_ = consumes<EcalRawDataCollection>(ps.getParameter<edm::InputTag>("EcalRawDataCollection"));
+  EcalRecHitCollection_ = consumes<EcalRecHitCollection>(ps.getParameter<edm::InputTag>("EcalRecHitCollection"));
 
-  L1GtEvmReadoutRecord_ = ps.getParameter<edm::InputTag>("L1GtEvmReadoutRecord");
+  L1GtEvmReadoutRecord_ = consumes<L1GlobalTriggerEvmReadoutRecord>(ps.getParameter<edm::InputTag>("L1GtEvmReadoutRecord"));
 
   useBeamStatus_ = ps.getUntrackedParameter<bool>("useBeamStatus", false);
 
@@ -224,7 +221,7 @@ void EBTimingTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
   edm::Handle<EcalRawDataCollection> dcchs;
 
-  if ( e.getByLabel(EcalRawDataCollection_, dcchs) ) {
+  if ( e.getByToken(EcalRawDataCollection_, dcchs) ) {
 
     for ( EcalRawDataCollection::const_iterator dcchItr = dcchs->begin(); dcchItr != dcchs->end(); ++dcchItr ) {
 
@@ -246,7 +243,7 @@ void EBTimingTask::analyze(const edm::Event& e, const edm::EventSetup& c){
   } else {
 
     isData = false; enable = true;
-    edm::LogWarning("EBTimingTask") << EcalRawDataCollection_ << " not available";
+    edm::LogWarning("EBTimingTask") << "EcalRawDataCollection not available";
 
   }
 
@@ -259,7 +256,7 @@ void EBTimingTask::analyze(const edm::Event& e, const edm::EventSetup& c){
   // resetting plots when stable beam is declared
   if( useBeamStatus_ && !stableBeamsDeclared_ ) {
     edm::Handle<L1GlobalTriggerEvmReadoutRecord> gtRecord;
-    if( e.getByLabel(L1GtEvmReadoutRecord_, gtRecord) ) {
+    if( e.getByToken(L1GtEvmReadoutRecord_, gtRecord) ) {
 
       unsigned lhcBeamMode = gtRecord->gtfeWord().beamMode();
 
@@ -278,7 +275,7 @@ void EBTimingTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
   edm::Handle<EcalRecHitCollection> hits;
 
-  if ( e.getByLabel(EcalRecHitCollection_, hits) ) {
+  if ( e.getByToken(EcalRecHitCollection_, hits) ) {
 
     int neh = hits->size();
     LogDebug("EBTimingTask") << "event " << ievt_ << " hits collection size " << neh;
@@ -341,7 +338,7 @@ void EBTimingTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
   } else {
 
-    edm::LogWarning("EBTimingTask") << EcalRecHitCollection_ << " not available";
+    edm::LogWarning("EBTimingTask") << "EcalRecHitCollection not available";
 
   }
 

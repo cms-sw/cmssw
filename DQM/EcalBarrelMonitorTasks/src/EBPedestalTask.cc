@@ -41,9 +41,9 @@ EBPedestalTask::EBPedestalTask(const edm::ParameterSet& ps){
 
   mergeRuns_ = ps.getUntrackedParameter<bool>("mergeRuns", false);
 
-  EcalRawDataCollection_ = ps.getParameter<edm::InputTag>("EcalRawDataCollection");
-  EBDigiCollection_ = ps.getParameter<edm::InputTag>("EBDigiCollection");
-  EcalPnDiodeDigiCollection_ = ps.getParameter<edm::InputTag>("EcalPnDiodeDigiCollection");
+  EcalRawDataCollection_ = consumes<EcalRawDataCollection>(ps.getParameter<edm::InputTag>("EcalRawDataCollection"));
+  EBDigiCollection_ = consumes<EBDigiCollection>(ps.getParameter<edm::InputTag>("EBDigiCollection"));
+  EcalPnDiodeDigiCollection_ = consumes<EcalPnDiodeDigiCollection>(ps.getParameter<edm::InputTag>("EcalPnDiodeDigiCollection"));
 
   MGPAGains_.reserve(3);
   for ( unsigned int i = 1; i <= 3; i++ ) MGPAGains_.push_back(i);
@@ -369,7 +369,7 @@ void EBPedestalTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
   edm::Handle<EcalRawDataCollection> dcchs;
 
-  if ( e.getByLabel(EcalRawDataCollection_, dcchs) ) {
+  if ( e.getByToken(EcalRawDataCollection_, dcchs) ) {
 
     for ( EcalRawDataCollection::const_iterator dcchItr = dcchs->begin(); dcchItr != dcchs->end(); ++dcchItr ) {
 
@@ -386,7 +386,7 @@ void EBPedestalTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
   } else {
 
-    edm::LogWarning("EBPedestalTask") << EcalRawDataCollection_ << " not available";
+    edm::LogWarning("EBPedestalTask") << "EcalRawDataCollection not available";
 
   }
 
@@ -398,7 +398,7 @@ void EBPedestalTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
   edm::Handle<EBDigiCollection> digis;
 
-  if ( e.getByLabel(EBDigiCollection_, digis) ) {
+  if ( e.getByToken(EBDigiCollection_, digis) ) {
 
     int nebd = digis->size();
     LogDebug("EBPedestalTask") << "event " << ievt_ << " digi collection size " << nebd;
@@ -534,13 +534,13 @@ void EBPedestalTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
   } else {
 
-    edm::LogWarning("EBPedestalTask") << EBDigiCollection_ << " not available";
+    edm::LogWarning("EBPedestalTask") << "EBDigiCollection not available";
 
   }
 
   edm::Handle<EcalPnDiodeDigiCollection> pns;
 
-  if ( e.getByLabel(EcalPnDiodeDigiCollection_, pns) ) {
+  if ( e.getByToken(EcalPnDiodeDigiCollection_, pns) ) {
 
     int nep = pns->size();
     LogDebug("EBPedestalTask") << "event " << ievt_ << " pns collection size " << nep;
@@ -575,7 +575,7 @@ void EBPedestalTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
   } else {
 
-    edm::LogWarning("EBPedestalTask") << EcalPnDiodeDigiCollection_ << " not available";
+    edm::LogWarning("EBPedestalTask") << "EcalPnDiodeDigiCollection not available";
 
   }
 

@@ -13,14 +13,12 @@
 #include "DQM/EcalPreshowerMonitorModule/interface/ESFEDIntegrityTask.h"
 
 #include "DataFormats/FEDRawData/interface/FEDRawData.h"
-#include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "DataFormats/FEDRawData/interface/FEDHeader.h"
 #include "DataFormats/FEDRawData/interface/FEDTrailer.h"
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 #include "DataFormats/FEDRawData/src/fed_header.h"
 #include "DataFormats/EcalRawData/interface/ESDCCHeaderBlock.h"
 #include "DataFormats/EcalRawData/interface/ESKCHIPBlock.h"
-#include "DataFormats/EcalRawData/interface/EcalRawDataCollections.h"
 
 using namespace cms;
 using namespace edm;
@@ -38,9 +36,8 @@ ESFEDIntegrityTask::ESFEDIntegrityTask(const ParameterSet& ps) {
   mergeRuns_     = ps.getUntrackedParameter<bool>("mergeRuns", false);
   debug_         = ps.getUntrackedParameter<bool>("debug", false);
 
-  dccCollections_       = ps.getParameter<InputTag>("ESDCCCollections");
-  kchipCollections_     = ps.getParameter<InputTag>("ESKChipCollections");
-  FEDRawDataCollection_ = ps.getParameter<edm::InputTag>("FEDRawDataCollection");
+  dccCollections_       = consumes<ESRawDataCollection>(ps.getParameter<InputTag>("ESDCCCollections"));
+  FEDRawDataCollection_ = consumes<FEDRawDataCollection>(ps.getParameter<edm::InputTag>("FEDRawDataCollection"));
 
   meESFedsEntries_  = 0;
   meESFedsFatal_    = 0;
@@ -148,7 +145,7 @@ void ESFEDIntegrityTask::analyze(const Event& e, const EventSetup& c){
   Handle<ESRawDataCollection> dccs;
   Handle<FEDRawDataCollection> allFedRawData;
 
-  if ( e.getByLabel(FEDRawDataCollection_, allFedRawData) ) {
+  if ( e.getByToken(FEDRawDataCollection_, allFedRawData) ) {
 
     // ES FEDs
     for (int esFED=520; esFED<=575; ++esFED) { 
@@ -178,7 +175,7 @@ void ESFEDIntegrityTask::analyze(const Event& e, const EventSetup& c){
       map<int, int> esDCC_BX_FreqMap;
       map<int, int> esDCC_OrbitNumber_FreqMap;
 
-      if ( e.getByLabel(dccCollections_, dccs) ) {
+      if ( e.getByToken(dccCollections_, dccs) ) {
 	
 	for (ESRawDataCollection::const_iterator dccItr = dccs->begin(); dccItr != dccs->end(); ++dccItr) {
 	  ESDCCHeaderBlock esdcc = (*dccItr);
@@ -204,17 +201,17 @@ void ESFEDIntegrityTask::analyze(const Event& e, const EventSetup& c){
 	  
 	}
       } else {
-	LogWarning("ESFEDIntegrityTask") << dccCollections_ << " not available";
+	LogWarning("ESFEDIntegrityTask") << "dccCollections not available";
       }
 
     }
 
   } else {
-    LogWarning("ESFEDIntegrityTask") << FEDRawDataCollection_ << " not available";
+    LogWarning("ESFEDIntegrityTask") << "FEDRawDataCollection not available";
   }
 
   vector<int> fiberStatus;
-  if ( e.getByLabel(dccCollections_, dccs) ) {
+  if ( e.getByToken(dccCollections_, dccs) ) {
     for (ESRawDataCollection::const_iterator dccItr = dccs->begin(); dccItr != dccs->end(); ++dccItr) {
       ESDCCHeaderBlock dcc = (*dccItr);
       

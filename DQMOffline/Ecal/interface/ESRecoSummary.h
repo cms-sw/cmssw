@@ -68,10 +68,10 @@ class ESRecoSummary : public edm::EDAnalyzer {
   
 
 	 // ----------member data ---------------------------
-      edm::InputTag superClusterCollection_EE_;
-	 edm::InputTag esRecHitCollection_;
-	 edm::InputTag esClusterCollectionX_ ;
-	 edm::InputTag esClusterCollectionY_ ;
+      edm::EDGetTokenT<reco::SuperClusterCollection> superClusterCollection_EE_;
+      edm::EDGetTokenT<ESRecHitCollection> esRecHitCollection_;
+      edm::EDGetTokenT<reco::PreshowerClusterCollection> esClusterCollectionX_ ;
+      edm::EDGetTokenT<reco::PreshowerClusterCollection> esClusterCollectionY_ ;
 	 
 
 };

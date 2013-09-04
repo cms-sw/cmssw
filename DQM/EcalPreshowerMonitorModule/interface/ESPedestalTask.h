@@ -5,6 +5,8 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+#include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
+
 class MonitorElement;
 class DQMStore;
 
@@ -26,7 +28,7 @@ class ESPedestalTask : public edm::EDAnalyzer {
       void beginRun(const edm::Run & r, const edm::EventSetup & c);
       void endRun(const edm::Run& r, const edm::EventSetup& c);
 
-      edm::InputTag digilabel_;
+      edm::EDGetTokenT<ESDigiCollection> digitoken_;
       edm::FileInPath lookup_;
       std::string outputFile_;
       std::string prefixME_;
