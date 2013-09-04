@@ -24,6 +24,13 @@ HLTTriggerTypeFilter::~HLTTriggerTypeFilter()
 {
 }
 
+void
+HLTTriggerTypeFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<int>("SelectedTriggerType",2);
+  descriptions.add("hltTriggerTypeFilter",desc);
+}
+
 //
 // member functions
 //

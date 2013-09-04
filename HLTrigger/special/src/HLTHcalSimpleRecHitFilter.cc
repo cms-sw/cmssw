@@ -29,6 +29,8 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 #include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
@@ -41,11 +43,13 @@ class HLTHcalSimpleRecHitFilter : public HLTFilter {
 public:
     explicit HLTHcalSimpleRecHitFilter(const edm::ParameterSet&);
     ~HLTHcalSimpleRecHitFilter();
+    static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
     
 private:
     virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) override;
     
     // ----------member data ---------------------------
+    edm::EDGetTokenT<HFRecHitCollection> HcalRecHitsToken_;
     edm::InputTag HcalRecHitCollection_;
     double threshold_;
     int minNHitsNeg_;
@@ -77,7 +81,7 @@ HLTHcalSimpleRecHitFilter::HLTHcalSimpleRecHitFilter(const edm::ParameterSet& iC
 	}
       }
     HcalRecHitCollection_ = iConfig.getParameter<edm::InputTag>("HFRecHitCollection");
-    
+    HcalRecHitsToken_ = consumes<HFRecHitCollection>(HcalRecHitCollection_);
 }
 
 
@@ -89,6 +93,21 @@ HLTHcalSimpleRecHitFilter::~HLTHcalSimpleRecHitFilter()
 
 }
 
+
+void
+HLTHcalSimpleRecHitFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  makeHLTFilterDescription(desc);
+  desc.add<edm::InputTag>("HFRecHitCollection",edm::InputTag("hltHfreco"));
+  desc.add<double>("threshold",3.0);
+  desc.add<int>("minNHitsNeg",1);
+  desc.add<int>("minNHitsPos",1);
+  desc.add<bool>("doCoincidence",true);
+  std::vector<unsigned int> temp;
+  desc.add<std::vector<unsigned int> >("maskedChannels",temp)->
+    setComment(" # now by raw detid, not hashed id");
+  descriptions.add("hltHcalSimpleRecHitFilter",desc);
+}
 
 //
 // member functions
@@ -102,7 +121,7 @@ HLTHcalSimpleRecHitFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& 
     // getting very basic uncalRH
     edm::Handle<HFRecHitCollection> crudeHits;
     try {
-        iEvent.getByLabel(HcalRecHitCollection_, crudeHits);
+        iEvent.getByToken(HcalRecHitsToken_, crudeHits);
     } catch ( std::exception& ex) {
         edm::LogWarning("HLTHcalSimpleRecHitFilter") << HcalRecHitCollection_ << " not available";
     }

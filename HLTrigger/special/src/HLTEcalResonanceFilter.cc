@@ -1,4 +1,6 @@
 #include "HLTrigger/special/interface/HLTEcalResonanceFilter.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 using namespace std;
 using namespace edm;
@@ -8,9 +10,13 @@ HLTEcalResonanceFilter::HLTEcalResonanceFilter(const edm::ParameterSet& iConfig)
 {
   barrelHits_ = iConfig.getParameter< edm::InputTag > ("barrelHits");
   barrelClusters_ = iConfig.getParameter< edm::InputTag > ("barrelClusters");
+  barrelHitsToken_ = consumes<EBRecHitCollection>(barrelHits_);
+  barrelClustersToken_ = consumes<reco::BasicClusterCollection>(barrelClusters_);
   
   endcapHits_ = iConfig.getParameter< edm::InputTag > ("endcapHits");
   endcapClusters_ = iConfig.getParameter< edm::InputTag > ("endcapClusters");
+  endcapHitsToken_ = consumes<EERecHitCollection>(endcapHits_);
+  endcapClustersToken_ = consumes<reco::BasicClusterCollection>(endcapClusters_);
   
   doSelBarrel_ = iConfig.getParameter<bool>("doSelBarrel");  
   if(doSelBarrel_){
@@ -86,6 +92,8 @@ HLTEcalResonanceFilter::HLTEcalResonanceFilter(const edm::ParameterSet& iConfig)
   
   
   preshHitProducer_   = iConfig.getParameter<edm::InputTag>("preshRecHitProducer");
+  preshHitsToken_ = consumes<EBRecHitCollection>(preshHitProducer_);
+
   ///for storing rechits ES for each selected EE clusters.
   storeRecHitES_ = iConfig.getParameter<bool>("storeRecHitES");  
   if(storeRecHitES_){
@@ -125,6 +133,78 @@ HLTEcalResonanceFilter::~HLTEcalResonanceFilter()
 }
 
 
+void
+HLTEcalResonanceFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<edm::InputTag>("barrelHits",edm::InputTag("hltEcalRegionalPi0EtaRecHit","EcalRecHitsEB"));
+  desc.add<edm::InputTag>("endcapHits",edm::InputTag("hltEcalRegionalPi0EtaRecHit","EcalRecHitsEE"));
+  desc.add<edm::InputTag>("preshRecHitProducer",edm::InputTag("hltEcalRegionalPi0EtaRecHit","EcalRecHitsES"));
+  desc.add<edm::InputTag>("barrelClusters",edm::InputTag("hltSimple3x3Clusters","Simple3x3ClustersBarrel"));
+  desc.add<edm::InputTag>("endcapClusters",edm::InputTag("hltSimple3x3Clusters","Simple3x3ClustersEndcap"));
+  desc.add<bool>("useRecoFlag",false);
+  desc.add<int>("flagLevelRecHitsToUse",1);
+  desc.add<bool>("useDBStatus",true);
+  desc.add<int>("statusLevelRecHitsToUse",1);
+
+  desc.add<bool>("doSelBarrel",true);
+  edm::ParameterSetDescription barrelSelection;
+  barrelSelection.add<double>("selePtGamma",1.);
+  barrelSelection.add<double>("selePtPair",2.);
+  barrelSelection.add<double>("seleMinvMaxBarrel",0.22);
+  barrelSelection.add<double>("seleMinvMinBarrel",0.06);
+  barrelSelection.add<bool>("removePi0CandidatesForEta",false);
+  barrelSelection.add<double>("massLowPi0Cand",0.104);
+  barrelSelection.add<double>("massHighPi0Cand",0.163);
+  barrelSelection.add<double>("seleS4S9Gamma",0.83);
+  barrelSelection.add<double>("seleS9S25Gamma",0.);
+  barrelSelection.add<double>("ptMinForIsolation",1.0);
+  barrelSelection.add<double>("seleIso",0.5);
+  barrelSelection.add<double>("seleBeltDR",0.2);
+  barrelSelection.add<double>("seleBeltDeta",0.05);
+  barrelSelection.add<bool>("store5x5RecHitEB",false);
+  barrelSelection.add<std::string>("barrelHitCollection","pi0EcalRecHitsEB");
+  desc.add<edm::ParameterSetDescription>("barrelSelection",barrelSelection);
+
+  desc.add<bool>("doSelEndcap",true);
+  edm::ParameterSetDescription endcapSelection;
+  endcapSelection.add<double>("seleMinvMaxEndCap",0.3);
+  endcapSelection.add<double>("seleMinvMinEndCap",0.05);
+  endcapSelection.add<double>("region1_EndCap",2.0);
+  endcapSelection.add<double>("selePtGammaEndCap_region1",0.8);
+  endcapSelection.add<double>("selePtPairEndCap_region1",3.0);
+  endcapSelection.add<double>("region2_EndCap",2.5);
+  endcapSelection.add<double>("selePtGammaEndCap_region2",0.5);
+  endcapSelection.add<double>("selePtPairEndCap_region2",2.0);
+  endcapSelection.add<double>("selePtGammaEndCap_region3",0.3);
+  endcapSelection.add<double>("selePtPairEndCap_region3",1.2);
+  endcapSelection.add<double>("selePtPairMaxEndCap_region3",2.5);
+  endcapSelection.add<double>("seleS4S9GammaEndCap",0.9);
+  endcapSelection.add<double>("seleS9S25GammaEndCap",0.);
+  endcapSelection.add<double>("ptMinForIsolationEndCap",0.5);
+  endcapSelection.add<double>("seleIsoEndCap",0.5);
+  endcapSelection.add<double>("seleBeltDREndCap",0.2);
+  endcapSelection.add<double>("seleBeltDetaEndCap",0.05);
+  endcapSelection.add<bool>("store5x5RecHitEE",false);
+  endcapSelection.add<std::string>("endcapHitCollection","pi0EcalRecHitsEE");
+  desc.add<edm::ParameterSetDescription>("endcapSelection",endcapSelection);
+
+  desc.add<bool>("storeRecHitES",true);
+  edm::ParameterSetDescription preshowerSelection;
+  preshowerSelection.add<std::string>("ESCollection","pi0EcalRecHitsES");
+  preshowerSelection.add<int>("preshNclust",4);
+  preshowerSelection.add<double>("preshClusterEnergyCut",0.0);
+  preshowerSelection.add<double>("preshStripEnergyCut",0.0);
+  preshowerSelection.add<int>("preshSeededNstrip",15);
+  preshowerSelection.add<double>("preshCalibPlaneX",1.0);
+  preshowerSelection.add<double>("preshCalibPlaneY",0.7);
+  preshowerSelection.add<double>("preshCalibGamma",0.024);
+  preshowerSelection.add<double>("preshCalibMIP",9.0E-5);
+  preshowerSelection.add<std::string>("debugLevelES","");  // *** This is not needed and shoul be better removed !
+  desc.add<edm::ParameterSetDescription>("preshowerSelection",preshowerSelection);
+
+  desc.add<int>("debugLevel",0);
+  descriptions.add("hltEcalResonanceFilter",desc);
+}
 
 // ------------ method called to produce the data  ------------
 bool
@@ -168,7 +248,7 @@ HLTEcalResonanceFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup
     
   Handle<EBRecHitCollection> barrelRecHitsHandle;
   
-  iEvent.getByLabel(barrelHits_,barrelRecHitsHandle);
+  iEvent.getByToken(barrelHitsToken_,barrelRecHitsHandle);
   if (!barrelRecHitsHandle.isValid()) {
     LogDebug("") << "AlCaEcalResonanceProducer: Error! can't get product barrel hits!" << std::endl;
   }
@@ -177,7 +257,7 @@ HLTEcalResonanceFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup
     
   
   Handle<reco::BasicClusterCollection> barrelClustersHandle;
-  iEvent.getByLabel(barrelClusters_,barrelClustersHandle);
+  iEvent.getByToken(barrelClustersToken_,barrelClustersHandle);
   if (!barrelClustersHandle.isValid()) {
     LogDebug("") << "AlCaEcalResonanceProducer: Error! can't get product barrel clusters!" << std::endl;
   }
@@ -264,7 +344,7 @@ HLTEcalResonanceFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup
   //===============Start of Endcap =================/////
   ///get preshower rechits
   Handle<ESRecHitCollection> esRecHitsHandle;
-  iEvent.getByLabel(preshHitProducer_,esRecHitsHandle);
+  iEvent.getByToken(preshHitsToken_,esRecHitsHandle);
   if( !esRecHitsHandle.isValid()){
     LogDebug("") << "AlCaEcalResonanceProducer: Error! can't get product esRecHit!" << std::endl;
   }
@@ -281,13 +361,13 @@ HLTEcalResonanceFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup
   std::auto_ptr<ESRecHitCollection> selESRecHitCollection(new ESRecHitCollection );
 
   Handle<EERecHitCollection> endcapRecHitsHandle;
-  iEvent.getByLabel(endcapHits_,endcapRecHitsHandle);
+  iEvent.getByToken(endcapHitsToken_,endcapRecHitsHandle);
   if (!endcapRecHitsHandle.isValid()) {
     LogDebug("") << "AlCaEcalResonanceProducer: Error! can't get product endcap hits!" << std::endl;
   }
   const EcalRecHitCollection *hitCollection_ee = endcapRecHitsHandle.product();
   Handle<reco::BasicClusterCollection> endcapClustersHandle;
-  iEvent.getByLabel(endcapClusters_,endcapClustersHandle);
+  iEvent.getByToken(endcapClustersToken_,endcapClustersHandle);
   if (!endcapClustersHandle.isValid()) {
     LogDebug("") << "AlCaEcalResonanceProducer: Error! can't get product endcap clusters!" << std::endl;
   }

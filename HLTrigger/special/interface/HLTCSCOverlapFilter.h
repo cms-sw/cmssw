@@ -6,7 +6,12 @@
 
 #include "HLTrigger/HLTcore/interface/HLTFilter.h"
 #include "FWCore/Utilities/interface/InputTag.h"
+#include "DataFormats/CSCRecHit/interface/CSCRecHit2DCollection.h"
 #include "TH1F.h"
+
+namespace edm {
+  class ConfigurationDescriptions;
+}
 
 class HLTCSCOverlapFilter : public HLTFilter {
 
@@ -14,9 +19,11 @@ class HLTCSCOverlapFilter : public HLTFilter {
   explicit HLTCSCOverlapFilter(const edm::ParameterSet&);
   ~HLTCSCOverlapFilter();
   virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct);
+  static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);   
 
  private:
   edm::InputTag m_input;
+  edm::EDGetTokenT<CSCRecHit2DCollection> cscrechitsToken;
   unsigned int m_minHits;
   double m_xWindow, m_yWindow;
   bool m_ring1, m_ring2;

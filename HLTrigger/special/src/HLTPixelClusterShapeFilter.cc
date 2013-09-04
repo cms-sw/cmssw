@@ -1,5 +1,11 @@
 #include "HLTrigger/HLTcore/interface/HLTFilter.h"
 
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+
+#include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHitCollection.h"
+
 //
 // class declaration
 //
@@ -8,9 +14,11 @@ class HLTPixelClusterShapeFilter : public HLTFilter {
 public:
   explicit HLTPixelClusterShapeFilter(const edm::ParameterSet&);
   ~HLTPixelClusterShapeFilter();
+  static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
 private:
 
+  edm::EDGetTokenT<SiPixelRecHitCollection> inputToken_;
   edm::InputTag       inputTag_;      // input tag identifying product containing pixel clusters
   double              minZ_;          // beginning z-vertex position
   double              maxZ_;          // end z-vertex position
@@ -34,7 +42,6 @@ private:
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
@@ -46,7 +53,6 @@ private:
 #include "Geometry/CommonTopologies/interface/PixelTopology.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
-#include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHitCollection.h"
 #include "DataFormats/GeometryVector/interface/LocalPoint.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
@@ -64,11 +70,27 @@ HLTPixelClusterShapeFilter::HLTPixelClusterShapeFilter(const edm::ParameterSet& 
   nhitsTrunc_   (config.getParameter<int>("nhitsTrunc")),
   clusterTrunc_ (config.getParameter<double>("clusterTrunc"))
 {
+  inputToken_ = consumes<SiPixelRecHitCollection>(inputTag_);
   LogDebug("") << "Using the " << inputTag_ << " input collection";
 }
 
 HLTPixelClusterShapeFilter::~HLTPixelClusterShapeFilter()
 {
+}
+
+void
+HLTPixelClusterShapeFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  makeHLTFilterDescription(desc);
+  desc.add<edm::InputTag>("inputTag",edm::InputTag("hltSiPixelRecHits"));
+  desc.add<double>("minZ",-20.0); 
+  desc.add<double>("maxZ",20.05); 
+  desc.add<double>("zStep",0.2);
+  std::vector<double> temp; temp.push_back(0.0); temp.push_back(0.0045);
+  desc.add<std::vector<double> >("clusterPars",temp);
+  desc.add<int>("nhitsTrunc",150.);
+  desc.add<double>("clusterTrunc",2.0);
+  descriptions.add("hltPixelClusterShapeFilter",desc);
 }
 
 //
@@ -88,7 +110,7 @@ bool HLTPixelClusterShapeFilter::hltFilter(edm::Event& event, const edm::EventSe
 
   // get hold of products from Event
   edm::Handle<SiPixelRecHitCollection> hRecHits;
-  event.getByLabel(inputTag_, hRecHits);
+  event.getByToken(inputToken_, hRecHits);
 
   // get tracker geometry
   if (hRecHits.isValid()) {

@@ -38,9 +38,6 @@ public:
     explicit HLTLogMonitorFilter(const edm::ParameterSet &);
     ~HLTLogMonitorFilter();
 
-private:
-    // ---------- private data types --------------------
-
     struct CategoryEntry {
       uint32_t threshold;       // configurable threshold, after which messages in this Category start to be logarithmically prescaled
       uint32_t prescale;        // current prescale for this Category
@@ -143,7 +140,6 @@ HLTLogMonitorFilter::HLTLogMonitorFilter(const edm::ParameterSet & config) :
 HLTLogMonitorFilter::~HLTLogMonitorFilter()
 {
 }
-
 
 //
 // member functions

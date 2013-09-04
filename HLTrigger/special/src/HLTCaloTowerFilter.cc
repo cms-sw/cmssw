@@ -18,6 +18,8 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/CaloTowers/interface/CaloTower.h"
 #include "DataFormats/CaloTowers/interface/CaloTowerFwd.h"
@@ -32,11 +34,13 @@ class HLTCaloTowerFilter : public HLTFilter {
 public:
   explicit HLTCaloTowerFilter(const edm::ParameterSet&);
   ~HLTCaloTowerFilter();
+  static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);   
     
 private:
   virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) override;
 
   // ----------member data ---------------------------
+  edm::EDGetTokenT<CaloTowerCollection> inputToken_;
   edm::InputTag inputTag_;    // input tag identifying product
   double        min_Pt_;      // pt threshold in GeV 
   double        max_Eta_;     // eta range (symmetric)
@@ -53,6 +57,7 @@ HLTCaloTowerFilter::HLTCaloTowerFilter(const edm::ParameterSet& config) : HLTFil
   max_Eta_  (config.getParameter<double>       ("MaxEta"  )),
   min_N_    (config.getParameter<unsigned int> ("MinN"    ))
 {
+  inputToken_ = consumes<CaloTowerCollection>(inputTag_);
 }
 
 
@@ -62,6 +67,16 @@ HLTCaloTowerFilter::~HLTCaloTowerFilter()
    // (e.g. close files, deallocate resources etc.)
 }
 
+void
+HLTCaloTowerFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  makeHLTFilterDescription(desc);
+  desc.add<edm::InputTag>("inputTag",edm::InputTag("hltTowerMakerForEcal"));
+  desc.add<double>("MinPt",3.0);
+  desc.add<double>("MaxEta",3.0);
+  desc.add<unsigned int>("MinN",1);
+  descriptions.add("hltCaloTowerFilter",desc);
+}
 
 //
 // member functions
@@ -83,7 +98,7 @@ HLTCaloTowerFilter::hltFilter(edm::Event& event, const edm::EventSetup& setup, t
 
   // get hold of collection of objects
   Handle<CaloTowerCollection> caloTowers;
-  event.getByLabel(inputTag_, caloTowers);
+  event.getByToken(inputToken_, caloTowers);
 
   // look at all objects, check cuts and add to filter object
   unsigned int n = 0;

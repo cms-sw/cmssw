@@ -24,7 +24,12 @@ Implementation:
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EDFilter.h"
+
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+
+#include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 
 #include <string>
 
@@ -36,6 +41,7 @@ class HLTL1NumberFilter : public edm::EDFilter {
 public:
   explicit HLTL1NumberFilter(const edm::ParameterSet&);
   virtual ~HLTL1NumberFilter();
+  static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
   
 private:
   virtual bool filter(edm::Event&, const edm::EventSetup&);
@@ -44,6 +50,7 @@ private:
 
   /// raw data
   edm::InputTag input_ ; 
+  edm::EDGetTokenT<FEDRawDataCollection> inputToken_;
   /// accept the event if its event number is a multiple of period_
   unsigned int period_;
   /// if invert_=true, invert that event accept decision

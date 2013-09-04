@@ -1,5 +1,11 @@
 #include "HLTrigger/HLTcore/interface/HLTFilter.h"
 
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+
+#include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
+
 //
 // class declaration
 //
@@ -8,6 +14,7 @@ class HLTPixelActivityFilter : public HLTFilter {
 public:
   explicit HLTPixelActivityFilter(const edm::ParameterSet&);
   ~HLTPixelActivityFilter();
+  static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
 private:
   virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) override;
@@ -15,15 +22,14 @@ private:
   edm::InputTag inputTag_;          // input tag identifying product containing pixel clusters
   unsigned int  min_clusters_;      // minimum number of clusters
   unsigned int  max_clusters_;      // maximum number of clusters
+  edm::EDGetTokenT<edmNew::DetSetVector<SiPixelCluster> > inputToken_;
 
 };
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/Common/interface/Handle.h"
-#include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
 #include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
 #include "DataFormats/HLTReco/interface/TriggerTypeDefs.h"
 
@@ -36,6 +42,7 @@ HLTPixelActivityFilter::HLTPixelActivityFilter(const edm::ParameterSet& config) 
   min_clusters_ (config.getParameter<unsigned int>("minClusters")),
   max_clusters_ (config.getParameter<unsigned int>("maxClusters"))
 {
+  inputToken_ = consumes<edmNew::DetSetVector<SiPixelCluster> >(inputTag_);
   LogDebug("") << "Using the " << inputTag_ << " input collection";
   LogDebug("") << "Requesting at least " << min_clusters_ << " clusters";
   if(max_clusters_ > 0) 
@@ -44,6 +51,16 @@ HLTPixelActivityFilter::HLTPixelActivityFilter(const edm::ParameterSet& config) 
 
 HLTPixelActivityFilter::~HLTPixelActivityFilter()
 {
+}
+
+void
+HLTPixelActivityFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  makeHLTFilterDescription(desc);
+  desc.add<edm::InputTag>("inputTag",edm::InputTag("hltSiPixelClusters"));
+  desc.add<unsigned int>("minClusters",3);
+  desc.add<unsigned int>("maxClusters",0);
+  descriptions.add("hltPixelActivityFilter",desc);
 }
 
 //
@@ -62,7 +79,7 @@ bool HLTPixelActivityFilter::hltFilter(edm::Event& event, const edm::EventSetup&
 
   // get hold of products from Event
   edm::Handle<edmNew::DetSetVector<SiPixelCluster> > clusterColl;
-  event.getByLabel(inputTag_, clusterColl);
+  event.getByToken(inputToken_, clusterColl);
 
   unsigned int clusterSize = clusterColl->dataSize();
   LogDebug("") << "Number of clusters accepted: " << clusterSize;
