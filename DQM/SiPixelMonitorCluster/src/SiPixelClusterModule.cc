@@ -13,7 +13,7 @@
 //
 // Original Author:  Vincenzo Chiochia & Andrew York
 //         Created:  
-// $Id: SiPixelClusterModule.cc,v 1.32 2012/02/20 12:42:03 duggan Exp $
+// $Id: SiPixelClusterModule.cc,v 1.35 2013/04/17 09:48:21 itopsisg Exp $
 //
 //
 // Updated by: Lukas Wehrli
@@ -32,7 +32,9 @@
 
 // Data Formats
 #include "DataFormats/SiPixelDetId/interface/PixelBarrelName.h"
+#include "DataFormats/SiPixelDetId/interface/PixelBarrelNameUpgrade.h"
 #include "DataFormats/SiPixelDetId/interface/PixelEndcapName.h"
+#include "DataFormats/SiPixelDetId/interface/PixelEndcapNameUpgrade.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
 //
@@ -62,13 +64,17 @@ SiPixelClusterModule::~SiPixelClusterModule() {}
 //
 // Book histograms
 //
-void SiPixelClusterModule::book(const edm::ParameterSet& iConfig, int type, bool twoD, bool reducedSet) {
+void SiPixelClusterModule::book(const edm::ParameterSet& iConfig, int type, bool twoD, bool reducedSet, bool isUpgrade) {
   
   bool barrel = DetId(id_).subdetId() == static_cast<int>(PixelSubdetector::PixelBarrel);
   bool endcap = DetId(id_).subdetId() == static_cast<int>(PixelSubdetector::PixelEndcap);
   bool isHalfModule = false;
   if(barrel){
+    if (!isUpgrade) {
     isHalfModule = PixelBarrelName(DetId(id_)).isHalfModule(); 
+    } else if (isUpgrade) {
+      isHalfModule = PixelBarrelNameUpgrade(DetId(id_)).isHalfModule(); 
+    }
   }
   int nbinx = ncols_/2;
   int nbiny = nrows_/2;
@@ -81,17 +87,17 @@ void SiPixelClusterModule::book(const edm::ParameterSet& iConfig, int type, bool
   if(type==0){
     SiPixelHistogramId* theHistogramId = new SiPixelHistogramId( src.label() );
     // Number of clusters
-    //hid = theHistogramId->setHistoId("nclusters",id_);
-    //meNClusters_ = theDMBE->book1D(hid,"Number of Clusters",8,0.,8.);
-    //meNClusters_->setAxisTitle("Number of Clusters",1);
+    hid = theHistogramId->setHistoId("nclusters",id_);
+    meNClusters_ = theDMBE->book1D(hid,"Number of Clusters",8,0.,8.);
+    meNClusters_->setAxisTitle("Number of Clusters",1);
     // Total cluster charge in MeV
-    //hid = theHistogramId->setHistoId("charge",id_);
-    //meCharge_ = theDMBE->book1D(hid,"Cluster charge",100,0.,200.);
-    //meCharge_->setAxisTitle("Charge [kilo electrons]",1);
+    hid = theHistogramId->setHistoId("charge",id_);
+    meCharge_ = theDMBE->book1D(hid,"Cluster charge",100,0.,200.);
+    meCharge_->setAxisTitle("Charge [kilo electrons]",1);
     // Total cluster size (in pixels)
-    //hid = theHistogramId->setHistoId("size",id_);
-    //meSize_ = theDMBE->book1D(hid,"Total cluster size",30,0.,30.);
-    //meSize_->setAxisTitle("Cluster size [number of pixels]",1);
+    hid = theHistogramId->setHistoId("size",id_);
+    meSize_ = theDMBE->book1D(hid,"Total cluster size",30,0.,30.);
+    meSize_->setAxisTitle("Cluster size [number of pixels]",1);
     if(!reducedSet){
       // Lowest cluster row
       hid = theHistogramId->setHistoId("minrow",id_);
@@ -152,7 +158,9 @@ void SiPixelClusterModule::book(const edm::ParameterSet& iConfig, int type, bool
     meSizeYvsEtaBarrel_->setAxisTitle("Cluster size along beamline [number of pixels]",2);
   }
   if(type==1 && barrel){
-    uint32_t DBladder = PixelBarrelName(DetId(id_)).ladderName();
+    uint32_t DBladder;
+    if (!isUpgrade) { DBladder = PixelBarrelName(DetId(id_)).ladderName(); }
+    else if (isUpgrade) { DBladder = PixelBarrelNameUpgrade(DetId(id_)).ladderName(); }
     char sladder[80]; sprintf(sladder,"Ladder_%02i",DBladder);
     hid = src.label() + "_" + sladder;
     if(isHalfModule) hid += "H";
@@ -208,7 +216,9 @@ void SiPixelClusterModule::book(const edm::ParameterSet& iConfig, int type, bool
 
   if(type==2 && barrel){
     
-    uint32_t DBlayer = PixelBarrelName(DetId(id_)).layerName();
+    uint32_t DBlayer;
+    if (!isUpgrade) { DBlayer = PixelBarrelName(DetId(id_)).layerName(); }
+    else if (isUpgrade) { DBlayer = PixelBarrelNameUpgrade(DetId(id_)).layerName(); }
     char slayer[80]; sprintf(slayer,"Layer_%i",DBlayer);
     hid = src.label() + "_" + slayer;
     // Number of clusters
@@ -268,7 +278,9 @@ void SiPixelClusterModule::book(const edm::ParameterSet& iConfig, int type, bool
     }
   }
   if(type==3 && barrel){
-    uint32_t DBmodule = PixelBarrelName(DetId(id_)).moduleName();
+    uint32_t DBmodule;
+    if (!isUpgrade) { DBmodule = PixelBarrelName(DetId(id_)).moduleName(); }
+    else if (isUpgrade) { DBmodule = PixelBarrelNameUpgrade(DetId(id_)).moduleName(); }
     char smodule[80]; sprintf(smodule,"Ring_%i",DBmodule);
     hid = src.label() + "_" + smodule;
     // Number of clusters
@@ -329,7 +341,9 @@ void SiPixelClusterModule::book(const edm::ParameterSet& iConfig, int type, bool
   }
 
   if(type==4 && endcap){
-    uint32_t blade= PixelEndcapName(DetId(id_)).bladeName();
+    uint32_t blade;
+    if (!isUpgrade) { blade = PixelEndcapName(DetId(id_)).bladeName(); }
+    else if (isUpgrade) { blade = PixelEndcapNameUpgrade(DetId(id_)).bladeName(); }
     
     char sblade[80]; sprintf(sblade, "Blade_%02i",blade);
     hid = src.label() + "_" + sblade;
@@ -370,7 +384,9 @@ void SiPixelClusterModule::book(const edm::ParameterSet& iConfig, int type, bool
     }
   }
   if(type==5 && endcap){
-    uint32_t disk = PixelEndcapName(DetId(id_)).diskName();
+    uint32_t disk;
+    if (!isUpgrade) { disk = PixelEndcapName(DetId(id_)).diskName(); }
+    else if (isUpgrade) { disk = PixelEndcapNameUpgrade(DetId(id_)).diskName(); }
     
     char sdisk[80]; sprintf(sdisk, "Disk_%i",disk);
     hid = src.label() + "_" + sdisk;
@@ -412,8 +428,16 @@ void SiPixelClusterModule::book(const edm::ParameterSet& iConfig, int type, bool
   }
 
   if(type==6 && endcap){
-    uint32_t panel= PixelEndcapName(DetId(id_)).pannelName();
-    uint32_t module= PixelEndcapName(DetId(id_)).plaquetteName();
+    uint32_t panel;
+    uint32_t module;
+    if (!isUpgrade) {
+      panel= PixelEndcapName(DetId(id_)).pannelName();
+      module= PixelEndcapName(DetId(id_)).plaquetteName();
+    } else if (isUpgrade) {
+      panel= PixelEndcapNameUpgrade(DetId(id_)).pannelName();
+      module= PixelEndcapNameUpgrade(DetId(id_)).plaquetteName();
+    }
+    
     char slab[80]; sprintf(slab, "Panel_%i_Ring_%i",panel, module);
     hid = src.label() + "_" + slab;
     // Number of clusters
@@ -469,7 +493,7 @@ void SiPixelClusterModule::book(const edm::ParameterSet& iConfig, int type, bool
 //
 // Fill histograms
 //
-int SiPixelClusterModule::fill(const edmNew::DetSetVector<SiPixelCluster>& input, const TrackerGeometry* tracker,bool modon, bool ladon, bool layon, bool phion, bool bladeon, bool diskon, bool ringon, bool twoD, bool reducedSet, bool smileyon) {
+int SiPixelClusterModule::fill(const edmNew::DetSetVector<SiPixelCluster>& input, const TrackerGeometry* tracker,bool modon, bool ladon, bool layon, bool phion, bool bladeon, bool diskon, bool ringon, bool twoD, bool reducedSet, bool smileyon, bool isUpgrade) {
   
   bool barrel = DetId(id_).subdetId() == static_cast<int>(PixelSubdetector::PixelBarrel);
   bool endcap = DetId(id_).subdetId() == static_cast<int>(PixelSubdetector::PixelEndcap);
@@ -512,14 +536,16 @@ int SiPixelClusterModule::fill(const edmNew::DetSetVector<SiPixelCluster>& input
       GlobalPoint clustgp = theGeomDet->surface().toGlobal( clustlp );
       //**end
       if(modon){
-	//(meCharge_)->Fill((float)charge);
-	//(meSize_)->Fill((int)size);
+	(meCharge_)->Fill((float)charge);
+	(meSize_)->Fill((int)size);
         DQMStore* theDMBE = edm::Service<DQMStore>().operator->();
 	std::string currDir = theDMBE->pwd();
 	theDMBE->cd("Pixel/Clusters/OffTrack/");
 	MonitorElement * me;
 	if(barrel){
-          uint32_t DBlayer = PixelBarrelName(DetId(id_)).layerName();
+          uint32_t DBlayer;
+	  if (!isUpgrade) { DBlayer = PixelBarrelName(DetId(id_)).layerName(); }
+	  else if (isUpgrade) { DBlayer = PixelBarrelNameUpgrade(DetId(id_)).layerName(); }
 	  switch(DBlayer){
 	  case 1: {
 	    me = theDMBE->get("Pixel/Clusters/OffTrack/position_siPixelClusters_Layer_1");
@@ -533,9 +559,17 @@ int SiPixelClusterModule::fill(const edmNew::DetSetVector<SiPixelCluster>& input
 	    me = theDMBE->get("Pixel/Clusters/OffTrack/position_siPixelClusters_Layer_3");
 	    if(me) me->Fill(clustgp.z(),clustgp.phi());
 	    break;
+	  } case 4: {
+	    if (isUpgrade) {
+	      me = theDMBE->get("Pixel/Clusters/OffTrack/position_siPixelClusters_Layer_4");
+	      if(me) me->Fill(clustgp.z(),clustgp.phi());
+	      break;
+	    }
 	  }} 
 	}else if(endcap){
-	  uint32_t DBdisk = PixelEndcapName(DetId(id_)).diskName();
+	  uint32_t DBdisk;
+	  if (!isUpgrade) { DBdisk = PixelEndcapName(DetId(id_)).diskName(); }
+	  else if (isUpgrade) { DBdisk = PixelEndcapNameUpgrade(DetId(id_)).diskName(); }
 	  if(clustgp.z()>0){
 	    switch(DBdisk){
 	    case 1: {
@@ -546,6 +580,12 @@ int SiPixelClusterModule::fill(const edmNew::DetSetVector<SiPixelCluster>& input
 	      me = theDMBE->get("Pixel/Clusters/OffTrack/position_siPixelClusters_pz_Disk_2");
 	      if(me) me->Fill(clustgp.x(),clustgp.y());
 	      break;
+	    } case 3: {
+	      if (isUpgrade) {
+	        me = theDMBE->get("Pixel/Clusters/OffTrack/position_siPixelClusters_pz_Disk_3");
+	        if(me) me->Fill(clustgp.x(),clustgp.y());
+	        break;
+	      }
 	    }}
 	 }else{
 	    switch(DBdisk){
@@ -557,6 +597,12 @@ int SiPixelClusterModule::fill(const edmNew::DetSetVector<SiPixelCluster>& input
 	      me = theDMBE->get("Pixel/Clusters/OffTrack/position_siPixelClusters_mz_Disk_2");
 	      if(me) me->Fill(clustgp.x(),clustgp.y());
 	      break;
+	    } case 3: {
+	      if (isUpgrade) {
+	        me = theDMBE->get("Pixel/Clusters/OffTrack/position_siPixelClusters_mz_Disk_3");
+	        if(me) me->Fill(clustgp.x(),clustgp.y());
+	        break;
+	      }
 	    }}
 	  } 
 	}
@@ -697,7 +743,7 @@ int SiPixelClusterModule::fill(const edmNew::DetSetVector<SiPixelCluster>& input
 	}
       }
     }
-    //if(modon) (meNClusters_)->Fill((float)numberOfClusters);
+    if(modon) (meNClusters_)->Fill((float)numberOfClusters);
     if(ladon && barrel) (meNClustersLad_)->Fill((float)numberOfClusters);
     if(layon && barrel) (meNClustersLay_)->Fill((float)numberOfClusters);
     if(phion && barrel) (meNClustersPhi_)->Fill((float)numberOfClusters);

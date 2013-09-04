@@ -121,7 +121,7 @@ void GSRecHitValidation::beginJob(){
     //Layers 1+2
     //all pixel
     //all glued -> rphi, sas and matched for all
-    if (i < 3) {
+    if (i < 4) {
       //PXB
       hMap["PXB_Res_x_"+index] =    new TH1F("PXB_Res_x_"+index,    "PXB_Res_x_"+index,    100,  -PXB_Res_AxisLim,    PXB_Res_AxisLim);
       hMap["PXB_Res_y_"+index] =    new TH1F("PXB_Res_y_"+index,    "PXB_Res_y_"+index,    100,  -PXB_Res_AxisLim,    PXB_Res_AxisLim);
@@ -201,10 +201,10 @@ void GSRecHitValidation::beginJob(){
       hMap["TEC_matched_Pull_y_"+index] = new TH1F("TEC_matched_Pull_y_"+index, "TEC_matched_Pull_y_"+index, 100, -TEC_Pull_y_AxisLim,    TEC_Pull_y_AxisLim);
     }
     
-    //Layer 3
+    //Layer 4
     //PXF gone, only PXB
     //rphi single sided for all
-    if(i==3){
+    if(i==4){
       //PXB
       hMap["PXB_Res_x_"+index] =    new TH1F("PXB_Res_x_"+index,    "PXB_Res_x_"+index,    100,  -PXB_Res_AxisLim,    PXB_Res_AxisLim);
       hMap["PXB_Res_y_"+index] =    new TH1F("PXB_Res_y_"+index,    "PXB_Res_y_"+index,    100,  -PXB_Res_AxisLim,    PXB_Res_AxisLim);
@@ -227,9 +227,9 @@ void GSRecHitValidation::beginJob(){
       hMap["TOB_rphi_Pull_x_"+index] =    new TH1F("TOB_rphi_Pull_x_"+index,    "TOB_rphi_Pull_x_"+index,    100, -TOB_Pull_x_AxisLim,    TOB_Pull_x_AxisLim);
       
       //TID
-      hMap["TID_rphi_Res_x_"+index] =     new TH1F("TID_rphi_Res_x_"+index,     "TID_rphi_Res_x_"+index,     100, -TID_Res_x_AxisLim,     TID_Res_x_AxisLim);
-      hMap["TID_rphi_Pos_x_"+index] =     new TH1F("TID_rphi_Pos_x_"+index,     "TID_rphi_Pos_x_"+index,     100, -TID_Pos_x_AxisLim,     TID_Pos_x_AxisLim);
-      hMap["TID_rphi_Pull_x_"+index] =    new TH1F("TID_rphi_Pull_x_"+index,    "TID_rphi_Pull_x_"+index,    100, -TID_Pull_x_AxisLim,    TID_Pull_x_AxisLim);
+      //      hMap["TID_rphi_Res_x_"+index] =     new TH1F("TID_rphi_Res_x_"+index,     "TID_rphi_Res_x_"+index,     100, -TID_Res_x_AxisLim,     TID_Res_x_AxisLim);
+      //     hMap["TID_rphi_Pos_x_"+index] =     new TH1F("TID_rphi_Pos_x_"+index,     "TID_rphi_Pos_x_"+index,     100, -TID_Pos_x_AxisLim,     TID_Pos_x_AxisLim);
+      //     hMap["TID_rphi_Pull_x_"+index] =    new TH1F("TID_rphi_Pull_x_"+index,    "TID_rphi_Pull_x_"+index,    100, -TID_Pull_x_AxisLim,    TID_Pull_x_AxisLim);
       
       //TEC
       hMap["TEC_rphi_Res_x_"+index] =     new TH1F("TEC_rphi_Res_x_"+index,     "TEC_rphi_Res_x_"+index,     100, -TEC_Res_x_AxisLim,     TEC_Res_x_AxisLim);
@@ -237,25 +237,25 @@ void GSRecHitValidation::beginJob(){
       hMap["TEC_rphi_Pull_x_"+index] =    new TH1F("TEC_rphi_Pull_x_"+index,    "TEC_rphi_Pull_x_"+index,    100, -TEC_Pull_x_AxisLim,    TEC_Pull_x_AxisLim);
     }
 
-    //Layer 4
-    //no pixels
-    //TID gone, other rphi single sided
-    if(i==4){
-      //TIB
-      hMap["TIB_rphi_Res_x_"+index] =     new TH1F("TIB_rphi_Res_x_"+index,     "TIB_rphi_Res_x_"+index,     100, -TIB_Res_x_AxisLim,     TIB_Res_x_AxisLim);
-      hMap["TIB_rphi_Pos_x_"+index] =     new TH1F("TIB_rphi_Pos_x_"+index,     "TIB_rphi_Pos_x_"+index,     100, -TIB_Pos_x_AxisLim,     TIB_Pos_x_AxisLim);
-      hMap["TIB_rphi_Pull_x_"+index] =    new TH1F("TIB_rphi_Pull_x_"+index,    "TIB_rphi_Pull_x_"+index,    100, -TIB_Pull_x_AxisLim,    TIB_Pull_x_AxisLim);
+ //    //Layer 5
+//     //no pixels
+//     //TID gone, other rphi single sided
+//     if(i==5){
+//       //TIB
+// //       hMap["TIB_rphi_Res_x_"+index] =     new TH1F("TIB_rphi_Res_x_"+index,     "TIB_rphi_Res_x_"+index,     100, -TIB_Res_x_AxisLim,     TIB_Res_x_AxisLim);
+// //       hMap["TIB_rphi_Pos_x_"+index] =     new TH1F("TIB_rphi_Pos_x_"+index,     "TIB_rphi_Pos_x_"+index,     100, -TIB_Pos_x_AxisLim,     TIB_Pos_x_AxisLim);
+// //       hMap["TIB_rphi_Pull_x_"+index] =    new TH1F("TIB_rphi_Pull_x_"+index,    "TIB_rphi_Pull_x_"+index,    100, -TIB_Pull_x_AxisLim,    TIB_Pull_x_AxisLim);
       
-      //TOB
-      hMap["TOB_rphi_Res_x_"+index] =     new TH1F("TOB_rphi_Res_x_"+index,     "TOB_rphi_Res_x_"+index,     100, -TOB_Res_x_AxisLim,     TOB_Res_x_AxisLim);
-      hMap["TOB_rphi_Pos_x_"+index] =     new TH1F("TOB_rphi_Pos_x_"+index,     "TOB_rphi_Pos_x_"+index,     100, -TOB_Pos_x_AxisLim,     TOB_Pos_x_AxisLim);
-      hMap["TOB_rphi_Pull_x_"+index] =    new TH1F("TOB_rphi_Pull_x_"+index,    "TOB_rphi_Pull_x_"+index,    100, -TOB_Pull_x_AxisLim,    TOB_Pull_x_AxisLim);
+//       //TOB
+//       hMap["TOB_rphi_Res_x_"+index] =     new TH1F("TOB_rphi_Res_x_"+index,     "TOB_rphi_Res_x_"+index,     100, -TOB_Res_x_AxisLim,     TOB_Res_x_AxisLim);
+//       hMap["TOB_rphi_Pos_x_"+index] =     new TH1F("TOB_rphi_Pos_x_"+index,     "TOB_rphi_Pos_x_"+index,     100, -TOB_Pos_x_AxisLim,     TOB_Pos_x_AxisLim);
+//       hMap["TOB_rphi_Pull_x_"+index] =    new TH1F("TOB_rphi_Pull_x_"+index,    "TOB_rphi_Pull_x_"+index,    100, -TOB_Pull_x_AxisLim,    TOB_Pull_x_AxisLim);
       
-      //TEC
-      hMap["TEC_rphi_Res_x_"+index] =     new TH1F("TEC_rphi_Res_x_"+index,     "TEC_rphi_Res_x_"+index,     100, -TEC_Res_x_AxisLim,     TEC_Res_x_AxisLim);
-      hMap["TEC_rphi_Pos_x_"+index] =     new TH1F("TEC_rphi_Pos_x_"+index,     "TEC_rphi_Pos_x_"+index,     100, -TEC_Pos_x_AxisLim,     TEC_Pos_x_AxisLim);
-      hMap["TEC_rphi_Pull_x_"+index] =    new TH1F("TEC_rphi_Pull_x_"+index,    "TEC_rphi_Pull_x_"+index,    100, -TEC_Pull_x_AxisLim,    TEC_Pull_x_AxisLim);
-    }
+//       //TEC
+//       hMap["TEC_rphi_Res_x_"+index] =     new TH1F("TEC_rphi_Res_x_"+index,     "TEC_rphi_Res_x_"+index,     100, -TEC_Res_x_AxisLim,     TEC_Res_x_AxisLim);
+//       hMap["TEC_rphi_Pos_x_"+index] =     new TH1F("TEC_rphi_Pos_x_"+index,     "TEC_rphi_Pos_x_"+index,     100, -TEC_Pos_x_AxisLim,     TEC_Pos_x_AxisLim);
+//       hMap["TEC_rphi_Pull_x_"+index] =    new TH1F("TEC_rphi_Pull_x_"+index,    "TEC_rphi_Pull_x_"+index,    100, -TEC_Pull_x_AxisLim,    TEC_Pull_x_AxisLim);
+//     }
     
     //Layer 5
     //no pixels
@@ -326,7 +326,7 @@ void GSRecHitValidation::analyze(const edm::Event& event, const edm::EventSetup&
   const TrackerTopology *tTopo=tTopoHand.product();
 
   
-  std::cout << "Event ID = "<< event.id() << std::endl ;
+  //  std::cout << "Event ID = "<< event.id() << std::endl ;
   
   // Get PSimHit's of the Event
   edm::Handle<CrossingFrame<PSimHit> > cf_simhit; 
@@ -366,6 +366,9 @@ void GSRecHitValidation::analyze(const edm::Event& event, const edm::EventSetup&
     
     // count rechits
     unsigned int subdet = iterrechit->geographicalId().subdetId();
+
+    //    std::cout<< "Hit from track = " << (int)iterrechit->simtrackId() << "Subdet number = "<< subdet << std::endl;
+
     iTotalRecHits++;
     if(subdet==1 || subdet==2) iPixRecHits++;
     else if(subdet==3|| subdet==4 || subdet==5 || subdet == 6) iStripRecHits++;
@@ -384,7 +387,7 @@ void GSRecHitValidation::analyze(const edm::Event& event, const edm::EventSetup&
 	//mono
 	if(iterrechit->monoHit()->geographicalId().rawId() == isim->detUnitId()) {
 	  if((int)iterrechit->monoHit()->simtrackId() == (int)isim->trackId()) {
-	    cout << "Mono Hit." << endl;
+	    // cout << "Mono Hit." << endl;
 	    matchedSimHits++;
 	    simHit = const_cast<PSimHit*>(&(*isim));  
 	    fillHitsPlots("", &(*iterrechit), simHit,tTopo);
@@ -393,7 +396,7 @@ void GSRecHitValidation::analyze(const edm::Event& event, const edm::EventSetup&
 	//stereo
 	if(iterrechit->stereoHit()->geographicalId().rawId() == isim->detUnitId()) {
 	  if((int)iterrechit->stereoHit()->simtrackId() == (int)isim->trackId()) {
-	    cout << "Stereo Hit." << endl;
+	    //  cout << "Stereo Hit." << endl;
 	    matchedSimHits++;
 	    simHit = const_cast<PSimHit*>(&(*isim));  
 	    fillHitsPlots("", &(*iterrechit), simHit,tTopo);
@@ -404,7 +407,7 @@ void GSRecHitValidation::analyze(const edm::Event& event, const edm::EventSetup&
       //single
       else if(iterrechit->geographicalId().rawId() == isim->detUnitId()) { 
 	if((int)iterrechit->simtrackId()== (int) isim->trackId()) {
-	  cout << "Single Hit." << endl;
+	  //	  cout << "Single Hit." << endl;
 	  matchedSimHits++;
 	  simHit = const_cast<PSimHit*>(&(*isim));  
 	  fillHitsPlots("", &(*iterrechit), simHit,tTopo);

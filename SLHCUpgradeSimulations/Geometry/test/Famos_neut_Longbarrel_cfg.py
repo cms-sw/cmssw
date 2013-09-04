@@ -151,8 +151,8 @@ process.mergedtruth.simHitLabel = 'famosSimHits'
 process.load("Validation.RecoTrack.cutsTPEffic_cfi")
 process.load("Validation.RecoTrack.cutsTPFake_cfi")
 ## if mergedBremsstrahlung is False
-#process.cutsTPEffic.src = cms.InputTag("mix")
-#process.cutsTPFake.src = cms.InputTag("mix")
+#process.cutsTPEffic.src = cms.InputTag("mergedtruth")
+#process.cutsTPFake.src = cms.InputTag("mergedtruth")
 
 process.load("SimTracker.TrackAssociation.TrackAssociatorByChi2_cfi")
 process.load("SimTracker.TrackAssociation.TrackAssociatorByHits_cfi")
@@ -263,8 +263,8 @@ process.ReadLocalMeasurement = cms.EDAnalyzer("StdHitNtuplizer",
 process.NeutRad = cms.EDAnalyzer("NeutRadtuple",
                                  #       TrackingParticleSelectionForTP,
                                  #       label = cms.VInputTag(cms.InputTag("ctfWithMaterialTracks")),
-                                 #       label_tp_effic = cms.InputTag("mix","MergedTrackTruth"),
-                                 #       label_tp_fake = cms.InputTag("mix","MergedTrackTruth"),
+                                 #       label_tp_effic = cms.InputTag("mergedtruth","MergedTrackTruth"),
+                                 #       label_tp_fake = cms.InputTag("mergedtruth","MergedTrackTruth"),
                                  #       associators = cms.vstring('TrackAssociatorByHits'),
                                  #       UseAssociators = cms.bool(True),
                                         OutputFile = cms.string("neutrad_std_famos_ntuple.root")

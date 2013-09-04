@@ -116,7 +116,7 @@ TrackCandidateProducer::~TrackCandidateProducer() {
 } 
  
 void 
-TrackCandidateProducer::beginRun(edm::Run const&, const edm::EventSetup & es) {
+TrackCandidateProducer::beginRun(const edm::Run & run, const edm::EventSetup & es) {
 
   //services
 
@@ -634,11 +634,32 @@ TrackCandidateProducer::produce(edm::Event& e, const edm::EventSetup& es) {
 				      << "\t\t loc.pz = "
 				      << newTrackCandidate.trajectoryStateOnDet().parameters().momentum().z()    
 				      << std::endl
-				      << "\t\t error  = ";
+	      << "\t\t error  = " ;
+
+#ifdef FAMOS_DEBUG
+    std::cout <<"FastTracking "<< "\tSeed Information " << std::endl
+				      << "\tSeed Direction = " << aSeed->direction() << std::endl
+				      << "\tSeed StartingDet = " << aSeed->startingState().detId() << std::endl
+				      << "\tTrajectory Parameters "	      << std::endl
+				      << "\t\t detId  = "	      << newTrackCandidate.trajectoryStateOnDet().detId() 	      << std::endl
+				      << "\t\t loc.px = "
+				      << newTrackCandidate.trajectoryStateOnDet().parameters().momentum().x()    
+				      << std::endl
+				      << "\t\t loc.py = "
+				      << newTrackCandidate.trajectoryStateOnDet().parameters().momentum().y()    
+				      << std::endl
+				      << "\t\t loc.pz = "
+				      << newTrackCandidate.trajectoryStateOnDet().parameters().momentum().z()    
+				      << std::endl
+	      << "\t\t error  = " << std::endl;
+#endif
 
     bool newTrackCandidateIsDuplicate = isDuplicateCandidate(*output,newTrackCandidate);
     if (!newTrackCandidateIsDuplicate) output->push_back(newTrackCandidate);
     LogDebug("FastTracking")<<"filling a track candidate into the collection, now having: "<<output->size();
+#ifdef FAMOS_DEBUG
+    std::cout << "FastTracking " <<"filling a track candidate into the collection, now having: "<<output->size() << std::endl;
+#endif
     
     }//loop over possible simtrack associated.
   }//loop over all possible seeds.
@@ -646,7 +667,12 @@ TrackCandidateProducer::produce(edm::Event& e, const edm::EventSetup& es) {
   // Save the track candidates in the event
   LogDebug("FastTracking") << "Saving " 
 				     << output->size() << " track candidates and " 
-				     << recoTracks->size() << " reco::Tracks ";
+	    << recoTracks->size() << " reco::Tracks " ;
+#ifdef FAMOS_DEBUG
+  std::cout << "FastTracking " << "Saving " 
+				     << output->size() << " track candidates and " 
+	    << recoTracks->size() << " reco::Tracks " << std::endl;
+#endif 
   // Save the track candidates
   e.put(output);
 

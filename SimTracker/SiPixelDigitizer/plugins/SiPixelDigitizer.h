@@ -39,6 +39,7 @@ class PixelGeomDetUnit;
 class PSimHit;
 class SiPixelDigitizerAlgorithm;
 class TrackerGeometry;
+class TrackerTopology;
 
 namespace cms {
   class SiPixelDigitizer : public DigiAccumulatorMixMod {
@@ -55,7 +56,7 @@ namespace cms {
 
     virtual void beginJob() {}
   private:
-    void accumulatePixelHits(edm::Handle<std::vector<PSimHit> >);   
+    void accumulatePixelHits(edm::Handle<std::vector<PSimHit> >,const TrackerTopology *tTopo);   
     bool first;
     std::unique_ptr<SiPixelDigitizerAlgorithm>  _pixeldigialgo;
     typedef std::vector<std::string> vstring;

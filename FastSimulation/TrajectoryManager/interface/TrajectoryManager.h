@@ -159,11 +159,10 @@ class TrajectoryManager
   std::vector<const DetLayer*>                theLayerMap;
   int                                         theNegLayerOffset;
 
-  //  Histos* myHistos;
+  //Histos* myHistos;
 
   const RandomEngine* random;
 
   bool use_hardcoded;
-
 };
 #endif

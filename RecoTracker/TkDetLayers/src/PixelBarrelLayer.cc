@@ -13,6 +13,8 @@
 #include "TrackingTools/DetLayers/interface/PhiLess.h"
 #include "TrackingTools/DetLayers/interface/rangesIntersect.h"
 
+#include "DataFormats/SiPixelDetId/interface/PixelBarrelNameUpgrade.h"
+
 using namespace std;
 
 typedef GeometricSearchDet::DetWithState DetWithState;
@@ -83,6 +85,11 @@ PixelBarrelLayer::~PixelBarrelLayer(){
   }
 } 
   
+namespace {
+
+  bool groupSortByR(DetGroupElement i,DetGroupElement j) { return (i.det()->position().perp()<j.det()->position().perp()); }
+
+}
 
 void 
 PixelBarrelLayer::groupedCompatibleDetsV( const TrajectoryStateOnSurface& tsos,
@@ -93,15 +100,20 @@ PixelBarrelLayer::groupedCompatibleDetsV( const TrajectoryStateOnSurface& tsos,
   SubLayerCrossings  crossings;
   crossings = computeCrossings( tsos, prop.propagationDirection());
   if(! crossings.isValid()) return;  
-  
+
   addClosest( tsos, prop, est, crossings.closest(), closestResult);
   if (closestResult.empty()) {
     addClosest( tsos, prop, est, crossings.other(), result);
     return;
   }
 
+  //std::cout << "closest cross pos,r:" << crossings.closest().position()<<","<<crossings.closest().position().perp() 
+  //	    << "  other cross pos,r:" << crossings.other().position()<<","<<crossings.other().position().perp()   << std::endl;
+
   DetGroupElement closestGel( closestResult.front().front());
   float window = computeWindowSize( closestGel.det(), closestGel.trajectoryState(), est);
+
+  //std::cout << "before searchNeighbors closestResult size:" << (closestResult.size()?closestResult.front().size():0) << std::endl;
   
   searchNeighbors( tsos, prop, est, crossings.closest(), window,
 		   closestResult, false);
@@ -109,10 +121,74 @@ PixelBarrelLayer::groupedCompatibleDetsV( const TrajectoryStateOnSurface& tsos,
   vector<DetGroup> nextResult;
   searchNeighbors( tsos, prop, est, crossings.other(), window,
 		   nextResult, true);
+
+  //std::cout << "closestResult size:" << (closestResult.size()?closestResult.front().size():0)
+  //	    << " nextResult size:" << (nextResult.size()?nextResult.front().size():0) << std::endl;
   
   int crossingSide = LayerCrossingSide().barrelSide( closestGel.trajectoryState(), prop);
   DetGroupMerger::orderAndMergeTwoLevels( std::move(closestResult), std::move(nextResult), result, 
 					  crossings.closestIndex(), crossingSide);
+
+  //std::cout << "PixelBarrelLayer::groupedCompatibleDetsV - result size=" << result.size() << std::endl;
+
+  /*
+  for (auto gr : result) {
+    std::cout << "new group" << std::endl;
+    for (auto dge : gr) {
+      PixelBarrelNameUpgrade name(dge.det()->geographicalId());
+      std::cout << "new det with geom det at r:"<<dge.det()->position().perp()<<" id:"<<dge.det()->geographicalId().rawId()<<" name:"<<name.name()<<" isHalf:"<<name.isHalfModule()<<" tsos at:" <<dge.trajectoryState().globalPosition()<< std::endl;
+    }
+  }
+  */
+
+  if (theInnerCylinder->radius()>17.0) {
+    //do splitting of groups for outer 'pixel' layer of phase 2 tracker
+    //fixme: to be changed when moving to a new DetId schema with 'matched' hits
+    std::vector<DetGroup> splitResult;
+    for (auto gr : result) {
+      if (gr.size()==1) {
+	splitResult.push_back(gr);
+	continue;
+      }
+      //sort according to R
+      std::sort(gr.begin(),gr.end(),groupSortByR);
+      DetGroup firstGroup; //this group contains the first dets of 2S/PS modules
+      DetGroup secondGroup;//this group contains dets on the other side of 2S/PS modules
+      for (auto dge : gr) {
+	if (firstGroup.size()==0) {
+	  firstGroup.push_back(dge);
+	  continue;
+	}
+	bool foundInFirstGroup = false;
+	for (auto dge_f : firstGroup) {
+	  if (abs(int(dge.det()->geographicalId().rawId())-int(dge_f.det()->geographicalId().rawId()))==4 && 
+	      fabs(dge.det()->position().perp()-dge_f.det()->position().perp())>0.15) {
+	    //std::cout << "found dge for second group with id: " << dge.det()->geographicalId().rawId() << std::endl;
+	    secondGroup.push_back(dge);
+	    foundInFirstGroup = true;
+	    break;
+	  }
+	}
+	if (!foundInFirstGroup )firstGroup.push_back(dge);
+      }
+      splitResult.push_back(firstGroup);
+      if (secondGroup.size()>0) splitResult.push_back(secondGroup);
+    }
+    splitResult.swap(result);
+ 
+    /*
+    std::cout << "AFTER SPLITTING" <<std::endl;
+    for (auto gr : result) {
+      std::cout << "new group" << std::endl;
+      for (auto dge : gr) {
+	PixelBarrelNameUpgrade name(dge.det()->geographicalId());
+	std::cout << "new det with geom det at r:"<<dge.det()->position().perp()<<" id:"<<dge.det()->geographicalId().rawId()<<" name:"<<name.name()<<" isHalf:"<<name.isHalfModule()<<" tsos at:" <<dge.trajectoryState().globalPosition()<< std::endl;
+      }
+    }
+    */
+
+  }//end of hack for phase 2 stacked layers
+
 }
 
 

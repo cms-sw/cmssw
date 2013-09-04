@@ -25,7 +25,8 @@ class TrackerInteractionGeometry
 
  public:
 
-  enum FirstCylinders { PXB=0,PXD=3,TIB=5,TID=9,TOB=12,TEC=18 };
+  // put phase 1 layers after stanadCMS to avoid changing other code (fudge factors)
+  enum FirstCylinders { PXB=0,PXD=3,TIB=5,TID=9,TOB=12,TEC=18,PXEXTRA=27 };
 
   /// Constructor : get the configurable parameters
   TrackerInteractionGeometry(const edm::ParameterSet& trackerMaterial,

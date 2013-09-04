@@ -17,9 +17,14 @@ pixelVertices = cms.EDProducer("PrimaryVertexProducer",
     ),
 
     TkClusParameters = cms.PSet(
-        algorithm   = cms.string("gap"),
-        TkGapClusParameters = cms.PSet(
-            zSeparation = cms.double(0.1)        # 1 mm max separation betw.tracks inside clusters
+        algorithm = cms.string('DA_vect'),
+        TkDAClusParameters = cms.PSet(
+            dzCutOff = cms.double(4.0),
+            d0CutOff = cms.double(3.0),
+            Tmin = cms.double(4.0),
+            coolingFactor = cms.double(0.6),
+            vertexSize = cms.double(0.01),
+            use_vdt = cms.untracked.bool(True)
         )
     ),
 

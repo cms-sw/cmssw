@@ -127,8 +127,8 @@ def customise_Digi(process):
         process.simHcalDigis.useConfigZSvalues=cms.int32(1)
         process.simHcalDigis.HBlevel=cms.int32(16)
         process.simHcalDigis.HElevel=cms.int32(16)
-        process.simHcalDigis.HOlevel=cms.int32(16)
-        process.simHcalDigis.HFlevel=cms.int32(16)
+        process.simHcalDigis.HOlevel=cms.int32(8)
+        process.simHcalDigis.HFlevel=cms.int32(10)
 
     process.digitisation_step.remove(process.simHcalTriggerPrimitiveDigis)
     process.digitisation_step.remove(process.simHcalTTPDigis)
@@ -170,8 +170,6 @@ def customise_Reco(process):
     process.sc7JetID.hfRecHitsColl = cms.InputTag("hfUpgradeReco")
     process.sc7JetID.hbheRecHitsColl = cms.InputTag("hbheUpgradeReco")
     process.hfEMClusters.hits = cms.InputTag("hfUpgradeReco")
-    process.caloRecoTauProducer.TrackAssociatorParameters.HBHERecHitCollectionLabel = cms.InputTag("hbheUpgradeReco")
-    process.caloRecoTauProducer.HFRecHitCollection=cms.InputTag("hfUpgradeReco")
     
     process.muons1stStep.TrackAssociatorParameters.HBHERecHitCollectionLabel=cms.InputTag("hbheUpgradeReco")
     process.muons1stStep.CaloExtractorPSet.TrackAssociatorParameters.HBHERecHitCollectionLabel=cms.InputTag("hbheUpgradeReco")
@@ -190,20 +188,16 @@ def customise_Reco(process):
     process.reducedHcalRecHits.hfTag=cms.InputTag("hfUpgradeReco")
     process.reducedHcalRecHits.hbheTag=cms.InputTag("hbheUpgradeReco")
 
-    process.caloRecoTauProducer.HBHERecHitCollection=cms.InputTag("hbheUpgradeReco")
-    process.caloRecoTauProducer.HFRecHitCollection=cms.InputTag("hfUpgradeReco")
-    
     process.load("RecoLocalCalo.HcalRecProducers.HBHEUpgradeReconstructor_cfi")
     process.load("RecoLocalCalo.HcalRecProducers.HFUpgradeReconstructor_cfi")
-###    process.load("RecoLocalCalo.HcalRecProducers.HcalSimpleReconstructor_ho_cfi") 
 
     process.reconstruction_step.replace(process.hfreco,process.hfUpgradeReco)
     process.reconstruction_step.remove(process.hbhereco)
     process.reconstruction_step.replace(process.hbheprereco,process.hbheUpgradeReco)
 
     process.horeco.digiLabel = "simHcalDigis" 
-    process.hbhereco.digiLabel = cms.InputTag("simHcalDigis","HBHEUpgradeDigiCollection")
-    process.hfreco.digiLabel = cms.InputTag("simHcalDigis","HBHEUpgradeDigiCollection")
+    process.hbheUpgradeReco.digiLabel = cms.InputTag("simHcalDigis","HBHEUpgradeDigiCollection")
+    process.hfUpgradeReco.digiLabel = cms.InputTag("simHcalDigis","HFUpgradeDigiCollection")
 
     process.zdcreco.digiLabel = "simHcalUnsuppressedDigis"
     process.hcalnoise.digiCollName=cms.string('simHcalDigis')

@@ -1,6 +1,6 @@
 //
 // Original Author:  Fedor Ratnikov Oct 21, 2005
-// $Id: HcalHardcodeCalibrations.h,v 1.25 2013/04/23 15:41:27 abdullin Exp $
+// $Id: HcalHardcodeCalibrations.h,v 1.26 2013/06/07 10:58:04 abdullin Exp $
 //
 // ESSource to generate default HCAL calibration objects 
 //
@@ -13,7 +13,7 @@
 #include "Geometry/CaloTopology/interface/HcalTopology.h"
 #include "CondFormats/HcalObjects/interface/AllObjects.h"
 #include "HERecalibration.h"
-#include "HFRecalibration.h"
+#include "DataFormats/HcalCalibObjects/interface/HFRecalibration.h"
 
 class ParameterSet;
 

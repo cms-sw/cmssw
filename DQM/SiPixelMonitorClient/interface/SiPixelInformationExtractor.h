@@ -50,13 +50,15 @@ class SiPixelInformationExtractor {
 
   void getSingleModuleHistos(   DQMStore                                * bei, 
                                 const std::multimap<std::string, std::string>& req_map, 
-				xgi::Output                             * out);
+				xgi::Output                             * out,
+				bool					  isUpgrade);
   void getHistosFromPath(       DQMStore                                * bei, 
                                 const std::multimap<std::string, std::string>& req_map, 
 				xgi::Output                             * out);
   void getTrackerMapHistos(     DQMStore                                * bei, 
                                 const std::multimap<std::string, std::string>& req_map, 
-				xgi::Output                             * out);
+				xgi::Output                             * out,
+				bool					  isUpgrade);
 				
 				
   void readModuleAndHistoList(	DQMStore				* bei,

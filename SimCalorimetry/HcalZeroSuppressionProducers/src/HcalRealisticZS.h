@@ -10,13 +10,12 @@
 
 #include "HcalZSAlgoRealistic.h"
 
-//#include "CalibFormats/HcalObjects/interface/HcalDbService.h"
-//#include "CalibFormats/HcalObjects/interface/HcalDbRecord.h"
+#include <string>
 
 /** \class HcalSimpleRealisticZS
 	
-$Date: 2012/10/31 15:34:25 $
-$Revision: 1.4 $
+$Date: 2013/04/24 10:22:20 $
+$Revision: 1.5 $
 \author J. Mans - Minnesota
 */
 class HcalRealisticZS : public edm::EDProducer {
@@ -26,7 +25,7 @@ public:
   virtual void produce(edm::Event& e, const edm::EventSetup& c);
 private:
   std::auto_ptr<HcalZSAlgoRealistic> algo_;
-  edm::InputTag inputLabel_;
+  std::string inputLabel_;
 };
 
 #endif
