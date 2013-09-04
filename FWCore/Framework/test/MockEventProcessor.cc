@@ -36,7 +36,7 @@ namespace edm {
   }
 
   edm::MockEventProcessor::StatusCode
-  MockEventProcessor::runToCompletion(bool /*onlineStateTransitions*/) {
+  MockEventProcessor::runToCompletion() {
     statemachine::Machine myMachine(this,
                                     fileMode_,
                                     emptyRunLumiMode_);
