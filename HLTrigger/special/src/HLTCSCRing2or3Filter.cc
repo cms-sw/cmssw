@@ -4,25 +4,40 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "DataFormats/CSCRecHit/interface/CSCRecHit2DCollection.h"
 #include "DataFormats/MuonDetId/interface/CSCDetId.h"
 #include "Geometry/CSCGeometry/interface/CSCGeometry.h"
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+
 HLTCSCRing2or3Filter::HLTCSCRing2or3Filter(const edm::ParameterSet& iConfig) : HLTFilter(iConfig) 
      , m_input(iConfig.getParameter<edm::InputTag>("input"))
      , m_minHits(iConfig.getParameter<unsigned int>("minHits"))
      , m_xWindow(iConfig.getParameter<double>("xWindow"))
      , m_yWindow(iConfig.getParameter<double>("yWindow"))
-{}
+{
+  cscrechitsToken = consumes<CSCRecHit2DCollection>(m_input);
+}
 
 HLTCSCRing2or3Filter::~HLTCSCRing2or3Filter() { }
 
+void
+HLTCSCRing2or3Filter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  makeHLTFilterDescription(desc);
+  desc.add<edm::InputTag>("input",edm::InputTag("hltCsc2DRecHits"));
+  desc.add<unsigned int>("minHits",4);
+  desc.add<double>("xWindow",2.);
+  desc.add<double>("yWindow",2.);
+  descriptions.add("hltCSCRing2or3Filter",desc);
+}
+
 bool HLTCSCRing2or3Filter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct) {
    edm::Handle<CSCRecHit2DCollection> hits;
-   iEvent.getByLabel(m_input, hits);
+   iEvent.getByToken(cscrechitsToken, hits);
 
    edm::ESHandle<CSCGeometry> cscGeometry;
    bool got_cscGeometry = false;

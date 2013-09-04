@@ -24,6 +24,8 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -41,10 +43,12 @@ class HLTTrackerHaloFilter : public HLTFilter {
 public:
   explicit HLTTrackerHaloFilter(const edm::ParameterSet&);
   ~HLTTrackerHaloFilter();
+  static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
 private:
   virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct);
 
+  edm::EDGetTokenT<edm::RefGetter<SiStripCluster> > inputToken_;
   edm::InputTag inputTag_; // input tag identifying product containing pixel clusters
   int max_clusTp_; // Maximum number of TEC+ clusters
   int max_clusTm_; // Maximum number of TEC- clusters

@@ -29,6 +29,8 @@ Implementation:
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 // -- Ecal
 #include "EventFilter/EcalRawToDigi/plugins/EcalRawToRecHitFacility.h"
@@ -69,6 +71,7 @@ class HLTDummyCollections : public edm::EDProducer {
   public:
     explicit HLTDummyCollections(const edm::ParameterSet&);
     ~HLTDummyCollections();
+    static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);   
 
   private:
     virtual void produce(edm::Event&, const edm::EventSetup&) override;
@@ -190,6 +193,15 @@ HLTDummyCollections::~HLTDummyCollections()
   // (e.g. close files, deallocate resources etc.)
 }
 
+
+void
+HLTDummyCollections::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<std::string>("action","");
+  desc.add<bool>("UnpackZDC",false);
+  desc.add<std::string>("ESdigiCollection","");
+  descriptions.add("HLTDummyCollections",desc);
+}
 
 //
 // member functions

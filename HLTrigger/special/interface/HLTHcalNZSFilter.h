@@ -26,7 +26,14 @@ Implementation:
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "HLTrigger/HLTcore/interface/HLTFilter.h"
 
+#include "DataFormats/FEDRawData/interface/FEDRawData.h"
+#include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
+
 #include <string>
+
+namespace edm {
+  class ConfigurationDescriptions;
+}
 
 //
 // class declaration
@@ -36,6 +43,7 @@ class HLTHcalNZSFilter : public HLTFilter {
 public:
   explicit HLTHcalNZSFilter(const edm::ParameterSet&);
   virtual ~HLTHcalNZSFilter();
+  static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
   
 private:
   virtual void beginJob(void);
@@ -44,6 +52,7 @@ private:
   
   // ----------member data ---------------------------
   
+  edm::EDGetTokenT<FEDRawDataCollection> dataInputToken_;
   edm::InputTag dataInputTag_;
   bool          summary_;
   int           eventsNZS_; 

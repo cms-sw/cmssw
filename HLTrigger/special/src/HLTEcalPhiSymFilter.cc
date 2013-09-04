@@ -1,11 +1,12 @@
 #include "HLTrigger/special/interface/HLTEcalPhiSymFilter.h"
-#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "CondFormats/EcalObjects/interface/EcalChannelStatus.h"
 #include "CondFormats/DataRecord/interface/EcalChannelStatusRcd.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 HLTEcalPhiSymFilter::HLTEcalPhiSymFilter(const edm::ParameterSet& iConfig)
 {
@@ -23,6 +24,9 @@ HLTEcalPhiSymFilter::HLTEcalPhiSymFilter(const edm::ParameterSet& iConfig)
   statusThreshold_ = iConfig.getParameter<uint32_t> ("statusThreshold");
   useRecoFlag_ =  iConfig.getParameter<bool>("useRecoFlag");
 
+  barrelHitsToken_ = consumes<EBRecHitCollection>(barrelHits_);
+  endcapHitsToken_ = consumes<EERecHitCollection>(endcapHits_);
+
   //register your products
   produces< EBRecHitCollection >(phiSymBarrelHits_);
   produces< EERecHitCollection >(phiSymEndcapHits_);
@@ -30,9 +34,22 @@ HLTEcalPhiSymFilter::HLTEcalPhiSymFilter(const edm::ParameterSet& iConfig)
 
 
 HLTEcalPhiSymFilter::~HLTEcalPhiSymFilter()
-{
- 
+{}
 
+void
+HLTEcalPhiSymFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<edm::InputTag>("barrelHitCollection",edm::InputTag("ecalRecHit","EcalRecHitsEB"));
+  desc.add<edm::InputTag>("endcapHitCollection",edm::InputTag("ecalRecHit","EcalRecHitsEE"));
+  desc.add<unsigned int>("statusThreshold",3);
+  desc.add<bool>("useRecoFlag",false);
+  desc.add<double>("eCut_barrel",150.);
+  desc.add<double>("eCut_endcap",750.);
+  desc.add<double>("eCut_barrel_high",999999.);
+  desc.add<double>("eCut_endcap_high",999999.);
+  desc.add<std::string>("phiSymBarrelHitCollection","phiSymEcalRecHitsEB");
+  desc.add<std::string>("phiSymEndcapHitCollection","phiSymEcalRecHitsEE");
+  descriptions.add("alCaPhiSymStream",desc);
 }
 
 
@@ -55,8 +72,8 @@ HLTEcalPhiSymFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   Handle<EERecHitCollection> endcapRecHitsHandle;
 
   
-  iEvent.getByLabel(barrelHits_,barrelRecHitsHandle);
-  iEvent.getByLabel(endcapHits_,endcapRecHitsHandle);
+  iEvent.getByToken(barrelHitsToken_,barrelRecHitsHandle);
+  iEvent.getByToken(endcapHitsToken_,endcapRecHitsHandle);
  
   //Create empty output collections
   std::auto_ptr< EBRecHitCollection > phiSymEBRecHitCollection( new EBRecHitCollection );

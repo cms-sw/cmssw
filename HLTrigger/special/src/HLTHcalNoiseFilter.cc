@@ -1,15 +1,12 @@
 // Author:  Alfredo Gurrola 
 //(20/11/08 make MET and JET logic independent   /Grigory Safronov)
 
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+
 #include "HLTrigger/special/interface/HLTHcalNoiseFilter.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "DataFormats/CaloTowers/interface/CaloTowerCollection.h"
-#include "DataFormats/CaloTowers/interface/CaloTower.h"
-#include "DataFormats/JetReco/interface/CaloJetCollection.h"
-#include "DataFormats/JetReco/interface/CaloJet.h"
-#include "DataFormats/METReco/interface/CaloMET.h"
-#include "DataFormats/METReco/interface/CaloMETCollection.h"
 #include "DataFormats/Math/interface/deltaR.h"
 
 HLTHcalNoiseFilter::HLTHcalNoiseFilter(const edm::ParameterSet& iConfig) : HLTFilter(iConfig) 
@@ -23,11 +20,37 @@ HLTHcalNoiseFilter::HLTHcalNoiseFilter(const edm::ParameterSet& iConfig) : HLTFi
   JetMinE_ = iConfig.getParameter<double>("JetMinE");
   JetHCALminEnergyFraction_ = iConfig.getParameter<double>("JetHCALminEnergyFraction");
 
+  if (useMet_) {
+    MetSourceToken_ = consumes<reco::CaloMETCollection>(MetSource_);
+  }
+  if (useJet_) {
+    JetSourceToken_ = consumes<reco::CaloJetCollection>(JetSource_);
+    TowerSourceToken_ = consumes<CaloTowerCollection>(TowerSource_);
+  }
   nAnomalousEvents=0;
   nEvents=0;
 }
 
 HLTHcalNoiseFilter::~HLTHcalNoiseFilter() { }
+
+void
+HLTHcalNoiseFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  makeHLTFilterDescription(desc);
+  desc.add<edm::InputTag>("JetSource",edm::InputTag("iterativeCone5CaloJets"));
+  desc.add<edm::InputTag>("MetSource",edm::InputTag("met"));
+  desc.add<edm::InputTag>("TowerSource",edm::InputTag("towerMaker"));
+  desc.add<bool>("UseJet",true);
+  desc.add<bool>("UseMET",false);
+  desc.add<double>("MetCut",0.);
+  desc.add<double>("JetMinE",20.);
+  desc.add<double>("JetHCALminEnergyFraction",0.98);
+  descriptions.add("hltHcalNoiseFilter",desc);
+}
+
+//
+// member functions
+//
 
 bool HLTHcalNoiseFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct)
 {
@@ -40,7 +63,7 @@ bool HLTHcalNoiseFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iS
    if (useMet_)
      {
        Handle <CaloMETCollection> metHandle;
-       iEvent.getByLabel(MetSource_, metHandle);
+       iEvent.getByToken(MetSourceToken_, metHandle);
        const CaloMETCollection *metCol = metHandle.product();
        const CaloMET met = metCol->front();
     
@@ -50,10 +73,10 @@ bool HLTHcalNoiseFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iS
    if (useJet_)
      {
        Handle<CaloJetCollection> calojetHandle;
-       iEvent.getByLabel(JetSource_,calojetHandle);
+       iEvent.getByToken(JetSourceToken_,calojetHandle);
        
        Handle<CaloTowerCollection> towerHandle;
-       iEvent.getByLabel(TowerSource_, towerHandle);
+       iEvent.getByToken(TowerSourceToken_, towerHandle);
 
        std::vector<CaloTower> TowerContainer;
        std::vector<CaloJet> JetContainer;

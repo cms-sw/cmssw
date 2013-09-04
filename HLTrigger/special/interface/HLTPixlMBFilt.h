@@ -15,6 +15,13 @@
 
 #include "HLTrigger/HLTcore/interface/HLTFilter.h"
 
+#include "DataFormats/RecoCandidate/interface/RecoChargedCandidate.h"
+#include "DataFormats/RecoCandidate/interface/RecoChargedCandidateFwd.h"
+
+namespace edm {
+  class ConfigurationDescriptions;
+}
+
 //
 // class declaration
 //
@@ -25,9 +32,11 @@ class HLTPixlMBFilt : public HLTFilter {
       explicit HLTPixlMBFilt(const edm::ParameterSet&);
       ~HLTPixlMBFilt();
       virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct);
+      static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
    private:
       edm::InputTag pixlTag_;  // input tag identifying product containing Pixel-tracks
+      edm::EDGetTokenT<reco::RecoChargedCandidateCollection> pixlToken_;
 
       double min_Pt_;          // min pt cut
       unsigned int min_trks_;  // minimum number of tracks from one vertex
