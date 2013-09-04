@@ -14,7 +14,6 @@
  *
  * \author Michele de Gruttola, INFN Naples
  *
- * \id $Id: ZMuMuAnalyzer.cc,v 1.6 2010/01/10 19:08:08 hegner Exp $
  *
  */
 #include "FWCore/Framework/interface/EDAnalyzer.h"
