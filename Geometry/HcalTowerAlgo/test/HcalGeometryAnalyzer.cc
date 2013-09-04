@@ -18,13 +18,11 @@ public:
     virtual void analyze( const edm::Event&, const edm::EventSetup& );
 
 private:
-    const HcalFlexiHardcodeGeometryLoader& m_loader;
     std::string m_label;
 };
 
 HcalGeometryAnalyzer::HcalGeometryAnalyzer( const edm::ParameterSet& iConfig ) 
-    : m_loader( iConfig ),
-      m_label("_master")
+    : m_label("_master")
 {
     m_label = iConfig.getParameter<std::string>( "HCALGeometryLabel" );
 }
