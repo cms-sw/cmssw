@@ -53,23 +53,6 @@ namespace edm {
     class EventSetupsController;
   }
 
-  namespace event_processor {
-    /*
-      Several of these state are likely to be transitory in
-      the offline because they are completly driven by the
-      data coming from the input source.
-    */
-    enum State { sInit = 0, sJobReady, sRunGiven, sRunning, sStopping,
-                 sShuttingDown, sDone, sJobEnded, sError, sErrorEnded, sEnd, sInvalid };
-
-    enum Msg { mSetRun = 0, mSkip, mRunAsync, mRunID, mRunCount, mBeginJob,
-               mStopAsync, mShutdownAsync, mEndJob, mCountComplete,
-               mInputExhausted, mStopSignal, mShutdownSignal, mFinished,
-               mAny, mDtor, mException, mInputRewind };
-
-    class StateSentry;
-  }
-
   class EventProcessor : public IEventProcessor {
   public:
 
@@ -112,45 +95,6 @@ namespace edm {
        throws if any module's endJob throws an exception.
        */
     void endJob();
-
-    /**Member functions to support asynchronous interface.
-       */
-
-    char const* currentStateName() const;
-    char const* stateName(event_processor::State s) const;
-    char const* msgName(event_processor::Msg m) const;
-    event_processor::State getState() const;
-    void runAsync();
-    StatusCode statusAsync() const;
-
-    // Concerning the async control functions:
-    // The event processor is left with the running thread.
-    // The async thread is stuck at this point and the process
-    // is likely not going to be able to continue.
-    // The reason for this timeout could be either an infinite loop
-    // or I/O blocking forever.
-    // The only thing to do is end the process.
-    // If you call endJob, you will likely get an exception from the
-    // state checks telling you that it is not valid to call this function.
-    // All these function force the event processor state into an
-    // error state.
-
-    // tell the event loop to stop and wait for its completion
-    StatusCode stopAsync(unsigned int timeout_secs = 60 * 2);
-
-    // tell the event loop to shutdown and wait for the completion
-    StatusCode shutdownAsync(unsigned int timeout_secs = 60 * 2);
-
-    // wait until async event loop thread completes
-    // or timeout occurs (See StatusCode for return values)
-    StatusCode waitTillDoneAsync(unsigned int timeout_seconds = 0);
-
-    // Both of these calls move the EP to the ready to run state but only
-    // the first actually sets the run number, the other one just stores
-    // the run number set externally in order to later compare to the one
-    // read from the input source for verification
-    void setRunNumber(RunNumber_t runNumber);
-    void declareRunNumber(RunNumber_t runNumber);
 
     // -------------
 
@@ -218,18 +162,7 @@ namespace edm {
     //                     requested by the argument
     //   epSuccess - all other cases
     //
-    // The online is an exceptional case.  Online uses the DaqSource
-    // and the StreamerOutputModule, which are specially written to
-    // handle multiple calls of "runToCompletion" in the same job.
-    // The call to setRunNumber resets the DaqSource between those calls.
-    // With most sources and output modules, this does not work.
-    // If and only if called by the online, the argument to runToCompletion
-    // is set to true and this affects the state initial and final state
-    // transitions that are managed directly in EventProcessor.cc. (I am
-    // not sure if there is a reason for this or it is just a historical
-    // peculiarity that could be cleaned up and removed).
-
-    virtual StatusCode runToCompletion(bool onlineStateTransitions);
+    virtual StatusCode runToCompletion();
 
     // The following functions are used by the code implementing our
     // boost statemachine
@@ -289,15 +222,7 @@ namespace edm {
     void terminateMachine(std::auto_ptr<statemachine::Machine>&);
     std::auto_ptr<statemachine::Machine> createStateMachine();
 
-    StatusCode doneAsync(event_processor::Msg m);
-
-    StatusCode waitForAsyncCompletion(unsigned int timeout_seconds);
-
-    void changeState(event_processor::Msg);
-    void errorState();
     void setupSignal();
-
-    static void asyncRun(EventProcessor*);
 
     bool hasSubProcess() const {
       return subProcess_.get() != 0;
@@ -334,23 +259,12 @@ namespace edm {
     std::auto_ptr<SubProcess>                     subProcess_;
     std::unique_ptr<HistoryAppender>            historyAppender_;
 
-    volatile event_processor::State               state_;
-    boost::shared_ptr<boost::thread>              event_loop_;
-
-    boost::mutex                                  state_lock_;
-    boost::mutex                                  stop_lock_;
-    boost::condition                              stopper_;
-    boost::condition                              starter_;
-    volatile int                                  stop_count_;
-    volatile Status                               last_rc_;
-    std::string                                   last_error_text_;
-    volatile bool                                 id_set_;
-    volatile pthread_t                            event_loop_id_;
     int                                           my_sig_num_;
     std::unique_ptr<FileBlock>                    fb_;
     boost::shared_ptr<EDLooperBase>               looper_;
 
     PrincipalCache                                principalCache_;
+    bool                                          beginJobCalled_;
     bool                                          shouldWeStop_;
     bool                                          stateMachineWasInErrorState_;
     std::string                                   fileMode_;
@@ -377,7 +291,6 @@ namespace edm {
     typedef std::set<std::pair<std::string, std::string> > ExcludedData;
     typedef std::map<std::string, ExcludedData> ExcludedDataMap;
     ExcludedDataMap                               eventSetupDataToExcludeFromPrefetching_;
-    friend class event_processor::StateSentry;
   }; // class EventProcessor
 
   //--------------------------------------------------------------------
@@ -385,7 +298,7 @@ namespace edm {
   inline
   EventProcessor::StatusCode
   EventProcessor::run() {
-    return runToCompletion(false);
+    return runToCompletion();
   }
 }
 #endif

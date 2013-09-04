@@ -42,7 +42,6 @@ class testeventprocessor: public CppUnit::TestFixture {
   CPPUNIT_TEST(activityRegistryTest);
   CPPUNIT_TEST(moduleFailureTest);
   CPPUNIT_TEST(endpathTest);
-  CPPUNIT_TEST(asyncTest);
   CPPUNIT_TEST(serviceConfigSaveTest);
   CPPUNIT_TEST_SUITE_END();
 
@@ -63,12 +62,6 @@ class testeventprocessor: public CppUnit::TestFixture {
   void moduleFailureTest();
   void endpathTest();
   void serviceConfigSaveTest();
-
-  void asyncTest();
-  bool asyncRunAsync(edm::EventProcessor& ep);
-  bool asyncRunTimeout(edm::EventProcessor& ep);
-  void driveAsyncTest(bool (testeventprocessor::*)(edm::EventProcessor&),
-                       std::string const& config_string);
 
  private:
   std::auto_ptr<edm::AssertHandler> m_handler;
@@ -95,169 +88,6 @@ class testeventprocessor: public CppUnit::TestFixture {
 
 ///registration of the test so that the runner can find it
 CPPUNIT_TEST_SUITE_REGISTRATION(testeventprocessor);
-
-static std::string makeConfig(int event_count) {
-  static std::string const start =
-      "import FWCore.ParameterSet.Config as cms\n"
-      "process = cms.Process('p')\n"
-      "process.MessageLogger = cms.Service('MessageLogger',\n"
-      "    destinations = cms.untracked.vstring(\n"
-      "        'cout',\n"
-      "        'cerr'),\n"
-      "    categories = cms.untracked.vstring(\n"
-      "        'FwkJob',\n"
-      "        'FwkReport'),\n"
-      "    cout = cms.untracked.PSet(\n"
-      "        threshold = cms.untracked.string('INFO'),\n"
-      "        FwkReport = cms.untracked.PSet(\n"
-      "            limit = cms.untracked.int32(0))),\n"
-      "    cerr = cms.untracked.PSet(\n"
-      "        threshold = cms.untracked.string('INFO'),\n"
-      "        FwkReport = cms.untracked.PSet(\n"
-      "            limit = cms.untracked.int32(0)))\n"
-      ")\n"
-      "process.maxEvents = cms.untracked.PSet(\n"
-      "    input = cms.untracked.int32(";
-  static std::string const finish =
-      "))\n"
-      "process.source = cms.Source('EmptySource')\n"
-      "process.m1 = cms.EDProducer('IntProducer',\n"
-      "    ivalue = cms.int32(10))\n"
-      "process.p1 = cms.Path(process.m1)\n";
-
-  std::ostringstream ost;
-  ost << start << event_count << finish;
-  return ost.str();
-}
-
-void testeventprocessor::asyncTest() {
-  std::string test_config_2 = makeConfig(2);
-  std::string test_config_80k = makeConfig(20000);
-
-  // Load the message service plug-in
-  boost::shared_ptr<edm::Presence> theMessageServicePresence;
-  try {
-    theMessageServicePresence =
-      boost::shared_ptr<edm::Presence>(edm::PresenceFactory::get()->makePresence("MessageServicePresence").release());
-  } catch(std::exception& e) {
-    std::cerr << e.what() << std::endl;
-    return;
-  }
-
-  sleep_secs_ = 0;
-  std::cerr << "asyncRunAsync 2 event\n";
-  driveAsyncTest(&testeventprocessor::asyncRunAsync, test_config_2);
-  std::cerr << "asyncRunAsync 80k event\n";
-  driveAsyncTest(&testeventprocessor::asyncRunAsync, test_config_80k);
-  sleep_secs_ = 3;
-  std::cerr << "asyncRunAsync 2 event with sleep 3\n";
-  driveAsyncTest(&testeventprocessor::asyncRunAsync, test_config_2);
-  sleep_secs_ = 0;
-  std::cerr << "asyncRunTimeout 80k event\n";
-  // cannot run the following test from scram because of a runtime
-  // library error:
-  // libgcc_s.so.1 must be installed for pthread_cancel to work
-  // driveAsyncTest(&testeventprocessor::asyncRunTimeout, test_config_80k);
-}
-
-bool testeventprocessor::asyncRunAsync(edm::EventProcessor& ep) {
-  for(int i = 0; i < 7; ++i) {
-      try {
-        ep.setRunNumber(i + 1);
-      } catch(cms::Exception& e) {
-      }
-      ep.runAsync();
-      if(sleep_secs_ > 0) sleep(sleep_secs_);
-
-      edm::EventProcessor::StatusCode rc = edm::EventProcessor::StatusCode();
-      if (i < 2) {
-        rc = ep.waitTillDoneAsync(1000);
-      }
-      else if (i == 2) {
-        rc = ep.stopAsync(1000);
-      }
-      else if (i == 3) {
-        rc = ep.stopAsync(1000);
-        rc = ep.waitTillDoneAsync(1000);
-      }
-      else if (i == 4) {
-        rc = ep.waitTillDoneAsync(1000);
-        rc = ep.stopAsync(1000);
-      }
-      else if (i == 5) {
-        rc = ep.waitTillDoneAsync(1000);
-        rc = ep.waitTillDoneAsync(1000);
-      }
-      else if (i == 6) {
-        rc = ep.stopAsync(1000);
-        rc = ep.stopAsync(1000);
-      }
-      std::cerr << " ep runAsync run " << i << " done\n";
-
-      switch(rc) {
-        case edm::EventProcessor::epSuccess:
-        case edm::EventProcessor::epInputComplete:
-          break;
-        case edm::EventProcessor::epTimedOut:
-        default:
-        {
-            std::cerr << "rc from run " << i << ", doneAsync = " << rc << "\n";
-            CPPUNIT_ASSERT("Bad rc from doneAsync" == 0);
-        }
-      }
-    }
-  return true;
-}
-
-bool testeventprocessor::asyncRunTimeout(edm::EventProcessor& ep) {
-  try {
-  ep.setRunNumber(1);
-  } catch(cms::Exception& e) {
-  }
-  ep.runAsync();
-  edm::EventProcessor::StatusCode rc = ep.waitTillDoneAsync(1);
-  std::cerr << " ep runAsync run " << 1 << " done\n";
-
-  switch(rc) {
-    case edm::EventProcessor::epTimedOut:
-      break;
-    case edm::EventProcessor::epSuccess:
-    case edm::EventProcessor::epInputComplete:
-      break;
-    default:
-    {
-      std::cerr << "rc from run " << 1 << ", doneAsync = " << rc << "\n";
-      CPPUNIT_ASSERT("Bad rc from doneAsync" == 0);
-    }
-  }
-  return false;
-}
-
-void testeventprocessor::driveAsyncTest(bool(testeventprocessor::*func)(edm::EventProcessor& ep), std::string const& config_str) {
-
-  try {
-    edm::EventProcessor proc(config_str, true);
-    proc.beginJob();
-    if ((this->*func)(proc)) {
-      proc.endJob();
-    } else {
-        std::cerr << "event processor is in error state\n";
-      }
-  }
-  catch(cms::Exception& e) {
-      std::cerr << "cms exception: " << e.explainSelf() << std::endl;
-      CPPUNIT_ASSERT("cms exeption" == 0);
-  }
-  catch(std::exception& e) {
-      std::cerr << "std exception: " << e.what() << std::endl;
-      CPPUNIT_ASSERT("std exeption" == 0);
-  }
-  catch(...) {
-      std::cerr << "unknown exception " << std::endl;
-      CPPUNIT_ASSERT("unknown exeption" == 0);
-  }
-  std::cerr << "*********************** driveAsyncTest ending ------\n";
-}
 
 void testeventprocessor::parseTest() {
   try { work();}
@@ -341,7 +171,7 @@ void testeventprocessor::beginEndTest() {
     TestBeginEndJobAnalyzer::control().endLumiCalled = false;
 
     edm::EventProcessor proc(configuration, true);
-    proc.runToCompletion(false);
+    proc.runToCompletion();
 
     CPPUNIT_ASSERT(TestBeginEndJobAnalyzer::control().beginJobCalled);
     CPPUNIT_ASSERT(!TestBeginEndJobAnalyzer::control().endJobCalled);
@@ -370,7 +200,7 @@ void testeventprocessor::beginEndTest() {
     // Check that beginJob is not called again
     TestBeginEndJobAnalyzer::control().beginJobCalled = false;
 
-    proc.runToCompletion(false);
+    proc.runToCompletion();
 
     CPPUNIT_ASSERT(!TestBeginEndJobAnalyzer::control().beginJobCalled);
     CPPUNIT_ASSERT(!TestBeginEndJobAnalyzer::control().endJobCalled);
