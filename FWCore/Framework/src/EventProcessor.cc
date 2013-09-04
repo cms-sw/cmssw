@@ -214,7 +214,6 @@ namespace edm {
     schedule_(),
     subProcess_(),
     historyAppender_(new HistoryAppender),
-    my_sig_num_(getSigNum()),
     fb_(),
     looper_(),
     principalCache_(),
@@ -255,7 +254,6 @@ namespace edm {
     schedule_(),
     subProcess_(),
     historyAppender_(new HistoryAppender),
-    my_sig_num_(getSigNum()),
     fb_(),
     looper_(),
     principalCache_(),
@@ -299,7 +297,6 @@ namespace edm {
     schedule_(),
     subProcess_(),
     historyAppender_(new HistoryAppender),
-    my_sig_num_(getSigNum()),
     fb_(),
     looper_(),
     principalCache_(),
@@ -339,7 +336,6 @@ namespace edm {
     schedule_(),
     subProcess_(),
     historyAppender_(new HistoryAppender),
-    my_sig_num_(getSigNum()),
     fb_(),
     looper_(),
     principalCache_(),
@@ -1244,12 +1240,9 @@ namespace edm {
     bool returnValue = false;
     
     // Look for a shutdown signal
-    {
-      boost::mutex::scoped_lock sl(usr2_lock);
-      if(shutdown_flag) {
-        returnValue = true;
-        returnCode = epSignal;
-      }
+    if(shutdown_flag.load(std::memory_order_relaxed)) {
+      returnValue = true;
+      returnCode = epSignal;
     }
     return returnValue;
   }
