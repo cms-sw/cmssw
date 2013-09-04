@@ -4,7 +4,6 @@
 #include "Geometry/CaloGeometry/interface/IdealObliquePrism.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "DataFormats/CaloTowers/interface/CaloTowerDetId.h"
-//#include "CondFormats/AlignmentRecord/interface/CaloTowerAlignmentRcd.h"
 #include "Geometry/Records/interface/CaloTowerGeometryRecord.h"
 
 /** \class CaloTowerGeometry
