@@ -1,0 +1,4 @@
+<use   name="SimTracker/SiPhase2Digitizer"/>
+<library   file="*.cc" name="SimTrackerSiPhase2DigitizerPlugins">
+  <flags   EDM_PLUGIN="1"/>
+</library>
