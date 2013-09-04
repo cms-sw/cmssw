@@ -305,7 +305,7 @@ bool HLTTauDQMPath::beginRun(const HLTConfigProvider& HLTCP) {
         ss << ",";
       ss << iRegex->str();
     }
-    edm::LogInfo("HLTTauDQMOffline") << "HLTTauDQMPath::beginRun(): did not find any paths matching to regexes " << ss.str();
+    edm::LogWarning("HLTTauDQMOffline") << "HLTTauDQMPath::beginRun(): did not find any paths matching to regexes " << ss.str();
     return false;
   }
 
@@ -317,12 +317,13 @@ bool HLTTauDQMPath::beginRun(const HLTConfigProvider& HLTCP) {
     if(!thePath->isBetterThan(*iPath, HLTCP))
       thePath = iPath;
   }
-  std::cout << "Chose path " << thePath->name() << std::endl;
+  std::stringstream ss;
+  ss << "Chose path " << thePath->name() << "\n";
 
   // Get the filters
   filterIndices_ = thePath->interestingFilters(HLTCP, doRefAnalysis_, ignoreFilterTypes_, ignoreFilterNames_);
   isFirstL1Seed_ = HLTCP.moduleType(std::get<0>(filterIndices_[0])) == "HLTLevel1GTSeed";
-  std::cout << "  Filters" << std::endl;
+  ss << "  Filters";
   // Set the filter multiplicity counts
   filterTauN_.clear();
   filterElectronN_.clear();
@@ -339,14 +340,15 @@ bool HLTTauDQMPath::beginRun(const HLTConfigProvider& HLTCP) {
     filterElectronN_.push_back(n.electron);
     filterMuonN_.push_back(n.muon);
 
-    std::cout << "    " << std::get<1>(filterIndices_[i])
-              << " " << filterName
-              << " " << moduleType
-              << " ntau " << n.tau
-              << " nele " << n.electron
-              << " nmu " << n.muon
-              << std::endl;
+    ss << "\n    " << std::get<1>(filterIndices_[i])
+       << " " << filterName
+       << " " << moduleType
+       << " ntau " << n.tau
+       << " nele " << n.electron
+       << " nmu " << n.muon;
+
   }
+  edm::LogInfo("HLTTauDQMOffline") << ss.str();
 
   // Set path index
   pathName_ = thePath->name();

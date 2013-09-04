@@ -22,7 +22,7 @@ HLTTauDQML1Plotter::HLTTauDQML1Plotter(const edm::ParameterSet& ps, edm::Consume
     l1ExtraJetsToken_ = cc.consumes<l1extra::L1JetParticleCollection>(l1ExtraJets_);
     l1JetMinEt_       = ps.getUntrackedParameter<double>("L1JetMinEt");
   } catch ( cms::Exception &e ) {
-    edm::LogInfo("HLTTauDQMOffline") << "HLTTauDQML1Plotter::HLTTauDQML1Plotter: " << e.what() << std::endl;
+    edm::LogWarning("HLTTauDQMOffline") << "HLTTauDQML1Plotter::HLTTauDQML1Plotter: " << e.what();
     configValid_ = false;
     return;
   }
@@ -154,7 +154,7 @@ void HLTTauDQML1Plotter::analyze( const edm::Event& iEvent, const edm::EventSetu
       }
     }
     else {
-      edm::LogInfo("HLTTauDQMOffline") << "HLTTauDQML1Plotter::analyze: unable to read L1 tau collection " << l1ExtraTaus_.encode() << std::endl;
+      edm::LogWarning("HLTTauDQMOffline") << "HLTTauDQML1Plotter::analyze: unable to read L1 tau collection " << l1ExtraTaus_.encode();
     }
 
     if(jets.isValid()) {
@@ -171,7 +171,7 @@ void HLTTauDQML1Plotter::analyze( const edm::Event& iEvent, const edm::EventSetu
       }
     }
     else {
-      edm::LogInfo("HLTTauDQMOffline") << "HLTTauDQML1Plotter::analyze: unable to read L1 jet collection " << l1ExtraJets_.encode() << std::endl;
+      edm::LogWarning("HLTTauDQMOffline") << "HLTTauDQML1Plotter::analyze: unable to read L1 jet collection " << l1ExtraJets_.encode();
     }
     
     //Now do the efficiency matching

@@ -14,7 +14,7 @@ HLTTauDQMSummaryPlotter::HLTTauDQMSummaryPlotter(const edm::ParameterSet& ps, co
   try {
     type_ = ps.getUntrackedParameter<std::string>("ConfigType");
   } catch ( cms::Exception &e ) {
-    edm::LogInfo("HLTTauDQMOfflineSource") << "HLTTauDQMSummaryPlotter::HLTTauDQMSummaryPlotter(): " << e.what() << std::endl;
+    edm::LogWarning("HLTTauDQMOfflineSource") << "HLTTauDQMSummaryPlotter::HLTTauDQMSummaryPlotter(): " << e.what();
     configValid_ = false;
     return;
   }

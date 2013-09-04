@@ -22,7 +22,7 @@ HLTTauDQMPathPlotter::HLTTauDQMPathPlotter(const edm::ParameterSet& pset, bool d
   try {
     hltPath_.initialize(pset);
   } catch(cms::Exception& e) {
-    edm::LogInfo("HLTTauDQMOffline") << "HLTTauDQMPathPlotter::HLTTauDQMPathPlotter(): " << e.what();
+    edm::LogWarning("HLTTauDQMOffline") << "HLTTauDQMPathPlotter::HLTTauDQMPathPlotter(): " << e.what();
     configValid_ = false;
     return;
   }
@@ -35,7 +35,7 @@ void HLTTauDQMPathPlotter::beginRun(const HLTConfigProvider& HLTCP) {
 
   // Identify the correct HLT path
   if(!HLTCP.inited()) {
-    edm::LogInfo("HLTTauDQMOffline") << "HLTTauDQMPathPlotter::beginRun(): HLTConfigProvider is not initialized!";
+    edm::LogWarning("HLTTauDQMOffline") << "HLTTauDQMPathPlotter::beginRun(): HLTConfigProvider is not initialized!";
     runValid_ = false;
     return;
   }

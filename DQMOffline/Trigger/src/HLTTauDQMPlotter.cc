@@ -12,7 +12,7 @@ HLTTauDQMPlotter::HLTTauDQMPlotter(const edm::ParameterSet& pset, const std::str
     dqmFullFolder_ += dqmFolder_;
     configValid_  = true;
   } catch ( cms::Exception &e ) {
-    edm::LogInfo("HLTTauDQMOfflineSource") << "HLTTauDQMPlotter::HLTTauDQMPlotter(): " << e.what() << std::endl;
+    edm::LogWarning("HLTTauDQMOfflineSource") << "HLTTauDQMPlotter::HLTTauDQMPlotter(): " << e.what();
     configValid_ = false;
   }
 }
