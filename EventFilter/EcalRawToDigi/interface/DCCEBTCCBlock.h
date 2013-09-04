@@ -8,8 +8,6 @@
  *
  * \file DCCEBTCCBlock.h
  *
- * $Date: 2007/08/15 14:23:28 $
- * $Revision: 1.6 $
  *
  * \author N. Almeida
  * \author G. Franzoni

@@ -5,8 +5,6 @@
  *  TEMPORARY helper class to interpret/create FED trailer words.
  *  FIXME: will be replaced by the xdaq implementation
  *
- *  $Date: 2007/10/08 12:45:27 $
- *  $Revision: 1.1 $
  *  \author N. Amapane - CERN
  */
 

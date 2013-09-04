@@ -7,8 +7,6 @@
 * \brief Simple class for holding the basic attributes of an 32-bit block header.
 * * 
 * \author Robert Frazier
-* $Revision: 1.17 $
-* $Date: 2009/04/09 11:09:26 $
 */
 
 // C++ headers

@@ -14,7 +14,6 @@
    define communication protocoll between FUResourceBroker ('FU') and
    StorageManager ('SM').
    
-   $Id: i2oEvfMsgs.h,v 1.4.2.1 2012/04/20 07:18:04 smorovic Exp $
 */
 
 // I2O function codes: *_SM_* / *_FU_* according to who *receives* the message

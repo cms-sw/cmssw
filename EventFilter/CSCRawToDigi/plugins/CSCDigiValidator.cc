@@ -13,7 +13,6 @@
 //
 // Original Author:  Lindsey Gray
 //         Created:  Tue Jul 28 18:04:11 CEST 2009
-// $Id: CSCDigiValidator.cc,v 1.2 2010/07/20 02:58:29 wmtan Exp $
 //
 //
 

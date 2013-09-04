@@ -11,8 +11,6 @@
  *
  * \file DCCDataUnpacker.h
  *
- * $Date: 2010/10/04 07:44:38 $
- * $Revision: 1.5 $
  * \author N. Almeida
  * \author G. Franzoni
  *

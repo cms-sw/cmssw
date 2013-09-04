@@ -6,8 +6,6 @@
  * Prototype for ECAL data block unpacking
  * \file DCCDataBlockPrototype.h
  *
- * $Date: 2012/06/11 08:57:01 $
- * $Revision: 1.3 $
  * \author N. Almeida
  *
 */
