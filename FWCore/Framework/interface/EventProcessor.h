@@ -259,7 +259,6 @@ namespace edm {
     std::auto_ptr<SubProcess>                     subProcess_;
     std::unique_ptr<HistoryAppender>            historyAppender_;
 
-    int                                           my_sig_num_;
     std::unique_ptr<FileBlock>                    fb_;
     boost::shared_ptr<EDLooperBase>               looper_;
 
