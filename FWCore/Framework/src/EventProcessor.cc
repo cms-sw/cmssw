@@ -88,157 +88,6 @@
 
 namespace edm {
 
-  namespace event_processor {
-
-    class StateSentry {
-    public:
-      StateSentry(EventProcessor* ep) : ep_(ep), success_(false) { }
-      ~StateSentry() {if(!success_) ep_->changeState(mException);}
-      void succeeded() {success_ = true;}
-
-    private:
-      EventProcessor* ep_;
-      bool success_;
-    };
-  }
-
-  using namespace event_processor;
-
-  namespace {
-
-    // the next two tables must be kept in sync with the state and
-    // message enums from the header
-
-    char const* stateNames[] = {
-      "Init",
-      "JobReady",
-      "RunGiven",
-      "Running",
-      "Stopping",
-      "ShuttingDown",
-      "Done",
-      "JobEnded",
-      "Error",
-      "ErrorEnded",
-      "End",
-      "Invalid"
-    };
-
-    char const* msgNames[] = {
-      "SetRun",
-      "Skip",
-      "RunAsync",
-      "Run(ID)",
-      "Run(count)",
-      "BeginJob",
-      "StopAsync",
-      "ShutdownAsync",
-      "EndJob",
-      "CountComplete",
-      "InputExhausted",
-      "StopSignal",
-      "ShutdownSignal",
-      "Finished",
-      "Any",
-      "dtor",
-      "Exception",
-      "Rewind"
-    };
-  }
-    // IMPORTANT NOTE:
-    // the mAny messages are special, they must appear last in the
-    // table if multiple entries for a CurrentState are present.
-    // the changeState function does not use the mAny yet!!!
-
-    struct TransEntry {
-      State current;
-      Msg   message;
-      State final;
-    };
-
-    // we should use this information to initialize a two dimensional
-    // table of t[CurrentState][Message] = FinalState
-
-    /*
-      the way this is current written, the async run can thread function
-      can return in the "JobReady" state - but not yet cleaned up.  The
-      problem is that only when stop/shutdown async is called is the
-      thread cleaned up. But the stop/shudown async functions attempt
-      first to change the state using messages that are not valid in
-      "JobReady" state.
-
-      I think most of the problems can be solved by using two states
-      for "running": RunningS and RunningA (sync/async). The problems
-      seems to be the all the transitions out of running for both
-      modes of operation.  The other solution might be to only go to
-      "Stopping" from Running, and use the return code from "run_p" to
-      set the final state.  If this is used, then in the sync mode the
-      "Stopping" state would be momentary.
-
-     */
-
-    TransEntry table[] = {
-    // CurrentState   Message         FinalState
-    // -----------------------------------------
-      { sInit,          mException,      sError },
-      { sInit,          mBeginJob,       sJobReady },
-      { sJobReady,      mException,      sError },
-      { sJobReady,      mSetRun,         sRunGiven },
-      { sJobReady,      mInputRewind,    sRunning },
-      { sJobReady,      mSkip,           sRunning },
-      { sJobReady,      mRunID,          sRunning },
-      { sJobReady,      mRunCount,       sRunning },
-      { sJobReady,      mEndJob,         sJobEnded },
-      { sJobReady,      mBeginJob,       sJobReady },
-      { sJobReady,      mDtor,           sEnd },    // should this be allowed?
-
-      { sJobReady,      mStopAsync,      sJobReady },
-      { sJobReady,      mCountComplete,  sJobReady },
-      { sJobReady,      mFinished,       sJobReady },
-
-      { sRunGiven,      mException,      sError },
-      { sRunGiven,      mRunAsync,       sRunning },
-      { sRunGiven,      mBeginJob,       sRunGiven },
-      { sRunGiven,      mShutdownAsync,  sShuttingDown },
-      { sRunGiven,      mStopAsync,      sStopping },
-      { sRunning,       mException,      sError },
-      { sRunning,       mStopAsync,      sStopping },
-      { sRunning,       mShutdownAsync,  sShuttingDown },
-      { sRunning,       mShutdownSignal, sShuttingDown },
-      { sRunning,       mCountComplete,  sStopping }, // sJobReady
-      { sRunning,       mInputExhausted, sStopping }, // sJobReady
-
-      { sStopping,      mInputRewind,    sRunning }, // The looper needs this
-      { sStopping,      mException,      sError },
-      { sStopping,      mFinished,       sJobReady },
-      { sStopping,      mCountComplete,  sJobReady },
-      { sStopping,      mShutdownSignal, sShuttingDown },
-      { sStopping,      mStopAsync,      sStopping },     // stay
-      { sStopping,      mInputExhausted, sStopping },     // stay
-      //{ sStopping,      mAny,            sJobReady },     // <- ??????
-      { sShuttingDown,  mException,      sError },
-      { sShuttingDown,  mShutdownSignal, sShuttingDown },
-      { sShuttingDown,  mCountComplete,  sDone }, // needed?
-      { sShuttingDown,  mInputExhausted, sDone }, // needed?
-      { sShuttingDown,  mFinished,       sDone },
-      //{ sShuttingDown,  mShutdownAsync,  sShuttingDown }, // only one at
-      //{ sShuttingDown,  mStopAsync,      sShuttingDown }, // a time
-      //{ sShuttingDown,  mAny,            sDone },         // <- ??????
-      { sDone,          mEndJob,         sJobEnded },
-      { sDone,          mException,      sError },
-      { sJobEnded,      mDtor,           sEnd },
-      { sJobEnded,      mException,      sError },
-      { sError,         mEndJob,         sError },   // funny one here
-      { sError,         mDtor,           sError },   // funny one here
-      { sInit,          mDtor,           sEnd },     // for StorM dummy EP
-      { sStopping,      mShutdownAsync,  sShuttingDown }, // For FUEP tests
-      { sInvalid,       mAny,            sInvalid }
-    };
-
-
-    // Note: many of the messages generate the mBeginJob message first
-    //  mRunID, mRunCount, mSetRun
-
   // ---------------------------------------------------------------
   std::unique_ptr<InputSource>
   makeInput(ParameterSet& params,
@@ -365,21 +214,11 @@ namespace edm {
     schedule_(),
     subProcess_(),
     historyAppender_(new HistoryAppender),
-    state_(sInit),
-    event_loop_(),
-    state_lock_(),
-    stop_lock_(),
-    stopper_(),
-    starter_(),
-    stop_count_(-1),
-    last_rc_(epSuccess),
-    last_error_text_(),
-    id_set_(false),
-    event_loop_id_(),
     my_sig_num_(getSigNum()),
     fb_(),
     looper_(),
     principalCache_(),
+    beginJobCalled_(false),
     shouldWeStop_(false),
     stateMachineWasInErrorState_(false),
     fileMode_(),
@@ -416,21 +255,11 @@ namespace edm {
     schedule_(),
     subProcess_(),
     historyAppender_(new HistoryAppender),
-    state_(sInit),
-    event_loop_(),
-    state_lock_(),
-    stop_lock_(),
-    stopper_(),
-    starter_(),
-    stop_count_(-1),
-    last_rc_(epSuccess),
-    last_error_text_(),
-    id_set_(false),
-    event_loop_id_(),
     my_sig_num_(getSigNum()),
     fb_(),
     looper_(),
     principalCache_(),
+    beginJobCalled_(false),
     shouldWeStop_(false),
     stateMachineWasInErrorState_(false),
     fileMode_(),
@@ -470,21 +299,11 @@ namespace edm {
     schedule_(),
     subProcess_(),
     historyAppender_(new HistoryAppender),
-    state_(sInit),
-    event_loop_(),
-    state_lock_(),
-    stop_lock_(),
-    stopper_(),
-    starter_(),
-    stop_count_(-1),
-    last_rc_(epSuccess),
-    last_error_text_(),
-    id_set_(false),
-    event_loop_id_(),
     my_sig_num_(getSigNum()),
     fb_(),
     looper_(),
     principalCache_(),
+    beginJobCalled_(false),
     shouldWeStop_(false),
     stateMachineWasInErrorState_(false),
     fileMode_(),
@@ -520,21 +339,11 @@ namespace edm {
     schedule_(),
     subProcess_(),
     historyAppender_(new HistoryAppender),
-    state_(sInit),
-    event_loop_(),
-    state_lock_(),
-    stop_lock_(),
-    stopper_(),
-    starter_(),
-    stop_count_(-1),
-    last_rc_(epSuccess),
-    last_error_text_(),
-    id_set_(false),
-    event_loop_id_(),
     my_sig_num_(getSigNum()),
     fb_(),
     looper_(),
     principalCache_(),
+    beginJobCalled_(false),
     shouldWeStop_(false),
     stateMachineWasInErrorState_(false),
     fileMode_(),
@@ -731,13 +540,6 @@ namespace edm {
     // Make the services available while everything is being deleted.
     ServiceToken token = getToken();
     ServiceRegistry::Operate op(token);
-    try {
-      changeState(mDtor);
-    }
-    catch(cms::Exception& e) {
-      LogError("System")
-        << e.explainSelf() << "\n";
-    }
 
     // manually destroy all these thing that may need the services around
     espController_.reset();
@@ -757,10 +559,9 @@ namespace edm {
 
   void
   EventProcessor::beginJob() {
-    if(state_ != sInit) return;
+    if(beginJobCalled_) return;
+    beginJobCalled_=true;
     bk::beginJob();
-    // can only be run if in the initial state
-    changeState(mBeginJob);
 
     // StateSentry toerror(this); // should we add this ?
     //make the services available
@@ -810,9 +611,6 @@ namespace edm {
   EventProcessor::endJob() {
     // Collects exceptions, so we don't throw before all operations are performed.
     ExceptionCollector c("Multiple exceptions were thrown while executing endJob. An exception message follows for each.\n");
-
-    // only allowed to run if state is sIdle, sJobReady, sRunGiven
-    c.call(boost::bind(&EventProcessor::changeState, this, mEndJob));
 
     //make the services available
     ServiceRegistry::Operate operate(serviceToken_);
@@ -1409,266 +1207,6 @@ namespace edm {
     schedule_->clearCounters();
   }
 
-  char const* EventProcessor::currentStateName() const {
-    return stateName(getState());
-  }
-
-  char const* EventProcessor::stateName(State s) const {
-    return stateNames[s];
-  }
-
-  char const* EventProcessor::msgName(Msg m) const {
-    return msgNames[m];
-  }
-
-  State EventProcessor::getState() const {
-    return state_;
-  }
-
-  EventProcessor::StatusCode EventProcessor::statusAsync() const {
-    // the thread will record exception/error status in the event processor
-    // for us to look at and report here
-    return last_rc_;
-  }
-
-  void
-  EventProcessor::setRunNumber(RunNumber_t runNumber) {
-    if(runNumber == 0) {
-      runNumber = 1;
-      LogWarning("Invalid Run")
-        << "EventProcessor::setRunNumber was called with an invalid run number (nullptr)\n"
-        << "Run number was set to 1 instead\n";
-    }
-
-    // inside of beginJob there is a check to see if it has been called before
-    beginJob();
-    changeState(mSetRun);
-
-    // interface not correct yet
-    input_->setRunNumber(runNumber);
-  }
-
-  void
-  EventProcessor::declareRunNumber(RunNumber_t /*runNumber*/) {
-    // inside of beginJob there is a check to see if it has been called before
-    beginJob();
-    changeState(mSetRun);
-
-    // interface not correct yet - wait for Bill to be done with run/lumi loop stuff 21-Jun-2007
-    //input_->declareRunNumber(runNumber);
-  }
-
-  EventProcessor::StatusCode
-  EventProcessor::waitForAsyncCompletion(unsigned int timeout_seconds) {
-    bool rc = true;
-    boost::xtime timeout;
-
-#if BOOST_VERSION >= 105000
-    boost::xtime_get(&timeout, boost::TIME_UTC_);
-#else
-    boost::xtime_get(&timeout, boost::TIME_UTC);
-#endif
-    timeout.sec += timeout_seconds;
-
-    // make sure to include a timeout here so we don't wait forever
-    // I suspect there are still timing issues with thread startup
-    // and the setting of the various control variables (stop_count, id_set)
-    {
-      boost::mutex::scoped_lock sl(stop_lock_);
-
-      // look here - if runAsync not active, just return the last return code
-      if(stop_count_ < 0) return last_rc_;
-
-      if(timeout_seconds == 0) {
-        while(stop_count_ == 0) stopper_.wait(sl);
-      } else {
-        while(stop_count_ == 0 && (rc = stopper_.timed_wait(sl, timeout)) == true);
-      }
-
-      if(rc == false) {
-          // timeout occurred
-          // if(id_set_) pthread_kill(event_loop_id_, my_sig_num_);
-          // this is a temporary hack until we get the input source
-          // upgraded to allow blocking input sources to be unblocked
-
-          // the next line is dangerous and causes all sorts of trouble
-          if(id_set_) pthread_cancel(event_loop_id_);
-
-          // we will not do anything yet
-          LogWarning("timeout")
-            << "An asynchronous request was made to shut down "
-            << "the event loop "
-            << "and the event loop did not shutdown after "
-            << timeout_seconds << " seconds\n";
-      } else {
-          event_loop_->join();
-          event_loop_.reset();
-          id_set_ = false;
-          stop_count_ = -1;
-      }
-    }
-    return rc == false ? epTimedOut : last_rc_;
-  }
-
-  EventProcessor::StatusCode
-  EventProcessor::waitTillDoneAsync(unsigned int timeout_value_secs) {
-    StatusCode rc = waitForAsyncCompletion(timeout_value_secs);
-    if(rc != epTimedOut) changeState(mCountComplete);
-    else errorState();
-    return rc;
-  }
-
-
-  EventProcessor::StatusCode EventProcessor::stopAsync(unsigned int secs) {
-    changeState(mStopAsync);
-    StatusCode rc = waitForAsyncCompletion(secs);
-    if(rc != epTimedOut) changeState(mFinished);
-    else errorState();
-    return rc;
-  }
-
-  EventProcessor::StatusCode EventProcessor::shutdownAsync(unsigned int secs) {
-    changeState(mShutdownAsync);
-    StatusCode rc = waitForAsyncCompletion(secs);
-    if(rc != epTimedOut) changeState(mFinished);
-    else errorState();
-    return rc;
-  }
-
-  void EventProcessor::errorState() {
-    state_ = sError;
-  }
-
-  // next function irrelevant now
-  EventProcessor::StatusCode EventProcessor::doneAsync(Msg m) {
-    // make sure to include a timeout here so we don't wait forever
-    // I suspect there are still timing issues with thread startup
-    // and the setting of the various control variables (stop_count, id_set)
-    changeState(m);
-    return waitForAsyncCompletion(60*2);
-  }
-
-  void EventProcessor::changeState(Msg msg) {
-    // most likely need to serialize access to this routine
-
-    boost::mutex::scoped_lock sl(state_lock_);
-    State curr = state_;
-    int rc;
-    // found if(not end of table) and
-    // (state == table.state && (msg == table.message || msg == any))
-    for(rc = 0;
-        table[rc].current != sInvalid &&
-          (curr != table[rc].current ||
-           (curr == table[rc].current &&
-             msg != table[rc].message && table[rc].message != mAny));
-        ++rc);
-
-    if(table[rc].current == sInvalid)
-      throw cms::Exception("BadState")
-        << "A member function of EventProcessor has been called in an"
-        << " inappropriate order.\n"
-        << "Bad transition from " << stateName(curr) << " "
-        << "using message " << msgName(msg) << "\n"
-        << "No where to go from here.\n";
-
-    FDEBUG(1) << "changeState: current=" << stateName(curr)
-              << ", message=" << msgName(msg)
-              << " -> new=" << stateName(table[rc].final) << "\n";
-
-    state_ = table[rc].final;
-  }
-
-  void EventProcessor::runAsync() {
-    beginJob();
-    {
-      boost::mutex::scoped_lock sl(stop_lock_);
-      if(id_set_ == true) {
-          std::string err("runAsync called while async event loop already running\n");
-          LogError("FwkJob") << err;
-          throw cms::Exception("BadState") << err;
-      }
-
-      changeState(mRunAsync);
-
-      stop_count_ = 0;
-      last_rc_ = epSuccess; // forget the last value!
-      event_loop_.reset(new boost::thread(boost::bind(EventProcessor::asyncRun, this)));
-      boost::xtime timeout;
-#if BOOST_VERSION >= 105000
-      boost::xtime_get(&timeout, boost::TIME_UTC_);
-#else
-      boost::xtime_get(&timeout, boost::TIME_UTC);
-#endif
-      timeout.sec += 60; // 60 seconds to start!!!!
-      if(starter_.timed_wait(sl, timeout) == false) {
-          // yikes - the thread did not start
-          throw cms::Exception("BadState")
-            << "Async run thread did not start in 60 seconds\n";
-      }
-    }
-  }
-
-  void EventProcessor::asyncRun(EventProcessor* me) {
-    // set up signals to allow for interruptions
-    // ignore all other signals
-    // make sure no exceptions escape out
-
-    // temporary hack until we modify the input source to allow
-    // wakeup calls from other threads.  This mimics the solution
-    // in EventFilter/Processor, which I do not like.
-    // allowing cancels means that the thread just disappears at
-    // certain points.  This is bad for C++ stack variables.
-    pthread_setcancelstate(PTHREAD_CANCEL_DISABLE, 0);
-    //pthread_setcanceltype(PTHREAD_CANCEL_DEFERRED, 0);
-    pthread_setcanceltype(PTHREAD_CANCEL_ASYNCHRONOUS, 0);
-    pthread_setcancelstate(PTHREAD_CANCEL_ENABLE, 0);
-
-    {
-      boost::mutex::scoped_lock sl(me->stop_lock_);
-      me->event_loop_id_ = pthread_self();
-      me->id_set_ = true;
-      me->starter_.notify_all();
-    }
-
-    Status rc = epException;
-    FDEBUG(2) << "asyncRun starting ......................\n";
-
-    try {
-      bool onlineStateTransitions = true;
-      rc = me->runToCompletion(onlineStateTransitions);
-    }
-    catch (cms::Exception& e) {
-      LogError("FwkJob") << "cms::Exception caught in "
-                         << "EventProcessor::asyncRun"
-                         << "\n"
-                         << e.explainSelf();
-      me->last_error_text_ = e.explainSelf();
-    }
-    catch (std::exception& e) {
-      LogError("FwkJob") << "Standard library exception caught in "
-                         << "EventProcessor::asyncRun"
-                         << "\n"
-                         << e.what();
-      me->last_error_text_ = e.what();
-    }
-    catch (...) {
-      LogError("FwkJob") << "Unknown exception caught in "
-                         << "EventProcessor::asyncRun"
-                         << "\n";
-      me->last_error_text_ = "Unknown exception caught";
-      rc = epOther;
-    }
-
-    me->last_rc_ = rc;
-
-    {
-      // notify anyone waiting for exit that we are doing so now
-      boost::mutex::scoped_lock sl(me->stop_lock_);
-      ++me->stop_count_;
-      me->stopper_.notify_all();
-    }
-    FDEBUG(2) << "asyncRun ending ......................\n";
-  }
 
   std::auto_ptr<statemachine::Machine>
   EventProcessor::createStateMachine() {
@@ -1704,27 +1242,11 @@ namespace edm {
   bool
   EventProcessor::checkForAsyncStopRequest(StatusCode& returnCode) {
     bool returnValue = false;
-    // These are used for asynchronous running only and
-    // and are checking to see if stopAsync or shutdownAsync
-    // were called from another thread.  In the future, we
-    // may need to do something better than polling the state.
-    // With the current code this is the simplest thing and
-    // it should always work.  If the interaction between
-    // threads becomes more complex this may cause problems.
-    if(state_ == sStopping) {
-      FDEBUG(1) << "In main processing loop, encountered sStopping state\n";
-      returnValue = true;
-    }
-    else if(state_ == sShuttingDown) {
-      FDEBUG(1) << "In main processing loop, encountered sShuttingDown state\n";
-      returnValue = true;
-    }
     
     // Look for a shutdown signal
     {
       boost::mutex::scoped_lock sl(usr2_lock);
       if(shutdown_flag) {
-        changeState(mShutdownSignal);
         returnValue = true;
         returnCode = epSignal;
       }
@@ -1734,17 +1256,13 @@ namespace edm {
 
 
   EventProcessor::StatusCode
-  EventProcessor::runToCompletion(bool onlineStateTransitions) {
-
-    StateSentry toerror(this);
+  EventProcessor::runToCompletion() {
 
     StatusCode returnCode=epSuccess;
     asyncStopStatusCodeFromProcessingEvents_=epSuccess;
     std::auto_ptr<statemachine::Machine> machine;
     {
       beginJob(); //make sure this was called
-      
-      if(!onlineStateTransitions) changeState(mRunCount);
       
       //StatusCode returnCode = epSuccess;
       stateMachineWasInErrorState_ = false;
@@ -1819,9 +1337,7 @@ namespace edm {
               << "Unknown next item type passed to EventProcessor\n"
               << "Please report this error to the Framework group\n";
             }
-            
             if(machine->terminated()) {
-              changeState(mInputExhausted);
               break;
             }
           }  // End of loop over state machine events
@@ -1908,8 +1424,6 @@ namespace edm {
         machine.reset();
       }
       
-      if(!onlineStateTransitions) changeState(mFinished);
-      
       if(stateMachineWasInErrorState_) {
         throw cms::Exception("BadState")
         << "The boost state machine in the EventProcessor exited after\n"
@@ -1923,8 +1437,6 @@ namespace edm {
         << "State machine not destroyed on exit from EventProcessor::runToCompletion\n"
         << "Please report this error to the Framework group\n";
     }
-
-    toerror.succeeded();
 
     return returnCode;
   }
