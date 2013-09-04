@@ -107,7 +107,7 @@ Muon::Muon(const edm::Ptr<reco::Muon> & aMuonRef) :
     embeddedCaloMETMuonCorrs_(false),
     embeddedPickyMuon_(false),
     embeddedTpfmsMuon_(false),
-    embeddedDytMuon_(false),    
+    embeddedDytMuon_(false),
     embeddedPFCandidate_(false),
     pfCandidateRef_(),
     cachedNormChi2_(false),
@@ -125,21 +125,21 @@ Muon::Muon(const edm::Ptr<reco::Muon> & aMuonRef) :
 Muon::~Muon() {
 }
 
-std::ostream& 
-reco::operator<<(std::ostream& out, const pat::Muon& obj) 
+std::ostream&
+reco::operator<<(std::ostream& out, const pat::Muon& obj)
 {
   if(!out) return out;
-  
+
   out << "\tpat::Muon: ";
   out << std::setiosflags(std::ios::right);
   out << std::setiosflags(std::ios::fixed);
   out << std::setprecision(3);
-  out << " E/pT/eta/phi " 
+  out << " E/pT/eta/phi "
       << obj.energy()<<"/"
       << obj.pt()<<"/"
       << obj.eta()<<"/"
       << obj.phi();
-  return out; 
+  return out;
 }
 
 // initialize impact parameter container vars
@@ -208,25 +208,23 @@ reco::TrackRef Muon::dytTrack() const {
   }
 }
 
-reco::TrackRef Muon::muonBestTrack(){ 
+reco::TrackRef Muon::muonBestTrack() const {
   if (embeddedMuonBestTrack_) {
     return reco::TrackRef(&muonBestTrack_,0);
-  } else {   
+  } else {
     reco::Muon::MuonTrackTypePair newBestTrack = muon::muonBestTrack(*this, reco::defaultTuneP);
-    setBestTrack(newBestTrack.second);
     return newBestTrack.first;
   }
 }
 
 
-reco::TrackRef Muon::improvedMuonBestTrack() { 
+reco::TrackRef Muon::improvedMuonBestTrack() const {
   if (embeddedImprovedMuonBestTrack_) {
     return reco::TrackRef(&improvedMuonBestTrack_,0);
   } else {
     reco::Muon::MuonTrackTypePair newBestTrack = muon::muonBestTrack(*this, reco::improvedTuneP);
-    setImprovedBestTrack(newBestTrack.second);
     return newBestTrack.first;
-  } 
+  }
 }
 
 
@@ -242,7 +240,7 @@ reco::PFCandidateRef Muon::pfCandidateRef() const {
 /// reference to the parent PF candidate for use in TopProjector
 reco::CandidatePtr Muon::sourceCandidatePtr( size_type i ) const {
   if (embeddedPFCandidate_) {
-    return reco::CandidatePtr( pfCandidateRef_.id(), pfCandidateRef_.get(), pfCandidateRef_.key() ); 
+    return reco::CandidatePtr( pfCandidateRef_.id(), pfCandidateRef_.get(), pfCandidateRef_.key() );
   } else {
     return reco::CandidatePtr();
   }
@@ -260,11 +258,11 @@ void Muon::embedMuonBestTrack() {
 /// embed the Track selected to be the best measurement of the muon parameters
 void Muon::embedImprovedMuonBestTrack() {
   improvedMuonBestTrack_.clear(); embeddedImprovedMuonBestTrack_ = false;
-  
+
   if(improvedMuonBestTrack().isNonnull()){
     improvedMuonBestTrack_.push_back(*improvedMuonBestTrack());
     embeddedImprovedMuonBestTrack_ = true;
-  } 
+  }
   else
     edm::LogError("PATMuon|embedImprovedMuonBestTrack") << "Orphan best track this must not happend!";
 }
@@ -358,10 +356,10 @@ bool Muon::muonID(const std::string& name) const {
 }
 
 
-/// Norm chi2 gives the normalized chi2 of the global track. 
+/// Norm chi2 gives the normalized chi2 of the global track.
 /// The user can choose to cache this info so they can drop the
 /// global track, or they can use the track itself if it is present
-/// in the event. 
+/// in the event.
 double Muon::normChi2() const {
   if ( cachedNormChi2_ ) {
     return normChi2_;
@@ -374,7 +372,7 @@ double Muon::normChi2() const {
 /// numberOfValidHits returns the number of valid hits on the global track.
 /// The user can choose to cache this info so they can drop the
 /// global track, or they can use the track itself if it is present
-/// in the event. 
+/// in the event.
 unsigned int Muon::numberOfValidHits() const {
   if ( cachedNumberOfValidHits_ ) {
     return numberOfValidHits_;
@@ -386,10 +384,10 @@ unsigned int Muon::numberOfValidHits() const {
 
 // embed various impact parameters with errors
 // IpType defines the type of the impact parameter
-// None is default and reverts to old behavior controlled by 
+// None is default and reverts to old behavior controlled by
 // patMuons.usePV = True/False
 double Muon::dB(IpType type_) const {
-  
+
   // preserve old functionality exactly
   if (type_ == None){
     if ( cachedDB_ ) {
@@ -399,7 +397,7 @@ double Muon::dB(IpType type_) const {
       return std::numeric_limits<double>::max();
     }
   }
-  
+
   // more IP types (new)
   else if ( cachedIP_[type_] ) {
     return ip_[type_];
@@ -411,7 +409,7 @@ double Muon::dB(IpType type_) const {
 
 // embed various impact parameters with errors
 // IpType defines the type of the impact parameter
-// None is default and reverts to old behavior controlled by 
+// None is default and reverts to old behavior controlled by
 // patMuons.usePV = True/False
 double Muon::edB(IpType type_) const {
 
