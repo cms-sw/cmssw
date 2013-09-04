@@ -99,6 +99,7 @@ HLTHcalSimpleRecHitFilter::fillDescriptions(edm::ConfigurationDescriptions& desc
   edm::ParameterSetDescription desc;
   makeHLTFilterDescription(desc);
   desc.add<edm::InputTag>("HFRecHitCollection",edm::InputTag("hltHfreco"));
+  desc.add<double>("threshold",3.0);
   desc.add<int>("minNHitsNeg",1);
   desc.add<int>("minNHitsPos",1);
   desc.add<bool>("doCoincidence",true);
