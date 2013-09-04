@@ -1510,12 +1510,6 @@ class ConfigBuilder(object):
 	self.scheduleSequence(sequence.split('.')[-1],'L1TrackTrigger_step')
         return
 
-    def prepare_L1TrackTrigger(self, sequence = "L1TrackTrigger"):
-        ''' Enrich the schedule with L1 reconstruction '''
-        self.loadDefaultOrSpecifiedCFF(sequence,self.L1TrackTriggerDefaultCFF)
-	self.scheduleSequence(sequence.split('.')[-1],'L1TrackTrigger_step')
-        return
-
     def prepare_FILTER(self, sequence = None):
         ''' Enrich the schedule with a user defined filter sequence '''
 	## load the relevant part
