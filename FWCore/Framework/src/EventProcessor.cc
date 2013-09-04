@@ -1240,7 +1240,7 @@ namespace edm {
     bool returnValue = false;
     
     // Look for a shutdown signal
-    if(shutdown_flag) {
+    if(shutdown_flag.load(std::memory_order_relaxed)) {
       returnValue = true;
       returnCode = epSignal;
     }
