@@ -225,7 +225,8 @@ bool SiStripUtility::goToDir(DQMStore * dqm_store, std::string name) {
        ic != subDirVec.end(); ic++) {
     std::string fname = (*ic);
     if ((fname.find("Reference") != std::string::npos) ||
-         (fname.find("AlCaReco") != std::string::npos)) continue;
+	(fname.find("AlCaReco")  != std::string::npos) || 
+	(fname.find("HLT")       != std::string::npos) ) continue;
     dqm_store->cd(fname);
     if (!goToDir(dqm_store, name))  dqm_store->goUp();
     else return true;
