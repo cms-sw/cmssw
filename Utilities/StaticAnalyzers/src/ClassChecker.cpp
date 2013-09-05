@@ -171,6 +171,24 @@ if (BO->isAssignmentOp()) {
 		} else
 	if (clang::MemberExpr * ME = dyn_cast<clang::MemberExpr>(BO->getLHS())){
 			if (ME->isImplicitAccess()) ReportMember(ME);
+		} else
+	if (clang::UnaryOperator * UO = llvm::dyn_cast<clang::UnaryOperator>(BO->getLHS()->IgnoreParenImpCasts()) ) {
+		if (UO->getOpcode() == clang::UnaryOperatorKind::UO_Deref) {
+			if (clang::MemberExpr * ME = dyn_cast<clang::MemberExpr>(UO->getSubExpr()->IgnoreParenImpCasts())){
+				if (ME->isImplicitAccess()) ReportMember(ME);
+				}
+			if (clang::DeclRefExpr * DRE =dyn_cast<clang::DeclRefExpr>(UO->getSubExpr()->IgnoreParenImpCasts())){
+				if (const clang::VarDecl * D = llvm::dyn_cast<clang::VarDecl>(DRE->getDecl())) {
+					clang::QualType t =  D->getType();
+					const clang::Expr * E = llvm::dyn_cast<clang::Expr>(D->getInit());
+					if (E && t->isPointerType() ) {
+						const clang::MemberExpr * ME = dyn_cast<clang::MemberExpr>(E->IgnoreParenImpCasts());
+						if (ME && ME->isImplicitAccess()) ReportMember(ME);
+						}	
+						
+					} 		
+				}
+			}
 		}
 	}
 }
@@ -178,17 +196,15 @@ void WalkAST::CheckUnaryOperator(const clang::UnaryOperator * UO,const clang::Ex
 //	UO->dump(); 
 //	llvm::errs()<<"\n";
   if (UO->isIncrementDecrementOp())  {
-	if ( dyn_cast<clang::DeclRefExpr>(E)) 
-	if (clang::DeclRefExpr * DRE =dyn_cast<clang::DeclRefExpr>(UO->getSubExpr()->IgnoreParenImpCasts())) {
-		ReportDeclRef(DRE);
-	} else 
-	if ( dyn_cast<clang::MemberExpr>(E)) 
-	if (clang::MemberExpr * ME = dyn_cast<clang::MemberExpr>(UO->getSubExpr()->IgnoreParenImpCasts())) {
-		ReportMember(ME);
+	if ( dyn_cast<clang::DeclRefExpr>(E)) {
+		if (clang::DeclRefExpr * DRE = dyn_cast<clang::DeclRefExpr>(UO->getSubExpr()->IgnoreParenImpCasts())) ReportDeclRef(DRE);
+		}
+	else 
+	if ( dyn_cast<clang::MemberExpr>(E)) {
+		if (clang::MemberExpr * ME = dyn_cast<clang::MemberExpr>(UO->getSubExpr()->IgnoreParenImpCasts())) ReportMember(ME);
+		}
 	}
-  }
 }
-
 void WalkAST::CheckCXXOperatorCallExpr(const clang::CXXOperatorCallExpr *OCE,const clang::Expr *E) {
 // OCE->dump(); 
 //  llvm::errs()<<"\n";
@@ -632,11 +648,16 @@ void ClassChecker::checkASTDecl(const clang::CXXRecordDecl *RD, clang::ento::Ana
   	llvm::raw_svector_ostream os(buf);
 	clang::FileSystemOptions FSO;
 	clang::FileManager FM(FSO);
-	if (!FM.getFile("/tmp/classes.txt") ) {
-		llvm::errs()<<"\n\nChecker optional.ClassChecker cannot find /tmp/classes.txt. Run 'scram b checker' with USER_LLVM_CHECKERS='-enable-checker optional.ClassDumperCT -enable-checker optional.ClassDumperFT' to create /tmp/classes.txt.\n\n\n";
+	const char * pPath = std::getenv("LOCALRT");
+	std::string dname(""); 
+	if ( pPath != NULL ) dname = std::string(pPath);
+	std::string fname("/tmp/classes.txt");
+	std::string tname = dname + fname;
+	if (!FM.getFile(tname) ) {
+		llvm::errs()<<"\n\nChecker optional.ClassChecker cannot find $LOCALRT/tmp/classes.txt. Run 'scram b checker' with USER_LLVM_CHECKERS='-enable-checker optional.ClassDumperCT -enable-checker optional.ClassDumperFT' to create $LOCALRT/tmp/classes.txt.\n\n\n";
 		exit(1);
 		}
-	llvm::MemoryBuffer * buffer = FM.getBufferForFile(FM.getFile("/tmp/classes.txt"));
+	llvm::MemoryBuffer * buffer = FM.getBufferForFile(FM.getFile(tname));
 		os <<"class "<<RD->getQualifiedNameAsString()<<"\n";
 		llvm::StringRef Rname(os.str());
 		if (buffer->getBuffer().find(Rname) == llvm::StringRef::npos ) {return;}

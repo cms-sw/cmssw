@@ -4,8 +4,6 @@
 /*
  * \file L1TMenuHelper.h
  *
- * $Date: 2011/10/28 13:24:48 $
- * $Revision: 1.5 $
  * \author J. Pela
  *
 */

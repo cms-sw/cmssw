@@ -61,15 +61,15 @@ namespace gen {
     Pythia6ServiceWithCallback(const edm::ParameterSet& pset) : Pythia6Service(pset) {}
     
   private:
-    void upInit() {
+    void upInit() override {
       FortranCallback::getInstance()->fillHeader(); 
     }
     
-    void upEvnt() {
+    void upEvnt() override {
       FortranCallback::getInstance()->fillEvent(); 
     }
     
-    bool upVeto() { 
+    bool upVeto() override { 
       bool veto = false;
       if (!hepeup_.nup) veto = true; //-- LHE Common Blocks
       return(veto);

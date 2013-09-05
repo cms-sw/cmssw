@@ -6,8 +6,6 @@
  *  The single EDProduct to be saved for each event (AOD case)
  *  describing the (HLT) trigger table
  *
- *  $Date: 2010/02/15 17:40:49 $
- *  $Revision: 1.15 $
  *
  *  \author Martin Grunewald
  *

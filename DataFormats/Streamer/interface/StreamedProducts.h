@@ -110,18 +110,15 @@ namespace edm {
     SendDescs const& descs() const {return descs_;}
     ParameterSetMap const& processParameterSet() const {return processParameterSet_;}
     BranchIDLists const& branchIDLists() const {return branchIDLists_;}
-    std::vector<ProcessConfiguration> const& processConfigurations() const {return processConfigurations_;}
     void push_back(BranchDescription const& bd) {descs_.push_back(bd);}
     void setParameterSetMap(ParameterSetMap const& psetMap) {processParameterSet_ = psetMap;}
     void setBranchIDLists(BranchIDLists const& bidlists) {branchIDLists_ = bidlists;}
-    void setProcessConfigurations(std::vector<ProcessConfiguration> const& pcs) {processConfigurations_ = pcs;}
     void initializeTransients();
 
   private:
     SendDescs descs_;
     ParameterSetMap processParameterSet_;
     BranchIDLists branchIDLists_;
-    std::vector<ProcessConfiguration> processConfigurations_;
     // trigger bit descriptions will be added here and permanent
     //  provenance values
   };

@@ -39,7 +39,7 @@ namespace cond {
 			// here one can make stuff really complicated...
 		}
 
-		void compute(Class const & it){
+		void compute(Class const & it) override{
 		}
 	private:
 
@@ -56,7 +56,7 @@ namespace cond {
 	protected:
 		HcalPedestals::tAllContWithNames allContainers;
 
-		void doFillIn(std::vector<TH2F> &graphData){
+		void doFillIn(std::vector<TH2F> &graphData) override{
 			//ITERATORS AND VALUES:
 			HcalPedestals::tAllContWithNames::const_iterator iter;
 			std::vector<HcalPedestal>::const_iterator contIter;

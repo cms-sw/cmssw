@@ -13,7 +13,6 @@
 //
 // Original Author:  Jeremy Andrea/Andrea Rizzi
 //         Created:  Mon Aug  6 16:10:38 CEST 2007
-// $Id: ImpactParameterCalibration.cc,v 1.14 2010/02/11 00:13:30 wmtan Exp $
 //
 //
 // system include files
@@ -70,14 +69,14 @@ class ImpactParameterCalibration : public edm::EDAnalyzer {
 
 
    private:
-      virtual void beginJob() ;
-      virtual void analyze(const edm::Event&, const edm::EventSetup&);
-      virtual void endJob() ;
+      virtual void beginJob() override ;
+      virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
+      virtual void endJob() override ;
 
       virtual void initFromFirstES(const edm::EventSetup&);
       edm::ParameterSet config;
       bool m_needInitFromES;
-   TrackProbabilityCalibration * fromXml(edm::FileInPath xmlCalibration);
+   TrackProbabilityCalibration * fromXml(const edm::FileInPath& xmlCalibration);
 
    static TrackProbabilityCategoryData createCategory(double  pmin,double  pmax,
                  double  etamin,  double  etamax,
@@ -101,8 +100,8 @@ class ImpactParameterCalibration : public edm::EDAnalyzer {
  }
 
    TrackProbabilityCalibration * m_calibration[2];
-   edm::InputTag m_iptaginfo;
-   edm::InputTag m_pv;
+   edm::EDGetTokenT<reco::TrackIPTagInfoCollection> token_trackIPTagInfo;
+   edm::EDGetTokenT<reco::VertexCollection> token_primaryVertex;
   unsigned int minLoop, maxLoop;
 
 };
@@ -110,8 +109,8 @@ class ImpactParameterCalibration : public edm::EDAnalyzer {
 ImpactParameterCalibration::ImpactParameterCalibration(const edm::ParameterSet& iConfig):config(iConfig)
 {
   m_needInitFromES = false;
-  m_iptaginfo = iConfig.getParameter<edm::InputTag>("tagInfoSrc");
-  m_pv = iConfig.getParameter<edm::InputTag>("primaryVertexSrc");
+  token_trackIPTagInfo =  consumes<reco::TrackIPTagInfoCollection>(iConfig.getParameter<edm::InputTag>("tagInfoSrc"));
+  token_primaryVertex = consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("primaryVertexSrc"));
   bool createOnlyOne = iConfig.getUntrackedParameter<bool>("createOnlyOneCalibration", false);
   minLoop=0;
   maxLoop=1;
@@ -146,13 +145,13 @@ ImpactParameterCalibration::analyze(const edm::Event& iEvent, const edm::EventSe
   using namespace reco;
 
   Handle<TrackIPTagInfoCollection> ipHandle;
-  iEvent.getByLabel(m_iptaginfo, ipHandle);
+  iEvent.getByToken(token_trackIPTagInfo, ipHandle);
   const TrackIPTagInfoCollection & ip = *(ipHandle.product());
 
 //  cout << "Found " << ip.size() << " TagInfo" << endl;
 
   Handle<reco::VertexCollection> primaryVertex;
-  iEvent.getByLabel(m_pv,primaryVertex);
+  iEvent.getByToken(token_primaryVertex,primaryVertex);
 
   vector<TrackProbabilityCalibration::Entry>::iterator found;
   vector<TrackProbabilityCalibration::Entry>::iterator it_begin;
@@ -342,7 +341,8 @@ ImpactParameterCalibration::beginJob()
 
 }
 
-TrackProbabilityCalibration * ImpactParameterCalibration::fromXml(edm::FileInPath xmlCalibration)   
+TrackProbabilityCalibration * ImpactParameterCalibration::fromXml(const edm::FileInPath& xmlCalibration)   
+
 {
      std::ifstream xmlFile(xmlCalibration.fullPath().c_str());
         if (!xmlFile.good())

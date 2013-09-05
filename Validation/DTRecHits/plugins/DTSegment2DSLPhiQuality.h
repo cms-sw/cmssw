@@ -5,8 +5,6 @@
  *  Basic analyzer class which accesses 2D DTSegments reconstructed with both SL Phi
  *  and plot resolution comparing reconstructed and simulated quantities
  *
- *  $Date: 2009/11/04 17:25:17 $
- *  $Revision: 1.6 $
  *  \author S. Bolognesi and G. Cerminara - INFN Torino
  */
 

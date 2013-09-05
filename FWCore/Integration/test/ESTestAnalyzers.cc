@@ -1,4 +1,5 @@
 #include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "DataFormats/Provenance/interface/ModuleDescription.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -31,7 +32,7 @@ namespace edmtest {
       ESTestRecordA const& rec = es.get<ESTestRecordA>();
       edm::ESHandle<ESTestDataA> dataA;
       rec.get(dataA);
-      edm::LogAbsolute("ESTestAnalyzerA") << "ESTestAnalyzerA: process = " << currentContext()->moduleDescription()->processName() << ": Data value = " << dataA->value();
+      edm::LogAbsolute("ESTestAnalyzerA") << "ESTestAnalyzerA: process = " << moduleDescription().processName() << ": Data value = " << dataA->value();
     }
   }
 
@@ -55,7 +56,7 @@ namespace edmtest {
       ESTestRecordB const& rec = es.get<ESTestRecordB>();
       edm::ESHandle<ESTestDataB> dataB;
       rec.get(dataB);
-      edm::LogAbsolute("ESTestAnalyzerB") << "ESTestAnalyzerB: process = " << currentContext()->moduleDescription()->processName() << ": Data value = " << dataB->value();
+      edm::LogAbsolute("ESTestAnalyzerB") << "ESTestAnalyzerB: process = " << moduleDescription().processName() << ": Data value = " << dataB->value();
     }
   }
 
@@ -77,7 +78,7 @@ namespace edmtest {
       ESTestRecordK const& rec = es.get<ESTestRecordK>();
       edm::ESHandle<ESTestDataK> dataK;
       rec.get(dataK);
-      edm::LogAbsolute("ESTestAnalyzerK") << "ESTestAnalyzerK: process = " << currentContext()->moduleDescription()->processName() << ": Data value = " << dataK->value();
+      edm::LogAbsolute("ESTestAnalyzerK") << "ESTestAnalyzerK: process = " << moduleDescription().processName() << ": Data value = " << dataK->value();
     }
   }
 
@@ -105,7 +106,7 @@ namespace edmtest {
       edm::ESHandle<ESTestDataZ> dataZ;
       recZ.get("foo", dataZ);
 
-      edm::LogAbsolute("ESTestAnalyzerAZ") << "ESTestAnalyzerAZ: process = " << currentContext()->moduleDescription()->processName() << ": Data values = " << dataA->value() << "  " << dataZ->value();
+      edm::LogAbsolute("ESTestAnalyzerAZ") << "ESTestAnalyzerAZ: process = " << moduleDescription().processName() << ": Data values = " << dataA->value() << "  " << dataZ->value();
     }
   }
 }

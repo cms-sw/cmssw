@@ -1,25 +1,24 @@
 #include "DQM/RPCMonitorDigi/interface/RPCTTUMonitor.h"
-
-
-
+//FW Core
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 //
 RPCTTUMonitor::RPCTTUMonitor(const edm::ParameterSet& iConfig){
 
   ttuFolder    = iConfig.getUntrackedParameter<std::string>("TTUFolder", "RPC/TTU");
   outputFile    = iConfig.getUntrackedParameter<std::string>("OutPutFile", ""); 
-  m_gtReadoutLabel     = iConfig.getParameter<edm::InputTag>("GTReadoutRcd");
-  m_gmtReadoutLabel    = iConfig.getParameter<edm::InputTag>("GMTReadoutRcd");
-  m_rpcTechTrigEmu     = iConfig.getParameter<edm::InputTag>("L1TTEmuBitsLabel");
+
+  m_gtReadoutLabel     = consumes<L1GlobalTriggerReadoutRecord>(iConfig.getParameter<edm::InputTag>("GTReadoutRcd"));
+  m_gmtReadoutLabel    = consumes<L1MuGMTReadoutCollection>(iConfig.getParameter<edm::InputTag>("GMTReadoutRcd"));
+  m_rpcTechTrigEmu     = consumes<L1GtTechnicalTriggerRecord>(iConfig.getParameter<edm::InputTag>("L1TTEmuBitsLabel"));
+  
+
   m_ttBits             = iConfig.getParameter< std::vector<unsigned> >("BitNumbers");
   m_maxttBits          = m_ttBits.size();
   
 }
 
-RPCTTUMonitor::~RPCTTUMonitor()
-{
-  
-}
+RPCTTUMonitor::~RPCTTUMonitor(){}
 
 // ------------ method called to for each event  ------------
 void
@@ -29,21 +28,19 @@ RPCTTUMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   //..............................................................................................
   // Data .
   edm::Handle< L1GlobalTriggerReadoutRecord > gtRecord;
-  iEvent.getByLabel( m_gtReadoutLabel, gtRecord);
+  iEvent.getByToken( m_gtReadoutLabel, gtRecord);
   
   if ( !gtRecord.isValid() ) {
-    edm::LogError("RPCTTUMonitor") << "can't find L1GlobalTriggerRecord with label: " 
-                                    << m_gtReadoutLabel << '\n';
+    edm::LogError("RPCTTUMonitor") << "can nout find L1GlobalTriggerRecord \n";
     return;
   }
   
   // Emulator .
   edm::Handle< L1GtTechnicalTriggerRecord > emuTTRecord;
-  iEvent.getByLabel( m_rpcTechTrigEmu , emuTTRecord);
+  iEvent.getByToken( m_rpcTechTrigEmu , emuTTRecord);
   
   if ( !emuTTRecord.isValid() ) {
-    edm::LogError("RPCTTUMonitor") << "can't find L1GtTechnicalTriggerRecord (emulator) with label: " 
-                                    << m_rpcTechTrigEmu << '\n';
+    edm::LogError("RPCTTUMonitor") << "can not find L1GtTechnicalTriggerRecord (emulator) \n";
     return;
   }
   
@@ -141,11 +138,11 @@ int  RPCTTUMonitor::discriminateGMT( const edm::Event& iEvent, const edm::EventS
   //.............................................................................................
   
   edm::Handle<L1MuGMTReadoutCollection> pCollection;
-  iEvent.getByLabel(m_gmtReadoutLabel,pCollection);
+  iEvent.getByToken(m_gmtReadoutLabel,pCollection);
   
   if ( ! pCollection.isValid() ) {
-    edm::LogError("discriminateGMT") << "can't find L1MuGMTReadoutCollection with label "
-                                     << m_gmtReadoutLabel ;
+    edm::LogError("discriminateGMT") << "can't find L1MuGMTReadoutCollection with label \n";
+
     return -1; 
   }
   
@@ -239,8 +236,10 @@ void RPCTTUMonitor::discriminateDecision( bool data, bool emu , int indx )
 
 
 
-void  RPCTTUMonitor::beginJob(){
+void  RPCTTUMonitor::beginJob(){}
 
+void RPCTTUMonitor::beginRun(const edm::EventSetup& iSetup){
+ 
   dbe = edm::Service<DQMStore>().operator->();
   dbe->showDirStructure();
 
@@ -284,10 +283,8 @@ void  RPCTTUMonitor::beginJob(){
    hname.str("");
    
  }
-}
 
-void RPCTTUMonitor::beginRun(const edm::EventSetup& iSetup){
-  
+ 
 }
 
 

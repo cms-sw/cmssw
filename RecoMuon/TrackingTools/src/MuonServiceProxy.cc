@@ -4,8 +4,6 @@
  *  The update method is called each event in order to update the
  *  pointers.
  *
- *  $Date: 2009/04/14 12:12:35 $
- *  $Revision: 1.18 $
  *  \author N. Amapane - CERN <nicola.amapane@cern.ch>
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */

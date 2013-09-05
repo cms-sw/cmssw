@@ -40,20 +40,19 @@ namespace edm {
     return luminosityBlockAuxiliary();
   }
 
-  EventPrincipal*
+  void
   RawInputSource::readEvent_(EventPrincipal& eventPrincipal) {
     assert(!newRun());
     assert(!newLumi());
     assert(eventCached());
     resetEventCached();
-    return read(eventPrincipal);
+    read(eventPrincipal);
   }
 
-  EventPrincipal*
+  void
   RawInputSource::makeEvent(EventPrincipal& eventPrincipal, EventAuxiliary const& eventAuxiliary) {
     EventSourceSentry sentry(*this);
-    eventPrincipal.fillEventPrincipal(eventAuxiliary);
-    return &eventPrincipal;
+    eventPrincipal.fillEventPrincipal(eventAuxiliary, processHistoryRegistryForUpdate());
   }
 
   void

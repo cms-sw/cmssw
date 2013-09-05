@@ -31,7 +31,7 @@ public:
 	virtual ~BeamSpotFakeConditions();
 	ReturnType produce(const BeamSpotObjectsRcd &record);
 private:
-	void setIntervalFor(const edm::eventsetup::EventSetupRecordKey &key,const edm::IOVSyncValue &syncValue,edm::ValidityInterval &oValidity);
+	void setIntervalFor(const edm::eventsetup::EventSetupRecordKey &key,const edm::IOVSyncValue &syncValue,edm::ValidityInterval &oValidity) override;
   edm::FileInPath inputFilename_;
   bool getDataFromFile_;
   double x,y,z,sigmaZ,dxdz,dydz,beamWidthX,beamWidthY,emittanceX,emittanceY,betastar;

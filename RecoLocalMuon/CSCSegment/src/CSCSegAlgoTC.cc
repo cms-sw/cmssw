@@ -1,8 +1,6 @@
 /**
  * \file CSCSegAlgoTC.cc
  *
- * $Date: 2009/12/16 02:00:49 $
- * $Revision: 1.14 $
  * \author M. Sani
  * 
  */

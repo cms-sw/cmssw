@@ -109,8 +109,8 @@ namespace cms
 
   TrackListMerger::TrackListMerger(edm::ParameterSet const& conf) {
     copyExtras_ = conf.getUntrackedParameter<bool>("copyExtras", true);
-    
-    trackProducers_ = conf.getParameter<std::vector<edm::InputTag> >("TrackProducers");
+
+    std::vector<edm::InputTag> trackProducerTags(conf.getParameter<std::vector<edm::InputTag> >("TrackProducers"));
     //which of these do I need to turn into vectors?
     maxNormalizedChisq_ =  conf.getParameter<double>("MaxNormalizedChisq");
     minPT_ =  conf.getParameter<double>("MinPT");
@@ -139,28 +139,26 @@ namespace cms
       promoteQuality_.push_back(setsToMerge[i].getParameter<bool>("pQual"));   
     }
     
-    hasSelector_=conf.getParameter<std::vector<int> >("hasSelector");
-    selectors_=conf.getParameter<std::vector<edm::InputTag> >("selectedTrackQuals");   
+    hasSelector_= conf.getParameter<std::vector<int> >("hasSelector");
+    std::vector<edm::InputTag> selectors(conf.getParameter<std::vector<edm::InputTag> >("selectedTrackQuals"));   
+    std::vector<edm::InputTag> mvaStores;
     if(conf.exists("mvaValueTags")){
-      mvaStores_ = conf.getParameter<std::vector<edm::InputTag> >("mvaValueTags");
+      mvaStores = conf.getParameter<std::vector<edm::InputTag> >("mvaValueTags");
     }else{
-      std::vector<edm::InputTag> mvaValueTags;
-      for (int i = 0; i < (int)selectors_.size(); i++){
-	edm::InputTag ntag(selectors_[i].label(),"MVAVals");
-	mvaValueTags.push_back(ntag);
+      for (int i = 0; i < (int)selectors.size(); i++){
+	edm::InputTag ntag(selectors[i].label(),"MVAVals");
+	mvaStores.push_back(ntag);
       }
-
-      mvaStores_ = mvaValueTags;
     }
-    unsigned int numTrkColl = trackProducers_.size();
-    if (numTrkColl != hasSelector_.size() || numTrkColl != selectors_.size()) {
+    unsigned int numTrkColl = trackProducerTags.size();
+    if (numTrkColl != hasSelector_.size() || numTrkColl != selectors.size()) {
 	throw cms::Exception("Inconsistent size") << "need same number of track collections and selectors";
     }
-    if (numTrkColl != hasSelector_.size() || numTrkColl != mvaStores_.size()) {
+    if (numTrkColl != hasSelector_.size() || numTrkColl != mvaStores.size()) {
 	throw cms::Exception("Inconsistent size") << "need same number of track collections and MVA stores";
     }
     for (unsigned int i = indivShareFrac_.size(); i < numTrkColl; i++) {
-      //      edm::LogWarning("TrackListMerger") << "No indivShareFrac for " << trackProducers_[i] <<". Using default value of 1";
+      //      edm::LogWarning("TrackListMerger") << "No indivShareFrac for " << trackProducersTags <<". Using default value of 1";
       indivShareFrac_.push_back(1.0);
     }
 
@@ -168,7 +166,7 @@ namespace cms
     if ( trkQualMod_) {
       bool ok=true;
       for ( unsigned int i=1; i<numTrkColl; i++) {
-	if (!(trackProducers_[i]==trackProducers_[0])) ok=false;
+	if (!(trackProducerTags[i]==trackProducerTags[0])) ok=false;
       }
       if ( !ok) {
 	throw cms::Exception("Bad input") << "to use writeOnlyTrkQuals=True all input InputTags must be the same";
@@ -192,6 +190,12 @@ namespace cms
       produces< TrajTrackAssociationCollection >();
     }
     produces<edm::ValueMap<float> >("MVAVals");
+
+    // Do all the consumes
+    trackProducers_.resize(numTrkColl);
+    for (unsigned int i = 0; i < numTrkColl; ++i) {
+        trackProducers_[i] = hasSelector_[i]>0 ? edTokens(trackProducerTags[i], selectors[i], mvaStores[i]) : edTokens(trackProducerTags[i], mvaStores[i]);
+    }
     
   }
   
@@ -221,11 +225,11 @@ namespace cms
     for ( unsigned int i=0; i<trackProducers_.size(); i++) {
       trackColls.push_back(0);
       //edm::Handle<reco::TrackCollection> trackColl;
-      e.getByLabel(trackProducers_[i], trackHandles[i]);
+      e.getByToken(trackProducers_[i].tk, trackHandles[i]);
       if (trackHandles[i].isValid()) {
 	trackColls[i]= trackHandles[i].product();
       } else {
-	edm::LogWarning("TrackListMerger") << "TrackCollection " << trackProducers_[i] <<" not found";
+	edm::LogWarning("TrackListMerger") << "TrackCollection " << trackProducers_[i].tag <<" not found";
 	trackColls[i]=&s_empty;
       }
     }
@@ -263,9 +267,9 @@ namespace cms
       
       edm::Handle<edm::ValueMap<int> > trackSelColl;
       edm::Handle<edm::ValueMap<float> > trackMVAStore;
-      e.getByLabel(mvaStores_[j], trackMVAStore);
+      e.getByToken(trackProducers_[j].tmva, trackMVAStore);
       if ( hasSelector_[j]>0 ){
-	e.getByLabel(selectors_[j], trackSelColl);
+	e.getByToken(trackProducers_[j].tsel, trackSelColl);
       }
       
       if ( 0<tC1->size() ){
@@ -667,8 +671,8 @@ namespace cms
     for (unsigned int ti=0; ti<trackColls.size(); ti++) {
       edm::Handle< std::vector<Trajectory> >  hTraj1;
       edm::Handle< TrajTrackAssociationCollection >  hTTAss1;
-      e.getByLabel(trackProducers_[ti], hTraj1);
-      e.getByLabel(trackProducers_[ti], hTTAss1);
+      e.getByToken(trackProducers_[ti].traj, hTraj1);
+      e.getByToken(trackProducers_[ti].tass, hTTAss1);
       
       if (hTraj1.failedToGet() || hTTAss1.failedToGet()) continue;
       

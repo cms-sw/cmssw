@@ -972,12 +972,12 @@ int EcalElectronicsMapping::DCCBoundary(int FED)const {
 }
 
 
-std::vector<int> EcalElectronicsMapping::GetListofFEDs(const EcalEtaPhiRegion region) const {
+std::vector<int> EcalElectronicsMapping::GetListofFEDs(const EcalEtaPhiRegion& region) const {
   std::vector<int> FEDs;
   GetListofFEDs(region, FEDs);
   return FEDs;
 }
-void EcalElectronicsMapping::GetListofFEDs(const EcalEtaPhiRegion region, std::vector<int> & FEDs) const {
+void EcalElectronicsMapping::GetListofFEDs(const EcalEtaPhiRegion& region, std::vector<int> & FEDs) const {
 
 	// for regional unpacking.
 	// get list of FEDs corresponding to a region in (eta,phi)

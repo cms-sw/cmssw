@@ -27,52 +27,36 @@ to keep the EventPrincipal class from having too much 'physical' coupling with t
 
 // forward declarations
 namespace edm {
-   class CurrentProcessingContext;
+   class ModuleCallingContext;
    class UnscheduledHandlerSentry;
 
    class UnscheduledHandler {
 
    public:
       friend class UnscheduledHandlerSentry;
-      UnscheduledHandler(): m_setup(nullptr), m_context(nullptr) {}
+      UnscheduledHandler(): m_setup(nullptr) {}
       virtual ~UnscheduledHandler();
 
       UnscheduledHandler(UnscheduledHandler const&) = delete; // Disallow copying and moving
       UnscheduledHandler& operator=(UnscheduledHandler const&) = delete; // Disallow copying and moving
 
-      // ---------- const member functions ---------------------
-
-      // ---------- static member functions --------------------
-
       // ---------- member functions ---------------------------
       ///returns true if found an EDProducer and ran it
       bool tryToFill(std::string const& label,
-                     EventPrincipal& iEvent);
+                     EventPrincipal& iEvent,
+                     ModuleCallingContext const* mcc);
 
       void setEventSetup(EventSetup const& iSetup) {
          m_setup = &iSetup;
       }
    private:
-      CurrentProcessingContext const* setCurrentProcessingContext(CurrentProcessingContext const* iContext);
-      //void popCurrentProcessingContext();
 
       virtual bool tryToFillImpl(std::string const&,
                                  EventPrincipal&,
                                  EventSetup const&,
-                                 CurrentProcessingContext const*) = 0;
+                                 ModuleCallingContext const* mcc) = 0;
       // ---------- member data --------------------------------
       EventSetup const* m_setup;
-      CurrentProcessingContext const* m_context;
-};
-   class UnscheduledHandlerSentry {
-   public:
-      UnscheduledHandlerSentry(UnscheduledHandler* iHandler,
-                               CurrentProcessingContext const* iContext);
-      ~UnscheduledHandlerSentry();
-   private:
-      UnscheduledHandler* m_handler;
-      CurrentProcessingContext const* m_old;
    };
 }
-
 #endif

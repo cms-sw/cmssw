@@ -12,11 +12,13 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "DataFormats/JetReco/interface/CaloJetCollection.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/Utilities/interface/InputTag.h" 
 
 //
 // constructors and destructor
@@ -26,10 +28,22 @@ HLT2jetGapFilter::HLT2jetGapFilter(const edm::ParameterSet& iConfig) : HLTFilter
    inputTag_ = iConfig.getParameter<edm::InputTag> ("inputTag");
    minEt_    = iConfig.getParameter<double> ("minEt");
    minEta_   = iConfig.getParameter<double> ("minEta"); 
+
+   m_theCaloJetToken = consumes<reco::CaloJetCollection>(inputTag_);
+
 }
 
 HLT2jetGapFilter::~HLT2jetGapFilter(){}
 
+void
+HLT2jetGapFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  makeHLTFilterDescription(desc);
+  desc.add<edm::InputTag>("inputTag",edm::InputTag("iterativeCone5CaloJets"));
+  desc.add<double>("minEt",90.0);
+  desc.add<double>("minEta",1.9);
+  descriptions.add("hlt2jetGapFilter",desc);
+}
 
 // ------------ method called to produce the data  ------------
 bool
@@ -41,13 +55,10 @@ HLT2jetGapFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, t
   if (saveTags()) filterproduct.addCollectionTag(inputTag_);
 
   edm::Handle<reco::CaloJetCollection> recocalojets;
-  iEvent.getByLabel(inputTag_,recocalojets);
+  iEvent.getByToken(m_theCaloJetToken,recocalojets);
 
   // look at all candidates,  check cuts and add to filter object
   int n(0);
-
-//  std::cout << "HLT2jetGapFilter " << recocalojets->size() << " jets in this event" << std::endl;
-
 
   if(recocalojets->size() > 1){
     // events with two or more jets

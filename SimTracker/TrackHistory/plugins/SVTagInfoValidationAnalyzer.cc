@@ -43,8 +43,8 @@ public:
 
 private:
 
-    virtual void analyze(const edm::Event&, const edm::EventSetup&);
-    virtual void endJob() ;
+    virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
+    virtual void endJob() override ;
     // Member data
 
     VertexClassifierByProxy<reco::SecondaryVertexTagInfoCollection> classifier_;

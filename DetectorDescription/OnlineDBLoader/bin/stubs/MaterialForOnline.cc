@@ -1,6 +1,5 @@
 // Original Author:  Jie Chen
 //         Created:  Thu Apr  5 10:36:22 CDT 2007
-// $Id: MaterialForOnline.cc,v 1.7 2009/12/21 23:29:28 case Exp $
 //
 //
 
@@ -37,9 +36,9 @@ class MaterialForOnline : public edm::EDAnalyzer {
    public:
       explicit MaterialForOnline(const edm::ParameterSet&);
       ~MaterialForOnline();
-      virtual void beginRun(const edm::Run&, const edm::EventSetup&) ;
-      virtual void analyze(const edm::Event&, const edm::EventSetup&);
-      virtual void endJob() ;
+      virtual void beginRun(const edm::Run&, const edm::EventSetup&) override ;
+      virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
+      virtual void endJob() override ;
 
    private:
 

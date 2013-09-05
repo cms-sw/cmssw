@@ -11,8 +11,6 @@
  *  to make the data persistent or use it in an other context.
 */
 //
-//   $Date $
-//   $Revision $
 //
 //   Author :
 //   H. Sakulin                  HEPHY Vienna

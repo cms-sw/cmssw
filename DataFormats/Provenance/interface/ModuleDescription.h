@@ -8,7 +8,6 @@ ModuleDescription: The description of a producer module.
 ----------------------------------------------------------------------*/
 #include "DataFormats/Provenance/interface/ParameterSetID.h"
 #include "DataFormats/Provenance/interface/ProcessConfiguration.h"
-#include "DataFormats/Provenance/interface/ProcessConfigurationID.h"
 
 #include "boost/shared_ptr.hpp"
 
@@ -19,6 +18,7 @@ namespace edm {
 
   // once a module is born, these parts of the module's product provenance
   // are constant   (change to ModuleDescription)
+  
 
   class ModuleDescription {
   public:
@@ -39,7 +39,8 @@ namespace edm {
     ModuleDescription(ParameterSetID const& pid,
                       std::string const& modName,
                       std::string const& modLabel,
-                      ProcessConfiguration const* procConfig);
+                      ProcessConfiguration const* procConfig,
+                      unsigned int modID);
 
     ~ModuleDescription();
 
@@ -48,8 +49,11 @@ namespace edm {
     ParameterSetID const& parameterSetID() const {return parameterSetID_;}
     std::string const& moduleName() const {return moduleName_;}
     std::string const& moduleLabel() const {return moduleLabel_;}
+    ///A unique ID for a module declared in the Process. The id is only unique for the Process and not across different Processes.
+    ///If the id is invalid, will return the max unsigned int value.
+    unsigned int id() const {return id_;}
     ProcessConfiguration const& processConfiguration() const;
-    ProcessConfigurationID processConfigurationID() const;
+
     std::string const& processName() const;
     std::string const& releaseVersion() const;
     std::string const& passID() const;
@@ -62,6 +66,9 @@ namespace edm {
     bool operator==(ModuleDescription const& rh) const;
 
     bool operator!=(ModuleDescription const& rh) const;
+
+    ///Returns a unique id each time called. Intended to be passed to ModuleDescription's constructor's modID argument. Thread safe.
+    static unsigned int getUniqueID();
 
   private:
 
@@ -77,6 +84,8 @@ namespace edm {
 
     // The process configuration.
     ProcessConfiguration const* processConfigurationPtr_;
+    
+    unsigned int id_;
   };
 
   inline

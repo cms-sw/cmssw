@@ -10,7 +10,7 @@
 // $Id: FWItemTrackAccessors.cc,v 1.8 2010/06/18 12:44:47 yana Exp $
 //
 
-#include <assert.h>
+#include <cassert>
 
 #include "TClass.h"
 

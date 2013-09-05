@@ -14,7 +14,7 @@
 #include "Fireworks/Core/src/FWColorSelect.h"
 #include "Fireworks/Core/src/FWPopupMenu.cc"
 #include "Fireworks/Core/src/FWGeoTopNodeScene.h"
-#include "Fireworks/Core/src/FWEveDigitSetScalableMarker.cc"
+#include "Fireworks/Core/src/FWEveDigitSetScalableMarker.h"
 #include "Fireworks/Core/interface/CmsShowViewPopup.h"
 
 
@@ -125,7 +125,7 @@ namespace {
 
       virtual ~FWGeometryVF() {};
 
-      virtual Bool_t HandleKey(Event_t *event)
+      virtual Bool_t HandleKey(Event_t *event) override
       {
          if (event->fCode == (UInt_t) gVirtualX->KeysymToKeycode(kKey_Escape)) {
             m_tv->getTableManager()->cancelEditor(true);
@@ -142,7 +142,7 @@ namespace {
       FWTranspEntry(const TGWindow* p, FWGeometryTableViewBase* tv) :TGTextEntry(p), m_tv (tv){}
       virtual ~FWTranspEntry() {}
 
-      virtual Bool_t HandleKey(Event_t *event)
+      virtual Bool_t HandleKey(Event_t *event) override
       {
          if (event->fCode == (UInt_t) gVirtualX->KeysymToKeycode(kKey_Escape)) {
             m_tv->getTableManager()->cancelEditor(true);

@@ -16,7 +16,6 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri, 26 Apr 2013 19:37:37 GMT
-// $Id$
 //
 
 // system include files
@@ -25,8 +24,8 @@
 
 // forward declarations
 namespace edm {
-  class EventProcessor;
-  class SubProcess;
+  class Schedule;
+  class EventPrincipal;
   
   class StreamID
   {
@@ -51,9 +50,9 @@ namespace edm {
     }
     
   private:
-    ///Only a Schedule or a SubProcess is allowed to create one of these
-    friend class EventProcessor;
-    friend class SubProcess;
+    ///Only a Schedule is allowed to create one of these
+    friend class Schedule;
+    friend class EventPrincipal;
     explicit StreamID(unsigned int iValue) : value_(iValue) {}
     
     StreamID() = delete;

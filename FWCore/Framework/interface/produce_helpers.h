@@ -16,7 +16,6 @@
 //
 // Author:      Chris Jones
 // Created:     Fri Apr 15 10:25:20 EDT 2005
-// $Id: produce_helpers.h,v 1.5 2005/09/01 23:30:49 wmtan Exp $
 //
 
 // system include files

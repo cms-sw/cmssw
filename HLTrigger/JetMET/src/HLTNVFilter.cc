@@ -9,15 +9,15 @@
 
 #include "DataFormats/Common/interface/Handle.h"
 
-#include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "DataFormats/JetReco/interface/CaloJetCollection.h"
 #include "DataFormats/METReco/interface/CaloMET.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 
 //
@@ -30,10 +30,23 @@ HLTNVFilter::HLTNVFilter(const edm::ParameterSet& iConfig) : HLTFilter(iConfig)
    minNV_   = iConfig.getParameter<double> ("minNV");
    minEtjet1_= iConfig.getParameter<double> ("minEtJet1"); 
    minEtjet2_ = iConfig.getParameter<double> ("minEtJet2");
+   m_theJetToken = consumes<reco::CaloJetCollection>(inputJetTag_);
+   m_theMETToken = consumes<trigger::TriggerFilterObjectWithRefs>(inputMETTag_);
 }
 
 HLTNVFilter::~HLTNVFilter(){}
 
+
+void HLTNVFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  makeHLTFilterDescription(desc);
+  desc.add<edm::InputTag>("inputJetTag",edm::InputTag("iterativeCone5CaloJets"));
+  desc.add<edm::InputTag>("inputMETTag",edm::InputTag("hlt1MET60"));
+  desc.add<double>("minEtJet2",20.);
+  desc.add<double>("minEtJet1",80.);
+  desc.add<double>("minNV",0.1);
+  descriptions.add("hltNVFilter",desc);
+}
 
 // ------------ method called to produce the data  ------------
 bool
@@ -51,9 +64,9 @@ HLTNVFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigge
   }
 
   Handle<CaloJetCollection> recocalojets;
-  iEvent.getByLabel(inputJetTag_,recocalojets);
+  iEvent.getByToken(m_theJetToken,recocalojets);
   Handle<trigger::TriggerFilterObjectWithRefs> metcal;
-  iEvent.getByLabel(inputMETTag_,metcal);
+  iEvent.getByToken(m_theMETToken,metcal);
 
 
   // look at all candidates,  check cuts and add to filter object

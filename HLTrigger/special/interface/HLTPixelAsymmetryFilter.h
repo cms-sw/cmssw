@@ -38,6 +38,8 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
@@ -51,10 +53,12 @@ class HLTPixelAsymmetryFilter : public HLTFilter {
  public:
   explicit HLTPixelAsymmetryFilter(const edm::ParameterSet&);
   ~HLTPixelAsymmetryFilter();
+  static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
  private:
   virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct);
 
+  edm::EDGetTokenT<edmNew::DetSetVector<SiPixelCluster> > inputToken_;
   edm::InputTag inputTag_; // input tag identifying product containing pixel clusters
   double  min_asym_;       // minimum asymmetry 
   double  max_asym_;       // maximum asymmetry

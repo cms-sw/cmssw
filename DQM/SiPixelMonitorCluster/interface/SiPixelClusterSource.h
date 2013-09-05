@@ -19,7 +19,6 @@
 // Updated by: Lukas Wehrli
 // for pixel offline DQM 
 //         Created:  
-// $Id: SiPixelClusterSource.h,v 1.19 2010/12/13 14:18:23 merkelp Exp $
 
 #include <memory>
 

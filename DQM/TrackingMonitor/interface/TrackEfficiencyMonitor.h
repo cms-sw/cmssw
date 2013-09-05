@@ -11,10 +11,10 @@ Monitoring source to measure the track efficiency
 //  Original Author:  Jeremy Andrea
 // Insertion in DQM:  Anne-Catherine Le Bihan
 //          Created:  Thu 28 22:45:30 CEST 2008
-// $Id: TrackEfficiencyMonitor.h,v 1.1 2012/10/15 13:24:45 threus Exp $
 
 #include <memory>
 #include <fstream>
+#include "FWCore/Utilities/interface/EDGetToken.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -75,7 +75,10 @@ class TrackEfficiencyMonitor : public edm::EDAnalyzer {
 		     
   edm::InputTag theTKTracksLabel_;
   edm::InputTag theSTATracksLabel_;
-  
+  edm::EDGetTokenT<reco::TrackCollection> theTKTracksToken_;
+  edm::EDGetTokenT<reco::TrackCollection> theSTATracksToken_;
+
+
   int failedToPropagate;
   int nCompatibleLayers;
   bool findDetLayer;

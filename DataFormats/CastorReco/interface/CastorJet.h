@@ -6,7 +6,6 @@
  *
  * \author Hans Van Haevermaet, University of Antwerp
  *
- * \version $Id: CastorJet.h,v 1.4 2010/02/18 13:46:55 hvanhaev Exp $
  *
  */
 #include <vector>

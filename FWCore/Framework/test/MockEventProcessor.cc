@@ -36,7 +36,7 @@ namespace edm {
   }
 
   edm::MockEventProcessor::StatusCode
-  MockEventProcessor::runToCompletion(bool /*onlineStateTransitions*/) {
+  MockEventProcessor::runToCompletion() {
     statemachine::Machine myMachine(this,
                                     fileMode_,
                                     emptyRunLumiMode_);
@@ -116,14 +116,6 @@ namespace edm {
     output_ << "\trespondToCloseInputFile\n";
   }
 
-  void MockEventProcessor::respondToOpenOutputFiles() {
-    output_ << "\trespondToOpenOutputFiles\n";
-  }
-
-  void MockEventProcessor::respondToCloseOutputFiles() {
-    output_ << "\trespondToCloseOutputFiles\n";
-  }
-
   void MockEventProcessor::startingNewLoop() {
     output_ << "\tstartingNewLoop\n";
   }
@@ -166,8 +158,8 @@ namespace edm {
     output_ << "\tendLumi " << run << "/" << lumi << "\n";
   }
 
-  statemachine::Run MockEventProcessor::readAndCacheRun() {
-    output_ << "\treadAndCacheRun " << run_ << "\n";
+  statemachine::Run MockEventProcessor::readRun() {
+    output_ << "\treadRun " << run_ << "\n";
     return statemachine::Run(ProcessHistoryID(), run_);
   }
 
@@ -176,8 +168,8 @@ namespace edm {
     return statemachine::Run(ProcessHistoryID(), run_);
   }
 
-  int MockEventProcessor::readAndCacheLumi() {
-    output_ << "\treadAndCacheLumi " << lumi_ << "\n";
+  int MockEventProcessor::readLuminosityBlock() {
+    output_ << "\treadLuminosityBlock " << lumi_ << "\n";
     return lumi_;
   }
 

@@ -26,7 +26,14 @@ Implementation:
 #include "FWCore/Framework/interface/EDFilter.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+#include "DataFormats/FEDRawData/interface/FEDRawData.h"
+#include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
+
 #include <string>
+
+namespace edm {
+  class ConfigurationDescriptions;
+}
 
 //
 // class declaration
@@ -36,6 +43,7 @@ class HLTHcalCalibTypeFilter : public edm::EDFilter {
 public:
   explicit HLTHcalCalibTypeFilter(const edm::ParameterSet&);
   virtual ~HLTHcalCalibTypeFilter();
+  static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
   
 private:
   virtual void beginJob(void);
@@ -44,6 +52,7 @@ private:
   
   // ----------member data ---------------------------
   
+  edm::EDGetTokenT<FEDRawDataCollection> DataInputToken_;
   edm::InputTag DataInputTag_ ;
   bool          Summary_ ;
   std::vector<int> CalibTypes_ ;   

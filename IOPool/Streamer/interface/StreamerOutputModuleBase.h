@@ -10,7 +10,9 @@
 class InitMsgBuilder;
 class EventMsgBuilder;
 namespace edm {
+  class ModuleCallingContext;
   class ParameterSetDescription;
+
   class StreamerOutputModuleBase : public OutputModule {
   public:
     explicit StreamerOutputModuleBase(ParameterSet const& ps);  
@@ -18,13 +20,13 @@ namespace edm {
     static void fillDescription(ParameterSetDescription & desc);
 
   private:
-    virtual void beginRun(RunPrincipal const&);
-    virtual void endRun(RunPrincipal const&);
-    virtual void beginJob();
-    virtual void endJob();
-    virtual void writeRun(RunPrincipal const&);
-    virtual void writeLuminosityBlock(LuminosityBlockPrincipal const&);
-    virtual void write(EventPrincipal const& e);
+    virtual void beginRun(RunPrincipal const&, ModuleCallingContext const*) override;
+    virtual void endRun(RunPrincipal const&, ModuleCallingContext const*) override;
+    virtual void beginJob() override;
+    virtual void endJob() override;
+    virtual void writeRun(RunPrincipal const&, ModuleCallingContext const*) override;
+    virtual void writeLuminosityBlock(LuminosityBlockPrincipal const&, ModuleCallingContext const*) override;
+    virtual void write(EventPrincipal const& e, ModuleCallingContext const*) override;
 
     virtual void start() const = 0;
     virtual void stop() const = 0;
@@ -32,12 +34,12 @@ namespace edm {
     virtual void doOutputEvent(EventMsgBuilder const& msg) const = 0;
 
     std::auto_ptr<InitMsgBuilder> serializeRegistry();
-    std::auto_ptr<EventMsgBuilder> serializeEvent(EventPrincipal const& e); 
-    void setHltMask(EventPrincipal const& e);
+    std::auto_ptr<EventMsgBuilder> serializeEvent(EventPrincipal const& e, ModuleCallingContext const* mcc); 
+    void setHltMask(EventPrincipal const& e, ModuleCallingContext const*);
     void setLumiSection();
 
   private:
-    Selections const* selections_;
+    SelectedProducts const* selections_;
 
     int maxEventSize_;
     bool useCompression_;

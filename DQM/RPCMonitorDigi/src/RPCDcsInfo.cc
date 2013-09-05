@@ -1,5 +1,4 @@
 #include "DQM/RPCMonitorDigi/interface/RPCDcsInfo.h"
-#include "DataFormats/Scalers/interface/DcsStatus.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GtFdlWord.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
@@ -11,7 +10,7 @@ RPCDcsInfo::RPCDcsInfo(const edm::ParameterSet& ps){
 
   subsystemname_ = ps.getUntrackedParameter<std::string>("subSystemFolder", "RPC") ;
   dcsinfofolder_ = ps.getUntrackedParameter<std::string>("dcsInfoFolder", "DCSInfo") ;
-  scalersRawToDigiLabel_ = ps.getUntrackedParameter<std::string>("ScalersRawToDigiLabel", "scalersRawToDigi");
+  scalersRawToDigiLabel_  = consumes<DcsStatusCollection>(ps.getParameter<edm::InputTag>("ScalersRawToDigiLabel"));
   
   // initialize
   dcs = true;
@@ -57,11 +56,11 @@ void  RPCDcsInfo::makeDcsInfo(const edm::Event& e) {
 
   edm::Handle<DcsStatusCollection> dcsStatus;
 
-  if ( ! e.getByLabel("scalersRawToDigi", dcsStatus) ){
+  if ( ! e.getByToken(scalersRawToDigiLabel_, dcsStatus) ){
     dcs = false;
     return;
   }
-  
+
   if ( ! dcsStatus.isValid() ) 
   {
     edm::LogWarning("RPCDcsInfo") << "scalersRawToDigi not found" ;

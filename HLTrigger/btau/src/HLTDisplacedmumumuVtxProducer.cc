@@ -2,6 +2,7 @@
 
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 
 #include "DataFormats/Candidate/interface/CandidateFwd.h"
 #include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
@@ -23,7 +24,7 @@
 #include "DataFormats/Common/interface/RefToBase.h"
 
 
-#include "HLTDisplacedmumumuVtxProducer.h"
+#include "HLTrigger/btau/src/HLTDisplacedmumumuVtxProducer.h"
 
 using namespace edm;
 using namespace reco;
@@ -33,8 +34,10 @@ using namespace trigger;
 // constructors and destructor
 //
 HLTDisplacedmumumuVtxProducer::HLTDisplacedmumumuVtxProducer(const edm::ParameterSet& iConfig):	
-  src_ (iConfig.getParameter<edm::InputTag>("Src")),
+  srcTag_ (iConfig.getParameter<edm::InputTag>("Src")),
+  srcToken_(consumes<reco::RecoChargedCandidateCollection>(srcTag_)),
   previousCandTag_(iConfig.getParameter<edm::InputTag>("PreviousCandTag")),
+  previousCandToken_(consumes<trigger::TriggerFilterObjectWithRefs>(previousCandTag_)),
   maxEta_ (iConfig.getParameter<double>("MaxEta")),
   minPt_ (iConfig.getParameter<double>("MinPt")),
   minPtTriplet_ (iConfig.getParameter<double>("MinPtTriplet")),
@@ -49,6 +52,20 @@ HLTDisplacedmumumuVtxProducer::HLTDisplacedmumumuVtxProducer(const edm::Paramete
 HLTDisplacedmumumuVtxProducer::~HLTDisplacedmumumuVtxProducer()
 {
   
+}
+
+void
+HLTDisplacedmumumuVtxProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<edm::InputTag>("Src",edm::InputTag("hltL3MuonCandidates"));
+  desc.add<edm::InputTag>("PreviousCandTag",edm::InputTag(""));
+  desc.add<double>("MaxEta",2.5);
+  desc.add<double>("MinPt",0.0);
+  desc.add<double>("MinPtTriplet",0.0);
+  desc.add<double>("MinInvMass",1.0);
+  desc.add<double>("MaxInvMass",20.0);
+  desc.add<int>("ChargeOpt",-1);
+  descriptions.add("hltDisplacedmumumuVtxProducer", desc);
 }
 
 
@@ -73,7 +90,7 @@ void HLTDisplacedmumumuVtxProducer::produce(edm::Event& iEvent, const edm::Event
   
   // get hold of muon trks
   Handle<RecoChargedCandidateCollection> mucands;
-  iEvent.getByLabel (src_,mucands);
+  iEvent.getByToken(srcToken_,mucands);
   
   //get the transient track builder:
   edm::ESHandle<TransientTrackBuilder> theB;
@@ -91,7 +108,7 @@ void HLTDisplacedmumumuVtxProducer::produce(edm::Event& iEvent, const edm::Event
   
   // get the objects passing the previous filter
   Handle<TriggerFilterObjectWithRefs> previousCands;
-  iEvent.getByLabel (previousCandTag_,previousCands);
+  iEvent.getByToken(previousCandToken_,previousCands);
   
   vector<RecoChargedCandidateRef> vPrevCands;
   previousCands->getObjects(TriggerMuon,vPrevCands);

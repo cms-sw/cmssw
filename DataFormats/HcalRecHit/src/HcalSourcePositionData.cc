@@ -13,7 +13,7 @@ HcalSourcePositionData::HcalSourcePositionData(){
   timestamp2_usec_=0;
   status_=0;
   motorCurrent_=0;
-  speed_=0;
+  motorVoltage_=0;
   tubeId_=-1;
   driverId_=-1;
   sourceId_=-1;
@@ -28,10 +28,15 @@ void HcalSourcePositionData::set(int message_counter,
 				       int index_counter,
 				       int reel_counter,
 				       int motor_current,
-				       int speed,
+				       int motor_voltage,
 				       int tube_id,
 				       int driver_id,
-                                       int source_id){
+               int source_id,
+               std::string tubeNameFromCoord,
+               std::string tubeNameFromSD,
+               std::string lastCommand,
+               std::string message)
+{
 
   messageCounter_=message_counter;
   indexCounter_=index_counter;
@@ -42,10 +47,14 @@ void HcalSourcePositionData::set(int message_counter,
   timestamp2_usec_=timestamp2_usec;
   status_=status;
   motorCurrent_=motor_current;
-  speed_=speed;
+  motorVoltage_=motor_voltage;
   tubeId_=tube_id;
   driverId_=driver_id;
   sourceId_=source_id;
+  tubeNameFromCoord_=tubeNameFromCoord;
+  tubeNameFromSD_=tubeNameFromSD;
+  lastCommand_=lastCommand;
+  message_=message;
 }
 
 void HcalSourcePositionData::getDriverTimestamp(int& seconds, int& useconds) const{
@@ -60,15 +69,19 @@ void HcalSourcePositionData::getDAQTimestamp(int& seconds, int& useconds) const{
 
 ostream& operator<<(ostream& s, const HcalSourcePositionData& hspd) {
 
-  s << "  Message Counter =" << hspd.messageCounter() << endl;
-  s << "  Index Counter   =" << hspd.indexCounter() << endl;
-  s << "  Reel Counter    =" << hspd.reelCounter() << endl;
-  s << "  Status          =" << hex << hspd.status() << dec << endl;
-  s << "  Motor Current   =" << hspd.motorCurrent() << endl;
-  s << "  Speed           =" << hspd.speed() << endl;
-  s << "  Tube Id         =" << hspd.tubeId() << endl;
-  s << "  Driver Id       =" << hspd.driverId() << endl;
-  s << "  Source Id       =" << hspd.sourceId() << endl;
+  s << "  Message Counter   =" << hspd.messageCounter() << endl;
+  s << "  Index Counter     =" << hspd.indexCounter() << endl;
+  s << "  Reel Counter      =" << hspd.reelCounter() << endl;
+  s << "  Status            =" << hex << hspd.status() << dec << endl;
+  s << "  Motor Current     =" << hspd.motorCurrent() << endl;
+  s << "  Motor Voltage     =" << hspd.motorVoltage() << endl;
+  s << "  Tube Id           =" << hspd.tubeId() << endl;
+  s << "  Driver Id         =" << hspd.driverId() << endl;
+  s << "  Source Id         =" << hspd.sourceId() << endl;
+  s << "  TubeNameFromCoord =" << hspd.tubeNameFromCoord() << endl;
+  s << "  TubeNameFromSD    =" << hspd.tubeNameFromSD() << endl;
+  s << "  Last Command      =" << hspd.lastCommand() << endl;
+  s << "  Message           =" << hspd.message() << endl;
   
   int timebase =0; int timeusec=0;
   hspd.getDriverTimestamp(timebase,timeusec);

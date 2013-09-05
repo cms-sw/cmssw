@@ -57,7 +57,7 @@ class Multi5x5ClusterAlgo
   Multi5x5ClusterAlgo() {
         }
 
-  Multi5x5ClusterAlgo(double ebst, double ecst, std::vector<int> v_chstatus, const PositionCalc& posCalc,bool reassignSeedCrysToClusterItSeeds=false) : 
+  Multi5x5ClusterAlgo(double ebst, double ecst, const std::vector<int>& v_chstatus, const PositionCalc& posCalc,bool reassignSeedCrysToClusterItSeeds=false) : 
 	  ecalBarrelSeedThreshold(ebst), ecalEndcapSeedThreshold(ecst),  v_chstatus_(v_chstatus) ,reassignSeedCrysToClusterItSeeds_(reassignSeedCrysToClusterItSeeds) {
                 posCalculator_ = posCalc;
                 std::sort( v_chstatus_.begin(), v_chstatus_.end() );

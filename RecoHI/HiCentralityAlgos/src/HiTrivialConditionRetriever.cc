@@ -13,7 +13,6 @@
 //
 // Original Author:  Yetkin Yilmaz
 //         Created:  Wed May  2 21:41:30 EDT 2007
-// $Id: HiTrivialConditionRetriever.cc,v 1.8 2010/03/23 12:40:53 yilmaz Exp $
 //
 //
 
@@ -51,7 +50,7 @@ protected:
   //overriding from ContextRecordIntervalFinder
   virtual void setIntervalFor( const edm::eventsetup::EventSetupRecordKey&,
                                const edm::IOVSyncValue& ,
-                               edm::ValidityInterval& ) ;
+                               edm::ValidityInterval& ) override ;
   
    private:
   virtual std::auto_ptr<CentralityTable> produceTable( const HeavyIonRcd& );

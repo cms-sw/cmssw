@@ -62,7 +62,7 @@ TFitParticleMCSpher::TFitParticleMCSpher(const TString &name, const TString &tit
   init(p, M, theCovMatrix);
 }
 
-TAbsFitParticle* TFitParticleMCSpher::clone( TString newname ) const {
+TAbsFitParticle* TFitParticleMCSpher::clone( const TString& newname ) const {
   // Returns a copy of itself
   
   TAbsFitParticle* myclone = new TFitParticleMCSpher( *this );

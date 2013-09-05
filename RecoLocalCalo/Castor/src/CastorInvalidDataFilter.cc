@@ -13,7 +13,6 @@
 //
 // Original Author:  local user
 //         Created:  Thu Apr 21 11:36:52 CEST 2011
-// $Id: CastorInvalidDataFilter.cc,v 1.1 2011/04/21 13:20:58 hvanhaev Exp $
 //
 //
 
@@ -44,7 +43,7 @@ class CastorInvalidDataFilter : public edm::EDFilter {
       static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
    private:
-      virtual bool filter(edm::Event&, const edm::EventSetup&);
+      virtual bool filter(edm::Event&, const edm::EventSetup&) override;
       
 };
 

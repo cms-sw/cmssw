@@ -6,8 +6,6 @@
  *   Internally uses DTTracoCand to store BTI triggers
  * 
  * 
- *   $Date: 2007/04/27 08:41:29 $
- *   $Revision: 1.5 $
  * 
  *   \author S. Vanini
  */

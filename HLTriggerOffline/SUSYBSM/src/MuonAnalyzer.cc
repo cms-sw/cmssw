@@ -34,7 +34,7 @@ using namespace std;
 using namespace trigger;
 
 
-MuonAnalyzerSBSM::MuonAnalyzerSBSM(edm::InputTag triggerTag_v, edm::InputTag muonTag_v)
+MuonAnalyzerSBSM::MuonAnalyzerSBSM(const edm::InputTag& triggerTag_v, const edm::InputTag& muonTag_v)
 {
   triggerTag_ = triggerTag_v;
   muonTag_ = muonTag_v;

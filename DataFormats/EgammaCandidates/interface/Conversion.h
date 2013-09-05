@@ -6,7 +6,6 @@
  *
  * \author N.Marinelli  University of Notre Dame, US
  *
- * \version $Id: Conversion.h,v 1.24 2011/11/09 11:26:54 nancy Exp $
  *
  */
 

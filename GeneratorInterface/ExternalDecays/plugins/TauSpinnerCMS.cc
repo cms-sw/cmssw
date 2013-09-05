@@ -27,6 +27,9 @@ TauSpinnerCMS::TauSpinnerCMS( const ParameterSet& pset ) :
   produces<double>("TauSpinnerWTFlip").setBranchAlias("TauSpinnerWTFlip");
   produces<double>("TauSpinnerWThplus").setBranchAlias("TauSpinnerWThplus");
   produces<double>("TauSpinnerWThminus").setBranchAlias("TauSpinnerWThminus");
+
+  if(isReco_) EvtHandleToken_ = consumes<HepMCProduct>(gensrc_);
+  if(isReco_) gensrcToken_= consumes<reco::GenParticleCollection>(gensrc_);
 }
 
 void TauSpinnerCMS::beginJob()
@@ -53,14 +56,14 @@ void TauSpinnerCMS::produce( edm::Event& e, const edm::EventSetup& iSetup){
   double WTFlip=1.0;
   double polSM=-999; //range [-1,1]
   SimpleParticle X, tau, tau2;
-  vector<SimpleParticle> tau_daughters, tau_daughters2;
+  std::vector<SimpleParticle> tau_daughters, tau_daughters2;
   int stat(0);
   if(isReco_){
     stat=readParticlesfromReco(e,X,tau,tau2,tau_daughters,tau_daughters2);
   }
   else{
     Handle< HepMCProduct > EvtHandle ;
-    e.getByLabel( "generator", EvtHandle ) ;
+    e.getByToken(EvtHandleToken_, EvtHandle ) ;
     const HepMC::GenEvent* Evt = EvtHandle->GetEvent() ;
     stat=readParticlesFromHepMC(Evt,X,tau,tau2,tau_daughters,tau_daughters2);
   }  
@@ -147,7 +150,7 @@ void TauSpinnerCMS::endJob(){}
 int TauSpinnerCMS::readParticlesfromReco(edm::Event& e,SimpleParticle &X,SimpleParticle &tau,SimpleParticle &tau2, 
 					 std::vector<SimpleParticle> &tau_daughters,std::vector<SimpleParticle> &tau2_daughters){
   edm::Handle<reco::GenParticleCollection> genParticles;
-  e.getByLabel(gensrc_, genParticles);
+  e.getByToken(gensrcToken_, genParticles);
   for(reco::GenParticleCollection::const_iterator itr = genParticles->begin(); itr!= genParticles->end(); ++itr){
     int pdgid=abs(itr->pdgId());
     if(pdgid==24 || pdgid==37 || pdgid ==25 || pdgid==36 || pdgid==22 || pdgid==23 ){

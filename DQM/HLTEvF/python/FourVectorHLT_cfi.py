@@ -1,4 +1,3 @@
-# $Id: FourVectorHLT_cfi.py,v 1.5 2008/10/08 06:49:13 lorenzo Exp $
 import FWCore.ParameterSet.Config as cms
 
 hltResults = cms.EDAnalyzer("FourVectorHLT",

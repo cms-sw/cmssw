@@ -39,7 +39,7 @@ class RPCConfigOnlineProd : public L1ConfigOnlineProdBase< L1RPCConfigRcd,
       ~RPCConfigOnlineProd();
 
   virtual boost::shared_ptr< L1RPCConfig > newObject(
-    const std::string& objectKey ) ;
+    const std::string& objectKey ) override ;
 
    private:
       // ----------member data ---------------------------

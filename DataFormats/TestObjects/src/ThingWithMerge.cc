@@ -1,5 +1,4 @@
 
-// $Id$
 
 #include "DataFormats/TestObjects/interface/ThingWithMerge.h"
 

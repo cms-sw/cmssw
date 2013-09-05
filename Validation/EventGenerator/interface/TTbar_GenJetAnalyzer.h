@@ -13,7 +13,6 @@
 //
 // Original Author:  Martijn Gosselink,,,
 //         Created:  Thu May 10 17:15:16 CEST 2012
-// $Id: TTbar_GenJetAnalyzer.h,v 1.2 2012/08/24 21:47:01 wdd Exp $
 //
 //
 // Added to: Validation/EventGenerator by Ian M. Nugent June 28, 2012
@@ -81,5 +80,9 @@ class TTbar_GenJetAnalyzer : public edm::EDAnalyzer {
       std::map<std::string, MonitorElement*> hists_;
 
       double weight ;
+
+  edm::EDGetTokenT<GenEventInfoProduct> genEventInfoProductTagToken_;
+  edm::EDGetTokenT<std::vector<reco::GenJet> > jetsToken_;
+
 };
 

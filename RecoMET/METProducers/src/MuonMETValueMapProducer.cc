@@ -13,7 +13,6 @@ Implementation:
 //
 // Original Author:  Puneeth Kalavase
 //         Created:  Sun Mar 15 11:33:20 CDT 2009
-// $Id: MuonMETValueMapProducer.cc,v 1.2 2010/10/03 11:25:26 elmer Exp $
 //
 //
 

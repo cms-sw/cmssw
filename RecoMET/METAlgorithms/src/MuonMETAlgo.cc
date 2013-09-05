@@ -194,7 +194,7 @@ void MuonMETAlgo::GetMuDepDeltas(const reco::Muon* inputMuon,
 //----------------------------------------------------------------------------
 
 void MuonMETAlgo::correctMETforMuon(double& deltax, double& deltay, double bfield, int muonCharge,
-				    math::XYZTLorentzVector muonP4,math::XYZPoint muonVertex,
+				    const math::XYZTLorentzVector& muonP4,const math::XYZPoint& muonVertex,
 				    MuonMETInfo& muonMETInfo) {
   
   double mu_p     = muonP4.P();

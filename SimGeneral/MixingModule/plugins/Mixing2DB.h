@@ -15,7 +15,6 @@
 //
 // Original Author:  Jean-Roch Vlimant,40 3-A28,+41227671209,
 //         Created:  Mon Jan  9 17:27:59 CET 2012
-// $Id: Mixing2DB.h,v 1.1 2012/01/17 12:02:44 vlimant Exp $
 //
 //
 

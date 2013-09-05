@@ -24,11 +24,11 @@ class LMFSeqDat : public LMFUnique {
   // Methods for user data
   LMFSeqDat& setRunIOV(const RunIOV &iov);
   LMFSeqDat& setSequenceNumber(int n) { setInt("seq_num", n); return *this; }
-  LMFSeqDat& setSequenceStart(Tm start) { 
+  LMFSeqDat& setSequenceStart(const Tm& start) { 
     setString("seq_start", start.str()); 
     return *this;
   }
-  LMFSeqDat& setSequenceStop(Tm end) { 
+  LMFSeqDat& setSequenceStop(const Tm& end) { 
     setString("seq_stop", end.str()); 
     return *this;
   }
@@ -70,7 +70,7 @@ class LMFSeqDat : public LMFUnique {
   LMFSeqDat fetchByRunNumber(int runno, int seq_num) {
     return fetchByRunNumber(runno)[seq_num];
   }
-  LMFSeqDat fetchByRunNumber(int runno, Tm taken_at);
+  LMFSeqDat fetchByRunNumber(int runno, const Tm& taken_at);
   LMFSeqDat fetchByRunNumber(int runno, std::string taken_at);
   LMFSeqDat fetchLast();
   RunIOV    fetchLastRun();
@@ -90,7 +90,7 @@ class LMFSeqDat : public LMFUnique {
   void getParameters(ResultSet *rset);
 
   void fetchParentIDs() throw(std::runtime_error);
-  std::map<int, LMFSeqDat> fetchByRunIOV(std::vector<std::string> par, 
+  std::map<int, LMFSeqDat> fetchByRunIOV(const std::vector<std::string>& par, 
 					 std::string sql,
 					 std::string method) 
     throw(std::runtime_error);

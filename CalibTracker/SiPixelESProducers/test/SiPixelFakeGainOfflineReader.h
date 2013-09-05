@@ -15,7 +15,6 @@
 //
 // Original Author:  Vincenzo CHIOCHIA
 //         Created:  Tue Oct 17 17:40:56 CEST 2006
-// $Id: SiPixelFakeGainOfflineReader.h,v 1.2 2009/05/28 22:20:43 dlange Exp $
 //
 //
 #include "FWCore/Framework/interface/Frameworkfwd.h"

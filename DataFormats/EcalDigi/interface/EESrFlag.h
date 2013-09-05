@@ -1,5 +1,4 @@
 // -*- Mode: C++; c-basic-offset: 2; indent-tabs-mode: t; tab-width: 8; -*-
-//$Id: EESrFlag.h,v 1.1 2007/02/09 10:46:03 meridian Exp $
 
 #ifndef EESRFLAG_H
 #define EESRFLAG_H

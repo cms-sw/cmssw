@@ -30,6 +30,8 @@
 #include "DQM/SiStripCommon/interface/TkHistoMap.h"  /// ADDITON OF TK_HISTO_MAP
 #include "CommonTools/TrackerMap/interface/TrackerMap.h"
 
+#include "CommonTools/UtilAlgos/interface/DetIdSelector.h"
+
 #include <vector>
 #include <map>
 #include <string>

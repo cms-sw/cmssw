@@ -1,4 +1,3 @@
-// Last commit: $Id: ConstantsForCablingSource.h,v 1.2 2007/03/21 08:22:59 bainbrid Exp $
 
 #ifndef DataFormats_SiStripCommon_ConstantsForCablingSource_H
 #define DataFormats_SiStripCommon_ConstantsForCablingSource_H

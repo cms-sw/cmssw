@@ -35,9 +35,21 @@ HLTCSCActivityFilter::HLTCSCActivityFilter(const edm::ParameterSet& iConfig) : H
   m_RingNumb(        iConfig.getParameter<int>("skipRingNumber")),
   m_StationNumb(     iConfig.getParameter<int>("skipStationNumber"))
 {
+  m_cscStripDigiToken = consumes<CSCStripDigiCollection>(m_cscStripDigiTag);
 }
 
 HLTCSCActivityFilter::~HLTCSCActivityFilter() {
+}
+
+void
+HLTCSCActivityFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  makeHLTFilterDescription(desc);
+  desc.add<edm::InputTag>("cscStripDigiTag",edm::InputTag("hltMuonCSCDigis","MuonCSCStripDigi"));
+  desc.add<bool>("skipStationRing",true);
+  desc.add<int>("skipRingNumber",1);
+  desc.add<int>("skipStationNumber",4);
+  descriptions.add("hltCSCActivityFilter",desc);
 }
 
 //
@@ -53,7 +65,7 @@ bool HLTCSCActivityFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& 
   int nStripsFired = 0;
 
   edm::Handle<CSCStripDigiCollection> cscStrips;
-  iEvent.getByLabel(m_cscStripDigiTag, cscStrips);
+  iEvent.getByToken(m_cscStripDigiToken, cscStrips);
 
   for (CSCStripDigiCollection::DigiRangeIterator dSDiter=cscStrips->begin(); dSDiter!=cscStrips->end(); ++dSDiter) {
     CSCDetId id = (CSCDetId)(*dSDiter).first;

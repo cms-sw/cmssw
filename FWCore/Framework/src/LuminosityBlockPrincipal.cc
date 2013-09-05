@@ -23,20 +23,21 @@ namespace edm {
 
   void
   LuminosityBlockPrincipal::fillLuminosityBlockPrincipal(
+      ProcessHistoryRegistry& processHistoryRegistry,
       DelayedReader* reader) {
 
     complete_ = false;
 
-    fillPrincipal(aux_->processHistoryID(), reader);
+    fillPrincipal(aux_->processHistoryID(), processHistoryRegistry, reader);
 
-    for(const_iterator i = this->begin(), iEnd = this->end(); i != iEnd; ++i) {
-      (*i)->setProcessHistoryID(processHistoryID());
+    for(auto const& prod : *this) {
+      prod->setProcessHistory(processHistory());
     }
   }
 
   void
   LuminosityBlockPrincipal::put(
-        ConstBranchDescription const& bd,
+        BranchDescription const& bd,
         WrapperOwningHolder const& edp) {
 
     assert(bd.produced());

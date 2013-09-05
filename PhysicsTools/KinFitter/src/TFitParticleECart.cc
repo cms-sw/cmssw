@@ -61,7 +61,7 @@ TFitParticleECart::TFitParticleECart(const TString &name, const TString &title,
   init(pini, theCovMatrix);
 }
 
-TAbsFitParticle* TFitParticleECart::clone( TString newname ) const {
+TAbsFitParticle* TFitParticleECart::clone( const TString& newname ) const {
   // Returns a copy of itself
 
   TAbsFitParticle* myclone = new TFitParticleECart( *this );

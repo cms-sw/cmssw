@@ -8,7 +8,6 @@
 //
 // Original Author:  Gena Kukartsev, kukarzev@fnal.gov
 //         Created:  Tue Oct 23 14:30:20 CDT 2007
-// $Id: XMLHTRZeroSuppressionLoader.cc,v 1.4 2009/04/14 22:53:06 kukartse Exp $
 //
 
 // system include files

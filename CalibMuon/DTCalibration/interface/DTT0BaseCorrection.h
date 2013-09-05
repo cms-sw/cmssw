@@ -4,8 +4,6 @@
 /** \class DTT0BaseCorrection
  *  Base class to define t0 corrections
  *
- *  $Date: 2010/11/17 17:54:23 $
- *  $Revision: 1.2 $
  *  \author A. Vilela Pereira
  */
 

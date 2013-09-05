@@ -12,6 +12,7 @@ public:
   ~CastorRecHitMonitor(); 
 
   void setup(const edm::ParameterSet& ps, DQMStore* dbe);
+  void beginRun(const edm::EventSetup& iSetup);
   void processEvent(const CastorRecHitCollection& castorHits);
   void reset();
 

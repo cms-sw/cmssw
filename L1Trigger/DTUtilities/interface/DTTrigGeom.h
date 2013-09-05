@@ -4,8 +4,6 @@
  *     Muon Barrel Trigger Geometry
  *
  *
- *   $Date: 2008/09/05 15:52:40 $
- *   $Revision: 1.7 $
  *
  *   \author C.Grandi
  *   \modifications S.Vanini

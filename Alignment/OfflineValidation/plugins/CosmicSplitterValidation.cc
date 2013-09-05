@@ -74,9 +74,9 @@ public:
 	
 	
 private:
-	virtual void beginJob();
-	virtual void analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup);
-	virtual void endJob() ;
+	virtual void beginJob() override;
+	virtual void analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) override;
+	virtual void endJob() override ;
 	
 	bool is_gold_muon(const edm::Event& e);
 	

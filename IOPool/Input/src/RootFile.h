@@ -12,7 +12,9 @@ RootFile.h // used by ROOT input sources
 #include "DataFormats/Provenance/interface/BranchChildren.h"
 #include "DataFormats/Provenance/interface/BranchIDList.h"
 #include "DataFormats/Provenance/interface/BranchListIndex.h"
+#include "DataFormats/Provenance/interface/EntryDescriptionID.h" // backward compatibility
 #include "DataFormats/Provenance/interface/EventAuxiliary.h"
+#include "DataFormats/Provenance/interface/EventEntryDescription.h" // backward compatibility
 #include "DataFormats/Provenance/interface/EventProcessHistoryID.h" // backward compatibility
 #include "DataFormats/Provenance/interface/EventSelectionID.h"
 #include "DataFormats/Provenance/interface/FileFormatVersion.h"
@@ -38,10 +40,12 @@ namespace edm {
   class DaqProvenanceHelper;
   class DuplicateChecker;
   class EventSkipperByID;
+  class ProcessHistoryRegistry;
   class ProductSelectorRules;
   class InputFile;
   class ProvenanceReaderBase;
   class ProvenanceAdaptor;
+  typedef std::map<EntryDescriptionID, EventEntryDescription> EntryDescriptionMap;
 
   class MakeProvenanceReader {
   public:
@@ -69,6 +73,7 @@ namespace edm {
              boost::shared_ptr<BranchIDListHelper> branchIDListHelper,
              boost::shared_ptr<DuplicateChecker> duplicateChecker,
              bool dropDescendantsOfDroppedProducts,
+             ProcessHistoryRegistry& processHistoryRegistry,
              std::vector<boost::shared_ptr<IndexIntoFile> > const& indexesIntoFiles,
              std::vector<boost::shared_ptr<IndexIntoFile> >::size_type currentIndexIntoFile,
              std::vector<ProcessHistoryID>& orderedProcessHistoryIDs,
@@ -82,13 +87,13 @@ namespace edm {
 
     void reportOpened(std::string const& inputType);
     void close();
-    EventPrincipal* readCurrentEvent(EventPrincipal& cache);
-    EventPrincipal* readEvent(EventPrincipal& cache);
+    bool readCurrentEvent(EventPrincipal& cache);
+    void readEvent(EventPrincipal& cache);
 
     boost::shared_ptr<LuminosityBlockAuxiliary> readLuminosityBlockAuxiliary_();
     boost::shared_ptr<RunAuxiliary> readRunAuxiliary_();
-    boost::shared_ptr<RunPrincipal> readRun_(boost::shared_ptr<RunPrincipal> runPrincipal);
-    boost::shared_ptr<LuminosityBlockPrincipal> readLumi(boost::shared_ptr<LuminosityBlockPrincipal> lumiPrincipal);
+    void readRun_(RunPrincipal& runPrincipal);
+    void readLuminosityBlock_(LuminosityBlockPrincipal& lumiPrincipal);
     std::string const& file() const {return file_;}
     boost::shared_ptr<ProductRegistry const> productRegistry() const {return productRegistry_;}
     boost::shared_ptr<BranchIDListHelper const> branchIDListHelper() const {return branchIDListHelper_;}
@@ -139,7 +144,6 @@ namespace edm {
     void setPosition(IndexIntoFile::IndexIntoFileItr const& position);
 
   private:
-    void checkReleaseVersion();
     RootTreePtrArray& treePointers() {return treePointers_;}
     bool skipThisEntry();
     IndexIntoFile::EntryType getEntryTypeWithSkipping();
@@ -157,20 +161,20 @@ namespace edm {
     std::string const& newBranchToOldBranch(std::string const& newBranch) const;
     void dropOnInput(ProductRegistry& reg, ProductSelectorRules const& rules, bool dropDescendants, InputType::InputType inputType);
     void readParentageTree();
-    void readEntryDescriptionTree();
+    void readEntryDescriptionTree(EntryDescriptionMap&); // backward compatibility
     void readEventHistoryTree();
     bool isDuplicateEvent();
 
     void initializeDuplicateChecker(std::vector<boost::shared_ptr<IndexIntoFile> > const& indexesIntoFiles,
                                     std::vector<boost::shared_ptr<IndexIntoFile> >::size_type currentIndexIntoFile);
 
-    std::unique_ptr<MakeProvenanceReader> makeProvenanceReaderMaker() const;
+    std::unique_ptr<MakeProvenanceReader> makeProvenanceReaderMaker();
     boost::shared_ptr<BranchMapper> makeBranchMapper();
 
     std::string const file_;
     std::string const logicalFile_;
     ProcessConfiguration const& processConfiguration_;
-    ProcessConfigurationVector processConfigurations_;
+    ProcessHistoryRegistry* processHistoryRegistry_;  // We don't own this
     boost::shared_ptr<InputFile> filePtr_;
     boost::shared_ptr<EventSkipperByID> eventSkipperByID_;
     FileFormatVersion fileFormatVersion_;

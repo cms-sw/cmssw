@@ -12,7 +12,7 @@ class PhysicsPerformancePayload
 {
  public:
   PhysicsPerformancePayload(){}
-  PhysicsPerformancePayload(int stride, std::vector<float> table);
+  PhysicsPerformancePayload(int stride, const std::vector<float>& table);
   int stride(){return stride_;}
 
   typedef std::vector<float> Row;

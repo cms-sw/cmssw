@@ -4,6 +4,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
@@ -28,7 +29,7 @@ namespace cms
   class CkfTrackCandidateMakerBase  {
   public:
 
-    explicit CkfTrackCandidateMakerBase(const edm::ParameterSet& conf);
+    explicit CkfTrackCandidateMakerBase(const edm::ParameterSet& conf, edm::ConsumesCollector && iC);
 
     virtual ~CkfTrackCandidateMakerBase();
 
@@ -65,7 +66,7 @@ namespace cms
     
     RedundantSeedCleaner*  theSeedCleaner;
     
-    edm::InputTag theSeedLabel;
+    edm::EDGetTokenT<edm::View<TrajectorySeed> >  theSeedLabel;
 
     unsigned int maxSeedsBeforeCleaning_;
     // methods for debugging

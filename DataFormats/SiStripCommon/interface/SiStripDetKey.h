@@ -1,4 +1,3 @@
-// Last commit: $Id: SiStripDetKey.h,v 1.7 2008/02/06 14:32:33 bainbrid Exp $
 
 #ifndef DataFormats_SiStripCommon_SiStripDetKey_h
 #define DataFormats_SiStripCommon_SiStripDetKey_h

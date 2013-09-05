@@ -14,6 +14,7 @@
 #include "HLTrigger/HLTcore/interface/HLTFilter.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/RecoCandidate/interface/RecoChargedCandidateFwd.h"
+#include "DataFormats/BeamSpot/interface/BeamSpot.h"
 
 namespace edm {
    class ConfigurationDescriptions;
@@ -30,8 +31,11 @@ class HLTMuonTrimuonL3Filter : public HLTFilter {
 
    private:
       edm::InputTag beamspotTag_ ;
-      edm::InputTag candTag_;  // input tag identifying product contains muons
-      edm::InputTag previousCandTag_;  // input tag identifying product contains muons passing the previous level
+      edm::EDGetTokenT<reco::BeamSpot> beamspotToken_ ;
+      edm::InputTag                                          candTag_;   // input tag identifying product contains muons
+      edm::EDGetTokenT<reco::RecoChargedCandidateCollection> candToken_; // token identifying product contains muons
+      edm::InputTag                                          previousCandTag_;   // input tag identifying product contains muons passing the previous level
+      edm::EDGetTokenT<trigger::TriggerFilterObjectWithRefs> previousCandToken_; // token identifying product contains muons passing the previous level
       
       bool   fast_Accept_;      // flag to save time: stop processing after identification of the first valid triplet
       double max_Eta_;          // Eta cut

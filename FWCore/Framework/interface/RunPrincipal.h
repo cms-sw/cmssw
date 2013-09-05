@@ -24,6 +24,7 @@ is the DataBlock.
 namespace edm {
 
   class HistoryAppender;
+  class ModuleCallingContext;
   class UnscheduledHandler;
 
   class RunPrincipal : public Principal {
@@ -39,7 +40,7 @@ namespace edm {
         unsigned int iRunIndex);
     ~RunPrincipal() {}
 
-    void fillRunPrincipal(DelayedReader* reader = 0);
+    void fillRunPrincipal(ProcessHistoryRegistry& processHistoryRegistry, DelayedReader* reader = 0);
 
     /** Multiple Runs may be processed simultaneously. The
      return value can be used to identify a particular Run.
@@ -83,7 +84,7 @@ namespace edm {
     void setUnscheduledHandler(boost::shared_ptr<UnscheduledHandler>) {}
 
     void put(
-        ConstBranchDescription const& bd,
+        BranchDescription const& bd,
         WrapperOwningHolder const& edp);
 
     void readImmediate() const;
@@ -96,7 +97,8 @@ namespace edm {
 
     virtual bool isComplete_() const override {return complete_;}
 
-    virtual bool unscheduledFill(std::string const&) const override {return false;}
+    virtual bool unscheduledFill(std::string const&,
+                                 ModuleCallingContext const* mcc) const override {return false;}
 
     void resolveProductImmediate(ProductHolderBase const& phb) const;
 

@@ -10,7 +10,6 @@ This description also applies to every product instance on the branch.
 #include "DataFormats/Provenance/interface/BranchID.h"
 #include "DataFormats/Provenance/interface/BranchType.h"
 #include "DataFormats/Provenance/interface/ParameterSetID.h"
-#include "DataFormats/Provenance/interface/ProcessConfigurationID.h"
 #include "DataFormats/Provenance/interface/ProductID.h"
 #include "DataFormats/Provenance/interface/ProvenanceFwd.h"
 #include "FWCore/Utilities/interface/TypeID.h"
@@ -104,20 +103,6 @@ namespace edm {
     ParameterSetID const& parameterSetID() const {return transient_.parameterSetID_;}
     std::string const& moduleName() const {return transient_.moduleName_;}
 
-    std::map<ProcessConfigurationID, ParameterSetID> const& parameterSetIDs() const {
-      return transient_.parameterSetIDs_;
-    }
-    void insertParameterSetID(std::pair<ProcessConfigurationID, ParameterSetID> const& entry) {
-      transient_.parameterSetIDs_.insert(entry);
-    }
-    std::map<ProcessConfigurationID, std::string> const& moduleNames() const {
-      return transient_.moduleNames_;
-    }
-    void insertModuleName(std::pair<ProcessConfigurationID, std::string> const& entry) {
-      transient_.moduleNames_.insert(entry);
-    }
-    ParameterSetID const& psetID() const;
-    bool isPsetIDUnique() const {return parameterSetIDs().size() == 1;}
     std::set<std::string> const& branchAliases() const {return branchAliases_;}
     void insertBranchAlias(std::string const& alias) {
       branchAliases_.insert(alias);
@@ -164,16 +149,6 @@ namespace edm {
       // (or if this is a merged product registry, in the first file).
       // This item is set only in the framework, not by FWLite.
       bool dropped_;
-
-      // ID's of process configurations for products on this branch
-      //  with corresponding parameter set IDs,
-      // This is initialized if and only if produced_ is false.
-      std::map<ProcessConfigurationID, ParameterSetID> parameterSetIDs_;
-
-      // ID's of process configurations for products on this branch
-      //  with corresponding module names
-      // This is initialized if and only if produced_ is false.
-      std::map<ProcessConfigurationID, std::string> moduleNames_;
 
       // Is the class of the branch marked as transient
       // in the data dictionary
@@ -249,7 +224,6 @@ namespace edm {
 
   std::string match(BranchDescription const& a,
         BranchDescription const& b,
-        std::string const& fileName,
-        BranchDescription::MatchMode m);
+        std::string const& fileName);
 }
 #endif

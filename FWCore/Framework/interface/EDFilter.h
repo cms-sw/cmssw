@@ -21,14 +21,20 @@ These products should be informational products about the filter decision.
 #include <vector>
 
 namespace edm {
+  namespace maker {
+    template<typename T> class ModuleHolderT;
+  }
+
+  class ModuleCallingContext;
+  class PreallocationConfiguration;
 
   class EDFilter : public ProducerBase, public EDConsumerBase {
   public:
+    template <typename T> friend class maker::ModuleHolderT;
     template <typename T> friend class WorkerT;
     typedef EDFilter ModuleType;
-    typedef WorkerT<EDFilter> WorkerType;
     
-     EDFilter() : ProducerBase() , moduleDescription_(), current_context_(nullptr), 
+     EDFilter() : ProducerBase() , moduleDescription_(),
      previousParentage_(), previousParentageId_() {
     }
     virtual ~EDFilter();
@@ -38,28 +44,25 @@ namespace edm {
 
     static const std::string& baseType();
 
-  protected:
-    // The returned pointer will be null unless the this is currently
-    // executing its event loop function ('filter').
-    CurrentProcessingContext const* currentContext() const;
+    // Warning: the returned moduleDescription will be invalid during construction
+    ModuleDescription const& moduleDescription() const { return moduleDescription_; }
 
   private:    
     bool doEvent(EventPrincipal& ep, EventSetup const& c,
-		  CurrentProcessingContext const* cpc);
+                 ModuleCallingContext const* mcc);
+    void doPreallocate(PreallocationConfiguration const&) {}
     void doBeginJob();
     void doEndJob();    
     void doBeginRun(RunPrincipal& rp, EventSetup const& c,
-		   CurrentProcessingContext const* cpc);
+                    ModuleCallingContext const* mcc);
     void doEndRun(RunPrincipal& rp, EventSetup const& c,
-		   CurrentProcessingContext const* cpc);
+                  ModuleCallingContext const* mcc);
     void doBeginLuminosityBlock(LuminosityBlockPrincipal& lbp, EventSetup const& c,
-		   CurrentProcessingContext const* cpc);
+                                ModuleCallingContext const* mcc);
     void doEndLuminosityBlock(LuminosityBlockPrincipal& lbp, EventSetup const& c,
-		   CurrentProcessingContext const* cpc);
+                              ModuleCallingContext const* mcc);
     void doRespondToOpenInputFile(FileBlock const& fb);
     void doRespondToCloseInputFile(FileBlock const& fb);
-    void doRespondToOpenOutputFiles(FileBlock const& fb);
-    void doRespondToCloseOutputFiles(FileBlock const& fb);
     void doPreForkReleaseResources();
     void doPostForkReacquireResources(unsigned int iChildIndex, unsigned int iNumberOfChildren);
 
@@ -79,8 +82,6 @@ namespace edm {
     virtual void endLuminosityBlock(LuminosityBlock const& iL, EventSetup const& iE){}
     virtual void respondToOpenInputFile(FileBlock const&) {}
     virtual void respondToCloseInputFile(FileBlock const&) {}
-    virtual void respondToOpenOutputFiles(FileBlock const&) {}
-    virtual void respondToCloseOutputFiles(FileBlock const&) {}
     virtual void preForkReleaseResources() {}
     virtual void postForkReacquireResources(unsigned int /*iChildIndex*/, unsigned int /*iNumberOfChildren*/) {}
      
@@ -88,7 +89,6 @@ namespace edm {
       moduleDescription_ = md;
     }
     ModuleDescription moduleDescription_;
-    CurrentProcessingContext const* current_context_;
     std::vector<BranchID> previousParentage_;
     ParentageID previousParentageId_;
   };

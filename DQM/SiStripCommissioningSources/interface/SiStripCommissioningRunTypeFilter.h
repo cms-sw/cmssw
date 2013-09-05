@@ -6,6 +6,7 @@
 #include <vector>
 
 // user include files
+#include "FWCore/Utilities/interface/EDGetToken.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDFilter.h"
 
@@ -22,6 +23,7 @@
 //
 // class declaration
 //
+class SiStripEventSummary;
 
 class SiStripCommissioningRunTypeFilter : public edm::EDFilter {
 
@@ -35,7 +37,8 @@ class SiStripCommissioningRunTypeFilter : public edm::EDFilter {
       virtual bool filter(edm::Event&, const edm::EventSetup&);
       
       // ----------member data ---------------------------
-      edm::InputTag inputModuleLabel_;
+      //      edm::InputTag inputModuleLabel_;
+      edm::EDGetTokenT<SiStripEventSummary> summaryToken_;
       std::vector<sistrip::RunType> runTypes_;
 
 };

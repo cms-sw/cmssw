@@ -1,4 +1,3 @@
-// $Id: FourVectorHLT.cc,v 1.12 2010/02/16 17:03:12 wmtan Exp $
 // See header file for information. 
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "DataFormats/Common/interface/Handle.h"

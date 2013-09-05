@@ -8,7 +8,6 @@ associated with a common DetId with a DetId instance, holding the
 common DetId value. The collected objects may or may not contain their
 own copy of the common DetId.
 
-$Id: DetSet.h,v 1.16 2011/09/09 08:43:17 eulisse Exp $
 
 ----------------------------------------------------------------------*/
 

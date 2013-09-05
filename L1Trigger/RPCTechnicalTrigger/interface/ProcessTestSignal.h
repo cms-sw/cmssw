@@ -1,4 +1,3 @@
-// $Id: ProcessTestSignal.h,v 1.2 2009/05/10 00:33:18 aosorio Exp $
 #ifndef PROCESSTESTSIGNAL_H 
 #define PROCESSTESTSIGNAL_H 1
 

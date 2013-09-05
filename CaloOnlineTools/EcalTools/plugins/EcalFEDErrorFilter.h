@@ -13,7 +13,6 @@ Implementation:
 //
 // Original Author:  Giovanni FRANZONI
 //         Created:  Tue Jan 22 13:55:00 CET 2008
-// $Id: EcalFEDErrorFilter.h,v 1.3 2010/02/11 00:10:40 wmtan Exp $
 //
 //
 

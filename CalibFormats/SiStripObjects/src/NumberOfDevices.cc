@@ -1,4 +1,3 @@
-// Last commit: $Id: NumberOfDevices.cc,v 1.9 2007/05/24 15:19:11 bainbrid Exp $
 
 #include "CalibFormats/SiStripObjects/interface/NumberOfDevices.h"
 #include <iomanip>

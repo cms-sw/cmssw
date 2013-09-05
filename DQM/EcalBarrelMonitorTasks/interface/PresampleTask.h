@@ -12,9 +12,9 @@ namespace ecaldqm {
     PresampleTask(const edm::ParameterSet &, const edm::ParameterSet&);
     ~PresampleTask();
 
-    bool filterRunType(const std::vector<short>&);
+    bool filterRunType(const std::vector<short>&) override;
 
-    void analyze(const void*, Collections);
+    void analyze(const void*, Collections) override;
 
     void runOnDigis(const EcalDigiCollection &);
 

@@ -2,10 +2,8 @@
 #include "DataFormats/Provenance/interface/EventSelectionID.h"
 #include "DataFormats/Provenance/interface/History.h"
 #include "DataFormats/Provenance/interface/ParameterSetBlob.h"
-#include "DataFormats/Provenance/interface/ProcessConfigurationRegistry.h"
 #include "DataFormats/Provenance/interface/ParameterSetID.h"
 #include "DataFormats/Provenance/interface/ProcessHistoryRegistry.h"
-#include "DataFormats/Provenance/interface/ProcessConfigurationID.h"
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
 #include "DataFormats/Provenance/interface/Parentage.h"
 #include "DataFormats/Provenance/interface/ProductProvenance.h"
@@ -14,7 +12,6 @@
 #include "FWCore/Catalog/interface/InputFileCatalog.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/Registry.h"
-#include "FWCore/ParameterSet/interface/FillProductRegistryTransients.h"
 #include "FWCore/ServiceRegistry/interface/ServiceRegistry.h"
 #include "FWCore/Services/src/SiteLocalConfigService.h"
 
@@ -28,7 +25,7 @@
 
 #include "boost/program_options.hpp"
 
-#include <assert.h>
+#include <cassert>
 #include <iostream>
 #include <memory>
 #include <map>
@@ -40,6 +37,11 @@ typedef std::map<std::string, std::vector<edm::BranchDescription> > IdToBranches
 typedef std::map<std::pair<std::string, std::string>, IdToBranches> ModuleToIdBranches;
 
 static std::ostream& prettyPrint(std::ostream& oStream, edm::ParameterSet const& iPSet, std::string const& iIndent, std::string const& iIndentDelta);
+
+static std::string const triggerResults = std::string("TriggerResults");
+static std::string const triggerPaths = std::string("@trigger_paths");
+static std::string const source = std::string("source");
+static std::string const input = std::string("@main_input");
 
 namespace {
 typedef std::map<edm::ParameterSetID, edm::ParameterSetBlob> ParameterSetMap;
@@ -133,14 +135,12 @@ std::ostream&
 operator<<(std::ostream& os, edm::ProcessHistory& iHist) {
   std::string const indentDelta("  ");
   std::string indent = indentDelta;
-  for(edm::ProcessHistory::const_iterator i = iHist.begin(), e = iHist.end();
-       i != e;
-       ++i) {
+  for(auto const& process : iHist) {
     os << indent
-       << i->processName() << " '"
-       << i->passID()      << "' '"
-       << i->releaseVersion() << "' ("
-       << i->parameterSetID() << ")"
+       << process.processName() << " '"
+       << process.passID()      << "' '"
+       << process.releaseVersion() << "' ("
+       << process.parameterSetID() << ")"
        << std::endl;
     indent += indentDelta;
   }
@@ -150,11 +150,9 @@ operator<<(std::ostream& os, edm::ProcessHistory& iHist) {
 void HistoryNode::printHistory(std::string const& iIndent) const {
   std::string const indentDelta("  ");
   std::string indent = iIndent;
-  for(const_iterator i = begin(), e = end();
-       i != e;
-       ++i) {
-    std::cout << indent << *i;
-    i->printHistory(indent+indentDelta);
+  for(auto const& item : *this) {
+    std::cout << indent << item;
+    item.printHistory(indent + indentDelta);
   }
 }
 
@@ -178,23 +176,21 @@ std::string eventSetupComponent(char const* iType,
 void HistoryNode::printEventSetupHistory(ParameterSetMap const& iPSM,
                                          std::vector<std::string> const& iFindMatch,
                                          std::ostream& oErrorLog) const {
-  for(const_iterator itH = begin(), e = end();
-       itH != e;
-       ++itH) {
+  for(auto const& itH : *this) {
     //Get ParameterSet for process
-    ParameterSetMap::const_iterator itFind = iPSM.find(itH->parameterSetID());
+    ParameterSetMap::const_iterator itFind = iPSM.find(itH.parameterSetID());
     if(itFind == iPSM.end()){
-      oErrorLog << "No ParameterSetID for " << itH->parameterSetID() << std::endl;
+      oErrorLog << "No ParameterSetID for " << itH.parameterSetID() << std::endl;
     } else {
       edm::ParameterSet processConfig(itFind->second.pset());
       std::vector<std::string> sourceStrings, moduleStrings;
       //get the sources
       std::vector<std::string> sources = processConfig.getParameter<std::vector<std::string> >("@all_essources");
-      for(std::vector<std::string>::iterator itM = sources.begin(); itM != sources.end(); ++itM) {
+      for(auto& itM : sources) {
         std::string retValue = eventSetupComponent("ESSource",
-                                                   *itM,
+                                                   itM,
                                                    processConfig,
-                                                   itH->processName());
+                                                   itH.processName());
         bool foundMatch = true;
         if(!iFindMatch.empty()) {
           for (auto const& stringToFind : iFindMatch) {
@@ -210,11 +206,11 @@ void HistoryNode::printEventSetupHistory(ParameterSetMap const& iPSM,
       }
       //get the modules
       std::vector<std::string> modules = processConfig.getParameter<std::vector<std::string> >("@all_esmodules");
-      for(std::vector<std::string>::iterator itM = modules.begin(); itM != modules.end(); ++itM) {
+      for(auto& itM : modules) {
         std::string retValue = eventSetupComponent("ESModule",
-                                                   *itM,
+                                                   itM,
                                                    processConfig,
-                                                   itH->processName());
+                                                   itH.processName());
         bool foundMatch = true;
         if(!iFindMatch.empty()) {
           for (auto const& stringToFind : iFindMatch) {
@@ -238,7 +234,7 @@ void HistoryNode::printEventSetupHistory(ParameterSetMap const& iPSM,
                 std::ostream_iterator<std::string>(std::cout, "\n"));
 
     }
-    itH->printEventSetupHistory(iPSM, iFindMatch, oErrorLog);
+    itH.printEventSetupHistory(iPSM, iFindMatch, oErrorLog);
   }
 }
 
@@ -258,25 +254,23 @@ void HistoryNode::printOtherModulesHistory(ParameterSetMap const& iPSM,
                                            ModuleToIdBranches const& iModules,
                                            std::vector<std::string> const& iFindMatch,
                                            std::ostream& oErrorLog) const {
-  for(const_iterator itH = begin(), e = end();
-       itH != e;
-       ++itH) {
+  for(auto const& itH : *this) {
     //Get ParameterSet for process
-    ParameterSetMap::const_iterator itFind = iPSM.find(itH->parameterSetID());
+    ParameterSetMap::const_iterator itFind = iPSM.find(itH.parameterSetID());
     if(itFind == iPSM.end()){
-      oErrorLog << "No ParameterSetID for " << itH->parameterSetID() << std::endl;
+      oErrorLog << "No ParameterSetID for " << itH.parameterSetID() << std::endl;
     } else {
       edm::ParameterSet processConfig(itFind->second.pset());
       std::vector<std::string> moduleStrings;
       //get all modules
       std::vector<std::string> modules = processConfig.getParameter<std::vector<std::string> >("@all_modules");
-      for(std::vector<std::string>::iterator itM = modules.begin(); itM != modules.end(); ++itM) {
+      for(auto& itM : modules) {
         //if we didn't already handle this from the branches
-        if(iModules.end() == iModules.find(std::make_pair(itH->processName(), *itM))) {
+        if(iModules.end() == iModules.find(std::make_pair(itH.processName(), itM))) {
           std::string retValue(nonProducerComponent(
-                                                    *itM,
+                                                    itM,
                                                     processConfig,
-                                                    itH->processName()));
+                                                    itH.processName()));
           bool foundMatch = true;
           if(!iFindMatch.empty()) {
             for (auto const& stringToFind : iFindMatch) {
@@ -297,12 +291,12 @@ void HistoryNode::printOtherModulesHistory(ParameterSetMap const& iPSM,
       std::copy(moduleStrings.begin(), moduleStrings.end(),
                 std::ostream_iterator<std::string>(std::cout, "\n"));
     }
-    itH->printOtherModulesHistory(iPSM, iModules, iFindMatch, oErrorLog);
+    itH.printOtherModulesHistory(iPSM, iModules, iFindMatch, oErrorLog);
   }
 }
 
 static void appendToSet(std::set<std::string>&iSet, std::vector<std::string> const& iFrom){
-  for( auto const& n: iFrom){
+  for(auto const& n : iFrom) {
     iSet.insert(n);
   }
 }
@@ -322,13 +316,11 @@ static std::string topLevelPSet(std::string const& iName,
 void HistoryNode::printTopLevelPSetsHistory(ParameterSetMap const& iPSM,
                                             std::vector<std::string> const& iFindMatch,
                                             std::ostream& oErrorLog) const {
-  for(const_iterator itH = begin(), e = end();
-      itH != e;
-      ++itH) {
+  for(auto const& itH : *this) {
     //Get ParameterSet for process
-    ParameterSetMap::const_iterator itFind = iPSM.find(itH->parameterSetID());
+    ParameterSetMap::const_iterator itFind = iPSM.find(itH.parameterSetID());
     if(itFind == iPSM.end()){
-      oErrorLog << "No ParameterSetID for " << itH->parameterSetID() << std::endl;
+      oErrorLog << "No ParameterSetID for " << itH.parameterSetID() << std::endl;
     } else {
       edm::ParameterSet processConfig(itFind->second.pset());
       //Need to get the names of PSets which are used by the framework (e.g. names of modules)
@@ -352,7 +344,7 @@ void HistoryNode::printTopLevelPSetsHistory(ParameterSetMap const& iPSM,
         if (name.size() == 0 || '@' == name[0] || namesToExclude.find(name)!=namesToExclude.end()) {
           continue;
         }
-        std::string retValue = topLevelPSet(name,processConfig,itH->processName());
+        std::string retValue = topLevelPSet(name,processConfig,itH.processName());
 
         bool foundMatch = true;
         if(!iFindMatch.empty()) {
@@ -373,7 +365,7 @@ void HistoryNode::printTopLevelPSetsHistory(ParameterSetMap const& iPSM,
       std::copy(results.begin(), results.end(),
                 std::ostream_iterator<std::string>(std::cout, "\n"));
     }
-    itH->printTopLevelPSetsHistory(iPSM, iFindMatch, oErrorLog);
+    itH.printTopLevelPSetsHistory(iPSM, iFindMatch, oErrorLog);
   }
 }
 
@@ -435,9 +427,9 @@ static std::ostream& prettyPrint(std::ostream& os, edm::VParameterSetEntry const
   std::string newIndent = iIndent+iIndentDelta;
   std::string start;
   std::string const between(",\n");
-  for(std::vector<edm::ParameterSet>::const_iterator i = vps.begin(), e = vps.end(); i != e; ++i) {
+  for(auto const& item : vps) {
     os << start << newIndent;
-    prettyPrint(os, *i, newIndent, iIndentDelta);
+    prettyPrint(os, item, newIndent, iIndentDelta);
     start = between;
   }
   if(!vps.empty()) {
@@ -452,21 +444,21 @@ static std::ostream& prettyPrint(std::ostream& oStream, edm::ParameterSet const&
   std::string newIndent = iIndent+iIndentDelta;
 
   oStream << "{" << std::endl;
-  for(edm::ParameterSet::table::const_iterator i = iPSet.tbl().begin(), e = iPSet.tbl().end(); i != e; ++i) {
+  for(auto const& item : iPSet.tbl()) {
     // indent a bit
-    oStream << newIndent<< i->first << ": " << i->second << std::endl;
+    oStream << newIndent<< item.first << ": " << item.second << std::endl;
   }
-  for(edm::ParameterSet::psettable::const_iterator i = iPSet.psetTable().begin(), e = iPSet.psetTable().end(); i != e; ++i) {
+  for(auto const& item : iPSet.psetTable()) {
     // indent a bit
-    edm::ParameterSetEntry const& pe = i->second;
-    oStream << newIndent << i->first << ": ";
+    edm::ParameterSetEntry const& pe = item.second;
+    oStream << newIndent << item.first << ": ";
     prettyPrint(oStream, pe, iIndent, iIndentDelta);
     oStream<<  std::endl;
   }
-  for(edm::ParameterSet::vpsettable::const_iterator i = iPSet.vpsetTable().begin(), e = iPSet.vpsetTable().end(); i != e; ++i) {
+  for(auto const& item : iPSet.vpsetTable()) {
     // indent a bit
-    edm::VParameterSetEntry const& pe = i->second;
-    oStream << newIndent << i->first << ": ";
+    edm::VParameterSetEntry const& pe = item.second;
+    oStream << newIndent << item.first << ": ";
     prettyPrint(oStream, pe, newIndent, iIndentDelta);
     oStream<<  std::endl;
   }
@@ -652,37 +644,31 @@ ProvenanceDumper::dumpProcessHistory_() {
     historyGraph_.addChild(HistoryNode(*(phv_.begin()->begin()), 1));
   } else {
     std::map<edm::ProcessConfigurationID, unsigned int> simpleIDs;
-    for(edm::ProcessHistoryVector::const_iterator it = phv_.begin(), itEnd = phv_.end();
-         it != itEnd;
-         ++it) {
+    for(auto const& ph : phv_) {
       //loop over the history entries looking for matches
       HistoryNode* parent = &historyGraph_;
-      for(edm::ProcessHistory::const_iterator itH = it->begin(), e = it->end();
-           itH != e;
-           ++itH) {
+      for(auto const& pc : ph) {
         if(parent->size() == 0) {
-          unsigned int id = simpleIDs[itH->id()];
+          unsigned int id = simpleIDs[pc.id()];
           if(0 == id) {
             id = 1;
-            simpleIDs[itH->id()] = id;
+            simpleIDs[pc.id()] = id;
           }
-          parent->addChild(HistoryNode(*itH, id));
+          parent->addChild(HistoryNode(pc, id));
           parent = parent->lastChildAddress();
         } else {
           //see if this is unique
           bool isUnique = true;
-          for(HistoryNode::iterator itChild = parent->begin(), itChildEnd = parent->end();
-               itChild != itChildEnd;
-               ++itChild) {
-            if(itChild->configurationID() == itH->id()) {
+          for(auto& child : *parent) {
+            if(child.configurationID() == pc.id()) {
               isUnique = false;
-              parent = &(*itChild);
+              parent = &child;
               break;
             }
           }
           if(isUnique) {
-            simpleIDs[itH->id()] = parent->size() + 1;
-            parent->addChild(HistoryNode(*itH, simpleIDs[itH->id()]));
+            simpleIDs[pc.id()] = parent->size() + 1;
+            parent->addChild(HistoryNode(pc, simpleIDs[pc.id()]));
             parent = parent->lastChildAddress();
           }
         }
@@ -741,36 +727,34 @@ ProvenanceDumper::work_() {
   }
 
   meta->GetEntry(0);
-  assert(0 != pReg);
+  assert(nullptr != pReg);
 
   edm::pset::Registry& psetRegistry = *edm::pset::Registry::instance();
-  for(ParameterSetMap::const_iterator i = psm_.begin(), iEnd = psm_.end(); i != iEnd; ++i) {
-    edm::ParameterSet pset(i->second.pset());
-    pset.setID(i->first);
+  for(auto const& item : psm_) {
+    edm::ParameterSet pset(item.second.pset());
+    pset.setID(item.first);
     psetRegistry.insertMapped(pset);
   }
 
 
   // backward compatibility
   if(!phm.empty()) {
-    for(edm::ProcessHistoryMap::const_iterator i = phm.begin(), e = phm.end(); i != e; ++i) {
-      phv_.push_back(i->second);
-      for(edm::ProcessConfigurationVector::const_iterator j = i->second.begin(), f = i->second.end(); j != f; ++j) {
-        phc_.push_back(*j);
+    for(auto const& history : phm) {
+      phv_.push_back(history.second);
+      for(auto const& process : history.second) {
+        phc_.push_back(process);
       }
     }
     edm::sort_all(phc_);
     phc_.erase(std::unique(phc_.begin(), phc_.end()), phc_.end());
   }
 
-  fillProductRegistryTransients(phc_, reg_, true);
-
   //Prepare the parentage information if requested
   std::map<edm::BranchID, std::set<edm::ParentageID> > perProductParentage;
 
   if(showDependencies_ || extendedAncestors_ || extendedDescendants_){
     TTree* parentageTree = dynamic_cast<TTree*>(inputFile_->Get(edm::poolNames::parentageTreeName().c_str()));
-    if(0 == parentageTree) {
+    if(nullptr == parentageTree) {
       std::cerr << "ERROR, no Parentage tree available so can not show dependencies/n";
       showDependencies_ = false;
       extendedAncestors_ = false;
@@ -809,10 +793,9 @@ ProvenanceDumper::work_() {
           storedProvBranch->SetAddress(&pInfo);
           for(Long64_t i = 0, numEntries = eventMetaTree->GetEntries(); i < numEntries; ++i) {
             storedProvBranch->GetEntry(i);
-            for(std::vector<edm::StoredProductProvenance>::const_iterator it = info.begin(), itEnd = info.end();
-                it != itEnd; ++it) {
-              edm::BranchID bid(it->branchID_);
-              perProductParentage[bid].insert(orderedParentageIDs[it->parentageIDIndex_]);
+            for(auto const& item : info) {
+              edm::BranchID bid(item.branchID_);
+              perProductParentage[bid].insert(orderedParentageIDs[item.parentageIDIndex_]);
             }
           }
         } else {
@@ -824,9 +807,8 @@ ProvenanceDumper::work_() {
             productProvBranch->SetAddress(&pInfo);
             for(Long64_t i = 0, numEntries = eventMetaTree->GetEntries(); i < numEntries; ++i) {
               productProvBranch->GetEntry(i);
-              for(std::vector<edm::ProductProvenance>::const_iterator it = info.begin(), itEnd = info.end();
-                  it != itEnd; ++it) {
-                perProductParentage[it->branchID()].insert(it->parentageID());
+              for(auto const& item : info) {
+                perProductParentage[item.branchID()].insert(item.parentageID());
               }
             }
           } else {
@@ -849,10 +831,8 @@ ProvenanceDumper::work_() {
       for (auto const& itParentageID : itParentageSet.second) {
         edm::Parentage const* parentage = registry.getMapped(itParentageID);
         if(0 != parentage) {
-            for(std::vector<edm::BranchID>::const_iterator itBranch = parentage->parents().begin(), itEndBranch = parentage->parents().end();
-                itBranch != itEndBranch;
-                ++itBranch) {
-              parentToChildren[*itBranch].insert(childBranchID);
+            for(auto const& branch : parentage->parents()) {
+              parentToChildren[branch].insert(childBranchID);
             }
         } else {
           std::cerr << "  ERROR:parentage info not in registry ParentageID=" << itParentageID << std::endl;
@@ -874,62 +854,69 @@ ProvenanceDumper::work_() {
 
   std::map<edm::BranchID, std::string> branchIDToBranchName;
 
-  for(edm::ProductRegistry::ProductList::iterator it =
-         reg_.productListUpdator().begin(), itEnd = reg_.productListUpdator().end();
-       it != itEnd;
-       ++it) {
-    //force it to rebuild the branch name
-    it->second.init();
-
-    if(showDependencies_ || extendedAncestors_ || extendedDescendants_) {
-      branchIDToBranchName[it->second.branchID()] = it->second.branchName();
+  for(auto const& processConfig : phc_) {
+    edm::ParameterSet const* processParameterSet = edm::pset::Registry::instance()->getMapped(processConfig.parameterSetID());
+    if(nullptr == processParameterSet || processParameterSet->empty()) {
+      continue;
     }
-    /*
-      std::cout << it->second.branchName()
-      << " id " << it->second.productID() << std::endl;
-    */
-    for(std::map<edm::ProcessConfigurationID, edm::ParameterSetID>::const_iterator
-           itId = it->second.parameterSetIDs().begin(),
-           itIdEnd = it->second.parameterSetIDs().end();
-           itId != itIdEnd;
-           ++itId) {
+    for(auto& item : reg_.productListUpdator()) {
+      auto& product = item.second;
+      if(product.processName() != processConfig.processName()) {
+         continue;
+      }
+      //force it to rebuild the branch name
+      product.init();
+
+      if(showDependencies_ || extendedAncestors_ || extendedDescendants_) {
+        branchIDToBranchName[product.branchID()] = product.branchName();
+      }
+      /*
+        std::cout << product.branchName()
+        << " id " << product.productID() << std::endl;
+      */
+      std::string moduleLabel = product.moduleLabel();
+      if(moduleLabel == source) {
+        moduleLabel = input;
+      } else if (moduleLabel == triggerResults) {
+        moduleLabel = triggerPaths;
+      }
 
       std::stringstream s;
-      s << itId->second;
-      moduleToIdBranches[std::make_pair(it->second.processName(), it->second.moduleLabel())][s.str()].push_back(it->second);
-      //idToBranches[*itId].push_back(it->second);
+
+      if(processParameterSet->existsAs<edm::ParameterSet>(moduleLabel)) {
+        edm::ParameterSet const& moduleParameterSet = processParameterSet->getParameterSet(moduleLabel);
+        if(!moduleParameterSet.isRegistered()) {
+          edm::ParameterSet moduleParameterSetCopy = processParameterSet->getParameterSet(moduleLabel);
+          moduleParameterSetCopy.registerIt();
+          s << moduleParameterSetCopy.id();
+        } else {
+          s << moduleParameterSet.id();
+        }
+        moduleToIdBranches[std::make_pair(product.processName(), product.moduleLabel())][s.str()].push_back(product);
+      }
     }
   }
 
-  for(ModuleToIdBranches::const_iterator it = moduleToIdBranches.begin(),
-         itEnd = moduleToIdBranches.end();
-       it != itEnd;
-       ++it) {
+  for(auto const& item : moduleToIdBranches) {
     std::ostringstream sout;
-    sout << "Module: " << it->first.second << " " << it->first.first << std::endl;
+    sout << "Module: " << item.first.second << " " << item.first.first << std::endl;
     std::set<edm::BranchID> allBranchIDsForLabelAndProcess;
-    IdToBranches const& idToBranches = it->second;
-    for(IdToBranches::const_iterator itIdBranch = idToBranches.begin(),
-           itIdBranchEnd = idToBranches.end();
-         itIdBranch != itIdBranchEnd;
-         ++itIdBranch) {
-      sout << " PSet id:" << itIdBranch->first << std::endl;
+    IdToBranches const& idToBranches = item.second;
+    for(auto const& idBranch : idToBranches) {
+      sout << " PSet id:" << idBranch.first << std::endl;
       if(!dontPrintProducts_) {
         sout << " products: {" << std::endl;
       }
       std::set<edm::BranchID> branchIDs;
-      for(std::vector<edm::BranchDescription>::const_iterator itBranch = itIdBranch->second.begin(),
-             itBranchEnd = itIdBranch->second.end();
-           itBranch != itBranchEnd;
-           ++itBranch) {
+      for(auto const& branch : idBranch.second) {
         if(!dontPrintProducts_) {
-          sout << "  " << itBranch->branchName() << std::endl;
+          sout << "  " << branch.branchName() << std::endl;
         }
-        branchIDs.insert(itBranch->branchID());
-        allBranchIDsForLabelAndProcess.insert(itBranch->branchID());
+        branchIDs.insert(branch.branchID());
+        allBranchIDsForLabelAndProcess.insert(branch.branchID());
       }
       sout << " }" << std::endl;
-      edm::ParameterSetID psid(itIdBranch->first);
+      edm::ParameterSetID psid(idBranch.first);
       ParameterSetMap::const_iterator itpsm = psm_.find(psid);
       if(psm_.end() == itpsm) {
         ++errorCount_;
@@ -944,26 +931,20 @@ ProvenanceDumper::work_() {
 
         sout << " dependencies: {" << std::endl;
         std::set<edm::ParentageID> parentageIDs;
-        for(std::set<edm::BranchID>::const_iterator itBranch = branchIDs.begin(), itBranchEnd = branchIDs.end();
-            itBranch != itBranchEnd;
-            ++itBranch) {
+        for(auto const& branch : branchIDs) {
 
           //Save these BranchIDs
-          std::set<edm::ParentageID> const& temp = perProductParentage[*itBranch];
+          std::set<edm::ParentageID> const& temp = perProductParentage[branch];
           parentageIDs.insert(temp.begin(), temp.end());
         }
-        for(std::set<edm::ParentageID>::const_iterator itParentID = parentageIDs.begin(), itEndParentID = parentageIDs.end();
-            itParentID != itEndParentID;
-            ++itParentID) {
-          edm::Parentage const* parentage = registry.getMapped(*itParentID);
-          if(0 != parentage) {
-            for(std::vector<edm::BranchID>::const_iterator itBranch = parentage->parents().begin(), itEndBranch = parentage->parents().end();
-                itBranch != itEndBranch;
-                ++itBranch) {
-              sout << "  " << branchIDToBranchName[*itBranch] << std::endl;
+        for(auto const& parentID : parentageIDs) {
+          edm::Parentage const* parentage = registry.getMapped(parentID);
+          if(nullptr != parentage) {
+            for(auto const& branch : parentage->parents()) {
+              sout << "  " << branchIDToBranchName[branch] << std::endl;
             }
           } else {
-            sout << "  ERROR:parentage info not in registry ParentageID=" << *itParentID << std::endl;
+            sout << "  ERROR:parentage info not in registry ParentageID=" << parentID << std::endl;
           }
         }
         if(parentageIDs.empty()) {
@@ -1037,12 +1018,10 @@ ProvenanceDumper::addAncestors(edm::BranchID const& branchID, std::set<edm::Bran
   for (auto const& parentageID : parentIDs) {
     edm::Parentage const* parentage = registry.getMapped(parentageID);
     if(0 != parentage) {
-      for(std::vector<edm::BranchID>::const_iterator itBranch = parentage->parents().begin(), itEndBranch = parentage->parents().end();
-          itBranch != itEndBranch;
-          ++itBranch) {
+      for(auto const& branch : parentage->parents()) {
 
-        if (ancestorBranchIDs.insert(*itBranch).second) {
-          addAncestors(*itBranch, ancestorBranchIDs, sout, perProductParentage);
+        if(ancestorBranchIDs.insert(branch).second) {
+          addAncestors(branch, ancestorBranchIDs, sout, perProductParentage);
         }
       }
     } else {

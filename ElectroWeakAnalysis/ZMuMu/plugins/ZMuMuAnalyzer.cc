@@ -14,7 +14,6 @@
  *
  * \author Michele de Gruttola, INFN Naples
  *
- * \id $Id: ZMuMuAnalyzer.cc,v 1.6 2010/01/10 19:08:08 hegner Exp $
  *
  */
 #include "FWCore/Framework/interface/EDAnalyzer.h"
@@ -42,8 +41,8 @@ class ZMuMuAnalyzer : public edm::EDAnalyzer {
 public:
   ZMuMuAnalyzer(const edm::ParameterSet& pset);
 private:
-  virtual void analyze(const edm::Event& event, const edm::EventSetup& setup);
-  virtual void endJob();
+  virtual void analyze(const edm::Event& event, const edm::EventSetup& setup) override;
+  virtual void endJob() override;
   
   OverlapChecker overlap_;
   InputTag zMuMu_;

@@ -29,12 +29,12 @@ public:
   };
 
 public:
-  MSLayer(const DetLayer* layer, DataX0 dataX0 = DataX0(0) ) dso_hidden;
+  MSLayer(const DetLayer* layer, const DataX0& dataX0 = DataX0(0) ) dso_hidden;
   MSLayer() { }
 
   MSLayer(GeomDetEnumerators::Location part, float position, Range range, 
 	   float halfThickness = 0., 
-	   DataX0 dataX0 = DataX0(0) ) dso_hidden;
+	   const DataX0& dataX0 = DataX0(0) ) dso_hidden;
 
 
   // sequential number to be used in "maps"

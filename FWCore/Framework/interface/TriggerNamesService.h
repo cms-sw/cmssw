@@ -6,7 +6,6 @@
 
  Original Author:  Jim Kowalkowski 26-01-06
 
- $Id: TriggerNamesService.h,v 1.10 2007/09/27 14:30:24 paterno Exp $
 
  This service makes the trigger names available.  They are provided
  in the same order that the pass/fail status of these triggers is

@@ -18,9 +18,9 @@ class PhysicsPerformanceDBWriterFromFile_WPandPayload : public edm::EDAnalyzer
 {
 public:
   PhysicsPerformanceDBWriterFromFile_WPandPayload(const edm::ParameterSet&);
-  virtual void beginJob();
-  virtual void analyze(const edm::Event&, const edm::EventSetup&) {}
-  virtual void endJob() {}
+  virtual void beginJob() override;
+  virtual void analyze(const edm::Event&, const edm::EventSetup&) override {}
+  virtual void endJob() override {}
   ~PhysicsPerformanceDBWriterFromFile_WPandPayload() {}
 
 private:

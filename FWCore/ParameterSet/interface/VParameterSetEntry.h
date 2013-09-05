@@ -9,6 +9,7 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSetEntry.h"
 #include "FWCore/Utilities/interface/value_ptr.h"
+#include "FWCore/Utilities/interface/atomic_value_ptr.h"
 
 #include <iosfwd>
 #include <string>
@@ -32,12 +33,13 @@ namespace edm {
     void toString(std::string& result) const;
     void toDigest(cms::Digest &digest) const;
 
-    bool isTracked() const {return tracked;}
+    bool isTracked() const {return tracked_;}
 
-    /// returns the VPSet, reconstituting it from the
-    /// Registry, if necessary
+    /// returns the VPSet
     std::vector<ParameterSet> const& vpset() const;
-    std::vector<ParameterSet>& vpset();
+    std::vector<ParameterSet>& vpsetForUpdate();
+    /// reconstitutes the VPSet from the registry
+    void fillVPSet() const;
     ParameterSet& psetInVector(int i);
 
     std::vector<ParameterSet>::size_type size() const { return vpset().size(); }
@@ -49,9 +51,9 @@ namespace edm {
 
   private:
 
-    bool tracked;
-    mutable value_ptr<std::vector<ParameterSet> > theVPSet;
-    mutable value_ptr<std::vector<ParameterSetID> > theIDs;
+    bool tracked_;
+    mutable atomic_value_ptr<std::vector<ParameterSet> > theVPSet_;
+    value_ptr<std::vector<ParameterSetID> > theIDs_;
   };
 }
 #endif

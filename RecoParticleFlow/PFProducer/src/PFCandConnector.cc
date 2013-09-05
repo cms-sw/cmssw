@@ -13,7 +13,7 @@ const double PFCandConnector::pion_mass2 = 0.0194;
 const reco::PFCandidate::Flags PFCandConnector::fT_TO_DISP_ = PFCandidate::T_TO_DISP;
 const reco::PFCandidate::Flags PFCandConnector::fT_FROM_DISP_ = PFCandidate::T_FROM_DISP;
 
-void PFCandConnector::setParameters(bool bCorrect, bool bCalibPrimary, double dptRel_PrimaryTrack, double dptRel_MergedTrack, double ptErrorSecondary, std::vector<double> nuclCalibFactors){
+void PFCandConnector::setParameters(bool bCorrect, bool bCalibPrimary, double dptRel_PrimaryTrack, double dptRel_MergedTrack, double ptErrorSecondary, const std::vector<double>& nuclCalibFactors){
 
 	 bCorrect_ = bCorrect;
 	 bCalibPrimary_ =  bCalibPrimary;

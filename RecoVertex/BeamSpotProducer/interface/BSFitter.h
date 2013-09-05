@@ -9,7 +9,6 @@
 
  author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
 
- version $Id: BSFitter.h,v 1.11 2010/07/21 04:23:26 wmtan Exp $
 
 ________________________________________________________________**/
 

@@ -79,12 +79,10 @@ namespace edm {
     fillProcessConfiguration(ProcessHistoryVector const& pHistVec, ProcessConfigurationVector& procConfigVector) {
       procConfigVector.clear();
       std::set<ProcessConfiguration> pcset;
-      for (ProcessHistoryVector::const_iterator it = pHistVec.begin(), itEnd = pHistVec.end();
-	  it != itEnd; ++it) {
-	for (ProcessConfigurationVector::const_iterator i = it->begin(), iEnd = it->end();
-	    i != iEnd; ++i) {
-	  if (pcset.insert(*i).second) {
-	    procConfigVector.push_back(*i);
+      for (auto const& history : pHistVec) {
+	for (auto const& process : history) {
+	  if (pcset.insert(process).second) {
+	    procConfigVector.push_back(process);
 	  }
 	}
       }

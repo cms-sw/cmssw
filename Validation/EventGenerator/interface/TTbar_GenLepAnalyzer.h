@@ -13,7 +13,6 @@
 //
 // Original Author:  Martijn Gosselink,,,
 //         Created:  Thu May 10 17:15:16 CEST 2012
-// $Id: TTbar_GenLepAnalyzer.h,v 1.1 2012/07/04 18:24:21 inugent Exp $
 //
 //
 // Added to: Validation/EventGenerator by Ian M. Nugent June 28, 2012
@@ -80,6 +79,9 @@ class TTbar_GenLepAnalyzer : public edm::EDAnalyzer {
       bool do_e_, do_mu_, do_tau_, do_nu_e_, do_nu_mu_, do_nu_tau_;
       double pt_cut_, eta_cut_;
       int pdgid;
+
+  edm::EDGetTokenT<edm::View<reco::Candidate> > lepsToken_;
+
 };
 
 #endif

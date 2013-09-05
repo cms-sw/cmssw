@@ -13,7 +13,6 @@
 //
 // Original Author:  Werner Man-Li Sun
 //         Created:  Tue Sep 16 22:43:22 CEST 2008
-// $Id: L1RCTParametersOnlineProd.cc,v 1.3 2009/03/16 14:22:29 jleonard Exp $
 //
 //
 
@@ -40,7 +39,7 @@ class L1RCTParametersOnlineProd :
       ~L1RCTParametersOnlineProd();
 
   virtual boost::shared_ptr< L1RCTParameters > newObject(
-    const std::string& objectKey ) ;
+    const std::string& objectKey ) override ;
 
   void fillScaleFactors(
     const l1t::OMDSReader::QueryResults& results,

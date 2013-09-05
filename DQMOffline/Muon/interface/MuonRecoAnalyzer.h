@@ -6,8 +6,6 @@
  *
  *  DQM monitoring source for muon reco track
  *
- *  $Date: 2010/01/15 17:58:28 $
- *  $Revision: 1.9 $
  *  \author G. Mila - INFN Torino
  */
 

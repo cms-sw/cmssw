@@ -17,8 +17,6 @@
  * \author: Vasile Mihai Ghete - HEPHY Vienna
  * \author: W. David Dagenhart
  * 
- * $Date$
- * $Revision$
  *
  */
 

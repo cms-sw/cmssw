@@ -25,7 +25,7 @@ SiStripBadModuleGenerator::~SiStripBadModuleGenerator() {
 }
 
 
-void SiStripBadModuleGenerator::createObject(){
+SiStripBadStrip* SiStripBadModuleGenerator::createObject(){
     
   SiStripQuality* obj  = new SiStripQuality();
 
@@ -79,8 +79,8 @@ void SiStripBadModuleGenerator::createObject(){
     edm::LogInfo("SiStripQualityConfigurableFakeESSource") << ss1.str();
   }
 
-  obj_ = new SiStripBadStrip( *(dynamic_cast<SiStripBadStrip*> (obj)));
-  delete obj;
+//  obj_ = new SiStripBadStrip( *(dynamic_cast<SiStripBadStrip*> (obj)));
+  return obj;
 }
 
 

@@ -9,9 +9,6 @@
 
 #include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/Common/interface/Handle.h"
-#include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
-#include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/Math/interface/deltaPhi.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -61,6 +58,8 @@ HLTMhtHtFilter<T>::HLTMhtHtFilter(const edm::ParameterSet& iConfig) :
     {
       edm::LogError("HLTMhtHtFilter") << "inconsistent module configuration!";
     }
+  m_theObjectToken = consumes<std::vector<T>>(inputJetTag_);
+  m_theTrackToken = consumes<reco::TrackCollection>(inputTracksTag_);
 }
 
 template<typename T>
@@ -124,10 +123,10 @@ HLTMhtHtFilter<T>::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, 
 
   // get hold of collection of objects
   Handle<TCollection> objects;
-  iEvent.getByLabel (inputJetTag_,objects);
+  iEvent.getByToken (m_theObjectToken,objects);
   Handle<TrackCollection> tracks;
-  if (useTracks_) iEvent.getByLabel(inputTracksTag_,tracks);
-  
+  if (useTracks_) iEvent.getByToken(m_theTrackToken,tracks);
+ 
   // look at all candidates,  check cuts and add to filter object
   int n(0), nj(0), flag(0);
   double ht=0.;

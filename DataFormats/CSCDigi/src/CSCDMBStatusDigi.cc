@@ -2,8 +2,6 @@
  * 
  *  Digi for CSC DMB info available in DDU
  *
- *  $Date: 2009/01/30 23:22:47 $
- *  $Revision: 1.6 $
  *
  */
 #include "DataFormats/CSCDigi/interface/CSCDMBStatusDigi.h"

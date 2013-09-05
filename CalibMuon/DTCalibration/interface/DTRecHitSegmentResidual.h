@@ -2,8 +2,6 @@
 #define CalibMuon_DTCalibration_DTRecHitSegmentResidual_h
 
 /*
- *  $Date: 2010/11/18 20:33:10 $
- *  $Revision: 1.4 $
  *  \author A. Vilela Pereira
  */
 

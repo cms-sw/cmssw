@@ -4,8 +4,12 @@
 
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
+#include "DataFormats/Provenance/interface/ModuleDescription.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/ServiceRegistry/interface/ModuleCallingContext.h"
 
+
+#include <cassert>
 #include <string>
 #include <iostream>
 #include <algorithm>
@@ -61,10 +65,10 @@ namespace edmtest
     virtual ~TestOutputModule();
 
   private:
-    virtual void write(edm::EventPrincipal const& e);
-    virtual void writeLuminosityBlock(edm::LuminosityBlockPrincipal const&){}
-    virtual void writeRun(edm::RunPrincipal const&){}
-    virtual void endJob();
+    virtual void write(edm::EventPrincipal const& e, ModuleCallingContext const*) override;
+    virtual void writeLuminosityBlock(edm::LuminosityBlockPrincipal const&, ModuleCallingContext const*) override;
+    virtual void writeRun(edm::RunPrincipal const&, ModuleCallingContext const*) override;
+    virtual void endJob() override;
 
     std::string name_;
     int bitMask_;
@@ -87,9 +91,10 @@ namespace edmtest
   {
   }
 
-  void TestOutputModule::write(edm::EventPrincipal const& e)
+  void TestOutputModule::write(edm::EventPrincipal const& e, ModuleCallingContext const* mcc)
   {
-    assert(currentContext() != 0);
+    assert(mcc != nullptr);
+    assert(mcc->moduleDescription()->moduleLabel() == description().moduleLabel());
 
     Trig prod;
 
@@ -109,7 +114,7 @@ namespace edmtest
     if (!expectTriggerResults_) {
 
       try {
-        prod = getTriggerResults(e);
+        prod = getTriggerResults(e, mcc);
         //throw doesn't happen until we dereference
         *prod;
       }
@@ -126,7 +131,7 @@ namespace edmtest
     // Now deal with the other case where we expect the object
     // to be present.
 
-    prod = getTriggerResults(e);
+    prod = getTriggerResults(e, mcc);
 
     std::vector<unsigned char> vHltState;
 
@@ -164,12 +169,20 @@ namespace edmtest
     else std::cout <<"\nSUCCESS: Found Matching Bits"<< std::endl;
   }
 
+  void TestOutputModule::writeLuminosityBlock(edm::LuminosityBlockPrincipal const&, ModuleCallingContext const* mcc) {
+    assert(mcc != nullptr);
+    assert(mcc->moduleDescription()->moduleLabel() == description().moduleLabel());
+  }
+
+  void TestOutputModule::writeRun(edm::RunPrincipal const&, ModuleCallingContext const* mcc) {
+    assert(mcc != nullptr);
+    assert(mcc->moduleDescription()->moduleLabel() == description().moduleLabel());
+  }
+
   void TestOutputModule::endJob()
   {
-    assert( currentContext() == 0 );
   }
 }
-
 using edmtest::TestOutputModule;
 
 DEFINE_FWK_MODULE(TestOutputModule);

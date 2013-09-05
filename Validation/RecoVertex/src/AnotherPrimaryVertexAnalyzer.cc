@@ -13,7 +13,6 @@
 //
 // Original Author:  Andrea Venturi
 //         Created:  Mon Oct 27 17:37:53 CET 2008
-// $Id: AnotherPrimaryVertexAnalyzer.cc,v 1.2 2011/12/11 10:51:49 venturia Exp $
 //
 //
 

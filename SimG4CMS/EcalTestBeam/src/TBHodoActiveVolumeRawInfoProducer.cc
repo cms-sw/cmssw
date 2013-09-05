@@ -1,7 +1,6 @@
 /*
  * \file TBHodoActiveVolumeRawInfoProducer.cc
  *
- * $Id: TBHodoActiveVolumeRawInfoProducer.cc,v 1.3 2007/12/18 17:56:15 crovelli Exp $
  *
  */
 

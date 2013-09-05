@@ -30,7 +30,7 @@ public:
 
    virtual ~FWPhotonProxyBuilder( void ) {}
   
-   virtual bool haveSingleProduct( void ) const { return false; }
+   virtual bool haveSingleProduct( void ) const override { return false; }
   
    REGISTER_PROXYBUILDER_METHODS();
 
@@ -38,7 +38,7 @@ private:
    FWPhotonProxyBuilder( const FWPhotonProxyBuilder& );
    const FWPhotonProxyBuilder& operator=( const FWPhotonProxyBuilder& );
   
-   virtual void buildViewType( const reco::Photon& photon, unsigned int iIndex, TEveElement& oItemHolder, FWViewType::EType type , const FWViewContext*);
+   virtual void buildViewType( const reco::Photon& photon, unsigned int iIndex, TEveElement& oItemHolder, FWViewType::EType type , const FWViewContext*) override;
 };
 
 void

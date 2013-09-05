@@ -43,9 +43,9 @@ public:
 
 
 private:
-  virtual void beginJob();
+  virtual void beginJob() override;
   virtual void analyze(const edm::Event&, const edm::EventSetup&)=0;
-  virtual void endJob() ;
+  virtual void endJob() override ;
 
 };
 
@@ -57,7 +57,7 @@ public:
 
 
 private:
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
+  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
 
 };
 
@@ -68,7 +68,7 @@ public:
   ~StopProfilerAnalyzer(){}
 
 private:
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
+  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
 
 };
 

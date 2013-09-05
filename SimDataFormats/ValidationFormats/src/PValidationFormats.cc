@@ -3,8 +3,6 @@
  *  See header file for description of classes
  *  conglomoration of all Validation SimDataFormats
  *
- *  $Date: 2007/10/04 19:26:49 $
- *  $Revision: 1.1 $
  *  \author M. Strang SUNY-Buffalo
  */
 

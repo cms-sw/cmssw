@@ -4,8 +4,6 @@
 /** \class DTFakeVDriftESProducer
  *  ESProducer to store in the EventSetup fake vDrift value read from cfg  
  *
- *  $Date: 2007/07/11 12:20:59 $
- *  $Revision: 1.1 $
  *  \author S. Maselli - INFN Torino
  */
 

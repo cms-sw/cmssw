@@ -7,8 +7,6 @@
 //
 //   https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideL1ConfigOnlineProd r11
 //
-//   $Date: 2008/11/24 19:00:38 $
-//   $Revision: 1.1 $
 //
 //   Author :
 //   Thomas Themel
@@ -28,7 +26,7 @@ class L1MuGMTParametersKeysOnlineProd : public L1ObjectKeysOnlineProdBase {
       }
       ~L1MuGMTParametersKeysOnlineProd() {}
 
-      virtual void fillObjectKeys( ReturnType pL1TriggerKey ) ;
+      virtual void fillObjectKeys( ReturnType pL1TriggerKey ) override ;
    private:
 };
 

@@ -20,6 +20,10 @@
 
 #include <iostream>
 
+namespace edm {
+  class ModuleCallingContext;
+}
+
 template<class HCALDIGITIZERTRAITS>
 class HcalSignalGenerator : public HcalBaseSignalGenerator
 {
@@ -47,7 +51,7 @@ public:
     theParameterMap->setDbService(theConditions.product());
   }
 
-  virtual void fill()
+  virtual void fill(edm::ModuleCallingContext const* mcc)
   {
     theNoiseSignals.clear();
     edm::Handle<COLLECTION> pDigis;
@@ -67,7 +71,7 @@ public:
     else if(theEventPrincipal)
     {
        boost::shared_ptr<edm::Wrapper<COLLECTION>  const> digisPTR =
-          edm::getProductByTag<COLLECTION>(*theEventPrincipal, theInputTag );
+          edm::getProductByTag<COLLECTION>(*theEventPrincipal, theInputTag, mcc );
        if(digisPTR) {
           digis = digisPTR->product();
        }

@@ -8,7 +8,6 @@
 //
 // Author:      Chris Jones
 // Created:     Wed Mar 30 14:27:26 EST 2005
-// $Id: EventSetupRecordIntervalFinder.cc,v 1.7 2007/10/25 07:52:08 elmer Exp $
 //
 
 // system include files

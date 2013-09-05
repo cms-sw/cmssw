@@ -9,8 +9,7 @@
 #include "DataFormats/Provenance/interface/ParentageRegistry.h"
 #include "DataFormats/Provenance/interface/Parentage.h"
 #include "DataFormats/Provenance/interface/ProductProvenance.h"
-#include "DataFormats/Provenance/interface/Selections.h"
-#include "DataFormats/Provenance/interface/ProcessConfigurationRegistry.h"
+#include "DataFormats/Provenance/interface/SelectedProducts.h"
 #include "DataFormats/Provenance/interface/EventSelectionID.h"
 #include "DataFormats/Provenance/interface/BranchListIndex.h"
 #include "IOPool/Streamer/interface/ClassFiller.h"
@@ -24,6 +23,7 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include "zlib.h"
+#include <algorithm>
 #include <cstdlib>
 #include <list>
 
@@ -32,7 +32,7 @@ namespace edm {
   /**
    * Creates a translator instance for the specified product registry.
    */
-  StreamSerializer::StreamSerializer(Selections const* selections):
+  StreamSerializer::StreamSerializer(SelectedProducts const* selections):
     selections_(selections),
     tc_(getTClass(typeid(SendEvent))) {
   }
@@ -46,31 +46,22 @@ namespace edm {
     FDEBUG(6) << "StreamSerializer::serializeRegistry" << std::endl;
     SendJobHeader sd;
 
-    Selections::const_iterator i(selections_->begin()), e(selections_->end());
+    SelectedProducts::const_iterator i(selections_->begin()), e(selections_->end());
 
     FDEBUG(9) << "Product List: " << std::endl;
 
 
-    for(; i != e; ++i)  {
-        sd.push_back(**i);
-        FDEBUG(9) << "StreamOutput got product = " << (*i)->className()
+    for(auto const& selection : *selections_)  {
+        sd.push_back(*selection);
+        FDEBUG(9) << "StreamOutput got product = " << selection->className()
                   << std::endl;
     }
     Service<ConstProductRegistry> reg;
     sd.setBranchIDLists(branchIDLists);
     SendJobHeader::ParameterSetMap psetMap;
 
-    pset::fillMap(pset::Registry::instance(), psetMap);
+    pset::fillMap(*pset::Registry::instance(), psetMap);
     sd.setParameterSetMap(psetMap);
-
-    typedef ProcessConfigurationRegistry::collection_type PCMap;
-    PCMap const& procConfigMap = ProcessConfigurationRegistry::instance()->data();
-    ProcessConfigurationVector procConfigVector;
-    for(PCMap::const_iterator i = procConfigMap.begin(), e = procConfigMap.end(); i != e; ++i) {
-      procConfigVector.push_back(i->second);
-    }
-    sort_all(procConfigVector);
-    sd.setProcessConfigurations(procConfigVector);
 
     data_buffer.rootbuf_.Reset();
 
@@ -136,21 +127,22 @@ namespace edm {
   int StreamSerializer::serializeEvent(EventPrincipal const& eventPrincipal,
                                        ParameterSetID const& selectorConfig,
                                        bool use_compression, int compression_level,
-                                       SerializeDataBuffer &data_buffer) {
+                                       SerializeDataBuffer &data_buffer,
+                                       ModuleCallingContext const* mcc) {
     Parentage parentage;
 
     EventSelectionIDVector selectionIDs = eventPrincipal.eventSelectionIDs();
     selectionIDs.push_back(selectorConfig);
     SendEvent se(eventPrincipal.aux(), eventPrincipal.processHistory(), selectionIDs, eventPrincipal.branchListIndexes());
 
-    Selections::const_iterator i(selections_->begin()),ie(selections_->end());
+    SelectedProducts::const_iterator i(selections_->begin()),ie(selections_->end());
     // Loop over EDProducts, fill the provenance, and write.
 
-    for(Selections::const_iterator i = selections_->begin(), iEnd = selections_->end(); i != iEnd; ++i) {
+    for(SelectedProducts::const_iterator i = selections_->begin(), iEnd = selections_->end(); i != iEnd; ++i) {
       BranchDescription const& desc = **i;
       BranchID const& id = desc.branchID();
 
-      OutputHandle const oh = eventPrincipal.getForOutput(id, true);
+      OutputHandle const oh = eventPrincipal.getForOutput(id, true, mcc);
       if(!oh.productProvenance()) {
         // No product with this ID was put in the event.
         // Create and write the provenance.

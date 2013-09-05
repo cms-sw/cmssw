@@ -13,8 +13,6 @@ namespace cms {
 
   /** \class HcalRecHitDump
       
-  $Date: 2011/08/17 21:33:39 $
-  $Revision: 1.12 $
   \author J. Mans - Minnesota
   */
   class HcalRecHitDump : public edm::EDAnalyzer {

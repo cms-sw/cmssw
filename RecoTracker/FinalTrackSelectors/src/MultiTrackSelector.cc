@@ -21,13 +21,13 @@ MultiTrackSelector::MultiTrackSelector()
 }
 
 MultiTrackSelector::MultiTrackSelector( const edm::ParameterSet & cfg ) :
-  src_( cfg.getParameter<edm::InputTag>( "src" ) ),
-  beamspot_( cfg.getParameter<edm::InputTag>( "beamspot" ) ),
+  src_( consumes<reco::TrackCollection>( cfg.getParameter<edm::InputTag>( "src" ) ) ),
+  beamspot_( consumes<reco::BeamSpot>( cfg.getParameter<edm::InputTag>( "beamspot" ) ) ),
   useVertices_( cfg.getParameter<bool>( "useVertices" ) ),
-  useVtxError_( cfg.getParameter<bool>( "useVtxError" ) ),
-  vertices_( useVertices_ ? cfg.getParameter<edm::InputTag>( "vertices" ) : edm::InputTag("NONE"))
+  useVtxError_( cfg.getParameter<bool>( "useVtxError" ) )
   // now get the pset for each selector
 {
+  if (useVertices_) vertices_ = consumes<reco::VertexCollection>(cfg.getParameter<edm::InputTag>( "vertices" ));
 
   useAnyMVA_ = false;
   forestLabel_ = "MVASelectorIter0";
@@ -199,18 +199,18 @@ void MultiTrackSelector::produce( edm::Event& evt, const edm::EventSetup& es )
 
   // Get tracks 
   Handle<TrackCollection> hSrcTrack;
-  evt.getByLabel( src_, hSrcTrack );
+  evt.getByToken( src_, hSrcTrack );
   const TrackCollection& srcTracks(*hSrcTrack);
 
   // looking for the beam spot
   edm::Handle<reco::BeamSpot> hBsp;
-  evt.getByLabel(beamspot_, hBsp);
+  evt.getByToken(beamspot_, hBsp);
   const reco::BeamSpot& vertexBeamSpot(*hBsp);
 
 	
   // Select good primary vertices for use in subsequent track selection
   edm::Handle<reco::VertexCollection> hVtx;
-  if (useVertices_) evt.getByLabel(vertices_, hVtx);
+  if (useVertices_) evt.getByToken(vertices_, hVtx);
 
   unsigned int trkSize=srcTracks.size();
   std::vector<int> selTracksSave( qualityToSet_.size()*trkSize,0);
@@ -469,7 +469,7 @@ void MultiTrackSelector::processMVA(edm::Event& evt, const edm::EventSetup& es)
 
   // Get tracks 
   Handle<TrackCollection> hSrcTrack;
-  evt.getByLabel( src_, hSrcTrack );
+  evt.getByToken( src_, hSrcTrack );
   const TrackCollection& srcTracks(*hSrcTrack);
 
   auto_ptr<edm::ValueMap<float> >mvaValValueMap = auto_ptr<edm::ValueMap<float> >(new edm::ValueMap<float>);

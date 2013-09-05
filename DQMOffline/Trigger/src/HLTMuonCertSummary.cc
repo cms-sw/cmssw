@@ -8,7 +8,6 @@
 // Original Author: Jason Slaunwhite
 //           
 //         Created:  Thu Jan 22 13:42:28CET 2009
-// $Id: HLTMuonCertSummary.cc,v 1.5 2010/01/12 14:11:20 dellaric Exp $
 //
 
 // system include files
@@ -64,11 +63,11 @@ class HLTMuonCertSummary : public edm::EDAnalyzer {
       ~HLTMuonCertSummary();
 
 
-      virtual void beginJob() ;
-      virtual void analyze(const edm::Event&, const edm::EventSetup&);
-      virtual void endJob() ;
-      virtual void beginRun(const edm::Run&, const edm::EventSetup&) ;
-      virtual void endRun(const edm::Run&, const edm::EventSetup&) ;
+      virtual void beginJob() override ;
+      virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
+      virtual void endJob() override ;
+      virtual void beginRun(const edm::Run&, const edm::EventSetup&) override ;
+      virtual void endRun(const edm::Run&, const edm::EventSetup&) override ;
 
 
 

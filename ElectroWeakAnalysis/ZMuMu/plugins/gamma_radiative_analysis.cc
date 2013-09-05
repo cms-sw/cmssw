@@ -52,8 +52,8 @@ class gamma_radiative_analyzer : public edm::EDAnalyzer {
 public:
   gamma_radiative_analyzer(const edm::ParameterSet& pset);
 private:
-  virtual void analyze(const edm::Event& event, const edm::EventSetup& setup);
-  virtual void endJob();
+  virtual void analyze(const edm::Event& event, const edm::EventSetup& setup) override;
+  virtual void endJob() override;
 
   edm::InputTag zMuMu_, zMuMuMatchMap_, zMuTk_, zMuTkMatchMap_,zMuSa_, zMuSaMatchMap_;
   double dRVeto_, dRTrk_, ptThreshold_;

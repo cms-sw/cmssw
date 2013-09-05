@@ -14,7 +14,6 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: Track.h,v 1.46 2008/02/27 23:53:31 vlimant Exp $
  *
  */
 #include "DataFormats/TrackReco/interface/TrackBase.h"

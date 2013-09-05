@@ -13,7 +13,6 @@
 //
 // Original Author:  Freya Blekman
 //         Created:  Mon Dec  3 14:07:42 CET 2007
-// $Id: SiPixelIsAliveCalibration.cc,v 1.20 2008/04/17 11:47:05 fblekman Exp $
 //
 //
 
@@ -41,15 +40,15 @@ class SiPixelIsAliveCalibration : public SiPixelOfflineCalibAnalysisBase {
       ~SiPixelIsAliveCalibration();
 
   void doSetup(const edm::ParameterSet &);
-      virtual bool doFits(uint32_t detid, std::vector<SiPixelCalibDigi>::const_iterator ipix);
+      virtual bool doFits(uint32_t detid, std::vector<SiPixelCalibDigi>::const_iterator ipix) override;
   
 
    private:
   
-      virtual void calibrationSetup(const edm::EventSetup&) ;
-      virtual void calibrationEnd() ;
-  virtual void newDetID(uint32_t detid);
-  virtual bool checkCorrectCalibrationType();
+      virtual void calibrationSetup(const edm::EventSetup&) override ;
+      virtual void calibrationEnd() override ;
+  virtual void newDetID(uint32_t detid) override;
+  virtual bool checkCorrectCalibrationType() override;
       // ----------member data ---------------------------
 
   std::map<uint32_t,MonitorElement *> bookkeeper_;

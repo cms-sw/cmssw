@@ -38,20 +38,20 @@ public:
     }
 
 private:
-  virtual void endJob() 
+  virtual void endJob() override 
   {
     m_source.initObject(rpcDQMObject);
     write();
     dbe =0;
   }
 
-  virtual void beginRun(const edm::Run& run, const edm::EventSetup& iSetup){
+  virtual void beginRun(const edm::Run& run, const edm::EventSetup& iSetup) override{
     dbe = edm::Service<DQMStore>().operator->();
     dbe->setCurrentFolder("RPCPVT");
   }//beginRun
 
 
-  virtual void analyze(const edm::Event& ev, const edm::EventSetup& iSetup){ //}
+  virtual void analyze(const edm::Event& ev, const edm::EventSetup& iSetup) override{ //}
 
   //virtual void endRun(const edm::Run& r, const edm::EventSetup& iSetup){
 

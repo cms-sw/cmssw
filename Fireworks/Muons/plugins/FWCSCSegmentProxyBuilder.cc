@@ -34,7 +34,7 @@ private:
   FWCSCSegmentProxyBuilder( const FWCSCSegmentProxyBuilder& );   
   const FWCSCSegmentProxyBuilder& operator=( const FWCSCSegmentProxyBuilder& );
 
-  void build( const CSCSegment& iData, unsigned int iIndex, TEveElement& oItemHolder, const FWViewContext* );
+  void build( const CSCSegment& iData, unsigned int iIndex, TEveElement& oItemHolder, const FWViewContext* ) override;
 };
 
 void

@@ -13,7 +13,6 @@
 //
 // Original Author:  Werner Man-Li Sun
 //         Created:  Tue Sep 16 22:43:22 CEST 2008
-// $Id: L1CaloEcalScaleConfigOnlineProd.cc,v 1.3 2009/10/25 19:30:36 efron Exp $
 //
 //
 
@@ -43,7 +42,7 @@ class L1CaloEcalScaleConfigOnlineProd :
       ~L1CaloEcalScaleConfigOnlineProd();
 
   virtual boost::shared_ptr< L1CaloEcalScale > newObject(
-    const std::string& objectKey ) ;
+    const std::string& objectKey ) override ;
 
 
    private:

@@ -26,7 +26,7 @@ public:
    static bool representsSubPart( void );
    
 private:
-   void build( const reco::Track& iData, unsigned int iIndex, TEveElement& oItemHolder, const FWViewContext* );
+   void build( const reco::Track& iData, unsigned int iIndex, TEveElement& oItemHolder, const FWViewContext* ) override;
 
    FWTracksRecHitsProxyBuilder( const FWTracksRecHitsProxyBuilder& );    // stop default
    const FWTracksRecHitsProxyBuilder& operator=( const FWTracksRecHitsProxyBuilder& );    // stop default

@@ -32,7 +32,7 @@ class AlignableCSCRing : public AlignableComposite
 
  public:
 
-  AlignableCSCRing( const std::vector<AlignableCSCChamber*> cscChambers );
+  AlignableCSCRing( const std::vector<AlignableCSCChamber*>& cscChambers );
 
   ~AlignableCSCRing();
   

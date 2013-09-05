@@ -3,7 +3,6 @@
 
 // Various simple tools
 // F.Ratnikov, UMd
-// $Id: JetAlgoHelper.h,v 1.9 2009/07/08 00:38:29 hegner Exp $
 
 #include<limits>
 #include <iostream>

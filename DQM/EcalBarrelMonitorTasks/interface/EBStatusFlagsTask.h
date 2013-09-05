@@ -4,8 +4,6 @@
 /*
  * \file EBStatusFlagsTask.h
  *
- * $Date: 2012/03/20 20:26:47 $
- * $Revision: 1.9.16.1 $
  * \author G. Della Ricca
  *
 */

@@ -1,7 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
 # Generic parameters for PU subtraction
-# $Id: FastjetParameters.cfi,v 1.7 2007/11/02 20:00:31 fedor Exp $
 FastjetParameters = cms.PSet(
 
 )

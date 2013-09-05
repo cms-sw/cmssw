@@ -17,7 +17,7 @@ class CaloRecoTauDiscriminationByLeadingTrackPtCut : public CaloTauDiscriminatio
          minPtLeadTrack_ = iConfig.getParameter<double>("MinPtLeadingTrack");
       }
       ~CaloRecoTauDiscriminationByLeadingTrackPtCut(){} 
-      double discriminate(const CaloTauRef& theCaloTauRef);
+      double discriminate(const CaloTauRef& theCaloTauRef) override;
 
    private:
       double minPtLeadTrack_;

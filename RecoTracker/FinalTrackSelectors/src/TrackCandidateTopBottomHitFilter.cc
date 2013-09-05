@@ -13,7 +13,6 @@ Implementation:
 //
 // Original Author:  Giuseppe Cerati
 //         Created:  Tue Sep  9 09:47:01 CEST 2008
-// $Id: TrackCandidateTopBottomHitFilter.cc,v 1.3 2010/02/20 21:01:23 wmtan Exp $
 //
 //
 
@@ -48,7 +47,7 @@ public:
 private:
   virtual void beginRun(edm::Run const& run, const edm::EventSetup&) override;
   virtual void produce(edm::Event&, const edm::EventSetup&) override;
-  virtual void endJob() ;
+  virtual void endJob() override ;
   edm::InputTag label;
   edm::ESHandle<TransientTrackingRecHitBuilder> theBuilder;
   std::string builderName;

@@ -11,7 +11,7 @@
 #ifndef Alignment_SurveyAnalysis_Chi2_H
 #define Alignment_SurveyAnalysis_Chi2_H
 
-#include <TMatrixD.h>
+#include "TMatrixD.h"
 
 
 class Chi2 {

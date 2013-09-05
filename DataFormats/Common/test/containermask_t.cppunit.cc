@@ -1,8 +1,7 @@
-// $Id: reftobasevector_t.cppunit.cc,v 1.12 2008/12/18 04:53:08 wmtan Exp $
 
 #include <algorithm>
 
-#include <cppunit/extensions/HelperMacros.h>
+#include "cppunit/extensions/HelperMacros.h"
 #include "DataFormats/Common/interface/TestHandle.h"
 #include "DataFormats/Common/interface/ContainerMask.h"
 #include "DataFormats/Common/interface/RefProd.h"

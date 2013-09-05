@@ -17,8 +17,6 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/ThreadSafeRegistry.h"
 
-
-
 namespace edm {
   namespace pset {
 
@@ -42,18 +40,17 @@ namespace edm {
     /// in the given Registry. Note the the returned ParameterSetID may
     /// be invalid; this will happen if the Registry has not yet been
     /// filled.
-    ParameterSetID getProcessParameterSetID(Registry const* reg);
+    ParameterSetID getProcessParameterSetID(Registry const& reg);
 
     /// Fill the given map with the persistent form of each
     /// ParameterSet in the given registry.
     typedef std::map<ParameterSetID, ParameterSetBlob> regmap_type;
-    void fillMap(Registry* reg, regmap_type& fillme);
+    void fillMap(Registry const& reg, regmap_type& fillme);
 
   }  // namespace pset
 
   ParameterSet const& getProcessParameterSet();
 
 }  // namespace edm
-
 
 #endif

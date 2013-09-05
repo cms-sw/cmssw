@@ -11,7 +11,7 @@
 #include "TBufferFile.h"
 
 #include "IOPool/Streamer/interface/DQMEventMsgBuilder.h"
-#include <stdint.h>
+#include <cstdint>
 #include <vector>
 
 namespace edm

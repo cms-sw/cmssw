@@ -3,6 +3,7 @@
 
 #include "HLTrigger/HLTcore/interface/HLTFilter.h"
 #include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
+#include "DataFormats/HLTReco/interface/TriggerTypeDefs.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/Utilities/interface/InputTag.h"
@@ -30,6 +31,7 @@ class HLTJetCollectionsFilter : public HLTFilter {
       double maxAbsJetEta_; // jet |eta| range
       unsigned int minNJets_; // number of required jets passing cuts after cleaning
       int triggerType_;
+      edm::EDGetTokenT<std::vector<edm::RefVector<std::vector<jetType>,jetType,edm::refhelper::FindUsingAdvance<std::vector<jetType>,jetType> > >> m_theJetToken;
 };
 
 #endif //HLTJetCollectionsFilter_h

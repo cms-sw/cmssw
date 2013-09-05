@@ -13,7 +13,6 @@
 //
 // Original Author:  Dmitry Vishnevskiy
 //         Created:  Thu Mar 27 08:12:02 CET 2008
-// $Id: HcalTimingMonitorModule.cc,v 1.10 2010/04/04 16:00:38 temple Exp $
 //
 //
 
@@ -82,9 +81,9 @@ class HcalTimingMonitorModule : public edm::EDAnalyzer {
       void   initialize();
    
    private:
-      virtual void beginJob() ;
-      virtual void analyze(const edm::Event&, const edm::EventSetup&);
-      virtual void endJob() ;
+      virtual void beginJob() override ;
+      virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
+      virtual void endJob() override ;
       
       double GetTime(double *data,int n){
              int MaxI=-100; double Time=0,SumT=0,MaxT=-10;

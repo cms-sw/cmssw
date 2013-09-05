@@ -7,7 +7,7 @@ using namespace oracle::occi;
 LMFUnique::~LMFUnique() {
 }
 
-std::string LMFUnique::sequencePostfix(Tm t) {
+std::string LMFUnique::sequencePostfix(const Tm& t) {
   std::string ts = t.str();
   return ts.substr(2, 2);
 }

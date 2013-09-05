@@ -14,7 +14,6 @@
 //
 // Original Author:  Kyle Story, Freya Blekman (Cornell University)
 //         Created:  Fri Apr 18 11:58:33 CEST 2008
-// $Id: SignAlgoResolutions.cc,v 1.10 2013/03/22 01:19:42 sakuma Exp $
 //
 //
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -302,7 +301,7 @@ void metsig::SignAlgoResolutions::addResolutions(const edm::ParameterSet &iConfi
   return;
 }
 
-void metsig::SignAlgoResolutions::addfunction(resolutionType type, resolutionFunc func, functionPars parameters){
+void metsig::SignAlgoResolutions::addfunction(resolutionType type, resolutionFunc func, const functionPars& parameters){
 
   functionCombo mypair(type,func);
   functionmap_[mypair]=parameters;

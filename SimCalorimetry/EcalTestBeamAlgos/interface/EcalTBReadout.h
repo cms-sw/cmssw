@@ -3,7 +3,6 @@
 
 /*
  *
- * $Id: EcalTBReadout.h,v 1.3 2009/06/18 16:44:00 heltsley Exp $
  *
  */
 

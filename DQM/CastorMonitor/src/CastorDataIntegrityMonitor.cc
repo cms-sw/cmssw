@@ -75,6 +75,20 @@ void CastorDataIntegrityMonitor::setup(const edm::ParameterSet& ps, DQMStore* db
  for (int i=FEDNumbering::MINCASTORFEDID; i<=FEDNumbering:: MAXCASTORFEDID; ++i)       
       fedUnpackList_.push_back(i);
 
+  if(fVerbosity>0) std::cout << "CastorDataIntegrityMonitor::setup (end)" << std::endl;
+
+ return;
+
+}
+
+
+//=================================================================//
+//========================== beginRun =============================//
+//=================================================================//
+void CastorDataIntegrityMonitor::beginRun(const edm::EventSetup& iSetup) {
+
+  if(fVerbosity>0) std::cout << "CastorDataIntegrityMonitor::beginRun (start)" << std::endl;
+  
   if ( m_dbe !=NULL ) {
     m_dbe->setCurrentFolder(baseFolder_);
     ////---- define monitor elements
@@ -90,19 +104,25 @@ void CastorDataIntegrityMonitor::setup(const edm::ParameterSet& ps, DQMStore* db
   }
   
    else{ 
-   if(fVerbosity>0) std::cout << "CastorDigiMonitor::setup - NO DQMStore service" << std::endl; 
+   if(fVerbosity>0) std::cout << "CastorDataIntegrityMonitor::setup - NO DQMStore service" << std::endl; 
   }
+ 
+ 
+ if(fVerbosity>0) std::cout << "CastorDataIntegrityMonitor::beginRun (end)" << std::endl;
 
-  if(fVerbosity>0) std::cout << "CastorDigiMonitor::setup (end)" << std::endl;
 
  return;
-
 }
 
 
-void CastorDataIntegrityMonitor::processEvent(const FEDRawDataCollection& RawData, const HcalUnpackerReport& unpackReport, const CastorElectronicsMap& emap){
 
-  if(fVerbosity>0) std::cout << "CastorDataIntegrityMonitor::processEvent" << std::endl;
+//=================================================================//
+//========================== processEvent =========================//
+//=================================================================//
+
+void CastorDataIntegrityMonitor::processEvent(const FEDRawDataCollection& RawData, const HcalUnpackerReport& unpackReport, const CastorElectronicsMap& emap)
+  {
+  if(fVerbosity>0) std::cout << "CastorDataIntegrityMonitor::processEvent (begin)" << std::endl;
 
   meEVT_->Fill(ievt_); 
 
@@ -125,16 +145,13 @@ void CastorDataIntegrityMonitor::processEvent(const FEDRawDataCollection& RawDat
       else statusSpigotDCC=-1.0;
       ////--- fill spigotStatusMap
       spigotStatusMap->getTH2F()->SetBinContent(spigot+1,dcc+1,statusSpigotDCC);
-      if(fVerbosity>0) 
+      if(fVerbosity>1) 
       std::cout<< "==> SpigotNr:"<< spigot+1 <<" DCC_ID:"<< dcc+690 << " # problems=" << problemsSpigot[spigot][dcc]
 	       << "==> ievt_:"<< ievt_ << " ratio=" << double(problemsSpigot[spigot][dcc])/double(ievt_) << " STATUS=" << statusSpigotDCC << std::endl;
     }
   }
 
-
-
-   
-   
+  if(fVerbosity>0) std::cout << "CastorDataIntegrityMonitor::processEvent (end)" << std::endl;
 
   return;
 } 

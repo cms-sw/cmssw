@@ -26,7 +26,7 @@ class RPCNumberingScheme : public MuonNumberingScheme {
 
   virtual ~RPCNumberingScheme(){};
   
-  virtual int baseNumberToUnitNumber(const MuonBaseNumber);
+  virtual int baseNumberToUnitNumber(const MuonBaseNumber&);
   
  private:
   void initMe ( const MuonDDDConstants& muonConstants );

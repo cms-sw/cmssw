@@ -55,7 +55,7 @@
 class PlotMakerReco {
 
  public:
-  PlotMakerReco(edm::ParameterSet objectList);
+  PlotMakerReco(const edm::ParameterSet& objectList);
   virtual ~PlotMakerReco(){};
 
   void handleObjects(const edm::Event&);

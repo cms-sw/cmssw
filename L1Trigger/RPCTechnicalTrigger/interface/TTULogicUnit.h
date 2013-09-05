@@ -1,4 +1,3 @@
-// $Id: TTULogicUnit.h,v 1.4 2009/06/04 11:52:58 aosorio Exp $
 #ifndef TTULOGICUNIT_H 
 #define TTULOGICUNIT_H 1
 

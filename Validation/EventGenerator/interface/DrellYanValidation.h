@@ -5,8 +5,6 @@
  *  
  *  Class to fill Event Generator dqm monitor elements; works on HepMCProduct
  *
- *  $Date: 2011/12/29 10:53:10 $
- *  $Revision: 1.3 $
  *
  */
 
@@ -44,10 +42,8 @@ class DrellYanValidation : public edm::EDAnalyzer
 	virtual void endRun(const edm::Run&, const edm::EventSetup&);
 
   private:
-
-  WeightManager _wmanager;
-
-  edm::InputTag hepmcCollection_;
+	WeightManager wmanager_;
+	edm::InputTag hepmcCollection_;
 
   /// PDT table
   edm::ESHandle<HepPDT::ParticleDataTable> fPDGTable ;
@@ -65,6 +61,8 @@ class DrellYanValidation : public edm::EDAnalyzer
   int _flavor;
   /// decay flavor name
   std::string _name;
+
+  edm::EDGetTokenT<edm::HepMCProduct> hepmcCollectionToken_;
 
 };
 

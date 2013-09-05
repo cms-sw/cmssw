@@ -4,8 +4,6 @@
 /*
  * \file L1TEfficiencyMuons.h
  *
- * $Date: 2012/11/26 17:10:18 $
- * $Revision: 1.1 $
  * \author J. Pela, C. Battilana
  *
  */

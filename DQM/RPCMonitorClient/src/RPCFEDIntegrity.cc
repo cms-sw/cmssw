@@ -12,7 +12,6 @@
 #include "DQMServices/Core/interface/MonitorElement.h"
 
 //EventFilter
-#include "EventFilter/RPCRawToDigi/interface/RPCRawDataCounts.h"
 #include "EventFilter/RPCRawToDigi/interface/DataRecord.h"
 #include "EventFilter/RPCRawToDigi/interface/ReadoutError.h"
 
@@ -21,7 +20,7 @@ typedef std::map<std::pair<int, int>, int >::const_iterator IT;
 RPCFEDIntegrity::RPCFEDIntegrity(const edm::ParameterSet& ps ) {
   edm::LogVerbatim ("rpcfedintegrity") << "[RPCFEDIntegrity]: Constructor";
 
-  rawCountsLabel_ = ps.getUntrackedParameter<edm::InputTag>("RPCRawCountsInputTag");
+  rawCountsLabel_ = consumes<RPCRawDataCounts>(ps.getUntrackedParameter<edm::InputTag>("RPCRawCountsInputTag"));
   prefixDir_ = ps.getUntrackedParameter<std::string>("RPCPrefixDir", "RPC/FEDIntegrity");
   merge_ = ps.getUntrackedParameter<bool>("MergeRuns", false);
   minFEDNum_ =  ps.getUntrackedParameter<int>("MinimumFEDID", 790);
@@ -56,7 +55,7 @@ void RPCFEDIntegrity::analyze(const edm::Event& iEvent, const edm::EventSetup& c
   
   //get hold of raw data counts
   edm::Handle<RPCRawDataCounts> rawCounts;
-  iEvent.getByLabel (rawCountsLabel_, rawCounts);
+  iEvent.getByToken (rawCountsLabel_, rawCounts);
   if(!rawCounts.isValid()) return;
 
 

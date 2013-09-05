@@ -2,7 +2,6 @@
 
 Test program for edm::signalslot::Signal class.
 
-$Id$
  ----------------------------------------------------------------------*/
 
 #include <cassert>

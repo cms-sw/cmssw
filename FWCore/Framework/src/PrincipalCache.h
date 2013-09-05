@@ -24,10 +24,13 @@ Original Author: W. David Dagenhart
 */
 
 #include "DataFormats/Provenance/interface/ProcessHistoryID.h"
+#include "DataFormats/Provenance/interface/ProcessHistoryRegistry.h"
 #include "DataFormats/Provenance/interface/RunID.h"
 #include "DataFormats/Provenance/interface/LuminosityBlockID.h"
 
 #include "boost/shared_ptr.hpp"
+#include <vector>
+#include <cassert>
 
 namespace edm {
 
@@ -37,6 +40,7 @@ namespace edm {
   class RunAuxiliary;
   class LuminosityBlockAuxiliary;
   class ProductRegistry;
+  class PreallocationConfiguration;
 
   class PrincipalCache {
   public:
@@ -56,21 +60,24 @@ namespace edm {
     boost::shared_ptr<LuminosityBlockPrincipal> const& lumiPrincipalPtr() const;
     bool hasLumiPrincipal() const {return lumiPrincipal_;}
 
-    EventPrincipal& eventPrincipal() const { return *eventPrincipal_; }
+    EventPrincipal& eventPrincipal(unsigned int iStreamIndex) const { return *(eventPrincipals_[iStreamIndex]); }
 
     void merge(boost::shared_ptr<RunAuxiliary> aux, boost::shared_ptr<ProductRegistry const> reg);
     void merge(boost::shared_ptr<LuminosityBlockAuxiliary> aux, boost::shared_ptr<ProductRegistry const> reg);
 
+    void setNumberOfConcurrentPrincipals(PreallocationConfiguration const&);
     void insert(boost::shared_ptr<RunPrincipal> rp);
     void insert(boost::shared_ptr<LuminosityBlockPrincipal> lbp);
-    void insert(boost::shared_ptr<EventPrincipal> ep) { eventPrincipal_ = ep; }
+    void insert(boost::shared_ptr<EventPrincipal> ep, unsigned int iStreamIndex) { assert(iStreamIndex < eventPrincipals_.size()); eventPrincipals_[iStreamIndex] = ep; }
 
     void deleteRun(ProcessHistoryID const& phid, RunNumber_t run);
     void deleteLumi(ProcessHistoryID const& phid, RunNumber_t run, LuminosityBlockNumber_t lumi);
 
-    void adjustEventToNewProductRegistry(boost::shared_ptr<ProductRegistry const> reg);
+    void adjustEventsToNewProductRegistry(boost::shared_ptr<ProductRegistry const> reg);
 
     void adjustIndexesAfterProductRegistryAddition();
+
+    void setProcessHistoryRegistry(ProcessHistoryRegistry const& phr) {processHistoryRegistry_ = &phr;}
 
   private:
 
@@ -81,7 +88,10 @@ namespace edm {
     // lumi, or event
     boost::shared_ptr<RunPrincipal> runPrincipal_;
     boost::shared_ptr<LuminosityBlockPrincipal> lumiPrincipal_;
-    boost::shared_ptr<EventPrincipal> eventPrincipal_;
+    std::vector<boost::shared_ptr<EventPrincipal>> eventPrincipals_;
+
+    // This is just an accessor to the registry owned by the input source. 
+    ProcessHistoryRegistry const* processHistoryRegistry_; // We don't own this
 
     // These are intentionally not cleared so that when inserting
     // the next principal the conversion from full ProcessHistoryID_

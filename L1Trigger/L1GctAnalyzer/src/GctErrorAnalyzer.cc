@@ -13,7 +13,6 @@ Implementation:
 //
 // Original Author:  Jad Marrouche
 //         Created:  Wed May 20 14:19:23 CEST 2009
-// $Id: GctErrorAnalyzer.cc,v 1.1 2009/12/14 17:23:32 tapper Exp $
 //
 //
 
@@ -87,9 +86,9 @@ public:
   ~GctErrorAnalyzer();
 
 private:
-  virtual void beginJob() ;
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void endJob() ;
+  virtual void beginJob() override ;
+  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
+  virtual void endJob() override ;
 
   // ----------member data ---------------------------
   //the following flags select what we'd like to plot and whether or not we want error information

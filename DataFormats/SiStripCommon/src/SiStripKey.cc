@@ -1,4 +1,3 @@
-// Last commit: $Id: SiStripKey.cc,v 1.5 2007/07/31 15:20:25 ratnik Exp $
 
 #include "DataFormats/SiStripCommon/interface/SiStripKey.h"
 #include "DataFormats/SiStripCommon/interface/Constants.h" 

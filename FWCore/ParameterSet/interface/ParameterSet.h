@@ -46,9 +46,6 @@ namespace edm {
     // construct from coded string.
     explicit ParameterSet(std::string const& rep);
 
-    // construct from coded string and id.  Will cause registration
-    ParameterSet(std::string const& rep, ParameterSetID const& id);
-
     ~ParameterSet();
 
     // instantiate in this library, so these methods don't cause code bloat
@@ -62,7 +59,7 @@ namespace edm {
 
     // identification
     ParameterSetID id() const;
-    void setID(ParameterSetID const& id) const;
+    void setID(ParameterSetID const& id);
     bool isRegistered() const {return id_.isValid();}
     ParameterSetID trackedID() const {return id();} // to be phased out.
 
@@ -110,10 +107,10 @@ namespace edm {
     ParameterSet const&
     getParameterSet(char const*) const;
 
-    ParameterSet const&
+    ParameterSet
     getUntrackedParameterSet(std::string const& name, ParameterSet const& defaultValue) const;
 
-    ParameterSet const&
+    ParameterSet
     getUntrackedParameterSet(char const* name, ParameterSet const& defaultValue) const;
 
     ParameterSet const&
@@ -128,10 +125,10 @@ namespace edm {
     VParameterSet const&
     getParameterSetVector(char const* name) const;
 
-    VParameterSet const&
+    VParameterSet
     getUntrackedParameterSetVector(std::string const& name, VParameterSet const& defaultValue) const;
 
-    VParameterSet const&
+    VParameterSet
     getUntrackedParameterSetVector(char const* name, VParameterSet const& defaultValue) const;
 
     VParameterSet const&
@@ -229,7 +226,7 @@ namespace edm {
     // untracked parameters.
     size_t getParameterSetNames(std::vector<std::string>& output,
                                 bool trackiness = true) const;
-    size_t getParameterSetNames(std::vector<std::string>& output);
+
     // Return the names of all parameters of type
     // vector<ParameterSet>, pushing the names into the argument
     // 'output'. Return the number of names pushed into the vector. If
@@ -272,7 +269,20 @@ namespace edm {
     VParameterSetEntry*
     getPSetVectorForUpdate(std::string const& name);
 
+    // construct from coded string and register it.
+    static
+    void
+    registerFromString(std::string const& rep);
+
+    // return ID of empty parameter set without registering it.
+    static
+    ParameterSetID
+    emptyParameterSetID();
+
   private:
+    // construct from coded string and id.
+    ParameterSet(std::string const& rep, ParameterSetID const& id);
+
     // decode
     bool fromString(std::string const&);
 
@@ -285,9 +295,9 @@ namespace edm {
     // If the id_ is invalid, that means a new value should be
     // calculated before the value is returned. Upon registration, the
     // id_ is made valid. Updating any tracked parameter invalidates the id_.
-    mutable ParameterSetID id_;
+    ParameterSetID id_;
 
-    void invalidateRegistration(std::string const& nameOfTracked) const;
+    void invalidateRegistration(std::string const& nameOfTracked);
 
     void calculateID();
 

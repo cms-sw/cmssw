@@ -17,11 +17,11 @@ class SiStripBaseDelayGenerator : public SiStripCondObjBuilderBase<SiStripBaseDe
   explicit SiStripBaseDelayGenerator(const edm::ParameterSet&,const edm::ActivityRegistry&);
   ~SiStripBaseDelayGenerator();
 
-  void getObj(SiStripBaseDelay* & obj){createObject(); obj=obj_;}
+  void getObj(SiStripBaseDelay* & obj){obj=createObject();}
 
  private:
 
-  void createObject();
+  SiStripBaseDelay* createObject();
 
 };
 

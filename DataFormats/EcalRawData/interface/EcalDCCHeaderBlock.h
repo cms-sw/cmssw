@@ -7,7 +7,6 @@
  *  Container for ECAL specific DCC Header information
  *
  *
- *  $Id: EcalDCCHeaderBlock.h,v 1.22 2008/12/04 17:14:38 franzoni Exp $
  */
 
 #include <vector>

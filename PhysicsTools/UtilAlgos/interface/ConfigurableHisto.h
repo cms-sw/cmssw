@@ -17,7 +17,7 @@
 class ConfigurableAxis {
  public:
   ConfigurableAxis(){}
-  ConfigurableAxis(edm::ParameterSet par) :
+  ConfigurableAxis(const edm::ParameterSet& par) :
     nBin_(0),Min_(0),Max_(0),Label_(""){
     Label_=par.getParameter<std::string>("Label");
 

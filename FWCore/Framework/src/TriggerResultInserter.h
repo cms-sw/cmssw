@@ -12,7 +12,9 @@
 
 */
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include <vector>
+
+#include "FWCore/Framework/interface/global/EDProducer.h"
 #include "DataFormats/Provenance/interface/ParameterSetID.h"
 
 #include "boost/shared_ptr.hpp"
@@ -24,7 +26,7 @@ namespace edm
   class EventSetup;
   class HLTGlobalStatus;
 
-  class TriggerResultInserter : public edm::EDProducer
+  class TriggerResultInserter : public edm::global::EDProducer<>
   {
   public:
 
@@ -34,13 +36,14 @@ namespace edm
     explicit TriggerResultInserter(edm::ParameterSet const& ps);
 
     // the pset needed here is the one that defines the trigger path names
-    TriggerResultInserter(edm::ParameterSet const& ps, const TrigResPtr& trptr);
-    virtual ~TriggerResultInserter();
+    TriggerResultInserter(edm::ParameterSet const& ps, unsigned int iNStreams);
 
-    virtual void produce(edm::Event& e, edm::EventSetup const& c);
+    void setTrigResultForStream(unsigned int iStreamIndex,
+                                const TrigResPtr& trptr);
+    void produce(StreamID id, edm::Event& e, edm::EventSetup const& c) const override final;
 
   private:
-    TrigResPtr trptr_;
+    std::vector<TrigResPtr> resultsPerStream_;
 
     ParameterSetID pset_id_;
   };

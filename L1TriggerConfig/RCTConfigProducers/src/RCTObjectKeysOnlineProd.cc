@@ -13,7 +13,6 @@
 //
 // Original Author:  Werner Man-Li Sun
 //         Created:  Fri Aug 22 19:51:36 CEST 2008
-// $Id: RCTObjectKeysOnlineProd.cc,v 1.8 2010/05/21 13:36:40 efron Exp $
 //
 //
 
@@ -34,7 +33,7 @@ class RCTObjectKeysOnlineProd : public L1ObjectKeysOnlineProdBase {
       RCTObjectKeysOnlineProd(const edm::ParameterSet&);
       ~RCTObjectKeysOnlineProd();
 
-      virtual void fillObjectKeys( ReturnType pL1TriggerKey ) ;
+      virtual void fillObjectKeys( ReturnType pL1TriggerKey ) override ;
    private:
       // ----------member data ---------------------------
 };

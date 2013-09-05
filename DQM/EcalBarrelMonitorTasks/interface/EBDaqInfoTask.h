@@ -4,8 +4,6 @@
 /*
  * \file EBDaqInfoTask.h
  *
- * $Date: 2010/08/08 08:46:05 $
- * $Revision: 1.132 $
  * \author E. Di Marco
  *
 */

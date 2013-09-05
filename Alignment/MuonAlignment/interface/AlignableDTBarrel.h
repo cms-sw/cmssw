@@ -32,7 +32,7 @@ class AlignableDTBarrel : public AlignableComposite
 
  public:
 
-  AlignableDTBarrel( const std::vector<AlignableDTWheel*> dtWheels );
+  AlignableDTBarrel( const std::vector<AlignableDTWheel*>& dtWheels );
 
   ~AlignableDTBarrel();
   

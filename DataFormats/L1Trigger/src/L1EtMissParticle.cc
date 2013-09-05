@@ -8,7 +8,6 @@
 //
 // Original Author:  Werner Sun
 //         Created:  Tue Jul 25 18:22:52 EDT 2006
-// $Id: L1EtMissParticle.cc,v 1.7 2008/04/03 03:37:09 wsun Exp $
 //
 
 // system include files

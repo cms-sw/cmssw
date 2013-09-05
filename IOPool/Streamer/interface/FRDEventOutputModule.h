@@ -2,11 +2,20 @@
 #define IOPool_Streamer_FRDEventOutputModule_h
 
 #include "FWCore/Framework/interface/OutputModule.h"
+
+#include "FWCore/Framework/interface/EventPrincipal.h"
+#include "FWCore/Utilities/interface/ProductKindOfType.h"
+#include "DataFormats/Common/interface/BasicHandle.h"
+#include "DataFormats/Common/interface/ConvertHandle.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "DataFormats/FEDRawData/interface/FEDRawData.h"
 
 #include "boost/shared_array.hpp"
+
+namespace edm {
+  class ModuleCallingContext;
+}
 
 class FRDEventMsgView;
 template <class Consumer>
@@ -25,11 +34,11 @@ class FRDEventOutputModule : public edm::OutputModule
   ~FRDEventOutputModule();
 
  private:
-  virtual void write(edm::EventPrincipal const& e);
-  virtual void beginRun(edm::RunPrincipal const&);
-  virtual void endRun(edm::RunPrincipal const&);
-  virtual void writeRun(edm::RunPrincipal const&) {}
-  virtual void writeLuminosityBlock(edm::LuminosityBlockPrincipal const&) {}
+  virtual void write(edm::EventPrincipal const& e, edm::ModuleCallingContext const*) override;
+  virtual void beginRun(edm::RunPrincipal const&, edm::ModuleCallingContext const*) override;
+  virtual void endRun(edm::RunPrincipal const&, edm::ModuleCallingContext const*) override;
+  virtual void writeRun(edm::RunPrincipal const&, edm::ModuleCallingContext const*) override {}
+  virtual void writeLuminosityBlock(edm::LuminosityBlockPrincipal const&, edm::ModuleCallingContext const*) override {}
 
   std::auto_ptr<Consumer> templateConsumer_;
   std::string label_;
@@ -49,13 +58,20 @@ template <class Consumer>
 FRDEventOutputModule<Consumer>::~FRDEventOutputModule() {}
 
 template <class Consumer>
-void FRDEventOutputModule<Consumer>::write(edm::EventPrincipal const& e) {
+void FRDEventOutputModule<Consumer>::write(edm::EventPrincipal const& e, edm::ModuleCallingContext const* mcc) {
 
-  // serialize the FEDRawDataCollection into the format that we expect for
-  // FRDEventMsgView objects (may be better ways to do this)
-  edm::Event event(const_cast<edm::EventPrincipal&>(e), description());
+  static const edm::TypeID fedType(typeid(FEDRawDataCollection));
+  static const std::string emptyString("");
+
   edm::Handle<FEDRawDataCollection> fedBuffers;
-  event.getByLabel(label_, instance_, fedBuffers);
+  edm::BasicHandle h = e.getByLabel(edm::PRODUCT_TYPE,
+                                    fedType,
+                                    label_,
+                                    instance_,
+                                    emptyString,
+                                    nullptr,
+                                    mcc);
+  convert_handle(h, fedBuffers);
 
   // determine the expected size of the FRDEvent
   int expectedSize = (4 + 1024) * sizeof(uint32);
@@ -71,9 +87,9 @@ void FRDEventOutputModule<Consumer>::write(edm::EventPrincipal const& e) {
   boost::shared_array<unsigned char> workBuffer(new unsigned char[expectedSize + 256]);
   uint32 *bufPtr = (uint32*) workBuffer.get();
   *bufPtr++ = (uint32) 2;  // version number
-  *bufPtr++ = (uint32) event.id().run();
-  *bufPtr++ = (uint32) event.luminosityBlock();
-  *bufPtr++ = (uint32) event.id().event();
+  *bufPtr++ = (uint32) e.run();
+  *bufPtr++ = (uint32) e.luminosityBlock();
+  *bufPtr++ = (uint32) e.id().event();
   for (int idx = 0; idx < 1024; ++idx) {
     FEDRawData singleFED = fedBuffers->FEDData(idx);
     *bufPtr++ = singleFED.size();
@@ -92,13 +108,13 @@ void FRDEventOutputModule<Consumer>::write(edm::EventPrincipal const& e) {
 }
 
 template <class Consumer>
-void FRDEventOutputModule<Consumer>::beginRun(edm::RunPrincipal const&)
+void FRDEventOutputModule<Consumer>::beginRun(edm::RunPrincipal const&, edm::ModuleCallingContext const*)
 {
   templateConsumer_->start();
 }
    
 template <class Consumer>
-void FRDEventOutputModule<Consumer>::endRun(edm::RunPrincipal const&)
+void FRDEventOutputModule<Consumer>::endRun(edm::RunPrincipal const&, edm::ModuleCallingContext const*)
 {
   templateConsumer_->stop();
 }

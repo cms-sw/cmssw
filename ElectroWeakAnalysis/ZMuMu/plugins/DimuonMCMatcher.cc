@@ -5,7 +5,7 @@
 class DimuonMCMatcher : public edm::EDProducer {
 public:
   DimuonMCMatcher(const edm::ParameterSet & cfg);
-  virtual void produce(edm::Event&, const edm::EventSetup&);
+  virtual void produce(edm::Event&, const edm::EventSetup&) override;
 private:
   edm::InputTag src_;
 };

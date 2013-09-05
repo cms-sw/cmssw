@@ -4,16 +4,16 @@
 #include <sstream>
 #include <string>
 #include <memory>
-#include <assert.h>
+#include <cassert>
 
 #include <boost/shared_ptr.hpp>
 
-#include <HepMC/GenEvent.h>
-#include <HepMC/GenParticle.h>
+#include "HepMC/GenEvent.h"
+#include "HepMC/GenParticle.h"
 
-#include <Pythia.h>
-#include <LesHouches.h>
-#include <HepMCInterface.h>
+#include "Pythia.h"
+#include "LesHouches.h"
+#include "HepMCInterface.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -35,9 +35,9 @@ class Pythia8Hadronisation : public Hadronisation {
 	~Pythia8Hadronisation();
 
     private:
-	void doInit();
-	std::auto_ptr<HepMC::GenEvent> doHadronisation();
-	void newRunInfo(const boost::shared_ptr<LHERunInfo> &runInfo);
+	void doInit() override;
+	std::auto_ptr<HepMC::GenEvent> doHadronisation() override;
+	void newRunInfo(const boost::shared_ptr<LHERunInfo> &runInfo) override;
 
 	const int				pythiaPylistVerbosity;
 	int					maxEventsToPrint;
@@ -63,8 +63,8 @@ class Pythia8Hadronisation::LHAupLesHouches : public LHAup {
 
     private:
 
-	bool setInit();
-	bool setEvent(int idProcIn);
+	bool setInit() override;
+	bool setEvent(int idProcIn) override;
 
 	Hadronisation			*hadronisation;
 	boost::shared_ptr<LHERunInfo>	runInfo;

@@ -10,7 +10,6 @@
 //
 // Original Author:  Nicholas Cripps
 //         Created:  2008/09/16
-// $Id: SiStripFEDMonitor.cc,v 1.2 2013/01/02 14:30:24 wmtan Exp $
 //
 //Modified        :  Anne-Marie Magnan
 //   ---- 2009/04/21 : histogram management put in separate class
@@ -24,6 +23,7 @@
 #include <algorithm>
 #include <cassert>
 
+#include "FWCore/Utilities/interface/EDGetToken.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -64,13 +64,13 @@ class SiStripFEDMonitorPlugin : public edm::EDAnalyzer
   explicit SiStripFEDMonitorPlugin(const edm::ParameterSet&);
   ~SiStripFEDMonitorPlugin();
  private:
-  virtual void beginJob();
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void endJob();
+  virtual void beginJob() override;
+  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
+  virtual void endJob() override;
   virtual void beginLuminosityBlock(const edm::LuminosityBlock& lumiSeg, 
-				    const edm::EventSetup& context);
+				    const edm::EventSetup& context) override;
   virtual void endLuminosityBlock(const edm::LuminosityBlock& lumiSeg, 
-				  const edm::EventSetup& context);
+				  const edm::EventSetup& context) override;
 
   //update the cabling if necessary
   void updateCabling(const edm::EventSetup& eventSetup);
@@ -84,9 +84,13 @@ class SiStripFEDMonitorPlugin : public edm::EDAnalyzer
 
   //tag of FEDRawData collection
   edm::InputTag rawDataTag_;
+  edm::EDGetTokenT<FEDRawDataCollection> rawDataToken_;
+  edm::EDGetTokenT<EventWithHistory> heToken_;
+  
   //histogram helper class
   FEDHistograms fedHists_;
   //folder name for histograms in DQMStore
+  std::string topFolderName_;
   std::string folderName_;
   //book detailed histograms even if they will be empty (for merging)
   bool fillAllDetailedHistograms_;
@@ -124,7 +128,7 @@ class SiStripFEDMonitorPlugin : public edm::EDAnalyzer
 
 SiStripFEDMonitorPlugin::SiStripFEDMonitorPlugin(const edm::ParameterSet& iConfig)
   : rawDataTag_(iConfig.getUntrackedParameter<edm::InputTag>("RawDataTag",edm::InputTag("source",""))),
-    folderName_(iConfig.getUntrackedParameter<std::string>("HistogramFolderName","SiStrip/ReadoutView/FedSummary")),
+    topFolderName_(iConfig.getUntrackedParameter<std::string>("TopFolderName","SiStrip")),
     fillAllDetailedHistograms_(iConfig.getUntrackedParameter<bool>("FillAllDetailedHistograms",false)),
     fillWithEvtNum_(iConfig.getUntrackedParameter<bool>("FillWithEventNumber",false)),
     printDebug_(iConfig.getUntrackedParameter<unsigned int>("PrintDebugMessages",1)),
@@ -135,6 +139,13 @@ SiStripFEDMonitorPlugin::SiStripFEDMonitorPlugin(const edm::ParameterSet& iConfi
     cablingCacheId_(0),
     maxFedBufferSize_(0)
 {
+  std::string subFolderName = iConfig.getUntrackedParameter<std::string>("HistogramFolderName","ReadoutView");
+  folderName_ = topFolderName_ + "/" + subFolderName;
+	      
+
+  rawDataToken_ = consumes<FEDRawDataCollection>(rawDataTag_);
+  heToken_      = consumes<EventWithHistory>(edm::InputTag("consecutiveHEs") );
+
   //print config to debug log
   std::ostringstream debugStream;
   if (printDebug_>1) {
@@ -198,7 +209,8 @@ SiStripFEDMonitorPlugin::analyze(const edm::Event& iEvent,
   
   //get raw data
   edm::Handle<FEDRawDataCollection> rawDataCollectionHandle;
-  iEvent.getByLabel(rawDataTag_,rawDataCollectionHandle);
+  //  iEvent.getByLabel(rawDataTag_,rawDataCollectionHandle);
+  iEvent.getByToken(rawDataToken_,rawDataCollectionHandle);
   const FEDRawDataCollection& rawDataCollection = *rawDataCollectionHandle;
   
   fedErrors_.initialiseEvent();
@@ -206,7 +218,8 @@ SiStripFEDMonitorPlugin::analyze(const edm::Event& iEvent,
   //add the deltaBX value if the product exist
 
   edm::Handle<EventWithHistory> he;
-  iEvent.getByLabel("consecutiveHEs",he);
+  //  iEvent.getByLabel("consecutiveHEs",he);
+  iEvent.getByToken(heToken_,he);
 
   if(he.isValid() && !he.failedToGet()) {
     fedErrors_.fillEventProperties(he->deltaBX());

@@ -22,8 +22,8 @@ class LMFLmrSubIOV : public LMFUnique {
 
   LMFLmrSubIOV& setLMFIOV(const LMFIOV &iov);
   LMFLmrSubIOV& setLMFIOV(int i);
-  LMFLmrSubIOV& setTimes(Tm t1, Tm t2, Tm t3);
-  LMFLmrSubIOV& setTimes(std::vector<Tm> t);
+  LMFLmrSubIOV& setTimes(const Tm& t1, const Tm& t2, const Tm& t3);
+  LMFLmrSubIOV& setTimes(const std::vector<Tm>& t);
   LMFLmrSubIOV& setTimes(Tm *t); // array of three components
   
   int getLMFIOVID() const {

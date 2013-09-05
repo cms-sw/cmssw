@@ -11,8 +11,6 @@
  *  Documentation available on the CMS TWiki:
  *  https://twiki.cern.ch/twiki/bin/view/CMS/MuonHLTOfflinePerformance
  *
- *  $Date: 2011/05/23 13:07:46 $
- *  $Revision: 1.17 $
  *  
  *  \author  J. Slaunwhite, Jeff Klukas
  */

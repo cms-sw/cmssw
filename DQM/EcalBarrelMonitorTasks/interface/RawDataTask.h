@@ -13,12 +13,12 @@ namespace ecaldqm {
     RawDataTask(const edm::ParameterSet &, const edm::ParameterSet &);
     ~RawDataTask();
 
-    void bookMEs();
+    void bookMEs() override;
 
-    void beginLuminosityBlock(const edm::LuminosityBlock &, const edm::EventSetup &);
-    void beginEvent(const edm::Event &, const edm::EventSetup &);
+    void beginLuminosityBlock(const edm::LuminosityBlock &, const edm::EventSetup &) override;
+    void beginEvent(const edm::Event &, const edm::EventSetup &) override;
 
-    void analyze(const void*, Collections);
+    void analyze(const void*, Collections) override;
 
     void runOnSource(const FEDRawDataCollection &, Collections);
     void runOnRawData(const EcalRawDataCollection &, Collections);

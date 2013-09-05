@@ -4,8 +4,6 @@
 /** \class DTnoiseDBValidation
  *  Plot the noise from the DB comparaison
  *
- *  $Date: 2011/05/05 13:36:31 $
- *  $Revision: 1.3 $
  *  \author G. Mila - INFN Torino
  */
 

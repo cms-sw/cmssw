@@ -43,6 +43,8 @@ pointer to a ProductHolder, when queried.
 namespace edm {
 
   class HistoryAppender;
+  class ModuleCallingContext;
+  class ProcessHistoryRegistry;
   class ProductHolderIndexHelper;
   class EDConsumerBase;
 
@@ -74,17 +76,17 @@ namespace edm {
 
     void adjustIndexesAfterProductRegistryAddition();
 
-    void addScheduledProduct(boost::shared_ptr<ConstBranchDescription> bd);
+    void addScheduledProduct(boost::shared_ptr<BranchDescription const> bd);
 
-    void addSourceProduct(boost::shared_ptr<ConstBranchDescription> bd);
+    void addSourceProduct(boost::shared_ptr<BranchDescription const> bd);
 
-    void addInputProduct(boost::shared_ptr<ConstBranchDescription> bd);
+    void addInputProduct(boost::shared_ptr<BranchDescription const> bd);
 
-    void addUnscheduledProduct(boost::shared_ptr<ConstBranchDescription> bd);
+    void addUnscheduledProduct(boost::shared_ptr<BranchDescription const> bd);
 
-    void addAliasedProduct(boost::shared_ptr<ConstBranchDescription> bd);
+    void addAliasedProduct(boost::shared_ptr<BranchDescription const> bd);
 
-    void fillPrincipal(ProcessHistoryID const& hist, DelayedReader* reader);
+    void fillPrincipal(ProcessHistoryID const& hist, ProcessHistoryRegistry& phr, DelayedReader* reader);
 
     void clearPrincipal();
 
@@ -92,7 +94,7 @@ namespace edm {
     
     EDProductGetter const* prodGetter() const {return this;}
 
-    OutputHandle getForOutput(BranchID const& bid, bool getProd) const;
+    OutputHandle getForOutput(BranchID const& bid, bool getProd, ModuleCallingContext const* mcc) const;
 
     // Return a BasicHandle to the product which:
     //   1. matches the given label, instance, and process
@@ -107,24 +109,28 @@ namespace edm {
     BasicHandle  getByLabel(KindOfType kindOfType,
                             TypeID const& typeID,
                             InputTag const& inputTag,
-                            EDConsumerBase const* consumes) const;
+                            EDConsumerBase const* consumes,
+                            ModuleCallingContext const* mcc) const;
 
     BasicHandle  getByLabel(KindOfType kindOfType,
                             TypeID const& typeID,
                             std::string const& label,
                             std::string const& instance,
                             std::string const& process,
-                            EDConsumerBase const* consumes) const;
+                            EDConsumerBase const* consumes,
+                            ModuleCallingContext const* mcc) const;
     
     BasicHandle getByToken(KindOfType kindOfType,
                            TypeID const& typeID,
                            ProductHolderIndex index,
                            bool skipCurrentProcess,
-                           bool& ambiguous) const;
+                           bool& ambiguous,
+                           ModuleCallingContext const* mcc) const;
 
     void getManyByType(TypeID const& typeID,
                        BasicHandleVec& results,
-                       EDConsumerBase const* consumes) const;
+                       EDConsumerBase const* consumes,
+                       ModuleCallingContext const* mcc) const;
 
     ProcessHistory const& processHistory() const {
       return *processHistoryPtr_;
@@ -149,7 +155,8 @@ namespace edm {
     const_iterator begin() const {return boost::make_filter_iterator<FilledProductPtr>(productHolders_.begin(), productHolders_.end());}
     const_iterator end() const {return  boost::make_filter_iterator<FilledProductPtr>(productHolders_.end(), productHolders_.end());}
 
-    Provenance getProvenance(BranchID const& bid) const;
+    Provenance getProvenance(BranchID const& bid,
+                             ModuleCallingContext const* mcc) const;
 
     void getAllProvenance(std::vector<Provenance const*>& provenances) const;
 
@@ -159,24 +166,27 @@ namespace edm {
 
     ConstProductPtr getProductHolder(BranchID const& oid,
                                      bool resolveProd,
-                                     bool fillOnDemand) const;
+                                     bool fillOnDemand,
+                                     ModuleCallingContext const* mcc) const;
 
-    ProductData const* findProductByTag(TypeID const& typeID, InputTag const& tag) const;
+    ProductData const* findProductByTag(TypeID const& typeID, InputTag const& tag, ModuleCallingContext const* mcc) const;
 
     // Make my DelayedReader get the EDProduct for a ProductHolder or
     // trigger unscheduled execution if required.  The ProductHolder is
     // a cache, and so can be modified through the const reference.
     // We do not change the *number* of products through this call, and so
     // *this is const.
-    void resolveProduct(ProductHolderBase const& phb, bool fillOnDemand) const {resolveProduct_(phb, fillOnDemand);}
+    void resolveProduct(ProductHolderBase const& phb, bool fillOnDemand, ModuleCallingContext const* mcc) const {resolveProduct_(phb, fillOnDemand,mcc);}
 
-    virtual bool unscheduledFill(std::string const& moduleLabel) const = 0;
+    virtual bool unscheduledFill(std::string const& moduleLabel,
+                                 ModuleCallingContext const* mcc) const = 0;
 
     std::vector<unsigned int> const& lookupProcessOrder() const { return lookupProcessOrder_; }
 
     ConstProductPtr getProductByIndex(ProductHolderIndex const& oid,
                                       bool resolveProd,
-                                      bool fillOnDemand) const;
+                                      bool fillOnDemand,
+                                      ModuleCallingContext const* mcc) const;
 
     bool isComplete() const {return isComplete_();}
 
@@ -202,24 +212,30 @@ namespace edm {
 
     void findProducts(std::vector<ProductHolderBase const*> const& holders,
                       TypeID const& typeID,
-                      BasicHandleVec& results) const;
+                      BasicHandleVec& results,
+                      ModuleCallingContext const* mcc) const;
 
     ProductData const* findProductByLabel(KindOfType kindOfType,
                                           TypeID const& typeID,
                                           InputTag const& inputTag,
-                                          EDConsumerBase const* consumer) const;
+                                          EDConsumerBase const* consumer,
+                                          ModuleCallingContext const* mcc) const;
 
     ProductData const* findProductByLabel(KindOfType kindOfType,
                                           TypeID const& typeID,
                                           std::string const& label,
                                           std::string const& instance,
                                           std::string const& process,
-                                          EDConsumerBase const* consumer) const;
+                                          EDConsumerBase const* consumer,
+                                          ModuleCallingContext const* mcc) const;
 
     // defaults to no-op unless overridden in derived class.
-    virtual void resolveProduct_(ProductHolderBase const&, bool /*fillOnDemand*/) const {}
+    virtual void resolveProduct_(ProductHolderBase const&, bool /*fillOnDemand*/,
+                                 ModuleCallingContext const*) const {}
 
     virtual bool isComplete_() const {return true;}
+
+    ProcessHistoryRegistry* processHistoryRegistry_; 
 
     ProcessHistory const* processHistoryPtr_;
 
@@ -258,9 +274,9 @@ namespace edm {
   template <typename PROD>
   inline
   boost::shared_ptr<Wrapper<PROD> const>
-  getProductByTag(Principal const& ep, InputTag const& tag) {
+    getProductByTag(Principal const& ep, InputTag const& tag, ModuleCallingContext const* mcc) {
     TypeID tid = TypeID(typeid(PROD));
-    ProductData const* result = ep.findProductByTag(tid, tag);
+    ProductData const* result = ep.findProductByTag(tid, tag, mcc);
 
     if(result->getInterface() &&
        (!(result->getInterface()->dynamicTypeInfo() == typeid(PROD)))) {

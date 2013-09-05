@@ -1,9 +1,7 @@
 /* 
- *  $id: EcalTestPulseAnalyzer.cc,v 1.4 2007/08/30 17:06:41 ganzhur Exp $
  *
  *  \class EcalTestPulseAnalyzer
  *
- *  $Date: 2010/10/21 22:03:33 $
  *  primary author: Julie Malcles - CEA/Saclay
  *  author: Gautier Hamel De Monchenault - CEA/Saclay
  */

@@ -62,7 +62,7 @@ CSCTFUnpacker::CSCTFUnpacker(const edm::ParameterSet& pset):edm::EDProducer(),ma
 		mapping = new CSCTriggerMappingFromFile(mappingFile);
 	} else {
 		LogDebug("CSCTFUnpacker|ctor") << "Generating default hw<->geometry mapping";
-		class M: public CSCTriggerSimpleMapping{ void fill(void){} };
+		class M: public CSCTriggerSimpleMapping{ void fill(void) override{} };
 		mapping = new M();
 		for(int endcap=1; endcap<=2; endcap++)
 			for(int station=1; station<=4; station++)

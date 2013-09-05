@@ -328,6 +328,7 @@ DQMStore::initializeFrom(const edm::ParameterSet& pset) {
   initQCriterion<ContentsWithinExpected>(qalgos_);
   initQCriterion<CompareToMedian>(qalgos_);
   initQCriterion<CompareLastFilledBin>(qalgos_);
+  initQCriterion<CheckVariance>(qalgos_);
 
   scaleFlag_ = pset.getUntrackedParameter<double>("ScalingFlag", 0.0);
   if (verbose_ > 0)
@@ -2136,7 +2137,7 @@ DQMStore::save(const std::string &filename,
   {
   public:
     TFileNoSync(const char *file, const char *opt) : TFile(file, opt) {}
-    virtual Int_t SysSync(Int_t) { return 0; }
+    virtual Int_t SysSync(Int_t) override { return 0; }
   };
 
   // open output file, on 1st save recreate, later update

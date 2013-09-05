@@ -1,6 +1,5 @@
 // Original Author:  Anne-Marie Magnan
 //         Created:  2010/02/25
-// $Id: SiStripSpyExtractRunModule.cc,v 1.2 2010/03/15 03:33:35 wmtan Exp $
 //
 
 #include <sstream>
@@ -11,6 +10,7 @@
 #include <algorithm>
 #include <cassert>
 
+#include "FWCore/Utilities/interface/EDGetToken.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -41,9 +41,9 @@ namespace sistrip {
 
   private:
 
-    virtual void beginJob();
-    virtual void analyze(const edm::Event&, const edm::EventSetup&);
-    virtual void endJob();
+    virtual void beginJob() override;
+    virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
+    virtual void endJob() override;
 
     //check when the current run changes
     const bool updateRun(const uint32_t aRun);
@@ -54,6 +54,7 @@ namespace sistrip {
 
     //tag of spydata run number collection
     edm::InputTag runTag_;
+    edm::EDGetTokenT<uint32_t> runToken_;
 
     //cache of the current and previous run number
     uint32_t currentRun_;
@@ -80,7 +81,7 @@ namespace sistrip {
       previousRun_(0),
       errCounter_(0)
   {
-
+    runToken_ = consumes<uint32_t>(runTag_);
   }
 
 
@@ -101,7 +102,8 @@ namespace sistrip {
 
     static bool lFirstEvent = true;
     edm::Handle<uint32_t> lRun;
-    aEvt.getByLabel( runTag_, lRun ); 
+    //    aEvt.getByLabel( runTag_, lRun ); 
+    aEvt.getByToken( runToken_, lRun ); 
 
     const bool isUpdated = updateRun(*lRun);
 

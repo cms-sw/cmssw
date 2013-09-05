@@ -1,8 +1,6 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2012/08/27 11:46:51 $
- *  $Revision: 1.7 $
  *  \author S. Goy Lopez, CIEMAT 
  */
 

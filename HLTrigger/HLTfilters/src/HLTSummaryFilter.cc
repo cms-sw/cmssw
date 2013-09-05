@@ -11,6 +11,7 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "HLTrigger/HLTfilters/interface/HLTSummaryFilter.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 
 #include "DataFormats/Common/interface/Handle.h"
 
@@ -20,11 +21,12 @@
 // constructors and destructor
 //
 HLTSummaryFilter::HLTSummaryFilter(const edm::ParameterSet& iConfig) : HLTFilter(iConfig),
-  summaryTag_ (iConfig.getParameter<edm::InputTag>("summary")),
-  memberTag_  (iConfig.getParameter<edm::InputTag>("member" )),
-  cut_        (iConfig.getParameter<std::string>  ("cut"    )),
-  min_N_      (iConfig.getParameter<int>          ("minN"   )),
-  select_     (cut_                                          )
+  summaryTag_  (iConfig.getParameter<edm::InputTag>("summary")),
+  summaryToken_(consumes<trigger::TriggerEvent>(summaryTag_  )),
+  memberTag_   (iConfig.getParameter<edm::InputTag>("member" )),
+  cut_         (iConfig.getParameter<std::string>  ("cut"    )),
+  min_N_       (iConfig.getParameter<int>          ("minN"   )),
+  select_      (cut_                                          )
 {
   edm::LogInfo("HLTSummaryFilter")
      << "Summary/member/cut/ncut : "
@@ -40,6 +42,21 @@ HLTSummaryFilter::~HLTSummaryFilter()
 //
 // member functions
 //
+void
+HLTSummaryFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  makeHLTFilterDescription(desc);
+  // # trigger summary
+  desc.add<edm::InputTag>("summary",edm::InputTag("hltTriggerSummaryAOD","","HLT"));
+  // # filter or collection
+  desc.add<edm::InputTag>("member",edm::InputTag("hlt1jet30","","HLT"));
+  // # cut on trigger object
+  desc.add<std::string>("cut","pt>80");
+  // # min. # of passing objects needed
+  desc.add<int>("minN",1);
+  descriptions.add("hltSummaryFilter", desc);
+
+}
 
 // ------------ method called to produce the data  ------------
 bool
@@ -51,7 +68,7 @@ HLTSummaryFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, t
    using namespace trigger;
 
    Handle<TriggerEvent> summary;
-   iEvent.getByLabel(summaryTag_,summary);
+   iEvent.getByToken(summaryToken_,summary);
 
    if (!summary.isValid()) {
      LogError("HLTSummaryFilter") << "Trigger summary product " 

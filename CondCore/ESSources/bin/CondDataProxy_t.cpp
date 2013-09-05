@@ -51,11 +51,11 @@ namespace {
 
   class CondGetterFromTag : public cond::CondGetter {
   public:
-    CondGetterFromTag( cond::CondDB  db, std::string tag ) : 
+    CondGetterFromTag( const cond::CondDB&  db, std::string tag ) : 
       m_db(db), m_tag(tag){}
     virtual ~CondGetterFromTag(){}
 
-    cond::IOVProxy get(std::string name) const {
+    cond::IOVProxy get(std::string name) const override {
       // we do not use the name: still verify that is correct...
       std::cout << "keyed record name " << name << std::endl;
       return m_db.iov(m_tag);
@@ -76,7 +76,7 @@ namespace cond {
     public:
       CondDataProxyUtilities();
       ~CondDataProxyUtilities();
-      int execute();
+      int execute() override;
   };
 }
 

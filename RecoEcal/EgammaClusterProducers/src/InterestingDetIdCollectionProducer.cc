@@ -21,7 +21,6 @@
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgo.h"
 #include "RecoEcal/EgammaCoreTools/interface/EcalTools.h"
 
-// $Id: InterestingDetIdCollectionProducer.cc,v 1.10 2011/05/19 14:29:48 argiro Exp $
 
 InterestingDetIdCollectionProducer::InterestingDetIdCollectionProducer(const edm::ParameterSet& iConfig) 
 {

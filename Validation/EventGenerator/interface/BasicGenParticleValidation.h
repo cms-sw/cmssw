@@ -5,8 +5,6 @@
  *  
  *  Class to fill Event Generator dqm monitor elements; works on HepMCProduct
  *
- *  $Date: 2011/12/29 10:53:10 $
- *  $Revision: 1.3 $
  *
  */
 
@@ -50,9 +48,7 @@ class BasicGenParticleValidation : public edm::EDAnalyzer
     bool matchParticles(const HepMC::GenParticle*&, const reco::GenParticle*&); 
 
     private:
-
-    WeightManager _wmanager;
-
+    WeightManager wmanager_;
     edm::InputTag hepmcCollection_;
     edm::InputTag genparticleCollection_;
     edm::InputTag genjetCollection_;
@@ -90,6 +86,10 @@ class BasicGenParticleValidation : public edm::EDAnalyzer
     MonitorElement *genJetCentral;
 
     MonitorElement *genJetTotPt;
+
+    edm::EDGetTokenT<edm::HepMCProduct> hepmcCollectionToken_;
+    edm::EDGetTokenT<reco::GenParticleCollection> genparticleCollectionToken_;
+    edm::EDGetTokenT<reco::GenJetCollection> genjetCollectionToken_;
 
 };
 

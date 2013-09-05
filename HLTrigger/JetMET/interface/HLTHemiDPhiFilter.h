@@ -3,6 +3,7 @@
 
 #include "HLTrigger/HLTcore/interface/HLTFilter.h"
 #include<vector>
+#include "TVector3.h"
 #include "TLorentzVector.h"
 
 namespace edm {
@@ -24,6 +25,7 @@ class HLTHemiDPhiFilter : public HLTFilter {
       
 
    private:
+      edm::EDGetTokenT<std::vector<math::XYZTLorentzVector>> m_theHemiToken;
       double deltaPhi(double, double); //helper function
   
       edm::InputTag inputTag_; // input tag identifying product

@@ -9,6 +9,7 @@ Test of GenericHandle class.
 #include "DataFormats/Provenance/interface/EventAuxiliary.h"
 #include "DataFormats/Provenance/interface/LuminosityBlockAuxiliary.h"
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
+#include "DataFormats/Provenance/interface/ProcessHistoryRegistry.h"
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
 #include "DataFormats/Provenance/interface/RunAuxiliary.h"
 #include "DataFormats/Provenance/interface/Timestamp.h"
@@ -28,7 +29,7 @@ Test of GenericHandle class.
 #include "FWCore/Utilities/interface/TypeWithDict.h"
 #include "FWCore/Version/interface/GetReleaseVersion.h"
 
-#include <cppunit/extensions/HelperMacros.h>
+#include "cppunit/extensions/HelperMacros.h"
 
 #include <iostream>
 #include <memory>
@@ -93,7 +94,8 @@ void testGenericHandle::failgetbyLabelTest() {
   branchIDListHelper->updateRegistries(*preg);
   edm::EventAuxiliary eventAux(id, uuid, time, true);
   edm::EventPrincipal ep(preg, branchIDListHelper, pc, &historyAppender_,edm::StreamID::invalidStreamID());
-  ep.fillEventPrincipal(eventAux);
+  edm::ProcessHistoryRegistry phr; 
+  ep.fillEventPrincipal(eventAux, phr);
   ep.setLuminosityBlockPrincipal(lbp);
   edm::GenericHandle h("edmtest::DummyProduct");
   bool didThrow=true;
@@ -101,7 +103,7 @@ void testGenericHandle::failgetbyLabelTest() {
      edm::ParameterSet pset;
      pset.registerIt();
      edm::ModuleDescription modDesc(pset.id(), "Blah", "blahs");
-     edm::Event event(ep, modDesc);
+     edm::Event event(ep, modDesc, nullptr);
 
      std::string label("this does not exist");
      event.getByLabel(label,h);
@@ -182,12 +184,13 @@ void testGenericHandle::getbyLabelTest() {
   lbp->setRunPrincipal(rp);
   edm::EventAuxiliary eventAux(col, uuid, fakeTime, true);
   edm::EventPrincipal ep(pregc, branchIDListHelper, pc, &historyAppender_,edm::StreamID::invalidStreamID());
-  ep.fillEventPrincipal(eventAux);
+  edm::ProcessHistoryRegistry phr; 
+  ep.fillEventPrincipal(eventAux, phr);
   ep.setLuminosityBlockPrincipal(lbp);
   edm::BranchDescription const& branchFromRegistry = it->second;
   boost::shared_ptr<edm::Parentage> entryDescriptionPtr(new edm::Parentage);
   edm::ProductProvenance prov(branchFromRegistry.branchID(), entryDescriptionPtr);
-  edm::ConstBranchDescription const desc(branchFromRegistry);
+  edm::BranchDescription const desc(branchFromRegistry);
   ep.put(desc, pprod, prov);
 
   edm::GenericHandle h("edmtest::DummyProduct");
@@ -200,8 +203,8 @@ void testGenericHandle::getbyLabelTest() {
 
     edm::ParameterSet pset;
     pset.registerIt();
-    edm::ModuleDescription modDesc(pset.id(), "Blah", "blahs", processConfiguration.get());
-    edm::Event event(ep, modDesc);
+    edm::ModuleDescription modDesc(pset.id(), "Blah", "blahs", processConfiguration.get(),edm::ModuleDescription::getUniqueID());
+    edm::Event event(ep, modDesc, nullptr);
 
     event.getByLabel(label, productInstanceName,h);
   }

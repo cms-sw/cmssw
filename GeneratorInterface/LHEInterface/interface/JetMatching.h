@@ -8,8 +8,8 @@
 
 #include <boost/shared_ptr.hpp>
 
-#include <HepMC/GenEvent.h>
-#include <HepMC/SimpleVector.h>
+#include "HepMC/GenEvent.h"
+#include "HepMC/SimpleVector.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/PluginManager/interface/PluginFactory.h"

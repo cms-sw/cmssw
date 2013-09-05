@@ -116,8 +116,9 @@ void  HDQMSummary::setObj(const uint32_t& detID, std::string elementName, float 
 }
 
 
-std::vector<float> HDQMSummary::getSummaryObj(uint32_t& detID, std::vector<std::string> list) const
+std::vector<float> HDQMSummary::getSummaryObj(uint32_t& detID, const std::vector<std::string>& _list) const
 {  
+  std::vector<std::string> list = _list;
   std::vector<float> SummaryObj;
   const HDQMSummary::Range range = getRange(detID);
   if (range.first != range.second ) {

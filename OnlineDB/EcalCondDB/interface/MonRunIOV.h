@@ -22,15 +22,15 @@ class MonRunIOV : public IIOV {
   int getID(){ return m_ID;} ;
 
   // Methods for user data
-  void setMonRunTag(MonRunTag tag);
+  void setMonRunTag(const MonRunTag& tag);
   MonRunTag getMonRunTag() const;
-  void setRunIOV(RunIOV iov);
+  void setRunIOV(const RunIOV& iov);
   RunIOV getRunIOV();
   void setSubRunNumber(subrun_t subrun);
   run_t getSubRunNumber() const;
-  void setSubRunStart(Tm start);
+  void setSubRunStart(const Tm& start);
   Tm getSubRunStart() const;
-  void setSubRunEnd(Tm end);
+  void setSubRunEnd(const Tm& end);
   Tm getSubRunEnd() const;
 
   // Methods from IUniqueDBObject

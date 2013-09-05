@@ -41,7 +41,7 @@ namespace {
 
 	    protected:
 		std::vector<Jet> operator () (
-				const ParticleVector &input) const;
+				const ParticleVector &input) const override;
 
 		std::auto_ptr<fastjet::JetDefinition::Plugin>	plugin;
 		std::auto_ptr<fastjet::JetDefinition>		jetDefinition;

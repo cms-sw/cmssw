@@ -13,7 +13,6 @@
 //
 // Original Author:  Werner Man-Li Sun
 //         Created:  Tue Sep 16 22:43:22 CEST 2008
-// $Id: L1HfRingEtScaleOnlineProd.cc,v 1.4 2010/02/18 21:37:27 jbrooke Exp $
 //
 //
 
@@ -38,7 +37,7 @@ class L1HfRingEtScaleOnlineProd :
       ~L1HfRingEtScaleOnlineProd();
 
   virtual boost::shared_ptr< L1CaloEtScale > newObject(
-    const std::string& objectKey ) ;
+    const std::string& objectKey ) override ;
 
 
    private:

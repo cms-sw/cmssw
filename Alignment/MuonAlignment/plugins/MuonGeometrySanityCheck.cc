@@ -98,7 +98,7 @@ class MuonGeometrySanityCheck : public edm::EDAnalyzer {
       ~MuonGeometrySanityCheck();
 
    private:
-      virtual void analyze(const edm::Event&, const edm::EventSetup &iConfig);
+      virtual void analyze(const edm::Event&, const edm::EventSetup &iConfig) override;
 
       std::string printout;
       double tolerance;

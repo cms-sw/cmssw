@@ -26,8 +26,8 @@ public:
   explicit SolidsForOnline( const edm::ParameterSet& );
   ~SolidsForOnline();
   
-  virtual void analyze( const edm::Event&, const edm::EventSetup& );
-  virtual void beginRun( const edm::Run&, const edm::EventSetup& );
+  virtual void analyze( const edm::Event&, const edm::EventSetup& ) override;
+  virtual void beginRun( const edm::Run&, const edm::EventSetup& ) override;
   
 private: 
 

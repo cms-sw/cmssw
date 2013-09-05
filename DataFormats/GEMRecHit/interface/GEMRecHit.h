@@ -5,8 +5,6 @@
  *
  *  RecHit for GEM 
  *
- *  $Date: 2013/04/09 20:47:06 $
- *  $Revision: 1.1 $
  *  \author M. Maggi -- INFN Bari 
  */
 

@@ -13,7 +13,6 @@
 //
 // Original Author:  Kenneth Case Rossato
 //         Created:  Wed Mar 25 13:05:10 CET 2008
-// $Id: PrescalerFHN.cc,v 1.3 2010/02/11 00:10:37 wmtan Exp $
 //
 //
 // modified to PrecalerFHN by Grigory Safronov 27/03/09
@@ -50,9 +49,9 @@ class PrescalerFHN : public edm::EDFilter {
       ~PrescalerFHN();
 
    private:
-      virtual void beginJob() ;
-      virtual bool filter(edm::Event&, const edm::EventSetup&);
-      virtual void endJob() ;
+      virtual void beginJob() override ;
+      virtual bool filter(edm::Event&, const edm::EventSetup&) override;
+      virtual void endJob() override ;
       // ----------member data ---------------------------
 
   void init(const edm::TriggerResults &,

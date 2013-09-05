@@ -26,7 +26,7 @@ private:
   edm::InputTag inputLabel_;
   double scaleFactor_;
 
-  void produce(edm::Event&, const edm::EventSetup&);
+  void produce(edm::Event&, const edm::EventSetup&) override;
 
 };
 

@@ -8,8 +8,6 @@
  *   information,<BR>
  *   starting from a L2 reonstructed muon.
  *
- *   $Date: 2007/01/03 20:37:01 $
- *   $Revision: 1.3 $
  *   \author  A. Everett - Purdue University
  */
 

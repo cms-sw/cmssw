@@ -14,7 +14,7 @@ class HcalLongRecoParam {
  public:
   HcalLongRecoParam():mId(0) {}
 
-  HcalLongRecoParam(unsigned long fId, std::vector<unsigned int> fSignalTS, std::vector<unsigned int> fNoiseTS):
+  HcalLongRecoParam(unsigned long fId, const std::vector<unsigned int>& fSignalTS, const std::vector<unsigned int>& fNoiseTS):
     mId(fId), mSignalTS(fSignalTS), mNoiseTS(fNoiseTS) {}
 
   uint32_t rawId () const {return mId;}

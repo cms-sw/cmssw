@@ -49,7 +49,7 @@ run_t RunIOV::getRunNumber() const
 
 
 
-void RunIOV::setRunStart(Tm start)
+void RunIOV::setRunStart(const Tm& start)
 {
   if (start != m_runStart) {
     m_ID = 0;
@@ -66,7 +66,7 @@ Tm RunIOV::getRunStart() const
 
 
 
-void RunIOV::setRunEnd(Tm end)
+void RunIOV::setRunEnd(const Tm& end)
 {
   if (end != m_runEnd) {
     m_ID = 0;
@@ -83,7 +83,7 @@ Tm RunIOV::getRunEnd() const
 
 
 
-void RunIOV::setRunTag(RunTag tag)
+void RunIOV::setRunTag(const RunTag& tag)
 {
   if (tag != m_runTag) {
     m_ID = 0;

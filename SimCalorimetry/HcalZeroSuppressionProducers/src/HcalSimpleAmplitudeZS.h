@@ -10,10 +10,10 @@
 
 #include "HcalZSAlgoEnergy.h"
 
+#include <string>
+
 /** \class HcalSimpleAmplitudeZS
 	
-$Date: 2011/05/20 17:17:34 $
-$Revision: 1.3 $
 \author J. Mans - Minnesota
 */
 class HcalSimpleAmplitudeZS : public edm::EDProducer {
@@ -22,8 +22,8 @@ public:
   virtual ~HcalSimpleAmplitudeZS();
   virtual void produce(edm::Event& e, const edm::EventSetup& c);
 private:
-  std::auto_ptr<HcalZSAlgoEnergy> hbhe_,ho_,hf_;
-  edm::InputTag inputLabel_;
+  std::auto_ptr<HcalZSAlgoEnergy> hbhe_,ho_,hf_,hbheUpgrade_,hfUpgrade_;
+  std::string inputLabel_;
 };
 
 #endif

@@ -26,50 +26,50 @@ pat::DuplicatedPhotonRemover::duplicatesBySuperCluster(const edm::View<reco::Pho
 // ---------------- against EleCollection  -----------------------------
 std::auto_ptr< pat::OverlapList >
 pat::DuplicatedPhotonRemover::electronsBySeed(const reco::PhotonCollection &photons, 
-        const reco::GsfElectronCollection electrons) const {
+        const reco::GsfElectronCollection& electrons) const {
     return electronsBySeed<reco::PhotonCollection, reco::GsfElectronCollection>(photons, electrons);
 }
 
 std::auto_ptr< pat::OverlapList >
 pat::DuplicatedPhotonRemover::electronsBySeed(const edm::View<reco::Photon> &photons, 
-        const reco::GsfElectronCollection electrons) const {
+        const reco::GsfElectronCollection& electrons) const {
     return electronsBySeed<edm::View<reco::Photon>, reco::GsfElectronCollection>(photons, electrons);
 }
 
 std::auto_ptr< pat::OverlapList >
 pat::DuplicatedPhotonRemover::electronsBySuperCluster(const edm::View<reco::Photon> &photons, 
-        const reco::GsfElectronCollection electrons) const {
+        const reco::GsfElectronCollection& electrons) const {
     return electronsBySuperCluster<edm::View<reco::Photon>, reco::GsfElectronCollection>(photons, electrons);
 }
 
 std::auto_ptr< pat::OverlapList >
 pat::DuplicatedPhotonRemover::electronsBySuperCluster(const reco::PhotonCollection &photons, 
-        const reco::GsfElectronCollection  electrons) const {
+        const reco::GsfElectronCollection&  electrons) const {
     return electronsBySuperCluster<reco::PhotonCollection, reco::GsfElectronCollection>(photons, electrons);
 }
 
 // ---------------- against EleView  -----------------------------
 std::auto_ptr< pat::OverlapList >
 pat::DuplicatedPhotonRemover::electronsBySeed(const reco::PhotonCollection &photons, 
-        const edm::View<reco::GsfElectron>  electrons) const {
+        const edm::View<reco::GsfElectron>&  electrons) const {
     return electronsBySeed<reco::PhotonCollection, edm::View<reco::GsfElectron> >(photons, electrons);
 }
 
 std::auto_ptr< pat::OverlapList >
 pat::DuplicatedPhotonRemover::electronsBySeed(const edm::View<reco::Photon> &photons, 
-        const edm::View<reco::GsfElectron>  electrons) const {
+        const edm::View<reco::GsfElectron>&  electrons) const {
     return electronsBySeed<edm::View<reco::Photon>, edm::View<reco::GsfElectron> >(photons, electrons);
 }
 
 std::auto_ptr< pat::OverlapList >
 pat::DuplicatedPhotonRemover::electronsBySuperCluster(const edm::View<reco::Photon> &photons, 
-        const edm::View<reco::GsfElectron>  electrons) const {
+        const edm::View<reco::GsfElectron>&  electrons) const {
     return electronsBySuperCluster<edm::View<reco::Photon>, edm::View<reco::GsfElectron> >(photons, electrons);
 }
 
 std::auto_ptr< pat::OverlapList >
 pat::DuplicatedPhotonRemover::electronsBySuperCluster(const reco::PhotonCollection &photons, 
-        const edm::View<reco::GsfElectron>  electrons) const {
+        const edm::View<reco::GsfElectron>&  electrons) const {
     return electronsBySuperCluster<reco::PhotonCollection, edm::View<reco::GsfElectron> >(photons, electrons);
 }
 

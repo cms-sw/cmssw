@@ -2,7 +2,7 @@
 #define LMFUNIQUE_H
 
 /*
- Copyright (c) Giovanni.Organtini@roma1.infn.it 2010
+ Giovanni.Organtini@roma1.infn.it 2010
  */
 
 #include <stdexcept>
@@ -48,7 +48,7 @@ class LMFUnique: public IUniqueDBObject {
   virtual bool exists();
 
   //  int getID()       { return m_ID; } 
-  std::string sequencePostfix(Tm t);
+  std::string sequencePostfix(const Tm& t);
   int getID() const { return m_ID; } 
   int getInt(std::string fieldname) const;
   std::string getClassName() { return m_className; }

@@ -5,8 +5,6 @@
  *  
  *  Class to fill Event Generator dqm monitor elements; works on HepMCProduct
  *
- *  $Date: 2011/12/29 10:53:10 $
- *  $Revision: 1.3 $
  *
  */
 
@@ -49,9 +47,7 @@ class MBUEandQCDValidation : public edm::EDAnalyzer
 	virtual void endRun(const edm::Run&, const edm::EventSetup&);
 
     private:
-
-    WeightManager _wmanager;
-
+	WeightManager wmanager_;
     edm::InputTag hepmcCollection_;
     edm::InputTag genchjetCollection_;
     edm::InputTag genjetCollection_;
@@ -191,6 +187,10 @@ class MBUEandQCDValidation : public edm::EDAnalyzer
     static const unsigned int nphiBin = 36;
 
     static const unsigned int initSize = 1000; 
+
+    edm::EDGetTokenT<edm::HepMCProduct> hepmcCollectionToken_;
+    edm::EDGetTokenT<reco::GenJetCollection> genchjetCollectionToken_;
+    edm::EDGetTokenT<reco::GenJetCollection> genjetCollectionToken_;
 
 };
 

@@ -10,12 +10,12 @@
 
 #include "TBufferFile.h"
 
-#include <stdint.h>
+#include <cstdint>
 #include <vector>
 
 #include "DataFormats/Provenance/interface/BranchIDList.h"
 #include "DataFormats/Provenance/interface/ParameterSetID.h"
-#include "DataFormats/Provenance/interface/Selections.h"
+#include "DataFormats/Provenance/interface/SelectedProducts.h"
 
 const int init_size = 1024*1024;
 
@@ -60,18 +60,20 @@ namespace edm
 {
   
   class EventPrincipal;
+  class ModuleCallingContext;
   class StreamSerializer
   {
 
   public:
 
-    StreamSerializer(Selections const* selections);
+    StreamSerializer(SelectedProducts const* selections);
 
     int serializeRegistry(SerializeDataBuffer &data_buffer, const BranchIDLists &branchIDLists);   
     int serializeEvent(EventPrincipal const& eventPrincipal,
                        ParameterSetID const& selectorConfig,
                        bool use_compression, int compression_level,
-                       SerializeDataBuffer &data_buffer);
+                       SerializeDataBuffer &data_buffer,
+                       ModuleCallingContext const* mcc);
 
     /**
      * Compresses the data in the specified input buffer into the
@@ -85,7 +87,7 @@ namespace edm
 
   private:
 
-    Selections const* selections_;
+    SelectedProducts const* selections_;
     TClass* tc_;
   };
 

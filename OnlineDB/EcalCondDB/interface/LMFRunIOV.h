@@ -40,8 +40,8 @@ class LMFRunIOV : public LMFUnique {
   LMFRunIOV& setColor(std::string name);
   LMFRunIOV& setColor(int color_id);
   LMFRunIOV& setColorIndex(int color_index);
-  LMFRunIOV& setSubRunStart(Tm start);
-  LMFRunIOV& setSubRunEnd(Tm end);
+  LMFRunIOV& setSubRunStart(const Tm& start);
+  LMFRunIOV& setSubRunEnd(const Tm& end);
   LMFRunIOV& setSubRunType(const std::string &x);
 
   LMFRunTag getLMFRunTag() const;
@@ -91,7 +91,7 @@ class LMFRunIOV : public LMFUnique {
  private:
   void checkFabric();
   void initialize();
-  std::list<LMFRunIOV> fetchBySequence(std::vector<int> par,
+  std::list<LMFRunIOV> fetchBySequence(const std::vector<int>& par,
 				       const std::string &sql,
 				       const std::string &method)
     throw (std::runtime_error);

@@ -13,7 +13,6 @@
 //
 // Original Author:  Dmitry Vishnevskiy,591 R-013,+41227674265,
 //         Created:  Tue Mar  9 12:59:18 CET 2010
-// $Id: HcalDetDiagPedestalMonitor.cc,v 1.20 2012/03/13 15:54:45 apresyan Exp $
 //
 //
 // user include files
@@ -151,11 +150,11 @@ class HcalDetDiagPedestalMonitor : public HcalBaseDQMonitor {
       edm::InputTag inputLabelDigi_;
       edm::InputTag  inputLabelRawData_;
 
-      void beginRun(const edm::Run& run, const edm::EventSetup& c);  
-      void endRun(const edm::Run& run, const edm::EventSetup& c);
-      void beginLuminosityBlock(const edm::LuminosityBlock& lumiSeg,const edm::EventSetup& c) ;
-      void endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,const edm::EventSetup& c);
-      void analyze(const edm::Event&, const edm::EventSetup&);
+      void beginRun(const edm::Run& run, const edm::EventSetup& c) override;  
+      void endRun(const edm::Run& run, const edm::EventSetup& c) override;
+      void beginLuminosityBlock(const edm::LuminosityBlock& lumiSeg,const edm::EventSetup& c) override ;
+      void endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,const edm::EventSetup& c) override;
+      void analyze(const edm::Event&, const edm::EventSetup&) override;
 
       int         ievt_;
       int         run_number;

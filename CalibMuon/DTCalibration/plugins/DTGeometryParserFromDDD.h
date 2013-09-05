@@ -4,13 +4,11 @@
 /** \class DTGeometryParserFromDDD
  *  Class which read the geometry from DDD to provide a map between 
  *  layerId and pairs with first wire number, total number of wires.
- *  $Date: 2007/07/11 12:21:00 $
- *  $Revision: 1.0 $
  *  \author S. Bolognesi - INFN Torino
  */
-#include <DetectorDescription/Core/interface/DDFilter.h>
-#include <DetectorDescription/Core/interface/DDFilteredView.h>
-#include <DetectorDescription/Core/interface/DDSolid.h>
+#include "DetectorDescription/Core/interface/DDFilter.h"
+#include "DetectorDescription/Core/interface/DDFilteredView.h"
+#include "DetectorDescription/Core/interface/DDSolid.h"
 #include "Geometry/MuonNumbering/interface/MuonDDDNumbering.h"
 #include "Geometry/MuonNumbering/interface/MuonBaseNumber.h"
 #include "Geometry/MuonNumbering/interface/MuonDDDConstants.h"

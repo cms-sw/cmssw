@@ -10,11 +10,9 @@
    The old indexers with some code adaptations are saved in CalibMuon/CSCCalibration/test/old_indexers/
 
    \author Vadim Khotilovich
-   \version $Id:$
    \date 2 Dec 2012
 */
 
-static const char CVSId[] = "$Id:$";
 
 #include <cppunit/extensions/HelperMacros.h>
 #include "Utilities/Testing/interface/CppUnit_testdriver.icpp"

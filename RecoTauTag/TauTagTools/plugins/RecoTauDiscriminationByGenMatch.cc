@@ -17,9 +17,9 @@ class RecoTauDiscriminationByGenMatch : public PFTauDiscriminationProducerBase  
          matchingSrc_        = pset.getParameter<edm::InputTag>("match");
       }
       ~RecoTauDiscriminationByGenMatch(){}
-      double discriminate(const reco::PFTauRef& pfTau);
+      double discriminate(const reco::PFTauRef& pfTau) override;
       virtual void beginEvent(
-          const edm::Event& evt, const edm::EventSetup& es);
+          const edm::Event& evt, const edm::EventSetup& es) override;
    private:
       edm::InputTag matchingSrc_;
       edm::Handle<edm::Association<reco::GenJetCollection> > matching_;

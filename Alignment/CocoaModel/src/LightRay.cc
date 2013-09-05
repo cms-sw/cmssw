@@ -159,7 +159,7 @@ void LightRay::reflect( const ALIPlane& plane)
 //@@ 3D deviation: it actually deviates in the plane of the plate normal and lightray, in the other plane there is no deviation
 //@@ Refract inside this plane
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-void LightRay::refract( const ALIPlane plate, const ALIdouble refra_ind1, const ALIdouble refra_ind2)
+void LightRay::refract( const ALIPlane& plate, const ALIdouble refra_ind1, const ALIdouble refra_ind2)
 {
   if(ALIUtils::debug >= 5) {
     std::cout << "% LR REFRACT: " <<  "refra_ind1 = " << refra_ind1 << " refra_ind2 = " << refra_ind2 <<std::endl;

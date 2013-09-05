@@ -4,8 +4,6 @@
 /** \class MultiTrackValidatorGenPs
  *  Class that prodecs histrograms to validate Track Reconstruction performances
  *
- *  $Date: 2012/12/03 10:53:20 $
- *  $Revision: 1.1 $
  *  \author cerati
  */
 

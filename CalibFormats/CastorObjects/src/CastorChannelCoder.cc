@@ -2,7 +2,6 @@
     
     Container for ADC<->fQ conversion constants for HCAL/Castor QIE
    $Original author: ratnikov
-   $Revision: 1.1 $
 */
 
 #include <iostream>

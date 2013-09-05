@@ -35,7 +35,7 @@ class RecoSelector {
  public:
   
   //Constructor
-  RecoSelector(edm::ParameterSet userCut_params);
+  RecoSelector(const edm::ParameterSet& userCut_params);
   //Destructor
   virtual ~RecoSelector(){};
 

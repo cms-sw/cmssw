@@ -11,7 +11,7 @@
 class TagProbeFitter {
   public:
   ///construct the fitter with the inputFileName, inputDirectoryName, inputTreeName, outputFileName and specify wether to save the workspace with data for each bin 
-  TagProbeFitter(std::vector<std::string> inputFileNames, std::string inputDirectoryName, std::string inputTreeName, std::string outputFileName, int numCPU = 1, bool saveWorkspace_ = false, bool floatShapeParameters = true, std::vector<std::string> fixVars_ = std::vector<std::string>() );
+  TagProbeFitter(const std::vector<std::string>& inputFileNames, std::string inputDirectoryName, std::string inputTreeName, std::string outputFileName, int numCPU = 1, bool saveWorkspace_ = false, bool floatShapeParameters = true, const std::vector<std::string>& fixVars_ = std::vector<std::string>() );
 
   ///destructor closes the files
   ~TagProbeFitter();
@@ -23,7 +23,7 @@ class TagProbeFitter {
   bool addCategory(std::string categoryName, std::string title, std::string expression);
 
   ///adds a new category based on a cut
-  bool addExpression(std::string expressionName, std::string title, std::string expression, std::vector<std::string> arguments);
+  bool addExpression(std::string expressionName, std::string title, std::string expression, const std::vector<std::string>& arguments);
 
   ///adds a new category based on a cut
   bool addThresholdCategory(std::string categoryName, std::string title, std::string varName, double cutValue);
@@ -33,7 +33,7 @@ class TagProbeFitter {
   void addPdf(std::string pdfName, std::vector<std::string>& pdfCommands);
 
   ///set a list of variables to fix during first fit iteration. If the list is empty, do one iteration.
-  void addFixedVariavles(std::vector<std::string>);
+  void addFixedVariavles(const std::vector<std::string>&);
 
   ///calculate the efficiency for a particular binning of the data; it saves everything in the directory "dirName", uses the previously defined PDF with name "pdfName"
   std::string calculateEfficiency(std::string dirName, std::string efficiencyCategory, std::string efficiencyState, std::vector<std::string>& unbinnedVariables, std::map<std::string, std::vector<double> >& binnedReals, std::map<std::string, std::vector<std::string> >& binnedCategories, std::vector<std::string>& binToPDFmap) {
@@ -42,7 +42,7 @@ class TagProbeFitter {
     return calculateEfficiency(dirName, efficiencyCategories, efficiencyStates, unbinnedVariables, binnedReals, binnedCategories, binToPDFmap);
   }
 
-  std::string calculateEfficiency(std::string dirName, std::vector<std::string> efficiencyCategories, std::vector<std::string> efficiencyStates, std::vector<std::string>& unbinnedVariables, std::map<std::string, std::vector<double> >& binnedReals, std::map<std::string, std::vector<std::string> >& binnedCategories, std::vector<std::string>& binToPDFmap);
+  std::string calculateEfficiency(std::string dirName,const std::vector<std::string>& efficiencyCategories, const std::vector<std::string>& efficiencyStates, std::vector<std::string>& unbinnedVariables, std::map<std::string, std::vector<double> >& binnedReals, std::map<std::string, std::vector<std::string> >& binnedCategories, std::vector<std::string>& binToPDFmap);
 
   /// set if to do a binned fit 
   void setBinnedFit(bool binned, int bins=0) { binnedFit = binned; massBins = bins; }
@@ -139,13 +139,13 @@ class TagProbeFitter {
   void saveDistributionsPlot(RooWorkspace* w);
 
   ///saves the efficiency plots
-  void saveEfficiencyPlots(RooDataSet& eff, TString effName, RooArgSet& binnedVariables, RooArgSet& mappedCategories);
+  void saveEfficiencyPlots(RooDataSet& eff, const TString& effName, RooArgSet& binnedVariables, RooArgSet& mappedCategories);
   
   ///makes the 1D plot
-  void makeEfficiencyPlot1D(RooDataSet& eff, RooRealVar& v, TString plotName, TString plotTitle, TString effName);
+  void makeEfficiencyPlot1D(RooDataSet& eff, RooRealVar& v, const TString& plotName, const TString& plotTitle, const TString& effName);
   
   ///makes the 2D plot
-  void makeEfficiencyPlot2D(RooDataSet& eff, RooRealVar& v1, RooRealVar& v2, TString plotName, TString plotTitle, TString effName);
+  void makeEfficiencyPlot2D(RooDataSet& eff, RooRealVar& v1, RooRealVar& v2, const TString& plotName, const TString& plotTitle, const TString& effName);
   
 };
 

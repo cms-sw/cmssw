@@ -28,9 +28,9 @@ namespace cond {
     
     virtual ~BlobStreamingService();
     
-    boost::shared_ptr<coral::Blob> write( const void* addressOfInputData,  Reflex::Type const & classDictionary, bool useCompression=true );
+    boost::shared_ptr<coral::Blob> write( const void* addressOfInputData,  Reflex::Type const & classDictionary, bool useCompression=true ) override;
     
-    void read( const coral::Blob& blobData, void* addressOfContainer,  Reflex::Type const & classDictionary );
+    void read( const coral::Blob& blobData, void* addressOfContainer,  Reflex::Type const & classDictionary ) override;
     
     
   private:

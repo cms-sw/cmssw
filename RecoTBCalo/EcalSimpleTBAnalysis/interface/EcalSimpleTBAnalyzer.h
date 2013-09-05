@@ -9,7 +9,6 @@
      <Notes on implementation>
 */
 //
-// $Id: EcalSimpleTBAnalyzer.h,v 1.4 2006/08/03 17:24:46 meridian Exp $
 //
 
 

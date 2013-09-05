@@ -16,7 +16,6 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri, 05 Jul 2013 17:36:51 GMT
-// $Id$
 //
 
 // system include files
@@ -25,11 +24,14 @@
 #include <vector>
 
 // user include files
-#include "DataFormats/Provenance/interface/Selections.h"
+#include "DataFormats/Provenance/interface/SelectedProducts.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 
 // forward declarations
 namespace edm {
+
+  class ProcessContext;
+
   class OutputModuleCommunicator
   {
     
@@ -49,16 +51,16 @@ namespace edm {
     
     virtual void openFile(FileBlock const& fb) = 0;
     
-    virtual void writeRun(RunPrincipal const& rp) = 0;
+    virtual void writeRun(RunPrincipal const& rp, ProcessContext const*) = 0;
     
-    virtual void writeLumi(LuminosityBlockPrincipal const& lbp) = 0;
+    virtual void writeLumi(LuminosityBlockPrincipal const& lbp, ProcessContext const*) = 0;
     
     ///\return true if OutputModule has reached its limit on maximum number of events it wants to see
     virtual bool limitReached() const = 0;
     
     virtual void configure(OutputModuleDescription const& desc) = 0;
     
-    virtual SelectionsArray const& keptProducts() const = 0;
+    virtual SelectedProductsForBranchType const& keptProducts() const = 0;
     
     virtual void selectProducts(ProductRegistry const& preg) = 0;
     

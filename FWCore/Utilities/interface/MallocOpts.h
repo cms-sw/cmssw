@@ -7,7 +7,6 @@
 // Class  :     MallocOpts
 // 
 // Original Author:  Jim Kowalkowski
-// $Id$
 //
 // ------------------ malloc option setter -----------------------
 //

@@ -5,8 +5,6 @@
  *  
  *  Class to monitor duplication of events
  *
- *  $Date: 2012/08/24 21:47:01 $
- *  $Revision: 1.3 $
  *
  */
 
@@ -55,7 +53,7 @@ class DuplicationChecker : public edm::EDAnalyzer
   void findValuesAssociatedWithKey(associationMap &mMap, double &key, itemList &theObjects);  
   
  private:
-  WeightManager _wmanager;
+  WeightManager wmanager_;
   
   edm::InputTag generatedCollection_;
   edm::InputTag lheEventProduct_;
@@ -67,6 +65,9 @@ class DuplicationChecker : public edm::EDAnalyzer
   DQMStore *dbe;
 
   MonitorElement* xBjorkenME;
+
+  edm::EDGetTokenT<LHEEventProduct> lheEventProductToken_;
+  edm::EDGetTokenT<edm::HepMCProduct> generatedCollectionToken_;
 
 };
 

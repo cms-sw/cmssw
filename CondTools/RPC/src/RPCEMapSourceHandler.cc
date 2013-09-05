@@ -378,7 +378,8 @@ void popcon::RPCEMapSourceHandler::readEMap1()
   std::cout << std::endl <<"Building RPC e-Map done!" << std::flush << std::endl << std::endl;
 }
 
-int popcon::RPCEMapSourceHandler::Compare2EMaps(Ref map1, RPCEMap* map2) {
+int popcon::RPCEMapSourceHandler::Compare2EMaps(const Ref& _map1, RPCEMap* map2) {
+  Ref map1 = _map1;
   RPCReadOutMapping* oldmap1 = map1->convert();
   RPCReadOutMapping* oldmap2 = map2->convert();
   std::vector<const DccSpec *> dccs1 = oldmap1->dccList();

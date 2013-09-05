@@ -4,8 +4,8 @@
 
 #include <boost/shared_ptr.hpp>
 
-#include <HepMC/GenEvent.h>
-#include <HepMC/SimpleVector.h>
+#include "HepMC/GenEvent.h"
+#include "HepMC/SimpleVector.h"
 
 #include "FWCore/Framework/interface/EDFilter.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -22,7 +22,7 @@ class LHEFilter : public edm::EDFilter {
 	virtual ~LHEFilter();
 
     protected:
-	virtual bool filter(edm::Event &event, const edm::EventSetup &es);
+	virtual bool filter(edm::Event &event, const edm::EventSetup &es) override;
 
     private:
 	edm::InputTag	sourceLabel;

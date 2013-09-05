@@ -40,7 +40,7 @@ namespace edm {
 
     virtual ~IEventProcessor();
 
-    virtual StatusCode runToCompletion(bool onlineStateTransitions) = 0;
+    virtual StatusCode runToCompletion() = 0;
 
     virtual void readFile() = 0;
     virtual void closeInputFile(bool cleaningUpAfterException) = 0;
@@ -49,8 +49,6 @@ namespace edm {
 
     virtual void respondToOpenInputFile() = 0;
     virtual void respondToCloseInputFile() = 0;
-    virtual void respondToOpenOutputFiles() = 0;
-    virtual void respondToCloseOutputFiles() = 0;
 
     virtual void startingNewLoop() = 0;
     virtual bool endOfLoop() = 0;
@@ -66,9 +64,9 @@ namespace edm {
     virtual void beginLumi(ProcessHistoryID const& phid, RunNumber_t run, LuminosityBlockNumber_t lumi) = 0;
     virtual void endLumi(ProcessHistoryID const& phid, RunNumber_t run, LuminosityBlockNumber_t lumi, bool cleaningUpAfterException) = 0;
 
-    virtual statemachine::Run readAndCacheRun() = 0;
+    virtual statemachine::Run readRun() = 0;
     virtual statemachine::Run readAndMergeRun() = 0;
-    virtual int readAndCacheLumi() = 0;
+    virtual int readLuminosityBlock() = 0;
     virtual int readAndMergeLumi() = 0;
     virtual void writeRun(statemachine::Run const& run) = 0;
     virtual void deleteRunFromCache(statemachine::Run const& run) = 0;

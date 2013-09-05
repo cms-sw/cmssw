@@ -34,7 +34,7 @@ namespace edm {
 		       std::string DataHistName,
 		       std::string WeightOutputFile);
     
-    Lumi3DReWeighting( std::vector< float > MC_distr, std::vector< float > Lumi_distr,
+    Lumi3DReWeighting( const std::vector< float >& MC_distr, const std::vector< float >& Lumi_distr,
 		       std::string WeightOutputFile);
 
     Lumi3DReWeighting ( ) { } ;

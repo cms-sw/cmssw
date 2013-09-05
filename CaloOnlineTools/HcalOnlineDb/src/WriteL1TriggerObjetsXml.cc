@@ -13,7 +13,6 @@
 //
 // Original Author:  Ka Vang TSANG
 //         Created:  Fri Jul 31 15:18:53 CEST 2009
-// $Id: WriteL1TriggerObjetsXml.cc,v 1.1 2009/09/23 22:06:28 kukartse Exp $
 //
 //
 
@@ -50,9 +49,9 @@ class WriteL1TriggerObjetsXml : public edm::EDAnalyzer {
 
 
    private:
-      virtual void beginJob() ;
-      virtual void analyze(const edm::Event&, const edm::EventSetup&);
-      virtual void endJob() ;
+      virtual void beginJob() override ;
+      virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
+      virtual void endJob() override ;
 
       // ----------member data ---------------------------
       std::string tagname_;

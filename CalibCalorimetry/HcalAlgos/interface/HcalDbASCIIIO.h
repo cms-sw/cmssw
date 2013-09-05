@@ -13,7 +13,6 @@
    \class HcalDbASCIIIO
    \brief IO for ASCII instances of Hcal Calibrations
    \author Fedor Ratnikov Oct. 28, 2005
-   $Id: HcalDbASCIIIO.h,v 1.20 2011/10/26 13:58:20 xiezhen Exp $
    
 Text file formats for different data types is as following:
 - # in first column comments the line

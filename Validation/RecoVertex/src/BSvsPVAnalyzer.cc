@@ -13,7 +13,6 @@
 //
 // Original Author:  Andrea Venturi
 //         Created:  Mon Oct 27 17:37:53 CET 2008
-// $Id: BSvsPVAnalyzer.cc,v 1.1 2011/03/08 17:11:26 venturia Exp $
 //
 //
 

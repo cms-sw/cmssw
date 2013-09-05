@@ -63,8 +63,10 @@ namespace edm {
     class EventSetupRecordKey;
     class EventSetupProvider;
   }
-  class ActionTable;
+  class ExceptionToActionTable;
+  class ProcessContext;
   class ScheduleInfo;
+  class StreamContext;
   class ModuleChanger;
   class ProcessingController;
   class ActivityRegistry;
@@ -80,13 +82,13 @@ namespace edm {
       EDLooperBase& operator=(EDLooperBase const&) = delete; // Disallow copying and moving
 
       void doStartingNewLoop();
-      Status doDuringLoop(EventPrincipal& eventPrincipal, EventSetup const& es, ProcessingController&);
+      Status doDuringLoop(EventPrincipal& eventPrincipal, EventSetup const& es, ProcessingController&, StreamContext*);
       Status doEndOfLoop(EventSetup const& es);
       void prepareForNextLoop(eventsetup::EventSetupProvider* esp);
-      void doBeginRun(RunPrincipal&, EventSetup const&);
-      void doEndRun(RunPrincipal&, EventSetup const&);
-      void doBeginLuminosityBlock(LuminosityBlockPrincipal&, EventSetup const&);
-      void doEndLuminosityBlock(LuminosityBlockPrincipal&, EventSetup const&);
+      void doBeginRun(RunPrincipal&, EventSetup const&, ProcessContext*);
+      void doEndRun(RunPrincipal&, EventSetup const&, ProcessContext*);
+      void doBeginLuminosityBlock(LuminosityBlockPrincipal&, EventSetup const&, ProcessContext*);
+      void doEndLuminosityBlock(LuminosityBlockPrincipal&, EventSetup const&, ProcessContext*);
 
       //This interface is deprecated
       virtual void beginOfJob(EventSetup const&);
@@ -97,7 +99,7 @@ namespace edm {
       ///Override this method if you need to monitor the state of the processing
       virtual void attachTo(ActivityRegistry&);
 
-      void setActionTable(ActionTable const* actionTable) { act_table_ = actionTable; }
+      void setActionTable(ExceptionToActionTable const* actionTable) { act_table_ = actionTable; }
 
       virtual std::set<eventsetup::EventSetupRecordKey> modifyingRecords() const;
 
@@ -141,7 +143,7 @@ namespace edm {
 
 
       unsigned int iCounter_;
-      ActionTable const* act_table_;
+      ExceptionToActionTable const* act_table_;
 
       std::auto_ptr<ScheduleInfo> scheduleInfo_;
       ModuleChanger const* moduleChanger_;

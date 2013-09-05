@@ -4,8 +4,6 @@
 /** \class MCMuonSeedGenerator
  *  No description available.
  *
- *  $Date: 2010/02/16 17:08:44 $
- *  $Revision: 1.4 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
 

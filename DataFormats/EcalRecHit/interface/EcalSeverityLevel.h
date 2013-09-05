@@ -3,7 +3,6 @@
    
 
    \author Stefano Argiro
-   \version $Id$
    \date 11 Apr 2011
 */
 

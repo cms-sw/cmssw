@@ -13,7 +13,6 @@
 //
 // Original Author:  Igor Volobouev
 //         Created:  Thu Jun  2 18:49:49 CDT 2011
-// $Id: FFTJetEFlowSmoother.cc,v 1.1 2011/06/02 00:57:01 igv Exp $
 //
 //
 
@@ -58,9 +57,9 @@ public:
 
 protected:
     // methods
-    void beginJob() ;
-    void produce(edm::Event&, const edm::EventSetup&);
-    void endJob() ;
+    void beginJob() override ;
+    void produce(edm::Event&, const edm::EventSetup&) override;
+    void endJob() override ;
 
 private:
     FFTJetEFlowSmoother();

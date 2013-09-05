@@ -20,15 +20,15 @@ class RunIOV : public IIOV {
   // Methods for user data
   void setRunNumber(run_t run);
   run_t getRunNumber() const;
-  void setRunStart(Tm start);
+  void setRunStart(const Tm& start);
   Tm getRunStart() const;
-  void setRunEnd(Tm end);
+  void setRunEnd(const Tm& end);
   Tm getRunEnd() const;
-  void setRunTag(RunTag tag);
+  void setRunTag(const RunTag& tag);
   RunTag getRunTag() const;
   void setID(int id);
 
-  void setDBInsertionTime(Tm dbtime){m_dbtime=dbtime;}
+  void setDBInsertionTime(const Tm& dbtime){m_dbtime=dbtime;}
   Tm getDBInsertionTime(){return m_dbtime;}
  
 

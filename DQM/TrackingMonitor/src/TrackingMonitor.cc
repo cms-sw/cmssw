@@ -1,16 +1,11 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2012/10/16 08:42:59 $
- *  $Revision: 1.15 $
  *  \author Suchandra Dutta , Giorgia Mila
  */
 
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
-#include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
-#include "DataFormats/TrackCandidate/interface/TrackCandidateCollection.h" 
-#include "DataFormats/TrackCandidate/interface/TrackCandidate.h" 
 #include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
 #include "TrackingTools/Records/interface/TransientTrackRecord.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
@@ -34,11 +29,6 @@
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 #include "CommonTools/TriggerUtils/interface/GenericTriggerEventFlag.h"
 #include "DataFormats/Common/interface/DetSetVectorNew.h"
-#include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
-#include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
-
-#include "DataFormats/VertexReco/interface/Vertex.h"
-#include "DataFormats/VertexReco/interface/VertexFwd.h"
 
 #include "DQM/TrackingMonitor/interface/GetLumi.h"
 
@@ -50,7 +40,6 @@
 TrackingMonitor::TrackingMonitor(const edm::ParameterSet& iConfig) 
     : dqmStore_( edm::Service<DQMStore>().operator->() )
     , conf_ ( iConfig )
-    , theTrackAnalyzer( new TrackAnalyzer(conf_) )
     , theTrackBuildingAnalyzer( new TrackBuildingAnalyzer(conf_) )
     , NumberOfTracks(NULL)
     , NumberOfMeanRecHitsPerTrack(NULL)
@@ -97,6 +86,33 @@ TrackingMonitor::TrackingMonitor(const edm::ParameterSet& iConfig)
     , genTriggerEventFlag_(new GenericTriggerEventFlag(iConfig))
 {
 
+  edm::ConsumesCollector c{ consumesCollector() };
+  theTrackAnalyzer = new TrackAnalyzer( conf_,c );
+
+  // input tags for collections from the configuration
+  bsSrc_ = conf_.getParameter<edm::InputTag>("beamSpot");
+  pvSrc_ = conf_.getParameter<edm::InputTag>("primaryVertex");
+  bsSrcToken_ = consumes<reco::BeamSpot>(bsSrc_);
+  pvSrcToken_ = mayConsume<reco::VertexCollection>(pvSrc_);
+
+  edm::InputTag trackProducer  = conf_.getParameter<edm::InputTag>("TrackProducer");
+  edm::InputTag tcProducer     = conf_.getParameter<edm::InputTag>("TCProducer");
+  edm::InputTag seedProducer   = conf_.getParameter<edm::InputTag>("SeedProducer");
+  trackToken_          = consumes<reco::TrackCollection>(trackProducer);
+  trackCandidateToken_ = consumes<TrackCandidateCollection>(tcProducer); 
+  seedToken_           = consumes<edm::View<TrajectorySeed> >(seedProducer);
+
+  edm::InputTag stripClusterInputTag_ = conf_.getParameter<edm::InputTag>("stripCluster");
+  edm::InputTag pixelClusterInputTag_ = conf_.getParameter<edm::InputTag>("pixelCluster");
+  stripClustersToken_ = mayConsume<edmNew::DetSetVector<SiStripCluster> > (stripClusterInputTag_);
+  pixelClustersToken_ = mayConsume<edmNew::DetSetVector<SiPixelCluster> > (pixelClusterInputTag_);
+
+  Quality_  = conf_.getParameter<std::string>("Quality");
+  AlgoName_ = conf_.getParameter<std::string>("AlgoName");
+
+
+  
+
   if ( doPUmonitoring_ ) {
 
     // get flag from the configuration
@@ -104,19 +120,20 @@ TrackingMonitor::TrackingMonitor(const edm::ParameterSet& iConfig)
     doPlotsVsGoodPVtx_ = conf_.getParameter<bool>("doPlotsVsGoodPVtx");
 
     if ( doPlotsVsBXlumi_ )
-      theLumiDetails_ = new GetLumi( iConfig.getParameter<edm::ParameterSet>("BXlumiSetup") );
-
+      theLumiDetails_ = new GetLumi( iConfig.getParameter<edm::ParameterSet>("BXlumiSetup"), c );
+    
     std::vector<edm::InputTag> primaryVertexInputTags    = conf_.getParameter<std::vector<edm::InputTag> >("primaryVertexInputTags");
     std::vector<edm::InputTag> selPrimaryVertexInputTags = conf_.getParameter<std::vector<edm::InputTag> >("selPrimaryVertexInputTags");
     std::vector<std::string>   pvLabels                  = conf_.getParameter<std::vector<std::string> >  ("pvLabels");
 
     if (primaryVertexInputTags.size()==pvLabels.size() and primaryVertexInputTags.size()==selPrimaryVertexInputTags.size()) {
-      for (size_t i=0; i<primaryVertexInputTags.size(); i++) {
+      //      for (auto const& tag : primaryVertexInputTags) {
+	for (size_t i=0; i<primaryVertexInputTags.size(); i++) {
 	edm::InputTag iPVinputTag    = primaryVertexInputTags[i];
 	edm::InputTag iSelPVinputTag = selPrimaryVertexInputTags[i];
 	std::string   iPVlabel       = pvLabels[i];
 	
-	theVertexMonitor.push_back(new VertexMonitor(conf_,iPVinputTag,iSelPVinputTag,iPVlabel));
+	theVertexMonitor.push_back(new VertexMonitor(conf_,iPVinputTag,iSelPVinputTag,iPVlabel,c) );
       }
     }
   }
@@ -144,17 +161,17 @@ void TrackingMonitor::beginJob(void)
     std::string MEFolderName = conf_.getParameter<std::string>("FolderName"); 
 
     // test for the Quality veriable validity
-    if( Quality != "")
+    if( Quality_ != "")
     {
-        if( Quality != "highPurity" && Quality != "tight" && Quality != "loose") 
+        if( Quality_ != "highPurity" && Quality_ != "tight" && Quality_ != "loose") 
         {
             edm::LogWarning("TrackingMonitor")  << "Qualty Name is invalid, using no quality criterea by default";
-            Quality = "";
+            Quality_ = "";
         }
     }
 
     // use the AlgoName and Quality Name
-    std::string CategoryName = Quality != "" ? AlgoName + "_" + Quality : AlgoName;
+    std::string CategoryName = Quality_ != "" ? AlgoName_ + "_" + Quality_ : AlgoName_;
 
     // get binning from the configuration
     int    TKNoBin     = conf_.getParameter<int>(   "TkSizeBin");
@@ -554,22 +571,14 @@ void TrackingMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& i
     // Filter out events if Trigger Filtering is requested
     if (genTriggerEventFlag_->on()&& ! genTriggerEventFlag_->accept( iEvent, iSetup) ) return;
 
-    // input tags for collections from the configuration
-    edm::InputTag trackProducer  = conf_.getParameter<edm::InputTag>("TrackProducer");
-    edm::InputTag seedProducer   = conf_.getParameter<edm::InputTag>("SeedProducer");
-    edm::InputTag tcProducer     = conf_.getParameter<edm::InputTag>("TCProducer");
-    edm::InputTag bsSrc          = conf_.getParameter<edm::InputTag>("beamSpot");
-    edm::InputTag pvSrc_         = conf_.getParameter<edm::InputTag>("primaryVertex");
-    std::string Quality = conf_.getParameter<std::string>("Quality");
-    std::string Algo    = conf_.getParameter<std::string>("AlgoName");
-
     //  Analyse the tracks
     //  if the collection is empty, do not fill anything
     // ---------------------------------------------------------------------------------//
 
     // get the track collection
     edm::Handle<reco::TrackCollection> trackHandle;
-    iEvent.getByLabel(trackProducer, trackHandle);
+    //    iEvent.getByLabel(trackProducer, trackHandle);
+    iEvent.getByToken(trackToken_, trackHandle);
 
     if (trackHandle.isValid()) 
     {
@@ -596,15 +605,15 @@ void TrackingMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 	    if ( track->pt() >= 1. ) ++totalNumPt1Tracks;
 	
 
-            if( Quality == "highPurity") 
+            if( Quality_ == "highPurity") 
             {
                 if( !track->quality(reco::TrackBase::highPurity) ) continue;
             }
-            else if( Quality == "tight") 
+            else if( Quality_ == "tight") 
             {
                 if( !track->quality(reco::TrackBase::tight) ) continue;
             }
-            else if( Quality == "loose") 
+            else if( Quality_ == "loose") 
             {
                 if( !track->quality(reco::TrackBase::loose) ) continue;
             }
@@ -655,7 +664,7 @@ void TrackingMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 	
 	    	   	    
 	    // fill the TrackCandidate info
-	    if (doTkCandPlots) 
+	if (doTkCandPlots) 
 	      {
 	
 		// magnetic field
@@ -664,12 +673,14 @@ void TrackingMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 		
 		// get the beam spot
 		edm::Handle<reco::BeamSpot> recoBeamSpotHandle;
-		iEvent.getByLabel(bsSrc,recoBeamSpotHandle);
+		//		iEvent.getByLabel(bsSrc_,recoBeamSpotHandle);
+		iEvent.getByToken(bsSrcToken_, recoBeamSpotHandle );
 		const reco::BeamSpot& bs = *recoBeamSpotHandle;      
 		
 		// get the candidate collection
 		edm::Handle<TrackCandidateCollection> theTCHandle;
-		iEvent.getByLabel(tcProducer, theTCHandle ); 
+		//		iEvent.getByLabel(tcProducer, theTCHandle ); 
+		iEvent.getByToken( trackCandidateToken_, theTCHandle );
 		const TrackCandidateCollection& theTCCollection = *theTCHandle;
 
 		if (theTCHandle.isValid())
@@ -689,11 +700,12 @@ void TrackingMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& i
     
 	    //plots for trajectory seeds
 
-	    if (doAllSeedPlots || doSeedNumberPlot || doSeedVsClusterPlot || runTrackBuildingAnalyzerForSeed){
+	    if (doAllSeedPlots || doSeedNumberPlot || doSeedVsClusterPlot || runTrackBuildingAnalyzerForSeed) {
 	    
 	    // get the seed collection
 	    edm::Handle<edm::View<TrajectorySeed> > seedHandle;
-	    iEvent.getByLabel(seedProducer, seedHandle);
+	    //	    iEvent.getByLabel(seedProducer, seedHandle);
+	    iEvent.getByToken(seedToken_, seedHandle );
 	    const edm::View<TrajectorySeed>& seedCollection = *seedHandle;
 	    
 	    // fill the seed info
@@ -719,7 +731,8 @@ void TrackingMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 		  
 		  // get the beam spot
 		  edm::Handle<reco::BeamSpot> recoBeamSpotHandle;
-		  iEvent.getByLabel(bsSrc,recoBeamSpotHandle);
+		  //		  iEvent.getByLabel(bsSrc_,recoBeamSpotHandle);
+		  iEvent.getByToken(bsSrcToken_, recoBeamSpotHandle );
 		  const reco::BeamSpot& bs = *recoBeamSpotHandle;      
 		  
 		  iSetup.get<TransientRecHitRecord>().get(builderName,theTTRHBuilder);
@@ -752,30 +765,6 @@ void TrackingMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 		}
 	      }
 	    }
-
-	    /*
-	    edm::Handle< edmNew::DetSetVector<SiStripCluster> > strip_clusters;
-	    iEvent.getByLabel("siStripClusters", strip_clusters);
-	    edm::Handle< edmNew::DetSetVector<SiPixelCluster> > pixel_clusters;
-	    iEvent.getByLabel("siPixelClusters", pixel_clusters);
-            if (strip_clusters.isValid() && pixel_clusters.isValid()) 
-              {
-                unsigned int ncluster_pix   = (*pixel_clusters).dataSize(); 
-                unsigned int ncluster_strip = (*strip_clusters).dataSize(); 
-                double ratio = 0.0;
-                if ( ncluster_pix > 0) ratio = atan(ncluster_pix*1.0/ncluster_strip);
-
-		NumberOfStripClus->Fill(ncluster_strip);
-		NumberOfPixelClus->Fill(ncluster_pix);
-		RatioOfPixelAndStripClus->Fill(ratio);
-
-		NumberOfTrkVsClus->Fill( ncluster_strip+ncluster_pix,totalNumTracks);
-	    
-		if (doGoodTrackPlots_) {
-		  NumberOfGoodTrkVsClus->Fill( ncluster_strip+ncluster_pix,totalNumHPPt1Tracks);
-		}
-              }
-	    */
           }
 
 	 if ( doPUmonitoring_ ) {
@@ -786,11 +775,10 @@ void TrackingMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 	   
 	   if ( doPlotsVsGoodPVtx_ ) {
 	     
-	     edm::InputTag primaryVertexInputTag = conf_.getParameter<edm::InputTag>("primaryVertex");
-	     
 	     size_t totalNumGoodPV = 0;
 	     edm::Handle< reco::VertexCollection > pvHandle;
-	     iEvent.getByLabel(primaryVertexInputTag, pvHandle );
+	     //	     iEvent.getByLabel(primaryVertexInputTag, pvHandle );
+	     iEvent.getByToken(pvSrcToken_, pvHandle );
 	     if (pvHandle.isValid())
 	       {
 		 
@@ -876,9 +864,11 @@ void TrackingMonitor::setNclus(const edm::Event& iEvent,std::vector<int> &arrayN
   int ncluster_strip=-1;
 
   edm::Handle< edmNew::DetSetVector<SiStripCluster> > strip_clusters;
-  iEvent.getByLabel("siStripClusters", strip_clusters);
+  //  iEvent.getByLabel("siStripClusters", strip_clusters);
+  iEvent.getByToken(stripClustersToken_, strip_clusters );
   edm::Handle< edmNew::DetSetVector<SiPixelCluster> > pixel_clusters;
-  iEvent.getByLabel("siPixelClusters", pixel_clusters);
+  //  iEvent.getByLabel("siPixelClusters", pixel_clusters);
+  iEvent.getByToken(pixelClustersToken_, pixel_clusters );
 
   if (strip_clusters.isValid() && pixel_clusters.isValid()) 
     {

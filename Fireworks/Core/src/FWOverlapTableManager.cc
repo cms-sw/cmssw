@@ -16,7 +16,7 @@
 // user include files
 #include "Fireworks/Core/src/FWOverlapTableManager.h"
 #include "Fireworks/Core/src/FWOverlapTableView.h"
-#include "Fireworks/Core/src/FWEveDigitSetScalableMarker.cc"
+#include "Fireworks/Core/src/FWEveDigitSetScalableMarker.h"
 #include "Fireworks/Core/interface/FWGeometryTableViewManager.h"
 #include "Fireworks/Core/interface/fwLog.h"
 

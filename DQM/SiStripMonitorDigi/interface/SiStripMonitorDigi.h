@@ -8,8 +8,8 @@
 */
 // Original Author:  dkcira
 //         Created:  Sat Feb  4 20:49:51 CET 2006
-// $Id: SiStripMonitorDigi.h,v 1.30 2012/07/13 15:32:52 threus Exp $
 #include <memory>
+#include "FWCore/Utilities/interface/EDGetToken.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
@@ -25,6 +25,10 @@ class DQMStore;
 class SiStripDCSStatus;
 class SiStripDetCabling;
 
+class EventWithHistory;
+class L1GlobalTriggerEvmReadoutRecord;
+class APVCyclePhaseCollection;
+
 class SiStripMonitorDigi : public edm::EDAnalyzer {
  public:
   explicit SiStripMonitorDigi(const edm::ParameterSet&);
@@ -36,6 +40,8 @@ class SiStripMonitorDigi : public edm::EDAnalyzer {
   virtual void endRun(const edm::Run&, const edm::EventSetup&);
   virtual void beginLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&);
   virtual void endLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&);
+
+  std::string topFolderName_;
 
   struct ModMEs{
 	
@@ -113,6 +119,7 @@ class SiStripMonitorDigi : public edm::EDAnalyzer {
 
   DQMStore* dqmStore_;
   edm::ParameterSet conf_;
+  std::vector<edm::EDGetTokenT<edm::DetSetVector<SiStripDigi> > > digiProducerTokenList;
   std::vector<edm::InputTag> digiProducerList;
   std::map<uint32_t, ModMEs> DigiMEs; // uint32_t me_type: 1=#digis/module; 2=adcs of hottest strip/module; 3= adcs of coolest strips/module.
   bool show_mechanical_structure_view, show_readout_view, show_control_view, select_all_detectors, calculate_strip_occupancy, reset_each_run;
@@ -179,9 +186,19 @@ class SiStripMonitorDigi : public edm::EDAnalyzer {
   bool globalswitchapvshotsApvon;
 
 
-  int xLumiProf;
+  //  int xLumiProf;
   bool isStableBeams;
-  int nFEDConnected;
+  int ignoreFirstNLumisections_;
+  int integrateNLumisections_;
+  int SBDeclaredAt;
+  bool SBTransitionDone;
+  int nFedTIB;
+  int nFedTIDp;
+  int nFedTIDm;
+  int nFedTECp;
+  int nFedTECm;
+  int nFedTOB;
+  //  int nFEDConnected;
 
   bool Mod_On_;
 
@@ -192,9 +209,12 @@ class SiStripMonitorDigi : public edm::EDAnalyzer {
   
   bool createTrendMEs;
 
-  std::string topDir;
   edm::InputTag historyProducer_;  
   edm::InputTag apvPhaseProducer_;
+
+  edm::EDGetTokenT<EventWithHistory> historyProducerToken_;
+  edm::EDGetTokenT<APVCyclePhaseCollection> apvPhaseProducerToken_;
+  edm::EDGetTokenT<L1GlobalTriggerEvmReadoutRecord> gtEvmToken_;
 
   SiStripDCSStatus* dcsStatus_;
 };

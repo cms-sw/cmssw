@@ -5,8 +5,8 @@
 class DimuonStatistics : public edm::EDAnalyzer {
 public:
   DimuonStatistics(const edm::ParameterSet & cfg);
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void endJob();
+  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
+  virtual void endJob() override;
 private:
   edm::InputTag src_;
   std::vector<unsigned int> matched_, unMatched_;

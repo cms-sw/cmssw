@@ -17,21 +17,21 @@ class DoubleVertexFilter : public edm::EDProducer {
     public:
 	DoubleVertexFilter(const edm::ParameterSet &params);
 
-	virtual void produce(edm::Event &event, const edm::EventSetup &es);
+	virtual void produce(edm::Event &event, const edm::EventSetup &es) override;
 
     private:
 	bool trackFilter(const reco::TrackRef &track) const;
 
-	edm::InputTag				primaryVertexCollection;
-	edm::InputTag				secondaryVertexCollection;
+	edm::EDGetTokenT<reco::VertexCollection> token_primaryVertex;
+	edm::EDGetTokenT<reco::VertexCollection> token_secondaryVertex;
 	double					maxFraction;
 };
 
 DoubleVertexFilter::DoubleVertexFilter(const edm::ParameterSet &params) :
-	primaryVertexCollection(params.getParameter<edm::InputTag>("primaryVertices")),
-	secondaryVertexCollection(params.getParameter<edm::InputTag>("secondaryVertices")),
 	maxFraction(params.getParameter<double>("maxFraction"))
 {
+	token_primaryVertex = consumes<reco::VertexCollection>(params.getParameter<edm::InputTag>("primaryVertices"));
+	token_secondaryVertex = consumes<reco::VertexCollection>(params.getParameter<edm::InputTag>("secondaryVertices"));
 	produces<reco::VertexCollection>();
 }
 
@@ -62,10 +62,10 @@ void DoubleVertexFilter::produce(edm::Event &event, const edm::EventSetup &es)
 	using namespace reco;
 
 	edm::Handle<VertexCollection> primaryVertices;
-	event.getByLabel(primaryVertexCollection, primaryVertices);
+	event.getByToken(token_primaryVertex, primaryVertices);
 
 	edm::Handle<VertexCollection> secondaryVertices;
-	event.getByLabel(secondaryVertexCollection, secondaryVertices);
+	event.getByToken(token_secondaryVertex, secondaryVertices);
 
 	std::vector<reco::Vertex>::const_iterator pv = primaryVertices->begin();
 

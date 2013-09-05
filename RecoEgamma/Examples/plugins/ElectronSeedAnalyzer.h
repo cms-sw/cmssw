@@ -9,7 +9,6 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: ElectronSeedAnalyzer.h,v 1.5 2011/05/20 17:17:28 wmtan Exp $
 //
 //
 

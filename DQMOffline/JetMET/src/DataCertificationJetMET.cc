@@ -5,7 +5,6 @@
 // 
 // Original Author:  "Frank Chlebana"
 //         Created:  Sun Oct  5 13:57:25 CDT 2008
-// $Id: DataCertificationJetMET.cc,v 1.52 2012/03/23 11:36:14 piedra Exp $
 //
 
 #include "DQMOffline/JetMET/interface/DataCertificationJetMET.h"

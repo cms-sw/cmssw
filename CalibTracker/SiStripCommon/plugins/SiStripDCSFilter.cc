@@ -14,7 +14,7 @@ class SiStripDCSFilter : public edm::EDFilter {
  ~SiStripDCSFilter();
 
   private:
-  bool filter( edm::Event &, edm::EventSetup const& );
+  bool filter( edm::Event &, edm::EventSetup const& ) override;
   SiStripDCSStatus* dcsStatus_;  
 };
  

@@ -3,7 +3,6 @@
 // Class:      SiPixelDetInfoFileReader
 // Original Author:  V.Chiochia
 //         Created:  Mon May 20 10:04:31 CET 2007
-// $Id: SiPixelDetInfoFileReader.cc,v 1.1 2007/07/09 11:24:03 gbruno Exp $
 
 #include "CalibTracker/SiPixelESProducers/interface/SiPixelDetInfoFileReader.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"

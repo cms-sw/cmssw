@@ -13,7 +13,6 @@
 //
 // Original Author:  Michael Segala
 //         Created:  Wed Feb 23 17:36:23 CST 2011
-// $Id: ClusterAnalyzer.cc,v 1.3 2012/04/24 15:44:32 msegala Exp $
 //
 //
 
@@ -22,6 +21,7 @@
 #include <memory>
 
 // user include files
+#include "FWCore/Common/interface/Provenance.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 
@@ -53,8 +53,8 @@ class ClusterAnalyzer : public edm::EDAnalyzer {
 
 
    private:
-      virtual void beginJob() ;
-      virtual void analyze(const edm::Event&, const edm::EventSetup&);
+      virtual void beginJob() override ;
+      virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
    
    
       // ----------member data ---------------------------
@@ -120,7 +120,7 @@ ClusterAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
 
      //  Provenance Information
      const Provenance& prov = iEvent.getProvenance(class_.id());
-     edm::ParameterSet pSet=getParameterSet( prov.psetID() );   
+     const edm::ParameterSet& pSet = parameterSet(prov);   
 
      ProvInfo = "";
      ProvInfo_vars = "";

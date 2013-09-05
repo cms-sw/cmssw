@@ -13,7 +13,6 @@
 //
 // Original Author:  Jacob Ribnik
 //         Created:  Wed Apr 18 13:48:08 CDT 2007
-// $Id: MuonIdDQM.h,v 1.3 2010/01/21 21:44:25 jribnik Exp $
 //
 //
 

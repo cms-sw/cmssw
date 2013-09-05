@@ -68,12 +68,12 @@ namespace
       }
 
       // get field values
-      virtual Float_t GetMaxFieldMag() const
+      virtual Float_t GetMaxFieldMag() const override
       {
          return fFieldMag;
       }
 
-      virtual TEveVector GetField(Float_t x, Float_t y, Float_t z) const
+      virtual TEveVector GetField(Float_t x, Float_t y, Float_t z) const override
       {
          static const Float_t barrelFac = 1.2 / 3.8;
          static const Float_t endcapFac = 2.0 / 3.8;
@@ -531,29 +531,6 @@ FWFFLooper::requestChanges(const std::string &moduleLabel, const edm::ParameterS
    m_scheduledChanges[moduleLabel] = ps;
 }
  
-
-//______________________________________________________________________________
-// AMT : I'm not sure if geometry can change in the two functionss. Plese delete
-// them if you think this is impossible
-
-void FWFFLooper::doBeginLuminosityBlock(edm::LuminosityBlockPrincipal& iLB, edm::EventSetup const& iES)
-{
-   try {
-      m_geomWatcher.check(iES);
-   } catch (...) {}
-   
-   EDLooperBase::doBeginLuminosityBlock(iLB, iES);
-}
-
-void FWFFLooper::doEndLuminosityBlock(edm::LuminosityBlockPrincipal& iLB, edm::EventSetup const& iES)
-{
-   try {
-      m_geomWatcher.check(iES);
-   }  catch (...) {}
-   
-   EDLooperBase::doEndLuminosityBlock(iLB, iES);
-}
-
 //______________________________________________________________________________
 
 void

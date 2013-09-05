@@ -3,9 +3,6 @@
 /** \class ExampleClusterProducer
  **   example of producer for BasicCluster from recHits
  **
- **  $Id: $
- **  $Date: $
- **  $Revision:  $
  **  \author Shahram Rahatlou, University of Rome & INFN, April 2006
  **
  ***/

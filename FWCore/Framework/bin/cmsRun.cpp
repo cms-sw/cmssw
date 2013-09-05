@@ -334,8 +334,7 @@ int main(int argc, char* argv[]) {
       alwaysAddContext = false;
       context = "Calling EventProcessor::runToCompletion (which does almost everything after beginJob and before endJob)";
       proc.on();
-      bool onlineStateTransitions = false;
-      proc->runToCompletion(onlineStateTransitions);
+      proc->runToCompletion();
       proc.off();
 
       context = "Calling endJob";

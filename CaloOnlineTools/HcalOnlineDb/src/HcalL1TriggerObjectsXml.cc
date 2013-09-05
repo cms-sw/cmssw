@@ -8,7 +8,6 @@
 //
 // Original Author:  Gena Kukartsev, kukarzev@fnal.gov
 //         Created:  Wed Jul 01 06:30:00 CDT 2009
-// $Id: HcalL1TriggerObjectsXml.cc,v 1.1 2009/09/23 22:06:28 kukartse Exp $
 //
 
 #include <iostream>

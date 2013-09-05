@@ -77,10 +77,10 @@ public:
       reset();
    }
 
-   virtual int numberOfRows() const {
+   virtual int numberOfRows() const override {
       return m_row_to_index.size();
    }
-   virtual int numberOfColumns() const {
+   virtual int numberOfColumns() const override {
       return kNColumns;
    }
    
@@ -95,12 +95,12 @@ public:
       dataChanged();
    }
    
-   virtual int unsortedRowNumber(int iSortedRowNumber) const {
+   virtual int unsortedRowNumber(int iSortedRowNumber) const override {
       return m_row_to_index[iSortedRowNumber];
    }
 
-   virtual void implSort(int col, bool sortOrder);
-   virtual std::vector<std::string> getTitles() const {
+   virtual void implSort(int col, bool sortOrder) override;
+   virtual std::vector<std::string> getTitles() const override {
       std::vector<std::string> returnValue;
       returnValue.reserve(kNColumns);
       returnValue.push_back("Purpose");
@@ -111,7 +111,7 @@ public:
       return returnValue;
    }
    
-   virtual FWTableCellRendererBase* cellRenderer(int iSortedRowNumber, int iCol) const
+   virtual FWTableCellRendererBase* cellRenderer(int iSortedRowNumber, int iCol) const override
    {
       
       if(static_cast<int>(m_row_to_index.size())>iSortedRowNumber) {

@@ -32,6 +32,8 @@ HLTDoublet<T1,T2>::HLTDoublet(const edm::ParameterSet& iConfig) : HLTFilter(iCon
   originTag2_(iConfig.template getParameter<edm::InputTag>("originTag2")),
   inputTag1_(iConfig.template getParameter<edm::InputTag>("inputTag1")),
   inputTag2_(iConfig.template getParameter<edm::InputTag>("inputTag2")),
+  inputToken1_(consumes<trigger::TriggerFilterObjectWithRefs>(inputTag1_)),
+  inputToken2_(consumes<trigger::TriggerFilterObjectWithRefs>(inputTag2_)),
   triggerType1_(iConfig.template getParameter<int>("triggerType1")),
   triggerType2_(iConfig.template getParameter<int>("triggerType2")),
   min_Dphi_ (iConfig.template getParameter<double>("MinDphi")),
@@ -126,7 +128,7 @@ HLTDoublet<T1,T2>::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, 
 
    // get hold of pre-filtered object collections
    Handle<TriggerFilterObjectWithRefs> coll1,coll2;
-   if (iEvent.getByLabel (inputTag1_,coll1) && iEvent.getByLabel (inputTag2_,coll2)) {
+   if (iEvent.getByToken(inputToken1_,coll1) && iEvent.getByToken(inputToken2_,coll2)) {
      coll1_.clear();
      coll1->getObjects(triggerType1_,coll1_);
      const size_type n1(coll1_.size());

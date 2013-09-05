@@ -440,8 +440,8 @@ void PlotAlignmentValidation::plotSS( const std::string& options, const std::str
 
 	TString subDetName;
 	switch (iSubDet) {
-	case 1: subDetName = "TPB"; break;
-	case 2: subDetName = "TPE"; break;
+	case 1: subDetName = "BPIX"; break;
+	case 2: subDetName = "FPIX"; break;
 	case 3: subDetName = "TIB"; break;
 	case 4: subDetName = "TID"; break;
 	case 5: subDetName = "TOB"; break;
@@ -696,8 +696,8 @@ void PlotAlignmentValidation::plotDMR(const std::string& variable, Int_t minHits
       else if (variable=="rmsNormY") plotName << "rmsNYR_";
 
       switch (i) {
-      case 1: plotName << "TPB"; break;
-      case 2: plotName << "TPE"; break;
+      case 1: plotName << "BPIX"; break;
+      case 2: plotName << "FPIX"; break;
       case 3: plotName << "TIB"; break;
       case 4: plotName << "TID"; break;
       case 5: plotName << "TOB"; break;
@@ -902,7 +902,7 @@ void  PlotAlignmentValidation::setCanvasStyle( TCanvas& canv )
   canv.SetLeftMargin  ( 0.15 );
   canv.SetRightMargin ( 0.05 );
   canv.SetBottomMargin( 0.15 );
-  canv.SetTopMargin   ( 0.10 );
+  canv.SetTopMargin   ( 0.12 );
 }
 
 //------------------------------------------------------------------------------
@@ -972,8 +972,8 @@ void  PlotAlignmentValidation::setTitleStyle( TNamed &hist,const char* titleX, c
     if (titelXAxis.Contains("rmsX")) histTitel="Distribution of the rms of the residuals in ";
     
     switch (subDetId) {
-    case 1: histTitel+="TPB";break;
-    case 2: histTitel+="TPE";break;
+    case 1: histTitel+="BPIX";break;
+    case 2: histTitel+="FPIX";break;
     case 3: histTitel+="TIB";break;
     case 4: histTitel+="TID";break;
     case 5: histTitel+="TOB";break;

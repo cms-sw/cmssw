@@ -4,8 +4,6 @@
 /** \class KfTrackProducerBase
  *  Produce Tracks from TrackCandidates
  *
- *  $Date: 2009/07/03 00:55:13 $
- *  $Revision: 1.3 $
  *  \author cerati
  */
 

@@ -9,8 +9,6 @@
 //                one Eta Track Finder (ETF) and 
 //                one Eta Matching Unit (EMU) 
 //
-//   $Date: 2008/10/13 07:44:43 $
-//   $Revision: 1.15 $
 //
 //   Author :
 //   N. Neumeister            CERN EP

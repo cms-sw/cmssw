@@ -121,7 +121,7 @@ namespace edm {
     LuminosityBlockPrincipal&
     luminosityBlockPrincipal();
 
-    typedef std::vector<std::pair<EDProduct*, ConstBranchDescription const*> > ProductPtrVec;
+    typedef std::vector<std::pair<EDProduct*, BranchDescription const*> > ProductPtrVec;
     ProductPtrVec& putProducts() {return putProducts_;}
     ProductPtrVec const& putProducts() const {return putProducts_;}
 
@@ -162,7 +162,7 @@ namespace edm {
       DoNotPostInsert<PROD> >::type maybe_inserter;
     maybe_inserter(product.get());
 
-    ConstBranchDescription const& desc =
+    BranchDescription const& desc =
       provRecorder_.getBranchDescription(TypeID(*product), productInstanceName);
 
     Wrapper<PROD> *wp(new Wrapper<PROD>(product));
