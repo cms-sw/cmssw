@@ -1,5 +1,25 @@
 #include "DQMOffline/Trigger/interface/HLTTauDQMSummaryPlotter.h"
 
+#include "TEfficiency.h"
+
+#include<tuple>
+
+namespace {
+  std::tuple<float, float> calcEfficiency(float num, float denom) {
+    if(denom == 0.0f)
+      return std::make_tuple(0.0f, 0.0f);
+
+    //float eff = num/denom;
+    constexpr double cl = 0.683f; // "1-sigma"
+    const float eff = num/denom;
+    const float errDown = TEfficiency::ClopperPearson(denom, num, cl, false);
+    const float errUp = TEfficiency::ClopperPearson(denom, num, cl, true);
+
+    // Because of limitation of TProfile, just take max
+    return std::make_tuple(eff, std::max(eff-errDown, errUp-eff));
+  }
+}
+
 HLTTauDQMSummaryPlotter::HLTTauDQMSummaryPlotter(const edm::ParameterSet& ps, const std::string& dqmBaseFolder):
   HLTTauDQMPlotter(ps, dqmBaseFolder),
   store_(nullptr)
@@ -138,14 +158,18 @@ void HLTTauDQMSummaryPlotter::plotEfficiencyHisto( std::string folder, std::stri
         MonitorElement * effdenom = store_->get(folder+"/"+hist2);
         MonitorElement * eff = store_->get(folder+"/"+name);
         
-        if ( effnum && effdenom && eff ) {            
-            for ( int i = 1; i <= effnum->getTH1F()->GetNbinsX(); ++i ) {
-                double efficiency = calcEfficiency(effnum->getTH1F()->GetBinContent(i),effdenom->getTH1F()->GetBinContent(i)).first;
-                double err = calcEfficiency(effnum->getTH1F()->GetBinContent(i),effdenom->getTH1F()->GetBinContent(i)).second;
-                eff->getTProfile()->SetBinContent(i,efficiency);
-                eff->getTProfile()->SetBinEntries(i,1);
-                eff->getTProfile()->SetBinError(i,sqrt(efficiency*efficiency+err*err));
-            }
+        if(effnum && effdenom && eff) {
+          const TH1F *num = effnum->getTH1F();
+          const TH1F *denom = effdenom->getTH1F();
+          TProfile *prof = eff->getTProfile();
+          for (int i = 1; i <= num->GetNbinsX(); ++i) {
+            std::tuple<float, float> effErr = calcEfficiency(num->GetBinContent(i), denom->GetBinContent(i));
+            const float efficiency = std::get<0>(effErr);
+            const float err = std::get<1>(effErr);
+            prof->SetBinContent(i, efficiency);
+            prof->SetBinEntries(i, 1);
+            prof->SetBinError(i, std::sqrt(efficiency*efficiency + err*err)); // why simple SetBinError(err) does not work?
+          }
         }
     }
 }
@@ -212,7 +236,9 @@ void HLTTauDQMSummaryPlotter::plotTriggerBitEfficiencyHistos( std::string folder
         
         //if ( eff && effRefTruth && effRefL1 && effRefPrevious ) {
         if (eff && effRefPrevious) {
-            //Calculate efficiencies with ref to matched objects
+          TProfile *previous = effRefPrevious->getTProfile();
+
+          //Calculate efficiencies with ref to matched objects
           /*
             for ( int i = 2; i <= eff->getNbinsX(); ++i ) {
                 double efficiency = calcEfficiency(eff->getBinContent(i),eff->getBinContent(1)).first;
@@ -237,21 +263,15 @@ void HLTTauDQMSummaryPlotter::plotTriggerBitEfficiencyHistos( std::string folder
           */
             //Calculate efficiencies with ref to previous
             for ( int i = 2; i <= eff->getNbinsX(); ++i ) {
-                double efficiency = calcEfficiency(eff->getBinContent(i),eff->getBinContent(i-1)).first;
-                double err = calcEfficiency(eff->getBinContent(i),eff->getBinContent(i-1)).second;
+              const std::tuple<float, float> effErr = calcEfficiency(eff->getBinContent(i), eff->getBinContent(i-1));
+              const float efficiency = std::get<0>(effErr);
+              const float err = std::get<1>(effErr);
                 
-                effRefPrevious->getTProfile()->SetBinContent(i-1,efficiency);
-                effRefPrevious->getTProfile()->SetBinEntries(i-1,1);
-                effRefPrevious->getTProfile()->SetBinError(i-1,sqrt(efficiency*efficiency+err*err));
-                effRefPrevious->setBinLabel(i-1,eff->getTH1F()->GetXaxis()->GetBinLabel(i));
+              previous->SetBinContent(i-1, efficiency);
+              previous->SetBinEntries(i-1, 1);
+              previous->SetBinError(i-1, std::sqrt(efficiency*efficiency + err*err)); // why simple SetBinError(err) does not work?
+              effRefPrevious->setBinLabel(i-1,eff->getTH1F()->GetXaxis()->GetBinLabel(i));
             }
         }
     }
-}
-
-std::pair<double,double> HLTTauDQMSummaryPlotter::calcEfficiency( float num, float denom ) {
-    if ( denom != 0.0 ) {
-        return std::pair<double,double>(num/denom,sqrt(num/denom*(1.0-num/denom)/denom));
-    }
-    return std::pair<double,double>(0.0,0.0);
 }

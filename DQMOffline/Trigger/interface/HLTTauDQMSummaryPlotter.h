@@ -22,7 +22,6 @@ private:
     void plotTriggerBitEfficiencyHistos( std::string folder, std::string histo );
     void bookFractionHisto(const std::string& folder, const std::string& name);
     void plotFractionHisto(const std::string& folder, const std::string& name);
-    std::pair<double,double> calcEfficiency( float num, float denom );
 
     std::string type_;
     DQMStore *store_;
