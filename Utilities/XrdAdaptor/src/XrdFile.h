@@ -4,14 +4,9 @@
 # include "Utilities/StorageFactory/interface/Storage.h"
 # include "Utilities/StorageFactory/interface/IOFlags.h"
 # include "FWCore/Utilities/interface/Exception.h"
-# include "XrdCl/XrdClFile.hh"
+# include "XrdClient/XrdClient.hh"
 # include <string>
-# include <memory>
-# include <atomic>
-
-namespace XrdAdaptor {
-class RequestManager;
-}
+# include <pthread.h>
 
 class XrdFile : public Storage
 {
@@ -58,18 +53,19 @@ private:
 
   void                  addConnection(cms::Exception &);
 
-  /**
-   * Returns a file handle from one of the active sources.
-   * Verifies the file is open and throws an exception as necessary.
-   */
-  std::shared_ptr<XrdCl::File>   getActiveFile();
+  // "Real" implementation of readv that interacts directly with Xrootd.
+  IOSize                readv_send(char **result_buffer, readahead_list &read_chunk_list, IOSize n, IOSize total_len);
+  IOSize                readv_unpack(char **result_buffer, std::vector<char> &res_buf, IOSize datalen, readahead_list &read_chunk_list, IOSize n);
 
-  std::unique_ptr<XrdAdaptor::RequestManager> m_requestmanager;
-  IOOffset	 	         m_offset;
-  IOOffset                       m_size;
-  bool			         m_close;
-  std::string		         m_name;
-  std::atomic<unsigned int>      m_op_count;
+
+  XrdClient		*m_client;
+  IOOffset		m_offset;
+  XrdClientStatInfo	m_stat;
+  bool			m_close;
+  std::string		m_name;
+
+  // We could do away with this.. if not for the race condition with LastServerResp in XrdReadv.
+  pthread_mutex_t       m_readv_mutex;
 
 };
 
