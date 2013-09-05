@@ -10,8 +10,8 @@
 
 #include "DataFormats/Common/interface/Handle.h"
 
-#include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
-
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "DataFormats/RecoCandidate/interface/RecoEcalCandidate.h"
@@ -28,6 +28,21 @@ HLTEgammaEtFilter::HLTEgammaEtFilter(const edm::ParameterSet& iConfig) : HLTFilt
   relaxed_ = iConfig.getUntrackedParameter<bool> ("relaxed",true) ;
   L1IsoCollTag_= iConfig.getParameter< edm::InputTag > ("L1IsoCand"); 
   L1NonIsoCollTag_= iConfig.getParameter< edm::InputTag > ("L1NonIsoCand"); 
+  inputToken_ = consumes<trigger::TriggerFilterObjectWithRefs>(inputTag_);
+}
+
+void 
+HLTEgammaEtFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+   edm::ParameterSetDescription desc;
+   makeHLTFilterDescription(desc);
+   desc.add<edm::InputTag>("inputTag",edm::InputTag("HLTEgammaL1MatchFilter"));
+   desc.add<edm::InputTag>("L1IsoCand",edm::InputTag("hltL1IsoRecoEcalCandidate"));
+   desc.add<edm::InputTag>("L1NonIsoCand",edm::InputTag("hltL1NonIsoRecoEcalCandidate"));
+   desc.add<bool>("relaxed",true);
+   desc.add<double>("etcutEB", 1.0);
+   desc.add<double>("etcutEE", 1.0);
+   desc.add<int>("ncandcut", 1);
+   descriptions.add("hltEgammaEtFilter",desc);
 }
 
 HLTEgammaEtFilter::~HLTEgammaEtFilter(){}
@@ -51,8 +66,7 @@ HLTEgammaEtFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, 
   // get hold of filtered candidates
   //edm::Handle<reco::HLTFilterObjectWithRefs> recoecalcands;
   edm::Handle<trigger::TriggerFilterObjectWithRefs> PrevFilterOutput;
-
-  iEvent.getByLabel (inputTag_,PrevFilterOutput);
+  iEvent.getByToken (inputToken_,PrevFilterOutput);
 
   std::vector<edm::Ref<reco::RecoEcalCandidateCollection> > recoecalcands;                // vref with your specific C++ collection type
   PrevFilterOutput->getObjects(TriggerCluster, recoecalcands);
