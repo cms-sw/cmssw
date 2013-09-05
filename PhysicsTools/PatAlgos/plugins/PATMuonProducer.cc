@@ -10,6 +10,7 @@
 
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
+#include "DataFormats/MuonReco/interface/MuonCocktails.h"
 
 #include "DataFormats/TrackReco/interface/TrackToTrackMap.h"
 
@@ -51,6 +52,7 @@ PATMuonProducer::PATMuonProducer(const edm::ParameterSet & iConfig) : useUserDat
   muonSrc_ = iConfig.getParameter<edm::InputTag>( "muonSource" );
   // embedding of tracks
   embedBestTrack_ = iConfig.getParameter<bool>( "embedMuonBestTrack" );
+  embedImprovedBestTrack_ = iConfig.getParameter<bool>( "embedImprovedMuonBestTrack" );
   embedTrack_ = iConfig.getParameter<bool>( "embedTrack" );
   embedCombinedMuon_ = iConfig.getParameter<bool>( "embedCombinedMuon"   );
   embedStandAloneMuon_ = iConfig.getParameter<bool>( "embedStandAloneMuon" );
@@ -211,19 +213,16 @@ void PATMuonProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetu
 	// get the tracks
 	reco::TrackRef innerTrack = muonBaseRef->innerTrack();
 	reco::TrackRef globalTrack= muonBaseRef->globalTrack();
-	reco::TrackRef bestTrack  = muonBaseRef->muonBestTrack();
-	reco::TrackRef chosenTrack = innerTrack;
-	// Make sure the collection it points to is there
-	if ( bestTrack.isNonnull() && bestTrack.isAvailable() ) 
-	  chosenTrack = bestTrack;
+	reco::TrackRef bestTrack  = muon::muonBestTrack(*muonBaseRef, reco::defaultTuneP).first;
 
-	if ( chosenTrack.isNonnull() && chosenTrack.isAvailable() ) {
-	  unsigned int nhits = chosenTrack->numberOfValidHits(); // ????
+	// Make sure the collection it points to is there
+	if ( bestTrack.isNonnull() && bestTrack.isAvailable() ) {
+	  unsigned int nhits = bestTrack->numberOfValidHits(); // ????
 	  aMuon.setNumberOfValidHits( nhits );
 
-	  reco::TransientTrack tt = trackBuilder->build(chosenTrack);
+	  reco::TransientTrack tt = trackBuilder->build(bestTrack);
 	  embedHighLevel( aMuon, 
-			  chosenTrack,
+			  bestTrack,
 			  tt,
 			  primaryVertex,
 			  primaryVertexIsValid,
@@ -232,7 +231,7 @@ void PATMuonProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetu
 
 	  // Correct to PV, or beam spot
 	  if ( !usePV_ ) {
-	    double corr_d0 = -1.0 * chosenTrack->dxy( beamPoint );
+	    double corr_d0 = -1.0 * bestTrack->dxy( beamPoint );
 	    aMuon.setDB( corr_d0, -1.0 );
 	  } else {
 	    std::pair<bool,Measurement1D> result = IPTools::absoluteTransverseImpactParameter(tt, primaryVertex);
@@ -310,18 +309,16 @@ void PATMuonProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetu
 	// get the tracks
 	reco::TrackRef innerTrack = itMuon->innerTrack();
 	reco::TrackRef globalTrack= itMuon->globalTrack();
-	reco::TrackRef bestTrack  = itMuon->muonBestTrack();
-	reco::TrackRef chosenTrack = innerTrack;
+	reco::TrackRef bestTrack  = muon::muonBestTrack(*itMuon, reco::defaultTuneP).first;
+
 	// Make sure the collection it points to is there
-	if ( bestTrack.isNonnull() && bestTrack.isAvailable() )
-	  chosenTrack = bestTrack;
-	if ( chosenTrack.isNonnull() && chosenTrack.isAvailable() ) {
-	  unsigned int nhits = chosenTrack->numberOfValidHits(); // ????
+	if ( bestTrack.isNonnull() && bestTrack.isAvailable() ) {
+	  unsigned int nhits = bestTrack->numberOfValidHits(); // ????
 	  aMuon.setNumberOfValidHits( nhits );
 
-	  reco::TransientTrack tt = trackBuilder->build(chosenTrack);
+	  reco::TransientTrack tt = trackBuilder->build(bestTrack);
 	  embedHighLevel( aMuon, 
-			  chosenTrack,
+			  bestTrack,
 			  tt,
 			  primaryVertex,
 			  primaryVertexIsValid,
@@ -330,7 +327,7 @@ void PATMuonProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetu
 
 	  // Correct to PV, or beam spot
 	  if ( !usePV_ ) {
-	    double corr_d0 = -1.0 * chosenTrack->dxy( beamPoint );
+	    double corr_d0 = -1.0 * bestTrack->dxy( beamPoint );
 	    aMuon.setDB( corr_d0, -1.0 );
 	  } else {
 	    std::pair<bool,Measurement1D> result = IPTools::absoluteTransverseImpactParameter(tt, primaryVertex);
@@ -374,7 +371,8 @@ void PATMuonProducer::fillMuon( Muon& aMuon, const MuonBaseRef& muonRef, const r
   // as the pat::Muon momentum
   if (useParticleFlow_) 
     aMuon.setP4( aMuon.pfCandidateRef()->p4() );
-  if (embedBestTrack_)      aMuon.embedMuonBestTrack();
+  if (embedBestTrack_)         aMuon.embedMuonBestTrack();
+  if (embedImprovedBestTrack_) aMuon.embedImprovedMuonBestTrack();
   if (embedTrack_)          aMuon.embedTrack();
   if (embedStandAloneMuon_) aMuon.embedStandAloneMuon();
   if (embedCombinedMuon_)   aMuon.embedCombinedMuon();
@@ -449,6 +447,7 @@ void PATMuonProducer::fillDescriptions(edm::ConfigurationDescriptions & descript
 
   // embedding
   iDesc.add<bool>("embedMuonBestTrack", true)->setComment("embed muon best track");
+  iDesc.add<bool>("embedImprovedMuonBestTrack", true)->setComment("embed muon best track, new tuneP (only 53X)");
   iDesc.add<bool>("embedTrack", true)->setComment("embed external track");
   iDesc.add<bool>("embedStandAloneMuon", true)->setComment("embed external stand-alone muon");
   iDesc.add<bool>("embedCombinedMuon", false)->setComment("embed external combined muon");
