@@ -1,5 +1,5 @@
 /* This Class Header */
-#include "DQMOffline/Muon/src/DiMuonHistograms.h"
+#include "DQMOffline/Muon/interface/DiMuonHistograms.h"
 
 /* Collaborating Class Header */
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -50,7 +50,9 @@ void DiMuonHistograms::beginJob(DQMStore * dbe) {
   metname = "DiMuonhistograms";
   LogTrace(metname)<<"[DiMuonHistograms] Parameters initialization";
   dbe->setCurrentFolder("Muons/DiMuonHistograms");  
-
+}
+void DiMuonHistograms::beginRun(DQMStore *dbe, const edm::Run& iRun, const edm::EventSetup& iSetup) {
+  
   theMuonCollectionLabel = parameters.getParameter<edm::InputTag>("MuonCollection");
   bsTag  = parameters.getParameter<edm::InputTag>("bsLabel");
   vertexTag  = parameters.getParameter<edm::InputTag>("vertexLabel");

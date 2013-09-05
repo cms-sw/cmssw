@@ -36,6 +36,9 @@ class EfficiencyAnalyzer : public MuonAnalyzerBase {
 
   /* Operations */ 
   void beginJob (DQMStore *dbe);
+  void beginRun(DQMStore *dbe, const edm::Run& iRun, const edm::EventSetup& iSetup);
+
+
   void analyze(const edm::Event & event, const edm::EventSetup& eventSetup);
   //  void endJob ();
 

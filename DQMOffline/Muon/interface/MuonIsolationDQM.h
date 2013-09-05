@@ -69,6 +69,7 @@ public:
 private:
   //---------methods----------------------------
   virtual void beginJob(void) ;
+  virtual void beginRun(void) ;
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
   virtual void endJob() ;
   void InitStatics();

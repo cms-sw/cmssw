@@ -6,7 +6,7 @@
  */
 
 
-#include <DQMOffline/Muon/src/MuonTestSummary.h>
+#include <DQMOffline/Muon/interface/MuonTestSummary.h>
 
 // Framework
 #include <FWCore/Framework/interface/Event.h>
@@ -78,6 +78,10 @@ void MuonTestSummary::beginJob(void){
 
   // book the summary histos
   dbe->setCurrentFolder("Muons/TestSummary"); 
+}
+void MuonTestSummary::beginRun(Run const& run, EventSetup const& eSetup) {
+
+  LogTrace(metname)<<"[MuonTestSummary]: beginRun";
 
   // kinematics test report
   kinematicsSummaryMap = dbe->book2D("kinematicsSummaryMap","Kinematics test summary",5,1,6,3,1,4);
@@ -242,13 +246,7 @@ void MuonTestSummary::beginJob(void){
   for (unsigned int icert=0;icert <theCertificationContents.size();icert++){
     theCertificationContents[icert]->Fill(-1);
   }
-}
-
-
-void MuonTestSummary::beginRun(Run const& run, EventSetup const& eSetup) {
-
-  LogTrace(metname)<<"[MuonTestSummary]: beginRun";
-
+  
   // initialisation of histo bins
   for(int xBin=1; xBin<=5; xBin++){
     for(int yBin=1; yBin<=3; yBin++){

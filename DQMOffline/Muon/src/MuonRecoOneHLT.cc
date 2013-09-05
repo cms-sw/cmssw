@@ -1,4 +1,6 @@
-#include "DQMOffline/Muon/src/MuonRecoOneHLT.h"
+#include "DQMOffline/Muon/interface/MuonRecoOneHLT.h"
+
+
 
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
@@ -52,7 +54,15 @@ void MuonRecoOneHLT::beginJob(DQMStore * dbe) {
 #endif
   dbe->setCurrentFolder("Muons/MuonRecoOneHLT");
   
-  theMuonCollectionLabel = parameters.getParameter<edm::InputTag>("MuonCollection");
+  }
+
+void MuonRecoOneHLT::beginRun(DQMStore *dbe, const edm::Run& iRun, const edm::EventSetup& iSetup){
+#ifdef DEBUG
+  cout << "[MuonRecoOneHLT]  beginRun " << endl;
+  cout << "[MuonRecoOneHLT]  Is MuonEventFlag On? "<< _SignleMuonEventFlag->on() << endl;
+#endif
+
+theMuonCollectionLabel = parameters.getParameter<edm::InputTag>("MuonCollection");
   vertexTag  = parameters.getParameter<edm::InputTag>("vertexLabel");
   bsTag  = parameters.getParameter<edm::InputTag>("bsLabel");
 
@@ -121,13 +131,7 @@ void MuonRecoOneHLT::beginJob(DQMStore * dbe) {
   ptTrack->setAxisTitle("GeV"); 
   ptStaTrack = dbe->book1D("StaMuon_pt", "pt_{STA}", ptBin, ptMin, ptMax);
   ptStaTrack->setAxisTitle("GeV"); 
-}
 
-void MuonRecoOneHLT::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup){
-#ifdef DEBUG
-  cout << "[MuonRecoOneHLT]  beginRun " << endl;
-  cout << "[MuonRecoOneHLT]  Is MuonEventFlag On? "<< _SignleMuonEventFlag->on() << endl;
-#endif
   if ( _SingleMuonEventFlag->on() ) _SingleMuonEventFlag->initRun( iRun, iSetup );
   if ( _DoubleMuonEventFlag->on() ) _DoubleMuonEventFlag->initRun( iRun, iSetup );
 
