@@ -46,9 +46,16 @@ private:
 
   MonitorElement *hAcceptedEvents_;
   MonitorElement *hTrigTauEt_;
-  MonitorElement *hTrigTauPhi_;
   MonitorElement *hTrigTauEta_;
+  MonitorElement *hTrigTauPhi_;
   MonitorElement *hMass_;
+
+  MonitorElement *hTrigTauEtEffNum_;
+  MonitorElement *hTrigTauEtEffDenom_;
+  MonitorElement *hTrigTauEtaEffNum_;
+  MonitorElement *hTrigTauEtaEffDenom_;
+  MonitorElement *hTrigTauPhiEffNum_;
+  MonitorElement *hTrigTauPhiEffDenom_;
 };
 
 #endif

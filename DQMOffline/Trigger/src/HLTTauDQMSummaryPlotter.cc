@@ -33,14 +33,15 @@ void HLTTauDQMSummaryPlotter::bookPlots() {
         //Path Summary 
         if ( type_ == "Path" ) {
             bookTriggerBitEfficiencyHistos(triggerTag(), "EventsPerFilter");
+
+            bookEfficiencyHisto(triggerTag(),"TrigTauEtEff","helpers/TrigTauEtEffNum");
+            bookEfficiencyHisto(triggerTag(),"TrigTauEtaEff","helpers/TrigTauEtaEffNum");
+            bookEfficiencyHisto(triggerTag(),"TrigTauPhiEff","helpers/TrigTauPhiEffNum");
         }
         
         //Lite Path Summary 
         else if ( type_ == "LitePath" ) {
             bookEfficiencyHisto(triggerTag(),"PathEfficiency","MatchedPathTriggerBits");
-            bookEfficiencyHisto(triggerTag(),"TrigTauEtEff","EfficiencyHelpers/TrigTauEtEffNum");
-            bookEfficiencyHisto(triggerTag(),"TrigTauEtaEff","EfficiencyHelpers/TrigTauEtaEffNum");
-            bookEfficiencyHisto(triggerTag(),"TrigTauPhiEff","EfficiencyHelpers/TrigTauPhiEffNum");
         }
         
         //L1 Summary
@@ -68,14 +69,15 @@ void HLTTauDQMSummaryPlotter::plot() {
         //Path Summary 
         if ( type_ == "Path" ) {
             plotTriggerBitEfficiencyHistos(triggerTag(), "EventsPerFilter");
+
+            plotEfficiencyHisto(triggerTag(),"TrigTauEtEff","helpers/TrigTauEtEffNum","helpers/TrigTauEtEffDenom");
+            plotEfficiencyHisto(triggerTag(),"TrigTauEtaEff","helpers/TrigTauEtaEffNum","helpers/TrigTauEtaEffDenom");
+            plotEfficiencyHisto(triggerTag(),"TrigTauPhiEff","helpers/TrigTauPhiEffNum","helpers/TrigTauPhiEffDenom");
         }
         
         //Lite Path Summary 
         else if ( type_ == "LitePath" ) {
             plotEfficiencyHisto(triggerTag(),"PathEfficiency","MatchedPathTriggerBits","RefEvents");
-            plotEfficiencyHisto(triggerTag(),"TrigTauEtEff","EfficiencyHelpers/TrigTauEtEffNum","EfficiencyHelpers/TrigTauEtEffDenom");
-            plotEfficiencyHisto(triggerTag(),"TrigTauEtaEff","EfficiencyHelpers/TrigTauEtaEffNum","EfficiencyHelpers/TrigTauEtaEffDenom");
-            plotEfficiencyHisto(triggerTag(),"TrigTauPhiEff","EfficiencyHelpers/TrigTauPhiEffNum","EfficiencyHelpers/TrigTauPhiEffDenom");
         }
         
         //L1 Summary

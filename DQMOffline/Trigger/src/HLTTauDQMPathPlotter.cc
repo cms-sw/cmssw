@@ -60,6 +60,19 @@ void HLTTauDQMPathPlotter::beginRun(const HLTConfigProvider& HLTCP) {
     hTrigTauEta_ = store->book1D("TrigTauEta", "#tau #eta",  etabins_, -2.5, 2.5);
     hTrigTauPhi_ = store->book1D("TrigTauPhi", "#tau #phi",  phibins_, -3.2, 3.2);
 
+    // Efficiency helpers
+    if(doRefAnalysis_) {
+      store->setCurrentFolder(triggerTag()+"/helpers");
+      store->removeContents();
+      hTrigTauEtEffNum_    = store->book1D("TrigTauEtEffNum",    "Offline #tau E_{T}", ptbins_, 0, 100);
+      hTrigTauEtEffDenom_  = store->book1D("TrigTauEtEffDenom",  "Offline #tau E_{T}", ptbins_, 0, 100);
+      hTrigTauEtaEffNum_   = store->book1D("TrigTauEtaEffNum",   "Offline #tau #eta", etabins_, -2.5, 2.5);
+      hTrigTauEtaEffDenom_ = store->book1D("TrigTauEtaEffDenom", "Offline #tau #eta", etabins_, -2.5, 2.5);
+      hTrigTauPhiEffNum_   = store->book1D("TrigTauPhiEffNum",   "Offline #tau #phi", phibins_, -3.2, 3.2);
+      hTrigTauPhiEffDenom_ = store->book1D("TrigTauPhiEffDenom", "Offline #tau #phi", phibins_, -3.2, 3.2);
+      store->setCurrentFolder(triggerTag());
+    }
+
     // Book di-object invariant mass histogram only for mu+tau, ele+tau, and di-tau paths
     hMass_ = nullptr;
     if(doRefAnalysis_) {
@@ -112,6 +125,16 @@ void HLTTauDQMPathPlotter::analyze(const edm::TriggerResults& triggerResults, co
     }
   }
 
+  if(doRefAnalysis_) {
+    // Denominators for efficiency plots
+    if(!refCollection.taus.empty() && hltPath_.goodOfflineEvent(hltPath_.filtersSize()-1, refCollection)) {
+      for(const LV& tau: refCollection.taus) {
+        hTrigTauEtEffDenom_->Fill(tau.pt());
+        hTrigTauEtaEffDenom_->Fill(tau.eta());
+        hTrigTauPhiEffDenom_->Fill(tau.phi());
+      }
+    }
+  }
 
   if(hltPath_.fired(triggerResults)) {
     triggerObjs.clear();
@@ -120,20 +143,29 @@ void HLTTauDQMPathPlotter::analyze(const edm::TriggerResults& triggerResults, co
     hltPath_.getFilterObjects(triggerEvent, lastPassedFilter, triggerObjs);
     if(doRefAnalysis_) {
       bool matched = hltPath_.offlineMatching(lastPassedFilter, triggerObjs, refCollection, hltMatchDr_, matchedTriggerObjs, matchedOfflineObjs);
-      // Di-object invariant mass
-      if(hMass_ && matched) {
-        const int ntaus = hltPath_.getFilterNTaus(lastPassedFilter);
-        if(ntaus == 2) {
-          // Di-tau (matchedOfflineObjs are already sorted)
-          hMass_->Fill( (matchedOfflineObjs.taus[0]+matchedOfflineObjs.taus[1]).M() );
+      if(matched) {
+        // Numerators for efficiency plots
+        for(const LV& tau: matchedOfflineObjs.taus) {
+          hTrigTauEtEffNum_->Fill(tau.pt());
+          hTrigTauEtaEffNum_->Fill(tau.eta());
+          hTrigTauPhiEffNum_->Fill(tau.phi());
         }
-        // Electron+tau
-        else if(ntaus == 1 && hltPath_.getFilterNElectrons(lastPassedFilter) == 1) {
-          hMass_->Fill( (matchedOfflineObjs.taus[0]+matchedOfflineObjs.electrons[0]).M() );
-        }
-        // Muon+tau
-        else if(ntaus == 1 && hltPath_.getFilterNMuons(lastPassedFilter) == 1) {
-          hMass_->Fill( (matchedOfflineObjs.taus[0]+matchedOfflineObjs.muons[0]).M() );
+
+        // Di-object invariant mass
+        if(hMass_) {
+          const int ntaus = hltPath_.getFilterNTaus(lastPassedFilter);
+          if(ntaus == 2) {
+            // Di-tau (matchedOfflineObjs are already sorted)
+            hMass_->Fill( (matchedOfflineObjs.taus[0]+matchedOfflineObjs.taus[1]).M() );
+          }
+          // Electron+tau
+          else if(ntaus == 1 && hltPath_.getFilterNElectrons(lastPassedFilter) == 1) {
+            hMass_->Fill( (matchedOfflineObjs.taus[0]+matchedOfflineObjs.electrons[0]).M() );
+          }
+          // Muon+tau
+          else if(ntaus == 1 && hltPath_.getFilterNMuons(lastPassedFilter) == 1) {
+            hMass_->Fill( (matchedOfflineObjs.taus[0]+matchedOfflineObjs.muons[0]).M() );
+          }
         }
       }
 
