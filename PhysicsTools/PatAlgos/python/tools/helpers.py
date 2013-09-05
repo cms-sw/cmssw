@@ -116,7 +116,7 @@ class MassSearchReplaceAnyInputTagVisitor(object):
         self._moduleLabelOnly=moduleLabelOnly
     def doIt(self,pset,base):
         if isinstance(pset, cms._Parameterizable):
-            for name in pset.parameters_().keys():
+            for name in pset.parameterNames_():
                 # if I use pset.parameters_().items() I get copies of the parameter values
                 # so I can't modify the nested pset
                 value = getattr(pset,name)
