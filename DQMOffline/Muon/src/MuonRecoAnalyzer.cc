@@ -1,14 +1,4 @@
-
-/*
- *  See header file for a description of this class.
- *
- *  $Date: 2012/07/06 09:25:37 $
- *  $Revision: 1.24 $
- *  \author G. Mila - INFN Torino
- *  updated: G. Hesketh, CERN
- */
-
-#include "DQMOffline/Muon/src/MuonRecoAnalyzer.h"
+#include "DQMOffline/Muon/interface/MuonRecoAnalyzer.h"
 
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
@@ -36,12 +26,13 @@ MuonRecoAnalyzer::~MuonRecoAnalyzer() { }
 
 
 void MuonRecoAnalyzer::beginJob(DQMStore * dbe) {
-
   metname = "muRecoAnalyzer";
-
+  
   LogTrace(metname)<<"[MuonRecoAnalyzer] Parameters initialization";
   dbe->setCurrentFolder("Muons/MuonRecoAnalyzer");
-
+}
+void MuonRecoAnalyzer::beginRun(DQMStore * dbe, const edm::Run& iRun, const edm::EventSetup& iSetup){
+  
   muReco = dbe->book1D("muReco", "muon reconstructed tracks", 6, 1, 7);
   muReco->setBinLabel(1,"glb+tk+sta");
   muReco->setBinLabel(2,"glb+sta");
@@ -52,32 +43,36 @@ void MuonRecoAnalyzer::beginJob(DQMStore * dbe) {
 
   int binFactor = 4;
 
+  /////////////////////////////////////////////////////
   // monitoring of eta parameter
+  /////////////////////////////////////////////////////
   etaBin = parameters.getParameter<int>("etaBin");
   etaMin = parameters.getParameter<double>("etaMin");
   etaMax = parameters.getParameter<double>("etaMax");
+  
   std::string histname = "GlbMuon_";
-  etaGlbTrack.push_back(dbe->book1D(histname+"Glb_eta", "#eta_{GLB}", etaBin, etaMin, etaMax));
-  etaGlbTrack.push_back(dbe->book1D(histname+"Tk_eta", "#eta_{TKfromGLB}", etaBin, etaMin, etaMax));
-  etaGlbTrack.push_back(dbe->book1D(histname+"Sta_eta", "#eta_{STAfromGLB}", etaBin, etaMin, etaMax));
-  etaResolution.push_back(dbe->book1D("Res_TkGlb_eta", "#eta_{TKfromGLB} - #eta_{GLB}", etaBin*binFactor, etaMin/3000, etaMax/3000));
-  etaResolution.push_back(dbe->book1D("Res_GlbSta_eta", "#eta_{GLB} - #eta_{STAfromGLB}", etaBin*binFactor, etaMin/100, etaMax/100));
-  etaResolution.push_back(dbe->book1D("Res_TkSta_eta", "#eta_{TKfromGLB} - #eta_{STAfromGLB}", etaBin*binFactor, etaMin/100, etaMax/100));
-  etaResolution.push_back(dbe->book2D("ResVsEta_TkGlb_eta", "(#eta_{TKfromGLB} - #eta_{GLB}) vs #eta_{GLB}", etaBin, etaMin, etaMax, etaBin*binFactor, etaMin/3000, etaMax/3000));
-  etaResolution.push_back(dbe->book2D("ResVsEta_GlbSta_eta", "(#eta_{GLB} - #eta_{STAfromGLB}) vs #eta_{GLB}", etaBin, etaMin, etaMax, etaBin*binFactor, etaMin/100, etaMax/100));
-  etaResolution.push_back(dbe->book2D("ResVsEta_TkSta_eta", "(#eta_{TKfromGLB} - #eta_{STAfromGLB}) vs #eta_{TKfromGLB}", etaBin, etaMin, etaMax, etaBin*binFactor, etaMin/100, etaMax/100));
-  etaPull = dbe->book1D("Pull_TkSta_eta", "#eta_{TKfromGLB} - #eta_{GLB} / error", 100,-10,10);
-  etaTrack = dbe->book1D("TkMuon_eta", "#eta_{TK}", etaBin, etaMin, etaMax);
-  etaStaTrack = dbe->book1D("StaMuon_eta", "#eta_{STA}", etaBin, etaMin, etaMax);
-  etaEfficiency.push_back(dbe->book1D("StaEta", "#eta_{STAfromGLB}", etaBin, etaMin, etaMax));
-  etaEfficiency.push_back(dbe->book1D("StaEta_ifCombinedAlso", "#eta_{STAfromGLB} if isGlb=true", etaBin, etaMin, etaMax));
-
+  etaGlbTrack  .push_back(dbe->book1D(histname+"Glb_eta",      "#eta_{GLB}",                                                 etaBin, etaMin, etaMax));
+  etaGlbTrack  .push_back(dbe->book1D(histname+"Tk_eta",       "#eta_{TKfromGLB}",                                           etaBin, etaMin, etaMax));
+  etaGlbTrack  .push_back(dbe->book1D(histname+"Sta_eta",      "#eta_{STAfromGLB}",                                          etaBin, etaMin, etaMax));
+  etaResolution.push_back(dbe->book1D("Res_TkGlb_eta",         "#eta_{TKfromGLB} - #eta_{GLB}",                              etaBin*binFactor, etaMin/3000, etaMax/3000));
+  etaResolution.push_back(dbe->book1D("Res_GlbSta_eta",        "#eta_{GLB} - #eta_{STAfromGLB}",                             etaBin*binFactor, etaMin/100, etaMax/100));
+  etaResolution.push_back(dbe->book1D("Res_TkSta_eta",         "#eta_{TKfromGLB} - #eta_{STAfromGLB}",                       etaBin*binFactor, etaMin/100, etaMax/100));
+  etaResolution.push_back(dbe->book2D("ResVsEta_TkGlb_eta",    "(#eta_{TKfromGLB} - #eta_{GLB}) vs #eta_{GLB}",              etaBin, etaMin, etaMax, etaBin*binFactor, etaMin/3000, etaMax/3000));
+  etaResolution.push_back(dbe->book2D("ResVsEta_GlbSta_eta",   "(#eta_{GLB} - #eta_{STAfromGLB}) vs #eta_{GLB}",             etaBin, etaMin, etaMax, etaBin*binFactor, etaMin/100, etaMax/100));
+  etaResolution.push_back(dbe->book2D("ResVsEta_TkSta_eta",    "(#eta_{TKfromGLB} - #eta_{STAfromGLB}) vs #eta_{TKfromGLB}", etaBin, etaMin, etaMax, etaBin*binFactor, etaMin/100, etaMax/100));
+  etaPull     =           dbe->book1D("Pull_TkSta_eta",        "#eta_{TKfromGLB} - #eta_{GLB} / error",                      100,       -10,     10);
+  etaTrack    =           dbe->book1D("TkMuon_eta",            "#eta_{TK}",                                                  etaBin, etaMin, etaMax);
+  etaStaTrack =           dbe->book1D("StaMuon_eta",           "#eta_{STA}",                                                 etaBin, etaMin, etaMax);
+  etaEfficiency.push_back(dbe->book1D("StaEta",                "#eta_{STAfromGLB}",                                          etaBin, etaMin, etaMax));
+  etaEfficiency.push_back(dbe->book1D("StaEta_ifCombinedAlso", "#eta_{STAfromGLB} if isGlb=true",                            etaBin, etaMin, etaMax));
+  
+  //////////////////////////////////////////////////////
   // monitoring of theta parameter
+  /////////////////////////////////////////////////////
   thetaBin = parameters.getParameter<int>("thetaBin");
   thetaMin = parameters.getParameter<double>("thetaMin");
   thetaMax = parameters.getParameter<double>("thetaMax");
-  thetaGlbTrack.push_back(dbe->book1D(histname+"Glb_theta", "#theta_{GLB}", thetaBin, thetaMin, thetaMax));
-  thetaGlbTrack[0]->setAxisTitle("rad");
+  thetaGlbTrack.push_back(dbe->book1D(histname+"Glb_theta", "#theta_{GLB}", thetaBin, thetaMin, thetaMax));          thetaGlbTrack[0]->setAxisTitle("rad");
   thetaGlbTrack.push_back(dbe->book1D(histname+"Tk_theta", "#theta_{TKfromGLB}", thetaBin, thetaMin, thetaMax));
   thetaGlbTrack[1]->setAxisTitle("rad");
   thetaGlbTrack.push_back(dbe->book1D(histname+"Sta_theta", "#theta_{STAfromGLB}", thetaBin, thetaMin, thetaMax));
@@ -109,8 +104,6 @@ void MuonRecoAnalyzer::beginJob(DQMStore * dbe) {
   tunePMin= parameters.getParameter<double>("tunePMin");
 
   tunePResolution = dbe->book1D("Res_TuneP_pt", "Pt_{MuonBestTrack}-Pt_{tunePMuonBestTrack}/Pt_{MuonBestTrack}", tunePBin, tunePMin, tunePMax);
-
-
 
   // monitoring of phi paramater
   phiBin = parameters.getParameter<int>("phiBin");
@@ -209,6 +202,7 @@ void MuonRecoAnalyzer::beginJob(DQMStore * dbe) {
   qTrack = dbe->book1D("TkMuon_q", "q_{TK}", 5, -2.5, 2.5);
   qStaTrack = dbe->book1D("StaMuon_q", "q_{STA}", 5, -2.5, 2.5);
 
+  //////////////////////////////////////////////////////////////
   // monitoring of the momentum resolution
   pResBin = parameters.getParameter<int>("pResBin");
   pResMin = parameters.getParameter<double>("pResMin");
@@ -269,25 +263,25 @@ void MuonRecoAnalyzer::beginJob(DQMStore * dbe) {
   oneOverptResolution[11]->setAxisTitle("GeV^{-1}",1);
   oneOverptResolution[11]->setAxisTitle("GeV^{-1}",2);
   oneOverptPull = dbe->book1D("Pull_TkSta_oneOverpt", "(1/pt)_{TKfromGLB} - (1/pt)_{STAfromGLB} / error", 100,-10,10);
-
-
+  
+  //////////////////////////////////////////////////////////////
   // monitoring of the recHits provenance
   rhBin=parameters.getParameter<int>("rhBin");
   rhMin=parameters.getParameter<double>("rhMin");
   rhMax=parameters.getParameter<double>("rhMax");
-  rhAnalysis.push_back(dbe->book1D("StaRh_Frac_inGlb", "recHits_{STAinGLB} / recHits_{GLB}", rhBin, rhMin, rhMax));
-  rhAnalysis.push_back(dbe->book1D("TkRh_Frac_inGlb", "recHits_{TKinGLB} / recHits_{GLB}", rhBin, rhMin, rhMax));
-  rhAnalysis.push_back(dbe->book1D("StaRh_inGlb_Div_RhAssoSta", "recHits_{STAinGLB} / recHits_{STAfromGLB}", rhBin, rhMin, rhMax));
-  rhAnalysis.push_back(dbe->book1D("TkRh_inGlb_Div_RhAssoTk", "recHits_{TKinGLB} / recHits_{TKfromGLB}", rhBin, rhMin, rhMax));
-  rhAnalysis.push_back(dbe->book1D("GlbRh_Div_RhAssoStaTk", "recHits_{GLB} / (recHits_{TKfromGLB}+recHits_{STAfromGLB})", rhBin, rhMin, rhMax));
-  rhAnalysis.push_back(dbe->book1D("invalidRh_Frac_inTk", "Invalid recHits / rechits_{GLB}", rhBin, rhMin, rhMax));
+  rhAnalysis.push_back(dbe->book1D("StaRh_Frac_inGlb",          "recHits_{STAinGLB} / recHits_{GLB}",                         rhBin, rhMin, rhMax));
+  rhAnalysis.push_back(dbe->book1D("TkRh_Frac_inGlb",           "recHits_{TKinGLB} / recHits_{GLB}",                          rhBin, rhMin, rhMax));
+  rhAnalysis.push_back(dbe->book1D("StaRh_inGlb_Div_RhAssoSta", "recHits_{STAinGLB} / recHits_{STAfromGLB}",                  rhBin, rhMin, rhMax));
+  rhAnalysis.push_back(dbe->book1D("TkRh_inGlb_Div_RhAssoTk",   "recHits_{TKinGLB} / recHits_{TKfromGLB}",                    rhBin, rhMin, rhMax));
+  rhAnalysis.push_back(dbe->book1D("GlbRh_Div_RhAssoStaTk",     "recHits_{GLB} / (recHits_{TKfromGLB}+recHits_{STAfromGLB})", rhBin, rhMin, rhMax));
+  rhAnalysis.push_back(dbe->book1D("invalidRh_Frac_inTk",       "Invalid recHits / rechits_{GLB}",                            rhBin, rhMin, rhMax));
 
+  //////////////////////////////////////////////////////////////
   // monitoring of the muon system rotation w.r.t. tracker
   muVStkSytemRotation.push_back(dbe->book2D("muVStkSytemRotation_posMu", "pT_{TK} / pT_{GLB} vs pT_{GLB} for #mu^{+}", 50,0,200,100,0.8,1.2));
   muVStkSytemRotation.push_back(dbe->book2D("muVStkSytemRotation_negMu", "pT_{TK} / pT_{GLB} vs pT_{GLB} for #mu^{-}", 50,0,200,100,0.8,1.2));
-
+  
 }
-
 
 void MuonRecoAnalyzer::GetRes( reco::TrackRef t1, reco::TrackRef t2, string par, float &res, float &pull){
   
@@ -327,12 +321,6 @@ void MuonRecoAnalyzer::GetRes( reco::TrackRef t1, reco::TrackRef t2, string par,
   else pull = -99;
   return;
 }
-
-
-
-
-
-
 void MuonRecoAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup, const reco::Muon& recoMu) {
 
   LogTrace(metname)<<"[MuonRecoAnalyzer] Analyze the mu";
@@ -498,10 +486,6 @@ void MuonRecoAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     oneOverptResolution[9]->Fill(recoCombinedGlbTrack->pt(),(1/recoTkGlbTrack->pt())-(1/recoCombinedGlbTrack->pt()));
     oneOverptResolution[10]->Fill(recoCombinedGlbTrack->pt(),-(1/recoStaGlbTrack->pt())+(1/recoCombinedGlbTrack->pt()));
     oneOverptResolution[11]->Fill(recoCombinedGlbTrack->pt(),(1/recoTkGlbTrack->pt())-(1/recoStaGlbTrack->pt()));
-    
-
-
-
 
     // valid hits Glb track
     double rhGlb = recoCombinedGlbTrack->found();

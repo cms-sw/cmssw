@@ -55,6 +55,8 @@ class MuonAnalyzer : public edm::EDAnalyzer {
 
   /// Save the histos
   void endJob(void);
+  void endRun(const edm::Run&, const edm::EventSetup&)
+  {};
   
  private:
   // ----------member data ---------------------------

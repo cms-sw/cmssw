@@ -8,7 +8,7 @@
  */
 
 
-#include <DQMOffline/Muon/src/MuonRecoTest.h>
+#include <DQMOffline/Muon/interface/MuonRecoTest.h>
 
 // Framework
 #include <FWCore/Framework/interface/Event.h>

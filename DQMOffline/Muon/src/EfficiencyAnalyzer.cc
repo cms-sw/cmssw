@@ -1,5 +1,5 @@
 /* This Class Header */
-#include "DQMOffline/Muon/src/EfficiencyAnalyzer.h"
+#include "DQMOffline/Muon/interface/EfficiencyAnalyzer.h"
 
 /* Collaborating Class Header */
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -53,7 +53,11 @@ void EfficiencyAnalyzer::beginJob(DQMStore * dbe) {
   metname = "EfficiencyAnalyzer";
   LogTrace(metname)<<"[EfficiencyAnalyzer] Parameters initialization";
   dbe->setCurrentFolder("Muons/EfficiencyAnalyzer");  
-  
+}
+
+void EfficiencyAnalyzer::beginRun(DQMStore *dbe, const edm::Run& iRun, const edm::EventSetup& iSetup){ 
+  metname = "EfficiencyAnalyzer";
+
   theMuonCollectionLabel = parameters.getParameter<edm::InputTag>("MuonCollection");
   theTrackCollectionLabel = parameters.getParameter<edm::InputTag>("TrackCollection");
 

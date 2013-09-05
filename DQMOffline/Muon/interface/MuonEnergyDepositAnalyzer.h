@@ -36,11 +36,11 @@ class MuonEnergyDepositAnalyzer : public MuonAnalyzerBase {
   
   /// Inizialize parameters for histo binning
   void beginJob(DQMStore *dbe);
+  void beginRun(DQMStore *dbe, const edm::Run& run, const edm::EventSetup& iSetup);
 
   /// Get the analysis
   void analyze(const edm::Event&, const edm::EventSetup&, const reco::Muon& recoMu);
-
-
+    
  private:
   // ----------member data ---------------------------
   

@@ -36,6 +36,7 @@ class MuonRecoAnalyzer : public MuonAnalyzerBase {
 
   /// Inizialize parameters for histo binning
   void beginJob(DQMStore *dbe);
+  void beginRun(DQMStore *dbe, const edm::Run& iRun, const edm::EventSetup& iSetup);
 
   /// Get the analysis
   void analyze(const edm::Event&, const edm::EventSetup&, const reco::Muon& recoMu);

@@ -1,4 +1,3 @@
-
 /*
  *  See header file for a description of this class.
  *
@@ -8,7 +7,7 @@
  *  \author G. Mila - INFN Torino
  */
 
-#include "DQMOffline/Muon/src/MuonSeedsAnalyzer.h"
+#include "DQMOffline/Muon/interface/MuonSeedsAnalyzer.h"
 
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -32,7 +31,6 @@ using namespace std;
 using namespace edm;
 
 
-
 MuonSeedsAnalyzer::MuonSeedsAnalyzer(const edm::ParameterSet& pSet, MuonServiceProxy *theService):MuonAnalyzerBase(theService) {
   parameters = pSet;
 }
@@ -47,7 +45,10 @@ void MuonSeedsAnalyzer::beginJob(DQMStore * dbe) {
 
   LogTrace(metname)<<"[MuonSeedsAnalyzer] Parameters initialization";
   dbe->setCurrentFolder("Muons/MuonSeedsAnalyzer");
+}
 
+void MuonSeedsAnalyzer::beginRun(DQMStore *dbe, const edm::Run& iRun, const edm::EventSetup& iSetup){
+  
   seedHitBin = parameters.getParameter<int>("RecHitBin");
   seedHitMin = parameters.getParameter<double>("RecHitMin");
   seedHitMax = parameters.getParameter<double>("RecHitMax");

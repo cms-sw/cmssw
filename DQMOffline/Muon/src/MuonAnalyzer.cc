@@ -1,22 +1,13 @@
+#include "DQMOffline/Muon/interface/MuonAnalyzer.h"
 
-/*
- *  See header file for a description of this class.
- *
- *  $Date: 2012/02/17 12:01:23 $
- *  $Revision: 1.28 $
- *  \author G. Mila - INFN Torino
- */
-
-#include "DQMOffline/Muon/src/MuonAnalyzer.h"
-
-#include "DQMOffline/Muon/src/MuonEnergyDepositAnalyzer.h"
-#include "DQMOffline/Muon/src/MuonSeedsAnalyzer.h"
-#include "DQMOffline/Muon/src/MuonRecoAnalyzer.h"
-#include "DQMOffline/Muon/src/SegmentTrackAnalyzer.h"
-#include "DQMOffline/Muon/src/MuonKinVsEtaAnalyzer.h"
-#include "DQMOffline/Muon/src/DiMuonHistograms.h"
-#include "DQMOffline/Muon/src/MuonRecoOneHLT.h"
-#include "DQMOffline/Muon/src/EfficiencyAnalyzer.h"
+#include "DQMOffline/Muon/interface/MuonEnergyDepositAnalyzer.h"
+#include "DQMOffline/Muon/interface/MuonSeedsAnalyzer.h"
+#include "DQMOffline/Muon/interface/MuonRecoAnalyzer.h"
+#include "DQMOffline/Muon/interface/SegmentTrackAnalyzer.h"
+#include "DQMOffline/Muon/interface/MuonKinVsEtaAnalyzer.h"
+#include "DQMOffline/Muon/interface/DiMuonHistograms.h"
+#include "DQMOffline/Muon/interface/MuonRecoOneHLT.h"
+#include "DQMOffline/Muon/interface/EfficiencyAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -64,16 +55,11 @@ MuonAnalyzer::MuonAnalyzer(const edm::ParameterSet& pSet) {
   theEfficiencyAnalyzerFlag     = parameters.getUntrackedParameter<bool>("DoEfficiencyAnalysis"   ,true);
   
   // If the previous are defined... create the analyzer class 
-  if(theMuEnergyAnalyzerFlag) 
-    theMuEnergyAnalyzer = new MuonEnergyDepositAnalyzer(parameters.getParameter<ParameterSet>("muonEnergyAnalysis"), theService);
-  if(theSeedsAnalyzerFlag)
-    theSeedsAnalyzer = new MuonSeedsAnalyzer(parameters.getParameter<ParameterSet>("seedsAnalysis"), theService);
-  if(theMuonRecoAnalyzerFlag)
-    theMuonRecoAnalyzer = new MuonRecoAnalyzer(parameters.getParameter<ParameterSet>("muonRecoAnalysis"), theService);
-  if(theMuonRecoAnalyzerFlag)
-    theMuonKinVsEtaAnalyzer = new MuonKinVsEtaAnalyzer(parameters.getParameter<ParameterSet>("muonKinVsEtaAnalysis"), theService);
-  if(theDiMuonHistogramsFlag)
-    theDiMuonHistograms = new DiMuonHistograms(parameters.getParameter<ParameterSet>("dimuonHistograms"), theService);
+  if(theMuEnergyAnalyzerFlag) theMuEnergyAnalyzer     = new MuonEnergyDepositAnalyzer(parameters.getParameter<ParameterSet>("muonEnergyAnalysis"), theService);
+  if(theSeedsAnalyzerFlag)    theSeedsAnalyzer        = new MuonSeedsAnalyzer(parameters.getParameter<ParameterSet>("seedsAnalysis"),              theService);
+  if(theMuonRecoAnalyzerFlag) theMuonRecoAnalyzer     = new MuonRecoAnalyzer(parameters.getParameter<ParameterSet>("muonRecoAnalysis"),            theService);
+  if(theMuonRecoAnalyzerFlag) theMuonKinVsEtaAnalyzer = new MuonKinVsEtaAnalyzer(parameters.getParameter<ParameterSet>("muonKinVsEtaAnalysis"),    theService);
+  if(theDiMuonHistogramsFlag) theDiMuonHistograms     = new DiMuonHistograms(parameters.getParameter<ParameterSet>("dimuonHistograms"),            theService);
   if(theMuonSegmentsAnalyzerFlag){
     // analysis on glb muon tracks
     ParameterSet  trackGlbMuAnalysisParameters = parameters.getParameter<ParameterSet>("trackSegmentsAnalysis");
@@ -84,45 +70,55 @@ MuonAnalyzer::MuonAnalyzer(const edm::ParameterSet& pSet) {
     trackStaMuAnalysisParameters.addParameter<edm::InputTag>("MuTrackCollection",theStaMuTrackCollectionLabel);
     theStaMuonSegmentsAnalyzer = new SegmentTrackAnalyzer(trackStaMuAnalysisParameters, theService);
   }
-  if (theMuonRecoOneHLTAnalyzerFlag)
-    theMuonRecoOneHLTAnalyzer = new MuonRecoOneHLT(parameters.getParameter<ParameterSet>("muonRecoOneHLTAnalysis"),theService);
-  if(theEfficiencyAnalyzerFlag)
-    theEfficiencyAnalyzer = new EfficiencyAnalyzer(parameters.getParameter<ParameterSet>("efficiencyAnalysis"), theService);
+  if(theMuonRecoOneHLTAnalyzerFlag) theMuonRecoOneHLTAnalyzer = new MuonRecoOneHLT(parameters.getParameter<ParameterSet>("muonRecoOneHLTAnalysis"),theService);
+  if(theEfficiencyAnalyzerFlag)     theEfficiencyAnalyzer = new EfficiencyAnalyzer(parameters.getParameter<ParameterSet>("efficiencyAnalysis"), theService);
 }
 
 MuonAnalyzer::~MuonAnalyzer() {
-  
+  // Destructor, make sure there is one delete for each new.
   delete theService;
-  if(theMuEnergyAnalyzerFlag)     delete theMuEnergyAnalyzer;
-  if(theSeedsAnalyzerFlag)        delete theSeedsAnalyzer;
-  if(theMuonRecoAnalyzerFlag)     delete theMuonRecoAnalyzer;
-  if(theMuonSegmentsAnalyzerFlag) {
-    delete theGlbMuonSegmentsAnalyzer;
-    delete theStaMuonSegmentsAnalyzer;
-  }
+  
+  if(theMuEnergyAnalyzerFlag)       delete theMuEnergyAnalyzer;
+  if(theSeedsAnalyzerFlag)          delete theSeedsAnalyzer;
+  if(theMuonRecoAnalyzerFlag)       delete theMuonRecoAnalyzer;
+  if(theMuonSegmentsAnalyzerFlag)   delete theGlbMuonSegmentsAnalyzer;
+  if(theMuonSegmentsAnalyzerFlag)   delete theStaMuonSegmentsAnalyzer;
   if(theMuonKinVsEtaAnalyzerFlag)   delete theMuonKinVsEtaAnalyzer;
   if(theDiMuonHistogramsFlag)       delete theDiMuonHistograms;
   if(theMuonRecoOneHLTAnalyzerFlag) delete theMuonRecoOneHLTAnalyzer;
   if(theEfficiencyAnalyzerFlag)     delete theEfficiencyAnalyzer;
-}
-void MuonAnalyzer::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup){
-  if (theMuonRecoOneHLTAnalyzerFlag) theMuonRecoOneHLTAnalyzer->beginRun(iRun,iSetup);
+
 }
 void MuonAnalyzer::beginJob(void) {
+  // Method called each time per Job before looping all the events.
   metname = "muonAnalyzer";
   
   LogTrace(metname)<<"[MuonAnalyzer] Parameters initialization";
   theDbe = edm::Service<DQMStore>().operator->();
   
-  if(theMuEnergyAnalyzerFlag)       theMuEnergyAnalyzer->beginJob(theDbe);
-  if(theSeedsAnalyzerFlag)          theSeedsAnalyzer->beginJob(theDbe);
-  if(theMuonRecoAnalyzerFlag)       theMuonRecoAnalyzer->beginJob(theDbe);
+  if(theMuEnergyAnalyzerFlag)       theMuEnergyAnalyzer       ->beginJob(theDbe);
+  if(theSeedsAnalyzerFlag)          theSeedsAnalyzer          ->beginJob(theDbe);
+  if(theMuonRecoAnalyzerFlag)       theMuonRecoAnalyzer       ->beginJob(theDbe);
   if(theMuonSegmentsAnalyzerFlag)   theGlbMuonSegmentsAnalyzer->beginJob(theDbe);
   if(theMuonSegmentsAnalyzerFlag)   theStaMuonSegmentsAnalyzer->beginJob(theDbe);
-  if(theMuonKinVsEtaAnalyzerFlag)   theMuonKinVsEtaAnalyzer->beginJob(theDbe);
-  if(theDiMuonHistogramsFlag)       theDiMuonHistograms->beginJob(theDbe);
-  if(theMuonRecoOneHLTAnalyzerFlag) theMuonRecoOneHLTAnalyzer->beginJob(theDbe);
-  if(theEfficiencyAnalyzerFlag)     theEfficiencyAnalyzer->beginJob(theDbe); 
+  if(theMuonKinVsEtaAnalyzerFlag)   theMuonKinVsEtaAnalyzer   ->beginJob(theDbe);
+  if(theDiMuonHistogramsFlag)       theDiMuonHistograms       ->beginJob(theDbe);
+  if(theMuonRecoOneHLTAnalyzerFlag) theMuonRecoOneHLTAnalyzer ->beginJob(theDbe);
+  if(theEfficiencyAnalyzerFlag)     theEfficiencyAnalyzer     ->beginJob(theDbe); 
+}
+void MuonAnalyzer::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup){
+  // Method called each time per Run before looping all the events.
+  
+  if(theMuonRecoOneHLTAnalyzerFlag) theMuonRecoOneHLTAnalyzer ->beginRun(theDbe, iRun, iSetup);
+  if(theMuEnergyAnalyzerFlag)       theMuEnergyAnalyzer       ->beginRun(theDbe, iRun, iSetup);
+  if(theSeedsAnalyzerFlag)          theSeedsAnalyzer          ->beginRun(theDbe, iRun, iSetup);
+  if(theMuonRecoAnalyzerFlag)       theMuonRecoAnalyzer       ->beginRun(theDbe, iRun, iSetup);
+  if(theMuonSegmentsAnalyzerFlag)   theGlbMuonSegmentsAnalyzer->beginRun(theDbe, iRun, iSetup);
+  if(theMuonSegmentsAnalyzerFlag)   theStaMuonSegmentsAnalyzer->beginRun(theDbe, iRun, iSetup);
+  if(theMuonKinVsEtaAnalyzerFlag)   theMuonKinVsEtaAnalyzer   ->beginRun(theDbe, iRun, iSetup);
+  if(theDiMuonHistogramsFlag)       theDiMuonHistograms       ->beginRun(theDbe, iRun, iSetup);
+  if(theEfficiencyAnalyzerFlag)     theEfficiencyAnalyzer     ->beginRun(theDbe, iRun, iSetup); 
+
 }
 void MuonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   LogTrace(metname)<<"[MuonAnalyzer] Analysis of event # ";
@@ -149,11 +145,6 @@ void MuonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
 	LogTrace(metname)<<"[MuonAnalyzer] Call to the muon KinVsEta analyzer";
 	theMuonKinVsEtaAnalyzer->analyze(iEvent, iSetup, *recoMu);
       }
-      //      if(theMuonRecoOneHLTAnalyzerFlag) {
-      //	LogTrace(metname)<<"[MuonAnalyzer] Call to the muon reco One HLT analyzer";
-	//	theMuonRecoOneHLTAnalyzer->analyze(iEvent, iSetup, *recoMu, *triggerResults);
-      //	theMuonRecoOneHLTAnalyzer->analyze(iEvent, iSetup, *triggerResults);
-      //      }
     }
     if(theMuonRecoOneHLTAnalyzerFlag) {
       LogTrace(metname)<<"[MuonAnalyzer] Call to the muon reco One HLT analyzer";
