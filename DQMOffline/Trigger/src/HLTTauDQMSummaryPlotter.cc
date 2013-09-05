@@ -34,9 +34,13 @@ void HLTTauDQMSummaryPlotter::bookPlots() {
         if ( type_ == "Path" ) {
             bookTriggerBitEfficiencyHistos(triggerTag(), "EventsPerFilter");
 
-            bookEfficiencyHisto(triggerTag(),"TrigTauEtEff","helpers/TrigTauEtEffNum");
-            bookEfficiencyHisto(triggerTag(),"TrigTauEtaEff","helpers/TrigTauEtaEffNum");
-            bookEfficiencyHisto(triggerTag(),"TrigTauPhiEff","helpers/TrigTauPhiEffNum");
+            bookEfficiencyHisto(triggerTag(), "L2TrigTauEtEff",  "helpers/L2TrigTauEtEffNum");
+            bookEfficiencyHisto(triggerTag(), "L2TrigTauEtaEff", "helpers/L2TrigTauEtaEffNum");
+            bookEfficiencyHisto(triggerTag(), "L2TrigTauPhiEff", "helpers/L2TrigTauPhiEffNum");
+
+            bookEfficiencyHisto(triggerTag(), "L3TrigTauEtEff",  "helpers/L3TrigTauEtEffNum");
+            bookEfficiencyHisto(triggerTag(), "L3TrigTauEtaEff", "helpers/L3TrigTauEtaEffNum");
+            bookEfficiencyHisto(triggerTag(), "L3TrigTauPhiEff", "helpers/L3TrigTauPhiEffNum");
         }
         
         //Lite Path Summary 
@@ -70,9 +74,13 @@ void HLTTauDQMSummaryPlotter::plot() {
         if ( type_ == "Path" ) {
             plotTriggerBitEfficiencyHistos(triggerTag(), "EventsPerFilter");
 
-            plotEfficiencyHisto(triggerTag(),"TrigTauEtEff","helpers/TrigTauEtEffNum","helpers/TrigTauEtEffDenom");
-            plotEfficiencyHisto(triggerTag(),"TrigTauEtaEff","helpers/TrigTauEtaEffNum","helpers/TrigTauEtaEffDenom");
-            plotEfficiencyHisto(triggerTag(),"TrigTauPhiEff","helpers/TrigTauPhiEffNum","helpers/TrigTauPhiEffDenom");
+            plotEfficiencyHisto(triggerTag(), "L2TrigTauEtEff",  "helpers/L2TrigTauEtEffNum",  "helpers/L2TrigTauEtEffDenom");
+            plotEfficiencyHisto(triggerTag(), "L2TrigTauEtaEff", "helpers/L2TrigTauEtaEffNum", "helpers/L2TrigTauEtaEffDenom");
+            plotEfficiencyHisto(triggerTag(), "L2TrigTauPhiEff", "helpers/L2TrigTauPhiEffNum", "helpers/L2TrigTauPhiEffDenom");
+
+            plotEfficiencyHisto(triggerTag(), "L3TrigTauEtEff",  "helpers/L3TrigTauEtEffNum",  "helpers/L3TrigTauEtEffDenom");
+            plotEfficiencyHisto(triggerTag(), "L3TrigTauEtaEff", "helpers/L3TrigTauEtaEffNum", "helpers/L3TrigTauEtaEffDenom");
+            plotEfficiencyHisto(triggerTag(), "L3TrigTauPhiEff", "helpers/L3TrigTauPhiEffNum", "helpers/L3TrigTauPhiEffDenom");
         }
         
         //Lite Path Summary 

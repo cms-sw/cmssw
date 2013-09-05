@@ -50,12 +50,19 @@ private:
   MonitorElement *hTrigTauPhi_;
   MonitorElement *hMass_;
 
-  MonitorElement *hTrigTauEtEffNum_;
-  MonitorElement *hTrigTauEtEffDenom_;
-  MonitorElement *hTrigTauEtaEffNum_;
-  MonitorElement *hTrigTauEtaEffDenom_;
-  MonitorElement *hTrigTauPhiEffNum_;
-  MonitorElement *hTrigTauPhiEffDenom_;
+  MonitorElement *hL2TrigTauEtEffNum_;
+  MonitorElement *hL2TrigTauEtEffDenom_;
+  MonitorElement *hL2TrigTauEtaEffNum_;
+  MonitorElement *hL2TrigTauEtaEffDenom_;
+  MonitorElement *hL2TrigTauPhiEffNum_;
+  MonitorElement *hL2TrigTauPhiEffDenom_;
+
+  MonitorElement *hL3TrigTauEtEffNum_;
+  MonitorElement *hL3TrigTauEtEffDenom_;
+  MonitorElement *hL3TrigTauEtaEffNum_;
+  MonitorElement *hL3TrigTauEtaEffDenom_;
+  MonitorElement *hL3TrigTauPhiEffNum_;
+  MonitorElement *hL3TrigTauPhiEffDenom_;
 };
 
 #endif

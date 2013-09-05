@@ -56,6 +56,13 @@ public:
   bool isFirstFilterL1Seed() const { return isFirstL1Seed_; }
   const std::string& getLastFilterName() const { return std::get<0>(filterIndices_.back()); }
 
+  bool hasL2Taus() const { return lastL2TauFilterIndex_ != std::numeric_limits<size_t>::max(); }
+  bool hasL3Taus() const { return lastL3TauFilterIndex_ != std::numeric_limits<size_t>::max(); }
+  size_t getLastFilterBeforeL2TauIndex() const { return lastFilterBeforeL2TauIndex_; }
+  size_t getLastL2TauFilterIndex() const { return lastL2TauFilterIndex_; }
+  size_t getLastFilterBeforeL3TauIndex() const { return lastFilterBeforeL3TauIndex_; }
+  size_t getLastL3TauFilterIndex() const { return lastL3TauFilterIndex_; }
+
   // index (to edm::TriggerResults) of a filter
   size_t getFilterIndex(size_t i) const { return std::get<1>(filterIndices_[i]); }
 
@@ -82,6 +89,10 @@ private:
   std::vector<int> filterMuonN_;
   std::string pathName_;
   unsigned int pathIndex_;
+  size_t lastFilterBeforeL2TauIndex_;
+  size_t lastL2TauFilterIndex_;
+  size_t lastFilterBeforeL3TauIndex_;
+  size_t lastL3TauFilterIndex_;
   bool isFirstL1Seed_;
 };
 

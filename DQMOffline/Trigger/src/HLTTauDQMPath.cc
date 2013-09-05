@@ -139,6 +139,18 @@ namespace {
       return ret;
     }
 
+    size_t tauProducerIndex(const HLTConfigProvider& HLTCP) const {
+      const std::vector<std::string>& moduleLabels = HLTCP.moduleLabels(name_);
+      for(std::vector<std::string>::const_iterator iLabel = moduleLabels.begin(); iLabel != moduleLabels.end(); ++iLabel) {
+        const std::string type = HLTCP.moduleType(*iLabel);
+        if(type == "PFRecoTauProducer") {
+          //edm::LogInfo("HLTTauDQMOffline") << "Found PFTauProducer " << *iLabel << " index " << (iLabel-moduleLabels.begin());
+          return iLabel-moduleLabels.begin();
+        }
+      }
+      return std::numeric_limits<size_t>::max();
+    }
+
     const std::string& name() const { return name_; }
 
   private:
@@ -146,7 +158,6 @@ namespace {
 
     std::vector<int> thresholds_;
   };
-
 
   int getParameterSafe(const HLTConfigProvider& HLTCP, const std::string& filterName, const std::string& parameterName) {
     const edm::ParameterSet& pset = HLTCP.modulePSet(filterName);
@@ -244,7 +255,15 @@ namespace {
       }
     }
     if(found < refColl.size()) {
-      matchedRefs.emplace_back(refColl[found]);
+      bool matchedAlreadyIn = false;
+      for(const T2& mobj: matchedRefs) {
+        if(reco::deltaR(refColl[found], mobj) < 0.0001) {
+          matchedAlreadyIn = true;
+          break;
+        }
+      }
+      if(!matchedAlreadyIn)
+        matchedRefs.emplace_back(refColl[found]);
       return true;
     }
     return false;
@@ -256,6 +275,8 @@ HLTTauDQMPath::HLTTauDQMPath(const std::string& hltProcess, bool doRefAnalysis):
   hltProcess_(hltProcess),
   doRefAnalysis_(doRefAnalysis),
   pathIndex_(0),
+  lastFilterBeforeL2TauIndex_(0), lastL2TauFilterIndex_(0),
+  lastFilterBeforeL3TauIndex_(0), lastL3TauFilterIndex_(0),
   isFirstL1Seed_(false)
 {}
 HLTTauDQMPath::~HLTTauDQMPath() {}
@@ -318,7 +339,7 @@ bool HLTTauDQMPath::beginRun(const HLTConfigProvider& HLTCP) {
       thePath = iPath;
   }
   std::stringstream ss;
-  ss << "Chose path " << thePath->name() << "\n";
+  ss << "HLTTauDQMPath::beginRun(): Chose path " << thePath->name() << "\n";
 
   // Get the filters
   filterIndices_ = thePath->interestingFilters(HLTCP, doRefAnalysis_, ignoreFilterTypes_, ignoreFilterNames_);
@@ -349,6 +370,39 @@ bool HLTTauDQMPath::beginRun(const HLTConfigProvider& HLTCP) {
 
   }
   edm::LogInfo("HLTTauDQMOffline") << ss.str();
+
+
+  // Find the position of PFRecoTauProducer, use filters with taus
+  // before it for L2 tau efficiency, and filters with taus after it
+  // for L3 tau efficiency
+  const size_t tauProducerIndex = thePath->tauProducerIndex(HLTCP);
+  if(tauProducerIndex == std::numeric_limits<size_t>::max()) {
+    edm::LogWarning("HLTTauDQMOffline") << "HLTTauDQMPath::beginRun(): Did not find PFRecoTauProducer from HLT path " << thePath->name();
+    return false;
+  }
+  //lastFilterBeforeL2TauIndex_ = std::numeric_limits<size_t>::max();
+  lastL2TauFilterIndex_ = std::numeric_limits<size_t>::max();
+  //lastFilterBeforeL3TauIndex_ = std::numeric_limits<size_t>::max();
+  lastL3TauFilterIndex_ = std::numeric_limits<size_t>::max();
+  size_t i = 0;
+  lastFilterBeforeL2TauIndex_ = 0;
+  for(; i<filtersSize() && getFilterIndex(i) < tauProducerIndex; ++i) {
+    if(lastL2TauFilterIndex_ == std::numeric_limits<size_t>::max() && getFilterNTaus(i) == 0)
+      lastFilterBeforeL2TauIndex_ = i;
+    if(getFilterNTaus(i) > 0 && getFilterNElectrons(i) == 0 && getFilterNMuons(i) == 0)
+      lastL2TauFilterIndex_ = i;
+  }
+  lastFilterBeforeL3TauIndex_ = i-1;
+  for(; i<filtersSize(); ++i) {
+    if(lastL3TauFilterIndex_ == std::numeric_limits<size_t>::max() && getFilterNTaus(i) == 0)
+      lastFilterBeforeL3TauIndex_ = i;
+    if(getFilterNTaus(i) > 0 && getFilterNElectrons(i) == 0 && getFilterNMuons(i) == 0)
+      lastL3TauFilterIndex_ = i;
+  }
+  edm::LogInfo("HLTTauDQMOffline") << "lastFilterBeforeL2 " << lastFilterBeforeL2TauIndex_
+                                   << " lastL2TauFilter " << lastL2TauFilterIndex_
+                                   << " lastFilterBeforeL3 " << lastFilterBeforeL3TauIndex_
+                                   << " lastL3TauFilter " << lastL3TauFilterIndex_;
 
   // Set path index
   pathName_ = thePath->name();

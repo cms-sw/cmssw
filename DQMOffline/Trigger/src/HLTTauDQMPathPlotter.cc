@@ -64,12 +64,23 @@ void HLTTauDQMPathPlotter::beginRun(const HLTConfigProvider& HLTCP) {
     if(doRefAnalysis_) {
       store->setCurrentFolder(triggerTag()+"/helpers");
       store->removeContents();
-      hTrigTauEtEffNum_    = store->book1D("TrigTauEtEffNum",    "Offline #tau E_{T}", ptbins_, 0, 100);
-      hTrigTauEtEffDenom_  = store->book1D("TrigTauEtEffDenom",  "Offline #tau E_{T}", ptbins_, 0, 100);
-      hTrigTauEtaEffNum_   = store->book1D("TrigTauEtaEffNum",   "Offline #tau #eta", etabins_, -2.5, 2.5);
-      hTrigTauEtaEffDenom_ = store->book1D("TrigTauEtaEffDenom", "Offline #tau #eta", etabins_, -2.5, 2.5);
-      hTrigTauPhiEffNum_   = store->book1D("TrigTauPhiEffNum",   "Offline #tau #phi", phibins_, -3.2, 3.2);
-      hTrigTauPhiEffDenom_ = store->book1D("TrigTauPhiEffDenom", "Offline #tau #phi", phibins_, -3.2, 3.2);
+      if(hltPath_.hasL2Taus()) {
+        hL2TrigTauEtEffNum_    = store->book1D("L2TrigTauEtEffNum",    "Offline #tau E_{T}", ptbins_, 0, 100);
+        hL2TrigTauEtEffDenom_  = store->book1D("L2TrigTauEtEffDenom",  "Offline #tau E_{T}", ptbins_, 0, 100);
+        hL2TrigTauEtaEffNum_   = store->book1D("L2TrigTauEtaEffNum",   "Offline #tau #eta", etabins_, -2.5, 2.5);
+        hL2TrigTauEtaEffDenom_ = store->book1D("L2TrigTauEtaEffDenom", "Offline #tau #eta", etabins_, -2.5, 2.5);
+        hL2TrigTauPhiEffNum_   = store->book1D("L2TrigTauPhiEffNum",   "Offline #tau #phi", phibins_, -3.2, 3.2);
+        hL2TrigTauPhiEffDenom_ = store->book1D("L2TrigTauPhiEffDenom", "Offline #tau #phi", phibins_, -3.2, 3.2);
+      }
+
+      if(hltPath_.hasL3Taus()) {
+        hL3TrigTauEtEffNum_    = store->book1D("L3TrigTauEtEffNum",    "Offline #tau E_{T}", ptbins_, 0, 100);
+        hL3TrigTauEtEffDenom_  = store->book1D("L3TrigTauEtEffDenom",  "Offline #tau E_{T}", ptbins_, 0, 100);
+        hL3TrigTauEtaEffNum_   = store->book1D("L3TrigTauEtaEffNum",   "Offline #tau #eta", etabins_, -2.5, 2.5);
+        hL3TrigTauEtaEffDenom_ = store->book1D("L3TrigTauEtaEffDenom", "Offline #tau #eta", etabins_, -2.5, 2.5);
+        hL3TrigTauPhiEffNum_   = store->book1D("L3TrigTauPhiEffNum",   "Offline #tau #phi", phibins_, -3.2, 3.2);
+        hL3TrigTauPhiEffDenom_ = store->book1D("L3TrigTauPhiEffDenom", "Offline #tau #phi", phibins_, -3.2, 3.2);
+      }
       store->setCurrentFolder(triggerTag());
     }
 
@@ -101,6 +112,7 @@ void HLTTauDQMPathPlotter::analyze(const edm::TriggerResults& triggerResults, co
 
   // Events per filter
   const int lastPassedFilter = hltPath_.lastPassedFilter(triggerResults);
+  int lastMatchedFilter = -1;
   //std::cout << "Last passed filter " << lastPassedFilter << " " << (lastPassedFilter >= 0 ? hltPath_.getFilterName(lastPassedFilter) : "") << std::endl;
   if(doRefAnalysis_) {
     double matchDr = hltPath_.isFirstFilterL1Seed() ? l1MatchDr_ : hltMatchDr_;
@@ -117,6 +129,7 @@ void HLTTauDQMPathPlotter::analyze(const edm::TriggerResults& triggerResults, co
         break;
 
       hAcceptedEvents_->Fill(i+0.5);
+      lastMatchedFilter = i;
     }
   }
   else {
@@ -125,13 +138,61 @@ void HLTTauDQMPathPlotter::analyze(const edm::TriggerResults& triggerResults, co
     }
   }
 
-  if(doRefAnalysis_) {
-    // Denominators for efficiency plots
-    if(!refCollection.taus.empty() && hltPath_.goodOfflineEvent(hltPath_.filtersSize()-1, refCollection)) {
-      for(const LV& tau: refCollection.taus) {
-        hTrigTauEtEffDenom_->Fill(tau.pt());
-        hTrigTauEtaEffDenom_->Fill(tau.eta());
-        hTrigTauPhiEffDenom_->Fill(tau.phi());
+  // Efficiency plots
+  if(doRefAnalysis_ && lastMatchedFilter >= 0) {
+    // L2 taus
+    if(hltPath_.hasL2Taus()) {
+      // Denominators
+      if(static_cast<size_t>(lastMatchedFilter) >= hltPath_.getLastFilterBeforeL2TauIndex()) {
+        for(const LV& tau: refCollection.taus) {
+          hL2TrigTauEtEffDenom_->Fill(tau.pt());
+          hL2TrigTauEtaEffDenom_->Fill(tau.eta());
+          hL2TrigTauPhiEffDenom_->Fill(tau.phi());
+        }
+      }
+
+      // Numerators
+      if(static_cast<size_t>(lastMatchedFilter) >= hltPath_.getLastL2TauFilterIndex()) {
+        triggerObjs.clear();
+        matchedTriggerObjs.clear();
+        matchedOfflineObjs.clear();
+        hltPath_.getFilterObjects(triggerEvent, hltPath_.getLastL2TauFilterIndex(), triggerObjs);
+        bool matched = hltPath_.offlineMatching(hltPath_.getLastL2TauFilterIndex(), triggerObjs, refCollection, hltMatchDr_, matchedTriggerObjs, matchedOfflineObjs);
+        if(matched) {
+          for(const LV& tau: matchedOfflineObjs.taus) {
+            hL2TrigTauEtEffNum_->Fill(tau.pt());
+            hL2TrigTauEtaEffNum_->Fill(tau.eta());
+            hL2TrigTauPhiEffNum_->Fill(tau.phi());
+          }
+        }
+      }
+    }
+
+    // L3 taus
+    if(hltPath_.hasL3Taus()) {
+      // Denominators
+      if(static_cast<size_t>(lastMatchedFilter) >= hltPath_.getLastFilterBeforeL3TauIndex()) {
+        for(const LV& tau: refCollection.taus) {
+          hL3TrigTauEtEffDenom_->Fill(tau.pt());
+          hL3TrigTauEtaEffDenom_->Fill(tau.eta());
+          hL3TrigTauPhiEffDenom_->Fill(tau.phi());
+        }
+      }
+
+      // Numerators
+      if(static_cast<size_t>(lastMatchedFilter) >= hltPath_.getLastL3TauFilterIndex()) {
+        triggerObjs.clear();
+        matchedTriggerObjs.clear();
+        matchedOfflineObjs.clear();
+        hltPath_.getFilterObjects(triggerEvent, hltPath_.getLastL3TauFilterIndex(), triggerObjs);
+        bool matched = hltPath_.offlineMatching(hltPath_.getLastL3TauFilterIndex(), triggerObjs, refCollection, hltMatchDr_, matchedTriggerObjs, matchedOfflineObjs);
+        if(matched) {
+          for(const LV& tau: matchedOfflineObjs.taus) {
+            hL3TrigTauEtEffNum_->Fill(tau.pt());
+            hL3TrigTauEtaEffNum_->Fill(tau.eta());
+            hL3TrigTauPhiEffNum_->Fill(tau.phi());
+          }
+        }
       }
     }
   }
@@ -144,13 +205,6 @@ void HLTTauDQMPathPlotter::analyze(const edm::TriggerResults& triggerResults, co
     if(doRefAnalysis_) {
       bool matched = hltPath_.offlineMatching(lastPassedFilter, triggerObjs, refCollection, hltMatchDr_, matchedTriggerObjs, matchedOfflineObjs);
       if(matched) {
-        // Numerators for efficiency plots
-        for(const LV& tau: matchedOfflineObjs.taus) {
-          hTrigTauEtEffNum_->Fill(tau.pt());
-          hTrigTauEtaEffNum_->Fill(tau.eta());
-          hTrigTauPhiEffNum_->Fill(tau.phi());
-        }
-
         // Di-object invariant mass
         if(hMass_) {
           const int ntaus = hltPath_.getFilterNTaus(lastPassedFilter);
